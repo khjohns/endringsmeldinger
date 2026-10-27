@@ -37,6 +37,9 @@ Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,
 lagring/gjenlesing, historikk og utrulling/tilbakerulling der dette berøres.
 Frontend mot TS-kjernen: sammenlikningen med den gamle frontenden for samme
 flyt (leveranseskillen).
+Brukerforløpene (docs/domenetabell/brukerforlop/): er en brukerhistorie avdekket av en
+feil eller et nytt vedtak, er forløpene utvidet i samme PR, og et endret forventet
+resultat har dato og vedtak eller issue i forløpets `endringer` (leveranseskillen).
 En manglende påkrevd sjekk eller review betyr fortsatt utkast. -->
 
 <!-- Dokumentasjon: lenk til oppdaterte referanser/kilderegistre, eller begrunn

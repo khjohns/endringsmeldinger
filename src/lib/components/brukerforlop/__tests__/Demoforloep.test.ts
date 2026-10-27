@@ -10,7 +10,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { finnForloep, lagDemosak, type Demosak } from '$lib/brukerforlop/demosak';
+import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import type { Journalrad } from '$kjerne/typer';

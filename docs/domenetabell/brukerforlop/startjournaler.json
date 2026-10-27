@@ -28,6 +28,18 @@
           }
         },
         {
+          "id": "grunnlaget-er-godkjent",
+          "beskrivelse": "BH har godkjent grunnlaget. TE har ikke krevd vederlag ennå.",
+          "versjon": 3,
+          "forstaaelse": [
+            "TE ser at grunnlaget er godkjent, og at vederlaget kreves for seg."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          }
+        },
+        {
           "id": "bh-har-mottatt-vederlagskravet",
           "beskrivelse": "Grunnlaget er godkjent, og BH har mottatt vederlagskravet på 100 000 kr.",
           "versjon": 4,
@@ -107,7 +119,7 @@
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000006",
                 "laast": "TE gjør gjeldende krav som følge av manglende medvirkning eller leveranser fra byggherren (NS 8407 § 22, jf. § 33.1 b og § 34.1.2) for forholdet i sak 1975bfcf-0000-4000-8000-000000000001 («BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret»). TE opplyser at TE ble klar over forholdet 15. september 2026.",
-                "utdypning": "Utdypning i bevis-saken."
+                "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ]
           }
@@ -154,7 +166,7 @@
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000000c",
                 "laast": "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 1. oktober 2026: Byggherren godkjenner grunnlaget.",
-                "utdypning": "Utdypning i bevis-saken."
+                "utdypning": "Byggherren erkjenner at tegningene kom for sent."
               }
             ]
           }
@@ -256,7 +268,7 @@
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
                 "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
-                "utdypning": "Utdypning i bevis-saken."
+                "utdypning": "Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
             ]
           }

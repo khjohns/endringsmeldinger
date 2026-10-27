@@ -7,7 +7,7 @@
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
-  import { finnForloep } from '$lib/brukerforlop/demosak';
+  import { finnForloep } from '$lib/kjernesak/demosak';
 
   const forloep = $derived(finnForloep(page.params.forlop ?? ''));
   function velgPunkt(id: string, neste: string) {

@@ -12,7 +12,7 @@
     lagDemosak,
     type Demosak,
     type Startjournal,
-  } from '$lib/brukerforlop/demosak';
+  } from '$lib/kjernesak/demosak';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
   import type { WorkspaceView } from '$lib/kontraktsbord/viewState';
   import type { Part } from '$kjerne/typer';
@@ -166,7 +166,7 @@
     box-shadow: var(--overlay-shadow-sm);
     color: var(--ink);
     font-family: var(--font-sans);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
   }
   .demopanel > details > summary {
@@ -252,8 +252,15 @@
     font-weight: 500;
     cursor: pointer;
   }
+  .knapp:hover,
+  select:hover {
+    border-color: var(--ink-3);
+  }
   .knapp:hover {
     background: var(--surface-inset);
+  }
+  .knapp:active {
+    background: var(--surface-selected);
   }
   select:focus-visible,
   summary:focus-visible,

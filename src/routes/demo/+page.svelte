@@ -1,7 +1,7 @@
 <script lang="ts">
   /** Brukerforløpene som kan kjøres i demoruta (#1330), fra startjournalene. */
   import { resolve } from '$app/paths';
-  import { FORLOEP } from '$lib/brukerforlop/demosak';
+  import { FORLOEP } from '$lib/kjernesak/demosak';
 </script>
 
 <svelte:head><title>Brukerforløp — demo</title></svelte:head>
@@ -47,6 +47,13 @@
   a {
     font-weight: 600;
     color: var(--brand);
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  a:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
   }
   li p {
     color: var(--ink-2);
