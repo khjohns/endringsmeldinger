@@ -237,14 +237,14 @@ export async function nySak(o: Oppsett): Promise<string> {
 }
 
 /** En ny sak i prosjektet i `o`, opprettet med `sak_opprettet` i kjernens format. */
-export async function basebane(o: Oppsett): Promise<Bane> {
+export async function basebane(o: Oppsett, opprettet = '2026-10-09T08:00:00.000Z'): Promise<Bane> {
   const sakId = await nySak(o);
   const sak: Journalrad = {
     event_id: randomUUID(),
     sak_id: sakId,
     event_type: 'sak_opprettet',
     versjon: 1,
-    tidsstempel: '2026-10-09T08:00:00.000Z',
+    tidsstempel: opprettet,
     aktor_id: o.te.id,
     aktor_rolle: 'TE',
     aktor_team_id: null,

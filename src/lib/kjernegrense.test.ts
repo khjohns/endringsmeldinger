@@ -2,8 +2,10 @@
  * Grensen mellom appen og TS-kjernen (B-14, B-15, #313).
  *
  * - Appen når kjernen gjennom `$kjerne`.
- * - Ingen fil i `src/` importerer fra `kjerne/tester/`, verken med aliaset eller
- *   med en relativ sti. Testene bruker Node, Vitest og bevis-sakene.
+ * - Ingen fil i `src/` utenom testene importerer fra `kjerne/tester/`, verken med
+ *   aliaset eller med en relativ sti. Testene i `kjerne/tester/` bruker Node, Vitest og
+ *   bevis-sakene. En test i `src/` kan bruke kjøreren for brukerforløpene, så demoruta
+ *   prøves mot samme kontroller (#1330); testene kommer ikke i nettleserbunten.
  * - Det appen kan importere fra kjernen, når bare andre moduler i kjernen
  *   utenfor `kjerne/tester/`, direkte eller gjennom en annen modul. Ingen
  *   `node:`-modul og ingen pakke kommer med i nettleserbunten.
@@ -66,13 +68,17 @@ type Leser = (fil: string) => string | undefined;
 const lesFil: Leser = (fil) =>
   existsSync(fil) && statSync(fil).isFile() ? readFileSync(fil, 'utf8') : undefined;
 
-/** Importene fra `src/` som går til `kjerne/tester/`. */
+const erTest = (fil: string) => /\.test\.ts$/.test(fil) || fil.split(sep).includes('__tests__');
+
+/** Importene fra `src/` utenom testene som går til `kjerne/tester/`. */
 export function testimporter(kilder: Map<string, string>): string[] {
-  return [...kilder].flatMap(([fil, kilde]) =>
-    importer(fil, kilde)
-      .filter(iTestene)
-      .map((i) => `${vis(fil)} → ${vis(i)}`)
-  );
+  return [...kilder]
+    .filter(([fil]) => !erTest(fil))
+    .flatMap(([fil, kilde]) =>
+      importer(fil, kilde)
+        .filter(iTestene)
+        .map((i) => `${vis(fil)} → ${vis(i)}`)
+    );
 }
 
 /**
@@ -110,7 +116,7 @@ describe('grensen mellom appen og kjernen', () => {
     expect(PROJEKSJONSVERSJON).toBeGreaterThan(0);
   });
 
-  it('ingen fil i src/ importerer fra kjerne/tester/', () => {
+  it('ingen fil i src/ utenom testene importerer fra kjerne/tester/', () => {
     expect(testimporter(new Map(appfiler.map((f) => [f, readFileSync(f, 'utf8')])))).toEqual([]);
   });
 
@@ -128,6 +134,8 @@ describe('grensen mellom appen og kjernen', () => {
       [join(SRC, 'lib', 'c.ts'), `import { KJERNE } from '$kjerne/versjon';`],
       [join(SRC, 'lib', 'd.ts'), `import { lagKlient } from '$lib/../../kjerne/tester/klient';`],
       [join(SRC, 'lib', 'e.ts'), `import { lagKlient } from '/kjerne/./tester/klient';`],
+      [join(SRC, 'lib', 'f.test.ts'), `import { kjoer } from '$kjerne/tester/kjoerer';`],
+      [join(SRC, 'lib', '__tests__', 'g.ts'), `import { kjoer } from '$kjerne/tester/kjoerer';`],
     ]);
     expect(testimporter(kilder)).toEqual([
       'src/lib/eksempel.svelte → kjerne/tester/klient',

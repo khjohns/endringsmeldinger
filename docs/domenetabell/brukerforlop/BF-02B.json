@@ -1,0 +1,21 @@
+{
+  "id": "BF-02B",
+  "tittel": "TE sender en ny kravversjon som avslår tilbudet i svaret",
+  "brukerhistorie": "TE er uenig i BHs svar og sender en ny kravversjon som endrer kravet. Brevet sier uttrykkelig at TE avslår BHs tilbud i svaret, og skjemaet viser før sending hva den nye kravversjonen gjør med svaret.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "BH har svart på vederlagskravet med et beløp som fortsatt binder BH etter HF-U5."
+  },
+  "kilder": ["OV-U54"],
+  "venter_paa": ["#276"],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-10-27",
+      "grunnlag": "#1330",
+      "hva": "Forløpet er registrert som planlagt. Handlingen og brevteksten etter OV-U54 er ikke bygget: kjernen har ikke avslaget i brevteksten."
+    }
+  ]
+}

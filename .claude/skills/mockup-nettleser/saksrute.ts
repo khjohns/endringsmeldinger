@@ -1,7 +1,7 @@
 /**
  * Den ekte saksruta i Chromium, mot TS-serveren og testbasen i SQL Server (#1145).
  *
- *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--send …] [--feil] [--behold]
+ *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--feil] [--behold]
  *
  * Trenger `KOE_SQLSERVER_TILKOBLING` (sa), som oppstartshooken setter. Skriptet
  *
@@ -32,34 +32,43 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { kopierMigrertTestbase, settInn } from '../../../server/tester/sqlserver_migrert.ts';
 import { opprettKjoeretid, slettAlle } from '../../../server/tester/sqlserver.ts';
-import { forhaandsvis, laastTekst } from '../../../kjerne/kommandoer/skriving.ts';
+import { utledJournal } from '../../../kjerne/kommandoer/skriving.ts';
 import type { Journalrad, Part } from '../../../kjerne/typer.ts';
 import { KJERNE } from '../../../kjerne/versjon.ts';
+import type { Bane } from '../../../kjerne/tester/bane.ts';
+import { finn, kontrollpunkt, somForloep } from '../../../kjerne/tester/brukerforloep.ts';
+import { kjoer } from '../../../kjerne/tester/kjoerer.ts';
+import { veggklokke } from '../../../kjerne/tester/testmiljoe.ts';
 
 const { values } = parseArgs({
   options: {
     utdata: { type: 'string', default: '/tmp/saksrute-skjermbilder' },
     behold: { type: 'boolean', default: false },
-    send: { type: 'string' },
+    forlop: { type: 'string' },
+    til: { type: 'string' },
     feil: { type: 'boolean', default: false },
   },
 });
 const UT = values.utdata!;
 
-/** Brevene TE sender etter opprettelsen (#1220). Grunnlaget går først, som i skjemaet. */
-const SENDBARE = ['grunnlag', 'vederlag', 'frist'] as const;
-type Sendbar = (typeof SENDBARE)[number];
-const SENDES = (values.send?.split(',').filter(Boolean) ?? []) as Sendbar[];
-if (
-  SENDES.some((s) => !SENDBARE.includes(s)) ||
-  new Set(SENDES).size !== SENDES.length ||
-  (SENDES.length && SENDES[0] !== 'grunnlag')
-) {
-  console.error(`--send tar grunnlag, eventuelt fulgt av vederlag og frist: ${values.send}`);
+/**
+ * Brukerforløpet saken følger etter opprettelsen (#1330), til kontrollpunktet i `--til`
+ * eller til siste steg. Stegene og kontrollene er de samme som i minnet og i demoruta.
+ */
+let FORLOEP: ReturnType<typeof finn> | null = null;
+try {
+  FORLOEP = values.forlop ? finn(values.forlop) : null;
+  if (FORLOEP && !FORLOEP.visninger.includes('saksruta'))
+    throw new Error(`${FORLOEP.id} kjøres ikke i saksruta (\`visninger\` i forløpsfila)`);
+  if (values.til && !FORLOEP) throw new Error('--til trenger --forlop');
+  if (FORLOEP && values.til) kontrollpunkt(FORLOEP, values.til);
+  if (FORLOEP) somForloep(FORLOEP);
+} catch (feil) {
+  console.error((feil as Error).message);
   process.exit(1);
 }
-if (values.feil && (!SENDES.includes('grunnlag') || SENDES.includes('vederlag'))) {
-  console.error('--feil sender vederlagskravet i skjemaet og trenger --send grunnlag uten vederlag.');
+if (values.feil && !FORLOEP) {
+  console.error('--feil sender vederlagskravet i skjemaet og trenger --forlop med --til.');
   process.exit(1);
 }
 mkdirSync(UT, { recursive: true });
@@ -441,48 +450,51 @@ try {
       { prosjekt: katalog.prosjekt, metode, sti, kropp }
     );
 
-  /**
-   * Sender kommandoen med den låste teksten kjernen lager mot journalen fra `GET`, mot
-   * versjonen der, slik `sendMedBrev` i skjemaet gjør (LV-U2). Serveren avviser en annen tekst.
-   */
-  async function sendBrev(side: Awaited<ReturnType<typeof loggInn>>, sak: string, kommando: Record<string, unknown>) {
-    const lest = await kjerneKall<Saken>(side, 'GET', `/api/kjerne/saker/${sak}`);
-    if (lest.status !== 200) throw new Error(`GET før ${kommando.type} ga ${lest.status}`);
-    const journal: Journalrad[] = lest.kropp.journal.map((l) => ({
+  /** Journalen fra `GET` som TE, slik kjernen leser den (`somJournal` i visningen). */
+  async function lesJournal(sak: string): Promise<Journalrad[]> {
+    const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
+    if (lest.status !== 200) throw new Error(`GET /api/kjerne/saker/{sak} ga ${lest.status}`);
+    return lest.kropp.journal.map((l) => ({
       ...l,
       sak_id: sak,
       aktor_id: '',
       aktor_team_id: null,
       refererer_til_event_id: null,
     }));
-    const vurdert = forhaandsvis(
-      kommando,
-      {
-        sakId: sak,
-        aktoerId: '',
-        part: lest.kropp.part as Part,
-        teamId: null,
-        tidspunkt: () => new Date(),
-        nyId: () => randomUUID(),
-      },
-      journal,
-      KJERNE
-    );
-    if (!vurdert.godtatt)
-      throw new Error(`Kjernen avviste ${kommando.type}: ${JSON.stringify(vurdert.avvisning)}`);
-    const tekst = laastTekst(vurdert.hendelser[0]);
-    const sendt = await kjerneKall(side, 'POST', `/api/kjerne/saker/${sak}/kommandoer`, {
-      expected_version: lest.kropp.versjon,
-      kommando_id: randomUUID(),
-      kommando: tekst ? { ...kommando, brevtekst: tekst } : kommando,
-    });
-    const hva = `${kommando.type}${kommando.spor ? ` ${kommando.spor}` : ''}`;
-    console.log(`TE  POST /api/kjerne/saker/{sak}/kommandoer (${hva}): ${sendt.status} ${JSON.stringify(sendt.kropp)}`);
-    if (sendt.status !== 201) throw new Error(`Serveren lagret ikke ${hva}`);
   }
 
+  /**
+   * Banen gjennom TS-serveren for brukerforløpet: kjøreren lager kommandoen med den låste
+   * teksten mot journalen fra `GET`, som skjemaet gjør (LV-U2), og sender den fra siden til
+   * parten som handler, med `expected_version`. Serveren vurderer den på nytt, stempler
+   * aktøren, ID-ene og tidspunktet og skriver radene; kjøreren leser dem tilbake med `GET`.
+   */
+  const serverbane = (sak: string): Bane => ({
+    sakId: sak,
+    aktor: (part) => part.toLowerCase(),
+    journal: () => lesJournal(sak),
+    skriv: async () => {
+      throw new Error('Saksruta skriver bare gjennom kommandoene til TS-serveren');
+    },
+    async kommando(kommando, part, forventet) {
+      const side = part === 'TE' ? te : bh;
+      const sendt = await kjerneKall(side, 'POST', `/api/kjerne/saker/${sak}/kommandoer`, {
+        expected_version: forventet,
+        kommando_id: randomUUID(),
+        kommando,
+      });
+      const hva = `${kommando.type}${'spor' in kommando && kommando.spor ? ` ${kommando.spor}` : ''}`;
+      const { event_id, versjon, error, message } = sendt.kropp as Record<string, unknown>;
+      const svar = sendt.status === 201 ? { event_id, versjon } : { error, message };
+      console.log(`${part}  POST /api/kjerne/saker/{sak}/kommandoer (${hva}): ${sendt.status} ${JSON.stringify(svar)}`);
+      if (sendt.status !== 201) throw new Error(`Serveren lagret ikke ${hva}`);
+      return (await lesJournal(sak)).filter((r) => r.versjon > forventet);
+    },
+  });
+
   const te = await loggInn('te', `/${katalog.prosjekt}`);
-  const opprettet = await opprettSak(te, 'Ny peling ved akse C');
+  const tittel = FORLOEP?.tittel ?? 'Ny peling ved akse C';
+  const opprettet = await opprettSak(te, tittel);
   console.log(`TE  POST /api/kjerne/saker: ${opprettet.status} ${JSON.stringify(opprettet.kropp)}`);
   if (opprettet.status !== 201) throw new Error('TE fikk ikke opprettet saken');
   const sak = opprettet.kropp.sak_id as string;
@@ -498,50 +510,28 @@ try {
   console.log(`BH  POST /api/kjerne/saker: ${avvist.status} ${JSON.stringify(avvist.kropp)}`);
   if (avvist.status !== 400 || avvist.kropp?.rule !== 'FEIL_PART') throw new Error('Kjernen avviste ikke BH ved opprettelsen');
 
-  // Datoen TE oppgir, før serverens klokke (VS-U26).
-  const forTreDager = new Date(Date.now() - 3 * 86_400_000).toISOString().slice(0, 10);
-  const KOMMANDOER: Record<Sendbar, Record<string, unknown>[]> = {
-    grunnlag: [
-      {
-        type: 'krav',
-        spor: 'grunnlag',
-        innhold: {
-          hovedkategori: 'endring',
-          underkategori: 'irregulaer_endring',
-          paalegg_mottatt: forTreDager,
-        },
-        utdypning: 'Byggherren påla ny peling ved akse C på byggemøtet.',
-      },
-    ],
-    vederlag: [{ type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } }],
-    // Varselet etter § 33.4 sendes i appen først, så fristkravet trenger ikke brevet som vedlegg.
-    frist: [
-      { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' },
-      {
-        type: 'krav',
-        spor: 'frist',
-        innhold: { dager: 20 },
-        utdypning: 'Pelingen tar fire uker lenger enn planlagt.',
-      },
-    ],
-  };
-  for (const spor of SENDES) for (const kommando of KOMMANDOER[spor]) await sendBrev(te, sak, kommando);
-  if (SENDES.length) {
+  if (FORLOEP) {
+    const forloep = somForloep(FORLOEP);
+    const til = values.til ? kontrollpunkt(FORLOEP, values.til).etter : forloep.steg.length;
+    // Kontrollene ved hvert kontrollpunkt leses av journalen serveren gir tilbake.
+    await kjoer(forloep, serverbane(sak), { til, valg: { klokke: veggklokke } });
+    console.log(`${FORLOEP.id}: ${til} steg sendt, og kontrollene ved kontrollpunktene holder`);
     // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert.
-    for (let forsoek = 0; ; forsoek++) {
-      const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
-      if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
-      const oppdrag = lest.kropp.leveringsoppdrag;
-      if (oppdrag.length && oppdrag.every((o) => o.levert)) {
-        console.log(`Levert til falsk Catenda: ${oppdrag.length} brev`);
-        break;
+    if (til > 0)
+      for (let forsoek = 0; ; forsoek++) {
+        const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
+        if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
+        const oppdrag = lest.kropp.leveringsoppdrag;
+        if (oppdrag.length && oppdrag.every((o) => o.levert)) {
+          console.log(`Levert til falsk Catenda: ${oppdrag.length} brev`);
+          break;
+        }
+        if (forsoek === 60)
+          throw new Error(
+            `Brevene ble ikke levert: ${JSON.stringify(oppdrag)}. Ukjente kall: ${ukjenteKall.join(', ') || 'ingen'}`
+          );
+        await te.waitForTimeout(1000);
       }
-      if (forsoek === 60)
-        throw new Error(
-          `Brevene ble ikke levert: ${JSON.stringify(oppdrag)}. Ukjente kall: ${ukjenteKall.join(', ') || 'ingen'}`
-        );
-      await te.waitForTimeout(1000);
-    }
   }
 
   for (const [navn, side] of [
@@ -563,11 +553,14 @@ try {
     if (lest.status !== 200 || lest.kropp?.part !== navn.toUpperCase())
       throw new Error(`${navn.toUpperCase()} leste ikke saken med sin egen part`);
     await side.goto(`${FRONTEND}${saksrute}`);
-    await side.getByText('Ny peling ved akse C').first().waitFor({ timeout: 30_000 });
+    await side.getByText(tittel).first().waitFor({ timeout: 30_000 });
     await side.waitForTimeout(500);
     await side.screenshot({ path: join(UT, `saksrute-${navn}.png`), fullPage: true });
   }
   if (values.feil) {
+    const u = utledJournal(await lesJournal(sak), KJERNE);
+    if (!u.spor.grunnlag.gjeldendeKrav || u.spor.vederlag.gjeldendeKrav)
+      throw new Error('--feil trenger et kontrollpunkt med grunnlagskrav og uten vederlagskrav (--til)');
     // Feiltilstandene i skjemaet (#1215): TE sender vederlagskravet, og `page.route` svarer
     // på kommandoruta i stedet for serveren. Kroppene har formen serveren gir
     // (`server/app.ts`, `server/inngang.ts`); avbruddet er et svar som aldri kom.

@@ -8,15 +8,14 @@ import { setDraftOwner } from '$lib/utils/draftOwner';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ url }) => {
-  // Mockup-sidene bruker lokale demodata og trenger ingen sesjon.
-  if (
-    url.pathname === '/login' ||
-    url.pathname === '/mockup' ||
-    url.pathname.startsWith('/mockup/')
-  ) {
+  // Mockup-sidene og demoruta for brukerforløpene (#1330) bruker lokale data og trenger ingen sesjon.
+  const demo = ['/mockup', '/demo'].find(
+    (d) => url.pathname === d || url.pathname.startsWith(`${d}/`)
+  );
+  if (url.pathname === '/login' || demo) {
     // Demoen har ingen innlogget bruker, men skal beholde sine egne utkast.
     // Eieren er konstant fordi demodataene ikke tilhører noen.
-    setDraftOwner(url.pathname.startsWith('/mockup') ? 'mockup' : null);
+    setDraftOwner(demo ? demo.slice(1) : null);
     return { user: null };
   }
   try {

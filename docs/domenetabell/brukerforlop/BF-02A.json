@@ -1,0 +1,15 @@
+{
+  "id": "BF-02A",
+  "tittel": "TE korrigerer datoen pålegget ble mottatt",
+  "brukerhistorie": "TE har oppgitt feil dato for når pålegget ble mottatt. TE korrigerer datoen i et eget brev som viser til brevet med opplysningen. Brevet er ikke en ny kravversjon og avslår ikke BHs svar.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har sendt et krav med en opplysning etter VS-U26 om når pålegget ble mottatt, og BH har svart."
+  },
+  "kilder": ["OV-U52"],
+  "venter_paa": ["#1308", "#1309"],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [{ "dato": "2026-10-27", "grunnlag": "#1330", "hva": "Forløpet er registrert som planlagt." }]
+}

@@ -47,6 +47,7 @@ export interface Kjernesakvalg {
   part?: Part | null;
   hent?: typeof hentKjernesak;
   send?: typeof sendKommando;
+  lastOppVedlegg?: typeof lastOppKjernevedlegg;
   kjerne?: Kjerne;
   /** Kommandoen med usikkert utfall fra et tidligere forsøk, som i utkastet for opprettelsen. */
   ventende?: Ventende | null;
@@ -359,7 +360,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     forhaandsvist,
     send: sendMedBrev,
     /** Laster opp filen til mellomlageret i saken, i prosjektet fra ruta (#743). */
-    lastOppVedlegg: (fil: File) => lastOppKjernevedlegg(sakId, fil, valg.prosjektId),
+    lastOppVedlegg: (fil: File) =>
+      (valg.lastOppVedlegg ?? lastOppKjernevedlegg)(sakId, fil, valg.prosjektId),
     provIgjen,
     fjernFeil,
   };

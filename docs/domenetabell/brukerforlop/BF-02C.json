@@ -1,0 +1,15 @@
+{
+  "id": "BF-02C",
+  "tittel": "TE prøver å rette datoen med en ny kravversjon og blir avvist",
+  "brukerhistorie": "TE vil rette datoen pålegget ble mottatt og sender en ny kravversjon der bare datoen er endret. Løsningen avviser den og viser TE til korrigeringen etter OV-U52.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Som BF-02A: TE har sendt et krav med en opplysning etter VS-U26, og BH har svart."
+  },
+  "kilder": ["OV-U54", "OV-U52"],
+  "venter_paa": ["#1308", "#1309"],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [{ "dato": "2026-10-27", "grunnlag": "#1330", "hva": "Forløpet er registrert som planlagt." }]
+}
