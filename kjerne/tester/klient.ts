@@ -4,7 +4,6 @@
  * Regelsettet `n+1` er en kontrollert regelendring i prøven, ikke et vedtak.
  */
 
-import { randomUUID } from 'node:crypto';
 import type { Journalrad } from '../typer.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
@@ -14,6 +13,7 @@ import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar, vederlagsposter, type Svarvurdering } from '../frosset/standpunkt.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Krav, Part, Spor } from '../typer.ts';
+import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
 
@@ -42,6 +42,13 @@ export class Navn {
   /** Etiketter en rad har vist til før hendelsen med etiketten er skrevet. */
   private readonly reservert = new Set<string>();
 
+  /** ID-ene klienten lager selv: reserverte etiketter, vedlegg og rader. */
+  readonly nyId: NyId;
+
+  constructor(nyId: NyId = tilfeldigeIder) {
+    this.nyId = nyId;
+  }
+
   sett(navn: unknown, id: string): void {
     if (typeof navn !== 'string') return;
     if (this.tilId.has(navn) && this.tilId.get(navn) !== id)
@@ -57,7 +64,7 @@ export class Navn {
 
   /** ID-en til etiketten. En ukjent etikett blir en ID som ikke finnes. */
   id(navn: string): string {
-    return this.tilId.get(navn) ?? `ukjent-${navn}-${randomUUID()}`;
+    return this.tilId.get(navn) ?? `ukjent-${navn}`;
   }
 
   /**
@@ -68,7 +75,7 @@ export class Navn {
   reserver(navn: unknown): string {
     if (typeof navn !== 'string') throw new Error('Raden mangler en etikett (`navn`)');
     if (!this.tilId.has(navn)) {
-      const id = randomUUID();
+      const id = this.nyId();
       this.tilId.set(navn, id);
       this.tilNavn.set(id, navn);
       this.reservert.add(navn);
@@ -254,7 +261,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         // OV-U4: det registrerte varselet har brevet som vedlegg, også når forløpet ikke nevner det.
         dokumentasjon: Array.isArray(h.dokumentasjon)
           ? (h.dokumentasjon as string[])
-          : [randomUUID()],
+          : [navn.nyId()],
       };
     }
     case 'bestridelse': {
@@ -299,7 +306,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         ...(Array.isArray(h.sporene) ? { spor: h.sporene as Spor[] } : {}),
         sendt: h.sendt as string,
         beskrivelse: h.beskrivelse as string,
-        dokumentasjon: [randomUUID()],
+        dokumentasjon: [navn.nyId()],
         ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
       };
     case 'ikke_i_saken':
@@ -332,7 +339,7 @@ export function radFor(
   // En referanse til noe som ikke finnes i saken, er en UUID som ikke finnes.
   const ref = (etikett: string) => {
     const kjent = navn.id(etikett);
-    return kjent.startsWith('ukjent-') ? randomUUID() : kjent;
+    return kjent.startsWith('ukjent-') ? navn.nyId() : kjent;
   };
   const byggSvar = (s: Handling): Record<string, unknown> => {
     const spor = s.spor as Spor;
@@ -348,19 +355,19 @@ export function radFor(
     const standpunkter: Record<string, unknown>[] = [];
     if (spor === 'grunnlag' && typeof s.varslet_i_tide === 'boolean')
       standpunkter.push({
-        id: randomUUID(),
+        id: navn.nyId(),
         art: 'rettidighet',
         gjelder,
         hjemmel: '32.2',
         i_tide: s.varslet_i_tide,
       });
     if (spor === 'grunnlag')
-      standpunkter.push({ id: randomUUID(), art: 'grunnlag', resultat: s.resultat });
-    else if (spor === 'frist') standpunkter.push({ id: randomUUID(), art: 'dager' });
+      standpunkter.push({ id: navn.nyId(), art: 'grunnlag', resultat: s.resultat });
+    else if (spor === 'frist') standpunkter.push({ id: navn.nyId(), art: 'dager' });
     else
       for (const post of vederlagsposter(v, krav))
         standpunkter.push({
-          id: randomUUID(),
+          id: navn.nyId(),
           art: 'beloep',
           beloep: post.godkjent,
           ...(post.saerskilt ? { saerskilt: post.saerskilt } : {}),
@@ -412,14 +419,14 @@ export function radFor(
       'En avklaring eller et utsagn har dokumentets etikett i `navn`, ikke `dokument`'
     );
   let data: Record<string, unknown>;
-  let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : randomUUID();
+  let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : navn.nyId();
   if (typeof h.avklarer === 'string') {
     // MM-U12: en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
     // Leseren avviser den i første versjon (OV-U13).
     eventId = navn.ta(h.navn);
     data = {
       opplysninger: [
-        { id: randomUUID(), hva: 'endringsordre', oppfylt: h.oppfylt, gjelder: ref(h.avklarer) },
+        { id: navn.nyId(), hva: 'endringsordre', oppfylt: h.oppfylt, gjelder: ref(h.avklarer) },
       ],
     };
   } else if (typeof h.art === 'string') {
@@ -429,7 +436,7 @@ export function radFor(
     data = {
       utsagn: [
         {
-          id: randomUUID(),
+          id: navn.nyId(),
           art: h.art,
           ...(typeof h.gjelder === 'string' ? { gjelder: ref(h.gjelder) } : {}),
           ...(typeof h.spor === 'string' ? { spor: h.spor } : {}),
@@ -449,12 +456,12 @@ export function radFor(
   // merking etter KA-U20 med sporene den gjelder.
   if (typeof h.sendt === 'string')
     data.opplysninger = [
-      { id: randomUUID(), hva: 'sendt', dato: h.sendt },
+      { id: navn.nyId(), hva: 'sendt', dato: h.sendt },
       ...(typeof h.endringsordre === 'boolean'
-        ? [{ id: randomUUID(), hva: 'endringsordre', oppfylt: h.endringsordre }]
+        ? [{ id: navn.nyId(), hva: 'endringsordre', oppfylt: h.endringsordre }]
         : []),
       ...(Array.isArray(h.merking)
-        ? [{ id: randomUUID(), hva: 'kan_ikke_uttrykkes', spor: h.merking }]
+        ? [{ id: navn.nyId(), hva: 'kan_ikke_uttrykkes', spor: h.merking }]
         : []),
     ];
   return {

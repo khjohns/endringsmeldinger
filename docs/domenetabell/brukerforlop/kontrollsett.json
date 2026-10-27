@@ -1,0 +1,66 @@
+{
+  "beskrivelse": "Kontrollsett som går igjen i brukerforløpene. Et kontrollpunkt viser til et sett med `sett` og fyller parametrene med `med`. En parameter står som {navn} i en sti eller en verdi; en verdi som bare er {navn}, får verdien parameteren har, også et tall.",
+  "sett": {
+    "bh_har_mottatt_krav": {
+      "beskrivelse": "BH har mottatt TEs krav i sporet og kan svare på det. Det finnes ikke noe svar på kravet ennå.",
+      "parametre": ["spor", "krav"],
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": ["KA-01", "KA-U2"],
+          "forventet": {
+            "gjeldende_krav.{spor}": "{krav}",
+            "gjeldende_svar.{spor}": null,
+            "handlinger.BH": { "inneholder": ["svare:{spor}"] },
+            "handlinger.TE": { "mangler": ["godta:{spor}"] }
+          }
+        }
+      ]
+    },
+    "te_har_mottatt_svar": {
+      "beskrivelse": "TE har mottatt BHs svar i sporet. TE kan godta svaret eller sende en ny kravversjon. Svaret viser standpunktene som prinsipalt og subsidiært, med beløpene, og det er ingen enighet før TE har godtatt.",
+      "parametre": ["spor", "svar", "standpunkt"],
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": ["GR-U7", "KA-U10", "KA-U7"],
+          "forventet": {
+            "gjeldende_svar.{spor}": "{svar}",
+            "enighet.{spor}": null,
+            "handlinger.TE": { "inneholder": ["godta:{spor}", "krav:{spor}"] }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": ["VS-U3", "MM-U9"],
+          "forventet": {
+            "beslutningsgrunnlag.{svar}.linje": "{standpunkt}",
+            "beslutningsgrunnlag.{svar}.sammenfall": false
+          }
+        }
+      ]
+    },
+    "te_har_godtatt_svaret": {
+      "beskrivelse": "TE har godtatt BHs svar i sporet. Enigheten gjelder svaret med virkningen det hadde da det ble sendt, og omfatter beløpet i sporet. Enigheten binder begge parter: TE kan ikke godta på nytt eller sende en ny kravversjon.",
+      "parametre": ["spor", "svar", "beloep"],
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": ["KA-U10", "GR-U7"],
+          "forventet": {
+            "avvist": false,
+            "enighet.{spor}.svar": "{svar}",
+            "enighet.{spor}.utfall.beloep": "{beloep}"
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": ["KA-U7", "OV-U54"],
+          "forventet": {
+            "handlinger.TE": { "mangler": ["godta:{spor}", "krav:{spor}"] }
+          }
+        }
+      ]
+    }
+  }
+}
