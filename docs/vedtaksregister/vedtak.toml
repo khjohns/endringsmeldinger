@@ -9901,6 +9901,98 @@ Løsningen støtter protest fra begge parter mot innsigelser fra motparten, inne
 Valget gjelder leveranseomfanget. Det følger ikke av svaret «Jeg støtter også A» alene.'''
 anbefalt = true
 
+[[gruppe.vedtak]]
+id = "OV-U65"
+dato = 2026-10-27
+hvem = "oppdragsgiver"
+kilde = ["#1338"]
+sporsmal = '''
+Spørsmål til oppdragsgiver 27.10: protest etter enighet (BF-03, G-5). Utløst av oppdragsgiver 27.10, ordrett: «Skjønner ikke hvorfor protest skal være mulig når partene er enig?» Versjon 2, rettet etter prøvingen mot vedtaksfila (subagent, 27.10).
+
+**Spørsmål 1. Kan TE protestere mot en innsigelse TE har godtatt?**
+
+Bakgrunn: Godtar TE byggherrens svar, gjelder aksepten hele svaret med alle standpunktene, også påberopelsen av at varselet kom for sent (KA-U1). Enigheten binder begge. En ny kravversjon avvises, men TE kan trekke kravet til kravene er avgjort (KA-U7, KA-U6, KA-U11). Enigheten om beløpet får virkning når grunnlaget er avklart (GR-U7). VS-U1 sier at en protest mot innsigelsen registreres og vises ved siden av den, uten å skille mellom før og etter en aksept. KA-U29 sier det samme for tilfellet der TE har godtatt byggherrens avslag av grunnlaget. OV-U64 punkt 4 krever at BF-03 prøver TEs protest mot påberopelsen i svaret også etter enighet, og kontrollerer at den ikke endrer enighetens virkning. Etter VS-U9 er en påberopelse i svaret én innsigelse: et senere svar gjentar den, den første innsigelsen og tidspunktet bevares, og en egen innsigelse etter svaret endrer ikke et tidligere svar eller en enighet. I dag avvises all protest som utsatt (OV-U7); OV-U64 bygger den.
+
+- A. Som vedtatt. TE kan protestere mot en innsigelse også etter å ha godtatt svaret som inneholder den. Protesten registreres og vises uten virkning på utfallet, og enigheten står (VS-U1, KA-U29, OV-U64 punkt 4).
+- B. Har TE godtatt et svar, avvises TEs protest mot en innsigelse som svaret inneholder eller gjentar, uansett hvilket brev innsigelsen først står i. Det gjelder også når TE har godtatt byggherrens avslag av grunnlaget. Meldingen sier at TE har godtatt svaret med innsigelsen. En protest mot en ny innsigelse byggherren sender etter aksepten, og som svaret ikke gjentar, godtas (VS-U1, VS-U9). En protest sendt før aksepten står (S-2 i BF-03). Vil TE likevel fastholde noe overfor byggherren, kan et brev sendt utenfor appen registreres (OV-U4). Snevrer inn VS-U1 og KA-U29, og endrer OV-U64 (vedtatt 27.10) punkt 4: BF-03 kontrollerer at protesten avvises etter aksept av svaret.
+
+Anbefalt: B. Aksepten gjelder også innsigelsen (KA-U1), så en protest mot den strider mot TEs eget brev og kan leses som et forsøk på å gå fra enigheten. Avvisningen avgjør ikke noe kontrakten overlater til partene (MM-U12): TE har tatt standpunkt i aksepten, og den betyr det den sa da (MM-U3). Veien med registrert brev står åpen. At ingen bruker trenger protesten etter aksept, er en antakelse.
+
+Valget styrer: G-5 og D-6 i BF-03.md og en eventuell tilstand i prototypen; avvisningen i kjernen når protesten bygges etter OV-U64. Avvisningen av en gjentatt innsigelse krever at relasjonen «svaret gjentar innsigelsen» er lagret (VS-U9, DM-06). Før den finnes, kan kjernen bare avvise protest mot innsigelsen i svarets egen hendelse.
+
+**Oppfølging 27.10.** Spurt (tekst fra økta, i sammendrag): om skillet etter MM-U7 (bestridelse av en opplysning) skal stå, og om et prinsipp for begge parter skal føres i stedet, med utkastet «Har partene inngått en enighet, avvises protest, innsigelse og bestridelse fra hver av partene mot det enigheten omfatter, også det svaret inneholder eller gjentar. […]».'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 27.10, ordrett: «Ja B. Men er dette et vedtak?
+Det er jo grunnleggende at du ikke kan protestere på noe som er avtalt? Vi har både vedtak og prinsipper som gjelder grunnleggende avtalerett»
+
+Oppdragsgiver 27.10, ordrett, på oppfølgingen: «Skillet ditt - hvilken praktisk betydning har det? TE eller BH må i så fall ikke godta krav/svar. Det gjelder BH også»
+
+Oppdragsgiver 27.10, ordrett (vedtaksteksten): «Dette er fortsatt et nytt produktvalg som må endre de tidligere protestreglene uttrykkelig. Jeg ville formulert det slik:
+
+«Har partene inngått en enighet, avviser løsningen protest, innsigelse og bestridelse fra begge parter mot det enigheten omfatter. Sperren gjelder også standpunkter i svaret som inngår i enigheten. Det som ikke er omfattet av enigheten, følger de vanlige reglene. Et brev sendt utenfor løsningen kan fortsatt registreres etter OV-U4.»
+
+«Som inngår i enigheten» er mer presist enn «det svaret inneholder eller gjentar», fordi et svar også kan gjengi standpunkter fra andre spor.
+
+D-6 må da prøve avvisningen etter enighet. Før aksept bør visningen gjøre det tydelig at aksepten omfatter hele svaret i sporet, også påberopelser parten tidligere har protestert mot»'''
+forhold = [{ art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "ov-u3" }, { art = "snevrer inn", vedtak = "ka-u11" }, { art = "snevrer inn", vedtak = "mm-u7" }, { art = "snevrer inn", vedtak = "vs-u1" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ov-u64" }, { art = "presiserer", vedtak = "ka-u7" }]
+folge = '''
+Bygges i #1352.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Som vedtatt. TE kan protestere mot en innsigelse også etter å ha godtatt svaret som inneholder den. Protesten registreres og vises uten virkning på utfallet, og enigheten står (VS-U1, KA-U29, OV-U64 punkt 4).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Har partene inngått en enighet, avviser løsningen protest, innsigelse og bestridelse fra begge parter mot det enigheten omfatter. Sperren gjelder også standpunkter i svaret som inngår i enigheten. Det som ikke er omfattet av enigheten, følger de vanlige reglene. Et brev sendt utenfor løsningen kan fortsatt registreres etter OV-U4.'''
+
+[[gruppe.vedtak]]
+id = "OV-U66"
+dato = 2026-10-27
+hvem = "oppdragsgiver"
+kilde = ["#1338"]
+sporsmal = '''
+**Samlet tilslutning 27.10: presiseringene av sperren etter enighet**
+
+Grunnlag: kartleggingen av vedtakene sperren berører (subagent 27.10). Forslaget føres som egen post som presiserer posten med oppdragsgivers tekst, hvis oppdragsgiver slutter seg til det. Hvert punkt kan rettes for seg.
+
+1. Påberopt passivitet og merking. Teksten nevner protest, innsigelse og bestridelse. Påberopt passivitet etter § 32.3 annet ledd (VS-U12) og merking av et registrert brev (KA-U20) er andre utsagn, som KA-U29 lar godtas etter et godtatt avslag av grunnlaget.
+   Forslag: Sperren gjelder også påberopt passivitet og merking mot det enigheten omfatter. Snevrer inn KA-U29 og KA-U28.
+   Forkastet hvis nei: Påberopt passivitet og merking følger KA-U29 også etter enighet.
+2. Når sperren gjelder. En enighet om vederlag eller frist kan være betinget til grunnlaget er avklart (GR-U7), og den får ingen virkning hvis TE godtar avslaget av grunnlaget eller trekker kravet (KA-U6).
+   Forslag: Sperren gjelder fra enigheten er inngått, også mens den er betinget. Får enigheten ingen virkning, gjelder de vanlige reglene for det den omfattet. En enighet ved sammenfall etter GR-U10 og HF-U9 er inngått.
+3. Bestridelse av en opplysning (MM-U7). En opplysning, for eksempel at varselet ble mottatt en bestemt dag, er ikke et standpunkt i svaret.
+   Forslag: Inngår et standpunkt om varslingen i enigheten, omfatter enigheten også opplysningene standpunktet bygger på, og en bestridelse av dem avvises. Andre opplysninger følger MM-U7.
+4. Protest mot flere innsigelser i ett brev (MP-U6). En protest kan gjelde innsigelsene i et brev, der noen inngår i en enighet og andre ikke.
+   Forslag: Protesten avvises i sin helhet, og meldingen sier hvilken innsigelse som inngår i enigheten. Parten kan sende en ny protest mot de andre.
+
+Anbefalt: ja til alle fire. De følger prinsippet «du ikke kan protestere på noe som er avtalt» og KA-U1, KA-U7 og MM-U3. Punkt 4 velger en hel avvisning fordi løsningen ikke skal dele et sendt brev (MM-U12).'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 27.10, ordrett: «Ja til alle fire»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u65" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "ka-u28" }, { art = "snevrer inn", vedtak = "mm-u7" }, { art = "presiserer", vedtak = "mp-u6" }, { art = "presiserer", vedtak = "hf-u9" }, { art = "presiserer", vedtak = "gr-u10" }]
+folge = '''
+Bygges i #1352.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+1. Sperren gjelder også påberopt passivitet og merking mot det enigheten omfatter. Snevrer inn KA-U29 og KA-U28.
+2. Sperren gjelder fra enigheten er inngått, også mens den er betinget. Får enigheten ingen virkning, gjelder de vanlige reglene for det den omfattet. En enighet ved sammenfall etter GR-U10 og HF-U9 er inngått.
+3. Inngår et standpunkt om varslingen i enigheten, omfatter enigheten også opplysningene standpunktet bygger på, og en bestridelse av dem avvises. Andre opplysninger følger MM-U7.
+4. Protesten avvises i sin helhet, og meldingen sier hvilken innsigelse som inngår i enigheten. Parten kan sende en ny protest mot de andre.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei til punkt 1"
+tekst = '''
+Påberopt passivitet og merking følger KA-U29 også etter enighet.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
