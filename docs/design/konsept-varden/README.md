@@ -219,7 +219,7 @@ Disse situasjonene er ikke unntak. De må virke fra første versjon.
 
 ## Visuelt språk
 
-Fargene og tokenene er de samme som i dagens app (oppdragsgiver 27.10): navnene og verdiene i lys modus fra [`theme.css`](../../../src/lib/components/kontraktsbord/theme.css), radius fra [`app.css`](../../../src/app.css) og skriftene `--font-sans` (Inter) og `--font-legal` (IBM Plex Sans). Oppsettet og komponentene er konseptets egne. Uttrykket er rolig og presist – et juridisk arkiv, ikke et kontrollpanel. Forskjellen fra dagens app ligger i oppsettet: toppmeny i stedet for sidemeny, rektangulære valgkort i stedet for pilleformede knapper og tabulartall i stedet for monospace.
+Fargene og tokenene er de samme som i dagens app (oppdragsgiver 27.10): navnene og verdiene i lys modus fra [`theme.css`](../../../src/lib/components/kontraktsbord/theme.css), skriftene `--font-sans` (Inter) og `--font-legal` (IBM Plex Sans). Radius og luft er det komponentene i appen viser i dag: 12 px på kort, pilleform på knapper og merker, 4 px på felt, `20px 24px` innvendig i kort og `32px 40px` rundt sideinnholdet. Tokenene for radius i [`app.css`](../../../src/app.css) er ennå ikke tatt i bruk der (#1184). Oppsettet og komponentene er konseptets egne. Uttrykket er rolig og presist – et juridisk arkiv, ikke et kontrollpanel. Forskjellen fra dagens app ligger i oppsettet: toppmeny i stedet for sidemeny, rektangulære valgkort i stedet for pilleformede knapper og tabulartall i stedet for monospace.
 
 | Element | Konkurrenten | Varden |
 | --- | --- | --- |
@@ -229,7 +229,7 @@ Fargene og tokenene er de samme som i dagens app (oppdragsgiver 27.10): navnene 
 | Signalfarger | Rød på «Nei, for sent», gul konklusjon | Tokenene i appen, bare for løsningens tilstand: `--draft-bg` med stiplet kant = utkast, `--warning-bg` = stoppet sending, `--success` = sendt, `--danger-bg` = feil. Ingen farge for en vurdering. Alltid med ord |
 | Skrift i grensesnittet | Grotesk, monospace for beløp og paragrafer | `--font-sans` (Inter), tabulartall for beløp. Ingen monospace |
 | Skrift i brev | Samme som grensesnittet | `--font-legal` (IBM Plex Sans) i en lesespalte på høyst 760 px som tåler tekstforstørrelse. A4 bare i PDF-en |
-| Valg | Pilleformede segmentknapper | Rektangulære valgkort med `--radius-sm` og radioknapp med 2 px ramme, uten farge og minst 48 px høye |
+| Valg | Pilleformede segmentknapper | Rektangulære valgkort med 4 px hjørner og radioknapp med 2 px ramme, uten farge og minst 48 px høye |
 | Subsidiært | Stiplet etikett «SUBSIDIÆRT» | Et spørsmål i hel setning i skjemaet. I panelet står alternativene under posten, merket «alternativer, ikke tillegg» |
 | Hjemmel | Paragrafnummer i monospace, tekst i fast panel | Brikke «§ 34.1.2» med bokikon ved spørsmålet, dempet linje under radnavnet i tabellene. Klikk åpner en leseflate der kontraktens ordlyd og vår forklaring står hver for seg |
 | Ikoner | Strekikoner i knapper | Strekikoner på 1,5 px, alltid med tekst. Egne ikoner for dato, brev, lås og hjemmel. Merket er en varde av fire stablede steiner |
