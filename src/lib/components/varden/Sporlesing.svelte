@@ -16,6 +16,7 @@
   import Brevtyper from './Brevtyper.svelte';
   import Knapp from './Knapp.svelte';
   import Tidslinje from './Tidslinje.svelte';
+  import Uenighet from './konsept/Uenighet.svelte';
   import { aksepten } from './kommandoer';
   import { brevene, handlingerISporet, oppgitteDatoer } from './lesing';
   import {
@@ -184,6 +185,11 @@
           <Knapp onclick={seAksepten}>{STILLING.seAksepten}</Knapp>
           {#if hindring}<p class="feil" role="alert">{hindring}</p>{/if}
         </div>
+        {#if svaret}
+          <div class="innhold uenig">
+            <Uenighet {svaret} nummer={vist.nummer} handlinger={iSporet} />
+          </div>
+        {/if}
         <p class="dempet fot">{STILLING.andre}</p>
       </section>
     {/if}
