@@ -547,11 +547,12 @@ function beslutningslinje(
   const prekluderende = v
     .filter((p) => p.art === 'rettidighet' && laget(p.virkning) && p.standpunkt !== begrenset?.id)
     .map((p) => p.standpunkt);
-  const hjemler = svar.standpunkter
+  const sene = svar.standpunkter
     .filter((s): s is Extract<Standpunkt, { art: 'rettidighet' }> => prekluderende.includes(s.id))
-    .map((s) => `§ ${s.hjemmel}`);
+    .map((s) => SENT_I_LINJEN[s.hjemmel]);
   const grunntekst: Record<string, string> = {
-    rettidighet: `prekludert (${hjemler.join(' og ')})`,
+    // HF-U11, MM-U23: byggherrens påberopelse slik brevet sier den, ikke appens slutning.
+    rettidighet: `${sene.join(' og ')} kom for sent`,
     // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
     hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
       kategori(grunnlagskrav).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
@@ -624,6 +625,15 @@ function beslutningslinje(
   };
   return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
 }
+
+/** Det byggherren gjør gjeldende kom for sent, i kortform av `VARSELET` i brevteksten (LV-U4 punkt 5). */
+const SENT_I_LINJEN: Record<Hjemmel, string> = {
+  '32.2': 'varselet etter § 32.2',
+  '33.4': 'varselet etter § 33.4',
+  '33.6.2': 'svaret på forespørselen etter § 33.6.2',
+  '34.1.2': 'varselet etter § 34.1.2',
+  '34.1.3': 'varselet etter § 34.1.3',
+};
 
 /** Posten etter § 34.1.3 annet ledd i linjen. */
 const SAERSKILT_I_LINJEN = 'særskilt justering (§ 34.1.3 annet ledd)';

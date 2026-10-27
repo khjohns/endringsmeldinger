@@ -108,11 +108,12 @@ function kontrollerSvar(
       'ANNET_RESULTAT',
       `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
     );
+  // KA-U24, KA-U31: grunnene til at svaret må ha en begrunnelse.
   const grunner = avgrensninger(s, server, krav);
   if (utdypningKreves && grunner.length && !s.utdypning?.trim())
     return avvis(
       'BEGRUNNELSE_MANGLER',
-      `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
+      `Svaret må ha en begrunnelse, fordi du ${grunner.slice(0, -1).join(', ')}${grunner.length > 1 ? ' og ' : ''}${grunner.at(-1)}.`
     );
   return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));
 }
@@ -139,21 +140,27 @@ function binding(forrige: Svar, nye: Standpunkt[], forskyvning: number): Avvisni
  * KA-U24, KA-U32: de selvstendige innsigelsene og avgrensningene i svaret som gjør
  * det mindre gunstig for TE enn kravet, og som krever en begrunnelse. Begrensningen etter
  * § 34.1.3 krever begrunnelse også når beløpene er like (valg d i #1047). At et svar bare er subsidiært fordi grunnlaget er avslått, krever ingen
- * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten.
+ * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten. Hver grunn
+ * står uten subjekt, så meldingen kan si «fordi du …» (#1279).
  */
 function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Krav): string[] {
   const v = s.vurderinger;
   const ut: string[] = [];
   const fulltGodkjent = (server.subsidiaert_resultat ?? server.resultat) === 'godkjent';
   if (s.spor === 'grunnlag') {
-    if (v.grunnlag_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 32.2 (KA-U21)');
-    if (v.resultat === 'avslaatt') ut.push('avslag av grunnlaget');
-    if (v.resultat === 'paalegg_frafalt') ut.push('frafall etter § 32.3 c (KA-U32)');
+    // KA-U21
+    if (v.grunnlag_varslet_i_tide === false)
+      ut.push('gjør gjeldende at varselet etter § 32.2 kom for sent');
+    if (v.resultat === 'avslaatt') ut.push('avslår grunnlaget');
+    // KA-U32
+    if (v.resultat === 'paalegg_frafalt') ut.push('frafaller pålegget etter § 32.3 c');
   } else if (s.spor === 'vederlag') {
-    if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');
+    if (v.hovedkrav_varslet_i_tide === false)
+      ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');
+    // VS-U5: begrensningen etter § 34.1.3.
     if (v.produktivitet_varslet_i_tide === false)
-      ut.push('påberopt begrensning etter § 34.1.3 (VS-U5)');
-    if (v.aksepterer_metode === false) ut.push('et tilbud som ikke er akseptert (§ 34.2.2)');
+      ut.push('gjør gjeldende at varselet etter § 34.1.3 kom for sent');
+    if (v.aksepterer_metode === false) ut.push('ikke aksepterer tilbudet (§ 34.2.2)');
     // B-13: beløpet alene, også uten aksept av tilbudet; da gjelder grunnen over i tillegg.
     const godkjent = beloep(
       (server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep) as number | undefined
@@ -161,12 +168,19 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
     if (godkjent === null)
       throw new Error('Utregningen av vederlaget har ikke godkjent beløp (#508).');
     if (!erBeloepetGodkjentFullt(krevdSamlet(krav), godkjent))
-      ut.push('et beløp som ikke er godkjent fullt');
+      ut.push('ikke godkjenner hele beløpet');
   } else {
-    if (v.frist_varsel_ok === false) ut.push('påberopt preklusjon etter § 33.4');
-    if (v.vilkar_oppfylt === false) ut.push('«ingen hindring» etter § 33.1 (VS-U13)');
-    if (v.spesifisert_krav_ok === false) ut.push('påberopt spesifisering for sent etter § 33.6.1');
-    if (!fulltGodkjent) ut.push('dager som ikke er godkjent fullt');
+    if (v.frist_varsel_ok === false)
+      ut.push('gjør gjeldende at varselet etter § 33.4 kom for sent');
+    // VS-U17
+    if (v.foresporsel_svar_ok === false)
+      ut.push('gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent');
+    // VS-U13: uten hjemmel, som er § 33.3 i force majeure.
+    if (v.vilkar_oppfylt === false)
+      ut.push('gjør gjeldende at fremdriften ikke er hindret som følge av forholdet');
+    if (v.spesifisert_krav_ok === false)
+      ut.push('gjør gjeldende at kravet ble spesifisert for sent (§ 33.6.1)');
+    if (!fulltGodkjent) ut.push('ikke godkjenner alle dagene');
   }
   return ut;
 }
