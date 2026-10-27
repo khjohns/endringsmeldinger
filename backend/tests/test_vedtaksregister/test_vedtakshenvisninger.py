@@ -249,3 +249,64 @@ def test_en_glob_i_koden_aapner_ingen_kommentar():
     assert _feil("const m = 'src/**/*.ts';\nkode() // MM-U9\nx('MM-U4')") == [
         "kjerne/regel.ts:3: MM-U4 er opphevet og står som eneste grunnlag"
     ]
+
+
+FORLOEP = {
+    "id": "BF-99",
+    "kontrollpunkter": [
+        {
+            "id": "p",
+            "kontroller": [{"kilde": ["MM-U4", "MM-U9"]}],
+            "forstaaelse": [{"tekst": "x", "kilde": ["MM-U4"]}],
+        }
+    ],
+    "kilder": ["KA-U99", "KA-01"],
+    "endringer": [{"grunnlag": "MM-U4", "kilde": ["MM-U4"]}],
+}
+
+
+def _kildefeil(data) -> list[str]:
+    return vh.kildefeil("a.json", data, KJENTE, OPPHEVET, AAPNE)
+
+
+def test_kildelistene_i_et_brukerforloep_har_stedet_med_id_ene():
+    assert vh.kildelister(FORLOEP) == [
+        ("BF-99/kontrollpunkter/p/kontroller[0]/kilde", ["MM-U4", "MM-U9"]),
+        ("BF-99/kontrollpunkter/p/forstaaelse[0]/kilde", ["MM-U4"]),
+        ("BF-99/kilder", ["KA-U99", "KA-01"]),
+    ]
+
+
+def test_en_kildeliste_med_et_opphevet_vedtak_alene_eller_en_ukjent_id_gir_feil():
+    """En liste er én henvisning: MM-U4 med MM-U9 er lov, MM-U4 alene er det ikke.
+    `endringer` fører historikken og leses ikke, og KA-01 er en rad, ikke et vedtak."""
+    assert _kildefeil(FORLOEP) == [
+        "a.json: BF-99/kontrollpunkter/p/forstaaelse[0]/kilde: MM-U4 er opphevet "
+        "og står som eneste grunnlag",
+        "a.json: BF-99/kilder: KA-U99 er ikke et vedtak i registeret",
+    ]
+
+
+def test_en_kilde_som_tekst_og_en_id_med_merknad_kontrolleres():
+    """Invariantene i bevis-sakene har kilden som tekst, som `MM-U2` eller `KA-U1, KT-U1`."""
+    assert _kildefeil(
+        {"invarianter": [{"kilde": "MM-U4"}, {"kilde": "KA-U99 (merknad), MM-U9"}]}
+    ) == [
+        "a.json: invarianter[0]/kilde: MM-U4 er opphevet og står som eneste grunnlag",
+        "a.json: invarianter[1]/kilde: KA-U99 er ikke et vedtak i registeret",
+    ]
+
+
+def test_merket_historisk_gjelder_ikke_i_en_kildeliste():
+    assert len(_kildefeil({"kilde": ["MM-U4", "historisk"]})) == 1
+
+
+def test_kildefilene_er_json_filene_i_domenetabellen(tmp_path):
+    for sti in ("docs/domenetabell/a.json", "docs/domenetabell/b/c.json"):
+        (tmp_path / sti).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / sti).write_text('{"kilde": ["MM-U4"]}', encoding="utf-8")
+    (tmp_path / "docs/domenetabell/README.md").write_text("MM-U4", encoding="utf-8")
+    assert [sti for sti, _ in vh.kildefiler(tmp_path)] == [
+        "docs/domenetabell/a.json",
+        "docs/domenetabell/b/c.json",
+    ]

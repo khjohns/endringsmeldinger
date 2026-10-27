@@ -256,9 +256,10 @@ hverandre. Det holder bare hvis hvert ledd viser til det forrige i stedet for å
 gjengi det. Genererte og kontrollerte visninger er lov, men en fri gjengivelse er
 aldri regelgrunnlag. Matrisen og domenetabellen viser til vedtaks-ID-en, en
 bevis-sak viser til raden og en PR viser til issuet og vedtaket. Ingen av dem
-skriver vedtaket om med egne ord. En vedtaks-ID i `kjerne/`, `server/` og `src/` må
-finnes i vedtaksregisteret. Et opphevet vedtak kan bare stå sammen med et som gjelder,
-eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`, #452).
+skriver vedtaket om med egne ord. En vedtaks-ID i `kjerne/`, `server/` og `src/`, og
+i kildene i bevis-sakene og brukerforløpene, må finnes i vedtaksregisteret. Et opphevet
+vedtak kan bare stå sammen med et som gjelder, eller i en test merket med «historisk»
+(`docs/verktoy/vedtakshenvisninger.py`, #452).
 
 | Hva | Hvor |
 | --- | --- |
