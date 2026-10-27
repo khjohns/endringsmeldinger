@@ -16,12 +16,14 @@ import {
   forloepsfiler,
   genererte,
   kildebruk,
+  kilderI,
   kjoerBrukerforloep,
   kjoerbare,
   kontrollerI,
   lagret,
   MAPPE,
   somForloep,
+  vedtakIBestilling,
   type Brukerforloep,
 } from './brukerforloep.ts';
 import { fasteIder } from './testmiljoe.ts';
@@ -107,6 +109,9 @@ function avvik(b: Brukerforloep, fil: string): string[] {
   for (const id of b.bevis_saker) krev(BEVIS.has(id), `bevis-saken ${id} finnes ikke`);
   for (const k of b.kilder ?? []) krev(KILDER.has(k), `kilden ${k} finnes ikke`);
   if (b.bestilling) krev(lagret(b.bestilling) !== null, `bestillingen ${b.bestilling} finnes ikke`);
+  const kilder = kilderI(b);
+  for (const id of vedtakIBestilling(b))
+    krev(kilder.has(id), `${b.bestilling} viser til ${id}, som mangler i kildene`);
   if (b.status === 'planlagt') {
     krev(b.venter_paa?.length, 'et planlagt forløp sier hva det venter på');
     krev(!b.steg?.length && !b.kontrollpunkter?.length, 'et planlagt forløp har ingen steg');
@@ -166,6 +171,18 @@ describe('vakttestene for brukerforløpene', () => {
       `${planlagt.id}: bestillingen FINNES-IKKE.md finnes ikke`,
       `${planlagt.id}: et planlagt forløp sier hva det venter på`,
       `${planlagt.id}: et planlagt forløp har ingen steg`,
+    ]);
+  });
+
+  // Kilde: #1346. OV-U64 står i BF-03.md og i kildene; uten den i kildene viser ikke
+  // dekningsoversikten at vedtaket berører BF-03.
+  it('et vedtak bestillingen viser til, men som mangler i kildene, gir avvik', () => {
+    const b = structuredClone(BRUKERFORLOEP.find((x) => x.id === 'BF-03')!);
+    expect(vedtakIBestilling(b)).toContain('OV-U64');
+    expect(avvik(b, 'BF-03.json')).toEqual([]);
+    b.kilder = b.kilder!.filter((k) => k !== 'OV-U64');
+    expect(avvik(b, 'BF-03.json')).toEqual([
+      'BF-03: BF-03.md viser til OV-U64, som mangler i kildene',
     ]);
   });
 

@@ -8,7 +8,7 @@
     "beskrivelse": "Samme sak som BF-01 ved kontrollpunktet te-har-mottatt-svaret."
   },
   "bestilling": "BF-03.md",
-  "kilder": ["KA-U1", "HF-U9", "VS-U1", "VS-U9", "LV-U4", "HF-U5", "HF-U18", "OV-U54", "HF-U8", "OV-U7"],
+  "kilder": ["KA-U1", "HF-U9", "VS-U1", "VS-U9", "LV-U4", "HF-U5", "HF-U18", "OV-U54", "HF-U8", "OV-U7", "OV-U64", "KA-U7", "KA-U10", "KA-U29", "HF-U1", "VS-U3", "MM-U3", "OV-U4"],
   "venter_paa": ["#1336", "#276"],
   "bevis_saker": [],
   "visninger": [],
@@ -17,6 +17,11 @@
       "dato": "2026-10-27",
       "grunnlag": "#1336",
       "hva": "Forløpet er registrert som planlagt, med bestillingen og prototypen."
+    },
+    {
+      "dato": "2026-10-27",
+      "grunnlag": "#1346",
+      "hva": "Vedtakene bestillingen viser til, står i kildene: HF-U1, KA-U7, KA-U10, KA-U29, MM-U3, OV-U4, OV-U64 og VS-U3."
     }
   ]
 }
