@@ -21,12 +21,12 @@ Navnet er valgt fordi en varde viser vei uten å bestemme veivalget. Det er mind
 
 Fire grep skiller oss fra konkurrenten:
 
-- **Datoene i saken, med kilde.** Hvert spor viser de registrerte datoene på én linje over arbeidet, med brevet hver dato kommer fra. Alle datoene står i Hendelser. Konkurrenten viser ingen datoer der svaret skrives.
+- **Datoene i saken, med kilde.** Hvert spor viser de registrerte datoene i en tidslinje i høyre kolonne, med brevet hver dato kommer fra og dagene mellom. Hele tidslinja for saken står i Hendelser. Konkurrenten viser ingen datoer der svaret skrives.
 - **Hovedlinjene ved siden av valget.** Et panel ved siden av skjemaet viser per post hva som er krevd og hva standpunktet er. Konkurrenten viser resultatet først nederst.
 - **Hele brevet, aldri et utdrag.** Et mottatt brev vises i sin helhet, slik det ble sendt. Hos konkurrenten står svarbrevet i fanen «Historikk».
 - **Dokumenter og hendelser samlet.** Alle brev, vedlegg og registrerte dokumenter står under Dokumenter, og alt som har skjedd i saken, står under Hendelser.
 
-Vi beholder det konkurrenten gjør godt: hjemmel ved hvert valg, brevkontroll før sending og et tydelig skille mellom prinsipalt og subsidiært standpunkt. Versjon 2 tok inn punkter fra Varde-konseptet og fra konkurrenten. Versjon 3 gir arbeidet mer plass og legger til Dokumenter, Hendelser og et ark med varianter. Skissene står under «Nøkkelskjermer».
+Vi beholder det konkurrenten gjør godt: hjemmel ved hvert valg, brevkontroll før sending og et tydelig skille mellom prinsipalt og subsidiært standpunkt. Versjon 2 tok inn punkter fra Varde-konseptet og fra konkurrenten. Versjon 3 gir arbeidet mer plass og legger til Dokumenter, Hendelser og et ark med varianter. Versjon 9 setter sporene i en venstre kolonne og datoene i en tidslinje i høyre kolonne. Skissene står under «Nøkkelskjermer».
 
 ## Hva vi ser i konkurrentens skjermbilder
 
@@ -38,8 +38,8 @@ Konkurrenten er sterk på hjemmel og presisjon, men svak på tid, rekkefølge og
 | Resultatboksen skiller prinsipalt og subsidiært i lag, i brevets rekkefølge | 1, 2 | Styrke | Behold innholdet, og vis det i et panel som følger valgene |
 | Resultatet står nederst, etter fire valgbokser | 1–3 | Svakhet | Hovedlinjene står ved siden av skjemaet og er alltid synlige |
 | Konklusjonen er én lang setning i gult («prinsipalt begrenset etter § 34.1.3 til 10 000 kr, subsidiært …») | 2 | Svakhet | En tabell med krevd, prinsipalt og subsidiært per post |
-| Ingen datoer vises, selv når valget gjelder «Nei, for sent» | 1, 2 | Svakhet | Datoene med kilde på én linje over arbeidet, ved spørsmålet og i Hendelser, uten vurdering |
-| Statusen sier hvem som skal svare («Kravet venter på byggherrens svar») og bruker tett sjargong («Enige, betinget · Subsidiært standpunkt») | 1, 4c | Svakhet | Ingen status. Fanen viser antall brev og siste brev («2 brev · siste 20. okt fra TE») |
+| Ingen datoer vises, selv når valget gjelder «Nei, for sent» | 1, 2 | Svakhet | Datoene med kilde i en tidslinje ved siden av arbeidet, ved spørsmålet og i Hendelser, uten vurdering |
+| Statusen sier hvem som skal svare («Kravet venter på byggherrens svar») og bruker tett sjargong («Enige, betinget · Subsidiært standpunkt») | 1, 4c | Svakhet | Ingen status. Sporet i venstre kolonne viser antall brev og siste brev («2 brev · siste 20. okt fra TE») |
 | TE får fire knapper med ulik vekt: «Send ny versjon av kravet» er fremhevet og «Trekk» er rød | 4a | Svakhet. Fremhevingen leses som en anbefaling | Én knapp, «Skriv brev i sporet», med brevtypene i fast rekkefølge og ingen fremhevet |
 | TE må åpne «Historikk» for å lese svarbrevet | 4a, 4c | Svakhet | Siste brev fra motparten står i sin helhet i saken |
 | Brødsmulene og tittelen viser UUID («c42d5651-a0e5-…») og «Prosjekt p-saksrute-508e9fac» | alle | Svakhet | Lesbare saksnumre («E-021») og prosjektnavn. ID-en ligger bak «Kopier lenke» |
@@ -90,7 +90,7 @@ Vi tar ikke med Vardes arbeidsliste med «Til vurdering» og «Avventer andre»,
 5. **Brevet er et brev.** Det partene sender, har brevhode, mottaker, brevnummer, dato og avsender. På skjermen er det en lesespalte som tåler forstørrelse, og i PDF-en er det A4. Et mottatt brev vises i sin helhet, slik det ble sendt, også det løsningen ikke kan uttrykke som valg.
 6. **Ett ord, én betydning, én form.** Samme valgord for samme post, ett beløpsformat med øre når det finnes øre, og ett navn per sak. Det som kan gjøres, står i fast rekkefølge, og ingenting er fremhevet.
 7. **Farge viser systemets tilstand, ikke en vurdering.** Amber er utkast eller stoppet sending, blågrønn er sendt og levert, og rød er feil. Ingen standpunkt, dato eller sak får farge etter hva den betyr for partene.
-8. **Arbeidet får plassen.** Bredden er knappest. Hovedkolonnen har det brukeren gjør nå, skjemaet eller brevet. Det som støtter arbeidet, står i høyre kolonne eller på én linje over.
+8. **Arbeidet får plassen.** Bredden er knappest. Hovedkolonnen har det brukeren gjør nå, skjemaet eller brevet. Det som støtter arbeidet, som tidslinja og hovedlinjene, står i høyre kolonne. Sporene og de andre flatene i saken står i venstre kolonne.
 
 ## Informasjonsarkitektur og navigasjon
 
@@ -101,17 +101,17 @@ flowchart TD
   saker["Saker<br>startsiden, sortert etter siste brev"] --> sak
   prosjekter["Prosjekter<br>med krevde beløp og dager"] --> sak
   arkiv["Arkiv<br>sendte brev, PDF-er og kvitteringer"] --> sak
-  sak["Sak E-021 · Ny peling med produktivitetstap<br>kompakt overskrift, datoene på én linje"] --> grunnlag["Grunnlag"]
+  sak["Sak E-021 · Ny peling med produktivitetstap<br>kompakt overskrift, sporene i venstre kolonne"] --> grunnlag["Grunnlag"]
   sak --> vederlag["Vederlag"]
   sak --> frist["Frist"]
   sak --> dokumenter["Dokumenter<br>alle brev, vedlegg og registrerte dokumenter"]
-  sak --> hendelser["Hendelser<br>alt som har skjedd, og alle datoene"]
-  grunnlag --> arbeid["Arbeidet i sporet<br>utkastet eller det mottatte brevet i hovedkolonnen"]
+  sak --> hendelser["Hendelser<br>alt som har skjedd, og hele tidslinja"]
+  grunnlag --> arbeid["Arbeidet i sporet<br>utkastet eller det mottatte brevet i hovedkolonnen, tidslinja i høyre kolonne"]
   vederlag --> arbeid
   frist --> arbeid
 ```
 
-Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn står først, produktnavnet etter. Innlogget bruker står til høyre med navn, kontraktsside (BH eller TE) og team. Inne i saken står fanene under saksoverskriften i tre grupper med en skillelinje mellom: Oversikt, så sporene Grunnlag, Vederlag og Frist, så Dokumenter, Hendelser og Notater for teamet. I et spor står «Skriv brev i sporet» til høyre i fanefeltet, med brevtypene kjernen gir. I de andre fanene heter knappen «Skriv brev», og sporet velges i neste steg. Brødsmulene bruker saksnummer og prosjektnavn, aldri en ID.
+Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn står først, produktnavnet etter. Innlogget bruker står til høyre med navn, kontraktsside (BH eller TE) og team. Inne i saken står en venstre kolonne under saksoverskriften, i tre grupper: Oversikt, så sporene Grunnlag, Vederlag og Frist under etiketten «Spor», og etter en skillelinje Dokumenter, Hendelser og Notater for teamet. Hvert spor viser antall brev og siste brev. Over arbeidet står navnet på flaten, og til høyre for det «Skriv brev i sporet» med brevtypene kjernen gir. På de andre flatene heter knappen «Skriv brev», og sporet velges i neste steg. Brødsmulene bruker saksnummer og prosjektnavn, aldri en ID.
 
 ## Nøkkelskjermer og flyter
 
@@ -130,9 +130,10 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 
 ### B. Byggherren skriver svar på krav om vederlag
 
-![Skjerm B: kompakt overskrift, datoene på én linje, skjemaet i hovedkolonnen og hovedlinjene til høyre](bilder/b-svar.png)
+![Skjerm B: sporene i venstre kolonne, skjemaet i midten og hovedlinjene og tidslinja til høyre](bilder/b-svar.png)
 
-- Saksoverskriften er kompakt, og datoene står på én linje med kilde. Teksten under sier at løsningen ikke vurderer fristen. Datoene for et spørsmål står også ved spørsmålet.
+- Saksoverskriften er kompakt. Sporene står i venstre kolonne, og vederlag er valgt.
+- Tidslinja i sporet står i høyre kolonne under hovedlinjene, med kilde og dagene mellom datoene. Teksten under sier at løsningen ikke vurderer fristen. Datoene for et spørsmål står også ved spørsmålet.
 - Hovedkolonnen har bare skjemaet. Brevet det svares på, står i høyre kolonne under «Svarer på», og «Les brevet ved siden av» åpner det i en leseflate. De andre brevene står i en kompakt liste.
 - Beløpsvalgene heter alltid «Hele beløpet», «Deler av beløpet» og «Ingenting». Det subsidiære standpunktet er et spørsmål: «Hvis innsigelsen om sen varsling ikke fører frem, hvor mye godtar du?»
 - Ingenting er forhåndsvalgt. Beregningsmetoden er ikke besvart, og panelet sier at brevet ikke kan sendes før den er det.
@@ -153,7 +154,7 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 ![Skjerm D: hele brevet slik det ble sendt, og brevtypene som er mulige](bilder/d-mottatt-svar.png)
 
 - Brevet fra BH står i sin helhet i hovedkolonnen, med samme gjengivelse som PDF-en. Det er det frosne dokumentet, ikke en ny gjengivelse av dataene, så forbehold løsningen ikke kan uttrykke som valg, kommer med.
-- Hovedlinjene vises ikke her. Brevet er åpent, og en oppsummering ved siden av kunne avvike fra det.
+- Hovedlinjene vises ikke her. Brevet er åpent, og en oppsummering ved siden av kunne avvike fra det. Tidslinja i sporet står øverst i høyre kolonne, med svaret 27. okt.
 - TEs eget brev har «Utdyp» og «Oppgi korrigert opplysning» i den kompakte lista. Den opprinnelige teksten bevares.
 - Menyen under «Skriv brev i sporet» er vist åpen. Brevtypene kommer fra kjernen: bare de som er mulige nå, i fast rekkefølge og uten fremheving. «Godta svaret i brev 5» gjelder brevet slik det ble sendt.
 
@@ -186,22 +187,36 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 
 - Alt som har skjedd i saken, nyeste først og gruppert per dag: brev sendt og levert, brev registrert utenfor Varden, dokumenter lagt til og korrigeringer. En hendelse kan ikke endres eller slettes.
 - Utkast og notater for teamet er ikke hendelser i saken.
-- Høyre kolonne har alle datoene i en loddrett liste med kilde og kalenderdager mellom. Den tåler mange frister bedre enn en vannrett linje.
+- Høyre kolonne har tidslinja for hele saken, med kilde og kalenderdager mellom. Det er samme komponent som tidslinja i sporet i B og D.
 - «Registrer brev sendt utenfor Varden» står her, fordi registreringen blir en hendelse.
 
 ### H. Varianter for det vannrette
 
-![Skjerm H: varianter for datoene, saksoverskriften og sporene](bilder/h-varianter.png)
+![Skjerm H: varianter for datoene, saksoverskriften og navigasjonen i saken](bilder/h-varianter.png)
 
 - Tre komponenter tok mye av høyden og bredden i versjon 2: datolinja, saksoverskriften og fanene. Arket viser tre varianter av hver, med fordeler og ulemper.
-- Variantene med tykk ramme er brukt i B, D, F, G og I: datoene på én linje, kompakt overskrift og faner med handlingen til høyre. Den loddrette lista er brukt i G.
-- Variantene må prøves med ekte innhold før valget er endelig.
+- Variantene med tykk ramme er valgt og brukt i B, D, F, G og I.
+
+**Valget 27.10 (oppdragsgiver).** Det er disse variantene #1331 bygger:
+
+| Komponent | Valgt variant | Erstatter |
+| --- | --- | --- |
+| Navigasjonen i saken | b, sporene i venstre kolonne. Oversikt, sporene og de andre flatene står i en venstre kolonne under saksoverskriften. «Skriv brev i sporet» står over arbeidet | a, faner med handlingen til høyre (versjon 3–8) |
+| Datoene | b, tidslinja som komponent i høyre kolonne. Samme komponent i sporet (B og D) og for hele saken i Hendelser (G) | c, én linje over arbeidet (versjon 3–8) |
+| Saksoverskriften | b, kompakt, som før. Den er ikke avgjort, men endres ikke nå | — |
+
+Begrunnelsen:
+
+- **Sporene står synlige hele tiden.** Med sporene i venstre kolonne ser brukeren grunnlag, vederlag og frist, med antall brev og siste brev, samtidig som et av dem er åpent. Fanefeltet nådde grensen på sju faner, og kolonnen tåler flere spor, lange navn og notatene.
+- **Tidslinja tåler mange datoer.** Én linje over arbeidet brøt over flere linjer når datoene ble mange. Tidslinja i høyre kolonne viser hver dato med kilde og dagene mellom, og den er samme komponent i sporet og i Hendelser.
+- **Arbeidet starter høyere.** Fanefeltet og datolinja stod begge over arbeidet. Nå står bare navnet på flaten og handlingen der.
+- **Kostnaden er bredden.** Venstre kolonne tar om lag 250 px. Høyre kolonne er derfor smalnet fra 400 til 360 px, og skjemaet i B er om lag 730 px bredt. Kolonnen gjelder bare inne i saken; den globale navigasjonen står fortsatt i toppmenyen.
 
 ### I. Oversikt over sporene
 
 ![Skjerm I: siste krav og siste svar i grunnlag, vederlag og frist, side om side](bilder/i-oversikt.png)
 
-- Den første fanen viser de tre sporene side om side, så de kan sees samtidig. Hvert spor har siste krav og siste svar, med brevet, avsenderen, datoen og hovedlinjene fra kjernen.
+- Oversikt, øverst i venstre kolonne, viser de tre sporene side om side, så de kan sees samtidig. Hvert spor har siste krav og siste svar, med brevet, avsenderen, datoen og hovedlinjene fra kjernen.
 - Et spor uten svar sier «Ingen svar er sendt i sporet». Et utkast i eget team står under, merket som utkast.
 - Et spor uten brev sier det, i stedet for en tom liste.
 - Oversikten sier ikke hvem som skal svare, og den har ingen status.
@@ -219,11 +234,11 @@ Disse situasjonene er ikke unntak. De må virke fra første versjon.
 
 ## Visuelt språk
 
-Fargene og tokenene er de samme som i dagens app (oppdragsgiver 27.10): navnene og verdiene i lys modus fra [`theme.css`](../../../src/lib/components/kontraktsbord/theme.css), skriftene `--font-sans` (Inter) og `--font-legal` (IBM Plex Sans). Radius og luft er det komponentene i appen viser i dag: 12 px på kort, pilleform på knapper og merker, 4 px på felt, `20px 24px` innvendig i kort og `32px 40px` rundt sideinnholdet. Tokenene for radius i [`app.css`](../../../src/app.css) er ennå ikke tatt i bruk der (#1184). Oppsettet og komponentene er konseptets egne. Uttrykket er rolig og presist – et juridisk arkiv, ikke et kontrollpanel. Forskjellen fra dagens app ligger i oppsettet: toppmeny i stedet for sidemeny, rektangulære valgkort i stedet for pilleformede knapper og tabulartall i stedet for monospace.
+Fargene og tokenene er de samme som i dagens app (oppdragsgiver 27.10): navnene og verdiene i lys modus fra [`theme.css`](../../../src/lib/components/kontraktsbord/theme.css), skriftene `--font-sans` (Inter) og `--font-legal` (IBM Plex Sans). Radius og luft er det komponentene i appen viser i dag: 12 px på kort, pilleform på knapper og merker, 4 px på felt, `20px 24px` innvendig i kort og `32px 40px` rundt sideinnholdet. Tokenene for radius i [`app.css`](../../../src/app.css) er ennå ikke tatt i bruk der (#1184). Oppsettet og komponentene er konseptets egne. Uttrykket er rolig og presist – et juridisk arkiv, ikke et kontrollpanel. Forskjellen fra dagens app ligger i oppsettet: toppmeny i stedet for sidemeny, en venstre kolonne bare inne i saken, rektangulære valgkort i stedet for pilleformede knapper og tabulartall i stedet for monospace.
 
 | Element | Konkurrenten | Varden |
 | --- | --- | --- |
-| Ramme | Mørkegrønn sidemeny til venstre, bestemmelsespanel til høyre | Lys toppmeny. Hele bredden går til saken |
+| Ramme | Mørkegrønn sidemeny til venstre, bestemmelsespanel til høyre | Lys toppmeny. Inne i saken en venstre kolonne med sporene og en høyre kolonne med tidslinja |
 | Grunnfarge | Varm lysgrå | Den samme: grågrønne flater (`--canvas`, `--surface`, `--surface-warm`) og fire nivåer blekk |
 | Primærfarge | Skoggrønn | Den samme: `--brand` på primærknapp og lenker, `--ink` på tekst |
 | Signalfarger | Rød på «Nei, for sent», gul konklusjon | Tokenene i appen, bare for løsningens tilstand: `--draft-bg` med stiplet kant = utkast, `--warning-bg` = stoppet sending, `--success` = sendt, `--danger-bg` = feil. Ingen farge for en vurdering. Alltid med ord |
@@ -246,7 +261,7 @@ Kravet er WCAG 2.1 AA fra første versjon, og målet er 2.2 AA. En jurist skal k
 - Teksten har minst 4,5:1 kontrast mot flaten den står på: dempet tekst (`--ink-3`) 5,2:1 eller mer på alle flatene i skissene, også statusflatene. Ingen tilstand vises med farge alene.
 - Valgkortene er ekte radioknapper i en `fieldset` med `legend` = spørsmålet. Hjemmelsbrikken er en knapp med navnet «Les § 34.1.2».
 - Panelet med hovedlinjene er en `aria-live="polite"`-region som leser opp den endrede linja, ikke hele panelet.
-- Datolinja har en tekstversjon som skjermleseren får først: «Forholdet oppdaget 2. oktober, oppgitt av TE i brev 1. Varsel 9. oktober, brev 2.»
+- Tidslinja er en liste i rekkefølge, så skjermleseren leser dato, hendelse og kilde for hver rad: «2. oktober 2026, forholdet oppdaget, oppgitt av TE i brev 1.» Venstre kolonne er en `nav` med navnet «Saken», og flaten som vises, har `aria-current`.
 - Hele svaret kan gis med tastatur: Tab mellom spørsmål, piltaster mellom valg, Ctrl+Enter åpner brevkontrollen.
 - Under 1024 px legger panelet med hovedlinjene seg som en fast linje nederst som kan trekkes opp.
 - Trykkflatene er minst 44 × 44 px. Visningen prøves ved 200 % zoom, med skjermleser og med lange norske navn.
@@ -280,7 +295,7 @@ Deretter prøves de samme flatene med ubesvart grunnlag, sammenfall med kravet, 
 
 | Kan prøves i prototype nå | Må avklares før handlingen bygges |
 | --- | --- |
-| Siste brev i hovedflaten, datolinja med kilder og tilstander uten status | Hvilke varslingsfrister som registreres, og fra hvilken dato hver regnes |
+| Siste brev i hovedflaten, tidslinja med kilder og tilstander uten status | Hvilke varslingsfrister som registreres, og fra hvilken dato hver regnes |
 | Faste beløpsvalg og subsidiære spørsmål | Hvilke kombinasjoner av standpunkter som er gyldige, og hvordan de registreres |
 | Begrunnelse ved hver vurdering og samlet visning av brevet | Fast rekkefølge for begrunnelsene i brevet |
 | Vilkår synlige før aksept og senere | Frafall, oppfyllelse og forslag om endring |
@@ -292,9 +307,10 @@ Leveres i denne rekkefølgen: saken og det mottatte svaret, svarskjemaet og hove
 
 Konseptet er ikke testet med brukere. Disse spørsmålene må avklares før vi bygger en prototype:
 
-- [ ] Hvilke varslingsfrister skal datolinja registrere? Kartlegg fristene i NS 8407, hvilken dato hver regnes fra og hvilket brev som registrerer den, før linja bygges.
-- [ ] Prøv datoene grundig på saker med mange frister, spor og brev: holder én linje over arbeidet, eller må den loddrette lista (H, variant b) brukes i sporet også?
-- [ ] Prøv variantene i H med ekte innhold, lange norske navn og 200 % zoom før valget er endelig.
+- [ ] Hvilke varslingsfrister skal tidslinja registrere? Kartlegg fristene i NS 8407, hvilken dato hver regnes fra og hvilket brev som registrerer den, før tidslinja bygges.
+- [ ] Prøv tidslinja på saker med mange frister og brev: hvor lang kan den bli i høyre kolonne før den må kortes ned med en lenke til Hendelser?
+- [ ] Hvordan oppfører de tre kolonnene seg under 1024 px og ved 200 % zoom? Forslag: venstre kolonne blir en liste over sporene øverst, og høyre kolonne legger seg under arbeidet.
+- [ ] Prøv saksoverskriften (H, variant b eller c) med ekte innhold og lange norske navn. Den er ikke avgjort ennå.
 - [ ] Hvordan vises en dato partene oppgir ulikt, for eksempel når forholdet ble oppdaget? Forslag: begge datoene, hver med sin kilde, uten at løsningen velger.
 - [ ] Trenger rådgivere på byggherresiden en egen rolle med lesetilgang til utkast, eller holder det med team?
 - [ ] Skal brevet kunne eksporteres med partenes egen brevmal, eller bare med vår?
