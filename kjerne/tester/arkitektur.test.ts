@@ -615,7 +615,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   // KA-U1, HF-U8: meldingen når aksepten ikke gjelder det gjeldende svaret, lik i
   // forutsetningene og nyttelastkontrollen.
-  ['kommandoer/forutsetninger.ts', 'brevtekst', 'ELDRE_SVAR', ['kommandoer/nyttelast.ts']],
+  [
+    'kommandoer/forutsetninger.ts',
+    'brevtekst',
+    'ELDRE_SVAR INTET_SVAR',
+    ['kommandoer/nyttelast.ts'],
+  ],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel'],

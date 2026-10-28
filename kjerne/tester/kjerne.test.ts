@@ -1070,6 +1070,34 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
   });
 });
 
+describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF-U8)', () => {
+  const melding = async (steg: (string | Handling)[]) => {
+    const k = await bygg(minnebane(), ['krav_irreg', ...steg]);
+    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' });
+    return u.godtatt ? 'godtatt' : u.avvisning;
+  };
+
+  it('uten svar i sporet nevnes ikke et eldre svar', async () => {
+    const a = await melding([]);
+    expect(a).toMatchObject({ regel: 'IKKE_GJELDENDE_SVAR' });
+    expect(a).not.toMatchObject({ melding: expect.stringContaining('eldre svar') });
+  });
+
+  it('etter en ny grunnlagsversjon sier meldingen at svaret er eldre, ikke avslått eller falt bort', async () => {
+    const a = await melding([
+      {
+        handling: 'brev',
+        svar: [{ spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true }],
+      },
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring' },
+    ]);
+    expect(a).toMatchObject({
+      regel: 'IKKE_GJELDENDE_SVAR',
+      melding: expect.stringContaining('ikke avslått eller falt bort'),
+    });
+  });
+});
+
 /**
  * GR-U18: frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget, ikke der
  * endringen kommer av offentlig myndighet eller gebyr. Frafall kan ikke kombineres med at

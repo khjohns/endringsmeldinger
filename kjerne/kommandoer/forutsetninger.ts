@@ -116,7 +116,8 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
   }
 }
 
-const AVSLAGET_GODTATT = 'TE har godtatt avslaget på grunnlaget, og saken er lukket (GR-U27).';
+const AVSLAGET_GODTATT =
+  'TE har godtatt svaret på grunnlaget, som avslår det eller påberoper preklusjon, og saken er lukket (GR-U27).';
 
 /** Et utsagn i fristen som ikke er et krav, når sporet er lukket (GR-U27, GR-U5, KA-U12). */
 function fristenErLukket(u: Utledning): Avvisning | null {
@@ -132,6 +133,9 @@ export const avvis = (regel: string, melding: string): Avvisning => ({ regel, me
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
   'Aksepten må gjelde byggherrens gjeldende svar i sporet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
+
+/** Meldingen når aksepten ikke gjelder noe svar byggherren har sendt i sporet. */
+export const INTET_SVAR = 'Aksepten må gjelde et svar byggherren har sendt i sporet.';
 
 const KRAVET: Record<Kravspor, string> = {
   vederlag: 'justering av vederlaget',
@@ -255,7 +259,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       return null;
     case 'godta':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      if (!s.gjeldendeSvar) return avvis('IKKE_GJELDENDE_SVAR', ELDRE_SVAR);
+      if (!s.gjeldendeSvar)
+        return avvis('IKKE_GJELDENDE_SVAR', s.svar.length > 0 ? ELDRE_SVAR : INTET_SVAR);
       // GR-U8: enigheten er alt registrert, også når byggherren har godkjent hele kravet.
       if (s.enighet)
         return avvis(

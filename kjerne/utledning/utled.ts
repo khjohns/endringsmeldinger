@@ -416,7 +416,9 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
 
 /** Hvorfor det som kan endre utfallet, avvises: saken er lukket etter GR-U27. */
 const lukket = (u: Utledning): string | null =>
-  u.grunnlagAvvist ? 'TE har godtatt avslaget på grunnlaget (GR-U27)' : null;
+  u.grunnlagAvvist
+    ? 'TE har godtatt svaret på grunnlaget, som avslår det eller påberoper preklusjon (GR-U27)'
+    : null;
 
 /** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
 function kravetStrider(k: Krav, u: Utledning): string | null {

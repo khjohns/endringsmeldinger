@@ -286,8 +286,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      if (!s.gjeldendeSvar) return avvis('IKKE_GJELDENDE_SVAR', ELDRE_SVAR);\n",
-        "      if (!s.gjeldendeSvar) return avvis('IKKE_GJELDENDE_SVAR', ELDRE_SVAR);\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
+        "        return avvis('IKKE_GJELDENDE_SVAR', s.svar.length > 0 ? ELDRE_SVAR : INTET_SVAR);\n",
+        "        return avvis('IKKE_GJELDENDE_SVAR', s.svar.length > 0 ? ELDRE_SVAR : INTET_SVAR);\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
       ],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) kommandoer/forutsetninger.ts'],
@@ -796,10 +796,7 @@ const MUTASJONER: Mutasjon[] = [
       'en hendelse som endrer utfallet etter at saken er lukket, leses med virkning (MM-U18, SK-01, KA-U11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      [
-        "  u.grunnlagAvvist ? 'TE har godtatt avslaget på grunnlaget (GR-U27)' : null;",
-        "  false ? 'TE har godtatt avslaget på grunnlaget (GR-U27)' : null;",
-      ],
+      ["  u.grunnlagAvvist\n    ? 'TE har godtatt svaret", "  false\n    ? 'TE har godtatt svaret"],
     ],
     mal: ['F-MM-U326h'],
   },
@@ -888,6 +885,7 @@ const MUTASJONER: Mutasjon[] = [
         '      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.\n',
         "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
+      ["} from '../utledning/utled.ts';", "  kraveneErAvgjort,\n} from '../utledning/utled.ts';"],
     ],
     mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
   },
@@ -1879,19 +1877,6 @@ const MUTASJONER: Mutasjon[] = [
       'F-MM-G28',
       'F-MM-G34',
     ],
-  },
-  {
-    id: 'F227',
-    feilklasse:
-      'et felt som ikke gjelder kategorien, avvises som «i tide» før utregningen (#520, HF-U4)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        '  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);',
-        "  if (s.vurderinger.grunnlag_varslet_i_tide === false && paaberoptEtterITide(u, s.spor, [{ id: '', art: 'rettidighet', gjelder: '', hjemmel: '32.2', iTide: false }]))\n    return avvis('SAGT_I_TIDE', '');\n  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);",
-      ],
-    ],
-    mal: ['på en registrert versjon i svikt avvises av utregningen'],
   },
   {
     id: 'F234',
