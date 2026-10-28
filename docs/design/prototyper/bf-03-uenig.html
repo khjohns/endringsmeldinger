@@ -258,6 +258,8 @@
   for (const k of document.querySelectorAll('.kontrollert'))
     k.addEventListener('change', () =>
       k.closest('.card-b').querySelector('.send').setAttribute('aria-disabled', String(!k.checked)));
+  for (const s of document.querySelectorAll('.send'))
+    s.addEventListener('click', (e) => { if (s.getAttribute('aria-disabled') === 'true') e.preventDefault(); });
   document.getElementById('vis-spor').addEventListener('change', (e) => document.body.classList.toggle('spor', e.target.checked));
   for (const a of document.querySelectorAll('.proto-bar a[href="#mottatt"], a.nullstill')) a.addEventListener('click', () => { protestert = false; });
   addEventListener('hashchange', vis);
