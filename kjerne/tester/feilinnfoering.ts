@@ -230,27 +230,40 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F12',
-    feilklasse: 'en ny kravversjon opphever enigheten i stedet for å avvises (KA-U7)',
+    feilklasse:
+      'en ny kravversjon i et spor med registrert enighet avvises, som før MM-U34 punkt 9',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      if (s.enighet)\n        return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Kravet kan ikke endres.');\n",
-        '',
+        '      // MM-U34 punkt 9: også i et spor med registrert enighet, fram til endringsordren.\n',
+        "      if (s.enighet) return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret.');\n",
       ],
     ],
-    mal: ['F-MM-A', 'F-MM-G10', 'F-MM-G30'],
+    mal: [
+      'TE kan sende en ny kravversjon i et spor med enighet ved aksept eller sammenfall',
+      'TE kan sende en ny grunnlagsversjon når godkjenningen av grunnlaget gir enighet',
+    ],
   },
   {
-    id: 'F13',
-    feilklasse: 'et trukket spor hindrer endringsordre (EO-U2, #312)',
+    id: 'F12b',
+    feilklasse:
+      'en ny kravversjon i et spor med registrert enighet gjør saken ikke forstått, som før MM-U34 punkt 9 (MM-U18)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)',
-        'KRAVSPOR.every((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)',
+        "  if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';\n",
+        "  if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';\n  if (u.spor[k.spor].enighet) return 'en ny kravversjon i et spor med enighet';\n",
       ],
     ],
-    mal: ['F-MM-EO1'],
+    mal: ['TE kan sende en ny kravversjon i et spor med enighet ved aksept eller sammenfall'],
+  },
+  {
+    id: 'F13',
+    feilklasse:
+      'saken kan inngå i en endringsordre etter at TE har godtatt avslaget på grunnlaget (GR-U27, MM-U34 punkt 20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['!== null && !u.grunnlagAvvist && !u.spor', '!== null && !u.spor']],
+    mal: ['ikke når TE har godtatt avslaget på grunnlaget (GR-U27, MM-U34 punkt 20)'],
   },
   {
     id: 'F14',
@@ -291,15 +304,11 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F17',
-    feilklasse: 'et trukket spor gir alene grunnlag for endringsordre (EO-U5)',
+    feilklasse:
+      'saken kan inngå i en endringsordre etter at TE har trukket grunnlaget (GR-U27, MM-U34 punkt 20)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)',
-        'KRAVSPOR.some((n) => u.spor[n].trukket || u.spor[n].enighet !== null)',
-      ],
-    ],
-    mal: ['F-MM-EO3'],
+    endringer: [[' && !u.spor.grunnlag.trukket;', ';']],
+    mal: ['ikke når TE har trukket grunnlaget (GR-U27, MM-U34 punkt 20)'],
   },
   {
     id: 'F18',
@@ -367,7 +376,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'forbudet mot trekk gjelder også kategorier § 32.2 ikke gjelder for (KA-U13)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['blirEndringsordre(gSvar.beslutningsgrunnlag)', '(gSvar.beslutningsgrunnlag.sammenfall)'],
+      ['blirEndringsordre(svaret.beslutningsgrunnlag)', '(svaret.beslutningsgrunnlag.sammenfall)'],
     ],
     mal: ['F-MM-G13', 'F-MM-G14', 'F-MM-G19'],
   },
@@ -385,8 +394,8 @@ const MUTASJONER: Mutasjon[] = [
         '  dokumenter: Map<string, Dokument>,\n  regler: Regelsett\n): Pick<Utledning',
       ],
       [
-        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
-        '(gSvar.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)))',
+        'blirEndringsordre(svaret.beslutningsgrunnlag)',
+        '(svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)))',
       ],
     ],
     mal: ['F-MM-G15'],
@@ -397,11 +406,21 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
-        '(gSvar.beslutningsgrunnlag.varslingsplikt === true)',
+        'blirEndringsordre(svaret.beslutningsgrunnlag)',
+        '(svaret.beslutningsgrunnlag.varslingsplikt === true)',
       ],
     ],
     mal: ['F-MM-G16', 'F-MM-G17'],
+  },
+  {
+    id: 'F26b',
+    feilklasse:
+      'en ny grunnlagsversjon tar bort sperren mot trekk etter en godkjenning som er en endringsordre (EO-U12)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['endringsordre: spor.grunnlag.svar.some(', 'endringsordre: (gSvar ? [gSvar] : []).some('],
+    ],
+    mal: ['etter en ny grunnlagsversjon kan TE fortsatt ikke trekke grunnlaget'],
   },
   // F27–F47 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
   {
@@ -423,8 +442,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
-        "(gSvar.beslutningsgrunnlag.sammenfall && gSvar.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2'))",
+        'blirEndringsordre(svaret.beslutningsgrunnlag)',
+        "(svaret.beslutningsgrunnlag.sammenfall && svaret.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2'))",
       ],
     ],
     mal: ['korrespondanse som bare er mottatt, er også registrert'],
@@ -811,7 +830,7 @@ const MUTASJONER: Mutasjon[] = [
       'et registrert brev som strider mot en enighet eller et trekk, gjør saken ikke forstått (MM-U18, OV-U4)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
-    mal: ['F-MM-U326n', 'F-MM-G37'],
+    mal: ['F-MM-U326l', 'F-MM-G37'],
   },
   {
     id: 'F78',
@@ -847,71 +866,31 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F82',
     feilklasse:
-      'en innsigelse mot det en enighet omfatter, godtas, eller en innsigelse godtas ikke etter at enigheten har falt bort (OV-U65, OV-U66)',
+      'en innsigelse mot det en registrert enighet omfatter, avvises, som før MM-U34 punkt 13',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        '      const spor = enighetenOmfatter(u, h.gjelder);',
-        '      const spor = null as Spor | null;',
+        '      return kanFaaInnsigelse(maal, part)\n        ? null\n',
+        "      return kanFaaInnsigelse(maal, part)\n        ? (['grunnlag', 'vederlag', 'frist'] as const).some((n) => u.spor[n].enighet !== null)\n          ? avvis('ENIGHETEN_OMFATTER', 'Partene er enige.')\n          : null\n",
       ],
     ],
-    mal: ['F-MM-V5', 'F-MM-V6', 'F-MM-V11'],
-  },
-  {
-    id: 'F82b',
-    feilklasse:
-      'sperren etter enighet gjelder også når enigheten er uten virkning (OV-U66 punkt 2)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "    if (u.spor[n].trukket || (virkning !== 'betinget' && virkning !== 'virksom')) continue;",
-        '    if (u.spor[n].trukket || virkning === null) continue;',
-      ],
+    mal: [
+      'innsigelsen mot fristkravet og svaret partene er enige om ved sammenfall, godtas',
+      'innsigelsen mot et grunnlagskrav med registrert enighet ved en endringsordre godtas',
+      'godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter',
     ],
-    mal: ['F-MM-V11b'],
-  },
-  {
-    id: 'F82c',
-    feilklasse: 'sperren etter enighet gjelder også en eldre kravversjon (HF-U8, OV-U67 punkt 2)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ['      id === s.gjeldendeKrav?.id ||', '      s.krav.some((k) => k.id === id) ||'],
-    ],
-    mal: ['F-MM-V11d'],
-  },
-  {
-    id: 'F82d',
-    feilklasse:
-      'sperren etter enighet gjelder også etter at grunnlaget er trukket (KA-U6, OV-U66 punkt 2)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "    if (u.spor[n].trukket || (virkning !== 'betinget' && virkning !== 'virksom')) continue;",
-        "    if (virkning !== 'betinget' && virkning !== 'virksom') continue;",
-      ],
-    ],
-    mal: ['etter at TE har trukket grunnlaget, er enigheten om det uten virkning og sperrer ikke'],
-  },
-  {
-    id: 'F82f',
-    feilklasse:
-      'sperren gjelder en eldre kravversjon et tidligere «i tide» gjaldt, også etter at TE har registrert et eget varsel (OV-U68)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['(gjelder(p) && !eldreKravversjon(p))', 'gjelder(p)']],
-    mal: ['en eldre kravversjon et tidligere «i tide» gjaldt som varsel, omfattes ikke'],
   },
   {
     id: 'F82e',
-    feilklasse:
-      'en innsigelse avvises når kravene er avgjort, også mot det ingen enighet omfatter (OV-U3)',
+    feilklasse: 'en innsigelse avvises når kravene er avgjort (OV-U3, KA-U11)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        '      const spor = enighetenOmfatter(u, h.gjelder);',
-        "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n      const spor = enighetenOmfatter(u, h.gjelder);",
+        '      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.\n',
+        "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
     ],
-    mal: ['godtas byggherrens innsigelse mot et varsel ingen enighet omfatter'],
+    mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
   },
   {
     id: 'F84',
@@ -2040,11 +2019,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F235',
     feilklasse:
-      'utledningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (GR-U24, #510, #580)',
+      'utledningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (OV-U3, #510, #580)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [[' && !s.trukket && !sporetErLukket(u, spor)\n', ' && !s.trukket\n']],
     mal: [
-      'svaret på versjon 2 avvises (GR-U24',
+      'svaret på versjon 2 avvises (OV-U3',
       'SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav',
     ],
   },
@@ -2054,7 +2033,7 @@ const MUTASJONER: Mutasjon[] = [
       'en endringsordre byggherren har registrert, er en endringsordre i saken og sperrer TEs trekk av grunnlaget (OV-U6, #594)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['    !erRegistrert(dokumenter.get(gSvar.dokument)!.opplysninger)\n', '    true\n'],
+      ['    !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)\n', '    true\n'],
     ],
     mal: ['F-MM-G43', 'F-MM-G18', 'F-MM-G45'],
   },
@@ -2075,10 +2054,19 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F241',
-    feilklasse: 'aksepten av beregningsmåten sammenliknes ikke (HF-U14)',
+    feilklasse:
+      'en revisjon som tar tilbake aksepten av fast sum, avvises, som før MM-U34 punkt 15 (HF-U14 opphevet)',
     fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [['if (ny(f)?.aksepterer === false)', 'if (false)']],
-    mal: ['aksepten av beregningsmåten kan ikke tas tilbake', 'F-MM-HF-U14'],
+    endringer: [
+      [
+        "    } else if (f.art === 'hindring' && f.oppfylt) {\n",
+        "    } else if (f.art === 'metode' && f.aksepterer) {\n      if (ny(f)?.aksepterer === false) return 'aksepten av fast sum tas tilbake';\n    } else if (f.art === 'hindring' && f.oppfylt) {\n",
+      ],
+    ],
+    mal: [
+      'en revisjon som tar tilbake aksepten av fast sum, godtas',
+      'en revisjon som tar tilbake aksepten av fast sum, avvises bare når den også senker beløpet',
+    ],
   },
   {
     id: 'F242',
@@ -2393,20 +2381,40 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F276',
     feilklasse:
-      'en revisjon av et svar partene er enige om, leses med virkning (GR-U10, KA-U7, #669)',
+      'en revisjon av et svar med registrert enighet gjør saken ikke forstått, som før MM-U34 punkt 11 (MM-U18)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  if (s.erstatter !== null && u.spor[s.spor].enighet)',
-        '  if (s.erstatter !== null && u.spor[s.spor].enighet && !s)',
+        "  if (utenVirkning(s.erstatter)) return 'svaret viser til et element uten virkning';\n",
+        "  if (s.erstatter !== null && u.spor[s.spor].enighet) return 'en revisjon i et spor med enighet';\n  if (utenVirkning(s.erstatter)) return 'svaret viser til et element uten virkning';\n",
       ],
     ],
-    mal: ['en revisjon av et svar partene er enige om (GR-U10, KA-U7)'],
+    mal: [
+      'en revisjon av en godkjenning av grunnlaget med registrert enighet gir ingen grunn',
+      'byggherren kan revidere et svar TE har godtatt, og saken er forstått',
+      'byggherren kan revidere en godkjenning av grunnlaget som er en endringsordre, og saken er forstått',
+    ],
+  },
+  {
+    id: 'F276b',
+    feilklasse:
+      'byggherren kan ikke revidere et svar TE har godtatt eller som stemmer med kravet, som før MM-U34 punkt 11',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        '      // MM-U34 punkt 11, EO-U12: også et svar TE har godtatt eller som stemmer med kravet.\n',
+        "      if (s.enighet) return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret.');\n",
+      ],
+    ],
+    mal: [
+      'byggherren kan revidere et svar TE har godtatt',
+      'byggherren kan revidere et svar som stemmer med kravet',
+      'byggherren kan revidere en godkjenning av grunnlaget som er en endringsordre',
+    ],
   },
   {
     id: 'F277',
-    feilklasse:
-      'en aksept av et svar partene alt er enige om, gir ingen strid (GR-U8, KA-U7, #669)',
+    feilklasse: 'en aksept av et svar med registrert enighet gir ingen strid (GR-U8, #669)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -2414,7 +2422,7 @@ const MUTASJONER: Mutasjon[] = [
         '  if (false)',
       ],
     ],
-    mal: ['en aksept av et svar partene alt er enige om (GR-U8, KA-U7)'],
+    mal: ['en aksept av et svar med registrert enighet (GR-U8)'],
   },
   {
     id: 'F278',
@@ -2755,12 +2763,29 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F311',
     feilklasse:
-      'saken kan inngå i en endringsordre med et spor TE fortsatt kan sende (EO-U5, arbeidsvalget i #493)',
+      'endringsordren krever registrert enighet i vederlag eller frist, som før MM-U34 punkt 20',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['    KRAVSPOR.every((n) => u.spor[n].krav.length > 0 || u.spor[n].ingenKrav) &&\n', ''],
+      [
+        'u.spor.grunnlag.gjeldendeKrav !== null && !u.grunnlagAvvist',
+        'u.spor.grunnlag.gjeldendeKrav !== null && KRAVSPOR.some((n) => u.spor[n].enighet !== null) && !u.grunnlagAvvist',
+      ],
     ],
-    mal: ['et spor uten krav hindrer ikke'],
+    mal: [
+      'også uten registrert enighet i noe spor, men ikke før grunnlaget er sendt',
+      '«ingen krav» i begge spor avgjør kravene, og saken kan inngå i en endringsordre',
+    ],
+  },
+  {
+    id: 'F311b',
+    feilklasse:
+      'et frafall etter § 32.3 c hindrer at saken inngår i en endringsordre, som før GR-U28',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['!u.spor.grunnlag.trukket;', '!u.spor.grunnlag.trukket && !u.frafalt;']],
+    mal: [
+      'også når byggherren har frafalt pålegget etter § 32.3 c (GR-U28)',
+      'grunnlaget er avklart ved frafallet',
+    ],
   },
   {
     id: 'F312',

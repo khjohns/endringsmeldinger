@@ -119,11 +119,9 @@ function kontrollerSvar(
 }
 
 /**
- * HF-U5, HF-U14, HF-U21: en revisjon av et svar TE ikke har godtatt, kan ikke senke noe
- * byggherren har innrømmet i svaret, også etter en ny grunnlagsversjon med samme hjemmel.
- * En ny kravversjon gir et nytt svar, ikke en revisjon (HF-U8). Et registrert svar med
- * virkning er bare byggherrens endringsordre etter OV-U6, som gir enighet ved sammenfall,
- * så revisjonen av det er avvist før dette (GR-U10, KA-U7). `nye` er standpunktene i
+ * HF-U5, HF-U21: en revisjon kan ikke senke noe byggherren har innrømmet i svaret den
+ * erstatter, også etter en ny grunnlagsversjon med samme hjemmel. En ny kravversjon gir
+ * et nytt svar, ikke en revisjon (HF-U8). `nye` er standpunktene i
  * revisjonen slik brevet ville lagret dem, med serverens utregning.
  */
 function binding(forrige: Svar, nye: Standpunkt[], forskyvning: number): Avvisning | null {

@@ -389,9 +389,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'predikat',
     'utled utledJournal kraveneErAvgjort varAvgjort trekkAvGrunnlagetErSperret',
   ],
-  // OV-U65, OV-U66: det en enighet omfatter, utledet av enigheten, kravet, svaret og
-  // standpunktene i sporet. Leses av sperren mot innsigelsen.
-  ['utledning/utled.ts', 'predikat', 'enighetenOmfatter', ['kommandoer/forutsetninger.ts']],
   ['utledning/utled.ts', 'relasjon', 'grunnlagskravFor'],
   ['utledning/utled.ts:grunnlagskravFor', 'relasjon', 'grunnlagskrav'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
@@ -879,7 +876,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/frysing.ts', 'regelsett', 'grunnlagsstandpunkter', ['kommandoer/standpunkter.ts']],
   // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
   ['kommandoer/standpunkter.ts', 'utsagn', 'standpunkter', ['kommandoer/skriving.ts']],
-  // HF-U5, HF-U14: det en revisjon senker av det svaret innrømmer, standpunkt for standpunkt.
+  // HF-U5: det en revisjon senker av det svaret innrømmer, standpunkt for standpunkt.
   // MM-U27: utledningen sammenlikner en revisjon utenfor kommandoene på samme måte.
   [
     'utledning/innroemmelse.ts',

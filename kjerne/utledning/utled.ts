@@ -220,9 +220,10 @@ export interface Utledning {
    */
   frafalt: boolean;
   /**
-   * Om byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3
-   * første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13): godkjent uten påberopt
-   * preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt fra appen. En
+   * Om byggherren har godkjent grunnlaget i et svar som er en endringsordre etter
+   * § 32.3 første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13): godkjent uten påberopt
+   * preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt fra appen. Det gjelder
+   * også når svaret er erstattet eller kravet har fått en ny versjon (EO-U12). En
    * registrert endringsordre etter OV-U6 er `nei`: opplysningen fra byggherren
    * vises, men gir ingen egen virkning i appen.
    */
@@ -421,12 +422,11 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
 
 /**
  * MM-U18: elementene i dokumentet som ikke kan forstås i samsvar med journalen før
- * det og vedtakene om enighet og lukking: en ny kravversjon eller en revisjon i et
- * spor med enighet (KA-U7, GR-U10), en ny kravversjon i et trukket spor eller et spor
+ * det og vedtakene om enighet og lukking: en ny kravversjon i et trukket spor eller et spor
  * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor
  * (MM-U20), et avslag av grunnlaget eller en påberopelse etter § 32.2 når frafallet
  * binder (GR-U17, GR-U20), en aksept av et frafall (GR-U9) eller av et svar
- * partene alt er enige om (GR-U8, KA-U7), noe som endrer
+ * med registrert enighet (GR-U8), noe som endrer
  * utfallet for det som var avgjort (OV-U3) eller etter at avslaget av grunnlaget er godtatt
  * (SK-01), og det som viser til et element uten virkning. Kontrollen
  * gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
@@ -463,7 +463,6 @@ function kravetStrider(k: Krav, u: Utledning): string | null {
   if (l) return `en kravversjon etter at ${l}`;
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
   if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';
-  if (u.spor[k.spor].enighet) return 'en ny kravversjon i et spor med enighet (KA-U7)';
   return null;
 }
 
@@ -476,8 +475,6 @@ function svaretStrider(
 ): string | null {
   const l = lukket(u, s.spor);
   if (l) return `et svar etter at ${l}`;
-  if (s.erstatter !== null && u.spor[s.spor].enighet)
-    return 'en revisjon av et svar partene er enige om (GR-U10, KA-U7)';
   if (utenVirkning(s.erstatter)) return 'svaret viser til et element uten virkning';
   if (u.spor[s.spor].trukket) return 'et svar på et krav etter at det er trukket (MM-U20, GR-U5)';
   if (bundet && s.spor === 'grunnlag' && standpunktet(s, 'grunnlag')?.resultat === 'avslaatt')
@@ -521,7 +518,7 @@ function utsagnetStrider(
   if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)
     return 'en aksept av et frafall (GR-U9)';
   if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)
-    return 'en aksept av et svar partene alt er enige om (GR-U8, KA-U7)';
+    return 'en aksept av et svar med registrert enighet (GR-U8)';
   return null;
 }
 
@@ -551,7 +548,7 @@ export function forskyvningIBrevet(svar: Svar, u: Utledning): number {
  * MM-U27: elementene i en hendelse som ikke er et registrert brev, og som byggherren ikke
  * kunne sendt fra appen fordi hen er bundet av et svar sendt fra appen: en påberopelse av
  * at et varsel eller krav kom for sent etter at hen har sagt at det kom i tide (HF-U4),
- * og en revisjon som senker det hen har innrømmet i et svar TE ikke har godtatt (HF-U5).
+ * og en revisjon som senker det hen har innrømmet i svaret den erstatter (HF-U5).
  * Samme kontroller som kommandoene, så journalen henger sammen også utenfor dem.
  */
 function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
@@ -570,7 +567,7 @@ function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
       ut.push({
         element: s.id,
         grunn:
-          'en revisjon som senker det byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5, MM-U27)',
+          'en revisjon som senker det byggherren har innrømmet i svaret den erstatter (HF-U5, MM-U27)',
       });
   }
   for (const x of d.utsagn)
@@ -932,8 +929,8 @@ function kontrollerAksepter(
   for (const a of aksepter) {
     if (!alleSvar.has(a.gjelder) || !bakover(a.id, a.gjelder))
       ugyldig(a.id, 'aksepten viser til et svar som ikke står før den');
-    // GR-U8: et svar som godkjenner hele kravet, kan ikke godtas. KA-U7: en enighet
-    // inngås én gang, så to aksepter av samme svar er tvetydige.
+    // GR-U8: et svar som godkjenner hele kravet, kan ikke godtas, og to aksepter av samme
+    // svar er tvetydige.
     else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall)
       ugyldig(a.id, 'aksepten gjelder et svar partene alt er enige om ved sammenfall');
     else if (aksepter.filter((x) => x.gjelder === a.gjelder).length > 1)
@@ -1255,12 +1252,14 @@ function grunnlaget(
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
     // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). En
     // registrert endringsordre gir ingen egen virkning (OV-U6).
-    endringsordre:
-      gSvar &&
-      blirEndringsordre(gSvar.beslutningsgrunnlag) &&
-      !erRegistrert(dokumenter.get(gSvar.dokument)!.opplysninger)
-        ? 'ja'
-        : 'nei',
+    // EO-U12: en ny grunnlagsversjon eller et nytt svar tar ikke bort endringsordren.
+    endringsordre: spor.grunnlag.svar.some(
+      (svaret) =>
+        blirEndringsordre(svaret.beslutningsgrunnlag) &&
+        !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)
+    )
+      ? 'ja'
+      : 'nei',
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
     frafalt: venterEtterFrafall || (gSvar !== null && frafaller(gSvar)),
   };
@@ -1268,7 +1267,8 @@ function grunnlaget(
 
 /**
  * KA-U13 og KA-U14, med § 31.3 (GR-U13): TE kan ikke trekke grunnlaget når byggherren
- * har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre. Et
+ * har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre, også
+ * etter en ny kravversjon eller et nytt svar (EO-U12). Et
  * trekk ville gitt journalen den videre virkningen at endringsordren leses som bortfalt
  * (KA-U6). En endringsordre byggherren har registrert, sperrer ikke (OV-U6).
  */
@@ -1287,44 +1287,6 @@ export function enighetensVirkning(
   if (!e) return null;
   if (spor !== 'grunnlag' && (u.grunnlagAvvist || u.spor[spor].trukket)) return 'uten_virkning';
   return e.grunnlag.vilkaar === null || u.grunnlagAvklart ? 'virksom' : 'betinget';
-}
-
-/**
- * OV-U65 til OV-U68: sporet med en enighet som omfatter elementet, eller `null`.
- * Enigheten omfatter det gjeldende kravet, det gjeldende svaret med standpunktene i det,
- * standpunktene om varselet i tidligere svar fra appen som står mot kravet (HF-U4,
- * VS-U20), og det et standpunkt om varslingen gjelder (OV-U66 punkt 3). Eldre
- * kravversjoner og svar er avslått (HF-U8) og omfattes ikke. Et standpunkt i et tidligere
- * svar inngår, men ikke den eldre kravversjonen det gjaldt som varsel når TE senere har
- * registrert et eget varsel etter bestemmelsen (OV-U68). Sperren gjelder fra enigheten er
- * inngått, også mens den er betinget, og ikke når den er uten virkning, heller ikke etter
- * at grunnlaget er trukket (KA-U6, OV-U66 punkt 2).
- */
-export function enighetenOmfatter(u: Utledning, id: string): Spor | null {
-  for (const n of SPOR) {
-    const virkning = enighetensVirkning(u, n);
-    if (u.spor[n].trukket || (virkning !== 'betinget' && virkning !== 'virksom')) continue;
-    const s = u.spor[n];
-    const gjelder = (p: Standpunkt) => 'gjelder' in p && p.gjelder === id;
-    const eldreKravversjon = (p: Standpunkt) =>
-      p.art === 'rettidighet' &&
-      erVarselhjemmel(p.hjemmel) &&
-      s.varsler[p.hjemmel] !== undefined &&
-      s.varsler[p.hjemmel]!.id !== p.gjelder;
-    const tidligere = s.svar
-      .filter((x) => x.id !== s.gjeldendeSvar?.id && binder(u, x))
-      .flatMap((x) =>
-        x.standpunkter.filter((p) => p.art === 'rettidighet' && p.hjemmel !== '33.6.2')
-      );
-    if (
-      id === s.gjeldendeKrav?.id ||
-      id === s.gjeldendeSvar?.id ||
-      (s.gjeldendeSvar?.standpunkter ?? []).some((p) => p.id === id || gjelder(p)) ||
-      tidligere.some((p) => p.id === id || (gjelder(p) && !eldreKravversjon(p)))
-    )
-      return n;
-  }
-  return null;
 }
 
 /**
@@ -1352,19 +1314,14 @@ export function kraveneErAvgjort(u: Utledning): boolean {
 export const varAvgjort = (u: Utledning, spor: Spor): boolean => u.avgjorteSpor.includes(spor);
 
 /**
- * EO-U5, EO-U2: saken kan inngå i en endringsordre når kravene er avgjort, ingen av
- * vederlag og frist er et spor TE fortsatt kan sende (EO-U5, arbeidsvalget i #493),
- * grunnlaget er godkjent og ikke frafalt (GR-U3), og minst ett av vederlag og frist
- * har enighet, også et godtatt avslag. Et trukket spor og et spor med «ingen krav»
- * teller som avgjort, men gir ikke alene grunnlag for endringsordre.
+ * MM-U34 punkt 20: byggherren kan la en endringsordre omfatte hele KOE-saken når
+ * grunnlaget er sendt, også uten registrert enighet. Unntatt er en sak som er lukket
+ * etter GR-U27, fordi TE har godtatt avslaget på grunnlaget eller trukket grunnlaget.
+ * Et frafall etter § 32.3 c hindrer ikke (GR-U28). At saken alt er omfattet av en
+ * endringsordre (EO-U3), leses der EO-saken bygges (#1378).
  */
 export function kanInngaaIEo(u: Utledning): boolean {
-  return (
-    kraveneErAvgjort(u) &&
-    KRAVSPOR.every((n) => u.spor[n].krav.length > 0 || u.spor[n].ingenKrav) &&
-    !u.frafalt &&
-    KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)
-  );
+  return u.spor.grunnlag.gjeldendeKrav !== null && !u.grunnlagAvvist && !u.spor.grunnlag.trukket;
 }
 
 /**

@@ -423,7 +423,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     expect(forstaatt([...journal, fraTE(journal, [aksept(k, 'S-g1')])])).toBe(false);
   });
 
-  it('to aksepter av samme svar er ikke forstått (KA-U7); kontrollsak: én aksept', async () => {
+  it('to aksepter av samme svar er ikke forstått (GR-U8); kontrollsak: én aksept', async () => {
     const bane = minnebane();
     const k = await bygg(bane, ['forlop_a']);
     const journal = await bane.journal();
@@ -432,7 +432,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     expect(forstaatt([...journal, en, fraTE([en], [aksept(k, 'S-g1')])])).toBe(false);
   });
 
-  it('«ingen krav» i begge spor avgjør kravene, men gir ikke alene endringsordre (KA-U12, EO-U5)', async () => {
+  it('«ingen krav» i begge spor avgjør kravene, og saken kan inngå i en endringsordre (KA-U12, MM-U34 punkt 20)', async () => {
     const bane = minnebane();
     await bygg(bane, ['godkjent_grunnlag']);
     const journal = await bane.journal();
@@ -445,7 +445,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     );
     expect(u.forstaatt).toBe(true);
     expect(kraveneErAvgjort(u)).toBe(true);
-    expect(kanInngaaIEo(u)).toBe(false);
+    expect(kanInngaaIEo(u)).toBe(true);
   });
 
   it('«ingen krav» to ganger i samme spor er ikke forstått (4.2); kontrollsak: én gang', async () => {
