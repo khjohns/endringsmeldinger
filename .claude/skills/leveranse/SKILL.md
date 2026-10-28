@@ -105,7 +105,9 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 - Prøv akseptkriteriene mot forventninger fra et vedtak eller en annen uttrykkelig
   kilde, etter `.claude/rules/tester.md`. Der dagens atferd er en kjent feil, er
   likhet mellom gammel og ny kode ikke fasit. Utløser endringen feilinnføring:
-  vis at de representative testene oppdager relevante feil.
+  vis at de representative testene oppdager relevante feil. Beviset er
+  CI-kjøringen med etiketten `feilinnfoering`; en skyøkt kjører ikke hele
+  samlingen lokalt (oppdragsgiver 28.10).
 - Ved endret domeneregel eller kontrakt: prøv de berørte inngangene, også vanlig
   innsending, batch og godkjenning der de bruker regelen. Ved endret
   hendelsesdata eller serialisering: prøv faktisk lagring og gjenlesing. Vurder

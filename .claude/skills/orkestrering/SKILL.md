@@ -244,9 +244,10 @@ issue. Oppdraget skal inneholde:
   push til en klar PR koster en full kjøring. Feilinnføringene kjører også på et
   utkast når etiketten `feilinnfoering` er satt. Etiketten settes derfor først
   når PR-en meldes klar, så hele settet (om lag 26 minutter i CI) kjører én
-  gang per PR og ikke ved hver push. Før det kontrollerer økta ankrene lokalt
-  (#430) og kjører de feilinnføringene som gjelder endringen (oppdragsgiver
-  12.10, FK runde 9);
+  gang per PR og ikke ved hver push. Økta kontrollerer ankrene lokalt (#430),
+  men kjører ikke feilinnføringene lokalt: kjøringen tar lang tid, går ut over
+  avsatt tid og gjør at kontekstcachen mistes. De kjøres i CI når etiketten er
+  satt (oppdragsgiver 28.10);
 - at økta ikke abonnerer på PR-en (`subscribe_pr_activity`). Hver hendelse
   vekker økta og leser hele konteksten på nytt, også en grønn kjøring, egne
   pusher og mergen. Etter hver push venter økta på CI med én bakgrunnskommando
@@ -292,7 +293,7 @@ Bestillingen til økta sier:
 - **Grenser:** atferden er uendret, og ingen lagrede navn, kontrakter eller
   predikater endres. Det `/simplify` foreslår ut over det, avvises og føres i
   PR-en.
-- **Etterpå:** testene og feilinnføringene kjøres på nytt.
+- **Etterpå:** testene kjøres på nytt, og feilinnføringene kjøres i CI.
 - **PR-beskrivelsen** sier hva som ble endret og hva som ble avvist.
 
 ## Kontekst i arbeidsøktene

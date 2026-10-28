@@ -122,6 +122,10 @@ jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 `feilinnfoering`.
 
+En skyøkt kjører ikke hele samlingen lokalt som del av leveransen (oppdragsgiver
+28.10): kjøringen tar lang tid, og økta mister kontekstcachen. Full lokal kjøring
+brukes bare til å feilsøke en rød jobb i CI. `--ankre` kjøres fortsatt lokalt.
+
 Kjøres fra repoets rot, med SQL Server oppe og `KOE_SQLSERVER_TILKOBLING` satt.
 `--ankre` trenger ikke basen.
 
