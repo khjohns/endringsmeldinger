@@ -186,6 +186,19 @@ describe('vakttestene for brukerforløpene', () => {
     ]);
   });
 
+  // Kilde: #1350. Dekningsoversikten viser `kilder` bare for et planlagt forløp, så for et
+  // kjørbart forløp må vedtaket i bestillingen stå i en kontroll eller en forståelse.
+  it('et kjørbart forløp med vedtaket i bestillingen bare i kildene gir avvik', () => {
+    const b = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'kjørbar')!);
+    b.bestilling = 'BF-03.md';
+    b.kilder = vedtakIBestilling(b);
+    expect(b.kilder).toContain('OV-U64');
+    expect(kildebruk([b]).map(([k]) => k)).not.toContain('OV-U64');
+    expect(avvik(b, `${b.id}.json`)).toContain(
+      `${b.id}: BF-03.md viser til OV-U64, som mangler i kildene`
+    );
+  });
+
   // Kilde: #1330, punkt 4. OV-U52 er ikke bygget (#1308, #1309), og handlingen og
   // brevteksten etter OV-U54 er ikke kontrollert som bygget (#276).
   it('korrigeringen (4A) og den avviste rettingen (4C) er planlagt', () => {

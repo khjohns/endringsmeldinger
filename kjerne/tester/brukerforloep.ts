@@ -338,18 +338,12 @@ export function vedtakIBestilling(b: Brukerforloep): string[] {
 }
 
 /**
- * Kildene forløpet viser til: `kilder` og kildene i kontrollene og forståelsen. Hvert
- * vedtak bestillingen viser til, skal stå her (#1346), så dekningsoversikten viser det.
+ * Kildene forløpet viser til, slik dekningsoversikten viser dem: for et planlagt forløp
+ * `kilder`, ellers kildene i kontrollene og forståelsen. Hvert vedtak bestillingen viser
+ * til, skal stå her (#1346, #1350).
  */
-export function kilderI(b: Brukerforloep): Set<string> {
-  return new Set([
-    ...(b.kilder ?? []),
-    ...(b.kontrollpunkter ?? []).flatMap((p) => [
-      ...kontrollerI(p).flatMap((k) => k.kilde),
-      ...p.forstaaelse.flatMap((f) => f.kilde),
-    ]),
-  ]);
-}
+export const kilderI = (b: Brukerforloep): Set<string> =>
+  new Set(kildebruk([b]).map(([kilde]) => kilde));
 
 export async function genererte(): Promise<Record<string, string>> {
   return {
