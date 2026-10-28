@@ -439,11 +439,12 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
   // og en strid utenfor et registrert brev stopper utledningen. Bare svar og utsagn
   // kontrolleres derfor mot `uten` (#669).
   const utenVirkning = (id: string | null) => id !== null && uten.has(id);
+  const bundet = frafalletBinder(u);
   const med = (element: string, grunn: string | null): Strid[] =>
     grunn ? [{ element, grunn }] : [];
   return [
     ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
-    ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
+    ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning, bundet))),
     ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
   ];
 }
@@ -470,9 +471,9 @@ function kravetStrider(k: Krav, u: Utledning): string | null {
 function svaretStrider(
   s: Svar,
   u: Utledning,
-  utenVirkning: (id: string | null) => boolean
+  utenVirkning: (id: string | null) => boolean,
+  bundet: boolean
 ): string | null {
-  const bundet = frafalletBinder(u);
   const l = lukket(u, s.spor);
   if (l) return `et svar etter at ${l}`;
   if (s.erstatter !== null && u.spor[s.spor].enighet)
@@ -664,7 +665,7 @@ function utledSporene(
   const trekk: Utsagn<'trekk'>[] = [];
   const bestridelser: Utsagn<'bestridelse'>[] = [];
   const ingenKrav: Utsagn<'ingen_krav'>[] = [];
-  const varsler: Utsagn<'varsel'>[] = [];
+  const varsler: LestVarsel[] = [];
   const henvisninger: Henvisning[] = [];
   const foresporsler: Utsagn<'foresporsel'>[] = [];
   const opplysninger: LestOpplysning[] = [];
