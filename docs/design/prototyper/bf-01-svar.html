@@ -410,8 +410,10 @@
     $('.ov-varsel-n').textContent = forSent ? '0 kr' : '';
     $('.ov-sub').innerHTML = forSent ? '<b>Subsidiært</b>: hvis varselet kom i tide' : 'Godkjent';
     $('.ov-beloep').textContent = `${beloep} kr`;
-    $('.virk-tekst').textContent = forSent
-      ? `Du gjør gjeldende at varselet etter § 34.1.2 kom for sent, og godkjenner subsidiært ${beloep} kr eks. mva. Godtar TE svaret, er dere enige om hele svaret, også at varselet kom for sent.`
+    $('.virk-tekst').textContent = !varsel
+      ? 'Svaret er ikke ferdig, så det kan ikke sies hva det gjør før varselet er besvart.'
+      : forSent
+      ?`Du gjør gjeldende at varselet etter § 34.1.2 kom for sent, og godkjenner subsidiært ${beloep} kr eks. mva. Godtar TE svaret, er dere enige om hele svaret, også at varselet kom for sent.`
       : `Du godkjenner ${beloep} kr eks. mva. Godtar TE svaret, er dere enige om hele svaret.`;
   }
 
