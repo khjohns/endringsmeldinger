@@ -2059,6 +2059,37 @@ tekst = '''
 Når byggherren svarer på vederlag eller frist mens ansvarsgrunnlaget er ubesvart, uttrykker brevet at standpunktene gjelder under forutsetning av at totalentreprenøren har rett til vederlagsjustering eller fristforlengelse. Forbeholdet bygger på at ansvarsgrunnlaget er uavklart, ikke på automatisk videreføring av et tidligere grunnlagsavslag. Vil byggherren svare uten dette forbeholdet, må byggherren samtidig avklare grunnlaget.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "GR-U27"
+dato = 2026-10-28
+hvem = "oppdragsgiver"
+kilde = ["#1336", "#1338"]
+sporsmal = '''
+Åpent spørsmål 2 av forslaget til samlet tilslutning, runde 7 av #1338, 28.10, ordrett ([versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758)):
+
+**2. Lukkes en KOE-sak uten endringsordre når TE har godtatt avslaget på grunnlaget eller trukket grunnlaget?** I dag lukkes saken da: GR-U7 («Godtar TE avslaget på grunnlaget, lukkes saken»), GR-U5 (trekket), vedtaket 05.10 for #213 (saken er `LUKKET_AVSLATT` og «regnes som lukket for nye hendelser») og KA-U29 («Det som kan endre utfallet … avvises fortsatt»). I KA-U13 står «Trekket er i alle tilfeller sperret når TE har godtatt et avslag av grunnlaget (SK-01)». Svaret 1A sier at begge parter kan sende nye strukturerte standpunkter fram til endringsordren. En slik sak får aldri en endringsordre.
+- A. Ja. TEs aksept av avslaget på grunnlaget og TEs trekk av grunnlaget lukker saken i arbeidsflyten, som i dag. Innlegg og dokumentasjon godtas etterpå. GR-U7, GR-U5, vedtaket for #213, KA-U29 og KA-U13 står på dette punktet, og punkt 12 gjelder ikke disse sakene.
+- B. Nei. Saken står åpen for nye strukturerte standpunkter fra begge parter. Vedtakene over endres, og punkt 12 gjelder også disse sakene.
+- *Anbefalt: A.* A avviker fra svaret «EO er hendelsen som lukker KOE-saken i appen». Grunnen er at det ikke finnes noe endringsordren kan formalisere når TE har gitt opp kravet om endring ved eget avkall (HF-U10). Uten A står saken åpen uten sluttpunkt.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.10, ordrett: «2. A: TEs uttrykkelige aksept av avslaget på grunnlaget eller trekk av grunnlaget lukker KOE-saken. Skjemaet viser dette før sending, og statusen viser hvorfor saken er avsluttet. Innlegg og dokumentasjon kan fortsatt legges til.»
+
+Svaret gjaldt spørsmål 1–3 i [versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758) samlet ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6468031356)). Det sluttet ordrett: «Skill fortsatt mellom registrert enighet og en rettslig konklusjon. Tidligere brev bevares uendret, og løsningen avgjør ikke om senere erklæringer endrer det som tidligere er avtalt.»'''
+forhold = [{ art = "presiserer", vedtak = "gr-u7" }, { art = "presiserer", vedtak = "gr-u5" }, { art = "presiserer", vedtak = "mm-u34" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+TEs uttrykkelige aksept av avslaget på grunnlaget eller trekk av grunnlaget lukker KOE-saken. Skjemaet viser dette før sending, og statusen viser hvorfor saken er avsluttet. Innlegg og dokumentasjon kan fortsatt legges til. GR-U7, GR-U5, vedtaket for #213, KA-U29 og KA-U13 står på dette punktet, og punkt 12 i MM-U34 gjelder ikke disse sakene.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Saken står åpen for nye strukturerte standpunkter fra begge parter. Vedtakene over endres, og punkt 12 gjelder også disse sakene.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
 
@@ -4177,6 +4208,67 @@ TEs valg om å forsere for de avslåtte dagene gjør ikke slutt på at byggherre
 navn = "B"
 tekst = '''
 TEs valg om å forsere for de avslåtte dagene gjør slutt på at byggherren er bundet av de dagene hen har godkjent. Valget er et avslag etter avtaleloven § 5.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "EO-U11"
+dato = 2026-10-28
+hvem = "oppdragsgiver"
+kilde = ["#1336", "#1338"]
+sporsmal = '''
+Åpent spørsmål 1 av forslaget til samlet tilslutning, runde 7 av #1338, 28.10, ordrett ([versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758)):
+
+**1. Hvordan føres et krav videre når en endringsordre lukker en KOE-sak der kravet om vederlag eller frist ikke er sendt eller ikke er besvart?** Svaret sier at endringsordren omfatter hele saken, og at TE sender en ny KOE ved uenighet. Det sier ikke hvordan TEs varsler i den lukkede saken (etter § 33.4 og § 34.1.2) følger med.
+- A. TE sender kravet i en ny KOE som viser til den lukkede saken. Den nye saken viser TEs varsler i den lukkede saken med dato, som TEs opplysning. Løsningen avgjør ikke om varslene dekker det nye kravet.
+- B. TE sender kravet i en ny KOE og viser til varslene i fritekst. Løsningen viser ikke varslene i den nye saken.
+- *Anbefalt: A.* Varslene er strukturerte og avgjør fristene. Med B må byggherren finne dem selv.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 28.10, ordrett: «1. B: Ingen automatisk videreføring eller visning av tidligere varsler i en ny KOE. En EO kan omfatte flere KOE-saker, og løsningen skal ikke velge hvilke tidligere varsler som er relevante for det nye kravet. TE kan vise til dem i fritekst. Partene har selv ansvar for å undersøke historikken.»
+
+Svaret gjaldt spørsmål 1–3 i [versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758) samlet ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6468031356)). Det sluttet ordrett: «Skill fortsatt mellom registrert enighet og en rettslig konklusjon. Tidligere brev bevares uendret, og løsningen avgjør ikke om senere erklæringer endrer det som tidligere er avtalt.»'''
+forhold = [{ art = "presiserer", vedtak = "eo-u3" }, { art = "presiserer", vedtak = "mm-u34" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+TE sender kravet i en ny KOE som viser til den lukkede saken. Den nye saken viser TEs varsler i den lukkede saken med dato, som TEs opplysning. Løsningen avgjør ikke om varslene dekker det nye kravet.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+TE sender kravet i en ny KOE og viser til varslene i fritekst. Løsningen viser ikke varslene i den nye saken. En EO kan omfatte flere KOE-saker, og løsningen skal ikke velge hvilke tidligere varsler som er relevante for det nye kravet. Partene har selv ansvar for å undersøke historikken.'''
+
+[[gruppe.vedtak]]
+id = "EO-U12"
+dato = 2026-10-28
+hvem = "oppdragsgiver"
+kilde = ["#1336", "#1338"]
+sporsmal = '''
+Åpent spørsmål 3 av forslaget til samlet tilslutning, runde 7 av #1338, 28.10, ordrett ([versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758)):
+
+**3. Lukker en godkjenning av grunnlaget som etter § 32.3 a er en endringsordre, KOE-saken?** Etter § 32.3 første ledd a og GR-U10 er byggherrens godkjenning av grunnlaget i underkategoriene der § 32.2 gjelder, en endringsordre. GR-U14 gir brevteksten. KA-U12 og OV-U6 bygger på det, og OV-U6 sier om en slik registrert endringsordre at «byggherren kan ikke revidere svaret». Svaret 2B gjelder endringsordren byggherren sender som endringsordre. Svaret sier ikke om godkjenningen etter § 32.3 a også lukker saken.
+- A. Nei. Bare en endringsordre byggherren sender i en EO-sak, lukker saken. Brevet sier fortsatt at godkjenningen er en endringsordre (GR-U14). Fram til endringsordren i EO-saken kan byggherren sende et nytt svar på grunnlaget, og løsningen avgjør ikke om det er virksomt (MM-U12). I OV-U6 strykes «og byggherren kan ikke revidere svaret». Sperren mot trekk av grunnlaget i KA-U13 står som en begrensning i løsningen etter KA-U14, fordi løsningen ellers ville lest endringsordren som bortfalt.
+- B. Ja. Godkjenningen lukker saken som en endringsordre. Vederlag og frist som ikke er avgjort, går i en ny KOE etter spørsmål 1. OV-U6 og KA-U13 står.
+- *Anbefalt: A.* Vederlag og frist kommer ofte etter grunnlaget. Med B må TE da sende en ny KOE for hvert krav. A holder ett lukkepunkt. Kostnaden er at løsningen ikke hindrer byggherren i å sende et nytt svar på en godkjenning som kontrakten kaller en endringsordre. Brevet står likevel.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.10, ordrett: «3. A: Godkjenning av grunnlaget alene lukker ikke KOE-saken, selv om godkjenningen er en endringsordre etter kontrakten. Vederlag og frist kan behandles videre i samme sak. Når BH sender EO gjennom EO-saken, lukkes KOE-sakene den omfatter.»
+
+Svaret gjaldt spørsmål 1–3 i [versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758) samlet ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6468031356)). Det sluttet ordrett: «Skill fortsatt mellom registrert enighet og en rettslig konklusjon. Tidligere brev bevares uendret, og løsningen avgjør ikke om senere erklæringer endrer det som tidligere er avtalt.»'''
+forhold = [{ art = "endrer", vedtak = "ov-u6" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "ka-u13" }, { art = "presiserer", vedtak = "eo-u3" }, { art = "presiserer", vedtak = "mm-u34" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Godkjenning av grunnlaget alene lukker ikke KOE-saken, selv om godkjenningen er en endringsordre etter kontrakten. Vederlag og frist kan behandles videre i samme sak. Når BH sender EO gjennom EO-saken, lukkes KOE-sakene den omfatter. Brevet sier fortsatt at godkjenningen er en endringsordre (GR-U14). Fram til endringsordren i EO-saken kan byggherren sende et nytt svar på grunnlaget, og løsningen avgjør ikke om det er virksomt (MM-U12). I OV-U6 strykes «og byggherren kan ikke revidere svaret». Sperren mot trekk av grunnlaget i KA-U13 står som en begrensning i løsningen etter KA-U14, fordi løsningen ellers ville lest endringsordren som bortfalt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Godkjenningen lukker saken som en endringsordre. Vederlag og frist som ikke er avgjort, går i en ny KOE etter spørsmål 1. OV-U6 og KA-U13 står.'''
 forkastet = true
 
 [[gruppe]]
@@ -6321,6 +6413,166 @@ navn = "B"
 tekst = '''
 Når byggherren godkjenner hele det krevde beløpet og godkjenner oppgjør som fast sum, sier brevet: «Byggherren aksepterer TEs tilbud (NS 8407 § 34.2.2 første ledd).» Det gjelder bare når beløpet står i første lag eller er upåvirket (OV-U32, OV-U33), og svaret ikke er gitt under forbeholdet for ubesvart grunnlag (GR-U26). Ellers sier brevet setningen i LV-U31. Appen tolker ikke forbehold i utdypningen (KA-U16), så setningen står også når byggherren der tar forbehold om tilbudets øvrige vilkår.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "MM-U33"
+dato = 2026-10-28
+hvem = "oppdragsgiver"
+kilde = ["#1336", "#1338"]
+sporsmal = '''
+**Forslag til samlet tilslutning, versjon 4, runde 7 av #1338, 28.10: prinsippvedtaket** ([versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758)).
+
+Grunnlaget i #1336, ordrett i kommentarene: [spørsmålene om U-5](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6465833511), [svaret på dem og den nye arbeidsflyten](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466100876), [presiseringen](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466386460), forslagene [versjon 1](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466438405), [versjon 2](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466861564), [versjon 3](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467303875) og [versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758), og svarene på [versjon 1](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466791055) og [versjon 2](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467239558).
+
+Prinsippvedtaket i versjon 4, ordrett:
+
+Løsningen skiller mellom hva den lar en part gjøre, hva parten erklærer, og hvilken rettsvirkning erklæringen får. Løsningen hjelper partene å sende krav og svar med de opplysningene kontrakten krever, og den støtter kontraktens meldingskrav og frister. Løsningen legger ingen erklæring i munnen på en part, og den avgjør ikke om en ny erklæring er rettslig virksom mot en tidligere (MM-U12). Tidligere brev og en registrert enighet bevares uendret. Partene har selv ansvar for hva de mener allerede er avtalt. Når løsningen ikke lar en part gjøre noe, beskrives det som en begrensning i løsningen, ikke som at en rett eller et tilbud har falt bort.
+
+Arbeidsflyten:
+1. TE sender et strukturert krav. Løsningen sørger for at opplysningene og elementene kontrakten krever, kommer med.
+2. Byggherren svarer strukturert. Særskilte forbehold og den faktiske og rettslige begrunnelsen står i fritekst. Forbehold i fritekst vises med svaret og tolkes ikke.
+3. Begge parter kan sende innlegg i fritekst i saken, med henvisning til et brev og med dokumentasjon. Innlegget kan uttrykke innsigelser, protester, presiseringer, endrede standpunkter, forbehold, særskilte og subsidiære aksepter og forslag til enighet. Løsningen tolker ikke teksten og oppdaterer ikke strukturerte standpunkter på grunnlag av den. Løsningen har ingen egne prosesser for ulike typer innsigelser og protester, og ingen egen modell for subsidiær aksept. Innsigelsen etter § 5 tredje ledd, at motparten har varslet eller svart for sent, er et meldingskrav i kontrakten og sendes fortsatt som innsigelse (VS-U9).
+4. Fram til endringsordren kan begge parter sende nye strukturerte standpunkter: TE en ny kravversjon og byggherren et nytt svar, også med lavere beløp eller andre endringer. Uenighet lukker ikke saken.
+5. Underveis kan TE sende et revidert krav som gjengir enigheten, med de avtalte vilkårene og forbeholdene, og byggherren kan godkjenne det. Løsningen registrerer enighet ut fra de strukturerte valgene: når TE godtar byggherrens svar, og når byggherrens svar stemmer med kravet. Skjemaet sier det før sending.
+6. En endringsordre omfatter én eller flere hele KOE-saker, med grunnlaget og eventuelle krav om vederlagsjustering og fristforlengelse. Byggherren kan la en endringsordre omfatte én eller flere hele KOE-saker, også når løsningen ikke har registrert enighet. Skjemaet opplyser byggherren om hvilke spor i hvilke saker som ikke har registrert enighet. Bare en endringsordre byggherren sender uttrykkelig som endringsordre i en EO-sak, lukker saken (se spørsmål 3). Når byggherren har sendt endringsordren, er KOE-sakene den omfatter, lukket i arbeidsflyten, også når uenigheten består. Visningen sier «Avsluttet med EO». Det betyr ikke at noe er rettslig avgjort, eller at TE har akseptert endringsordren. Er TE uenig, sender TE en ny KOE. Etter lukkingen kan begge parter sende innlegg og dokumentasjon i saken. Det gjenåpner ikke saken.
+
+Det betyr ikke at enighet rettslig bare kan oppstå på denne måten. Etiketten «Avsluttet med EO» utledes av at endringsordren er sendt og omfatter saken. Ingen regel leser etiketten.
+
+Følgeendringene er ført som MM-U34, og de åpne spørsmålene 1–3 som EO-U11, GR-U27 og EO-U12.'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 28.10, ordrett ([tilslutningen](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6468129098)): «Ja, jeg godtar prinsippvedtaket og følgeendringene 1–26 i versjon 4 samlet, tilpasset mine svar 1B, 2A og 3A.
+
+Dette omfatter også oppheving av sperrene i HF-U4, OV-U51, GR-U17, GR-U20 og GR-U23, og endringen i OV-U4 og OV-U7. Partene kan sende nye standpunkter. Tidligere erklæringer bevares, og løsningen avgjør ikke om endringene er rettslig virksomme.
+
+Punkt 12 rettes: Visningen «Alle fremsatte krav er avgjort» erstattes med «Registrert enighet om alle fremsatte krav» der statusen bygger på sammenfall eller aksept. Løsningen skal ikke fremstille registrert enighet som en rettslig avgjørelse. Ved lukking vises den konkrete avslutningsårsaken.
+
+Ingen øvrige følgeendringer strykes. Før vedtakene i én samlet vedtaks-PR og legg den frem før merge som foreslått.»
+
+Svarene 1B, 2A og 3A står i [kommentaren før](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6468031356) og er ført som EO-U11, GR-U27 og EO-U12.
+
+Det samlede svaret på spørsmålene sluttet ordrett: «Skill fortsatt mellom registrert enighet og en rettslig konklusjon. Tidligere brev bevares uendret, og løsningen avgjør ikke om senere erklæringer endrer det som tidligere er avtalt.»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u12" }, { art = "presiserer", vedtak = "vs-u9" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Løsningen skiller mellom hva den lar en part gjøre, hva parten erklærer, og hvilken rettsvirkning erklæringen får. Løsningen hjelper partene å sende krav og svar med de opplysningene kontrakten krever, og den støtter kontraktens meldingskrav og frister. Løsningen legger ingen erklæring i munnen på en part, og den avgjør ikke om en ny erklæring er rettslig virksom mot en tidligere (MM-U12). Tidligere brev og en registrert enighet bevares uendret. Partene har selv ansvar for hva de mener allerede er avtalt. Når løsningen ikke lar en part gjøre noe, beskrives det som en begrensning i løsningen, ikke som at en rett eller et tilbud har falt bort.
+Arbeidsflyten:
+1. TE sender et strukturert krav. Løsningen sørger for at opplysningene og elementene kontrakten krever, kommer med.
+2. Byggherren svarer strukturert. Særskilte forbehold og den faktiske og rettslige begrunnelsen står i fritekst. Forbehold i fritekst vises med svaret og tolkes ikke.
+3. Begge parter kan sende innlegg i fritekst i saken, med henvisning til et brev og med dokumentasjon. Innlegget kan uttrykke innsigelser, protester, presiseringer, endrede standpunkter, forbehold, særskilte og subsidiære aksepter og forslag til enighet. Løsningen tolker ikke teksten og oppdaterer ikke strukturerte standpunkter på grunnlag av den. Løsningen har ingen egne prosesser for ulike typer innsigelser og protester, og ingen egen modell for subsidiær aksept. Innsigelsen etter § 5 tredje ledd, at motparten har varslet eller svart for sent, er et meldingskrav i kontrakten og sendes fortsatt som innsigelse (VS-U9).
+4. Fram til endringsordren kan begge parter sende nye strukturerte standpunkter: TE en ny kravversjon og byggherren et nytt svar, også med lavere beløp eller andre endringer. Uenighet lukker ikke saken.
+5. Underveis kan TE sende et revidert krav som gjengir enigheten, med de avtalte vilkårene og forbeholdene, og byggherren kan godkjenne det. Løsningen registrerer enighet ut fra de strukturerte valgene: når TE godtar byggherrens svar, og når byggherrens svar stemmer med kravet. Skjemaet sier det før sending.
+6. En endringsordre omfatter én eller flere hele KOE-saker, med grunnlaget og eventuelle krav om vederlagsjustering og fristforlengelse. Byggherren kan la en endringsordre omfatte én eller flere hele KOE-saker, også når løsningen ikke har registrert enighet. Skjemaet opplyser byggherren om hvilke spor i hvilke saker som ikke har registrert enighet. Bare en endringsordre byggherren sender uttrykkelig som endringsordre i en EO-sak, lukker saken (EO-U12). Når byggherren har sendt endringsordren, er KOE-sakene den omfatter, lukket i arbeidsflyten, også når uenigheten består. Visningen sier «Avsluttet med EO». Det betyr ikke at noe er rettslig avgjort, eller at TE har akseptert endringsordren. Er TE uenig, sender TE en ny KOE. Etter lukkingen kan begge parter sende innlegg og dokumentasjon i saken. Det gjenåpner ikke saken.
+Det betyr ikke at enighet rettslig bare kan oppstå på denne måten. Etiketten «Avsluttet med EO» utledes av at endringsordren er sendt og omfatter saken. Ingen regel leser etiketten.'''
+
+[[gruppe.vedtak]]
+id = "MM-U34"
+dato = 2026-10-28
+hvem = "oppdragsgiver"
+kilde = ["#1336", "#1338"]
+sporsmal = '''
+**Forslag til samlet tilslutning, versjon 4, runde 7 av #1338, 28.10: følgeendringene 1–26** ([versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758)). Følgeendringene til prinsippvedtaket MM-U33, «godtas samlet».
+
+Grunnlaget i #1336, ordrett i kommentarene: [spørsmålene om U-5](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6465833511), [svaret på dem og den nye arbeidsflyten](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466100876), [presiseringen](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466386460), forslagene [versjon 1](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466438405), [versjon 2](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466861564), [versjon 3](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467303875) og [versjon 4](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467391758), og svarene på [versjon 1](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6466791055) og [versjon 2](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6467239558).
+
+Følgeendringene i versjon 4, ordrett:
+
+**Ny kravversjon og eldre svar**
+1. **OV-U54 og LV-U4 «Ny versjon».** Gammel kjerne: en ny kravversjon er TEs avslag på byggherrens tilbud, og brevet sier det. Ny ordlyd i OV-U54: «Sender TE en ny kravversjon, sier brevet: ‹Dette kravet erstatter TEs tidligere kravversjon i brev <n> av <dato>.› Har byggherren svart på den tidligere versjonen, legger brevet til: ‹TEs standpunkt til BHs tidligere svar fremgår av begrunnelsen.› Skjemaet minner da TE på før sending: ‹Dersom BH tidligere har fremsatt et tilbud, bør du presisere om du aksepterer, avslår eller tar forbehold knyttet til dette.› Skjemaet sier også at svaret ikke kan godtas i løsningen når den nye versjonen er sendt. Det er en begrensning i løsningen. Løsningen avgjør ikke om svaret fortsatt binder byggherren (MM-U12). Tidligere brev bevares uendret. Teksten gjelder bare brev som sendes etter vedtaket (MM-U9).» Sperren mot en ny versjon som bare retter en opplysning, oppheves. Skjemaet anbefaler rettingen etter MM-U21.
+2. **HF-U8.** Ny ordlyd: «Sender TE en ny kravversjon i sporet, også med uendrede verdier, venter sporet på nytt svar. Byggherrens svar på den tidligere versjonen kan da ikke godtas i løsningen (KA-U1). Det er en begrensning i løsningen. Løsningen sier ikke at svaret er avslått eller har falt bort, og avgjør ikke om byggherren fortsatt er bundet av svaret (MM-U12).»
+3. **OV-U55, OV-U67, HF-U21.** I OV-U55 strykes «, og den avslår byggherrens tilbud i grunnlagssporet etter avslagsregelen». I OV-U67 punkt 2 blir «Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke.» til «Eldre kravversjoner og svarene på dem omfattes ikke.» I HF-U21 strykes «Den er ikke et avslag på dem (avtaleloven § 5). Bindingen varer som etter HF-U5 og HF-U8.»
+
+**Nye strukturerte standpunkter fram til endringsordren (svaret 1A)**
+4. **HF-U5.** Vernet mot revisjon oppheves. Ny kjerne: «Byggherren kan sende et nytt strukturert svar, også med lavere beløp eller andre endringer. Tidligere brev bevares uendret. Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12).» «Et svar som ikke stemmer med kravet, er avslag i forening med nytt tilbud (avtaleloven § 6)» blir «Et svar som ikke stemmer med kravet, er i løsningen ikke en godkjenning av kravet.»
+5. **HF-U6.** «En senere hendelse fra samme part kan ikke ta tilbake eller svekke det parten har gitt motparten.» og setningene om unntak og vern strykes. Ny setning: «Løsningen avgjør ikke om parten er bundet av et tidligere utsagn (MM-U12).»
+6. **HF-U4.** Sperren mot at byggherren senere påberoper at et varsel kom for sent etter å ha sagt at varselet kom i tide, oppheves. Løsningen viser det tidligere standpunktet sammen med påberopelsen, uten å trekke konklusjonen.
+7. **GR-U17, GR-U20, GR-U23.** Sperrene mot at byggherren svarer med avslag etter et frafall etter § 32.3 c, oppheves. Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen.
+8. **HF-U22.** Gjelder ethvert nytt svar: «Senker byggherren i et nytt svar dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2).»
+9. **KA-U7 oppheves.** Ny ordlyd: «En registrert enighet bevares og vises. Fram til endringsordren kan TE sende en ny kravversjon og byggherren et nytt svar også i et spor med registrert enighet. Visningen viser at det nye avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).»
+10. **HF-U9.** «Partene er enige om et standpunkt når …» blir «Løsningen registrerer enighet om et standpunkt når …». «Ingen part kan gå fra enigheten alene» og «En ny kravversjon eller en revisjon i et spor med enighet avvises, og et nytt krav om samme forhold går i en ny sak.» strykes. Tillegg: «Løsningen avgjør ikke om partene rettslig er enige (MM-U12).»
+11. **GR-U7 og GR-U10.** Sperrene mot å revidere et godtatt svar og et svar som stemmer med kravet, oppheves: i GR-U7 «En enighet står: byggherren kan ikke revidere et godtatt svar (SK-03) …» og «Et slikt svar er låst for revisjon …», og i GR-U10 «og byggherren er bundet. Byggherren kan ikke revidere godkjenningen.» GR-U2 («et grunnlag byggherren har godkjent og som er låst, kan ikke endres») oppheves; at hovedkategori og underkategori står, følger av OV-U55. At en godkjenning av grunnlaget etter § 32.3 a er en endringsordre, står som kontraktens ordlyd. Saken lukkes bare av en endringsordre byggherren sender i en EO-sak. Om en godkjenning etter § 32.3 a også lukker saken, er spørsmål 3. KA-U3 er allerede opphevet (av HF-U9) og trenger ingen endring.
+12. **KA-U11, OV-U3 og vedtakene som bygger på sperren (KA-U28, GR-U24, VS-U7, MM-U19).** Avhenger av spørsmål 2 for saker der TE har godtatt avslaget på grunnlaget eller trukket grunnlaget. For de andre sakene gjelder dette: «Kravene er avgjort» er et predikat som leses av utsagnene og relasjonene, og visningen viser det som opplysning («Alle fremsatte krav er avgjort»). Ingen regel leser det som etikett. Sperren mot trekk, ny kravversjon og revisjon når kravene er avgjort, oppheves, og sperren gjelder fra endringsordren er sendt (punkt 19). I KA-U28 strykes «En revisjon som endrer et standpunkt, avvises fortsatt (KA-U11)». GR-U24 oppheves. I VS-U7 blir «Er kravene avgjort, gjelder sperren i KA-U11.» til «Er saken lukket med endringsordre, gjelder sperren i EO-U3.» I MM-U19 gjelder regelen bare et brev som strider mot at saken er lukket med endringsordre. «Det som strider mot enigheten …, får ingen virkning på utfallet, enigheten står» blir «Løsningen avgjør ikke om brevet er virksomt (MM-U12).» «Saken er avsluttet» i KA-U6 og MM-U7 leses som «lukket med endringsordre».
+13. **OV-U65, OV-U66 og OV-U68.** Sperren mot protest, innsigelse, bestridelse, påberopt passivitet og merking mot det en enighet omfatter, oppheves. I OV-U68 blir «inngår i enigheten og faller ikke bort (HF-U8)» til «bevares og vises med enigheten», og «En protest eller bestridelse mot standpunktet avvises.» strykes.
+14. **HF-U10.** «Det avvises også der et vedtak sperrer det: når kravene er avgjort (OV-U3) …» blir «… når saken er lukket med endringsordre …». Resten står.
+15. **Andre sperrer etter enighet og vern (følger av punkt 4 og 9).**
+    - OV-U51: «Har byggherren i et utsagn sendt fra løsningen uttrykkelig sagt at varselet kom i tide, eller gitt opp innsigelsen, avvises en senere påberopelse …» strykes, som HF-U4 (punkt 6). «… i en revisjon som ellers er tillatt etter HF-U5, GR-U7 og OV-U3» blir «… i et nytt svar».
+    - OV-U38: setningen om at TE etter en enighet om vederlagskravet «ikke kan sende et nytt beløp for posten i saken», strykes. Enigheten om posten bevares og vises.
+    - KA-U27: «når en enighet trekket rammer» strykes. Sperren ved fradrag og ved et merket brev som ikke er avklart, står som en begrensning i løsningen, fordi løsningen da ikke vet hva byggherren har avtalt. KA-U30 står.
+    - HF-U14: oppheves («En revisjon fra ‹aksepterer› til ‹aksepterer ikke› avvises …»).
+    - FO-U7: blir «TEs valg om å forsere for de avslåtte dagene endrer ikke byggherrens svar i løsningen. Løsningen avgjør ikke om byggherren er bundet av de godkjente dagene (MM-U12).»
+    - OV-U4 og OV-U7: «parten er bundet av det parten sender fra appen» blir «det parten sender fra appen, står som partens utsagn».
+
+**Aksept og akseptfrist (svaret punkt 2)**
+16. **Den strukturerte aksepten gjelder hele svaret (KA-U1, HF-U7, LV-U4 punkt 6, BF-03 D-1).** KA-U1 står: aksepten gjelder hele svaret byggherren har gitt på gjeldende kravversjon i sporet, og «Delvis enighet er ikke aksept» blir «Delvis enighet registreres ikke som aksept i løsningen». Tillegg i KA-U1: «En aksept av en del av svaret, for eksempel bare det subsidiære beløpet, sendes som innlegg. Avvisningen av en aksept av et eldre svar er en begrensning i løsningen. Den sier ikke at svaret er avslått eller har falt bort.» I HF-U7 strykes «Et subsidiært standpunkt er et betinget tilbud.», og «… er avslag i forening med nytt tilbud (avtaleloven § 6 første ledd)» blir «… er i løsningen ikke en godkjenning av kravet.» Aksepten erklærer ikke frafall av andre krav eller av innsigelser. Brevteksten «TE er enig i beløpet [antallet dager], men ikke i byggherrens standpunkt til grunnlaget.» blir «Aksepten gjelder ikke byggherrens standpunkt til grunnlaget.» D-1 i BF-03 blir: «Godtar TE svaret, gjelder aksepten hele svaret, også påberopelsen av at varselet kom for sent. Skjemaet sier uttrykkelig før sending at påberopelsen inngår i aksepten, og at beløpet etter svaret da er 0 kr. Løsningen registrerer enighet om svaret slik det står.» Løsningen legger ikke inn frafall av krav eller innsigelser ut over det TE uttrykkelig godkjenner.
+17. **Akseptfristen: fristen står som opplysning, virkningene oppheves.** Byggherren kan fortsatt registrere en akseptfrist i svaret, og den vises (HF-U15 og HF-U16 står, unntatt setningen nedenfor). Oppheves: i HF-U16 «En aksept som appen registrerer senest den dagen, regner appen som i tide.»; HF-U17 (sperrene for å endre fristen og «Etter fristen binder svaret ikke byggherren i appen»); HF-U19 (byggherrens svar på TEs aksept etter fristen). HF-U18 blir: «Godtar TE svaret etter akseptfristen, sier brevet at aksepten er sendt etter akseptfristen <dato> i byggherrens svar. Løsningen avgjør ikke virkningen (MM-U12).» Setningene om akseptfristen i HF-U5 og HF-U8 går ut med punkt 2 og 4. I LV-U7 blir «Når bindingen inntrer og når en akseptfrist løper ut, regner appen fra sendingen av brevet» til «Akseptfristen vises med datoen, og appen viser leveringskvitteringen ved siden av». I MM-U24 strykes «eller en aksept etter fristen som venter på byggherren».
+18. **Særskilte forslag oppheves:** OV-U49 D2 (forslag om vilkår) og forslaget om å rette betegnelsen i OV-U55. Slike forslag sendes som innlegg.
+
+**Endringsordren (svaret 2B)**
+19. **EO-U3.** Tillegg: «Når byggherren har sendt endringsordren, er hver KOE-sak den omfatter, lukket i arbeidsflyten, også når uenigheten består. Løsningen avviser da krav, svar, aksept og trekk i KOE-saken. Innlegg, dokumentasjon og innsigelser etter § 5 tredje ledd godtas. Visningen sier «Avsluttet med EO». Det betyr ikke at noe er rettslig avgjort, eller at TE har akseptert endringsordren. Er TE uenig, sender TE en ny KOE.» Sperren leser at endringsordren er sendt og omfatter saken, ikke etiketten.
+20. **EO-U2, EO-U5, EO-U10, vilkåret i KA-U26 og «som oppgjort i EO-U5» i KA-U12 oppheves som vilkår for endringsordre.** Ny ordlyd: «Byggherren kan la en endringsordre omfatte én eller flere hele KOE-saker, også når løsningen ikke har registrert enighet. Skjemaet opplyser byggherren om hvilke spor i hvilke saker som ikke har registrert enighet. Bare en endringsordre byggherren sender uttrykkelig som endringsordre i en EO-sak, lukker saken (se spørsmål 3).»
+21. **EO-U1.** «En omforent KOE-sak formaliseres ved å inngå i en EO-sak …» blir «En KOE-sak formaliseres ved å inngå i en EO-sak …». Tillegg: «TEs aksept eller bestridelse endrer ikke at KOE-saken er lukket.»
+22. **EO-U6, EO-U7 og EO-U9 oppheves.** Endringsordren omfatter alltid hele KOE-saker. Sender byggherren en endringsordre i en EO-sak som svar på et grunnlagskrav, omfatter endringsordren hele KOE-saken og lukker den. Bare en slik uttrykkelig endringsordre lukker saken. I KA-U12 blir «kan byggherren svare ved å utstede en endringsordre i en EO-sak som viser til KOE-saken» til «… som omfatter KOE-saken». Om en godkjenning av grunnlaget etter § 32.3 a i KOE-saken lukker saken, er spørsmål 3. Grunnlagssvaret som lagres i KOE-saken (EO-U6), den senere endringsordren for vederlag og frist (EO-U7) og regelen for revisjon av en slik endringsordre (EO-U9) har ikke noe å gjelde. Revisjon følger EO-U4.
+23. **EO-U8.** «… og endringsordren kan ikke ensidig endre det som er avtalt» blir «… og løsningen avgjør ikke om endringsordren endrer det som er avtalt (MM-U12).»
+
+**Fritekst og forbehold**
+24. **Innlegget i stedet for protest, utdyping og senere begrunnelse (OV-U64, VS-U9, MP-U6, LV-U4 punkt 8, OV-U55, KA-U34, MM-U7).** Brevet sier: ‹<Part> viser til brev <n> av <dato>:›, og teksten følger. OV-U64, regelen om hva en protest gjelder, og protestformene oppheves. TEs utdyping, byggherrens senere begrunnelse og bestridelsen av en opplysning blir innlegg.
+25. **OV-U48.** Svarer byggherren ja på spørsmålet om godkjenningen er avhengig av andre vilkår eller forbehold, avvises sendingen ikke. Byggherren fører opp forbeholdene som egne punkter, og løsningen registrerer ikke at svaret stemmer med kravet, som i OV-U49 D1. For grunnlaget er et slikt svar da ikke en endringsordre i løsningen. Svarer byggherren nei, registrerer løsningen sammenfall ut fra valgene, og begrunnelsen vises med svaret og tolkes ikke.
+26. **«Byggherren er bundet …» i tekstene.** I svarskjemaet strykes «Byggherren er bundet av svaret som sendes herfra.» og «… og svaret kan ikke revideres». Svaret på S-11 i BF-01 og D-4 i BF-03 faller bort med vernet.'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 28.10, ordrett ([tilslutningen](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6468129098)): «Ja, jeg godtar prinsippvedtaket og følgeendringene 1–26 i versjon 4 samlet, tilpasset mine svar 1B, 2A og 3A.
+
+Dette omfatter også oppheving av sperrene i HF-U4, OV-U51, GR-U17, GR-U20 og GR-U23, og endringen i OV-U4 og OV-U7. Partene kan sende nye standpunkter. Tidligere erklæringer bevares, og løsningen avgjør ikke om endringene er rettslig virksomme.
+
+Punkt 12 rettes: Visningen «Alle fremsatte krav er avgjort» erstattes med «Registrert enighet om alle fremsatte krav» der statusen bygger på sammenfall eller aksept. Løsningen skal ikke fremstille registrert enighet som en rettslig avgjørelse. Ved lukking vises den konkrete avslutningsårsaken.
+
+Ingen øvrige følgeendringer strykes. Før vedtakene i én samlet vedtaks-PR og legg den frem før merge som foreslått.»
+
+Svarene 1B, 2A og 3A står i [kommentaren før](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6468031356) og er ført som EO-U11, GR-U27 og EO-U12.'''
+forhold = [{ art = "endrer", vedtak = "ov-u54" }, { art = "endrer", vedtak = "lv-u4" }, { art = "endrer", vedtak = "hf-u8" }, { art = "endrer", vedtak = "ov-u55" }, { art = "endrer", vedtak = "ov-u67" }, { art = "endrer", vedtak = "hf-u21" }, { art = "endrer", vedtak = "hf-u5" }, { art = "endrer", vedtak = "hf-u6" }, { art = "endrer", vedtak = "hf-u4" }, { art = "endrer", vedtak = "gr-u17" }, { art = "endrer", vedtak = "gr-u20" }, { art = "endrer", vedtak = "gr-u23" }, { art = "endrer", vedtak = "hf-u22" }, { art = "opphever", vedtak = "ka-u7" }, { art = "endrer", vedtak = "hf-u9" }, { art = "endrer", vedtak = "gr-u7" }, { art = "endrer", vedtak = "gr-u10" }, { art = "opphever", vedtak = "gr-u2" }, { art = "endrer", vedtak = "ka-u11" }, { art = "endrer", vedtak = "ov-u3" }, { art = "endrer", vedtak = "ka-u28" }, { art = "opphever", vedtak = "gr-u24" }, { art = "endrer", vedtak = "vs-u7" }, { art = "endrer", vedtak = "mm-u19" }, { art = "presiserer", vedtak = "ka-u6" }, { art = "endrer", vedtak = "mm-u7" }, { art = "opphever", vedtak = "ov-u65" }, { art = "opphever", vedtak = "ov-u66" }, { art = "endrer", vedtak = "ov-u68" }, { art = "endrer", vedtak = "hf-u10" }, { art = "endrer", vedtak = "ov-u51" }, { art = "endrer", vedtak = "ov-u38" }, { art = "endrer", vedtak = "ka-u27" }, { art = "opphever", vedtak = "hf-u14" }, { art = "endrer", vedtak = "fo-u7" }, { art = "endrer", vedtak = "ov-u4" }, { art = "endrer", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u1" }, { art = "endrer", vedtak = "hf-u7" }, { art = "endrer", vedtak = "hf-u16" }, { art = "opphever", vedtak = "hf-u17" }, { art = "opphever", vedtak = "hf-u19" }, { art = "endrer", vedtak = "hf-u18" }, { art = "endrer", vedtak = "lv-u7" }, { art = "endrer", vedtak = "mm-u24" }, { art = "endrer", vedtak = "ov-u49" }, { art = "endrer", vedtak = "eo-u3" }, { art = "opphever", vedtak = "eo-u2" }, { art = "opphever", vedtak = "eo-u5" }, { art = "opphever", vedtak = "eo-u10" }, { art = "endrer", vedtak = "ka-u26" }, { art = "endrer", vedtak = "ka-u12" }, { art = "endrer", vedtak = "eo-u1" }, { art = "opphever", vedtak = "eo-u6" }, { art = "opphever", vedtak = "eo-u7" }, { art = "opphever", vedtak = "eo-u9" }, { art = "endrer", vedtak = "eo-u8" }, { art = "opphever", vedtak = "ov-u64" }, { art = "endrer", vedtak = "vs-u9" }, { art = "endrer", vedtak = "mp-u6" }, { art = "endrer", vedtak = "ka-u34" }, { art = "endrer", vedtak = "ov-u48" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+**Ny kravversjon og eldre svar**
+1. **OV-U54 og LV-U4 «Ny versjon».** Gammel kjerne: en ny kravversjon er TEs avslag på byggherrens tilbud, og brevet sier det. Ny ordlyd i OV-U54: «Sender TE en ny kravversjon, sier brevet: ‹Dette kravet erstatter TEs tidligere kravversjon i brev <n> av <dato>.› Har byggherren svart på den tidligere versjonen, legger brevet til: ‹TEs standpunkt til BHs tidligere svar fremgår av begrunnelsen.› Skjemaet minner da TE på før sending: ‹Dersom BH tidligere har fremsatt et tilbud, bør du presisere om du aksepterer, avslår eller tar forbehold knyttet til dette.› Skjemaet sier også at svaret ikke kan godtas i løsningen når den nye versjonen er sendt. Det er en begrensning i løsningen. Løsningen avgjør ikke om svaret fortsatt binder byggherren (MM-U12). Tidligere brev bevares uendret. Teksten gjelder bare brev som sendes etter vedtaket (MM-U9).» Sperren mot en ny versjon som bare retter en opplysning, oppheves. Skjemaet anbefaler rettingen etter MM-U21.
+2. **HF-U8.** Ny ordlyd: «Sender TE en ny kravversjon i sporet, også med uendrede verdier, venter sporet på nytt svar. Byggherrens svar på den tidligere versjonen kan da ikke godtas i løsningen (KA-U1). Det er en begrensning i løsningen. Løsningen sier ikke at svaret er avslått eller har falt bort, og avgjør ikke om byggherren fortsatt er bundet av svaret (MM-U12).»
+3. **OV-U55, OV-U67, HF-U21.** I OV-U55 strykes «, og den avslår byggherrens tilbud i grunnlagssporet etter avslagsregelen». I OV-U67 punkt 2 blir «Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke.» til «Eldre kravversjoner og svarene på dem omfattes ikke.» I HF-U21 strykes «Den er ikke et avslag på dem (avtaleloven § 5). Bindingen varer som etter HF-U5 og HF-U8.»
+**Nye strukturerte standpunkter fram til endringsordren (svaret 1A)**
+4. **HF-U5.** Vernet mot revisjon oppheves. Ny kjerne: «Byggherren kan sende et nytt strukturert svar, også med lavere beløp eller andre endringer. Tidligere brev bevares uendret. Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12).» «Et svar som ikke stemmer med kravet, er avslag i forening med nytt tilbud (avtaleloven § 6)» blir «Et svar som ikke stemmer med kravet, er i løsningen ikke en godkjenning av kravet.»
+5. **HF-U6.** «En senere hendelse fra samme part kan ikke ta tilbake eller svekke det parten har gitt motparten.» og setningene om unntak og vern strykes. Ny setning: «Løsningen avgjør ikke om parten er bundet av et tidligere utsagn (MM-U12).»
+6. **HF-U4.** Sperren mot at byggherren senere påberoper at et varsel kom for sent etter å ha sagt at varselet kom i tide, oppheves. Løsningen viser det tidligere standpunktet sammen med påberopelsen, uten å trekke konklusjonen.
+7. **GR-U17, GR-U20, GR-U23.** Sperrene mot at byggherren svarer med avslag etter et frafall etter § 32.3 c, oppheves. Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen.
+8. **HF-U22.** Gjelder ethvert nytt svar: «Senker byggherren i et nytt svar dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2).»
+9. **KA-U7 oppheves.** Ny ordlyd: «En registrert enighet bevares og vises. Fram til endringsordren kan TE sende en ny kravversjon og byggherren et nytt svar også i et spor med registrert enighet. Visningen viser at det nye avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).»
+10. **HF-U9.** «Partene er enige om et standpunkt når …» blir «Løsningen registrerer enighet om et standpunkt når …». «Ingen part kan gå fra enigheten alene» og «En ny kravversjon eller en revisjon i et spor med enighet avvises, og et nytt krav om samme forhold går i en ny sak.» strykes. Tillegg: «Løsningen avgjør ikke om partene rettslig er enige (MM-U12).»
+11. **GR-U7 og GR-U10.** Sperrene mot å revidere et godtatt svar og et svar som stemmer med kravet, oppheves: i GR-U7 «En enighet står: byggherren kan ikke revidere et godtatt svar (SK-03) …» og «Et slikt svar er låst for revisjon …», og i GR-U10 «og byggherren er bundet. Byggherren kan ikke revidere godkjenningen.» GR-U2 («et grunnlag byggherren har godkjent og som er låst, kan ikke endres») oppheves; at hovedkategori og underkategori står, følger av OV-U55. At en godkjenning av grunnlaget etter § 32.3 a er en endringsordre, står som kontraktens ordlyd. Saken lukkes bare av en endringsordre byggherren sender i en EO-sak. Om en godkjenning etter § 32.3 a også lukker saken, avgjør EO-U12. KA-U3 er allerede opphevet (av HF-U9) og trenger ingen endring.
+12. **KA-U11, OV-U3 og vedtakene som bygger på sperren (KA-U28, GR-U24, VS-U7, MM-U19).** For saker der TE har godtatt avslaget på grunnlaget eller trukket grunnlaget, gjelder GR-U27. For de andre sakene gjelder dette: «Kravene er avgjort» er et predikat som leses av utsagnene og relasjonene, og visningen viser det som opplysning («Registrert enighet om alle fremsatte krav») der statusen bygger på sammenfall eller aksept. Løsningen skal ikke fremstille registrert enighet som en rettslig avgjørelse. Ved lukking vises den konkrete avslutningsårsaken. Ingen regel leser det som etikett. Sperren mot trekk, ny kravversjon og revisjon når kravene er avgjort, oppheves, og sperren gjelder fra endringsordren er sendt (punkt 19). I KA-U28 strykes «En revisjon som endrer et standpunkt, avvises fortsatt (KA-U11)». GR-U24 oppheves. I VS-U7 blir «Er kravene avgjort, gjelder sperren i KA-U11.» til «Er saken lukket med endringsordre, gjelder sperren i EO-U3.» I MM-U19 gjelder regelen bare et brev som strider mot at saken er lukket med endringsordre. «Det som strider mot enigheten …, får ingen virkning på utfallet, enigheten står» blir «Løsningen avgjør ikke om brevet er virksomt (MM-U12).» «Saken er avsluttet» i KA-U6 og MM-U7 leses som «lukket med endringsordre».
+13. **OV-U65, OV-U66 og OV-U68.** Sperren mot protest, innsigelse, bestridelse, påberopt passivitet og merking mot det en enighet omfatter, oppheves. I OV-U68 blir «inngår i enigheten og faller ikke bort (HF-U8)» til «bevares og vises med enigheten», og «En protest eller bestridelse mot standpunktet avvises.» strykes.
+14. **HF-U10.** «Det avvises også der et vedtak sperrer det: når kravene er avgjort (OV-U3) …» blir «… når saken er lukket med endringsordre …». Resten står.
+15. **Andre sperrer etter enighet og vern (følger av punkt 4 og 9).**
+- OV-U51: «Har byggherren i et utsagn sendt fra løsningen uttrykkelig sagt at varselet kom i tide, eller gitt opp innsigelsen, avvises en senere påberopelse …» strykes, som HF-U4 (punkt 6). «… i en revisjon som ellers er tillatt etter HF-U5, GR-U7 og OV-U3» blir «… i et nytt svar».
+- OV-U38: setningen om at TE etter en enighet om vederlagskravet «ikke kan sende et nytt beløp for posten i saken», strykes. Enigheten om posten bevares og vises.
+- KA-U27: «når en enighet trekket rammer» strykes. Sperren ved fradrag og ved et merket brev som ikke er avklart, står som en begrensning i løsningen, fordi løsningen da ikke vet hva byggherren har avtalt. KA-U30 står.
+- HF-U14: oppheves («En revisjon fra ‹aksepterer› til ‹aksepterer ikke› avvises …»).
+- FO-U7: blir «TEs valg om å forsere for de avslåtte dagene endrer ikke byggherrens svar i løsningen. Løsningen avgjør ikke om byggherren er bundet av de godkjente dagene (MM-U12).»
+- OV-U4 og OV-U7: «parten er bundet av det parten sender fra appen» blir «det parten sender fra appen, står som partens utsagn».
+**Aksept og akseptfrist (svaret punkt 2)**
+16. **Den strukturerte aksepten gjelder hele svaret (KA-U1, HF-U7, LV-U4 punkt 6, BF-03 D-1).** KA-U1 står: aksepten gjelder hele svaret byggherren har gitt på gjeldende kravversjon i sporet, og «Delvis enighet er ikke aksept» blir «Delvis enighet registreres ikke som aksept i løsningen». Tillegg i KA-U1: «En aksept av en del av svaret, for eksempel bare det subsidiære beløpet, sendes som innlegg. Avvisningen av en aksept av et eldre svar er en begrensning i løsningen. Den sier ikke at svaret er avslått eller har falt bort.» I HF-U7 strykes «Et subsidiært standpunkt er et betinget tilbud.», og «… er avslag i forening med nytt tilbud (avtaleloven § 6 første ledd)» blir «… er i løsningen ikke en godkjenning av kravet.» Aksepten erklærer ikke frafall av andre krav eller av innsigelser. Brevteksten «TE er enig i beløpet [antallet dager], men ikke i byggherrens standpunkt til grunnlaget.» blir «Aksepten gjelder ikke byggherrens standpunkt til grunnlaget.» D-1 i BF-03 blir: «Godtar TE svaret, gjelder aksepten hele svaret, også påberopelsen av at varselet kom for sent. Skjemaet sier uttrykkelig før sending at påberopelsen inngår i aksepten, og at beløpet etter svaret da er 0 kr. Løsningen registrerer enighet om svaret slik det står.» Løsningen legger ikke inn frafall av krav eller innsigelser ut over det TE uttrykkelig godkjenner.
+17. **Akseptfristen: fristen står som opplysning, virkningene oppheves.** Byggherren kan fortsatt registrere en akseptfrist i svaret, og den vises (HF-U15 og HF-U16 står, unntatt setningen nedenfor). Oppheves: i HF-U16 «En aksept som appen registrerer senest den dagen, regner appen som i tide.»; HF-U17 (sperrene for å endre fristen og «Etter fristen binder svaret ikke byggherren i appen»); HF-U19 (byggherrens svar på TEs aksept etter fristen). HF-U18 blir: «Godtar TE svaret etter akseptfristen, sier brevet at aksepten er sendt etter akseptfristen <dato> i byggherrens svar. Løsningen avgjør ikke virkningen (MM-U12).» Setningene om akseptfristen i HF-U5 og HF-U8 går ut med punkt 2 og 4. I LV-U7 blir «Når bindingen inntrer og når en akseptfrist løper ut, regner appen fra sendingen av brevet» til «Akseptfristen vises med datoen, og appen viser leveringskvitteringen ved siden av». I MM-U24 strykes «eller en aksept etter fristen som venter på byggherren».
+18. **Særskilte forslag oppheves:** OV-U49 D2 (forslag om vilkår) og forslaget om å rette betegnelsen i OV-U55. Slike forslag sendes som innlegg.
+**Endringsordren (svaret 2B)**
+19. **EO-U3.** Tillegg: «Når byggherren har sendt endringsordren, er hver KOE-sak den omfatter, lukket i arbeidsflyten, også når uenigheten består. Løsningen avviser da krav, svar, aksept og trekk i KOE-saken. Innlegg, dokumentasjon og innsigelser etter § 5 tredje ledd godtas. Visningen sier «Avsluttet med EO». Det betyr ikke at noe er rettslig avgjort, eller at TE har akseptert endringsordren. Er TE uenig, sender TE en ny KOE.» Sperren leser at endringsordren er sendt og omfatter saken, ikke etiketten.
+20. **EO-U2, EO-U5, EO-U10, vilkåret i KA-U26 og «som oppgjort i EO-U5» i KA-U12 oppheves som vilkår for endringsordre.** Ny ordlyd: «Byggherren kan la en endringsordre omfatte én eller flere hele KOE-saker, også når løsningen ikke har registrert enighet. Skjemaet opplyser byggherren om hvilke spor i hvilke saker som ikke har registrert enighet. Bare en endringsordre byggherren sender uttrykkelig som endringsordre i en EO-sak, lukker saken (EO-U12).»
+21. **EO-U1.** «En omforent KOE-sak formaliseres ved å inngå i en EO-sak …» blir «En KOE-sak formaliseres ved å inngå i en EO-sak …». Tillegg: «TEs aksept eller bestridelse endrer ikke at KOE-saken er lukket.»
+22. **EO-U6, EO-U7 og EO-U9 oppheves.** Endringsordren omfatter alltid hele KOE-saker. Sender byggherren en endringsordre i en EO-sak som svar på et grunnlagskrav, omfatter endringsordren hele KOE-saken og lukker den. Bare en slik uttrykkelig endringsordre lukker saken. I KA-U12 blir «kan byggherren svare ved å utstede en endringsordre i en EO-sak som viser til KOE-saken» til «… som omfatter KOE-saken». Om en godkjenning av grunnlaget etter § 32.3 a i KOE-saken lukker saken, avgjør EO-U12. Grunnlagssvaret som lagres i KOE-saken (EO-U6), den senere endringsordren for vederlag og frist (EO-U7) og regelen for revisjon av en slik endringsordre (EO-U9) har ikke noe å gjelde. Revisjon følger EO-U4.
+23. **EO-U8.** «… og endringsordren kan ikke ensidig endre det som er avtalt» blir «… og løsningen avgjør ikke om endringsordren endrer det som er avtalt (MM-U12).»
+**Fritekst og forbehold**
+24. **Innlegget i stedet for protest, utdyping og senere begrunnelse (OV-U64, VS-U9, MP-U6, LV-U4 punkt 8, OV-U55, KA-U34, MM-U7).** Brevet sier: ‹<Part> viser til brev <n> av <dato>:›, og teksten følger. OV-U64, regelen om hva en protest gjelder, og protestformene oppheves. TEs utdyping, byggherrens senere begrunnelse og bestridelsen av en opplysning blir innlegg.
+25. **OV-U48.** Svarer byggherren ja på spørsmålet om godkjenningen er avhengig av andre vilkår eller forbehold, avvises sendingen ikke. Byggherren fører opp forbeholdene som egne punkter, og løsningen registrerer ikke at svaret stemmer med kravet, som i OV-U49 D1. For grunnlaget er et slikt svar da ikke en endringsordre i løsningen. Svarer byggherren nei, registrerer løsningen sammenfall ut fra valgene, og begrunnelsen vises med svaret og tolkes ikke.
+26. **«Byggherren er bundet …» i tekstene.** I svarskjemaet strykes «Byggherren er bundet av svaret som sendes herfra.» og «… og svaret kan ikke revideres». Svaret på S-11 i BF-01 og D-4 i BF-03 faller bort med vernet.'''
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
