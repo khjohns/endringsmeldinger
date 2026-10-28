@@ -105,6 +105,13 @@ async function kjoerAxe(page, hvor) {
 
 const synlig = (l) => l.filter({ visible: true });
 
+/** Det ene synlige elementet, eller en feil som sier hvor mange det var. */
+async function ett(locator, hva) {
+  const antall = await synlig(locator).count();
+  if (antall !== 1) throw new Error(`${hva}: ${antall} synlige`);
+  return synlig(locator);
+}
+
 async function tilstand(page, sti, n) {
   const anker = (await page.evaluate(() => location.hash)).slice(1);
   tilstander.add(anker);
@@ -122,9 +129,7 @@ for (const sti of stier) {
   for (const h of sti.handlinger) {
     try {
       if ('klikk' in h) {
-        const lenke = synlig(page.getByRole('link', { name: h.klikk }));
-        const antall = await lenke.count();
-        if (antall !== 1) throw new Error(`«${h.klikk}»: ${antall} synlige lenker`);
+        const lenke = await ett(page.getByRole('link', { name: h.klikk }), `lenken «${h.klikk}»`);
         const foer = await page.evaluate(() => location.hash);
         const sperret = (await lenke.getAttribute('aria-disabled')) === 'true';
         await lenke.click({ force: sperret, timeout: 3000 });
@@ -135,9 +140,9 @@ for (const sti of stier) {
         if (!(await maal.isVisible())) throw new Error(`#${h.tilstand} er ikke synlig`);
         if (naa !== foer) await tilstand(page, sti.id, n++);
       } else if ('kryss' in h) {
-        await synlig(page.getByRole('checkbox', { name: h.kryss })).check({ timeout: 3000 });
+        await (await ett(page.getByRole('checkbox', { name: h.kryss }), `avkrysningen «${h.kryss}»`)).check();
       } else if ('fyll' in h) {
-        await synlig(page.getByRole('textbox', { name: h.fyll })).fill(h.tekst, { timeout: 3000 });
+        await (await ett(page.getByRole('textbox', { name: h.fyll }), `feltet «${h.fyll}»`)).fill(h.tekst);
       } else if ('staar' in h) {
         if (!(await synlig(page.getByText(h.staar)).count())) throw new Error(`«${h.staar}» står ikke`);
       } else throw new Error(`ukjent handling ${JSON.stringify(h)}`);
