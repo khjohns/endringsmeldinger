@@ -7,7 +7,6 @@
     "start": null,
     "beskrivelse": "En ny sak. TE krever ansvar for svikt i BHs medvirkning, og BH godkjenner grunnlaget. TE krever 100 000 kr i vederlag."
   },
-  "bestilling": "BF-01.md",
   "steg": [
     { "handling": "krav", "spor": "grunnlag", "hovedkategori": "svikt", "underkategori": "medvirkning", "navn": "K-g1", "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid." },
     { "handling": "brev", "navn": "D2", "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent", "utdypning": "Byggherren erkjenner at tegningene kom for sent." }] },
