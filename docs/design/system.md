@@ -12,6 +12,8 @@ viser til dem og gjengir dem ikke.
 
 ## Retningen
 
+**Varden er visningen** (oppdragsgiver 28.10, #1338, runde 6): «Ja, jeg tenker Varden er visningen, men det er fortsatt elementer fra dagens visning som kan være aktuelle.»
+
 **Sage & Stone**, Oslobyggs grønne profil (`--brand`). Den erstattet
 «Dokumentbordet» fra mars 2026 (oppdragsgiver 23.10, #1080).
 

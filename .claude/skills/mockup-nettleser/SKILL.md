@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som sender stegene i et brukerforløp og framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder. Brukerforløpene i demoruta kjøres med demoruta.mjs. Prototypen for et brukerforløp forprøves mekanisk med prototype.mjs.
+description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som sender stegene i et brukerforløp og framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder. Brukerforløpene i demoruta kjøres med demoruta.mjs. Et forløp i demoruta forprøves mekanisk med demoruta.mjs, og en HTML-skisse av et nytt mønster med prototype.mjs.
 ---
 
 # /mockup i nettleseren
@@ -137,8 +137,10 @@ JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 
 ## Prototypen for et brukerforløp
 
-`prototype.mjs` er den mekaniske forprøven av prototypen i `docs/design/prototyper/`
-(steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347). Den åpner prototypen med
+`prototype.mjs` er den mekaniske forprøven av en HTML-skisse av et nytt mønster i
+`docs/design/prototyper/` (steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347).
+Et helt forløp forprøves i demoruta med `demoruta.mjs` (oppdragsgiver 28.10, #1331). Demoruta
+driver i dag bare BF-01, så andre forløp må bygges der før de kan forprøves. Den åpner prototypen med
 `file://`, uten vite, og følger klikkstiene under `prototype` i forløpsfila. Formatet står i
 [README for brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md#formatet).
 
