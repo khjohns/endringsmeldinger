@@ -140,6 +140,7 @@ visningen (#1331), og skjermbildene har de samme navnene, så de to visningene k
 sammenlignes ved hvert kontrollpunkt. Demopanelet legges sammen mens brukeren handler,
 fordi det står over høyre kolonne. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
 kjører axe mot Varden i lys modus, bred og smal; mørk modus er ikke med i Varden (KV-14).
+Med `--sti <sti>`, som kan gjentas, kjører den axe på samme måte mot stiene, som showcasen `/demo/komponenter` (#1371).
 Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Varden.test.ts`.
 
 ## Skjermbildene i PR-en

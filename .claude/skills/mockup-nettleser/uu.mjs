@@ -1,6 +1,8 @@
 // Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys og mørk modus, bred og smal
 // skjerm (#1187), med saken sett av TE og BH (#1213). Med --varden kjøres i stedet Varden i
 // demoruta (#1331), i lys modus, bred og smal: mørk modus er ikke med i Varden (KV-14).
+// Med --sti <sti> (kan gjentas) kjøres stiene, som showcasen /demo/komponenter (#1371), på
+// samme måte som --varden.
 // axe finner bare en del av feilene; resten står i skillen uu-sjekk.
 import { createRequire } from 'node:module';
 import { execFileSync, spawn } from 'node:child_process';
@@ -16,6 +18,7 @@ try {
       scenario: { type: 'string', default: 'scenario1' },
       vis: { type: 'string', default: '5' },
       varden: { type: 'boolean', default: false },
+      sti: { type: 'string', multiple: true },
     },
   }));
 } catch (e) {
@@ -33,7 +36,7 @@ const OPPSETT = [
   { navn: 'mørk, bred', colorScheme: 'dark', viewport: { width: 1440, height: 1000 } },
   { navn: 'lys, smal', colorScheme: 'light', viewport: { width: 390, height: 844 } },
   { navn: 'mørk, smal', colorScheme: 'dark', viewport: { width: 390, height: 844 } },
-].filter((o) => !arg.varden || o.colorScheme === 'light');
+].filter((o) => !(arg.varden || arg.sti) || o.colorScheme === 'light');
 
 function globalPlaywright() {
   const rot = execFileSync('npm', ['root', '-g']).toString().trim();
@@ -170,6 +173,15 @@ const VARDEN = [
   },
 ];
 
+const STIENE = (arg.sti ?? []).map((sti) => ({
+  navn: sti,
+  vei: async (page) => {
+    await page.goto(`${arg.url}${sti}`, { waitUntil: 'networkidle' });
+    // En side som ikke lastet saken, har ingen overskrift, men en statuslinje.
+    await page.locator('h1, [role="status"]').first().waitFor();
+  },
+}));
+
 const axeSti = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 const mockup = (scenario) => `${arg.url}/mockup?scenario=${scenario}`;
 const { chromium } = globalPlaywright();
@@ -181,7 +193,7 @@ try {
   browser = await chromium.launch();
   for (const oppsett of OPPSETT) {
     const smal = oppsett.viewport.width < 768;
-    for (const tilstand of arg.varden ? VARDEN : TILSTANDER) {
+    for (const tilstand of arg.sti ? STIENE : arg.varden ? VARDEN : TILSTANDER) {
       if (tilstand.bareBred && smal) continue;
       const kontekst = await browser.newContext({
         colorScheme: oppsett.colorScheme,
@@ -191,11 +203,12 @@ try {
       page.setDefaultTimeout(15000);
       const feil = [];
       page.on('pageerror', (e) => feil.push(e.message));
-      if (!arg.varden)
+      const mockupen = !arg.varden && !arg.sti;
+      if (mockupen)
         await page.goto(mockup(tilstand.scenario ?? arg.scenario), { waitUntil: 'networkidle' });
       await tilstand.vei(page);
       const mørk = await page.evaluate(() => document.documentElement.classList.contains('dark'));
-      if (!arg.varden && mørk !== (oppsett.colorScheme === 'dark'))
+      if (mockupen && mørk !== (oppsett.colorScheme === 'dark'))
         throw new Error(`${oppsett.navn}: <html> har ikke ventet tema (dark=${mørk}).`);
       await page.addScriptTag({ path: axeSti });
       const resultat = await page.evaluate(
