@@ -130,12 +130,12 @@ Skyøkta har en testbase for SQL Server
 starter over klonene og leser ikke hookene i `.claude/settings.json`, så verken
 oppstartshooken eller vaktene kjører (#1319). Trengs `khjohns/kontrakt`, legges det til
 underveis med `add_repo` (oppdragsgiver 26.10).
-Oppstartshooken starter SQL Server-testbasen. Katalogen i den er kilden for TS-stien
+Oppstartshooken starter SQL Server-testbasen i bakgrunnen. Katalogen i den er kilden for TS-stien
 ([`database.md`](.claude/rules/database.md)). PostgreSQL starter den ikke (#931).
 `docs/verktoy/katalog.py` og katalogen for Python-stien trenger en PostgreSQL-base
 bygget fra `supabase/migrations/`. Den bygger du selv fra tom med kommandoene i
 miljø-skillen før første bruk i økta og etter hver endring i migrasjonene, også
-etter bytte av branch.
+etter bytte av branch, så en eldre base ikke svarer.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.
@@ -238,12 +238,15 @@ og kjør det med ekte innlogging. For TS-stien er det `saksrute.ts` (skillen
 
 **Og ett av lagene er databasen.** TS-stien har prosedyrer, funksjoner og triggere i
 `koe`, `koe_api`, `koe_drift` og `koe_sikkerhet` i `database/migrasjoner/`. De er en
-del av applikasjonen, og et søk i TS-koden finner dem ikke. Senere filer kan definere
+del av applikasjonen, og et søk i Python- og TS-koden finner kallene, men ikke det
+prosedyrene og triggerne gjør. Senere filer kan definere
 dem på nytt med `CREATE OR ALTER` eller `ALTER`, så spør katalogen i en testbase
 bygget fra migrasjonene før du skriver at noe ikke er i bruk
 ([`database.md`](.claude/rules/database.md)). En trigger kan også være den egentlige
 skriveren. Python-stien har funksjoner og triggere i `public`, bygget fra
-`supabase/migrations/`, og katalogen der er `pg_proc`, `pg_trigger` og `pg_policy`.
+`supabase/migrations/`, for eksempel `koe_resolve_identity`,
+`koe_reconcile_memberships` og `auto_create_project_membership`. Katalogen der er
+`pg_proc`, `pg_trigger` og `pg_policy`.
 
 **Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.**
 
