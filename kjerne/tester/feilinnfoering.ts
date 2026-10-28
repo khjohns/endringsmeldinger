@@ -895,7 +895,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F82f',
     feilklasse:
-      'sperren gjelder en eldre kravversjon et tidligere «i tide» gjaldt, også etter at TE har registrert et eget varsel (OV-U67 punkt 2, HF-U8)',
+      'sperren gjelder en eldre kravversjon et tidligere «i tide» gjaldt, også etter at TE har registrert et eget varsel (OV-U68)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['(gjelder(p) && !eldreKravversjon(p))', 'gjelder(p)']],
     mal: ['en eldre kravversjon et tidligere «i tide» gjaldt som varsel, omfattes ikke'],

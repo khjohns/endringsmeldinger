@@ -6041,8 +6041,7 @@ describe('sperren etter enighet omfatter varselet standpunktet gjelder (OV-U65, 
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('SAGT_I_TIDE');
   });
 
-  it('en eldre kravversjon et tidligere «i tide» gjaldt som varsel, omfattes ikke når TE senere har registrert et eget varsel (OV-U67 punkt 2, HF-U8)', () => {
-    // Svaret fra oppdragsgiver 28.10 i #1365, alternativ 1.
+  it('en eldre kravversjon et tidligere «i tide» gjaldt som varsel, omfattes ikke når TE senere har registrert et eget varsel (OV-U68)', () => {
     const forloep = (registrertVarsel: boolean) => {
       const s = sak();
       s.send('TE', GRUNNLAGSKRAV);

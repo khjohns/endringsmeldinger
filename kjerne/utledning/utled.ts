@@ -1290,16 +1290,15 @@ export function enighetensVirkning(
 }
 
 /**
- * OV-U65, OV-U66, OV-U67: sporet med en enighet som omfatter elementet,
- * eller `null`. Enigheten omfatter det gjeldende kravet, det gjeldende svaret med
- * standpunktene i det, standpunktene om varselet i tidligere svar fra appen som står mot
- * kravet (HF-U4, VS-U20), og det et standpunkt om varslingen gjelder (OV-U66 punkt 3).
- * Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke. Et standpunkt i et
- * tidligere svar inngår, men ikke den eldre kravversjonen det gjaldt som varsel når TE
- * senere har registrert et eget varsel etter bestemmelsen (OV-U67 punkt 2, HF-U8,
- * oppdragsgiver 28.10 i #1365). Sperren gjelder fra enigheten er inngått, også mens den
- * er betinget, og ikke når den er uten virkning, heller ikke etter at grunnlaget er
- * trukket (KA-U6, OV-U66 punkt 2).
+ * OV-U65 til OV-U68: sporet med en enighet som omfatter elementet, eller `null`.
+ * Enigheten omfatter det gjeldende kravet, det gjeldende svaret med standpunktene i det,
+ * standpunktene om varselet i tidligere svar fra appen som står mot kravet (HF-U4,
+ * VS-U20), og det et standpunkt om varslingen gjelder (OV-U66 punkt 3). Eldre
+ * kravversjoner og svar er avslått (HF-U8) og omfattes ikke. Et standpunkt i et tidligere
+ * svar inngår, men ikke den eldre kravversjonen det gjaldt som varsel når TE senere har
+ * registrert et eget varsel etter bestemmelsen (OV-U68). Sperren gjelder fra enigheten er
+ * inngått, også mens den er betinget, og ikke når den er uten virkning, heller ikke etter
+ * at grunnlaget er trukket (KA-U6, OV-U66 punkt 2).
  */
 export function enighetenOmfatter(u: Utledning, id: string): Spor | null {
   for (const n of SPOR) {

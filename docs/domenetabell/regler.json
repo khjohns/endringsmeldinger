@@ -962,6 +962,13 @@
       "radetikett": "OV-U67: 1. En enighet omfatter det gjeldende kravet i sporet, svaret og standpunktene i svaret"
     },
     {
+      "id": "OV-U68",
+      "type": "vedtak",
+      "dato": "2026-10-28",
+      "ref": "../plans/vedtak.md#ov-u68",
+      "radetikett": "OV-U68: Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, inngår i enigheten"
+    },
+    {
       "id": "OV-U3",
       "type": "vedtak",
       "dato": "2026-10-13",
@@ -3089,6 +3096,7 @@
         "OV-U65",
         "OV-U66",
         "OV-U67",
+        "OV-U68",
         "HF-U8"
       ],
       "tolkningsstatus": "avklart_tolkning",
