@@ -9993,6 +9993,131 @@ tekst = '''
 Påberopt passivitet og merking følger KA-U29 også etter enighet.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "OV-U67"
+dato = 2026-10-28
+hvem = "oppdragsgiver"
+kilde = ["#1352", "#1338"]
+sporsmal = '''
+**Spørsmål før byggingen av #1352** (sperren etter enighet, OV-U65 og OV-U66). Orkestreringsrunde 4, 28.10.
+
+Kartleggingen viser at løsningen i dag ikke har noen regel for hva en enighet «omfatter». Enigheten gjelder ett spor og det gjeldende svaret i sporet. Sperren har i praksis bare virkning for innsigelsen nå, fordi protest, bestridelse, påberopt passivitet og merking fortsatt avvises etter OV-U7. Spørsmålene avgjør hva sperren treffer.
+
+**1. Gjelder enigheten også kravet svaret besvarer?**
+Bakgrunn: BH godkjenner grunnlaget, og partene er dermed enige (sammenfall). Etterpå fremmer BH en innsigelse etter § 5 tredje ledd mot TEs krav i samme spor. Svaret påberopte ikke noe mot kravet.
+- A: «En enighet omfatter det gjeldende kravet i sporet, svaret og standpunktene i svaret. En innsigelse mot det gjeldende kravet etter at partene er enige, avvises.»
+- B: «En enighet omfatter svaret og standpunktene i svaret, ikke kravet. En innsigelse mot kravet følger de vanlige reglene.»
+Belegg: OV-U65 («det enigheten omfatter»), KA-U10, VS-U9.
+Anbefalt: A. Ellers kan en part angripe kravet etter å ha godtatt svaret på det, og sperren får lite innhold.
+
+**2. Eldre versjoner og varsler i samme spor.**
+Bakgrunn: Sporet kan ha eldre kravversjoner, eldre svar og varsler før enigheten.
+- A: «En enighet omfatter bare det gjeldende kravet og det gjeldende svaret, og et varsel eller krav et standpunkt om rettidighet i svaret gjelder. Eldre versjoner og andre varsler følger de vanlige reglene.»
+- B: «En enighet omfatter alt i sporet fram til enigheten.»
+Belegg: OV-U66 punkt 3.
+Anbefalt: A. B sperrer også innsigelser mot forhold partene ikke tok stilling til i svaret de ble enige om.
+
+**3. Avvises bare den nye handlingen, eller gjør også en eldre slik innsigelse saken uforståelig?**
+Bakgrunn: Journaler fra før sperren kan ha en innsigelse sendt etter enighet.
+- A: «Sperren avviser bare en ny innsigelse som sendes etter enigheten. En innsigelse som alt er sendt eller registrert, beholder den virkningen den hadde da den ble sendt.»
+- B: «En innsigelse etter enighet er ugyldig også når den alt står i saken.»
+Belegg: MM-U3, MM-U9 (et sendt brev betyr det det sa da), OV-U65 om OV-U4.
+Anbefalt: A.
+
+**4. Gjelder sperren bare enighetens eget spor?**
+Bakgrunn: Partene er enige om grunnlaget, men ikke om vederlag eller frist.
+- A: «Sperren gjelder bare sporet enigheten er inngått i. En innsigelse mot et krav i et annet spor følger de vanlige reglene.»
+- B: «En enighet om grunnlaget sperrer også innsigelser i vederlag og frist.»
+Belegg: KA-U29.
+Anbefalt: A.
+
+Hvis alle fire anbefalingene følges, er valgene en presisering av OV-U65. Orkestratoren foreslår at de føres som én ny post i vedtaksregisteret før byggingen, fordi de blir regler i kjernen.
+
+**Spørsmål 2 på nytt, etter kontrollen mot vedtakene (28.10)**
+
+Kontrollen bekreftet at eldre kravversjoner og svar er avslått (HF-U8: «Byggherrens svar faller bort som tilbud når TE sender en ny kravversjon … Den nye kravversjonen er TEs avslag på svaret og et nytt tilbud (avtaleloven § 5 og § 6)»; «Et svar på en tidligere kravversjon kan ikke godtas.»). Varselet og standpunktene om det faller ikke bort (HF-U8: «Et uttrykkelig standpunkt om at et varsel kom i tide, eller et avkall, faller ikke bort med svaret»; HF-U4 og VS-U20: påberopelsen «står mot hver senere kravversjon»; OV-U54). A slik den sto, tok bare med standpunkter i det gjeldende svaret.
+
+Rettet alternativ A' (anbefalt):
+> «En enighet omfatter det gjeldende kravet og det gjeldende svaret, med de standpunktene som står mot det gjeldende kravet (HF-U4, VS-U20), og varselet og opplysningene et standpunkt om varslingen bygger på (OV-U66 punkt 3). Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke. Et varsel ingen av disse standpunktene gjelder, følger de vanlige reglene.»
+
+Forslag: 1 A, 2 A', 3 A og 4 A føres som én ny post i vedtaksregisteret som presiserer OV-U65.'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 28.10, ordrett: «Til spørsmålene: Jeg er enig i alle, bortsett fra 2. der jeg er usikker på anbefalingen. Forstår det slik at eldre kravversjoner er "forkastet", jf. reglenee om tilbud og akspet iht avtaleloven, og dermed kan det uansett ikke foreligge enighet om disse. Er det riktig? Da holder anbefalingen om A»
+
+Oppdragsgiver 28.10, ordrett, på spørsmål 2 på nytt: «Ja»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u65" }, { art = "presiserer", vedtak = "ov-u66" }]
+folge = '''
+Bygges i #1352.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+1. En enighet omfatter det gjeldende kravet i sporet, svaret og standpunktene i svaret. En innsigelse mot det gjeldende kravet etter at partene er enige, avvises.
+2. En enighet omfatter det gjeldende kravet og det gjeldende svaret, med de standpunktene som står mot det gjeldende kravet (HF-U4, VS-U20), og varselet og opplysningene et standpunkt om varslingen bygger på (OV-U66 punkt 3). Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke. Et varsel ingen av disse standpunktene gjelder, følger de vanlige reglene.
+3. Sperren avviser bare en ny innsigelse som sendes etter enigheten. En innsigelse som alt er sendt eller registrert, beholder den virkningen den hadde da den ble sendt.
+4. Sperren gjelder bare sporet enigheten er inngått i. En innsigelse mot et krav i et annet spor følger de vanlige reglene.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+En enighet omfatter svaret og standpunktene i svaret, ikke kravet. En innsigelse mot kravet følger de vanlige reglene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 A"
+tekst = '''
+En enighet omfatter bare det gjeldende kravet og det gjeldende svaret, og et varsel eller krav et standpunkt om rettidighet i svaret gjelder. Eldre versjoner og andre varsler følger de vanlige reglene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+En enighet omfatter alt i sporet fram til enigheten.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+En innsigelse etter enighet er ugyldig også når den alt står i saken.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 B"
+tekst = '''
+En enighet om grunnlaget sperrer også innsigelser i vederlag og frist.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et svar på en tidligere kravversjon kan ikke godtas."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherrens svar faller bort som tilbud når TE sender en ny kravversjon"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Den nye kravversjonen er TEs avslag på svaret og et nytt tilbud (avtaleloven § 5 og § 6)"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et uttrykkelig standpunkt om at et varsel kom i tide, eller et avkall, faller ikke bort med svaret"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "det enigheten omfatter"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "står mot hver senere kravversjon"
+utdrag = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
