@@ -130,11 +130,12 @@ Skyøkta har en testbase for SQL Server
 starter over klonene og leser ikke hookene i `.claude/settings.json`, så verken
 oppstartshooken eller vaktene kjører (#1319). Trengs `khjohns/kontrakt`, legges det til
 underveis med `add_repo` (oppdragsgiver 26.10).
-Oppstartshooken starter ikke PostgreSQL (#931). Resonneringsreglene og
-`docs/verktoy/katalog.py` trenger katalogen i en PostgreSQL-base bygget fra
-`supabase/migrations/`. Den basen bygger du selv fra tom før første bruk i økta
-og etter hver endring i migrasjonene, også fra en annen branch, så en eldre base
-ikke svarer.
+Oppstartshooken starter SQL Server-testbasen. Katalogen i den er kilden for TS-stien
+([`database.md`](.claude/rules/database.md)). PostgreSQL starter den ikke (#931).
+`docs/verktoy/katalog.py` og katalogen for Python-stien trenger en PostgreSQL-base
+bygget fra `supabase/migrations/`. Den bygger du selv fra tom med kommandoene i
+miljø-skillen før første bruk i økta og etter hver endring i migrasjonene, også
+etter bytte av branch.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.
@@ -186,8 +187,9 @@ ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
   aldri på en rolle eller en identitet klienten oppgir.
 - **Journalen bærer `aktor_id`, aldri et personnavn — og bare én form.**
   Verdien er `app_users.id`, punktum, også for en Catenda-forfatter. Hver vei
-  inn, også webhooken, løser identiteten gjennom `koe_resolve_identity`, som
-  innloggingen og medlemssynkroniseringen, med samme issuer og samme normaliserte
+  inn, også webhooken, løser identiteten gjennom `koe_resolve_identity` i
+  Python-stien og `koe.resolve_identity` i TS-stien, som innloggingen og
+  medlemssynkroniseringen, med samme issuer og samme normaliserte
   subjekt; ellers får samme person to brukerrader. Lar identiteten seg ikke
   avgjøre, skrives ingen hendelse — fail-closed, som for kontraktssiden. Navnet
   slås opp ved visning, og et oppslag som feiler, skal falle tilbake til
@@ -204,9 +206,10 @@ ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
   ganger; se RV-07 og AUT-01/02 i hovedplanens funnregister.
 - **Det finnes ikke noe defaultprosjekt.** Mangler `X-Project-ID`, er prosjektet
   *ukjent* — ikke `oslobygg` — og kallere skal behandle det som «ingen
-  tilgang». `prosjekt_id` er `NOT NULL` uten default på
-  `hendelse` og `sak_relations`, og skrivestiene stempler det fra autorisert
-  kontekst. Gjeninnfører du en fallback — også som et uskyldig
+  tilgang». `prosjekt_id` er `NOT NULL` uten default på `hendelse` og
+  `sak_relations` i Python-stien, og på `koe.hendelse` og `koe.sak_metadata` i
+  TS-stien. Skrivestiene stempler det fra autorisert kontekst. Gjeninnfører du en
+  fallback — også som et uskyldig
   `prosjekt_id or "oslobygg"` i én sammenlikning, eller som et tomt filter som
   «betyr alle» — blir attribusjonen uetterprøvbar igjen, og det lar seg ikke rette
   i ettertid når ekte saker først finnes.
@@ -230,23 +233,28 @@ leser en avkuttet del av det.
 
 **Et skjermbilde som finnes, beviser ikke at flyten virker.** Følg kallet fra
 frontenden, med rute, metode og nyttelast, gjennom tilgangskontrollen til lageret,
-og kjør det uten `DISABLE_AUTH`.
+og kjør det med ekte innlogging. For TS-stien er det `saksrute.ts` (skillen
+`mockup-nettleser`). `DISABLE_AUTH` leses bare av Python-stien i `backend/`.
 
-**Og ett av lagene er databasen.** Ti funksjoner bor i `public` —
-`koe_resolve_identity`, `koe_reconcile_memberships`,
-`auto_create_project_membership` og flere. De er en del av applikasjonen, og et
-søk i Python- og TS-koden finner dem ikke. Søk også i `supabase/migrations/`, og
-spør katalogen i en PostgreSQL-base bygget fra dem (se «Miljø») — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver
-at noe ikke er i bruk. En trigger kan også være den egentlige skriveren.
+**Og ett av lagene er databasen.** TS-stien har prosedyrer, funksjoner og triggere i
+`koe`, `koe_api`, `koe_drift` og `koe_sikkerhet` i `database/migrasjoner/`. De er en
+del av applikasjonen, og et søk i TS-koden finner dem ikke. Senere filer kan definere
+dem på nytt med `CREATE OR ALTER` eller `ALTER`, så spør katalogen i en testbase
+bygget fra migrasjonene før du skriver at noe ikke er i bruk
+([`database.md`](.claude/rules/database.md)). En trigger kan også være den egentlige
+skriveren. Python-stien har funksjoner og triggere i `public`, bygget fra
+`supabase/migrations/`, og katalogen der er `pg_proc`, `pg_trigger` og `pg_policy`.
 
 **Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.**
 
 **Har du funnet ett tilfelle, har du ikke funnet alle.** Søket formes av det du
 allerede fant, så tellingen vokser i runder — og hver runde melder seg ferdig.
-En defaultverdi gjemmer seg i minst seks former: `x or "verdi"`,
+En defaultverdi gjemmer seg i flere former. I Python: `x or "verdi"`,
 `getattr(obj, "x", "verdi")`, `d.get("x", "verdi")`,
-`request.headers.get("X", "verdi")`, et defaultargument i Python eller
-TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
+`request.headers.get("X", "verdi")` og et defaultargument. I TypeScript: `x ?? "verdi"`,
+`x || "verdi"`, en default ved destrukturering (`{ x = "verdi" }`),
+`headers.get("X") ?? "verdi"` og et defaultargument. I databasen: en `DEFAULT`.
+Søk etter alle formene før du skriver
 «alle er fjernet» — og skriv heller hvilke former du søkte etter.
 
 ## Hvor hva står
