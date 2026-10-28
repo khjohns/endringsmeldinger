@@ -2422,7 +2422,6 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
   it('et spor uten krav hindrer ikke: med ett sendt krav avgjort er kravene avgjort, og visningen sier det med OV-U10 (OV-U3)', () => {
     const u = utenFrist().u();
     expect(kraveneErAvgjort(u)).toBe(true);
-    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag']);
     expect(visning(u, GJELDENDE_REGLER).status).toEqual({
       kode: 'alle_krav_avgjort',
       tekst: 'Alle krav sendt i appen er avgjort',
@@ -2453,7 +2452,6 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     const u = s.u();
     expect(u.grunnlagAvklart, 'forutsetning: grunnlaget er avklart').toBe(true);
     expect(kraveneErAvgjort(u)).toBe(false);
-    expect(u.avgjorteSpor).toEqual([]);
     // MM-U22: saken har ingen samlet status før kravene er avgjort.
     expect(visning(u, GJELDENDE_REGLER).status).toBeNull();
   });
@@ -2495,7 +2493,6 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     });
     const u = s.u();
     expect(kraveneErAvgjort(u), 'forutsetning: kravene er avgjort').toBe(true);
-    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag', 'frist']);
     expect(s.avvist('TE', varseldato())).toBeNull();
     s.send('TE', varseldato());
     const etter = s.u();
@@ -2509,7 +2506,6 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     s.send('TE', FRISTKRAV);
     const u = s.u();
     expect(kraveneErAvgjort(u)).toBe(false);
-    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag']);
     expect(visning(u, GJELDENDE_REGLER).status).toBeNull();
     expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
       regel: 'KRAVENE_AVGJORT',
@@ -2528,7 +2524,6 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     });
     const etter = s.u();
     expect(kraveneErAvgjort(etter), 'det nye kravet er avgjort ved sammenfall').toBe(true);
-    expect(etter.avgjorteSpor).toEqual(['grunnlag', 'vederlag', 'frist']);
     expect(kanInngaaIEo(etter)).toBe(true);
   });
 

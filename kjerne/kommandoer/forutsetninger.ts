@@ -12,19 +12,10 @@
 import {
   fristkravErFremmet,
   kanFaaInnsigelse,
-  kraveneErAvgjort,
   trekkAvGrunnlagetErSperret,
-  varAvgjort,
   type Utledning,
 } from '../utledning/utled.ts';
-import {
-  KRAVSPOR,
-  type Avvisning,
-  type Kravspor,
-  type Part,
-  type Spor,
-  type Varselhjemmel,
-} from '../typer.ts';
+import type { Avvisning, Kravspor, Part, Spor, Varselhjemmel } from '../typer.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
@@ -69,7 +60,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   svare_paa_foresporsel: 'TE',
   ingen_krav: 'TE',
   registrere_brev: null,
-  passivitet: null,
+  passivitet: 'TE',
   svare: 'BH',
   revidere: 'BH',
   bestride: null,
@@ -77,13 +68,13 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   protest: null,
   merke: null,
   avklare: null,
-  begrunne: null,
+  begrunne: 'BH',
 };
 
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
- * etter § 5 godtas også når kravene er avgjort eller avslaget av grunnlaget er
- * godtatt (KA-U11, KA-U29), og mot det en registrert enighet omfatter (MM-U34 punkt 13).
+ * etter § 5 godtas også når saken er lukket etter GR-U27 (KA-U29), og mot det en
+ * registrert enighet omfatter (MM-U34 punkt 13).
  * De andre er utsatt etter OV-U7 og avvises for begge parter.
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
@@ -125,11 +116,11 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
   }
 }
 
-/** Et utsagn i fristen som ikke er et krav, når sporet er lukket (SK-01, OV-U3, GR-U5, KA-U12). */
+const AVSLAGET_GODTATT = 'TE har godtatt avslaget på grunnlaget, og saken er lukket (GR-U27).';
+
+/** Et utsagn i fristen som ikke er et krav, når sporet er lukket (GR-U27, GR-U5, KA-U12). */
 function fristenErLukket(u: Utledning): Avvisning | null {
-  if (u.grunnlagAvvist)
-    return avvis('GRUNNLAG_AVVIST', 'Partene er enige om at grunnlaget er avvist (SK-01).');
-  if (varAvgjort(u, 'frist')) return avvis('KRAVENE_AVGJORT', hvorforAvgjort(u));
+  if (u.grunnlagAvvist) return avvis('GRUNNLAG_AVVIST', AVSLAGET_GODTATT);
   if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
   if (u.spor.frist.ingenKrav)
     return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
@@ -138,32 +129,18 @@ function fristenErLukket(u: Utledning): Avvisning | null {
 
 export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
 
+/** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
+export const ELDRE_SVAR =
+  'Aksepten må gjelde byggherrens gjeldende svar i sporet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
+
 const KRAVET: Record<Kravspor, string> = {
   vederlag: 'justering av vederlaget',
   frist: 'fristforlengelse',
 };
 
-/** Hvordan grunnlaget og hvert krav som var sendt, ble avgjort i denne saken (OV-U3). */
-function hvorforAvgjort(u: Utledning): string {
-  const grunnlag = u.frafalt
-    ? 'byggherren har frafalt pålegget'
-    : 'byggherren har godkjent grunnlaget';
-  const krav = KRAVSPOR.filter((n) => varAvgjort(u, n)).map((n) =>
-    u.spor[n].trukket
-      ? `kravet om ${KRAVET[n]} er trukket`
-      : u.spor[n].ingenKrav
-        ? `TE krever ikke ${KRAVET[n]}`
-        : `partene er enige om svaret på kravet om ${KRAVET[n]}`
-  );
-  const hva = kraveneErAvgjort(u)
-    ? 'Alle krav sendt i appen er avgjort'
-    : 'Kravene som var sendt, ble avgjort';
-  return `${hva}: ${[grunnlag, krav.join(' og ')].filter(Boolean).join(', ')}.`;
-}
-
 export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): Avvisning | null {
   // OV-U4: hver side registrerer sine egne brev som dokumentasjon, uten virkning, også når
-  // saken ikke er forstått, når kravene er avgjort, etter godtatt avslag og etter trekk.
+  // saken ikke er forstått, etter godtatt avslag og etter trekk.
   if (h.type === 'registrere_brev') return null;
   // MM-U2: en sak kjernen ikke forstår, tar ikke imot bindende kommandoer fra noen part.
   if (!u.forstaatt)
@@ -171,14 +148,9 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
   const eier = PART[h.type];
   if (eier !== null && eier !== part) return avvis('FEIL_PART', `Bare ${eier} kan gjøre dette.`);
   if ('gjelder' in h) return henvisning(h, part, u);
-  // SK-01, #213: når partene er enige om at grunnlaget er avvist, faller kravene.
-  if (u.grunnlagAvvist)
-    return avvis('GRUNNLAG_AVVIST', 'Partene er enige om at grunnlaget er avvist (SK-01).');
-  // OV-U3: det som kan endre utfallet for grunnlaget og kravene som var sendt da kravene
-  // var avgjort, avvises. I et spor uten krav godtas varselet og det første kravet, og TEs
-  // opplysning om varseldato godtas alltid (OV-U5).
-  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor))
-    return avvis('KRAVENE_AVGJORT', hvorforAvgjort(u));
+  // GR-U27: TEs aksept av avslaget på grunnlaget lukker saken. MM-U34 punkt 12: at
+  // kravene er avgjort, sperrer ikke.
+  if (u.grunnlagAvvist) return avvis('GRUNNLAG_AVVIST', AVSLAGET_GODTATT);
 
   const s = u.spor[h.spor];
   const grunnlagSendt = u.spor.grunnlag.gjeldendeKrav !== null;
@@ -228,13 +200,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // SK-12 og MM-U1: et registrert varsel kan ikke flyttes. Et utledet varsel er ikke registrert.
       if (s.varsler['hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor]])
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
-      // OV-U8: det særskilte varselet etter § 34.1.3 kan sendes også etter vederlagskravet,
-      // men ikke fra appen etter at kravene som var sendt, er avgjort (OV-U3). TEs opplysning
-      // om et varsel sendt utenfor appen godtas (OV-U5).
-      if ('hjemmel' in h)
-        return h.type === 'sende_varsel' && varAvgjort(u, h.spor)
-          ? avvis('KRAVENE_AVGJORT', hvorforAvgjort(u))
-          : null;
+      // OV-U8: det særskilte varselet etter § 34.1.3 kan sendes også etter vederlagskravet.
+      if ('hjemmel' in h) return null;
       // VS-U16, OV-U5: etter kravet i sporet kan varselet fra appen bare få en senere dato
       // enn kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
       if (h.type === 'sende_varsel' && s.krav.length) {
@@ -288,8 +255,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       return null;
     case 'godta':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      if (!s.gjeldendeSvar)
-        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');
+      if (!s.gjeldendeSvar) return avvis('IKKE_GJELDENDE_SVAR', ELDRE_SVAR);
       // GR-U8: enigheten er alt registrert, også når byggherren har godkjent hele kravet.
       if (s.enighet)
         return avvis(
@@ -300,7 +266,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (h.spor === 'grunnlag' && u.frafalt)
         return avvis(
           'FRAFALL_KAN_IKKE_GODTAS',
-          'Et frafall er byggherrens standpunkt og kan ikke godtas.'
+          'Løsningen registrerer ikke en aksept av et frafall etter § 32.3 c. Det er en begrensning i løsningen (GR-U9).'
         );
       return null;
   }

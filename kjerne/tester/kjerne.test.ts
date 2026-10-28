@@ -30,7 +30,6 @@ import {
   ulikeVirkninger,
   virkninger,
 } from '../frosset/standpunkt.ts';
-import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
@@ -1307,73 +1306,6 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
   });
 });
 
-// HF-U5: et beløp som mangler, er ikke null kroner (#627 punkt 3, valg 4 i #1047). Mangler det
-// i svaret, har byggherren ikke innrømmet noe å senke (#787 punkt 1). Mangler det i revisjonen,
-// slipper den ikke gjennom uten sammenlikning.
-describe('revisjonen av et svar uten beløp', () => {
-  const svar = (godkjent: number | undefined) =>
-    ({
-      standpunkter: [{ id: 'b', art: 'beloep', resultat: 'godkjent', godkjent }],
-      beslutningsgrunnlag: { virkninger: [] },
-    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
-  const revisjon = (godkjent: number) =>
-    [{ id: 'n', art: 'beloep', resultat: 'delvis_godkjent', godkjent }] as Parameters<
-      typeof senketInnroemmelse
-    >[1];
-
-  it('et svar uten beløp har ikke innrømmet noe, så revisjonen avvises ikke, heller ikke en som hever det (#787)', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toBeNull();
-    expect(senketInnroemmelse(svar(undefined), revisjon(100), 0)).toBeNull();
-  });
-
-  it('en revisjon uten beløp sammenliknes ikke og avvises', () => {
-    expect(senketInnroemmelse(svar(100), revisjon(undefined as unknown as number), 0)).toEqual(
-      expect.stringMatching(/Beløpet mangler i revisjonen/)
-    );
-  });
-
-  it('kontrollsak: med beløpet sammenliknes revisjonen', () => {
-    expect(senketInnroemmelse(svar(100), revisjon(100), 0)).toBeNull();
-    expect(senketInnroemmelse(svar(100), revisjon(50), 0)).toMatch(/senker beløpet/);
-  });
-});
-
-// HF-U5: dagene som mangler i et lagret svar, er ikke null dager, så en revisjon med færre
-// dager slipper ikke gjennom uten sammenlikning (#814 punkt 3, som #627 for beløpet).
-describe('revisjonen av et svar uten dager', () => {
-  const svar = (vurdert: number | undefined) =>
-    ({
-      standpunkter: [{ id: 'd', art: 'dager', resultat: 'godkjent', vurdert }],
-      beslutningsgrunnlag: { virkninger: [] },
-    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
-  const revisjon = (vurdert: number | undefined) =>
-    [{ id: 'n', art: 'dager', resultat: 'delvis_godkjent', vurdert }] as Parameters<
-      typeof senketInnroemmelse
-    >[1];
-
-  it('dagene sammenliknes ikke, og revisjonen avvises', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toEqual(
-      expect.stringMatching(/Dagene mangler/)
-    );
-  });
-
-  // #870: begge sider kontrolleres, og dager som ikke er et tall, mangler, som beløpet (#627).
-  it.each([
-    ['dagene mangler i revisjonen', 10, undefined],
-    ['dagene i svaret er NaN', NaN, 0],
-    ['dagene i revisjonen er NaN', 10, NaN],
-  ])('%s: revisjonen avvises', (_navn, foer, etter) => {
-    expect(senketInnroemmelse(svar(foer), revisjon(etter), 0)).toEqual(
-      expect.stringMatching(/Dagene mangler/)
-    );
-  });
-
-  it('kontrollsak: med dagene sammenliknes revisjonen', () => {
-    expect(senketInnroemmelse(svar(10), revisjon(10), 0)).toBeNull();
-    expect(senketInnroemmelse(svar(10), revisjon(5), 0)).toMatch(/senker dagene/);
-  });
-});
-
 /**
  * #877 p30: kontrollen av kommandoen avviser et svar eller en revisjon som viser til noe
  * annet enn det som gjelder nå, eller som har et annet resultat enn serveren regner ut
@@ -1824,36 +1756,6 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
 describe('laget og upåvirket hos leserne (OV-U32)', () => {
   const v = (standpunkt: string, virkning: Standpunktsvirkning['virkning']) =>
     ({ standpunkt, art: 'dager', virkning }) as Standpunktsvirkning;
-  const svar = (virkning: Standpunktsvirkning['virkning']) =>
-    ({
-      standpunkter: [{ id: 'd', art: 'dager', resultat: 'godkjent', vurdert: 10 }],
-      beslutningsgrunnlag: { virkninger: [v('d', virkning)] },
-    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
-  const revisjon = [
-    { id: 'n', art: 'dager', resultat: 'delvis_godkjent', vurdert: 5 },
-  ] as Parameters<typeof senketInnroemmelse>[1];
-
-  it('meldingen om en senket revisjon sier etiketten for laget dagene sto i, også fra fjerde lag', () => {
-    expect(senketInnroemmelse(svar(2), revisjon, 0)).toBe(
-      'Svaret godkjenner subsidiært 10 dager, og revisjonen senker dagene til 5 dager'
-    );
-    expect(senketInnroemmelse(svar(3), revisjon, 0)).toMatch(/godkjenner videre subsidiært 10/);
-    expect(senketInnroemmelse(svar(4), revisjon, 0)).toMatch(/godkjenner videre subsidiært 10/);
-  });
-
-  it('kontrollsak: et upåvirket standpunkt eller et i første lag får ingen etikett i meldingen', () => {
-    expect(senketInnroemmelse(svar('upaavirket'), revisjon, 0)).toMatch(
-      /^Svaret godkjenner 10 dager/
-    );
-    expect(senketInnroemmelse(svar(1), revisjon, 0)).toMatch(/^Svaret godkjenner 10 dager/);
-  });
-
-  // Svaret i #1199: meldingen setter etiketten som brevet, med lagene grunnlaget opptar.
-  it('meldingen flytter laget ned med lagene grunnlaget opptar foran sporet', () => {
-    expect(senketInnroemmelse(svar(1), revisjon, 1)).toMatch(/^Svaret godkjenner subsidiært 10/);
-    expect(senketInnroemmelse(svar(1), revisjon, 2)).toMatch(/godkjenner videre subsidiært 10/);
-    expect(senketInnroemmelse(svar(2), revisjon, 1)).toMatch(/godkjenner videre subsidiært 10/);
-  });
 
   // Kravet til B2 i #1047 (6361242248): upåvirket betyr at ingen av byggherrens innsigelser
   // rammer standpunktet, som i første lag, så det er ingen regelendring.
