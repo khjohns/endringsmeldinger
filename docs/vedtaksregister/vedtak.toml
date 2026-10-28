@@ -10118,6 +10118,84 @@ kilde = "hovedplanen"
 tekst = "står mot hver senere kravversjon"
 utdrag = true
 
+[[gruppe.vedtak]]
+id = "OV-U68"
+dato = 2026-10-28
+hvem = "oppdragsgiver"
+kilde = ["#1352", "#1365"]
+sporsmal = '''
+Spørsmål i PR #1365, «Åpne spørsmål», første punkt, ordrett.
+
+**Spørsmål til oppdragsgiver (juridisk, ikke avgjort): omfatter enigheten en eldre kravversjon som et tidligere «i tide» gjaldt?** Svaret blir et vedtak. Sperren er ikke endret for dette tilfellet før svaret kommer.
+
+*Bakgrunn.* TE krever fristforlengelse uten et eget varsel etter § 33.4, så kravet er også varselet. Byggherren godkjenner kravet delvis og sier i svaret at varselet kom i tide. Deretter registrerer TE et eget varsel etter § 33.4 som ble sendt tidligere, og sender en ny kravversjon. Byggherren godkjenner den nye kravversjonen fullt, og partene er enige. Så vil byggherren sende en egen innsigelse etter § 5 tredje ledd mot den første kravversjonen. Løsningen avviser den nå, fordi standpunktet «i tide» i det første svaret gjelder den første kravversjonen. Uten det første svaret godtas innsigelsen.
+
+*Hva valget gjelder.* En egen innsigelse mot et krav er ingen påberopelse etter en bestemmelse og virker ikke på utfallet. Den registreres og vises (VS-U24). En innsigelse om at det registrerte varselet kom for sent, avvises uansett etter HF-U4, fordi byggherren har sagt at varselet kom i tide. Valget avgjør derfor bare om en egen innsigelse mot den første kravversjonen, for eksempel etter § 33.6.1 eller mot innholdet, registreres eller avvises. Det avgjør også om en protest eller bestridelse mot standpunktet «i tide» i det første svaret skal avvises når de bygges. Hva enigheten inneholder, og utfallet i sporet, endres ikke.
+
+*Belegg.*
+- OV-U67 punkt 2: «En enighet omfatter det gjeldende kravet og det gjeldende svaret, med de standpunktene som står mot det gjeldende kravet (HF-U4, VS-U20), og varselet og opplysningene et standpunkt om varslingen bygger på (OV-U66 punkt 3). Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke.»
+- HF-U8: «Et uttrykkelig standpunkt om at et varsel kom i tide, eller et avkall, faller ikke bort med svaret (HF-U4, VS-U20, HF-U10).»
+- VS-U20: «Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak, også når varselet var selve kravet.»
+- VS-U24: «En egen innsigelse mot et krav eller et svar registreres og vises med sendetid, det den gjelder, § 5 tredje ledd og partens begrunnelse. Den leses ikke som en påberopelse etter noen bestemmelse, og et senere svar gjentar den ikke og gir den ikke opp.»
+- MM-U9: «et sendt brev beholder virkningen det hadde da det ble sendt.»
+- Ingen vedtak avgjør hva et «i tide» om et varsel som var selve kravet betyr når et tidligere eget varsel registreres etterpå. MM-U1 og MM-U8 gjelder bare en påberopt preklusjon.
+
+*Alternativene, i vedtaksform.*
+1. **(Anbefalt)** «Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, inngår i enigheten og faller ikke bort (HF-U8). Kravversjonen standpunktet gjaldt, inngår ikke når den er en eldre kravversjon og TE etter svaret har registrert et eget varsel etter samme bestemmelse. En innsigelse mot den kravversjonen følger de vanlige reglene. En protest eller bestridelse mot standpunktet avvises.»
+2. «Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, inngår i enigheten bare når det gjelder varselet sporet har når enigheten inngås. Har TE etter svaret registrert et eget varsel etter samme bestemmelse, omfattes verken standpunktet eller kravversjonen det gjaldt, og en innsigelse, protest eller bestridelse mot dem følger de vanlige reglene.»
+3. «Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, står mot hver senere kravversjon og inngår i enigheten, også når TE etter svaret har registrert et eget varsel etter samme bestemmelse. Enigheten omfatter da også kravversjonen standpunktet gjaldt som varsel, og en innsigelse mot den avvises.»
+
+*Anbefaling: 1.* Det følger begge setningene i OV-U67 punkt 2: standpunktet står (HF-U8), og den eldre kravversjonen omfattes ikke. Prisen er at byggherren kan registrere en innsigelse uten virkning mot en kravversjon som er avslått. Alternativ 3 er dagens atferd.
+
+*Hva valget styrer.* Omfanget av sperren i kjernen, én test og én feilinnføring. Det endrer ikke brevteksten, enighetens innhold eller utfallet.'''
+valgt = "1"
+svar = '''
+Oppdragsgiver 28.10, ordrett: «Ellers enig med anbefalingene»
+
+Svaret gjaldt dette spørsmålet sammen med andre. Anbefalingen her var alternativ 1.'''
+forhold = [{ art = "presiserer", vedtak = "ov-u67" }]
+folge = '''
+Bygges i #1352.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1"
+tekst = '''
+Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, inngår i enigheten og faller ikke bort (HF-U8). Kravversjonen standpunktet gjaldt, inngår ikke når den er en eldre kravversjon og TE etter svaret har registrert et eget varsel etter samme bestemmelse. En innsigelse mot den kravversjonen følger de vanlige reglene. En protest eller bestridelse mot standpunktet avvises.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2"
+tekst = '''
+Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, inngår i enigheten bare når det gjelder varselet sporet har når enigheten inngås. Har TE etter svaret registrert et eget varsel etter samme bestemmelse, omfattes verken standpunktet eller kravversjonen det gjaldt, og en innsigelse, protest eller bestridelse mot dem følger de vanlige reglene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3"
+tekst = '''
+Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, står mot hver senere kravversjon og inngår i enigheten, også når TE etter svaret har registrert et eget varsel etter samme bestemmelse. Enigheten omfatter da også kravversjonen standpunktet gjaldt som varsel, og en innsigelse mot den avvises.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En enighet omfatter det gjeldende kravet og det gjeldende svaret, med de standpunktene som står mot det gjeldende kravet (HF-U4, VS-U20), og varselet og opplysningene et standpunkt om varslingen bygger på (OV-U66 punkt 3). Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et uttrykkelig standpunkt om at et varsel kom i tide, eller et avkall, faller ikke bort med svaret (HF-U4, VS-U20, HF-U10)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak, også når varselet var selve kravet."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En egen innsigelse mot et krav eller et svar registreres og vises med sendetid, det den gjelder, § 5 tredje ledd og partens begrunnelse. Den leses ikke som en påberopelse etter noen bestemmelse, og et senere svar gjentar den ikke og gir den ikke opp."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "et sendt brev beholder virkningen det hadde da det ble sendt."
+utdrag = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
