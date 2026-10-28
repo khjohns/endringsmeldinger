@@ -1,0 +1,327 @@
+{
+  "id": "BF-01V",
+  "tittel": "BF-01 i Varden: BH svarer på vederlagskravet, og TE godtar svaret",
+  "brukerhistorie": "Samme sak som BF-01, i den nye visningen. BH leser vederlagskravet ved siden av skjemaet, svarer på varslingen og beløpet, ser brevet også før alt er besvart, kontrollerer det og sender det, og ser leveringen for seg. TE leser svaret slik det ble sendt, ser virkningen av aksepten og godtar svaret.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Samme sak som BF-01 ved kontrollpunktet bh-har-mottatt-vederlagskravet. Når Varden er bygget, blir kontrollene og forståelsen ført i BF-01.json, og denne fila fjernes."
+  },
+  "bestilling": "BF-01.md",
+  "prototype": {
+    "fil": "../../design/prototyper/bf-01-svar.html",
+    "klikkstier": [
+      {
+        "id": "bh-svarer-med-mangler",
+        "dekker": [
+          "1",
+          "2",
+          "3",
+          "G-2",
+          "G-4"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "staar": "Utkast åpent: svar på brev 4"
+          },
+          {
+            "klikk": "Les brevet ved siden av",
+            "tilstand": "kravbrev"
+          },
+          {
+            "staar": "TE krever justering av vederlaget med 100 000 kr eks. mva."
+          },
+          {
+            "klikk": "Tilbake til hovedlinjene",
+            "tilstand": "svar"
+          },
+          {
+            "fyll": "Begrunnelse",
+            "tekst": "Varselet kom tre uker etter at tegningene kom."
+          },
+          {
+            "fyll": "hvor mye godkjenner du?",
+            "tekst": ""
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Brevet er ikke ferdig."
+          },
+          {
+            "staar": "Ikke besvart: om varselet kom i tide, beregningsmetoden og beløpet."
+          },
+          {
+            "staar": "Ikke besvart: beløpet"
+          },
+          {
+            "staar": "Varselet kom tre uker etter at tegningene kom."
+          },
+          {
+            "klikk": "Send til TE",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Brevet kan ikke sendes ennå."
+          },
+          {
+            "klikk": "Gå til varselet",
+            "tilstand": "svar"
+          },
+          {
+            "staar": "Svar på om varselet kom i tide."
+          },
+          {
+            "staar": "Svar på om du godkjenner fast sum."
+          },
+          {
+            "staar": "Skriv beløpet du godkjenner. Godkjenner du ingenting, skriv 0."
+          }
+        ]
+      },
+      {
+        "id": "bh-svarer-og-sender",
+        "dekker": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "G-4"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "velg": "Varslet for sent"
+          },
+          {
+            "staar": "Hvis varselet kom i tide:"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Ikke besvart: beregningsmetoden"
+          },
+          {
+            "klikk": "Send til TE",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Brevet kan ikke sendes ennå."
+          },
+          {
+            "klikk": "Gå til beregningsmetoden",
+            "tilstand": "svar"
+          },
+          {
+            "staar": "Svar på om du godkjenner fast sum."
+          },
+          {
+            "velg": "Godkjenner fast sum"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Subsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
+          },
+          {
+            "staar": "Ikke en del av brevet"
+          },
+          {
+            "staar": "Godtar TE svaret, er dere bundet av enigheten."
+          },
+          {
+            "klikk": "Tilbake til utkastet",
+            "tilstand": "svar"
+          },
+          {
+            "staar": "Alt er besvart. Se brevet og kontroller det før du sender."
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "klikk": "Send til TE",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Kryss av for at du har kontrollert brevet."
+          },
+          {
+            "kryss": "Jeg har kontrollert brevet."
+          },
+          {
+            "klikk": "Send til TE",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Brev 5 er sendt"
+          },
+          {
+            "staar": "Ikke bekreftet levert til prosjekthotellet ennå."
+          }
+        ]
+      },
+      {
+        "id": "levering",
+        "dekker": [
+          "5",
+          "G-3"
+        ],
+        "start": "sendt",
+        "handlinger": [
+          {
+            "staar": "Brev 5 er sendt"
+          },
+          {
+            "staar": "Ikke bekreftet levert til prosjekthotellet ennå."
+          },
+          {
+            "klikk": "Vis levert",
+            "tilstand": "sendt-levert"
+          },
+          {
+            "staar": "Levert til prosjekthotellet 8. okt 2026 kl. 10.05."
+          },
+          {
+            "klikk": "Vis stanset",
+            "tilstand": "sendt-stanset"
+          },
+          {
+            "staar": "Leveringen til prosjekthotellet er stanset"
+          },
+          {
+            "staar": "Svaret påberoper at varselet kom for sent, og er et varsel med frist."
+          },
+          {
+            "staar": "Brev 5 · Svar på krav om vederlagsjustering er sendt til TE"
+          },
+          {
+            "klikk": "Se svaret som TE",
+            "tilstand": "mottatt"
+          }
+        ]
+      },
+      {
+        "id": "te-godtar",
+        "dekker": [
+          "6",
+          "7"
+        ],
+        "start": "mottatt",
+        "handlinger": [
+          {
+            "staar": "Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering"
+          },
+          {
+            "staar": "Subsidiært: byggherren godkjenner 60 000 kr eks. mva."
+          },
+          {
+            "klikk": "Ta stilling til svaret",
+            "tilstand": "ta-stilling"
+          },
+          {
+            "staar": "Beløpet i enigheten, etter løsningens lesing av svaret:"
+          },
+          {
+            "staar": "De 60 000 kr er et subsidiært standpunkt."
+          },
+          {
+            "klikk": "Lukk",
+            "tilstand": "mottatt"
+          },
+          {
+            "klikk": "Ta stilling til svaret",
+            "tilstand": "ta-stilling"
+          },
+          {
+            "klikk": "Godta svaret",
+            "tilstand": "aksept-brev"
+          },
+          {
+            "staar": "TE godtar byggherrens svar på kravet om justering av vederlaget i brev 5 av 8. oktober 2026."
+          },
+          {
+            "klikk": "Send til BH",
+            "tilstand": "aksept-brev"
+          },
+          {
+            "staar": "Kryss av for at du har kontrollert brevet før du sender det."
+          },
+          {
+            "kryss": "Jeg har kontrollert brevet."
+          },
+          {
+            "klikk": "Send til BH",
+            "tilstand": "godtatt"
+          },
+          {
+            "staar": "Aksepten i brev 6 er sendt"
+          },
+          {
+            "staar": "Enighet: 0 kr"
+          }
+        ]
+      }
+    ]
+  },
+  "kilder": [
+    "B-15",
+    "GR-U7",
+    "HF-U1",
+    "HF-U2",
+    "HF-U6",
+    "HF-U9",
+    "KA-U1",
+    "KA-U10",
+    "KA-U31",
+    "LV-U1",
+    "LV-U2",
+    "LV-U3",
+    "LV-U4",
+    "LV-U7",
+    "LV-U9",
+    "LV-U16",
+    "LV-U25",
+    "LV-U31",
+    "LV-U32",
+    "MM-U9",
+    "MM-U12",
+    "MM-U23",
+    "MM-U25",
+    "MM-U28",
+    "MM-U32",
+    "OV-U28"
+  ],
+  "venter_paa": [
+    "#1334",
+    "#1046"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-10-28",
+      "grunnlag": "#1366",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen og prototypen, versjon 1."
+    },
+    {
+      "dato": "2026-10-28",
+      "grunnlag": "#1366",
+      "hva": "Prototypen, versjon 2, etter den kognitive gjennomgangen: brevteksten etter LV-U4 punkt 4 og LV-U32, «godkjenner» for BH, et tomt beløp er ubesvart, og 0 kr merket som løsningens lesing. LV-U31, LV-U32, KA-U10, MM-U25 og HF-U2 står i kildene."
+    },
+    {
+      "dato": "2026-10-28",
+      "grunnlag": "#1366",
+      "hva": "Prototypen, versjon 3, etter svarene på S-10–S-12: stanset levering av et varsel med frist, bindingen i brevkontrollen og overskriften etter aksepten."
+    }
+  ]
+}

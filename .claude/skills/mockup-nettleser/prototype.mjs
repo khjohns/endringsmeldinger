@@ -144,6 +144,8 @@ for (const sti of stier) {
         if (naa !== foer) await tilstand(page, sti.id, n++);
       } else if ('kryss' in h) {
         await (await ett(page.getByRole('checkbox', { name: h.kryss }), `avkrysningen «${h.kryss}»`)).check();
+      } else if ('velg' in h) {
+        await (await ett(page.getByRole('radio', { name: h.velg }), `alternativet «${h.velg}»`)).check();
       } else if ('fyll' in h) {
         await (await ett(page.getByRole('textbox', { name: h.fyll }), `feltet «${h.fyll}»`)).fill(h.tekst);
       } else if ('staar' in h) {

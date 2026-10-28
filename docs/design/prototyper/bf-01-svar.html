@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BF-01 i Varden · BH svarer, og TE godtar · prototype v3</title>
+<!--
+  Klikkbar prototype for BF-01 i Varden (docs/domenetabell/brukerforlop/BF-01.md). Tilstandene er
+  ankrene (#svar, #brev, …), og bestillingen viser til dem. ID-ene i data-spor er punktene i
+  bestillingen. Teksten er prototypetekst; brevtekstene er kjernens (kjerne/frosset/brevtekst.ts)
+  for valgene i BF-01. Stilen er Varden-skissenes.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../konsept-varden/skjermer/stil.css">
+<style>
+  .tilstand { display: none; }
+  .tilstand.vist { display: block; }
+  .proto-bar { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 8px 24px; font-size: 13px; border-bottom: 1px dashed #c6d7cd; background: #f3f7f4; }
+  .proto-bar a { color: inherit; }
+  .proto-valg { font-size: 12px; color: #4b5a51; border-top: 1px dashed #c6d7cd; padding-top: 8px; margin-top: 12px; }
+  .proto-valg a { color: inherit; margin-right: 12px; }
+  fieldset.fs { border: 0; margin: 0; min-width: 0; }
+  fieldset.fs legend { float: left; width: 100%; padding: 0; }
+  fieldset.fs legend + * { clear: both; }
+  label.opt { cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  label.opt input { accent-color: #2f5d47; margin: 0; }
+  .feltfeil { color: #a3392b; font-size: 13px; margin-top: 6px; font-weight: 500; }
+  .fs.mangler { box-shadow: inset 3px 0 0 #a3392b; padding-left: 14px; }
+  .feil { padding: 12px 14px; border-left: 3px solid #a3392b; background: #fbf1ef; font-size: 14px; margin-bottom: 12px; }
+  .feil p + p, .virkning p + p, .kvittering p + p { margin-top: 6px; }
+  .virkning { padding: 12px 14px; border-left: 3px solid #2f5d47; background: #f3f7f4; font-size: 14px; }
+  .kvittering { padding: 12px 14px; border: 1px solid #dfe5df; border-radius: 8px; font-size: 14px; }
+  .kvittering.stanset { border-color: #d9a441; background: #fdf7ea; }
+  mark.mangler { background: #fbf1ef; color: #a3392b; padding: 0 4px; border-radius: 3px; font-weight: 500; }
+  .standpunkter { width: 100%; border-collapse: collapse; font-size: 13px; margin: 4px 0 8px; }
+  .standpunkter td { padding: 6px 0; border-bottom: 1px solid #edf0ec; vertical-align: top; }
+  .standpunkter td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .knapper { display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; margin-top: 12px; }
+  a.btn { text-decoration: none; }
+  a.btn.on { box-shadow: inset 0 2px 3px rgba(0,0,0,.18); background: #e4ece7; }
+  .tilbakelinje { margin-bottom: 12px; }
+  .tl { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+  .tl li { padding: 6px 0; border-bottom: 1px solid #edf0ec; }
+  .tl li.ny { font-weight: 600; }
+  textarea.tx { width: 100%; min-height: 90px; font: inherit; padding: 10px; border: 1px solid #cfd8d1; border-radius: 8px; resize: vertical; }
+  .grid.bred { grid-template-columns: minmax(0, 1fr) 360px; }
+  [data-spor] { position: relative; }
+  body.spor [data-spor]::after { content: attr(data-spor); position: absolute; top: -8px; right: -6px; font: 600 10px/1.6 Inter, sans-serif; padding: 0 5px; border-radius: 999px; background: #fff5d6; border: 1px solid #e0c36a; color: #5a4a10; white-space: nowrap; z-index: 2; }
+</style>
+</head>
+<body>
+<div class="proto-bar">
+  <span><b>Prototype · BF-01 i Varden · versjon 3</b> · Ingenting sendes, og ingenting lagres. Grunnlaget er godkjent, og TE har krevd 100 000 kr i brev 4.</span>
+  <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#svar" class="nullstill">Start som BH</a> · <a href="#mottatt">Start som TE</a></span>
+</div>
+
+<!-- Skjerm B: BH svarer (#svar, #kravbrev) -->
+<section class="screen tilstand" id="svar" data-tilstander="svar kravbrev">
+  <div class="page">
+    <div class="casehead compact">
+      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
+      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er BH</span></div>
+    </div>
+    <div class="saksflate">
+      <nav class="casenav" aria-label="Saken">
+        <div class="cn-lbl">Spor</div>
+        <a class="cn"><b>Grunnlag</b><small>Godkjent i brev 2</small></a>
+        <a class="cn on" aria-current="page"><b>Vederlag <span class="tag draft">Utkast</span></b><small>Siste: brev 4 fra TE</small></a>
+        <a class="cn"><b>Frist</b><small>Ingen brev</small></a>
+      </nav>
+      <div class="arbeid">
+        <div class="grid">
+          <div class="stack">
+            <div class="work-h"><div><h2>Vederlag</h2><small>2 brev · siste 1. okt 2026 fra TE</small></div>
+              <div class="tab-act"><span class="btn">Skriv brev i sporet</span><small>Utkast åpent: svar på brev 4</small></div>
+            </div>
+            <div class="card">
+              <div class="draft-h"><h3><span class="tag draft">Utkast</span>Svar på krav om vederlagsjustering</h3>
+                <dl class="draft-meta"><dt>Til</dt><dd>Totalentreprenøren</dd><dd data-spor="G-4">Står i nettleseren til du sender eller lukker siden</dd></dl>
+              </div>
+              <div class="replyto" data-spor="U-1 · M-1"><span><b>Svar på brev 4 fra TE</b> · 1. okt 2026</span><a class="btn" href="#kravbrev">Les brevet ved siden av</a></div>
+              <div class="feil skjema-feil" role="alert" hidden data-spor="D-4 · U-2">
+                <p><b>Svaret er ikke ferdig.</b> <span class="mangler-tekst"></span></p>
+              </div>
+              <fieldset class="fs" id="felt-varsel">
+                <legend class="legend"><span>Varselet om vederlagsjustering</span><span class="chip">§ 34.1.2</span></legend>
+                <div class="q">Kom varselet om vederlagsjustering i tide?</div>
+                <div class="fact" data-spor="M-1">Tegningene til fundamentene kom 26. aug 2026, tre uker etter avtalt tid, etter TEs krav i brev 1, sendt 2. sep 2026. Grunnlaget ble godkjent i brev 2, sendt 9. sep 2026. TE varslet og krevde justering av vederlaget i brev 4, sendt 1. okt 2026.</div>
+                <div class="opts">
+                  <label class="opt"><input type="radio" name="varsel" value="i-tide"> Varslet i tide</label>
+                  <label class="opt"><input type="radio" name="varsel" value="for-sent"> Varslet for sent</label>
+                </div>
+                <p class="feltfeil" hidden>Svar på om varselet kom i tide.</p>
+              </fieldset>
+              <fieldset class="fs" id="felt-metode">
+                <legend class="legend"><span>Beregningsmetode <span class="tag plain ubesvart">Ikke besvart</span></span><span class="chip">§ 34.2</span></legend>
+                <div class="q"><span class="subsidiaert-ledd">Hvis varselet kom i tide: </span>TE har gitt kravet som et tilbud etter § 34.2.1. Godkjenner du oppgjør som fast sum?</div>
+                <div class="opts">
+                  <label class="opt"><input type="radio" name="metode" value="fast-sum"> Godkjenner fast sum</label>
+                  <label class="opt"><input type="radio" name="metode" value="ikke-fast-sum"> Godkjenner ikke fast sum</label>
+                </div>
+                <div class="sub-q annen-metode" hidden>
+                  <div class="q">Hvordan skal kravet da gjøres opp?</div>
+                  <div class="opts">
+                    <label class="opt"><input type="radio" name="annen" value="enhetspriser"> Etter enhetspriser (§ 34.3)</label>
+                    <label class="opt"><input type="radio" name="annen" value="regningsarbeid"> Som regningsarbeid (§ 34.4)</label>
+                  </div>
+                </div>
+                <p class="feltfeil" hidden>Svar på om du godkjenner fast sum.</p>
+              </fieldset>
+              <fieldset class="fs" id="felt-beloep">
+                <legend class="legend"><span>Beløpet · 100 000 kr krevd</span><span class="chip">§ 34.1</span></legend>
+                <label class="q" for="beloep"><span class="subsidiaert-ledd">Hvis varselet kom i tide, </span>hvor mye godkjenner du?</label>
+                <div class="money"><input id="beloep" value="60 000"><span>kr</span></div>
+                <div class="help">Beløpet du godkjenner av kravet, eks. mva. Fra 0 kr til 100 000 kr, det TE krever.</div>
+                <p class="feltfeil" hidden>Skriv beløpet du godkjenner. Godkjenner du ingenting, skriv 0.</p>
+              </fieldset>
+              <div class="fs last">
+                <label class="legend" for="begrunnelse"><span>Begrunnelse <span class="opt-note">· valgfri</span></span></label>
+                <textarea class="tx" id="begrunnelse"></textarea>
+                <p class="help">Kommer i brevet under standpunktene. Begrunnelsen tolkes ikke; det er valgene over som blir standpunktene.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="stack panel">
+            <div class="card" data-tilstander="svar">
+              <div class="card-h"><h3>Hovedlinjene i svaret</h3><span class="sub">Det samme som brevet sier</span></div>
+              <div class="card-b tight" data-spor="U-2">
+                <div class="hlc"><span>Varselet etter § 34.1.2</span><b class="hl-varsel"></b></div>
+                <div class="hlc"><span>Beregningsmetode</span><b class="hl-metode"></b></div>
+                <div class="hlc"><span>Beløpet <small>100 000 kr krevd</small></span><b class="n hl-beloep"></b></div>
+              </div>
+              <div class="send">
+                <p class="why hl-mangler" data-spor="U-2 · D-4"></p>
+                <a class="btn primary lg block" href="#brev" data-spor="D-4">Se brevet før sending</a>
+              </div>
+            </div>
+            <div class="card" data-tilstander="svar" data-spor="U-1">
+              <div class="card-h"><h3>Tidslinje i sporet</h3><span class="sub">2 brev</span></div>
+              <div class="card-b">
+                <ul class="tl">
+                  <li>Brev 4 · TE · 1. okt 2026 · krav om justering av vederlaget, 100 000 kr</li>
+                  <li>Brev 2 · BH · 9. sep 2026 · grunnlaget godkjent</li>
+                </ul>
+              </div>
+            </div>
+            <div class="card" id="kravbrev" data-tilstander="kravbrev" role="region" aria-label="Brev 4 fra TE">
+              <div class="card-h"><h3>Brev 4 fra TE</h3><a href="#svar">Tilbake til hovedlinjene</a></div>
+              <div class="card-b" data-spor="U-1 · M-1">
+                <div class="a4">
+                  <h2>Krav om justering av vederlaget</h2>
+                  <p>TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1.</p>
+                  <div class="colophon">Sendt gjennom løsningen 1. okt 2026 kl. 09.12.</div>
+                </div>
+                <p class="muted">Utkastet ditt står til venstre som før.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skjerm C: brevkontrollen (#brev) -->
+<section class="screen tilstand" id="brev" data-tilstander="brev">
+  <div class="page">
+    <div class="tilbakelinje"><a class="btn ghost" href="#svar" data-spor="D-5">Tilbake til utkastet</a></div>
+    <div class="casehead compact">
+      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
+      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er BH</span></div>
+    </div>
+    <div class="grid bred">
+      <div class="stack">
+        <div class="feil brev-mangler" role="status" hidden data-spor="U-2 · S-3">
+          <p><b>Brevet er ikke ferdig.</b> <span class="mangler-tekst"></span> Du kan se brevet, men ikke sende det før det er besvart.</p>
+        </div>
+        <div class="a4" data-spor="D-1 · U-3 · S-2">
+          <div class="lh">
+            <div class="org"><div><b>Byggherren</b><span>BH</span></div></div>
+            <dl><dt>Brev</dt><dd>Får nummer når det sendes</dd><dt>Dato</dt><dd>Settes når det sendes</dd><dt>Til</dt><dd>Totalentreprenøren (TE)</dd></dl>
+          </div>
+          <h2>Svar på krav om vederlagsjustering</h2>
+          <p>Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:</p>
+          <div class="brevtekst"></div>
+          <p class="brev-begrunnelse"></p>
+          <div class="colophon" data-spor="D-1">Dette er teksten som sendes. Brevnummeret og tidspunktet settes når brevet sendes, og PDF-en får A4-format.</div>
+        </div>
+      </div>
+      <div class="stack panel">
+        <div class="card">
+          <div class="card-h"><h3>Oversikt</h3><span class="sub">Ikke en del av brevet</span></div>
+          <div class="card-b" data-spor="U-3 · S-2">
+            <table class="standpunkter">
+              <tr><td>TE krever</td><td class="n">100 000 kr</td></tr>
+              <tr><td class="ov-varsel"></td><td class="n ov-varsel-n"></td></tr>
+              <tr><td class="ov-sub"></td><td class="n ov-beloep"></td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Dette sender du</h3></div>
+          <div class="card-b">
+            <div class="virkning" data-spor="M-2">
+              <p><b>Hva svaret gjør</b></p>
+              <p class="virk-tekst"></p>
+              <p data-spor="S-11">Byggherren er bundet av det svaret innrømmer, til TE sender en ny kravversjon. Godtar TE svaret, er dere bundet av enigheten.</p>
+            </div>
+            <div class="feil send-feil" role="alert" hidden data-spor="D-4">
+              <p><b>Brevet kan ikke sendes ennå.</b> <span class="send-feil-tekst"></span></p>
+              <p class="gaa-til" hidden><a href="#svar" class="gaa-metode">Gå til beregningsmetoden</a><a href="#svar" class="gaa-varsel">Gå til varselet</a> <a href="#svar" class="gaa-beloep">Gå til beløpet</a></p>
+            </div>
+            <p><label><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label></p>
+            <div class="knapper"><span></span><a class="btn primary send-bh" href="#sendt" data-spor="M-2">Send til TE</a></div>
+            <p class="muted" data-spor="D-5">Ingenting er sendt før du trykker «Send til TE». Går du tilbake, står utkastet som før.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skjerm E: kvitteringen (#sendt, #sendt-levert, #sendt-stanset) -->
+<section class="screen tilstand" data-tilstander="sendt sendt-levert sendt-stanset">
+  <div class="page">
+    <div class="casehead compact">
+      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
+      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er BH</span></div>
+    </div>
+    <div class="grid">
+      <div class="stack">
+        <div class="card">
+          <div class="card-h"><h3>Brev 5 er sendt</h3></div>
+          <div class="card-b">
+            <p data-spor="M-3 · D-3">Brev 5 · Svar på krav om vederlagsjustering er sendt til TE 8. okt 2026 kl. 10.04.</p>
+            <div class="kvittering" id="sendt" data-tilstander="sendt" data-spor="U-4 · D-3 · G-3">
+              <p><b>Levering til prosjekthotellet</b></p>
+              <p>Ikke bekreftet levert til prosjekthotellet ennå.</p>
+            </div>
+            <div class="kvittering" id="sendt-levert" data-tilstander="sendt-levert" data-spor="U-4 · D-3">
+              <p><b>Levering til prosjekthotellet</b></p>
+              <p>Levert til prosjekthotellet 8. okt 2026 kl. 10.05.</p>
+            </div>
+            <div class="kvittering stanset" id="sendt-stanset" data-tilstander="sendt-stanset" role="status" data-spor="U-4 · D-3">
+              <p><b>Leveringen til prosjekthotellet er stanset</b></p>
+              <p>Brevet er sendt i løsningen, men ikke levert til prosjekthotellet. Drift er varslet. Ingenting er sperret, og du kan sende flere brev i saken.</p>
+              <p data-spor="S-10"><b>Svaret påberoper at varselet kom for sent, og er et varsel med frist.</b> Send brevet utenfor løsningen, og registrer det i saken.</p>
+            </div>
+            <ul class="tl" style="margin-top:12px">
+              <li>Brev 2 · BH · grunnlaget godkjent</li>
+              <li>Brev 4 · TE · krav om justering av vederlaget, 100 000 kr</li>
+              <li class="ny">Brev 5 · BH · svar: varselet kom for sent, subsidiært 60 000 kr</li>
+            </ul>
+            <p class="proto-valg">Prototypen: vis leveringen som <a href="#sendt">Vis ikke bekreftet</a><a href="#sendt-levert">Vis levert</a><a href="#sendt-stanset">Vis stanset</a> · <a href="#mottatt">Se svaret som TE</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skjerm D: TE leser svaret og godtar det (#mottatt, #ta-stilling, #aksept-brev, #godtatt) -->
+<section class="screen tilstand" id="mottatt" data-tilstander="mottatt ta-stilling aksept-brev godtatt">
+  <div class="page">
+    <div class="casehead compact">
+      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
+      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er TE</span></div>
+    </div>
+    <div class="saksflate">
+      <nav class="casenav" aria-label="Saken">
+        <div class="cn-lbl">Spor</div>
+        <a class="cn"><b>Grunnlag</b><small>Godkjent i brev 2</small></a>
+        <a class="cn on" aria-current="page"><b>Vederlag</b><small>Siste: brev 5 fra BH</small></a>
+        <a class="cn"><b>Frist</b><small>Ingen brev</small></a>
+      </nav>
+      <div class="arbeid">
+        <div class="grid">
+          <div class="stack">
+            <div class="work-h"><div><h2>Vederlag</h2><small>2 brev · siste 8. okt 2026 fra BH</small></div></div>
+            <div class="sentbar" data-spor="M-4"><span><b>Brev 5 · Svar på krav om vederlagsjustering</b> · BH · mottatt 8. okt 2026</span></div>
+            <div class="a4" data-spor="M-4 · U-5 · D-1">
+              <div class="lh">
+                <div class="org"><div><b>Byggherren</b><span>BH</span></div></div>
+                <dl><dt>Brev</dt><dd>5, vederlag</dd><dt>Dato</dt><dd>8. oktober 2026</dd><dt>Til</dt><dd>Totalentreprenøren (TE)</dd></dl>
+              </div>
+              <h2>Svar på krav om vederlagsjustering</h2>
+              <p>Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:</p>
+              <p>Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.</p>
+              <p>Subsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.</p>
+              <p>Subsidiært: byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.</p>
+              <p>Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet.</p>
+              <div class="colophon">Sendt gjennom løsningen 8. okt 2026 kl. 10.04. Dette er brevet slik det ble sendt, og det kan ikke endres.</div>
+            </div>
+          </div>
+
+          <div class="stack panel">
+            <div class="card" data-tilstander="mottatt ta-stilling">
+              <div class="card-h"><h3>Svaret i brev 5</h3></div>
+              <div class="card-b">
+                <table class="standpunkter" data-spor="U-5">
+                  <tr><td>Du krevde</td><td class="n">100 000 kr</td></tr>
+                  <tr><td><b>Prinsipalt</b>: varselet etter § 34.1.2 kom for sent</td><td class="n">0 kr<br><span class="muted">løsningens lesing</span></td></tr>
+                  <tr><td><b>Subsidiært</b>: hvis varselet kom i tide</td><td class="n">60 000 kr</td></tr>
+                </table>
+                <a class="btn block ta-stilling-knapp" href="#ta-stilling" aria-expanded="false" data-spor="M-5">Ta stilling til svaret</a>
+              </div>
+            </div>
+            <div class="card" id="ta-stilling" data-tilstander="ta-stilling" role="region" aria-label="Ta stilling til svaret i brev 5">
+              <div class="card-h"><h3>Godta svaret i brev 5</h3><a href="#mottatt">Lukk</a></div>
+              <div class="card-b">
+                <div class="virkning" data-spor="U-6 · D-2 · S-1 · U-7">
+                  <p><b>Du godtar hele svaret</b></p>
+                  <p>Du godtar hele svaret i brev 5, også at varselet etter § 34.1.2 kom for sent. Dere er da enige om at kravet ikke fører fram etter det svaret sier.</p>
+                  <p>Beløpet i enigheten, etter løsningens lesing av svaret: <b>0 kr</b>.</p>
+                  <p>De 60 000 kr er et subsidiært standpunkt. De gjaldt bare hvis varselet kom i tide, og blir ikke det dere er enige om.</p>
+                </div>
+                <div class="knapper"><a class="btn ghost" href="#mottatt">Tilbake</a><a class="btn primary" href="#aksept-brev">Godta svaret</a></div>
+              </div>
+            </div>
+            <div class="card" id="aksept-brev" data-tilstander="aksept-brev" role="region" aria-label="Brevkontroll for aksepten">
+              <div class="card-h"><h3>Dette sender du</h3></div>
+              <div class="card-b">
+                <div class="lbl">Brev 6 · Aksept · til BH</div>
+                <div class="a4" data-spor="D-1">
+                  <p>TE godtar byggherrens svar på kravet om justering av vederlaget i brev 5 av 8. oktober 2026.</p>
+                </div>
+                <div class="virkning" data-spor="U-6 · D-2">
+                  <p>Enigheten omfatter hele svaret, også at varselet kom for sent. Beløpet i enigheten, etter løsningens lesing: 0 kr.</p>
+                </div>
+                <div class="feil aksept-feil" role="alert" hidden><p>Kryss av for at du har kontrollert brevet før du sender det.</p></div>
+                <p><label><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label></p>
+                <div class="knapper"><a class="btn ghost" href="#ta-stilling">Tilbake</a><a class="btn primary send-te" href="#godtatt">Send til BH</a></div>
+                <p class="muted" data-spor="D-5">Ingenting er sendt før du trykker «Send til BH».</p>
+              </div>
+            </div>
+            <div class="card" id="godtatt" data-tilstander="godtatt" role="region" aria-label="Aksepten er sendt">
+              <div class="card-h"><h3 data-spor="S-12">Aksepten i brev 6 er sendt</h3></div>
+              <div class="card-b">
+                <p data-spor="D-3">Brev 6 er sendt til BH 12. okt 2026 kl. 11.20. Ikke bekreftet levert til prosjekthotellet ennå.</p>
+                <div class="virkning" data-spor="D-2 · U-6">
+                  <p><b>Enighet: 0 kr</b> <span class="muted">· løsningens lesing</span></p>
+                  <p>Aksepten i brev 6 omfatter hele svaret i brev 5, også at varselet etter § 34.1.2 kom for sent.</p>
+                </div>
+                <ul class="tl" style="margin-top:12px">
+                  <li>Brev 4 · TE · krav om justering av vederlaget, 100 000 kr</li>
+                  <li>Brev 5 · BH · svar: varselet kom for sent, subsidiært 60 000 kr</li>
+                  <li class="ny">Brev 6 · TE · aksept av svaret i brev 5</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const valgt = (n) => $(`input[name="${n}"]:checked`)?.value ?? null;
+  let sendforsoek = false;
+
+  function mangler() {
+    const m = [];
+    if (!valgt('varsel')) m.push({ felt: 'varsel', tekst: 'om varselet kom i tide' });
+    const metode = valgt('metode');
+    if (!metode || (metode === 'ikke-fast-sum' && !valgt('annen'))) m.push({ felt: 'metode', tekst: 'beregningsmetoden' });
+    // HF-U1, MM-U28: et tomt beløpsfelt er ubesvart, ikke 0 kr.
+    if (!$('#beloep').value.trim()) m.push({ felt: 'beloep', tekst: 'beløpet' });
+    return m;
+  }
+
+  const METODEN = { enhetspriser: 'etter enhetspriser (NS 8407 § 34.3)', regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)' };
+
+  function oppdater() {
+    const varsel = valgt('varsel'), metode = valgt('metode'), annen = valgt('annen');
+    const beloep = $('#beloep').value.trim();
+    const forSent = varsel === 'for-sent';
+    const m = mangler();
+    const liste = m.map((x) => x.tekst).join(', ').replace(/, ([^,]*)$/, ' og $1');
+    const setning = m.length ? `Ikke besvart: ${liste}.` : '';
+    for (const e of $$('.subsidiaert-ledd')) e.hidden = !forSent;
+    $('.annen-metode').hidden = metode !== 'ikke-fast-sum';
+    $('.ubesvart').hidden = !!metode;
+
+    $('.hl-varsel').textContent = varsel ? (forSent ? 'For sent' : 'I tide') : 'Ikke besvart';
+    $('.hl-metode').textContent = !metode ? 'Ikke besvart' : metode === 'fast-sum' ? 'Fast sum' : annen === 'regningsarbeid' ? 'Regningsarbeid' : annen === 'enhetspriser' ? 'Enhetspriser' : 'Ikke besvart';
+    $('.hl-beloep').textContent = beloep ? `${beloep} kr${forSent ? ' subsidiært' : ''}` : 'Ikke besvart';
+    $('.hl-mangler').textContent = m.length ? `${setning} Du kan se brevet, men ikke sende det.` : 'Alt er besvart. Se brevet og kontroller det før du sender.';
+
+    for (const e of $$('.mangler-tekst')) e.textContent = setning;
+    $('.brev-mangler').hidden = !m.length;
+    $('.skjema-feil').hidden = !(sendforsoek && m.length);
+    for (const f of ['varsel', 'metode', 'beloep']) {
+      const mangel = sendforsoek && m.some((x) => x.felt === f);
+      $(`#felt-${f}`).classList.toggle('mangler', mangel);
+      $(`#felt-${f} .feltfeil`).hidden = !mangel;
+    }
+
+    // Kjernens brevtekst (LV-U4 punkt 4 og 5, LV-U31, LV-U32): én setning per standpunkt, hver med sin orden.
+    const mk = (t) => `<mark class="mangler">Ikke besvart: ${t}</mark>`;
+    const metodeTekst = !metode || (metode === 'ikke-fast-sum' && !annen) ? mk('beregningsmetoden')
+      : metode === 'fast-sum' ? 'byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.'
+      : `byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres ${METODEN[annen]}.`;
+    const beloepTekst = beloep ? `byggherren godkjenner ${beloep} kr eks. mva. av de krevde 100 000 kr eks. mva.` : mk('beløpet');
+    const stor = (t) => t.replace(/^byggherren/, 'Byggherren');
+    let html;
+    if (!varsel) html = `<p>${mk('om varselet kom i tide')}</p><p>${stor(metodeTekst)}</p><p>${stor(beloepTekst)}</p>`;
+    else if (forSent) html = `<p>Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.</p><p>Subsidiært: ${metodeTekst}</p><p>Subsidiært: ${beloepTekst}</p>`;
+    else html = `<p>Byggherren gjør ikke gjeldende at varselet kom for sent.</p><p>${stor(metodeTekst)}</p><p>${stor(beloepTekst)}</p>`;
+    $('.brevtekst').innerHTML = html;
+    $('.brev-begrunnelse').textContent = $('#begrunnelse').value;
+
+    $('.ov-varsel').innerHTML = varsel ? (forSent ? '<b>Prinsipalt</b>: varselet kom for sent' : 'Varselet kom i tide') : 'Varselet: ikke besvart';
+    $('.ov-varsel-n').innerHTML = forSent ? '0 kr<br><span class="muted">løsningens lesing</span>' : '';
+    $('.ov-sub').innerHTML = forSent ? '<b>Subsidiært</b>: hvis varselet kom i tide' : 'Godkjent';
+    $('.ov-beloep').textContent = beloep ? `${beloep} kr` : 'Ikke besvart';
+    $('.virk-tekst').textContent = !varsel
+      ? 'Svaret er ikke ferdig, så det kan ikke sies hva det gjør før varselet er besvart.'
+      : forSent
+      ?`Du gjør gjeldende at varselet etter § 34.1.2 kom for sent, og godkjenner subsidiært ${beloep || '…'} kr eks. mva. Godtar TE svaret, er dere enige om hele svaret, også at varselet kom for sent.`
+      : `Du godkjenner ${beloep || '…'} kr eks. mva. Godtar TE svaret, er dere enige om hele svaret.`;
+  }
+
+  function vis() {
+    const id = (location.hash || '#svar').slice(1);
+    for (const e of $$('[data-tilstander]')) {
+      const vist = e.dataset.tilstander.split(' ').includes(id);
+      if (e.classList.contains('tilstand')) e.classList.toggle('vist', vist); else e.hidden = !vist;
+    }
+    const knapp = $('.ta-stilling-knapp');
+    knapp.classList.toggle('on', id === 'ta-stilling');
+    knapp.setAttribute('aria-expanded', String(id === 'ta-stilling'));
+    if (id !== 'brev') { $('.send-feil').hidden = true; }
+    if (id !== 'aksept-brev') $('.aksept-feil').hidden = true;
+    for (const k of $$('.kontrollert')) k.checked = false;
+    oppdater();
+    if (id === 'svar' && sendforsoek) $('#felt-' + (mangler()[0]?.felt ?? 'varsel')).scrollIntoView({ block: 'center' });
+  }
+
+  $('.send-bh').addEventListener('click', (e) => {
+    const m = mangler();
+    const kontrollert = $('#brev .kontrollert').checked;
+    if (!m.length && kontrollert) { sendforsoek = false; return; }
+    e.preventDefault();
+    if (m.length) sendforsoek = true;
+    const deler = [];
+    if (m.length) deler.push(`Ikke besvart: ${m.map((x) => x.tekst).join(' og ')}.`);
+    if (!kontrollert) deler.push('Kryss av for at du har kontrollert brevet.');
+    $('.send-feil-tekst').textContent = deler.join(' ');
+    $('.gaa-til').hidden = !m.length;
+    $('.gaa-metode').hidden = !m.some((x) => x.felt === 'metode');
+    $('.gaa-varsel').hidden = !m.some((x) => x.felt === 'varsel');
+    $('.gaa-beloep').hidden = !m.some((x) => x.felt === 'beloep');
+    $('.send-feil').hidden = false;
+    oppdater();
+  });
+  $('.send-te').addEventListener('click', (e) => {
+    if ($('#aksept-brev .kontrollert').checked) return;
+    e.preventDefault();
+    $('.aksept-feil').hidden = false;
+  });
+  for (const i of $$('#svar input, #svar textarea')) i.addEventListener('input', oppdater);
+  $('#vis-spor').addEventListener('change', (e) => document.body.classList.toggle('spor', e.target.checked));
+  $('a.nullstill').addEventListener('click', () => {
+    sendforsoek = false;
+    for (const i of $$('#svar input[type="radio"]')) i.checked = false;
+    $('#beloep').value = '60 000';
+    $('#begrunnelse').value = '';
+  });
+  addEventListener('hashchange', vis);
+  vis();
+</script>
+</body>
+</html>
