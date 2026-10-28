@@ -225,8 +225,8 @@ describe('vakttestene for brukerforløpene', () => {
 
   // Listen er fast, så testen ikke blir tom når et forløp blir kjørbart og mister `kilder`
   // (#1363).
-  it('et kjørbart forløp etter OV-U54 (4B) har en kontroll med OV-U54 som kilde', () => {
-    for (const b of ['BF-02B'].map(finn)) {
+  it('et kjørbart forløp etter OV-U54 (BF-02B, BF-02C og BF-03) har en kontroll med OV-U54 som kilde', () => {
+    for (const b of ['BF-02B', 'BF-02C', 'BF-03'].map(finn)) {
       if (b.status === 'planlagt') continue;
       const kilder = (b.kontrollpunkter ?? []).flatMap(kontrollerI).flatMap((k) => k.kilde);
       expect(kilder, b.id).toContain('OV-U54');

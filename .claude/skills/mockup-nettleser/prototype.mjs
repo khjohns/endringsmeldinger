@@ -72,6 +72,7 @@ const bredde = [];
 const konsoll = [];
 const axe = new Map();
 const tilstander = new Set();
+const naadd = new Map();
 const forloepet = [];
 
 const { chromium } = globalPlaywright();
@@ -115,6 +116,8 @@ async function ett(locator, hva) {
 async function tilstand(page, sti, n) {
   const anker = (await page.evaluate(() => location.hash)).slice(1);
   tilstander.add(anker);
+  if (!naadd.has(sti)) naadd.set(sti, new Set());
+  naadd.get(sti).add(anker);
   await page.screenshot({ path: join(utdata, `${sti}-${String(n).padStart(2, '0')}-${anker}.png`), fullPage: true });
   await kjoerAxe(page, `${sti}#${anker}`);
 }
@@ -170,7 +173,13 @@ for (const a of new Set(side.lenker)) if (!ider.has(a)) avvik.push(`href="#${a}"
 for (const s of steg)
   for (const a of s.ankre) if (!ider.has(a)) avvik.push(`steg ${s.id}: ankeret #${a} finnes ikke`);
 const dekket = new Set(stier.flatMap((s) => s.dekker));
-for (const s of steg) if (!dekket.has(s.id)) avvik.push(`steg ${s.id} har ingen klikksti`);
+for (const s of steg) {
+  const sine = stier.filter((x) => x.dekker.includes(s.id));
+  if (!sine.length) avvik.push(`steg ${s.id} har ingen klikksti`);
+  for (const a of s.ankre)
+    if (sine.length && !sine.some((x) => naadd.get(x.id)?.has(a)))
+      avvik.push(`steg ${s.id}: klikkstiene for steget når ikke #${a}`);
+}
 for (const d of dekket)
   if (!steg.some((s) => s.id === d) && !definert.includes(d))
     avvik.push(`klikkstiene dekker ${d}, som ikke står i ${forloep.bestilling}`);

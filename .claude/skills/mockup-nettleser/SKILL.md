@@ -149,7 +149,7 @@ node .claude/skills/mockup-nettleser/prototype.mjs BF-03 [--utdata <mappe>]
 Skriptet klikker lenkene i hver klikksti med 1440 px bredde og kontrollerer at hvert klikk
 fører til ankeret i stien, og at tekstene i `staar` er synlige. Bare starten settes med
 ankeret. Så kontrollerer det at hver `href="#…"` har et mål, at ankrene og stegene i
-stegtabellen i bestillingen finnes og er dekket av en klikksti, og at `data-spor` stemmer
+stegtabellen i bestillingen finnes og er dekket av en klikksti som når ankrene i steget, og at `data-spor` stemmer
 med ID-ene i bestillingen begge veier. axe (WCAG 2.1 A og AA) kjøres i hver tilstand stiene
 når, og konsollfeilene samles. Forespørsler til nettet blokkeres, så nettfontene mangler på
 skjermbildene. Det tas ett skjermbilde per tilstand, ett med «Vis sporbarhet» og ett per

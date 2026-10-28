@@ -29,9 +29,9 @@ kjøring, og rett dem når prototypen endrer veiene:
 node .claude/skills/mockup-nettleser/prototype.mjs BF-xx
 ```
 
-Rapporten legges i issuet eller PR-en for iterasjonen. Brudd i en klikksti, et anker uten
-mål, en `data-spor`-ID som ikke står i bestillingen, et U- eller D-punkt uten `data-spor`,
-axe-brudd og konsollfeil er avvik. Bredden på 390 px rapporteres, men er ikke et avvik.
+Rapporten legges i issuet eller PR-en for iterasjonen. Brudd i en klikksti, et steg der
+klikkstiene for steget ikke når ankrene, et anker uten mål, en `data-spor`-ID som ikke står
+i bestillingen, et U- eller D-punkt uten `data-spor`, axe-brudd og konsollfeil er avvik. Bredden på 390 px rapporteres, men er ikke et avvik.
 
 ## Kognitiv gjennomgang
 
