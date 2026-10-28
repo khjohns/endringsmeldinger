@@ -389,6 +389,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'predikat',
     'utled utledJournal kraveneErAvgjort varAvgjort trekkAvGrunnlagetErSperret',
   ],
+  // OV-U65, OV-U66: det en enighet omfatter, utledet av enigheten, kravet, svaret og
+  // standpunktene i sporet. Leses av sperren mot innsigelsen.
+  ['utledning/utled.ts', 'predikat', 'enighetenOmfatter', ['kommandoer/forutsetninger.ts']],
   ['utledning/utled.ts', 'relasjon', 'grunnlagskravFor'],
   ['utledning/utled.ts:grunnlagskravFor', 'relasjon', 'grunnlagskrav'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).

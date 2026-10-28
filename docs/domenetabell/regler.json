@@ -941,6 +941,20 @@
       "radetikett": "HF-U8: Byggherrens svar faller bort som tilbud når TE sender en ny kravversjon i sporet"
     },
     {
+      "id": "OV-U65",
+      "type": "vedtak",
+      "dato": "2026-10-27",
+      "ref": "../plans/vedtak.md#ov-u65",
+      "radetikett": "OV-U65: Har partene inngått en enighet, avviser løsningen protest, innsigelse og bestridelse fra begge parter mot det enigheten omfatter"
+    },
+    {
+      "id": "OV-U66",
+      "type": "vedtak",
+      "dato": "2026-10-27",
+      "ref": "../plans/vedtak.md#ov-u66",
+      "radetikett": "OV-U66: 1. Sperren gjelder også påberopt passivitet og merking mot det enigheten omfatter"
+    },
+    {
       "id": "OV-U3",
       "type": "vedtak",
       "dato": "2026-10-13",
@@ -1427,7 +1441,7 @@
     {
       "id": "KA-21",
       "tilfelle": "Byggherren bestrider at et varsel TE har registrert, ble mottatt, også etter at saken er avsluttet.",
-      "forventet": "Bestridelsen lagres som byggherrens utsagn om opplysningen. Opplysningen om sendingen står, og preklusjonen verken faller eller oppstår av seg selv. Visningen viser både TEs opplysning og bestridelsen. I en avsluttet sak registreres bestridelsen uten virkning på utfallet, og andre kommandoer avvises fortsatt.",
+      "forventet": "Bestridelsen lagres som byggherrens utsagn om opplysningen. Opplysningen om sendingen står, og preklusjonen verken faller eller oppstår av seg selv. Visningen viser både TEs opplysning og bestridelsen. I en avsluttet sak registreres bestridelsen uten virkning på utfallet, og andre kommandoer avvises fortsatt. Bygger et standpunkt om varslingen som inngår i en enighet, på opplysningen, avvises bestridelsen (OV-U66 punkt 3).",
       "bh_standpunkt": "Bestrider mottaket. Rettidigheten er ikke vurdert.",
       "rettslig_virkning": "Systemet avgjør ikke hvem som har rett.",
       "rettidighet": "Ikke vurdert.",
@@ -3054,8 +3068,8 @@
     },
     {
       "id": "VS-05",
-      "tilfelle": "Kravene er avgjort, eller TE har godtatt avslaget av grunnlaget, og en part gjør innsigelse, protesterer eller merker et brev.",
-      "forventet": "Utsagnet godtas, som en bestridelse, og registreres uten virkning på utfallet. Kommandoer som kan endre utfallet, avvises fortsatt.",
+      "tilfelle": "Partene har inngått en enighet i et spor, også en betinget enighet, ved aksept eller ved sammenfall, eller kravene er avgjort, og en part gjør innsigelse mot et varsel, et krav eller et svar.",
+      "forventet": "En innsigelse mot det enigheten omfatter, avvises: det gjeldende kravet i sporet, det gjeldende svaret med standpunktene i det, og varselet et standpunkt om varslingen gjelder. Eldre kravversjoner og svar, et varsel ingen av standpunktene gjelder, et krav i et annet spor og det en enighet uten virkning omfattet, følger de vanlige reglene, og innsigelsen registreres uten virkning på utfallet. En innsigelse som alt står i saken, beholder sin virkning. Kommandoer som kan endre utfallet, avvises fortsatt.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Utsagnet har ingen virkning på utfallet.",
       "rettidighet": "—",
@@ -3064,16 +3078,21 @@
         "KA-U11",
         "MM-U7",
         "VS-U1",
-        "KA-U29"
+        "KA-U29",
+        "OV-U65",
+        "OV-U66",
+        "HF-U8"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
-        "kjerne/kommandoer/forutsetninger.ts#henvisning"
+        "kjerne/kommandoer/forutsetninger.ts#henvisning",
+        "kjerne/utledning/utled.ts#enighetenOmfatter"
       ],
       "regelkoder": [
         "KRAVENE_AVGJORT",
-        "GRUNNLAG_AVVIST"
+        "GRUNNLAG_AVVIST",
+        "ENIGHETEN_OMFATTER"
       ]
     },
     {

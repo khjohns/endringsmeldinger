@@ -1290,6 +1290,37 @@ export function enighetensVirkning(
 }
 
 /**
+ * OV-U65, OV-U66 og svarene 28.10 i #1352: sporet med en enighet som omfatter elementet,
+ * eller `null`. Enigheten omfatter det gjeldende kravet, det gjeldende svaret med
+ * standpunktene i det, standpunktene om varselet i tidligere svar fra appen som står mot
+ * kravet (HF-U4, VS-U20), og det et standpunkt om varslingen gjelder (OV-U66 punkt 3).
+ * Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke. Sperren gjelder fra
+ * enigheten er inngått, også mens den er betinget, og ikke når den er uten virkning.
+ */
+export function enighetenOmfatter(u: Utledning, id: string): Spor | null {
+  for (const n of SPOR) {
+    const virkning = enighetensVirkning(u, n);
+    if (virkning !== 'betinget' && virkning !== 'virksom') continue;
+    const s = u.spor[n];
+    const standpunkter = [
+      ...(s.gjeldendeSvar?.standpunkter ?? []),
+      ...s.svar
+        .filter((x) => binder(u, x))
+        .flatMap((x) =>
+          x.standpunkter.filter((p) => p.art === 'rettidighet' && p.hjemmel !== '33.6.2')
+        ),
+    ];
+    if (
+      id === s.gjeldendeKrav?.id ||
+      id === s.gjeldendeSvar?.id ||
+      standpunkter.some((p) => p.id === id || ('gjelder' in p && p.gjelder === id))
+    )
+      return n;
+  }
+  return null;
+}
+
+/**
  * OV-U3: kravene er avgjort når grunnlaget er avklart etter GR-U7, TE har sendt minst
  * ett vederlags- eller fristkrav, og hvert vederlags- og fristkrav TE har sendt, er
  * trukket eller har en virksom enighet. Et spor uten krav hindrer ikke; et varsel er

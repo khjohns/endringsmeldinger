@@ -846,15 +846,38 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F82',
-    feilklasse: 'en innsigelse avvises når kravene er avgjort (KA-U11, MM-U7)',
+    feilklasse:
+      'en innsigelse mot det en enighet omfatter, godtas, eller en innsigelse godtas ikke etter at enigheten har falt bort (OV-U65, OV-U66)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "    case 'innsigelse':\n      // VS-U1, VS-U14",
-        "    case 'innsigelse':\n      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', '');\n      // VS-U1, VS-U14",
+        '      const spor = enighetenOmfatter(u, h.gjelder);',
+        '      const spor = null as Spor | null;',
       ],
     ],
-    mal: ['F-MM-V5'],
+    mal: ['F-MM-V5', 'F-MM-V6', 'F-MM-V11'],
+  },
+  {
+    id: 'F82b',
+    feilklasse:
+      'sperren etter enighet gjelder også når enigheten er uten virkning (OV-U66 punkt 2)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    if (virkning !== 'betinget' && virkning !== 'virksom') continue;",
+        '    if (virkning === null) continue;',
+      ],
+    ],
+    mal: ['F-MM-V11b'],
+  },
+  {
+    id: 'F82c',
+    feilklasse: 'sperren etter enighet gjelder også en eldre kravversjon (HF-U8, svar 2 i #1352)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['      id === s.gjeldendeKrav?.id ||', '      s.krav.some((k) => k.id === id) ||'],
+    ],
+    mal: ['F-MM-V11d'],
   },
   {
     id: 'F84',

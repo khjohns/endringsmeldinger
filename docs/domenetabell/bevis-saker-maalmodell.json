@@ -298,7 +298,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U4"],
+          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U4", "OV-U65", "OV-U66"],
           "forventet": {
             "avvist": false,
             "grunnlag_avvist": true,
@@ -307,8 +307,8 @@
             "enighet.frist.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_avslaatt",
-            "handlinger.TE": ["registrere_brev", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2"],
-            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
+            "handlinger.TE": ["registrere_brev", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
         },
@@ -498,14 +498,14 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4"],
+          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "OV-U65", "OV-U66"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["registrere_brev", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
-            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
+            "handlinger.TE": ["registrere_brev", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "innsigelse:S-g1"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1"],
             "kravene_avgjort": true
           }
         }
@@ -1747,7 +1747,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4"],
+          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "OV-U65", "OV-U66"],
           "forventet": {
             "avvist": false,
             "trukket.vederlag": true,
@@ -1755,8 +1755,8 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["registrere_brev", "varsle:frist", "innsigelse:S-g1", "innsigelse:S-f1"],
-            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
+            "handlinger.TE": ["registrere_brev", "varsle:frist"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-v1"]
           }
         }
       ]
@@ -1827,13 +1827,13 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U5", "KA-U11", "OV-U7", "AV-587", "OV-U4"],
+          "kilde": ["EO-U5", "KA-U11", "OV-U7", "AV-587", "OV-U4", "OV-U65", "OV-U66"],
           "forventet": {
             "avvist": false,
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": false,
-            "handlinger.TE": ["registrere_brev", "innsigelse:S-g1"],
-            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
+            "handlinger.TE": ["registrere_brev"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         },
         {
@@ -3661,7 +3661,7 @@
         "VS-05"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "KA-U11 og MM-U7: en innsigelse uten virkning på utfallet godtas når kravene er avgjort",
+      "forslag": "OV-U65 og OV-U66 punkt 2: når kravene er avgjort og grunnlaget er godkjent ved sammenfall, avvises en innsigelse mot grunnlagskravet og mot svaret, fordi enigheten omfatter dem",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3711,16 +3711,31 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "KA-U11",
-            "MM-U7",
-            "VS-U1"
+            "OV-U65",
+            "OV-U66",
+            "KA-U11"
           ],
           "forventet": {
-            "avvist": false,
-            "innsigelser": [
-              "BH:K-g1"
-            ],
+            "avvist": true,
+            "regel": "ENIGHETEN_OMFATTER",
+            "innsigelser": [],
             "kravene_avgjort": true
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U65"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ENIGHETEN_OMFATTER"
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "TE",
+            "gjelder": "S-g1"
           }
         }
       ]
@@ -4235,7 +4250,7 @@
         "VS-05"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U29: når TE har godtatt avslaget av grunnlaget, godtas innsigelse og merking uten virkning, og et nytt svar avvises fortsatt",
+      "forslag": "OV-U65 og KA-U29: når TE har godtatt avslaget av grunnlaget, avvises en innsigelse mot grunnlagskravet, fordi enigheten omfatter det, og et nytt svar avvises fortsatt",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4295,16 +4310,278 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "KA-U29",
+            "OV-U65",
+            "KA-U29"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ENIGHETEN_OMFATTER",
+            "innsigelser": [],
+            "grunnlag_avvist": true,
+            "visning.status": "avsluttet_avslaatt"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-V11",
+      "rader": [
+        "VS-05"
+      ],
+      "start": "forlop_a",
+      "forslag": "OV-U66 punkt 2: TE har godtatt vederlagssvaret mens grunnlaget er avslått, så enigheten er betinget. En innsigelse mot vederlagskravet avvises likevel, og TEs innsigelse mot grunnlagssvaret, som ingen enighet omfatter, godtas",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "innsigelse",
+          "part": "BH",
+          "gjelder": "K-v1",
+          "navn": "D7"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U65",
+            "OV-U66"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ENIGHETEN_OMFATTER",
+            "innsigelser": [],
+            "enighet.vederlag.virkning": "betinget"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "OV-U65",
             "VS-U1"
           ],
           "forventet": {
             "avvist": false,
             "innsigelser": [
-              "BH:K-g1"
-            ],
-            "grunnlag_avvist": true,
-            "visning.status": "avsluttet_avslaatt"
+              "TE:S-g1"
+            ]
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "TE",
+            "gjelder": "S-g1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-V11b",
+      "rader": [
+        "VS-05"
+      ],
+      "start": "forlop_a",
+      "forslag": "OV-U66 punkt 2: TE godtar avslaget av grunnlaget, så enigheten om vederlaget er uten virkning. En innsigelse mot vederlagskravet følger de vanlige reglene og godtas, mens en innsigelse mot grunnlagskravet avvises",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "aksept",
+          "spor": "grunnlag",
+          "navn": "D7"
+        },
+        {
+          "handling": "innsigelse",
+          "part": "BH",
+          "gjelder": "K-v1",
+          "navn": "D8"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U6",
+            "V-SK01"
+          ],
+          "forventet": {
+            "enighet.vederlag.virkning": "uten_virkning",
+            "grunnlag_avvist": true
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U66",
+            "VS-U1"
+          ],
+          "forventet": {
+            "avvist": false,
+            "innsigelser": [
+              "BH:K-v1"
+            ]
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U65",
+            "KA-U29"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ENIGHETEN_OMFATTER"
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "K-g1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-V11c",
+      "rader": [
+        "VS-05"
+      ],
+      "start": "godkjent_grunnlag",
+      "forslag": "OV-U65: enigheten om grunnlaget sperrer ikke en innsigelse mot vederlagskravet, som er i et annet spor (svar 4 i #1352)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "innsigelse",
+          "part": "BH",
+          "gjelder": "K-v1",
+          "navn": "D4"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U65",
+            "VS-U1"
+          ],
+          "forventet": {
+            "avvist": false,
+            "innsigelser": [
+              "BH:K-v1"
+            ]
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U65",
+            "OV-U66"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ENIGHETEN_OMFATTER"
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "K-g1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-V11d",
+      "rader": [
+        "VS-05"
+      ],
+      "start": "godkjent_grunnlag",
+      "forslag": "OV-U65 og HF-U8: etter TEs aksept av svaret på den nye kravversjonen omfatter enigheten den, ikke den eldre versjonen, når varselet er registrert for seg (svar 2 i #1352)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "varsel",
+          "spor": "frist",
+          "sendt": "2026-09-02",
+          "navn": "D3"
+        },
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 25,
+          "navn": "K-f2"
+        },
+        {
+          "handling": "brev",
+          "navn": "D6",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 10
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "frist",
+          "navn": "D7"
+        },
+        {
+          "handling": "innsigelse",
+          "part": "BH",
+          "gjelder": "K-f1",
+          "navn": "D8"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 6,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U65",
+            "HF-U8",
+            "VS-U1"
+          ],
+          "forventet": {
+            "avvist": false,
+            "innsigelser": [
+              "BH:K-f1"
+            ]
+          }
+        },
+        {
+          "etter": 6,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U65",
+            "OV-U66"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ENIGHETEN_OMFATTER"
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "K-f2"
           }
         }
       ]
