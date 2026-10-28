@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BF-01 i Varden · BH svarer, og TE godtar · prototype v2</title>
+<title>BF-01 i Varden · BH svarer, og TE godtar · prototype v3</title>
 <!--
   Klikkbar prototype for BF-01 i Varden (docs/domenetabell/brukerforlop/BF-01.md). Tilstandene er
   ankrene (#svar, #brev, …), og bestillingen viser til dem. ID-ene i data-spor er punktene i
@@ -51,7 +51,7 @@
 </head>
 <body>
 <div class="proto-bar">
-  <span><b>Prototype · BF-01 i Varden · versjon 2</b> · Ingenting sendes, og ingenting lagres. Grunnlaget er godkjent, og TE har krevd 100 000 kr i brev 4.</span>
+  <span><b>Prototype · BF-01 i Varden · versjon 3</b> · Ingenting sendes, og ingenting lagres. Grunnlaget er godkjent, og TE har krevd 100 000 kr i brev 4.</span>
   <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#svar" class="nullstill">Start som BH</a> · <a href="#mottatt">Start som TE</a></span>
 </div>
 
@@ -206,7 +206,7 @@
             <div class="virkning" data-spor="M-2">
               <p><b>Hva svaret gjør</b></p>
               <p class="virk-tekst"></p>
-              <p>Byggherren er bundet av det svaret innrømmer, til TE godtar det eller sender en ny kravversjon, og kan bare revidere svaret i TEs favør.</p>
+              <p data-spor="S-11">Byggherren er bundet av det svaret innrømmer, til TE sender en ny kravversjon. Godtar TE svaret, er dere bundet av enigheten.</p>
             </div>
             <div class="feil send-feil" role="alert" hidden data-spor="D-4">
               <p><b>Brevet kan ikke sendes ennå.</b> <span class="send-feil-tekst"></span></p>
@@ -246,7 +246,7 @@
             <div class="kvittering stanset" id="sendt-stanset" data-tilstander="sendt-stanset" role="status" data-spor="U-4 · D-3">
               <p><b>Leveringen til prosjekthotellet er stanset</b></p>
               <p>Brevet er sendt i løsningen, men ikke levert til prosjekthotellet. Drift er varslet. Ingenting er sperret, og du kan sende flere brev i saken.</p>
-              <p>Gjelder brevet et varsel med frist, bør du sende det utenfor løsningen og registrere det i saken.</p>
+              <p data-spor="S-10"><b>Svaret påberoper at varselet kom for sent, og er et varsel med frist.</b> Send brevet utenfor løsningen, og registrer det i saken.</p>
             </div>
             <ul class="tl" style="margin-top:12px">
               <li>Brev 2 · BH · grunnlaget godkjent</li>
@@ -336,7 +336,7 @@
               </div>
             </div>
             <div class="card" id="godtatt" data-tilstander="godtatt" role="region" aria-label="Aksepten er sendt">
-              <div class="card-h"><h3>Dere er enige om svaret i brev 5</h3></div>
+              <div class="card-h"><h3 data-spor="S-12">Aksepten i brev 6 er sendt</h3></div>
               <div class="card-b">
                 <p data-spor="D-3">Brev 6 er sendt til BH 12. okt 2026 kl. 11.20. Ikke bekreftet levert til prosjekthotellet ennå.</p>
                 <div class="virkning" data-spor="D-2 · U-6">

@@ -135,6 +135,9 @@
             "staar": "Ikke en del av brevet"
           },
           {
+            "staar": "Godtar TE svaret, er dere bundet av enigheten."
+          },
+          {
             "klikk": "Tilbake til utkastet",
             "tilstand": "svar"
           },
@@ -194,6 +197,9 @@
           },
           {
             "staar": "Leveringen til prosjekthotellet er stanset"
+          },
+          {
+            "staar": "Svaret påberoper at varselet kom for sent, og er et varsel med frist."
           },
           {
             "staar": "Brev 5 · Svar på krav om vederlagsjustering er sendt til TE"
@@ -258,6 +264,9 @@
             "tilstand": "godtatt"
           },
           {
+            "staar": "Aksepten i brev 6 er sendt"
+          },
+          {
             "staar": "Enighet: 0 kr"
           }
         ]
@@ -308,6 +317,11 @@
       "dato": "2026-10-28",
       "grunnlag": "#1366",
       "hva": "Prototypen, versjon 2, etter den kognitive gjennomgangen: brevteksten etter LV-U4 punkt 4 og LV-U32, «godkjenner» for BH, et tomt beløp er ubesvart, og 0 kr merket som løsningens lesing. LV-U31, LV-U32, KA-U10, MM-U25 og HF-U2 står i kildene."
+    },
+    {
+      "dato": "2026-10-28",
+      "grunnlag": "#1366",
+      "hva": "Prototypen, versjon 3, etter svarene på S-10–S-12: stanset levering av et varsel med frist, bindingen i brevkontrollen og overskriften etter aksepten."
     }
   ]
 }
