@@ -893,6 +893,14 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['etter at TE har trukket grunnlaget, er enigheten om det uten virkning og sperrer ikke'],
   },
   {
+    id: 'F82f',
+    feilklasse:
+      'sperren gjelder en eldre kravversjon et tidligere «i tide» gjaldt, også etter at TE har registrert et eget varsel (OV-U67 punkt 2, HF-U8)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['(gjelder(p) && !eldreKravversjon(p))', 'gjelder(p)']],
+    mal: ['en eldre kravversjon et tidligere «i tide» gjaldt som varsel, omfattes ikke'],
+  },
+  {
     id: 'F82e',
     feilklasse:
       'en innsigelse avvises når kravene er avgjort, også mot det ingen enighet omfatter (OV-U3)',

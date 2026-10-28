@@ -6041,6 +6041,42 @@ describe('sperren etter enighet omfatter varselet standpunktet gjelder (OV-U65, 
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('SAGT_I_TIDE');
   });
 
+  it('en eldre kravversjon et tidligere «i tide» gjaldt som varsel, omfattes ikke når TE senere har registrert et eget varsel (OV-U67 punkt 2, HF-U8)', () => {
+    // Svaret fra oppdragsgiver 28.10 i #1365, alternativ 1.
+    const forloep = (registrertVarsel: boolean) => {
+      const s = sak();
+      s.send('TE', GRUNNLAGSKRAV);
+      s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      const foerste = s.krav('frist');
+      s.send('BH', {
+        type: 'brev',
+        svar: [
+          svar(
+            'frist',
+            foerste,
+            { ...FRIST_FULLT[0], dager: 10 },
+            { resultat: 'delvis_godkjent', godkjent_dager: 10 }
+          ),
+        ],
+      });
+      if (registrertVarsel)
+        s.send('TE', {
+          type: 'varsel',
+          spor: 'frist',
+          hjemmel: '33.4',
+          sendt: '2026-09-28',
+          dokumentasjon: [randomUUID()],
+        });
+      s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      fristsvar(s);
+      expect(s.u().spor.frist.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+      return s.avvist('BH', { type: 'innsigelse', gjelder: foerste });
+    };
+    expect(forloep(true)).toBeNull();
+    // Uten et eget varsel er den første kravversjonen varselet, og den omfattes (VS-U20).
+    expect(forloep(false), 'kontrollsak').toBe('ENIGHETEN_OMFATTER');
+  });
+
   it('etter at TE har trukket grunnlaget, er enigheten om det uten virkning og sperrer ikke (KA-U6, OV-U66 punkt 2)', () => {
     const s = sakMedKrav();
     const krav = s.krav('grunnlag');
