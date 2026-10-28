@@ -1,10 +1,11 @@
-# Forprøve av prototypen
+# Forprøve av forløpet
 
 Malen for forprøven i [brukerforlop](SKILL.md), steg 6. Den er en mal, ikke en fil som
 kjøres. Fyll ut plassholderne for hvert forløp:
 
 - `BF-xx`: forløpets ID, og `docs/domenetabell/brukerforlop/BF-xx.md` er bestillingen.
-- `<prototypefil>`: fila i `docs/design/prototyper/`, én per forløp.
+- `<prototypefil>`: fila i `docs/design/prototyper/`, bare for en HTML-skisse av et nytt mønster.
+  Et helt forløp prøves i demoruta med komponentene (oppdragsgiver 28.10, #1331).
 - `G-x`: kontrollpunktene i bestillingen.
 
 Den mekaniske kontrollen kjøres først. Den kognitive gjennomgangen kjøres når den er grønn,
@@ -12,9 +13,13 @@ på standardmodellen.
 
 ## Mekanisk kontroll
 
-Den mekaniske kontrollen er skriptet `prototype.mjs` i skillen
-[mockup-nettleser](../mockup-nettleser/SKILL.md#prototypen-for-et-brukerforløp), ikke en agent
-(#1347). Klikkstiene står i forløpsfila under `prototype` (formatet står i
+For et forløp i demoruta er den mekaniske kontrollen `demoruta.mjs` i skillen
+[mockup-nettleser](../mockup-nettleser/SKILL.md#demoruta-for-brukerforløpene). Demoruta driver i dag
+bare BF-01, så andre forløp må bygges der før de kan forprøves.
+
+For en HTML-skisse av et nytt mønster er den mekaniske kontrollen skriptet `prototype.mjs` i
+samme skill, under [prototypen for et brukerforløp](../mockup-nettleser/SKILL.md#prototypen-for-et-brukerforløp),
+ikke en agent (#1347). Klikkstiene står i forløpsfila under `prototype` (formatet står i
 [README](../../../docs/domenetabell/brukerforlop/README.md#formatet)). Skriv dem før første
 kjøring, og rett dem når prototypen endrer veiene:
 
@@ -66,7 +71,7 @@ Gjør dette:
 
 Du skal ikke: endre filer; avgjøre domene- eller rettsspørsmål (merk dem «spørsmål til
 oppdragsgiver» med alternativer); foreslå noe utenfor bestillingen eller gjenta åpne S- og
-P-punkter; sammenligne med demoruta, saksruta eller dagens app; vurdere kode, axe, lenker
+P-punkter; sammenligne med saksruta eller dagens app; vurdere kode, axe, lenker
 eller klikk; påstå at brukere vil forstå noe.
 
 Sluttrapporten, høyst 60 linjer: U-tabellen, D-avvikene med sitater, kontrollpunktene,

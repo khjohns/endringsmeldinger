@@ -137,8 +137,10 @@ JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 
 ## Prototypen for et brukerforløp
 
-`prototype.mjs` er den mekaniske forprøven av prototypen i `docs/design/prototyper/`
-(steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347). Den åpner prototypen med
+`prototype.mjs` er den mekaniske forprøven av en HTML-skisse av et nytt mønster i
+`docs/design/prototyper/` (steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347).
+Et helt forløp forprøves i demoruta med `demoruta.mjs` (oppdragsgiver 28.10, #1331). Demoruta
+driver i dag bare BF-01, så andre forløp må bygges der før de kan forprøves. Den åpner prototypen med
 `file://`, uten vite, og følger klikkstiene under `prototype` i forløpsfila. Formatet står i
 [README for brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md#formatet).
 
