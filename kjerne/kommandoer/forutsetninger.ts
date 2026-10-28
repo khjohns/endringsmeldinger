@@ -134,9 +134,6 @@ export const avvis = (regel: string, melding: string): Avvisning => ({ regel, me
 export const ELDRE_SVAR =
   'Aksepten må gjelde byggherrens gjeldende svar i sporet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
 
-/** Meldingen når aksepten ikke gjelder noe svar byggherren har sendt i sporet. */
-export const INTET_SVAR = 'Aksepten gjelder ikke et svar byggherren har sendt i sporet.';
-
 const KRAVET: Record<Kravspor, string> = {
   vederlag: 'justering av vederlaget',
   frist: 'fristforlengelse',

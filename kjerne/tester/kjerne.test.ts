@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import type { Journalrad, Krav, Part, Standpunktsvirkning, Svar } from '../typer.ts';
 import { frysBrev, Skrivefeil, vurder, type Kontekst } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
-import { ELDRE_SVAR, INTET_SVAR } from '../kommandoer/forutsetninger.ts';
+import { ELDRE_SVAR } from '../kommandoer/forutsetninger.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal, standpunkterISvaret, Uforstaatt } from '../format/leser.ts';
@@ -1072,6 +1072,22 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
 });
 
 describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF-U8)', () => {
+  /** Byggherren godkjenner grunnlaget og reviderer til avslag; TE godtar svaret `velg` gir. */
+  const aksept = async (velg: (tidligere: string) => string) => {
+    const k = await bygg(minnebane(), [
+      'krav_irreg',
+      {
+        handling: 'brev',
+        svar: [{ spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true }],
+      },
+      { handling: 'revisjon', spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true },
+    ]);
+    const tidligere = (await k.utledning()).spor.grunnlag.svar[0].id;
+    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' }, (kommando) => {
+      kommando.svar = velg(tidligere);
+    });
+    return u.godtatt ? 'godtatt' : u.avvisning;
+  };
   const melding = async (steg: (string | Handling)[]) => {
     const k = await bygg(minnebane(), ['krav_irreg', ...steg]);
     const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' });
@@ -1080,8 +1096,10 @@ describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF
 
   it('uten svar i sporet nevnes ikke et eldre svar', async () => {
     const a = await melding([]);
-    expect(a).toMatchObject({ regel: 'IKKE_GJELDENDE_SVAR' });
-    expect(a).toMatchObject({ melding: 'Byggherren har ikke svart i sporet.' });
+    expect(a).toEqual({
+      regel: 'IKKE_GJELDENDE_SVAR',
+      melding: 'Byggherren har ikke svart i sporet.',
+    });
   });
 
   it('etter en ny grunnlagsversjon sier meldingen at svaret er eldre, ikke avslått eller falt bort', async () => {
@@ -1098,25 +1116,16 @@ describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF
     });
   });
 
-  it.each([
-    ['det reviderte svaret', 0, ELDRE_SVAR],
-    ['et svar som ikke finnes i sporet', -1, INTET_SVAR],
-  ])('en aksept av %s avvises med sin egen melding', async (_hva, indeks, forventet) => {
-    const k = await bygg(minnebane(), [
-      'krav_irreg',
-      {
-        handling: 'brev',
-        svar: [{ spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true }],
-      },
-      { handling: 'revisjon', spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true },
-    ]);
-    const tidligere = (await k.utledning()).spor.grunnlag.svar[0].id;
-    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' }, (kommando) => {
-      kommando.svar = indeks === 0 ? tidligere : 'finnes-ikke';
-    });
-    expect(u.godtatt ? 'godtatt' : u.avvisning).toEqual({
+  it('en aksept av det reviderte svaret sier at det ikke er avslått eller falt bort', async () => {
+    const a = await aksept((tidligere) => tidligere);
+    expect(a).toEqual({ regel: 'IKKE_GJELDENDE_SVAR', melding: ELDRE_SVAR });
+    expect(ELDRE_SVAR).toContain('svaret er ikke avslått eller falt bort');
+  });
+
+  it('en aksept av et svar som ikke finnes i sporet, nevner ikke et eldre svar', async () => {
+    expect(await aksept(() => 'finnes-ikke')).toEqual({
       regel: 'IKKE_GJELDENDE_SVAR',
-      melding: forventet,
+      melding: 'Aksepten gjelder ikke et svar byggherren har sendt i sporet.',
     });
   });
 });

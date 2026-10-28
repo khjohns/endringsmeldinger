@@ -8,7 +8,7 @@
 import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
-import { avvis, ELDRE_SVAR, INTET_SVAR } from './forutsetninger.ts';
+import { avvis, ELDRE_SVAR } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
@@ -344,7 +344,9 @@ export function nyttelastkontroll(
       if (k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
         return avvis(
           'IKKE_GJELDENDE_SVAR',
-          u.spor[k.spor].svar.some((x) => x.id === k.svar) ? ELDRE_SVAR : INTET_SVAR
+          u.spor[k.spor].svar.some((x) => x.id === k.svar)
+            ? ELDRE_SVAR
+            : 'Aksepten gjelder ikke et svar byggherren har sendt i sporet.'
         );
       if (k.regelversjon !== regler.versjon)
         return avvis(
