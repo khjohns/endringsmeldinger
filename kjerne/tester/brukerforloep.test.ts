@@ -110,8 +110,9 @@ function avvik(b: Brukerforloep, fil: string): string[] {
   for (const k of b.kilder ?? []) krev(KILDER.has(k), `kilden ${k} finnes ikke`);
   if (b.bestilling) krev(lagret(b.bestilling) !== null, `bestillingen ${b.bestilling} finnes ikke`);
   const kilder = kilderI(b);
+  const hvor = b.status === 'planlagt' ? 'kildene' : 'kontrollene og forståelsen';
   for (const id of vedtakIBestilling(b))
-    krev(kilder.has(id), `${b.bestilling} viser til ${id}, som mangler i kildene`);
+    krev(kilder.has(id), `${b.bestilling} viser til ${id}, som mangler i ${hvor}`);
   if (b.status === 'planlagt') {
     krev(b.venter_paa?.length, 'et planlagt forløp sier hva det venter på');
     krev(!b.steg?.length && !b.kontrollpunkter?.length, 'et planlagt forløp har ingen steg');
@@ -184,6 +185,19 @@ describe('vakttestene for brukerforløpene', () => {
     expect(avvik(b, 'BF-03.json')).toEqual([
       'BF-03: BF-03.md viser til OV-U64, som mangler i kildene',
     ]);
+  });
+
+  // Kilde: #1350. Dekningsoversikten viser `kilder` bare for et planlagt forløp, så for et
+  // kjørbart forløp må vedtaket i bestillingen stå i en kontroll eller en forståelse.
+  it('et kjørbart forløp med vedtaket i bestillingen bare i kilder gir avvik som peker på kontrollene', () => {
+    const b = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'kjørbar')!);
+    b.bestilling = 'BF-03.md';
+    b.kilder = vedtakIBestilling(b);
+    expect(b.kilder).toContain('OV-U64');
+    expect(kildebruk([b]).map(([k]) => k)).not.toContain('OV-U64');
+    expect(avvik(b, `${b.id}.json`)).toContain(
+      `${b.id}: BF-03.md viser til OV-U64, som mangler i kontrollene og forståelsen`
+    );
   });
 
   // Kilde: #1330, punkt 4. OV-U52 er ikke bygget (#1308, #1309), og handlingen og
