@@ -20,8 +20,8 @@ kjøring, og rett dem når prototypen endrer veiene:
 
 - én klikksti per vei gjennom prototypen, med stegene i stegtabellen og G-punktene den
   prøver i `dekker`;
-- `klikk` med lenketeksten brukeren klikker på og ankeret den skal føre til, `kryss` og
-  `fyll` med etiketten på feltet;
+- `klikk` med lenketeksten brukeren klikker på og ankeret den skal føre til, `kryss`,
+  `velg` og `fyll` med etiketten på feltet;
 - `staar` med teksten som viser en virkning som skal bestå, etter handlingen som ikke skal
   fjerne den.
 
