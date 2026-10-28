@@ -955,6 +955,13 @@
       "radetikett": "OV-U66: 1. Sperren gjelder også påberopt passivitet og merking mot det enigheten omfatter"
     },
     {
+      "id": "OV-U67",
+      "type": "vedtak",
+      "dato": "2026-10-28",
+      "ref": "../plans/vedtak.md#ov-u67",
+      "radetikett": "OV-U67: 1. En enighet omfatter det gjeldende kravet i sporet, svaret og standpunktene i svaret"
+    },
+    {
       "id": "OV-U3",
       "type": "vedtak",
       "dato": "2026-10-13",
@@ -3081,6 +3088,7 @@
         "KA-U29",
         "OV-U65",
         "OV-U66",
+        "OV-U67",
         "HF-U8"
       ],
       "tolkningsstatus": "avklart_tolkning",

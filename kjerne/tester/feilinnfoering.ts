@@ -872,7 +872,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F82c',
-    feilklasse: 'sperren etter enighet gjelder også en eldre kravversjon (HF-U8, svar 2 i #1352)',
+    feilklasse: 'sperren etter enighet gjelder også en eldre kravversjon (HF-U8, OV-U67 punkt 2)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['      id === s.gjeldendeKrav?.id ||', '      s.krav.some((k) => k.id === id) ||'],

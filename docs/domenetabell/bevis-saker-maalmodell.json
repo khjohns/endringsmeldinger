@@ -3713,6 +3713,7 @@
           "kilde": [
             "OV-U65",
             "OV-U66",
+            "OV-U67",
             "KA-U11"
           ],
           "forventet": {
@@ -3726,7 +3727,8 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U65"
+            "OV-U65",
+          "OV-U67"
           ],
           "forventet": {
             "avvist": true,
@@ -4311,6 +4313,7 @@
           "rolle": "mal",
           "kilde": [
             "OV-U65",
+            "OV-U67",
             "KA-U29"
           ],
           "forventet": {
@@ -4345,7 +4348,8 @@
           "rolle": "mal",
           "kilde": [
             "OV-U65",
-            "OV-U66"
+            "OV-U66",
+          "OV-U67"
           ],
           "forventet": {
             "avvist": true,
@@ -4359,6 +4363,7 @@
           "rolle": "kontroll",
           "kilde": [
             "OV-U65",
+            "OV-U67",
             "VS-U1"
           ],
           "forventet": {
@@ -4414,6 +4419,7 @@
           "rolle": "mal",
           "kilde": [
             "OV-U66",
+            "OV-U67",
             "VS-U1"
           ],
           "forventet": {
@@ -4428,6 +4434,7 @@
           "rolle": "mal",
           "kilde": [
             "OV-U65",
+            "OV-U67",
             "KA-U29"
           ],
           "forventet": {
@@ -4448,7 +4455,7 @@
         "VS-05"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "OV-U65: enigheten om grunnlaget sperrer ikke en innsigelse mot vederlagskravet, som er i et annet spor (svar 4 i #1352)",
+      "forslag": "OV-U67 punkt 4: enigheten om grunnlaget sperrer ikke en innsigelse mot vederlagskravet, som er i et annet spor",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4470,6 +4477,7 @@
           "rolle": "mal",
           "kilde": [
             "OV-U65",
+            "OV-U67",
             "VS-U1"
           ],
           "forventet": {
@@ -4484,7 +4492,8 @@
           "rolle": "mal",
           "kilde": [
             "OV-U65",
-            "OV-U66"
+            "OV-U66",
+          "OV-U67"
           ],
           "forventet": {
             "avvist": true,
@@ -4504,7 +4513,7 @@
         "VS-05"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "OV-U65 og HF-U8: etter TEs aksept av svaret på den nye kravversjonen omfatter enigheten den, ikke den eldre versjonen, når varselet er registrert for seg (svar 2 i #1352)",
+      "forslag": "OV-U67 punkt 2 og HF-U8: etter TEs aksept av svaret på den nye kravversjonen omfatter enigheten den, ikke den eldre versjonen, når varselet er registrert for seg",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4557,6 +4566,7 @@
           "rolle": "mal",
           "kilde": [
             "OV-U65",
+            "OV-U67",
             "HF-U8",
             "VS-U1"
           ],
@@ -4572,7 +4582,8 @@
           "rolle": "mal",
           "kilde": [
             "OV-U65",
-            "OV-U66"
+            "OV-U66",
+          "OV-U67"
           ],
           "forventet": {
             "avvist": true,

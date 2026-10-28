@@ -1290,7 +1290,7 @@ export function enighetensVirkning(
 }
 
 /**
- * OV-U65, OV-U66 og svarene 28.10 i #1352: sporet med en enighet som omfatter elementet,
+ * OV-U65, OV-U66, OV-U67: sporet med en enighet som omfatter elementet,
  * eller `null`. Enigheten omfatter det gjeldende kravet, det gjeldende svaret med
  * standpunktene i det, standpunktene om varselet i tidligere svar fra appen som står mot
  * kravet (HF-U4, VS-U20), og det et standpunkt om varslingen gjelder (OV-U66 punkt 3).

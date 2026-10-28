@@ -5996,7 +5996,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
   });
 });
 
-describe('sperren etter enighet omfatter varselet standpunktet gjelder (OV-U65, OV-U66 punkt 3)', () => {
+describe('sperren etter enighet omfatter varselet standpunktet gjelder (OV-U65, OV-U66 punkt 3, OV-U67 punkt 2)', () => {
   const fristsvar = (s: ReturnType<typeof sak>) =>
     s.send('BH', {
       type: 'brev',
@@ -6010,7 +6010,7 @@ describe('sperren etter enighet omfatter varselet standpunktet gjelder (OV-U65, 
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('ENIGHETEN_OMFATTER');
   });
 
-  it('et varsel registrert etter svaret omfattes ikke og følger de vanlige reglene (svar 2 i #1352)', () => {
+  it('et varsel registrert etter svaret omfattes ikke og følger de vanlige reglene (OV-U67 punkt 2)', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));

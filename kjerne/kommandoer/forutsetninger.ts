@@ -97,8 +97,8 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
           'UGYLDIG_INNSIGELSE',
           'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
         );
-      // OV-U65, OV-U66: ikke mot det en enighet omfatter. Sperren gjelder bare den nye
-      // innsigelsen; en innsigelse som alt står i journalen, beholder sin virkning (svar 3 i #1352).
+      // OV-U65, OV-U66, OV-U67: ikke mot det en enighet omfatter. Sperren gjelder bare den nye
+      // innsigelsen; en innsigelse som alt står i journalen, beholder sin virkning (OV-U67 punkt 3).
       const spor = enighetenOmfatter(u, h.gjelder);
       return spor
         ? avvis(
