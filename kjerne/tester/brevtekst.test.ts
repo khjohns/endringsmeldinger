@@ -4184,7 +4184,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(u.frafalt).toBe(true);
       expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
       expect(kraveneErAvgjort(u), 'fristkravet står åpent (OV-U3)').toBe(false);
-      expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
+      expect(kanInngaaIEo(u), 'et frafall hindrer ikke en endringsordre (GR-U28)').toBe(true);
     });
 
     it('byggherrens svar på versjon 2 avløser frafallet som gjeldende svar', () => {
@@ -4223,7 +4223,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       const u = s.u();
       expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
       expect(kraveneErAvgjort(u)).toBe(true);
-      expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
+      expect(kanInngaaIEo(u), 'et frafall hindrer ikke en endringsordre (GR-U28)').toBe(true);
       expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');
       expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
       expect(
@@ -6205,7 +6205,7 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     ).toBe('ENIGHET_I_SPORET');
   });
 
-  describe('saken kan inngå i en endringsordre når grunnlaget er sendt (MM-U34 punkt 20, GR-U27)', () => {
+  describe('saken kan inngå i en endringsordre når grunnlaget er sendt (MM-U34 punkt 20, GR-U27, GR-U28)', () => {
     it('også uten registrert enighet i noe spor, men ikke før grunnlaget er sendt (MM-U34 punkt 20)', () => {
       const s = sak();
       expect(kanInngaaIEo(s.u()), 'kontrollsak: grunnlaget er ikke sendt').toBe(false);
@@ -6236,11 +6236,11 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
       expect(kanInngaaIEo(s.u())).toBe(false);
     });
 
-    it('ikke når byggherren har frafalt pålegget (GR-U3, spørsmålet i #1376)', () => {
+    it('også når byggherren har frafalt pålegget etter § 32.3 c (GR-U28)', () => {
       const s = sakMedKrav();
       brev(s, 'grunnlag', { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true });
       expect(s.u().frafalt, 'forutsetning').toBe(true);
-      expect(kanInngaaIEo(s.u())).toBe(false);
+      expect(kanInngaaIEo(s.u())).toBe(true);
     });
   });
 });

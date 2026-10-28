@@ -262,7 +262,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'saken kan inngå i en endringsordre etter at TE har godtatt avslaget på grunnlaget (GR-U27, MM-U34 punkt 20)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    !u.grunnlagAvvist &&\n', '']],
+    endringer: [['!== null && !u.grunnlagAvvist && !u.spor', '!== null && !u.spor']],
     mal: ['ikke når TE har godtatt avslaget på grunnlaget (GR-U27, MM-U34 punkt 20)'],
   },
   {
@@ -307,7 +307,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'saken kan inngå i en endringsordre etter at TE har trukket grunnlaget (GR-U27, MM-U34 punkt 20)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    !u.spor.grunnlag.trukket &&\n', '']],
+    endringer: [[' && !u.spor.grunnlag.trukket;', ';']],
     mal: ['ikke når TE har trukket grunnlaget (GR-U27, MM-U34 punkt 20)'],
   },
   {
@@ -2757,8 +2757,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    u.spor.grunnlag.gjeldendeKrav !== null &&\n',
-        '    u.spor.grunnlag.gjeldendeKrav !== null &&\n    KRAVSPOR.some((n) => u.spor[n].enighet !== null) &&\n',
+        'u.spor.grunnlag.gjeldendeKrav !== null && !u.grunnlagAvvist',
+        'u.spor.grunnlag.gjeldendeKrav !== null && KRAVSPOR.some((n) => u.spor[n].enighet !== null) && !u.grunnlagAvvist',
       ],
     ],
     mal: [
@@ -2769,11 +2769,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F311b',
     feilklasse:
-      'saken kan inngå i en endringsordre etter at byggherren har frafalt pålegget (GR-U3, spørsmålet i #1376)',
+      'et frafall etter § 32.3 c hindrer at saken inngår i en endringsordre, som før GR-U28',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    !u.frafalt\n  );\n}', '    true\n  );\n}']],
+    endringer: [['!u.spor.grunnlag.trukket;', '!u.spor.grunnlag.trukket && !u.frafalt;']],
     mal: [
-      'ikke når byggherren har frafalt pålegget (GR-U3, spørsmålet i #1376)',
+      'også når byggherren har frafalt pålegget etter § 32.3 c (GR-U28)',
       'grunnlaget er avklart ved frafallet',
     ],
   },

@@ -1312,17 +1312,12 @@ export const varAvgjort = (u: Utledning, spor: Spor): boolean => u.avgjorteSpor.
 /**
  * MM-U34 punkt 20: byggherren kan la en endringsordre omfatte hele KOE-saken når
  * grunnlaget er sendt, også uten registrert enighet. Unntatt er en sak som er lukket
- * etter GR-U27, fordi TE har godtatt avslaget på grunnlaget eller trukket grunnlaget,
- * og en sak der byggherren har frafalt pålegget (GR-U3; spørsmålet i #1376). At saken
- * alt er omfattet av en endringsordre (EO-U3), leses der EO-saken bygges (#1378).
+ * etter GR-U27, fordi TE har godtatt avslaget på grunnlaget eller trukket grunnlaget.
+ * Et frafall etter § 32.3 c hindrer ikke (GR-U28). At saken alt er omfattet av en
+ * endringsordre (EO-U3), leses der EO-saken bygges (#1378).
  */
 export function kanInngaaIEo(u: Utledning): boolean {
-  return (
-    u.spor.grunnlag.gjeldendeKrav !== null &&
-    !u.grunnlagAvvist &&
-    !u.spor.grunnlag.trukket &&
-    !u.frafalt
-  );
+  return u.spor.grunnlag.gjeldendeKrav !== null && !u.grunnlagAvvist && !u.spor.grunnlag.trukket;
 }
 
 /**
