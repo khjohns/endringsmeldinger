@@ -50,8 +50,8 @@ Prototypen viser til punktene i bestillingen og gjentar dem ikke.
    støttet.
 6. **Forprøv** prototypen før brukerprøven, på den versjonen som skal prøves (en commit).
    Malen for de to gjennomgangene står i [forprove.md](forprove.md). Den mekaniske
-   kontrollen kjøres først, så den kognitive. Den mekaniske kontrollen leser ingen vedtak
-   og vurderer ingen tekst. Bredden på 390 px rapporteres, men stopper ikke, fordi mobil
+   kontrollen kjøres først, med skriptet `prototype.mjs` og klikkstiene i forløpsfila, så den
+   kognitive. Den mekaniske kontrollen leser ingen vedtak og vurderer ingen tekst. Bredden på 390 px rapporteres, men stopper ikke, fordi mobil
    ikke er prioritert nå (oppdragsgiver 27.10). Den kognitive gjennomgangen avgjør ikke
    rettsspørsmål; de føres som spørsmål til oppdragsgiver, med alternativer. Den sammenligner
    ikke med demoruta, saksruta eller dagens app. Blindveier i arbeidsflyten prøves etter
