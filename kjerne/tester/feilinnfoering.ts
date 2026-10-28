@@ -830,7 +830,7 @@ const MUTASJONER: Mutasjon[] = [
       'et registrert brev som strider mot en enighet eller et trekk, gjør saken ikke forstått (MM-U18, OV-U4)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
-    mal: ['F-MM-U326n', 'F-MM-G37'],
+    mal: ['F-MM-U326l', 'F-MM-G37'],
   },
   {
     id: 'F78',

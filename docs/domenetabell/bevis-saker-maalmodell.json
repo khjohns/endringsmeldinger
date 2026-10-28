@@ -2599,8 +2599,7 @@
           "rolle": "mal",
           "kilde": [
             "OV-U4",
-            "GR-U10",
-            "KA-U7"
+            "GR-U10"
           ],
           "forventet": {
             "forstaatt": true,
