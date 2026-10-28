@@ -1718,11 +1718,12 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         }),
       ],
     });
+    // Avslått, så svaret ikke gir enighet og sperren etter OV-U65 ikke slår inn.
     const iTide = (s: ReturnType<typeof sak>) => ({
       type: 'brev',
       svar: [
         svar('grunnlag', s.krav('grunnlag'), {
-          resultat: 'godkjent',
+          resultat: 'avslaatt',
           grunnlag_varslet_i_tide: true,
         }),
       ],
@@ -2432,6 +2433,17 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     ).toBe(false);
   });
 
+  it('når kravene er avgjort, godtas byggherrens innsigelse mot et varsel ingen enighet omfatter, mens innsigelsen mot det avtalte kravet avvises (OV-U3, OV-U65, OV-U67 punkt 2)', () => {
+    const s = utenFrist();
+    expect(kraveneErAvgjort(s.u()), 'forutsetning: kravene er avgjort').toBe(true);
+    s.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+    const varsel = s.u().spor.frist.varsler['33.4']!.id;
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBeNull();
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') }), 'kontrollsak').toBe(
+      'ENIGHETEN_OMFATTER'
+    );
+  });
+
   it('uten et sendt vederlags- eller fristkrav er kravene ikke avgjort, også når grunnlaget er godkjent (OV-U3)', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);
@@ -3092,7 +3104,12 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s, b } = medBegrunnelse();
     s.send('BH', { type: 'innsigelse', gjelder: b });
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    const rad = fristsvar(s, { ...FRIST_FULLT[0], foresporsel_svar_ok: true }, FRIST_FULLT[1]);
+    // Delvis godkjent, så svaret ikke gir enighet og sperren etter OV-U65 ikke slår inn.
+    const rad = fristsvar(
+      s,
+      { ...FRIST_FULLT[0], dager: 10, foresporsel_svar_ok: true },
+      { resultat: 'delvis_godkjent', godkjent_dager: 10 }
+    );
     expect(laast(rad)[0]).toContain(
       'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev 3 av 3. oktober 2026 kom for sent.'
     );
@@ -5987,5 +6004,104 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
       s.avvist('TE', krav({ beloep: 100000.4 })),
       'kontrollsak: 100 000 kr og 40 øre'
     ).toBeNull();
+  });
+});
+
+describe('sperren etter enighet omfatter varselet standpunktet gjelder (OV-U65, OV-U66 punkt 3, OV-U67 punkt 2)', () => {
+  const fristsvar = (s: ReturnType<typeof sak>) =>
+    s.send('BH', {
+      type: 'brev',
+      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+    });
+
+  it('innsigelsen mot varselet svaret sa kom i tide, avvises når partene er enige ved sammenfall', () => {
+    const s = sakMedKrav();
+    fristsvar(s);
+    const varsel = s.u().spor.frist.varsler['33.4']!.id;
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('ENIGHETEN_OMFATTER');
+  });
+
+  it('et varsel registrert etter svaret omfattes ikke og følger de vanlige reglene (OV-U67 punkt 2)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    fristsvar(s);
+    s.send('TE', {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-09-28',
+      dokumentasjon: [randomUUID()],
+    });
+    const varsel = s.u().spor.frist.varsler['33.4']!.id;
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('frist') })).toBe(
+      'ENIGHETEN_OMFATTER'
+    );
+    // Byggherrens «i tide» i svaret binder også for det registrerte varselet (HF-U4).
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('SAGT_I_TIDE');
+  });
+
+  it('en eldre kravversjon et tidligere «i tide» gjaldt som varsel, omfattes ikke når TE senere har registrert et eget varsel (OV-U68)', () => {
+    const forloep = (registrertVarsel: boolean) => {
+      const s = sak();
+      s.send('TE', GRUNNLAGSKRAV);
+      s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      const foerste = s.krav('frist');
+      s.send('BH', {
+        type: 'brev',
+        svar: [
+          svar(
+            'frist',
+            foerste,
+            { ...FRIST_FULLT[0], dager: 10 },
+            { resultat: 'delvis_godkjent', godkjent_dager: 10 }
+          ),
+        ],
+      });
+      if (registrertVarsel)
+        s.send('TE', {
+          type: 'varsel',
+          spor: 'frist',
+          hjemmel: '33.4',
+          sendt: '2026-09-28',
+          dokumentasjon: [randomUUID()],
+        });
+      s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      fristsvar(s);
+      expect(s.u().spor.frist.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+      return s.avvist('BH', { type: 'innsigelse', gjelder: foerste });
+    };
+    expect(forloep(true)).toBeNull();
+    // Uten et eget varsel er den første kravversjonen varselet, og den omfattes (VS-U20).
+    expect(forloep(false), 'kontrollsak').toBe('ENIGHETEN_OMFATTER');
+  });
+
+  it('etter at TE har trukket grunnlaget, er enigheten om det uten virkning og sperrer ikke (KA-U6, OV-U66 punkt 2)', () => {
+    const s = sakMedKrav();
+    const krav = s.krav('grunnlag');
+    // En registrert endringsordre sperrer ikke trekket (OV-U6), og gir enighet ved sammenfall.
+    s.rad('BH', {
+      svar: [
+        {
+          id: randomUUID(),
+          spor: 'grunnlag',
+          gjelder: krav,
+          standpunkter: [
+            { id: randomUUID(), art: 'rettidighet', gjelder: krav, hjemmel: '32.2', i_tide: true },
+            { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
+          ],
+        },
+      ],
+      opplysninger: [
+        { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
+        { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
+      ],
+    });
+    expect(s.u().spor.grunnlag.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: krav }), 'kontrollsak').toBe(
+      'ENIGHETEN_OMFATTER'
+    );
+    s.send('TE', { type: 'trekk', spor: 'grunnlag' });
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: krav })).toBeNull();
   });
 });
