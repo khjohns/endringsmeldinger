@@ -2433,6 +2433,17 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     ).toBe(false);
   });
 
+  it('når kravene er avgjort, godtas byggherrens innsigelse mot et varsel ingen enighet omfatter, mens innsigelsen mot det avtalte kravet avvises (OV-U3, OV-U65, OV-U67 punkt 2)', () => {
+    const s = utenFrist();
+    expect(kraveneErAvgjort(s.u()), 'forutsetning: kravene er avgjort').toBe(true);
+    s.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+    const varsel = s.u().spor.frist.varsler['33.4']!.id;
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBeNull();
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') }), 'kontrollsak').toBe(
+      'ENIGHETEN_OMFATTER'
+    );
+  });
+
   it('uten et sendt vederlags- eller fristkrav er kravene ikke avgjort, også når grunnlaget er godkjent (OV-U3)', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);

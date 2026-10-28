@@ -893,6 +893,19 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['etter at TE har trukket grunnlaget, er enigheten om det uten virkning og sperrer ikke'],
   },
   {
+    id: 'F82e',
+    feilklasse:
+      'en innsigelse avvises når kravene er avgjort, også mot det ingen enighet omfatter (OV-U3)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        '      const spor = enighetenOmfatter(u, h.gjelder);',
+        "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n      const spor = enighetenOmfatter(u, h.gjelder);",
+      ],
+    ],
+    mal: ['godtas byggherrens innsigelse mot et varsel ingen enighet omfatter'],
+  },
+  {
     id: 'F84',
     feilklasse:
       'en påberopt passivitet mot en grunnlagsversjon uten virkning stopper saken (MM-U18, VS-U12)',
