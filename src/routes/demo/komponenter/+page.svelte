@@ -388,7 +388,7 @@
   iframe {
     display: block;
     border: 1px solid var(--rule);
-    border-radius: var(--radius-md, 6px);
+    border-radius: var(--radius-md);
     background: var(--canvas);
   }
   .smale {
@@ -421,7 +421,7 @@
     min-width: 0;
     padding: var(--spacing-4);
     border: 1px solid var(--rule);
-    border-radius: var(--radius-md, 6px);
+    border-radius: var(--radius-md);
     background: var(--surface);
   }
   .knapper {
