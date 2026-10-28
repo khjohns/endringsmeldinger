@@ -10,7 +10,6 @@
  */
 
 import {
-  enighetenOmfatter,
   fristkravErFremmet,
   kanFaaInnsigelse,
   kraveneErAvgjort,
@@ -84,29 +83,20 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
  * etter § 5 godtas også når kravene er avgjort eller avslaget av grunnlaget er
- * godtatt (KA-U11, KA-U29), men ikke mot det en enighet omfatter (OV-U65). De andre
- * er utsatt etter OV-U7 og avvises for begge parter.
+ * godtatt (KA-U11, KA-U29), og mot det en registrert enighet omfatter (MM-U34 punkt 13).
+ * De andre er utsatt etter OV-U7 og avvises for begge parter.
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
   const maal = u.elementer[h.gjelder];
   switch (h.type) {
-    case 'innsigelse': {
+    case 'innsigelse':
       // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
-      if (!kanFaaInnsigelse(maal, part))
-        return avvis(
-          'UGYLDIG_INNSIGELSE',
-          'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
-        );
-      // OV-U65, OV-U66, OV-U67: ikke mot det en enighet omfatter. Sperren gjelder bare den nye
-      // innsigelsen; en innsigelse som alt står i journalen, beholder sin virkning (OV-U67 punkt 3).
-      const spor = enighetenOmfatter(u, h.gjelder);
-      return spor
-        ? avvis(
-            'ENIGHETEN_OMFATTER',
-            `Partene er enige om ${SPORET[spor]}, og enigheten omfatter det innsigelsen gjelder.`
-          )
-        : null;
-    }
+      return kanFaaInnsigelse(maal, part)
+        ? null
+        : avvis(
+            'UGYLDIG_INNSIGELSE',
+            'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
+          );
     case 'svare_paa_foresporsel': {
       // VS-U27: en forespørsel fra appen. KA-U1: én begrunnelse, og ikke etter at et krav har svart.
       const f = u.spor.frist.foresporsler.find((x) => x.foresporsel === h.gjelder);
@@ -147,13 +137,6 @@ function fristenErLukket(u: Utledning): Avvisning | null {
 }
 
 export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
-
-/** Sporet enigheten er inngått i, i meldingen om sperren (OV-U65). */
-const SPORET: Record<Spor, string> = {
-  grunnlag: 'svaret på grunnlaget',
-  vederlag: 'svaret på kravet om justering av vederlaget',
-  frist: 'svaret på kravet om fristforlengelse',
-};
 
 const KRAVET: Record<Kravspor, string> = {
   vederlag: 'justering av vederlaget',
@@ -206,9 +189,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // KA-U12: «ingen krav» lukker sporet på samme måte som et trekk.
       if (s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves noe i sporet.');
-      // KA-U7, GR-U10: en enighet binder begge parter.
-      if (s.enighet)
-        return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Kravet kan ikke endres.');
+      // MM-U34 punkt 9: også i et spor med registrert enighet, fram til endringsordren.
       if (h.spor !== 'grunnlag' && !grunnlagSendt)
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan sende krav.');
       return null;
@@ -303,17 +284,18 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
         return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på gjeldende krav å revidere.');
-      // SK-03, GR-U7, GR-U10: en enighet binder byggherren, også ved sammenfall.
-      if (s.enighet)
-        return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Det kan ikke revideres.');
+      // MM-U34 punkt 11, EO-U12: også et svar TE har godtatt eller som stemmer med kravet.
       return null;
     case 'godta':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
         return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');
-      // GR-U8, GR-U10: partene er alt enige, også når byggherren har godkjent hele kravet.
+      // GR-U8: enigheten er alt registrert, også når byggherren har godkjent hele kravet.
       if (s.enighet)
-        return avvis('ENIGHET_I_SPORET', `Partene er allerede enige om svaret på ${h.spor}.`);
+        return avvis(
+          'ENIGHET_I_SPORET',
+          `Enigheten om svaret på ${h.spor} er allerede registrert.`
+        );
       // GR-U9: frafall er ikke enighet, og en aksept ville gjort frafallet til en enighet byggherren ikke kan revidere.
       if (h.spor === 'grunnlag' && u.frafalt)
         return avvis(

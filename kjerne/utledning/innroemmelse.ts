@@ -1,5 +1,5 @@
 /**
- * HF-U5, HF-U14: sammenlikningen av en revisjon med svaret den erstatter. Kommandoene
+ * HF-U5: sammenlikningen av en revisjon med svaret den erstatter. Kommandoene
  * avviser revisjonen, og utledningen gjør saken ikke forstått når en hendelse utenfor
  * kommandoene gjør det samme (MM-U27).
  */
@@ -13,7 +13,7 @@ import type { Standpunkt, Svar } from '../typer.ts';
 const RANG: Record<Grunnlagsresultat, number> = { avslaatt: 0, paalegg_frafalt: 1, godkjent: 2 };
 
 /**
- * HF-U5, HF-U14: det revisjonen senker av det byggherren har innrømmet i svaret den
+ * HF-U5: det revisjonen senker av det byggherren har innrømmet i svaret den
  * erstatter, standpunkt for standpunkt, som en setning til meldingen, eller `null`.
  * Hvert standpunkt sammenliknes med standpunktet av samme art på samme plass i
  * revisjonen (detalj 4 i HF-U5). Beløpet sammenliknes for hver post, og beløpet etter
@@ -23,7 +23,8 @@ const RANG: Record<Grunnlagsresultat, number> = { avslaatt: 0, paalegg_frafalt: 
  * mangler det i svaret, har byggherren ikke innrømmet noe å senke, og mangler det bare i
  * revisjonen, kan de ikke sammenliknes, og revisjonen avvises (#787, #814).
  * Rettidigheten sammenliknes ikke her: et «i tide» sperres av `SAGT_I_TIDE` (HF-U4).
- * Byggherrens ønskede metode sammenliknes ikke (MM-U12).
+ * Byggherrens ønskede metode og aksepten av beregningsmåten sammenliknes ikke (MM-U12,
+ * MM-U34 punkt 15).
  * `forskyvning` er lagene svaret på grunnlaget opptok foran sporet da brevet ble sendt
  * (`forskyvningIBrevet`), så etiketten er den brevet ga (OV-U32, MM-U11, svaret i #1199).
  */
@@ -85,9 +86,6 @@ export function senketInnroemmelse(
     } else if (f.art === 'hindring' && f.oppfylt) {
       if (ny(f)?.oppfylt === false)
         return 'Svaret godtar at fremdriften er hindret som følge av forholdet (§ 33.1), og revisjonen tar det tilbake';
-    } else if (f.art === 'metode' && f.aksepterer) {
-      if (ny(f)?.aksepterer === false)
-        return 'Svaret godkjenner oppgjør som fast sum (§ 34.2.2, HF-U14), og revisjonen tar godkjenningen tilbake';
     }
   }
   return null;
