@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BF-03 · TE er uenig i svaret · prototype v2</title>
+<title>BF-03 · TE er uenig i svaret · prototype v3</title>
 <!--
   Klikkbar prototype for BF-03 (docs/domenetabell/brukerforlop/BF-03.md). Tilstandene er
   ankrene (#mottatt, #protest, …), og bestillingen viser til dem. ID-ene i data-spor er
@@ -33,6 +33,8 @@
   .knapper { display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; margin-top: 12px; }
   a.btn { text-decoration: none; }
   .btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+  .feil { padding: 12px 14px; border-left: 3px solid #a3392b; background: #fbf1ef; font-size: 14px; margin-bottom: 12px; }
+  .feil p + p, .laast p + p { margin-top: 6px; }
   .tl { list-style: none; padding: 0; margin: 0; font-size: 13px; }
   .tl li { padding: 6px 0; border-bottom: 1px solid #edf0ec; }
   .tl li.ny { font-weight: 600; }
@@ -42,7 +44,7 @@
 </head>
 <body>
 <div class="proto-bar">
-  <span><b>Prototype · BF-03 · versjon 2</b> · Ingenting sendes. Saken er BF-01 ved kontrollpunktet <code>te-har-mottatt-svaret</code>.</span>
+  <span><b>Prototype · BF-03 · versjon 3</b> · Ingenting sendes. Saken er BF-01 ved kontrollpunktet <code>te-har-mottatt-svaret</code>.</span>
   <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#mottatt">Start på nytt</a></span>
 </div>
 <section class="screen">
@@ -94,7 +96,7 @@
                 <div class="veier">
                   <a class="vei" href="#godta" data-spor="U-3 · D-1"><b>Godta svaret</b><span>Dere blir enige om hele svaret, også at varselet kom for sent. Beløpet blir 0 kr.</span></a>
                   <a class="vei" href="#protest" data-spor="M-1 · M-2 · D-2 · D-4"><b>Protester: varselet kom i tide</b><span>Gjelder bare påberopelsen av at varselet kom for sent. Protesten er ikke en aksept, og svaret står som før.</span></a>
-                  <a class="vei" href="#ny-versjon" data-spor="U-5 · D-5"><b>Send ny versjon av kravet</b><span>For uenighet om beløpet. Avslår tilbudet om 60 000 kr i svaret.</span></a>
+                  <a class="vei" href="#ny-versjon" data-spor="U-5 · D-5"><b>Send ny versjon av kravet</b><span>For uenighet om beløpet. Avslår tilbudet i svaret, også de 60 000 kr subsidiært.</span></a>
                   <div class="vei" data-spor="D-4"><b>Vent</b><span>Du trenger ikke svare nå. Svaret står, men har BH satt en akseptfrist i svaret, er BH bare bundet til fristen er ute.</span></div>
                 </div>
               </div>
@@ -102,84 +104,132 @@
 
             <!-- #protest: skjemaet -->
             <div class="card tilstand" id="protest" role="region" aria-label="Protest mot påberopelsen">
-              <div class="card-h"><h3>Protest mot påberopelsen</h3><a class="btn ghost sm" href="#mottatt">Tilbake</a></div>
+              <div class="card-h"><h3>Protest mot påberopelsen</h3></div>
               <div class="card-b">
                 <div class="q">Du protesterer mot at BH i brev 5 gjør gjeldende at varselet etter § 34.1.2 kom for sent. Er du uenig i beløpet, er det en annen vei: <a href="#ny-versjon">ny versjon av kravet</a>.</div>
                 <label class="lbl" for="hvorfor">Hvorfor kom varselet i tide?</label>
                 <textarea class="tx" id="hvorfor" data-spor="M-1">Varselet ble sendt samme dag som tegningene kom, og det er uten ugrunnet opphold.</textarea>
                 <div class="virkning" data-spor="U-4 · D-2 · D-4">
                   <p><b>Dette gjør protesten</b></p>
-                  <p>Den registrerer at du er uenig, og vises ved siden av påberopelsen. Den avgjør ikke hvem som har rett.</p>
+                  <p>Protesten sier at du er uenig, og vises ved påberopelsen i svaret. Løsningen avgjør ikke hvem som har rett.</p>
                   <p>Protesten er ikke en aksept og ikke en ny versjon av kravet. Svaret i brev 5 står, også de 60 000 kr subsidiært, og du kan fortsatt godta det senere.</p>
                   <p data-spor="G-4">BH er bundet av svaret til du godtar det, sender en ny versjon av kravet, eller en akseptfrist BH har satt i svaret, er ute.</p>
                 </div>
-                <div class="knapper"><a class="btn ghost" href="#mottatt">Avbryt</a><a class="btn primary" href="#protest-brev">Se brevet</a></div>
+                <div class="knapper" data-spor="U-6"><a class="btn ghost" href="#mottatt">Tilbake</a><a class="btn primary" href="#protest-brev">Se brevet</a></div>
+                <p class="muted">Det du har skrevet, står til du sender eller starter på nytt.</p>
               </div>
             </div>
 
             <!-- #protest-brev: brevkontrollen -->
             <div class="card tilstand" id="protest-brev" role="region" aria-label="Brevkontroll">
-              <div class="card-h"><h3>Dette sender du</h3><a class="btn ghost sm" href="#protest">Tilbake til skjemaet</a></div>
-              <div class="card-b" data-spor="U-7 · D-3">
+              <div class="card-h"><h3>Dette sender du</h3></div>
+              <div class="card-b">
                 <div class="lbl">Brev 6 · Protest · til BH</div>
-                <div class="laast">TE protesterer mot påberopelsen av for sen varsling i svaret i brev 5 av 1. oktober 2026.</div>
-                <p class="muted">Begrunnelse: <span id="hvorfor-kopi"></span></p>
+                <div class="laast" data-spor="U-7 · D-3">
+                  <p>TE protesterer mot påberopelsen av for sen varsling i svaret i brev 5 av 1. oktober 2026.</p>
+                  <p id="hvorfor-kopi"></p>
+                </div>
                 <label><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label>
-                <div class="knapper"><a class="btn ghost" href="#protest">Tilbake</a><a class="btn primary send" aria-disabled="true" href="#protest-sendt">Send til BH</a></div>
+                <div class="knapper" data-spor="U-6 · D-7"><a class="btn ghost" href="#protest">Tilbake</a><a class="btn primary send" aria-disabled="true" href="#protest-sendt">Send til BH</a></div>
+                <p class="muted">Ingenting er sendt før du trykker «Send til BH».</p>
               </div>
             </div>
 
             <!-- #protest-sendt: etter protesten -->
             <div class="card tilstand" id="protest-sendt" role="region" aria-label="Protesten er sendt">
               <div class="card-h"><h3>Protesten er sendt</h3></div>
-              <div class="card-b" data-spor="D-4">
-                <p>Brev 6 er sendt til BH. Svaret i brev 5 står, og du kan fortsatt ta stilling til det.</p>
+              <div class="card-b">
+                <p>Brev 6 er sendt til BH. Svaret i brev 5 står, også de 60 000 kr subsidiært, og du kan fortsatt ta stilling til det.</p>
+                <div class="lbl">Standpunktene i svaret</div>
+                <table class="standpunkter" data-spor="D-2">
+                  <tr><td><b>Prinsipalt</b>: varselet etter § 34.1.2 kom for sent<br><span class="muted">Du har protestert i brev 6: varselet kom i tide.</span></td><td class="n">0 kr</td></tr>
+                  <tr><td><b>Subsidiært</b>: hvis varselet kom i tide</td><td class="n">60 000 kr</td></tr>
+                </table>
+                <p class="muted" data-spor="D-4 · G-4">BH er bundet av svaret til du godtar det, sender en ny versjon av kravet, eller en akseptfrist BH har satt i svaret, er ute.</p>
                 <ul class="tl">
                   <li>Brev 4 · TE · krav og varsel etter § 34.1.2</li>
                   <li>Brev 5 · BH · svar: varselet kom for sent, subsidiært 60 000 kr</li>
                   <li class="ny">Brev 6 · TE · protest mot påberopelsen i brev 5</li>
                 </ul>
-                <div class="knapper"><a class="btn" href="#godta">Godta svaret likevel</a><a class="btn ghost nullstill" href="#mottatt">Start på nytt</a></div>
+                <div class="knapper"><a class="btn" href="#godta">Godta svaret likevel</a><a class="btn" href="#ny-versjon">Send ny versjon av kravet</a></div>
               </div>
             </div>
 
             <!-- #ny-versjon: ny kravversjon -->
             <div class="card tilstand" id="ny-versjon" role="region" aria-label="Ny versjon av kravet">
-              <div class="card-h"><h3>Ny versjon av kravet</h3><a class="btn ghost sm" href="#mottatt">Tilbake</a></div>
+              <div class="card-h"><h3>Ny versjon av kravet</h3></div>
               <div class="card-b">
                 <div class="virkning" data-spor="M-4 · U-5 · D-5">
-                  <p><b>Du avslår tilbudet om 60 000 kr</b></p>
-                  <p>Den nye versjonen avslår svaret i brev 5. Etterpå kan du ikke godta det. BH må svare på nytt, og påberopelsen av at varselet kom for sent står.</p>
+                  <p><b>Du avslår tilbudet i svaret i brev 5</b></p>
+                  <p>Den nye versjonen avslår tilbudet i svaret, også de 60 000 kr subsidiært. Når den er sendt, kan du ikke godta svaret her. BH må svare på nytt, og påberopelsen av at varselet kom for sent står som påberopelse.</p>
                 </div>
                 <label class="lbl" for="beloep">Hvor mye krever du?</label>
                 <div class="money"><input id="beloep" value="100 000"><span>kr</span></div>
-                <div class="knapper"><a class="btn ghost" href="#mottatt">Avbryt</a><a class="btn primary" href="#ny-versjon-brev">Se brevet</a></div>
+                <div class="knapper" data-spor="U-6"><a class="btn ghost tilbake" href="#mottatt">Tilbake</a><a class="btn primary" href="#ny-versjon-brev">Se brevet</a></div>
+                <p class="muted">Det du har skrevet, står til du sender eller starter på nytt.</p>
               </div>
             </div>
 
             <!-- #ny-versjon-brev -->
             <div class="card tilstand" id="ny-versjon-brev" role="region" aria-label="Brevkontroll">
-              <div class="card-h"><h3>Dette sender du</h3><a class="btn ghost sm" href="#ny-versjon">Tilbake til skjemaet</a></div>
-              <div class="card-b" data-spor="U-7 · D-5">
-                <div class="lbl">Brev 6 · Ny versjon av kravet · til BH</div>
-                <div class="laast">TE avslår byggherrens tilbud i svaret i brev 5 av 1. oktober 2026 og fremsetter det reviderte kravet nedenfor. …</div>
+              <div class="card-h"><h3>Dette sender du</h3></div>
+              <div class="card-b">
+                <div class="lbl"><span class="brevnr">Brev 6</span> · Ny versjon av kravet · til BH</div>
+                <div class="laast" data-spor="U-7 · D-5">
+                  <p>TE avslår byggherrens tilbud i svaret i brev 5 av 1. oktober 2026 og fremsetter det reviderte kravet nedenfor.</p>
+                  <p>TE krever justering av vederlaget med <span id="beloep-kopi"></span> kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1.</p>
+                </div>
                 <label><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label>
-                <div class="knapper"><a class="btn ghost" href="#ny-versjon">Tilbake</a><a class="btn primary send" aria-disabled="true" href="#mottatt">Send til BH</a></div>
+                <div class="knapper" data-spor="U-6 · D-7"><a class="btn ghost" href="#ny-versjon">Tilbake</a><a class="btn primary send nullstill" aria-disabled="true" href="#mottatt">Send til BH</a></div>
+                <p class="muted">Ingenting er sendt før du trykker «Send til BH».</p>
                 <p class="muted">I prototypen fører sendingen tilbake til start.</p>
               </div>
             </div>
 
             <!-- #godta -->
             <div class="card tilstand" id="godta" role="region" aria-label="Godta svaret">
-              <div class="card-h"><h3>Godta svaret i brev 5</h3><a class="btn ghost sm" href="#mottatt">Tilbake</a></div>
+              <div class="card-h"><h3>Godta svaret i brev 5</h3></div>
               <div class="card-b">
                 <div class="virkning" data-spor="U-3 · D-1">
                   <p><b>Dere blir enige om 0 kr</b></p>
                   <p>Du godtar hele svaret, også at varselet etter § 34.1.2 kom for sent. De 60 000 kr gjaldt bare hvis varselet kom i tide.</p>
-                  <p class="etter-protest" hidden data-spor="U-8 · S-2"><b>Du godtar nå også standpunktet du protesterte mot i brev 6.</b> Protesten står i saken, men er ikke et forbehold i aksepten.</p>
+                  <p data-spor="U-8 · D-6">Aksepten omfatter hele svaret i vederlagssporet, også påberopelser du har protestert mot. Etterpå kan du ikke protestere mot det enigheten omfatter.</p>
+                  <p class="etter-protest" hidden data-spor="U-8 · S-2"><b>Du godtar nå også påberopelsen du protesterte mot i brev 6.</b> Protesten står i saken, men er ikke et forbehold i aksepten.</p>
                 </div>
-                <div class="knapper"><a class="btn ghost" href="#mottatt">Avbryt</a><span class="btn primary" aria-disabled="true">Se akseptbrevet</span></div>
-                <p class="muted">Brevkontrollen for aksepten er som i BF-01 og er ikke med i prototypen.</p>
+                <div class="knapper"><a class="btn ghost tilbake" href="#mottatt">Tilbake</a><a class="btn primary" href="#godtatt">Send aksepten</a></div>
+                <p class="muted">Brevkontrollen for aksepten er som i BF-01 og er ikke med i prototypen. Her sendes aksepten direkte.</p>
+              </div>
+            </div>
+
+            <!-- #godtatt: etter aksepten -->
+            <div class="card tilstand" id="godtatt" role="region" aria-label="Aksepten er sendt">
+              <div class="card-h"><h3>Dere er enige om svaret i brev 5</h3></div>
+              <div class="card-b">
+                <div class="virkning enighet" data-spor="D-1 · G-5">
+                  <p><b>Enighet: 0 kr</b></p>
+                  <p>Aksepten i <span class="brevnr-aksept">brev 6</span> omfatter hele svaret i brev 5, også at varselet etter § 34.1.2 kom for sent.</p>
+                </div>
+                <div class="lbl">Hva vil du gjøre?</div>
+                <div class="veier">
+                  <a class="vei" href="#protest-avvist" data-spor="D-6 · G-5"><b>Protester: varselet kom i tide</b><span>Prøv å sende en protest mot påberopelsen etter aksepten.</span></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- #protest-avvist: protest etter enighet -->
+            <div class="card tilstand" id="protest-avvist" role="region" aria-label="Protesten kan ikke sendes">
+              <div class="card-h"><h3>Protesten kan ikke sendes</h3></div>
+              <div class="card-b">
+                <div class="feil" role="alert" data-spor="D-6 · G-5">
+                  <p><b>Påberopelsen av for sen varsling i brev 5 inngår i enigheten.</b></p>
+                  <p>Du godtok svaret i <span class="brevnr-aksept">brev 6</span>, og enigheten omfatter hele svaret. Ingenting er sendt.</p>
+                  <p>Et brev sendt utenfor løsningen kan du fortsatt registrere i saken som dokumentasjon.</p>
+                </div>
+                <div class="virkning enighet" data-spor="D-1 · G-5">
+                  <p><b>Enighet: 0 kr</b></p>
+                  <p>Aksepten i <span class="brevnr-aksept">brev 6</span> omfatter hele svaret i brev 5, også at varselet etter § 34.1.2 kom for sent.</p>
+                </div>
+                <div class="knapper"><a class="btn ghost" href="#godtatt">Tilbake</a></div>
               </div>
             </div>
           </div>
@@ -193,6 +243,10 @@
   function vis() {
     const id = (location.hash || '#mottatt').slice(1);
     if (id === 'protest-sendt') protestert = true;
+    for (const n of document.querySelectorAll('.brevnr-aksept')) n.textContent = protestert ? 'brev 7' : 'brev 6';
+    for (const t of document.querySelectorAll('a.tilbake')) t.href = protestert ? '#protest-sendt' : '#mottatt';
+    document.querySelector('.brevnr').textContent = protestert ? 'Brev 7' : 'Brev 6';
+    document.getElementById('beloep-kopi').textContent = document.getElementById('beloep').value;
     for (const t of document.querySelectorAll('.tilstand')) t.classList.toggle('vist', t.id === id);
     document.querySelector('.etter-protest').hidden = !protestert;
     document.getElementById('hvorfor-kopi').textContent = document.getElementById('hvorfor').value;
