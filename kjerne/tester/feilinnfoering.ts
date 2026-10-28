@@ -376,7 +376,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'forbudet mot trekk gjelder også kategorier § 32.2 ikke gjelder for (KA-U13)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['blirEndringsordre(gSvar.beslutningsgrunnlag)', '(gSvar.beslutningsgrunnlag.sammenfall)'],
+      ['blirEndringsordre(svaret.beslutningsgrunnlag)', '(svaret.beslutningsgrunnlag.sammenfall)'],
     ],
     mal: ['F-MM-G13', 'F-MM-G14', 'F-MM-G19'],
   },
@@ -394,8 +394,8 @@ const MUTASJONER: Mutasjon[] = [
         '  dokumenter: Map<string, Dokument>,\n  regler: Regelsett\n): Pick<Utledning',
       ],
       [
-        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
-        '(gSvar.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)))',
+        'blirEndringsordre(svaret.beslutningsgrunnlag)',
+        '(svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)))',
       ],
     ],
     mal: ['F-MM-G15'],
@@ -406,11 +406,21 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
-        '(gSvar.beslutningsgrunnlag.varslingsplikt === true)',
+        'blirEndringsordre(svaret.beslutningsgrunnlag)',
+        '(svaret.beslutningsgrunnlag.varslingsplikt === true)',
       ],
     ],
     mal: ['F-MM-G16', 'F-MM-G17'],
+  },
+  {
+    id: 'F26b',
+    feilklasse:
+      'en ny grunnlagsversjon tar bort sperren mot trekk etter en godkjenning som er en endringsordre (EO-U12)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['endringsordre: spor.grunnlag.svar.some(', 'endringsordre: (gSvar ? [gSvar] : []).some('],
+    ],
+    mal: ['etter en ny grunnlagsversjon kan TE fortsatt ikke trekke grunnlaget'],
   },
   // F27–F47 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
   {
@@ -432,8 +442,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
-        "(gSvar.beslutningsgrunnlag.sammenfall && gSvar.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2'))",
+        'blirEndringsordre(svaret.beslutningsgrunnlag)',
+        "(svaret.beslutningsgrunnlag.sammenfall && svaret.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2'))",
       ],
     ],
     mal: ['korrespondanse som bare er mottatt, er også registrert'],
@@ -2023,7 +2033,7 @@ const MUTASJONER: Mutasjon[] = [
       'en endringsordre byggherren har registrert, er en endringsordre i saken og sperrer TEs trekk av grunnlaget (OV-U6, #594)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['    !erRegistrert(dokumenter.get(gSvar.dokument)!.opplysninger)\n', '    true\n'],
+      ['    !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)\n', '    true\n'],
     ],
     mal: ['F-MM-G43', 'F-MM-G18', 'F-MM-G45'],
   },

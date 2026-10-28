@@ -220,9 +220,10 @@ export interface Utledning {
    */
   frafalt: boolean;
   /**
-   * Om byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3
-   * første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13): godkjent uten påberopt
-   * preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt fra appen. En
+   * Om byggherren har godkjent grunnlaget i et svar som er en endringsordre etter
+   * § 32.3 første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13): godkjent uten påberopt
+   * preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt fra appen. Det gjelder
+   * også når svaret er erstattet eller kravet har fått en ny versjon (EO-U12). En
    * registrert endringsordre etter OV-U6 er `nei`: opplysningen fra byggherren
    * vises, men gir ingen egen virkning i appen.
    */
@@ -1251,12 +1252,14 @@ function grunnlaget(
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
     // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). En
     // registrert endringsordre gir ingen egen virkning (OV-U6).
-    endringsordre:
-      gSvar &&
-      blirEndringsordre(gSvar.beslutningsgrunnlag) &&
-      !erRegistrert(dokumenter.get(gSvar.dokument)!.opplysninger)
-        ? 'ja'
-        : 'nei',
+    // EO-U12: en ny grunnlagsversjon eller et nytt svar tar ikke bort endringsordren.
+    endringsordre: spor.grunnlag.svar.some(
+      (svaret) =>
+        blirEndringsordre(svaret.beslutningsgrunnlag) &&
+        !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)
+    )
+      ? 'ja'
+      : 'nei',
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
     frafalt: venterEtterFrafall || (gSvar !== null && frafaller(gSvar)),
   };
@@ -1264,7 +1267,8 @@ function grunnlaget(
 
 /**
  * KA-U13 og KA-U14, med § 31.3 (GR-U13): TE kan ikke trekke grunnlaget når byggherren
- * har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre. Et
+ * har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre, også
+ * etter en ny kravversjon eller et nytt svar (EO-U12). Et
  * trekk ville gitt journalen den videre virkningen at endringsordren leses som bortfalt
  * (KA-U6). En endringsordre byggherren har registrert, sperrer ikke (OV-U6).
  */

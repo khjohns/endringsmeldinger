@@ -2216,13 +2216,14 @@
     {
       "id": "GR-28",
       "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon.",
-      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget. Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). Registrert korrespondanse er dokumentasjon ([OV-U4](../plans/vedtak.md#ov-u4)). Byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6) er svaret, men opplysningen gir ingen egen virkning og sperrer ikke trekket (GR-29).",
+      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget, men ikke når byggherren tidligere har godkjent det i et svar som er en endringsordre, også etter en ny grunnlagsversjon ([EO-U12](../plans/vedtak.md#eo-u12)). Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). Registrert korrespondanse er dokumentasjon ([OV-U4](../plans/vedtak.md#ov-u4)). Byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6) er svaret, men opplysningen gir ingen egen virkning og sperrer ikke trekket (GR-29).",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "Etter § 32.3 a er godkjenningen en endringsordre, som binder TE (§ 31.3 annet ledd).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U13",
+        "EO-U12",
         "GR-U10",
         "GR-U11",
         "KA-U6",

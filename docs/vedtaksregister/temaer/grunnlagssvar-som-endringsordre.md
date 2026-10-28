@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `3fa21eb0390065fa77eb0e06ce8acf7e630a4ea6ded916148c7e157a7325e25c`
+Kontrollsum (SHA-256 over utdraget visningen leser): `0d9775871dea83eea1bdfff7bc7b715130d4a0613d03ffc06a59d4cac38551bd`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -565,7 +565,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endrer [OV-U6](#ov-u6). Presiserer [GR-U10](#gr-u10). Presiserer [KA-U13](../../plans/vedtak.md#ka-u13). Presiserer [EO-U3](../../plans/vedtak.md#eo-u3). Presiserer [MM-U34](#mm-u34).
 
-**Regelrader:** [GR-27](#rad-gr-27), [EO-02](#rad-eo-02), [EO-03](#rad-eo-03), [EO-04](#rad-eo-04), [EO-05](#rad-eo-05), [EO-06](#rad-eo-06), [EO-07](#rad-eo-07)
+**Regelrader:** [GR-27](#rad-gr-27), [GR-28](#rad-gr-28), [EO-02](#rad-eo-02), [EO-03](#rad-eo-03), [EO-04](#rad-eo-04), [EO-05](#rad-eo-05), [EO-06](#rad-eo-06), [EO-07](#rad-eo-07)
 
 **Bevis-saker som viser til vedtaket:** F-MM-G10 (målmodellen)
 
@@ -1498,7 +1498,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-22"></a>GR-22 | TE godtar vederlagssvaret før byggherren har svart på grunnlaget, og byggherren godkjenner deretter grunnlaget. | [GR-U10](#gr-u10) | F-GR-22, F-MM-G36 (målmodellen), F-MM-G35 (målmodellen) |
 | <a id="rad-gr-23"></a>GR-23 | Byggherren reviderer et vederlagssvar TE har godtatt, mens grunnlaget venter på nytt svar etter endret underkategori. | [MM-U34](#mm-u34) | F-GR-23, F-MM-A5b (målmodellen) |
 | <a id="rad-gr-27"></a>GR-27 | Byggherren har godkjent grunnlaget uten å påberope preklusjon. Byggherren vil deretter revidere svaret, eller TE sender en ny kravversjon av grunnlaget. | [GR-U10](#gr-u10), [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-MM-G10 (målmodellen) |
-| <a id="rad-gr-28"></a>GR-28 | TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon. | [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4) | F-MM-G10 (målmodellen), F-MM-G13 (målmodellen), F-MM-G14 (målmodellen), F-MM-G15 (målmodellen), F-MM-G16 (målmodellen), F-MM-G17 (målmodellen), F-MM-G18 (målmodellen), F-MM-G19 (målmodellen) |
+| <a id="rad-gr-28"></a>GR-28 | TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon. | [EO-U12](#eo-u12), [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4) | F-MM-G10 (målmodellen), F-MM-G13 (målmodellen), F-MM-G14 (målmodellen), F-MM-G15 (målmodellen), F-MM-G16 (målmodellen), F-MM-G17 (målmodellen), F-MM-G18 (målmodellen), F-MM-G19 (målmodellen) |
 | <a id="rad-gr-29"></a>GR-29 | Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting. | [GR-U12](#gr-u12), [GR-U10](#gr-u10), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4), [OV-U13](#ov-u13) | F-MM-G43 (målmodellen), F-MM-G45 (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen) |
 | <a id="rad-eo-02"></a>EO-02 | Byggherren har godkjent grunnlaget, og TE har ikke sendt vederlag eller frist. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-02 |
 | <a id="rad-eo-03"></a>EO-03 | Byggherren har godkjent grunnlaget og vederlaget, og TE har ikke sendt frist. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-03 |

@@ -6148,6 +6148,25 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     ).toBeNull();
   });
 
+  it('etter en ny grunnlagsversjon kan TE fortsatt ikke trekke grunnlaget når en godkjenning av det var en endringsordre (EO-U12, KA-U13)', () => {
+    const s = sakMedKrav();
+    brev(s, 'grunnlag', godkjentGrunnlag);
+    const trekk = { type: 'trekk', spor: 'grunnlag' };
+    expect(s.avvist('TE', trekk), 'kontrollsak: sperret før den nye versjonen').toBe(
+      'GRUNNLAG_ER_ENDRINGSORDRE'
+    );
+    s.send('TE', {
+      ...GRUNNLAGSKRAV,
+      innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling 2' },
+    });
+    expect(
+      s.u().spor.grunnlag.gjeldendeSvar,
+      'forutsetning: ingen svar på den nye versjonen'
+    ).toBeNull();
+    expect(s.u().endringsordre).toBe('ja');
+    expect(s.avvist('TE', trekk)).toBe('GRUNNLAG_ER_ENDRINGSORDRE');
+  });
+
   it('etter en ny kravversjon er enigheten ikke enighet om det gjeldende kravet, sporet venter på svar, og aksepten står i journalen (arbeidsvalg 3 i #1376, MM-U34 punkt 2)', () => {
     const s = sakMedKrav();
     brev(s, 'frist', tiDager);

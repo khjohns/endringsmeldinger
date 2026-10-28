@@ -200,7 +200,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))
         return avvis(
           'GRUNNLAG_ER_ENDRINGSORDRE',
-          'Byggherren har godkjent grunnlaget, og godkjenningen er en endringsordre. Grunnlaget kan ikke trekkes.'
+          'Byggherren har godkjent grunnlaget i et svar som er en endringsordre. Grunnlaget kan ikke trekkes, heller ikke etter en ny kravversjon eller et nytt svar.'
         );
       // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det. En
       // merking av et registrert brev gir ingen sperre (OV-U4, OV-U7).

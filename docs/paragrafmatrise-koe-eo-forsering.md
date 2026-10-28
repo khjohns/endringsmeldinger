@@ -70,13 +70,13 @@ Sier et prinsipp noe annet enn vedtakene, gjelder vedtakene.
 5. **En enighet binder begge.** Et trekk eller et avkall gir bare fra seg
    egne rettigheter, også i et spor med enighet. Kan appen ikke gjennomføre
    det uten å gi det videre virkninger, for eksempel for motpartens
-   rettigheter etter en avtale, sperres det. *Vedtak:* [KA-U6](plans/vedtak.md#ka-u6), [KA-U7](plans/vedtak.md#ka-u7), [KA-U13](plans/vedtak.md#ka-u13), [KA-U14](plans/vedtak.md#ka-u14), [KA-U17](plans/vedtak.md#ka-u17), [KA-U22](plans/vedtak.md#ka-u22), [KA-U25](plans/vedtak.md#ka-u25), [GR-U7](plans/vedtak.md#gr-u7), [GR-U8](plans/vedtak.md#gr-u8), [GR-U10](plans/vedtak.md#gr-u10).
+   rettigheter etter en avtale, sperres det. *Vedtak:* [KA-U6](plans/vedtak.md#ka-u6), [KA-U13](plans/vedtak.md#ka-u13), [KA-U14](plans/vedtak.md#ka-u14), [KA-U17](plans/vedtak.md#ka-u17), [KA-U22](plans/vedtak.md#ka-u22), [KA-U25](plans/vedtak.md#ka-u25), [GR-U7](plans/vedtak.md#gr-u7), [GR-U8](plans/vedtak.md#gr-u8), [GR-U10](plans/vedtak.md#gr-u10).
 6. **Det appen ennå ikke kan, avvises, og det den ikke kan uttrykke,
    bevares.** Sperren følger den avhengigheten som er uttrykt: valgene i et
    brev fra appen og merkingen av et registrert brev. *Vedtak:* [MM-U2](plans/vedtak.md#mm-u2), [KA-U16](plans/vedtak.md#ka-u16), [KA-U19](plans/vedtak.md#ka-u19), [KA-U20](plans/vedtak.md#ka-u20), [OV-U1](plans/vedtak.md#ov-u1), [OV-U2](plans/vedtak.md#ov-u2).
 7. **Pålegget er skilt fra pris og tid.** TEs aksept av en endringsordre
    gjelder pålegget, ikke de selvstendige utsagnene om pris og tid.
-   *Vedtak:* [EO-U4](plans/vedtak.md#eo-u4), [EO-U8](plans/vedtak.md#eo-u8), [EO-U9](plans/vedtak.md#eo-u9).
+   *Vedtak:* [EO-U4](plans/vedtak.md#eo-u4), [EO-U8](plans/vedtak.md#eo-u8).
 8. **Formen kan være strengere enn kontrakten, innholdet ikke.** Et brev fra
    appen kan måtte ha mer enn kontrakten krever, som en begrunnelse eller en
    fast tekst. Det skjemaet ikke tillater, kan sendes utenfor appen, og hva
@@ -186,10 +186,10 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   (10.10). [GR-U12](plans/vedtak.md#gr-u12),
   endret av GR-U13. [GR-U9](plans/vedtak.md#gr-u9)
   (merknaden 09.10: til kravene er avgjort). [GR-U3](plans/vedtak.md#gr-u3)
-  (merknaden 09.10). [GR-U7](plans/vedtak.md#gr-u7)
+  (endret av [GR-U28](plans/vedtak.md#gr-u28)). [GR-U7](plans/vedtak.md#gr-u7)
   (merknaden 10.10: forbehold avgjort av KA-U16; «avklart» etter MM-U13).
-  [KA-U16](plans/vedtak.md#ka-u16): forbehold i svaret. [EO-U6](plans/vedtak.md#eo-u6): endringsordre som svar på
-  grunnlaget (raden for endringsordre som svar på grunnlaget).
+  [KA-U16](plans/vedtak.md#ka-u16): forbehold i svaret. [EO-U12](plans/vedtak.md#eo-u12): godkjenningen av grunnlaget alene
+  lukker ikke saken (raden for endringsordre som svar på grunnlaget).
   [GR-U8](plans/vedtak.md#gr-u8).
   B-13 «frafalt» (24.09, merknaden 04.10), med underkategoriene fra
   [GR-U18](plans/vedtak.md#gr-u18): der pålegget er
@@ -273,7 +273,9 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
 - **Predikat:**
   - Trekket av grunnlaget trekker alle krav i saken.
   - Det er sperret når godkjenningen er en endringsordre eller dette er ikke
-    avklart, når TE har godtatt avslaget, og når kravene er avgjort.
+    avklart, når TE har godtatt avslaget, og når kravene er avgjort. Sperren
+    etter en godkjenning som er en endringsordre, står også etter en ny
+    kravversjon eller et nytt svar ([EO-U12](plans/vedtak.md#eo-u12)).
   - En ny kravversjon åpner sporet, og svaret faller i tilstanden. Svar på
     vederlag og frist som var subsidiære, forblir det til sporet eller
     grunnlaget besvares igjen.
@@ -283,9 +285,9 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
 - **Vedtak:** [GR-U5](plans/vedtak.md#gr-u5)
   (merknaden 10.10: brevet sier tydelig at alle krav gis opp). [KA-U13](plans/vedtak.md#ka-u13)
   (merknaden 10.10: presisert av KA-U14). [KA-U14](plans/vedtak.md#ka-u14).
-  [GR-U1](plans/vedtak.md#gr-u1).
-  [GR-U2](plans/vedtak.md#gr-u2)
-  (merknaden 09.10: «låst» er enighet). [GR-U4](plans/vedtak.md#gr-u4).
+  [EO-U12](plans/vedtak.md#eo-u12). [GR-U1](plans/vedtak.md#gr-u1).
+  GR-U2 er opphevet av [MM-U34](plans/vedtak.md#mm-u34) punkt 11; at kategorien står, følger av
+  [OV-U55](plans/vedtak.md#ov-u55). [GR-U4](plans/vedtak.md#gr-u4).
   SD-02 (05.10). B-13 endret underkategori (05.10).
 - **Kjernen i dag:** bygget. `trekk` i `Utsagn`, `trekkAvGrunnlagetErSperret`
   i [`utled.ts`](../kjerne/utledning/utled.ts), `Krav.erstatter`. Svarene på vederlag
@@ -631,8 +633,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
 - **Appen avgjør ikke:** om BH tok stilling «innen rimelig tid».
 - **Appen:** *utlede* for § 34.2.2. *Registrere og vise* for § 34.2.1
   ([VS-U3](plans/vedtak.md#vs-u3)).
-- **Vedtak:** [VS-U3](plans/vedtak.md#vs-u3). [KA-U7](plans/vedtak.md#ka-u7)
-  (merknaden 09.10). [GR-U7](plans/vedtak.md#gr-u7)
+- **Vedtak:** [VS-U3](plans/vedtak.md#vs-u3). [MM-U34](plans/vedtak.md#mm-u34) punkt 9, som
+  opphever KA-U7. [GR-U7](plans/vedtak.md#gr-u7)
   om sammenfall. [KA-U10](plans/vedtak.md#ka-u10)
   (merknaden 09.10: § 34.2.2 bærer ikke vedtaket alene).
 - **Kjernen i dag:** delvis. `tilbud` (§ 34.2.1) er eneste metode. `aksepterer_metode`
@@ -768,24 +770,28 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   bestridelse av hver utgave, og av hvert utsagn for seg (EO-U8). BH: hvilke KOE-saker endringsordren
   omfatter, før utstedelse.
 - **Predikat:**
-  - En KOE-sak kan inngå i en endringsordre når grunnlaget er godkjent, minst
-    ett av vederlag og frist har enighet, og ingen spor TE fortsatt kan sende,
-    står åpent.
-  - En KOE-sak inngår i høyst én endringsordre.
-  - BH reviderer bare en bestridt endringsordre (EO-U4), og ikke en
-    endringsordre som er svar på grunnlaget ([EO-U9](plans/vedtak.md#eo-u9)). En akseptert
+  - En endringsordre omfatter én eller flere hele KOE-saker. En KOE-sak kan
+    inngå når grunnlaget er sendt, også uten registrert enighet
+    ([MM-U34](plans/vedtak.md#mm-u34) punkt 20). Unntatt er en sak der TE har godtatt avslaget på
+    grunnlaget eller trukket grunnlaget ([GR-U27](plans/vedtak.md#gr-u27)). Et frafall etter
+    § 32.3 c hindrer ikke ([GR-U28](plans/vedtak.md#gr-u28)).
+  - En KOE-sak inngår i høyst én endringsordre ([EO-U3](plans/vedtak.md#eo-u3)).
+  - Endringsordren BH sender i EO-saken, lukker hver KOE-sak den omfatter, også
+    når uenigheten består (EO-U3, MM-U34 punkt 19). Godkjenningen av grunnlaget
+    alene lukker ikke saken ([EO-U12](plans/vedtak.md#eo-u12)).
+  - BH reviderer bare en bestridt endringsordre (EO-U4). En akseptert
     endringsordre er endelig.
 - **Appen avgjør ikke:** om en endring er innenfor § 31.1 (sammenheng med
-  kontrakten, 15 %-grensen).
+  kontrakten, 15 %-grensen). Om endringsordren endrer det som er avtalt
+  (EO-U8, [MM-U12](plans/vedtak.md#mm-u12)).
 - **Appen:** *utlede.* For brev fra appen sørger appen for § 31.3 (fullmakt i
   godkjenningsflyten, GFK-06).
-- **Vedtak:** [EO-U1](plans/vedtak.md#eo-u1).
-  [EO-U2](plans/vedtak.md#eo-u2) (merknaden
-  09.10: presisert av EO-U5). [EO-U3](plans/vedtak.md#eo-u3).
-  [EO-U4](plans/vedtak.md#eo-u4) (merknaden
-  10.10: presisert av EO-U8, endret av EO-U9).
-  [EO-U5](plans/vedtak.md#eo-u5). [EO-U8](plans/vedtak.md#eo-u8).
-  [EO-U9](plans/vedtak.md#eo-u9). TFR-02
+- **Vedtak:** [EO-U1](plans/vedtak.md#eo-u1), endret av MM-U34 punkt 21. [EO-U3](plans/vedtak.md#eo-u3), endret av
+  MM-U34 punkt 19 og presisert av [EO-U11](plans/vedtak.md#eo-u11) og [EO-U12](plans/vedtak.md#eo-u12).
+  [EO-U4](plans/vedtak.md#eo-u4) (merknaden 10.10: presisert av EO-U8). [EO-U8](plans/vedtak.md#eo-u8), endret av
+  MM-U34 punkt 23. [MM-U33](plans/vedtak.md#mm-u33) punkt 6. [MM-U34](plans/vedtak.md#mm-u34) punkt 19–23, som
+  opphever EO-U2, EO-U5, EO-U6, EO-U7, EO-U9 og EO-U10. [GR-U27](plans/vedtak.md#gr-u27).
+  [GR-U28](plans/vedtak.md#gr-u28). TFR-02
   (23.09). Vedtaket 29.09 om at en EO-sak kan følge av en KOE-sak, men ikke
   erstatte den. B-02 punkt 3 (23.09). GFK-06 (23.09 og 24.09).
   [GR-U13](plans/vedtak.md#gr-u13).
@@ -793,32 +799,37 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   sier at endringen kreves og hva den går ut på ([GR-U14](plans/vedtak.md#gr-u14)); et krav som følger
   av en endringsordre, identifiserer den ([GR-U16](plans/vedtak.md#gr-u16)). Kandidatkontrollen finnes som predikat
   (`kanInngaaIEo` i [`utled.ts`](../kjerne/utledning/utled.ts)), men kalles ikke av
-  kjernen. Ikke bygget: EO-saken, livsløpet og tilknytningen mellom saker.
+  kjernen: grunnlaget er sendt, TE har ikke godtatt avslaget på grunnlaget, og
+  grunnlaget er ikke trukket. Ikke bygget: EO-saken, livsløpet, tilknytningen mellom
+  saker, unntaket for en sak som alt er omfattet av en endringsordre (EO-U3) og
+  lukkingen med endringsordren (#1378).
 
 ### Endringsordre som svar på grunnlaget og etter frafall
 
 - **Utdrag:** § 32.3 a: «utstede endringsordre i henhold til 31.3». § 32.3 c:
   «mot å utstede endringsordre for allerede utført arbeid».
-- **Utsagn:** BH: endringsordre i en EO-sak som *viser til* KOE-saken, som svar
-  på grunnlaget når BH ikke har svart (KA-U12), med grunnlagssvaret i KOE-saken
-  etter [EO-U6](plans/vedtak.md#eo-u6). Det er ikke det samme som at KOE-saken *inngår* i
-  endringsordren ([EO-U7](plans/vedtak.md#eo-u7)). BH: endringsordre for utført arbeid etter
-  frafall, i en egen EO-sak (GR-U3).
-- **Predikat:** etter [EO-U6](plans/vedtak.md#eo-u6), [EO-U7](plans/vedtak.md#eo-u7) og [EO-U9](plans/vedtak.md#eo-u9).
+- **Utsagn:** BH: endringsordre i en EO-sak som *omfatter* KOE-saken, som svar
+  på grunnlaget når BH ikke har svart (KA-U12). BH: endringsordre for utført
+  arbeid etter frafall, i en EO-sak som omfatter KOE-saken ([GR-U28](plans/vedtak.md#gr-u28)).
+- **Predikat:**
+  - Endringsordren omfatter hele KOE-saken og lukker den, som andre
+    endringsordrer ([MM-U34](plans/vedtak.md#mm-u34) punkt 22). Revisjon følger EO-U4.
+  - Et frafall hindrer ikke at KOE-saken inngår i endringsordren. Krav knyttet til
+    det utførte arbeidet og frist behandles i KOE-saken (GR-U28).
 - **Appen avgjør ikke:** om endringsordren dekker det utførte arbeidet.
 - **Appen:** *utlede* (§ 32.3 første ledd a og c, [VS-U3](plans/vedtak.md#vs-u3)).
-- **Vedtak:** [OV-U2](plans/vedtak.md#ov-u2): første versjon. [EO-U6](plans/vedtak.md#eo-u6) (endrer vedtaket 23.09 om ubegrenset fullmakt for
-  dette tilfellet). [EO-U7](plans/vedtak.md#eo-u7). [EO-U9](plans/vedtak.md#eo-u9).
-  [KA-U12](plans/vedtak.md#ka-u12)
-  (merknadene 10.10: KA-U15, KA-U17, GR-U13 og EO-U6).
+- **Vedtak:** [OV-U2](plans/vedtak.md#ov-u2): første versjon. [MM-U34](plans/vedtak.md#mm-u34) punkt 22, som opphever
+  EO-U6, EO-U7 og EO-U9. [KA-U12](plans/vedtak.md#ka-u12)
+  (merknadene 10.10: KA-U15, KA-U17 og GR-U13; endret av MM-U34 punkt 22).
   [KA-U14](plans/vedtak.md#ka-u14).
-  [GR-U3](plans/vedtak.md#gr-u3).
-  [EO-U3](plans/vedtak.md#eo-u3)–[EO-U5](plans/vedtak.md#eo-u5).
+  [GR-U3](plans/vedtak.md#gr-u3), endret av [GR-U28](plans/vedtak.md#gr-u28).
+  [EO-U3](plans/vedtak.md#eo-u3). [EO-U12](plans/vedtak.md#eo-u12).
   [EO-U1](plans/vedtak.md#eo-u1) og vedtaket
   29.09: en endringsordrehendelse avvises i KOE-saken, så raden i KOE-saken kan
   bare være et grunnlagssvar. Lagringen av relasjoner mellom saker er B-01 i
   3.4 (se «Første versjon av TS-stien»).
-- **Kjernen i dag:** ikke bygget.
+- **Kjernen i dag:** `kanInngaaIEo` hindrer ikke en sak med frafall (GR-U28). Ikke
+  bygget: EO-saken og lukkingen med endringsordren (#1378).
 
 ---
 
@@ -831,7 +842,10 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Predikat:**
   - Enighet ved aksept eller sammenfall. Den er betinget til grunnlaget er
     avklart, og deretter virksom.
-  - En ny kravversjon i et spor med enighet avvises.
+  - En ny kravversjon og et nytt svar godtas også i et spor med registrert
+    enighet, fram til endringsordren ([MM-U34](plans/vedtak.md#mm-u34) punkt 9). Løsningen avgjør
+    ikke om enigheten står (MM-U12). Kjernen sperrer fortsatt når kravene er
+    avgjort (`KRAVENE_AVGJORT`, #1376).
   - Kravene er avgjort når grunnlaget er avklart, hvert spor er trukket eller
     har en virksom enighet, og ingen spor kan sendes.
   - Et sendt brev beholder virkningen det hadde da det ble sendt. Utfallet
@@ -850,7 +864,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   - [KA-U3](plans/vedtak.md#ka-u3) (merknaden 09.10);
   - [KA-U5](plans/vedtak.md#ka-u5) (merknaden 08.10);
   - [KA-U6](plans/vedtak.md#ka-u6) (merknaden 10.10: KA-U14);
-  - [KA-U7](plans/vedtak.md#ka-u7) (merknaden 09.10: KA-U13);
+  - [MM-U34](plans/vedtak.md#mm-u34) punkt 9, som opphever KA-U7;
   - [KA-U10](plans/vedtak.md#ka-u10) (merknaden 09.10: MM-U11);
   - [KA-U11](plans/vedtak.md#ka-u11);
   - [KA-U12](plans/vedtak.md#ka-u12) og [KA-U15](plans/vedtak.md#ka-u15) (merknadene 10.10: KA-U16 og KA-U17);
