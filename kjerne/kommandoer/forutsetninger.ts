@@ -10,6 +10,7 @@
  */
 
 import {
+  enighetenOmfatter,
   fristkravErFremmet,
   kanFaaInnsigelse,
   kraveneErAvgjort,
@@ -83,20 +84,29 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
  * etter § 5 godtas også når kravene er avgjort eller avslaget av grunnlaget er
- * godtatt (KA-U11, KA-U29). De andre er utsatt etter OV-U7 og avvises for begge
- * parter.
+ * godtatt (KA-U11, KA-U29), men ikke mot det en enighet omfatter (OV-U65). De andre
+ * er utsatt etter OV-U7 og avvises for begge parter.
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
   const maal = u.elementer[h.gjelder];
   switch (h.type) {
-    case 'innsigelse':
+    case 'innsigelse': {
       // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
-      return kanFaaInnsigelse(maal, part)
-        ? null
-        : avvis(
-            'UGYLDIG_INNSIGELSE',
-            'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
-          );
+      if (!kanFaaInnsigelse(maal, part))
+        return avvis(
+          'UGYLDIG_INNSIGELSE',
+          'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
+        );
+      // OV-U65, OV-U66, OV-U67: ikke mot det en enighet omfatter. Sperren gjelder bare den nye
+      // innsigelsen; en innsigelse som alt står i journalen, beholder sin virkning (OV-U67 punkt 3).
+      const spor = enighetenOmfatter(u, h.gjelder);
+      return spor
+        ? avvis(
+            'ENIGHETEN_OMFATTER',
+            `Partene er enige om ${SPORET[spor]}, og enigheten omfatter det innsigelsen gjelder.`
+          )
+        : null;
+    }
     case 'svare_paa_foresporsel': {
       // VS-U27: en forespørsel fra appen. KA-U1: én begrunnelse, og ikke etter at et krav har svart.
       const f = u.spor.frist.foresporsler.find((x) => x.foresporsel === h.gjelder);
@@ -137,6 +147,13 @@ function fristenErLukket(u: Utledning): Avvisning | null {
 }
 
 export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
+
+/** Sporet enigheten er inngått i, i meldingen om sperren (OV-U65). */
+const SPORET: Record<Spor, string> = {
+  grunnlag: 'svaret på grunnlaget',
+  vederlag: 'svaret på kravet om justering av vederlaget',
+  frist: 'svaret på kravet om fristforlengelse',
+};
 
 const KRAVET: Record<Kravspor, string> = {
   vederlag: 'justering av vederlaget',
