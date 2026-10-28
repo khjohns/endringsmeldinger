@@ -1295,12 +1295,13 @@ export function enighetensVirkning(
  * standpunktene i det, standpunktene om varselet i tidligere svar fra appen som står mot
  * kravet (HF-U4, VS-U20), og det et standpunkt om varslingen gjelder (OV-U66 punkt 3).
  * Eldre kravversjoner og svar er avslått (HF-U8) og omfattes ikke. Sperren gjelder fra
- * enigheten er inngått, også mens den er betinget, og ikke når den er uten virkning.
+ * enigheten er inngått, også mens den er betinget, og ikke når den er uten virkning,
+ * heller ikke etter at grunnlaget er trukket (KA-U6, OV-U66 punkt 2).
  */
 export function enighetenOmfatter(u: Utledning, id: string): Spor | null {
   for (const n of SPOR) {
     const virkning = enighetensVirkning(u, n);
-    if (virkning !== 'betinget' && virkning !== 'virksom') continue;
+    if (u.spor[n].trukket || (virkning !== 'betinget' && virkning !== 'virksom')) continue;
     const s = u.spor[n];
     const standpunkter = [
       ...(s.gjeldendeSvar?.standpunkter ?? []),

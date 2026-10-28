@@ -6029,4 +6029,33 @@ describe('sperren etter enighet omfatter varselet standpunktet gjelder (OV-U65, 
     // Byggherrens «i tide» i svaret binder også for det registrerte varselet (HF-U4).
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('SAGT_I_TIDE');
   });
+
+  it('etter at TE har trukket grunnlaget, er enigheten om det uten virkning og sperrer ikke (KA-U6, OV-U66 punkt 2)', () => {
+    const s = sakMedKrav();
+    const krav = s.krav('grunnlag');
+    // En registrert endringsordre sperrer ikke trekket (OV-U6), og gir enighet ved sammenfall.
+    s.rad('BH', {
+      svar: [
+        {
+          id: randomUUID(),
+          spor: 'grunnlag',
+          gjelder: krav,
+          standpunkter: [
+            { id: randomUUID(), art: 'rettidighet', gjelder: krav, hjemmel: '32.2', i_tide: true },
+            { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
+          ],
+        },
+      ],
+      opplysninger: [
+        { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
+        { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
+      ],
+    });
+    expect(s.u().spor.grunnlag.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: krav }), 'kontrollsak').toBe(
+      'ENIGHETEN_OMFATTER'
+    );
+    s.send('TE', { type: 'trekk', spor: 'grunnlag' });
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: krav })).toBeNull();
+  });
 });

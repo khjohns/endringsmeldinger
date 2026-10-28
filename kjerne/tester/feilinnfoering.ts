@@ -864,8 +864,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    if (virkning !== 'betinget' && virkning !== 'virksom') continue;",
-        '    if (virkning === null) continue;',
+        "    if (u.spor[n].trukket || (virkning !== 'betinget' && virkning !== 'virksom')) continue;",
+        '    if (u.spor[n].trukket || virkning === null) continue;',
       ],
     ],
     mal: ['F-MM-V11b'],
@@ -878,6 +878,19 @@ const MUTASJONER: Mutasjon[] = [
       ['      id === s.gjeldendeKrav?.id ||', '      s.krav.some((k) => k.id === id) ||'],
     ],
     mal: ['F-MM-V11d'],
+  },
+  {
+    id: 'F82d',
+    feilklasse:
+      'sperren etter enighet gjelder også etter at grunnlaget er trukket (KA-U6, OV-U66 punkt 2)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    if (u.spor[n].trukket || (virkning !== 'betinget' && virkning !== 'virksom')) continue;",
+        "    if (virkning !== 'betinget' && virkning !== 'virksom') continue;",
+      ],
+    ],
+    mal: ['etter at TE har trukket grunnlaget, er enigheten om det uten virkning og sperrer ikke'],
   },
   {
     id: 'F84',

@@ -84,8 +84,8 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
  * etter § 5 godtas også når kravene er avgjort eller avslaget av grunnlaget er
- * godtatt (KA-U11, KA-U29). De andre er utsatt etter OV-U7 og avvises for begge
- * parter.
+ * godtatt (KA-U11, KA-U29), men ikke mot det en enighet omfatter (OV-U65). De andre
+ * er utsatt etter OV-U7 og avvises for begge parter.
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
   const maal = u.elementer[h.gjelder];
