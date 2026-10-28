@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som sender stegene i et brukerforløp og framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder. Brukerforløpene i demoruta kjøres med demoruta.mjs.
+description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som sender stegene i et brukerforløp og framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder. Brukerforløpene i demoruta kjøres med demoruta.mjs. Prototypen for et brukerforløp forprøves mekanisk med prototype.mjs.
 ---
 
 # /mockup i nettleseren
@@ -134,6 +134,27 @@ Det skriver brevtekstene og stopper med exit 1 når brevet ikke har det prinsipa
 standpunktet og det subsidiære beløpet, når TE fortsatt får godta etter aksepten, og ved
 JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 `src/lib/components/brukerforlop/__tests__/Demoforloep.test.ts`, ikke her.
+
+## Prototypen for et brukerforløp
+
+`prototype.mjs` er den mekaniske forprøven av prototypen i `docs/design/prototyper/`
+(steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347). Den åpner prototypen med
+`file://`, uten vite, og følger klikkstiene under `prototype` i forløpsfila. Formatet står i
+[README for brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md#formatet).
+
+```bash
+node .claude/skills/mockup-nettleser/prototype.mjs BF-03 [--utdata <mappe>]
+```
+
+Skriptet klikker lenkene i hver klikksti med 1440 px bredde og kontrollerer at hvert klikk
+fører til ankeret i stien, og at tekstene i `staar` er synlige. Bare starten settes med
+ankeret. Så kontrollerer det at hver `href="#…"` har et mål, at ankrene og stegene i
+stegtabellen i bestillingen finnes og er dekket av en klikksti som når ankrene i steget, og at `data-spor` stemmer
+med ID-ene i bestillingen begge veier. axe (WCAG 2.1 A og AA) kjøres i hver tilstand stiene
+når, og konsollfeilene samles. Forespørsler til nettet blokkeres, så nettfontene mangler på
+skjermbildene. Det tas ett skjermbilde per tilstand, ett med «Vis sporbarhet» og ett per
+tilstand på 390 px. Bredden rapporteres, men stopper ikke (oppdragsgiver 27.10). Ellers gir
+et avvik exit 1. Rapporten skrives til standard ut og er kort nok til å legges i en PR.
 
 ## Skjermbildene i PR-en
 

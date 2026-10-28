@@ -7,56 +7,31 @@ kjøres. Fyll ut plassholderne for hvert forløp:
 - `<prototypefil>`: fila i `docs/design/prototyper/`, én per forløp.
 - `G-x`: kontrollpunktene i bestillingen.
 
-Den mekaniske kontrollen kjøres først. Den kognitive gjennomgangen kjøres når den er grønn.
-Den mekaniske kontrollen går på Haiku med innsats high, til skriptet i #1347 finnes.
-Den kognitive gjennomgangen går på standardmodellen.
+Den mekaniske kontrollen kjøres først. Den kognitive gjennomgangen kjøres når den er grønn,
+på standardmodellen.
 
 ## Mekanisk kontroll
 
-```text
-Du gjør en mekanisk gjennomklikking av prototypen for brukerforløpet BF-xx i repoet
-khjohns/endringsmeldinger (main). Du kontrollerer at prototypen virker. Du vurderer ikke
-om den er god eller forståelig. Det gjør en annen agent.
+Den mekaniske kontrollen er skriptet `prototype.mjs` i skillen
+[mockup-nettleser](../mockup-nettleser/SKILL.md#prototypen-for-et-brukerforløp), ikke en agent
+(#1347). Klikkstiene står i forløpsfila under `prototype` (formatet står i
+[README](../../../docs/domenetabell/brukerforlop/README.md#formatet)). Skriv dem før første
+kjøring, og rett dem når prototypen endrer veiene:
 
-Les først, og bare dette:
-- docs/domenetabell/brukerforlop/BF-xx.md: tabellen over stegene med ankre, G-punktene i
-  «Gjennomføring» og sjekklisten under «Klar til bygging».
-- .claude/skills/mockup-nettleser/SKILL.md, avsnittet «Nettleseren». Kjør aldri npm i
-  playwright eller playwright install. require('playwright') virker fra hvilken som helst
-  mappe, og chromium.launch() trenger ingen argumenter.
-- Prototypen: docs/design/prototyper/<prototypefil>.
+- én klikksti per vei gjennom prototypen, med stegene i stegtabellen og G-punktene den
+  prøver i `dekker`;
+- `klikk` med lenketeksten brukeren klikker på og ankeret den skal føre til, `kryss` og
+  `fyll` med etiketten på feltet;
+- `staar` med teksten som viser en virkning som skal bestå, etter handlingen som ikke skal
+  fjerne den.
 
-Skriv ett Node-skript i <scratchpad>/gjennomklikk/ og kjør det. Prototypen åpnes med file://.
-Skriptet skal gjøre dette:
-1. Gå gjennom hvert steg i stegtabellen og hvert G-punkt som har en vei, med 1440 px
-   bredde. Start fra begynnelsen og klikk på de synlige knappene og lenkene en bruker
-   ville klikket på. Ikke hopp ved å sette hash direkte, unntatt for å starte et steg
-   tabellen sier begynner i en bestemt tilstand. Kontroller at den forventede tilstanden
-   nås. Ta ett skjermbilde per tilstand. Rapporter også bredden på 390 px, men stopp ikke
-   på den.
-2. For hvert kontrollpunkt som beskriver en virkning som skal bestå (G-x): klikk veien dit
-   virkningen oppstår, utfør handlingen som ikke skal fjerne den, og kontroller at teksten
-   som viser virkningen fortsatt står etterpå. Siter teksten.
-3. Kontroller at hver href="#…" har et mål med samme id, og at hvert anker i stegtabellen
-   finnes.
-4. Slå på «Vis sporbarhet». List hver data-spor-verdi, og kontroller at hver ID finnes i
-   BF-xx.md. Kontroller også motsatt vei: hvilke U- og D-punkter har ingen data-spor.
-5. Samle konsollfeil og sidefeil.
-6. Kjør axe (node_modules/axe-core/axe.min.js via page.addScriptTag, runOnly wcag2a,
-   wcag2aa, wcag21a, wcag21aa) i hver tilstand.
-
-Du skal ikke: endre filer i repoet, committe eller opprette issues; vurdere tekst, ord,
-juss, design eller hvor forståelig noe er, eller foreslå endringer; lese vedtak, kjerne/,
-src/ eller andre forløp; starte vite eller kjøre andre skript i repoet. Står du fast på et
-steg, noter brudd med et skjermbilde og gå videre.
-
-Sluttrapporten, høyst 40 linjer: stegene og G-punktene med «virker» eller «brudd»;
-kontrollpunktene med sitat; brutte ankre og data-spor-avvik; konsollfeil; axe; bredden på
-390 px; stien til skriptet og hva som var spesifikt for forløpet; omtrent antall kall. Ikke
-gjengi skript, HTML eller rå utdata.
-
-Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.
+```bash
+node .claude/skills/mockup-nettleser/prototype.mjs BF-xx
 ```
+
+Rapporten legges i issuet eller PR-en for iterasjonen. Brudd i en klikksti, et steg der
+klikkstiene for steget ikke når ankrene, et anker uten mål, en `data-spor`-ID som ikke står
+i bestillingen, et U- eller D-punkt uten `data-spor`, axe-brudd og konsollfeil er avvik. Bredden på 390 px rapporteres, men er ikke et avvik.
 
 ## Kognitiv gjennomgang
 

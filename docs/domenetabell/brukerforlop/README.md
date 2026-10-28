@@ -31,8 +31,9 @@ Ett forløp per fil, `BF-<nummer>.json`, med ID-en som filnavn. ID-en endres ikk
 | `utgangspunkt` | `start` er et prefiks fra bevis-sakene eller `null`, og `beskrivelse` sier hvor saken står |
 | `steg` | Handlingene, i samme format som bevis-sakene (`Handling` i `kjerne/tester/klient.ts`) |
 | `kontrollpunkter` | Navngitte punkter etter et steg (`etter`), med `kontrollsett`, egne `kontroller` og `forstaaelse` med `tekst` og `kilde` |
-| `kilder`, `venter_paa` | For et planlagt forløp: vedtakene det bygger på, og issuene det venter på |
+| `kilder`, `venter_paa` | For et planlagt forløp: vedtakene det bygger på, og issuene det venter på. Et kjørbart forløp har ikke `kilder`; vedtakene står i kontrollene og forståelsen (#1363) |
 | `bestilling` | Valgfri. Markdown-fila i samme mappe med ønsket arbeidsmåte, skjermtilstandene i prototypen, forventningene og de åpne spørsmålene, skrevet før byggingen. Metoden står i skillen [`brukerforlop`](../../../.claude/skills/brukerforlop/SKILL.md) |
+| `prototype` | Valgfri. `fil` er prototypen, med stien fra denne mappa, og `klikkstier` er veiene gjennom den, som den mekaniske forprøven følger (`prototype.mjs` i skillen [`mockup-nettleser`](../../../.claude/skills/mockup-nettleser/SKILL.md#prototypen-for-et-brukerforløp)). En klikksti har `id`, `start` (ankeret), `dekker` (stegene i stegtabellen og G-punktene i bestillingen) og `handlinger`: `klikk` med lenketeksten og `tilstand` med ankeret den fører til, `kryss` og `fyll` med etiketten på feltet, og `staar` med en tekst som skal være synlig |
 | `bevis_saker` | Bevis-sakene forløpet viser til |
 | `visninger` | `demoruta` og `saksruta`, der forløpet kan kjøres. Et kjørbart forløp kjøres alltid i minnet og mot testbasen |
 | `endringer` | Dato, vedtak eller issue og hva som er endret, for hver endring av et forventet resultat |
