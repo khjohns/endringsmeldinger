@@ -547,7 +547,7 @@ export function forskyvningIBrevet(svar: Svar, u: Utledning): number {
  * MM-U27: elementene i en hendelse som ikke er et registrert brev, og som byggherren ikke
  * kunne sendt fra appen fordi hen er bundet av et svar sendt fra appen: en påberopelse av
  * at et varsel eller krav kom for sent etter at hen har sagt at det kom i tide (HF-U4),
- * og en revisjon som senker det hen har innrømmet i et svar TE ikke har godtatt (HF-U5).
+ * og en revisjon som senker det hen har innrømmet i svaret den erstatter (HF-U5).
  * Samme kontroller som kommandoene, så journalen henger sammen også utenfor dem.
  */
 function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
@@ -566,7 +566,7 @@ function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
       ut.push({
         element: s.id,
         grunn:
-          'en revisjon som senker det byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5, MM-U27)',
+          'en revisjon som senker det byggherren har innrømmet i svaret den erstatter (HF-U5, MM-U27)',
       });
   }
   for (const x of d.utsagn)

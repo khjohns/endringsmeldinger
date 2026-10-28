@@ -167,7 +167,7 @@ describe('vakttestene for brukerforløpene', () => {
       { tekst: 'Med en ukjent kilde.', kilde: ['UKJENT-FORSTAAELSE'] },
     ];
     b.endringer = [];
-    b.kilder = ['OV-U64'];
+    b.kilder = ['OV-U7'];
     const p = b.kontrollpunkter![0].id;
     expect(avvik(b, `${b.id}.json`)).toEqual([
       `${b.id}: en endring mangler dato eller vedtak eller issue`,
@@ -190,15 +190,15 @@ describe('vakttestene for brukerforløpene', () => {
     ]);
   });
 
-  // Kilde: #1346. OV-U64 står i BF-03.md og i kildene; uten den i kildene viser ikke
+  // Kilde: #1346. OV-U7 står i BF-03.md og i kildene; uten den i kildene viser ikke
   // dekningsoversikten at vedtaket berører BF-03.
   it('et vedtak bestillingen viser til, men som mangler i kildene, gir avvik', () => {
     const b = structuredClone(BRUKERFORLOEP.find((x) => x.id === 'BF-03')!);
-    expect(vedtakIBestilling(b)).toContain('OV-U64');
+    expect(vedtakIBestilling(b)).toContain('OV-U7');
     expect(avvik(b, 'BF-03.json')).toEqual([]);
-    b.kilder = b.kilder!.filter((k) => k !== 'OV-U64');
+    b.kilder = b.kilder!.filter((k) => k !== 'OV-U7');
     expect(avvik(b, 'BF-03.json')).toEqual([
-      'BF-03: BF-03.md viser til OV-U64, som mangler i kildene',
+      'BF-03: BF-03.md viser til OV-U7, som mangler i kildene',
     ]);
   });
 
@@ -208,10 +208,11 @@ describe('vakttestene for brukerforløpene', () => {
     const b = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'kjørbar')!);
     b.bestilling = 'BF-03.md';
     b.kilder = vedtakIBestilling(b);
-    expect(b.kilder).toContain('OV-U64');
-    expect(kildebruk([b]).map(([k]) => k)).not.toContain('OV-U64');
+    const brukt = kildebruk([b]).map(([k]) => k);
+    const vedtak = b.kilder.find((k) => !brukt.includes(k));
+    expect(vedtak, 'forutsetning: BF-03.md viser til et vedtak forløpet ikke bruker').toBeDefined();
     expect(avvik(b, `${b.id}.json`)).toContain(
-      `${b.id}: BF-03.md viser til OV-U64, som mangler i kontrollene og forståelsen`
+      `${b.id}: BF-03.md viser til ${vedtak}, som mangler i kontrollene og forståelsen`
     );
   });
 

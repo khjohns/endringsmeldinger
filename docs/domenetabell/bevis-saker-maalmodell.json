@@ -148,38 +148,37 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U7", "KA-U1", "GR-U8", "KA-U7"],
+          "kilde": ["GR-U7", "KA-U1", "GR-U8", "MM-U34"],
           "forventet": {
             "handlinger.TE": {
-              "inneholder": ["godta:grunnlag", "godta:vederlag"],
-              "mangler": ["godta:frist", "krav:frist"]
+              "inneholder": ["godta:grunnlag", "godta:vederlag", "krav:frist"],
+              "mangler": ["godta:frist"]
             },
             "handlinger.BH": {
-              "inneholder": ["revidere:grunnlag", "revidere:vederlag"],
-              "mangler": ["revidere:frist"]
+              "inneholder": ["revidere:grunnlag", "revidere:vederlag", "revidere:frist"]
             }
           }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["KA-U7"],
+          "kilde": ["MM-U34"],
           "prov": { "handling": "krav", "spor": "frist", "dager": 25 },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U7"],
+          "kilde": ["MM-U34"],
           "prov": {
             "handling": "revisjon",
             "spor": "frist",
             "varsel_i_tide": true,
             "spesifisering_i_tide": true,
             "hindring": true,
-            "dager": 15
+            "dager": 20
           },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 4,
@@ -241,16 +240,16 @@
         {
           "etter": 6,
           "rolle": "mal",
-          "kilde": ["V-SK02-SK03", "GR-U7"],
+          "kilde": ["MM-U34"],
           "prov": { "handling": "revisjon", "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 75000 },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 6,
           "rolle": "mal",
-          "kilde": ["KA-U7"],
+          "kilde": ["MM-U34"],
           "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "forventet": { "avvist": false }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -265,7 +264,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U1", "GR-U7", "EO-U5"],
+          "kilde": ["KA-U1", "GR-U7", "MM-U34"],
           "forventet": {
             "avvist": false,
             "enighet.vederlag.svar": "S-v1",
@@ -273,7 +272,7 @@
             "enighet.grunnlag": null,
             "gjeldende_svar.grunnlag": "S-g1",
             "enighet.frist.kilde": "sammenfall",
-            "kan_inngaa_i_eo": false,
+            "kan_inngaa_i_eo": true,
             "handlinger.TE": { "inneholder": ["godta:grunnlag"], "mangler": ["godta:vederlag"] },
             "enighet.vederlag.virkning": "betinget"
           }
@@ -298,7 +297,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U4", "OV-U65", "OV-U66"],
+          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U34"],
           "forventet": {
             "avvist": false,
             "grunnlag_avvist": true,
@@ -307,8 +306,8 @@
             "enighet.frist.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_avslaatt",
-            "handlinger.TE": ["registrere_brev", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2"],
-            "handlinger.BH": ["registrere_brev", "innsigelse:K-v1", "innsigelse:K-f1"],
+            "handlinger.TE": ["registrere_brev", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
         },
@@ -377,8 +376,8 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "GR-U7",
-            "V-SK02-SK03"
+            "MM-U34",
+            "GR-U4"
           ],
           "prov": {
             "handling": "revisjon",
@@ -387,8 +386,7 @@
             "godkjent_belop": 75000
           },
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
+            "avvist": false
           }
         },
         {
@@ -399,9 +397,8 @@
             "MM-U3",
             "KA-U5",
             "GR-U10",
-            "EO-U2",
             "KA-U11",
-            "EO-U5",
+            "MM-U34",
             "KA-U10"
           ],
           "forventet": {
@@ -472,7 +469,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U2"],
+          "kilde": ["GR-U9", "MM-U34"],
           "forventet": { "handlinger.TE": { "inneholder": ["krav:grunnlag"], "mangler": ["godta:grunnlag"] } }
         },
         {
@@ -498,14 +495,14 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "OV-U65", "OV-U66"],
+          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "KA-U11", "MM-U34", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["registrere_brev", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "innsigelse:S-g1"],
-            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1"],
+            "handlinger.TE": ["registrere_brev", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }
         }
@@ -565,7 +562,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U4"],
+          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,
@@ -1323,7 +1320,7 @@
         {
           "etter": 6,
           "rolle": "mal",
-          "kilde": ["MM-U9", "GR-U7", "MM-U3", "KA-U11", "EO-U5"],
+          "kilde": ["MM-U9", "GR-U7", "MM-U3", "KA-U11", "MM-U34"],
           "forventet": {
             "nye_hendelser": 0,
             "virkning.S-g1.rettidighet": 1,
@@ -1336,7 +1333,7 @@
             "enighet.vederlag.virkning": "betinget",
             "enighet.frist.virkning": "betinget",
             "kravene_avgjort": false,
-            "kan_inngaa_i_eo": false,
+            "kan_inngaa_i_eo": true,
             "handlinger.BH": { "inneholder": ["revidere:grunnlag"] },
             "handlinger.TE": { "inneholder": ["godta:grunnlag"] }
           }
@@ -1351,7 +1348,7 @@
         {
           "etter": 7,
           "rolle": "mal",
-          "kilde": ["GR-U10", "GR-U7", "MM-U3", "EO-U2", "KA-U11", "EO-U5"],
+          "kilde": ["GR-U10", "GR-U7", "MM-U3", "KA-U11", "MM-U34"],
           "forventet": {
             "avvist": false,
             "gjeldende_svar.grunnlag": "S-g2",
@@ -1675,33 +1672,33 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U10", "GR-U7", "GR-U8", "KA-U13", "MM-U11"],
+          "kilde": ["GR-U10", "GR-U7", "GR-U8", "KA-U13", "MM-U11", "MM-U34", "EO-U12"],
           "forventet": {
             "enighet.grunnlag.kilde": "sammenfall",
             "enighet.grunnlag.holder": "S-g1",
             "grunnlag_avklart": true,
             "frafalt": false,
             "visning.etiketter.grunnlag": { "inneholder": ["enige"] },
-            "handlinger.BH": { "inneholder": ["svare:vederlag", "svare:frist"], "mangler": ["revidere:grunnlag"] },
+            "handlinger.BH": { "inneholder": ["svare:vederlag", "svare:frist", "revidere:grunnlag"] },
             "handlinger.TE": {
-              "inneholder": ["trekke:vederlag"],
-              "mangler": ["krav:grunnlag", "godta:grunnlag", "trekke:grunnlag"]
+              "inneholder": ["trekke:vederlag", "krav:grunnlag"],
+              "mangler": ["godta:grunnlag", "trekke:grunnlag"]
             }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U10"],
-          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "avslaatt", "varslet_i_tide": true },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "kilde": ["MM-U34", "EO-U12"],
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "godkjent", "varslet_i_tide": true },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U2", "GR-U10", "KA-U7"],
-          "prov": { "handling": "krav", "spor": "grunnlag", "underkategori": "valg_av_loesning" },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "kilde": ["MM-U34"],
+          "prov": { "handling": "krav", "spor": "grunnlag", "underkategori": "irregulaer_endring" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 0,
@@ -1723,7 +1720,7 @@
       "id": "F-MM-EO1",
       "rader": ["EO-25"],
       "start": "godkjent_grunnlag",
-      "forslag": "EO-U2: et trukket spor teller som avgjort (#312)",
+      "forslag": "MM-U34 punkt 20: saken kan inngå i en endringsordre også uten registrert enighet, før og etter at et spor er trukket (#312)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
@@ -1741,13 +1738,13 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["EO-U2", "KA-U11", "EO-U5"],
-          "forventet": { "enighet.frist.virkning": "virksom", "kravene_avgjort": false, "kan_inngaa_i_eo": false }
+          "kilde": ["MM-U34", "KA-U11"],
+          "forventet": { "enighet.frist.virkning": "virksom", "kravene_avgjort": false, "kan_inngaa_i_eo": true }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "OV-U65", "OV-U66"],
+          "kilde": ["MM-U34", "KA-U6", "KA-U11", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4"],
           "forventet": {
             "avvist": false,
             "trukket.vederlag": true,
@@ -1755,8 +1752,8 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["registrere_brev", "varsle:frist"],
-            "handlinger.BH": ["registrere_brev", "innsigelse:K-v1"]
+            "handlinger.TE": ["registrere_brev", "varsle:frist", "innsigelse:S-g1", "innsigelse:S-f1"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         }
       ]
@@ -1765,7 +1762,7 @@
       "id": "F-MM-EO2",
       "rader": ["EO-26"],
       "start": "godkjent_grunnlag",
-      "forslag": "EO-U5: godtatte avslag i begge spor gir endringsordre på 0 kr og 0 dager",
+      "forslag": "MM-U34 punkt 20: saken kan inngå i en endringsordre før og etter at TE har godtatt avslagene i begge spor",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
@@ -1785,13 +1782,13 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["KA-U11", "EO-U5"],
-          "forventet": { "kravene_avgjort": false, "kan_inngaa_i_eo": false }
+          "kilde": ["KA-U11", "MM-U34"],
+          "forventet": { "kravene_avgjort": false, "kan_inngaa_i_eo": true }
         },
         {
           "etter": 5,
           "rolle": "mal",
-          "kilde": ["EO-U5", "KA-U7", "KA-U11", "KA-U10"],
+          "kilde": ["MM-U34", "KA-U11", "KA-U10"],
           "forventet": {
             "avvist": false,
             "enighet.vederlag.utfall.beloep": 0,
@@ -1809,7 +1806,7 @@
       "id": "F-MM-EO3",
       "rader": ["EO-04"],
       "start": "godkjent_grunnlag",
-      "forslag": "EO-U5: to trukne spor gir ikke alene grunnlag for endringsordre",
+      "forslag": "MM-U34 punkt 20: saken kan inngå i en endringsordre også når TE har trukket vederlag og frist",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
@@ -1827,13 +1824,13 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U5", "KA-U11", "OV-U7", "AV-587", "OV-U4", "OV-U65", "OV-U66"],
+          "kilde": ["MM-U34", "KA-U11", "OV-U7", "AV-587", "OV-U4"],
           "forventet": {
             "avvist": false,
             "kravene_avgjort": true,
-            "kan_inngaa_i_eo": false,
-            "handlinger.TE": ["registrere_brev"],
-            "handlinger.BH": ["registrere_brev", "innsigelse:K-v1", "innsigelse:K-f1"]
+            "kan_inngaa_i_eo": true,
+            "handlinger.TE": ["registrere_brev", "innsigelse:S-g1"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         },
         {
@@ -3052,7 +3049,7 @@
       "id": "F-MM-IK1",
       "rader": ["KA-29"],
       "start": "godkjent_grunnlag",
-      "forslag": "KA-U12: «ingen krav» lukker vederlaget, og saken kan inngå i en endringsordre når fristen er godkjent",
+      "forslag": "KA-U12: «ingen krav» lukker vederlaget, og saken kan inngå i en endringsordre (MM-U34 punkt 20)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         { "handling": "rad", "art": "ingen_krav", "spor": "vederlag", "part": "TE", "navn": "D3" },
@@ -3091,7 +3088,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U12", "KA-U11", "EO-U5"],
+          "kilde": ["KA-U12", "KA-U11", "MM-U34"],
           "forventet": {
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
@@ -3661,7 +3658,7 @@
         "VS-05"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "OV-U65 og OV-U66 punkt 2: når kravene er avgjort og grunnlaget er godkjent ved sammenfall, avvises en innsigelse mot grunnlagskravet og mot svaret, fordi enigheten omfatter dem",
+      "forslag": "MM-U34 punkt 13: når kravene er avgjort og grunnlaget er godkjent ved sammenfall, godtas en innsigelse mot grunnlagskravet og mot svaret, også om den registrerte enigheten omfatter dem",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3711,15 +3708,14 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-            "OV-U66",
-            "OV-U67",
+            "MM-U34",
             "KA-U11"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHETEN_OMFATTER",
-            "innsigelser": [],
+            "avvist": false,
+            "innsigelser": [
+              "BH:K-g1"
+            ],
             "kravene_avgjort": true
           }
         },
@@ -3727,12 +3723,10 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-          "OV-U67"
+            "MM-U34"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHETEN_OMFATTER"
+            "avvist": false
           },
           "prov": {
             "handling": "innsigelse",
@@ -3911,7 +3905,7 @@
         "KA-35"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "MM-U18 og KA-U7: en ny kravversjon i et spor med enighet gjør saken ikke forstått",
+      "forslag": "MM-U18 og MM-U34 punkt 9: en ny kravversjon i et spor med registrert enighet strider ikke mot journalen, og saken er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3929,12 +3923,12 @@
           "rolle": "mal",
           "kilde": [
             "MM-U18",
-            "KA-U7",
-            "GR-U10"
+            "MM-U34"
           ],
           "forventet": {
-            "forstaatt": false,
-            "visning.journal.K-g2": "ikke_tolket"
+            "forstaatt": true,
+            "visning.journal.K-g2": "tolket",
+            "gjeldende_krav.grunnlag": "K-g2"
           }
         }
       ]
@@ -4252,7 +4246,7 @@
         "VS-05"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U65 og KA-U29: når TE har godtatt avslaget av grunnlaget, avvises en innsigelse mot grunnlagskravet, fordi enigheten omfatter det, og et nytt svar avvises fortsatt",
+      "forslag": "MM-U34 punkt 13 og KA-U29: når TE har godtatt avslaget av grunnlaget, godtas en innsigelse mot grunnlagskravet, og et nytt svar avvises fortsatt",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4312,14 +4306,14 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-            "OV-U67",
+            "MM-U34",
             "KA-U29"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHETEN_OMFATTER",
-            "innsigelser": [],
+            "avvist": false,
+            "innsigelser": [
+              "BH:K-g1"
+            ],
             "grunnlag_avvist": true,
             "visning.status": "avsluttet_avslaatt"
           }
@@ -4332,7 +4326,7 @@
         "VS-05"
       ],
       "start": "forlop_a",
-      "forslag": "OV-U66 punkt 2: TE har godtatt vederlagssvaret mens grunnlaget er avslått, så enigheten er betinget. En innsigelse mot vederlagskravet avvises likevel, og TEs innsigelse mot grunnlagssvaret, som ingen enighet omfatter, godtas",
+      "forslag": "MM-U34 punkt 13: TE har godtatt vederlagssvaret mens grunnlaget er avslått, så enigheten er betinget. En innsigelse mot vederlagskravet godtas, og det gjør også TEs innsigelse mot grunnlagssvaret",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4347,14 +4341,14 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-            "OV-U66",
-          "OV-U67"
+            "MM-U34",
+            "VS-U1"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHETEN_OMFATTER",
-            "innsigelser": [],
+            "avvist": false,
+            "innsigelser": [
+              "BH:K-v1"
+            ],
             "enighet.vederlag.virkning": "betinget"
           }
         },
@@ -4362,13 +4356,13 @@
           "etter": 1,
           "rolle": "kontroll",
           "kilde": [
-            "OV-U65",
-            "OV-U67",
+            "MM-U34",
             "VS-U1"
           ],
           "forventet": {
             "avvist": false,
             "innsigelser": [
+              "BH:K-v1",
               "TE:S-g1"
             ]
           },
@@ -4386,7 +4380,7 @@
         "VS-05"
       ],
       "start": "forlop_a",
-      "forslag": "OV-U66 punkt 2: TE godtar avslaget av grunnlaget, så enigheten om vederlaget er uten virkning. En innsigelse mot vederlagskravet følger de vanlige reglene og godtas, mens en innsigelse mot grunnlagskravet avvises",
+      "forslag": "MM-U34 punkt 13: TE godtar avslaget av grunnlaget, så enigheten om vederlaget er uten virkning. En innsigelse mot vederlagskravet godtas, og TEs innsigelse mot grunnlagssvaret TE har godtatt, godtas også",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4418,8 +4412,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U66",
-            "OV-U67",
+            "MM-U34",
             "VS-U1"
           ],
           "forventet": {
@@ -4433,18 +4426,16 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-            "OV-U67",
+            "MM-U34",
             "KA-U29"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHETEN_OMFATTER"
+            "avvist": false
           },
           "prov": {
             "handling": "innsigelse",
-            "part": "BH",
-            "gjelder": "K-g1"
+            "part": "TE",
+            "gjelder": "S-g1"
           }
         }
       ]
@@ -4455,7 +4446,7 @@
         "VS-05"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "OV-U67 punkt 4: enigheten om grunnlaget sperrer ikke en innsigelse mot vederlagskravet, som er i et annet spor",
+      "forslag": "MM-U34 punkt 13: enigheten om grunnlaget sperrer ikke en innsigelse mot vederlagskravet eller mot grunnlagskravet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4476,8 +4467,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-            "OV-U67",
+            "MM-U34",
             "VS-U1"
           ],
           "forventet": {
@@ -4491,13 +4481,10 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-            "OV-U66",
-          "OV-U67"
+            "MM-U34"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHETEN_OMFATTER"
+            "avvist": false
           },
           "prov": {
             "handling": "innsigelse",
@@ -4513,7 +4500,7 @@
         "VS-05"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "OV-U67 punkt 2 og HF-U8: etter TEs aksept av svaret på den nye kravversjonen omfatter enigheten den, ikke den eldre versjonen, når varselet er registrert for seg",
+      "forslag": "MM-U34 punkt 13: etter TEs aksept av svaret på den nye kravversjonen godtas en innsigelse mot både den eldre og den nye kravversjonen, når varselet er registrert for seg",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4565,9 +4552,7 @@
           "etter": 6,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-            "OV-U67",
-            "HF-U8",
+            "MM-U34",
             "VS-U1"
           ],
           "forventet": {
@@ -4581,13 +4566,10 @@
           "etter": 6,
           "rolle": "mal",
           "kilde": [
-            "OV-U65",
-            "OV-U66",
-          "OV-U67"
+            "MM-U34"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHETEN_OMFATTER"
+            "avvist": false
           },
           "prov": {
             "handling": "innsigelse",
@@ -4932,7 +4914,7 @@
         "KA-35"
       ],
       "start": null,
-      "forslag": "Kontrollsak til F-MM-U326c: uten enigheten er kravversjonen forstått",
+      "forslag": "Kontrollsak til F-MM-U326c: uten registrert enighet er kravversjonen også forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4966,7 +4948,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "KA-U7"
+            "GR-U7"
           ],
           "forventet": {
             "enighet.grunnlag": null
@@ -8008,7 +7990,7 @@
             "NS-31.3-1",
             "GR-U10",
             "GR-U7",
-            "EO-U5"
+            "MM-U34"
           ],
           "forventet": {
             "gjeldende_svar.grunnlag": "S-g2",
@@ -8086,7 +8068,7 @@
         "GR-07"
       ],
       "start": null,
-      "forslag": "GR-U2 og GR-U10: et grunnlag byggherren har godkjent uten å påberope preklusjon, kan ikke endres, heller ikke med samme hjemmel (GR-U22). Kontrollsaken er den samme nye versjonen før svaret (GR-U1)",
+      "forslag": "MM-U34 punkt 9 og 11: etter at byggherren har godkjent grunnlaget uten å påberope preklusjon, kan TE sende en ny kravversjon med samme hjemmel (GR-U22). Kontrollsaken er den samme nye versjonen før svaret (GR-U1)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8113,7 +8095,7 @@
           "etter": 1,
           "rolle": "kontroll",
           "kilde": [
-            "GR-U2"
+            "GR-U1"
           ],
           "prov": {
             "handling": "krav",
@@ -8139,7 +8121,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "GR-U2"
+            "MM-U34",
+            "GR-U22"
           ],
           "prov": {
             "handling": "krav",
@@ -8147,8 +8130,8 @@
             "underkategori": "irregulaer_endring"
           },
           "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
+            "avvist": false,
+            "gjeldende_svar.grunnlag": null
           }
         }
       ]
@@ -8159,7 +8142,7 @@
         "GR-07"
       ],
       "start": null,
-      "forslag": "GR-U2 og GR-U10: et grunnlag byggherren har godkjent med påberopt preklusjon etter § 32.2, er ikke låst, og TE kan sende en ny versjon med samme hjemmel (GR-U1, GR-U22). Det skiller GR-07 fra F-MM-G30",
+      "forslag": "GR-U10 og MM-U34 punkt 9: etter at byggherren har godkjent grunnlaget med påberopt preklusjon etter § 32.2, kan TE sende en ny versjon med samme hjemmel (GR-U1, GR-U22), som etter en godkjenning uten påberopt preklusjon (F-MM-G30)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8197,7 +8180,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "GR-U2",
+            "MM-U34",
             "GR-U1"
           ],
           "prov": {
@@ -8351,8 +8334,7 @@
           "kilde": [
             "GR-U3",
             "GR-U7",
-            "KA-U11",
-            "EO-U5"
+            "KA-U11"
           ],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
@@ -10073,8 +10055,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "HF-U5",
-            "HF-U14"
+            "MM-U34"
           ],
           "prov": {
             "handling": "revisjon",
@@ -10085,8 +10066,7 @@
             "oensket_metode": "enhetspriser"
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         }
       ],
@@ -10094,7 +10074,7 @@
     },
     {
       "id": "F-MM-HF-U14",
-      "forslag": "#502",
+      "forslag": "MM-U34 punkt 15: HF-U14 er opphevet, og en revisjon som tar tilbake aksepten av beregningsmåten, godtas (#502)",
       "rader": [
         "KA-12",
         "KA-49"
@@ -10119,7 +10099,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "HF-U14"
+            "MM-U34"
           ],
           "prov": {
             "handling": "revisjon",
@@ -10130,15 +10110,14 @@
             "oensket_metode": "enhetspriser"
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         },
         {
           "etter": 1,
           "rolle": "kontroll",
           "kilde": [
-            "HF-U14"
+            "MM-U34"
           ],
           "prov": {
             "handling": "revisjon",

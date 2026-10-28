@@ -136,8 +136,8 @@ export function bufferen(lagBaner: () => Baner): void {
         status: kjent.status,
         oppdateres: true,
       });
-      // En ny hendelse: siste kjente status til saken er regnet ut. Innsigelsen gjelder
-      // vederlagssvaret, som ingen enighet omfatter (OV-U65).
+      // En ny hendelse: siste kjente status til saken er regnet ut. Innsigelsen mot
+      // vederlagssvaret godtas (MM-U34 punkt 13).
       expect((await k.send({ handling: 'innsigelse', part: 'TE', gjelder: 'S-v1' }))?.godtatt).toBe(
         true
       );

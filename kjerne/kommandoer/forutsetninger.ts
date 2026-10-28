@@ -296,7 +296,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           'ENIGHET_I_SPORET',
           `Enigheten om svaret på ${h.spor} er allerede registrert.`
         );
-      // GR-U9: frafall er ikke enighet, og en aksept ville gjort frafallet til en enighet byggherren ikke kan revidere.
+      // GR-U9: frafall er ikke enighet, og løsningen registrerer ikke en aksept av det.
       if (h.spor === 'grunnlag' && u.frafalt)
         return avvis(
           'FRAFALL_KAN_IKKE_GODTAS',
