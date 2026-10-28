@@ -3692,11 +3692,11 @@
           "etter": 2,
           "rolle": "kontroll",
           "kilde": [
+            "MM-U34",
             "KA-U11"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "KRAVENE_AVGJORT"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -3938,7 +3938,7 @@
         "KA-35"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "MM-U18 og KA-U11: en revisjon etter at kravene er avgjort, gjør saken ikke forstått",
+      "forslag": "MM-U34 punkt 12 og MM-U18: en revisjon i en rad etter at kravene er avgjort, gjør saken forstått, og revisjonen er det gjeldende svaret",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3993,12 +3993,14 @@
           "etter": 4,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "MM-U18",
             "KA-U11"
           ],
           "forventet": {
-            "forstaatt": false,
-            "visning.journal.S-f2": "ikke_tolket"
+            "forstaatt": true,
+            "visning.journal.S-f2": "tolket",
+            "gjeldende_svar.frist": "S-f2"
           }
         }
       ]
@@ -5222,7 +5224,7 @@
         "VS-02"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U24, HF-U4 og arbeidsvalget 15.10 i #500: varselet etter § 32.2 er det samme i hver grunnlagsversjon, så et «i tide» på en senere versjon binder også mot den første, og en ny innsigelse mot den avvises",
+      "forslag": "VS-U24 og MM-U34 punkt 6: varselet etter § 32.2 er det samme i hver grunnlagsversjon (arbeidsvalget 15.10 i #500), og etter et «i tide» på en senere versjon godtas en ny innsigelse mot den første og mot den senere versjonen",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5270,14 +5272,14 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "VS-U24",
             "HF-U4",
             "HF-U8",
             "AV-500"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           },
           "prov": {
             "handling": "innsigelse",
@@ -5289,13 +5291,13 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "VS-U24",
             "HF-U4",
             "AV-500"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           },
           "prov": {
             "handling": "innsigelse",
@@ -5311,7 +5313,7 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U24, HF-U4 og del 2 av #498: etter et «i tide» etter § 33.4 avvises en innsigelse mot varselet, mens en innsigelse mot fristkravet registreres uten virkning",
+      "forslag": "VS-U24 og MM-U34 punkt 6: etter et «i tide» etter § 33.4 godtas en innsigelse mot varselet, som en innsigelse mot fristkravet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5355,12 +5357,12 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "VS-U24",
             "HF-U4"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           },
           "prov": {
             "handling": "innsigelse",
@@ -7553,7 +7555,7 @@
         "KA-17"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "KA-U3 og KA-U11: når kravene er avgjort, avvises en ny kravversjon i alle spor. Kontrollsaken er en ny kravversjon av fristen før fristsvaret",
+      "forslag": "MM-U34 punkt 12: når kravene er avgjort, godtas en ny kravversjon i alle spor. Kontrollsaken er en ny kravversjon av fristen før fristsvaret",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -7640,7 +7642,7 @@
           "etter": 4,
           "rolle": "mal",
           "kilde": [
-            "KA-U3",
+            "MM-U34",
             "KA-U11"
           ],
           "prov": {
@@ -7649,15 +7651,14 @@
             "dager": 30
           },
           "forventet": {
-            "avvist": true,
-            "regel": "KRAVENE_AVGJORT"
+            "avvist": false
           }
         },
         {
           "etter": 4,
           "rolle": "mal",
           "kilde": [
-            "KA-U3",
+            "MM-U34",
             "KA-U11"
           ],
           "prov": {
@@ -7666,25 +7667,23 @@
             "belop": 120000
           },
           "forventet": {
-            "avvist": true,
-            "regel": "KRAVENE_AVGJORT"
+            "avvist": false
           }
         },
         {
           "etter": 4,
           "rolle": "mal",
           "kilde": [
-            "KA-U3",
+            "MM-U34",
             "KA-U11"
           ],
           "prov": {
             "handling": "krav",
             "spor": "grunnlag",
-            "underkategori": "irregulaer_endring"
+            "underkategori": "endringsordre"
           },
           "forventet": {
-            "avvist": true,
-            "regel": "KRAVENE_AVGJORT"
+            "avvist": false
           }
         }
       ]
@@ -9860,7 +9859,7 @@
     },
     {
       "id": "F-MM-HF-U4-33-4",
-      "forslag": "#498",
+      "forslag": "#498. MM-U34 punkt 6: etter at byggherren har sagt at varselet kom i tide, godtas et nytt svar som påberoper at det kom for sent",
       "rader": [
         "KA-48"
       ],
@@ -9898,6 +9897,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U4"
           ],
           "prov": {
@@ -9909,8 +9909,7 @@
             "dager": 10
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           }
         },
         {
@@ -9935,6 +9934,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U4"
           ],
           "prov": {
@@ -9950,8 +9950,7 @@
             ]
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           }
         },
         {
@@ -9981,7 +9980,7 @@
     },
     {
       "id": "F-MM-HF-U5-vederlag",
-      "forslag": "#502",
+      "forslag": "#502. MM-U34 punkt 4: byggherren kan revidere svaret til et lavere standpunkt, og revisjonen godtas",
       "rader": [
         "KA-12",
         "KA-49"
@@ -10006,6 +10005,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U5"
           ],
           "prov": {
@@ -10015,8 +10015,7 @@
             "godkjent_belop": 30000
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         },
         {
@@ -10134,7 +10133,7 @@
     },
     {
       "id": "F-MM-HF-U5-frist",
-      "forslag": "#502",
+      "forslag": "#502. MM-U34 punkt 4: byggherren kan revidere svaret til et lavere standpunkt, og revisjonen godtas",
       "rader": [
         "KA-12",
         "KA-49"
@@ -10161,6 +10160,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U5"
           ],
           "prov": {
@@ -10172,14 +10172,14 @@
             "dager": 8
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U5"
           ],
           "prov": {
@@ -10191,8 +10191,7 @@
             "dager": 10
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         },
         {
@@ -10218,7 +10217,7 @@
     },
     {
       "id": "F-MM-HF-U5-spesifisering",
-      "forslag": "#502",
+      "forslag": "#502. MM-U34 punkt 4: byggherren kan revidere svaret til et lavere standpunkt, og revisjonen godtas",
       "rader": [
         "KA-12",
         "KA-49"
@@ -10246,6 +10245,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U5"
           ],
           "prov": {
@@ -10258,8 +10258,7 @@
             "maatte_forstaa": 3
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         },
         {
@@ -10304,7 +10303,7 @@
     },
     {
       "id": "F-MM-HF-U5-grunnlag",
-      "forslag": "#502",
+      "forslag": "#502. MM-U34 punkt 4 og 7: byggherren kan revidere en godkjenning av grunnlaget til avslag eller frafall, og revisjonen godtas",
       "rader": [
         "KA-12",
         "KA-49"
@@ -10329,6 +10328,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U5"
           ],
           "prov": {
@@ -10338,14 +10338,14 @@
             "varslet_i_tide": false
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U5"
           ],
           "prov": {
@@ -10355,8 +10355,7 @@
             "varslet_i_tide": true
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         },
         {
@@ -10380,7 +10379,7 @@
     },
     {
       "id": "F-MM-HF-U21",
-      "forslag": "#502",
+      "forslag": "#502. MM-U34 punkt 3 og 4: etter en ny grunnlagsversjon med samme hjemmel kan byggherren revidere vederlagssvaret til et lavere beløp, og revisjonen godtas",
       "rader": [
         "KA-12",
         "KA-49"
@@ -10423,6 +10422,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U21"
           ],
           "prov": {
@@ -10432,8 +10432,7 @@
             "godkjent_belop": 30000
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SENKER_INNROEMMELSE"
+            "avvist": false
           }
         },
         {
@@ -10509,7 +10508,7 @@
     },
     {
       "id": "F-MM-HF-U8-32-2",
-      "forslag": "#498",
+      "forslag": "#498. MM-U34 punkt 6: etter at byggherren har sagt at varselet kom i tide, godtas et nytt svar som påberoper at det kom for sent",
       "rader": [
         "KA-48"
       ],
@@ -10545,6 +10544,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U8",
             "HF-U4"
           ],
@@ -10559,8 +10559,7 @@
             ]
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           }
         },
         {
@@ -10589,7 +10588,7 @@
     },
     {
       "id": "F-MM-HF-U4-34-1-2",
-      "forslag": "#521",
+      "forslag": "#521. MM-U34 punkt 6: etter at byggherren har sagt at varselet kom i tide, godtas et nytt svar som påberoper at det kom for sent",
       "rader": [
         "KA-48"
       ],
@@ -10638,6 +10637,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U4",
             "HF-U1",
             "AV-498"
@@ -10650,8 +10650,7 @@
             "varslet_i_tide": false
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           }
         },
         {
@@ -10677,6 +10676,7 @@
           "etter": 4,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U4",
             "HF-U1",
             "AV-498"
@@ -10693,8 +10693,7 @@
             ]
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           }
         },
         {
@@ -10725,7 +10724,7 @@
     },
     {
       "id": "F-MM-HF-U4-33-6-1",
-      "forslag": "#521",
+      "forslag": "#521. MM-U34 punkt 6: etter at byggherren har sagt at varselet kom i tide, godtas et nytt svar som påberoper at det kom for sent",
       "rader": [
         "KA-48"
       ],
@@ -10763,6 +10762,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "HF-U4",
             "AV-498"
           ],
@@ -10776,8 +10776,7 @@
             "maatte_forstaa": 5
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           }
         },
         {
@@ -10889,7 +10888,7 @@
         "GR-31"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U17: et frafall sendt fra appen kan revideres til endringsordre eller frafall, ikke til avslag eller til påberopelse etter § 32.2, som frafallet sa var i tide (HF-U4). Et registrert avslag etter frafallet får ingen virkning, og frafallet står (OV-U4)",
+      "forslag": "MM-U34 punkt 6 og 7: et frafall sendt fra appen kan revideres til avslag og til påberopelse etter § 32.2, og revisjonen godtas. Et registrert avslag etter frafallet får ingen virkning, og frafallet står (OV-U4)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -10925,6 +10924,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "GR-U17"
           ],
           "prov": {
@@ -10934,15 +10934,14 @@
             "varslet_i_tide": true
           },
           "forventet": {
-            "avvist": true,
-            "regel": "FRAFALT",
-            "nye_hendelser": 0
+            "avvist": false
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "GR-U17",
             "HF-U4",
             "NS-32.3-1c"
@@ -10954,8 +10953,7 @@
             "varslet_i_tide": false
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           }
         },
         {
@@ -11012,7 +11010,7 @@
         "GR-31"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U18, GR-U17: en revisjon fra frafall til avslag i en rad som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått. Kontrollsaken er et avslag uten frafall",
+      "forslag": "MM-U34 punkt 6 og 7 og GR-U23: en revisjon fra frafall til avslag i en rad som ikke er registrert og ikke er sendt fra appen, gjør saken forstått, og revisjonen er det gjeldende svaret på grunnlaget. Kontrollsaken er et avslag uten frafall",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11067,11 +11065,13 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "MM-U18",
-            "GR-U17"
+            "GR-U23"
           ],
           "forventet": {
-            "forstaatt": false
+            "forstaatt": true,
+            "gjeldende_svar.grunnlag": "S-g2"
           }
         }
       ]
@@ -11082,7 +11082,7 @@
         "GR-32"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U20, GR-U22: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med frafall eller endringsordre, ikke med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen får ingen virkning (OV-U4)",
+      "forslag": "GR-U22 og MM-U34 punkt 6 og 7: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med avslag og med påberopelse etter § 32.2, og svaret godtas. Et registrert avslag av den nye versjonen får ingen virkning (OV-U4)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11123,6 +11123,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "GR-U20"
           ],
           "prov": {
@@ -11136,15 +11137,14 @@
             ]
           },
           "forventet": {
-            "avvist": true,
-            "regel": "FRAFALT",
-            "nye_hendelser": 0
+            "avvist": false
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "GR-U20",
             "HF-U8"
           ],
@@ -11159,8 +11159,7 @@
             ]
           },
           "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
+            "avvist": false
           }
         },
         {
@@ -11325,7 +11324,7 @@
         "GR-31"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U18, GR-U17 og arbeidsvalget 16.10 i #510: en revisjon fra frafall til påberopelse etter § 32.2 i en rad som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått",
+      "forslag": "MM-U34 punkt 6 og 7 og GR-U23: en revisjon fra frafall til påberopelse etter § 32.2 (arbeidsvalget 16.10 i #510) i en rad som ikke er registrert og ikke er sendt fra appen, gjør saken forstått, og revisjonen er det gjeldende svaret på grunnlaget",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11360,11 +11359,13 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U34",
             "MM-U18",
-            "GR-U17"
+            "GR-U23"
           ],
           "forventet": {
-            "forstaatt": false
+            "forstaatt": true,
+            "gjeldende_svar.grunnlag": "S-g2"
           }
         }
       ]
@@ -11375,7 +11376,7 @@
         "GR-33"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U23, GR-U20, OV-U3: mens en ny grunnlagsversjon etter et frafall fra appen venter på svar, er grunnlaget avklart ved frafallet, og enigheten i vederlaget forblir virksom. Fristkravet står åpent, så kravene er ikke avgjort før det får en enighet. Da går OV-U3 foran GR-U20 og GR-U23 (GR-U24): svaret på versjon 2 avvises, og frafallet står",
+      "forslag": "GR-U23, GR-U20 og MM-U34 punkt 7 og 12: mens en ny grunnlagsversjon etter et frafall fra appen venter på svar, er grunnlaget avklart ved frafallet, og enigheten i vederlaget forblir virksom. Når fristsporet også har en enighet, er kravene avgjort, og byggherren kan likevel svare på versjon 2",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11461,10 +11462,8 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "GR-U24",
-            "OV-U3",
-            "GR-U17",
-            "KA-U11"
+            "MM-U34",
+            "GR-U23"
           ],
           "prov": {
             "handling": "brev",
@@ -11477,8 +11476,7 @@
             ]
           },
           "forventet": {
-            "avvist": true,
-            "regel": "KRAVENE_AVGJORT"
+            "avvist": false
           }
         },
         {
