@@ -82,6 +82,15 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   tar over, ikke med Python-radene; B-17). Midlertidig
   dobbeltkode eller adapter får et koblet issue med ansvarlig, berørte filer og et
   observerbart fjerningskriterium. «Ryddes senere» holder ikke.
+- Oppheves, endres eller snevres et vedtak inn, fjernes koden som bare fantes for
+  den gamle regelen: grenen, feilkoden, meldingen, hjelpefunksjonen, feltet i
+  `LESBART`, testene og bevis-sakene som bare beviser den, og radene i
+  domenetabellen. Bevisene for det som fortsatt gjelder, beholdes. Vakten for
+  vedtakshenvisninger finner bare en ID til et opphevet vedtak, ikke kode uten ID
+  og ikke et vedtak som er endret. Søk derfor etter atferden, koden og tekstene,
+  og skriv i PR-en hvilke søk du gjorde og hva som ble fjernet. Synlig tekst og
+  rester utenfor oppdraget føres i issuet som eier dem. Python-stien ryddes etter
+  DL-U2 (oppdragsgiver 28.10, #1338).
 
 ## Vedlikeholds- og driftsverktøy
 

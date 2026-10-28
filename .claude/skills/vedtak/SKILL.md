@@ -156,6 +156,9 @@ skriver ikke der.
 - **Berørte forløp.** Føres et vedtak, kontrolleres [dekning.md](../../../docs/domenetabell/brukerforlop/dekning.md)
   og bestillingene (`BF-xx.md`) mot vedtak-ID-en: viser et forløp til vedtaket, eller
   burde det gjøre det? De berørte forløpene nevnes i vedtaks-PR-en.
+- **Berørt kode.** Oppheves, endres eller snevres et vedtak inn, sier oppdraget til
+  byggeøkta at koden for den gamle regelen fjernes, slik
+  [leveranseskillen](../leveranse/SKILL.md#under-implementering) sier.
 - Byggestatus føres ikke i `folge`. Den lages av `docs/verktoy/byggestatus.py`
   av koden og issuene (oppdragsgiver 20.10, #1021), og vakttesten melder ny
   byggestatus i Følge. `folge` kan nevne issuet som bygger vedtaket, «Bygges i
