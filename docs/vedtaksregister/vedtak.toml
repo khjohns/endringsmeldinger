@@ -2089,6 +2089,57 @@ navn = "B"
 tekst = '''
 Saken står åpen for nye strukturerte standpunkter fra begge parter. Vedtakene over endres, og punkt 12 gjelder også disse sakene.'''
 
+[[gruppe.vedtak]]
+id = "GR-U28"
+dato = 2026-10-28
+hvem = "oppdragsgiver"
+kilde = ["#1376", "#1338"]
+sporsmal = '''
+Spørsmål 1 til oppdragsgiver før #1376, runde 8 av #1338, 28.10, ordrett ([spørsmålet](https://github.com/khjohns/endringsmeldinger/issues/1376#issuecomment-6468537902)):
+
+**1. Kan en endringsordre omfatte en KOE-sak der byggherren har frafalt pålegget etter § 32.3 c?**
+
+*Bakgrunn.* Etter MM-U33 og MM-U34 er en endringsordre i en EO-sak det som lukker en KOE-sak. Unntakene er TEs aksept av avslaget på grunnlaget og TEs trekk av grunnlaget (GR-U27). GR-U3 er ikke endret. Etter GR-U3 og en senere merknad til vedtaket kan en KOE-sak der byggherren har frafalt pålegget, ikke inngå i en EO-sak. Endringsordren for utført arbeid går da i en egen EO-sak uten KOE-saken. Står GR-U3, blir en slik KOE-sak aldri lukket. Begge parter kan da sende nye strukturerte standpunkter så lenge saken finnes.
+
+*Belegg.*
+- GR-U3: «Endringsordren for utført arbeid utstedes i en egen EO-sak (#69) med egen fullmakt (GFK-06), ikke reaktivt fra KOE-saken; `kan_utstede_eo` er `false` i KOE-saken»
+- MM-U34 punkt 20, ny ordlyd: «Byggherren kan la en endringsordre omfatte én eller flere hele KOE-saker, også når løsningen ikke har registrert enighet.»
+- MM-U33 punkt 6: «Bare en endringsordre byggherren sender uttrykkelig som endringsordre i en EO-sak, lukker saken (EO-U12).»
+- MM-U33 punkt 4: «Fram til endringsordren kan begge parter sende nye strukturerte standpunkter: TE en ny kravversjon og byggherren et nytt svar, også med lavere beløp eller andre endringer.»
+- MM-U34 punkt 7: «Sperrene mot at byggherren svarer med avslag etter et frafall etter § 32.3 c, oppheves.»
+
+*Alternativer.*
+- **A.** En KOE-sak der byggherren har frafalt pålegget etter § 32.3 c, kan inngå i en endringsordre som andre KOE-saker (MM-U34 punkt 20). Når byggherren har sendt endringsordren, er saken lukket i arbeidsflyten etter EO-U3. Endringsordren omfatter hele saken, med grunnlaget og eventuelle krav om vederlagsjustering for utført arbeid og fristforlengelse. Setningen i GR-U3 om at endringsordren for utført arbeid utstedes i en egen EO-sak, ikke fra KOE-saken, oppheves.
+- **B.** GR-U3 står. En KOE-sak der byggherren har frafalt pålegget etter § 32.3 c, kan ikke inngå i en endringsordre. Endringsordren for utført arbeid utstedes i en egen EO-sak som ikke omfatter KOE-saken. KOE-saken lukkes ikke av den endringsordren, og begge parter kan fortsatt sende nye strukturerte standpunkter i den. Det er en begrensning i løsningen.
+
+*Anbefalt: A.* Etter MM-U34 punkt 7 kan byggherren svare med avslag etter frafallet. Saken er derfor ikke avgjort ved frafallet, og med B mangler den et sluttpunkt. Det var også grunnen til å velge A i GR-U27.
+
+*Hva valget styrer.* Om frafallet stenger saken ute fra endringsordren i regelen for hvilke saker en endringsordre kan omfatte. Med A er regelen sann for hver KOE-sak som ikke er lukket. Med B står unntaket for frafall, og meldingen sier at det er en begrensning i løsningen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 28.10, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1376#issuecomment-6470357164)): «A. At BH har frafalt pålegget etter § 32.3 c, skal ikke hindre at KOE-saken inngår i en EO. Eventuelle krav knyttet til utført arbeid og frist behandles i KOE-saken. Når BH sender en EO som omfatter saken, lukkes den i arbeidsflyten på vanlig måte.
+
+GR-U3 endres slik at sperren mot å inkludere KOE-saken i en EO oppheves. EO sendes fortsatt gjennom en EO-sak, med gjeldende krav til fullmakt.
+
+Dette er en regel om saksbehandlingen i appen. Løsningen avgjør ikke rettsvirkningene av frafallet eller om partenes krav er berettiget.»'''
+forhold = [{ art = "endrer", vedtak = "gr-u3" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+At BH har frafalt pålegget etter § 32.3 c, skal ikke hindre at KOE-saken inngår i en EO. Eventuelle krav knyttet til utført arbeid og frist behandles i KOE-saken. Når BH sender en EO som omfatter saken, lukkes den i arbeidsflyten på vanlig måte. GR-U3 endres slik at sperren mot å inkludere KOE-saken i en EO oppheves. EO sendes fortsatt gjennom en EO-sak, med gjeldende krav til fullmakt. Dette er en regel om saksbehandlingen i appen. Løsningen avgjør ikke rettsvirkningene av frafallet eller om partenes krav er berettiget.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+GR-U3 står. En KOE-sak der byggherren har frafalt pålegget etter § 32.3 c, kan ikke inngå i en endringsordre. Endringsordren for utført arbeid utstedes i en egen EO-sak som ikke omfatter KOE-saken. KOE-saken lukkes ikke av den endringsordren, og begge parter kan fortsatt sende nye strukturerte standpunkter i den. Det er en begrensning i løsningen.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Endringsordren for utført arbeid utstedes i en egen EO-sak (#69) med egen fullmakt (GFK-06), ikke reaktivt fra KOE-saken; `kan_utstede_eo` er `false` i KOE-saken"
+
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
 
