@@ -101,7 +101,7 @@ Vi tar ikke med Vardes arbeidsliste med «Til vurdering» og «Avventer andre»,
 3. **Skjemaet vurderer, panelet viser hovedlinjene, og brevet viser alt.** Panelet viser per post hva som er krevd og hva standpunktet er, i brevets rekkefølge. Alternative beløp står som alternativer og summeres ikke. Der brevet vises, gjengis det ikke ved siden av, fordi en gjengivelse kan avvike fra brevet. Ved handlingen står det hvilke erklæringer som sendes, hvilket brev de gjelder og hva løsningen registrerer administrativt.
 4. **Riktig tekst på riktig sted, til riktig tid.** Hver forklaring står én gang, der beslutningen den gjelder tas. Den vises bare når vilkåret for den er oppfylt.
 5. **Brevet er et brev.** Det partene sender, har brevhode, mottaker, brevnummer, dato og avsender. På skjermen er det en lesespalte som tåler forstørrelse, og i PDF-en er det A4. Et mottatt brev vises i sin helhet, slik det ble sendt, også det løsningen ikke kan uttrykke som valg.
-6. **Ett ord, én betydning, én form.** Samme valgord for samme post, ett beløpsformat med øre når det finnes øre, og ett navn per sak. Det som kan gjøres, står i fast rekkefølge, og ingen handling er forhåndsvalgt eller anbefalt. Send innlegg, Send revidert krav (TE) eller Send nytt svar (BH), og Godta svaret når tilgjengelig, har lik vekt.
+6. **Ett ord, én betydning, én form.** Samme valgord for samme post, ett beløpsformat med øre når det finnes øre, og ett navn per sak. Det som kan gjøres, står i fast rekkefølge, og ingen handling er forhåndsvalgt eller anbefalt. Skriv innlegg, Revider kravet (TE) eller Skriv nytt svar (BH), og Godta svaret når tilgjengelig, har lik vekt. Når et utkast er åpent, vises bare handlinger for den valgte oppgaven.
 7. **Farge viser systemets tilstand, ikke en vurdering.** Amber er utkast eller stoppet sending, blågrønn er sendt og levert, og rød er feil. Ingen standpunkt, dato eller sak får farge etter hva den betyr for partene.
 8. **Arbeidet får plassen.** Bredden er knappest. Hovedkolonnen har det brukeren gjør nå, skjemaet eller brevet. Det som støtter arbeidet, som tidslinja og hovedlinjene, står i høyre kolonne. Sporene og de andre flatene i saken står i venstre kolonne.
 
@@ -114,17 +114,17 @@ flowchart TD
   saker["Saker<br>startsiden, sortert etter siste brev"] --> sak
   prosjekter["Prosjekter<br>med krevde beløp og dager"] --> sak
   arkiv["Arkiv<br>sendte brev, PDF-er og kvitteringer"] --> sak
-  sak["Sak E-021 · Ny peling med produktivitetstap<br>kompakt overskrift, sporene i venstre kolonne"] --> grunnlag["Grunnlag"]
+  sak["Sak E-021 · Ny peling med produktivitetstap<br>kompakt overskrift, krav og svar i venstre kolonne"] --> grunnlag["Grunnlag"]
   sak --> vederlag["Vederlag"]
   sak --> frist["Frist"]
   sak --> dokumenter["Dokumenter<br>alle brev, vedlegg og registrerte dokumenter"]
   sak --> hendelser["Hendelser<br>alt som har skjedd, og hele tidslinja"]
-  grunnlag --> arbeid["Arbeidet i sporet<br>utkastet eller det mottatte brevet i hovedkolonnen, tidslinja i høyre kolonne"]
+  grunnlag --> arbeid["Skriv eller les brev<br>utkastet eller det mottatte brevet i hovedkolonnen, tidslinja i høyre kolonne"]
   vederlag --> arbeid
   frist --> arbeid
 ```
 
-Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn står først, produktnavnet etter. Innlogget bruker står til høyre med navn, kontraktsside (BH eller TE) og team. Inne i saken står en venstre kolonne under saksoverskriften, i tre grupper: Oversikt, så sporene Grunnlag, Vederlag og Frist under etiketten «Spor», og etter en skillelinje Dokumenter, Hendelser og Notater for teamet. Hvert spor viser antall brev og siste brev. Over arbeidet står navnet på flaten, og til høyre for det «Skriv brev i sporet» med brevtypene kjernen gir. På de andre flatene heter knappen «Skriv brev», og sporet velges i neste steg. Brødsmulene bruker saksnummer og prosjektnavn, aldri en ID.
+Navigasjonen ligger i en lys toppmeny. Inne i saken står Oversikt, deretter **Grunnlag for kravet**, **Vederlagsjustering** og **Fristforlengelse** under «Krav og svar», og så Dokumenter, Hendelser og Notater for teamet. «Spor» er et teknisk begrep og brukes ikke i etiketter, knapper eller hjelpetekster. Handlinger navngir det brukeren gjør: «Skriv innlegg», «Revider kravet» eller «Svar på krav om vederlagsjustering». Når et utkast er åpent, forsvinner inngangene til andre skriveoppgaver. Brødsmulene bruker saksnummer og prosjektnavn, aldri en ID.
 
 ## Nøkkelskjermer og flyter
 
@@ -160,19 +160,40 @@ Ni skjermer og et ark med varianter bærer konseptet, vist som hele visninger i 
 - Et nytt brev bevarer tidligere brev. Løsningen avgjør ikke hvilken rettslig virkning en endring får.
 - Akseptbrevet sier uttrykkelig at TE godtar **hele svaret**, også innsigelsen om sen varsling og beløpet som følger av den. Delvis og subsidiær aksept uttrykkes i innlegg, uten automatisk klassifisering.
 
-### D. Det mottatte svaret og videre dialog
+### D. Les det mottatte svaret
 
-![Skjerm D: hele svaret og tre likeverdige handlinger](bilder/d-mottatt-svar.png)
+![Skjerm D: hele svaret med ett samlet handlingsområde](bilder/d-mottatt-svar.png)
 
-- Hele brevet står først. **Send innlegg**, **Send revidert krav** for TE / **Send nytt svar** for BH og **Godta svaret** når tilgjengelig står med lik vekt. Mindre brukte handlinger står i menyen.
-- Innleggseditoren har tekst, enkel formatering og vedlegg. Åpnet fra brevet får den brevhenvisningen forhåndsvalgt; brukeren kan velge at innlegget gjelder hele saken. Det kreves ingen kategori som protest eller aksept. Kontraktens særskilte varsler har fortsatt egne strukturerte handlinger.
-- Aksepten peker på ett bestemt svarbrev og omfatter hele svaret, også sen-varsling-innsigelsen og det resulterende beløpet. Kontrollen viser erklæringen før sending.
-- TE kan revidere kravet også etter registrert enighet, frem til avslutning. Tidligere brev og aksepter bevares; sammenligningen av tidligere og nye felt sier ingenting om juridisk ugyldighet.
+- D er en ren lesevisning. Hele svarbrevet får god lesebredde; ingen skriveflate konkurrerer med brevet.
+- **Skriv innlegg**, **Revider kravet**, **Godta svaret** og **Flere handlinger** står samlet med lik vekt. PDF og kvittering er diskrete dokumentverktøy ved brevhodet.
+- Hver handling åpner sin egen arbeidsflate. Menyen for andre oppgaver vises ikke mens et utkast er åpent.
 
+### K. Skriv innlegg
+
+![Skjerm K: romslig skriveflate med kildebrevet tilgjengelig](bilder/k-skriv-innlegg.png)
+
+- Innlegget skrives i hovedkolonnen, etter samme arbeidsmønster som B. Kildebrevet står øverst med «Les brevet» og kan åpnes uten at teksten forsvinner. Sidevisning er et mulig tillegg på brede skjermer, ikke standard.
+- Åpnet fra et brev er henvisningen valgt. Innlegget kan også gjelde hele saken. Det kreves ingen kategori som protest, subsidiær aksept eller utdyping.
+- Vedlegg ligger ved teksten. «Tilbake til saken» og **Se brevet før sending** er samlet nederst. Andre start-handlinger er skjult mens brukeren skriver.
+- Skissen viser oppsettet, kildebrevet og en lokal brevkontroll. Den lagrer eller sender ikke data.
+
+### L. Revider kravet om vederlagsjustering
+
+![Skjerm L: revidert krav i hovedkolonnen](bilder/l-revider-kravet.png)
+
+- Revisjonen bruker en strukturert arbeidsflate som B, med beløp, beregningsmetode, begrunnelse og forbehold. Dette er et eksempel, ikke en uttømmende kontraktskontroll av kravskjemaet.
+- Tidligere og nye beløp sammenlignes nøytralt i støttekolonnen. Tidligere brev bevares også etter registrert enighet.
+
+### M. Kontroller aksepten
+
+![Skjerm M: egen kontroll av akseptens omfang](bilder/m-godta-svaret.png)
+
+- Kontrollen peker på ett bestemt svarbrev og viser at aksepten omfatter hele svaret, også innsigelsen om sen varsling og det resulterende beløpet.
+- Hele svarbrevet er tilgjengelig uten å forlate kontrollen. Delvis og subsidiær aksept uttrykkes i innlegg.
 
 ### E. Tilstander
 
-![Skjerm E: sendt og levert, ikke bekreftet levert, sending stoppet, bestemmelse, ikke støttet, sender, ikke lagret, tomt spor, ingen tilgang og uenige](bilder/e-tilstander.png)
+![Skjerm E: sendt og levert, ikke bekreftet levert, sending stoppet, bestemmelse, ikke støttet, sender, ikke lagret, ingen brev, ingen tilgang og uenige](bilder/e-tilstander.png)
 
 - **Sendt og levert:** kvitteringen står der brevet lå, med serverens tid, mottaker og dokumentversjon.
 - **Ikke bekreftet levert:** brevet sendes ikke på nytt, og utkastet er låst så det ikke kan sendes to ganger.
@@ -181,7 +202,7 @@ Ni skjermer og et ark med varianter bærer konseptet, vist som hele visninger i 
 - **Ikke støttet:** løsningen sier det før utfyllingen, og en eksport blir aldri «sendt».
 - **Sender:** brevet og skjemaet står som de var til serveren svarer, og knappen kan ikke trykkes på nytt.
 - **Ikke lagret:** endringene står i skjemaet, og lagringen kan prøves igjen.
-- **Tomt spor:** sporet sier at det ikke har brev, i stedet for en tom liste.
+- **Ingen brev:** kravtypen sier at den ikke har brev, i stedet for en tom liste.
 - **Hovedlinjene får ikke plass i skjermhøyden:** panelet ruller med siden, og en kompakt linje fast nederst i vinduet gir «Se hovedlinjene» og «Se brevet før sending».
 - **Andre brev og handlinger:** menyen i D, med trekk og konkrete kontraktsvarsler. Trekket står med en plassholder for virkningen, fordi ordlyden om trekk av vederlagskravet ikke er besluttet (oppdragsgiver 27.10).
 - **Ingen tilgang:** saken vises ikke, heller ikke tittelen eller partene.
@@ -211,11 +232,11 @@ Ni skjermer og et ark med varianter bærer konseptet, vist som hele visninger i 
 - Tre komponenter tok mye av høyden og bredden i versjon 2: datolinja, saksoverskriften og fanene. Arket viser tre varianter av hver, med fordeler og ulemper.
 - Variantene med tykk ramme er valgt og brukt i B, D, F, G og I.
 
-**Valget 27.10 (oppdragsgiver).** Det er disse variantene #1331 bygger:
+**Valget 27.10 (oppdragsgiver).** Ordlyden i tabellen beskriver det historiske valget; brukerrettede betegnelser og skriveflyten er oppdatert i versjon 14.  Det er disse variantene #1331 bygger:
 
 | Komponent | Valgt variant | Erstatter |
 | --- | --- | --- |
-| Navigasjonen i saken | b, sporene i venstre kolonne. Oversikt, sporene og de andre flatene står i en venstre kolonne under saksoverskriften. «Skriv brev i sporet» står over arbeidet | a, faner med handlingen til høyre (versjon 3–8) |
+| Navigasjonen i saken | b, sporene i venstre kolonne. Oversikt, sporene og de andre flatene står i en venstre kolonne under saksoverskriften. Handlingsområdet står over arbeidet når brukeren leser. Det skjules ved skriving | a, faner med handlingen til høyre (versjon 3–8) |
 | Datoene | b, tidslinja som komponent i høyre kolonne. Samme komponent i sporet (B og D) og for hele saken i Hendelser (G) | c, én linje over arbeidet (versjon 3–8) |
 | Saksoverskriften | b, kompakt, som før. Den er ikke avgjort, men endres ikke nå | — |
 
@@ -234,7 +255,7 @@ Begrunnelsen:
 - **Hovedlinjene er kortet ned** til standpunktene og beløpsalternativene. De skal være lett tilgjengelige under utfyllingen, ikke alltid synlige. Panelet følger rullingen bare når hele panelet får plass i vinduet. Ellers ruller det med siden, og en kompakt linje nederst gir veien til hovedlinjene og brevkontrollen (E). Hvordan tidslinja under nås når panelet følger rullingen, må prøves.
 - **Tidslinja og utkastdetaljene kan legges sammen.** De støtter oppgaven, men trenger ikke være åpne mens brukeren vurderer beløpet.
 
-### I. Oversikt over sporene
+### I. Oversikt over krav og svar
 
 ![Skjerm I: siste strukturerte krav og svar med aksept og senere innlegg](bilder/i-oversikt.png)
 
@@ -289,7 +310,7 @@ Tettheten har to nivåer: **Arbeid** (standard, 16 px grunnlinje) for saken og *
 Skissene er stillbilder i 1440 px. De viser plassering, tekst og rekkefølge. De viser ikke at noe virker, og disse løftene må prøves i den kjørbare visningen i #1331 før de regnes som oppfylt:
 
 - Panelet med hovedlinjene følger rullingen bare når det får plass i vinduet, ellers vises den kompakte linja fra E.
-- «Les brevet ved siden av» i B og innleggs- og akseptkontrollen i D. Leseflaten og panelet skal ta plassen til høyre kolonne mens de er åpne, ikke bli en fjerde smal kolonne.
+- Overgangen fra D til K, L og M, og tilbake. «Les brevet» skal bevare utkastet og ikke presse skriveflaten sammen. Sidevisning prøves bare der bredden tillater det.
 - Visningen ved 200 % zoom og under 1024 px, med venstre og høyre kolonne.
 - Tastatur, skjermleser og `aria-live` for hovedlinjene.
 - Lange norske navn, mange datoer i tidslinja og saker med mange innlegg etter registrert aksept.
