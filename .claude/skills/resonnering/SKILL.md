@@ -8,6 +8,8 @@ description: Episodene bak resonneringsreglene i AGENTS.md, med funnene der regl
 Reglene står i «Resonneringsregler» i `AGENTS.md`. Her står episodene som ga dem,
 under overskriften til regelen de viser.
 
+Episodene er fra Python-stien og PostgreSQL. Mønstrene gjelder like mye i TS-stien og SQL Server. Der skrives `koe.app_users` og `koe.app_identities` av databaseobjekter i `database/migrasjoner/`, blant annet prosedyren `koe.resolve_identity` (`20261016090100_identitet.sql`). Ingen produksjonskode i `server/` skriver dem direkte; det gjør bare testene.
+
 ## «Og les hele stedet, ikke et utsnitt»
 
 To feilklassifiseringer kom av nettopp dette: et `grep`-vindu som stoppet én linje før `@require_project_access()`, og en baseklasse lest uten overstyringen i underklassen. Begge ga en selvsikker, gal påstand om nåbarhet, og begge ble fanget av testsuiten — ikke av lesingen.
