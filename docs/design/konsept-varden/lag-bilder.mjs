@@ -8,6 +8,9 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 function globalPlaywright() {
+  if (process.env.VARDEN_PLAYWRIGHT_MAPPE) {
+    return createRequire(join(realpathSync(process.env.VARDEN_PLAYWRIGHT_MAPPE), 'package.json'))('playwright');
+  }
   const rot = execFileSync('npm', ['root', '-g']).toString().trim();
   const krev = createRequire(join(realpathSync(join(rot, 'playwright')), 'package.json'));
   const kjerne = krev.resolve('playwright-core/package.json');
@@ -29,12 +32,16 @@ const bilder = join(mappe, 'bilder');
 const filer = readdirSync(skjermer).filter((f) => f.endsWith('.html')).sort();
 
 const { chromium } = globalPlaywright();
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.VARDEN_CHROMIUM_STI
+  ? { executablePath: process.env.VARDEN_CHROMIUM_STI }
+  : {});
 try {
   const page = await browser.newPage({ viewport: { width: 1520, height: 1000 } });
   for (const fil of filer) {
     const navn = basename(fil, '.html');
-    await page.goto(pathToFileURL(join(skjermer, fil)).href, { waitUntil: 'networkidle' });
+    await page.goto(process.env.VARDEN_SKISSE_URL
+      ? new URL(fil, process.env.VARDEN_SKISSE_URL).href
+      : pathToFileURL(join(skjermer, fil)).href, { waitUntil: 'networkidle' });
     await page.evaluate(() => document.fonts.ready);
     const skjerm = page.locator('section.screen');
     await skjerm.screenshot({ path: join(bilder, `${navn}.png`) });
