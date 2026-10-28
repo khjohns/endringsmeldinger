@@ -41,7 +41,7 @@ i bestillingen, et U- eller D-punkt uten `data-spor`, axe-brudd og konsollfeil e
 ## Kognitiv gjennomgang
 
 ```text
-Du gjør en kognitiv gjennomgang av prototypen for brukerforløpet BF-xx i repoet
+Du gjør en kognitiv gjennomgang av forløpet BF-xx i demoruta i repoet
 khjohns/endringsmeldinger (main). Det er forarbeid før oppdragsgiver selv prøver
 prototypen. Målet er å finne steder der en bruker kan misforstå, nøle eller tro feil om
 hva som skjer, og der prototypen avviker fra bestillingen eller vedtakene. Du er ikke en
@@ -49,7 +49,7 @@ bruker og kan ikke bevise at noe er forståelig. Du kan bare peke på risiko. En
 kontrollerer separat at klikkene, ankrene og axe virker.
 
 Les: AGENTS.md («Språk», «Domenet», «Domenekjernen»); docs/domenetabell/brukerforlop/BF-xx.md
-i sin helhet; prototypen (kildeteksten, eventuelt skjermbilder via file://); vedtakene
+i sin helhet; forløpet i demoruta med skjermbilder fra `demoruta.mjs` (for en prototype av et nytt mønster: kildeteksten og skjermbilder via file://); vedtakene
 BF-xx viser til, og bare dem, slått opp i docs/plans/vedtak.md på ankeret; ved behov et
 begrep i docs/domenetabell/README.md.
 
@@ -71,7 +71,7 @@ Gjør dette:
 
 Du skal ikke: endre filer; avgjøre domene- eller rettsspørsmål (merk dem «spørsmål til
 oppdragsgiver» med alternativer); foreslå noe utenfor bestillingen eller gjenta åpne S- og
-P-punkter; sammenligne med saksruta eller dagens app; vurdere kode, axe, lenker
+P-punkter; sammenligne med dagens visning, saksruta eller dagens app; vurdere kode, axe, lenker
 eller klikk; påstå at brukere vil forstå noe.
 
 Sluttrapporten, høyst 60 linjer: U-tabellen, D-avvikene med sitater, kontrollpunktene,

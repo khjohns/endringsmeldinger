@@ -1,12 +1,12 @@
 ---
 name: brukerforlop
-description: Designsløyfa i endringsmeldinger, der brukerhistorien, prototypen og vedtakene avklares og skrives ned før grundig bygging. Bestillingen for et brukerforløp (mål, designmål, domeneforventninger, gjennomføring og spørsmål), den klikkbare prototypen, avvikene mot kjernen og vedtakene, kontrollene som gjelder, kriteriene for «klar til bygging» og overgangen til leveranseskillen. Også sammenligningen av en bygget visning med prototypen eller konseptet. Brukes når en brukeroppgave skal designes eller endres før den bygges, og for issues med etiketten `bestilling`.
+description: Designsløyfa i endringsmeldinger, der brukerhistorien, prototypen og vedtakene avklares og skrives ned før grundig bygging. Bestillingen for et brukerforløp (mål, designmål, domeneforventninger, gjennomføring og spørsmål), forløpet i demoruta eller den klikkbare prototypen for et nytt mønster, avvikene mot kjernen og vedtakene, kontrollene som gjelder, kriteriene for «klar til bygging» og overgangen til leveranseskillen. Også sammenligningen av en bygget visning med forløpet i demoruta, prototypen eller konseptet. Brukes når en brukeroppgave skal designes eller endres før den bygges, og for issues med etiketten `bestilling`.
 ---
 
 # Brukerforløp og bestilling før bygging
 
 Målet er å vite hva vi vil ha, og ha det skrevet ned, før noe bygges grundig.
-Resultatet er én bestilling: ønsket brukerforløp, en godkjent prototype, vedtakene
+Resultatet er én bestilling: ønsket brukerforløp, et godkjent forløp i demoruta (eller en prototype for et nytt mønster), vedtakene
 den bygger på, forventninger byggingen kan prøves mot, og avgrensede restpunkter.
 Kjernen er en kilde til hvordan løsningen virker i dag, ikke grensen for hva som kan
 designes. En upraktisk arbeidsflyt bevares ikke fordi kjernen allerede har den.
@@ -57,7 +57,7 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
    kognitive. Den mekaniske kontrollen leser ingen vedtak og vurderer ingen tekst. Bredden på 390 px rapporteres, men stopper ikke, fordi mobil
    ikke er prioritert nå (oppdragsgiver 27.10). Den kognitive gjennomgangen avgjør ikke
    rettsspørsmål; de føres som spørsmål til oppdragsgiver, med alternativer. Den sammenligner
-   ikke med saksruta eller dagens app. Blindveier i arbeidsflyten prøves etter
+   ikke med dagens visning, saksruta eller dagens app. Blindveier i arbeidsflyten prøves etter
    «Prøv arbeidsflyten før vedtaksteksten skrives» i [vedtaksskillen](../vedtak/SKILL.md).
 
    Forprøven viser risiko og feil før brukerprøven. Den er ikke bevis for forståelse,
@@ -149,7 +149,7 @@ blokkerer leveransen. Et vedtak et svar krever, er ført før byggingen bestille
 
 ## Sammenligne en bygget visning
 
-Når en bygget visning skal vurderes mot prototypen eller et HTML-konsept:
+Når en bygget visning skal vurderes mot forløpet i demoruta, en prototype for et nytt mønster eller et HTML-konsept:
 
 1. Angi referansen med en bestemt commit, så målbildet ikke flytter seg.
 2. Vis de to side om side, med samme skjermbredde og så langt det går samme rolle, data

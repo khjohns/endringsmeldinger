@@ -12,10 +12,7 @@ viser til dem og gjengir dem ikke.
 
 ## Retningen
 
-**Varden er visningen.** [Varden](konsept-varden/README.md) er retningen for saken og
-brukerforløpene. Elementer fra dagens visning kan fortsatt brukes der de er aktuelle
-(oppdragsgiver 28.10, #1338, runde 6): «Ja, jeg tenker Varden er visningen, men det er
-fortsatt elementer fra dagens visning som kan være aktuelle.»
+**Varden er visningen** (oppdragsgiver 28.10, #1338, runde 6): «Ja, jeg tenker Varden er visningen, men det er fortsatt elementer fra dagens visning som kan være aktuelle.»
 
 **Sage & Stone**, Oslobyggs grønne profil (`--brand`). Den erstattet
 «Dokumentbordet» fra mars 2026 (oppdragsgiver 23.10, #1080).
