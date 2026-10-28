@@ -136,6 +136,14 @@ const MUTASJONER: Mutasjon[] = [
         "  standpunktet,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
       ],
       [
+        '  const svar = svarberegninger(alleSvar, spor);',
+        '  const svar = svarberegninger(alleSvar, spor, regler);',
+      ],
+      [
+        '  spor: Record<Spor, Sporutledning>\n): Record<string, Svarberegning> {',
+        '  spor: Record<Spor, Sporutledning>,\n  regler: Regelsett\n): Record<string, Svarberegning> {',
+      ],
+      [
         '      virkninger: s.beslutningsgrunnlag.virkninger,',
         '      virkninger: regn(s, spor.grunnlag.krav.find((k) => k.id === s.gjelder) ?? spor.grunnlag.krav.at(-1), regler),',
       ],
@@ -368,6 +376,14 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'om godkjenningen er en endringsordre, leses av dagens regelsett (MM-U9, KA-U13)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
+      [
+        '    ...grunnlaget(spor, elementer, svar, dokumenter),',
+        '    ...grunnlaget(spor, elementer, svar, dokumenter, regler),',
+      ],
+      [
+        '  dokumenter: Map<string, Dokument>\n): Pick<Utledning',
+        '  dokumenter: Map<string, Dokument>,\n  regler: Regelsett\n): Pick<Utledning',
+      ],
       [
         'blirEndringsordre(gSvar.beslutningsgrunnlag)',
         '(gSvar.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)))',
