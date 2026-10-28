@@ -26,7 +26,7 @@ import {
   tegnSomIkkeKanVises,
   tekstSomIkkeKanLagres,
 } from '../format/skjema.ts';
-import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
+import { grunnlagskravFor, utled, utledJournal, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
 import type {
   Avsnitt,
@@ -67,14 +67,13 @@ const ugyldigForm = (avvisning: Avvisning): Utfall => ({
   avvisning,
 });
 
+// Videreeksportert, så kallerne kan hente utledningen sammen med kommandoene (#1354).
+export { utledJournal };
+
 /** Kjernen forstår ikke raden den selv skriver. Raden lagres ikke (MM-U2). */
 export class Skrivefeil extends Error {}
 
 type Data = Record<string, unknown>;
-
-export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
-  return utled(lesJournal(journal, kjerne.leserformat), kjerne.regler);
-}
 
 /**
  * Beslutningsgrunnlaget i formatet. Virkningene viser til standpunktet, og arten

@@ -136,6 +136,14 @@ const MUTASJONER: Mutasjon[] = [
         "  standpunktet,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
       ],
       [
+        '  const svar = svarberegninger(alleSvar, spor);',
+        '  const svar = svarberegninger(alleSvar, spor, regler);',
+      ],
+      [
+        '  spor: Record<Spor, Sporutledning>\n): Record<string, Svarberegning> {',
+        '  spor: Record<Spor, Sporutledning>,\n  regler: Regelsett\n): Record<string, Svarberegning> {',
+      ],
+      [
         '      virkninger: s.beslutningsgrunnlag.virkninger,',
         '      virkninger: regn(s, spor.grunnlag.krav.find((k) => k.id === s.gjelder) ?? spor.grunnlag.krav.at(-1), regler),',
       ],
@@ -369,6 +377,14 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
+        '    ...grunnlaget(spor, elementer, svar, dokumenter),',
+        '    ...grunnlaget(spor, elementer, svar, dokumenter, regler),',
+      ],
+      [
+        '  dokumenter: Map<string, Dokument>\n): Pick<Utledning',
+        '  dokumenter: Map<string, Dokument>,\n  regler: Regelsett\n): Pick<Utledning',
+      ],
+      [
         'blirEndringsordre(gSvar.beslutningsgrunnlag)',
         '(gSvar.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)))',
       ],
@@ -547,8 +563,8 @@ const MUTASJONER: Mutasjon[] = [
       ],
       // Strid-kontrollen (MM-U18) fanger det samme; begge må muteres.
       [
-        '    else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
-        '    else if (false)',
+        '  if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
+        '  if (false)',
       ],
     ],
     mal: ['en aksept av et svar med sammenfall er ikke forstått'],
@@ -567,7 +583,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F49',
     feilklasse:
       'kjernen leser bare formatet den skriver, så en versjon som leser et nytt format, stopper saken (B-10, #316)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         'return utled(lesJournal(journal, kjerne.leserformat), kjerne.regler);',
@@ -763,8 +779,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    u.grunnlagAvvist\n      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n      : (spor ? varAvgjort(u, spor) : kraveneErAvgjort(u))",
-        "    false\n      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n      : false",
+        "  u.grunnlagAvvist\n    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n    : (spor ? varAvgjort(u, spor) : kraveneErAvgjort(u))",
+        "  false\n    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n    : false",
       ],
     ],
     mal: ['F-MM-U326h'],
@@ -775,8 +791,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)",
-        "    else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && !u)",
+        "  if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)",
+        "  if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && !u)",
       ],
     ],
     mal: ['F-MM-U326b'],
@@ -847,8 +863,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "        return maal.art === 'krav' && kravMedUten.get(id)?.spor === 'grunnlag';",
-        "        return maal.art === 'krav' && alleKrav.get(id)?.spor === 'grunnlag';",
+        '  kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig);',
+        '  kontrollerHenvisningene(henvisninger, elementer, alleKrav, besvart, bakover, ugyldig);',
       ],
     ],
     mal: ['en påberopt passivitet mot den er forstått'],
@@ -865,9 +881,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F92',
     feilklasse: 'en kravversjon etter trekk leses med virkning (MM-U18, MM-U19, GR-U5)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ['    else if (u.spor[k.spor].trukket)', '    else if (u.spor[k.spor].trukket && !k)'],
-    ],
+    endringer: [['  if (u.spor[k.spor].trukket)', '  if (u.spor[k.spor].trukket && !k)']],
     mal: ['F-MM-IK6b'],
   },
   {
@@ -875,9 +889,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en kravversjon etter «ingen krav» stopper saken også når den er registrert (MM-U19, KA-U12)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ['    else if (u.spor[k.spor].ingenKrav)', '    else if (u.spor[k.spor].ingenKrav && !k)'],
-    ],
+    endringer: [['  if (u.spor[k.spor].ingenKrav)', '  if (u.spor[k.spor].ingenKrav && !k)']],
     mal: ['F-MM-IK5b'],
   },
   {
@@ -1224,7 +1236,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar i et trukket spor, i en rad som ikke er registrert, er ikke en strid (MM-U20)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    else if (u.spor[s.spor].trukket)\n', '    else if (false)\n']],
+    endringer: [['  if (u.spor[s.spor].trukket) return', '  if (false) return']],
     mal: ['F-MM-U20a', 'F-MM-U20c', 'F-MM-U20d'],
   },
   {
@@ -1232,9 +1244,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en aksept av et svar i et trukket spor, i en rad som ikke er registrert, er ikke en strid (MM-U20)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ['    else if (sporet && u.spor[sporet].trukket)', '    else if (sporet && false)'],
-    ],
+    endringer: [['  if (sporet && u.spor[sporet].trukket)', '  if (sporet && false)']],
     mal: ['F-MM-U20b'],
   },
   {
@@ -1243,8 +1253,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '        ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))',
-        "        ? SPOR.find((n) => n === 'grunnlag')",
+        '      ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))',
+        "      ? SPOR.find((n) => n === 'grunnlag')",
       ],
     ],
     mal: ['F-MM-U20b'],
@@ -1943,8 +1953,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "      standpunktet(s, 'grunnlag')?.resultat === 'avslaatt'\n",
-        "      standpunktet(s, 'grunnlag')?.resultat === 'avslaatt' &&\n      !u\n",
+        "  if (bundet && s.spor === 'grunnlag' && standpunktet(s, 'grunnlag')?.resultat === 'avslaatt')",
+        "  if (bundet && s.spor === 'grunnlag' && standpunktet(s, 'grunnlag')?.resultat === 'avslaatt' && !u)",
       ],
     ],
     mal: ['gjør saken ikke forstått'],
@@ -1956,8 +1966,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    else if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s))",
-        "    else if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s) && !u)",
+        "  if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s))",
+        "  if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s) && !u)",
       ],
     ],
     mal: ['en påberopelse etter § 32.2 i et brev'],
@@ -2330,8 +2340,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    else if (s.erstatter !== null && u.spor[s.spor].enighet)',
-        '    else if (s.erstatter !== null && u.spor[s.spor].enighet && !s)',
+        '  if (s.erstatter !== null && u.spor[s.spor].enighet)',
+        '  if (s.erstatter !== null && u.spor[s.spor].enighet && !s)',
       ],
     ],
     mal: ['en revisjon av et svar partene er enige om (GR-U10, KA-U7)'],
@@ -2343,8 +2353,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
-        '    else if (false)',
+        '  if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
+        '  if (false)',
       ],
     ],
     mal: ['en aksept av et svar partene alt er enige om (GR-U8, KA-U7)'],
@@ -2353,7 +2363,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F278',
     feilklasse: 'en aksept av et svar i et trukket spor gir ingen strid (MM-U20, GR-U5, #669)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    else if (sporet && u.spor[sporet].trukket)', '    else if (false)']],
+    endringer: [['  if (sporet && u.spor[sporet].trukket)', '  if (false)']],
     mal: ['en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)'],
   },
   {
@@ -2363,8 +2373,16 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder)',
-        '      !(uten.has(x.gjelder) || kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder))',
+        '  kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig);',
+        '  kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig, uten);',
+      ],
+      [
+        '  ugyldig: Ugyldig\n): void {\n  for (const x of henvisninger) {',
+        '  ugyldig: Ugyldig,\n  uten: Map<string, unknown>\n): void {\n  for (const x of henvisninger) {',
+      ],
+      [
+        '      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer, kravMedUten)',
+        '      !(uten.has(x.gjelder) || kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer, kravMedUten))',
       ],
     ],
     mal: ['en innsigelse mot egen endringsordre uten virkning viser ikke til noe den kan gjelde'],
@@ -2373,7 +2391,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F280',
     feilklasse: 'en revisjon av et svar uten virkning gir ingen strid (MM-U18, #669)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    else if (utenVirkning(s.erstatter))', '    else if (false)']],
+    endringer: [['  if (utenVirkning(s.erstatter))', '  if (false)']],
     mal: ['en revisjon av et svar uten virkning (MM-U18)'],
   },
   {
@@ -2661,10 +2679,7 @@ const MUTASJONER: Mutasjon[] = [
       'et varsel etter at kravene er avgjort, gjør saken ikke forstått (OV-U3, OV-U5, MM-U18, #493)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      [
-        "      x.art === 'varsel'\n        ? u.grunnlagAvvist",
-        '      false\n        ? u.grunnlagAvvist',
-      ],
+      ["    x.art === 'varsel'\n      ? u.grunnlagAvvist", '    false\n      ? u.grunnlagAvvist'],
     ],
     mal: ['TEs opplysning om varseldato godtas i et spor som var avgjort'],
   },
