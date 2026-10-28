@@ -42,6 +42,8 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U52](../../plans/vedtak.md#ov-u52) | — | — | BF-02A, BF-02C |
 | [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-02B, BF-02C, BF-03 |
 | [OV-U64](../../plans/vedtak.md#ov-u64) | — | — | BF-03 |
+| [OV-U65](../../plans/vedtak.md#ov-u65) | — | — | BF-03 |
+| [OV-U66](../../plans/vedtak.md#ov-u66) | — | — | BF-03 |
 | [VS-U1](../../plans/vedtak.md#vs-u1) | — | — | BF-03 |
 | [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-03 |
 | [VS-U9](../../plans/vedtak.md#vs-u9) | — | — | BF-03 |
