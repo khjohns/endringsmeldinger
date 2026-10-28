@@ -97,7 +97,7 @@
                   <a class="vei" href="#godta" data-spor="U-3 · D-1"><b>Godta svaret</b><span>Dere blir enige om hele svaret, også at varselet kom for sent. Beløpet blir 0 kr.</span></a>
                   <a class="vei" href="#protest" data-spor="M-1 · M-2 · D-2 · D-4"><b>Protester: varselet kom i tide</b><span>Gjelder bare påberopelsen av at varselet kom for sent. Protesten er ikke en aksept, og svaret står som før.</span></a>
                   <a class="vei" href="#ny-versjon" data-spor="U-5 · D-5"><b>Send ny versjon av kravet</b><span>For uenighet om beløpet. Avslår tilbudet i svaret, også de 60 000 kr subsidiært.</span></a>
-                  <div class="vei" data-spor="D-4"><b>Vent</b><span>Du trenger ikke svare nå. Svaret står, men har BH satt en akseptfrist i svaret, er BH bare bundet til fristen er ute.</span></div>
+                  <div class="vei" data-spor="D-4"><b>Vent</b><span>Svaret står til du tar stilling til det. Har BH satt en akseptfrist i svaret, er BH bare bundet til fristen er ute.</span></div>
                 </div>
               </div>
             </div>
@@ -116,7 +116,7 @@
                   <p data-spor="G-4">BH er bundet av svaret til du godtar det, sender en ny versjon av kravet, eller en akseptfrist BH har satt i svaret, er ute.</p>
                 </div>
                 <div class="knapper" data-spor="U-6"><a class="btn ghost" href="#mottatt">Tilbake</a><a class="btn primary" href="#protest-brev">Se brevet</a></div>
-                <p class="muted">Det du har skrevet, står til du sender eller starter på nytt.</p>
+                <p class="muted">Det du har skrevet, står til du sender det eller lukker siden.</p>
               </div>
             </div>
 
@@ -145,7 +145,7 @@
                   <tr><td><b>Prinsipalt</b>: varselet etter § 34.1.2 kom for sent<br><span class="muted">Du har protestert i brev 6: varselet kom i tide.</span></td><td class="n">0 kr</td></tr>
                   <tr><td><b>Subsidiært</b>: hvis varselet kom i tide</td><td class="n">60 000 kr</td></tr>
                 </table>
-                <p class="muted" data-spor="D-4 · G-4">BH er bundet av svaret til du godtar det, sender en ny versjon av kravet, eller en akseptfrist BH har satt i svaret, er ute.</p>
+                <p class="muted" data-spor="D-4 · G-4">BH er bundet av svaret til du godtar det, sender en ny versjon av kravet, eller en akseptfrist BH har satt i svaret, er ute. Godtar du etter fristen, er aksepten et nytt tilbud fra deg, som BH kan godta eller avslå.</p>
                 <ul class="tl">
                   <li>Brev 4 · TE · krav og varsel etter § 34.1.2</li>
                   <li>Brev 5 · BH · svar: varselet kom for sent, subsidiært 60 000 kr</li>
@@ -166,7 +166,7 @@
                 <label class="lbl" for="beloep">Hvor mye krever du?</label>
                 <div class="money"><input id="beloep" value="100 000"><span>kr</span></div>
                 <div class="knapper" data-spor="U-6"><a class="btn ghost tilbake" href="#mottatt">Tilbake</a><a class="btn primary" href="#ny-versjon-brev">Se brevet</a></div>
-                <p class="muted">Det du har skrevet, står til du sender eller starter på nytt.</p>
+                <p class="muted">Det du har skrevet, står til du sender det eller lukker siden.</p>
               </div>
             </div>
 
@@ -208,11 +208,13 @@
                 <div class="virkning enighet" data-spor="D-1 · G-5">
                   <p><b>Enighet: 0 kr</b></p>
                   <p>Aksepten i <span class="brevnr-aksept">brev 6</span> omfatter hele svaret i brev 5, også at varselet etter § 34.1.2 kom for sent.</p>
+                  <p class="etter-protest" hidden data-spor="S-2">Protesten i brev 6 står i saken, men er ikke et forbehold i aksepten.</p>
                 </div>
                 <div class="lbl">Hva vil du gjøre?</div>
                 <div class="veier">
-                  <a class="vei" href="#protest-avvist" data-spor="D-6 · G-5"><b>Protester: varselet kom i tide</b><span>Prøv å sende en protest mot påberopelsen etter aksepten.</span></a>
+                  <a class="vei" href="#protest-avvist" data-spor="D-6 · G-5"><b>Protester: varselet kom i tide</b><span>Gjelder påberopelsen av at varselet kom for sent.</span></a>
                 </div>
+                <p class="muted">I prototypen viser denne veien hva som skjer når en protest sendes etter enigheten.</p>
               </div>
             </div>
 
@@ -223,11 +225,12 @@
                 <div class="feil" role="alert" data-spor="D-6 · G-5">
                   <p><b>Påberopelsen av for sen varsling i brev 5 inngår i enigheten.</b></p>
                   <p>Du godtok svaret i <span class="brevnr-aksept">brev 6</span>, og enigheten omfatter hele svaret. Ingenting er sendt.</p>
-                  <p>Et brev sendt utenfor løsningen kan du fortsatt registrere i saken som dokumentasjon.</p>
+                  <p>Et brev sendt utenfor løsningen kan du fortsatt registrere i saken som dokumentasjon. Løsningen vurderer ikke innholdet i det.</p>
                 </div>
                 <div class="virkning enighet" data-spor="D-1 · G-5">
                   <p><b>Enighet: 0 kr</b></p>
                   <p>Aksepten i <span class="brevnr-aksept">brev 6</span> omfatter hele svaret i brev 5, også at varselet etter § 34.1.2 kom for sent.</p>
+                  <p class="etter-protest" hidden data-spor="S-2">Protesten i brev 6 står i saken, men er ikke et forbehold i aksepten.</p>
                 </div>
                 <div class="knapper"><a class="btn ghost" href="#godtatt">Tilbake</a></div>
               </div>
@@ -248,7 +251,7 @@
     document.querySelector('.brevnr').textContent = protestert ? 'Brev 7' : 'Brev 6';
     document.getElementById('beloep-kopi').textContent = document.getElementById('beloep').value;
     for (const t of document.querySelectorAll('.tilstand')) t.classList.toggle('vist', t.id === id);
-    document.querySelector('.etter-protest').hidden = !protestert;
+    for (const e of document.querySelectorAll('.etter-protest')) e.hidden = !protestert;
     document.getElementById('hvorfor-kopi').textContent = document.getElementById('hvorfor').value;
     for (const k of document.querySelectorAll('.kontrollert')) {
       k.checked = false;
