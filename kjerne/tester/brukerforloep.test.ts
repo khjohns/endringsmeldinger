@@ -13,6 +13,7 @@ import { MAALMODELL } from './kjoerer.ts';
 import {
   BRUKERFORLOEP,
   demonavnerom,
+  finn,
   forloepsfiler,
   genererte,
   kildebruk,
@@ -109,6 +110,14 @@ function avvik(b: Brukerforloep, fil: string): string[] {
   for (const id of b.bevis_saker) krev(BEVIS.has(id), `bevis-saken ${id} finnes ikke`);
   for (const k of b.kilder ?? []) krev(KILDER.has(k), `kilden ${k} finnes ikke`);
   if (b.bestilling) krev(lagret(b.bestilling) !== null, `bestillingen ${b.bestilling} finnes ikke`);
+  if (b.prototype) {
+    krev(lagret(b.prototype.fil) !== null, `prototypen ${b.prototype.fil} finnes ikke`);
+    const stier = b.prototype.klikkstier.map((s) => s.id);
+    krev(
+      stier.length && new Set(stier).size === stier.length,
+      'klikkstiene mangler eller har like ID-er'
+    );
+  }
   const kilder = kilderI(b);
   const hvor = b.status === 'planlagt' ? 'kildene' : 'kontrollene og forståelsen';
   for (const id of vedtakIBestilling(b))
@@ -119,6 +128,7 @@ function avvik(b: Brukerforloep, fil: string): string[] {
     krev(!b.visninger.length, 'et planlagt forløp er ikke prøvd i noen visning');
     return ut;
   }
+  krev(!b.kilder, 'et kjørbart forløp har vedtakene i kontrollene og forståelsen, ikke i kilder');
   const steg = b.steg ?? [];
   const punkter = b.kontrollpunkter ?? [];
   krev(steg.length && punkter.length, 'et kjørbart forløp har steg og kontrollpunkter');
@@ -157,9 +167,11 @@ describe('vakttestene for brukerforløpene', () => {
       { tekst: 'Med en ukjent kilde.', kilde: ['UKJENT-FORSTAAELSE'] },
     ];
     b.endringer = [];
+    b.kilder = ['OV-U64'];
     const p = b.kontrollpunkter![0].id;
     expect(avvik(b, `${b.id}.json`)).toEqual([
       `${b.id}: en endring mangler dato eller vedtak eller issue`,
+      `${b.id}: et kjørbart forløp har vedtakene i kontrollene og forståelsen, ikke i kilder`,
       `${b.id}: ${p}: kilden UKJENT-KILDE finnes ikke`,
       `${b.id}: ${p}: en forståelse mangler tekst eller kilde`,
       `${b.id}: ${p}: kilden UKJENT-FORSTAAELSE finnes ikke`,
@@ -168,8 +180,11 @@ describe('vakttestene for brukerforløpene', () => {
     planlagt.steg = [{ handling: 'trekk', spor: 'grunnlag' }];
     planlagt.venter_paa = [];
     planlagt.bestilling = 'FINNES-IKKE.md';
+    planlagt.prototype = { fil: 'FINNES-IKKE.html', klikkstier: [] };
     expect(avvik(planlagt, `${planlagt.id}.json`)).toEqual([
       `${planlagt.id}: bestillingen FINNES-IKKE.md finnes ikke`,
+      `${planlagt.id}: prototypen FINNES-IKKE.html finnes ikke`,
+      `${planlagt.id}: klikkstiene mangler eller har like ID-er`,
       `${planlagt.id}: et planlagt forløp sier hva det venter på`,
       `${planlagt.id}: et planlagt forløp har ingen steg`,
     ]);
@@ -208,8 +223,10 @@ describe('vakttestene for brukerforløpene', () => {
     expect(status['BF-02C']).toBe('planlagt');
   });
 
+  // Listen er fast, så testen ikke blir tom når et forløp blir kjørbart og mister `kilder`
+  // (#1363).
   it('et kjørbart forløp etter OV-U54 (4B) har en kontroll med OV-U54 som kilde', () => {
-    for (const b of BRUKERFORLOEP.filter((x) => x.kilder?.includes('OV-U54'))) {
+    for (const b of ['BF-02B'].map(finn)) {
       if (b.status === 'planlagt') continue;
       const kilder = (b.kontrollpunkter ?? []).flatMap(kontrollerI).flatMap((k) => k.kilde);
       expect(kilder, b.id).toContain('OV-U54');

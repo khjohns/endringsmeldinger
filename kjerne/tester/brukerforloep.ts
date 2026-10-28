@@ -58,10 +58,34 @@ export type Brukerforloep = {
   venter_paa?: string[];
   /** Bestillingen i samme mappe: ønsket arbeidsmåte, forventningene og de åpne spørsmålene. */
   bestilling?: string;
+  /** Prototypen og klikkstiene den mekaniske forprøven følger (#1347). */
+  prototype?: Prototype;
   bevis_saker: string[];
   visninger: Visning[];
   endringer: { dato: string; grunnlag: string; hva: string }[];
 };
+
+/**
+ * Prototypen, med stien fra mappa med forløpene, og klikkstiene gjennom den.
+ * `prototype.mjs` i skillen `mockup-nettleser` følger stiene.
+ */
+export type Prototype = { fil: string; klikkstier: Klikksti[] };
+
+/**
+ * Én vei gjennom prototypen fra ankeret `start`. `dekker` er stegene i stegtabellen og
+ * kontrollpunktene (G-x) i bestillingen som veien prøver.
+ */
+export type Klikksti = { id: string; dekker: string[]; start: string; handlinger: Klikk[] };
+
+/**
+ * `klikk` er navnet på en synlig lenke, og `tilstand` ankeret den skal føre til. `kryss` og
+ * `fyll` er etiketten på et skjemafelt. `staar` er en tekst som skal være synlig der veien er.
+ */
+export type Klikk =
+  | { klikk: string; tilstand: string }
+  | { kryss: string }
+  | { fyll: string; tekst: string }
+  | { staar: string };
 
 type Kontrollsett = {
   beskrivelse: string;
