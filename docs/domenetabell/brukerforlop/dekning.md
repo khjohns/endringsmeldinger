@@ -31,10 +31,10 @@ på kilden, men har ingen kontroller ennå.
 | [HF-U9](../../plans/vedtak.md#hf-u9) | — | BF-01 te-har-mottatt-svaret | BF-01V, BF-03 |
 | [HF-U18](../../plans/vedtak.md#hf-u18) | — | — | BF-03 |
 | KA-01 | BF-01 start, BF-01 bh-har-mottatt-vederlagskravet | — | — |
-| [KA-U1](../../plans/vedtak.md#ka-u1) | — | BF-01 te-har-mottatt-svaret | BF-01V, BF-03 |
+| [KA-U1](../../plans/vedtak.md#ka-u1) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-01V, BF-03 |
 | [KA-U2](../../plans/vedtak.md#ka-u2) | BF-01 bh-har-mottatt-vederlagskravet | — | — |
 | [KA-U4](../../plans/vedtak.md#ka-u4) | BF-01 te-har-mottatt-svaret | — | — |
-| [KA-U7](../../plans/vedtak.md#ka-u7) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-03 |
+| [KA-U7](../../plans/vedtak.md#ka-u7) | — | — | BF-03 |
 | [KA-U10](../../plans/vedtak.md#ka-u10) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-godtatt-svaret | BF-01V, BF-03 |
 | [KA-U29](../../plans/vedtak.md#ka-u29) | — | — | BF-03 |
 | [KA-U31](../../plans/vedtak.md#ka-u31) | — | — | BF-01V |
@@ -55,6 +55,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U25](../../plans/vedtak.md#mm-u25) | — | — | BF-01V |
 | [MM-U28](../../plans/vedtak.md#mm-u28) | — | — | BF-01V |
 | [MM-U32](../../plans/vedtak.md#mm-u32) | — | — | BF-01V |
+| [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | — |
 | [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-03 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
 | [OV-U27](../../plans/vedtak.md#ov-u27) | BF-01 te-har-mottatt-svaret | BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret | — |
