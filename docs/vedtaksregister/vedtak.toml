@@ -5597,7 +5597,7 @@ svar = '''
 «HF-U4 og HF-U5 (Recommended)»'''
 forhold = [{ art = "utvider", vedtak = "mm-u18" }]
 folge = '''
-Ikke bygget (#568). Bygget 18.10 i PR #775.'''
+Ikke bygget (#568). Bygget 18.10 i PR #775. [MM-U34](#mm-u34) (28.10) opphever i punkt 4 vernet mot revisjon i HF-U5 og i punkt 6 sperren i HF-U4 mot at byggherren senere påberoper at et varsel kom for sent etter å ha sagt at det kom i tide. MM-U34 lister ikke MM-U27 blant vedtakene det endrer eller opphever.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "HF-U4 og HF-U5"
