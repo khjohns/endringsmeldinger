@@ -156,7 +156,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(aksepten.aktor_rolle).toBe('TE');
     k.registrer(BF.steg![4], [aksepten]);
     await kontrollerEtter(forloep, 5, k, paastand);
-    // Etter aksepten tilbyr kjernen ikke å godta på nytt (KA-U7).
+    // Etter aksepten tilbyr kjernen ikke å godta på nytt: enigheten er registrert (GR-U8).
     expect(screen.queryByRole('button', { name: 'Ta stilling til svaret' })).toBeNull();
   });
 
