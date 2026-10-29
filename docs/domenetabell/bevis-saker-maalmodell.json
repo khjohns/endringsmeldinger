@@ -3693,7 +3693,8 @@
           "rolle": "mal",
           "kilde": [
             "MM-U34",
-            "KA-U11"
+            "KA-U11",
+            "KA-U13"
           ],
           "forventet": {
             "avvist": false
