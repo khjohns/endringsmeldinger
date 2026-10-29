@@ -145,6 +145,14 @@
   --control-border: 1px solid var(--control-border-color);
   --control-focus: #2457d6;
   --control-focus-ring: 0 0 0 3px rgba(36, 87, 214, 0.25);
+
+  --sidebar-bg: #15181d;
+  --sidebar-active: #262b33;
+  --sidebar-hover: #1e2228;
+  --sidebar-text: #f3f4f6;
+  --sidebar-muted: #a9afb9;
+  --sidebar-border: #2e333b;
+  --sidebar-focus: #8fb0ff;
 }
 
 /* ══════════════════════════════════════════════════

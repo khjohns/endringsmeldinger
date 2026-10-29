@@ -29,6 +29,8 @@ const MODULER = new Set(
     'components/kontraktsbord/theme.css',
   ].map((m) => join(LIB, m))
 );
+// Logoen i panelet, som dagens visning bruker. Ingen regel.
+const RESSURSER = new Set([join(ROT, 'public', 'logos', 'Oslo-logo-hvit-RGB.png?inline')]);
 
 const under = (sti: string, mappe: string) => sti === mappe || sti.startsWith(mappe + sep);
 const utenEndelse = (sti: string) => sti.replace(/\.(ts|js)$/, '');
@@ -52,7 +54,7 @@ export function forbudte(kilder: Map<string, string>): string[] {
       .filter((i) => {
         if (PAKKER.has(i)) return false;
         if (under(i, KJERNE)) return under(i, join(KJERNE, 'tester'));
-        if (MODULER.has(utenEndelse(i))) return false;
+        if (MODULER.has(utenEndelse(i)) || RESSURSER.has(i)) return false;
         return !(under(i, VARDEN) && !under(i, join(VARDEN, '__tests__')));
       })
       .map((i) => `${relative(ROT, fil)} → ${i.startsWith(ROT) ? relative(ROT, i) : i}`)

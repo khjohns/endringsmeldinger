@@ -16,7 +16,8 @@
  * `--control-border` holder ikke kravet ennå og står i #1258.
  *
  * Varden har egne tokens i `.tema-varden` (Blekk, #1391), lagt over lys modus. Der
- * prøves også utkastfargen på sin bakgrunn og feltkanten på flatene.
+ * prøves også utkastfargen på sin bakgrunn, feltkanten på flatene og teksten og
+ * fokusmarkeringen i det mørke panelet.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
@@ -151,6 +152,10 @@ export function brudd(verdier: Record<Modus, Record<string, string>>): string[] 
   prov('varden', '--draft', '--draft-bg', 4.5);
   for (const bg of ['--surface', '--surface-inset'])
     prov('varden', '--control-border-color', bg, 3);
+  for (const bg of ['--sidebar-bg', '--sidebar-active']) {
+    for (const fg of ['--sidebar-text', '--sidebar-muted']) prov('varden', fg, bg, 4.5);
+    prov('varden', '--sidebar-focus', bg, 3);
+  }
   return funn;
 }
 
@@ -213,7 +218,9 @@ describe('kontrollene i vaktene', () => {
         ...STATUS.map((s) => `  ${s}: #000000; ${s}-bg: rgba(0, 0, 0, 0.1);`),
         '}',
         ':root.dark,\n.mockup.dark {\n  --ink-4: #ffffff;\n  --canvas: #000000;\n}',
-        '.tema-varden {\n  --draft: #999999; --draft-bg: #ffffff; --control-border-color: #eeeeee;\n}',
+        '.tema-varden {\n  --draft: #999999; --draft-bg: #ffffff; --control-border-color: #eeeeee;',
+        '  --sidebar-bg: #000000; --sidebar-active: #000000; --sidebar-text: #ffffff;',
+        '  --sidebar-muted: #444444; --sidebar-focus: #ffffff;\n}',
       ].join('\n')
     );
     expect(verdier.mørk['--ink-2']).toBe('#000000');
@@ -224,6 +231,7 @@ describe('kontrollene i vaktene', () => {
     expect(funn).toContain('varden: --ink-4 på --surface (4.48)');
     expect(funn).toContain('varden: --draft på --draft-bg (2.85)');
     expect(funn).toContain('varden: --control-border-color på --surface-inset (1.16)');
+    expect(funn).toContain('varden: --sidebar-muted på --sidebar-bg (2.16)');
     expect(funn.filter((f) => f.includes('--success'))).toEqual([]);
   });
 });

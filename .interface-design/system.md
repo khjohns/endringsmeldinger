@@ -33,6 +33,10 @@ Beholde inter som font.» Oslo-logoen er fast.
 - **Subsidiært får ingen farge.** Det skilles med tekst og form (#197).
 - **Demomerket** «Varden · eksperimentell visning» er nøytralt og bruker ikke utkastfargen.
 - **Skriften er Inter** (`--font-sans`), som før.
+- **Skallet er som i dagens visning** (oppdragsgiver 29.10): panelet til venstre er mørkt blekk
+  (`--sidebar-bg`) over hele høyden, med byvåpenet og «Oslo kommune / Oslobygg KF» øverst,
+  saken med etikett og verdi under, og sporene. Topplinja står over arbeidsflaten, med rollen
+  og handlingene som gjelder hele saken. Arbeidet i sporet begynner rett under.
 
 Verdiene står i `.tema-varden` i `theme.css`, som Varden og showcasen bruker.
 [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) prøver dem, også utkastfargen og
