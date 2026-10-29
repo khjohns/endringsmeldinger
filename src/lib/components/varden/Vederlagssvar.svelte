@@ -373,7 +373,7 @@
     padding: 0 var(--spacing-2);
     border: 1px dashed var(--draft-border);
     border-radius: 999px;
-    background: var(--draft-bg);
+    background: var(--surface);
     font-size: 12px;
     font-weight: 500;
   }

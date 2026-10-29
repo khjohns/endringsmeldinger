@@ -76,62 +76,64 @@
 </script>
 
 <div class="varden tema-varden">
-  <div class="panel">
-    <div class="avsender">
-      <div class="logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
-      <p><span class="kommune">{SAKEN.kommune}</span><span>{SAKEN.foretak}</span></p>
-    </div>
-    {#if u && kjernesak.saksbilde}
-      <header class="sakshode">
-        <h1>{kjernesak.saksbilde.tittel}</h1>
-        <dl class="meta">
-          <div>
-            <dt>{SAKEN.byggherre}</dt>
-            <dd>BH</dd>
-          </div>
-          <div>
-            <dt>{SAKEN.entreprenoer}</dt>
-            <dd>TE</dd>
-          </div>
-          {#if brev[0]}
+  <div class="panelkolonne">
+    <div class="panel">
+      <div class="avsender">
+        <div class="logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
+        <p><span class="kommune">{SAKEN.kommune}</span><span>{SAKEN.foretak}</span></p>
+      </div>
+      {#if u && kjernesak.saksbilde}
+        <header class="sakshode">
+          <h1>{kjernesak.saksbilde.tittel}</h1>
+          <dl class="meta">
             <div>
-              <dt>{SAKEN.opprettet}</dt>
-              <dd>{dato(brev[0].registrert)} av {brev[0].avsender}</dd>
+              <dt>{SAKEN.byggherre}</dt>
+              <dd>BH</dd>
             </div>
-          {/if}
-        </dl>
-      </header>
+            <div>
+              <dt>{SAKEN.entreprenoer}</dt>
+              <dd>TE</dd>
+            </div>
+            {#if brev[0]}
+              <div>
+                <dt>{SAKEN.opprettet}</dt>
+                <dd>{dato(brev[0].registrert)} av {brev[0].avsender}</dd>
+              </div>
+            {/if}
+          </dl>
+        </header>
 
-      <nav class="sporene" aria-label={SAKEN.nav}>
-        <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
-        <ul aria-labelledby="spor-etikett">
-          {#each SPORENE as s (s)}
-            {@const sisteBrev = brev.filter((b) => b.spor.includes(s)).at(-1)}
-            <li>
-              <button
-                type="button"
-                class="spor"
-                aria-current={valgt === s ? 'page' : undefined}
-                onclick={() => velgSpor(s)}
-              >
-                <span class="navn">
-                  {SPORNAVN[s]}
-                  {#if valgt === s && arbeid.art !== 'les'}<span class="merke-utkast"
-                      >{SAKEN.utkast}</span
-                    >{/if}
-                </span>
-                <span class="sist"
-                  >{sisteBrev
-                    ? SAKEN.sist(sisteBrev.nummer, sisteBrev.avsender)
-                    : SAKEN.ingenBrev}</span
+        <nav class="sporene" aria-label={SAKEN.nav}>
+          <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
+          <ul aria-labelledby="spor-etikett">
+            {#each SPORENE as s (s)}
+              {@const sisteBrev = brev.filter((b) => b.spor.includes(s)).at(-1)}
+              <li>
+                <button
+                  type="button"
+                  class="spor"
+                  aria-current={valgt === s ? 'page' : undefined}
+                  onclick={() => velgSpor(s)}
                 >
-              </button>
-            </li>
-          {/each}
-        </ul>
-      </nav>
-    {/if}
-    <p class="prototype">{SAKEN.prototype}</p>
+                  <span class="navn">
+                    {SPORNAVN[s]}
+                    {#if valgt === s && arbeid.art !== 'les'}<span class="merke-utkast"
+                        >{SAKEN.utkast}</span
+                      >{/if}
+                  </span>
+                  <span class="sist"
+                    >{sisteBrev
+                      ? SAKEN.sist(sisteBrev.nummer, sisteBrev.avsender)
+                      : SAKEN.ingenBrev}</span
+                  >
+                </button>
+              </li>
+            {/each}
+          </ul>
+        </nav>
+      {/if}
+      <p class="prototype">{SAKEN.prototype}</p>
+    </div>
   </div>
 
   <div class="flate">
@@ -236,6 +238,10 @@
     line-height: 1.5;
     font-variant-numeric: tabular-nums;
   }
+  .panelkolonne {
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+  }
   .panel {
     position: sticky;
     top: 0;
@@ -244,15 +250,14 @@
     gap: var(--spacing-8);
     height: 100vh;
     overflow-y: auto;
-    padding: var(--spacing-5) var(--spacing-5) var(--spacing-6);
-    background: var(--sidebar-bg);
-    color: var(--sidebar-text);
+    padding: 0 var(--spacing-5) var(--spacing-6);
   }
+  /* Like høy som topplinja, så byvåpenet står på linje med rollen. */
   .avsender {
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
-    min-height: 44px;
+    min-height: var(--mockup-topbar-height);
   }
   /* Samme utsnitt av logoen som dagens visning (LeftSidebar.svelte): bare byvåpenet. */
   .logo {
@@ -381,7 +386,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-4);
-    min-height: 64px;
+    min-height: var(--mockup-topbar-height);
     padding: 0 var(--spacing-10);
     border-bottom: var(--rule);
     background: var(--surface);
@@ -430,13 +435,13 @@
       gap: var(--spacing-5);
       padding: var(--spacing-4);
     }
-    .sporene ul {
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: var(--spacing-2);
+    .avsender {
+      min-height: 44px;
     }
-    .spor {
-      width: auto;
+    .sporene ul {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--spacing-2);
     }
     .prototype {
       margin-top: 0;

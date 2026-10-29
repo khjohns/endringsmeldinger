@@ -30,7 +30,10 @@ Beholde inter som font.» Oslo-logoen er fast.
     sendt brev. Ingenting annet er gult.
   - `--control-focus` er fokus og ingenting annet.
   - `--danger` er feil.
-- **Subsidiært får ingen farge.** Det skilles med tekst og form (#197).
+- **Subsidiært får ingen farge.** Det skilles med tekst og form (#197, oppdragsgiver 29.10).
+  Spørsmålet sier hva det bygger på, som «Hvis innsigelsen om sen varsling ikke fører frem,
+  hvor mye godtar du?». Med flere subsidiære lag blir teksten alene svak; formen for det er
+  ikke avgjort (#1391).
 - **Demomerket** «Varden · eksperimentell visning» er nøytralt og bruker ikke utkastfargen.
 - **Skriften er Inter** (`--font-sans`), som før.
 - **Skallet er som i dagens visning** (oppdragsgiver 29.10): panelet til venstre er mørkt blekk
