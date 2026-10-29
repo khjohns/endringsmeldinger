@@ -1,5 +1,6 @@
 // Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys modus, bred og smal
-// skjerm (#1187), med saken sett av TE og BH (#1213). axe finner bare en del av feilene; resten står i skillen uu-sjekk.
+// skjerm (#1187), med saken sett av TE og BH (#1213). Med --varden kjøres i stedet Varden i
+// demoruta (#1331). axe finner bare en del av feilene; resten står i skillen uu-sjekk.
 import { createRequire } from 'node:module';
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
@@ -13,6 +14,7 @@ try {
       url: { type: 'string', default: 'http://localhost:5173' },
       scenario: { type: 'string', default: 'scenario1' },
       vis: { type: 'string', default: '5' },
+      varden: { type: 'boolean', default: false },
     },
   }));
 } catch (e) {
@@ -113,6 +115,58 @@ const TILSTANDER = [
   },
 ];
 
+// Varden i demoruta med BF-01: hver tilstand starter ved kontrollpunktet sitt. Demopanelet
+// legges sammen først, så det ikke står over det som prøves.
+const iVarden = (punkt, vei) => async (page) => {
+  await page.goto(`${arg.url}/demo/BF-01?punkt=${punkt}&visning=varden`, {
+    waitUntil: 'networkidle',
+  });
+  await page.getByRole('heading', { level: 1 }).waitFor();
+  const demo = page
+    .getByRole('complementary', { name: 'Demo av brukerforløpet' })
+    .locator('details')
+    .first();
+  if ((await demo.getAttribute('open')) !== null) await demo.locator('summary').first().click();
+  await vei?.(page);
+};
+const bhSvarer = async (page) => {
+  await page.getByText('Skriv brev i sporet').click();
+  await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
+  await page.getByRole('radio', { name: 'Varslet for sent' }).check();
+  await page.getByRole('radio', { name: 'Godtar metoden', exact: true }).check();
+  await page.getByRole('radio', { name: 'Deler av beløpet' }).check();
+  await page.getByRole('textbox', { name: 'Beløpet du godtar' }).fill('60000');
+};
+const VARDEN = [
+  { navn: 'Varden: BH har mottatt kravet', vei: iVarden('bh-har-mottatt-vederlagskravet') },
+  {
+    navn: 'Varden: BHs svarskjema',
+    vei: iVarden('bh-har-mottatt-vederlagskravet', bhSvarer),
+  },
+  {
+    navn: 'Varden: brevet før sending',
+    vei: iVarden('bh-har-mottatt-vederlagskravet', async (page) => {
+      await bhSvarer(page);
+      await page.getByRole('textbox', { name: 'Begrunnelse' }).fill('Varselet kom for sent.');
+      await page.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+      await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor();
+    }),
+  },
+  {
+    navn: 'Varden: TE tar stilling til svaret',
+    vei: iVarden('te-har-mottatt-svaret', (page) =>
+      page.getByRole('button', { name: 'Ta stilling til svaret' }).click()
+    ),
+  },
+  {
+    navn: 'Varden: akseptbrevet før sending',
+    vei: iVarden('te-har-mottatt-svaret', async (page) => {
+      await page.getByRole('button', { name: 'Ta stilling til svaret' }).click();
+      await page.getByRole('button', { name: 'Se akseptbrevet' }).click();
+    }),
+  },
+];
+
 const axeSti = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 const mockup = (scenario) => `${arg.url}/mockup?scenario=${scenario}`;
 const { chromium } = globalPlaywright();
@@ -124,7 +178,7 @@ try {
   browser = await chromium.launch();
   for (const oppsett of OPPSETT) {
     const smal = oppsett.viewport.width < 768;
-    for (const tilstand of TILSTANDER) {
+    for (const tilstand of arg.varden ? VARDEN : TILSTANDER) {
       if (tilstand.bareBred && smal) continue;
       const kontekst = await browser.newContext({
         colorScheme: oppsett.colorScheme,
@@ -134,7 +188,8 @@ try {
       page.setDefaultTimeout(15000);
       const feil = [];
       page.on('pageerror', (e) => feil.push(e.message));
-      await page.goto(mockup(tilstand.scenario ?? arg.scenario), { waitUntil: 'networkidle' });
+      if (!arg.varden)
+        await page.goto(mockup(tilstand.scenario ?? arg.scenario), { waitUntil: 'networkidle' });
       await tilstand.vei(page);
       const mørk = await page.evaluate(() => document.documentElement.classList.contains('dark'));
       if (mørk !== (oppsett.colorScheme === 'dark'))

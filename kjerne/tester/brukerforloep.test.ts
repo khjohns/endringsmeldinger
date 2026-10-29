@@ -104,8 +104,12 @@ function avvik(b: Brukerforloep, fil: string): string[] {
     'en endring mangler dato eller vedtak eller issue'
   );
   krev(
-    b.visninger.every((v) => v === 'demoruta' || v === 'saksruta'),
+    b.visninger.every((v) => v === 'demoruta' || v === 'saksruta' || v === 'varden'),
     'ukjent visning'
+  );
+  krev(
+    !b.visninger.includes('varden') || b.visninger.includes('demoruta'),
+    'Varden kjøres i demoruta, så forløpet må ha en startjournal der'
   );
   for (const id of b.bevis_saker) krev(BEVIS.has(id), `bevis-saken ${id} finnes ikke`);
   for (const k of b.kilder ?? []) krev(KILDER.has(k), `kilden ${k} finnes ikke`);

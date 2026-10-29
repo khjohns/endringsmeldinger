@@ -2,8 +2,10 @@
 // fra kontrollpunktet der BH har mottatt vederlagskravet. BH fyller ut svaret i skjemaet,
 // kontrollerer brevet og sender det; TE åpner saken, ser svaret og godtar det. Til slutt
 // startes forløpet på nytt. Demoruta sender ingenting, så skriptet trenger bare vite.
+// Med `--visning varden` går de samme stegene gjennom Varden (#1331), og skjermbildene har
+// de samme navnene, så de kan sammenlignes ved hvert kontrollpunkt.
 //
-//   node .claude/skills/mockup-nettleser/demoruta.mjs [--url http://localhost:5173] [--utdata <mappe>]
+//   node .claude/skills/mockup-nettleser/demoruta.mjs [--url http://localhost:5173] [--utdata <mappe>] [--visning varden]
 //
 // Den globale playwright-pakken er den som passer med nettleserne i
 // PLAYWRIGHT_BROWSERS_PATH; en lokal `npm i playwright` henter en nyere som ikke gjør det.
@@ -18,6 +20,7 @@ const { values: arg } = parseArgs({
   options: {
     url: { type: 'string', default: 'http://localhost:5173' },
     utdata: { type: 'string', default: join(tmpdir(), 'demoruta-skjermbilder') },
+    visning: { type: 'string', default: 'dagens' },
   },
 });
 
@@ -65,7 +68,9 @@ async function startVite(url) {
 }
 
 const TITTEL = 'BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret';
-const forloep = (punkt) => `${arg.url}/demo/BF-01${punkt ? `?punkt=${punkt}` : ''}`;
+const VARDEN = arg.visning === 'varden';
+const forloep = (punkt) =>
+  `${arg.url}/demo/BF-01?punkt=${punkt ?? 'start'}${VARDEN ? '&visning=varden' : ''}`;
 const { chromium } = globalPlaywright();
 mkdirSync(arg.utdata, { recursive: true });
 const vite = await startVite(`${arg.url}/demo`);
@@ -89,6 +94,65 @@ try {
   const panel = page.getByRole('complementary', { name: 'Demo av brukerforløpet' });
   const side = (part) => panel.getByRole('radio', { name: part, exact: true }).click();
 
+  if (VARDEN) {
+  // Demopanelet står over høyre kolonne i Varden, så det legges sammen mens brukeren handler.
+  const demo = panel.locator('details').first();
+  const demopanel = async (aapent) => {
+    if ((await demo.getAttribute('open')) !== null !== aapent) await demo.locator('summary').first().click();
+  };
+  const article = (name) => page.getByRole('article', { name });
+
+  await page.goto(forloep(), { waitUntil: 'networkidle' });
+  await page.getByRole('heading', { name: TITTEL, level: 1 }).waitFor();
+  await steg('start-te');
+
+  await page.goto(forloep('bh-har-mottatt-vederlagskravet'), { waitUntil: 'networkidle' });
+  await page.getByRole('heading', { name: TITTEL, level: 1 }).waitFor();
+  await demopanel(false);
+  await steg('bh-har-mottatt-kravet');
+
+  await page.getByText('Skriv brev i sporet').click();
+  await knapp('Svar på kravet').click();
+  await page.getByRole('radio', { name: 'Varslet for sent' }).check();
+  await page.getByRole('radio', { name: 'Godtar metoden', exact: true }).check();
+  await page.getByRole('radio', { name: 'Deler av beløpet' }).check();
+  await page.getByRole('textbox', { name: 'Beløpet du godtar' }).fill('60000');
+  await page
+    .getByRole('textbox', { name: 'Begrunnelse' })
+    .fill('Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr.');
+  await steg('bh-vurderer', true);
+
+  await knapp('Se brevet før sending').first().click();
+  const tekst = await article('Svar på krav om vederlagsjustering').getByTestId('laast-tekst').innerText();
+  console.log(`Brevet BH kontrollerer:\n${tekst}`);
+  if (!/prinsipalt/i.test(tekst) || !/60\s000/.test(tekst))
+    throw new Error('Brevet sier ikke det prinsipale standpunktet og det subsidiære beløpet');
+  await steg('bh-kontrollerer-brevet', true);
+  await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+  await knapp('Send svaret til TE').click();
+  await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor({ state: 'detached' });
+  await steg('bh-har-sendt', true);
+
+  await demopanel(true);
+  await side('TE');
+  await demopanel(false);
+  await knapp('Ta stilling til svaret').click();
+  await steg('te-har-mottatt-svaret', true);
+  await knapp('Se akseptbrevet').click();
+  console.log(`Aksepten TE kontrollerer:\n${await article('Aksept av svaret').getByTestId('laast-tekst').innerText()}`);
+  await steg('te-godtar');
+  await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+  await knapp('Send aksepten til BH').click();
+  await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor({ state: 'detached' });
+  if (await knapp('Ta stilling til svaret').isVisible())
+    throw new Error('TE får fortsatt tilbud om å godta svaret etter aksepten');
+  await steg('te-har-godtatt');
+
+  await demopanel(true);
+  await knapp('Start på nytt').click();
+  await page.getByText('Skriv brev i sporet').waitFor();
+  await steg('startet-paa-nytt');
+  } else {
   // Fra begynnelsen: saken er opprettet, og TE handler i neste steg.
   await page.goto(forloep(), { waitUntil: 'networkidle' });
   await page.getByRole('heading', { name: TITTEL }).waitFor();
@@ -142,6 +206,8 @@ try {
   await spor(/^Vederlag/).click();
   await knapp('Svar på kravet').waitFor();
   await steg('startet-paa-nytt');
+
+  }
 
   await page.setViewportSize({ width: 390, height: 844 });
   await steg('smal-skjerm');

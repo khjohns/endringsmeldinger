@@ -35,7 +35,7 @@ Ett forløp per fil, `BF-<nummer>.json`, med ID-en som filnavn. ID-en endres ikk
 | `bestilling` | Valgfri. Markdown-fila i samme mappe med ønsket arbeidsmåte, skjermtilstandene i prototypen, forventningene og de åpne spørsmålene, skrevet før byggingen. Metoden står i skillen [`brukerforlop`](../../../.claude/skills/brukerforlop/SKILL.md) |
 | `prototype` | Valgfri. `fil` er prototypen, med stien fra denne mappa, og `klikkstier` er veiene gjennom den, som den mekaniske forprøven følger (`prototype.mjs` i skillen [`mockup-nettleser`](../../../.claude/skills/mockup-nettleser/SKILL.md#prototypen-for-et-brukerforløp)). En klikksti har `id`, `start` (ankeret), `dekker` (stegene i stegtabellen og G-punktene i bestillingen) og `handlinger`: `klikk` med lenketeksten og `tilstand` med ankeret den fører til, `kryss`, `velg` (et alternativ med radioknapp) og `fyll` med etiketten på feltet, og `staar` med en tekst som skal være synlig |
 | `bevis_saker` | Bevis-sakene forløpet viser til |
-| `visninger` | `demoruta` og `saksruta`, der forløpet kan kjøres. Et kjørbart forløp kjøres alltid i minnet og mot testbasen |
+| `visninger` | `demoruta`, `saksruta` og `varden`, der forløpet kan kjøres. Et kjørbart forløp kjøres alltid i minnet og mot testbasen. `varden` er den eksperimentelle visningen i demoruta (#1331) og krever `demoruta` |
 | `endringer` | Dato, vedtak eller issue og hva som er endret, for hver endring av et forventet resultat |
 
 En kontroll har `rolle`, `kilde` og `forventet`, med stiene kjøreren leser (`les` i
@@ -56,6 +56,10 @@ vurderes og skrives av kjernen i nettleseren med demoaktørene i startjournalen.
 og tidspunktene er faste per forløp, så en omstart gir samme journal. Ingenting sendes.
 Demoruta beviser ikke tilgang, CSRF eller aktørstempling; det gjør bare saksruta mot
 TS-serveren, som kjører de samme stegene med `saksrute.ts --forlop <ID>`.
+
+Med `&visning=varden` vises den samme saken i Varden, den eksperimentelle visningen fra
+[konseptet](../../design/konsept-varden/README.md) (#1331). Bryteren i demopanelet bytter
+visning og starter forløpet på nytt fra kontrollpunktet.
 
 ## Arbeidsregelen
 

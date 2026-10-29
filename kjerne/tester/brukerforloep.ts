@@ -29,7 +29,8 @@ const STARTJOURNALER = 'startjournaler.json';
 const DEKNING = 'dekning.md';
 
 export type Status = 'kjørbar' | 'planlagt';
-export type Visning = 'demoruta' | 'saksruta';
+/** `varden` er Varden i demoruta (#1331), med samme startjournal som dagens visning. */
+export type Visning = 'demoruta' | 'saksruta' | 'varden';
 
 export type Kontrollpunkt = {
   id: string;

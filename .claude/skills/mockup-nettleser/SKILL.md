@@ -135,6 +135,13 @@ standpunktet og det subsidiære beløpet, når TE fortsatt får godta etter akse
 JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 `src/lib/components/brukerforlop/__tests__/Demoforloep.test.ts`, ikke her.
 
+Med `--visning varden` går de samme stegene gjennom Varden, den eksperimentelle
+visningen (#1331), og skjermbildene har de samme navnene, så de to visningene kan
+sammenlignes ved hvert kontrollpunkt. Demopanelet legges sammen mens brukeren handler,
+fordi det står over høyre kolonne. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
+kjører axe mot Varden, bred og smal.
+Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Varden.test.ts`.
+
 ## Prototypen for et brukerforløp
 
 `prototype.mjs` er den mekaniske forprøven av en HTML-skisse av et nytt mønster i
