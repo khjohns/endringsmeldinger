@@ -181,7 +181,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     await fireEvent.input(screen.getByRole('textbox', { name: 'Beløpet du godtar' }), {
       target: { value: '60.000' },
     });
-    expect(hindring()).toBe('Skriv beløpet du godtar med sifre, for eksempel 60 000.');
+    expect(hindring()).toBe('Skriv beløpet med sifre og komma før øre, for eksempel 100 000,40.');
     expect(screen.getByRole('button', { name: 'Se brevet før sending' })).toHaveAttribute(
       'aria-disabled',
       'true'

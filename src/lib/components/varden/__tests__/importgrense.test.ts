@@ -24,6 +24,8 @@ const MODULER = new Set(
     'kjernesak/kontekst.svelte',
     // Teksten om svarets virkning i arbeidsvalget 26.10, som dagens skjema også viser. Ingen regel.
     'kjernesak/svarvirkning',
+    // Lesingen av beløpsfeltet (OV-U58), som dagens skjema også bruker. Ingen regel.
+    'utils/belop',
     'components/kontraktsbord/theme.css',
   ].map((m) => join(LIB, m))
 );

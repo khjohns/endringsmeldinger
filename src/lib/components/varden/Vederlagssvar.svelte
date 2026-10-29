@@ -8,6 +8,7 @@
   import { BookOpen, FileText, Lock, X } from 'lucide-svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
+  import { lesKroner } from '$lib/utils/belop';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
@@ -85,12 +86,13 @@
         : []
     ).size > 1
   );
+  const delbeloep = $derived(lesKroner(valg.delbeloep));
   const ubesvart = $derived(
     valg.iTide === null ||
       valg.metode === null ||
       (valg.metode === false && valg.oensket === null) ||
       valg.beloep === null ||
-      (valg.beloep === 'deler' && valg.delbeloep === null)
+      (valg.beloep === 'deler' && 'verdi' in delbeloep && delbeloep.verdi === undefined)
   );
   // Kjernens melding om vurderinger den ikke kan regne ut, har feltkodene; skjemaet sier
   // det med egne ord.
@@ -99,8 +101,8 @@
       ? ubesvart
         ? HOVEDLINJER.ubesvart
         : valg.beloep === 'deler'
-          ? Number.isNaN(valg.delbeloep)
-            ? HOVEDLINJER.beloepUgyldig
+          ? 'feil' in delbeloep
+            ? delbeloep.feil
             : HOVEDLINJER.beloepUtenfor(krevd)
           : HOVEDLINJER.kanIkkeLages
       : brevaarsak(b);
@@ -133,9 +135,6 @@
   }
 
   let leser = $state(false);
-  // Teksten står som BH skrev den. Bare sifre, med desimalkomma, er et beløp: «60.000» skal
-  // ikke bli 60 kr.
-  let delbeloepTekst = $state(valg.delbeloep === null ? '' : String(valg.delbeloep));
 
   // Panelet følger rullingen bare når det får plass i vinduet; ellers vises en kompakt linje
   // nederst når panelet er ute av syne (skjerm E).
@@ -272,19 +271,9 @@
               <span class="inndata">
                 <input
                   id="delbeloep"
-                  inputmode="numeric"
-                  value={delbeloepTekst}
+                  inputmode="decimal"
+                  bind:value={valg.delbeloep}
                   aria-describedby="beloep-hjelp"
-                  oninput={(e) => {
-                    delbeloepTekst = e.currentTarget.value;
-                    const t = delbeloepTekst.replace(/\s/g, '');
-                    valg.delbeloep =
-                      t === ''
-                        ? null
-                        : /^\d+(,\d{1,2})?$/.test(t)
-                          ? Number(t.replace(',', '.'))
-                          : Number.NaN;
-                  }}
                 />
                 <span class="kr" aria-hidden="true">kr</span>
               </span>
