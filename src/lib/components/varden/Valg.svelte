@@ -67,8 +67,9 @@
     background: var(--surface-inset);
   }
   .valgkort.valgt {
-    border-color: var(--ink);
-    box-shadow: inset 0 0 0 1px var(--ink);
+    background: var(--surface-selected);
+    border-color: var(--brand);
+    box-shadow: inset 0 0 0 1px var(--brand);
     font-weight: 600;
   }
   .valgkort:has(input:focus-visible) {

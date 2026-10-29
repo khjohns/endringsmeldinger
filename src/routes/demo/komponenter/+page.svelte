@@ -87,7 +87,7 @@
 
 <svelte:head><title>Varden — komponentene</title></svelte:head>
 
-<main class="showcase">
+<main class="showcase tema-varden">
   <header>
     <p class="merke">Prototype</p>
     <h1>Varden: komponentene i tilstandene sine</h1>

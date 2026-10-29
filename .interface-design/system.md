@@ -16,12 +16,31 @@ Språket i teksten står i [språkfila](../docs/sprak.md).
 
 **Varden er visningen** (oppdragsgiver 28.10, #1338, runde 6): «Ja, jeg tenker Varden er visningen, men det er fortsatt elementer fra dagens visning som kan være aktuelle.»
 
-Retningen, med farger og profil, avgjøres i designrunde 1 (#1391). Oslo-logoen er fast
-(oppdragsgiver 29.10).
+**Blekk** (oppdragsgiver 29.10, #1391): «Blekk er kanskje et fint utgangspunkt – tvinger
+oss til å jobbe godt med form og struktur. Jeg er ikke fremmed for mer farge senere.
+Beholde inter som font.» Oslo-logoen er fast.
 
-**Dagens utgangspunkt, ikke vedtatt retning.** Tokenene under er Sage & Stone, Oslobyggs
-grønne profil (`--brand`). Den erstattet «Dokumentbordet» fra mars 2026 (oppdragsgiver
-23.10, #1080).
+- **Svart blekk på kjølig grått.** Hierarkiet bygges med form, struktur, vekt og
+  blekknivå, ikke med farge. Primærhandlingen er nesten svart (`--brand`).
+- **Hver farge betyr én ting:**
+  - `--brand` er handling: primærknappen, valgt svar og valgt sak i panelet. Valgt svar
+    har også flaten `--surface-selected`.
+  - `--draft` er utkast: det som ikke er sendt og bare er synlig for teamet. Utkastet har
+    stiplet kant rundt hele kortet og `--draft-bg` i hodet, så det aldri ser ut som et
+    sendt brev. Ingenting annet er gult.
+  - `--control-focus` er fokus og ingenting annet.
+  - `--danger` er feil.
+- **Subsidiært får ingen farge.** Det skilles med tekst og form (#197).
+- **Demomerket** «Varden · eksperimentell visning» er nøytralt og bruker ikke utkastfargen.
+- **Skriften er Inter** (`--font-sans`), som før.
+
+Verdiene står i `.tema-varden` i `theme.css`, som Varden og showcasen bruker.
+[`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) prøver dem, også utkastfargen og
+feltkanten fra #1258.
+
+**Dagens visning beholder Sage & Stone** til den fases ut. Det er Oslobyggs grønne profil
+(`--brand`), som erstattet «Dokumentbordet» fra mars 2026 (oppdragsgiver 23.10, #1080).
+Punktene under gjelder dagens visning.
 
 - **Én fargetone.** Flatene er grågrønne og skifter bare i lyshet: `--canvas` under,
   `--surface` for innhold, `--surface-warm` for hover og `--surface-inset` for felt og

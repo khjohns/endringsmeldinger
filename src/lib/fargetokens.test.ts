@@ -14,6 +14,9 @@
  * med alfa legges over flaten den står på. Parene er blekknivåene på flatene og
  * statusfargene på sin egen bakgrunn. `--warning`, `--gold`, `--draft` og
  * `--control-border` holder ikke kravet ennå og står i #1258.
+ *
+ * Varden har egne tokens i `.tema-varden` (Blekk, #1391), lagt over lys modus. Der
+ * prøves også utkastfargen på sin bakgrunn og feltkanten på flatene.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
@@ -55,10 +58,13 @@ export function udefinerteTokens(tekster: Record<string, string>): Record<string
   );
 }
 
-type Modus = 'lys' | 'mørk';
+type Modus = 'lys' | 'mørk' | 'varden';
 type Rgba = [number, number, number, number];
 
-/** Tokenene i lys modus (alle `:root { … }`) og i mørk modus (lys med `:root.dark` over). */
+/**
+ * Tokenene i lys modus (alle `:root { … }`), i mørk modus (lys med `:root.dark` over) og
+ * i Varden (lys med `.tema-varden` over).
+ */
 export function tokenverdier(css: string): Record<Modus, Record<string, string>> {
   const kode = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const les = (selektor: RegExp) => {
@@ -68,7 +74,11 @@ export function tokenverdier(css: string): Record<Modus, Record<string, string>>
     return verdier;
   };
   const lys = les(/(?<=^|\})\s*:root\s*\{([^}]*)\}/g);
-  return { lys, mørk: { ...lys, ...les(/:root\.dark\s*,\s*\.mockup\.dark\s*\{([^}]*)\}/g) } };
+  return {
+    lys,
+    mørk: { ...lys, ...les(/:root\.dark\s*,\s*\.mockup\.dark\s*\{([^}]*)\}/g) },
+    varden: { ...lys, ...les(/\.tema-varden\s*\{([^}]*)\}/g) },
+  };
 }
 
 function farge(verdier: Record<string, string>, token: string): Rgba {
@@ -131,13 +141,16 @@ export function brudd(verdier: Record<Modus, Record<string, string>>): string[] 
     const forhold = kontrast(over(farge(verdier[modus], fg), flate), flate);
     if (forhold < krav) funn.push(`${modus}: ${fg} på ${bg} (${forhold.toFixed(2)})`);
   };
-  for (const modus of ['lys', 'mørk'] as const) {
+  for (const modus of ['lys', 'mørk', 'varden'] as const) {
     for (const bg of FLATER) {
       for (const fg of BLEKK) prov(modus, fg, bg, 4.5);
       prov(modus, '--control-focus', bg, 3);
     }
     for (const s of STATUS) prov(modus, s, `${s}-bg`, 4.5, '--surface');
   }
+  prov('varden', '--draft', '--draft-bg', 4.5);
+  for (const bg of ['--surface', '--surface-inset'])
+    prov('varden', '--control-border-color', bg, 3);
   return funn;
 }
 
@@ -149,13 +162,13 @@ describe('fargetokenene i src/', () => {
     expect(udefinerteTokens(tekster)).toEqual({});
   });
 
-  it('blekknivåene, fokusmarkeringen og statusfargene i theme.css holder WCAG AA i lys og mørk modus', () => {
+  it('blekknivåene, fokusmarkeringen og statusfargene i theme.css holder WCAG AA i lys og mørk modus og i Varden', () => {
     expect(brudd(tokenverdier(readFileSync(TEMA, 'utf8')))).toEqual([]);
   });
 
   it('--ink-ghost er pynt og har en annen verdi enn --ink-4 i begge modi', () => {
     const verdier = tokenverdier(readFileSync(TEMA, 'utf8'));
-    for (const modus of ['lys', 'mørk'] as const)
+    for (const modus of ['lys', 'mørk', 'varden'] as const)
       expect(verdier[modus]['--ink-ghost'], modus).not.toBe(verdier[modus]['--ink-4']);
   });
 });
@@ -191,7 +204,7 @@ describe('kontrollene i vaktene', () => {
     expect(kontrast([119, 119, 119, 1], [255, 255, 255, 1])).toBeCloseTo(4.48, 2);
   });
 
-  it('et par under kravet meldes med modus og forholdstall, og mørk modus arver det den ikke setter selv', () => {
+  it('et par under kravet meldes med modus og forholdstall, og mørk modus og Varden arver det de ikke setter selv', () => {
     const verdier = tokenverdier(
       [
         ':root {\n  --ink: #000000; --ink-2: #000000; --ink-3: #000000; --ink-4: #777777;',
@@ -200,6 +213,7 @@ describe('kontrollene i vaktene', () => {
         ...STATUS.map((s) => `  ${s}: #000000; ${s}-bg: rgba(0, 0, 0, 0.1);`),
         '}',
         ':root.dark,\n.mockup.dark {\n  --ink-4: #ffffff;\n  --canvas: #000000;\n}',
+        '.tema-varden {\n  --draft: #999999; --draft-bg: #ffffff; --control-border-color: #eeeeee;\n}',
       ].join('\n')
     );
     expect(verdier.mørk['--ink-2']).toBe('#000000');
@@ -207,6 +221,9 @@ describe('kontrollene i vaktene', () => {
     expect(funn).toContain('lys: --ink-4 på --surface (4.48)');
     expect(funn).toContain('mørk: --ink-4 på --surface (1.00)');
     expect(funn).toContain('mørk: --ink på --canvas (1.00)');
+    expect(funn).toContain('varden: --ink-4 på --surface (4.48)');
+    expect(funn).toContain('varden: --draft på --draft-bg (2.85)');
+    expect(funn).toContain('varden: --control-border-color på --surface-inset (1.16)');
     expect(funn.filter((f) => f.includes('--success'))).toEqual([]);
   });
 });

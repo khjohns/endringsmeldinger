@@ -109,6 +109,45 @@
 }
 
 /* ══════════════════════════════════════════════════
+   Varden: Blekk (oppdragsgiver 29.10, #1391)
+   Gjelder Varden og showcasen. Dagens visning beholder
+   tokenene over til den fases ut.
+   ══════════════════════════════════════════════════ */
+.tema-varden {
+  --brand: #15181d;
+  --brand-bg: #e6e9ee;
+
+  --canvas: #eef0f2;
+  --surface: #ffffff;
+  --surface-warm: #f6f7f8;
+  --surface-inset: #f3f4f6;
+  --surface-selected: #e6e9ee;
+  --overlay-1: #ffffff;
+
+  --ink: #15181d;
+  --ink-2: #343a43;
+  --ink-3: #545b66;
+  --ink-4: #5f6672;
+  --ink-ghost: #8a909a;
+
+  --rule: 1px solid #dadde2;
+  --rule-subtle: 1px solid #e6e8eb;
+  --rule-strong: 1px solid #c3c8cf;
+  --rule-color: #dadde2;
+  --rule-strong-color: #c3c8cf;
+
+  --draft: #5f4a00;
+  --draft-bg: #fff3c4;
+  --draft-border: #9e7f12;
+
+  --control-bg: var(--surface-inset);
+  --control-border-color: #80868f;
+  --control-border: 1px solid var(--control-border-color);
+  --control-focus: #2457d6;
+  --control-focus-ring: 0 0 0 3px rgba(36, 87, 214, 0.25);
+}
+
+/* ══════════════════════════════════════════════════
    Dark mode tokens
    ══════════════════════════════════════════════════ */
 :root.dark,

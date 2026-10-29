@@ -63,7 +63,7 @@
   }
 </script>
 
-<div class="varden">
+<div class="varden tema-varden">
   <p class="prototype">{SAKEN.prototype}</p>
   {#if (!u || !kjernesak.saksbilde) && kjernesak.feil}
     <div class="lastefeil" role="alert">
@@ -201,10 +201,10 @@
     display: inline-block;
     margin-bottom: var(--spacing-4);
     padding: 0 var(--spacing-2);
-    border: 1px dashed var(--draft-border);
+    border: 1px solid var(--rule-strong-color);
     border-radius: 999px;
-    background: var(--draft-bg);
-    color: var(--ink-2);
+    background: var(--surface);
+    color: var(--ink-3);
     font-size: 12px;
   }
   .laster {
