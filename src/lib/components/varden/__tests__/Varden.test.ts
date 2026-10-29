@@ -122,6 +122,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
     expect(document.body.textContent).toMatch(/Begrunnelsen tolkes ikke\./);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
+    expect(document.body.textContent).not.toMatch(/\bKA-U\d/);
     await sendBrevet('Send svaret til TE');
     await vi.waitFor(() => expect(nyeRader(demosak(), versjonVed(punkt.id))).toHaveLength(1));
     const [svaret] = nyeRader(demosak(), versjonVed(punkt.id));
@@ -157,6 +158,26 @@ describe('Varden med brukerforløpet BF-01', () => {
     await kontrollerEtter(forloep, 5, k, paastand);
     // Etter aksepten tilbyr kjernen ikke å godta på nytt (KA-U7).
     expect(screen.queryByRole('button', { name: 'Ta stilling til svaret' })).toBeNull();
+  });
+
+  it('det som hindrer brevet i hovedlinjene, står med skjemaets ord og uten feltkodene fra kjernen', async () => {
+    // AGENTS.md, «Skriv etter hva teksten gjør»: en feilmelding sier hva som hindrer.
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    const hindring = () => document.getElementById('brev-hindring')?.textContent;
+    expect(hindring()).toBe('Svar på spørsmålene i skjemaet, så kan brevet lages.');
+
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Godtar metoden' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
+    await fireEvent.input(await screen.findByRole('textbox', { name: 'Beløpet du godtar' }), {
+      target: { value: '150 000' },
+    });
+    expect(hindring()).toMatch(
+      /^Beløpet du godtar må være mer enn 0 kr og mindre enn 100\s000\skr\.$/
+    );
+    expect(document.body.textContent).not.toMatch(/_vurdering|_belop|mangler;|\bKA-U\d/);
   });
 
   it('samme valg gir samme journal og brevtekst i Varden og i dagens visning', async () => {

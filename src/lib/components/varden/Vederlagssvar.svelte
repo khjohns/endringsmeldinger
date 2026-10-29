@@ -85,7 +85,24 @@
         : []
     ).size > 1
   );
-  const hindring = $derived(brevaarsak(kjernesak.brev(kommando)));
+  const ubesvart = $derived(
+    valg.iTide === null ||
+      valg.metode === null ||
+      (valg.metode === false && valg.oensket === null) ||
+      valg.beloep === null ||
+      (valg.beloep === 'deler' && valg.delbeloep === null)
+  );
+  // Kjernens melding om vurderinger den ikke kan regne ut, har feltkodene; skjemaet sier
+  // det med egne ord.
+  const aarsak = (b: ReturnType<typeof kjernesak.brev>) =>
+    b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING'
+      ? ubesvart
+        ? HOVEDLINJER.ubesvart
+        : valg.beloep === 'deler'
+          ? HOVEDLINJER.beloepUtenfor(krevd)
+          : HOVEDLINJER.kanIkkeLages
+      : brevaarsak(b);
+  const hindring = $derived(aarsak(kjernesak.brev(kommando)));
   let sendehindring = $state<string | null>(null);
 
   const virkninger = $derived([
@@ -100,7 +117,7 @@
   function seBrevet() {
     const b = kjernesak.brev(kommando, undefined, true);
     if (!b || !('tekst' in b) || !b.tekst) {
-      sendehindring = (b && brevaarsak(b)) ?? HOVEDLINJER.kanIkkeLages;
+      sendehindring = aarsak(b) ?? HOVEDLINJER.kanIkkeLages;
       return;
     }
     sendehindring = null;
