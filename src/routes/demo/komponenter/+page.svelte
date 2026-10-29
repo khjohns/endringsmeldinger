@@ -87,199 +87,204 @@
 
 <svelte:head><title>Varden — komponentene</title></svelte:head>
 
-<main class="showcase tema-varden">
-  <header>
-    <p class="merke">Prototype</p>
-    <h1>Varden: komponentene i tilstandene sine</h1>
-    <p class="ingress">
-      Komponentene i <code>src/lib/components/varden/</code>, importert. Saken er startjournalen for {FORLOEPET.id}
-      ved kontrollpunktene, i minnet i nettleseren. Ingenting sendes. Dagens visning står ved siden av
-      i rammene for hele visningen. Forløpet kjøres i
-      <!-- href er ruta fra resolve() med visningen i query. -->
-      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-      <a href={`${resolve('/demo/[forlop]', { forlop: FORLOEPET.id })}?visning=varden`}>demoruta</a
-      >.
-    </p>
-    <nav aria-label="Komponentene">
-      <ul>
-        <li><a href="#hele">Hele visningen</a></li>
-        <li><a href="#sporet">Sporlesing</a></li>
-        <li><a href="#svaret">Vederlagssvar og Brevkontroll</a></li>
-        <li><a href="#brevet">Brev</a></li>
-        <li><a href="#tidslinja">Tidslinje</a></li>
-        <li><a href="#brevtypene">Brevtyper</a></li>
-        <li><a href="#knappen">Knapp</a></li>
-      </ul>
-    </nav>
-  </header>
+<div class="tema-varden bakgrunn">
+  <main class="showcase">
+    <header>
+      <p class="merke">Prototype</p>
+      <h1>Varden: komponentene i tilstandene sine</h1>
+      <p class="ingress">
+        Komponentene i <code>src/lib/components/varden/</code>, importert. Saken er startjournalen
+        for {FORLOEPET.id}
+        ved kontrollpunktene, i minnet i nettleseren. Ingenting sendes. Dagens visning står ved siden
+        av i rammene for hele visningen. Forløpet kjøres i
+        <!-- href er ruta fra resolve() med visningen i query. -->
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+        <a href={`${resolve('/demo/[forlop]', { forlop: FORLOEPET.id })}?visning=varden`}
+          >demoruta</a
+        >.
+      </p>
+      <nav aria-label="Komponentene">
+        <ul>
+          <li><a href="#hele">Hele visningen</a></li>
+          <li><a href="#sporet">Sporlesing</a></li>
+          <li><a href="#svaret">Vederlagssvar og Brevkontroll</a></li>
+          <li><a href="#brevet">Brev</a></li>
+          <li><a href="#tidslinja">Tidslinje</a></li>
+          <li><a href="#brevtypene">Brevtyper</a></li>
+          <li><a href="#knappen">Knapp</a></li>
+        </ul>
+      </nav>
+    </header>
 
-  <section id="hele" aria-labelledby="hele-tittel">
-    <h2 id="hele-tittel">Hele visningen: Varden og dagens visning</h2>
-    <p class="forklaring">
-      <code>Vardensak</code> og <code>Kjernesakrom</code> med samme sak. Rammene har egen bredde, så visningen
-      bruker utformingen for den skjermen.
-    </p>
-    <div class="velgere">
-      <label>
-        <span>Tilstand</span>
-        <select bind:value={tilstand}>
-          {#each TILSTANDER as t (t.id)}<option value={t.id}>{t.navn}</option>{/each}
-        </select>
-      </label>
-      <fieldset>
-        <legend>Side</legend>
-        {#each SIDER as p (p)}
-          <label class="radio"><input type="radio" bind:group={side} value={p} />{p}</label>
-        {/each}
-      </fieldset>
-    </div>
-    {#key tilstand + side}
-      <h3>Smal skjerm, 390 px</h3>
-      <div class="smale">
+    <section id="hele" aria-labelledby="hele-tittel">
+      <h2 id="hele-tittel">Hele visningen: Varden og dagens visning</h2>
+      <p class="forklaring">
+        <code>Vardensak</code> og <code>Kjernesakrom</code> med samme sak. Rammene har egen bredde, så
+        visningen bruker utformingen for den skjermen.
+      </p>
+      <div class="velgere">
+        <label>
+          <span>Tilstand</span>
+          <select bind:value={tilstand}>
+            {#each TILSTANDER as t (t.id)}<option value={t.id}>{t.navn}</option>{/each}
+          </select>
+        </label>
+        <fieldset>
+          <legend>Side</legend>
+          {#each SIDER as p (p)}
+            <label class="radio"><input type="radio" bind:group={side} value={p} />{p}</label>
+          {/each}
+        </fieldset>
+      </div>
+      {#key tilstand + side}
+        <h3>Smal skjerm, 390 px</h3>
+        <div class="smale">
+          <figure>
+            <figcaption>Varden</figcaption>
+            <iframe
+              class="smal"
+              title={`Varden, smal skjerm: ${tilstandsnavn}, ${side}`}
+              src={ramme('varden')}
+            ></iframe>
+          </figure>
+          <figure>
+            <figcaption>Dagens visning</figcaption>
+            <iframe
+              class="smal"
+              title={`Dagens visning, smal skjerm: ${tilstandsnavn}, ${side}`}
+              src={ramme('dagens')}
+            ></iframe>
+          </figure>
+        </div>
+        <h3>Bred skjerm</h3>
         <figure>
           <figcaption>Varden</figcaption>
           <iframe
-            class="smal"
-            title={`Varden, smal skjerm: ${tilstandsnavn}, ${side}`}
+            class="bred"
+            title={`Varden, bred skjerm: ${tilstandsnavn}, ${side}`}
             src={ramme('varden')}
           ></iframe>
         </figure>
         <figure>
           <figcaption>Dagens visning</figcaption>
           <iframe
-            class="smal"
-            title={`Dagens visning, smal skjerm: ${tilstandsnavn}, ${side}`}
+            class="bred"
+            title={`Dagens visning, bred skjerm: ${tilstandsnavn}, ${side}`}
             src={ramme('dagens')}
           ></iframe>
         </figure>
-      </div>
-      <h3>Bred skjerm</h3>
-      <figure>
-        <figcaption>Varden</figcaption>
-        <iframe
-          class="bred"
-          title={`Varden, bred skjerm: ${tilstandsnavn}, ${side}`}
-          src={ramme('varden')}
-        ></iframe>
-      </figure>
-      <figure>
-        <figcaption>Dagens visning</figcaption>
-        <iframe
-          class="bred"
-          title={`Dagens visning, bred skjerm: ${tilstandsnavn}, ${side}`}
-          src={ramme('dagens')}
-        ></iframe>
-      </figure>
-    {/key}
-  </section>
+      {/key}
+    </section>
 
-  <section id="sporet" aria-labelledby="sporet-tittel">
-    <h2 id="sporet-tittel">Sporlesing</h2>
-    <p class="forklaring">
-      Sporet med brevet, brevtypene og tidslinja, i <code>Arbeidsflate</code>. «Ta stilling til
-      svaret» åpner aksepten, og «Se brevet» åpner <code>Brevkontroll</code> i kortet.
-    </p>
-    {#each sporet as t (t.navn)}
-      <h3>{t.navn}</h3>
-      <div class="par">
-        {#each t.saker as s (s.part)}
-          <div class="kort" data-eksempel={`sporet-${t.punkt}-${t.spor}-${s.part}`}>
-            <p class="etikett">{s.part} · {SPORNAVN[t.spor]}</p>
-            <Arbeid kjernesak={s.kjernesak} spor={t.spor} />
-          </div>
-        {/each}
-      </div>
-    {/each}
-  </section>
-
-  <section id="svaret" aria-labelledby="svaret-tittel">
-    <h2 id="svaret-tittel">Vederlagssvar og Brevkontroll</h2>
-    <p class="forklaring">
-      BHs svar på vederlagskravet, med <code>Valg</code> og <code>Hovedlinjer</code>. «Se brevet før
-      sending» åpner <code>Brevkontroll</code> i kortet. TE har ikke dette skjemaet: kjernen tilbyr ikke
-      TE å svare på eget krav.
-    </p>
-    {#each svaret as t, i (t.navn)}
-      <h3>{t.navn}</h3>
-      <div class="kort" data-eksempel={`svaret-${i}`}>
-        <Arbeid kjernesak={t.kjernesak} svar valg={t.valg} />
-      </div>
-    {/each}
-  </section>
-
-  <section id="brevet" aria-labelledby="brevet-tittel">
-    <h2 id="brevet-tittel">Brev</h2>
-    <p class="forklaring">
-      Brevene i {FORLOEPET.id} med teksten kjernen frøs. Lengst først; det er den lengste teksten i startjournalen.
-    </p>
-    {#if !u}
-      <p class="dempet" role="status">{godtatt.feil ?? SAKEN.laster}</p>
-    {:else}
-      <div class="brevene">
-        {#each [...(lengst ? [lengst] : []), ...alleBrev.filter((b) => b !== lengst)] as b (b.id)}
-          {#if b.avsnitt}
-            <div class="kort">
-              <Brev
-                avsender={b.avsender}
-                sak={godtatt.saksbilde?.tittel ?? ''}
-                nummer={String(b.nummer)}
-                dato={dato(b.registrert)}
-                tittel={brevtittel(b)}
-                avsnitt={b.avsnitt}
-              />
+    <section id="sporet" aria-labelledby="sporet-tittel">
+      <h2 id="sporet-tittel">Sporlesing</h2>
+      <p class="forklaring">
+        Sporet med brevet, brevtypene og tidslinja, i <code>Arbeidsflate</code>. «Ta stilling til
+        svaret» åpner aksepten, og «Se brevet» åpner <code>Brevkontroll</code> i kortet.
+      </p>
+      {#each sporet as t (t.navn)}
+        <h3>{t.navn}</h3>
+        <div class="par">
+          {#each t.saker as s (s.part)}
+            <div class="kort" data-eksempel={`sporet-${t.punkt}-${t.spor}-${s.part}`}>
+              <p class="etikett">{s.part} · {SPORNAVN[t.spor]}</p>
+              <Arbeid kjernesak={s.kjernesak} spor={t.spor} />
             </div>
-          {/if}
-        {/each}
-      </div>
-    {/if}
-  </section>
-
-  <section id="tidslinja" aria-labelledby="tidslinja-tittel">
-    <h2 id="tidslinja-tittel">Tidslinje</h2>
-    <div class="tre">
-      <div class="kort">
-        <p class="etikett">Tom</p>
-        <Tidslinje brev={[]} datoer={[]} />
-      </div>
-      {#if u}
-        <div class="kort">
-          <p class="etikett">Lukket</p>
-          <Tidslinje brev={alleBrev} datoer={oppgitteDatoer(u)} />
+          {/each}
         </div>
-        <div class="kort">
-          <p class="etikett">Åpen</p>
-          <Tidslinje brev={alleBrev} datoer={oppgitteDatoer(u)} aapen />
+      {/each}
+    </section>
+
+    <section id="svaret" aria-labelledby="svaret-tittel">
+      <h2 id="svaret-tittel">Vederlagssvar og Brevkontroll</h2>
+      <p class="forklaring">
+        BHs svar på vederlagskravet, med <code>Valg</code> og <code>Hovedlinjer</code>. «Se brevet
+        før sending» åpner <code>Brevkontroll</code> i kortet. TE har ikke dette skjemaet: kjernen tilbyr
+        ikke TE å svare på eget krav.
+      </p>
+      {#each svaret as t, i (t.navn)}
+        <h3>{t.navn}</h3>
+        <div class="kort" data-eksempel={`svaret-${i}`}>
+          <Arbeid kjernesak={t.kjernesak} svar valg={t.valg} />
+        </div>
+      {/each}
+    </section>
+
+    <section id="brevet" aria-labelledby="brevet-tittel">
+      <h2 id="brevet-tittel">Brev</h2>
+      <p class="forklaring">
+        Brevene i {FORLOEPET.id} med teksten kjernen frøs. Lengst først; det er den lengste teksten i
+        startjournalen.
+      </p>
+      {#if !u}
+        <p class="dempet" role="status">{godtatt.feil ?? SAKEN.laster}</p>
+      {:else}
+        <div class="brevene">
+          {#each [...(lengst ? [lengst] : []), ...alleBrev.filter((b) => b !== lengst)] as b (b.id)}
+            {#if b.avsnitt}
+              <div class="kort">
+                <Brev
+                  avsender={b.avsender}
+                  sak={godtatt.saksbilde?.tittel ?? ''}
+                  nummer={String(b.nummer)}
+                  dato={dato(b.registrert)}
+                  tittel={brevtittel(b)}
+                  avsnitt={b.avsnitt}
+                />
+              </div>
+            {/if}
+          {/each}
         </div>
       {/if}
-    </div>
-  </section>
+    </section>
 
-  <section id="brevtypene" aria-labelledby="brevtypene-tittel">
-    <h2 id="brevtypene-tittel">Brevtyper</h2>
-    <p class="forklaring">
-      Menyen med handlingene kjernen tilbyr står i <code>Sporlesing</code> over, for BH og TE. Det
-      er <code>Sporlesing</code> som gir teksten for varslene og innsigelsene.
-    </p>
-    <div class="tre">
-      <div class="kort">
-        <p class="etikett">Ingen handlinger</p>
-        <Brevtyper tittel={BREVMENY.skriv} handlinger={[]} bygget={[]} onvelg={() => {}} />
+    <section id="tidslinja" aria-labelledby="tidslinja-tittel">
+      <h2 id="tidslinja-tittel">Tidslinje</h2>
+      <div class="tre">
+        <div class="kort">
+          <p class="etikett">Tom</p>
+          <Tidslinje brev={[]} datoer={[]} />
+        </div>
+        {#if u}
+          <div class="kort">
+            <p class="etikett">Lukket</p>
+            <Tidslinje brev={alleBrev} datoer={oppgitteDatoer(u)} />
+          </div>
+          <div class="kort">
+            <p class="etikett">Åpen</p>
+            <Tidslinje brev={alleBrev} datoer={oppgitteDatoer(u)} aapen />
+          </div>
+        {/if}
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="knappen" aria-labelledby="knappen-tittel">
-    <h2 id="knappen-tittel">Knapp</h2>
-    <div class="knapper">
-      <Knapp variant="primaer">Primær</Knapp>
-      <Knapp>Sekundær</Knapp>
-      <Knapp variant="lenke">Lenke</Knapp>
-      <Knapp variant="primaer" opptatt>Sender …</Knapp>
-      <Knapp variant="primaer" sperret hvorfor="knapp-hvorfor">Sperret</Knapp>
-      <p id="knapp-hvorfor" class="dempet">Sperret: teksten sier hvorfor.</p>
-    </div>
-  </section>
-</main>
+    <section id="brevtypene" aria-labelledby="brevtypene-tittel">
+      <h2 id="brevtypene-tittel">Brevtyper</h2>
+      <p class="forklaring">
+        Menyen med handlingene kjernen tilbyr står i <code>Sporlesing</code> over, for BH og TE. Det
+        er <code>Sporlesing</code> som gir teksten for varslene og innsigelsene.
+      </p>
+      <div class="tre">
+        <div class="kort">
+          <p class="etikett">Ingen handlinger</p>
+          <Brevtyper tittel={BREVMENY.skriv} handlinger={[]} bygget={[]} onvelg={() => {}} />
+        </div>
+      </div>
+    </section>
+
+    <section id="knappen" aria-labelledby="knappen-tittel">
+      <h2 id="knappen-tittel">Knapp</h2>
+      <div class="knapper">
+        <Knapp variant="primaer">Primær</Knapp>
+        <Knapp>Sekundær</Knapp>
+        <Knapp variant="lenke">Lenke</Knapp>
+        <Knapp variant="primaer" opptatt>Sender …</Knapp>
+        <Knapp variant="primaer" sperret hvorfor="knapp-hvorfor">Sperret</Knapp>
+        <p id="knapp-hvorfor" class="dempet">Sperret: teksten sier hvorfor.</p>
+      </div>
+    </section>
+  </main>
+</div>
 
 <style>
   .showcase {
@@ -291,16 +296,17 @@
     font-family: var(--font-sans);
     line-height: 1.5;
   }
-  :global(body) {
+  .bakgrunn {
+    min-height: 100vh;
     background: var(--canvas);
   }
   .merke {
     display: inline-block;
     padding: 0 var(--spacing-2);
-    border: 1px dashed var(--draft-border);
+    border: 1px solid var(--rule-strong-color);
     border-radius: 999px;
-    background: var(--draft-bg);
-    color: var(--ink-2);
+    background: var(--surface);
+    color: var(--ink-3);
     font-size: 13px;
   }
   h1 {
