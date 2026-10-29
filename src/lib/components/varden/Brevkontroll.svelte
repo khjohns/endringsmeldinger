@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import { ChevronLeft, Lock, Send } from 'lucide-svelte';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Part } from '$kjerne/typer';
   import Brev from './Brev.svelte';
@@ -58,6 +58,8 @@
   async function send() {
     if (!kontrollert) {
       manglerKontroll = true;
+      // Beskjeden og aria-describedby må stå før fokus flyttes, så skjermleseren leser dem.
+      await tick();
       avkrysning?.focus();
       return;
     }

@@ -173,13 +173,15 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(seBrevet).not.toHaveAttribute('aria-disabled');
     // #1391: før BH har prøvd, står det verken «Ikke besvart» eller en hindring.
     expect(screen.queryByText('Ikke besvart')).toBeNull();
-    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Dette mangler før brevet kan lages:' })).toBeNull();
 
     await fireEvent.click(seBrevet);
     expect(
       screen.queryByRole('article', { name: 'Svar på krav om vederlagsjustering' })
     ).toBeNull();
-    const oeverst = await screen.findByRole('alert');
+    const oeverst = await screen.findByRole('group', {
+      name: 'Dette mangler før brevet kan lages:',
+    });
     expect(document.activeElement).toBe(oeverst);
     expect(
       within(oeverst)
@@ -202,7 +204,11 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Beskjeden ved feltet forsvinner når feltet er besvart.
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     expect(ved('Kom varselet om kravet i tide?')).toBeNull();
-    expect(within(screen.getByRole('alert')).getAllByRole('listitem')).toHaveLength(2);
+    expect(
+      within(
+        screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
+      ).getAllByRole('listitem')
+    ).toHaveLength(2);
 
     await fireEvent.click(screen.getByRole('radio', { name: 'Godtar metoden' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
@@ -210,14 +216,14 @@ describe('Varden med brukerforløpet BF-01', () => {
     await fireEvent.input(beloep, { target: { value: '150 000' } });
     expect(beloep).toHaveAttribute('aria-invalid', 'true');
     expect(beloep.getAttribute('aria-describedby')).toMatch(/-beloep-feil$/);
-    expect(screen.getByRole('alert').textContent).toMatch(
-      /Beløpet du godtar må være mer enn 0 kr og mindre enn 100\s000\skr\./
-    );
+    expect(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
+    ).toMatch(/Beløpet du godtar må være mer enn 0 kr og mindre enn 100\s000\skr\./);
     // Et punktum er ikke desimaltegn i et beløp: «60.000» blir ikke 60 kr.
     await fireEvent.input(beloep, { target: { value: '60.000' } });
-    expect(screen.getByRole('alert').textContent).toContain(
-      'Skriv beløpet med sifre og komma før øre, for eksempel 100 000,40.'
-    );
+    expect(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
+    ).toContain('Skriv beløpet med sifre og komma før øre, for eksempel 100 000,40.');
     expect(document.body.textContent).not.toMatch(/_vurdering|_belop|mangler;|\bKA-U\d/);
 
     await fireEvent.input(beloep, { target: { value: '60 000' } });
@@ -225,11 +231,17 @@ describe('Varden med brukerforløpet BF-01', () => {
     // beløpet. Det står ved feltet med kjernens grunn, og ikke med regelkoden.
     const begrunnelse = screen.getByRole('textbox', { name: /Begrunnelse/ });
     expect(begrunnelse).toHaveAttribute('aria-invalid', 'true');
-    expect(within(screen.getByRole('alert')).getAllByRole('listitem')).toHaveLength(1);
-    expect(screen.getByRole('alert').textContent).toMatch(/Svaret må ha en begrunnelse, fordi du/);
+    expect(
+      within(
+        screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
+      ).getAllByRole('listitem')
+    ).toHaveLength(1);
+    expect(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
+    ).toMatch(/Svaret må ha en begrunnelse, fordi du/);
     expect(document.body.textContent).not.toMatch(/BEGRUNNELSE_MANGLER/);
     await fireEvent.input(begrunnelse, { target: { value: BEGRUNNELSE } });
-    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Dette mangler før brevet kan lages:' })).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     expect(
       await screen.findByRole('article', { name: 'Svar på krav om vederlagsjustering' })
@@ -288,9 +300,15 @@ describe('Varden med brukerforløpet BF-01', () => {
     await bhSvarerIVarden();
     const send = screen.getByRole('button', { name: 'Send svaret til TE' });
     expect(send).not.toHaveAttribute('aria-disabled');
-    await fireEvent.click(send);
     const avkrysning = screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
+    // Beskjeden må være koblet til før fokus flyttes, ellers leser skjermleseren den ikke.
+    let vedFokus: string | null = null;
+    avkrysning.addEventListener('focus', () => {
+      vedFokus = avkrysning.getAttribute('aria-describedby');
+    });
+    await fireEvent.click(send);
     expect(document.activeElement).toBe(avkrysning);
+    expect(vedFokus).not.toBeNull();
     expect(avkrysning).toHaveAttribute('aria-invalid', 'true');
     expect(
       document.getElementById(avkrysning.getAttribute('aria-describedby')!)?.textContent

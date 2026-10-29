@@ -248,7 +248,7 @@
         {#if u}
           <div class="kort">
             <p class="etikett">Lukket</p>
-            <Tidslinje brev={alleBrev} datoer={oppgitteDatoer(u)} />
+            <Tidslinje brev={alleBrev} datoer={oppgitteDatoer(u)} aapen={false} />
           </div>
           <div class="kort">
             <p class="etikett">Åpen</p>

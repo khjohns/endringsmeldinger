@@ -286,7 +286,7 @@
         {#if forsoekt && mangler.length}
           <div
             class="mangler"
-            role="alert"
+            role="group"
             tabindex="-1"
             bind:this={oppsummering}
             aria-labelledby={`${uid}-mangler`}

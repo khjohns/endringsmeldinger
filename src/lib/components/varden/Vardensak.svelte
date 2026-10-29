@@ -41,6 +41,8 @@
     tilbakeTil: string;
     svarerPaa: { nummer: number; registrert: string } | null;
     tilbake: Arbeid;
+    /** Brevet er svarutkastet, som tømmes når det er sendt. */
+    erUtkastet: boolean;
   };
   type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
 
@@ -77,9 +79,12 @@
   }
 
   function sendt() {
+    // Bare det sendte svaret tømmer utkastet; en aksept i et annet spor lar det stå (BF-01 S-8).
+    if (arbeid.art === 'kontroll' && arbeid.erUtkastet) {
+      svarvalg = tomtSvar();
+      utkastAapent = false;
+    }
     arbeid = { art: 'les' };
-    svarvalg = tomtSvar();
-    utkastAapent = false;
     melding = { tekst: MOTTATT.dittBrev, art: 'sendt' };
   }
 
@@ -217,6 +222,7 @@
                 tilbakeTil: 'utkastet',
                 svarerPaa: krav ? { nummer: krav.nummer, registrert: krav.registrert } : null,
                 tilbake: { art: 'svar' },
+                erUtkastet: true,
               };
             }}
           />
@@ -247,7 +253,8 @@
                 sendTekst: BREVKONTROLL.sendAksepten,
                 tilbakeTil: 'saken',
                 svarerPaa: svaret ? { nummer: svaret.nummer, registrert: svaret.registrert } : null,
-                tilbake: { art: 'les' },
+                tilbake: valgt === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' },
+                erUtkastet: false,
               };
             }}
           />
