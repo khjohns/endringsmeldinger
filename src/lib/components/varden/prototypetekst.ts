@@ -169,6 +169,7 @@ export const HOVEDLINJER = {
   seBrevet: 'Se brevet før sending',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
   ubesvart: 'Svar på spørsmålene i skjemaet, så kan brevet lages.',
+  beloepUgyldig: 'Skriv beløpet du godtar med sifre, for eksempel 60 000.',
   beloepUtenfor: (krevd: number) =>
     `Beløpet du godtar må være mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
 };

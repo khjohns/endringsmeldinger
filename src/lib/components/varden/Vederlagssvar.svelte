@@ -99,7 +99,9 @@
       ? ubesvart
         ? HOVEDLINJER.ubesvart
         : valg.beloep === 'deler'
-          ? HOVEDLINJER.beloepUtenfor(krevd)
+          ? Number.isNaN(valg.delbeloep)
+            ? HOVEDLINJER.beloepUgyldig
+            : HOVEDLINJER.beloepUtenfor(krevd)
           : HOVEDLINJER.kanIkkeLages
       : brevaarsak(b);
   const hindring = $derived(aarsak(kjernesak.brev(kommando)));
@@ -131,7 +133,9 @@
   }
 
   let leser = $state(false);
-  const delbeloepTekst = $derived(valg.delbeloep === null ? '' : String(valg.delbeloep));
+  // Teksten står som BH skrev den. Bare sifre, med desimalkomma, er et beløp: «60.000» skal
+  // ikke bli 60 kr.
+  let delbeloepTekst = $state(valg.delbeloep === null ? '' : String(valg.delbeloep));
 
   // Panelet følger rullingen bare når det får plass i vinduet; ellers vises en kompakt linje
   // nederst når panelet er ute av syne (skjerm E).
@@ -272,8 +276,14 @@
                   value={delbeloepTekst}
                   aria-describedby="beloep-hjelp"
                   oninput={(e) => {
-                    const t = e.currentTarget.value.replace(/[\s\u00a0]/g, '').replace(',', '.');
-                    valg.delbeloep = t === '' || Number.isNaN(Number(t)) ? null : Number(t);
+                    delbeloepTekst = e.currentTarget.value;
+                    const t = delbeloepTekst.replace(/\s/g, '');
+                    valg.delbeloep =
+                      t === ''
+                        ? null
+                        : /^\d+(,\d{1,2})?$/.test(t)
+                          ? Number(t.replace(',', '.'))
+                          : Number.NaN;
                   }}
                 />
                 <span class="kr" aria-hidden="true">kr</span>
@@ -338,8 +348,11 @@
 {#if !faarPlass && !iSyne && !leser}
   <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
     <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
-    <Knapp variant="primaer" sperret={harPost || hindring !== null} onclick={seBrevet}
-      >{HOVEDLINJER.seBrevet}</Knapp
+    <Knapp
+      variant="primaer"
+      sperret={harPost || hindring !== null}
+      hvorfor="brev-hindring"
+      onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp
     >
   </div>
 {/if}

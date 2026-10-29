@@ -177,6 +177,15 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(hindring()).toMatch(
       /^Beløpet du godtar må være mer enn 0 kr og mindre enn 100\s000\skr\.$/
     );
+    // Et punktum er ikke desimaltegn i et beløp: «60.000» blir ikke 60 kr.
+    await fireEvent.input(screen.getByRole('textbox', { name: 'Beløpet du godtar' }), {
+      target: { value: '60.000' },
+    });
+    expect(hindring()).toBe('Skriv beløpet du godtar med sifre, for eksempel 60 000.');
+    expect(screen.getByRole('button', { name: 'Se brevet før sending' })).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
     expect(document.body.textContent).not.toMatch(/_vurdering|_belop|mangler;|\bKA-U\d/);
   });
 
