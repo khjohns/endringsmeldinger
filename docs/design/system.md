@@ -1,7 +1,7 @@
 # Designsystemet
 
 Beslutningene for visningen, og hvorfor de er tatt. Metoden står i
-[grensesnitt-skillen](../../.claude/skills/grensesnitt/SKILL.md).
+[interface-design-skillen](../../.claude/skills/interface-design/SKILL.md).
 
 **Verdiene står ikke her** (oppdragsgiver 23.10, #1080). Farger, flater, kanter og skrifter er definert i
 [`theme.css`](../../src/lib/components/kontraktsbord/theme.css), avstand og radius i

@@ -1,7 +1,7 @@
 # Review av Varden etter grensesnitt-skillen, 27.10.2026
 
 Kontrollert commit: `565beca` på `claude/konsept-varden` (PR #1329), versjon 3 av
-konseptet. Kildegrunnlaget er [grensesnitt-skillen](../../../.claude/skills/grensesnitt/SKILL.md):
+konseptet. Kildegrunnlaget er [grensesnitt-skillen](https://github.com/khjohns/endringsmeldinger/blob/953aba3/.claude/skills/grensesnitt/SKILL.md):
 hensikten, hierarkiet, «Bruk det som finnes», tilstandene, animasjonen og kontrollene
 før visning. Grunnlaget er de åtte skjermene i [`skjermer/`](skjermer/) og teksten i
 [README](README.md).

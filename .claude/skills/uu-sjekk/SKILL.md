@@ -1,15 +1,15 @@
 ---
 name: uu-sjekk
-description: Sjekklisten for universell utforming (WCAG 2.1 A og AA) i visningen i endringsmeldinger, i tre lister - «Tidlig sjekk» mens en komponent bygges, «Siste sjekk» før PR-en meldes klar og «Sjekk igjen» etter en retting. Bygger på sjekklisten og rådene i Punkt, designsystemet til Oslo kommune, med egne ord. Brukes fra grensesnitt, design-review og design-deslop.
+description: Sjekklisten for universell utforming (WCAG 2.1 A og AA) i visningen i endringsmeldinger, i tre lister - «Tidlig sjekk» mens en komponent bygges, «Siste sjekk» før PR-en meldes klar og «Sjekk igjen» etter en retting. Bygger på sjekklisten og rådene i Punkt, designsystemet til Oslo kommune, med egne ord. Brukes fra interface-design, `/design-review` og `/design-deslop`.
 ---
 
 # Sjekk for universell utforming
 
 Lista bygger på [sjekklisten for UU](https://punkt.oslo.kommune.no/latest/god-praksis/sjekkliste-uu/)
 i Punkt, med egne ord og tilpasset en innlogget fagapplikasjon med skjemaer,
-tabeller, dialoger og brevtekst, i lys og mørk modus og på smal skjerm. Punkt
+tabeller, dialoger og brevtekst, i lys modus og på smal skjerm. Punkt
 oppgir ingen lisens for teksten på sidene, så den er ikke tatt inn ordrett (#1187).
-Kravet er WCAG 2.1 A og AA.
+Kravet er WCAG 2.1 A og AA. Mørk modus vurderes ikke nå (oppdragsgiver 29.10).
 
 **Automatikken finner bare en del.** [Testverktøysida i Punkt](https://punkt.oslo.kommune.no/latest/universell-utforming/testverktoy/)
 anslår om lag 30 % av feilene. `uu.mjs` i skillen [`mockup-nettleser`](../mockup-nettleser/SKILL.md)
@@ -18,7 +18,7 @@ tastaturet, med Playwright der det er raskere, og ved å lese koden.
 
 Beslutningene om knapper, skjemaer og feilmeldinger står i
 [systemfila](../../../docs/design/system.md), og målene for treffflate og animasjon
-i [grensesnitt-skillen](../grensesnitt/SKILL.md). Lista gjentar dem ikke.
+i [interface-design-skillen](../interface-design/SKILL.md). Lista gjentar dem ikke.
 
 ## Tidlig sjekk
 
@@ -29,7 +29,7 @@ Mens komponenten planlegges og bygges. Ta med gruppene komponenten har.
   uten at innhold eller handlinger forsvinner.
 - Farge står aldri alene: tekst, ikon eller mønster sier det samme (systemfila,
   «Farge som betyr noe»).
-- Visningen virker i lys og mørk modus og på smal skjerm.
+- Visningen virker i lys modus og på smal skjerm.
 
 **Struktur**
 - Landemerker der de hører hjemme: `header`, `nav`, `main`, `aside`, `form`.
@@ -55,7 +55,7 @@ Mens komponenten planlegges og bygges. Ta med gruppene komponenten har.
 - En nedtrekksliste eller meny har `aria-expanded`, og `aria-haspopup` der det
   passer.
 - Teksten sier hva som skjer. Har knappen bare et ikon, har den `aria-label`.
-- Fokus, hover og aktiv synes, i begge modi.
+- Fokus, hover og aktiv synes.
 
 **Skjemaer**
 - Hvert felt har en `label` koblet med `for` og `id`. Plassholdertekst bærer aldri
@@ -90,8 +90,8 @@ Mens komponenten planlegges og bygges. Ta med gruppene komponenten har.
 
 **Visuelt**
 - Kontrasten holder WCAG AA: 4,5:1 for tekst og 3:1 for stor tekst, ikoner,
-  feltkanter og fokusmarkering. Begge modi, også på smal skjerm.
-- Treffflaten følger grensesnitt-skillen.
+  feltkanter og fokusmarkering, også på smal skjerm.
+- Treffflaten følger interface-design-skillen.
 
 **Skjermleser og tilstand**
 - Det som betyr noe, leses opp i logisk rekkefølge.
@@ -114,8 +114,8 @@ Før PR-en meldes klar, på det diffen endrer.
 4. **Ikoner:** pynt er skjult, og meningsbærende ikoner har navn.
 5. **Skjemaer:** label, `type` og `autocomplete`. Feil står som tekst ved feltet og
    er koblet til det.
-6. **Kontrast og størrelse:** WCAG AA i begge modi, treffflaten etter
-   grensesnitt-skillen, og 200 % zoom.
+6. **Kontrast og størrelse:** WCAG AA i lys modus, treffflaten etter
+   interface-design-skillen, og 200 % zoom.
 7. **Overlegg:** fokus holdes i dialogen, bakgrunnen kan ikke brukes, og Escape
    lukker.
 8. **Smal skjerm:** ingenting forsvinner, og ingen vannrett rulling.
@@ -130,6 +130,6 @@ Etter en retting, på elementene rettingen rører.
 1. **Tastatur og fokus:** flyten virker fortsatt med tastaturet, og fokus står der
    det gir mening før, under og etter handlingen.
 2. **Navn, rolle og tilstand** er fortsatt riktige.
-3. **Visuelt:** ingen ny kontrastfeil i noen av modiene, og ingenting nytt som
+3. **Visuelt:** ingen ny kontrastfeil i lys modus, og ingenting nytt som
    brekker på smal skjerm. Kjør `uu.mjs` igjen når rettingen endrer farge, struktur
    eller et skjema.
