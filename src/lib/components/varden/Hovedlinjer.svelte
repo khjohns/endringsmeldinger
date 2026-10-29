@@ -17,11 +17,12 @@
     alternativer: boolean;
     handling: Snippet;
   } = $props();
+  const uid = $props.id();
 </script>
 
-<section class="kort" aria-labelledby="hovedlinjer-tittel">
+<section class="kort" aria-labelledby={`${uid}-hovedlinjer-tittel`}>
   <header class="hode">
-    <h2 id="hovedlinjer-tittel">{HOVEDLINJER.tittel}</h2>
+    <h2 id={`${uid}-hovedlinjer-tittel`}>{HOVEDLINJER.tittel}</h2>
     <span class="kilde">{HOVEDLINJER.kilde}</span>
   </header>
   <div class="linjer" aria-live="polite">

@@ -46,6 +46,7 @@
       virkninger: string[];
     }) => void;
   } = $props();
+  const uid = $props.id();
 
   const krav = $derived(u.spor.vederlag.gjeldendeKrav!);
   const krevd = $derived(krav.innhold.beloep as number);
@@ -194,9 +195,9 @@
       {#if harPost}
         <p class="ikke-stoettet" role="note">{SKJEMA.ikkeStoettet}</p>
       {:else}
-        <section class="spoersmaal" aria-labelledby="sp-varsel">
+        <section class="spoersmaal" aria-labelledby={`${uid}-sp-varsel`}>
           <div class="sp-hode">
-            <h3 id="sp-varsel">{SKJEMA.varselTittel}</h3>
+            <h3 id={`${uid}-sp-varsel`}>{SKJEMA.varselTittel}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1.2</span>
           </div>
           <div class="datoer">
@@ -222,9 +223,9 @@
           />
         </section>
 
-        <section class="spoersmaal" aria-labelledby="sp-metode">
+        <section class="spoersmaal" aria-labelledby={`${uid}-sp-metode`}>
           <div class="sp-hode">
-            <h3 id="sp-metode">{SKJEMA.metodeTittel}</h3>
+            <h3 id={`${uid}-sp-metode`}>{SKJEMA.metodeTittel}</h3>
             {#if valg.metode === null}<span class="ikke-besvart">{SKJEMA.ikkeBesvart}</span>{/if}
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.2</span>
           </div>
@@ -250,9 +251,9 @@
           {/if}
         </section>
 
-        <section class="spoersmaal" aria-labelledby="sp-beloep">
+        <section class="spoersmaal" aria-labelledby={`${uid}-sp-beloep`}>
           <div class="sp-hode">
-            <h3 id="sp-beloep">{SKJEMA.beloepTittel(krevd)}</h3>
+            <h3 id={`${uid}-sp-beloep`}>{SKJEMA.beloepTittel(krevd)}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1</span>
           </div>
           <Valg
@@ -267,30 +268,30 @@
           />
           {#if valg.beloep === 'deler'}
             <div class="beloepfelt">
-              <label for="delbeloep">{SKJEMA.belopEtikett}</label>
+              <label for={`${uid}-delbeloep`}>{SKJEMA.belopEtikett}</label>
               <span class="inndata">
                 <input
-                  id="delbeloep"
+                  id={`${uid}-delbeloep`}
                   inputmode="decimal"
                   bind:value={valg.delbeloep}
-                  aria-describedby="beloep-hjelp"
+                  aria-describedby={`${uid}-beloep-hjelp`}
                 />
                 <span class="kr" aria-hidden="true">kr</span>
               </span>
-              <span id="beloep-hjelp" class="dempet">{SKJEMA.belopHjelp(krevd)}</span>
+              <span id={`${uid}-beloep-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevd)}</span>
             </div>
           {/if}
         </section>
 
         <section class="spoersmaal">
           <div class="begrunnelse">
-            <label for="begrunnelse" class="h3">{SKJEMA.begrunnelse}</label>
-            <span class="dempet" id="begrunnelse-hjelp">{SKJEMA.begrunnelseHjelp}</span>
+            <label for={`${uid}-begrunnelse`} class="h3">{SKJEMA.begrunnelse}</label>
+            <span class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</span>
             <textarea
-              id="begrunnelse"
+              id={`${uid}-begrunnelse`}
               rows="5"
               bind:value={valg.begrunnelse}
-              aria-describedby="begrunnelse-hjelp"
+              aria-describedby={`${uid}-begrunnelse-hjelp`}
             ></textarea>
           </div>
         </section>
@@ -317,12 +318,12 @@
       <div class="feste" class:fast={faarPlass} bind:this={panel}>
         <Hovedlinjer {linjer} {alternativer}>
           {#snippet handling()}
-            {#if hindring}<p class="dempet" id="brev-hindring">{hindring}</p>{/if}
+            {#if hindring}<p class="dempet" id={`${uid}-brev-hindring`}>{hindring}</p>{/if}
             <p class="sterk">{VIRKNING.alltid}</p>
             <Knapp
               variant="primaer"
               sperret={harPost || hindring !== null}
-              hvorfor="brev-hindring"
+              hvorfor={`${uid}-brev-hindring`}
               onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp
             >
             {#if sendehindring}<p class="feil" role="alert">{sendehindring}</p>{/if}
@@ -340,7 +341,7 @@
     <Knapp
       variant="primaer"
       sperret={harPost || hindring !== null}
-      hvorfor="brev-hindring"
+      hvorfor={`${uid}-brev-hindring`}
       onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp
     >
   </div>

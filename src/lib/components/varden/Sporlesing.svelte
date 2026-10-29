@@ -44,6 +44,7 @@
     onvelg: (noekkel: string) => void;
     onakseptbrev: (k: { kommando: Record<string, unknown>; tekst: string[] }) => void;
   } = $props();
+  const uid = $props.id();
 
   const part = $derived(kjernesak.part as Part);
   const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes(spor)));
@@ -66,7 +67,7 @@
   async function lukkStilling() {
     stilling = false;
     await tick();
-    document.getElementById('ta-stilling')?.focus();
+    document.getElementById(`${uid}-ta-stilling`)?.focus();
   }
   let hindring = $state<string | null>(null);
 
@@ -133,8 +134,8 @@
           <Knapp
             variant="primaer"
             aria-expanded={stilling}
-            aria-controls="stillingspanel"
-            id="ta-stilling"
+            aria-controls={`${uid}-stillingspanel`}
+            id={`${uid}-ta-stilling`}
             onclick={aapneStilling}
             >{MOTTATT.taStilling}<ChevronRight size={16} aria-hidden="true" /></Knapp
           >
@@ -159,9 +160,9 @@
 
   {#snippet hoeyre()}
     {#if stilling && kanGodta && vist}
-      <section class="kort" id="stillingspanel" aria-labelledby="stilling-tittel">
+      <section class="kort" id={`${uid}-stillingspanel`} aria-labelledby={`${uid}-stilling-tittel`}>
         <header class="hode">
-          <h2 id="stilling-tittel" tabindex="-1" bind:this={stillingTittel}>
+          <h2 id={`${uid}-stilling-tittel`} tabindex="-1" bind:this={stillingTittel}>
             {STILLING.tittel(vist.nummer)}
           </h2>
           <Knapp variant="lenke" onclick={lukkStilling}
