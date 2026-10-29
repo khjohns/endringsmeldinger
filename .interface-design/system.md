@@ -131,7 +131,7 @@ Et mønster står her når det brukes to ganger eller mer. Verdiene står i komp
 eller klassen.
 
 Tabellen beskriver dagens visning, `/mockup`-komponentene. Mønstrene for Varden føres
-inn fra komponentene i designrundene (#1391).
+inn fra komponentene i designrundene (#1391), og står under tabellen.
 
 | Mønster | Hvor | Bruk |
 | --- | --- | --- |
@@ -147,3 +147,34 @@ inn fra komponentene i designrundene (#1391).
 | Seksjonsoverskrift | `primitives/SectionHeading.svelte` | Overskrift for en seksjon i lesevisningen |
 | Handlingslinje | `kontraktsbord/ActionBar.svelte` | Handlingene for parten nå (MM-U25) |
 | Rik tekst | `primitives/RichTextEditor.svelte` | Begrunnelser og brevtekst |
+
+### Handlingene i Varden
+
+Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
+`src/lib/components/varden/`.
+
+- **Visningen er handlingsorientert.** Det som ikke trengs for å sende et krav eller svare
+  på det, står ikke der. Arbeidet har ingen overskrift med spornavnet: lesingen begynner
+  med det siste brevet og menyen, og svaret med utkastkortet.
+- **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
+  «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
+  lesingen. Linjen nederst i vinduet vises bare når panelet er ute av syne.
+- **En knapp er aldri sperret** (MM-U32). Mangler noe, står det rett under feltet og i en
+  liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
+  vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens
+  avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
+  mens en sending pågår.
+- **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
+  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog.
+- **Utkastet sier det selv.** Hodet på utkastkortet og sendepanelet i brevkontrollen
+  sier «Utkast · ikke sendt». Merket «Utkast» i panelet til venstre vises bare når et
+  annet spor er valgt, så statusen aldri står to steder samtidig.
+- **Lesing ved siden av** er én lenkeknapp som veksler mellom «Les brevet ved siden av»
+  og «Lukk brevet». Brevet står i en ramme like høy som vinduet, og ruller i den.
+  Kolonnene er da like brede. På smal skjerm står brevet i skjemaet.
+- **Menyen med brevtypene** (`Brevtyper`) vises bare når kjernen tilbyr en handling
+  (MM-U25), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget, står under
+  én felles linje.
+- **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
+  blekk (`--ink`) på `--surface-inset`. Den er ikke gul, fordi gult betyr utkast, og
+  ikke rød, fordi den ikke er en feil.

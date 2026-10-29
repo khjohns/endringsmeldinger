@@ -1,36 +1,26 @@
 <!--
   Arbeidet i sporet (Varden, prinsipp 8): hovedkolonnen med det brukeren gjør nå, og høyre
-  kolonne med det som støtter arbeidet. Under 1024 px legger høyre kolonne seg under arbeidet.
+  kolonne med det som støtter arbeidet. Visningen er handlingsorientert, så den har ingen
+  egen overskrift over arbeidet (oppdragsgiver 29.10, #1391). Mens et brev leses ved siden
+  av, er kolonnene like brede. Under 1024 px legger høyre kolonne seg under arbeidet.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
   let {
-    overskrift,
-    undertekst,
-    handling,
+    leser = false,
     hoved,
     hoeyre,
   }: {
-    overskrift: string;
-    undertekst?: string;
-    handling?: Snippet;
+    /** Et brev leses i høyre kolonne. */
+    leser?: boolean;
     hoved: Snippet;
     hoeyre?: Snippet;
   } = $props();
 </script>
 
-<div class="flate">
-  <div class="hoved">
-    <header class="topp">
-      <div>
-        <h2>{overskrift}</h2>
-        {#if undertekst}<p class="undertekst">{undertekst}</p>{/if}
-      </div>
-      {#if handling}<div class="handling">{@render handling()}</div>{/if}
-    </header>
-    {@render hoved()}
-  </div>
+<div class="flate" class:leser>
+  <div class="hoved">{@render hoved()}</div>
   {#if hoeyre}
     <div class="hoeyre">{@render hoeyre()}</div>
   {/if}
@@ -43,37 +33,26 @@
     gap: var(--spacing-6);
     align-items: start;
   }
+  .flate.leser {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
   .hoved {
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
   }
-  .topp {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--spacing-3);
-    padding-bottom: var(--spacing-3);
-    border-bottom: var(--rule);
-  }
-  h2 {
-    font-size: 22px;
-    font-weight: 600;
-  }
-  .undertekst {
-    color: var(--ink-3);
-    font-size: 14px;
-  }
+  /* Høyre kolonne er like høy som arbeidet, så panelet i den kan følge rullingen. */
   .hoeyre {
+    align-self: stretch;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
     min-width: 0;
   }
   @media (max-width: 1023px) {
-    .flate {
+    .flate,
+    .flate.leser {
       grid-template-columns: minmax(0, 1fr);
     }
   }

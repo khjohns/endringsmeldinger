@@ -128,6 +128,8 @@ export const SKJEMA = {
   overskrift: 'Svar på kravet',
   svarerPaa: (n: number, d: string) => `Svar på brev ${n} fra TE · ${kortDato(d)}`,
   lesBrevet: 'Les brevet ved siden av',
+  // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
+  lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
   synlig: 'Bare synlig for teamet ditt til det er sendt',
   varselTittel: 'Varselet om kravet',
@@ -155,20 +157,27 @@ export const SKJEMA = {
   belopHjelp: (krevd: number) => `Mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
   begrunnelse: 'Begrunnelse',
   begrunnelseHjelp: 'Kommer i brevet under standpunktene. Begrunnelsen tolkes ikke.',
-  ikkeBesvart: 'Ikke besvart',
+  mangler: 'Dette mangler før brevet kan lages:',
+  manglerITide: 'Velg om varselet kom i tide.',
+  manglerMetode: 'Velg om du godtar beregningsmetoden.',
+  manglerOensket: 'Velg metoden du mener vederlaget skal justeres etter.',
+  manglerBeloep: 'Velg hvor mye av hovedkravet du godtar.',
+  manglerDelbeloep: 'Skriv beløpet du godtar.',
+  forkast: 'Forkast utkast',
+  forkastSpoersmaal: 'Forkaste utkastet? Valgene og begrunnelsen slettes.',
+  forkastJa: 'Forkast',
+  behold: 'Behold utkastet',
   ikkeStoettet:
     'Kravet har en post for produktivitetstap (§ 34.1.3). Den kan ikke besvares i denne prøven av Varden. Bruk dagens visning for dette svaret.',
 };
 
 export const HOVEDLINJER = {
   tittel: 'Hovedlinjene i svaret',
-  kilde: 'Samme utregning som brevet',
   tom: 'Velg et svar på spørsmålene, så står standpunktene her.',
   alternativer: 'alternativer, ikke tillegg',
   krevd: (b: number) => `${kroner(b)} krevd`,
   seBrevet: 'Se brevet før sending',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
-  ubesvart: 'Svar på spørsmålene i skjemaet, så kan brevet lages.',
   beloepUtenfor: (krevd: number) =>
     `Beløpet du godtar må være mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
 };
@@ -203,6 +212,7 @@ export const MOTTATT = {
   ikkeIProeven: 'Bygges ikke i denne prøven. Bruk dagens visning.',
   ingenBrev: 'Sporet har ingen brev ennå.',
   dittBrev: 'Brevet ditt er sendt.',
+  forkastet: 'Utkastet er forkastet.',
 };
 
 /**
@@ -235,7 +245,6 @@ export const innsigelsen = (art: string, nummer: number | null) =>
 export const BREVMENY = {
   skriv: 'Skriv brev i sporet',
   andre: 'Andre brev og handlinger',
-  ingen: 'Ingen brev er mulige i sporet nå.',
 };
 
 export const STILLING = {

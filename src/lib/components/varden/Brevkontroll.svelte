@@ -1,7 +1,8 @@
 <!--
   Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som
   lesespalte, og sendepanelet med virkningen av brevet. Kommandoen sendes med den
-  teksten avsenderen har sett, og serveren avviser en annen (LV-U2).
+  teksten avsenderen har sett, og serveren avviser en annen (LV-U2). «Send» er alltid aktiv;
+  mangler avkrysningen, står det ved den (MM-U32).
 -->
 <script lang="ts">
   import { ChevronLeft, Lock, Send } from 'lucide-svelte';
@@ -47,12 +48,19 @@
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   let kontrollert = $state(false);
+  let manglerKontroll = $state(false);
+  let avkrysning = $state<HTMLInputElement | null>(null);
   let tittelen = $state<HTMLElement | null>(null);
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
   onMount(() => tittelen?.focus());
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 
   async function send() {
+    if (!kontrollert) {
+      manglerKontroll = true;
+      avkrysning?.focus();
+      return;
+    }
     if (await kjernesak.send(kommando, tekst)) onsendt();
   }
 </script>
@@ -104,23 +112,25 @@
       <p class="dempet">{BREVKONTROLL.ikkeEndres}</p>
     </div>
     <div class="send">
-      <label class="avkryss">
-        <input type="checkbox" bind:checked={kontrollert} />
+      <label class="avkryss" class:ugyldig={manglerKontroll && !kontrollert}>
+        <input
+          type="checkbox"
+          bind:checked={kontrollert}
+          bind:this={avkrysning}
+          aria-describedby={manglerKontroll && !kontrollert
+            ? `${uid}-hvorfor-ikke-send`
+            : undefined}
+          aria-invalid={manglerKontroll && !kontrollert ? 'true' : undefined}
+        />
         <span>{BREVKONTROLL.kontrollert}</span>
       </label>
-      <Knapp
-        variant="primaer"
-        sperret={!kontrollert}
-        hvorfor={`${uid}-hvorfor-ikke-send`}
-        opptatt={kjernesak.sender}
-        onclick={send}
-      >
+      {#if manglerKontroll && !kontrollert}<p id={`${uid}-hvorfor-ikke-send`} class="feilmelding">
+          {BREVKONTROLL.hvorforIkke}
+        </p>{/if}
+      <Knapp variant="primaer" opptatt={kjernesak.sender} onclick={send}>
         <Send size={16} aria-hidden="true" />
         {kjernesak.sender ? BREVKONTROLL.sender : sendTekst}
       </Knapp>
-      {#if !kontrollert}<p id={`${uid}-hvorfor-ikke-send`} class="dempet">
-          {BREVKONTROLL.hvorforIkke}
-        </p>{/if}
       {#if kjernesak.feil}<p class="feil" role="alert">{kjernesak.feil}</p>{/if}
     </div>
   </section>
@@ -227,6 +237,15 @@
   .avkryss:has(input:focus-visible) {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
+  }
+  .avkryss.ugyldig {
+    border-color: var(--danger);
+    box-shadow: inset 0 0 0 1px var(--danger);
+  }
+  .feilmelding {
+    color: var(--danger);
+    font-size: 14px;
+    font-weight: 500;
   }
   .avkryss input {
     width: 20px;

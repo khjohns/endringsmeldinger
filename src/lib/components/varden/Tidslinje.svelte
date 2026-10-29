@@ -2,7 +2,7 @@
   Tidslinja i sporet (Varden, valget 27.10 i #1331): datoene partene har oppgitt (ring), brev
   som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. Ingen
   dager mellom oppføringene: avstanden mellom to tilfeldige oppføringer kan se ut som et
-  varslingsintervall. Kan legges sammen.
+  varslingsintervall. Står åpen fra starten og kan legges sammen (oppdragsgiver 29.10, #1391).
 -->
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
@@ -12,7 +12,7 @@
   let {
     brev,
     datoer,
-    aapen = false,
+    aapen = true,
   }: { brev: Brevet[]; datoer: OppgittDato[]; aapen?: boolean } = $props();
 
   type Oppfoering = {

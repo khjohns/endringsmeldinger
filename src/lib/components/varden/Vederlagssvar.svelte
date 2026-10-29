@@ -3,9 +3,15 @@
   hovedlinjene slik kjernen forhåndsviser svaret, og brevet viser alt (prinsipp 3). Ingenting
   er forhåndsvalgt. Kommandoen bygges i `kommandoer.ts`, og kjernen regner resultatet, lager
   brevet og avviser det den ikke godtar.
+
+  Handlingene (oppdragsgiver 29.10, #1391): «Se brevet før sending» står bare i panelet og er
+  alltid aktiv. Mangler et svar, vises ikke brevet, og det som mangler, står ved feltet og
+  øverst i skjemaet (MM-U32, BF-01 S-3 med reserven B, fordi kjernen ikke lager tekst for et
+  ufullstendig svar). «Forkast utkast» står nederst i skjemaet og spør først.
 -->
 <script lang="ts">
-  import { BookOpen, FileText, Lock, X } from 'lucide-svelte';
+  import { BookOpen, FileText, Info, Lock } from 'lucide-svelte';
+  import { tick } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
@@ -33,6 +39,7 @@
     u,
     valg = $bindable(tomtSvar()),
     onbrevkontroll,
+    onforkast,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -45,6 +52,8 @@
       detteSender: { tekst: string; lag: string | null }[];
       virkninger: string[];
     }) => void;
+    /** BH har bekreftet at utkastet skal forkastes. */
+    onforkast: () => void;
   } = $props();
   const uid = $props.id();
 
@@ -88,26 +97,46 @@
     ).size > 1
   );
   const delbeloep = $derived(lesKroner(valg.delbeloep));
-  const ubesvart = $derived(
-    valg.iTide === null ||
-      valg.metode === null ||
-      (valg.metode === false && valg.oensket === null) ||
-      valg.beloep === null ||
-      (valg.beloep === 'deler' && 'verdi' in delbeloep && delbeloep.verdi === undefined)
+  // Med `sendes` avviser kjernen også et svar uten begrunnelse der kontrakten krever den.
+  const avvisning = $derived.by(() => {
+    const b = kjernesak.brev(kommando, undefined, true);
+    return b && 'avvisning' in b ? b.avvisning : null;
+  });
+  // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
+  const delbeloepFeil = $derived(
+    valg.beloep !== 'deler'
+      ? null
+      : 'feil' in delbeloep
+        ? delbeloep.feil
+        : delbeloep.verdi === undefined
+          ? SKJEMA.manglerDelbeloep
+          : delbeloep.verdi <= 0 || delbeloep.verdi >= krevd
+            ? HOVEDLINJER.beloepUtenfor(krevd)
+            : null
   );
-  // Kjernens melding om vurderinger den ikke kan regne ut, har feltkodene; skjemaet sier
-  // det med egne ord.
-  const aarsak = (b: ReturnType<typeof kjernesak.brev>) =>
-    b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING'
-      ? ubesvart
-        ? HOVEDLINJER.ubesvart
-        : valg.beloep === 'deler'
-          ? 'feil' in delbeloep
-            ? delbeloep.feil
-            : HOVEDLINJER.beloepUtenfor(krevd)
-          : HOVEDLINJER.kanIkkeLages
-      : brevaarsak(b);
-  const hindring = $derived(aarsak(kjernesak.brev(kommando)));
+  const mangler = $derived(
+    [
+      { felt: `${uid}-itide`, tekst: valg.iTide === null ? SKJEMA.manglerITide : null },
+      { felt: `${uid}-metode`, tekst: valg.metode === null ? SKJEMA.manglerMetode : null },
+      {
+        felt: `${uid}-oensket`,
+        tekst: valg.metode === false && valg.oensket === null ? SKJEMA.manglerOensket : null,
+      },
+      { felt: `${uid}-beloep`, tekst: valg.beloep === null ? SKJEMA.manglerBeloep : null },
+      { felt: `${uid}-delbeloep`, tekst: delbeloepFeil },
+      // KA-U24: kjernen sier når svaret må ha en begrunnelse, og hvorfor.
+      {
+        felt: `${uid}-begrunnelse`,
+        tekst: avvisning?.regel === 'BEGRUNNELSE_MANGLER' ? avvisning.melding : null,
+      },
+    ].filter((m): m is { felt: string; tekst: string } => m.tekst !== null)
+  );
+  // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
+  let forsoekt = $state(false);
+  const feil = (felt: string) =>
+    forsoekt ? (mangler.find((m) => m.felt === `${uid}-${felt}`)?.tekst ?? null) : null;
+  const begrunnelseFeil = $derived(feil('begrunnelse'));
+  let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
   const virkninger = $derived([
@@ -119,13 +148,22 @@
       : []),
   ]);
 
-  function seBrevet() {
-    const b = kjernesak.brev(kommando, undefined, true);
-    if (!b || !('tekst' in b) || !b.tekst) {
-      sendehindring = aarsak(b) ?? HOVEDLINJER.kanIkkeLages;
+  async function seBrevet() {
+    sendehindring = null;
+    if (mangler.length) {
+      forsoekt = true;
+      await tick();
+      oppsummering?.focus();
       return;
     }
-    sendehindring = null;
+    const b = kjernesak.brev(kommando, undefined, true);
+    if (!b || !('tekst' in b) || !b.tekst) {
+      sendehindring =
+        b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING'
+          ? HOVEDLINJER.kanIkkeLages
+          : (brevaarsak(b) ?? HOVEDLINJER.kanIkkeLages);
+      return;
+    }
     onbrevkontroll({
       kommando,
       tekst: b.tekst,
@@ -135,6 +173,30 @@
     });
   }
 
+  let bekreftForkast = $state(false);
+  let forkastSpoersmaal = $state<HTMLElement | null>(null);
+  async function spoerOmForkast() {
+    bekreftForkast = true;
+    await tick();
+    forkastSpoersmaal?.focus();
+  }
+  async function behold() {
+    bekreftForkast = false;
+    await tick();
+    document.getElementById(`${uid}-forkast`)?.focus();
+  }
+
+  // Brevet leses i en ramme ved siden av skjemaet, og på smal skjerm i skjemaet, der
+  // høyre kolonne står under arbeidet (oppdragsgiver 29.10, #1391).
+  let smal = $state(false);
+  $effect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const sett = () => (smal = mq.matches);
+    sett();
+    mq.addEventListener('change', sett);
+    return () => mq.removeEventListener('change', sett);
+  });
   let leser = $state(false);
 
   // Panelet følger rullingen bare når det får plass i vinduet; ellers vises en kompakt linje
@@ -165,14 +227,29 @@
   });
 </script>
 
-<Arbeidsflate
-  overskrift="Vederlag"
-  undertekst={`${sporbrev.length} brev · siste ${dato(sporbrev.at(-1)!.registrert)} fra ${sporbrev.at(-1)!.avsender}`}
->
+{#snippet kravbrev(innfelt: boolean)}
+  <Brev
+    avsender={kravbrevet.avsender}
+    sak={kjernesak.saksbilde?.tittel ?? ''}
+    nummer={String(kravbrevet.nummer)}
+    dato={dato(kravbrevet.registrert)}
+    tittel={brevtittel(kravbrevet)}
+    avsnitt={kravbrevet.avsnitt ?? []}
+    {innfelt}
+  />
+{/snippet}
+
+{#snippet sendeknapp()}
+  <p class="sterk">{VIRKNING.alltid}</p>
+  <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
+  {#if sendehindring}<p class="feil" role="alert">{sendehindring}</p>{/if}
+{/snippet}
+
+<Arbeidsflate leser={leser && !smal}>
   {#snippet hoved()}
-    <form class="utkast" aria-label={SKJEMA.overskrift} onsubmit={(e) => e.preventDefault()}>
+    <form class="utkast" aria-labelledby={`${uid}-tittel`} onsubmit={(e) => e.preventDefault()}>
       <header class="utkasthode">
-        <p class="tittel">
+        <h2 class="tittel" id={`${uid}-tittel`}>
           <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
           <span
             >Brev {(kjernesak.versjon ?? 0) + 1} · {brevtittel({
@@ -180,21 +257,48 @@
               spor: ['vederlag'],
             })}</span
           >
-        </p>
+        </h2>
         <p class="dempet">Til entreprenøren (TE)</p>
         <p class="dempet synlig"><Lock size={14} aria-hidden="true" />{SKJEMA.synlig}</p>
       </header>
       <div class="svarerpaa">
         <FileText size={16} aria-hidden="true" />
         <span>{SKJEMA.svarerPaa(kravbrevet.nummer, kravbrevet.registrert)}</span>
-        <Knapp onclick={() => (leser = !leser)} aria-expanded={leser}>
-          {leser ? SKJEMA.lukkBrevet : SKJEMA.lesBrevet}
+        <Knapp
+          variant="lenke"
+          onclick={() => (leser = !leser)}
+          aria-expanded={leser}
+          aria-controls={`${uid}-kravbrev`}
+        >
+          {leser ? SKJEMA.lukkBrevet : smal ? SKJEMA.lesBrevetHer : SKJEMA.lesBrevet}
         </Knapp>
       </div>
+      {#if leser && smal}
+        <div class="innebrev" id={`${uid}-kravbrev`}>{@render kravbrev(false)}</div>
+      {/if}
 
       {#if harPost}
-        <p class="ikke-stoettet" role="note">{SKJEMA.ikkeStoettet}</p>
+        <div class="ikke-stoettet" role="note">
+          <Info size={18} aria-hidden="true" />
+          <p>{SKJEMA.ikkeStoettet}</p>
+        </div>
       {:else}
+        {#if forsoekt && mangler.length}
+          <div
+            class="mangler"
+            role="alert"
+            tabindex="-1"
+            bind:this={oppsummering}
+            aria-labelledby={`${uid}-mangler`}
+          >
+            <p id={`${uid}-mangler`}>{SKJEMA.mangler}</p>
+            <ul>
+              {#each mangler as m (m.felt)}
+                <li><a href={`#${m.felt}`}>{m.tekst}</a></li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
         <section class="spoersmaal" aria-labelledby={`${uid}-sp-varsel`}>
           <div class="sp-hode">
             <h3 id={`${uid}-sp-varsel`}>{SKJEMA.varselTittel}</h3>
@@ -220,13 +324,13 @@
               { verdi: false, tekst: SKJEMA.forSent },
             ]}
             bind:verdi={valg.iTide}
+            feil={feil('itide')}
           />
         </section>
 
         <section class="spoersmaal" aria-labelledby={`${uid}-sp-metode`}>
           <div class="sp-hode">
             <h3 id={`${uid}-sp-metode`}>{SKJEMA.metodeTittel}</h3>
-            {#if valg.metode === null}<span class="ikke-besvart">{SKJEMA.ikkeBesvart}</span>{/if}
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.2</span>
           </div>
           <Valg
@@ -237,6 +341,7 @@
               { verdi: false, tekst: SKJEMA.godtarIkkeMetode },
             ]}
             bind:verdi={valg.metode}
+            feil={feil('metode')}
           />
           {#if valg.metode === false}
             <Valg
@@ -247,6 +352,7 @@
                 { verdi: 'regningsarbeid', tekst: 'Regningsarbeid (§ 34.4)' },
               ]}
               bind:verdi={valg.oensket}
+              feil={feil('oensket')}
             />
           {/if}
         </section>
@@ -265,20 +371,26 @@
               { verdi: 'ingenting', tekst: SKJEMA.ingenting },
             ]}
             bind:verdi={valg.beloep}
+            feil={feil('beloep')}
           />
           {#if valg.beloep === 'deler'}
+            {@const beloepFeil = feil('delbeloep')}
             <div class="beloepfelt">
               <label for={`${uid}-delbeloep`}>{SKJEMA.belopEtikett}</label>
-              <span class="inndata">
+              <span id={`${uid}-beloep-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevd)}</span>
+              <span class="inndata" class:ugyldig={beloepFeil}>
                 <input
                   id={`${uid}-delbeloep`}
                   inputmode="decimal"
                   bind:value={valg.delbeloep}
-                  aria-describedby={`${uid}-beloep-hjelp`}
+                  aria-describedby={beloepFeil
+                    ? `${uid}-beloep-hjelp ${uid}-beloep-feil`
+                    : `${uid}-beloep-hjelp`}
+                  aria-invalid={beloepFeil ? 'true' : undefined}
                 />
                 <span class="kr" aria-hidden="true">kr</span>
               </span>
-              <span id={`${uid}-beloep-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevd)}</span>
+              {#if beloepFeil}<p class="feilmelding" id={`${uid}-beloep-feil`}>{beloepFeil}</p>{/if}
             </div>
           {/if}
         </section>
@@ -289,61 +401,68 @@
             <span class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</span>
             <textarea
               id={`${uid}-begrunnelse`}
+              class:ugyldig={begrunnelseFeil}
               rows="5"
               bind:value={valg.begrunnelse}
-              aria-describedby={`${uid}-begrunnelse-hjelp`}
+              aria-describedby={begrunnelseFeil
+                ? `${uid}-begrunnelse-hjelp ${uid}-begrunnelse-feil`
+                : `${uid}-begrunnelse-hjelp`}
+              aria-invalid={begrunnelseFeil ? 'true' : undefined}
             ></textarea>
+            {#if begrunnelseFeil}<p class="feilmelding" id={`${uid}-begrunnelse-feil`}>
+                {begrunnelseFeil}
+              </p>{/if}
           </div>
         </section>
       {/if}
+
+      <div class="skjemafot">
+        {#if bekreftForkast}
+          <div class="bekreft" role="group" aria-labelledby={`${uid}-forkast-spoersmaal`}>
+            <p id={`${uid}-forkast-spoersmaal`} tabindex="-1" bind:this={forkastSpoersmaal}>
+              {SKJEMA.forkastSpoersmaal}
+            </p>
+            <div class="knapper">
+              <Knapp onclick={onforkast}>{SKJEMA.forkastJa}</Knapp>
+              <Knapp variant="lenke" onclick={behold}>{SKJEMA.behold}</Knapp>
+            </div>
+          </div>
+        {:else}
+          <Knapp variant="lenke" id={`${uid}-forkast`} onclick={spoerOmForkast}
+            >{SKJEMA.forkast}</Knapp
+          >
+        {/if}
+      </div>
     </form>
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if leser}
-      <div class="leseflate">
-        <Knapp variant="lenke" onclick={() => (leser = false)}
-          ><X size={16} aria-hidden="true" />{SKJEMA.lukkBrevet}</Knapp
-        >
-        <Brev
-          avsender={kravbrevet.avsender}
-          sak={kjernesak.saksbilde?.tittel ?? ''}
-          nummer={String(kravbrevet.nummer)}
-          dato={dato(kravbrevet.registrert)}
-          tittel={brevtittel(kravbrevet)}
-          avsnitt={kravbrevet.avsnitt ?? []}
-        />
-      </div>
+    {#if leser && !smal}
+      <section class="leseramme" id={`${uid}-kravbrev`} aria-labelledby={`${uid}-lesetittel`}>
+        <h2 class="lesetittel" id={`${uid}-lesetittel`}>
+          Brev {kravbrevet.nummer} · {brevtittel(kravbrevet)}
+          <span class="dempet">· {kravbrevet.avsender} · {dato(kravbrevet.registrert)}</span>
+        </h2>
+        <!-- Rammen ruller for seg selv, så den må kunne nås med tastaturet. -->
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <div class="brevrulle" tabindex="0" role="region" aria-labelledby={`${uid}-lesetittel`}>
+          {@render kravbrev(true)}
+        </div>
+        {#if !harPost}<div class="lesebunn">{@render sendeknapp()}</div>{/if}
+      </section>
     {:else}
       <div class="feste" class:fast={faarPlass} bind:this={panel}>
-        <Hovedlinjer {linjer} {alternativer}>
-          {#snippet handling()}
-            {#if hindring}<p class="dempet" id={`${uid}-brev-hindring`}>{hindring}</p>{/if}
-            <p class="sterk">{VIRKNING.alltid}</p>
-            <Knapp
-              variant="primaer"
-              sperret={harPost || hindring !== null}
-              hvorfor={`${uid}-brev-hindring`}
-              onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp
-            >
-            {#if sendehindring}<p class="feil" role="alert">{sendehindring}</p>{/if}
-          {/snippet}
-        </Hovedlinjer>
+        <Hovedlinjer {linjer} {alternativer} handling={harPost ? undefined : sendeknapp} />
       </div>
       <Tidslinje brev={sporbrev} datoer={datoer.filter((d) => d.spor.includes('grunnlag'))} />
     {/if}
   {/snippet}
 </Arbeidsflate>
 
-{#if !faarPlass && !iSyne && !leser}
+{#if !harPost && !faarPlass && !iSyne && !(leser && !smal)}
   <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
     <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
-    <Knapp
-      variant="primaer"
-      sperret={harPost || hindring !== null}
-      hvorfor={`${uid}-brev-hindring`}
-      onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp
-    >
+    <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
   </div>
 {/if}
 
@@ -363,6 +482,7 @@
   }
   .tittel {
     display: flex;
+    line-height: 1.4;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-3);
@@ -427,13 +547,6 @@
     color: var(--ink-2);
     font-size: 12px;
   }
-  .ikke-besvart {
-    padding: 0 var(--spacing-2);
-    border-radius: 999px;
-    background: var(--surface-inset);
-    color: var(--ink-2);
-    font-size: 12px;
-  }
   .datoer {
     padding: var(--spacing-3) var(--spacing-4);
     background: var(--surface-inset);
@@ -485,12 +598,75 @@
     background: var(--surface);
     resize: vertical;
   }
+  /* En melding om prøven, ikke en feil og ikke et utkast: blekk i kanten, ingen farge (#1391). */
   .ikke-stoettet {
+    display: flex;
+    gap: var(--spacing-3);
     margin: var(--spacing-5) var(--spacing-6);
-    padding: var(--spacing-3) var(--spacing-4);
+    padding: var(--spacing-4);
+    border-left: 3px solid var(--ink);
     background: var(--surface-inset);
-    border: var(--rule-strong);
-    border-radius: 4px;
+    color: var(--ink);
+  }
+  .ikke-stoettet :global(svg) {
+    flex: none;
+    margin-top: 3px;
+  }
+  .mangler {
+    margin: var(--spacing-5) var(--spacing-6) 0;
+    padding: var(--spacing-4);
+    border-left: 3px solid var(--danger);
+    background: var(--danger-bg);
+  }
+  .mangler:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  .mangler p {
+    font-weight: 600;
+  }
+  .mangler ul {
+    margin-top: var(--spacing-2);
+    padding-left: var(--spacing-5);
+    list-style: disc;
+  }
+  .mangler a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+  .mangler a:hover {
+    text-decoration-thickness: 2px;
+  }
+  .feilmelding {
+    color: var(--danger);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .inndata.ugyldig,
+  textarea.ugyldig {
+    border-color: var(--danger);
+    box-shadow: inset 0 0 0 1px var(--danger);
+  }
+  .skjemafot {
+    padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
+    border-top: var(--rule);
+  }
+  .bekreft {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    padding: var(--spacing-2) 0;
+  }
+  .bekreft p:focus {
+    outline: none;
+  }
+  .knapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+  }
+  .innebrev {
+    padding: var(--spacing-4) var(--spacing-4) 0;
   }
   .dempet {
     color: var(--ink-3);
@@ -511,11 +687,43 @@
     position: sticky;
     top: var(--spacing-4);
   }
-  .leseflate {
+  /* Lesing ved siden av: rammen er like høy som vinduet under topplinja, brevet ruller i den,
+     og «Se brevet før sending» står fast i bunnen (oppdragsgiver 29.10, #1391). */
+  .leseramme {
+    position: sticky;
+    top: var(--spacing-4);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-2);
+    height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .lesetittel {
+    padding: var(--spacing-3) var(--spacing-5);
+    border-bottom: var(--rule);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .lesetittel .dempet {
+    font-weight: 400;
+  }
+  .brevrulle {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .brevrulle:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: -2px;
+  }
+  .lesebunn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
+    border-top: var(--rule);
   }
   .kompakt {
     position: fixed;

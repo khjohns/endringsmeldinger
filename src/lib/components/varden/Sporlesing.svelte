@@ -21,7 +21,6 @@
   import {
     BREVMENY,
     MOTTATT,
-    SAKEN,
     SPORNAVN,
     STILLING,
     brevtittel,
@@ -101,32 +100,27 @@
   }
 </script>
 
-<Arbeidsflate
-  overskrift={SPORNAVN[spor]}
-  undertekst={siste
-    ? `${sporbrev.length} brev · siste ${dato(siste.registrert)} fra ${siste.avsender}`
-    : SAKEN.ingenBrev}
->
-  {#snippet handling()}
-    <Brevtyper
-      tittel={kanGodta ? BREVMENY.andre : BREVMENY.skriv}
-      handlinger={iSporet.filter((n) => n !== `godta:${spor}`)}
-      bygget={spor === 'vederlag' ? ['svare'] : []}
-      tekstFor={innsigelsestekst}
-      {onvelg}
-    />
-  {/snippet}
-
+<Arbeidsflate>
   {#snippet hoved()}
+    {#snippet meny()}
+      <Brevtyper
+        tittel={kanGodta ? BREVMENY.andre : BREVMENY.skriv}
+        handlinger={iSporet.filter((n) => n !== `godta:${spor}`)}
+        bygget={spor === 'vederlag' ? ['svare'] : []}
+        tekstFor={innsigelsestekst}
+        {onvelg}
+      />
+    {/snippet}
     {#if vist}
       <div class="linje">
-        <p>
-          <strong>Brev {vist.nummer} · {brevtittel(vist)}</strong>
+        <h2>
+          Brev {vist.nummer} · {brevtittel(vist)}
           <span class="dempet">
             · {vist.avsender} · {vist.avsender === part ? 'sendt' : 'mottatt'}
             {dato(vist.registrert)}</span
           >
-        </p>
+        </h2>
+        {@render meny()}
       </div>
       {#if kanGodta}
         <div class="stilling">
@@ -154,7 +148,10 @@
         </Brev>
       {/if}
     {:else}
-      <p class="tomt">{MOTTATT.ingenBrev}</p>
+      <div class="linje tomt">
+        <p>{MOTTATT.ingenBrev}</p>
+        {@render meny()}
+      </div>
     {/if}
   {/snippet}
 
@@ -197,7 +194,18 @@
 
 <style>
   .linje {
-    font-size: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+  }
+  /* Tittelen brytes før menyen flyttes til en egen linje. */
+  .linje > :first-child {
+    flex: 1 1 18rem;
+  }
+  .linje .dempet {
+    font-weight: 400;
   }
   .stilling {
     display: flex;

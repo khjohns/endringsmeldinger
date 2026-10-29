@@ -1,11 +1,12 @@
 <!--
   «Skriv brev i sporet» og «Andre brev og handlinger» (Varden, skjerm B, D og E): brevtypene
-  kjernen tilbyr i sporet nå, i fast rekkefølge og uten fremheving. En brevtype som ikke er
-  bygget i Varden, står med det, så ingen handling kjernen tilbyr, faller bort.
+  kjernen tilbyr i sporet nå, i fast rekkefølge og uten fremheving. Brevtypene som ikke er
+  bygget i Varden, står samlet under én linje, så ingen handling kjernen tilbyr, faller bort.
+  Tilbyr kjernen ingenting, vises ikke menyen (MM-U25).
 -->
 <script lang="ts">
   import { ChevronDown } from 'lucide-svelte';
-  import { BREVMENY, BREVTYPER, MOTTATT, ukjentHandling } from './prototypetekst';
+  import { BREVTYPER, MOTTATT, ukjentHandling } from './prototypetekst';
 
   let {
     tittel,
@@ -41,6 +42,9 @@
         };
       })
   );
+  const byggede = $derived(rader.filter((r) => r.bygget));
+  const ikkeByggede = $derived(rader.filter((r) => !r.bygget));
+  const uid = $props.id();
   let aapen = $state(false);
   let meny = $state<HTMLDetailsElement | null>(null);
 </script>
@@ -53,40 +57,49 @@
   }}
 />
 
-<details class="meny" bind:open={aapen} bind:this={meny}>
-  <summary>{tittel}<ChevronDown size={16} aria-hidden="true" /></summary>
-  <div class="liste">
-    {#if rader.length}
-      <ul>
-        {#each rader as r (r.noekkel)}
-          <li data-handling={r.noekkel}>
-            {#if r.bygget}
-              <button
-                type="button"
-                onclick={() => {
-                  aapen = false;
-                  onvelg(r.noekkel);
-                }}>{r.tekst}</button
-              >
-            {:else}
-              <span class="ikke-bygget">
-                <span>{r.tekst}</span>
-                <span class="dempet">{MOTTATT.ikkeIProeven}</span>
-              </span>
-            {/if}
-            {#if r.virkning}<span class="dempet virkning">{r.virkning}</span>{/if}
-          </li>
-        {/each}
-      </ul>
+{#snippet rad(r: (typeof rader)[number])}
+  <li data-handling={r.noekkel}>
+    {#if r.bygget}
+      <button
+        type="button"
+        onclick={() => {
+          aapen = false;
+          onvelg(r.noekkel);
+        }}>{r.tekst}</button
+      >
     {:else}
-      <p class="dempet tom">{BREVMENY.ingen}</p>
+      <span class="ikke-bygget">{r.tekst}</span>
     {/if}
-  </div>
-</details>
+    {#if r.virkning}<span class="dempet virkning">{r.virkning}</span>{/if}
+  </li>
+{/snippet}
+
+{#if rader.length}
+  <details class="meny" bind:open={aapen} bind:this={meny}>
+    <summary>{tittel}<ChevronDown size={16} aria-hidden="true" /></summary>
+    <div class="liste">
+      {#if byggede.length}
+        <ul>
+          {#each byggede as r (r.noekkel)}{@render rad(r)}{/each}
+        </ul>
+      {/if}
+      {#if ikkeByggede.length}
+        <div class="gruppe" class:skilt={byggede.length > 0}>
+          <p class="dempet gruppetekst" id={`${uid}-ikke-bygget`}>{MOTTATT.ikkeIProeven}</p>
+          <ul aria-labelledby={`${uid}-ikke-bygget`}>
+            {#each ikkeByggede as r (r.noekkel)}{@render rad(r)}{/each}
+          </ul>
+        </div>
+      {/if}
+    </div>
+  </details>
+{/if}
 
 <style>
+  /* Står til høyre også når linjen brytes, så lista åpner seg innenfor arbeidet. */
   .meny {
     position: relative;
+    margin-left: auto;
   }
   summary {
     display: inline-flex;
@@ -129,8 +142,7 @@
     flex-direction: column;
     padding: var(--spacing-1) 0;
   }
-  button,
-  .ikke-bygget {
+  button {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -156,7 +168,17 @@
     outline-offset: -2px;
   }
   .ikke-bygget {
+    display: block;
+    padding: var(--spacing-1) var(--spacing-3);
     color: var(--ink-2);
+  }
+  .gruppe.skilt {
+    margin-top: var(--spacing-2);
+    padding-top: var(--spacing-2);
+    border-top: var(--rule-subtle);
+  }
+  .gruppetekst {
+    padding: var(--spacing-2) var(--spacing-3) var(--spacing-1);
   }
   .virkning {
     padding: 0 var(--spacing-3) var(--spacing-2);
@@ -164,8 +186,5 @@
   .dempet {
     color: var(--ink-3);
     font-size: 13px;
-  }
-  .tom {
-    padding: var(--spacing-3);
   }
 </style>

@@ -48,7 +48,11 @@
   let valgt = $state<Spor>('vederlag');
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
-  let melding = $state<string | null>(null);
+  // Utkastet til svaret står til det er sendt eller forkastet, også når BH velger et annet
+  // spor (BF-01 S-8). Merket i panelet vises bare når et annet spor er valgt (#1391).
+  let utkastAapent = $state(false);
+  let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' } | null>(null);
+  let meldingen = $state<HTMLElement | null>(null);
   let lenkestatus = $state('');
 
   const u = $derived(kjernesak.utledning);
@@ -56,7 +60,7 @@
 
   function velgSpor(s: Spor) {
     valgt = s;
-    arbeid = { art: 'les' };
+    arbeid = s === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' };
     melding = null;
   }
 
@@ -75,7 +79,17 @@
   function sendt() {
     arbeid = { art: 'les' };
     svarvalg = tomtSvar();
-    melding = MOTTATT.dittBrev;
+    utkastAapent = false;
+    melding = { tekst: MOTTATT.dittBrev, art: 'sendt' };
+  }
+
+  async function forkast() {
+    arbeid = { art: 'les' };
+    svarvalg = tomtSvar();
+    utkastAapent = false;
+    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    await tick();
+    meldingen?.focus();
   }
 </script>
 
@@ -121,7 +135,7 @@
                 >
                   <span class="navn">
                     {SPORNAVN[s]}
-                    {#if valgt === s && arbeid.art !== 'les'}<span class="merke-utkast"
+                    {#if s === 'vederlag' && utkastAapent && valgt !== s}<span class="merke-utkast"
                         >{SAKEN.utkast}</span
                       >{/if}
                   </span>
@@ -159,7 +173,16 @@
       <p class="laster" role="status">{SAKEN.laster}</p>
     {:else}
       <main class="arbeid">
-        <p class="melding" role="status">{melding ?? ''}</p>
+        <p
+          class="melding"
+          class:sendt={melding?.art === 'sendt'}
+          class:tom={!melding}
+          role="status"
+          tabindex="-1"
+          bind:this={meldingen}
+        >
+          {melding?.tekst ?? ''}
+        </p>
         {#if arbeid.art === 'kontroll'}
           {@const k = arbeid}
           <Brevkontroll
@@ -182,6 +205,7 @@
             {kjernesak}
             {u}
             bind:valg={svarvalg}
+            onforkast={forkast}
             onbrevkontroll={(k) => {
               const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
               arbeid = {
@@ -203,7 +227,10 @@
             spor={valgt}
             onvelg={(n) => {
               melding = null;
-              if (n === 'svare:vederlag') arbeid = { art: 'svar' };
+              if (n === 'svare:vederlag') {
+                utkastAapent = true;
+                arbeid = { art: 'svar' };
+              }
             }}
             onakseptbrev={({ kommando, tekst }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
@@ -420,14 +447,20 @@
   .arbeid {
     min-width: 0;
   }
-  .melding:empty {
+  .melding.tom {
     display: none;
   }
   .melding {
     margin-bottom: var(--spacing-4);
     padding: var(--spacing-3) var(--spacing-4);
-    background: var(--success-bg);
+    background: var(--surface-inset);
     border-radius: 4px;
+  }
+  .melding.sendt {
+    background: var(--success-bg);
+  }
+  .melding:focus {
+    outline: none;
   }
   @media (max-width: 1023px) {
     .varden {
