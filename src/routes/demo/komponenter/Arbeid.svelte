@@ -81,7 +81,7 @@
         kommando,
         tekst,
         detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret.nummer), lag: null }] : [],
-        bindinger: [],
+        virkninger: [],
         tittel: brevtittel({ art: 'aksept', spor: [spor] }),
         handling: BREVKONTROLL.sendAksepten,
         sendTekst: BREVKONTROLL.sendAksepten,

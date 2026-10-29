@@ -44,7 +44,7 @@
     iTide: false,
     metode: true,
     beloep: 'deler',
-    delbeloep: 60000,
+    delbeloep: '60 000',
     begrunnelse,
   });
   const UBESVART = 'bh-har-mottatt-vederlagskravet';
