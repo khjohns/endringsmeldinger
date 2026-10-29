@@ -34,7 +34,7 @@
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
 
   import { FORBEHOLDET, type Lagrad } from '$lib/kjernesak/vederlagssvar';
-  import { BINDER } from '$lib/kjernesak/bindingstekst';
+  import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   const review = getApprovalWorkspace();
@@ -827,10 +827,10 @@
             </div>
           </div>
         {/if}
-        <div class="binder" role="note">
-          <p>{BINDER.alltid}</p>
-          {#if kjernelag?.sammenfall}<p>{BINDER.sammenfall}</p>{/if}
-          {#if grunnlaget?.forbehold}<p>{BINDER.forbehold}</p>{/if}
+        <div class="virkning" role="note">
+          <p>{VIRKNING.alltid}</p>
+          {#if kjernelag?.sammenfall}<p>{VIRKNING.sammenfall}</p>{/if}
+          {#if grunnlaget?.forbehold}<p>{VIRKNING.forbehold}</p>{/if}
         </div>
       {:else}
         <div class="result-box konsekvens-{resultat.variant}">
@@ -1317,13 +1317,13 @@
   .td-emo {
     color: var(--ink-4);
   }
-  .binder {
+  .virkning {
     margin-top: 12px;
     font-size: 13px;
     line-height: 1.5;
     color: var(--ink-2);
   }
-  .binder p + p {
+  .virkning p + p {
     margin-top: 4px;
   }
   .tr-lag {

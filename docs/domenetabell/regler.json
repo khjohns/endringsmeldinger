@@ -274,7 +274,7 @@
       "id": "NS-32.3-1c",
       "type": "standard",
       "punkt": "32.3 første ledd bokstav c",
-      "merknad": "Tekst: byggherren besvarer varselet etter 32.2 ved å frafalle pålegget mot å utstede endringsordre for allerede utført arbeid. Slutning: frafall er byggherrens svar på et pålegg, ikke et trekk fra TE, og forutsetter et varsel som ikke er prekludert (#235). At endringsordren går i en egen EO-sak, er GR-U3, ikke teksten."
+      "merknad": "Tekst: byggherren besvarer varselet etter 32.2 ved å frafalle pålegget mot å utstede endringsordre for allerede utført arbeid. Slutning: frafall er byggherrens svar på et pålegg, ikke et trekk fra TE, og forutsetter et varsel som ikke er prekludert (#235). At endringsordren sendes gjennom en EO-sak, er GR-U3 og GR-U28, ikke teksten."
     },
     {
       "id": "NS-33.4-2",
@@ -934,11 +934,46 @@
       "radetikett": "HF-U21: En ny grunnlagsversjon med samme hjemmel endrer ikke bindingen i byggherrens svar på vederlag eller fristforlengelse"
     },
     {
+      "id": "HF-U22",
+      "type": "vedtak",
+      "dato": "2026-10-16",
+      "ref": "../plans/vedtak.md#hf-u22",
+      "radetikett": "HF-U22: Senker byggherren etter akseptfristen dager eller beløp hen har godkjent"
+    },
+    {
       "id": "HF-U8",
       "type": "vedtak",
       "dato": "2026-10-15",
       "ref": "../plans/vedtak.md#hf-u8",
       "radetikett": "HF-U8: Byggherrens svar faller bort som tilbud når TE sender en ny kravversjon i sporet"
+    },
+    {
+      "id": "OV-U65",
+      "type": "vedtak",
+      "dato": "2026-10-27",
+      "ref": "../plans/vedtak.md#ov-u65",
+      "radetikett": "OV-U65: Har partene inngått en enighet, avviser løsningen protest, innsigelse og bestridelse fra begge parter mot det enigheten omfatter"
+    },
+    {
+      "id": "OV-U66",
+      "type": "vedtak",
+      "dato": "2026-10-27",
+      "ref": "../plans/vedtak.md#ov-u66",
+      "radetikett": "OV-U66: 1. Sperren gjelder også påberopt passivitet og merking mot det enigheten omfatter"
+    },
+    {
+      "id": "OV-U67",
+      "type": "vedtak",
+      "dato": "2026-10-28",
+      "ref": "../plans/vedtak.md#ov-u67",
+      "radetikett": "OV-U67: 1. En enighet omfatter det gjeldende kravet i sporet, svaret og standpunktene i svaret"
+    },
+    {
+      "id": "OV-U68",
+      "type": "vedtak",
+      "dato": "2026-10-28",
+      "ref": "../plans/vedtak.md#ov-u68",
+      "radetikett": "OV-U68: Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, inngår i enigheten"
     },
     {
       "id": "OV-U3",
@@ -1086,6 +1121,34 @@
       "dato": "2026-10-26",
       "ref": "../plans/vedtak.md#ka-u42",
       "radetikett": "KA-U42: For et positivt tilleggskrav er byggherrens beløpsvurdering av en post, prinsipalt og subsidiært, «avslått» ved 0 kr, «delvis» ved mer enn 0 kr og mindre enn det krevde beløpet, og «godkjent» ved det krevde beløpet"
+    },
+    {
+      "id": "MM-U34",
+      "type": "vedtak",
+      "dato": "2026-10-28",
+      "ref": "../plans/vedtak.md#mm-u34",
+      "radetikett": "MM-U34: **Ny kravversjon og eldre svar**"
+    },
+    {
+      "id": "EO-U12",
+      "type": "vedtak",
+      "dato": "2026-10-28",
+      "ref": "../plans/vedtak.md#eo-u12",
+      "radetikett": "EO-U12: Godkjenning av grunnlaget alene lukker ikke KOE-saken, selv om godkjenningen er en endringsordre etter kontrakten"
+    },
+    {
+      "id": "GR-U27",
+      "type": "vedtak",
+      "dato": "2026-10-28",
+      "ref": "../plans/vedtak.md#gr-u27",
+      "radetikett": "GR-U27: TEs uttrykkelige aksept av avslaget på grunnlaget eller trekk av grunnlaget lukker KOE-saken"
+    },
+    {
+      "id": "GR-U28",
+      "type": "vedtak",
+      "dato": "2026-10-28",
+      "ref": "../plans/vedtak.md#gr-u28",
+      "radetikett": "GR-U28: At BH har frafalt pålegget etter § 32.3 c, skal ikke hindre at KOE-saken inngår i en EO"
     }
   ],
   "rader": [
@@ -1427,7 +1490,7 @@
     {
       "id": "KA-21",
       "tilfelle": "Byggherren bestrider at et varsel TE har registrert, ble mottatt, også etter at saken er avsluttet.",
-      "forventet": "Bestridelsen lagres som byggherrens utsagn om opplysningen. Opplysningen om sendingen står, og preklusjonen verken faller eller oppstår av seg selv. Visningen viser både TEs opplysning og bestridelsen. I en avsluttet sak registreres bestridelsen uten virkning på utfallet, og andre kommandoer avvises fortsatt.",
+      "forventet": "Bestridelsen lagres som byggherrens utsagn om opplysningen. Opplysningen om sendingen står, og preklusjonen verken faller eller oppstår av seg selv. Visningen viser både TEs opplysning og bestridelsen. I en avsluttet sak registreres bestridelsen uten virkning på utfallet, og andre kommandoer avvises fortsatt. Bygger et standpunkt om varslingen som inngår i en enighet, på opplysningen, avvises bestridelsen (OV-U66 punkt 3).",
       "bh_standpunkt": "Bestrider mottaket. Rettidigheten er ikke vurdert.",
       "rettslig_virkning": "Systemet avgjør ikke hvem som har rett.",
       "rettidighet": "Ikke vurdert.",
@@ -1556,7 +1619,7 @@
     {
       "id": "KA-29",
       "tilfelle": "TE har sagt «ingen krav» i vederlag eller frist, i et spor som ikke er sendt, etter at grunnlaget er sendt.",
-      "forventet": "Sporet teller som trukket når kravene er avgjort og som oppgjort når saken kan inngå i en endringsordre, men gir ikke alene grunnlag for endringsordre. Et krav i sporet avvises, og journalen er uendret. Et varsel etter § 33.4 er ikke en kravversjon, så «ingen krav» kan stå etter det. Står «ingen krav» i et spor som har en kravversjon, står det to ganger, eller står det før grunnlaget er sendt, er saken ikke forstått.",
+      "forventet": "Sporet teller som trukket når kravene er avgjort. Et krav i sporet avvises, og journalen er uendret. Et varsel etter § 33.4 er ikke en kravversjon, så «ingen krav» kan stå etter det. Står «ingen krav» i et spor som har en kravversjon, står det to ganger, eller står det før grunnlaget er sendt, er saken ikke forstått.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Sporet er lukket på samme måte som ved et trekk. Det er ikke et krav på 0.",
       "rettidighet": "—",
@@ -1564,7 +1627,6 @@
       "kilder": [
         "KA-U12",
         "KA-U11",
-        "EO-U5",
         "KA-U8",
         "MM-U2",
         "KA-U2",
@@ -1615,7 +1677,7 @@
     {
       "id": "GR-02",
       "tilfelle": "TE sender en ny grunnlagsversjon som endrer underkategorien fra pålegg (IRREG) til endringsordre (EO), etter et svar som påberoper preklusjon etter § 32.2.",
-      "forventet": "Kravversjonen avvises, og journalen er uendret: når grunnlaget er sendt, står hovedkategorien og underkategorien. Det gjelder også en annen underkategori som § 32.2 gjelder for. Vil TE påberope en annen hjemmel, oppretter TE en ny sak. En ny versjon med samme underkategori godtas. Står skiftet i journalen som en kravversjon fra en annen skriver (MM-U18), er svaret og § 32.2-vurderingen ikke lenger gjeldende, og TE kan ikke godta det. Vederlag og frist forblir da subsidiære til grunnlaget besvares, med årsakene fra grunnlagssvaret de ble regnet mot, også § 32.2-vurderingen. Når grunnlaget godkjennes, er grunnlaget avklart og vederlag og frist prinsipalt godkjent. Kravene er avgjort, og saken kan inngå i en endringsordre.",
+      "forventet": "Kravversjonen avvises, og journalen er uendret: når grunnlaget er sendt, står hovedkategorien og underkategorien. Det gjelder også en annen underkategori som § 32.2 gjelder for. Vil TE påberope en annen hjemmel, oppretter TE en ny sak. En ny versjon med samme underkategori godtas. Står skiftet i journalen som en kravversjon fra en annen skriver (MM-U18), er svaret og § 32.2-vurderingen ikke lenger gjeldende, og TE kan ikke godta det. Vederlag og frist forblir da subsidiære til grunnlaget besvares, med årsakene fra grunnlagssvaret de ble regnet mot, også § 32.2-vurderingen. Når grunnlaget godkjennes, er grunnlaget avklart og vederlag og frist prinsipalt godkjent. Kravene er avgjort. Saken kan inngå i en endringsordre (MM-U34 punkt 20).",
       "bh_standpunkt": "Prinsipalt prekludert, subsidiært godkjent, og svaret står. Med skiftet fra en annen skriver: etter det nye svaret godkjent grunnlag, og de subsidiære standpunktene får virkning.",
       "rettslig_virkning": "Grunnlaget beholder underkategorien. Med skiftet fra en annen skriver får det subsidiære standpunktet virkning når grunnlaget godkjennes.",
       "rettidighet": "Byggherrens § 32.2-vurdering står. Med skiftet registrert gjelder den ikke lenger grunnlaget, men står som årsak til de subsidiære svarene på vederlag og frist til grunnlaget besvares igjen (GR-U1). Med EO gjelder ikke § 32.2 (GR-U11).",
@@ -1628,7 +1690,7 @@
         "NS-31.3-1",
         "NS-32.2-1",
         "GR-U11",
-        "EO-U5"
+        "MM-U34"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -1728,23 +1790,20 @@
     {
       "id": "GR-07",
       "tilfelle": "TE sender en ny grunnlagsversjon etter at byggherren har godkjent grunnlaget uten å påberope preklusjon.",
-      "forventet": "Kravversjonen avvises, og journalen er uendret.",
-      "bh_standpunkt": "Det godkjente grunnlaget står.",
-      "rettslig_virkning": "Ansvaret er avklart. Grunnlaget kan ikke endres.",
+      "forventet": "Kravversjonen godtas med samme hovedkategori og underkategori, og grunnlaget venter på nytt svar. Den registrerte enigheten bevares og vises, men gjelder ikke den nye kravversjonen.",
+      "bh_standpunkt": "Det godkjente grunnlaget står i svaret byggherren sendte.",
+      "rettslig_virkning": "Ansvaret er avklart i svaret. Løsningen avgjør ikke om enigheten står (MM-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "GR-U2",
         "GR-U10",
-        "GR-U1"
+        "GR-U1",
+        "MM-U34"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
         "kjerne/frosset/standpunkt.ts#godkjennerHeleKravet"
-      ],
-      "regelkoder": [
-        "ENIGHET_I_SPORET"
       ]
     },
     {
@@ -1870,17 +1929,17 @@
     {
       "id": "GR-14",
       "tilfelle": "Byggherren frafaller pålegget og godkjenner deretter vederlag og frist.",
-      "forventet": "Svarene på vederlag og frist er prinsipale, og kravene er avgjort. KOE-saken kan ikke inngå i en endringsordre.",
+      "forventet": "Svarene på vederlag og frist er prinsipale, og kravene er avgjort. KOE-saken kan inngå i en endringsordre.",
       "bh_standpunkt": "Frafalt grunnlag. Prinsipalt godkjent vederlag og frist.",
-      "rettslig_virkning": "Avklart grunnlag. Endringsordren for utført arbeid går i en egen EO-sak (#69).",
+      "rettslig_virkning": "Avklart grunnlag. Endringsordren sendes gjennom en EO-sak, og frafallet hindrer ikke at den omfatter KOE-saken.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "GR-U3",
+        "GR-U28",
         "V-235",
         "NS-32.3-1c",
-        "EO-U1",
-        "EO-U5"
+        "EO-U1"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -1892,13 +1951,14 @@
     {
       "id": "GR-15",
       "tilfelle": "Byggherren frafaller pålegget og avslår vederlag og frist, og TE godtar begge avslagene.",
-      "forventet": "Saken er `OMFORENT`, ikke `UKJENT`. EO utstedes ikke fra KOE-saken.",
+      "forventet": "Saken er `OMFORENT`, ikke `UKJENT`. Saken kan inngå i en endringsordre.",
       "bh_standpunkt": "Frafalt grunnlag. Avslått vederlag og frist.",
       "rettslig_virkning": "Kravene er oppgjort ved godtatt avslag.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "GR-U3",
+        "GR-U28",
         "V-FRAFALT",
         "V-TFR01"
       ],
@@ -1982,14 +2042,15 @@
     {
       "id": "GR-19",
       "tilfelle": "TE godtar et delvis godkjent vederlagssvar mens byggherren har avslått grunnlaget.",
-      "forventet": "Aksepten godtas. Kravet er ikke oppgjort: saken er ikke `OMFORENT`, og EO kan ikke utstedes.",
+      "forventet": "Aksepten godtas. Kravet er ikke oppgjort, og saken er ikke `OMFORENT`. Byggherren kan likevel la en endringsordre omfatte saken (MM-U34 punkt 20).",
       "bh_standpunkt": "Avslått grunnlag. Delvis godkjent vederlag, subsidiært.",
       "rettslig_virkning": "Partene er enige om beløpet, ikke om ansvaret. Enigheten får virkning hvis grunnlaget godkjennes.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "GR-U7",
-        "KA-U1"
+        "KA-U1",
+        "MM-U34"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2063,22 +2124,19 @@
     {
       "id": "GR-23",
       "tilfelle": "Byggherren reviderer et vederlagssvar TE har godtatt, mens grunnlaget venter på nytt svar etter endret underkategori.",
-      "forventet": "Revisjonen avvises, og journalen er uendret. Et svar TE ikke har godtatt, kan byggherren revidere mens grunnlaget venter.",
-      "bh_standpunkt": "Det godtatte svaret står.",
-      "rettslig_virkning": "En enighet står, også mens grunnlaget venter. Revisjonsretten etter GR-U4 gjelder svar som ikke er godtatt.",
+      "forventet": "Revisjonen godtas. Den registrerte enigheten bevares og vises sammen med det nye svaret.",
+      "bh_standpunkt": "Det godtatte svaret, deretter revisjonen.",
+      "rettslig_virkning": "Løsningen avgjør ikke om enigheten står (MM-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "GR-U7",
-        "V-SK02-SK03",
-        "GR-U4"
+        "GR-U4",
+        "MM-U34"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
-      ],
-      "regelkoder": [
-        "ENIGHET_I_SPORET"
       ]
     },
     {
@@ -2146,35 +2204,33 @@
     {
       "id": "GR-27",
       "tilfelle": "Byggherren har godkjent grunnlaget uten å påberope preklusjon. Byggherren vil deretter revidere svaret, eller TE sender en ny kravversjon av grunnlaget.",
-      "forventet": "Partene er enige ved sammenfall. Revisjonen og den nye kravversjonen avvises, og journalen er uendret. TE kan ikke godta svaret (GR-25). Et frafall er ikke enighet og kan revideres (GR-26).",
+      "forventet": "Løsningen registrerer enighet ved sammenfall. Revisjonen og den nye kravversjonen godtas, og den registrerte enigheten bevares og vises. TE kan ikke godta svaret (GR-25). Et frafall er ikke enighet og kan revideres (GR-26).",
       "bh_standpunkt": "Godkjent grunnlag, varslet i tide.",
-      "rettslig_virkning": "Byggherren er bundet. Etter § 32.3 a er svaret en endringsordre.",
+      "rettslig_virkning": "Etter § 32.3 a er svaret en endringsordre. Godkjenningen lukker ikke saken (EO-U12), og løsningen avgjør ikke om byggherren er bundet (MM-U12).",
       "rettidighet": "Byggherrens § 32.2-vurdering: i tide.",
       "tidsakse": "registrering",
       "kilder": [
         "GR-U10",
-        "GR-U2",
-        "KA-U7"
+        "MM-U34",
+        "EO-U12"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
         "kjerne/frosset/standpunkt.ts#godkjennerHeleKravet"
-      ],
-      "regelkoder": [
-        "ENIGHET_I_SPORET"
       ]
     },
     {
       "id": "GR-28",
       "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon.",
-      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget. Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). Registrert korrespondanse er dokumentasjon ([OV-U4](../plans/vedtak.md#ov-u4)). Byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6) er svaret, men opplysningen gir ingen egen virkning og sperrer ikke trekket (GR-29).",
+      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget, men ikke når byggherren tidligere har godkjent det i et svar som er en endringsordre, også etter en ny grunnlagsversjon ([EO-U12](../plans/vedtak.md#eo-u12)). Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). Registrert korrespondanse er dokumentasjon ([OV-U4](../plans/vedtak.md#ov-u4)). Byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6) er svaret, men opplysningen gir ingen egen virkning og sperrer ikke trekket (GR-29).",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "Etter § 32.3 a er godkjenningen en endringsordre, som binder TE (§ 31.3 annet ledd).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U13",
+        "EO-U12",
         "GR-U10",
         "GR-U11",
         "KA-U6",
@@ -2242,13 +2298,14 @@
     {
       "id": "EO-02",
       "tilfelle": "Byggherren har godkjent grunnlaget, og TE har ikke sendt vederlag eller frist.",
-      "forventet": "Saken er `UNDER_BEHANDLING`, og `kan_utstede_eo` er `false`.",
+      "forventet": "Byggherren kan la en endringsordre omfatte saken, også før TE har sendt vederlag og frist. Skjemaet opplyser om sporene uten registrert enighet.",
       "bh_standpunkt": "Godkjent grunnlag.",
-      "rettslig_virkning": "Ansvaret er avklart, men det finnes ikke noe krav å formalisere. TE kan fortsatt sende vederlag og frist.",
+      "rettslig_virkning": "Ansvaret er avklart. Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U2",
+        "MM-U34",
+        "EO-U12",
         "V-TFR05"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -2256,13 +2313,14 @@
     {
       "id": "EO-03",
       "tilfelle": "Byggherren har godkjent grunnlaget og vederlaget, og TE har ikke sendt frist.",
-      "forventet": "`kan_utstede_eo` er `false`. Saken er ikke `OMFORENT`.",
+      "forventet": "Byggherren kan la en endringsordre omfatte saken, også før TE har sendt frist. Skjemaet opplyser om sporene uten registrert enighet.",
       "bh_standpunkt": "Godkjent grunnlag og vederlag.",
-      "rettslig_virkning": "Et spor TE fortsatt kan sende, hindrer endringsordre.",
+      "rettslig_virkning": "Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U2",
+        "MM-U34",
+        "EO-U12",
         "V-TFR05"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -2270,54 +2328,57 @@
     {
       "id": "EO-04",
       "tilfelle": "TE trekker vederlag og frist etter at byggherren har godkjent grunnlaget.",
-      "forventet": "`kan_utstede_eo` er `false`.",
+      "forventet": "Byggherren kan la en endringsordre omfatte saken, også når vederlag og frist er trukket.",
       "bh_standpunkt": "Godkjent grunnlag.",
-      "rettslig_virkning": "Ingen godkjent vederlag eller frist å formalisere.",
+      "rettslig_virkning": "Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U2"
+        "MM-U34",
+        "EO-U12"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "EO-05",
       "tilfelle": "Byggherren godkjenner vederlaget og avslår fristen, og TE godtar avslaget.",
-      "forventet": "Saken er `OMFORENT`, og `kan_utstede_eo` er `true`.",
+      "forventet": "Byggherren kan la en endringsordre omfatte saken.",
       "bh_standpunkt": "Godkjent vederlag. Avslått frist.",
-      "rettslig_virkning": "Fristen er oppgjort ved godtatt avslag; vederlaget kan formaliseres.",
+      "rettslig_virkning": "Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U2",
-        "V-TFR01"
+        "V-TFR01",
+        "MM-U34",
+        "EO-U12"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "EO-06",
       "tilfelle": "TE godtar et delvis godkjent vederlagssvar, og byggherren godkjenner fristen.",
-      "forventet": "Saken er `OMFORENT`, og `kan_utstede_eo` er `true`.",
+      "forventet": "Byggherren kan la en endringsordre omfatte saken.",
       "bh_standpunkt": "Delvis godkjent vederlag, godtatt av TE. Godkjent frist.",
-      "rettslig_virkning": "Byggherrens beløp er avtalt (KA-U5) og kan formaliseres.",
+      "rettslig_virkning": "Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U2",
-        "KA-U5"
+        "MM-U34",
+        "EO-U12"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "EO-07",
       "tilfelle": "Byggherren knytter en KOE-sak som ikke er `OMFORENT`, til en EO-sak gjennom `/api/events` (`eo_koe_lagt_til`).",
-      "forventet": "Tilknytningen avvises, og journalen er uendret. Når KOE-saken er `OMFORENT`, godtas samme tilknytning.",
+      "forventet": "Tilknytningen godtas, også når KOE-saken ikke har registrert enighet i alle spor. Skjemaet opplyser om sporene uten registrert enighet.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Bare et omforent krav kan formaliseres.",
+      "rettslig_virkning": "Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U2"
+        "MM-U34",
+        "EO-U12"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2549,31 +2610,29 @@
     {
       "id": "EO-25",
       "tilfelle": "Byggherren har godkjent grunnlaget og hele fristkravet, og TE trekker vederlagskravet.",
-      "forventet": "Saken kan inngå i en endringsordre. Kravene er avgjort: vederlaget er trukket, og fristen er godkjent. Det trukne sporet gir ikke alene grunnlag for endringsordre, men fristen gjør det.",
+      "forventet": "Saken kan inngå i en endringsordre, før og etter trekket. Kravene er avgjort: vederlaget er trukket, og fristen er godkjent.",
       "bh_standpunkt": "Godkjent grunnlag og frist.",
       "rettslig_virkning": "Kravene er avgjort.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U5",
-        "EO-U2",
         "KA-U11",
-        "KA-U6"
+        "KA-U6",
+        "MM-U34"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "EO-26",
       "tilfelle": "Byggherren har godkjent grunnlaget og avslått vederlag og frist, og TE godtar begge avslagene.",
-      "forventet": "Saken kan inngå i en endringsordre på 0 kr og 0 dager. Et godtatt avslag er enighet.",
+      "forventet": "Saken kan inngå i en endringsordre, før og etter aksepten. Etter aksepten har løsningen registrert enighet om 0 kr og 0 dager.",
       "bh_standpunkt": "Godkjent grunnlag. Avslått vederlag og frist.",
       "rettslig_virkning": "Kravene er avgjort ved godtatt avslag.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U5",
-        "KA-U7",
-        "KA-U11"
+        "KA-U11",
+        "MM-U34"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2600,16 +2659,17 @@
     {
       "id": "GR-31",
       "tilfelle": "Byggherren har frafalt pålegget (§ 32.3 c) i et svar sendt fra appen, og reviderer svaret.",
-      "forventet": "En revisjon til avslag avvises, og journalen er uendret. En revisjon til påberopelse etter § 32.2 avvises fordi frafallet sa at varselet kom i tide. En revisjon til endringsordre eller til et nytt frafall godtas. Står en revisjon til avslag eller til påberopelse etter § 32.2 i et registrert brev, får den ingen virkning, og frafallet står. Står den i en rad som ikke er registrert, er saken ikke forstått.",
+      "forventet": "Revisjonen godtas, også til avslag og til påberopelse etter § 32.2 (MM-U34 punkt 6 og 7). Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen. Står en revisjon til avslag eller til påberopelse etter § 32.2 i et registrert brev, får den ingen virkning, og frafallet står (OV-U4). Står den i en rad som ikke er registrert og ikke er sendt fra appen, er saken forstått, og revisjonen er det gjeldende svaret på grunnlaget.",
       "bh_standpunkt": "Frafalt, med grunnlaget varslet i tide.",
-      "rettslig_virkning": "Byggherren er bundet av løftet om endringsordre for utført arbeid. Et registrert frafall binder ikke.",
-      "rettidighet": "Frafallet sa at varselet etter § 32.2 kom i tide, og byggherren kan ikke senere påberope det motsatte.",
+      "rettslig_virkning": "Løsningen avgjør ikke om byggherren fortsatt er bundet av løftet om endringsordre for utført arbeid (MM-U12). Et registrert frafall er dokumentasjon uten virkning (OV-U4).",
+      "rettidighet": "Frafallet sa at varselet etter § 32.2 kom i tide. En senere påberopelse av at det kom for sent godtas og vises sammen med det tidligere standpunktet (MM-U34 punkt 6).",
       "tidsakse": "registrering",
       "kilder": [
-        "GR-U17",
+        "MM-U34",
         "GR-U9",
-        "HF-U4",
+        "GR-U17",
         "NS-32.3-1c",
+        "MM-U12",
         "MM-U18",
         "MM-U19",
         "OV-U4"
@@ -2617,68 +2677,57 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/nyttelast.ts#kontrollerSvar",
-        "kjerne/utledning/utled.ts#frafalletBinder",
         "kjerne/utledning/utled.ts#strid"
-      ],
-      "regelkoder": [
-        "FRAFALT",
-        "SAGT_I_TIDE"
       ]
     },
     {
       "id": "GR-32",
       "tilfelle": "Byggherren har frafalt pålegget i et svar sendt fra appen, og TE sender en ny grunnlagsversjon.",
-      "forventet": "Byggherren kan svare på den nye versjonen med frafall eller endringsordre. Et avslag avvises, og journalen er uendret. En påberopelse etter § 32.2 avvises fordi frafallet sa at varselet kom i tide. Står et avslag eller en påberopelse etter § 32.2 av den nye versjonen i et registrert brev, får det ingen virkning.",
+      "forventet": "Byggherren kan svare på den nye versjonen med frafall, endringsordre, avslag eller påberopelse etter § 32.2, og svaret godtas (MM-U34 punkt 6 og 7). Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen. Står et avslag eller en påberopelse etter § 32.2 av den nye versjonen i et registrert brev, får det ingen virkning (OV-U4). En ny versjon med en annen underkategori avvises (GR-U22).",
       "bh_standpunkt": "Frafalt på den forrige versjonen. Ikke vurdert for den nye versjonen.",
-      "rettslig_virkning": "Frafallet faller ikke bort med den nye versjonen.",
-      "rettidighet": "Byggherrens «i tide» etter § 32.2 står mot den nye versjonen (HF-U8).",
+      "rettslig_virkning": "Løsningen avgjør ikke om frafallet fortsatt binder byggherren etter den nye versjonen (MM-U12).",
+      "rettidighet": "Byggherrens «i tide» etter § 32.2 i frafallet vises sammen med en senere påberopelse, uten at løsningen trekker konklusjonen (MM-U34 punkt 6).",
       "tidsakse": "registrering",
       "kilder": [
+        "MM-U34",
         "GR-U20",
         "GR-U17",
         "GR-U22",
         "HF-U8",
+        "MM-U12",
         "MM-U19",
         "OV-U4"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/nyttelast.ts#kontrollerSvar",
-        "kjerne/utledning/utled.ts#frafalletBinder",
         "kjerne/utledning/utled.ts#strid"
-      ],
-      "regelkoder": [
-        "FRAFALT",
-        "SAGT_I_TIDE"
       ]
     },
     {
       "id": "GR-33",
       "tilfelle": "Byggherren har frafalt pålegget i et svar sendt fra appen, TE sender en ny grunnlagsversjon, og den venter på byggherrens svar. Et annet sendt krav står åpent, for eksempel fristkravet.",
-      "forventet": "Grunnlaget er avklart ved frafallet, og en enighet i vederlag eller frist forblir virksom. Saken kan ikke inngå i en endringsordre. Byggherren kan svare på den nye versjonen med frafall eller endringsordre. Får de åpne kravene en virksom enighet før byggherren svarer, er kravene avgjort, svaret på den nye versjonen avvises, og frafallet står. Grunnlagssporet vises da ikke som ventende på svar. Ved et registrert frafall venter den nye versjonen på svar uten avklart grunnlag.",
+      "forventet": "Grunnlaget er avklart ved frafallet, og en enighet i vederlag eller frist forblir virksom. Saken kan inngå i en endringsordre. Byggherren kan svare på den nye versjonen, også når de åpne kravene har fått en virksom enighet og kravene er avgjort (MM-U34 punkt 7 og 12). Ved et registrert frafall venter den nye versjonen på svar uten avklart grunnlag.",
       "bh_standpunkt": "Frafalt på den forrige versjonen. Ikke vurdert for den nye versjonen.",
-      "rettslig_virkning": "Grunnlaget er avklart ved frafallet til byggherren svarer på den nye versjonen.",
+      "rettslig_virkning": "Grunnlaget er avklart ved frafallet til byggherren svarer på den nye versjonen. Løsningen avgjør ikke om frafallet binder byggherren (MM-U12).",
       "rettidighet": "Byggherrens «i tide» etter § 32.2 står mot den nye versjonen (HF-U8).",
       "tidsakse": "registrering",
       "kilder": [
-        "GR-U24",
+        "MM-U34",
         "GR-U23",
         "GR-U20",
         "GR-U7",
         "OV-U3",
-        "GR-U3",
+        "GR-U28",
         "GR-U17",
+        "MM-U12",
         "OV-U4",
         "GR-U1"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utled",
-        "kjerne/utledning/utled.ts#frafalletBinder",
         "kjerne/utledning/utled.ts#kraveneErAvgjort"
-      ],
-      "regelkoder": [
-        "KRAVENE_AVGJORT"
       ]
     },
     {
@@ -2811,7 +2860,7 @@
     },
     {
       "id": "KA-35",
-      "tilfelle": "En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en revisjon eller ny kravversjon i et spor med enighet, en ny kravversjon i et trukket spor eller i et spor med «ingen krav», en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet.",
+      "tilfelle": "En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en ny kravversjon i et trukket spor eller i et spor med «ingen krav», en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet.",
       "forventet": "Saken er ikke forstått, og hendelsen vises som ikke tolket. Kontrollsaken uten enigheten eller lukkingen er forstått.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Kontrollen gjelder at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet.",
@@ -2820,12 +2869,12 @@
       "kilder": [
         "MM-U18",
         "MM-U2",
-        "KA-U7",
         "GR-U10",
         "GR-U9",
         "KA-U11",
         "KA-U12",
-        "V-SK01"
+        "V-SK01",
+        "MM-U34"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3054,17 +3103,19 @@
     },
     {
       "id": "VS-05",
-      "tilfelle": "Kravene er avgjort, eller TE har godtatt avslaget av grunnlaget, og en part gjør innsigelse, protesterer eller merker et brev.",
-      "forventet": "Utsagnet godtas, som en bestridelse, og registreres uten virkning på utfallet. Kommandoer som kan endre utfallet, avvises fortsatt.",
+      "tilfelle": "Partene har inngått en enighet i et spor, også en betinget enighet, ved aksept eller ved sammenfall, eller kravene er avgjort, og en part gjør innsigelse mot et varsel, et krav eller et svar.",
+      "forventet": "Innsigelsen godtas, også mot det en registrert enighet omfatter, og registreres uten virkning på utfallet. En innsigelse som alt står i saken, beholder sin virkning. At kravene er avgjort, sperrer ingen kommando (MM-U34 punkt 12). Når TE har godtatt avslaget av grunnlaget, avvises fortsatt kommandoer som kan endre utfallet (GR-U27, KA-U29).",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Utsagnet har ingen virkning på utfallet.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "MM-U34",
+        "GR-U27",
+        "KA-U29",
         "KA-U11",
         "MM-U7",
-        "VS-U1",
-        "KA-U29"
+        "VS-U1"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3072,7 +3123,6 @@
         "kjerne/kommandoer/forutsetninger.ts#henvisning"
       ],
       "regelkoder": [
-        "KRAVENE_AVGJORT",
         "GRUNNLAG_AVVIST"
       ]
     },
@@ -3243,54 +3293,40 @@
     {
       "id": "KA-48",
       "tilfelle": "Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § 32.2, § 33.4 eller § 34.1.2, eller at fristkravet ble spesifisert i tide etter § 33.6.1. Senere sender byggherren et svar eller en revisjon som påberoper at det samme kom for sent etter samme bestemmelse.",
-      "forventet": "Svaret eller revisjonen avvises. Resten av svaret kan revideres. Et «i tide» etter § 32.2, § 33.4 og § 34.1.2 står mot hver senere kravversjon, også et svar regnet mot en ny grunnlagsversjon, og etter § 33.4 også når TE senere registrerer et tidligere sendt varsel. Et «i tide» etter § 33.6.1 gjelder kravversjonen. Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt. Kontrollen gjøres når byggherren sender et svar eller en revisjon fra appen. Et registrert svar binder ikke (OV-U4), så et «for sent» etter et registrert «i tide» godtas. Et svar eller en revisjon utenfor kommandoene som ikke er et registrert brev, gjør saken ikke forstått (MM-U27).",
+      "forventet": "Svaret eller revisjonen godtas (MM-U34 punkt 6). Løsningen viser det tidligere standpunktet sammen med påberopelsen, uten å trekke konklusjonen. Det gjelder også et svar regnet mot en ny grunnlagsversjon og et svar etter et registrert «i tide» (OV-U4). Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt.",
       "bh_standpunkt": "«I tide» i et sendt svar, deretter «for sent» etter samme bestemmelse.",
-      "rettslig_virkning": "Byggherren er bundet av sitt «i tide» fra det er kommet fram. Om byggherren likevel er løst fra det, avgjør ikke appen.",
-      "rettidighet": "Byggherrens tidligere «i tide» etter samme bestemmelse.",
+      "rettslig_virkning": "Løsningen avgjør ikke om byggherren er bundet av sitt «i tide» (MM-U12).",
+      "rettidighet": "Byggherrens tidligere «i tide» etter samme bestemmelse vises sammen med påberopelsen.",
       "tidsakse": "registrering",
       "kilder": [
+        "MM-U34",
         "HF-U4",
         "HF-U8",
         "HF-U1",
         "AV-498",
-        "OV-U4",
-        "MM-U27"
+        "MM-U12",
+        "OV-U4"
       ],
-      "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/utledning/utled.ts#harSagtITide",
-        "kjerne/utledning/utled.ts#paaberoptEtterITide",
-        "kjerne/utledning/utled.ts#bryterBindingen"
-      ],
-      "regelkoder": [
-        "SAGT_I_TIDE"
-      ]
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-49",
-      "tilfelle": "Byggherren reviderer et svar sendt fra appen som TE ikke har godtatt, og revisjonen senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, at fremdriften er hindret etter § 33.1, dagene byggherren måtte forstå etter § 33.6.1 når begge svar sier «for sent», eller aksepten av beregningsmåten etter § 34.2.2.",
-      "forventet": "Revisjonen avvises, også når den hever et annet standpunkt, retter en skrivefeil eller kommer etter en ny grunnlagsversjon med samme hjemmel. Meldingen sier hvilket standpunkt som senkes. En revisjon med de samme standpunktene senker ikke. Byggherrens ønskede metode når tilbudet ikke er akseptert, sammenliknes ikke. Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar binder ikke. Kontrollen gjøres når revisjonen sendes med kommandoen. En revisjon utenfor kommandoene som ikke er et registrert brev, gjør saken ikke forstått (MM-U27).",
+      "tilfelle": "Byggherren reviderer et svar sendt fra appen som TE ikke har godtatt, og revisjonen senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, at fremdriften er hindret etter § 33.1, dagene byggherren måtte forstå etter § 33.6.1 når begge svar sier «for sent».",
+      "forventet": "Revisjonen godtas, også når den senker et standpunkt (MM-U34 punkt 4). Tidligere brev bevares uendret. Senker revisjonen dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (HF-U22). Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar er dokumentasjon (OV-U4).",
       "bh_standpunkt": "Det byggherren har innrømmet i et sendt svar, deretter en revisjon som senker det.",
-      "rettslig_virkning": "Byggherren er bundet av det svaret innrømmer, til TE godtar svaret eller sender en ny kravversjon. Om byggherren likevel er løst, avgjør ikke appen.",
+      "rettslig_virkning": "Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "MM-U34",
         "HF-U5",
-        "HF-U14",
+        "HF-U22",
         "HF-U21",
         "HF-U8",
-        "OV-U4",
-        "MM-U27"
+        "MM-U12",
+        "OV-U4"
       ],
-      "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/utledning/innroemmelse.ts#senketInnroemmelse",
-        "kjerne/kommandoer/nyttelast.ts#binding",
-        "kjerne/utledning/utled.ts#bryterBindingen"
-      ],
-      "regelkoder": [
-        "SENKER_INNROEMMELSE"
-      ]
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-50",

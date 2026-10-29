@@ -2,7 +2,7 @@
  * PROTOTYPETEKST (#1331). Spørsmålene, forklaringene og virkningstekstene Varden viser,
  * samlet her så de kan kontrolleres med linse A i `design-review` før brukertesten. De er
  * ikke vedtatt brevtekst eller produktdesign. Teksten i brevene kommer fra kjernen, og
- * bindingsteksten er arbeidsvalget 26.10 (`$lib/kjernesak/bindingstekst`).
+ * teksten om svarets virkning er arbeidsvalget 26.10 (`$lib/kjernesak/svarvirkning`).
  *
  * En tekst formulerer et strukturert resultat fra kjernen (et standpunkt, et beløp, et
  * brevnummer). Den finner ikke på virkningen.
@@ -168,6 +168,9 @@ export const HOVEDLINJER = {
   krevd: (b: number) => `${kroner(b)} krevd`,
   seBrevet: 'Se brevet før sending',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
+  ubesvart: 'Svar på spørsmålene i skjemaet, så kan brevet lages.',
+  beloepUtenfor: (krevd: number) =>
+    `Beløpet du godtar må være mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
 };
 
 export const BREVKONTROLL = {
@@ -179,8 +182,7 @@ export const BREVKONTROLL = {
   svarerPaa: 'Svarer på',
   datoSettes: 'Settes ved sending',
   detteSender: 'Dette sender du',
-  akseptOmfatter:
-    'Godtar TE svaret, omfatter aksepten hele svaret, også at varselet kom for sent (KA-U1).',
+  akseptOmfatter: 'Godtar TE svaret, omfatter aksepten hele svaret, også at varselet kom for sent.',
   ikkeEndres: 'Et sendt brev kan ikke endres, bare følges av et nytt brev.',
   kontrollert: 'Jeg har kontrollert brevet',
   hvorforIkke: 'Kryss av for at du har kontrollert brevet, så kan du sende.',

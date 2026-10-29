@@ -6,9 +6,9 @@
 -->
 <script lang="ts">
   import { BookOpen, FileText, Lock, X } from 'lucide-svelte';
-  import { onMount } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import { BINDER } from '$lib/kjernesak/bindingstekst';
+  import { VIRKNING } from '$lib/kjernesak/svarvirkning';
+  import { lesKroner } from '$lib/utils/belop';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
@@ -43,7 +43,7 @@
       tekst: string[];
       utdypning?: string;
       detteSender: { tekst: string; lag: string | null }[];
-      bindinger: string[];
+      virkninger: string[];
     }) => void;
   } = $props();
 
@@ -86,13 +86,33 @@
         : []
     ).size > 1
   );
-  const hindring = $derived(brevaarsak(kjernesak.brev(kommando)));
+  const delbeloep = $derived(lesKroner(valg.delbeloep));
+  const ubesvart = $derived(
+    valg.iTide === null ||
+      valg.metode === null ||
+      (valg.metode === false && valg.oensket === null) ||
+      valg.beloep === null ||
+      (valg.beloep === 'deler' && 'verdi' in delbeloep && delbeloep.verdi === undefined)
+  );
+  // Kjernens melding om vurderinger den ikke kan regne ut, har feltkodene; skjemaet sier
+  // det med egne ord.
+  const aarsak = (b: ReturnType<typeof kjernesak.brev>) =>
+    b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING'
+      ? ubesvart
+        ? HOVEDLINJER.ubesvart
+        : valg.beloep === 'deler'
+          ? 'feil' in delbeloep
+            ? delbeloep.feil
+            : HOVEDLINJER.beloepUtenfor(krevd)
+          : HOVEDLINJER.kanIkkeLages
+      : brevaarsak(b);
+  const hindring = $derived(aarsak(kjernesak.brev(kommando)));
   let sendehindring = $state<string | null>(null);
 
-  const bindinger = $derived([
-    BINDER.alltid,
-    ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [BINDER.sammenfall] : []),
-    ...(!u.spor.grunnlag.gjeldendeSvar && !u.frafalt ? [BINDER.forbehold] : []),
+  const virkninger = $derived([
+    VIRKNING.alltid,
+    ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
+    ...(!u.spor.grunnlag.gjeldendeSvar && !u.frafalt ? [VIRKNING.forbehold] : []),
     ...(nyttSvar?.standpunkter.some((s) => s.art === 'rettidighet' && !s.iTide)
       ? [BREVKONTROLL.akseptOmfatter]
       : []),
@@ -101,7 +121,7 @@
   function seBrevet() {
     const b = kjernesak.brev(kommando, undefined, true);
     if (!b || !('tekst' in b) || !b.tekst) {
-      sendehindring = (b && brevaarsak(b)) ?? HOVEDLINJER.kanIkkeLages;
+      sendehindring = aarsak(b) ?? HOVEDLINJER.kanIkkeLages;
       return;
     }
     sendehindring = null;
@@ -110,29 +130,31 @@
       tekst: b.tekst,
       utdypning: kommando.svar[0].utdypning,
       detteSender: linjer,
-      bindinger,
+      virkninger,
     });
   }
 
   let leser = $state(false);
-  const delbeloepTekst = $derived(valg.delbeloep === null ? '' : String(valg.delbeloep));
 
   // Panelet følger rullingen bare når det får plass i vinduet; ellers vises en kompakt linje
   // nederst når panelet er ute av syne (skjerm E).
   let panel = $state<HTMLElement | null>(null);
   let faarPlass = $state(true);
   let iSyne = $state(true);
-  onMount(() => {
-    if (!panel || typeof ResizeObserver === 'undefined') return;
-    const maal = () => (faarPlass = panel!.offsetHeight + 32 <= window.innerHeight);
+  // Panelet fjernes når brevet leses ved siden av, så målingen bindes på nytt hver gang det
+  // settes inn.
+  $effect(() => {
+    const el = panel;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const maal = () => (faarPlass = el.offsetHeight + 32 <= window.innerHeight);
     const ro = new ResizeObserver(maal);
-    ro.observe(panel);
+    ro.observe(el);
     window.addEventListener('resize', maal);
     const io =
       typeof IntersectionObserver === 'undefined'
         ? null
         : new IntersectionObserver(([e]) => (iSyne = e.isIntersecting));
-    io?.observe(panel);
+    io?.observe(el);
     maal();
     return () => {
       ro.disconnect();
@@ -249,13 +271,9 @@
               <span class="inndata">
                 <input
                   id="delbeloep"
-                  inputmode="numeric"
-                  value={delbeloepTekst}
+                  inputmode="decimal"
+                  bind:value={valg.delbeloep}
                   aria-describedby="beloep-hjelp"
-                  oninput={(e) => {
-                    const t = e.currentTarget.value.replace(/[\s\u00a0]/g, '').replace(',', '.');
-                    valg.delbeloep = t === '' || Number.isNaN(Number(t)) ? null : Number(t);
-                  }}
                 />
                 <span class="kr" aria-hidden="true">kr</span>
               </span>
@@ -300,7 +318,7 @@
         <Hovedlinjer {linjer} {alternativer}>
           {#snippet handling()}
             {#if hindring}<p class="dempet" id="brev-hindring">{hindring}</p>{/if}
-            <p class="sterk">{BINDER.alltid}</p>
+            <p class="sterk">{VIRKNING.alltid}</p>
             <Knapp
               variant="primaer"
               sperret={harPost || hindring !== null}
@@ -319,8 +337,11 @@
 {#if !faarPlass && !iSyne && !leser}
   <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
     <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
-    <Knapp variant="primaer" sperret={harPost || hindring !== null} onclick={seBrevet}
-      >{HOVEDLINJER.seBrevet}</Knapp
+    <Knapp
+      variant="primaer"
+      sperret={harPost || hindring !== null}
+      hvorfor="brev-hindring"
+      onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp
     >
   </div>
 {/if}

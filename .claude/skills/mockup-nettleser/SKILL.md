@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som sender stegene i et brukerforløp og framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder. Brukerforløpene i demoruta kjøres med demoruta.mjs.
+description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som sender stegene i et brukerforløp og framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder. Brukerforløpene i demoruta kjøres med demoruta.mjs. Et forløp i demoruta forprøves mekanisk med demoruta.mjs, og en HTML-skisse av et nytt mønster med prototype.mjs.
 ---
 
 # /mockup i nettleseren
@@ -139,9 +139,32 @@ Med `--visning varden` går de samme stegene gjennom Varden, den eksperimentelle
 visningen (#1331), og skjermbildene har de samme navnene, så de to visningene kan
 sammenlignes ved hvert kontrollpunkt. Demopanelet legges sammen mens brukeren handler,
 fordi det står over høyre kolonne. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
-kjører axe mot Varden i lys modus, bred og smal; mørk modus er ikke med i Varden (KV-14).
+kjører axe mot Varden, bred og smal.
 Med `--sti <sti>`, som kan gjentas, kjører den axe på samme måte mot stiene, som showcasen `/demo/komponenter` (#1371).
 Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Varden.test.ts`.
+
+## Prototypen for et brukerforløp
+
+`prototype.mjs` er den mekaniske forprøven av en HTML-skisse av et nytt mønster i
+`docs/design/prototyper/` (steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347).
+Et helt forløp forprøves i demoruta med `demoruta.mjs` (oppdragsgiver 28.10, #1331). Demoruta
+driver i dag bare BF-01, så andre forløp må bygges der før de kan forprøves. Den åpner prototypen med
+`file://`, uten vite, og følger klikkstiene under `prototype` i forløpsfila. Formatet står i
+[README for brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md#formatet).
+
+```bash
+node .claude/skills/mockup-nettleser/prototype.mjs BF-03 [--utdata <mappe>]
+```
+
+Skriptet klikker lenkene i hver klikksti med 1440 px bredde og kontrollerer at hvert klikk
+fører til ankeret i stien, og at tekstene i `staar` er synlige. Bare starten settes med
+ankeret. Så kontrollerer det at hver `href="#…"` har et mål, at ankrene og stegene i
+stegtabellen i bestillingen finnes og er dekket av en klikksti som når ankrene i steget, og at `data-spor` stemmer
+med ID-ene i bestillingen begge veier. axe (WCAG 2.1 A og AA) kjøres i hver tilstand stiene
+når, og konsollfeilene samles. Forespørsler til nettet blokkeres, så nettfontene mangler på
+skjermbildene. Det tas ett skjermbilde per tilstand, ett med «Vis sporbarhet» og ett per
+tilstand på 390 px. Bredden rapporteres, men stopper ikke (oppdragsgiver 27.10). Ellers gir
+et avvik exit 1. Rapporten skrives til standard ut og er kort nok til å legges i en PR.
 
 ## Skjermbildene i PR-en
 
@@ -240,8 +263,9 @@ node .claude/skills/mockup-nettleser/uu.mjs [--url http://localhost:5173] [--sce
 ```
 
 Legger `axe.min.js` fra devDependency-en `axe-core` inn i `/mockup` og kjører
-reglene for WCAG 2.1 A og AA i fire oppsett: lys og mørk modus (`colorScheme`, som
-`app.html` leser), på 1440 og 390 px. I hvert oppsett skannes saken som TE og som BH
+reglene for WCAG 2.1 A og AA i to oppsett: lys modus (`colorScheme`, som
+`app.html` leser), på 1440 og 390 px. Mørk modus vurderes ikke nå (oppdragsgiver 29.10).
+I hvert oppsett skannes saken som TE og som BH
 (handlingslinja og betegnelsene i sporoversikten for BH). På bred skjerm kjøres også
 BHs svarskjema for fristen og for vederlaget; vederlaget i `scenario1prod`, uansett
 `--scenario` (#1213). Det skriver reglene som er brutt, med inntil `--vis` steder hver og

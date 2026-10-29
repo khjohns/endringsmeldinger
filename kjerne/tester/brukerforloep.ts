@@ -39,8 +39,11 @@ export type Kontrollpunkt = {
   kontrollsett?: { sett: string; med: Record<string, unknown> }[];
   kontroller?: Omit<Kontroll, 'etter'>[];
   /** Det brukeren skal forstå her. Prøves manuelt og i brukertest, ikke i CI. */
-  forstaaelse: string[];
+  forstaaelse: Forstaaelse[];
 };
+
+/** Det brukeren skal forstå, med vedtakene eller radene i domenetabellen det bygger på. */
+export type Forstaaelse = { tekst: string; kilde: string[] };
 
 export type Brukerforloep = {
   id: string;
@@ -54,10 +57,36 @@ export type Brukerforloep = {
   kilder?: string[];
   /** Issuene et planlagt forløp venter på. */
   venter_paa?: string[];
+  /** Bestillingen i samme mappe: ønsket arbeidsmåte, forventningene og de åpne spørsmålene. */
+  bestilling?: string;
+  /** Prototypen og klikkstiene den mekaniske forprøven følger (#1347). */
+  prototype?: Prototype;
   bevis_saker: string[];
   visninger: Visning[];
   endringer: { dato: string; grunnlag: string; hva: string }[];
 };
+
+/**
+ * Prototypen, med stien fra mappa med forløpene, og klikkstiene gjennom den.
+ * `prototype.mjs` i skillen `mockup-nettleser` følger stiene.
+ */
+export type Prototype = { fil: string; klikkstier: Klikksti[] };
+
+/**
+ * Én vei gjennom prototypen fra ankeret `start`. `dekker` er stegene i stegtabellen og
+ * kontrollpunktene (G-x) i bestillingen som veien prøver.
+ */
+export type Klikksti = { id: string; dekker: string[]; start: string; handlinger: Klikk[] };
+
+/**
+ * `klikk` er navnet på en synlig lenke, og `tilstand` ankeret den skal føre til. `kryss` og
+ * `fyll` er etiketten på et skjemafelt. `staar` er en tekst som skal være synlig der veien er.
+ */
+export type Klikk =
+  | { klikk: string; tilstand: string }
+  | { kryss: string }
+  | { fyll: string; tekst: string }
+  | { staar: string };
 
 type Kontrollsett = {
   beskrivelse: string;
@@ -232,7 +261,7 @@ export async function startjournal(b: Brukerforloep): Promise<Startjournal> {
       id: p.id,
       beskrivelse: p.beskrivelse,
       versjon: versjoner[i],
-      forstaaelse: p.forstaaelse,
+      forstaaelse: p.forstaaelse.map((f) => f.tekst),
       neste:
         p.etter < steg.length
           ? { part: partFor(steg[p.etter]), handling: steg[p.etter].handling }
@@ -262,17 +291,84 @@ export function dekning(): string {
     '',
     'Formatet og arbeidsregelen står i [README](README.md).',
     '',
-    '| Forløp | Brukerhistorie | Status | Prøvd i | Venter på | Bevis-saker |',
-    '| --- | --- | --- | --- | --- | --- |',
+    '| Forløp | Brukerhistorie | Status | Prøvd i | Venter på | Bevis-saker | Bestilling |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
   ];
   for (const b of BRUKERFORLOEP)
     linjer.push(
       `| [${b.id}](${b.id}.json) ${celle(b.tittel)} | ${celle(b.brukerhistorie)} | ${b.status} | ${
         PROEVD_I(b).join(', ') || '—'
-      } | ${(b.venter_paa ?? []).join(', ') || '—'} | ${b.bevis_saker.join(', ') || '—'} |`
+      } | ${(b.venter_paa ?? []).join(', ') || '—'} | ${b.bevis_saker.join(', ') || '—'} | ${
+        b.bestilling ? `[${b.bestilling}](${b.bestilling})` : '—'
+      } |`
+    );
+  linjer.push(
+    '',
+    '## Kildene',
+    '',
+    'Hvert vedtak og hver rad i domenetabellen forløpene viser til, og hvor. En kontroll',
+    'kjøres i CI. En forståelse prøves manuelt og i brukertest. Et planlagt forløp bygger',
+    'på kilden, men har ingen kontroller ennå.',
+    '',
+    '| Kilde | Kontroller | Forståelse | Planlagt |',
+    '| --- | --- | --- | --- |'
+  );
+  for (const [kilde, bruk] of kildebruk())
+    linjer.push(
+      `| ${kildelenke(kilde)} | ${bruk.kontroll.join(', ') || '—'} | ${
+        bruk.forstaaelse.join(', ') || '—'
+      } | ${bruk.planlagt.join(', ') || '—'} |`
     );
   return linjer.join('\n') + '\n';
 }
+
+type Kildebruk = { kontroll: string[]; forstaaelse: string[]; planlagt: string[] };
+
+/** Hvor forløpene viser til hver kilde, sortert etter kilden. */
+export function kildebruk(forloep = BRUKERFORLOEP): [string, Kildebruk][] {
+  const bruk = new Map<string, Kildebruk>();
+  const legg = (kilder: string[], hvor: keyof Kildebruk, sted: string) => {
+    for (const k of kilder) {
+      const b = bruk.get(k) ?? { kontroll: [], forstaaelse: [], planlagt: [] };
+      if (!b[hvor].includes(sted)) b[hvor].push(sted);
+      bruk.set(k, b);
+    }
+  };
+  for (const b of forloep) {
+    if (b.status === 'planlagt') legg(b.kilder ?? [], 'planlagt', b.id);
+    for (const p of b.kontrollpunkter ?? []) {
+      for (const k of kontrollerI(p)) legg(k.kilde, 'kontroll', `${b.id} ${p.id}`);
+      for (const f of p.forstaaelse) legg(f.kilde, 'forstaaelse', `${b.id} ${p.id}`);
+    }
+  }
+  return [...bruk].sort(([a], [b]) => a.localeCompare(b, 'nb', { numeric: true }));
+}
+
+/** Vedtaks-ID-en, med samme mønster som `HENVISNING` i `docs/verktoy/vedtakshenvisninger.py`. */
+const VEDTAKS_ID = String.raw`[A-Z]{2,3}-U\d+|B-\d{2}`;
+
+/** Et vedtak lenkes til raden i vedtaksfila. En rad i domenetabellen står som den er. */
+const kildelenke = (kilde: string) =>
+  new RegExp(`^(?:${VEDTAKS_ID})$`).test(kilde)
+    ? `[${kilde}](../../plans/vedtak.md#${kilde.toLowerCase()})`
+    : kilde;
+
+/** Vedtaks-ID-ene i bestillingen, sortert og uten gjentakelser. */
+export function vedtakIBestilling(b: Brukerforloep): string[] {
+  const tekst = b.bestilling ? (lagret(b.bestilling) ?? '') : '';
+  const henvisning = new RegExp(`(?<![\\w-])(?:${VEDTAKS_ID})(?![\\w-])`, 'g');
+  return [...new Set(tekst.match(henvisning))].sort((a, c) =>
+    a.localeCompare(c, 'nb', { numeric: true })
+  );
+}
+
+/**
+ * Kildene forløpet viser til, slik dekningsoversikten viser dem: for et planlagt forløp
+ * `kilder`, ellers kildene i kontrollene og forståelsen. Hvert vedtak bestillingen viser
+ * til, skal stå her (#1346, #1350).
+ */
+export const kilderI = (b: Brukerforloep): Set<string> =>
+  new Set(kildebruk([b]).map(([kilde]) => kilde));
 
 export async function genererte(): Promise<Record<string, string>> {
   return {

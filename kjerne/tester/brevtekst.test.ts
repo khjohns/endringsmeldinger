@@ -1718,11 +1718,12 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         }),
       ],
     });
+    // Avslått, så svaret ikke gir registrert enighet (GR-U7) og testen bare gjelder «i tide».
     const iTide = (s: ReturnType<typeof sak>) => ({
       type: 'brev',
       svar: [
         svar('grunnlag', s.krav('grunnlag'), {
-          resultat: 'godkjent',
+          resultat: 'avslaatt',
           grunnlag_varslet_i_tide: true,
         }),
       ],
@@ -1738,13 +1739,11 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(laast(k.send('BH', avslag(k)))[0]).toContain('jf. innsigelsen');
     });
 
-    it('kommandoene avviser den ikke etter et «i tide» (HF-U4), men innsigelsen mot kravet fra appen', () => {
+    it('kommandoene avviser den ikke etter et «i tide», og heller ikke innsigelsen mot kravet fra appen (MM-U34 punkt 6, HF-U4)', () => {
       const { s, registrert } = medRegistrertKrav();
       s.send('BH', iTide(s));
       expect(s.avvist('BH', { type: 'innsigelse', gjelder: registrert })).toBeNull();
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBe(
-        'SAGT_I_TIDE'
-      );
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBeNull();
     });
   });
 
@@ -2023,7 +2022,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(forSent).not.toContain('jf. innsigelsen');
     });
 
-    it('etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder (VS-U24, HF-U4, GR-U11, MM-U18)', () => {
+    it('etter et «i tide» etter § 32.2 godtas en innsigelse mot en versjon der § 32.2 ikke gjelder, og mot versjonen som fikk «i tide» (MM-U34 punkt 6, VS-U24, GR-U11, MM-U18)', () => {
       const s = sak();
       s.send('TE', GRUNNLAGSKRAV);
       const foerste = s.krav('grunnlag');
@@ -2033,7 +2032,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       });
       skifte(s, svikt);
       expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBeNull();
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: foerste })).toBe('SAGT_I_TIDE');
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: foerste })).toBeNull();
     });
 
     /** Underkategorien skifter innenfor endring, og § 32.2 gjelder begge (GR-U11). */
@@ -2073,13 +2072,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
           : {}),
       });
 
-    it('etter et «i tide» på en tidligere versjon avvises en innsigelse mot en versjon i en annen underkategori der § 32.2 gjelder, når et svar utenfor kommandoene har besvart den (HF-U8, arbeidsvalget i #798)', () => {
-      const kontroll = skifteEtter(false);
-      besvar(kontroll, false);
-      expect(
-        kontroll.avvist('BH', { type: 'innsigelse', gjelder: kontroll.krav('grunnlag') }),
-        'kontrollsak: den første versjonen fikk «for sent»'
-      ).toBeNull();
+    it('etter et «i tide» på en tidligere versjon godtas en innsigelse mot en versjon i en annen underkategori der § 32.2 gjelder, når et svar utenfor kommandoene har besvart den (MM-U34 punkt 6, HF-U8)', () => {
       const s = skifteEtter(true);
       besvar(s, false);
       const u = s.u();
@@ -2089,9 +2082,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         nytt?.beslutningsgrunnlag.varslingsplikt,
         'forutsetning: svaret på den nye versjonen frøs at § 32.2 gjelder (GR-U12)'
       ).toBe(true);
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBe(
-        'SAGT_I_TIDE'
-      );
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBeNull();
     });
 
     it.each([
@@ -2199,20 +2190,31 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     };
   };
 
-  it('protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, og ingen hendelse skrives (OV-U7, arbeidsvalget 16.10 på #587)', () => {
+  it('protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, med FEIL_PART for parten handlingen ikke tilhører (#997), og ingen hendelse skrives (OV-U7, arbeidsvalget 16.10 på #587)', () => {
     const { s, innsigelse, brevet, svarId, rettidighet } = medSvarPaaInnsigelsen();
-    const kommandoer = [
-      { type: 'protest', gjelder: innsigelse },
-      { type: 'protest', gjelder: brevet },
-      { type: 'protest', gjelder: rettidighet },
-      { type: 'passivitet', gjelder: s.krav('grunnlag') },
-      { type: 'begrunnelse', gjelder: svarId, utdypning: BEGRUNNELSE },
-      { type: 'begrunnelse', gjelder: svarId, sendt: '2026-10-07', dokumentasjon: [randomUUID()] },
+    // Påberopt passivitet er TEs handling og den senere begrunnelsen byggherrens (#997).
+    const kommandoer: [Data, Part | null][] = [
+      [{ type: 'protest', gjelder: innsigelse }, null],
+      [{ type: 'protest', gjelder: brevet }, null],
+      [{ type: 'protest', gjelder: rettidighet }, null],
+      [{ type: 'passivitet', gjelder: s.krav('grunnlag') }, 'TE'],
+      [{ type: 'begrunnelse', gjelder: svarId, utdypning: BEGRUNNELSE }, 'BH'],
+      [
+        {
+          type: 'begrunnelse',
+          gjelder: svarId,
+          sendt: '2026-10-07',
+          dokumentasjon: [randomUUID()],
+        },
+        'BH',
+      ],
     ];
     const foer = s.journal.length;
     for (const part of ['TE', 'BH'] as const)
-      for (const k of kommandoer)
-        expect(s.avvist(part, k), `${part}: ${JSON.stringify(k)}`).toBe('IKKE_I_FOERSTE_VERSJON');
+      for (const [k, eier] of kommandoer)
+        expect(s.avvist(part, k), `${part}: ${JSON.stringify(k)}`).toBe(
+          eier === null || eier === part ? 'IKKE_I_FOERSTE_VERSJON' : 'FEIL_PART'
+        );
     expect(s.journal).toHaveLength(foer);
   });
 
@@ -2371,7 +2373,12 @@ describe('den senere begrunnelsen (KA-U34)', () => {
   });
 });
 
-describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort (KA-U11, #448)', () => {
+/**
+ * MM-U34 punkt 12: «kravene er avgjort» er en opplysning i visningen, og ingen regel sperrer
+ * etter den. Sperren gjelder fra endringsordren er sendt (punkt 19), og saker der TE har
+ * godtatt avslaget på grunnlaget eller trukket det, følger GR-U27.
+ */
+describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 punkt 12, KA-U11, OV-U3)', () => {
   const godkjentGrunnlag = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
   const heltVederlag = [
     { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 125000, aksepterer_metode: true },
@@ -2421,15 +2428,24 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
   it('et spor uten krav hindrer ikke: med ett sendt krav avgjort er kravene avgjort, og visningen sier det med OV-U10 (OV-U3)', () => {
     const u = utenFrist().u();
     expect(kraveneErAvgjort(u)).toBe(true);
-    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag']);
     expect(visning(u, GJELDENDE_REGLER).status).toEqual({
       kode: 'alle_krav_avgjort',
       tekst: 'Alle krav sendt i appen er avgjort',
     });
     expect(
       kanInngaaIEo(u),
-      'et spor TE fortsatt kan sende, hindrer endringsordren (EO-U5, arbeidsvalget i #493)'
-    ).toBe(false);
+      'et spor TE fortsatt kan sende, hindrer ikke endringsordren (MM-U34 punkt 20)'
+    ).toBe(true);
+  });
+
+  it('når kravene er avgjort, godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter (OV-U3, MM-U34 punkt 13)', () => {
+    const s = utenFrist();
+    expect(kraveneErAvgjort(s.u()), 'forutsetning: kravene er avgjort').toBe(true);
+    s.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
+    const varsel = s.u().spor.frist.varsler['33.4']!.id;
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBeNull();
+    expect(s.u().spor.vederlag.enighet, 'forutsetning: enighet i vederlaget').not.toBeNull();
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') })).toBeNull();
   });
 
   it('uten et sendt vederlags- eller fristkrav er kravene ikke avgjort, også når grunnlaget er godkjent (OV-U3)', () => {
@@ -2442,21 +2458,20 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     const u = s.u();
     expect(u.grunnlagAvklart, 'forutsetning: grunnlaget er avklart').toBe(true);
     expect(kraveneErAvgjort(u)).toBe(false);
-    expect(u.avgjorteSpor).toEqual([]);
     // MM-U22: saken har ingen samlet status før kravene er avgjort.
     expect(visning(u, GJELDENDE_REGLER).status).toBeNull();
   });
 
-  it('når kravene er avgjort, avvises trekk, ny kravversjon, byggherrens revisjon og det særskilte varselet fra appen, mens datoen for det kan registreres (OV-U3, OV-U5)', () => {
+  it('når kravene er avgjort, godtas trekk av vederlagskravet, ny kravversjon, byggherrens revisjon og det særskilte varselet fra appen, og datoen for det kan registreres (MM-U34 punkt 9, 11 og 12, OV-U5, OV-U8)', () => {
     const s = utenFrist();
-    expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBe('KRAVENE_AVGJORT');
-    expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
-    expect(s.avvist('TE', vederlagskrav)).toBe('KRAVENE_AVGJORT');
-    expect(s.avvist('BH', revisjonAvVederlaget(s))).toBe('KRAVENE_AVGJORT');
-    // OV-U3 og OV-U5: det særskilte varselet sendes ikke fra appen, men datoen kan registreres.
-    expect(s.avvist('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' })).toBe(
-      'KRAVENE_AVGJORT'
-    );
+    expect(kraveneErAvgjort(s.u()), 'forutsetning: kravene er avgjort').toBe(true);
+    expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBeNull();
+    expect(s.avvist('TE', vederlagskrav)).toBeNull();
+    expect(s.avvist('BH', revisjonAvVederlaget(s))).toBeNull();
+    expect(s.avvist('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' })).toBeNull();
+    // Kontrollsak: godkjenningen av grunnlaget er en endringsordre, så trekket av grunnlaget
+    // avvises av sperren i KA-U13, ikke fordi kravene er avgjort (EO-U12).
+    expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('GRUNNLAG_ER_ENDRINGSORDRE');
     expect(
       s.avvist('TE', {
         type: 'varsel',
@@ -2466,6 +2481,19 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
         dokumentasjon: [randomUUID()],
       })
     ).toBeNull();
+  });
+
+  it('når kravene er avgjort, kan TE sende en ny kravversjon og byggherren revidere svaret, og saken er forstått (MM-U34 punkt 9, 11 og 12)', () => {
+    const medKravversjon = utenFrist();
+    medKravversjon.send('TE', vederlagskrav);
+    const etterKrav = medKravversjon.u();
+    expect(etterKrav.forstaatt, JSON.stringify(etterKrav.begrensninger)).toBe(true);
+    expect(venterPaaSvar(etterKrav, 'vederlag'), 'den nye kravversjonen venter på svar').toBe(true);
+    const medRevisjon = utenFrist();
+    medRevisjon.send('BH', revisjonAvVederlaget(medRevisjon));
+    const etterRevisjon = medRevisjon.u();
+    expect(etterRevisjon.forstaatt, JSON.stringify(etterRevisjon.begrensninger)).toBe(true);
+    expect(etterRevisjon.spor.vederlag.svar).toHaveLength(2);
   });
 
   it('i et spor uten krav godtas varselet, varseldatoen og det første kravet når kravene er avgjort (OV-U3, OV-U5)', () => {
@@ -2484,7 +2512,6 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     });
     const u = s.u();
     expect(kraveneErAvgjort(u), 'forutsetning: kravene er avgjort').toBe(true);
-    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag', 'frist']);
     expect(s.avvist('TE', varseldato())).toBeNull();
     s.send('TE', varseldato());
     const etter = s.u();
@@ -2493,22 +2520,15 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(kraveneErAvgjort(etter), 'varselet endrer ikke at kravene er avgjort').toBe(true);
   });
 
-  it('det første kravet i sporet gjør at kravene ikke lenger er avgjort, men sperren for det som var avgjort står (OV-U3)', () => {
+  it('det første kravet i sporet gjør at kravene ikke lenger er avgjort, og det som var avgjort, kan fortsatt endres (MM-U34 punkt 12, OV-U3)', () => {
     const s = utenFrist();
     s.send('TE', FRISTKRAV);
     const u = s.u();
     expect(kraveneErAvgjort(u)).toBe(false);
-    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag']);
     expect(visning(u, GJELDENDE_REGLER).status).toBeNull();
-    expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
-      regel: 'KRAVENE_AVGJORT',
-      melding:
-        'Kravene som var sendt, ble avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget.',
-    });
-    expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
-    expect(s.avvist('TE', vederlagskrav)).toBe('KRAVENE_AVGJORT');
-    expect(s.avvist('BH', revisjonAvVederlaget(s))).toBe('KRAVENE_AVGJORT');
-    // Kontrollsak: det nye kravet er ikke avgjort, så TE kan trekke det.
+    expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBeNull();
+    expect(s.avvist('TE', vederlagskrav)).toBeNull();
+    expect(s.avvist('BH', revisjonAvVederlaget(s))).toBeNull();
     expect(s.avvist('TE', { type: 'trekk', spor: 'frist' })).toBeNull();
 
     s.send('BH', {
@@ -2517,20 +2537,17 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     });
     const etter = s.u();
     expect(kraveneErAvgjort(etter), 'det nye kravet er avgjort ved sammenfall').toBe(true);
-    expect(etter.avgjorteSpor).toEqual(['grunnlag', 'vederlag', 'frist']);
     expect(kanInngaaIEo(etter)).toBe(true);
   });
 
-  it('en rad som trekker et krav som var avgjort, gjør saken ikke forstått, også etter et nytt første krav (OV-U3, MM-U18)', () => {
+  it('en rad som trekker et krav som var avgjort, gjør saken fortsatt forstått, og kravet er trukket (MM-U34 punkt 12, MM-U18)', () => {
     const s = utenFrist();
     s.send('TE', FRISTKRAV);
     const vederlagskravId = s.krav('vederlag');
     s.rad('TE', utsagn(randomUUID(), 'trekk', vederlagskravId));
     const u = s.u();
-    expect(u.forstaatt).toBe(false);
-    expect(u.begrensninger.map((b) => b.grunn)).toContain(
-      'trekk etter at kravene er avgjort (OV-U3)'
-    );
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.spor.vederlag.trukket).toBe(true);
   });
 
   it('en rad som trekker det nye første kravet, strider ikke (OV-U3)', () => {
@@ -2564,14 +2581,11 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     });
   });
 
-  it('når TE ikke krever fristforlengelse, er kravene avgjort, og meldingen sier hvorfor', () => {
+  it('når TE ikke krever fristforlengelse, er kravene avgjort, og trekket av vederlagskravet godtas (MM-U34 punkt 12, KA-U12)', () => {
     const s = utenFrist();
     s.send('TE', { type: 'ingen_krav', spor: 'frist' });
-    expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
-      regel: 'KRAVENE_AVGJORT',
-      melding:
-        'Alle krav sendt i appen er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og TE krever ikke fristforlengelse.',
-    });
+    expect(kraveneErAvgjort(s.u())).toBe(true);
+    expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBeNull();
   });
 
   /** Kravene avgjort: grunnlaget og vederlaget godkjent, fristkravet trukket (KA-U11). */
@@ -2611,37 +2625,50 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(u.spor).toEqual(foer.spor);
   });
 
-  it('et trukket krav står som trukket i meldingen', () => {
-    const s = utenFrist();
-    s.send('TE', FRISTKRAV);
-    s.send('TE', { type: 'trekk', spor: 'frist' });
-    expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })?.melding).toBe(
-      'Alle krav sendt i appen er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
-    );
-  });
-
-  it('når byggherren har frafalt pålegget, sier meldingen det, ikke at grunnlaget er godkjent', () => {
-    const s = sak();
-    s.send('TE', GRUNNLAGSKRAV);
-    s.send('TE', { type: 'ingen_krav', spor: 'vederlag' });
-    s.send('TE', { type: 'ingen_krav', spor: 'frist' });
+  /** Saken lukket etter GR-U27: TE har godtatt avslaget på grunnlaget. */
+  const lukket = () => {
+    const s = sakMedKrav();
     s.send('BH', {
       type: 'brev',
       svar: [
-        svar(
-          'grunnlag',
-          s.krav('grunnlag'),
-          { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true },
-          {},
-          'Pelingen utgår.'
-        ),
+        svar('grunnlag', s.krav('grunnlag'), {
+          resultat: 'avslaatt',
+          grunnlag_varslet_i_tide: true,
+        }),
       ],
     });
-    expect(s.avvisning('TE', FRISTKRAV)).toEqual({
-      regel: 'KRAVENE_AVGJORT',
-      melding:
-        'Alle krav sendt i appen er avgjort: byggherren har frafalt pålegget, TE krever ikke justering av vederlaget og TE krever ikke fristforlengelse.',
+    s.send('TE', {
+      type: 'aksept',
+      spor: 'grunnlag',
+      svar: s.u().spor.grunnlag.gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
     });
+    const foer = s.u();
+    expect(foer.grunnlagAvvist, 'forutsetning: saken er lukket etter GR-U27').toBe(true);
+    return { s, foer };
+  };
+
+  it('en lest senere begrunnelse etter at saken er lukket etter GR-U27, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34)', () => {
+    const { s, foer } = lukket();
+    const svarId = foer.spor.grunnlag.gjeldendeSvar!.id;
+    const id = randomUUID();
+    s.rad('BH', utsagn(id, 'begrunnelse', svarId));
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.elementer[id]?.art).toBe('begrunnelse');
+    expect(u.utenVirkning).toEqual([]);
+    expect(u.spor).toEqual(foer.spor);
+  });
+
+  it('en lest påberopt passivitet etter at saken er lukket etter GR-U27, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, VS-U12)', () => {
+    const { s, foer } = lukket();
+    const grunnlagskrav = s.krav('grunnlag');
+    s.rad('TE', utsagn(randomUUID(), 'passivitet', grunnlagskrav));
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.passivitet.map((p) => [p.part, p.gjelder])).toEqual([['TE', grunnlagskrav]]);
+    expect(u.utenVirkning).toEqual([]);
+    expect(u.spor).toEqual(foer.spor);
   });
 });
 
@@ -3088,15 +3115,20 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
   });
 
-  it('HF-U4: etter «i tide» etter § 33.6.2 avvises en senere innsigelse mot begrunnelsen', () => {
+  it('etter «i tide» etter § 33.6.2 godtas en senere innsigelse mot begrunnelsen (MM-U34 punkt 6, HF-U4)', () => {
     const { s, b } = medBegrunnelse();
     s.send('BH', { type: 'innsigelse', gjelder: b });
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    const rad = fristsvar(s, { ...FRIST_FULLT[0], foresporsel_svar_ok: true }, FRIST_FULLT[1]);
+    // Delvis godkjent, så svaret ikke gir registrert enighet ved sammenfall (GR-U7).
+    const rad = fristsvar(
+      s,
+      { ...FRIST_FULLT[0], dager: 10, foresporsel_svar_ok: true },
+      { resultat: 'delvis_godkjent', godkjent_dager: 10 }
+    );
     expect(laast(rad)[0]).toContain(
       'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev 3 av 3. oktober 2026 kom for sent.'
     );
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBe('SAGT_I_TIDE');
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBeNull();
   });
 
   it('HF-U4, VS-U29: etter «i tide» etter § 33.6.2 gir svaret på en senere kravversjon ikke opp innsigelsen mot begrunnelsen på nytt', () => {
@@ -3477,7 +3509,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: id })).toBe('VARSLINGSPLIKT_GJELDER_IKKE');
   });
 
-  it('etter «i tide» i et svar fra appen avvises en innsigelse mot varselet (HF-U4, VS-U24)', () => {
+  it('etter «i tide» i et svar fra appen godtas en innsigelse mot varselet (MM-U34 punkt 6, HF-U4, VS-U24)', () => {
     const { s, id } = medVarsel();
     s.send('TE', vederlagskrav);
     s.send('BH', {
@@ -3492,7 +3524,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
         ),
       ],
     });
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: id })).toBe('SAGT_I_TIDE');
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: id })).toBeNull();
   });
 });
 
@@ -3699,7 +3731,13 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
   });
 });
 
-describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () => {
+/**
+ * MM-U34 punkt 6 opphever sperren i HF-U4: etter at byggherren har sagt i et svar fra appen
+ * at varselet eller spesifiseringen kom i tide, godtas en senere påberopelse av at det kom
+ * for sent, i en revisjon og i svaret på en senere versjon. Løsningen avgjør ikke om
+ * byggherren er bundet av det tidligere standpunktet (MM-U12).
+ */
+describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 punkt 6, HF-U4, #498)', () => {
   type Sak = ReturnType<typeof sak>;
   type Sporet = 'grunnlag' | 'vederlag' | 'frist';
 
@@ -3725,6 +3763,11 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
     type: 'brev',
     svar: [utregnet(s, spor, v)],
   });
+  const nyGrunnlagsversjon = (s: Sak) =>
+    s.send('TE', {
+      ...GRUNNLAGSKRAV,
+      innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling 2' },
+    });
 
   /** Delvis godkjent, så svaret ikke gir enighet ved sammenfall (GR-U10). */
   const iTide = {
@@ -3735,214 +3778,220 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
   };
   const forSent334 = { ...iTide, frist_varsel_ok: false };
   const forSent3361 = { ...iTide, spesifisert_krav_ok: false, dager_maatte_forstaa: 5 };
-
-  describe('§ 33.4', () => {
-    it('en revisjon som påberoper «for sent» etter «i tide», avvises, og resten av svaret kan revideres', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', iTide);
-      expect(
-        s.avvist('BH', revisjon(s, 'frist', { ...iTide, dager: 15 })),
-        'kontrollsak'
-      ).toBeNull();
-      expect(s.avvist('BH', revisjon(s, 'frist', forSent334))).toBe('SAGT_I_TIDE');
+  const avslaatt = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+  const forSentGrunnlag = { ...avslaatt, grunnlag_varslet_i_tide: false };
+  const delvis = {
+    hovedkrav_vurdering: 'delvis',
+    hovedkrav_godkjent_belop: 100000,
+    aksepterer_metode: true,
+  };
+  const sakISvikt = () => {
+    const s = sak();
+    s.send('TE', {
+      ...GRUNNLAGSKRAV,
+      innhold: {
+        hovedkategori: 'svikt',
+        underkategori: 'grunnforhold',
+        tittel: 'Kvikkleire',
+        ...KLAR_OVER,
+      },
     });
-
-    it('et svar på en senere kravversjon kan ikke påberope «for sent» (HF-U4: står mot hver senere kravversjon)', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', iTide);
-      s.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 25 }, utdypning: 'Mer.' });
-      expect(s.avvist('BH', nyttSvar(s, 'frist', iTide)), 'kontrollsak').toBeNull();
-      expect(s.avvist('BH', nyttSvar(s, 'frist', forSent334))).toBe('SAGT_I_TIDE');
+    s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { metode: 'tilbud', beloep: 125000 },
     });
-
-    it('«i tide» står også på en ny grunnlagsversjon', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', iTide);
-      s.send('TE', {
-        ...GRUNNLAGSKRAV,
-        innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling 2' },
-      });
-      expect(s.u().spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
-      expect(s.avvist('BH', revisjon(s, 'frist', forSent334))).toBe('SAGT_I_TIDE');
+    return s;
+  };
+  /** Det første fristkravet med varselet etter § 33.4 registrert etter svaret med «i tide». */
+  const medVarselRegistrertEtterSvaret = () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { dager: 20 },
+      utdypning: 'Fire uker.',
     });
-
-    it('«i tide» om det første fristkravet binder også når TE registrerer et tidligere sendt varsel (oppdragsgiver 15.10, #498)', () => {
-      const s = sak();
-      s.send('TE', GRUNNLAGSKRAV);
-      s.send('TE', {
-        type: 'krav',
-        spor: 'frist',
-        innhold: { dager: 20 },
-        utdypning: 'Fire uker.',
-      });
-      brev(s, 'frist', iTide);
-      s.send('TE', {
-        type: 'varsel',
-        spor: 'frist',
-        hjemmel: '33.4',
-        sendt: '2026-09-01',
-        dokumentasjon: [randomUUID()],
-      });
-      expect(
-        s.u().spor.frist.varsler['33.4'],
-        'forutsetning: varselet er registrert'
-      ).toBeDefined();
-      expect(s.avvist('BH', revisjon(s, 'frist', forSent334))).toBe('SAGT_I_TIDE');
+    brev(s, 'frist', iTide);
+    s.send('TE', {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-09-01',
+      dokumentasjon: [randomUUID()],
     });
+    expect(s.u().spor.frist.varsler['33.4'], 'forutsetning: varselet er registrert').toBeDefined();
+    return s;
+  };
 
-    it('kontrollsak: «for sent» kan stå i en revisjon av et svar som sa «for sent»', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', forSent334);
-      expect(s.avvist('BH', revisjon(s, 'frist', { ...forSent334, dager: 15 }))).toBeNull();
-    });
-
-    it('et registrert svar med «i tide» binder ikke, og byggherren kan svare «for sent» fra appen (HF-U4, OV-U4)', () => {
-      const s = sakMedKrav();
+  it.each<[string, () => { s: Sak; kommando: Data }]>([
+    [
+      '§ 33.4 i en revisjon',
+      () => {
+        const s = sakMedKrav();
+        brev(s, 'frist', iTide);
+        return { s, kommando: revisjon(s, 'frist', forSent334) };
+      },
+    ],
+    [
+      '§ 33.4 i svaret på en senere kravversjon',
+      () => {
+        const s = sakMedKrav();
+        brev(s, 'frist', iTide);
+        s.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 25 }, utdypning: 'Mer.' });
+        return { s, kommando: nyttSvar(s, 'frist', forSent334) };
+      },
+    ],
+    [
+      '§ 33.4 i en revisjon etter en ny grunnlagsversjon',
+      () => {
+        const s = sakMedKrav();
+        brev(s, 'frist', iTide);
+        nyGrunnlagsversjon(s);
+        return { s, kommando: revisjon(s, 'frist', forSent334) };
+      },
+    ],
+    [
+      '§ 33.4 når TE har registrert et tidligere sendt varsel etter svaret (oppdragsgiver 15.10, #498)',
+      () => {
+        const s = medVarselRegistrertEtterSvaret();
+        return { s, kommando: revisjon(s, 'frist', forSent334) };
+      },
+    ],
+    [
+      '§ 33.6.1 i en revisjon',
+      () => {
+        const s = sakMedKrav();
+        brev(s, 'frist', iTide);
+        return { s, kommando: revisjon(s, 'frist', forSent3361) };
+      },
+    ],
+    [
+      '§ 32.2 i en revisjon',
+      () => {
+        const s = sakMedKrav();
+        brev(s, 'grunnlag', avslaatt);
+        return { s, kommando: revisjon(s, 'grunnlag', forSentGrunnlag) };
+      },
+    ],
+    [
+      '§ 32.2 i svaret på en senere grunnlagsversjon med samme hjemmel (HF-U8, GR-U22)',
+      () => {
+        const s = sakMedKrav();
+        brev(s, 'grunnlag', avslaatt);
+        nyGrunnlagsversjon(s);
+        return { s, kommando: nyttSvar(s, 'grunnlag', forSentGrunnlag) };
+      },
+    ],
+    [
+      '§ 34.1.2 i en revisjon',
+      () => {
+        const s = sakISvikt();
+        brev(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: true });
+        return {
+          s,
+          kommando: revisjon(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false }),
+        };
+      },
+    ],
+  ])(
+    'etter «i tide» godtas en påberopelse etter %s, og saken er forstått (MM-U34 punkt 6, HF-U4)',
+    (_n, forloep) => {
+      const { s, kommando } = forloep();
+      expect(s.avvist('BH', kommando)).toBeNull();
+      s.send('BH', kommando);
       const u = s.u();
-      s.rad('BH', {
-        svar: [
-          {
-            id: randomUUID(),
-            spor: 'frist',
-            gjelder: s.krav('frist'),
-            grunnlagskrav: u.spor.grunnlag.gjeldendeKrav!.id,
-            standpunkter: [
-              {
-                id: randomUUID(),
-                art: 'rettidighet',
-                gjelder: u.spor.frist.varsler['33.4']!.id,
-                hjemmel: '33.4',
-                i_tide: true,
-              },
-              { id: randomUUID(), art: 'dager' },
-            ],
-            utregning: { resultat: 'delvis_godkjent', godkjent_dager: 10 },
-          },
-        ],
-        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
-      });
-      const etter = s.u();
-      expect(etter.forstaatt, JSON.stringify(etter.begrensninger)).toBe(true);
-      expect(
-        etter.spor.frist.gjeldendeSvar,
-        'det registrerte svaret er dokumentasjon (OV-U4)'
-      ).toBeNull();
-      expect(s.avvist('BH', nyttSvar(s, 'frist', forSent334))).toBeNull();
-    });
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    }
+  );
+
+  it('en revisjon som påberoper «for sent» etter § 32.2 etter «i tide», godtas og leses som påberopelse: grunnlaget er ikke lenger avklart (MM-U34 punkt 6, HF-U4, GR-U7)', () => {
+    const s = sakMedKrav();
+    const godkjent = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
+    brev(s, 'grunnlag', godkjent);
+    expect(s.u().grunnlagAvklart, 'kontrollsak: godkjent uten påberopelse').toBe(true);
+    const paaberopelse = revisjon(s, 'grunnlag', { ...godkjent, grunnlag_varslet_i_tide: false });
+    expect(s.avvist('BH', paaberopelse)).toBeNull();
+    const rad = s.send('BH', paaberopelse);
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(
+      u.spor.grunnlag.gjeldendeSvar!.standpunkter.find((x) => x.art === 'rettidighet')
+    ).toMatchObject({ hjemmel: '32.2', iTide: false });
+    expect(laast(rad)[0]).toContain('TEs varsel etter NS 8407 § 32.2 kom for sent');
+    expect(u.grunnlagAvklart, 'påberopelsen er virksom, så godkjenningen er subsidiær').toBe(false);
   });
 
-  describe('§ 33.6.1', () => {
-    it('en revisjon som sier at kravversjonen ble spesifisert for sent etter «i tide», avvises', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', iTide);
-      expect(s.avvist('BH', revisjon(s, 'frist', forSent3361))).toBe('SAGT_I_TIDE');
+  it('en revisjon som påberoper «for sent» etter § 34.1.2 etter «i tide», godtas og leses som påberopelse av feltet for § 34.1.2 (MM-U34 punkt 6, HF-U4)', () => {
+    const s = sakISvikt();
+    brev(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: true });
+    const rettidighet = () =>
+      s.u().spor.vederlag.gjeldendeSvar!.standpunkter.find((x) => x.art === 'rettidighet');
+    expect(rettidighet(), 'kontrollsak: «i tide»').toMatchObject({
+      hjemmel: '34.1.2',
+      iTide: true,
     });
-
-    it('«i tide» etter § 33.6.1 sier ingenting om § 33.4 (HF-U4)', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', { ...iTide, frist_varsel_ok: false, dager: 12 });
-      // HF-U5: revisjonen beholder de 12 dagene, så bare påberopelsen sammenliknes.
-      expect(s.avvist('BH', revisjon(s, 'frist', { ...forSent334, dager: 12 }))).toBeNull();
-    });
-
-    it('«i tide» etter § 33.4 sier ingenting om § 33.6.1, som gjelder kravversjonen (HF-U4, HF-U1)', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', iTide);
-      s.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 25 }, utdypning: 'Mer.' });
-      expect(s.avvist('BH', nyttSvar(s, 'frist', forSent3361))).toBeNull();
-    });
+    const paaberopelse = revisjon(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false });
+    expect(s.avvist('BH', paaberopelse)).toBeNull();
+    s.send('BH', paaberopelse);
+    expect(s.u().forstaatt).toBe(true);
+    expect(rettidighet()).toMatchObject({ hjemmel: '34.1.2', iTide: false });
   });
 
-  describe('§ 32.2', () => {
-    const avslaatt = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
-    const forSentGrunnlag = { ...avslaatt, grunnlag_varslet_i_tide: false };
-
-    it('en revisjon som påberoper «for sent» etter «i tide», avvises', () => {
-      const s = sakMedKrav();
-      brev(s, 'grunnlag', avslaatt);
-      expect(
-        s.avvist('BH', revisjon(s, 'grunnlag', { ...avslaatt, resultat: 'godkjent' })),
-        'kontrollsak'
-      ).toBeNull();
-      expect(s.avvist('BH', revisjon(s, 'grunnlag', forSentGrunnlag))).toBe('SAGT_I_TIDE');
+  it('et registrert svar med «i tide» er dokumentasjon, og byggherren kan svare «for sent» fra appen (OV-U4)', () => {
+    const s = sakMedKrav();
+    const u = s.u();
+    s.rad('BH', {
+      svar: [
+        {
+          id: randomUUID(),
+          spor: 'frist',
+          gjelder: s.krav('frist'),
+          grunnlagskrav: u.spor.grunnlag.gjeldendeKrav!.id,
+          standpunkter: [
+            {
+              id: randomUUID(),
+              art: 'rettidighet',
+              gjelder: u.spor.frist.varsler['33.4']!.id,
+              hjemmel: '33.4',
+              i_tide: true,
+            },
+            { id: randomUUID(), art: 'dager' },
+          ],
+          utregning: { resultat: 'delvis_godkjent', godkjent_dager: 10 },
+        },
+      ],
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
     });
-
-    it('«i tide» står mot en senere grunnlagsversjon med samme hjemmel (HF-U8, GR-U22)', () => {
-      const s = sakMedKrav();
-      brev(s, 'grunnlag', avslaatt);
-      s.send('TE', {
-        ...GRUNNLAGSKRAV,
-        innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling, utvidet' },
-      });
-      expect(s.avvist('BH', nyttSvar(s, 'grunnlag', avslaatt)), 'kontrollsak').toBeNull();
-      expect(s.avvist('BH', nyttSvar(s, 'grunnlag', forSentGrunnlag))).toBe('SAGT_I_TIDE');
-    });
-
-    it('«for sent» etter § 32.2 på en registrert versjon i svikt avvises av utregningen, ikke som «i tide» (#520, GR-U11, MM-U18)', () => {
-      const s = sakMedKrav();
-      brev(s, 'grunnlag', avslaatt);
-      s.rad('TE', {
-        krav: [
-          {
-            id: randomUUID(),
-            spor: 'grunnlag',
-            erstatter: s.krav('grunnlag'),
-            hovedkategori: 'svikt',
-            underkategori: 'grunnforhold',
-          },
-        ],
-      });
-      const uten = { resultat: 'avslaatt' };
-      expect(s.avvist('BH', nyttSvar(s, 'grunnlag', uten)), 'kontrollsak').toBeNull();
-      const { resultat } = utregnet(s, 'grunnlag', uten);
-      const medFelt = svar('grunnlag', s.krav('grunnlag'), forSentGrunnlag, resultat as Data);
-      expect(s.avvist('BH', { type: 'brev', svar: [medFelt] })).toBe('UGYLDIG_VURDERING');
-    });
+    const etter = s.u();
+    expect(etter.forstaatt, JSON.stringify(etter.begrensninger)).toBe(true);
+    expect(
+      etter.spor.frist.gjeldendeSvar,
+      'det registrerte svaret er dokumentasjon (OV-U4)'
+    ).toBeNull();
+    expect(s.avvist('BH', nyttSvar(s, 'frist', forSent334))).toBeNull();
   });
 
-  describe('§ 34.1.2', () => {
-    const delvis = {
-      hovedkrav_vurdering: 'delvis',
-      hovedkrav_godkjent_belop: 100000,
-      aksepterer_metode: true,
-    };
-    const sakISvikt = () => {
-      const s = sak();
-      s.send('TE', {
-        ...GRUNNLAGSKRAV,
-        innhold: {
+  it('«for sent» etter § 32.2 på en registrert versjon i svikt avvises av utregningen (#520, GR-U11, MM-U18)', () => {
+    const s = sakMedKrav();
+    brev(s, 'grunnlag', avslaatt);
+    s.rad('TE', {
+      krav: [
+        {
+          id: randomUUID(),
+          spor: 'grunnlag',
+          erstatter: s.krav('grunnlag'),
           hovedkategori: 'svikt',
           underkategori: 'grunnforhold',
-          tittel: 'Kvikkleire',
-          ...KLAR_OVER,
         },
-      });
-      s.send('TE', {
-        type: 'krav',
-        spor: 'vederlag',
-        innhold: { metode: 'tilbud', beloep: 125000 },
-      });
-      return s;
-    };
-
-    it('en revisjon som påberoper «for sent» etter «i tide», avvises', () => {
-      const s = sakISvikt();
-      brev(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: true });
-      expect(
-        s.avvist(
-          'BH',
-          revisjon(s, 'vederlag', {
-            ...delvis,
-            hovedkrav_varslet_i_tide: true,
-            hovedkrav_godkjent_belop: 110000,
-          })
-        ),
-        'kontrollsak'
-      ).toBeNull();
-      expect(
-        s.avvist('BH', revisjon(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false }))
-      ).toBe('SAGT_I_TIDE');
+      ],
     });
+    const uten = { resultat: 'avslaatt' };
+    expect(s.avvist('BH', nyttSvar(s, 'grunnlag', uten)), 'kontrollsak').toBeNull();
+    const { resultat } = utregnet(s, 'grunnlag', uten);
+    const medFelt = svar('grunnlag', s.krav('grunnlag'), forSentGrunnlag, resultat as Data);
+    expect(s.avvist('BH', { type: 'brev', svar: [medFelt] })).toBe('UGYLDIG_VURDERING');
   });
 });
 
@@ -4012,11 +4061,12 @@ describe('en ny grunnlagsversjon beholder hjemmelen (GR-U22)', () => {
 });
 
 /**
- * GR-U17, GR-U20: et frafall etter § 32.3 c fra appen binder byggherren til
- * endringsordre. Et avslag avvises i en revisjon og i et svar på en ny grunnlagsversjon.
- * Revisjonen fra frafall til frafall er arbeidsvalget 16.10 i #510.
+ * MM-U34 punkt 7 opphever sperrene i GR-U17 og GR-U20: etter et frafall etter § 32.3 c fra
+ * appen godtas et avslag, i en revisjon og i svaret på en ny grunnlagsversjon. Løsningen
+ * avgjør ikke om byggherren er bundet av frafallet (MM-U12). Revisjonen fra frafall til
+ * frafall er arbeidsvalget 16.10 i #510.
  */
-describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', () => {
+describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17, GR-U20, #510)', () => {
   type Sak = ReturnType<typeof sak>;
   const frafall = { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true };
   const avslag = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
@@ -4077,9 +4127,15 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
   };
 
   describe('revisjonen av frafallet (GR-U17)', () => {
-    it('en revisjon fra frafall til avslag avvises', () => {
+    it('en revisjon fra frafall til avslag godtas, pålegget står ikke lenger som frafalt, og grunnlaget er ikke avklart, fordi det siste svaret er avslaget (MM-U34 punkt 7, GR-U17, GR-U23)', () => {
       const s = medFrafall();
-      expect(s.avvist('BH', revisjon(s, avslag))).toBe('FRAFALT');
+      expect(s.u().grunnlagAvklart, 'kontrollsak: avklart ved frafallet (GR-U7)').toBe(true);
+      const avslaget = revisjon(s, avslag);
+      expect(s.avvist('BH', avslaget)).toBeNull();
+      s.send('BH', avslaget);
+      expect(s.u().forstaatt).toBe(true);
+      expect(s.u().frafalt).toBe(false);
+      expect(s.u().grunnlagAvklart).toBe(false);
     });
 
     it('en revisjon fra frafall til endringsordre godtas', () => {
@@ -4092,34 +4148,21 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(s.avvist('BH', revisjon(s, frafall))).toBeNull();
     });
 
-    it('en revisjon fra frafall til påberopelse etter § 32.2 avvises som «i tide», fordi frafallet sa «i tide» (#235, HF-U4)', () => {
+    it('en revisjon fra frafall til påberopelse etter § 32.2 godtas, selv om frafallet sa «i tide» (MM-U34 punkt 6 og 7, HF-U4, #235)', () => {
       const s = medFrafall();
-      expect(s.avvist('BH', revisjon(s, paaberopelse))).toBe('SAGT_I_TIDE');
-    });
-
-    it('kontrollsak: uten frafall kan et avslag revideres til avslag', () => {
-      const s = sakMedKrav();
-      s.send('BH', nyttSvar(s, avslag));
-      expect(s.avvist('BH', revisjon(s, avslag))).toBeNull();
+      expect(s.avvist('BH', revisjon(s, paaberopelse))).toBeNull();
     });
   });
 
   describe('en ny grunnlagsversjon etter frafallet (GR-U20, GR-U22)', () => {
-    it('med samme hjemmel: byggherren kan svare med frafall eller endringsordre, ikke med avslag', () => {
+    it('med samme hjemmel kan byggherren svare med frafall, endringsordre, avslag eller påberopelse etter § 32.2 (MM-U34 punkt 6 og 7, GR-U20)', () => {
       const s = medFrafall();
       versjon(s, { tittel: 'Ny peling 2' });
       expect(s.u().spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
       expect(s.avvist('BH', nyttSvar(s, frafall))).toBeNull();
       expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBeNull();
-      expect(s.avvist('BH', nyttSvar(s, avslag))).toBe('FRAFALT');
-      expect(s.avvist('BH', nyttSvar(s, paaberopelse))).toBe('SAGT_I_TIDE');
-    });
-
-    it('kontrollsak: etter et avslag kan byggherren avslå en ny grunnlagsversjon', () => {
-      const s = sakMedKrav();
-      s.send('BH', nyttSvar(s, avslag));
-      versjon(s, { tittel: 'Ny peling 2' });
       expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
+      expect(s.avvist('BH', nyttSvar(s, paaberopelse))).toBeNull();
     });
 
     it('et registrert frafall binder ikke (OV-U4)', () => {
@@ -4158,17 +4201,18 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       return s;
     };
 
-    it('grunnlaget er avklart ved frafallet, og enigheten i vederlaget forblir virksom', () => {
+    it('versjon 2 venter på svar, grunnlaget er avklart ved frafallet, og enigheten i vederlaget forblir virksom', () => {
       const s = medEnighetIVederlaget(medFrafall());
       versjon(s, { tittel: 'Ny peling 2' });
       const u = s.u();
       expect(u.spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
-      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
+      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 er ikke besvart').toBeNull();
+      expect(venterPaaSvar(u, 'grunnlag')).toBe(true);
       expect(u.grunnlagAvklart).toBe(true);
       expect(u.frafalt).toBe(true);
       expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
       expect(kraveneErAvgjort(u), 'fristkravet står åpent (OV-U3)').toBe(false);
-      expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
+      expect(kanInngaaIEo(u), 'et frafall hindrer ikke en endringsordre (GR-U28)').toBe(true);
     });
 
     it('byggherrens svar på versjon 2 avløser frafallet som gjeldende svar', () => {
@@ -4197,7 +4241,22 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(enighetensVirkning(u, 'vederlag')).toBe('betinget');
     });
 
-    it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og svaret på versjon 2 avvises (GR-U24, OV-U3)', () => {
+    it('etter frafall, revisjon til avslag og en ny grunnlagsversjon er grunnlaget ikke avklart ved frafallet, fordi det siste svaret er avslaget (MM-U34 punkt 7, GR-U23)', () => {
+      const s = medFrafall();
+      s.send('BH', revisjon(s, avslag));
+      versjon(s, { tittel: 'Ny peling 2' });
+      const u = s.u();
+      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
+      expect(u.grunnlagAvklart).toBe(false);
+      expect(u.frafalt).toBe(false);
+      // Kontrollsak: uten revisjonen er grunnlaget avklart ved frafallet (GR-U23).
+      const k = medFrafall();
+      versjon(k, { tittel: 'Ny peling 2' });
+      expect(k.u().grunnlagAvklart, 'kontrollsak').toBe(true);
+      expect(k.u().frafalt, 'kontrollsak').toBe(true);
+    });
+
+    it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og svaret på versjon 2 og trekket av grunnlaget godtas (MM-U34 punkt 12, OV-U3, KA-U11)', () => {
       const s = medEnighetIVederlaget(medFrafall());
       versjon(s, { tittel: 'Ny peling 2' });
       s.send('BH', {
@@ -4207,13 +4266,13 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       const u = s.u();
       expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
       expect(kraveneErAvgjort(u)).toBe(true);
-      expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
-      expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');
-      expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
+      expect(kanInngaaIEo(u), 'et frafall hindrer ikke en endringsordre (GR-U28)').toBe(true);
+      expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBeNull();
+      expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBeNull();
       expect(
         visning(u, GJELDENDE_REGLER).spor.grunnlag.etiketter,
-        'versjon 2 vises ikke som ventende (GR-U24)'
-      ).not.toContain('venter_paa_svar');
+        'svaret godtas, så versjon 2 venter på svar (MM-U29)'
+      ).toContain('venter_paa_svar');
       expect(visning(u, GJELDENDE_REGLER).status?.kode).toBe('alle_krav_avgjort');
     });
   });
@@ -4243,15 +4302,20 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(u.frafalt).toBe(true);
     });
 
-    it('et avslag i et brev som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått', () => {
-      const s = medFrafall();
-      registrertSvar(s, 'avslaatt', false);
-      const u = s.u();
-      expect(u.forstaatt).toBe(false);
-      expect(u.begrensninger.map((b) => b.grunn)).toEqual([
-        'et avslag av grunnlaget etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
-      ]);
-    });
+    it.each([
+      ['et avslag', 'avslaatt', true],
+      ['en påberopelse etter § 32.2', 'godkjent', false],
+    ] as [string, string, boolean][])(
+      '%s i et brev som ikke er registrert og ikke er sendt fra appen, er forstått og avløser frafallet (MM-U34 punkt 6 og 7, GR-U17, MM-U18)',
+      (_n, resultat, iTide) => {
+        const s = medFrafall();
+        const id = registrertSvar(s, resultat, false, iTide);
+        const u = s.u();
+        expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+        expect(u.spor.grunnlag.gjeldendeSvar?.id).toBe(id);
+        expect(u.frafalt).toBe(false);
+      }
+    );
 
     it.each([
       ['en registrert revisjon fra frafall', false],
@@ -4273,16 +4337,6 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       }
     );
 
-    it('en påberopelse etter § 32.2 i et brev som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått', () => {
-      const s = medFrafall();
-      registrertSvar(s, 'godkjent', false, false);
-      const u = s.u();
-      expect(u.forstaatt).toBe(false);
-      expect(u.begrensninger.map((b) => b.grunn)).toEqual([
-        'en påberopelse etter § 32.2 etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
-      ]);
-    });
-
     it('et registrert avslag etter et registrert frafall er også dokumentasjon, og grunnlaget venter på svar (OV-U4)', () => {
       const s = sakMedKrav();
       registrertSvar(s, 'paalegg_frafalt', true);
@@ -4295,11 +4349,11 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
   });
 
   /**
-   * T5 i kartleggingen av #770 (#669): hver gren i `strid` og i referansekontrollen har en
-   * test som krever den bestemte grunnen. Radene står utenfor kommandoene, som en rad som
-   * verken er registrert eller sendt fra appen (MM-U18).
+   * Arbeidsvalg 3 i #770 (#562). Radene står utenfor kommandoene, som en rad som verken er
+   * registrert eller sendt fra appen (MM-U18). MM-U34 punkt 7 opphever sperren i GR-U17, så
+   * avslaget gjør ikke lenger saken uforstått.
    */
-  it('en revisjon av frafallet på versjon 1 til avslag, etter en versjon 2 uten frafall og utenfor kommandoene, gjør saken ikke forstått (arbeidsvalg 3 i #770, #562)', () => {
+  it('en revisjon av frafallet på versjon 1 til avslag, etter en versjon 2 uten frafall og utenfor kommandoene, er forstått (MM-U34 punkt 7, GR-U17, arbeidsvalg 3 i #770)', () => {
     const s = medFrafall();
     const foerste = s.u().spor.grunnlag.gjeldendeKrav!.id;
     const frafallet = s.u().spor.grunnlag.gjeldendeSvar!.id;
@@ -4336,10 +4390,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       ],
     });
     const u = s.u();
-    expect(u.forstaatt).toBe(false);
-    expect(u.begrensninger.map((b) => b.grunn)).toContain(
-      'et avslag av grunnlaget etter at byggherren har frafalt pålegget (GR-U17, GR-U20)'
-    );
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
   });
 
   describe('hver grunn i kontrollen mot journalen før brevet (MM-U18, #669)', () => {
@@ -4355,17 +4406,19 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
         utsagn: [{ id: randomUUID(), art: 'aksept', gjelder, regelversjon: KJERNE.regler.versjon }],
       });
 
-    it('en revisjon av et svar partene er enige om (GR-U10, KA-U7)', () => {
+    it('en revisjon av en godkjenning av grunnlaget med registrert enighet gir ingen grunn, og saken er forstått (MM-U34 punkt 11, EO-U12)', () => {
       const s = medEnighet();
-      registrertSvar(s, 'avslaatt', false);
-      expect(grunner(s)).toEqual(['en revisjon av et svar partene er enige om (GR-U10, KA-U7)']);
+      const revisjon = registrertSvar(s, 'godkjent', false);
+      expect(grunner(s)).toEqual([]);
+      expect(s.u().forstaatt).toBe(true);
+      expect(s.u().spor.grunnlag.gjeldendeSvar?.id).toBe(revisjon);
     });
 
-    it('en aksept av et svar partene alt er enige om (GR-U8, KA-U7)', () => {
+    it('en aksept av et svar med registrert enighet (GR-U8)', () => {
       const s = medEnighet();
       raaAksept(s, s.u().spor.grunnlag.gjeldendeSvar!.id);
       // Leseren avviser også aksepten av et sammenfall (GR-U8).
-      expect(grunner(s)).toContain('en aksept av et svar partene alt er enige om (GR-U8, KA-U7)');
+      expect(grunner(s)).toContain('en aksept av et svar med registrert enighet (GR-U8)');
     });
 
     it('en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)', () => {
@@ -4469,16 +4522,16 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
 });
 
 /**
- * HF-U5, HF-U14, HF-U21: en revisjon av et svar TE ikke har godtatt, kan ikke senke noe
- * byggherren har innrømmet i svaret. Sammenlikningen gjøres standpunkt for standpunkt, og
- * en revisjon som senker ett standpunkt, avvises også når den hever et annet. Hvilke
- * standpunkter som sammenliknes, står i arbeidsvalgene 16.10 på #502.
+ * MM-U34 punkt 4 opphever vernet i HF-U5, og punkt 3 bindingen i HF-U21: byggherren kan
+ * sende en revisjon som senker det byggherren har godkjent. Løsningen avgjør ikke om
+ * endringen er rettslig virksom (MM-U12). Aksepten av beregningsmåten kan også tas tilbake
+ * (MM-U34 punkt 15).
  */
-describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', () => {
+describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-U5, HF-U21, #502)', () => {
   type Sak = ReturnType<typeof sak>;
   type Sporet = 'grunnlag' | 'vederlag' | 'frist';
 
-  /** Svaret med serverens utregning, så bare sammenlikningen kan gi en avvisning. */
+  /** Svaret med serverens utregning, så bare revisjonen kan gi en avvisning. */
   const utregnet = (s: Sak, spor: Sporet, v: Data) => {
     const u = s.u();
     const krav = gjeldendeKrav(u, spor);
@@ -4500,6 +4553,12 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
     type: 'brev',
     svar: [utregnet(s, spor, v)],
   });
+  /** Revisjonen godtas, og saken er forstått etter at den er sendt. */
+  const godtas = (s: Sak, kommando: Data) => {
+    expect(s.avvist('BH', kommando)).toBeNull();
+    s.send('BH', kommando);
+    expect(s.u().forstaatt).toBe(true);
+  };
 
   /** 100 000 av 125 000 kr, så svaret ikke gir enighet ved sammenfall (GR-U10). */
   const delvis = {
@@ -4517,61 +4576,23 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
   };
 
   describe('vederlaget', () => {
-    it('et lavere godkjent beløp avvises, og meldingen sier hva som senkes', () => {
+    it('et lavere godkjent beløp godtas, også når aksepten av fast sum tas tilbake i samme revisjon (MM-U34 punkt 4 og 15, HF-U5)', () => {
       const s = sakMedKrav();
       brev(s, 'vederlag', delvis);
-      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(110000))), 'kontrollsak').toBeNull();
-      const a = s.avvisning('BH', revisjon(s, 'vederlag', beloep(80000)));
-      expect(a?.regel).toBe('SENKER_INNROEMMELSE');
-      expect(a?.melding).toContain(`godkjenner ${kroner(100000)}`);
-      expect(a?.melding).toContain(`til ${kroner(80000)}`);
-    });
-
-    it('meldingen sier etiketten brevet ga beløpet når grunnlaget er avslått (OV-U32, OV-U33, #1199)', () => {
-      const s = sakMedKrav();
-      brev(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'avslaatt' });
-      brev(s, 'vederlag', delvis);
-      const a = s.avvisning('BH', revisjon(s, 'vederlag', beloep(80000)));
-      expect(a?.melding).toContain(`Svaret godkjenner subsidiært ${kroner(100000)}`);
-    });
-
-    it('kontrollsak: med godkjent grunnlag har beløpet ingen etikett i meldingen', () => {
-      const s = sakMedKrav();
-      brev(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'godkjent' });
-      brev(s, 'vederlag', delvis);
-      const a = s.avvisning('BH', revisjon(s, 'vederlag', beloep(80000)));
-      expect(a?.melding).toContain(`Svaret godkjenner ${kroner(100000)}`);
-    });
-
-    it('meldingen sier etiketten brevet ga, også når grunnlaget er godkjent etter brevet (MM-U11, #1199)', () => {
-      const s = sakMedKrav();
-      brev(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'avslaatt' });
-      brev(s, 'vederlag', delvis);
-      s.send(
-        'BH',
-        revisjon(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'godkjent' })
-      );
-      expect(s.u().spor.vederlag.subsidiaer, 'forutsetning: sporet er ikke subsidiært nå').toEqual(
-        []
-      );
-      const a = s.avvisning('BH', revisjon(s, 'vederlag', beloep(80000)));
-      expect(a?.melding).toContain(`Svaret godkjenner subsidiært ${kroner(100000)}`);
-    });
-
-    it('meldingen sier etiketten brevet ga, også når en ny grunnlagsversjon er avslått uten § 32.2 etter brevet (MM-U11, HF-U21, #1199)', () => {
-      const s = sakMedKrav();
-      brev(s, 'grunnlag', { grunnlag_varslet_i_tide: false, resultat: 'avslaatt' });
-      brev(s, 'vederlag', delvis);
-      s.send('TE', {
-        ...GRUNNLAGSKRAV,
-        innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling 2' },
+      godtas(s, revisjon(s, 'vederlag', beloep(80000)));
+      expect(s.u().spor.vederlag.gjeldendeSvar!.utregning).toMatchObject({
+        godkjent_beloep: 80000,
       });
-      brev(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'avslaatt' });
-      expect(s.u().spor.vederlag.subsidiaer, 'forutsetning: ett lag foran sporet nå').toEqual([
-        'avslaatt',
-      ]);
-      const a = s.avvisning('BH', revisjon(s, 'vederlag', beloep(80000)));
-      expect(a?.melding).toContain(`Svaret godkjenner videre subsidiært ${kroner(100000)}`);
+      const k = sakMedKrav();
+      brev(k, 'vederlag', delvis);
+      godtas(
+        k,
+        revisjon(k, 'vederlag', {
+          ...beloep(90000),
+          aksepterer_metode: false,
+          oensket_metode: 'enhetspriser',
+        })
+      );
     });
 
     it('et beløp som står likt, godtas, også når det er det eneste i revisjonen', () => {
@@ -4580,20 +4601,11 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       expect(s.avvist('BH', revisjon(s, 'vederlag', delvis))).toBeNull();
     });
 
-    it('beløpet sammenliknes til hele øre (B-13)', () => {
-      const s = sakMedKrav();
-      brev(s, 'vederlag', beloep(100000.5));
-      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(100000.49)))).toBe(
-        'SENKER_INNROEMMELSE'
-      );
-      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(100000.5))), 'kontrollsak').toBeNull();
-    });
-
-    it('aksepten av beregningsmåten kan ikke tas tilbake, men en aksept kan gis (HF-U14)', () => {
+    it('en revisjon som tar tilbake aksepten av fast sum, godtas, og en aksept kan gis (MM-U34 punkt 15)', () => {
       const s = sakMedKrav();
       brev(s, 'vederlag', delvis);
       const uten = { ...delvis, aksepterer_metode: false, oensket_metode: 'enhetspriser' };
-      expect(s.avvist('BH', revisjon(s, 'vederlag', uten))).toBe('SENKER_INNROEMMELSE');
+      expect(s.avvist('BH', revisjon(s, 'vederlag', uten))).toBeNull();
 
       const kontroll = sakMedKrav();
       brev(kontroll, 'vederlag', uten);
@@ -4601,13 +4613,6 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
         kontroll.avvist('BH', revisjon(kontroll, 'vederlag', delvis)),
         'kontrollsak'
       ).toBeNull();
-    });
-
-    it('sammenliknes med svaret revisjonen erstatter, ikke det første svaret på kravversjonen', () => {
-      const s = sakMedKrav();
-      brev(s, 'vederlag', delvis);
-      s.send('BH', revisjon(s, 'vederlag', beloep(120000)));
-      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(110000)))).toBe('SENKER_INNROEMMELSE');
     });
 
     it('byggherrens ønskede metode kan endres når tilbudet ikke er akseptert (MM-U12)', () => {
@@ -4625,117 +4630,60 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       ).toBeNull();
     });
 
-    it('en blandet revisjon som hever beløpet og tar tilbake aksepten, avvises', () => {
-      const s = sakMedKrav();
-      brev(s, 'vederlag', delvis);
-      expect(
-        s.avvist(
-          'BH',
-          revisjon(s, 'vederlag', {
-            ...beloep(120000),
-            aksepterer_metode: false,
-            oensket_metode: 'enhetspriser',
-          })
-        )
-      ).toBe('SENKER_INNROEMMELSE');
-    });
-
-    describe('subsidiært etter § 34.1.2', () => {
-      const sakISvikt = () => {
-        const s = sak();
-        s.send('TE', {
-          ...GRUNNLAGSKRAV,
-          innhold: {
-            hovedkategori: 'svikt',
-            underkategori: 'grunnforhold',
-            tittel: 'Kvikkleire',
-            ...KLAR_OVER,
-          },
-        });
-        s.send('TE', {
-          type: 'krav',
-          spor: 'vederlag',
-          innhold: { metode: 'tilbud', beloep: 125000 },
-        });
-        return s;
-      };
-
-      it('subsidiært 100 000 kr kan ikke bli prinsipalt 80 000 kr, selv om preklusjonen gis opp', () => {
-        const s = sakISvikt();
-        brev(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false });
-        const a = s.avvisning(
-          'BH',
-          revisjon(s, 'vederlag', { ...beloep(80000), hovedkrav_varslet_i_tide: true })
-        );
-        expect(a?.regel).toBe('SENKER_INNROEMMELSE');
-        expect(a?.melding).toContain(`godkjenner subsidiært ${kroner(100000)}`);
-        expect(
-          s.avvist('BH', revisjon(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: true })),
-          'kontrollsak: prinsipalt 100 000 kr'
-        ).toBeNull();
+    it('subsidiært 100 000 kr kan bli prinsipalt 80 000 kr når preklusjonen gis opp (MM-U34 punkt 4, HF-U5, § 34.1.2)', () => {
+      const s = sak();
+      s.send('TE', {
+        ...GRUNNLAGSKRAV,
+        innhold: {
+          hovedkategori: 'svikt',
+          underkategori: 'grunnforhold',
+          tittel: 'Kvikkleire',
+          ...KLAR_OVER,
+        },
       });
+      s.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: { metode: 'tilbud', beloep: 125000 },
+      });
+      brev(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false });
+      godtas(s, revisjon(s, 'vederlag', { ...beloep(80000), hovedkrav_varslet_i_tide: true }));
     });
   });
 
   describe('fristforlengelsen', () => {
-    it('færre godkjente dager avvises, flere godtas', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', dager);
-      expect(
-        s.avvist('BH', revisjon(s, 'frist', { ...dager, dager: 12 })),
-        'kontrollsak'
-      ).toBeNull();
-      const a = s.avvisning('BH', revisjon(s, 'frist', { ...dager, dager: 8 }));
-      expect(a?.regel).toBe('SENKER_INNROEMMELSE');
-      expect(a?.melding).toContain('godkjenner 10 dager');
-    });
-
-    it('at fremdriften er hindret (§ 33.1), kan ikke tas tilbake', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', dager);
-      expect(s.avvist('BH', revisjon(s, 'frist', { ...dager, vilkar_oppfylt: false }))).toBe(
-        'SENKER_INNROEMMELSE'
-      );
-
-      const kontroll = sakMedKrav();
-      brev(kontroll, 'frist', { ...dager, vilkar_oppfylt: false });
-      expect(kontroll.avvist('BH', revisjon(kontroll, 'frist', dager)), 'kontrollsak').toBeNull();
-    });
-
-    it('dagene byggherren måtte forstå etter § 33.6.1 sammenliknes når begge svar sier «for sent» (VS-U4)', () => {
-      const s = sakMedKrav();
-      const forSent = { ...dager, spesifisert_krav_ok: false, dager_maatte_forstaa: 5 };
-      brev(s, 'frist', forSent);
-      expect(s.avvist('BH', revisjon(s, 'frist', { ...forSent, dager_maatte_forstaa: 3 }))).toBe(
-        'SENKER_INNROEMMELSE'
-      );
-      expect(
-        s.avvist('BH', revisjon(s, 'frist', { ...forSent, dager_maatte_forstaa: 7 })),
-        'kontrollsak'
-      ).toBeNull();
-      expect(
-        s.avvist('BH', revisjon(s, 'frist', dager)),
-        'kravet godtas som spesifisert i tide'
-      ).toBeNull();
-    });
+    it.each([
+      ['færre godkjente dager', dager, { ...dager, dager: 8 }],
+      ['at fremdriften ikke er hindret (§ 33.1)', dager, { ...dager, vilkar_oppfylt: false }],
+      [
+        'færre dager byggherren måtte forstå etter § 33.6.1, når begge svar sier «for sent» (VS-U4)',
+        { ...dager, spesifisert_krav_ok: false, dager_maatte_forstaa: 5 },
+        { ...dager, spesifisert_krav_ok: false, dager_maatte_forstaa: 3 },
+      ],
+    ] as [string, Data, Data][])(
+      'en revisjon med %s godtas (MM-U34 punkt 4, HF-U5)',
+      (_n, foer, etter) => {
+        const s = sakMedKrav();
+        brev(s, 'frist', foer);
+        godtas(s, revisjon(s, 'frist', etter));
+      }
+    );
   });
 
   describe('grunnlaget', () => {
     const forSent = { grunnlag_varslet_i_tide: false };
 
-    it('et grunnlag godkjent subsidiært kan ikke bli avslått eller frafalt (arbeidsvalget 16.10)', () => {
-      const s = sakMedKrav();
-      brev(s, 'grunnlag', { ...forSent, resultat: 'godkjent' });
-      const a = s.avvisning('BH', revisjon(s, 'grunnlag', { ...forSent, resultat: 'avslaatt' }));
-      expect(a?.regel).toBe('SENKER_INNROEMMELSE');
-      expect(a?.melding).toContain('grunnlaget subsidiært godkjent');
-      expect(
-        s.avvist(
-          'BH',
-          revisjon(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'paalegg_frafalt' })
-        )
-      ).toBe('SENKER_INNROEMMELSE');
-    });
+    it.each([
+      ['avslått', { ...forSent, resultat: 'avslaatt' }],
+      ['frafalt', { grunnlag_varslet_i_tide: true, resultat: 'paalegg_frafalt' }],
+    ] as [string, Data][])(
+      'et grunnlag godkjent subsidiært kan revideres til %s (MM-U34 punkt 4 og 7, HF-U5)',
+      (_n, v) => {
+        const s = sakMedKrav();
+        brev(s, 'grunnlag', { ...forSent, resultat: 'godkjent' });
+        godtas(s, revisjon(s, 'grunnlag', v));
+      }
+    );
 
     it('et avslag kan revideres til godkjenning (HF-U5)', () => {
       const s = sakMedKrav();
@@ -4745,7 +4693,7 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       ).toBeNull();
     });
 
-    it('et registrert brev binder ikke, og byggherren kan avslå fra appen (OV-U4)', () => {
+    it('et registrert brev er dokumentasjon, og byggherren kan avslå fra appen (OV-U4)', () => {
       const s = sakMedKrav();
       const u = s.u();
       s.rad('BH', {
@@ -4779,7 +4727,7 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
   });
 
   describe('etter en ny versjon', () => {
-    it('bindingen i vederlaget står etter en ny grunnlagsversjon med samme hjemmel (HF-U21)', () => {
+    it('etter en ny grunnlagsversjon med samme hjemmel revideres svaret på vederlaget, og et lavere beløp godtas (MM-U34 punkt 3, HF-U21)', () => {
       const s = sakMedKrav();
       brev(s, 'grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true });
       brev(s, 'vederlag', delvis);
@@ -4789,10 +4737,9 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       });
       expect(
         s.avvist('BH', nyttSvar(s, 'vederlag', beloep(80000))),
-        'forutsetning: vederlaget er besvart, så byggherren må revidere'
+        'vederlaget er besvart, så byggherren må revidere'
       ).toBe('ALLEREDE_SVART');
-      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(80000)))).toBe('SENKER_INNROEMMELSE');
-      expect(s.avvist('BH', revisjon(s, 'vederlag', delvis)), 'kontrollsak').toBeNull();
+      godtas(s, revisjon(s, 'vederlag', beloep(80000)));
     });
 
     it('etter en ny kravversjon er svaret nytt, og byggherren er fri (HF-U5, HF-U8)', () => {
@@ -4808,11 +4755,12 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
   });
 
   /**
-   * MM-U27: en revisjon i en hendelse som ikke er et registrert brev, og som byggherren ikke
-   * kunne sendt fra appen etter HF-U4 eller HF-U5, gjør saken ikke forstått. Raden er en
-   * kopi av svaret fra appen med ett felt endret.
+   * MM-U27: en rad som ikke er et registrert brev, og som byggherren ikke kunne sendt fra
+   * appen, gjør saken ikke forstått. MM-U34 punkt 4 og 6 opphever sperrene i HF-U5 og HF-U4,
+   * så en revisjon som senker beløpet eller påberoper «for sent» etter «i tide», er forstått.
+   * Raden er en kopi av svaret fra appen med ett felt endret.
    */
-  describe('en rad utenfor kommandoene som bryter bindingen (MM-U27)', () => {
+  describe('en rad utenfor kommandoene som senker eller påberoper «for sent» (MM-U27)', () => {
     /** Revisjonen av det siste svaret, med `endre` brukt på en kopi av det. */
     const kopi = (s: Sak, endre: (svar: Data) => void) => {
       const forrige = (s.journal.at(-1)!.data.svar as Data[])[0];
@@ -4823,50 +4771,27 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       endre(svar);
       return svar;
     };
-    const registrert = { opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-20' }] };
-    const grunner = (s: Sak) => s.u().begrensninger.map((b) => b.grunn);
     /** Beløpet i posten og i utregningen, som har hvert sitt hjem (OV-U31). */
     const beloepet = (kr: number) => (v: Data) => {
       (v.utregning as Data).godkjent_beloep = kr;
       (v.standpunkter as Data[]).find((p) => p.art === 'beloep')!.beloep = kr;
     };
 
-    it('en revisjon som senker det godkjente beløpet, gjør saken ikke forstått (HF-U5)', () => {
+    it('en revisjon som senker det godkjente beløpet, er forstått og gjeldende svar (MM-U34 punkt 4, HF-U5)', () => {
       const s = sakMedKrav();
       brev(s, 'vederlag', delvis);
-      s.rad('BH', {
-        svar: [kopi(s, beloepet(80000))],
-      });
-      expect(s.u().forstaatt).toBe(false);
-      expect(grunner(s)).toEqual([
-        'en revisjon som senker det byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5, MM-U27)',
-      ]);
-    });
-
-    it('en revisjon som hever beløpet, er forstått (kontrollsak, HF-U5)', () => {
-      const s = sakMedKrav();
-      brev(s, 'vederlag', delvis);
-      s.rad('BH', {
-        svar: [kopi(s, beloepet(110000))],
-      });
-      expect(s.u().forstaatt).toBe(true);
-    });
-
-    it('den samme revisjonen i et registrert brev gjør ikke saken uforstått (OV-U4)', () => {
-      const s = sakMedKrav();
-      brev(s, 'vederlag', delvis);
-      s.rad('BH', {
-        svar: [kopi(s, beloepet(80000))],
-        ...registrert,
-      });
-      expect(s.u().forstaatt).toBe(true);
+      const revisjonen = kopi(s, beloepet(80000));
+      s.rad('BH', { svar: [revisjonen] });
+      const u = s.u();
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+      expect(u.spor.vederlag.gjeldendeSvar?.id).toBe(revisjonen.id);
     });
 
     it.each([
       ['varselet etter § 33.4', 'rettidighet'],
       ['spesifiseringen etter § 33.6.1', 'spesifisering'],
     ])(
-      'en revisjon som sier at %s kom for sent, etter at byggherren sa i tide, gjør saken ikke forstått (HF-U4)',
+      'en revisjon som sier at %s kom for sent, etter at byggherren sa i tide, er forstått (MM-U34 punkt 6, HF-U4)',
       (_n, art) => {
         const s = sakMedKrav();
         brev(s, 'frist', dager);
@@ -4880,19 +4805,10 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
             }),
           ],
         });
-        expect(s.u().forstaatt).toBe(false);
-        expect(grunner(s)).toEqual([
-          'et svar som påberoper at det kom for sent, etter at byggherren har sagt at det kom i tide (HF-U4, MM-U27)',
-        ]);
+        const u = s.u();
+        expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
       }
     );
-
-    it('en revisjon som gjentar «i tide», er forstått (kontrollsak, HF-U4)', () => {
-      const s = sakMedKrav();
-      brev(s, 'frist', dager);
-      s.rad('BH', { svar: [kopi(s, () => {})] });
-      expect(s.u().forstaatt).toBe(true);
-    });
   });
 });
 
@@ -5556,7 +5472,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     expect(s.u().spor.vederlag.enighet).toBeNull();
   });
 
-  it('en revisjon som senker posten eller beløpet etter begrensningen, avvises; en som hever, godtas (HF-U5, valg 4)', () => {
+  it('en revisjon som senker posten eller beløpet etter begrensningen, godtas, som en som hever (MM-U34 punkt 4, HF-U5)', () => {
     const s = sakMedPost();
     brevet(
       s,
@@ -5582,10 +5498,8 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
         'BH',
         revisjon({ produktivitet_godkjent_belop: 20000, hovedkrav_godkjent_belop: 110000 }, 120000)
       )
-    ).toBe('SENKER_INNROEMMELSE');
-    expect(s.avvist('BH', revisjon({ produktivitet_begrenset_belop: 5000 }, 105000))).toBe(
-      'SENKER_INNROEMMELSE'
-    );
+    ).toBeNull();
+    expect(s.avvist('BH', revisjon({ produktivitet_begrenset_belop: 5000 }, 105000))).toBeNull();
     expect(s.avvist('BH', revisjon({ produktivitet_begrenset_belop: 20000 }, 120000))).toBeNull();
   });
 
@@ -5987,5 +5901,341 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
       s.avvist('TE', krav({ beloep: 100000.4 })),
       'kontrollsak: 100 000 kr og 40 øre'
     ).toBeNull();
+  });
+});
+
+describe('innsigelsen mot det en registrert enighet omfatter, godtas (MM-U34 punkt 13)', () => {
+  const fristsvar = (s: ReturnType<typeof sak>) =>
+    s.send('BH', {
+      type: 'brev',
+      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+    });
+
+  it('innsigelsen mot fristkravet og svaret partene er enige om ved sammenfall, godtas (MM-U34 punkt 13)', () => {
+    const s = sakMedKrav();
+    fristsvar(s);
+    expect(s.u().spor.frist.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('frist') })).toBeNull();
+    expect(
+      s.avvist('TE', { type: 'innsigelse', gjelder: s.u().spor.frist.gjeldendeSvar!.id })
+    ).toBeNull();
+  });
+
+  it('etter et «i tide» i svaret med enighet godtas både innsigelsen mot varselet og innsigelsen mot kravet (MM-U34 punkt 6 og 13)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    fristsvar(s);
+    s.send('TE', {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-09-28',
+      dokumentasjon: [randomUUID()],
+    });
+    const varsel = s.u().spor.frist.varsler['33.4']!.id;
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('frist') })).toBeNull();
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBeNull();
+  });
+
+  it('innsigelsen mot et grunnlagskrav med registrert enighet ved en endringsordre godtas (MM-U34 punkt 13, EO-U12)', () => {
+    const s = sakMedKrav();
+    const krav = s.krav('grunnlag');
+    s.rad('BH', {
+      svar: [
+        {
+          id: randomUUID(),
+          spor: 'grunnlag',
+          gjelder: krav,
+          standpunkter: [
+            { id: randomUUID(), art: 'rettidighet', gjelder: krav, hjemmel: '32.2', i_tide: true },
+            { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
+          ],
+        },
+      ],
+      opplysninger: [
+        { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
+        { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
+      ],
+    });
+    expect(s.u().spor.grunnlag.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: krav })).toBeNull();
+  });
+});
+
+/**
+ * MM-U34 punkt 9, 11 og 20, EO-U12 og GR-U27: en registrert enighet sperrer ikke en ny
+ * kravversjon eller et nytt svar fram til endringsordren, og endringsordren krever ikke
+ * registrert enighet. Arbeidsvalg 3 i #1376: etter en ny kravversjon er den registrerte
+ * enigheten ikke enighet om det gjeldende kravet.
+ */
+describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-U34)', () => {
+  type Sak = ReturnType<typeof sak>;
+  type Sporet = 'grunnlag' | 'vederlag' | 'frist';
+  const utregnet = (s: Sak, spor: Sporet, v: Data) => {
+    const u = s.u();
+    const krav = gjeldendeKrav(u, spor);
+    return svar(
+      spor,
+      krav.id,
+      v,
+      regnUtSvar(spor, v, { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav }, KJERNE.regler)
+    );
+  };
+  const brev = (s: Sak, spor: Sporet, v: Data) =>
+    s.send('BH', { type: 'brev', svar: [utregnet(s, spor, v)] });
+  const revisjon = (s: Sak, spor: Sporet, v: Data) => ({
+    type: 'revisjon',
+    erstatter: s.u().spor[spor].gjeldendeSvar!.id,
+    svar: utregnet(s, spor, v),
+  });
+  const godta = (s: Sak, spor: Sporet) =>
+    s.send('TE', {
+      type: 'aksept',
+      spor,
+      svar: s.u().spor[spor].gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+  /** 10 av 20 dager, så svaret ikke stemmer med kravet. */
+  const tiDager = { ...FRIST_FULLT[0], dager: 10 };
+  const nyttFristkrav = {
+    type: 'krav',
+    spor: 'frist',
+    innhold: { dager: 15 },
+    utdypning: 'Pelingen tar tre uker lenger.',
+  };
+  const godkjentGrunnlag = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
+
+  /** Fristsvaret godtatt av TE, mens vederlaget står åpent, så kravene ikke er avgjort (OV-U3). */
+  const medGodtattFristsvar = () => {
+    const s = sakMedKrav();
+    brev(s, 'frist', tiDager);
+    godta(s, 'frist');
+    const u = s.u();
+    expect(u.spor.frist.enighet, 'forutsetning: enighet ved aksept').not.toBeNull();
+    expect(kraveneErAvgjort(u), 'forutsetning: kravene er ikke avgjort').toBe(false);
+    return s;
+  };
+  /** Fristsvaret stemmer med kravet, så partene er enige ved sammenfall (GR-U7). */
+  const medSammenfallIFristen = () => {
+    const s = sakMedKrav();
+    brev(s, 'frist', FRIST_FULLT[0]);
+    expect(s.u().spor.frist.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+    return s;
+  };
+
+  it('TE kan sende en ny kravversjon i et spor med enighet ved aksept eller sammenfall, og saken er forstått (MM-U34 punkt 9)', () => {
+    for (const s of [medGodtattFristsvar(), medSammenfallIFristen()]) {
+      expect(s.avvist('TE', nyttFristkrav)).toBeNull();
+      s.send('TE', nyttFristkrav);
+      expect(s.u().forstaatt).toBe(true);
+    }
+  });
+
+  it('TE kan sende en ny grunnlagsversjon når godkjenningen av grunnlaget gir enighet (MM-U34 punkt 9, EO-U12)', () => {
+    const s = sakMedKrav();
+    brev(s, 'grunnlag', godkjentGrunnlag);
+    expect(s.u().spor.grunnlag.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+    expect(s.u().endringsordre, 'forutsetning: godkjenningen er en endringsordre').toBe('ja');
+    expect(
+      s.avvist('TE', {
+        ...GRUNNLAGSKRAV,
+        innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling 2' },
+      })
+    ).toBeNull();
+  });
+
+  it('etter en ny grunnlagsversjon kan TE fortsatt ikke trekke grunnlaget når en godkjenning av det var en endringsordre (EO-U12, KA-U13)', () => {
+    const s = sakMedKrav();
+    brev(s, 'grunnlag', godkjentGrunnlag);
+    const trekk = { type: 'trekk', spor: 'grunnlag' };
+    expect(s.avvist('TE', trekk), 'kontrollsak: sperret før den nye versjonen').toBe(
+      'GRUNNLAG_ER_ENDRINGSORDRE'
+    );
+    s.send('TE', {
+      ...GRUNNLAGSKRAV,
+      innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling 2' },
+    });
+    expect(
+      s.u().spor.grunnlag.gjeldendeSvar,
+      'forutsetning: ingen svar på den nye versjonen'
+    ).toBeNull();
+    expect(s.u().endringsordre).toBe('ja');
+    expect(s.avvist('TE', trekk)).toBe('GRUNNLAG_ER_ENDRINGSORDRE');
+  });
+
+  it('etter en ny kravversjon er enigheten ikke enighet om det gjeldende kravet, sporet venter på svar, og aksepten står i journalen (arbeidsvalg 3 i #1376, MM-U34 punkt 2)', () => {
+    const s = sakMedKrav();
+    brev(s, 'frist', tiDager);
+    const svaret = s.u().spor.frist.gjeldendeSvar!.id;
+    const rad = godta(s, 'frist');
+    const aksept = (rad.data.utsagn as { id: string; art: string }[]).find(
+      (x) => x.art === 'aksept'
+    )!.id;
+    expect(s.u().spor.frist.enighet?.grunnlag.kilde, 'forutsetning').toBe('aksept');
+    s.send('TE', nyttFristkrav);
+    const u = s.u();
+    expect(u.forstaatt).toBe(true);
+    expect(u.spor.frist.enighet).toBeNull();
+    expect(u.spor.frist.gjeldendeSvar).toBeNull();
+    expect(visning(u, GJELDENDE_REGLER).spor.frist.etiketter).toContain('venter_paa_svar');
+    expect(
+      u.spor.frist.svar.map((x) => x.id),
+      'det godtatte svaret står i sporet'
+    ).toContain(svaret);
+    expect(u.elementer[aksept], 'aksepten står i journalen').toBeDefined();
+  });
+
+  it('byggherren kan revidere et svar TE har godtatt, og saken er forstått (MM-U34 punkt 11)', () => {
+    const s = medGodtattFristsvar();
+    const heving = revisjon(s, 'frist', { ...tiDager, dager: 15 });
+    expect(s.avvist('BH', heving)).toBeNull();
+    s.send('BH', heving);
+    expect(s.u().forstaatt).toBe(true);
+  });
+
+  it('byggherren kan revidere et svar som stemmer med kravet (MM-U34 punkt 11)', () => {
+    const s = medSammenfallIFristen();
+    expect(s.avvist('BH', revisjon(s, 'frist', FRIST_FULLT[0]))).toBeNull();
+  });
+
+  it('byggherren kan revidere en godkjenning av grunnlaget som er en endringsordre, og saken er forstått (EO-U12, MM-U34 punkt 11)', () => {
+    const s = sakMedKrav();
+    brev(s, 'grunnlag', godkjentGrunnlag);
+    expect(s.u().endringsordre, 'forutsetning: godkjenningen er en endringsordre').toBe('ja');
+    const ny = revisjon(s, 'grunnlag', godkjentGrunnlag);
+    expect(s.avvist('BH', ny)).toBeNull();
+    s.send('BH', ny);
+    expect(s.u().forstaatt).toBe(true);
+  });
+
+  it('byggherren kan revidere et svar TE har godtatt, også med lavere beløp, og saken er forstått (MM-U34 punkt 4 og 11)', () => {
+    const s = sakMedKrav();
+    const delvis = (beloep: number) => ({
+      hovedkrav_vurdering: 'delvis',
+      hovedkrav_godkjent_belop: beloep,
+      aksepterer_metode: true,
+    });
+    brev(s, 'vederlag', delvis(100000));
+    godta(s, 'vederlag');
+    expect(s.u().spor.vederlag.enighet, 'forutsetning: enighet ved aksept').not.toBeNull();
+    const senking = revisjon(s, 'vederlag', delvis(80000));
+    expect(s.avvist('BH', senking)).toBeNull();
+    s.send('BH', senking);
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.spor.vederlag.svar, 'det godtatte svaret står i sporet (MM-U12)').toHaveLength(2);
+  });
+
+  const avslag = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+  const frafall = { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true };
+  /** Godkjenningen av grunnlaget, som er en endringsordre (GR-U14), og brevet med den. */
+  const medEndringsordre = () => {
+    const s = sakMedKrav();
+    const godkjenningen = brev(s, 'grunnlag', godkjentGrunnlag);
+    expect(s.u().endringsordre, 'forutsetning: godkjenningen er en endringsordre').toBe('ja');
+    return { s, godkjenningen, tekst: laast(godkjenningen)[0] };
+  };
+  const endringsordreIBrevet = 'Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a';
+
+  it.each([
+    ['avslag', avslag],
+    ['frafall', frafall],
+  ])(
+    'etter at byggherren har revidert en godkjenning av grunnlaget som er en endringsordre, til %s, kan TE fortsatt ikke trekke grunnlaget (EO-U12, KA-U13)',
+    (_n, v) => {
+      const trekk = { type: 'trekk', spor: 'grunnlag' };
+      const kontroll = sakMedKrav();
+      brev(kontroll, 'grunnlag', v);
+      expect(kontroll.avvist('TE', trekk), 'kontrollsak: uten godkjenningen').toBeNull();
+      const { s } = medEndringsordre();
+      s.send('BH', revisjon(s, 'grunnlag', v));
+      const u = s.u();
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+      expect(u.endringsordre).toBe('ja');
+      expect(s.avvist('TE', trekk)).toBe('GRUNNLAG_ER_ENDRINGSORDRE');
+    }
+  );
+
+  it('godkjenning som er en endringsordre, revisjon til avslag og TEs aksept av avslaget lukker saken, uten at endringsordren leses som bortfalt, og brevet med godkjenningen sier fortsatt at den er en endringsordre (GR-U27, EO-U12, MM-U12)', () => {
+    const { s, godkjenningen, tekst } = medEndringsordre();
+    expect(tekst).toContain(endringsordreIBrevet);
+    s.send('BH', revisjon(s, 'grunnlag', avslag));
+    godta(s, 'grunnlag');
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.grunnlagAvvist).toBe(true);
+    expect(kanInngaaIEo(u)).toBe(false);
+    expect(u.endringsordre).toBe('ja');
+    const lagret = s.journal.find((r) => r.event_id === godkjenningen.event_id)!;
+    expect(laast(lagret)[0]).toBe(tekst);
+  });
+
+  it('godkjenning som er en endringsordre, revisjon til avslag og en ny grunnlagsversjon fra TE: endringsordren leses ikke som bortfalt, og brevet med godkjenningen står uendret (EO-U12, MM-U12)', () => {
+    const { s, godkjenningen, tekst } = medEndringsordre();
+    s.send('BH', revisjon(s, 'grunnlag', avslag));
+    s.send('TE', {
+      ...GRUNNLAGSKRAV,
+      innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling 2' },
+    });
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.grunnlagAvvist).toBe(false);
+    expect(u.endringsordre).toBe('ja');
+    expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('GRUNNLAG_ER_ENDRINGSORDRE');
+    const lagret = s.journal.find((r) => r.event_id === godkjenningen.event_id)!;
+    expect(laast(lagret)[0]).toBe(tekst);
+    expect(tekst).toContain(endringsordreIBrevet);
+  });
+
+  it('kontrollsak: TE kan fortsatt ikke godta et svar med registrert enighet (GR-U8)', () => {
+    const s = medSammenfallIFristen();
+    expect(
+      s.avvist('TE', {
+        type: 'aksept',
+        spor: 'frist',
+        svar: s.u().spor.frist.gjeldendeSvar!.id,
+        regelversjon: KJERNE.regler.versjon,
+      })
+    ).toBe('ENIGHET_I_SPORET');
+  });
+
+  describe('saken kan inngå i en endringsordre når grunnlaget er sendt (MM-U34 punkt 20, GR-U27, GR-U28)', () => {
+    it('også uten registrert enighet i noe spor, men ikke før grunnlaget er sendt (MM-U34 punkt 20)', () => {
+      const s = sak();
+      expect(kanInngaaIEo(s.u()), 'kontrollsak: grunnlaget er ikke sendt').toBe(false);
+      s.send('TE', GRUNNLAGSKRAV);
+      expect(kanInngaaIEo(s.u())).toBe(true);
+      const u = sakMedKrav().u();
+      expect(['grunnlag', 'vederlag', 'frist'].map((n) => u.spor[n as Sporet].enighet)).toEqual([
+        null,
+        null,
+        null,
+      ]);
+      expect(kanInngaaIEo(u)).toBe(true);
+    });
+
+    it('ikke når TE har godtatt avslaget på grunnlaget (GR-U27, MM-U34 punkt 20)', () => {
+      const s = sakMedKrav();
+      brev(s, 'grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true });
+      expect(kanInngaaIEo(s.u()), 'kontrollsak: avslaget er ikke godtatt').toBe(true);
+      godta(s, 'grunnlag');
+      expect(s.u().grunnlagAvvist, 'forutsetning').toBe(true);
+      expect(kanInngaaIEo(s.u())).toBe(false);
+    });
+
+    it('ikke når TE har trukket grunnlaget (GR-U27, MM-U34 punkt 20)', () => {
+      const s = sakMedKrav();
+      expect(kanInngaaIEo(s.u()), 'kontrollsak').toBe(true);
+      s.send('TE', { type: 'trekk', spor: 'grunnlag' });
+      expect(kanInngaaIEo(s.u())).toBe(false);
+    });
+
+    it('også når byggherren har frafalt pålegget etter § 32.3 c (GR-U28)', () => {
+      const s = sakMedKrav();
+      brev(s, 'grunnlag', { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true });
+      expect(s.u().frafalt, 'forutsetning').toBe(true);
+      expect(kanInngaaIEo(s.u())).toBe(true);
+    });
   });
 });

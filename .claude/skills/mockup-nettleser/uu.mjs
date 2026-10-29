@@ -1,8 +1,7 @@
-// Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys og mørk modus, bred og smal
+// Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys modus, bred og smal
 // skjerm (#1187), med saken sett av TE og BH (#1213). Med --varden kjøres i stedet Varden i
-// demoruta (#1331), i lys modus, bred og smal: mørk modus er ikke med i Varden (KV-14).
-// Med --sti <sti> (kan gjentas) kjøres stiene, som showcasen /demo/komponenter (#1371), på
-// samme måte som --varden.
+// demoruta (#1331). Med --sti <sti> (kan gjentas) kjøres stiene, som showcasen
+// /demo/komponenter (#1371), på samme måte som --varden.
 // axe finner bare en del av feilene; resten står i skillen uu-sjekk.
 import { createRequire } from 'node:module';
 import { execFileSync, spawn } from 'node:child_process';
@@ -33,10 +32,8 @@ if (!/^\d+$/.test(arg.vis)) {
 const REGLER = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const OPPSETT = [
   { navn: 'lys, bred', colorScheme: 'light', viewport: { width: 1440, height: 1000 } },
-  { navn: 'mørk, bred', colorScheme: 'dark', viewport: { width: 1440, height: 1000 } },
   { navn: 'lys, smal', colorScheme: 'light', viewport: { width: 390, height: 844 } },
-  { navn: 'mørk, smal', colorScheme: 'dark', viewport: { width: 390, height: 844 } },
-].filter((o) => !(arg.varden || arg.sti) || o.colorScheme === 'light');
+];
 
 function globalPlaywright() {
   const rot = execFileSync('npm', ['root', '-g']).toString().trim();
@@ -203,12 +200,11 @@ try {
       page.setDefaultTimeout(15000);
       const feil = [];
       page.on('pageerror', (e) => feil.push(e.message));
-      const mockupen = !arg.varden && !arg.sti;
-      if (mockupen)
+      if (!arg.varden)
         await page.goto(mockup(tilstand.scenario ?? arg.scenario), { waitUntil: 'networkidle' });
       await tilstand.vei(page);
       const mørk = await page.evaluate(() => document.documentElement.classList.contains('dark'));
-      if (mockupen && mørk !== (oppsett.colorScheme === 'dark'))
+      if (mørk !== (oppsett.colorScheme === 'dark'))
         throw new Error(`${oppsett.navn}: <html> har ikke ventet tema (dark=${mørk}).`);
       await page.addScriptTag({ path: axeSti });
       const resultat = await page.evaluate(

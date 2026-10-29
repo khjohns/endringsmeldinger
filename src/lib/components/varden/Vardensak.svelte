@@ -30,7 +30,7 @@
     tekst: string[];
     utdypning?: string;
     detteSender: { tekst: string; lag: string | null }[];
-    bindinger: string[];
+    virkninger: string[];
     tittel: string;
     handling: string;
     sendTekst: string;
@@ -120,7 +120,7 @@
             handling={k.handling}
             svarerPaa={k.svarerPaa}
             detteSender={k.detteSender}
-            bindinger={k.bindinger}
+            virkninger={k.virkninger}
             sendTekst={k.sendTekst}
             tilbakeTil={k.tilbakeTil}
             ontilbake={() => (arbeid = k.tilbake)}
@@ -163,7 +163,7 @@
                 detteSender: svaret
                   ? [{ tekst: STILLING.godtarBrev(svaret.nummer), lag: null }]
                   : [],
-                bindinger: [],
+                virkninger: [],
                 tittel: brevtittel({ art: 'aksept', spor: [valgt] }),
                 handling: BREVKONTROLL.sendAksepten,
                 sendTekst: BREVKONTROLL.sendAksepten,

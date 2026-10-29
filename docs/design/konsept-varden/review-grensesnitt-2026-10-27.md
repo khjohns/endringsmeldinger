@@ -1,13 +1,13 @@
 # Review av Varden etter grensesnitt-skillen, 27.10.2026
 
 Kontrollert commit: `565beca` på `claude/konsept-varden` (PR #1329), versjon 3 av
-konseptet. Kildegrunnlaget er [grensesnitt-skillen](../../../.claude/skills/grensesnitt/SKILL.md):
+konseptet. Kildegrunnlaget er [grensesnitt-skillen](https://github.com/khjohns/endringsmeldinger/blob/953aba3/.claude/skills/grensesnitt/SKILL.md):
 hensikten, hierarkiet, «Bruk det som finnes», tilstandene, animasjonen og kontrollene
 før visning. Grunnlaget er de åtte skjermene i [`skjermer/`](skjermer/) og teksten i
 [README](README.md).
 
 Varden er et tenkt konkurrerende produkt med eget visuelt språk. Tokenene i
-`theme.css` og beslutningene i [designsystemet](../system.md) gjelder derfor ikke
+`theme.css` og beslutningene i [designsystemet](https://github.com/khjohns/endringsmeldinger/blob/6d2d895/docs/design/system.md) gjelder derfor ikke
 skissene. Tokentesten er prøvd mot konseptets egne tokens i `:root` i `stil.css`.
 Skissene er statisk HTML uten brukere. Alvorligheten sier hvor mye et funn betyr for
 konseptet, ikke at noe har skjedd.

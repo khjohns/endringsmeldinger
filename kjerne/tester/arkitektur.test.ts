@@ -138,6 +138,30 @@ describe('kjernen er ren kode (B-14)', () => {
   });
 });
 
+const KOMMANDOER = join(KJERNE, 'kommandoer') + sep;
+/** Importene i `fil` fra kommandoene. */
+const kommandoerI = (fil: string, kilde: string) =>
+  importer(fil, kilde).filter((i) => i.startsWith(KOMMANDOER));
+
+// #1354: kommandoene leser utledningen, ikke omvendt.
+describe('utledningen importerer ikke kommandoene (#1354)', () => {
+  it.each(
+    filer
+      .filter((f) => f.startsWith(join(KJERNE, 'utledning') + sep))
+      .map((f) => [relative(KJERNE, f), f] as const)
+  )('%s', (_navn, fil) => {
+    expect(kommandoerI(fil, readFileSync(fil, 'utf8'))).toEqual([]);
+  });
+
+  it.each([
+    ["import { utledJournal } from '../kommandoer/skriving.ts';", 'utledning/buffer.ts'],
+    ["export type { Kommando } from '../kommandoer/kommando';", 'utledning/visning.ts'],
+  ])('oppdager %s i %s', (linje, navn) => {
+    const fil = join(KJERNE, navn);
+    expect(kommandoerI(fil, `${linje}\n${readFileSync(fil, 'utf8')}`)).not.toEqual([]);
+  });
+});
+
 describe('INV-MM-9: reglene leser ikke visningen', () => {
   it('finner reglene', () => {
     expect(regler.map((m) => relative(KJERNE, m))).toEqual(
@@ -301,9 +325,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
-  // OV-U3: grunnlaget og kravene som var sendt da kravene var avgjort, utledet av hvert
-  // prefiks av journalen. Leses bare av sperren for det som var avgjort.
-  ['Utledning', 'predikat', 'avgjorteSpor', ['utledning/utled.ts:varAvgjort']],
   // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U18).
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
@@ -311,6 +332,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
+  ['utledning/utled.ts:kontrollerHenvisningene(elementer)', 'relasjon', '*'],
+  ['utledning/utled.ts:paaberopelser(elementer)', 'relasjon', '*'],
   // MM-U18: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
   [
@@ -325,42 +348,27 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
   ['frosset/standpunkt.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon'],
   ['utledning/utled.ts', 'relasjon', 'foresporselForFristsvar'],
-  // HF-U4, HF-U8: en påberopelse i svaret etter et «i tide» i et svar sendt fra appen,
-  // kontrollert likt i kommandoene og utledningen (#776).
-  ['utledning/utled.ts', 'predikat', 'paaberoptEtterITide', ['kommandoer/nyttelast.ts']],
-  // HF-U4, VS-U24: en innsigelse etter et «i tide», kontrollert likt i kommandoene og
-  // utledningen (#776). Det innsigelsen gjelder, leses av dokumentene i journalen (#536).
-  ['utledning/utled.ts', 'predikat', 'innsigelsenEtterITide', ['kommandoer/nyttelast.ts']],
   [
     'Utledning',
     'utsagn',
     'journal',
     [
-      'utledning/utled.ts:innsigelsenEtterITide',
       'utledning/utled.ts:foresporselForFristsvar',
       'utledning/utled.ts:fristkravErFremmet',
       'utledning/utled.ts:forskyvningIBrevet.plass',
     ],
   ],
-  // OV-U32, MM-U11: lagene grunnlaget opptok foran sporet da brevet ble sendt, i meldingen
-  // om en senket revisjon (svaret i #1199).
-  ['utledning/utled.ts', 'predikat', 'forskyvningIBrevet', ['kommandoer/nyttelast.ts']],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
   ['utledning/utled.ts', 'predikat', 'fristkravErFremmet', ['kommandoer/forutsetninger.ts']],
-  // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
-  ['utledning/utled.ts', 'predikat', 'frafalletBinder', ['kommandoer/nyttelast.ts']],
   // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 i et nytt svar gjelder (#496, #766).
   ['utledning/utled.ts', 'relasjon', 'varseletForNyttSvar', ['kommandoer/standpunkter.ts']],
-  ['Rettidighet', 'utsagn', 'hjemmel gjelder'],
+  ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
+  ['utledning/utled.ts:grunnlaget(svar)', 'relasjon', '*'],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
-  [
-    'utledning/utled.ts',
-    'predikat',
-    'utled kraveneErAvgjort varAvgjort trekkAvGrunnlagetErSperret',
-  ],
+  ['utledning/utled.ts', 'predikat', 'utled utledJournal trekkAvGrunnlagetErSperret'],
   ['utledning/utled.ts', 'relasjon', 'grunnlagskravFor'],
   ['utledning/utled.ts:grunnlagskravFor', 'relasjon', 'grunnlagskrav'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
@@ -398,7 +406,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'grunnerFraGrunnlaget',
-    ['utledning/utled.ts:utledSporene', 'frosset/brevtekst.ts:grunnlagetsStandpunkter'],
+    ['utledning/utled.ts:settSubsidiaer', 'frosset/brevtekst.ts:grunnlagetsStandpunkter'],
   ],
   // OV-U32, OV-U33: lagene grunnlaget opptar foran sporet, som linjen etiketteres med.
   [
@@ -408,25 +416,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:frysSvarene', 'utledning/utled.ts:forskyvningIBrevet'],
   ],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
-  ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utledSporene']],
+  ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:grunnlaget']],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
-  [
-    'frosset/standpunkt.ts',
-    'relasjon',
-    'innsigelsenPaaberoper',
-    [
-      'frosset/brevtekst.ts',
-      'utledning/utled.ts:innsigelsenEtterITide',
-      'utledning/utled.ts:kanStride',
-    ],
-  ],
-  // GR-U22, MM-U18: varslingsplikten for en versjon leses av svaret på en versjon i samme
-  // kategori, slik den ble frosset (#776).
-  ['frosset/standpunkt.ts', 'utsagn', 'sammeKategori', ['utledning/utled.ts']],
+  ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
   // OV-U4: kravene i et registrert brev er dokumentasjon (#787).
   ['frosset/standpunkt.ts', 'relasjon', 'kravetErDokumentasjon', ['utledning/utled.ts']],
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
-  ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
+  [
+    'frosset/standpunkt.ts',
+    'frosset',
+    'sammenfallStemmer',
+    ['utledning/utled.ts:kontrollerSvarene'],
+  ],
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
   ['frosset/standpunkt.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
@@ -612,16 +613,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U5: sporet og bestemmelsen i TEs varsel.
   ['Varselet', 'kommando', 'spor hjemmel'],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
+  // KA-U1, HF-U8: meldingen når aksepten ikke gjelder det gjeldende svaret, lik i
+  // forutsetningene og nyttelastkontrollen.
+  ['kommandoer/forutsetninger.ts', 'brevtekst', 'ELDRE_SVAR', ['kommandoer/nyttelast.ts']],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel'],
   // OV-U32: laget en fryst virkning står i.
-  [
-    'frosset/standpunkt.ts',
-    'frosset',
-    'laget',
-    ['frosset/brevtekst.ts', 'utledning/innroemmelse.ts'],
-  ],
+  ['frosset/standpunkt.ts', 'frosset', 'laget', ['frosset/brevtekst.ts']],
   ['VARSELSPOR', 'relasjon', '33.4 34.1.2 34.1.3'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
@@ -726,11 +725,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
     ['kommandoer/nyttelast.ts:oppgittDatoI'],
   ],
-  // Datoen TE oppgir og det den gjelder, som bare kontrollen mot brevets dato leser.
+  // Datoen parten oppgir, det den gjelder og hvem som oppgir den, som bare kontrollen mot
+  // brevets dato leser.
   [
-    'kommandoer/nyttelast.ts:oppgittDatoI',
+    'OppgittDato',
     'kommando',
-    'dato gjelder',
+    'dato gjelder av',
     ['kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
   ],
   [
@@ -843,14 +843,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/frysing.ts', 'regelsett', 'grunnlagsstandpunkter', ['kommandoer/standpunkter.ts']],
   // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
   ['kommandoer/standpunkter.ts', 'utsagn', 'standpunkter', ['kommandoer/skriving.ts']],
-  // HF-U5, HF-U14: det en revisjon senker av det svaret innrømmer, standpunkt for standpunkt.
-  // MM-U27: utledningen sammenlikner en revisjon utenfor kommandoene på samme måte.
-  [
-    'utledning/innroemmelse.ts',
-    'predikat',
-    'senketInnroemmelse',
-    ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
-  ],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
     'kommandoer/skriving.ts:frysBrev(s)',
@@ -861,7 +853,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/skriving.ts:frysSvarene(s)', 'rad', 'spor', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:frosneSvar(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
-  ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
+  [
+    'format/leser.ts',
+    'rad',
+    'lesJournal',
+    ['kommandoer/skriving.ts', 'utledning/utled.ts:utledJournal'],
+  ],
   [
     'format/leser.ts',
     'rad',
@@ -937,21 +934,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  [
-    'frosset/standpunkt.ts',
-    'brevtekst',
-    'kroner dager',
-    ['frosset/brevtekst.ts', 'utledning/innroemmelse.ts'],
-  ],
-  // #628: meldingen om en senket revisjon sier grunnlagssvaret med ordene i brevet.
-  ['frosset/standpunkt.ts', 'brevtekst', 'GRUNNLAGSSVARET', ['utledning/innroemmelse.ts']],
-  // OV-U32: etiketten brevet bruker for laget, også i meldingen om en senket revisjon.
-  [
-    'frosset/standpunkt.ts',
-    'brevtekst',
-    'etikett',
-    ['frosset/brevtekst.ts', 'utledning/innroemmelse.ts'],
-  ],
+  ['frosset/standpunkt.ts', 'brevtekst', 'kroner dager', ['frosset/brevtekst.ts']],
+  // OV-U32: etiketten brevet bruker for laget.
+  ['frosset/standpunkt.ts', 'brevtekst', 'etikett', ['frosset/brevtekst.ts']],
   [
     'frosset/standpunkt.ts:beslutningslinje',
     'brevtekst',
@@ -1429,7 +1414,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         'Utledning.grunnlagAvvist',
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
-        'utledning/utled.ts.kraveneErAvgjort',
+        'utledning/utled.ts.trekkAvGrunnlagetErSperret',
         'format/leser.ts:standpunkterISvaret(svar).utregning.resultat',
       ])
     );

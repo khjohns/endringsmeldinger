@@ -18,7 +18,7 @@
  * ukjent, er saken ikke forstått, og ingenting utledes (MM-U2, 2.7 regel 1).
  */
 
-import { erRegistrert, sammeSlag } from '../format/leser.ts';
+import { erRegistrert, lesJournal, sammeSlag } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import {
@@ -27,7 +27,6 @@ import {
   grunnerFraGrunnlaget,
   grunnlagetErAvklart,
   lagFraGrunnlaget,
-  innsigelsenPaaberoper,
   foresporselsrelasjon,
   harProduktivitetspost,
   svarPaaForesporsler,
@@ -35,11 +34,9 @@ import {
   type ForesporselOgSvar,
   kravetErDokumentasjon,
   prinsipalt,
-  sammeKategori,
   sammenfallStemmer,
   standpunktet,
 } from '../frosset/standpunkt.ts';
-import { senketInnroemmelse } from './innroemmelse.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -48,7 +45,7 @@ import {
   type Dokument,
   type Domenehendelse,
   type Enighetsgrunnlag,
-  type Hjemmel,
+  type Journalrad,
   type Krav,
   type Kravspor,
   type LestOpplysning,
@@ -62,6 +59,7 @@ import {
   type Varselhjemmel,
   type Vedlegg,
 } from '../typer.ts';
+import type { Kjerne } from '../versjon.ts';
 
 type LestVarsel = Extract<LestUtsagn, { art: 'varsel' }>;
 
@@ -206,32 +204,26 @@ export interface Utledning {
   /**
    * GR-U7: byggherren har godkjent grunnlaget uten virksom preklusjon etter
    * § 32.2, eller frafalt pålegget, etter brevet eller enigheten om det. Venter en ny
-   * grunnlagsversjon på svar etter et frafall som binder, er grunnlaget avklart ved
-   * frafallet (GR-U23).
+   * grunnlagsversjon på svar, og var det siste svaret et frafall, er grunnlaget avklart
+   * ved frafallet (GR-U23).
    */
   grunnlagAvklart: boolean;
   /** SK-01, #213, MM-U13: TE har godtatt et grunnlagssvar som ikke avklarer grunnlaget etter GR-U7. */
   grunnlagAvvist: boolean;
   /**
    * GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. Gjelder
-   * også mens en ny grunnlagsversjon venter på svar etter et frafall som binder (GR-U23).
+   * også mens en ny grunnlagsversjon venter på svar etter et frafall (GR-U23).
    */
   frafalt: boolean;
   /**
-   * Om byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3
-   * første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13): godkjent uten påberopt
-   * preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt fra appen. En
+   * Om byggherren har godkjent grunnlaget i et svar som er en endringsordre etter
+   * § 32.3 første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13): godkjent uten påberopt
+   * preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt fra appen. Det gjelder
+   * også når svaret er erstattet eller kravet har fått en ny versjon (EO-U12). En
    * registrert endringsordre etter OV-U6 er `nei`: opplysningen fra byggherren
    * vises, men gir ingen egen virkning i appen.
    */
   endringsordre: 'ja' | 'nei';
-  /**
-   * OV-U3: grunnlaget og sporene med krav, eller med «ingen krav» (#493), i et prefiks av
-   * journalen der kravene var avgjort.
-   * Sperren for dem står også når TE senere sender det første kravet i et annet spor, så
-   * kravene ikke lenger er avgjort. Tom når kravene aldri har vært avgjort.
-   */
-  avgjorteSpor: Spor[];
   /**
    * OV-U4, OV-U16: brevene registrert som dokumentasjon, også når saken ikke er forstått.
    * Ingen regel leser dem; visningen viser dem.
@@ -283,7 +275,6 @@ function tom(
     grunnlagAvvist: false,
     frafalt: false,
     endringsordre: 'nei',
-    avgjorteSpor: [],
     registrerteBrev: registreringer(journal).brev,
     ikkeVurderteBrev: [],
   };
@@ -363,29 +354,11 @@ function ikkeErstattet(svar: Svar[], kravId: string): Svar[] {
 const ENDRER_UTFALLET = new Set<string>(['aksept', 'trekk', 'ingen_krav', 'varsel']);
 
 /**
- * Dokumentet kan stride mot journalen før det (`foer`): det har et krav, et svar, et utsagn
- * som kan endre utfallet, eller en innsigelse som kan være en påberopelse (HF-U4, MM-U27).
- * Andre innsigelser utleder ikke prefikset på nytt (#776, #400). En innsigelse mot et
- * grunnlagskrav kan bare være det når et grunnlagssvar før den har frosset at § 32.2
- * gjelder (#798). Om svaret binder, og hvilken part som er bundet, avgjør
- * `innsigelsenEtterITide`.
+ * Dokumentet kan stride mot journalen før det: det har et krav, et svar eller et utsagn
+ * som kan endre utfallet. Andre utsagn utleder ikke prefikset på nytt (#400).
  */
-const kanStride = (d: Dokument, foer: readonly Dokument[]): boolean =>
-  d.krav.length > 0 ||
-  d.svar.length > 0 ||
-  d.utsagn.some(
-    (x) =>
-      ENDRER_UTFALLET.has(x.art) ||
-      (x.art === 'innsigelse' &&
-        x.grunn === undefined &&
-        innsigelsenPaaberoper(x.gjelder, foer, () =>
-          foer.some((f) =>
-            f.svar.some(
-              (s) => s.spor === 'grunnlag' && s.beslutningsgrunnlag.varslingsplikt === true
-            )
-          )
-        ) !== null)
-  );
+const kanStride = (d: Dokument): boolean =>
+  d.krav.length > 0 || d.svar.length > 0 || d.utsagn.some((x) => ENDRER_UTFALLET.has(x.art));
 
 interface Strid {
   element: string;
@@ -419,112 +392,79 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
 
 /**
  * MM-U18: elementene i dokumentet som ikke kan forstås i samsvar med journalen før
- * det og vedtakene om enighet og lukking: en ny kravversjon eller en revisjon i et
- * spor med enighet (KA-U7, GR-U10), en ny kravversjon i et trukket spor eller et spor
+ * det og vedtakene om enighet og lukking: en ny kravversjon i et trukket spor eller et spor
  * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor
- * (MM-U20), et avslag av grunnlaget eller en påberopelse etter § 32.2 når frafallet
- * binder (GR-U17, GR-U20), en aksept av et frafall (GR-U9) eller av et svar
- * partene alt er enige om (GR-U8, KA-U7), noe som endrer
- * utfallet for det som var avgjort (OV-U3) eller etter at avslaget av grunnlaget er godtatt
- * (SK-01), og det som viser til et element uten virkning. Kontrollen
- * gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
- * forutsetning senere gjør ikke et eldre brev uforstått. Bindingen etter frafallet er
- * et slikt vedtak og gjelder også et avslag fra appen før PROJEKSJONSVERSJON 20, som
- * journalen ikke skiller fra en rad utenfor kommandoene (B-17, #510).
+ * (MM-U20), en aksept av et frafall (GR-U9) eller av et svar med registrert enighet
+ * (GR-U8), noe som endrer utfallet etter at TE har godtatt avslaget på grunnlaget
+ * (GR-U27), og det som viser til et element uten virkning. Kontrollen gjelder bare disse
+ * vedtakene, ikke vilkårene for å sende, så en strengere forutsetning senere gjør ikke et
+ * eldre brev uforstått.
  */
 function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
-  const ut: Strid[] = [];
-  /** Hvorfor det som kan endre utfallet i sporet avvises; uten spor gjelder det saken. */
-  const lukket = (spor?: Spor): string | null =>
-    u.grunnlagAvvist
-      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'
-      : (spor ? varAvgjort(u, spor) : kraveneErAvgjort(u))
-        ? 'kravene er avgjort (OV-U3)'
-        : null;
   // Et krav havner aldri i `uten`: kravene i et registrert brev er dokumentasjon (OV-U4),
   // og en strid utenfor et registrert brev stopper utledningen. Bare svar og utsagn
   // kontrolleres derfor mot `uten` (#669).
   const utenVirkning = (id: string | null) => id !== null && uten.has(id);
-  const bundet = frafalletBinder(u);
-  for (const k of d.krav) {
-    const l = lukket(k.spor);
-    if (l) ut.push({ element: k.id, grunn: `en kravversjon etter at ${l}` });
-    else if (u.spor[k.spor].trukket)
-      ut.push({ element: k.id, grunn: 'en kravversjon etter at kravet er trukket (GR-U5)' });
-    else if (u.spor[k.spor].ingenKrav)
-      ut.push({ element: k.id, grunn: 'en kravversjon i et spor med «ingen krav» (KA-U12)' });
-    else if (u.spor[k.spor].enighet)
-      ut.push({ element: k.id, grunn: 'en ny kravversjon i et spor med enighet (KA-U7)' });
-  }
-  for (const s of d.svar) {
-    const l = lukket(s.spor);
-    if (l) ut.push({ element: s.id, grunn: `et svar etter at ${l}` });
-    else if (s.erstatter !== null && u.spor[s.spor].enighet)
-      ut.push({
-        element: s.id,
-        grunn: 'en revisjon av et svar partene er enige om (GR-U10, KA-U7)',
-      });
-    else if (utenVirkning(s.erstatter))
-      ut.push({ element: s.id, grunn: 'svaret viser til et element uten virkning' });
-    else if (u.spor[s.spor].trukket)
-      ut.push({
-        element: s.id,
-        grunn: 'et svar på et krav etter at det er trukket (MM-U20, GR-U5)',
-      });
-    else if (
-      bundet &&
-      s.spor === 'grunnlag' &&
-      standpunktet(s, 'grunnlag')?.resultat === 'avslaatt'
-    )
-      ut.push({
-        element: s.id,
-        grunn: 'et avslag av grunnlaget etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
-      });
-    else if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s))
-      ut.push({
-        element: s.id,
-        grunn:
-          'en påberopelse etter § 32.2 etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
-      });
-  }
-  for (const x of d.utsagn) {
-    if (!ENDRER_UTFALLET.has(x.art)) continue;
-    const gjelder = 'gjelder' in x ? x.gjelder : null;
-    /** Sporet med svaret en aksept gjelder. */
-    const sporet =
-      x.art === 'aksept'
-        ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))
-        : undefined;
-    // OV-U3, OV-U5: et varsel og TEs opplysning om varseldato godtas også når kravene er avgjort.
-    const l =
-      x.art === 'varsel'
-        ? u.grunnlagAvvist
-          ? lukket()
-          : null
-        : lukket(
-            x.art === 'trekk'
-              ? SPOR.find((n) => u.spor[n].krav.some((k) => k.id === x.gjelder))
-              : x.art === 'ingen_krav'
-                ? x.spor
-                : sporet
-          );
-    if (l) ut.push({ element: x.id, grunn: `${x.art} etter at ${l}` });
-    else if (utenVirkning(gjelder))
-      ut.push({ element: x.id, grunn: `${x.art} viser til et element uten virkning` });
-    else if (sporet && u.spor[sporet].trukket)
-      ut.push({
-        element: x.id,
-        grunn: 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',
-      });
-    else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)
-      ut.push({ element: x.id, grunn: 'en aksept av et frafall (GR-U9)' });
-    else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)
-      ut.push({
-        element: x.id,
-        grunn: 'en aksept av et svar partene alt er enige om (GR-U8, KA-U7)',
-      });
-  }
-  return ut;
+  const med = (element: string, grunn: string | null): Strid[] =>
+    grunn ? [{ element, grunn }] : [];
+  return [
+    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
+    ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
+    ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
+  ];
+}
+
+/** Hvorfor det som kan endre utfallet, avvises: saken er lukket etter GR-U27. */
+const lukket = (u: Utledning): string | null =>
+  u.grunnlagAvvist
+    ? 'TE har godtatt svaret på grunnlaget, som avslår det eller påberoper preklusjon (GR-U27)'
+    : null;
+
+/** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
+function kravetStrider(k: Krav, u: Utledning): string | null {
+  const l = lukket(u);
+  if (l) return `en kravversjon etter at ${l}`;
+  if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
+  if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';
+  return null;
+}
+
+/** Hvorfor svaret strider mot journalen før det, eller `null`. */
+function svaretStrider(
+  s: Svar,
+  u: Utledning,
+  utenVirkning: (id: string | null) => boolean
+): string | null {
+  const l = lukket(u);
+  if (l) return `et svar etter at ${l}`;
+  if (utenVirkning(s.erstatter)) return 'svaret viser til et element uten virkning';
+  if (u.spor[s.spor].trukket) return 'et svar på et krav etter at det er trukket (MM-U20, GR-U5)';
+  return null;
+}
+
+/** Hvorfor utsagnet strider mot journalen før det, eller `null`. */
+function utsagnetStrider(
+  x: LestUtsagn,
+  u: Utledning,
+  utenVirkning: (id: string | null) => boolean
+): string | null {
+  if (!ENDRER_UTFALLET.has(x.art)) return null;
+  const gjelder = 'gjelder' in x ? x.gjelder : null;
+  /** Sporet med svaret en aksept gjelder. */
+  const sporet =
+    x.art === 'aksept'
+      ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))
+      : undefined;
+  const l = lukket(u);
+  if (l) return `${x.art} etter at ${l}`;
+  if (utenVirkning(gjelder)) return `${x.art} viser til et element uten virkning`;
+  if (sporet && u.spor[sporet].trukket)
+    return 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)';
+  if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)
+    return 'en aksept av et frafall (GR-U9)';
+  if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)
+    return 'en aksept av et svar med registrert enighet (GR-U8)';
+  return null;
 }
 
 /**
@@ -550,42 +490,6 @@ export function forskyvningIBrevet(svar: Svar, u: Utledning): number {
 }
 
 /**
- * MM-U27: elementene i en hendelse som ikke er et registrert brev, og som byggherren ikke
- * kunne sendt fra appen fordi hen er bundet av et svar sendt fra appen: en påberopelse av
- * at et varsel eller krav kom for sent etter at hen har sagt at det kom i tide (HF-U4),
- * og en revisjon som senker det hen har innrømmet i et svar TE ikke har godtatt (HF-U5).
- * Samme kontroller som kommandoene, så journalen henger sammen også utenfor dem.
- */
-function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
-  const ut: Strid[] = [];
-  const sagtITide =
-    'påberoper at det kom for sent, etter at byggherren har sagt at det kom i tide (HF-U4, MM-U27)';
-  for (const s of d.svar) {
-    const paaberopt = paaberoptEtterITide(u, s.spor, s.standpunkter);
-    const forrige = u.spor[s.spor].gjeldendeSvar;
-    if (paaberopt) ut.push({ element: s.id, grunn: `et svar som ${sagtITide}` });
-    else if (
-      s.erstatter !== null &&
-      forrige?.id === s.erstatter &&
-      senketInnroemmelse(forrige, s.standpunkter, forskyvningIBrevet(forrige, u))
-    )
-      ut.push({
-        element: s.id,
-        grunn:
-          'en revisjon som senker det byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5, MM-U27)',
-      });
-  }
-  for (const x of d.utsagn)
-    if (
-      x.art === 'innsigelse' &&
-      x.grunn === undefined &&
-      innsigelsenEtterITide(x.gjelder, d.avsender, u)
-    )
-      ut.push({ element: x.id, grunn: `en innsigelse som ${sagtITide}` });
-  return ut;
-}
-
-/**
  * Utledningen av journalen. Hvert dokument kontrolleres mot journalen før det
  * (MM-U18, `strid`): en strid i en hendelse som ikke er et registrert brev, gjør
  * saken ikke forstått, og i et registrert brev får elementet ingen virkning.
@@ -594,25 +498,15 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const uten = new Map<string, { hendelse: string; grunn: string }>();
   const konflikter: Utledning['begrensninger'] = [];
   const dokumenter: Dokument[] = [];
-  // OV-U3: bare et dokument som kan stride, kan endre om kravene er avgjort, så
-  // prefiksene under og hele journalen ser hver tilstand der de var det.
-  const avgjort = new Set<Spor>();
-  const merkAvgjort = (x: Utledning) => {
-    // Et spor med «ingen krav» regnes som avgjort til «ingen krav» er tatt ut (#493).
-    if (kraveneErAvgjort(x))
-      for (const n of SPOR) if (x.spor[n].krav.length || x.spor[n].ingenKrav) avgjort.add(n);
-    x.avgjorteSpor = SPOR.filter((n) => avgjort.has(n));
-  };
   for (const [i, h] of journal.entries()) {
     if (h.art !== 'dokument') continue;
-    const kan = kanStride(h.dokument, dokumenter);
+    const kan = kanStride(h.dokument);
     dokumenter.push(h.dokument);
     if (!kan) continue;
     // Kontrollen trenger saken slik den var før dokumentet, så prefikset utledes for
     // hvert dokument som kan endre utfallet. Kostnaden er målt i #400.
     const foer = utledSporene(journal.slice(0, i), regler, uten);
     if (!foer.forstaatt) break;
-    merkAvgjort(foer);
     const registrert = erRegistrert(h.dokument.opplysninger);
     const dokumentasjon = dokumentasjonIBrevet(h.dokument);
     const stridene = strid(h.dokument, foer, uten);
@@ -621,18 +515,26 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       else if (!dokumentasjon.has(x.element))
         uten.set(x.element, { hendelse: h.id, grunn: x.grunn });
     }
-    // MM-U27: bare utenfor et registrert brev, og én grunn per element.
-    if (!registrert)
-      for (const x of bryterBindingen(h.dokument, foer))
-        if (!stridene.some((y) => y.element === x.element))
-          konflikter.push({ hendelse: h.id, grunn: x.grunn });
     if (konflikter.length) break;
   }
   const u = utledSporene(journal, regler, uten);
-  merkAvgjort(u);
   const ut = konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
   ut.ikkeVurderteBrev = ikkeVurderte(journal, ut.registrerteBrev, ut.forstaatt);
   return ut;
+}
+
+type Utsagn<A extends LestUtsagn['art']> = Extract<LestUtsagn, { art: A }>;
+type Henvisning = Utsagn<
+  'innsigelse' | 'protest' | 'passivitet' | 'begrunnelse' | 'foresporselssvar'
+>;
+/** Fører en begrensning for elementet `id` etter lesereglene i 4.2. */
+type Ugyldig = (id: string, grunn: string) => void;
+/** `fra` viser til `til` med lavere saksversjon. */
+type Bakover = (fra: string, til: string) => boolean;
+
+/** Utledningen av journalen i lagret form, lest med kjernens leserformat og regelsett. */
+export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
+  return utled(lesJournal(journal, kjerne.leserformat), kjerne.regler);
 }
 
 /**
@@ -649,16 +551,13 @@ function utledSporene(
   /** Hendelsen og saksversjonen hvert element står i. */
   const plass = new Map<string, { hendelse: string; versjon: number }>();
   const elementer: Record<string, Element> = {};
-  const aksepter: Extract<LestUtsagn, { art: 'aksept' }>[] = [];
-  const trekk: Extract<LestUtsagn, { art: 'trekk' }>[] = [];
-  const bestridelser: Extract<LestUtsagn, { art: 'bestridelse' }>[] = [];
-  const ingenKrav: Extract<LestUtsagn, { art: 'ingen_krav' }>[] = [];
-  const varsler: Extract<LestUtsagn, { art: 'varsel' }>[] = [];
-  const henvisninger: Extract<
-    LestUtsagn,
-    { art: 'innsigelse' | 'protest' | 'passivitet' | 'begrunnelse' | 'foresporselssvar' }
-  >[] = [];
-  const foresporsler: Extract<LestUtsagn, { art: 'foresporsel' }>[] = [];
+  const aksepter: Utsagn<'aksept'>[] = [];
+  const trekk: Utsagn<'trekk'>[] = [];
+  const bestridelser: Utsagn<'bestridelse'>[] = [];
+  const ingenKrav: Utsagn<'ingen_krav'>[] = [];
+  const varsler: LestVarsel[] = [];
+  const henvisninger: Henvisning[] = [];
+  const foresporsler: Utsagn<'foresporsel'>[] = [];
   const opplysninger: LestOpplysning[] = [];
   /** Hvert krav i saken, også de uten virkning (MM-U18). */
   const kravMedUten = new Map<string, Krav>();
@@ -672,13 +571,28 @@ function utledSporene(
   const registrer = (id: string, h: { id: string }, part: Part, art: Element['art']) =>
     (elementer[id] = { hendelse: h.id, part, art });
 
-  for (const h of journal) {
-    if (h.art === 'ukjent') {
-      begrensninger.push({ hendelse: h.id, grunn: h.grunn });
-      continue;
+  /** Legger utsagnet med virkning i lista for arten. */
+  const sorter = (u: LestUtsagn) => {
+    switch (u.art) {
+      case 'aksept':
+        return aksepter.push(u);
+      case 'trekk':
+        return trekk.push(u);
+      case 'bestridelse':
+        return bestridelser.push(u);
+      case 'ingen_krav':
+        return ingenKrav.push(u);
+      case 'varsel':
+        return varsler.push(u);
+      case 'foresporsel':
+        return foresporsler.push(u);
+      default:
+        return henvisninger.push(u);
     }
-    plasser(h.id, h);
-    if (h.art === 'sak') continue;
+  };
+
+  /** Plasserer elementene i dokumentet, og leser dem med virkning inn i sporene etter arten. */
+  const lesDokumentet = (h: Extract<Domenehendelse, { art: 'dokument' }>) => {
     const d = h.dokument;
     const dokumentasjon = dokumentasjonIBrevet(d);
     const harVirkning = (id: string) => !uten.has(id) && !dokumentasjon.has(id);
@@ -706,20 +620,22 @@ function utledSporene(
       plasser(u.id, h);
       registrer(u.id, h, d.avsender, u.art);
       if (u.art === 'innsigelse') elementer[u.id].innsigelse = true;
-      if (!harVirkning(u.id)) continue;
-      if (u.art === 'aksept') aksepter.push(u);
-      else if (u.art === 'trekk') trekk.push(u);
-      else if (u.art === 'bestridelse') bestridelser.push(u);
-      else if (u.art === 'ingen_krav') ingenKrav.push(u);
-      else if (u.art === 'varsel') varsler.push(u);
-      else if (u.art === 'foresporsel') foresporsler.push(u);
-      else henvisninger.push(u);
+      if (harVirkning(u.id)) sorter(u);
     }
     for (const o of d.opplysninger) {
       plasser(o.id, h);
       registrer(o.id, h, d.avsender, 'opplysning');
     }
     opplysninger.push(...d.opplysninger);
+  };
+
+  for (const h of journal) {
+    if (h.art === 'ukjent') {
+      begrensninger.push({ hendelse: h.id, grunn: h.grunn });
+      continue;
+    }
+    plasser(h.id, h);
+    if (h.art !== 'sak') lesDokumentet(h);
   }
 
   // Lesereglene i 4.2: hver referanse finnes i saken, har riktig art og spor, og
@@ -728,9 +644,9 @@ function utledSporene(
   const alleSvar = new Map(SPOR.flatMap((n) => spor[n].svar).map((s) => [s.id, s]));
   const alleKrav = new Map(SPOR.flatMap((n) => spor[n].krav).map((k) => [k.id, k]));
   const alleOpplysninger = new Map(opplysninger.map((o) => [o.id, o]));
-  const ugyldig = (id: string, grunn: string) =>
+  const ugyldig: Ugyldig = (id, grunn) =>
     begrensninger.push({ hendelse: plass.get(id)?.hendelse ?? id, grunn });
-  const bakover = (fra: string, til: string) =>
+  const bakover: Bakover = (fra, til) =>
     (plass.get(til)?.versjon ?? Infinity) < (plass.get(fra)?.versjon ?? -Infinity);
   for (const id of dobbelt) ugyldig(id, 'to elementer i saken har samme ID');
   const dokumenter = new Map(
@@ -742,15 +658,73 @@ function utledSporene(
   const avsenderAv = (id: string): Part | undefined =>
     dokumenter.get(plass.get(id)?.hendelse ?? '')?.avsender;
 
+  kontrollerKravkjedene(spor, ugyldig);
+  kontrollerSvarene(alleSvar, alleKrav, spor, varsler, besvart, bakover, ugyldig);
+  kontrollerSvarkjedene(spor, ugyldig);
+  kontrollerAksepter(aksepter, alleSvar, bakover, ugyldig);
+  kontrollerTrekk(trekk, alleKrav, spor, bakover, ugyldig);
+  kontrollerEndringsordrene(opplysninger, dokumenter, ugyldig);
+  kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig);
+  kontrollerForesporslene(foresporsler, fristkravIAppen, henvisninger, bakover, ugyldig);
+  kontrollerBestridelsene(bestridelser, alleOpplysninger, avsenderAv, bakover, ugyldig);
+  kontrollerIngenKrav(ingenKrav, spor, bakover, ugyldig);
+  kontrollerVarslene(varsler, ugyldig);
+
+  begrensninger.push(...registreringer(journal).feil);
+  if (begrensninger.length) return tom(journal, regler, begrensninger);
+
+  fyllSporene(spor, varsler, besvart, trekk, ingenKrav, alleKrav);
+  const svar = svarberegninger(alleSvar, spor);
+  settEnighetene(spor, aksepter, (id) => plass.get(id)!.hendelse);
+  settSubsidiaer(spor, svar);
+  return {
+    ...tom(journal, regler, begrensninger),
+    forstaatt: true,
+    svar,
+    elementer,
+    innsigelser: paaberopelser(henvisninger, elementer, 'innsigelse'),
+    protester: paaberopelser(henvisninger, elementer, 'protest'),
+    passivitet: paaberopelser(henvisninger, elementer, 'passivitet'),
+    utenVirkning: [...uten].map(([element, x]) => ({ element, ...x })),
+    opplysninger: opplysninger.map((o) => ({
+      opplysning: o,
+      bestridelser: bestridelser
+        .filter((b) => b.gjelder === o.id)
+        .map((b) => ({
+          part: avsenderAv(b.id)!,
+          hva: b.hva,
+          hendelse: plass.get(b.id)!.hendelse,
+        })),
+    })),
+    spor,
+    ...grunnlaget(spor, elementer, svar, dokumenter),
+  };
+}
+
+/**
+ * Kravversjonene i hvert spor er én kjede: den første erstatter ingenting, og hver
+ * neste erstatter den forrige (KA-U2).
+ */
+function kontrollerKravkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyldig): void {
   for (const n of SPOR) {
-    // Kravversjonene i sporet er én kjede: den første erstatter ingenting, og hver
-    // neste erstatter den forrige (KA-U2).
     spor[n].krav.forEach((k, i) => {
       const forrige = spor[n].krav[i - 1]?.id ?? null;
       if (k.erstatter !== forrige)
         ugyldig(k.id, 'kravversjonene i sporet er ikke én kjede der hver erstatter den forrige');
     });
   }
+}
+
+/** Hvert svar viser bakover til kravet, svaret det reviderer og grunnlagsversjonen. */
+function kontrollerSvarene(
+  alleSvar: Map<string, Svar>,
+  alleKrav: Map<string, Krav>,
+  spor: Record<Spor, Sporutledning>,
+  varsler: readonly LestVarsel[],
+  besvart: readonly ForesporselOgSvar[],
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
   for (const s of alleSvar.values()) {
     if (alleKrav.get(s.gjelder)?.spor !== s.spor || !bakover(s.id, s.gjelder))
       ugyldig(s.id, 'svaret viser til et krav som ikke står før det i sporet');
@@ -769,38 +743,55 @@ function utledSporene(
     // MM-U18: sammenfallet er appens vurdering av samme brev og må stemme med standpunktene.
     if (!sammenfallStemmer(s))
       ugyldig(s.id, 'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18)');
-    for (const p of s.standpunkter) {
-      // HF-U1, VS-U4: spesifiseringen gjelder kravversjonen svaret gjelder.
-      if (p.art === 'spesifisering' && p.gjelder !== s.gjelder)
-        ugyldig(s.id, 'spesifiseringen viser ikke til kravet svaret gjelder');
-      if (p.art !== 'rettidighet') continue;
-      // VS-U17, VS-U29: rettidigheten av svaret på en forespørsel gjelder kravet eller begrunnelsen som svarte.
-      if (p.hjemmel === '33.6.2') {
-        if (!besvart.some((f) => f.svar === p.gjelder) || !bakover(s.id, p.gjelder))
-          ugyldig(
-            s.id,
-            'påberopelsen etter § 33.6.2 viser ikke til et svar på en forespørsel før svaret'
-          );
-        continue;
-      }
-      if (erVarselhjemmel(p.hjemmel)) {
-        const n = VARSELSPOR[p.hjemmel];
-        const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
-        const krav = kravSomVarsler(p.hjemmel, spor[n].krav);
-        if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)))
-          ugyldig(
-            s.id,
-            `påberopelsen etter § ${p.hjemmel} viser ikke til varselet før svaret eller, uten varsel, det første kravet som varsler`
-          );
-        continue;
-      }
-      // Etter § 32.2 gjelder rettidigheten kravet.
-      if (p.gjelder !== s.gjelder) ugyldig(s.id, 'rettidigheten viser ikke til kravet');
-    }
+    for (const p of s.standpunkter)
+      kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, ugyldig);
   }
-  // Svarene på én kravversjon er én kjede: ett første svar, og hver revisjon
-  // erstatter det forrige. To første svar eller en forgrening gjør det tvetydig
-  // hvilket svar som gjelder.
+}
+
+/** Spesifiseringen og rettidigheten i svaret `s` viser til det de kan gjelde. */
+function kontrollerStandpunktet(
+  s: Svar,
+  p: Standpunkt,
+  spor: Record<Spor, Sporutledning>,
+  varsler: readonly LestVarsel[],
+  besvart: readonly ForesporselOgSvar[],
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
+  // HF-U1, VS-U4: spesifiseringen gjelder kravversjonen svaret gjelder.
+  if (p.art === 'spesifisering' && p.gjelder !== s.gjelder)
+    ugyldig(s.id, 'spesifiseringen viser ikke til kravet svaret gjelder');
+  if (p.art !== 'rettidighet') return;
+  // VS-U17, VS-U29: rettidigheten av svaret på en forespørsel gjelder kravet eller begrunnelsen som svarte.
+  if (p.hjemmel === '33.6.2') {
+    if (!besvart.some((f) => f.svar === p.gjelder) || !bakover(s.id, p.gjelder))
+      ugyldig(
+        s.id,
+        'påberopelsen etter § 33.6.2 viser ikke til et svar på en forespørsel før svaret'
+      );
+    return;
+  }
+  if (erVarselhjemmel(p.hjemmel)) {
+    const n = VARSELSPOR[p.hjemmel];
+    const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
+    const krav = kravSomVarsler(p.hjemmel, spor[n].krav);
+    if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)))
+      ugyldig(
+        s.id,
+        `påberopelsen etter § ${p.hjemmel} viser ikke til varselet før svaret eller, uten varsel, det første kravet som varsler`
+      );
+    return;
+  }
+  // Etter § 32.2 gjelder rettidigheten kravet.
+  if (p.gjelder !== s.gjelder) ugyldig(s.id, 'rettidigheten viser ikke til kravet');
+}
+
+/**
+ * Svarene på én kravversjon er én kjede: ett første svar, og hver revisjon
+ * erstatter det forrige. To første svar eller en forgrening gjør det tvetydig
+ * hvilket svar som gjelder.
+ */
+function kontrollerSvarkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyldig): void {
   for (const n of SPOR) {
     for (const k of spor[n].krav) {
       const paaKravet = spor[n].svar.filter((s) => s.gjelder === k.id);
@@ -820,26 +811,52 @@ function utledSporene(
         );
     }
   }
+}
+
+function kontrollerAksepter(
+  aksepter: readonly Utsagn<'aksept'>[],
+  alleSvar: Map<string, Svar>,
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
   for (const a of aksepter) {
     if (!alleSvar.has(a.gjelder) || !bakover(a.id, a.gjelder))
       ugyldig(a.id, 'aksepten viser til et svar som ikke står før den');
-    // GR-U8: et svar som godkjenner hele kravet, kan ikke godtas. KA-U7: en enighet
-    // inngås én gang, så to aksepter av samme svar er tvetydige.
+    // GR-U8: et svar som godkjenner hele kravet, kan ikke godtas, og to aksepter av samme
+    // svar er tvetydige.
     else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall)
       ugyldig(a.id, 'aksepten gjelder et svar partene alt er enige om ved sammenfall');
     else if (aksepter.filter((x) => x.gjelder === a.gjelder).length > 1)
       ugyldig(a.id, 'svaret er godtatt to ganger');
   }
+}
+
+/** Trekket gjelder sporets gjeldende kravversjon da det ble registrert. */
+function kontrollerTrekk(
+  trekk: readonly Utsagn<'trekk'>[],
+  alleKrav: Map<string, Krav>,
+  spor: Record<Spor, Sporutledning>,
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
   for (const t of trekk) {
-    // Trekket gjelder sporets gjeldende kravversjon da det ble registrert.
     const k = alleKrav.get(t.gjelder);
     const gjeldende = k && spor[k.spor].krav.filter((x) => bakover(t.id, x.id)).at(-1);
     if (!k || gjeldende?.id !== k.id)
       ugyldig(t.id, 'trekket viser ikke til gjeldende kravversjon i sporet');
   }
-  // OV-U13: opplysningen om § 31.3 står bare i brevet med byggherrens endringsordre som svar
-  // på grunnlaget (OV-U6). En senere avklaring og to opplysninger i samme brev avvises av
-  // leseren.
+}
+
+/**
+ * OV-U13: opplysningen om § 31.3 står bare i brevet med byggherrens endringsordre som svar
+ * på grunnlaget (OV-U6). En senere avklaring og to opplysninger i samme brev avvises av
+ * leseren.
+ */
+function kontrollerEndringsordrene(
+  opplysninger: readonly LestOpplysning[],
+  dokumenter: Map<string, Dokument>,
+  ugyldig: Ugyldig
+): void {
   for (const o of opplysninger) {
     if (o.hva !== 'endringsordre') continue;
     const brev = dokumenter.get(o.brev)!;
@@ -849,16 +866,28 @@ function utledSporene(
         'opplysningen om § 31.3 står ikke ved byggherrens endringsordre som svar på grunnlaget (OV-U6, OV-U13)'
       );
   }
-  // § 5 og VS-U12: hvert utsagn som viser til et annet, viser bakover til noe det kan
-  // gjelde. Innsigelsen og protesten gjelder motparten (VS-U1, VS-U14, MP-U6).
-  // Et element uten virkning er bevart og vist (MM-U18), så et utsagn kan vise til det,
-  // med samme krav til art og part.
+}
+
+/**
+ * § 5 og VS-U12: hvert utsagn som viser til et annet, viser bakover til noe det kan
+ * gjelde. Innsigelsen og protesten gjelder motparten (VS-U1, VS-U14, MP-U6).
+ * Et element uten virkning er bevart og vist (MM-U18), så et utsagn kan vise til det,
+ * med samme krav til art og part.
+ */
+function kontrollerHenvisningene(
+  henvisninger: readonly Henvisning[],
+  elementer: Record<string, Element>,
+  kravMedUten: Map<string, Krav>,
+  besvart: readonly ForesporselOgSvar[],
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
   for (const x of henvisninger) {
     const maal = elementer[x.gjelder];
     if (
       !maal ||
       !bakover(x.id, x.gjelder) ||
-      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder)
+      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder, elementer, kravMedUten)
     )
       ugyldig(x.id, `${x.art} viser ikke til noe den kan gjelde før den`);
     // VS-U29: standpunktet om at et svar ikke er et svar etter § 33.6.2 annet ledd gjelder begrunnelsen.
@@ -871,7 +900,41 @@ function utledSporene(
     else if (x.art === 'foresporselssvar' && !besvart.some((f) => f.svar === x.id))
       ugyldig(x.id, 'begrunnelsen svarer på en forespørsel som alt er besvart');
   }
-  // VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen.
+}
+
+/** Det utsagnet kan gjelde, etter arten. */
+function kanGjelde(
+  art: Henvisning['art'],
+  maal: Element,
+  part: Part,
+  id: string,
+  elementer: Record<string, Element>,
+  kravMedUten: Map<string, Krav>
+) {
+  switch (art) {
+    case 'innsigelse':
+      return kanFaaInnsigelse(maal, part);
+    case 'protest':
+      return kanFaaProtest(id, part, elementer);
+    case 'passivitet':
+      return maal.art === 'krav' && kravMedUten.get(id)?.spor === 'grunnlag';
+    case 'begrunnelse':
+      // KA-U34: et svar. Begrunnelsen og svaret er begge fra BH (format/leser.ts).
+      return maal.art === 'svar';
+    case 'foresporselssvar':
+      // VS-U27: en forespørsel fra appen. Forespørselen er fra BH og svaret fra TE (format/leser.ts).
+      return maal.art === 'foresporsel';
+  }
+}
+
+/** VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen. */
+function kontrollerForesporslene(
+  foresporsler: readonly Utsagn<'foresporsel'>[],
+  fristkravIAppen: readonly Krav[],
+  henvisninger: readonly Henvisning[],
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
   for (const f of foresporsler)
     if (fristkravIAppen.some((k) => bakover(f.id, k.id)))
       ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter et fristkrav (VS-U19)');
@@ -879,28 +942,15 @@ function utledSporene(
       ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter TEs begrunnelse (VS-U30)');
     else if (f !== foresporsler[0])
       ugyldig(f.id, 'saken har alt en forespørsel etter § 33.6.2 fra appen (VS-U31)');
-  /** Det utsagnet kan gjelde, etter arten. */
-  function kanGjelde(
-    art: (typeof henvisninger)[number]['art'],
-    maal: Element,
-    part: Part,
-    id: string
-  ) {
-    switch (art) {
-      case 'innsigelse':
-        return kanFaaInnsigelse(maal, part);
-      case 'protest':
-        return kanFaaProtest(id, part, elementer);
-      case 'passivitet':
-        return maal.art === 'krav' && kravMedUten.get(id)?.spor === 'grunnlag';
-      case 'begrunnelse':
-        // KA-U34: et svar. Begrunnelsen og svaret er begge fra BH (format/leser.ts).
-        return maal.art === 'svar';
-      case 'foresporselssvar':
-        // VS-U27: en forespørsel fra appen. Forespørselen er fra BH og svaret fra TE (format/leser.ts).
-        return maal.art === 'foresporsel';
-    }
-  }
+}
+
+function kontrollerBestridelsene(
+  bestridelser: readonly Utsagn<'bestridelse'>[],
+  alleOpplysninger: Map<string, LestOpplysning>,
+  avsenderAv: (id: string) => Part | undefined,
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
   for (const b of bestridelser) {
     const o = alleOpplysninger.get(b.gjelder);
     if (
@@ -915,8 +965,18 @@ function utledSporene(
         'bestridelsen viser ikke til en opplysning av samme slag fra motparten før den'
       );
   }
-  // KA-U12: «ingen krav» står i et spor uten kravversjon, og bare én gang.
-  // KA-U15: grunnlaget må være sendt, som for et krav.
+}
+
+/**
+ * KA-U12: «ingen krav» står i et spor uten kravversjon, og bare én gang.
+ * KA-U15: grunnlaget må være sendt, som for et krav.
+ */
+function kontrollerIngenKrav(
+  ingenKrav: readonly Utsagn<'ingen_krav'>[],
+  spor: Record<Spor, Sporutledning>,
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
   for (const i of ingenKrav)
     if (
       spor[i.spor].krav.length ||
@@ -927,14 +987,24 @@ function utledSporene(
         i.id,
         '«ingen krav» står i et spor med en kravversjon eller et annet «ingen krav», eller før grunnlaget er sendt'
       );
+}
+
+function kontrollerVarslene(varsler: readonly LestVarsel[], ugyldig: Ugyldig): void {
   for (const hjemmel of Object.keys(VARSELSPOR) as Varselhjemmel[]) {
     const andre = varsler.filter((v) => v.hjemmel === hjemmel)[1];
     if (andre) ugyldig(andre.id, `saken har to varsler etter § ${hjemmel} (SK-12)`);
   }
+}
 
-  begrensninger.push(...registreringer(journal).feil);
-  if (begrensninger.length) return tom(journal, regler, begrensninger);
-
+/** Varslene, forespørslene, gjeldende krav og svar, og om sporet er trukket eller uten krav. */
+function fyllSporene(
+  spor: Record<Spor, Sporutledning>,
+  varsler: readonly LestVarsel[],
+  besvart: ForesporselOgSvar[],
+  trekk: readonly Utsagn<'trekk'>[],
+  ingenKrav: readonly Utsagn<'ingen_krav'>[],
+  alleKrav: Map<string, Krav>
+): void {
   for (const v of varsler) spor[VARSELSPOR[v.hjemmel]].varsler[v.hjemmel] = v;
   spor.frist.foresporsler = besvart;
   for (const n of SPOR) {
@@ -947,10 +1017,17 @@ function utledSporene(
     sp.ingenKrav = ingenKrav.some((i) => i.spor === n);
   }
   for (const n of KRAVSPOR) spor[n].trukket ||= spor.grunnlag.trukket;
+}
 
-  // OV-U5, HF-U1: et svar står med virkningen det hadde, også når TE senere har registrert
-  // et annet varsel enn det påberopelsen etter § 33.4, § 34.1.2 eller § 34.1.3 gjaldt. Visningen
-  // sier det.
+/**
+ * OV-U5, HF-U1: et svar står med virkningen det hadde, også når TE senere har registrert
+ * et annet varsel enn det påberopelsen etter § 33.4, § 34.1.2 eller § 34.1.3 gjaldt. Visningen
+ * sier det.
+ */
+function svarberegninger(
+  alleSvar: Map<string, Svar>,
+  spor: Record<Spor, Sporutledning>
+): Record<string, Svarberegning> {
   const annetVarsel = (p: Standpunkt) => {
     if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;
     const varsel = spor[VARSELSPOR[p.hjemmel]].varsler[p.hjemmel];
@@ -964,37 +1041,38 @@ function utledSporene(
       gjaldtEtAnnetVarsel: s.standpunkter.filter(annetVarsel).map((p) => p.id),
     };
   }
+  return svar;
+}
 
-  // Enigheten i hvert spor: en aksept av gjeldende svar, eller sammenfall i svaret.
+/** Enigheten i hvert spor: en aksept av gjeldende svar, eller sammenfall i svaret. */
+function settEnighetene(
+  spor: Record<Spor, Sporutledning>,
+  aksepter: readonly Utsagn<'aksept'>[],
+  hendelsen: (id: string) => string
+): void {
   for (const n of SPOR) {
     const g = spor[n].gjeldendeSvar;
     if (!g) continue;
     const aksept = aksepter.find((a) => a.gjelder === g.id);
     if (aksept)
-      spor[n].enighet = {
-        grunnlag: enighetsgrunnlag(g, 'aksept'),
-        holder: plass.get(aksept.id)!.hendelse,
-      };
+      spor[n].enighet = { grunnlag: enighetsgrunnlag(g, 'aksept'), holder: hendelsen(aksept.id) };
     else if (g.beslutningsgrunnlag.sammenfall)
       spor[n].enighet = { grunnlag: enighetsgrunnlag(g, 'sammenfall'), holder: g.id };
   }
+}
 
+/**
+ * GR-U1, GR-U26, #342: svaret i sporet er subsidiært til gjeldende svar på
+ * grunnlaget. Venter grunnlaget på svar på en ny versjon, forblir det subsidiært
+ * til grunnlagssvaret som sist gjaldt: svaret på den seneste besvarte versjonen i
+ * kravkjeden, fra og med versjonen det ble regnet mot, også når det svaret er
+ * revidert. Relasjonen leses av `grunnlagskrav` og kravkjeden, ikke av rekkefølgen.
+ */
+function settSubsidiaer(
+  spor: Record<Spor, Sporutledning>,
+  svar: Record<string, Svarberegning>
+): void {
   const gSvar = spor.grunnlag.gjeldendeSvar;
-  const eg = spor.grunnlag.enighet;
-  // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). En
-  // registrert endringsordre gir ingen egen virkning (OV-U6).
-  const endringsordre: Utledning['endringsordre'] =
-    gSvar &&
-    blirEndringsordre(gSvar.beslutningsgrunnlag) &&
-    !erRegistrert(dokumenter.get(gSvar.dokument)!.opplysninger)
-      ? 'ja'
-      : 'nei';
-  const gBrev = gSvar ? svar[gSvar.id] : null;
-  // GR-U1, GR-U26, #342: svaret i sporet er subsidiært til gjeldende svar på
-  // grunnlaget. Venter grunnlaget på svar på en ny versjon, forblir det subsidiært
-  // til grunnlagssvaret som sist gjaldt: svaret på den seneste besvarte versjonen i
-  // kravkjeden, fra og med versjonen det ble regnet mot, også når det svaret er
-  // revidert. Relasjonen leses av `grunnlagskrav` og kravkjeden, ikke av rekkefølgen.
   const grunnlagskjede = spor.grunnlag.krav;
   for (const n of KRAVSPOR) {
     const sistBesvart = [...spor[n].krav]
@@ -1015,44 +1093,45 @@ function utledSporene(
       ? grunnerFraGrunnlaget(svar[kilde.id].svar, svar[kilde.id].virkninger)
       : [];
   }
+}
 
-  const paaberopelser = (art: 'innsigelse' | 'protest' | 'passivitet'): Paaberopelse[] =>
-    henvisninger
-      .filter((x) => x.art === art)
-      .map((x) => ({
-        id: x.id,
-        part: elementer[x.id].part,
-        gjelder: x.gjelder,
-        hendelse: elementer[x.id].hendelse,
-      }));
+function paaberopelser(
+  henvisninger: readonly Henvisning[],
+  elementer: Record<string, Element>,
+  art: 'innsigelse' | 'protest' | 'passivitet'
+): Paaberopelse[] {
+  return henvisninger
+    .filter((x) => x.art === art)
+    .map((x) => ({
+      id: x.id,
+      part: elementer[x.id].part,
+      gjelder: x.gjelder,
+      hendelse: elementer[x.id].hendelse,
+    }));
+}
 
-  // GR-U23: venter en ny grunnlagsversjon på svar etter et frafall som binder (GR-U20),
-  // er grunnlaget avklart ved frafallet til byggherren svarer.
+/** Virkningen av svaret på grunnlaget: om grunnlaget er avklart, avvist eller frafalt, og om svaret er en endringsordre. */
+function grunnlaget(
+  spor: Record<Spor, Sporutledning>,
+  elementer: Record<string, Element>,
+  svar: Record<string, Svarberegning>,
+  dokumenter: Map<string, Dokument>
+): Pick<Utledning, 'grunnlagAvklart' | 'grunnlagAvvist' | 'endringsordre' | 'frafalt'> {
+  const gSvar = spor.grunnlag.gjeldendeSvar;
+  const eg = spor.grunnlag.enighet;
+  const gBrev = gSvar ? svar[gSvar.id] : null;
+  // GR-U23: venter en ny grunnlagsversjon på svar etter et frafall, er grunnlaget avklart
+  // ved frafallet til byggherren svarer. Det siste svaret leses, så et frafall byggherren
+  // senere har revidert til avslag, avklarer ikke (MM-U34 punkt 7).
+  const sisteSvar = spor.grunnlag.svar.at(-1);
   const venterEtterFrafall =
     !spor.grunnlag.trukket &&
     gSvar === null &&
     spor.grunnlag.gjeldendeKrav !== null &&
-    frafalletBinder({ spor, elementer });
+    sisteSvar !== undefined &&
+    sendtFraAppen({ elementer }, sisteSvar) &&
+    frafaller(sisteSvar);
   return {
-    ...tom(journal, regler, begrensninger),
-    forstaatt: true,
-    svar,
-    elementer,
-    innsigelser: paaberopelser('innsigelse'),
-    protester: paaberopelser('protest'),
-    passivitet: paaberopelser('passivitet'),
-    utenVirkning: [...uten].map(([element, x]) => ({ element, ...x })),
-    opplysninger: opplysninger.map((o) => ({
-      opplysning: o,
-      bestridelser: bestridelser
-        .filter((b) => b.gjelder === o.id)
-        .map((b) => ({
-          part: avsenderAv(b.id)!,
-          hva: b.hva,
-          hendelse: plass.get(b.id)!.hendelse,
-        })),
-    })),
-    spor,
     // Utledet av standpunktene i brevet om grunnlaget, som også er innholdet i en
     // enighet om det (KA-U10, MM-U11).
     grunnlagAvklart:
@@ -1068,7 +1147,16 @@ function utledSporene(
       !grunnlagetErAvklart(gBrev.svar, gBrev.virkninger),
     // GR-U12: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer det
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
-    endringsordre,
+    // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). En
+    // registrert endringsordre gir ingen egen virkning (OV-U6).
+    // EO-U12: en ny grunnlagsversjon eller et nytt svar tar ikke bort endringsordren.
+    endringsordre: spor.grunnlag.svar.some(
+      (svaret) =>
+        blirEndringsordre(svaret.beslutningsgrunnlag) &&
+        !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)
+    )
+      ? 'ja'
+      : 'nei',
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
     frafalt: venterEtterFrafall || (gSvar !== null && frafaller(gSvar)),
   };
@@ -1076,7 +1164,8 @@ function utledSporene(
 
 /**
  * KA-U13 og KA-U14, med § 31.3 (GR-U13): TE kan ikke trekke grunnlaget når byggherren
- * har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre. Et
+ * har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre, også
+ * etter en ny kravversjon eller et nytt svar (EO-U12). Et
  * trekk ville gitt journalen den videre virkningen at endringsordren leses som bortfalt
  * (KA-U6). En endringsordre byggherren har registrert, sperrer ikke (OV-U6).
  */
@@ -1103,7 +1192,8 @@ export function enighetensVirkning(
  * trukket eller har en virksom enighet. Et spor uten krav hindrer ikke; et varsel er
  * ikke et krav (KA-U2). «Ingen krav» i begge sporene (KA-U12) avgjør kravene til det
  * tas ut (#493). Predikatet leses av utsagnene og relasjonene, ikke av en status:
- * `enighetensVirkning` er selv et predikat av enigheten, grunnlaget og trekkene.
+ * `enighetensVirkning` er selv et predikat av enigheten, grunnlaget og trekkene. Det er
+ * en opplysning i visningen, og ingen regel sperrer etter det (MM-U34 punkt 12).
  */
 export function kraveneErAvgjort(u: Utledning): boolean {
   const sendt = (n: Kravspor) => u.spor[n].krav.length > 0;
@@ -1115,56 +1205,14 @@ export function kraveneErAvgjort(u: Utledning): boolean {
 }
 
 /**
- * OV-U3: sporet hadde krav, eller er grunnlaget, da kravene var avgjort, så det som kan
- * endre utfallet i sporet avvises, også når kravene ikke lenger er avgjort fordi TE har
- * sendt det første kravet i et annet spor.
- */
-export const varAvgjort = (u: Utledning, spor: Spor): boolean => u.avgjorteSpor.includes(spor);
-
-/**
- * EO-U5, EO-U2: saken kan inngå i en endringsordre når kravene er avgjort, ingen av
- * vederlag og frist er et spor TE fortsatt kan sende (EO-U5, arbeidsvalget i #493),
- * grunnlaget er godkjent og ikke frafalt (GR-U3), og minst ett av vederlag og frist
- * har enighet, også et godtatt avslag. Et trukket spor og et spor med «ingen krav»
- * teller som avgjort, men gir ikke alene grunnlag for endringsordre.
+ * MM-U34 punkt 20: byggherren kan la en endringsordre omfatte hele KOE-saken når
+ * grunnlaget er sendt, også uten registrert enighet. Unntatt er en sak som er lukket
+ * etter GR-U27, fordi TE har godtatt avslaget på grunnlaget eller trukket grunnlaget.
+ * Et frafall etter § 32.3 c hindrer ikke (GR-U28). At saken alt er omfattet av en
+ * endringsordre (EO-U3), leses der EO-saken bygges (#1378).
  */
 export function kanInngaaIEo(u: Utledning): boolean {
-  return (
-    kraveneErAvgjort(u) &&
-    KRAVSPOR.every((n) => u.spor[n].krav.length > 0 || u.spor[n].ingenKrav) &&
-    !u.frafalt &&
-    KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)
-  );
-}
-
-/**
- * HF-U4, VS-U24: partens egen innsigelse påberoper at varselet kom for sent etter
- * bestemmelsen, etter at byggherren har sagt i et svar fra appen at det kom i tide. Bare
- * byggherren er bundet av sitt «i tide». Kommandoene og utledningen kontrollerer det her
- * (#776). Om § 32.2 gjelder kategorien i kravet innsigelsen gjelder (VS-U24, GR-U11),
- * leses av varslingsplikten et svar på en versjon i samme kategori har frosset (GR-U12),
- * ikke av dagens regelsett, så et nytt regelsett gjør ikke en innsigelse kommandoen
- * godtok, uforstått (MM-U18, #776). Bindingen leses for hele sporet av `harSagtITide`,
- * så byggherrens «i tide» binder også en versjon i en annen underkategori (HF-U8,
- * arbeidsvalget i #798).
- */
-export function innsigelsenEtterITide(gjelder: string, part: Part, u: Utledning): Hjemmel | null {
-  if (part !== 'BH') return null;
-  const hjemmel = innsigelsenPaaberoper(gjelder, dokumenterI(u.journal), (krav) =>
-    u.spor.grunnlag.svar.some((s) => {
-      const besvart = u.spor.grunnlag.krav.find((k) => k.id === s.gjelder);
-      return (
-        s.beslutningsgrunnlag.varslingsplikt === true &&
-        besvart !== undefined &&
-        sammeKategori(besvart, krav)
-      );
-    })
-  );
-  if (hjemmel === '33.6.2') return harSagtITide(u, 'frist', { hjemmel, gjelder }) ? hjemmel : null;
-  return hjemmel &&
-    harSagtITide(u, hjemmel === '32.2' ? 'grunnlag' : VARSELSPOR[hjemmel], { hjemmel })
-    ? hjemmel
-    : null;
+  return u.spor.grunnlag.gjeldendeKrav !== null && !u.grunnlagAvvist && !u.spor.grunnlag.trukket;
 }
 
 /**
@@ -1202,61 +1250,6 @@ function* dokumenterI(journal: readonly Domenehendelse[]): Generator<Dokument> {
   for (const h of journal) if (h.art === 'dokument') yield h.dokument;
 }
 
-/** En påberopelse av at varselet kom for sent, eller at kravet ble spesifisert for sent. */
-export type Rettidighet =
-  | { hjemmel: Exclude<Hjemmel, '33.6.2'> }
-  | { hjemmel: '33.6.1' | '33.6.2'; gjelder: string };
-
-/**
- * HF-U4, HF-U8: påberopelsen i standpunktene av at varselet kom for sent, eller at
- * kravversjonen ble spesifisert for sent, etter at byggherren har sagt det motsatte
- * (`harSagtITide`), eller `undefined`. Kommandoene leser standpunktene slik brevet ville
- * lagret dem, og utledningen slik de er lagret (#776).
- */
-export const paaberoptEtterITide = (
-  u: Utledning,
-  spor: Spor,
-  standpunkter: readonly Standpunkt[]
-): Rettidighet | undefined =>
-  standpunkter
-    .flatMap((p): Rettidighet[] =>
-      p.art === 'rettidighet' && !p.iTide
-        ? [
-            p.hjemmel === '33.6.2'
-              ? { hjemmel: p.hjemmel, gjelder: p.gjelder }
-              : { hjemmel: p.hjemmel },
-          ]
-        : p.art === 'spesifisering' && !p.iTide
-          ? [{ hjemmel: '33.6.1', gjelder: p.gjelder }]
-          : []
-    )
-    .find((r) => harSagtITide(u, spor, r));
-
-/**
- * HF-U4, HF-U8: byggherren har i et svar sendt fra appen uttrykkelig sagt at varselet
- * kom i tide etter bestemmelsen, eller at kravversjonen ble spesifisert i tide etter
- * § 33.6.1, og kan ikke senere påberope det motsatte. Svaret binder også når det er
- * revidert eller gjaldt en tidligere kravversjon, fordi et «i tide» ikke faller bort med
- * svaret (HF-U8). Etter § 33.4 finnes ett varsel i saken, også når TE senere registrerer
- * et tidligere sendt varsel (oppdragsgiver 15.10, #498). Spesifiseringen gjelder
- * kravversjonen (HF-U1). Et registrert brev binder ikke (OV-U4, HF-U4), heller ikke
- * byggherrens endringsordre etter OV-U6, som kan si at varselet etter § 32.2 kom i tide.
- */
-export function harSagtITide(u: Utledning, spor: Spor, r: Rettidighet): boolean {
-  return u.spor[spor].svar.some(
-    (s) =>
-      binder(u, s) &&
-      s.standpunkter.some((p) =>
-        'gjelder' in r
-          ? (p.art === 'spesifisering' || p.art === 'rettidighet') &&
-            p.hjemmel === r.hjemmel &&
-            p.gjelder === r.gjelder &&
-            p.iTide
-          : p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide
-      )
-  );
-}
-
 /**
  * GR-U3, GR-U9: svaret frafaller pålegget etter § 32.3 c, og frafallet er svarets
  * prinsipale standpunkt. Kommandoene avviser et frafall sammen med en påberopelse
@@ -1267,26 +1260,11 @@ const frafaller = (s: Svar): boolean =>
   prinsipalt(s.beslutningsgrunnlag.virkninger)?.art === 'grunnlag' &&
   standpunktet(s, 'grunnlag')?.resultat === 'paalegg_frafalt';
 
-/** Svaret påberoper at varselet etter § 32.2 kom for sent. */
-const paaberoperVarselet = (s: Pick<Svar, 'standpunkter'>): boolean =>
-  s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2' && !p.iTide);
-
 /**
- * GR-U17, GR-U20: byggherren har i et svar sendt fra appen frafalt pålegget (§ 32.3 c)
- * og er bundet av løftet om endringsordre, så svaret på gjeldende grunnlagsversjon kan
- * ikke være et avslag eller en påberopelse etter § 32.2. Frafallet står også når svaret
- * er revidert, og når TE har sendt en ny grunnlagsversjon (GR-U20). Et registrert svar
- * binder ikke (`binder`).
+ * OV-U4, OV-U6: et registrert svar er dokumentasjon, og et registrert svar med virkning er
+ * byggherrens endringsordre, ikke et frafall fra appen (GR-U23).
  */
-export const frafalletBinder = (u: Pick<Utledning, 'spor' | 'elementer'>): boolean =>
-  u.spor.grunnlag.svar.some((s) => binder(u, s) && frafaller(s));
-
-/**
- * OV-U4, HF-U4: et svar binder byggherren bare når det er sendt fra appen. Et registrert
- * svar med virkning er byggherrens endringsordre etter OV-U6, og den binder heller ikke
- * (#776).
- */
-const binder = (u: Pick<Utledning, 'elementer'>, s: Svar): boolean =>
+const sendtFraAppen = (u: Pick<Utledning, 'elementer'>, s: Svar): boolean =>
   !u.elementer[s.dokument]?.registrertBrev;
 
 /**
@@ -1304,23 +1282,20 @@ export function grunnlagskravFor(
 }
 
 /**
- * SK-01, OV-U3: TE har godtatt avslaget av grunnlaget, eller sporet var avgjort, så et svar
- * eller en aksept i sporet avvises (`strid`). Et trukket grunnlag lukker hvert spor
- * gjennom `trukket` (GR-U5).
+ * GR-U27: TE har godtatt avslaget på grunnlaget, så saken er lukket, og et svar eller en
+ * aksept i sporet avvises (`strid`). Et trukket grunnlag lukker hvert spor gjennom
+ * `trukket` (GR-U5).
  */
-export const sporetErLukket = (u: Utledning, spor: Spor): boolean =>
-  u.grunnlagAvvist || varAvgjort(u, spor);
+export const sporetErLukket = (u: Utledning): boolean => u.grunnlagAvvist;
 
 /**
- * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og sporet er
- * ikke lukket, så et svar ville blitt godtatt (GR-U24, OV-U3, SK-01). En ny
- * grunnlagsversjon etter et frafall venter på svar (GR-U23).
+ * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og saken er
+ * ikke lukket, så et svar ville blitt godtatt (GR-U27). En ny grunnlagsversjon etter et
+ * frafall venter på svar (GR-U23).
  */
 export function venterPaaSvar(u: Utledning, spor: Spor): boolean {
   const s = u.spor[spor];
-  return (
-    s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket && !sporetErLukket(u, spor)
-  );
+  return s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket && !sporetErLukket(u);
 }
 
 /**
@@ -1335,7 +1310,7 @@ export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
     s.gjeldendeSvar !== null &&
     s.enighet === null &&
     !s.trukket &&
-    !sporetErLukket(u, spor) &&
+    !sporetErLukket(u) &&
     !(spor === 'grunnlag' && u.frafalt)
   );
 }

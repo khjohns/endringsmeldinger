@@ -99,6 +99,18 @@ oppdragsgiver.
   (#424). Påstander om koden i
   spørsmålene kontrolleres av en subagent. En økt ser bare det den har lett
   etter.
+- **Ett spørsmål, én beslutning.** Alternativene svarer på samme spørsmål. Blander et
+  spørsmål det som følger av et vedtak med et nytt produktvalg, deles det: det som følger
+  av vedtaket, skrives som avgrensning med vedtaket som belegg, og det nye valget blir et
+  eget spørsmål, gjerne utenfor oppgaven. I BF-03 blandet ett spørsmål hva TEs protest gjør
+  med tilbudet i svaret, og om TE skal kunne foreslå å avtale beløpet for seg (#1336).
+- **En virkning gjengis med alle vilkårene.** Sier et alternativ, en anbefaling eller en
+  tekst i en skisse hvor lenge noe binder eller gjelder, tas hvert vilkår i vedtaket med,
+  også de som ikke virker aktuelle i saken. I BF-03 manglet akseptfristen i HF-U5, og
+  prototypen lovet at tilbudet sto til TE handlet (#1336).
+- **Skill belegg fra antakelse i anbefalingen.** Bygger en anbefaling på hva brukere
+  gjør eller trenger, som «den vanligste veien», sier den at det er en antakelse, eller
+  viser til prøven som fant det (#1336).
 - **Prøv hvert alternativ mot vedtakene i vedtaksfila, én gang, når spørsmålet
   stilles.** Det er skjønn og ingen vakttest ser det. En subagent gjør det, med
   kildene: strider alternativet mot et vedtak, og stemmer forholdet
@@ -141,6 +153,12 @@ skriver ikke der.
   postene, hver endret `folge` i en importert post og hver ny eller endret
   tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,
   beskrivelser av dagens atferd uten belegg, og arbeidsstatus.
+- **Berørte forløp.** Føres et vedtak, kontrolleres [dekning.md](../../../docs/domenetabell/brukerforlop/dekning.md)
+  og bestillingene (`BF-xx.md`) mot vedtak-ID-en: viser et forløp til vedtaket, eller
+  burde det gjøre det? De berørte forløpene nevnes i vedtaks-PR-en.
+- **Berørt kode.** Oppheves, endres eller snevres et vedtak inn, sier oppdraget til
+  byggeøkta at koden for den gamle regelen fjernes, slik
+  [leveranseskillen](../leveranse/SKILL.md#under-implementering) sier.
 - Byggestatus føres ikke i `folge`. Den lages av `docs/verktoy/byggestatus.py`
   av koden og issuene (oppdragsgiver 20.10, #1021), og vakttesten melder ny
   byggestatus i Følge. `folge` kan nevne issuet som bygger vedtaket, «Bygges i

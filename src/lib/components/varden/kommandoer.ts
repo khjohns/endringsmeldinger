@@ -12,6 +12,7 @@ import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import type { Spor } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
+import { lesKroner } from '$lib/utils/belop';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -21,7 +22,8 @@ export interface Svarvalg {
   metode: boolean | null;
   oensket: 'enhetspriser' | 'regningsarbeid' | null;
   beloep: Beloepsvalg | null;
-  delbeloep: number | null;
+  /** Teksten BH skrev i beløpsfeltet, lest med `lesKroner` (OV-U58). */
+  delbeloep: string;
   begrunnelse: string;
 }
 
@@ -30,7 +32,7 @@ export const tomtSvar = (): Svarvalg => ({
   metode: null,
   oensket: null,
   beloep: null,
-  delbeloep: null,
+  delbeloep: '',
   begrunnelse: '',
 });
 
@@ -38,6 +40,11 @@ const VURDERING: Record<Beloepsvalg, string> = {
   hele: 'godkjent',
   deler: 'delvis',
   ingenting: 'avslaatt',
+};
+
+const kroner = (tekst: string) => {
+  const lest = lesKroner(tekst);
+  return 'verdi' in lest ? lest.verdi : undefined;
 };
 
 function vurderingene(v: Svarvalg, krevd: number): Svarvurdering {
@@ -49,7 +56,7 @@ function vurderingene(v: Svarvalg, krevd: number): Svarvurdering {
         : v.beloep === 'ingenting'
           ? 0
           : v.beloep === 'deler'
-            ? (v.delbeloep ?? undefined)
+            ? kroner(v.delbeloep)
             : undefined,
     hovedkrav_varslet_i_tide: v.iTide ?? undefined,
     aksepterer_metode: v.metode ?? undefined,

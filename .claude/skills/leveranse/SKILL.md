@@ -31,6 +31,9 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   atferd. En eldre PR-beskrivelse veier ikke tyngre enn et nyere vedtak.
 - Les `.claude/rules/tester.md` **før** akseptkriteriene skrives, også om ingen
   testfil er åpnet ennå. Regelen lastes ellers først når en testfil åpnes.
+- Viser issuet til en bestilling fra designsløyfa, er bestillingen akseptkriteriene, og
+  et avvik fra den vises som uferdig arbeid eller et nytt valg
+  ([brukerforlop](../brukerforlop/SKILL.md#overgangen-til-bygging)).
 - Skriv konkrete akseptkriterier i det eksisterende issuet. En liten oppgave uten
   issue får dem i arbeidsplanen, og de tas med i PR-beskrivelsen. Hvert kriterium
   beskriver input eller forløp, forventet resultat eller avvisning, kilden til
@@ -48,8 +51,8 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   annerledes og hva som utelates, med vedtaket eller issuet som grunn. Reglene
   hentes fra kjernen og prøves mot vedtakene og bevis-sakene, ikke mot den gamle
   koden.
-- Endrer oppgaven visningen, følg [grensesnitt-skillen](../grensesnitt/SKILL.md) og
-  [systemfila](../../../docs/design/system.md). Ryddingen og reviewet av visningen
+- Endrer oppgaven visningen, følg [interface-design-skillen](../interface-design/SKILL.md) og
+  [systemfila](../../../.interface-design/system.md). Ryddingen og reviewet av visningen
   står i `AGENTS.md`, «Arbeidsform».
 - Avklar bare uavklart tiltenkt atferd med oppdragsgiver. Tekniske valg innenfor
   oppgaven avgjør du selv. En uløst domenebeslutning blokkerer bare den
@@ -79,6 +82,15 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   tar over, ikke med Python-radene; B-17). Midlertidig
   dobbeltkode eller adapter får et koblet issue med ansvarlig, berørte filer og et
   observerbart fjerningskriterium. «Ryddes senere» holder ikke.
+- Oppheves, endres eller snevres et vedtak inn, fjernes koden som bare fantes for
+  den gamle regelen: grenen, feilkoden, meldingen, hjelpefunksjonen, feltet i
+  `LESBART`, testene og bevis-sakene som bare beviser den, og radene i
+  domenetabellen. Bevisene for det som fortsatt gjelder, beholdes. Vakten for
+  vedtakshenvisninger finner bare en ID til et opphevet vedtak, ikke kode uten ID
+  og ikke et vedtak som er endret. Søk derfor etter atferden, koden og tekstene,
+  og skriv i PR-en hvilke søk du gjorde og hva som ble fjernet. Synlig tekst og
+  rester utenfor oppdraget føres i issuet som eier dem. Python-stien ryddes etter
+  DL-U2 (oppdragsgiver 28.10, #1338).
 
 ## Vedlikeholds- og driftsverktøy
 
@@ -102,7 +114,11 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 - Prøv akseptkriteriene mot forventninger fra et vedtak eller en annen uttrykkelig
   kilde, etter `.claude/rules/tester.md`. Der dagens atferd er en kjent feil, er
   likhet mellom gammel og ny kode ikke fasit. Utløser endringen feilinnføring:
-  vis at de representative testene oppdager relevante feil.
+  vis at de representative testene oppdager relevante feil. For kjernen er beviset
+  CI-kjøringen med etiketten `feilinnfoering`; en skyøkt kjører ikke hele samlingen
+  lokalt (oppdragsgiver 28.10). For serveren er beviset den målrettede lokale
+  kjøringen med ID-ene etter stien, mot en kopi av arbeidstreet; CI kjører bare
+  `--ankre` der (oppdragsgiver 28.10).
 - Ved endret domeneregel eller kontrakt: prøv de berørte inngangene, også vanlig
   innsending, batch og godkjenning der de bruker regelen. Ved endret
   hendelsesdata eller serialisering: prøv faktisk lagring og gjenlesing. Vurder

@@ -1,0 +1,101 @@
+{
+  "id": "BF-03",
+  "tittel": "TE er uenig i svaret og fastholder at varselet kom i tide",
+  "brukerhistorie": "TE har fått BHs svar, der BH prinsipalt gjør gjeldende at varselet kom for sent og subsidiært godtar et beløp. TE er uenig, ser hva hver vei videre gjør med svaret, protesterer mot påberopelsen uten å miste muligheten til senere å godta svaret.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Samme sak som BF-01 ved kontrollpunktet te-har-mottatt-svaret."
+  },
+  "bestilling": "BF-03.md",
+  "prototype": {
+    "fil": "../../design/prototyper/bf-03-uenig.html",
+    "klikkstier": [
+      {
+        "id": "protest",
+        "dekker": ["1", "2", "3a", "3b", "4"],
+        "start": "mottatt",
+        "handlinger": [
+          { "staar": "Ta stilling til svaret i brev 5" },
+          { "staar": "hvis varselet kom i tide" },
+          { "klikk": "Protester: varselet kom i tide", "tilstand": "protest" },
+          { "fyll": "Hvorfor kom varselet i tide?", "tekst": "Varselet ble sendt samme dag som tegningene kom." },
+          { "klikk": "Se brevet", "tilstand": "protest-brev" },
+          { "staar": "Varselet ble sendt samme dag som tegningene kom." },
+          { "klikk": "Send til BH", "tilstand": "protest-brev" },
+          { "kryss": "Jeg har kontrollert brevet." },
+          { "klikk": "Send til BH", "tilstand": "protest-sendt" },
+          { "staar": "Svaret i brev 5 står, også de 60 000 kr subsidiært" },
+          { "staar": "Du har protestert i brev 6: varselet kom i tide." }
+        ]
+      },
+      {
+        "id": "ny-versjon",
+        "dekker": ["5"],
+        "start": "mottatt",
+        "handlinger": [
+          { "klikk": "Send ny versjon av kravet", "tilstand": "ny-versjon" },
+          { "staar": "Du avslår tilbudet i svaret i brev 5" },
+          { "klikk": "Se brevet", "tilstand": "ny-versjon-brev" },
+          { "klikk": "Tilbake", "tilstand": "ny-versjon" },
+          { "klikk": "Tilbake", "tilstand": "mottatt" }
+        ]
+      },
+      {
+        "id": "godta",
+        "dekker": ["6", "7", "G-5"],
+        "start": "mottatt",
+        "handlinger": [
+          { "klikk": "Godta svaret", "tilstand": "godta" },
+          { "staar": "Dere blir enige om 0 kr" },
+          { "klikk": "Send aksepten", "tilstand": "godtatt" },
+          { "staar": "Enighet: 0 kr" },
+          { "klikk": "Protester: varselet kom i tide", "tilstand": "protest-avvist" },
+          { "staar": "Påberopelsen av for sen varsling i brev 5 inngår i enigheten." },
+          { "staar": "Enighet: 0 kr" },
+          { "klikk": "Tilbake", "tilstand": "godtatt" },
+          { "staar": "Enighet: 0 kr" }
+        ]
+      },
+      {
+        "id": "godta-etter-protest",
+        "dekker": ["4", "6", "7", "G-5"],
+        "start": "mottatt",
+        "handlinger": [
+          { "klikk": "Protester: varselet kom i tide", "tilstand": "protest" },
+          { "klikk": "Se brevet", "tilstand": "protest-brev" },
+          { "kryss": "Jeg har kontrollert brevet." },
+          { "klikk": "Send til BH", "tilstand": "protest-sendt" },
+          { "klikk": "Godta svaret likevel", "tilstand": "godta" },
+          { "staar": "Du godtar nå også påberopelsen du protesterte mot i brev 6." },
+          { "klikk": "Send aksepten", "tilstand": "godtatt" },
+          { "staar": "Protesten i brev 6 står i saken, men er ikke et forbehold i aksepten." },
+          { "klikk": "Protester: varselet kom i tide", "tilstand": "protest-avvist" },
+          { "staar": "Enighet: 0 kr" },
+          { "staar": "Protesten i brev 6 står i saken, men er ikke et forbehold i aksepten." }
+        ]
+      }
+    ]
+  },
+  "kilder": ["KA-U1", "HF-U9", "VS-U1", "VS-U9", "LV-U4", "HF-U5", "HF-U18", "OV-U54", "HF-U8", "OV-U7", "OV-U64", "KA-U7", "KA-U10", "KA-U29", "HF-U1", "VS-U3", "MM-U3", "OV-U4", "OV-U65", "OV-U66"],
+  "venter_paa": ["#1336", "#276"],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-10-27",
+      "grunnlag": "#1336",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen og prototypen."
+    },
+    {
+      "dato": "2026-10-27",
+      "grunnlag": "#1346",
+      "hva": "Vedtakene bestillingen viser til, står i kildene: HF-U1, KA-U7, KA-U10, KA-U29, MM-U3, OV-U4, OV-U64 og VS-U3."
+    },
+    {
+      "dato": "2026-10-28",
+      "grunnlag": "#1336",
+      "hva": "Bestillingen og prototypen, versjon 3, viser til OV-U65 og OV-U66, som står i kildene."
+    }
+  ]
+}
