@@ -6,6 +6,7 @@
   import { page } from '$app/state';
   import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
   import Vardensak from '$lib/components/varden/Vardensak.svelte';
+  import { SAKEN } from '$lib/components/varden/prototypetekst';
   import { DEMOPROSJEKT } from '$lib/kjernesak/demosak';
   import type { WorkspaceView } from '$lib/kontraktsbord/viewState';
   import { TILSTANDER, aapneSak } from '../kjernesaker';
@@ -33,5 +34,5 @@
     onnewcase={() => {}}
   />
 {:else}
-  <p role="status">{kjernesak.feil ?? 'Laster saken …'}</p>
+  <p role="status">{kjernesak.feil ?? SAKEN.laster}</p>
 {/if}

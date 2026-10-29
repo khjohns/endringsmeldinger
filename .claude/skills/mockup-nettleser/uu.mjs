@@ -176,6 +176,8 @@ const STIENE = (arg.sti ?? []).map((sti) => ({
     await page.goto(`${arg.url}${sti}`, { waitUntil: 'networkidle' });
     // En side som ikke lastet saken, har ingen overskrift, men en statuslinje.
     await page.locator('h1, [role="status"]').first().waitFor();
+    // Showcasen har en fast overskrift, og sakene i den lastes etterpå.
+    await page.waitForFunction(() => !document.body.innerText.includes('Laster saken'));
   },
 }));
 
@@ -200,7 +202,7 @@ try {
       page.setDefaultTimeout(15000);
       const feil = [];
       page.on('pageerror', (e) => feil.push(e.message));
-      if (!arg.varden)
+      if (!arg.varden && !arg.sti)
         await page.goto(mockup(tilstand.scenario ?? arg.scenario), { waitUntil: 'networkidle' });
       await tilstand.vei(page);
       const mørk = await page.evaluate(() => document.documentElement.classList.contains('dark'));

@@ -13,7 +13,13 @@
   import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
   import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
   import { brevene, oppgitteDatoer } from '$lib/components/varden/lesing';
-  import { BREVMENY, SPORNAVN, brevtittel, dato } from '$lib/components/varden/prototypetekst';
+  import {
+    BREVMENY,
+    SAKEN,
+    SPORNAVN,
+    brevtittel,
+    dato,
+  } from '$lib/components/varden/prototypetekst';
   import Arbeid from './Arbeid.svelte';
   import { FORLOEPET, TILSTANDER, aapneSak } from './kjernesaker';
 
@@ -207,7 +213,7 @@
       Brevene i {FORLOEPET.id} med teksten kjernen frøs. Lengst først; det er den lengste teksten i startjournalen.
     </p>
     {#if !u}
-      <p class="dempet" role="status">{godtatt.feil ?? 'Laster saken …'}</p>
+      <p class="dempet" role="status">{godtatt.feil ?? SAKEN.laster}</p>
     {:else}
       <div class="brevene">
         {#each [...(lengst ? [lengst] : []), ...alleBrev.filter((b) => b !== lengst)] as b (b.id)}

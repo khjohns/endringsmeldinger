@@ -10,7 +10,7 @@
   import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
   import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
   import { brevene } from '$lib/components/varden/lesing';
-  import { BREVKONTROLL, STILLING, brevtittel } from '$lib/components/varden/prototypetekst';
+  import { BREVKONTROLL, SAKEN, STILLING, brevtittel } from '$lib/components/varden/prototypetekst';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 
   let {
@@ -35,13 +35,15 @@
   // Valgene er startverdien for skjemaet og står når BH går til brevkontrollen og tilbake.
   // svelte-ignore state_referenced_locally
   let svarvalg = $state(valg);
+  // svelte-ignore state_referenced_locally
+  let svarer = $state(svar);
 
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
 </script>
 
 {#if !u}
-  <p class="dempet" role="status">{kjernesak.feil ?? 'Laster saken …'}</p>
+  <p class="dempet" role="status">{kjernesak.feil ?? SAKEN.laster}</p>
 {:else if kontroll}
   <Brevkontroll
     {kjernesak}
@@ -52,7 +54,7 @@
       sendt = true;
     }}
   />
-{:else if svar && !sendt && kjernesak.handlinger.includes(`svare:${spor}`)}
+{:else if svarer && !sendt && kjernesak.handlinger.includes(`svare:${spor}`)}
   <Vederlagssvar
     {kjernesak}
     {u}
@@ -74,7 +76,9 @@
     {kjernesak}
     {u}
     {spor}
-    onvelg={() => {}}
+    onvelg={(n) => {
+      if (n === `svare:${spor}`) svarer = true;
+    }}
     onakseptbrev={({ kommando, tekst }) => {
       const svaret = brev.find((b) => b.id === u.spor[spor].gjeldendeSvar?.dokument);
       kontroll = {

@@ -213,7 +213,7 @@
             <p class="dempet">{SKJEMA.datoGrense}</p>
           </div>
           <Valg
-            navn="itide"
+            navn={`${uid}-itide`}
             spoersmaal={SKJEMA.varselSpoersmaal}
             valg={[
               { verdi: true, tekst: SKJEMA.iTide },
@@ -230,7 +230,7 @@
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.2</span>
           </div>
           <Valg
-            navn="metode"
+            navn={`${uid}-metode`}
             spoersmaal={SKJEMA.metodeSpoersmaal(krav.innhold.metode)}
             valg={[
               { verdi: true, tekst: SKJEMA.godtarMetode },
@@ -240,7 +240,7 @@
           />
           {#if valg.metode === false}
             <Valg
-              navn="oensket"
+              navn={`${uid}-oensket`}
               spoersmaal={SKJEMA.oensketSpoersmaal}
               valg={[
                 { verdi: 'enhetspriser', tekst: 'Enhetspriser (§ 34.3)' },
@@ -257,7 +257,7 @@
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1</span>
           </div>
           <Valg
-            navn="beloep"
+            navn={`${uid}-beloep`}
             spoersmaal={valg.iTide === false ? SKJEMA.beloepSubsidiaert : SKJEMA.beloepSpoersmaal}
             valg={[
               { verdi: 'hele', tekst: SKJEMA.hele },
