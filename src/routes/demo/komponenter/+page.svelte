@@ -12,8 +12,8 @@
   import Knapp from '$lib/components/varden/Knapp.svelte';
   import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
   import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
-  import { brevene, handlingerISporet, oppgitteDatoer } from '$lib/components/varden/lesing';
-  import { SPORNAVN, brevtittel, dato } from '$lib/components/varden/prototypetekst';
+  import { brevene, oppgitteDatoer } from '$lib/components/varden/lesing';
+  import { BREVMENY, SPORNAVN, brevtittel, dato } from '$lib/components/varden/prototypetekst';
   import Arbeid from './Arbeid.svelte';
   import { FORLOEPET, TILSTANDER, aapneSak } from './kjernesaker';
 
@@ -77,12 +77,6 @@
   function lengde(b: (typeof alleBrev)[number]) {
     return (b.avsnitt ?? []).reduce((n, a) => n + a.laast.length + (a.utdypning?.length ?? 0), 0);
   }
-
-  const brevtyper = [
-    { navn: 'BH, ubesvart krav', kjernesak: aapneSak(UBESVART, 'BH') },
-    { navn: 'TE, svaret er mottatt', kjernesak: aapneSak('te-har-mottatt-svaret', 'TE') },
-    { navn: 'TE, ubesvart krav', kjernesak: aapneSak(UBESVART, 'TE') },
-  ];
 </script>
 
 <svelte:head><title>Varden — komponentene</title></svelte:head>
@@ -256,28 +250,14 @@
 
   <section id="brevtypene" aria-labelledby="brevtypene-tittel">
     <h2 id="brevtypene-tittel">Brevtyper</h2>
-    <p class="forklaring">Menyen med handlingene kjernen tilbyr i vederlagssporet.</p>
+    <p class="forklaring">
+      Menyen med handlingene kjernen tilbyr står i <code>Sporlesing</code> over, for BH og TE. Det
+      er <code>Sporlesing</code> som gir teksten for varslene og innsigelsene.
+    </p>
     <div class="tre">
-      {#each brevtyper as t (t.navn)}
-        <div class="kort">
-          <p class="etikett">{t.navn}</p>
-          {#if t.kjernesak.utledning}
-            <Brevtyper
-              tittel="Skriv brev i sporet"
-              handlinger={handlingerISporet(
-                t.kjernesak.utledning,
-                t.kjernesak.handlinger,
-                'vederlag'
-              )}
-              bygget={['svare']}
-              onvelg={() => {}}
-            />
-          {/if}
-        </div>
-      {/each}
       <div class="kort">
         <p class="etikett">Ingen handlinger</p>
-        <Brevtyper tittel="Skriv brev i sporet" handlinger={[]} bygget={[]} onvelg={() => {}} />
+        <Brevtyper tittel={BREVMENY.skriv} handlinger={[]} bygget={[]} onvelg={() => {}} />
       </div>
     </div>
   </section>
@@ -411,8 +391,9 @@
     display: grid;
     gap: var(--spacing-4);
   }
+  /* Varden gir arbeidsflaten om lag 1100 px på bred skjerm, så BH og TE står under hverandre. */
   .par {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 600px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 1100px), 1fr));
   }
   .tre {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
