@@ -1,6 +1,6 @@
 /**
- * Vakten for `docs/design/system.md` og skillene for visningen (#1080). De nevner
- * tokenene, klassene og komponentene visningen bruker, men verdiene står i
+ * Vakten for `docs/design/system.md` (#1080). Systemfila nevner tokenene, klassene og
+ * komponentene visningen bruker, men verdiene står i
  * `theme.css` og `app.css`. Vakten feiler når en av dem nevner et token eller en
  * klasse som ikke finnes, eller systemfila en komponent som ikke finnes.
  *
@@ -21,9 +21,6 @@ import { describe, expect, it } from 'vitest';
 
 const ROT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SYSTEMFIL = join(ROT, 'docs', 'design', 'system.md');
-const SKILLER = ['grensesnitt', 'design-deslop', 'design-review'].map((s) =>
-  join(ROT, '.claude', 'skills', s, 'SKILL.md')
-);
 const STILFILER = [
   join(ROT, 'src', 'lib', 'components', 'kontraktsbord', 'theme.css'),
   join(ROT, 'src', 'app.css'),
@@ -68,26 +65,22 @@ export function manglendeKlasser(klasser: string[], css: string): string[] {
   return klasser.filter((k) => !new RegExp(`\\${k}(?![\\w-])`).test(selektorer));
 }
 
-describe('systemfila og skillene for visningen', () => {
+describe('systemfila for visningen', () => {
   const css = STILFILER.map((f) => readFileSync(f, 'utf8')).join('\n');
   const system = henvisninger(readFileSync(SYSTEMFIL, 'utf8'));
-  const skiller = SKILLER.map((f) => henvisninger(readFileSync(f, 'utf8')));
-  const tokens = [...system.tokens, ...skiller.flatMap((h) => h.tokens)];
-  const klasser = [...system.klasser, ...skiller.flatMap((h) => h.klasser)];
 
   it('nevner tokens, klasser og komponenter, så vakten har noe å kontrollere', () => {
     expect(system.tokens.length).toBeGreaterThan(20);
     expect(system.klasser.length).toBeGreaterThan(0);
     expect(system.komponenter.length).toBeGreaterThan(5);
-    for (const h of skiller) expect(h.tokens.length).toBeGreaterThan(0);
   });
 
-  it('hvert token de nevner, er definert for lys modus i theme.css eller app.css', () => {
-    expect(udefinerteTokens(tokens, css)).toEqual([]);
+  it('hvert token systemfila nevner, er definert for lys modus i theme.css eller app.css', () => {
+    expect(udefinerteTokens(system.tokens, css)).toEqual([]);
   });
 
-  it('hver klasse de nevner, finnes i en selektor', () => {
-    expect(manglendeKlasser(klasser, css)).toEqual([]);
+  it('hver klasse systemfila nevner, finnes i en selektor', () => {
+    expect(manglendeKlasser(system.klasser, css)).toEqual([]);
   });
 
   it('hver komponent systemfila nevner, finnes under src/lib/components', () => {

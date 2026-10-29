@@ -23,7 +23,7 @@
       "kontroller": [
         {
           "rolle": "mal",
-          "kilde": ["GR-U7", "KA-U10", "KA-U7"],
+          "kilde": ["GR-U7", "KA-U10", "MM-U34"],
           "forventet": {
             "gjeldende_svar.{spor}": "{svar}",
             "enighet.{spor}": null,
@@ -41,7 +41,7 @@
       ]
     },
     "te_har_godtatt_svaret": {
-      "beskrivelse": "TE har godtatt BHs svar i sporet. Enigheten gjelder svaret med virkningen det hadde da det ble sendt, og omfatter beløpet i sporet. Enigheten binder begge parter: TE kan ikke godta på nytt eller sende en ny kravversjon.",
+      "beskrivelse": "TE har godtatt BHs svar i sporet. Enigheten gjelder svaret med virkningen det hadde da det ble sendt, og omfatter beløpet i sporet. Løsningen registrerer enigheten og avgjør ikke om partene er bundet (MM-U12). TE kan ikke godta svaret på nytt, men kan sende en ny kravversjon fram til endringsordren.",
       "parametre": ["spor", "svar", "beloep"],
       "kontroller": [
         {
@@ -55,9 +55,9 @@
         },
         {
           "rolle": "mal",
-          "kilde": ["KA-U7", "OV-U54"],
+          "kilde": ["MM-U34", "KA-U1", "OV-U54"],
           "forventet": {
-            "handlinger.TE": { "mangler": ["godta:{spor}", "krav:{spor}"] }
+            "handlinger.TE": { "inneholder": ["krav:{spor}"], "mangler": ["godta:{spor}"] }
           }
         }
       ]

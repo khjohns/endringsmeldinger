@@ -223,13 +223,6 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
 
   it.each<[string, 'TE' | 'BH', string, string, boolean]>([
     ['en innsigelse fra BH mot TEs krav', 'BH', 'innsigelse', 'K-v1', true],
-    [
-      'en innsigelse fra BH mot grunnlagskravet etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)',
-      'BH',
-      'innsigelse',
-      'K-g1',
-      false,
-    ],
     ['en innsigelse fra TE mot eget krav', 'TE', 'innsigelse', 'K-g1', false],
     ['en innsigelse fra TE mot BHs svar', 'TE', 'innsigelse', 'S-g1', true],
     ['en innsigelse mot et dokument', 'TE', 'innsigelse', 'D4', false],
@@ -255,7 +248,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
     expect(forstaatt([...journal, i, protest('BH')])).toBe(false);
   });
 
-  it('en innsigelse fra TE mot eget grunnlagskrav etter «i tide» gir bare grunnen etter VS-U1, ikke MM-U27 (HF-U4 gjelder BH)', async () => {
+  it('en innsigelse mot grunnlagskravet etter at BH har sagt at varselet kom i tide, er forstått fra BH og gir grunnen etter VS-U1 fra TE (MM-U34 punkt 6, HF-U4, MM-U27)', async () => {
     const { k, journal } = await grunnlag();
     const grunner = (part: 'TE' | 'BH') => {
       const r = rad(journal, part, {
@@ -265,10 +258,9 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
         .begrensninger.map((b) => b.grunn)
         .join('\n');
     };
-    // Kontrollsak: den samme innsigelsen fra BH bryter «i tide».
-    expect(grunner('BH'), 'kontrollsak').toContain('MM-U27');
-    expect(grunner('TE')).toContain('innsigelse viser ikke til noe den kan gjelde før den');
-    expect(grunner('TE')).not.toContain('MM-U27');
+    // MM-U34 punkt 6 opphever sperren i HF-U4, så BHs innsigelse etter «i tide» er lest.
+    expect(grunner('BH')).toBe('');
+    expect(grunner('TE')).toBe('innsigelse viser ikke til noe den kan gjelde før den');
   });
 
   it('en passivitet fra BH er ikke forstått (VS-U12)', async () => {

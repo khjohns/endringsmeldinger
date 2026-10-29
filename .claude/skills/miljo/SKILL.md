@@ -19,6 +19,15 @@ npx tsc -p server/tsconfig.json      # eller server/
 ruff check backend/                  # porten, skal være 0
 ```
 
+Lenkekontrollen og vakttesten for brukerforløpene kjører i CI. For hånd, når en
+Markdown-fil eller en forløpsfil er endret:
+
+```bash
+python3 docs/verktoy/lenkekontroll.py                # omfanget står i docstringen
+node kjerne/tester/brukerforloep.ts --skriv          # dekning.md og startjournalene
+npx vitest run kjerne/tester/brukerforloep.test.ts
+```
+
 `npm run server` starter TS-serveren i `server/` (B-18), med miljøvariablene i
 headeren til `server/start.ts`. Vite-proxyen sender hele `/api` og webhooken dit,
 som `tilTsServeren()` i `server/ruting.ts` velger (#1026); ingenting går til Python.
@@ -113,10 +122,56 @@ jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 `feilinnfoering`.
 
+En skyøkt kjører ikke hele samlingen for kjernen lokalt som del av leveransen
+(oppdragsgiver 28.10): kjøringen tar lang tid, og økta mister kontekstcachen. Full
+lokal kjøring brukes bare til å feilsøke en rød jobb i CI. `--ankre` kjøres fortsatt
+lokalt. For serveren kjøres i stedet de ID-ene som gjelder endringen, mot en kopi av
+arbeidstreet: `python3 server/tester/feilinnfoering.py /tmp/kopi S39 S40`.
+
 Kjøres fra repoets rot, med SQL Server oppe og `KOE_SQLSERVER_TILKOBLING` satt.
 `--ankre` trenger ikke basen.
 
 Med `FEILINNFOERING_UTVALG=1` kjører hver mutasjon bare filene med målene sine, slik CI gjør på en PR. Uten den kjøres hele samlingen, som om natta.
+
+### En rød jobb i CI
+
+Slutten av loggen er SQL Server-loggen fra containeren, så `tail_lines` på
+`get_job_logs` viser ikke feilen. Oppsummeringen står lenger opp. Hent hele loggen
+(`tail_lines` 5000), som MCP-verktøyet lagrer som JSON med feltet `logs_content`.
+Skriptet skriver bare ut hver feilinnføring som ikke ble oppdaget, med endringen og
+grunnen:
+
+```bash
+python3 -I - <lagret fil> <<'EOF'
+import json, re, sys
+GRUNN = ('  målet feilet ikke', '  ikke en assertion', '  suitefeil', '  tidsavbrudd')
+for sti in sys.argv[1:]:
+    blokk = False
+    for l in json.load(open(sti))['logs_content'].split('\n'):
+        l = re.sub(r'^\S+Z ', '', l)
+        if re.match(r'F\d+\w* .*: IKKE', l) or 'mutasjonene ble oppdaget' in l:
+            blokk = True
+            print(l)
+        elif blokk and (l.startswith(GRUNN) or re.match(r'  \S+\.ts: ', l)):
+            print(l[:200])
+        elif not l.startswith('  '):
+            blokk = False
+EOF
+```
+
+Grunnen sier hva som skal rettes:
+
+- `målet feilet ikke: <mål>`: målet består under mutasjonen, også om andre tester
+  feilet. Prøver målet fortsatt feilklassen, eller har endringen fjernet det målet
+  prøvde? Tas det ut, må et annet mål eller en ny test prøve feilklassen.
+- `ikke en assertion: <test>`: testen kastet en vanlig `Error`, ikke
+  `AssertionError`. I en bevis-sak er det en kontrollsak eller en forutsetning
+  (`Forutsetning` i `kjerne/tester/kjoerer.ts`). Sjekk om kontrollen er blitt en
+  forventning og skal ha `rolle: mal`.
+- `suitefeil`: testfila feilet før testene kjørte, for eksempel på import.
+- `tidsavbrudd`: kjøringen ble avbrutt to ganger; da er utfallet ikke avgjort.
+
+Kjør deretter bare de ID-ene som feilet, med `FEILINNFOERING_UTVALG=1`, i bakgrunnen.
 
 ## Skyøkta
 

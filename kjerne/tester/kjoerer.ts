@@ -90,7 +90,7 @@ export class Forutsetning extends Error {}
 export type Paastand = (holder: boolean, melding: string) => void;
 
 const kastVedBrudd: Paastand = (holder, melding) => {
-  if (!holder) throw new Error(melding);
+  if (!holder) throw new AssertionError({ message: melding });
 };
 
 export const medRegler = (regler: Regelsett, kjerne: Kjerne = KJERNE): Kjerne => ({

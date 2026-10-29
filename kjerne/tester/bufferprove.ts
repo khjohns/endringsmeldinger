@@ -136,8 +136,9 @@ export function bufferen(lagBaner: () => Baner): void {
         status: kjent.status,
         oppdateres: true,
       });
-      // En ny hendelse: siste kjente status til saken er regnet ut.
-      expect((await k.send({ handling: 'innsigelse', part: 'TE', gjelder: 'S-g1' }))?.godtatt).toBe(
+      // En ny hendelse: siste kjente status til saken er regnet ut. Innsigelsen mot
+      // vederlagssvaret godtas (MM-U34 punkt 13).
+      expect((await k.send({ handling: 'innsigelse', part: 'TE', gjelder: 'S-v1' }))?.godtatt).toBe(
         true
       );
       expect(await oversikt(KJERNE)).toEqual({ status: kjent.status, oppdateres: true });

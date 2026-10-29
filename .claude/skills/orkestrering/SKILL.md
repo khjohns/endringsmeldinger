@@ -161,12 +161,31 @@ innsatsen settes i appen.
   (oppdragsgiver 14.10, #484).
 - Feil som stopper appen, går foran opprydding.
 
+### Oppgavetypene
+
+Avgjør oppgavetypen før oppdraget skrives. Den bestemmer skillene og kontrollene, og
+oppdraget sier hvilken det er. Kontrollene står i kilden tabellen viser til, og
+tabellen gjentar dem ikke (oppdragsgiver 27.10, #1338).
+
+| Oppgavetype | Kjennetegn | Skillene | Kontrollene og reviewet |
+| --- | --- | --- | --- |
+| Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Kan være én økt sammen med oppdragsgiver |
+| Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
+| Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | `AGENTS.md`, «Arbeidsform», og «Review i ny økt» |
+| Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget `AGENTS.md` gir dem | `AGENTS.md`, «Arbeidsform» |
+| Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | Agenten `mekanisk-pr`, og `github` | `AGENTS.md`, «Arbeidsform», og «Subagent eller økt» |
+| Review i ny økt | Fortsetter en PR fra en byggeøkt | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | `AGENTS.md`, «Arbeidsform» |
+
+En PR som blander typene, følger den strengeste.
+
 ## 2. Oppdraget til hver økt
 
 Én økt per issue, per gruppe av issues (se «Runden») eller per del av et
 issue. Oppdraget skal inneholde:
 
 - issuenummerne, og at økta skal lese issuene og `AGENTS.md` først;
+- oppgavetypen etter «Oppgavetypene», med skillene og kontrollene den gir. Punktene
+  under om review, feilinnføring og nettleser gjelder bygging, ikke designsløyfa;
 - branchnavn (`claude/<kort-navn>-<issue>`);
 - hvilke filer de parallelle øktene arbeider i, og at de ikke skal røres så
   lenge PR-en som eier fila, er åpen. Si uttrykkelig at fordelingen opphører
@@ -201,8 +220,8 @@ issue. Oppdraget skal inneholde:
   arbeidsøktene»);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det, med skillen `mockup-nettleser`. Endrer økta visningen, sier oppdraget
-  at den følger skillen `grensesnitt`, og hvem som kjører `design-deslop` og
-  `design-review` etter regelen i `AGENTS.md`, «Arbeidsform». `/mockup` har demodata og en egen
+  at den følger skillen `interface-design`, og hvem som kjører `/design-deslop` og
+  `/design-review` etter regelen i `AGENTS.md`, «Arbeidsform». `/mockup` har demodata og en egen
   statusregel, så den viser ikke at den ekte saksruta virker; den ekte ruta
   kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
@@ -225,9 +244,11 @@ issue. Oppdraget skal inneholde:
   push til en klar PR koster en full kjøring. Feilinnføringene kjører også på et
   utkast når etiketten `feilinnfoering` er satt. Etiketten settes derfor først
   når PR-en meldes klar, så hele settet (om lag 26 minutter i CI) kjører én
-  gang per PR og ikke ved hver push. Før det kontrollerer økta ankrene lokalt
-  (#430) og kjører de feilinnføringene som gjelder endringen (oppdragsgiver
-  12.10, FK runde 9);
+  gang per PR og ikke ved hver push. Økta kontrollerer ankrene lokalt (#430),
+  men kjører ikke hele feilinnføringen for kjernen lokalt: den tar lang tid, går
+  ut over avsatt tid og gjør at kontekstcachen mistes. Kjernens feilinnføringer
+  kjøres i CI når etiketten er satt. For serveren kjører økta bare de ID-ene som
+  gjelder endringen (oppdragsgiver 28.10);
 - at økta ikke abonnerer på PR-en (`subscribe_pr_activity`). Hver hendelse
   vekker økta og leser hele konteksten på nytt, også en grønn kjøring, egne
   pusher og mergen. Etter hver push venter økta på CI med én bakgrunnskommando
@@ -273,7 +294,8 @@ Bestillingen til økta sier:
 - **Grenser:** atferden er uendret, og ingen lagrede navn, kontrakter eller
   predikater endres. Det `/simplify` foreslår ut over det, avvises og føres i
   PR-en.
-- **Etterpå:** testene og feilinnføringene kjøres på nytt.
+- **Etterpå:** testene kjøres på nytt. Feilinnføringene for kjernen kjøres i CI, og
+  for serveren kjøres de ID-ene som hører til endringen.
 - **PR-beskrivelsen** sier hva som ble endret og hva som ble avvist.
 
 ## Kontekst i arbeidsøktene

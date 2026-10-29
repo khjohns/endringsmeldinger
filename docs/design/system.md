@@ -1,7 +1,7 @@
 # Designsystemet
 
 Beslutningene for visningen, og hvorfor de er tatt. Metoden står i
-[grensesnitt-skillen](../../.claude/skills/grensesnitt/SKILL.md).
+[interface-design-skillen](../../.claude/skills/interface-design/SKILL.md).
 
 **Verdiene står ikke her** (oppdragsgiver 23.10, #1080). Farger, flater, kanter og skrifter er definert i
 [`theme.css`](../../src/lib/components/kontraktsbord/theme.css), avstand og radius i
@@ -11,6 +11,8 @@ som nevnes her, ikke finnes der. Det som betyr noe juridisk, står i vedtakene. 
 viser til dem og gjengir dem ikke.
 
 ## Retningen
+
+**Varden er visningen** (oppdragsgiver 28.10, #1338, runde 6): «Ja, jeg tenker Varden er visningen, men det er fortsatt elementer fra dagens visning som kan være aktuelle.»
 
 **Sage & Stone**, Oslobyggs grønne profil (`--brand`). Den erstattet
 «Dokumentbordet» fra mars 2026 (oppdragsgiver 23.10, #1080).
