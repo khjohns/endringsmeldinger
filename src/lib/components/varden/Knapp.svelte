@@ -59,8 +59,9 @@
     color: var(--surface);
     border: 1px solid var(--brand);
   }
+  /* Primærknappen er nesten svart (Blekk), så hover og trykk lysner den. */
   .knapp-primaer:hover {
-    background: var(--ink);
+    background: var(--ink-2);
   }
   .knapp-sekundaer {
     background: var(--surface);
@@ -87,7 +88,7 @@
     background: var(--surface-selected);
   }
   .knapp-primaer:active {
-    background: var(--ink);
+    background: var(--ink-3);
   }
   .knapp[aria-disabled='true'] {
     background: var(--surface-inset);

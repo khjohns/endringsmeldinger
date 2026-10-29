@@ -350,10 +350,12 @@
 <style>
   .utkast {
     background: var(--surface);
-    border: var(--rule);
+    border: 1.5px dashed var(--draft-border);
     border-radius: 12px;
   }
   .utkasthode {
+    background: var(--draft-bg);
+    border-radius: 10.5px 10.5px 0 0;
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;
     flex-direction: column;
@@ -371,7 +373,7 @@
     padding: 0 var(--spacing-2);
     border: 1px dashed var(--draft-border);
     border-radius: 999px;
-    background: var(--draft-bg);
+    background: var(--surface);
     font-size: 12px;
     font-weight: 500;
   }
@@ -486,8 +488,8 @@
   .ikke-stoettet {
     margin: var(--spacing-5) var(--spacing-6);
     padding: var(--spacing-3) var(--spacing-4);
-    background: var(--warning-bg);
-    border: 1px solid var(--warning-border);
+    background: var(--surface-inset);
+    border: var(--rule-strong);
     border-radius: 4px;
   }
   .dempet {

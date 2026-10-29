@@ -332,4 +332,31 @@ describe('Varden med brukerforløpet BF-01', () => {
     await screen.findByRole('heading', { name: BF.tittel, level: 1 });
     expect(screen.queryByRole('alert')).toBeNull();
   });
+
+  it.each([
+    ['kopieres', () => Promise.resolve(), 'Lenken er kopiert.'],
+    [
+      'ikke kan kopieres',
+      () => Promise.reject(new Error('nektet')),
+      'Lenken ble ikke kopiert. Kopier adressen fra adressefeltet.',
+    ],
+  ])('«Kopier lenke» i topplinja sier fra når lenken %s (#1391)', async (_, svar, tekst) => {
+    const writeText = vi.fn(svar);
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak });
+
+    await fireEvent.click(await screen.findByRole('button', { name: 'Kopier lenke' }));
+    expect(writeText).toHaveBeenCalledWith(location.href);
+    expect((await screen.findByText(tekst)).getAttribute('role')).toBe('status');
+    vi.unstubAllGlobals();
+  });
 });

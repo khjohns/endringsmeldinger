@@ -1,13 +1,16 @@
 <!--
-  Varden: eksperimentell saksvisning (#1331, konseptet i docs/design/konsept-varden/). Den
-  kompakte saksoverskriften, sporene i venstre kolonne og arbeidet i sporet, med tidslinja og
-  panelene i høyre kolonne (valget 27.10). Saken er den samme `lagKjernesak` gir dagens
+  Varden: eksperimentell saksvisning (#1331, konseptet i docs/design/konsept-varden/). Panelet
+  til venstre har logoen, saken og sporene, som i dagens visning (oppdragsgiver 29.10, #1391).
+  Arbeidet i sporet står under topplinja, med tidslinja og panelene i høyre kolonne (valget 27.10). Saken er den samme `lagKjernesak` gir dagens
   visning: brevteksten, handlingene og avvisningene kommer fra kjernen.
 -->
 <script lang="ts">
   import '$lib/components/kontraktsbord/theme.css';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
+  import { tick } from 'svelte';
+  import { Link } from 'lucide-svelte';
+  import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import Brevkontroll from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Sporlesing from './Sporlesing.svelte';
@@ -46,6 +49,7 @@
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
   let melding = $state<string | null>(null);
+  let lenkestatus = $state('');
 
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
@@ -56,6 +60,18 @@
     melding = null;
   }
 
+  async function kopierLenke() {
+    // Tømmes først, så en lik melding ved neste klikk leses opp igjen.
+    lenkestatus = '';
+    await tick();
+    try {
+      await navigator.clipboard.writeText(location.href);
+      lenkestatus = SAKEN.lenkeKopiert;
+    } catch {
+      lenkestatus = SAKEN.lenkeIkkeKopiert;
+    }
+  }
+
   function sendt() {
     arbeid = { art: 'les' };
     svarvalg = tomtSvar();
@@ -63,57 +79,85 @@
   }
 </script>
 
-<div class="varden">
-  <p class="prototype">{SAKEN.prototype}</p>
-  {#if (!u || !kjernesak.saksbilde) && kjernesak.feil}
-    <div class="lastefeil" role="alert">
-      <h1>{SAKEN.lastefeil}</h1>
-      <p>{kjernesak.feil}</p>
-      <Knapp onclick={() => kjernesak.last()}>{SAKEN.proevIgjen}</Knapp>
-    </div>
-  {:else if !u || !kjernesak.saksbilde}
-    <p class="laster" role="status">{SAKEN.laster}</p>
-  {:else}
-    <header class="sakshode">
-      <h1>{kjernesak.saksbilde.tittel}</h1>
-      <p class="meta">
-        <span>BH byggherren</span>
-        <span>TE entreprenøren</span>
-        {#if brev[0]}<span>Opprettet {dato(brev[0].registrert)} av {brev[0].avsender}</span>{/if}
-        <span>Du er {kjernesak.part}</span>
-      </p>
-    </header>
+<div class="varden tema-varden">
+  <div class="panelkolonne">
+    <div class="panel">
+      <div class="avsender">
+        <div class="logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
+        <p><span class="kommune">{SAKEN.kommune}</span><span>{SAKEN.foretak}</span></p>
+      </div>
+      {#if u && kjernesak.saksbilde}
+        <header class="sakshode">
+          <h1>{kjernesak.saksbilde.tittel}</h1>
+          <dl class="meta">
+            <div>
+              <dt>{SAKEN.byggherre}</dt>
+              <dd>BH</dd>
+            </div>
+            <div>
+              <dt>{SAKEN.entreprenoer}</dt>
+              <dd>TE</dd>
+            </div>
+            {#if brev[0]}
+              <div>
+                <dt>{SAKEN.opprettet}</dt>
+                <dd>{dato(brev[0].registrert)} av {brev[0].avsender}</dd>
+              </div>
+            {/if}
+          </dl>
+        </header>
 
-    <div class="rom">
-      <nav class="venstre" aria-label={SAKEN.nav}>
-        <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
-        <ul aria-labelledby="spor-etikett">
-          {#each SPORENE as s (s)}
-            {@const sisteBrev = brev.filter((b) => b.spor.includes(s)).at(-1)}
-            <li>
-              <button
-                type="button"
-                class="spor"
-                aria-current={valgt === s ? 'page' : undefined}
-                onclick={() => velgSpor(s)}
-              >
-                <span class="navn">
-                  {SPORNAVN[s]}
-                  {#if valgt === s && arbeid.art !== 'les'}<span class="merke-utkast"
-                      >{SAKEN.utkast}</span
-                    >{/if}
-                </span>
-                <span class="sist"
-                  >{sisteBrev
-                    ? SAKEN.sist(sisteBrev.nummer, sisteBrev.avsender)
-                    : SAKEN.ingenBrev}</span
+        <nav class="sporene" aria-label={SAKEN.nav}>
+          <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
+          <ul aria-labelledby="spor-etikett">
+            {#each SPORENE as s (s)}
+              {@const sisteBrev = brev.filter((b) => b.spor.includes(s)).at(-1)}
+              <li>
+                <button
+                  type="button"
+                  class="spor"
+                  aria-current={valgt === s ? 'page' : undefined}
+                  onclick={() => velgSpor(s)}
                 >
-              </button>
-            </li>
-          {/each}
-        </ul>
-      </nav>
+                  <span class="navn">
+                    {SPORNAVN[s]}
+                    {#if valgt === s && arbeid.art !== 'les'}<span class="merke-utkast"
+                        >{SAKEN.utkast}</span
+                      >{/if}
+                  </span>
+                  <span class="sist"
+                    >{sisteBrev
+                      ? SAKEN.sist(sisteBrev.nummer, sisteBrev.avsender)
+                      : SAKEN.ingenBrev}</span
+                  >
+                </button>
+              </li>
+            {/each}
+          </ul>
+        </nav>
+      {/if}
+      <p class="prototype">{SAKEN.prototype}</p>
+    </div>
+  </div>
 
+  <div class="flate">
+    <div class="topplinje">
+      {#if kjernesak.part}<p class="rolle">{SAKEN.duEr(kjernesak.part)}</p>{/if}
+      <p class="lenkestatus" role="status">{lenkestatus}</p>
+      <Knapp variant="lenke" onclick={kopierLenke}
+        ><Link size={16} aria-hidden="true" />{SAKEN.kopierLenke}</Knapp
+      >
+    </div>
+
+    {#if (!u || !kjernesak.saksbilde) && kjernesak.feil}
+      <div class="lastefeil" role="alert">
+        <h1>{SAKEN.lastefeil}</h1>
+        <p>{kjernesak.feil}</p>
+        <Knapp onclick={() => kjernesak.last()}>{SAKEN.proevIgjen}</Knapp>
+      </div>
+    {:else if !u || !kjernesak.saksbilde}
+      <p class="laster" role="status">{SAKEN.laster}</p>
+    {:else}
       <main class="arbeid">
         <p class="melding" role="status">{melding ?? ''}</p>
         {#if arbeid.art === 'kontroll'}
@@ -182,14 +226,15 @@
           />
         {/if}
       </main>
-    </div>
-  {/if}
+    {/if}
+  </div>
 </div>
 
 <style>
   .varden {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
     min-height: 100vh;
-    padding: var(--spacing-6) var(--spacing-10) var(--spacing-12);
     background: var(--canvas);
     color: var(--ink);
     font-family: var(--font-sans);
@@ -197,56 +242,90 @@
     line-height: 1.5;
     font-variant-numeric: tabular-nums;
   }
-  .prototype {
-    display: inline-block;
-    margin-bottom: var(--spacing-4);
-    padding: 0 var(--spacing-2);
-    border: 1px dashed var(--draft-border);
-    border-radius: 999px;
-    background: var(--draft-bg);
-    color: var(--ink-2);
-    font-size: 12px;
+  .panelkolonne {
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
   }
-  .laster {
-    color: var(--ink-2);
-  }
-  .lastefeil {
+  .panel {
+    position: sticky;
+    top: 0;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    gap: var(--spacing-8);
+    height: 100vh;
+    overflow-y: auto;
+    padding: 0 var(--spacing-5) var(--spacing-6);
+  }
+  /* Like høy som topplinja, så byvåpenet står på linje med rollen. */
+  .avsender {
+    display: flex;
+    align-items: center;
     gap: var(--spacing-3);
+    min-height: var(--mockup-topbar-height);
+  }
+  /* Samme utsnitt av logoen som dagens visning (LeftSidebar.svelte): bare byvåpenet. */
+  .logo {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 43px;
+    background-position: -22px -22px;
+    background-repeat: no-repeat;
+    background-size: 128px auto;
+  }
+  .avsender p {
+    display: flex;
+    flex-direction: column;
+    color: var(--sidebar-muted);
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .kommune {
+    color: var(--sidebar-text);
+    font-size: 15px;
+    font-weight: 600;
   }
   .sakshode {
-    margin-bottom: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
   }
   h1 {
     font-size: 24px;
     font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .sakshode h1 {
+    font-size: 20px;
   }
   .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-5);
-    color: var(--ink-2);
-    font-size: 14px;
-  }
-  .rom {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
-    gap: var(--spacing-8);
-    align-items: start;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--spacing-1) var(--spacing-4);
+    font-size: 13px;
   }
-  .venstre {
-    padding-right: var(--spacing-4);
-    border-right: var(--rule);
+  .meta div {
+    display: contents;
+  }
+  .meta dt {
+    color: var(--sidebar-muted);
+  }
+  .meta dd {
+    color: var(--sidebar-text);
   }
   .etikett {
-    margin: 0 0 var(--spacing-2) var(--spacing-4);
-    color: var(--ink-3);
+    margin: 0 0 var(--spacing-2);
+    color: var(--sidebar-muted);
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+  }
+  .sporene ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
   }
   .spor {
     display: flex;
@@ -254,26 +333,26 @@
     align-items: flex-start;
     width: 100%;
     min-height: 48px;
-    padding: var(--spacing-2) var(--spacing-4);
+    padding: var(--spacing-2) var(--spacing-3);
     border: 0;
     border-left: 3px solid transparent;
     border-radius: 0 4px 4px 0;
     background: none;
     font: inherit;
-    color: var(--ink);
+    color: var(--sidebar-text);
     text-align: left;
     cursor: pointer;
   }
   .spor:hover {
-    background: var(--surface-inset);
+    background: var(--sidebar-hover);
   }
   .spor[aria-current='page'] {
-    border-left-color: var(--ink);
-    background: var(--surface-selected);
+    border-left-color: var(--sidebar-text);
+    background: var(--sidebar-active);
     font-weight: 600;
   }
   .spor:focus-visible {
-    outline: 2px solid var(--control-focus);
+    outline: 2px solid var(--sidebar-focus);
     outline-offset: -2px;
   }
   .navn {
@@ -282,7 +361,7 @@
     gap: var(--spacing-2);
   }
   .sist {
-    color: var(--ink-3);
+    color: var(--sidebar-muted);
     font-size: 12px;
     font-weight: 400;
   }
@@ -293,6 +372,50 @@
     font-weight: 500;
     border: 1px dashed var(--draft-border);
     background: var(--draft-bg);
+    color: var(--draft);
+  }
+  .prototype {
+    align-self: flex-start;
+    margin-top: auto;
+    padding: 0 var(--spacing-2);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 999px;
+    color: var(--sidebar-muted);
+    font-size: 12px;
+  }
+  .flate {
+    min-width: 0;
+  }
+  .topplinje {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    min-height: var(--mockup-topbar-height);
+    padding: 0 var(--spacing-10);
+    border-bottom: var(--rule);
+    background: var(--surface);
+    font-size: 14px;
+  }
+  .rolle {
+    color: var(--ink-2);
+  }
+  .lenkestatus {
+    margin-left: auto;
+    color: var(--ink-3);
+  }
+  .arbeid,
+  .laster,
+  .lastefeil {
+    padding: var(--spacing-6) var(--spacing-10) var(--spacing-12);
+  }
+  .laster {
+    color: var(--ink-2);
+  }
+  .lastefeil {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
   }
   .arbeid {
     min-width: 0;
@@ -308,22 +431,33 @@
   }
   @media (max-width: 1023px) {
     .varden {
-      padding: var(--spacing-4);
-    }
-    .rom {
       grid-template-columns: minmax(0, 1fr);
     }
-    .venstre {
-      border-right: 0;
-      padding-right: 0;
+    .panel {
+      position: static;
+      height: auto;
+      gap: var(--spacing-5);
+      padding: var(--spacing-4);
     }
-    .venstre ul {
-      display: flex;
-      flex-wrap: wrap;
+    .avsender {
+      min-height: 44px;
+    }
+    .sporene ul {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: var(--spacing-2);
     }
-    .spor {
-      width: auto;
+    .prototype {
+      margin-top: 0;
+    }
+    .topplinje {
+      flex-wrap: wrap;
+      padding: var(--spacing-2) var(--spacing-4);
+    }
+    .arbeid,
+    .laster,
+    .lastefeil {
+      padding: var(--spacing-4);
     }
   }
 </style>
