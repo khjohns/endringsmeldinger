@@ -42,6 +42,7 @@
     ontilbake: () => void;
     onsendt: () => void;
   } = $props();
+  const uid = $props.id();
 
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
@@ -110,14 +111,16 @@
       <Knapp
         variant="primaer"
         sperret={!kontrollert}
-        hvorfor="hvorfor-ikke-send"
+        hvorfor={`${uid}-hvorfor-ikke-send`}
         opptatt={kjernesak.sender}
         onclick={send}
       >
         <Send size={16} aria-hidden="true" />
         {kjernesak.sender ? BREVKONTROLL.sender : sendTekst}
       </Knapp>
-      {#if !kontrollert}<p id="hvorfor-ikke-send" class="dempet">{BREVKONTROLL.hvorforIkke}</p>{/if}
+      {#if !kontrollert}<p id={`${uid}-hvorfor-ikke-send`} class="dempet">
+          {BREVKONTROLL.hvorforIkke}
+        </p>{/if}
       {#if kjernesak.feil}<p class="feil" role="alert">{kjernesak.feil}</p>{/if}
     </div>
   </section>

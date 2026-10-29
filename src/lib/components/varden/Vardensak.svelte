@@ -9,6 +9,7 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
   import Brevkontroll from './Brevkontroll.svelte';
+  import Knapp from './Knapp.svelte';
   import Sporlesing from './Sporlesing.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
@@ -64,7 +65,13 @@
 
 <div class="varden">
   <p class="prototype">{SAKEN.prototype}</p>
-  {#if !u || !kjernesak.saksbilde}
+  {#if (!u || !kjernesak.saksbilde) && kjernesak.feil}
+    <div class="lastefeil" role="alert">
+      <h1>{SAKEN.lastefeil}</h1>
+      <p>{kjernesak.feil}</p>
+      <Knapp onclick={() => kjernesak.last()}>{SAKEN.proevIgjen}</Knapp>
+    </div>
+  {:else if !u || !kjernesak.saksbilde}
     <p class="laster" role="status">{SAKEN.laster}</p>
   {:else}
     <header class="sakshode">
@@ -202,6 +209,12 @@
   }
   .laster {
     color: var(--ink-2);
+  }
+  .lastefeil {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
   }
   .sakshode {
     margin-bottom: var(--spacing-6);

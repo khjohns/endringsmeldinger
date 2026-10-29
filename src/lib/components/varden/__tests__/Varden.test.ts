@@ -17,6 +17,8 @@ import type { Journalrad } from '$kjerne/typer';
 import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
 import { kontrollerEtter } from '$kjerne/tester/kjoerer';
 import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
+import Vardensak from '$lib/components/varden/Vardensak.svelte';
+import { ApiError } from '$lib/api/client';
 
 const BF = finn('BF-01');
 const START = finnForloep('BF-01')!;
@@ -165,7 +167,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
     await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
-    const hindring = () => document.getElementById('brev-hindring')?.textContent;
+    const hindring = () => document.querySelector('[id$="-brev-hindring"]')?.textContent;
     expect(hindring()).toBe('Svar på spørsmålene i skjemaet, så kan brevet lages.');
 
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
@@ -304,4 +306,30 @@ describe('Varden med brukerforløpet BF-01', () => {
       expect(iVarden.sort()).toEqual([...tilbudt].sort());
     }
   );
+
+  it('når lastingen feiler, viser Varden feilen og «Prøv igjen» i stedet for «Laster saken …» (#1373, funn 1)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const hent = vi
+      .fn()
+      .mockRejectedValueOnce(new ApiError(500, 'Serveren svarte med feilkode 500 uten forklaring.'))
+      .mockImplementation(demosak.hent);
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak });
+
+    const feil = await screen.findByRole('alert');
+    expect(within(feil).getByRole('heading', { name: 'Kunne ikke laste saken' })).toBeTruthy();
+    expect(feil.textContent).toContain('Serveren svarte med feilkode 500 uten forklaring.');
+    expect(screen.queryByText('Laster saken …')).toBeNull();
+
+    await fireEvent.click(within(feil).getByRole('button', { name: 'Prøv igjen' }));
+    await screen.findByRole('heading', { name: BF.tittel, level: 1 });
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
 });

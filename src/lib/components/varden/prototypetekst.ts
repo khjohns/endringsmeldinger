@@ -272,5 +272,7 @@ export const SAKEN = {
   sist: (n: number, part: Part) => `Siste: brev ${n} fra ${part}`,
   prototype: 'Varden · eksperimentell visning',
   laster: 'Laster saken …',
+  lastefeil: 'Kunne ikke laste saken',
+  proevIgjen: 'Prøv igjen',
   ikkeTilgjengelig: 'Dette sporet er ikke bygget i denne prøven av Varden.',
 };
