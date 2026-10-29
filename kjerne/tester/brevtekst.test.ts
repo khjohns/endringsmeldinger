@@ -2624,6 +2624,52 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(u.utenVirkning).toEqual([]);
     expect(u.spor).toEqual(foer.spor);
   });
+
+  /** Saken lukket etter GR-U27: TE har godtatt avslaget på grunnlaget. */
+  const lukket = () => {
+    const s = sakMedKrav();
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), {
+          resultat: 'avslaatt',
+          grunnlag_varslet_i_tide: true,
+        }),
+      ],
+    });
+    s.send('TE', {
+      type: 'aksept',
+      spor: 'grunnlag',
+      svar: s.u().spor.grunnlag.gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    const foer = s.u();
+    expect(foer.grunnlagAvvist, 'forutsetning: saken er lukket etter GR-U27').toBe(true);
+    return { s, foer };
+  };
+
+  it('en lest senere begrunnelse etter at saken er lukket etter GR-U27, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34)', () => {
+    const { s, foer } = lukket();
+    const svarId = foer.spor.grunnlag.gjeldendeSvar!.id;
+    const id = randomUUID();
+    s.rad('BH', utsagn(id, 'begrunnelse', svarId));
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.elementer[id]?.art).toBe('begrunnelse');
+    expect(u.utenVirkning).toEqual([]);
+    expect(u.spor).toEqual(foer.spor);
+  });
+
+  it('en lest påberopt passivitet etter at saken er lukket etter GR-U27, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, VS-U12)', () => {
+    const { s, foer } = lukket();
+    const grunnlagskrav = s.krav('grunnlag');
+    s.rad('TE', utsagn(randomUUID(), 'passivitet', grunnlagskrav));
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.passivitet.map((p) => [p.part, p.gjelder])).toEqual([['TE', grunnlagskrav]]);
+    expect(u.utenVirkning).toEqual([]);
+    expect(u.spor).toEqual(foer.spor);
+  });
 });
 
 describe('den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst, KA-U31)', () => {
@@ -3875,6 +3921,22 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
     ).toMatchObject({ hjemmel: '32.2', iTide: false });
     expect(laast(rad)[0]).toContain('TEs varsel etter NS 8407 § 32.2 kom for sent');
     expect(u.grunnlagAvklart, 'påberopelsen er virksom, så godkjenningen er subsidiær').toBe(false);
+  });
+
+  it('en revisjon som påberoper «for sent» etter § 34.1.2 etter «i tide», godtas og leses som påberopelse av feltet for § 34.1.2 (MM-U34 punkt 6, HF-U4)', () => {
+    const s = sakISvikt();
+    brev(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: true });
+    const rettidighet = () =>
+      s.u().spor.vederlag.gjeldendeSvar!.standpunkter.find((x) => x.art === 'rettidighet');
+    expect(rettidighet(), 'kontrollsak: «i tide»').toMatchObject({
+      hjemmel: '34.1.2',
+      iTide: true,
+    });
+    const paaberopelse = revisjon(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false });
+    expect(s.avvist('BH', paaberopelse)).toBeNull();
+    s.send('BH', paaberopelse);
+    expect(s.u().forstaatt).toBe(true);
+    expect(rettidighet()).toMatchObject({ hjemmel: '34.1.2', iTide: false });
   });
 
   it('et registrert svar med «i tide» er dokumentasjon, og byggherren kan svare «for sent» fra appen (OV-U4)', () => {

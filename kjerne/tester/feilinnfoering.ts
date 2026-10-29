@@ -826,7 +826,7 @@ const MUTASJONER: Mutasjon[] = [
       'et registrert brev som strider mot en enighet eller et trekk, gjør saken ikke forstått (MM-U18, OV-U4)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
-    mal: ['F-MM-U326l', 'F-MM-G37'],
+    mal: ['F-MM-U326l'],
   },
   {
     id: 'F78',
@@ -941,7 +941,6 @@ const MUTASJONER: Mutasjon[] = [
       'et «i tide» om varselet gir ikke opp en innsigelse mot fristkravet',
       'et «i tide» om varselet nevner ikke en innsigelse mot en tidligere kravversjon',
       'gir et «i tide» opp bare den mot varselet',
-      'F-MM-V10',
     ],
   },
   {
@@ -968,7 +967,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'svaret gjentar innsigelsen og viser til den',
       'gir byggherren innsigelsen opp, sier brevet det uttrykkelig',
-      'F-MM-V7c',
     ],
   },
   {
@@ -1443,7 +1441,7 @@ const MUTASJONER: Mutasjon[] = [
         "['aksept', 'trekk', 'ingen_krav', 'varsel', 'begrunnelse']",
       ],
     ],
-    mal: ['en lest senere begrunnelse etter at kravene er avgjort'],
+    mal: ['en lest senere begrunnelse etter at saken er lukket etter GR-U27'],
   },
   {
     id: 'F173',
@@ -1738,7 +1736,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'gir byggherren opp innsigelsen mot fristvarselet',
       'gir et «i tide» opp bare den mot varselet',
-      'F-MM-V10',
     ],
   },
   {
@@ -1846,7 +1843,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: [
       'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
-      'etter et «i tide» etter § 32.2 godtas en innsigelse mot en versjon der § 32.2 ikke gjelder',
     ],
   },
   {
@@ -2071,10 +2067,7 @@ const MUTASJONER: Mutasjon[] = [
       'en innsigelse mot et grunnlagskrav i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['&& !kravetErDokumentasjon(d) &&', '&& true &&']],
-    mal: [
-      'brevteksten gjentar den ikke i svaret',
-      'kommandoene avviser den ikke etter et «i tide»',
-    ],
+    mal: ['brevteksten gjentar den ikke i svaret'],
   },
   {
     id: 'F271',
@@ -2197,7 +2190,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       ['i_tide: v.hovedkrav_varslet_i_tide,', 'i_tide: v.grunnlag_varslet_i_tide,'],
     ],
-    mal: ['påberoper «for sent» etter § 32.2 etter «i tide», godtas og leses som påberopelse'],
+    mal: ['påberoper «for sent» etter § 34.1.2 etter «i tide», godtas og leses som påberopelse'],
   },
   {
     id: 'F283',
@@ -2374,14 +2367,14 @@ const MUTASJONER: Mutasjon[] = [
         "['aksept', 'trekk', 'ingen_krav', 'varsel', 'passivitet']",
       ],
     ],
-    mal: ['en lest påberopt passivitet etter at kravene er avgjort'],
+    mal: ['en lest påberopt passivitet etter at saken er lukket etter GR-U27'],
   },
   {
     id: 'F306',
     feilklasse: 'et spor uten krav hindrer at kravene er avgjort (OV-U3, #493)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['(n) => !sendt(n) || u.spor[n].trukket ||', '(n) => u.spor[n].trukket ||']],
-    mal: ['et spor uten krav hindrer ikke', 'F-MM-K1'],
+    mal: ['et spor uten krav hindrer ikke'],
   },
   {
     id: 'F307',
