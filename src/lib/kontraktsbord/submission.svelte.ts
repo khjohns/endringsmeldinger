@@ -77,7 +77,7 @@ export function createSubmission(onSuccess?: () => void) {
     get vedFeltet() {
       return feltmelding;
     },
-    /** Feltet er endret, så meldingen ved det er borte (docs/design/system.md). */
+    /** Feltet er endret, så meldingen ved det er borte (.interface-design/system.md). */
     feltetEndret() {
       if (feltmelding !== null) error = null;
       feltmelding = null;

@@ -3,7 +3,7 @@ import { Feltavvisning } from '$lib/kjernesak/kontekst.svelte';
 import { createSubmission } from '../submission.svelte';
 
 // Kilde: #1264 (oppdragsgiver 24.10) og MM-U32: meldingen står ved feltet, og øverst står at
-// brevet ikke kan sendes ennå. Feilmeldingen forsvinner når feltet er rettet (docs/design/system.md).
+// brevet ikke kan sendes ennå. Feilmeldingen forsvinner når feltet er rettet (.interface-design/system.md).
 describe('feilen fra sendingen i skjemaet', () => {
   // Kilde: #1273 (oppdragsgiver 24.10, klarspråk 2 og 3): ved feltet står bare årsaken.
   it('en avvisning som gjelder utdypningen, står ved feltet uten innledningen og forsvinner når feltet endres', async () => {

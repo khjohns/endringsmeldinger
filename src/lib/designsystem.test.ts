@@ -1,5 +1,5 @@
 /**
- * Vakten for `docs/design/system.md` (#1080). Systemfila nevner tokenene, klassene og
+ * Vakten for `.interface-design/system.md` (#1080). Systemfila nevner tokenene, klassene og
  * komponentene visningen bruker, men verdiene står i
  * `theme.css` og `app.css`. Vakten feiler når en av dem nevner et token eller en
  * klasse som ikke finnes, eller systemfila en komponent som ikke finnes.
@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 const ROT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const SYSTEMFIL = join(ROT, 'docs', 'design', 'system.md');
+const SYSTEMFIL = join(ROT, '.interface-design', 'system.md');
 const STILFILER = [
   join(ROT, 'src', 'lib', 'components', 'kontraktsbord', 'theme.css'),
   join(ROT, 'src', 'app.css'),
