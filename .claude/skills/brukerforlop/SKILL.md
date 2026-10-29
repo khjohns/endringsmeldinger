@@ -119,8 +119,8 @@ For en HTML-skisse av et mønster gjelder dette:
 
 ## Kontrollene
 
-En iterasjon som bare rører `docs/`, krever ingen `/code-review`, `design-review`,
-`design-deslop`, feilinnføring eller kjøring av saksruta. Lenkekontrollen og
+En iterasjon som bare rører `docs/`, krever ingen `/code-review`, `/design-review`,
+`/design-deslop`, feilinnføring eller kjøring av saksruta. Lenkekontrollen og
 vakttesten for brukerforløpene kjøres i CI. Kommandoene står i
 [miljø-skillen](../miljo/SKILL.md). Et forløp i demoruta kjøres med `demoruta.mjs`, og en
 HTML-skisse vises i nettleseren med skillen `mockup-nettleser`.

@@ -1,4 +1,4 @@
-// Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys og mørk modus, bred og smal
+// Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys modus, bred og smal
 // skjerm (#1187), med saken sett av TE og BH (#1213). axe finner bare en del av feilene; resten står i skillen uu-sjekk.
 import { createRequire } from 'node:module';
 import { execFileSync, spawn } from 'node:child_process';
@@ -27,9 +27,7 @@ if (!/^\d+$/.test(arg.vis)) {
 const REGLER = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const OPPSETT = [
   { navn: 'lys, bred', colorScheme: 'light', viewport: { width: 1440, height: 1000 } },
-  { navn: 'mørk, bred', colorScheme: 'dark', viewport: { width: 1440, height: 1000 } },
   { navn: 'lys, smal', colorScheme: 'light', viewport: { width: 390, height: 844 } },
-  { navn: 'mørk, smal', colorScheme: 'dark', viewport: { width: 390, height: 844 } },
 ];
 
 function globalPlaywright() {

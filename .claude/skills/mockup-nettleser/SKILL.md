@@ -255,8 +255,9 @@ node .claude/skills/mockup-nettleser/uu.mjs [--url http://localhost:5173] [--sce
 ```
 
 Legger `axe.min.js` fra devDependency-en `axe-core` inn i `/mockup` og kjører
-reglene for WCAG 2.1 A og AA i fire oppsett: lys og mørk modus (`colorScheme`, som
-`app.html` leser), på 1440 og 390 px. I hvert oppsett skannes saken som TE og som BH
+reglene for WCAG 2.1 A og AA i to oppsett: lys modus (`colorScheme`, som
+`app.html` leser), på 1440 og 390 px. Mørk modus vurderes ikke nå (oppdragsgiver 29.10).
+I hvert oppsett skannes saken som TE og som BH
 (handlingslinja og betegnelsene i sporoversikten for BH). På bred skjerm kjøres også
 BHs svarskjema for fristen og for vederlaget; vederlaget i `scenario1prod`, uansett
 `--scenario` (#1213). Det skriver reglene som er brutt, med inntil `--vis` steder hver og

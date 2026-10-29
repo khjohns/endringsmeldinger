@@ -17,7 +17,7 @@ Fila er eneste hjem for teksten i konseptet. Skissene står i [`skjermer/`](skje
 [`bilder/`](bilder/) er laget fra dem med [`lag-bilder.mjs`](lag-bilder.mjs), som kjøres
 fra repoets rot med `node docs/design/konsept-varden/lag-bilder.mjs`. Skriftene lastes fra
 nettet, så kjøringen trenger nettilgang. Hva som er endret mellom rundene, og
-hvorfor, står i [endringsloggen](endringslogg.md). Vurderingen av versjon 3 etter grensesnitt-skillen står i
+hvorfor, står i [endringsloggen](endringslogg.md). Vurderingen av versjon 3 etter den tidligere grensesnitt-skillen (tatt ut 29.10) står i
 [review-grensesnitt-2026-10-27.md](review-grensesnitt-2026-10-27.md). Sammenligningen av den bygde
 visningen i #1334 med skissene står i
 [review-varden-mot-skissene-2026-10-27.md](review-varden-mot-skissene-2026-10-27.md).
