@@ -8,7 +8,7 @@
 import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
-import { avvis } from './forutsetninger.ts';
+import { avvis, ELDRE_SVAR } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
@@ -24,16 +24,8 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/standpunkt.ts';
-import {
-  frafalletBinder,
-  foresporselForFristsvar,
-  forskyvningIBrevet,
-  innsigelsenEtterITide,
-  paaberoptEtterITide,
-  type Utledning,
-} from '../utledning/utled.ts';
-import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import type { Avvisning, Hjemmel, Krav, Part, Standpunkt, Svar } from '../typer.ts';
+import { foresporselForFristsvar, type Utledning } from '../utledning/utled.ts';
+import type { Avvisning, Krav, Part, Standpunkt } from '../typer.ts';
 
 /**
  * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.
@@ -41,24 +33,17 @@ import type { Avvisning, Hjemmel, Krav, Part, Standpunkt, Svar } from '../typer.
  */
 export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown>) => Standpunkt[];
 
-/** Det et «i tide» etter bestemmelsen gjaldt, i feilmeldingen for `SAGT_I_TIDE`. */
-const SAGT_I_TIDE_OM: Record<Hjemmel | '33.6.1', string> = {
-  '32.2': 'varselet kom',
-  '33.4': 'varselet kom',
-  '33.6.1': 'kravet ble spesifisert',
-  '33.6.2': 'TEs svar på forespørselen kom',
-  '34.1.2': 'varselet kom',
-  '34.1.3': 'varselet kom',
-};
-
-/** `forrige` er svaret en revisjon erstatter, så bindingen kontrolleres (HF-U5). */
+/**
+ * MM-U34 punkt 4, 6 og 7: også en revisjon som senker det byggherren har godkjent, en
+ * påberopelse etter et «i tide» og et avslag etter et frafall godtas. Løsningen avgjør
+ * ikke om endringen er rettslig virksom (MM-U12).
+ */
 function kontrollerSvar(
   s: Svarutkast,
   u: Utledning,
   regler: Regelsett,
   svarstandpunkter: Svarstandpunkter,
-  utdypningKreves: boolean,
-  forrige: Svar | null = null
+  utdypningKreves: boolean
 ): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
   if (s.gjelder !== krav.id)
@@ -89,19 +74,9 @@ function kontrollerSvar(
       return avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke regnes ut: ${feil.message}.`);
     throw feil;
   }
-  // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette.
-  const nye = svarstandpunkter(s, server);
-  const bundet = paaberoptEtterITide(u, s.spor, nye);
-  if (bundet)
-    return avvis(
-      'SAGT_I_TIDE',
-      `Byggherren har i et svar sendt fra appen sagt at ${SAGT_I_TIDE_OM[bundet.hjemmel]} i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
-    );
-  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u))
-    return avvis(
-      'FRAFALT',
-      'Byggherren har i et svar sendt fra appen frafalt pålegget etter § 32.3 c, og kan ikke nå avslå grunnlaget, heller ikke i en ny grunnlagsversjon (GR-U17, GR-U20).'
-    );
+  // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette. Skrivingen
+  // registrerer standpunktene og utregningen for brevet her (#814).
+  svarstandpunkter(s, server);
   const avvik = SAMMENLIKNES[s.spor].filter((f) => !likeResultatfelt(f, s.resultat[f], server[f]));
   if (avvik.length)
     return avvis(
@@ -115,23 +90,7 @@ function kontrollerSvar(
       'BEGRUNNELSE_MANGLER',
       `Svaret må ha en begrunnelse, fordi du ${grunner.slice(0, -1).join(', ')}${grunner.length > 1 ? ' og ' : ''}${grunner.at(-1)}.`
     );
-  return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));
-}
-
-/**
- * HF-U5, HF-U21: en revisjon kan ikke senke noe byggherren har innrømmet i svaret den
- * erstatter, også etter en ny grunnlagsversjon med samme hjemmel. En ny kravversjon gir
- * et nytt svar, ikke en revisjon (HF-U8). `nye` er standpunktene i
- * revisjonen slik brevet ville lagret dem, med serverens utregning.
- */
-function binding(forrige: Svar, nye: Standpunkt[], forskyvning: number): Avvisning | null {
-  const senket = senketInnroemmelse(forrige, nye, forskyvning);
-  return senket
-    ? avvis(
-        'SENKER_INNROEMMELSE',
-        `${senket}. Byggherren er bundet av det svaret innrømmer, til TE godtar det eller sender en ny kravversjon, og kan bare revidere svaret i TEs favør (HF-U5).`
-      )
-    : null;
+  return null;
 }
 
 /**
@@ -236,23 +195,30 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
 
 const varseletSendt = (hjemmel: string) => `varselet etter § ${hjemmel} ble sendt`;
 
+type OppgittDato = { dato: unknown; gjelder: string; av: 'TE' | 'Byggherren' };
+
 /**
- * Datoen TE oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
- * fra i grunnlagskravet (VS-U26), og datoen et varsel etter § 33.4, § 34.1.2 eller § 34.1.3 ble
- * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5).
+ * Datoen parten oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
+ * fra i grunnlagskravet (VS-U26), datoen et varsel etter § 33.4, § 34.1.2 eller § 34.1.3 ble
+ * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5), og datoen
+ * byggherrens registrerte begrunnelse ble sendt (KA-U35).
  */
-function oppgittDatoI(k: Kommando): { dato: unknown; gjelder: string } | null {
-  if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel) };
+function oppgittDatoI(k: Kommando): OppgittDato | null {
+  if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'TE' };
+  if (k.type === 'begrunnelse')
+    return k.sendt === undefined
+      ? null
+      : { dato: k.sendt, gjelder: 'brevet med begrunnelsen ble sendt', av: 'Byggherren' };
   if (k.type !== 'krav') return null;
   if (k.spor === 'frist')
-    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4') } : null;
+    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null;
   if (k.spor !== 'grunnlag') return null;
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
-  return felt === null ? null : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt] };
+  return felt === null ? null : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt], av: 'TE' };
 }
 
 /**
- * Datoen TE oppgir (`oppgittDatoI`), kan ikke være etter brevets dato, som er
+ * Datoen parten oppgir (`oppgittDatoI`), kan ikke være etter brevets dato, som er
  * serverens (VS-U8) i norsk tid. Det er en kontroll av en dato som ikke kan
  * stemme; om varselet kom i tide, vurderes ikke (arbeidsvalg 1 i #664, samme form
  * som KA-U36). `brevetsDato` er en kalenderdag, ÅÅÅÅ-MM-DD, fra `registrertDato`;
@@ -278,7 +244,7 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
   if (oppgitt === null || dag === null || dag <= brevetsDato) return null;
   return avvis(
     'DATO_ETTER_BREVET',
-    `TE har oppgitt at ${oppgitt.gjelder} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
+    `${oppgitt.av} har oppgitt at ${oppgitt.gjelder} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
   );
 }
 
@@ -371,12 +337,17 @@ export function nyttelastkontroll(
       const forrige = u.spor[k.svar.spor].gjeldendeSvar;
       if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
-      return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves, forrige);
+      return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves);
     }
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar.
       if (k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
-        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');
+        return avvis(
+          'IKKE_GJELDENDE_SVAR',
+          u.spor[k.spor].svar.some((x) => x.id === k.svar)
+            ? ELDRE_SVAR
+            : 'Aksepten gjelder ikke et svar byggherren har sendt i sporet.'
+        );
       if (k.regelversjon !== regler.versjon)
         return avvis(
           'ANNEN_REGELVERSJON',
@@ -427,16 +398,8 @@ export function nyttelastkontroll(
           'VARSLINGSPLIKT_GJELDER_IKKE',
           '§ 34.1.2 gjelder bare svikt og andre forhold, ikke kategorien i grunnlaget, så byggherren tar ikke stilling til om varselet kom i tide (KA-46).'
         );
-      // VS-U24, HF-U4: en innsigelse mot TEs varsel etter § 33.4 eller § 34.1.2, eller TEs
-      // varsel etter § 32.2, er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at
-      // varselet kom i tide, avvises den (del 2 av #498).
-      const hjemmel = innsigelsenEtterITide(k.gjelder, part, u);
-      return hjemmel
-        ? avvis(
-            'SAGT_I_TIDE',
-            `Byggherren har i et svar sendt fra appen sagt at ${SAGT_I_TIDE_OM[hjemmel]} i tide etter § ${hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, VS-U24).`
-          )
-        : null;
+      // MM-U34 punkt 6 og 15: også en påberopelse etter at byggherren har sagt «i tide».
+      return null;
     }
     case 'begrunnelse': {
       // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39) bygges ikke.

@@ -12,8 +12,7 @@
  * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204 påberopelsen etter
  * § 33.4 mot varselet (#309, KK-07), F208–F209 innsigelsen brevet viser til og gir opp
  * (#407, #309, #500), F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511),
- * F217–F220 et «i tide» som binder byggherren (HF-U4, HF-U8, #498), F221–F222 og F224
- * innsigelsen etter VS-U24 (#498, #517), F223 et registrert brev (HF-U4, OV-U4), og
+ * F222 og F224 innsigelsen etter VS-U24 (#498, #517), F223 et registrert brev (HF-U4, OV-U4), og
  * F246–F247 registrerte brev som dokumentasjon (OV-U4, OV-U6, #574), og F248–F255
  * opprettelsen og datoen etter VS-U26 (#664), og F296–F300 varselet med vedlegg i
  * fristkravet (OV-U5, #828) og datoen for varselet (#968), og F301–F303
@@ -90,9 +89,9 @@ const MUTASJONER: Mutasjon[] = [
         "} from '../utledning/utled.ts';\nimport { visning } from '../utledning/visning.ts';",
       ],
       [
-        "  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor))",
+        '  // kravene er avgjort, sperrer ikke.\n  if (u.grunnlagAvvist)',
         // Statusen leses uten å endre utfallet, så bare arkitekturtestene skal feile (#1122).
-        "  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor) && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status !== undefined)",
+        '  // kravene er avgjort, sperrer ikke.\n  if (u.grunnlagAvvist && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status !== undefined)',
       ],
     ],
     mal: [
@@ -287,8 +286,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n",
-        "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
+        "            : 'Byggherren har ikke svart i sporet.'\n        );\n",
+        "            : 'Byggherren har ikke svart i sporet.'\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
       ],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) kommandoer/forutsetninger.ts'],
@@ -495,7 +494,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: '«ingen krav» i begge sporene avgjør ikke kravene (KA-U12, #493)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [[' || KRAVSPOR.every((n) => u.spor[n].ingenKrav)', '']],
-    mal: ['når byggherren har frafalt pålegget, sier meldingen det'],
+    mal: ['«ingen krav» i begge spor avgjør kravene'],
   },
   {
     id: 'F36',
@@ -797,10 +796,7 @@ const MUTASJONER: Mutasjon[] = [
       'en hendelse som endrer utfallet etter at saken er lukket, leses med virkning (MM-U18, SK-01, KA-U11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      [
-        "  u.grunnlagAvvist\n    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n    : (spor ? varAvgjort(u, spor) : kraveneErAvgjort(u))",
-        "  false\n    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n    : false",
-      ],
+      ["  u.grunnlagAvvist\n    ? 'TE har godtatt svaret", "  false\n    ? 'TE har godtatt svaret"],
     ],
     mal: ['F-MM-U326h'],
   },
@@ -830,7 +826,7 @@ const MUTASJONER: Mutasjon[] = [
       'et registrert brev som strider mot en enighet eller et trekk, gjør saken ikke forstått (MM-U18, OV-U4)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
-    mal: ['F-MM-U326l', 'F-MM-G37'],
+    mal: ['F-MM-U326l'],
   },
   {
     id: 'F78',
@@ -889,6 +885,7 @@ const MUTASJONER: Mutasjon[] = [
         '      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.\n',
         "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
+      ["} from '../utledning/utled.ts';", "  kraveneErAvgjort,\n} from '../utledning/utled.ts';"],
     ],
     mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
   },
@@ -944,7 +941,6 @@ const MUTASJONER: Mutasjon[] = [
       'et «i tide» om varselet gir ikke opp en innsigelse mot fristkravet',
       'et «i tide» om varselet nevner ikke en innsigelse mot en tidligere kravversjon',
       'gir et «i tide» opp bare den mot varselet',
-      'F-MM-V10',
     ],
   },
   {
@@ -971,7 +967,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'svaret gjentar innsigelsen og viser til den',
       'gir byggherren innsigelsen opp, sier brevet det uttrykkelig',
-      'F-MM-V7c',
     ],
   },
   {
@@ -1407,15 +1402,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
   },
   {
-    id: 'F163',
-    feilklasse: 'meldingen for avgjorte krav kaller «ingen krav» et trekk (KA-U11, KA-U12)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      ['    u.spor[n].trukket\n      ?', '    u.spor[n].trukket || u.spor[n].ingenKrav\n      ?'],
-    ],
-    mal: ['når TE ikke krever fristforlengelse, er kravene avgjort, og meldingen sier hvorfor'],
-  },
-  {
     id: 'F165',
     feilklasse: 'leseren godtar en begrunnelse fra TE (KA-U34, MM-U2)',
     fil: `${K}/format/leser.ts`,
@@ -1446,13 +1432,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F169',
-    feilklasse: 'meldingen for avgjorte krav kaller et frafall en godkjenning (KA-U11, GR-U9)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['  const grunnlag = u.frafalt\n', '  const grunnlag = false\n']],
-    mal: ['når byggherren har frafalt pålegget, sier meldingen det'],
-  },
-  {
     id: 'F170',
     feilklasse: 'en lest senere begrunnelse kan endre utfallet (KA-U34, OV-U7)',
     fil: `${K}/utledning/utled.ts`,
@@ -1462,7 +1441,7 @@ const MUTASJONER: Mutasjon[] = [
         "['aksept', 'trekk', 'ingen_krav', 'varsel', 'begrunnelse']",
       ],
     ],
-    mal: ['en lest senere begrunnelse etter at kravene er avgjort'],
+    mal: ['en lest senere begrunnelse etter at saken er lukket etter GR-U27'],
   },
   {
     id: 'F173',
@@ -1757,7 +1736,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'gir byggherren opp innsigelsen mot fristvarselet',
       'gir et «i tide» opp bare den mot varselet',
-      'F-MM-V10',
     ],
   },
   {
@@ -1826,53 +1804,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['frafall avvises i gebyrer_og_avgifter'],
   },
   {
-    id: 'F217',
-    feilklasse: 'et «for sent» etter et «i tide» fra appen godtas (HF-U4, #498)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['.find((r) => harSagtITide(u, spor, r))', '.find(() => false)']],
-    mal: [
-      'en revisjon som påberoper «for sent» etter «i tide», avvises',
-      'F-MM-HF-U4-33-4',
-      'F-MM-HF-U8-32-2',
-    ],
-  },
-  {
-    id: 'F219',
-    feilklasse: 'et «i tide» binder bare gjeldende kravversjon (HF-U4, HF-U8, #498)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '  return u.spor[spor].svar.some(',
-        '  return u.spor[spor].svar.filter((x) => x.gjelder === u.spor[spor].gjeldendeKrav?.id).some(',
-      ],
-    ],
-    mal: [
-      'et svar på en senere kravversjon kan ikke påberope «for sent»',
-      '«i tide» står mot en senere grunnlagsversjon',
-      'F-MM-HF-U8-32-2',
-    ],
-  },
-  {
-    id: 'F220',
-    feilklasse: 'et «i tide» etter § 33.6.1 binder også senere kravversjoner (HF-U1, HF-U4, #498)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['            p.gjelder === r.gjelder &&\n', '']],
-    mal: ['som gjelder kravversjonen (HF-U4, HF-U1)'],
-  },
-  {
-    id: 'F221',
-    feilklasse:
-      'en innsigelse mot varselet etter et «i tide» fra appen godtas (HF-U4, VS-U24, del 2 av #498)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        '      const hjemmel = innsigelsenEtterITide(k.gjelder, part, u);',
-        '      const hjemmel = null && innsigelsenEtterITide(k.gjelder, part, u);',
-      ],
-    ],
-    mal: ['F-MM-V10', 'F-MM-V7c'],
-  },
-  {
     id: 'F222',
     feilklasse:
       'et svar på vederlaget etter en innsigelse mot vederlagskravet avvises (VS-U24, #517)',
@@ -1912,7 +1843,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: [
       'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
-      'etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder',
     ],
   },
   {
@@ -1945,70 +1875,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F227',
-    feilklasse:
-      'et felt som ikke gjelder kategorien, avvises som «i tide» før utregningen (#520, HF-U4)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        '  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);',
-        "  if (s.vurderinger.grunnlag_varslet_i_tide === false && paaberoptEtterITide(u, s.spor, [{ id: '', art: 'rettidighet', gjelder: '', hjemmel: '32.2', iTide: false }]))\n    return avvis('SAGT_I_TIDE', '');\n  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);",
-      ],
-    ],
-    mal: ['på en registrert versjon i svikt avvises av utregningen'],
-  },
-  {
-    id: 'F228',
-    feilklasse:
-      'en revisjon eller et nytt svar fra frafall til avslag godtas (GR-U17, GR-U20, #510)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u))",
-        "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u) && !u)",
-      ],
-    ],
-    mal: ['en revisjon fra frafall til avslag avvises', 'F-MM-G37', 'F-MM-G38'],
-  },
-  {
-    id: 'F230',
-    feilklasse: 'frafallet faller bort med en ny grunnlagsversjon (GR-U20, #510)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'binder(u, s) && frafaller(s));',
-        'binder(u, s) && frafaller(s) && s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id);',
-      ],
-    ],
-    mal: ['byggherren kan svare med frafall eller endringsordre, ikke med avslag', 'F-MM-G38'],
-  },
-  {
-    id: 'F231',
-    feilklasse:
-      'et avslag etter frafallet i et brev utenfor kommandoene leses med virkning (GR-U17, MM-U18, MM-U19, #510)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "  if (bundet && s.spor === 'grunnlag' && standpunktet(s, 'grunnlag')?.resultat === 'avslaatt')",
-        "  if (bundet && s.spor === 'grunnlag' && standpunktet(s, 'grunnlag')?.resultat === 'avslaatt' && !u)",
-      ],
-    ],
-    mal: ['gjør saken ikke forstått'],
-  },
-  {
-    id: 'F233',
-    feilklasse:
-      'en påberopelse etter § 32.2 etter frafallet i et brev utenfor kommandoene leses med virkning (GR-U17, MM-U18, MM-U19, #510)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "  if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s))",
-        "  if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s) && !u)",
-      ],
-    ],
-    mal: ['en påberopelse etter § 32.2 i et brev'],
-  },
-  {
     id: 'F234',
     feilklasse:
       'en ny grunnlagsversjon etter frafallet gjør grunnlaget uavklart til byggherren svarer (GR-U23, OV-U3, #510)',
@@ -2019,13 +1885,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F235',
     feilklasse:
-      'utledningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (OV-U3, #510, #580)',
+      'utledningen sier at en grunnlagsversjon venter på svar når saken er lukket (GR-U27, #510, #580)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [[' && !s.trukket && !sporetErLukket(u, spor)\n', ' && !s.trukket\n']],
-    mal: [
-      'svaret på versjon 2 avvises (OV-U3',
-      'SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav',
-    ],
+    endringer: [[' && !s.trukket && !sporetErLukket(u);', ' && !s.trukket;']],
+    mal: ['SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav'],
   },
   {
     id: 'F236',
@@ -2038,70 +1901,17 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-G43', 'F-MM-G18', 'F-MM-G45'],
   },
   {
-    id: 'F240',
-    feilklasse: 'en revisjon sammenliknes ikke med svaret den erstatter (HF-U5)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      ['return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));', 'return null;'],
-    ],
-    mal: [
-      'et lavere godkjent beløp avvises',
-      'færre godkjente dager avvises',
-      'F-MM-HF-U5-vederlag',
-      'F-MM-HF-U5-frist',
-      'F-MM-HF-U5-grunnlag',
-    ],
-  },
-  {
     id: 'F241',
     feilklasse:
       'en revisjon som tar tilbake aksepten av fast sum, avvises, som før MM-U34 punkt 15 (HF-U14 opphevet)',
-    fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [
-      [
-        "    } else if (f.art === 'hindring' && f.oppfylt) {\n",
-        "    } else if (f.art === 'metode' && f.aksepterer) {\n      if (ny(f)?.aksepterer === false) return 'aksepten av fast sum tas tilbake';\n    } else if (f.art === 'hindring' && f.oppfylt) {\n",
-      ],
-    ],
-    mal: [
-      'en revisjon som tar tilbake aksepten av fast sum, godtas',
-      'en revisjon som tar tilbake aksepten av fast sum, avvises bare når den også senker beløpet',
-    ],
-  },
-  {
-    id: 'F242',
-    feilklasse:
-      'byggherren er fri for svaret i vederlaget etter en ny grunnlagsversjon, som før HF-U21',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));\n',
-        '  if (forrige?.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;\n  return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));\n',
+        "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n",
+        "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n      if (forrige?.standpunkter.some((p) => p.art === 'metode' && p.aksepterer) && (k.svar.vurderinger as Record<string, unknown>).aksepterer_metode === false)\n        return avvis('SENKER_INNROEMMELSE', 'Aksepten av fast sum tas tilbake.');\n",
       ],
     ],
-    mal: ['bindingen i vederlaget står etter en ny grunnlagsversjon', 'F-MM-HF-U21'],
-  },
-  {
-    id: 'F243',
-    feilklasse:
-      'revisjonen sammenliknes med det første svaret på kravversjonen, ikke det den erstatter',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        'return forrige && binding(forrige, nye,',
-        'return forrige && binding(u.spor[s.spor].svar.find((x) => x.gjelder === forrige.gjelder)!, nye,',
-      ],
-    ],
-    mal: ['sammenliknes med svaret revisjonen erstatter'],
-  },
-  {
-    id: 'F244',
-    feilklasse: 'beløpet sammenliknes i hele kroner, ikke til hele øre (B-13)',
-    fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [
-      ['      if (nytt < godkjent)', '      if (Math.floor(n.godkjent) < Math.floor(f.godkjent))'],
-    ],
-    mal: ['beløpet sammenliknes til hele øre'],
+    mal: ['en revisjon som tar tilbake aksepten av fast sum, godtas'],
   },
   {
     id: 'F246',
@@ -2220,68 +2030,6 @@ const MUTASJONER: Mutasjon[] = [
   },
   // K-1 økt A (#770): MM-U27, OV-U13, #766 punkt 1 og #522.
   {
-    id: 'F258',
-    feilklasse:
-      'en hendelse utenfor kommandoene som bryter bindingen etter HF-U4 eller HF-U5, leses med virkning (MM-U27)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '    if (!registrert)\n      for (const x of bryterBindingen(',
-        '    if (false)\n      for (const x of bryterBindingen(',
-      ],
-    ],
-    mal: [
-      'en revisjon som senker det godkjente beløpet, gjør saken ikke forstått',
-      'etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)',
-    ],
-  },
-  {
-    id: 'F259',
-    feilklasse: 'et registrert brev som bryter bindingen, gjør saken ikke forstått (MM-U27, OV-U4)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '    if (!registrert)\n      for (const x of bryterBindingen(',
-        '    if (true)\n      for (const x of bryterBindingen(',
-      ],
-    ],
-    mal: ['den samme revisjonen i et registrert brev gjør ikke saken uforstått'],
-  },
-  {
-    id: 'F260',
-    feilklasse:
-      'en revisjon utenfor kommandoene som senker en innrømmelse, leses med virkning (MM-U27, HF-U5)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '      senketInnroemmelse(forrige, s.standpunkter, forskyvningIBrevet(forrige, u))',
-        '      false',
-      ],
-    ],
-    mal: ['en revisjon som senker det godkjente beløpet, gjør saken ikke forstått'],
-  },
-  {
-    id: 'F261',
-    feilklasse:
-      '«for sent» etter § 33.6.1 utenfor kommandoene leses med virkning etter «i tide» (MM-U27, HF-U4)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [[": p.art === 'spesifisering' && !p.iTide", ': false && !p.iTide']],
-    mal: ['en revisjon som sier at spesifiseringen etter § 33.6.1 kom for sent'],
-  },
-  {
-    id: 'F262',
-    feilklasse:
-      'en innsigelse utenfor kommandoene leses med virkning etter «i tide» (MM-U27, HF-U4, VS-U24)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '      x.grunn === undefined &&\n      innsigelsenEtterITide(x.gjelder, d.avsender, u)',
-        '      false',
-      ],
-    ],
-    mal: ['etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)'],
-  },
-  {
     id: 'F263',
     feilklasse: 'SK-12 sammenlikner den lagrede varseldatoen som tekst (#766)',
     fil: `${K}/kommandoer/nyttelast.ts`,
@@ -2301,7 +2049,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       ['i_tide: v.grunnlag_varslet_i_tide,', 'i_tide: v.hovedkrav_varslet_i_tide,'],
     ],
-    mal: ['en revisjon som påberoper «for sent» etter «i tide», avvises'],
+    mal: ['påberoper «for sent» etter § 32.2 etter «i tide», godtas og leses som påberopelse'],
   },
   {
     id: 'F267',
@@ -2314,22 +2062,12 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['opplysningen om § 31.3 ved'],
   },
   {
-    id: 'F269',
-    feilklasse: 'en innsigelse fra TE regnes som brudd på byggherrens «i tide» (MM-U27, HF-U4)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [["  if (part !== 'BH') return null;", '  if (false) return null;']],
-    mal: ['en innsigelse fra TE mot eget grunnlagskrav etter «i tide»'],
-  },
-  {
     id: 'F270',
     feilklasse:
       'en innsigelse mot et grunnlagskrav i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['&& !kravetErDokumentasjon(d) &&', '&& true &&']],
-    mal: [
-      'brevteksten gjentar den ikke i svaret',
-      'kommandoene avviser den ikke etter et «i tide»',
-    ],
+    mal: ['brevteksten gjentar den ikke i svaret'],
   },
   {
     id: 'F271',
@@ -2358,24 +2096,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['      if (registrert === null)', '      if (false)']],
     mal: ['en lagret varseldato uten tidssone kan ikke leses'],
-  },
-  {
-    id: 'F272',
-    feilklasse: 'en revisjon uten beløp slipper gjennom uten sammenlikning (HF-U5, #627, #787)',
-    fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [
-      ['      if (nytt === null)', '      if (nytt === null) continue;\n      if (false)'],
-    ],
-    mal: ['sammenliknes ikke og avvises'],
-  },
-  {
-    id: 'F292',
-    feilklasse: 'dager som mangler i svaret, sammenliknes som null dager (HF-U5, #814)',
-    fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [
-      ['      if (!Number.isFinite(n.vurdert) || !Number.isFinite(f.vurdert))', '      if (false)'],
-    ],
-    mal: ['dagene sammenliknes ikke, og revisjonen avvises'],
   },
   // K-1 B1 (#770): T5 om grenene i `strid` og referansekontrollen (#669), #776 p1 og #522.
   {
@@ -2460,14 +2180,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en revisjon av et svar uten virkning (MM-U18)'],
   },
   {
-    id: 'F281',
-    feilklasse:
-      'hjemmelen for en innsigelse leses uten varslingsplikten som ble frosset i svaret (MM-U18, GR-U12, #776)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['        s.beslutningsgrunnlag.varslingsplikt === true &&\n', '']],
-    mal: ['hjemmelen for innsigelsen leses av svaret som sa «i tide», ikke av et nyere regelsett'],
-  },
-  {
     id: 'F282',
     feilklasse: 'påberopelsen etter § 34.1.2 leses av feltet for § 32.2 (HF-U4, #522)',
     fil: `${K}/kommandoer/standpunkter.ts`,
@@ -2478,7 +2190,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       ['i_tide: v.hovedkrav_varslet_i_tide,', 'i_tide: v.grunnlag_varslet_i_tide,'],
     ],
-    mal: ['en revisjon som påberoper «for sent» etter «i tide», avvises'],
+    mal: ['påberoper «for sent» etter § 34.1.2 etter «i tide», godtas og leses som påberopelse'],
   },
   {
     id: 'F283',
@@ -2495,37 +2207,12 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['kontrollsak: grunnlaget godkjent gir ingen prinsipal grunn fra grunnlaget'],
   },
   {
-    id: 'F284',
-    feilklasse: 'et «i tide» etter § 33.6.1 binder byggherren etter § 33.4 (HF-U4, #522)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        '  const bundet = paaberoptEtterITide(u, s.spor, nye);',
-        "  const bundet = paaberoptEtterITide(\n    forrige\n      ? { ...u, spor: { ...u.spor, frist: { ...u.spor.frist, svar: u.spor.frist.svar.map((x) => ({ ...x, standpunkter: x.standpunkter.map((p) => (p.art === 'spesifisering' ? { ...p, art: 'rettidighet' as const, hjemmel: '33.4' as const } : p)) })) } } }\n      : u,\n    s.spor,\n    nye\n  );",
-      ],
-    ],
-    mal: ['«i tide» etter § 33.6.1 sier ingenting om § 33.4'],
-  },
-  {
     id: 'F285',
     feilklasse:
       'brevteksten leser ikke regelsettet for om en innsigelse er en påberopelse etter § 32.2 (VS-U24, #798)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['(k) =>\n      gjelderVarslingsplikten(k, regler)\n    );', '() => false);']],
     mal: ['ikke av et nyere regelsett'],
-  },
-  {
-    id: 'F286',
-    feilklasse:
-      'et «i tide» etter § 32.2 binder bare versjoner i samme kategori (HF-U8, arbeidsvalget i #798, #804)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '      binder(u, s) &&\n      s.standpunkter.some((p) =>',
-        "      binder(u, s) &&\n      (spor !== 'grunnlag' ||\n        sammeKategori(\n          u.spor.grunnlag.krav.find((k) => k.id === s.gjelder)!,\n          u.spor.grunnlag.gjeldendeKrav!\n        )) &&\n      s.standpunkter.some((p) =>",
-      ],
-    ],
-    mal: ['når et svar utenfor kommandoene har besvart den'],
   },
   {
     id: 'F287',
@@ -2576,18 +2263,6 @@ const MUTASJONER: Mutasjon[] = [
   },
   // Runde 9, gruppe K: #870 p1 og p3, tillegg b til #698.
   {
-    id: 'F293',
-    feilklasse: 'dagene som mangler i revisjonen, sammenliknes (HF-U5, #870)',
-    fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [
-      [
-        '      if (!Number.isFinite(n.vurdert) || !Number.isFinite(f.vurdert))',
-        '      if (!Number.isFinite(f.vurdert))',
-      ],
-    ],
-    mal: ['dagene mangler i revisjonen: revisjonen avvises'],
-  },
-  {
     id: 'F294',
     feilklasse:
       'skrivingen gjør formkontrollen før kontrollen av tekst basen ikke kan lagre (#373, #870)',
@@ -2633,7 +2308,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "  if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel) };",
+        "  if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'TE' };",
         '',
       ],
     ],
@@ -2645,7 +2320,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4') } : null;",
+        "    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null;",
         '    return null;',
       ],
     ],
@@ -2666,27 +2341,21 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'protesten godtas i første versjon (OV-U7)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [["    case 'avklare':\n    case 'protest':\n", "    case 'avklare':\n"]],
-    mal: [
-      'protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, og ingen hendelse skrives',
-    ],
+    mal: ['protest, påberopt passivitet og senere begrunnelse avvises fra begge parter'],
   },
   {
     id: 'F302',
     feilklasse: 'påberopt passivitet godtas i første versjon (OV-U7)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [["    case 'protest':\n    case 'passivitet':\n", "    case 'protest':\n"]],
-    mal: [
-      'protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, og ingen hendelse skrives',
-    ],
+    mal: ['protest, påberopt passivitet og senere begrunnelse avvises fra begge parter'],
   },
   {
     id: 'F303',
     feilklasse: 'den senere begrunnelsen godtas i første versjon (OV-U7)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [["    case 'passivitet':\n    case 'begrunne':\n", "    case 'passivitet':\n"]],
-    mal: [
-      'protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, og ingen hendelse skrives',
-    ],
+    mal: ['protest, påberopt passivitet og senere begrunnelse avvises fra begge parter'],
   },
   {
     id: 'F304',
@@ -2698,30 +2367,14 @@ const MUTASJONER: Mutasjon[] = [
         "['aksept', 'trekk', 'ingen_krav', 'varsel', 'passivitet']",
       ],
     ],
-    mal: ['en lest påberopt passivitet etter at kravene er avgjort'],
-  },
-  {
-    id: 'F305',
-    feilklasse:
-      'sperren for det som var avgjort, faller når et første krav i et annet spor gjør at kravene ikke lenger er avgjort (OV-U3, #493)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '): boolean => u.avgjorteSpor.includes(spor);',
-        '): boolean => kraveneErAvgjort(u) && u.avgjorteSpor.includes(spor);',
-      ],
-    ],
-    mal: [
-      'det første kravet i sporet gjør at kravene ikke lenger er avgjort',
-      'en rad som trekker et krav som var avgjort',
-    ],
+    mal: ['en lest påberopt passivitet etter at saken er lukket etter GR-U27'],
   },
   {
     id: 'F306',
     feilklasse: 'et spor uten krav hindrer at kravene er avgjort (OV-U3, #493)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['(n) => !sendt(n) || u.spor[n].trukket ||', '(n) => u.spor[n].trukket ||']],
-    mal: ['et spor uten krav hindrer ikke', 'F-MM-K1'],
+    mal: ['et spor uten krav hindrer ikke'],
   },
   {
     id: 'F307',
@@ -2729,24 +2382,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['(KRAVSPOR.some(sendt) || ', '(true || ']],
     mal: ['uten et sendt vederlags- eller fristkrav er kravene ikke avgjort'],
-  },
-  {
-    id: 'F308',
-    feilklasse:
-      'varselet og TEs opplysning om varseldato avvises når kravene er avgjort (OV-U3, OV-U5, #493)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort", 'varAvgjort']],
-    mal: ['TEs opplysning om varseldato godtas i et spor som var avgjort', 'F-MM-B1', 'F-MM-EO1'],
-  },
-  {
-    id: 'F309',
-    feilklasse:
-      'et varsel etter at kravene er avgjort, gjør saken ikke forstått (OV-U3, OV-U5, MM-U18, #493)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ["    x.art === 'varsel'\n      ? u.grunnlagAvvist", '    false\n      ? u.grunnlagAvvist'],
-    ],
-    mal: ['TEs opplysning om varseldato godtas i et spor som var avgjort'],
   },
   {
     id: 'F310',
@@ -2792,7 +2427,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et krav venter på svar og et svar står som ikke godtatt etter at avslaget av grunnlaget er godtatt (SK-01, #1050, #1067)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['  u.grunnlagAvvist || varAvgjort(u, spor);', '  varAvgjort(u, spor);']],
+    endringer: [
+      [
+        'export const sporetErLukket = (u: Utledning): boolean => u.grunnlagAvvist;',
+        'export const sporetErLukket = (u: Utledning): boolean => u.grunnlagAvvist && false;',
+      ],
+    ],
     mal: [
       'SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav',
       'SK-01: når TE godtar avslaget av grunnlaget i forløp A',
@@ -2831,10 +2471,7 @@ const MUTASJONER: Mutasjon[] = [
       'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen også når sporet er lukket (MM-U31, #1137)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
-      [
-        '    !sporetErLukket(u, spor) &&\n    u.spor.frist.foresporsler',
-        '    u.spor.frist.foresporsler',
-      ],
+      ['    !sporetErLukket(u) &&\n    u.spor.frist.foresporsler', '    u.spor.frist.foresporsler'],
     ],
     mal: ['en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget'],
   },
@@ -2853,7 +2490,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'svarIkkeGodtatt leser ikke at sporet er lukket (SK-01, OV-U3, #1050)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["    !sporetErLukket(u, spor) &&\n    !(spor === 'grunnlag'", "    !(spor === 'grunnlag'"],
+      ["    !sporetErLukket(u) &&\n    !(spor === 'grunnlag'", "    !(spor === 'grunnlag'"],
     ],
     mal: ['SK-01: når TE godtar avslaget av grunnlaget i forløp A'],
   },
@@ -2920,7 +2557,10 @@ const MUTASJONER: Mutasjon[] = [
         ": false\n          ? '33.6.2'",
       ],
     ],
-    mal: ['VS-U29: innsigelsen mot begrunnelsen', 'HF-U4: etter «i tide» etter § 33.6.2'],
+    mal: [
+      'VS-U29: innsigelsen mot begrunnelsen',
+      'etter «i tide» etter § 33.6.2 gir svaret på en senere kravversjon ikke opp innsigelsen',
+    ],
   },
   {
     id: 'F321',
@@ -3346,7 +2986,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F373',
     feilklasse: 'det særskilte varselet etter § 34.1.3 avvises etter vederlagskravet (OV-U8)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["if ('hjemmel' in h)\n", "if ('hjemmel' in h && !s.krav.length)\n"]],
+    endringer: [
+      ["if ('hjemmel' in h) return null;", "if ('hjemmel' in h && !s.krav.length) return null;"],
+    ],
     mal: ['det særskilte varselet kan sendes etter vederlagskravet'],
   },
   {
@@ -3376,13 +3018,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [["typeof v.virkning === 'number' && v.virkning > 1", 'v.virkning === 2']],
     mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],
-  },
-  {
-    id: 'F378',
-    feilklasse: 'meldingen om en senket revisjon sier ikke etiketten fra lag 3 (OV-U32)',
-    fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [['lag !== null && lag + forskyvning > 1', 'lag === 2']],
-    mal: ['meldingen om en senket revisjon sier etiketten for laget dagene sto i'],
   },
   {
     id: 'F379',
@@ -3451,15 +3086,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et frafall av pålegget flytter ikke lagene'],
   },
   {
-    id: 'F385',
-    feilklasse: 'meldingen om en senket revisjon etiketterer uten forskyvningen (#1199)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      ['binding(forrige, nye, forskyvningIBrevet(forrige, u))', 'binding(forrige, nye, 0)'],
-    ],
-    mal: ['meldingen sier etiketten brevet ga beløpet når grunnlaget er avslått'],
-  },
-  {
     id: 'F386',
     feilklasse: 'visningen regner upåvirket som en annen virkning enn første lag (OV-U33, #1047)',
     fil: `${K}/frosset/standpunkt.ts`,
@@ -3496,22 +3122,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
-  },
-  {
-    id: 'F390',
-    feilklasse:
-      'meldingen om en senket revisjon regner etiketten fra grunnlagssvaret nå, ikke det brevet ble skrevet mot (MM-U11, #1199)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        'binding(forrige, nye, forskyvningIBrevet(forrige, u))',
-        'binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length)',
-      ],
-    ],
-    mal: [
-      'meldingen sier etiketten brevet ga, også når grunnlaget er godkjent etter brevet',
-      'meldingen sier etiketten brevet ga, også når en ny grunnlagsversjon er avslått uten § 32.2 etter brevet',
-    ],
   },
   {
     id: 'F391',
@@ -3559,13 +3169,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en begrensning krever begrunnelse, også når beløpet etter den er likt'],
-  },
-  {
-    id: 'F396',
-    feilklasse: 'en revisjon kan senke beløpet etter begrensningen etter § 34.1.3 (HF-U5, valg 4)',
-    fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [['beloep(n.begrenset)! < beloep(f.begrenset)!', 'beloep(n.begrenset)! < 0n']],
-    mal: ['en revisjon som senker posten eller beløpet etter begrensningen, avvises'],
   },
   {
     id: 'F397',

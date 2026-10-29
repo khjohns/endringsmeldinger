@@ -107,7 +107,7 @@
           "kilde": ["OV-U27"]
         },
         { "tekst": "TE forstår at en aksept godtar begge standpunktene, også at kravet er tapt.", "kilde": ["KA-U1", "HF-U9"] },
-        { "tekst": "TE ser at alternativet til å godta er en ny kravversjon.", "kilde": ["OV-U54", "KA-U7"] }
+        { "tekst": "TE ser at alternativet til å godta er en ny kravversjon.", "kilde": ["OV-U54", "MM-U34"] }
       ]
     },
     {
@@ -134,6 +134,11 @@
       "dato": "2026-10-27",
       "grunnlag": "#1302, HF-U11",
       "hva": "Standpunktet i beslutningslinja sier at varselet etter § 34.1.2 kom for sent, ikke «prekludert»."
+    },
+    {
+      "dato": "2026-10-28",
+      "grunnlag": "MM-U34, #1376",
+      "hva": "Etter at TE har godtatt svaret, kan TE sende en ny kravversjon i sporet (steg 5). Enigheten bevares, og løsningen avgjør ikke om partene er bundet."
     }
   ]
 }

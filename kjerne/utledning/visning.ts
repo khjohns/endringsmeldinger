@@ -97,7 +97,7 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   spesifisert_krav_etterspurt: (u, spor) =>
     spor === 'frist' &&
     !u.spor.grunnlag.trukket &&
-    !sporetErLukket(u, spor) &&
+    !sporetErLukket(u) &&
     u.spor.frist.foresporsler.some((f) => f.svar === null),
   venter_paa_svar: venterPaaSvar,
   paalegg_frafalt: (u, spor) => spor === 'grunnlag' && u.frafalt,

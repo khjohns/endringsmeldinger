@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest';
 import type { Journalrad, Krav, Part, Standpunktsvirkning, Svar } from '../typer.ts';
 import { frysBrev, Skrivefeil, vurder, type Kontekst } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
+import { ELDRE_SVAR } from '../kommandoer/forutsetninger.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal, standpunkterISvaret, Uforstaatt } from '../format/leser.ts';
@@ -30,7 +31,6 @@ import {
   ulikeVirkninger,
   virkninger,
 } from '../frosset/standpunkt.ts';
-import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
@@ -1071,6 +1071,65 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
   });
 });
 
+describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF-U8)', () => {
+  /** Byggherren godkjenner grunnlaget og reviderer til avslag; TE godtar svaret `velg` gir. */
+  const aksept = async (velg: (tidligere: string) => string) => {
+    const k = await bygg(minnebane(), [
+      'krav_irreg',
+      {
+        handling: 'brev',
+        svar: [{ spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true }],
+      },
+      { handling: 'revisjon', spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true },
+    ]);
+    const tidligere = (await k.utledning()).spor.grunnlag.svar[0].id;
+    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' }, (kommando) => {
+      kommando.svar = velg(tidligere);
+    });
+    return u.godtatt ? 'godtatt' : u.avvisning;
+  };
+  const melding = async (steg: (string | Handling)[]) => {
+    const k = await bygg(minnebane(), ['krav_irreg', ...steg]);
+    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' });
+    return u.godtatt ? 'godtatt' : u.avvisning;
+  };
+
+  it('uten svar i sporet nevnes ikke et eldre svar', async () => {
+    const a = await melding([]);
+    expect(a).toEqual({
+      regel: 'IKKE_GJELDENDE_SVAR',
+      melding: 'Byggherren har ikke svart i sporet.',
+    });
+  });
+
+  it('etter en ny grunnlagsversjon sier meldingen at svaret er eldre, ikke avslått eller falt bort', async () => {
+    const a = await melding([
+      {
+        handling: 'brev',
+        svar: [{ spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true }],
+      },
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring' },
+    ]);
+    expect(a).toMatchObject({
+      regel: 'IKKE_GJELDENDE_SVAR',
+      melding: `Byggherren har ikke svart på gjeldende krav. ${ELDRE_SVAR}`,
+    });
+  });
+
+  it('en aksept av det reviderte svaret sier at det ikke er avslått eller falt bort', async () => {
+    const a = await aksept((tidligere) => tidligere);
+    expect(a).toEqual({ regel: 'IKKE_GJELDENDE_SVAR', melding: ELDRE_SVAR });
+    expect(ELDRE_SVAR).toContain('svaret er ikke avslått eller falt bort');
+  });
+
+  it('en aksept av et svar som ikke finnes i sporet, nevner ikke et eldre svar', async () => {
+    expect(await aksept(() => 'finnes-ikke')).toEqual({
+      regel: 'IKKE_GJELDENDE_SVAR',
+      melding: 'Aksepten gjelder ikke et svar byggherren har sendt i sporet.',
+    });
+  });
+});
+
 /**
  * GR-U18: frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget, ikke der
  * endringen kommer av offentlig myndighet eller gebyr. Frafall kan ikke kombineres med at
@@ -1304,73 +1363,6 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
     expect(() =>
       regnUtSvar('vederlag', vurderinger, { krav, grunnlagskrav }, GJELDENDE_REGLER)
     ).toThrow(/gjelder bare svikt og andre forhold/);
-  });
-});
-
-// HF-U5: et beløp som mangler, er ikke null kroner (#627 punkt 3, valg 4 i #1047). Mangler det
-// i svaret, har byggherren ikke innrømmet noe å senke (#787 punkt 1). Mangler det i revisjonen,
-// slipper den ikke gjennom uten sammenlikning.
-describe('revisjonen av et svar uten beløp', () => {
-  const svar = (godkjent: number | undefined) =>
-    ({
-      standpunkter: [{ id: 'b', art: 'beloep', resultat: 'godkjent', godkjent }],
-      beslutningsgrunnlag: { virkninger: [] },
-    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
-  const revisjon = (godkjent: number) =>
-    [{ id: 'n', art: 'beloep', resultat: 'delvis_godkjent', godkjent }] as Parameters<
-      typeof senketInnroemmelse
-    >[1];
-
-  it('et svar uten beløp har ikke innrømmet noe, så revisjonen avvises ikke, heller ikke en som hever det (#787)', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toBeNull();
-    expect(senketInnroemmelse(svar(undefined), revisjon(100), 0)).toBeNull();
-  });
-
-  it('en revisjon uten beløp sammenliknes ikke og avvises', () => {
-    expect(senketInnroemmelse(svar(100), revisjon(undefined as unknown as number), 0)).toEqual(
-      expect.stringMatching(/Beløpet mangler i revisjonen/)
-    );
-  });
-
-  it('kontrollsak: med beløpet sammenliknes revisjonen', () => {
-    expect(senketInnroemmelse(svar(100), revisjon(100), 0)).toBeNull();
-    expect(senketInnroemmelse(svar(100), revisjon(50), 0)).toMatch(/senker beløpet/);
-  });
-});
-
-// HF-U5: dagene som mangler i et lagret svar, er ikke null dager, så en revisjon med færre
-// dager slipper ikke gjennom uten sammenlikning (#814 punkt 3, som #627 for beløpet).
-describe('revisjonen av et svar uten dager', () => {
-  const svar = (vurdert: number | undefined) =>
-    ({
-      standpunkter: [{ id: 'd', art: 'dager', resultat: 'godkjent', vurdert }],
-      beslutningsgrunnlag: { virkninger: [] },
-    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
-  const revisjon = (vurdert: number | undefined) =>
-    [{ id: 'n', art: 'dager', resultat: 'delvis_godkjent', vurdert }] as Parameters<
-      typeof senketInnroemmelse
-    >[1];
-
-  it('dagene sammenliknes ikke, og revisjonen avvises', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toEqual(
-      expect.stringMatching(/Dagene mangler/)
-    );
-  });
-
-  // #870: begge sider kontrolleres, og dager som ikke er et tall, mangler, som beløpet (#627).
-  it.each([
-    ['dagene mangler i revisjonen', 10, undefined],
-    ['dagene i svaret er NaN', NaN, 0],
-    ['dagene i revisjonen er NaN', 10, NaN],
-  ])('%s: revisjonen avvises', (_navn, foer, etter) => {
-    expect(senketInnroemmelse(svar(foer), revisjon(etter), 0)).toEqual(
-      expect.stringMatching(/Dagene mangler/)
-    );
-  });
-
-  it('kontrollsak: med dagene sammenliknes revisjonen', () => {
-    expect(senketInnroemmelse(svar(10), revisjon(10), 0)).toBeNull();
-    expect(senketInnroemmelse(svar(10), revisjon(5), 0)).toMatch(/senker dagene/);
   });
 });
 
@@ -1824,36 +1816,6 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
 describe('laget og upåvirket hos leserne (OV-U32)', () => {
   const v = (standpunkt: string, virkning: Standpunktsvirkning['virkning']) =>
     ({ standpunkt, art: 'dager', virkning }) as Standpunktsvirkning;
-  const svar = (virkning: Standpunktsvirkning['virkning']) =>
-    ({
-      standpunkter: [{ id: 'd', art: 'dager', resultat: 'godkjent', vurdert: 10 }],
-      beslutningsgrunnlag: { virkninger: [v('d', virkning)] },
-    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
-  const revisjon = [
-    { id: 'n', art: 'dager', resultat: 'delvis_godkjent', vurdert: 5 },
-  ] as Parameters<typeof senketInnroemmelse>[1];
-
-  it('meldingen om en senket revisjon sier etiketten for laget dagene sto i, også fra fjerde lag', () => {
-    expect(senketInnroemmelse(svar(2), revisjon, 0)).toBe(
-      'Svaret godkjenner subsidiært 10 dager, og revisjonen senker dagene til 5 dager'
-    );
-    expect(senketInnroemmelse(svar(3), revisjon, 0)).toMatch(/godkjenner videre subsidiært 10/);
-    expect(senketInnroemmelse(svar(4), revisjon, 0)).toMatch(/godkjenner videre subsidiært 10/);
-  });
-
-  it('kontrollsak: et upåvirket standpunkt eller et i første lag får ingen etikett i meldingen', () => {
-    expect(senketInnroemmelse(svar('upaavirket'), revisjon, 0)).toMatch(
-      /^Svaret godkjenner 10 dager/
-    );
-    expect(senketInnroemmelse(svar(1), revisjon, 0)).toMatch(/^Svaret godkjenner 10 dager/);
-  });
-
-  // Svaret i #1199: meldingen setter etiketten som brevet, med lagene grunnlaget opptar.
-  it('meldingen flytter laget ned med lagene grunnlaget opptar foran sporet', () => {
-    expect(senketInnroemmelse(svar(1), revisjon, 1)).toMatch(/^Svaret godkjenner subsidiært 10/);
-    expect(senketInnroemmelse(svar(1), revisjon, 2)).toMatch(/godkjenner videre subsidiært 10/);
-    expect(senketInnroemmelse(svar(2), revisjon, 1)).toMatch(/godkjenner videre subsidiært 10/);
-  });
 
   // Kravet til B2 i #1047 (6361242248): upåvirket betyr at ingen av byggherrens innsigelser
   // rammer standpunktet, som i første lag, så det er ingen regelendring.
