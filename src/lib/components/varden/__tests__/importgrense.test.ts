@@ -22,8 +22,8 @@ const PAKKER = new Set(['svelte', 'lucide-svelte']);
 const MODULER = new Set(
   [
     'kjernesak/kontekst.svelte',
-    // Bindingsteksten i arbeidsvalget 26.10, som dagens skjema også viser. Ingen regel.
-    'kjernesak/bindingstekst',
+    // Teksten om svarets virkning i arbeidsvalget 26.10, som dagens skjema også viser. Ingen regel.
+    'kjernesak/svarvirkning',
     'components/kontraktsbord/theme.css',
   ].map((m) => join(LIB, m))
 );

@@ -119,6 +119,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Steg 4: BH vurderer varslingen og beløpet, kontrollerer brevet og sender svaret.
     const vist = await bhSvarerIVarden();
     expect(vist.join(' ')).toMatch(/Prinsipalt: byggherren gjør gjeldende at varselet/);
+    // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
+    expect(document.body.textContent).toMatch(/Begrunnelsen tolkes ikke\./);
+    expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
     await sendBrevet('Send svaret til TE');
     await vi.waitFor(() => expect(nyeRader(demosak(), versjonVed(punkt.id))).toHaveLength(1));
     const [svaret] = nyeRader(demosak(), versjonVed(punkt.id));

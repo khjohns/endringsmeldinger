@@ -1,6 +1,6 @@
 <!--
   Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som
-  lesespalte, og sendepanelet med det avsenderen blir bundet av. Kommandoen sendes med den
+  lesespalte, og sendepanelet med virkningen av brevet. Kommandoen sendes med den
   teksten avsenderen har sett, og serveren avviser en annen (LV-U2).
 -->
 <script lang="ts">
@@ -21,7 +21,7 @@
     handling,
     svarerPaa,
     detteSender,
-    bindinger,
+    virkninger,
     sendTekst,
     tilbakeTil,
     ontilbake,
@@ -36,7 +36,7 @@
     handling: string;
     svarerPaa: { nummer: number; registrert: string } | null;
     detteSender: { tekst: string; lag: string | null }[];
-    bindinger: string[];
+    virkninger: string[];
     sendTekst: string;
     tilbakeTil: string;
     ontilbake: () => void;
@@ -99,7 +99,7 @@
           <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
         {/each}
       </ul>
-      {#each bindinger as b, i (i)}<p class:sterk={i === 0}>{b}</p>{/each}
+      {#each virkninger as b, i (i)}<p class:sterk={i === 0}>{b}</p>{/each}
       <p class="dempet">{BREVKONTROLL.ikkeEndres}</p>
     </div>
     <div class="send">

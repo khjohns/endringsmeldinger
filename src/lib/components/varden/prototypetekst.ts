@@ -2,7 +2,7 @@
  * PROTOTYPETEKST (#1331). Spørsmålene, forklaringene og virkningstekstene Varden viser,
  * samlet her så de kan kontrolleres med linse A i `design-review` før brukertesten. De er
  * ikke vedtatt brevtekst eller produktdesign. Teksten i brevene kommer fra kjernen, og
- * bindingsteksten er arbeidsvalget 26.10 (`$lib/kjernesak/bindingstekst`).
+ * teksten om svarets virkning er arbeidsvalget 26.10 (`$lib/kjernesak/svarvirkning`).
  *
  * En tekst formulerer et strukturert resultat fra kjernen (et standpunkt, et beløp, et
  * brevnummer). Den finner ikke på virkningen.
