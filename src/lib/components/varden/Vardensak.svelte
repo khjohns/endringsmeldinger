@@ -8,6 +8,7 @@
   import '$lib/components/kontraktsbord/theme.css';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
+  import { tick } from 'svelte';
   import { Link } from 'lucide-svelte';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import Brevkontroll from './Brevkontroll.svelte';
@@ -60,6 +61,9 @@
   }
 
   async function kopierLenke() {
+    // Tømmes først, så en lik melding ved neste klikk leses opp igjen.
+    lenkestatus = '';
+    await tick();
     try {
       await navigator.clipboard.writeText(location.href);
       lenkestatus = SAKEN.lenkeKopiert;

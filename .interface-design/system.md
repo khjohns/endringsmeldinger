@@ -23,8 +23,8 @@ Beholde inter som font.» Oslo-logoen er fast.
 - **Svart blekk på kjølig grått.** Hierarkiet bygges med form, struktur, vekt og
   blekknivå, ikke med farge. Primærhandlingen er nesten svart (`--brand`).
 - **Hver farge betyr én ting:**
-  - `--brand` er handling: primærknappen, valgt svar og valgt sak i panelet. Valgt svar
-    har også flaten `--surface-selected`.
+  - `--brand` er handling: primærknappen og valgt svar. Valgt svar har også flaten
+    `--surface-selected`. I det mørke panelet markeres valgt spor med `--sidebar-active`.
   - `--draft` er utkast: det som ikke er sendt og bare er synlig for teamet. Utkastet har
     stiplet kant rundt hele kortet og `--draft-bg` i hodet, så det aldri ser ut som et
     sendt brev. Ingenting annet er gult.

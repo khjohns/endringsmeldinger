@@ -111,9 +111,13 @@
 /* ══════════════════════════════════════════════════
    Varden: Blekk (oppdragsgiver 29.10, #1391)
    Gjelder Varden og showcasen. Dagens visning beholder
-   tokenene over til den fases ut.
+   tokenene over til den fases ut. Varden har bare lys
+   modus ennå, så tokenene den leser og mørk modus endrer,
+   settes også her.
    ══════════════════════════════════════════════════ */
 .tema-varden {
+  color-scheme: light;
+
   --brand: #15181d;
   --brand-bg: #e6e9ee;
 
@@ -135,6 +139,11 @@
   --rule-strong: 1px solid #c3c8cf;
   --rule-color: #dadde2;
   --rule-strong-color: #c3c8cf;
+
+  --danger-bg: #fceded;
+  --danger-border: #e8b7b2;
+  --success-bg: #e6f0ea;
+  --overlay-shadow-sm: 0 1px 3px rgba(21, 24, 29, 0.07), 0 1px 2px rgba(21, 24, 29, 0.04);
 
   --draft: #5f4a00;
   --draft-bg: #fff3c4;
