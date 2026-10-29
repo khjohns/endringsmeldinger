@@ -7,7 +7,7 @@ før visning. Grunnlaget er de åtte skjermene i [`skjermer/`](skjermer/) og tek
 [README](README.md).
 
 Varden er et tenkt konkurrerende produkt med eget visuelt språk. Tokenene i
-`theme.css` og beslutningene i [designsystemet](../system.md) gjelder derfor ikke
+`theme.css` og beslutningene i [designsystemet](https://github.com/khjohns/endringsmeldinger/blob/6d2d895/docs/design/system.md) gjelder derfor ikke
 skissene. Tokentesten er prøvd mot konseptets egne tokens i `:root` i `stil.css`.
 Skissene er statisk HTML uten brukere. Alvorligheten sier hvor mye et funn betyr for
 konseptet, ikke at noe har skjedd.

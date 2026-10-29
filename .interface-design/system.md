@@ -1,40 +1,42 @@
 # Designsystemet
 
 Beslutningene for visningen, og hvorfor de er tatt. Metoden står i
-[interface-design-skillen](../../.claude/skills/interface-design/SKILL.md).
+[interface-design-skillen](../.claude/skills/interface-design/SKILL.md).
 
 **Verdiene står ikke her** (oppdragsgiver 23.10, #1080). Farger, flater, kanter og skrifter er definert i
-[`theme.css`](../../src/lib/components/kontraktsbord/theme.css), avstand og radius i
-`@theme` i [`app.css`](../../src/app.css). Fila nevner bare tokennavnene, og
-[`designsystem.test.ts`](../../src/lib/designsystem.test.ts) feiler når et token
-som nevnes her, ikke finnes der. Det som betyr noe juridisk, står i vedtakene. Fila
-viser til dem og gjengir dem ikke.
+[`theme.css`](../src/lib/components/kontraktsbord/theme.css), avstand og radius i
+`@theme` i [`app.css`](../src/app.css). Fila nevner bare tokennavnene, og
+[`designsystem.test.ts`](../src/lib/designsystem.test.ts) feiler når et token
+som nevnes her, ikke finnes der. Det som betyr noe juridisk, står i
+[vedtaksfila](../docs/plans/vedtak.md). Fila viser til vedtakene og gjengir dem ikke.
+
+Språket i teksten står i [språkfila](../docs/sprak.md).
 
 ## Retningen
 
 **Varden er visningen** (oppdragsgiver 28.10, #1338, runde 6): «Ja, jeg tenker Varden er visningen, men det er fortsatt elementer fra dagens visning som kan være aktuelle.»
 
-**Sage & Stone**, Oslobyggs grønne profil (`--brand`). Den erstattet
-«Dokumentbordet» fra mars 2026 (oppdragsgiver 23.10, #1080).
+Retningen, med farger og profil, avgjøres i designrunde 1 (#1391). Oslo-logoen er fast
+(oppdragsgiver 29.10).
+
+**Dagens utgangspunkt, ikke vedtatt retning.** Tokenene under er Sage & Stone, Oslobyggs
+grønne profil (`--brand`). Den erstattet «Dokumentbordet» fra mars 2026 (oppdragsgiver
+23.10, #1080).
 
 - **Én fargetone.** Flatene er grågrønne og skifter bare i lyshet: `--canvas` under,
   `--surface` for innhold, `--surface-warm` for hover og `--surface-inset` for felt og
   innfelte områder. Valgt med `--surface-selected`.
 - **Fire nivåer blekk.** `--ink` for verdier og overskrifter, `--ink-2` for etiketter
   og støttetekst, `--ink-3` for metadata og `--ink-4` for dempet tekst. `--ink-ghost`
-  er bare til pynt og bærer aldri mening. Alle fire nivåene holder 4,5:1 på flatene i
-  begge modi, så tekst dempes med et nivå og aldri med `opacity`.
-  [`fargetokens.test.ts`](../../src/lib/fargetokens.test.ts) feiler under kravet for
+  er bare til pynt og bærer aldri mening. Alle fire nivåene holder 4,5:1 på flatene,
+  så tekst dempes med et nivå og aldri med `opacity`.
+  [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) feiler under kravet for
   flatene den lister i `FLATER`, ikke for andre flater eller lokale overstyringer.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
   `--rule-strong`. Skygger (`--overlay-shadow-sm`, `--overlay-shadow-lg`) brukes bare
   på overlegg: dialog, popover og meny, på `--overlay-1`.
 - **Sidepanelet er alltid mørkegrønt** (`--sidebar-bg`), også i lys modus. Det
   skiller navigasjonen fra saken uten en ny fargetone.
-- **Mørk modus** har egne verdier for de samme tokenene, under `:root.dark` og
-  `.mockup.dark` i `theme.css`, og `.dark` i `app.css`. En komponent har aldri egne
-  farger for mørk modus. Noen verdier i mørk modus er ennå grå eller lilla, fra det
-  gamle temaet (#1184).
 
 ## Typografi
 
@@ -60,16 +62,15 @@ Statusfargene (`--danger`, `--warning`, `--success`, `--info`, med `-bg` for fla
 brukes bare der en regel her eller et vedtak sier det. Fargen gjentar det teksten
 sier, og står aldri alene.
 
-Tekst på en hel statusflate, som det valgte segmentet med en tone, har `--on-status`: hvit i
-lys modus og mørk i mørk modus, der statusfargene er lyse (#1235).
+Tekst på en hel statusflate, som det valgte segmentet med en tone, har `--on-status` (#1235).
 
 - **Utkast og interne ting** har `--draft`, `--draft-bg` og `--draft-border`, med
   stiplet kant. Det som ikke er sendt, skal aldri se sendt ut.
 - **Subsidiært standpunkt** har `--green`, `--green-bg` og `--green-border`.
-- **Fokus** vises med `--control-focus` og `--control-focus-ring`, også i mørk modus.
+- **Fokus** vises med `--control-focus` og `--control-focus-ring`.
 - **En farge sier aldri det appen ikke kan slutte.** Ingen rødt for «for sent» og
-  ingen farge for alvorlighet ved en frist. Vedtakene under avgjør hva visningen kan
-  si.
+  ingen farge for alvorlighet ved en frist. Vedtakene i [vedtaksfila](../docs/plans/vedtak.md)
+  avgjør hva visningen kan si.
 
 ## Knapper, skjemaer og feilmeldinger
 
@@ -79,7 +80,7 @@ Bygger på rådene i Punkt om [plassering av knapper](https://punkt.oslo.kommune
 [deaktiverte knapper](https://punkt.oslo.kommune.no/latest/god-praksis/disabled-states/),
 med egne ord (#1187). Hvilke handlinger som vises, og når en knapp er inaktiv, står
 i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
-[`uu-sjekk`](../../.claude/skills/uu-sjekk/SKILL.md).
+[`uu-sjekk`](../.claude/skills/uu-sjekk/SKILL.md).
 
 - **Rekkefølgen er primær, sekundær, tertiær**, venstrestilt, også i dialoger og
   på smal skjerm. Den visuelle rekkefølgen er den samme som i DOM-en, så tab-rekkefølgen
@@ -98,87 +99,13 @@ i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
   skjemaet, står i MM-U32. En feil fra serveren beklager og sier hva parten kan gjøre;
   en feil i utfyllingen går rett på sak. Ingen feilmelding i en egen dialog.
 
-### Klarspråk
-
-Teksten skal være klar for den som leser den første gangen. Kilder:
-[klart språk på nett](https://punkt.oslo.kommune.no/latest/god-praksis/slik-skriver-vi-for-nett/)
-i Punkt og Oslo kommunes språkprofil.
-Rådene under er med egne ord.
-
-- Korte setninger som bærer én mening. Overskrifter sier hva siden gjelder.
-- Ord brukeren kjenner. Kodenavn og interne fagbegreper, som «respons», vises ikke.
-- En feilmelding eller sperre sier hva som hindrer, og hva brukeren kan gjøre nå.
-- Bestemmelsene i NS 8407 forklares med egne ord. De gjengis ikke ordrett i visningen.
-- Lenketekster sier hvor lenken fører. «Les mer» står ikke alene.
-- Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (TE, BH, EO, KOE, varsel,
-  forsering), paragrafhenvisninger som «§ 33.8» og vedtatt ordlyd står som de er. Presisjonskravet
-  i [`AGENTS.md`](../../AGENTS.md) går foran. En vedtatt ordlyd endres bare gjennom
-  [vedtaksregisteret](../vedtaksregister/README.md).
-
-### Hva løsningen kalles
-
-Regelen står i [`AGENTS.md`](../../AGENTS.md), «Språk». Her står begrunnelsen og
-eksemplene.
-
-«Appen» er forståelig mellom oss som utvikler løsningen, men den som leser et vedtak,
-et skjema eller et brev, trenger noe annet. Et vedtak skal kunne leses som en
-beslutning om produktet. En teknisk beskrivelse er presis bare når den sier hvilken
-del som gjør noe. Et skjema er klarest når det sier hva som er gjort. Et brev er
-partens meddelelse til motparten etter kontrakten, og der er programvaren normalt
-uvedkommende. Å bytte «appen» mekanisk med «systemet» gir sjelden bedre tekst; det
-beste er ofte å beskrive hva som er gjort.
-
-| Hvor teksten står | Hva den sier |
-| --- | --- |
-| Vedtak og produktbeskrivelse | «løsningen» |
-| Teknisk beskrivelse | Delen som faktisk menes: kjernen, visningen, beregningen eller registreringen |
-| Skjema og hjelpetekst | Handlingen: «registrert her», «sendt herfra», «tidligere svar» |
-| Partenes brev | Partene, handlingene og dokumentene; normalt ingen omtale av løsningen |
-
-Eksempler fra sparringen om spørsmål 2 i
-[vurderingen av vedtakene 25.10](https://github.com/khjohns/endringsmeldinger/pull/1282):
-
-- Visningen: «Oversikten bygger på byggherrens registrerte svar. Det tidligere
-  dokumentet er ikke tolket ved denne registreringen. Oversikten avgjør ikke hvilken
-  betydning dokumentet har for partenes rettigheter og plikter.»
-- Vedtaket: «Utledningen bygger på det strukturerte standpunktet BH bekrefter.
-  Henvisningen til det tidligere dokumentet gir ikke i seg selv et grunnlagssvar.»
-- Brevet: «For byggherrens standpunkt til grunnlaget i TEs krav i brev 3 av 12.10.2026
-  vises det til byggherrens e-post av 14.10.2026.» Brevet sier ikke hvor svaret ble
-  sendt fra.
-
-Regelen gjelder ny og omskrevet tekst. Den er ingen grunn til å skrive om vedtak,
-sitater, lagrede navn eller vedtatt brevtekst; en vedtatt ordlyd endres bare gjennom
-[vedtaksregisteret](../vedtaksregister/README.md), og merknaden «Appen vurderer ikke
-innholdet» (OV-U4, OV-U19) står til et vedtak endrer den.
-
-## Vedtak som styrer visningen
-
-Les vedtaket i [hovedplanen, 3.1](../plans/2026-09-16-godkjenning-og-varig-levering.md),
-ikke en gjengivelse. Tabellen er et utgangspunkt, ikke hele lista: et vedtak kan
-presisere et annet, så søk i 3.1 etter vedtakene som presiserer dem under, og etter
-nye MM-U-vedtak.
-
-| Vedtak | Hva det avgjør for visningen |
-| --- | --- |
-| MM-U22 | Betegnelse per krav, og når saken kan ha en samlet betegnelse |
-| MM-U23 | Partenes standpunkter med part, dato og brev, og appens lesing merket som appens |
-| MM-U24 | Frister og det som foreligger ved kravet, regnet fra sendingen |
-| MM-U25 | Bare handlingene parten kan gjøre nå, og én linje når et krav ikke kan endres |
-| MM-U32 | En handling som vises, er aktiv, og skjemaet kontrolleres når parten sender |
-| MM-U28 | Krav, svar og enighet i lista, med subsidiært og appens lesing merket |
-| MM-U29 | Hva arbeidslista viser for hver part |
-| MM-U30 | Høyst én betegnelse per spor, og rekkefølgen mellom dem |
-| MM-U31 | Hvor lenge betegnelsen for forespørselen etter § 33.6.2 står |
-| DL-U6 | Sakens identitet, og at ID-en ikke erstattes av et løpenummer |
-
-Ordene i visningen følger [domenetabellen](../domenetabell/README.md) og språkreglene
-i `AGENTS.md`.
-
 ## Mønstre
 
 Et mønster står her når det brukes to ganger eller mer. Verdiene står i komponenten
 eller klassen.
+
+Tabellen beskriver dagens visning, `/mockup`-komponentene. Mønstrene for Varden føres
+inn fra komponentene i designrundene (#1391).
 
 | Mønster | Hvor | Bruk |
 | --- | --- | --- |

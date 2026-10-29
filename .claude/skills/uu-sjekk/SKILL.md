@@ -17,7 +17,7 @@ kjører axe-core mot `/mockup`. Resten av lista kontrolleres for hånd: med
 tastaturet, med Playwright der det er raskere, og ved å lese koden.
 
 Beslutningene om knapper, skjemaer og feilmeldinger står i
-[systemfila](../../../docs/design/system.md), og målene for treffflate og animasjon
+[systemfila](../../../.interface-design/system.md), og målene for treffflate og animasjon
 i [interface-design-skillen](../interface-design/SKILL.md). Lista gjentar dem ikke.
 
 ## Tidlig sjekk

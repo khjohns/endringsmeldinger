@@ -4,7 +4,7 @@
 **Status:** Godkjent
 
 > **Erstattet (2026-10-23).** Retningen er Sage & Stone. Beslutningene står i
-> [designsystemet](../../design/system.md), og verdiene i
+> [designsystemet](https://github.com/khjohns/endringsmeldinger/blob/6d2d895/docs/design/system.md), og verdiene i
 > `src/lib/components/kontraktsbord/theme.css`.
 
 ## Bakgrunn

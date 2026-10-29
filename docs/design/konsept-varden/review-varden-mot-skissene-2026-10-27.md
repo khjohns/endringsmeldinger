@@ -114,7 +114,7 @@ tilstand.
 | VK-49 | B, C, D, E | Midtpanel | Mottakeren heter «Totalentreprenør AS» i skissen og «Entreprenøren (TE)» i Varden | Ikke et designavvik. Demoruta har ikke partsnavn | K |
 | VK-50 | C, D | Midtpanel | Brevet i Varden skriver «eks. mva.» ved beløpene. Skissen nevner ikke merverdiavgift | Uavklart. Teksten kommer fra kjernen | K |
 | VK-51 | C | Midtpanel | Kolofonen i skissen sier også at PDF-en får A4-format, og at serveren setter nummer og tid. Varden har ikke disse opplysningene | Uavklart | K, L (`prototypetekst.ts`) |
-| VK-52 | D, E | Midtpanel | Kolofonen i skissen har «Sendt gjennom Varden». Varden har «Sendt gjennom appen» | Bevisst endring etter designsystemet, [«Hva løsningen kalles»](../system.md#hva-løsningen-kalles) (oppdragsgiver 25.10) | K, L (`MOTTATT.sendt`) |
+| VK-52 | D, E | Midtpanel | Kolofonen i skissen har «Sendt gjennom Varden». Varden har «Sendt gjennom appen» | Bevisst endring etter designsystemet, [«Hva løsningen kalles»](https://github.com/khjohns/endringsmeldinger/blob/6d2d895/docs/design/system.md#hva-løsningen-kalles) (oppdragsgiver 25.10) | K, L (`MOTTATT.sendt`) |
 | VK-53 | D | Midtpanel | Kolofonen i skissen har «Levert samme minutt». Varden sier ikke noe om leveringen | Ikke gjennomført ennå. Demoruta leverer ikke | K |
 | VK-54 | D | Midtpanel | Skissen har et blyantikon foran «Andre brev og handlinger». Varden har ikke ikonet | Uavklart | K |
 | VK-55 | D | Midtpanel | Brevlinja har «mottatt 27. okt 2026 kl. 11.05» i skissen. Varden har ikke klokkeslettet. Teksten `MOTTATT.fra` med klokkeslett finnes, men brukes ikke | Ikke gjennomført ennå | K, L (`Sporlesing.svelte`) |

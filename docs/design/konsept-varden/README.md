@@ -4,7 +4,7 @@ Et eksperimentelt UX-konsept for saksvisningen i appen. Det prøves som en egen
 visning ved siden av dagens saksvisning, med samme sak og samme kjerne
 ([#1331](https://github.com/khjohns/endringsmeldinger/issues/1331)). Det er ikke
 vedtatt produktdesign. Beslutningene for visningen står i
-[designsystemet](../system.md).
+[designsystemet](../../../.interface-design/system.md).
 
 Konseptet startet 27.10.2026 som en øvelse: et tenkt konkurrerende produkt, laget
 ut fra skjermbildene av dagens saksvisning i
