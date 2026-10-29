@@ -133,6 +133,46 @@ Kjøres fra repoets rot, med SQL Server oppe og `KOE_SQLSERVER_TILKOBLING` satt.
 
 Med `FEILINNFOERING_UTVALG=1` kjører hver mutasjon bare filene med målene sine, slik CI gjør på en PR. Uten den kjøres hele samlingen, som om natta.
 
+### En rød jobb i CI
+
+Slutten av loggen er SQL Server-loggen fra containeren, så `tail_lines` på
+`get_job_logs` viser ikke feilen. Oppsummeringen står lenger opp. Hent hele loggen
+(`tail_lines` 5000), som MCP-verktøyet lagrer som JSON med feltet `logs_content`.
+Skriptet skriver bare ut hver feilinnføring som ikke ble oppdaget, med endringen og
+grunnen:
+
+```bash
+python3 -I - <lagret fil> <<'EOF'
+import json, re, sys
+GRUNN = ('  målet feilet ikke', '  ikke en assertion', '  suitefeil', '  tidsavbrudd')
+for sti in sys.argv[1:]:
+    blokk = False
+    for l in json.load(open(sti))['logs_content'].split('\n'):
+        l = re.sub(r'^\S+Z ', '', l)
+        if re.match(r'F\d+\w* .*: IKKE', l) or 'mutasjonene ble oppdaget' in l:
+            blokk = True
+            print(l)
+        elif blokk and (l.startswith(GRUNN) or re.match(r'  \S+\.ts: ', l)):
+            print(l[:200])
+        elif not l.startswith('  '):
+            blokk = False
+EOF
+```
+
+Grunnen sier hva som skal rettes:
+
+- `målet feilet ikke: <mål>`: målet består under mutasjonen, også om andre tester
+  feilet. Prøver målet fortsatt feilklassen, eller har endringen fjernet det målet
+  prøvde? Tas det ut, må et annet mål eller en ny test prøve feilklassen.
+- `ikke en assertion: <test>`: testen kastet en vanlig `Error`, ikke
+  `AssertionError`. I en bevis-sak er det en kontrollsak eller en forutsetning
+  (`Forutsetning` i `kjerne/tester/kjoerer.ts`). Sjekk om kontrollen er blitt en
+  forventning og skal ha `rolle: mal`.
+- `suitefeil`: testfila feilet før testene kjørte, for eksempel på import.
+- `tidsavbrudd`: kjøringen ble avbrutt to ganger; da er utfallet ikke avgjort.
+
+Kjør deretter bare de ID-ene som feilet, med `FEILINNFOERING_UTVALG=1`, i bakgrunnen.
+
 ## Skyøkta
 
 Reglene for skyøkta står i «Miljø» og «Hvor hva står» i `AGENTS.md`. Her står kommandoene.
