@@ -687,14 +687,15 @@
     position: sticky;
     top: var(--spacing-4);
   }
-  /* Lesing ved siden av: rammen er like høy som vinduet under topplinja, brevet ruller i den,
-     og «Se brevet før sending» står fast i bunnen (oppdragsgiver 29.10, #1391). */
+  /* Lesing ved siden av: rammen følger brevet og er høyst like høy som vinduet under
+     topplinja. Et lengre brev ruller i den, og «Se brevet før sending» står fast i bunnen
+     (oppdragsgiver 29.10, #1391). */
   .leseramme {
     position: sticky;
     top: var(--spacing-4);
     display: flex;
     flex-direction: column;
-    height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
+    max-height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
     background: var(--surface);
     border: var(--rule);
     border-radius: 12px;

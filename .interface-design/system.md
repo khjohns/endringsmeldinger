@@ -170,8 +170,8 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   sier «Utkast · ikke sendt». Merket «Utkast» i panelet til venstre vises bare når et
   annet spor er valgt, så statusen aldri står to steder samtidig.
 - **Lesing ved siden av** er én lenkeknapp som veksler mellom «Les brevet ved siden av»
-  og «Lukk brevet». Brevet står i en ramme like høy som vinduet, og ruller i den.
-  Kolonnene er da like brede. På smal skjerm står brevet i skjemaet.
+  og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
+  lengre brev ruller i den. Kolonnene er da like brede. På smal skjerm står brevet i skjemaet.
 - **Menyen med brevtypene** (`Brevtyper`) vises bare når kjernen tilbyr en handling
   (MM-U25), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget, står under
   én felles linje.
