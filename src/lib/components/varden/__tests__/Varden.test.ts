@@ -471,6 +471,30 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
+  it('panelet viser prosjektet og partene under «Kontrakten», og et navn som mangler, står ikke der (oppdragsgiver 30.10, #1398)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, {
+      kjernesak,
+      kontrakt: { prosjekt: 'Prosjekt A', byggherre: 'Byggherre AS' },
+    });
+
+    const kontrakten = await screen.findByRole('region', { name: 'Kontrakten' });
+    expect([...kontrakten.querySelectorAll('dt')].map((e) => e.textContent)).toEqual([
+      'Prosjekt',
+      'Byggherre',
+    ]);
+    expect(within(kontrakten).getByText('Byggherre AS')).toBeTruthy();
+    expect(within(kontrakten).queryByText('Totalentreprenør')).toBeNull();
+  });
+
   it.each([
     ['kopieres', () => Promise.resolve(), 'Lenken er kopiert.'],
     [

@@ -10,6 +10,7 @@
   import Vardensak from '$lib/components/varden/Vardensak.svelte';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import {
+    DEMOKONTRAKT,
     DEMOPROSJEKT,
     lagDemosak,
     type Demosak,
@@ -99,7 +100,7 @@
 
 {#key omstarter + ':' + aapen.demosak.part}
   {#if visning === 'varden'}
-    <Vardensak kjernesak={aapen.kjernesak} />
+    <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} />
   {:else if aapen.kjernesak.saksbilde}
     <Kjernesakrom
       kjernesak={aapen.kjernesak}

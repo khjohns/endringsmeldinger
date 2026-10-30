@@ -47,6 +47,13 @@ export const finnForloep = (id: string): Startjournal | null =>
 /** Prosjektet i demoruta. Det finnes ikke på serveren, og ingenting sendes dit. */
 export const DEMOPROSJEKT = 'demo';
 
+/** Partene og prosjektet i demoruta, med eksempelnavnene fra `/mockup/oversikt`. TS-stien har ikke navnene ennå (#1398). */
+export const DEMOKONTRAKT = {
+  prosjekt: 'Operatunnelen — Parsell 3',
+  byggherre: 'Oslo kommune · Oslobygg KF',
+  entreprenoer: 'Veidekke Entreprenør AS',
+};
+
 export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
   const punkt = forloep.kontrollpunkter.find((p) => p.id === punktId);
   if (!punkt) throw new Error(`${forloep.id} har ikke kontrollpunktet ${punktId}`);

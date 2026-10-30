@@ -281,6 +281,8 @@ export const SAKEN = {
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',
+  kontrakten: 'Kontrakten',
+  prosjekt: 'Prosjekt',
   byggherre: 'Byggherre',
   entreprenoer: 'Totalentreprenør',
   opprettet: 'Opprettet',

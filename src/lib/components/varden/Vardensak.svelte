@@ -27,7 +27,21 @@
     dato,
   } from './prototypetekst';
 
-  let { kjernesak }: { kjernesak: Kjernesakkontekst } = $props();
+  let {
+    kjernesak,
+    kontrakt = {},
+  }: {
+    kjernesak: Kjernesakkontekst;
+    /** Prosjektet og partene. Et navn som mangler, vises ikke (#1398). */
+    kontrakt?: { prosjekt?: string; byggherre?: string; entreprenoer?: string };
+  } = $props();
+  const kontraktsrader = $derived(
+    [
+      [SAKEN.prosjekt, kontrakt.prosjekt],
+      [SAKEN.byggherre, kontrakt.byggherre],
+      [SAKEN.entreprenoer, kontrakt.entreprenoer],
+    ].filter((r): r is [string, string] => !!r[1])
+  );
 
   type Kontroll = {
     kommando: Record<string, unknown>;
@@ -111,22 +125,14 @@
       {#if u && kjernesak.saksbilde}
         <header class="sakshode">
           <h1>{kjernesak.saksbilde.tittel}</h1>
-          <dl class="meta">
-            <div>
-              <dt>{SAKEN.byggherre}</dt>
-              <dd>BH</dd>
-            </div>
-            <div>
-              <dt>{SAKEN.entreprenoer}</dt>
-              <dd>TE</dd>
-            </div>
-            {#if brev[0]}
+          {#if brev[0]}
+            <dl class="meta">
               <div>
                 <dt>{SAKEN.opprettet}</dt>
                 <dd>{dato(brev[0].registrert)} av {brev[0].avsender}</dd>
               </div>
-            {/if}
-          </dl>
+            </dl>
+          {/if}
         </header>
 
         <nav class="sporene" aria-label={SAKEN.nav}>
@@ -157,6 +163,21 @@
             {/each}
           </ul>
         </nav>
+
+        <!-- Prosjektet og partene hører til kontrakten, ikke saken (oppdragsgiver 30.10). -->
+        {#if kontraktsrader.length}
+          <section class="kontrakten" aria-labelledby="kontrakt-etikett">
+            <h2 class="etikett" id="kontrakt-etikett">{SAKEN.kontrakten}</h2>
+            <dl class="meta">
+              {#each kontraktsrader as [etikett, verdi] (etikett)}
+                <div>
+                  <dt>{etikett}</dt>
+                  <dd>{verdi}</dd>
+                </div>
+              {/each}
+            </dl>
+          </section>
+        {/if}
       {/if}
       <p class="prototype">{SAKEN.prototype}</p>
     </div>
@@ -337,20 +358,26 @@
   .sakshode h1 {
     font-size: 20px;
   }
+  /* Etiketten står over verdien, så lange navn får plass (som «Prosjektet i korte trekk»). */
   .meta {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--spacing-1) var(--spacing-4);
-    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
   }
   .meta div {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
   .meta dt {
     color: var(--sidebar-muted);
+    font-size: 12px;
   }
   .meta dd {
     color: var(--sidebar-text);
+    font-size: 14px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
   }
   .etikett {
     margin: 0 0 var(--spacing-2);
@@ -497,9 +524,10 @@
     .avsender {
       min-height: 44px;
     }
+    /* «Vederlagsjustering» får ikke plass i tre kolonner på en telefon. */
     .sporene ul {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
       gap: var(--spacing-2);
     }
     .prototype {

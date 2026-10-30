@@ -38,7 +38,9 @@ Beholde inter som font.» Oslo-logoen er fast.
 - **Skriften er Inter** (`--font-sans`), som før.
 - **Skallet er som i dagens visning** (oppdragsgiver 29.10): panelet til venstre er mørkt blekk
   (`--sidebar-bg`) over hele høyden, med byvåpenet og «Oslo kommune / Oslobygg KF» øverst,
-  saken med etikett og verdi under, og sporene. Topplinja står over arbeidsflaten, med rollen
+  saken, sporene under «Krav og svar», og prosjektet og partene under «Kontrakten». Etiketten
+  står over verdien, som i «Prosjektet i korte trekk», så lange navn får plass. Et navn som
+  mangler, står ikke der (oppdragsgiver 30.10, #1398). Topplinja står over arbeidsflaten, med rollen
   og handlingene som gjelder hele saken. Arbeidet i sporet begynner rett under.
 - **Arbeidet er like bredt som et ark** (oppdragsgiver 30.10): hovedkolonnen er høyst
   `--varden-ark`, like bred som brevet, og panelet til høyre er `--varden-stoette` i lesingen,
