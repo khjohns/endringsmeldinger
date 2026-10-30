@@ -10503,7 +10503,7 @@ dato = 2026-10-30
 hvem = "oppdragsgiver"
 kilde = ["#1299", "#1306", "#1307"]
 sporsmal = '''
-Spørsmål 30.10 om særskilte vilkår i byggherrens svar. Erstatter spørsmål 1–3 i [avgrensningen 30.10 i #1299](https://github.com/khjohns/endringsmeldinger/issues/1299#issuecomment-6522241958) (#1306, #1307), som ikke ble besvart. Spørsmålet ble stilt etter oppdragsgivers innspill 30.10: «Løsningen med ‹Er godkjenningen avhengig av andre vilkår eller forbehold enn dem som uttrykkes gjennom valgene du har gjort og den faste brevteksten?› tror jeg faktisk er unødvendig komplisert i første versjon. Løsningen skal hjelpe partene å svare ut i skjema iht kontrakt. Øvrige betingelser, forbehold osv går i fritekst og må følges opp av partene selv»
+Spørsmål 30.10 om særskilte vilkår i byggherrens svar. Erstatter spørsmål 1–3 i [avgrensningen 30.10 i #1299](https://github.com/khjohns/endringsmeldinger/issues/1299#issuecomment-6522241958) (#1306, #1307, #1429). Spørsmålet ble stilt etter oppdragsgivers innspill 30.10: «Løsningen med ‹Er godkjenningen avhengig av andre vilkår eller forbehold enn dem som uttrykkes gjennom valgene du har gjort og den faste brevteksten?› tror jeg faktisk er unødvendig komplisert i første versjon. Løsningen skal hjelpe partene å svare ut i skjema iht kontrakt. Øvrige betingelser, forbehold osv går i fritekst og må følges opp av partene selv»
 
 Skal første versjon ha et eget spørsmål om vilkår og egne felt for særskilte vilkår i byggherrens svar?
 
