@@ -1098,7 +1098,7 @@ describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF
     const a = await melding([]);
     expect(a).toEqual({
       regel: 'IKKE_GJELDENDE_SVAR',
-      melding: 'Byggherren har ikke svart i sporet.',
+      melding: 'Byggherren har ikke svart på grunnlaget for kravet.',
     });
   });
 
@@ -1125,7 +1125,7 @@ describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF
   it('en aksept av et svar som ikke finnes i sporet, nevner ikke et eldre svar', async () => {
     expect(await aksept(() => 'finnes-ikke')).toEqual({
       regel: 'IKKE_GJELDENDE_SVAR',
-      melding: 'Aksepten gjelder ikke et svar byggherren har sendt i sporet.',
+      melding: 'Aksepten gjelder ikke et svar byggherren har sendt på kravet.',
     });
   });
 });
