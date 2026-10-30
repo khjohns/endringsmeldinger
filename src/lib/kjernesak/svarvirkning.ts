@@ -1,9 +1,9 @@
 /**
  * #313, arbeidsvalgene 26.10 (VG-A-02, VG-C-02, kommentaren i #1303): hva skjemaet sier om
  * virkningen av BHs svar på vederlagskravet, med «Begrunnelsen» (oppdragsgiver 26.10), uten
- * «Byggherren er bundet …» og «… og svaret kan ikke revideres» (MM-U34 punkt 26). Tilfellet
- * med særskilte vilkår venter på OV-U49. Dagens svarskjema og Varden (#1331) viser de samme
- * tekstene.
+ * «Byggherren er bundet …» og «… og svaret kan ikke revideres» (MM-U34 punkt 26). Vilkår og
+ * forbehold står i begrunnelsen og har ingen egen tekst (OV-U69). Dagens svarskjema og Varden
+ * (#1331) viser de samme tekstene.
  */
 export const VIRKNING = {
   alltid: 'Virkningen av svaret regnes ut fra valgene over. Begrunnelsen tolkes ikke.',
