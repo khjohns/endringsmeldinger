@@ -314,7 +314,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
   });
 
-  it('BF-04: over varselet og metoden står avslaget av grunnlaget, og bare det, også etter «Varslet i tide» og «Varslet for sent» (oppdragsgiver 30.10, 1A i #1411, S2-A i #1400)', async () => {
+  it('BF-04: over varselet står avslaget av grunnlaget, og over metoden står i tillegg innsigelsen om sen varsling etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31)', async () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
@@ -343,7 +343,16 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(forutsetningene(METODE)).toEqual(AVSLAGET);
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
-    expect(forutsetningene(METODE)).toEqual(AVSLAGET);
+    expect(forutsetningene(METODE)).toEqual([
+      ...AVSLAGET,
+      'innsigelsen om sen varsling ikke fører frem',
+    ]);
+    // Svaret på metoden flytter ikke metoden ut av laget sitt.
+    await fireEvent.click(screen.getByRole('radio', { name: 'Godtar ikke metoden' }));
+    expect(forutsetningene(METODE)).toEqual([
+      ...AVSLAGET,
+      'innsigelsen om sen varsling ikke fører frem',
+    ]);
   });
 
   it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {

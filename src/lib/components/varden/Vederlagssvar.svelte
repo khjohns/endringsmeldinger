@@ -90,9 +90,21 @@
         ?.forutsetninger ?? []
     );
   });
-  // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet og
-  // metoden (oppdragsgiver 30.10, 1A i #1411).
+  // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet
+  // (oppdragsgiver 30.10, 1A i #1411).
   const grunnene = $derived(forutsetninger.filter((f) => 'grunn' in f));
+  // Metoden står i laget sitt uansett svaret (OV-U33, LV-U31), så kjernen spørres med metoden
+  // godtatt, også før den er besvart (oppdragsgiver 30.10 i #1411, S2-A i #1400).
+  const metodeforutsetninger = $derived.by(() => {
+    if (harPost) return [];
+    const s = kommando.svar[0];
+    const vurderinger = { ...s.vurderinger, aksepterer_metode: true };
+    delete vurderinger.oensket_metode;
+    return (
+      kjernesak.lagForUtkastet({ ...s, vurderinger })?.standpunkter.find((x) => x.art === 'metode')
+        ?.forutsetninger ?? []
+    );
+  });
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.grunnlag.gjeldendeSvar;
     return g ? brevet(u, g.dokument)!.nummer : null;
@@ -391,11 +403,11 @@
             <h3 id={`${uid}-sp-metode`}>{SKJEMA.metodeTittel}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.2</span>
           </div>
-          {@render gjelderHvis('metode', grunnene)}
+          {@render gjelderHvis('metode', metodeforutsetninger)}
           <Valg
             navn={`${uid}-metode`}
             spoersmaal={SKJEMA.metodeSpoersmaal(krav.innhold.metode)}
-            beskrevetAv={grunnene.length ? `${uid}-metode-forutsetninger` : undefined}
+            beskrevetAv={metodeforutsetninger.length ? `${uid}-metode-forutsetninger` : undefined}
             valg={[
               { verdi: true, tekst: SKJEMA.godtarMetode },
               { verdi: false, tekst: SKJEMA.godtarIkkeMetode },
