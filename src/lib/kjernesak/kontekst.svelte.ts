@@ -10,6 +10,7 @@ import { brevFor, utledetMed, type Brev } from './brevtekst';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
+import { grunnlagetForSvaret } from './vederlagssvar';
 import {
   hentKjernesak,
   lastOppKjernevedlegg,
@@ -19,6 +20,8 @@ import {
 } from '$lib/api/kjerne';
 import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
+import { lagForUtkastet } from '$kjerne/kommandoer/lag';
+import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
 import type { Part } from '$kjerne/typer';
@@ -334,6 +337,13 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get saksbilde() {
       return bilde;
     },
+    /** Brevet setter forbeholdet etter GR-U26 foran et svar på vederlag eller frist (#1393). */
+    get forbehold() {
+      return utledning ? grunnlagetForSvaret(utledning).forbehold : false;
+    },
+    /** Lagene i et vederlagssvar BH ennå fyller ut, regnet av kjernen (#1400). */
+    lagForUtkastet: (utkast: Svarutkast) =>
+      utledning ? lagForUtkastet(utkast, utledning, kjerne.regler) : null,
     /**
      * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404. `null`
      * før svaret, og når serveren svarte med en annen feil.

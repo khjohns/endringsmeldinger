@@ -15,6 +15,7 @@
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
+  import type { Forutsetning } from '$kjerne/kommandoer/lag';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
@@ -23,13 +24,14 @@
   import Tidslinje from './Tidslinje.svelte';
   import Valg from './Valg.svelte';
   import { tomtSvar, vederlagssvaret, type Svarvalg } from './kommandoer';
-  import { brevene, oppgitteDatoer, standpunktene } from './lesing';
+  import { brevene, brevet, datoerISporet, klarOverForholdet, standpunktene } from './lesing';
   import {
     BREVKONTROLL,
     HOVEDLINJER,
     SKJEMA,
     brevtittel,
     dato,
+    grunntekst,
     kalenderdager,
     standpunkttekst,
   } from './prototypetekst';
@@ -65,27 +67,64 @@
   const alleBrev = $derived(brevene(u));
   const kravbrevet = $derived(alleBrev.find((b) => b.id === krav.dokument)!);
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('vederlag')));
-  const datoer = $derived(oppgitteDatoer(u));
-  const klarOver = $derived(datoer.find((d) => d.hva === 'klar_over_forholdet'));
+  const datoer = $derived(datoerISporet(u, 'vederlag'));
+  const klarOver = $derived(klarOverForholdet(u));
   const harPost = $derived(
     (krav.innhold.saerskilt as { produktivitet?: unknown } | undefined)?.produktivitet !== undefined
   );
 
   const kommando = $derived(vederlagssvaret(valg, u, kjernesak.regler)!);
   const etter = $derived(kjernesak.forhaandsvist(kommando));
+  // Innsigelsene beløpet bygger på, regnet av kjernen fra det som er besvart (#1400, S1-A og
+  // S2-A). En avslått metode uten ønsket metode forstår ikke kjernen, så metoden er ute av
+  // utkastet til den er valgt; den står i laget til justeringen uansett svaret (OV-U33).
+  const forutsetninger = $derived.by(() => {
+    if (harPost) return [];
+    const s = kommando.svar[0];
+    const utenMetode = { ...s.vurderinger };
+    delete utenMetode.aksepterer_metode;
+    const utkast =
+      valg.metode === false && valg.oensket === null ? { ...s, vurderinger: utenMetode } : s;
+    return (
+      kjernesak.lagForUtkastet(utkast)?.standpunkter.find((x) => x.art === 'beloep' && !x.saerskilt)
+        ?.forutsetninger ?? []
+    );
+  });
+  // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet
+  // (oppdragsgiver 30.10, 1A i #1411).
+  const grunnene = $derived(forutsetninger.filter((f) => 'grunn' in f));
+  // Metoden står i laget sitt uansett svaret (OV-U33, LV-U31), så kjernen spørres med metoden
+  // godtatt, også før den er besvart (oppdragsgiver 30.10 i #1411, S2-A i #1400).
+  const metodeforutsetninger = $derived.by(() => {
+    if (harPost) return [];
+    const s = kommando.svar[0];
+    const vurderinger = { ...s.vurderinger, aksepterer_metode: true };
+    delete vurderinger.oensket_metode;
+    return (
+      kjernesak.lagForUtkastet({ ...s, vurderinger })?.standpunkter.find((x) => x.art === 'metode')
+        ?.forutsetninger ?? []
+    );
+  });
+  const grunnlagsbrev = $derived.by(() => {
+    const g = u.spor.grunnlag.gjeldendeSvar;
+    return g ? brevet(u, g.dokument)!.nummer : null;
+  });
   const nyttSvar = $derived.by(() => {
     const s = etter?.spor.vederlag.gjeldendeSvar;
     return s && !u.spor.vederlag.svar.some((x) => x.id === s.id) ? s : null;
   });
   const linjer = $derived(
     nyttSvar
-      ? standpunktene(nyttSvar, u).map(({ standpunkt, lag }) => ({
-          tekst: standpunkttekst(
-            standpunkt,
-            true,
-            standpunkt.art === 'beloep' && !standpunkt.saerskilt ? krevd : undefined
-          ),
-          lag,
+      ? standpunktene(nyttSvar, u).map((l) => ({
+          tekst:
+            'grunn' in l
+              ? grunntekst(l.grunn, true, l.brev)
+              : standpunkttekst(
+                  l.standpunkt,
+                  true,
+                  l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt ? krevd : undefined
+                ),
+          lag: l.lag,
         }))
       : []
   );
@@ -94,7 +133,7 @@
     new Set(
       nyttSvar
         ? standpunktene(nyttSvar, u)
-            .filter((s) => s.lag && s.standpunkt.art === 'beloep')
+            .filter((s) => s.lag && 'standpunkt' in s && s.standpunkt.art === 'beloep')
             .map((s) => s.lag)
         : []
     ).size > 1
@@ -145,7 +184,7 @@
   const virkninger = $derived([
     VIRKNING.alltid,
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
-    ...(!u.spor.grunnlag.gjeldendeSvar && !u.frafalt ? [VIRKNING.forbehold] : []),
+    ...(kjernesak.forbehold ? [VIRKNING.forbehold] : []),
     ...(nyttSvar?.standpunkter.some((s) => s.art === 'rettidighet' && !s.iTide)
       ? [BREVKONTROLL.akseptOmfatter]
       : []),
@@ -234,6 +273,28 @@
   });
 </script>
 
+{#snippet gjelderHvis(felt: string, liste: Forutsetning[])}
+  {#if liste.length}
+    <!-- Forutsetningene for laget, én per linje, i brevets rekkefølge (oppdragsgiver 30.10,
+         #1391, #1400). -->
+    <div class="forutsetninger" id={`${uid}-${felt}-forutsetninger`}>
+      <p>{SKJEMA.gjelderHvis}</p>
+      <ul>
+        {#each liste as f, i (i)}
+          <li>
+            {#if 'grunn' in f}
+              {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
+            {:else}
+              <a href={`#${uid}-itide`}>{SKJEMA.innsigelsenSenVarsling}</a>
+            {/if}
+            {SKJEMA.ikkeFoererFrem}
+          </li>
+        {/each}
+      </ul>
+    </div>
+  {/if}
+{/snippet}
+
 {#snippet kravbrev(innfelt: boolean)}
   <Brev
     avsender={kravbrevet.avsender}
@@ -311,6 +372,7 @@
             <h3 id={`${uid}-sp-varsel`}>{SKJEMA.varselTittel}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1.2</span>
           </div>
+          {@render gjelderHvis('itide', grunnene)}
           <div class="datoer">
             {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
             <p>{SKJEMA.kravSendt(kravbrevet.registrert, kravbrevet.nummer)}</p>
@@ -326,6 +388,7 @@
           <Valg
             navn={`${uid}-itide`}
             spoersmaal={SKJEMA.varselSpoersmaal}
+            beskrevetAv={grunnene.length ? `${uid}-itide-forutsetninger` : undefined}
             valg={[
               { verdi: true, tekst: SKJEMA.iTide },
               { verdi: false, tekst: SKJEMA.forSent },
@@ -340,9 +403,11 @@
             <h3 id={`${uid}-sp-metode`}>{SKJEMA.metodeTittel}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.2</span>
           </div>
+          {@render gjelderHvis('metode', metodeforutsetninger)}
           <Valg
             navn={`${uid}-metode`}
             spoersmaal={SKJEMA.metodeSpoersmaal(krav.innhold.metode)}
+            beskrevetAv={metodeforutsetninger.length ? `${uid}-metode-forutsetninger` : undefined}
             valg={[
               { verdi: true, tekst: SKJEMA.godtarMetode },
               { verdi: false, tekst: SKJEMA.godtarIkkeMetode },
@@ -369,23 +434,11 @@
             <h3 id={`${uid}-sp-beloep`}>{SKJEMA.beloepTittel(krevd)}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1</span>
           </div>
-          {#if valg.iTide === false}
-            <!-- Forutsetningene for laget, ett per linje (oppdragsgiver 30.10, #1391). Lagene
-                 fra grunnlaget og et delvis svar venter på kjernen (#1400). -->
-            <div class="forutsetninger" id={`${uid}-beloep-forutsetninger`}>
-              <p>{SKJEMA.gjelderHvis}</p>
-              <ul>
-                <li>
-                  <a href={`#${uid}-itide`}>{SKJEMA.innsigelsenSenVarsling}</a>
-                  {SKJEMA.ikkeFoererFrem}
-                </li>
-              </ul>
-            </div>
-          {/if}
+          {@render gjelderHvis('beloep', forutsetninger)}
           <Valg
             navn={`${uid}-beloep`}
             spoersmaal={SKJEMA.beloepSpoersmaal}
-            beskrevetAv={valg.iTide === false ? `${uid}-beloep-forutsetninger` : undefined}
+            beskrevetAv={forutsetninger.length ? `${uid}-beloep-forutsetninger` : undefined}
             valg={[
               { verdi: 'hele', tekst: SKJEMA.hele },
               { verdi: 'deler', tekst: SKJEMA.deler },
@@ -475,7 +528,7 @@
       <div class="feste" class:fast={faarPlass} bind:this={panel}>
         <Hovedlinjer {linjer} {alternativer} handling={harPost ? undefined : sendeknapp} />
       </div>
-      <Tidslinje brev={sporbrev} datoer={datoer.filter((d) => d.spor.includes('grunnlag'))} />
+      <Tidslinje brev={sporbrev} {datoer} />
     {/if}
   {/snippet}
 </Arbeidsflate>
