@@ -55,7 +55,7 @@ const demopanel = () =>
 
 /** BH svarer i Varden som i steg 4, og kommer til brevkontrollen. Gir teksten som vises. */
 async function bhSvarerIVarden(): Promise<string[]> {
-  await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+  await fireEvent.click(await screen.findByText('Skriv brev'));
   await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Godtar metoden' }));
@@ -149,7 +149,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(panelet.textContent).toMatch(
       /Aksepten omfatter også at BH gjør gjeldende at varselet etter § 34\.1\.2 kom for sent/
     );
-    expect(panelet.textContent).toMatch(/enige om i vederlagssporet 0\skr/);
+    expect(panelet.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
     const panel = within(panelet);
     await fireEvent.click(panel.getByRole('button', { name: 'Se akseptbrevet' }));
     await sendBrevet('Send aksepten til BH');
@@ -167,7 +167,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // kontrollerer appen det når parten sender, og sier ved feltet og øverst i skjemaet hva som
     // mangler.» BF-01 S-3: reserven B, fordi kjernen ikke lager tekst for et ufullstendig svar.
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+    await fireEvent.click(await screen.findByText('Skriv brev'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
     const seBrevet = screen.getByRole('button', { name: 'Se brevet før sending' });
     expect(seBrevet).not.toHaveAttribute('aria-disabled');
@@ -250,7 +250,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
   it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
     const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+    await fireEvent.click(await screen.findByText('Skriv brev'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
 
@@ -270,20 +270,20 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(document.activeElement).toBe(melding);
     expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
     // Et nytt svar begynner tomt.
-    await fireEvent.click(screen.getByText('Skriv brev i sporet'));
+    await fireEvent.click(screen.getByText('Skriv brev'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
     expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
   });
 
   it('utkastet står når BH velger et annet spor, og merket «Utkast» står i panelet bare mens et annet spor er valgt (BF-01 S-8, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+    await fireEvent.click(await screen.findByText('Skriv brev'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     const panelet = within(screen.getByRole('navigation', { name: 'Saken' }));
     const vederlag = () => panelet.getByRole('button', { name: /^Vederlag/ });
     // #1391: mens utkastet er åpent, står ingen meny for å skrive brev.
-    expect(screen.queryByText('Skriv brev i sporet')).toBeNull();
+    expect(screen.queryByText('Skriv brev')).toBeNull();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
 
     await fireEvent.click(panelet.getByRole('button', { name: /^Grunnlag/ }));
@@ -297,7 +297,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
   it('panelet til venstre felles inn mens brevet leses ved siden av skjemaet, og kommer tilbake når brevet lukkes (oppdragsgiver 30.10, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+    await fireEvent.click(await screen.findByText('Skriv brev'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
     expect(screen.getByRole('navigation', { name: 'Saken' })).toBeInTheDocument();
 

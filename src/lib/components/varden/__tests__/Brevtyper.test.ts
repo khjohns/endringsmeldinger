@@ -11,12 +11,12 @@ import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
 afterEach(cleanup);
 
 const lag = (handlinger: string[], bygget: string[] = []) =>
-  render(Brevtyper, { tittel: 'Skriv brev i sporet', handlinger, bygget, onvelg: () => {} });
+  render(Brevtyper, { tittel: 'Skriv brev', handlinger, bygget, onvelg: () => {} });
 
 describe('Brevtyper', () => {
   it('menyen vises ikke når kjernen ikke tilbyr noen handling (MM-U25)', () => {
     lag([]);
-    expect(screen.queryByText('Skriv brev i sporet')).toBeNull();
+    expect(screen.queryByText('Skriv brev')).toBeNull();
   });
 
   it('brevtypene som ikke er bygget, står under én felles linje, og hver handling står én gang (#1391)', () => {

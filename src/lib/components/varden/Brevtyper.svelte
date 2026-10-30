@@ -1,5 +1,5 @@
 <!--
-  «Skriv brev i sporet» og «Andre brev og handlinger» (Varden, skjerm B, D og E): brevtypene
+  «Skriv brev» og «Andre brev og handlinger» (Varden, skjerm B, D og E): brevtypene
   kjernen tilbyr i sporet nå, i fast rekkefølge og uten fremheving. Brevtypene som ikke er
   bygget i Varden, står samlet under én linje, så ingen handling kjernen tilbyr, faller bort.
   Tilbyr kjernen ingenting, vises ikke menyen (MM-U25).
