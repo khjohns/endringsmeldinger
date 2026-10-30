@@ -507,7 +507,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-3);
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
   }
   .merke-utkast {
@@ -712,7 +712,7 @@
   }
   .dempet {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 14px;
   }
   .sterk {
     font-weight: 600;
@@ -746,7 +746,7 @@
   .lesetittel {
     padding: var(--spacing-3) var(--spacing-5);
     border-bottom: var(--rule);
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
   }
   .lesetittel .dempet {

@@ -359,12 +359,12 @@
     display: flex;
     flex-direction: column;
     color: var(--sidebar-muted);
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.3;
   }
   .kommune {
     color: var(--sidebar-text);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
   }
   .sakshode {

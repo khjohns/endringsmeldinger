@@ -127,7 +127,7 @@
     border-top: var(--rule);
     color: var(--ink-3);
     font-family: var(--font-sans);
-    font-size: 13px;
+    font-size: 14px;
   }
   @media (max-width: 767px) {
     .brev {

@@ -79,7 +79,7 @@
   }
   .merknad {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 14px;
     margin-top: var(--spacing-2);
   }
   .bunn {

@@ -185,6 +185,6 @@
   }
   .dempet {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 14px;
   }
 </style>

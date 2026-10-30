@@ -239,7 +239,7 @@
     font-weight: 600;
   }
   h3 {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -258,7 +258,7 @@
   }
   .dempet {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 14px;
   }
   .feil {
     padding: var(--spacing-3);

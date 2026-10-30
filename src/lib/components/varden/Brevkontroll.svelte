@@ -180,7 +180,7 @@
   }
   h2 {
     margin-top: var(--spacing-2);
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
   }
   .laast {
@@ -189,7 +189,7 @@
     gap: var(--spacing-1);
     margin-top: var(--spacing-2);
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 12px;
   }
   .fakta {
     display: grid;
@@ -220,7 +220,7 @@
   }
   .dempet {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 14px;
   }
   .send {
     display: flex;

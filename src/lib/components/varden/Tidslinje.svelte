@@ -127,7 +127,7 @@
   }
   .antall {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 12px;
   }
   .liste {
     padding: 0 var(--spacing-5) var(--spacing-5);
@@ -167,6 +167,6 @@
   }
   .kilde {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 12px;
   }
 </style>

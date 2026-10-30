@@ -35,7 +35,10 @@ Beholde inter som font.» Oslo-logoen er fast.
   med en kantlinje til venstre, og spørsmålet selv står kort (oppdragsgiver 30.10, #1391).
   Hver linje lenker til feltet sitt. Lagene skal komme fra kjernen (#1400).
 - **Demomerket** «Varden · eksperimentell visning» er nøytralt og bruker ikke utkastfargen.
-- **Skriften er Inter** (`--font-sans`), som før.
+- **Skriften er Inter** (`--font-sans`), som før. Varden bruker fem størrelser: 12, 14, 16,
+  20 og 24 px, omtrent forholdet 1,2 fra 14 px. 12 px er etiketter og metadata, 14 px er
+  brødtekst og hjelpetekst, og 20 px er overskriftene. Vekt og farge gjør resten av
+  hierarkiet (oppdragsgiver 30.10, #198).
 - **Skallet er som i dagens visning** (oppdragsgiver 29.10): panelet til venstre er mørkt blekk
   (`--sidebar-bg`) over hele høyden, med byvåpenet og «Oslo kommune / Oslobygg KF» øverst,
   saken, sporene under «Krav og svar», og nederst prosjektet, kontraktsformen og partene under «Kontrakten». Etiketten
