@@ -68,7 +68,6 @@
 		"zod": "^4.6.7"
 	},
 	"overrides": {
-		"@azure/msal-node": "7.1.1",
 		"pg-cloudflare": "1.4.0",
 		"pg-connection-string": "2.14.0",
 		"pg-protocol": "1.16.0"
