@@ -904,7 +904,7 @@ const MUTASJONER: Mutasjon[] = [
         '  kontrollerHenvisningene(henvisninger, elementer, alleKrav, besvart, bakover, ugyldig);',
       ],
     ],
-    mal: ['en påberopt passivitet mot den er forstått'],
+    mal: ['en påberopt passivitet sendt i appen mot den er forstått'],
   },
   {
     id: 'F90',
