@@ -113,8 +113,15 @@ if (FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'prinsipalt' 
   throw new Error(`Lagene ${ETIKETTER.join(', ')} i ${arg.forlop} passer ikke med forutsetningene skriptet venter`);
 const forloep = (punkt) =>
   `${arg.url}/demo/${arg.forlop}?punkt=${punkt ?? 'start'}${VARDEN ? '&visning=varden' : ''}`;
+// Laget er overskriften med kolon i brevet. «Subsidiært» inne i «videre subsidiært», eller i
+// begrunnelsen («Subsidiært godtas …»), teller ikke.
+const LAGET = {
+  prinsipalt: /prinsipalt:/i,
+  subsidiært: /(?<!videre\s)subsidiært:/i,
+  'videre subsidiært': /videre\s+subsidiært:/i,
+};
 const brevetHarLagene = (tekst) =>
-  ETIKETTER.every((e) => tekst.toLowerCase().includes(e)) && /60\s000/.test(tekst);
+  ETIKETTER.every((e) => LAGET[e].test(tekst)) && /60\s000/.test(tekst);
 const { chromium, start } = globalPlaywright();
 mkdirSync(arg.utdata, { recursive: true });
 const vite = await startVite(`${arg.url}/demo`);
