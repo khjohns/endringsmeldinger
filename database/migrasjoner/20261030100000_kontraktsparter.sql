@@ -27,6 +27,9 @@ AS
 BEGIN
   SET NOCOUNT ON;
   SET XACT_ABORT ON;
+  IF @prosjekt IS NULL OR LEN(@prosjekt) = 0 OR DATALENGTH(@prosjekt) > 200
+     OR DATALENGTH(@prosjekt) <> DATALENGTH(RTRIM(@prosjekt))
+    THROW 52043, N'Prosjekt-ID-en er tom, for lang eller har mellomrom til slutt', 1;
   IF @byggherre IS NULL OR LEN(@byggherre) = 0 OR DATALENGTH(@byggherre) > 800
      OR DATALENGTH(@byggherre) <> DATALENGTH(LTRIM(RTRIM(@byggherre)))
     THROW 52065, N'Byggherrens navn er tomt, for langt eller har mellomrom i endene', 1;

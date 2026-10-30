@@ -180,7 +180,7 @@ async function settKontraktsparter(
       .execute('koe_drift.sett_kontraktsparter');
   } catch (feil) {
     const { number, message } = feil as { number?: unknown; message?: unknown };
-    if (number === 52065 || number === 52073)
+    if (number === 52043 || number === 52065 || number === 52073)
       throw new Registreringsfeil(`${String(message)} (${number}).`, { cause: feil });
     throw feil;
   }

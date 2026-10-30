@@ -739,7 +739,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     expect(linjer).toEqual(['Byggherre: Ny byggherre', 'Totalentreprenør: Ny TE']);
   });
 
-  it('kontraktsparter avviser ett navn alene, et tomt navn og et prosjekt som ikke er registrert (#1398)', async () => {
+  it('kontraktsparter avviser ett navn alene, et tomt navn, et prosjekt som ikke er registrert og en prosjekt-ID med mellomrom til slutt (#1398)', async () => {
     const { prosjekt } = await nyttProsjekt([]);
     await expect(skript('kontraktsparter', prosjekt, '--byggherre', 'B')).rejects.toThrow(
       /--totalentreprenoer må oppgis/
@@ -750,6 +750,10 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     await expect(
       skript('kontraktsparter', 'p-finnes-ikke', '--byggherre', 'B', '--totalentreprenoer', 'T')
     ).rejects.toThrow(/\(52073\)/);
+    // Med mellomrom til slutt ville oppslaget i koe.projects truffet prosjektet.
+    await expect(
+      skript('kontraktsparter', `${prosjekt} `, '--byggherre', 'B', '--totalentreprenoer', 'T')
+    ).rejects.toThrow(/Prosjekt-ID-en .*\(52043\)/);
     expect(await lesKontraktsparter(drift.pool, prosjekt)).toBeNull();
     // Tabellen avviser et tomt navn også uten prosedyren.
     expect(

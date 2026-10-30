@@ -908,7 +908,7 @@ Navnene på byggherren og totalentreprenøren i prosjektet (#1398). Ett prosjekt
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Kontrakten er kilden. |
-| Personopplysninger | Ingen. Navnene er virksomheter. |
+| Personopplysninger | Navnene er normalt virksomheter. Et enkeltpersonforetak har innehaverens navn i foretaksnavnet. |
 | Skrives av | database/migrasjoner/20261030100000_kontraktsparter.sql (`koe_drift.sett_kontraktsparter`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 30.10: migrasjonen. K 30.10: `server/tester/registrering.test.ts` og `server/tester/prosjekter.test.ts`. |
