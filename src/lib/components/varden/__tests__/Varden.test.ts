@@ -314,6 +314,38 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
   });
 
+  it('BF-04: over varselet og metoden står avslaget av grunnlaget, og bare det, også etter «Varslet i tide» og «Varslet for sent» (oppdragsgiver 30.10, 1A i #1411, S2-A i #1400)', async () => {
+    render(Demoforloep, {
+      forloep: finnForloep('BF-04')!,
+      punkt: 'bh-har-mottatt-vederlagskravet',
+      visning: 'varden',
+      onpunkt: () => {},
+      onstart: () => {},
+    });
+    await fireEvent.click(await screen.findByText('Skriv brev'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    const forutsetningene = (spoersmaal: string | RegExp) => {
+      const id = screen.getByRole('group', { name: spoersmaal }).getAttribute('aria-describedby');
+      return id
+        ? [...document.getElementById(id)!.querySelectorAll('li')].map((li) =>
+            li.textContent!.replace(/\s+/g, ' ').trim()
+          )
+        : [];
+    };
+    const AVSLAGET = ['avslaget av grunnlaget i brev 3 ikke fører frem'];
+    const VARSEL = 'Kom varselet om kravet i tide?';
+    const METODE = /Godtar du det\?$/;
+
+    expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
+    expect(forutsetningene(METODE)).toEqual(AVSLAGET);
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
+    expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
+    expect(forutsetningene(METODE)).toEqual(AVSLAGET);
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
+    expect(forutsetningene(METODE)).toEqual(AVSLAGET);
+  });
+
   it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
     const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
     await fireEvent.click(await screen.findByText('Skriv brev'));

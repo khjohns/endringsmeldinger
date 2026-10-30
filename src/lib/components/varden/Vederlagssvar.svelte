@@ -15,7 +15,7 @@
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
-  import { lagForUtkastet } from '$kjerne/kommandoer/lag';
+  import { lagForUtkastet, type Forutsetning } from '$kjerne/kommandoer/lag';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
@@ -91,6 +91,9 @@
       )?.forutsetninger ?? []
     );
   });
+  // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet og
+  // metoden (oppdragsgiver 30.10, 1A i #1411).
+  const grunnene = $derived(forutsetninger.filter((f) => 'grunn' in f));
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.grunnlag.gjeldendeSvar;
     return g ? brevet(u, g.dokument)!.nummer : null;
@@ -259,6 +262,28 @@
   });
 </script>
 
+{#snippet gjelderHvis(felt: string, liste: Forutsetning[])}
+  {#if liste.length}
+    <!-- Forutsetningene for laget, én per linje, i brevets rekkefølge (oppdragsgiver 30.10,
+         #1391, #1400). -->
+    <div class="forutsetninger" id={`${uid}-${felt}-forutsetninger`}>
+      <p>{SKJEMA.gjelderHvis}</p>
+      <ul>
+        {#each liste as f, i (i)}
+          <li>
+            {#if 'grunn' in f}
+              {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
+            {:else}
+              <a href={`#${uid}-itide`}>{SKJEMA.innsigelsenSenVarsling}</a>
+            {/if}
+            {SKJEMA.ikkeFoererFrem}
+          </li>
+        {/each}
+      </ul>
+    </div>
+  {/if}
+{/snippet}
+
 {#snippet kravbrev(innfelt: boolean)}
   <Brev
     avsender={kravbrevet.avsender}
@@ -336,6 +361,7 @@
             <h3 id={`${uid}-sp-varsel`}>{SKJEMA.varselTittel}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1.2</span>
           </div>
+          {@render gjelderHvis('itide', grunnene)}
           <div class="datoer">
             {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
             <p>{SKJEMA.kravSendt(kravbrevet.registrert, kravbrevet.nummer)}</p>
@@ -351,6 +377,7 @@
           <Valg
             navn={`${uid}-itide`}
             spoersmaal={SKJEMA.varselSpoersmaal}
+            beskrevetAv={grunnene.length ? `${uid}-itide-forutsetninger` : undefined}
             valg={[
               { verdi: true, tekst: SKJEMA.iTide },
               { verdi: false, tekst: SKJEMA.forSent },
@@ -365,9 +392,11 @@
             <h3 id={`${uid}-sp-metode`}>{SKJEMA.metodeTittel}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.2</span>
           </div>
+          {@render gjelderHvis('metode', grunnene)}
           <Valg
             navn={`${uid}-metode`}
             spoersmaal={SKJEMA.metodeSpoersmaal(krav.innhold.metode)}
+            beskrevetAv={grunnene.length ? `${uid}-metode-forutsetninger` : undefined}
             valg={[
               { verdi: true, tekst: SKJEMA.godtarMetode },
               { verdi: false, tekst: SKJEMA.godtarIkkeMetode },
@@ -394,25 +423,7 @@
             <h3 id={`${uid}-sp-beloep`}>{SKJEMA.beloepTittel(krevd)}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1</span>
           </div>
-          {#if forutsetninger.length}
-            <!-- Forutsetningene for laget, én per linje, i brevets rekkefølge (oppdragsgiver
-                 30.10, #1391, #1400). -->
-            <div class="forutsetninger" id={`${uid}-beloep-forutsetninger`}>
-              <p>{SKJEMA.gjelderHvis}</p>
-              <ul>
-                {#each forutsetninger as f, i (i)}
-                  <li>
-                    {#if 'grunn' in f}
-                      {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
-                    {:else}
-                      <a href={`#${uid}-itide`}>{SKJEMA.innsigelsenSenVarsling}</a>
-                    {/if}
-                    {SKJEMA.ikkeFoererFrem}
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/if}
+          {@render gjelderHvis('beloep', forutsetninger)}
           <Valg
             navn={`${uid}-beloep`}
             spoersmaal={SKJEMA.beloepSpoersmaal}
