@@ -15,7 +15,7 @@
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
-  import { lagForUtkastet, type Forutsetning } from '$kjerne/kommandoer/lag';
+  import type { Forutsetning } from '$kjerne/kommandoer/lag';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
@@ -86,9 +86,8 @@
     const utkast =
       valg.metode === false && valg.oensket === null ? { ...s, vurderinger: utenMetode } : s;
     return (
-      lagForUtkastet(utkast, u, kjernesak.regler).standpunkter.find(
-        (x) => x.art === 'beloep' && !x.saerskilt
-      )?.forutsetninger ?? []
+      kjernesak.lagForUtkastet(utkast)?.standpunkter.find((x) => x.art === 'beloep' && !x.saerskilt)
+        ?.forutsetninger ?? []
     );
   });
   // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet og

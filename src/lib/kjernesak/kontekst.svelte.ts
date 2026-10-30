@@ -20,6 +20,8 @@ import {
 } from '$lib/api/kjerne';
 import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
+import { lagForUtkastet } from '$kjerne/kommandoer/lag';
+import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
 import type { Part } from '$kjerne/typer';
@@ -339,6 +341,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get forbehold() {
       return utledning ? grunnlagetForSvaret(utledning).forbehold : false;
     },
+    /** Lagene i et vederlagssvar BH ennå fyller ut, regnet av kjernen (#1400). */
+    lagForUtkastet: (utkast: Svarutkast) =>
+      utledning ? lagForUtkastet(utkast, utledning, kjerne.regler) : null,
     /**
      * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404. `null`
      * før svaret, og når serveren svarte med en annen feil.
