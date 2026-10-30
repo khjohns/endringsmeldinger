@@ -36,7 +36,7 @@ import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
 import { mellomlager, type Handling } from './klient.ts';
-import type { Kjoering } from './kjoerer.ts';
+import { Forutsetning, les, type Kjoering } from './kjoerer.ts';
 
 type Data = Record<string, unknown>;
 
@@ -496,6 +496,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
 describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
   const registrert = (opplysninger: Data) => ({
     handling: 'rad',
+    part: 'BH',
     spor: 'grunnlag',
     navn: 'S-g1',
     dokument: 'D4',
@@ -525,15 +526,30 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     await bygg(bane, [
       'krav_irreg',
       registrert({ sendt: '2026-09-30' }),
-      { handling: 'rad', avklarer: 'D4', oppfylt: true, navn: 'D5' },
+      { handling: 'rad', part: 'BH', avklarer: 'D4', oppfylt: true, navn: 'D5' },
     ]);
     const journal = await bane.journal();
     expect(forstaatt(journal.slice(0, -1)), 'kontrollsak: saken før avklaringen').toBe(true);
     expect(forstaatt(journal)).toBe(false);
   });
 
-  // #877 p12: et dokument med bare avklaringen avvises før OV-U13-kontrollen, fordi det
-  // verken har krav, svar eller utsagn. Med et svar i samme dokument nås kontrollen.
+  // Et dokument med bare avklaringen har verken krav, svar eller utsagn, men grunnen er
+  // OV-U13, ikke grunnen for et tomt dokument (#927).
+  it('en senere avklaring av § 31.3 i et dokument uten noe annet gir grunnen etter OV-U13, ikke grunnen for et tomt dokument', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      'krav_irreg',
+      registrert({ sendt: '2026-09-30' }),
+      { handling: 'rad', part: 'BH', avklarer: 'D4', oppfylt: true, navn: 'D5' },
+    ]);
+    const journal = await bane.journal();
+    expect(grunner(journal.slice(0, -1)), 'kontrollsak: saken før avklaringen').toEqual([]);
+    const g = grunner(journal);
+    expect(g).toEqual([expect.stringContaining('en senere avklaring')]);
+    expect(g[0]).toContain('(OV-U13)');
+    expect(g[0]).not.toContain('verken krav, svar');
+  });
+
   it('en senere avklaring av § 31.3 i et dokument med et svar gir grunnen etter OV-U13, ikke grunnen for et tomt dokument', async () => {
     const bane = minnebane();
     const k = await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30' })]);
@@ -1439,6 +1455,64 @@ describe('kontrollen av referansene og resultatet i svaret', () => {
     expect(await skrivMed(svart, h, uendret), 'kontrollsak: etter svaret').toBe('godtatt');
     const usvart = await bygg(minnebane(), ['krav_irreg']);
     expect(await skrivMed(usvart, h, uendret)).toBe('INGEN_SVAR');
+  });
+});
+
+/**
+ * #927: kjøreren leser et svar i journalen bare når brevet er registrert, der svaret er
+ * dokumentasjon uten virkning (OV-U4). Et svar sendt fra appen leses i utledningen, så et
+ * som mister virkningen, gjør kontrollen av `svar.*` rød.
+ */
+describe('kjøreren: svaret den leser for `svar.*` og `standpunkt.*`, og parten i en rad', () => {
+  it('et svar sendt fra appen som ikke står i utledningen, finnes ikke', async () => {
+    const k = await bygg(minnebane(), [
+      'krav_irreg',
+      {
+        handling: 'brev',
+        svar: [{ spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true, navn: 'S-g1' }],
+      },
+    ]);
+    const u = await k.utledning();
+    expect(les('svar.S-g1.gjelder', u, k), 'kontrollsak').toBe(k.navn.id('K-g1'));
+    expect(() => les('svar.S-g1.gjelder', { ...u, svar: {} }, k)).toThrow(Forutsetning);
+  });
+
+  it.each<[string, Data]>([
+    ['uten part', {}],
+    ['med en feilstavet part', { part: 'Bh' }],
+  ])('en rad %s avvises av kjøreren, ikke stemplet som byggherrens (#927)', async (_, part) => {
+    const svaret: Handling = {
+      handling: 'rad',
+      spor: 'grunnlag',
+      navn: 'S-g1',
+      dokument: 'D4',
+      gjelder: 'K-g1',
+      resultat: 'godkjent',
+      sendt: '2026-09-30',
+    };
+    const kontroll = await bygg(minnebane(), ['krav_irreg']);
+    expect((await kontroll.send({ ...svaret, part: 'BH' }))?.godtatt, 'kontrollsak').toBe(true);
+    const k = await bygg(minnebane(), ['krav_irreg']);
+    await expect(k.send({ ...svaret, ...part })).rejects.toThrow(Forutsetning);
+  });
+
+  it('et svar i et registrert brev leses i journalen (OV-U4)', async () => {
+    const k = await bygg(minnebane(), [
+      'krav_irreg',
+      {
+        handling: 'rad',
+        part: 'BH',
+        spor: 'grunnlag',
+        navn: 'S-g1',
+        dokument: 'D4',
+        gjelder: 'K-g1',
+        resultat: 'godkjent',
+        sendt: '2026-09-30',
+      },
+    ]);
+    const u = await k.utledning();
+    expect(u.svar[k.navn.id('S-g1')], 'forutsetning: svaret har ingen virkning').toBeUndefined();
+    expect(les('svar.S-g1.gjelder', u, k)).toBe(k.navn.id('K-g1'));
   });
 });
 

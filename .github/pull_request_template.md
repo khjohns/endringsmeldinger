@@ -35,8 +35,8 @@ Kritiske regelendringer: representative feilinnføringer, målassertion, kjørin
 etter at mutasjonene er fjernet og vurdering av eventuelle overlevende mutasjoner.
 Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,
 lagring/gjenlesing, historikk og utrulling/tilbakerulling der dette berøres.
-Frontend mot TS-kjernen: sammenlikningen med den gamle frontenden for samme
-flyt (leveranseskillen).
+Frontend mot TS-kjernen: stegene i brukerforløpet som er prøvd
+(leveranseskillen).
 Brukerforløpene (docs/domenetabell/brukerforlop/): er en brukerhistorie avdekket av en
 feil eller et nytt vedtak, er forløpene utvidet i samme PR, og et endret forventet
 resultat har dato og vedtak eller issue i forløpets `endringer` (leveranseskillen).

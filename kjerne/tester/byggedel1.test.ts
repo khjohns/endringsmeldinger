@@ -190,6 +190,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
       'krav_irreg',
       {
         handling: 'rad',
+        part: 'BH',
         spor: 'grunnlag',
         navn: 'S-g1',
         dokument: 'D4',
@@ -280,6 +281,7 @@ describe('et registrert svar leses ikke med en innsigelse (VS-U24, OV-U4)', () =
       { handling: 'innsigelse', part: 'BH', gjelder: 'K-g1', navn: 'D3' },
       {
         handling: 'rad',
+        part: 'BH',
         spor: 'grunnlag',
         navn: 'S-g1',
         dokument: 'D4',
@@ -352,6 +354,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
       ...foer,
       {
         handling: 'rad',
+        part: 'BH',
         spor: 'vederlag',
         navn: 'S-v1',
         dokument: 'D5',
@@ -372,6 +375,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
   it('en lest begrunnelse av et registrert svar, oppgitt sendt før svaret, er forstått, mens kommandoen avvises i første versjon (OV-U7, KA-U34, KA-U36)', async () => {
     const svaret = {
       handling: 'rad',
+      part: 'BH',
       spor: 'vederlag',
       navn: 'S-v1',
       dokument: 'D5',

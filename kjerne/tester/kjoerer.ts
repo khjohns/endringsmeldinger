@@ -203,12 +203,16 @@ export class Kjoering {
       if (this.bane.kommando)
         throw new Forutsetning('En rad fra en annen skriver kan ikke sendes som en kommando');
       const u = utledJournal(journal, this.kjerne);
-      const { aktoerId, teamId } = this.kontekst(h, h.part === 'TE' ? 'TE' : 'BH');
+      const part = partFor(h);
+      if (part !== 'TE' && part !== 'BH')
+        throw new Forutsetning(`En rad må ha part TE eller BH, ikke ${JSON.stringify(h.part)}`);
+      const { aktoerId, teamId } = this.kontekst(h, part);
       const rad = radFor(h, u, this.navn, {
         sak_id: this.bane.sakId,
         versjon: versjon + 1,
         tidsstempel: this.klokke.neste().toISOString(),
         aktor_id: aktoerId,
+        aktor_rolle: part,
         aktor_team_id: teamId,
       });
       // Registrert korrespondanse får brevet frosset som et svar fra kjernen (merknaden til
@@ -290,12 +294,15 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     if (!s) throw new Forutsetning(`${sti}: svaret ${hale[0]} finnes ikke`);
     return s;
   };
-  // OV-U4: et svar i et registrert brev har ingen virkning og står bare i journalen.
+  // OV-U4: et svar i et registrert brev har ingen virkning og står bare i journalen. Et svar
+  // sendt fra appen leses bare i utledningen, så et som mister virkningen, ikke finnes.
   const svaretSomSendt = () => {
     const s =
       u.svar[id(hale[0])]?.svar ??
       u.journal
-        .flatMap((h) => (h.art === 'dokument' ? h.dokument.svar : []))
+        .flatMap((h) =>
+          h.art === 'dokument' && erRegistrert(h.dokument.opplysninger) ? h.dokument.svar : []
+        )
         .find((x) => x.id === id(hale[0]));
     if (!s) throw new Forutsetning(`${sti}: svaret ${hale[0]} finnes ikke`);
     return s;

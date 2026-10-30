@@ -425,6 +425,22 @@ function lesDokument(h: Journalrad): Dokument {
     ikke_i_saken?: true;
   };
   if (data.ikke_i_saken) return ikkeISaken(h, data);
+  // OV-U13: opplysningen om § 31.3 gis bare i brevet selv, som hører til registrert
+  // korrespondanse med et svar på grunnlaget. Kontrollen står foran kontrollen av et tomt
+  // dokument, så en avklaring alene får denne grunnen. At svaret er byggherrens
+  // endringsordre etter OV-U6, kontrolleres i utledningen.
+  if (
+    (data.opplysninger ?? []).some(
+      (o) =>
+        erObjekt(o) &&
+        o.hva === 'endringsordre' &&
+        typeof o.gjelder === 'string' &&
+        o.gjelder !== h.event_id
+    )
+  )
+    throw new Uforstaatt(
+      'en senere avklaring av at et brev er en endringsordre etter § 31.3, er ikke med i første versjon (OV-U13)'
+    );
   if (!data.krav && !data.svar && !data.utsagn && data.beskrivelse === undefined)
     throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller beskrivelse');
   // OV-U17: en retting i saken er en fullstendig ny registrering av brevet som dokumentasjon.
@@ -465,13 +481,6 @@ function lesDokument(h: Journalrad): Dokument {
           ...(typeof o.gjelder === 'string' ? { gjelder: o.gjelder } : {}),
         };
   });
-  // OV-U13: opplysningen om § 31.3 gis bare i brevet selv, som hører til registrert
-  // korrespondanse med et svar på grunnlaget. At svaret er byggherrens endringsordre etter
-  // OV-U6, kontrolleres i utledningen.
-  if (opplysninger.some((o) => o.hva === 'endringsordre' && o.brev !== id))
-    throw new Uforstaatt(
-      'en senere avklaring av at et brev er en endringsordre etter § 31.3, er ikke med i første versjon (OV-U13)'
-    );
   const iBrevet = opplysninger.some((o) => o.hva === 'endringsordre');
   if (
     iBrevet &&

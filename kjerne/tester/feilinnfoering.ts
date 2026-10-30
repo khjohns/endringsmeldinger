@@ -22,7 +22,8 @@
  * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
- * PR, kjører hver mutasjon bare filene med målene sine (#934). For
+ * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
+ * kjøres først én gang uten mutasjon (#945). For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
  * (`.claude/rules/tester.md`).
@@ -41,9 +42,10 @@
  * Kjøres fra repoets rot, med SQL Server oppe og `KOE_SQLSERVER_TILKOBLING` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
  * Med `--ankre` kontrolleres bare at hver fra-streng finnes nøyaktig én gang i
- * fila (#430), og at hvert mål er en del av navnet på en test (#432), uten å
+ * fila (#430), at mutasjonen ikke gir en ny feil med kode 2304 eller 2552 i fila
+ * (#1360), og at hvert mål er en del av navnet på en test (#432), uten å
  * fortsette i et ord eller en ID (#436). Navnene leses med `vitest list` uten
- * kopier, base eller testkjøring. Det tar sekunder og kjøres før hver push som
+ * kopier, base eller testkjøring. Det tar under ett minutt og kjøres før hver push som
  * rører `kjerne/`. Begge kontrollene gjøres også før en full kjøring.
  * Forventet: «oppdaget» for hver mutasjon. Hopper kontrollkjøringen over en
  * test, for eksempel lagringstestene uten testbasen, avsluttes skriptet med
@@ -64,7 +66,9 @@ import {
 import { createRequire } from 'node:module';
 import { availableParallelism, constants, tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
+import ts from 'typescript';
 import { treffer } from './maltreff.ts';
+import type { Suitefeil } from './suitefeil.ts';
 
 interface Mutasjon {
   id: string;
@@ -3472,6 +3476,8 @@ interface Rapport {
     message: string;
     assertionResults: Testresultat[];
   }[];
+  /** Feilene på filene og i hver `describe`, fra `suitefeil.ts` (#1133). */
+  suitefeil: Suitefeil[];
 }
 
 /** En kopi av arbeidstreet. */
@@ -3560,11 +3566,13 @@ async function kjoerVitest(
 
 function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
   const ut = `${k.rot}-rapport.json`;
+  const suiteut = `${k.rot}-suitefeil.json`;
   rmSync(ut, { force: true });
+  rmSync(suiteut, { force: true });
   // Vitest 3.2 gir ikke `--hookTimeout` videre til prosjektene, så grensen går gjennom
   // `vite.config.ts`. `vi.setConfig` i lagringstestene virker bare for den første filen i
   // en arbeider uten isolasjon, så grensen er den samme som `GRENSER` der.
-  const env = { ...process.env, KOE_HOOKGRENSE: '240000' };
+  const env = { ...process.env, KOE_HOOKGRENSE: '240000', FEILINNFOERING_SUITEFEIL: suiteut };
   let stderr = '';
   return new Promise((ok, feil) => {
     const vitest = spawn(
@@ -3575,7 +3583,7 @@ function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
         ...filer,
         '--no-cache',
         // Filene deler modulene i en arbeider. Kontrollkjøringen viser at hele samlingen er
-        // grønn slik; et utvalg grupperer filene annerledes (#934).
+        // grønn slik, og `utvalgskontroll` at hvert utvalg er det (#934, #945).
         '--no-isolate',
         // Kopiene deler prosessorene. Et tidsavbrudd er ikke en assertion og gir en ny
         // kjøring (#1015), så grensen heves over den i `vite.config.ts`.
@@ -3584,6 +3592,7 @@ function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
         `--maxWorkers=${arbeiderePerKopi}`,
         '--reporter=json',
         `--outputFile=${ut}`,
+        '--reporter=./kjerne/tester/suitefeil.ts',
       ],
       // Egen prosessgruppe, så et avbrudd kan stoppe Vitest og arbeiderne den har startet.
       { cwd: k.rot, env, stdio: ['ignore', 'ignore', 'pipe'], detached: true }
@@ -3599,7 +3608,10 @@ function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
       .on('close', function (this: ChildProcess, kode: number | null, signal: string | null) {
         grupper.delete(this.pid!);
         try {
-          ok(JSON.parse(readFileSync(ut, 'utf8')) as Rapport);
+          ok({
+            ...(JSON.parse(readFileSync(ut, 'utf8')) as Rapport),
+            suitefeil: JSON.parse(readFileSync(suiteut, 'utf8')) as Suitefeil[],
+          });
         } catch (e) {
           // Arbeidere som overlevde Vitest, ville ellers delt base med det nye forsøket.
           try {
@@ -3660,12 +3672,104 @@ function lagArbeidskopier(antall: number): Arbeidskopi[] {
   });
 }
 
+/** «Cannot find name», med og uten forslag til et annet navn. */
+const NAVNEFEIL = new Set([2304, 2552]);
+
+/**
+ * #1360: feilene med kode 2304 og 2552 hver mutasjon gir i fila si, utover dem fila har fra
+ * før. Et navn som ikke er i omfang, gir `ReferenceError` og ikke feilen mutasjonen skal
+ * innføre. Fila leses av én språktjeneste per fil, med den muterte teksten i minnet.
+ */
+function navnefeil(muterte: { m: Mutasjon; tekst: string }[]): Map<string, string[]> {
+  const feil = new Map<string, string[]>();
+  // Tjenestene deler de umuterte filene, så hver fil og hver typedefinisjon leses én gang.
+  const register = ts.createDocumentRegistry();
+  for (const fil of new Set(muterte.map(({ m }) => m.fil))) {
+    const sti = join(ROT, fil);
+    const konfig = ts.findConfigFile(dirname(sti), ts.sys.fileExists);
+    const valg = konfig
+      ? ts.getParsedCommandLineOfConfigFile(
+          konfig,
+          {},
+          {
+            ...ts.sys,
+            onUnRecoverableConfigFileDiagnostic: () => {},
+          }
+        )?.options
+      : undefined;
+    let tekst = readFileSync(sti, 'utf8');
+    let versjon = 0;
+    const tjeneste = ts.createLanguageService(
+      {
+        getCompilationSettings: () => valg ?? {},
+        getScriptFileNames: () => [sti],
+        getScriptVersion: (f) => (f === sti ? String(versjon) : '0'),
+        getScriptSnapshot: (f) => {
+          const t = f === sti ? tekst : ts.sys.readFile(f);
+          return t === undefined ? undefined : ts.ScriptSnapshot.fromString(t);
+        },
+        getCurrentDirectory: () => ROT,
+        getDefaultLibFileName: ts.getDefaultLibFilePath,
+        fileExists: ts.sys.fileExists,
+        readFile: ts.sys.readFile,
+        readDirectory: ts.sys.readDirectory,
+        directoryExists: ts.sys.directoryExists,
+        getDirectories: ts.sys.getDirectories,
+      },
+      register
+    );
+    const navn = () =>
+      tjeneste
+        .getSemanticDiagnostics(sti)
+        .filter((d) => NAVNEFEIL.has(d.code))
+        .map((d) => ts.flattenDiagnosticMessageText(d.messageText, ' '));
+    const grunnlag = navn();
+    for (const { m, tekst: mutert } of muterte.filter((u) => u.m.fil === fil)) {
+      tekst = mutert;
+      versjon++;
+      const nye = navn();
+      for (const n of grunnlag) {
+        const i = nye.indexOf(n);
+        if (i >= 0) nye.splice(i, 1);
+      }
+      if (nye.length)
+        feil.set(
+          m.id,
+          nye.map((n) => `${m.id}: mutasjonen gir en navnefeil i ${fil}: ${n}`)
+        );
+    }
+  }
+  return feil;
+}
+
 /** Meldingen Vitest gir når en test eller en hook går over grensen sin. */
 const TIDSAVBRUDD = /\b(Test|Hook) timed out in \d+ms/;
 
 /**
- * Utfallet av én mutasjon. `tidsavbrudd` er satt når den ikke ble oppdaget og en test eller
- * en hook gikk over grensen: da er utfallet uavgjort, ikke en overlevende mutasjon (#1122).
+ * Feilene som ikke hører til én test: fra reporteren, og for en fil som feilet uten en slik
+ * feil og uten en test som feilet, meldingen i JSON-rapporten.
+ */
+function suitefeilene(rapport: Rapport): Suitefeil[] {
+  const medFeil = new Set(rapport.suitefeil.map((f) => f.fil));
+  return [
+    ...rapport.suitefeil,
+    ...rapport.testResults
+      .filter(
+        (f) =>
+          f.status === 'failed' &&
+          !medFeil.has(f.name) &&
+          !f.assertionResults.some((t) => t.status === 'failed')
+      )
+      .map((f) => ({ fil: f.name, suite: '', melding: f.message })),
+  ];
+}
+
+const suitenavn = (f: Suitefeil, k: Arbeidskopi) =>
+  `${relative(k.rot, f.fil)}${f.suite ? ` > ${f.suite}` : ''}`;
+
+/**
+ * Utfallet av én mutasjon. `tidsavbrudd` er satt når den ikke ble oppdaget og tidsavbrudd
+ * forklarer det: da er utfallet uavgjort, ikke en overlevende mutasjon (#1122, #1133).
  */
 interface Utfall {
   oppdaget: boolean;
@@ -3674,21 +3778,30 @@ interface Utfall {
 }
 
 function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
-  const feilet = rapport.testResults
-    .flatMap((f) => f.assertionResults)
-    .filter((t) => t.status === 'failed');
-  const suitefeil = rapport.testResults.filter(
-    (f) => f.status === 'failed' && !f.assertionResults.length
-  );
+  const tester = rapport.testResults.flatMap((f) => f.assertionResults);
+  const feilet = tester.filter((t) => t.status === 'failed');
+  const suitefeil = suitefeilene(rapport);
   const ikkeAssertion = feilet.filter(
     (t) => !t.failureMessages.join('\n').includes('AssertionError')
   );
-  const manglerMal = m.mal.filter((mal) => !feilet.some((t) => treffer(t.fullName, mal)));
+  const manglerMal = m.mal.filter(
+    (mal) => !feilet.some((t) => treffer(t.fullName, mal) && !ikkeAssertion.includes(t))
+  );
   const oppdaget = !suitefeil.length && !ikkeAssertion.length && !manglerMal.length;
+  // #1133: uavgjort bare når hver feil som ikke er en assertion, er et tidsavbrudd, og hvert mål
+  // som ikke feilet på en assertion, har en test som fikk tidsavbrudd eller ikke ble kjørt. Et
+  // mål som kjørte og bestod, er en overlevende mutasjon, uansett tidsavbrudd i andre tester.
+  const andreFeil = [
+    ...ikkeAssertion.map((t) => t.failureMessages.join('\n')),
+    ...suitefeil.map((f) => f.melding),
+  ];
+  const ikkeKjoert = (t: Testresultat) => t.status !== 'passed' && t.status !== 'failed';
   const tidsavbrudd =
     !oppdaget &&
-    [...ikkeAssertion.flatMap((t) => t.failureMessages), ...suitefeil.map((f) => f.message)].some(
-      (melding) => TIDSAVBRUDD.test(melding)
+    andreFeil.length > 0 &&
+    andreFeil.every((melding) => TIDSAVBRUDD.test(melding)) &&
+    manglerMal.every((mal) =>
+      tester.some((t) => treffer(t.fullName, mal) && (ikkeKjoert(t) || ikkeAssertion.includes(t)))
     );
   return {
     oppdaget,
@@ -3697,14 +3810,17 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
       `\n${m.id} ${m.feilklasse}: ${oppdaget ? 'oppdaget' : tidsavbrudd ? 'IKKE AVGJORT (tidsavbrudd)' : 'IKKE OPPDAGET'}`,
       ...m.endringer.map(([fra, til]) => `  ${m.fil}: ${fra.trim()} → ${til.trim()}`),
       ...feilet.map((t) => `  feilet: ${t.fullName}\n    ${t.failureMessages[0]?.split('\n')[0]}`),
-      ...suitefeil.map(
-        (f) => `  suitefeil: ${relative(k.rot, f.name)}: ${f.message.split('\n')[0]}`
-      ),
+      ...suitefeil.map((f) => `  suitefeil: ${suitenavn(f, k)}: ${f.melding.split('\n')[0]}`),
       ...ikkeAssertion.map(
         (t) =>
           `  ${TIDSAVBRUDD.test(t.failureMessages.join('\n')) ? 'tidsavbrudd' : 'ikke en assertion'}: ${t.fullName}`
       ),
-      ...manglerMal.map((mal) => `  målet feilet ikke: ${mal}`),
+      ...manglerMal.flatMap((mal) => [
+        `  målet feilet ikke på en assertion: ${mal}`,
+        ...tester
+          .filter((t) => treffer(t.fullName, mal) && ikkeKjoert(t))
+          .map((t) => `    ikke kjørt: ${t.fullName}`),
+      ]),
     ],
   };
 }
@@ -3737,6 +3853,8 @@ async function arbeider(
   for (let m = koe.shift(); m; m = koe.shift()) {
     let u: Utfall;
     try {
+      const filer = filerFor(m);
+      if (filer) await utvalgskontroll(k, filer);
       u = await kjoerMutasjon(m, k);
       if (u.tidsavbrudd) {
         console.error(`${m.id} fikk tidsavbrudd og kjøres én gang til`);
@@ -3763,16 +3881,21 @@ if (doble.length) throw new Error(`Feilinnføringene har samme ID: ${doble.join(
 const valgte = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
 // Endringene i én feilinnføring gjøres etter hverandre, så hvert anker slås opp i teksten
 // slik den er etter de foregående.
+const muterte = valgte.map((m) => {
+  let tekst = readFileSync(m.fil, 'utf8');
+  const feil = m.endringer.flatMap(([fra, til]) => {
+    if (tekst.split(fra).length !== 2)
+      return [`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`];
+    tekst = tekst.replace(fra, til);
+    return [];
+  });
+  return { m, tekst, feil };
+});
+const navnefeilene = navnefeil(muterte.filter((u) => !u.feil.length));
 const ankerfeil = new Map(
-  valgte.flatMap((m) => {
-    let tekst = readFileSync(m.fil, 'utf8');
-    const feil = m.endringer.flatMap(([fra, til]) => {
-      if (tekst.split(fra).length !== 2)
-        return [`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`];
-      tekst = tekst.replace(fra, til);
-      return [];
-    });
-    return feil.length ? [[m.id, feil] as const] : [];
+  muterte.flatMap(({ m, feil }) => {
+    const alle = [...feil, ...(navnefeilene.get(m.id) ?? [])];
+    return alle.length ? [[m.id, alle] as const] : [];
   })
 );
 const delform = /^(\d+)\/(\d+)$/.exec(process.env.FEILINNFOERING_DEL ?? '1/1');
@@ -3806,6 +3929,8 @@ const filerFor = (m: Mutasjon) =>
   utvalg
     ? [...new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil))]
     : undefined;
+/** Kontrollkjøringen av hvert utvalg, etter filene (`utvalgskontroll`). */
+const utvalgskontroller = new Map<string, Promise<void>>();
 
 const antallKopier = Math.max(
   1,
@@ -3827,7 +3952,7 @@ if (bareAnkre) {
     process.exitCode = 1;
   } else
     console.log(
-      `Ankrene i ${valgte.length} feilinnføringer finnes nøyaktig én gang, og målene er deler av navnene på ${navn.length} tester.`
+      `Ankrene i ${valgte.length} feilinnføringer finnes nøyaktig én gang, ingen av dem gir en navnefeil, og målene er deler av navnene på ${navn.length} tester.`
     );
 } else
   try {
@@ -3876,7 +4001,9 @@ async function kjoer(): Promise<number> {
   const uavgjort = ikkeOppdaget.filter((m) => utfall.get(m.id)!.tidsavbrudd);
   for (const m of mutasjoner) console.log(utfall.get(m.id)!.linjer.join('\n'));
   if (ankerfeilIDelen.length)
-    console.log(`\nHoppet over fordi ankeret ikke finnes:\n${ankerfeilIDelen.join('\n')}`);
+    console.log(
+      `\nHoppet over fordi ankeret ikke finnes eller mutasjonen gir en navnefeil:\n${ankerfeilIDelen.join('\n')}`
+    );
   console.log(
     ikkeOppdaget.length
       ? `\nIkke alle mutasjonene ble oppdaget: ${ikkeOppdaget.length - uavgjort.length} overlevde, ${uavgjort.length} fikk tidsavbrudd to ganger.`
@@ -3885,26 +4012,51 @@ async function kjoer(): Promise<number> {
   return ikkeOppdaget.length || ankerfeilIDelen.length ? 1 : 0;
 }
 
-/** Hver test eller fil som feilet, med den første linjen i feilen. */
+/** Hver test, fil eller `describe` som feilet, med den første linjen i feilen. */
 function kontrollfeil(kontroll: Rapport, k: Arbeidskopi): string[] {
-  return kontroll.testResults.flatMap((f) => {
-    const feilet = f.assertionResults.filter((t) => t.status === 'failed');
-    if (feilet.length)
-      return feilet.map((t) => `${t.fullName}: ${t.failureMessages[0]?.split('\n')[0]}`);
-    return f.status === 'failed' ? [`${relative(k.rot, f.name)}: ${f.message.split('\n')[0]}`] : [];
-  });
+  return [
+    ...kontroll.testResults
+      .flatMap((f) => f.assertionResults)
+      .filter((t) => t.status === 'failed')
+      .map((t) => `${t.fullName}: ${t.failureMessages[0]?.split('\n')[0]}`),
+    ...suitefeilene(kontroll).map((f) => `${suitenavn(f, k)}: ${f.melding.split('\n')[0]}`),
+  ];
 }
 
 /**
- * Kontrollkjøringen i `k`. Feiler den bare på tidsavbrudd, kjøres den én gang til, og den
- * andre kjøringen gjelder (#1122, E2-2 i del 4).
+ * Kontrollkjøringen av `filer`, eller hele samlingen, i `k`. Feiler den bare på tidsavbrudd,
+ * kjøres den én gang til, og den andre kjøringen gjelder (#1122, E2-2 i del 4).
  */
-async function kontrollkjoering(k: Arbeidskopi): Promise<Rapport> {
-  const forste = await kjoerVitest(k);
+async function kontrollkjoering(k: Arbeidskopi, filer?: string[]): Promise<Rapport> {
+  const forste = await kjoerVitest(k, filer);
   const feil = kontrollfeil(forste, k);
   if (!feil.length || !feil.every((f) => TIDSAVBRUDD.test(f))) return forste;
   console.error(
     `Kontrollkjøringen i ${k.rot} fikk tidsavbrudd og kjøres én gang til: ${feil.join('; ')}`
   );
-  return kjoerVitest(k);
+  return kjoerVitest(k, filer);
+}
+
+/**
+ * #945: filene i et utvalg deles annerledes på arbeiderne enn i hele samlingen, så tilstand
+ * som lekker mellom filene, kan gi et annet utfall. Hvert utvalg kjøres derfor én gang uten
+ * mutasjon, i den kopien som først trenger det, og må være grønt uten hoppede tester.
+ */
+function utvalgskontroll(k: Arbeidskopi, filer: string[]): Promise<void> {
+  const noekkel = [...filer].sort().join('\n');
+  let kontroll = utvalgskontroller.get(noekkel);
+  if (!kontroll) {
+    kontroll = kontrollkjoering(k, filer).then((rapport) => {
+      const feil = kontrollfeil(rapport, k);
+      const hoppet = rapport.testResults
+        .flatMap((f) => f.assertionResults)
+        .filter((t) => t.status !== 'passed');
+      if (feil.length || hoppet.length)
+        throw new Error(
+          `Kontrollkjøringen av utvalget ${filer.join(', ')} er ikke grønn: ${[...feil, ...hoppet.map((t) => `${t.fullName}: ${t.status}`)].join('; ')}`
+        );
+    });
+    utvalgskontroller.set(noekkel, kontroll);
+  }
+  return kontroll;
 }
