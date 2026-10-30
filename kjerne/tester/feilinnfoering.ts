@@ -3422,6 +3422,42 @@ const MUTASJONER: Mutasjon[] = [
       'KA-U24: et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent',
     ],
   },
+  {
+    id: 'F422',
+    feilklasse:
+      'innsigelsen etter § 34.1.3 står som forutsetning for hele vederlagssvaret i utkastet (OV-U22, OV-U33, #1400)',
+    fil: `${K}/kommandoer/lag.ts`,
+    endringer: [
+      [
+        "if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))",
+        "if (egen !== '34.1.3' && paaberopt('34.1.3'))",
+      ],
+    ],
+    mal: ['§ 34.1.3 rammer bare posten etter annet ledd', 'justeringen ellers bare § 34.1.2'],
+  },
+  {
+    id: 'F423',
+    feilklasse:
+      'lagene i utkastet flyttes ikke ned med lagene fra svaret på grunnlaget (OV-U32, OV-U33, #1400)',
+    fil: `${K}/kommandoer/lag.ts`,
+    endringer: [["typeof vi === 'number' ? vi + grunner.length : vi", 'vi']],
+    mal: [
+      'beløpet står subsidiært, bare med avslaget foran',
+      'preklusjon etter § 32.2 og avslag står foran sporet',
+      'de samme lagene som brevet fryser',
+    ],
+  },
+  {
+    id: 'F424',
+    feilklasse:
+      'grunnene fra svaret på grunnlaget står ikke som forutsetninger i utkastet (S2-A i #1400)',
+    fil: `${K}/kommandoer/lag.ts`,
+    endringer: [['rammer.push(...grunner.map((grunn) => ({ grunn })));', '']],
+    mal: [
+      'beløpet står subsidiært, bare med avslaget foran',
+      'preklusjon etter § 32.2 og avslag står foran sporet',
+    ],
+  },
 ];
 
 interface Testresultat {
