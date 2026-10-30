@@ -283,6 +283,7 @@ export const SAKEN = {
   foretak: 'Oslobygg KF',
   kontrakten: 'Kontrakten',
   prosjekt: 'Prosjekt',
+  kontraktsform: 'Kontraktsform',
   byggherre: 'Byggherre',
   entreprenoer: 'Totalentreprenør',
   opprettet: 'Opprettet',

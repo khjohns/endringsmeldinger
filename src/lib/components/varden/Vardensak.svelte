@@ -33,11 +33,17 @@
   }: {
     kjernesak: Kjernesakkontekst;
     /** Prosjektet og partene. Et navn som mangler, vises ikke (#1398). */
-    kontrakt?: { prosjekt?: string; byggherre?: string; entreprenoer?: string };
+    kontrakt?: {
+      prosjekt?: string;
+      kontraktsform?: string;
+      byggherre?: string;
+      entreprenoer?: string;
+    };
   } = $props();
   const kontraktsrader = $derived(
     [
       [SAKEN.prosjekt, kontrakt.prosjekt],
+      [SAKEN.kontraktsform, kontrakt.kontraktsform],
       [SAKEN.byggherre, kontrakt.byggherre],
       [SAKEN.entreprenoer, kontrakt.entreprenoer],
     ].filter((r): r is [string, string] => !!r[1])
@@ -439,9 +445,16 @@
     background: var(--draft-bg);
     color: var(--draft);
   }
+  /* Kontrakten står nederst i panelet, som i dagens oversikt (oppdragsgiver 30.10). */
+  .kontrakten,
+  .prototype {
+    margin-top: auto;
+  }
+  .kontrakten + .prototype {
+    margin-top: 0;
+  }
   .prototype {
     align-self: flex-start;
-    margin-top: auto;
     padding: 0 var(--spacing-2);
     border: 1px solid var(--sidebar-border);
     border-radius: 999px;
@@ -530,6 +543,7 @@
       grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
       gap: var(--spacing-2);
     }
+    .kontrakten,
     .prototype {
       margin-top: 0;
     }

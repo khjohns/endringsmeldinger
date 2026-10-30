@@ -50,7 +50,8 @@ export const DEMOPROSJEKT = 'demo';
 /** Partene og prosjektet i demoruta, med eksempelnavnene fra `/mockup/oversikt`. TS-stien har ikke navnene ennå (#1398). */
 export const DEMOKONTRAKT = {
   prosjekt: 'Operatunnelen — Parsell 3',
-  byggherre: 'Oslo kommune · Oslobygg KF',
+  kontraktsform: 'Totalentreprise NS 8407',
+  byggherre: 'Oslobygg KF',
   entreprenoer: 'Veidekke Entreprenør AS',
 };
 
