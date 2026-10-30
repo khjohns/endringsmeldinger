@@ -725,9 +725,12 @@
     border-radius: 4px;
     font-size: 14px;
   }
+  /* Over tidslinja, som ruller under: den åpne chevronen er rotert og ville ellers ligget
+     øverst og tatt klikkene i panelet. */
   .feste.fast {
     position: sticky;
     top: var(--spacing-4);
+    z-index: 1;
   }
   /* Lesing ved siden av: rammen følger brevet og er høyst like høy som vinduet under
      topplinja. Et lengre brev ruller i den, og «Se brevet før sending» står fast i bunnen
