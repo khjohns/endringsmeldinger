@@ -16,6 +16,7 @@ import { feilnummer, type Pool } from '../datalag.ts';
 import {
   kjoer,
   kontraktsteamFra,
+  lesKontraktsparter,
   lesKontraktsteam,
   Registreringsfeil,
   type Kontraktsteam,
@@ -93,6 +94,21 @@ describe('argumentene til kontraktsteam, før basen og Catenda brukes', () => {
       );
     }
   );
+
+  it('partsnavnene gjelder bare kontraktsparter, og flaggene for de andre kommandoene avvises der (#1398)', async () => {
+    await expect(skript('kontraktsteam', 'p-1', '--byggherre', 'B')).rejects.toThrow(
+      /--byggherre gjelder bare «kontraktsparter»/
+    );
+    await expect(
+      skript('registrer', '--prosjekt', 'p-1', '--totalentreprenoer', 'T')
+    ).rejects.toThrow(/--totalentreprenoer gjelder bare «kontraktsparter»/);
+    await expect(skript('kontraktsparter', 'p-1', '--navn', 'x')).rejects.toThrow(
+      /--navn gjelder bare «registrer»/
+    );
+    await expect(
+      skript('kontraktsparter', 'p-1', '--bh', team(), '--te', team(), '--en-totalentreprenoer')
+    ).rejects.toThrow(/gjelder bare «kontraktsteam»/);
+  });
 });
 
 describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
@@ -177,7 +193,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     throw new Error('Kallet ble ikke avvist');
   }
 
-  it('driftsrollen har bare EXECUTE på de ti prosedyrene, og kjøretiden har ingen rett i koe_drift', async () => {
+  it('driftsrollen har bare EXECUTE på de tolv prosedyrene, og kjøretiden har ingen rett i koe_drift', async () => {
     const svar = await o.datalag.base.pool.request().query<{ rolle: string; rett: string }>(
       `SELECT USER_NAME(p.grantee_principal_id) AS rolle,
               CONCAT(p.permission_name, N' ', OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS rett
@@ -190,10 +206,12 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       'koe_driftsrolle EXECUTE koe_drift.fjern_rolle',
       'koe_driftsrolle EXECUTE koe_drift.fjern_stillingstittel',
       'koe_driftsrolle EXECUTE koe_drift.koble_catenda_identitet',
+      'koe_driftsrolle EXECUTE koe_drift.kontraktsparter',
       'koe_driftsrolle EXECUTE koe_drift.kontraktsteam',
       'koe_driftsrolle EXECUTE koe_drift.kontroller_bytte',
       'koe_driftsrolle EXECUTE koe_drift.registrer_entra_identitet',
       'koe_driftsrolle EXECUTE koe_drift.registrer_prosjekt',
+      'koe_driftsrolle EXECUTE koe_drift.sett_kontraktsparter',
       'koe_driftsrolle EXECUTE koe_drift.sett_kontraktsteam',
       'koe_driftsrolle EXECUTE koe_drift.sett_rolle',
       'koe_driftsrolle EXECUTE koe_drift.sett_stillingstittel',
@@ -691,6 +709,76 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
           .execute('koe_drift.sett_kontraktsteam')
       )
     ).toBe(52063);
+  });
+
+  // Arbeidsvalget 30.10 i #1398: driften setter navnene på partene med skriptet,
+  // begge sammen, og kan rette dem.
+  it('kontraktsparter lagrer begge navnene, viser dem og skriver dem over (#1398)', async () => {
+    const { prosjekt } = await nyttProsjekt([]);
+    linjer.length = 0;
+    await skript('kontraktsparter', prosjekt);
+    expect(linjer).toEqual(['Byggherre: (ikke satt)', 'Totalentreprenør: (ikke satt)']);
+    await skript(
+      'kontraktsparter',
+      prosjekt,
+      '--byggherre',
+      'Byggherren AS',
+      '--totalentreprenoer',
+      'Entreprenøren AS'
+    );
+    await skript(
+      'kontraktsparter',
+      prosjekt,
+      '--byggherre',
+      'Ny byggherre',
+      '--totalentreprenoer',
+      'Ny TE'
+    );
+    linjer.length = 0;
+    await skript('kontraktsparter', '--prosjekt', prosjekt);
+    expect(linjer).toEqual(['Byggherre: Ny byggherre', 'Totalentreprenør: Ny TE']);
+  });
+
+  it('kontraktsparter avviser ett navn alene, et tomt navn, et prosjekt som ikke er registrert og en prosjekt-ID med mellomrom til slutt (#1398)', async () => {
+    const { prosjekt } = await nyttProsjekt([]);
+    await expect(skript('kontraktsparter', prosjekt, '--byggherre', 'B')).rejects.toThrow(
+      /--totalentreprenoer må oppgis/
+    );
+    await expect(
+      skript('kontraktsparter', prosjekt, '--byggherre', ' B', '--totalentreprenoer', 'T')
+    ).rejects.toThrow(/Byggherrens navn .*\(52065\)/);
+    await expect(
+      skript('kontraktsparter', 'p-finnes-ikke', '--byggherre', 'B', '--totalentreprenoer', 'T')
+    ).rejects.toThrow(/\(52073\)/);
+    // Med mellomrom til slutt ville oppslaget i koe.projects truffet prosjektet.
+    await expect(
+      skript('kontraktsparter', `${prosjekt} `, '--byggherre', 'B', '--totalentreprenoer', 'T')
+    ).rejects.toThrow(/Prosjekt-ID-en .*\(52043\)/);
+    expect(await lesKontraktsparter(drift.pool, prosjekt)).toBeNull();
+    // Tabellen avviser et tomt navn også uten prosedyren.
+    expect(
+      await avvisning(
+        o.datalag.base.pool
+          .request()
+          .input('p', prosjekt)
+          .query(
+            "INSERT koe.kontraktsparter (prosjekt_id, byggherre_navn, totalentreprenor_navn) VALUES (@p, N'   ', N'T')"
+          )
+      )
+    ).toBe(547);
+  });
+
+  it('kjøretiden kan ikke sette navnene (#1398)', async () => {
+    expect(
+      await avvisning(
+        o.datalag.kjoeretid.pool
+          .request()
+          .input('prosjekt', o.prosjekt.id)
+          .input('byggherre', 'B')
+          .input('totalentreprenor', 'T')
+          .execute('koe_drift.sett_kontraktsparter')
+      )
+    ).toBe(229);
   });
 });
 

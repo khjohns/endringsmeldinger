@@ -1149,6 +1149,24 @@
      }
     ]
    },
+   "koe.kontraktsparter": {
+    "kolonner": [
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["byggherre_navn", "nvarchar(400)", "NOT NULL"],
+     ["totalentreprenor_navn", "nvarchar(400)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["prosjekt_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["prosjekt_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.kvittering": {
     "kolonner": [
      ["prosjekt_id", "nvarchar(100)", "NOT NULL"],

@@ -9,7 +9,8 @@
  * prosjekttilgang, og stien må være prosjektet i `X-Project-ID`.
  *
  * `koe.projects` har ikke `settings` og `created_by`; svaret har `{}` og
- * `null`, som Python gir et prosjekt uten dem (#660).
+ * `null`, som Python gir et prosjekt uten dem (#660). Ett prosjekt har i tillegg
+ * partsnavnene fra `koe.kontraktsparter` i `settings.contract` (#1398).
  *
  * Medlemsinngangene (F-1a, #820) har stiene og svarene fra
  * `backend/routes/membership_routes.py`. Medlemskapet har ingen egen ID i SQL
@@ -31,13 +32,25 @@ interface Prosjektrad {
   is_active: boolean;
 }
 
+interface Kontraktsparter {
+  byggherre_navn: string;
+  totalentreprenor_navn: string;
+}
+
 /** `Project` i `src/lib/types/project.ts`. */
-const prosjektet = (r: Prosjektrad) => ({
+const prosjektet = (r: Prosjektrad, parter?: Kontraktsparter) => ({
   id: r.id,
   organisasjon_id: r.organisasjon_id,
   name: r.name,
   description: r.description,
-  settings: {},
+  settings: parter
+    ? {
+        contract: {
+          byggherre_navn: parter.byggherre_navn,
+          totalentreprenor_navn: parter.totalentreprenor_navn,
+        },
+      }
+    : {},
   created_at: r.created_at.toISOString(),
   created_by: null,
   is_active: r.is_active,
@@ -95,7 +108,7 @@ async function brukerensProsjekter(
     // Synkroniseringen kan ha fjernet et medlemskap; den legger ikke til et prosjekt som ikke var med.
     const ider = new Set(foer.map((p) => p.id));
     const etter = await lesBrukerensProsjekter(avh.datalag, sesjon.bruker.id);
-    return [200, { projects: etter.filter((p) => ider.has(p.id)).map(prosjektet) }];
+    return [200, { projects: etter.filter((p) => ider.has(p.id)).map((p) => prosjektet(p)) }];
   } catch (feil) {
     loggFeil('Prosjektene kunne ikke leses', feil);
     return [
@@ -119,7 +132,11 @@ async function visProsjektet(
     .execute<Prosjektrad>('koe_api.prosjekt');
   const rad = svar.recordset[0];
   if (!rad) return [404, { success: false, error: 'NOT_FOUND', message: 'Prosjekt ikke funnet' }];
-  return [200, prosjektet(rad)];
+  const parter = await utenKontekst(avh.datalag)
+    .input('aktor', sql.UniqueIdentifier, bruker.id)
+    .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
+    .execute<Kontraktsparter>('koe_api.kontraktsparter');
+  return [200, prosjektet(rad, parter.recordset[0])];
 }
 
 interface Medlemsrad {

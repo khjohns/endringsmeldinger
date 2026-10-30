@@ -335,6 +335,9 @@ const FRITEKST_MED_LEN: Record<string, string> = {
   'koe.notat.tekst': 'Notatet er fritekst.',
   'koe.jobb.tittel': 'Tittelen på topicen er fritekst.',
   'koe.vedlegg.filnavn': 'Filnavnet er fritekst fra brukeren.',
+  'koe.kontraktsparter.byggherre_navn': 'Navnet på byggherren er fritekst fra driften (#1398).',
+  'koe.kontraktsparter.totalentreprenor_navn':
+    'Navnet på totalentreprenøren er fritekst fra driften (#1398).',
 };
 
 /** Kontrollene på tekstkolonnen som prøver den med `LEN`. */

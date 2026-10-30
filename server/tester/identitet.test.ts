@@ -212,6 +212,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.innkommende_behandling.prosjekt_id',
         'koe.jobb.prosjekt_id',
         'koe.kjernebuffer.prosjekt_id',
+        'koe.kontraktsparter.prosjekt_id',
         'koe.kvittering.prosjekt_id',
         'koe.leveringskvittering.prosjekt_id',
         'koe.leveringsoppdrag.prosjekt_id',

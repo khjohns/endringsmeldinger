@@ -1,5 +1,5 @@
 /**
- * Driftsskriptet for prosjektregistreringen og kontraktsteamene (F-1, #820),
+ * Driftsskriptet for prosjektregistreringen, kontraktsteamene og partsnavnene (F-1, #820),
  * etter `register` og `contract-teams` i `backend/scripts/catenda_admin.py`.
  * Registreringen er ingen inngang i appen; skriptet kjører prosedyrene i
  * `koe_drift`, som bare `koe_driftsrolle` kan kjøre
@@ -12,6 +12,8 @@
  *     [--beskrivelse …] [--bh <team> … --te <team> … --en-totalentreprenoer]
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsteam oslobygg \
  *     [--bh … --te … --en-totalentreprenoer]
+ *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsparter oslobygg \
+ *     [--byggherre "…" --totalentreprenoer "…"]
  *
  * `KOE_DRIFT_TILKOBLING` er tilkoblingsstrengen for en bruker med
  * `koe_driftsrolle`. Med `--bh` og `--te` kontrolleres teamene mot Catenda-
@@ -20,6 +22,8 @@
  * Uten dem viser `kontraktsteam` teamene som står. Som i Python kan én `--bh` eller
  * `--te` ha flere team (`--bh a b`). Med `--en-totalentreprenoer` bekrefter drift at
  * alle TE-teamene hører til samme totalentreprenør, og uten den avvises teamene (DL-U14).
+ * `kontraktsparter` setter navnene på byggherren og totalentreprenøren, begge sammen,
+ * og viser dem uten flaggene (#1398).
  */
 
 import { fileURLToPath } from 'node:url';
@@ -147,6 +151,41 @@ async function settKontraktsteam(
     .execute('koe_drift.sett_kontraktsteam');
 }
 
+export interface Kontraktsparter {
+  byggherre_navn: string;
+  totalentreprenor_navn: string;
+}
+
+/** Navnene på partene, eller `null` når de ikke er satt. */
+export async function lesKontraktsparter(
+  pool: Pool,
+  prosjekt: string
+): Promise<Kontraktsparter | null> {
+  const svar = await utenKontekst(pool)
+    .input('prosjekt', sql.NVarChar(4000), prosjekt)
+    .execute<Kontraktsparter>('koe_drift.kontraktsparter');
+  return svar.recordset[0] ?? null;
+}
+
+async function settKontraktsparter(
+  pool: Pool,
+  prosjekt: string,
+  parter: Kontraktsparter
+): Promise<void> {
+  try {
+    await utenKontekst(pool)
+      .input('prosjekt', sql.NVarChar(4000), prosjekt)
+      .input('byggherre', sql.NVarChar(4000), parter.byggherre_navn)
+      .input('totalentreprenor', sql.NVarChar(4000), parter.totalentreprenor_navn)
+      .execute('koe_drift.sett_kontraktsparter');
+  } catch (feil) {
+    const { number, message } = feil as { number?: unknown; message?: unknown };
+    if (number === 52043 || number === 52065 || number === 52073)
+      throw new Registreringsfeil(`${String(message)} (${number}).`, { cause: feil });
+    throw feil;
+  }
+}
+
 export interface Prosjektteam {
   catendaProsjekt: string;
   aktiv: boolean;
@@ -190,11 +229,15 @@ const VALG = {
   bh: { type: 'string', multiple: true },
   te: { type: 'string', multiple: true },
   'en-totalentreprenoer': { type: 'boolean' },
+  byggherre: { type: 'string' },
+  totalentreprenoer: { type: 'string' },
 } as const;
 
+type Valg = keyof typeof VALG;
 const FELLES = ['prosjekt', 'bh', 'te', 'en-totalentreprenoer'];
-const BARE_REGISTRER = (Object.keys(VALG) as (keyof typeof VALG)[]).filter(
-  (navn) => !FELLES.includes(navn)
+const PARTER: Valg[] = ['byggherre', 'totalentreprenoer'];
+const BARE_REGISTRER = (Object.keys(VALG) as Valg[]).filter(
+  (navn) => !FELLES.includes(navn) && !PARTER.includes(navn)
 );
 
 /** `--bh a b` blir `--bh a --bh b`, som `nargs="+"` i `catenda_admin.py`. */
@@ -270,6 +313,16 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       throw new Registreringsfeil(`Boardet finnes ikke i Catenda-prosjektet: ${board}`);
   }
 
+  const avvisFlagg = (flagg: Valg[], kommando: string) => {
+    const oppgitt = flagg.filter((navn) => v[navn] !== undefined);
+    if (oppgitt.length)
+      throw new Registreringsfeil(
+        `${oppgitt.map((navn) => `--${navn}`).join(', ')} gjelder bare «${kommando}».`
+      );
+  };
+
+  if (kommando !== 'kontraktsparter') avvisFlagg(PARTER, 'kontraktsparter');
+
   if (kommando === 'registrer') {
     if (prosjektArgument) throw new Registreringsfeil('Prosjektet oppgis med --prosjekt.');
     const r: Registrering = {
@@ -303,6 +356,30 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       a.skriv(
         'Prosjektet har ikke noe board: nye saker avvises (51412) til det registreres med --board.'
       );
+    return;
+  }
+
+  if (kommando === 'kontraktsparter') {
+    if (prosjektArgument && v.prosjekt)
+      throw new Registreringsfeil(
+        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
+      );
+    const prosjekt = prosjektArgument ?? v.prosjekt;
+    if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
+    avvisFlagg(BARE_REGISTRER, 'registrer');
+    if (oppgittTeam) throw new Registreringsfeil('--bh og --te gjelder bare «kontraktsteam».');
+    if (v.byggherre === undefined && v.totalentreprenoer === undefined) {
+      const parter = await lesKontraktsparter(await a.pool(), prosjekt);
+      a.skriv(`Byggherre: ${parter?.byggherre_navn ?? '(ikke satt)'}`);
+      a.skriv(`Totalentreprenør: ${parter?.totalentreprenor_navn ?? '(ikke satt)'}`);
+      return;
+    }
+    const parter = {
+      byggherre_navn: paakrevd(v.byggherre, 'byggherre'),
+      totalentreprenor_navn: paakrevd(v.totalentreprenoer, 'totalentreprenoer'),
+    };
+    await settKontraktsparter(await a.pool(), prosjekt, parter);
+    a.skriv(`Navnene på partene i ${prosjekt} er lagret.`);
     return;
   }
 
@@ -340,7 +417,9 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     return;
   }
 
-  throw new Registreringsfeil('Kommandoen er «registrer» eller «kontraktsteam».');
+  throw new Registreringsfeil(
+    'Kommandoen er «registrer», «kontraktsteam» eller «kontraktsparter».'
+  );
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

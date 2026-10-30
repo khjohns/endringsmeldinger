@@ -1099,6 +1099,23 @@ funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
 [[tabell]]
+navn = "koe.kontraktsparter"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Navnene på byggherren og totalentreprenøren i prosjektet (#1398). Ett prosjekt er én
+kontrakt (DL-U14). Begge navnene settes sammen, og uten rad har prosjektet ingen
+navn. Et sendt brev fryser navnene det viste (LV-U1, #1173)."""
+lagres_fra = "Driftsskriptet `server/registrering.ts kontraktsparter`. Lest av `koe_api.kontraktsparter` fra `server/prosjekter.ts` (`GET /api/projects/:id`, `settings.contract`)."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Kontrakten er kilden."
+personopplysninger = "Navnene er normalt virksomheter. Et enkeltpersonforetak har innehaverens navn i foretaksnavnet."
+skrivere = ["database/migrasjoner/20261030100000_kontraktsparter.sql (`koe_drift.sett_kontraktsparter`, kalt fra `server/registrering.ts`)"]
+funn = []
+belegg = "L 30.10: migrasjonen. K 30.10: `server/tester/registrering.test.ts` og `server/tester/prosjekter.test.ts`."
+
+[[tabell]]
 navn = "koe.godkjenningspakke"
 lagring = "SQL Server"
 type = ["transaksjon"]
