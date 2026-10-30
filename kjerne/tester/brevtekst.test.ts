@@ -6342,18 +6342,28 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     ]);
   });
 
-  it('§ 34.1.3 rammer bare posten etter annet ledd, og justeringen ellers er upåvirket (OV-U22, OV-U33)', () => {
-    const s = saken(
-      { resultat: 'godkjent', grunnlag_varslet_i_tide: true },
-      {
-        svikt: false,
-        vederlag: {
-          metode: 'tilbud',
-          beloep: 150000,
-          saerskilt: { produktivitet: { beloep: 40000 } },
-        },
-      }
-    );
+  it('§ 34.1.3 rammer bare posten etter annet ledd, og justeringen ellers er upåvirket eller har bare avslaget foran (OV-U22, OV-U27, OV-U33)', () => {
+    const krav = {
+      svikt: false,
+      vederlag: {
+        metode: 'tilbud',
+        beloep: 150000,
+        saerskilt: { produktivitet: { beloep: 40000 } },
+      },
+    };
+    const avslaatt = saken({ resultat: 'avslaatt', grunnlag_varslet_i_tide: true }, krav);
+    expect(
+      lagene(avslaatt, { produktivitet_varslet_i_tide: false }).map((x) => [
+        x.standpunkt,
+        x.virkning,
+        x.forutsetninger,
+      ])
+    ).toEqual([
+      ['beloep', 2, [{ grunn: 'avslaatt' }]],
+      ['rettidighet 34.1.3', 2, [{ grunn: 'avslaatt' }]],
+      ['beloep produktivitet', 3, [{ grunn: 'avslaatt' }, { innsigelse: '34.1.3' }]],
+    ]);
+    const s = saken({ resultat: 'godkjent', grunnlag_varslet_i_tide: true }, krav);
     expect(lagene(s, { produktivitet_varslet_i_tide: false })).toEqual([
       {
         standpunkt: 'beloep',
