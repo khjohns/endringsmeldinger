@@ -597,7 +597,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U19: brevene appen ikke vurderer, for visningen. Ingen regel leser dem.
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:ikkeVurderte']],
   ['RegistrertBrev', 'relasjon', 'dokument rettetAv', ['utledning/utled.ts:ikkeVurderte']],
-  ['Dokument', 'relasjon', 'ikkeISaken', ['kommandoer/skriving.ts:brevtekstFor']],
+  [
+    'Dokument',
+    'relasjon',
+    'ikkeISaken',
+    ['kommandoer/skriving.ts:brevtekstFor', 'utledning/utled.ts:kilden'],
+  ],
   ['Dokument', 'utsagn', 'beskrivelse spor dokumentasjon', ['utledning/utled.ts:registreringer']],
   ['utledning/utled.ts:registreringer', 'relasjon', 'brev feil', ['utledning/utled.ts']],
   [

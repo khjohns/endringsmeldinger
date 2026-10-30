@@ -23,10 +23,12 @@ import {
   enighetensVirkning,
   forskyvningIBrevet,
   grunnlagskravFor,
+  kilden,
   kraveneErAvgjort,
   sporetErLukket,
   svarIkkeGodtatt,
   venterPaaSvar,
+  type Kilde,
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
@@ -53,17 +55,38 @@ export interface Visning {
     {
       etiketter: string[];
       betegnelse: Betegnelse | null;
-      /** OV-U20: motpartens brev registrert som dokumentasjon, vist ved kravet. */
-      registrerteBrev: string[];
+      /** OV-U62: begge partenes brev registrert som dokumentasjon, vist ved kravet. */
+      registrerteBrev: BrevVedKravet[];
     }
   >;
   /** OV-U4, OV-U16: brevene registrert som dokumentasjon, også når saken ikke er forstått. */
   registrerteBrev: RegistrertBrev[];
   /** Etikettene for hver opplysning, etter ID. */
   opplysninger: Record<string, string[]>;
-  journal: { hendelse: string; type: string; tolket: boolean }[];
+  /**
+   * OV-U44: `kilde` er `null` for en hendelse kjernen ikke har tolket (MM-U2) og for
+   * hendelsen som oppretter saken, som ikke er et brev. `rettet` er registreringen
+   * rettet etter OV-U17 eller OV-U18 (arbeidsvalget 30.10 i #1045, svar 2A).
+   */
+  journal: {
+    hendelse: string;
+    type: string;
+    tolket: boolean;
+    kilde: Kilde | null;
+    rettet: boolean;
+  }[];
+  /**
+   * OV-U44: hva vurderingen bygger på, som hendelsene med hver kilde som ikke er rettet.
+   * Vurderingen bygger på dem som er sendt i appen og partenes opplysninger, ikke på
+   * dokumentasjonen. Ordlyden står i visningen, og den sier alltid at oversikten ikke er
+   * fullstendig (arbeidsvalget 26.10 i #1045, punkt 2).
+   */
+  vurderingsgrunnlag: Record<Kilde, string[]>;
   merknader: string[];
 }
+
+/** OV-U62: et registrert brev ved kravet, med avsenderen og avsenderens beskrivelse. */
+export type BrevVedKravet = Pick<RegistrertBrev, 'dokument' | 'avsender' | 'beskrivelse'>;
 
 /**
  * MM-U30: betegnelsene for et spor, i rekkefølgen de velges. Hvert spor har høyst én:
@@ -222,7 +245,9 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
       ut.push(`innsigelse_fra_${i.part}`);
   if (spor === 'grunnlag' && u.passivitet.length) ut.push('passivitet_paaberopt');
   if (s.ingenKrav) ut.push('ingen_krav');
-  else if (spor === 'frist' && !s.varsler['33.4']) ut.push('varsel_ikke_registrert');
+  // Oppdragsgiver 22.10 (#1126): bare før kravet, som er varselet når sporet ikke har noe.
+  else if (spor === 'frist' && !s.varsler['33.4'] && s.krav.length === 0)
+    ut.push('varsel_ikke_registrert');
   // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
   else if (
     spor === 'vederlag' &&
@@ -244,17 +269,29 @@ export const BREV_UTENFOR_APPEN =
 export const harIkkeVurdertBrev = (u: Utledning): boolean => u.ikkeVurderteBrev.length > 0;
 
 /**
- * OV-U20, OV-U4: når kravet venter på svar, motpartens registrerte brev for
- * sporet eller hele saken som ikke er rettet, uansett når de ble sendt. Kravet er TEs.
+ * OV-U62, OV-U4: når kravet venter på svar, begge partenes registrerte brev for sporet eller
+ * hele saken som ikke er rettet (OV-U18), uansett når de ble sendt.
  */
-function brevVedKravet(u: Utledning, spor: Spor): string[] {
+function brevVedKravet(u: Utledning, spor: Spor): BrevVedKravet[] {
   if (!venterPaaSvar(u, spor)) return [];
   return u.registrerteBrev
-    .filter(
-      (b) =>
-        b.avsender === 'BH' && b.rettetAv === null && (b.spor.length === 0 || b.spor.includes(spor))
-    )
-    .map((b) => b.dokument);
+    .filter((b) => b.rettetAv === null && (b.spor.length === 0 || b.spor.includes(spor)))
+    .map(({ dokument, avsender, beskrivelse }) => ({ dokument, avsender, beskrivelse }));
+}
+
+/** OV-U44: kilden til hver journalpost, og om registreringen er rettet. */
+function kilder(u: Utledning, ikkeTolket: Set<string>) {
+  const rettet = new Set(u.registrerteBrev.filter((b) => b.rettetAv).map((b) => b.dokument));
+  return u.journal.map((h) => {
+    const tolket = h.art !== 'ukjent' && !ikkeTolket.has(h.id);
+    return {
+      hendelse: h.id,
+      type: h.type,
+      tolket,
+      kilde: tolket && h.art === 'dokument' ? kilden(h.dokument, u.forstaatt) : null,
+      rettet: rettet.has(h.id),
+    };
+  });
 }
 
 /**
@@ -310,6 +347,13 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
       );
     opplysninger[o.id] = e;
   }
+  const journal = kilder(u, ikkeTolket);
+  const vurderingsgrunnlag: Visning['vurderingsgrunnlag'] = {
+    sendt_i_appen: [],
+    partens_opplysning: [],
+    dokumentasjon: [],
+  };
+  for (const j of journal) if (j.kilde && !j.rettet) vurderingsgrunnlag[j.kilde].push(j.hendelse);
   return {
     status: kode && { kode, tekst: statustekst(u, kode) },
     spor: Object.fromEntries(
@@ -323,11 +367,8 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
       ])
     ) as Visning['spor'],
     opplysninger,
-    journal: u.journal.map((h) => ({
-      hendelse: h.id,
-      type: h.type,
-      tolket: h.art !== 'ukjent' && !ikkeTolket.has(h.id),
-    })),
+    journal,
+    vurderingsgrunnlag,
     registrerteBrev: u.registrerteBrev,
     merknader: merknader(u, kode),
   };

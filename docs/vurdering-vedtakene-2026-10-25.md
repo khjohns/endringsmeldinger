@@ -82,8 +82,10 @@ grunnlaget i appen (#818), så hvert vederlagssvar får forbeholdet.
   det som ikke er dokumentasjon.
 - **Bygget:** registreringen som dokumentasjon i kjernen, varselet etter § 33.4, § 34.1.2 og
   § 34.1.3, lesingen av en endringsordre etter OV-U6, og visningen etter OV-U20 og OV-U21.
-- **Ikke bygget:** registreringsskjemaet i klienten (#807), en registrering av et vilkårlig
-  brev med innhold appen ikke kan sende (#1045), en registrert forespørsel etter § 33.6.2
+  Registreringen av et vilkårlig brev og rettingen av den (OV-U16–OV-U18) er bygget i kjernen,
+  og kildene etter OV-U44 og brevene ved kravet etter OV-U62 også (#1045, #1304).
+- **Ikke bygget:** registreringsskjemaet i klienten (#807), visningen av kildene og brevene i
+  Varden (#1414), en registrert forespørsel etter § 33.6.2
   (#1119), varselet etter § 32.2 og datoen for et krav sendt utenfor appen (OV-U5), kommandoen
   etter OV-U6, og OV-U11, OV-U12 og OV-U41.
 
