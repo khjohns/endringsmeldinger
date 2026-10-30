@@ -79,6 +79,8 @@
   let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' } | null>(null);
   let meldingen = $state<HTMLElement | null>(null);
   let lenkestatus = $state('');
+  let proever = $state(false);
+  let sistForsoekt = $state<string | null>(null);
 
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
@@ -98,6 +100,16 @@
       lenkestatus = SAKEN.lenkeKopiert;
     } catch {
       lenkestatus = SAKEN.lenkeIkkeKopiert;
+    }
+  }
+
+  async function proevIgjen() {
+    proever = true;
+    try {
+      await kjernesak.last();
+    } finally {
+      proever = false;
+      sistForsoekt = new Date().toISOString();
     }
   }
 
@@ -201,8 +213,14 @@
     {#if (!u || !kjernesak.saksbilde) && kjernesak.feil}
       <div class="lastefeil" role="alert">
         <h1>{SAKEN.lastefeil}</h1>
-        <p>{kjernesak.feil}</p>
-        <Knapp onclick={() => kjernesak.last()}>{SAKEN.proevIgjen}</Knapp>
+        <p>{SAKEN.lastefeilBeklager}</p>
+        <p class="detaljer">{SAKEN.lastefeilDetaljer(kjernesak.feil)}</p>
+        {#if sistForsoekt && !proever}<p class="detaljer">
+            {SAKEN.sistForsoekt(sistForsoekt)}
+          </p>{/if}
+        <Knapp opptatt={proever} onclick={proevIgjen}
+          >{proever ? SAKEN.proever : SAKEN.proevIgjen}</Knapp
+        >
       </div>
     {:else if !u || !kjernesak.saksbilde}
       <p class="laster" role="status">{SAKEN.laster}</p>
@@ -498,6 +516,10 @@
   }
   .laster {
     color: var(--ink-2);
+  }
+  .lastefeil .detaljer {
+    color: var(--ink-3);
+    font-size: 14px;
   }
   .lastefeil {
     display: flex;

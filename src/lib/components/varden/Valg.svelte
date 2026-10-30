@@ -10,6 +10,7 @@
     valg,
     verdi = $bindable(null),
     feil = null,
+    beskrevetAv,
   }: {
     navn: string;
     spoersmaal: string;
@@ -17,11 +18,16 @@
     verdi: T | null;
     /** Hva som mangler, når parten har prøvd å gå videre uten svaret. */
     feil?: string | null;
+    /** Id-en til det spørsmålet bygger på, som forutsetningene for et subsidiært lag. */
+    beskrevetAv?: string;
   } = $props();
   const uid = $props.id();
+  const beskrivelse = $derived(
+    [beskrevetAv, feil ? `${uid}-feil` : undefined].filter(Boolean).join(' ') || undefined
+  );
 </script>
 
-<fieldset class="valg" id={navn} tabindex="-1" aria-describedby={feil ? `${uid}-feil` : undefined}>
+<fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse}>
   <legend>{spoersmaal}</legend>
   <div class="kort">
     {#each valg as v (String(v.verdi))}

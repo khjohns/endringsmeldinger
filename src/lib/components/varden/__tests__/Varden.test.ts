@@ -248,6 +248,28 @@ describe('Varden med brukerforløpet BF-01', () => {
     ).toBeInTheDocument();
   });
 
+  it('etter «Varslet for sent» står beløpsspørsmålet under «Gjelder hvis» med innsigelsen det bygger på (oppdragsgiver 30.10, #1391)', async () => {
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    await fireEvent.click(await screen.findByText('Skriv brev'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    const beloep = () => screen.getByRole('group', { name: 'Hvor mye av hovedkravet godtar du?' });
+    expect(beloep().getAttribute('aria-describedby')).toBeNull();
+    expect(screen.queryByText('Gjelder hvis')).toBeNull();
+
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    const forutsetninger = document.getElementById(beloep().getAttribute('aria-describedby')!)!;
+    expect(forutsetninger.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Gjelder hvis innsigelsen om sen varsling ikke fører frem'
+    );
+    const lenke = within(forutsetninger).getByRole('link', { name: 'innsigelsen om sen varsling' });
+    expect(document.querySelector(lenke.getAttribute('href')!)).toBe(
+      screen.getByRole('group', { name: 'Kom varselet om kravet i tide?' })
+    );
+
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
+    expect(screen.queryByText('Gjelder hvis')).toBeNull();
+  });
+
   it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
     const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
     await fireEvent.click(await screen.findByText('Skriv brev'));
@@ -462,13 +484,45 @@ describe('Varden med brukerforløpet BF-01', () => {
     render(Vardensak, { kjernesak });
 
     const feil = await screen.findByRole('alert');
-    expect(within(feil).getByRole('heading', { name: 'Kunne ikke laste saken' })).toBeTruthy();
+    expect(within(feil).getByRole('heading', { name: 'Saken kunne ikke lastes' })).toBeTruthy();
+    // En feil fra serveren beklager og sier hva parten kan gjøre (.interface-design/system.md).
+    expect(feil.textContent).toContain('Beklager, saken ble ikke hentet. Prøv igjen om litt.');
     expect(feil.textContent).toContain('Serveren svarte med feilkode 500 uten forklaring.');
     expect(screen.queryByText('Laster saken …')).toBeNull();
 
     await fireEvent.click(within(feil).getByRole('button', { name: 'Prøv igjen' }));
     await screen.findByRole('heading', { name: BF.tittel, level: 1 });
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('«Prøv igjen» er opptatt mens saken lastes på nytt, og en ny feil viser når det sist ble forsøkt (#1373, funn 1)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    let svar!: (v: unknown) => void;
+    const hent = vi
+      .fn()
+      .mockRejectedValueOnce(new ApiError(500, 'Serveren svarte med feilkode 500 uten forklaring.'))
+      .mockImplementationOnce(
+        () => new Promise((_, avvis) => (svar = () => avvis(new ApiError(500, 'Igjen.'))))
+      );
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Prøv igjen' }));
+    const opptatt = await screen.findByRole('button', { name: 'Prøver igjen …' });
+    expect(opptatt.getAttribute('aria-busy')).toBe('true');
+
+    svar(null);
+    const knapp = await screen.findByRole('button', { name: 'Prøv igjen' });
+    expect(knapp.getAttribute('aria-busy')).toBeNull();
+    expect(screen.getByRole('alert').textContent).toMatch(/Sist forsøkt kl\. \d\d\.\d\d\./);
+    expect(screen.getByRole('alert').textContent).toContain('Igjen.');
   });
 
   it('panelet viser prosjektet og partene under «Kontrakten», og et navn som mangler, står ikke der (oppdragsgiver 30.10, #1398)', async () => {

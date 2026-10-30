@@ -51,13 +51,13 @@
 </script>
 
 <section class="kort" aria-label={TIDSLINJE.tittel}>
-  <details open={aapen}>
-    <summary>
-      <span class="tittel">{TIDSLINJE.tittel}</span>
-      <span class="antall">{TIDSLINJE.oppfoeringer(oppfoeringer.length)}</span>
-      <ChevronRight size={16} aria-hidden="true" />
-    </summary>
-    {#if oppfoeringer.length}
+  {#if oppfoeringer.length}
+    <details open={aapen}>
+      <summary class="hode">
+        <span class="tittel">{TIDSLINJE.tittel}</span>
+        <span class="antall">{TIDSLINJE.oppfoeringer(oppfoeringer.length)}</span>
+        <ChevronRight size={16} aria-hidden="true" />
+      </summary>
       <ol class="liste">
         {#each oppfoeringer as o (o.noekkel)}
           <li class="rad">
@@ -70,10 +70,14 @@
           </li>
         {/each}
       </ol>
-    {:else}
-      <p class="tom">{TIDSLINJE.tom}</p>
-    {/if}
-  </details>
+    </details>
+  {:else}
+    <!-- Uten oppføringer er det ingenting å åpne, så hodet er ingen knapp (#1391). -->
+    <div class="hode">
+      <span class="tittel">{TIDSLINJE.tittel}</span>
+      <span class="antall">{TIDSLINJE.tom}</span>
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -82,15 +86,17 @@
     border: var(--rule);
     border-radius: 12px;
   }
-  summary {
+  .hode {
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
     min-height: 48px;
     padding: var(--spacing-3) var(--spacing-5);
+    border-radius: 12px;
+  }
+  summary {
     cursor: pointer;
     list-style: none;
-    border-radius: 12px;
   }
   summary:hover {
     background: var(--surface-inset);
@@ -159,12 +165,8 @@
   .hva {
     font-size: 14px;
   }
-  .kilde,
-  .tom {
+  .kilde {
     color: var(--ink-3);
     font-size: 13px;
-  }
-  .tom {
-    padding: 0 var(--spacing-5) var(--spacing-5);
   }
 </style>

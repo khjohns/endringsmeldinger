@@ -369,9 +369,23 @@
             <h3 id={`${uid}-sp-beloep`}>{SKJEMA.beloepTittel(krevd)}</h3>
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1</span>
           </div>
+          {#if valg.iTide === false}
+            <!-- Forutsetningene for laget, ett per linje (oppdragsgiver 30.10, #1391). Lagene
+                 fra grunnlaget og et delvis svar venter på kjernen (#1400). -->
+            <div class="forutsetninger" id={`${uid}-beloep-forutsetninger`}>
+              <p>{SKJEMA.gjelderHvis}</p>
+              <ul>
+                <li>
+                  <a href={`#${uid}-itide`}>{SKJEMA.innsigelsenSenVarsling}</a>
+                  {SKJEMA.ikkeFoererFrem}
+                </li>
+              </ul>
+            </div>
+          {/if}
           <Valg
             navn={`${uid}-beloep`}
-            spoersmaal={valg.iTide === false ? SKJEMA.beloepSubsidiaert : SKJEMA.beloepSpoersmaal}
+            spoersmaal={SKJEMA.beloepSpoersmaal}
+            beskrevetAv={valg.iTide === false ? `${uid}-beloep-forutsetninger` : undefined}
             valg={[
               { verdi: 'hele', tekst: SKJEMA.hele },
               { verdi: 'deler', tekst: SKJEMA.deler },
@@ -553,6 +567,27 @@
     border-radius: 999px;
     color: var(--ink-2);
     font-size: 12px;
+  }
+  /* Subsidiært har ingen farge; laget skilles med kantlinjen og teksten (#197). */
+  .forutsetninger {
+    padding: var(--spacing-1) 0 var(--spacing-1) var(--spacing-3);
+    border-left: 3px solid var(--ink-3);
+    color: var(--ink-2);
+    font-size: 14px;
+  }
+  .forutsetninger p {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .forutsetninger ul {
+    margin: var(--spacing-1) 0 0;
+    padding-left: var(--spacing-5);
+    list-style: disc;
+  }
+  .forutsetninger a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .datoer {
     padding: var(--spacing-3) var(--spacing-4);
