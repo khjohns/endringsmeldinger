@@ -726,12 +726,12 @@ export interface Svarvurdering {
   resultat?: unknown;
   grunnlag_varslet_i_tide?: unknown;
   hovedkrav_vurdering?: unknown;
-  hovedkrav_godkjent_belop?: unknown;
+  hovedkrav_godkjent_beloep?: unknown;
   hovedkrav_varslet_i_tide?: unknown;
   produktivitet_vurdering?: unknown;
-  produktivitet_godkjent_belop?: unknown;
+  produktivitet_godkjent_beloep?: unknown;
   produktivitet_varslet_i_tide?: unknown;
-  produktivitet_begrenset_belop?: unknown;
+  produktivitet_begrenset_beloep?: unknown;
   aksepterer_metode?: unknown;
   oensket_metode?: unknown;
   frist_varsel_ok?: unknown;
@@ -823,14 +823,14 @@ export function regnUtSvar(
     const post = krevdProduktivitet(krav);
     // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520).
     const utenPost: [boolean, (keyof Svarvurdering)[]][] = [
-      [harHovedbeloep(krav), ['hovedkrav_vurdering', 'hovedkrav_godkjent_belop']],
+      [harHovedbeloep(krav), ['hovedkrav_vurdering', 'hovedkrav_godkjent_beloep']],
       [
         post !== null,
         [
           'produktivitet_vurdering',
-          'produktivitet_godkjent_belop',
+          'produktivitet_godkjent_beloep',
           'produktivitet_varslet_i_tide',
-          'produktivitet_begrenset_belop',
+          'produktivitet_begrenset_beloep',
         ],
       ],
     ];
@@ -839,10 +839,10 @@ export function regnUtSvar(
         if (!harPosten && v[felt] != null)
           throw new UgyldigVurdering({ [felt]: 'kravet har ikke denne posten (OV-U23)' });
     const vkrav: Vederlagskrav = {
-      hovedkrav_belop: harHovedbeloep(krav) ? tilTall(krevdBeloep(krav)) : null,
+      hovedkrav_beloep: harHovedbeloep(krav) ? tilTall(krevdBeloep(krav)) : null,
       metode: 'tilbud',
-      rigg_belop: null,
-      produktivitet_belop: post === null ? null : tilTall(post),
+      rigg_beloep: null,
+      produktivitet_beloep: post === null ? null : tilTall(post),
       krever_justert_ep: false,
       kostnads_overslag: null,
       hovedkategori,
@@ -869,13 +869,13 @@ export function regnUtSvar(
     const r = beregnVederlag(vkrav, v as never, regler);
     const ut: Record<string, unknown> = {
       resultat: r.beregnings_resultat,
-      godkjent_beloep: tilTall(r.total_godkjent_belop),
+      godkjent_beloep: tilTall(r.total_godkjent_beloep),
     };
     // VS-U3, B-13: ved preklusjon etter § 34.1.2 og ved begrensningen etter § 34.1.3 står det
     // vurderte beløpet subsidiært (VS-U5).
     if (r.subsidiaer_resultat !== null) {
       ut.subsidiaert_resultat = r.subsidiaer_resultat;
-      ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_belop!);
+      ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_beloep!);
     }
     return ut;
   }
@@ -960,7 +960,7 @@ export function vederlagsposter(
   const produktivitet = krevdProduktivitet(krav);
   return [
     ...(harHovedbeloep(krav)
-      ? [{ godkjent: post(v.hovedkrav_vurdering, krevdBeloep(krav), v.hovedkrav_godkjent_belop) }]
+      ? [{ godkjent: post(v.hovedkrav_vurdering, krevdBeloep(krav), v.hovedkrav_godkjent_beloep) }]
       : []),
     ...(produktivitet === null
       ? []
@@ -969,7 +969,7 @@ export function vederlagsposter(
             godkjent: post(
               v.produktivitet_vurdering,
               produktivitet,
-              v.produktivitet_godkjent_belop
+              v.produktivitet_godkjent_beloep
             ),
             saerskilt: 'produktivitet' as const,
           },

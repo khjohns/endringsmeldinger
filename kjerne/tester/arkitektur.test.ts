@@ -469,8 +469,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide aksepterer_metode oensket_metode
      frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok dager_maatte_forstaa vilkar_oppfylt
-     dager hovedkrav_vurdering hovedkrav_godkjent_belop produktivitet_vurdering
-     produktivitet_godkjent_belop produktivitet_varslet_i_tide produktivitet_begrenset_belop`,
+     dager hovedkrav_vurdering hovedkrav_godkjent_beloep produktivitet_vurdering
+     produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep`,
   ],
   [
     'frosset/standpunkt.ts:utenforOmfanget(v)',
@@ -537,22 +537,22 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Vederlagskrav',
     'regelsett',
-    `hovedkrav_belop metode rigg_belop produktivitet_belop krever_justert_ep kostnads_overslag
+    `hovedkrav_beloep metode rigg_beloep produktivitet_beloep krever_justert_ep kostnads_overslag
      hovedkategori underkategori`,
   ],
   [
     'Vederlagsvurdering',
     'utsagn',
-    `hovedkrav_vurdering hovedkrav_godkjent_belop hovedkrav_varslet_i_tide aksepterer_metode
-     hold_tilbake varsel_justert_ep_ok rigg_vurdering rigg_godkjent_belop rigg_varslet_i_tide
-     produktivitet_vurdering produktivitet_godkjent_belop produktivitet_varslet_i_tide
-     produktivitet_begrenset_belop`,
+    `hovedkrav_vurdering hovedkrav_godkjent_beloep hovedkrav_varslet_i_tide aksepterer_metode
+     hold_tilbake varsel_justert_ep_ok rigg_vurdering rigg_godkjent_beloep rigg_varslet_i_tide
+     produktivitet_vurdering produktivitet_godkjent_beloep produktivitet_varslet_i_tide
+     produktivitet_begrenset_beloep`,
   ],
   ['Preklusjon', 'regelsett', 'hovedkrav rigg produktivitet'],
   [
     'Vederlagsberegning',
     'regelsett',
-    'beregnings_resultat total_godkjent_belop subsidiaer_resultat subsidiaer_godkjent_belop',
+    'beregnings_resultat total_godkjent_beloep subsidiaer_resultat subsidiaer_godkjent_beloep',
   ],
 
   // Kommandoene og kontrollen av dem.

@@ -3158,7 +3158,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'beløpet etter begrensningen kan være høyere enn det byggherren godtar for posten (valg 2 i #1047)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['else if (b > godkjent)', 'else if (b > beloep(krav.produktivitet_belop)!)']],
+    endringer: [['else if (b > godkjent)', 'else if (b > beloep(krav.produktivitet_beloep)!)']],
     mal: ['beløpet etter begrensningen er høyere enn det byggherren godtar for posten'],
   },
   {

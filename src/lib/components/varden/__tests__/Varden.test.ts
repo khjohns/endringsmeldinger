@@ -225,7 +225,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(
       screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
     ).toContain('Skriv beløpet med sifre og komma før øre, for eksempel 100 000,40.');
-    expect(document.body.textContent).not.toMatch(/_vurdering|_belop|mangler;|\bKA-U\d/);
+    expect(document.body.textContent).not.toMatch(/_vurdering|_beloe?p|mangler;|\bKA-U\d/);
 
     await fireEvent.input(beloep, { target: { value: '60 000' } });
     // KA-U24: kjernen krever begrunnelse når BH gjør gjeldende sen varsling og ikke godtar hele

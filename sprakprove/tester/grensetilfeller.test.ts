@@ -15,10 +15,10 @@ import {
 type Rad = Record<string, unknown>;
 
 const vederlagskrav = (krevd: number): Vederlagskrav => ({
-  hovedkrav_belop: krevd,
+  hovedkrav_beloep: krevd,
   metode: 'FASTPRIS_TILBUD',
-  rigg_belop: null,
-  produktivitet_belop: null,
+  rigg_beloep: null,
+  produktivitet_beloep: null,
   krever_justert_ep: false,
   kostnads_overslag: null,
   hovedkategori: 'ENDRING',

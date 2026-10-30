@@ -124,7 +124,7 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
   if (spor === 'vederlag')
     return {
       hovedkrav_vurdering: h.vurdering,
-      hovedkrav_godkjent_belop: h.godkjent_belop,
+      hovedkrav_godkjent_beloep: h.godkjent_belop,
       hovedkrav_varslet_i_tide: h.varslet_i_tide,
       aksepterer_metode: h.metode_akseptert ?? true,
       oensket_metode: h.oensket_metode,
