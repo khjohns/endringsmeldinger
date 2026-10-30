@@ -8,6 +8,9 @@ description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, hvordan u
 Reglene for miljøet står i «Miljø» i `AGENTS.md`. Her står kommandoene og
 omveiene.
 
+Nettleseren for skriptene i `mockup-nettleser`, i skyøkta og lokalt med global Playwright,
+står i [«Nettleseren» i den skillen](../mockup-nettleser/SKILL.md#nettleseren).
+
 ## Sjekker
 
 ```bash
