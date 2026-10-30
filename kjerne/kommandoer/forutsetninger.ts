@@ -132,10 +132,17 @@ export const avvis = (regel: string, melding: string): Avvisning => ({ regel, me
 
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
-  'Aksepten må gjelde byggherrens gjeldende svar i sporet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
+  'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
 
-const KRAVET: Record<Kravspor, string> = {
-  vederlag: 'justering av vederlaget',
+/** Kravet i hvert spor, med navnene i visningen (konseptet for Varden, versjon 14). */
+const KRAVET: Record<Spor, string> = {
+  grunnlag: 'grunnlaget for kravet',
+  vederlag: 'kravet om vederlagsjustering',
+  frist: 'kravet om fristforlengelse',
+};
+
+const KRAVET_OM: Record<Kravspor, string> = {
+  vederlag: 'vederlagsjustering',
   frist: 'fristforlengelse',
 };
 
@@ -160,14 +167,14 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // Vedtaket om trukket krav 05.10, GR-U5.
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket og kan ikke tas opp igjen.');
       // KA-U12: «ingen krav» lukker sporet på samme måte som et trekk.
-      if (s.ingenKrav)
-        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves noe i sporet.');
+      if (h.spor !== 'grunnlag' && s.ingenKrav)
+        return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
       // MM-U34 punkt 9: også i et spor med registrert enighet, fram til endringsordren.
       if (h.spor !== 'grunnlag' && !grunnlagSendt)
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan sende krav.');
       return null;
     case 'trekke':
-      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
+      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${KRAVET[h.spor]}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
       // KA-U13, OV-U6: en endringsordre sendt fra appen leses ellers som bortfalt (KA-U6).
       if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))
@@ -184,10 +191,10 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.ingenKrav)
         return avvis(
           'INGEN_KRAV_I_SPORET',
-          'TE har allerede sagt at det ikke kreves noe i sporet.'
+          `TE har allerede sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
         );
       if (s.krav.length)
-        return avvis('KRAV_I_SPORET', 'Det er sendt krav i sporet. Trekk kravet i stedet.');
+        return avvis('KRAV_I_SPORET', `TE har sendt ${KRAVET[h.spor]}. Trekk kravet i stedet.`);
       if (!grunnlagSendt)
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan si «ingen krav».');
       return null;
@@ -197,7 +204,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.ingenKrav)
-        return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET[h.spor]}.`);
+        return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
       // SK-12 og MM-U1: et registrert varsel kan ikke flyttes. Et utledet varsel er ikke registrert.
       if (s.varsler['hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor]])
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
@@ -243,7 +250,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         );
       return null;
     case 'svare':
-      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
+      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${KRAVET[h.spor]}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.gjeldendeSvar)
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
@@ -261,13 +268,13 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           'IKKE_GJELDENDE_SVAR',
           s.svar.length > 0
             ? `Byggherren har ikke svart på gjeldende krav. ${ELDRE_SVAR}`
-            : 'Byggherren har ikke svart i sporet.'
+            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`
         );
       // GR-U8: enigheten er alt registrert, også når byggherren har godkjent hele kravet.
       if (s.enighet)
         return avvis(
           'ENIGHET_I_SPORET',
-          `Enigheten om svaret på ${h.spor} er allerede registrert.`
+          `Enigheten om svaret på ${KRAVET[h.spor]} er allerede registrert.`
         );
       // GR-U9: frafall er ikke enighet, og løsningen registrerer ikke en aksept av det.
       if (h.spor === 'grunnlag' && u.frafalt)
