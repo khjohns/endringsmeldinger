@@ -3,7 +3,8 @@
    * Et brukerforløp i saksvisningen (#1330): `Kjernesakrom` med en journal i minnet fra
    * kontrollpunktet. Panelet velger kontrollpunkt og side, og starter forløpet på nytt.
    * Visningen lages på nytt når siden byttes, som når en annen bruker åpner saken.
-   * `visning` er dagens saksvisning eller Varden (#1331), med samme sak.
+   * `visning` er dagens saksvisning eller Varden (#1331), med samme sak. Med `panel` lik
+   * `false` vises saken uten panelet, til en brukertest.
    */
   import { ChevronRight } from 'lucide-svelte';
   import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
@@ -24,6 +25,7 @@
     forloep,
     punkt,
     visning = 'dagens',
+    panel = true,
     onpunkt,
     onvisning,
     onstart,
@@ -31,6 +33,7 @@
     forloep: Startjournal;
     punkt: string;
     visning?: Visning;
+    panel?: boolean;
     onpunkt: (punkt: string) => void;
     onvisning?: (visning: Visning) => void;
     /** Kalles med saken hver gang forløpet starter, så en test kan lese journalen. */
@@ -79,8 +82,6 @@
   const vedPunktet = $derived(versjon === kontrollpunkt.versjon);
   let view = $state<WorkspaceView>({ track: 'ansvar', mode: 'read', role: startside() });
   let omstarter = $state(0);
-  // På smal skjerm dekker panelet saken, så det starter lukket der.
-  const smal = typeof matchMedia === 'function' && matchMedia('(max-width: 767px)').matches;
 
   function byttSide(part: Part) {
     if (part === aapen.demosak.part) return;
@@ -114,88 +115,91 @@
   {/if}
 {/key}
 
-<aside class="demopanel" aria-label="Demo av brukerforløpet">
-  <details open={!smal}>
-    <summary><ChevronRight size={16} aria-hidden="true" />Demo · {forloep.id}</summary>
-    <div class="innhold">
-      <p class="tittel">{forloep.tittel}</p>
-      <p class="merknad">Ingenting sendes. Journalen ligger i minnet i nettleseren.</p>
+{#if panel}
+  <aside class="demopanel" aria-label="Demo av brukerforløpet">
+    <details>
+      <summary><ChevronRight size={16} aria-hidden="true" />Demo · {forloep.id}</summary>
+      <div class="innhold">
+        <p class="tittel">{forloep.tittel}</p>
+        <p class="merknad">Ingenting sendes. Journalen ligger i minnet i nettleseren.</p>
 
-      <label class="felt">
-        <span class="etikett">Start fra kontrollpunktet</span>
-        <select value={punkt} onchange={(e) => onpunkt(e.currentTarget.value)}>
-          {#each forloep.kontrollpunkter as p (p.id)}
-            <option value={p.id}>{p.beskrivelse}</option>
-          {/each}
-        </select>
-      </label>
+        <label class="felt">
+          <span class="etikett">Start fra kontrollpunktet</span>
+          <select value={punkt} onchange={(e) => onpunkt(e.currentTarget.value)}>
+            {#each forloep.kontrollpunkter as p (p.id)}
+              <option value={p.id}>{p.beskrivelse}</option>
+            {/each}
+          </select>
+        </label>
 
-      {#if onvisning}
+        {#if onvisning}
+          <div class="felt">
+            <span class="etikett">Visning</span>
+            <SegmentedControl
+              value={visning}
+              label="Visning"
+              options={[
+                { id: 'dagens', label: 'Dagens' },
+                { id: 'varden', label: 'Varden' },
+              ]}
+              onchange={(v) => onvisning(v as Visning)}
+            />
+          </div>
+        {/if}
+
         <div class="felt">
-          <span class="etikett">Visning</span>
+          <span class="etikett">Du handler som</span>
           <SegmentedControl
-            value={visning}
-            label="Visning"
+            value={aapen.demosak.part}
+            label="Du handler som"
             options={[
-              { id: 'dagens', label: 'Dagens' },
-              { id: 'varden', label: 'Varden' },
+              { id: 'TE', label: 'TE' },
+              { id: 'BH', label: 'BH' },
             ]}
-            onchange={(v) => onvisning(v as Visning)}
+            onchange={byttSide}
           />
         </div>
-      {/if}
 
-      <div class="felt">
-        <span class="etikett">Du handler som</span>
-        <SegmentedControl
-          value={aapen.demosak.part}
-          label="Du handler som"
-          options={[
-            { id: 'TE', label: 'TE' },
-            { id: 'BH', label: 'BH' },
-          ]}
-          onchange={byttSide}
-        />
+        {#if versjon !== null && !vedPunktet}
+          <p class="neste">
+            Saken er endret etter kontrollpunktet. «Start på nytt» går tilbake til det.
+          </p>
+        {:else if vedPunktet && neste}
+          <p class="neste">
+            Neste steg i forløpet: {neste.part}
+            {HANDLING[neste.handling] ?? neste.handling}.
+          </p>
+        {/if}
+
+        {#if vedPunktet && kontrollpunkt.forstaaelse.length}
+          <details class="forstaaelse">
+            <summary
+              ><ChevronRight size={16} aria-hidden="true" />Det brukeren skal forstå her</summary
+            >
+            <ul>
+              {#each kontrollpunkt.forstaaelse as linje (linje)}<li>{linje}</li>{/each}
+            </ul>
+          </details>
+        {/if}
+
+        <button type="button" class="knapp" onclick={startPaaNytt}>Start på nytt</button>
       </div>
-
-      {#if versjon !== null && !vedPunktet}
-        <p class="neste">
-          Saken er endret etter kontrollpunktet. «Start på nytt» går tilbake til det.
-        </p>
-      {:else if vedPunktet && neste}
-        <p class="neste">
-          Neste steg i forløpet: {neste.part}
-          {HANDLING[neste.handling] ?? neste.handling}.
-        </p>
-      {/if}
-
-      {#if vedPunktet && kontrollpunkt.forstaaelse.length}
-        <details class="forstaaelse">
-          <summary
-            ><ChevronRight size={16} aria-hidden="true" />Det brukeren skal forstå her</summary
-          >
-          <ul>
-            {#each kontrollpunkt.forstaaelse as linje (linje)}<li>{linje}</li>{/each}
-          </ul>
-        </details>
-      {/if}
-
-      <button type="button" class="knapp" onclick={startPaaNytt}>Start på nytt</button>
-    </div>
-  </details>
-</aside>
+    </details>
+  </aside>
+{/if}
 
 <style>
   .laster {
     padding: var(--spacing-10);
     color: var(--ink-2);
   }
+  /* Lukket som standard, nederst til venstre, der det dekker minst av saken. */
   .demopanel {
     position: fixed;
-    right: var(--spacing-4);
+    left: var(--spacing-4);
     bottom: var(--spacing-4);
     z-index: 30;
-    width: min(340px, calc(100vw - 2 * var(--spacing-4)));
+    max-width: calc(100vw - 2 * var(--spacing-4));
     background: var(--draft-bg);
     border: 1px dashed var(--draft-border);
     border-radius: var(--radius-md);
@@ -204,6 +208,9 @@
     font-family: var(--font-sans);
     font-size: 14px;
     line-height: 1.5;
+  }
+  .demopanel:has(> details[open]) {
+    width: 340px;
   }
   .demopanel > details > summary {
     padding: var(--spacing-2) var(--spacing-3);

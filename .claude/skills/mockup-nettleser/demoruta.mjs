@@ -95,7 +95,7 @@ try {
   const side = (part) => panel.getByRole('radio', { name: part, exact: true }).click();
 
   if (VARDEN) {
-  // Demopanelet står over høyre kolonne i Varden, så det legges sammen mens brukeren handler.
+  // Demopanelet står over saken når det er åpent, så det legges sammen mens brukeren handler.
   const demo = panel.locator('details').first();
   const demopanel = async (aapent) => {
     if ((await demo.getAttribute('open')) !== null !== aapent) await demo.locator('summary').first().click();
