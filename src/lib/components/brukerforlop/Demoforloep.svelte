@@ -116,7 +116,7 @@
 {/key}
 
 {#if panel}
-  <aside class="demopanel" aria-label="Demo av brukerforløpet">
+  <aside class="demopanel" class:varden={visning === 'varden'} aria-label="Demo av brukerforløpet">
     <details>
       <summary><ChevronRight size={16} aria-hidden="true" />Demo · {forloep.id}</summary>
       <div class="innhold">
@@ -208,6 +208,12 @@
     font-family: var(--font-sans);
     font-size: 14px;
     line-height: 1.5;
+  }
+  /* I Varden fyller den lukkede knappen bunnen av venstrepanelet (300 px) og dekker merket der helt. */
+  @media (min-width: 1024px) {
+    .demopanel.varden {
+      width: calc(300px - 2 * var(--spacing-4));
+    }
   }
   .demopanel:has(> details[open]) {
     width: 340px;
