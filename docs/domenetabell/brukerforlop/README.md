@@ -50,7 +50,7 @@ den bygger på. Den prøves manuelt i demoruta og i brukertest, ikke i CI.
 
 ## Demoruta
 
-`/demo/forlop/<ID>?punkt=<kontrollpunkt>` viser saksvisningen for forløpet mot en
+`/demo/<ID>?punkt=<kontrollpunkt>` viser saksvisningen for forløpet mot en
 journal i minnet, fra startjournalen ved kontrollpunktet. Det brukeren gjør derfra,
 vurderes og skrives av kjernen i nettleseren med demoaktørene i startjournalen. ID-ene
 og tidspunktene er faste per forløp, så en omstart gir samme journal. Ingenting sendes.

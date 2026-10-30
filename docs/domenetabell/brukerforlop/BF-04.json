@@ -1,0 +1,216 @@
+{
+  "id": "BF-04",
+  "tittel": "BH avslår grunnlaget og påberoper at vederlagsvarselet kom for sent",
+  "brukerhistorie": "BH har avslått grunnlaget og svarer på vederlagskravet. BH påberoper at varselet etter § 34.1.2 kom for sent og godtar subsidiært 60 000 kr. BH ser hvilke innsigelser beløpet bygger på før svaret er ferdig. TE leser svaret og forstår at 60 000 kr bare gjelder hvis verken avslaget av grunnlaget eller innsigelsen om varselet fører fram.",
+  "status": "kjørbar",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "En ny sak. TE krever ansvar for svikt i BHs medvirkning, og BH avslår grunnlaget. TE krever 100 000 kr i vederlag."
+  },
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "grunnlag",
+      "hovedkategori": "svikt",
+      "underkategori": "medvirkning",
+      "navn": "K-g1",
+      "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
+    },
+    {
+      "handling": "brev",
+      "navn": "D2",
+      "svar": [
+        {
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "resultat": "avslaatt",
+          "utdypning": "Tegningene ble levert til avtalt tid etter den reviderte fremdriftsplanen."
+        }
+      ]
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "belop": 100000,
+      "navn": "K-v1"
+    },
+    {
+      "handling": "brev",
+      "navn": "D4",
+      "svar": [
+        {
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "vurdering": "delvis",
+          "godkjent_belop": 60000,
+          "varslet_i_tide": false,
+          "utdypning": "Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
+        }
+      ]
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "start",
+      "etter": 0,
+      "beskrivelse": "Saken er opprettet. Ingen krav er sendt.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "KA-01"
+          ],
+          "forventet": {
+            "gjeldende_krav.grunnlag": null,
+            "gjeldende_krav.vederlag": null
+          }
+        }
+      ],
+      "forstaaelse": []
+    },
+    {
+      "id": "grunnlaget-er-avslaatt",
+      "etter": 2,
+      "beskrivelse": "BH har avslått grunnlaget. TE har ikke krevd vederlag ennå.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7"
+          ],
+          "forventet": {
+            "gjeldende_svar.grunnlag": "S-g1",
+            "enighet.grunnlag": null,
+            "gjeldende_krav.vederlag": null,
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:vederlag"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at grunnlaget er avslått, og at vederlaget likevel kan kreves.",
+          "kilde": [
+            "GR-U7"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bh-har-mottatt-vederlagskravet",
+      "etter": 3,
+      "beskrivelse": "Grunnlaget er avslått, og BH har mottatt vederlagskravet på 100 000 kr.",
+      "kontrollsett": [
+        {
+          "sett": "bh_har_mottatt_krav",
+          "med": {
+            "spor": "vederlag",
+            "krav": "K-v1"
+          }
+        }
+      ],
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U7"
+          ],
+          "forventet": {
+            "gjeldende_svar.grunnlag": "S-g1",
+            "enighet.grunnlag": null
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH ser at avslaget av grunnlaget står først i svaret, og at svaret på vederlaget står subsidiært til det.",
+          "kilde": [
+            "OV-U32",
+            "OV-U33"
+          ]
+        },
+        {
+          "tekst": "BH ser over beløpsspørsmålet hvilke innsigelser beløpet bygger på: avslaget av grunnlaget og, når BH svarer at varselet kom for sent, innsigelsen etter § 34.1.2.",
+          "kilde": [
+            "OV-U32"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "te-har-mottatt-svaret",
+      "etter": 4,
+      "beskrivelse": "BH har sendt svaret: grunnlaget er avslått, § 34.1.2 påberopt, videre subsidiært 60 000 kr.",
+      "kontrollsett": [
+        {
+          "sett": "te_har_mottatt_svar",
+          "med": {
+            "spor": "vederlag",
+            "svar": "S-v1",
+            "standpunkt": "Byggherrens standpunkt: subsidiært varselet etter § 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr."
+          }
+        }
+      ],
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "KA-U4",
+            "HF-U1",
+            "OV-U27"
+          ],
+          "forventet": {
+            "standpunkt.S-v1.rettidighet.hjemmel": "34.1.2",
+            "standpunkt.S-v1.rettidighet.iTide": false,
+            "standpunkt.S-v1.beloep.godkjent": 60000
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "OV-U32",
+            "OV-U33"
+          ],
+          "forventet": {
+            "virkning.S-v1.rettidighet": 1,
+            "virkning.S-v1.beloep": 2,
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ]
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE forstår at BH prinsipalt avslår grunnlaget, subsidiært mener at varselet etter § 34.1.2 kom for sent, og videre subsidiært godtar 60 000 kr.",
+          "kilde": [
+            "OV-U32",
+            "OV-U27"
+          ]
+        },
+        {
+          "tekst": "TE forstår at 60 000 kr bare gjelder hvis verken avslaget av grunnlaget eller innsigelsen om varselet fører fram.",
+          "kilde": [
+            "OV-U32"
+          ]
+        }
+      ]
+    }
+  ],
+  "bevis_saker": [],
+  "visninger": [
+    "demoruta",
+    "saksruta",
+    "varden"
+  ],
+  "endringer": [
+    {
+      "dato": "2026-10-30",
+      "grunnlag": "#1400",
+      "hva": "Forløpet er opprettet."
+    }
+  ]
+}

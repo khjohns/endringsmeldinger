@@ -26,8 +26,9 @@ import {
   lagBrevtekst,
   norskDato,
 } from '../frosset/brevtekst.ts';
-import { kroner, postlisten, regnUtSvar } from '../frosset/standpunkt.ts';
+import { kroner, lagFraGrunnlaget, postlisten, regnUtSvar } from '../frosset/standpunkt.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
+import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { kalenderdag, lesJournal } from '../format/leser.ts';
 import {
   forhaandsvis,
@@ -6237,5 +6238,204 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
       expect(s.u().frafalt, 'forutsetning').toBe(true);
       expect(kanInngaaIEo(s.u())).toBe(true);
     });
+  });
+});
+
+describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S1-A og S2-A i #1400)', () => {
+  const sviktkrav = {
+    type: 'krav',
+    spor: 'grunnlag',
+    innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+  };
+  /** Grunnlaget, BHs svar på det og vederlagskravet. `svikt` gir varslingsplikt etter § 34.1.2. */
+  const saken = (
+    grunnlag: Data,
+    { svikt = true, vederlag = { metode: 'tilbud', beloep: 100000 } as Data } = {}
+  ) => {
+    const s = sak();
+    s.send('TE', svikt ? sviktkrav : GRUNNLAGSKRAV);
+    s.send('BH', { type: 'brev', svar: [svar('grunnlag', s.krav('grunnlag'), grunnlag)] });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: vederlag });
+    return s;
+  };
+  const lagene = (s: ReturnType<typeof sak>, vurderinger: Data) =>
+    lagForUtkastet(
+      svar('vederlag', s.krav('vederlag'), vurderinger) as never,
+      s.u(),
+      KJERNE.regler
+    ).standpunkter.map(({ art, hjemmel, saerskilt, ...rest }) => ({
+      standpunkt: [art, hjemmel ?? saerskilt].filter(Boolean).join(' '),
+      ...rest,
+    }));
+
+  it('kontrollsak: med godkjent grunnlag og ingenting besvart står beløpet uten lag og uten forutsetninger', () => {
+    const s = saken({ resultat: 'godkjent' });
+    expect(lagene(s, {})).toEqual([
+      { standpunkt: 'beloep', besvart: false, virkning: 1, etikett: null, forutsetninger: [] },
+    ]);
+  });
+
+  it('avslått grunnlag og ubesvart varsel: beløpet står subsidiært, bare med avslaget foran (S1-A)', () => {
+    const s = saken({ resultat: 'avslaatt' });
+    expect(lagene(s, { aksepterer_metode: true })).toEqual([
+      {
+        standpunkt: 'metode',
+        besvart: true,
+        virkning: 2,
+        etikett: 'subsidiært',
+        forutsetninger: [{ grunn: 'avslaatt' }],
+      },
+      {
+        standpunkt: 'beloep',
+        besvart: false,
+        virkning: 2,
+        etikett: 'subsidiært',
+        forutsetninger: [{ grunn: 'avslaatt' }],
+      },
+    ]);
+  });
+
+  it('avslått grunnlag og varselet etter § 34.1.2 for sent: beløpet står videre subsidiært med begge innsigelsene foran, før det er besvart', () => {
+    const s = saken({ resultat: 'avslaatt' });
+    expect(lagene(s, { hovedkrav_varslet_i_tide: false })).toEqual([
+      {
+        standpunkt: 'rettidighet 34.1.2',
+        besvart: true,
+        virkning: 2,
+        etikett: 'subsidiært',
+        forutsetninger: [{ grunn: 'avslaatt' }],
+      },
+      {
+        standpunkt: 'beloep',
+        besvart: false,
+        virkning: 3,
+        etikett: 'videre subsidiært',
+        forutsetninger: [{ grunn: 'avslaatt' }, { innsigelse: '34.1.2' }],
+      },
+    ]);
+  });
+
+  it('varselet etter § 34.1.2 i tide er uten virkning og ingen forutsetning for beløpet', () => {
+    const s = saken({ resultat: 'godkjent' });
+    expect(lagene(s, { hovedkrav_varslet_i_tide: true, hovedkrav_vurdering: 'godkjent' })).toEqual([
+      {
+        standpunkt: 'rettidighet 34.1.2',
+        besvart: true,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
+      { standpunkt: 'beloep', besvart: true, virkning: 1, etikett: null, forutsetninger: [] },
+    ]);
+  });
+
+  it('preklusjon etter § 32.2 og avslag står foran sporet i brevets rekkefølge (OV-U32)', () => {
+    const s = saken({ resultat: 'avslaatt', grunnlag_varslet_i_tide: false }, { svikt: false });
+    expect(lagene(s, {})).toEqual([
+      {
+        standpunkt: 'beloep',
+        besvart: false,
+        virkning: 3,
+        etikett: 'videre subsidiært',
+        forutsetninger: [{ grunn: 'prekludert' }, { grunn: 'avslaatt' }],
+      },
+    ]);
+  });
+
+  it('§ 34.1.3 rammer bare posten etter annet ledd, og justeringen ellers er upåvirket eller har bare avslaget foran (OV-U22, OV-U27, OV-U33)', () => {
+    const krav = {
+      svikt: false,
+      vederlag: {
+        metode: 'tilbud',
+        beloep: 150000,
+        saerskilt: { produktivitet: { beloep: 40000 } },
+      },
+    };
+    const avslaatt = saken({ resultat: 'avslaatt', grunnlag_varslet_i_tide: true }, krav);
+    expect(
+      lagene(avslaatt, { produktivitet_varslet_i_tide: false }).map((x) => [
+        x.standpunkt,
+        x.virkning,
+        x.forutsetninger,
+      ])
+    ).toEqual([
+      ['beloep', 2, [{ grunn: 'avslaatt' }]],
+      ['rettidighet 34.1.3', 2, [{ grunn: 'avslaatt' }]],
+      ['beloep produktivitet', 3, [{ grunn: 'avslaatt' }, { innsigelse: '34.1.3' }]],
+    ]);
+    const s = saken({ resultat: 'godkjent', grunnlag_varslet_i_tide: true }, krav);
+    expect(lagene(s, { produktivitet_varslet_i_tide: false })).toEqual([
+      {
+        standpunkt: 'beloep',
+        besvart: false,
+        virkning: 'upaavirket',
+        etikett: null,
+        forutsetninger: [],
+      },
+      {
+        standpunkt: 'rettidighet 34.1.3',
+        besvart: true,
+        virkning: 1,
+        etikett: 'prinsipalt',
+        forutsetninger: [],
+      },
+      {
+        standpunkt: 'beloep produktivitet',
+        besvart: false,
+        virkning: 2,
+        etikett: 'subsidiært',
+        forutsetninger: [{ innsigelse: '34.1.3' }],
+      },
+    ]);
+  });
+
+  it('med § 34.1.2 og § 34.1.3 for sent har posten begge innsigelsene foran, og justeringen ellers bare § 34.1.2', () => {
+    const s = saken(
+      { resultat: 'godkjent' },
+      {
+        vederlag: {
+          metode: 'tilbud',
+          beloep: 150000,
+          saerskilt: { produktivitet: { beloep: 40000 } },
+        },
+      }
+    );
+    const l = lagene(s, { hovedkrav_varslet_i_tide: false, produktivitet_varslet_i_tide: false });
+    expect(l.map((x) => [x.standpunkt, x.virkning, x.forutsetninger])).toEqual([
+      ['rettidighet 34.1.2', 1, []],
+      ['beloep', 2, [{ innsigelse: '34.1.2' }]],
+      ['rettidighet 34.1.3', 2, [{ innsigelse: '34.1.2' }]],
+      ['beloep produktivitet', 3, [{ innsigelse: '34.1.2' }, { innsigelse: '34.1.3' }]],
+    ]);
+  });
+
+  it('det ferdige svaret har de samme lagene som brevet fryser når det sendes (MM-U9)', () => {
+    const s = saken({ resultat: 'avslaatt' });
+    const vurderinger = {
+      hovedkrav_varslet_i_tide: false,
+      aksepterer_metode: true,
+      hovedkrav_vurdering: 'delvis',
+      hovedkrav_godkjent_belop: 60000,
+    };
+    const foer = lagene(s, vurderinger);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('vederlag', s.krav('vederlag'), vurderinger, {
+          resultat: 'avslaatt',
+          godkjent_beloep: 0,
+          subsidiaert_resultat: 'delvis_godkjent',
+          subsidiaert_godkjent_beloep: 60000,
+        }),
+      ],
+    });
+    const u = s.u();
+    const g = u.spor.grunnlag.gjeldendeSvar!;
+    const forskyvning = lagFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger);
+    const frosset = u.spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.virkninger;
+    expect(foer.map((l) => l.virkning)).toEqual(
+      frosset.map((v) => (typeof v.virkning === 'number' ? v.virkning + forskyvning : v.virkning))
+    );
+    expect(foer.at(-1)).toMatchObject({ besvart: true, etikett: 'videre subsidiært' });
   });
 });

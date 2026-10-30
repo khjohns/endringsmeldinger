@@ -406,7 +406,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'grunnerFraGrunnlaget',
-    ['utledning/utled.ts:settSubsidiaer', 'frosset/brevtekst.ts:grunnlagetsStandpunkter'],
+    [
+      'utledning/utled.ts:settSubsidiaer',
+      'frosset/brevtekst.ts:grunnlagetsStandpunkter',
+      'kommandoer/lag.ts:lagForUtkastet',
+    ],
   ],
   // OV-U32, OV-U33: lagene grunnlaget opptar foran sporet, som linjen etiketteres med.
   [
@@ -619,8 +623,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel'],
-  // OV-U32: laget en fryst virkning står i.
-  ['frosset/standpunkt.ts', 'frosset', 'laget', ['frosset/brevtekst.ts']],
+  // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
+  ['frosset/standpunkt.ts', 'frosset', 'laget', ['frosset/brevtekst.ts', 'kommandoer/lag.ts']],
+  // OV-U32, OV-U33: lagene i et svarutkast regnes som brevet regner dem (S1-A i #1400).
+  ['frosset/standpunkt.ts', 'predikat', 'virkninger', ['kommandoer/lag.ts:lagForUtkastet']],
   ['VARSELSPOR', 'relasjon', '33.4 34.1.2 34.1.3'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
@@ -842,7 +848,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/frysing.ts', 'regelsett', 'frys', ['kommandoer/skriving.ts']],
   ['frosset/frysing.ts', 'regelsett', 'grunnlagsstandpunkter', ['kommandoer/standpunkter.ts']],
   // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
-  ['kommandoer/standpunkter.ts', 'utsagn', 'standpunkter', ['kommandoer/skriving.ts']],
+  [
+    'kommandoer/standpunkter.ts',
+    'utsagn',
+    'standpunkter',
+    ['kommandoer/skriving.ts', 'kommandoer/lag.ts'],
+  ],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
     'kommandoer/skriving.ts:frysBrev(s)',
@@ -863,7 +874,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'rad',
     'standpunkterISvaret',
-    ['frosset/frysing.ts', 'kommandoer/skriving.ts'],
+    ['frosset/frysing.ts', 'kommandoer/skriving.ts', 'kommandoer/lag.ts'],
   ],
   ['format/leser.ts', 'rad', 'Uforstaatt', ['kommandoer/skriving.ts', 'frosset/frysing.ts']],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
@@ -936,7 +947,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
   ['frosset/standpunkt.ts', 'brevtekst', 'kroner dager', ['frosset/brevtekst.ts']],
   // OV-U32: etiketten brevet bruker for laget.
-  ['frosset/standpunkt.ts', 'brevtekst', 'etikett', ['frosset/brevtekst.ts']],
+  ['frosset/standpunkt.ts', 'brevtekst', 'etikett', ['frosset/brevtekst.ts', 'kommandoer/lag.ts']],
   [
     'frosset/standpunkt.ts:beslutningslinje',
     'brevtekst',
