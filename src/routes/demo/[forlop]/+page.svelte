@@ -14,6 +14,8 @@
   const visning = $derived(
     page.url.searchParams.get('visning') === 'varden' ? ('varden' as const) : ('dagens' as const)
   );
+  // `?brukertest` viser saken uten demopanelet; tilstanden settes med lenken.
+  const brukertest = $derived(page.url.searchParams.has('brukertest'));
   function gaaTil(id: string, punkt: string, v: 'dagens' | 'varden') {
     const href =
       `${resolve('/demo/[forlop]', { forlop: id })}?punkt=${encodeURIComponent(punkt)}` +
@@ -36,6 +38,7 @@
       {forloep}
       {punkt}
       {visning}
+      panel={!brukertest}
       onpunkt={(neste) => gaaTil(forloep.id, neste, visning)}
       onvisning={(v) => gaaTil(forloep.id, punkt, v)}
     />

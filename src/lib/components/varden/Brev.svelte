@@ -16,6 +16,7 @@
     tittel,
     avsnitt,
     fot,
+    innfelt = false,
   }: {
     avsender: Part;
     sak: string;
@@ -25,13 +26,15 @@
     tittel: string;
     avsnitt: { laast: string; utdypning?: string }[];
     fot?: Snippet;
+    /** Brevet står i en ramme som har kanten, som ved lesing ved siden av. */
+    innfelt?: boolean;
   } = $props();
 
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 </script>
 
-<article class="brev" aria-label={tittel}>
+<article class="brev" class:innfelt aria-label={tittel}>
   <header class="hode">
     <div class="avsender">
       <span class="navn">{stor(PARTNAVN[avsender])}</span>
@@ -60,7 +63,7 @@
 
 <style>
   .brev {
-    max-width: 760px;
+    max-width: var(--varden-ark);
     padding: var(--spacing-10) var(--spacing-12);
     background: var(--surface);
     border: var(--rule);
@@ -68,6 +71,11 @@
     font-family: var(--font-legal);
     color: var(--ink);
     line-height: 1.6;
+  }
+  .brev.innfelt {
+    padding: var(--spacing-6);
+    border: 0;
+    border-radius: 0;
   }
   .hode {
     display: flex;
@@ -119,7 +127,7 @@
     border-top: var(--rule);
     color: var(--ink-3);
     font-family: var(--font-sans);
-    font-size: 13px;
+    font-size: 14px;
   }
   @media (max-width: 767px) {
     .brev {

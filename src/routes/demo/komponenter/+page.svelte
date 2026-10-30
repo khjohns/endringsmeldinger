@@ -248,7 +248,7 @@
         {#if u}
           <div class="kort">
             <p class="etikett">Lukket</p>
-            <Tidslinje brev={alleBrev} datoer={oppgitteDatoer(u)} />
+            <Tidslinje brev={alleBrev} datoer={oppgitteDatoer(u)} aapen={false} />
           </div>
           <div class="kort">
             <p class="etikett">Åpen</p>
@@ -262,12 +262,19 @@
       <h2 id="brevtypene-tittel">Brevtyper</h2>
       <p class="forklaring">
         Menyen med handlingene kjernen tilbyr står i <code>Sporlesing</code> over, for BH og TE. Det
-        er <code>Sporlesing</code> som gir teksten for varslene og innsigelsene.
+        er <code>Sporlesing</code> som gir teksten for varslene og innsigelsene. Tilbyr kjernen ingen
+        handling, vises ikke menyen (MM-U25). Brevtypene som ikke er bygget i prøven, står under én felles
+        linje.
       </p>
       <div class="tre">
         <div class="kort">
-          <p class="etikett">Ingen handlinger</p>
-          <Brevtyper tittel={BREVMENY.skriv} handlinger={[]} bygget={[]} onvelg={() => {}} />
+          <p class="etikett">Bygget og ikke bygget</p>
+          <Brevtyper
+            tittel={BREVMENY.skriv}
+            handlinger={['svare:vederlag', 'krav:vederlag', 'varsle:vederlag', 'trekke:vederlag']}
+            bygget={['svare']}
+            onvelg={() => {}}
+          />
         </div>
       </div>
     </section>
@@ -279,8 +286,6 @@
         <Knapp>Sekundær</Knapp>
         <Knapp variant="lenke">Lenke</Knapp>
         <Knapp variant="primaer" opptatt>Sender …</Knapp>
-        <Knapp variant="primaer" sperret hvorfor="knapp-hvorfor">Sperret</Knapp>
-        <p id="knapp-hvorfor" class="dempet">Sperret: teksten sier hvorfor.</p>
       </div>
     </section>
   </main>

@@ -59,6 +59,10 @@
     {kjernesak}
     {u}
     bind:valg={svarvalg}
+    onforkast={() => {
+      svarvalg = tomtSvar();
+      svarer = false;
+    }}
     onbrevkontroll={(k) => {
       const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
       kontroll = {

@@ -96,6 +96,18 @@ describe('demoruta for brukerforløpet BF-01', () => {
     );
   });
 
+  // Oppdragsgiver 30.10 (#1391): panelet starter lukket, og en brukertest viser saken uten det.
+  it('demopanelet starter lukket, og uten panelet vises saken alene', async () => {
+    render(Demoforloep, { forloep: START, punkt: 'start', onpunkt: () => {} });
+    const panel = screen.getByRole('complementary', { name: 'Demo av brukerforløpet' });
+    expect(panel.querySelector('details')).not.toHaveAttribute('open');
+    cleanup();
+
+    render(Demoforloep, { forloep: START, punkt: 'start', panel: false, onpunkt: () => {} });
+    expect(await screen.findByRole('heading', { name: BF.tittel })).toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Demo av brukerforløpet' })).toBeNull();
+  });
+
   it('BH sender svaret, TE ser akkurat det svaret og godtar det, og kontrollene ved kontrollpunktene holder', async () => {
     const forloep = somForloep(BF);
     const punkt = kontrollpunkt(BF, 'bh-har-mottatt-vederlagskravet');

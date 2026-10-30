@@ -15,9 +15,9 @@ import type { Brevet, OppgittDato } from './lesing';
 export const PARTNAVN: Record<Part, string> = { TE: 'entreprenøren', BH: 'byggherren' };
 
 export const SPORNAVN: Record<Spor, string> = {
-  grunnlag: 'Grunnlag',
-  vederlag: 'Vederlag',
-  frist: 'Frist',
+  grunnlag: 'Grunnlag for kravet',
+  vederlag: 'Vederlagsjustering',
+  frist: 'Fristforlengelse',
 };
 
 const KRAV: Record<Spor, string> = {
@@ -40,7 +40,7 @@ export function brevtittel(b: Pick<Brevet, 'art' | 'spor'>): string {
   if (b.art === 'aksept') return 'Aksept av svaret';
   if (b.art === 'trekk') return 'Trekk av kravet';
   if (b.art === 'innsigelse') return 'Innsigelse etter § 5';
-  if (b.art === 'registrert') return 'Brev registrert utenfor appen';
+  if (b.art === 'registrert') return 'Brev sendt på annen måte, registrert her';
   return 'Brev';
 }
 
@@ -128,6 +128,8 @@ export const SKJEMA = {
   overskrift: 'Svar på kravet',
   svarerPaa: (n: number, d: string) => `Svar på brev ${n} fra TE · ${kortDato(d)}`,
   lesBrevet: 'Les brevet ved siden av',
+  // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
+  lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
   synlig: 'Bare synlig for teamet ditt til det er sendt',
   varselTittel: 'Varselet om kravet',
@@ -147,7 +149,9 @@ export const SKJEMA = {
   oensketSpoersmaal: 'Hvilken metode mener du vederlaget skal justeres etter?',
   beloepTittel: (krevd: number) => `Hovedkrav · ${kroner(krevd)}`,
   beloepSpoersmaal: 'Hvor mye av hovedkravet godtar du?',
-  beloepSubsidiaert: 'Hvis innsigelsen om sen varsling ikke fører frem, hvor mye godtar du?',
+  gjelderHvis: 'Gjelder hvis',
+  innsigelsenSenVarsling: 'innsigelsen om sen varsling',
+  ikkeFoererFrem: 'ikke fører frem',
   hele: 'Hele beløpet',
   deler: 'Deler av beløpet',
   ingenting: 'Ingenting',
@@ -155,20 +159,27 @@ export const SKJEMA = {
   belopHjelp: (krevd: number) => `Mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
   begrunnelse: 'Begrunnelse',
   begrunnelseHjelp: 'Kommer i brevet under standpunktene. Begrunnelsen tolkes ikke.',
-  ikkeBesvart: 'Ikke besvart',
+  mangler: 'Dette mangler før brevet kan lages:',
+  manglerITide: 'Velg om varselet kom i tide.',
+  manglerMetode: 'Velg om du godtar beregningsmetoden.',
+  manglerOensket: 'Velg metoden du mener vederlaget skal justeres etter.',
+  manglerBeloep: 'Velg hvor mye av hovedkravet du godtar.',
+  manglerDelbeloep: 'Skriv beløpet du godtar.',
+  forkast: 'Forkast utkast',
+  forkastSpoersmaal: 'Forkaste utkastet? Valgene og begrunnelsen slettes.',
+  forkastJa: 'Forkast',
+  behold: 'Behold utkastet',
   ikkeStoettet:
     'Kravet har en post for produktivitetstap (§ 34.1.3). Den kan ikke besvares i denne prøven av Varden. Bruk dagens visning for dette svaret.',
 };
 
 export const HOVEDLINJER = {
   tittel: 'Hovedlinjene i svaret',
-  kilde: 'Samme utregning som brevet',
   tom: 'Velg et svar på spørsmålene, så står standpunktene her.',
   alternativer: 'alternativer, ikke tillegg',
   krevd: (b: number) => `${kroner(b)} krevd`,
   seBrevet: 'Se brevet før sending',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
-  ubesvart: 'Svar på spørsmålene i skjemaet, så kan brevet lages.',
   beloepUtenfor: (krevd: number) =>
     `Beløpet du godtar må være mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
 };
@@ -199,10 +210,11 @@ export const MOTTATT = {
   iSinHelhet: (part: Part) => `Brevet fra ${part} står i sin helhet under.`,
   taStilling: 'Ta stilling til svaret',
   sendt: (d: string) =>
-    `Sendt gjennom appen ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
+    `Sendt herfra ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
   ikkeIProeven: 'Bygges ikke i denne prøven. Bruk dagens visning.',
-  ingenBrev: 'Sporet har ingen brev ennå.',
+  ingenBrev: 'Ingen brev ennå.',
   dittBrev: 'Brevet ditt er sendt.',
+  forkastet: 'Utkastet er forkastet.',
 };
 
 /**
@@ -215,7 +227,7 @@ export const BREVTYPER: { type: string; tekst: string; virkning?: string }[] = [
   { type: 'godta', tekst: 'Godta svaret' },
   { type: 'krav', tekst: 'Send ny versjon av kravet' },
   { type: 'sende_varsel', tekst: 'Send varsel' },
-  { type: 'varsle', tekst: 'Registrer varsel sendt utenfor appen' },
+  { type: 'varsle', tekst: 'Registrer et varsel som er sendt på annen måte' },
   { type: 'innsigelse', tekst: 'Innsigelse: kom for sent (§ 5 tredje ledd)' },
   // Ordlyden om virkningen av trekket er ikke besluttet (oppdragsgiver 27.10).
   { type: 'trekke', tekst: 'Trekk kravet', virkning: 'Virkningen av trekket er ikke besluttet.' },
@@ -225,7 +237,7 @@ export const ukjentHandling = (noekkel: string) => `Handlingen ${noekkel}`;
 /** Varselet med hjemmelen: § 34.1.3 når nøkkelen har den, ellers varselet i sporet (OV-U5). */
 const VARSEL_I_SPORET: Record<string, string> = { vederlag: '34.1.2', frist: '33.4' };
 export const varselet = (type: string, hva: string) =>
-  `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer varsel sendt utenfor appen'} etter § ${VARSEL_I_SPORET[hva] ?? hva}`;
+  `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer et varsel som er sendt på annen måte'} etter § ${VARSEL_I_SPORET[hva] ?? hva}`;
 
 /** Innsigelsen etter § 5 tredje ledd med det den gjelder: et krav, et svar eller et varsel. */
 const MAAL: Record<string, string> = { krav: 'kravet', svar: 'svaret', varsel: 'varselet' };
@@ -233,9 +245,8 @@ export const innsigelsen = (art: string, nummer: number | null) =>
   `Innsigelse: ${MAAL[art] ?? 'brevet'}${nummer ? ` i brev ${nummer}` : ''} kom for sent (§ 5 tredje ledd)`;
 
 export const BREVMENY = {
-  skriv: 'Skriv brev i sporet',
+  skriv: 'Skriv brev',
   andre: 'Andre brev og handlinger',
-  ingen: 'Ingen brev er mulige i sporet nå.',
 };
 
 export const STILLING = {
@@ -246,33 +257,35 @@ export const STILLING = {
   omfatter: (hjemmel: string) =>
     `Aksepten omfatter også at BH gjør gjeldende at varselet etter § ${hjemmel} kom for sent, ikke bare det subsidiære beløpet.`,
   beloep: (b: number, n: number) =>
-    `Godtar du, er beløpet dere er enige om i vederlagssporet ${kroner(b)}, etter brev ${n} slik det ble sendt.`,
+    `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(b)}, etter brev ${n} slik det ble sendt.`,
   vilkaar: 'Enigheten får virkning når grunnlaget er avklart.',
-  kilde: (n: number) =>
-    `Virkningen er regnet ut fra brev ${n} slik det ble sendt. Brevet er det som binder.`,
+  kilde: (n: number) => `Virkningen er regnet ut fra brev ${n} slik det ble sendt.`,
   seAksepten: 'Se akseptbrevet',
   godtarBrev: (n: number) => `Du godtar hele svaret i brev ${n}`,
-  andre: 'Andre brev som er mulige i sporet nå, står under «Andre brev og handlinger».',
+  andre: 'Andre brev du kan sende nå, står under «Andre brev og handlinger».',
 };
 
 export const TIDSLINJE = {
-  tittel: 'Tidslinje i sporet',
+  tittel: 'Tidslinje',
   oppfoeringer: (n: number) => `${n} ${n === 1 ? 'oppføring' : 'oppføringer'}`,
   oppgitt: (part: Part, n: number) => `Oppgitt av ${part} i brev ${n}`,
   sendt: (part: Part) => `Brev sendt av ${part}`,
   registrert: (part: Part) => `Brev registrert av ${part}`,
-  tom: 'Ingen datoer eller brev i sporet ennå.',
+  tom: 'Ingen datoer eller brev ennå.',
 };
 
 export const SAKEN = {
   nav: 'Saken',
-  spor: 'Spor',
+  spor: 'Krav og svar',
   utkast: 'Utkast',
   ingenBrev: 'Ingen brev',
   sist: (n: number, part: Part) => `Siste: brev ${n} fra ${part}`,
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',
+  kontrakten: 'Kontrakten',
+  prosjekt: 'Prosjekt',
+  kontraktsform: 'Kontraktsform',
   byggherre: 'Byggherre',
   entreprenoer: 'Totalentreprenør',
   opprettet: 'Opprettet',
@@ -281,7 +294,11 @@ export const SAKEN = {
   lenkeKopiert: 'Lenken er kopiert.',
   lenkeIkkeKopiert: 'Lenken ble ikke kopiert. Kopier adressen fra adressefeltet.',
   laster: 'Laster saken …',
-  lastefeil: 'Kunne ikke laste saken',
+  lastefeil: 'Saken kunne ikke lastes',
+  lastefeilBeklager: 'Beklager, saken ble ikke hentet. Prøv igjen om litt.',
+  lastefeilDetaljer: (aarsak: string) => `Teknisk melding: ${aarsak}`,
+  sistForsoekt: (d: string) => `Sist forsøkt kl. ${klokke(d)}.`,
   proevIgjen: 'Prøv igjen',
-  ikkeTilgjengelig: 'Dette sporet er ikke bygget i denne prøven av Varden.',
+  proever: 'Prøver igjen …',
+  ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden. Bruk dagens visning.',
 };
