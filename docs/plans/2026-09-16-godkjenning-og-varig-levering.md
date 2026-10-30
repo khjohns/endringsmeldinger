@@ -1233,6 +1233,8 @@ Oppdraget er [spor M](../prompt-datamodell-og-funksjonskart-2026-09-29.md).
 Arbeidet følges i
 [#79](https://github.com/khjohns/endringsmeldinger/issues/79).
 
+> **Merknad 2026-10-30 til spor M:** sporet er avsluttet. Fase 1, datamodellen, er levert i `docs/datamodell/` med vakttestene, og vedlikeholdet står i `.claude/rules/dokumentasjon.md`. Fase 2–3 skulle kartlegge Python- og Supabase-stien, som er overgangskode ([DL-U2](vedtak.md#dl-u2), [B-19](vedtak.md#b-19)). Hva TS-stien gjør, vises av [brukerforløpene](../domenetabell/brukerforlop/dekning.md). #79, #83, #86, #89, #100, #101 og #103 er lukket som foreldet. #90, #429 og #554 står fortsatt.
+
 ### Rotårsakene
 
 De tolv rotårsakene i
@@ -1249,6 +1251,8 @@ GitHub-issues, samlet i en milepæl per arbeidspakke:
 [FK](https://github.com/khjohns/endringsmeldinger/milestone/5) og [opprydding etter AF-06](https://github.com/khjohns/endringsmeldinger/milestone/3). Regelen
 står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
 åpne beslutninger i 3.4 som må være tatt før en del av arbeidet.
+
+> **Merknad 2026-10-30 til avsnitt 6 (milepælene):** milepælene F2 og opprydding etter AF-06 er lukket 30.10, uten åpne issues. F2 utgår etter merknaden 09.10 til F2, og oppryddingen som står igjen, er [#49](https://github.com/khjohns/endringsmeldinger/issues/49) i milepælen [Første ekte sak](https://github.com/khjohns/endringsmeldinger/milestone/7). Milepælen «Lesevisning etter målmodellen» heter nå [Varden og brukerforløpene](https://github.com/khjohns/endringsmeldinger/milestone/6). Arbeidsvalgene oppdragsgiver gjorde samme dag, står i [kommentaren i #1065](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6521439363): første ekte sak tas i Varden ([#1414](https://github.com/khjohns/endringsmeldinger/issues/1414)), intern godkjenning (#818) er tatt ut av Første ekte sak, frontendarbeid kontrolleres mot brukerforløpene i stedet for mot sammenligningen med den gamle frontenden i #1080, og metodevalget i OV-U43 går gjennom et brukerforløp (#1299). Merknaden 20.10 til AF-06 om å verifisere før dagens skjema og visninger slettes, er ikke endret av svarene.
 
 | Beslutning | Må være tatt før |
 | --- | --- |

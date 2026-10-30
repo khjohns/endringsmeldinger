@@ -45,12 +45,12 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   skal bevares. Ved begrepsendring: følg språkregelen i `AGENTS.md`. Les
   `.claude/rules/dokumentasjon.md` for å avgjøre hva som trenger varig
   dokumentasjon.
-- Bygger oppgaven frontend mot TS-kjernen, er den gamle frontenden for samme
-  flyt utgangspunktet (oppdragsgiver 20.10). Kartlegg hva den viser og lar
-  brukeren gjøre, og skriv i akseptkriteriene hva som skal med, hva som gjøres
-  annerledes og hva som utelates, med vedtaket eller issuet som grunn. Reglene
-  hentes fra kjernen og prøves mot vedtakene og bevis-sakene, ikke mot den gamle
-  koden.
+- Bygger oppgaven frontend mot TS-kjernen, er brukerforløpet for flyten
+  utgangspunktet, ikke den gamle frontenden (oppdragsgiver 30.10, #1065).
+  Skriv i akseptkriteriene hvilket forløp og hvilke steg oppgaven bærer. Finnes
+  det ikke noe forløp for flyten, skriver du hva brukeren skal kunne gjøre, med
+  vedtaket eller issuet som grunn. Reglene hentes fra kjernen og prøves mot
+  vedtakene og bevis-sakene, ikke mot den gamle koden.
 - Endrer oppgaven visningen, følg [interface-design-skillen](../interface-design/SKILL.md) og
   [systemfila](../../../.interface-design/system.md). Ryddingen og reviewet av visningen
   står i `AGENTS.md`, «Arbeidsform».
@@ -132,11 +132,11 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   frontendkode, frontendavhengigheter eller byggoppsettet endres. Andre berørte
   artefakter bygges med sine dokumenterte kommandoer. Dokumentendringer alene
   krever ikke applikasjonsbygg eller full testsuite.
-- En PR som bygger frontend mot TS-kjernen, sammenlikner med den gamle
-  frontenden for samme flyt: hva den nye mangler, gjør annerledes eller
-  utelater, og hvorfor (oppdragsgiver 20.10). En mangel som ikke løses i
-  PR-en, får et issue. Det som står i egne issues som forbedringer av den
-  gamle frontenden, er ikke mangler.
+- En PR som bygger frontend mot TS-kjernen, viser hvilke steg i
+  brukerforløpet som er prøvd, og
+  [dekningsoversikten](../../../docs/domenetabell/brukerforlop/dekning.md) er
+  generert på nytt når forløpet er endret (oppdragsgiver 30.10, #1065). En
+  mangel som ikke løses i PR-en, får et issue.
 - Fører PR-en et vedtak, er det en ny post i
   [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i
   vedtaksfila er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd. CI har ikke
