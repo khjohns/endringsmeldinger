@@ -286,8 +286,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "            : 'Byggherren har ikke svart i sporet.'\n        );\n",
-        "            : 'Byggherren har ikke svart i sporet.'\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
+        '            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`\n        );\n',
+        "            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
       ],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) kommandoer/forutsetninger.ts'],

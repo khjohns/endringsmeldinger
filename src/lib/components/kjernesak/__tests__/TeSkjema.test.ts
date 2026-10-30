@@ -299,7 +299,7 @@ describe('trekket', () => {
     const dialog = within(screen.getByRole('dialog', { name: 'Trekk tilbake krav' }));
     await fireEvent.click(dialog.getByRole('button', { name: 'Se brevet' }));
     expect(await dialog.findByRole('alert')).toHaveTextContent(
-      'Det er ikke sendt noe krav om frist.'
+      'TE har ikke sendt kravet om fristforlengelse.'
     );
     expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
     expect(send).not.toHaveBeenCalled();
