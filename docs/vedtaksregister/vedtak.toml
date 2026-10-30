@@ -9329,7 +9329,7 @@ forhold = [
   { art = "presiserer", vedtak = "mm-u12" },
 ]
 folge = '''
-Prinsippvedtak. Grunnlaget, forløpene, sparringen og de åpne beslutningene står i [spørsmålene](../vedlegg/metodevalg-vederlag-2026-10-26/sporsmal.md). Detaljene avgjøres før de berørte handlingene tas i bruk, i #502, #1289, #1290, #1291, #1292, #1293 og #1294. Bygges i #1295, #1296, #1297, #1298 og #1299. Prinsipp 5 bygges med EO-sakene (OV-U1). Svaret 25.10 om vilkår er [OV-U49](#ov-u49).'''
+Prinsippvedtak. Grunnlaget, forløpene, sparringen og de åpne beslutningene står i [spørsmålene](../vedlegg/metodevalg-vederlag-2026-10-26/sporsmal.md). Detaljene avgjøres før de berørte handlingene tas i bruk, i #502, #1290, #1291, #1292, #1293 og #1294. #1289 er lukket etter MM-U34. Endret 28.10 av [MM-U34](#mm-u34) for forholdene til KA-U7, HF-U9, EO-U5 og OV-U3 (punkt 9, 10, 12 og 20). Bygges i #1295, #1296, #1297, #1298 og #1299. Prinsipp 5 bygges med EO-sakene (OV-U1). Svaret 25.10 om vilkår var [OV-U49](#ov-u49), som er opphevet av [OV-U69](#ov-u69).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A som lagt fram"
@@ -9577,7 +9577,7 @@ svar = '''
 «LV-U7 beholdes som den uttrykkelig avgrensede modellen dere beskriver, ikke som en generell rettsregel om binding.»'''
 forhold = [{ art = "utvider", vedtak = "gr-u26" }, { art = "utvider", vedtak = "ov-u44" }, { art = "presiserer", vedtak = "gr-u12" }, { art = "presiserer", vedtak = "gr-u13" }, { art = "presiserer", vedtak = "ov-u12" }, { art = "presiserer", vedtak = "ov-u13" }, { art = "presiserer", vedtak = "ka-u19" }, { art = "presiserer", vedtak = "hf-u13" }]
 folge = '''
-I tråd med OV-U4 og MM-U12. Bygges i #1306.'''
+I tråd med OV-U4 og MM-U12. Endret 28.10 av [MM-U34](#mm-u34) for setningen om LV-U7 (punkt 17). Bygges i #1306.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -10495,6 +10495,70 @@ tekst = "En egen innsigelse mot et krav eller et svar registreres og vises med s
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "et sendt brev beholder virkningen det hadde da det ble sendt."
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "OV-U69"
+dato = 2026-10-30
+hvem = "oppdragsgiver"
+kilde = ["#1299", "#1306", "#1307"]
+sporsmal = '''
+Spørsmål 30.10 om særskilte vilkår i byggherrens svar. Erstatter spørsmål 1–3 i [avgrensningen 30.10 i #1299](https://github.com/khjohns/endringsmeldinger/issues/1299#issuecomment-6522241958) (#1306, #1307, #1429). Spørsmålet ble stilt etter oppdragsgivers innspill 30.10: «Løsningen med ‹Er godkjenningen avhengig av andre vilkår eller forbehold enn dem som uttrykkes gjennom valgene du har gjort og den faste brevteksten?› tror jeg faktisk er unødvendig komplisert i første versjon. Løsningen skal hjelpe partene å svare ut i skjema iht kontrakt. Øvrige betingelser, forbehold osv går i fritekst og må følges opp av partene selv»
+
+Skal første versjon ha et eget spørsmål om vilkår og egne felt for særskilte vilkår i byggherrens svar?
+
+**Hva det koster TE (A):** Løsningen kan vise registrert enighet, også i nøkkeltallene, når byggherren har skrevet vilkår i begrunnelsen. TE må lese brevet og følge opp vilkåret selv, med innlegg eller ny kravversjon.
+
+**Hva det koster byggherren (A):** Den faste teksten står i brevet sammen med vilkårene i begrunnelsen, også setningen om endringsordre i GR-U14 for grunnlaget.
+
+**Oppfølgingsspørsmål 30.10.** Prøvingen mot vedtaksfila fant at A (A2 under) sa hva bekreftelsen etter OV-U46 omfatter, at sitatet fra KA-U19 sluttet før «(KA-U16, KA-U20).», at A ikke sa at endringene OV-U49 gjorde i andre vedtak, faller bort, og at skjemaet for TEs aksept bør si at aksepten gjelder hele svaret når vilkår bare står i begrunnelsen. A1 er A med rettelsene.
+
+**Forholdet til andre vedtak.** Opphever OV-U47, OV-U48 og OV-U49. Endrer MM-U34 (punkt 25), OV-U46, LV-U32 (gjeninnført uten unntaket i OV-U47) og KA-U19. Presiserer MM-U33. I tråd med KA-U16.'''
+valgt = "A1"
+svar = '''
+Til spørsmålet: «Ja» (alternativ A, anbefalt). Til oppfølgingsspørsmålet: «Ja til A1»'''
+forhold = [
+  { art = "opphever", vedtak = "ov-u47" },
+  { art = "opphever", vedtak = "ov-u48" },
+  { art = "opphever", vedtak = "ov-u49" },
+  { art = "endrer", vedtak = "mm-u34" },
+  { art = "endrer", vedtak = "ov-u46" },
+  { art = "endrer", vedtak = "lv-u32" },
+  { art = "endrer", vedtak = "ka-u19" },
+  { art = "presiserer", vedtak = "mm-u33" },
+]
+folge = '''
+I tråd med KA-U16.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A1"
+tekst = '''
+Første versjon har ikke et eget spørsmål om vilkår eller forbehold i byggherrens svar, og ingen egne felt for særskilte vilkår. Skjemaet hjelper partene å svare med valgene kontrakten gir. Vilkår, forbehold og andre betingelser skriver parten i begrunnelsen eller i et innlegg (MM-U33 steg 2 og 3). De vises med svaret og tolkes ikke, og partene følger dem opp selv. Løsningen registrerer enighet ut fra valgene (MM-U33 steg 5), og skjemaet sier det før sending. Skjemaet for TEs aksept sier før sending at aksepten gjelder hele svaret slik det står i brevet, også begrunnelsen, og at løsningen ikke tolker begrunnelsen (MM-U34 punkt 16). Registrert enighet er ikke en avgjørelse av om partene rettslig er enige eller om et vilkår er oppfylt (MM-U12, MM-U34 punkt 12). Brevet er det autoritative uttrykket for partens standpunkt (B-03). OV-U48 og OV-U49 oppheves, også spørsmålet ved registrering av en endringsordre som svar på grunnlaget etter OV-U6, og MM-U34 punkt 25 faller bort. Endringene OV-U49 gjorde i andre vedtak, blant annet i GR-U7, GR-U8, KA-U16 og svaret 25.10 på spørsmål 8 om nøkkeltallene, faller bort med det. I OV-U46 strykes spørsmålet om det tidligere svaret hadde et forbehold eller vilkår, og setningen om at byggherren i stedet kan gi et nytt svar. Løsningen utleder virkningen av bekreftelsen ut fra valgene, og et forbehold i det tidligere svaret tolkes ikke. OV-U47 oppheves, og LV-U32 gjelder: brevet sier ‹Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.› I KA-U19 blir ‹et forbehold appen ikke kan uttrykke, sendes utenfor appen og registreres. Det som bygger på forbeholdet, sperres da (KA-U16, KA-U20).› til ‹vilkår og forbehold skrives i begrunnelsen, vises med svaret og tolkes ikke.› For et svar på grunnlaget som etter GR-U12 og GR-U13 er en endringsordre, står setningen i GR-U14. Skjemaet viser den før sending og sier at den står i brevet også når begrunnelsen har vilkår eller forbehold.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A2"
+tekst = '''
+Første versjon har ikke et eget spørsmål om vilkår eller forbehold i byggherrens svar, og ingen egne felt for særskilte vilkår. Skjemaet hjelper partene å svare med valgene kontrakten gir. Vilkår, forbehold og andre betingelser skriver parten i begrunnelsen eller i et innlegg (MM-U33 steg 2 og 3). De vises med svaret og tolkes ikke, og partene følger dem opp selv. Løsningen registrerer enighet ut fra valgene (MM-U33 steg 5), og skjemaet sier det før sending. Registrert enighet er ikke en avgjørelse av om partene rettslig er enige eller om et vilkår er oppfylt (MM-U12, MM-U34 punkt 12). Brevet er det autoritative uttrykket for partens standpunkt (B-03). OV-U48 og OV-U49 oppheves, også spørsmålet ved registrering av en endringsordre som svar på grunnlaget etter OV-U6, og MM-U34 punkt 25 faller bort. I OV-U46 strykes spørsmålet om det tidligere svaret hadde et forbehold eller vilkår, og bekreftelsen gjelder standpunktene i valgene. OV-U47 oppheves, og LV-U32 gjelder: brevet sier ‹Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.› I KA-U19 blir ‹et forbehold appen ikke kan uttrykke, sendes utenfor appen og registreres. Det som bygger på forbeholdet, sperres da› til ‹vilkår og forbehold skrives i begrunnelsen, vises med svaret og tolkes ikke›. For et svar på grunnlaget som etter GR-U12 og GR-U13 er en endringsordre, står setningen i GR-U14. Skjemaet viser den før sending og sier at den står i brevet også når begrunnelsen har vilkår eller forbehold.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som vedtatt: spørsmålet om vilkår i OV-U48 og de særskilte vilkårene i OV-U49 D1 står, med endringene i MM-U34, og spørsmål 1–3 i avgrensningen 30.10 i #1299 avgjøres.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "et forbehold appen ikke kan uttrykke, sendes utenfor appen og registreres. Det som bygger på forbeholdet, sperres da (KA-U16, KA-U20)."
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Er godkjenningen avhengig av andre vilkår eller forbehold enn dem som uttrykkes gjennom valgene du har gjort og den faste brevteksten?"
 utdrag = true
 
 [[gruppe]]
