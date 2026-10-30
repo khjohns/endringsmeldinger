@@ -47,7 +47,7 @@ function kontrollerSvar(
 ): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
   if (s.gjelder !== krav.id)
-    return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde gjeldende krav i dette sporet.');
+    return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde den gjeldende versjonen av kravet.');
   if (s.regelversjon !== regler.versjon)
     return avvis(
       'ANNEN_REGELVERSJON',
@@ -346,7 +346,7 @@ export function nyttelastkontroll(
           'IKKE_GJELDENDE_SVAR',
           u.spor[k.spor].svar.some((x) => x.id === k.svar)
             ? ELDRE_SVAR
-            : 'Aksepten gjelder ikke et svar byggherren har sendt i sporet.'
+            : 'Aksepten gjelder ikke et svar byggherren har sendt på kravet.'
         );
       if (k.regelversjon !== regler.versjon)
         return avvis(
