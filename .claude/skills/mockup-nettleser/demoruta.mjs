@@ -1,11 +1,13 @@
-// Brukerforløpet BF-01 i demoruta (#1330), i Chromium: forløpet startes fra begynnelsen og
-// fra kontrollpunktet der BH har mottatt vederlagskravet. BH fyller ut svaret i skjemaet,
-// kontrollerer brevet og sender det; TE åpner saken, ser svaret og godtar det. Til slutt
+// Et brukerforløp i demoruta (#1330), i Chromium, BF-01 om ikke `--forlop` sier noe annet.
+// Forløpet startes fra begynnelsen og fra kontrollpunktet der BH har mottatt vederlagskravet.
+// BH fyller ut svaret i skjemaet, kontrollerer brevet og sender det; TE åpner saken og ser
+// svaret, og godtar det når forløpet har kontrollpunktet `te-har-godtatt-svaret`. Til slutt
 // startes forløpet på nytt. Demoruta sender ingenting, så skriptet trenger bare vite.
 // Med `--visning varden` går de samme stegene gjennom Varden (#1331), og skjermbildene har
-// de samme navnene, så de kan sammenlignes ved hvert kontrollpunkt.
+// de samme navnene, så de kan sammenlignes ved hvert kontrollpunkt. Klikkene i Varden er
+// bare skrevet for BF-01 ennå (#1400).
 //
-//   node .claude/skills/mockup-nettleser/demoruta.mjs [--url http://localhost:5173] [--utdata <mappe>] [--visning varden]
+//   node .claude/skills/mockup-nettleser/demoruta.mjs [--forlop BF-04] [--url http://localhost:5173] [--utdata <mappe>] [--visning varden]
 //
 // Den globale playwright-pakken er den som passer med nettleserne i
 // PLAYWRIGHT_BROWSERS_PATH; en lokal `npm i playwright` henter en nyere som ikke gjør det.
@@ -21,6 +23,7 @@ const { values: arg } = parseArgs({
     url: { type: 'string', default: 'http://localhost:5173' },
     utdata: { type: 'string', default: join(tmpdir(), 'demoruta-skjermbilder') },
     visning: { type: 'string', default: 'dagens' },
+    forlop: { type: 'string', default: 'BF-01' },
   },
 });
 
@@ -67,10 +70,26 @@ async function startVite(url) {
   throw new Error(`vite svarte ikke på ${url} innen 60 s`);
 }
 
-const TITTEL = 'BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret';
+const FORLOEP = JSON.parse(
+  readFileSync(new URL(`../../../docs/domenetabell/brukerforlop/${arg.forlop}.json`, import.meta.url), 'utf8')
+);
+const TITTEL = FORLOEP.tittel;
+const punktet = (id) => FORLOEP.kontrollpunkter.find((p) => p.id === id);
+const GODTAR = Boolean(punktet('te-har-godtatt-svaret'));
+// Etikettene brevet skal ha, fra standpunktet i kontrollpunktet der TE har mottatt svaret.
+const ETIKETTER = (
+  punktet('te-har-mottatt-svaret')?.kontrollsett?.find((k) => k.sett === 'te_har_mottatt_svar')?.med
+    .standpunkt ?? 'prinsipalt'
+).match(/videre subsidiært|subsidiært|prinsipalt/g);
 const VARDEN = arg.visning === 'varden';
+if (!punktet('bh-har-mottatt-vederlagskravet'))
+  throw new Error(`${arg.forlop} har ikke kontrollpunktet bh-har-mottatt-vederlagskravet`);
+if (VARDEN && arg.forlop !== 'BF-01')
+  throw new Error('Klikkene i Varden er bare skrevet for BF-01 ennå (#1400)');
 const forloep = (punkt) =>
-  `${arg.url}/demo/BF-01?punkt=${punkt ?? 'start'}${VARDEN ? '&visning=varden' : ''}`;
+  `${arg.url}/demo/${arg.forlop}?punkt=${punkt ?? 'start'}${VARDEN ? '&visning=varden' : ''}`;
+const brevetHarLagene = (tekst) =>
+  ETIKETTER.every((e) => tekst.toLowerCase().includes(e)) && /60\s000/.test(tekst);
 const { chromium } = globalPlaywright();
 mkdirSync(arg.utdata, { recursive: true });
 const vite = await startVite(`${arg.url}/demo`);
@@ -177,8 +196,8 @@ try {
   const brevkontroll = page.getByRole('region', { name: 'Brevkontroll' });
   const tekst = await brevkontroll.getByTestId('laast-tekst').innerText();
   console.log(`Brevet BH kontrollerer:\n${tekst}`);
-  if (!/prinsipalt/i.test(tekst) || !/60\s000/.test(tekst))
-    throw new Error('Brevet sier ikke det prinsipale standpunktet og det subsidiære beløpet');
+  if (!brevetHarLagene(tekst))
+    throw new Error(`Brevet sier ikke lagene ${ETIKETTER.join(', ')} og det subsidiære beløpet`);
   await steg('bh-kontrollerer-brevet');
   await brevkontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }).check();
   await brevkontroll.getByRole('button', { name: 'Send til entreprenøren' }).click();
@@ -190,6 +209,7 @@ try {
   await spor(/^Vederlag/).click();
   await knapp('Godta svaret').waitFor();
   await steg('te-har-mottatt-svaret', true);
+  if (GODTAR) {
   await knapp('Godta svaret').click();
   const aksept = page.getByRole('region', { name: 'Brevkontroll' });
   console.log(`Aksepten TE kontrollerer:\n${await aksept.getByTestId('laast-tekst').innerText()}`);
@@ -200,6 +220,7 @@ try {
   if (await knapp('Godta svaret').isVisible())
     throw new Error('TE får fortsatt tilbud om å godta svaret etter aksepten');
   await steg('te-har-godtatt');
+  }
 
   // En omstart gir saken ved kontrollpunktet igjen.
   await knapp('Start på nytt').click();
