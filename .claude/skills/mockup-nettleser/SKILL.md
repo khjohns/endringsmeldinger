@@ -126,19 +126,24 @@ innlogging og uten server (#1330). Formatet og demoruta står i
 node .claude/skills/mockup-nettleser/demoruta.mjs [--url http://localhost:5173] [--utdata <mappe>]
 ```
 
-Skriptet starter `vite dev` hvis ingen svarer, og driver BF-01: forløpet fra begynnelsen,
+Skriptet starter `vite dev` hvis ingen svarer, og driver BF-01, eller forløpet i `--forlop`
+(BF-01 og BF-04 har kontrollpunktene skriptet bruker): forløpet fra begynnelsen,
 så fra kontrollpunktet der BH har mottatt vederlagskravet. BH svarer i skjemaet med
 «Nei, for sent» og 60 000 kr subsidiært, kontrollerer brevet og sender det. TE bytter side,
-ser svaret og godtar det. Til slutt startes forløpet på nytt, og et bilde tas på 390 px.
-Det skriver brevtekstene og stopper med exit 1 når brevet ikke har det prinsipale
-standpunktet og det subsidiære beløpet, når TE fortsatt får godta etter aksepten, og ved
+ser svaret og godtar det når forløpet har kontrollpunktet `te-har-godtatt-svaret`. Til slutt startes forløpet på nytt, og et bilde tas på 390 px.
+Det skriver brevtekstene og stopper med exit 1 når brevet ikke har lagene fra standpunktet i
+kontrollpunktet `te-har-mottatt-svaret` og det subsidiære beløpet, når TE fortsatt får godta etter aksepten, og ved
 JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 `src/lib/components/brukerforlop/__tests__/Demoforloep.test.ts`, ikke her.
 
 Med `--visning varden` går de samme stegene gjennom Varden, den eksperimentelle
 visningen (#1331), og skjermbildene har de samme navnene, så de to visningene kan
-sammenlignes ved hvert kontrollpunkt. Demopanelet starter lukket og legges sammen mens
-brukeren handler, fordi det står over saken når det er åpent. Med `?brukertest` i
+sammenlignes ved hvert kontrollpunkt. I Varden skriver skriptet også listen «Gjelder hvis»
+over beløpet og stopper når den ikke har ett punkt per lag foran beløpet: avslaget av
+grunnlaget når forløpet har kontrollpunktet `grunnlaget-er-avslaatt`, og innsigelsen om sen
+varsling. I BF-04 er det to (#1400, #1410). Demopanelet starter lukket i begge visningene, og
+skriptet åpner det bare for å bytte side og starte på nytt, fordi det står over saken når det
+er åpent. Med `?brukertest` i
 adressen vises saken uten panelet. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
 kjører axe mot Varden, bred og smal.
 Med `--sti <sti>`, som kan gjentas, kjører den axe på samme måte mot stiene, som showcasen `/demo/komponenter` (#1371).
@@ -150,7 +155,7 @@ Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Va
 `prototype.mjs` er den mekaniske forprøven av en HTML-skisse av et nytt mønster i
 `docs/design/prototyper/` (steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347).
 Et helt forløp forprøves i demoruta med `demoruta.mjs` (oppdragsgiver 28.10, #1331). Demoruta
-driver i dag bare BF-01, så andre forløp må bygges der før de kan forprøves. Den åpner prototypen med
+driver i dag BF-01 og BF-04, så andre forløp må bygges der før de kan forprøves. Den åpner prototypen med
 `file://`, uten vite, og følger klikkstiene under `prototype` i forløpsfila. Formatet står i
 [README for brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md#formatet).
 
@@ -216,6 +221,20 @@ melding hvis revisjonen ikke finnes.
 
 Skal du skrive et eget skript, kopier `globalPlaywright()` fra
 `godkjenning.mjs`.
+
+**Lokalt** (#1410) trengs den globale pakken og en nettleser. `demoruta.mjs` og `uu.mjs`
+viser hit når en av dem mangler.
+
+1. Installer pakken globalt, utenfor repoet: `npm i -g playwright`. Skriptene finner den med
+   `npm root -g`. `npm i playwright` i repoet er ikke lov.
+2. La `PLAYWRIGHT_BROWSERS_PATH` være usatt. Da starter `demoruta.mjs` og `uu.mjs` installert
+   Google Chrome (`channel: 'chrome'`), og ingen `playwright install` trengs. Chrome må ligge
+   der Playwright venter den, på en Mac i `/Applications/Google Chrome.app`.
+3. Er `PLAYWRIGHT_BROWSERS_PATH` satt, som i skyøkta, må mappa ha
+   `chromium_headless_shell-<revisjon>` for revisjonen den globale pakken venter. Ellers
+   stopper skriptet og sier hvilken mappe det lette etter.
+
+De andre skriptene i skillen krever fortsatt `PLAYWRIGHT_BROWSERS_PATH`.
 
 ## Godkjenningsflyten
 

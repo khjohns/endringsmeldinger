@@ -4,8 +4,8 @@
 // svaret, og godtar det når forløpet har kontrollpunktet `te-har-godtatt-svaret`. Til slutt
 // startes forløpet på nytt. Demoruta sender ingenting, så skriptet trenger bare vite.
 // Med `--visning varden` går de samme stegene gjennom Varden (#1331), og skjermbildene har
-// de samme navnene, så de kan sammenlignes ved hvert kontrollpunkt. Klikkene i Varden er
-// bare skrevet for BF-01 ennå (#1400).
+// de samme navnene, så de kan sammenlignes ved hvert kontrollpunkt. I Varden kontrolleres også
+// at listen «Gjelder hvis» over beløpet har ett punkt per lag foran det (#1400, #1410).
 //
 //   node .claude/skills/mockup-nettleser/demoruta.mjs [--forlop BF-04] [--url http://localhost:5173] [--utdata <mappe>] [--visning varden]
 //
@@ -27,20 +27,40 @@ const { values: arg } = parseArgs({
   },
 });
 
+// Oppsettet lokalt står i skillen; uten PLAYWRIGHT_BROWSERS_PATH startes installert Google
+// Chrome (#1410).
+const NETTLESEROPPSETT = '«Nettleseren» i .claude/skills/mockup-nettleser/SKILL.md';
+
 function globalPlaywright() {
   const rot = execFileSync('npm', ['root', '-g']).toString().trim();
-  const krev = createRequire(join(realpathSync(join(rot, 'playwright')), 'package.json'));
+  let krev;
+  try {
+    krev = createRequire(join(realpathSync(join(rot, 'playwright')), 'package.json'));
+  } catch {
+    throw new Error(
+      `Finner ikke den globale playwright-pakken i ${rot}. Oppsettet står i ${NETTLESEROPPSETT}. Kjør ikke «npm i playwright» eller «playwright install».`
+    );
+  }
+  const mappe = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  if (!mappe) return { ...krev('playwright'), start: { channel: 'chrome' } };
   const kjerne = krev.resolve('playwright-core/package.json');
   const nettlesere = JSON.parse(readFileSync(join(kjerne, '..', 'browsers.json'), 'utf8'));
   const skall = nettlesere.browsers.find((b) => b.name === 'chromium-headless-shell');
-  const mappe = process.env.PLAYWRIGHT_BROWSERS_PATH;
-  const forventet = mappe && join(mappe, `chromium_headless_shell-${skall.revision}`);
-  if (!forventet || !existsSync(forventet)) {
+  const forventet = join(mappe, `chromium_headless_shell-${skall.revision}`);
+  if (!existsSync(forventet)) {
     throw new Error(
-      `Global playwright ${krev('playwright/package.json').version} venter ${forventet ?? 'PLAYWRIGHT_BROWSERS_PATH'}, som ikke finnes. Kjør ikke «playwright install».`
+      `Global playwright ${krev('playwright/package.json').version} venter ${forventet}, som ikke finnes. Oppsettet står i ${NETTLESEROPPSETT}. Kjør ikke «playwright install».`
     );
   }
-  return krev('playwright');
+  return { ...krev('playwright'), start: {} };
+}
+
+async function startNettleser(chromium, start) {
+  try {
+    return await chromium.launch(start);
+  } catch (e) {
+    throw new Error(`${e.message}\nNettleseren startet ikke. Kjør ikke «playwright install»; oppsettet står i ${NETTLESEROPPSETT}.`);
+  }
 }
 
 async function svarer(url) {
@@ -84,20 +104,32 @@ const ETIKETTER = (
 const VARDEN = arg.visning === 'varden';
 if (!punktet('bh-har-mottatt-vederlagskravet'))
   throw new Error(`${arg.forlop} har ikke kontrollpunktet bh-har-mottatt-vederlagskravet`);
-if (VARDEN && arg.forlop !== 'BF-01')
-  throw new Error('Klikkene i Varden er bare skrevet for BF-01 ennå (#1400)');
+// Lagene foran beløpet, som er det siste laget: grunnlaget når BH har avslått det, og varselet.
+const FORUTSETNINGER = [
+  ...(punktet('grunnlaget-er-avslaatt') ? [/avslaget av grunnlaget/] : []),
+  /innsigelsen om sen varsling/,
+];
+if (FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'prinsipalt' ? 1 : 0))
+  throw new Error(`Lagene ${ETIKETTER.join(', ')} i ${arg.forlop} passer ikke med forutsetningene skriptet venter`);
 const forloep = (punkt) =>
   `${arg.url}/demo/${arg.forlop}?punkt=${punkt ?? 'start'}${VARDEN ? '&visning=varden' : ''}`;
+// Laget er overskriften med kolon i brevet. «Subsidiært» inne i «videre subsidiært», eller i
+// begrunnelsen («Subsidiært godtas …»), teller ikke.
+const LAGET = {
+  prinsipalt: /prinsipalt:/i,
+  subsidiært: /(?<!videre\s)subsidiært:/i,
+  'videre subsidiært': /videre\s+subsidiært:/i,
+};
 const brevetHarLagene = (tekst) =>
-  ETIKETTER.every((e) => tekst.toLowerCase().includes(e)) && /60\s000/.test(tekst);
-const { chromium } = globalPlaywright();
+  ETIKETTER.every((e) => LAGET[e].test(tekst)) && /60\s000/.test(tekst);
+const { chromium, start } = globalPlaywright();
 mkdirSync(arg.utdata, { recursive: true });
 const vite = await startVite(`${arg.url}/demo`);
 let browser;
 const feil = [];
 
 try {
-  browser = await chromium.launch();
+  browser = await startNettleser(chromium, start);
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   page.setDefaultTimeout(30000);
   page.on('pageerror', (e) => feil.push(e.message));
@@ -112,13 +144,14 @@ try {
     page.getByRole('navigation', { name: 'Sakens spor' }).getByRole('button', { name: navn });
   const panel = page.getByRole('complementary', { name: 'Demo av brukerforløpet' });
   const side = (part) => panel.getByRole('radio', { name: part, exact: true }).click();
-
-  if (VARDEN) {
-  // Demopanelet står over saken når det er åpent, så det legges sammen mens brukeren handler.
+  // Demopanelet starter lukket og står over saken når det er åpent, så det åpnes bare for å
+  // bytte side eller starte på nytt.
   const demo = panel.locator('details').first();
   const demopanel = async (aapent) => {
     if ((await demo.getAttribute('open')) !== null !== aapent) await demo.locator('summary').first().click();
   };
+
+  if (VARDEN) {
   const article = (name) => page.getByRole('article', { name });
 
   await page.goto(forloep(), { waitUntil: 'networkidle' });
@@ -139,13 +172,20 @@ try {
   await page
     .getByRole('textbox', { name: 'Begrunnelse' })
     .fill('Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr.');
+  const gjelderHvis = await page.locator('[id$="-beloep-forutsetninger"] li').allInnerTexts();
+  console.log(`Beløpet gjelder hvis:\n${gjelderHvis.map((t) => `- ${t}`).join('\n')}`);
+  if (
+    gjelderHvis.length !== FORUTSETNINGER.length ||
+    !FORUTSETNINGER.every((f, i) => f.test(gjelderHvis[i]))
+  )
+    throw new Error(`«Gjelder hvis» over beløpet har ikke punktene ${FORUTSETNINGER.join(', ')} i den rekkefølgen`);
   await steg('bh-vurderer', true);
 
   await knapp('Se brevet før sending').first().click();
   const tekst = await article('Svar på krav om vederlagsjustering').getByTestId('laast-tekst').innerText();
   console.log(`Brevet BH kontrollerer:\n${tekst}`);
-  if (!/prinsipalt/i.test(tekst) || !/60\s000/.test(tekst))
-    throw new Error('Brevet sier ikke det prinsipale standpunktet og det subsidiære beløpet');
+  if (!brevetHarLagene(tekst))
+    throw new Error(`Brevet sier ikke lagene ${ETIKETTER.join(', ')} og det subsidiære beløpet`);
   await steg('bh-kontrollerer-brevet', true);
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
   await knapp('Send svaret til TE').click();
@@ -157,6 +197,7 @@ try {
   await demopanel(false);
   await knapp('Ta stilling til svaret').click();
   await steg('te-har-mottatt-svaret', true);
+  if (GODTAR) {
   await knapp('Se akseptbrevet').click();
   console.log(`Aksepten TE kontrollerer:\n${await article('Aksept av svaret').getByTestId('laast-tekst').innerText()}`);
   await steg('te-godtar');
@@ -166,6 +207,7 @@ try {
   if (await knapp('Ta stilling til svaret').isVisible())
     throw new Error('TE får fortsatt tilbud om å godta svaret etter aksepten');
   await steg('te-har-godtatt');
+  }
 
   await demopanel(true);
   await knapp('Start på nytt').click();
@@ -205,7 +247,9 @@ try {
   await steg('bh-har-sendt');
 
   // TE åpner saken og ser svaret BH skrev.
+  await demopanel(true);
   await side('TE');
+  await demopanel(false);
   await spor(/^Vederlag/).click();
   await knapp('Godta svaret').waitFor();
   await steg('te-har-mottatt-svaret', true);
@@ -223,7 +267,9 @@ try {
   }
 
   // En omstart gir saken ved kontrollpunktet igjen.
+  await demopanel(true);
   await knapp('Start på nytt').click();
+  await demopanel(false);
   await spor(/^Vederlag/).click();
   await knapp('Svar på kravet').waitFor();
   await steg('startet-paa-nytt');

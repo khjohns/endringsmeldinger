@@ -35,20 +35,40 @@ const OPPSETT = [
   { navn: 'lys, smal', colorScheme: 'light', viewport: { width: 390, height: 844 } },
 ];
 
+// Oppsettet lokalt står i skillen; uten PLAYWRIGHT_BROWSERS_PATH startes installert Google
+// Chrome (#1410).
+const NETTLESEROPPSETT = '«Nettleseren» i .claude/skills/mockup-nettleser/SKILL.md';
+
 function globalPlaywright() {
   const rot = execFileSync('npm', ['root', '-g']).toString().trim();
-  const krev = createRequire(join(realpathSync(join(rot, 'playwright')), 'package.json'));
+  let krev;
+  try {
+    krev = createRequire(join(realpathSync(join(rot, 'playwright')), 'package.json'));
+  } catch {
+    throw new Error(
+      `Finner ikke den globale playwright-pakken i ${rot}. Oppsettet står i ${NETTLESEROPPSETT}. Kjør ikke «npm i playwright» eller «playwright install».`
+    );
+  }
+  const mappe = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  if (!mappe) return { ...krev('playwright'), start: { channel: 'chrome' } };
   const kjerne = krev.resolve('playwright-core/package.json');
   const nettlesere = JSON.parse(readFileSync(join(kjerne, '..', 'browsers.json'), 'utf8'));
   const skall = nettlesere.browsers.find((b) => b.name === 'chromium-headless-shell');
-  const mappe = process.env.PLAYWRIGHT_BROWSERS_PATH;
-  const forventet = mappe && join(mappe, `chromium_headless_shell-${skall.revision}`);
-  if (!forventet || !existsSync(forventet)) {
+  const forventet = join(mappe, `chromium_headless_shell-${skall.revision}`);
+  if (!existsSync(forventet)) {
     throw new Error(
-      `Global playwright ${krev('playwright/package.json').version} venter ${forventet ?? 'PLAYWRIGHT_BROWSERS_PATH'}, som ikke finnes. Kjør ikke «playwright install».`
+      `Global playwright ${krev('playwright/package.json').version} venter ${forventet}, som ikke finnes. Oppsettet står i ${NETTLESEROPPSETT}. Kjør ikke «playwright install».`
     );
   }
-  return krev('playwright');
+  return { ...krev('playwright'), start: {} };
+}
+
+async function startNettleser(chromium, start) {
+  try {
+    return await chromium.launch(start);
+  } catch (e) {
+    throw new Error(`${e.message}\nNettleseren startet ikke. Kjør ikke «playwright install»; oppsettet står i ${NETTLESEROPPSETT}.`);
+  }
 }
 
 async function svarer(url) {
@@ -183,13 +203,13 @@ const STIENE = (arg.sti ?? []).map((sti) => ({
 
 const axeSti = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 const mockup = (scenario) => `${arg.url}/mockup?scenario=${scenario}`;
-const { chromium } = globalPlaywright();
+const { chromium, start } = globalPlaywright();
 const vite = await startVite(mockup(arg.scenario));
 let browser;
 let brudd = 0;
 
 try {
-  browser = await chromium.launch();
+  browser = await startNettleser(chromium, start);
   for (const oppsett of OPPSETT) {
     const smal = oppsett.viewport.width < 768;
     for (const tilstand of arg.sti ? STIENE : arg.varden ? VARDEN : TILSTANDER) {
