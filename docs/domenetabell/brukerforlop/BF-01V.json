@@ -301,10 +301,7 @@
     "MM-U32",
     "OV-U28"
   ],
-  "venter_paa": [
-    "#1334",
-    "#1046"
-  ],
+  "venter_paa": ["#1046"],
   "bevis_saker": [],
   "visninger": [],
   "endringer": [
