@@ -1885,14 +1885,14 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     const retting = godtatt(journal, registrering({ retter: rad.event_id }), 'TE');
     const v = vist(journal);
     expect(v.journal.map((j) => [j.hendelse, j.kilde, j.rettet])).toEqual([
-      [sak, null, false],
+      [sak, 'sendt_i_appen', false],
       [krav, 'sendt_i_appen', false],
       [varsel, 'partens_opplysning', false],
       [rad.event_id, 'dokumentasjon', true],
       [retting.event_id, 'dokumentasjon', false],
     ]);
     expect(v.vurderingsgrunnlag).toEqual({
-      sendt_i_appen: [krav],
+      sendt_i_appen: [sak, krav],
       partens_opplysning: [varsel],
       dokumentasjon: [retting.event_id],
     });
@@ -1910,11 +1910,49 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     journal.push(ukjent);
     expect(forstaatt(journal), 'forutsetning').toBe(false);
     expect(vist(journal).journal.map((j) => j.kilde)).toEqual([
-      null,
+      'sendt_i_appen',
       'sendt_i_appen',
       'dokumentasjon',
       null,
     ]);
+  });
+
+  it('OV-U44, OV-U18: rettingen som sier at brevet ikke hører til saken, er dokumentasjon, men står ikke i vurderingsgrunnlaget (svar 2B 30.10 i #1045)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [{ handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' }]);
+    const journal = await bane.journal();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'TE');
+    const v = vist(journal);
+    expect(v.journal.find((j) => j.hendelse === retting.event_id)?.kilde).toBe('dokumentasjon');
+    expect(v.journal.find((j) => j.hendelse === rad.event_id)?.rettet).toBe(true);
+    expect(v.vurderingsgrunnlag.dokumentasjon).toEqual([]);
+  });
+
+  it('OV-U44, HF-U1: et fristkrav sendt i appen med datoen for varselet står under både sendt i appen og partenes opplysninger i vurderingsgrunnlaget (svar 3A 30.10 i #1045)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'krav', spor: 'frist', dager: 10, varsel_sendt: '2026-09-02' },
+    ]);
+    const journal = await bane.journal();
+    const [sak, grunnlag, frist] = journal.map((r) => r.event_id);
+    const v = vist(journal);
+    expect(
+      utledet(journal).spor.frist.varsler['33.4'],
+      'forutsetning: varselet har virkning'
+    ).toBeTruthy();
+    expect(v.journal.find((j) => j.hendelse === frist)?.kilde).toBe('sendt_i_appen');
+    expect(v.vurderingsgrunnlag).toEqual({
+      sendt_i_appen: [sak, grunnlag, frist],
+      partens_opplysning: [frist],
+      dokumentasjon: [],
+    });
+    const ukjent = { ...structuredClone(journal.at(-1)!), event_id: randomUUID(), format: null };
+    ukjent.versjon = journal.at(-1)!.versjon + 1;
+    journal.push(ukjent);
+    expect(forstaatt(journal), 'forutsetning').toBe(false);
+    expect(vist(journal).vurderingsgrunnlag.partens_opplysning, 'MM-U2, OV-U21').toEqual([]);
   });
 
   it('punkt 4 i #1167: alt i et registrert brev utenom varsel og endringsordre er dokumentasjon, uten virkning (OV-U4, HF-U13)', async () => {

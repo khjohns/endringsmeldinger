@@ -2758,7 +2758,38 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F425',
     feilklasse: 'vurderingsgrunnlaget tar med en rettet registrering (OV-U44, OV-U17)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [['if (j.kilde && !j.rettet)', 'if (j.kilde)']],
+    endringer: [['if (!j.kilde || j.rettet || d?.ikkeISaken)', 'if (!j.kilde || d?.ikkeISaken)']],
+    mal: ['OV-U44: hver journalpost har én kilde'],
+  },
+  {
+    id: 'F427',
+    feilklasse:
+      'vurderingsgrunnlaget tar med rettingen om at brevet ikke hører til saken (OV-U18, svar 2B)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['if (!j.kilde || j.rettet || d?.ikkeISaken)', 'if (!j.kilde || j.rettet)']],
+    mal: ['OV-U44, OV-U18: rettingen som sier at brevet ikke hører til saken'],
+  },
+  {
+    id: 'F428',
+    feilklasse:
+      'vurderingsgrunnlaget viser ikke partens dato for varselet i et krav sendt i appen (HF-U1, svar 3A)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["      j.kilde === 'sendt_i_appen' &&", '      false &&']],
+    mal: ['OV-U44, HF-U1: et fristkrav sendt i appen'],
+  },
+  {
+    id: 'F430',
+    feilklasse:
+      'vurderingsgrunnlaget viser partens dato for varselet mens saken ikke er forstått (MM-U2, OV-U21)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['      u.forstaatt &&', '      true &&']],
+    mal: ['OV-U44, HF-U1: et fristkrav sendt i appen'],
+  },
+  {
+    id: 'F429',
+    feilklasse: 'hendelsen som oppretter saken, får ingen kilde (svar 1A)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["          : ('sendt_i_appen' as const),", '          : null,']],
     mal: ['OV-U44: hver journalpost har én kilde'],
   },
   {

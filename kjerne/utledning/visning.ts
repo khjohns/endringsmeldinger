@@ -64,9 +64,9 @@ export interface Visning {
   /** Etikettene for hver opplysning, etter ID. */
   opplysninger: Record<string, string[]>;
   /**
-   * OV-U44: `kilde` er `null` for en hendelse kjernen ikke har tolket (MM-U2) og for
-   * hendelsen som oppretter saken, som ikke er et brev. `rettet` er registreringen
-   * rettet etter OV-U17 eller OV-U18 (arbeidsvalget 30.10 i #1045, svar 2A).
+   * OV-U44: `kilde` er `null` for en hendelse kjernen ikke har tolket (MM-U2). Hendelsen
+   * som oppretter saken, er sendt i appen (svar 1A 30.10 i #1045). `rettet` er
+   * registreringen rettet etter OV-U17 eller OV-U18 (arbeidsvalget 30.10 i #1045, svar 2A).
    */
   journal: {
     hendelse: string;
@@ -77,9 +77,12 @@ export interface Visning {
   }[];
   /**
    * OV-U44: hva vurderingen bygger på, som hendelsene med hver kilde som ikke er rettet.
-   * Vurderingen bygger på dem som er sendt i appen og partenes opplysninger, ikke på
-   * dokumentasjonen. Ordlyden står i visningen, og den sier alltid at oversikten ikke er
-   * fullstendig (arbeidsvalget 26.10 i #1045, punkt 2).
+   * Rettingen etter OV-U18 står ikke der, som en rettet registrering (svar 2B 30.10 i
+   * #1045). Et brev sendt i appen med partens opplysning om et varsel (HF-U1) står også
+   * under partenes opplysninger (svar 3A), men ikke mens saken ikke er forstått (MM-U2,
+   * OV-U21). Vurderingen bygger på dem som er sendt i appen
+   * og partenes opplysninger, ikke på dokumentasjonen. Ordlyden står i visningen, og den
+   * sier alltid at oversikten ikke er fullstendig (arbeidsvalget 26.10 i #1045, punkt 2).
    */
   vurderingsgrunnlag: Record<Kilde, string[]>;
   merknader: string[];
@@ -288,7 +291,11 @@ function kilder(u: Utledning, ikkeTolket: Set<string>) {
       hendelse: h.id,
       type: h.type,
       tolket,
-      kilde: tolket && h.art === 'dokument' ? kilden(h.dokument, u.forstaatt) : null,
+      kilde: !tolket
+        ? null
+        : h.art === 'dokument'
+          ? kilden(h.dokument, u.forstaatt)
+          : ('sendt_i_appen' as const),
       rettet: rettet.has(h.id),
     };
   });
@@ -353,7 +360,20 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     partens_opplysning: [],
     dokumentasjon: [],
   };
-  for (const j of journal) if (j.kilde && !j.rettet) vurderingsgrunnlag[j.kilde].push(j.hendelse);
+  const dokumenter = new Map(
+    u.journal.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
+  );
+  for (const j of journal) {
+    const d = dokumenter.get(j.hendelse);
+    if (!j.kilde || j.rettet || d?.ikkeISaken) continue;
+    vurderingsgrunnlag[j.kilde].push(j.hendelse);
+    if (
+      u.forstaatt &&
+      j.kilde === 'sendt_i_appen' &&
+      d?.opplysninger.some((o) => 'gjelder' in o && o.gjelder !== undefined)
+    )
+      vurderingsgrunnlag.partens_opplysning.push(j.hendelse);
+  }
   return {
     status: kode && { kode, tekst: statustekst(u, kode) },
     spor: Object.fromEntries(
