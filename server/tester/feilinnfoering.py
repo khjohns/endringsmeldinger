@@ -199,6 +199,19 @@ FEILINNFOERINGER = [
     ("S51", "tegntabellen tar med kodepunkter som deler glyf med et annet (#801)", "server/tegnsett.ts",
      "const ut = kodepunkterMedDeltGlyf();", "const ut = new Set<number>();",
      "tabellen i kjernen er den `node server/tegnsett.ts` lager"),
+    ("S52", "partsnavnene leses for en aktør uten medlemskap i prosjektet (#1398)",
+     "database/migrasjoner/20261030100000_kontraktsparter.sql",
+     "WHERE k.prosjekt_id = @prosjekt AND m.user_id = @aktor AND m.active = 1;",
+     "WHERE k.prosjekt_id = @prosjekt AND m.active = 1;",
+     "navnene leses bare for en aktør med aktivt medlemskap"),
+    ("S53", "partsnavnene leses med et inaktivt medlemskap (#1398)",
+     "database/migrasjoner/20261030100000_kontraktsparter.sql",
+     "WHERE k.prosjekt_id = @prosjekt AND m.user_id = @aktor AND m.active = 1;",
+     "WHERE k.prosjekt_id = @prosjekt AND m.user_id = @aktor;",
+     "navnene leses bare for en aktør med aktivt medlemskap"),
+    ("S54", "prosjektet gir ikke partsnavnene videre til visningen (#1398)", "server/prosjekter.ts",
+     "return [200, prosjektet(rad, parter.recordset[0])];", "return [200, prosjektet(rad)];",
+     "prosjektet har navnene på byggherren og totalentreprenøren"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

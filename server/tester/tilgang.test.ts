@@ -587,6 +587,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.godkjenningskjede',
         'GRANT EXECUTE koe_api.hent_jobb',
         'GRANT EXECUTE koe_api.koblede_prosjekter',
+        'GRANT EXECUTE koe_api.kontraktsparter',
         'GRANT EXECUTE koe_api.kontraktsteam',
         'GRANT EXECUTE koe_api.kvitter_dokument',
         'GRANT EXECUTE koe_api.kvitter_kommentar',

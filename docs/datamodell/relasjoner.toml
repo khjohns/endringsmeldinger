@@ -1206,6 +1206,16 @@ funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
 [[relasjon]]
+fra = "koe.kontraktsparter.prosjekt_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Prosjektet navnene gjelder i. Uten rad har prosjektet ingen navn på partene (#1398)."""
+funn = []
+belegg = "L 30.10: migrasjonen. K 30.10: `server/tester/prosjekter.test.ts`."
+
+[[relasjon]]
 fra = ["koe.godkjenningspakke.sak_id", "koe.godkjenningspakke.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"

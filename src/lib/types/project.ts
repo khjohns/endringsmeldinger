@@ -6,15 +6,19 @@
  * for creating, updating, and displaying projects.
  */
 
+/**
+ * TS-serveren gir bare partsnavnene, og bare når driften har satt dem (#1398).
+ * Python-stien kan ha resten.
+ */
 export interface ContractSettings {
-  byggherre_navn: string;
+  byggherre_navn?: string;
   byggherre_org_nr?: string;
-  totalentreprenor_navn: string;
+  totalentreprenor_navn?: string;
   totalentreprenor_org_nr?: string;
-  kontraktssum: number;
-  dagmulkt_sats: number;
-  kontraktstart: string;
-  kontraktsfrist: string;
+  kontraktssum?: number;
+  dagmulkt_sats?: number;
+  kontraktstart?: string;
+  kontraktsfrist?: string;
 }
 
 export interface ProjectSettings {

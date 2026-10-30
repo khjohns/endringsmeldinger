@@ -230,6 +230,49 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
     expect(svar.status).toBe(200);
     expect(svar.kropp.id).toBe(id);
   });
+
+  // Forventningen er `ContractSettings` i `src/lib/types/project.ts` og arbeidsvalget
+  // 30.10 i #1398: prosjektet har partsnavnene i `settings.contract`, og uten navn
+  // står `contract` ikke der.
+  it('prosjektet har navnene på byggherren og totalentreprenøren i settings.contract (#1398)', async () => {
+    const b = await nyBruker();
+    const id = await prosjekt(b);
+    await settInn(eier, 'kontraktsparter', {
+      prosjekt_id: id,
+      byggherre_navn: 'Byggherren AS',
+      totalentreprenor_navn: 'Entreprenøren AS',
+    });
+    const svar = await kall(server.url, `/api/projects/${id}`, { bruker: b, prosjektId: id });
+    expect(svar.status).toBe(200);
+    expect(svar.kropp.settings).toEqual({
+      contract: { byggherre_navn: 'Byggherren AS', totalentreprenor_navn: 'Entreprenøren AS' },
+    });
+  });
+
+  it('navnene leses bare for en aktør med aktivt medlemskap i prosjektet (#1398)', async () => {
+    const b = await nyBruker();
+    const id = await prosjekt(b);
+    const inaktiv = await nyBruker();
+    const annet = await prosjekt(inaktiv, { medlem: false });
+    for (const p of [id, annet])
+      await settInn(eier, 'kontraktsparter', {
+        prosjekt_id: p,
+        byggherre_navn: 'Byggherren AS',
+        totalentreprenor_navn: 'Entreprenøren AS',
+      });
+    const les = async (aktor: string, p: string) =>
+      (
+        await o.datalag.kjoeretid.pool
+          .request()
+          .input('aktor', sql.UniqueIdentifier, aktor)
+          .input('prosjekt', sql.NVarChar(4000), p)
+          .execute('koe_api.kontraktsparter')
+      ).recordset.length;
+    expect(await les(b.id, id)).toBe(1);
+    expect(await les(b.id, annet)).toBe(0);
+    expect(await les(inaktiv.id, annet)).toBe(0);
+    expect(await les((await nyBruker()).id, id)).toBe(0);
+  });
 });
 
 /**

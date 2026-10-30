@@ -63,6 +63,8 @@ const UTEN_TRIGGER: Record<string, string> = {
   app_oauth_attempts:
     'Innloggingsforsøket slettes når det brukes, og når det er utløpt (B-19, #656).',
   dagmulktssats: 'Driften setter opp og endrer satsen (#818).',
+  kontraktsparter:
+    'Driften setter og retter navnene på partene; et sendt brev fryser navnene det viste (#1398, LV-U1).',
   entra_tenant: 'Driften godkjenner og fjerner tenantene for innloggingen med Entra ID (#831).',
   rolle: 'Driften registrerer og endrer grensen per rolle (GFK-U6, GFK-U11).',
   stillingstittel:
