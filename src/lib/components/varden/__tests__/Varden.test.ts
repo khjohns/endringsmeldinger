@@ -19,6 +19,7 @@ import { kontrollerEtter } from '$kjerne/tester/kjoerer';
 import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
 import Vardensak from '$lib/components/varden/Vardensak.svelte';
 import { ApiError } from '$lib/api/client';
+import { projectStore } from '$lib/stores/project.svelte';
 
 const BF = finn('BF-01');
 const START = finnForloep('BF-01')!;
@@ -268,6 +269,49 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
     expect(screen.queryByText('Gjelder hvis')).toBeNull();
+  });
+
+  it('BF-04: over beløpet står avslaget av grunnlaget først og så innsigelsen om sen varsling, og hovedlinjene begynner på avslaget (#1400, S1-A og S2-A, OV-U32, OV-U33)', async () => {
+    render(Demoforloep, {
+      forloep: finnForloep('BF-04')!,
+      punkt: 'bh-har-mottatt-vederlagskravet',
+      visning: 'varden',
+      onpunkt: () => {},
+      onstart: () => {},
+    });
+    await fireEvent.click(await screen.findByText('Skriv brev'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    const forutsetningene = () => {
+      const beloep = screen.getByRole('group', { name: 'Hvor mye av hovedkravet godtar du?' });
+      const id = beloep.getAttribute('aria-describedby');
+      return id
+        ? [...document.getElementById(id)!.querySelectorAll('li')].map((li) =>
+            li.textContent!.replace(/\s+/g, ' ').trim()
+          )
+        : [];
+    };
+    const AVSLAGET = 'avslaget av grunnlaget i brev 3 ikke fører frem';
+
+    // S1-A: et ubesvart varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende.
+    expect(forutsetningene()).toEqual([AVSLAGET]);
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    // S2-A: grunnene fra grunnlaget først, så innsigelsen mot vederlagskravet.
+    expect(forutsetningene()).toEqual([AVSLAGET, 'innsigelsen om sen varsling ikke fører frem']);
+
+    // Avslått metode uten ønsket metode forstår ikke kjernen; skjemaet står, og lagene med det.
+    await fireEvent.click(screen.getByRole('radio', { name: 'Godtar ikke metoden' }));
+    expect(forutsetningene()).toEqual([AVSLAGET, 'innsigelsen om sen varsling ikke fører frem']);
+    await fireEvent.click(screen.getByRole('radio', { name: 'Regningsarbeid (§ 34.4)' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Ingenting' }));
+
+    // Som i brevet står avslaget prinsipalt, foran sporet (OV-U33).
+    const linjer = within(
+      screen.getByRole('region', { name: 'Hovedlinjene i svaret' })
+    ).getAllByRole('listitem');
+    expect(linjer[0].textContent!.replace(/\s+/g, ' ').trim()).toBe(
+      'prinsipalt Du har avslått grunnlaget i brev 3'
+    );
+    expect(linjer[1].textContent).toMatch(/^subsidiært/i);
   });
 
   it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
@@ -547,6 +591,38 @@ describe('Varden med brukerforløpet BF-01', () => {
     ]);
     expect(within(kontrakten).getByText('Byggherre AS')).toBeTruthy();
     expect(within(kontrakten).queryByText('Totalentreprenør')).toBeNull();
+  });
+
+  it('uten kontrakt fra demoruta leser panelet navnene på partene fra prosjektet, og kontraktsformen, som serveren ikke gir, står ikke der (#1398, arbeidsvalget «Prosjektruta»)', async () => {
+    projectStore.set({
+      id: 'p1',
+      organisasjon_id: 'o1',
+      name: 'Prosjekt B',
+      settings: {
+        contract: { byggherre_navn: 'Byggherre BH', totalentreprenor_navn: 'Entreprenør TE' },
+      },
+      created_at: '2026-10-30T00:00:00Z',
+      is_active: true,
+    });
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak });
+
+    const kontrakten = await screen.findByRole('region', { name: 'Kontrakten' });
+    expect([...kontrakten.querySelectorAll('dd')].map((e) => e.textContent?.trim())).toEqual([
+      'Prosjekt B',
+      'Byggherre BH',
+      'Entreprenør TE',
+    ]);
+    expect(within(kontrakten).queryByText('Kontraktsform')).toBeNull();
+    projectStore.set(null);
   });
 
   it.each([

@@ -17,7 +17,7 @@
   import Knapp from './Knapp.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import { aksepten } from './kommandoer';
-  import { brevene, handlingerISporet, oppgitteDatoer } from './lesing';
+  import { brevene, handlingerISporet, datoerISporet } from './lesing';
   import {
     BREVMENY,
     MOTTATT,
@@ -185,10 +185,7 @@
         <p class="dempet fot">{STILLING.andre}</p>
       </section>
     {/if}
-    <Tidslinje
-      brev={sporbrev}
-      datoer={oppgitteDatoer(u).filter((d) => d.spor.includes(spor) || spor === 'vederlag')}
-    />
+    <Tidslinje brev={sporbrev} datoer={datoerISporet(u, spor)} />
   {/snippet}
 </Arbeidsflate>
 

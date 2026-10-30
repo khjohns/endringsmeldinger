@@ -7,6 +7,7 @@
 <script lang="ts">
   import '$lib/components/kontraktsbord/theme.css';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { projectStore } from '$lib/stores/project.svelte';
   import type { Spor } from '$kjerne/typer';
   import { tick } from 'svelte';
   import { Link } from 'lucide-svelte';
@@ -27,27 +28,40 @@
     dato,
   } from './prototypetekst';
 
+  type Kontrakt = {
+    prosjekt?: string;
+    kontraktsform?: string;
+    byggherre?: string;
+    entreprenoer?: string;
+  };
   let {
     kjernesak,
-    kontrakt = {},
+    kontrakt,
   }: {
     kjernesak: Kjernesakkontekst;
-    /** Prosjektet og partene. Et navn som mangler, vises ikke (#1398). */
-    kontrakt?: {
-      prosjekt?: string;
-      kontraktsform?: string;
-      byggherre?: string;
-      entreprenoer?: string;
-    };
+    /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
+    kontrakt?: Kontrakt;
   } = $props();
-  const kontraktsrader = $derived(
-    [
-      [SAKEN.prosjekt, kontrakt.prosjekt],
-      [SAKEN.kontraktsform, kontrakt.kontraktsform],
-      [SAKEN.byggherre, kontrakt.byggherre],
-      [SAKEN.entreprenoer, kontrakt.entreprenoer],
-    ].filter((r): r is [string, string] => !!r[1])
-  );
+  // Serveren gir partsnavnene når driften har satt dem, men ikke kontraktsformen (#1398).
+  const fraProsjektet = $derived.by((): Kontrakt => {
+    const p = projectStore.current;
+    const c = p?.settings.contract;
+    return {
+      prosjekt: p?.name,
+      byggherre: c?.byggherre_navn,
+      entreprenoer: c?.totalentreprenor_navn,
+    };
+  });
+  // Et navn som mangler, står ikke der (#1398).
+  const kontraktsrader = $derived.by(() => {
+    const k = kontrakt ?? fraProsjektet;
+    return [
+      [SAKEN.prosjekt, k.prosjekt],
+      [SAKEN.kontraktsform, k.kontraktsform],
+      [SAKEN.byggherre, k.byggherre],
+      [SAKEN.entreprenoer, k.entreprenoer],
+    ].filter((r): r is [string, string] => !!r[1]);
+  });
 
   type Kontroll = {
     kommando: Record<string, unknown>;

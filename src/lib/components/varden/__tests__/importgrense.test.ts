@@ -26,6 +26,8 @@ const MODULER = new Set(
     'kjernesak/svarvirkning',
     // Lesingen av beløpsfeltet (OV-U58), som dagens skjema også bruker. Ingen regel.
     'utils/belop',
+    // Prosjektet frontenden alt henter, med partsnavnene (#1398). Ingen regel.
+    'stores/project.svelte',
     'components/kontraktsbord/theme.css',
   ].map((m) => join(LIB, m))
 );

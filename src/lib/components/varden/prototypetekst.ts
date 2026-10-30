@@ -9,6 +9,7 @@
  */
 
 import { kroner } from '$kjerne/frosset/standpunkt';
+import type { Subsidiaergrunn } from '$kjerne/regler/grunnlag';
 import type { Part, Spor, Standpunkt } from '$kjerne/typer';
 import type { Brevet, OppgittDato } from './lesing';
 
@@ -92,6 +93,12 @@ const METODE: Record<string, string> = {
 };
 export const metodenavn = (m: unknown) => METODE[m as string] ?? 'metoden TE oppgir';
 
+/** En grunn fra svaret på grunnlaget i brev `brev`, som utsagn fra byggherren. */
+export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: number) =>
+  grunn === 'avslaatt'
+    ? `${du ? 'Du' : 'BH'} har avslått grunnlaget i brev ${brev}`
+    : `${du ? 'Du' : 'BH'} har gjort gjeldende i brev ${brev} at varselet om grunnlaget kom for sent (§ 32.2)`;
+
 /**
  * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
  * «BH» ellers. `krevd` er det TE krevde for posten.
@@ -151,6 +158,11 @@ export const SKJEMA = {
   beloepSpoersmaal: 'Hvor mye av hovedkravet godtar du?',
   gjelderHvis: 'Gjelder hvis',
   innsigelsenSenVarsling: 'innsigelsen om sen varsling',
+  // Grunnene fra svaret på grunnlaget har ikke noe felt i skjemaet; brevet står i teksten.
+  grunnen: (grunn: Subsidiaergrunn, brev: number) =>
+    grunn === 'avslaatt'
+      ? `avslaget av grunnlaget i brev ${brev}`
+      : `innsigelsen i brev ${brev} om at varselet om grunnlaget kom for sent (§ 32.2)`,
   ikkeFoererFrem: 'ikke fører frem',
   hele: 'Hele beløpet',
   deler: 'Deler av beløpet',

@@ -6,6 +6,7 @@
  */
 
 import { etikett, grunnerFraGrunnlaget, laget } from '$kjerne/frosset/standpunkt';
+import type { Subsidiaergrunn } from '$kjerne/regler/grunnlag';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 
@@ -105,32 +106,58 @@ export function oppgitteDatoer(u: Utledning): OppgittDato[] {
   return ut;
 }
 
-/** Ett standpunkt i et svar, med etiketten for laget det står i når svaret har flere lag. */
-export interface Standpunktet {
-  standpunkt: Standpunkt;
-  /** «prinsipalt», «subsidiært» eller «videre subsidiært»; `null` når svaret har ett lag. */
-  lag: string | null;
+/**
+ * Datoene som hører til sporet: de oppgitt i sporet, og i vederlaget også datoen i
+ * grunnlagskravet, som varselet etter § 34.1.2 regnes fra. Lesingen og svarskjemaet viser de
+ * samme (#1393).
+ */
+export const datoerISporet = (u: Utledning, spor: Spor) =>
+  oppgitteDatoer(u).filter(
+    (d) => d.spor.includes(spor) || (spor === 'vederlag' && d.spor.includes('grunnlag'))
+  );
+
+/** Datoen TE oppgir i gjeldende grunnlagskrav for når TE ble klar over forholdet. */
+export function klarOverForholdet(u: Utledning): OppgittDato | null {
+  const krav = u.spor.grunnlag.gjeldendeKrav;
+  const b = krav && brevet(u, krav.dokument);
+  return (
+    oppgitteDatoer(u).find((d) => d.hva === 'klar_over_forholdet' && d.brev === b?.nummer) ?? null
+  );
 }
 
 /**
- * Standpunktene i svaret `svar` i brevets rekkefølge, med laget kjernen gir dem (OV-U32).
- * Lagene fra grunnlaget står foran sporet, som i brevet: `foer` er saken før svaret.
+ * Én linje i et svar, med etiketten for laget den står i når svaret har flere lag: en grunn
+ * fra gjeldende svar på grunnlaget, med brevet det står i, eller et standpunkt i svaret.
+ */
+export type Standpunktet = { lag: string | null } & (
+  | { grunn: Subsidiaergrunn; brev: number }
+  | { standpunkt: Standpunkt }
+);
+
+/**
+ * Linjene i svaret `svar` i brevets rekkefølge, med laget kjernen gir dem (OV-U32). Grunnene
+ * fra grunnlaget står først, ett lag hver, som i brevet (OV-U33): `foer` er saken før svaret.
  */
 export function standpunktene(svar: Svar, foer: Utledning): Standpunktet[] {
-  const g = foer.spor.grunnlag.gjeldendeSvar;
-  const grunner =
-    svar.spor === 'grunnlag' || !g
-      ? 0
-      : grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger).length;
+  const g = svar.spor === 'grunnlag' ? null : foer.spor.grunnlag.gjeldendeSvar;
+  const grunner = g ? grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger) : [];
   const lagene = svar.beslutningsgrunnlag.virkninger.map((v) => {
     const l = laget(v.virkning);
-    return { id: v.standpunkt, lag: l === null ? null : l + grunner };
+    return { id: v.standpunkt, lag: l === null ? null : l + grunner.length };
   });
   const flere = lagene.some((l) => l.lag !== null && l.lag > 1);
-  return svar.standpunkter.map((s) => {
-    const l = lagene.find((x) => x.id === s.id)?.lag ?? null;
-    return { standpunkt: s, lag: flere && l !== null ? etikett(l) : null };
-  });
+  const merket = (l: number | null) => (flere && l !== null ? etikett(l) : null);
+  return [
+    ...grunner.map((grunn, i) => ({
+      grunn,
+      brev: brevet(foer, g!.dokument)!.nummer,
+      lag: merket(i + 1),
+    })),
+    ...svar.standpunkter.map((s) => ({
+      standpunkt: s,
+      lag: merket(lagene.find((x) => x.id === s.id)?.lag ?? null),
+    })),
+  ];
 }
 
 /**

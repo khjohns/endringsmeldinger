@@ -10,6 +10,7 @@ import { brevFor, utledetMed, type Brev } from './brevtekst';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
+import { grunnlagetForSvaret } from './vederlagssvar';
 import {
   hentKjernesak,
   lastOppKjernevedlegg,
@@ -333,6 +334,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     get saksbilde() {
       return bilde;
+    },
+    /** Brevet setter forbeholdet etter GR-U26 foran et svar på vederlag eller frist (#1393). */
+    get forbehold() {
+      return utledning ? grunnlagetForSvaret(utledning).forbehold : false;
     },
     /**
      * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404. `null`
