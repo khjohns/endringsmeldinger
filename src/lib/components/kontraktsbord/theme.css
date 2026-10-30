@@ -12,6 +12,11 @@
   --mockup-sidebar-width: 320px;
   --mockup-drawer-width: 384px;
   --mockup-topbar-height: 64px;
+
+  /* Varden: hovedkolonnen er like bred som brevet, omtrent et A4-ark (oppdragsgiver 30.10, #1391). */
+  --varden-ark: 760px;
+  --varden-stoette: 360px;
+  --varden-arbeid: calc(var(--varden-ark) + var(--spacing-6) + var(--varden-stoette));
 }
 
 /* ══════════════════════════════════════════════════

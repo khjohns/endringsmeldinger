@@ -1,6 +1,7 @@
 <!--
   Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`.
-  Ingenting er forhåndsvalgt, og ingen valg har farge (prinsipp 6 og 7).
+  Ingenting er forhåndsvalgt, og ingen valg har farge (prinsipp 6 og 7). Mangler svaret når
+  parten går videre, står feilmeldingen under valgene (MM-U32).
 -->
 <script lang="ts" generics="T extends string | boolean">
   let {
@@ -8,15 +9,25 @@
     spoersmaal,
     valg,
     verdi = $bindable(null),
+    feil = null,
+    beskrevetAv,
   }: {
     navn: string;
     spoersmaal: string;
     valg: { verdi: T; tekst: string }[];
     verdi: T | null;
+    /** Hva som mangler, når parten har prøvd å gå videre uten svaret. */
+    feil?: string | null;
+    /** Id-en til det spørsmålet bygger på, som forutsetningene for et subsidiært lag. */
+    beskrevetAv?: string;
   } = $props();
+  const uid = $props.id();
+  const beskrivelse = $derived(
+    [beskrevetAv, feil ? `${uid}-feil` : undefined].filter(Boolean).join(' ') || undefined
+  );
 </script>
 
-<fieldset class="valg">
+<fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse}>
   <legend>{spoersmaal}</legend>
   <div class="kort">
     {#each valg as v (String(v.verdi))}
@@ -32,6 +43,7 @@
       </label>
     {/each}
   </div>
+  {#if feil}<p class="feilmelding" id={`${uid}-feil`}>{feil}</p>{/if}
 </fieldset>
 
 <style>
@@ -40,6 +52,9 @@
     padding: 0;
     margin: 0;
     min-width: 0;
+  }
+  .valg:focus {
+    outline: none;
   }
   legend {
     padding: 0;
@@ -75,6 +90,12 @@
   .valgkort:has(input:focus-visible) {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
+  }
+  .feilmelding {
+    margin-top: var(--spacing-2);
+    color: var(--danger);
+    font-size: 14px;
+    font-weight: 500;
   }
   input {
     width: 18px;

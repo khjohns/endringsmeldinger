@@ -95,7 +95,7 @@ try {
   const side = (part) => panel.getByRole('radio', { name: part, exact: true }).click();
 
   if (VARDEN) {
-  // Demopanelet står over høyre kolonne i Varden, så det legges sammen mens brukeren handler.
+  // Demopanelet står over saken når det er åpent, så det legges sammen mens brukeren handler.
   const demo = panel.locator('details').first();
   const demopanel = async (aapent) => {
     if ((await demo.getAttribute('open')) !== null !== aapent) await demo.locator('summary').first().click();
@@ -111,7 +111,7 @@ try {
   await demopanel(false);
   await steg('bh-har-mottatt-kravet');
 
-  await page.getByText('Skriv brev i sporet').click();
+  await page.getByText('Skriv brev', { exact: true }).click();
   await knapp('Svar på kravet').click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
   await page.getByRole('radio', { name: 'Godtar metoden', exact: true }).check();
@@ -150,7 +150,7 @@ try {
 
   await demopanel(true);
   await knapp('Start på nytt').click();
-  await page.getByText('Skriv brev i sporet').waitFor();
+  await page.getByText('Skriv brev', { exact: true }).waitFor();
   await steg('startet-paa-nytt');
   } else {
   // Fra begynnelsen: saken er opprettet, og TE handler i neste steg.

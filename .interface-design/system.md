@@ -31,15 +31,27 @@ Beholde inter som font.» Oslo-logoen er fast.
   - `--control-focus` er fokus og ingenting annet.
   - `--danger` er feil.
 - **Subsidiært får ingen farge.** Det skilles med tekst og form (#197, oppdragsgiver 29.10).
-  Spørsmålet sier hva det bygger på, som «Hvis innsigelsen om sen varsling ikke fører frem,
-  hvor mye godtar du?». Med flere subsidiære lag blir teksten alene svak; formen for det er
-  ikke avgjort (#1391).
+  Over et subsidiært spørsmål står «Gjelder hvis» med én linje per innsigelse det bygger på,
+  med en kantlinje til venstre, og spørsmålet selv står kort (oppdragsgiver 30.10, #1391).
+  Hver linje lenker til feltet sitt. Lagene skal komme fra kjernen (#1400).
 - **Demomerket** «Varden · eksperimentell visning» er nøytralt og bruker ikke utkastfargen.
-- **Skriften er Inter** (`--font-sans`), som før.
+- **Skriften er Inter** (`--font-sans`), som før. Varden bruker fem størrelser: 12, 14, 16,
+  20 og 24 px, omtrent forholdet 1,2 fra 14 px. 12 px er etiketter og metadata, 14 px er
+  brødtekst og hjelpetekst, og 20 px er overskriftene. Vekt og farge gjør resten av
+  hierarkiet (oppdragsgiver 30.10, #198).
 - **Skallet er som i dagens visning** (oppdragsgiver 29.10): panelet til venstre er mørkt blekk
   (`--sidebar-bg`) over hele høyden, med byvåpenet og «Oslo kommune / Oslobygg KF» øverst,
-  saken med etikett og verdi under, og sporene. Topplinja står over arbeidsflaten, med rollen
+  saken, sporene under «Krav og svar», og nederst prosjektet, kontraktsformen og partene under «Kontrakten». Etiketten
+  står over verdien, som i «Prosjektet i korte trekk», så lange navn får plass. Et navn som
+  mangler, står ikke der (oppdragsgiver 30.10, #1398). Topplinja står over arbeidsflaten, med rollen
   og handlingene som gjelder hele saken. Arbeidet i sporet begynner rett under.
+- **Arbeidet er like bredt som et ark** (oppdragsgiver 30.10): hovedkolonnen er høyst
+  `--varden-ark`, like bred som brevet, og panelet til høyre er `--varden-stoette` i lesingen,
+  svaret og brevkontrollen. Er det plass til overs, står de samlet og midtstilt, og
+  topplinja og meldingene følger de samme kantene (`--varden-arbeid`).
+- **Et brev har samme bredde der det vises** (oppdragsgiver 30.10). Leses brevet ved siden
+  av skjemaet, felles panelet til venstre inn, så begge kolonnene blir omtrent et ark, og
+  høyst et ark. Panelet kommer tilbake når brevet lukkes.
 
 Verdiene står i `.tema-varden` i `theme.css`, som Varden og showcasen bruker.
 [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) prøver dem, også utkastfargen og
@@ -131,7 +143,7 @@ Et mønster står her når det brukes to ganger eller mer. Verdiene står i komp
 eller klassen.
 
 Tabellen beskriver dagens visning, `/mockup`-komponentene. Mønstrene for Varden føres
-inn fra komponentene i designrundene (#1391).
+inn fra komponentene i designrundene (#1391), og står under tabellen.
 
 | Mønster | Hvor | Bruk |
 | --- | --- | --- |
@@ -147,3 +159,35 @@ inn fra komponentene i designrundene (#1391).
 | Seksjonsoverskrift | `primitives/SectionHeading.svelte` | Overskrift for en seksjon i lesevisningen |
 | Handlingslinje | `kontraktsbord/ActionBar.svelte` | Handlingene for parten nå (MM-U25) |
 | Rik tekst | `primitives/RichTextEditor.svelte` | Begrunnelser og brevtekst |
+
+### Handlingene i Varden
+
+Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
+`src/lib/components/varden/`.
+
+- **Visningen er handlingsorientert.** Det som ikke trengs for å sende et krav eller svare
+  på det, står ikke der. Arbeidet har ingen overskrift med spornavnet: lesingen begynner
+  med det siste brevet og menyen, og svaret med utkastkortet.
+- **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
+  «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
+  lesingen. Linjen nederst i vinduet vises bare når panelet er ute av syne.
+- **En knapp er aldri sperret** (MM-U32). Mangler noe, står det rett under feltet og i en
+  liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
+  vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens
+  avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
+  mens en sending pågår.
+- **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
+  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog.
+- **Utkastet sier det selv.** Hodet på utkastkortet og sendepanelet i brevkontrollen
+  sier «Utkast · ikke sendt». Merket «Utkast» i panelet til venstre vises bare når et
+  annet spor er valgt, så statusen aldri står to steder samtidig.
+- **Lesing ved siden av** er én lenkeknapp som veksler mellom «Les brevet ved siden av»
+  og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
+  lengre brev ruller i den. Kolonnene er da like brede, og panelet til venstre er felt inn.
+  På smal skjerm står brevet i skjemaet.
+- **Menyen med brevtypene** (`Brevtyper`) vises bare når kjernen tilbyr en handling
+  (MM-U25), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget, står under
+  én felles linje.
+- **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
+  blekk (`--ink`) på `--surface-inset`. Den er ikke gul, fordi gult betyr utkast, og
+  ikke rød, fordi den ikke er en feil.

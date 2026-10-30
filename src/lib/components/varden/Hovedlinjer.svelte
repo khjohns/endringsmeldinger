@@ -15,16 +15,14 @@
     linjer: { tekst: string; lag: string | null }[];
     /** Svaret har beløp i mer enn ett lag. */
     alternativer: boolean;
-    handling: Snippet;
+    /** Primærhandlingen. Uten den har panelet ingen bunn. */
+    handling?: Snippet;
   } = $props();
   const uid = $props.id();
 </script>
 
 <section class="kort" aria-labelledby={`${uid}-hovedlinjer-tittel`}>
-  <header class="hode">
-    <h2 id={`${uid}-hovedlinjer-tittel`}>{HOVEDLINJER.tittel}</h2>
-    <span class="kilde">{HOVEDLINJER.kilde}</span>
-  </header>
+  <h2 class="hode" id={`${uid}-hovedlinjer-tittel`}>{HOVEDLINJER.tittel}</h2>
   <div class="linjer" aria-live="polite">
     {#if linjer.length}
       <ul>
@@ -40,7 +38,7 @@
       <p class="merknad">{HOVEDLINJER.tom}</p>
     {/if}
   </div>
-  <div class="bunn">{@render handling()}</div>
+  {#if handling}<div class="bunn">{@render handling()}</div>{/if}
 </section>
 
 <style>
@@ -50,20 +48,10 @@
     border-radius: 12px;
   }
   .hode {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: var(--spacing-3);
     padding: var(--spacing-4) var(--spacing-5);
     border-bottom: var(--rule);
-  }
-  h2 {
     font-size: 16px;
     font-weight: 600;
-  }
-  .kilde {
-    color: var(--ink-3);
-    font-size: 12px;
   }
   .linjer {
     padding: var(--spacing-4) var(--spacing-5);
@@ -91,7 +79,7 @@
   }
   .merknad {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 14px;
     margin-top: var(--spacing-2);
   }
   .bunn {
