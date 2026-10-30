@@ -7,7 +7,7 @@ import { GJELDENDE_REGLER, type Regelsett } from './regler/regelsett.ts';
  * Økes ved enhver endring i kjernen utenom `regler/` og testene som kan gi et
  * annet resultat, også en feilretting. Regelversjonsvakten i CI krever det.
  */
-export const PROJEKSJONSVERSJON = 62;
+export const PROJEKSJONSVERSJON = 63;
 
 export interface Kjerne {
   regler: Regelsett;
