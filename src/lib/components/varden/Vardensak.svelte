@@ -27,7 +27,27 @@
     dato,
   } from './prototypetekst';
 
-  let { kjernesak }: { kjernesak: Kjernesakkontekst } = $props();
+  let {
+    kjernesak,
+    kontrakt = {},
+  }: {
+    kjernesak: Kjernesakkontekst;
+    /** Prosjektet og partene. Et navn som mangler, vises ikke (#1398). */
+    kontrakt?: {
+      prosjekt?: string;
+      kontraktsform?: string;
+      byggherre?: string;
+      entreprenoer?: string;
+    };
+  } = $props();
+  const kontraktsrader = $derived(
+    [
+      [SAKEN.prosjekt, kontrakt.prosjekt],
+      [SAKEN.kontraktsform, kontrakt.kontraktsform],
+      [SAKEN.byggherre, kontrakt.byggherre],
+      [SAKEN.entreprenoer, kontrakt.entreprenoer],
+    ].filter((r): r is [string, string] => !!r[1])
+  );
 
   type Kontroll = {
     kommando: Record<string, unknown>;
@@ -41,6 +61,8 @@
     tilbakeTil: string;
     svarerPaa: { nummer: number; registrert: string } | null;
     tilbake: Arbeid;
+    /** Brevet er svarutkastet, som tømmes når det er sendt. */
+    erUtkastet: boolean;
   };
   type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
 
@@ -48,15 +70,24 @@
   let valgt = $state<Spor>('vederlag');
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
-  let melding = $state<string | null>(null);
+  // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
+  // omtrent like bredt som ellers (oppdragsgiver 30.10, #1391).
+  let vedSiden = $state(false);
+  // Utkastet til svaret står til det er sendt eller forkastet, også når BH velger et annet
+  // spor (BF-01 S-8). Merket i panelet vises bare når et annet spor er valgt (#1391).
+  let utkastAapent = $state(false);
+  let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' } | null>(null);
+  let meldingen = $state<HTMLElement | null>(null);
   let lenkestatus = $state('');
+  let proever = $state(false);
+  let sistForsoekt = $state<string | null>(null);
 
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
 
   function velgSpor(s: Spor) {
     valgt = s;
-    arbeid = { art: 'les' };
+    arbeid = s === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' };
     melding = null;
   }
 
@@ -72,15 +103,38 @@
     }
   }
 
+  async function proevIgjen() {
+    proever = true;
+    try {
+      await kjernesak.last();
+    } finally {
+      proever = false;
+      sistForsoekt = new Date().toISOString();
+    }
+  }
+
   function sendt() {
+    // Bare det sendte svaret tømmer utkastet; en aksept i et annet spor lar det stå (BF-01 S-8).
+    if (arbeid.art === 'kontroll' && arbeid.erUtkastet) {
+      svarvalg = tomtSvar();
+      utkastAapent = false;
+    }
+    arbeid = { art: 'les' };
+    melding = { tekst: MOTTATT.dittBrev, art: 'sendt' };
+  }
+
+  async function forkast() {
     arbeid = { art: 'les' };
     svarvalg = tomtSvar();
-    melding = MOTTATT.dittBrev;
+    utkastAapent = false;
+    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    await tick();
+    meldingen?.focus();
   }
 </script>
 
-<div class="varden tema-varden">
-  <div class="panelkolonne">
+<div class="varden tema-varden" class:innfelt={vedSiden}>
+  <div class="panelkolonne" hidden={vedSiden}>
     <div class="panel">
       <div class="avsender">
         <div class="logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
@@ -89,22 +143,14 @@
       {#if u && kjernesak.saksbilde}
         <header class="sakshode">
           <h1>{kjernesak.saksbilde.tittel}</h1>
-          <dl class="meta">
-            <div>
-              <dt>{SAKEN.byggherre}</dt>
-              <dd>BH</dd>
-            </div>
-            <div>
-              <dt>{SAKEN.entreprenoer}</dt>
-              <dd>TE</dd>
-            </div>
-            {#if brev[0]}
+          {#if brev[0]}
+            <dl class="meta">
               <div>
                 <dt>{SAKEN.opprettet}</dt>
                 <dd>{dato(brev[0].registrert)} av {brev[0].avsender}</dd>
               </div>
-            {/if}
-          </dl>
+            </dl>
+          {/if}
         </header>
 
         <nav class="sporene" aria-label={SAKEN.nav}>
@@ -121,7 +167,7 @@
                 >
                   <span class="navn">
                     {SPORNAVN[s]}
-                    {#if valgt === s && arbeid.art !== 'les'}<span class="merke-utkast"
+                    {#if s === 'vederlag' && utkastAapent && valgt !== s}<span class="merke-utkast"
                         >{SAKEN.utkast}</span
                       >{/if}
                   </span>
@@ -135,6 +181,21 @@
             {/each}
           </ul>
         </nav>
+
+        <!-- Prosjektet og partene hører til kontrakten, ikke saken (oppdragsgiver 30.10). -->
+        {#if kontraktsrader.length}
+          <section class="kontrakten" aria-labelledby="kontrakt-etikett">
+            <h2 class="etikett" id="kontrakt-etikett">{SAKEN.kontrakten}</h2>
+            <dl class="meta">
+              {#each kontraktsrader as [etikett, verdi] (etikett)}
+                <div>
+                  <dt>{etikett}</dt>
+                  <dd>{verdi}</dd>
+                </div>
+              {/each}
+            </dl>
+          </section>
+        {/if}
       {/if}
       <p class="prototype">{SAKEN.prototype}</p>
     </div>
@@ -152,14 +213,29 @@
     {#if (!u || !kjernesak.saksbilde) && kjernesak.feil}
       <div class="lastefeil" role="alert">
         <h1>{SAKEN.lastefeil}</h1>
-        <p>{kjernesak.feil}</p>
-        <Knapp onclick={() => kjernesak.last()}>{SAKEN.proevIgjen}</Knapp>
+        <p>{SAKEN.lastefeilBeklager}</p>
+        <p class="detaljer">{SAKEN.lastefeilDetaljer(kjernesak.feil)}</p>
+        {#if sistForsoekt && !proever}<p class="detaljer">
+            {SAKEN.sistForsoekt(sistForsoekt)}
+          </p>{/if}
+        <Knapp opptatt={proever} onclick={proevIgjen}
+          >{proever ? SAKEN.proever : SAKEN.proevIgjen}</Knapp
+        >
       </div>
     {:else if !u || !kjernesak.saksbilde}
       <p class="laster" role="status">{SAKEN.laster}</p>
     {:else}
       <main class="arbeid">
-        <p class="melding" role="status">{melding ?? ''}</p>
+        <p
+          class="melding"
+          class:sendt={melding?.art === 'sendt'}
+          class:tom={!melding}
+          role="status"
+          tabindex="-1"
+          bind:this={meldingen}
+        >
+          {melding?.tekst ?? ''}
+        </p>
         {#if arbeid.art === 'kontroll'}
           {@const k = arbeid}
           <Brevkontroll
@@ -182,6 +258,8 @@
             {kjernesak}
             {u}
             bind:valg={svarvalg}
+            onforkast={forkast}
+            onvedsiden={(v) => (vedSiden = v)}
             onbrevkontroll={(k) => {
               const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
               arbeid = {
@@ -193,6 +271,7 @@
                 tilbakeTil: 'utkastet',
                 svarerPaa: krav ? { nummer: krav.nummer, registrert: krav.registrert } : null,
                 tilbake: { art: 'svar' },
+                erUtkastet: true,
               };
             }}
           />
@@ -203,7 +282,10 @@
             spor={valgt}
             onvelg={(n) => {
               melding = null;
-              if (n === 'svare:vederlag') arbeid = { art: 'svar' };
+              if (n === 'svare:vederlag') {
+                utkastAapent = true;
+                arbeid = { art: 'svar' };
+              }
             }}
             onakseptbrev={({ kommando, tekst }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
@@ -220,7 +302,8 @@
                 sendTekst: BREVKONTROLL.sendAksepten,
                 tilbakeTil: 'saken',
                 svarerPaa: svaret ? { nummer: svaret.nummer, registrert: svaret.registrert } : null,
-                tilbake: { art: 'les' },
+                tilbake: valgt === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' },
+                erUtkastet: false,
               };
             }}
           />
@@ -276,12 +359,12 @@
     display: flex;
     flex-direction: column;
     color: var(--sidebar-muted);
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.3;
   }
   .kommune {
     color: var(--sidebar-text);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
   }
   .sakshode {
@@ -299,20 +382,26 @@
   .sakshode h1 {
     font-size: 20px;
   }
+  /* Etiketten står over verdien, så lange navn får plass (som «Prosjektet i korte trekk»). */
   .meta {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--spacing-1) var(--spacing-4);
-    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
   }
   .meta div {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
   .meta dt {
     color: var(--sidebar-muted);
+    font-size: 12px;
   }
   .meta dd {
     color: var(--sidebar-text);
+    font-size: 14px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
   }
   .etikett {
     margin: 0 0 var(--spacing-2);
@@ -374,24 +463,39 @@
     background: var(--draft-bg);
     color: var(--draft);
   }
+  /* Kontrakten står nederst i panelet, som i dagens oversikt (oppdragsgiver 30.10). */
+  .kontrakten,
+  .prototype {
+    margin-top: auto;
+  }
+  .kontrakten + .prototype {
+    margin-top: 0;
+  }
   .prototype {
     align-self: flex-start;
-    margin-top: auto;
     padding: 0 var(--spacing-2);
     border: 1px solid var(--sidebar-border);
     border-radius: 999px;
     color: var(--sidebar-muted);
     font-size: 12px;
   }
+  /* Topplinja, meldingen og lastingen har samme kanter som arbeidet, som står midtstilt. */
   .flate {
+    --kant: max(var(--spacing-10), calc((100% - var(--varden-arbeid)) / 2));
     min-width: 0;
+  }
+  .varden.innfelt {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .innfelt .flate {
+    --kant: max(var(--spacing-10), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
   }
   .topplinje {
     display: flex;
     align-items: center;
     gap: var(--spacing-4);
     min-height: var(--mockup-topbar-height);
-    padding: 0 var(--spacing-10);
+    padding: 0 var(--kant);
     border-bottom: var(--rule);
     background: var(--surface);
     font-size: 14px;
@@ -403,13 +507,19 @@
     margin-left: auto;
     color: var(--ink-3);
   }
-  .arbeid,
+  .arbeid {
+    padding: var(--spacing-6) var(--spacing-10) var(--spacing-12);
+  }
   .laster,
   .lastefeil {
-    padding: var(--spacing-6) var(--spacing-10) var(--spacing-12);
+    padding: var(--spacing-6) var(--kant) var(--spacing-12);
   }
   .laster {
     color: var(--ink-2);
+  }
+  .lastefeil .detaljer {
+    color: var(--ink-3);
+    font-size: 14px;
   }
   .lastefeil {
     display: flex;
@@ -420,14 +530,21 @@
   .arbeid {
     min-width: 0;
   }
-  .melding:empty {
+  .melding.tom {
     display: none;
   }
   .melding {
-    margin-bottom: var(--spacing-4);
+    max-width: var(--varden-arbeid);
+    margin: 0 auto var(--spacing-4);
     padding: var(--spacing-3) var(--spacing-4);
-    background: var(--success-bg);
+    background: var(--surface-inset);
     border-radius: 4px;
+  }
+  .melding.sendt {
+    background: var(--success-bg);
+  }
+  .melding:focus {
+    outline: none;
   }
   @media (max-width: 1023px) {
     .varden {
@@ -442,11 +559,13 @@
     .avsender {
       min-height: 44px;
     }
+    /* «Vederlagsjustering» får ikke plass i tre kolonner på en telefon. */
     .sporene ul {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
       gap: var(--spacing-2);
     }
+    .kontrakten,
     .prototype {
       margin-top: 0;
     }

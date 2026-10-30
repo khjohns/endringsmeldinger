@@ -2,7 +2,7 @@
   Tidslinja i sporet (Varden, valget 27.10 i #1331): datoene partene har oppgitt (ring), brev
   som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. Ingen
   dager mellom oppføringene: avstanden mellom to tilfeldige oppføringer kan se ut som et
-  varslingsintervall. Kan legges sammen.
+  varslingsintervall. Står åpen fra starten og kan legges sammen (oppdragsgiver 29.10, #1391).
 -->
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
@@ -12,7 +12,7 @@
   let {
     brev,
     datoer,
-    aapen = false,
+    aapen = true,
   }: { brev: Brevet[]; datoer: OppgittDato[]; aapen?: boolean } = $props();
 
   type Oppfoering = {
@@ -51,13 +51,13 @@
 </script>
 
 <section class="kort" aria-label={TIDSLINJE.tittel}>
-  <details open={aapen}>
-    <summary>
-      <span class="tittel">{TIDSLINJE.tittel}</span>
-      <span class="antall">{TIDSLINJE.oppfoeringer(oppfoeringer.length)}</span>
-      <ChevronRight size={16} aria-hidden="true" />
-    </summary>
-    {#if oppfoeringer.length}
+  {#if oppfoeringer.length}
+    <details open={aapen}>
+      <summary class="hode">
+        <span class="tittel">{TIDSLINJE.tittel}</span>
+        <span class="antall">{TIDSLINJE.oppfoeringer(oppfoeringer.length)}</span>
+        <ChevronRight size={16} aria-hidden="true" />
+      </summary>
       <ol class="liste">
         {#each oppfoeringer as o (o.noekkel)}
           <li class="rad">
@@ -70,10 +70,14 @@
           </li>
         {/each}
       </ol>
-    {:else}
-      <p class="tom">{TIDSLINJE.tom}</p>
-    {/if}
-  </details>
+    </details>
+  {:else}
+    <!-- Uten oppføringer er det ingenting å åpne, så hodet er ingen knapp (#1391). -->
+    <div class="hode">
+      <span class="tittel">{TIDSLINJE.tittel}</span>
+      <span class="antall">{TIDSLINJE.tom}</span>
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -82,15 +86,17 @@
     border: var(--rule);
     border-radius: 12px;
   }
-  summary {
+  .hode {
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
     min-height: 48px;
     padding: var(--spacing-3) var(--spacing-5);
+    border-radius: 12px;
+  }
+  summary {
     cursor: pointer;
     list-style: none;
-    border-radius: 12px;
   }
   summary:hover {
     background: var(--surface-inset);
@@ -121,7 +127,7 @@
   }
   .antall {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 12px;
   }
   .liste {
     padding: 0 var(--spacing-5) var(--spacing-5);
@@ -159,12 +165,8 @@
   .hva {
     font-size: 14px;
   }
-  .kilde,
-  .tom {
+  .kilde {
     color: var(--ink-3);
-    font-size: 13px;
-  }
-  .tom {
-    padding: 0 var(--spacing-5) var(--spacing-5);
+    font-size: 12px;
   }
 </style>

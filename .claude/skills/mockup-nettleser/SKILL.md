@@ -137,8 +137,9 @@ JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 
 Med `--visning varden` går de samme stegene gjennom Varden, den eksperimentelle
 visningen (#1331), og skjermbildene har de samme navnene, så de to visningene kan
-sammenlignes ved hvert kontrollpunkt. Demopanelet legges sammen mens brukeren handler,
-fordi det står over høyre kolonne. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
+sammenlignes ved hvert kontrollpunkt. Demopanelet starter lukket og legges sammen mens
+brukeren handler, fordi det står over saken når det er åpent. Med `?brukertest` i
+adressen vises saken uten panelet. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
 kjører axe mot Varden, bred og smal.
 Med `--sti <sti>`, som kan gjentas, kjører den axe på samme måte mot stiene, som showcasen `/demo/komponenter` (#1371).
 axe går ikke inn i en iframe, så rammene i showcasen kjøres som egne stier (`/demo/komponenter/ramme?…`).

@@ -55,7 +55,7 @@ const demopanel = () =>
 
 /** BH svarer i Varden som i steg 4, og kommer til brevkontrollen. Gir teksten som vises. */
 async function bhSvarerIVarden(): Promise<string[]> {
-  await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+  await fireEvent.click(await screen.findByText('Skriv brev'));
   await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Godtar metoden' }));
@@ -149,7 +149,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(panelet.textContent).toMatch(
       /Aksepten omfatter også at BH gjør gjeldende at varselet etter § 34\.1\.2 kom for sent/
     );
-    expect(panelet.textContent).toMatch(/enige om i vederlagssporet 0\skr/);
+    expect(panelet.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
     const panel = within(panelet);
     await fireEvent.click(panel.getByRole('button', { name: 'Se akseptbrevet' }));
     await sendBrevet('Send aksepten til BH');
@@ -162,33 +162,193 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('button', { name: 'Ta stilling til svaret' })).toBeNull();
   });
 
-  it('det som hindrer brevet i hovedlinjene, står med skjemaets ord og uten feltkodene fra kjernen', async () => {
-    // AGENTS.md, «Skriv etter hva teksten gjør»: en feilmelding sier hva som hindrer.
+  it('«Se brevet før sending» er alltid aktiv, og klikket uten svar viser det som mangler ved feltet og øverst, ikke brevet (MM-U32, BF-01 S-3 B)', async () => {
+    // MM-U32: «En handling parten kan gjøre nå, er alltid aktiv. Mangler noe i skjemaet,
+    // kontrollerer appen det når parten sender, og sier ved feltet og øverst i skjemaet hva som
+    // mangler.» BF-01 S-3: reserven B, fordi kjernen ikke lager tekst for et ufullstendig svar.
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+    await fireEvent.click(await screen.findByText('Skriv brev'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
-    const hindring = () => document.querySelector('[id$="-brev-hindring"]')?.textContent;
-    expect(hindring()).toBe('Svar på spørsmålene i skjemaet, så kan brevet lages.');
+    const seBrevet = screen.getByRole('button', { name: 'Se brevet før sending' });
+    expect(seBrevet).not.toHaveAttribute('aria-disabled');
+    // #1391: før BH har prøvd, står det verken «Ikke besvart» eller en hindring.
+    expect(screen.queryByText('Ikke besvart')).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Dette mangler før brevet kan lages:' })).toBeNull();
 
+    await fireEvent.click(seBrevet);
+    expect(
+      screen.queryByRole('article', { name: 'Svar på krav om vederlagsjustering' })
+    ).toBeNull();
+    const oeverst = await screen.findByRole('group', {
+      name: 'Dette mangler før brevet kan lages:',
+    });
+    expect(document.activeElement).toBe(oeverst);
+    expect(
+      within(oeverst)
+        .getAllByRole('listitem')
+        .map((l) => l.textContent)
+    ).toEqual([
+      'Velg om varselet kom i tide.',
+      'Velg om du godtar beregningsmetoden.',
+      'Velg hvor mye av hovedkravet du godtar.',
+    ]);
+    const ved = (spoersmaal: string) =>
+      screen.getByRole('group', { name: spoersmaal }).getAttribute('aria-describedby');
+    const tekstVed = (spoersmaal: string) =>
+      document.getElementById(ved(spoersmaal) ?? '')?.textContent ?? null;
+    expect(tekstVed('Kom varselet om kravet i tide?')).toBe('Velg om varselet kom i tide.');
+    expect(tekstVed('Hvor mye av hovedkravet godtar du?')).toBe(
+      'Velg hvor mye av hovedkravet du godtar.'
+    );
+
+    // Beskjeden ved feltet forsvinner når feltet er besvart.
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    expect(ved('Kom varselet om kravet i tide?')).toBeNull();
+    expect(
+      within(
+        screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
+      ).getAllByRole('listitem')
+    ).toHaveLength(2);
+
     await fireEvent.click(screen.getByRole('radio', { name: 'Godtar metoden' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
-    await fireEvent.input(await screen.findByRole('textbox', { name: 'Beløpet du godtar' }), {
-      target: { value: '150 000' },
-    });
-    expect(hindring()).toMatch(
-      /^Beløpet du godtar må være mer enn 0 kr og mindre enn 100\s000\skr\.$/
-    );
+    const beloep = await screen.findByRole('textbox', { name: 'Beløpet du godtar' });
+    await fireEvent.input(beloep, { target: { value: '150 000' } });
+    expect(beloep).toHaveAttribute('aria-invalid', 'true');
+    expect(beloep.getAttribute('aria-describedby')).toMatch(/-beloep-feil$/);
+    expect(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
+    ).toMatch(/Beløpet du godtar må være mer enn 0 kr og mindre enn 100\s000\skr\./);
     // Et punktum er ikke desimaltegn i et beløp: «60.000» blir ikke 60 kr.
-    await fireEvent.input(screen.getByRole('textbox', { name: 'Beløpet du godtar' }), {
-      target: { value: '60.000' },
-    });
-    expect(hindring()).toBe('Skriv beløpet med sifre og komma før øre, for eksempel 100 000,40.');
-    expect(screen.getByRole('button', { name: 'Se brevet før sending' })).toHaveAttribute(
-      'aria-disabled',
-      'true'
-    );
+    await fireEvent.input(beloep, { target: { value: '60.000' } });
+    expect(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
+    ).toContain('Skriv beløpet med sifre og komma før øre, for eksempel 100 000,40.');
     expect(document.body.textContent).not.toMatch(/_vurdering|_belop|mangler;|\bKA-U\d/);
+
+    await fireEvent.input(beloep, { target: { value: '60 000' } });
+    // KA-U24: kjernen krever begrunnelse når BH gjør gjeldende sen varsling og ikke godtar hele
+    // beløpet. Det står ved feltet med kjernens grunn, og ikke med regelkoden.
+    const begrunnelse = screen.getByRole('textbox', { name: /Begrunnelse/ });
+    expect(begrunnelse).toHaveAttribute('aria-invalid', 'true');
+    expect(
+      within(
+        screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
+      ).getAllByRole('listitem')
+    ).toHaveLength(1);
+    expect(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
+    ).toMatch(/Svaret må ha en begrunnelse, fordi du/);
+    expect(document.body.textContent).not.toMatch(/BEGRUNNELSE_MANGLER/);
+    await fireEvent.input(begrunnelse, { target: { value: BEGRUNNELSE } });
+    expect(screen.queryByRole('group', { name: 'Dette mangler før brevet kan lages:' })).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
+    expect(
+      await screen.findByRole('article', { name: 'Svar på krav om vederlagsjustering' })
+    ).toBeInTheDocument();
+  });
+
+  it('etter «Varslet for sent» står beløpsspørsmålet under «Gjelder hvis» med innsigelsen det bygger på (oppdragsgiver 30.10, #1391)', async () => {
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    await fireEvent.click(await screen.findByText('Skriv brev'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    const beloep = () => screen.getByRole('group', { name: 'Hvor mye av hovedkravet godtar du?' });
+    expect(beloep().getAttribute('aria-describedby')).toBeNull();
+    expect(screen.queryByText('Gjelder hvis')).toBeNull();
+
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    const forutsetninger = document.getElementById(beloep().getAttribute('aria-describedby')!)!;
+    expect(forutsetninger.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Gjelder hvis innsigelsen om sen varsling ikke fører frem'
+    );
+    const lenke = within(forutsetninger).getByRole('link', { name: 'innsigelsen om sen varsling' });
+    expect(document.querySelector(lenke.getAttribute('href')!)).toBe(
+      screen.getByRole('group', { name: 'Kom varselet om kravet i tide?' })
+    );
+
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
+    expect(screen.queryByText('Gjelder hvis')).toBeNull();
+  });
+
+  it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
+    const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    await fireEvent.click(await screen.findByText('Skriv brev'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
+    const spoersmaal = screen.getByRole('group', {
+      name: 'Forkaste utkastet? Valgene og begrunnelsen slettes.',
+    });
+    await fireEvent.click(within(spoersmaal).getByRole('button', { name: 'Behold utkastet' }));
+    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Forkast utkast' }));
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Forkast' }));
+    expect(screen.queryByRole('form')).toBeNull();
+    const melding = screen.getByText('Utkastet er forkastet.');
+    expect(melding.getAttribute('role')).toBe('status');
+    expect(document.activeElement).toBe(melding);
+    expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
+    // Et nytt svar begynner tomt.
+    await fireEvent.click(screen.getByText('Skriv brev'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
+  });
+
+  it('utkastet står når BH velger et annet spor, og merket «Utkast» står i panelet bare mens et annet spor er valgt (BF-01 S-8, #1391)', async () => {
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    await fireEvent.click(await screen.findByText('Skriv brev'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    const panelet = within(screen.getByRole('navigation', { name: 'Saken' }));
+    const vederlag = () => panelet.getByRole('button', { name: /^Vederlag/ });
+    // #1391: mens utkastet er åpent, står ingen meny for å skrive brev.
+    expect(screen.queryByText('Skriv brev')).toBeNull();
+    expect(vederlag().textContent).not.toMatch(/Utkast/);
+
+    await fireEvent.click(panelet.getByRole('button', { name: /^Grunnlag/ }));
+    expect(screen.queryByRole('form')).toBeNull();
+    expect(vederlag().textContent).toMatch(/Utkast/);
+
+    await fireEvent.click(vederlag());
+    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    expect(vederlag().textContent).not.toMatch(/Utkast/);
+  });
+
+  it('panelet til venstre felles inn mens brevet leses ved siden av skjemaet, og kommer tilbake når brevet lukkes (oppdragsgiver 30.10, #1391)', async () => {
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    await fireEvent.click(await screen.findByText('Skriv brev'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    expect(screen.getByRole('navigation', { name: 'Saken' })).toBeInTheDocument();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Les brevet ved siden av' }));
+    expect(screen.queryByRole('navigation', { name: 'Saken' })).toBeNull();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Lukk brevet' }));
+    expect(screen.getByRole('navigation', { name: 'Saken' })).toBeInTheDocument();
+  });
+
+  it('«Send svaret til TE» er aktiv uten avkrysning, og klikket sender ikke, men sier fra ved avkrysningen (MM-U32)', async () => {
+    const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    await bhSvarerIVarden();
+    const send = screen.getByRole('button', { name: 'Send svaret til TE' });
+    expect(send).not.toHaveAttribute('aria-disabled');
+    const avkrysning = screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
+    // Beskjeden må være koblet til før fokus flyttes, ellers leser skjermleseren den ikke.
+    let vedFokus: string | null = null;
+    avkrysning.addEventListener('focus', () => {
+      vedFokus = avkrysning.getAttribute('aria-describedby');
+    });
+    await fireEvent.click(send);
+    expect(document.activeElement).toBe(avkrysning);
+    expect(vedFokus).not.toBeNull();
+    expect(avkrysning).toHaveAttribute('aria-invalid', 'true');
+    expect(
+      document.getElementById(avkrysning.getAttribute('aria-describedby')!)?.textContent
+    ).toMatch(/Kryss av for at du har kontrollert brevet, så kan du sende\./);
+    expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
   });
 
   it('samme valg gir samme journal og brevtekst i Varden og i dagens visning', async () => {
@@ -324,13 +484,69 @@ describe('Varden med brukerforløpet BF-01', () => {
     render(Vardensak, { kjernesak });
 
     const feil = await screen.findByRole('alert');
-    expect(within(feil).getByRole('heading', { name: 'Kunne ikke laste saken' })).toBeTruthy();
+    expect(within(feil).getByRole('heading', { name: 'Saken kunne ikke lastes' })).toBeTruthy();
+    // En feil fra serveren beklager og sier hva parten kan gjøre (.interface-design/system.md).
+    expect(feil.textContent).toContain('Beklager, saken ble ikke hentet. Prøv igjen om litt.');
     expect(feil.textContent).toContain('Serveren svarte med feilkode 500 uten forklaring.');
     expect(screen.queryByText('Laster saken …')).toBeNull();
 
     await fireEvent.click(within(feil).getByRole('button', { name: 'Prøv igjen' }));
     await screen.findByRole('heading', { name: BF.tittel, level: 1 });
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('«Prøv igjen» er opptatt mens saken lastes på nytt, og en ny feil viser når det sist ble forsøkt (#1373, funn 1)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    let svar!: (v: unknown) => void;
+    const hent = vi
+      .fn()
+      .mockRejectedValueOnce(new ApiError(500, 'Serveren svarte med feilkode 500 uten forklaring.'))
+      .mockImplementationOnce(
+        () => new Promise((_, avvis) => (svar = () => avvis(new ApiError(500, 'Igjen.'))))
+      );
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Prøv igjen' }));
+    const opptatt = await screen.findByRole('button', { name: 'Prøver igjen …' });
+    expect(opptatt.getAttribute('aria-busy')).toBe('true');
+
+    svar(null);
+    const knapp = await screen.findByRole('button', { name: 'Prøv igjen' });
+    expect(knapp.getAttribute('aria-busy')).toBeNull();
+    expect(screen.getByRole('alert').textContent).toMatch(/Sist forsøkt kl\. \d\d\.\d\d\./);
+    expect(screen.getByRole('alert').textContent).toContain('Igjen.');
+  });
+
+  it('panelet viser prosjektet og partene under «Kontrakten», og et navn som mangler, står ikke der (oppdragsgiver 30.10, #1398)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, {
+      kjernesak,
+      kontrakt: { prosjekt: 'Prosjekt A', byggherre: 'Byggherre AS' },
+    });
+
+    const kontrakten = await screen.findByRole('region', { name: 'Kontrakten' });
+    expect([...kontrakten.querySelectorAll('dt')].map((e) => e.textContent)).toEqual([
+      'Prosjekt',
+      'Byggherre',
+    ]);
+    expect(within(kontrakten).getByText('Byggherre AS')).toBeTruthy();
+    expect(within(kontrakten).queryByText('Totalentreprenør')).toBeNull();
   });
 
   it.each([

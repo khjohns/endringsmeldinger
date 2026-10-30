@@ -1,24 +1,19 @@
 <!--
-  Knappen i Varden: pilleform, minst 44 px høy. En knapp som ikke kan brukes ennå, er
-  `aria-disabled` og kan fortsatt nås med tastaturet, så `hvorfor` leses opp med den.
-  `Button` i primitives er 36 px og har ingen forklaring ved en sperret knapp.
+  Knappen i Varden: pilleform, minst 44 px høy. En handling parten kan gjøre nå, er alltid
+  aktiv; knappen er `aria-disabled` bare mens en sending pågår (MM-U32).
+  `Button` i primitives er 36 px.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
   let {
     variant = 'sekundaer',
-    sperret = false,
-    hvorfor,
     opptatt = false,
     onclick,
     children,
     ...rest
   }: {
     variant?: 'primaer' | 'sekundaer' | 'lenke';
-    sperret?: boolean;
-    /** ID-en til teksten som sier hvorfor knappen ikke kan brukes. */
-    hvorfor?: string;
     opptatt?: boolean;
     onclick?: () => void;
     children: Snippet;
@@ -29,11 +24,10 @@
 <button
   type="button"
   class="knapp knapp-{variant}"
-  aria-disabled={sperret || opptatt ? 'true' : undefined}
-  aria-describedby={sperret ? hvorfor : undefined}
+  aria-disabled={opptatt ? 'true' : undefined}
   aria-busy={opptatt ? 'true' : undefined}
   onclick={() => {
-    if (!sperret && !opptatt) onclick?.();
+    if (!opptatt) onclick?.();
   }}
   {...rest}
 >
