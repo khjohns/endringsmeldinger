@@ -40,6 +40,13 @@ Beholde inter som font.» Oslo-logoen er fast.
   (`--sidebar-bg`) over hele høyden, med byvåpenet og «Oslo kommune / Oslobygg KF» øverst,
   saken med etikett og verdi under, og sporene. Topplinja står over arbeidsflaten, med rollen
   og handlingene som gjelder hele saken. Arbeidet i sporet begynner rett under.
+- **Arbeidet er like bredt som et ark** (oppdragsgiver 30.10): hovedkolonnen er høyst
+  `--varden-ark`, like bred som brevet, og panelet til høyre er `--varden-stoette` i lesingen,
+  svaret og brevkontrollen. Er det plass til overs, står de samlet og midtstilt, og
+  topplinja og meldingene følger de samme kantene (`--varden-arbeid`).
+- **Et brev har samme bredde der det vises** (oppdragsgiver 30.10). Leses brevet ved siden
+  av skjemaet, felles panelet til venstre inn, så begge kolonnene blir omtrent et ark, og
+  høyst et ark. Panelet kommer tilbake når brevet lukkes.
 
 Verdiene står i `.tema-varden` i `theme.css`, som Varden og showcasen bruker.
 [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) prøver dem, også utkastfargen og
@@ -171,7 +178,8 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   annet spor er valgt, så statusen aldri står to steder samtidig.
 - **Lesing ved siden av** er én lenkeknapp som veksler mellom «Les brevet ved siden av»
   og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
-  lengre brev ruller i den. Kolonnene er da like brede. På smal skjerm står brevet i skjemaet.
+  lengre brev ruller i den. Kolonnene er da like brede, og panelet til venstre er felt inn.
+  På smal skjerm står brevet i skjemaet.
 - **Menyen med brevtypene** (`Brevtyper`) vises bare når kjernen tilbyr en handling
   (MM-U25), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget, står under
   én felles linje.

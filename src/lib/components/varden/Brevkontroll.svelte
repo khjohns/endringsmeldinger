@@ -141,7 +141,8 @@
 <style>
   .kontroll {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-columns: minmax(0, var(--varden-ark)) var(--varden-stoette);
+    justify-content: center;
     gap: var(--spacing-6);
     align-items: start;
   }

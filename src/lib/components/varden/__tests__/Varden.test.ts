@@ -295,6 +295,19 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(vederlag().textContent).not.toMatch(/Utkast/);
   });
 
+  it('panelet til venstre felles inn mens brevet leses ved siden av skjemaet, og kommer tilbake når brevet lukkes (oppdragsgiver 30.10, #1391)', async () => {
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    await fireEvent.click(await screen.findByText('Skriv brev i sporet'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    expect(screen.getByRole('navigation', { name: 'Saken' })).toBeInTheDocument();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Les brevet ved siden av' }));
+    expect(screen.queryByRole('navigation', { name: 'Saken' })).toBeNull();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Lukk brevet' }));
+    expect(screen.getByRole('navigation', { name: 'Saken' })).toBeInTheDocument();
+  });
+
   it('«Send svaret til TE» er aktiv uten avkrysning, og klikket sender ikke, men sier fra ved avkrysningen (MM-U32)', async () => {
     const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
     await bhSvarerIVarden();

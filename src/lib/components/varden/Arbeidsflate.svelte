@@ -1,8 +1,9 @@
 <!--
   Arbeidet i sporet (Varden, prinsipp 8): hovedkolonnen med det brukeren gjør nå, og høyre
   kolonne med det som støtter arbeidet. Visningen er handlingsorientert, så den har ingen
-  egen overskrift over arbeidet (oppdragsgiver 29.10, #1391). Mens et brev leses ved siden
-  av, er kolonnene like brede. Under 1024 px legger høyre kolonne seg under arbeidet.
+  egen overskrift over arbeidet (oppdragsgiver 29.10, #1391). Hovedkolonnen er høyst like
+  bred som brevet, og kolonnene står midtstilt (oppdragsgiver 30.10). Mens et brev leses ved
+  siden av, er kolonnene like brede. Under 1024 px legger høyre kolonne seg under arbeidet.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -29,12 +30,13 @@
 <style>
   .flate {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-columns: minmax(0, var(--varden-ark)) var(--varden-stoette);
+    justify-content: center;
     gap: var(--spacing-6);
     align-items: start;
   }
   .flate.leser {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, var(--varden-ark)));
   }
   .hoved {
     min-width: 0;

@@ -63,7 +63,7 @@
 
 <style>
   .brev {
-    max-width: 760px;
+    max-width: var(--varden-ark);
     padding: var(--spacing-10) var(--spacing-12);
     background: var(--surface);
     border: var(--rule);

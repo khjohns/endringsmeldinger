@@ -50,6 +50,9 @@
   let valgt = $state<Spor>('vederlag');
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
+  // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
+  // omtrent like bredt som ellers (oppdragsgiver 30.10, #1391).
+  let vedSiden = $state(false);
   // Utkastet til svaret står til det er sendt eller forkastet, også når BH velger et annet
   // spor (BF-01 S-8). Merket i panelet vises bare når et annet spor er valgt (#1391).
   let utkastAapent = $state(false);
@@ -98,8 +101,8 @@
   }
 </script>
 
-<div class="varden tema-varden">
-  <div class="panelkolonne">
+<div class="varden tema-varden" class:innfelt={vedSiden}>
+  <div class="panelkolonne" hidden={vedSiden}>
     <div class="panel">
       <div class="avsender">
         <div class="logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
@@ -211,6 +214,7 @@
             {u}
             bind:valg={svarvalg}
             onforkast={forkast}
+            onvedsiden={(v) => (vedSiden = v)}
             onbrevkontroll={(k) => {
               const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
               arbeid = {
@@ -417,15 +421,23 @@
     color: var(--sidebar-muted);
     font-size: 12px;
   }
+  /* Topplinja, meldingen og lastingen har samme kanter som arbeidet, som står midtstilt. */
   .flate {
+    --kant: max(var(--spacing-10), calc((100% - var(--varden-arbeid)) / 2));
     min-width: 0;
+  }
+  .varden.innfelt {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .innfelt .flate {
+    --kant: max(var(--spacing-10), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
   }
   .topplinje {
     display: flex;
     align-items: center;
     gap: var(--spacing-4);
     min-height: var(--mockup-topbar-height);
-    padding: 0 var(--spacing-10);
+    padding: 0 var(--kant);
     border-bottom: var(--rule);
     background: var(--surface);
     font-size: 14px;
@@ -437,10 +449,12 @@
     margin-left: auto;
     color: var(--ink-3);
   }
-  .arbeid,
+  .arbeid {
+    padding: var(--spacing-6) var(--spacing-10) var(--spacing-12);
+  }
   .laster,
   .lastefeil {
-    padding: var(--spacing-6) var(--spacing-10) var(--spacing-12);
+    padding: var(--spacing-6) var(--kant) var(--spacing-12);
   }
   .laster {
     color: var(--ink-2);
@@ -458,7 +472,8 @@
     display: none;
   }
   .melding {
-    margin-bottom: var(--spacing-4);
+    max-width: var(--varden-arbeid);
+    margin: 0 auto var(--spacing-4);
     padding: var(--spacing-3) var(--spacing-4);
     background: var(--surface-inset);
     border-radius: 4px;

@@ -40,6 +40,7 @@
     valg = $bindable(tomtSvar()),
     onbrevkontroll,
     onforkast,
+    onvedsiden,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -54,6 +55,8 @@
     }) => void;
     /** BH har bekreftet at utkastet skal forkastes. */
     onforkast: () => void;
+    /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
+    onvedsiden?: (vedSiden: boolean) => void;
   } = $props();
   const uid = $props.id();
 
@@ -198,6 +201,10 @@
     return () => mq.removeEventListener('change', sett);
   });
   let leser = $state(false);
+  $effect(() => {
+    onvedsiden?.(leser && !smal);
+    return () => onvedsiden?.(false);
+  });
 
   // Panelet følger rullingen bare når det får plass i vinduet; ellers vises en kompakt linje
   // nederst når panelet er ute av syne (skjerm E).
