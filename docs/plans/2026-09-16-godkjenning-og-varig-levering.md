@@ -1063,6 +1063,14 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 1. TS-kjernen bygget ut til hele KOE-, EO- og forseringsdomenet, med vedtakene
    i 3.1 og domenetabellen som forventning
    ([#309](https://github.com/khjohns/endringsmeldinger/issues/309)).
+
+   > **Merknad 2026-10-30 til punkt 1:** #309 er lukket 30.10 (oppdragsgiver 30.10:
+   > «309 kan lukkes»). Hva kjernen trenger, styres nå av
+   > [brukerforløpene](../domenetabell/brukerforlop/dekning.md), ikke av en bevis-sak
+   > per rad i domenetabellen. Byggedel 4, endringsordre og forsering, følges i
+   > [#1423](https://github.com/khjohns/endringsmeldinger/issues/1423). En henvisning
+   > til byggedel 4 av #309, også i avsnitt 6, gjelder den.
+
 2. Skrivestien for KOE-, EO- og forseringssakene overtatt samlet i TS, med
    Python bare for levering og integrasjon
    ([#310](https://github.com/khjohns/endringsmeldinger/issues/310)). Byttet
