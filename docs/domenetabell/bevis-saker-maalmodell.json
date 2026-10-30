@@ -1035,6 +1035,7 @@
         { "handling": "krav", "spor": "vederlag", "belop": 120000, "navn": "K-v2" },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v1",
           "gjelder": "K-v1",
@@ -1097,6 +1098,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-x",
           "gjelder": "ukjent",
@@ -1167,6 +1169,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v2",
           "gjelder": "K-v1",
@@ -1176,6 +1179,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v3",
           "gjelder": "K-v1",
@@ -1223,7 +1227,7 @@
       "forslag": "E, steg E2-1",
       "rader": ["KA-24"],
       "start": "krav_eo",
-      "steg": [{ "handling": "rad", "art": "foresporsel", "navn": "D4", "gjelder": "K-f1" }],
+      "steg": [{ "handling": "rad", "part": "BH", "art": "foresporsel", "navn": "D4", "gjelder": "K-f1" }],
       "kontroller": [
         {
           "etter": 0,
@@ -1382,6 +1386,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v2",
           "gjelder": "K-v1",
@@ -1427,6 +1432,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-a",
           "gjelder": "K-v1",
@@ -1436,6 +1442,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-b",
           "gjelder": "K-v1",
@@ -2085,6 +2092,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2173,6 +2181,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2227,6 +2236,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2329,6 +2339,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2416,6 +2427,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2464,6 +2476,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2584,6 +2597,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g2",
           "dokument": "D4",
@@ -2632,6 +2646,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2678,6 +2693,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2767,6 +2783,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2845,6 +2862,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2879,6 +2897,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -2888,6 +2907,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "avklarer": "D4",
           "oppfylt": false,
           "navn": "D5"
@@ -2950,7 +2970,7 @@
       "steg": [
         { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02", "navn": "D4" },
-        { "handling": "rad", "art": "foresporsel", "navn": "D5", "gjelder": "K-f1" }
+        { "handling": "rad", "part": "BH", "art": "foresporsel", "navn": "D5", "gjelder": "K-f1" }
       ],
       "kontroller": [
         {
@@ -2975,7 +2995,7 @@
       "start": "krav_eo",
       "forslag": "GR-U12 og KA-U13: i underkategorien EO gjaldt ikke § 32.2, så samme registrerte godkjenning kan trekkes",
       "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [{ "handling": "rad", "spor": "grunnlag", "navn": "S-g1", "dokument": "D4", "gjelder": "K-g1", "resultat": "godkjent" }],
+      "steg": [{ "handling": "rad", "part": "BH", "spor": "grunnlag", "navn": "S-g1", "dokument": "D4", "gjelder": "K-g1", "resultat": "godkjent" }],
       "kontroller": [
         {
           "etter": 1,
@@ -3005,6 +3025,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v1",
           "dokument": "D4",
@@ -3162,6 +3183,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1b",
           "dokument": "D6",
@@ -3529,6 +3551,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -3764,6 +3787,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g2",
           "dokument": "D6",
@@ -3822,6 +3846,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g2",
           "dokument": "D6",
@@ -3968,6 +3993,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "frist",
           "navn": "S-f2",
           "dokument": "D6",
@@ -4060,6 +4086,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "frist",
           "navn": "S-f1",
           "dokument": "D4",
@@ -5000,6 +5027,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "frist",
           "navn": "S-f2",
           "dokument": "D6",
@@ -5405,6 +5433,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v1",
           "dokument": "D4",
@@ -6072,6 +6101,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "frist",
           "navn": "S-f1",
           "dokument": "D5",
@@ -6122,6 +6152,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "frist",
           "navn": "S-f1",
           "dokument": "D5",
@@ -6261,6 +6292,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D5",
@@ -6313,6 +6345,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v1",
           "dokument": "D5",
@@ -6347,6 +6380,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D5",
@@ -6380,6 +6414,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v1",
           "dokument": "D5",
@@ -6522,6 +6557,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v1",
           "dokument": "D5",
@@ -6563,6 +6599,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v1",
           "dokument": "D5",
@@ -6604,6 +6641,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D5",
@@ -6651,6 +6689,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D5",
@@ -6700,6 +6739,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v2",
           "dokument": "D7",
@@ -6752,6 +6792,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "vederlag",
           "navn": "S-v1",
           "dokument": "D6",
@@ -10837,6 +10878,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "spor": "grunnlag",
           "navn": "S-g1",
           "dokument": "D4",
@@ -10906,6 +10948,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "dokument": "D5",
           "sendt": "2026-09-30",
           "svar": [
@@ -11028,6 +11071,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "dokument": "D5",
           "svar": [
             {
@@ -11106,6 +11150,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "dokument": "D6",
           "sendt": "2026-09-30",
           "svar": [
@@ -11288,6 +11333,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "dokument": "D5",
           "sendt": "2026-09-30",
           "svar": [
@@ -11342,6 +11388,7 @@
         },
         {
           "handling": "rad",
+          "part": "BH",
           "dokument": "D5",
           "svar": [
             {
@@ -11505,6 +11552,7 @@
       "steg": [
         {
           "handling": "rad",
+          "part": "BH",
           "dokument": "D4",
           "sendt": "2026-09-30",
           "svar": [

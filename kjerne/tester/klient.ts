@@ -326,7 +326,7 @@ export function partFor(h: Handling): Part {
  * (forløp E). Den går ikke gjennom kommandovalideringen, så relasjonene er
  * de bevis-saken oppgir. En `rad` med `avklarer` er en avklaring, ellers med `art` et
  * utsagn, ellers med `krav: true` en kravversjon, ellers et svar. Et utsagn kan ha et
- * krav i samme dokument, med kravet som handling i `krav`. Raden er fra byggherren uten
+ * krav i samme dokument, med kravet som handling i `krav`. Kjøreren gir raden parten i
  * `part`, og `format` gir den et annet format. Beslutningsgrunnlaget fryses av kjøreren
  * (`frysBrev`).
  */
@@ -334,7 +334,10 @@ export function radFor(
   h: Handling,
   u: Utledning,
   navn: Navn,
-  felles: Pick<Journalrad, 'sak_id' | 'versjon' | 'tidsstempel' | 'aktor_id' | 'aktor_team_id'>
+  felles: Pick<
+    Journalrad,
+    'sak_id' | 'versjon' | 'tidsstempel' | 'aktor_id' | 'aktor_rolle' | 'aktor_team_id'
+  >
 ): Journalrad {
   // En referanse til noe som ikke finnes i saken, er en UUID som ikke finnes.
   const ref = (etikett: string) => {
@@ -468,7 +471,6 @@ export function radFor(
     ...felles,
     event_id: eventId,
     event_type: 'dokument_registrert',
-    aktor_rolle: h.part === 'TE' ? 'TE' : 'BH',
     refererer_til_event_id: null,
     format: typeof h.format === 'number' ? h.format : 1,
     data,

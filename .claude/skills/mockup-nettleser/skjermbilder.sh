@@ -30,7 +30,7 @@ if ! $slett; then
   [[ -z "$like" ]] || { echo "Samme filnavn to ganger: $like" >&2; exit 1; }
 fi
 
-for fil in "$@"; do filer+=("$(realpath "$fil")"); done
+for fil in "$@"; do filer+=("$(cd "$(dirname "$fil")" && pwd -P)/$(basename "$fil")"); done
 url=$(git remote get-url origin)
 klon=$(mktemp -d)
 trap 'rm -rf "$klon"' EXIT
@@ -49,7 +49,9 @@ for forsoek in 1 2 3 4; do
   if ((finnes == 0)); then
     git fetch -q --depth=1 --filter=blob:none origin "$GREN"
     forelder=$(git rev-parse FETCH_HEAD)
-    rot=$(git ls-tree "$forelder" | grep -v -P "\t\Q$mappe\E$" || true)
+    rot=$(git ls-tree "$forelder" | awk -F $'\t' -v m="$mappe" '$2 != m')
+    andre=$(git ls-tree --name-only "$forelder" | grep -vxF "$mappe" || true)
+    [[ -z "$andre" || -n "$rot" ]] || { echo "Filtreringen ga et tomt tre, men $GREN har andre mapper. Stopper før noe skrives." >&2; exit 1; }
   else
     $slett && { echo "$GREN finnes ikke; ingenting å slette."; exit 0; }
     forelder=
