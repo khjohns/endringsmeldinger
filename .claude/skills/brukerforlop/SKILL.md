@@ -72,6 +72,11 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
 | Et gjeldende vedtak krever noe som ikke er bygget | Bygg vedtaket |
 | Ønsket arbeidsmåte strider mot et vedtak | Legg fram et konkret vedtaksvalg |
 | Arbeidsmåten er ikke avklart | Prøv alternativer, og fatt vedtak der det trengs |
+| Visningen må selv avgjøre noe kjernen eier, som laget et standpunkt står i | Domenegap. Opprett et issue mot kjernen. Bygges regelen i visningen likevel, viser kommentaren ved den til issuet |
+| Ingen demosak eller ingen forløp viser tilstanden | Bygg ikke visningen for tilstanden før et forløp viser den. Forløpet føres i samme issue |
+
+Tabellen gjelder også et designvalg i en bygget visning uten bestilling, for eksempel i en
+designrunde for Varden, før valget bygges (oppdragsgiver 30.10, #1391, #1400).
 
 Ikke alle funn skal bli vedtak, og ikke alle skal presses inn som endringer i visningen.
 En ny handling, eller noe som endrer hva en part godtar eller er bundet av, er domene.
