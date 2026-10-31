@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Svarskjemaet for vederlag i Varden</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!--
+  Prototype v1 av byggherrens svar på krav om vederlagsjustering i Varden. Punktene følger
+  brevet (#1433): én begrunnelse per punkt, forbehold sist og vedlegg som det vises til.
+  Begrunnelsen står som en kort forhåndsvisning til den åpnes, så valgene gir oversikten.
+  Teksten er prototypetekst. Fargene er Blekk (.tema-varden i theme.css).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#15181d; --on-brand:#ffffff;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --control-bg:#f3f4f6; --control-border-color:#80868f;
+  --control-focus:#2457d6; --control-focus-ring:0 0 0 3px rgba(36,87,214,.25);
+  --draft:#5f4a00; --draft-bg:#fff3c4; --draft-border:#9e7f12;
+  --sidebar-bg:#15181d; --sidebar-active:#262b33; --sidebar-hover:#1e2228; --sidebar-text:#f3f4f6; --sidebar-muted:#a9afb9;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --varden-ark:760px; --varden-stoette:360px;
+  --r-kort:8px; --r-knapp:999px; --r-felt:4px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-bg:#121418; --control-border-color:#6c727c;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-bg:#121418; --control-border-color:#6c727c;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+button{font:inherit;color:inherit}
+
+/* Skallet */
+.skall{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+.panel{background:var(--sidebar-bg);color:var(--sidebar-text);padding:20px;display:flex;flex-direction:column;gap:28px}
+.avsender{display:flex;gap:12px;align-items:center}
+.vapen{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--sidebar-text);display:grid;place-items:center;font-size:9px;color:var(--sidebar-muted)}
+.avsender b{display:block;font-weight:600}
+.avsender span{font-size:12px;color:var(--sidebar-muted)}
+.sak .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.sak h2{font-size:20px;font-weight:600;line-height:1.25}
+.etikett{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sidebar-muted);margin-bottom:8px}
+.spor{list-style:none;margin:0 -20px;padding:0}
+.spor a{display:block;padding:10px 20px 10px 17px;border-left:3px solid transparent;text-decoration:none;color:inherit}
+.spor a:hover{background:var(--sidebar-hover)}
+.spor a[aria-current]{background:var(--sidebar-active);border-left-color:var(--sidebar-text)}
+.spor .navn{display:block;font-size:16px}
+.spor .sist{font-size:12px;color:var(--sidebar-muted)}
+
+.flate{min-width:0;display:flex;flex-direction:column}
+.topplinje{background:var(--surface);border-bottom:1px solid var(--rule-color);padding-block:14px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.topplinje p{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;color:var(--ink-2)}
+.arbeid{flex:1;padding-block:28px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.kolonner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) minmax(0,var(--varden-stoette));gap:24px;align-items:start}
+
+/* Utkastet er skjemaet */
+.utkast{border:1.5px dashed var(--draft-border);border-radius:var(--r-kort);background:var(--surface);min-width:0}
+.utkast-hode{background:var(--draft-bg);padding:16px 24px;display:flex;flex-direction:column;gap:4px;border-bottom:1px dashed var(--draft-border);border-radius:var(--r-kort) var(--r-kort) 0 0}
+.utkast-hode .linje{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.utkastmerke{font-size:12px;font-weight:500;color:var(--draft);background:var(--surface);border:1px dashed var(--draft-border);border-radius:var(--r-knapp);padding:1px 8px;white-space:nowrap}
+.utkast-hode h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.utkast-hode p{color:var(--draft)}
+.laas{display:flex;gap:6px;align-items:center}
+.svarpaa{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;padding:12px 24px;background:var(--surface-inset);border-bottom:1px solid var(--rule-color)}
+.svarpaa span{display:flex;gap:8px;align-items:center}
+.lenke{background:none;border:0;padding:8px 0;font-weight:500;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:40px;color:var(--ink)}
+.lenke:hover{text-decoration-thickness:2px}
+.lenke.liten{font-size:12px;min-height:32px;padding:4px 0}
+
+.grunnlag{display:flex;gap:12px;margin:20px 24px 0;padding:14px 16px;border:1px solid var(--ink);border-radius:6px;background:var(--surface-inset)}
+.grunnlag svg{flex:none;margin-top:2px}
+.grunnlag div{display:flex;flex-direction:column;gap:6px}
+.grunnlag b{font-weight:600}
+
+.visning{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:16px 24px 0;font-size:12px;color:var(--ink-3)}
+.segment{display:inline-flex;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:2px}
+.segment button{border:0;background:none;font-size:12px;font-weight:500;padding:4px 12px;border-radius:var(--r-knapp);cursor:pointer;min-height:28px;color:var(--ink-2)}
+.segment button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand)}
+
+/* Punktene */
+.punkt{padding:20px 24px 22px;border-top:1px solid var(--rule-color);display:flex;flex-direction:column;gap:14px}
+.punkt:first-of-type{border-top:0}
+.punkt-hode{display:flex;gap:12px;align-items:baseline}
+.nr{flex:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:12px;font-weight:600;transform:translateY(-2px)}
+.punkt-hode h2{font-size:16px;font-weight:600;flex:1}
+.hjemmel{font-size:12px;color:var(--ink-3);border:1px solid var(--rule-color);border-radius:var(--r-knapp);padding:1px 8px;white-space:nowrap}
+.gjelder{padding-left:12px;border-left:2px solid var(--ink);font-size:14px}
+.gjelder b{font-weight:600}
+.gjelder a{color:inherit;text-underline-offset:3px}
+.gjelder ul{margin:2px 0 0;padding-left:18px;color:var(--ink-2)}
+.datoboks{padding:12px 14px;background:var(--surface-inset);border-radius:6px;color:var(--ink-2);display:flex;flex-direction:column;gap:2px}
+.datoboks b{color:var(--ink)}
+.datoboks .dempet{font-size:12px;color:var(--ink-3);margin-top:4px}
+.spm{font-size:16px}
+.valg{display:flex;flex-wrap:wrap;gap:8px}
+.valg label{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);cursor:pointer;font-size:16px;background:var(--surface)}
+.valg label:hover{background:var(--surface-warm)}
+.valg input{accent-color:var(--brand);width:18px;height:18px;margin:0}
+.valg label:has(input:checked){border:2px solid var(--ink);background:var(--surface-selected);font-weight:600;padding:0 15px}
+.beloepfelt{display:flex;flex-direction:column;gap:4px}
+.beloepfelt label{font-weight:500}
+.beloepfelt .hjelp{font-size:12px;color:var(--ink-3)}
+.inndata{display:inline-flex;align-items:stretch;border:1px solid var(--control-border-color);border-radius:var(--r-felt);background:var(--control-bg);width:220px;max-width:100%}
+.inndata input{border:0;background:none;font:16px var(--font-mono);text-align:right;padding:10px 12px;width:100%;min-width:0;color:var(--ink)}
+.inndata input:focus{outline:none}
+.inndata:focus-within{box-shadow:var(--control-focus-ring);border-color:var(--control-focus)}
+.inndata span{display:grid;place-items:center;padding:0 12px;border-left:1px solid var(--rule-color);color:var(--ink-3)}
+
+/* Begrunnelsen per punkt */
+.begr{border-top:1px dashed var(--rule-strong-color);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.begr-hode{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;justify-content:space-between}
+.begr-hode b{font-weight:600}
+.begr-hode .krav{font-size:12px;color:var(--ink-3)}
+.forhaand{color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+[data-visning="alt"] .forhaand{-webkit-line-clamp:unset;display:block}
+.henvisninger{display:flex;flex-wrap:wrap;gap:6px}
+.henv{font-size:12px;color:var(--ink-2);border:1px solid var(--rule-color);border-radius:var(--r-knapp);padding:1px 8px;display:inline-flex;gap:4px;align-items:center}
+.editor{display:flex;flex-direction:column;gap:8px}
+.editor textarea{font:14px/1.55 var(--font-sans);color:var(--ink);background:var(--control-bg);border:1px solid var(--control-border-color);border-radius:var(--r-felt);padding:10px 12px;min-height:120px;resize:vertical;width:100%}
+.editor textarea:focus{outline:none;border-color:var(--control-focus);box-shadow:var(--control-focus-ring)}
+.verktoy{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.liten-knapp{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);background:var(--surface);font-size:14px;font-weight:500;cursor:pointer}
+.liten-knapp:hover{background:var(--surface-warm)}
+.liten-knapp.sterk{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.meny{position:relative}
+.meny ul{position:absolute;top:calc(100% + 4px);left:0;z-index:5;list-style:none;margin:0;padding:4px;min-width:260px;background:var(--surface);border:1px solid var(--rule-color);border-radius:6px;box-shadow:0 6px 20px rgba(21,24,29,.12)}
+.meny li button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:14px}
+.meny li button:hover,.meny li button:focus-visible{background:var(--surface-inset)}
+.tom{color:var(--ink-3)}
+
+/* Forbehold og vedlegg */
+.fast{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--rule-color);border-radius:6px}
+.fast .merke{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-3)}
+.vedleggliste{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.vedleggliste li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:10px 12px;border:1px solid var(--rule-color);border-radius:6px}
+.vedleggliste .vnr{font-weight:600;font-size:12px}
+.vedleggliste .navn{font-weight:500;overflow-wrap:anywhere}
+.vedleggliste .m{grid-column:2;font-size:12px;color:var(--ink-3)}
+.vedleggliste .lenke{grid-row:1/3;grid-column:3}
+.skjemafot{padding:16px 24px 20px;border-top:1px solid var(--rule-color)}
+
+/* Punktlisten */
+.punktliste{list-style:none;margin:0;padding:6px 8px}
+.punktliste a{display:grid;grid-template-columns:24px minmax(0,1fr);gap:0 10px;padding:7px 12px 7px 9px;border-left:3px solid transparent;border-radius:4px;text-decoration:none;color:inherit}
+.punktliste a:hover{background:var(--surface-warm)}
+.punktliste a[aria-current]{background:var(--surface-selected);border-left-color:var(--ink)}
+.punktliste a[aria-current] .pt{font-weight:600}
+.pnr{grid-row:1/3;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-size:11px;font-weight:600;margin-top:1px}
+.pnr.v{background:transparent;color:var(--ink-3);border:1.5px solid var(--ink-3)}
+.pt{font-weight:500;line-height:1.35}
+.ps{font-size:12px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:0 8px}
+.pb:empty{display:none}
+.pb::before{content:"·";margin-right:8px}
+.mangler .pb{color:var(--ink);font-weight:600}
+.mangler .pb::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;border:1.5px solid var(--ink);margin-left:6px;vertical-align:1px}
+.blokktittel{font-weight:600}
+.summer{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.summer li{display:flex;justify-content:space-between;gap:12px;color:var(--ink-2)}
+.summer .num{color:var(--ink);font-weight:500}
+.stoette .kort{max-height:calc(100vh - 32px);overflow:auto}
+@media (max-width:1180px){.stoette .kort{max-height:none}}
+.punkt{scroll-margin-top:16px}
+
+/* Panelet */
+.stoette{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.kort{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort)}
+.kort-hode{padding:16px 20px 12px;border-bottom:1px solid var(--rule-subtle-color)}
+.kort-hode h2{font-size:16px;font-weight:600}
+.kort-hode p{font-size:12px;color:var(--ink-3);margin-top:2px}
+.linjer{list-style:none;margin:0;padding:4px 20px}
+.linjer li{padding:10px 0;border-top:1px solid var(--rule-subtle-color);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px}
+.linjer li:first-child{border-top:0}
+.linjer .lag{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);grid-column:1/3}
+.linjer .t{color:var(--ink-2)}
+.linjer .sum{font-family:var(--font-mono);font-weight:500;align-self:end;white-space:nowrap}
+.blokk{padding:14px 20px;border-top:1px solid var(--rule-subtle-color);display:flex;flex-direction:column;gap:10px}
+.sjekk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.sjekk li{display:flex;gap:8px;align-items:baseline}
+.sjekk li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--ink);transform:translateY(-1px)}
+.sjekk li.mangler::before{background:transparent;border:1.5px solid var(--ink-3)}
+.sjekk li.mangler{color:var(--ink-2)}
+.sjekk a{color:inherit}
+.virkning{padding:12px 14px;background:var(--surface-inset);border-radius:6px;color:var(--ink-2)}
+.virkning b{color:var(--ink)}
+.knapp{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:0 22px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);background:var(--brand);color:var(--on-brand);font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s cubic-bezier(.23,1,.32,1)}
+.knapp:active{transform:scale(.97)}
+.godkj{font-size:12px;color:var(--ink-3)}
+.lagret{font-size:12px;color:var(--ink-3);text-align:center}
+
+@media (max-width:1180px){
+  .kolonner{grid-template-columns:minmax(0,1fr)}
+  .stoette{position:static}
+}
+@media (max-width:860px){
+  .skall{grid-template-columns:minmax(0,1fr)}
+  .panel{gap:14px;padding-bottom:12px}
+  .panel .avsender{display:none}
+  .spor{display:flex;overflow-x:auto}
+  .spor li{flex:none}
+  .spor a{border-left:0;border-bottom:3px solid transparent;padding:8px 16px}
+  .spor a[aria-current]{border-bottom-color:var(--sidebar-text)}
+  .spor .navn{font-size:14px}
+  .punkt,.svarpaa,.visning,.skjemafot{padding-left:16px;padding-right:16px}
+  .grunnlag{margin-left:16px;margin-right:16px}
+  .utkast-hode{padding-left:16px;padding-right:16px}
+}
+@media (prefers-reduced-motion:reduce){.knapp{transition:none}}
+</style>
+</head>
+<body>
+<div class="skall">
+  <aside class="panel" aria-label="Saken">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak"><p class="id num">E-021</p><h2>Ny peling med produktivitetstap</h2></div>
+    <nav aria-labelledby="spor-etikett">
+      <p class="etikett" id="spor-etikett">Krav og svar</p>
+      <ul class="spor">
+        <li><a href="#"><span class="navn">Grunnlag for kravet</span><span class="sist">Ikke besvart · brev 2 fra TE</span></a></li>
+        <li><a href="#" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist">Siste: brev 5 fra TE</span></a></li>
+        <li><a href="#"><span class="navn">Fristforlengelse</span><span class="sist">Siste: brev 4 fra TE</span></a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="flate">
+    <div class="topplinje"><p>Du er byggherre (BH)</p></div>
+    <main class="arbeid">
+      <div class="kolonner">
+        <form class="utkast" id="skjema" data-visning="kort" aria-labelledby="tittel" novalidate>
+          <div class="utkast-hode">
+            <div class="linje"><span class="utkastmerke">Utkast · ikke sendt</span><h1 id="tittel">Brev 6 · Svar på krav om justering av vederlaget</h1></div>
+            <p>Til totalentreprenøren (TE)</p>
+            <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bare synlig for teamet ditt til det er sendt</p>
+          </div>
+          <div class="svarpaa">
+            <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Svar på brev 5 fra TE · 20. okt 2026 · <span class="num">190 000 kr</span></span>
+            <button class="lenke" type="button">Les brevet ved siden av</button>
+          </div>
+
+          <div class="grunnlag" role="note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+            <div>
+              <p><b>Grunnlaget i brev 2 er ikke besvart.</b> Svarer du bare på vederlaget, står det i brevet at standpunktene gjelder under forutsetning av at grunnlaget foreligger.</p>
+              <button class="lenke" type="button" style="align-self:flex-start;padding:0">Svar på grunnlaget i samme brev</button>
+            </div>
+          </div>
+
+          <div class="visning">
+            <span>Punktene står i samme rekkefølge som i brevet.</span>
+            <span class="segment" role="group" aria-label="Begrunnelsene">
+              <button type="button" id="vis-kort" aria-pressed="true">Begrunnelser kort</button>
+              <button type="button" id="vis-alt" aria-pressed="false">Hele teksten</button>
+            </span>
+          </div>
+
+          <!-- 1 -->
+          <section class="punkt" aria-labelledby="p1">
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">1</span><h2 id="p1">Varselet om vederlagsjustering</h2><span class="hjemmel">§ 34.1.2</span></div>
+            <div class="datoboks">
+              <p>TE oppgir at TE ble klar over forholdet 12. september 2026 (brev 2).</p>
+              <p>Varselet og kravet ble sendt 6. oktober 2026 (brev 3).</p>
+              <p><b>24 kalenderdager fra datoen TE oppgir til varselet.</b></p>
+              <p class="dempet">Om varselet kom i tide, avgjør partene.</p>
+            </div>
+            <fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:10px">
+              <legend class="spm" style="padding:0;margin-bottom:10px">Kom varselet i tide?</legend>
+              <div class="valg">
+                <label><input type="radio" name="v1"> Varslet i tide</label>
+                <label><input type="radio" name="v1" checked> Varslet for sent</label>
+              </div>
+            </fieldset>
+            <div class="begr" data-begr="1">
+              <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Kreves fordi du gjør gjeldende at varselet kom for sent</span></div>
+              <p class="forhaand">Forholdet ble oppdaget ved pelingen 12. september, jf. TEs dagbok samme dag. Varselet kom 6. oktober, mer enn tre uker senere. TE hadde mannskap på stedet hele perioden og kunne varslet straks, slik det ble gjort for avviket i akse A–B i juli.</p>
+              <div class="henvisninger"><span class="henv">Viser til vedlegg 1</span></div>
+              <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Rediger begrunnelsen</button>
+            </div>
+          </section>
+
+          <!-- 2 -->
+          <section class="punkt" aria-labelledby="p2">
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">2</span><h2 id="p2">Varselet om særskilt justering</h2><span class="hjemmel">§ 34.1.3</span></div>
+            <div class="gjelder"><b>Gjelder hvis</b><ul><li><a href="#p1">innsigelsen om varselet etter § 34.1.2</a> ikke fører frem</li></ul></div>
+            <div class="datoboks">
+              <p>TE varslet om særskilt justering for nedsatt produktivitet i brev 5, 20. oktober 2026.</p>
+              <p class="dempet">Om varselet kom i tide, avgjør partene.</p>
+            </div>
+            <fieldset style="border:0;margin:0;padding:0">
+              <legend class="spm" style="padding:0;margin-bottom:10px">Kom varselet i tide?</legend>
+              <div class="valg">
+                <label><input type="radio" name="v2"> Varslet i tide</label>
+                <label><input type="radio" name="v2" checked> Varslet for sent</label>
+              </div>
+            </fieldset>
+            <div class="beloepfelt">
+              <label for="begrenset">Beløpet du godkjenner for utgifter etter varselet</label>
+              <span class="hjelp">TE taper retten til å påberope seg påløpte utgifter før varselet. Krevd: 40 000 kr.</span>
+              <span class="inndata"><input id="begrenset" inputmode="decimal" value="10 000"><span aria-hidden="true">kr</span></span>
+            </div>
+            <div class="begr" data-begr="2" data-aapen>
+              <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Kreves fordi du gjør gjeldende at varselet kom for sent</span></div>
+              <div class="editor">
+                <label for="t2" class="tom" style="font-size:12px">Kommer i brevet under punkt 2. Teksten tolkes ikke.</label>
+                <textarea id="t2">Produktivitetstapet var kjent fra midten av september, da pelene i akse C–F måtte rammes på nytt. Varselet kom først 20. oktober. Byggherren godkjenner utgiftene etter varselet, slik de er spesifisert i TEs beregning, se </textarea>
+                <div class="verktoy">
+                  <span class="meny"><button class="liten-knapp" type="button" aria-expanded="false" aria-haspopup="true" data-meny>Vis til vedlegg</button>
+                    <ul hidden><li><button type="button" data-sett="vedlegg 1">Vedlegg 1 · Dagbok uke 37–38.pdf</button></li><li><button type="button" data-sett="vedlegg 2">Vedlegg 2 · Gjennomgang av kalkylen.pdf</button></li><li><button type="button" data-sett="TEs vedlegg «Produktivitetsberegning.xlsx» til brev 5">Produktivitetsberegning.xlsx · brev 5 fra TE</button></li></ul></span>
+                  <button class="liten-knapp sterk" type="button" data-ferdig>Ferdig</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3 -->
+          <section class="punkt" aria-labelledby="p3">
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">3</span><h2 id="p3">Beregningsmetode</h2><span class="hjemmel">§ 34.2</span></div>
+            <div class="gjelder"><b>Gjelder hvis</b><ul><li><a href="#p1">innsigelsen om varselet etter § 34.1.2</a> ikke fører frem</li></ul></div>
+            <fieldset style="border:0;margin:0;padding:0">
+              <legend class="spm" style="padding:0;margin-bottom:10px">TE krever oppgjør som fast sum (§ 34.2.1). Godkjenner du det?</legend>
+              <div class="valg">
+                <label><input type="radio" name="v3" checked> Godkjenner metoden</label>
+                <label><input type="radio" name="v3"> Godkjenner ikke metoden</label>
+              </div>
+            </fieldset>
+            <div class="begr" data-begr="3">
+              <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Valgfri</span></div>
+              <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Legg til begrunnelse</button>
+            </div>
+          </section>
+
+          <!-- 4 -->
+          <section class="punkt" aria-labelledby="p4">
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">4</span><h2 id="p4">Vederlagsjustering · <span class="num">150 000 kr</span></h2><span class="hjemmel">§ 34.1.2</span></div>
+            <div class="gjelder"><b>Gjelder hvis</b><ul><li><a href="#p1">innsigelsen om varselet etter § 34.1.2</a> ikke fører frem</li></ul></div>
+            <fieldset style="border:0;margin:0;padding:0">
+              <legend class="spm" style="padding:0;margin-bottom:10px">Hvor mye av vederlagsjusteringen godkjenner du?</legend>
+              <div class="valg">
+                <label><input type="radio" name="v4"> Hele beløpet</label>
+                <label><input type="radio" name="v4" checked> Deler av beløpet</label>
+                <label><input type="radio" name="v4"> Avslår kravet</label>
+              </div>
+            </fieldset>
+            <div class="beloepfelt">
+              <label for="b4">Beløpet du godkjenner</label>
+              <span class="hjelp">Mer enn 0 kr og mindre enn 150 000 kr. Eks. mva.</span>
+              <span class="inndata"><input id="b4" inputmode="decimal" value="100 000"><span aria-hidden="true">kr</span></span>
+            </div>
+            <div class="begr" data-begr="4">
+              <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Kreves fordi du godkjenner deler av beløpet</span></div>
+              <p class="forhaand">Beløpet bygger på enhetsprisene for peling i kontrakten. Det er trukket fra 50 000 kr for rigg som allerede er dekket i kontraktssummen, se gjennomgangen av kalkylen post for post.</p>
+              <div class="henvisninger"><span class="henv">Viser til vedlegg 2</span></div>
+              <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Rediger begrunnelsen</button>
+            </div>
+          </section>
+
+          <!-- 5 -->
+          <section class="punkt" aria-labelledby="p5">
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">5</span><h2 id="p5">Særskilt vederlagsjustering · <span class="num">40 000 kr</span></h2><span class="hjemmel">§ 34.1.3 annet ledd</span></div>
+            <div class="gjelder"><b>Gjelder hvis</b><ul><li><a href="#p1">innsigelsen om varselet etter § 34.1.2</a> ikke fører frem</li><li><a href="#p2">innsigelsen om varselet etter § 34.1.3</a> ikke fører frem</li></ul></div>
+            <fieldset style="border:0;margin:0;padding:0">
+              <legend class="spm" style="padding:0;margin-bottom:10px">Hvor mye av den særskilte justeringen godkjenner du?</legend>
+              <div class="valg">
+                <label><input type="radio" name="v5"> Hele beløpet</label>
+                <label><input type="radio" name="v5" checked> Deler av beløpet</label>
+                <label><input type="radio" name="v5"> Avslår kravet</label>
+              </div>
+            </fieldset>
+            <div class="beloepfelt">
+              <label for="b5">Beløpet du godkjenner</label>
+              <span class="hjelp">Mer enn 0 kr og mindre enn 40 000 kr. Eks. mva.</span>
+              <span class="inndata"><input id="b5" inputmode="decimal" value="30 000"><span aria-hidden="true">kr</span></span>
+            </div>
+            <div class="begr" data-begr="5">
+              <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Kreves fordi du godkjenner deler av beløpet</span></div>
+              <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Skriv begrunnelse</button>
+            </div>
+          </section>
+
+          <!-- 6 -->
+          <section class="punkt" aria-labelledby="p6">
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">6</span><h2 id="p6">Forbehold</h2></div>
+            <div class="fast">
+              <span class="merke"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Fast tekst, fordi grunnlaget ikke er besvart</span>
+              <p>Byggherren har ennå ikke svart på grunnlaget i totalentreprenørens krav i brev 2 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.</p>
+            </div>
+            <div class="begr" data-begr="6">
+              <div class="begr-hode"><b>Forbehold for hele svaret</b><span class="krav">Valgfritt. Står sist i brevet og tolkes ikke</span></div>
+              <p class="forhaand">Byggherren tar forbehold om å justere mengden peler i punkt 4 når sluttoppmålingen foreligger.</p>
+              <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Rediger forbeholdet</button>
+            </div>
+          </section>
+
+          <!-- Vedlegg -->
+          <section class="punkt" aria-labelledby="pv">
+            <div class="punkt-hode"><h2 id="pv">Vedlegg</h2><span class="hjemmel">2 filer</span></div>
+            <ol class="vedleggliste">
+              <li><span class="vnr">1</span><span class="navn">Dagbok uke 37–38.pdf</span><span class="m">PDF · 2,1 MB · vist til i punkt 1</span><button class="lenke liten" type="button">Fjern</button></li>
+              <li><span class="vnr">2</span><span class="navn">Gjennomgang av kalkylen.pdf</span><span class="m">PDF · 412 kB · vist til i punkt 2 og 4</span><button class="lenke liten" type="button">Fjern</button></li>
+            </ol>
+            <button class="liten-knapp" type="button" style="align-self:flex-start">Legg ved fil</button>
+          </section>
+
+          <div class="skjemafot"><button class="lenke" type="button">Forkast utkast</button></div>
+        </form>
+
+        <aside class="stoette" aria-label="Punktene og hovedlinjene">
+          <section class="kort">
+            <div class="kort-hode"><h2>Punktene</h2><p>5 av 5 besvart · 1 begrunnelse mangler</p></div>
+            <nav aria-label="Punktene i svaret">
+              <ol class="punktliste">
+                <li><a href="#p1" data-til="p1"><span class="pnr">1</span><span class="pt">Varselet om vederlagsjustering</span><span class="ps">Varslet for sent<span class="pb">Begrunnelse skrevet</span></span></a></li>
+                <li><a href="#p2" data-til="p2" aria-current="true"><span class="pnr">2</span><span class="pt">Varselet om særskilt justering</span><span class="ps">For sent · 10 000 kr<span class="pb">Begrunnelse under arbeid</span></span></a></li>
+                <li><a href="#p3" data-til="p3"><span class="pnr">3</span><span class="pt">Beregningsmetode</span><span class="ps">Godkjenner fast sum<span class="pb">Uten begrunnelse</span></span></a></li>
+                <li><a href="#p4" data-til="p4"><span class="pnr">4</span><span class="pt">Vederlagsjustering</span><span class="ps">100 000 av 150 000 kr<span class="pb">Begrunnelse skrevet</span></span></a></li>
+                <li class="mangler"><a href="#p5" data-til="p5"><span class="pnr">5</span><span class="pt">Særskilt vederlagsjustering</span><span class="ps">30 000 av 40 000 kr<span class="pb">Begrunnelse mangler</span></span></a></li>
+                <li><a href="#p6" data-til="p6"><span class="pnr">6</span><span class="pt">Forbehold</span><span class="ps">Fast tekst og eget forbehold<span class="pb"></span></span></a></li>
+                <li><a href="#pv" data-til="pv"><span class="pnr v">V</span><span class="pt">Vedlegg</span><span class="ps">2 filer</span></a></li>
+              </ol>
+            </nav>
+            <div class="blokk">
+              <p class="blokktittel">Hovedlinjene</p>
+              <ul class="summer">
+                <li><span>Prinsipalt</span><span class="num">0 kr</span></li>
+                <li><span>Subsidiært</span><span class="num">110 000 kr</span></li>
+                <li><span>Videre subsidiært</span><span class="num">130 000 kr</span></li>
+              </ul>
+              <p class="virkning">Godtar TE svaret slik det står, er dere enige om <b class="num">0 kr</b>, fordi det prinsipale standpunktet gjelder da.</p>
+            </div>
+            <div class="blokk">
+              <button class="knapp" type="button">Se brevet før sending</button>
+              <p class="godkj">Svaret går til godkjenning hos Kari Nordmann, som har fullmakt, før det sendes til TE. Lagret kl. 15.12.</p>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const skjema = document.getElementById('skjema');
+  const kort = document.getElementById('vis-kort'), alt = document.getElementById('vis-alt');
+  function visning(v){ skjema.dataset.visning = v; kort.setAttribute('aria-pressed', String(v === 'kort')); alt.setAttribute('aria-pressed', String(v === 'alt')); }
+  kort.onclick = () => visning('kort'); alt.onclick = () => visning('alt');
+
+  // Begrunnelsen åpnes for redigering og lukkes til en forhåndsvisning.
+  function aapne(boks){
+    const forhaand = boks.querySelector('.forhaand');
+    const tekst = forhaand ? forhaand.textContent : '';
+    const nr = boks.dataset.begr;
+    boks.querySelectorAll('.forhaand,.henvisninger,[data-rediger]').forEach(e => e.remove());
+    const ed = document.createElement('div');
+    ed.className = 'editor';
+    ed.innerHTML = `<label for="t${nr}" class="tom" style="font-size:12px">${nr === '6' ? 'Står sist i brevet. Teksten tolkes ikke.' : 'Kommer i brevet under punkt ' + nr + '. Teksten tolkes ikke.'}</label>
+      <textarea id="t${nr}"></textarea>
+      <div class="verktoy"><span class="meny"><button class="liten-knapp" type="button" aria-expanded="false" aria-haspopup="true" data-meny>Vis til vedlegg</button>
+      <ul hidden><li><button type="button" data-sett="vedlegg 1">Vedlegg 1 · Dagbok uke 37–38.pdf</button></li><li><button type="button" data-sett="vedlegg 2">Vedlegg 2 · Gjennomgang av kalkylen.pdf</button></li></ul></span>
+      <button class="liten-knapp sterk" type="button" data-ferdig>Ferdig</button></div>`;
+    ed.querySelector('textarea').value = tekst;
+    boks.appendChild(ed);
+    boks.setAttribute('data-aapen', '');
+    ed.querySelector('textarea').focus();
+  }
+  function lukk(boks){
+    const tekst = boks.querySelector('textarea').value.trim();
+    boks.querySelector('.editor').remove();
+    boks.removeAttribute('data-aapen');
+    const nr = boks.dataset.begr;
+    if (tekst) {
+      const p = document.createElement('p'); p.className = 'forhaand'; p.textContent = tekst; boks.appendChild(p);
+      const refs = [...new Set((tekst.match(/vedlegg \d/g) || []))];
+      if (refs.length) { const h = document.createElement('div'); h.className = 'henvisninger'; h.innerHTML = refs.map(r => `<span class="henv">Viser til ${r}</span>`).join(''); boks.appendChild(h); }
+    }
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'lenke liten'; b.dataset.rediger = ''; b.style.alignSelf = 'flex-start';
+    b.textContent = tekst ? (nr === '6' ? 'Rediger forbeholdet' : 'Rediger begrunnelsen') : (nr === '6' ? 'Legg til forbehold' : 'Skriv begrunnelse');
+    boks.appendChild(b); b.focus();
+  }
+  skjema.addEventListener('click', e => {
+    const boks = e.target.closest('.begr');
+    if (e.target.closest('[data-rediger]')) aapne(boks);
+    else if (e.target.closest('[data-ferdig]')) lukk(boks);
+    else if (e.target.closest('[data-meny]')) {
+      const k = e.target.closest('[data-meny]'), ul = k.nextElementSibling, apen = ul.hidden;
+      ul.hidden = !apen; k.setAttribute('aria-expanded', String(apen));
+      if (apen) ul.querySelector('button').focus();
+    } else if (e.target.closest('[data-sett]')) {
+      const s = e.target.closest('[data-sett]'), ta = boks.querySelector('textarea');
+      const pos = ta.selectionStart ?? ta.value.length;
+      ta.value = ta.value.slice(0, pos) + s.dataset.sett + ta.value.slice(pos);
+      const ul = s.closest('ul'); ul.hidden = true; ul.previousElementSibling.setAttribute('aria-expanded', 'false'); ta.focus();
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.meny ul:not([hidden])').forEach(ul => { ul.hidden = true; ul.previousElementSibling.setAttribute('aria-expanded', 'false'); ul.previousElementSibling.focus(); });
+  });
+
+  // Punktet du står i, markeres i punktlisten.
+  const lenker = [...document.querySelectorAll('.punktliste a')];
+  const synlig = new Map();
+  const obs = new IntersectionObserver(oppf => {
+    oppf.forEach(o => synlig.set(o.target.querySelector('h2').id, o.isIntersecting ? o.boundingClientRect.top : null));
+    const forst = [...synlig.entries()].filter(([, v]) => v !== null).sort((a, b) => a[1] - b[1])[0];
+    if (!forst) return;
+    lenker.forEach(a => a.dataset.til === forst[0] ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current'));
+  }, { rootMargin: '-20% 0px -60% 0px' });
+  document.querySelectorAll('section.punkt').forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
