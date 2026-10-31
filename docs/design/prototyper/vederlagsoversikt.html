@@ -91,7 +91,7 @@ p{margin:0;text-wrap:pretty}
 .arbeid{flex:1;padding-block:28px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
 .kolonner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) minmax(0,var(--varden-stoette));gap:24px;align-items:start}
 .hoved{display:flex;flex-direction:column;gap:20px;min-width:0}
-.stoette{display:flex;flex-direction:column;gap:16px;min-width:0;position:sticky;top:16px}
+.stoette{display:flex;flex-direction:column;gap:16px;min-width:0}
 
 /* Hodet */
 .sporhode{display:flex;flex-direction:column;gap:6px;padding:20px 20px 18px;border-bottom:1px solid var(--rule-subtle-color)}
@@ -204,7 +204,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .kommentarliste.auto li{padding:8px 0;color:var(--ink-2)}
 .lenke.liten{font-size:12px;min-height:32px;padding:4px 0;align-self:flex-start}
 .kommentar-fot{display:flex;flex-wrap:wrap;gap:4px 24px;align-items:baseline;justify-content:space-between;padding:4px 20px 12px;border-top:1px solid var(--rule-subtle-color)}
-.kommentar-fot details{font-size:12px;color:var(--ink-3);flex:1 1 240px}
+.kommentar-fot details{font-size:12px;color:var(--ink-3);flex:1 1 100%}
 .kommentar-fot summary{cursor:pointer;min-height:40px;display:flex;align-items:center}
 .kommentar-fot summary:hover{color:var(--ink)}
 
@@ -419,30 +419,9 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             </ul>
           </section>
 
-          <section class="kort kommentarer" aria-labelledby="kommentar-tittel">
-            <div class="kort-hode" style="padding-bottom:4px">
-              <h2 id="kommentar-tittel">Kommentarer i Catenda</h2>
-              <span class="kilde">Gjelder hele saken</span>
-            </div>
-            <p class="kommentar-merknad">Kommentarer er ikke brev etter kontrakten og tolkes ikke her. Er en kommentar ment som varsel eller krav, send det som brev, eller registrer kommentaren som brev sendt på annen måte.</p>
-            <ol class="kommentarliste">
-              <li><p class="hvem"><b>Per Olsen</b> · Totalentreprenør AS · <time>29. oktober 2026 kl. 08.14</time></p>
-                <p>Mengdeoppstillingen for pelene i akse C–F er klar. Den kommer med neste versjon av kravet denne uka.</p>
-                <span class="kun-te"><button class="lenke liten" type="button">Registrer som brev sendt på annen måte</button></span></li>
-              <li><p class="hvem"><b>Kari Nordmann</b> · Oslobygg KF · <time>28. oktober 2026 kl. 13.02</time></p>
-                <p>Vederlaget for pelingen settes opp som eget punkt på byggemøtet 4. november.</p>
-                <span class="kun-bh"><button class="lenke liten" type="button">Registrer som brev sendt på annen måte</button></span></li>
-            </ol>
-            <div class="kommentar-fot">
-              <details><summary>2 meldinger om levering av brev er skjult</summary>
-                <ol class="kommentarliste auto"><li><p class="hvem"><time>27. oktober 2026 kl. 11.05</time></p><p>Brev 6 fra byggherren er levert.</p></li><li><p class="hvem"><time>20. oktober 2026 kl. 09.41</time></p><p>Brev 5 fra totalentreprenøren er levert.</p></li></ol>
-              </details>
-              <a class="lenke" href="#">Åpne saken i Catenda</a>
-            </div>
-          </section>
         </div>
 
-        <aside class="stoette" aria-label="Handlinger og datoer">
+        <aside class="stoette" aria-label="Handlinger, datoer og kommentarer">
           <section class="kort handlinger" aria-labelledby="handling-tittel">
             <div class="kort-hode"><h2 id="handling-tittel">Det du kan gjøre nå</h2></div>
             <div class="kort-kropp">
@@ -481,6 +460,28 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <li><span class="d">27. oktober 2026</span><span class="h">Svar fra byggherren</span><span class="k">Brev 6 sendt av BH kl. 11.05</span></li>
             </ol>
             <p class="avstand"><span class="num">24</span> kalenderdager fra datoen TE oppgir til varselet etter § 34.1.2. Om et varsel kom i tide, avgjør partene.</p>
+          </section>
+
+          <section class="kort kommentarer" aria-labelledby="kommentar-tittel">
+            <div class="kort-hode" style="padding-bottom:4px">
+              <h2 id="kommentar-tittel">Kommentarer i Catenda</h2>
+              <span class="kilde">Gjelder hele saken</span>
+            </div>
+            <p class="kommentar-merknad">Kommentarer er ikke brev etter kontrakten og tolkes ikke her. Er en kommentar ment som varsel eller krav, send det som brev, eller registrer kommentaren som brev sendt på annen måte.</p>
+            <ol class="kommentarliste">
+              <li><p class="hvem"><b>Per Olsen</b> · Totalentreprenør AS · <time>29. oktober 2026 kl. 08.14</time></p>
+                <p>Mengdeoppstillingen for pelene i akse C–F er klar. Den kommer med neste versjon av kravet denne uka.</p>
+                <span class="kun-te"><button class="lenke liten" type="button">Registrer som brev sendt på annen måte</button></span></li>
+              <li><p class="hvem"><b>Kari Nordmann</b> · Oslobygg KF · <time>28. oktober 2026 kl. 13.02</time></p>
+                <p>Vederlaget for pelingen settes opp som eget punkt på byggemøtet 4. november.</p>
+                <span class="kun-bh"><button class="lenke liten" type="button">Registrer som brev sendt på annen måte</button></span></li>
+            </ol>
+            <div class="kommentar-fot">
+              <details><summary>2 meldinger om levering av brev er skjult</summary>
+                <ol class="kommentarliste auto"><li><p class="hvem"><time>27. oktober 2026 kl. 11.05</time></p><p>Brev 6 fra byggherren er levert.</p></li><li><p class="hvem"><time>20. oktober 2026 kl. 09.41</time></p><p>Brev 5 fra totalentreprenøren er levert.</p></li></ol>
+              </details>
+              <a class="lenke" href="#">Åpne saken i Catenda</a>
+            </div>
           </section>
         </aside>
       </div>
