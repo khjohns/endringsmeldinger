@@ -3,7 +3,7 @@ vedtaksregisteret (#452, punkt 2 i #451).
 
     python3 docs/verktoy/vedtakshenvisninger.py    # list henvisningene som ikke holder
 
-To kontroller:
+Tre kontroller:
 
 - En ID som ikke er et vedtak i registeret, er ukjent. En B-ID som står åpen i
   3.4 i hovedplanen, er kjent: den er en beslutning, men ennå ikke et vedtak. Det
@@ -26,6 +26,7 @@ historisk gjelder ikke der, og `endringer` i et brukerforløp leses ikke, fordi 
 fører hva som er endret og hvorfor.
 """
 
+import collections
 import json
 import pathlib
 import re
@@ -54,16 +55,16 @@ KOMMENTAR = re.compile(r"^\s*(//|/\*|\*|<!--|#(\s|$))")
 MARKOERER = re.compile(r"/\*+|\*+/|//+|<!--|-->|^\s*\*+|^\s*#")
 LUKKES = {"/*": "*/", "<!--": "-->"}
 KJENTE_AVVIK = (
-    ("kjerne/kommandoer/nyttelast.ts", "KA-U24", "#1433"),
-    ("kjerne/kommandoer/nyttelast.ts", "KA-U32", "#1433"),
-    ("kjerne/tester/arkitektur.test.ts", "KA-U24", "#1433"),
-    ("kjerne/tester/arkitektur.test.ts", "KA-U32", "#1433"),
-    ("kjerne/tester/brevtekst.test.ts", "KA-U24", "#1433"),
-    ("kjerne/tester/brevtekst.test.ts", "KA-U32", "#1433"),
-    ("kjerne/tester/feilinnfoering.ts", "KA-U24", "#1433"),
-    ("kjerne/tester/feilinnfoering.ts", "KA-U32", "#1433"),
-    ("src/lib/components/varden/Vederlagssvar.svelte", "KA-U24", "#1433"),
-    ("src/lib/components/varden/__tests__/Varden.test.ts", "KA-U24", "#1433"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U24", 1, "#1433"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U32", 2, "#1433"),
+    ("kjerne/tester/arkitektur.test.ts", "KA-U24", 1, "#1433"),
+    ("kjerne/tester/arkitektur.test.ts", "KA-U32", 1, "#1433"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U24", 3, "#1433"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U32", 1, "#1433"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U24", 5, "#1433"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U32", 1, "#1433"),
+    ("src/lib/components/varden/Vederlagssvar.svelte", "KA-U24", 1, "#1433"),
+    ("src/lib/components/varden/__tests__/Varden.test.ts", "KA-U24", 1, "#1433"),
 )
 
 
@@ -158,9 +159,9 @@ def feil_i(
     opphevet: set[str],
     aapne: set[str],
     avvik: frozenset[tuple[str, str]] = frozenset(),
-    truffet: set[tuple[str, str]] | None = None,
+    truffet: collections.Counter | None = None,
 ) -> list[str]:
-    """`avvik` er parene (fil, ID) i `KJENTE_AVVIK`; et treff legges i `truffet`."""
+    """`avvik` er parene (fil, ID) i `KJENTE_AVVIK`; hvert treff telles i `truffet`."""
     feil = []
     for nr, henvisning in henvisninger(tekst):
         ider = HENVISNING.findall(henvisning)
@@ -175,23 +176,42 @@ def feil_i(
                     continue
                 if (sti, i) in avvik:
                     if truffet is not None:
-                        truffet.add((sti, i))
+                        truffet[(sti, i)] += 1
                     continue
                 feil.append(f"{sti}:{nr}: {i} er opphevet og står som eneste grunnlag")
     return feil
 
 
-def avviksfeil(rader, truffet: set[tuple[str, str]]) -> list[str]:
-    """Feilene i `KJENTE_AVVIK`: en rad uten issue eller med jokertegn, og en rad som ikke treffer noe."""
+def gyldig_rad(rad) -> bool:
+    fil, i, antall, issue = rad
+    return (
+        bool(re.fullmatch(r"#\d+", issue))
+        and bool(HENVISNING.fullmatch(i))
+        and isinstance(antall, int)
+        and antall > 0
+        and not any(t in fil for t in "*?[]")
+        and not fil.endswith("/")
+    )
+
+
+def avviksfeil(rader, truffet: collections.Counter) -> list[str]:
+    """Feilene i `KJENTE_AVVIK`: en rad med feil form, og en rad der antallet treff avviker."""
     feil = []
-    for fil, i, issue in rader:
-        if not re.fullmatch(r"#\d+", issue) or not HENVISNING.fullmatch(i) or any(
-            t in fil for t in "*?[]"
-        ) or fil.endswith("/"):
-            feil.append(f"KJENTE_AVVIK: raden ({fil}, {i}, {issue}) må ha én fil, én ID og issuet")
-        elif (fil, i) not in truffet:
+    for rad in rader:
+        fil, i, antall, issue = rad
+        if not gyldig_rad(rad):
             feil.append(
-                f"KJENTE_AVVIK: {i} i {fil} ({issue}) treffer ikke noe lenger; fjern raden"
+                f"KJENTE_AVVIK: raden ({fil}, {i}, {antall}, {issue}) må ha én fil, én ID, antallet og issuet"
+            )
+        elif (n := truffet[(fil, i)]) > antall:
+            feil.append(
+                f"KJENTE_AVVIK: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
+                f"tillater {antall}; en ny henvisning må vise til et vedtak som gjelder"
+            )
+        elif n < antall:
+            feil.append(
+                f"KJENTE_AVVIK: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
+                f"sier {antall}; rett antallet eller fjern raden"
             )
     return feil
 
@@ -267,13 +287,14 @@ def kontroller(
 ) -> list[str]:
     kjente, opphevet = vedtak(register)
     aapne = aapne_beslutninger(plan) | avgjorte_beslutninger(plan)
-    avvik = frozenset((fil, i) for fil, i, _ in rader)
-    truffet: set[tuple[str, str]] = set()
-    return [
+    avvik = frozenset((rad[0], rad[1]) for rad in rader if gyldig_rad(rad))
+    truffet: collections.Counter = collections.Counter()
+    feil = [
         f
         for sti, tekst in filer(rot)
         for f in feil_i(sti, tekst, kjente, opphevet, aapne, avvik, truffet)
-    ] + avviksfeil(rader, truffet) + [
+    ]
+    return feil + avviksfeil(rader, truffet) + [
         f
         for sti, data in kildefiler(rot)
         for f in kildefeil(sti, data, kjente, opphevet, aapne)
