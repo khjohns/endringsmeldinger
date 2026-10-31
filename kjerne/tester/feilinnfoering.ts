@@ -904,7 +904,7 @@ const MUTASJONER: Mutasjon[] = [
         '  kontrollerHenvisningene(henvisninger, elementer, alleKrav, besvart, bakover, ugyldig);',
       ],
     ],
-    mal: ['en påberopt passivitet sendt i appen mot den er forstått'],
+    mal: ['en påberopt passivitet sendt herfra mot den er forstått'],
   },
   {
     id: 'F90',
@@ -2772,10 +2772,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F428',
     feilklasse:
-      'vurderingsgrunnlaget viser ikke partens dato for varselet i et krav sendt i appen (HF-U1, svar 3A)',
+      'vurderingsgrunnlaget viser ikke partens dato for varselet i et krav sendt herfra (HF-U1, svar 3A)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [["      j.kilde === 'sendt_i_appen' &&", '      false &&']],
-    mal: ['OV-U44, HF-U1: et fristkrav sendt i appen'],
+    endringer: [["      j.kilde === 'sendt_herfra' &&", '      false &&']],
+    mal: ['OV-U44, HF-U1: et fristkrav sendt herfra'],
   },
   {
     id: 'F430',
@@ -2783,13 +2783,13 @@ const MUTASJONER: Mutasjon[] = [
       'vurderingsgrunnlaget viser partens dato for varselet mens saken ikke er forstått (MM-U2, OV-U21)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [['      u.forstaatt &&', '      true &&']],
-    mal: ['OV-U44, HF-U1: et fristkrav sendt i appen'],
+    mal: ['OV-U44, HF-U1: et fristkrav sendt herfra'],
   },
   {
     id: 'F429',
     feilklasse: 'hendelsen som oppretter saken, får ingen kilde (svar 1A)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [["          : ('sendt_i_appen' as const),", '          : null,']],
+    endringer: [["          : ('sendt_herfra' as const),", '          : null,']],
     mal: ['OV-U44: hver journalpost har én kilde'],
   },
   {

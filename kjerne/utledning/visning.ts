@@ -65,7 +65,7 @@ export interface Visning {
   opplysninger: Record<string, string[]>;
   /**
    * OV-U44: `kilde` er `null` for en hendelse kjernen ikke har tolket (MM-U2). Hendelsen
-   * som oppretter saken, er sendt i appen (svar 1A 30.10 i #1045). `rettet` er
+   * som oppretter saken, er sendt herfra (svar 1A 30.10 i #1045). `rettet` er
    * registreringen rettet etter OV-U17 eller OV-U18 (arbeidsvalget 30.10 i #1045, svar 2A).
    */
   journal: {
@@ -78,9 +78,9 @@ export interface Visning {
   /**
    * OV-U44: hva vurderingen bygger på, som hendelsene med hver kilde som ikke er rettet.
    * Rettingen etter OV-U18 står ikke der, som en rettet registrering (svar 2B 30.10 i
-   * #1045). Et brev sendt i appen med partens opplysning om et varsel (HF-U1) står også
+   * #1045). Et brev sendt herfra med partens opplysning om et varsel (HF-U1) står også
    * under partenes opplysninger (svar 3A), men ikke mens saken ikke er forstått (MM-U2,
-   * OV-U21). Vurderingen bygger på dem som er sendt i appen
+   * OV-U21). Vurderingen bygger på dem som er sendt herfra
    * og partenes opplysninger, ikke på dokumentasjonen. Ordlyden står i visningen, og den
    * sier alltid at oversikten ikke er fullstendig (arbeidsvalget 26.10 i #1045, punkt 2).
    */
@@ -295,7 +295,7 @@ function kilder(u: Utledning, ikkeTolket: Set<string>) {
         ? null
         : h.art === 'dokument'
           ? kilden(h.dokument, u.forstaatt)
-          : ('sendt_i_appen' as const),
+          : ('sendt_herfra' as const),
       rettet: rettet.has(h.id),
     };
   });
@@ -356,7 +356,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   }
   const journal = kilder(u, ikkeTolket);
   const vurderingsgrunnlag: Visning['vurderingsgrunnlag'] = {
-    sendt_i_appen: [],
+    sendt_herfra: [],
     partens_opplysning: [],
     dokumentasjon: [],
   };
@@ -369,7 +369,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     vurderingsgrunnlag[j.kilde].push(j.hendelse);
     if (
       u.forstaatt &&
-      j.kilde === 'sendt_i_appen' &&
+      j.kilde === 'sendt_herfra' &&
       d?.opplysninger.some((o) => 'gjelder' in o && o.gjelder !== undefined)
     )
       vurderingsgrunnlag.partens_opplysning.push(j.hendelse);

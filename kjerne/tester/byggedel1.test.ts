@@ -426,8 +426,8 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     expect(forstaatt(await lest.journal())).toBe(true);
   });
 
-  // En registrert passivitet er dokumentasjon uten virkning (OV-U4), så passiviteten er sendt i appen.
-  it('en påberopt passivitet sendt i appen mot den er forstått', async () => {
+  // En registrert passivitet er dokumentasjon uten virkning (OV-U4), så passiviteten er sendt herfra.
+  it('en påberopt passivitet sendt herfra mot den er forstått', async () => {
     const bane = minnebane();
     await bygg(bane, [
       ...foer,

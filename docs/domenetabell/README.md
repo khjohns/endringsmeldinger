@@ -161,6 +161,7 @@ lagringsformatet står under.
 | Statusen `avsluttet_oppgjort` («Avsluttet: oppgjort») | `alle_krav_avgjort` («Alle krav sendt i appen er avgjort») | [OV-U10](../plans/vedtak.md#ov-u10): visningen sier hva appen vet, og med et registrert brev også at saken har brev sendt utenfor appen. Lagres ikke (#493) |
 | Ny | Kommandoen `registrert_brev`, handlingen `registrere_brev` | [OV-U4](../plans/vedtak.md#ov-u4), [OV-U16](../plans/vedtak.md#ov-u16): hver side registrerer sitt eget brev sendt utenfor appen som dokumentasjon, også når saken ikke er forstått. «Registrere», som `varsle` for et varsel sendt utenfor appen (#1045) |
 | Ny | Kommandoen `ikke_i_saken`, kommandofeltet `retter`, `RETTER_IKKE_EN_REGISTRERING`, `REGISTRERINGEN_ER_RETTET` og merknaden `brev_utenfor_appen` | [OV-U17](../plans/vedtak.md#ov-u17), [OV-U18](../plans/vedtak.md#ov-u18): samme side retter en registrering med en ny registrering, eller med en retting om at brevet ikke hører til saken. En rettet registrering rettes ikke igjen; den siste i kjeden rettes (#1045). [OV-U19](../plans/vedtak.md#ov-u19): merknaden for saken. Visningen lagres ikke |
+| `sendt_i_appen` (#1432 før merge) | `sendt_herfra` i `Kilde` og `vurderingsgrunnlag` ([OV-U44](../plans/vedtak.md#ov-u44)) | Ny tekst omtaler ikke programvaren ([språkfila](../sprak.md#hva-løsningen-kalles)). Verdien regnes ut av journalen og lagres ikke |
 
 ### Navn i lagringsformatet
 

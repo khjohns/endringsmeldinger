@@ -1885,14 +1885,14 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     const retting = godtatt(journal, registrering({ retter: rad.event_id }), 'TE');
     const v = vist(journal);
     expect(v.journal.map((j) => [j.hendelse, j.kilde, j.rettet])).toEqual([
-      [sak, 'sendt_i_appen', false],
-      [krav, 'sendt_i_appen', false],
+      [sak, 'sendt_herfra', false],
+      [krav, 'sendt_herfra', false],
       [varsel, 'partens_opplysning', false],
       [rad.event_id, 'dokumentasjon', true],
       [retting.event_id, 'dokumentasjon', false],
     ]);
     expect(v.vurderingsgrunnlag).toEqual({
-      sendt_i_appen: [sak, krav],
+      sendt_herfra: [sak, krav],
       partens_opplysning: [varsel],
       dokumentasjon: [retting.event_id],
     });
@@ -1910,8 +1910,8 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     journal.push(ukjent);
     expect(forstaatt(journal), 'forutsetning').toBe(false);
     expect(vist(journal).journal.map((j) => j.kilde)).toEqual([
-      'sendt_i_appen',
-      'sendt_i_appen',
+      'sendt_herfra',
+      'sendt_herfra',
       'dokumentasjon',
       null,
     ]);
@@ -1929,7 +1929,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(v.vurderingsgrunnlag.dokumentasjon).toEqual([]);
   });
 
-  it('OV-U44, HF-U1: et fristkrav sendt i appen med datoen for varselet står under både sendt i appen og partenes opplysninger i vurderingsgrunnlaget (svar 3A 30.10 i #1045)', async () => {
+  it('OV-U44, HF-U1: et fristkrav sendt herfra med datoen for varselet står under både sendt herfra og partenes opplysninger i vurderingsgrunnlaget (svar 3A 30.10 i #1045)', async () => {
     const bane = minnebane();
     await bygg(bane, [
       { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
@@ -1942,9 +1942,9 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
       utledet(journal).spor.frist.varsler['33.4'],
       'forutsetning: varselet har virkning'
     ).toBeTruthy();
-    expect(v.journal.find((j) => j.hendelse === frist)?.kilde).toBe('sendt_i_appen');
+    expect(v.journal.find((j) => j.hendelse === frist)?.kilde).toBe('sendt_herfra');
     expect(v.vurderingsgrunnlag).toEqual({
-      sendt_i_appen: [sak, grunnlag, frist],
+      sendt_herfra: [sak, grunnlag, frist],
       partens_opplysning: [frist],
       dokumentasjon: [],
     });

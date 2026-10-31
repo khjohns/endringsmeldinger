@@ -281,18 +281,18 @@ function tom(
 }
 
 /**
- * OV-U44: kilden til det en journalpost sier. Et brev sendt i appen er `sendt_i_appen`. Et
+ * OV-U44: kilden til det en journalpost sier. Et brev sendt herfra er `sendt_herfra`. Et
  * registrert brev er `partens_opplysning` når det har elementer og alle har virkning etter
  * OV-U5 og OV-U6, ellers `dokumentasjon` (OV-U4, HF-U13). Mens saken ikke er forstått, er
  * hvert registrert brev dokumentasjon (MM-U2, OV-U21). En rettet registrering beholder
  * kilden (arbeidsvalget 30.10 i #1045, svar 2A). Rettingen som sier at et brev ikke hører
  * til saken, gjelder dokumentasjonen og er dokumentasjon selv (OV-U18).
  */
-export type Kilde = 'dokumentasjon' | 'partens_opplysning' | 'sendt_i_appen';
+export type Kilde = 'dokumentasjon' | 'partens_opplysning' | 'sendt_herfra';
 
 export function kilden(d: Dokument, forstaatt: boolean): Kilde {
   if (d.ikkeISaken) return 'dokumentasjon';
-  if (!erRegistrert(d.opplysninger)) return 'sendt_i_appen';
+  if (!erRegistrert(d.opplysninger)) return 'sendt_herfra';
   const elementer = d.krav.length + d.svar.length + d.utsagn.length;
   return forstaatt && elementer > 0 && dokumentasjonIBrevet(d).size === 0
     ? 'partens_opplysning'
@@ -300,9 +300,9 @@ export function kilden(d: Dokument, forstaatt: boolean): Kilde {
 }
 
 /**
- * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som appen
+ * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som kjernen
  * ikke vurderer innholdet i: kilden er dokumentasjon. Et varsel eller en endringsordre uten
- * virkning vurderer appen (MM-U19).
+ * virkning vurderer kjernen (MM-U19).
  */
 function ikkeVurderte(
   journal: Domenehendelse[],
@@ -389,7 +389,7 @@ const erRegistrertEndringsordre = (s: Svar, d: Dokument): boolean =>
 /**
  * OV-U4, HF-U13: alt i et registrert brev er dokumentasjon og får ingen virkning, unntatt et
  * varsel med datoen parten oppgir (OV-U5) og byggherrens endringsordre (OV-U6). Kilden og
- * brevene appen ikke vurderer, leser det herfra (punkt 4 i #1167).
+ * brevene kjernen ikke vurderer, leser regelen fra denne funksjonen (punkt 4 i #1167).
  */
 function dokumentasjonIBrevet(d: Dokument): Set<string> {
   const krav = kravetErDokumentasjon(d) ? d.krav.map((k) => k.id) : [];
