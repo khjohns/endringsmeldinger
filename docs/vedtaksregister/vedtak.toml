@@ -4437,6 +4437,40 @@ navn = "B"
 tekst = '''
 Godkjenningen lukker saken som en endringsordre. Vederlag og frist som ikke er avgjort, går i en ny KOE etter spørsmål 1. OV-U6 og KA-U13 står.'''
 
+[[gruppe.vedtak]]
+id = "FO-U8"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt på nytt 31.10 og lagret i #1423 (kommentaren 6544509109), etter oppdragsgivers merknad til det første spørsmålet 4 (kommentaren 6544375566):
+
+**4. Taket på 10 % av kontraktssummen.**
+- **A (anbefalt):** «30 %-grensen og fullmakten regnes uten taket. Utregningen av grensen sier at det samlede dagmulktansvaret i kontrakten er begrenset til 10 % av kontraktssummen, og at utregningen ikke tar hensyn til det. Forhold: presiserer FO-U3.»
+- **B:** «Grensen regnes av høyst 10 % av kontraktssummen, som en øvre grense for saken alene. Dagmulkt i andre saker trekkes ikke fra. Forhold: presiserer FO-U3.»
+- *Hva valget styrer:* bare forlengelser på over om lag 100 hverdager med standardsatsen. Under B kan grensen likevel være for høy når det er påløpt dagmulkt for andre forsinkelser.'''
+valgt = "4A"
+svar = '''
+4A. Ja passer best med prinsipp om at appen ikke utleder noen rettsvirkninger. 3B enig med deg'''
+forhold = [
+  { art = "presiserer", vedtak = "fo-u3" },
+]
+folge = '''
+Bygges i #1423.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "4A"
+tekst = '''
+30 %-grensen og fullmakten regnes uten taket. Utregningen av grensen sier at det samlede dagmulktansvaret i kontrakten er begrenset til 10 % av kontraktssummen, og at utregningen ikke tar hensyn til det. Forhold: presiserer FO-U3.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4B"
+tekst = '''
+Grensen regnes av høyst 10 % av kontraktssummen, som en øvre grense for saken alene. Dagmulkt i andre saker trekkes ikke fra. Forhold: presiserer FO-U3.'''
+forkastet = true
+
+
 [[gruppe]]
 tittel = "Sendte brev, regelendring og saker kjernen ikke forstår"
 etter = '''
@@ -7585,6 +7619,141 @@ navn = "Nei, bare manglende rolle"
 tekst = '''
 Bare en rolle som mangler, avvises. En lavere grense godtas.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "GFK-U16"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6544286811):
+
+*Bakgrunn:* Satsen brukes til to ting: verdien av fristdagene i fullmakten (GFK-06, GFK-U3) og 30 %-grensen ved forsering (FO-U3). I dag registrerer driften et fast kronebeløp per prosjekt (`koe.dagmulktssats`). § 40.3 a sier at dagmulkten er 1 ‰ av kontraktssummen per hverdag, men ikke mindre enn 3000 kr, «er ikke annet avtalt». Kontraktsmalen har promillen og minstebeløpet som verdier som kan endres. Oppdragsgiver 31.10: «dagmulktsats har en standard i kontrakten, men den kan endres så muligens standardssats (i prosent) som kan konfigureres i prosjektinnstillinger».
+
+**1. Hvor satsen kommer fra.**
+- **A (anbefalt):** «Prosjektinnstillingene har kontraktssummen, promillen og minstebeløpet for dagmulkten ved overskridelse av sluttfristen. Standardverdiene er 1 ‰ og 3000 kr etter § 40.3 a. Er det avtalt et fast beløp per dag, registreres det i stedet. Satsen i kroner regnes ut av dette. Mangler opplysningene, gjelder GFK-U3 og GFK-U4. Forhold: presiserer GFK-U3 og FO-U3; dagens kronebeløp per prosjekt erstattes.»
+- **B:** «Driften registrerer satsen i kroner per prosjekt, som i dag. Forhold: GFK-U3 står.»
+- *Hva valget styrer:* om satsen følger kontraktssummen når den endres, og hvem som registrerer den.'''
+valgt = "A"
+svar = '''
+A,A. Siste forutsatt at dette er lest ut av kontrakten'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u3" },
+  { art = "presiserer", vedtak = "fo-u3" },
+]
+folge = '''
+Svaret står ordrett i #1423 (kommentaren 6544372163). Bygges i #1423.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Prosjektinnstillingene har kontraktssummen, promillen og minstebeløpet for dagmulkten ved overskridelse av sluttfristen. Standardverdiene er 1 ‰ og 3000 kr etter § 40.3 a. Er det avtalt et fast beløp per dag, registreres det i stedet. Satsen i kroner regnes ut av dette. Mangler opplysningene, gjelder GFK-U3 og GFK-U4. Forhold: presiserer GFK-U3 og FO-U3; dagens kronebeløp per prosjekt erstattes.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Driften registrerer satsen i kroner per prosjekt, som i dag. Forhold: GFK-U3 står.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U17"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6544286811):
+
+*Bakgrunn:* Satsen brukes til to ting: verdien av fristdagene i fullmakten (GFK-06, GFK-U3) og 30 %-grensen ved forsering (FO-U3). I dag registrerer driften et fast kronebeløp per prosjekt (`koe.dagmulktssats`). § 40.3 a sier at dagmulkten er 1 ‰ av kontraktssummen per hverdag, men ikke mindre enn 3000 kr, «er ikke annet avtalt». Kontraktsmalen har promillen og minstebeløpet som verdier som kan endres. Oppdragsgiver 31.10: «dagmulktsats har en standard i kontrakten, men den kan endres så muligens standardssats (i prosent) som kan konfigureres i prosjektinnstillinger».
+
+**2. Hverdager og kalenderdager.**
+*Bakgrunn:* Dagmulkten løper per hverdag (§ 40.3), mens fristforlengelsen regnes i kalenderdager (§ 33). Prototypen ganger kalenderdagene med satsen.
+- **A (anbefalt):** «Fullmakten og 30 %-grensen ganger satsen med antallet hverdager i forlengelsen, regnet fra den gjeldende sluttfristen. Er sluttfristen ikke registrert, brukes kalenderdagene. Det gir en høyere verdi, og utregningen sier det. Forhold: presiserer GFK-06 og FO-U3.»
+- **B:** «Satsen ganges med kalenderdagene, uten omregning. Forhold: GFK-06 og FO-U3 står.»
+- *Hva valget styrer:* under B blir verdien i fullmakten og 30 %-grensen om lag 40 % for høy.
+
+Svaret var «A,A. Siste forutsatt at dette er lest ut av kontrakten». Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6544705246):
+
+**2. Hverdagene i fullmakten.**
+*Bakgrunn:* Svaret på spørsmål 2 var A, «forutsatt at dette er lest ut av kontrakten». Kontrollen 31.10 fant at 30 %-grensen er lest ut av kontrakten: § 33.8 regner den av dagmulkten som ville ha påløpt, og etter § 40.3 påløper dagmulkten per hverdag. Fullmakten er derimot byggherrens interne regel og ikke regulert av kontrakten. Der er hverdagene et valg, for å regne likt med grensen. Forutsetningen holder altså bare for grensen.
+- **A (anbefalt):** «2A gjelder også fullmakten: verdien av fristdagene i fullmakten regnes med hverdagene, som 30 %-grensen, selv om kontrakten ikke regulerer fullmakten.»
+- **B:** «Bare 30 %-grensen ganger satsen med antallet hverdager i forlengelsen, regnet fra den gjeldende sluttfristen. Fullmakten ganger satsen med kalenderdagene i forlengelsen.»
+- *Hva valget styrer:* om fullmakten og grensen bruker samme antall dager. Under B ligger verdien i fullmakten om lag 15–20 % høyere enn grensen.'''
+valgt = "A"
+svar = '''
+A,A. Siste forutsatt at dette er lest ut av kontrakten
+
+Oppfølgingen: «2: A. Ja til forslaget i 3. I 2A står «regnet fra den gjeldende sluttfristen»; med 3B skal det være «regnet fra den fristen kravet gjelder», også der fristen ikke er registrert.»'''
+forhold = [
+  { art = "presiserer", vedtak = "fo-u3" },
+]
+folge = '''
+Det valgte alternativet er 2A med oppdragsgivers rettelse i svaret på oppfølgingen: «regnet fra den gjeldende sluttfristen» er byttet med «regnet fra den fristen kravet gjelder», og «Er sluttfristen ikke registrert» med «Er fristen ikke registrert». Lesningen står i #1423 (kommentaren 6544785461). Bygges i #1423.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Fullmakten og 30 %-grensen ganger satsen med antallet hverdager i forlengelsen, regnet fra den fristen kravet gjelder. Er fristen ikke registrert, brukes kalenderdagene. Det gir en høyere verdi, og utregningen sier det. Forhold: presiserer GFK-06 og FO-U3.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Satsen ganges med kalenderdagene, uten omregning. Forhold: GFK-06 og FO-U3 står.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare grensen"
+tekst = '''
+Bare 30 %-grensen ganger satsen med antallet hverdager i forlengelsen, regnet fra den gjeldende sluttfristen. Fullmakten ganger satsen med kalenderdagene i forlengelsen.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U18"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6544375566):
+
+**3. Andre frister enn sluttfristen.**
+*Bakgrunn:* Bare dagmulktbelagte frister gir dagmulkt (§ 40.2). En delfrist er dagmulktbelagt bare når kontrakten sier det, og har egen sats (§ 40.3 b).
+- **A (anbefalt):** «Satsen i prosjektinnstillingene gjelder sluttfristen. Gjelder fristkravet en annen frist, kan dagene ikke verdsettes. Fullmakten behandler dem som et krav som ikke er tallfestet (GFK-U3), og forseringen viser ingen 30 %-grense. Forhold: presiserer FO-U3 og GFK-U3.»
+- **B:** «Prosjektinnstillingene har også de dagmulktbelagte delfristene med sats. Fristkravet sier hvilken frist det gjelder. Forhold: presiserer FO-U3 og GFK-06; fristkravet får et nytt felt.»
+- *Hva valget styrer:* om et krav om forlengelse av en delfrist kan verdsettes.
+
+Svaret var «3B enig med deg». Forslaget til vedtakstekst ordrett slik det ble lagt fram 31.10 og lagret i #1423 (kommentaren 6544705246):
+
+**3. Fristtabellen.**
+*Bakgrunn:* Svaret var «3B enig med deg». Anbefalingen i chatten etter at spørsmålet var lagret, var fristtabellen fra kontraktsmalen (E.1 og E.2), ikke bare delfristene i B. Etter § 40.2 er sluttfristen dagmulktbelagt, og en annen frist er det bare når kontrakten sier det for den enkelte fristen. Etter § 40.3 a og b har sluttfristen og delfristene hver sin sats.
+- **Forslag (anbefalt):** «Prosjektinnstillingene har fristtabellen fra kontrakten, med fristen, datoen, om fristen er dagmulktbelagt, og satsen. Satsen etter § 40.3 a gjelder de avtalte overtakelsesfristene, og satsen etter § 40.3 b gjelder de dagmulktbelagte delfristene, med verdien av delen. Fristkravet sier hvilke frister det gjelder. For en frist som ikke er dagmulktbelagt, er det ingen dagmulkt å regne av. Løsningen sier det og avgjør ikke hva det betyr for valgretten etter § 33.8. Forhold: presiserer FO-U3 og GFK-U3; fristkravet får et nytt felt.»
+- *Hva valget styrer:* at et krav om forlengelse av en delfrist kan verdsettes med satsen for den delfristen.'''
+valgt = "forslaget"
+svar = '''
+4A. Ja passer best med prinsipp om at appen ikke utleder noen rettsvirkninger. 3B enig med deg
+
+Forslaget: «2: A. Ja til forslaget i 3. I 2A står «regnet fra den gjeldende sluttfristen»; med 3B skal det være «regnet fra den fristen kravet gjelder», også der fristen ikke er registrert.»'''
+forhold = [
+  { art = "presiserer", vedtak = "fo-u3" },
+  { art = "presiserer", vedtak = "gfk-u3" },
+]
+folge = '''
+Bygges i #1423.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "forslaget"
+tekst = '''
+Prosjektinnstillingene har fristtabellen fra kontrakten, med fristen, datoen, om fristen er dagmulktbelagt, og satsen. Satsen etter § 40.3 a gjelder de avtalte overtakelsesfristene, og satsen etter § 40.3 b gjelder de dagmulktbelagte delfristene, med verdien av delen. Fristkravet sier hvilke frister det gjelder. For en frist som ikke er dagmulktbelagt, er det ingen dagmulkt å regne av. Løsningen sier det og avgjør ikke hva det betyr for valgretten etter § 33.8. Forhold: presiserer FO-U3 og GFK-U3; fristkravet får et nytt felt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3A"
+tekst = '''
+Satsen i prosjektinnstillingene gjelder sluttfristen. Gjelder fristkravet en annen frist, kan dagene ikke verdsettes. Fullmakten behandler dem som et krav som ikke er tallfestet (GFK-U3), og forseringen viser ingen 30 %-grense. Forhold: presiserer FO-U3 og GFK-U3.'''
+forkastet = true
+
 
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
