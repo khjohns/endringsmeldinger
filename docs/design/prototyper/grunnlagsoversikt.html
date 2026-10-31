@@ -337,6 +337,8 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .valg[hidden]{display:none}
 /* Revisjon 31.10: brevene som kilde, tallene lette å sammenligne, 14 px hjelpetekst */
 .sporhode .mulige{font-size:14px;color:var(--ink-2)}
+.stilling .sporhode{border-bottom:0;padding-bottom:0}
+.stilling .kort-kropp{padding-top:16px}
 .hjemmel > div{padding:18px 20px;gap:6px}
 .hjemmel .hvor{font-size:14px;color:var(--ink-2)}
 .brevliste .utdrag{grid-column:2/4;margin-top:8px;padding-left:12px;border-left:2px solid var(--rule-strong-color);display:flex;flex-direction:column;gap:4px}
@@ -456,27 +458,17 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
           </section>
           </div>
 
-          <section class="kort stilling" aria-labelledby="stilling-tittel">
+          <section class="kort stilling" aria-labelledby="forhold-tittel">
             <header class="sporhode">
               <p class="over"><span class="fs f-endring">Endringer, jf. punkt&nbsp;31 og 32</span><span class="fs f-grunn">Forsinkelse eller svikt ved byggherrens ytelser etter punkt&nbsp;22, 23 og 24</span></p>
-              <h1><span class="fs f-endring">Irregulær endring</span><span class="fs f-grunn">Uforutsette forhold ved grunnen</span></h1>
+              <h1 id="forhold-tittel"><span class="fs f-endring">Irregulær endring</span><span class="fs f-grunn">Uforutsette forhold ved grunnen</span></h1>
               <p class="mulige">Kan gi rett til <span class="fs f-endring">vederlagsjustering (punkt&nbsp;34.1.1) og fristforlengelse (punkt&nbsp;33.1 a)</span><span class="fs f-grunn">vederlagsjustering (punkt&nbsp;34.1.2) og fristforlengelse (punkt&nbsp;33.1 b)</span>.</p>
-              <p class="tilstand">
-                <span class="ts t-ubesvart"><b>Byggherren har ikke svart</b> på varselet i brev 1 av 9. oktober 2026.</span>
-                <span class="ts t-avslatt"><b><span class="fs f-endring">Byggherren har avslått kravet på endringsordre</span><span class="fs f-grunn">Byggherren bestrider å ha risikoen for forholdet</span></b> i brev 5 av 28. oktober 2026. Partene er ikke enige om forholdet.</span>
-                <span class="ts t-eo"><b><span class="fs f-endring">Byggherren har utstedt endringsordre</span><span class="fs f-grunn">Byggherren har erkjent risikoen for forholdet</span></b> i brev 5 av 28. oktober 2026. Partene er enige om forholdet.</span>
-                <span class="ts t-frafall"><b>Byggherren har frafalt pålegget</b> i brev 5 av 28. oktober 2026, mot endringsordre for arbeid som alt er utført.</span>
-              </p>
             </header>
-            <div class="kort-hode">
-              <h2 id="stilling-tittel">Partenes standpunkter</h2>
-              <span class="kilde">Registrert fra brevene, slik de ble sendt</span>
-            </div>
             <div class="kort-kropp">
-              <div class="hjemmel">
+              <div class="hjemmel" role="group" aria-label="Partenes standpunkter, registrert fra brevene">
                 <div><span class="hvem">Totalentreprenøren · brev 1</span>
-                  <span class="fs f-endring"><span class="hva">Irregulær endring (punkt&nbsp;32.1)</span><span class="hvor">Pålegget innebærer en endring. Varslet etter punkt&nbsp;32.2.</span></span>
-                  <span class="fs f-grunn"><span class="hva">Uforutsette forhold ved grunnen (punkt&nbsp;23.1)</span><span class="hvor">Grunnen avviker fra det totalentreprenøren hadde grunn til å regne med.</span></span>
+                  <span class="fs f-endring"><span class="hva">Pålegget innebærer en endring</span><span class="hvor">Punkt&nbsp;32.1. Varslet etter punkt&nbsp;32.2.</span></span>
+                  <span class="fs f-grunn"><span class="hva">Byggherren har risikoen for forholdet</span><span class="hvor">Punkt&nbsp;23.1. Grunnen avviker fra det totalentreprenøren hadde grunn til å regne med.</span></span>
                 </div>
                 <div><span class="hvem">Byggherren<span class="ts t-avslatt t-eo t-frafall"> · brev 5</span></span>
                   <span class="ts t-ubesvart"><span class="hva tomt">Ikke svart</span><span class="hvor fs f-endring">Skal svare uten ugrunnet opphold (punkt&nbsp;32.3).</span></span>
