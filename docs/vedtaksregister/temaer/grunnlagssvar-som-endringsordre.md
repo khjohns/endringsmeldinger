@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `46a0cb67dc6ce2245357b6f62a6fca572c1de445e7eafddfe09ca310b4e5ee32`
+Kontrollsum (SHA-256 over utdraget visningen leser): `2ba8ff14273bcccdd3ccf072c448e90580acf823d442994aac53f1af93b79516`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1495,11 +1495,11 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 ### <a id="ov-u70"></a>OV-U70
 
-> OV-U70: Der OV-U4, OV-U10, OV-U19 og OV-U62 sier «Appen vurderer ikke innholdet», sier merknaden at innholdet i brevet ikke er vurdert, og at oversikten ikke avgjør hvilken betydning brevet har for partenes rettigheter og plikter. Ordlyden er ikke fastsatt i vedtaket. «Innholdet i brevet er ikke vurdert her. Oversikten avgjør ikke hvilken betydning brevet har for partenes rettigheter og plikter.» er en ordlyd som oppfyller det. Endrer OV-U4, OV-U10, OV-U19 og OV-U62.
+> OV-U70: Der OV-U4, OV-U10, OV-U19 og OV-U62 sier «Appen vurderer ikke innholdet», sier merknaden at innholdet i brevet eller brevene ikke er vurdert, og at oversikten ikke avgjør hvilken betydning det har for partenes rettigheter og plikter. Forslaget er veiledende: «Innholdet i brevet er ikke vurdert her. Oversikten avgjør ikke hvilken betydning brevet har for partenes rettigheter og plikter.» Teksten trenger ikke følge det ordrett, men skal si det samme. Endrer OV-U4, OV-U10, OV-U19 og OV-U62.
 
 **Vedtatt:** 31.10, oppdragsgiver (#1414)
 
-**Følge:** Endrer [OV-U4](#ov-u4). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [OV-U19](#ov-u19). Endrer [OV-U62](#ov-u62). Bygges i #1414.
+**Følge:** Endrer [OV-U4](#ov-u4). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [OV-U19](#ov-u19). Endrer [OV-U62](#ov-u62). OV-U10 og OV-U62 har samme merknad som OV-U4 og OV-U19 og er tatt med av den som førte vedtaket, så merknaden ikke får to ordlyder. Spørsmålet nevnte bare OV-U4 og OV-U19. Bygges i #1414.
 
 **Regelrader:** —
 
