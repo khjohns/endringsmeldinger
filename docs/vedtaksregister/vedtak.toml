@@ -4456,7 +4456,7 @@ forhold = [
   { art = "presiserer", vedtak = "fo-u3" },
 ]
 folge = '''
-Bygges i #1423.'''
+Spørsmålet og svaret står i #1423.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "4A"
@@ -7642,7 +7642,7 @@ forhold = [
   { art = "presiserer", vedtak = "fo-u3" },
 ]
 folge = '''
-Svaret står ordrett i #1423 (kommentaren 6544372163). Bygges i #1423.'''
+Svaret står ordrett i #1423 (kommentaren 6544372163).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -7689,7 +7689,7 @@ forhold = [
   { art = "presiserer", vedtak = "fo-u3" },
 ]
 folge = '''
-Det valgte alternativet er 2A med oppdragsgivers rettelse i svaret på oppfølgingen: «regnet fra den gjeldende sluttfristen» er byttet med «regnet fra den fristen kravet gjelder», og «Er sluttfristen ikke registrert» med «Er fristen ikke registrert». Lesningen står i #1423 (kommentaren 6544785461). Bygges i #1423.'''
+Det valgte alternativet er 2A med oppdragsgivers rettelse: «regnet fra den gjeldende sluttfristen» er byttet med «regnet fra den fristen kravet gjelder». At «Er sluttfristen ikke registrert» også er byttet med «Er fristen ikke registrert», er lesningen av «også der fristen ikke er registrert» i #1423 (kommentaren 6544785461). «Om lag 40 %» under «Hva valget styrer» i spørsmål 2 ble rettet til «om lag 15–20 %» i kommentaren 6544372163.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -7734,13 +7734,13 @@ valgt = "forslaget"
 svar = '''
 4A. Ja passer best med prinsipp om at appen ikke utleder noen rettsvirkninger. 3B enig med deg
 
-Forslaget: «2: A. Ja til forslaget i 3. I 2A står «regnet fra den gjeldende sluttfristen»; med 3B skal det være «regnet fra den fristen kravet gjelder», også der fristen ikke er registrert.»'''
+Svaret på forslaget: «2: A. Ja til forslaget i 3. I 2A står «regnet fra den gjeldende sluttfristen»; med 3B skal det være «regnet fra den fristen kravet gjelder», også der fristen ikke er registrert.»'''
 forhold = [
   { art = "presiserer", vedtak = "fo-u3" },
   { art = "presiserer", vedtak = "gfk-u3" },
 ]
 folge = '''
-Bygges i #1423.'''
+Spørsmålet og svaret står i #1423.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "forslaget"
