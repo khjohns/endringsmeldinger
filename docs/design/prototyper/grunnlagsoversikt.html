@@ -335,6 +335,33 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .valg-rad:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
 .valg-fot{font-size:12px;color:var(--ink-3)}
 .valg[hidden]{display:none}
+/* Brevvekslingen: brevene er kilden, og partene behandles likt */
+.sporhode .siste{font-size:14px;color:var(--ink-2)}
+.traad{list-style:none;margin:0;padding:8px 20px 20px;position:relative}
+.innlegg{position:relative;padding:16px 0 16px 48px;display:flex;flex-direction:column;gap:10px}
+.innlegg + .innlegg{border-top:1px solid var(--rule-subtle-color)}
+.innlegg::before{content:"";position:absolute;left:15px;top:0;bottom:0;border-left:1px solid var(--rule-strong-color)}
+.innlegg:first-child::before{top:20px}
+.innlegg > .ts{display:flex;flex-direction:column;gap:10px}
+[data-t="ubesvart"] .innlegg.tom::before,[data-t="avslatt"] .innlegg.svar5::before,[data-t="eo"] .innlegg.svar5::before,[data-t="frafall"] .innlegg.svar5::before{bottom:auto;height:20px}
+.part{position:absolute;left:0;top:14px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);display:grid;place-items:center;font-size:12px;font-weight:600;letter-spacing:.02em;z-index:1}
+.innlegg-hode{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;align-items:baseline}
+.innlegg-tittel{font-size:16px;font-weight:600}
+.innlegg-hode .lenke{grid-row:1/3;grid-column:2;align-self:start;padding-top:0}
+.innlegg-meta{font-size:14px;color:var(--ink-2)}
+.standpunkt{font-size:16px;font-weight:500;color:var(--ink)}
+.innlegg .lagene{margin:0}
+.sitat{padding-left:12px;border-left:2px solid var(--rule-strong-color);display:flex;flex-direction:column;gap:4px}
+.sitat p{font-size:14px;color:var(--ink)}
+.sitat .sitat-dato{color:var(--ink-2)}
+.sitat-hvem{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.innlegg .filer{display:flex;flex-wrap:wrap;gap:8px}
+.innlegg .segl{margin:0}
+.innlegg.tom p{color:var(--ink-3);padding-top:6px}
+.innlegg.tom .part{border-style:dashed;color:var(--ink-3)}
+@media (max-width:560px){.innlegg{padding-left:44px}.innlegg-hode{grid-template-columns:1fr}.innlegg-hode .lenke{grid-row:auto;grid-column:1;justify-self:start}}
+@media (max-width:1180px){.stilling{order:1}.handlinger{order:2}.baerer{order:3}.datoer{order:4}.kommentarer{order:5}}
+
 /* Revisjon 31.10: brevene som kilde, tallene lette å sammenligne, 14 px hjelpetekst */
 .sporhode .mulige{font-size:14px;color:var(--ink-2)}
 .stilling .sporhode{border-bottom:0;padding-bottom:0}
@@ -462,54 +489,56 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <header class="sporhode">
               <p class="over"><span class="fs f-endring">Endringer, jf. punkt&nbsp;31 og 32</span><span class="fs f-grunn">Forsinkelse eller svikt ved byggherrens ytelser etter punkt&nbsp;22, 23 og 24</span></p>
               <h1 id="forhold-tittel"><span class="fs f-endring">Irregulær endring</span><span class="fs f-grunn">Uforutsette forhold ved grunnen</span></h1>
-              <p class="mulige">Kan gi rett til <span class="fs f-endring">vederlagsjustering (punkt&nbsp;34.1.1) og fristforlengelse (punkt&nbsp;33.1 a)</span><span class="fs f-grunn">vederlagsjustering (punkt&nbsp;34.1.2) og fristforlengelse (punkt&nbsp;33.1 b)</span>.</p>
+              <p class="siste"><span class="ts t-ubesvart">Siste brev: brev 1 fra totalentreprenøren, 9. oktober 2026. Svar fra byggherren er ikke registrert.</span><span class="ts t-avslatt t-eo t-frafall">Siste brev: brev 5 fra byggherren, 28. oktober 2026.</span></p>
             </header>
-            <div class="kort-kropp">
-              <div class="hjemmel" role="group" aria-label="Partenes standpunkter, registrert fra brevene">
-                <div><span class="hvem">Totalentreprenøren · brev 1</span>
-                  <span class="fs f-endring"><span class="hva">Pålegget innebærer en endring</span><span class="hvor">Punkt&nbsp;32.1. Varslet etter punkt&nbsp;32.2.</span></span>
-                  <span class="fs f-grunn"><span class="hva">Byggherren har risikoen for forholdet</span><span class="hvor">Punkt&nbsp;23.1. Grunnen avviker fra det totalentreprenøren hadde grunn til å regne med.</span></span>
+
+            <ol class="traad" aria-label="Brevene om forholdet">
+              <li class="innlegg">
+                <span class="part" aria-hidden="true">TE</span>
+                <div class="innlegg-hode">
+                  <h2 class="innlegg-tittel">Brev 1 · Varsel om <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></h2>
+                  <button class="lenke" type="button">Les brevet</button>
+                  <p class="innlegg-meta">Totalentreprenøren · 9. oktober 2026 · Per Olsen</p>
                 </div>
-                <div><span class="hvem">Byggherren<span class="ts t-avslatt t-eo t-frafall"> · brev 5</span></span>
-                  <span class="ts t-ubesvart"><span class="hva tomt">Ikke svart</span><span class="hvor fs f-endring">Skal svare uten ugrunnet opphold (punkt&nbsp;32.3).</span></span>
-                  <span class="ts t-avslatt"><span class="fs f-endring"><span class="hva">Avslår kravet på endringsordre</span><span class="hvor">Punkt&nbsp;32.3 første ledd b.</span></span><span class="fs f-grunn"><span class="hva">Har ikke risikoen for forholdet</span><span class="hvor">Punkt&nbsp;23.1.</span></span></span>
-                  <span class="ts t-eo"><span class="fs f-endring"><span class="hva">Utsteder endringsordre</span><span class="hvor">Punkt&nbsp;32.3 første ledd a, uten innsigelse om varselet.</span></span><span class="fs f-grunn"><span class="hva">Har risikoen for forholdet</span><span class="hvor">Punkt&nbsp;23.1.</span></span></span>
-                  <span class="ts t-frafall"><span class="hva">Frafaller pålegget</span><span class="hvor">Punkt&nbsp;32.3 første ledd c.</span></span>
+                <p class="standpunkt"><span class="fs f-endring">Pålegget innebærer en endring (punkt&nbsp;32.1). Varslet etter punkt&nbsp;32.2.</span><span class="fs f-grunn">Byggherren har risikoen for forholdet (punkt&nbsp;23.1).</span></p>
+                <div class="sitat"><span class="sitat-hvem"><span class="fs f-endring">Beskrivelse av pålegget</span><span class="fs f-grunn">Beskrivelse av forholdet</span></span>
+                  <p><span class="fs f-endring">«I byggemøtet ble det bestemt at fasadeplatene på østfasaden skal erstattes med tegl, med ny underkonstruksjon. Prosjektlederen ga pålegget muntlig. Det er referert i punkt 14.3 i byggemøtereferatet.»</span><span class="fs f-grunn">«Ved graving i akse 4–7 ble fjell påtruffet 1,8 m høyere enn kotene i den geotekniske rapporten byggherren la ved konkurransegrunnlaget. Om lag 650 m³ fjell må sprenges, og det var ikke forutsatt.»</span></p>
+                  <p class="sitat-dato"><span class="fs f-endring">Pålegg mottatt</span><span class="fs f-grunn">Klar over forholdet</span> 2. oktober 2026, ifølge totalentreprenøren.</p>
                 </div>
-              </div>
+                <span class="filer" aria-label="Vedlegg til brev 1"><span class="fs f-endring"><a class="fil" href="#" aria-label="Referat byggemøte 14.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Referat byggemøte 14.pdf</span><span class="fm">PDF · 380 kB</span></a></span><span class="fs f-grunn"><a class="fil" href="#" aria-label="Profilmåling akse 4–7.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Profilmåling akse 4–7.pdf</span><span class="fm">PDF · 2,4 MB</span></a></span></span>
+              </li>
 
-              <ul class="lagene ts t-avslatt fs f-endring" aria-label="Hva hvert lag bygger på">
-                <li><b>Prinsipalt</b><span>Byggherren gjør gjeldende at varselet etter punkt&nbsp;32.2 i brev 1 kom for sent.</span></li>
-                <li><b>Subsidiært</b><span>Hvis innsigelsen ikke fører frem, avslår byggherren likevel kravet på endringsordre.</span></li>
-              </ul>
-
-              <div class="segl ts t-eo fs f-endring">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 15l2 2 4-4"/></svg>
-                <b>Svaret i brev 5 er en endringsordre</b>
-                <span>etter punkt&nbsp;32.3 første ledd a, jf. punkt&nbsp;31.3. Byggherren krever at endringen utføres slik pålegget er beskrevet i brev 1.</span>
-              </div>
-
-              <div class="loefte ts t-frafall">
-                <b>Byggherren har lovet endringsordre for arbeid som alt er utført.</b> Den utstedes i en egen sak. Etter frafallet kan svaret bare endres til en endringsordre.
-              </div>
-            </div>
-          </section>
-
-          <section class="kort brevkort" aria-labelledby="brev-tittel">
-            <div class="kort-hode" style="padding-bottom:8px">
-              <h2 id="brev-tittel">Brevene om forholdet</h2>
-              <span class="kilde"><span class="ts t-ubesvart">1 brev</span><span class="ts t-avslatt t-eo t-frafall">2 brev</span></span>
-            </div>
-            <ul class="brevliste">
-              <li class="ts t-avslatt t-eo t-frafall"><span class="nr">Brev 5</span><span class="t">Svar på varselet om <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span><span class="m">BH · 28. oktober 2026 · Kari Nordmann, godkjent med fullmakt</span></span><button class="lenke" type="button">Les</button>
-                <div class="utdrag ts t-avslatt"><span class="utdrag-hvem">Begrunnelsen</span><p><span class="fs f-endring">«Bytte til tegl følger av fasadebeskrivelsen i kontrakten, punkt 4.2, som krever at kommunens estetikkveileder følges. Pålegget innebærer derfor ikke en endring.»</span><span class="fs f-grunn">«Profilmålingen viser fjell innenfor toleransene i den geotekniske rapporten, bilag 4. Grunnen avviker ikke fra det totalentreprenøren hadde grunn til å regne med.»</span></p></div>
-                <div class="utdrag ts t-eo t-frafall"><p><span class="fs f-endring"><span class="ts t-eo">«Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 punkt 32.3 første ledd a, jf. punkt 31.3 …»</span><span class="ts t-frafall">«Byggherren frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (NS 8407 punkt 32.3 første ledd c).»</span></span><span class="fs f-grunn">«Byggherren har risikoen for forholdet etter NS 8407 punkt 23.1.»</span></p></div>
-                <span class="filer ts t-avslatt" aria-label="Vedlegg til brev 5"><span class="fs f-endring"><a class="fil" href="#" aria-label="Kontraktens fasadebeskrivelse.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kontraktens fasadebeskrivelse.pdf</span><span class="fm">PDF · 1,1 MB</span></a></span><span class="fs f-grunn"><a class="fil" href="#" aria-label="Geoteknisk rapport, bilag 4.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Geoteknisk rapport, bilag 4.pdf</span><span class="fm">PDF · 3,2 MB</span></a></span></span></li>
-              <li><span class="nr">Brev 1</span><span class="t">Varsel om <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span><span class="m">TE · 9. oktober 2026 · Per Olsen</span></span><button class="lenke" type="button">Les</button>
-                <div class="utdrag"><span class="utdrag-hvem"><span class="fs f-endring">Beskrivelse av pålegget</span><span class="fs f-grunn">Beskrivelse av forholdet</span></span><p><span class="fs f-endring">«I byggemøtet ble det bestemt at fasadeplatene på østfasaden skal erstattes med tegl, med ny underkonstruksjon. Prosjektlederen ga pålegget muntlig. Det er referert i punkt 14.3 i byggemøtereferatet.»</span><span class="fs f-grunn">«Ved graving i akse 4–7 ble fjell påtruffet 1,8 m høyere enn kotene i den geotekniske rapporten byggherren la ved konkurransegrunnlaget. Om lag 650 m³ fjell må sprenges, og det var ikke forutsatt.»</span></p>
-                  <p class="utdrag-dato"><span class="fs f-endring">Pålegg mottatt</span><span class="fs f-grunn">Klar over forholdet</span> 2. oktober 2026, ifølge totalentreprenøren.</p></div>
-                <span class="filer" aria-label="Vedlegg til brev 1"><span class="fs f-endring"><a class="fil" href="#" aria-label="Referat byggemøte 14.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Referat byggemøte 14.pdf</span><span class="fm">PDF · 380 kB</span></a></span><span class="fs f-grunn"><a class="fil" href="#" aria-label="Profilmåling akse 4–7.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Profilmåling akse 4–7.pdf</span><span class="fm">PDF · 2,4 MB</span></a></span></span></li>
-            </ul>
+              <li class="innlegg svar5 ts t-avslatt t-eo t-frafall">
+                <span class="part" aria-hidden="true">BH</span>
+                <div class="innlegg-hode">
+                  <h2 class="innlegg-tittel">Brev 5 · Svar på varselet</h2>
+                  <button class="lenke" type="button">Les brevet</button>
+                  <p class="innlegg-meta">Byggherren · 28. oktober 2026 · Kari Nordmann, godkjent med fullmakt</p>
+                </div>
+                <div class="ts t-avslatt">
+                  <p class="standpunkt"><span class="fs f-endring">Avslår kravet på endringsordre (punkt&nbsp;32.3 første ledd b).</span><span class="fs f-grunn">Har ikke risikoen for forholdet (punkt&nbsp;23.1).</span></p>
+                  <ul class="lagene fs f-endring" aria-label="Lagene i svaret">
+                    <li><b>Prinsipalt</b><span>Byggherren gjør gjeldende at varselet etter punkt&nbsp;32.2 i brev 1 kom for sent.</span></li>
+                    <li><b>Subsidiært</b><span>Hvis innsigelsen ikke fører frem, avslår byggherren likevel kravet på endringsordre.</span></li>
+                  </ul>
+                  <div class="sitat"><span class="sitat-hvem">Begrunnelsen</span>
+                    <p><span class="fs f-endring">«Bytte til tegl følger av fasadebeskrivelsen i kontrakten, punkt 4.2, som krever at kommunens estetikkveileder følges. Pålegget innebærer derfor ikke en endring.»</span><span class="fs f-grunn">«Profilmålingen viser fjell innenfor toleransene i den geotekniske rapporten, bilag 4. Grunnen avviker ikke fra det totalentreprenøren hadde grunn til å regne med.»</span></p>
+                  </div>
+                  <span class="filer" aria-label="Vedlegg til brev 5"><span class="fs f-endring"><a class="fil" href="#" aria-label="Kontraktens fasadebeskrivelse.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kontraktens fasadebeskrivelse.pdf</span><span class="fm">PDF · 1,1 MB</span></a></span><span class="fs f-grunn"><a class="fil" href="#" aria-label="Geoteknisk rapport, bilag 4.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Geoteknisk rapport, bilag 4.pdf</span><span class="fm">PDF · 3,2 MB</span></a></span></span>
+                </div>
+                <div class="ts t-eo">
+                  <p class="standpunkt"><span class="fs f-endring">Utsteder endringsordre (punkt&nbsp;32.3 første ledd a), uten innsigelse om varselet.</span><span class="fs f-grunn">Har risikoen for forholdet (punkt&nbsp;23.1).</span></p>
+                  <p class="segl fs f-endring"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 15l2 2 4-4"/></svg><b>Svaret er en endringsordre</b><span>etter punkt&nbsp;32.3 første ledd a, jf. punkt&nbsp;31.3. Byggherren krever at endringen utføres slik pålegget er beskrevet i brev 1.</span></p>
+                </div>
+                <div class="ts t-frafall">
+                  <p class="standpunkt">Frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (punkt&nbsp;32.3 første ledd c).</p>
+                </div>
+              </li>
+              <li class="innlegg tom ts t-ubesvart">
+                <span class="part" aria-hidden="true">BH</span>
+                <p>Svar fra byggherren er ikke registrert.</p>
+              </li>
+            </ol>
           </section>
 
           <section class="kort baerer" aria-labelledby="baerer-tittel">
@@ -561,7 +590,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <!-- Totalentreprenøren -->
               <div class="kun-te">
                 <div class="ts t-ubesvart">
-                  <p class="venter"><b>Venter på byggherren.</b><span class="fs f-endring"> Byggherren skal svare på varselet uten ugrunnet opphold.</span><span class="fs f-grunn"></span></p>
+                  
                 </div>
                 <div class="ts t-avslatt">
                   <span class="uten-utkast"><button class="knapp primaer apne-valg" type="button" aria-expanded="false" aria-controls="valg-avslag">Ta stilling til avslaget</button></span>
@@ -601,7 +630,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 </div>
                 <p class="venter ts t-ubesvart"><span class="fs f-endring">Du kan utstede endringsordre, avslå kravet eller frafalle pålegget (punkt&nbsp;32.3).</span><span class="fs f-grunn">Du kan svare at byggherren har eller ikke har risikoen for forholdet (punkt&nbsp;23.1).</span></p>
                 <div class="ts t-avslatt">
-                  <p class="venter"><b>Venter på totalentreprenøren.</b></p>
+                  
                 </div>
                 <div class="ts t-eo">
                   <p class="ingen-handling"><b>Partene er enige om forholdet.</b> Svaret kan ikke endres. Det som gjenstår, er kravene om vederlag og frist.</p>
@@ -635,7 +664,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <p class="avstand fs f-grunn"><span class="num">7</span> kalenderdager fra forholdet til varselet. Fristene for kravene står på sidene om vederlag og frist.</p>
             <div class="svarplikt ts t-ubesvart fs f-endring">
               <p class="dag-teller"><span class="num">22</span> kalenderdager siden varselet</p>
-              <p>Byggherren skal svare uten ugrunnet opphold (punkt&nbsp;32.3).</p>
+              <p>Svar er ikke registrert. Svarplikten står i punkt&nbsp;32.3.</p>
             </div>
             <p class="avstand ts t-avslatt t-eo t-frafall fs f-endring"><span class="num">7</span> kalenderdager fra pålegget til varselet, og <span class="num">19</span> fra varselet til svaret.</p>
             <p class="avstand ts t-ubesvart fs f-endring">
