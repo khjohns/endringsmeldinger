@@ -10598,6 +10598,40 @@ Der OV-U4, OV-U10, OV-U19 og OV-U62 sier «Appen vurderer ikke innholdet», sier
 kilde = "hovedplanen"
 tekst = "Appen vurderer ikke innholdet"
 
+[[gruppe.vedtak]]
+id = "OV-U71"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1414"]
+sporsmal = '''
+Oppfølgingsspørsmål til OV-U70, ordrett slik det ble stilt i orkestratorøkta 31.10 og ført i #1414 (kommentaren 6540405595):
+
+3. **OV-U10 og OV-U19 sier også «Saken har brev sendt utenfor appen».** Den setningen var ikke med i spørsmålet, så den er ikke endret. Jeg anbefaler å endre den på samme måte, med veiledende ordlyd, for eksempel «Saken har brev som er registrert, men ikke sendt herfra.»
+
+Og i listen over spørsmål i samme melding:
+
+3. Den andre setningen i OV-U10 og OV-U19, «Saken har brev sendt utenfor appen»: skal den også endres, med veiledende ordlyd som «Saken har brev som er registrert, men ikke sendt herfra»? Jeg anbefaler ja.'''
+valgt = "Endre på samme måte"
+svar = '''
+«3. ja» Svaret er ja til spørsmålet med den anbefalte ordlyden og ført som alternativet «Endre på samme måte». Punkt 1 og 2 i svaret gjelder merge av to PR-er og er utelatt.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u10" },
+  { art = "endrer", vedtak = "ov-u19" },
+]
+folge = '''
+Bygges i #1414.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Endre på samme måte"
+tekst = '''
+Der OV-U10 og OV-U19 sier «Saken har brev sendt utenfor appen», sier merknaden at saken har brev som er registrert, men ikke sendt herfra. Ordlyden er veiledende, som i OV-U70: «Saken har brev som er registrert, men ikke sendt herfra.» Teksten trenger ikke følge den ordrett, men skal si det samme. Endrer OV-U10 og OV-U19.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Saken har brev sendt utenfor appen"
+utdrag = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
