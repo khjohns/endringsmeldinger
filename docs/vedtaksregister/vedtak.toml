@@ -1025,6 +1025,96 @@ tekst = '''
 Ingen endring i denne PR-en. Svaret godtas som i dag, og tilfellet føres under «Åpne spørsmål» i PR-en, så det kan avgjøres senere.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "KA-U43"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433", "#1441"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6542151900):
+
+**1. Begrunnelse per punkt.**
+*Bakgrunn:* I dag står byggherrens begrunnelse én gang per svar, under hele svaret (KA-U31), og løsningen krever en begrunnelse når svaret har en innsigelse eller avgrensning som gjør det mindre gunstig for totalentreprenøren (KA-U24). Med punktene etter skjemaet står begrunnelsen under punktet den gjelder.
+- **A (anbefalt):** «Byggherrens begrunnelse står under punktet den gjelder. Et punkt med en selvstendig innsigelse eller avgrensning som gjør svaret mindre gunstig for totalentreprenøren enn kravet, må ha en begrunnelse før svaret sendes. Begrunnelsen kan vise til begrunnelsen i et annet punkt i samme svar. Løsningen kontrollerer at teksten finnes, ikke hva den dekker. Et punkt som bare er subsidiært fordi grunnlaget er avslått, trenger ingen egen begrunnelse. Forhold: endrer KA-U31 (begrunnelsen står per punkt, ikke per svar); presiserer KA-U24 (en felles begrunnelse er en henvisning mellom punktene i samme svar).»
+- **B:** «Byggherrens begrunnelse står under punktet den gjelder. Kravet om begrunnelse gjelder svaret samlet: har svaret en selvstendig innsigelse eller avgrensning, må minst ett punkt ha en begrunnelse før svaret sendes. Forhold: endrer KA-U31 for plasseringen; KA-U24 står.»
+- *Hva valget styrer:* kontrollen før sending og feilmeldingen i skjemaet. Under A sier skjemaet hvilket punkt som mangler begrunnelse. Under B kan et punkt med avslag stå uten tekst i brevet når et annet punkt har tekst.
+
+Svaret på spørsmål 1 passet ikke på A eller B for kravet om begrunnelse. Oppfølgingsspørsmålet, ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6544156051):
+
+**1a. Når byggherrens begrunnelse er påkrevd.**
+*Bakgrunn:* For byggherrens svar i § 31–§ 35 krever kontrakten begrunnelse bare når byggherren avslår totalentreprenørens krav på endringsordre (§ 32.3 tredje ledd), og begrunnelsen skal da gis uten ugrunnet opphold etter avslaget. Den kan altså komme senere. Det sier KA-U24 også. KA-U21 regner en påberopelse av at varselet etter § 32.2 kom for sent som et avslag, som oppdragsgivers lesning og ikke en uttrykkelig regel. En senere begrunnelse kan ikke sendes fra løsningen i første versjon (KA-U34). I dag krever løsningen begrunnelse også for preklusjon etter § 33.4 og § 34.1.2, sen spesifisering, «ingen hindring», begrensning etter § 34.1.3, frafall og delvis godkjenning (KA-U24, KA-U32, VS-U5).
+- **A (anbefalt):** «Byggherrens begrunnelse er valgfri i hvert punkt, unntatt når byggherren avslår totalentreprenørens krav på endringsordre (§ 32.3 første ledd b), også når avslaget er en påberopelse av at varselet etter § 32.2 kom for sent (KA-U21). Da må punktet om grunnlaget ha en begrunnelse før svaret sendes, fordi en senere begrunnelse ikke kan sendes fra løsningen i første versjon. Begrunnelsen kan vise til et annet punkt i samme svar. Løsningen kontrollerer at teksten finnes, ikke hva den dekker eller om den er tilstrekkelig. Forhold: opphever KA-U24 og KA-U32, og det forkastede alternativet i KA-U24 («begrunnelse bare der kontrakten krever det») blir vedtatt; endrer KA-U31 (begrunnelsen står per punkt); endrer VS-U5 («Byggherren begrunner avgrensningen» faller bort); KA-U18 og KA-U21 står; presiserer KA-U41.»
+- **B:** «Som A, men en påberopelse av at varselet etter § 32.2 kom for sent krever ingen begrunnelse, fordi kontrakten bare krever at avslaget begrunnes. Forhold: som A, og opphever KA-U21 for kravet om begrunnelse.»
+- **C:** «Alle byggherrens begrunnelser er valgfrie i løsningen, også ved avslag av kravet på endringsordre. Før sending sier skjemaet at kontrakten krever at avslaget begrunnes uten ugrunnet opphold, og at en begrunnelse som ikke står i svaret, må sendes utenfor løsningen og registreres. Forhold: opphever KA-U24 og KA-U32; endrer KA-U18 (begrunnelsen kreves ikke i svaret); endrer KA-U31 og VS-U5 som i A.»
+- *Hva valget styrer:* når skjemaet stopper et svar uten begrunnelse. Under A og B gjelder det bare punktet om grunnlaget. Under C stopper det aldri, og begrunnelsen for et avslag kan bare komme utenfor løsningen til en senere begrunnelse kan sendes herfra.'''
+valgt = "A"
+svar = '''
+Ja, men alle begrunnelser må kunne være valgfrie, med mindre de er påkrevd iht kontrakt
+
+Oppfølgingen 1a og 1b: «A, A»'''
+forhold = [
+  { art = "opphever", vedtak = "ka-u24" },
+  { art = "opphever", vedtak = "ka-u32" },
+  { art = "endrer", vedtak = "ka-u31" },
+  { art = "endrer", vedtak = "vs-u5" },
+  { art = "presiserer", vedtak = "ka-u41" },
+]
+folge = '''
+Valget gjelder A i oppfølgingen 1a, også at begrunnelsen står per punkt. Svarene står ordrett i #1433 (kommentarene 6544156051 og 6544191778). Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherrens begrunnelse er valgfri i hvert punkt, unntatt når byggherren avslår totalentreprenørens krav på endringsordre (§ 32.3 første ledd b), også når avslaget er en påberopelse av at varselet etter § 32.2 kom for sent (KA-U21). Da må punktet om grunnlaget ha en begrunnelse før svaret sendes, fordi en senere begrunnelse ikke kan sendes fra løsningen i første versjon. Begrunnelsen kan vise til et annet punkt i samme svar. Løsningen kontrollerer at teksten finnes, ikke hva den dekker eller om den er tilstrekkelig. Forhold: opphever KA-U24 og KA-U32, og det forkastede alternativet i KA-U24 («begrunnelse bare der kontrakten krever det») blir vedtatt; endrer KA-U31 (begrunnelsen står per punkt); endrer VS-U5 («Byggherren begrunner avgrensningen» faller bort); KA-U18 og KA-U21 står; presiserer KA-U41.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, men en påberopelse av at varselet etter § 32.2 kom for sent krever ingen begrunnelse, fordi kontrakten bare krever at avslaget begrunnes. Forhold: som A, og opphever KA-U21 for kravet om begrunnelse.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Alle byggherrens begrunnelser er valgfrie i løsningen, også ved avslag av kravet på endringsordre. Før sending sier skjemaet at kontrakten krever at avslaget begrunnes uten ugrunnet opphold, og at en begrunnelse som ikke står i svaret, må sendes utenfor løsningen og registreres. Forhold: opphever KA-U24 og KA-U32; endrer KA-U18 (begrunnelsen kreves ikke i svaret); endrer KA-U31 og VS-U5 som i A.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "KA-U44"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6544156051):
+
+**1b. Gjelder svaret også totalentreprenørens tekster?**
+*Bakgrunn:* Totalentreprenørens krav om fristforlengelse må ha en begrunnelse (KA-U33). Det følger av § 33.6.1, som sier at totalentreprenøren skal angi og begrunne antallet dager. Varselet etter § 32.2 må ha en beskrivelse av pålegget (GR-U15). § 32.2 krever ikke det uttrykkelig, men beskrivelsen er det endringsordren viser til som hva endringen går ut på (GR-U14).
+- **A (anbefalt):** «Svaret 31.10 gjelder byggherrens begrunnelser. KA-U33 og GR-U15 står.»
+- **B:** «Svaret gjelder også totalentreprenøren. KA-U33 står, fordi § 33.6.1 krever begrunnelsen. Beskrivelsen av pålegget i varselet etter § 32.2 blir valgfri. Forhold: opphever GR-U15.»
+- *Hva valget styrer:* under B kan byggherrens godkjenning bli en endringsordre som ikke sier hva endringen går ut på.'''
+valgt = "A"
+svar = '''
+Ja, men alle begrunnelser må kunne være valgfrie, med mindre de er påkrevd iht kontrakt
+
+Oppfølgingen 1a og 1b: «A, A»'''
+folge = '''
+KA-U33 og GR-U15 står. Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Svaret 31.10 gjelder byggherrens begrunnelser. KA-U33 og GR-U15 står.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Svaret gjelder også totalentreprenøren. KA-U33 står, fordi § 33.6.1 krever begrunnelsen. Beskrivelsen av pålegget i varselet etter § 32.2 blir valgfri. Forhold: opphever GR-U15.'''
+forkastet = true
+
+
 [[gruppe]]
 tittel = "Aksept og enighet"
 
@@ -2139,6 +2229,33 @@ forkastet = true
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Endringsordren for utført arbeid utstedes i en egen EO-sak (#69) med egen fullmakt (GFK-06), ikke reaktivt fra KOE-saken; `kan_utstede_eo` er `false` i KOE-saken"
+
+[[gruppe.vedtak]]
+id = "GR-U29"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Forslaget ordrett slik det ble lagt fram 31.10 og lagret i #1433 (kommentaren 6544343304). Svarene 28.–30.10 det bygger på, står ordrett i kommentarene 6530940262, 6531829942 og 6533639479.
+
+**4. Forbeholdet om ubesvart grunnlag står sist** (30.10: «Ellers enig om forbehold» og «1 og 3: ja som anbefalt»).
+- **Forslag (anbefalt):** «Forbeholdet etter GR-U26 står i punktet ‹Forbehold›, sist i brevet, og ‹nedenfor› blir ‹ovenfor›: ‹Byggherren har ennå ikke svart på grunnlaget i totalentreprenørens krav i brev <n> av <dato>. Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.› Punktet ‹Forbehold› tas bare med når det har innhold. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer GR-U26.»
+- *Hva valget styrer:* hvor forbeholdet står. At det ikke er et lag og fryses med brevet, står i GR-U26.'''
+valgt = "forslaget"
+svar = '''
+Ja til forslaget, og 2, 3 og 4: A'''
+forhold = [
+  { art = "endrer", vedtak = "gr-u26" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "forslaget"
+tekst = '''
+Forbeholdet etter GR-U26 står i punktet ‹Forbehold›, sist i brevet, og ‹nedenfor› blir ‹ovenfor›: ‹Byggherren har ennå ikke svart på grunnlaget i totalentreprenørens krav i brev <n> av <dato>. Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.› Punktet ‹Forbehold› tas bare med når det har innhold. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer GR-U26.'''
+anbefalt = true
+
 
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
@@ -4319,6 +4436,40 @@ anbefalt = true
 navn = "B"
 tekst = '''
 Godkjenningen lukker saken som en endringsordre. Vederlag og frist som ikke er avgjort, går i en ny KOE etter spørsmål 1. OV-U6 og KA-U13 står.'''
+
+[[gruppe.vedtak]]
+id = "FO-U8"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt på nytt 31.10 og lagret i #1423 (kommentaren 6544509109), etter oppdragsgivers merknad til det første spørsmålet 4 (kommentaren 6544375566):
+
+**4. Taket på 10 % av kontraktssummen.**
+- **A (anbefalt):** «30 %-grensen og fullmakten regnes uten taket. Utregningen av grensen sier at det samlede dagmulktansvaret i kontrakten er begrenset til 10 % av kontraktssummen, og at utregningen ikke tar hensyn til det. Forhold: presiserer FO-U3.»
+- **B:** «Grensen regnes av høyst 10 % av kontraktssummen, som en øvre grense for saken alene. Dagmulkt i andre saker trekkes ikke fra. Forhold: presiserer FO-U3.»
+- *Hva valget styrer:* bare forlengelser på over om lag 100 hverdager med standardsatsen. Under B kan grensen likevel være for høy når det er påløpt dagmulkt for andre forsinkelser.'''
+valgt = "4A"
+svar = '''
+4A. Ja passer best med prinsipp om at appen ikke utleder noen rettsvirkninger. 3B enig med deg'''
+forhold = [
+  { art = "presiserer", vedtak = "fo-u3" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "4A"
+tekst = '''
+30 %-grensen og fullmakten regnes uten taket. Utregningen av grensen sier at det samlede dagmulktansvaret i kontrakten er begrenset til 10 % av kontraktssummen, og at utregningen ikke tar hensyn til det. Forhold: presiserer FO-U3.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4B"
+tekst = '''
+Grensen regnes av høyst 10 % av kontraktssummen, som en øvre grense for saken alene. Dagmulkt i andre saker trekkes ikke fra. Forhold: presiserer FO-U3.'''
+forkastet = true
+
 
 [[gruppe]]
 tittel = "Sendte brev, regelendring og saker kjernen ikke forstår"
@@ -6623,6 +6774,211 @@ tekst = '''
 25. **OV-U48.** Svarer byggherren ja på spørsmålet om godkjenningen er avhengig av andre vilkår eller forbehold, avvises sendingen ikke. Byggherren fører opp forbeholdene som egne punkter, og løsningen registrerer ikke at svaret stemmer med kravet, som i OV-U49 D1. For grunnlaget er et slikt svar da ikke en endringsordre i løsningen. Svarer byggherren nei, registrerer løsningen sammenfall ut fra valgene, og begrunnelsen vises med svaret og tolkes ikke.
 26. **«Byggherren er bundet …» i tekstene.** I svarskjemaet strykes «Byggherren er bundet av svaret som sendes herfra.» og «… og svaret kan ikke revideres». Svaret på S-11 i BF-01 og D-4 i BF-03 faller bort med vernet.'''
 
+[[gruppe.vedtak]]
+id = "LV-U33"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433", "#1441"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6542151900):
+
+**4. 0 kr i tabellen etter en påberopelse.**
+*Bakgrunn:* Når byggherren gjør gjeldende at varselet etter § 34.1.2 kom for sent, sier punktet det, men ikke hvilket beløp byggherren da godkjenner. Det som ikke står i brevet, regnes ikke som meddelt (LV-U3).
+- **A (anbefalt):** «I laget der byggherren gjør gjeldende at varselet etter § 34.1.2 kom for sent, viser tabellen 0 kr for postene påberopelsen rammer. Punktet om varselet sier ikke beløpet i tillegg. Uten tabell sier punktet: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen.› Forhold: utvider LV-U4 punkt 5.»
+- **B:** «Punktet om varselet sier alltid følgen: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen.› Tabellen viser 0 kr i samme lag. Forhold: utvider LV-U4 punkt 5.»
+- **C:** «Som i dag: brevet sier at varselet kom for sent, og ikke beløpet. Tabellen viser ikke noe beløp i det laget.»
+- *Hva valget styrer:* om brevet sier følgen av påberopelsen med et beløp. Under C har tabellen et tomt lag.'''
+valgt = "A"
+svar = '''
+Ja, men alle begrunnelser må kunne være valgfrie, med mindre de er påkrevd iht kontrakt
+
+Det tekniske spørsmålet «Svarer du A på spørsmål 2, 3 og 4 fra 31.10?»: «Ja til forslaget, og 2, 3 og 4: A»'''
+forhold = [
+  { art = "utvider", vedtak = "lv-u4" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+I laget der byggherren gjør gjeldende at varselet etter § 34.1.2 kom for sent, viser tabellen 0 kr for postene påberopelsen rammer. Punktet om varselet sier ikke beløpet i tillegg. Uten tabell sier punktet: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen.› Forhold: utvider LV-U4 punkt 5.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Punktet om varselet sier alltid følgen: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen.› Tabellen viser 0 kr i samme lag. Forhold: utvider LV-U4 punkt 5.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Som i dag: brevet sier at varselet kom for sent, og ikke beløpet. Tabellen viser ikke noe beløp i det laget.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U34"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Forslaget ordrett slik det ble lagt fram 31.10 og lagret i #1433 (kommentaren 6544343304). Svarene 28.–30.10 det bygger på, står ordrett i kommentarene 6530940262, 6531829942 og 6533639479.
+
+**1. Strukturen i byggherrens svar** (svarene om overskriftene og begrunnelsen 30.10, og «4. ja» om omfanget).
+- **Forslag (anbefalt):** «Byggherrens svar på grunnlaget, på kravet om justering av vederlaget og på kravet om fristforlengelse har samme struktur. Innledningen sier hvilket krav svaret gjelder: ‹Byggherren svarer på grunnlaget i totalentreprenørens krav i brev <n> av <dato>.›, ‹Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev <n> av <dato>. Beløpene i brevet er eks. mva.› og ‹Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev <n> av <dato>.› En revisjon sier i tillegg: ‹Svaret erstatter byggherrens svar i brev <n> av <dato>.› Deretter har svaret ett nummerert punkt per tema, med overskrifter og rekkefølge som i skjemaet for svaret, for eksempel ‹Varselet om vederlagsjustering (§ 34.1.2)›, ‹Beregningsmetode (§ 34.2)› og ‹Vederlagsjustering (§ 34.1.2)›. Er grunnlaget avslått eller prekludert, står det punktet først. Punkter uten innhold tas ikke med. Et standpunkt med etikett etter OV-U32 har en lagslinje med etiketten og innsigelsene laget bygger på, for eksempel ‹Subsidiært, hvis innsigelsen i punkt 1 ikke fører frem› og ‹Videre subsidiært, hvis heller ikke innsigelsen i punkt 2 fører frem›. Et standpunkt uten etikett (OV-U33) har ingen lagslinje. Lagslinjen erstatter ‹Prinsipalt:›, ‹Subsidiært:› og ‹Videre subsidiært:› foran setningen. Beløpene for en post står samlet under punktet for posten, også beløpet etter begrensningen etter § 34.1.3. Begrunnelsen står etter vedtaket for oppfølgingen 1a, som vanlig tekst uten innrykk og uten overskriften ‹Begrunnelse›. ‹NS 8407› står bare første gang i brevet, og ‹eks. mva.› bare i innledningen. Hjemmelen står i overskriften, og i setningen bare når den er selve påberopelsen. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer LV-U4 (punkt 4 og 5); presiserer OV-U32 (lagslinjen).»
+- *Hva valget styrer:* rekkefølgen og formen på brevteksten for alle tre svarene.'''
+valgt = "forslaget"
+svar = '''
+Ja til forslaget, og 2, 3 og 4: A'''
+forhold = [
+  { art = "endrer", vedtak = "lv-u4" },
+  { art = "presiserer", vedtak = "ov-u32" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "forslaget"
+tekst = '''
+Byggherrens svar på grunnlaget, på kravet om justering av vederlaget og på kravet om fristforlengelse har samme struktur. Innledningen sier hvilket krav svaret gjelder: ‹Byggherren svarer på grunnlaget i totalentreprenørens krav i brev <n> av <dato>.›, ‹Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev <n> av <dato>. Beløpene i brevet er eks. mva.› og ‹Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev <n> av <dato>.› En revisjon sier i tillegg: ‹Svaret erstatter byggherrens svar i brev <n> av <dato>.› Deretter har svaret ett nummerert punkt per tema, med overskrifter og rekkefølge som i skjemaet for svaret, for eksempel ‹Varselet om vederlagsjustering (§ 34.1.2)›, ‹Beregningsmetode (§ 34.2)› og ‹Vederlagsjustering (§ 34.1.2)›. Er grunnlaget avslått eller prekludert, står det punktet først. Punkter uten innhold tas ikke med. Et standpunkt med etikett etter OV-U32 har en lagslinje med etiketten og innsigelsene laget bygger på, for eksempel ‹Subsidiært, hvis innsigelsen i punkt 1 ikke fører frem› og ‹Videre subsidiært, hvis heller ikke innsigelsen i punkt 2 fører frem›. Et standpunkt uten etikett (OV-U33) har ingen lagslinje. Lagslinjen erstatter ‹Prinsipalt:›, ‹Subsidiært:› og ‹Videre subsidiært:› foran setningen. Beløpene for en post står samlet under punktet for posten, også beløpet etter begrensningen etter § 34.1.3. Begrunnelsen står etter vedtaket for oppfølgingen 1a, som vanlig tekst uten innrykk og uten overskriften ‹Begrunnelse›. ‹NS 8407› står bare første gang i brevet, og ‹eks. mva.› bare i innledningen. Hjemmelen står i overskriften, og i setningen bare når den er selve påberopelsen. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer LV-U4 (punkt 4 og 5); presiserer OV-U32 (lagslinjen).'''
+anbefalt = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U35"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Forslaget ordrett slik det ble lagt fram 31.10 og lagret i #1433 (kommentaren 6544343304). Svarene 28.–30.10 det bygger på, står ordrett i kommentarene 6530940262, 6531829942 og 6533639479.
+
+**2. Partene skrives fullt ut** (30.10: «språklig bedre å skrive totalentreprenøren enn TE?», og 31.10 om byggherren).
+- **Forslag (anbefalt):** «I brevtekstene skrives partene fullt ut: ‹byggherren› og ‹totalentreprenøren›, også i ‹totalentreprenørens krav› og ‹byggherrens svar›. ‹TE› i en vedtatt brevtekst leses som ‹totalentreprenøren›, og ‹TEs› som ‹totalentreprenørens›. Forkortelsene BH og TE brukes fortsatt i visningen. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer LV-U4 og de andre vedtatte brevtekstene som sier ‹TE›.»
+- *Hva valget styrer:* alle brevtekstene, også TEs krav og varsler, ikke bare byggherrens svar.'''
+valgt = "forslaget"
+svar = '''
+Ja til forslaget, og 2, 3 og 4: A'''
+forhold = [
+  { art = "endrer", vedtak = "lv-u4" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "forslaget"
+tekst = '''
+I brevtekstene skrives partene fullt ut: ‹byggherren› og ‹totalentreprenøren›, også i ‹totalentreprenørens krav› og ‹byggherrens svar›. ‹TE› i en vedtatt brevtekst leses som ‹totalentreprenøren›, og ‹TEs› som ‹totalentreprenørens›. Forkortelsene BH og TE brukes fortsatt i visningen. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer LV-U4 og de andre vedtatte brevtekstene som sier ‹TE›.'''
+anbefalt = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U36"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6544572884). «Forslaget om strukturen 31.10» er LV-U34, «svaret på spørsmål 4 31.10» er LV-U33 og «forslaget om postene 31.10» er OV-U74.
+
+**O1. Hjemmelen i setningen om endringsordren.**
+*Bakgrunn:* Forslaget om strukturen 31.10 sier: «Hjemmelen står i overskriften, og i setningen bare når den er selve påberopelsen.» Setningen i GR-U14, «Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: …», er ikke en påberopelse. Den sier hva svaret er etter kontrakten.
+- **A (anbefalt):** «Setningen i GR-U14 om at svaret er en endringsordre, står med hjemmelen, også når hjemmelen står i overskriften. Forhold: presiserer forslaget om strukturen 31.10.»
+- **B:** «Hjemmelen strykes i setningen i GR-U14 når den står i overskriften: ‹Svaret er en endringsordre: …›. Forhold: endrer GR-U14.»
+- *Hva valget styrer:* om brevet selv sier hvilken bestemmelse endringsordren er utstedt etter.'''
+valgt = "A"
+svar = '''
+O1 A, O2 A, O3 A. Vedtak for de andre går i en annen økt og PR'''
+forhold = [
+  { art = "presiserer", vedtak = "lv-u34" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Setningen i GR-U14 om at svaret er en endringsordre, står med hjemmelen, også når hjemmelen står i overskriften. Forhold: presiserer forslaget om strukturen 31.10.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hjemmelen strykes i setningen i GR-U14 når den står i overskriften: ‹Svaret er en endringsordre: …›. Forhold: endrer GR-U14.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U37"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6544572884). «Forslaget om strukturen 31.10» er LV-U34, «svaret på spørsmål 4 31.10» er LV-U33 og «forslaget om postene 31.10» er OV-U74.
+
+**O2. Hva forslaget om strukturen endrer i OV-U28 og OV-U32.**
+*Bakgrunn:* Forslaget sier at lagslinjen erstatter ‹Prinsipalt:›, ‹Subsidiært:› og ‹Videre subsidiært:› foran setningen, og at ‹eks. mva.› bare står i innledningen. OV-U32 sier at brevet skriver «Prinsipalt:» for det første laget, og OV-U28 har etikettene foran setningen og «kr eks. mva.» i setningen om begrensningen. Forholdene i forslaget nevner bare LV-U4 (endrer) og OV-U32 (presiserer).
+- **A (anbefalt):** «Forslaget om strukturen 31.10 endrer også OV-U28 og OV-U32: etikettene står i lagslinjen og ikke foran setningen, og ‹eks. mva.› står bare i innledningen. Forhold: endrer OV-U28 og OV-U32.»
+- **B:** «Forslaget om strukturen gjelder bare LV-U4. I brevtekstene etter OV-U28 og OV-U32 står etikettene foran setningen, og ‹kr eks. mva.› i setningen om begrensningen.»
+- *Hva valget styrer:* om de to vedtakene viser den gjeldende ordlyden. Under B har brevet to former for etikettene.'''
+valgt = "A"
+svar = '''
+O1 A, O2 A, O3 A. Vedtak for de andre går i en annen økt og PR'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u28" },
+  { art = "endrer", vedtak = "ov-u32" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Forslaget om strukturen 31.10 endrer også OV-U28 og OV-U32: etikettene står i lagslinjen og ikke foran setningen, og ‹eks. mva.› står bare i innledningen. Forhold: endrer OV-U28 og OV-U32.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Forslaget om strukturen gjelder bare LV-U4. I brevtekstene etter OV-U28 og OV-U32 står etikettene foran setningen, og ‹kr eks. mva.› i setningen om begrensningen.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U38"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6544572884). «Forslaget om strukturen 31.10» er LV-U34, «svaret på spørsmål 4 31.10» er LV-U33 og «forslaget om postene 31.10» er OV-U74.
+
+**O3. Hvilke poster setningen om 0 kr gjelder.**
+*Bakgrunn:* Svaret på spørsmål 4 31.10 (A) sier: «Uten tabell sier punktet: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen.›» Etter forslaget om postene 31.10 heter bare posten etter § 34.1.1 eller § 34.1.2 «vederlagsjustering». Etter OV-U27 rammer påberopelsen etter § 34.1.2 hele vederlagskravet, også den særskilte vederlagsjusteringen. Tabellen står bare med når svaret har minst to poster med beløp (spørsmål 3). Har den særskilte posten ikke fast beløp, sier setningen da bare følgen for den ene posten. Det som ikke står i brevet, regnes ikke som meddelt (LV-U3).
+- **A (anbefalt):** «Uten tabell sier punktet om varselet etter § 34.1.2 følgen for hver post påberopelsen rammer: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen eller den særskilte vederlagsjusteringen.› Har kravet bare den ene posten, nevnes bare den. Forhold: presiserer svaret på spørsmål 4 31.10.»
+- **B:** «Setningen står som vedtatt. ‹Vederlagsjusteringen› i den setningen betyr hele kravet om justering av vederlaget, også den særskilte. Forhold: presiserer svaret på spørsmål 4 og forslaget om postene 31.10.»
+- *Hva valget styrer:* om brevet sier følgen for den særskilte posten med ord, eller om ordet får to betydninger.'''
+valgt = "A"
+svar = '''
+O1 A, O2 A, O3 A. Vedtak for de andre går i en annen økt og PR'''
+forhold = [
+  { art = "presiserer", vedtak = "lv-u33" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Uten tabell sier punktet om varselet etter § 34.1.2 følgen for hver post påberopelsen rammer: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen eller den særskilte vederlagsjusteringen.› Har kravet bare den ene posten, nevnes bare den. Forhold: presiserer svaret på spørsmål 4 31.10.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Setningen står som vedtatt. ‹Vederlagsjusteringen› i den setningen betyr hele kravet om justering av vederlaget, også den særskilte. Forhold: presiserer svaret på spørsmål 4 og forslaget om postene 31.10.'''
+forkastet = true
+
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -7263,6 +7619,313 @@ navn = "Nei, bare manglende rolle"
 tekst = '''
 Bare en rolle som mangler, avvises. En lavere grense godtas.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "GFK-U16"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6544286811):
+
+*Bakgrunn:* Satsen brukes til to ting: verdien av fristdagene i fullmakten (GFK-06, GFK-U3) og 30 %-grensen ved forsering (FO-U3). I dag registrerer driften et fast kronebeløp per prosjekt (`koe.dagmulktssats`). § 40.3 a sier at dagmulkten er 1 ‰ av kontraktssummen per hverdag, men ikke mindre enn 3000 kr, «er ikke annet avtalt». Kontraktsmalen har promillen og minstebeløpet som verdier som kan endres. Oppdragsgiver 31.10: «dagmulktsats har en standard i kontrakten, men den kan endres så muligens standardssats (i prosent) som kan konfigureres i prosjektinnstillinger».
+
+**1. Hvor satsen kommer fra.**
+- **A (anbefalt):** «Prosjektinnstillingene har kontraktssummen, promillen og minstebeløpet for dagmulkten ved overskridelse av sluttfristen. Standardverdiene er 1 ‰ og 3000 kr etter § 40.3 a. Er det avtalt et fast beløp per dag, registreres det i stedet. Satsen i kroner regnes ut av dette. Mangler opplysningene, gjelder GFK-U3 og GFK-U4. Forhold: presiserer GFK-U3 og FO-U3; dagens kronebeløp per prosjekt erstattes.»
+- **B:** «Driften registrerer satsen i kroner per prosjekt, som i dag. Forhold: GFK-U3 står.»
+- *Hva valget styrer:* om satsen følger kontraktssummen når den endres, og hvem som registrerer den.'''
+valgt = "A"
+svar = '''
+A,A. Siste forutsatt at dette er lest ut av kontrakten'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u3" },
+  { art = "presiserer", vedtak = "fo-u3" },
+]
+folge = '''
+Svaret står ordrett i #1423 (kommentaren 6544372163).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Prosjektinnstillingene har kontraktssummen, promillen og minstebeløpet for dagmulkten ved overskridelse av sluttfristen. Standardverdiene er 1 ‰ og 3000 kr etter § 40.3 a. Er det avtalt et fast beløp per dag, registreres det i stedet. Satsen i kroner regnes ut av dette. Mangler opplysningene, gjelder GFK-U3 og GFK-U4. Forhold: presiserer GFK-U3 og FO-U3; dagens kronebeløp per prosjekt erstattes.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Driften registrerer satsen i kroner per prosjekt, som i dag. Forhold: GFK-U3 står.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U17"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6544286811):
+
+*Bakgrunn:* Satsen brukes til to ting: verdien av fristdagene i fullmakten (GFK-06, GFK-U3) og 30 %-grensen ved forsering (FO-U3). I dag registrerer driften et fast kronebeløp per prosjekt (`koe.dagmulktssats`). § 40.3 a sier at dagmulkten er 1 ‰ av kontraktssummen per hverdag, men ikke mindre enn 3000 kr, «er ikke annet avtalt». Kontraktsmalen har promillen og minstebeløpet som verdier som kan endres. Oppdragsgiver 31.10: «dagmulktsats har en standard i kontrakten, men den kan endres så muligens standardssats (i prosent) som kan konfigureres i prosjektinnstillinger».
+
+**2. Hverdager og kalenderdager.**
+*Bakgrunn:* Dagmulkten løper per hverdag (§ 40.3), mens fristforlengelsen regnes i kalenderdager (§ 33). Prototypen ganger kalenderdagene med satsen.
+- **A (anbefalt):** «Fullmakten og 30 %-grensen ganger satsen med antallet hverdager i forlengelsen, regnet fra den gjeldende sluttfristen. Er sluttfristen ikke registrert, brukes kalenderdagene. Det gir en høyere verdi, og utregningen sier det. Forhold: presiserer GFK-06 og FO-U3.»
+- **B:** «Satsen ganges med kalenderdagene, uten omregning. Forhold: GFK-06 og FO-U3 står.»
+- *Hva valget styrer:* under B blir verdien i fullmakten og 30 %-grensen om lag 40 % for høy.
+
+Svaret var «A,A. Siste forutsatt at dette er lest ut av kontrakten». Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6544705246):
+
+**2. Hverdagene i fullmakten.**
+*Bakgrunn:* Svaret på spørsmål 2 var A, «forutsatt at dette er lest ut av kontrakten». Kontrollen 31.10 fant at 30 %-grensen er lest ut av kontrakten: § 33.8 regner den av dagmulkten som ville ha påløpt, og etter § 40.3 påløper dagmulkten per hverdag. Fullmakten er derimot byggherrens interne regel og ikke regulert av kontrakten. Der er hverdagene et valg, for å regne likt med grensen. Forutsetningen holder altså bare for grensen.
+- **A (anbefalt):** «2A gjelder også fullmakten: verdien av fristdagene i fullmakten regnes med hverdagene, som 30 %-grensen, selv om kontrakten ikke regulerer fullmakten.»
+- **B:** «Bare 30 %-grensen ganger satsen med antallet hverdager i forlengelsen, regnet fra den gjeldende sluttfristen. Fullmakten ganger satsen med kalenderdagene i forlengelsen.»
+- *Hva valget styrer:* om fullmakten og grensen bruker samme antall dager. Under B ligger verdien i fullmakten om lag 15–20 % høyere enn grensen.'''
+valgt = "A"
+svar = '''
+A,A. Siste forutsatt at dette er lest ut av kontrakten
+
+Oppfølgingen: «2: A. Ja til forslaget i 3. I 2A står «regnet fra den gjeldende sluttfristen»; med 3B skal det være «regnet fra den fristen kravet gjelder», også der fristen ikke er registrert.»'''
+forhold = [
+  { art = "presiserer", vedtak = "fo-u3" },
+]
+folge = '''
+Det valgte alternativet er 2A med oppdragsgivers rettelse: «regnet fra den gjeldende sluttfristen» er byttet med «regnet fra den fristen kravet gjelder». At «Er sluttfristen ikke registrert» også er byttet med «Er fristen ikke registrert», er lesningen av «også der fristen ikke er registrert» i #1423 (kommentaren 6544785461). «Om lag 40 %» under «Hva valget styrer» i spørsmål 2 ble rettet til «om lag 15–20 %» i kommentaren 6544372163.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Fullmakten og 30 %-grensen ganger satsen med antallet hverdager i forlengelsen, regnet fra den fristen kravet gjelder. Er fristen ikke registrert, brukes kalenderdagene. Det gir en høyere verdi, og utregningen sier det. Forhold: presiserer GFK-06 og FO-U3.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Satsen ganges med kalenderdagene, uten omregning. Forhold: GFK-06 og FO-U3 står.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare grensen"
+tekst = '''
+Bare 30 %-grensen ganger satsen med antallet hverdager i forlengelsen, regnet fra den gjeldende sluttfristen. Fullmakten ganger satsen med kalenderdagene i forlengelsen.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U18"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6544375566):
+
+**3. Andre frister enn sluttfristen.**
+*Bakgrunn:* Bare dagmulktbelagte frister gir dagmulkt (§ 40.2). En delfrist er dagmulktbelagt bare når kontrakten sier det, og har egen sats (§ 40.3 b).
+- **A (anbefalt):** «Satsen i prosjektinnstillingene gjelder sluttfristen. Gjelder fristkravet en annen frist, kan dagene ikke verdsettes. Fullmakten behandler dem som et krav som ikke er tallfestet (GFK-U3), og forseringen viser ingen 30 %-grense. Forhold: presiserer FO-U3 og GFK-U3.»
+- **B:** «Prosjektinnstillingene har også de dagmulktbelagte delfristene med sats. Fristkravet sier hvilken frist det gjelder. Forhold: presiserer FO-U3 og GFK-06; fristkravet får et nytt felt.»
+- *Hva valget styrer:* om et krav om forlengelse av en delfrist kan verdsettes.
+
+Svaret var «3B enig med deg». Forslaget til vedtakstekst ordrett slik det ble lagt fram 31.10 og lagret i #1423 (kommentaren 6544705246):
+
+**3. Fristtabellen.**
+*Bakgrunn:* Svaret var «3B enig med deg». Anbefalingen i chatten etter at spørsmålet var lagret, var fristtabellen fra kontraktsmalen (E.1 og E.2), ikke bare delfristene i B. Etter § 40.2 er sluttfristen dagmulktbelagt, og en annen frist er det bare når kontrakten sier det for den enkelte fristen. Etter § 40.3 a og b har sluttfristen og delfristene hver sin sats.
+- **Forslag (anbefalt):** «Prosjektinnstillingene har fristtabellen fra kontrakten, med fristen, datoen, om fristen er dagmulktbelagt, og satsen. Satsen etter § 40.3 a gjelder de avtalte overtakelsesfristene, og satsen etter § 40.3 b gjelder de dagmulktbelagte delfristene, med verdien av delen. Fristkravet sier hvilke frister det gjelder. For en frist som ikke er dagmulktbelagt, er det ingen dagmulkt å regne av. Løsningen sier det og avgjør ikke hva det betyr for valgretten etter § 33.8. Forhold: presiserer FO-U3 og GFK-U3; fristkravet får et nytt felt.»
+- *Hva valget styrer:* at et krav om forlengelse av en delfrist kan verdsettes med satsen for den delfristen.'''
+valgt = "forslaget"
+svar = '''
+4A. Ja passer best med prinsipp om at appen ikke utleder noen rettsvirkninger. 3B enig med deg
+
+Svaret på forslaget: «2: A. Ja til forslaget i 3. I 2A står «regnet fra den gjeldende sluttfristen»; med 3B skal det være «regnet fra den fristen kravet gjelder», også der fristen ikke er registrert.»'''
+forhold = [
+  { art = "presiserer", vedtak = "fo-u3" },
+  { art = "presiserer", vedtak = "gfk-u3" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "forslaget"
+tekst = '''
+Prosjektinnstillingene har fristtabellen fra kontrakten, med fristen, datoen, om fristen er dagmulktbelagt, og satsen. Satsen etter § 40.3 a gjelder de avtalte overtakelsesfristene, og satsen etter § 40.3 b gjelder de dagmulktbelagte delfristene, med verdien av delen. Fristkravet sier hvilke frister det gjelder. For en frist som ikke er dagmulktbelagt, er det ingen dagmulkt å regne av. Løsningen sier det og avgjør ikke hva det betyr for valgretten etter § 33.8. Forhold: presiserer FO-U3 og GFK-U3; fristkravet får et nytt felt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3A"
+tekst = '''
+Satsen i prosjektinnstillingene gjelder sluttfristen. Gjelder fristkravet en annen frist, kan dagene ikke verdsettes. Fullmakten behandler dem som et krav som ikke er tallfestet (GFK-U3), og forseringen viser ingen 30 %-grense. Forhold: presiserer FO-U3 og GFK-U3.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U19"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D1. Hvilke dager som verdsettes.**
+*Bakgrunn:* GFK-U17 ganger satsen med «antallet hverdager i forlengelsen, regnet fra den fristen kravet gjelder». FO-U3 regner 30 %-grensen av de avslåtte dagene, og fullmakten bruker verdien i svaret når sporet besvares i samme brev (GFK-06, EO-U6). «Forlengelsen» sier ikke om det er dagene som er krevd, godkjent eller avslått. Fristen kan også alt være forlenget (§ 40.1), mens fristtabellen har den avtalte datoen.
+- **A (anbefalt):** «I GFK-U17 er forlengelsen de avslåtte dagene for 30 %-grensen (FO-U3), og dagene verdien i svaret gjelder for fullmakten (GFK-06). Hverdagene telles fra fristen slik den står etter fristforlengelse som er registrert som godkjent eller avtalt. Forhold: presiserer GFK-U17.»
+- **B:** «I GFK-U17 er forlengelsen de krevde dagene, både for 30 %-grensen og for fullmakten, og hverdagene telles fra datoen i fristtabellen. Forhold: presiserer GFK-U17; endrer FO-U3 (grensen regnes av de krevde dagene).»
+- *Hva valget styrer:* hvilket tall grensen og fullmakten regnes av ved delvis godkjenning, og fra hvilken dato hverdagene telles.'''
+valgt = "A"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u17" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+I GFK-U17 er forlengelsen de avslåtte dagene for 30 %-grensen (FO-U3), og dagene verdien i svaret gjelder for fullmakten (GFK-06). Hverdagene telles fra fristen slik den står etter fristforlengelse som er registrert som godkjent eller avtalt. Forhold: presiserer GFK-U17.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+I GFK-U17 er forlengelsen de krevde dagene, både for 30 %-grensen og for fullmakten, og hverdagene telles fra datoen i fristtabellen. Forhold: presiserer GFK-U17; endrer FO-U3 (grensen regnes av de krevde dagene).'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U20"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D2. En frist uten dagmulkt i fullmakten.**
+*Bakgrunn:* GFK-U18 sier: «For en frist som ikke er dagmulktbelagt, er det ingen dagmulkt å regne av.» Det sier ikke hva fullmakten gjør. Leses det som 0 kr, kan dager for en slik frist godkjennes uten kjeden. Etter GFK-U3 behandles fristdager som ikke kan verdsettes, som et krav som ikke er tallfestet, og det krever hele kjeden.
+- **A (anbefalt):** «Gjelder fristkravet en frist som ikke er dagmulktbelagt, behandler fullmakten dagene som et krav som ikke er tallfestet (GFK-U3 og GFK-U4), og forseringen viser ingen 30 %-grense. Forhold: presiserer GFK-U18.»
+- **B:** «Dager for en frist som ikke er dagmulktbelagt, har verdien 0 kr i fullmakten. Forhold: presiserer GFK-U18; endrer GFK-U3.»
+- *Hva valget styrer:* om et svar om en slik frist krever kjeden.'''
+valgt = "A"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u18" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Gjelder fristkravet en frist som ikke er dagmulktbelagt, behandler fullmakten dagene som et krav som ikke er tallfestet (GFK-U3 og GFK-U4), og forseringen viser ingen 30 %-grense. Forhold: presiserer GFK-U18.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Dager for en frist som ikke er dagmulktbelagt, har verdien 0 kr i fullmakten. Forhold: presiserer GFK-U18; endrer GFK-U3.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U21"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D3. Et krav som gjelder flere frister.**
+*Bakgrunn:* Etter GFK-U18 sier fristkravet hvilke frister det gjelder, og GFK-U17 regner fra «den fristen». Kontrakten har en sats for hver dagmulktbelagt frist (§ 40.3 a og b). Ingen av vedtakene sier hva verdien er når kravet gjelder flere dagmulktbelagte frister.
+- **A (anbefalt):** «Gjelder fristkravet flere dagmulktbelagte frister, er verdien summen av verdien for hver frist, regnet etter GFK-U17 med satsen for den fristen. Utregningen viser hver frist for seg. Løsningen avgjør ikke om dagmulkt kan kreves for flere frister samtidig. Forhold: presiserer GFK-U17 og GFK-U18.»
+- **B:** «Gjelder fristkravet flere dagmulktbelagte frister, er verdien den høyeste av verdiene for hver frist, regnet etter GFK-U17. Forhold: presiserer GFK-U17 og GFK-U18.»
+- *Hva valget styrer:* under A blir verdien høyere, så fullmakten krever oftere kjeden og 30 %-grensen blir høyere.'''
+valgt = "A"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u17" },
+  { art = "presiserer", vedtak = "gfk-u18" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Gjelder fristkravet flere dagmulktbelagte frister, er verdien summen av verdien for hver frist, regnet etter GFK-U17 med satsen for den fristen. Utregningen viser hver frist for seg. Løsningen avgjør ikke om dagmulkt kan kreves for flere frister samtidig. Forhold: presiserer GFK-U17 og GFK-U18.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Gjelder fristkravet flere dagmulktbelagte frister, er verdien den høyeste av verdiene for hver frist, regnet etter GFK-U17. Forhold: presiserer GFK-U17 og GFK-U18.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U22"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D4. Hvem som registrerer opplysningene om dagmulkten.**
+*Bakgrunn:* GFK-U16 og GFK-U18 legger kontraktssummen, promillen, minstebeløpet og fristtabellen i prosjektinnstillingene, men sier ikke hvem som registrerer dem. Opplysningene styrer fullmakten. I dag registrerer driften satsen, og etter GFK-U1 og GFK-U6 setter driften opp fullmaktene etter skriftlig bestilling fra byggherren.
+- **A (anbefalt):** «Opplysningene om dagmulkten i prosjektinnstillingene registreres av driften etter skriftlig bestilling fra byggherren, som fullmaktene (GFK-U1, GFK-U6). Den som utarbeider eller godkjenner et svar, kan ikke endre dem. Forhold: presiserer GFK-U16 og GFK-U18.»
+- **B:** «Opplysningene registreres av byggherrens team i prosjektet, og hver endring står med tidspunkt og hvem som registrerte den. Forhold: presiserer GFK-U16 og GFK-U18.»
+- *Hva valget styrer:* under B kan den som svarer, endre verdien som avgjør om svaret trenger kjeden.'''
+valgt = "A"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u16" },
+  { art = "presiserer", vedtak = "gfk-u18" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661). Oppdragsgivers merknad til D4 er ført som GFK-U23.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Opplysningene om dagmulkten i prosjektinnstillingene registreres av driften etter skriftlig bestilling fra byggherren, som fullmaktene (GFK-U1, GFK-U6). Den som utarbeider eller godkjenner et svar, kan ikke endre dem. Forhold: presiserer GFK-U16 og GFK-U18.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Opplysningene registreres av byggherrens team i prosjektet, og hver endring står med tidspunkt og hvem som registrerte den. Forhold: presiserer GFK-U16 og GFK-U18.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U23"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D4. Hvem som registrerer opplysningene om dagmulkten.**
+*Bakgrunn:* GFK-U16 og GFK-U18 legger kontraktssummen, promillen, minstebeløpet og fristtabellen i prosjektinnstillingene, men sier ikke hvem som registrerer dem. Opplysningene styrer fullmakten. I dag registrerer driften satsen, og etter GFK-U1 og GFK-U6 setter driften opp fullmaktene etter skriftlig bestilling fra byggherren.
+- **A (anbefalt):** «Opplysningene om dagmulkten i prosjektinnstillingene registreres av driften etter skriftlig bestilling fra byggherren, som fullmaktene (GFK-U1, GFK-U6). Den som utarbeider eller godkjenner et svar, kan ikke endre dem. Forhold: presiserer GFK-U16 og GFK-U18.»
+- **B:** «Opplysningene registreres av byggherrens team i prosjektet, og hver endring står med tidspunkt og hvem som registrerte den. Forhold: presiserer GFK-U16 og GFK-U18.»
+- *Hva valget styrer:* under B kan den som svarer, endre verdien som avgjør om svaret trenger kjeden.
+
+Svaret hadde en merknad til D4 med oppdragsgivers egne ord. Den er ført som alternativet «Til D4», ordrett.'''
+valgt = "Til D4"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u22" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Til D4"
+tekst = '''
+fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+
 
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
@@ -10631,6 +11294,115 @@ anbefalt = true
 kilde = "hovedplanen"
 tekst = "Saken har brev sendt utenfor appen"
 utdrag = true
+
+[[gruppe.vedtak]]
+id = "OV-U72"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433", "#1441"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6542151900):
+
+**2. Teksten under «Forbehold» og kravet om begrunnelse.**
+*Bakgrunn:* Avklart 30.10: punktet «Forbehold» står sist, med den faste setningen om ubesvart grunnlag og byggherrens egen tekst for hele svaret, som tolkes ikke og sperrer ingenting. Det er ikke avgjort om den teksten kan være begrunnelsen for punktene.
+- **A (anbefalt):** «Byggherren kan skrive en tekst for hele svaret under «Forbehold», som står sist i brevet. Teksten vises med svaret, tolkes ikke og sperrer ingenting. Den oppfyller ikke kravet om begrunnelse i et punkt. Vilkår og forbehold skrives i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret. Forhold: presiserer OV-U69 («i begrunnelsen eller i et innlegg» blir «i begrunnelsen for punktet eller under «Forbehold»») og KA-U19.»
+- **B:** «Som A, men teksten under «Forbehold» oppfyller kravet om begrunnelse for alle punktene i svaret. Forhold: presiserer OV-U69 og KA-U19; snevrer inn svaret på spørsmål 1.»
+- *Hva valget styrer:* under B kan byggherren sende et svar der alle punktene står uten begrunnelse, og forklaringen står bare under overskriften «Forbehold».'''
+valgt = "A"
+svar = '''
+Ja, men alle begrunnelser må kunne være valgfrie, med mindre de er påkrevd iht kontrakt
+
+Det tekniske spørsmålet «Svarer du A på spørsmål 2, 3 og 4 fra 31.10?»: «Ja til forslaget, og 2, 3 og 4: A»'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u69" },
+  { art = "presiserer", vedtak = "ka-u19" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherren kan skrive en tekst for hele svaret under «Forbehold», som står sist i brevet. Teksten vises med svaret, tolkes ikke og sperrer ingenting. Den oppfyller ikke kravet om begrunnelse i et punkt. Vilkår og forbehold skrives i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret. Forhold: presiserer OV-U69 («i begrunnelsen eller i et innlegg» blir «i begrunnelsen for punktet eller under «Forbehold»») og KA-U19.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, men teksten under «Forbehold» oppfyller kravet om begrunnelse for alle punktene i svaret. Forhold: presiserer OV-U69 og KA-U19; snevrer inn svaret på spørsmål 1.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "OV-U73"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433", "#1441"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6542151900):
+
+**3. Når tabellen står med.**
+*Bakgrunn:* Avklart 30.10: tabellen med summen per lag er en del av brevet og fryses med teksten. OV-U28 forkastet 23.10 en setning med summen i hvert lag. Fristsvaret har bare én post og får ingen tabell.
+- **A (anbefalt):** «Byggherrens svar på et krav om vederlagsjustering har en oversiktstabell når svaret har minst to poster med beløp og minst to lag. Tabellen har én rad per post med det krevde beløpet og det byggherren godkjenner i hvert lag, og en sumrad. Beløpene er de samme som i punktene, og tabellen står etter punktene og før «Forbehold». Tabellen er en del av brevteksten og fryses med den. En post uten fast beløp regnes ikke med; hvordan den vises, avgjøres for seg. Forhold: endrer OV-U28 (summen i hvert lag står i tabellen); OV-U31 står.»
+- **B:** «Som A, men tabellen står med i hvert svar på et krav om vederlagsjustering med minst to poster med beløp, også med ett lag.»
+- **C:** «Som A, men tabellen står med i hvert svar med minst to lag, også med én post.»
+- *Hva valget styrer:* hvor ofte brevet har en tabell. Med ett lag gjentar tabellen bare beløpene i punktene (B). Med én post er summen lik beløpet i hvert lag (C).'''
+valgt = "A"
+svar = '''
+Ja, men alle begrunnelser må kunne være valgfrie, med mindre de er påkrevd iht kontrakt
+
+Det tekniske spørsmålet «Svarer du A på spørsmål 2, 3 og 4 fra 31.10?»: «Ja til forslaget, og 2, 3 og 4: A»'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u28" },
+]
+folge = '''
+OV-U31 står. Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherrens svar på et krav om vederlagsjustering har en oversiktstabell når svaret har minst to poster med beløp og minst to lag. Tabellen har én rad per post med det krevde beløpet og det byggherren godkjenner i hvert lag, og en sumrad. Beløpene er de samme som i punktene, og tabellen står etter punktene og før «Forbehold». Tabellen er en del av brevteksten og fryses med den. En post uten fast beløp regnes ikke med; hvordan den vises, avgjøres for seg. Forhold: endrer OV-U28 (summen i hvert lag står i tabellen); OV-U31 står.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, men tabellen står med i hvert svar på et krav om vederlagsjustering med minst to poster med beløp, også med ett lag.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Som A, men tabellen står med i hvert svar med minst to lag, også med én post.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "OV-U74"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Forslaget ordrett slik det ble lagt fram 31.10 og lagret i #1433 (kommentaren 6544343304). Svarene 28.–30.10 det bygger på, står ordrett i kommentarene 6530940262, 6531829942 og 6533639479.
+
+**3. Postene i vederlagskravet** (30.10: «Hva med bare ordlyden vederlagsjustering fremfor hovedkrav eller justering ellers?»).
+- **Forslag (anbefalt):** «Posten etter § 34.1.1 eller § 34.1.2 heter ‹vederlagsjustering› i brevet og skjemaet, ikke ‹hovedkrav› eller ‹justeringen ellers›. Kravet etter § 34.1.3 annet ledd heter ‹særskilt vederlagsjustering›. I OV-U28 blir ‹for justeringen ellers› til ‹for vederlagsjusteringen›, og ‹for særskilt justering etter NS 8407 § 34.1.3 annet ledd› til ‹for den særskilte vederlagsjusteringen etter NS 8407 § 34.1.3 annet ledd›. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer OV-U28.»
+- *Hva valget styrer:* navnet på postene i brevet, skjemaet og oversikten. Teksten om varselet om særskilt justering etter § 34.1.3 tredje ledd står.'''
+valgt = "forslaget"
+svar = '''
+Ja til forslaget, og 2, 3 og 4: A'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u28" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "forslaget"
+tekst = '''
+Posten etter § 34.1.1 eller § 34.1.2 heter ‹vederlagsjustering› i brevet og skjemaet, ikke ‹hovedkrav› eller ‹justeringen ellers›. Kravet etter § 34.1.3 annet ledd heter ‹særskilt vederlagsjustering›. I OV-U28 blir ‹for justeringen ellers› til ‹for vederlagsjusteringen›, og ‹for særskilt justering etter NS 8407 § 34.1.3 annet ledd› til ‹for den særskilte vederlagsjusteringen etter NS 8407 § 34.1.3 annet ledd›. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer OV-U28.'''
+anbefalt = true
+
 
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
