@@ -204,6 +204,13 @@ skrives i rekkefølge. Det må prøves i byggingen, med `gjengirTro` som kontrol
 
 ## Spørsmål 3: begrunnelsen per punkt
 
+> **Merknad 31.10:** Oppdragsgiver svarte «Ja, men alle begrunnelser må kunne være valgfrie,
+> med mindre de er påkrevd iht kontrakt». Kontrollen per punkt under gjelder da bare der
+> kontrakten krever begrunnelse. For byggherrens svar i § 31–§ 35 er det avslaget etter
+> § 32.3 tredje ledd. Hvordan det avgrenses, står i
+> [oppfølgingsspørsmålet i #1433](https://github.com/khjohns/endringsmeldinger/issues/1433#issuecomment-6544156051).
+> Teksten under er vurderingen før svaret.
+
 - **KA-U31 må endres.** Den sier at begrunnelsen «står per svar, som utdypningen under
   svarets låste tekst». Den snevret også inn KA-U24, så «en felles begrunnelse kan dekke
   flere standpunkter» gjelder standpunktene i samme svar. Med én begrunnelse per punkt er
