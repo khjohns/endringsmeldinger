@@ -6839,6 +6839,112 @@ I brevtekstene skrives partene fullt ut: ‹byggherren› og ‹totalentreprenø
 anbefalt = true
 
 
+[[gruppe.vedtak]]
+id = "LV-U36"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6544572884). «Forslaget om strukturen 31.10» er LV-U34, «svaret på spørsmål 4 31.10» er LV-U33 og «forslaget om postene 31.10» er OV-U74.
+
+**O1. Hjemmelen i setningen om endringsordren.**
+*Bakgrunn:* Forslaget om strukturen 31.10 sier: «Hjemmelen står i overskriften, og i setningen bare når den er selve påberopelsen.» Setningen i GR-U14, «Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: …», er ikke en påberopelse. Den sier hva svaret er etter kontrakten.
+- **A (anbefalt):** «Setningen i GR-U14 om at svaret er en endringsordre, står med hjemmelen, også når hjemmelen står i overskriften. Forhold: presiserer forslaget om strukturen 31.10.»
+- **B:** «Hjemmelen strykes i setningen i GR-U14 når den står i overskriften: ‹Svaret er en endringsordre: …›. Forhold: endrer GR-U14.»
+- *Hva valget styrer:* om brevet selv sier hvilken bestemmelse endringsordren er utstedt etter.'''
+valgt = "A"
+svar = '''
+O1 A, O2 A, O3 A. Vedtak for de andre går i en annen økt og PR'''
+forhold = [
+  { art = "presiserer", vedtak = "lv-u34" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Setningen i GR-U14 om at svaret er en endringsordre, står med hjemmelen, også når hjemmelen står i overskriften. Forhold: presiserer forslaget om strukturen 31.10.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hjemmelen strykes i setningen i GR-U14 når den står i overskriften: ‹Svaret er en endringsordre: …›. Forhold: endrer GR-U14.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U37"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6544572884). «Forslaget om strukturen 31.10» er LV-U34, «svaret på spørsmål 4 31.10» er LV-U33 og «forslaget om postene 31.10» er OV-U74.
+
+**O2. Hva forslaget om strukturen endrer i OV-U28 og OV-U32.**
+*Bakgrunn:* Forslaget sier at lagslinjen erstatter ‹Prinsipalt:›, ‹Subsidiært:› og ‹Videre subsidiært:› foran setningen, og at ‹eks. mva.› bare står i innledningen. OV-U32 sier at brevet skriver «Prinsipalt:» for det første laget, og OV-U28 har etikettene foran setningen og «kr eks. mva.» i setningen om begrensningen. Forholdene i forslaget nevner bare LV-U4 (endrer) og OV-U32 (presiserer).
+- **A (anbefalt):** «Forslaget om strukturen 31.10 endrer også OV-U28 og OV-U32: etikettene står i lagslinjen og ikke foran setningen, og ‹eks. mva.› står bare i innledningen. Forhold: endrer OV-U28 og OV-U32.»
+- **B:** «Forslaget om strukturen gjelder bare LV-U4. I brevtekstene etter OV-U28 og OV-U32 står etikettene foran setningen, og ‹kr eks. mva.› i setningen om begrensningen.»
+- *Hva valget styrer:* om de to vedtakene viser den gjeldende ordlyden. Under B har brevet to former for etikettene.'''
+valgt = "A"
+svar = '''
+O1 A, O2 A, O3 A. Vedtak for de andre går i en annen økt og PR'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u28" },
+  { art = "endrer", vedtak = "ov-u32" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Forslaget om strukturen 31.10 endrer også OV-U28 og OV-U32: etikettene står i lagslinjen og ikke foran setningen, og ‹eks. mva.› står bare i innledningen. Forhold: endrer OV-U28 og OV-U32.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Forslaget om strukturen gjelder bare LV-U4. I brevtekstene etter OV-U28 og OV-U32 står etikettene foran setningen, og ‹kr eks. mva.› i setningen om begrensningen.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "LV-U38"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1433"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1433 (kommentaren 6544572884). «Forslaget om strukturen 31.10» er LV-U34, «svaret på spørsmål 4 31.10» er LV-U33 og «forslaget om postene 31.10» er OV-U74.
+
+**O3. Hvilke poster setningen om 0 kr gjelder.**
+*Bakgrunn:* Svaret på spørsmål 4 31.10 (A) sier: «Uten tabell sier punktet: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen.›» Etter forslaget om postene 31.10 heter bare posten etter § 34.1.1 eller § 34.1.2 «vederlagsjustering». Etter OV-U27 rammer påberopelsen etter § 34.1.2 hele vederlagskravet, også den særskilte vederlagsjusteringen. Tabellen står bare med når svaret har minst to poster med beløp (spørsmål 3). Har den særskilte posten ikke fast beløp, sier setningen da bare følgen for den ene posten. Det som ikke står i brevet, regnes ikke som meddelt (LV-U3).
+- **A (anbefalt):** «Uten tabell sier punktet om varselet etter § 34.1.2 følgen for hver post påberopelsen rammer: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen eller den særskilte vederlagsjusteringen.› Har kravet bare den ene posten, nevnes bare den. Forhold: presiserer svaret på spørsmål 4 31.10.»
+- **B:** «Setningen står som vedtatt. ‹Vederlagsjusteringen› i den setningen betyr hele kravet om justering av vederlaget, også den særskilte. Forhold: presiserer svaret på spørsmål 4 og forslaget om postene 31.10.»
+- *Hva valget styrer:* om brevet sier følgen for den særskilte posten med ord, eller om ordet får to betydninger.'''
+valgt = "A"
+svar = '''
+O1 A, O2 A, O3 A. Vedtak for de andre går i en annen økt og PR'''
+forhold = [
+  { art = "presiserer", vedtak = "lv-u33" },
+]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Uten tabell sier punktet om varselet etter § 34.1.2 følgen for hver post påberopelsen rammer: ‹Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen eller den særskilte vederlagsjusteringen.› Har kravet bare den ene posten, nevnes bare den. Forhold: presiserer svaret på spørsmål 4 31.10.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Setningen står som vedtatt. ‹Vederlagsjusteringen› i den setningen betyr hele kravet om justering av vederlaget, også den særskilte. Forhold: presiserer svaret på spørsmål 4 og forslaget om postene 31.10.'''
+forkastet = true
+
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
