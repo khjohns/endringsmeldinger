@@ -10561,6 +10561,45 @@ kilde = "hovedplanen"
 tekst = "Er godkjenningen avhengig av andre vilkår eller forbehold enn dem som uttrykkes gjennom valgene du har gjort og den faste brevteksten?"
 utdrag = true
 
+[[gruppe.vedtak]]
+id = "OV-U70"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1414"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt i orkestratorøkta 31.10 og ført i #1414 (kommentaren 6540070217):
+
+**1. «Appen vurderer ikke innholdet» er vedtatt ordlyd** (OV-U4, OV-U19). Språkfila sier uttrykkelig at merknaden står til et vedtak endrer den. Varden kan ikke skrive den om på egen hånd. Vil du endre den, må det et nytt vedtak til i vedtaksregisteret. Et forslag i språkfilas stil: «Innholdet i brevet er ikke vurdert her. Oversikten avgjør ikke hvilken betydning brevet har for partenes rettigheter og plikter.»
+
+- Vil du ha et vedtak som endrer merknaden «Appen vurderer ikke innholdet»? Hvis ja: godtar du forslaget mitt, eller vil du ha en annen ordlyd?
+
+**Forholdet til andre vedtak.** Endrer OV-U4, OV-U10, OV-U19 og OV-U62, som har merknaden.'''
+valgt = "Ordlyden er ikke fastsatt"
+svar = '''
+«Følger dine anbefalinger. Ordlyden din er også fin, men vedtaket bør ikke kreve at Varden følger ordlyden helt eksakt.» Svaret er oppdragsgivers egne ord og ført som alternativet «Ordlyden er ikke fastsatt».'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u4" },
+  { art = "endrer", vedtak = "ov-u10" },
+  { art = "endrer", vedtak = "ov-u19" },
+  { art = "endrer", vedtak = "ov-u62" },
+]
+folge = '''
+Bygges i #1414.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Forslaget"
+tekst = '''
+Merknaden «Appen vurderer ikke innholdet» erstattes med «Innholdet i brevet er ikke vurdert her. Oversikten avgjør ikke hvilken betydning brevet har for partenes rettigheter og plikter.» Endrer OV-U4, OV-U10, OV-U19 og OV-U62.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ordlyden er ikke fastsatt"
+tekst = '''
+Der OV-U4, OV-U10, OV-U19 og OV-U62 sier «Appen vurderer ikke innholdet», sier merknaden at innholdet i brevet ikke er vurdert, og at oversikten ikke avgjør hvilken betydning brevet har for partenes rettigheter og plikter. Ordlyden er ikke fastsatt i vedtaket. «Innholdet i brevet er ikke vurdert her. Oversikten avgjør ikke hvilken betydning brevet har for partenes rettigheter og plikter.» er en ordlyd som oppfyller det. Endrer OV-U4, OV-U10, OV-U19 og OV-U62.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen vurderer ikke innholdet"
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
