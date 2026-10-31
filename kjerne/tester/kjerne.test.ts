@@ -7,7 +7,7 @@
 import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import type { Journalrad, Krav, Part, Standpunktsvirkning, Svar } from '../typer.ts';
+import type { Journalrad, Krav, Part, Spor, Standpunktsvirkning, Svar } from '../typer.ts';
 import { frysBrev, Skrivefeil, vurder, type Kontekst } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
 import { ELDRE_SVAR } from '../kommandoer/forutsetninger.ts';
@@ -1715,6 +1715,8 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   const utledet = (journal: Journalrad[]) =>
     utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER);
   const vist = (journal: Journalrad[]) => visning(utledet(journal), GJELDENDE_REGLER);
+  const vedKravet = (journal: Journalrad[], spor: Spor) =>
+    vist(journal).spor[spor].registrerteBrev.map((b) => b.dokument);
   /** Grunnlagskravet venter på svar, og BH har registrert ett brev. */
   async function medBrevFraBH() {
     const bane = minnebane();
@@ -1738,7 +1740,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
       [rad.event_id, '2026-10-20', retting.event_id],
       [retting.event_id, '2026-10-19', null],
     ]);
-    expect(vist(journal).spor.grunnlag.registrerteBrev).toEqual([retting.event_id]);
+    expect(vedKravet(journal, 'grunnlag')).toEqual([retting.event_id]);
   });
 
   it('OV-U17: bare samme side retter; kontrollsak: BH retter sin egen', async () => {
@@ -1775,7 +1777,10 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   it('OV-U18: brevet i feil sak rettes bort, og visningen viser det ikke lenger ved kravet eller i merknaden', async () => {
     const { journal, rad } = await medBrevFraBH();
     const foer = vist(journal);
-    expect(foer.spor.grunnlag.registrerteBrev, 'kontrollsak').toEqual([rad.event_id]);
+    expect(
+      foer.spor.grunnlag.registrerteBrev.map((b) => b.dokument),
+      'kontrollsak'
+    ).toEqual([rad.event_id]);
     expect(foer.merknader, 'kontrollsak').toContain('brev_utenfor_appen');
     const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH');
     expect(retting.data).toEqual({ retter: rad.event_id, ikke_i_saken: true });
@@ -1853,16 +1858,127 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(lest.art === 'ukjent' ? lest.grunn : lest.art).toContain('en retting er ikke');
   });
 
-  it('OV-U20: ved hvert krav som venter, vises motpartens brev for sporet og saken, ikke TEs eller et annet spors', async () => {
+  it('OV-U62: ved hvert krav som venter, vises begge partenes brev for sporet og saken med avsender og beskrivelse, ikke et rettet eller et annet spors', async () => {
     const { journal, rad } = await medBrevFraBH();
     const saken = godtatt(journal, registrering({ spor: undefined }), 'BH');
     const vederlag = godtatt(journal, registrering({ spor: ['vederlag'] }), 'BH');
-    godtatt(journal, registrering(), 'TE');
-    expect(vist(journal).spor.grunnlag.registrerteBrev).toEqual([rad.event_id, saken.event_id]);
-    expect(vist(journal).spor.vederlag.registrerteBrev).toEqual([
-      saken.event_id,
-      vederlag.event_id,
+    const fraTE = godtatt(journal, registrering({ beskrivelse: 'Brev fra TE' }), 'TE');
+    const rettetTE = godtatt(journal, registrering(), 'TE');
+    godtatt(journal, { type: 'ikke_i_saken', retter: rettetTE.event_id }, 'TE');
+    expect(vist(journal).spor.grunnlag.registrerteBrev).toEqual([
+      { dokument: rad.event_id, avsender: 'BH', beskrivelse: 'Svar på varselet' },
+      { dokument: saken.event_id, avsender: 'BH', beskrivelse: 'Svar på varselet' },
+      { dokument: fraTE.event_id, avsender: 'TE', beskrivelse: 'Brev fra TE' },
     ]);
+    expect(vedKravet(journal, 'vederlag')).toEqual([saken.event_id, vederlag.event_id]);
+  });
+
+  it('OV-U44: hver journalpost har én kilde, en rettet registrering beholder sin og merkes rettet, og vurderingsgrunnlaget har ikke den rettede', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
+    ]);
+    const journal = await bane.journal();
+    const [sak, krav, varsel] = journal.map((r) => r.event_id);
+    const rad = godtatt(journal, registrering(), 'TE');
+    const retting = godtatt(journal, registrering({ retter: rad.event_id }), 'TE');
+    const v = vist(journal);
+    expect(v.journal.map((j) => [j.hendelse, j.kilde, j.rettet])).toEqual([
+      [sak, 'sendt_herfra', false],
+      [krav, 'sendt_herfra', false],
+      [varsel, 'partens_opplysning', false],
+      [rad.event_id, 'dokumentasjon', true],
+      [retting.event_id, 'dokumentasjon', false],
+    ]);
+    expect(v.vurderingsgrunnlag).toEqual({
+      sendt_herfra: [sak, krav],
+      partens_opplysning: [varsel],
+      dokumentasjon: [retting.event_id],
+    });
+  });
+
+  it('OV-U44, MM-U2: en hendelse kjernen ikke forstår, har ingen kilde, og da er hvert registrert brev dokumentasjon (OV-U21)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
+    ]);
+    const journal = await bane.journal();
+    const ukjent = { ...structuredClone(journal.at(-1)!), event_id: randomUUID(), format: null };
+    ukjent.versjon = journal.at(-1)!.versjon + 1;
+    journal.push(ukjent);
+    expect(forstaatt(journal), 'forutsetning').toBe(false);
+    expect(vist(journal).journal.map((j) => j.kilde)).toEqual([
+      'sendt_herfra',
+      'sendt_herfra',
+      'dokumentasjon',
+      null,
+    ]);
+  });
+
+  it('OV-U44, OV-U18: rettingen som sier at brevet ikke hører til saken, er dokumentasjon, men står ikke i vurderingsgrunnlaget (svar 2B 30.10 i #1045)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [{ handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' }]);
+    const journal = await bane.journal();
+    const rad = godtatt(journal, registrering(), 'TE');
+    const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'TE');
+    const v = vist(journal);
+    expect(v.journal.find((j) => j.hendelse === retting.event_id)?.kilde).toBe('dokumentasjon');
+    expect(v.journal.find((j) => j.hendelse === rad.event_id)?.rettet).toBe(true);
+    expect(v.vurderingsgrunnlag.dokumentasjon).toEqual([]);
+  });
+
+  it('OV-U44, HF-U1: et fristkrav sendt herfra med datoen for varselet står under både sendt herfra og partenes opplysninger i vurderingsgrunnlaget (svar 3A 30.10 i #1045)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'krav', spor: 'frist', dager: 10, varsel_sendt: '2026-09-02' },
+    ]);
+    const journal = await bane.journal();
+    const [sak, grunnlag, frist] = journal.map((r) => r.event_id);
+    const v = vist(journal);
+    expect(
+      utledet(journal).spor.frist.varsler['33.4'],
+      'forutsetning: varselet har virkning'
+    ).toBeTruthy();
+    expect(v.journal.find((j) => j.hendelse === frist)?.kilde).toBe('sendt_herfra');
+    expect(v.vurderingsgrunnlag).toEqual({
+      sendt_herfra: [sak, grunnlag, frist],
+      partens_opplysning: [frist],
+      dokumentasjon: [],
+    });
+    const ukjent = { ...structuredClone(journal.at(-1)!), event_id: randomUUID(), format: null };
+    ukjent.versjon = journal.at(-1)!.versjon + 1;
+    journal.push(ukjent);
+    expect(forstaatt(journal), 'forutsetning').toBe(false);
+    expect(vist(journal).vurderingsgrunnlag.partens_opplysning, 'MM-U2, OV-U21').toEqual([]);
+  });
+
+  it('punkt 4 i #1167: alt i et registrert brev utenom varsel og endringsordre er dokumentasjon, uten virkning (OV-U4, HF-U13)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
+    ]);
+    const journal = await bane.journal();
+    const varselet = journal.at(-1)!;
+    const u = utledet(journal);
+    expect(u.ikkeVurderteBrev, 'kontrollsak: bare varselet').toEqual([]);
+    // Ingen kommando skriver det ennå (#587): raden lages for hånd.
+    (varselet.data.utsagn as Data[]).push({
+      id: randomUUID(),
+      art: 'ingen_krav',
+      spor: 'vederlag',
+    });
+    expect(grunner(journal), 'forutsetning: leseren forstår raden').toEqual([]);
+    const etter = utledet(journal);
+    expect(etter.spor.vederlag.ingenKrav).toBe(false);
+    expect(etter.ikkeVurderteBrev).toEqual([varselet.event_id]);
+    expect(Object.keys(etter.spor.frist.varsler), 'varselet har fortsatt virkning (OV-U5)').toEqual(
+      ['33.4']
+    );
+    expect(visning(etter, GJELDENDE_REGLER).journal.at(-1)!.kilde).toBe('dokumentasjon');
   });
 
   it('OV-U19: når kravene er avgjort, står setningen i statusen og ikke som merknad (OV-U10)', async () => {
@@ -1882,6 +1998,32 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
       'Alle krav sendt i appen er avgjort. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.'
     );
     expect(v.merknader).not.toContain('brev_utenfor_appen');
+  });
+});
+
+// AV-1126, oppdragsgiver 22.10 (#1126): uten eget varsel er det første fristkravet varselet, så
+// etiketten står bare før kravet.
+describe('«Varsel ikke registrert» i fristsporet (#1126)', () => {
+  const etiketter = async (steg: (Handling | string)[]) => {
+    const bane = minnebane();
+    await bygg(bane, steg);
+    const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    return visning(u, GJELDENDE_REGLER).spor.frist.etiketter;
+  };
+
+  const grunnlag: Handling = { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' };
+
+  it('står når fristsporet verken har varsel eller krav', async () => {
+    expect(await etiketter([grunnlag])).toContain('varsel_ikke_registrert');
+  });
+
+  it('står ikke etter fristkravet; kontrollsak: heller ikke etter et varsel', async () => {
+    expect(
+      await etiketter([grunnlag, { handling: 'krav', spor: 'frist', dager: 20 }])
+    ).not.toContain('varsel_ikke_registrert');
+    expect(
+      await etiketter([grunnlag, { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' }])
+    ).not.toContain('varsel_ikke_registrert');
   });
 });
 

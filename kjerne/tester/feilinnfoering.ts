@@ -904,7 +904,7 @@ const MUTASJONER: Mutasjon[] = [
         '  kontrollerHenvisningene(henvisninger, elementer, alleKrav, besvart, bakover, ugyldig);',
       ],
     ],
-    mal: ['en påberopt passivitet mot den er forstått'],
+    mal: ['en påberopt passivitet sendt herfra mot den er forstått'],
   },
   {
     id: 'F90',
@@ -2645,17 +2645,25 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F361',
-    feilklasse: 'brev fra begge sider vises ved kravet (OV-U20)',
+    feilklasse: 'bare byggherrens brev vises ved kravet (OV-U62)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [["b.avsender === 'BH' && b.rettetAv", 'true && b.rettetAv']],
-    mal: ['OV-U20: ved hvert krav som venter, vises motpartens brev'],
+    endringer: [
+      [
+        '.filter((b) => b.rettetAv === null && (b.spor',
+        ".filter((b) => b.avsender === 'BH' && b.rettetAv === null && (b.spor",
+      ],
+    ],
+    mal: ['OV-U62: ved hvert krav som venter, vises begge partenes brev'],
   },
   {
     id: 'F362',
-    feilklasse: 'et rettet brev vises fortsatt ved kravet (OV-U18, OV-U20)',
+    feilklasse: 'et rettet brev vises fortsatt ved kravet (OV-U18, OV-U62)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [["b.avsender === 'BH' && b.rettetAv === null &&", "b.avsender === 'BH' &&"]],
-    mal: ['OV-U18: brevet i feil sak rettes bort'],
+    endringer: [['.filter((b) => b.rettetAv === null && (b.spor', '.filter((b) => (b.spor']],
+    mal: [
+      'OV-U18: brevet i feil sak rettes bort',
+      'OV-U62: ved hvert krav som venter, vises begge partenes brev',
+    ],
   },
   {
     id: 'F363',
@@ -2683,35 +2691,55 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et varsel registrert med virkning gir merknaden og statusen for saken (OV-U19, HF-U13)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    d.svar.length + d.utsagn.length > 0 &&', '    false &&']],
+    endringer: [
+      ['return forstaatt && elementer > 0 && dokumentasjonIBrevet(d).size === 0', 'return false'],
+    ],
     mal: [
+      'OV-U44: hver journalpost har én kilde',
       'OV-U19: et varsel registrert med virkning teller ikke',
       'OV-U19: en endringsordre registrert med virkning teller ikke',
     ],
   },
   {
     id: 'F367',
-    feilklasse:
-      'et svar registrert som dokumentasjon regnes som et brev appen vurderer (OV-U4, OV-U19)',
+    feilklasse: 'et svar registrert som dokumentasjon er ikke dokumentasjon (OV-U4, OV-U19)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['d.svar.every((s) => erRegistrertEndringsordre(s, d))', 'true']],
+    endringer: [
+      [
+        '...d.svar.filter((s) => !erRegistrertEndringsordre(s, d))',
+        '...d.svar.filter(() => false)',
+      ],
+    ],
     mal: ['OV-U19: en endringsordre registrert med virkning teller ikke'],
   },
   {
     id: 'F368',
     feilklasse:
-      'en registrert begrunnelse regnes som et brev appen vurderer (OV-U19, OV-U4, KA-U35)',
+      'et registrert utsagn som ikke er et varsel, er ikke dokumentasjon (OV-U19, OV-U4, KA-U35, punkt 4 i #1167)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["d.utsagn.every((x) => x.art === 'varsel')", 'true']],
-    mal: ['OV-U19, OV-U4: en registrert begrunnelse'],
+    endringer: [
+      [
+        "...d.utsagn.filter((x) => x.art !== 'varsel')",
+        "...d.utsagn.filter((x) => x.art === 'aksept' || x.art === 'trekk')",
+      ],
+    ],
+    mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
   },
   {
     id: 'F369',
     feilklasse:
       'et varsel eller en endringsordre teller ikke mens saken ikke er forstått (OV-U21, MM-U2)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['.filter((d) => !forstaatt || !vurdert(d))', '.filter((d) => !vurdert(d))']],
-    mal: ['OV-U21, MM-U2: mens saken ikke er forstått'],
+    endringer: [
+      [
+        'return forstaatt && elementer > 0 && dokumentasjonIBrevet(d).size === 0',
+        'return elementer > 0 && dokumentasjonIBrevet(d).size === 0',
+      ],
+    ],
+    mal: [
+      'OV-U21, MM-U2: mens saken ikke er forstått',
+      'OV-U44, MM-U2: en hendelse kjernen ikke forstår',
+    ],
   },
   {
     id: 'F370',
@@ -2725,6 +2753,51 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['OV-U19, MM-U19: en endringsordre uten virkning'],
+  },
+  {
+    id: 'F425',
+    feilklasse: 'vurderingsgrunnlaget tar med en rettet registrering (OV-U44, OV-U17)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['if (!j.kilde || j.rettet || d?.ikkeISaken)', 'if (!j.kilde || d?.ikkeISaken)']],
+    mal: ['OV-U44: hver journalpost har én kilde'],
+  },
+  {
+    id: 'F427',
+    feilklasse:
+      'vurderingsgrunnlaget tar med rettingen om at brevet ikke hører til saken (OV-U18, svar 2B)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['if (!j.kilde || j.rettet || d?.ikkeISaken)', 'if (!j.kilde || j.rettet)']],
+    mal: ['OV-U44, OV-U18: rettingen som sier at brevet ikke hører til saken'],
+  },
+  {
+    id: 'F428',
+    feilklasse:
+      'vurderingsgrunnlaget viser ikke partens dato for varselet i et krav sendt herfra (HF-U1, svar 3A)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["      j.kilde === 'sendt_herfra' &&", '      false &&']],
+    mal: ['OV-U44, HF-U1: et fristkrav sendt herfra'],
+  },
+  {
+    id: 'F430',
+    feilklasse:
+      'vurderingsgrunnlaget viser partens dato for varselet mens saken ikke er forstått (MM-U2, OV-U21)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['      u.forstaatt &&', '      true &&']],
+    mal: ['OV-U44, HF-U1: et fristkrav sendt herfra'],
+  },
+  {
+    id: 'F429',
+    feilklasse: 'hendelsen som oppretter saken, får ingen kilde (svar 1A)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["          : ('sendt_herfra' as const),", '          : null,']],
+    mal: ['OV-U44: hver journalpost har én kilde'],
+  },
+  {
+    id: 'F426',
+    feilklasse: '«Varsel ikke registrert» står også etter fristkravet (#1126)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["!s.varsler['33.4'] && s.krav.length === 0)", "!s.varsler['33.4'])"]],
+    mal: ['står ikke etter fristkravet'],
   },
   {
     id: 'F366',

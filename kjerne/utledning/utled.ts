@@ -281,12 +281,28 @@ function tom(
 }
 
 /**
- * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som appen
- * ikke vurderer innholdet i. Mens saken ikke er forstått, gjelder det alle (MM-U2, OV-U21).
- * Ellers gjelder det et brev uten elementer (OV-U16), og et brev med et
- * element som ikke er et varsel etter OV-U5 eller en endringsordre etter OV-U6, som en
- * begrunnelse (KA-U35, OV-U4). Et varsel eller en endringsordre uten virkning vurderer
- * appen (MM-U19).
+ * OV-U44: kilden til det en journalpost sier. Et brev sendt herfra er `sendt_herfra`. Et
+ * registrert brev er `partens_opplysning` når det har elementer og alle har virkning etter
+ * OV-U5 og OV-U6, ellers `dokumentasjon` (OV-U4, HF-U13). Mens saken ikke er forstått, er
+ * hvert registrert brev dokumentasjon (MM-U2, OV-U21). En rettet registrering beholder
+ * kilden (arbeidsvalget 30.10 i #1045, svar 2A). Rettingen som sier at et brev ikke hører
+ * til saken, gjelder dokumentasjonen og er dokumentasjon selv (OV-U18).
+ */
+export type Kilde = 'dokumentasjon' | 'partens_opplysning' | 'sendt_herfra';
+
+export function kilden(d: Dokument, forstaatt: boolean): Kilde {
+  if (d.ikkeISaken) return 'dokumentasjon';
+  if (!erRegistrert(d.opplysninger)) return 'sendt_herfra';
+  const elementer = d.krav.length + d.svar.length + d.utsagn.length;
+  return forstaatt && elementer > 0 && dokumentasjonIBrevet(d).size === 0
+    ? 'partens_opplysning'
+    : 'dokumentasjon';
+}
+
+/**
+ * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som kjernen
+ * ikke vurderer innholdet i: kilden er dokumentasjon. Et varsel eller en endringsordre uten
+ * virkning vurderer kjernen (MM-U19).
  */
 function ikkeVurderte(
   journal: Domenehendelse[],
@@ -294,14 +310,9 @@ function ikkeVurderte(
   forstaatt: boolean
 ): string[] {
   const rettet = new Set(brev.filter((b) => b.rettetAv !== null).map((b) => b.dokument));
-  const vurdert = (d: Dokument) =>
-    d.krav.length === 0 &&
-    d.svar.length + d.utsagn.length > 0 &&
-    d.svar.every((s) => erRegistrertEndringsordre(s, d)) &&
-    d.utsagn.every((x) => x.art === 'varsel');
   return [...dokumenterI(journal)]
     .filter((d) => erRegistrert(d.opplysninger) && !rettet.has(d.id))
-    .filter((d) => !forstaatt || !vurdert(d))
+    .filter((d) => kilden(d, forstaatt) === 'dokumentasjon')
     .map((d) => d.id);
 }
 
@@ -376,9 +387,9 @@ const erRegistrertEndringsordre = (s: Svar, d: Dokument): boolean =>
   d.opplysninger.some((o) => o.hva === 'endringsordre' && o.brev === s.dokument && o.oppfylt);
 
 /**
- * OV-U4: kravene, svarene, akseptene og trekkene i et registrert brev er dokumentasjon
- * og får ingen virkning. Unntaket er OV-U6. Et varsel med datoen TE oppgir, har
- * virkning (OV-U5).
+ * OV-U4, HF-U13: alt i et registrert brev er dokumentasjon og får ingen virkning, unntatt et
+ * varsel med datoen parten oppgir (OV-U5) og byggherrens endringsordre (OV-U6). Kilden og
+ * brevene kjernen ikke vurderer, leser regelen fra denne funksjonen (punkt 4 i #1167).
  */
 function dokumentasjonIBrevet(d: Dokument): Set<string> {
   const krav = kravetErDokumentasjon(d) ? d.krav.map((k) => k.id) : [];
@@ -386,7 +397,7 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
   return new Set([
     ...krav,
     ...d.svar.filter((s) => !erRegistrertEndringsordre(s, d)).map((s) => s.id),
-    ...d.utsagn.filter((x) => x.art === 'aksept' || x.art === 'trekk').map((x) => x.id),
+    ...d.utsagn.filter((x) => x.art !== 'varsel').map((x) => x.id),
   ]);
 }
 

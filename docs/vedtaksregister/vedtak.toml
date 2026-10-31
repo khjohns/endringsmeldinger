@@ -8227,7 +8227,7 @@ svar = '''
 «Kort beskrivelse (Recommended)»'''
 forhold = [{ art = "utvider", vedtak = "ov-u4" }, { art = "presiserer", vedtak = "vs-u27" }]
 folge = '''
-Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408). Ikke bygget (#1045).'''
+Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Kort beskrivelse"
@@ -8280,7 +8280,7 @@ valgt = "Samme side"
 svar = '''
 «Samme side (Recommended)»'''
 folge = '''
-Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408). Ikke bygget (#1045).'''
+Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Samme side"
@@ -8325,7 +8325,7 @@ valgt = "Retting i begge saker"
 svar = '''
 «Retting i begge saker (Recommended)»'''
 folge = '''
-Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408). Ikke bygget (#1045).'''
+Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Retting i begge saker"
@@ -9474,7 +9474,7 @@ Til ordlyden under: «Ja, jeg er enig i ordlyden og at dette føres som en **pre
 Om OV-U6: «Jeg mente ikke at byggherren skal kunne velge en annen kravversjon. Registreringen skal fortsatt gjelde gjeldende grunnlagskrav sendt fra appen, etter OV-U6 og OV-U12. Poenget mitt var å bevare skillet mellom registreringen av en tidligere endringsordre og en ny godkjenning, ikke å utvide hvilke krav registreringen kan besvare.»'''
 forhold = [{ art = "presiserer", vedtak = "ov-u4" }, { art = "presiserer", vedtak = "hf-u13" }]
 folge = '''
-Bygges i #1045 og #807.'''
+Bygges i #1045, #807 og Varden (#1414).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A, med en presisering"
@@ -10084,7 +10084,7 @@ svar = '''
 B, med forholdet til OV-U4. Oppdragsgiver ordrett: «Jeg er enig med dere».'''
 forhold = [{ art = "utvider", vedtak = "ov-u20" }, { art = "utvider", vedtak = "ov-u4" }]
 folge = '''
-Bygges i #1304.'''
+Bygges i #1304 og Varden (#1414).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

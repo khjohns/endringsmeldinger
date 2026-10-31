@@ -223,7 +223,10 @@ export function lagSaksbilde(
     status: vist.status,
     merknader: vist.merknader.map(etikett),
     spor: SPOR.map((spor) => {
-      const ved = vist.spor[spor].registrerteBrev;
+      // Dagens visning viser bare byggherrens brev; begge partenes vises i Varden (OV-U62, #1414).
+      const ved = vist.spor[spor].registrerteBrev
+        .filter((b) => b.avsender === 'BH')
+        .map((b) => b.dokument);
       const s = u.spor[spor];
       return {
         spor,

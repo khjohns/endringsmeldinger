@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `d3ff5f382c43fe04c2dbf7ce387bb1bf3da98c6baeccb667067fe5dfb5d5c1df`
+Kontrollsum (SHA-256 over utdraget visningen leser): `54759e200c0c82a3ffbed052dabe28fd409aa9a5d9b9d4f73ec7f0475e26328a`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -938,7 +938,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 22.10, oppdragsgiver (#1045)
 
-**Følge:** Utvider [OV-U4](#ov-u4). Presiserer [VS-U27](../../plans/vedtak.md#vs-u27). Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408). Ikke bygget (#1045).
+**Følge:** Utvider [OV-U4](#ov-u4). Presiserer [VS-U27](../../plans/vedtak.md#vs-u27). Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408).
 
 **Regelrader:** —
 
@@ -1230,7 +1230,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 25.10, oppdragsgiver (#1282)
 
-**Følge:** Presiserer [OV-U4](#ov-u4). Presiserer [HF-U13](#hf-u13). Utvidet 25.10 av [OV-U46](#ov-u46). Bygges i #1045 og #807.
+**Følge:** Presiserer [OV-U4](#ov-u4). Presiserer [HF-U13](#hf-u13). Utvidet 25.10 av [OV-U46](#ov-u46). Bygges i #1045, #807 og Varden (#1414).
 
 **Regelrader:** —
 
@@ -1432,7 +1432,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 26.10, oppdragsgiver (#1282)
 
-**Følge:** Utvider [OV-U20](#ov-u20). Utvider [OV-U4](#ov-u4). Endret 31.10 av [OV-U70](#ov-u70). Bygges i #1304.
+**Følge:** Utvider [OV-U20](#ov-u20). Utvider [OV-U4](#ov-u4). Endret 31.10 av [OV-U70](#ov-u70). Bygges i #1304 og Varden (#1414).
 
 **Regelrader:** —
 
