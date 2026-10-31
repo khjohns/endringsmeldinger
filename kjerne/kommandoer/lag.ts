@@ -53,10 +53,10 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
   const utenBeloep: Svarvurdering = {
     ...v,
     hovedkrav_vurdering: undefined,
-    hovedkrav_godkjent_belop: undefined,
+    hovedkrav_godkjent_beloep: undefined,
     produktivitet_vurdering: undefined,
-    produktivitet_godkjent_belop: undefined,
-    produktivitet_begrenset_belop: v.produktivitet_varslet_i_tide === false ? 0 : undefined,
+    produktivitet_godkjent_beloep: undefined,
+    produktivitet_begrenset_beloep: v.produktivitet_varslet_i_tide === false ? 0 : undefined,
   };
   let n = 0;
   const lagret = standpunkter(

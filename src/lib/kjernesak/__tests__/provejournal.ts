@@ -88,7 +88,7 @@ export const medVederlagssvar = skrevet(medVederlag, 'BH', {
       regelversjon: KJERNE.regler.versjon,
       vurderinger: {
         hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_belop: 250000,
+        hovedkrav_godkjent_beloep: 250000,
         aksepterer_metode: true,
       },
       resultat: { resultat: 'godkjent', godkjent_beloep: 250000 },

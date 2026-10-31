@@ -92,23 +92,36 @@ export type Vederlagskrav = Omit<vederlag.Vederlagskrav, 'metode' | 'grunnlag_re
 
 const BELOEPSVURDERINGER = ['hovedkrav_vurdering', 'rigg_vurdering', 'produktivitet_vurdering'];
 
+/** Python-hendelsene har `_belop`, kjernen `_beloep` (#1192). */
+type MedPythonnavn<T> = {
+  [K in keyof T as K extends `${infer F}_beloep` ? `${F}_belop` : K]: T[K];
+};
+const omdoep = <T>(o: Record<string, T>, fra: RegExp, til: string): Record<string, T> =>
+  Object.fromEntries(Object.entries(o).map(([k, v]) => [k.replace(fra, til), v]));
+
 export function beregnVederlag(krav: Vederlagskrav, v: Record<string, unknown>) {
-  const vurdering = { ...v };
+  const vurdering = omdoep(v, /_belop$/, '_beloep');
   for (const felt of BELOEPSVURDERINGER)
     if (felt in vurdering)
       vurdering[felt] = fraKatalogen(BELOEPSVURDERING_FRA_KATALOGEN, vurdering[felt]);
-  const r = vederlag.beregnVederlag(
-    {
-      ...krav,
-      metode: fraKatalogen(METODE_FRA_KATALOGEN, krav.metode) as never,
-      ...kategoriFraKatalogen(krav),
-      grunnlag_resultat: grunnlagsresultat(krav.grunnlag_resultat),
-    },
-    vurdering as Inn<vederlag.Vederlagsvurdering>,
-    GJELDENDE_REGLER
-  );
+  let r: vederlag.Vederlagsberegning;
+  try {
+    r = vederlag.beregnVederlag(
+      {
+        ...krav,
+        metode: fraKatalogen(METODE_FRA_KATALOGEN, krav.metode) as never,
+        ...kategoriFraKatalogen(krav),
+        grunnlag_resultat: grunnlagsresultat(krav.grunnlag_resultat),
+      },
+      vurdering as Inn<vederlag.Vederlagsvurdering>,
+      GJELDENDE_REGLER
+    );
+  } catch (feil) {
+    if (!(feil instanceof UgyldigVurdering)) throw feil;
+    throw new UgyldigVurdering(omdoep(feil.feil, /_beloep$/, '_belop'));
+  }
   return {
-    ...r,
+    ...(omdoep(r as never, /_beloep$/, '_belop') as MedPythonnavn<vederlag.Vederlagsberegning>),
     beregnings_resultat: resultatUt(r.beregnings_resultat),
     subsidiaer_resultat: resultatUt(r.subsidiaer_resultat),
     subsidiaer_triggers: utloserUt(r.subsidiaer_triggers),

@@ -53,7 +53,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
           i_tide: v.produktivitet_varslet_i_tide,
           ...(v.produktivitet_varslet_i_tide
             ? {}
-            : { beloep: tilTall(beloep(v.produktivitet_begrenset_belop as number)!) }),
+            : { beloep: tilTall(beloep(v.produktivitet_begrenset_beloep as number)!) }),
         });
       ut.push({
         id: nyId(),

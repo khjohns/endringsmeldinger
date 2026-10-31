@@ -105,10 +105,10 @@ const KATEGORI = { ENDRING: 'endring', SVIKT: 'svikt', ANDRE: 'andre_forhold' } 
 
 function iKjernen(c: VederlagDomainConfig, s: VederlagFormState) {
   const krav: Vederlagskrav = {
-    hovedkrav_belop: c.harHovedkrav ? c.hovedkravBelop : null,
+    hovedkrav_beloep: c.harHovedkrav ? c.hovedkravBelop : null,
     metode: 'tilbud',
-    rigg_belop: null,
-    produktivitet_belop: c.harProduktivitetKrav ? (c.produktivitetBelop ?? 0) : null,
+    rigg_beloep: null,
+    produktivitet_beloep: c.harProduktivitetKrav ? (c.produktivitetBelop ?? 0) : null,
     krever_justert_ep: false,
     kostnads_overslag: null,
     hovedkategori: KATEGORI[c.hovedkategori as keyof typeof KATEGORI],
@@ -118,12 +118,12 @@ function iKjernen(c: VederlagDomainConfig, s: VederlagFormState) {
   };
   const v: Vederlagsvurdering = {
     hovedkrav_vurdering: c.harHovedkrav ? vurdering(s.hovedkravVurdering) : undefined,
-    hovedkrav_godkjent_belop: c.harHovedkrav ? s.hovedkravGodkjentBelop : undefined,
+    hovedkrav_godkjent_beloep: c.harHovedkrav ? s.hovedkravGodkjentBelop : undefined,
     hovedkrav_varslet_i_tide: c.hovedkategori === 'SVIKT' ? s.hovedkravVarsletITide : undefined,
     produktivitet_vurdering: vurdering(s.produktivitetVurdering),
-    produktivitet_godkjent_belop: s.produktivitetGodkjentBelop,
+    produktivitet_godkjent_beloep: s.produktivitetGodkjentBelop,
     produktivitet_varslet_i_tide: s.produktivitetVarsletITide,
-    produktivitet_begrenset_belop:
+    produktivitet_begrenset_beloep:
       s.produktivitetVarsletITide === false ? s.produktivitetBegrensetBelop : undefined,
     aksepterer_metode: s.akseptererMetode,
   };
@@ -140,12 +140,12 @@ describe('skjemaets utregning er kjernens (#1047)', () => {
     const kjerne = iKjernen(c, s);
 
     expect(erBegrensetBelopGyldig(s, c)).toBe(true);
-    expect(skjema.totalGodkjent).toBe(tilTall(kjerne.total_godkjent_belop));
-    expect(skjema.totalKrevdInklPrekludert).toBe(tilTall(kjerne.total_krevd_belop));
+    expect(skjema.totalGodkjent).toBe(tilTall(kjerne.total_godkjent_beloep));
+    expect(skjema.totalKrevdInklPrekludert).toBe(tilTall(kjerne.total_krevd_beloep));
     expect(skjema.prinsipaltResultat).toBe(fraKjernen(kjerne.beregnings_resultat));
     expect(skjema.visSubsidiaertResultat).toBe(kjerne.subsidiaer_resultat !== null);
-    if (kjerne.subsidiaer_godkjent_belop !== null) {
-      expect(skjema.totalGodkjentInklPrekludert).toBe(tilTall(kjerne.subsidiaer_godkjent_belop));
+    if (kjerne.subsidiaer_godkjent_beloep !== null) {
+      expect(skjema.totalGodkjentInklPrekludert).toBe(tilTall(kjerne.subsidiaer_godkjent_beloep));
       expect(skjema.subsidiaertResultat).toBe(fraKjernen(kjerne.subsidiaer_resultat));
     }
   });

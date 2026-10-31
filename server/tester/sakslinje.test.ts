@@ -144,7 +144,7 @@ const forloepA: Steg = (sak) => {
       sak.svar('grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
         hovedkrav_vurdering: 'delvis',
-        hovedkrav_godkjent_belop: 60000,
+        hovedkrav_godkjent_beloep: 60000,
         aksepterer_metode: true,
       }),
       sak.svar('frist', FRIST_I_ORDEN),
@@ -159,7 +159,7 @@ const fullGodkjenning: Steg = (sak) => {
       sak.svar('grunnlag', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
         hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_belop: 100000,
+        hovedkrav_godkjent_beloep: 100000,
         aksepterer_metode: true,
       }),
       sak.svar('frist', FRIST_I_ORDEN),
@@ -318,11 +318,11 @@ describe('linja i sakslisten (#1022)', () => {
           sak.svar('grunnlag', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
           sak.svar('vederlag', {
             hovedkrav_vurdering: 'godkjent',
-            hovedkrav_godkjent_belop: 100000,
+            hovedkrav_godkjent_beloep: 100000,
             produktivitet_vurdering: 'delvis',
-            produktivitet_godkjent_belop: 30000,
+            produktivitet_godkjent_beloep: 30000,
             produktivitet_varslet_i_tide: false,
-            produktivitet_begrenset_belop: 10000,
+            produktivitet_begrenset_beloep: 10000,
             aksepterer_metode: true,
           }),
         ],

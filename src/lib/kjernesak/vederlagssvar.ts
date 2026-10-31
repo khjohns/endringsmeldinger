@@ -97,15 +97,15 @@ export function vederlagConfigFraKjernen(u: Utledning): VederlagDomainConfig | n
 function vurderinger(d: Record<string, unknown>, krav: Krav): Svarvurdering {
   const felt: Svarvurdering = {
     hovedkrav_vurdering: fraKatalogen(BELOEPSVURDERING_FRA_KATALOGEN, d.hovedkrav_vurdering),
-    hovedkrav_godkjent_belop: d.hovedkrav_godkjent_belop,
+    hovedkrav_godkjent_beloep: d.hovedkrav_godkjent_belop,
     hovedkrav_varslet_i_tide: d.hovedkrav_varslet_i_tide,
     produktivitet_vurdering: fraKatalogen(
       BELOEPSVURDERING_FRA_KATALOGEN,
       d.produktivitet_vurdering
     ),
-    produktivitet_godkjent_belop: d.produktivitet_godkjent_belop,
+    produktivitet_godkjent_beloep: d.produktivitet_godkjent_belop,
     produktivitet_varslet_i_tide: d.produktivitet_varslet_i_tide,
-    produktivitet_begrenset_belop: d.produktivitet_begrenset_belop,
+    produktivitet_begrenset_beloep: d.produktivitet_begrenset_belop,
     aksepterer_metode: d.aksepterer_metode,
     oensket_metode: fraKatalogen(METODE_FRA_KATALOGEN, d.oensket_metode),
   };
