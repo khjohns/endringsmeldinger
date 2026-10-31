@@ -323,6 +323,18 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .utkast-kropp .ts,.hjemmel .ts{display:contents}
 [data-f="endring"] .fs:not(.f-endring),[data-f="grunn"] .fs:not(.f-grunn){display:none}
 .utkast-kropp .fs,.hjemmel .fs{display:contents}
+.valg{border:1px solid var(--rule-strong-color);border-radius:var(--r-kort);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.valg-tittel{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.valg ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.valg li + li{border-top:1px solid var(--rule-subtle-color)}
+.valg li.skille{border-top:1.5px solid var(--ink);margin-top:8px}
+.valg-rad{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:2px;width:100%;padding:10px 0;cursor:pointer;min-height:44px}
+.valg-rad .h{font-weight:600;color:var(--ink)}
+.valg-rad .b{font-size:12px;color:var(--ink-2)}
+.valg-rad:hover .h{text-decoration:underline;text-underline-offset:3px}
+.valg-rad:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.valg-fot{font-size:12px;color:var(--ink-3)}
+.valg[hidden]{display:none}
 @media (max-width:560px){.krav dl{grid-template-columns:minmax(0,1fr);gap:2px 0}.krav dd{margin-bottom:10px}.paalegg{padding:8px 12px}}
 .demo{flex-wrap:wrap}
 </style>
@@ -546,23 +558,32 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <p class="venter"><b>Venter på byggherren.</b><span class="fs f-endring"> Byggherren skal svare på varselet uten ugrunnet opphold.</span><span class="fs f-grunn"></span></p>
                 </div>
                 <div class="ts t-avslatt">
-                  <span class="uten-utkast"><button class="knapp primaer" type="button">Ta stilling til avslaget</button></span>
-                  <span class="kun-utkast"><button class="knapp sekundaer" type="button">Ta stilling til avslaget</button></span>
+                  <span class="uten-utkast"><button class="knapp primaer apne-valg" type="button" aria-expanded="false" aria-controls="valg-avslag">Ta stilling til avslaget</button></span>
+                  <span class="kun-utkast"><button class="knapp sekundaer apne-valg" type="button" aria-expanded="false" aria-controls="valg-avslag">Ta stilling til avslaget</button></span>
                 </div>
-                <p class="virkning ts t-avslatt">Godtar du avslaget, <span class="fs f-endring">godtar du også at varselet kom for sent</span><span class="fs f-grunn">er dere enige om at byggherren ikke har risikoen for forholdet</span>, og saken avsluttes med kravene om vederlag og frist. Lar du avslaget stå uten å godta det, kan du fortsatt sende en ny versjon eller skrive et innlegg.</p>
+                <p class="venter ts t-avslatt">Du kan godta avslaget, sende en ny versjon av varselet eller trekke påberopelsen. Gjør du ingenting, står saken uendret.</p>
+                <div class="valg ts t-avslatt" id="valg-avslag" hidden>
+                  <p class="valg-tittel">Velg hva du vil gjøre</p>
+                  <ul>
+                    <li><button type="button" class="valg-rad"><span class="h">Godta avslaget</span><span class="b">Dere blir enige om byggherrens standpunkt<span class="fs f-endring">, også at varselet etter punkt&nbsp;32.2 kom for sent</span><span class="fs f-grunn"></span>. Saken avsluttes med kravene om vederlag og frist, og du kan ikke sende en ny versjon etterpå.</span></button></li>
+                    <li><button type="button" class="valg-rad"><span class="h">Send ny versjon av varselet</span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse. Byggherren svarer på nytt.</span></button></li>
+                    <li class="skille"><button type="button" class="valg-rad"><span class="h">Trekk påberopelsen</span><span class="b">Du gir avkall på forholdet og kravene om vederlag og frist, også det byggherren har godkjent. Det er ikke en enighet om byggherrens standpunkt.</span></button></li>
+                  </ul>
+                  <p class="valg-fot">Du ser brevet før det sendes.</p>
+                </div>
                 <div class="ts t-eo">
                   <p class="ingen-handling"><b>Forholdet er avklart.</b> Partene er enige, og svaret kan ikke endres. Det som gjenstår, er kravene om vederlag og frist.</p>
                 </div>
                 <div class="ts t-frafall">
                   <p class="ingen-handling"><b>Frafallet er byggherrens standpunkt</b> og kan ikke godtas. Det som gjenstår, er endringsordren for det utførte arbeidet og kravene om vederlag og frist.</p>
                 </div>
-                <p class="andre-tittel">Andre brev og handlinger</p>
+                <p class="andre-tittel">Andre handlinger</p>
                 <ul class="andre">
-                  <li class="ts t-ubesvart t-avslatt t-frafall"><button type="button"><span class="h">Send ny versjon av varselet<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse <span class="fs f-endring">av pålegget</span><span class="fs f-grunn">av forholdet</span>. <span class="ts t-avslatt">Byggherren svarer på nytt.</span><span class="ts t-frafall">Frafallet står (GR-U20).</span><span class="ts t-ubesvart">Erstatter varselet i brev 1.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li class="ts t-ubesvart t-frafall"><button type="button"><span class="h">Send ny versjon av varselet<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse <span class="fs f-endring">av pålegget</span><span class="fs f-grunn">av forholdet</span>. <span class="ts t-avslatt">Byggherren svarer på nytt.</span><span class="ts t-frafall">Frafallet står (GR-U20).</span><span class="ts t-ubesvart">Erstatter varselet i brev 1.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-ubesvart fs f-endring"><button type="button"><span class="h">Gjør gjeldende at byggherren ikke svarte i tide</span><span class="b">Etter punkt&nbsp;32.3 annet ledd anses pålegget da å innebære en endring. Om svaret kom for sent, avgjør partene.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-eo"><button type="button"><span class="h">Gå til vederlagsjusteringen</span><span class="b">Svaret i brev 4 står prinsipalt.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li><button type="button"><span class="h">Skriv innlegg</span><span class="b">Fritekst i saken med henvisning til et brev. Teksten tolkes ikke.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li class="ts t-ubesvart t-avslatt t-frafall"><button type="button"><span class="h">Trekk påberopelsen</span><span class="b">Trekker også kravene om vederlag og frist, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li class="ts t-ubesvart t-frafall"><button type="button"><span class="h">Trekk påberopelsen</span><span class="b">Trekker også kravene om vederlag og frist, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
 
@@ -584,7 +605,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <span class="kun-utkast"><button class="knapp sekundaer" type="button">Utsted endringsordre for utført arbeid</button></span>
                 </div>
                 <p class="virkning ts t-frafall">Endringsordren lages i en egen sak og viser til denne. Kravene om vederlag og frist for det utførte arbeidet blir behandlet her.</p>
-                <p class="andre-tittel">Andre brev og handlinger</p>
+                <p class="andre-tittel">Andre handlinger</p>
                 <ul class="andre">
                   <li class="ts t-avslatt t-frafall"><button type="button"><span class="h">Send nytt svar<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b"><span class="ts t-avslatt">Erstatter svaret i brev 5. Brev 5 står som det ble sendt.</span><span class="ts t-frafall">Etter frafallet bare som endringsordre.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-eo"><button type="button"><span class="h">Svar på kravet om fristforlengelse</span><span class="b">Kravet i brev 3 er ikke besvart.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
@@ -674,6 +695,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   }
   lesAnker();
   addEventListener('hashchange', lesAnker);
+  document.querySelectorAll('.apne-valg').forEach(b => b.addEventListener('click', () => {
+    const v = document.getElementById('valg-avslag'); const aapen = v.hidden;
+    v.hidden = !aapen; document.querySelectorAll('.apne-valg').forEach(k => k.setAttribute('aria-expanded', String(aapen)));
+  }));
 </script>
 </body>
 </html>
