@@ -122,7 +122,7 @@ const forloepA: Steg = (sak) => {
       sak.svar('grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
         hovedkrav_vurdering: 'delvis',
-        hovedkrav_godkjent_belop: 60000,
+        hovedkrav_godkjent_beloep: 60000,
         aksepterer_metode: true,
       }),
       sak.svar('frist', {
@@ -307,7 +307,7 @@ const alleGodkjent: Steg = (sak) => {
       sak.svar('grunnlag', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
         hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_belop: 100000,
+        hovedkrav_godkjent_beloep: 100000,
         aksepterer_metode: true,
       }),
       sak.svar('frist', {

@@ -50,7 +50,7 @@ const kroner = (tekst: string) => {
 function vurderingene(v: Svarvalg, krevd: number): Svarvurdering {
   const felt: Svarvurdering = {
     hovedkrav_vurdering: v.beloep ? VURDERING[v.beloep] : undefined,
-    hovedkrav_godkjent_belop:
+    hovedkrav_godkjent_beloep:
       v.beloep === 'hele'
         ? krevd
         : v.beloep === 'ingenting'

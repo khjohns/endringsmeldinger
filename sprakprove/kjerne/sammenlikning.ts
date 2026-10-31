@@ -52,10 +52,10 @@ export function vederlagskrav(sak: Sak): Vederlagskrav {
     saerskilt[navn] && typeof saerskilt[navn] === 'object' ? (saerskilt[navn]!.belop ?? 0) : null;
   const krevd = krav.metode === 'REGNINGSARBEID' ? krav.kostnads_overslag : krav.belop_direkte;
   return {
-    hovedkrav_belop: (krevd as number | undefined) || 0,
+    hovedkrav_beloep: (krevd as number | undefined) || 0,
     metode: (krav.metode as Vederlagsmetode | undefined) ?? null,
-    rigg_belop: post('rigg_drift'),
-    produktivitet_belop: post('produktivitet'),
+    rigg_beloep: post('rigg_drift'),
+    produktivitet_beloep: post('produktivitet'),
     krever_justert_ep: Boolean(krav.krever_justert_ep),
     kostnads_overslag: (krav.kostnads_overslag as number | undefined) ?? null,
     hovedkategori: g.hovedkategori,
@@ -140,8 +140,8 @@ function kontrollerVederlagssvar(data: Record<string, unknown>, sak: Sak) {
     subsidiaer_triggers: r.subsidiaer_triggers.length ? r.subsidiaer_triggers : null,
   };
   const ikkeFremsatt = new Set<string>();
-  if (krav.rigg_belop === null) ikkeFremsatt.add('rigg_godkjent_belop');
-  if (krav.produktivitet_belop === null) ikkeFremsatt.add('produktivitet_godkjent_belop');
+  if (krav.rigg_beloep === null) ikkeFremsatt.add('rigg_godkjent_belop');
+  if (krav.produktivitet_beloep === null) ikkeFremsatt.add('produktivitet_godkjent_belop');
   return sammenlikn(data, server, VEDERLAG_BELOP, ikkeFremsatt);
 }
 

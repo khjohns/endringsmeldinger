@@ -266,7 +266,7 @@ const svar = (
 });
 
 const VEDERLAG_DELVIS = [
-  { hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_belop: 100000, aksepterer_metode: true },
+  { hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_beloep: 100000, aksepterer_metode: true },
   { resultat: 'delvis_godkjent', godkjent_beloep: 100000 },
 ] as const;
 
@@ -658,7 +658,7 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24, KA-U31–KA-U33, GR-U15
       'vederlag',
       {
         hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_belop: 125000,
+        hovedkrav_godkjent_beloep: 125000,
         aksepterer_metode: false,
         oensket_metode: 'regningsarbeid',
       },
@@ -704,7 +704,7 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24, KA-U31–KA-U33, GR-U15
       'vederlag',
       {
         hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_belop: 125000,
+        hovedkrav_godkjent_beloep: 125000,
         aksepterer_metode: true,
       },
       { resultat: 'godkjent', godkjent_beloep: 125000 },
@@ -813,7 +813,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
           s.krav('vederlag'),
           {
             hovedkrav_vurdering: 'godkjent',
-            hovedkrav_godkjent_belop: 125000,
+            hovedkrav_godkjent_beloep: 125000,
             aksepterer_metode: false,
             oensket_metode: 'enhetspriser',
           },
@@ -841,7 +841,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
           s.krav('vederlag'),
           {
             hovedkrav_vurdering: 'delvis',
-            hovedkrav_godkjent_belop: 124999.6,
+            hovedkrav_godkjent_beloep: 124999.6,
             aksepterer_metode: false,
             oensket_metode: 'enhetspriser',
           },
@@ -862,7 +862,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
         svar(
           'vederlag',
           s.krav('vederlag'),
-          { ...VEDERLAG_DELVIS[0], hovedkrav_godkjent_belop: beloep },
+          { ...VEDERLAG_DELVIS[0], hovedkrav_godkjent_beloep: beloep },
           VEDERLAG_DELVIS[1]
         ),
       ],
@@ -871,7 +871,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(() => s.avvisning('BH', brev('abc'))).not.toThrow();
     expect(s.avvisning('BH', brev('abc'))).toEqual({
       regel: 'UGYLDIG_VURDERING',
-      melding: 'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_belop: er ikke et tall.',
+      melding: 'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_beloep: er ikke et tall.',
     });
   });
 
@@ -945,7 +945,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
           s.krav('vederlag'),
           {
             hovedkrav_vurdering: 'godkjent',
-            hovedkrav_godkjent_belop: 125000,
+            hovedkrav_godkjent_beloep: 125000,
             aksepterer_metode: true,
             hovedkrav_varslet_i_tide: false,
           },
@@ -986,7 +986,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(
       s.avvisning(
         'BH',
-        brevet({ hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_belop: 124999.6 }, 124999.6)
+        brevet({ hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_beloep: 124999.6 }, 124999.6)
       )?.melding
     ).toBe(
       'Svaret må ha en begrunnelse, fordi du ikke aksepterer tilbudet (§ 34.2.2) og ikke godkjenner hele beløpet.'
@@ -1434,7 +1434,7 @@ describe('forbeholdet når grunnlaget ikke er besvart (GR-U26)', () => {
       svar: svar(
         'vederlag',
         s.krav('vederlag'),
-        { ...VEDERLAG_DELVIS[0], hovedkrav_godkjent_belop: 110000 },
+        { ...VEDERLAG_DELVIS[0], hovedkrav_godkjent_beloep: 110000 },
         { ...VEDERLAG_DELVIS[1], godkjent_beloep: 110000 }
       ),
     });
@@ -1516,7 +1516,7 @@ describe('forbeholdet når grunnlaget ikke er besvart (GR-U26)', () => {
           s.krav('vederlag'),
           {
             hovedkrav_vurdering: 'godkjent',
-            hovedkrav_godkjent_belop: 125000,
+            hovedkrav_godkjent_beloep: 125000,
             aksepterer_metode: true,
           },
           { resultat: 'godkjent', godkjent_beloep: 125000 }
@@ -1552,7 +1552,7 @@ describe('oppgjør som fast sum (LV-U31, LV-U32)', () => {
           s.krav('vederlag'),
           {
             hovedkrav_vurdering: beloep === 125000 ? 'godkjent' : 'delvis',
-            hovedkrav_godkjent_belop: beloep,
+            hovedkrav_godkjent_beloep: beloep,
             aksepterer_metode: true,
           },
           { resultat: beloep === 125000 ? 'godkjent' : 'delvis_godkjent', godkjent_beloep: beloep }
@@ -2382,7 +2382,7 @@ describe('den senere begrunnelsen (KA-U34)', () => {
 describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 punkt 12, KA-U11, OV-U3)', () => {
   const godkjentGrunnlag = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
   const heltVederlag = [
-    { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 125000, aksepterer_metode: true },
+    { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_beloep: 125000, aksepterer_metode: true },
     { resultat: 'godkjent', godkjent_beloep: 125000 },
   ] as const;
 
@@ -3783,7 +3783,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
   const forSentGrunnlag = { ...avslaatt, grunnlag_varslet_i_tide: false };
   const delvis = {
     hovedkrav_vurdering: 'delvis',
-    hovedkrav_godkjent_belop: 100000,
+    hovedkrav_godkjent_beloep: 100000,
     aksepterer_metode: true,
   };
   const sakISvikt = () => {
@@ -4185,7 +4185,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
     const vederlagFullt = [
       {
         hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_belop: 125000,
+        hovedkrav_godkjent_beloep: 125000,
         aksepterer_metode: true,
       },
       { resultat: 'godkjent', godkjent_beloep: 125000 },
@@ -4564,10 +4564,10 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
   /** 100 000 av 125 000 kr, så svaret ikke gir enighet ved sammenfall (GR-U10). */
   const delvis = {
     hovedkrav_vurdering: 'delvis',
-    hovedkrav_godkjent_belop: 100000,
+    hovedkrav_godkjent_beloep: 100000,
     aksepterer_metode: true,
   };
-  const beloep = (n: number) => ({ ...delvis, hovedkrav_godkjent_belop: n });
+  const beloep = (n: number) => ({ ...delvis, hovedkrav_godkjent_beloep: n });
   /** 10 av 20 dager. */
   const dager = {
     frist_varsel_ok: true,
@@ -5191,12 +5191,12 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
   /** Justeringen ellers delvis 100 000 kr, posten delvis 30 000 kr. */
   const postene = {
     hovedkrav_vurdering: 'delvis',
-    hovedkrav_godkjent_belop: 100000,
+    hovedkrav_godkjent_beloep: 100000,
     produktivitet_vurdering: 'delvis',
-    produktivitet_godkjent_belop: 30000,
+    produktivitet_godkjent_beloep: 30000,
     aksepterer_metode: true,
   };
-  const begrenset = { produktivitet_varslet_i_tide: false, produktivitet_begrenset_belop: 10000 };
+  const begrenset = { produktivitet_varslet_i_tide: false, produktivitet_begrenset_beloep: 10000 };
   const brevet = (s: ReturnType<typeof sak>, vurderinger: Data, resultat: Data) =>
     s.send('BH', {
       type: 'brev',
@@ -5390,11 +5390,11 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     ['beløpet etter begrensningen mangler', { produktivitet_varslet_i_tide: false }],
     [
       'beløpet etter begrensningen er høyere enn det byggherren godtar for posten',
-      { produktivitet_varslet_i_tide: false, produktivitet_begrenset_belop: 30001 },
+      { produktivitet_varslet_i_tide: false, produktivitet_begrenset_beloep: 30001 },
     ],
     [
       'beløpet etter begrensningen står uten påberopt begrensning',
-      { produktivitet_varslet_i_tide: true, produktivitet_begrenset_belop: 10000 },
+      { produktivitet_varslet_i_tide: true, produktivitet_begrenset_beloep: 10000 },
     ],
     ['rettidigheten etter § 34.1.3 mangler', {}],
   ])('%s, og svaret avvises (valg 2 og 3 i #1047)', (_, rettidighet) => {
@@ -5424,7 +5424,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       produktivitet_vurdering: 'godkjent',
       aksepterer_metode: true,
       produktivitet_varslet_i_tide: false,
-      produktivitet_begrenset_belop: 40000,
+      produktivitet_begrenset_beloep: 40000,
     };
     const uten = svar(
       'vederlag',
@@ -5438,7 +5438,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     const iTide = {
       ...fullt,
       produktivitet_varslet_i_tide: true,
-      produktivitet_begrenset_belop: undefined,
+      produktivitet_begrenset_beloep: undefined,
     };
     expect(
       s.avvist('BH', {
@@ -5465,7 +5465,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
         produktivitet_vurdering: 'godkjent',
         aksepterer_metode: true,
         produktivitet_varslet_i_tide: false,
-        produktivitet_begrenset_belop: 40000,
+        produktivitet_begrenset_beloep: 40000,
       },
       { resultat: 'godkjent', godkjent_beloep: 190000 }
     );
@@ -5497,11 +5497,14 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     expect(
       s.avvist(
         'BH',
-        revisjon({ produktivitet_godkjent_belop: 20000, hovedkrav_godkjent_belop: 110000 }, 120000)
+        revisjon(
+          { produktivitet_godkjent_beloep: 20000, hovedkrav_godkjent_beloep: 110000 },
+          120000
+        )
       )
     ).toBeNull();
-    expect(s.avvist('BH', revisjon({ produktivitet_begrenset_belop: 5000 }, 105000))).toBeNull();
-    expect(s.avvist('BH', revisjon({ produktivitet_begrenset_belop: 20000 }, 120000))).toBeNull();
+    expect(s.avvist('BH', revisjon({ produktivitet_begrenset_beloep: 5000 }, 105000))).toBeNull();
+    expect(s.avvist('BH', revisjon({ produktivitet_begrenset_beloep: 20000 }, 120000))).toBeNull();
   });
 
   it('et varsel TE registrerer etter svaret, markerer standpunktet etter § 34.1.3 og sperrer ikke aksept (OV-U5, svaret 23.10)', () => {
@@ -5735,7 +5738,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
       const vurderinger = {
         ...resten,
         [`${post}_vurdering`]: vurdering,
-        [`${post}_godkjent_belop`]: beloep,
+        [`${post}_godkjent_beloep`]: beloep,
       };
       // Resultatet serveren regnet ut før #1301, når beløpet ble oversett, og resultatet av beløpet.
       const forRetting =
@@ -5748,7 +5751,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
       ]) {
         const a = s.avvisning('BH', brevet(s, vurderinger, resultat));
         expect(a?.regel).toBe('UGYLDIG_VURDERING');
-        expect(a?.melding).toContain(`${post}_godkjent_belop: er ${beloep}, men vurderingen «`);
+        expect(a?.melding).toContain(`${post}_godkjent_beloep: er ${beloep}, men vurderingen «`);
       }
       expect(s.u().spor.vederlag.gjeldendeSvar, 'ingenting er lagret').toBeNull();
     }
@@ -5761,12 +5764,12 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
         'BH',
         brevet(
           s,
-          { ...godkjentPost, hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 90000 },
+          { ...godkjentPost, hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_beloep: 90000 },
           fullt
         )
       )?.melding
     ).toBe(
-      'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_belop: er 90000, men vurderingen «godkjent» gjelder hele det krevde beløpet, 150000.'
+      'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_beloep: er 90000, men vurderingen «godkjent» gjelder hele det krevde beløpet, 150000.'
     );
   });
 
@@ -5782,7 +5785,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
       const vurderinger = {
         ...resten,
         [`${post}_vurdering`]: 'delvis',
-        [`${post}_godkjent_belop`]: beloep,
+        [`${post}_godkjent_beloep`]: beloep,
       };
       const a = s.avvisning(
         'BH',
@@ -5790,7 +5793,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
       );
       expect(a?.regel).toBe('UGYLDIG_VURDERING');
       expect(a?.melding).toContain(
-        `${post}_godkjent_belop: er ${beloep}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet`
+        `${post}_godkjent_beloep: er ${beloep}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet`
       );
       expect(s.u().spor.vederlag.gjeldendeSvar, 'ingenting er lagret').toBeNull();
     }
@@ -5807,7 +5810,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
           'BH',
           brevet(
             s,
-            { ...godkjentPost, hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_belop: beloep },
+            { ...godkjentPost, hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_beloep: beloep },
             { resultat: 'delvis_godkjent', godkjent_beloep: sum }
           )
         )
@@ -5818,8 +5821,8 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
   it('kontrollsakene godtas: «godkjent» uten beløp, «godkjent» med beløpet likt det krevde og «avslått» med 0', () => {
     for (const hovedkrav of [
       { hovedkrav_vurdering: 'godkjent' },
-      { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 150000 },
-      { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 150000.0 },
+      { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_beloep: 150000 },
+      { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_beloep: 150000.0 },
     ]) {
       const s = sakMedPost();
       expect(s.avvist('BH', brevet(s, { ...godkjentPost, ...hovedkrav }, fullt))).toBeNull();
@@ -5833,7 +5836,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
           {
             ...godkjentHovedkrav,
             produktivitet_vurdering: 'avslaatt',
-            produktivitet_godkjent_belop: 0,
+            produktivitet_godkjent_beloep: 0,
           },
           { resultat: 'delvis_godkjent', godkjent_beloep: 150000 }
         )
@@ -5846,13 +5849,13 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
     const delvis = (beloep: number) =>
       brevet(
         s,
-        { ...godkjentPost, hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_belop: beloep },
+        { ...godkjentPost, hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_beloep: beloep },
         { resultat: 'delvis_godkjent', godkjent_beloep: Math.round(beloep * 100) / 100 + 40000 }
       );
     expect(s.avvisning('BH', delvis(100000.405))).toEqual({
       regel: 'UGYLDIG_VURDERING',
       melding:
-        'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_belop: 100000.405 har brøkdeler av øre (OV-U58).',
+        'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_beloep: 100000.405 har brøkdeler av øre (OV-U58).',
     });
     // Rundet til hele øre ville beløpet vært det krevde, og svaret godkjent fullt uten begrunnelse.
     expect(s.avvist('BH', delvis(149999.995))).toBe('UGYLDIG_VURDERING');
@@ -5868,7 +5871,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
           ...godkjentHovedkrav,
           produktivitet_vurdering: 'godkjent',
           produktivitet_varslet_i_tide: false,
-          produktivitet_begrenset_belop: beloep,
+          produktivitet_begrenset_beloep: beloep,
         },
         {
           resultat: 'delvis_godkjent',
@@ -5878,7 +5881,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
         }
       );
     expect(s.avvisning('BH', begrenset(10000.001))?.melding).toBe(
-      'Vurderingene kan ikke regnes ut: produktivitet_begrenset_belop: 10000.001 har brøkdeler av øre (OV-U58).'
+      'Vurderingene kan ikke regnes ut: produktivitet_begrenset_beloep: 10000.001 har brøkdeler av øre (OV-U58).'
     );
     expect(s.avvist('BH', begrenset(10000.01)), 'kontrollsak').toBeNull();
   });
@@ -6114,7 +6117,7 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     const s = sakMedKrav();
     const delvis = (beloep: number) => ({
       hovedkrav_vurdering: 'delvis',
-      hovedkrav_godkjent_belop: beloep,
+      hovedkrav_godkjent_beloep: beloep,
       aksepterer_metode: true,
     });
     brev(s, 'vederlag', delvis(100000));
@@ -6415,7 +6418,7 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
       hovedkrav_varslet_i_tide: false,
       aksepterer_metode: true,
       hovedkrav_vurdering: 'delvis',
-      hovedkrav_godkjent_belop: 60000,
+      hovedkrav_godkjent_beloep: 60000,
     };
     const foer = lagene(s, vurderinger);
     s.send('BH', {

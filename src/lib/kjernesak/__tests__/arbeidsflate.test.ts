@@ -198,7 +198,7 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
         aksepterer_metode: true,
         begrunnelse: '<p>Delvis.</p>',
       })
-    ).rejects.toThrow(/hovedkrav_godkjent_belop: er 0, men vurderingen «delvis»/);
+    ).rejects.toThrow(/hovedkrav_godkjent_beloep: er 0, men vurderingen «delvis»/);
     expect(send).not.toHaveBeenCalled();
   });
 

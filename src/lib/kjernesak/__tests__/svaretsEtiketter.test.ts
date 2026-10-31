@@ -58,7 +58,7 @@ describe('etikettene ved svaret', () => {
       'vederlag',
       {
         hovedkrav_vurdering: 'delvis',
-        hovedkrav_godkjent_belop: 150_000,
+        hovedkrav_godkjent_beloep: 150_000,
         aksepterer_metode: true,
       },
       { resultat: 'delvis_godkjent', godkjent_beloep: 150_000 }
@@ -83,7 +83,11 @@ describe('etikettene ved svaret', () => {
     const journal = svar(
       krav,
       'vederlag',
-      { hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_belop: 150_000, aksepterer_metode: true },
+      {
+        hovedkrav_vurdering: 'delvis',
+        hovedkrav_godkjent_beloep: 150_000,
+        aksepterer_metode: true,
+      },
       { resultat: 'delvis_godkjent', godkjent_beloep: 150_000 }
     );
     const u = utledJournal(journal, KJERNE);

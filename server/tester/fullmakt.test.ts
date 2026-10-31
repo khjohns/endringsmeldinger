@@ -94,7 +94,7 @@ function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
       : spor === 'vederlag'
         ? {
             hovedkrav_vurdering: h.vurdering,
-            hovedkrav_godkjent_belop: h.godkjent_belop,
+            hovedkrav_godkjent_beloep: h.godkjent_belop,
             aksepterer_metode: true,
           }
         : {
@@ -264,9 +264,9 @@ describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', ()
       vurderinger: {
         hovedkrav_vurdering: 'godkjent',
         produktivitet_vurdering: 'delvis',
-        produktivitet_godkjent_belop: 30000,
+        produktivitet_godkjent_beloep: 30000,
         produktivitet_varslet_i_tide: false,
-        produktivitet_begrenset_belop: 10000,
+        produktivitet_begrenset_beloep: 10000,
         aksepterer_metode: true,
       },
       resultat: {},

@@ -224,7 +224,7 @@ describe('svaret gjennom kjernen', () => {
     );
     // `hovedkrav_varslet_i_tide` er varslingen etter § 34.1.2, som gjelder hele kravet (OV-U27).
     expect(kommando.svar[0].vurderinger).not.toHaveProperty('hovedkrav_vurdering');
-    expect(kommando.svar[0].vurderinger).not.toHaveProperty('hovedkrav_godkjent_belop');
+    expect(kommando.svar[0].vurderinger).not.toHaveProperty('hovedkrav_godkjent_beloep');
   });
 
   it('OV-U23: et krav uten posten etter § 34.1.3 sender ingen vurdering av posten, og kjernen skriver svaret', () => {

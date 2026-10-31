@@ -1345,7 +1345,7 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
   const krav = { innhold: { metode: 'tilbud', beloep: 100000 } } as unknown as Krav;
   const vurderinger = {
     hovedkrav_vurdering: 'godkjent',
-    hovedkrav_godkjent_belop: 100000,
+    hovedkrav_godkjent_beloep: 100000,
     aksepterer_metode: true,
     hovedkrav_varslet_i_tide: false,
   };
@@ -2133,10 +2133,10 @@ describe('upåvirket hos leserne (OV-U33)', () => {
 // Det særskilte kravet etter § 34.1.3 annet ledd i regelsettet og leseren (#1047 B2b).
 describe('regelsettet for det særskilte kravet (VS-U5, OV-U27)', () => {
   const krav = {
-    hovedkrav_belop: 150000,
+    hovedkrav_beloep: 150000,
     metode: 'tilbud' as const,
-    rigg_belop: null,
-    produktivitet_belop: 40000,
+    rigg_beloep: null,
+    produktivitet_beloep: 40000,
     krever_justert_ep: false,
     kostnads_overslag: null,
     hovedkategori: 'svikt',
@@ -2147,17 +2147,17 @@ describe('regelsettet for det særskilte kravet (VS-U5, OV-U27)', () => {
   const vurdering = {
     hovedkrav_vurdering: 'godkjent' as const,
     produktivitet_vurdering: 'delvis' as const,
-    produktivitet_godkjent_belop: 30000,
+    produktivitet_godkjent_beloep: 30000,
     hovedkrav_varslet_i_tide: true,
     produktivitet_varslet_i_tide: false,
-    produktivitet_begrenset_belop: 10000,
+    produktivitet_begrenset_beloep: 10000,
     aksepterer_metode: true,
   };
 
   it('begrensningen etter § 34.1.3 setter posten til beløpet etter begrensningen, ikke kravet til 0 (VS-U5)', () => {
     const r = beregnVederlag(krav, vurdering, GJELDENDE_REGLER);
-    expect([r.total_godkjent_belop, r.subsidiaer_godkjent_belop]).toEqual([16000000n, 18000000n]);
-    expect(r.produktivitet_begrenset_belop).toBe(1000000n);
+    expect([r.total_godkjent_beloep, r.subsidiaer_godkjent_beloep]).toEqual([16000000n, 18000000n]);
+    expect(r.produktivitet_begrenset_beloep).toBe(1000000n);
   });
 
   it('preklusjonen etter § 34.1.2 gjelder hele kravet, også posten (OV-U27)', () => {
@@ -2166,27 +2166,27 @@ describe('regelsettet for det særskilte kravet (VS-U5, OV-U27)', () => {
       { ...vurdering, hovedkrav_varslet_i_tide: false },
       GJELDENDE_REGLER
     );
-    expect([r.total_godkjent_belop, r.subsidiaer_godkjent_belop]).toEqual([0n, 18000000n]);
+    expect([r.total_godkjent_beloep, r.subsidiaer_godkjent_beloep]).toEqual([0n, 18000000n]);
   });
 
   it('et krav uten hovedbeløp regnes av posten alene (OV-U23)', () => {
     const r = beregnVederlag(
-      { ...krav, hovedkrav_belop: null },
+      { ...krav, hovedkrav_beloep: null },
       { ...vurdering, hovedkrav_vurdering: undefined },
       GJELDENDE_REGLER
     );
-    expect([r.total_godkjent_belop, r.total_krevd_belop]).toEqual([1000000n, 4000000n]);
-    expect(r.hovedkrav_godkjent_belop).toBeNull();
+    expect([r.total_godkjent_beloep, r.total_krevd_beloep]).toEqual([1000000n, 4000000n]);
+    expect(r.hovedkrav_godkjent_beloep).toBeNull();
   });
 });
 
 // #1301: rigg og drift er ikke i formatet (#1171), så motstriden prøves i regelsettet.
 describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', () => {
   const krav = {
-    hovedkrav_belop: null,
+    hovedkrav_beloep: null,
     metode: 'tilbud' as const,
-    rigg_belop: 20000,
-    produktivitet_belop: null,
+    rigg_beloep: 20000,
+    produktivitet_beloep: null,
     krever_justert_ep: false,
     kostnads_overslag: null,
     hovedkategori: 'endring',
@@ -2199,7 +2199,7 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
       krav,
       {
         rigg_vurdering: vurdering,
-        rigg_godkjent_belop: godkjent,
+        rigg_godkjent_beloep: godkjent,
         rigg_varslet_i_tide: true,
         aksepterer_metode: true,
       },
@@ -2208,17 +2208,17 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
 
   it('«godkjent» med et annet beløp og «avslått» med et beløp avvises', () => {
     expect(() => rigg('godkjent', 15000)).toThrow(
-      'rigg_godkjent_belop: er 15000, men vurderingen «godkjent» gjelder hele det krevde beløpet, 20000'
+      'rigg_godkjent_beloep: er 15000, men vurderingen «godkjent» gjelder hele det krevde beløpet, 20000'
     );
     expect(() => rigg('avslaatt', 15000)).toThrow(
-      'rigg_godkjent_belop: er 15000, men vurderingen «avslått» godkjenner 0'
+      'rigg_godkjent_beloep: er 15000, men vurderingen «avslått» godkjenner 0'
     );
   });
 
   it('kontrollsaker: «godkjent» uten beløp og med det krevde, «avslått» med 0', () => {
-    expect(rigg('godkjent').rigg_godkjent_belop).toBe(2000000n);
-    expect(rigg('godkjent', 20000).rigg_godkjent_belop).toBe(2000000n);
-    expect(rigg('avslaatt', 0).rigg_godkjent_belop).toBe(0n);
+    expect(rigg('godkjent').rigg_godkjent_beloep).toBe(2000000n);
+    expect(rigg('godkjent', 20000).rigg_godkjent_beloep).toBe(2000000n);
+    expect(rigg('avslaatt', 0).rigg_godkjent_beloep).toBe(0n);
   });
 });
 
@@ -2226,10 +2226,10 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
 // prinsipalt og subsidiært. Nullutfallet kjernen utleder av preklusjonen, kontrolleres ikke.
 describe('KA-U42: «delvis» er mer enn 0 kr og mindre enn det krevde, prinsipalt og subsidiært', () => {
   const krav = {
-    hovedkrav_belop: 150000,
+    hovedkrav_beloep: 150000,
     metode: 'tilbud' as const,
-    rigg_belop: 20000,
-    produktivitet_belop: null,
+    rigg_beloep: 20000,
+    produktivitet_beloep: null,
     krever_justert_ep: false,
     kostnads_overslag: null,
     hovedkategori: 'svikt',
@@ -2242,17 +2242,17 @@ describe('KA-U42: «delvis» er mer enn 0 kr og mindre enn det krevde, prinsipal
       krav,
       {
         hovedkrav_vurdering: 'delvis',
-        hovedkrav_godkjent_belop: hovedkrav,
+        hovedkrav_godkjent_beloep: hovedkrav,
         hovedkrav_varslet_i_tide: hovedkravIVarslet,
         rigg_vurdering: 'delvis',
-        rigg_godkjent_belop: rigg,
+        rigg_godkjent_beloep: rigg,
         rigg_varslet_i_tide: true,
         aksepterer_metode: true,
       },
       GJELDENDE_REGLER
     );
   const melding = (post: string, beloep: number, krevd: number) =>
-    `${post}_godkjent_belop: er ${beloep}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet, ${krevd}`;
+    `${post}_godkjent_beloep: er ${beloep}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet, ${krevd}`;
 
   it.each([true, false])(
     '«delvis» med det krevde eller 0 kr avvises for hver post (hovedkravet varslet i tide: %s)',
@@ -2265,11 +2265,11 @@ describe('KA-U42: «delvis» er mer enn 0 kr og mindre enn det krevde, prinsipal
   );
 
   it('kontrollsaker: 1 øre og 1 øre under det krevde godtas, også subsidiært', () => {
-    expect(regn(0.01, 19999.99).total_godkjent_belop).toBe(1n + 1999999n);
-    expect(regn(149999.99, 0.01).total_godkjent_belop).toBe(14999999n + 1n);
+    expect(regn(0.01, 19999.99).total_godkjent_beloep).toBe(1n + 1999999n);
+    expect(regn(149999.99, 0.01).total_godkjent_beloep).toBe(14999999n + 1n);
     const r = regn(100000, 10000, false);
     // Nullutfallet etter § 34.1.2 utleder kjernen; det er ikke byggherrens beløpsvurdering.
-    expect([r.total_godkjent_belop, r.subsidiaer_godkjent_belop]).toEqual([0n, 11000000n]);
+    expect([r.total_godkjent_beloep, r.subsidiaer_godkjent_beloep]).toEqual([0n, 11000000n]);
   });
 });
 
