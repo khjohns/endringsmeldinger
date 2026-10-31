@@ -7755,6 +7755,178 @@ Satsen i prosjektinnstillingene gjelder sluttfristen. Gjelder fristkravet en ann
 forkastet = true
 
 
+[[gruppe.vedtak]]
+id = "GFK-U19"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D1. Hvilke dager som verdsettes.**
+*Bakgrunn:* GFK-U17 ganger satsen med «antallet hverdager i forlengelsen, regnet fra den fristen kravet gjelder». FO-U3 regner 30 %-grensen av de avslåtte dagene, og fullmakten bruker verdien i svaret når sporet besvares i samme brev (GFK-06, EO-U6). «Forlengelsen» sier ikke om det er dagene som er krevd, godkjent eller avslått. Fristen kan også alt være forlenget (§ 40.1), mens fristtabellen har den avtalte datoen.
+- **A (anbefalt):** «I GFK-U17 er forlengelsen de avslåtte dagene for 30 %-grensen (FO-U3), og dagene verdien i svaret gjelder for fullmakten (GFK-06). Hverdagene telles fra fristen slik den står etter fristforlengelse som er registrert som godkjent eller avtalt. Forhold: presiserer GFK-U17.»
+- **B:** «I GFK-U17 er forlengelsen de krevde dagene, både for 30 %-grensen og for fullmakten, og hverdagene telles fra datoen i fristtabellen. Forhold: presiserer GFK-U17; endrer FO-U3 (grensen regnes av de krevde dagene).»
+- *Hva valget styrer:* hvilket tall grensen og fullmakten regnes av ved delvis godkjenning, og fra hvilken dato hverdagene telles.'''
+valgt = "A"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u17" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+I GFK-U17 er forlengelsen de avslåtte dagene for 30 %-grensen (FO-U3), og dagene verdien i svaret gjelder for fullmakten (GFK-06). Hverdagene telles fra fristen slik den står etter fristforlengelse som er registrert som godkjent eller avtalt. Forhold: presiserer GFK-U17.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+I GFK-U17 er forlengelsen de krevde dagene, både for 30 %-grensen og for fullmakten, og hverdagene telles fra datoen i fristtabellen. Forhold: presiserer GFK-U17; endrer FO-U3 (grensen regnes av de krevde dagene).'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U20"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D2. En frist uten dagmulkt i fullmakten.**
+*Bakgrunn:* GFK-U18 sier: «For en frist som ikke er dagmulktbelagt, er det ingen dagmulkt å regne av.» Det sier ikke hva fullmakten gjør. Leses det som 0 kr, kan dager for en slik frist godkjennes uten kjeden. Etter GFK-U3 behandles fristdager som ikke kan verdsettes, som et krav som ikke er tallfestet, og det krever hele kjeden.
+- **A (anbefalt):** «Gjelder fristkravet en frist som ikke er dagmulktbelagt, behandler fullmakten dagene som et krav som ikke er tallfestet (GFK-U3 og GFK-U4), og forseringen viser ingen 30 %-grense. Forhold: presiserer GFK-U18.»
+- **B:** «Dager for en frist som ikke er dagmulktbelagt, har verdien 0 kr i fullmakten. Forhold: presiserer GFK-U18; endrer GFK-U3.»
+- *Hva valget styrer:* om et svar om en slik frist krever kjeden.'''
+valgt = "A"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u18" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Gjelder fristkravet en frist som ikke er dagmulktbelagt, behandler fullmakten dagene som et krav som ikke er tallfestet (GFK-U3 og GFK-U4), og forseringen viser ingen 30 %-grense. Forhold: presiserer GFK-U18.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Dager for en frist som ikke er dagmulktbelagt, har verdien 0 kr i fullmakten. Forhold: presiserer GFK-U18; endrer GFK-U3.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U21"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D3. Et krav som gjelder flere frister.**
+*Bakgrunn:* Etter GFK-U18 sier fristkravet hvilke frister det gjelder, og GFK-U17 regner fra «den fristen». Kontrakten har en sats for hver dagmulktbelagt frist (§ 40.3 a og b). Ingen av vedtakene sier hva verdien er når kravet gjelder flere dagmulktbelagte frister.
+- **A (anbefalt):** «Gjelder fristkravet flere dagmulktbelagte frister, er verdien summen av verdien for hver frist, regnet etter GFK-U17 med satsen for den fristen. Utregningen viser hver frist for seg. Løsningen avgjør ikke om dagmulkt kan kreves for flere frister samtidig. Forhold: presiserer GFK-U17 og GFK-U18.»
+- **B:** «Gjelder fristkravet flere dagmulktbelagte frister, er verdien den høyeste av verdiene for hver frist, regnet etter GFK-U17. Forhold: presiserer GFK-U17 og GFK-U18.»
+- *Hva valget styrer:* under A blir verdien høyere, så fullmakten krever oftere kjeden og 30 %-grensen blir høyere.'''
+valgt = "A"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u17" },
+  { art = "presiserer", vedtak = "gfk-u18" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Gjelder fristkravet flere dagmulktbelagte frister, er verdien summen av verdien for hver frist, regnet etter GFK-U17 med satsen for den fristen. Utregningen viser hver frist for seg. Løsningen avgjør ikke om dagmulkt kan kreves for flere frister samtidig. Forhold: presiserer GFK-U17 og GFK-U18.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Gjelder fristkravet flere dagmulktbelagte frister, er verdien den høyeste av verdiene for hver frist, regnet etter GFK-U17. Forhold: presiserer GFK-U17 og GFK-U18.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U22"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D4. Hvem som registrerer opplysningene om dagmulkten.**
+*Bakgrunn:* GFK-U16 og GFK-U18 legger kontraktssummen, promillen, minstebeløpet og fristtabellen i prosjektinnstillingene, men sier ikke hvem som registrerer dem. Opplysningene styrer fullmakten. I dag registrerer driften satsen, og etter GFK-U1 og GFK-U6 setter driften opp fullmaktene etter skriftlig bestilling fra byggherren.
+- **A (anbefalt):** «Opplysningene om dagmulkten i prosjektinnstillingene registreres av driften etter skriftlig bestilling fra byggherren, som fullmaktene (GFK-U1, GFK-U6). Den som utarbeider eller godkjenner et svar, kan ikke endre dem. Forhold: presiserer GFK-U16 og GFK-U18.»
+- **B:** «Opplysningene registreres av byggherrens team i prosjektet, og hver endring står med tidspunkt og hvem som registrerte den. Forhold: presiserer GFK-U16 og GFK-U18.»
+- *Hva valget styrer:* under B kan den som svarer, endre verdien som avgjør om svaret trenger kjeden.'''
+valgt = "A"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u16" },
+  { art = "presiserer", vedtak = "gfk-u18" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661). Oppdragsgivers merknad til D4 er ført som GFK-U23.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Opplysningene om dagmulkten i prosjektinnstillingene registreres av driften etter skriftlig bestilling fra byggherren, som fullmaktene (GFK-U1, GFK-U6). Den som utarbeider eller godkjenner et svar, kan ikke endre dem. Forhold: presiserer GFK-U16 og GFK-U18.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Opplysningene registreres av byggherrens team i prosjektet, og hver endring står med tidspunkt og hvem som registrerte den. Forhold: presiserer GFK-U16 og GFK-U18.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U23"
+dato = 2026-10-31
+hvem = "oppdragsgiver"
+kilde = ["#1423"]
+sporsmal = '''
+Oppfølgingsspørsmålet ordrett slik det ble stilt 31.10 og lagret i #1423 (kommentaren 6546234625):
+
+**D4. Hvem som registrerer opplysningene om dagmulkten.**
+*Bakgrunn:* GFK-U16 og GFK-U18 legger kontraktssummen, promillen, minstebeløpet og fristtabellen i prosjektinnstillingene, men sier ikke hvem som registrerer dem. Opplysningene styrer fullmakten. I dag registrerer driften satsen, og etter GFK-U1 og GFK-U6 setter driften opp fullmaktene etter skriftlig bestilling fra byggherren.
+- **A (anbefalt):** «Opplysningene om dagmulkten i prosjektinnstillingene registreres av driften etter skriftlig bestilling fra byggherren, som fullmaktene (GFK-U1, GFK-U6). Den som utarbeider eller godkjenner et svar, kan ikke endre dem. Forhold: presiserer GFK-U16 og GFK-U18.»
+- **B:** «Opplysningene registreres av byggherrens team i prosjektet, og hver endring står med tidspunkt og hvem som registrerte den. Forhold: presiserer GFK-U16 og GFK-U18.»
+- *Hva valget styrer:* under B kan den som svarer, endre verdien som avgjør om svaret trenger kjeden.
+
+Svaret hadde en merknad til D4 med oppdragsgivers egne ord. Den er ført som alternativet «Til D4», ordrett.'''
+valgt = "Til D4"
+svar = '''
+D1 A, D2 A, D3 A, D4 A. Til D4: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u22" },
+]
+folge = '''
+Spørsmålet og svaret står i #1423 (kommentarene 6546234625 og 6546335661).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Til D4"
+tekst = '''
+fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; bare registreringen ligger hos driften.'''
+
+
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
 
