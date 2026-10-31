@@ -53,6 +53,18 @@ HISTORISK = re.compile(r"(?<!ikke )\bhistorisk\b", re.IGNORECASE)
 KOMMENTAR = re.compile(r"^\s*(//|/\*|\*|<!--|#(\s|$))")
 MARKOERER = re.compile(r"/\*+|\*+/|//+|<!--|-->|^\s*\*+|^\s*#")
 LUKKES = {"/*": "*/", "<!--": "-->"}
+KJENTE_AVVIK = (
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U24", "#1433"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U32", "#1433"),
+    ("kjerne/tester/arkitektur.test.ts", "KA-U24", "#1433"),
+    ("kjerne/tester/arkitektur.test.ts", "KA-U32", "#1433"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U24", "#1433"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U32", "#1433"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U24", "#1433"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U32", "#1433"),
+    ("src/lib/components/varden/Vederlagssvar.svelte", "KA-U24", "#1433"),
+    ("src/lib/components/varden/__tests__/Varden.test.ts", "KA-U24", "#1433"),
+)
 
 
 def vedtaks_ider(post: dict) -> set[str]:
@@ -140,8 +152,15 @@ def er_test(sti: str) -> bool:
 
 
 def feil_i(
-    sti: str, tekst: str, kjente: set[str], opphevet: set[str], aapne: set[str]
+    sti: str,
+    tekst: str,
+    kjente: set[str],
+    opphevet: set[str],
+    aapne: set[str],
+    avvik: frozenset[tuple[str, str]] = frozenset(),
+    truffet: set[tuple[str, str]] | None = None,
 ) -> list[str]:
+    """`avvik` er parene (fil, ID) i `KJENTE_AVVIK`; et treff legges i `truffet`."""
     feil = []
     for nr, henvisning in henvisninger(tekst):
         ider = HENVISNING.findall(henvisning)
@@ -151,10 +170,28 @@ def feil_i(
         gjeldende = [i for i in ider if i in kjente and i not in opphevet]
         historisk = er_test(sti) and HISTORISK.search(henvisning)
         if not gjeldende and not historisk:
-            feil.extend(
-                f"{sti}:{nr}: {i} er opphevet og står som eneste grunnlag"
-                for i in dict.fromkeys(ider)
-                if i in opphevet
+            for i in dict.fromkeys(ider):
+                if i not in opphevet:
+                    continue
+                if (sti, i) in avvik:
+                    if truffet is not None:
+                        truffet.add((sti, i))
+                    continue
+                feil.append(f"{sti}:{nr}: {i} er opphevet og står som eneste grunnlag")
+    return feil
+
+
+def avviksfeil(rader, truffet: set[tuple[str, str]]) -> list[str]:
+    """Feilene i `KJENTE_AVVIK`: en rad uten issue eller med jokertegn, og en rad som ikke treffer noe."""
+    feil = []
+    for fil, i, issue in rader:
+        if not re.fullmatch(r"#\d+", issue) or not HENVISNING.fullmatch(i) or any(
+            t in fil for t in "*?[]"
+        ) or fil.endswith("/"):
+            feil.append(f"KJENTE_AVVIK: raden ({fil}, {i}, {issue}) må ha én fil, én ID og issuet")
+        elif (fil, i) not in truffet:
+            feil.append(
+                f"KJENTE_AVVIK: {i} i {fil} ({issue}) treffer ikke noe lenger; fjern raden"
             )
     return feil
 
@@ -225,14 +262,18 @@ def kildefiler(rot: pathlib.Path = vr.ROT):
         yield sti.relative_to(rot).as_posix(), data
 
 
-def kontroller(register: dict, plan: str, rot: pathlib.Path = vr.ROT) -> list[str]:
+def kontroller(
+    register: dict, plan: str, rot: pathlib.Path = vr.ROT, rader=KJENTE_AVVIK
+) -> list[str]:
     kjente, opphevet = vedtak(register)
     aapne = aapne_beslutninger(plan) | avgjorte_beslutninger(plan)
+    avvik = frozenset((fil, i) for fil, i, _ in rader)
+    truffet: set[tuple[str, str]] = set()
     return [
         f
         for sti, tekst in filer(rot)
-        for f in feil_i(sti, tekst, kjente, opphevet, aapne)
-    ] + [
+        for f in feil_i(sti, tekst, kjente, opphevet, aapne, avvik, truffet)
+    ] + avviksfeil(rader, truffet) + [
         f
         for sti, data in kildefiler(rot)
         for f in kildefeil(sti, data, kjente, opphevet, aapne)

@@ -310,3 +310,44 @@ def test_kildefilene_er_json_filene_i_domenetabellen(tmp_path):
         "docs/domenetabell/a.json",
         "docs/domenetabell/b/c.json",
     ]
+
+
+def test_en_rad_i_kjente_avvik_slipper_den_opphevede_id_en_i_fila_og_teller_treffet():
+    truffet = set()
+    avvik = frozenset({("kjerne/regel.ts", "MM-U4")})
+    tekst = "// Avvises etter MM-U4."
+    assert vh.feil_i("kjerne/regel.ts", tekst, KJENTE, OPPHEVET, AAPNE, avvik, truffet) == []
+    assert truffet == {("kjerne/regel.ts", "MM-U4")}
+
+
+def test_en_rad_i_kjente_avvik_gjelder_ikke_en_annen_fil():
+    avvik = frozenset({("kjerne/regel.ts", "MM-U4")})
+    assert vh.feil_i("kjerne/annen.ts", "// MM-U4", KJENTE, OPPHEVET, AAPNE, avvik, set()) == [
+        "kjerne/annen.ts:1: MM-U4 er opphevet og står som eneste grunnlag"
+    ]
+
+
+def test_en_rad_i_kjente_avvik_som_ikke_treffer_noe_gir_feil():
+    rader = (("kjerne/regel.ts", "MM-U4", "#1433"),)
+    assert vh.avviksfeil(rader, set()) == [
+        "KJENTE_AVVIK: MM-U4 i kjerne/regel.ts (#1433) treffer ikke noe lenger; fjern raden"
+    ]
+
+
+@pytest.mark.parametrize(
+    "rad",
+    [
+        ("kjerne/*.ts", "MM-U4", "#1433"),
+        ("kjerne/", "MM-U4", "#1433"),
+        ("kjerne/regel.ts", "MM-U4", ""),
+        ("kjerne/regel.ts", "MM-U4 og MM-U5", "#1433"),
+    ],
+)
+def test_en_rad_i_kjente_avvik_uten_en_fil_en_id_og_issuet_gir_feil(rad):
+    feil = vh.avviksfeil((rad,), {(rad[0], rad[1])})
+    assert len(feil) == 1 and "må ha én fil, én ID og issuet" in feil[0]
+
+
+def test_kjente_avvik_viser_bare_til_opphevede_vedtak(register):
+    _, opphevet = vh.vedtak(register)
+    assert {i for _, i, _ in vh.KJENTE_AVVIK} <= opphevet
