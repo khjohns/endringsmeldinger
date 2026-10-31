@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Godkjenningen av svaret i Varden</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!--
+  Prototype v1: det godkjenneren med fullmakt ser når byggherrens svar på vederlagskravet er sendt
+  til godkjenning. Tilstandene er ankrene #til-godkjenning, #endret-etter-retur og #utenfor-fullmakt.
+  Bygger på LV-U2, LV-U15, GFK-06, GFK-U6–GFK-U10 og GFK-U15. Det som ikke er vedtatt, er merket som
+  forslag i panelet «Om prototypen». Teksten er prototypetekst. Fargene er Blekk (.tema-varden).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#15181d; --on-brand:#ffffff;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --control-bg:#f3f4f6; --control-border-color:#80868f;
+  --control-focus:#2457d6; --control-focus-ring:0 0 0 3px rgba(36,87,214,.25);
+  --sidebar-bg:#15181d; --sidebar-active:#262b33; --sidebar-hover:#1e2228; --sidebar-text:#f3f4f6; --sidebar-muted:#a9afb9;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-legal:'IBM Plex Sans','Inter',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --varden-ark:760px; --varden-stoette:360px;
+  --r-kort:8px; --r-knapp:999px; --r-felt:4px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-bg:#121418; --control-border-color:#6c727c;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-bg:#121418; --control-border-color:#6c727c;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+button{font:inherit;color:inherit}
+
+/* Tilstandene */
+.kun-retur,.kun-utenfor,.kun-vanlig,.ikke-utenfor{display:contents}
+[data-tilstand="til-godkjenning"] .kun-retur,[data-tilstand="til-godkjenning"] .kun-utenfor,
+[data-tilstand="endret-etter-retur"] .kun-utenfor,[data-tilstand="endret-etter-retur"] .kun-vanlig,
+[data-tilstand="utenfor-fullmakt"] .kun-retur,[data-tilstand="utenfor-fullmakt"] .ikke-utenfor{display:none}
+[data-tilstand="til-godkjenning"] .kun-retur-blokk,[data-tilstand="utenfor-fullmakt"] .kun-retur-blokk{display:none}
+[data-tilstand="endret-etter-retur"] .kun-vanlig-blokk{display:none}
+.skall:not([data-tilstand="utenfor-fullmakt"]) .bare-utenfor{display:none}
+
+/* Skallet */
+.skall{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+.panel{background:var(--sidebar-bg);color:var(--sidebar-text);padding:20px;display:flex;flex-direction:column;gap:28px}
+.avsender{display:flex;gap:12px;align-items:center}
+.vapen{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--sidebar-text);display:grid;place-items:center;font-size:9px;color:var(--sidebar-muted)}
+.avsender b{display:block;font-weight:600}
+.avsender span{font-size:12px;color:var(--sidebar-muted)}
+.sak .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.sak h2{font-size:20px;font-weight:600;line-height:1.25}
+.etikett{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sidebar-muted);margin-bottom:8px}
+.spor{list-style:none;margin:0 -20px;padding:0}
+.spor a{display:block;padding:10px 20px 10px 17px;border-left:3px solid transparent;text-decoration:none;color:inherit}
+.spor a:hover{background:var(--sidebar-hover)}
+.spor a[aria-current]{background:var(--sidebar-active);border-left-color:var(--sidebar-text)}
+.spor .navn{display:block;font-size:16px}
+.spor .sist{font-size:12px;color:var(--sidebar-muted)}
+.panel .tilgang{margin-top:auto;font-size:12px;color:var(--sidebar-muted)}
+
+.flate{min-width:0;display:flex;flex-direction:column}
+.topplinje{background:var(--surface);border-bottom:1px solid var(--rule-color);padding-block:12px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.topplinje-inner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+.topplinje .rolle{color:var(--ink-2)}
+.demo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+.segment{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:2px}
+.segment a{font-size:12px;font-weight:500;padding:4px 12px;border-radius:var(--r-knapp);min-height:28px;display:inline-flex;align-items:center;color:var(--ink-2);text-decoration:none}
+.segment a[aria-current]{background:var(--brand);color:var(--on-brand)}
+
+.arbeid{flex:1;padding-block:28px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.kolonner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) minmax(0,var(--varden-stoette));gap:24px;align-items:start}
+.hoved{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* Pakken: ikke sendt, men låst. Stiplet kant i blekk, ikke utkastfargen. */
+.pakke{border:1.5px dashed var(--ink-3);border-radius:var(--r-kort);background:var(--surface);min-width:0}
+.pakke-hode{padding:16px 24px;display:flex;flex-direction:column;gap:4px;background:var(--surface-inset);border-bottom:1px dashed var(--ink-3);border-radius:var(--r-kort) var(--r-kort) 0 0}
+.pakke-hode .linje{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.merke{font-size:12px;font-weight:600;color:var(--ink);background:var(--surface);border:1px dashed var(--ink-3);border-radius:var(--r-knapp);padding:1px 8px;white-space:nowrap}
+.pakke-hode h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.pakke-hode p{color:var(--ink-2)}
+.laas{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-3)}
+.svarpaa{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:space-between;align-items:center;padding:10px 24px;border-bottom:1px solid var(--rule-color)}
+.svarpaa span{display:flex;gap:8px;align-items:center;color:var(--ink-2)}
+.lenke{background:none;border:0;padding:8px 0;font-weight:500;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:40px;color:var(--ink)}
+.lenke:hover{text-decoration-thickness:2px}
+
+.retur{margin:16px 24px 0;padding:12px 14px;border-left:3px solid var(--ink);background:var(--surface-inset);border-radius:0 6px 6px 0;display:flex;flex-direction:column;gap:6px}
+.retur .hvem{font-size:12px;color:var(--ink-3)}
+.retur blockquote{margin:0;font-style:normal}
+.retur .endringer{margin:0;padding-left:18px;color:var(--ink-2)}
+.vis-endr{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);min-height:32px;cursor:pointer;align-self:flex-start}
+.vis-endr input{accent-color:var(--brand);width:16px;height:16px;margin:0}
+
+/* Brevet */
+.brev{padding:28px 40px 36px;font-family:var(--font-legal);font-size:15px;line-height:1.6}
+.brev .topp{display:flex;gap:12px;align-items:center;margin-bottom:24px;font-family:var(--font-sans)}
+.brev .topp b{display:block;font-size:15px}.brev .topp span{font-size:13px;color:var(--ink-3)}
+.logo{width:36px;height:36px;border:2px dashed var(--ink-3);display:grid;place-items:center;font-size:9px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
+.mottaker{margin-bottom:20px}
+.ref{display:grid;grid-template-columns:repeat(4,auto);gap:2px 20px;margin:0 0 24px;font-size:12px;font-family:var(--font-sans)}
+.ref dt{color:var(--ink-3)}.ref dd{margin:0}
+.brev h2{font-size:19px;font-weight:600;margin:0 0 14px}
+.brev h3{font-size:15px;font-weight:600;margin:24px 0 2px}
+.brev h3 .hj{font-weight:400;color:var(--ink-3)}
+.brev p{margin:0 0 10px}
+.lagl{font-size:13px;color:var(--ink-3);margin:10px 0 2px !important}
+.lagl b{color:var(--ink)}
+.tbl{overflow-x:auto;margin:6px 0}
+.tbl table{width:100%;min-width:520px;border-collapse:collapse;font-size:13px}
+.tbl th,.tbl td{padding:6px 0 6px 12px;border-bottom:1px solid var(--rule-color);text-align:right;vertical-align:bottom;font-variant-numeric:tabular-nums}
+.tbl th:first-child,.tbl td:first-child{text-align:left;padding-left:0}
+.tbl th{font-weight:600;border-bottom:1px solid var(--ink-3);line-height:1.3}
+.tbl th small{display:block;font-weight:400;color:var(--ink-3);font-size:11px}
+.tbl tr.sum td{font-weight:600;border-top:1px solid var(--ink-3);border-bottom:0}
+.sig{display:flex;flex-wrap:wrap;gap:16px 48px;margin-top:24px}
+.sig small{display:block;font-size:12px;color:var(--ink-3);font-family:var(--font-sans)}
+.kv{margin-top:16px;font-size:13px}
+.fot{margin-top:24px;padding-top:10px;border-top:1px solid var(--rule-color);font-size:12px;color:var(--ink-3);font-family:var(--font-sans)}
+
+/* Endringer siden retur: form, ikke farge */
+.endret{background:var(--surface-selected);box-shadow:-10px 0 0 var(--surface-selected),0 0 0 var(--surface-selected);border-left:2px solid var(--ink);margin-left:-12px;padding-left:10px}
+.endret::before{content:"Endret";display:block;font:600 11px/1.6 var(--font-sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+ins{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+del{color:var(--ink-3)}
+.skjul-endr .endret{background:none;box-shadow:none;border-left-color:transparent}
+.skjul-endr .endret::before{display:none}
+.skjul-endr del{display:none}
+.skjul-endr ins{text-decoration:none}
+
+/* Panelet */
+.stoette{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.kort{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);max-height:calc(100vh - 32px);overflow:auto}
+.kort-hode{padding:16px 20px 12px;border-bottom:1px solid var(--rule-subtle-color)}
+.kort-hode h2{font-size:16px;font-weight:600}
+.blokk{padding:14px 20px;border-top:1px solid var(--rule-subtle-color);display:flex;flex-direction:column;gap:10px}
+.blokk:first-of-type{border-top:0}
+.blokktittel{font-weight:600}
+.kjede{list-style:none;margin:0;padding:0}
+.kjede li{position:relative;padding:0 0 12px 24px}
+.kjede li::before{content:"";position:absolute;left:3px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--ink)}
+.kjede li.naa::before{background:var(--surface);border:3px solid var(--ink);width:5px;height:5px}
+.kjede li.senere::before{background:var(--surface);border:1.5px solid var(--ink-3);width:6px;height:6px}
+.kjede li::after{content:"";position:absolute;left:7px;top:18px;bottom:0;border-left:1px solid var(--rule-strong-color)}
+.kjede li:last-child{padding-bottom:0}
+.kjede li:last-child::after{display:none}
+.kjede b{font-weight:600}
+.kjede .s{display:block;font-size:12px;color:var(--ink-3)}
+.fullmakt{padding:12px 14px;border-radius:6px;background:var(--surface-inset);color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
+.fullmakt .tall{display:flex;justify-content:space-between;gap:12px}
+.fullmakt .tall b{color:var(--ink);font-family:var(--font-mono);font-weight:500}
+.fullmakt.over{border:1px solid var(--ink);background:var(--surface)}
+.summer{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.summer li{display:flex;justify-content:space-between;gap:12px;color:var(--ink-2)}
+.summer .num{color:var(--ink);font-weight:500}
+.virkning{font-size:13px;color:var(--ink-2)}
+.knapp{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:0 20px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);background:var(--brand);color:var(--on-brand);font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s cubic-bezier(.23,1,.32,1);text-align:center}
+.knapp:active{transform:scale(.97)}
+.knapp.sekundaer{background:transparent;color:var(--brand)}
+.knapp.sekundaer:hover{background:var(--surface-inset)}
+.hjelp{font-size:12px;color:var(--ink-3)}
+.merknad{display:flex;flex-direction:column;gap:8px}
+.merknad label{font-weight:500}
+.merknad textarea{font:14px/1.5 var(--font-sans);color:var(--ink);background:var(--control-bg);border:1px solid var(--control-border-color);border-radius:var(--r-felt);padding:8px 10px;min-height:96px;resize:vertical;width:100%}
+.merknad textarea:focus{outline:none;border-color:var(--control-focus);box-shadow:var(--control-focus-ring)}
+.rad{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.liten-knapp{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border:1.5px solid var(--brand);border-radius:var(--r-knapp);background:var(--brand);color:var(--on-brand);font-weight:600;cursor:pointer}
+.forslag{font-size:12px;color:var(--ink-3)}
+.forslag ul{margin:6px 0 0;padding-left:18px}
+
+@media (max-width:1180px){
+  .kolonner{grid-template-columns:minmax(0,1fr)}
+  .stoette{position:static}
+  .kort{max-height:none}
+}
+@media (max-width:860px){
+  .skall{grid-template-columns:minmax(0,1fr)}
+  .panel{gap:14px;padding-bottom:12px}
+  .panel .avsender,.panel .tilgang{display:none}
+  .spor{display:flex;overflow-x:auto}
+  .spor li{flex:none}
+  .spor a{border-left:0;border-bottom:3px solid transparent;padding:8px 16px}
+  .spor a[aria-current]{border-bottom-color:var(--sidebar-text)}
+  .spor .navn{font-size:14px}
+  .pakke-hode,.svarpaa{padding-left:16px;padding-right:16px}
+  .retur{margin-left:16px;margin-right:16px}
+  .brev{padding:20px 16px 28px;font-size:14px}
+  .ref{grid-template-columns:repeat(2,auto)}
+}
+@media (prefers-reduced-motion:reduce){.knapp{transition:none}}
+</style>
+</head>
+<body>
+<div class="skall" id="skall" data-tilstand="til-godkjenning">
+  <aside class="panel" aria-label="Saken">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak"><p class="id num">E-021</p><h2>Ny peling med produktivitetstap</h2></div>
+    <nav aria-labelledby="spor-etikett">
+      <p class="etikett" id="spor-etikett">Til godkjenning</p>
+      <ul class="spor">
+        <li><a href="#" aria-current="page"><span class="navn">Svar på vederlagsjusteringen</span><span class="sist">Brev 6 · venter på deg</span></a></li>
+      </ul>
+    </nav>
+    <p class="tilgang">Du ser saken og dette svaret mens det venter på deg. Teamets notater vises ikke her.</p>
+  </aside>
+
+  <div class="flate">
+    <div class="topplinje">
+      <div class="topplinje-inner">
+        <p class="rolle">Du er Kari Nordmann, godkjenner for byggherren (BH)</p>
+        <div class="demo"><span>Mockup · tilstand</span>
+          <nav class="segment" aria-label="Tilstand">
+            <a href="#til-godkjenning" data-t="til-godkjenning">Til godkjenning</a>
+            <a href="#endret-etter-retur" data-t="endret-etter-retur">Endret etter retur</a>
+            <a href="#utenfor-fullmakt" data-t="utenfor-fullmakt">Over fullmakten</a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <main class="arbeid">
+      <div class="kolonner">
+        <div class="hoved">
+          <section class="pakke" aria-labelledby="tittel">
+            <div class="pakke-hode">
+              <div class="linje"><span class="merke">Til godkjenning · ikke sendt</span><h1 id="tittel">Brev 6 · Svar på krav om justering av vederlaget</h1></div>
+              <p>Til totalentreprenøren (TE) · utarbeidet av Ola Nordmann, prosjektingeniør</p>
+              <p><span class="kun-vanlig">Sendt til godkjenning 30. oktober 2026 kl. 15.20</span><span class="kun-retur">Sendt til godkjenning på nytt 31. oktober 2026 kl. 09.12</span></p>
+              <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Teksten er låst. Det du godkjenner, er brevet slik det står under.</p>
+            </div>
+            <div class="svarpaa">
+              <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Svar på brev 5 fra TE · 20. okt 2026 · <span class="num">190 000 kr</span></span>
+              <button class="lenke" type="button">Les kravet</button>
+            </div>
+
+            <div class="retur kun-retur-blokk" role="note">
+              <p class="hvem">Du sendte svaret tilbake 30. oktober 2026 kl. 16.05:</p>
+              <blockquote>«Punkt 5: Er 30 000 kr riktig når beregningen viser 35 000 kr etter fradraget for utstyrsstansen? Utdyp begrunnelsen.»</blockquote>
+              <p class="hvem">Endret av Ola Nordmann siden da:</p>
+              <ul class="endringer"><li>Punkt 5, videre subsidiært: <span class="num">30 000</span> → <span class="num">35 000 kr</span></li><li>Punkt 5: begrunnelsen er utvidet</li><li>Oversikten: summen videre subsidiært <span class="num">130 000</span> → <span class="num">135 000 kr</span></li></ul>
+              <label class="vis-endr"><input type="checkbox" id="vis-endr" checked> Vis endringene i brevet</label>
+            </div>
+
+            <article class="brev" id="brev" aria-label="Brevet slik det blir sendt">
+              <div class="topp"><div class="logo" aria-hidden="true">Logo</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+              <p class="mottaker">Totalentreprenør AS<br>v/ Per Olsen<br>Postboks 100, 0101 Oslo</p>
+              <dl class="ref">
+                <div><dt>Deres ref.:</dt><dd>E-021-05</dd></div>
+                <div><dt>Vår ref. (saksnr.):</dt><dd>E-021-06<br>26/01234</dd></div>
+                <div><dt>Saksbehandler:</dt><dd>Ola Nordmann</dd></div>
+                <div><dt>Dato:</dt><dd>Settes ved sending</dd></div>
+              </dl>
+              <h2>E-021 Ny peling med produktivitetstap – svar på krav om justering av vederlaget</h2>
+              <p>Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev 5 av 20.&nbsp;oktober 2026. Beløpene i brevet er eks.&nbsp;mva.</p>
+
+              <h3>1. Varselet om vederlagsjustering <span class="hj">(§&nbsp;34.1.2)</span></h3>
+              <p class="lagl"><b>Prinsipalt</b></p>
+              <p>Byggherren gjør gjeldende at totalentreprenørens varsel etter NS&nbsp;8407 §&nbsp;34.1.2 i brev 3 av 6.&nbsp;oktober 2026 kom for sent.</p>
+              <p>Forholdet ble oppdaget ved pelingen 12. september, jf. totalentreprenørens dagbok samme dag (vedlegg 1). Varselet kom 6. oktober, mer enn tre uker senere.</p>
+
+              <h3>2. Varselet om særskilt vederlagsjustering <span class="hj">(§&nbsp;34.1.3)</span></h3>
+              <p class="lagl"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ikke fører frem</p>
+              <p>Byggherren gjør gjeldende at totalentreprenørens varsel om særskilt vederlagsjustering for nedsatt produktivitet eller forstyrrelser etter §&nbsp;34.1.3 tredje ledd i brev 5 av 20.&nbsp;oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.</p>
+              <p>Produktivitetstapet var kjent fra midten av september, da pelene i akse C–F måtte rammes på nytt. Utgiftene etter varselet er spesifisert i totalentreprenørens beregning til brev 5.</p>
+
+              <h3>3. Beregningsmetode <span class="hj">(§&nbsp;34.2)</span></h3>
+              <p class="lagl"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ikke fører frem</p>
+              <p>Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.</p>
+
+              <h3>4. Vederlagsjustering <span class="hj">(§&nbsp;34.1.2)</span></h3>
+              <p class="lagl"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ikke fører frem</p>
+              <p>Byggherren godkjenner 100&nbsp;000&nbsp;kr av de krevde 150&nbsp;000&nbsp;kr.</p>
+              <p>Beløpet bygger på enhetsprisene for peling i kontrakten. Det er trukket fra 50 000 kr for rigg som allerede er dekket i kontraktssummen (vedlegg 2).</p>
+
+              <h3>5. Særskilt vederlagsjustering <span class="hj">(§&nbsp;34.1.3 annet ledd)</span></h3>
+              <p class="lagl"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ikke fører frem</p>
+              <p>Byggherren godkjenner 10&nbsp;000&nbsp;kr etter begrensningen i punkt 2.</p>
+              <p class="lagl"><b>Videre subsidiært</b>, hvis heller ikke innsigelsen i punkt 2 fører frem</p>
+              <p class="kun-vanlig-blokk">Byggherren godkjenner 30&nbsp;000&nbsp;kr av de krevde 40&nbsp;000&nbsp;kr.</p>
+              <p class="kun-retur-blokk endret">Byggherren godkjenner <del>30&nbsp;000&nbsp;kr</del> <ins>35&nbsp;000&nbsp;kr</ins> av de krevde 40&nbsp;000&nbsp;kr.</p>
+              <p class="kun-vanlig-blokk">Totalentreprenørens beregning tar med to dager med stans som skyldtes totalentreprenørens eget utstyr. De er trukket ut.</p>
+              <p class="kun-retur-blokk endret">Totalentreprenørens beregning tar med to dager med stans som skyldtes totalentreprenørens eget utstyr. De er trukket ut. <ins>Fradraget er regnet med totalentreprenørens dagsats i beregningen, 2 500 kr per dag, og gir 35 000 kr.</ins></p>
+
+              <h3>Oversikt</h3>
+              <div class="tbl">
+                <table>
+                  <thead><tr><th scope="col">Post</th><th scope="col">Krevd</th><th scope="col">Prinsipalt<small>punkt 1 fører frem</small></th><th scope="col">Subsidiært<small>punkt 2 fører frem</small></th><th scope="col">Videre subsidiært<small>ingen av dem</small></th></tr></thead>
+                  <tbody>
+                    <tr><td>Vederlagsjustering</td><td>150&nbsp;000</td><td>0</td><td>100&nbsp;000</td><td>100&nbsp;000</td></tr>
+                    <tr><td>Særskilt vederlagsjustering</td><td>40&nbsp;000</td><td>0</td><td>10&nbsp;000</td><td><span class="kun-vanlig">30&nbsp;000</span><span class="kun-retur"><del>30&nbsp;000</del> <ins>35&nbsp;000</ins></span><span class="kun-utenfor">30&nbsp;000</span></td></tr>
+                    <tr class="sum"><td>Sum</td><td>190&nbsp;000</td><td>0</td><td>110&nbsp;000</td><td><span class="kun-vanlig">130&nbsp;000</span><span class="kun-retur"><del>130&nbsp;000</del> <ins>135&nbsp;000</ins></span><span class="kun-utenfor">130&nbsp;000</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>6. Forbehold</h3>
+              <p>Byggherren har ennå ikke svart på grunnlaget i totalentreprenørens krav i brev 2 av 2.&nbsp;oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.</p>
+              <p>Byggherren tar forbehold om å justere mengden peler i punkt 4 når sluttoppmålingen foreligger.</p>
+
+              <div class="sig">
+                <div>Vennlig hilsen<br><br><b><span class="ikke-utenfor">Kari Nordmann</span><span class="kun-utenfor">Anne Hansen</span></b><small><span class="ikke-utenfor">Prosjektleder · godkjent med fullmakt</span><span class="kun-utenfor">Prosjektdirektør · godkjent med fullmakt</span></small></div>
+                <div><br><br><b>Ola Nordmann</b><small>Prosjektingeniør · saksbehandler</small></div>
+              </div>
+              <p class="kv"><b>Vedlegg:</b> 1 Dagbok uke 37–38.pdf · 2 Gjennomgang av kalkylen.pdf<br><b>Kopi til:</b> Byggeleder</p>
+              <p class="fot">Dato, brevnummer og tidspunkt settes når brevet sendes. Brevet sendes slik det står her.</p>
+            </article>
+          </section>
+        </div>
+
+        <aside class="stoette" aria-label="Godkjenningen">
+          <section class="kort">
+            <div class="kort-hode"><h2>Godkjenningen</h2></div>
+
+            <div class="blokk">
+              <ol class="kjede" aria-label="Godkjennerne">
+                <li><b>Ola Nordmann</b><span class="s">Prosjektingeniør · utarbeidet svaret</span></li>
+                <li class="naa" aria-current="step"><b>Kari Nordmann (deg)</b><span class="s"><span class="ikke-utenfor">Prosjektleder · fullmakt til <span class="num">250 000 kr</span></span><span class="kun-utenfor">Prosjektleder · fullmakt til <span class="num">100 000 kr</span></span></span></li>
+                <li class="senere bare-utenfor"><b>Anne Hansen</b><span class="s">Prosjektdirektør · fullmakt til <span class="num">1 000 000 kr</span> · sender svaret</span></li>
+              </ol>
+            </div>
+
+            <div class="blokk">
+              <div class="fullmakt" id="fm-innenfor">
+                <p class="tall"><span>Verdien for fullmakten</span><b><span class="kun-vanlig">130 000 kr</span><span class="kun-retur">135 000 kr</span></b></p>
+                <p class="tall"><span>Din fullmakt</span><b>250 000 kr</b></p>
+                <p class="hjelp">Svaret er innenfor fullmakten din. Verdien er det høyeste beløpet svaret godkjenner, om ingen av innsigelsene fører frem.</p>
+              </div>
+              <div class="fullmakt over" id="fm-over">
+                <p class="tall"><span>Verdien for fullmakten</span><b>130 000 kr</b></p>
+                <p class="tall"><span>Din fullmakt</span><b>100 000 kr</b></p>
+                <p><b>Svaret er over fullmakten din, så du kan ikke sende det selv.</b> Godkjenner du, går det videre til Anne Hansen, som har fullmakt og sender det. Du kan også sende det tilbake med en merknad.</p>
+              </div>
+            </div>
+
+            <div class="blokk">
+              <p class="blokktittel">Hovedlinjene</p>
+              <ul class="summer">
+                <li><span>Prinsipalt</span><span class="num">0 kr</span></li>
+                <li><span>Subsidiært</span><span class="num">110 000 kr</span></li>
+                <li><span>Videre subsidiært</span><span class="num"><span class="kun-vanlig">130 000 kr</span><span class="kun-retur">135 000 kr</span></span></li>
+              </ul>
+              <p class="virkning">Godtar totalentreprenøren svaret, er partene enige om hele svaret, også at varselet kom for sent.</p>
+            </div>
+
+            <div class="blokk" id="handlinger">
+              <span class="ikke-utenfor"><button class="knapp" type="button">Godkjenn og send</button>
+              <p class="hjelp">Svaret sendes til totalentreprenøren med det samme, med deg som avsender og Ola Nordmann som saksbehandler.</p></span>
+              <span class="kun-utenfor"><button class="knapp" type="button">Godkjenn og send til Anne Hansen</button>
+              <p class="hjelp">Svaret sendes ikke ennå. Anne Hansen godkjenner og sender det.</p></span>
+              <button class="knapp sekundaer" type="button" id="tilbake-knapp" aria-expanded="false" aria-controls="merknad">Send tilbake med merknad</button>
+              <div class="merknad" id="merknad" hidden>
+                <label for="merknad-tekst">Merknad til Ola Nordmann</label>
+                <span class="hjelp">Merknaden følger svaret tilbake og står ikke i brevet.</span>
+                <textarea id="merknad-tekst"></textarea>
+                <div class="rad"><button class="liten-knapp" type="button">Send tilbake</button><button class="lenke" type="button" id="avbryt">Avbryt</button></div>
+              </div>
+              <p class="hjelp">Endres svaret etter at du har godkjent det, må det godkjennes på nytt. Har totalentreprenøren sendt en ny versjon av kravet etter at svaret ble lagt fram, kan svaret ikke sendes, og godkjenningen avvises.</p>
+            </div>
+
+            <div class="blokk forslag">
+              <p><b>Om prototypen.</b> Vedtatt: to signaturer og avsenderen (LV-U15), teksten som godkjennes, er den som sendes (LV-U2), kjeden og grensene (GFK-U6, GFK-U8, GFK-U10, GFK-U15), at den siste godkjenningen sender svaret (GFK-U7), og hva godkjenneren ser (GFK-U9). Forslag:</p>
+              <ul>
+                <li>verdien for fullmakten som det høyeste beløpet svaret godkjenner (GFK-06 og #1047);</li>
+                <li>retur med merknad og endringene markert i brevet;</li>
+                <li>stiplet kant i blekk, ikke utkastfargen.</li>
+              </ul>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const skall = document.getElementById('skall');
+  const lenker = [...document.querySelectorAll('.segment a')];
+  function vis(){
+    const t = ['til-godkjenning','endret-etter-retur','utenfor-fullmakt'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'til-godkjenning';
+    skall.dataset.tilstand = t;
+    lenker.forEach(a => a.dataset.t === t ? a.setAttribute('aria-current','true') : a.removeAttribute('aria-current'));
+    document.getElementById('fm-innenfor').hidden = t === 'utenfor-fullmakt';
+    document.getElementById('fm-over').hidden = t !== 'utenfor-fullmakt';
+  }
+  addEventListener('hashchange', vis); vis();
+  document.getElementById('vis-endr').onchange = e => document.getElementById('brev').classList.toggle('skjul-endr', !e.target.checked);
+  const tk = document.getElementById('tilbake-knapp'), mk = document.getElementById('merknad');
+  tk.onclick = () => { mk.hidden = false; tk.hidden = true; tk.setAttribute('aria-expanded','true'); document.getElementById('merknad-tekst').focus(); };
+  document.getElementById('avbryt').onclick = () => { mk.hidden = true; tk.hidden = false; tk.setAttribute('aria-expanded','false'); tk.focus(); };
+</script>
+</body>
+</html>
