@@ -209,6 +209,10 @@ skrives i rekkefølge. Det må prøves i byggingen, med `gjengirTro` som kontrol
 > kontrakten krever begrunnelse. For byggherrens svar i § 31–§ 35 er det avslaget etter
 > § 32.3 tredje ledd. Hvordan det avgrenses, står i
 > [oppfølgingsspørsmålet i #1433](https://github.com/khjohns/endringsmeldinger/issues/1433#issuecomment-6544156051).
+> Oppdragsgiver svarte «A, A» på oppfølgingen
+> ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1433#issuecomment-6544191778)):
+> begrunnelsen kreves bare ved avslag av kravet på endringsordre, også når avslaget er en
+> påberopelse etter § 32.2, og totalentreprenørens tekster berøres ikke.
 > Teksten under er vurderingen før svaret.
 
 - **KA-U31 må endres.** Den sier at begrunnelsen «står per svar, som utdypningen under
