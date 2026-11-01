@@ -4995,7 +4995,7 @@ Svaret passet ikke på A, B eller C. Alternativet «bruk dokumentkoden fra K3» 
 [[gruppe.vedtak.alternativ]]
 navn = "bruk dokumentkoden fra K3"
 tekst = '''
-Merket viser dokumentkoden byggherrens endringsordre fikk etter LV-U24, med koden EO og løpenummeret, for eksempel ‹Inngår i EO-012›. Saksnummeret etter DL-U6 står uendret.'''
+Merket viser dokumentkoden byggherrens endringsordre fikk etter LV-U24. Saksnummeret etter DL-U6 står uendret.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "9A"
@@ -12908,7 +12908,7 @@ forhold = [
   { art = "endrer", vedtak = "ov-u70" },
 ]
 folge = '''
-Bygges i #807. «Om»-siden er #1452.'''
+Bygges i #807 og #1452.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "ja"

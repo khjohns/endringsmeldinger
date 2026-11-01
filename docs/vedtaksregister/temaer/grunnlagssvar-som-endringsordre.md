@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `52a6c7359a33b0dc557c5cc1d8bf62676e42a35e1c068c6cc3bbe7103b5a280d`
+Kontrollsum (SHA-256 over utdraget visningen leser): `03953aa3976fd3c9f0d4016bc8e549d8e4d77c6ab04def703395f4141ecc029b`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -677,7 +677,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 ### <a id="eo-u14"></a>EO-U14
 
-> EO-U14: Merket viser dokumentkoden byggherrens endringsordre fikk etter LV-U24, med koden EO og løpenummeret, for eksempel ‹Inngår i EO-012›. Saksnummeret etter DL-U6 står uendret.
+> EO-U14: Merket viser dokumentkoden byggherrens endringsordre fikk etter LV-U24. Saksnummeret etter DL-U6 står uendret.
 
 **Forkastet:** «Merket viser EO-sakens saksnummer etter DL-U6: ‹Inngår i EO <saksnummer>›. Forhold: DL-U6 står.»; «Løsningen gir hver sak et lesbart løpenummer per prosjekt og sakstype når saken opprettes, for endringsordrer ‹EO-001›, ‹EO-002› og så videre. Nummeret vises i sakslisten og i merket. Saksnummeret etter DL-U6 er fortsatt sakens identitet og står i brevene. Forhold: utvider DL-U6. B tar ikke opp igjen det andre forkastede alternativet, fordi løpenummeret ikke står i brevene og ikke er saksnummeret.»; «Byggherren oppgir endringsordrens nummer etter sin egen nummerering. Løsningen avviser et nummer som alt er brukt i prosjektet, og merket viser det. Forhold: presiserer DL-U6 og utvider EO-U1.»
 
@@ -1827,7 +1827,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 01.11, oppdragsgiver (#1402)
 
-**Følge:** Endrer [OV-U4](#ov-u4). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [OV-U62](#ov-u62). Endrer [OV-U70](#ov-u70). Bygges i #807. «Om»-siden er #1452.
+**Følge:** Endrer [OV-U4](#ov-u4). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [OV-U62](#ov-u62). Endrer [OV-U70](#ov-u70). Bygges i #807 og #1452.
 
 **Regelrader:** —
 
