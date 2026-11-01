@@ -196,49 +196,20 @@ ved påberopelsen. Forhold: presiserer VS-U34 og GR-U31. Følger
 Prøvd mot vedtakene 01.11 av en subagent. Utkastet før prøvingen viste til brevets nummer,
 som LV-U42 har forkastet for korrespondanse, og manglet vilkårene i OV-U79, OV-U80 og OV-U11.
 
-## S-7. Gjelder forløpet alle forholdene, eller bare de der punkt 32.2 gjelder?
+## S-7. Utgått 01.11: arbeidsvalg
 
-Funnet i den kognitive forprøven 01.11.
+Spørsmålet var om forløpet gjelder alle forholdene eller bare de der punkt 32.2 gjelder.
+Prøvingen mot vedtakene fant at det er et arbeidsvalg om forløpets omfang, ikke et vedtak.
+Det står i avgrensningen i [BF-05.md](BF-05.md#avgrensningen). Datoen og brevet ved force
+majeure er ikke vedtatt (P-3 i bestillingen).
 
-**Bakgrunn.** Skjemaet for ny sak lar totalentreprenøren velge alle forholdene. Datofeltet og
-første setning i brevet skifter med forholdet: der punkt 32.2 gjelder, er datoen datoen
-pålegget ble mottatt, og ellers en annen dato ([VS-U26](../../plans/vedtak.md#vs-u26)).
-[LV-U41](../../plans/vedtak.md#lv-u41) gir første setning. Bestillingen beskriver bare
-forholdene der punkt 32.2 gjelder.
+## S-8. Utgått 01.11: følger av vedtakene
 
-**Alternativer**
-
-- **A.** Forløpet beskriver påberopelsen der punkt 32.2 gjelder. De andre forholdene, som
-  svikt ved byggherrens ytelser og force majeure, får egne forløp. Skjemaet tilbyr alle
-  forholdene, og datofeltet og brevet følger VS-U26 og LV-U41 for hvert av dem.
-- **B.** Forløpet beskriver alle forholdene, med forventningene for hvert av dem.
-
-**Anbefaling:** A. Forløpet holdes lite, og reglene for de andre forholdene står alt i
-vedtakene.
-
-**Valget styrer** hvilke forhold skissen og kontrollene i forløpet dekker.
-
-## S-8. Hva skjer med et varsel lagt til ved en feil?
-
-Funnet i den kognitive forprøven 01.11. Stilles bare om S-6 versjon 3 bekreftes.
-
-**Bakgrunn.** Svarer totalentreprenøren ved en feil at varselet alt er sendt, legges et
-dokument til som varsel med en dato som settes én gang ([OV-U80](../../plans/vedtak.md#ov-u80)).
-[OV-U11](../../plans/vedtak.md#ov-u11) gjelder retting av datoen, ikke et varsel som aldri ble
-sendt. Ingen vedtak sier hva totalentreprenøren da gjør.
-
-**Alternativer**
-
-- **A.** Korrespondansen står, og totalentreprenøren retter opplysningen etter OV-U11, eller
-  sier fra i et innlegg.
-- **B.** Totalentreprenøren kan fjerne korrespondansen til byggherren har svart på
-  påberopelsen.
-
-**Anbefaling:** A. Det som er lagt til, står, som andre registrerte brev
-([OV-U4](../../plans/vedtak.md#ov-u4)). Skjemaet spør tydelig om varselet etter punkt 32.2
-alt er sendt, så feilen blir sjelden; det er en antakelse.
-
-**Valget styrer** om korrespondansen kan fjernes, og hva skjemaet sier før sending.
+Spørsmålet var hva som skjer med et varsel lagt til ved en feil. Det følger av
+[OV-U80](../../plans/vedtak.md#ov-u80) og [MM-U21](../../plans/vedtak.md#mm-u21), og står i
+avgrensningen i [BF-05.md](BF-05.md#avgrensningen). Et alternativ der totalentreprenøren kan
+fjerne korrespondansen, ville endret OV-U80, MM-U21 og [HF-U13](../../plans/vedtak.md#hf-u13).
+Ingen har bedt om det, så det stilles ikke.
 
 ## Svarene
 
