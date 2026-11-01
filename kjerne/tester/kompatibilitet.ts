@@ -95,7 +95,7 @@ export function kompatibiliteten(lagBaner: () => Baner): void {
       k.kjerne = V2A;
       const brev: Handling = {
         handling: 'brev',
-        svar: [{ spor: 'grunnlag', resultat: 'godkjent' }],
+        svar: [{ spor: 'forhold', resultat: 'godkjent' }],
       };
       expect((await k.send(brev))?.godtatt).toBe(true);
       const journal = await bane.journal();

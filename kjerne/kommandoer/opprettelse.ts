@@ -1,6 +1,6 @@
 /**
  * Opprettelsen av en KOE-sak (kjernedelen av #370). Saken opprettes i et eget
- * steg før grunnlagskravet, fordi den låste teksten i kravet har saksnummeret,
+ * steg før påberopelsen, fordi den låste teksten i kravet har saksnummeret,
  * som lages når saken opprettes (LV-U2, DL-U6). Kommandoen står utenfor
  * `Kommando`: den har ingen journal å vurderes mot. Serveren skriver `data` som
  * `sak_opprettet` i versjon 1.

@@ -16,7 +16,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Journalrad, Standpunktsvirkning } from '../typer.ts';
 import { virkninger } from '../frosset/standpunkt.ts';
-import { grunnlagskravFor } from '../utledning/utled.ts';
+import { paaberopelseFor } from '../utledning/utled.ts';
 import { KJERNE } from '../versjon.ts';
 import { utledJournal } from '../kommandoer/skriving.ts';
 import type { Utledning } from '../utledning/utled.ts';
@@ -32,7 +32,7 @@ const N1 = medRegler(NESTE_REGLER);
 const frosset = (u: Utledning) => ({
   beslutningsgrunnlag: Object.values(u.svar).map((s) => s.svar.beslutningsgrunnlag),
   enighetsgrunnlag: Object.values(u.spor).map(
-    (s) => s.enighet && { grunnlag: s.enighet.grunnlag, holder: s.enighet.holder }
+    (s) => s.enighet && { forhold: s.enighet.forhold, holder: s.enighet.holder }
   ),
 });
 
@@ -53,7 +53,7 @@ export function regelendringen(lagBaner: () => Baner): void {
       const prekludertAvslag = {
         handling: 'brev',
         navn: 'D3',
-        svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: false }],
+        svar: [{ spor: 'forhold', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: false }],
       };
       await lag('ikke godtatt', ['krav_samord', prekludertAvslag]);
       await lag('til revisjon', ['krav_samord', prekludertAvslag]);
@@ -61,9 +61,9 @@ export function regelendringen(lagBaner: () => Baner): void {
         'krav_samord',
         {
           handling: 'brev',
-          svar: [{ spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: false }],
+          svar: [{ spor: 'forhold', resultat: 'godkjent', varslet_i_tide: false }],
         },
-        { handling: 'aksept', spor: 'grunnlag' },
+        { handling: 'aksept', spor: 'forhold' },
       ]);
       await lag('utenfor endringen', ['krav_irreg', prekludertAvslag]);
       await lag('enighet om beløpet', ['forlop_a']);
@@ -82,8 +82,8 @@ export function regelendringen(lagBaner: () => Baner): void {
         expect(await s.bane.journal(), navn).toEqual(s.journal);
       }
       const godtatt = utledJournal(saker['godtatt'].journal, N1);
-      expect(godtatt.spor.grunnlag.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
-      expect(godtatt.grunnlagAvvist).toBe(true);
+      expect(godtatt.spor.forhold.enighet?.forhold.regelversjon).toBe(KJERNE.regler.versjon);
+      expect(godtatt.forholdAvvist).toBe(true);
     });
 
     it('lar brevet beholde virkningen og viser regelendringen bare som merknad', () => {
@@ -93,13 +93,13 @@ export function regelendringen(lagBaner: () => Baner): void {
       expect(n1.svar[svarId]).toEqual(n.svar[svarId]);
       expect(n1.svar[svarId].virkninger.map((p) => p.virkning)).toEqual([1, 2]);
       expect(n1.spor.vederlag.subsidiaer).toEqual(['prekludert', 'avslaatt']);
-      expect(visning(n, KJERNE.regler).spor.grunnlag.etiketter).not.toContain(
+      expect(visning(n, KJERNE.regler).spor.forhold.etiketter).not.toContain(
         'regel_endret_etter_brevet'
       );
-      expect(visning(n1, N1.regler).spor.grunnlag.etiketter).toContain('regel_endret_etter_brevet');
+      expect(visning(n1, N1.regler).spor.forhold.etiketter).toContain('regel_endret_etter_brevet');
       // Kontrollsak: svaret i en kategori endringen ikke rører, får ingen merknad.
       const kontroll = utledJournal(saker['utenfor endringen'].journal, N1);
-      expect(visning(kontroll, N1.regler).spor.grunnlag.etiketter).not.toContain(
+      expect(visning(kontroll, N1.regler).spor.forhold.etiketter).not.toContain(
         'regel_endret_etter_brevet'
       );
     });
@@ -113,22 +113,22 @@ export function regelendringen(lagBaner: () => Baner): void {
     it('oppfordrer bare til en revisjon i TEs favør, og den revisjonen godtas (HF-U5, MM-U9)', async () => {
       const s = saker['til revisjon'];
       const n1 = utledJournal(s.journal, N1);
-      const g = n1.spor.grunnlag.gjeldendeSvar!;
-      expect(visning(n1, N1.regler).spor.grunnlag.etiketter).toContain('regel_endret_etter_brevet');
+      const g = n1.spor.forhold.gjeldendeSvar!;
+      expect(visning(n1, N1.regler).spor.forhold.etiketter).toContain('regel_endret_etter_brevet');
       const medVirkning = (v: Standpunktsvirkning[]) =>
         v.filter((p) => p.virkning !== 'uten_virkning').map((p) => p.standpunkt);
-      const naa = medVirkning(virkninger(g, grunnlagskravFor(g, n1), N1.regler));
+      const naa = medVirkning(virkninger(g, paaberopelseFor(g, n1), N1.regler));
       expect(naa.every((id) => medVirkning(n1.svar[g.id].virkninger).includes(id))).toBe(true);
       s.k.kjerne = N1;
       const revidert = await s.k.send({
         handling: 'revisjon',
-        spor: 'grunnlag',
+        spor: 'forhold',
         resultat: 'avslaatt',
         klientregler: 'n+1',
       });
       expect(revidert?.godtatt ? 'godtatt' : revidert?.avvisning.regel).toBe('godtatt');
       const u = await s.k.utledning();
-      expect(visning(u, N1.regler).spor.grunnlag.etiketter).not.toContain(
+      expect(visning(u, N1.regler).spor.forhold.etiketter).not.toContain(
         'regel_endret_etter_brevet'
       );
     });
@@ -136,11 +136,11 @@ export function regelendringen(lagBaner: () => Baner): void {
     it('godtar en aksept av svaret slik brevet uttrykte det, etter regelendringen', async () => {
       const s = saker['ikke godtatt'];
       s.k.kjerne = N1;
-      const godtatt = await s.k.send({ handling: 'aksept', spor: 'grunnlag', klientregler: 'n+1' });
+      const godtatt = await s.k.send({ handling: 'aksept', spor: 'forhold', klientregler: 'n+1' });
       expect(godtatt?.godtatt ? 'godtatt' : godtatt?.avvisning.regel).toBe('godtatt');
       const u = await s.k.utledning();
-      expect(u.spor.grunnlag.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
-      expect(u.grunnlagAvvist).toBe(true);
+      expect(u.spor.forhold.enighet?.forhold.regelversjon).toBe(KJERNE.regler.versjon);
+      expect(u.forholdAvvist).toBe(true);
     });
 
     it('lister sakene som endres før utrulling, og bygger bufferen på nytt (E2-3)', async () => {

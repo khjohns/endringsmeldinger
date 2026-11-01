@@ -1,6 +1,6 @@
 /**
  * Formen og lesereglene byggedel 1 av #309 la til: tekst basen ikke kan lagre
- * (#373), grunnlagsversjonen i svaret (#342, HF-U1), sammenfallet (MM-U18, #326),
+ * (#373), påberopelsesversjonen i svaret (#342, HF-U1), sammenfallet (MM-U18, #326),
  * merkingen (KA-U16, KA-U20), innsigelsen, protesten og påberopt passivitet (§ 5,
  * VS-U1, VS-U12), og at et registrert svar ikke leses med en innsigelse (VS-U24,
  * OV-U4). Forløpene gjennom kommandoene står som bevis-saker i domenetabellen.
@@ -59,7 +59,7 @@ const avslag = [
     handling: 'brev',
     navn: 'D4',
     svar: [
-      { spor: 'grunnlag', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: true },
+      { spor: 'forhold', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: true },
       { spor: 'vederlag', navn: 'S-v1', vurdering: 'delvis', godkjent_belop: 60000 },
     ],
   },
@@ -76,7 +76,7 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
   };
   const krav = (innhold: Data) => ({
     type: 'krav',
-    spor: 'grunnlag',
+    spor: 'forhold',
     innhold: {
       hovedkategori: 'endring',
       underkategori: 'irregulaer_endring',
@@ -124,23 +124,23 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
   });
 });
 
-describe('svaret på vederlag og frist viser til grunnlagsversjonen (#342, HF-U1)', () => {
-  it('kommandoen lagrer grunnlagsversjonen svaret ble regnet mot', async () => {
+describe('svaret på vederlag og frist viser til påberopelsesversjonen (#342, HF-U1)', () => {
+  it('kommandoen lagrer påberopelsesversjonen svaret ble regnet mot', async () => {
     const bane = minnebane();
     const k = await bygg(bane, avslag);
     const svar = (await bane.journal())
       .flatMap((r) => (r.data.svar ?? []) as Data[])
       .find((s) => s.id === k.navn.id('S-v1'))!;
-    expect(svar.grunnlagskrav).toBe(k.navn.id('K-g1'));
+    expect(svar.paaberopelse).toBe(k.navn.id('K-g1'));
   });
 
   it.each<[string, (e: Data, k: Kjoering) => void]>([
-    ['uten grunnlagsversjon', (e) => void delete e.grunnlagskrav],
+    ['uten påberopelsesversjon', (e) => void delete e.paaberopelse],
     [
-      'med et vederlagskrav som grunnlagsversjon',
-      (e, k) => void (e.grunnlagskrav = k.navn.id('K-v1')),
+      'med et vederlagskrav som påberopelsesversjon',
+      (e, k) => void (e.paaberopelse = k.navn.id('K-v1')),
     ],
-    ['med en grunnlagsversjon som ikke finnes', (e) => void (e.grunnlagskrav = randomUUID())],
+    ['med en påberopelsesversjon som ikke finnes', (e) => void (e.paaberopelse = randomUUID())],
   ])('et lagret svar %s er ikke forstått', async (_navn, endring) => {
     const bane = minnebane();
     const k = await bygg(bane, avslag);
@@ -149,11 +149,11 @@ describe('svaret på vederlag og frist viser til grunnlagsversjonen (#342, HF-U1
     expect(forstaatt(endre(journal, k, 'S-v1', (e) => endring(e, k)))).toBe(false);
   });
 
-  it('et svar på grunnlaget med grunnlagsversjon er ikke forstått', async () => {
+  it('et svar på forholdet med påberopelsesversjon er ikke forstått', async () => {
     const bane = minnebane();
     const k = await bygg(bane, avslag);
     const journal = await bane.journal();
-    const med = endre(journal, k, 'S-g1', (e) => void (e.grunnlagskrav = k.navn.id('K-g1')));
+    const med = endre(journal, k, 'S-g1', (e) => void (e.paaberopelse = k.navn.id('K-g1')));
     expect(forstaatt(med)).toBe(false);
   });
 });
@@ -172,7 +172,7 @@ describe('sammenfallet må stemme med standpunktene i brevet (MM-U18, #326)', ()
 });
 
 describe('formen på merkingen og utsagnene som viser til et annet element', () => {
-  async function grunnlag() {
+  async function forhold() {
     const bane = minnebane();
     const k = await bygg(bane, avslag);
     return { k, journal: await bane.journal() };
@@ -191,14 +191,14 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
       {
         handling: 'rad',
         part: 'BH',
-        spor: 'grunnlag',
+        spor: 'forhold',
         navn: 'S-g1',
         dokument: 'D4',
         gjelder: 'K-g1',
         resultat: 'avslaatt',
         varslet_i_tide: true,
         sendt: '2026-09-30',
-        merking: ['grunnlag'],
+        merking: ['forhold'],
       },
     ]);
     const journal = await bane.journal();
@@ -215,11 +215,11 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
   });
 
   it('en senere merking av et dokument som ikke er registrert, er ikke forstått; samme spor to ganger heller ikke', async () => {
-    const { k, journal } = await grunnlag();
+    const { k, journal } = await forhold();
     const brev = k.navn.id('D4');
     const senere = (spor: string[]) => rad(journal, 'TE', { opplysninger: [merking(spor, brev)] });
-    expect(forstaatt([...journal, senere(['grunnlag'])])).toBe(false);
-    expect(forstaatt([...journal, senere(['grunnlag', 'grunnlag'])])).toBe(false);
+    expect(forstaatt([...journal, senere(['forhold'])])).toBe(false);
+    expect(forstaatt([...journal, senere(['forhold', 'forhold'])])).toBe(false);
   });
 
   it.each<[string, 'TE' | 'BH', string, string, boolean]>([
@@ -228,11 +228,11 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
     ['en innsigelse fra TE mot BHs svar', 'TE', 'innsigelse', 'S-g1', true],
     ['en innsigelse mot et dokument', 'TE', 'innsigelse', 'D4', false],
     ['en protest fra TE mot BHs dokument med en påberopelse', 'TE', 'protest', 'D4', false],
-    ['en passivitet mot grunnlagskravet', 'TE', 'passivitet', 'K-g1', true],
+    ['en passivitet mot påberopelsen', 'TE', 'passivitet', 'K-g1', true],
     ['en passivitet mot vederlagskravet', 'TE', 'passivitet', 'K-v1', false],
     ['en avklaring som ikke gjelder en merking', 'BH', 'avklaring', 'K-g1', false],
   ])('%s', async (_navn, part, art, gjelder, ventet) => {
-    const { k, journal } = await grunnlag();
+    const { k, journal } = await forhold();
     const r = rad(journal, part, {
       utsagn: [{ id: randomUUID(), art, gjelder: k.navn.id(gjelder) }],
     });
@@ -240,7 +240,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
   });
 
   it('en protest mot en innsigelse fra motparten er forstått; mot egen innsigelse ikke (VS-U1)', async () => {
-    const { k, journal } = await grunnlag();
+    const { k, journal } = await forhold();
     const innsigelse = { id: randomUUID(), art: 'innsigelse', gjelder: k.navn.id('K-v1') };
     const i = rad(journal, 'BH', { utsagn: [innsigelse] });
     const protest = (part: 'TE' | 'BH') =>
@@ -249,8 +249,8 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
     expect(forstaatt([...journal, i, protest('BH')])).toBe(false);
   });
 
-  it('en innsigelse mot grunnlagskravet etter at BH har sagt at varselet kom i tide, er forstått fra BH og gir grunnen etter VS-U1 fra TE (MM-U34 punkt 6, HF-U4, MM-U27)', async () => {
-    const { k, journal } = await grunnlag();
+  it('en innsigelse mot påberopelsen etter at BH har sagt at varselet kom i tide, er forstått fra BH og gir grunnen etter VS-U1 fra TE (MM-U34 punkt 6, HF-U4, MM-U27)', async () => {
+    const { k, journal } = await forhold();
     const grunner = (part: 'TE' | 'BH') => {
       const r = rad(journal, part, {
         utsagn: [{ id: randomUUID(), art: 'innsigelse', gjelder: k.navn.id('K-g1') }],
@@ -265,7 +265,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
   });
 
   it('en passivitet fra BH er ikke forstått (VS-U12)', async () => {
-    const { k, journal } = await grunnlag();
+    const { k, journal } = await forhold();
     const r = rad(journal, 'BH', {
       utsagn: [{ id: randomUUID(), art: 'passivitet', gjelder: k.navn.id('K-g1') }],
     });
@@ -282,7 +282,7 @@ describe('et registrert svar leses ikke med en innsigelse (VS-U24, OV-U4)', () =
       {
         handling: 'rad',
         part: 'BH',
-        spor: 'grunnlag',
+        spor: 'forhold',
         navn: 'S-g1',
         dokument: 'D4',
         gjelder: 'K-g1',
@@ -335,12 +335,12 @@ describe('formatet har ingen negative beløp ennå (KA-U22, KA-U9)', () => {
  */
 describe('registrerte brev som viser til en registrert kravversjon', () => {
   const foer = [
-    'godkjent_grunnlag',
+    'godkjent_forhold',
     { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' },
     {
       handling: 'rad',
       krav: true,
-      spor: 'grunnlag',
+      spor: 'forhold',
       underkategori: 'endringsordre',
       part: 'TE',
       navn: 'K-g2',
@@ -359,7 +359,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
         navn: 'S-v1',
         dokument: 'D5',
         gjelder: 'K-v1',
-        grunnlagskrav: 'K-g2',
+        paaberopelse: 'K-g2',
         vurdering: 'godkjent',
         godkjent_belop: 100000,
         sendt: '2026-10-02',
@@ -367,7 +367,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     ]);
     const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(true);
-    expect(u.spor.grunnlag.gjeldendeKrav?.id).toBe(k.navn.id('K-g1'));
+    expect(u.spor.forhold.gjeldendeKrav?.id).toBe(k.navn.id('K-g1'));
     expect(u.spor.vederlag.gjeldendeSvar).toBeNull();
     expect(u.utenVirkning).toEqual([]);
   });
@@ -380,7 +380,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
       navn: 'S-v1',
       dokument: 'D5',
       gjelder: 'K-v1',
-      grunnlagskrav: 'K-g2',
+      paaberopelse: 'K-g2',
       vurdering: 'godkjent',
       godkjent_belop: 100000,
       sendt: '2026-10-02',

@@ -143,11 +143,7 @@ describe('formatet (7.1.2, 4.4)', () => {
     expect(rader.map((r) => r.versjon)).toEqual(rader.map((_r, i) => i + 1));
     expect(rader.flatMap(avvikFraFormatet)).toEqual([]);
     const brev = radMed(rader, k, 'D4');
-    expect((brev.data.svar as Data[]).map((s) => s.spor)).toEqual([
-      'grunnlag',
-      'vederlag',
-      'frist',
-    ]);
+    expect((brev.data.svar as Data[]).map((s) => s.spor)).toEqual(['forhold', 'vederlag', 'frist']);
     for (const s of brev.data.svar as Data[]) expect(s.beslutningsgrunnlag).toBeTypeOf('object');
   });
 
@@ -155,7 +151,7 @@ describe('formatet (7.1.2, 4.4)', () => {
     const { k, rader } = await forloepA();
     const s = svaret(radMed(rader, k, 'S-v2'), k, 'S-v2');
     expect(s.erstatter).toBe(k.navn.id('S-v1'));
-    // Grunnlaget er avslått i D4, så beløpet står i andre lag i brevet (OV-U32, #1199).
+    // Forholdet er avslått i D4, så beløpet står i andre lag i brevet (OV-U32, #1199).
     expect((s.beslutningsgrunnlag as Data).linje).toBe(
       'Byggherrens standpunkt: subsidiært godkjent med 70\u00a0000\u00a0kr.'
     );
@@ -192,9 +188,9 @@ describe('formatet (7.1.2, 4.4)', () => {
         (s) => (brev(s).virkninger[0] = { standpunkt: 'ukjent', virkning: 'uten_virkning' })
       ),
     ],
-    // GR-U12: om § 32.2 gjaldt, fryses i grunnlagssvaret og bare der.
+    // GR-U12: om § 32.2 gjaldt, fryses i svaret på påberopelsen og bare der.
     [
-      'et grunnlagssvar som ikke sier om § 32.2 gjaldt',
+      'et svar på påberopelsen som ikke sier om § 32.2 gjaldt',
       svarIBrevet('S-g1', (s) => delete brev(s).varslingsplikt),
     ],
     [
@@ -246,7 +242,7 @@ describe('lesereglene for referansene (4.2)', () => {
   const vederlagIgjen = { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' };
   // OV-U7: kommandoen for bestridelse avvises, så bestridelsen lages av BHs innsigelse D5.
   const varselOgInnsigelse = [
-    'godkjent_grunnlag',
+    'godkjent_forhold',
     { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
     { handling: 'varsel', spor: 'frist', sendt: '2026-09-02', navn: 'D4' },
     { handling: 'innsigelse', part: 'BH', gjelder: 'D4#varsel', navn: 'D5' },
@@ -386,12 +382,12 @@ describe('lesereglene for referansene (4.2)', () => {
  * kommandoene sperrer. Hver avvisning har kontrollsaken uten raden.
  */
 describe('rader fra en annen skriver som strider mot en enighet eller «ingen krav»', () => {
-  const godkjentGrunnlag = [
+  const godkjentForhold = [
     'krav_irreg',
     {
       handling: 'brev',
       navn: 'D4',
-      svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'godkjent', varslet_i_tide: true }],
+      svar: [{ spor: 'forhold', navn: 'S-g1', resultat: 'godkjent', varslet_i_tide: true }],
     },
   ];
   /** En rad fra TE med utsagnene, etter journalen. */
@@ -416,7 +412,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
 
   it('en aksept av et svar med sammenfall er ikke forstått, så godkjenningen forblir en endringsordre (GR-U8, GR-U12)', async () => {
     const bane = minnebane();
-    const k = await bygg(bane, godkjentGrunnlag);
+    const k = await bygg(bane, godkjentForhold);
     const journal = await bane.journal();
     const u = utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.endringsordre).toBe('ja');
@@ -434,7 +430,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
 
   it('«ingen krav» i begge spor avgjør kravene, og saken kan inngå i en endringsordre (KA-U12, MM-U34 punkt 20)', async () => {
     const bane = minnebane();
-    await bygg(bane, ['godkjent_grunnlag']);
+    await bygg(bane, ['godkjent_forhold']);
     const journal = await bane.journal();
     const u = utled(
       lesJournal(
@@ -450,18 +446,18 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
 
   it('«ingen krav» to ganger i samme spor er ikke forstått (4.2); kontrollsak: én gang', async () => {
     const bane = minnebane();
-    await bygg(bane, ['godkjent_grunnlag']);
+    await bygg(bane, ['godkjent_forhold']);
     const journal = await bane.journal();
     const en = fraTE(journal, [ingenKrav('vederlag')]);
     expect(forstaatt([...journal, en])).toBe(true);
     expect(forstaatt([...journal, en, fraTE([en], [ingenKrav('vederlag')])])).toBe(false);
   });
 
-  it('«ingen krav» før grunnlaget er sendt, er ikke forstått (KA-U15); kontrollsak: etter', async () => {
+  it('«ingen krav» før forholdet er sendt, er ikke forstått (KA-U15); kontrollsak: etter', async () => {
     const tom = await minnebane().journal();
     expect(forstaatt([...tom, fraTE(tom, [ingenKrav('vederlag')])])).toBe(false);
     const bane = minnebane();
-    await bygg(bane, [{ handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' }]);
+    await bygg(bane, [{ handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' }]);
     const sendt = await bane.journal();
     expect(forstaatt([...sendt, fraTE(sendt, [ingenKrav('vederlag')])])).toBe(true);
   });
@@ -469,7 +465,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
   it('«ingen krav» etter et varsel etter § 33.4 er forstått (KA-U2, KA-U15)', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
       { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
     ]);
     const journal = await bane.journal();
@@ -478,7 +474,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
 
   it('en kravversjon etter «ingen krav» i samme spor er ikke forstått (KA-U12, 4.2)', async () => {
     const bane = minnebane();
-    await bygg(bane, ['godkjent_grunnlag']);
+    await bygg(bane, ['godkjent_forhold']);
     const journal = await bane.journal();
     const en = fraTE(journal, [ingenKrav('vederlag')]);
     const krav = (spor: string, innhold: Data): Journalrad => ({
@@ -497,7 +493,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
   const registrert = (opplysninger: Data) => ({
     handling: 'rad',
     part: 'BH',
-    spor: 'grunnlag',
+    spor: 'forhold',
     navn: 'S-g1',
     dokument: 'D4',
     gjelder: 'K-g1',
@@ -656,7 +652,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
         handling: 'rad',
         krav: true,
         part: 'TE',
-        spor: 'grunnlag',
+        spor: 'forhold',
         underkategori: 'irregulaer_endring',
         navn: 'K-g2',
         sendt: '2026-09-29',
@@ -688,8 +684,8 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     const u = utled(lesJournal([...journal, siste], KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(true);
     // OV-U4: det registrerte svaret er ikke gjeldende svar og gir intet uavklart utfall.
-    expect(u.spor.grunnlag.gjeldendeSvar).toBeNull();
-    expect(u.spor.grunnlag.enighet).toBeNull();
+    expect(u.spor.forhold.gjeldendeSvar).toBeNull();
+    expect(u.spor.forhold.enighet).toBeNull();
     expect(u.endringsordre).toBe('nei');
   });
 });
@@ -699,7 +695,7 @@ describe('datoene for et registrert krav og varselet i det', () => {
   /** Saken med et registrert fristkrav der varselet er oppgitt sendt `dato`. */
   const medVarsel = async (dato: string) => {
     const bane = minnebane();
-    const k = await bygg(bane, ['godkjent_grunnlag']);
+    const k = await bygg(bane, ['godkjent_forhold']);
     const journal = await bane.journal();
     const siste = journal.at(-1)!;
     const varsel = randomUUID();
@@ -785,7 +781,7 @@ describe('registrert korrespondanse fryses med kategorien', () => {
       : journal;
     const svar: Data = {
       id: randomUUID(),
-      spor: 'grunnlag',
+      spor: 'forhold',
       gjelder: k.navn.id('K-g1'),
       standpunkter,
     };
@@ -800,7 +796,7 @@ describe('registrert korrespondanse fryses med kategorien', () => {
   }
   const preklusjon = [
     { id: randomUUID(), art: 'rettidighet', gjelder: 'K', hjemmel: '32.2', i_tide: false },
-    { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
+    { id: randomUUID(), art: 'forhold', resultat: 'godkjent' },
   ];
   const art = (b: Data) => (b.virkninger as Data[]).map((p) => p.lag);
 
@@ -844,7 +840,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
 
   it('avslår prinsipalt, med dagene som subsidiært standpunkt, og en aksept gir 0 dager', async () => {
     const k = await bygg(minnebane(), [
-      'godkjent_grunnlag',
+      'godkjent_forhold',
       { handling: 'krav', spor: 'frist', dager: 20 },
       svar(false),
     ]);
@@ -860,18 +856,18 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
-    expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.dager).toBe(0);
+    expect((await k.utledning()).spor.frist.enighet?.forhold.utfall.dager).toBe(0);
   });
 
   it('kontrollsak: med fremdriftshindring er de 20 dagene enighet ved sammenfall', async () => {
     const k = await bygg(minnebane(), [
-      'godkjent_grunnlag',
+      'godkjent_forhold',
       { handling: 'krav', spor: 'frist', dager: 20 },
       svar(true),
     ]);
     const u = await k.utledning();
-    expect(u.spor.frist.enighet?.grunnlag.kilde).toBe('sammenfall');
-    expect(u.spor.frist.enighet?.grunnlag.utfall.dager).toBe(20);
+    expect(u.spor.frist.enighet?.forhold.kilde).toBe('sammenfall');
+    expect(u.spor.frist.enighet?.forhold.utfall.dager).toBe(20);
   });
 });
 
@@ -885,13 +881,13 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
   const vederlagssak = async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', hovedkategori: 'svikt', underkategori: 'medvirkning' },
+      { handling: 'krav', spor: 'forhold', hovedkategori: 'svikt', underkategori: 'medvirkning' },
       { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' },
       { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' },
       {
         handling: 'brev',
         svar: [
-          { spor: 'grunnlag', resultat: 'godkjent' },
+          { spor: 'forhold', resultat: 'godkjent' },
           {
             spor: 'vederlag',
             navn: 'S-v1',
@@ -909,7 +905,7 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
   const fristsak = async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
-      'godkjent_grunnlag',
+      'godkjent_forhold',
       { handling: 'krav', spor: 'frist', dager: 20 },
       {
         handling: 'brev',
@@ -931,12 +927,12 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
   const metodesak = async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring' },
+      { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
       { handling: 'krav', spor: 'vederlag', belop: 100000 },
       {
         handling: 'brev',
         svar: [
-          { spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true },
+          { spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true },
           {
             spor: 'vederlag',
             navn: 'S-v1',
@@ -1040,7 +1036,7 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
   it('en lagret rad med en slik vurdering leses som ikke forstått', async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
-      'godkjent_grunnlag',
+      'godkjent_forhold',
       { handling: 'krav', spor: 'frist', dager: 20 },
       {
         handling: 'brev',
@@ -1063,10 +1059,10 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
   });
 });
 
-describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)', () => {
-  const grunnlag = (resultat: string) => ({
+describe('aksept av et forhold byggherren har avklart, avvises (GR-U8, GR-U9)', () => {
+  const forhold = (resultat: string) => ({
     handling: 'brev',
-    svar: [{ spor: 'grunnlag', resultat, varslet_i_tide: true }],
+    svar: [{ spor: 'forhold', resultat, varslet_i_tide: true }],
   });
 
   // To vedtak med hver sin begrunnelse og regelkode: partene er alt enige (GR-U8), og
@@ -1075,38 +1071,38 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
     ['godkjent, som er enighet ved sammenfall (GR-U8, GR-U10)', 'godkjent', 'ENIGHET_I_SPORET'],
     ['frafalt (GR-U3, GR-U9)', 'paalegg_frafalt', 'FRAFALL_KAN_IKKE_GODTAS'],
   ])('%s', async (_hva, resultat, regel) => {
-    const k = await bygg(minnebane(), ['krav_irreg', grunnlag(resultat)]);
-    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' });
+    const k = await bygg(minnebane(), ['krav_irreg', forhold(resultat)]);
+    const u = await k.prov({ handling: 'aksept', spor: 'forhold' });
     expect(u.godtatt ? 'godtatt' : u.avvisning.regel).toBe(regel);
-    expect(handlinger(await k.utledning(), 'TE')).not.toContain('godta:grunnlag');
+    expect(handlinger(await k.utledning(), 'TE')).not.toContain('godta:forhold');
   });
 
-  it('kontrollsak: et avslag på grunnlaget kan godtas', async () => {
-    const k = await bygg(minnebane(), ['krav_irreg', grunnlag('avslaatt')]);
-    expect((await k.prov({ handling: 'aksept', spor: 'grunnlag' })).godtatt).toBe(true);
+  it('kontrollsak: et avslag på forholdet kan godtas', async () => {
+    const k = await bygg(minnebane(), ['krav_irreg', forhold('avslaatt')]);
+    expect((await k.prov({ handling: 'aksept', spor: 'forhold' })).godtatt).toBe(true);
   });
 });
 
 describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF-U8)', () => {
-  /** Byggherren godkjenner grunnlaget og reviderer til avslag; TE godtar svaret `velg` gir. */
+  /** Byggherren godkjenner forholdet og reviderer til avslag; TE godtar svaret `velg` gir. */
   const aksept = async (velg: (tidligere: string) => string) => {
     const k = await bygg(minnebane(), [
       'krav_irreg',
       {
         handling: 'brev',
-        svar: [{ spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true }],
+        svar: [{ spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true }],
       },
-      { handling: 'revisjon', spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true },
+      { handling: 'revisjon', spor: 'forhold', resultat: 'avslaatt', varslet_i_tide: true },
     ]);
-    const tidligere = (await k.utledning()).spor.grunnlag.svar[0].id;
-    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' }, (kommando) => {
+    const tidligere = (await k.utledning()).spor.forhold.svar[0].id;
+    const u = await k.prov({ handling: 'aksept', spor: 'forhold' }, (kommando) => {
       kommando.svar = velg(tidligere);
     });
     return u.godtatt ? 'godtatt' : u.avvisning;
   };
   const melding = async (steg: (string | Handling)[]) => {
     const k = await bygg(minnebane(), ['krav_irreg', ...steg]);
-    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' });
+    const u = await k.prov({ handling: 'aksept', spor: 'forhold' });
     return u.godtatt ? 'godtatt' : u.avvisning;
   };
 
@@ -1118,13 +1114,13 @@ describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF
     });
   });
 
-  it('etter en ny grunnlagsversjon sier meldingen at svaret er eldre, ikke avslått eller falt bort', async () => {
+  it('etter en ny påberopelsesversjon sier meldingen at svaret er eldre, ikke avslått eller falt bort', async () => {
     const a = await melding([
       {
         handling: 'brev',
-        svar: [{ spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true }],
+        svar: [{ spor: 'forhold', resultat: 'avslaatt', varslet_i_tide: true }],
       },
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring' },
+      { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
     ]);
     expect(a).toMatchObject({
       regel: 'IKKE_GJELDENDE_SVAR',
@@ -1149,16 +1145,16 @@ describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF
 /**
  * GR-U18: frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget, ikke der
  * endringen kommer av offentlig myndighet eller gebyr. Frafall kan ikke kombineres med at
- * grunnlaget er varslet for sent (#235).
+ * forholdet er varslet for sent (#235).
  */
 describe('frafall etter § 32.3 c der pålegget er byggherrens eget (GR-U18)', () => {
   async function frafall(underkategori: string, varsletITide: boolean) {
     const k = await bygg(minnebane(), [
-      { handling: 'krav', spor: 'grunnlag', underkategori, navn: 'K-g1' },
+      { handling: 'krav', spor: 'forhold', underkategori, navn: 'K-g1' },
     ]);
     return k.prov({
       handling: 'brev',
-      svar: [{ spor: 'grunnlag', resultat: 'paalegg_frafalt', varslet_i_tide: varsletITide }],
+      svar: [{ spor: 'forhold', resultat: 'paalegg_frafalt', varslet_i_tide: varsletITide }],
     });
   }
 
@@ -1180,7 +1176,7 @@ describe('frafall etter § 32.3 c der pålegget er byggherrens eget (GR-U18)', (
   );
 
   it.each(['samordning', 'svar_paa_varsel'])(
-    'frafall i %s avvises sammen med at grunnlaget er varslet for sent (#235)',
+    'frafall i %s avvises sammen med at forholdet er varslet for sent (#235)',
     async (underkategori) => {
       const u = await frafall(underkategori, false);
       const melding = u.godtatt ? 'godtatt' : u.avvisning.melding;
@@ -1202,7 +1198,7 @@ describe('frafall etter § 32.3 c der pålegget er byggherrens eget (GR-U18)', (
 describe('et svar står når TE registrerer et varsel etter det (OV-U5, KA-20)', () => {
   async function medPreklusjon(registrerVarsel: boolean) {
     const k = await bygg(minnebane(), [
-      'godkjent_grunnlag',
+      'godkjent_forhold',
       { handling: 'krav', spor: 'frist', dager: 20 },
       {
         handling: 'brev',
@@ -1246,7 +1242,7 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
   async function toKravversjoner(registrerVarsel: boolean) {
     const bane = minnebane();
     const k = await bygg(bane, [
-      'godkjent_grunnlag',
+      'godkjent_forhold',
       { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
       {
         handling: 'brev',
@@ -1339,7 +1335,7 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
   // Et regelsett der varslingsplikten i § 34.1.2 også gjelder en endring. Standpunktet og
   // utregningen skal da si det samme: preklusjon prinsipalt og beløpet subsidiært (VS-U3, B-13).
   const regler: Regelsett = { ...GJELDENDE_REGLER, gjelderVarslingspliktenForVederlag: () => true };
-  const grunnlagskrav = {
+  const paaberopelse = {
     innhold: { hovedkategori: 'endring', underkategori: 'eo' },
   } as unknown as Krav;
   const krav = { innhold: { metode: 'tilbud', beloep: 100000 } } as unknown as Krav;
@@ -1351,7 +1347,7 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
   };
 
   it('et regelsett der § 34.1.2 gjelder en endring, gir preklusjon både i virkningen og i utregningen', () => {
-    const utregning = regnUtSvar('vederlag', vurderinger, { krav, grunnlagskrav }, regler);
+    const utregning = regnUtSvar('vederlag', vurderinger, { krav, paaberopelse }, regler);
     expect(utregning).toEqual({
       resultat: 'avslaatt',
       godkjent_beloep: 0,
@@ -1372,12 +1368,12 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
       ],
       utregning,
     };
-    expect(virkninger(svar, grunnlagskrav, regler).map((v) => v.virkning)).toEqual([1, 2]);
+    expect(virkninger(svar, paaberopelse, regler).map((v) => v.virkning)).toEqual([1, 2]);
   });
 
   it('kontrollsak: med gjeldende regler gjelder § 34.1.2 ikke en endring, og vurderingen avvises', () => {
     expect(() =>
-      regnUtSvar('vederlag', vurderinger, { krav, grunnlagskrav }, GJELDENDE_REGLER)
+      regnUtSvar('vederlag', vurderinger, { krav, paaberopelse }, GJELDENDE_REGLER)
     ).toThrow(/gjelder bare svikt og andre forhold/);
   });
 });
@@ -1389,9 +1385,9 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
  * sier avvisningene (`koder_uten_rad` i `regler.json`), så testene fastholder dagens atferd.
  */
 describe('kontrollen av referansene og resultatet i svaret', () => {
-  const brevGrunnlag = (resultat: string, navn: string) => ({
+  const brevPaaberopelse = (resultat: string, navn: string) => ({
     handling: 'brev',
-    svar: [{ spor: 'grunnlag', resultat, varslet_i_tide: true, navn }],
+    svar: [{ spor: 'forhold', resultat, varslet_i_tide: true, navn }],
   });
 
   /** Regelen kjernen avviser kommandoen med, eller «godtatt», gjennom `prov` i kjøreren. */
@@ -1402,9 +1398,9 @@ describe('kontrollen av referansene og resultatet i svaret', () => {
 
   const uendret = () => {};
 
-  it('FEIL_KRAVREFERANSE: et svar på grunnlaget som viser til vederlagskravet, avvises', async () => {
+  it('FEIL_KRAVREFERANSE: et svar på forholdet som viser til vederlagskravet, avvises', async () => {
     const k = await bygg(minnebane(), ['krav_irreg']);
-    const h = brevGrunnlag('godkjent', 'S-g1');
+    const h = brevPaaberopelse('godkjent', 'S-g1');
     expect(await skrivMed(k, h, uendret), 'kontrollsak').toBe('godtatt');
     const tilVederlaget = (kommando: Data) => {
       (kommando.svar as Data[])[0].gjelder = k.navn.id('K-v1');
@@ -1429,12 +1425,12 @@ describe('kontrollen av referansene og resultatet i svaret', () => {
   it('FEIL_SVARREFERANSE: en revisjon av et svar som allerede er revidert, avvises', async () => {
     const k = await bygg(minnebane(), [
       'krav_irreg',
-      brevGrunnlag('avslaatt', 'S-g1'),
-      { handling: 'revisjon', spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true },
+      brevPaaberopelse('avslaatt', 'S-g1'),
+      { handling: 'revisjon', spor: 'forhold', resultat: 'avslaatt', varslet_i_tide: true },
     ]);
     const h = {
       handling: 'revisjon',
-      spor: 'grunnlag',
+      spor: 'forhold',
       resultat: 'godkjent',
       varslet_i_tide: true,
     };
@@ -1444,14 +1440,14 @@ describe('kontrollen av referansene og resultatet i svaret', () => {
     expect(await skrivMed(k, { ...h, erstatter: 'S-g1' }, uendret)).toBe('FEIL_SVARREFERANSE');
   });
 
-  it('INGEN_SVAR: en revisjon før byggherren har svart på grunnlaget, avvises', async () => {
+  it('INGEN_SVAR: en revisjon før byggherren har svart på forholdet, avvises', async () => {
     const h = {
       handling: 'revisjon',
-      spor: 'grunnlag',
+      spor: 'forhold',
       resultat: 'godkjent',
       varslet_i_tide: true,
     };
-    const svart = await bygg(minnebane(), ['krav_irreg', brevGrunnlag('avslaatt', 'S-g1')]);
+    const svart = await bygg(minnebane(), ['krav_irreg', brevPaaberopelse('avslaatt', 'S-g1')]);
     expect(await skrivMed(svart, h, uendret), 'kontrollsak: etter svaret').toBe('godtatt');
     const usvart = await bygg(minnebane(), ['krav_irreg']);
     expect(await skrivMed(usvart, h, uendret)).toBe('INGEN_SVAR');
@@ -1469,7 +1465,7 @@ describe('kjøreren: svaret den leser for `svar.*` og `standpunkt.*`, og parten 
       'krav_irreg',
       {
         handling: 'brev',
-        svar: [{ spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true, navn: 'S-g1' }],
+        svar: [{ spor: 'forhold', resultat: 'avslaatt', varslet_i_tide: true, navn: 'S-g1' }],
       },
     ]);
     const u = await k.utledning();
@@ -1483,7 +1479,7 @@ describe('kjøreren: svaret den leser for `svar.*` og `standpunkt.*`, og parten 
   ])('en rad %s avvises av kjøreren, ikke stemplet som byggherrens (#927)', async (_, part) => {
     const svaret: Handling = {
       handling: 'rad',
-      spor: 'grunnlag',
+      spor: 'forhold',
       navn: 'S-g1',
       dokument: 'D4',
       gjelder: 'K-g1',
@@ -1502,7 +1498,7 @@ describe('kjøreren: svaret den leser for `svar.*` og `standpunkt.*`, og parten 
       {
         handling: 'rad',
         part: 'BH',
-        spor: 'grunnlag',
+        spor: 'forhold',
         navn: 'S-g1',
         dokument: 'D4',
         gjelder: 'K-g1',
@@ -1595,7 +1591,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
   );
 
   it.each<[string, (string | Handling)[], boolean]>([
-    ['når grunnlaget er trukket', ['krav_irreg', { handling: 'trekk', spor: 'grunnlag' }], false],
+    ['når påberopelsen er trukket', ['krav_irreg', { handling: 'trekk', spor: 'forhold' }], false],
     ['når saken ikke er forstått (MM-U2)', ['krav_irreg'], true],
   ])('registreringen godtas %s, og et krav avvises (OV-U4)', async (_, steg, uforstaatt) => {
     const bane = minnebane();
@@ -1677,7 +1673,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     JSON.parse(
       JSON.stringify({
         type: 'registrert_brev',
-        spor: ['grunnlag'],
+        spor: ['forhold'],
         sendt: '2026-10-20',
         beskrivelse: 'Svar på varselet',
         dokumentasjon: [brevet],
@@ -1717,7 +1713,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   const vist = (journal: Journalrad[]) => visning(utledet(journal), GJELDENDE_REGLER);
   const vedKravet = (journal: Journalrad[], spor: Spor) =>
     vist(journal).spor[spor].registrerteBrev.map((b) => b.dokument);
-  /** Grunnlagskravet venter på svar, og BH har registrert ett brev. */
+  /** Påberopelsen venter på svar, og BH har registrert ett brev. */
   async function medBrevFraBH() {
     const bane = minnebane();
     await bygg(bane, ['krav_irreg']);
@@ -1740,7 +1736,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
       [rad.event_id, '2026-10-20', retting.event_id],
       [retting.event_id, '2026-10-19', null],
     ]);
-    expect(vedKravet(journal, 'grunnlag')).toEqual([retting.event_id]);
+    expect(vedKravet(journal, 'forhold')).toEqual([retting.event_id]);
   });
 
   it('OV-U17: bare samme side retter; kontrollsak: BH retter sin egen', async () => {
@@ -1778,14 +1774,14 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     const { journal, rad } = await medBrevFraBH();
     const foer = vist(journal);
     expect(
-      foer.spor.grunnlag.registrerteBrev.map((b) => b.dokument),
+      foer.spor.forhold.registrerteBrev.map((b) => b.dokument),
       'kontrollsak'
     ).toEqual([rad.event_id]);
     expect(foer.merknader, 'kontrollsak').toContain('brev_utenfor_appen');
     const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH');
     expect(retting.data).toEqual({ retter: rad.event_id, ikke_i_saken: true });
     const etter = vist(journal);
-    expect(etter.spor.grunnlag.registrerteBrev).toEqual([]);
+    expect(etter.spor.forhold.registrerteBrev).toEqual([]);
     expect(etter.merknader).not.toContain('brev_utenfor_appen');
     expect(etter.registrerteBrev.map((b) => b.rettetAv)).toEqual([retting.event_id]);
     expect(harIkkeVurdertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
@@ -1794,7 +1790,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   it('OV-U19: et varsel registrert med virkning teller ikke som brev utenfor appen i merknaden, statusen og sakslisten; et brev som dokumentasjon gjør det', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
       { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
     ]);
     const journal = await bane.journal();
@@ -1865,7 +1861,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     const fraTE = godtatt(journal, registrering({ beskrivelse: 'Brev fra TE' }), 'TE');
     const rettetTE = godtatt(journal, registrering(), 'TE');
     godtatt(journal, { type: 'ikke_i_saken', retter: rettetTE.event_id }, 'TE');
-    expect(vist(journal).spor.grunnlag.registrerteBrev).toEqual([
+    expect(vist(journal).spor.forhold.registrerteBrev).toEqual([
       { dokument: rad.event_id, avsender: 'BH', beskrivelse: 'Svar på varselet' },
       { dokument: saken.event_id, avsender: 'BH', beskrivelse: 'Svar på varselet' },
       { dokument: fraTE.event_id, avsender: 'TE', beskrivelse: 'Brev fra TE' },
@@ -1876,7 +1872,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   it('OV-U44: hver journalpost har én kilde, en rettet registrering beholder sin og merkes rettet, og vurderingsgrunnlaget har ikke den rettede', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
       { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
     ]);
     const journal = await bane.journal();
@@ -1901,7 +1897,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   it('OV-U44, MM-U2: en hendelse kjernen ikke forstår, har ingen kilde, og da er hvert registrert brev dokumentasjon (OV-U21)', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
       { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
     ]);
     const journal = await bane.journal();
@@ -1919,7 +1915,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
 
   it('OV-U44, OV-U18: rettingen som sier at brevet ikke hører til saken, er dokumentasjon, men står ikke i vurderingsgrunnlaget (svar 2B 30.10 i #1045)', async () => {
     const bane = minnebane();
-    await bygg(bane, [{ handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' }]);
+    await bygg(bane, [{ handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' }]);
     const journal = await bane.journal();
     const rad = godtatt(journal, registrering(), 'TE');
     const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'TE');
@@ -1932,11 +1928,11 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   it('OV-U44, HF-U1: et fristkrav sendt herfra med datoen for varselet står under både sendt herfra og partenes opplysninger i vurderingsgrunnlaget (svar 3A 30.10 i #1045)', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
       { handling: 'krav', spor: 'frist', dager: 10, varsel_sendt: '2026-09-02' },
     ]);
     const journal = await bane.journal();
-    const [sak, grunnlag, frist] = journal.map((r) => r.event_id);
+    const [sak, forhold, frist] = journal.map((r) => r.event_id);
     const v = vist(journal);
     expect(
       utledet(journal).spor.frist.varsler['33.4'],
@@ -1944,7 +1940,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     ).toBeTruthy();
     expect(v.journal.find((j) => j.hendelse === frist)?.kilde).toBe('sendt_herfra');
     expect(v.vurderingsgrunnlag).toEqual({
-      sendt_herfra: [sak, grunnlag, frist],
+      sendt_herfra: [sak, forhold, frist],
       partens_opplysning: [frist],
       dokumentasjon: [],
     });
@@ -1958,7 +1954,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   it('punkt 4 i #1167: alt i et registrert brev utenom varsel og endringsordre er dokumentasjon, uten virkning (OV-U4, HF-U13)', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
       { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
     ]);
     const journal = await bane.journal();
@@ -1984,7 +1980,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   it('OV-U19: når kravene er avgjort, står setningen i statusen og ikke som merknad (OV-U10)', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      'godkjent_grunnlag',
+      'godkjent_forhold',
       { handling: 'ingen_krav', spor: 'vederlag' },
       { handling: 'ingen_krav', spor: 'frist' },
     ]);
@@ -2011,18 +2007,18 @@ describe('«Varsel ikke registrert» i fristsporet (#1126)', () => {
     return visning(u, GJELDENDE_REGLER).spor.frist.etiketter;
   };
 
-  const grunnlag: Handling = { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' };
+  const forhold: Handling = { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' };
 
   it('står når fristsporet verken har varsel eller krav', async () => {
-    expect(await etiketter([grunnlag])).toContain('varsel_ikke_registrert');
+    expect(await etiketter([forhold])).toContain('varsel_ikke_registrert');
   });
 
   it('står ikke etter fristkravet; kontrollsak: heller ikke etter et varsel', async () => {
     expect(
-      await etiketter([grunnlag, { handling: 'krav', spor: 'frist', dager: 20 }])
+      await etiketter([forhold, { handling: 'krav', spor: 'frist', dager: 20 }])
     ).not.toContain('varsel_ikke_registrert');
     expect(
-      await etiketter([grunnlag, { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' }])
+      await etiketter([forhold, { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' }])
     ).not.toContain('varsel_ikke_registrert');
   });
 });
@@ -2044,7 +2040,7 @@ describe('laget og upåvirket hos leserne (OV-U32)', () => {
   });
 
   it('formatet lagrer laget som et heltall fra 1, og upåvirket for seg', () => {
-    const grunnlag = (ekstra: Data) => ({
+    const forhold = (ekstra: Data) => ({
       regelversjon: 1,
       virkninger: [],
       linje: 'Byggherrens standpunkt: godkjent med 10 dager.',
@@ -2053,32 +2049,32 @@ describe('laget og upåvirket hos leserne (OV-U32)', () => {
     });
     for (const lag of [1, 2, 5])
       expect(
-        feilI(grunnlag({ virkninger: [{ standpunkt: 'd', lag }] }), BESLUTNINGSGRUNNLAG),
+        feilI(forhold({ virkninger: [{ standpunkt: 'd', lag }] }), BESLUTNINGSGRUNNLAG),
         `${lag}`
       ).toEqual([]);
     expect(
       feilI(
-        grunnlag({ virkninger: [{ standpunkt: 'r', lag: 1 }], upaavirket: ['d'] }),
+        forhold({ virkninger: [{ standpunkt: 'r', lag: 1 }], upaavirket: ['d'] }),
         BESLUTNINGSGRUNNLAG
       )
     ).toEqual([]);
     for (const lag of [0, 1.5, 'prinsipalt'])
       expect(
-        feilI(grunnlag({ virkninger: [{ standpunkt: 'd', lag }] }), BESLUTNINGSGRUNNLAG),
+        feilI(forhold({ virkninger: [{ standpunkt: 'd', lag }] }), BESLUTNINGSGRUNNLAG),
         `${lag}`
       ).not.toEqual([]);
   });
 });
 
 // OV-U32, OV-U33 og svaret i #1199: linjen setter etiketten som brevet, med lagene i sporet
-// flyttet ned med lagene svaret på grunnlaget opptar. Et frafall flytter dem ikke (GR-U7).
-describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => {
+// flyttet ned med lagene svaret på forholdet opptar. Et frafall flytter dem ikke (GR-U7).
+describe('forskyvningen fra forholdet i linjen (OV-U32, OV-U33, #1199)', () => {
   const kravene: Handling[] = [
-    { handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring', navn: 'K-g1' },
+    { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring', navn: 'K-g1' },
     { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' },
     { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
   ];
-  async function linjene(grunnlag: Data, frist: Data = {}) {
+  async function linjene(forhold: Data, frist: Data = {}) {
     const bane = minnebane();
     const k = await bygg(bane, [
       ...kravene,
@@ -2086,7 +2082,7 @@ describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => 
         handling: 'brev',
         navn: 'D4',
         svar: [
-          { spor: 'grunnlag', navn: 'S-g1', varslet_i_tide: true, ...grunnlag },
+          { spor: 'forhold', navn: 'S-g1', varslet_i_tide: true, ...forhold },
           { spor: 'vederlag', navn: 'S-v1', vurdering: 'delvis', godkjent_belop: 60000 },
           {
             spor: 'frist',
@@ -2107,12 +2103,12 @@ describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => 
   }
   const kr = (n: number) => `${n.toLocaleString('nb-NO').replace(/\s/g, '\u00a0')}\u00a0kr`;
 
-  it('kontrollsak: med godkjent grunnlag og ett lag har linjen ingen etikett', async () => {
+  it('kontrollsak: med godkjent forhold og ett lag har linjen ingen etikett', async () => {
     const { linje } = await linjene({ resultat: 'godkjent' });
     expect(linje('S-v1')).toBe(`Byggherrens standpunkt: godkjent med ${kr(60000)}.`);
   });
 
-  it('avslått grunnlag gir beløpet etiketten for andre lag, som brevet', async () => {
+  it('avslått forhold gir beløpet etiketten for andre lag, som brevet', async () => {
     const { linje, brevtekst } = await linjene({ resultat: 'avslaatt' });
     expect(linje('S-v1')).toBe(`Byggherrens standpunkt: subsidiært godkjent med ${kr(60000)}.`);
     // OV-U33, LV-U31: metoden står i laget til beløpet og får etiketten.
@@ -2140,14 +2136,14 @@ describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => 
     );
   });
 
-  it('registrert korrespondanse fryses med forskyvningen fra gjeldende grunnlagssvar', async () => {
+  it('registrert korrespondanse fryses med forskyvningen fra gjeldende svar på påberopelsen', async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
       ...kravene,
       {
         handling: 'brev',
         navn: 'D4',
-        svar: [{ spor: 'grunnlag', navn: 'S-g1', varslet_i_tide: true, resultat: 'avslaatt' }],
+        svar: [{ spor: 'forhold', navn: 'S-g1', varslet_i_tide: true, resultat: 'avslaatt' }],
       },
     ]);
     const journal = await bane.journal();
@@ -2156,7 +2152,7 @@ describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => 
       id: randomUUID(),
       spor: 'vederlag',
       gjelder: k.navn.id('K-v1'),
-      grunnlagskrav: k.navn.id('K-g1'),
+      paaberopelse: k.navn.id('K-g1'),
       standpunkter: [{ id: randomUUID(), art: 'beloep', beloep: 60000 }],
       utregning: { resultat: 'delvis_godkjent', godkjent_beloep: 60000 },
     };
@@ -2202,11 +2198,11 @@ describe('upåvirket hos leserne (OV-U33)', () => {
       },
     }) as unknown as Utledning;
 
-  it('med avslått grunnlag er standpunktet subsidiært, også i første lag', () => {
+  it('med avslått forhold er standpunktet subsidiært, også i første lag', () => {
     expect(standpunktetErSubsidiaert(utledning(['avslaatt'], 1), 'frist', 'd')).toBe(true);
   });
 
-  it('kontrollsak: med godkjent grunnlag er et upåvirket standpunkt eller et i første lag ikke subsidiært, men et i andre lag er det', () => {
+  it('kontrollsak: med godkjent forhold er et upåvirket standpunkt eller et i første lag ikke subsidiært, men et i andre lag er det', () => {
     expect(standpunktetErSubsidiaert(utledning([], 'upaavirket'), 'frist', 'd')).toBe(false);
     expect(standpunktetErSubsidiaert(utledning([], 1), 'frist', 'd')).toBe(false);
     expect(standpunktetErSubsidiaert(utledning([], 2), 'frist', 'd')).toBe(true);
@@ -2248,10 +2244,10 @@ describe('upåvirket hos leserne (OV-U33)', () => {
     lesJournal(rader, KJERNE.leserformat).flatMap((h) => (h.art === 'ukjent' ? [h.grunn] : []));
   const utenPaaberopelse = /et standpunkt er upåvirket uten en påberopelse i vederlag eller frist/;
 
-  it('upåvirket i svaret på grunnlaget er ikke forstått', async () => {
+  it('upåvirket i svaret på forholdet er ikke forstått', async () => {
     const { k, rader } = await forloep();
     expect(uforstaatt(rader), 'kontrollsak').toEqual([]);
-    const grunner = uforstaatt(upaavirket(rader, k, 'S-g1', 'grunnlag', 'rettidighet'));
+    const grunner = uforstaatt(upaavirket(rader, k, 'S-g1', 'forhold', 'rettidighet'));
     expect(grunner).toEqual([expect.stringMatching(utenPaaberopelse)]);
   });
 

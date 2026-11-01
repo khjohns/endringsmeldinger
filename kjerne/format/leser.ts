@@ -189,7 +189,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           iTide: e.i_tide as boolean,
           ...('beloep' in e ? { begrenset: e.beloep as number } : {}),
         };
-      case 'grunnlag':
+      case 'forhold':
         return { id, art, resultat: e.resultat as never };
       case 'metode':
         // Arbeidsvalget i #479: metoden byggherren ønsker, står bare når tilbudet ikke er akseptert.
@@ -314,7 +314,7 @@ function lesBeslutningsgrunnlag(
 ): Beslutningsgrunnlag {
   kontroller(v, BESLUTNINGSGRUNNLAG, sti);
   const b = v as Data;
-  if ((spor === 'grunnlag') !== 'varslingsplikt' in b)
+  if ((spor === 'forhold') !== 'varslingsplikt' in b)
     throw new Uforstaatt(
       `${sti}: varslingsplikten hører til svaret på grunnlaget og bare der (GR-U12)`
     );
@@ -344,7 +344,7 @@ function lesBeslutningsgrunnlag(
   // i sporet.
   if (
     virkninger.some((p) => p.virkning === 'upaavirket') &&
-    (spor === 'grunnlag' ||
+    (spor === 'forhold' ||
       !virkninger.some((p) => PAABEROPELSER.has(p.art) && typeof p.virkning === 'number'))
   )
     throw new Uforstaatt(
@@ -355,7 +355,7 @@ function lesBeslutningsgrunnlag(
     virkninger,
     linje: b.linje as string,
     sammenfall: b.sammenfall as boolean,
-    ...(spor === 'grunnlag' ? { varslingsplikt: b.varslingsplikt as boolean } : {}),
+    ...(spor === 'forhold' ? { varslingsplikt: b.varslingsplikt as boolean } : {}),
   };
 }
 
@@ -369,7 +369,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
     dokument,
     gjelder: e.gjelder as string,
     erstatter: (e.erstatter as string | undefined) ?? null,
-    grunnlagskrav: (e.grunnlagskrav as string | undefined) ?? null,
+    paaberopelse: (e.paaberopelse as string | undefined) ?? null,
     standpunkter,
     utregning: (e.utregning as Data | undefined) ?? {},
     beslutningsgrunnlag: lesBeslutningsgrunnlag(
@@ -426,7 +426,7 @@ function lesDokument(h: Journalrad): Dokument {
   };
   if (data.ikke_i_saken) return ikkeISaken(h, data);
   // OV-U13: opplysningen om § 31.3 gis bare i brevet selv, som hører til registrert
-  // korrespondanse med et svar på grunnlaget. Kontrollen står foran kontrollen av et tomt
+  // korrespondanse med et svar på forholdet. Kontrollen står foran kontrollen av et tomt
   // dokument, så en avklaring alene får denne grunnen. At svaret er byggherrens
   // endringsordre etter OV-U6, kontrolleres i utledningen.
   if (
@@ -485,7 +485,7 @@ function lesDokument(h: Journalrad): Dokument {
   if (
     iBrevet &&
     (!erRegistrert(opplysninger) ||
-      !((data.svar ?? []) as Data[]).some((s) => erObjekt(s) && s.spor === 'grunnlag'))
+      !((data.svar ?? []) as Data[]).some((s) => erObjekt(s) && s.spor === 'forhold'))
   )
     throw new Uforstaatt(
       'opplysningen om endringsordre står uten et registrert svar på grunnlaget i dokumentet'

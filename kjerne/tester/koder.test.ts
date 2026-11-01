@@ -1,12 +1,12 @@
 /**
  * Kodene i formatet (#335, arbeidsvalget 10.10 i issuet, HF-U2) og predikatet
- * for endringsordre i et svarutkast på grunnlaget (#351, GR-U12).
+ * for endringsordre i et svarutkast på forholdet (#351, GR-U12).
  */
 
 import { describe, expect, it } from 'vitest';
 import {
   BELOEPSVURDERING_FRA_KATALOGEN,
-  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
+  FORHOLDSRESULTAT_FRA_KATALOGEN,
   HOVEDKATEGORIER,
   HOVEDKATEGORI_FRA_KATALOGEN,
   KATEGORIER,
@@ -23,12 +23,12 @@ import { lesJournal } from '../format/leser.ts';
 import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
-import { erByggherrensPaalegg, gyldigeResultater } from '../regler/grunnlag.ts';
+import { erByggherrensPaalegg, gyldigeResultater } from '../regler/forhold.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import {
   BELOEPSVURDERINGER,
   FRISTRESULTATER,
-  GRUNNLAGSRESULTATER,
+  FORHOLDSRESULTATER,
   SUBSIDIAERE_UTLOSERE,
   VEDERLAGSRESULTATER,
 } from '../regler/typer.ts';
@@ -44,9 +44,9 @@ import { NESTE_REGLER } from './klient.ts';
 
 const PAR = HOVEDKATEGORIER.flatMap((h) => KATEGORIER[h].map((u) => [h, u] as const));
 
-const grunnlagskrav = (innhold: Record<string, unknown>) => ({
+const paaberopelse = (innhold: Record<string, unknown>) => ({
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold,
 });
 
@@ -63,13 +63,13 @@ const datoen = (hovedkategori: string, underkategori: string) => {
 const ikkeEtPar = (innhold: Record<string, unknown>) =>
   `$.innhold: ${JSON.stringify(innhold)} passer ingen av alternativene`;
 
-describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, HF-U1)', () => {
+describe('kategorien i påberopelsen er et par fra den lukkede listen (#335, HF-U1)', () => {
   it.each(PAR)('godtar %s/%s', (hovedkategori, underkategori) => {
     // GR-U16: et krav som følger av en endringsordre, identifiserer den.
     const eo = underkategori === 'endringsordre' ? { endringsordre: 'EO 12' } : {};
     expect(
       formfeil(
-        grunnlagskrav({
+        paaberopelse({
           hovedkategori,
           underkategori,
           ...eo,
@@ -82,7 +82,7 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
   // Kontrollsakene er «godtar»-testene over, som skiller seg bare i feltet (#698).
   it('avviser et krav i underkategorien endringsordre uten endringsordrens dato eller nummer (GR-U16)', () => {
     const innhold = { hovedkategori: 'endring', underkategori: 'endringsordre' };
-    expect(formfeil(grunnlagskrav(innhold))).toEqual([ikkeEtPar(innhold)]);
+    expect(formfeil(paaberopelse(innhold))).toEqual([ikkeEtPar(innhold)]);
   });
 
   it('avviser endringsordrens dato eller nummer i en annen underkategori (GR-U16)', () => {
@@ -92,7 +92,7 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
       endringsordre: 'EO 12',
       paalegg_mottatt: '2026-10-01',
     };
-    expect(formfeil(grunnlagskrav(innhold))).toEqual([ikkeEtPar(innhold)]);
+    expect(formfeil(paaberopelse(innhold))).toEqual([ikkeEtPar(innhold)]);
   });
 
   // Paret avviser de to siste alene; de to første avvises også av listen over koder (#698).
@@ -104,7 +104,7 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
   ])('avviser %s', (_navn, hovedkategori, underkategori, ukjentKode) => {
     // Med datoen avvises kravet ikke fordi datoen mangler.
     const innhold = { hovedkategori, underkategori, ...datoen(hovedkategori, underkategori) };
-    const feil = formfeil(grunnlagskrav(innhold));
+    const feil = formfeil(paaberopelse(innhold));
     expect(feil[0]).toBe(ikkeEtPar(innhold));
     expect(feil.length > 1).toBe(ukjentKode);
   });
@@ -113,7 +113,7 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
   // avvises det både fordi underkategorien er påkrevd og fordi det ikke er et par.
   it('avviser force majeure uten underkategori, både som manglende felt og som par, som før #335', () => {
     const innhold = { hovedkategori: 'force_majeure' };
-    expect(formfeil(grunnlagskrav(innhold))).toEqual([
+    expect(formfeil(paaberopelse(innhold))).toEqual([
       ikkeEtPar(innhold),
       '$.innhold.underkategori: mangler',
     ]);
@@ -121,7 +121,7 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
 
   it('en lagret rad med katalogens koder er ikke forstått; kontrollsak: kjernens koder', async () => {
     const bane = minnebane();
-    await bygg(bane, [{ handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring' }]);
+    await bygg(bane, [{ handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' }]);
     const journal = await bane.journal();
     const forstaatt = (rader: Journalrad[]) =>
       utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt;
@@ -167,7 +167,7 @@ describe('reglene med kjernens koder', () => {
       ['irregulaer_endring', 'valg_av_loesning', 'samordning', 'svar_paa_varsel'].includes(u);
     expect(erByggherrensPaalegg(h, u)).toBe(paalegg);
     expect(gyldigeResultater(h, u).includes('paalegg_frafalt')).toBe(paalegg);
-    expect(GJELDENDE_REGLER.gyldigeGrunnlagsresultater(h, u).includes('paalegg_frafalt')).toBe(
+    expect(GJELDENDE_REGLER.gyldigeForholdsresultater(h, u).includes('paalegg_frafalt')).toBe(
       paalegg
     );
   });
@@ -184,22 +184,22 @@ describe('reglene med kjernens koder', () => {
   // for seg (T4 i #770, #514).
   it('regelsettet n+1 endrer frafallet og § 32.2 hver for seg', () => {
     expect(NESTE_REGLER.gjelderVarslingsplikten('endring', 'samordning')).toBe(false);
-    expect(NESTE_REGLER.gyldigeGrunnlagsresultater('endring', 'samordning')).toContain(
+    expect(NESTE_REGLER.gyldigeForholdsresultater('endring', 'samordning')).toContain(
       'paalegg_frafalt'
     );
     expect(NESTE_REGLER.gjelderVarslingsplikten('endring', 'valg_av_loesning')).toBe(true);
-    expect(NESTE_REGLER.gyldigeGrunnlagsresultater('endring', 'valg_av_loesning')).not.toContain(
+    expect(NESTE_REGLER.gyldigeForholdsresultater('endring', 'valg_av_loesning')).not.toContain(
       'paalegg_frafalt'
     );
   });
 
-  it('utregningen av svaret på grunnlaget leser frafallet av regelsettet (#514)', () => {
+  it('utregningen av svaret på forholdet leser frafallet av regelsettet (#514)', () => {
     const krav = { innhold: { hovedkategori: 'endring', underkategori: 'valg_av_loesning' } };
     const regn = (regler: typeof GJELDENDE_REGLER) => () =>
       regnUtSvar(
-        'grunnlag',
+        'forhold',
         { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true },
-        { krav: krav as unknown as Krav, grunnlagskrav: null },
+        { krav: krav as unknown as Krav, paaberopelse: null },
         regler
       );
     expect(regn(GJELDENDE_REGLER)).not.toThrow();
@@ -213,7 +213,7 @@ describe('reglene med kjernens koder', () => {
 
 describe('oversettelsen fra katalogen', () => {
   it.each([
-    ['grunnlagsresultatene', GRUNNLAGSRESULTAT_FRA_KATALOGEN, GRUNNLAGSRESULTATER],
+    ['forholdsresultatene', FORHOLDSRESULTAT_FRA_KATALOGEN, FORHOLDSRESULTATER],
     ['vederlagsresultatene', RESULTAT_FRA_KATALOGEN, VEDERLAGSRESULTATER],
     ['beløpsvurderingene', BELOEPSVURDERING_FRA_KATALOGEN, BELOEPSVURDERINGER],
     ['utløserne', UTLOESER_FRA_KATALOGEN, SUBSIDIAERE_UTLOSERE],
@@ -257,7 +257,7 @@ describe('oversettelsen fra katalogen', () => {
 describe('svarutkastet blir en endringsordre som brevet det gir (#351, GR-U12)', () => {
   const varsletVerdier = [true, false, undefined] as const;
   const tilfeller = PAR.flatMap(([h, u]) =>
-    GRUNNLAGSRESULTATER.flatMap((resultat) =>
+    FORHOLDSRESULTATER.flatMap((resultat) =>
       varsletVerdier.map((varslet) => [h, u, resultat, varslet] as const)
     )
   );
@@ -281,7 +281,7 @@ describe('svarutkastet blir en endringsordre som brevet det gir (#351, GR-U12)',
     const k = new Kjoering(minnebane());
     const krav = await k.send({
       handling: 'krav',
-      spor: 'grunnlag',
+      spor: 'forhold',
       hovedkategori: h,
       underkategori: u,
     });
@@ -290,7 +290,7 @@ describe('svarutkastet blir en endringsordre som brevet det gir (#351, GR-U12)',
       handling: 'brev',
       svar: [
         {
-          spor: 'grunnlag',
+          spor: 'forhold',
           resultat,
           ...(varslet === undefined ? {} : { varslet_i_tide: varslet }),
         },
@@ -341,8 +341,8 @@ describe('svarutkastet blir en endringsordre som brevet det gir (#351, GR-U12)',
   );
 });
 
-describe('datoen varslingsplikten løper fra, i grunnlagskravet (VS-U26)', () => {
-  const krav = (innhold: Record<string, unknown>) => formfeil(grunnlagskrav(innhold));
+describe('datoen varslingsplikten løper fra, i påberopelsen (VS-U26)', () => {
+  const krav = (innhold: Record<string, unknown>) => formfeil(paaberopelse(innhold));
 
   it.each(PAR.filter(([, u]) => u !== 'endringsordre'))(
     'et krav fra appen i %s/%s uten datoen avvises',
@@ -407,7 +407,7 @@ describe('datoen varslingsplikten løper fra, i grunnlagskravet (VS-U26)', () =>
       refererer_til_event_id: null,
       format: 1,
       data: {
-        krav: [{ id: 'k', spor: 'grunnlag', ...innhold }],
+        krav: [{ id: 'k', spor: 'forhold', ...innhold }],
         opplysninger: [{ id: 'o', hva: 'sendt', dato: '2026-10-01' }],
       },
     });

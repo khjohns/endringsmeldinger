@@ -6,19 +6,19 @@
 import { beloep, BroekdelAvOere, heleOere, NULL_OERE, UgyldigBeloep, type Oere } from './beloep.ts';
 import type {
   Beloepsvurdering,
-  Grunnlagsresultat,
+  Forholdsresultat,
   SubsidiaerUtloser,
   Vederlagsmetode,
   Vederlagsresultat,
 } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
-import { erGrunnlagSubsidiaert } from './grunnlag.ts';
+import { erForholdSubsidiaert } from './forhold.ts';
 import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
 
 /**
- * TEs krav og grunnlagssporet. `rigg_beloep` og `produktivitet_beloep` er `null` når posten ikke er
+ * TEs krav og forholdssporet. `rigg_beloep` og `produktivitet_beloep` er `null` når posten ikke er
  * krevd, og `hovedkrav_beloep` når kravet bare har de særskilte kravene (OV-U23).
  */
 export interface Vederlagskrav {
@@ -31,7 +31,7 @@ export interface Vederlagskrav {
   hovedkategori: string | null;
   underkategori: string | null;
   grunnlag_varslet_i_tide: boolean | null;
-  grunnlag_resultat: Grunnlagsresultat | null;
+  grunnlag_resultat: Forholdsresultat | null;
 }
 
 /** Byggherrens vurderinger. Feltnavnene er de i kommandoen. */
@@ -327,7 +327,7 @@ export function beregnVederlag(
       : null,
     subsidiaer_godkjent_beloep: visSubsidiaert ? totalGodkjentInklPrekludert : null,
     preklusjon: p,
-    hele_vederlaget_subsidiaert: erGrunnlagSubsidiaert(
+    hele_vederlaget_subsidiaert: erForholdSubsidiaert(
       krav.grunnlag_resultat,
       krav.hovedkategori,
       krav.underkategori,
