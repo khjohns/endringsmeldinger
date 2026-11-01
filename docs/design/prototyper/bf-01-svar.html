@@ -2,80 +2,355 @@
 <html lang="nb">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BF-01 i Varden · BH svarer, og TE godtar · prototype v3</title>
 <!--
   Klikkbar prototype for BF-01 i Varden (docs/domenetabell/brukerforlop/BF-01.md). Tilstandene er
   ankrene (#svar, #brev, …), og bestillingen viser til dem. ID-ene i data-spor er punktene i
   bestillingen. Teksten er prototypetekst; brevtekstene er kjernens (kjerne/frosset/brevtekst.ts)
-  for valgene i BF-01. Stilen er Varden-skissenes.
+  for valgene i BF-01. Designet er Vardens, som i vederlagssvar.html og
+  grunnlagsoversikt.html (#1460): fargene er Blekk (.tema-varden i theme.css).
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../konsept-varden/skjermer/stil.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  .tilstand { display: none; }
-  .tilstand.vist { display: block; }
-  .proto-bar { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 8px 24px; font-size: 13px; border-bottom: 1px dashed #c6d7cd; background: #f3f7f4; }
-  .proto-bar a { color: inherit; }
-  .proto-valg { font-size: 12px; color: #4b5a51; border-top: 1px dashed #c6d7cd; padding-top: 8px; margin-top: 12px; }
-  .proto-valg a { color: inherit; margin-right: 12px; }
-  fieldset.fs { border: 0; margin: 0; min-width: 0; }
-  fieldset.fs legend { float: left; width: 100%; padding: 0; }
-  fieldset.fs legend + * { clear: both; }
-  label.opt { cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
-  label.opt input { accent-color: #2f5d47; margin: 0; }
-  .feltfeil { color: #a3392b; font-size: 13px; margin-top: 6px; font-weight: 500; }
-  .fs.mangler { box-shadow: inset 3px 0 0 #a3392b; padding-left: 14px; }
-  .feil { padding: 12px 14px; border-left: 3px solid #a3392b; background: #fbf1ef; font-size: 14px; margin-bottom: 12px; }
-  .feil p + p, .virkning p + p, .kvittering p + p { margin-top: 6px; }
-  .virkning { padding: 12px 14px; border-left: 3px solid #2f5d47; background: #f3f7f4; font-size: 14px; }
-  .kvittering { padding: 12px 14px; border: 1px solid #dfe5df; border-radius: 8px; font-size: 14px; }
-  .kvittering.stanset { border-color: #d9a441; background: #fdf7ea; }
-  mark.mangler { background: #fbf1ef; color: #a3392b; padding: 0 4px; border-radius: 3px; font-weight: 500; }
-  .standpunkter { width: 100%; border-collapse: collapse; font-size: 13px; margin: 4px 0 8px; }
-  .standpunkter td { padding: 6px 0; border-bottom: 1px solid #edf0ec; vertical-align: top; }
-  .standpunkter td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .knapper { display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; margin-top: 12px; }
-  a.btn { text-decoration: none; }
-  a.btn.on { box-shadow: inset 0 2px 3px rgba(0,0,0,.18); background: #e4ece7; }
-  .tilbakelinje { margin-bottom: 12px; }
-  .tl { list-style: none; padding: 0; margin: 0; font-size: 13px; }
-  .tl li { padding: 6px 0; border-bottom: 1px solid #edf0ec; }
-  .tl li.ny { font-weight: 600; }
-  textarea.tx { width: 100%; min-height: 90px; font: inherit; padding: 10px; border: 1px solid #cfd8d1; border-radius: 8px; resize: vertical; }
-  .grid.bred { grid-template-columns: minmax(0, 1fr) 360px; }
-  [data-spor] { position: relative; }
-  body.spor [data-spor]::after { content: attr(data-spor); position: absolute; top: -8px; right: -6px; font: 600 10px/1.6 Inter, sans-serif; padding: 0 5px; border-radius: 999px; background: #fff5d6; border: 1px solid #e0c36a; color: #5a4a10; white-space: nowrap; z-index: 2; }
+:root{
+  --brand:#15181d; --on-brand:#ffffff;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --control-bg:#f3f4f6; --control-border-color:#80868f;
+  --control-focus:#2457d6; --control-focus-ring:0 0 0 3px rgba(36,87,214,.25);
+  --draft:#5f4a00; --draft-bg:#fff3c4; --draft-border:#9e7f12;
+  --sidebar-bg:#15181d; --sidebar-active:#262b33; --sidebar-hover:#1e2228; --sidebar-text:#f3f4f6; --sidebar-muted:#a9afb9;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --varden-ark:760px; --varden-stoette:360px;
+  --r-kort:8px; --r-knapp:999px; --r-felt:4px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-bg:#121418; --control-border-color:#6c727c;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-bg:#121418; --control-border-color:#6c727c;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+button{font:inherit;color:inherit}
+
+[hidden]{display:none!important}
+
+/* Skallet */
+.skall{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+.panel{background:var(--sidebar-bg);color:var(--sidebar-text);padding:20px;display:flex;flex-direction:column;gap:28px}
+.avsender{display:flex;gap:12px;align-items:center}
+.vapen{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--sidebar-text);display:grid;place-items:center;font-size:9px;color:var(--sidebar-muted)}
+.avsender b{display:block;font-weight:600}
+.avsender span{font-size:12px;color:var(--sidebar-muted)}
+.sak .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.sak h2{font-size:20px;font-weight:600;line-height:1.25}
+.etikett{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sidebar-muted);margin-bottom:8px}
+.spor{list-style:none;margin:0 -20px;padding:0}
+.spor a{display:block;padding:10px 20px 10px 17px;border-left:3px solid transparent;text-decoration:none;color:inherit}
+.spor a:hover{background:var(--sidebar-hover)}
+.spor a[aria-current]{background:var(--sidebar-active);border-left-color:var(--sidebar-text)}
+.spor .navn{display:block;font-size:16px}
+.spor .sist{font-size:12px;color:var(--sidebar-muted)}
+
+.flate{min-width:0;display:flex;flex-direction:column}
+.topplinje{background:var(--surface);border-bottom:1px solid var(--rule-color);padding-block:14px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.topplinje p{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;color:var(--ink-2)}
+.arbeid{flex:1;padding-block:28px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.kolonner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) minmax(0,var(--varden-stoette));gap:24px;align-items:start}
+
+/* Utkastet er skjemaet */
+.utkast{border:1.5px dashed var(--draft-border);border-radius:var(--r-kort);background:var(--surface);min-width:0}
+.utkast-hode{background:var(--draft-bg);padding:16px 24px;display:flex;flex-direction:column;gap:4px;border-bottom:1px dashed var(--draft-border);border-radius:var(--r-kort) var(--r-kort) 0 0}
+.utkast-hode .linje{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.utkastmerke{font-size:12px;font-weight:500;color:var(--draft);background:var(--surface);border:1px dashed var(--draft-border);border-radius:var(--r-knapp);padding:1px 8px;white-space:nowrap}
+.utkast-hode h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.utkast-hode p{color:var(--draft)}
+.laas{display:flex;gap:6px;align-items:center}
+
+/* Panelet */
+.stoette{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.kort{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort)}
+.kort-hode{padding:16px 20px 12px;border-bottom:1px solid var(--rule-subtle-color)}
+.kort-hode h2{font-size:16px;font-weight:600}
+.kort-hode p{font-size:12px;color:var(--ink-3);margin-top:2px}
+.knapp{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:0 22px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);background:var(--brand);color:var(--on-brand);font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s cubic-bezier(.23,1,.32,1)}
+.knapp:active{transform:scale(.97)}
+.godkj{font-size:12px;color:var(--ink-3)}
+.lagret{font-size:12px;color:var(--ink-3);text-align:center}
+
+@media (max-width:1180px){
+  .kolonner{grid-template-columns:minmax(0,1fr)}
+  .stoette{position:static}
+}
+@media (max-width:860px){
+  .skall{grid-template-columns:minmax(0,1fr)}
+  .panel{gap:14px;padding-bottom:12px}
+  .panel .avsender{display:none}
+  .spor{display:flex;overflow-x:auto}
+  .spor li{flex:none}
+  .spor a{border-left:0;border-bottom:3px solid transparent;padding:8px 16px}
+  .spor a[aria-current]{border-bottom-color:var(--sidebar-text)}
+  .spor .navn{font-size:14px}
+  .punkt,.svarpaa,.visning,.skjemafot{padding-left:16px;padding-right:16px}
+  .grunnlag{margin-left:16px;margin-right:16px}
+  .utkast-hode{padding-left:16px;padding-right:16px}
+}
+@media (prefers-reduced-motion:reduce){.knapp{transition:none}}
+
+/* Toppskallet: stien og brukermenyen, felles for alle sidene */
+.demolinje{background:var(--surface-inset);border-bottom:1px solid var(--rule-color);padding:6px max(24px,env(safe-area-inset-right,0px)) 6px max(24px,env(safe-area-inset-left,0px))}
+.demolinje .topplinje-inner{justify-content:flex-end}
+.toppskall{background:var(--surface);border-bottom:1px solid var(--rule-color);padding:10px max(24px,env(safe-area-inset-right,0px)) 10px max(24px,env(safe-area-inset-left,0px))}
+.toppskall .topplinje-inner{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+.sti{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px;color:var(--ink-3);min-width:0}
+.sti a{color:var(--ink-2);text-decoration:none}
+.sti a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.sti .merkenavn{font-weight:600;font-size:16px;color:var(--ink);letter-spacing:-.01em}
+.sti [aria-current]{color:var(--ink);font-weight:500}
+.sti .merkenavn[aria-current]{font-weight:600}
+.brukermeny{position:relative}
+.brukermeny summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:6px;min-height:40px}
+.brukermeny summary::-webkit-details-marker{display:none}
+.brukermeny summary:hover{background:var(--surface-inset)}
+.brukermeny summary:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.initialer{width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.brukermeny .hvem{display:flex;flex-direction:column;line-height:1.25;text-align:left}
+.brukermeny .hvem b{font-weight:600;font-size:14px}
+.brukermeny .hvem span{font-size:12px;color:var(--ink-3)}
+.brukermeny .meny{position:absolute;right:0;top:calc(100% + 6px);z-index:10;min-width:220px;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);box-shadow:0 0 0 1px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.08);padding:6px;display:flex;flex-direction:column}
+.brukermeny .meny a{padding:10px 12px;border-radius:6px;color:var(--ink);text-decoration:none;min-height:40px;display:flex;align-items:center}
+.brukermeny .meny a:hover{background:var(--surface-inset)}
+.brukermeny .meny hr{border:0;border-top:1px solid var(--rule-subtle-color);margin:4px 0}
+@media (max-width:560px){.brukermeny .hvem{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+
+:root{--danger:#b33e33;--danger-bg:#fceded;--danger-border:#e8b7b2}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--danger:#f87171;--danger-bg:rgba(248,113,113,.1);--danger-border:rgba(248,113,113,.25)}}
+:root[data-theme="dark"]{--danger:#f87171;--danger-bg:rgba(248,113,113,.1);--danger-border:rgba(248,113,113,.25)}
+
+/* Demolinjen for prototypen */
+.demolinje .topplinje-inner{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;justify-content:space-between;font-size:12px;color:var(--ink-2)}
+.demolinje b{font-weight:600;color:var(--ink)}
+.demolinje a{color:inherit;text-underline-offset:3px}
+.demolinje label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.demolinje input{accent-color:var(--brand);margin:0}
+.proto-valg{font-size:12px;color:var(--ink-3);border-top:1px dashed var(--rule-strong-color);padding-top:10px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.proto-valg a{color:inherit;text-underline-offset:3px}
+
+/* Panelet til venstre */
+.sak .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.sak h2{font-size:20px;font-weight:600;line-height:1.25}
+.spor .merke-utkast{font-size:12px;font-weight:500;color:var(--draft);background:var(--draft-bg);border:1px dashed var(--draft-border);border-radius:var(--r-merke);padding:0 6px;margin-left:8px;vertical-align:2px}
+
+/* Skjermene */
+.tilstand{display:none}
+.tilstand.vist{display:block}
+.grid{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) minmax(0,var(--varden-stoette));gap:24px;align-items:start}
+.grid.en{grid-template-columns:minmax(0,var(--varden-ark))}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+.tilbakelinje{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto 16px}
+
+/* Kortene */
+.card{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);min-width:0}
+.card[hidden]{display:none}
+.card-h{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid var(--rule-subtle-color)}
+.card-h h3{font-size:16px;font-weight:600}
+.card-h .sub{font-size:12px;color:var(--ink-3)}
+.card-h a{color:var(--ink);font-weight:500;text-underline-offset:3px}
+.card-b{padding:16px 20px 20px;display:flex;flex-direction:column;gap:12px}
+.card-b.tight{padding-top:4px;padding-bottom:4px;gap:0}
+.card.utkast{border:1.5px dashed var(--draft-border)}
+.draft-h{background:var(--draft-bg);padding:16px 24px;display:flex;flex-direction:column;gap:4px;border-bottom:1px dashed var(--draft-border);border-radius:var(--r-kort) var(--r-kort) 0 0}
+.draft-h h3{font-size:20px;font-weight:600;letter-spacing:-.01em;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.draft-meta{margin:0;display:flex;flex-wrap:wrap;gap:4px 12px;color:var(--draft)}
+.draft-meta dt{font-weight:600}
+.draft-meta dd{margin:0}
+.tag{font-size:12px;font-weight:500;border-radius:var(--r-merke);padding:1px 8px;white-space:nowrap;border:1px solid var(--rule-strong-color);color:var(--ink-2)}
+.tag.draft{color:var(--draft);background:var(--surface);border:1px dashed var(--draft-border)}
+.tag[hidden]{display:none}
+.replyto{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;padding:12px 24px;background:var(--surface-inset);border-bottom:1px solid var(--rule-color)}
+.replyto b{font-weight:600}
+
+/* Spørsmålene i svaret */
+.fs{border:0;margin:0;min-width:0;padding:20px 24px 22px;border-top:1px solid var(--rule-color);display:flex;flex-direction:column;gap:14px}
+.replyto + .feil + .fs,.replyto + .fs{border-top:0}
+.fs .legend{display:flex;gap:12px;align-items:baseline;justify-content:space-between;width:100%;padding:0;float:left;font-size:16px;font-weight:600}
+.fs .legend + *{clear:both}
+.chip{font-size:12px;font-weight:400;color:var(--ink-3);border:1px solid var(--rule-color);border-radius:var(--r-merke);padding:1px 8px;white-space:nowrap}
+.opt-note{font-weight:400;color:var(--ink-3)}
+.q{font-size:16px;display:block}
+.fact{padding:12px 14px;background:var(--surface-inset);border-radius:var(--r-innfelt);color:var(--ink-2)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+label.opt{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);cursor:pointer;font-size:16px;background:var(--surface)}
+label.opt:hover{background:var(--surface-warm)}
+label.opt input{accent-color:var(--brand);width:18px;height:18px;margin:0}
+label.opt:has(input:checked){border:2px solid var(--ink);background:var(--surface-selected);font-weight:600;padding:0 15px}
+.sub-q{display:flex;flex-direction:column;gap:10px;padding-left:12px;border-left:2px solid var(--ink)}
+.sub-q[hidden]{display:none}
+.money{display:inline-flex;align-items:stretch;border:1px solid var(--control-border-color);border-radius:var(--r-felt);background:var(--control-bg);width:220px;max-width:100%}
+.money input{border:0;background:none;font:16px var(--font-mono);text-align:right;padding:10px 12px;width:100%;min-width:0;color:var(--ink)}
+.money input:focus{outline:none}
+.money:focus-within{box-shadow:var(--control-focus-ring);border-color:var(--control-focus)}
+.money span{display:grid;place-items:center;padding:0 12px;border-left:1px solid var(--rule-color);color:var(--ink-3)}
+.help{font-size:12px;color:var(--ink-3)}
+textarea.tx{font:14px/1.55 var(--font-sans);color:var(--ink);background:var(--control-bg);border:1px solid var(--control-border-color);border-radius:var(--r-felt);padding:10px 12px;min-height:120px;resize:vertical;width:100%}
+textarea.tx:focus{outline:none;border-color:var(--control-focus);box-shadow:var(--control-focus-ring)}
+
+/* Feil og meldinger */
+.feltfeil{color:var(--danger);font-size:14px;font-weight:500}
+.fs.mangler{box-shadow:inset 3px 0 0 var(--danger)}
+.feil{padding:12px 14px;border:1px solid var(--danger-border);background:var(--danger-bg);border-radius:var(--r-innfelt);display:flex;flex-direction:column;gap:6px}
+.card > .feil{margin:16px 24px 0}
+.feil a{color:var(--ink);font-weight:500;margin-right:12px;text-underline-offset:3px}
+mark.mangler{background:var(--danger-bg);color:var(--danger);padding:0 4px;border-radius:var(--r-merke);font-weight:500}
+.virkning{padding:12px 14px;background:var(--surface-inset);border-radius:var(--r-innfelt);color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.virkning b{color:var(--ink)}
+.kvittering{padding:12px 14px;border:1px solid var(--rule-color);border-radius:var(--r-innfelt);display:flex;flex-direction:column;gap:6px}
+.kvittering.stanset{border-color:var(--ink);background:var(--surface-inset)}
+.kvittering[hidden]{display:none}
+.muted{font-size:12px;color:var(--ink-3)}
+.lbl{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+
+/* Hovedlinjene og sendingen */
+.hlc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:10px 0;border-top:1px solid var(--rule-subtle-color);color:var(--ink-2)}
+.hlc:first-child{border-top:0}
+.hlc small{display:block;font-size:12px;color:var(--ink-3)}
+.hlc b{color:var(--ink);font-weight:500;text-align:right}
+.hlc .n{font-family:var(--font-mono)}
+.send{padding:14px 20px 20px;border-top:1px solid var(--rule-subtle-color);display:flex;flex-direction:column;gap:10px}
+.why{font-size:12px;color:var(--ink-3)}
+.standpunkter{width:100%;border-collapse:collapse}
+.standpunkter td{padding:8px 0;border-top:1px solid var(--rule-subtle-color);vertical-align:top;color:var(--ink-2)}
+.standpunkter tr:first-child td{border-top:0}
+.standpunkter td b{color:var(--ink);font-weight:600}
+.standpunkter td.n{text-align:right;white-space:nowrap;padding-left:12px;color:var(--ink);font-family:var(--font-mono);font-weight:500}
+.standpunkter td.n .muted{font-family:var(--font-sans);font-weight:400}
+
+/* Knappene: primær, sekundær og lenke, venstrestilt */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 18px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);background:transparent;color:var(--brand);font-size:14px;font-weight:600;text-decoration:none;cursor:pointer}
+.btn:hover{background:var(--surface-warm)}
+.btn.primary{background:var(--brand);color:var(--on-brand)}
+.btn.primary:hover{background:var(--brand)}
+.btn.lg{min-height:48px;font-size:16px;padding:0 22px}
+.btn.block{width:100%}
+.btn.ghost{border:0;background:none;padding:0;min-height:40px;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.btn.on{background:var(--surface-selected);border-color:var(--ink);color:var(--ink)}
+.knapper{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.knapper > span:empty{display:none}
+.kontroll{display:flex;gap:10px;align-items:center;min-height:40px;cursor:pointer}
+.kontroll input{accent-color:var(--brand);width:18px;height:18px;margin:0}
+
+/* Tidslinjen */
+.tl{list-style:none;padding:0;margin:0}
+.tl li{padding:8px 0;border-top:1px solid var(--rule-subtle-color);color:var(--ink-2)}
+.tl li:first-child{border-top:0}
+.tl li.ny{font-weight:600;color:var(--ink)}
+
+/* Brevet */
+.sentbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--surface-inset);border:1px solid var(--rule-color);border-bottom:0;border-radius:var(--r-kort) var(--r-kort) 0 0;margin-bottom:-16px}
+.sentbar b{font-weight:600}
+.sentbar + .a4{border-radius:0 0 var(--r-kort) var(--r-kort)}
+.a4{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);padding:28px 32px 32px;display:flex;flex-direction:column;gap:12px;font-size:15px;line-height:1.6}
+.a4 h2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-top:4px}
+.card .a4{padding:14px 16px;background:var(--surface-inset);border-radius:var(--r-innfelt);font-size:14px;gap:8px}
+.card .a4 h2{font-size:16px;margin:0}
+.lh{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--rule-subtle-color);font-size:14px}
+.lh .org b{display:block;font-weight:600}
+.lh .org span{color:var(--ink-3);font-size:12px}
+.lh dl{margin:0;display:grid;grid-template-columns:auto auto;gap:2px 16px;font-size:12px}
+.lh dt{color:var(--ink-3)}
+.lh dd{margin:0;color:var(--ink-2)}
+.brevtekst{display:flex;flex-direction:column;gap:12px}
+.colophon{margin-top:8px;padding-top:12px;border-top:1px solid var(--rule-subtle-color);font-size:12px;color:var(--ink-3)}
+
+/* Menyen med brevtypene, som ikke er tilgjengelig mens utkastet er åpent */
+.sporlinje{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.sporlinje .btn{border-color:var(--rule-strong-color);color:var(--ink-3);cursor:default}
+.sporlinje small{font-size:12px;color:var(--ink-3)}
+
+/* Sporbarheten i prototypen */
+[data-spor]{position:relative}
+body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;right:-6px;font:600 10px/1.6 var(--font-sans);padding:0 5px;border-radius:var(--r-merke);background:var(--surface);border:1px solid var(--ink);color:var(--ink);white-space:nowrap;z-index:2}
+
+@media (max-width:1180px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .stoette{position:static}
+}
+@media (max-width:860px){
+  .fs,.replyto,.draft-h{padding-left:16px;padding-right:16px}
+  .card > .feil{margin-left:16px;margin-right:16px}
+  .a4{padding:20px 16px}
+  .sentbar{padding-left:16px;padding-right:16px}
+}
+
+/* Radius (oppdragsgiver 01.11): kort og brev 12 px, merker og stempler 2 px, felt 4 px, innfelt 6 px, knapper som piller */
+:root{--r-kort:12px;--r-merke:2px;--r-felt:4px;--r-innfelt:6px}
+.utkastmerke,.paabegynt,.merke-reg,.merke-n,.inngaar,.status,.lagmerke,.merke,.henv,.endret,.hjemmel{border-radius:var(--r-merke)}
+.fil{border-radius:var(--r-felt)}
+.ark-inn{border-radius:var(--r-kort)}
 </style>
 </head>
 <body>
-<div class="proto-bar">
+<div class="demolinje"><div class="topplinje-inner">
   <span><b>Prototype · BF-01 i Varden · versjon 4</b> · Ingenting sendes, og ingenting lagres. BH har svart i brev 2 at byggherren har risikoen for forholdet, og TE har krevd 100 000 kr i brev 4.</span>
   <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#svar" class="nullstill">Start som BH</a> · <a href="#mottatt">Start som TE</a></span>
-</div>
+</div></div>
 
 <!-- Skjerm B: BH svarer (#svar, #kravbrev) -->
 <section class="screen tilstand" id="svar" data-tilstander="svar kravbrev">
-  <div class="page">
-    <div class="casehead compact">
-      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
-      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er BH</span></div>
-    </div>
-    <div class="saksflate">
-      <nav class="casenav" aria-label="Saken">
-        <div class="cn-lbl">Spor</div>
-        <a class="cn"><b>Byggherrens medvirkning</b><small>Besvart i brev 2</small></a>
-        <a class="cn on" aria-current="page"><b>Vederlag <span class="tag draft">Utkast</span></b><small>Siste: brev 4 fra TE</small></a>
-        <a class="cn"><b>Frist</b><small>Ingen brev</small></a>
-      </nav>
-      <div class="arbeid">
-        <div class="grid">
+  <div class="skall">
+  <aside class="panel" aria-label="Saken">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak"><p class="id num">E-021</p><h2>Tegningene til fundamentene kom for sent</h2></div>
+    <nav aria-label="Krav og svar">
+      <p class="etikett" aria-hidden="true">Krav og svar</p>
+      <ul class="spor">
+        <li><a href="#svar"><span class="navn">Byggherrens medvirkning</span><span class="sist">Besvart i brev 2</span></a></li>
+        <li><a href="#svar" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist">Siste: brev 4 fra TE</span></a></li>
+        <li><a href="#svar"><span class="navn">Fristforlengelse</span><span class="sist">Ingen brev</span></a></li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="flate">
+    <header class="toppskall">
+      <div class="topplinje-inner">
+        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021</span></nav>
+        <details class="brukermeny">
+          <summary><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></summary>
+          <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#svar">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
+        </details>
+      </div>
+    </header>
+    <main class="arbeid">
+      <div class="grid">
           <div class="stack">
-            <div class="work-h"><div><h2>Vederlag</h2><small>2 brev · siste 1. okt 2026 fra TE</small></div>
-              <div class="tab-act"><span class="btn">Skriv brev i sporet</span><small>Utkast åpent: svar på brev 4</small></div>
-            </div>
-            <div class="card">
+            <div class="sporlinje"><span class="btn">Skriv brev i sporet</span><small>Utkast åpent: svar på brev 4</small></div>
+            <div class="card utkast">
               <div class="draft-h"><h3><span class="tag draft">Utkast</span>Svar på krav om vederlagsjustering</h3>
                 <dl class="draft-meta"><dt>Til</dt><dd>Totalentreprenøren</dd><dd data-spor="G-4">Står i nettleseren til du sender eller lukker siden</dd></dl>
               </div>
@@ -124,7 +399,7 @@
             </div>
           </div>
 
-          <div class="stack panel">
+          <div class="stack stoette">
             <div class="card" data-tilstander="svar">
               <div class="card-h"><h3>Hovedlinjene i svaret</h3><span class="sub">Det samme som brevet sier</span></div>
               <div class="card-b tight" data-spor="U-2">
@@ -159,27 +434,46 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </main>
   </div>
+</div>
 </section>
 
 <!-- Skjerm C: brevkontrollen (#brev) -->
 <section class="screen tilstand" id="brev" data-tilstander="brev">
-  <div class="page">
-    <div class="tilbakelinje"><a class="btn ghost" href="#svar" data-spor="D-5">Tilbake til utkastet</a></div>
-    <div class="casehead compact">
-      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
-      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er BH</span></div>
-    </div>
-    <div class="grid bred">
+  <div class="skall">
+  <aside class="panel" aria-label="Saken">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak"><p class="id num">E-021</p><h2>Tegningene til fundamentene kom for sent</h2></div>
+    <nav aria-label="Krav og svar">
+      <p class="etikett" aria-hidden="true">Krav og svar</p>
+      <ul class="spor">
+        <li><a href="#svar"><span class="navn">Byggherrens medvirkning</span><span class="sist">Besvart i brev 2</span></a></li>
+        <li><a href="#svar" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist">Siste: brev 4 fra TE</span></a></li>
+        <li><a href="#svar"><span class="navn">Fristforlengelse</span><span class="sist">Ingen brev</span></a></li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="flate">
+    <header class="toppskall">
+      <div class="topplinje-inner">
+        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021</span></nav>
+        <details class="brukermeny">
+          <summary><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></summary>
+          <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#svar">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
+        </details>
+      </div>
+    </header>
+    <main class="arbeid">
+      <div class="tilbakelinje"><a class="btn ghost" href="#svar" data-spor="D-5">Tilbake til utkastet</a></div>
+      <div class="grid">
       <div class="stack">
         <div class="feil brev-mangler" role="status" hidden data-spor="U-2 · S-3">
           <p><b>Brevet er ikke ferdig.</b> <span class="mangler-tekst"></span> Du kan se brevet, men ikke sende det før det er besvart.</p>
         </div>
         <div class="a4" data-spor="D-1 · U-3 · S-2">
           <div class="lh">
-            <div class="org"><div><b>Byggherren</b><span>BH</span></div></div>
+            <div class="org"><b>Oslobygg KF</b><span>Byggherre (BH)</span></div>
             <dl><dt>Brev</dt><dd>Får nummer når det sendes</dd><dt>Dato</dt><dd>Settes når det sendes</dd><dt>Til</dt><dd>Totalentreprenøren (TE)</dd></dl>
           </div>
           <h2>Svar på krav om vederlagsjustering</h2>
@@ -189,7 +483,7 @@
           <div class="colophon" data-spor="D-1">Dette er teksten som sendes. Brevnummeret og tidspunktet settes når brevet sendes, og PDF-en får A4-format.</div>
         </div>
       </div>
-      <div class="stack panel">
+      <div class="stack stoette">
         <div class="card">
           <div class="card-h"><h3>Oversikt</h3><span class="sub">Ikke en del av brevet</span></div>
           <div class="card-b" data-spor="U-3 · S-2">
@@ -211,24 +505,43 @@
               <p><b>Brevet kan ikke sendes ennå.</b> <span class="send-feil-tekst"></span></p>
               <p class="gaa-til" hidden><a href="#svar" class="gaa-metode">Gå til beregningsmetoden</a><a href="#svar" class="gaa-varsel">Gå til varselet</a> <a href="#svar" class="gaa-beloep">Gå til beløpet</a></p>
             </div>
-            <p><label><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label></p>
+            <p><label class="kontroll"><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label></p>
             <div class="knapper"><span></span><a class="btn primary send-bh" href="#sendt" data-spor="M-2">Send til TE</a></div>
             <p class="muted" data-spor="D-5">Ingenting er sendt før du trykker «Send til TE». Går du tilbake, står utkastet som før.</p>
           </div>
         </div>
-      </div>
-    </div>
+    </main>
   </div>
+</div>
 </section>
 
 <!-- Skjerm E: kvitteringen (#sendt, #sendt-levert, #sendt-stanset) -->
 <section class="screen tilstand" data-tilstander="sendt sendt-levert sendt-stanset">
-  <div class="page">
-    <div class="casehead compact">
-      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
-      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er BH</span></div>
-    </div>
-    <div class="grid">
+  <div class="skall">
+  <aside class="panel" aria-label="Saken">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak"><p class="id num">E-021</p><h2>Tegningene til fundamentene kom for sent</h2></div>
+    <nav aria-label="Krav og svar">
+      <p class="etikett" aria-hidden="true">Krav og svar</p>
+      <ul class="spor">
+        <li><a href="#sendt"><span class="navn">Byggherrens medvirkning</span><span class="sist">Besvart i brev 2</span></a></li>
+        <li><a href="#sendt" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist">Siste: brev 5 fra BH</span></a></li>
+        <li><a href="#sendt"><span class="navn">Fristforlengelse</span><span class="sist">Ingen brev</span></a></li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="flate">
+    <header class="toppskall">
+      <div class="topplinje-inner">
+        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021</span></nav>
+        <details class="brukermeny">
+          <summary><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></summary>
+          <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#sendt">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
+        </details>
+      </div>
+    </header>
+    <main class="arbeid">
+      <div class="grid">
       <div class="stack">
         <div class="card">
           <div class="card-h"><h3>Brev 5 er sendt</h3></div>
@@ -255,33 +568,43 @@
             <p class="proto-valg">Prototypen: vis leveringen som <a href="#sendt">Vis ikke bekreftet</a><a href="#sendt-levert">Vis levert</a><a href="#sendt-stanset">Vis stanset</a> · <a href="#mottatt">Se svaret som TE</a></p>
           </div>
         </div>
-      </div>
-    </div>
+    </main>
   </div>
+</div>
 </section>
 
 <!-- Skjerm D: TE leser svaret og godtar det (#mottatt, #ta-stilling, #aksept-brev, #godtatt) -->
 <section class="screen tilstand" id="mottatt" data-tilstander="mottatt ta-stilling aksept-brev godtatt">
-  <div class="page">
-    <div class="casehead compact">
-      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
-      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er TE</span></div>
-    </div>
-    <div class="saksflate">
-      <nav class="casenav" aria-label="Saken">
-        <div class="cn-lbl">Spor</div>
-        <a class="cn"><b>Byggherrens medvirkning</b><small>Besvart i brev 2</small></a>
-        <a class="cn on" aria-current="page"><b>Vederlag</b><small>Siste: brev 5 fra BH</small></a>
-        <a class="cn"><b>Frist</b><small>Ingen brev</small></a>
-      </nav>
-      <div class="arbeid">
-        <div class="grid">
+  <div class="skall">
+  <aside class="panel" aria-label="Saken">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak"><p class="id num">E-021</p><h2>Tegningene til fundamentene kom for sent</h2></div>
+    <nav aria-label="Krav og svar">
+      <p class="etikett" aria-hidden="true">Krav og svar</p>
+      <ul class="spor">
+        <li><a href="#mottatt"><span class="navn">Byggherrens medvirkning</span><span class="sist">Besvart i brev 2</span></a></li>
+        <li><a href="#mottatt" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist">Siste: brev 5 fra BH</span></a></li>
+        <li><a href="#mottatt"><span class="navn">Fristforlengelse</span><span class="sist">Ingen brev</span></a></li>
+      </ul>
+    </nav>
+  </aside>
+  <div class="flate">
+    <header class="toppskall">
+      <div class="topplinje-inner">
+        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021</span></nav>
+        <details class="brukermeny">
+          <summary><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></summary>
+          <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#mottatt">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
+        </details>
+      </div>
+    </header>
+    <main class="arbeid">
+      <div class="grid">
           <div class="stack">
-            <div class="work-h"><div><h2>Vederlag</h2><small>2 brev · siste 8. okt 2026 fra BH</small></div></div>
             <div class="sentbar" data-spor="M-4"><span><b>Brev 5 · Svar på krav om vederlagsjustering</b> · BH · mottatt 8. okt 2026</span></div>
             <div class="a4" data-spor="M-4 · U-5 · D-1">
               <div class="lh">
-                <div class="org"><div><b>Byggherren</b><span>BH</span></div></div>
+                <div class="org"><b>Oslobygg KF</b><span>Byggherre (BH)</span></div>
                 <dl><dt>Brev</dt><dd>5, vederlag</dd><dt>Dato</dt><dd>8. oktober 2026</dd><dt>Til</dt><dd>Totalentreprenøren (TE)</dd></dl>
               </div>
               <h2>Svar på krav om vederlagsjustering</h2>
@@ -294,7 +617,7 @@
             </div>
           </div>
 
-          <div class="stack panel">
+          <div class="stack stoette">
             <div class="card" data-tilstander="mottatt ta-stilling">
               <div class="card-h"><h3>Svaret i brev 5</h3></div>
               <div class="card-b">
@@ -329,7 +652,7 @@
                   <p>Enigheten omfatter hele svaret, også at varselet kom for sent. Beløpet i enigheten, etter løsningens lesing: 0 kr.</p>
                 </div>
                 <div class="feil aksept-feil" role="alert" hidden><p>Kryss av for at du har kontrollert brevet før du sender det.</p></div>
-                <p><label><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label></p>
+                <p><label class="kontroll"><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label></p>
                 <div class="knapper"><a class="btn ghost" href="#ta-stilling">Tilbake</a><a class="btn primary send-te" href="#godtatt">Send til BH</a></div>
                 <p class="muted" data-spor="D-5">Ingenting er sendt før du trykker «Send til BH».</p>
               </div>
@@ -352,9 +675,9 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </main>
   </div>
+</div>
 </section>
 
 <script>
