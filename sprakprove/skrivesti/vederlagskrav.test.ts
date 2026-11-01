@@ -31,7 +31,7 @@ import { buildEventData, getDefaults } from '../../src/lib/domain/vederlagSubmis
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 
-const FORHOLD = grunnlagskrav({
+const PAABEROPELSE = grunnlagskrav({
   hovedkategori: 'ENDRING',
   underkategori: 'IRREG',
   datoer: { paalegg_mottatt: '2026-10-01' },
@@ -80,7 +80,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
 
   async function medPaaberopelse() {
     const sakId = await opprettKjernesak(o);
-    const { svar } = await send(sakId, FORHOLD);
+    const { svar } = await send(sakId, PAABEROPELSE);
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
     return sakId;
   }
@@ -136,7 +136,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
           belopDirekte: 250000,
           begrunnelse: '<p>Tilbudet gjelder <strong>ny</strong> fundamentering.</p>',
         },
-        { scenario: 'new', paaberopelseEventId: 'fra-tidslinjen' }
+        { scenario: 'new', grunnlagEventId: 'fra-tidslinjen' }
       ),
       vedlegg_ids: [],
     };
