@@ -1,5 +1,5 @@
 ---
-name: interface-design:design-review
+name: design-review
 description: Strict, multi-pass craft and visual-hierarchy review of a UI build, with severity scoring and an explicit approval bar. The design counterpart to a deep code-quality review.
 ---
 
@@ -104,6 +104,8 @@ Synthesize across lenses. Prioritize:
 5. Structural hacks and content incoherence
 
 For each finding give three things: **what defaulted**, **why it reads as generic/flat or costs the user**, and the **specific crafted fix** (the decision, not a patch). Tag each with its severity. When a render tool is available, end by showing the improved version beside the current one so the gap is *shown*, not narrated — reasoning stays in your text; the widget shows visuals only.
+
+**I dette repoet:** kjør «Siste sjekk» i skillen `uu-sjekk` på bygget, og ta funnene med i rapporten.
 
 Then state the verdict against the bar below.
 
