@@ -278,7 +278,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText('Gjelder hvis')).toBeNull();
   });
 
-  it('BF-04: over beløpet står avslaget av grunnlaget først og så innsigelsen om sen varsling, og hovedlinjene begynner på avslaget (#1400, S1-A og S2-A, OV-U32, OV-U33)', async () => {
+  it('BF-04: over beløpet står avslaget av forholdet først og så innsigelsen om sen varsling, og hovedlinjene begynner på avslaget (#1400, S1-A og S2-A, OV-U32, OV-U33, OV-U76)', async () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
@@ -299,7 +299,7 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    const AVSLAGET = 'avslaget av grunnlaget i brev 3 ikke fører frem';
+    const AVSLAGET = 'avslaget av forholdet i brev 3 ikke fører frem';
 
     // S1-A: et ubesvart varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende.
     expect(forutsetningene()).toEqual([AVSLAGET]);
@@ -318,12 +318,12 @@ describe('Varden med brukerforløpet BF-01', () => {
       screen.getByRole('region', { name: 'Hovedlinjene i svaret' })
     ).getAllByRole('listitem');
     expect(linjer[0].textContent!.replace(/\s+/g, ' ').trim()).toBe(
-      'prinsipalt Du har avslått grunnlaget i brev 3'
+      'prinsipalt Du har avslått forholdet i brev 3'
     );
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
   });
 
-  it('BF-04: over varselet står avslaget av grunnlaget, og over metoden står i tillegg innsigelsen om sen varsling etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31)', async () => {
+  it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om sen varsling etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
@@ -341,7 +341,7 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    const AVSLAGET = ['avslaget av grunnlaget i brev 3 ikke fører frem'];
+    const AVSLAGET = ['avslaget av forholdet i brev 3 ikke fører frem'];
     const VARSEL = 'Kom varselet om kravet i tide?';
     const METODE = /Godkjenner du det\?$/;
 
@@ -403,7 +403,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText('Skriv brev')).toBeNull();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
 
-    await fireEvent.click(panelet.getByRole('button', { name: /^Grunnlag/ }));
+    await fireEvent.click(panelet.getByRole('button', { name: /^Forholdet/ }));
     expect(screen.queryByRole('form')).toBeNull();
     expect(vederlag().textContent).toMatch(/Utkast/);
 

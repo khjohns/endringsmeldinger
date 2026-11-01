@@ -104,9 +104,9 @@ const ETIKETTER = (
 const VARDEN = arg.visning === 'varden';
 if (!punktet('bh-har-mottatt-vederlagskravet'))
   throw new Error(`${arg.forlop} har ikke kontrollpunktet bh-har-mottatt-vederlagskravet`);
-// Lagene foran beløpet, som er det siste laget: grunnlaget når BH har avslått det, og varselet.
+// Lagene foran beløpet, som er det siste laget: forholdet når BH har avslått det, og varselet.
 const FORUTSETNINGER = [
-  ...(punktet('grunnlaget-er-avslaatt') ? [/avslaget av grunnlaget/] : []),
+  ...(punktet('forholdet-er-avslaatt') ? [/avslaget av forholdet/] : []),
   /innsigelsen om sen varsling/,
 ];
 if (FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'prinsipalt' ? 1 : 0))
