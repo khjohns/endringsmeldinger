@@ -365,6 +365,7 @@
     "OV-U77",
     "OV-U78",
     "GR-U15",
+    "KT-U11",
     "GR-U22",
     "OV-U55",
     "OV-U57",
@@ -373,10 +374,12 @@
     "OV-U52",
     "GR-U31",
     "LV-U41",
+    "LV-U43",
     "LV-U35",
     "LV-U9",
     "KT-U3",
     "VS-U34",
+    "VS-U38",
     "OV-U5",
     "KT-U6",
     "OV-U79",
@@ -400,6 +403,11 @@
       "dato": "2026-11-01",
       "forhold": "#1477, #1427, #1065",
       "hva": "Forløpet er registrert som planlagt, med bestilling og skisse av skjemaet for ny sak."
+    },
+    {
+      "dato": "2026-11-01",
+      "forhold": "#1483, #1477",
+      "hva": "Kildene har vedtakene for S-2, S-3 og S-6 (LV-U43, KT-U11 og VS-U38). Skissen er versjon 3."
     }
   ]
 }

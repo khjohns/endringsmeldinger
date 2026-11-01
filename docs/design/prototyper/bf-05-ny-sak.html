@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ny sak i Varden</title>
 <!--
-  Skissen for BF-05 (docs/domenetabell/brukerforlop/BF-05.md), versjon 2. Tilstandene er
+  Skissen for BF-05 (docs/domenetabell/brukerforlop/BF-05.md), versjon 3. Tilstandene er
   ankrene #saksliste, #ny, #ny-feil, #annen-maate, #brev og #sendt. Ingenting sendes eller
   lagres. Fargene er Blekk (.tema-varden i src/lib/components/kontraktsbord/theme.css), og
   skallet er det samme som i saksliste.html og grunnlagsoversikt.html. Brevteksten etter
-  LV-U41, GR-U31, VS-U26 og LV-U35 står ordrett; resten er prototypetekst. Skissen dekker
-  forholdene der punkt 32.2 gjelder (S-7). Datoene er tekstfelt (dd.mm.åååå), så prototype.mjs
-  kan fylle dem, og «Lat som PDF-en er lastet opp» i demolinja står for opplastingen.
+  LV-U41 og LV-U43, GR-U31, VS-U26, VS-U38 og LV-U35 står ordrett; resten er
+  prototypetekst. Skissen dekker forholdene der punkt 32.2 gjelder (S-7). Datoene er
+  tekstfelt (dd.mm.åååå), så prototype.mjs kan fylle dem, og «Lat som PDF-en er lastet opp» i demolinja står for opplastingen.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -174,10 +174,9 @@ input:focus-visible,textarea:focus-visible{outline:none;border-color:var(--contr
 .merknad{color:var(--ink-2)}
 
 /* Sporbarheten */
-[data-spor],[data-foreslaatt]{position:relative}
+[data-spor]{position:relative}
 body.spor [data-spor]{outline:1px dashed var(--draft-border);outline-offset:3px}
 body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px;right:-4px;font:600 11px/1.6 var(--font-sans);padding:0 6px;border-radius:999px;background:var(--draft-bg);border:1px solid var(--draft-border);color:var(--draft);white-space:nowrap;z-index:3}
-body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt) ")";position:absolute;top:-10px;left:-4px;font:600 11px/1.6 var(--font-sans);padding:0 6px;border-radius:999px;background:var(--surface);border:1px dashed var(--draft-border);color:var(--draft);white-space:nowrap;z-index:3}
 
 @media (max-width:900px){
   .skall{grid-template-columns:minmax(0,1fr)}
@@ -206,7 +205,7 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
 
   <div class="flate">
     <div class="demolinje"><div class="inner">
-      <span><b>Prototype · BF-05 · versjon 2 · 01.11.2026</b> · Ingenting sendes eller lagres.</span>
+      <span><b>Prototype · BF-05 · versjon 3 · 01.11.2026</b> · Ingenting sendes eller lagres.</span>
       <span><label><input type="checkbox" id="demo-pdf"> Lat som PDF-en er lastet opp</label> · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#saksliste" id="start-paa-nytt">Start på nytt</a></span>
     </div></div>
     <header class="topplinje"><div class="inner">
@@ -252,7 +251,7 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
             <div class="oppsummering" id="ny-feil" data-vis="ny-feil" tabindex="-1" role="group" aria-labelledby="feil-tittel" data-spor="U-5 · D-2">
               <h2 id="feil-tittel">Det mangler noe før du kan se brevet</h2>
               <ul id="feil-liste"></ul>
-              <p data-spor="S-3" data-foreslaatt="S-3">Ingen sak er opprettet ennå.</p>
+              <p data-spor="D-2">Ingen sak er opprettet ennå.</p>
             </div>
 
             <fieldset id="felt-forhold" data-spor="U-2 · D-1 · U-5">
@@ -275,11 +274,11 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
               <div class="gruppe">
                 <label class="valg"><input type="radio" name="forhold" value="force_majeure" data-punkt="33.3"> Force majeure <span class="h">pkt. 33.3</span></label>
               </div>
-              <p class="fast" id="forhold-merknad" data-spor="S-7" data-foreslaatt="S-7" tabindex="-1" hidden><span><b>Dette forholdet er ikke med i skissen (S-7).</b></span></p>
+              <p class="fast" id="forhold-merknad" data-spor="S-7" tabindex="-1" hidden><span><b>Dette forholdet er ikke med i skissen (S-7).</b></span></p>
               <p class="fast" data-spor="U-3 · D-3"><span><b>Forholdet står fast når brevet er sendt.</b> Vil du påberope et annet forhold senere, oppretter du en ny sak.</span></p>
             </fieldset>
 
-            <div class="felt" id="felt-tittel" data-spor="G-3 · U-5" data-foreslaatt="S-2">
+            <div class="felt" id="felt-tittel" data-spor="G-3 · U-5">
               <label for="tittel">Tittel på saken</label>
               <span class="hjelp" id="tittel-hjelp">Står i sakslisten og i brevet.</span>
               <input type="text" id="tittel" aria-describedby="tittel-hjelp" aria-required="true">
@@ -297,13 +296,13 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
               <input type="text" id="mottatt" inputmode="numeric" autocomplete="off" aria-describedby="mottatt-hjelp" aria-required="true">
             </div>
 
-            <div class="felt" data-spor="M-2 · S-5" data-foreslaatt="S-5">
+            <div class="felt" data-spor="M-2">
               <label for="vedlegg">Vedlegg (valgfritt)</label>
               <span class="hjelp" id="vedlegg-hjelp">For eksempel pålegget selv, en tegning eller et referat.</span>
               <input type="file" id="vedlegg" multiple aria-describedby="vedlegg-hjelp">
             </div>
 
-            <fieldset class="ja-nei-sett" data-spor="D-8 · S-4" data-foreslaatt="S-4">
+            <fieldset class="ja-nei-sett" data-spor="D-8">
               <legend>Har du allerede varslet BH etter punkt 32.2, på annen måte, at pålegget er en endring?</legend>
               <div class="ja-nei" style="display:flex">
                 <label class="valg"><input type="radio" name="annen" value="nei" checked> Nei</label>
@@ -311,7 +310,7 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
               </div>
             </fieldset>
 
-            <div class="innrykk" id="annen-maate" data-spor="D-8 · G-2" data-foreslaatt="S-6" tabindex="-1">
+            <div class="innrykk" id="annen-maate" data-spor="D-8 · G-2" tabindex="-1">
               <fieldset id="felt-type">
                 <legend>Hva legger du til?</legend>
                 <label class="valg"><input type="radio" name="type" id="type-foerste" value="brev"> Brev</label>
@@ -346,7 +345,7 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
 
             <div class="knapper">
               <a class="knapp primaer" href="#brev" id="se-brevet">Se brevet</a>
-              <button class="lenke" type="button" id="avbryt" style="background:none;border:0;padding:0;cursor:pointer" aria-expanded="false" aria-controls="avbryt-spoersmaal" data-spor="G-6 · S-3">Avbryt</button>
+              <button class="lenke" type="button" id="avbryt" style="background:none;border:0;padding:0;cursor:pointer" aria-expanded="false" aria-controls="avbryt-spoersmaal" data-spor="G-6 · D-2">Avbryt</button>
             </div>
             <div class="tips" id="avbryt-spoersmaal" hidden>
               <p>Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes.</p>
@@ -372,27 +371,27 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
               <dt>Fra</dt><dd>Totalentreprenør AS</dd>
               <dt>Til</dt><dd>Oslobygg KF</dd>
               <dt>Dato</dt><dd>1. oktober 2026</dd>
-              <dt>Sak</dt><dd><span data-spor="S-3" data-foreslaatt="S-3">E-032 (tildeles ved sending)</span></dd>
+              <dt>Sak</dt><dd><span data-spor="D-2">E-032 (tildeles ved sending)</span></dd>
               <dt>Brev</dt><dd><span data-spor="D-5">1 · første versjon av påberopelsen</span></dd>
             </dl>
             <h2 data-spor="D-6">Påberopelse av <span class="kopi-forhold"></span></h2>
-            <p data-spor="D-6 · G-3" data-foreslaatt="S-2">Totalentreprenøren krever endringsordre for «<span class="kopi-tittel"></span>» i sak E-032 som <span class="kopi-forhold"></span> (NS 8407 punkt <span class="kopi-punkt"></span>).</p>
+            <p data-spor="D-6 · G-3">Totalentreprenøren krever endringsordre for «<span class="kopi-tittel"></span>» i sak E-032 som <span class="kopi-forhold"></span> (NS 8407 punkt <span class="kopi-punkt"></span>).</p>
             <p data-spor="D-6">Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring.</p>
             <p data-spor="D-4">Totalentreprenøren opplyser at pålegget ble mottatt <span class="kopi-mottatt"></span>.</p>
-            <p class="kun-annen" data-spor="D-8" data-foreslaatt="S-6">Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 ble sendt i totalentreprenørens <span class="kopi-type"></span> av <span class="kopi-varseldato"></span>, som er vedlagt.</p>
+            <p class="kun-annen" data-spor="D-8">Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 ble sendt i totalentreprenørens <span class="kopi-type"></span> av <span class="kopi-varseldato"></span>, som er vedlagt.</p>
             <h3>Beskrivelse av pålegget</h3>
             <p class="fritekst kopi-beskrivelse" data-spor="D-2"></p>
             <h3>Vedlegg</h3>
-            <ul class="kopi-vedlegg" data-spor="S-5 · S-6" data-foreslaatt="S-5" style="margin:0;padding-left:20px"></ul>
+            <ul class="kopi-vedlegg" data-spor="M-2 · D-8" style="margin:0;padding-left:20px"></ul>
           </article>
           <div class="sendes">
-            <p class="merknad kun-annen" data-spor="D-8" data-foreslaatt="S-6">Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.</p>
+            <p class="merknad kun-annen" data-spor="D-8">Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.</p>
             <label class="kryss"><input type="checkbox" id="kontrollert" aria-describedby="kontrollert-feil"> Jeg har kontrollert brevet.</label>
             <p class="feilmelding" id="kontrollert-feil" hidden>Kryss av for at du har kontrollert brevet før du sender.</p>
             <div class="knapper" data-spor="D-7">
               <a class="knapp primaer" href="#sendt" id="send">Send til BH</a>
               <a class="knapp sekundaer" href="#ny" id="tilbake" data-spor="U-6 · G-6">Tilbake</a>
-              <a class="lenke" href="#saksliste" id="avbryt-brev" aria-describedby="avbryt-brev-hjelp" data-spor="G-6 · S-3">Avbryt</a>
+              <a class="lenke" href="#saksliste" id="avbryt-brev" aria-describedby="avbryt-brev-hjelp" data-spor="G-6 · D-2">Avbryt</a>
             </div>
             <p class="merknad" id="avbryt-brev-hjelp">Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes.</p>
           </div>

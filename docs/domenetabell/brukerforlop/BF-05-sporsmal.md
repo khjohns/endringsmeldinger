@@ -46,6 +46,8 @@ gjort opprettelsen tyngre for brukeren, er antakelser, ikke prøvd.
 **Valget styrer** hvor mye av skjemaet for ny sak som bygges først, og om saken trenger en
 henvisning til en annen sak fra start.
 
+**Ført:** svar A 01.11, arbeidsvalg i [avgrensningen](BF-05.md#avgrensningen).
+
 ## S-2. Skriver totalentreprenøren én eller to titler når saken opprettes?
 
 **Bakgrunn.** Første setning i brevet er etter [LV-U41](../../plans/vedtak.md#lv-u41):
@@ -70,6 +72,8 @@ titler når saken opprettes.
 forvirrer brukeren, er en antakelse.
 
 **Valget styrer** feltene i skjemaet for ny sak og første setning i brevet.
+
+**Ført:** svar A 01.11, [LV-U43](../../plans/vedtak.md#lv-u43).
 
 ## S-3. Opprettes saken først når påberopelsen sendes?
 
@@ -104,6 +108,8 @@ antakelse.
 rette. Med A må saksnummeret være kjent i brevkontrollen før saken finnes, eller saken må
 opprettes og påberopelsen sendes samlet. Det er en teknisk følge som byggingen løser.
 
+**Ført:** svar A 01.11, [KT-U11](../../plans/vedtak.md#kt-u11).
+
 ## S-4. Tas varselet sendt på annen måte med i det første forløpet?
 
 **Bakgrunn.** [VS-U34](../../plans/vedtak.md#vs-u34) sier: «Velger totalentreprenøren i
@@ -131,6 +137,8 @@ begynne med et varsel sendt før saken finnes i løsningen, er en antakelse.
 **Valget styrer** om det første forløpet trenger korrespondansen (#807), varseldatoen for
 punkt 32.2 og vedlegg (S-5) før det kan bygges.
 
+**Ført:** svar A 01.11 med vilkåret at totalentreprenøren registrerer brevet med varselet, arbeidsvalg i D-8 i [bestillingen](BF-05.md#domeneforventningene).
+
 ## S-5. Tas vedlegg til påberopelsen med i det første forløpet?
 
 **Bakgrunn.** Påberopelsen skal beskrive pålegget ([GR-U15](../../plans/vedtak.md#gr-u15)),
@@ -148,6 +156,8 @@ og byggherrens endringsordre viser til beskrivelsen som hva endringen går ut p�
 
 **Valget styrer** om #1037 er en del av det første forløpet. Velges A i S-4, trengs
 vedlegget uansett, fordi varselet legges til som korrespondanse.
+
+**Ført:** svar A 01.11, arbeidsvalg i [bestillingen](BF-05.md#gjennomføringen) (#1037).
 
 ## S-6. Hvordan nevner påberopelsen et varsel sendt på annen måte?
 
@@ -169,6 +179,8 @@ totalentreprenøren varsler i dag.
 varsel, og byggherren ser det tidligere varselet i samme brev.
 
 **Valget styrer** brevteksten i påberopelsen.
+
+**Ført:** besvart med versjon 3 under.
 
 ## S-6, versjon 3
 
@@ -195,6 +207,8 @@ ved påberopelsen. Forhold: presiserer VS-U34 og GR-U31. Følger
 
 Prøvd mot vedtakene 01.11 av en subagent. Utkastet før prøvingen viste til brevets nummer,
 som LV-U42 har forkastet for korrespondanse, og manglet vilkårene i OV-U79, OV-U80 og OV-U11.
+
+**Ført:** godkjent 01.11, [VS-U38](../../plans/vedtak.md#vs-u38).
 
 ## S-7. Utgått 01.11: arbeidsvalg
 
@@ -223,3 +237,10 @@ Orkestratorens lesning: S-1, S-2, S-3 og S-5 får A. S-4 får A med vilkåret at
 brevet med varselet, slik prototypene fra siste designrunde viser registreringen. S-6 får
 verken A eller B ordrett. Påberopelsen viser til det registrerte brevet som vedlegg (S-6,
 versjon 3). S-3 endrer avgjørelsen 16.10 i #666 og føres som vedtak av orkestratoren.
+
+Oppdragsgiver 01.11 om S-6 versjon 3, gjennom orkestratoren, ordrett:
+
+> «Godkjenner teksten for spørsmål 6»
+
+Vedtakene er ført i vedtaksregisteret (#1483): S-2 som LV-U43, S-3 som KT-U11 og S-6
+versjon 3 som VS-U38.
