@@ -340,6 +340,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .registrer{padding:0 20px 20px 68px;display:flex;flex-direction:column;align-items:flex-start}
 .reg-hjelp{font-size:14px;color:var(--ink-2)}
 #reg-kanal[hidden]{display:none}
+.reg-skjema .reg-under{margin-left:24px;padding-left:12px;border-left:2px solid var(--rule-strong-color)}
+.reg-under[hidden],.reg-motpart[hidden],#reg-kategori label[hidden]{display:none}
+.reg-neste{font-size:14px;color:var(--ink-2)}
+
 .reg-skjema{margin-top:8px;padding:20px;border:1px solid var(--rule-strong-color);border-radius:var(--r-kort);display:flex;flex-direction:column;gap:18px;max-width:560px}
 .reg-skjema[hidden]{display:none}
 .reg-skjema h3{font-size:16px;font-weight:600}
@@ -644,8 +648,8 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <label><input type="radio" name="type" value="notat"> Notat eller annet dokument</label>
                 </fieldset>
                 <fieldset><legend>Hvem sendte det?</legend>
-                  <label><input type="radio" name="avsender" checked> Totalentreprenøren</label>
-                  <label><input type="radio" name="avsender"> Byggherren</label>
+                  <label><input type="radio" name="avsender" value="TE" checked> Totalentreprenøren</label>
+                  <label><input type="radio" name="avsender" value="BH"> Byggherren</label>
                 </fieldset>
                 <div class="felt"><label for="reg-dato">Datoen det ble sendt</label><span class="hjelp">Datoen avsenderen oppgir.</span><input id="reg-dato" type="date" aria-required="true"></div>
                 <fieldset id="reg-kanal"><legend>Hvordan ble brevet sendt?</legend>
@@ -660,8 +664,24 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <label><input type="checkbox"> Fristforlengelse</label>
                 </fieldset>
                 <div class="felt"><label for="reg-fil">Dokumentet</label><span class="hjelp">Last opp det som ble sendt, som PDF. En e-post lagres som PDF.</span><input id="reg-fil" type="file" accept="application/pdf" aria-required="true"></div>
+                <fieldset id="reg-kategori"><legend>Hva er det etter kontrakten?</legend>
+                  <span class="hjelp reg-motpart" hidden>Du legger til noe motparten har sendt. Det står som dokumentasjon til avsenderen selv sier hva det er.</span>
+                  <label><input type="radio" name="kategori" value="dok" checked> Dokumentasjon, for eksempel en avklaring</label>
+                  <label class="kun-avsender"><input type="radio" name="kategori" value="varsel"> Et varsel</label>
+                  <label class="kun-avsender kun-te-avsender"><input type="radio" name="kategori" value="krav"> Et krav</label>
+                  <label class="kun-avsender kun-bh-avsender"><input type="radio" name="kategori" value="svar"> Et svar</label>
+                </fieldset>
+                <fieldset class="reg-under" id="reg-varsel" hidden><legend>Hvilket varsel?</legend>
+                  <span class="hjelp">Datoen over blir datoen for varselet.</span>
+                  <label class="fs f-endring"><input type="radio" name="varsel" checked> Varsel om irregulær endring (punkt&nbsp;32.2)</label>
+                  <label><input type="radio" name="varsel"> Varsel om fristforlengelse (punkt&nbsp;33.4)</label>
+                  <label><input type="radio" name="varsel"> Varsel om vederlagsjustering (punkt&nbsp;34.1.2)</label>
+                  <label><input type="radio" name="varsel"> Særskilt varsel (punkt&nbsp;34.1.3)</label>
+                </fieldset>
+                <p class="reg-under reg-neste" id="reg-krav" hidden>Når du har lagt til brevet, åpnes kravskjemaet. Det viser til dette brevet, og du fyller det ut nå, så byggherren kan svare på kravet.</p>
+                <p class="reg-under reg-neste" id="reg-svar" hidden>Når du har lagt til brevet, åpnes svarskjemaet. Det viser til dette brevet, og du fyller det ut nå. Har byggherren svart med en endringsordre, velger du det i svaret.</p>
                 <div class="felt"><label for="reg-merknad">Merknad (valgfritt)</label><textarea id="reg-merknad" rows="3"></textarea></div>
-                <div class="reg-knapper"><button class="knapp primaer" type="submit">Legg til</button><button class="knapp sekundaer" type="button" id="reg-avbryt">Avbryt</button></div>
+                <div class="reg-knapper"><button class="knapp primaer" type="submit" id="reg-send">Legg til</button><button class="knapp sekundaer" type="button" id="reg-avbryt">Avbryt</button></div>
               </form>
             </div>
           </section>
@@ -855,6 +875,23 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   const ra = document.getElementById('reg-aapne'), rs = document.getElementById('reg-skjema');
   ra.addEventListener('click', () => { rs.hidden = false; ra.setAttribute('aria-expanded', 'true'); rs.querySelector('input').focus(); });
   document.querySelectorAll('#reg-type input').forEach(i => i.addEventListener('change', () => { document.getElementById('reg-kanal').hidden = i.value !== 'brev'; }));
+  function oppdaterReg(){
+    const avsender = rs.querySelector('input[name="avsender"]:checked').value;
+    const egen = avsender === skall.dataset.rolle;
+    rs.querySelector('.reg-motpart').hidden = egen;
+    rs.querySelectorAll('#reg-kategori .kun-avsender').forEach(l => {
+      const vis = egen && (!l.classList.contains('kun-te-avsender') || avsender === 'TE') && (!l.classList.contains('kun-bh-avsender') || avsender === 'BH');
+      l.hidden = !vis; if (!vis) l.querySelector('input').checked = false;
+    });
+    if (!rs.querySelector('input[name="kategori"]:checked')) rs.querySelector('input[name="kategori"][value="dok"]').checked = true;
+    const k = rs.querySelector('input[name="kategori"]:checked').value;
+    document.getElementById('reg-varsel').hidden = k !== 'varsel';
+    document.getElementById('reg-krav').hidden = k !== 'krav';
+    document.getElementById('reg-svar').hidden = k !== 'svar';
+    document.getElementById('reg-send').textContent = k === 'krav' ? 'Legg til og fyll ut kravet' : k === 'svar' ? 'Legg til og fyll ut svaret' : 'Legg til';
+  }
+  rs.addEventListener('change', oppdaterReg);
+  ra.addEventListener('click', oppdaterReg);
   document.getElementById('reg-avbryt').addEventListener('click', () => { rs.hidden = true; ra.setAttribute('aria-expanded', 'false'); ra.focus(); });
   document.querySelectorAll('.apne-valg').forEach(b => b.addEventListener('click', () => {
     const v = document.getElementById('valg-avslag'); const aapen = v.hidden;
