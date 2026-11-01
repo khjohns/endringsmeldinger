@@ -423,10 +423,17 @@ def test_leseren_melder_det_den_ikke_kan_lese(folge, ulest):
 
 
 def test_verktoyet_skriver_ikke_forholdene_i_en_importert_post(register):
-    """#423: forholdet står allerede i Følge, så raden blir lik byte for byte."""
-    ka_u20 = _post(register, "ka-u20")
-    assert ka_u20["forhold"]
-    assert vr.folgecelle(ka_u20, register) == vr.linje(ka_u20["folge"])
+    """#423: forholdet står allerede i Følge, så raden blir lik byte for byte.
+
+    Posten er en importert post med forhold som ingen ny post har forhold til; KA-U20
+    fikk et senere forhold 01.11 (OV-U79)."""
+    _, senere = vr.indeks(register)
+    importert = next(
+        p
+        for p in vr.poster(register)
+        if not vr.er_ny(p) and p.get("forhold") and vr.anker(p) not in senere
+    )
+    assert vr.folgecelle(importert, register) == vr.linje(importert["folge"])
 
 
 @pytest.mark.parametrize(
