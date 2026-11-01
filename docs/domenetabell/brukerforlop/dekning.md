@@ -103,3 +103,4 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U35](../../plans/vedtak.md#vs-u35) | — | — | BF-03 |
 | [VS-U37](../../plans/vedtak.md#vs-u37) | — | — | BF-05 |
 | [VS-U38](../../plans/vedtak.md#vs-u38) | — | — | BF-05 |
+| [VS-U39](../../plans/vedtak.md#vs-u39) | — | — | BF-05 |
