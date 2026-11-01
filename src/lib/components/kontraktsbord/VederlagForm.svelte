@@ -828,7 +828,7 @@
           </div>
         {/if}
         <div class="virkning" role="note">
-          <p>{VIRKNING.alltid}</p>
+          <p>{VIRKNING.alltid} {VIRKNING.tolkes}</p>
           {#if kjernelag?.sammenfall}<p>{VIRKNING.sammenfall}</p>{/if}
           {#if grunnlaget?.forbehold}<p>{VIRKNING.forbehold}</p>{/if}
         </div>

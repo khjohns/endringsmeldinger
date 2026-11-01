@@ -170,7 +170,7 @@ export const SKJEMA = {
   belopEtikett: 'Beløpet du godtar',
   belopHjelp: (krevd: number) => `Mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
   begrunnelse: 'Begrunnelse',
-  begrunnelseHjelp: 'Kommer i brevet under standpunktene. Begrunnelsen tolkes ikke.',
+  begrunnelseHjelp: 'Kommer i brevet under standpunktene.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerMetode: 'Velg om du godtar beregningsmetoden.',
