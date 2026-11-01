@@ -338,6 +338,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .liten-knapp:hover{background:var(--surface-inset)}
 .melding{display:flex;gap:10px;padding:12px 14px;border:1px solid var(--ink);border-radius:6px;background:var(--surface-inset);color:var(--ink-2)}
 .melding svg{flex:none;margin-top:2px}
+
+.merke-reg{display:inline-block;margin-left:6px;font-size:12px;font-weight:600;border:1px solid var(--rule-strong-color);border-radius:999px;padding:0 8px;vertical-align:1px}
+.legg-til{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:4px 20px 16px;border-top:1px solid var(--rule-subtle-color)}
+.legg-til span{font-size:14px;color:var(--ink-2)}
 </style>
 </head>
 <body>
@@ -452,12 +456,14 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <div class="kort-hode" style="padding-bottom:8px"><h2 id="brev-tittel">Brevene</h2><span class="kilde"><span class="uten-forsering">2 brev</span><span class="kun-forsering">3 brev</span></span></div>
             <ul class="brevliste">
               <span class="kun-forsering"><li><span class="nr">Brev 8</span><span class="t">Forsering: avslaget anses som pålegg om forsering<span class="m">TE · 30. oktober 2026 · i forseringssak F-004 · punkt 33.8</span></span><button class="lenke" type="button">Les</button>
-                <span class="filer"><a class="fil" href="#" aria-label="Forseringsplan og kostnadsanslag.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Forseringsplan og kostnadsanslag.pdf</span><span class="fm">PDF · 520 kB</span></a></span></li></span>
+                <span class="filer"><a class="fil" href="#" aria-label="Forseringsplan og kostnadsanslag.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Forseringsplan og kostnadsanslag.pdf</span><span class="fm">PDF · 520 kB</span></a></span></li>
+              <li><span class="nr">E-post</span><span class="t">E-post fra byggherren <span class="merke-reg">Registrert</span><span class="m">Sendt 22. oktober 2026 som e-post, ifølge byggherren · lagt til av Ola Nordmann 23. oktober</span></span><button class="lenke" type="button">Les</button><span class="filer"><a class="fil" href="#" aria-label="Avklaring om mengdene i akse C–F.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></li></span>
               <li><span class="nr">Brev 7</span><span class="t">Svar på krav om fristforlengelse<span class="m">BH · 29. oktober 2026 · Kari Nordmann, godkjent med fullmakt</span></span><button class="lenke" type="button">Les</button>
                 <span class="filer"><a class="fil" href="#" aria-label="Fremdriftsanalyse BH.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Fremdriftsanalyse BH.pdf</span><span class="fm">PDF · 610 kB</span></a></span></li>
               <li><span class="nr">Brev 4</span><span class="t">Krav om fristforlengelse<span class="m">TE · 13. oktober 2026 · varsel etter punkt 33.4 og spesifisert krav</span></span><button class="lenke" type="button">Les</button>
                 <span class="filer"><a class="fil" href="#" aria-label="Fremdriftsplan rev. C.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Fremdriftsplan rev. C.pdf</span><span class="fm">PDF · 880 kB</span></a><a class="fil" href="#" aria-label="Hindringsanalyse peling.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Hindringsanalyse peling.pdf</span><span class="fm">PDF · 1,4 MB</span></a></span></li>
             </ul>
+            <div class="legg-til"><button class="lenke" type="button">Legg til korrespondanse</button><span>Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span></div>
           </section>
         </div>
 
@@ -508,7 +514,6 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <li><button type="button"><span class="h">Send nytt svar</span><span class="b">Erstatter svaret i brev 7. Brev 7 står som det ble sendt.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li><button type="button"><span class="h">Svar på varselet om forholdet</span><span class="b">Svaret i brev 7 er gitt under forutsetning av at forholdet gir rett til kravet.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li><button type="button"><span class="h">Skriv innlegg</span><span class="b">Fritekst i saken med henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li><button type="button"><span class="h">Registrer et brev sendt på annen måte</span><span class="b">Vises som dokumentasjon.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
             </div>

@@ -337,7 +337,9 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .valg[hidden]{display:none}
 /* Registrerte brev og registreringen */
 .merke-reg{display:inline-block;margin-left:6px;font-size:12px;font-weight:600;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:0 8px;vertical-align:2px}
-.registrer{padding:0 20px 20px 68px}
+.registrer{padding:0 20px 20px 68px;display:flex;flex-direction:column;align-items:flex-start}
+.reg-hjelp{font-size:14px;color:var(--ink-2)}
+#reg-kanal[hidden]{display:none}
 .reg-skjema{margin-top:8px;padding:20px;border:1px solid var(--rule-strong-color);border-radius:var(--r-kort);display:flex;flex-direction:column;gap:18px;max-width:560px}
 .reg-skjema[hidden]{display:none}
 .reg-skjema h3{font-size:16px;font-weight:600}
@@ -581,7 +583,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <div class="innlegg-hode">
                   <h2 class="innlegg-tittel">Brev fra byggherren <span class="merke-reg">Registrert</span></h2>
                   <a class="lenke" href="#">Åpne brevet</a>
-                  <p class="innlegg-meta">Sendt 14. oktober 2026 som PDF i e-post, ifølge byggherren · registrert av Ola Nordmann 15. oktober</p>
+                  <p class="innlegg-meta">Sendt 14. oktober 2026 som PDF i e-post, ifølge byggherren · lagt til av Ola Nordmann 15. oktober</p>
                 </div>
                 <span class="filer"><a class="fil" href="#" aria-label="Foreløpig tilbakemelding om pålegget.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Foreløpig tilbakemelding om pålegget.pdf</span><span class="fm">PDF · 210 kB</span></a></span>
               </li>
@@ -626,29 +628,34 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               </li>
             </ol>
             <div class="registrer">
-              <button class="lenke" type="button" id="reg-aapne" aria-expanded="false" aria-controls="reg-skjema">Registrer et brev sendt på annen måte</button>
+              <button class="lenke" type="button" id="reg-aapne" aria-expanded="false" aria-controls="reg-skjema">Legg til korrespondanse</button><span class="reg-hjelp">Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span>
               <form class="reg-skjema" id="reg-skjema" hidden onsubmit="return false">
-                <h3>Registrer et brev sendt på annen måte</h3>
-                <fieldset><legend>Hvem sendte brevet?</legend>
+                <h3>Legg til korrespondanse</h3>
+                <fieldset id="reg-type"><legend>Hva legger du til?</legend>
+                  <label><input type="radio" name="type" value="brev" checked> Brev</label>
+                  <label><input type="radio" name="type" value="epost"> E-post</label>
+                  <label><input type="radio" name="type" value="referat"> Møtereferat</label>
+                  <label><input type="radio" name="type" value="notat"> Notat eller annet dokument</label>
+                </fieldset>
+                <fieldset><legend>Hvem sendte det?</legend>
                   <label><input type="radio" name="avsender" checked> Totalentreprenøren</label>
                   <label><input type="radio" name="avsender"> Byggherren</label>
                 </fieldset>
-                <div class="felt"><label for="reg-dato">Datoen brevet ble sendt</label><span class="hjelp">Datoen avsenderen oppgir.</span><input id="reg-dato" type="date" aria-required="true"></div>
-                <fieldset><legend>Sendt som</legend>
+                <div class="felt"><label for="reg-dato">Datoen det ble sendt</label><span class="hjelp">Datoen avsenderen oppgir.</span><input id="reg-dato" type="date" aria-required="true"></div>
+                <fieldset id="reg-kanal"><legend>Hvordan ble brevet sendt?</legend>
                   <label><input type="radio" name="kanal"> Brev per post</label>
                   <label><input type="radio" name="kanal" checked> PDF i e-post</label>
                   <label><input type="radio" name="kanal"> I prosjekthotellet</label>
-                  <label><input type="radio" name="kanal"> I referat fra byggherremøte</label>
-                  <label><input type="radio" name="kanal"> På annen måte</label>
+                                    <label><input type="radio" name="kanal"> På annen måte</label>
                 </fieldset>
                 <fieldset><legend>Gjelder</legend>
                   <label><input type="checkbox" checked> Forholdet</label>
                   <label><input type="checkbox"> Vederlagsjustering</label>
                   <label><input type="checkbox"> Fristforlengelse</label>
                 </fieldset>
-                <div class="felt"><label for="reg-fil">Brevet</label><span class="hjelp">Last opp brevet slik det ble sendt, som PDF.</span><input id="reg-fil" type="file" accept="application/pdf" aria-required="true"></div>
+                <div class="felt"><label for="reg-fil">Dokumentet</label><span class="hjelp">Last opp det som ble sendt, som PDF. En e-post lagres som PDF.</span><input id="reg-fil" type="file" accept="application/pdf" aria-required="true"></div>
                 <div class="felt"><label for="reg-merknad">Merknad (valgfritt)</label><textarea id="reg-merknad" rows="3"></textarea></div>
-                <div class="reg-knapper"><button class="knapp primaer" type="submit">Registrer brevet</button><button class="knapp sekundaer" type="button" id="reg-avbryt">Avbryt</button></div>
+                <div class="reg-knapper"><button class="knapp primaer" type="submit">Legg til</button><button class="knapp sekundaer" type="button" id="reg-avbryt">Avbryt</button></div>
               </form>
             </div>
           </section>
@@ -841,6 +848,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   addEventListener('hashchange', lesAnker);
   const ra = document.getElementById('reg-aapne'), rs = document.getElementById('reg-skjema');
   ra.addEventListener('click', () => { rs.hidden = false; ra.setAttribute('aria-expanded', 'true'); rs.querySelector('input').focus(); });
+  document.querySelectorAll('#reg-type input').forEach(i => i.addEventListener('change', () => { document.getElementById('reg-kanal').hidden = i.value !== 'brev'; }));
   document.getElementById('reg-avbryt').addEventListener('click', () => { rs.hidden = true; ra.setAttribute('aria-expanded', 'false'); ra.focus(); });
   document.querySelectorAll('.apne-valg').forEach(b => b.addEventListener('click', () => {
     const v = document.getElementById('valg-avslag'); const aapen = v.hidden;
