@@ -12,11 +12,15 @@
   let aapen = $state(false);
   let knappen = $state<HTMLButtonElement | null>(null);
   let tipset = $state<HTMLElement | null>(null);
+  let rot = $state<HTMLElement | null>(null);
   let forskyvning = $state(0);
 
   // Tipset står under knappen og flyttes til venstre når det ellers går utenfor vinduet.
   async function veksle() {
     aapen = !aapen;
+    await plasser();
+  }
+  async function plasser() {
     forskyvning = 0;
     if (!aapen) return;
     await tick();
@@ -36,9 +40,18 @@
   }
 </script>
 
+<!-- Et klikk utenfor lukker, også der knappen ikke får fokus av et klikk (Safari). -->
+<svelte:window
+  onpointerdown={(e) => {
+    if (aapen && !rot?.contains(e.target as Node)) aapen = false;
+  }}
+  onresize={plasser}
+/>
+
 <span
   class="infotips"
   role="presentation"
+  bind:this={rot}
   onkeydown={tast}
   onfocusout={(e) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node | null)) aapen = false;

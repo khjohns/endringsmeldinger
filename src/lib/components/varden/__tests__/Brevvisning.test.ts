@@ -61,4 +61,16 @@ describe('Infotipset', () => {
     expect(knapp.getAttribute('aria-expanded')).toBe('false');
     expect(document.activeElement).toBe(knapp);
   });
+
+  it('lukkes av et klikk utenfor, også når knappen ikke fikk fokus av klikket (Safari)', async () => {
+    render(Infotips, { navn: 'Om brevet', tekst: 'Teksten kan ikke endres her.' });
+    const knapp = screen.getByRole('button', { name: 'Om brevet' });
+    await fireEvent.click(knapp);
+    expect(knapp.getAttribute('aria-expanded')).toBe('true');
+
+    await fireEvent.pointerDown(screen.getByRole('note'));
+    expect(knapp.getAttribute('aria-expanded')).toBe('true');
+    await fireEvent.pointerDown(document.body);
+    expect(knapp.getAttribute('aria-expanded')).toBe('false');
+  });
 });

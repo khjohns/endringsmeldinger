@@ -339,7 +339,9 @@
     >
   </div>
   {#if sendehindring}
-    <Melding art="feil" id={`${uid}-hindring`} tabindex="-1">{sendehindring}</Melding>
+    <Melding art="feil" levende={false} id={`${uid}-hindring`} tabindex="-1"
+      >{sendehindring}</Melding
+    >
   {/if}
 {/snippet}
 

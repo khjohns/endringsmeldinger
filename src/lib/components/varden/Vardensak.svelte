@@ -56,7 +56,8 @@
   });
   settOrganisasjoner(() => {
     const k = kontrakt ?? fraProsjektet;
-    return { BH: k.byggherre, TE: k.entreprenoer };
+    // Et tomt navn er ikke et navn (#1398), som i kontraktsradene.
+    return { BH: k.byggherre || undefined, TE: k.entreprenoer || undefined };
   });
   // Et navn som mangler, står ikke der (#1398).
   const kontraktsrader = $derived.by(() => {
