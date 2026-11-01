@@ -1,0 +1,43 @@
+{
+  "id": "BF-05",
+  "tittel": "TE oppretter saken og påberoper forholdet",
+  "brukerhistorie": "TE har fått et pålegg som TE mener er en irregulær endring. TE velger «Nytt krav om endringsordre», velger forholdet, skriver tittelen på saken og beskrivelsen av pålegget, oppgir datoen pålegget ble mottatt og kontrollerer brevet før det sendes, så kravet ikke tapes for sent varsel etter punkt 32.2. Før sending ser TE at forholdet står fast og at datoen kan rettes senere i et eget brev. Etter sendingen står saken med påberopelsen sendt og venter på BHs svar.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Et prosjekt med kontrakt etter NS 8407. TE er innlogget med kontraktsrollen TE, og ingen sak finnes for pålegget. Pålegget ble mottatt 15. september 2026."
+  },
+  "bestilling": "BF-05.md",
+  "kilder": [
+    "KT-U10",
+    "KT-U7",
+    "OV-U76",
+    "OV-U77",
+    "OV-U78",
+    "GR-U15",
+    "GR-U22",
+    "OV-U55",
+    "OV-U57",
+    "VS-U26",
+    "VS-U25",
+    "OV-U52",
+    "GR-U31",
+    "LV-U41",
+    "LV-U35",
+    "LV-U9",
+    "KT-U3",
+    "VS-U34",
+    "OV-U5",
+    "KT-U6"
+  ],
+  "venter_paa": ["#1450", "#1271", "#1127", "#1477"],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-01",
+      "forhold": "#1477, #1427, #1065",
+      "hva": "Forløpet er registrert som planlagt, med bestilling og skisse av skjemaet for ny sak."
+    }
+  ]
+}
