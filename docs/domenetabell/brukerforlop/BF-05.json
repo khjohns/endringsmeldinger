@@ -1,7 +1,7 @@
 {
   "id": "BF-05",
   "tittel": "TE oppretter saken og påberoper forholdet",
-  "brukerhistorie": "TE har fått et pålegg som TE mener er en irregulær endring. TE velger «Nytt krav om endringsordre», velger forholdet, skriver tittelen på saken og beskrivelsen av pålegget, oppgir datoen pålegget ble mottatt og kontrollerer brevet før det sendes, så kravet ikke tapes for sent varsel etter punkt 32.2. Før sending ser TE at forholdet står fast og at datoen kan rettes senere i et eget brev. Etter sendingen står saken med påberopelsen sendt og venter på BHs svar.",
+  "brukerhistorie": "TE har fått et pålegg som TE mener er en irregulær endring. TE velger «Nytt krav om endringsordre», velger forholdet, skriver tittelen på saken og beskrivelsen av pålegget, oppgir datoen pålegget ble mottatt og kontrollerer brevet før det sendes, så kravet ikke tapes for sent varsel etter punkt 32.2. Før sending ser TE at forholdet står fast. Etter sendingen står saken med påberopelsen sendt og venter på BHs svar.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,

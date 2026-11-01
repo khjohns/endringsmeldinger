@@ -244,3 +244,99 @@ Oppdragsgiver 01.11 om S-6 versjon 3, gjennom orkestratoren, ordrett:
 
 Vedtakene er ført i vedtaksregisteret (#1483): S-2 som LV-U43, S-3 som KT-U11 og S-6
 versjon 3 som VS-U38.
+
+## Brukerprøven 01.11: spørsmålene og svarene
+
+Oppdragsgiver prøvde skissen versjon 3 01.11 og ga funnene som står i
+[BF-05.md](BF-05.md#funnene-fra-brukerprøven). Tre spørsmål ble stilt i tekst. De står her
+ordrett i den delen som gjelder valget. Kontraktsteksten er sitert i økta og står ikke her
+(#424).
+
+### S-9. Varsel som alt er sendt (stilt 01.11)
+
+> Spørsmålet gjelder alle forhold, ikke bare punkt 32.2: «Har du allerede varslet byggherren om
+> forholdet?»
+>
+> Svarer totalentreprenøren ja, ser skjemaet slik ut:
+>
+> - **Én kort opplysning om kontrakten** står ved spørsmålet: «Etter kontraktsgrunnlaget, B.2.4,
+>   skal varselet sendes på byggherrens skjema, som brev eller som PDF i e-post. En e-post alene
+>   eller et møtereferat er ikke et varsel.»
+> - **Typene viser kravet i kontrakten:** «Byggherrens skjema, sendt som brev», «Byggherrens
+>   skjema, sendt som PDF i e-post» og «Annet: e-post, møtereferat eller notat».
+> - **Velger totalentreprenøren «Annet»**, står det en melding rett under: «Dette er ikke et
+>   varsel etter kontraktsgrunnlaget. Dokumentet legges ved saken, og påberopelsen du sender nå,
+>   er varselet.» Knappen er ikke sperret (MM-U32).
+>
+> - **a)** «Annet» registreres som korrespondanse uten kategorien varsel. Datoen for varselet
+>   blir da datoen påberopelsen sendes.
+> - **b)** «Annet» registreres likevel som varsel, med meldingen over som advarsel.
+>   Totalentreprenøren avgjør.
+>
+> **Jeg anbefaler b.**
+
+Svaret, ordrett: «Enig med B. Opplysningen: ikke «B.2.4», kun kapittel B er tilstrekkelig.»
+
+Prøvd mot vedtakene etter svaret, av en subagent, før vedtaket ble skrevet. Funnene:
+
+- Spørsmålet for alle forhold kolliderer med hensikten i VS-U34: et varsel etter punkt 33.4
+  eller 34.1.2 legges til i kravskjemaet, og påberopelsen er ikke et slikt varsel (GR-U31,
+  VS-U26). VS-U38 gjelder bare punkt 32.2.
+- De tre typene erstatter typen og sendemåten i OV-U79 og mangler prosjekthotellet, som
+  kapittel B krever der prosjektet bruker det.
+- Meldingen ved «Annet» sier at dokumentet ikke er et varsel. Det er en avgjørelse løsningen
+  ikke tar (OV-U79, MM-U12), og den vises ikke når totalentreprenøren velger et skjema uten å
+  ha brukt det. Det lønner seg altså å velge feil type.
+
+S-9 er derfor skrevet om som versjon 2 under. Den trekker forslaget om alle forhold tilbake.
+
+### S-9, versjon 2
+
+**Bakgrunn.** Kapittel B i kontraktsgrunnlaget krever byggherrens skjema for varsel om endring.
+Skjemaet kan sendes som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker
+det. En e-post alene eller et møtereferat er ikke nok. Oppdragsgiver vil at skjemaet sier det,
+men at totalentreprenøren avgjør (svaret over).
+
+**Alternativer**
+
+- **A.** Svarer totalentreprenøren i skjemaet for ny sak at varsel etter punkt 32.2 alt er
+  sendt utenfor løsningen (VS-U38), står opplysningen ‹Etter kapittel B i kontraktsgrunnlaget
+  skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i
+  prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke
+  nok.› ved spørsmålet, uansett hva totalentreprenøren velger. Typen og sendemåten følger
+  OV-U79. Totalentreprenøren kan legge varselet til med kategorien varsel uansett type, og
+  løsningen avgjør ikke om det oppfyller kravene i kontrakten (OV-U79, MM-U12). Spørsmålet
+  stilles bare der punkt 32.2 gjelder. Et varsel etter punkt 33.4 eller 34.1.2 legges til i
+  kravskjemaet (VS-U34). Forhold: presiserer VS-U38 og OV-U79.
+- **B.** Som versjon 1 med svaret b: spørsmålet stilles for alle forhold, typene er
+  byggherrens skjema sendt som brev, byggherrens skjema sendt som PDF i e-post og annet, og
+  meldingen under «Annet» sier at det ikke er et varsel etter kapittel B i
+  kontraktsgrunnlaget. Totalentreprenøren kan likevel legge det til som varsel. Forhold:
+  utvider VS-U38 og endrer OV-U79.
+
+**Anbefaling:** A. Opplysningen når alle, også den som velger feil type. Varslene for frist og
+vederlag blir der de hører hjemme, i kravskjemaet.
+
+**Valget styrer** teksten og valgene ved spørsmålet om varsel som alt er sendt, og hvilke
+forhold spørsmålet stilles for.
+
+### Datoen for forhold uten pålegg (stilt 01.11)
+
+> Etter svaret ditt (2a med dato) blir feltene slik: der punkt 32.2 gjelder og det finnes et
+> pålegg (32.1, 14.6 og 24.2.2): «Beskrivelse av pålegget» og «Dato du mottok pålegget». Alle
+> andre forhold (21.4, 22, 23.1, 24.1, 19.1 og 33.3): «Beskrivelse av forholdet» og «Dato du
+> ble klar over forholdet».
+
+Svaret på spørsmålet før, ordrett: «2a, men dato må man ha. Mange krav betinget av at det
+varsles innen en viss tid etter oppdagelse».
+
+Utgått som vedtak: datoen følger av [VS-U26](../../plans/vedtak.md#vs-u26), som alt gir datoen
+totalentreprenøren ble klar over forholdet ved svikt og andre forhold, og ingen dato ved
+endringsordre. Punkt 21.4 er et forhold der punkt 32.2 gjelder, og datoen er der datoen
+totalentreprenøren mottok det byggherren ga (VS-U26). Ført som F-5 og P-4 i bestillingen.
+Force majeure står som P-3.
+
+### Språkreglene (stilt 01.11)
+
+Svaret, ordrett: «3. ja til begge forslag». Ført i [språkfila](../../sprak.md) og som F-2 og
+F-4 i bestillingen.
