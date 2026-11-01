@@ -341,6 +341,32 @@ a.merke-n:hover{background:var(--surface-inset)}
 [data-rolle="TE"] .kun-bh-blokk{display:none}
 [data-fane="koe"] .kun-fane:not(.f-koe),[data-fane="eo"] .kun-fane:not(.f-eo),[data-fane="forsering"] .kun-fane:not(.f-forsering){display:none}
 .verktoy:empty{padding:8px 0 0}
+
+/* Toppskallet: stien og brukermenyen, felles for alle sidene */
+.demolinje{background:var(--surface-inset);border-bottom:1px solid var(--rule-color);padding:6px max(24px,env(safe-area-inset-right,0px)) 6px max(24px,env(safe-area-inset-left,0px))}
+.demolinje .topplinje-inner{justify-content:flex-end}
+.toppskall{background:var(--surface);border-bottom:1px solid var(--rule-color);padding:10px max(24px,env(safe-area-inset-right,0px)) 10px max(24px,env(safe-area-inset-left,0px))}
+.toppskall .topplinje-inner{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+.sti{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px;color:var(--ink-3);min-width:0}
+.sti a{color:var(--ink-2);text-decoration:none}
+.sti a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.sti .merkenavn{font-weight:600;font-size:16px;color:var(--ink);letter-spacing:-.01em}
+.sti [aria-current]{color:var(--ink);font-weight:500}
+.sti .merkenavn[aria-current]{font-weight:600}
+.brukermeny{position:relative}
+.brukermeny summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:6px;min-height:40px}
+.brukermeny summary::-webkit-details-marker{display:none}
+.brukermeny summary:hover{background:var(--surface-inset)}
+.brukermeny summary:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.initialer{width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.brukermeny .hvem{display:flex;flex-direction:column;line-height:1.25;text-align:left}
+.brukermeny .hvem b{font-weight:600;font-size:14px}
+.brukermeny .hvem span{font-size:12px;color:var(--ink-3)}
+.brukermeny .meny{position:absolute;right:0;top:calc(100% + 6px);z-index:10;min-width:220px;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);box-shadow:0 0 0 1px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.08);padding:6px;display:flex;flex-direction:column}
+.brukermeny .meny a{padding:10px 12px;border-radius:6px;color:var(--ink);text-decoration:none;min-height:40px;display:flex;align-items:center}
+.brukermeny .meny a:hover{background:var(--surface-inset)}
+.brukermeny .meny hr{border:0;border-top:1px solid var(--rule-subtle-color);margin:4px 0}
+@media (max-width:560px){.brukermeny .hvem{display:none}}
 </style>
 </head>
 <body>
@@ -373,23 +399,26 @@ a.merke-n:hover{background:var(--surface-inset)}
         <div><dt>Kontraktssum</dt><dd class="num">48 500 000 kr</dd></div>
         <div><dt>Sluttfrist</dt><dd>15. juni 2027</dd></div>
         <div><dt>Totalentreprenør</dt><dd>Totalentreprenør AS</dd></div>
-        <div><dt><a href="#" style="color:var(--sidebar-text)">Bytt prosjekt</a></dt></div>
       </dl>
     </section>
   </aside>
 
   <div class="flate">
-    <div class="topplinje">
-      <div class="topplinje-inner">
-        <p class="rolle"><span class="kun-te">Du er totalentreprenør (TE)</span><span class="kun-bh">Du er byggherre (BH)</span></p>
-        <div class="demo"><span>Mockup · vis som</span>
+    <div class="demolinje"><div class="topplinje-inner"><div class="demo"><span>Mockup · vis som</span>
           <span class="vis-som" role="group" aria-label="Vis som part">
             <button type="button" id="vis-te" aria-pressed="true">TE</button>
             <button type="button" id="vis-bh" aria-pressed="false">BH</button>
           </span>
-        </div>
+        </div></div></div>
+    <header class="toppskall">
+      <div class="topplinje-inner">
+        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><span aria-current="page">Skolebygg Nord</span></nav>
+        <details class="brukermeny">
+          <summary aria-label="Brukermenyen"><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
+          <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
+        </details>
       </div>
-    </div>
+    </header>
 
     <main class="arbeid">
       <div class="kolonner">
