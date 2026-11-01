@@ -176,12 +176,69 @@ Skrevet om 01.11 etter oppdragsgivers svar på S-4 og S-6 («6 viser da til regi
 som vedlegg»). Ett alternativ, til bekreftelse hos oppdragsgiver gjennom orkestratoren før
 det brukes som domeneforventning.
 
-**Alternativ.** Har totalentreprenøren varslet etter punkt 32.2 på annen måte, registrerer
-totalentreprenøren brevet med varselet som korrespondanse med kategorien varsel
-([VS-U34](../../plans/vedtak.md#vs-u34)). Påberopelsen viser til det registrerte brevet som
-vedlegg, med brevets nummer og datoen totalentreprenøren oppga for varselet. Setningen om at
-totalentreprenøren varsler etter punkt 32.2 står ([GR-U31](../../plans/vedtak.md#gr-u31)).
-Forhold: presiserer GR-U31 og VS-U34.
+**Alternativ.** Svarer totalentreprenøren i skjemaet for ny sak at varsel etter punkt 32.2
+alt er sendt utenfor løsningen, legger totalentreprenøren varselet til som korrespondanse
+med kategorien varsel i samme forløp ([VS-U34](../../plans/vedtak.md#vs-u34)).
+Totalentreprenøren oppgir det [OV-U79](../../plans/vedtak.md#ov-u79) krever: typen,
+sendemåten for et brev, datoen det ble sendt, dokumentet som PDF og en kort beskrivelse.
+Saken, korrespondansen og påberopelsen lagres i samme handling når påberopelsen sendes.
+Sendes påberopelsen ikke, lagres ingen av dem. Datoen det ble sendt, er datoen for varselet
+etter punkt 32.2 i løsningen, og den settes én gang ([OV-U80](../../plans/vedtak.md#ov-u80)).
+Den kan ikke være senere enn påberopelsen. Varselet påberopelsen gir, endrer ikke den datoen.
+En feil dato rettes etter [OV-U11](../../plans/vedtak.md#ov-u11): en senere dato gjelder
+straks, og en tidligere dato gjelder først når byggherren godtar rettingen. Setningen om at
+totalentreprenøren varsler etter punkt 32.2, står ([GR-U31](../../plans/vedtak.md#gr-u31)),
+og påberopelsen sier i tillegg: ‹Totalentreprenøren opplyser at varsel etter NS 8407 punkt
+32.2 ble sendt i totalentreprenørens <type> av <dato>, som er vedlagt.› Dokumentet legges
+ved påberopelsen. Forhold: presiserer VS-U34 og GR-U31. Følger
+[LV-U42](../../plans/vedtak.md#lv-u42) for henvisningen til korrespondansen.
+
+Prøvd mot vedtakene 01.11 av en subagent. Utkastet før prøvingen viste til brevets nummer,
+som LV-U42 har forkastet for korrespondanse, og manglet vilkårene i OV-U79, OV-U80 og OV-U11.
+
+## S-7. Gjelder forløpet alle forholdene, eller bare de der punkt 32.2 gjelder?
+
+Funnet i den kognitive forprøven 01.11.
+
+**Bakgrunn.** Skjemaet for ny sak lar totalentreprenøren velge alle forholdene. Datofeltet og
+første setning i brevet skifter med forholdet: der punkt 32.2 gjelder, er datoen datoen
+pålegget ble mottatt, og ellers en annen dato ([VS-U26](../../plans/vedtak.md#vs-u26)).
+[LV-U41](../../plans/vedtak.md#lv-u41) gir første setning. Bestillingen beskriver bare
+forholdene der punkt 32.2 gjelder.
+
+**Alternativer**
+
+- **A.** Forløpet beskriver påberopelsen der punkt 32.2 gjelder. De andre forholdene, som
+  svikt ved byggherrens ytelser og force majeure, får egne forløp. Skjemaet tilbyr alle
+  forholdene, og datofeltet og brevet følger VS-U26 og LV-U41 for hvert av dem.
+- **B.** Forløpet beskriver alle forholdene, med forventningene for hvert av dem.
+
+**Anbefaling:** A. Forløpet holdes lite, og reglene for de andre forholdene står alt i
+vedtakene.
+
+**Valget styrer** hvilke forhold skissen og kontrollene i forløpet dekker.
+
+## S-8. Hva skjer med et varsel lagt til ved en feil?
+
+Funnet i den kognitive forprøven 01.11. Stilles bare om S-6 versjon 3 bekreftes.
+
+**Bakgrunn.** Svarer totalentreprenøren ved en feil at varselet alt er sendt, legges et
+dokument til som varsel med en dato som settes én gang ([OV-U80](../../plans/vedtak.md#ov-u80)).
+[OV-U11](../../plans/vedtak.md#ov-u11) gjelder retting av datoen, ikke et varsel som aldri ble
+sendt. Ingen vedtak sier hva totalentreprenøren da gjør.
+
+**Alternativer**
+
+- **A.** Korrespondansen står, og totalentreprenøren retter opplysningen etter OV-U11, eller
+  sier fra i et innlegg.
+- **B.** Totalentreprenøren kan fjerne korrespondansen til byggherren har svart på
+  påberopelsen.
+
+**Anbefaling:** A. Det som er lagt til, står, som andre registrerte brev
+([OV-U4](../../plans/vedtak.md#ov-u4)). Skjemaet spør tydelig om varselet etter punkt 32.2
+alt er sendt, så feilen blir sjelden; det er en antakelse.
+
+**Valget styrer** om korrespondansen kan fjernes, og hva skjemaet sier før sending.
 
 ## Svarene
 
