@@ -1,7 +1,7 @@
 {
   "id": "BF-03",
-  "tittel": "TE er uenig i svaret og fastholder at varselet kom i tide",
-  "brukerhistorie": "TE har fått BHs svar, der BH prinsipalt gjør gjeldende at varselet kom for sent og subsidiært godtar et beløp. TE er uenig, ser hva hver vei videre gjør med svaret, protesterer mot påberopelsen uten å miste muligheten til senere å godta svaret.",
+  "tittel": "TE er uenig i svaret og sier i et innlegg at varselet kom i tide",
+  "brukerhistorie": "TE har fått BHs svar, der BH prinsipalt gjør gjeldende at varselet kom for sent og subsidiært godkjenner et beløp. TE er uenig, ser hva hver vei videre gjør med svaret, og sier i et innlegg som viser til svaret at varselet kom i tide. Innlegget endrer ikke svaret, og TE kan fortsatt godta det. Etter en aksept kan TE fortsatt sende innlegg.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
@@ -12,21 +12,55 @@
     "fil": "../../design/prototyper/bf-03-uenig.html",
     "klikkstier": [
       {
-        "id": "protest",
+        "id": "innlegg",
         "dekker": ["1", "2", "3a", "3b", "4"],
         "start": "mottatt",
         "handlinger": [
-          { "staar": "Ta stilling til svaret i brev 5" },
-          { "staar": "hvis varselet kom i tide" },
-          { "klikk": "Protester: varselet kom i tide", "tilstand": "protest" },
-          { "fyll": "Hvorfor kom varselet i tide?", "tekst": "Varselet ble sendt samme dag som tegningene kom." },
-          { "klikk": "Se brevet", "tilstand": "protest-brev" },
-          { "staar": "Varselet ble sendt samme dag som tegningene kom." },
-          { "klikk": "Send til BH", "tilstand": "protest-brev" },
-          { "kryss": "Jeg har kontrollert brevet." },
-          { "klikk": "Send til BH", "tilstand": "protest-sendt" },
-          { "staar": "Svaret i brev 5 står, også de 60 000 kr subsidiært" },
-          { "staar": "Du har protestert i brev 6: varselet kom i tide." }
+          {
+            "staar": "Ta stilling til svaret i brev 5"
+          },
+          {
+            "staar": "hvis varselet kom i tide"
+          },
+          {
+            "klikk": "Skriv innlegg om svaret",
+            "tilstand": "innlegg"
+          },
+          {
+            "fyll": "Tittel",
+            "tekst": "Varselet om vederlagsjustering kom i tide"
+          },
+          {
+            "fyll": "Tekst",
+            "tekst": "Varselet ble sendt samme dag som tegningene kom."
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "innlegg-brev"
+          },
+          {
+            "staar": "Totalentreprenøren viser til brev 5 av 1. oktober 2026:"
+          },
+          {
+            "staar": "Varselet ble sendt samme dag som tegningene kom."
+          },
+          {
+            "klikk": "Send til BH",
+            "tilstand": "innlegg-brev"
+          },
+          {
+            "kryss": "Jeg har kontrollert brevet."
+          },
+          {
+            "klikk": "Send til BH",
+            "tilstand": "innlegg-sendt"
+          },
+          {
+            "staar": "Svaret i brev 5 står uendret"
+          },
+          {
+            "staar": "Brev 6 · TE · 1. november 2026 · Varselet om vederlagsjustering kom i tide"
+          }
         ]
       },
       {
@@ -34,51 +68,173 @@
         "dekker": ["5"],
         "start": "mottatt",
         "handlinger": [
-          { "klikk": "Send ny versjon av kravet", "tilstand": "ny-versjon" },
-          { "staar": "Du avslår tilbudet i svaret i brev 5" },
-          { "klikk": "Se brevet", "tilstand": "ny-versjon-brev" },
-          { "klikk": "Tilbake", "tilstand": "ny-versjon" },
-          { "klikk": "Tilbake", "tilstand": "mottatt" }
+          {
+            "klikk": "Send ny versjon av kravet",
+            "tilstand": "ny-versjon"
+          },
+          {
+            "staar": "bør du presisere om du aksepterer, avslår eller tar forbehold"
+          },
+          {
+            "staar": "kan svaret i brev 5 ikke godtas her"
+          },
+          {
+            "fyll": "Begrunnelse",
+            "tekst": "TE avslår tilbudet i svaret i brev 5."
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "ny-versjon-brev"
+          },
+          {
+            "staar": "Dette kravet erstatter TEs tidligere kravversjon i brev 4 av 1. oktober 2026."
+          },
+          {
+            "staar": "TEs standpunkt til BHs tidligere svar fremgår av begrunnelsen."
+          },
+          {
+            "klikk": "Tilbake",
+            "tilstand": "ny-versjon"
+          },
+          {
+            "klikk": "Tilbake",
+            "tilstand": "mottatt"
+          }
         ]
       },
       {
-        "id": "godta",
+        "id": "godta-og-innlegg",
         "dekker": ["6", "7", "G-5"],
         "start": "mottatt",
         "handlinger": [
-          { "klikk": "Godta svaret", "tilstand": "godta" },
-          { "staar": "Dere blir enige om 0 kr" },
-          { "klikk": "Send aksepten", "tilstand": "godtatt" },
-          { "staar": "Enighet: 0 kr" },
-          { "klikk": "Protester: varselet kom i tide", "tilstand": "protest-avvist" },
-          { "staar": "Påberopelsen av for sen varsling i brev 5 inngår i enigheten." },
-          { "staar": "Enighet: 0 kr" },
-          { "klikk": "Tilbake", "tilstand": "godtatt" },
-          { "staar": "Enighet: 0 kr" }
+          {
+            "klikk": "Godta svaret",
+            "tilstand": "godta"
+          },
+          {
+            "staar": "inngår i aksepten"
+          },
+          {
+            "staar": "Ingen innlegg viser til brev 5."
+          },
+          {
+            "klikk": "Send aksepten",
+            "tilstand": "godtatt"
+          },
+          {
+            "staar": "Registrert enighet: 0 kr"
+          },
+          {
+            "klikk": "Skriv innlegg om svaret",
+            "tilstand": "innlegg"
+          },
+          {
+            "staar": "Den registrerte enigheten om svaret i brev 5 står uendret."
+          },
+          {
+            "fyll": "Tittel",
+            "tekst": "Varselet kom i tide"
+          },
+          {
+            "fyll": "Tekst",
+            "tekst": "TE fastholder at varselet kom i tide."
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "innlegg-brev"
+          },
+          {
+            "kryss": "Jeg har kontrollert brevet."
+          },
+          {
+            "klikk": "Send til BH",
+            "tilstand": "innlegg-sendt"
+          },
+          {
+            "staar": "Enigheten om svaret i brev 5 står uendret etter innlegget."
+          },
+          {
+            "klikk": "Tilbake til saken",
+            "tilstand": "godtatt"
+          },
+          {
+            "staar": "Registrert enighet: 0 kr"
+          }
         ]
       },
       {
-        "id": "godta-etter-protest",
+        "id": "godta-etter-innlegg",
         "dekker": ["4", "6", "7", "G-5"],
         "start": "mottatt",
         "handlinger": [
-          { "klikk": "Protester: varselet kom i tide", "tilstand": "protest" },
-          { "klikk": "Se brevet", "tilstand": "protest-brev" },
-          { "kryss": "Jeg har kontrollert brevet." },
-          { "klikk": "Send til BH", "tilstand": "protest-sendt" },
-          { "klikk": "Godta svaret likevel", "tilstand": "godta" },
-          { "staar": "Du godtar nå også påberopelsen du protesterte mot i brev 6." },
-          { "klikk": "Send aksepten", "tilstand": "godtatt" },
-          { "staar": "Protesten i brev 6 står i saken, men er ikke et forbehold i aksepten." },
-          { "klikk": "Protester: varselet kom i tide", "tilstand": "protest-avvist" },
-          { "staar": "Enighet: 0 kr" },
-          { "staar": "Protesten i brev 6 står i saken, men er ikke et forbehold i aksepten." }
+          {
+            "klikk": "Skriv innlegg om svaret",
+            "tilstand": "innlegg"
+          },
+          {
+            "fyll": "Tittel",
+            "tekst": "Varselet kom i tide"
+          },
+          {
+            "fyll": "Tekst",
+            "tekst": "Varselet ble sendt samme dag som tegningene kom."
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "innlegg-brev"
+          },
+          {
+            "kryss": "Jeg har kontrollert brevet."
+          },
+          {
+            "klikk": "Send til BH",
+            "tilstand": "innlegg-sendt"
+          },
+          {
+            "klikk": "Godta svaret",
+            "tilstand": "godta"
+          },
+          {
+            "staar": "Brev 6 · TE · 1. november 2026 · Varselet kom i tide"
+          },
+          {
+            "staar": "Aksepten og beløpet bygger bare på standpunktene i svaret."
+          },
+          {
+            "klikk": "Send aksepten",
+            "tilstand": "godtatt"
+          },
+          {
+            "staar": "Aksepten i brev 7 gjelder hele svaret i brev 5"
+          }
         ]
       }
     ]
   },
-  "kilder": ["KA-U1", "HF-U9", "VS-U1", "VS-U9", "LV-U4", "HF-U5", "HF-U18", "OV-U54", "HF-U8", "OV-U7", "OV-U64", "KA-U7", "KA-U10", "KA-U29", "HF-U1", "VS-U3", "MM-U3", "OV-U4", "OV-U65", "OV-U66"],
-  "venter_paa": ["#1381", "#276"],
+  "kilder": [
+    "KA-U1",
+    "HF-U9",
+    "KA-U10",
+    "HF-U1",
+    "HF-U8",
+    "HF-U18",
+    "OV-U54",
+    "VS-U9",
+    "VS-U24",
+    "VS-U35",
+    "OV-U7",
+    "MM-U12",
+    "MM-U33",
+    "MM-U34",
+    "MM-U35",
+    "MM-U36",
+    "EO-U3",
+    "KA-U45",
+    "OV-U79",
+    "OV-U80",
+    "OV-U81"
+  ],
+  "venter_paa": ["#1381", "#1377", "#1379", "#807"],
   "bevis_saker": [],
   "visninger": [],
   "endringer": [
@@ -96,6 +252,11 @@
       "dato": "2026-10-28",
       "grunnlag": "#1336",
       "hva": "Bestillingen og prototypen, versjon 3, viser til OV-U65 og OV-U66, som står i kildene."
+    },
+    {
+      "dato": "2026-11-01",
+      "grunnlag": "#1381, #1456, MM-U34, MM-U35, MM-U36",
+      "hva": "Protesten er et innlegg som ikke endrer svaret og kan sendes etter enigheten. Aksepten gjelder hele svaret (MM-U34 punkt 16), og skjemaet for aksepten viser innleggene (MM-U36). En ny kravversjon har brevteksten i OV-U54 etter MM-U34 punkt 1. Sperren etter enighet og vernet i D-4 er tatt ut. Vedtakene MM-U34 opphever, er tatt ut av kildene, og korrespondansen etter OV-U79–OV-U81 og KA-U45 er lagt inn."
     }
   ]
 }
