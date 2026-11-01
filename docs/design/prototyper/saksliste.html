@@ -339,21 +339,30 @@ a.merke-n:hover{background:var(--surface-inset)}
 }
 
 [data-rolle="TE"] .kun-bh-blokk{display:none}
+[data-fane="koe"] .kun-fane:not(.f-koe),[data-fane="eo"] .kun-fane:not(.f-eo),[data-fane="forsering"] .kun-fane:not(.f-forsering){display:none}
+.verktoy:empty{padding:8px 0 0}
 </style>
 </head>
 <body>
 
-<div class="skall" id="skall" data-rolle="TE">
+<div class="skall" id="skall" data-rolle="TE" data-fane="koe">
   <aside class="panel" aria-label="Prosjektet">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
     <div class="sak">
       <p class="id">Prosjekt</p>
       <h2>Skolebygg Nord</h2>
     </div>
-    <nav aria-labelledby="nav-etikett">
-      <p class="etikett" id="nav-etikett">Prosjektet</p>
+    <nav aria-labelledby="saker-etikett">
+      <p class="etikett" id="saker-etikett">Saker</p>
       <ul class="spor">
-        <li><a href="#" aria-current="page"><span class="navn">Saker</span><span class="sist">7 krav · 2 endringsordrer · 1 forsering</span></a></li>
+        <li><a href="#" data-fane="koe" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">7 saker<span class="kun-te"> · 1 utkast</span></span></a></li>
+        <li><a href="#" data-fane="eo"><span class="navn">Endringsordrer</span><span class="sist">2 utstedt</span></a></li>
+        <li><a href="#" data-fane="forsering"><span class="navn">Forsering</span><span class="sist">1 sak</span></a></li>
+      </ul>
+    </nav>
+    <nav aria-labelledby="prosjekt-etikett">
+      <p class="etikett" id="prosjekt-etikett">Prosjektet</p>
+      <ul class="spor">
         <li><a href="#"><span class="navn">Aktivitet</span><span class="sist">Brevene i alle sakene</span></a></li>
       </ul>
     </nav>
@@ -394,25 +403,19 @@ a.merke-n:hover{background:var(--surface-inset)}
           </section>
           <section class="kort" aria-labelledby="liste-tittel">
             <div class="liste-hode">
-              <div><p class="over">Skolebygg Nord · Totalentreprise NS 8407</p><h1 id="liste-tittel">Saker i prosjektet</h1></div>
+              <div><p class="over">Skolebygg Nord</p><h1 id="liste-tittel"><span class="kun-fane f-koe">Krav om endringsordre</span><span class="kun-fane f-eo">Endringsordrer</span><span class="kun-fane f-forsering">Forsering</span></h1></div>
               <div class="hode-knapper">
                 <span class="kun-te"><a class="knapp primaer" href="#" style="text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nytt krav om endringsordre</a></span>
                 <span class="kun-bh"><a class="knapp primaer" href="#" style="text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Ny endringsordre</a></span>
               </div>
             </div>
-            <div class="tallrad" aria-label="Tallene for prosjektet">
+            <div class="tallrad kun-fane f-koe" aria-label="Tallene for kravene">
               <div><span class="tl">Krevd vederlag<button type="button" class="info" aria-label="Om tallet" title="Summen av de gjeldende kravene om vederlagsjustering. Trukne krav er ikke med. Krav i flere saker kan gjelde samme kostnad.">i</button></span><span class="tv">1 265 000<small>kr</small></span><span class="tf">5 krav</span></div>
               <div><span class="tl">Godkjent i byggherrens svar<button type="button" class="info" aria-label="Om tallet" title="Det høyeste beløpet byggherren godkjenner i hvert svar, også når det er subsidiært. Det er ikke enighet.">i</button></span><span class="tv">985 000<small>kr</small></span><span class="tf">5 svar</span></div>
               <div><span class="tl">Krevd fristforlengelse</span><span class="tv">55<small>dager</small></span><span class="tf">4 krav · 2 svar</span></div>
             </div>
 
-            <div class="faner" role="tablist" aria-label="Sakstypene">
-              <button role="tab" type="button" id="fane-koe" aria-controls="innhold-koe" aria-selected="true">Krav om endringsordre<span class="antall">7</span></button>
-              <button role="tab" type="button" id="fane-eo" aria-controls="innhold-eo" aria-selected="false">Endringsordrer<span class="antall">2</span></button>
-              <button role="tab" type="button" id="fane-forsering" aria-controls="innhold-forsering" aria-selected="false">Forsering<span class="antall">1</span></button>
-            </div>
-
-            <div class="fane-innhold" id="innhold-koe" role="tabpanel" aria-labelledby="fane-koe">
+            <div class="fane-innhold" id="innhold-koe">
               <div class="verktoy">
                 <div class="utvalg" role="group" aria-label="Utvalg">
                   <button type="button" data-u="alle" aria-pressed="true">Alle</button>
@@ -490,7 +493,8 @@ a.merke-n:hover{background:var(--surface-inset)}
               </ul>
             </div>
 
-            <div class="fane-innhold" id="innhold-eo" role="tabpanel" aria-labelledby="fane-eo" hidden>
+            <div class="fane-innhold" id="innhold-eo" hidden>
+              <div class="verktoy"></div>
               <div class="radhode" aria-hidden="true"><span>EO</span><span></span><span>Vederlag</span><span>Frist</span><span>Saker</span></div>
               <ul class="rader">
               <li class="eo-rad">
@@ -520,7 +524,8 @@ a.merke-n:hover{background:var(--surface-inset)}
               </ul>
             </div>
 
-            <div class="fane-innhold" id="innhold-forsering" role="tabpanel" aria-labelledby="fane-forsering" hidden>
+            <div class="fane-innhold" id="innhold-forsering" hidden>
+              <div class="verktoy"></div>
               <div class="radhode" aria-hidden="true"><span>Sak</span><span></span><span>Antatt kostnad</span><span>Dager</span><span>Siste brev</span></div>
               <ul class="rader">
                 <li><div class="rad"><span class="id">F-004</span><div class="tittel"><a href="#">Forsering av fristforlengelsen</a><span class="forhold">Totalentreprenøren anser avslaget som pålegg om forsering (punkt 33.8)</span><div class="merker"><a class="merke-n" href="#">Knyttet til E-021</a></div></div><div class="tall2" data-navn="Antatt kostnad"><span class="k">420 000 kr</span></div><div class="tall2" data-navn="Dager"><span class="k">20 dager</span><span class="s">avslått prinsipalt</span></div><div class="siste2"><b>Brev 8 · TE</b>30. oktober 2026</div></div></li>
@@ -537,11 +542,11 @@ a.merke-n:hover{background:var(--surface-inset)}
 <script>
   const skall = document.getElementById('skall');
   const te = document.getElementById('vis-te'), bh = document.getElementById('vis-bh');
-  const faner = [...document.querySelectorAll('[role="tab"]')];
+  const faner = [...document.querySelectorAll('[data-fane]')].filter(e => e.tagName === 'A');
   function vis(rolle){ skall.dataset.rolle = rolle; te.setAttribute('aria-pressed', String(rolle==='TE')); bh.setAttribute('aria-pressed', String(rolle==='BH')); anker(); }
   te.addEventListener('click', () => vis('TE')); bh.addEventListener('click', () => vis('BH'));
-  function velg(id){ faner.forEach(f => { const p = f.id === 'fane-' + id; f.setAttribute('aria-selected', String(p)); document.getElementById(f.getAttribute('aria-controls')).hidden = !p; }); skall.dataset.fane = id; anker(); }
-  faner.forEach(f => f.addEventListener('click', () => velg(f.id.replace('fane-', ''))));
+  function velg(id){ faner.forEach(f => { const p = f.dataset.fane === id; if (p) f.setAttribute('aria-current', 'page'); else f.removeAttribute('aria-current'); document.getElementById('innhold-' + f.dataset.fane).hidden = !p; }); skall.dataset.fane = id; anker(); }
+  faner.forEach(f => f.addEventListener('click', e => { e.preventDefault(); velg(f.dataset.fane); }));
   document.querySelectorAll('.merker a[href="#eo"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); velg('eo'); }));
   document.querySelectorAll('.merker a[href="#forsering"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); velg('forsering'); }));
   const ub = [...document.querySelectorAll('.utvalg button')];
