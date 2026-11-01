@@ -119,8 +119,10 @@ For en HTML-skisse av et mønster gjelder dette:
 - «Vis sporbarhet» viser punktene i bestillingen på elementene (`data-spor`).
 - Versjonen står i skissen og i bestillingen. En godkjent versjon er en commit.
 - Teksten er prototypetekst. En vedtatt brevtekst står ordrett.
-- Stilen er Varden-skissenes (`docs/design/konsept-varden/skjermer/stil.css`). Ingenting
-  sendes, og ingen data lagres.
+- En HTML-skisse følger designet i [systemfila](../../../.interface-design/system.md) og
+  tokenene i `theme.css`, slik prototypene fra 31.10–01.11 i `docs/design/prototyper/` viser
+  det (for eksempel `grunnlagsoversikt.html`), og ikke det gamle konseptstilarket (#1461,
+  oppdragsgiver 01.11). Ingenting sendes, og ingen data lagres.
 
 ## Kontrollene
 
