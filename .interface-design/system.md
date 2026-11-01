@@ -168,6 +168,13 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
 - **Visningen er handlingsorientert.** Det som ikke trengs for å sende et krav eller svare
   på det, står ikke der. Arbeidet har ingen overskrift med spornavnet: lesingen begynner
   med det siste brevet og menyen, og svaret med utkastkortet.
+- **Visningen sier det løsningen vet, ikke hvem som skal handle.** Den viser hvilke brev
+  som er sendt eller registrert, av hvem og når, og at et svar ikke er registrert. Den sier
+  aldri hvem som skal gjøre neste handling, som «Venter på byggherren» eller «Neste steg»,
+  fordi løsningen ikke vet det (oppdragsgiver 31.10, #1402).
+- **Hvordan løsningen virker, forklares ikke ved feltene.** Setninger som «Teksten tolkes
+  ikke» og «Innholdet vurderes ikke» står ikke i flaten. Slike forklaringer hører på en
+  egen side om løsningen eller i et infotips (oppdragsgiver 01.11, #1402).
 - **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
   «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
   lesingen. Linjen nederst i vinduet vises bare når panelet er ute av syne.
