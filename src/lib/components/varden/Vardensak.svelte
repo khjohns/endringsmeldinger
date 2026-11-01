@@ -14,9 +14,11 @@
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import Brevkontroll from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
+  import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
+  import { settOrganisasjoner } from './kontrakt';
   import { brevene } from './lesing';
   import {
     BREVKONTROLL,
@@ -51,6 +53,11 @@
       byggherre: c?.byggherre_navn,
       entreprenoer: c?.totalentreprenor_navn,
     };
+  });
+  settOrganisasjoner(() => {
+    const k = kontrakt ?? fraProsjektet;
+    // Et tomt navn er ikke et navn (#1398), som i kontraktsradene.
+    return { BH: k.byggherre || undefined, TE: k.entreprenoer || undefined };
   });
   // Et navn som mangler, står ikke der (#1398).
   const kontraktsrader = $derived.by(() => {
@@ -224,7 +231,12 @@
       >
     </div>
 
-    {#if (!u || !kjernesak.saksbilde) && kjernesak.feil}
+    {#if kjernesak.finnes === false}
+      <div class="lastefeil" role="alert">
+        <h1>{SAKEN.finnesIkke}</h1>
+        <p>{SAKEN.finnesIkkeForklaring}</p>
+      </div>
+    {:else if (!u || !kjernesak.saksbilde) && kjernesak.feil}
       <div class="lastefeil" role="alert">
         <h1>{SAKEN.lastefeil}</h1>
         <p>{SAKEN.lastefeilBeklager}</p>
@@ -240,16 +252,9 @@
       <p class="laster" role="status">{SAKEN.laster}</p>
     {:else}
       <main class="arbeid">
-        <p
-          class="melding"
-          class:sendt={melding?.art === 'sendt'}
-          class:tom={!melding}
-          role="status"
-          tabindex="-1"
-          bind:this={meldingen}
-        >
-          {melding?.tekst ?? ''}
-        </p>
+        <div class="melding" class:tom={!melding} role="status" tabindex="-1" bind:this={meldingen}>
+          {#if melding}<Melding art="kvittering" levende={false}>{melding.tekst}</Melding>{/if}
+        </div>
         {#if arbeid.art === 'kontroll'}
           {@const k = arbeid}
           <Brevkontroll
@@ -290,37 +295,41 @@
             }}
           />
         {:else}
-          <Sporlesing
-            {kjernesak}
-            {u}
-            spor={valgt}
-            onvelg={(n) => {
-              melding = null;
-              if (n === 'svare:vederlag') {
-                utkastAapent = true;
-                arbeid = { art: 'svar' };
-              }
-            }}
-            onakseptbrev={({ kommando, tekst }) => {
-              const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
-              arbeid = {
-                art: 'kontroll',
-                kommando,
-                tekst,
-                detteSender: svaret
-                  ? [{ tekst: STILLING.godtarBrev(svaret.nummer), lag: null }]
-                  : [],
-                virkninger: [],
-                tittel: brevtittel({ art: 'aksept', spor: [valgt] }),
-                handling: BREVKONTROLL.sendAksepten,
-                sendTekst: BREVKONTROLL.sendAksepten,
-                tilbakeTil: 'saken',
-                svarerPaa: svaret ? { nummer: svaret.nummer, registrert: svaret.registrert } : null,
-                tilbake: valgt === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' },
-                erUtkastet: false,
-              };
-            }}
-          />
+          {#key valgt}
+            <Sporlesing
+              {kjernesak}
+              {u}
+              spor={valgt}
+              onvelg={(n) => {
+                melding = null;
+                if (n === 'svare:vederlag') {
+                  utkastAapent = true;
+                  arbeid = { art: 'svar' };
+                }
+              }}
+              onakseptbrev={({ kommando, tekst }) => {
+                const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
+                arbeid = {
+                  art: 'kontroll',
+                  kommando,
+                  tekst,
+                  detteSender: svaret
+                    ? [{ tekst: STILLING.godtarBrev(svaret.nummer), lag: null }]
+                    : [],
+                  virkninger: [],
+                  tittel: brevtittel({ art: 'aksept', spor: [valgt] }),
+                  handling: BREVKONTROLL.sendAksepten,
+                  sendTekst: BREVKONTROLL.sendAksepten,
+                  tilbakeTil: 'saken',
+                  svarerPaa: svaret
+                    ? { nummer: svaret.nummer, registrert: svaret.registrert }
+                    : null,
+                  tilbake: valgt === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' },
+                  erUtkastet: false,
+                };
+              }}
+            />
+          {/key}
         {/if}
       </main>
     {/if}
@@ -550,12 +559,6 @@
   .melding {
     max-width: var(--varden-arbeid);
     margin: 0 auto var(--spacing-4);
-    padding: var(--spacing-3) var(--spacing-4);
-    background: var(--surface-inset);
-    border-radius: var(--r-innfelt);
-  }
-  .melding.sendt {
-    background: var(--success-bg);
   }
   .melding:focus {
     outline: none;

@@ -37,7 +37,6 @@
         return {
           noekkel: n,
           tekst: tekstFor(n) ?? type?.tekst ?? ukjentHandling(n),
-          virkning: type?.virkning,
           bygget: bygget.includes(n.split(':')[0]),
         };
       })
@@ -70,7 +69,6 @@
     {:else}
       <span class="ikke-bygget">{r.tekst}</span>
     {/if}
-    {#if r.virkning}<span class="dempet virkning">{r.virkning}</span>{/if}
   </li>
 {/snippet}
 
@@ -179,9 +177,6 @@
   }
   .gruppetekst {
     padding: var(--spacing-2) var(--spacing-3) var(--spacing-1);
-  }
-  .virkning {
-    padding: 0 var(--spacing-3) var(--spacing-2);
   }
   .dempet {
     color: var(--ink-3);
