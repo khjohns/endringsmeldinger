@@ -15,7 +15,7 @@ type Data = Record<string, unknown>;
 
 /**
  * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11, GR-U12).
- * `påberopelse` er kravet et svar på påberopelsen gjelder, ellers gjeldende
+ * `paaberopelse` er kravet et svar på påberopelsen gjelder, ellers gjeldende
  * påberopelse. `forskyvning` er lagene svaret på forholdet opptar foran sporet
  * (`lagFraForholdet`). Kaster `Uforstaatt` når standpunktene ikke kan leses.
  */

@@ -5269,7 +5269,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       svar: s.u().spor.vederlag.gjeldendeSvar!.id,
       regelversjon: KJERNE.regler.versjon,
     });
-    expect(s.u().spor.vederlag.enighet?.forhold.utfall).toEqual({ beloep: 110000 });
+    expect(s.u().spor.vederlag.enighet?.grunnlag.utfall).toEqual({ beloep: 110000 });
   });
 
   it('begge påberopt: § 34.1.2 prinsipalt, justeringen ellers og begrensningen subsidiært, posten videre subsidiært (OV-U27, OV-U28)', () => {
@@ -5609,7 +5609,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
         svar: v.svar,
         regelversjon: KJERNE.regler.versjon,
       });
-      expect(s.u().spor.vederlag.enighet?.forhold.utfall).toEqual({ beloep: 110000 });
+      expect(s.u().spor.vederlag.enighet?.grunnlag.utfall).toEqual({ beloep: 110000 });
     });
 
     it('en påberopelse uten virkning står som byggherrens utsagn uten lag, og gir ingen post et annet beløp (presiseringen 24.10, HF-U2)', () => {
@@ -6071,7 +6071,7 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     const aksept = (rad.data.utsagn as { id: string; art: string }[]).find(
       (x) => x.art === 'aksept'
     )!.id;
-    expect(s.u().spor.frist.enighet?.forhold.kilde, 'forutsetning').toBe('aksept');
+    expect(s.u().spor.frist.enighet?.grunnlag.kilde, 'forutsetning').toBe('aksept');
     s.send('TE', nyttFristkrav);
     const u = s.u();
     expect(u.forstaatt).toBe(true);

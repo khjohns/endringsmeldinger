@@ -336,10 +336,10 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       const e = u.spor[hale[0] as 'forhold'].enighet;
       if (hale.length === 1 || e === null) return e === null ? null : 'finnes';
       const felt = hale[1];
-      if (felt === 'utfall') return e.forhold.utfall[hale[2] as 'beloep'] ?? null;
+      if (felt === 'utfall') return e.grunnlag.utfall[hale[2] as 'beloep'] ?? null;
       if (felt === 'virkning' && hale.length === 3)
-        return e.forhold.virkninger.find((p) => p.art === hale[2])?.virkning ?? null;
-      if (felt === 'svar' || felt === 'kilde' || felt === 'regelversjon') return e.forhold[felt];
+        return e.grunnlag.virkninger.find((p) => p.art === hale[2])?.virkning ?? null;
+      if (felt === 'svar' || felt === 'kilde' || felt === 'regelversjon') return e.grunnlag[felt];
       if (felt === 'virkning') return enighetensVirkning(u, hale[0] as 'forhold');
       return e[felt as 'holder'];
     }

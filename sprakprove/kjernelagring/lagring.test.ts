@@ -156,6 +156,6 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     const ny = await k.prov({ handling: 'aksept', spor: 'vederlag' });
     if (!ny.godtatt) throw new Error(`Forutsetning: aksepten ble avvist: ${ny.avvisning.regel}`);
     await bane.skriv(ny.hendelser, etterRevisjon.at(-1)!.versjon);
-    expect((await k.utledning()).spor.vederlag.enighet?.forhold.utfall.beloep).toBe(65000);
+    expect((await k.utledning()).spor.vederlag.enighet?.grunnlag.utfall.beloep).toBe(65000);
   });
 });

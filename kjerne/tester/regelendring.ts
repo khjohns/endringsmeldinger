@@ -32,7 +32,7 @@ const N1 = medRegler(NESTE_REGLER);
 const frosset = (u: Utledning) => ({
   beslutningsgrunnlag: Object.values(u.svar).map((s) => s.svar.beslutningsgrunnlag),
   enighetsgrunnlag: Object.values(u.spor).map(
-    (s) => s.enighet && { forhold: s.enighet.forhold, holder: s.enighet.holder }
+    (s) => s.enighet && { grunnlag: s.enighet.grunnlag, holder: s.enighet.holder }
   ),
 });
 
@@ -82,7 +82,7 @@ export function regelendringen(lagBaner: () => Baner): void {
         expect(await s.bane.journal(), navn).toEqual(s.journal);
       }
       const godtatt = utledJournal(saker['godtatt'].journal, N1);
-      expect(godtatt.spor.forhold.enighet?.forhold.regelversjon).toBe(KJERNE.regler.versjon);
+      expect(godtatt.spor.forhold.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
       expect(godtatt.forholdAvvist).toBe(true);
     });
 
@@ -139,7 +139,7 @@ export function regelendringen(lagBaner: () => Baner): void {
       const godtatt = await s.k.send({ handling: 'aksept', spor: 'forhold', klientregler: 'n+1' });
       expect(godtatt?.godtatt ? 'godtatt' : godtatt?.avvisning.regel).toBe('godtatt');
       const u = await s.k.utledning();
-      expect(u.spor.forhold.enighet?.forhold.regelversjon).toBe(KJERNE.regler.versjon);
+      expect(u.spor.forhold.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
       expect(u.forholdAvvist).toBe(true);
     });
 

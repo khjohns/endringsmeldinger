@@ -42,7 +42,7 @@ const frosset = (u: Utledning) => ({
   beslutningsgrunnlag: Object.fromEntries(
     Object.values(u.svar).map((s) => [s.svar.id, s.svar.beslutningsgrunnlag])
   ),
-  enighetsgrunnlag: SPOR.map((s) => u.spor[s].enighet?.forhold ?? null),
+  enighetsgrunnlag: SPOR.map((s) => u.spor[s].enighet?.grunnlag ?? null),
 });
 
 describe('genererte forløp mot målmodellen', () => {
@@ -69,12 +69,12 @@ describe('genererte forløp mot målmodellen', () => {
       if (u?.godtatt && h.handling === 'aksept') {
         for (const s of SPOR) {
           if (s === h.spor)
-            expect(etter.spor[s].enighet?.forhold.svar, `INV-MM-6 ${hvor}`).toBe(
+            expect(etter.spor[s].enighet?.grunnlag.svar, `INV-MM-6 ${hvor}`).toBe(
               (u.hendelser[0].data.utsagn as { gjelder: string }[])[0].gjelder
             );
           else
-            expect(etter.spor[s].enighet?.forhold, `INV-MM-6 ${hvor}`).toEqual(
-              foer.spor[s].enighet?.forhold
+            expect(etter.spor[s].enighet?.grunnlag, `INV-MM-6 ${hvor}`).toEqual(
+              foer.spor[s].enighet?.grunnlag
             );
         }
       }

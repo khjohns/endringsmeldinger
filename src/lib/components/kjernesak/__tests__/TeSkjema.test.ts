@@ -20,7 +20,7 @@ import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 import { fristkommandoFraSkjema } from '$lib/kjernesak/fristkrav';
 import { vederlagskommandoFraSkjema } from '$lib/kjernesak/vederlagskrav';
-import { nyGrunnlagsversjon } from '$lib/kjernesak/paaberopelse';
+import { nyPaaberopelsesversjon } from '$lib/kjernesak/paaberopelse';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { forhaandsvis, utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
@@ -224,7 +224,7 @@ describe('ny versjon av kravet', () => {
       },
       utdypning: 'BH påla ny peling i akse 3.',
     });
-    expect(nyGrunnlagsversjon(gjeldende.innhold, ' ')).not.toHaveProperty('utdypning');
+    expect(nyPaaberopelsesversjon(gjeldende.innhold, ' ')).not.toHaveProperty('utdypning');
     expect(() => skrevet(medGrunnlag, 'TE', kommando)).not.toThrow();
   });
 

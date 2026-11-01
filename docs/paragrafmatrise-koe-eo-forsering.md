@@ -155,7 +155,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
 - **Kjernen i dag:** bygget. `rettidighet` med hjemmel `32.2`
   ([`typer.ts`](../kjerne/typer.ts), `Standpunkt`); `preklusjonPaaberopt` og
   `virkninger` i [`standpunkt.ts`](../kjerne/frosset/standpunkt.ts);
-  `erEndringMedVarslingsplikt` i [`regler/grunnlag.ts`](../kjerne/regler/grunnlag.ts);
+  `erEndringMedVarslingsplikt` i [`regler/forhold.ts`](../kjerne/regler/forhold.ts);
   frosset som `varslingsplikt` i beslutningsgrunnlaget. Kategoriene er kodene i
   `KATEGORIER` ([`regler/typer.ts`](../kjerne/regler/typer.ts)), og formatet
   godtar bare dem og én underkategori per krav (`KRAVINNHOLD` i
@@ -197,7 +197,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   #213 (05.10). [MM-U13](plans/vedtak.md#mm-u13)
   (merknaden 10.10: bygget).
 - **Kjernen i dag:** bygget. `GRUNNLAGSRESULTATER`, `gyldigeResultater` og `erByggherrensPaalegg` i
-  [`regler/grunnlag.ts`](../kjerne/regler/grunnlag.ts); `sammenfall` i
+  [`regler/forhold.ts`](../kjerne/regler/forhold.ts); `sammenfall` i
   beslutningsgrunnlaget; `endringsordre` i `Utledning` i
   [`utled.ts`](../kjerne/utledning/utled.ts) med opplysningen `endringsordre`;
   `FRAFALL_KAN_IKKE_GODTAS` og `GRUNNLAG_AVVIST` i
@@ -289,7 +289,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   GR-U2 er opphevet av [MM-U34](plans/vedtak.md#mm-u34) punkt 11; at kategorien står, følger av
   [OV-U55](plans/vedtak.md#ov-u55). [GR-U4](plans/vedtak.md#gr-u4).
   SD-02 (05.10). B-13 endret underkategori (05.10).
-- **Kjernen i dag:** bygget. `trekk` i `Utsagn`, `trekkAvGrunnlagetErSperret`
+- **Kjernen i dag:** bygget. `trekk` i `Utsagn`, `trekkAvPaaberopelsenErSperret`
   i [`utled.ts`](../kjerne/utledning/utled.ts), `Krav.erstatter`. Svarene på vederlag
   og frist viser til grunnlagsversjonen de ble regnet mot (`grunnlagskrav`, #342), og
   så lenge en nyere grunnlagsversjon venter på svar, leses subsidiariteten av

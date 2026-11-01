@@ -89,7 +89,7 @@ export function grunnlagskrav(valg: Grunnlagsvalg): Grunnlagskrav {
  * (VS-U26) og endringsordren står som i gjeldende versjon, og TE endrer beskrivelsen,
  * som er utdypningen (GR-U15).
  */
-export function nyGrunnlagsversjon(
+export function nyPaaberopelsesversjon(
   gjeldende: Record<string, unknown>,
   utdypning: string
 ): Grunnlagskrav {
@@ -113,5 +113,5 @@ export function grunnlagsversjonFraSkjema(
   if (!gjeldende)
     throw new Error('Grunnlaget er ikke sendt, så det har ingen versjon å oppdatere.');
   utenVedlegg(data);
-  return nyGrunnlagsversjon(gjeldende, letterText(data.begrunnelse ?? ''));
+  return nyPaaberopelsesversjon(gjeldende, letterText(data.begrunnelse ?? ''));
 }

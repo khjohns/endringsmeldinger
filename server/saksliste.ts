@@ -212,7 +212,7 @@ function vederlag(u: Utledning): Vederlagslinje {
       : null,
     svar: vederlagssvaret(u),
     enighet:
-      s.enighet && virkning ? { beloep: s.enighet.forhold.utfall.beloep ?? null, virkning } : null,
+      s.enighet && virkning ? { beloep: s.enighet.grunnlag.utfall.beloep ?? null, virkning } : null,
   };
 }
 
@@ -230,7 +230,7 @@ function frist(u: Utledning): Fristlinje {
         ? { resultat: sv.st.resultat, dager: sv.st.vurdert, subsidiaert: sv.subsidiaert }
         : null,
     enighet:
-      s.enighet && virkning ? { dager: s.enighet.forhold.utfall.dager ?? null, virkning } : null,
+      s.enighet && virkning ? { dager: s.enighet.grunnlag.utfall.dager ?? null, virkning } : null,
   };
 }
 

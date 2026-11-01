@@ -366,7 +366,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:forholdet(svar)', 'relasjon', '*'],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
-  ['Enighet', 'predikat', 'forhold'],
+  ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
   ['utledning/utled.ts', 'predikat', 'utled utledJournal trekkAvPaaberopelsenErSperret'],
   ['utledning/utled.ts', 'relasjon', 'paaberopelseFor'],
@@ -1663,7 +1663,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     [
       'utfallet i en annen regel enn de kjente avvikene',
       forutsetninger,
-      [regel('return u.spor.forhold.enighet?.forhold.utfall;')],
+      [regel('return u.spor.forhold.enighet?.grunnlag.utfall;')],
       'Enighetsgrunnlag.utfall',
     ],
     [

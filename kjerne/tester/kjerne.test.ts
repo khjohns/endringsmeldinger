@@ -856,7 +856,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
-    expect((await k.utledning()).spor.frist.enighet?.forhold.utfall.dager).toBe(0);
+    expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.dager).toBe(0);
   });
 
   it('kontrollsak: med fremdriftshindring er de 20 dagene enighet ved sammenfall', async () => {
@@ -866,8 +866,8 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       svar(true),
     ]);
     const u = await k.utledning();
-    expect(u.spor.frist.enighet?.forhold.kilde).toBe('sammenfall');
-    expect(u.spor.frist.enighet?.forhold.utfall.dager).toBe(20);
+    expect(u.spor.frist.enighet?.grunnlag.kilde).toBe('sammenfall');
+    expect(u.spor.frist.enighet?.grunnlag.utfall.dager).toBe(20);
   });
 });
 

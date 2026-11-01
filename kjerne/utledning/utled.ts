@@ -76,7 +76,7 @@ export interface Svarberegning {
 }
 
 export interface Enighet {
-  forhold: Enighetsgrunnlag;
+  grunnlag: Enighetsgrunnlag;
   /** Hendelsen som holder enighetsgrunnlaget: aksepten, eller svaret ved sammenfall. */
   holder: string;
 }
@@ -1066,9 +1066,9 @@ function settEnighetene(
     if (!g) continue;
     const aksept = aksepter.find((a) => a.gjelder === g.id);
     if (aksept)
-      spor[n].enighet = { forhold: enighetsgrunnlag(g, 'aksept'), holder: hendelsen(aksept.id) };
+      spor[n].enighet = { grunnlag: enighetsgrunnlag(g, 'aksept'), holder: hendelsen(aksept.id) };
     else if (g.beslutningsgrunnlag.sammenfall)
-      spor[n].enighet = { forhold: enighetsgrunnlag(g, 'sammenfall'), holder: g.id };
+      spor[n].enighet = { grunnlag: enighetsgrunnlag(g, 'sammenfall'), holder: g.id };
   }
 }
 
@@ -1151,7 +1151,7 @@ function forholdet(
     // SK-01, #213, MM-U13: TE har godtatt svaret på påberopelsen, og det avklarer ikke forholdet
     // etter GR-U7. Et godtatt avslag og en godtatt preklusjon har samme virkning.
     forholdAvvist:
-      eg?.forhold.kilde === 'aksept' &&
+      eg?.grunnlag.kilde === 'aksept' &&
       gBrev !== null &&
       !forholdetErAvklart(gBrev.svar, gBrev.virkninger),
     // GR-U12: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer det
@@ -1192,7 +1192,7 @@ export function enighetensVirkning(
   const e = u.spor[spor].enighet;
   if (!e) return null;
   if (spor !== 'forhold' && (u.forholdAvvist || u.spor[spor].trukket)) return 'uten_virkning';
-  return e.forhold.vilkaar === null || u.forholdAvklart ? 'virksom' : 'betinget';
+  return e.grunnlag.vilkaar === null || u.forholdAvklart ? 'virksom' : 'betinget';
 }
 
 /**
