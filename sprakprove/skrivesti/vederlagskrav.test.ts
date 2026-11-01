@@ -1,5 +1,5 @@
 /**
- * Grunnlagskravet og vederlagskravet fra skjemaene mot dagens TS-server (#667).
+ * Påberopelsen og vederlagskravet fra skjemaene mot dagens TS-server (#667).
  * Kommandoene bygges av `grunnlagskrav` og `vederlagskrav` i klienten, og den
  * låste teksten er den `brevFor` gir, slik skjemaene gjør. Vederlagskravet fra
  * `TeVederlagForm` bygges av `buildEventData` og `vederlagskommandoFraSkjema` (#718). Saken er en prøvesak fra
@@ -20,7 +20,7 @@ import {
   type KjorendeServer,
   type Oppsett,
 } from '../../server/tester/testbase.ts';
-import { grunnlagskrav } from '../../src/lib/kjernesak/grunnlagskrav.ts';
+import { grunnlagskrav } from '../../src/lib/kjernesak/paaberopelse.ts';
 import {
   vederlagskrav,
   vederlagskommandoFraSkjema,
@@ -31,7 +31,7 @@ import { buildEventData, getDefaults } from '../../src/lib/domain/vederlagSubmis
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 
-const GRUNNLAG = grunnlagskrav({
+const FORHOLD = grunnlagskrav({
   hovedkategori: 'ENDRING',
   underkategori: 'IRREG',
   datoer: { paalegg_mottatt: '2026-10-01' },
@@ -78,9 +78,9 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
     return { svar, tekst };
   }
 
-  async function medGrunnlag() {
+  async function medPaaberopelse() {
     const sakId = await opprettKjernesak(o);
-    const { svar } = await send(sakId, GRUNNLAG);
+    const { svar } = await send(sakId, FORHOLD);
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
     return sakId;
   }
@@ -89,7 +89,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
     ['med begrunnelse', 'Tilbudet gjelder ny fundamentering.'],
     ['uten begrunnelse', ''],
   ])('%s: serveren lagrer tilbudet med teksten TE så (LV-U2)', async (_navn, utdypning) => {
-    const sakId = await medGrunnlag();
+    const sakId = await medPaaberopelse();
     const kommando = vederlagskrav({ metode: 'FASTPRIS_TILBUD', beloep: 250000, utdypning });
     const { svar, tekst } = await send(sakId, kommando);
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
@@ -104,7 +104,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
   });
 
   it('et beløp som ikke er over null, avvises med UGYLDIG_FORM og ingen brevkontroll', async () => {
-    const sakId = await medGrunnlag();
+    const sakId = await medPaaberopelse();
     const { svar, tekst } = await send(
       sakId,
       vederlagskrav({ metode: 'FASTPRIS_TILBUD', beloep: 0, utdypning: '' })
@@ -115,7 +115,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
   });
 
   it('regningsarbeid sendt utenom skjemaet avvises med UGYLDIG_FORM (OV-U1)', async () => {
-    const sakId = await medGrunnlag();
+    const sakId = await medPaaberopelse();
     const { svar } = await send(sakId, {
       type: 'krav',
       spor: 'vederlag',
@@ -126,7 +126,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
   });
 
   it('kravet TeVederlagForm lager, lagres med teksten TE så og begrunnelsen som utdypning', async () => {
-    const sakId = await medGrunnlag();
+    const sakId = await medPaaberopelse();
     // Dataene skjemaet bygger for en TS-sak: bare tilbud, uten særskilte krav og vedlegg.
     const data = {
       ...buildEventData(
@@ -136,7 +136,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
           belopDirekte: 250000,
           begrunnelse: '<p>Tilbudet gjelder <strong>ny</strong> fundamentering.</p>',
         },
-        { scenario: 'new', grunnlagEventId: 'fra-tidslinjen' }
+        { scenario: 'new', paaberopelseEventId: 'fra-tidslinjen' }
       ),
       vedlegg_ids: [],
     };

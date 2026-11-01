@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import skjema from '../../docs/domenetabell/kontrakt.json' with { type: 'json' };
 import {
   BELOEPSVURDERING_FRA_KATALOGEN,
-  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
+  FORHOLDSRESULTAT_FRA_KATALOGEN,
   RESULTAT_FRA_KATALOGEN,
   UTLOESER_FRA_KATALOGEN,
 } from '../../kjerne/format/koder.ts';
@@ -77,7 +77,7 @@ describe('skjemaet', () => {
 
   // #335: kjernen har egne koder, og `regler.ts` oversetter med tabellene i `kjerne/format/koder.ts`.
   it.each([
-    ['grunnlagsresultat', GRUNNLAGSRESULTAT_FRA_KATALOGEN],
+    ['grunnlagsresultat', FORHOLDSRESULTAT_FRA_KATALOGEN],
     ['vederlagsresultat', RESULTAT_FRA_KATALOGEN],
     ['belopsvurdering', BELOEPSVURDERING_FRA_KATALOGEN],
     ['subsidiaer_utloser', UTLOESER_FRA_KATALOGEN],
