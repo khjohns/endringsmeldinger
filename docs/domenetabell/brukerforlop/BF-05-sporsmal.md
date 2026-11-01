@@ -4,134 +4,171 @@ Spørsmålene til oppdragsgiver for brukerforløpet [BF-05](BF-05.md), lagret or
 stilles, etter [vedtaksskillen](../../../.claude/skills/vedtak/SKILL.md). Svarene føres inn
 her. Arbeidet føres i #1477.
 
-Forløpet er forløp 1 i trinn 8 i #1065: totalentreprenøren oppretter saken og påberoper
-forholdet, for eksempel en irregulær endring etter punkt 32.1, med varsel etter punkt 32.2.
+Forløpet er det første i rekkefølgen mot første ekte sak (#1065): totalentreprenøren
+oppretter saken og påberoper forholdet, for eksempel en irregulær endring etter punkt 32.1,
+med varsel etter punkt 32.2.
 
-## S-1. Hvilke andre forløp hører til forløp 1?
+Versjon 2, 01.11. Versjon 1 ble prøvd mot vedtakene og koden før spørsmålene ble stilt, og
+rettet etter funnene: bakgrunnen i S-1, S-3 og S-4 og alternativ A i S-2, S-3 og S-4.
+Brevteksten for et varsel sendt på annen måte er skilt ut som S-6.
 
-**Bakgrunn.** #1065 sier at forløp 1 er BF-05, «med BF-10, BF-11 og BF-13 etter
-vurderingen». De tre er:
+## S-1. Hvilke andre handlinger tas med i det første forløpet?
 
-- BF-10: totalentreprenøren utdyper påberopelsen eller sender en ny versjon av den
-  ([OV-U55](../../plans/vedtak.md#ov-u55), [OV-U54](../../plans/vedtak.md#ov-u54)).
-- BF-11: totalentreprenøren har påberopt feil forhold og påberoper det riktige i en ny sak,
-  uten å gi avkall på kravet ([GR-U22](../../plans/vedtak.md#gr-u22),
-  [OV-U57](../../plans/vedtak.md#ov-u57)). Overføringen av krav til den nye saken er ikke
-  bygget (#569).
-- BF-13: totalentreprenøren trekker et krav eller påberopelsen
-  ([GR-U5](../../plans/vedtak.md#gr-u5), [GR-U25](../../plans/vedtak.md#gr-u25),
-  [GR-U27](../../plans/vedtak.md#gr-u27)).
+**Bakgrunn.** Rekkefølgen i #1065 sier at det første forløpet er opprettelsen og
+påberopelsen, og at tre andre handlinger kan tas med etter en vurdering:
 
-Alle tre forutsetter at påberopelsen er sendt. BF-10 og BF-11 forutsetter også at
-byggherren har lest den, ofte etter at byggherren har svart. Rettingen av datoen pålegget ble
-mottatt er alt egne forløp (BF-02A og BF-02C) i akseptkriteriet for forløp 1.
+- utdypingen av påberopelsen og en ny versjon av den
+  ([OV-U55](../../plans/vedtak.md#ov-u55), [OV-U54](../../plans/vedtak.md#ov-u54));
+- en ny sak når totalentreprenøren har påberopt feil forhold
+  ([GR-U22](../../plans/vedtak.md#gr-u22), [OV-U57](../../plans/vedtak.md#ov-u57)).
+  Overføringen av krav til den nye saken er verken vedtatt eller bygget (OV-U57, #569);
+- trekket av et krav eller av påberopelsen ([GR-U5](../../plans/vedtak.md#gr-u5),
+  [GR-U25](../../plans/vedtak.md#gr-u25), [GR-U27](../../plans/vedtak.md#gr-u27)).
+
+Alle tre forutsetter at påberopelsen er sendt. Rettingen av datoen pålegget ble mottatt har
+alt egne forløp i akseptkriteriet for det første forløpet.
 
 **Alternativer**
 
-- **A.** Forløp 1 er bare påberopelsen. Utdypingen og den nye versjonen (BF-10) blir et
-  eget forløp etter byggherrens svar på påberopelsen. Ny sak for et annet forhold (BF-11) og
-  trekket (BF-13) blir egne forløp etter det.
-- **B.** Forløp 1 tar med ny sak for et annet forhold (BF-11) som en variant av
-  opprettelsen: totalentreprenøren oppretter en ny sak som viser til den gamle, og
-  skjemaet sier at den nye saken ikke endrer den gamle. Overføringen av krav venter.
-  Utdypingen og trekket blir egne forløp.
-- **C.** Forløp 1 tar med alle tre.
+- **A.** Det første forløpet er bare opprettelsen og påberopelsen. Utdypingen og den nye
+  versjonen av påberopelsen, den nye saken for et annet forhold og trekket blir egne forløp
+  senere.
+- **B.** Det første forløpet tar også med den nye saken for et annet forhold, som en variant
+  av opprettelsen: totalentreprenøren oppretter en ny sak som viser til den gamle, og før
+  sending sier skjemaet teksten i OV-U57 ordrett. Overføringen av krav venter. Utdypingen,
+  den nye versjonen og trekket blir egne forløp.
+- **C.** Det første forløpet tar med alle tre.
 
-**Anbefaling:** A. Forløp 1 blir lite nok til å bygges først, og hvert av de tre andre
-trenger et svar fra byggherren å vise seg mot. At B ville gjort opprettelsen tyngre for
-brukeren, er en antakelse, ikke prøvd.
+**Anbefaling:** A. Det første forløpet blir lite nok til å bygges først. At utdypingen og
+den nye saken først blir aktuelle etter at byggherren har lest påberopelsen, og at B ville
+gjort opprettelsen tyngre for brukeren, er antakelser, ikke prøvd.
 
-**Valget styrer** hvor mye av skjemaet for ny sak som bygges i forløp 1, og om saken trenger
-en henvisning til en annen sak fra start.
+**Valget styrer** hvor mye av skjemaet for ny sak som bygges først, og om saken trenger en
+henvisning til en annen sak fra start.
 
-## S-2. Hvilken tittel står i påberopelsen?
+## S-2. Skriver totalentreprenøren én eller to titler når saken opprettes?
 
 **Bakgrunn.** Første setning i brevet er etter [LV-U41](../../plans/vedtak.md#lv-u41):
 ‹Totalentreprenøren krever endringsordre for «<tittel>» i sak <saksnummer> («<sakstittel>»)
-som <forholdet> (NS 8407 punkt <hjemmel>).› Brevet har altså plass for både en tittel og
-sakstittelen. Etter [LV-U4](../../plans/vedtak.md#lv-u4) kan tittelen mangle («Uten
-tittel: …»). Etter [OV-U78](../../plans/vedtak.md#ov-u78) er tittelen på forholdet forholdet
-selv, ikke totalentreprenørens navn på det. Ingen vedtak sier om totalentreprenøren skriver
-én eller to titler når saken opprettes.
+som <forholdet> (NS 8407 punkt <hjemmel>).› Brevet har altså plass for både
+totalentreprenørens navn på det faktiske forholdet og sakstittelen. Etter
+[OV-U78](../../plans/vedtak.md#ov-u78) er tittelen på forholdet forholdet selv, ikke
+totalentreprenørens navn på det. Ingen vedtak sier om totalentreprenøren skriver én eller to
+titler når saken opprettes.
 
 **Alternativer**
 
-- **A.** Når totalentreprenøren oppretter saken, skriver totalentreprenøren én tittel. Den er
-  sakstittelen og tittelen i den første påberopelsen. En senere versjon av påberopelsen kan
-  ha sin egen tittel.
+- **A.** Når totalentreprenøren oppretter saken, skriver totalentreprenøren ett navn på det
+  faktiske forholdet. Det er sakstittelen og navnet i den første påberopelsen. Er navnet
+  likt sakstittelen, sier brevet ‹Totalentreprenøren krever endringsordre for «<tittel>» i
+  sak <saksnummer> som <forholdet> (NS 8407 punkt <hjemmel>).› Det presiserer LV-U41.
 - **B.** Når totalentreprenøren oppretter saken, skriver totalentreprenøren både
-  sakstittelen og en egen tittel på påberopelsen.
-- **C.** Den første påberopelsen har ingen egen tittel. Brevet bruker formen uten tittel i
-  [LV-U4](../../plans/vedtak.md#lv-u4).
+  sakstittelen og et eget navn på det faktiske forholdet i påberopelsen. Brevet følger
+  LV-U41 uendret.
 
-**Anbefaling:** A. Ett felt er nok for brukeren når saken og påberopelsen er nye samtidig, og
-brevet sier det samme to ganger bare i den første versjonen. At to felt forvirrer, er en
+**Anbefaling:** A. Ett felt er nok når saken og påberopelsen er nye samtidig. At to felt
+forvirrer brukeren, er en antakelse.
+
+**Valget styrer** feltene i skjemaet for ny sak og første setning i brevet.
+
+## S-3. Opprettes saken først når påberopelsen sendes?
+
+**Bakgrunn.** I dag opprettes saken før brevkontrollen, fordi den låste brevteksten har
+saksnummeret ([LV-U4](../../plans/vedtak.md#lv-u4), [DL-U6](../../plans/vedtak.md#dl-u6)).
+Oppdragsgiver avgjorde 16.10 (#666, avgjørelse 1): «Avbryter TE, står saken, og neste forsøk
+går til samme sak.» Saken får en topic i Catenda når den opprettes
+([KT-U3](../../plans/vedtak.md#kt-u3)). En sak kan også opprettes fra en topic i Catenda,
+og totalentreprenøren sender da påberopelsen senere ([KT-U6](../../plans/vedtak.md#kt-u6)).
+Utkast er ikke i bruk i første versjon (#718).
+
+Ser totalentreprenøren feil forhold ved brevkontrollen og avbryter, står saken og topicen i
+Catenda uten brev. Forholdet kan ikke endres etter sending
+([GR-U22](../../plans/vedtak.md#gr-u22)), men saken har ikke noe sendt. Ingen vedtak sier
+hva som da skjer med saken.
+
+**Alternativer**
+
+- **A.** En sak totalentreprenøren oppretter i løsningen, opprettes når den første
+  påberopelsen sendes, og ikke før. Avbryter totalentreprenøren før sending, finnes ingen sak
+  og ingen topic. En sak opprettet fra en topic følger KT-U6. Det endrer avgjørelsen 16.10
+  (#666) om at saken står når totalentreprenøren avbryter.
+- **B.** Som i dag: saken opprettes før brevkontrollen og står når totalentreprenøren
+  avbryter. Neste forsøk går til samme sak, og totalentreprenøren kan velge et annet forhold
+  der så lenge ingen påberopelse er sendt.
+
+**Anbefaling:** A. Totalentreprenøren som angrer ved brevkontrollen, ender ikke med en tom
+sak i sakslisten og i Catenda. At byggherren kan lese en tom topic som et varsel, er en
 antakelse.
 
-**Valget styrer** feltene i skjemaet for ny sak og første setning i brevet. Det presiserer
-LV-U41 og LV-U4 for den første påberopelsen.
-
-## S-3. Finnes saken før påberopelsen er sendt?
-
-**Bakgrunn.** Opprettelsen og påberopelsen er i dag to steg. En sak kan dermed bli opprettet
-uten påberopelse, for eksempel når påberopelsen avvises fordi beskrivelsen mangler (#1271).
-Saken får en topic i Catenda når den opprettes ([KT-U3](../../plans/vedtak.md#kt-u3)), så
-byggherren kan se en sak uten noe brev. Utkast er ikke i bruk i første versjon (#718). Ingen
-vedtak sier om en sak kan finnes uten påberopelse.
-
-**Alternativer**
-
-- **A.** Saken opprettes når totalentreprenøren sender den første påberopelsen, og ikke før.
-  En påberopelse som avvises, oppretter ingen sak. Byggherren ser saken først med
-  påberopelsen.
-- **B.** Totalentreprenøren kan opprette saken og sende påberopelsen senere. Saken står i
-  sakslisten og i Catenda uten brev til påberopelsen er sendt.
-
-**Anbefaling:** A. En sak uten påberopelse sier ingenting til byggherren, og en tom topic i
-Catenda kan bli lest som et varsel, enda en topic ikke er et varsel
-([KT-U6](../../plans/vedtak.md#kt-u6)).
-
 **Valget styrer** om opprettelsen og sendingen er ett steg for brukeren, og hva #1271 skal
-rette.
+rette. Med A må saksnummeret være kjent i brevkontrollen før saken finnes, eller saken må
+opprettes og påberopelsen sendes samlet. Det er en teknisk følge som byggingen løser.
 
-## S-4. Er varselet sendt på annen måte med i forløp 1?
+## S-4. Tas varselet sendt på annen måte med i det første forløpet?
 
 **Bakgrunn.** [VS-U34](../../plans/vedtak.md#vs-u34) sier: «Velger totalentreprenøren i
 kravskjemaet at varselet er sendt på annen måte, legges varselet til som korrespondanse med
-kategorien varsel i samme forløp.» [OV-U5](../../plans/vedtak.md#ov-u5) gjelder også
-varselet etter punkt 32.2, og datoen settes én gang. I et prosjekt er det vanlig at
-totalentreprenøren først varsler i et brev eller en e-post og så oppretter saken; det er en
-antakelse. Løsningen tar i dag ikke imot et slikt varsel for punkt 32.2.
+kategorien varsel i samme forløp.» Det endrer [OV-U5](../../plans/vedtak.md#ov-u5), som også
+gjelder varselet etter punkt 32.2: det egne brevet med datoopplysningen faller bort. Datoen
+for varselet settes én gang. Den kan rettes etter [OV-U11](../../plans/vedtak.md#ov-u11):
+en senere dato gjelder straks, og en tidligere dato gjelder først når byggherren godtar
+rettingen. [GR-U15](../../plans/vedtak.md#gr-u15) sier at totalentreprenøren kan måtte
+«varsle utenfor appen og registrere varselet». Løsningen tar i dag ikke imot et slikt varsel
+for punkt 32.2.
 
 **Alternativer**
 
-- **A.** Forløp 1 tar med valget i skjemaet for ny sak om at varselet etter punkt 32.2 alt er
-  sendt på annen måte, etter VS-U34 og OV-U5.
-- **B.** Forløp 1 tar bare med påberopelsen som selv er varselet. Varselet sendt på annen
-  måte blir et eget forløp, sammen med korrespondansen.
+- **A.** Det første forløpet tar med valget i skjemaet for ny sak om at varselet etter punkt
+  32.2 alt er sendt på annen måte, etter VS-U34, OV-U5 og OV-U11. Påberopelsen fra løsningen
+  sier fortsatt at totalentreprenøren varsler etter punkt 32.2. Hvordan brevet nevner det
+  tidligere varselet, er S-6.
+- **B.** Det første forløpet tar bare med påberopelsen som selv er varselet. Varselet sendt
+  på annen måte blir et eget forløp, sammen med korrespondansen.
 
-**Anbefaling:** A. Vedtakene finnes, og første ekte sak kan begynne med et varsel som er sendt
-før saken finnes i løsningen.
+**Anbefaling:** A. Vedtakene finnes, og GR-U15 forutsetter veien. At første ekte sak kan
+begynne med et varsel sendt før saken finnes i løsningen, er en antakelse.
 
-**Valget styrer** om forløp 1 trenger korrespondansen (#807) og varseldatoen for punkt 32.2
-før det kan bygges.
+**Valget styrer** om det første forløpet trenger korrespondansen (#807), varseldatoen for
+punkt 32.2 og vedlegg (S-5) før det kan bygges.
 
-## S-5. Er vedlegg til påberopelsen med i forløp 1?
+## S-5. Tas vedlegg til påberopelsen med i det første forløpet?
 
 **Bakgrunn.** Påberopelsen skal beskrive pålegget ([GR-U15](../../plans/vedtak.md#gr-u15)),
-og byggherrens godkjenning siterer beskrivelsen. Skjemaet for ny sak har i dag ikke vedlegg
+og byggherrens endringsordre viser til beskrivelsen som hva endringen går ut på
+([GR-U14](../../plans/vedtak.md#gr-u14)). Skjemaet for ny sak har i dag ikke vedlegg
 (#1037).
 
 **Alternativer**
 
-- **A.** Forløp 1 tar med vedlegg til påberopelsen, for eksempel pålegget selv.
-- **B.** Forløp 1 har ikke vedlegg. Totalentreprenøren beskriver pålegget i teksten og
-  sender dokumentene på annen måte.
+- **A.** Det første forløpet tar med vedlegg til påberopelsen, for eksempel pålegget selv.
+- **B.** Det første forløpet har ikke vedlegg. Totalentreprenøren beskriver pålegget i
+  teksten og sender dokumentene på annen måte.
 
-**Anbefaling:** A. Et pålegg kommer ofte som et dokument eller en tegning; det er en
-antakelse, ikke prøvd.
+**Anbefaling:** A. At et pålegg ofte kommer som et dokument eller en tegning, er en antakelse.
 
-**Valget styrer** om #1037 er en del av forløp 1.
+**Valget styrer** om #1037 er en del av det første forløpet. Velges A i S-4, trengs
+vedlegget uansett, fordi varselet legges til som korrespondanse.
+
+## S-6. Hvordan nevner påberopelsen et varsel sendt på annen måte?
+
+Stilles bare om S-4 får svaret A.
+
+**Bakgrunn.** Påberopelsen sier etter [GR-U31](../../plans/vedtak.md#gr-u31) at
+totalentreprenøren varsler etter punkt 32.2. Ingen vedtak gir en tekst for et varsel etter
+punkt 32.2 som alt er sendt på annen måte. Uten en slik tekst sier brevet bare at
+totalentreprenøren varsler i dag.
+
+**Alternativer**
+
+- **A.** Setningen om punkt 32.2 står, og brevet legger til: ‹Totalentreprenøren opplyser at
+  varsel etter NS 8407 punkt 32.2 også ble sendt <dato>.› Det utvider GR-U31.
+- **B.** Brevet nevner ikke det tidligere varselet. Det står i saken som korrespondanse etter
+  VS-U34.
+
+**Anbefaling:** A. Velger totalentreprenøren veien ved en feil, er påberopelsen fortsatt et
+varsel, og byggherren ser det tidligere varselet i samme brev.
+
+**Valget styrer** brevteksten i påberopelsen.
 
 ## Svarene
 
