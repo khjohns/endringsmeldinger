@@ -4512,6 +4512,86 @@ tekst = '''
 Påberopelsen gjelder versjonen svaret gjelder, og brevet nevner ikke noe varselbrev.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U38"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1477", "#1482"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 01.11 og lagret i spørsmålsfila for BF-05 i PR #1482 (#1477). Alternativene står i posten. S-6 ble stilt i versjon 2 og skrevet om til versjon 3 etter svaret på S-4 og S-6.
+
+## S-6. Hvordan nevner påberopelsen et varsel sendt på annen måte?
+
+Stilles bare om S-4 får svaret A.
+
+**Bakgrunn.** Påberopelsen sier etter GR-U31 at
+totalentreprenøren varsler etter punkt 32.2. Ingen vedtak gir en tekst for et varsel etter
+punkt 32.2 som alt er sendt på annen måte. Uten en slik tekst sier brevet bare at
+totalentreprenøren varsler i dag.
+
+**Alternativer**
+
+- **A.** Setningen om punkt 32.2 står, og brevet legger til: ‹Totalentreprenøren opplyser at
+  varsel etter NS 8407 punkt 32.2 også ble sendt <dato>.› Det utvider GR-U31.
+- **B.** Brevet nevner ikke det tidligere varselet. Det står i saken som korrespondanse etter
+  VS-U34.
+
+**Anbefaling:** A. Velger totalentreprenøren veien ved en feil, er påberopelsen fortsatt et
+varsel, og byggherren ser det tidligere varselet i samme brev.
+
+**Valget styrer** brevteksten i påberopelsen.
+
+## S-6, versjon 3
+
+Skrevet om 01.11 etter oppdragsgivers svar på S-4 og S-6 («6 viser da til registrert brev
+som vedlegg»). Ett alternativ, til bekreftelse hos oppdragsgiver gjennom orkestratoren før
+det brukes som domeneforventning.
+
+**Alternativ.** Svarer totalentreprenøren i skjemaet for ny sak at varsel etter punkt 32.2
+alt er sendt utenfor løsningen, legger totalentreprenøren varselet til som korrespondanse
+med kategorien varsel i samme forløp (VS-U34).
+Totalentreprenøren oppgir det OV-U79 krever: typen,
+sendemåten for et brev, datoen det ble sendt, dokumentet som PDF og en kort beskrivelse.
+Saken, korrespondansen og påberopelsen lagres i samme handling når påberopelsen sendes.
+Sendes påberopelsen ikke, lagres ingen av dem. Datoen det ble sendt, er datoen for varselet
+etter punkt 32.2 i løsningen, og den settes én gang (OV-U80).
+Den kan ikke være senere enn påberopelsen. Varselet påberopelsen gir, endrer ikke den datoen.
+En feil dato rettes etter OV-U11: en senere dato gjelder
+straks, og en tidligere dato gjelder først når byggherren godtar rettingen. Setningen om at
+totalentreprenøren varsler etter punkt 32.2, står (GR-U31),
+og påberopelsen sier i tillegg: ‹Totalentreprenøren opplyser at varsel etter NS 8407 punkt
+32.2 ble sendt i totalentreprenørens <type> av <dato>, som er vedlagt.› Dokumentet legges
+ved påberopelsen. Forhold: presiserer VS-U34 og GR-U31. Følger
+LV-U42 for henvisningen til korrespondansen.
+
+Prøvd mot vedtakene 01.11 av en subagent. Utkastet før prøvingen viste til brevets nummer,
+som LV-U42 har forkastet for korrespondanse, og manglet vilkårene i OV-U79, OV-U80 og OV-U11.'''
+valgt = "versjon 3"
+svar = '''
+Oppdragsgiver 01.11, gjennom orkestratoren, ordrett på S-1 til S-6 (#1477): «4. det forutsetter at TE registrerer brevet med varselet. Det er vel vist i prototypene, siste designrunde, hvordan dette gjøres generelt. Hvis det gjøres så lan det inkluderes nå. 6 viser da til registrert brev som vedlegg. Ellers enig med anbefalingene»
+
+På S-6, versjon 3, ordrett: «Godkjenner teksten for spørsmål 6»'''
+forhold = [{ art = "presiserer", vedtak = "vs-u34" }, { art = "presiserer", vedtak = "gr-u31" }]
+folge = '''
+Bygges i #1481.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "versjon 3"
+tekst = '''
+Svarer totalentreprenøren i skjemaet for ny sak at varsel etter punkt 32.2 alt er sendt utenfor løsningen, legger totalentreprenøren varselet til som korrespondanse med kategorien varsel i samme forløp (VS-U34). Totalentreprenøren oppgir det OV-U79 krever: typen, sendemåten for et brev, datoen det ble sendt, dokumentet som PDF og en kort beskrivelse. Saken, korrespondansen og påberopelsen lagres i samme handling når påberopelsen sendes. Sendes påberopelsen ikke, lagres ingen av dem. Datoen det ble sendt, er datoen for varselet etter punkt 32.2 i løsningen, og den settes én gang (OV-U80). Den kan ikke være senere enn påberopelsen. Varselet påberopelsen gir, endrer ikke den datoen. En feil dato rettes etter OV-U11: en senere dato gjelder straks, og en tidligere dato gjelder først når byggherren godtar rettingen. Setningen om at totalentreprenøren varsler etter punkt 32.2, står (GR-U31), og påberopelsen sier i tillegg: ‹Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 ble sendt i totalentreprenørens <type> av <dato>, som er vedlagt.› Dokumentet legges ved påberopelsen. Forhold: presiserer VS-U34 og GR-U31. Følger LV-U42 for henvisningen til korrespondansen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A (versjon 2)"
+tekst = '''
+Setningen om punkt 32.2 står, og brevet legger til: ‹Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 også ble sendt <dato>.› Det utvider GR-U31.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B (versjon 2)"
+tekst = '''
+Brevet nevner ikke det tidligere varselet. Det står i saken som korrespondanse etter VS-U34.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -7936,6 +8016,59 @@ kilde = "hovedplanen"
 tekst = "Svaret fra appen gjentar innsigelsen som utgangspunkt, og gir byggherren den opp, sier brevet det."
 
 
+[[gruppe.vedtak]]
+id = "LV-U43"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1477", "#1482"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 01.11 og lagret i spørsmålsfila for BF-05 i PR #1482 (#1477). Alternativene står i posten.
+
+## S-2. Skriver totalentreprenøren én eller to titler når saken opprettes?
+
+**Bakgrunn.** Første setning i brevet er etter LV-U41:
+‹Totalentreprenøren krever endringsordre for «<tittel>» i sak <saksnummer> («<sakstittel>»)
+som <forholdet> (NS 8407 punkt <hjemmel>).› Brevet har altså plass for både
+totalentreprenørens navn på det faktiske forholdet og sakstittelen. Etter
+OV-U78 er tittelen på forholdet forholdet selv, ikke
+totalentreprenørens navn på det. Ingen vedtak sier om totalentreprenøren skriver én eller to
+titler når saken opprettes.
+
+**Alternativer**
+
+- **A.** Når totalentreprenøren oppretter saken, skriver totalentreprenøren ett navn på det
+  faktiske forholdet. Det er sakstittelen og navnet i den første påberopelsen. Er navnet
+  likt sakstittelen, sier brevet ‹Totalentreprenøren krever endringsordre for «<tittel>» i
+  sak <saksnummer> som <forholdet> (NS 8407 punkt <hjemmel>).› Det presiserer LV-U41.
+- **B.** Når totalentreprenøren oppretter saken, skriver totalentreprenøren både
+  sakstittelen og et eget navn på det faktiske forholdet i påberopelsen. Brevet følger
+  LV-U41 uendret.
+
+**Anbefaling:** A. Ett felt er nok når saken og påberopelsen er nye samtidig. At to felt
+forvirrer brukeren, er en antakelse.
+
+**Valget styrer** feltene i skjemaet for ny sak og første setning i brevet.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 01.11, gjennom orkestratoren, ordrett på S-1 til S-6 (#1477): «4. det forutsetter at TE registrerer brevet med varselet. Det er vel vist i prototypene, siste designrunde, hvordan dette gjøres generelt. Hvis det gjøres så lan det inkluderes nå. 6 viser da til registrert brev som vedlegg. Ellers enig med anbefalingene»
+
+Orkestratorens lesning i spørsmålsfila (PR #1482): «S-1, S-2, S-3 og S-5 får A.»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u41" }]
+folge = '''
+Bygges i #1481.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Når totalentreprenøren oppretter saken, skriver totalentreprenøren ett navn på det faktiske forholdet. Det er sakstittelen og navnet i den første påberopelsen. Er navnet likt sakstittelen, sier brevet ‹Totalentreprenøren krever endringsordre for «<tittel>» i sak <saksnummer> som <forholdet> (NS 8407 punkt <hjemmel>).› Det presiserer LV-U41.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Når totalentreprenøren oppretter saken, skriver totalentreprenøren både sakstittelen og et eget navn på det faktiske forholdet i påberopelsen. Brevet følger LV-U41 uendret.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -9267,6 +9400,66 @@ Handlingen for å opprette en sak heter ‹Nytt krav om endringsordre› for tot
 endringsordre› for byggherren. Knappen ‹Ny endringsordre› finnes når EO-saken er bygget (OV-U1). Bare
 totalentreprenøren oppretter en KOE-sak, og bare byggherren oppretter en EO-sak.'''
 anbefalt = true
+
+[[gruppe.vedtak]]
+id = "KT-U11"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1477", "#1482"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 01.11 og lagret i spørsmålsfila for BF-05 i PR #1482 (#1477). Alternativene står i posten.
+
+## S-3. Opprettes saken først når påberopelsen sendes?
+
+**Bakgrunn.** I dag opprettes saken før brevkontrollen, fordi den låste brevteksten har
+saksnummeret (LV-U4, DL-U6).
+Oppdragsgiver avgjorde 16.10 (#666, avgjørelse 1): «Avbryter TE, står saken, og neste forsøk
+går til samme sak.» Saken får en topic i Catenda når den opprettes
+(KT-U3). En sak kan også opprettes fra en topic i Catenda,
+og totalentreprenøren sender da påberopelsen senere (KT-U6).
+Utkast er ikke i bruk i første versjon (#718).
+
+Ser totalentreprenøren feil forhold ved brevkontrollen og avbryter, står saken og topicen i
+Catenda uten brev. Forholdet kan ikke endres etter sending
+(GR-U22), men saken har ikke noe sendt. Ingen vedtak sier
+hva som da skjer med saken.
+
+**Alternativer**
+
+- **A.** En sak totalentreprenøren oppretter i løsningen, opprettes når den første
+  påberopelsen sendes, og ikke før. Avbryter totalentreprenøren før sending, finnes ingen sak
+  og ingen topic. En sak opprettet fra en topic følger KT-U6. Det endrer avgjørelsen 16.10
+  (#666) om at saken står når totalentreprenøren avbryter.
+- **B.** Som i dag: saken opprettes før brevkontrollen og står når totalentreprenøren
+  avbryter. Neste forsøk går til samme sak, og totalentreprenøren kan velge et annet forhold
+  der så lenge ingen påberopelse er sendt.
+
+**Anbefaling:** A. Totalentreprenøren som angrer ved brevkontrollen, ender ikke med en tom
+sak i sakslisten og i Catenda. At byggherren kan lese en tom topic som et varsel, er en
+antakelse.
+
+**Valget styrer** om opprettelsen og sendingen er ett steg for brukeren, og hva #1271 skal
+rette. Med A må saksnummeret være kjent i brevkontrollen før saken finnes, eller saken må
+opprettes og påberopelsen sendes samlet. Det er en teknisk følge som byggingen løser.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 01.11, gjennom orkestratoren, ordrett på S-1 til S-6 (#1477): «4. det forutsetter at TE registrerer brevet med varselet. Det er vel vist i prototypene, siste designrunde, hvordan dette gjøres generelt. Hvis det gjøres så lan det inkluderes nå. 6 viser da til registrert brev som vedlegg. Ellers enig med anbefalingene»
+
+Orkestratorens lesning i spørsmålsfila (PR #1482): «S-1, S-2, S-3 og S-5 får A.»'''
+folge = '''
+Bygges i #1481.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En sak totalentreprenøren oppretter i løsningen, opprettes når den første påberopelsen sendes, og ikke før. Avbryter totalentreprenøren før sending, finnes ingen sak og ingen topic. En sak opprettet fra en topic følger KT-U6. Det endrer avgjørelsen 16.10 (#666) om at saken står når totalentreprenøren avbryter.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som i dag: saken opprettes før brevkontrollen og står når totalentreprenøren avbryter. Neste forsøk går til samme sak, og totalentreprenøren kan velge et annet forhold der så lenge ingen påberopelse er sendt.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
