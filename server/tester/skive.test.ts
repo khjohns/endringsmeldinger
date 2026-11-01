@@ -1,5 +1,5 @@
 /**
- * Skiva i #347 mot testbasen: et grunnlagskrav og et vederlagskrav fra TE går
+ * Skiva i #347 mot testbasen: et påberopelse og et vederlagskrav fra TE går
  * over HTTP gjennom tilgangskontrollen og kjernen til journalen og
  * leveringsoppdraget i SQL Server, og tilbake til visningen. Krever
  * `KOE_SQLSERVER_TILKOBLING`. Lagringsgarantiene for brevet og oppdraget (én
@@ -38,9 +38,9 @@ import {
   type Oppsett,
 } from './testbase.ts';
 
-const GRUNNLAGSKRAV = {
+const PAABEROPELSE = {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
@@ -149,13 +149,13 @@ describe.skipIf(!TESTBASE_URL)(
     });
 
     // Kilde: invariant 4 i 2.3 i hovedplanen og kravet fra #711 i #418: et nytt forsøk
-    // etter et tapt svar sender ikke grunnlagskravet eller vederlagskravet to ganger.
-    it('samme kommando-ID to ganger for grunnlagskravet og vederlagskravet gir ett brev hver og samme kvittering (#418)', async () => {
+    // etter et tapt svar sender ikke påberopelsen eller vederlagskravet to ganger.
+    it('samme kommando-ID to ganger for påberopelsen og vederlagskravet gir ett brev hver og samme kvittering (#418)', async () => {
       const sakId = await opprettKjernesak(o);
-      const grunnlag = await laas(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV });
-      const foerste = await sendSom(sakId, grunnlag);
+      const forhold = await laas(sakId, { expected_version: 1, kommando: PAABEROPELSE });
+      const foerste = await sendSom(sakId, forhold);
       expect(foerste.status, JSON.stringify(foerste.kropp)).toBe(201);
-      const igjen = await sendSom(sakId, grunnlag);
+      const igjen = await sendSom(sakId, forhold);
       expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
       expect(igjen.kropp).toMatchObject({
         event_id: foerste.kropp.event_id,
@@ -189,7 +189,7 @@ describe.skipIf(!TESTBASE_URL)(
         const sakId = await opprettKjernesak(o);
         const kropp: Record<string, unknown> = await laas(sakId, {
           expected_version: 1,
-          kommando: GRUNNLAGSKRAV,
+          kommando: PAABEROPELSE,
         });
         kropp.kommando_id = id(kropp.kommando_id);
         if (kropp.kommando_id === undefined) delete kropp.kommando_id;
@@ -202,12 +202,12 @@ describe.skipIf(!TESTBASE_URL)(
       }
     );
 
-    it('grunnlagskravet og vederlagskravet blir to brev, hvert med sitt frosne oppdrag', async () => {
+    it('påberopelsen og vederlagskravet blir to brev, hvert med sitt frosne oppdrag', async () => {
       const sakId = await opprettKjernesak(o);
 
-      const grunnlag = await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV });
-      expect(grunnlag.status, JSON.stringify(grunnlag.kropp)).toBe(201);
-      expect(grunnlag.kropp.versjon).toBe(2);
+      const forhold = await send(sakId, { expected_version: 1, kommando: PAABEROPELSE });
+      expect(forhold.status, JSON.stringify(forhold.kropp)).toBe(201);
+      expect(forhold.kropp.versjon).toBe(2);
       const vederlag = await send(sakId, { expected_version: 2, kommando: VEDERLAGSKRAV });
       expect(vederlag.status, JSON.stringify(vederlag.kropp)).toBe(201);
       expect(vederlag.kropp.versjon).toBe(3);
@@ -220,7 +220,7 @@ describe.skipIf(!TESTBASE_URL)(
         [3, 'dokument_registrert', 1],
       ]);
       const [, g, v] = journal;
-      expect(g.event_id).toBe(grunnlag.kropp.event_id);
+      expect(g.event_id).toBe(forhold.kropp.event_id);
       expect(v.event_id).toBe(vederlag.kropp.event_id);
       for (const rad of [g, v]) {
         expect(rad.aktor_id).toBe(o.te.id);
@@ -228,8 +228,8 @@ describe.skipIf(!TESTBASE_URL)(
         expect(rad.aktor_team_id).toBe(o.prosjekt.teTeam.replaceAll('-', ''));
       }
       expect((g.data.krav as Record<string, unknown>[])[0]).toMatchObject({
-        spor: 'grunnlag',
-        ...GRUNNLAGSKRAV.innhold,
+        spor: 'forhold',
+        ...PAABEROPELSE.innhold,
       });
       expect((v.data.krav as Record<string, unknown>[])[0]).toMatchObject({
         spor: 'vederlag',
@@ -240,7 +240,7 @@ describe.skipIf(!TESTBASE_URL)(
       const oppdrag = await oppdragene(sakId);
       expect(oppdrag.map((x) => x.event_id)).toEqual([g.event_id, v.event_id]);
       expect(oppdrag.map((x) => x.id)).toEqual([
-        grunnlag.kropp.leveringsoppdrag,
+        forhold.kropp.leveringsoppdrag,
         vederlag.kropp.leveringsoppdrag,
       ]);
       for (const [x, rad] of [
@@ -295,10 +295,10 @@ describe.skipIf(!TESTBASE_URL)(
         ])
       ).toEqual(oppdrag.map((x) => [x.event_id, x.innhold_sha256]));
 
-      // MM-U15: oppdraget fryser statusen saken fikk med brevet, her et trukket grunnlag.
+      // MM-U15: oppdraget fryser statusen saken fikk med brevet, her et trukket forhold.
       const trekk = await send(sakId, {
         expected_version: 3,
-        kommando: { type: 'trekk', spor: 'grunnlag' },
+        kommando: { type: 'trekk', spor: 'forhold' },
       });
       expect(trekk.status, JSON.stringify(trekk.kropp)).toBe(201);
       const status = (trekk.kropp.visning as { status: { kode: string } | null }).status;
@@ -311,9 +311,7 @@ describe.skipIf(!TESTBASE_URL)(
 
     it('oppdraget kan gjengis uten journalen, og gjengivelsen er tro mot teksten (LV-U1, LV-U2, B-17)', async () => {
       const sakId = await opprettKjernesak(o);
-      expect((await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
-        201
-      );
+      expect((await send(sakId, { expected_version: 1, kommando: PAABEROPELSE })).status).toBe(201);
       expect((await send(sakId, { expected_version: 2, kommando: VEDERLAGSKRAV })).status).toBe(
         201
       );
@@ -325,7 +323,7 @@ describe.skipIf(!TESTBASE_URL)(
       expect(gjengirTro(v, tekst(innhold[1]))).toBe(true);
       expect(g).toContain(`Sak ${sakId}, brev 2`);
       expect(g).toContain('«Endret fundamentering»');
-      expect(g).toContain(GRUNNLAGSKRAV.utdypning);
+      expect(g).toContain(PAABEROPELSE.utdypning);
       expect(v).toContain('125\u00a0000\u00a0kr');
       // Kontrollsak: gjengivelsen av et annet brev er ikke tro mot dette.
       expect(gjengirTro(v, tekst(innhold[0]))).toBe(false);
@@ -334,20 +332,20 @@ describe.skipIf(!TESTBASE_URL)(
     it('aktøren, event_id og tidsstempelet kan ikke settes av klienten', async () => {
       const sakId = await opprettKjernesak(o);
       for (const [hva, kropp] of [
-        ['aktør i kroppen', { expected_version: 1, kommando: GRUNNLAGSKRAV, aktor_id: o.bh.id }],
+        ['aktør i kroppen', { expected_version: 1, kommando: PAABEROPELSE, aktor_id: o.bh.id }],
         [
           'event_id i kroppen',
-          { expected_version: 1, kommando: GRUNNLAGSKRAV, event_id: randomUUID() },
+          { expected_version: 1, kommando: PAABEROPELSE, event_id: randomUUID() },
         ],
         [
           'aktør i kommandoen',
-          { expected_version: 1, kommando: { ...GRUNNLAGSKRAV, aktor_rolle: 'BH' } },
+          { expected_version: 1, kommando: { ...PAABEROPELSE, aktor_rolle: 'BH' } },
         ],
         [
           'tidsstempel i kommandoen',
           {
             expected_version: 1,
-            kommando: { ...GRUNNLAGSKRAV, tidsstempel: '2020-01-01T00:00:00Z' },
+            kommando: { ...PAABEROPELSE, tidsstempel: '2020-01-01T00:00:00Z' },
           },
         ],
       ] as const) {
@@ -361,11 +359,11 @@ describe.skipIf(!TESTBASE_URL)(
     it('tekst basen ikke kan lagre, gir 400 og skriver ingenting', async () => {
       const sakId = await opprettKjernesak(o);
       for (const [hva, innhold] of [
-        ['NUL', { ...GRUNNLAGSKRAV.innhold, tittel: 'a\u0000b' }],
-        ['enslig surrogat', { ...GRUNNLAGSKRAV.innhold, tittel: '\ud800' }],
-        ['NUL i en nøkkel', { ...GRUNNLAGSKRAV.innhold, 'a\u0000': 'b' }],
+        ['NUL', { ...PAABEROPELSE.innhold, tittel: 'a\u0000b' }],
+        ['enslig surrogat', { ...PAABEROPELSE.innhold, tittel: '\ud800' }],
+        ['NUL i en nøkkel', { ...PAABEROPELSE.innhold, 'a\u0000': 'b' }],
       ] as const) {
-        const kommando = { ...GRUNNLAGSKRAV, innhold };
+        const kommando = { ...PAABEROPELSE, innhold };
         const svar = await send(sakId, { expected_version: 1, kommando });
         expect(svar.status, hva).toBe(400);
         expect(svar.kropp).toMatchObject({
@@ -397,7 +395,7 @@ describe.skipIf(!TESTBASE_URL)(
 
     it('en kommando kjernen avviser, skriver ingenting', async () => {
       const sakId = await opprettKjernesak(o);
-      const svar = await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV }, o.bh);
+      const svar = await send(sakId, { expected_version: 1, kommando: PAABEROPELSE }, o.bh);
       expect(svar.status).toBe(400);
       expect(svar.kropp.error).toBe('REGELBRUDD');
       expect(await journalen(sakId)).toHaveLength(1);
@@ -407,7 +405,7 @@ describe.skipIf(!TESTBASE_URL)(
     it('en annen versjon enn journalens gir versjonskonflikt og skriver ingenting', async () => {
       const sakId = await opprettKjernesak(o);
       for (const forventet of [0, 2]) {
-        const svar = await send(sakId, { expected_version: forventet, kommando: GRUNNLAGSKRAV });
+        const svar = await send(sakId, { expected_version: forventet, kommando: PAABEROPELSE });
         expect(svar.status).toBe(409);
         expect(svar.kropp).toMatchObject({ error: 'VERSJONSKONFLIKT', current_version: 1 });
       }
@@ -418,8 +416,8 @@ describe.skipIf(!TESTBASE_URL)(
     it('to samtidige kommandoer på samme versjon gir ett brev og ett oppdrag', async () => {
       const sakId = await opprettKjernesak(o);
       const svar = await Promise.all([
-        send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV }),
-        send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV }),
+        send(sakId, { expected_version: 1, kommando: PAABEROPELSE }),
+        send(sakId, { expected_version: 1, kommando: PAABEROPELSE }),
       ]);
       expect(svar.map((s) => s.status).sort()).toEqual([201, 409]);
       expect(await journalen(sakId)).toHaveLength(2);
@@ -435,13 +433,13 @@ describe.skipIf(!TESTBASE_URL)(
       expect(lest.status).toBe(404);
       const svar = await send(sakId, {
         expected_version: 1,
-        kommando: { ...GRUNNLAGSKRAV, brevtekst: [] },
+        kommando: { ...PAABEROPELSE, brevtekst: [] },
       });
       expect(svar.status).toBe(404);
       expect(svar.kropp.error).toBe('SAK_FINNES_IKKE');
       // Kontrollsak: samme kommando i en sak kjernen har skrevet, går gjennom.
       const kjernesak = await opprettKjernesak(o);
-      expect((await send(kjernesak, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
+      expect((await send(kjernesak, { expected_version: 1, kommando: PAABEROPELSE })).status).toBe(
         201
       );
     });
@@ -450,14 +448,12 @@ describe.skipIf(!TESTBASE_URL)(
       const sakId = await opprettKjernesak(o);
       const [board, topic] = [randomUUID(), randomUUID()];
       await settTopic(sakId, board, topic);
-      expect((await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
-        201
-      );
+      expect((await send(sakId, { expected_version: 1, kommando: PAABEROPELSE })).status).toBe(201);
       const [x] = await oppdragene(sakId);
       expect(x.innhold.maal).toMatchObject({ board_id: board, topic_id: topic });
       // Kontrollsak: en sak uten topic fryser topic lik null, som i PG-stien.
       const utenTopic = await opprettKjernesak(o);
-      expect((await send(utenTopic, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
+      expect((await send(utenTopic, { expected_version: 1, kommando: PAABEROPELSE })).status).toBe(
         201
       );
       expect((await oppdragene(utenTopic))[0].innhold.maal).toMatchObject({
@@ -516,7 +512,7 @@ describe.skipIf(!TESTBASE_URL)('koblingen slås av under skrivingen (#739 punkt 
         kropp: {
           expected_version: 1,
           kommando_id: randomUUID(),
-          kommando: { ...GRUNNLAGSKRAV, brevtekst: [] },
+          kommando: { ...PAABEROPELSE, brevtekst: [] },
         },
       });
     } finally {

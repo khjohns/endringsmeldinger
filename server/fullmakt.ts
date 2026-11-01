@@ -30,7 +30,7 @@ const oere = (kr: number) => tilTall(beloep(kr)!);
 
 /**
  * Verdien av svarene i ett brev. Et spor som besvares i brevet, har verdien i svaret.
- * Godkjenner brevet grunnlaget, har et kravspor som ikke besvares, verdien i TEs
+ * Godkjenner brevet forholdet, har et kravspor som ikke besvares, verdien i TEs
  * gjeldende krav: et krav som ikke er sendt, kan ikke verdsettes, og et trukket krav
  * er 0. Avslått og frafalt ansvar er 0 (presiseringen 24.09). Fristdager uten
  * dagmulktssats kan ikke verdsettes (GFK-U3). Hovedstandpunktet og det subsidiære
@@ -61,7 +61,7 @@ export function brevverdi(
   };
 
   for (const s of svar) {
-    if (s.spor === 'grunnlag') continue;
+    if (s.spor === 'forhold') continue;
     const krav = u.spor[s.spor].gjeldendeKrav;
     if (!krav) throw new Error(`Sporet ${s.spor} har ikke noe krav å svare på`);
     const r = regnUtSvar(
@@ -69,7 +69,7 @@ export function brevverdi(
       s.vurderinger,
       {
         krav,
-        grunnlagskrav: u.spor.grunnlag.gjeldendeKrav,
+        paaberopelse: u.spor.forhold.gjeldendeKrav,
         foresporsel: foresporselForFristsvar(u),
       },
       regler
@@ -82,8 +82,8 @@ export function brevverdi(
     );
   }
 
-  const grunnlag = svar.find((s) => s.spor === 'grunnlag');
-  if (grunnlag?.vurderinger.resultat === 'godkjent') {
+  const forhold = svar.find((s) => s.spor === 'forhold');
+  if (forhold?.vurderinger.resultat === 'godkjent') {
     const besvart = new Set(svar.map((s) => s.spor));
     for (const spor of KRAVSPOR) {
       if (besvart.has(spor)) continue;

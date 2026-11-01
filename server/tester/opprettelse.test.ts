@@ -17,7 +17,7 @@ import { UgyldigKontekst } from '../datalag.ts';
 import { sql } from './sqlserver.ts';
 import { avvisning, iTransaksjon, settInn } from './sqlserver_migrert.ts';
 import {
-  GRUNNLAGSKRAV,
+  PAABEROPELSE,
   kall,
   type KjorendeServer,
   lagOppsett,
@@ -113,7 +113,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
     expect(String(rad.created_by).toLowerCase()).toBe(o.te.id);
     expect(JSON.parse(rad.data)).toEqual({ sakstittel: OPPRETT.sakstittel, sakstype: 'standard' });
 
-    // Saken leses og tar imot et grunnlagskrav med versjonen svaret ga, med den
+    // Saken leses og tar imot et påberopelse med versjonen svaret ga, med den
     // låste teksten skjemaet viser (LV-U2).
     const lest = await kall(server.url, `${SAKER}/${sakId}`, {
       bruker: o.te,
@@ -152,15 +152,15 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
         prosjektId: o.prosjekt.id,
         kropp: { expected_version, kommando_id, kommando },
       });
-    const grunnlagId = randomUUID();
-    const grunnlag = await medLaastTekst(o, sakId);
-    const foerste = await send(1, grunnlagId, grunnlag);
+    const paaberopelseId = randomUUID();
+    const forhold = await medLaastTekst(o, sakId);
+    const foerste = await send(1, paaberopelseId, forhold);
     expect(foerste.status, JSON.stringify(foerste.kropp)).toBe(201);
     const vederlag = await send(2, randomUUID(), await medLaastTekst(o, sakId, VEDERLAGSKRAV));
     expect(vederlag.status, JSON.stringify(vederlag.kropp)).toBe(201);
     expect(vederlag.kropp.versjon).toBe(3);
 
-    const igjen = await send(1, grunnlagId, grunnlag);
+    const igjen = await send(1, paaberopelseId, forhold);
     expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
     expect(igjen.kropp).toEqual(foerste.kropp);
     expect(igjen.kropp.versjon).toBe(2);
@@ -255,7 +255,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
       'UGYLDIG_FORM',
       '$.sakstittel: saken må ha en tittel',
     ],
-    ['med en annen kommando', { kommando: GRUNNLAGSKRAV }, 'UGYLDIG_FORM', '$.type'],
+    ['med en annen kommando', { kommando: PAABEROPELSE }, 'UGYLDIG_FORM', '$.type'],
   ])('%s avvises med en melding som sier hva', async (_n, kropp, feil, melding) => {
     const svar = await opprett(kropp);
     expect(svar.status).toBe(400);
@@ -273,7 +273,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
         const svar = await opprett({ kommando: OPPRETT });
         return {
           sti: `${SAKER}/${svar.kropp.sak_id}/kommandoer`,
-          kropp: { expected_version: 1, kommando: GRUNNLAGSKRAV },
+          kropp: { expected_version: 1, kommando: PAABEROPELSE },
         };
       },
     ],
@@ -524,7 +524,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
       ).toBe(229);
     });
 
-    it('et grunnlagskrav til en sak uten sak_opprettet gir 404, ikke en skrivefeil', async () => {
+    it('et påberopelse til en sak uten sak_opprettet gir 404, ikke en skrivefeil', async () => {
       // Bare saksraden, lagt inn av eieren: det kjøretiden ikke kan lage.
       const sakId = randomUUID();
       await iTransaksjon(
@@ -542,7 +542,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
         const svar = await kall(server.url, `${SAKER}/${sakId}/kommandoer`, {
           bruker: o.te,
           prosjektId: o.prosjekt.id,
-          kropp: { expected_version, kommando_id: randomUUID(), kommando: GRUNNLAGSKRAV },
+          kropp: { expected_version, kommando_id: randomUUID(), kommando: PAABEROPELSE },
         });
         expect(svar.status).toBe(404);
         expect(svar.kropp.error).toBe('SAK_FINNES_IKKE');

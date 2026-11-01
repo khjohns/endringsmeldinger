@@ -354,7 +354,7 @@ export async function skrivHendelse<A>(
   sakId: string,
   forventet: number,
   kommando: Kommando,
-  lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>,
+  lag: (forhold: Skrivegrunnlag) => Skriveutfall<A>,
   { vedlegg: vedleggider }: { vedlegg?: readonly string[] } = {}
 ): Promise<Skriveutfall<A> | Gjentatt> {
   const forsoek = () =>

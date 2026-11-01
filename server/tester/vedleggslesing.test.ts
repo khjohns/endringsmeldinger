@@ -31,9 +31,9 @@ import { iTransaksjon } from './sqlserver_migrert.ts';
 
 const PDF = Buffer.from('%PDF-1.7\nInnhold\n');
 
-const GRUNNLAGSKRAV = {
+const PAABEROPELSE = {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
@@ -104,11 +104,11 @@ describe.skipIf(!TESTBASE_URL)('lesingen av vedleggene i skrivingen', () => {
       kropp: { expected_version: versjon, kommando_id: randomUUID(), kommando },
     });
 
-  /** Saken med TEs grunnlagskrav, så et varsel kan registreres (versjon 2). */
-  async function sakMedGrunnlag(): Promise<string> {
+  /** Saken med TEs påberopelse, så et varsel kan registreres (versjon 2). */
+  async function sakMedPaaberopelse(): Promise<string> {
     const sakId = await opprettKjernesak(o);
     const vist = forhaandsvis(
-      GRUNNLAGSKRAV,
+      PAABEROPELSE,
       {
         sakId,
         aktoerId: o.te.id,
@@ -122,7 +122,7 @@ describe.skipIf(!TESTBASE_URL)('lesingen av vedleggene i skrivingen', () => {
     );
     if (!vist.godtatt) throw new Error('Kravet ble ikke godtatt i forhåndsvisningen');
     const svar = await send(sakId, 1, {
-      ...GRUNNLAGSKRAV,
+      ...PAABEROPELSE,
       brevtekst: laastTekst(vist.hendelser[0]),
     });
     if (svar.status !== 201) throw new Error(`Kravet ble avvist: ${svar.status}`);
@@ -130,7 +130,7 @@ describe.skipIf(!TESTBASE_URL)('lesingen av vedleggene i skrivingen', () => {
   }
 
   it('et vedlegg som slettes i en åpen transaksjon mens varselet skrives, avvises med VEDLEGG_FINNES_IKKE når slettingen blir stående, og ingenting skrives (#827 punkt 2)', async () => {
-    const sakId = await sakMedGrunnlag();
+    const sakId = await sakMedPaaberopelse();
     const id = await lastOpp(o.te, sakId, 'varsel.pdf');
     let svar: ReturnType<typeof send> | undefined;
     await iTransaksjon(o.datalag.kjoeretid.pool, teKontekst(), async (r) => {

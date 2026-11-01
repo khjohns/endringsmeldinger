@@ -335,10 +335,10 @@ export async function opprettKjernesak(
   return sakId;
 }
 
-/** TEs krav om grunnlag, uten den låste teksten. */
-export const GRUNNLAGSKRAV = {
+/** TEs krav om forhold, uten den låste teksten. */
+export const PAABEROPELSE = {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
@@ -355,7 +355,7 @@ export const GRUNNLAGSKRAV = {
 export async function medLaastTekst(
   o: Oppsett,
   sakId: string,
-  kommando: Record<string, unknown> = GRUNNLAGSKRAV
+  kommando: Record<string, unknown> = PAABEROPELSE
 ): Promise<Record<string, unknown>> {
   const { journal } = await lesSaken(
     o.datalag.kjoeretid.pool,
@@ -387,7 +387,7 @@ export async function sendKommando(
   sakId: string,
   {
     versjon,
-    kommando = GRUNNLAGSKRAV,
+    kommando = PAABEROPELSE,
     kommandoId = randomUUID(),
   }: { versjon: number; kommando?: Record<string, unknown>; kommandoId?: string }
 ): Promise<Svar> {

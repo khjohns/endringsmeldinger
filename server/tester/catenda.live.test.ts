@@ -530,7 +530,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
           logg,
         });
 
-      /** Brevet med kravet om grunnlag, med den låste teksten klienten viste (LV-U2). */
+      /** Brevet med kravet om forhold, med den låste teksten klienten viste (LV-U2). */
       async function sendBrev(sakId: string) {
         const svar = await sendKommando(server.url, o, sakId, { versjon: 1 });
         if (svar.status !== 201 && svar.status !== 200)
