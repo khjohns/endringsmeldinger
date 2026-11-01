@@ -19,6 +19,11 @@
     handling?: Snippet;
   } = $props();
   const uid = $props.id();
+
+  /** Beløpene slik `kroner()` i kjernen skriver dem, så de kan stå med mono (#1465, A4). */
+  const BELOEP = /(−?\d{1,3}(?:\u00a0\d{3})*(?:,\d{2})?\u00a0kr)/;
+  const deler = (tekst: string) =>
+    tekst.split(BELOEP).map((del, i) => ({ del, beloep: i % 2 === 1 }));
 </script>
 
 <section class="kort" aria-labelledby={`${uid}-hovedlinjer-tittel`}>
@@ -29,7 +34,10 @@
         {#each linjer as l, i (i)}
           <li>
             {#if l.lag}<span class="lag">{l.lag}</span>{/if}
-            <span>{l.tekst}</span>
+            <span
+              >{#each deler(l.tekst) as d, j (j)}{#if d.beloep}<span class="num">{d.del}</span
+                  >{:else}{d.del}{/if}{/each}</span
+            >
           </li>
         {/each}
       </ul>
@@ -45,7 +53,7 @@
   .kort {
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
   }
   .hode {
     padding: var(--spacing-4) var(--spacing-5);
@@ -69,6 +77,12 @@
   }
   li:last-child {
     border-bottom: 0;
+  }
+  .num {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
   .lag {
     color: var(--ink-3);

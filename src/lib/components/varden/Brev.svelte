@@ -64,10 +64,10 @@
 <style>
   .brev {
     max-width: var(--varden-ark);
-    padding: var(--spacing-10) var(--spacing-12);
+    padding: 28px var(--spacing-10) 36px;
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
     font-family: var(--font-legal);
     color: var(--ink);
     line-height: 1.6;
@@ -129,9 +129,9 @@
     font-family: var(--font-sans);
     font-size: 14px;
   }
-  @media (max-width: 767px) {
+  @media (max-width: 860px) {
     .brev {
-      padding: var(--spacing-6) var(--spacing-4);
+      padding: var(--spacing-5) var(--spacing-4) 28px;
     }
   }
 </style>

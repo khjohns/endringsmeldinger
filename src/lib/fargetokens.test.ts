@@ -15,8 +15,9 @@
  * statusfargene på sin egen bakgrunn. `--warning`, `--gold`, `--draft` og
  * `--control-border` holder ikke kravet ennå og står i #1258.
  *
- * Varden har egne tokens i `.tema-varden` (Blekk, #1391), lagt over lys modus. Der
- * prøves også utkastfargen på sin bakgrunn, feltkanten på flatene og teksten og
+ * Varden har egne tokens i `.tema-varden` (Blekk, #1391), lagt over lys modus, og i
+ * `:root.dark .tema-varden` for mørk modus (#1465). Der prøves også utkastfargen på sin
+ * bakgrunn, feltkanten på flatene, teksten på primærknappen og teksten og
  * fokusmarkeringen i det mørke panelet.
  */
 
@@ -59,12 +60,13 @@ export function udefinerteTokens(tekster: Record<string, string>): Record<string
   );
 }
 
-type Modus = 'lys' | 'mørk' | 'varden';
+type Modus = 'lys' | 'mørk' | 'varden' | 'varden-mørk';
 type Rgba = [number, number, number, number];
 
 /**
- * Tokenene i lys modus (alle `:root { … }`), i mørk modus (lys med `:root.dark` over) og
- * i Varden (lys med `.tema-varden` over).
+ * Tokenene i lys modus (alle `:root { … }`), i mørk modus (lys med `:root.dark` over),
+ * i Varden (lys med `.tema-varden` over) og i Varden i mørk modus (mørk med
+ * `.tema-varden` og `:root.dark .tema-varden` over).
  */
 export function tokenverdier(css: string): Record<Modus, Record<string, string>> {
   const kode = css.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -75,10 +77,17 @@ export function tokenverdier(css: string): Record<Modus, Record<string, string>>
     return verdier;
   };
   const lys = les(/(?<=^|\})\s*:root\s*\{([^}]*)\}/g);
+  const mørk = { ...lys, ...les(/:root\.dark\s*,\s*\.mockup\.dark\s*\{([^}]*)\}/g) };
+  const varden = les(/(?<=^|\})\s*\.tema-varden\s*\{([^}]*)\}/g);
   return {
     lys,
-    mørk: { ...lys, ...les(/:root\.dark\s*,\s*\.mockup\.dark\s*\{([^}]*)\}/g) },
-    varden: { ...lys, ...les(/\.tema-varden\s*\{([^}]*)\}/g) },
+    mørk,
+    varden: { ...lys, ...varden },
+    'varden-mørk': {
+      ...mørk,
+      ...varden,
+      ...les(/:root\.dark\s+\.tema-varden\s*\{([^}]*)\}/g),
+    },
   };
 }
 
@@ -142,19 +151,22 @@ export function brudd(verdier: Record<Modus, Record<string, string>>): string[] 
     const forhold = kontrast(over(farge(verdier[modus], fg), flate), flate);
     if (forhold < krav) funn.push(`${modus}: ${fg} på ${bg} (${forhold.toFixed(2)})`);
   };
-  for (const modus of ['lys', 'mørk', 'varden'] as const) {
+  for (const modus of ['lys', 'mørk', 'varden', 'varden-mørk'] as const) {
     for (const bg of FLATER) {
       for (const fg of BLEKK) prov(modus, fg, bg, 4.5);
       prov(modus, '--control-focus', bg, 3);
     }
     for (const s of STATUS) prov(modus, s, `${s}-bg`, 4.5, '--surface');
   }
-  prov('varden', '--draft', '--draft-bg', 4.5);
-  for (const bg of ['--surface', '--surface-inset'])
-    prov('varden', '--control-border-color', bg, 3);
-  for (const bg of ['--sidebar-bg', '--sidebar-active']) {
-    for (const fg of ['--sidebar-text', '--sidebar-muted']) prov('varden', fg, bg, 4.5);
-    prov('varden', '--sidebar-focus', bg, 3);
+  for (const modus of ['varden', 'varden-mørk'] as const) {
+    prov(modus, '--draft', '--draft-bg', 4.5);
+    prov(modus, '--danger', '--danger-bg', 4.5);
+    prov(modus, '--on-brand', '--brand', 4.5);
+    for (const bg of ['--surface', '--surface-inset']) prov(modus, '--control-border-color', bg, 3);
+    for (const bg of ['--sidebar-bg', '--sidebar-active']) {
+      for (const fg of ['--sidebar-text', '--sidebar-muted']) prov(modus, fg, bg, 4.5);
+      prov(modus, '--sidebar-focus', bg, 3);
+    }
   }
   return funn;
 }
@@ -173,8 +185,117 @@ describe('fargetokenene i src/', () => {
 
   it('--ink-ghost er pynt og har en annen verdi enn --ink-4 i begge modi', () => {
     const verdier = tokenverdier(readFileSync(TEMA, 'utf8'));
-    for (const modus of ['lys', 'mørk', 'varden'] as const)
+    for (const modus of ['lys', 'mørk', 'varden', 'varden-mørk'] as const)
       expect(verdier[modus]['--ink-ghost'], modus).not.toBe(verdier[modus]['--ink-4']);
+  });
+});
+
+/**
+ * Tokenene i `:root` og `:root[data-theme="dark"]` i prototypene i
+ * `docs/design/prototyper/` (`vederlagssvar.html:17-52`, de samme i de andre). `--brand-bg`,
+ * `--ink-ghost` og `--sidebar-border` står i sju av dem. Radiusen følger `system.md`, ikke
+ * prototypenes `--r-kort: 8px` (oppdragsgiver 01.11, #1402).
+ */
+const PROTOTYPENE_LYS: Record<string, string> = {
+  '--brand': '#15181d',
+  '--brand-bg': '#e6e9ee',
+  '--on-brand': '#ffffff',
+  '--canvas': '#eef0f2',
+  '--surface': '#ffffff',
+  '--surface-warm': '#f6f7f8',
+  '--surface-inset': '#f3f4f6',
+  '--surface-selected': '#e6e9ee',
+  '--ink': '#15181d',
+  '--ink-2': '#343a43',
+  '--ink-3': '#545b66',
+  '--ink-4': '#5f6672',
+  '--ink-ghost': '#8a909a',
+  '--rule-color': '#dadde2',
+  '--rule-subtle-color': '#e6e8eb',
+  '--rule-strong-color': '#c3c8cf',
+  '--control-bg': '#f3f4f6',
+  '--control-border-color': '#80868f',
+  '--control-focus': '#2457d6',
+  '--control-focus-ring': '0 0 0 3px rgba(36, 87, 214, 0.25)',
+  '--draft': '#5f4a00',
+  '--draft-bg': '#fff3c4',
+  '--draft-border': '#9e7f12',
+  '--sidebar-bg': '#15181d',
+  '--sidebar-active': '#262b33',
+  '--sidebar-hover': '#1e2228',
+  '--sidebar-text': '#f3f4f6',
+  '--sidebar-muted': '#a9afb9',
+  '--sidebar-border': '#2e333b',
+  '--varden-ark': '760px',
+  '--varden-stoette': '360px',
+  '--r-knapp': '999px',
+  '--r-felt': '4px',
+};
+const PROTOTYPENE_MØRK: Record<string, string> = {
+  ...PROTOTYPENE_LYS,
+  '--brand': '#eef0f3',
+  '--brand-bg': '#2a2f37',
+  '--on-brand': '#15181d',
+  '--canvas': '#0f1114',
+  '--surface': '#171a1f',
+  '--surface-warm': '#1c2026',
+  '--surface-inset': '#1a1d22',
+  '--surface-selected': '#262b33',
+  '--ink': '#eef0f3',
+  '--ink-2': '#cdd2d9',
+  '--ink-3': '#a9afb9',
+  '--ink-4': '#9aa1ab',
+  '--ink-ghost': '#6c727c',
+  '--rule-color': '#2b3037',
+  '--rule-subtle-color': '#23272d',
+  '--rule-strong-color': '#3a4049',
+  '--control-bg': '#121418',
+  '--control-border-color': '#6c727c',
+  '--control-focus': '#8fb0ff',
+  '--control-focus-ring': '0 0 0 3px rgba(143, 176, 255, 0.3)',
+  '--draft': '#f3d675',
+  '--draft-bg': '#2f2810',
+  '--draft-border': '#a88a2a',
+  '--sidebar-bg': '#0b0d10',
+  '--sidebar-active': '#1f242b',
+  '--sidebar-hover': '#171b20',
+  '--sidebar-border': '#23272d',
+};
+
+describe('Varden-tokenene i theme.css mot prototypene (#1465)', () => {
+  const verdier = tokenverdier(readFileSync(TEMA, 'utf8'));
+  /** Følger `var(--x)` til verdien, slik `--control-bg: var(--surface-inset)` står i theme.css. */
+  const løs = (modus: Modus, token: string) => {
+    let v = verdier[modus][token];
+    for (let i = 0; v?.startsWith('var(') && i < 5; i++) v = verdier[modus][v.slice(4, -1).trim()];
+    return v;
+  };
+
+  for (const [modus, fasit] of [
+    ['varden', PROTOTYPENE_LYS],
+    ['varden-mørk', PROTOTYPENE_MØRK],
+  ] as const)
+    it(`${modus}: hvert token i prototypene har prototypens verdi`, () => {
+      const avvik = Object.entries(fasit)
+        .filter(([t, v]) => løs(modus, t) !== v)
+        .map(([t, v]) => `${t}: ${løs(modus, t)} (prototypen ${v})`);
+      expect(avvik).toEqual([]);
+    });
+
+  it('feilfargene og streken settes i Varden selv, i lys og mørk modus, og arves ikke fra :root', () => {
+    const css = readFileSync(TEMA, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const lysBlokk = /(?<=^|\})\s*\.tema-varden\s*\{([^}]*)\}/.exec(css)![1];
+    const mørkBlokk = /:root\.dark\s+\.tema-varden\s*\{([^}]*)\}/.exec(css)![1];
+    for (const token of ['--danger', '--danger-bg', '--danger-border', '--rule-subtle-color']) {
+      expect(lysBlokk, token).toMatch(new RegExp(`${token}\\s*:`));
+      expect(mørkBlokk, token).toMatch(new RegExp(`${token}\\s*:`));
+    }
+  });
+
+  it('--font-mono er IBM Plex Mono først i Varden, og den gamle visningen beholder JetBrains Mono', () => {
+    expect(verdier.varden['--font-mono']).toMatch(/^'IBM Plex Mono',/);
+    expect(verdier['varden-mørk']['--font-mono']).toMatch(/^'IBM Plex Mono',/);
+    expect(verdier.lys['--font-mono']).toMatch(/^'JetBrains Mono',/);
   });
 });
 
@@ -220,7 +341,9 @@ describe('kontrollene i vaktene', () => {
         ':root.dark,\n.mockup.dark {\n  --ink-4: #ffffff;\n  --canvas: #000000;\n}',
         '.tema-varden {\n  --draft: #999999; --draft-bg: #ffffff; --control-border-color: #eeeeee;',
         '  --sidebar-bg: #000000; --sidebar-active: #000000; --sidebar-text: #ffffff;',
-        '  --sidebar-muted: #444444; --sidebar-focus: #ffffff;\n}',
+        '  --sidebar-muted: #444444; --sidebar-focus: #ffffff;',
+        '  --brand: #000000; --on-brand: #ffffff;\n}',
+        ':root.dark .tema-varden {\n  --on-brand: #111111;\n}',
       ].join('\n')
     );
     expect(verdier.mørk['--ink-2']).toBe('#000000');
@@ -232,6 +355,9 @@ describe('kontrollene i vaktene', () => {
     expect(funn).toContain('varden: --draft på --draft-bg (2.85)');
     expect(funn).toContain('varden: --control-border-color på --surface-inset (1.16)');
     expect(funn).toContain('varden: --sidebar-muted på --sidebar-bg (2.16)');
+    expect(funn).toContain('varden-mørk: --on-brand på --brand (1.11)');
+    expect(funn).toContain('varden-mørk: --ink på --canvas (1.00)');
+    expect(verdier.varden['--on-brand']).toBe('#ffffff');
     expect(funn.filter((f) => f.includes('--success'))).toEqual([]);
   });
 });

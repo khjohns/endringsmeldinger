@@ -439,7 +439,7 @@
     padding: var(--spacing-2) var(--spacing-3);
     border: 0;
     border-left: 3px solid transparent;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 var(--r-felt) var(--r-felt) 0;
     background: none;
     font: inherit;
     color: var(--sidebar-text);
@@ -470,11 +470,11 @@
   }
   .merke-utkast {
     padding: 0 var(--spacing-2);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     font-size: 12px;
     font-weight: 500;
     border: 1px dashed var(--draft-border);
-    background: var(--draft-bg);
+    background: var(--surface);
     color: var(--draft);
   }
   /* Kontrakten står nederst i panelet, som i dagens oversikt (oppdragsgiver 30.10). */
@@ -489,20 +489,20 @@
     align-self: flex-start;
     padding: 0 var(--spacing-2);
     border: 1px solid var(--sidebar-border);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     color: var(--sidebar-muted);
     font-size: 12px;
   }
   /* Topplinja, meldingen og lastingen har samme kanter som arbeidet, som står midtstilt. */
   .flate {
-    --kant: max(var(--spacing-10), calc((100% - var(--varden-arbeid)) / 2));
+    --kant: max(var(--spacing-6), calc((100% - var(--varden-arbeid)) / 2));
     min-width: 0;
   }
   .varden.innfelt {
     grid-template-columns: minmax(0, 1fr);
   }
   .innfelt .flate {
-    --kant: max(var(--spacing-10), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
+    --kant: max(var(--spacing-6), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
   }
   .topplinje {
     display: flex;
@@ -522,7 +522,7 @@
     color: var(--ink-3);
   }
   .arbeid {
-    padding: var(--spacing-6) var(--spacing-10) var(--spacing-12);
+    padding: 28px var(--kant) 64px;
   }
   .laster,
   .lastefeil {
@@ -552,7 +552,7 @@
     margin: 0 auto var(--spacing-4);
     padding: var(--spacing-3) var(--spacing-4);
     background: var(--surface-inset);
-    border-radius: 4px;
+    border-radius: var(--r-innfelt);
   }
   .melding.sendt {
     background: var(--success-bg);
@@ -560,7 +560,7 @@
   .melding:focus {
     outline: none;
   }
-  @media (max-width: 1023px) {
+  @media (max-width: 860px) {
     .varden {
       grid-template-columns: minmax(0, 1fr);
     }

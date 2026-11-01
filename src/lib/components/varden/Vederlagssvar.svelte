@@ -233,7 +233,7 @@
   let smal = $state(false);
   $effect(() => {
     if (typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(max-width: 1023px)');
+    const mq = window.matchMedia('(max-width: 1180px)');
     const sett = () => (smal = mq.matches);
     sett();
     mq.addEventListener('change', sett);
@@ -544,11 +544,11 @@
   .utkast {
     background: var(--surface);
     border: 1.5px dashed var(--draft-border);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
   }
   .utkasthode {
     background: var(--draft-bg);
-    border-radius: 10.5px 10.5px 0 0;
+    border-radius: calc(var(--r-kort) - 1.5px) calc(var(--r-kort) - 1.5px) 0 0;
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;
     flex-direction: column;
@@ -566,7 +566,7 @@
   .merke-utkast {
     padding: 0 var(--spacing-2);
     border: 1px dashed var(--draft-border);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     background: var(--surface);
     font-size: 12px;
     font-weight: 500;
@@ -617,14 +617,14 @@
     gap: var(--spacing-1);
     padding: 0 var(--spacing-2);
     border: var(--rule-strong);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     color: var(--ink-2);
     font-size: 12px;
   }
   /* Subsidiært har ingen farge; laget skilles med kantlinjen og teksten (#197). */
   .forutsetninger {
     padding: var(--spacing-1) 0 var(--spacing-1) var(--spacing-3);
-    border-left: 3px solid var(--ink-3);
+    border-left: 2px solid var(--ink);
     color: var(--ink-2);
     font-size: 14px;
   }
@@ -645,7 +645,7 @@
   .datoer {
     padding: var(--spacing-3) var(--spacing-4);
     background: var(--surface-inset);
-    border-radius: 4px;
+    border-radius: var(--r-innfelt);
     font-size: 14px;
   }
   .beloepfelt,
@@ -659,7 +659,7 @@
     align-items: stretch;
     width: 220px;
     border: var(--control-border);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
   }
   .inndata:focus-within,
   textarea:focus-visible {
@@ -673,8 +673,9 @@
     padding: 0 var(--spacing-3);
     border: 0;
     text-align: right;
-    font: inherit;
+    font: 16px var(--font-mono);
     font-variant-numeric: tabular-nums;
+    color: var(--ink);
     background: var(--surface);
     outline: none;
   }
@@ -688,7 +689,7 @@
   textarea {
     padding: var(--spacing-3);
     border: var(--control-border);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
     font: inherit;
     background: var(--surface);
     resize: vertical;
@@ -775,7 +776,7 @@
     padding: var(--spacing-3);
     background: var(--danger-bg);
     border: 1px solid var(--danger-border);
-    border-radius: 4px;
+    border-radius: var(--r-innfelt);
     font-size: 14px;
   }
   /* Over tidslinja, som ruller under: den åpne chevronen er rotert og ville ellers ligget
@@ -796,7 +797,7 @@
     max-height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
     overflow: hidden;
   }
   .lesetittel {

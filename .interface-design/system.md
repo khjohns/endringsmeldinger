@@ -89,7 +89,9 @@ Punktene under gjelder dagens visning.
 - **4 px-rutenett** (`--spacing-1` til `--spacing-12`). Tett i sporoversikten og
   skjemaene, mer luft rundt brevteksten.
 - **Skallet:** `--mockup-sidebar-width`, `--mockup-drawer-width` og
-  `--mockup-topbar-height`. Under 768 px legges kolonnene under hverandre.
+  `--mockup-topbar-height`. I Varden legges støttekolonnen under arbeidet under
+  1180 px, og panelet over arbeidet under 860 px, som i prototypene
+  (oppdragsgiver 01.11, #1461).
 - **Radius betyr noe i Varden** (oppdragsgiver 01.11, #1402). Bare knappene er runde,
   som piller (`--r-knapp`), så en handling skiller seg fra alt annet. Kort og brev har
   samme radius, 12 px (`--r-kort`): det gir ro på store flater, og brevet ser ikke

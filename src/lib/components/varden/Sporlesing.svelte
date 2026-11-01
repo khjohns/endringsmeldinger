@@ -215,13 +215,13 @@
     padding: var(--spacing-6);
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
     color: var(--ink-2);
   }
   .kort {
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
   }
   .hode {
     display: flex;
@@ -261,6 +261,6 @@
     padding: var(--spacing-3);
     background: var(--danger-bg);
     border: 1px solid var(--danger-border);
-    border-radius: 4px;
+    border-radius: var(--r-innfelt);
   }
 </style>

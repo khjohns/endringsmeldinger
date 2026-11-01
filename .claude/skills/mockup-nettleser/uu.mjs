@@ -1,6 +1,6 @@
 // Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys modus, bred og smal
 // skjerm (#1187), med saken sett av TE og BH (#1213). Med --varden kjøres i stedet Varden i
-// demoruta (#1331). Med --sti <sti> (kan gjentas) kjøres stiene, som showcasen
+// demoruta (#1331), også i mørk modus (#1465). Med --sti <sti> (kan gjentas) kjøres stiene, som showcasen
 // /demo/komponenter (#1371), på samme måte som --varden.
 // axe finner bare en del av feilene; resten står i skillen uu-sjekk.
 import { createRequire } from 'node:module';
@@ -33,6 +33,11 @@ const REGLER = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const OPPSETT = [
   { navn: 'lys, bred', colorScheme: 'light', viewport: { width: 1440, height: 1000 } },
   { navn: 'lys, smal', colorScheme: 'light', viewport: { width: 390, height: 844 } },
+];
+// Varden har mørk modus (#1465). /mockup har det også, men holder ikke kontrasten ennå (#1258).
+const MØRK = [
+  { navn: 'mørk, bred', colorScheme: 'dark', viewport: { width: 1440, height: 1000 } },
+  { navn: 'mørk, smal', colorScheme: 'dark', viewport: { width: 390, height: 844 } },
 ];
 
 // Oppsettet lokalt står i skillen; uten PLAYWRIGHT_BROWSERS_PATH startes installert Google
@@ -210,7 +215,7 @@ let brudd = 0;
 
 try {
   browser = await startNettleser(chromium, start);
-  for (const oppsett of OPPSETT) {
+  for (const oppsett of arg.varden ? [...OPPSETT, ...MØRK] : OPPSETT) {
     const smal = oppsett.viewport.width < 768;
     for (const tilstand of arg.sti ? STIENE : arg.varden ? VARDEN : TILSTANDER) {
       if (tilstand.bareBred && smal) continue;

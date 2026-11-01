@@ -73,7 +73,7 @@
     min-height: 48px;
     padding: 0 var(--spacing-4);
     border: 1px solid var(--rule-strong-color);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
     background: var(--surface);
     color: var(--ink);
     cursor: pointer;

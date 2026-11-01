@@ -156,7 +156,7 @@
   .panel {
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
   }
   .hode,
   .fakta,
@@ -173,7 +173,7 @@
     display: inline-block;
     padding: 0 var(--spacing-2);
     border: 1px dashed var(--draft-border);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     background: var(--draft-bg);
     color: var(--ink);
     font-size: 12px;
@@ -234,7 +234,7 @@
     min-height: 48px;
     padding: 0 var(--spacing-4);
     border: var(--rule-strong);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
     cursor: pointer;
   }
   .avkryss:has(input:focus-visible) {
@@ -259,11 +259,11 @@
     padding: var(--spacing-3);
     background: var(--danger-bg);
     border: 1px solid var(--danger-border);
-    border-radius: 4px;
+    border-radius: var(--r-innfelt);
     color: var(--ink);
     font-size: 14px;
   }
-  @media (max-width: 1023px) {
+  @media (max-width: 1180px) {
     .kontroll {
       grid-template-columns: minmax(0, 1fr);
     }
