@@ -96,7 +96,7 @@ Punktene under gjelder dagens visning.
   annerledes ut enn kortene ved siden av. Merker og stempler, som «Registrert»,
   «Inngår i EO-012» og «Sendt …», har 2 px (`--r-merke`), så de leses som merker på et
   dokument og ikke som knapper. Felt, valg og vedlegg har 4 px (`--r-felt`), og bokser
-  inne i et kort 6 px (`--r-innfelt`). Tokenene kommer i `theme.css` med #1447. Den gamle
+  inne i et kort 6 px (`--r-innfelt`). Tokenene står i `theme.css`, og klassene tar dem i bruk med #1447. Den gamle
   visningen beholder skalaen i `app.css` (`--radius-sm`, `--radius-md`, `--radius-lg`).
 
 ## Farge som betyr noe

@@ -23,6 +23,13 @@
    Light mode tokens
    ══════════════════════════════════════════════════ */
 :root {
+  /* ── Radius (Varden) ── */
+  --r-knapp: 999px;
+  --r-kort: 12px;
+  --r-merke: 2px;
+  --r-felt: 4px;
+  --r-innfelt: 6px;
+
   /* ── Brand ── */
   --brand: #2d4a3b;
   --brand-2: #2d4a3b;
