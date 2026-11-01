@@ -71,7 +71,7 @@
   .topp {
     border-bottom: 1px solid var(--rule-color);
     background: var(--surface);
-    padding: var(--spacing-3) var(--spacing-6);
+    padding: 0 var(--spacing-6);
   }
   .merkenavn {
     font-size: 16px;
@@ -83,6 +83,9 @@
     text-decoration: underline;
   }
   a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     border-radius: 2px;
   }
   .ark {

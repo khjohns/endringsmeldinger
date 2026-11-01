@@ -61,9 +61,12 @@
     margin-bottom: var(--spacing-6);
   }
   .fot {
-    margin: var(--spacing-6) 0 0;
+    margin: var(--spacing-4) 0 0;
   }
   .fot a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--color-ink-secondary);
     text-decoration: underline;
     text-underline-offset: 3px;
