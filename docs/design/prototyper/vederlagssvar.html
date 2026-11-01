@@ -329,7 +329,7 @@ button{font:inherit;color:inherit}
             <div class="begr" data-begr="2" data-aapen>
               <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Kreves fordi du gjør gjeldende at varselet kom for sent</span></div>
               <div class="editor">
-                <label for="t2" class="tom" style="font-size:12px">Kommer i brevet under punkt 2. Teksten tolkes ikke.</label>
+                <label for="t2" class="tom" style="font-size:12px">Kommer i brevet under punkt 2.</label>
                 <textarea id="t2">Produktivitetstapet var kjent fra midten av september, da pelene i akse C–F måtte rammes på nytt. Varselet kom først 20. oktober. Byggherren godkjenner utgiftene etter varselet, slik de er spesifisert i TEs beregning, se </textarea>
                 <div class="verktoy">
                   <span class="meny"><button class="liten-knapp" type="button" aria-expanded="false" aria-haspopup="true" data-meny>Vis til vedlegg</button>
@@ -413,7 +413,7 @@ button{font:inherit;color:inherit}
               <p>Byggherren har ennå ikke svart på grunnlaget i totalentreprenørens krav i brev 2 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.</p>
             </div>
             <div class="begr" data-begr="6">
-              <div class="begr-hode"><b>Forbehold for hele svaret</b><span class="krav">Valgfritt. Står sist i brevet og tolkes ikke</span></div>
+              <div class="begr-hode"><b>Forbehold for hele svaret</b><span class="krav">Valgfritt. Står sist i brevet</span></div>
               <p class="forhaand">Byggherren tar forbehold om å justere mengden peler i punkt 4 når sluttoppmålingen foreligger.</p>
               <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Rediger forbeholdet</button>
             </div>
@@ -480,7 +480,7 @@ button{font:inherit;color:inherit}
     boks.querySelectorAll('.forhaand,.henvisninger,[data-rediger]').forEach(e => e.remove());
     const ed = document.createElement('div');
     ed.className = 'editor';
-    ed.innerHTML = `<label for="t${nr}" class="tom" style="font-size:12px">${nr === '6' ? 'Står sist i brevet. Teksten tolkes ikke.' : 'Kommer i brevet under punkt ' + nr + '. Teksten tolkes ikke.'}</label>
+    ed.innerHTML = `<label for="t${nr}" class="tom" style="font-size:12px">${nr === '6' ? 'Står sist i brevet.' : 'Kommer i brevet under punkt ' + nr + '.'}</label>
       <textarea id="t${nr}"></textarea>
       <div class="verktoy"><span class="meny"><button class="liten-knapp" type="button" aria-expanded="false" aria-haspopup="true" data-meny>Vis til vedlegg</button>
       <ul hidden><li><button type="button" data-sett="vedlegg 1">Vedlegg 1 · Dagbok uke 37–38.pdf</button></li><li><button type="button" data-sett="vedlegg 2">Vedlegg 2 · Gjennomgang av kalkylen.pdf</button></li></ul></span>

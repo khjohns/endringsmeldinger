@@ -494,7 +494,7 @@ button{font:inherit;color:inherit}
           <section class="punkt nummerert" aria-labelledby="p7">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p7">Forbehold</h2></div>
             <div class="begr" data-begr="7" style="border-top:0;padding-top:0">
-              <div class="begr-hode"><b>Forbehold for hele kravet</b><span class="krav">Valgfritt. Står sist i brevet og tolkes ikke</span></div>
+              <div class="begr-hode"><b>Forbehold for hele kravet</b><span class="krav">Valgfritt. Står sist i brevet</span></div>
               <p class="forhaand">Totalentreprenøren tar forbehold om å justere kravet når sluttoppmålingen av pelene foreligger.</p>
               <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Rediger forbeholdet</button>
             </div>
@@ -568,7 +568,7 @@ button{font:inherit;color:inherit}
     boks.querySelectorAll('.forhaand,.henvisninger,[data-rediger]').forEach(e => e.remove());
     const ed = document.createElement('div');
     ed.className = 'editor';
-    ed.innerHTML = `<label for="t${nr}" class="tom" style="font-size:12px">${nr === '7' ? 'Står sist i brevet. Teksten tolkes ikke.' : nr === '0' ? 'Kommer først i brevet. Teksten tolkes ikke.' : 'Kommer i brevet under punktet. Teksten tolkes ikke.'}</label>
+    ed.innerHTML = `<label for="t${nr}" class="tom" style="font-size:12px">${nr === '7' ? 'Står sist i brevet.' : nr === '0' ? 'Kommer først i brevet.' : 'Kommer i brevet under punktet.'}</label>
       <textarea id="t${nr}"></textarea>
       <div class="verktoy"><span class="meny"><button class="liten-knapp" type="button" aria-expanded="false" aria-haspopup="true" data-meny>Vis til vedlegg</button>
       <ul hidden><li><button type="button" data-sett="vedlegg 1">Vedlegg 1 · Mengdeoppstilling akse C–F.pdf</button></li><li><button type="button" data-sett="vedlegg 2">Vedlegg 2 · Kalkyle peling.pdf</button></li><li><button type="button" data-sett="vedlegg 3">Vedlegg 3 · Produktivitetsberegning.xlsx</button></li></ul></span>
