@@ -331,7 +331,9 @@ alternativ ble lagt fram, ordrett:
   kategorien varsel (OV-U80). Påberopelsen nevner det ikke. Opplysningen fra kapittel B står
   ved spørsmålet.
 
-Svaret, ordrett: «A». Føres som vedtak i #1486.
+Svaret, ordrett: «A».
+
+**Ført:** [VS-U39](../../plans/vedtak.md#vs-u39) (#1486).
 
 ### Datoen for forhold uten pålegg (stilt 01.11)
 
