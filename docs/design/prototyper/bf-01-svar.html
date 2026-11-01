@@ -51,7 +51,7 @@
 </head>
 <body>
 <div class="proto-bar">
-  <span><b>Prototype · BF-01 i Varden · versjon 3</b> · Ingenting sendes, og ingenting lagres. BH har svart i brev 2 at byggherren har risikoen for forholdet, og TE har krevd 100 000 kr i brev 4.</span>
+  <span><b>Prototype · BF-01 i Varden · versjon 4</b> · Ingenting sendes, og ingenting lagres. BH har svart i brev 2 at byggherren har risikoen for forholdet, og TE har krevd 100 000 kr i brev 4.</span>
   <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#svar" class="nullstill">Start som BH</a> · <a href="#mottatt">Start som TE</a></span>
 </div>
 
@@ -128,7 +128,7 @@
             <div class="card" data-tilstander="svar">
               <div class="card-h"><h3>Hovedlinjene i svaret</h3><span class="sub">Det samme som brevet sier</span></div>
               <div class="card-b tight" data-spor="U-2">
-                <div class="hlc"><span>Varselet etter punkt 34.1.2</span><b class="hl-varsel"></b></div>
+                <div class="hlc" data-spor="U-8"><span>Varselet etter punkt 34.1.2</span><b class="hl-varsel"></b></div>
                 <div class="hlc"><span>Beregningsmetode</span><b class="hl-metode"></b></div>
                 <div class="hlc"><span>Beløpet <small>100 000 kr krevd</small></span><b class="n hl-beloep"></b></div>
               </div>
@@ -203,10 +203,9 @@
         <div class="card">
           <div class="card-h"><h3>Dette sender du</h3></div>
           <div class="card-b">
-            <div class="virkning" data-spor="M-2">
+            <div class="virkning" data-spor="M-2 · D-6">
               <p><b>Hva svaret gjør</b></p>
               <p class="virk-tekst"></p>
-              <p data-spor="S-11">Byggherren er bundet av det svaret innrømmer, til TE sender en ny kravversjon. Godtar TE svaret, er dere bundet av enigheten.</p>
             </div>
             <div class="feil send-feil" role="alert" hidden data-spor="D-4">
               <p><b>Brevet kan ikke sendes ennå.</b> <span class="send-feil-tekst"></span></p>
@@ -342,6 +341,7 @@
                 <div class="virkning" data-spor="D-2 · U-6">
                   <p><b>Enighet: 0 kr</b> <span class="muted">· løsningens lesing</span></p>
                   <p>Aksepten i brev 6 omfatter hele svaret i brev 5, også at varselet etter punkt 34.1.2 kom for sent.</p>
+                  <p data-spor="D-7">Enigheten står. Du kan fortsatt sende en ny kravversjon eller et innlegg i saken.</p>
                 </div>
                 <ul class="tl" style="margin-top:12px">
                   <li>Brev 4 · TE · krav om justering av vederlaget, 100 000 kr</li>
