@@ -660,6 +660,7 @@
     border-radius: var(--r-merke);
     color: var(--ink-2);
     font-size: 12px;
+    white-space: nowrap;
   }
   /* Subsidiært har ingen farge; laget skilles med kantlinjen og teksten (#197). */
   .forutsetninger {

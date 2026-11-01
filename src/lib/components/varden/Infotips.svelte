@@ -5,11 +5,27 @@
 -->
 <script lang="ts">
   import { Info } from 'lucide-svelte';
+  import { tick } from 'svelte';
 
   let { navn, tekst }: { navn: string; tekst: string } = $props();
   const uid = $props.id();
   let aapen = $state(false);
   let knappen = $state<HTMLButtonElement | null>(null);
+  let tipset = $state<HTMLElement | null>(null);
+  let forskyvning = $state(0);
+
+  // Tipset står under knappen og flyttes til venstre når det ellers går utenfor vinduet.
+  async function veksle() {
+    aapen = !aapen;
+    forskyvning = 0;
+    if (!aapen) return;
+    await tick();
+    const r = tipset?.getBoundingClientRect();
+    if (!r) return;
+    const kant = 16;
+    const over = r.right - (document.documentElement.clientWidth - kant);
+    if (over > 0) forskyvning = -Math.min(over, Math.max(0, r.left - kant));
+  }
 
   function tast(e: KeyboardEvent) {
     if (e.key === 'Escape' && aapen) {
@@ -35,9 +51,16 @@
     aria-expanded={aapen}
     aria-controls={`${uid}-tips`}
     bind:this={knappen}
-    onclick={() => (aapen = !aapen)}><Info size={20} aria-hidden="true" /></button
+    onclick={veksle}><Info size={20} aria-hidden="true" /></button
   >
-  <span class="tips" id={`${uid}-tips`} role="note" hidden={!aapen}>{tekst}</span>
+  <span
+    class="tips"
+    id={`${uid}-tips`}
+    role="note"
+    hidden={!aapen}
+    bind:this={tipset}
+    style:translate={forskyvning ? `${forskyvning}px 0` : undefined}>{tekst}</span
+  >
 </span>
 
 <style>
