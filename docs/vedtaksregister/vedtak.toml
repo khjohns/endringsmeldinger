@@ -4476,6 +4476,42 @@ forkastet = true
 kilde = "hovedplanen"
 tekst = "Byggherren gjør gjeldende at TEs begrunnelse etter § 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i en egen innsigelse etter § 5 tredje ledd mot begrunnelsen, sendt fra appen."
 
+[[gruppe.vedtak]]
+id = "VS-U37"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1127"]
+sporsmal = '''
+Etter § 32.2 avgjøres rettidigheten av når pålegget ble mottatt og når varselet ble sendt. Hvordan skal appen knytte BHs påberopelse etter § 32.2 når TE har sendt flere grunnlagsversjoner?'''
+valgt = "Første versjon for samme pålegg"
+svar = '''
+Valgt 22.10: «Første versjon for samme pålegg».
+
+Oppdragsgiver 25.10 ([kommentaren](https://github.com/khjohns/endringsmeldinger/issues/1127#issuecomment-6400538677)), ordrett: «Setningen «Mottaksdatoen er TEs opplysning i den gjeldende versjonen.» gjelder ikke slik den står» og «Resten av valget (påberopelsen etter § 32.2 gjelder det første grunnlagskravet for pålegget, og brevet nevner brevet og datoen) berøres ikke.»
+
+Oppdragsgiver 26.10 ([kommentaren](https://github.com/khjohns/endringsmeldinger/issues/1127#issuecomment-6412043410)), ordrett: «5-D erstatter 5-A.» og «Etter 5-D endrer TE opplysningen i et eget brev, og den nye opplysningen gjelder straks som TEs siste opplysning, uten byggherrens godkjenning. Den erstatter ikke premissene i tidligere svar.» og «Står fortsatt: at en ny grunnlagsversjon ikke kan endre datoen, at resten av valget her ikke berøres, og at avviket fra setningen «Mottaksdatoen er TEs opplysning i den gjeldende versjonen.» må føres når vedtaket her føres. Revurderingen sier at 5-D fortsatt avviker fra den, fordi datoen ikke endres i en ny versjon. Forholdet skrives da mot vedtaket fra 5-D i stedet for 5-A.»'''
+forhold = [{ art = "utvider", vedtak = "lv-u21" }, { art = "presiserer", vedtak = "vs-u24" }]
+folge = '''
+Setningen «Mottaksdatoen er TEs opplysning i den gjeldende versjonen.» gjelder ikke slik den står (oppdragsgiver 25.10 og 26.10 i #1127). Etter [OV-U52](#ov-u52): «En ny grunnlagsversjon kan ikke endre datoen.»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Første versjon for samme pålegg"
+tekst = '''
+Påberopelsen gjelder det første grunnlagskravet for pålegget, og brevet nevner brevet og datoen. Mottaksdatoen er TEs opplysning i den gjeldende versjonen. En versjon i en annen underkategori, registrert utenfor appen (HF-U8), er et nytt varsel. Det føres som vedtak og bygges i et eget issue.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare nevn brevet"
+tekst = '''
+Påberopelsen gjelder fortsatt versjonen svaret gjelder, men brevet nevner det første grunnlagsbrevet som varselet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Behold dagens regel"
+tekst = '''
+Påberopelsen gjelder versjonen svaret gjelder, og brevet nevner ikke noe varselbrev.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
