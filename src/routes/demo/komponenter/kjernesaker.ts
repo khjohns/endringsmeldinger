@@ -41,11 +41,11 @@ export const TILSTANDER: {
   punkt: string;
   feil?: Serverfeil;
 }[] = [
-  { id: 'tom', navn: 'Tom: bare grunnlaget er sendt', punkt: 'start' },
+  { id: 'tom', navn: 'Tom: ingen krav er sendt', punkt: 'start' },
   {
     id: 'uten-krav',
-    navn: 'Grunnlaget er godkjent, ingen vederlagskrav',
-    punkt: 'grunnlaget-er-godkjent',
+    navn: 'Forholdet er godkjent, ingen vederlagskrav',
+    punkt: 'forholdet-er-godkjent',
   },
   { id: 'ubesvart', navn: 'Ubesvart vederlagskrav', punkt: 'bh-har-mottatt-vederlagskravet' },
   { id: 'besvart', navn: 'Svaret er mottatt', punkt: 'te-har-mottatt-svaret' },

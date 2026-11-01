@@ -81,7 +81,7 @@ ikke er det forventede:
    `saksruta`. Skriptet venter til jobbkjøreren har levert alle brevene til den falske Catenda.
 7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta.
 8. Med `--feil` (krever et kontrollpunkt med grunnlagskrav og uten vederlagskrav, som
-   `--forlop BF-01 --til grunnlaget-er-godkjent`) framkaller skriptet
+   `--forlop BF-01 --til forholdet-er-godkjent`) framkaller skriptet
    feiltilstandene i skjemaet (#1215). TE fyller ut vederlagskravet, går til brevet og
    krysser av, og `page.route` på `**/api/kjerne/saker/{sak}/kommandoer` svarer på
    `POST` i stedet for serveren: 409 `VERSJONSKONFLIKT`, 403 `FORBIDDEN`, 500
