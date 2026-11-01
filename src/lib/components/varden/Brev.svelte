@@ -104,7 +104,7 @@
   .hode {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-4);
+    gap: var(--spacing-5);
     padding-bottom: var(--spacing-6);
     margin-bottom: var(--spacing-6);
     border-bottom: var(--rule);
@@ -138,9 +138,6 @@
     font-weight: 600;
     letter-spacing: 0.02em;
     white-space: nowrap;
-  }
-  .mottaker {
-    color: var(--ink);
   }
   .ref {
     display: grid;

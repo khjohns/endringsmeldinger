@@ -49,6 +49,7 @@
     font-family: var(--font-sans);
   }
   .info {
+    position: relative;
     display: inline-grid;
     place-items: center;
     width: 24px;
@@ -59,6 +60,12 @@
     background: transparent;
     color: var(--ink-2);
     cursor: help;
+  }
+  /* Treffflaten er 40 px, som minstemålet i interface-design-skillen; ikonet er 24 px. */
+  .info::after {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--spacing-2));
   }
   .info:hover,
   .info[aria-expanded='true'] {
