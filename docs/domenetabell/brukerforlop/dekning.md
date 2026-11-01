@@ -12,7 +12,7 @@ Formatet og arbeidsregelen står i [README](README.md).
 | [BF-02B](BF-02B.json) TE sender en ny kravversjon og sier sitt standpunkt til svaret i begrunnelsen | TE er uenig i BHs svar og sender en ny kravversjon som endrer kravet. Brevet sier at kravet erstatter den tidligere kravversjonen, og at TEs standpunkt til BHs tidligere svar fremgår av begrunnelsen. Skjemaet minner TE før sending på å presisere om TE aksepterer, avslår eller tar forbehold knyttet til et tilbud i svaret, og sier at svaret ikke kan godtas her når den nye versjonen er sendt. Sender TE kravet utenfor løsningen og legger det til som korrespondanse med kategorien krav, fyller TE ut kravskjemaet, og løsningen lager ingen brevtekst. | planlagt | — | #1379, #1308, #807 | — | — |
 | [BF-02C](BF-02C.json) TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen | TE vil rette datoen pålegget ble mottatt og begynner på en ny versjon av påberopelsen. Datoen kan ikke endres i en ny versjon, som gjengir TEs siste opplysning. Skjemaet anbefaler korrigeringen etter OV-U52, og TE sender den i stedet. Det gjelder også når kravet ble lagt til som korrespondanse. | planlagt | — | #1308, #1309, #807 | — | — |
 | [BF-03](BF-03.json) TE er uenig i svaret og sier i et innlegg at varselet kom i tide | TE har fått BHs svar, der BH prinsipalt gjør gjeldende at varselet kom for sent og subsidiært godkjenner et beløp. TE er uenig, ser hva hver vei videre gjør med svaret, og sier i et innlegg som viser til svaret at varselet kom i tide. Innlegget endrer ikke svaret, og TE kan fortsatt godta det. Etter en aksept kan TE fortsatt sende innlegg. | planlagt | — | #1381, #1377, #1379, #807 | — | [BF-03.md](BF-03.md) |
-| [BF-04](BF-04.json) BH avslår grunnlaget og påberoper at vederlagsvarselet kom for sent | BH har avslått grunnlaget og svarer på vederlagskravet. BH påberoper at varselet etter § 34.1.2 kom for sent og godtar subsidiært 60 000 kr. BH ser hvilke innsigelser beløpet bygger på før svaret er ferdig. TE leser svaret og forstår at 60 000 kr bare gjelder hvis verken avslaget av grunnlaget eller innsigelsen om varselet fører fram. | kjørbar | kjernen i minnet, testbasen, demoruta, saksruta, varden | — | — | — |
+| [BF-04](BF-04.json) BH avslår forholdet og påberoper at vederlagsvarselet kom for sent | BH har svart at byggherren ikke har risikoen for forholdet, og svarer på vederlagskravet. BH påberoper at varselet etter punkt 34.1.2 kom for sent og godkjenner subsidiært 60 000 kr. BH ser hvilke innsigelser beløpet bygger på før svaret er ferdig. TE leser svaret og forstår at 60 000 kr bare gjelder hvis verken svaret på forholdet eller påberopelsen av at varselet kom for sent fører fram. | kjørbar | kjernen i minnet, testbasen, demoruta, saksruta, varden | — | — | — |
 
 ## Kildene
 
@@ -24,6 +24,7 @@ på kilden, men har ingen kontroller ennå.
 | --- | --- | --- | --- |
 | [B-15](../../plans/vedtak.md#b-15) | — | — | BF-01V |
 | [EO-U3](../../plans/vedtak.md#eo-u3) | — | — | BF-03 |
+| [EO-U13](../../plans/vedtak.md#eo-u13) | — | — | BF-01V |
 | [GR-U7](../../plans/vedtak.md#gr-u7) | BF-01 grunnlaget-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 grunnlaget-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01 grunnlaget-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 grunnlaget-er-avslaatt | BF-01V |
 | [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-03 |
 | [HF-U2](../../plans/vedtak.md#hf-u2) | — | — | BF-01V |
@@ -48,6 +49,8 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U25](../../plans/vedtak.md#lv-u25) | — | — | BF-01V |
 | [LV-U31](../../plans/vedtak.md#lv-u31) | — | — | BF-01V |
 | [LV-U32](../../plans/vedtak.md#lv-u32) | — | — | BF-01V |
+| [LV-U39](../../plans/vedtak.md#lv-u39) | — | — | BF-01V |
+| [LV-U41](../../plans/vedtak.md#lv-u41) | — | BF-01 grunnlaget-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 grunnlaget-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01V |
 | [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V |
 | [MM-U12](../../plans/vedtak.md#mm-u12) | — | — | BF-01V, BF-03 |
 | [MM-U21](../../plans/vedtak.md#mm-u21) | — | — | BF-02C |
@@ -55,9 +58,9 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U25](../../plans/vedtak.md#mm-u25) | — | — | BF-01V |
 | [MM-U28](../../plans/vedtak.md#mm-u28) | — | — | BF-01V |
 | [MM-U32](../../plans/vedtak.md#mm-u32) | — | — | BF-01V |
-| [MM-U33](../../plans/vedtak.md#mm-u33) | — | — | BF-03 |
-| [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret | BF-02B, BF-02C, BF-03 |
-| [MM-U35](../../plans/vedtak.md#mm-u35) | — | — | BF-03 |
+| [MM-U33](../../plans/vedtak.md#mm-u33) | — | — | BF-01V, BF-03 |
+| [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret | BF-01V, BF-02B, BF-02C, BF-03 |
+| [MM-U35](../../plans/vedtak.md#mm-u35) | — | BF-04 te-har-mottatt-svaret | BF-01V, BF-03 |
 | [MM-U36](../../plans/vedtak.md#mm-u36) | — | — | BF-03 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
 | [OV-U27](../../plans/vedtak.md#ov-u27) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — |
@@ -66,9 +69,13 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U33](../../plans/vedtak.md#ov-u33) | BF-04 te-har-mottatt-svaret | BF-04 bh-har-mottatt-vederlagskravet | — |
 | [OV-U52](../../plans/vedtak.md#ov-u52) | — | — | BF-02A, BF-02C |
 | [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-02B, BF-02C, BF-03 |
-| [OV-U79](../../plans/vedtak.md#ov-u79) | — | — | BF-02A, BF-02B, BF-02C, BF-03 |
+| [OV-U75](../../plans/vedtak.md#ov-u75) | — | BF-01 bh-har-mottatt-vederlagskravet, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01V |
+| [OV-U76](../../plans/vedtak.md#ov-u76) | — | BF-01 grunnlaget-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 grunnlaget-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01V |
+| [OV-U78](../../plans/vedtak.md#ov-u78) | — | — | BF-01V |
+| [OV-U79](../../plans/vedtak.md#ov-u79) | — | — | BF-01V, BF-02A, BF-02B, BF-02C, BF-03 |
 | [OV-U80](../../plans/vedtak.md#ov-u80) | — | — | BF-02A, BF-02B, BF-02C, BF-03 |
 | [OV-U81](../../plans/vedtak.md#ov-u81) | — | — | BF-03 |
+| [OV-U83](../../plans/vedtak.md#ov-u83) | — | — | BF-01V |
 | [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — |
 | [VS-U9](../../plans/vedtak.md#vs-u9) | — | — | BF-03 |
 | [VS-U24](../../plans/vedtak.md#vs-u24) | — | — | BF-03 |

@@ -123,7 +123,10 @@ describe('Varden med brukerforløpet BF-01', () => {
     const vist = await bhSvarerIVarden();
     expect(vist.join(' ')).toMatch(/Prinsipalt: byggherren gjør gjeldende at varselet/);
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
-    expect(document.body.textContent).toMatch(/Begrunnelsen tolkes ikke\./);
+    // OV-U81 og #1443: hvordan løsningen virker, står på siden «Om Varden», ikke ved feltene.
+    // KA-U19: skjemaet sier at virkningen regnes ut fra valgene.
+    expect(document.body.textContent).toMatch(/Virkningen av svaret regnes ut fra valgene over\./);
+    expect(document.body.textContent).not.toMatch(/tolkes ikke|vurderes ikke/);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
     expect(document.body.textContent).not.toMatch(/\bKA-U\d/);
     await sendBrevet('Send svaret til TE');

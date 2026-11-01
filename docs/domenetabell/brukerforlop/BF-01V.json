@@ -135,9 +135,6 @@
             "staar": "Ikke en del av brevet"
           },
           {
-            "staar": "Godtar TE svaret, er dere bundet av enigheten."
-          },
-          {
             "klikk": "Tilbake til utkastet",
             "tilstand": "svar"
           },
@@ -275,6 +272,7 @@
   },
   "kilder": [
     "B-15",
+    "EO-U13",
     "GR-U7",
     "HF-U1",
     "HF-U2",
@@ -293,13 +291,23 @@
     "LV-U25",
     "LV-U31",
     "LV-U32",
+    "LV-U39",
+    "LV-U41",
     "MM-U9",
     "MM-U12",
     "MM-U23",
     "MM-U25",
     "MM-U28",
     "MM-U32",
-    "OV-U28"
+    "MM-U33",
+    "MM-U34",
+    "MM-U35",
+    "OV-U28",
+    "OV-U75",
+    "OV-U76",
+    "OV-U78",
+    "OV-U79",
+    "OV-U83"
   ],
   "venter_paa": ["#1046"],
   "bevis_saker": [],
@@ -319,6 +327,11 @@
       "dato": "2026-10-28",
       "grunnlag": "#1366",
       "hva": "Prototypen, versjon 3, etter svarene på S-10–S-12: stanset levering av et varsel med frist, bindingen i brevkontrollen og overskriften etter aksepten."
+    },
+    {
+      "dato": "2026-11-01",
+      "grunnlag": "#1456, #1381, MM-U34",
+      "hva": "Prototypen, versjon 4: setningen om at byggherren er bundet av svaret er strøket, og svaret på S-11 faller bort (MM-U34 punkt 26). Kildene har vedtakene 01.11 som endrer LV-U4, LV-U31, LV-U32, OV-U28 og HF-U2 (LV-U39, LV-U41, OV-U75, OV-U76, OV-U78, OV-U83), OV-U79 for korrespondansen ved stanset levering, og MM-U33, MM-U35 og EO-U13 for det som kan skje etter aksepten. Etter aksepten sier prototypen at enigheten står, og at TE kan sende en ny kravversjon eller et innlegg (D-7)."
     }
   ]
 }

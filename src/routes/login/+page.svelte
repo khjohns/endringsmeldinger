@@ -1,7 +1,9 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import { resolve } from '$app/paths';
   import { loginUrl } from '$lib/api/auth';
   import Button from '$lib/components/primitives/Button.svelte';
+  import { OM_VARDEN_STI } from '$lib/components/om-varden/sti';
 
   let leaving = $state(false);
   function login() {
@@ -21,6 +23,7 @@
       <p class="error" role="alert">Innloggingen kunne ikke fullføres. Prøv igjen.</p>
     {/if}
     <Button onclick={login} loading={leaving}>Logg inn med Catenda</Button>
+    <p class="fot"><a href={resolve(OM_VARDEN_STI)}>Om Varden</a></p>
   </section>
 </main>
 
@@ -56,6 +59,17 @@
     font-size: 14px;
     line-height: 1.6;
     margin-bottom: var(--spacing-6);
+  }
+  .fot {
+    margin: var(--spacing-4) 0 0;
+  }
+  .fot a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-ink-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .error {
     color: var(--color-score-low);
