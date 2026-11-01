@@ -1114,6 +1114,63 @@ tekst = '''
 Svaret gjelder også totalentreprenøren. KA-U33 står, fordi § 33.6.1 krever begrunnelsen. Beskrivelsen av pålegget i varselet etter § 32.2 blir valgfri. Forhold: opphever GR-U15.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "KA-U45"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 13, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 13. Merkingen og avklaringen av registrerte brev
+
+**Bakgrunn.** U10 spurte: «Hva menes med merking og avklaring av registrerte brev?» I dag kan den som
+registrerer et brev med et forbehold løsningen ikke kan uttrykke, *merke* det (KA-U20). Merkingen sperrer
+totalentreprenørens aksept og trekk i de sporene merkingen gjelder (KA-U26, KA-U27, KA-U30). Sperren for at
+saken inngår i en endringsordre er alt opphevet (MM-U34 punkt 20). Motparten kan bestride merkingen.
+Avsenderen *avklarer* med et nytt utsagn uten forbehold, og det opphever sperren (KA-U28). Alt er utsatt
+(OV-U7). Det U10 beskriver, «feks brevet er er et varsel», er kategorien i I-11, ikke merkingen.
+**Hva I-11 dekker.** Byggherrens eget forbehold i et registrert svar fanges av spørsmålet etter OV-U48 og
+OV-U49: svarer byggherren ja, står korrespondansen som dokumentasjon uten virkning (I-11). Et nytt svar kan
+gis fram til endringsordren (MM-U34 punkt 4 og 11). Dokumentasjon har ingen virkning og trenger ingen sperre.
+**Hva I-11 ikke dekker:** at mottakeren mener et registrert svar har et forbehold avsenderen ikke oppga. Det
+sendes som innlegg. OV-U48 sier: «Sammenfallet er da løsningens utledning av valgene og avgjør ikke om
+partene rettslig er enige (MM-U12).»
+
+**Anbefaling: A.** Belegg: det merkingen skulle gjøre for avsenderen, dekker OV-U48, OV-U49 og MM-U34 nå. Det
+mottakeren ville brukt den til, er en sperre som avgjør uenighet, og MM-U12 og MM-U33 lar partene ta det i
+fritekst.
+**Styrer** KA-U20 og KA-U26–KA-U30, LV-U4 punkt 10–12, avvisningen av merking og avklaring, og tre rader i
+domenetabellen.'''
+valgt = "13A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "opphever", vedtak = "ka-u26" }, { art = "opphever", vedtak = "ka-u28" }, { art = "opphever", vedtak = "ka-u30" }, { art = "snevrer inn", vedtak = "ka-u20" }, { art = "snevrer inn", vedtak = "ka-u27" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "lv-u4" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u16" }]
+folge = '''
+Alternativet opphever LV-U4 punkt 11 og 12 og snevrer inn LV-U4 punkt 10. I registeret er det ført som «snevrer inn» LV-U4, fordi resten av LV-U4 står. Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "13A"
+tekst = '''
+Merkingen og avklaringen av registrerte brev oppheves med sperrene sine. Byggherrens forbehold i et registrert svar fanges etter OV-U48 og OV-U49. Motpartens syn på et forbehold sendes som innlegg (MM-U33). Forhold: opphever KA-U26, KA-U28, KA-U30 og LV-U4 punkt 11 og 12. Snevrer inn KA-U20, KA-U27, KA-U29, LV-U4 punkt 10 og OV-U7. Endrer KA-U16.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "13B"
+tekst = '''
+Merkingen og avklaringen står utsatt etter OV-U7 og bygges senere. Forhold: ingen. Vedtakene viser da til en registrering med virkning uten forbeholdsspørsmålet, som I-11 nå har.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "13C"
+tekst = '''
+Bare avsenderen kan merke et registrert brev, og bare når det legges til. Forhold: snevrer inn KA-U20. Det overlapper spørsmålet i OV-U48 og OV-U49.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Sammenfallet er da løsningens utledning av valgene og avgjør ikke om partene rettslig er enige (MM-U12)."
+
 
 [[gruppe]]
 tittel = "Aksept og enighet"
@@ -2255,6 +2312,219 @@ navn = "forslaget"
 tekst = '''
 Forbeholdet etter GR-U26 står i punktet ‹Forbehold›, sist i brevet, og ‹nedenfor› blir ‹ovenfor›: ‹Byggherren har ennå ikke svart på grunnlaget i totalentreprenørens krav i brev <n> av <dato>. Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.› Punktet ‹Forbehold› tas bare med når det har innhold. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer GR-U26.'''
 anbefalt = true
+
+[[gruppe.vedtak]]
+id = "GR-U30"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-6 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 2: forholdet
+
+**I-6. Trekket** (kilde bestillingen)
+
+> Totalentreprenørens handling for å trekke påberopelsen av forholdet heter ‹Trekk påberopelsen›.
+
+Forhold: endrer ingen vedtak. Byggherrens handling for å svare (‹Svar på varselet› i bestillingen) følger
+brevnavnet i spørsmål 4. Ordet i brevteksten for trekket står i spørsmål 5.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-6 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+folge = '''
+Bygges i #1449.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Totalentreprenørens handling for å trekke påberopelsen av forholdet heter ‹Trekk påberopelsen›.'''
+anbefalt = true
+
+[[gruppe.vedtak]]
+id = "GR-U31"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 4, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 4. Hva heter totalentreprenørens første brev om forholdet?
+
+**Bakgrunn.** Bestillingen sier: «Totalentreprenørens første brev heter «Varsel om <forholdet>». Handlingene
+heter «Svar på varselet» og «Trekk påberopelsen».» Brevet er et varsel etter kontrakten bare der punkt 32.2
+gjelder (LV-U4 punkt 1). Ved endringsordre etter punkt 31.3, svikt, andre forhold og force majeure er det
+ikke et varsel. VS-U15 sier: «Varselet er et eget utsagn med egen dato, og grunnlagskravet endres ikke og er
+ikke et varsel etter § 33.4 eller § 34.1.2.» VS-U26 sier: «Grunnlagskravet blir ikke et varsel etter § 33.4
+eller § 34.1.2, og appen vurderer ikke rettidigheten.» MM-U33 sier: «Løsningen legger ingen erklæring i
+munnen på en part, og den avgjør ikke om en ny erklæring er rettslig virksom mot en tidligere (MM-U12).»
+Skriver byggherren «svarer på totalentreprenørens varsel» i et svar der byggherren også påberoper at
+varselet etter punkt 34.1.2 kom for sent, kan brevet leses som at byggherren selv kaller påberopelsen et
+varsel.
+
+**Anbefaling: B.** Belegg: kontrakten bruker «påberope» om forholdet (punkt 32.2 og 32.3), U3 kaller det «en
+konkret påberopt bestemmelse», og trekket heter alt ‹Trekk påberopelsen›. Navnet trenger da ingen presisering
+som motparten ikke ser. Svakhet: B endrer bestillingen. Antakelse: at «Varsel om» ble valgt fordi ordet er
+kjent for brukerne, ikke fordi brevet skal være et varsel.
+**Styrer** brevoverskriften, navnet på byggherrens handling og ordet ‹<påberopelsen>› i spørsmål 5 og 7.'''
+valgt = "4B (handlingen heter bare «Svar»)"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+folge = '''
+Valgt er alternativ B med oppdragsgivers rettelse i svaret, «handlingen heter bare «Svar»»: byggherrens handling heter ‹Svar›, ikke ‹Svar på påberopelsen› som i spørsmålet. Alternativet er ført med den rettelsen og ellers ordrett, og B slik det ble lagt fram, står som eget alternativ. Forholdet i alternativet gjelder bestillingen, som ikke er et vedtak. Samsvarer med VS-U15, VS-U26 og MM-U33. ‹Trekk påberopelsen› (I-6) er GR-U30. Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "4B (handlingen heter bare «Svar»)"
+tekst = '''
+Totalentreprenørens første brev heter ‹Påberopelse av <forholdet>›. Byggherrens handling heter ‹Svar›. Brevteksten kaller brevet ‹påberopelsen av <forholdet>›. Der punkt 32.2 gjelder, sier brevet i tillegg at totalentreprenøren varsler etter punkt 32.2, som i dag. Forhold: endrer brevnavnet og handlingen i bestillingen. Samsvarer med VS-U15, VS-U26, MM-U33 og ‹Trekk påberopelsen› (I-6). Navnet er vårt forslag.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "4A"
+tekst = '''
+Totalentreprenørens første brev heter ‹Varsel om <forholdet>›, også ved endringsordre etter punkt 31.3, svikt, andre forhold og force majeure. Navnet gjør ikke brevet til et varsel etter punkt 33.4 eller 34.1.2. Byggherrens handling heter ‹Svar på varselet›. Brevteksten kaller brevet ‹varselet om <forholdet>› bare der det er et varsel etter punkt 32.2, og ellers ‹påberopelsen av <forholdet>›. Forhold: presiserer VS-U15 og VS-U26. Presiseringen står i vedtaket, ikke i brevet: motparten ser bare navnet. ‹Påberopelsen› i brevteksten er vårt forslag.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4B som lagt fram"
+tekst = '''
+Totalentreprenørens første brev heter ‹Påberopelse av <forholdet>›. Byggherrens handling heter ‹Svar på påberopelsen›. Brevteksten kaller brevet ‹påberopelsen av <forholdet>›. Der punkt 32.2 gjelder, sier brevet i tillegg at totalentreprenøren varsler etter punkt 32.2, som i dag. Forhold: endrer brevnavnet og handlingen i bestillingen. Samsvarer med VS-U15, VS-U26, MM-U33 og ‹Trekk påberopelsen› (I-6). Navnet er vårt forslag.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Varselet er et eget utsagn med egen dato, og grunnlagskravet endres ikke og er ikke et varsel etter § 33.4 eller § 34.1.2."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Grunnlagskravet blir ikke et varsel etter § 33.4 eller § 34.1.2, og appen vurderer ikke rettidigheten."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Løsningen legger ingen erklæring i munnen på en part, og den avgjør ikke om en ny erklæring er rettslig virksom mot en tidligere (MM-U12)."
+
+[[gruppe.vedtak]]
+id = "GR-U32"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 6, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 6. Setningen «Byggherren godkjenner grunnlaget.» ved endringer og force majeure
+
+**Bakgrunn.** LV-U4 punkt 5 sier om grunnlaget: «Byggherren godkjenner grunnlaget.» Avslag der § 32.2
+gjelder: «Byggherren avslår kravet på endringsordre (NS 8407 § 32.3 første ledd b).» Ellers: «Byggherren
+avslår grunnlaget.» GR-U14 gir svaret som er en endringsordre, teksten «Byggherren godkjenner grunnlaget.
+Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: …», og sier: «Setningen velges
+når byggherren godkjenner grunnlaget uten å påberope preklusjon, og § 32.2 gjaldt.» Tre tilfeller av
+godkjenning har ikke teksten i GR-U14: godkjenning der punkt 32.2 gjaldt og byggherren påberoper at varselet
+kom for sent, forholdet endringsordre etter punkt 31.3, og force majeure. Svikt og andre forhold avgjøres i
+spørsmål 5.
+
+**Anbefaling: A.** Belegg: endringsordren i GR-U14 sier selv byggherrens standpunkt, så setningen foran den
+gjentar det. A lar ingen godkjenning stå uten tekst, og «godkjenner» følger regelen i språkfila. Svakhet: A
+bruker «godkjenner forholdet», som anbefalingen i spørsmål 5 holder for å ikke være kontraktens språk. Velges
+A i spørsmål 5 og kontraktens ord også her, er C det samsvarende valget.
+**Styrer** den låste brevteksten for svaret på forholdet, GR-U14 og brevtekstprøvene.'''
+valgt = "6C"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "gr-u14" }, { art = "endrer", vedtak = "lv-u4" }]
+folge = '''
+Endrer regelen «Godkjenner og godtar» i språkfila (nytt ord: «er enig i»). Alternativ A var anbefalt da spørsmålet ble stilt. Det er ført som forkastet og ikke som anbefalt, fordi et anbefalt alternativ ikke kan være forkastet i registeret. Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "6C"
+tekst = '''
+Svaret bruker kontraktens ord i hvert tilfelle: ved endringsordren etter GR-U14 som i A; ved godkjenning der punkt 32.2 gjaldt og byggherren påberoper at varselet kom for sent ‹Byggherren er enig i at pålegget innebærer en endring.›; ved forholdet endringsordre etter punkt 31.3 ‹Byggherren er enig i at forholdet er en endringsordre (NS 8407 punkt 31.3).›; ved force majeure ‹Byggherren er enig i at forholdet er force majeure (NS 8407 punkt 33.3).› Avslaget som i A. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer GR-U14 og LV-U4 punkt 5, og regelen «Godkjenner og godtar» i språkfila (nytt ord: «er enig i»). Tekstene er vårt forslag.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "6A"
+tekst = '''
+Setningen strykes der svaret er en endringsordre etter GR-U14: ‹Svaret er en endringsordre etter NS 8407 punkt 32.3 første ledd a, jf. punkt 31.3: …›. I de tre andre tilfellene sier svaret ‹Byggherren godkjenner forholdet.›: ved godkjenning der punkt 32.2 gjaldt og byggherren påberoper at varselet kom for sent, ved forholdet endringsordre etter punkt 31.3 og ved force majeure. Avslaget er ‹Byggherren avslår kravet på endringsordre (NS 8407 punkt 32.3 første ledd b).› der punkt 32.2 gjelder, og ellers ‹Byggherren avslår forholdet.› Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer GR-U14 (første setning faller bort) og LV-U4 punkt 5.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "6B"
+tekst = '''
+Setningen står i alle tilfellene som ‹Byggherren godkjenner forholdet.›, også foran endringsordren etter GR-U14. Avslaget som i A. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer GR-U14 og LV-U4 punkt 5 bare i ordet.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren avslår kravet på endringsordre (NS 8407 § 32.3 første ledd b)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Setningen velges når byggherren godkjenner grunnlaget uten å påberope preklusjon, og § 32.2 gjaldt."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3:"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "GR-U33"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 7, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 7. Forbeholdet når forholdet ikke er besvart (GR-U26, GR-U29, OV-U45)
+
+**Bakgrunn.** GR-U29 sier: «Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet
+foreligger.» Prototypen sier «under forutsetning av at forholdet gir rett til vederlagsjustering». 24.10
+forkastet oppdragsgiver i GR-U26: «Når byggherren svarer på vederlag eller frist mens ansvarsgrunnlaget er
+ubesvart, uttrykker brevet at standpunktene gjelder under forutsetning av at totalentreprenøren har rett til
+vederlagsjustering eller fristforlengelse.» Første setning i forbeholdet står i spørsmål 5.
+
+**Anbefaling: A.** Belegg: U3 sier selv at bestemmelsen «gir grunnlag for mulige krav». A beholder ordet i
+den vide betydningen, som oppdragsgiver valgte 24.10. B ligner det som ble forkastet 24.10, og kan leses som
+at forbeholdet også dekker varselet etter punkt 34.1.2 og hindringen. Antakelse: at formuleringen ble
+forkastet 24.10 for ordlydens skyld.
+**Styrer** forbeholdet i brevet og prototypen av grunnlagsoversikten.'''
+valgt = "7A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "gr-u26" }, { art = "endrer", vedtak = "gr-u29" }, { art = "endrer", vedtak = "ov-u45" }]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "7A"
+tekst = '''
+Den andre setningen i forbeholdet lyder: ‹Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.› Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer GR-U26, GR-U29 og OV-U45.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "7B"
+tekst = '''
+Den andre setningen i forbeholdet lyder: ‹Standpunktene ovenfor gjelder under forutsetning av at forholdet gir rett til justering av vederlaget [fristforlengelse].› Endret tekst gjelder bare nye brev (MM-U9). Forhold: som A.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "7C"
+tekst = '''
+Den andre setningen i forbeholdet står som i GR-U29. Forhold: endrer ingen vedtak.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Standpunktene ovenfor gjelder under forutsetning av at grunnlaget for kravet foreligger."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Når byggherren svarer på vederlag eller frist mens ansvarsgrunnlaget er ubesvart, uttrykker brevet at standpunktene gjelder under forutsetning av at totalentreprenøren har rett til vederlagsjustering eller fristforlengelse."
 
 
 [[gruppe]]
@@ -4046,6 +4316,166 @@ tekst = '''
 TE må kunne merke at et registrert brev inneholder et krav om dager, og da stopper forespørselen. Det krever et nytt felt og endrer OV-U4.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U34"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-13 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 5: korrespondanse sendt utenfor løsningen
+
+**I-13. Datoen for et varsel sendt på annen måte** (kilde bestillingen 5 d, U9 første og andre strekpunkt)
+
+> Totalentreprenøren oppgir datoen for et varsel sendt utenfor løsningen ved å legge varselet til som
+> korrespondanse med kategorien varsel. Det egne brevet med opplysningen faller bort. Velger
+> totalentreprenøren i kravskjemaet at varselet er sendt på annen måte, legges varselet til som
+> korrespondanse med kategorien varsel i samme forløp. Kravet sier da det LV-U4 punkt 3 og LV-U29 sier om
+> opplysningen. Et krav sendt utenfor løsningen legges til med kategorien krav. En feil dato rettes etter
+> OV-U11.
+
+Forhold: endrer OV-U5. Presiserer OV-U9. Snevrer inn LV-U4 punkt 3 og LV-U29.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-13 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u5" },
+  { art = "presiserer", vedtak = "ov-u9" },
+  { art = "snevrer inn", vedtak = "lv-u4" },
+  { art = "snevrer inn", vedtak = "lv-u29" },
+]
+folge = '''
+Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Totalentreprenøren oppgir datoen for et varsel sendt utenfor løsningen ved å legge varselet til som
+korrespondanse med kategorien varsel. Det egne brevet med opplysningen faller bort. Velger
+totalentreprenøren i kravskjemaet at varselet er sendt på annen måte, legges varselet til som
+korrespondanse med kategorien varsel i samme forløp. Kravet sier da det LV-U4 punkt 3 og LV-U29 sier om
+opplysningen. Et krav sendt utenfor løsningen legges til med kategorien krav. En feil dato rettes etter
+OV-U11.'''
+anbefalt = true
+
+[[gruppe.vedtak]]
+id = "VS-U35"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 15, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 15. Oppheves eller utsettes de strukturerte utsagnene?
+
+**Bakgrunn.** I-14 sier at partene bruker innlegget i første versjon. Vedtakene som beskriver innsigelsen,
+passiviteten og bestridelsen som egne utsagn med egen brevtekst, står fortsatt. Protesten er alt opphevet
+som eget utsagn (MM-U34 punkt 24). Den egne innsigelsen styrer i dag utfallet tre steder: ved punkt 33.6.2
+(spørsmål 17); etter VS-U11, der svaret fra løsningen gjentar innsigelsen som utgangspunkt og et registrert
+svar som ikke sier noe om rettidigheten, leses med innsigelsen; og etter HF-U4, som avviser en senere
+påberopelse når innsigelsen er gitt opp. Ellers leses preklusjonen av standpunktet i svaret. LV-U4 punkt 5
+har brevteksten for innsigelsen i svaret: «, jf. innsigelsen i brev <n> av <dato>» og «Byggherren gir opp
+innsigelsen etter NS 8407 § 5 i brev <n> av <dato> og gjør ikke gjeldende at varselet kom for sent.»
+**Belegg.** U10: «Innsigelse og påberopelse bør bare være fritekst, i første omgang i hvertfall.» og
+«Bestridelse foretas i første omgang som fritekst innlegg». MM-U33: «Løsningen har ingen egne prosesser for
+ulike typer innsigelser og protester, og ingen egen modell for subsidiær aksept.» OV-U7: «Vedtakene står og
+bygges senere; avgrensningen gjelder rekkefølgen, som i OV-U1.»
+
+**Anbefaling: B.** Belegg: U10 sier to ganger «i første omgang», og B ombestemmer bare rekkefølgen i OV-U7.
+Antakelse: at en strukturert innsigelse blir ønsket senere, fordi det å la være å gjøre innsigelse har
+virkning etter punkt 5 tredje ledd. Kostnad: koden for innsigelsen blir stående uten å kunne nås, og de
+utsatte vedtakene kan senere komme i strid med MM-U33. Med A blir kjernen enklere, men vedtakene må vedtas på
+nytt før de bygges.
+**Styrer** om koden og hendelsestypene for innsigelsen fjernes (A) eller avvises og blir stående (B), og
+teksten i datamodellen, bevis-sakene og BF-03.'''
+valgt = "15B"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "ov-u7" }]
+folge = '''
+Utsetter delene av VS-U1, VS-U9, VS-U11, VS-U14, VS-U24, HF-U4 og LV-U4 punkt 5 som gjelder den egne innsigelsen. «Utsetter» er ikke et forhold i registeret, så det står her. Bygges i #1377.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "15B"
+tekst = '''
+Innsigelsen etter punkt 5 tredje ledd som eget brev, også byggherrens etter svaret og totalentreprenørens, bygges ikke i første versjon, med brevteksten i LV-U4 punkt 5 og 7. Påberopelsen av passivitet og bestridelsen av en opplysning er fortsatt utsatt (OV-U7). Til de bygges, uttrykker partene dem i et innlegg. Vedtakene står og bygges senere; avgrensningen gjelder rekkefølgen, som i OV-U7. Påberopelsen i et svar av at et varsel kom for sent etter en bestemmelse, og oppgivelsen av den i et senere svar, står og bygges (VS-U9 første setning, VS-U11, VS-U20, VS-U24). Forhold: endrer OV-U7 (det forkastede alternativet om å utsette innsigelsen velges). Utsetter delene av VS-U1, VS-U9, VS-U11, VS-U14, VS-U24, HF-U4 og LV-U4 punkt 5 som gjelder den egne innsigelsen. Kostnad: lesingen etter VS-U11 og avvisningen etter HF-U4 har ingen innsigelse å lese før den bygges.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "15A"
+tekst = '''
+Innsigelsen etter punkt 5 tredje ledd som eget brev, påberopelsen av passivitet etter punkt 32.3 annet ledd og bestridelsen av en opplysning er ikke egne utsagn i løsningen. En part uttrykker dem i et innlegg. Påberopelsen i et svar av at et varsel kom for sent etter en bestemmelse, og oppgivelsen av den i et senere svar, står (VS-U9 første setning, VS-U11, VS-U20, VS-U24). Skal et av utsagnene bli et eget utsagn senere, krever det et nytt vedtak. Forhold: opphever VS-U12, LV-U4 punkt 7, 9 og 10 og teksten om den egne innsigelsen i LV-U4 punkt 5. Snevrer inn VS-U1, VS-U3, VS-U9, VS-U11, VS-U14, VS-U24 og HF-U4 til påberopelsen i et svar, og MM-U1, MM-U7, MM-U14, VS-U8, KA-U39 og DL-U11 til bestridelse i et innlegg. Endrer OV-U7. Kostnad: svaret gjentar ikke lenger en innsigelse, et registrert svar uten standpunkt om rettidigheten leses uten innsigelse (VS-U11), og HF-U4 avviser ikke en senere påberopelse etter en oppgitt innsigelse.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = ", jf. innsigelsen i brev <n> av <dato>"
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev <n> av <dato> og gjør ikke gjeldende at varselet kom for sent."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Løsningen har ingen egne prosesser for ulike typer innsigelser og protester, og ingen egen modell for subsidiær aksept."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Vedtakene står og bygges senere; avgrensningen gjelder rekkefølgen, som i OV-U1."
+
+[[gruppe.vedtak]]
+id = "VS-U36"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 17, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 17. Påberopelsen etter punkt 33.6.2 (VS-U29)
+
+**Bakgrunn.** VS-U29 sier: «Byggherren gjør gjeldende at TEs begrunnelse etter § 33.6.2 annet ledd bokstav b
+kom for sent, eller at den ikke er et svar etter annet ledd, i en egen innsigelse etter § 5 tredje ledd mot
+begrunnelsen, sendt fra appen.» Regelsettet leser den egne innsigelsen. Er innsigelsen et innlegg, kan
+byggherren ikke uttrykke påberopelsen, og utfallet viser kravet uten virkningen etter punkt 33.6.2 tredje
+ledd.
+
+**Anbefaling: A.** Belegg: samme mønster som for varselet etter punkt 33.4: innlegget straks for punkt 5
+tredje ledd, standpunktet i svaret for utfallet (VS-U24). Med B viser oversikten kravet uten byggherrens
+påberopelse, uten at byggherren har gitt den opp.
+**Styrer** regelsettet for frist og fristsvaret.'''
+valgt = "17A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "vs-u29" }, { art = "utvider", vedtak = "vs-u24" }]
+folge = '''
+Bygges i #1377.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "17A"
+tekst = '''
+Byggherren gjør gjeldende at totalentreprenørens begrunnelse etter punkt 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i svaret på totalentreprenørens første krav med dager etter begrunnelsen, med ett standpunkt etter punkt 33.6.2. Et innlegg sendt før svaret står i saken og leses ikke. Løsningen avgjør ikke om påberopelsen kom uten ugrunnet opphold. Forhold: endrer VS-U29. Utvider VS-U24 (punkt 33.6.2 kommer med i bestemmelsene der).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "17B"
+tekst = '''
+I første versjon kan byggherren påberope dette bare i et innlegg. Svaret har ikke standpunktet etter punkt 33.6.2, og utfallet viser ikke virkningen etter tredje ledd. Forhold: utsetter VS-U29.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren gjør gjeldende at TEs begrunnelse etter § 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i en egen innsigelse etter § 5 tredje ledd mot begrunnelsen, sendt fra appen."
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -4469,6 +4899,133 @@ navn = "4B"
 tekst = '''
 Grensen regnes av høyst 10 % av kontraktssummen, som en øvre grense for saken alene. Dagmulkt i andre saker trekkes ikke fra. Forhold: presiserer FO-U3.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "EO-U13"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-9 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 4: sakstypen
+
+**I-9. Merket «Inngår i EO»** (kilde U5)
+
+> Når byggherren har sendt en endringsordre i en EO-sak som omfatter en KOE-sak, viser visningen merket
+> ‹Inngår i EO-<nummer>› på KOE-saken, i sakslisten og på siden for saken. Merket sier at løsningen har
+> registrert at endringsordren omfatter saken. Merket utledes av at endringsordren er sendt og omfatter
+> saken, og ingen regel leser merket. Løsningen utleder ingen rettsvirkning av knytningen. Merket sier ikke
+> at noe er rettslig avgjort, at totalentreprenøren har godtatt endringsordren eller at kravene er oppgjort.
+
+Forhold: endrer MM-U33 og MM-U34 punkt 19. Begge sier: «Visningen sier «Avsluttet med EO».» Den setningen
+erstattes av merket. I MM-U33 punkt 6 erstattes også setningen «Etiketten «Avsluttet med EO» utledes av at
+endringsordren er sendt og omfatter saken. Ingen regel leser etiketten.» Lukkingen etter MM-U34 punkt 19 og
+EO-U12 står, og det samme gjelder EO-U3: «en KOE-sak inngår i høyst én endringsordre, også når den er
+bestridt.» Vårt forslag: «i sakslisten og på siden for saken». Nummeret avgjøres i spørsmål 9.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-9 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "endrer", vedtak = "mm-u33" },
+  { art = "endrer", vedtak = "mm-u34" },
+]
+folge = '''
+Endringen i MM-U34 gjelder punkt 19. Nummeret i merket er avgjort i EO-U14. Bygges i #1449 og #1450.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Når byggherren har sendt en endringsordre i en EO-sak som omfatter en KOE-sak, viser visningen merket
+‹Inngår i EO-<nummer>› på KOE-saken, i sakslisten og på siden for saken. Merket sier at løsningen har
+registrert at endringsordren omfatter saken. Merket utledes av at endringsordren er sendt og omfatter
+saken, og ingen regel leser merket. Løsningen utleder ingen rettsvirkning av knytningen. Merket sier ikke
+at noe er rettslig avgjort, at totalentreprenøren har godtatt endringsordren eller at kravene er oppgjort.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Visningen sier «Avsluttet med EO»."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Etiketten «Avsluttet med EO» utledes av at endringsordren er sendt og omfatter saken. Ingen regel leser etiketten."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "en KOE-sak inngår i høyst én endringsordre, også når den er bestridt."
+
+[[gruppe.vedtak]]
+id = "EO-U14"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 9, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 9. Nummeret i merket «Inngår i EO-<nummer>»
+
+**Bakgrunn.** Prototypen viser «Inngår i EO-012» og saksnumre som E-018 og F-004. DL-U6 sier: «Saksnummeret er
+sakens identitet, en tilfeldig unik ID som appen lager når saken opprettes.» Forkastet i DL-U6:
+«Saksnummeret er et lesbart løpenummer per prosjekt, som appen lager når saken opprettes, og det er sakens
+identitet.» og «Saken har en tilfeldig unik ID som appen lager. Et lesbart løpenummer per prosjekt er
+saksnummeret i brevene.»
+
+**Anbefaling: B.** Belegg: merket i bestillingen forutsetter et kort nummer, og en tilfeldig ID kan ikke
+leses som «EO-012». B lar identiteten etter DL-U6 stå. Antakelse: at oppdragsgiver mener et løpenummer, ikke
+byggherrens egen nummerering. Skal brevene også si løpenummeret, nærmer B seg det forkastede alternativet, og
+det blir et eget spørsmål.
+**Styrer** merket, sakslisten og et nytt felt i saken (B) eller i EO-saken (C).'''
+valgt = "bruk dokumentkoden fra K3"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u24" }, { art = "presiserer", vedtak = "eo-u13" }]
+folge = '''
+Svaret passet ikke på A, B eller C. Alternativet «bruk dokumentkoden fra K3» er skrevet etter svaret «bruk dokumentkoden fra K3 (#1174)», og K3 er LV-U24, dokumentkoden etter Del II pkt. D.1.2.5. Merket «Inngår i EO» er EO-U13. Alternativ B var anbefalt da spørsmålet ble stilt. Det er ført som forkastet og ikke som anbefalt, fordi et anbefalt alternativ ikke kan være forkastet i registeret. Bygges i #1450 og #1174.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "bruk dokumentkoden fra K3"
+tekst = '''
+Merket viser dokumentkoden byggherrens endringsordre fikk etter LV-U24, med koden EO og løpenummeret, for eksempel ‹Inngår i EO-012›. Saksnummeret etter DL-U6 står uendret.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "9A"
+tekst = '''
+Merket viser EO-sakens saksnummer etter DL-U6: ‹Inngår i EO <saksnummer>›. Forhold: DL-U6 står.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "9B"
+tekst = '''
+Løsningen gir hver sak et lesbart løpenummer per prosjekt og sakstype når saken opprettes, for endringsordrer ‹EO-001›, ‹EO-002› og så videre. Nummeret vises i sakslisten og i merket. Saksnummeret etter DL-U6 er fortsatt sakens identitet og står i brevene. Forhold: utvider DL-U6. B tar ikke opp igjen det andre forkastede alternativet, fordi løpenummeret ikke står i brevene og ikke er saksnummeret.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "9C"
+tekst = '''
+Byggherren oppgir endringsordrens nummer etter sin egen nummerering. Løsningen avviser et nummer som alt er brukt i prosjektet, og merket viser det. Forhold: presiserer DL-U6 og utvider EO-U1.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Saksnummeret er sakens identitet, en tilfeldig unik ID som appen lager når saken opprettes."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Saksnummeret er et lesbart løpenummer per prosjekt, som appen lager når saken opprettes, og det er sakens identitet."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Saken har en tilfeldig unik ID som appen lager. Et lesbart løpenummer per prosjekt er saksnummeret i brevene."
 
 
 [[gruppe]]
@@ -6978,6 +7535,370 @@ tekst = '''
 Setningen står som vedtatt. ‹Vederlagsjusteringen› i den setningen betyr hele kravet om justering av vederlaget, også den særskilte. Forhold: presiserer svaret på spørsmål 4 og forslaget om postene 31.10.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "MM-U35"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-14 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 6: innlegg i fritekst
+
+Et innlegg er et brev i fritekst som en part sender i saken. MM-U33 sier: «Begge parter kan sende innlegg i
+fritekst i saken, med henvisning til et brev og med dokumentasjon.» Brevet sier ‹<Part> viser til brev <n> av
+<dato>:›, og teksten følger (MM-U34 punkt 24). Løsningen tolker ikke teksten.
+
+**I-14. Innsigelse, protest, passivitet og bestridelse som innlegg** (kilde U10)
+
+> I første versjon sender en part innsigelse etter punkt 5 tredje ledd, protest mot en innsigelse,
+> påberopelse av passivitet etter punkt 32.3 annet ledd og bestridelse av en opplysning som innlegg i
+> fritekst. Innlegget har en tittel parten skriver og viser til ett brev i saken, også et brev som er
+> registrert i løsningen. Det sendes som brev på den kanalen partene har avtalt, som de andre brevene fra
+> løsningen. Brevet har tittelen som overskrift og sier ‹<Part> viser til brev <n> av <dato>:›, og teksten
+> følger. Løsningen tolker ikke innlegget og endrer ikke utfallet eller et standpunkt på grunnlag av det.
+> Innlegget sperrer ingenting og kan sendes etter et svar, en enighet og en endringsordre. Løsningen avgjør
+> ikke om innlegget kom i tide eller hvilken virkning det har. Påberopelsen i et svar av at et varsel kom for
+> sent etter en bestemmelse, står som standpunkt i svaret (VS-U9, VS-U24), og løsningen utleder virkningen
+> av den som før.
+
+Forhold: endrer MM-U33, OV-U7, OV-U1, OV-U3, MM-U34 punkt 19 og KA-U29. Presiserer MM-U34 punkt 24.
+Forholdet til VS-U1, VS-U3, VS-U9, VS-U11, VS-U12, VS-U14, VS-U24, HF-U4 og LV-U4 punkt 5, 7, 9 og 10
+avgjøres i spørsmål 15, og forholdet til VS-U29 i spørsmål 17.
+
+**Merk: punktet tar inn det to vedtak sa motsatt.**
+- MM-U33 steg 3 sier: «Innsigelsen etter § 5 tredje ledd, at motparten har varslet eller svart for sent, er
+  et meldingskrav i kontrakten og sendes fortsatt som innsigelse (VS-U9).»
+- OV-U7 forkastet: «Å utsette TEs innsigelse og byggherrens egen innsigelse etter svaret.» OV-U7 sier i
+  stedet: «Innsigelse etter § 5 tredje ledd bygges for begge parter som utsagn uten utledning, også
+  byggherrens egen innsigelse etter svaret og en innsigelse etter at TE har godtatt avslaget på grunnlaget
+  (VS-U1, VS-U9, VS-U14, KA-U29).»
+- MM-U34 punkt 19 sier: «Innlegg, dokumentasjon og innsigelser etter § 5 tredje ledd godtas.» Det blir
+  «Innlegg og dokumentasjon godtas.»
+
+**Bekreft lesingen av U10.** Vi leser «påberopelse» i U10 som påberopelse av passivitet etter punkt 32.3
+annet ledd. Påberopelsen i byggherrens svar av at et varsel kom for sent, står som standpunkt. VS-U24 sier:
+«En påberopelse av at TE har varslet eller krevd for sent etter en bestemmelse står i byggherrens svar, med
+ett standpunkt for hver bestemmelse, som § 32.2, § 33.4, § 33.6.1 og § 34.1.2 (VS-U3, VS-U22).» Gjelder U10
+også den, faller utledningen av preklusjon bort. Svar «ja» på I-14 bekrefter lesingen.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-14 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "endrer", vedtak = "mm-u33" },
+  { art = "endrer", vedtak = "ov-u7" },
+  { art = "endrer", vedtak = "ov-u1" },
+  { art = "endrer", vedtak = "ov-u3" },
+  { art = "endrer", vedtak = "mm-u34" },
+  { art = "endrer", vedtak = "ka-u29" },
+]
+folge = '''
+Endringen i MM-U34 gjelder punkt 19, og punktet presiserer i tillegg MM-U34 punkt 24; registeret har ett forhold per vedtak, så MM-U34 står som endret. Bygges i #1377.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+I første versjon sender en part innsigelse etter punkt 5 tredje ledd, protest mot en innsigelse,
+påberopelse av passivitet etter punkt 32.3 annet ledd og bestridelse av en opplysning som innlegg i
+fritekst. Innlegget har en tittel parten skriver og viser til ett brev i saken, også et brev som er
+registrert i løsningen. Det sendes som brev på den kanalen partene har avtalt, som de andre brevene fra
+løsningen. Brevet har tittelen som overskrift og sier ‹<Part> viser til brev <n> av <dato>:›, og teksten
+følger. Løsningen tolker ikke innlegget og endrer ikke utfallet eller et standpunkt på grunnlag av det.
+Innlegget sperrer ingenting og kan sendes etter et svar, en enighet og en endringsordre. Løsningen avgjør
+ikke om innlegget kom i tide eller hvilken virkning det har. Påberopelsen i et svar av at et varsel kom for
+sent etter en bestemmelse, står som standpunkt i svaret (VS-U9, VS-U24), og løsningen utleder virkningen
+av den som før.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Begge parter kan sende innlegg i fritekst i saken, med henvisning til et brev og med dokumentasjon."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Innsigelsen etter § 5 tredje ledd, at motparten har varslet eller svart for sent, er et meldingskrav i kontrakten og sendes fortsatt som innsigelse (VS-U9)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Å utsette TEs innsigelse og byggherrens egen innsigelse etter svaret."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Innsigelse etter § 5 tredje ledd bygges for begge parter som utsagn uten utledning, også byggherrens egen innsigelse etter svaret og en innsigelse etter at TE har godtatt avslaget på grunnlaget (VS-U1, VS-U9, VS-U14, KA-U29)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Innlegg, dokumentasjon og innsigelser etter § 5 tredje ledd godtas."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En påberopelse av at TE har varslet eller krevd for sent etter en bestemmelse står i byggherrens svar, med ett standpunkt for hver bestemmelse, som § 32.2, § 33.4, § 33.6.1 og § 34.1.2 (VS-U3, VS-U22)."
+
+[[gruppe.vedtak]]
+id = "LV-U39"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 1, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 1. Skal kontraktens punkt også skrives «punkt» i vedtatt brevtekst?
+
+**Bakgrunn.** I-1 gjelder visningen. 17 vedtak har brevtekst med «NS 8407 §»: KA-U25, GR-U14, VS-U15,
+LV-U4, LV-U5, LV-U6, LV-U10, LV-U18, LV-U19, LV-U20, LV-U21, LV-U29, LV-U30, LV-U31, LV-U32, OV-U28 og
+OV-U74. LV-U4 punkt 1 og 5 har også en bar «§» foran et punktnummer i NS 8407. HF-U10, HF-U13 og HF-U16 har
+«NS 8407 §» bare i vedtaksteksten, ikke i en brevtekst.
+**Belegg.** U1: «En jurist vil kanskje steile ved at § brukes, selv om det er kort.» NS 8407 bruker ikke «§»
+om sine egne bestemmelser. Den skriver oftest bare nummeret, og «punkt» mest om hele kapitler. Kontraktsgrunnlaget
+Del II skriver «NS 8407 pkt.» med standarden først. LV-U35 er en leseregel for samme slags bytte: «‹TE› i en
+vedtatt brevtekst leses som ‹totalentreprenøren›, og ‹TEs› som ‹totalentreprenørens›.»
+
+**Anbefaling: A.** Belegg: standarden bruker ikke «§» om seg selv, og Del II setter standarden først, slik
+«avtaleloven § 4» gjør. Brev og visning får samme ord. Antakelse: at motpartens jurist reagerer på «§» i
+brevet som i visningen.
+**Styrer** den låste brevteksten, testene av den og alle tekstene i spørsmål 5, 6 og 7.'''
+valgt = "1A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "ka-u25" }, { art = "endrer", vedtak = "gr-u14" }, { art = "endrer", vedtak = "vs-u15" }, { art = "endrer", vedtak = "lv-u4" }, { art = "endrer", vedtak = "lv-u5" }, { art = "endrer", vedtak = "lv-u6" }, { art = "endrer", vedtak = "lv-u10" }, { art = "endrer", vedtak = "lv-u18" }, { art = "endrer", vedtak = "lv-u19" }, { art = "endrer", vedtak = "lv-u20" }, { art = "endrer", vedtak = "lv-u21" }, { art = "endrer", vedtak = "lv-u29" }, { art = "endrer", vedtak = "lv-u30" }, { art = "endrer", vedtak = "lv-u31" }, { art = "endrer", vedtak = "lv-u32" }, { art = "endrer", vedtak = "ov-u28" }, { art = "endrer", vedtak = "ov-u74" }]
+folge = '''
+«De 17 vedtakene over» i alternativet er vedtakene i bakgrunnen til spørsmålet, ført som forhold. Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1A"
+tekst = '''
+I brevtekstene viser henvisningen til en bestemmelse i NS 8407 med ‹punkt›: ‹NS 8407 punkt 33.4›, ‹jf. punkt 31.3›. ‹§› eller ‹§§› foran et punktnummer i NS 8407 i en vedtatt brevtekst leses som ‹punkt›. Brevene bruker ikke ‹pkt.›. Henvisninger til lov står med ‹§›. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer de 17 vedtakene over.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1B"
+tekst = '''
+I brevtekstene viser henvisningen til en bestemmelse i NS 8407 med ‹punkt›, med standarden etter punktet: ‹punkt 33.4 i NS 8407›, ‹jf. punkt 31.3›. ‹NS 8407 § 33.4› i en vedtatt brevtekst leses ‹punkt 33.4 i NS 8407›, og en bar ‹§› eller ‹§§› foran et punktnummer i NS 8407 leses ‹punkt›. Brevene bruker ikke ‹pkt.›. Henvisninger til lov står med ‹§›. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer de samme vedtakene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1C"
+tekst = '''
+Brevene beholder ‹NS 8407 §›. ‹Punkt› gjelder bare visningen. Forhold: endrer ingen vedtak.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "‹TE› i en vedtatt brevtekst leses som ‹totalentreprenøren›, og ‹TEs› som ‹totalentreprenørens›."
+
+[[gruppe.vedtak]]
+id = "LV-U40"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 2, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 2. Hvordan skilles kontraktens punkter fra brevets egne punkter? (bare ved A eller B i spørsmål 1)
+
+**Bakgrunn.** LV-U34 gir byggherrens svar nummererte punkter, og lagslinjen viser til dem («hvis innsigelsen
+i punkt 1 ikke fører frem»). LV-U34 sier også: «‹NS 8407› står bare første gang i brevet, og ‹eks. mva.› bare i innledningen.» Med
+«punkt» om kontrakten blir en setning som «innsigelsen etter punkt 5 i brev 3» tvetydig. Det gjelder punkt
+med ett nummer: 5, 6 og 9.
+
+**Anbefaling: A.** Belegg: LV-U34 kortet ned brevet 31.10, og A beholder det. Antakelse: at «ovenfor» er nok
+til at leseren forstår at det er brevets eget punkt.
+**Styrer** lagslinjen og henvisningene i den låste brevteksten.'''
+valgt = "2A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u34" }]
+folge = '''
+Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2A"
+tekst = '''
+Brevet viser til sine egne punkter med ‹ovenfor›: ‹Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem›. En henvisning til et punkt i NS 8407 med bare ett nummer, som punkt 5, har alltid ‹NS 8407› foran. Forhold: presiserer LV-U34.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2B"
+tekst = '''
+Hver henvisning til NS 8407 i brevet har ‹NS 8407› foran. Forhold: endrer LV-U34 (‹NS 8407› bare første gang faller bort).'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "hvis innsigelsen i punkt 1 ikke fører frem"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "‹NS 8407› står bare første gang i brevet, og ‹eks. mva.› bare i innledningen."
+
+[[gruppe.vedtak]]
+id = "LV-U41"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 5, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 5. Ordlyden i brevtekstene om forholdet
+
+**Bakgrunn.** U3 og U4 avgjør ordene i visningen, ikke setningene i brevene. LV-U4 punkt 1 sier i dag
+blant annet: «TE krever endringsordre for forholdet «<tittel>» i sak <saksnummer> («<sakstittel>»).» og
+«Grunnlaget er <underkategori> (NS 8407 § <hjemmel>).» Der § 32.2 gjelder, sier brevet i tillegg: «TE
+varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring.» Ved svikt og andre
+forhold sier brevet at TE gjør gjeldende krav som følge av underkategorien. Byggherren svarer «Byggherren
+godkjenner grunnlaget.» eller «Byggherren avslår grunnlaget.» Godkjenningen ved endringer og force majeure
+avgjøres i spørsmål 6. ‹<påberopelsen>› under står for ordet spørsmål 4 gir.
+**Belegg.** U3: «Grunnlag er i realiteten en konkret påberopt bestemmelse i kontrakten som gir grunnlag for
+mulige krav om vederlagsjustering og eller fristforlengelse.» NS 8407 punkt 32.2 og 32.3 (påberope), 33.1 c
+og 34.1.2 (forhold byggherren har risikoen for). Prototypen og kommentaren 31.10 i #1402 bruker «har
+risikoen for forholdet».
+
+**Anbefaling: A.** Belegg: kontrakten bruker «påberope» og «forhold byggherren har risikoen for», og
+prototypen og kommentaren 31.10 sier «har risikoen for forholdet». Antakelse: at «godkjenne et forhold» ikke
+er kontraktens språk.
+**Styrer** den låste brevteksten, brevtekstprøvene og regelversjonen.'''
+valgt = "5A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "lv-u4" }, { art = "endrer", vedtak = "lv-u34" }, { art = "endrer", vedtak = "gr-u26" }, { art = "endrer", vedtak = "gr-u29" }, { art = "endrer", vedtak = "ka-u22" }, { art = "endrer", vedtak = "ka-u34" }, { art = "endrer", vedtak = "ov-u45" }]
+folge = '''
+Endrer regelen «Godkjenner og godtar» i språkfila for svaret på forholdet ved svikt og andre forhold. Bygges i #1433.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "5A"
+tekst = '''
+Brevtekstene om forholdet lyder slik, med henvisningene etter spørsmål 1:
+- Første brev, endringer: ‹Totalentreprenøren krever endringsordre for «<tittel>» i sak <saksnummer> («<sakstittel>») som <forholdet> (NS 8407 punkt <hjemmel>).› Setningen om punkt 32.2 står og sier påberopelsen. Setningen for forholdet endringsordre etter punkt 31.3 står.
+- Første brev, svikt og andre forhold: ‹Totalentreprenøren påberoper <forholdet> (NS 8407 punkt <hjemmel>, jf. punkt 33.1 <b/c> og 34.1.2) for «<tittel>» i sak <saksnummer> («<sakstittel>»).›
+- Ny versjon: ‹Brevet erstatter totalentreprenørens <påberopelsen> i brev <n> av <dato>.›
+- Innledningen i svaret: ‹Byggherren svarer på totalentreprenørens <påberopelsen> i brev <n> av <dato>.›
+- Svaret ved svikt og andre forhold: ‹Byggherren har risikoen for forholdet (NS 8407 punkt <hjemmel>).› eller ‹Byggherren har ikke risikoen for forholdet (NS 8407 punkt <hjemmel>).›
+- Aksepten: ‹svar på <påberopelsen>› og ‹standpunkt til forholdet›.
+- Trekket: ‹Totalentreprenøren trekker påberopelsen av <forholdet> i sak <saksnummer> («<tittel>»).›
+- Forbeholdets første setning: ‹Byggherren har ennå ikke svart på totalentreprenørens <påberopelsen> i brev <n> av <dato>.›
+- Ellers leses ‹grunnlaget› i en vedtatt brevtekst som ‹forholdet›, og ‹grunnlaget i TEs krav› som ‹totalentreprenørens <påberopelsen>›, unntatt setningene i spørsmål 6.
+Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer LV-U4 (punkt 1, 4, 5, 6, 11 og 12), LV-U34, GR-U26, GR-U29, KA-U22, KA-U34 og OV-U45. Endrer regelen «Godkjenner og godtar» i språkfila (byggherren «godkjenner», «avslår» og «gjør gjeldende») for svaret på forholdet ved svikt og andre forhold.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "5B"
+tekst = '''
+Som A, men ved svikt og andre forhold ‹godkjenner› eller ‹avslår› byggherren forholdet: ‹Byggherren godkjenner forholdet.› eller ‹Byggherren avslår forholdet.› Forhold: som A, men regelen «Godkjenner og godtar» i språkfila står.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "TE krever endringsordre for forholdet «<tittel>» i sak <saksnummer> («<sakstittel>»)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Grunnlaget er <underkategori> (NS 8407 § <hjemmel>)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring."
+
+[[gruppe.vedtak]]
+id = "LV-U42"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 14, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 14. Hvordan et brev fra løsningen viser til registrert korrespondanse
+
+**Bakgrunn.** LV-U4 og GR-U14 viser til «brev <n> av <dato>». GR-U14 har en egen tekst for registrerte krav:
+«… byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev <n> av <dato>.»
+Løsningen nummererer også registrert korrespondanse, men nummeret står ikke på dokumentet, og prototypen
+viser det ikke. Språkfila har eksempelet «vises det til byggherrens e-post av 14.10.2026».
+
+**Anbefaling: A.** Belegg: brevet kan da leses uten løsningen. Svakhet: to dokumenter av samme type fra samme
+part samme dag skilles ikke.
+**Styrer** henvisningene i den låste brevteksten og visningen av registrert korrespondanse.'''
+valgt = "14A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "gr-u14" }, { art = "endrer", vedtak = "lv-u4" }]
+folge = '''
+Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "14A"
+tekst = '''
+Viser et brev fra løsningen til registrert korrespondanse, nevner brevet parten, typen og datoen: ‹totalentreprenørens e-post av <dato>›. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer GR-U14 (teksten for registrerte krav) og LV-U4.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "14B"
+tekst = '''
+Registrert korrespondanse får løpenummeret i saken, og brevet sier ‹brev <n> av <dato>›, som før. Visningen viser nummeret. Forhold: presiserer LV-U4 og GR-U14.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "brev <n> av <dato>"
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "… byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev <n> av <dato>."
+
+[[gruppe.vedtak.sitat]]
+kilde = "docs/sprak.md"
+tekst = "vises det til byggherrens e-post av 14.10.2026"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "MM-U36"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 16, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 16. Viser skjemaene for svar og aksept innleggene?
+
+**Bakgrunn.** I dag gjentar svaret en innsigelse som utgangspunkt. VS-U11 sier: «Svaret fra appen gjentar
+innsigelsen som utgangspunkt, og gir byggherren den opp, sier brevet det.» Et innlegg leses ikke. Uten en
+påminnelse kan byggherren svare at varselet kom i tide uten å se sin egen innsigelse. Totalentreprenøren kan
+godta et avslag uten å se sin egen påberopelse av passivitet. (Prøvingen av arbeidsflyten.)
+
+**Anbefaling: A.** Belegg: forløpene i prøvingen der en part utilsiktet gir opp en posisjon i løsningen.
+Visningen leser bare henvisningen, ikke teksten, så KA-U16 holder.
+**Styrer** svarskjemaet og akseptskjemaet.'''
+valgt = "16A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u35" }, { art = "presiserer", vedtak = "ka-u16" }]
+folge = '''
+I-14 i alternativet er MM-U35. Erstatter vernet i VS-U11 for innlegg. Bygges i #1377.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "16A"
+tekst = '''
+Skjemaet for et svar og for en aksept viser innleggene fra begge parter som viser til brevene svaret eller aksepten gjelder, med tittel, part og dato. Løsningen tolker dem ikke og fyller ikke ut et standpunkt ut fra dem. Utfallet i løsningen leser bare standpunktene i svaret. Forhold: presiserer I-14 og KA-U16. Erstatter vernet i VS-U11 for innlegg.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "16B"
+tekst = '''
+Skjemaene viser ikke innleggene. Innleggene står i saken. Forhold: ingen.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Svaret fra appen gjentar innsigelsen som utgangspunkt, og gir byggherren den opp, sier brevet det."
+
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
@@ -8213,6 +9134,103 @@ navn = "Hele kontrakten i målbildet"
 tekst = '''
 Målbildet dekker meddelelser for hele kontrakten: en part kan registrere overtakelsen, og sluttoppstillingen og innsigelsene mot den viser til kravene i sakene de gjelder. Fristen i § 35.2 vises fortsatt uten dato. Det bygges ikke i første versjon, og formen avgjøres sammen med B-01. Utvider målbildet; presiserer VS-U3.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "KT-U9"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-7 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 4: sakstypen
+
+**I-7. Krav om endringsordre som sakstype** (kilde U5)
+
+> Løsningen har tre sakstyper: krav om endringsordre (KOE), endringsordre (EO) og forsering.
+> Totalentreprenørens krav føres i en KOE-sak for alle forhold, også ved forsinkelse eller svikt ved
+> byggherrens ytelser, andre forhold byggherren har risikoen for og force majeure. Navnet på sakstypen er
+> betegnelsen i byggherrens organisasjon og endrer ikke brevteksten. En endringsordre kan omfatte én eller
+> flere hele KOE-saker (MM-U34 punkt 20), i alle forhold.
+
+Forhold: presiserer KT-U7, EO-U1 og OV-U3, som alt har KOE-sak ved force majeure. «I alle forhold» er vår
+lesing av U5. Setningen om brevteksten hindrer at navnet legger «krav om endringsordre» i
+totalentreprenørens munn der kontrakten ikke gjør det.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-7 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "presiserer", vedtak = "kt-u7" },
+  { art = "presiserer", vedtak = "eo-u1" },
+  { art = "presiserer", vedtak = "ov-u3" },
+]
+folge = '''
+Bygges i #1450.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Løsningen har tre sakstyper: krav om endringsordre (KOE), endringsordre (EO) og forsering.
+Totalentreprenørens krav føres i en KOE-sak for alle forhold, også ved forsinkelse eller svikt ved
+byggherrens ytelser, andre forhold byggherren har risikoen for og force majeure. Navnet på sakstypen er
+betegnelsen i byggherrens organisasjon og endrer ikke brevteksten. En endringsordre kan omfatte én eller
+flere hele KOE-saker (MM-U34 punkt 20), i alle forhold.'''
+anbefalt = true
+
+[[gruppe.vedtak]]
+id = "KT-U10"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-8 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 4: sakstypen
+
+**I-8. Knappene** (kilde bestillingen)
+
+> Handlingen for å opprette en sak heter ‹Nytt krav om endringsordre› for totalentreprenøren og ‹Ny
+> endringsordre› for byggherren. Knappen ‹Ny endringsordre› finnes når EO-saken er bygget (OV-U1). Bare
+> totalentreprenøren oppretter en KOE-sak, og bare byggherren oppretter en EO-sak.
+
+Forhold: presiserer KT-U7 (saker fra Catenda) og EO-U1. OV-U1 sier at en EO-sak avvises til den er bygget.
+Vårt forslag: at bare totalentreprenøren oppretter en KOE-sak og bare byggherren en EO-sak. Ingen vedtak sier
+det uttrykkelig.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-8 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "presiserer", vedtak = "kt-u7" },
+  { art = "presiserer", vedtak = "eo-u1" },
+]
+folge = '''
+Bygges i #1450.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Handlingen for å opprette en sak heter ‹Nytt krav om endringsordre› for totalentreprenøren og ‹Ny
+endringsordre› for byggherren. Knappen ‹Ny endringsordre› finnes når EO-saken er bygget (OV-U1). Bare
+totalentreprenøren oppretter en KOE-sak, og bare byggherren oppretter en EO-sak.'''
+anbefalt = true
 
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
@@ -11402,6 +12420,775 @@ navn = "forslaget"
 tekst = '''
 Posten etter § 34.1.1 eller § 34.1.2 heter ‹vederlagsjustering› i brevet og skjemaet, ikke ‹hovedkrav› eller ‹justeringen ellers›. Kravet etter § 34.1.3 annet ledd heter ‹særskilt vederlagsjustering›. I OV-U28 blir ‹for justeringen ellers› til ‹for vederlagsjusteringen›, og ‹for særskilt justering etter NS 8407 § 34.1.3 annet ledd› til ‹for den særskilte vederlagsjusteringen etter NS 8407 § 34.1.3 annet ledd›. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer OV-U28.'''
 anbefalt = true
+
+[[gruppe.vedtak]]
+id = "OV-U75"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-1 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 1: henvisninger
+
+**I-1. Henvisninger i visningen** (kilde U1)
+
+> Visningen viser til bestemmelsene i NS 8407 med ‹punkt›, for eksempel ‹punkt 33.4› og ‹jf. punkt 31.3›.
+> Der henvisningen står alene som merke, eller i en tabellcelle uten en setning rundt, står ‹pkt. 33.4›.
+> Skjermbredden avgjør ikke valget. Lover står med ‹§›, for eksempel ‹avtaleloven § 4›. Tekst parten
+> skriver selv, endres ikke.
+
+Forhold: endrer ingen vedtak. Endrer regelen i AGENTS.md (Språk) om «mellomrom i «§ 33.8»» og setningen i
+språkfila om at paragrafhenvisninger som «§ 33.8» står som de er: begge rettes til «punkt 33.8». Vårt forslag:
+hva som er «trangt» (merke og tabellcelle), «Skjermbredden avgjør ikke valget» og «Lover står med ‹§›». U1
+sier det ikke. Brevene avgjøres i spørsmål 1.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-1 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+folge = '''
+Endrer også regelen i AGENTS.md (Språk) om «mellomrom i «§ 33.8»» og setningen i språkfila om at paragrafhenvisninger som «§ 33.8» står som de er: begge rettes til «punkt 33.8». Bygges i #1449.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Visningen viser til bestemmelsene i NS 8407 med ‹punkt›, for eksempel ‹punkt 33.4› og ‹jf. punkt 31.3›.
+Der henvisningen står alene som merke, eller i en tabellcelle uten en setning rundt, står ‹pkt. 33.4›.
+Skjermbredden avgjør ikke valget. Lover står med ‹§›, for eksempel ‹avtaleloven § 4›. Tekst parten
+skriver selv, endres ikke.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "AGENTS.md"
+tekst = "mellomrom i «§ 33.8»"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "OV-U76"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-2 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 2: forholdet
+
+**I-2. Fellesordet i visningen** (kilde U3, U4)
+
+> I teksten brukeren ser i løsningen, heter den bestemmelsen i kontrakten totalentreprenøren påberoper,
+> forholdet. Forholdet gir grunnlag for mulige krav om justering av vederlaget eller fristforlengelse, men
+> er ikke selv et krav. Visningen bruker ikke ‹grunnlaget›, ‹ansvarsgrunnlaget›, ‹hovedkategori› eller
+> ‹underkategori› om forholdet.
+
+Forhold: endrer ingen vedtak, men endrer raden «Kravet, ikke sporet» i språkfila (oppdragsgiver 31.10), som
+sier at visningen og brevene skriver «grunnlaget for kravet»: i visningen erstattes det av forholdet. I
+vedtakene betyr «forholdet» i dag også det faktiske forholdet totalentreprenøren beskriver, for eksempel
+«forholdet «<tittel>»» i LV-U4 punkt 1 og «som følge av forholdet i sak …» i VS-U15, VS-U26 og LV-U29. I-2
+gjelder visningen. Hvordan de to betydningene skilles i vedtakene, avgjøres i spørsmål 3. HF-U2 gjelder
+navnene i hendelsene (spørsmål 8). Brevtekstene: spørsmål 4–7.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-2 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+folge = '''
+Endrer også raden «Kravet, ikke sporet» i språkfila (oppdragsgiver 31.10): i visningen erstattes «grunnlaget for kravet» av forholdet. Bygges i #1449.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+I teksten brukeren ser i løsningen, heter den bestemmelsen i kontrakten totalentreprenøren påberoper,
+forholdet. Forholdet gir grunnlag for mulige krav om justering av vederlaget eller fristforlengelse, men
+er ikke selv et krav. Visningen bruker ikke ‹grunnlaget›, ‹ansvarsgrunnlaget›, ‹hovedkategori› eller
+‹underkategori› om forholdet.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "docs/sprak.md"
+tekst = "Kravet, ikke sporet"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "forholdet «<tittel>»"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "som følge av forholdet i sak"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "OV-U77"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-3 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 2: forholdet
+
+**I-3. Gruppene** (kilde U4)
+
+> Visningen viser gruppen forholdet hører til, med kontraktens henvisning slik punkt 33.1 og 33.3 har den:
+> ‹Endringer, jf. punkt 31 og 32›, ‹Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og
+> 24›, ‹Andre forhold byggherren har risikoen for› og ‹Force majeure›. Ved force majeure er gruppen og
+> forholdet det samme, og gruppelinjen faller bort.
+
+Forhold: endrer ingen vedtak. U4 sier at «hører under» med hjemmelhenvisning er feil. «Etter» i den andre
+gruppen er kontraktens egen beskrivelse av ytelsene (punkt 33.1 b og 34.1.2 første ledd), ikke en påstand om
+hjemmel. Gruppene følger inndelingen i punkt 33.1 a–c og 33.3, fordi 34.1.2 slår sammen b og c, og force
+majeure ikke gir vederlag.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-3 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+folge = '''
+Bygges i #1449.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Visningen viser gruppen forholdet hører til, med kontraktens henvisning slik punkt 33.1 og 33.3 har den:
+‹Endringer, jf. punkt 31 og 32›, ‹Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og
+24›, ‹Andre forhold byggherren har risikoen for› og ‹Force majeure›. Ved force majeure er gruppen og
+forholdet det samme, og gruppelinjen faller bort.'''
+anbefalt = true
+
+[[gruppe.vedtak]]
+id = "OV-U78"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-4 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 2: forholdet
+
+**I-4. Tittelen** (kilde U4)
+
+> Tittelen på forholdet er forholdet selv, for eksempel ‹Irregulær endring› eller ‹Uforutsette forhold ved
+> grunnen›. Totalentreprenørens eget navn på det faktiske forholdet (‹<tittel>› i LV-U4 punkt 1) er ikke
+> tittelen på forholdet.
+
+Forhold: endrer bruken av ‹tittel› i LV-U4 punkt 1, som sier: «Tittelen er TEs navn på forholdet, ikke
+endringsordrens.» Vårt forslag: totalentreprenørens navn heter ‹totalentreprenørens tittel› der det må skilles
+fra tittelen på forholdet, og plassholderen ‹<tittel>› i brevtekstene står (spørsmål 5). Titlene under er
+arbeidsvalg i domenetabellen. Bare de to i vedtaket er godtatt i prototypen. Rett gjerne i svaret.
+
+| Punkt | Tittel | Punkt | Tittel |
+| --- | --- | --- | --- |
+| 31.3 | Endringsordre | 22 | Byggherrens medvirkning |
+| 32.1 | Irregulær endring | 23.1 | Uforutsette forhold ved grunnen |
+| 14.6 annet ledd | Begrenset valg av løsning | 23.3 | Kulturminner |
+| 24.2.2 fjerde ledd | Svar på varsel om byggherrens løsninger | 24.1 | Byggherrens valg av løsninger og prosjektering |
+| 14.4 | Endrede lover og vedtak for kontraktsgjenstanden | 10.2 | Nektet kontraktsmedhjelper |
+| 15.2 | Endrede lover og forskrifter for prosessen | 19.1 | Skade byggherren har risikoen for |
+| 26.3 | Endrede offentlige gebyrer og avgifter | 38.1 annet ledd | Brukstakelse |
+| 21.4 | Pålagt samordning | 29.2 | Stans ved byggherrens betalingsmislighold |
+| 33.3 | Force majeure | 33.1 c, 34.1.2 | Annet forhold byggherren har risikoen for |'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-4 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "endrer", vedtak = "lv-u4" },
+]
+folge = '''
+Titlene i tabellen i spørsmålet er arbeidsvalg i domenetabellen, ikke vedtakstekst. Bygges i #1449.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Tittelen på forholdet er forholdet selv, for eksempel ‹Irregulær endring› eller ‹Uforutsette forhold ved
+grunnen›. Totalentreprenørens eget navn på det faktiske forholdet (‹<tittel>› i LV-U4 punkt 1) er ikke
+tittelen på forholdet.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Tittelen er TEs navn på forholdet, ikke endringsordrens."
+
+[[gruppe.vedtak]]
+id = "OV-U79"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-10 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 5: korrespondanse sendt utenfor løsningen
+
+**I-10. Korrespondansen** (kilde U7, U8, kontraktsgrunnlaget Del II pkt. D.1.2)
+
+> Det partene har sendt hverandre utenfor løsningen, kan legges til i saken som korrespondanse, med
+> dokumentet som PDF. Den som legger det til, oppgir typen (brev, e-post, møtereferat, eller notat og annet
+> dokument), hvem som sendte det, sporene eller saken det gjelder, datoen det ble sendt, og en kort
+> beskrivelse med egne ord (OV-U16). For et brev oppgis også sendemåten: per post, som PDF i e-post, i
+> prosjekthotellet eller på annen måte. Løsningen avgjør ikke om sendemåten oppfyller kravene i kontrakten
+> til skriftlighet og adresse. Begge parter kan legge til korrespondanse, også det motparten har sendt. En
+> kommentar i Catenda er ikke et brev i løsningen, og den kan ikke legges til som brev.
+
+Forhold: endrer KA-U20, som sier: «I første versjon registrerer hver side bare sine egne brev.», og OV-U4,
+som sier: «Hver side registrerer bare sine egne brev, som etter KA-U20.» Presiserer OV-U17, som bygger på
+OV-U4: en registrering rettes av siden som la den til, også når dokumentet er motpartens. Utvider OV-U16. U8
+godtok «en kommentar i Catenda er ikke et varsel eller krav». Vi skriver «i løsningen» og ikke «etter
+kontrakten», fordi løsningen ikke avgjør hva kontrakten godtar som skriftlig (MM-U12). Bekreft lesingen.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-10 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "endrer", vedtak = "ka-u20" },
+  { art = "endrer", vedtak = "ov-u4" },
+  { art = "presiserer", vedtak = "ov-u17" },
+  { art = "utvider", vedtak = "ov-u16" },
+]
+folge = '''
+Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Det partene har sendt hverandre utenfor løsningen, kan legges til i saken som korrespondanse, med
+dokumentet som PDF. Den som legger det til, oppgir typen (brev, e-post, møtereferat, eller notat og annet
+dokument), hvem som sendte det, sporene eller saken det gjelder, datoen det ble sendt, og en kort
+beskrivelse med egne ord (OV-U16). For et brev oppgis også sendemåten: per post, som PDF i e-post, i
+prosjekthotellet eller på annen måte. Løsningen avgjør ikke om sendemåten oppfyller kravene i kontrakten
+til skriftlighet og adresse. Begge parter kan legge til korrespondanse, også det motparten har sendt. En
+kommentar i Catenda er ikke et brev i løsningen, og den kan ikke legges til som brev.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "I første versjon registrerer hver side bare sine egne brev."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hver side registrerer bare sine egne brev, som etter KA-U20."
+
+[[gruppe.vedtak]]
+id = "OV-U80"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-11 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 5: korrespondanse sendt utenfor løsningen
+
+**I-11. «Hva er det etter kontrakten?»** (kilde U9, spørsmål 1 = A og 2 = A)
+
+> Den som legger til korrespondanse, svarer på spørsmålet ‹Hva er det etter kontrakten?›: dokumentasjon,
+> varsel, krav eller svar. Bare parten som sendte det, kan velge noe annet enn dokumentasjon. Legger
+> motparten det til, står det som dokumentasjon til avsenderen velger hva det er.
+>
+> - Dokumentasjon står ved sporene eller saken. Løsningen utleder ikke noe av den.
+> - Varsel: totalentreprenøren velger ett eller flere varsler: etter punkt 32.2, punkt 33.4, punkt 34.1.2,
+>   eller etter punkt 34.1.3 for rigg og drift eller for produktivitet hver for seg. Datoen det ble sendt,
+>   er datoen for varselet i løsningen, og den settes én gang.
+> - Krav og svar: kravskjemaet eller svarskjemaet åpnes i samme forløp, viser til korrespondansen og fylles
+>   ut med de samme påkrevde feltene som for et krav eller svar sendt fra løsningen. Utdypningen og
+>   begrunnelsen er unntatt (KA-U24). Når skjemaet er fylt ut, har kravet eller svaret samme virkning i
+>   løsningen som et krav eller svar sendt derfra, med datoen det ble sendt. Løsningen lager ingen
+>   brevtekst. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse. Byggherrens egen
+>   endringsordre er et valg i svaret, på vilkårene i OV-U6. Spørsmålet i OV-U48 og OV-U49 stilles i
+>   svarskjemaet. Svarer byggherren ja, står korrespondansen som dokumentasjon, merket ‹Svaret har forbehold
+>   skjemaet ikke kan uttrykke›. Et registrert svar går gjennom godkjenningen etter fullmakten, som et svar
+>   sendt fra løsningen. Til svaret er godkjent, står korrespondansen som dokumentasjon, merket ‹Venter på
+>   godkjenning›.
+> - Er skjemaet ikke fylt ut, står korrespondansen som dokumentasjon, merket ‹Skjemaet er ikke fylt ut›.
+>
+> Et valg godtas der den samme handlingen sendt fra løsningen ville vært godtatt. Unntak: kategorien varsel
+> godtas også etter kravet og etter byggherrens svar, for et tidligere varsel sendt utenfor løsningen, på
+> vilkårene i OV-U5 og VS-U16. Et svar byggherren alt har gitt, står da med virkningen det hadde, og varselet
+> gjelder som premiss for nye svar (OV-U5). I en sak løsningen ikke forstår (MM-U2), godtas bare
+> dokumentasjon. En aksept, et trekk eller et annet utsagn sendt utenfor løsningen står som dokumentasjon.
+> Løsningen kontrollerer ikke at dokumentet er det parten oppgir. Avsenderen retter en feil kategori eller et
+> feil varsel etter MM-U21. En retting som gir et varsel en tidligere dato, gjelder først når motparten
+> godtar den, og et svar motparten alt har gitt, står med virkningen det hadde (OV-U11, MM-U12).
+
+Forhold: endrer OV-U4, OV-U6, OV-U16, OV-U44, GR-U16 og KA-U16 for registrerte svar. Endrer HF-U13, som sier:
+«appen utleder ingen virkning av et registrert brev (OV-U4), unntatt etter OV-U5 og OV-U6». Presiserer
+VS-U26, GR-U14, OV-U9, OV-U5 og VS-U16. Utvider OV-U48 og OV-U49. Gjelder også registrerte krav og svar i
+LV-U4.
+
+**Merk: punktet tar inn det tre vedtak forkastet.**
+- OV-U44 forkastet: «Den som registrerer et brev sendt utenfor appen, fyller ut de samme opplysningene som i
+  skjemaet i appen: krav, svar, aksept, varsel og trekk.» Punktet tar det inn for varsel, krav og svar, ikke
+  for aksept og trekk.
+- OV-U4 forkastet: «Å strukturere standpunkter, forbehold og bestridelser i registrerte brev i første
+  versjon.»
+- OV-U16 forkastet en fast liste over hva brevet er. Punktet tar inn en kortere liste.
+
+**Svar per avsnitt.** Vårt forslag, som utsagnene ikke sier: merket ved ja i OV-U48 og OV-U49, setningen om
+fullmakten og merket til svaret er godkjent, og det siste avsnittet. Unntaket for et tidligere varsel
+følger av OV-U5 og VS-U16, og setningen om retting av datoen følger av OV-U11 og MM-U12. Svar «ja» eller rett
+per strekpunkt og avsnitt. Senere kategorisering avgjøres i spørsmål 10, og datoen ved uenighet i spørsmål
+11.'''
+valgt = "Til godkjenning"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ført som alternativet «Til godkjenning», med rettelsen i svaret. Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u4" },
+  { art = "endrer", vedtak = "ov-u6" },
+  { art = "endrer", vedtak = "ov-u16" },
+  { art = "endrer", vedtak = "ov-u44" },
+  { art = "endrer", vedtak = "gr-u16" },
+  { art = "endrer", vedtak = "ka-u16" },
+  { art = "endrer", vedtak = "hf-u13" },
+  { art = "presiserer", vedtak = "vs-u26" },
+  { art = "presiserer", vedtak = "gr-u14" },
+  { art = "presiserer", vedtak = "ov-u9" },
+  { art = "presiserer", vedtak = "ov-u5" },
+  { art = "presiserer", vedtak = "vs-u16" },
+  { art = "utvider", vedtak = "ov-u48" },
+  { art = "utvider", vedtak = "ov-u49" },
+]
+folge = '''
+Alternativet «Til godkjenning» er forslaget med merket ‹Til godkjenning› i stedet for ‹Venter på godkjenning›, rettet etter svaret. Resten av teksten er forslaget ordrett. Forholdet til LV-U4 er ikke ført i forhold: spørsmålet sier bare at punktet også gjelder registrerte krav og svar i LV-U4. Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "forslaget"
+tekst = '''
+Den som legger til korrespondanse, svarer på spørsmålet ‹Hva er det etter kontrakten?›: dokumentasjon,
+varsel, krav eller svar. Bare parten som sendte det, kan velge noe annet enn dokumentasjon. Legger
+motparten det til, står det som dokumentasjon til avsenderen velger hva det er.
+- Dokumentasjon står ved sporene eller saken. Løsningen utleder ikke noe av den.
+- Varsel: totalentreprenøren velger ett eller flere varsler: etter punkt 32.2, punkt 33.4, punkt 34.1.2,
+eller etter punkt 34.1.3 for rigg og drift eller for produktivitet hver for seg. Datoen det ble sendt,
+er datoen for varselet i løsningen, og den settes én gang.
+- Krav og svar: kravskjemaet eller svarskjemaet åpnes i samme forløp, viser til korrespondansen og fylles
+ut med de samme påkrevde feltene som for et krav eller svar sendt fra løsningen. Utdypningen og
+begrunnelsen er unntatt (KA-U24). Når skjemaet er fylt ut, har kravet eller svaret samme virkning i
+løsningen som et krav eller svar sendt derfra, med datoen det ble sendt. Løsningen lager ingen
+brevtekst. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse. Byggherrens egen
+endringsordre er et valg i svaret, på vilkårene i OV-U6. Spørsmålet i OV-U48 og OV-U49 stilles i
+svarskjemaet. Svarer byggherren ja, står korrespondansen som dokumentasjon, merket ‹Svaret har forbehold
+skjemaet ikke kan uttrykke›. Et registrert svar går gjennom godkjenningen etter fullmakten, som et svar
+sendt fra løsningen. Til svaret er godkjent, står korrespondansen som dokumentasjon, merket ‹Venter på
+godkjenning›.
+- Er skjemaet ikke fylt ut, står korrespondansen som dokumentasjon, merket ‹Skjemaet er ikke fylt ut›.
+Et valg godtas der den samme handlingen sendt fra løsningen ville vært godtatt. Unntak: kategorien varsel
+godtas også etter kravet og etter byggherrens svar, for et tidligere varsel sendt utenfor løsningen, på
+vilkårene i OV-U5 og VS-U16. Et svar byggherren alt har gitt, står da med virkningen det hadde, og varselet
+gjelder som premiss for nye svar (OV-U5). I en sak løsningen ikke forstår (MM-U2), godtas bare
+dokumentasjon. En aksept, et trekk eller et annet utsagn sendt utenfor løsningen står som dokumentasjon.
+Løsningen kontrollerer ikke at dokumentet er det parten oppgir. Avsenderen retter en feil kategori eller et
+feil varsel etter MM-U21. En retting som gir et varsel en tidligere dato, gjelder først når motparten
+godtar den, og et svar motparten alt har gitt, står med virkningen det hadde (OV-U11, MM-U12).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Til godkjenning"
+tekst = '''
+Den som legger til korrespondanse, svarer på spørsmålet ‹Hva er det etter kontrakten?›: dokumentasjon,
+varsel, krav eller svar. Bare parten som sendte det, kan velge noe annet enn dokumentasjon. Legger
+motparten det til, står det som dokumentasjon til avsenderen velger hva det er.
+- Dokumentasjon står ved sporene eller saken. Løsningen utleder ikke noe av den.
+- Varsel: totalentreprenøren velger ett eller flere varsler: etter punkt 32.2, punkt 33.4, punkt 34.1.2,
+eller etter punkt 34.1.3 for rigg og drift eller for produktivitet hver for seg. Datoen det ble sendt,
+er datoen for varselet i løsningen, og den settes én gang.
+- Krav og svar: kravskjemaet eller svarskjemaet åpnes i samme forløp, viser til korrespondansen og fylles
+ut med de samme påkrevde feltene som for et krav eller svar sendt fra løsningen. Utdypningen og
+begrunnelsen er unntatt (KA-U24). Når skjemaet er fylt ut, har kravet eller svaret samme virkning i
+løsningen som et krav eller svar sendt derfra, med datoen det ble sendt. Løsningen lager ingen
+brevtekst. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse. Byggherrens egen
+endringsordre er et valg i svaret, på vilkårene i OV-U6. Spørsmålet i OV-U48 og OV-U49 stilles i
+svarskjemaet. Svarer byggherren ja, står korrespondansen som dokumentasjon, merket ‹Svaret har forbehold
+skjemaet ikke kan uttrykke›. Et registrert svar går gjennom godkjenningen etter fullmakten, som et svar
+sendt fra løsningen. Til svaret er godkjent, står korrespondansen som dokumentasjon, merket ‹Til
+godkjenning›.
+- Er skjemaet ikke fylt ut, står korrespondansen som dokumentasjon, merket ‹Skjemaet er ikke fylt ut›.
+Et valg godtas der den samme handlingen sendt fra løsningen ville vært godtatt. Unntak: kategorien varsel
+godtas også etter kravet og etter byggherrens svar, for et tidligere varsel sendt utenfor løsningen, på
+vilkårene i OV-U5 og VS-U16. Et svar byggherren alt har gitt, står da med virkningen det hadde, og varselet
+gjelder som premiss for nye svar (OV-U5). I en sak løsningen ikke forstår (MM-U2), godtas bare
+dokumentasjon. En aksept, et trekk eller et annet utsagn sendt utenfor løsningen står som dokumentasjon.
+Løsningen kontrollerer ikke at dokumentet er det parten oppgir. Avsenderen retter en feil kategori eller et
+feil varsel etter MM-U21. En retting som gir et varsel en tidligere dato, gjelder først når motparten
+godtar den, og et svar motparten alt har gitt, står med virkningen det hadde (OV-U11, MM-U12).'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "appen utleder ingen virkning av et registrert brev (OV-U4), unntatt etter OV-U5 og OV-U6"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Den som registrerer et brev sendt utenfor appen, fyller ut de samme opplysningene som i skjemaet i appen: krav, svar, aksept, varsel og trekk."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Å strukturere standpunkter, forbehold og bestridelser i registrerte brev i første versjon."
+
+[[gruppe.vedtak]]
+id = "OV-U81"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt og lagret i #1402 (kommentaren 6556240763), med innledningen og punkt I-12 i Del I:
+
+# Samlet tilslutning: ordene, registreringen og innleggene (#1402)
+
+Fila samler vedtakene og spørsmålene fra designrunden 31.10–01.11 (U1–U10). Del I er vedtak utsagnene
+avgjør, med foreslått ordlyd: svar «ja» eller rett per punkt. Del II er spørsmål med alternativer: svar med
+bokstav per spørsmål. «Varden» er et konseptnavn og føres ikke som vedtak. Vedtakstekstene sier «løsningen».
+NS 8407 vises bare med punktnummer. Det som er merket «vårt forslag», sier utsagnene ikke.
+
+## Del I – Vedtakene utsagnene avgjør
+
+### Bestillingens punkt 5: korrespondanse sendt utenfor løsningen
+
+**I-12. Merknaden om at innholdet ikke vurderes** (kilde U6)
+
+> Ved korrespondansen og ved et krav som venter på svar står ingen merknad om at innholdet ikke er vurdert.
+> At løsningen ikke vurderer innholdet i dokumentet og ikke avgjør hvilken betydning det har for partenes
+> rettigheter og plikter, forklares i et infotips eller på en egen side om løsningen. Visningen sier det
+> løsningen vet: typen, avsenderen, datoen, sendemåten, hvem som la det til og når, og kategorien.
+
+Forhold: endrer OV-U4, OV-U10, OV-U62 og OV-U70, som har merknaden «Appen vurderer ikke innholdet». Den siste
+setningen er vårt forslag. OV-U19 avgjøres i spørsmål 12.'''
+valgt = "ja"
+svar = '''
+«Del I: ja, men i I-11 «Til godkjenning» i stedet for «Venter på godkjenning».» Svaret er ja til punkt I-12 og ført som alternativet «ja». Svaret på Del II er utelatt.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u4" },
+  { art = "endrer", vedtak = "ov-u10" },
+  { art = "endrer", vedtak = "ov-u62" },
+  { art = "endrer", vedtak = "ov-u70" },
+]
+folge = '''
+Bygges i #807. «Om»-siden er #1452.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Ved korrespondansen og ved et krav som venter på svar står ingen merknad om at innholdet ikke er vurdert.
+At løsningen ikke vurderer innholdet i dokumentet og ikke avgjør hvilken betydning det har for partenes
+rettigheter og plikter, forklares i et infotips eller på en egen side om løsningen. Visningen sier det
+løsningen vet: typen, avsenderen, datoen, sendemåten, hvem som la det til og når, og kategorien.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen vurderer ikke innholdet"
+
+[[gruppe.vedtak]]
+id = "OV-U82"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 3, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 3. Hvordan føres fellesordet «forholdet» i vedtakene?
+
+**Bakgrunn.** U3 og U4 avgjør ordet i visningen (I-2). 150 av 353 vedtak bruker «grunnlaget» om forholdet,
+blant annet «grunnlagskravet» 20 ganger (25 med alle formene av «grunnlagskrav»), «svar på grunnlaget» 28 og
+«trekk av grunnlaget» 18. Ordet har også andre betydninger i vedtakene: «grunnlag for krav» i vid forstand,
+som i kontrakten, og sammensetninger som beslutningsgrunnlaget og enighetsgrunnlaget. «Forholdet» betyr i
+vedtakene i dag det faktiske forholdet totalentreprenøren beskriver (I-2). U2: «Hva vedtakene sier er ikke
+relevant når vi diskuterer hvilken terminologi som er best.»
+**Belegg.** U3: «Grunnlag er ikke krav.» LV-U35 (sitert i spørsmål 1) er en leseregel for et ordbytte.
+
+**Anbefaling: A.** Belegg: LV-U35 brukte en leseregel for samme slags bytte. Ordet har minst fire betydninger
+i vedtakene, så et ord-for-ord-bytte gir feil. Antakelse: at oppdragsgiver ikke vil lese 150 vedtak på nytt.
+**Styrer** vedtaksfila, språkfila og domenetabellen.'''
+valgt = "3A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+folge = '''
+Forholdet i alternativet, «presiserer de vedtakene som bruker ordene», er ikke ført som forhold i registeret, fordi vedtakene ikke er listet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "3A"
+tekst = '''
+Forholdet er den bestemmelsen i kontrakten totalentreprenøren påberoper, som gir grunnlag for mulige krav om justering av vederlaget eller fristforlengelse. Forholdet er ikke et krav. I vedtakene leses ‹grunnlaget› og ‹ansvarsgrunnlaget›, der de gjelder det totalentreprenøren påberoper, som ‹forholdet›, ‹grunnlagskravet› som ‹totalentreprenørens påberopelse av forholdet›, og ‹trekk av grunnlaget› som ‹trekk av påberopelsen›. Der vedtakene bruker ‹forholdet› om det faktiske forholdet totalentreprenøren beskriver, som ‹forholdet «<tittel>»› i LV-U4 punkt 1 og ‹som følge av forholdet i sak …› i VS-U15, VS-U26 og LV-U29, leses det som ‹det faktiske forholdet›. ‹Grunnlag for krav› i vid forstand og sammensetninger som beslutningsgrunnlaget står. De vedtatte brevtekstene endres uttrykkelig (spørsmål 4–7). Endret tekst gjelder bare nye brev (MM-U9). Forhold: presiserer de vedtakene som bruker ordene. Lesingen av ‹grunnlagskravet› og av det faktiske forholdet er vårt forslag.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3B"
+tekst = '''
+Som A, men ordet byttes i hvert vedtak, som ved ordbyttet 11.10 (#384). Forhold: endrer om lag 150 vedtak redaksjonelt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U83"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 8, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 8. Gjelder ordbyttet også navnene i domenet?
+
+**Bakgrunn.** Navnene på sporet, standpunktet og feltene i hendelsene sier i dag «grunnlag». Forholdet er
+lagret som et krav med versjoner. Etter U3 er også det upresist. B-17: «Dagens testsaker forkastes, og det
+bygges ingen kompatibilitetsleser for gamle Python-rader; bevis-sakene og domenetabellen føres videre.» Etter
+den første reelle hendelsen er navnene kontrakter. HF-U2: «Byggherrens standpunkt til grunnlaget heter
+«grunnlag», ikke «ansvar», med verdiene godkjent, avslått og frafalt, fordi frafall av et pålegg ikke er en
+vurdering av ansvar.» Ingen reell sak er skrevet.
+
+**Konsekvensene for kjernen.** 40 av 59 filer har ordet, på om lag 1 500 linjer. 92 testnavn har det. Begge
+versjonsnumrene for regler og projeksjon økes. Hvitelisten over det reglene leser, må klassifiseres på nytt,
+og feilinnføringene må skrives om og prøves på nytt. Databasen trenger en ny migrasjon for sporet på
+notatene. Utenfor kjernen rammes serveren (15 filer), saksvisningen (18), prøvekoden (17), datamodellen (7)
+og domenetabellen (17). Python-stien beholder navnene (DL-U2). Også A rører den låste brevteksten.
+
+**Anbefaling: C.** Belegg: samme begrep skal ha samme betydning i kode og dokumentasjon, og vinduet i B-17
+lukkes ved den første reelle hendelsen. Spørsmålene 10–17 kan endre hendelsene for forholdet, så C gir én
+omdøping i stedet for to. Antakelse: at det er tid til omdøpingen før den første ekte saken.
+**Styrer** omfanget av arbeidet i kjernen nå (bare tekst ved A og C) og en egen omdøping før første ekte sak.'''
+valgt = "8C"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "hf-u2" }]
+folge = '''
+Bygges i #1453.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "8C"
+tekst = '''
+Ordbyttet gjelder også navnene i domenet. Det gjøres samlet før løsningen skriver den første reelle hendelsen, etter at spørsmålene i denne runden som endrer hendelsene for forholdet, er besvart. Til da fører domenetabellen gamle og nye navn. Forhold: endrer HF-U2 for standpunktet.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "8A"
+tekst = '''
+Ordbyttet gjelder bare teksten brukeren ser: visningen, skjemaene og brevene. Navnene i domenet står, og domenetabellen fører ‹grunnlag› → ‹forholdet› som ord i visningen. Forhold: HF-U2 står.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "8B"
+tekst = '''
+Ordbyttet gjelder også navnene i domenet nå, før den første reelle hendelsen: sporet, standpunktet og feltene heter forhold, i samme runde som teksten. Forhold: endrer HF-U2 for standpunktet.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Dagens testsaker forkastes, og det bygges ingen kompatibilitetsleser for gamle Python-rader; bevis-sakene og domenetabellen føres videre."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherrens standpunkt til grunnlaget heter «grunnlag», ikke «ansvar», med verdiene godkjent, avslått og frafalt, fordi frafall av et pålegg ikke er en vurdering av ansvar."
+
+[[gruppe.vedtak]]
+id = "OV-U84"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 10, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 10. Kan avsenderen senere si hva korrespondansen er?
+
+**Bakgrunn.** I-11 sier at motpartens registrering står som dokumentasjon «til avsenderen velger hva det
+er». Det forutsetter at avsenderen kan velge senere. Merket «Skjemaet er ikke fylt ut» sier ikke om skjemaet
+kan fylles ut senere. OV-U13 sier: «En senere avklaring av § 31.3 avvises i første versjon, med beskjed om at
+den kan registreres som dokumentasjon.» MM-U12 sier: «En senere avklaring registreres som et nytt utsagn,
+uten at brevet eller historikken skrives om.» OV-U11 sier: «Et svar byggherren alt har gitt, står med
+virkningen det hadde (OV-U5), og byggherren kan ta stilling på nytt.»
+
+**Anbefaling: A.** Belegg: U9 spørsmål 1 = A forutsetter det for motpartens registrering. Uten A må samme
+dokument legges til to ganger, og en avbrutt utfylling har ingen vei tilbake (prøvingen av arbeidsflyten).
+**Styrer** om hvert dokument registreres én gang, OV-U13 og om det trengs en egen handling for å si hva det er.'''
+valgt = "10A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u80" }, { art = "endrer", vedtak = "ov-u13" }]
+folge = '''
+I-11 i alternativet er OV-U80. Følger OV-U5, OV-U11 og MM-U12 for varselet. Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "10A"
+tekst = '''
+Avsenderen kan senere velge hva korrespondansen er og fylle ut skjemaet. Det gjelder også det motparten har lagt til, og korrespondanse merket ‹Skjemaet er ikke fylt ut›. Valget er et nytt utsagn med henvisning til korrespondansen. Datoen for varselet, kravet eller svaret er datoen det ble sendt, og visningen viser når valget ble gjort. Et svar eller en annen handling motparten alt har gjort, står med virkningen den hadde, og valget gjelder som premiss for det motparten gjør senere. Er det alt satt en dato for et varsel etter samme bestemmelse, er et valg som gir varselet en tidligere dato, en retting etter OV-U11, og den gjelder først når motparten godtar den. Forhold: presiserer I-11. Endrer OV-U13: byggherren kan gjøre en registrert endringsordre til et svar etter OV-U6. Følger OV-U5, OV-U11 og MM-U12 for varselet. Regelen for krav og svar er vårt forslag etter samme mønster.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "10B"
+tekst = '''
+Kategorien og skjemaet gis bare når korrespondansen legges til. Vil avsenderen endre det i sin egen registrering, legger avsenderen korrespondansen til på nytt med henvisning til registreringen (OV-U17). Motpartens registrering står som dokumentasjon, og avsenderen kan legge til dokumentet selv og velge hva det er. Forhold: OV-U13 og OV-U17 står.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En senere avklaring av § 31.3 avvises i første versjon, med beskjed om at den kan registreres som dokumentasjon."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En senere avklaring registreres som et nytt utsagn, uten at brevet eller historikken skrives om."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et svar byggherren alt har gitt, står med virkningen det hadde (OV-U5), og byggherren kan ta stilling på nytt."
+
+[[gruppe.vedtak]]
+id = "OV-U85"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 11, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 11. Hvem bestemmer datoen, og hva om partene er uenige?
+
+**Bakgrunn.** Etter I-11 er datoen korrespondansen ble sendt, datoen for varselet. Legger motparten den til,
+oppgir motparten en dato, og avsenderen kan mene noe annet. OV-U5 sier: «Visningen sier «TE oppgir at
+varselet ble sendt <dato>», og byggherren tar stilling til rettidigheten i svaret med opplysningen som
+premiss.» NS 8407 punkt 5 sier ikke om et varsel regnes fra sending eller mottak.
+
+**Anbefaling: A.** Belegg: OV-U5 bygger på avsenderens opplysning, og U9 gir bare avsenderen rett til å
+kategorisere. Med B setter mottakeren premisset for sitt eget svar.
+**Styrer** datofeltet når avsenderen kategoriserer, og visningen av to datoer.'''
+valgt = "11A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u5" }, { art = "presiserer", vedtak = "ov-u16" }]
+folge = '''
+Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "11A"
+tekst = '''
+Datoen for varselet, kravet eller svaret er datoen avsenderen oppgir at det ble sendt. Har motparten lagt korrespondansen til med en annen dato, viser løsningen begge, med parten som oppga dem. Løsningen avgjør ikke når korrespondansen ble sendt eller kom fram. Mener mottakeren at datoen er feil, sier mottakeren det i begrunnelsen for svaret eller i et innlegg. Forhold: presiserer OV-U5 og OV-U16.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "11B"
+tekst = '''
+Datoen den første registreringen oppga, gjelder, også når motparten la korrespondansen til. Avsenderen retter den etter OV-U11. Forhold: presiserer OV-U16.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Visningen sier «TE oppgir at varselet ble sendt <dato>», og byggherren tar stilling til rettidigheten i svaret med opplysningen som premiss."
+
+[[gruppe.vedtak]]
+id = "OV-U86"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 12, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 12. Merknaden på saken om korrespondanse uten virkning (OV-U19)
+
+**Bakgrunn.** OV-U19 sier: «Så lenge et brev sendt utenfor appen står registrert som dokumentasjon i saken og
+ikke er rettet bort, har saken merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke
+innholdet.», i tillegg til merknaden ved brevet.» OV-U10 har samme merknad i statusen. I-12 tar
+vurderingssetningen ut. Faktumet står igjen: en sak der alle kravene ser avgjort ut, kan ha dokumentasjon med
+innhold løsningen ikke kjenner.
+
+**Anbefaling: A.** Belegg: U6 gjelder forklaringer av hvordan løsningen virker. Denne merknaden er et faktum
+om saken. Antakelse: at risikoen OV-U19 skulle dekke, er større når motparten også kan legge til.
+**Styrer** merknaden i saken og statusen etter OV-U10.'''
+valgt = "12A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+forhold = [{ art = "endrer", vedtak = "ov-u10" }, { art = "endrer", vedtak = "ov-u19" }, { art = "endrer", vedtak = "ov-u70" }]
+folge = '''
+Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "12A"
+tekst = '''
+Så lenge saken har korrespondanse som står som dokumentasjon og ikke er rettet bort, har saken merknaden ‹Saken har dokumentasjon som er registrert, men ikke sendt herfra.› At innholdet ikke er vurdert, står i infotipset. Forhold: endrer OV-U10, OV-U19 og OV-U70.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "12B"
+tekst = '''
+Saken har ingen egen merknad. Korrespondansen vises i brevvekslingen med kategorien og merket. Forhold: opphever OV-U19. Endrer OV-U10.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Så lenge et brev sendt utenfor appen står registrert som dokumentasjon i saken og ikke er rettet bort, har saken merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.», i tillegg til merknaden ved brevet."
+
+[[gruppe.vedtak]]
+id = "OV-U87"
+dato = 2026-11-01
+hvem = "oppdragsgiver"
+kilde = ["#1402"]
+sporsmal = '''
+Del II, spørsmål 18, ordrett slik det ble stilt 01.11 og lagret i #1402 (kommentaren 6556240763). Alternativene står i posten.
+
+### 18. «Kravet som gjelder» i oversiktene over vederlag og frist
+
+**Bakgrunn.** U3: ««Kravet som gjelder» er også feil. Grunnlag er ikke krav.» I prototypene for vederlag og
+frist står «Kravet som gjelder» om kravet om vederlag eller fristforlengelse. Det er et krav.
+
+**Anbefaling: A.** Belegg: begrunnelsen i U3 er at grunnlaget ikke er et krav. Antakelse: at innvendingen
+gjaldt forholdet.
+**Styrer** overskriften i oversiktene over vederlag og frist.'''
+valgt = "18A"
+svar = '''
+Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
+folge = '''
+Bygges i #1449.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "18A"
+tekst = '''
+Uttrykket ‹Kravet som gjelder› brukes ikke om forholdet. I oversiktene over vederlag og frist står det om den gjeldende versjonen av kravet. Forhold: endrer ingen vedtak.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "18B"
+tekst = '''
+Uttrykket ‹Kravet som gjelder› brukes ikke i visningen, heller ikke i oversiktene over vederlag og frist. Forhold: endrer ingen vedtak.'''
+forkastet = true
 
 
 [[gruppe]]
