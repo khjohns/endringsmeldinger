@@ -1,11 +1,11 @@
 {
   "id": "BF-04",
-  "tittel": "BH avslår grunnlaget og påberoper at vederlagsvarselet kom for sent",
-  "brukerhistorie": "BH har avslått grunnlaget og svarer på vederlagskravet. BH påberoper at varselet etter § 34.1.2 kom for sent og godtar subsidiært 60 000 kr. BH ser hvilke innsigelser beløpet bygger på før svaret er ferdig. TE leser svaret og forstår at 60 000 kr bare gjelder hvis verken avslaget av grunnlaget eller innsigelsen om varselet fører fram.",
+  "tittel": "BH avslår forholdet og påberoper at vederlagsvarselet kom for sent",
+  "brukerhistorie": "BH har svart at byggherren ikke har risikoen for forholdet, og svarer på vederlagskravet. BH påberoper at varselet etter punkt 34.1.2 kom for sent og godkjenner subsidiært 60 000 kr. BH ser hvilke innsigelser beløpet bygger på før svaret er ferdig. TE leser svaret og forstår at 60 000 kr bare gjelder hvis verken svaret på forholdet eller påberopelsen av at varselet kom for sent fører fram.",
   "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "En ny sak. TE krever ansvar for svikt i BHs medvirkning, og BH avslår grunnlaget. TE krever 100 000 kr i vederlag."
+    "beskrivelse": "En ny sak. TE påberoper svikt i BHs medvirkning, og BH svarer at byggherren ikke har risikoen for forholdet. TE krever 100 000 kr i vederlag."
   },
   "steg": [
     {
@@ -44,7 +44,7 @@
           "vurdering": "delvis",
           "godkjent_belop": 60000,
           "varslet_i_tide": false,
-          "utdypning": "Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
+          "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
         }
       ]
     }
@@ -71,7 +71,7 @@
     {
       "id": "grunnlaget-er-avslaatt",
       "etter": 2,
-      "beskrivelse": "BH har avslått grunnlaget. TE har ikke krevd vederlag ennå.",
+      "beskrivelse": "BH har svart at byggherren ikke har risikoen for forholdet. TE har ikke krevd vederlag ennå.",
       "kontroller": [
         {
           "rolle": "mal",
@@ -92,9 +92,11 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "TE ser at grunnlaget er avslått, og at vederlaget likevel kan kreves.",
+          "tekst": "TE ser at BH har svart at byggherren ikke har risikoen for forholdet, og at vederlaget likevel kan kreves.",
           "kilde": [
-            "GR-U7"
+            "GR-U7",
+            "LV-U41",
+            "OV-U76"
           ]
         }
       ]
@@ -102,7 +104,7 @@
     {
       "id": "bh-har-mottatt-vederlagskravet",
       "etter": 3,
-      "beskrivelse": "Grunnlaget er avslått, og BH har mottatt vederlagskravet på 100 000 kr.",
+      "beskrivelse": "BH har svart at byggherren ikke har risikoen for forholdet, og BH har mottatt vederlagskravet på 100 000 kr.",
       "kontrollsett": [
         {
           "sett": "bh_har_mottatt_krav",
@@ -126,16 +128,21 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "BH ser at avslaget av grunnlaget står først i svaret, og at svaret på vederlaget står subsidiært til det.",
+          "tekst": "BH ser at svaret på forholdet står først i svaret, og at svaret på vederlaget står subsidiært til det.",
           "kilde": [
             "OV-U32",
-            "OV-U33"
+            "OV-U33",
+            "LV-U41",
+            "OV-U76"
           ]
         },
         {
-          "tekst": "BH ser over beløpsspørsmålet hvilke innsigelser beløpet bygger på: avslaget av grunnlaget og, når BH svarer at varselet kom for sent, innsigelsen etter § 34.1.2.",
+          "tekst": "BH ser over beløpsspørsmålet hvilke innsigelser beløpet bygger på: svaret på forholdet og, når BH svarer at varselet kom for sent, påberopelsen etter punkt 34.1.2.",
           "kilde": [
-            "OV-U32"
+            "OV-U32",
+            "LV-U41",
+            "OV-U76",
+            "OV-U75"
           ]
         }
       ]
@@ -143,7 +150,7 @@
     {
       "id": "te-har-mottatt-svaret",
       "etter": 4,
-      "beskrivelse": "BH har sendt svaret: grunnlaget er avslått, § 34.1.2 påberopt, videre subsidiært 60 000 kr.",
+      "beskrivelse": "BH har sendt svaret: byggherren har ikke risikoen for forholdet, punkt 34.1.2 påberopt, videre subsidiært 60 000 kr.",
       "kontrollsett": [
         {
           "sett": "te_har_mottatt_svar",
@@ -185,16 +192,22 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "TE forstår at BH prinsipalt avslår grunnlaget, subsidiært mener at varselet etter § 34.1.2 kom for sent, og videre subsidiært godtar 60 000 kr.",
+          "tekst": "TE forstår at BH prinsipalt mener at byggherren ikke har risikoen for forholdet, subsidiært at varselet etter punkt 34.1.2 kom for sent, og videre subsidiært godkjenner 60 000 kr.",
           "kilde": [
             "OV-U32",
-            "OV-U27"
+            "OV-U27",
+            "LV-U41",
+            "OV-U76",
+            "OV-U75"
           ]
         },
         {
-          "tekst": "TE forstår at 60 000 kr bare gjelder hvis verken avslaget av grunnlaget eller innsigelsen om varselet fører fram.",
+          "tekst": "TE forstår at 60 000 kr bare gjelder hvis verken svaret på forholdet eller påberopelsen av at varselet kom for sent fører fram.",
           "kilde": [
-            "OV-U32"
+            "OV-U32",
+            "LV-U41",
+            "OV-U76",
+            "MM-U35"
           ]
         }
       ]
@@ -211,6 +224,11 @@
       "dato": "2026-10-30",
       "grunnlag": "#1400",
       "hva": "Forløpet er opprettet."
+    },
+    {
+      "dato": "2026-11-01",
+      "grunnlag": "#1456, LV-U41, OV-U75, OV-U76, MM-U35",
+      "hva": "Beskrivelsene og forståelsen sier «forholdet» og «punkt 34.1.2», og svaret på forholdet står med ordene i LV-U41. Påberopelsen i svaret av at varselet kom for sent heter ikke lenger innsigelse, så den ikke blandes med innsigelsen etter punkt 5 tredje ledd, som er et innlegg (MM-U35). Linja i beslutningsgrunnlaget kontrolleres fortsatt med «§ 34.1.2», som kjernen lager i dag; den rettes når LV-U39 er bygget (#1433)."
     }
   ]
 }
