@@ -335,6 +335,22 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .valg-rad:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
 .valg-fot{font-size:12px;color:var(--ink-3)}
 .valg[hidden]{display:none}
+/* Registrerte brev og registreringen */
+.merke-reg{display:inline-block;margin-left:6px;font-size:12px;font-weight:600;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:0 8px;vertical-align:2px}
+.registrer{padding:0 20px 20px 68px}
+.reg-skjema{margin-top:8px;padding:20px;border:1px solid var(--rule-strong-color);border-radius:var(--r-kort);display:flex;flex-direction:column;gap:18px;max-width:560px}
+.reg-skjema[hidden]{display:none}
+.reg-skjema h3{font-size:16px;font-weight:600}
+.reg-skjema fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.reg-skjema legend,.reg-skjema .felt > label{font-weight:600;margin-bottom:4px}
+.reg-skjema fieldset label{display:flex;gap:8px;align-items:center;min-height:32px}
+.reg-skjema .felt{display:flex;flex-direction:column;gap:4px}
+.reg-skjema .hjelp{font-size:14px;color:var(--ink-2)}
+.reg-skjema input[type="date"],.reg-skjema textarea,.reg-skjema input[type="file"]{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--rule-strong-color);border-radius:6px;background:var(--surface-inset);color:var(--ink);max-width:100%}
+.reg-knapper{display:flex;flex-wrap:wrap;gap:12px}
+.knapp.sekundaer{background:transparent;color:var(--brand)}
+@media (max-width:560px){.registrer{padding-left:20px}}
+
 /* Toppskallet: stien og brukermenyen, felles for alle sidene */
 .demolinje{background:var(--surface-inset);border-bottom:1px solid var(--rule-color);padding:6px max(24px,env(safe-area-inset-right,0px)) 6px max(24px,env(safe-area-inset-left,0px))}
 .demolinje .topplinje-inner{justify-content:flex-end}
@@ -560,6 +576,15 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <span class="filer" aria-label="Vedlegg til brev 1"><span class="fs f-endring"><a class="fil" href="#" aria-label="Referat byggemøte 14.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Referat byggemøte 14.pdf</span><span class="fm">PDF · 380 kB</span></a></span><span class="fs f-grunn"><a class="fil" href="#" aria-label="Profilmåling akse 4–7.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Profilmåling akse 4–7.pdf</span><span class="fm">PDF · 2,4 MB</span></a></span></span>
               </li>
 
+              <li class="innlegg registrert">
+                <span class="part" aria-hidden="true">BH</span>
+                <div class="innlegg-hode">
+                  <h2 class="innlegg-tittel">Brev fra byggherren <span class="merke-reg">Registrert</span></h2>
+                  <a class="lenke" href="#">Åpne brevet</a>
+                  <p class="innlegg-meta">Sendt 14. oktober 2026 som PDF i e-post, ifølge byggherren · registrert av Ola Nordmann 15. oktober</p>
+                </div>
+                <span class="filer"><a class="fil" href="#" aria-label="Foreløpig tilbakemelding om pålegget.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Foreløpig tilbakemelding om pålegget.pdf</span><span class="fm">PDF · 210 kB</span></a></span>
+              </li>
               <li class="innlegg svar5 ts t-avslatt t-eo t-frafall">
                 <span class="part" aria-hidden="true">BH</span>
                 <div class="innlegg-hode">
@@ -600,6 +625,32 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <p>Svar fra byggherren er ikke registrert.</p>
               </li>
             </ol>
+            <div class="registrer">
+              <button class="lenke" type="button" id="reg-aapne" aria-expanded="false" aria-controls="reg-skjema">Registrer et brev sendt på annen måte</button>
+              <form class="reg-skjema" id="reg-skjema" hidden onsubmit="return false">
+                <h3>Registrer et brev sendt på annen måte</h3>
+                <fieldset><legend>Hvem sendte brevet?</legend>
+                  <label><input type="radio" name="avsender" checked> Totalentreprenøren</label>
+                  <label><input type="radio" name="avsender"> Byggherren</label>
+                </fieldset>
+                <div class="felt"><label for="reg-dato">Datoen brevet ble sendt</label><span class="hjelp">Datoen avsenderen oppgir.</span><input id="reg-dato" type="date" aria-required="true"></div>
+                <fieldset><legend>Sendt som</legend>
+                  <label><input type="radio" name="kanal"> Brev per post</label>
+                  <label><input type="radio" name="kanal" checked> PDF i e-post</label>
+                  <label><input type="radio" name="kanal"> I prosjekthotellet</label>
+                  <label><input type="radio" name="kanal"> I referat fra byggherremøte</label>
+                  <label><input type="radio" name="kanal"> På annen måte</label>
+                </fieldset>
+                <fieldset><legend>Gjelder</legend>
+                  <label><input type="checkbox" checked> Forholdet</label>
+                  <label><input type="checkbox"> Vederlagsjustering</label>
+                  <label><input type="checkbox"> Fristforlengelse</label>
+                </fieldset>
+                <div class="felt"><label for="reg-fil">Brevet</label><span class="hjelp">Last opp brevet slik det ble sendt, som PDF.</span><input id="reg-fil" type="file" accept="application/pdf" aria-required="true"></div>
+                <div class="felt"><label for="reg-merknad">Merknad (valgfritt)</label><textarea id="reg-merknad" rows="3"></textarea></div>
+                <div class="reg-knapper"><button class="knapp primaer" type="submit">Registrer brevet</button><button class="knapp sekundaer" type="button" id="reg-avbryt">Avbryt</button></div>
+              </form>
+            </div>
           </section>
 
           <section class="kort baerer" aria-labelledby="baerer-tittel">
@@ -707,7 +758,6 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <li class="ts t-avslatt t-frafall"><button type="button"><span class="h">Send nytt svar<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b"><span class="ts t-avslatt">Erstatter svaret i brev 5. Brev 5 står som det ble sendt.</span><span class="ts t-frafall">Etter frafallet bare som endringsordre.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-eo"><button type="button"><span class="h">Svar på kravet om fristforlengelse</span><span class="b">Kravet i brev 3 er ikke besvart.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li><button type="button"><span class="h">Skriv innlegg</span><span class="b">Fritekst med henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li><button type="button"><span class="h">Registrer et brev sendt på annen måte</span><span class="b">Vises som dokumentasjon.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
             </div>
@@ -735,16 +785,14 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 
           <section class="kort kommentarer" aria-labelledby="kommentar-tittel">
             <div class="kort-hode" style="padding-bottom:4px">
-              <h2 id="kommentar-tittel">Kommentarer i Catenda<button type="button" class="info" aria-label="Om kommentarene" title="Kommentarer er ikke brev etter kontrakten. Er en kommentar ment som varsel eller krav, send det som brev, eller registrer kommentaren som brev sendt på annen måte." style="all:unset;cursor:help;display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:12px;font-weight:600;color:var(--ink-2);margin-left:6px;vertical-align:1px">i</button></h2>
+              <h2 id="kommentar-tittel">Kommentarer i Catenda<button type="button" class="info" aria-label="Om kommentarene" title="Kommentarer er ikke brev etter kontrakten. En kommentar er ikke et varsel eller krav etter kontrakten. Varsler og krav sendes som brev fra Varden, eller registreres med brevet som vedlegg." style="all:unset;cursor:help;display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:12px;font-weight:600;color:var(--ink-2);margin-left:6px;vertical-align:1px">i</button></h2>
               <span class="kilde">Gjelder hele saken</span>
             </div>
             <ol class="kommentarliste">
               <li><p class="hvem"><b>Per Olsen</b> · Totalentreprenør AS · <time>30. oktober 2026 kl. 07.48</time></p>
-                <p><span class="fs f-endring">Teglen er bestilt, så vi ikke taper plass i leveransekøen. Monteringen starter ikke før vi har svar.</span><span class="fs f-grunn">Sprengningsplanen er sendt til naboene. Vi borer prøvehull i akse 6 på mandag.</span></p>
-                <span class="kun-te"><button class="lenke liten" type="button">Registrer som brev sendt på annen måte</button></span></li>
+                <p><span class="fs f-endring">Teglen er bestilt, så vi ikke taper plass i leveransekøen. Monteringen starter ikke før vi har svar.</span><span class="fs f-grunn">Sprengningsplanen er sendt til naboene. Vi borer prøvehull i akse 6 på mandag.</span></p></li>
               <li><p class="hvem"><b>Kari Nordmann</b> · Oslobygg KF · <time>27. oktober 2026 kl. 15.20</time></p>
-                <p><span class="fs f-endring">Vi går gjennom fasadebeskrivelsen med arkitekten før vi svarer.</span><span class="fs f-grunn">Den geotekniske rådgiveren vår ser på profilmålingen før vi svarer.</span></p>
-                <span class="kun-bh"><button class="lenke liten" type="button">Registrer som brev sendt på annen måte</button></span></li>
+                <p><span class="fs f-endring">Vi går gjennom fasadebeskrivelsen med arkitekten før vi svarer.</span><span class="fs f-grunn">Den geotekniske rådgiveren vår ser på profilmålingen før vi svarer.</span></p></li>
             </ol>
             <div class="kommentar-fot">
               <details><summary>3 meldinger om levering av brev er skjult</summary>
@@ -791,6 +839,9 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   }
   lesAnker();
   addEventListener('hashchange', lesAnker);
+  const ra = document.getElementById('reg-aapne'), rs = document.getElementById('reg-skjema');
+  ra.addEventListener('click', () => { rs.hidden = false; ra.setAttribute('aria-expanded', 'true'); rs.querySelector('input').focus(); });
+  document.getElementById('reg-avbryt').addEventListener('click', () => { rs.hidden = true; ra.setAttribute('aria-expanded', 'false'); ra.focus(); });
   document.querySelectorAll('.apne-valg').forEach(b => b.addEventListener('click', () => {
     const v = document.getElementById('valg-avslag'); const aapen = v.hidden;
     v.hidden = !aapen; document.querySelectorAll('.apne-valg').forEach(k => k.setAttribute('aria-expanded', String(aapen)));
