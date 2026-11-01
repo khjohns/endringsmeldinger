@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ny sak i Varden</title>
+<!--
+  Skissen for BF-05 (docs/domenetabell/brukerforlop/BF-05.md), versjon 1. Tilstandene er
+  ankrene #saksliste, #ny, #ny-feil, #annen-maate, #brev og #sendt. Ingenting sendes eller
+  lagres. Fargene er Blekk (.tema-varden i src/lib/components/kontraktsbord/theme.css), og
+  skallet er det samme som i saksliste.html og grunnlagsoversikt.html. Brevteksten etter
+  LV-U41, GR-U31, VS-U26 og LV-U35 står ordrett; resten er prototypetekst.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#15181d; --brand-bg:#e6e9ee;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672; --ink-ghost:#8a909a;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --control-focus:#2457d6; --control-focus-ring:0 0 0 3px rgba(36,87,214,.25);
+  --sidebar-bg:#15181d; --sidebar-active:#262b33; --sidebar-hover:#1e2228; --sidebar-text:#f3f4f6; --sidebar-muted:#a9afb9; --sidebar-border:#2e333b;
+  --on-brand:#ffffff;
+  --draft:#5f4a00; --draft-bg:#fff3c4; --draft-border:#9e7f12;
+  --danger:#b33e33; --danger-bg:#fceded; --danger-border:#e8b7b2;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --varden-ark:760px; --varden-stoette:360px;
+  --r-kort:8px; --r-knapp:999px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --brand-bg:#2a2f37; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab; --ink-ghost:#6c727c;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20; --sidebar-border:#23272d;
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  --danger:#f2a39b; --danger-bg:#2c1a19; --danger-border:#7a3d37;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --brand-bg:#2a2f37; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab; --ink-ghost:#6c727c;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20; --sidebar-border:#23272d;
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  --danger:#f2a39b; --danger-bg:#2c1a19; --danger-border:#7a3d37;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+[hidden]{display:none!important}
+
+/* Skallet */
+.skall{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+.panel{background:var(--sidebar-bg);color:var(--sidebar-text);padding:20px 20px 24px;display:flex;flex-direction:column;gap:28px}
+.avsender{display:flex;gap:12px;align-items:center}
+.vapen{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--sidebar-text);display:grid;place-items:center;font-size:9px;letter-spacing:.04em;color:var(--sidebar-muted)}
+.avsender b{display:block;font-size:14px;font-weight:600}
+.avsender span{font-size:12px;color:var(--sidebar-muted)}
+.sak h2{font-size:20px;font-weight:600;line-height:1.25}
+.sak .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.etikett{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sidebar-muted);margin:0 0 8px}
+.spor{list-style:none;margin:0 -20px;padding:0}
+.spor a{display:block;padding:10px 20px 10px 17px;border-left:3px solid transparent;text-decoration:none}
+.spor a:hover{background:var(--sidebar-hover)}
+.spor a[aria-current]{background:var(--sidebar-active);border-left-color:var(--sidebar-text)}
+.spor .navn{display:block;font-size:16px}
+.spor .sist{font-size:12px;color:var(--sidebar-muted)}
+.flate{min-width:0;display:flex;flex-direction:column}
+.demolinje{background:var(--surface-inset);border-bottom:1px solid var(--rule-color);padding:6px 24px;font-size:12px;color:var(--ink-2)}
+.demolinje .inner{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between}
+.demolinje label{display:inline-flex;gap:6px;align-items:center;min-height:32px;cursor:pointer}
+.topplinje{background:var(--surface);border-bottom:1px solid var(--rule-color);padding:14px 24px}
+.topplinje .inner{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+.sti{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px;color:var(--ink-3)}
+.sti .merkenavn{font-weight:600;font-size:16px;color:var(--ink)}
+.sti [aria-current]{color:var(--ink);font-weight:500}
+.bruker{display:flex;align-items:center;gap:10px}
+.initialer{width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:12px;font-weight:600}
+.bruker b{display:block;font-size:14px;font-weight:600;line-height:1.25}
+.bruker span span{font-size:12px;color:var(--ink-3)}
+.arbeid{flex:1;padding:28px 24px 64px}
+.ark{max-width:var(--varden-ark);margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.ark.bred{max-width:1080px}
+
+/* Kort og knapper */
+.kort{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);min-width:0}
+.kort-kropp{padding:20px}
+.knapp{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:16px;font-weight:600;min-height:48px;padding:0 22px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);cursor:pointer;text-decoration:none}
+.knapp.primaer{background:var(--brand);color:var(--on-brand)}
+.knapp.primaer:hover{background:var(--ink-2);border-color:var(--ink-2)}
+.knapp.sekundaer{background:transparent;color:var(--brand)}
+.knapp.sekundaer:hover{background:var(--surface-inset)}
+.lenke{font:inherit;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px;display:inline-flex;align-items:center;min-height:44px}
+.knapper{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center}
+
+/* Sakslisten */
+.liste-hode{padding:20px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+.over{font-size:12px;color:var(--ink-3)}
+h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
+.radhode,.rad{display:grid;grid-template-columns:64px minmax(0,1fr) 220px;gap:4px 16px;padding:12px 20px;align-items:start}
+.radhode{padding-block:8px;border-block:1px solid var(--rule-color);background:var(--surface-warm);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.rader{list-style:none;margin:0;padding:0}
+.rader > li{border-bottom:1px solid var(--rule-subtle-color)}
+.rader > li:last-child{border-bottom:0}
+.rad .id{font-family:var(--font-mono);font-size:12px;color:var(--ink-3);padding-top:3px}
+.rad .tittel b{font-weight:600}
+.rad .forhold{display:block;color:var(--ink-2)}
+.merke-n{display:inline-block;margin-top:6px;font-size:12px;font-weight:600;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:0 8px}
+.siste{color:var(--ink-2)}
+.siste b{display:block;color:var(--ink);font-weight:500}
+.ny-rad{background:var(--surface-selected)}
+.kvittering{border-left:3px solid var(--brand);padding:14px 16px;background:var(--surface);border-radius:0 var(--r-kort) var(--r-kort) 0;display:flex;flex-direction:column;gap:4px}
+.kvittering b{font-size:16px}
+.kvittering span{color:var(--ink-2)}
+
+/* Skjemaet */
+.skjema{display:flex;flex-direction:column;gap:28px}
+.felt{display:flex;flex-direction:column;gap:6px}
+.felt > label,legend{font-size:16px;font-weight:600;padding:0}
+.hjelp{color:var(--ink-3)}
+fieldset{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:8px}
+input[type=text],input[type=date],textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1.5px solid var(--rule-strong-color);border-radius:6px;padding:10px 12px;width:100%}
+input[type=date]{max-width:220px}
+textarea{min-height:140px;resize:vertical}
+input:focus-visible,textarea:focus-visible{outline:none;border-color:var(--control-focus);box-shadow:var(--control-focus-ring)}
+.feil input,.feil textarea{border-color:var(--danger)}
+.feilmelding{color:var(--danger);font-weight:500}
+.gruppe{border-top:1px solid var(--rule-subtle-color);padding-top:12px;margin-top:4px}
+.gruppe p{font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:.02em;margin-bottom:4px}
+.valg{display:flex;gap:10px;align-items:center;min-height:40px;padding:4px 10px;border-radius:6px;cursor:pointer}
+.valg:hover{background:var(--surface-inset)}
+.valg:has(input:checked){background:var(--surface-selected)}
+.valg input{width:18px;height:18px;accent-color:var(--brand);margin:0}
+.valg .h{color:var(--ink-3);font-size:12px;margin-left:auto;white-space:nowrap}
+.fast{display:flex;gap:10px;padding:12px 14px;background:var(--surface-inset);border-radius:6px;color:var(--ink-2)}
+.fast b{color:var(--ink)}
+.info{all:unset;cursor:pointer;display:inline-grid;place-items:center;width:22px;height:22px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:12px;font-weight:600;color:var(--ink-2);margin-left:8px;vertical-align:1px}
+.info:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.tips{padding:12px 14px;border:1px solid var(--rule-color);border-radius:6px;background:var(--surface-warm);color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.innrykk{padding-left:14px;border-left:2px solid var(--rule-strong-color);display:flex;flex-direction:column;gap:20px}
+.oppsummering{border:1.5px solid var(--danger);border-radius:var(--r-kort);padding:14px 16px;background:var(--danger-bg);display:flex;flex-direction:column;gap:6px}
+.oppsummering h2{font-size:16px}
+.oppsummering ul{margin:0;padding-left:18px}
+.oppsummering a{color:var(--ink);font-weight:500}
+.ja-nei{flex-direction:row;flex-wrap:wrap;gap:4px 16px}
+
+/* Brevkontrollen */
+.utkast{border:1.5px dashed var(--draft-border);border-radius:var(--r-kort);background:var(--surface);overflow:hidden}
+.utkast-hode{background:var(--draft-bg);padding:16px 20px;border-bottom:1px dashed var(--draft-border);display:flex;flex-direction:column;gap:4px}
+.utkastmerke{align-self:flex-start;font-size:12px;font-weight:500;color:var(--draft);background:var(--surface);border:1px dashed var(--draft-border);border-radius:var(--r-knapp);padding:1px 8px}
+.utkast-hode h1{font-size:20px}
+.utkast-hode p{color:var(--draft)}
+.brevet{padding:24px 28px;display:flex;flex-direction:column;gap:14px;font-size:16px;line-height:1.6}
+.brevet dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:2px 16px;margin:0 0 6px;font-size:14px}
+.brevet dt{color:var(--ink-3)}
+.brevet dd{margin:0}
+.brevet h2{font-size:20px;font-weight:600}
+.brevet h3{font-size:16px;font-weight:600;margin-top:6px}
+.brevet .fritekst{white-space:pre-wrap}
+.sendes{padding:16px 20px;border-top:1px solid var(--rule-subtle-color);display:flex;flex-direction:column;gap:16px}
+.kryss{display:flex;gap:10px;align-items:center;font-size:16px;cursor:pointer;min-height:44px}
+.kryss input{width:20px;height:20px;accent-color:var(--brand);margin:0}
+.merknad{color:var(--ink-2)}
+
+/* Sporbarheten */
+[data-spor],[data-foreslaatt]{position:relative}
+body.spor [data-spor]{outline:1px dashed var(--draft-border);outline-offset:3px}
+body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px;right:-4px;font:600 11px/1.6 var(--font-sans);padding:0 6px;border-radius:999px;background:var(--draft-bg);border:1px solid var(--draft-border);color:var(--draft);white-space:nowrap;z-index:3}
+body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt) ")";position:absolute;top:-10px;left:-4px;font:600 11px/1.6 var(--font-sans);padding:0 6px;border-radius:999px;background:var(--surface);border:1px dashed var(--draft-border);color:var(--draft);white-space:nowrap;z-index:3}
+
+@media (max-width:900px){
+  .skall{grid-template-columns:minmax(0,1fr)}
+  .panel{display:none}
+  .arbeid,.topplinje,.demolinje{padding-left:16px;padding-right:16px}
+  .radhode{display:none}
+  .rad{grid-template-columns:56px minmax(0,1fr)}
+  .rad .siste{grid-column:2}
+  .brevet{padding:20px 16px}
+  .bruker span span{display:none}
+}
+</style>
+</head>
+<body>
+<div class="skall">
+  <aside class="panel" aria-label="Prosjektet">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak"><p class="id">Prosjekt</p><h2>Skolebygg Nord</h2></div>
+    <nav aria-labelledby="saker-etikett">
+      <p class="etikett" id="saker-etikett">Saker</p>
+      <ul class="spor">
+        <li><a href="#saksliste" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">Sakene i prosjektet</span></a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="flate">
+    <div class="demolinje"><div class="inner">
+      <span><b>Prototype · BF-05 · versjon 1 · 01.11.2026</b> · Ingenting sendes eller lagres.</span>
+      <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#saksliste" id="start-paa-nytt">Start på nytt</a></span>
+    </div></div>
+    <header class="topplinje"><div class="inner">
+      <nav class="sti" aria-label="Du er her"><span class="merkenavn">Varden</span><span aria-hidden="true">›</span><span aria-current="page">Skolebygg Nord</span></nav>
+      <div class="bruker"><span class="initialer" aria-hidden="true">PO</span><span><b>Per Olsen</b><span>TE · Totalentreprenør AS</span></span></div>
+    </div></header>
+
+    <main class="arbeid">
+
+      <!-- Sakslisten: #saksliste og #sendt -->
+      <div class="ark bred" data-vis="saksliste sendt">
+        <div class="kvittering" id="sendt" data-vis="sendt" tabindex="-1" data-spor="U-7 · D-7 · M-4">
+          <b>Påberopelsen av irregulær endring er sendt til BH 1. oktober 2026</b>
+          <span>Saken <span class="num">E-032</span> er opprettet med påberopelsen som brev 1.</span>
+          <span data-spor="D-7 · G-7">Brevet leveres til saken i Catenda når saken har fått sin topic der.</span>
+        </div>
+        <section class="kort" id="saksliste" aria-labelledby="liste-tittel">
+          <div class="liste-hode">
+            <div><p class="over">Skolebygg Nord</p><h1 id="liste-tittel">Krav om endringsordre</h1></div>
+            <a class="knapp primaer" href="#ny" data-spor="U-1 · D-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nytt krav om endringsordre</a>
+          </div>
+          <div class="radhode" aria-hidden="true"><span>Sak</span><span></span><span>Siste brev</span></div>
+          <ul class="rader">
+            <li class="ny-rad" data-vis="sendt" data-spor="U-7 · D-5">
+              <div class="rad">
+                <span class="id">E-032</span>
+                <div class="tittel"><b class="kopi-tittel">Endret føring av ventilasjonskanaler i 3. etasje</b><span class="forhold">Irregulær endring</span><span class="merke-n">Påberopelsen sendt 1. oktober 2026</span></div>
+                <div class="siste"><b>Brev 1 · TE</b>1. oktober 2026<br>Svar ikke registrert</div>
+              </div>
+            </li>
+            <li><div class="rad"><span class="id">E-031</span><div class="tittel"><b>Utvidet sprengning i akse 7–9</b><span class="forhold">Uforutsette forhold ved grunnen</span></div><div class="siste"><b>Brev 2 · BH</b>24. september 2026</div></div></li>
+            <li><div class="rad"><span class="id">E-024</span><div class="tittel"><b>Endret fasadeplate etter pålegg på byggemøte</b><span class="forhold">Irregulær endring</span></div><div class="siste"><b>Brev 5 · BH</b>18. september 2026</div></div></li>
+          </ul>
+        </section>
+      </div>
+
+      <!-- Skjemaet: #ny, #ny-feil og #annen-maate -->
+      <div class="ark" data-vis="ny ny-feil annen-maate">
+        <section class="kort" id="ny" aria-labelledby="ny-tittel">
+          <div class="kort-kropp skjema">
+            <div><p class="over">Skolebygg Nord · Ny sak</p><h1 id="ny-tittel" tabindex="-1">Nytt krav om endringsordre</h1></div>
+
+            <div class="oppsummering" id="ny-feil" data-vis="ny-feil" tabindex="-1" role="group" aria-labelledby="feil-tittel" data-spor="U-5 · D-2">
+              <h2 id="feil-tittel">Det mangler noe før du kan se brevet</h2>
+              <ul><li><a href="#beskrivelse" data-fokus="beskrivelse">Beskriv pålegget før du går videre.</a></li></ul>
+              <p data-spor="S-3" data-foreslaatt="S-3">Ingen sak er opprettet ennå.</p>
+            </div>
+
+            <fieldset data-spor="U-2 · D-1">
+              <legend>Forholdet du påberoper</legend>
+              <p class="hjelp">Velg bestemmelsen i kontrakten pålegget eller forholdet faller inn under.</p>
+              <div class="gruppe"><p>Endringer, jf. punkt 31 og 32</p>
+                <label class="valg"><input type="radio" name="forhold" value="irregulaer_endring" checked> Irregulær endring <span class="h">pkt. 32.1</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="valg_av_loesning"> Begrensning av valgrett <span class="h">pkt. 14.6</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="samordning"> Samordning <span class="h">pkt. 21.4</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="svar_paa_varsel"> Endring ved svar på varsel <span class="h">pkt. 24.2.2</span></label>
+              </div>
+              <div class="gruppe"><p>Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24</p>
+                <label class="valg"><input type="radio" name="forhold" value="medvirkning"> Manglende medvirkning eller leveranser fra BH <span class="h">pkt. 22</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="grunnforhold"> Uforutsette forhold ved grunnen <span class="h">pkt. 23.1</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="prosjektering"> Svikt i byggherrens prosjektering <span class="h">pkt. 24.1</span></label>
+              </div>
+              <div class="gruppe"><p>Andre forhold byggherren har risikoen for</p>
+                <label class="valg"><input type="radio" name="forhold" value="skade_fra_byggherren"> Skade forårsaket av byggherren eller en sideentreprenør <span class="h">pkt. 19.1</span></label>
+              </div>
+              <div class="gruppe">
+                <label class="valg"><input type="radio" name="forhold" value="force_majeure"> Force majeure <span class="h">pkt. 33.3</span></label>
+              </div>
+              <p class="fast" data-spor="U-3 · D-3"><span><b>Forholdet står fast når brevet er sendt.</b> Vil du påberope et annet forhold senere, oppretter du en ny sak.</span></p>
+            </fieldset>
+
+            <div class="felt" data-spor="G-3" data-foreslaatt="S-2">
+              <label for="tittel">Tittel på saken</label>
+              <span class="hjelp" id="tittel-hjelp">Står i sakslisten og i brevet.</span>
+              <input type="text" id="tittel" aria-describedby="tittel-hjelp" aria-required="true">
+            </div>
+
+            <div class="felt" id="felt-beskrivelse" data-spor="D-2 · M-2">
+              <label for="beskrivelse">Beskrivelse av pålegget</label>
+              <span class="hjelp" id="beskrivelse-hjelp">Hva BH påla, når og hvordan, og hvorfor du mener det er en endring.</span>
+              <p class="feilmelding" id="beskrivelse-feil" data-vis="ny-feil">Beskriv pålegget før du går videre.</p>
+              <textarea id="beskrivelse" aria-describedby="beskrivelse-hjelp" aria-required="true"></textarea>
+            </div>
+
+            <div class="felt" data-spor="U-4 · D-4">
+              <label for="mottatt">Dato pålegget ble mottatt <button type="button" class="info" aria-expanded="false" aria-controls="mottatt-tips" aria-label="Om datoen">i</button></label>
+              <div class="tips" id="mottatt-tips" hidden>
+                <p>Datoen er din opplysning om når pålegget ble mottatt. Den står i brevet.</p>
+                <p>Løsningen vurderer ikke om varselet kommer i tide.</p>
+                <p>Er datoen feil, retter du den senere i et eget brev.</p>
+              </div>
+              <input type="date" id="mottatt" value="2026-09-15" max="2026-10-01" aria-required="true">
+            </div>
+
+            <div class="felt" data-spor="M-2 · S-5" data-foreslaatt="S-5">
+              <label for="vedlegg">Vedlegg (valgfritt)</label>
+              <span class="hjelp" id="vedlegg-hjelp">For eksempel pålegget selv, en tegning eller et referat.</span>
+              <input type="file" id="vedlegg" multiple aria-describedby="vedlegg-hjelp">
+            </div>
+
+            <fieldset class="ja-nei-sett" data-spor="D-8 · S-4" data-foreslaatt="S-4">
+              <legend>Har du allerede varslet BH om pålegget på annen måte?</legend>
+              <div class="ja-nei" style="display:flex">
+                <label class="valg"><input type="radio" name="annen" value="nei" checked> Nei</label>
+                <label class="valg"><input type="radio" name="annen" value="ja"> Ja</label>
+              </div>
+            </fieldset>
+
+            <div class="innrykk" id="annen-maate" data-spor="D-8 · G-2" tabindex="-1">
+              <div class="felt">
+                <label for="varseldato">Dato varselet ble sendt</label>
+                <span class="hjelp" id="varseldato-hjelp">Datoen settes én gang. Retter du den senere til en senere dato, gjelder den straks. En tidligere dato gjelder først når BH godtar rettingen.</span>
+                <input type="date" id="varseldato" value="2026-09-16" max="2026-10-01" aria-describedby="varseldato-hjelp" aria-required="true">
+              </div>
+              <div class="felt">
+                <label for="varselmaate">Hvordan varselet ble sendt</label>
+                <span class="hjelp" id="varselmaate-hjelp">For eksempel e-post til prosjektlederen eller referat fra byggemøte.</span>
+                <input type="text" id="varselmaate" aria-describedby="varselmaate-hjelp" aria-required="true">
+              </div>
+              <p class="merknad">Varselet legges til i saken som korrespondanse med kategorien varsel, sammen med påberopelsen.</p>
+            </div>
+
+            <div class="knapper">
+              <a class="knapp primaer" href="#brev" id="se-brevet">Se brevet</a>
+              <a class="lenke" href="#saksliste" id="avbryt" data-spor="G-6">Avbryt</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Brevkontrollen: #brev -->
+      <div class="ark" data-vis="brev">
+        <section class="utkast" id="brev" aria-labelledby="brev-tittel" data-spor="U-6 · D-6">
+          <div class="utkast-hode">
+            <span class="utkastmerke">Utkast · ikke sendt</span>
+            <h1 id="brev-tittel" tabindex="-1">Kontroller brevet før sending</h1>
+            <p>Dette er hele brevet BH får. Saken opprettes når brevet sendes.</p>
+          </div>
+          <article class="brevet" aria-label="Brevet">
+            <dl>
+              <dt>Fra</dt><dd>Totalentreprenør AS</dd>
+              <dt>Til</dt><dd>Oslobygg KF</dd>
+              <dt>Dato</dt><dd>1. oktober 2026</dd>
+              <dt>Sak</dt><dd><span data-spor="S-3" data-foreslaatt="S-3">E-032</span></dd>
+              <dt>Brev</dt><dd><span data-spor="D-5">1 · første versjon av påberopelsen</span></dd>
+            </dl>
+            <h2 data-spor="D-6">Påberopelse av irregulær endring</h2>
+            <p data-spor="D-6 · G-3" data-foreslaatt="S-2">Totalentreprenøren krever endringsordre for «<span class="kopi-tittel"></span>» i sak E-032 som irregulær endring (NS 8407 punkt 32.1).</p>
+            <p data-spor="D-6">Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring.</p>
+            <p data-spor="D-4">Totalentreprenøren opplyser at pålegget ble mottatt <span class="kopi-mottatt"></span>.</p>
+            <p class="kun-annen" data-spor="D-8" data-foreslaatt="S-6">Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 også ble sendt <span class="kopi-varseldato"></span>.</p>
+            <h3>Beskrivelse av pålegget</h3>
+            <p class="fritekst kopi-beskrivelse" data-spor="D-2"></p>
+            <h3>Vedlegg</h3>
+            <p class="kopi-vedlegg" data-spor="S-5" data-foreslaatt="S-5"></p>
+          </article>
+          <div class="sendes">
+            <p class="merknad kun-annen" data-spor="D-8" data-foreslaatt="S-4">Sendes samtidig: varselet sendt <span class="kopi-varseldato"></span> (<span class="kopi-varselmaate"></span>) legges til i saken som korrespondanse med kategorien varsel.</p>
+            <label class="kryss"><input type="checkbox" id="kontrollert" aria-describedby="kontrollert-feil"> Jeg har kontrollert brevet.</label>
+            <p class="feilmelding" id="kontrollert-feil" hidden>Kryss av for at du har kontrollert brevet før du sender.</p>
+            <div class="knapper" data-spor="D-7">
+              <a class="knapp primaer" href="#sendt" id="send">Send til BH</a>
+              <a class="knapp sekundaer" href="#ny" id="tilbake" data-spor="U-6 · G-6">Tilbake</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  const TILSTANDER = ['saksliste', 'ny', 'ny-feil', 'annen-maate', 'brev', 'sendt'];
+  const MAANEDER = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
+  const $ = (id) => document.getElementById(id);
+  const dato = (v) => { if (!v) return '[dato mangler]'; const [a, m, d] = v.split('-'); return `${Number(d)}. ${MAANEDER[Number(m) - 1]} ${a}`; };
+  const annen = () => document.querySelector('input[name=annen]:checked').value === 'ja';
+  let forrige = null;
+
+  function vis() {
+    const naa = location.hash.slice(1);
+    const t = TILSTANDER.includes(naa) ? naa : 'saksliste';
+    for (const e of document.querySelectorAll('[data-vis]')) e.hidden = !e.dataset.vis.split(' ').includes(t);
+    if (t === 'annen-maate') document.querySelector('input[name=annen][value=ja]').checked = true;
+    if (t === 'ny') document.querySelector('input[name=annen][value=nei]').checked = true;
+    $('annen-maate').hidden = !(t === 'annen-maate' || (t === 'ny-feil' && annen()));
+    $('beskrivelse-feil').hidden = !(t === 'ny-feil' && !$('beskrivelse').value.trim());
+    $('felt-beskrivelse').classList.toggle('feil', !$('beskrivelse-feil').hidden);
+    $('beskrivelse').setAttribute('aria-invalid', String(!$('beskrivelse-feil').hidden));
+    $('tilbake').href = annen() ? '#annen-maate' : '#ny';
+    const tittel = $('tittel').value.trim() || '[tittel mangler]';
+    for (const n of document.querySelectorAll('.kopi-tittel')) n.textContent = tittel;
+    for (const n of document.querySelectorAll('.kopi-mottatt')) n.textContent = dato($('mottatt').value);
+    for (const n of document.querySelectorAll('.kopi-beskrivelse')) n.textContent = $('beskrivelse').value;
+    const filer = [...$('vedlegg').files].map((f) => f.name);
+    for (const n of document.querySelectorAll('.kopi-vedlegg')) n.textContent = filer.length ? filer.join(', ') : 'Ingen vedlegg.';
+    for (const n of document.querySelectorAll('.kopi-varseldato')) n.textContent = dato($('varseldato').value);
+    for (const n of document.querySelectorAll('.kopi-varselmaate')) n.textContent = $('varselmaate').value.trim() || 'måten er ikke oppgitt';
+    for (const n of document.querySelectorAll('.kun-annen')) n.hidden = !annen();
+    if (t === 'brev') { $('kontrollert').checked = false; $('kontrollert-feil').hidden = true; }
+    if (forrige !== null && forrige !== t) {
+      const fokus = { 'ny-feil': 'ny-feil', brev: 'brev-tittel', sendt: 'sendt', ny: 'ny-tittel' }[t];
+      if (fokus && t !== 'annen-maate') $(fokus).focus({ preventScroll: t === 'ny' });
+    }
+    forrige = t;
+  }
+
+  $('se-brevet').addEventListener('click', (e) => {
+    if (!$('beskrivelse').value.trim()) { e.preventDefault(); location.hash = 'ny-feil'; vis(); $('ny-feil').focus(); }
+  });
+  $('send').addEventListener('click', (e) => {
+    if (!$('kontrollert').checked) { e.preventDefault(); $('kontrollert-feil').hidden = false; $('kontrollert').focus(); }
+  });
+  $('kontrollert').addEventListener('change', () => { if ($('kontrollert').checked) $('kontrollert-feil').hidden = true; });
+  $('beskrivelse').addEventListener('input', () => {
+    if ($('beskrivelse').value.trim()) { $('beskrivelse-feil').hidden = true; $('felt-beskrivelse').classList.remove('feil'); $('beskrivelse').setAttribute('aria-invalid', 'false'); }
+  });
+  for (const r of document.querySelectorAll('input[name=annen]'))
+    r.addEventListener('change', () => { location.hash = r.value === 'ja' ? 'annen-maate' : 'ny'; vis(); });
+  for (const a of document.querySelectorAll('a[data-fokus]'))
+    a.addEventListener('click', (e) => { e.preventDefault(); $(a.dataset.fokus).focus(); });
+  const info = document.querySelector('.info');
+  info.addEventListener('click', () => {
+    const aapen = info.getAttribute('aria-expanded') === 'true';
+    info.setAttribute('aria-expanded', String(!aapen));
+    $('mottatt-tips').hidden = aapen;
+  });
+  function nullstill() {
+    for (const id of ['tittel', 'beskrivelse', 'varselmaate']) $(id).value = '';
+    $('mottatt').value = '2026-09-15'; $('varseldato').value = '2026-09-16'; $('vedlegg').value = '';
+    document.querySelector('input[name=forhold][value=irregulaer_endring]').checked = true;
+    document.querySelector('input[name=annen][value=nei]').checked = true;
+  }
+  $('start-paa-nytt').addEventListener('click', nullstill);
+  $('avbryt').addEventListener('click', nullstill);
+  $('vis-spor').addEventListener('change', (e) => document.body.classList.toggle('spor', e.target.checked));
+  addEventListener('hashchange', vis);
+  vis();
+</script>
+</body>
+</html>
