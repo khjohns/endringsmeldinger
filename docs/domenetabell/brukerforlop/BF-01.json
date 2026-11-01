@@ -8,8 +8,8 @@
     "beskrivelse": "En ny sak. TE påberoper svikt i BHs medvirkning, og BH svarer at byggherren har risikoen for forholdet. TE krever 100 000 kr i vederlag."
   },
   "steg": [
-    { "handling": "krav", "spor": "grunnlag", "hovedkategori": "svikt", "underkategori": "medvirkning", "navn": "K-g1", "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid." },
-    { "handling": "brev", "navn": "D2", "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent", "utdypning": "Byggherren erkjenner at tegningene kom for sent." }] },
+    { "handling": "krav", "spor": "forhold", "hovedkategori": "svikt", "underkategori": "medvirkning", "navn": "K-g1", "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid." },
+    { "handling": "brev", "navn": "D2", "svar": [{ "spor": "forhold", "navn": "S-g1", "resultat": "godkjent", "utdypning": "Byggherren erkjenner at tegningene kom for sent." }] },
     { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
     {
       "handling": "brev",
@@ -26,12 +26,12 @@
       "etter": 0,
       "beskrivelse": "Saken er opprettet. Ingen krav er sendt.",
       "kontroller": [
-        { "rolle": "forutsetning", "kilde": ["KA-01"], "forventet": { "gjeldende_krav.grunnlag": null, "gjeldende_krav.vederlag": null } }
+        { "rolle": "forutsetning", "kilde": ["KA-01"], "forventet": { "gjeldende_krav.forhold": null, "gjeldende_krav.vederlag": null } }
       ],
       "forstaaelse": []
     },
     {
-      "id": "grunnlaget-er-godkjent",
+      "id": "forholdet-er-godkjent",
       "etter": 2,
       "beskrivelse": "BH har svart at byggherren har risikoen for forholdet. TE har ikke krevd vederlag ennå.",
       "kontroller": [
@@ -39,8 +39,8 @@
           "rolle": "mal",
           "kilde": ["GR-U7"],
           "forventet": {
-            "gjeldende_svar.grunnlag": "S-g1",
-            "enighet.grunnlag": "finnes",
+            "gjeldende_svar.forhold": "S-g1",
+            "enighet.forhold": "finnes",
             "gjeldende_krav.vederlag": null,
             "handlinger.TE": { "inneholder": ["krav:vederlag"] }
           }
@@ -56,7 +56,7 @@
       "beskrivelse": "BH har svart at byggherren har risikoen for forholdet, og BH har mottatt vederlagskravet på 100 000 kr.",
       "kontrollsett": [{ "sett": "bh_har_mottatt_krav", "med": { "spor": "vederlag", "krav": "K-v1" } }],
       "kontroller": [
-        { "rolle": "forutsetning", "kilde": ["GR-U7"], "forventet": { "gjeldende_svar.grunnlag": "S-g1", "enighet.grunnlag": "finnes" } }
+        { "rolle": "forutsetning", "kilde": ["GR-U7"], "forventet": { "gjeldende_svar.forhold": "S-g1", "enighet.forhold": "finnes" } }
       ],
       "forstaaelse": [
         { "tekst": "BH ser at forholdet er besvart, så svaret gjelder bare beløpet og varslingen.", "kilde": ["GR-U7", "LV-U41", "OV-U76"] },
@@ -129,20 +129,20 @@
   "bevis_saker": ["F-MM-V-34-1-2-nei"],
   "visninger": ["demoruta", "saksruta", "varden"],
   "endringer": [
-    { "dato": "2026-10-27", "grunnlag": "#1330", "hva": "Forløpet er opprettet." },
+    { "dato": "2026-10-27", "forhold": "#1330", "hva": "Forløpet er opprettet." },
     {
       "dato": "2026-10-27",
-      "grunnlag": "#1302, HF-U11",
+      "forhold": "#1302, HF-U11",
       "hva": "Standpunktet i beslutningslinja sier at varselet etter § 34.1.2 kom for sent, ikke «prekludert»."
     },
     {
       "dato": "2026-10-28",
-      "grunnlag": "MM-U34, #1376",
+      "forhold": "MM-U34, #1376",
       "hva": "Etter at TE har godtatt svaret, kan TE sende en ny kravversjon i sporet (steg 5). Enigheten bevares, og løsningen avgjør ikke om partene er bundet."
     },
     {
       "dato": "2026-11-01",
-      "grunnlag": "#1456, LV-U41, OV-U75, OV-U76",
+      "forhold": "#1456, LV-U41, OV-U75, OV-U76",
       "hva": "Beskrivelsene og forståelsen sier «forholdet» og «punkt 34.1.2». Svaret på forholdet står med ordene i LV-U41. Linja i beslutningsgrunnlaget kontrolleres fortsatt med «§ 34.1.2», som kjernen lager i dag; den rettes når LV-U39 er bygget (#1433)."
     }
   ]

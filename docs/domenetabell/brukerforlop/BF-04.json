@@ -10,7 +10,7 @@
   "steg": [
     {
       "handling": "krav",
-      "spor": "grunnlag",
+      "spor": "forhold",
       "hovedkategori": "svikt",
       "underkategori": "medvirkning",
       "navn": "K-g1",
@@ -21,7 +21,7 @@
       "navn": "D2",
       "svar": [
         {
-          "spor": "grunnlag",
+          "spor": "forhold",
           "navn": "S-g1",
           "resultat": "avslaatt",
           "utdypning": "Tegningene ble levert til avtalt tid etter den reviderte fremdriftsplanen."
@@ -61,7 +61,7 @@
             "KA-01"
           ],
           "forventet": {
-            "gjeldende_krav.grunnlag": null,
+            "gjeldende_krav.forhold": null,
             "gjeldende_krav.vederlag": null
           }
         }
@@ -69,7 +69,7 @@
       "forstaaelse": []
     },
     {
-      "id": "grunnlaget-er-avslaatt",
+      "id": "forholdet-er-avslaatt",
       "etter": 2,
       "beskrivelse": "BH har svart at byggherren ikke har risikoen for forholdet. TE har ikke krevd vederlag ennå.",
       "kontroller": [
@@ -79,8 +79,8 @@
             "GR-U7"
           ],
           "forventet": {
-            "gjeldende_svar.grunnlag": "S-g1",
-            "enighet.grunnlag": null,
+            "gjeldende_svar.forhold": "S-g1",
+            "enighet.forhold": null,
             "gjeldende_krav.vederlag": null,
             "handlinger.TE": {
               "inneholder": [
@@ -121,8 +121,8 @@
             "GR-U7"
           ],
           "forventet": {
-            "gjeldende_svar.grunnlag": "S-g1",
-            "enighet.grunnlag": null
+            "gjeldende_svar.forhold": "S-g1",
+            "enighet.forhold": null
           }
         }
       ],
@@ -222,12 +222,12 @@
   "endringer": [
     {
       "dato": "2026-10-30",
-      "grunnlag": "#1400",
+      "forhold": "#1400",
       "hva": "Forløpet er opprettet."
     },
     {
       "dato": "2026-11-01",
-      "grunnlag": "#1456, LV-U41, OV-U75, OV-U76, MM-U35",
+      "forhold": "#1456, LV-U41, OV-U75, OV-U76, MM-U35",
       "hva": "Beskrivelsene og forståelsen sier «forholdet» og «punkt 34.1.2», og svaret på forholdet står med ordene i LV-U41. Påberopelsen i svaret av at varselet kom for sent heter ikke lenger innsigelse, så den ikke blandes med innsigelsen etter punkt 5 tredje ledd, som er et innlegg (MM-U35). Linja i beslutningsgrunnlaget kontrolleres fortsatt med «§ 34.1.2», som kjernen lager i dag; den rettes når LV-U39 er bygget (#1433)."
     }
   ]
