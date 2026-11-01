@@ -90,9 +90,14 @@ Punktene under gjelder dagens visning.
   skjemaene, mer luft rundt brevteksten.
 - **Skallet:** `--mockup-sidebar-width`, `--mockup-drawer-width` og
   `--mockup-topbar-height`. Under 768 px legges kolonnene under hverandre.
-- **Radius:** skalaen i `app.css` (`--radius-sm`, `--radius-md`, `--radius-lg`) gir
-  skarpe hjørner, et juridisk preg. Klassene i `theme.css` bruker ennå egne verdier,
-  med runde knapper og stempler. Radius får tokens i #1184.
+- **Radius betyr noe i Varden** (oppdragsgiver 01.11, #1402). Bare knappene er runde,
+  som piller (`--r-knapp`), så en handling skiller seg fra alt annet. Kort og brev har
+  samme radius, 12 px (`--r-kort`): det gir ro på store flater, og brevet ser ikke
+  annerledes ut enn kortene ved siden av. Merker og stempler, som «Registrert»,
+  «Inngår i EO-012» og «Sendt …», har 2 px (`--r-merke`), så de leses som merker på et
+  dokument og ikke som knapper. Felt, valg og vedlegg har 4 px (`--r-felt`), og bokser
+  inne i et kort 6 px (`--r-innfelt`). Tokenene kommer i `theme.css` med #1447. Den gamle
+  visningen beholder skalaen i `app.css` (`--radius-sm`, `--radius-md`, `--radius-lg`).
 
 ## Farge som betyr noe
 
