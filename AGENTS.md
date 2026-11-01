@@ -19,7 +19,7 @@ commit-meldinger, testnavn og testbeskrivelser. Domenebegrepene er norske og
 presise etter NS 8407 og vedtatt produktatferd. Samme begrep skal ha samme
 betydning i kode, tester og dokumentasjon. Ikke oversett domenet bare for å
 tilpasse det til en LLM. Tekst i grensesnittet har setningsstil («Send krav om
-endring»), med TE, BH, EO og KOE i store bokstaver og mellomrom i «§ 33.8».
+endring»), med TE, BH, EO og KOE i store bokstaver og «punkt 33.8» for en bestemmelse i NS 8407 (OV-U75).
 
 **Tilpass betegnelsen til teksten.** I vedtak og produktbeskrivelser brukes normalt
 «løsningen». I tekniske beskrivelser navngis den aktuelle delen, for eksempel kjernen,
