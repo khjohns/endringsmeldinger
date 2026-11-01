@@ -1,12 +1,14 @@
 <!--
-  Brevet som lesespalte (Varden, skjerm C og D): brevhode med avsender, mottaker, brevnummer
-  og dato, og teksten avsnitt for avsnitt med utdypningen under. Teksten kommer fra kjernen,
+  Brevet som lesespalte (Varden, skjerm C og D). Hodet følger `godkjenning-vederlagssvar.html:276-283`
+  og LV-U23 så langt løsningen har opplysningene: avsender med organisasjon og part, mottakeren,
+  referansene og datoen. Et sendt brev har stempelet «Sendt …». Teksten kommer fra kjernen,
   som frosset tekst i et sendt brev eller som låst tekst før sending. Visningen endrer den ikke.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { Part } from '$kjerne/typer';
-  import { PARTNAVN } from './prototypetekst';
+  import { organisasjonene } from './kontrakt';
+  import { MOTTATT, PARTNAVN } from './prototypetekst';
 
   let {
     avsender,
@@ -15,6 +17,8 @@
     dato,
     tittel,
     avsnitt,
+    svarerPaa,
+    sendt,
     fot,
     innfelt = false,
   }: {
@@ -25,30 +29,50 @@
     dato: string;
     tittel: string;
     avsnitt: { laast: string; utdypning?: string }[];
+    /** Brevet dette svarer på, som «Brev 5», under «Deres ref.». */
+    svarerPaa?: string;
+    /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
+    sendt?: string;
     fot?: Snippet;
     /** Brevet står i en ramme som har kanten, som ved lesing ved siden av. */
     innfelt?: boolean;
   } = $props();
 
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
+  const hentOrganisasjoner = organisasjonene();
+  const organisasjoner = $derived(hentOrganisasjoner());
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 </script>
 
 <article class="brev" class:innfelt aria-label={tittel}>
   <header class="hode">
-    <div class="avsender">
-      <span class="navn">{stor(PARTNAVN[avsender])}</span>
-      <span class="rolle">{avsender}</span>
+    <div class="topp">
+      <p class="avsender">
+        <b>{organisasjoner[avsender] ?? stor(PARTNAVN[avsender])}</b>
+        {#if organisasjoner[avsender]}<span>{stor(PARTNAVN[avsender])}</span>{/if}
+      </p>
+      {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span>{/if}
     </div>
-    <dl class="meta">
-      <dt>Sak</dt>
-      <dd>{sak}</dd>
-      <dt>Brev</dt>
-      <dd>{nummer}</dd>
-      <dt>Dato</dt>
-      <dd>{dato}</dd>
-      <dt>Til</dt>
-      <dd>{stor(PARTNAVN[mottaker])} ({mottaker})</dd>
+    <p class="mottaker">
+      {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(PARTNAVN[mottaker])}
+    </p>
+    <dl class="ref">
+      <div>
+        <dt>Sak:</dt>
+        <dd>{sak}</dd>
+      </div>
+      {#if svarerPaa}<div>
+          <dt>Deres ref.:</dt>
+          <dd>{svarerPaa}</dd>
+        </div>{/if}
+      <div>
+        <dt>Vår ref.:</dt>
+        <dd>Brev {nummer}</dd>
+      </div>
+      <div>
+        <dt>Dato:</dt>
+        <dd>{dato}</dd>
+      </div>
     </dl>
   </header>
   <h2>{tittel}</h2>
@@ -79,33 +103,54 @@
   }
   .hode {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    flex-direction: column;
     gap: var(--spacing-4);
     padding-bottom: var(--spacing-6);
     margin-bottom: var(--spacing-6);
     border-bottom: var(--rule);
   }
+  .topp {
+    font-family: var(--font-sans);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+  }
   .avsender {
     display: flex;
     flex-direction: column;
   }
-  .navn {
+  .avsender b {
+    font-size: 16px;
     font-weight: 600;
   }
-  .rolle {
+  .avsender span {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: 12px;
   }
-  .meta {
+  .stempel {
+    padding: 2px var(--spacing-2);
+    border: 1px solid var(--ink);
+    border-radius: var(--r-merke);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .mottaker {
+    color: var(--ink);
+  }
+  .ref {
     display: grid;
-    grid-template-columns: auto auto;
-    column-gap: var(--spacing-4);
-    font-size: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, auto));
+    gap: 2px 20px;
+    font-family: var(--font-sans);
+    font-size: 12px;
   }
-  .meta dt {
+  .ref dt {
     color: var(--ink-3);
-    text-align: right;
   }
   h2 {
     font-size: 20px;

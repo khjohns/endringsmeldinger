@@ -161,9 +161,9 @@ const bhSvarer = async (page) => {
   await page.getByText('Skriv brev', { exact: true }).click();
   await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
-  await page.getByRole('radio', { name: 'Godtar metoden', exact: true }).check();
+  await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();
   await page.getByRole('radio', { name: 'Deler av beløpet' }).check();
-  await page.getByRole('textbox', { name: 'Beløpet du godtar' }).fill('60000');
+  await page.getByRole('textbox', { name: 'Beløpet du godkjenner' }).fill('60000');
 };
 const VARDEN = [
   { navn: 'Varden: BH har mottatt kravet', vei: iVarden('bh-har-mottatt-vederlagskravet') },

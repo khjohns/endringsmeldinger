@@ -15,6 +15,7 @@
   import Brev from './Brev.svelte';
   import Brevtyper from './Brevtyper.svelte';
   import Knapp from './Knapp.svelte';
+  import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import { aksepten } from './kommandoer';
   import { brevene, handlingerISporet, datoerISporet } from './lesing';
@@ -143,6 +144,7 @@
           dato={dato(vist.registrert)}
           tittel={brevtittel(vist)}
           avsnitt={vist.avsnitt}
+          sendt={vist.registrert}
         >
           {#snippet fot()}{MOTTATT.sendt(vist.registrert)}{/snippet}
         </Brev>
@@ -180,7 +182,7 @@
           {/if}
           <p class="dempet">{STILLING.kilde(vist.nummer)}</p>
           <Knapp onclick={seAksepten}>{STILLING.seAksepten}</Knapp>
-          {#if hindring}<p class="feil" role="alert">{hindring}</p>{/if}
+          {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}
         </div>
         <p class="dempet fot">{STILLING.andre}</p>
       </section>
@@ -256,11 +258,5 @@
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
-  }
-  .feil {
-    padding: var(--spacing-3);
-    background: var(--danger-bg);
-    border: 1px solid var(--danger-border);
-    border-radius: var(--r-innfelt);
   }
 </style>
