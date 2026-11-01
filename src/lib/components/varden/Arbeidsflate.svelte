@@ -3,7 +3,7 @@
   kolonne med det som støtter arbeidet. Visningen er handlingsorientert, så den har ingen
   egen overskrift over arbeidet (oppdragsgiver 29.10, #1391). Hovedkolonnen er høyst like
   bred som brevet, og kolonnene står midtstilt (oppdragsgiver 30.10). Mens et brev leses ved
-  siden av, er kolonnene like brede. Under 1024 px legger høyre kolonne seg under arbeidet.
+  siden av, er kolonnene like brede. På 1180 px og smalere legger høyre kolonne seg under arbeidet.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -52,7 +52,7 @@
     gap: var(--spacing-4);
     min-width: 0;
   }
-  @media (max-width: 1023px) {
+  @media (max-width: 1180px) {
     .flate,
     .flate.leser {
       grid-template-columns: minmax(0, 1fr);

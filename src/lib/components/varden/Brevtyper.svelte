@@ -108,7 +108,7 @@
     min-height: 44px;
     padding: 0 var(--spacing-5);
     border: 1.5px solid var(--ink);
-    border-radius: 999px;
+    border-radius: var(--r-knapp);
     background: var(--surface);
     color: var(--ink);
     font-weight: 500;
@@ -134,8 +134,8 @@
     padding: var(--spacing-2);
     background: var(--surface);
     border: var(--rule-strong);
-    border-radius: 12px;
-    box-shadow: var(--overlay-shadow-sm);
+    border-radius: var(--r-innfelt);
+    box-shadow: var(--meny-skygge);
   }
   li {
     display: flex;
@@ -150,7 +150,7 @@
     min-height: 44px;
     justify-content: center;
     padding: var(--spacing-2) var(--spacing-3);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
     text-align: left;
   }
   button {

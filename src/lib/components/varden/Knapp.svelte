@@ -42,15 +42,16 @@
     gap: var(--spacing-2);
     min-height: 44px;
     padding: 0 var(--spacing-5);
-    border-radius: 999px;
+    border-radius: var(--r-knapp);
     font: inherit;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 150ms cubic-bezier(0.23, 1, 0.32, 1);
   }
   .knapp-primaer {
+    min-height: 48px;
     background: var(--brand);
-    color: var(--surface);
+    color: var(--on-brand);
     border: 1px solid var(--brand);
   }
   /* Primærknappen er nesten svart (Blekk), så hover og trykk lysner den. */
