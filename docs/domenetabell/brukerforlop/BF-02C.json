@@ -1,15 +1,26 @@
 {
   "id": "BF-02C",
-  "tittel": "TE prøver å rette datoen med en ny kravversjon og blir avvist",
-  "brukerhistorie": "TE vil rette datoen pålegget ble mottatt og sender en ny kravversjon der bare datoen er endret. Løsningen avviser den og viser TE til korrigeringen etter OV-U52.",
+  "tittel": "TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen",
+  "brukerhistorie": "TE vil rette datoen pålegget ble mottatt og begynner på en ny versjon av påberopelsen. Datoen kan ikke endres i en ny versjon, som gjengir TEs siste opplysning. Skjemaet anbefaler korrigeringen etter OV-U52, og TE sender den i stedet. Det gjelder også når kravet ble lagt til som korrespondanse.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "Som BF-02A: TE har sendt et krav med en opplysning etter VS-U26, og BH har svart."
+    "beskrivelse": "Som BF-02A: TE har sendt et krav med en opplysning etter VS-U26, fra løsningen eller lagt til som korrespondanse med kategorien krav (OV-U80), og BH har svart."
   },
-  "kilder": ["OV-U54", "OV-U52"],
-  "venter_paa": ["#1308", "#1309"],
+  "kilder": ["OV-U54", "OV-U52", "MM-U34", "MM-U21", "VS-U26", "OV-U79", "OV-U80"],
+  "venter_paa": ["#1308", "#1309", "#807"],
   "bevis_saker": [],
   "visninger": [],
-  "endringer": [{ "dato": "2026-10-27", "grunnlag": "#1330", "hva": "Forløpet er registrert som planlagt." }]
+  "endringer": [
+    {
+      "dato": "2026-10-27",
+      "grunnlag": "#1330",
+      "hva": "Forløpet er registrert som planlagt."
+    },
+    {
+      "dato": "2026-11-01",
+      "grunnlag": "#1456, MM-U34, OV-U52, OV-U80",
+      "hva": "Sperren mot en ny versjon som bare retter en opplysning, er opphevet (MM-U34 punkt 1). Den nye versjonen avvises ikke, men datoen kan ikke endres i den (OV-U52), og skjemaet anbefaler korrigeringen. Kravet kan også være lagt til som korrespondanse (OV-U80)."
+    }
+  ]
 }
