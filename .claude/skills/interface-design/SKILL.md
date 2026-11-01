@@ -271,6 +271,8 @@ Use this skill as a working discipline, not just advice. When editing UI:
 5. Verify visually for non-trivial UI. Use the inline render tool, a local browser, or screenshots at desktop and mobile widths; fix overlap, broken spacing, blank states, unreadable text, missing assets, and generic composition before presenting.
 6. Keep user-facing updates short. Don't expose long private design monologues — surface the useful recommendation or decision.
 
+**I dette repoet:** kjør «Tidlig sjekk» i skillen `uu-sjekk` mens en komponent bygges.
+
 ## Suggest + Ask
 Lead with exploration and recommendation, then confirm:
 
@@ -314,7 +316,7 @@ Always offer to save: "Want me to save these patterns for future sessions?" If y
 
 # Commands
 
-- `/interface-design:design-review` — strict craft + hierarchy review of a build, with an approval bar; renders before/after when possible
-- `/interface-design:design-deslop` — fast, diff-scoped pass that strips visual slop from a branch
+- `/design-review` — strict craft + hierarchy review of a build, with an approval bar; renders before/after when possible
+- `/design-deslop` — fast, diff-scoped pass that strips visual slop from a branch
 
 If a user asks for design status, audit, or pattern extraction in natural language: read `.interface-design/system.md` and summarize it, check UI files against it for drift, or scan for repeated spacing/radius/color/component values and propose a system.md — perform the equivalent inline.
