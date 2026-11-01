@@ -278,6 +278,12 @@ button{font:inherit;color:inherit}
 .summer .tot{border-top:1px solid var(--rule-strong-color);padding-top:4px;margin-top:2px;font-weight:600;color:var(--ink)}
 .demo-bryter{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;justify-content:space-between}
 .demo-bryter .d{font-size:12px;color:var(--ink-3)}
+
+/* Radius (oppdragsgiver 01.11): kort og brev 12 px, merker og stempler 2 px, felt 4 px, innfelt 6 px, knapper som piller */
+:root{--r-kort:12px;--r-merke:2px;--r-felt:4px;--r-innfelt:6px}
+.utkastmerke,.paabegynt,.merke-reg,.merke-n,.inngaar,.status,.lagmerke,.merke,.henv,.endret,.hjemmel{border-radius:var(--r-merke)}
+.fil{border-radius:var(--r-felt)}
+.ark-inn{border-radius:var(--r-kort)}
 </style>
 </head>
 <body>

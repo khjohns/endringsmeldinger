@@ -214,6 +214,12 @@ del{color:var(--ink-3)}
   .ref{grid-template-columns:repeat(2,auto)}
 }
 @media (prefers-reduced-motion:reduce){.knapp{transition:none}}
+
+/* Radius (oppdragsgiver 01.11): kort og brev 12 px, merker og stempler 2 px, felt 4 px, innfelt 6 px, knapper som piller */
+:root{--r-kort:12px;--r-merke:2px;--r-felt:4px;--r-innfelt:6px}
+.utkastmerke,.paabegynt,.merke-reg,.merke-n,.inngaar,.status,.lagmerke,.merke,.henv,.endret,.hjemmel{border-radius:var(--r-merke)}
+.fil{border-radius:var(--r-felt)}
+.ark-inn{border-radius:var(--r-kort)}
 </style>
 </head>
 <body>
