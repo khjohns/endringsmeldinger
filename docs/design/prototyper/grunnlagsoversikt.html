@@ -335,6 +335,19 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .valg-rad:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
 .valg-fot{font-size:12px;color:var(--ink-3)}
 .valg[hidden]{display:none}
+/* Prosjektet og koblingene i panelet til venstre */
+.prosjektlenker{display:flex;flex-direction:column;gap:2px;margin-top:-8px}
+.prosjektlenker a{font-size:14px;color:var(--sidebar-muted);text-decoration:none;padding:4px 0}
+.prosjektlenker a:hover{color:var(--sidebar-text);text-decoration:underline;text-underline-offset:3px}
+.inngaar{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;color:var(--sidebar-text);border:1px solid var(--sidebar-muted);border-radius:var(--r-knapp);padding:1px 9px}
+.knyttet ul{list-style:none;margin:0 -20px;padding:0}
+.knyttet a{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 10px;padding:8px 20px;text-decoration:none;color:var(--sidebar-text)}
+.knyttet a:hover{background:var(--sidebar-hover)}
+.knyttet .kid{font-size:12px;color:var(--sidebar-muted);padding-top:2px}
+.knyttet .ktittel{font-size:14px}
+.knyttet .krel{grid-column:2;font-size:12px;color:var(--sidebar-muted)}
+@media (max-width:860px){.prosjektlenker{flex-direction:row;flex-wrap:wrap;gap:4px 16px;margin-top:0}}
+
 /* Brevvekslingen: brevene er kilden, og partene behandles likt */
 .sporhode .siste{font-size:14px;color:var(--ink-2)}
 .traad{list-style:none;margin:0;padding:8px 20px 20px;position:relative}
@@ -343,7 +356,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .innlegg::before{content:"";position:absolute;left:15px;top:0;bottom:0;border-left:1px solid var(--rule-strong-color)}
 .innlegg:first-child::before{top:20px}
 .innlegg > .ts{display:flex;flex-direction:column;gap:10px}
-[data-t="ubesvart"] .innlegg.tom::before,[data-t="avslatt"] .innlegg.svar5::before,[data-t="eo"] .innlegg.svar5::before,[data-t="frafall"] .innlegg.svar5::before{bottom:auto;height:20px}
+[data-t="ubesvart"] .innlegg.tom::before,[data-t="avslatt"] .innlegg.svar5::before,[data-t="eo"] .innlegg.eo12::before,[data-t="frafall"] .innlegg.svar5::before{bottom:auto;height:20px}
 .part{position:absolute;left:0;top:14px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);display:grid;place-items:center;font-size:12px;font-weight:600;letter-spacing:.02em;z-index:1}
 .innlegg-hode{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;align-items:baseline}
 .innlegg-tittel{font-size:16px;font-weight:600}
@@ -403,9 +416,11 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 <div class="skall" id="skall" data-rolle="TE" data-utkast="nei" data-t="avslatt" data-f="endring">
   <aside class="panel" aria-label="Saken">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="prosjektlenker"><a href="saksliste.html">Alle saker i prosjektet</a><a href="#" class="kun-te">Nytt krav om endringsordre</a><a href="#" class="kun-bh">Ny endringsordre</a></div>
     <div class="sak">
       <p class="id num"><span class="fs f-endring">E-024</span><span class="fs f-grunn">E-027</span></p>
       <h2><span class="fs f-endring">Endret fasadeplate etter pålegg på byggemøte</span><span class="fs f-grunn">Fjell høyere enn antatt i byggegropen</span></h2>
+      <p class="inngaar ts t-eo">Inngår i EO-012</p>
     </div>
     <nav aria-labelledby="spor-etikett">
       <p class="etikett" id="spor-etikett">Krav og svar</p>
@@ -415,6 +430,13 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
         <li><a href="#"><span class="navn">Fristforlengelse</span><span class="sist">Ikke besvart · brev 3 fra TE</span></a></li>
       </ul>
     </nav>
+    <section class="knyttet ts t-avslatt t-eo" aria-labelledby="knyttet-etikett">
+      <h2 class="etikett" id="knyttet-etikett">Knyttet til</h2>
+      <ul>
+        <li class="ts t-eo"><a href="#"><span class="kid num">EO-012</span><span class="ktittel"><span class="fs f-endring">Endringsordre om tegl på østfasaden</span><span class="fs f-grunn">Endringsordre om sprengning i byggegropen</span></span><span class="krel">Endringsordren omfatter denne saken</span></a></li>
+        <li class="ts t-avslatt"><a href="#"><span class="kid num"><span class="fs f-endring">E-029</span><span class="fs f-grunn">E-031</span></span><span class="ktittel"><span class="fs f-endring">Tegl også på sørfasaden</span><span class="fs f-grunn">Utvidet sprengning i akse 7–9</span></span><span class="krel">Nytt forhold, opprettet fra denne saken</span></a></li>
+      </ul>
+    </section>
     <section class="kontrakten" aria-labelledby="kontrakt-etikett">
       <h2 class="etikett" id="kontrakt-etikett">Kontrakten</h2>
       <dl>
@@ -534,6 +556,15 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <p class="standpunkt">Frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (punkt&nbsp;32.3 første ledd c).</p>
                 </div>
               </li>
+              <li class="innlegg eo12 ts t-eo">
+                <span class="part" aria-hidden="true">BH</span>
+                <div class="innlegg-hode">
+                  <h2 class="innlegg-tittel">Endringsordre EO-012</h2>
+                  <a class="lenke" href="#">Åpne EO-012</a>
+                  <p class="innlegg-meta">Byggherren · 30. oktober 2026 · i en egen sak</p>
+                </div>
+                <p class="standpunkt">Endringsordren omfatter denne saken.</p>
+              </li>
               <li class="innlegg tom ts t-ubesvart">
                 <span class="part" aria-hidden="true">BH</span>
                 <p>Svar fra byggherren er ikke registrert.</p>
@@ -614,6 +645,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 </div>
                 <p class="andre-tittel">Andre handlinger</p>
                 <ul class="andre">
+                  <li class="ts t-avslatt"><button type="button"><span class="h">Påberop et annet forhold i en ny sak</span><span class="b">Den nye saken viser til denne.</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-ubesvart t-frafall"><button type="button"><span class="h">Send ny versjon av varselet<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse <span class="fs f-endring">av pålegget</span><span class="fs f-grunn">av forholdet</span>. <span class="ts t-avslatt">Byggherren svarer på nytt.</span><span class="ts t-frafall">Frafallet står (GR-U20).</span><span class="ts t-ubesvart">Erstatter varselet i brev 1.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-ubesvart fs f-endring"><button type="button"><span class="h">Gjør gjeldende at byggherren ikke svarte i tide</span><span class="b">Etter punkt&nbsp;32.3 annet ledd anses pålegget da å innebære en endring. Om svaret kom for sent, avgjør partene.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-eo"><button type="button"><span class="h">Gå til vederlagsjusteringen</span><span class="b">Svaret i brev 4 står prinsipalt.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
