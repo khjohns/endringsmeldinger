@@ -15,7 +15,7 @@
  */
 
 import { HOVEDKATEGORIER, KATEGORIER, UNDERKATEGORIER, type Hovedkategori } from './koder.ts';
-import { FRISTRESULTATER, GRUNNLAGSRESULTATER, VEDERLAGSRESULTATER } from '../regler/typer.ts';
+import { FRISTRESULTATER, FORHOLDSRESULTATER, VEDERLAGSRESULTATER } from '../regler/typer.ts';
 import type { Skjema } from './skjema.ts';
 import {
   KRAVSPOR,
@@ -40,9 +40,9 @@ export const LESERFORMAT = 1;
 
 export const HENDELSESTYPER = ['sak_opprettet', 'dokument_registrert'] as const;
 
-/** Hjemmelen for rettidigheten i sporet: § 32.2 i grunnlaget, § 34.1.2 i vederlaget, § 33.4 i fristen. */
+/** Hjemmelen for rettidigheten i sporet: § 32.2 i forholdet, § 34.1.2 i vederlaget, § 33.4 i fristen. */
 export const HJEMMEL: Record<Spor, Hjemmel> = {
-  grunnlag: '32.2',
+  forhold: '32.2',
   vederlag: '34.1.2',
   frist: '33.4',
 };
@@ -53,9 +53,9 @@ export const HJEMMEL: Record<Spor, Hjemmel> = {
  * avslag sammen med § 32.2). Arten i sporet uten `?` må finnes.
  */
 export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd: boolean }[]> = {
-  grunnlag: [
+  forhold: [
     { art: 'rettidighet', paakrevd: false },
-    { art: 'grunnlag', paakrevd: true },
+    { art: 'forhold', paakrevd: true },
   ],
   // § 34.1.2, metoden, justeringen ellers, § 34.1.3 og posten etter annet ledd (OV-U27,
   // OV-U28). Hjemlene og postene står i rekkefølge (`leser.ts`).
@@ -95,7 +95,7 @@ export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[])
 });
 
 /**
- * VS-U26: datoen varslingsplikten løper fra, som TE oppgir i grunnlagskravet,
+ * VS-U26: datoen varslingsplikten løper fra, som TE oppgir i påberopelsen,
  * etter hovedkategorien. Der § 32.2 gjelder, er det datoen pålegget ble mottatt;
  * i svikt og andre forhold (§ 33.1 b–c) datoen TE ble klar over forholdet.
  * Underkategorien endringsordre har ingen.
@@ -174,7 +174,7 @@ export const KRAVINNHOLD: Record<
   Spor,
   { properties: Skjema; required: string[]; anyOf?: Skjema[] }
 > = {
-  grunnlag: {
+  forhold: {
     properties: {
       hovedkategori: { enum: HOVEDKATEGORIER },
       underkategori: { enum: UNDERKATEGORIER },
@@ -229,7 +229,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
   ),
-  grunnlag: objekt({ ...artfelt('grunnlag'), resultat: { enum: [...GRUNNLAGSRESULTATER] } }, [
+  forhold: objekt({ ...artfelt('forhold'), resultat: { enum: [...FORHOLDSRESULTATER] } }, [
     'id',
     'art',
     'resultat',
@@ -271,9 +271,9 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
   dager: objekt(artfelt('dager'), ['id', 'art']),
 };
 
-/** Serverens utregning etter B-13. Grunnlaget har ingen. */
+/** Serverens utregning etter B-13. Forholdet har ingen. */
 export const UTREGNING: Record<Spor, Skjema | null> = {
-  grunnlag: null,
+  forhold: null,
   vederlag: objekt(
     {
       resultat: { enum: [...VEDERLAGSRESULTATER] },
@@ -319,14 +319,14 @@ export const SVAR: Record<Spor, Skjema> = Object.fromEntries(
           ...sporfelt(s),
           gjelder: ID,
           erstatter: ID,
-          ...(s === 'grunnlag' ? {} : { grunnlagskrav: ID }),
+          ...(s === 'forhold' ? {} : { paaberopelse: ID }),
           standpunkter: { type: 'array', minItems: 1 },
           ...(utregning ? { utregning } : {}),
           beslutningsgrunnlag: BESLUTNINGSGRUNNLAG,
         },
         ['id', 'spor', 'gjelder', 'standpunkter', 'beslutningsgrunnlag'].concat(
           utregning ? ['utregning'] : [],
-          s === 'grunnlag' ? [] : ['grunnlagskrav']
+          s === 'forhold' ? [] : ['paaberopelse']
         )
       ),
     ];
@@ -394,7 +394,7 @@ export const UTSAGNSARTER = Object.keys(UTSAGN) as Utsagnsart[];
  * gjelder dokumentet, som da er registrert korrespondanse. Med `gjelder` gjelder de
  * et varsel i dokumentet, for eksempel et varsel sendt før kravet det står i
  * (HF-U1, MM-U1). `endringsordre` gjelder registrert korrespondanse med et svar på
- * grunnlaget: den som registrerer, oppgir om brevet var en endringsordre etter
+ * forholdet: den som registrerer, oppgir om brevet var en endringsordre etter
  * § 31.3 (GR-U13), i brevet selv. En senere avklaring med `gjelder` (MM-U12) er ikke
  * med i første versjon: skjemaet godtar feltet, men leseren avviser den (OV-U13).
  * Merkingen etter KA-U20 og avklaringen av den er ikke med i første versjon, så en

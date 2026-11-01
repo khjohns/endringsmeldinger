@@ -13,7 +13,7 @@ import type { Handling } from './klient.ts';
 
 const brev: Handling = {
   handling: 'brev',
-  svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: false }],
+  svar: [{ spor: 'forhold', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: false }],
 };
 
 const SERVEREN = [
@@ -42,7 +42,7 @@ describe('regelversjonen i kommandoen må være serverens (B-13, KA-U10)', () =>
     async (_, forskjell, forventet) => {
       const revisjon = {
         handling: 'revisjon',
-        spor: 'grunnlag',
+        spor: 'forhold',
         resultat: 'avslaatt',
         varslet_i_tide: true,
       };
@@ -52,7 +52,7 @@ describe('regelversjonen i kommandoen må være serverens (B-13, KA-U10)', () =>
 
   it.each(SERVEREN)('en aksept, med serverens regelversjon %s', async (_, forskjell, forventet) => {
     expect(
-      await utfall(['krav_irreg', brev], { handling: 'aksept', spor: 'grunnlag' }, forskjell)
+      await utfall(['krav_irreg', brev], { handling: 'aksept', spor: 'forhold' }, forskjell)
     ).toBe(forventet);
   });
 });

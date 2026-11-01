@@ -15,7 +15,7 @@ export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
     forstaatt: true,
     saksbetegnelse: null,
     brev_utenfor_appen: false,
-    grunnlag: { ...ingenting, svar: null },
+    forhold: { ...ingenting, svar: null },
     vederlag: { ...ingenting, kravet_staar: false, krav: null, svar: null, enighet: null },
     frist: { ...ingenting, kravet_staar: false, krav: null, svar: null, enighet: null },
     ...overstyr,

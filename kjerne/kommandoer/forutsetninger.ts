@@ -12,7 +12,7 @@
 import {
   fristkravErFremmet,
   kanFaaInnsigelse,
-  trekkAvGrunnlagetErSperret,
+  trekkAvPaaberopelsenErSperret,
   type Utledning,
 } from '../utledning/utled.ts';
 import type { Avvisning, Kravspor, Part, Spor, Varselhjemmel } from '../typer.ts';
@@ -121,7 +121,7 @@ const AVSLAGET_GODTATT =
 
 /** Et utsagn i fristen som ikke er et krav, når sporet er lukket (GR-U27, GR-U5, KA-U12). */
 function fristenErLukket(u: Utledning): Avvisning | null {
-  if (u.grunnlagAvvist) return avvis('GRUNNLAG_AVVIST', AVSLAGET_GODTATT);
+  if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);
   if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
   if (u.spor.frist.ingenKrav)
     return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
@@ -136,7 +136,7 @@ export const ELDRE_SVAR =
 
 /** Kravet i hvert spor, med navnene i visningen (konseptet for Varden, versjon 14). */
 const KRAVET: Record<Spor, string> = {
-  grunnlag: 'grunnlaget for kravet',
+  forhold: 'grunnlaget for kravet',
   vederlag: 'kravet om vederlagsjustering',
   frist: 'kravet om fristforlengelse',
 };
@@ -156,37 +156,37 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
   const eier = PART[h.type];
   if (eier !== null && eier !== part) return avvis('FEIL_PART', `Bare ${eier} kan gjøre dette.`);
   if ('gjelder' in h) return henvisning(h, part, u);
-  // GR-U27: TEs aksept av avslaget på grunnlaget lukker saken. MM-U34 punkt 12: at
+  // GR-U27: TEs aksept av avslaget på forholdet lukker saken. MM-U34 punkt 12: at
   // kravene er avgjort, sperrer ikke.
-  if (u.grunnlagAvvist) return avvis('GRUNNLAG_AVVIST', AVSLAGET_GODTATT);
+  if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);
 
   const s = u.spor[h.spor];
-  const grunnlagSendt = u.spor.grunnlag.gjeldendeKrav !== null;
+  const paaberopelseSendt = u.spor.forhold.gjeldendeKrav !== null;
   switch (h.type) {
     case 'krav':
       // Vedtaket om trukket krav 05.10, GR-U5.
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket og kan ikke tas opp igjen.');
       // KA-U12: «ingen krav» lukker sporet på samme måte som et trekk.
-      if (h.spor !== 'grunnlag' && s.ingenKrav)
+      if (h.spor !== 'forhold' && s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
       // MM-U34 punkt 9: også i et spor med registrert enighet, fram til endringsordren.
-      if (h.spor !== 'grunnlag' && !grunnlagSendt)
-        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan sende krav.');
+      if (h.spor !== 'forhold' && !paaberopelseSendt)
+        return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før du kan sende krav.');
       return null;
     case 'trekke':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${KRAVET[h.spor]}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
       // KA-U13, OV-U6: en endringsordre sendt fra appen leses ellers som bortfalt (KA-U6).
-      if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))
+      if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u))
         return avvis(
-          'GRUNNLAG_ER_ENDRINGSORDRE',
+          'FORHOLD_ER_ENDRINGSORDRE',
           'Byggherren har godkjent grunnlaget i et svar som er en endringsordre. Grunnlaget kan ikke trekkes, heller ikke etter en ny kravversjon eller et nytt svar.'
         );
       // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det. En
       // merking av et registrert brev gir ingen sperre (OV-U4, OV-U7).
       return null;
     case 'ingen_krav':
-      // KA-U12, KA-U15: et spor som ikke er sendt, etter at grunnlaget er sendt.
+      // KA-U12, KA-U15: et spor som ikke er sendt, etter at forholdet er sendt.
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.ingenKrav)
         return avvis(
@@ -195,13 +195,16 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         );
       if (s.krav.length)
         return avvis('KRAV_I_SPORET', `TE har sendt ${KRAVET[h.spor]}. Trekk kravet i stedet.`);
-      if (!grunnlagSendt)
-        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan si «ingen krav».');
+      if (!paaberopelseSendt)
+        return avvis(
+          'PAABEROPELSE_IKKE_SENDT',
+          'Grunnlaget må være sendt før du kan si «ingen krav».'
+        );
       return null;
     case 'varsle':
     case 'sende_varsel':
-      if (!grunnlagSendt)
-        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
+      if (!paaberopelseSendt)
+        return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
@@ -221,9 +224,9 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       }
       return null;
     case 'sende_foresporsel':
-      if (!grunnlagSendt)
+      if (!paaberopelseSendt)
         return avvis(
-          'GRUNNLAG_IKKE_SENDT',
+          'PAABEROPELSE_IKKE_SENDT',
           'Grunnlaget må være sendt før du kan sende forespørselen.'
         );
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
@@ -277,7 +280,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           `Enigheten om svaret på ${KRAVET[h.spor]} er allerede registrert.`
         );
       // GR-U9: frafall er ikke enighet, og løsningen registrerer ikke en aksept av det.
-      if (h.spor === 'grunnlag' && u.frafalt)
+      if (h.spor === 'forhold' && u.frafalt)
         return avvis(
           'FRAFALL_KAN_IKKE_GODTAS',
           'Løsningen registrerer ikke en aksept av et frafall etter § 32.3 c. Det er en begrensning i løsningen (GR-U9).'

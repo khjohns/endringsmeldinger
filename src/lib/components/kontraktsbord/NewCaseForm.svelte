@@ -29,7 +29,7 @@
     grunnlagskrav,
     KJERNEKATEGORIER,
     opprettelse,
-  } from '$lib/kjernesak/grunnlagskrav';
+  } from '$lib/kjernesak/paaberopelse';
   import { kravMotNySak } from '$lib/kjernesak/brevtekst';
   import type { Kjernebrev } from '$lib/kjernesak/kravkontroll.svelte';
   import { KJERNE } from '$kjerne/versjon';

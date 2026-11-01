@@ -34,7 +34,7 @@ describe('CaseListRow', () => {
   it('saken har ingen samlet status: raden viser betegnelsen per spor (MM-U22, MM-U30)', () => {
     vis(
       lagSakslinje({
-        grunnlag: {
+        forhold: {
           ...ingenting,
           betegnelse: 'venter_paa_svar',
           venter_paa_svar: true,
@@ -58,8 +58,8 @@ describe('CaseListRow', () => {
 
   it.each([
     ['ikke_forstaatt', 'Ikke forstått', 'badge-uavklart'],
-    ['avslaget_paa_grunnlaget_godtatt', 'Avsluttet: avslått', 'badge-avslatt'],
-    ['grunnlaget_trukket', 'Avsluttet: trukket', 'badge-avslatt'],
+    ['avslaget_paa_forholdet_godtatt', 'Avsluttet: avslått', 'badge-avslatt'],
+    ['paaberopelsen_trukket', 'Avsluttet: trukket', 'badge-avslatt'],
     ['kravene_avgjort', 'Alle krav sendt i appen er avgjort', 'badge-godkjent'],
   ] as const)(
     'saksbetegnelsen %s vises som merket «%s» i stedet for betegnelsene per spor (MM-U22)',
@@ -67,7 +67,7 @@ describe('CaseListRow', () => {
       vis(
         lagSakslinje({
           saksbetegnelse,
-          grunnlag: { ...ingenting, betegnelse: 'enige', svar: null },
+          forhold: { ...ingenting, betegnelse: 'enige', svar: null },
         })
       );
       expect(screen.getByText(tekst)).toHaveClass(klasse);
@@ -129,7 +129,7 @@ describe('CaseListRow', () => {
   });
 
   it('tillegget står bare ved «kravene avgjort», som i visningen av saken (OV-U10)', () => {
-    vis(lagSakslinje({ saksbetegnelse: 'grunnlaget_trukket', brev_utenfor_appen: true }));
+    vis(lagSakslinje({ saksbetegnelse: 'paaberopelsen_trukket', brev_utenfor_appen: true }));
     expect(screen.queryByText(/brev sendt utenfor appen/)).not.toBeInTheDocument();
   });
 

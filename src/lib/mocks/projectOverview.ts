@@ -65,14 +65,14 @@ function demolinje(sak: SakState): Sakslinje {
     forstaatt: true,
     saksbetegnelse:
       grunnlag.status === 'trukket'
-        ? 'grunnlaget_trukket'
+        ? 'paaberopelsen_trukket'
         : avslaatt && grunnlag.te_akseptert
-          ? 'avslaget_paa_grunnlaget_godtatt'
+          ? 'avslaget_paa_forholdet_godtatt'
           : harKrav(grunnlag) && avgjort
             ? 'kravene_avgjort'
             : null,
     brev_utenfor_appen: false,
-    grunnlag: {
+    forhold: {
       ...foreligger(grunnlag),
       svar:
         harKrav(grunnlag) && grunnlag.bh_resultat

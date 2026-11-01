@@ -388,8 +388,8 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
         )
       ).journal;
 
-    /** Saken med TEs grunnlagskrav, så et varsel kan registreres (versjon 2). */
-    async function sakMedGrunnlag(): Promise<string> {
+    /** Saken med TEs påberopelse, så et varsel kan registreres (versjon 2). */
+    async function sakMedPaaberopelse(): Promise<string> {
       const sakId = await opprettKjernesak(o);
       const svar = await send(sakId, 1, await medLaastTekst(o, sakId));
       if (svar.status !== 201) throw new Error(`Kravet ble avvist: ${svar.status}`);
@@ -404,7 +404,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       });
 
     it('TE registrerer et varsel med et nytt og et bundet vedlegg: brevet lagrer ID, filnavn og sum, og bare det nye bindes til brevet', async () => {
-      const sakId = await sakMedGrunnlag();
+      const sakId = await sakMedPaaberopelse();
       const ny = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
       const bundet = randomUUID();
       const foerste = (await journal(sakId))[0].event_id;
@@ -457,7 +457,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     });
 
     it('samme kommando sendt på nytt gir brevet fra kvitteringen og binder ikke på nytt (KT-U5)', async () => {
-      const sakId = await sakMedGrunnlag();
+      const sakId = await sakMedPaaberopelse();
       const id = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
       const kommandoId = randomUUID();
       const foerste = await send(sakId, 2, varsel([id]), kommandoId);
@@ -477,7 +477,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
             .vedlegg_id,
       ],
     ])('%s avvises med VEDLEGG_FINNES_IKKE, og ingenting skrives', async (_hva, vedlegg) => {
-      const sakId = await sakMedGrunnlag();
+      const sakId = await sakMedPaaberopelse();
       const svar = await send(sakId, 2, varsel([await vedlegg()]));
       expect(svar.status).toBe(400);
       expect(svar.kropp.rule).toBe('VEDLEGG_FINNES_IKKE');
@@ -485,7 +485,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     });
 
     it('et ubundet vedlegg BH har lastet opp, kan ikke bindes av TE (arbeidsvalg 3)', async () => {
-      const sakId = await sakMedGrunnlag();
+      const sakId = await sakMedPaaberopelse();
       const bhs = (await lastOpp(o.bh, PDF, 'bh.pdf', sakId)).kropp.vedlegg.vedlegg_id;
       const tes = (await lastOpp(o.te, PDF, 'te.pdf', sakId)).kropp.vedlegg.vedlegg_id;
       const svar = await send(sakId, 2, varsel([tes, bhs]));
@@ -499,7 +499,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     });
 
     it('basen binder ikke et vedlegg serveren ikke fant, og hendelsen rulles tilbake (51422)', async () => {
-      const sakId = await sakMedGrunnlag();
+      const sakId = await sakMedPaaberopelse();
       const falskt = randomUUID();
       const feil = await skrivHendelse(
         o.datalag.kjoeretid.pool,
@@ -533,7 +533,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     });
 
     it('et bundet vedlegg kan ikke bindes på nytt eller løses, heller ikke av eieren (51001)', async () => {
-      const sakId = await sakMedGrunnlag();
+      const sakId = await sakMedPaaberopelse();
       const id = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
       expect((await send(sakId, 2, varsel([id]))).status).toBe(201);
       const [annen] = await journal(sakId);

@@ -27,7 +27,7 @@ export interface Grunnlagsvalg {
 
 export type Grunnlagskrav = {
   type: 'krav';
-  spor: 'grunnlag';
+  spor: 'forhold';
   innhold: Record<string, unknown>;
   utdypning?: string;
 };
@@ -73,7 +73,7 @@ export function grunnlagskrav(valg: Grunnlagsvalg): Grunnlagskrav {
   const utdypning = valg.utdypning.trim();
   return {
     type: 'krav',
-    spor: 'grunnlag',
+    spor: 'forhold',
     innhold: {
       hovedkategori: kjernen.hovedkategori,
       underkategori: kjernen.underkategori,
@@ -89,17 +89,17 @@ export function grunnlagskrav(valg: Grunnlagsvalg): Grunnlagskrav {
  * (VS-U26) og endringsordren står som i gjeldende versjon, og TE endrer beskrivelsen,
  * som er utdypningen (GR-U15).
  */
-export function nyGrunnlagsversjon(
+export function nyPaaberopelsesversjon(
   gjeldende: Record<string, unknown>,
   utdypning: string
 ): Grunnlagskrav {
   const innhold = Object.fromEntries(
     Object.entries(gjeldende).filter(([felt]) =>
-      Object.hasOwn(KRAVINNHOLD.grunnlag.properties, felt)
+      Object.hasOwn(KRAVINNHOLD.forhold.properties, felt)
     )
   );
   const tekst = utdypning.trim();
-  return { type: 'krav', spor: 'grunnlag', innhold, ...(tekst ? { utdypning: tekst } : {}) };
+  return { type: 'krav', spor: 'forhold', innhold, ...(tekst ? { utdypning: tekst } : {}) };
 }
 
 /**
@@ -113,5 +113,5 @@ export function grunnlagsversjonFraSkjema(
   if (!gjeldende)
     throw new Error('Grunnlaget er ikke sendt, så det har ingen versjon å oppdatere.');
   utenVedlegg(data);
-  return nyGrunnlagsversjon(gjeldende, letterText(data.begrunnelse ?? ''));
+  return nyPaaberopelsesversjon(gjeldende, letterText(data.begrunnelse ?? ''));
 }

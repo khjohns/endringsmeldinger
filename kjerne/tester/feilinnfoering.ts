@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -93,9 +93,9 @@ const MUTASJONER: Mutasjon[] = [
         "} from '../utledning/utled.ts';\nimport { visning } from '../utledning/visning.ts';",
       ],
       [
-        '  // kravene er avgjort, sperrer ikke.\n  if (u.grunnlagAvvist)',
+        '  // kravene er avgjort, sperrer ikke.\n  if (u.forholdAvvist)',
         // Statusen leses uten å endre utfallet, så bare arkitekturtestene skal feile (#1122).
-        '  // kravene er avgjort, sperrer ikke.\n  if (u.grunnlagAvvist && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status !== undefined)',
+        '  // kravene er avgjort, sperrer ikke.\n  if (u.forholdAvvist && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status !== undefined)',
       ],
     ],
     mal: [
@@ -148,7 +148,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         '      virkninger: s.beslutningsgrunnlag.virkninger,',
-        '      virkninger: regn(s, spor.grunnlag.krav.find((k) => k.id === s.gjelder) ?? spor.grunnlag.krav.at(-1), regler),',
+        '      virkninger: regn(s, spor.forhold.krav.find((k) => k.id === s.gjelder) ?? spor.forhold.krav.at(-1), regler),',
       ],
     ],
     mal: [
@@ -190,12 +190,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F8',
-    feilklasse: 'et godkjent grunnlag er ikke enighet ved sammenfall (GR-U10, #312)',
+    feilklasse: 'et godkjent forhold er ikke enighet ved sammenfall (GR-U10, #312)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';",
-        "if (svar.spor === 'grunnlag') return false;",
+        "if (svar.spor === 'forhold') return standpunktet(svar, 'forhold')?.resultat === 'godkjent';",
+        "if (svar.spor === 'forhold') return false;",
       ],
     ],
     mal: ['F-MM-G10', 'F-MM-A5b'],
@@ -244,7 +244,7 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: [
       'TE kan sende en ny kravversjon i et spor med enighet ved aksept eller sammenfall',
-      'TE kan sende en ny grunnlagsversjon når godkjenningen av grunnlaget gir enighet',
+      'TE kan sende en ny påberopelsesversjon når godkjenningen av forholdet gir enighet',
     ],
   },
   {
@@ -263,10 +263,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F13',
     feilklasse:
-      'saken kan inngå i en endringsordre etter at TE har godtatt avslaget på grunnlaget (GR-U27, MM-U34 punkt 20)',
+      'saken kan inngå i en endringsordre etter at TE har godtatt avslaget på forholdet (GR-U27, MM-U34 punkt 20)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['!== null && !u.grunnlagAvvist && !u.spor', '!== null && !u.spor']],
-    mal: ['ikke når TE har godtatt avslaget på grunnlaget (GR-U27, MM-U34 punkt 20)'],
+    endringer: [['!== null && !u.forholdAvvist && !u.spor', '!== null && !u.spor']],
+    mal: ['ikke når TE har godtatt avslaget på forholdet (GR-U27, MM-U34 punkt 20)'],
   },
   {
     id: 'F14',
@@ -279,7 +279,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         '      e.beslutningsgrunnlag,',
-        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'grunnlag' ? { varslingsplikt: false } : {}) },",
+        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'forhold' ? { varslingsplikt: false } : {}) },",
       ],
     ],
     mal: ['et svar uten beslutningsgrunnlag'],
@@ -308,10 +308,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F17',
     feilklasse:
-      'saken kan inngå i en endringsordre etter at TE har trukket grunnlaget (GR-U27, MM-U34 punkt 20)',
+      'saken kan inngå i en endringsordre etter at TE har trukket forholdet (GR-U27, MM-U34 punkt 20)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [[' && !u.spor.grunnlag.trukket;', ';']],
-    mal: ['ikke når TE har trukket grunnlaget (GR-U27, MM-U34 punkt 20)'],
+    endringer: [[' && !u.spor.forhold.trukket;', ';']],
+    mal: ['ikke når TE har trukket forholdet (GR-U27, MM-U34 punkt 20)'],
   },
   {
     id: 'F18',
@@ -355,7 +355,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler, forskyvning);',
+        'return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning);',
         'return beslutningsgrunnlag(innhold, undefined, regler, forskyvning);',
       ],
     ],
@@ -364,12 +364,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F23',
     feilklasse:
-      'TE trekker grunnlaget når partene er enige ved sammenfall med varslingsplikt (KA-U13)',
+      'TE trekker forholdet når partene er enige ved sammenfall med varslingsplikt (KA-U13)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))",
-        "if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u) && u.frafalt)",
+        "if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u))",
+        "if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u) && u.frafalt)",
       ],
     ],
     mal: ['F-MM-G10'],
@@ -389,8 +389,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    ...grunnlaget(spor, elementer, svar, dokumenter),',
-        '    ...grunnlaget(spor, elementer, svar, dokumenter, regler),',
+        '    ...forholdet(spor, elementer, svar, dokumenter),',
+        '    ...forholdet(spor, elementer, svar, dokumenter, regler),',
       ],
       [
         '  dokumenter: Map<string, Dokument>\n): Pick<Utledning',
@@ -398,14 +398,14 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         'blirEndringsordre(svaret.beslutningsgrunnlag)',
-        '(svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)))',
+        '(svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)))',
       ],
     ],
     mal: ['F-MM-G15'],
   },
   {
     id: 'F26',
-    feilklasse: 'trekk av grunnlaget sperres av ethvert svar, også avslag og frafall (KA-U13)',
+    feilklasse: 'trekk av forholdet sperres av ethvert svar, også avslag og frafall (KA-U13)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -418,12 +418,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F26b',
     feilklasse:
-      'en ny grunnlagsversjon tar bort sperren mot trekk etter en godkjenning som er en endringsordre (EO-U12)',
+      'en ny påberopelsesversjon tar bort sperren mot trekk etter en godkjenning som er en endringsordre (EO-U12)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['endringsordre: spor.grunnlag.svar.some(', 'endringsordre: (gSvar ? [gSvar] : []).some('],
+      ['endringsordre: spor.forhold.svar.some(', 'endringsordre: (gSvar ? [gSvar] : []).some('],
     ],
-    mal: ['etter en ny grunnlagsversjon kan TE fortsatt ikke trekke grunnlaget'],
+    mal: ['etter en ny påberopelsesversjon kan TE fortsatt ikke trekke forholdet'],
   },
   // F27–F47 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
   {
@@ -540,10 +540,10 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F41',
-    feilklasse: '«ingen krav» før grunnlaget er sendt, leses (KA-U15)',
+    feilklasse: '«ingen krav» før forholdet er sendt, leses (KA-U15)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [[' ||\n      !spor.grunnlag.krav.some((k) => bakover(i.id, k.id))\n', '\n']],
-    mal: ['«ingen krav» før grunnlaget er sendt'],
+    endringer: [[' ||\n      !spor.forhold.krav.some((k) => bakover(i.id, k.id))\n', '\n']],
+    mal: ['«ingen krav» før forholdet er sendt'],
   },
   {
     id: 'F43',
@@ -597,7 +597,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['export interface Utledning {\n', 'export interface Utledning {\n  ferdig?: boolean;\n'],
-      ['    u.grunnlagAvklart &&\n', '    (u.ferdig ?? u.grunnlagAvklart) &&\n'],
+      ['    u.forholdAvklart &&\n', '    (u.ferdig ?? u.forholdAvklart) &&\n'],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) utledning/utled.ts'],
   },
@@ -657,8 +657,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        's.grunnlagskrav)),\n    kjerne\n',
-        's.grunnlagskrav)),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
+        's.paaberopelse)),\n    kjerne\n',
+        's.paaberopelse)),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
       ],
     ],
     mal: ['F-MM-G45-regel'],
@@ -726,8 +726,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'standpunkter: grunnlagsstandpunkter(vurderinger, krav,',
-        'standpunkter: grunnlagsstandpunkter({ resultat: vurderinger.resultat }, krav,',
+        'standpunkter: forholdsstandpunkter(vurderinger, krav,',
+        'standpunkter: forholdsstandpunkter({ resultat: vurderinger.resultat }, krav,',
       ],
     ],
     mal: ['svarutkastet blir en endringsordre som brevet det gir'],
@@ -741,7 +741,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '/**\n * KA-U13 og KA-U14',
-        'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => grunnlagetErAvklart(s, v);\n\n/**\n * KA-U13 og KA-U14',
+        'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => forholdetErAvklart(s, v);\n\n/**\n * KA-U13 og KA-U14',
       ],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) utledning/utled.ts'],
@@ -773,12 +773,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F64',
     feilklasse:
-      'subsidiariteten leses av gjeldende grunnlagsversjon, ikke av den svaret ble regnet mot (#342, GR-U1)',
+      'subsidiariteten leses av gjeldende påberopelsesversjon, ikke av den svaret ble regnet mot (#342, GR-U1)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    const fra = grunnlagskjede.findIndex((k) => k.id === sistBesvart?.grunnlagskrav);',
-        '    const fra = grunnlagskjede.findIndex((k) => k.id === (sistBesvart && spor.grunnlag.gjeldendeKrav?.id));',
+        '    const fra = paaberopelseskjede.findIndex((k) => k.id === sistBesvart?.paaberopelse);',
+        '    const fra = paaberopelseskjede.findIndex((k) => k.id === (sistBesvart && spor.forhold.gjeldendeKrav?.id));',
       ],
     ],
     mal: ['F-MM-S342'],
@@ -786,12 +786,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F65',
     feilklasse:
-      'leseren godtar en grunnlagsversjon som ikke er et grunnlagskrav før svaret (#342, HF-U1)',
+      'leseren godtar en påberopelsesversjon som ikke er en påberopelse før svaret (#342, HF-U1)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['      (s.grunnlagskrav !== null &&', '      (s.grunnlagskrav === undefined &&']],
+    endringer: [['      (s.paaberopelse !== null &&', '      (s.paaberopelse === undefined &&']],
     mal: [
-      'et lagret svar med et vederlagskrav som grunnlagsversjon er ikke forstått',
-      'et lagret svar med en grunnlagsversjon som ikke finnes er ikke forstått',
+      'et lagret svar med et vederlagskrav som påberopelsesversjon er ikke forstått',
+      'et lagret svar med en påberopelsesversjon som ikke finnes er ikke forstått',
     ],
   },
   {
@@ -800,7 +800,7 @@ const MUTASJONER: Mutasjon[] = [
       'en hendelse som endrer utfallet etter at saken er lukket, leses med virkning (MM-U18, SK-01, KA-U11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["  u.grunnlagAvvist\n    ? 'TE har godtatt svaret", "  false\n    ? 'TE har godtatt svaret"],
+      ["  u.forholdAvvist\n    ? 'TE har godtatt svaret", "  false\n    ? 'TE har godtatt svaret"],
     ],
     mal: ['F-MM-U326h'],
   },
@@ -810,8 +810,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)",
-        "  if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && !u)",
+        "  if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && u.frafalt)",
+        "  if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && !u)",
       ],
     ],
     mal: ['F-MM-U326b'],
@@ -853,12 +853,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F81',
-    feilklasse: 'TE kan si «ingen krav» før grunnlaget er sendt (KA-U15)',
+    feilklasse: 'TE kan si «ingen krav» før forholdet er sendt (KA-U15)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      if (!grunnlagSendt)\n        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan si «ingen krav».');",
-        "      if (!grunnlagSendt && !s)\n        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan si «ingen krav».');",
+        "      if (!paaberopelseSendt)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Grunnlaget må være sendt før du kan si «ingen krav».'",
+        "      if (!paaberopelseSendt && !s)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Grunnlaget må være sendt før du kan si «ingen krav».'",
       ],
     ],
     mal: ['F-MM-IK4'],
@@ -871,12 +871,12 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '      return kanFaaInnsigelse(maal, part)\n        ? null\n',
-        "      return kanFaaInnsigelse(maal, part)\n        ? (['grunnlag', 'vederlag', 'frist'] as const).some((n) => u.spor[n].enighet !== null)\n          ? avvis('ENIGHETEN_OMFATTER', 'Partene er enige.')\n          : null\n",
+        "      return kanFaaInnsigelse(maal, part)\n        ? (['forhold', 'vederlag', 'frist'] as const).some((n) => u.spor[n].enighet !== null)\n          ? avvis('ENIGHETEN_OMFATTER', 'Partene er enige.')\n          : null\n",
       ],
     ],
     mal: [
       'innsigelsen mot fristkravet og svaret partene er enige om ved sammenfall, godtas',
-      'innsigelsen mot et grunnlagskrav med registrert enighet ved en endringsordre godtas',
+      'innsigelsen mot en påberopelse med registrert enighet ved en endringsordre godtas',
       'godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter',
     ],
   },
@@ -896,7 +896,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F84',
     feilklasse:
-      'en påberopt passivitet mot en grunnlagsversjon uten virkning stopper saken (MM-U18, VS-U12)',
+      'en påberopt passivitet mot en påberopelsesversjon uten virkning stopper saken (MM-U18, VS-U12)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -909,7 +909,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F90',
     feilklasse:
-      'subsidiariteten går tilbake til svaret på versjonen det ble regnet mot, når grunnlaget er besvart igjen (GR-U1, GR-U4)',
+      'subsidiariteten går tilbake til svaret på versjonen det ble regnet mot, når forholdet er besvart igjen (GR-U1, GR-U4)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['            .slice(fra)', '            .slice(fra, fra + 1)']],
     mal: ['F-MM-S342b'],
@@ -937,7 +937,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '    if (krav)\n',
-        "    if (krav && krav.spor !== 'grunnlag') return '33.4';\n    if (krav)\n",
+        "    if (krav && krav.spor !== 'forhold') return '33.4';\n    if (krav)\n",
       ],
     ],
     mal: [
@@ -983,11 +983,11 @@ const MUTASJONER: Mutasjon[] = [
       ['    .filter((x) => x.spor === spor)', '    .filter((x) => x.spor === x.spor)'],
       ["p.art === 'rettidighet' && p.hjemmel === hjemmel", "p.art === 'rettidighet' && true"],
     ],
-    mal: ['et «i tide» i grunnlaget gir ikke opp innsigelsen mot fristvarselet'],
+    mal: ['et «i tide» i forholdet gir ikke opp innsigelsen mot fristvarselet'],
   },
   {
     id: 'F105',
-    feilklasse: 'brevet for trekk av grunnlaget sier ikke hva trekket ikke opphever (KA-U22)',
+    feilklasse: 'brevet for trekk av forholdet sier ikke hva trekket ikke opphever (KA-U22)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -995,7 +995,7 @@ const MUTASJONER: Mutasjon[] = [
         '`',
       ],
     ],
-    mal: ['trekk av grunnlaget'],
+    mal: ['trekk av forholdet'],
   },
   {
     id: 'F106',
@@ -1114,35 +1114,35 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'TEs varsel etter § 32.2 uten beskrivelse av pålegget godtas (GR-U15)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ["k.spor === 'grunnlag' && gjelderVarslingsplikten(", 'false && gjelderVarslingsplikten('],
+      ["k.spor === 'forhold' && gjelderVarslingsplikten(", 'false && gjelderVarslingsplikten('],
     ],
     mal: ['uten beskrivelse av pålegget avvises'],
   },
   {
     id: 'F119',
     feilklasse:
-      'svaret på vederlag og frist sier ikke at grunnlaget er avslått eller prekludert (A2, B-13 05.10)',
+      'svaret på vederlag og frist sier ikke at forholdet er avslått eller prekludert (A2, B-13 05.10)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["  if (s.spor === 'grunnlag') return [];", '  return [];']],
+    endringer: [["  if (s.spor === 'forhold') return [];", '  return [];']],
     mal: [
-      'grunnlaget avslått i samme brev',
-      'grunnlaget prekludert og avslått subsidiært i et tidligere brev',
+      'forholdet avslått i samme brev',
+      'forholdet prekludert og avslått subsidiært i et tidligere brev',
       'innledningen nevner sporet',
     ],
   },
   {
     id: 'F120',
-    feilklasse: 'et grunnlagssvar i et tidligere brev omtales som i samme brev (A2, LV-U3)',
+    feilklasse: 'et svar på påberopelsen i et tidligere brev omtales som i samme brev (A2, LV-U3)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['  if (g.dokument === nytt.id) {', '  if (true) {']],
-    mal: ['grunnlaget avslått i et tidligere brev'],
+    mal: ['forholdet avslått i et tidligere brev'],
   },
   {
     id: 'F121',
     feilklasse:
-      'aksepten av et subsidiært svar sier ikke at TE er uenig i grunnlaget (LV-U4 punkt 6, GR-U7)',
+      'aksepten av et subsidiært svar sier ikke at TE er uenig i forholdet (LV-U4 punkt 6, GR-U7)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["svar.spor === 'grunnlag' || !saken.subsidiaer[svar.spor].length", 'true']],
+    endringer: [["svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length", 'true']],
     mal: ['sier aksepten at TE ikke er enig'],
   },
   {
@@ -1289,7 +1289,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '      ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))',
-        "      ? SPOR.find((n) => n === 'grunnlag')",
+        "      ? SPOR.find((n) => n === 'forhold')",
       ],
     ],
     mal: ['F-MM-U20b'],
@@ -1424,7 +1424,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         '  return ut;\n',
-        "  for (const k of u.spor.grunnlag.krav) ut.push({ type: 'passivitet', gjelder: k.id });\n  return ut;\n",
+        "  for (const k of u.spor.forhold.krav) ut.push({ type: 'passivitet', gjelder: k.id });\n  return ut;\n",
       ],
       [
         '.filter((h) => forutsetninger(h, part, u) === null)',
@@ -1432,7 +1432,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      'protest, påberopt passivitet og senere begrunnelse tilbys ingen av partene, også med en innsigelse, et dokument, et grunnlagskrav og et svar',
+      'protest, påberopt passivitet og senere begrunnelse tilbys ingen av partene, også med en innsigelse, et dokument, en påberopelse og et svar',
     ],
   },
   {
@@ -1745,12 +1745,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F209',
     feilklasse:
-      'svaret på en ny grunnlagsversjon gjentar eller gir ikke opp innsigelsen mot en tidligere (arbeidsvalget 15.10 i #500)',
+      'svaret på en ny påberopelsesversjon gjentar eller gir ikke opp innsigelsen mot en tidligere (arbeidsvalget 15.10 i #500)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
         '    const gjelder =\n      hjemmel === HJEMMEL[svar.spor]',
-        "    const gjelder =\n      ((svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) && hjemmel === HJEMMEL[svar.spor])",
+        "    const gjelder =\n      ((svar.spor !== 'forhold' || i.gjelder === svar.gjelder) && hjemmel === HJEMMEL[svar.spor])",
       ],
     ],
     mal: [
@@ -1796,14 +1796,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F215',
     feilklasse:
       'frafall avvises i samordning og svar på varsel, som er byggherrens pålegg (GR-U18)',
-    fil: `${K}/regler/grunnlag.ts`,
+    fil: `${K}/regler/forhold.ts`,
     endringer: [["  'samordning',\n  'svar_paa_varsel',\n", '']],
     mal: ['frafall godtas i samordning', 'frafall godtas i svar_paa_varsel'],
   },
   {
     id: 'F216',
     feilklasse: 'frafall godtas ved gebyr, som ikke er byggherrens eget pålegg (GR-U18)',
-    fil: `${K}/regler/grunnlag.ts`,
+    fil: `${K}/regler/forhold.ts`,
     endringer: [["  'svar_paa_varsel',\n];", "  'svar_paa_varsel',\n  'gebyrer_og_avgifter',\n];"]],
     mal: ['frafall avvises i gebyrer_og_avgifter'],
   },
@@ -1837,12 +1837,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F224',
     feilklasse:
-      'en innsigelse mot en grunnlagsversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
+      'en innsigelse mot en påberopelsesversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "krav.spor === 'grunnlag' && !kravetErDokumentasjon(d) && varslingsplikt(krav)",
-        "krav.spor === 'grunnlag' && !kravetErDokumentasjon(d) && true",
+        "krav.spor === 'forhold' && !kravetErDokumentasjon(d) && varslingsplikt(krav)",
+        "krav.spor === 'forhold' && !kravetErDokumentasjon(d) && true",
       ],
     ],
     mal: [
@@ -1851,12 +1851,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F225',
-    feilklasse: 'en ny grunnlagsversjon med en annen hjemmel godtas (GR-U22, #569)',
+    feilklasse: 'en ny påberopelsesversjon med en annen hjemmel godtas (GR-U22, #569)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "  if (k.spor !== 'grunnlag' || !forrige) return null;",
-        "  if (k.spor !== 'grunnlag' || !forrige || u) return null;",
+        "  if (k.spor !== 'forhold' || !forrige) return null;",
+        "  if (k.spor !== 'forhold' || !forrige || u) return null;",
       ],
     ],
     mal: ['irregulær endring til svikt', 'svikt til andre forhold', 'F-MM-G39'],
@@ -1864,7 +1864,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F226',
     feilklasse:
-      'en ny grunnlagsversjon med en annen underkategori i samme hovedkategori godtas (GR-U22, #569)',
+      'en ny påberopelsesversjon med en annen underkategori i samme hovedkategori godtas (GR-U22, #569)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       ['    tekst(k.innhold.underkategori) === tekst(forrige.innhold.underkategori)', '    true'],
@@ -1881,23 +1881,23 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F234',
     feilklasse:
-      'en ny grunnlagsversjon etter frafallet gjør grunnlaget uavklart til byggherren svarer (GR-U23, OV-U3, #510)',
+      'en ny påberopelsesversjon etter frafallet gjør forholdet uavklart til byggherren svarer (GR-U23, OV-U3, #510)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  const venterEtterFrafall =', '  const venterEtterFrafall = false &&']],
-    mal: ['grunnlaget er avklart ved frafallet', 'F-MM-G42'],
+    mal: ['forholdet er avklart ved frafallet', 'F-MM-G42'],
   },
   {
     id: 'F235',
     feilklasse:
-      'utledningen sier at en grunnlagsversjon venter på svar når saken er lukket (GR-U27, #510, #580)',
+      'utledningen sier at en påberopelsesversjon venter på svar når saken er lukket (GR-U27, #510, #580)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [[' && !s.trukket && !sporetErLukket(u);', ' && !s.trukket;']],
-    mal: ['SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav'],
+    mal: ['SK-01: når TE godtar avslaget av forholdet, venter ubesvarte krav'],
   },
   {
     id: 'F236',
     feilklasse:
-      'en endringsordre byggherren har registrert, er en endringsordre i saken og sperrer TEs trekk av grunnlaget (OV-U6, #594)',
+      'en endringsordre byggherren har registrert, er en endringsordre i saken og sperrer TEs trekk av forholdet (OV-U6, #594)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['    !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)\n', '    true\n'],
@@ -1942,7 +1942,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F248',
-    feilklasse: 'et grunnlagskrav fra appen uten datoen godtas (VS-U26, #664)',
+    feilklasse: 'en påberopelse fra appen uten datoen godtas (VS-U26, #664)',
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
       ['  if (dato === undefined)\n    return [`', '  if (dato === undefined)\n    return []; [`'],
@@ -2068,7 +2068,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F270',
     feilklasse:
-      'en innsigelse mot et grunnlagskrav i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
+      'en innsigelse mot en påberopelse i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['&& !kravetErDokumentasjon(d) &&', '&& true &&']],
     mal: ['brevteksten gjentar den ikke i svaret'],
@@ -2114,9 +2114,9 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      'en revisjon av en godkjenning av grunnlaget med registrert enighet gir ingen grunn',
+      'en revisjon av en godkjenning av forholdet med registrert enighet gir ingen grunn',
       'byggherren kan revidere et svar TE har godtatt, og saken er forstått',
-      'byggherren kan revidere en godkjenning av grunnlaget som er en endringsordre, og saken er forstått',
+      'byggherren kan revidere en godkjenning av forholdet som er en endringsordre, og saken er forstått',
     ],
   },
   {
@@ -2133,7 +2133,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'byggherren kan revidere et svar TE har godtatt',
       'byggherren kan revidere et svar som stemmer med kravet',
-      'byggherren kan revidere en godkjenning av grunnlaget som er en endringsordre',
+      'byggherren kan revidere en godkjenning av forholdet som er en endringsordre',
     ],
   },
   {
@@ -2208,7 +2208,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       ['i_tide: v.hovedkrav_varslet_i_tide,', 'i_tide: v.hovedkrav_varslet_i_tide === true,'],
     ],
-    mal: ['kontrollsak: grunnlaget godkjent gir ingen prinsipal grunn fra grunnlaget'],
+    mal: ['kontrollsak: forholdet godkjent gir ingen prinsipal grunn fra forholdet'],
   },
   {
     id: 'F285',
@@ -2406,12 +2406,12 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'u.spor.grunnlag.gjeldendeKrav !== null && !u.grunnlagAvvist',
-        'u.spor.grunnlag.gjeldendeKrav !== null && KRAVSPOR.some((n) => u.spor[n].enighet !== null) && !u.grunnlagAvvist',
+        'u.spor.forhold.gjeldendeKrav !== null && !u.forholdAvvist',
+        'u.spor.forhold.gjeldendeKrav !== null && KRAVSPOR.some((n) => u.spor[n].enighet !== null) && !u.forholdAvvist',
       ],
     ],
     mal: [
-      'også uten registrert enighet i noe spor, men ikke før grunnlaget er sendt',
+      'også uten registrert enighet i noe spor, men ikke før forholdet er sendt',
       '«ingen krav» i begge spor avgjør kravene, og saken kan inngå i en endringsordre',
     ],
   },
@@ -2420,26 +2420,26 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et frafall etter § 32.3 c hindrer at saken inngår i en endringsordre, som før GR-U28',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['!u.spor.grunnlag.trukket;', '!u.spor.grunnlag.trukket && !u.frafalt;']],
+    endringer: [['!u.spor.forhold.trukket;', '!u.spor.forhold.trukket && !u.frafalt;']],
     mal: [
       'også når byggherren har frafalt pålegget etter § 32.3 c (GR-U28)',
-      'grunnlaget er avklart ved frafallet',
+      'forholdet er avklart ved frafallet',
     ],
   },
   {
     id: 'F312',
     feilklasse:
-      'et krav venter på svar og et svar står som ikke godtatt etter at avslaget av grunnlaget er godtatt (SK-01, #1050, #1067)',
+      'et krav venter på svar og et svar står som ikke godtatt etter at avslaget av forholdet er godtatt (SK-01, #1050, #1067)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'export const sporetErLukket = (u: Utledning): boolean => u.grunnlagAvvist;',
-        'export const sporetErLukket = (u: Utledning): boolean => u.grunnlagAvvist && false;',
+        'export const sporetErLukket = (u: Utledning): boolean => u.forholdAvvist;',
+        'export const sporetErLukket = (u: Utledning): boolean => u.forholdAvvist && false;',
       ],
     ],
     mal: [
-      'SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav',
-      'SK-01: når TE godtar avslaget av grunnlaget i forløp A',
+      'SK-01: når TE godtar avslaget av forholdet, venter ubesvarte krav',
+      'SK-01: når TE godtar avslaget av forholdet i forløp A',
     ],
   },
   {
@@ -2463,11 +2463,10 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F342',
-    feilklasse:
-      'et trukket grunnlag gir «Trukket» i et spor der ingenting er sendt (GR-U25, #1137)',
+    feilklasse: 'et trukket forhold gir «Trukket» i et spor der ingenting er sendt (GR-U25, #1137)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [['u.spor[spor].trukket && sendt(u, spor)', 'u.spor[spor].trukket']],
-    mal: ['et trukket grunnlag gir ingen betegnelse i et spor der ingenting er sendt'],
+    mal: ['et trukket forhold gir ingen betegnelse i et spor der ingenting er sendt'],
   },
   {
     id: 'F343',
@@ -2482,11 +2481,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F344',
     feilklasse:
-      'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen etter at grunnlaget er trukket (MM-U31, #1137)',
+      'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen etter at forholdet er trukket (MM-U31, #1137)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [['    !u.spor.grunnlag.trukket &&\n', '']],
+    endringer: [['    !u.spor.forhold.trukket &&\n', '']],
     mal: [
-      'en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at grunnlaget er trukket',
+      'en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at forholdet er trukket',
     ],
   },
   {
@@ -2494,32 +2493,32 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'svarIkkeGodtatt leser ikke at sporet er lukket (SK-01, OV-U3, #1050)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["    !sporetErLukket(u) &&\n    !(spor === 'grunnlag'", "    !(spor === 'grunnlag'"],
+      ["    !sporetErLukket(u) &&\n    !(spor === 'forhold'", "    !(spor === 'forhold'"],
     ],
-    mal: ['SK-01: når TE godtar avslaget av grunnlaget i forløp A'],
+    mal: ['SK-01: når TE godtar avslaget av forholdet i forløp A'],
   },
   {
     id: 'F314',
     feilklasse:
       'et frafall står som et svar TE ikke har godtatt (GR-U9, arbeidsvalget 20.10 i #1050)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["    !(spor === 'grunnlag' && u.frafalt)\n", '    true\n']],
+    endringer: [["    !(spor === 'forhold' && u.frafalt)\n", '    true\n']],
     mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
   },
   {
     id: 'F315',
     feilklasse:
-      'tallet i svaret er ikke subsidiært når svaret på grunnlaget avviser ansvaret (MM-U9, MM-U28, #1050)',
+      'tallet i svaret er ikke subsidiært når svaret på forholdet avviser ansvaret (MM-U9, MM-U28, #1050)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['    s.subsidiaer.length > 0 ||\n    (s.gjeldendeSvar', '    (s.gjeldendeSvar']],
-    mal: ['SK-01: når TE godtar avslaget av grunnlaget i forløp A'],
+    mal: ['SK-01: når TE godtar avslaget av forholdet i forløp A'],
   },
   {
     id: 'F316',
     feilklasse:
       'frafallet skjuler et svar TE ikke har godtatt i vederlag og frist (arbeidsvalget 20.10 i #1050)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["    !(spor === 'grunnlag' && u.frafalt)\n", '    !u.frafalt\n']],
+    endringer: [["    !(spor === 'forhold' && u.frafalt)\n", '    !u.frafalt\n']],
     mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
   },
   {
@@ -2956,24 +2955,24 @@ const MUTASJONER: Mutasjon[] = [
         "    if (virkning === 'betinget') ut.push('enige_betinget');\n    if (virkning === 'virksom') ut.push('oppgjort');",
       ],
     ],
-    mal: ['en virksom enighet og et avklart grunnlag gir verken'],
+    mal: ['en virksom enighet og et avklart forhold gir verken'],
   },
   {
     id: 'F350',
-    feilklasse: 'visningen sier at grunnlaget er «avklart» (MM-U23, #1136)',
+    feilklasse: 'visningen sier at forholdet er «avklart» (MM-U23, #1136)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
         "    if (virkning && !s.trukket) ut.push('enige');",
-        "    if (u.grunnlagAvklart) ut.push('avklart');\n    if (virkning && !s.trukket) ut.push('enige');",
+        "    if (u.forholdAvklart) ut.push('avklart');\n    if (virkning && !s.trukket) ut.push('enige');",
       ],
     ],
-    mal: ['en virksom enighet og et avklart grunnlag gir verken'],
+    mal: ['en virksom enighet og et avklart forhold gir verken'],
   },
   {
     id: 'F351',
     feilklasse:
-      'et trukket grunnlag gir etiketten «trukket» i et spor der ingenting er sendt (GR-U25, #1140)',
+      'et trukket forhold gir etiketten «trukket» i et spor der ingenting er sendt (GR-U25, #1140)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
@@ -2981,7 +2980,7 @@ const MUTASJONER: Mutasjon[] = [
         "  if (s.trukket) ut.push('trukket');",
       ],
     ],
-    mal: ['et trukket grunnlag gir ikke etiketten «trukket» i et spor der ingenting er sendt'],
+    mal: ['et trukket forhold gir ikke etiketten «trukket» i et spor der ingenting er sendt'],
   },
   {
     id: 'F352',
@@ -3113,28 +3112,28 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F381',
     feilklasse:
-      'et grunnlag som er både prekludert og avslått, flytter lagene i sporet bare ett lag (OV-U32, A2)',
+      'et forhold som er både prekludert og avslått, flytter lagene i sporet bare ett lag (OV-U32, A2)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '  const forskyvning = grunnlaget.length;',
-        '  const forskyvning = grunnlaget.length ? 1 : 0;',
+        '  const forskyvning = forholdet.length;',
+        '  const forskyvning = forholdet.length ? 1 : 0;',
       ],
     ],
-    mal: ['grunnlaget prekludert og avslått subsidiært i samme brev'],
+    mal: ['forholdet prekludert og avslått subsidiært i samme brev'],
   },
   {
     id: 'F382',
-    feilklasse: 'linjen etiketterer uten forskyvningen fra grunnlaget (OV-U32, OV-U33, #1199)',
+    feilklasse: 'linjen etiketterer uten forskyvningen fra forholdet (OV-U32, OV-U33, #1199)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        'linje: beslutningslinje(svar, v, grunnlagskrav, forskyvning),',
-        'linje: beslutningslinje(svar, v, grunnlagskrav, 0),',
+        'linje: beslutningslinje(svar, v, paaberopelse, forskyvning),',
+        'linje: beslutningslinje(svar, v, paaberopelse, 0),',
       ],
     ],
     mal: [
-      'avslått grunnlag gir beløpet etiketten for andre lag, som brevet',
+      'avslått forhold gir beløpet etiketten for andre lag, som brevet',
       'prinsipalt § 32.2 og subsidiært avslag gir beløpet etiketten for tredje lag',
       'lagene i fristsporet flyttes ned hver for seg',
       'en revisjon har sitt eget beslutningsgrunnlag og viser til svaret den erstatter',
@@ -3142,12 +3141,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F383',
-    feilklasse: 'linjen ser bort fra gjeldende grunnlagssvar før brevet (OV-U32, #1199)',
+    feilklasse: 'linjen ser bort fra gjeldende svar på påberopelsen før brevet (OV-U32, #1199)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['lagFraGrunnlaget(gjeldende, gjeldende.beslutningsgrunnlag.virkninger)', '0']],
+    endringer: [['lagFraForholdet(gjeldende, gjeldende.beslutningsgrunnlag.virkninger)', '0']],
     mal: [
       'en revisjon har sitt eget beslutningsgrunnlag og viser til svaret den erstatter',
-      'registrert korrespondanse fryses med forskyvningen fra gjeldende grunnlagssvar',
+      'registrert korrespondanse fryses med forskyvningen fra gjeldende svar på påberopelsen',
     ],
   },
   {
@@ -3156,8 +3155,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (standpunktet(svar, 'grunnlag')?.resultat === 'avslaatt') ut.push('avslaatt');",
-        "if (standpunktet(svar, 'grunnlag')?.resultat !== 'godkjent') ut.push('avslaatt');",
+        "if (standpunktet(svar, 'forhold')?.resultat === 'avslaatt') ut.push('avslaatt');",
+        "if (standpunktet(svar, 'forhold')?.resultat !== 'godkjent') ut.push('avslaatt');",
       ],
     ],
     mal: ['et frafall av pålegget flytter ikke lagene'],
@@ -3183,10 +3182,10 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F388',
-    feilklasse: 'leseren godtar upåvirket i svaret på grunnlaget (OV-U32)',
+    feilklasse: 'leseren godtar upåvirket i svaret på forholdet (OV-U32)',
     fil: `${K}/format/leser.ts`,
-    endringer: [["    (spor === 'grunnlag' ||", '    (false ||']],
-    mal: ['upåvirket i svaret på grunnlaget er ikke forstått'],
+    endringer: [["    (spor === 'forhold' ||", '    (false ||']],
+    mal: ['upåvirket i svaret på forholdet er ikke forstått'],
   },
   {
     id: 'F389',
@@ -3214,10 +3213,10 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F392',
-    feilklasse: 'justeringen ellers er upåvirket også når grunnlaget er avslått (OV-U33)',
+    feilklasse: 'justeringen ellers er upåvirket også når forholdet er avslått (OV-U33)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['posten && !hele && forskyvning === 0', 'posten && !hele']],
-    mal: ['med avslått grunnlag er justeringen ellers i sporets første lag og ikke upåvirket'],
+    mal: ['med avslått forhold er justeringen ellers i sporets første lag og ikke upåvirket'],
   },
   {
     id: 'F393',
@@ -3281,7 +3280,7 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: [
       'begge påberopt: § 34.1.2 prinsipalt',
-      'med avslått grunnlag er justeringen ellers i sporets første lag',
+      'med avslått forhold er justeringen ellers i sporets første lag',
     ],
   },
   {
@@ -3301,14 +3300,14 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['beloep(begrenset.begrenset)! > beloep(post.godkjent)!', 'false']],
     mal: ['et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått'],
   },
-  // GR-U26, LV-U31 og OV-U33: forbeholdet for ubesvart grunnlag, oppgjør som fast sum og
+  // GR-U26, LV-U31 og OV-U33: forbeholdet for ubesvart forhold, oppgjør som fast sum og
   // metoden i laget til beløpet (#1239, #1240).
   {
     id: 'F406',
     feilklasse:
-      'svaret på vederlag eller frist uten svar på grunnlaget har ikke forbeholdet (GR-U26)',
+      'svaret på vederlag eller frist uten svar på forholdet har ikke forbeholdet (GR-U26)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['    ...forbeholdForGrunnlaget(s, t),\n', '']],
+    endringer: [['    ...forbeholdForForholdet(s, t),\n', '']],
     mal: [
       'det første svaret på vederlaget har forbeholdet',
       'forløpet i #1239',
@@ -3317,17 +3316,17 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F407',
-    feilklasse: 'forbeholdet skrives når grunnlaget er avklart ved frafall (GR-U23, GR-U26)',
+    feilklasse: 'forbeholdet skrives når forholdet er avklart ved frafall (GR-U23, GR-U26)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['avklartVedFrafall: u.frafalt,', 'avklartVedFrafall: false,']],
-    mal: ['etter et frafall er grunnlaget avklart mens en ny versjon venter'],
+    mal: ['etter et frafall er forholdet avklart mens en ny versjon venter'],
   },
   {
     id: 'F408',
-    feilklasse: 'forbeholdet skrives når grunnlaget besvares i samme brev (GR-U26)',
+    feilklasse: 'forbeholdet skrives når forholdet besvares i samme brev (GR-U26)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["  if (nytt.svar.some((x) => x.spor === 'grunnlag')) return [];\n", '']],
-    mal: ['kontrollsak: med grunnlaget godkjent i samme brev har svaret ikke forbeholdet'],
+    endringer: [["  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];\n", '']],
+    mal: ['kontrollsak: med forholdet godkjent i samme brev har svaret ikke forbeholdet'],
   },
   {
     id: 'F409',
@@ -3353,20 +3352,20 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: [
       '§ 34.1.2 «nei»: byggherren påberoper prinsipalt at varselet kom for sent',
-      'avslått grunnlag gir beløpet etiketten for andre lag, som brevet',
+      'avslått forhold gir beløpet etiketten for andre lag, som brevet',
     ],
   },
   {
     id: 'F411',
-    feilklasse: 'en revisjon mens grunnlaget ikke er besvart, mister forbeholdet (GR-U26, GR-08)',
+    feilklasse: 'en revisjon mens forholdet ikke er besvart, mister forbeholdet (GR-U26, GR-08)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        "  if (nytt.svar.some((x) => x.spor === 'grunnlag')) return [];\n",
-        "  if (nytt.svar.some((x) => x.spor === 'grunnlag')) return [];\n  if (s.erstatter) return [];\n",
+        "  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];\n",
+        "  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];\n  if (s.erstatter) return [];\n",
       ],
     ],
-    mal: ['GR-08: en revisjon av vederlagssvaret mens en ny grunnlagsversjon venter'],
+    mal: ['GR-08: en revisjon av vederlagssvaret mens en ny påberopelsesversjon venter'],
   },
   {
     id: 'F412',
@@ -3383,7 +3382,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F413',
-    feilklasse: 'postlisten mister lagene svaret på grunnlaget opptar foran sporet (OV-U32)',
+    feilklasse: 'postlisten mister lagene svaret på forholdet opptar foran sporet (OV-U32)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
@@ -3391,7 +3390,7 @@ const MUTASJONER: Mutasjon[] = [
         '    const lag = virkning === undefined ? null : laget(virkning);\n    return lag;',
       ],
     ],
-    mal: ['lagene fra svaret på grunnlaget står foran postene'],
+    mal: ['lagene fra svaret på forholdet står foran postene'],
   },
   {
     id: 'F414',
@@ -3515,7 +3514,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F423',
     feilklasse:
-      'lagene i utkastet flyttes ikke ned med lagene fra svaret på grunnlaget (OV-U32, OV-U33, #1400)',
+      'lagene i utkastet flyttes ikke ned med lagene fra svaret på forholdet (OV-U32, OV-U33, #1400)',
     fil: `${K}/kommandoer/lag.ts`,
     endringer: [["typeof vi === 'number' ? vi + grunner.length : vi", 'vi']],
     mal: [
@@ -3527,7 +3526,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F424',
     feilklasse:
-      'grunnene fra svaret på grunnlaget står ikke som forutsetninger i utkastet (S2-A i #1400)',
+      'grunnene fra svaret på forholdet står ikke som forutsetninger i utkastet (S2-A i #1400)',
     fil: `${K}/kommandoer/lag.ts`,
     endringer: [['rammer.push(...grunner.map((grunn) => ({ grunn })));', '']],
     mal: [
@@ -3796,12 +3795,12 @@ function navnefeil(muterte: { m: Mutasjon; tekst: string }[]): Map<string, strin
         .getSemanticDiagnostics(sti)
         .filter((d) => NAVNEFEIL.has(d.code))
         .map((d) => ts.flattenDiagnosticMessageText(d.messageText, ' '));
-    const grunnlag = navn();
+    const forhold = navn();
     for (const { m, tekst: mutert } of muterte.filter((u) => u.m.fil === fil)) {
       tekst = mutert;
       versjon++;
       const nye = navn();
-      for (const n of grunnlag) {
+      for (const n of forhold) {
         const i = nye.indexOf(n);
         if (i >= 0) nye.splice(i, 1);
       }

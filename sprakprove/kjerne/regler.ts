@@ -6,7 +6,7 @@
 
 import {
   BELOEPSVURDERING_FRA_KATALOGEN,
-  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
+  FORHOLDSRESULTAT_FRA_KATALOGEN,
   METODE_FRA_KATALOGEN,
   RESULTAT_FRA_KATALOGEN,
   UTLOESER_FRA_KATALOGEN,
@@ -15,19 +15,19 @@ import {
   tilKatalogen,
 } from '../../kjerne/format/koder.ts';
 import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
-import * as grunnlag from '../../kjerne/regler/grunnlag.ts';
+import * as grunnlag from '../../kjerne/regler/forhold.ts';
 import * as frist from '../../kjerne/regler/frist.ts';
 import * as vederlag from '../../kjerne/regler/vederlag.ts';
 import { GJELDENDE_REGLER } from '../../kjerne/regler/regelsett.ts';
 import type { Grunnlagsresultat, Vederlagsmetode } from './typer.ts';
 
-export { foersteUnderkategori, type Subsidiaergrunn } from '../../kjerne/regler/grunnlag.ts';
+export { foersteUnderkategori, type Subsidiaergrunn } from '../../kjerne/regler/forhold.ts';
 export type { Fristkrav } from '../../kjerne/regler/frist.ts';
 
 type Inn<T> = Record<string, unknown> & T;
 
 const grunnlagsresultat = (r: Grunnlagsresultat | null) =>
-  fraKatalogen(GRUNNLAGSRESULTAT_FRA_KATALOGEN, r) as never;
+  fraKatalogen(FORHOLDSRESULTAT_FRA_KATALOGEN, r) as never;
 const resultatUt = (r: unknown) => tilKatalogen(RESULTAT_FRA_KATALOGEN, r) as string | null;
 const utloserUt = (t: string[]) => t.map((u) => tilKatalogen(UTLOESER_FRA_KATALOGEN, u) as string);
 
@@ -67,7 +67,7 @@ export function kontrollerGrunnlagssvar(
 ): void {
   const k = kategoriFraKatalogen({ hovedkategori, underkategori });
   try {
-    grunnlag.kontrollerGrunnlagssvar(
+    grunnlag.kontrollerSvarPaaPaaberopelsen(
       GJELDENDE_REGLER,
       k.hovedkategori,
       k.underkategori,

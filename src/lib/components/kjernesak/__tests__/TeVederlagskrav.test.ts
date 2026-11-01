@@ -54,7 +54,7 @@ function medKrav(foer: Journalrad[], kommando: Record<string, unknown>): Journal
 
 const journal = medKrav([opprettet], {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',

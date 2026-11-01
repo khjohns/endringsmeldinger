@@ -78,12 +78,12 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
       saker[navn] = bane.sakId;
       await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
     };
-    // Grunnlaget prekludert etter § 32.2 i SAMORD, som regelendringen i prøven rører.
+    // Forholdet prekludert etter § 32.2 i SAMORD, som regelendringen i prøven rører.
     await lag('rørt av regelendringen', [
       'krav_samord',
       {
         handling: 'brev',
-        svar: [{ spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: false }],
+        svar: [{ spor: 'forhold', resultat: 'avslaatt', varslet_i_tide: false }],
       },
     ]);
     await lag('enighet om beløpet', ['forlop_a']);
@@ -114,10 +114,10 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
       expect(etter.svar).toEqual(foer.get(id)!.svar);
     }
     const rort = await lager.les(saker['rørt av regelendringen']);
-    expect(rort?.visning.spor.grunnlag.etiketter).toContain('regel_endret_etter_brevet');
+    expect(rort?.visning.spor.forhold.etiketter).toContain('regel_endret_etter_brevet');
     // Kontrollsak: en sak regelendringen ikke rører, får ingen merknad.
     const urort = await lager.les(saker['enighet om beløpet']);
-    expect(urort?.visning.spor.grunnlag.etiketter).not.toContain('regel_endret_etter_brevet');
+    expect(urort?.visning.spor.forhold.etiketter).not.toContain('regel_endret_etter_brevet');
   });
 
   it('finner en sak med en ny hendelse etter bufferen, og bare den', async () => {

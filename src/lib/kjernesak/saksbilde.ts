@@ -81,7 +81,7 @@ export interface Saksbilde {
 }
 
 const SPORNAVN: Record<Spor, string> = {
-  grunnlag: 'Grunnlag',
+  forhold: 'Grunnlag',
   vederlag: 'Vederlag',
   frist: 'Frist',
 };

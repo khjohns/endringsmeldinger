@@ -79,7 +79,7 @@ export function vederlagssvaret(
     resultat = regnUtSvar(
       'vederlag',
       vurderinger,
-      { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+      { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
       regler
     );
   } catch (feil) {

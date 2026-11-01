@@ -25,7 +25,7 @@ import { medGrunnlag, opprettet, skrevet } from './provejournal';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'svikt',
     underkategori: 'grunnforhold',
@@ -112,8 +112,8 @@ describe('configen fra kjernen', () => {
       type: 'brev',
       svar: [
         {
-          spor: 'grunnlag',
-          gjelder: u0.spor.grunnlag.gjeldendeKrav!.id,
+          spor: 'forhold',
+          gjelder: u0.spor.forhold.gjeldendeKrav!.id,
           regelversjon: KJERNE.regler.versjon,
           vurderinger: { resultat: 'avslaatt' },
           resultat: {},
@@ -133,8 +133,8 @@ describe('configen fra kjernen', () => {
       type: 'brev',
       svar: [
         {
-          spor: 'grunnlag',
-          gjelder: utledJournal(medGrunnlag, KJERNE).spor.grunnlag.gjeldendeKrav!.id,
+          spor: 'forhold',
+          gjelder: utledJournal(medGrunnlag, KJERNE).spor.forhold.gjeldendeKrav!.id,
           regelversjon: KJERNE.regler.versjon,
           vurderinger: { resultat: 'godkjent', grunnlag_varslet_i_tide: false },
           resultat: {},
@@ -158,7 +158,7 @@ describe('configen fra kjernen', () => {
     ).journal;
     const versjon2 = skrevet(besvart, 'TE', {
       type: 'krav',
-      spor: 'grunnlag',
+      spor: 'forhold',
       innhold: {
         hovedkategori: 'endring',
         underkategori: 'irregulaer_endring',
@@ -167,7 +167,7 @@ describe('configen fra kjernen', () => {
       utdypning: 'BH påla ny peling, med tegningene vedlagt.',
     });
     const u = utledJournal(skrevet(versjon2, 'TE', vederlag), KJERNE);
-    expect(u.spor.grunnlag.gjeldendeSvar).toBeNull();
+    expect(u.spor.forhold.gjeldendeSvar).toBeNull();
     const c = vederlagConfigFraKjernen(u)!;
     expect(c.grunnlagVarsletForSent).toBe(false);
     expect(c.grunnlagStatus).toBeUndefined();

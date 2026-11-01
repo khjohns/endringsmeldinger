@@ -14,12 +14,12 @@
   "endringer": [
     {
       "dato": "2026-10-27",
-      "grunnlag": "#1330",
+      "forhold": "#1330",
       "hva": "Forløpet er registrert som planlagt."
     },
     {
       "dato": "2026-11-01",
-      "grunnlag": "#1456, MM-U34, OV-U52, OV-U80",
+      "forhold": "#1456, MM-U34, OV-U52, OV-U80",
       "hva": "Sperren mot en ny versjon som bare retter en opplysning, er opphevet (MM-U34 punkt 1). Den nye versjonen avvises ikke, men datoen kan ikke endres i den (OV-U52), og skjemaet anbefaler korrigeringen. Kravet kan også være lagt til som korrespondanse (OV-U80)."
     }
   ]

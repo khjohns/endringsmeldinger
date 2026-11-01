@@ -91,7 +91,7 @@ export function bufferen(lagBaner: () => Baner): void {
       expect((await baner.buffer().les(baneA.sakId))?.versjon.leserformat).toBe(NYERE.leserformat);
       for (const h of [
         { handling: 'krav', spor: 'frist', dager: 30 },
-        { handling: 'brev', svar: [{ spor: 'grunnlag', resultat: 'godkjent' }] },
+        { handling: 'brev', svar: [{ spor: 'forhold', resultat: 'godkjent' }] },
       ]) {
         const u = await a.prov(h);
         expect(u.godtatt ? 'godtatt' : u.avvisning.regel).toBe('SAK_IKKE_FORSTAATT');
@@ -112,11 +112,8 @@ export function bufferen(lagBaner: () => Baner): void {
     });
     it('viser siste kjente status i oversikten, merket «Oppdateres» til saken er regnet ut (MM-U15)', async () => {
       const bane = await baner.bane();
-      // F-MM-A5a: TE godtar avslaget på grunnlaget, så saken har en status (MM-U22).
-      const k = await bygg(bane, [
-        'forlop_a',
-        { handling: 'aksept', spor: 'grunnlag', navn: 'D7' },
-      ]);
+      // F-MM-A5a: TE godtar avslaget på forholdet, så saken har en status (MM-U22).
+      const k = await bygg(bane, ['forlop_a', { handling: 'aksept', spor: 'forhold', navn: 'D7' }]);
       const lager = baner.buffer();
       const oversikt = async (kjerne: Kjerne) => {
         const journal = await bane.journal();

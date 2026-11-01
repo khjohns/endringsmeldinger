@@ -89,7 +89,7 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
       const ny = etter.at(-1)!;
       expect(ny.versjon).toBe(journal.at(-1)!.versjon + 1);
       const svar = ny.data.svar as { spor: string; beslutningsgrunnlag?: unknown }[];
-      expect(svar.map((s) => s.spor)).toEqual(['grunnlag', 'vederlag', 'frist']);
+      expect(svar.map((s) => s.spor)).toEqual(['forhold', 'vederlag', 'frist']);
       expect(svar.every((s) => typeof s.beslutningsgrunnlag === 'object')).toBe(true);
       expect(utledJournal(etter, KJERNE).forstaatt).toBe(true);
     }

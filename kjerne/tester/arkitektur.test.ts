@@ -277,7 +277,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Krav.innhold', 'utsagn', 'saerskilt', ['frosset/standpunkt.ts']],
   ['frosset/standpunkt.ts:harProduktivitetspost', 'utsagn', 'produktivitet'],
   ['frosset/standpunkt.ts:krevdProduktivitet', 'utsagn', 'produktivitet produktivitet.beloep'],
-  ['Svar', 'relasjon', 'id spor gjelder erstatter dokument grunnlagskrav'],
+  ['Svar', 'relasjon', 'id spor gjelder erstatter dokument paaberopelse'],
   ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
   ['Svar', 'frosset svar', 'utregning', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
@@ -304,10 +304,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Standpunktsvirkning', 'frosset', 'standpunkt art virkning'],
 
   // Utledningen (utled.ts).
-  ['Utledning', 'predikat', 'forstaatt spor opplysninger grunnlagAvvist frafalt'],
-  // § 31.3 for godkjenningen av grunnlaget (GR-U13, KA-U14): ja, nei eller ikke avklart,
+  ['Utledning', 'predikat', 'forstaatt spor opplysninger forholdAvvist frafalt'],
+  // § 31.3 for godkjenningen av forholdet (GR-U13, KA-U14): ja, nei eller ikke avklart,
   // utledet av opplysningene. Leses bare av sperren mot trekk (OV-U6).
-  ['Utledning', 'predikat', 'endringsordre', ['utledning/utled.ts:trekkAvGrunnlagetErSperret']],
+  ['Utledning', 'predikat', 'endringsordre', ['utledning/utled.ts:trekkAvPaaberopelsenErSperret']],
   // Hvorfor saken ikke er forstått, i meldingen når kjernen ikke forstår det den skriver.
   [
     'Utledning',
@@ -321,7 +321,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Utledning',
     'predikat',
-    'grunnlagAvklart',
+    'forholdAvklart',
     ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
@@ -363,14 +363,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 i et nytt svar gjelder (#496, #766).
   ['utledning/utled.ts', 'relasjon', 'varseletForNyttSvar', ['kommandoer/standpunkter.ts']],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
-  ['utledning/utled.ts:grunnlaget(svar)', 'relasjon', '*'],
+  ['utledning/utled.ts:forholdet(svar)', 'relasjon', '*'],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
-  ['utledning/utled.ts', 'predikat', 'utled utledJournal trekkAvGrunnlagetErSperret'],
-  ['utledning/utled.ts', 'relasjon', 'grunnlagskravFor'],
-  ['utledning/utled.ts:grunnlagskravFor', 'relasjon', 'grunnlagskrav'],
+  ['utledning/utled.ts', 'predikat', 'utled utledJournal trekkAvPaaberopelsenErSperret'],
+  ['utledning/utled.ts', 'relasjon', 'paaberopelseFor'],
+  ['utledning/utled.ts:paaberopelseFor', 'relasjon', 'paaberopelse'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
   ['utledning/utled.ts:utledSporene', 'relasjon', 'hendelse versjon'],
   ['utledning/utled.ts:utledSporene.plasser', 'relasjon', 'id versjon'],
@@ -400,27 +400,27 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
-  // Vedtaket 05.10: hvorfor svaret i sporet er subsidiært til grunnlaget. Brevteksten sier
+  // Vedtaket 05.10: hvorfor svaret i sporet er subsidiært til forholdet. Brevteksten sier
   // det samme (A2).
   [
     'frosset/standpunkt.ts',
     'predikat',
-    'grunnerFraGrunnlaget',
+    'grunnerFraForholdet',
     [
       'utledning/utled.ts:settSubsidiaer',
-      'frosset/brevtekst.ts:grunnlagetsStandpunkter',
+      'frosset/brevtekst.ts:forholdetsStandpunkter',
       'kommandoer/lag.ts:lagForUtkastet',
     ],
   ],
-  // OV-U32, OV-U33: lagene grunnlaget opptar foran sporet, som linjen etiketteres med.
+  // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
   [
     'frosset/standpunkt.ts',
     'predikat',
-    'lagFraGrunnlaget',
+    'lagFraForholdet',
     ['kommandoer/skriving.ts:frysSvarene', 'utledning/utled.ts:forskyvningIBrevet'],
   ],
-  // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
-  ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:grunnlaget']],
+  // GR-U7 med unntaket i MM-U13: utledningen regner `forholdAvklart` og `forholdAvvist` av den.
+  ['frosset/standpunkt.ts', 'predikat', 'forholdetErAvklart', ['utledning/utled.ts:forholdet']],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
   ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
   // OV-U4: kravene i et registrert brev er dokumentasjon (#787).
@@ -432,7 +432,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'sammenfallStemmer',
     ['utledning/utled.ts:kontrollerSvarene'],
   ],
-  ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
+  ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav paaberopelse'],
   ['frosset/standpunkt.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
   ['frosset/standpunkt.ts', 'regelsett', 'krevdBeloep', ['frosset/brevtekst.ts']],
@@ -482,7 +482,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Regelsett',
     'regelsett',
-    'versjon gjelderVarslingsplikten gjelderVarslingspliktenForVederlag gyldigeGrunnlagsresultater',
+    'versjon gjelderVarslingsplikten gjelderVarslingspliktenForVederlag gyldigeForholdsresultater',
   ],
   ['regler/regelsett.ts', 'regelsett', 'GJELDENDE_REGLER'],
   ['regler/beloep.ts', 'regelsett', 'beloep heleOere tilTall NULL_OERE'],
@@ -502,9 +502,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['regler/vederlag.ts', 'kommandoer/kommando.ts'],
   ],
   [
-    'regler/grunnlag.ts',
+    'regler/forhold.ts',
     'regelsett',
-    'erEndringMedVarslingsplikt erGrunnlagSubsidiaert foersteUnderkategori gyldigeResultater',
+    'erEndringMedVarslingsplikt erForholdSubsidiaert foersteUnderkategori gyldigeResultater',
   ],
   ['regler/frist.ts', 'regelsett', 'beregnFrist resultatAvDager'],
   [
@@ -563,7 +563,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U5: varselet i fristkravet har datoen og brevet som vedlegg.
   ['Kommando.varsel', 'kommando', 'sendt dokumentasjon'],
-  // GR-U22: hjemmelen i en ny grunnlagsversjon sammenliknes med gjeldende versjon.
+  // GR-U22: hjemmelen i en ny påberopelsesversjon sammenliknes med gjeldende versjon.
   [
     'Kommando.innhold',
     'utsagn',
@@ -696,7 +696,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'DATO ID KRAVINNHOLD liste objekt OPPLYSNINGSSLAG TEKST',
     ['kommandoer/kommando.ts'],
   ],
-  // VS-U26: datoen TE oppgir i grunnlagskravet. Bare formkontrollen, kontrollen mot
+  // VS-U26: datoen TE oppgir i påberopelsen. Bare formkontrollen, kontrollen mot
   // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
   ['OPPGITT_DATO', 'skjema', 'endring svikt andre_forhold', ['format/format.ts']],
   [
@@ -761,7 +761,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
-  // Kodene i formatet for kategoriene (#335): formen på grunnlagskravet.
+  // Kodene i formatet for kategoriene (#335): formen på påberopelsen.
   ['format/koder.ts', 'skjema', 'HOVEDKATEGORIER UNDERKATEGORIER', ['format/format.ts']],
   // #516: kategoriene står i regelsettet, så reglene types mot dem.
   ['regler/typer.ts', 'skjema', 'KATEGORIER', ['format/format.ts', 'format/koder.ts']],
@@ -777,7 +777,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/typer.ts',
     'regelsett',
-    'FRISTRESULTATER GRUNNLAGSRESULTATER VEDERLAGSRESULTATER',
+    'FRISTRESULTATER FORHOLDSRESULTATER VEDERLAGSRESULTATER',
     ['format/format.ts'],
   ],
 
@@ -810,7 +810,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesSvar(e)',
     'rad',
-    'id spor gjelder erstatter grunnlagskrav utregning beslutningsgrunnlag',
+    'id spor gjelder erstatter paaberopelse utregning beslutningsgrunnlag',
     ['format/leser.ts'],
   ],
   [
@@ -851,7 +851,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts:datoFor', 'relasjon', 'id dokument', ['format/leser.ts']],
   // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
   ['frosset/frysing.ts', 'regelsett', 'frys', ['kommandoer/skriving.ts']],
-  ['frosset/frysing.ts', 'regelsett', 'grunnlagsstandpunkter', ['kommandoer/standpunkter.ts']],
+  ['frosset/frysing.ts', 'regelsett', 'forholdsstandpunkter', ['kommandoer/standpunkter.ts']],
   // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
   [
     'kommandoer/standpunkter.ts',
@@ -863,7 +863,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'kommandoer/skriving.ts:frysBrev(s)',
     'rad',
-    'spor gjelder grunnlagskrav',
+    'spor gjelder paaberopelse',
     ['kommandoer/skriving.ts'],
   ],
   ['kommandoer/skriving.ts:frysSvarene(s)', 'rad', 'spor', ['kommandoer/skriving.ts']],
@@ -961,7 +961,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
-  // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av
+  // A2 og LV-U4 punkt 6: svaret på påberopelsen og om sporene er subsidiære, lest av
   // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
   // MM-U9, MM-U28: om tallet i gjeldende svar er subsidiært, som sakslisten leser (#1050).
   [
@@ -970,11 +970,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'subsidiaer',
     ['kommandoer/skriving.ts:brevtekstFor', 'utledning/utled.ts:standpunktetErSubsidiaert'],
   ],
-  // GR-U26: forbeholdet for ubesvart grunnlag skrives ikke når grunnlaget er avklart ved frafall.
+  // GR-U26: forbeholdet for ubesvart forhold skrives ikke når forholdet er avklart ved frafall.
   [
     'Saken',
     'brevtekst',
-    'saksnummer tittel grunnlagssvar subsidiaer avklartVedFrafall',
+    'saksnummer tittel svarPaaPaaberopelsen subsidiaer avklartVedFrafall',
     ['frosset/brevtekst.ts'],
   ],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
@@ -1026,9 +1026,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
  * Lesinger av en samlebetegnelse som står i dag (MM-U13), med issuet som
  * fjerner dem: `[sted, nøkkel, begrunnelse]`, der stedet er funksjonen som
  * leser (`modul:navn`). Lista er lukket: den kan bare bli kortere.
- * - Grunnlagsfeltene i regelsettets inndata (#309: fjernes fra porten) er
- *   utfallet i grunnlagssporet,
- *   kopiert inn i ett svar. At hele svaret er subsidiært til grunnlaget, er en
+ * - Forholdsfeltene i regelsettets inndata (#309: fjernes fra porten) er
+ *   utfallet i forholdssporet,
+ *   kopiert inn i ett svar. At hele svaret er subsidiært til forholdet, er en
  *   relasjon mellom brev som utledes ved lesing (merknaden 05.10 til B-13, MM-U9),
  *   og `utledning/utled.ts` utleder den av de frosne standpunktene.
  */
@@ -1037,10 +1037,10 @@ const KJENTE_AVVIK: [sted: string, noekkel: string, begrunnelse: string][] = [
   ['regler/vederlag.ts:beregnVederlag', 'Vederlagskrav.grunnlag_varslet_i_tide', '#309'],
   ['regler/frist.ts:beregnFrist', 'Fristkrav.er_grunnlag_subsidiaert', '#309'],
   ['regler/frist.ts:beregnFrist', 'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag', '#309'],
-  ['regler/grunnlag.ts:standpunkt', 'GrunnlagForStandpunkt.hovedkategori', '#309'],
-  ['regler/grunnlag.ts:standpunkt', 'GrunnlagForStandpunkt.underkategori', '#309'],
-  ['regler/grunnlag.ts:standpunkt', 'GrunnlagForStandpunkt.resultat', '#309'],
-  ['regler/grunnlag.ts:standpunkt', 'GrunnlagForStandpunkt.varsletITide', '#309'],
+  ['regler/forhold.ts:standpunkt', 'ForholdForStandpunkt.hovedkategori', '#309'],
+  ['regler/forhold.ts:standpunkt', 'ForholdForStandpunkt.underkategori', '#309'],
+  ['regler/forhold.ts:standpunkt', 'ForholdForStandpunkt.resultat', '#309'],
+  ['regler/forhold.ts:standpunkt', 'ForholdForStandpunkt.varsletITide', '#309'],
 ];
 
 /**
@@ -1228,7 +1228,7 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
         return e === null ? null : `${e}.${navn}`;
       }
       // Et felt utenfor kjernen, som `length`, eller en av de faste nøklene i en
-      // `Record`, som `u.spor.grunnlag`. Verdien har en type og leses videre med navn.
+      // `Record`, som `u.spor.forhold`. Verdien har en type og leses videre med navn.
       if (deklarasjoner.length || (symbol && !utenType(tc.getTypeAtLocation(n)))) return null;
       // Bare et oppslag med navn i et objekt er en lesing av et felt, ikke et
       // element i en liste eller et tegn i en streng.
@@ -1408,16 +1408,16 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   });
 
   // Lista under er låsen: et nytt avvik må føres begge steder, og det er meningen.
-  it('de kjente avvikene er bare grunnlagsfeltene i regelsettet (#309)', () => {
+  it('de kjente avvikene er bare forholdsfeltene i regelsettet (#309)', () => {
     const lukket = new Set([
       'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_resultat',
       'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_varslet_i_tide',
       'regler/frist.ts:beregnFrist Fristkrav.er_grunnlag_subsidiaert',
       'regler/frist.ts:beregnFrist Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
-      'regler/grunnlag.ts:standpunkt GrunnlagForStandpunkt.hovedkategori',
-      'regler/grunnlag.ts:standpunkt GrunnlagForStandpunkt.underkategori',
-      'regler/grunnlag.ts:standpunkt GrunnlagForStandpunkt.resultat',
-      'regler/grunnlag.ts:standpunkt GrunnlagForStandpunkt.varsletITide',
+      'regler/forhold.ts:standpunkt ForholdForStandpunkt.hovedkategori',
+      'regler/forhold.ts:standpunkt ForholdForStandpunkt.underkategori',
+      'regler/forhold.ts:standpunkt ForholdForStandpunkt.resultat',
+      'regler/forhold.ts:standpunkt ForholdForStandpunkt.varsletITide',
     ]);
     expect(KJENTE_AVVIK.map(([sted, k]) => `${sted} ${k}`).filter((x) => !lukket.has(x))).toEqual(
       []
@@ -1427,10 +1427,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   it('finner lesingene i reglene', () => {
     expect(alleLesinger.map((l) => l.noekkel)).toEqual(
       expect.arrayContaining([
-        'Utledning.grunnlagAvvist',
+        'Utledning.forholdAvvist',
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
-        'utledning/utled.ts.trekkAvGrunnlagetErSperret',
+        'utledning/utled.ts.trekkAvPaaberopelsenErSperret',
         'format/leser.ts:standpunkterISvaret(svar).utregning.resultat',
       ])
     );
@@ -1558,8 +1558,8 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     [
       '«avklart» utenfor utledningen (MM-U13)',
       forutsetninger,
-      [regel('return u.grunnlagAvklart;')],
-      'Utledning.grunnlagAvklart',
+      [regel('return u.forholdAvklart;')],
+      'Utledning.forholdAvklart',
     ],
     [
       'det frosne svaret lest utenfor godkjennerHeleKravet',
@@ -1584,10 +1584,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           forutsetninger,
-          "import { grunnlagetErAvklart } from '../frosset/standpunkt.ts';\nexport const proeve = grunnlagetErAvklart;",
+          "import { forholdetErAvklart } from '../frosset/standpunkt.ts';\nexport const proeve = forholdetErAvklart;",
         ],
       ],
-      'frosset/standpunkt.ts.grunnlagetErAvklart',
+      'frosset/standpunkt.ts.forholdetErAvklart',
     ],
     [
       '§ 31.3 utenfor sperren mot trekk (KA-U14)',
@@ -1607,10 +1607,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           utled,
-          'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => grunnlagetErAvklart(s, v);',
+          'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => forholdetErAvklart(s, v);',
         ],
       ],
-      'frosset/standpunkt.ts.grunnlagetErAvklart',
+      'frosset/standpunkt.ts.forholdetErAvklart',
     ],
     [
       '«avklart» etter GR-U7 videreeksportert fra en regel (#344)',
@@ -1618,19 +1618,19 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           forutsetninger,
-          "import { grunnlagetErAvklart } from '../frosset/standpunkt.ts';\nexport { grunnlagetErAvklart };",
+          "import { forholdetErAvklart } from '../frosset/standpunkt.ts';\nexport { forholdetErAvklart };",
         ],
       ],
-      'frosset/standpunkt.ts.grunnlagetErAvklart',
+      'frosset/standpunkt.ts.forholdetErAvklart',
     ],
     [
       '«avklart» i en annen funksjon i utledningen',
       utled,
-      [[utled, 'export const proeve = (u: Utledning) => u.grunnlagAvklart;']],
-      'Utledning.grunnlagAvklart',
+      [[utled, 'export const proeve = (u: Utledning) => u.forholdAvklart;']],
+      'Utledning.forholdAvklart',
     ],
     [
-      'et grunnlagsfelt i en ny funksjon i samme modul som et kjent avvik',
+      'et paaberopelsesfelt i en ny funksjon i samme modul som et kjent avvik',
       join(KJERNE, 'regler', 'frist.ts'),
       [
         [
@@ -1650,7 +1650,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       'Svarutkast.resultat',
     ],
     [
-      'et grunnlagsfelt i en annen del av regelsettet enn de kjente avvikene',
+      'et paaberopelsesfelt i en annen del av regelsettet enn de kjente avvikene',
       join(KJERNE, 'regler', 'frist.ts'),
       [
         [
@@ -1663,7 +1663,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     [
       'utfallet i en annen regel enn de kjente avvikene',
       forutsetninger,
-      [regel('return u.spor.grunnlag.enighet?.grunnlag.utfall;')],
+      [regel('return u.spor.forhold.enighet?.grunnlag.utfall;')],
       'Enighetsgrunnlag.utfall',
     ],
     [

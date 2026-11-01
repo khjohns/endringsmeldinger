@@ -99,8 +99,7 @@ function avvik(b: Brukerforloep, fil: string): string[] {
   krev(b.tittel && b.brukerhistorie && b.utgangspunkt?.beskrivelse, 'mangler tekst');
   krev(['kjørbar', 'planlagt'].includes(b.status), `ukjent status ${b.status}`);
   krev(
-    b.endringer.length &&
-      b.endringer.every((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.dato) && e.grunnlag),
+    b.endringer.length && b.endringer.every((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.dato) && e.forhold),
     'en endring mangler dato eller vedtak eller issue'
   );
   krev(
@@ -181,7 +180,7 @@ describe('vakttestene for brukerforløpene', () => {
       `${b.id}: ${p}: kilden UKJENT-FORSTAAELSE finnes ikke`,
     ]);
     const planlagt = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'planlagt')!);
-    planlagt.steg = [{ handling: 'trekk', spor: 'grunnlag' }];
+    planlagt.steg = [{ handling: 'trekk', spor: 'forhold' }];
     planlagt.venter_paa = [];
     planlagt.bestilling = 'FINNES-IKKE.md';
     planlagt.prototype = { fil: 'FINNES-IKKE.html', klikkstier: [] };

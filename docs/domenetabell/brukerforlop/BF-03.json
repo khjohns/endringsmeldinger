@@ -240,22 +240,22 @@
   "endringer": [
     {
       "dato": "2026-10-27",
-      "grunnlag": "#1336",
+      "forhold": "#1336",
       "hva": "Forløpet er registrert som planlagt, med bestillingen og prototypen."
     },
     {
       "dato": "2026-10-27",
-      "grunnlag": "#1346",
+      "forhold": "#1346",
       "hva": "Vedtakene bestillingen viser til, står i kildene: HF-U1, KA-U7, KA-U10, KA-U29, MM-U3, OV-U4, OV-U64 og VS-U3."
     },
     {
       "dato": "2026-10-28",
-      "grunnlag": "#1336",
+      "forhold": "#1336",
       "hva": "Bestillingen og prototypen, versjon 3, viser til OV-U65 og OV-U66, som står i kildene."
     },
     {
       "dato": "2026-11-01",
-      "grunnlag": "#1381, #1456, MM-U34, MM-U35, MM-U36",
+      "forhold": "#1381, #1456, MM-U34, MM-U35, MM-U36",
       "hva": "Protesten er et innlegg som ikke endrer svaret og kan sendes etter enigheten. Aksepten gjelder hele svaret (MM-U34 punkt 16), og skjemaet for aksepten viser innleggene (MM-U36). En ny kravversjon har brevteksten i OV-U54 etter MM-U34 punkt 1. Sperren etter enighet og vernet i D-4 er tatt ut. Vedtakene MM-U34 opphever, er tatt ut av kildene, og korrespondansen etter OV-U79–OV-U81 og KA-U45 er lagt inn."
     }
   ]

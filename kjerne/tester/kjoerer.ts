@@ -311,9 +311,9 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     case 'forstaatt':
       return u.forstaatt;
     case 'gjeldende_krav':
-      return u.spor[hale[0] as 'grunnlag'].gjeldendeKrav?.id ?? null;
+      return u.spor[hale[0] as 'forhold'].gjeldendeKrav?.id ?? null;
     case 'gjeldende_svar':
-      return u.spor[hale[0] as 'grunnlag'].gjeldendeSvar?.id ?? null;
+      return u.spor[hale[0] as 'forhold'].gjeldendeSvar?.id ?? null;
     case 'svar':
       return svaretSomSendt()[hale[1] as 'gjelder' | 'erstatter' | 'dokument'];
     case 'standpunkt': {
@@ -333,14 +333,14 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
         null
       );
     case 'enighet': {
-      const e = u.spor[hale[0] as 'grunnlag'].enighet;
+      const e = u.spor[hale[0] as 'forhold'].enighet;
       if (hale.length === 1 || e === null) return e === null ? null : 'finnes';
       const felt = hale[1];
       if (felt === 'utfall') return e.grunnlag.utfall[hale[2] as 'beloep'] ?? null;
       if (felt === 'virkning' && hale.length === 3)
         return e.grunnlag.virkninger.find((p) => p.art === hale[2])?.virkning ?? null;
       if (felt === 'svar' || felt === 'kilde' || felt === 'regelversjon') return e.grunnlag[felt];
-      if (felt === 'virkning') return enighetensVirkning(u, hale[0] as 'grunnlag');
+      if (felt === 'virkning') return enighetensVirkning(u, hale[0] as 'forhold');
       return e[felt as 'holder'];
     }
     case 'subsidiaer_aarsaker':
@@ -353,12 +353,12 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.protester.map((x) => `${x.part}:${x.gjelder}`);
     case 'passivitet':
       return u.passivitet.map((x) => x.gjelder);
-    case 'grunnlagskrav':
-      return svar().svar.grunnlagskrav;
-    case 'grunnlag_avklart':
-      return u.grunnlagAvklart;
-    case 'grunnlag_avvist':
-      return u.grunnlagAvvist;
+    case 'paaberopelse':
+      return svar().svar.paaberopelse;
+    case 'forhold_avklart':
+      return u.forholdAvklart;
+    case 'forhold_avvist':
+      return u.forholdAvvist;
     case 'frafalt':
       return u.frafalt;
     case 'endringsordre':
@@ -372,7 +372,7 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     case 'kan_inngaa_i_eo':
       return kanInngaaIEo(u);
     case 'trukket':
-      return u.spor[hale[0] as 'grunnlag'].trukket;
+      return u.spor[hale[0] as 'forhold'].trukket;
     case 'varsel':
       // Varselet i sporet: § 33.4 i fristen, § 34.1.2 i vederlaget.
       return hale[0] === 'frist'
@@ -392,12 +392,12 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     case 'visning': {
       const v = visning(u, k.kjerne.regler);
       if (hale[0] === 'status') return v.status?.kode ?? null;
-      if (hale[0] === 'etiketter') return v.spor[hale[1] as 'grunnlag'].etiketter;
+      if (hale[0] === 'etiketter') return v.spor[hale[1] as 'forhold'].etiketter;
       if (hale[0] === 'opplysning') return v.opplysninger[id(hale[1])] ?? null;
       if (hale[0] === 'merknader') return v.merknader;
       // OV-U62: begge partenes registrerte brev ved kravet i sporet.
       if (hale[0] === 'registrerte_brev')
-        return v.spor[hale[1] as 'grunnlag'].registrerteBrev.map((b) => b.dokument);
+        return v.spor[hale[1] as 'forhold'].registrerteBrev.map((b) => b.dokument);
       // OV-U17, OV-U18: rettingen av registreringen, eller `null`.
       if (hale[0] === 'rettet')
         return v.registrerteBrev.find((b) => b.dokument === id(hale[1]))?.rettetAv ?? null;

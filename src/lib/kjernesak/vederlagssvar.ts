@@ -9,17 +9,17 @@
 
 import {
   BELOEPSVURDERING_FRA_KATALOGEN,
-  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
+  FORHOLDSRESULTAT_FRA_KATALOGEN,
   HOVEDKATEGORI_FRA_KATALOGEN,
   METODE_FRA_KATALOGEN,
   UNDERKATEGORI_FRA_KATALOGEN,
   fraKatalogen,
   tilKatalogen,
 } from '$kjerne/format/koder';
-import { foersteUnderkategori } from '$kjerne/regler/grunnlag';
+import { foersteUnderkategori } from '$kjerne/regler/forhold';
 import {
   etikett,
-  grunnerFraGrunnlaget,
+  grunnerFraForholdet,
   harHovedbeloep,
   laget,
   regnUtSvar,
@@ -29,7 +29,7 @@ import {
 import { UgyldigBeloep } from '$kjerne/regler/beloep';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
-import type { Subsidiaergrunn } from '$kjerne/regler/grunnlag';
+import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import type { Krav, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -53,9 +53,9 @@ const produktivitetsbeloep = (krav: Krav) =>
 export function vederlagConfigFraKjernen(u: Utledning): VederlagDomainConfig | null {
   const krav = u.spor.vederlag.gjeldendeKrav;
   if (!krav) return null;
-  const grunnlagskrav = u.spor.grunnlag.gjeldendeKrav?.innhold ?? {};
-  const grunnlagssvar = u.spor.grunnlag.gjeldendeSvar;
-  const grunnlag = grunnlagssvar ? standpunktet(grunnlagssvar, 'grunnlag') : undefined;
+  const grunnlagskrav = u.spor.forhold.gjeldendeKrav?.innhold ?? {};
+  const grunnlagssvar = u.spor.forhold.gjeldendeSvar;
+  const grunnlag = grunnlagssvar ? standpunktet(grunnlagssvar, 'forhold') : undefined;
   const produktivitet = produktivitetsbeloep(krav);
   const harHovedkrav = harHovedbeloep(krav);
   return {
@@ -76,13 +76,13 @@ export function vederlagConfigFraKjernen(u: Utledning): VederlagDomainConfig | n
     ) as string | undefined,
     // GR-U26: bare et svar på gjeldende versjon av grunnlaget gir preklusjonen som lag.
     grunnlagVarsletForSent: grunnlagssvar
-      ? grunnerFraGrunnlaget(grunnlagssvar, grunnlagssvar.beslutningsgrunnlag.virkninger).includes(
+      ? grunnerFraForholdet(grunnlagssvar, grunnlagssvar.beslutningsgrunnlag.virkninger).includes(
           'prekludert'
         )
       : false,
     grunnlagStatus: grunnlag
       ? (tilKatalogen(
-          GRUNNLAGSRESULTAT_FRA_KATALOGEN,
+          FORHOLDSRESULTAT_FRA_KATALOGEN,
           grunnlag.resultat
         ) as VederlagDomainConfig['grunnlagStatus'])
       : undefined,
@@ -128,12 +128,7 @@ function resultatet(
   regler: Regelsett
 ): Record<string, unknown> {
   try {
-    return regnUtSvar(
-      'vederlag',
-      v,
-      { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
-      regler
-    );
+    return regnUtSvar('vederlag', v, { krav, paaberopelse: u.spor.forhold.gjeldendeKrav }, regler);
   } catch (feil) {
     if (feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep) return {};
     throw feil;
@@ -211,9 +206,9 @@ export function grunnlagetForSvaret(u: Utledning): {
   grunner: Subsidiaergrunn[];
   forbehold: boolean;
 } {
-  const g = u.spor.grunnlag.gjeldendeSvar;
+  const g = u.spor.forhold.gjeldendeSvar;
   return {
-    grunner: g ? grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger) : [],
+    grunner: g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [],
     forbehold: !g && !u.frafalt,
   };
 }

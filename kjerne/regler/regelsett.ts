@@ -3,28 +3,28 @@
  * kjernen får inn, så samme journal kan leses med regelversjon n og n+1.
  */
 
-import { erEndringMedVarslingsplikt, gyldigeResultater } from './grunnlag.ts';
-import type { Grunnlagsresultat } from './typer.ts';
+import { erEndringMedVarslingsplikt, gyldigeResultater } from './forhold.ts';
+import type { Forholdsresultat } from './typer.ts';
 import { gjelderVarslingspliktenForVederlag } from './vederlag.ts';
 
 /**
  * Versjonen av regelsettet. Økes ved enhver endring i `kjerne/regler/`
  * (B-13); regelversjonsvakten i CI krever det.
  */
-export const REGELVERSJON = 37;
+export const REGELVERSJON = 38;
 
 export interface Regelsett {
   versjon: number;
   /** Varslingsplikten i § 32.2 gjelder kategorien (GR-U11). */
   gjelderVarslingsplikten(hovedkategori: string | null, underkategori: string | null): boolean;
   /**
-   * Svarene byggherren kan gi på grunnlaget i kategorien, med frafall etter § 32.3 c der
+   * Svarene byggherren kan gi på forholdet i kategorien, med frafall etter § 32.3 c der
    * pålegget er byggherrens eget (GR-U18). Står ved siden av § 32.2, ikke av den (#514).
    */
-  gyldigeGrunnlagsresultater(
+  gyldigeForholdsresultater(
     hovedkategori: string | null,
     underkategori: string | null
-  ): Grunnlagsresultat[];
+  ): Forholdsresultat[];
   /** Varslingsplikten i § 34.1.2 gjelder svikt og andre forhold byggherren har risikoen for. */
   gjelderVarslingspliktenForVederlag(hovedkategori: string | null): boolean;
 }
@@ -32,6 +32,6 @@ export interface Regelsett {
 export const GJELDENDE_REGLER: Regelsett = {
   versjon: REGELVERSJON,
   gjelderVarslingsplikten: erEndringMedVarslingsplikt,
-  gyldigeGrunnlagsresultater: gyldigeResultater,
+  gyldigeForholdsresultater: gyldigeResultater,
   gjelderVarslingspliktenForVederlag,
 };

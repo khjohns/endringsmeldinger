@@ -9,7 +9,7 @@
 import { avvisning } from './avvisning.ts';
 import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
-import { lagFraGrunnlaget } from '../frosset/standpunkt.ts';
+import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { avvis } from './forutsetninger.ts';
@@ -26,7 +26,7 @@ import {
   tegnSomIkkeKanVises,
   tekstSomIkkeKanLagres,
 } from '../format/skjema.ts';
-import { grunnlagskravFor, utled, utledJournal, type Utledning } from '../utledning/utled.ts';
+import { paaberopelseFor, utled, utledJournal, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
 import type {
   Avsnitt,
@@ -122,47 +122,47 @@ function svar(
     spor: s.spor,
     gjelder: s.gjelder,
     ...(erstatter ? { erstatter } : {}),
-    // #342: grunnlagsversjonen svaret regnes mot, som `regnUtSvar` i nyttelastkontrollen.
-    ...(s.spor === 'grunnlag' ? {} : { grunnlagskrav: u.spor.grunnlag.gjeldendeKrav!.id }),
+    // #342: påberopelsesversjonen svaret regnes mot, som `regnUtSvar` i nyttelastkontrollen.
+    ...(s.spor === 'forhold' ? {} : { paaberopelse: u.spor.forhold.gjeldendeKrav!.id }),
     standpunkter: bygd.standpunkter,
   };
-  // B-13: serverens utregning lagres, ikke klientens. Grunnlagssvaret har ingen.
-  if (s.spor !== 'grunnlag') e.utregning = bygd.utregning;
+  // B-13: serverens utregning lagres, ikke klientens. Svaret på påberopelsen har ingen.
+  if (s.spor !== 'forhold') e.utregning = bygd.utregning;
   return e;
 }
 
 /**
  * Fryser brevet i hvert svar i dokumentet (MM-U9, MM-U11). Lagene i vederlag og frist
- * flyttes ned med lagene svaret på grunnlaget opptar foran dem: svaret i samme dokument,
+ * flyttes ned med lagene svaret på forholdet opptar foran dem: svaret i samme dokument,
  * ellers `gjeldende`, som i brevteksten (OV-U32, OV-U33, svaret i #1199).
  */
 function frysSvarene(
   svarene: Data[],
   gjeldende: Svar | null,
-  grunnlagskrav: (s: Data) => Krav | null | undefined,
+  paaberopelse: (s: Data) => Krav | null | undefined,
   kjerne: Kjerne
 ): void {
-  const g = svarene.find((s) => s.spor === 'grunnlag');
+  const g = svarene.find((s) => s.spor === 'forhold');
   let forskyvning = gjeldende
-    ? lagFraGrunnlaget(gjeldende, gjeldende.beslutningsgrunnlag.virkninger)
+    ? lagFraForholdet(gjeldende, gjeldende.beslutningsgrunnlag.virkninger)
     : 0;
   if (g) {
-    const frosset = frys(g, grunnlagskrav(g), kjerne.regler, 0);
+    const frosset = frys(g, paaberopelse(g), kjerne.regler, 0);
     g.beslutningsgrunnlag = lagret(frosset);
-    const innhold = { spor: 'grunnlag' as const, standpunkter: standpunkterISvaret('grunnlag', g) };
-    forskyvning = lagFraGrunnlaget({ ...innhold, utregning: {} }, frosset.virkninger);
+    const innhold = { spor: 'forhold' as const, standpunkter: standpunkterISvaret('forhold', g) };
+    forskyvning = lagFraForholdet({ ...innhold, utregning: {} }, frosset.virkninger);
   }
   for (const s of svarene)
     if (s !== g)
-      s.beslutningsgrunnlag = lagret(frys(s, grunnlagskrav(s), kjerne.regler, forskyvning));
+      s.beslutningsgrunnlag = lagret(frys(s, paaberopelse(s), kjerne.regler, forskyvning));
 }
 
 /** Svarene i et brev eller en revisjon, med brevet frosset i hvert. */
 function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
   frysSvarene(
     svarene,
-    u.spor.grunnlag.gjeldendeSvar,
-    (s) => grunnlagskravFor({ spor: s.spor as Spor, gjelder: s.gjelder as string }, u),
+    u.spor.forhold.gjeldendeSvar,
+    (s) => paaberopelseFor({ spor: s.spor as Spor, gjelder: s.gjelder as string }, u),
     kjerne
   );
   return svarene;
@@ -475,7 +475,7 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
 /**
  * LV-U2, LV-U3: teksten i brevet appen sender, laget av alle partens utsagn i det.
  * Et registrert brev, som et varsel sendt utenfor appen, får ingen (MM-U17).
- * Grunnlagssvaret og om sporene er subsidiære, leses av utledningen før brevet og
+ * Svaret på påberopelsen og om sporene er subsidiære, leses av utledningen før brevet og
  * kommer som argumenter, så `frosset/` ikke når utledningen (A6).
  */
 function brevtekstFor(
@@ -501,7 +501,7 @@ function brevtekstFor(
       {
         saksnummer: rad.sak_id,
         tittel: sak.tittel,
-        grunnlagssvar: u.spor.grunnlag.gjeldendeSvar?.id ?? null,
+        svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
         avklartVedFrafall: u.frafalt,
       },
@@ -522,16 +522,15 @@ function brevtekstFor(
  * Kaster `Uforstaatt` når et svar ikke kan leses.
  */
 export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
-  const grunnlagskrav: Krav[] = [];
+  const paaberopelse: Krav[] = [];
   for (const h of lesJournal(foer, kjerne.leserformat))
     if (h.art === 'dokument')
-      grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
-  // Kategorien i grunnlagskravet: § 32.2 i grunnlaget (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
+      paaberopelse.push(...h.dokument.krav.filter((k) => k.spor === 'forhold'));
+  // Kategorien i påberopelsen: § 32.2 i forholdet (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
   frysSvarene(
     (rad.data.svar ?? []) as Data[],
-    utledJournal(foer, kjerne).spor.grunnlag.gjeldendeSvar,
-    (s) =>
-      grunnlagskrav.find((k) => k.id === (s.spor === 'grunnlag' ? s.gjelder : s.grunnlagskrav)),
+    utledJournal(foer, kjerne).spor.forhold.gjeldendeSvar,
+    (s) => paaberopelse.find((k) => k.id === (s.spor === 'forhold' ? s.gjelder : s.paaberopelse)),
     kjerne
   );
 }

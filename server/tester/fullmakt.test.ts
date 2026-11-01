@@ -20,9 +20,9 @@ import { KJERNE } from '../../kjerne/versjon.ts';
 import { brevverdi } from '../fullmakt.ts';
 
 const UTDYPNING = 'Byggherren har pålagt en annen fundamentering.';
-const KRAV_GRUNNLAG = {
+const KRAV_PAABEROPELSE = {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
@@ -37,7 +37,7 @@ const KRAV_VEDERLAG = {
   innhold: { metode: 'tilbud', beloep: 100000 },
 };
 const KRAV_FRIST = { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING };
-const GRUNNLAG_GODKJENT = { spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true };
+const FORHOLD_GODKJENT = { spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true };
 const SATS = 5000;
 const { regler } = KJERNE;
 
@@ -89,7 +89,7 @@ function utledning(krav: object[]): Utledning {
 function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
   const spor = h.spor as Spor;
   const vurderinger =
-    spor === 'grunnlag'
+    spor === 'forhold'
       ? { resultat: h.resultat, grunnlag_varslet_i_tide: h.varslet_i_tide }
       : spor === 'vederlag'
         ? {
@@ -124,9 +124,9 @@ const verdi = async (krav: object[], svar: Record<string, unknown>[], sats: numb
 };
 
 describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
-  it('godkjent grunnlag uten svar på kravsporene har verdien i TEs krav, dagene ganget med satsen', async () => {
+  it('godkjent forhold uten svar på kravsporene har verdien i TEs krav, dagene ganget med satsen', async () => {
     expect(
-      await verdi([KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST], [GRUNNLAG_GODKJENT], SATS)
+      await verdi([KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST], [FORHOLD_GODKJENT], SATS)
     ).toEqual({ beloep: 100000 + 20 * SATS, gulv: 200000 });
   });
 
@@ -137,14 +137,14 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
       innhold: { metode: 'tilbud', beloep: 0.1, saerskilt: { produktivitet: { beloep: 0.2 } } },
     };
     // Fristkravet er ikke sendt, så bare gulvet er verdsatt.
-    expect((await verdi([KRAV_GRUNNLAG, krav], [GRUNNLAG_GODKJENT], SATS)).gulv).toBe(0.3);
+    expect((await verdi([KRAV_PAABEROPELSE, krav], [FORHOLD_GODKJENT], SATS)).gulv).toBe(0.3);
   });
 
-  it('avslått grunnlag er 0', async () => {
+  it('avslått forhold er 0', async () => {
     expect(
       await verdi(
-        [KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST],
-        [{ ...GRUNNLAG_GODKJENT, resultat: 'avslaatt' }],
+        [KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST],
+        [{ ...FORHOLD_GODKJENT, resultat: 'avslaatt' }],
         SATS
       )
     ).toEqual({ beloep: 0, gulv: 0 });
@@ -153,9 +153,9 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
   it('et spor som besvares i brevet, har verdien i svaret, ikke i kravet', async () => {
     expect(
       await verdi(
-        [KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST],
+        [KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST],
         [
-          GRUNNLAG_GODKJENT,
+          FORHOLD_GODKJENT,
           { spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000 },
           {
             spor: 'frist',
@@ -173,7 +173,7 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
   it('svar bare på vederlag tar ikke med fristkravet', async () => {
     expect(
       await verdi(
-        [KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST],
+        [KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST],
         [{ spor: 'vederlag', vurdering: 'godkjent' }],
         null
       )
@@ -181,7 +181,7 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
   });
 
   it('et krav som ikke er sendt, kan ikke verdsettes, og det verdsatte er gulvet', async () => {
-    expect(await verdi([KRAV_GRUNNLAG, KRAV_VEDERLAG], [GRUNNLAG_GODKJENT], SATS)).toEqual({
+    expect(await verdi([KRAV_PAABEROPELSE, KRAV_VEDERLAG], [FORHOLD_GODKJENT], SATS)).toEqual({
       beloep: null,
       gulv: 100000,
     });
@@ -189,14 +189,14 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
 
   it('GFK-U3: fristdager uten dagmulktssats kan ikke verdsettes', async () => {
     expect(
-      await verdi([KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST], [GRUNNLAG_GODKJENT], null)
+      await verdi([KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST], [FORHOLD_GODKJENT], null)
     ).toEqual({ beloep: null, gulv: 100000 });
   });
 
   it('GFK-U3: et fristsvar på 0 dager trenger ingen sats', async () => {
     expect(
       await verdi(
-        [KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST],
+        [KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST],
         [
           {
             spor: 'frist',
@@ -215,7 +215,7 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
     // Måtte forstå 5 dager etter § 33.6.1; subsidiært 15.
     expect(
       await verdi(
-        [KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST],
+        [KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST],
         [
           {
             spor: 'frist',
@@ -241,14 +241,14 @@ describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', ()
   const post = { saerskilt: { produktivitet: { beloep: 40000 } } };
 
   it('et ubesvart krav med bare posten har verdien i posten, og med begge beløpene summen (#1189 punkt 1)', async () => {
-    expect((await verdi([KRAV_GRUNNLAG, medPost(post)], [GRUNNLAG_GODKJENT], SATS)).gulv).toBe(
+    expect((await verdi([KRAV_PAABEROPELSE, medPost(post)], [FORHOLD_GODKJENT], SATS)).gulv).toBe(
       40000
     );
     expect(
       (
         await verdi(
-          [KRAV_GRUNNLAG, medPost({ beloep: 100000, ...post })],
-          [GRUNNLAG_GODKJENT],
+          [KRAV_PAABEROPELSE, medPost({ beloep: 100000, ...post })],
+          [FORHOLD_GODKJENT],
           SATS
         )
       ).gulv
@@ -256,7 +256,7 @@ describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', ()
   });
 
   it('med begrensningen etter § 34.1.3 gjelder det subsidiære beløpet, som er det høyeste (GFK-06, VS-U5)', async () => {
-    const u = utledning([KRAV_GRUNNLAG, medPost({ beloep: 100000, ...post })]);
+    const u = utledning([KRAV_PAABEROPELSE, medPost({ beloep: 100000, ...post })]);
     const svar: Svarutkast = {
       spor: 'vederlag',
       gjelder: u.spor.vederlag.gjeldendeKrav!.id,

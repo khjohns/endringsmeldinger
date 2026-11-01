@@ -82,7 +82,7 @@ og beholdes; tabellen bestiller ingen omdøping.
 | **Korrespondanse** | Det partene har sendt hverandre utenfor løsningen og legger til i saken, med kategorien etter «Hva er det etter kontrakten?». Gamle navn: «registrert brev», «brev sendt utenfor appen» | Kommandoen `registrert_brev`, handlingen `registrere_brev`, merknaden `brev_utenfor_appen` | [OV-U79](../plans/vedtak.md#ov-u79), [OV-U80](../plans/vedtak.md#ov-u80), [OV-U86](../plans/vedtak.md#ov-u86) |
 | **Merket «Inngår i EO-<nummer>»** | Merket på en KOE-sak som en sendt endringsordre omfatter, med dokumentkoden til endringsordren. Gamle navn: «Avsluttet med EO» | Finnes ikke i koden | [EO-U13](../plans/vedtak.md#eo-u13), [EO-U14](../plans/vedtak.md#eo-u14) |
 | **Punkt** | Henvisningen til en bestemmelse i NS 8407 i visningen og brevene, «pkt.» i et merke. Gamle navn: «§» og «§§» | Hjemmelsverdiene, som `hjemmel: '33.6.2'`, har ikke tegnet | [OV-U75](../plans/vedtak.md#ov-u75), [LV-U39](../plans/vedtak.md#lv-u39), [LV-U40](../plans/vedtak.md#lv-u40) |
-| **Linja i sakslisten** | Én sak i oversikten (`GET /api/projects/<p>/saker`, #1022): krav, svar og enighet per spor, det som foreligger, og en saksbetegnelse bare i de fire tilfellene i MM-U22. Ingen samlet status | Nye navn i TS (`server/saksliste.ts`, betegnelsen fra `kjerne/utledning/visning.ts`): `saksbetegnelse` (`ikke_forstaatt`, `avslaget_paa_grunnlaget_godtatt`, `grunnlaget_trukket`, `kravene_avgjort`; kjernens statuskoder `kan_ikke_utledes`, `avsluttet_avslaatt`, `avsluttet_trukket`, `alle_krav_avgjort`), `brev_utenfor_appen` (et registrert brev appen ikke vurderer innholdet i, OV-U19, OV-U21; tillegget i OV-U10), `krav`, `svar` med `subsidiaert`, `enighet` med `virkning` (`betinget`, `virksom`, `uten_virkning`), `venter_paa_svar`, `svar_ikke_godtatt` og `betegnelse` per spor, `kravet_staar` per vederlags- og fristspor (kravet står: ikke trukket og ikke i en avsluttet sak, som nøkkeltallene teller), `part` og `noekkeltall`. `betegnelse` er høyst én fra den faste lista i MM-U30 (`BETEGNELSER` i `kjerne/utledning/visning.ts`): `trukket`, `spesifisert_krav_etterspurt`, `venter_paa_svar`, `paalegg_frafalt`, `enige`, `svar_ikke_godtatt`, `krav_sendt`, `ingen_krav`, `varslet`, og erstatter `etiketter` i lista (#1043). Visningen av saken har både `betegnelse` og `etiketter` per spor. Erstatter `status`, `krevd_beloep`, `krevd_dager`, `godkjent_beloep` og `godkjent_dager` i Python-lista | MM-U22, MM-U28, MM-U29, MM-U30, OV-U19, OV-U21 |
+| **Linja i sakslisten** | Én sak i oversikten (`GET /api/projects/<p>/saker`, #1022): krav, svar og enighet per spor, det som foreligger, og en saksbetegnelse bare i de fire tilfellene i MM-U22. Ingen samlet status | Nye navn i TS (`server/saksliste.ts`, betegnelsen fra `kjerne/utledning/visning.ts`): `saksbetegnelse` (`ikke_forstaatt`, `avslaget_paa_forholdet_godtatt`, `paaberopelsen_trukket`, `kravene_avgjort`; kjernens statuskoder `kan_ikke_utledes`, `avsluttet_avslaatt`, `avsluttet_trukket`, `alle_krav_avgjort`), `brev_utenfor_appen` (et registrert brev appen ikke vurderer innholdet i, OV-U19, OV-U21; tillegget i OV-U10), `krav`, `svar` med `subsidiaert`, `enighet` med `virkning` (`betinget`, `virksom`, `uten_virkning`), `venter_paa_svar`, `svar_ikke_godtatt` og `betegnelse` per spor, `kravet_staar` per vederlags- og fristspor (kravet står: ikke trukket og ikke i en avsluttet sak, som nøkkeltallene teller), `part` og `noekkeltall`. `betegnelse` er høyst én fra den faste lista i MM-U30 (`BETEGNELSER` i `kjerne/utledning/visning.ts`): `trukket`, `spesifisert_krav_etterspurt`, `venter_paa_svar`, `paalegg_frafalt`, `enige`, `svar_ikke_godtatt`, `krav_sendt`, `ingen_krav`, `varslet`, og erstatter `etiketter` i lista (#1043). Visningen av saken har både `betegnelse` og `etiketter` per spor. Erstatter `status`, `krevd_beloep`, `krevd_dager`, `godkjent_beloep` og `godkjent_dager` i Python-lista | MM-U22, MM-U28, MM-U29, MM-U30, OV-U19, OV-U21 |
 
 ### Navn i kjernen
 
@@ -96,11 +96,11 @@ lagringsformatet står under.
 | `CASE_NOT_UNDERSTOOD` | `SAK_IKKE_FORSTAATT` | Norsk kode |
 | `ROLE_CHECK` | `FEIL_PART` | Norsk kode. Kontraktsside, ikke rolle |
 | `NOTHING_TO_DISPUTE` | `INGENTING_AA_BESTRIDE` | Norsk kode |
-| `CASE_CLOSED` | `GRUNNLAG_AVVIST`, `KRAV_TRUKKET` (`KRAVENE_AVGJORT` er fjernet etter [MM-U34](../plans/vedtak.md#mm-u34) punkt 12) | Hver sperre leser sitt eget predikat, ikke en samlet status |
-| Ny | `GRUNNLAG_ER_ENDRINGSORDRE` | KA-U13: et trekk av grunnlaget når byggherren har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre etter § 32.3 a med § 31.3. En endringsordre byggherren har registrert, sperrer ikke (OV-U6). Endringsordren (`endringsordre`: `ja`, `nei` eller `ikke_avklart`) og sperren (`trekkAvGrunnlagetErSperret`) er to predikater |
+| `CASE_CLOSED` | `FORHOLD_AVVIST`, `KRAV_TRUKKET` (`KRAVENE_AVGJORT` er fjernet etter [MM-U34](../plans/vedtak.md#mm-u34) punkt 12) | Hver sperre leser sitt eget predikat, ikke en samlet status |
+| Ny | `FORHOLD_ER_ENDRINGSORDRE` (OV-U83) | KA-U13: et trekk av grunnlaget når byggherren har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre etter § 32.3 a med § 31.3. En endringsordre byggherren har registrert, sperrer ikke (OV-U6). Endringsordren (`endringsordre`: `ja`, `nei` eller `ikke_avklart`) og sperren (`trekkAvPaaberopelsenErSperret`) er to predikater |
 | `TRACK_WITHDRAWN` | `KRAV_TRUKKET` | Norsk kode |
 | `NOT_LOCKED`, `RESPONSE_ACCEPTED`, `NOT_ALREADY_ACCEPTED` | `ENIGHET_I_SPORET` | «Låst» er enighet ([GR-U10](../plans/vedtak.md#gr-u10)), og enigheten sperrer ny kravversjon, revisjon og ny aksept |
-| `GRUNNLAG_REQUIRED` | `GRUNNLAG_IKKE_SENDT` | Norsk kode |
+| `GRUNNLAG_REQUIRED` | `PAABEROPELSE_IKKE_SENDT` | Norsk kode |
 | `TRACK_SENT` | `INGEN_KRAV` | Norsk kode |
 | `NOTICE_REGISTERED` | `VARSEL_REGISTRERT` | Norsk kode |
 | `NOT_ALREADY_RESPONDED` | `ALLEREDE_SVART` | Norsk kode |
@@ -120,7 +120,7 @@ lagringsformatet står under.
 | `Svarutledning.avvik` | Utgår. Visningen viser `regel_endret_etter_brevet` | MM-U9 |
 | `Enighet.virkning`, `Enighetsvirkning` | `enighetensVirkning(u, spor)` | Vilkåret utledes løpende og lagres ikke. `kraveneErAvgjort` leser det som et predikat av enigheten, grunnlaget og trekkene, ikke som en lagret verdi (#331) |
 | `Enighet.utledet` | Utgår | Ingen kompatibilitetsleser (B-17) |
-| `grunnlagLaast` | `spor.grunnlag.enighet` | GR-U10 |
+| `grunnlagLaast` | `spor.forhold.enighet` (OV-U83) | GR-U10 |
 | `oppgjort`, `avsluttet`, `kanInngaaIEo` (felt) | `kraveneErAvgjort(u)`, `kanInngaaIEo(u)` | Predikater av utsagnene, ikke oppsummerende felt |
 | `vilkar` i enighetsgrunnlaget | `vilkaar` | ae/oe/aa |
 | `gjelder32_2` | `gjelderVarslingsplikten` | Navnet etter bestemmelsen (§ 32.2), uten tall i navnet |
@@ -145,7 +145,7 @@ lagringsformatet står under.
 | Statusen `avsluttet_avslatt`, etiketten `avslatt`, `Subsidiaergrunn` `avslatt`, utløserne `grunnlag_avslatt`, `forseringsrett_avslatt` og `metode_avslatt` | `avsluttet_avslaatt`, `avslaatt`, `grunnlag_avslaatt`, `forseringsrett_avslaatt`, `metode_avslaatt` | ae/oe/aa (#335). Lagres ikke i journalen |
 | Etiketten `frafalt` | `paalegg_frafalt` | Som verdien i formatet (#335) |
 | `sammenfallMedVarslingsplikt` i utledningen og kopien i `endringsordre.ts` | `blirEndringsordre(beslutningsgrunnlag)` og `svaretBlirEndringsordre(vurderinger, kategori, regler)` | Én sammensetning for § 32.3 første ledd a, og samme standpunkter som skrivingen for et svarutkast (#351) |
-| `tilNyttSvar` (subsidiariteten etter rekkefølgen i journalen) | `grunnlagskrav` i svaret, lest av `utled` | HF-U1: relasjonen er uttrykkelig, og rekkefølgen avgjør ikke hvilket grunnlagssvar et svar er subsidiært til (#342) |
+| `tilNyttSvar` (subsidiariteten etter rekkefølgen i journalen) | `paaberopelse` i svaret (OV-U83), lest av `utled` | HF-U1: relasjonen er uttrykkelig, og rekkefølgen avgjør ikke hvilket grunnlagssvar et svar er subsidiært til (#342) |
 | Ny | `TEKST_KAN_IKKE_LAGRES` | Kjernen avviser selv tekst med NUL eller en enslig surrogat, som JSONB ikke kan lagre (#373) |
 | Ny | `KRAV_I_SPORET` | KA-U12: «ingen krav» i et spor med krav. TE trekker kravet i stedet |
 | Ny | `UGYLDIG_INNSIGELSE`, `INGEN_INNSIGELSE` | VS-U1, MP-U6: en innsigelse gjelder motpartens varsel, krav eller svar, og en protest gjelder motpartens innsigelse. `INGEN_INNSIGELSE` er fjernet: protesten avvises med `IKKE_I_FOERSTE_VERSJON` (OV-U7, arbeidsvalget 16.10 på #587) |
@@ -188,7 +188,7 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | Kravversjon uten referanse til den forrige | `erstatter` i kravet | Kravversjonene er en kjede, som svarene (KA-U2) |
 | `<event_id>#<art>` (utsagns-ID laget av leseren) | En UUID per element, satt av serveren | En referanse avhenger ikke av art eller rekkefølge |
 | `belop_direkte`, `antall_dager`, `varsel_type` | `beloep`, `dager`; `varsel_type` utgår | Varselet etter § 33.4 er et eget utsagn |
-| `resultat`, `grunnlag_varslet_i_tide`, `frist_varsel_ok`, `vilkar_oppfylt` | Standpunktene `grunnlag` (`resultat`), `rettidighet` (`gjelder`, `hjemmel`, `i_tide`) og `hindring` (`oppfylt`) | Byggherrens standpunkt med art (KA-U4). `grunnlag` og ikke `ansvar`, fordi frafall av et pålegg ikke er en vurdering av ansvaret (HF-U2). «Hindring» er at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1) |
+| `resultat`, `grunnlag_varslet_i_tide`, `frist_varsel_ok`, `vilkar_oppfylt` | Standpunktene `forhold` (`resultat`, OV-U83), `rettidighet` (`gjelder`, `hjemmel`, `i_tide`) og `hindring` (`oppfylt`) | Byggherrens standpunkt med art (KA-U4). `grunnlag` og ikke `ansvar`, fordi frafall av et pålegg ikke er en vurdering av ansvaret (HF-U2). «Hindring» er at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1) |
 | `hovedkrav_varslet_i_tide`, `aksepterer_metode`, `oensket_metode`, `spesifisert_krav_ok` | Standpunktene `rettidighet` med hjemmel `34.1.2`, `metode` (`hjemmel`, `aksepterer`, `oensket_metode`) og `spesifisering` (`gjelder`, `hjemmel`, `i_tide`, `dager`) | Byggherrens vurdering etter § 34.1.2, § 34.2.2 og § 33.6.1 med hjemmel (KA-U4, HF-U1, #341). Rettidigheten etter § 34.1.2 gjelder det første vederlagskravet, og `spesifisering` gjelder kravversjonen. «Spesifisering» er ordet i VS-U4. `dager` i `spesifisering` er det byggherren mener at byggherren måtte forstå at TE hadde krav på (arbeidsvalgene i #479) |
 | `beregnings_resultat`, `total_godkjent_belop`, `godkjent_dager`, `subsidiaer_resultat`, `subsidiaer_godkjent_dager` | `utregning` med `resultat`, `godkjent_beloep`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13. Beløp og dager har ett hjem |
 | `total_krevd_belop`, `hovedkrav_godkjent_belop` | Utgår | Regnes av andre verdier (4.4) |
@@ -217,7 +217,7 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | Underkategoriene `MEDVIRK`, `GRUNN`, `KULTURMINNER`, `PROSJ_RISIKO` | `medvirkning`, `grunnforhold`, `kulturminner`, `prosjektering` | § 22, § 23.1, § 23.3 og § 24.1 (#335) |
 | Underkategoriene `NEKT_MH`, `SKADE_BH`, `BRUKSTAKELSE`, `STANS_BET`, `ANDRE_ANDRE` | `nektet_kontraktsmedhjelper`, `skade_fra_byggherren`, `brukstakelse`, `stans_ved_betalingsmislighold`, `annet_forhold` | § 10.2, § 19.1, § 38.1 annet ledd, § 29.2 og § 33.1 c (#335) |
 | Kategorien som fri tekst | Et par fra kjernens lukkede liste | Et ukjent par gjør raden ikke forstått (HF-U1). Katalogen i frontenden og Python beholder de gamle kodene, og kjernen oversetter dem på grensen (#335) |
-| Finnes ikke (subsidiariteten etter rekkefølgen) | `grunnlagskrav` i svaret på vederlag og frist | HF-U1: svaret viser til grunnlagsversjonen det ble regnet mot (#342) |
+| Finnes ikke (subsidiariteten etter rekkefølgen) | `paaberopelse` i svaret (OV-U83) på vederlag og frist | HF-U1: svaret viser til grunnlagsversjonen det ble regnet mot (#342) |
 | Finnes ikke | Utsagnene `innsigelse`, `protest` og `passivitet`, med `gjelder` | § 5 tredje ledd og § 32.3 annet ledd (VS-U1, VS-U12, MP-U6). Begge parter kan gjøre innsigelse og protestere (VS-U14) |
 | Finnes ikke | Opplysningen `{id, hva: "kan_ikke_uttrykkes", spor, gjelder?}` og utsagnet `avklaring` | KA-U16, KA-U20: merkingen av et registrert brev, i brevet eller senere, og avklaringen fra avsenderen |
 | Finnes ikke | En innsigelse i `virkninger` i et registrert svar | VS-U11: svaret uten standpunkt om rettidighet er lest med innsigelsen |
@@ -227,6 +227,32 @@ fra Python-epoken og målmodellen og navnene i format 1.
 satt av serveren. *Sendt/mottatt* er når et varsel eller brev faktisk ble sendt
 eller mottatt, for eksempel `frist_varsel.dato_sendt`. Kolonnen «Tidsakse» sier
 hvilken raden bygger på.
+
+### Navn etter OV-U83
+
+[OV-U83](../plans/vedtak.md#ov-u83) bytter «grunnlag» i navnene i domenet før den
+første reelle hendelsen (#1453). Det som gjelder sporet, standpunktet og enigheten,
+heter `forhold`. Det som gjelder TEs brev, heter `paaberopelse`
+([OV-U82](../plans/vedtak.md#ov-u82), svaret 01.11 i #1453). `kontrakt.json` og
+Python-stien står med `grunnlag` (DL-U2). Det gjør også navnene som deles med dem:
+utløserne `grunnlag_avslaatt` og `grunnlag_prekludert_32_2`, regelinngangene
+`grunnlag_resultat`, `er_grunnlag_subsidiaert` og
+`er_hele_fristen_subsidiaer_pga_grunnlag`, og feltet `grunnlag_varslet_i_tide`
+(HF-U2, teknisk valg). Teksten brukeren ser, byttes i #1433 og #1449.
+
+| Før | Etter | Hvor |
+| --- | --- | --- |
+| Sporet `grunnlag` | `forhold` | Journalen, `spor` i dokumentet og notatet (CHECK `notat_spor`) |
+| Standpunktet `art: 'grunnlag'` | `art: 'forhold'` | Svaret i journalen |
+| `grunnlagskrav` i svaret på vederlag og frist | `paaberopelse` | Svaret i journalen |
+| `vilkaar: 'grunnlag_avklart'` | `forhold_avklart` | Enighetsgrunnlaget |
+| `grunnlagssvar` i brevets `Saken` | `svarPaaPaaberopelsen` | Brevgrunnlaget i `kjerne/frosset/brevtekst.ts` (TS-felt i camelCase som feltene ved siden av) |
+| `grunnlag` i sakslinjen | `forhold` | API-et i `server/saksliste.ts` |
+| Betegnelsene `grunnlaget_trukket` og `avslaget_paa_grunnlaget_godtatt` | `paaberopelsen_trukket` og `avslaget_paa_forholdet_godtatt` | API-et |
+| Regelkodene `GRUNNLAG_IKKE_SENDT`, `GRUNNLAG_AVVIST` og `GRUNNLAG_ER_ENDRINGSORDRE` | `PAABEROPELSE_IKKE_SENDT`, `FORHOLD_AVVIST` og `FORHOLD_ER_ENDRINGSORDRE` | Kommandosvaret og bevis-sakene |
+| Forventningene `godkjent_grunnlag`, `grunnlag_avklart` og `grunnlag_avvist` | `godkjent_forhold`, `forhold_avklart` og `forhold_avvist` | Brukerforløpene |
+| `kjerne/regler/grunnlag.ts`, `Grunnlagsresultat`, `GRUNNLAGSRESULTATER`, `grunnlagAvklart`, `grunnlagAvvist`, `grunnlagetErAvklart` | `kjerne/regler/forhold.ts`, `Forholdsresultat`, `FORHOLDSRESULTATER`, `forholdAvklart`, `forholdAvvist`, `forholdetErAvklart` | Kjernen. Resten av de interne navnene følger samme regel og står i PR-en for #1453 |
+| `src/lib/kjernesak/grunnlagskrav.ts`, `nyGrunnlagsversjon` | `src/lib/kjernesak/paaberopelse.ts`, `nyPaaberopelsesversjon` | Visningen |
 
 ## Tabellen
 
@@ -395,11 +421,10 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `FORESPORSEL_BEGRUNNET` | — | Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `FORESPORSEL_BESVART` | — | Kontrollen av kommandoen: én begrunnelse etter § 33.6.2 annet ledd b per forespørsel, og ingen etter at et fristkrav har svart (KA-U1, VS-U17). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `FORESPORSEL_SENDT` | — | Kontrollen av kommandoen: høyst én forespørsel etter § 33.6.2 fra appen i saken; en senere sendes utenfor appen (VS-U31). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `FORHOLD_AVVIST` | GR-20, VS-05 | — |
+| `FORHOLD_ER_ENDRINGSORDRE` | GR-28 | — |
 | `FRAFALL_KAN_IKKE_GODTAS` | GR-26 | — |
 | `FRISTKRAV_SENDT` | VS-06 | — |
-| `GRUNNLAG_AVVIST` | GR-20, VS-05 | — |
-| `GRUNNLAG_ER_ENDRINGSORDRE` | GR-28 | — |
-| `GRUNNLAG_IKKE_SENDT` | KA-31, VS-06 | — |
 | `IKKE_GJELDENDE_SVAR` | GR-01, GR-02, GR-03, GR-04, GR-05, GR-06 | — |
 | `IKKE_I_FOERSTE_VERSJON` | — | Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev, protest, påberopt passivitet og senere begrunnelse (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. F-MM-V1 prøver at protesten avvises. |
 | `INGEN_FORESPORSEL` | — | Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
@@ -408,6 +433,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `INGEN_SVAR` | — | Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
 | `KRAV_I_SPORET` | KA-31 | — |
 | `KRAV_TRUKKET` | GR-09, GR-10, GR-11, GR-12, KA-39 | — |
+| `PAABEROPELSE_IKKE_SENDT` | KA-31, VS-06 | — |
 | `PAALEGGET_IKKE_BESKREVET` | GR-35 | — |
 | `REGISTRERINGEN_ER_RETTET` | KA-52 | — |
 | `RETTER_IKKE_EN_REGISTRERING` | KA-52 | — |
@@ -425,36 +451,36 @@ kontrollen leter etter, står under [Formatet](#formatet).
 
 | Rad | Gjennomføres av |
 | --- | --- |
-| GR-01 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| GR-02 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
+| GR-01 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-02 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/frosset/standpunkt.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
 | GR-03 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| GR-04 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| GR-05 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-04 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-05 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-06 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-07 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
-| GR-08 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts) |
+| GR-08 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/frosset/standpunkt.ts) |
 | GR-09 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-10 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-11 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts) |
 | GR-12 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-13 | [`utledSporene`](../../kjerne/utledning/utled.ts) |
-| GR-14 | [`kanInngaaIEo`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`grunnlagetErAvklart`](../../kjerne/frosset/standpunkt.ts) |
+| GR-14 | [`kanInngaaIEo`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`forholdetErAvklart`](../../kjerne/frosset/standpunkt.ts) |
 | GR-15 | [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
-| GR-16 | [`grunnlagetErAvklart`](../../kjerne/frosset/standpunkt.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
+| GR-16 | [`forholdetErAvklart`](../../kjerne/frosset/standpunkt.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
 | GR-17 | [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts) |
-| GR-18 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`gyldigeResultater`](../../kjerne/regler/grunnlag.ts), [`erByggherrensPaalegg`](../../kjerne/regler/grunnlag.ts) |
+| GR-18 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`gyldigeResultater`](../../kjerne/regler/forhold.ts), [`erByggherrensPaalegg`](../../kjerne/regler/forhold.ts) |
 | GR-19 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
 | GR-20 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| GR-21 | [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`grunnlagetErAvklart`](../../kjerne/frosset/standpunkt.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
+| GR-21 | [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`forholdetErAvklart`](../../kjerne/frosset/standpunkt.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
 | GR-22 | [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
 | GR-23 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-24 | [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts) |
 | GR-25 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
 | GR-26 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
 | GR-27 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
-| GR-28 | [`trekkAvGrunnlagetErSperret`](../../kjerne/utledning/utled.ts), [`blirEndringsordre`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| GR-29 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`trekkAvGrunnlagetErSperret`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| GR-30 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`ikkeErstattet`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts) |
+| GR-28 | [`trekkAvPaaberopelsenErSperret`](../../kjerne/utledning/utled.ts), [`blirEndringsordre`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-29 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`trekkAvPaaberopelsenErSperret`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-30 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`ikkeErstattet`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/frosset/standpunkt.ts) |
 | GR-31 | [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts), [`strid`](../../kjerne/utledning/utled.ts) |
 | GR-32 | [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts), [`strid`](../../kjerne/utledning/utled.ts) |
 | GR-33 | [`utled`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |

@@ -22,7 +22,7 @@ import {
 import {
   enighetensVirkning,
   forskyvningIBrevet,
-  grunnlagskravFor,
+  paaberopelseFor,
   kilden,
   kraveneErAvgjort,
   sporetErLukket,
@@ -117,19 +117,19 @@ const sendt = (u: Utledning, spor: Spor): boolean =>
   u.spor[spor].krav.length > 0 || u.spor[spor].ingenKrav || harVarsel(u, spor);
 
 const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
-  // Et trukket grunnlag gir «Trukket» bare der krav, varsel eller «ingen krav» er sendt (GR-U25).
+  // Et trukket forhold gir «Trukket» bare der krav, varsel eller «ingen krav» er sendt (GR-U25).
   trukket: (u, spor) => u.spor[spor].trukket && sendt(u, spor),
   // § 33.6.2: til forespørselen er besvart, og bare mens saken og sporet ikke er lukket (MM-U31).
   spesifisert_krav_etterspurt: (u, spor) =>
     spor === 'frist' &&
-    !u.spor.grunnlag.trukket &&
+    !u.spor.forhold.trukket &&
     !sporetErLukket(u) &&
     u.spor.frist.foresporsler.some((f) => f.svar === null),
   venter_paa_svar: venterPaaSvar,
-  paalegg_frafalt: (u, spor) => spor === 'grunnlag' && u.frafalt,
+  paalegg_frafalt: (u, spor) => spor === 'forhold' && u.frafalt,
   enige: (u, spor) => u.spor[spor].enighet !== null,
   svar_ikke_godtatt: svarIkkeGodtatt,
-  // Står igjen når sporet er lukket uten enighet, som når TE har godtatt avslaget på grunnlaget.
+  // Står igjen når sporet er lukket uten enighet, som når TE har godtatt avslaget på forholdet.
   krav_sendt: (u, spor) => u.spor[spor].gjeldendeKrav !== null,
   ingen_krav: (u, spor) => u.spor[spor].ingenKrav,
   varslet: harVarsel,
@@ -144,23 +144,23 @@ export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {
 /** Betegnelsen saken har i de fire tilfellene i MM-U22; ellers har den ingen. */
 export type Saksbetegnelse =
   | 'ikke_forstaatt'
-  | 'avslaget_paa_grunnlaget_godtatt'
-  | 'grunnlaget_trukket'
+  | 'avslaget_paa_forholdet_godtatt'
+  | 'paaberopelsen_trukket'
   | 'kravene_avgjort';
 
 /** Betegnelsen i MM-U22, som sakslisten og statusen i visningen leser (#1050). */
 export function saksbetegnelse(u: Utledning): Saksbetegnelse | null {
   if (!u.forstaatt) return 'ikke_forstaatt';
-  if (u.grunnlagAvvist) return 'avslaget_paa_grunnlaget_godtatt';
-  if (u.spor.grunnlag.trukket) return 'grunnlaget_trukket';
+  if (u.forholdAvvist) return 'avslaget_paa_forholdet_godtatt';
+  if (u.spor.forhold.trukket) return 'paaberopelsen_trukket';
   if (kraveneErAvgjort(u)) return 'kravene_avgjort';
   return null;
 }
 
 const STATUS_FOR: Record<Saksbetegnelse, Statuskode> = {
   ikke_forstaatt: 'kan_ikke_utledes',
-  avslaget_paa_grunnlaget_godtatt: 'avsluttet_avslaatt',
-  grunnlaget_trukket: 'avsluttet_trukket',
+  avslaget_paa_forholdet_godtatt: 'avsluttet_avslaatt',
+  paaberopelsen_trukket: 'avsluttet_trukket',
   kravene_avgjort: 'alle_krav_avgjort',
 };
 
@@ -168,7 +168,7 @@ const STATUS_FOR: Record<Saksbetegnelse, Statuskode> = {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, grunnlagskravFor(g, u), regler));
+  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, paaberopelseFor(g, u), regler));
 }
 
 /**
@@ -221,9 +221,9 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   if (FORELIGGER.trukket(u, spor)) ut.push('trukket');
   if (venterPaaSvar(u, spor)) ut.push('venter_paa_svar');
   const virkning = enighetensVirkning(u, spor);
-  if (spor === 'grunnlag') {
+  if (spor === 'forhold') {
     if (u.frafalt) ut.push('paalegg_frafalt');
-    if (u.grunnlagAvvist) ut.push('avslaatt');
+    if (u.forholdAvvist) ut.push('avslaatt');
     if (virkning && !s.trukket) ut.push('enige');
   } else {
     if (virkning === 'betinget') ut.push('enige_betinget');
@@ -246,7 +246,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   for (const i of u.innsigelser)
     if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))
       ut.push(`innsigelse_fra_${i.part}`);
-  if (spor === 'grunnlag' && u.passivitet.length) ut.push('passivitet_paaberopt');
+  if (spor === 'forhold' && u.passivitet.length) ut.push('passivitet_paaberopt');
   if (s.ingenKrav) ut.push('ingen_krav');
   // Oppdragsgiver 22.10 (#1126): bare før kravet, som er varselet når sporet ikke har noe.
   else if (spor === 'frist' && !s.varsler['33.4'] && s.krav.length === 0)
@@ -254,8 +254,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
   else if (
     spor === 'vederlag' &&
-    u.spor.grunnlag.gjeldendeKrav &&
-    !hjemmelenGjelder('34.1.2', u.spor.grunnlag.gjeldendeKrav, regler)
+    u.spor.forhold.gjeldendeKrav &&
+    !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
   )
     ut.push('varsel_kreves_ikke');
   return ut;

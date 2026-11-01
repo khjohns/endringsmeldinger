@@ -23,7 +23,7 @@ SEKSJONER = {
     "opplysning": ("hva", ("hva", "beskrivelse", "felt", "grunnlag")),
 }
 VALGFRIE = {("del", "spor")}
-SPOR = ("grunnlag", "vederlag", "frist")
+SPOR = ("forhold", "vederlag", "frist")
 AVSENDERE = ("TE", "BH", "TE eller BH")
 
 MERKNAD = (

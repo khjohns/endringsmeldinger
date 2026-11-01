@@ -1,7 +1,7 @@
 /**
  * Det et svar fryser når brevet sendes (MM-U9, MM-U11, GR-U12): standpunktene i
  * formen de lagres i, og beslutningsgrunnlaget av dem. Skrivingen og predikatet
- * for et svarutkast på grunnlaget (#351) bruker de samme funksjonene. Modulen
+ * for et svarutkast på forholdet (#351) bruker de samme funksjonene. Modulen
  * når ikke utledningen, så klienten kan bruke predikatet uten skrivestien.
  */
 
@@ -15,13 +15,13 @@ type Data = Record<string, unknown>;
 
 /**
  * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11, GR-U12).
- * `grunnlagskrav` er kravet et grunnlagssvar gjelder, ellers gjeldende
- * grunnlagskrav. `forskyvning` er lagene svaret på grunnlaget opptar foran sporet
- * (`lagFraGrunnlaget`). Kaster `Uforstaatt` når standpunktene ikke kan leses.
+ * `paaberopelse` er kravet et svar på påberopelsen gjelder, ellers gjeldende
+ * påberopelse. `forskyvning` er lagene svaret på forholdet opptar foran sporet
+ * (`lagFraForholdet`). Kaster `Uforstaatt` når standpunktene ikke kan leses.
  */
 export function frys(
   svar: Data,
-  grunnlagskrav: Krav | null | undefined,
+  paaberopelse: Krav | null | undefined,
   regler: Regelsett,
   forskyvning: number
 ) {
@@ -31,26 +31,26 @@ export function frys(
     standpunkter: standpunkterISvaret(spor, svar),
     utregning: (svar.utregning ?? {}) as Data,
   };
-  return beslutningsgrunnlag(innhold, grunnlagskrav, regler, forskyvning);
+  return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning);
 }
 
-/** Standpunktene i et svar på grunnlaget (§ 32.2 og § 32.3). */
-export function grunnlagsstandpunkter(v: Svarvurdering, krav: Krav, nyId: () => string): Data[] {
+/** Standpunktene i et svar på forholdet (§ 32.2 og § 32.3). */
+export function forholdsstandpunkter(v: Svarvurdering, krav: Krav, nyId: () => string): Data[] {
   const ut: Data[] = [];
   if (typeof v.grunnlag_varslet_i_tide === 'boolean')
     ut.push({
       id: nyId(),
       art: 'rettidighet',
       gjelder: krav.id,
-      hjemmel: HJEMMEL.grunnlag,
+      hjemmel: HJEMMEL.forhold,
       i_tide: v.grunnlag_varslet_i_tide,
     });
-  ut.push({ id: nyId(), art: 'grunnlag', resultat: v.resultat });
+  ut.push({ id: nyId(), art: 'forhold', resultat: v.resultat });
   return ut;
 }
 
 /**
- * Om et svar på grunnlaget med disse vurderingene blir en endringsordre etter
+ * Om et svar på forholdet med disse vurderingene blir en endringsordre etter
  * § 32.3 første ledd a når brevet sendes i appen (GR-U12, #351). Standpunktene
  * og beslutningsgrunnlaget lages som når brevet skrives, og sammensetningen er
  * den utledningen leser. Kategorien har kjernens koder (#335). Vurderingene
@@ -65,15 +65,15 @@ export function svaretBlirEndringsordre(
 ): boolean {
   const krav: Krav = {
     id: 'utkast',
-    spor: 'grunnlag',
+    spor: 'forhold',
     dokument: 'utkast',
     erstatter: null,
     innhold: { ...kategori },
   };
   let n = 0;
   const svar = {
-    spor: 'grunnlag',
-    standpunkter: grunnlagsstandpunkter(vurderinger, krav, () => `standpunkt-${++n}`),
+    spor: 'forhold',
+    standpunkter: forholdsstandpunkter(vurderinger, krav, () => `standpunkt-${++n}`),
   };
   try {
     return blirEndringsordre(frys(svar, krav, regler, 0));

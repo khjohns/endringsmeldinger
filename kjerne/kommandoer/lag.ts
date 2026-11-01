@@ -7,16 +7,16 @@
 
 import {
   etikett,
-  grunnerFraGrunnlaget,
+  grunnerFraForholdet,
   laget,
   virkninger,
   type Svarvurdering,
 } from '../frosset/standpunkt.ts';
-import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
+import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { standpunkterISvaret } from '../format/leser.ts';
 import type { Hjemmel, Standpunktsart, Virkning } from '../typer.ts';
-import { grunnlagskravFor, type Utledning } from '../utledning/utled.ts';
+import { paaberopelseFor, type Utledning } from '../utledning/utled.ts';
 import type { Svarutkast } from './kommando.ts';
 import { standpunkter } from './standpunkter.ts';
 
@@ -30,11 +30,11 @@ export interface Utkastlag {
     saerskilt?: 'produktivitet';
     /** Beløpsspørsmålet for posten er besvart. Andre standpunkter finnes bare når de er besvart (KA-U4). */
     besvart: boolean;
-    /** Laget etter lagene fra grunnlaget, `upaavirket` eller `uten_virkning`. */
+    /** Laget etter lagene fra forholdet, `upaavirket` eller `uten_virkning`. */
     virkning: Virkning;
     /** `null` når standpunktet ikke står i et lag, eller hele svaret har ett lag (OV-U33). */
     etikett: string | null;
-    /** Grunnene fra grunnlaget i brevets rekkefølge, så innsigelsene i sporet (S2-A). */
+    /** Grunnene fra forholdet i brevets rekkefølge, så innsigelsene i sporet (S2-A). */
     forutsetninger: Forutsetning[];
   }[];
 }
@@ -42,8 +42,8 @@ export interface Utkastlag {
 /**
  * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart. Et ubesvart
  * varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende, så laget kan endre
- * seg når det besvares (S1-A). Lagene fra grunnlaget leses av gjeldende svar på grunnlaget,
- * som frysingen gjør når brevet ikke selv har et svar på grunnlaget. Kaster ingen
+ * seg når det besvares (S1-A). Lagene fra forholdet leses av gjeldende svar på forholdet,
+ * som frysingen gjør når brevet ikke selv har et svar på forholdet. Kaster ingen
  * `UgyldigVurdering`: beløpene påvirker ikke lagene og tas ut før standpunktene bygges.
  */
 export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelsett): Utkastlag {
@@ -73,9 +73,9 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
     }),
     utregning: {},
   };
-  const g = u.spor.grunnlag.gjeldendeSvar;
-  const grunner = g ? grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger) : [];
-  const virket = virkninger(svar, grunnlagskravFor(utkast, u), regler, grunner.length);
+  const g = u.spor.forhold.gjeldendeSvar;
+  const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
+  const virket = virkninger(svar, paaberopelseFor(utkast, u), regler, grunner.length);
   const forskjoevet = (vi: Virkning): Virkning =>
     typeof vi === 'number' ? vi + grunner.length : vi;
   const lag = virket.map((vi) => laget(forskjoevet(vi.virkning)));

@@ -175,7 +175,7 @@
           {#if enighet?.grunnlag.utfall.beloep !== undefined}
             <p>{STILLING.beloep(enighet.grunnlag.utfall.beloep, vist.nummer)}</p>
           {/if}
-          {#if enighet?.grunnlag.vilkaar === 'grunnlag_avklart' && !u.grunnlagAvklart}
+          {#if enighet?.grunnlag.vilkaar === 'forhold_avklart' && !u.forholdAvklart}
             <p>{STILLING.vilkaar}</p>
           {/if}
           <p class="dempet">{STILLING.kilde(vist.nummer)}</p>

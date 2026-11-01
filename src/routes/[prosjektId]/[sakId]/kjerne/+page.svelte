@@ -15,7 +15,7 @@
     gjelderEndringsordre,
     grunnlagskrav as grunnlagskravFra,
     KJERNEKATEGORIER,
-  } from '$lib/kjernesak/grunnlagskrav';
+  } from '$lib/kjernesak/paaberopelse';
   import type { Part } from '$kjerne/typer';
 
   const sakId = $derived(page.params.sakId ?? '');

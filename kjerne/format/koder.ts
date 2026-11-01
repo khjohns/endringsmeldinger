@@ -1,16 +1,16 @@
 /**
- * Kodene i formatet for kategoriene i grunnlagskravet, og oversettelsen fra
+ * Kodene i formatet for kategoriene i påberopelsen, og oversettelsen fra
  * katalogen i frontenden og Python (`KRAV_STRUKTUR_NS8407`, `paymentMethods.ts`
  * og Python-enumene), som beholder de gamle kodene (arbeidsvalget 10.10 i #335,
  * HF-U2). Kjernen bruker bare sine egne koder. Klienten og språkprøven
  * oversetter på grensen med tabellene her.
  */
 
-import { foersteUnderkategori } from '../regler/grunnlag.ts';
+import { foersteUnderkategori } from '../regler/forhold.ts';
 import {
   KATEGORIER,
   type Beloepsvurdering,
-  type Grunnlagsresultat,
+  type Forholdsresultat,
   type Hovedkategori,
   type SubsidiaerUtloser,
   type Underkategori,
@@ -57,7 +57,7 @@ export const METODE_FRA_KATALOGEN: Record<string, Vederlagsmetode> = {
   FASTPRIS_TILBUD: 'tilbud',
 };
 
-export const GRUNNLAGSRESULTAT_FRA_KATALOGEN: Record<string, Grunnlagsresultat> = {
+export const FORHOLDSRESULTAT_FRA_KATALOGEN: Record<string, Forholdsresultat> = {
   godkjent: 'godkjent',
   avslatt: 'avslaatt',
   frafalt: 'paalegg_frafalt',

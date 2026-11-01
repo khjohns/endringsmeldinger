@@ -137,11 +137,11 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
       const spor = SPOR_FOR[nokkel];
       const krav = tilbyrTe(`krav:${spor}`);
       const varsel =
-        spor !== 'grunnlag' && (tilbyrVarsel('sende_varsel', spor) || tilbyrVarsel('varsle', spor));
+        spor !== 'forhold' && (tilbyrVarsel('sende_varsel', spor) || tilbyrVarsel('varsle', spor));
       if (!krav && !varsel) return null;
       if (krav && kravversjon(projeksjon.utledning, nokkel) > 0)
-        return spor === 'grunnlag' ? 'Send ny versjon av grunnlaget' : 'Send ny versjon av kravet';
-      if (spor === 'grunnlag') return null;
+        return spor === 'forhold' ? 'Send ny versjon av grunnlaget' : 'Send ny versjon av kravet';
+      if (spor === 'forhold') return null;
       return varsel && krav
         ? 'Send varsel eller krav'
         : krav

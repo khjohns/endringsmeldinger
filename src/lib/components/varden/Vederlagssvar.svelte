@@ -106,7 +106,7 @@
     );
   });
   const grunnlagsbrev = $derived.by(() => {
-    const g = u.spor.grunnlag.gjeldendeSvar;
+    const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument)!.nummer : null;
   });
   const nyttSvar = $derived.by(() => {
