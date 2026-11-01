@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Grunnlagsoversikten i Varden</title>
+<title>Forholdet i Varden</title>
 <!--
   Prototype av oversikten over det påberopte forholdet i Varden (#1402). Tilstandene er ankrene
   #[grunn-]<svar>-<part>[-utkast]: uten prefiks er forholdet en irregulær endring (punkt 32.1),
@@ -270,7 +270,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 [data-t="eo"] .kun-utkast{display:none}
 [data-t="eo"] .uten-utkast{display:contents}
 
-/* Stillingen for grunnlaget: hjemmelen og standpunktene side om side */
+/* Stillingen for forholdet: hjemmelen og standpunktene side om side */
 .hjemmel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule-color);border-radius:6px;overflow:hidden}
 .hjemmel > div{padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .hjemmel > div + div{border-left:1px solid var(--rule-color)}
@@ -288,7 +288,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .loefte{margin-top:20px;padding:14px 16px;border-left:3px solid var(--ink);background:var(--surface-inset);border-radius:0 6px 6px 0;color:var(--ink-2)}
 .loefte b{color:var(--ink);font-weight:600}
 
-/* Krav på dette grunnlaget: en stamme fra grunnlaget til kravene om vederlag og frist */
+/* Kravene som bygger på forholdet: en stamme fra forholdet til kravene om vederlag og frist */
 .baerer .kort-kropp{padding-top:12px}
 .stamme{position:relative;margin:0;padding:0 0 0 28px;list-style:none}
 .stamme::before{content:"";position:absolute;left:8px;top:-12px;bottom:28px;border-left:1.5px solid var(--ink)}
@@ -305,7 +305,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .rot{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--ink-3);margin:4px 0 8px}
 .rot i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);flex:none;position:relative;z-index:1}
 
-/* Svarplikten etter § 32.3 */
+/* Svarplikten etter punkt 32.3 */
 .svarplikt{margin:0 20px 16px;padding:12px 14px;background:var(--surface-inset);border-radius:6px;font-size:14px;color:var(--ink-2)}
 .svarplikt b{color:var(--ink)}
 .svarplikt .num{font-weight:600;color:var(--ink)}
@@ -475,6 +475,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
       <p class="id num"><span class="fs f-endring">E-024</span><span class="fs f-grunn">E-027</span></p>
       <h2><span class="fs f-endring">Endret fasadeplate etter pålegg på byggemøte</span><span class="fs f-grunn">Fjell høyere enn antatt i byggegropen</span></h2>
       <p class="inngaar ts t-eo">Inngår i EO-012</p>
+      <p class="id" style="margin-top:8px">Saken har dokumentasjon som er registrert, men ikke sendt herfra.</p>
     </div>
     <nav aria-labelledby="spor-etikett">
       <p class="etikett" id="spor-etikett">Krav og svar</p>
@@ -540,16 +541,16 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
           <section class="utkast" aria-labelledby="utkast-tittel">
             <div class="utkast-hode">
               <div class="linje"><span class="utkastmerke">Utkast · ikke sendt</span>
-                <h2 id="utkast-tittel"><span class="kun-te">Brev 6 · Ny versjon av varselet om <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></span><span class="kun-bh"><span class="ts t-ubesvart">Brev 5 · Svar på varselet om <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></span><span class="ts t-avslatt t-frafall">Brev 6 · Nytt svar på varselet om <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></span></span></h2></div>
+                <h2 id="utkast-tittel"><span class="kun-te">Brev 6 · Ny versjon av påberopelsen av <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></span><span class="kun-bh"><span class="ts t-ubesvart">Brev 5 · Svar</span><span class="ts t-avslatt t-frafall">Brev 6 · Nytt svar</span></span></h2></div>
               <p><span class="kun-te">Til byggherren (BH)</span><span class="kun-bh">Til totalentreprenøren (TE)</span></p>
               <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bare synlig for teamet ditt til det er sendt</p>
             </div>
             <div class="utkast-kropp">
               <dl>
-                <div class="kun-te"><dt>Erstatter</dt><dd>Varselet i brev 1 av 9. oktober 2026</dd>
+                <div class="kun-te"><dt>Erstatter</dt><dd>Påberopelsen i brev 1 av 9. oktober 2026</dd>
                 <dt>Påberopt forhold</dt><dd><span class="fs f-endring">Irregulær endring (punkt&nbsp;32.1)</span><span class="fs f-grunn">Uforutsette forhold ved grunnen (punkt&nbsp;23.1)</span>. Det kan ikke endres i en ny versjon.</dd>
                 <dt>Endret så langt</dt><dd><span class="fs f-endring">Beskrivelsen av pålegget, med referatet fra byggemøte 14</span><span class="fs f-grunn">Beskrivelsen av forholdet, med profilmålingen</span></dd></div>
-                <div class="kun-bh"><span class="ts t-ubesvart"><dt>Svarer på</dt><dd>Varselet i brev 1 av 9. oktober 2026</dd>
+                <div class="kun-bh"><span class="ts t-ubesvart"><dt>Svarer på</dt><dd>Påberopelsen i brev 1 av 9. oktober 2026</dd>
                 <dt>Valgt så langt</dt><dd><span class="fs f-endring">Avslår kravet på endringsordre (punkt&nbsp;32.3 første ledd b)</span><span class="fs f-grunn">Byggherren har ikke risikoen for forholdet (punkt&nbsp;23.1)</span></dd></span>
                 <span class="ts t-avslatt"><dt>Erstatter</dt><dd>Svaret i brev 5 av 28. oktober 2026</dd>
                 <dt>Valgt så langt</dt><dd><span class="fs f-endring">Frafaller pålegget mot endringsordre for arbeid som alt er utført (punkt&nbsp;32.3 første ledd c)</span><span class="fs f-grunn">Byggherren har risikoen for forholdet (punkt&nbsp;23.1)</span></dd></span>
@@ -576,7 +577,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <li class="innlegg">
                 <span class="part" aria-hidden="true">TE</span>
                 <div class="innlegg-hode">
-                  <h2 class="innlegg-tittel">Brev 1 · Varsel om <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></h2>
+                  <h2 class="innlegg-tittel">Brev 1 · Påberopelse av <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></h2>
                   <button class="lenke" type="button">Les brevet</button>
                   <p class="innlegg-meta">Totalentreprenøren · 9. oktober 2026 · Per Olsen</p>
                 </div>
@@ -591,7 +592,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <li class="innlegg registrert">
                 <span class="part" aria-hidden="true">BH</span>
                 <div class="innlegg-hode">
-                  <h2 class="innlegg-tittel">Brev fra byggherren <span class="merke-reg">Registrert</span></h2>
+                  <h2 class="innlegg-tittel">Brev fra byggherren <span class="merke-reg">Dokumentasjon</span></h2>
                   <a class="lenke" href="#">Åpne brevet</a>
                   <p class="innlegg-meta">Sendt 14. oktober 2026 som PDF i e-post, ifølge byggherren · lagt til av Ola Nordmann 15. oktober</p>
                 </div>
@@ -600,7 +601,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <li class="innlegg svar5 ts t-avslatt t-eo t-frafall">
                 <span class="part" aria-hidden="true">BH</span>
                 <div class="innlegg-hode">
-                  <h2 class="innlegg-tittel">Brev 5 · Svar på varselet</h2>
+                  <h2 class="innlegg-tittel">Brev 5 · Svar</h2>
                   <button class="lenke" type="button">Les brevet</button>
                   <p class="innlegg-meta">Byggherren · 28. oktober 2026 · Kari Nordmann, godkjent med fullmakt</p>
                 </div>
@@ -640,7 +641,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <div class="registrer">
               <button class="lenke" type="button" id="reg-aapne" aria-expanded="false" aria-controls="reg-skjema">Legg til korrespondanse</button><span class="reg-hjelp">Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span>
               <form class="reg-skjema" id="reg-skjema" hidden onsubmit="return false">
-                <h3>Legg til korrespondanse</h3>
+                <h3>Legg til korrespondanse<button type="button" class="info" aria-label="Om korrespondansen" title="Varden vurderer ikke innholdet i dokumentet, og avgjør ikke hvilken betydning det har for partenes rettigheter og plikter." style="all:unset;cursor:help;display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:12px;font-weight:600;color:var(--ink-2);margin-left:6px;vertical-align:1px">i</button></h3>
                 <fieldset id="reg-type"><legend>Hva legger du til?</legend>
                   <label><input type="radio" name="type" value="brev" checked> Brev</label>
                   <label><input type="radio" name="type" value="epost"> E-post</label>
@@ -667,20 +668,21 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <fieldset id="reg-kategori"><legend>Hva er det etter kontrakten?</legend>
                   <span class="hjelp reg-motpart" hidden>Du legger til noe motparten har sendt. Det står som dokumentasjon til avsenderen selv sier hva det er.</span>
                   <label><input type="radio" name="kategori" value="dok" checked> Dokumentasjon, for eksempel en avklaring</label>
-                  <label class="kun-avsender"><input type="radio" name="kategori" value="varsel"> Et varsel</label>
+                  <label class="kun-avsender kun-te-avsender"><input type="radio" name="kategori" value="varsel"> Et varsel</label>
                   <label class="kun-avsender kun-te-avsender"><input type="radio" name="kategori" value="krav"> Et krav</label>
                   <label class="kun-avsender kun-bh-avsender"><input type="radio" name="kategori" value="svar"> Et svar</label>
                 </fieldset>
-                <fieldset class="reg-under" id="reg-varsel" hidden><legend>Hvilket varsel?</legend>
-                  <span class="hjelp">Datoen over blir datoen for varselet.</span>
-                  <label class="fs f-endring"><input type="radio" name="varsel" checked> Varsel om irregulær endring (punkt&nbsp;32.2)</label>
-                  <label><input type="radio" name="varsel"> Varsel om fristforlengelse (punkt&nbsp;33.4)</label>
-                  <label><input type="radio" name="varsel"> Varsel om vederlagsjustering (punkt&nbsp;34.1.2)</label>
-                  <label><input type="radio" name="varsel"> Særskilt varsel (punkt&nbsp;34.1.3)</label>
+                <fieldset class="reg-under" id="reg-varsel" hidden><legend>Hvilke varsler?</legend>
+                  <span class="hjelp">Velg ett eller flere. Datoen over blir datoen for varselet, og den settes én gang.</span>
+                  <label class="fs f-endring"><input type="checkbox" name="varsel" checked> Varsel om irregulær endring (punkt&nbsp;32.2)</label>
+                  <label><input type="checkbox" name="varsel"> Varsel om fristforlengelse (punkt&nbsp;33.4)</label>
+                  <label><input type="checkbox" name="varsel"> Varsel om vederlagsjustering (punkt&nbsp;34.1.2)</label>
+                  <label><input type="checkbox" name="varsel"> Særskilt varsel for rigg og drift (punkt&nbsp;34.1.3)</label>
+                  <label><input type="checkbox" name="varsel"> Særskilt varsel for produktivitet (punkt&nbsp;34.1.3)</label>
                 </fieldset>
-                <p class="reg-under reg-neste" id="reg-krav" hidden>Når du har lagt til brevet, åpnes kravskjemaet. Det viser til dette brevet, og du fyller det ut nå, så byggherren kan svare på kravet.</p>
-                <p class="reg-under reg-neste" id="reg-svar" hidden>Når du har lagt til brevet, åpnes svarskjemaet. Det viser til dette brevet, og du fyller det ut nå. Har byggherren svart med en endringsordre, velger du det i svaret.</p>
-                <div class="felt"><label for="reg-merknad">Merknad (valgfritt)</label><textarea id="reg-merknad" rows="3"></textarea></div>
+                <p class="reg-under reg-neste" id="reg-krav" hidden>Når du har lagt til brevet, åpnes kravskjemaet. Det viser til dette brevet, og du fyller det ut nå, så byggherren kan svare på kravet. Fyller du det ikke ut, står korrespondansen som dokumentasjon, merket «Skjemaet er ikke fylt ut».</p>
+                <p class="reg-under reg-neste" id="reg-svar" hidden>Når du har lagt til brevet, åpnes svarskjemaet. Det viser til dette brevet, og du fyller det ut nå. Har byggherren svart med en endringsordre, velger du det i svaret. Svaret går til godkjenning etter fullmakten, og til det er godkjent, står korrespondansen som dokumentasjon, merket «Til godkjenning».</p>
+                <div class="felt"><label for="reg-merknad">Beskrivelse</label><span class="hjelp">Kort, med egne ord.</span><textarea id="reg-merknad" rows="3" aria-required="true"></textarea></div>
                 <div class="reg-knapper"><button class="knapp primaer" type="submit" id="reg-send">Legg til</button><button class="knapp sekundaer" type="button" id="reg-avbryt">Avbryt</button></div>
               </form>
             </div>
@@ -702,8 +704,8 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                       <dt>Byggherren</dt><dd><span class="num">310 000 kr</span><span class="lag ts t-ubesvart">under forbehold</span><span class="lag ts t-avslatt">subsidiært</span><span class="kilde-brev">brev 4</span></dd>
                     </dl>
                     <p class="virker">
-                      <span class="ts t-ubesvart">Gitt før svaret på varselet, under forutsetning av at forholdet gir rett til vederlagsjustering.</span>
-                      <span class="ts t-avslatt">Gjelder hvis forholdet gir rett til vederlagsjustering.</span>
+                      <span class="ts t-ubesvart">Gitt før svaret på påberopelsen, under forutsetning av at forholdet gir grunnlag for kravet.</span>
+                      <span class="ts t-avslatt">Gjelder hvis forholdet gir grunnlag for kravet.</span>
                       <span class="ts t-eo">Brev 4 står som det ble sendt, med forbeholdet om forholdet.</span>
                       <span class="ts t-frafall">Gjelder det utførte arbeidet.</span>
                     </p>
@@ -717,7 +719,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                       <dt>Byggherren</dt><dd><span class="tomt">Ikke svart</span></dd>
                     </dl>
                     <p class="virker">
-                      <span class="ts t-ubesvart">Et svar før svaret på varselet får forbeholdet om forholdet.</span>
+                      <span class="ts t-ubesvart">Et svar før svaret på påberopelsen får forbeholdet om forholdet.</span>
                       <span class="ts t-avslatt">Et svar blir subsidiært så lenge byggherren står fast på brev 5.</span>
                       <span class="ts t-eo t-frafall">Et svar står prinsipalt.</span>
                     </p>
@@ -741,12 +743,12 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <span class="uten-utkast"><button class="knapp primaer apne-valg" type="button" aria-expanded="false" aria-controls="valg-avslag">Ta stilling til avslaget</button></span>
                   <span class="kun-utkast"><button class="knapp sekundaer apne-valg" type="button" aria-expanded="false" aria-controls="valg-avslag">Ta stilling til avslaget</button></span>
                 </div>
-                <p class="venter ts t-avslatt">Du kan godta avslaget, sende en ny versjon av varselet eller trekke påberopelsen. Gjør du ingenting, står saken uendret.</p>
+                <p class="venter ts t-avslatt">Du kan godta avslaget, sende en ny versjon av påberopelsen eller trekke påberopelsen. Gjør du ingenting, står saken uendret.</p>
                 <div class="valg ts t-avslatt" id="valg-avslag" hidden>
                   <p class="valg-tittel">Velg hva du vil gjøre</p>
                   <ul>
                     <li><button type="button" class="valg-rad"><span class="h">Godta avslaget</span><span class="b">Dere blir enige om byggherrens standpunkt<span class="fs f-endring">, også at varselet etter punkt&nbsp;32.2 kom for sent</span><span class="fs f-grunn"></span>. Saken avsluttes med kravene om vederlag og frist, og du kan ikke sende en ny versjon etterpå.</span></button></li>
-                    <li><button type="button" class="valg-rad"><span class="h">Send ny versjon av varselet</span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse. Byggherren svarer på nytt.</span></button></li>
+                    <li><button type="button" class="valg-rad"><span class="h">Send ny versjon av påberopelsen</span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse. Byggherren svarer på nytt.</span></button></li>
                     <li class="skille"><button type="button" class="valg-rad"><span class="h">Trekk påberopelsen</span><span class="b">Du gir avkall på forholdet og kravene om vederlag og frist, også det byggherren har godkjent. Det er ikke en enighet om byggherrens standpunkt.</span></button></li>
                   </ul>
                   <p class="valg-fot">Du ser brevet før det sendes.</p>
@@ -760,10 +762,9 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <p class="andre-tittel">Andre handlinger</p>
                 <ul class="andre">
                   <li class="ts t-avslatt"><button type="button"><span class="h">Påberop et annet forhold i en ny sak</span><span class="b">Den nye saken viser til denne.</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li class="ts t-ubesvart t-frafall"><button type="button"><span class="h">Send ny versjon av varselet<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse <span class="fs f-endring">av pålegget</span><span class="fs f-grunn">av forholdet</span>. <span class="ts t-avslatt">Byggherren svarer på nytt.</span><span class="ts t-frafall">Frafallet står (GR-U20).</span><span class="ts t-ubesvart">Erstatter varselet i brev 1.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li class="ts t-ubesvart fs f-endring"><button type="button"><span class="h">Gjør gjeldende at byggherren ikke svarte i tide</span><span class="b">Etter punkt&nbsp;32.3 annet ledd anses pålegget da å innebære en endring. Om svaret kom for sent, avgjør partene.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li class="ts t-ubesvart t-frafall"><button type="button"><span class="h">Send ny versjon av påberopelsen<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse <span class="fs f-endring">av pålegget</span><span class="fs f-grunn">av forholdet</span>. <span class="ts t-avslatt">Byggherren svarer på nytt.</span><span class="ts t-frafall">Frafallet står (GR-U20).</span><span class="ts t-ubesvart">Erstatter påberopelsen i brev 1.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-eo"><button type="button"><span class="h">Gå til vederlagsjusteringen</span><span class="b">Svaret i brev 4 står prinsipalt.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li><button type="button"><span class="h">Skriv innlegg</span><span class="b">Fritekst med henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev<span class="ts t-ubesvart"><span class="fs f-endring">, for eksempel at byggherren ikke svarte i tide (punkt&nbsp;32.3 annet ledd)</span></span>.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-ubesvart t-frafall"><button type="button"><span class="h">Trekk påberopelsen</span><span class="b">Trekker også kravene om vederlag og frist.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
@@ -771,8 +772,8 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <!-- Byggherren -->
               <div class="kun-bh">
                 <div class="ts t-ubesvart">
-                  <span class="uten-utkast"><button class="knapp primaer" type="button">Svar på varselet</button></span>
-                  <span class="kun-utkast"><button class="knapp sekundaer" type="button">Svar på varselet</button></span>
+                  <span class="uten-utkast"><button class="knapp primaer" type="button">Svar</button></span>
+                  <span class="kun-utkast"><button class="knapp sekundaer" type="button">Svar</button></span>
                 </div>
                 <p class="venter ts t-ubesvart"><span class="fs f-endring">Du kan utstede endringsordre, avslå kravet eller frafalle pålegget (punkt&nbsp;32.3).</span><span class="fs f-grunn">Du kan svare at byggherren har eller ikke har risikoen for forholdet (punkt&nbsp;23.1).</span></p>
                 <div class="ts t-avslatt">
@@ -790,7 +791,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <ul class="andre">
                   <li class="ts t-avslatt t-frafall"><button type="button"><span class="h">Send nytt svar<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b"><span class="ts t-avslatt">Erstatter svaret i brev 5. Brev 5 står som det ble sendt.</span><span class="ts t-frafall">Etter frafallet bare som endringsordre.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li class="ts t-eo"><button type="button"><span class="h">Svar på kravet om fristforlengelse</span><span class="b">Kravet i brev 3 er ikke besvart.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li><button type="button"><span class="h">Skriv innlegg</span><span class="b">Fritekst med henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev<span class="ts t-ubesvart"><span class="fs f-endring">, for eksempel at byggherren ikke svarte i tide (punkt&nbsp;32.3 annet ledd)</span></span>.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
             </div>
@@ -800,13 +801,13 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <div class="kort-hode" style="padding-bottom:12px"><h2 id="dato-tittel">Datoene</h2></div>
             <ol>
               <li class="oppgitt"><span class="d">2. oktober 2026</span><span class="h"><span class="fs f-endring">Pålegget mottatt</span><span class="fs f-grunn">Klar over forholdet</span></span><span class="k">Oppgitt av TE i brev 1</span></li>
-              <li><span class="d">9. oktober 2026</span><span class="h"><span class="fs f-endring">Varsel etter punkt&nbsp;32.2</span><span class="fs f-grunn">Varsel om forholdet</span></span><span class="k">Brev 1 sendt av TE kl. 10.05</span></li>
+              <li><span class="d">9. oktober 2026</span><span class="h"><span class="fs f-endring">Varsel etter punkt&nbsp;32.2</span><span class="fs f-grunn">Påberopelse av forholdet</span></span><span class="k">Brev 1 sendt av TE kl. 10.05</span></li>
               <li><span class="d">16. oktober 2026</span><span class="h">Krav om vederlagsjustering</span><span class="k">Brev 2 sendt av TE kl. 14.30</span></li>
               <li><span class="d">19. oktober 2026</span><span class="h">Krav om fristforlengelse</span><span class="k">Brev 3 sendt av TE kl. 08.50</span></li>
               <li><span class="d">26. oktober 2026</span><span class="h">Svar på vederlag</span><span class="k">Brev 4 sendt av BH kl. 13.15</span></li>
-              <li class="ts t-avslatt t-eo t-frafall"><span class="d">28. oktober 2026</span><span class="h">Svar på varselet</span><span class="k">Brev 5 sendt av BH kl. 11.40</span></li>
+              <li class="ts t-avslatt t-eo t-frafall"><span class="d">28. oktober 2026</span><span class="h">Svar fra byggherren</span><span class="k">Brev 5 sendt av BH kl. 11.40</span></li>
             </ol>
-            <p class="avstand fs f-grunn"><span class="num">7</span> kalenderdager fra forholdet til varselet. Fristene for kravene står på sidene om vederlag og frist.</p>
+            <p class="avstand fs f-grunn"><span class="num">7</span> kalenderdager fra forholdet til påberopelsen. Fristene for kravene står på sidene om vederlag og frist.</p>
             <div class="svarplikt ts t-ubesvart fs f-endring">
               <p class="dag-teller"><span class="num">22</span> kalenderdager siden varselet</p>
               <p>Svar er ikke registrert. Svarplikten står i punkt&nbsp;32.3.</p>
@@ -818,7 +819,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 
           <section class="kort kommentarer" aria-labelledby="kommentar-tittel">
             <div class="kort-hode" style="padding-bottom:4px">
-              <h2 id="kommentar-tittel">Kommentarer i Catenda<button type="button" class="info" aria-label="Om kommentarene" title="Kommentarer er ikke brev etter kontrakten. En kommentar er ikke et varsel eller krav etter kontrakten. Varsler og krav sendes som brev fra Varden, eller registreres med brevet som vedlegg." style="all:unset;cursor:help;display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:12px;font-weight:600;color:var(--ink-2);margin-left:6px;vertical-align:1px">i</button></h2>
+              <h2 id="kommentar-tittel">Kommentarer i Catenda<button type="button" class="info" aria-label="Om kommentarene" title="En kommentar i Catenda er ikke et brev i Varden, og den kan ikke legges til som brev. Brev sendes fra Varden, eller legges til som korrespondanse med dokumentet som PDF." style="all:unset;cursor:help;display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:12px;font-weight:600;color:var(--ink-2);margin-left:6px;vertical-align:1px">i</button></h2>
               <span class="kilde">Gjelder hele saken</span>
             </div>
             <ol class="kommentarliste">
