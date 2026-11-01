@@ -320,6 +320,19 @@ vederlag blir der de hører hjemme, i kravskjemaet.
 **Valget styrer** teksten og valgene ved spørsmålet om varsel som alt er sendt, og hvilke
 forhold spørsmålet stilles for.
 
+Oppdragsgiver spurte før svaret, ordrett: «Man trenger jo dato uansett for å vurdere om varsel
+feks iht 33.4 er rettidig ??» Svaret var at datoen totalentreprenøren ble klar over forholdet,
+står i påberopelsen (VS-U26), og at et varsel etter punkt 33.4 eller 34.1.2 sendt utenfor
+løsningen har datoen det ble sendt, når det enn legges til (OV-U80, VS-U34). Et tredje
+alternativ ble lagt fram, ordrett:
+
+- **A med tillegg:** Ved svikt og andre forhold kan totalentreprenøren i skjemaet for ny sak
+  legge til et varsel etter punkt 33.4 eller 34.1.2 som alt er sendt, som korrespondanse med
+  kategorien varsel (OV-U80). Påberopelsen nevner det ikke. Opplysningen fra kapittel B står
+  ved spørsmålet.
+
+Svaret, ordrett: «A». Føres som vedtak i #1486.
+
 ### Datoen for forhold uten pålegg (stilt 01.11)
 
 > Etter svaret ditt (2a med dato) blir feltene slik: der punkt 32.2 gjelder og det finnes et
