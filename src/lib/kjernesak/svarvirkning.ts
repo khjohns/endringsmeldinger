@@ -3,10 +3,12 @@
  * virkningen av BHs svar på vederlagskravet, med «Begrunnelsen» (oppdragsgiver 26.10), uten
  * «Byggherren er bundet …» og «… og svaret kan ikke revideres» (MM-U34 punkt 26). Vilkår og
  * forbehold står i begrunnelsen og har ingen egen tekst (OV-U69). Dagens svarskjema og Varden
- * (#1331) viser de samme tekstene.
+ * (#1331) viser de samme tekstene, men Varden forklarer ikke ved feltene at begrunnelsen ikke
+ * tolkes; det står på siden «Om Varden» (OV-U81, #1443, #1452).
  */
 export const VIRKNING = {
-  alltid: 'Virkningen av svaret regnes ut fra valgene over. Begrunnelsen tolkes ikke.',
+  alltid: 'Virkningen av svaret regnes ut fra valgene over.',
+  tolkes: 'Begrunnelsen tolkes ikke.',
   // Bare når kjernen forhåndsviser sammenfall, ikke bare hele beløpet (GR-U7).
   sammenfall:
     'Svaret gir sammenfall med TEs krav om vederlag etter valgene over. Enighet registreres uten at TE må godta svaret.',

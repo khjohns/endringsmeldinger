@@ -1,5 +1,5 @@
 /**
- * Grunnlagskravet fra skjemaet for ny sak mot dagens TS-server (#666). Kommandoen
+ * Påberopelsen fra skjemaet for ny sak mot dagens TS-server (#666). Kommandoen
  * bygges av `grunnlagskrav` i klienten, og den låste teksten er den `brevFor` gir,
  * slik skjemaet gjør. Saken er en prøvesak fra testverktøyet; inngangen for
  * opprettelsen bygges i #370 (FK-7). Kilden til forventningene er VS-U26 (datoen
@@ -18,7 +18,7 @@ import {
   type KjorendeServer,
   type Oppsett,
 } from '../../server/tester/testbase.ts';
-import { grunnlagskrav, type Grunnlagsvalg } from '../../src/lib/kjernesak/grunnlagskrav.ts';
+import { grunnlagskrav, type Grunnlagsvalg } from '../../src/lib/kjernesak/paaberopelse.ts';
 import { brevFor } from '../../src/lib/kjernesak/brevtekst.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';

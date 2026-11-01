@@ -5,7 +5,7 @@
  * ved lesing og er bare en oppsummering til visning.
  */
 
-import type { Standpunkt } from '../../kjerne/regler/grunnlag.ts';
+import type { Standpunkt } from '../../kjerne/regler/forhold.ts';
 import {
   erPrekludert,
   foersteUnderkategori as forsteUnderkategori,

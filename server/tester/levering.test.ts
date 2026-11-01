@@ -218,7 +218,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
       .execute('koe_api.start_jobb_paa_nytt');
   };
 
-  /** Brevet med kravet om grunnlag, med den låste teksten klienten viste (LV-U2). */
+  /** Brevet med kravet om forhold, med den låste teksten klienten viste (LV-U2). */
   async function sendBrev(sakId: string) {
     const svar = await sendKommando(server.url, o, sakId, { versjon: 1 });
     if (svar.status !== 201 && svar.status !== 200)
@@ -626,7 +626,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
   }
 
   // Kilde: LV-U11 (registrert brev blir ikke eget dokument, vedlegget lagres i Catenda),
-  // LV-U12 (filen slettes etter kvitteringen, hash og frosset grunnlag beholdes) og
+  // LV-U12 (filen slettes etter kvitteringen, hash og frosset forhold beholdes) og
   // arbeidsvalg 7 i #790 (samme bibliotek og mappe, referanse på topicen).
   it('L9: et registrert brev blir ikke et eget dokument, men vedlegget leveres til topicen, og innholdet slettes etter kvitteringen', async () => {
     const { sakId, vedleggId } = await sakMedRegistrertVarsel();

@@ -63,7 +63,7 @@ function kontrollerSvar(
       s.vurderinger,
       {
         krav,
-        grunnlagskrav: u.spor.grunnlag.gjeldendeKrav,
+        paaberopelse: u.spor.forhold.gjeldendeKrav,
         foresporsel: foresporselForFristsvar(u),
       },
       regler
@@ -96,7 +96,7 @@ function kontrollerSvar(
 /**
  * KA-U24, KA-U32: de selvstendige innsigelsene og avgrensningene i svaret som gjør
  * det mindre gunstig for TE enn kravet, og som krever en begrunnelse. Begrensningen etter
- * § 34.1.3 krever begrunnelse også når beløpene er like (valg d i #1047). At et svar bare er subsidiært fordi grunnlaget er avslått, krever ingen
+ * § 34.1.3 krever begrunnelse også når beløpene er like (valg d i #1047). At et svar bare er subsidiært fordi forholdet er avslått, krever ingen
  * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten. Hver grunn
  * står uten subjekt, så meldingen kan si «fordi du …» (#1279).
  */
@@ -104,7 +104,7 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
   const v = s.vurderinger;
   const ut: string[] = [];
   const fulltGodkjent = (server.subsidiaert_resultat ?? server.resultat) === 'godkjent';
-  if (s.spor === 'grunnlag') {
+  if (s.spor === 'forhold') {
     // KA-U21
     if (v.grunnlag_varslet_i_tide === false)
       ut.push('gjør gjeldende at varselet etter § 32.2 kom for sent');
@@ -158,7 +158,7 @@ function kravetsUtdypning(
       'BEGRUNNELSE_MANGLER',
       'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
     );
-  if (k.spor === 'grunnlag' && gjelderVarslingsplikten(k, regler))
+  if (k.spor === 'forhold' && gjelderVarslingsplikten(k, regler))
     return avvis(
       'BESKRIVELSE_MANGLER',
       'Varselet etter NS 8407 § 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på (GR-U15).'
@@ -167,13 +167,13 @@ function kravetsUtdypning(
 }
 
 /**
- * GR-U22: når grunnlaget er sendt, står hjemmelen, hovedkategorien og underkategorien.
+ * GR-U22: når forholdet er sendt, står hjemmelen, hovedkategorien og underkategorien.
  * En ny versjon med samme hjemmel kan for eksempel rette endringsordrens dato eller
  * nummer (GR-U16). Om det er samme forhold, avgjør ikke appen (MM-U12).
  */
 function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
-  const forrige = u.spor.grunnlag.gjeldendeKrav;
-  if (k.spor !== 'grunnlag' || !forrige) return null;
+  const forrige = u.spor.forhold.gjeldendeKrav;
+  if (k.spor !== 'forhold' || !forrige) return null;
   return tekst(k.innhold.hovedkategori) === tekst(forrige.innhold.hovedkategori) &&
     tekst(k.innhold.underkategori) === tekst(forrige.innhold.underkategori)
     ? null
@@ -199,7 +199,7 @@ type OppgittDato = { dato: unknown; gjelder: string; av: 'TE' | 'Byggherren' };
 
 /**
  * Datoen parten oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
- * fra i grunnlagskravet (VS-U26), datoen et varsel etter § 33.4, § 34.1.2 eller § 34.1.3 ble
+ * fra i påberopelsen (VS-U26), datoen et varsel etter § 33.4, § 34.1.2 eller § 34.1.3 ble
  * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5), og datoen
  * byggherrens registrerte begrunnelse ble sendt (KA-U35).
  */
@@ -212,7 +212,7 @@ function oppgittDatoI(k: Kommando): OppgittDato | null {
   if (k.type !== 'krav') return null;
   if (k.spor === 'frist')
     return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null;
-  if (k.spor !== 'grunnlag') return null;
+  if (k.spor !== 'forhold') return null;
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
   return felt === null ? null : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt], av: 'TE' };
 }
@@ -357,7 +357,7 @@ export function nyttelastkontroll(
     }
     case 'passivitet': {
       // VS-U12 og GR-U11: passivitetsregelen gjelder bare der § 32.2 gjelder.
-      const krav = u.spor.grunnlag.krav.find((x) => x.id === k.gjelder);
+      const krav = u.spor.forhold.krav.find((x) => x.id === k.gjelder);
       return gjelderVarslingsplikten(krav, regler)
         ? null
         : avvis(
@@ -392,7 +392,7 @@ export function nyttelastkontroll(
       // til rettidigheten etter § 34.1.2, så innsigelsen mot varselet avvises som vurderingen.
       if (
         k.gjelder === u.spor.vederlag.varsler['34.1.2']?.id &&
-        !hjemmelenGjelder('34.1.2', u.spor.grunnlag.gjeldendeKrav, regler)
+        !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
       )
         return avvis(
           'VARSLINGSPLIKT_GJELDER_IKKE',

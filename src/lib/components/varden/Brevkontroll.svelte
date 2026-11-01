@@ -5,12 +5,15 @@
   mangler avkrysningen, står det ved den (MM-U32).
 -->
 <script lang="ts">
-  import { ChevronLeft, Lock, Send } from 'lucide-svelte';
+  import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount, tick } from 'svelte';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Part } from '$kjerne/typer';
   import Brev from './Brev.svelte';
+  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
+  import Melding from './Melding.svelte';
+  import { organisasjonene } from './kontrakt';
   import { BREVKONTROLL, PARTNAVN, dato } from './prototypetekst';
 
   let {
@@ -47,10 +50,14 @@
 
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
+  const hentOrganisasjoner = organisasjonene();
+  const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTNAVN[p])} (${p})`;
   let kontrollert = $state(false);
   let manglerKontroll = $state(false);
   let avkrysning = $state<HTMLInputElement | null>(null);
   let tittelen = $state<HTMLElement | null>(null);
+  // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
+  let harSendt = $state(false);
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
   onMount(() => tittelen?.focus());
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
@@ -63,6 +70,7 @@
       avkrysning?.focus();
       return;
     }
+    harSendt = true;
     if (await kjernesak.send(kommando, tekst)) onsendt();
   }
 </script>
@@ -78,26 +86,26 @@
       nummer={String((kjernesak.versjon ?? 0) + 1)}
       dato={BREVKONTROLL.datoSettes}
       {tittel}
+      svarerPaa={svarerPaa ? `Brev ${svarerPaa.nummer}` : undefined}
       avsnitt={tekst.map((laast, i) => ({
         laast,
         utdypning: i === tekst.length - 1 ? utdypning : undefined,
       }))}
-    >
-      {#snippet fot()}{BREVKONTROLL.skjermvisning}{/snippet}
-    </Brev>
+    />
   </div>
 
   <section class="panel" aria-label="Sending">
     <header class="hode">
       <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
-      <h2 tabindex="-1" bind:this={tittelen}>{handling}</h2>
-      <p class="laast"><Lock size={14} aria-hidden="true" />{BREVKONTROLL.laast}</p>
+      <h2 tabindex="-1" bind:this={tittelen}>
+        {handling}<Infotips navn={BREVKONTROLL.omBrevet} tekst={BREVKONTROLL.laast} />
+      </h2>
     </header>
     <dl class="fakta">
       <dt>{BREVKONTROLL.fra}</dt>
-      <dd>{stor(PARTNAVN[avsender])} ({avsender})</dd>
+      <dd>{partnavn(avsender)}</dd>
       <dt>{BREVKONTROLL.til}</dt>
-      <dd>{stor(PARTNAVN[mottaker])} ({mottaker})</dd>
+      <dd>{partnavn(mottaker)}</dd>
       {#if svarerPaa}
         <dt>{BREVKONTROLL.svarerPaa}</dt>
         <dd>Brev {svarerPaa.nummer}, {dato(svarerPaa.registrert)}</dd>
@@ -110,8 +118,7 @@
           <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
         {/each}
       </ul>
-      {#each virkninger as b, i (i)}<p class:sterk={i === 0}>{b}</p>{/each}
-      <p class="dempet">{BREVKONTROLL.ikkeEndres}</p>
+      {#each virkninger as b, i (i)}<p>{b}</p>{/each}
     </div>
     <div class="send">
       <label class="avkryss" class:ugyldig={manglerKontroll && !kontrollert}>
@@ -133,7 +140,9 @@
         <Send size={16} aria-hidden="true" />
         {kjernesak.sender ? BREVKONTROLL.sender : sendTekst}
       </Knapp>
-      {#if kjernesak.feil}<p class="feil" role="alert">{kjernesak.feil}</p>{/if}
+      {#if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
+          >{kjernesak.feil}</Melding
+        >{/if}
     </div>
   </section>
 </div>
@@ -156,7 +165,7 @@
   .panel {
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
   }
   .hode,
   .fakta,
@@ -173,7 +182,7 @@
     display: inline-block;
     padding: 0 var(--spacing-2);
     border: 1px dashed var(--draft-border);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     background: var(--draft-bg);
     color: var(--ink);
     font-size: 12px;
@@ -182,14 +191,6 @@
     margin-top: var(--spacing-2);
     font-size: 20px;
     font-weight: 600;
-  }
-  .laast {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-1);
-    margin-top: var(--spacing-2);
-    color: var(--ink-3);
-    font-size: 12px;
   }
   .fakta {
     display: grid;
@@ -215,13 +216,6 @@
     font-size: 14px;
     margin-top: var(--spacing-2);
   }
-  .sterk {
-    font-weight: 600;
-  }
-  .dempet {
-    color: var(--ink-3);
-    font-size: 14px;
-  }
   .send {
     display: flex;
     flex-direction: column;
@@ -234,7 +228,7 @@
     min-height: 48px;
     padding: 0 var(--spacing-4);
     border: var(--rule-strong);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
     cursor: pointer;
   }
   .avkryss:has(input:focus-visible) {
@@ -255,15 +249,7 @@
     height: 20px;
     accent-color: var(--ink);
   }
-  .feil {
-    padding: var(--spacing-3);
-    background: var(--danger-bg);
-    border: 1px solid var(--danger-border);
-    border-radius: 4px;
-    color: var(--ink);
-    font-size: 14px;
-  }
-  @media (max-width: 1023px) {
+  @media (max-width: 1180px) {
     .kontroll {
       grid-template-columns: minmax(0, 1fr);
     }

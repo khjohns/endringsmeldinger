@@ -151,7 +151,7 @@ describe('skjemaet for ny sak på TS-stien', () => {
       expect.stringMatching(UUID),
       {
         type: 'krav',
-        spor: 'grunnlag',
+        spor: 'forhold',
         innhold: {
           hovedkategori: 'endring',
           underkategori: 'irregulaer_endring',

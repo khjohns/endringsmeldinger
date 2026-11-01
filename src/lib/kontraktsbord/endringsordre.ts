@@ -7,7 +7,7 @@
  */
 
 import {
-  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
+  FORHOLDSRESULTAT_FRA_KATALOGEN,
   fraKatalogen,
   kategoriFraKatalogen,
 } from '$kjerne/format/koder';
@@ -36,7 +36,7 @@ export function erEndringsordre(
 ): boolean {
   return svaretBlirEndringsordre(
     {
-      resultat: fraKatalogen(GRUNNLAGSRESULTAT_FRA_KATALOGEN, vurdering.resultat),
+      resultat: fraKatalogen(FORHOLDSRESULTAT_FRA_KATALOGEN, vurdering.resultat),
       ...(typeof vurdering.varsletITide === 'boolean'
         ? { grunnlag_varslet_i_tide: vurdering.varsletITide }
         : {}),

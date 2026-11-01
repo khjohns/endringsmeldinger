@@ -5,8 +5,8 @@
  * sier og hva en aksept gir, kommer fra kjernen gjennom `lagKjernesak`.
  */
 
-import { etikett, grunnerFraGrunnlaget, laget } from '$kjerne/frosset/standpunkt';
-import type { Subsidiaergrunn } from '$kjerne/regler/grunnlag';
+import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt';
+import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 
@@ -86,7 +86,7 @@ export interface OppgittDato {
 export function oppgitteDatoer(u: Utledning): OppgittDato[] {
   const brev = new Map(brevene(u).map((b) => [b.id, b]));
   const ut: OppgittDato[] = [];
-  for (const k of u.spor.grunnlag.krav) {
+  for (const k of u.spor.forhold.krav) {
     const dato = k.innhold.klar_over_forholdet;
     const b = brev.get(k.dokument);
     if (typeof dato === 'string' && b)
@@ -95,7 +95,7 @@ export function oppgitteDatoer(u: Utledning): OppgittDato[] {
         hva: 'klar_over_forholdet',
         oppgittAv: b.avsender,
         brev: b.nummer,
-        spor: ['grunnlag'],
+        spor: ['forhold'],
       });
   }
   for (const { opplysning: o } of u.opplysninger) {
@@ -113,12 +113,12 @@ export function oppgitteDatoer(u: Utledning): OppgittDato[] {
  */
 export const datoerISporet = (u: Utledning, spor: Spor) =>
   oppgitteDatoer(u).filter(
-    (d) => d.spor.includes(spor) || (spor === 'vederlag' && d.spor.includes('grunnlag'))
+    (d) => d.spor.includes(spor) || (spor === 'vederlag' && d.spor.includes('forhold'))
   );
 
 /** Datoen TE oppgir i gjeldende grunnlagskrav for når TE ble klar over forholdet. */
 export function klarOverForholdet(u: Utledning): OppgittDato | null {
-  const krav = u.spor.grunnlag.gjeldendeKrav;
+  const krav = u.spor.forhold.gjeldendeKrav;
   const b = krav && brevet(u, krav.dokument);
   return (
     oppgitteDatoer(u).find((d) => d.hva === 'klar_over_forholdet' && d.brev === b?.nummer) ?? null
@@ -139,8 +139,8 @@ export type Standpunktet = { lag: string | null } & (
  * fra grunnlaget står først, ett lag hver, som i brevet (OV-U33): `foer` er saken før svaret.
  */
 export function standpunktene(svar: Svar, foer: Utledning): Standpunktet[] {
-  const g = svar.spor === 'grunnlag' ? null : foer.spor.grunnlag.gjeldendeSvar;
-  const grunner = g ? grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger) : [];
+  const g = svar.spor === 'forhold' ? null : foer.spor.forhold.gjeldendeSvar;
+  const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
   const lagene = svar.beslutningsgrunnlag.virkninger.map((v) => {
     const l = laget(v.virkning);
     return { id: v.standpunkt, lag: l === null ? null : l + grunner.length };

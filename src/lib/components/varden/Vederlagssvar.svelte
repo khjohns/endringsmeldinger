@@ -9,9 +9,16 @@
   øverst i skjemaet (MM-U32, BF-01 S-3 med reserven B, fordi kjernen ikke lager tekst for et
   ufullstendig svar). «Forkast utkast» står nederst i skjemaet og spør først.
 -->
+<script module lang="ts">
+  // Skjemaene på siden som vil vise den faste linja. Den gjengis bare for det siste, så
+  // flere eksemplarer ikke ligger oppå hverandre (showcasen viser flere skjemaer).
+  const vilHaLinja = $state<string[]>([]);
+</script>
+
 <script lang="ts">
   import { BookOpen, FileText, Info, Lock } from 'lucide-svelte';
-  import { tick } from 'svelte';
+  import { tick, untrack } from 'svelte';
+  import { kroner } from '$kjerne/frosset/standpunkt';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
@@ -20,7 +27,9 @@
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
+  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
+  import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Valg from './Valg.svelte';
   import { tomtSvar, vederlagssvaret, type Svarvalg } from './kommandoer';
@@ -106,7 +115,7 @@
     );
   });
   const grunnlagsbrev = $derived.by(() => {
-    const g = u.spor.grunnlag.gjeldendeSvar;
+    const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument)!.nummer : null;
   });
   const nyttSvar = $derived.by(() => {
@@ -182,7 +191,6 @@
   let sendehindring = $state<string | null>(null);
 
   const virkninger = $derived([
-    VIRKNING.alltid,
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
     ...(kjernesak.forbehold ? [VIRKNING.forbehold] : []),
     ...(nyttSvar?.standpunkter.some((s) => s.art === 'rettidighet' && !s.iTide)
@@ -204,6 +212,9 @@
         b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING'
           ? HOVEDLINJER.kanIkkeLages
           : (brevaarsak(b) ?? HOVEDLINJER.kanIkkeLages);
+      // Fra den faste linja står hindringen utenfor syne; fokus viser den.
+      await tick();
+      document.getElementById(`${uid}-hindring`)?.focus();
       return;
     }
     onbrevkontroll({
@@ -233,7 +244,7 @@
   let smal = $state(false);
   $effect(() => {
     if (typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(max-width: 1023px)');
+    const mq = window.matchMedia('(max-width: 1180px)');
     const sett = () => (smal = mq.matches);
     sett();
     mq.addEventListener('change', sett);
@@ -271,6 +282,18 @@
       window.removeEventListener('resize', maal);
     };
   });
+
+  const vilVise = $derived(!harPost && !faarPlass && !iSyne && !(leser && !smal));
+  $effect(() => {
+    if (!vilVise) return;
+    untrack(() => vilHaLinja.push(uid));
+    return () =>
+      untrack(() => {
+        const i = vilHaLinja.indexOf(uid);
+        if (i >= 0) vilHaLinja.splice(i, 1);
+      });
+  });
+  const visKompakt = $derived(vilVise && vilHaLinja.at(-1) === uid);
 </script>
 
 {#snippet gjelderHvis(felt: string, liste: Forutsetning[])}
@@ -308,25 +331,37 @@
 {/snippet}
 
 {#snippet sendeknapp()}
-  <p class="sterk">{VIRKNING.alltid}</p>
-  <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
-  {#if sendehindring}<p class="feil" role="alert">{sendehindring}</p>{/if}
+  <div class="handling">
+    <Knapp
+      variant="primaer"
+      onclick={seBrevet}
+      aria-describedby={sendehindring ? `${uid}-hindring` : undefined}>{HOVEDLINJER.seBrevet}</Knapp
+    >
+  </div>
+  {#if sendehindring}
+    <Melding art="feil" levende={false} id={`${uid}-hindring`} tabindex="-1"
+      >{sendehindring}</Melding
+    >
+  {/if}
 {/snippet}
 
 <Arbeidsflate leser={leser && !smal}>
   {#snippet hoved()}
     <form class="utkast" aria-labelledby={`${uid}-tittel`} onsubmit={(e) => e.preventDefault()}>
       <header class="utkasthode">
-        <h2 class="tittel" id={`${uid}-tittel`}>
-          <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
-          <span
-            >Brev {(kjernesak.versjon ?? 0) + 1} · {brevtittel({
-              art: 'svar',
-              spor: ['vederlag'],
-            })}</span
-          >
-        </h2>
-        <p class="dempet">Til entreprenøren (TE)</p>
+        <div class="tittelrad">
+          <h2 class="tittel" id={`${uid}-tittel`}>
+            <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
+            <span
+              >Brev {(kjernesak.versjon ?? 0) + 1} · {brevtittel({
+                art: 'svar',
+                spor: ['vederlag'],
+              })}</span
+            >
+          </h2>
+          <Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />
+        </div>
+        <p class="dempet">Til totalentreprenøren (TE)</p>
         <p class="dempet synlig"><Lock size={14} aria-hidden="true" />{SKJEMA.synlig}</p>
       </header>
       <div class="svarerpaa">
@@ -370,7 +405,8 @@
         <section class="spoersmaal" aria-labelledby={`${uid}-sp-varsel`}>
           <div class="sp-hode">
             <h3 id={`${uid}-sp-varsel`}>{SKJEMA.varselTittel}</h3>
-            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1.2</span>
+            <Infotips navn={SKJEMA.datoInfoNavn} tekst={SKJEMA.datoInfo} />
+            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.1.2</span>
           </div>
           {@render gjelderHvis('itide', grunnene)}
           <div class="datoer">
@@ -401,7 +437,7 @@
         <section class="spoersmaal" aria-labelledby={`${uid}-sp-metode`}>
           <div class="sp-hode">
             <h3 id={`${uid}-sp-metode`}>{SKJEMA.metodeTittel}</h3>
-            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.2</span>
+            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.2</span>
           </div>
           {@render gjelderHvis('metode', metodeforutsetninger)}
           <Valg
@@ -420,8 +456,8 @@
               navn={`${uid}-oensket`}
               spoersmaal={SKJEMA.oensketSpoersmaal}
               valg={[
-                { verdi: 'enhetspriser', tekst: 'Enhetspriser (§ 34.3)' },
-                { verdi: 'regningsarbeid', tekst: 'Regningsarbeid (§ 34.4)' },
+                { verdi: 'enhetspriser', tekst: 'Enhetspriser (punkt 34.3)' },
+                { verdi: 'regningsarbeid', tekst: 'Regningsarbeid (punkt 34.4)' },
               ]}
               bind:verdi={valg.oensket}
               feil={feil('oensket')}
@@ -431,8 +467,10 @@
 
         <section class="spoersmaal" aria-labelledby={`${uid}-sp-beloep`}>
           <div class="sp-hode">
-            <h3 id={`${uid}-sp-beloep`}>{SKJEMA.beloepTittel(krevd)}</h3>
-            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />§ 34.1</span>
+            <h3 id={`${uid}-sp-beloep`}>
+              {SKJEMA.beloepTittel} · <span class="num">{kroner(krevd)}</span>
+            </h3>
+            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.1</span>
           </div>
           {@render gjelderHvis('beloep', forutsetninger)}
           <Valg
@@ -533,10 +571,10 @@
   {/snippet}
 </Arbeidsflate>
 
-{#if !harPost && !faarPlass && !iSyne && !(leser && !smal)}
+{#if visKompakt}
   <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
-    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
     <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
+    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
   </div>
 {/if}
 
@@ -544,15 +582,19 @@
   .utkast {
     background: var(--surface);
     border: 1.5px dashed var(--draft-border);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
   }
   .utkasthode {
     background: var(--draft-bg);
-    border-radius: 10.5px 10.5px 0 0;
+    border-radius: calc(var(--r-kort) - 1.5px) calc(var(--r-kort) - 1.5px) 0 0;
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-1);
+  }
+  .tittelrad {
+    display: flex;
+    align-items: center;
   }
   .tittel {
     display: flex;
@@ -566,7 +608,7 @@
   .merke-utkast {
     padding: 0 var(--spacing-2);
     border: 1px dashed var(--draft-border);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     background: var(--surface);
     font-size: 12px;
     font-weight: 500;
@@ -617,14 +659,15 @@
     gap: var(--spacing-1);
     padding: 0 var(--spacing-2);
     border: var(--rule-strong);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     color: var(--ink-2);
     font-size: 12px;
+    white-space: nowrap;
   }
   /* Subsidiært har ingen farge; laget skilles med kantlinjen og teksten (#197). */
   .forutsetninger {
     padding: var(--spacing-1) 0 var(--spacing-1) var(--spacing-3);
-    border-left: 3px solid var(--ink-3);
+    border-left: 2px solid var(--ink);
     color: var(--ink-2);
     font-size: 14px;
   }
@@ -645,7 +688,7 @@
   .datoer {
     padding: var(--spacing-3) var(--spacing-4);
     background: var(--surface-inset);
-    border-radius: 4px;
+    border-radius: var(--r-innfelt);
     font-size: 14px;
   }
   .beloepfelt,
@@ -659,7 +702,7 @@
     align-items: stretch;
     width: 220px;
     border: var(--control-border);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
   }
   .inndata:focus-within,
   textarea:focus-visible {
@@ -673,8 +716,9 @@
     padding: 0 var(--spacing-3);
     border: 0;
     text-align: right;
-    font: inherit;
+    font: 16px var(--font-mono);
     font-variant-numeric: tabular-nums;
+    color: var(--ink);
     background: var(--surface);
     outline: none;
   }
@@ -688,7 +732,7 @@
   textarea {
     padding: var(--spacing-3);
     border: var(--control-border);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
     font: inherit;
     background: var(--surface);
     resize: vertical;
@@ -767,16 +811,16 @@
     color: var(--ink-3);
     font-size: 14px;
   }
-  .sterk {
-    font-weight: 600;
-    font-size: 14px;
+  .num {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
-  .feil {
-    padding: var(--spacing-3);
-    background: var(--danger-bg);
-    border: 1px solid var(--danger-border);
-    border-radius: 4px;
-    font-size: 14px;
+  .handling {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
   }
   /* Over tidslinja, som ruller under: den åpne chevronen er rotert og ville ellers ligget
      øverst og tatt klikkene i panelet. */
@@ -796,7 +840,7 @@
     max-height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
     overflow: hidden;
   }
   .lesetittel {

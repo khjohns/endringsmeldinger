@@ -70,7 +70,7 @@ export type Kommando = (
       varsel?: { sendt: string; dokumentasjon?: string[] };
       /**
        * TEs utdypning under den låste teksten: beskrivelsen av forholdet i
-       * grunnlaget (GR-U15), begrunnelsen i fristkravet (KA-U33). Appen tolker den
+       * forholdet (GR-U15), begrunnelsen i fristkravet (KA-U33). Appen tolker den
        * ikke (KA-U19).
        */
       utdypning?: string;
@@ -297,7 +297,7 @@ const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: 
 export const vedleggI = (k: Kommando): string[] => brevfelt(k).dokumentasjon ?? [];
 
 /**
- * VS-U26: et grunnlagskrav fra appen har datoen kategorien har, som en dato.
+ * VS-U26: en påberopelse fra appen har datoen kategorien har, som en dato.
  * Formatet binder feltet til kategorien; her kreves det.
  */
 function datofeil(innhold: Innhold): string[] {
@@ -346,7 +346,7 @@ export function formfeil(kommando: unknown): string[] {
     const k = kommando as { spor: Spor; innhold: unknown };
     const { properties, required, anyOf } = KRAVINNHOLD[k.spor];
     feil.push(...feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'));
-    if (k.spor === 'grunnlag' && !feil.length) feil.push(...datofeil(k.innhold as Innhold));
+    if (k.spor === 'forhold' && !feil.length) feil.push(...datofeil(k.innhold as Innhold));
     if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');

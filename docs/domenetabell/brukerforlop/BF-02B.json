@@ -1,21 +1,26 @@
 {
   "id": "BF-02B",
-  "tittel": "TE sender en ny kravversjon som avslår tilbudet i svaret",
-  "brukerhistorie": "TE er uenig i BHs svar og sender en ny kravversjon som endrer kravet. Brevet sier uttrykkelig at TE avslår BHs tilbud i svaret, og skjemaet viser før sending hva den nye kravversjonen gjør med svaret.",
+  "tittel": "TE sender en ny kravversjon og sier sitt standpunkt til svaret i begrunnelsen",
+  "brukerhistorie": "TE er uenig i BHs svar og sender en ny kravversjon som endrer kravet. Brevet sier at kravet erstatter den tidligere kravversjonen, og at TEs standpunkt til BHs tidligere svar fremgår av begrunnelsen. Skjemaet minner TE før sending på å presisere om TE aksepterer, avslår eller tar forbehold knyttet til et tilbud i svaret, og sier at svaret ikke kan godtas her når den nye versjonen er sendt. Sender TE kravet utenfor løsningen og legger det til som korrespondanse med kategorien krav, fyller TE ut kravskjemaet, og løsningen lager ingen brevtekst.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "BH har svart på vederlagskravet med et beløp som fortsatt binder BH etter HF-U5."
+    "beskrivelse": "BH har svart på vederlagskravet."
   },
-  "kilder": ["OV-U54"],
-  "venter_paa": ["#1379", "#1308"],
+  "kilder": ["OV-U54", "MM-U34", "HF-U8", "OV-U79", "OV-U80"],
+  "venter_paa": ["#1379", "#1308", "#807"],
   "bevis_saker": [],
   "visninger": [],
   "endringer": [
     {
       "dato": "2026-10-27",
-      "grunnlag": "#1330",
+      "forhold": "#1330",
       "hva": "Forløpet er registrert som planlagt. Handlingen og brevteksten etter OV-U54 er ikke bygget: kjernen har ikke avslaget i brevteksten."
+    },
+    {
+      "dato": "2026-11-01",
+      "forhold": "#1456, MM-U34, OV-U79, OV-U80",
+      "hva": "Brevet sier ikke lenger at TE avslår tilbudet i svaret, men at kravet erstatter den tidligere versjonen og at TEs standpunkt fremgår av begrunnelsen (OV-U54 etter MM-U34 punkt 1). Bindingen etter HF-U5 er tatt ut av utgangspunktet. Kravet kan også legges til som korrespondanse (OV-U80)."
     }
   ]
 }

@@ -2,7 +2,7 @@
  * Betegnelsen per spor fra den faste lista i MM-U30 (#1043), regnet av en journal i minnet
  * som er skrevet med kjernens kommandoer. Kilden for forventningene er lista og
  * rekkefølgen i MM-U30: hvert spor har høyst én betegnelse, den første som foreligger, og
- * ingen når ingenting er sendt i sporet. Forløp A er brevet D4 i bevis-sakene: grunnlaget
+ * ingen når ingenting er sendt i sporet. Forløp A er brevet D4 i bevis-sakene: forholdet
  * avslått, vederlaget vurdert subsidiært.
  */
 
@@ -66,7 +66,7 @@ class Sak {
       resultat: regnUtSvar(
         spor,
         v,
-        { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+        { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
         KJERNE.regler
       ),
       utdypning: 'Byggherrens begrunnelse.',
@@ -82,10 +82,10 @@ class Sak {
 type Steg = (sak: Sak) => void;
 
 const UTDYPNING = 'Kravet gjelder den endrede fundamenteringen.';
-const grunnlagskrav: Steg = (sak) =>
+const paaberopelse: Steg = (sak) =>
   sak.send('TE', {
     type: 'krav',
-    spor: 'grunnlag',
+    spor: 'forhold',
     innhold: {
       hovedkategori: 'endring',
       underkategori: 'irregulaer_endring',
@@ -103,7 +103,7 @@ const vederlagskrav: Steg = (sak) =>
   });
 const fristkrav: Steg = (sak) =>
   sak.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING });
-const krav: Steg = (sak) => [grunnlagskrav, vederlagskrav, fristkrav].forEach((s) => s(sak));
+const krav: Steg = (sak) => [paaberopelse, vederlagskrav, fristkrav].forEach((s) => s(sak));
 const varselIFristen: Steg = (sak) =>
   sak.send('TE', {
     type: 'varsel',
@@ -119,7 +119,7 @@ const forloepA: Steg = (sak) => {
   sak.send('BH', {
     type: 'brev',
     svar: [
-      sak.svar('grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
+      sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
         hovedkrav_vurdering: 'delvis',
         hovedkrav_godkjent_beloep: 60000,
@@ -137,7 +137,7 @@ const forloepA: Steg = (sak) => {
 const frafall: Steg = (sak) =>
   sak.send('BH', {
     type: 'brev',
-    svar: [sak.svar('grunnlag', { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true })],
+    svar: [sak.svar('forhold', { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true })],
   });
 const aksept =
   (spor: Spor): Steg =>
@@ -175,32 +175,32 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
   });
 
   it('ingen betegnelse når ingenting er sendt i sporet', () => {
-    expect(betegnelser()).toEqual({ grunnlag: null, vederlag: null, frist: null });
-    expect(betegnelser(grunnlagskrav)).toEqual({
-      grunnlag: 'venter_paa_svar',
+    expect(betegnelser()).toEqual({ forhold: null, vederlag: null, frist: null });
+    expect(betegnelser(paaberopelse)).toEqual({
+      forhold: 'venter_paa_svar',
       vederlag: null,
       frist: null,
     });
   });
 
   it('et registrert varsel uten krav gir «Varslet», og «Ingen krav» står for seg', () => {
-    expect(betegnelser(grunnlagskrav, varselIFristen).frist).toBe('varslet');
+    expect(betegnelser(paaberopelse, varselIFristen).frist).toBe('varslet');
     expect(
-      betegnelser(grunnlagskrav, (s) => s.send('TE', { type: 'ingen_krav', spor: 'vederlag' }))
+      betegnelser(paaberopelse, (s) => s.send('TE', { type: 'ingen_krav', spor: 'vederlag' }))
         .vederlag
     ).toBe('ingen_krav');
   });
 
   it('en ubesvart forespørsel etter § 33.6.2 går foran varselet, og fristkravet som svarer, venter på svar', () => {
-    expect(betegnelser(grunnlagskrav, varselIFristen, foresporsel).frist).toBe(
+    expect(betegnelser(paaberopelse, varselIFristen, foresporsel).frist).toBe(
       'spesifisert_krav_etterspurt'
     );
-    expect(betegnelser(grunnlagskrav, foresporsel, fristkrav).frist).toBe('venter_paa_svar');
+    expect(betegnelser(paaberopelse, foresporsel, fristkrav).frist).toBe('venter_paa_svar');
   });
 
   it('et svar TE ikke har godtatt, gir «Svaret er ikke godtatt»; et svar som godkjenner kravet fullt ut, gir «Enige» ved sammenfall', () => {
     expect(betegnelser(forloepA)).toEqual({
-      grunnlag: 'svar_ikke_godtatt',
+      forhold: 'svar_ikke_godtatt',
       vederlag: 'svar_ikke_godtatt',
       frist: 'enige',
     });
@@ -210,73 +210,73 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     expect(betegnelser(forloepA, aksept('vederlag')).vederlag).toBe('enige');
   });
 
-  it('når TE godtar avslaget på grunnlaget, er grunnlaget «Enige», et spor uten enighet «Krav sendt» og et spor med enighet fortsatt «Enige»', () => {
-    expect(betegnelser(forloepA, aksept('grunnlag'))).toEqual({
-      grunnlag: 'enige',
+  it('når TE godtar avslaget på forholdet, er forholdet «Enige», et spor uten enighet «Krav sendt» og et spor med enighet fortsatt «Enige»', () => {
+    expect(betegnelser(forloepA, aksept('forhold'))).toEqual({
+      forhold: 'enige',
       vederlag: 'krav_sendt',
       frist: 'enige',
     });
   });
 
-  it('en enighet i sporet går foran «Krav sendt» når avslaget på grunnlaget godtas etterpå', () => {
-    expect(betegnelser(forloepA, aksept('vederlag'), aksept('grunnlag')).vederlag).toBe('enige');
+  it('en enighet i sporet går foran «Krav sendt» når avslaget på forholdet godtas etterpå', () => {
+    expect(betegnelser(forloepA, aksept('vederlag'), aksept('forhold')).vederlag).toBe('enige');
   });
 
-  it('frafall av pålegget gir betegnelsen bare i grunnlaget, og ubesvarte krav venter på svar', () => {
+  it('frafall av pålegget gir betegnelsen bare i forholdet, og ubesvarte krav venter på svar', () => {
     expect(betegnelser(krav, frafall)).toEqual({
-      grunnlag: 'paalegg_frafalt',
+      forhold: 'paalegg_frafalt',
       vederlag: 'venter_paa_svar',
       frist: 'venter_paa_svar',
     });
   });
 
-  it('«Trukket» går foran alt annet, og et trukket grunnlag trekker kravene det bærer', () => {
+  it('«Trukket» går foran alt annet, og et trukket forhold trekker kravene det bærer', () => {
     expect(betegnelser(forloepA, aksept('vederlag'), trekk('vederlag')).vederlag).toBe('trukket');
-    expect(betegnelser(krav, trekk('grunnlag'))).toEqual({
-      grunnlag: 'trukket',
+    expect(betegnelser(krav, trekk('forhold'))).toEqual({
+      forhold: 'trukket',
       vederlag: 'trukket',
       frist: 'trukket',
     });
   });
 
-  it('et trukket grunnlag gir ingen betegnelse i et spor der ingenting er sendt (GR-U25)', () => {
-    expect(betegnelser(grunnlagskrav, trekk('grunnlag'))).toEqual({
-      grunnlag: 'trukket',
+  it('et trukket forhold gir ingen betegnelse i et spor der ingenting er sendt (GR-U25)', () => {
+    expect(betegnelser(paaberopelse, trekk('forhold'))).toEqual({
+      forhold: 'trukket',
       vederlag: null,
       frist: null,
     });
   });
 
-  it('et trukket grunnlag gir «Trukket» også i et spor med bare varsel eller «ingen krav» (GR-U25)', () => {
+  it('et trukket forhold gir «Trukket» også i et spor med bare varsel eller «ingen krav» (GR-U25)', () => {
     expect(
       betegnelser(
-        grunnlagskrav,
+        paaberopelse,
         varselIFristen,
         (s) => s.send('TE', { type: 'ingen_krav', spor: 'vederlag' }),
-        trekk('grunnlag')
+        trekk('forhold')
       )
-    ).toEqual({ grunnlag: 'trukket', vederlag: 'trukket', frist: 'trukket' });
+    ).toEqual({ forhold: 'trukket', vederlag: 'trukket', frist: 'trukket' });
   });
 
-  it('en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget på grunnlaget er godtatt (MM-U31)', () => {
+  it('en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget på forholdet er godtatt (MM-U31)', () => {
     const avslag: Steg = (sak) =>
       sak.send('BH', {
         type: 'brev',
-        svar: [sak.svar('grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
+        svar: [sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
       });
-    expect(betegnelser(grunnlagskrav, varselIFristen, foresporsel, avslag).frist, 'kontroll').toBe(
+    expect(betegnelser(paaberopelse, varselIFristen, foresporsel, avslag).frist, 'kontroll').toBe(
       'spesifisert_krav_etterspurt'
     );
     expect(
-      betegnelser(grunnlagskrav, varselIFristen, foresporsel, avslag, aksept('grunnlag')).frist
+      betegnelser(paaberopelse, varselIFristen, foresporsel, avslag, aksept('forhold')).frist
     ).toBe('varslet');
   });
 
-  it('en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at grunnlaget er trukket (MM-U31, GR-U25)', () => {
-    expect(betegnelser(grunnlagskrav, foresporsel).frist, 'kontroll').toBe(
+  it('en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at forholdet er trukket (MM-U31, GR-U25)', () => {
+    expect(betegnelser(paaberopelse, foresporsel).frist, 'kontroll').toBe(
       'spesifisert_krav_etterspurt'
     );
-    expect(betegnelser(grunnlagskrav, foresporsel, trekk('grunnlag')).frist).toBeNull();
+    expect(betegnelser(paaberopelse, foresporsel, trekk('forhold')).frist).toBeNull();
   });
 
   it('en sak kjernen ikke forstår, har ingen betegnelse i noe spor (MM-U2), og visningen bærer den samme', () => {
@@ -291,7 +291,7 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     });
     const u = utledJournal(sak.journal, KJERNE);
     expect(u.forstaatt, 'forutsetning').toBe(false);
-    expect(sak.betegnelser()).toEqual({ grunnlag: null, vederlag: null, frist: null });
+    expect(sak.betegnelser()).toEqual({ forhold: null, vederlag: null, frist: null });
     const kontroll = new Sak();
     krav(kontroll);
     const v = visning(utledJournal(kontroll.journal, KJERNE), KJERNE.regler);
@@ -304,7 +304,7 @@ const alleGodkjent: Steg = (sak) => {
   sak.send('BH', {
     type: 'brev',
     svar: [
-      sak.svar('grunnlag', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
         hovedkrav_vurdering: 'godkjent',
         hovedkrav_godkjent_beloep: 100000,
@@ -329,30 +329,30 @@ function vistEtter(...steg: Steg[]) {
 
 describe('sakens status og etikettene (MM-U22, MM-U23, #1136)', () => {
   it('saken har ingen samlet status mens kravene venter på svar eller svaret ikke er godtatt (MM-U22)', () => {
-    expect(vistEtter(grunnlagskrav).v.status).toBeNull();
+    expect(vistEtter(paaberopelse).v.status).toBeNull();
     expect(vistEtter(forloepA).v.status).toBeNull();
-    // Kontroll: et trukket grunnlag er ett av de fire tilfellene i MM-U22.
-    expect(vistEtter(grunnlagskrav, trekk('grunnlag')).v.status?.kode).toBe('avsluttet_trukket');
+    // Kontroll: et trukket forhold er ett av de fire tilfellene i MM-U22.
+    expect(vistEtter(paaberopelse, trekk('forhold')).v.status?.kode).toBe('avsluttet_trukket');
   });
 
-  it('en virksom enighet og et avklart grunnlag gir verken «Oppgjort» eller «Avklart» (MM-U23)', () => {
+  it('en virksom enighet og et avklart forhold gir verken «Oppgjort» eller «Avklart» (MM-U23)', () => {
     const { u, v } = vistEtter(alleGodkjent);
-    expect(u.grunnlagAvklart, 'forutsetning').toBe(true);
+    expect(u.forholdAvklart, 'forutsetning').toBe(true);
     expect(enighetensVirkning(u, 'vederlag'), 'forutsetning').toBe('virksom');
     expect(v.spor.vederlag.betegnelse).toBe('enige');
     for (const s of SPOR) expect(v.spor[s].etiketter).not.toContain('oppgjort');
-    expect(v.spor.grunnlag.etiketter).not.toContain('avklart');
-    expect(v.spor.grunnlag.etiketter).toContain('enige');
+    expect(v.spor.forhold.etiketter).not.toContain('avklart');
+    expect(v.spor.forhold.etiketter).toContain('enige');
   });
 
-  it('et trukket grunnlag gir ikke etiketten «trukket» i et spor der ingenting er sendt (GR-U25, #1140)', () => {
-    const { v } = vistEtter(grunnlagskrav, trekk('grunnlag'));
-    expect(v.spor.grunnlag.etiketter).toContain('trukket');
+  it('et trukket forhold gir ikke etiketten «trukket» i et spor der ingenting er sendt (GR-U25, #1140)', () => {
+    const { v } = vistEtter(paaberopelse, trekk('forhold'));
+    expect(v.spor.forhold.etiketter).toContain('trukket');
     expect(v.spor.vederlag.etiketter).not.toContain('trukket');
     expect(v.spor.frist.etiketter).not.toContain('trukket');
     // Kontroll: med et varsel i fristsporet står etiketten der.
     expect(
-      vistEtter(grunnlagskrav, varselIFristen, trekk('grunnlag')).v.spor.frist.etiketter
+      vistEtter(paaberopelse, varselIFristen, trekk('forhold')).v.spor.frist.etiketter
     ).toContain('trukket');
   });
 });

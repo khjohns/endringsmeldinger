@@ -37,7 +37,6 @@
         return {
           noekkel: n,
           tekst: tekstFor(n) ?? type?.tekst ?? ukjentHandling(n),
-          virkning: type?.virkning,
           bygget: bygget.includes(n.split(':')[0]),
         };
       })
@@ -70,7 +69,6 @@
     {:else}
       <span class="ikke-bygget">{r.tekst}</span>
     {/if}
-    {#if r.virkning}<span class="dempet virkning">{r.virkning}</span>{/if}
   </li>
 {/snippet}
 
@@ -108,7 +106,7 @@
     min-height: 44px;
     padding: 0 var(--spacing-5);
     border: 1.5px solid var(--ink);
-    border-radius: 999px;
+    border-radius: var(--r-knapp);
     background: var(--surface);
     color: var(--ink);
     font-weight: 500;
@@ -134,8 +132,8 @@
     padding: var(--spacing-2);
     background: var(--surface);
     border: var(--rule-strong);
-    border-radius: 12px;
-    box-shadow: var(--overlay-shadow-sm);
+    border-radius: var(--r-innfelt);
+    box-shadow: var(--meny-skygge);
   }
   li {
     display: flex;
@@ -150,7 +148,7 @@
     min-height: 44px;
     justify-content: center;
     padding: var(--spacing-2) var(--spacing-3);
-    border-radius: 4px;
+    border-radius: var(--r-felt);
     text-align: left;
   }
   button {
@@ -179,9 +177,6 @@
   }
   .gruppetekst {
     padding: var(--spacing-2) var(--spacing-3) var(--spacing-1);
-  }
-  .virkning {
-    padding: 0 var(--spacing-3) var(--spacing-2);
   }
   .dempet {
     color: var(--ink-3);

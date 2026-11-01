@@ -1,7 +1,7 @@
 /**
  * Opprettelsen av en KOE-sak (#664, kjernedelen av #370). Kjernen godtar bare TE
  * som oppretter; byggherrens endring er EO-saken, som ikke er med i første versjon
- * (OV-U1, arbeidsvalget i #655). Saken opprettes før grunnlagskravet, fordi den
+ * (OV-U1, arbeidsvalget i #655). Saken opprettes før påberopelsen, fordi den
  * låste teksten har saksnummeret (LV-U2, DL-U6).
  */
 
@@ -63,7 +63,7 @@ describe('opprettelsen av en KOE-sak (#664)', () => {
     expect(!utfall.godtatt && utfall.avvisning.regel).toBe('TEKST_KAN_IKKE_LAGRES');
   });
 
-  it('raden leses som saken, og grunnlagskravet etter den har saksnummeret og tittelen (LV-U2)', () => {
+  it('raden leses som saken, og påberopelsen etter den har saksnummeret og tittelen (LV-U2)', () => {
     const utfall = opprettelse({ type: 'opprett_sak', sakstittel: 'Ny peling' }, 'TE');
     if (!utfall.godtatt) expect.fail('Forutsetning: saken ble ikke opprettet');
     const rad: Journalrad = {
@@ -86,7 +86,7 @@ describe('opprettelsen av en KOE-sak (#664)', () => {
     const krav = vurder(
       {
         type: 'krav',
-        spor: 'grunnlag',
+        spor: 'forhold',
         innhold: {
           hovedkategori: 'svikt',
           underkategori: 'grunnforhold',

@@ -5,14 +5,14 @@ import type { Spor } from '$kjerne/typer';
 
 /** Sporenes navn i oversikten, med nøkkelen fra kjernen og fra saksvisningen. */
 export const SPORNAVN: Record<Spor | SporKey, string> = {
-  grunnlag: 'Ansvar',
+  forhold: 'Ansvar',
   ansvar: 'Ansvar',
   vederlag: 'Vederlag',
   frist: 'Frist',
 };
 
 const SPORA = [
-  ['ansvar', 'grunnlag'],
+  ['ansvar', 'forhold'],
   ['vederlag', 'vederlag'],
   ['frist', 'frist'],
 ] as const;

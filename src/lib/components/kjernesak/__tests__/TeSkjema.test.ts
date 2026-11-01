@@ -20,7 +20,7 @@ import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 import { fristkommandoFraSkjema } from '$lib/kjernesak/fristkrav';
 import { vederlagskommandoFraSkjema } from '$lib/kjernesak/vederlagskrav';
-import { nyGrunnlagsversjon } from '$lib/kjernesak/grunnlagskrav';
+import { nyPaaberopelsesversjon } from '$lib/kjernesak/paaberopelse';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { forhaandsvis, utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
@@ -199,7 +199,7 @@ describe('fristsporet fra TE-skjemaet', () => {
 describe('ny versjon av kravet', () => {
   it('en ny grunnlagsversjon har kategorien og datoen fra gjeldende versjon, og kjernen godtar den (GR-U22, VS-U26)', async () => {
     const u = utledJournal(medGrunnlag, KJERNE);
-    const gjeldende = u.spor.grunnlag.gjeldendeKrav!;
+    const gjeldende = u.spor.forhold.gjeldendeKrav!;
     const send = vi.fn().mockResolvedValue(true);
     const brev = vi.fn().mockReturnValue({ tekst: ['brevet TE ser'] });
     const kontroll = lagKravkontroll({
@@ -216,7 +216,7 @@ describe('ny versjon av kravet', () => {
     const kommando = send.mock.calls[0][0];
     expect(kommando).toEqual({
       type: 'krav',
-      spor: 'grunnlag',
+      spor: 'forhold',
       innhold: {
         hovedkategori: 'endring',
         underkategori: 'irregulaer_endring',
@@ -224,7 +224,7 @@ describe('ny versjon av kravet', () => {
       },
       utdypning: 'BH påla ny peling i akse 3.',
     });
-    expect(nyGrunnlagsversjon(gjeldende.innhold, ' ')).not.toHaveProperty('utdypning');
+    expect(nyPaaberopelsesversjon(gjeldende.innhold, ' ')).not.toHaveProperty('utdypning');
     expect(() => skrevet(medGrunnlag, 'TE', kommando)).not.toThrow();
   });
 
@@ -255,12 +255,12 @@ describe('ny versjon av kravet', () => {
   });
 
   it('etter byggherrens svar viser skjemaet ikke en tom boks for byggherrens standpunkt (#718)', async () => {
-    const gjelder = utledJournal(medGrunnlag, KJERNE).spor.grunnlag.gjeldendeKrav!.id;
+    const gjelder = utledJournal(medGrunnlag, KJERNE).spor.forhold.gjeldendeKrav!.id;
     const avslag = skrevet(medGrunnlag, 'BH', {
       type: 'brev',
       svar: [
         {
-          spor: 'grunnlag',
+          spor: 'forhold',
           gjelder,
           regelversjon: KJERNE.regler.versjon,
           vurderinger: { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
@@ -331,12 +331,12 @@ describe('Kontrollrommet i skjermhøyden (#881)', () => {
 });
 
 const avslaattGrunnlag = () => {
-  const gjelder = utledJournal(medGrunnlag, KJERNE).spor.grunnlag.gjeldendeKrav!.id;
+  const gjelder = utledJournal(medGrunnlag, KJERNE).spor.forhold.gjeldendeKrav!.id;
   return skrevet(medGrunnlag, 'BH', {
     type: 'brev',
     svar: [
       {
-        spor: 'grunnlag',
+        spor: 'forhold',
         gjelder,
         regelversjon: KJERNE.regler.versjon,
         vurderinger: { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
@@ -350,7 +350,7 @@ const avslaattGrunnlag = () => {
 describe('aksept og innsigelse (S-2a.2)', () => {
   it('TE godtar byggherrens gjeldende svar med svaret og regelversjonen brevet er vist med (KA-U10)', async () => {
     const journal = avslaattGrunnlag();
-    const svarId = utledJournal(journal, KJERNE).spor.grunnlag.gjeldendeSvar!.id;
+    const svarId = utledJournal(journal, KJERNE).spor.forhold.gjeldendeSvar!.id;
     const { send } = await vis(journal, 'ansvar');
     await fireEvent.click(screen.getByRole('button', { name: 'Godta svaret' }));
     expect(await screen.findByText('Du godtar svaret')).toBeInTheDocument();
@@ -359,7 +359,7 @@ describe('aksept og innsigelse (S-2a.2)', () => {
     const { brevtekst, ...kommando } = sendt(send);
     expect(kommando).toEqual({
       type: 'aksept',
-      spor: 'grunnlag',
+      spor: 'forhold',
       svar: svarId,
       regelversjon: KJERNE.regler.versjon,
     });
@@ -374,7 +374,7 @@ describe('aksept og innsigelse (S-2a.2)', () => {
 
   it('TE gjør innsigelse etter § 5 tredje ledd mot byggherrens svar, uten fritekst (VS-U1, VS-U14)', async () => {
     const journal = avslaattGrunnlag();
-    const svarId = utledJournal(journal, KJERNE).spor.grunnlag.gjeldendeSvar!.id;
+    const svarId = utledJournal(journal, KJERNE).spor.forhold.gjeldendeSvar!.id;
     const { send } = await vis(journal, 'ansvar');
     await fireEvent.click(screen.getByRole('button', { name: 'Gjør innsigelse' }));
     const dialog = within(screen.getByRole('dialog', { name: 'Innsigelse etter § 5' }));
@@ -390,7 +390,7 @@ describe('aksept og innsigelse (S-2a.2)', () => {
 
   it('protest og påberopt passivitet tilbys ikke, selv om kjernen tilbyr dem (OV-U7)', async () => {
     const journal = avslaattGrunnlag();
-    const krav = utledJournal(journal, KJERNE).spor.grunnlag.gjeldendeKrav!.id;
+    const krav = utledJournal(journal, KJERNE).spor.forhold.gjeldendeKrav!.id;
     await vis(journal, 'ansvar', [`passivitet:${krav}`, `protest:${krav}`]);
     expect(screen.queryByRole('button', { name: /[Pp]rotest|[Pp]assivitet/ })).toBeNull();
   });
@@ -403,7 +403,7 @@ describe('aksept og innsigelse (S-2a.2)', () => {
       brev: () => ({ avvisning: { regel: 'ENIGHET_I_SPORET', melding: 'Partene er enige.' } }),
       send: vi.fn(),
     } as unknown as Kjernesakkontekst);
-    await kontroll.aksept('grunnlag', 'S-1');
+    await kontroll.aksept('forhold', 'S-1');
     expect(kontroll.feil).toBe('Brevet kan ikke sendes ennå. Partene er enige.');
   });
 });
@@ -586,7 +586,7 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
   const vedlegg = { vedlegg_id: 'V-1', filnavn: 'varsel.pdf', innhold_sha256: 'a'.repeat(64) };
   const iSvikt = skrevet(medGrunnlag.slice(0, 1), 'TE', {
     type: 'krav',
-    spor: 'grunnlag',
+    spor: 'forhold',
     innhold: {
       hovedkategori: 'svikt',
       underkategori: 'grunnforhold',

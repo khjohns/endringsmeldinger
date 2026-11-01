@@ -104,9 +104,9 @@ const ETIKETTER = (
 const VARDEN = arg.visning === 'varden';
 if (!punktet('bh-har-mottatt-vederlagskravet'))
   throw new Error(`${arg.forlop} har ikke kontrollpunktet bh-har-mottatt-vederlagskravet`);
-// Lagene foran beløpet, som er det siste laget: grunnlaget når BH har avslått det, og varselet.
+// Lagene foran beløpet, som er det siste laget: forholdet når BH har avslått det, og varselet.
 const FORUTSETNINGER = [
-  ...(punktet('grunnlaget-er-avslaatt') ? [/avslaget av grunnlaget/] : []),
+  ...(punktet('forholdet-er-avslaatt') ? [/avslaget av forholdet/] : []),
   /innsigelsen om sen varsling/,
 ];
 if (FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'prinsipalt' ? 1 : 0))
@@ -166,9 +166,9 @@ try {
   await page.getByText('Skriv brev', { exact: true }).click();
   await knapp('Svar på kravet').click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
-  await page.getByRole('radio', { name: 'Godtar metoden', exact: true }).check();
+  await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();
   await page.getByRole('radio', { name: 'Deler av beløpet' }).check();
-  await page.getByRole('textbox', { name: 'Beløpet du godtar' }).fill('60000');
+  await page.getByRole('textbox', { name: 'Beløpet du godkjenner' }).fill('60000');
   await page
     .getByRole('textbox', { name: 'Begrunnelse' })
     .fill('Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr.');

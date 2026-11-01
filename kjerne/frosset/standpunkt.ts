@@ -8,16 +8,16 @@
  * for å vise at regelen er endret, men ingen regel leser det.
  *
  * Svarets egne standpunkter skilles fra om hele svaret er subsidiært til
- * grunnlaget. Det siste er en relasjon mellom brevene som utledes ved lesing
+ * forholdet. Det siste er en relasjon mellom brevene som utledes ved lesing
  * (vedtaket 05.10), og vilkåret i enighetsgrunnlaget (GR-U7).
  */
 
 import { beloep, tilTall, UgyldigBeloep, type Oere } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
-import { foersteUnderkategori, type Subsidiaergrunn } from '../regler/grunnlag.ts';
+import { foersteUnderkategori, type Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import type { Grunnlagsresultat } from '../regler/typer.ts';
+import type { Forholdsresultat } from '../regler/typer.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { tekst } from '../format/skjema.ts';
 import { beregnGodkjentBeloep, beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
@@ -48,13 +48,13 @@ function kategori(krav: Pick<Krav, 'innhold'> | null | undefined) {
   };
 }
 
-/** To grunnlagsversjoner har samme hovedkategori og underkategori (GR-U22). */
+/** To påberopelsesversjoner har samme hovedkategori og underkategori (GR-U22). */
 export function sammeKategori(a: Pick<Krav, 'innhold'>, b: Pick<Krav, 'innhold'>): boolean {
   const [x, y] = [kategori(a), kategori(b)];
   return x.hovedkategori === y.hovedkategori && x.underkategori === y.underkategori;
 }
 
-/** Varslingsplikten i § 32.2 gjelder kategorien i grunnlagskravet (GR-U11). */
+/** Varslingsplikten i § 32.2 gjelder kategorien i påberopelsen (GR-U11). */
 export function gjelderVarslingsplikten(
   krav: Pick<Krav, 'innhold'> | null | undefined,
   regler: Regelsett
@@ -71,36 +71,35 @@ export function gjelderVarslingsplikten(
  */
 export function hjemmelenGjelder(
   hjemmel: Hjemmel,
-  grunnlagskrav: Krav | null | undefined,
+  paaberopelse: Krav | null | undefined,
   regler: Regelsett
 ): boolean {
   if (hjemmel === '33.4' || hjemmel === '33.6.2' || hjemmel === '34.1.3') return true;
   if (hjemmel === '34.1.2')
-    return regler.gjelderVarslingspliktenForVederlag(kategori(grunnlagskrav).hovedkategori);
-  return gjelderVarslingsplikten(grunnlagskrav, regler);
+    return regler.gjelderVarslingspliktenForVederlag(kategori(paaberopelse).hovedkategori);
+  return gjelderVarslingsplikten(paaberopelse, regler);
 }
 
 /**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
- * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. Laget er et nummer fra 1.
+ * skrives. `påberopelse` er kravet et svar på påberopelsen gjelder. Laget er et nummer fra 1.
  * Hver grunn med virkning åpner et nytt lag for standpunktene etter den, og påberopelsene
  * av rettidighet står i det første (OV-U32, vedtaket 05.10). `forskyvning` er lagene
- * svaret på grunnlaget opptar foran sporet (`lagFraGrunnlaget`).
+ * svaret på forholdet opptar foran sporet (`lagFraForholdet`).
  */
 export function virkninger(
   svar: Svarinnhold,
-  grunnlagskrav: Krav | null | undefined,
+  paaberopelse: Krav | null | undefined,
   regler: Regelsett,
   forskyvning = 0
 ): Standpunktsvirkning[] {
-  if (svar.spor === 'vederlag')
-    return vederlagsvirkninger(svar, grunnlagskrav, regler, forskyvning);
+  if (svar.spor === 'vederlag') return vederlagsvirkninger(svar, paaberopelse, regler, forskyvning);
   const ut: Standpunktsvirkning[] = [];
   let lag = 1;
   const iLaget = () => lag;
   for (const s of svar.standpunkter) {
     if (s.art === 'rettidighet') {
-      const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, grunnlagskrav, regler);
+      const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, paaberopelse, regler);
       if (virker) lag = 2;
       ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 1 : 'uten_virkning' });
     } else if (s.art === 'metode' && s.aksepterer) {
@@ -127,12 +126,12 @@ export function virkninger(
  * står i det første laget. Begrensningen etter § 34.1.3 rammer bare posten etter annet ledd
  * (OV-U22, VS-U5): den står i laget etter § 34.1.2 sammen med justeringen ellers og
  * metoden, og posten i laget etter den. Rammer ingen påberopelse justeringen ellers, er den
- * upåvirket, så sant grunnlaget verken er avslått eller prekludert (OV-U33). Metoden står i
+ * upåvirket, så sant forholdet verken er avslått eller prekludert (OV-U33). Metoden står i
  * laget til justeringen ellers, også når byggherren godkjenner oppgjør som fast sum (LV-U31, LV-U32).
  */
 function vederlagsvirkninger(
   svar: Svarinnhold,
-  grunnlagskrav: Krav | null | undefined,
+  paaberopelse: Krav | null | undefined,
   regler: Regelsett,
   forskyvning: number
 ): Standpunktsvirkning[] {
@@ -142,7 +141,7 @@ function vederlagsvirkninger(
         s.art === 'rettidighet' &&
         s.hjemmel === hjemmel &&
         !s.iTide &&
-        hjemmelenGjelder(hjemmel, grunnlagskrav, regler)
+        hjemmelenGjelder(hjemmel, paaberopelse, regler)
     );
   const [hele, posten] = [sent('34.1.2'), sent('34.1.3')];
   const foerste = hele ? 2 : 1;
@@ -175,8 +174,8 @@ export const kravetErDokumentasjon = (d: Pick<Dokument, 'opplysninger'>): boolea
  * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den
  * gjelder, bare kan komme for sent etter den: varselet etter § 33.4 i fristen, varselet
  * etter § 34.1.2 i vederlaget (VS-U24, OV-U5), og TEs
- * varsel etter § 32.2 i grunnlaget, som er grunnlagskravet når § 32.2 gjelder kategorien
- * i det (GR-U11). Varselet etter § 32.2 er det samme i hver grunnlagsversjon
+ * varsel etter § 32.2 i forholdet, som er påberopelsen når § 32.2 gjelder kategorien
+ * i det (GR-U11). Varselet etter § 32.2 er det samme i hver påberopelsesversjon
  * (arbeidsvalget 15.10 i #500). Svaret i sporet gjentar den eller gir den opp. Mot et
  * annet krav eller et svar er den uten virkning. Et krav i et registrert brev er
  * dokumentasjon (OV-U4), så en innsigelse mot det er heller ingen påberopelse; byggherren
@@ -201,7 +200,7 @@ export function innsigelsenPaaberoper(
           : null;
     const krav = d.krav.find((k) => k.id === gjelder);
     if (krav)
-      return krav.spor === 'grunnlag' && !kravetErDokumentasjon(d) && varslingsplikt(krav)
+      return krav.spor === 'forhold' && !kravetErDokumentasjon(d) && varslingsplikt(krav)
         ? '32.2'
         : null;
   }
@@ -212,8 +211,8 @@ export function innsigelsenPaaberoper(
  * VS-U9, VS-U11, HF-U4: parten har gitt opp sin påberopelse i en egen innsigelse når et
  * senere svar fra parten i sporet sier at varselet kom i tide. I fristen gir hvert «i tide»
  * etter § 33.4 den opp, fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309).
- * I grunnlaget teller partens siste standpunkt etter § 32.2, også om en annen
- * grunnlagsversjon (arbeidsvalget 15.10 i #500). `etter` er partens svar etter
+ * I forholdet teller partens siste standpunkt etter § 32.2, også om en annen
+ * påberopelsesversjon (arbeidsvalget 15.10 i #500). `etter` er partens svar etter
  * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp. Etter § 33.6.2 har
  * saken én forespørsel (VS-U31), så standpunktet gjelder begrunnelsen innsigelsen gjelder
  * (VS-U29, HF-U4).
@@ -341,7 +340,7 @@ export interface Paaberopt extends Plass {
 
 /**
  * Postene og påberopelsene i svaret på vederlaget, med lagene brevet ga dem (MM-U23, OV-U28,
- * valg 4 i #1047). `forskyvning` er lagene svaret på grunnlaget opptok foran sporet
+ * valg 4 i #1047). `forskyvning` er lagene svaret på forholdet opptok foran sporet
  * (`forskyvningIBrevet`). Etiketten følger brevteksten: bare når svaret har mer enn ett lag.
  * Ingen total per lag.
  */
@@ -406,27 +405,27 @@ export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art
 }
 
 /**
- * Hvorfor svarene på vederlag og frist er subsidiære til grunnlagssvaret, etter
- * standpunktene i brevet om grunnlaget (vedtaket 05.10, MM-U9). Utledningen og
+ * Hvorfor svarene på vederlag og frist er subsidiære til svaret på påberopelsen, etter
+ * standpunktene i brevet om forholdet (vedtaket 05.10, MM-U9). Utledningen og
  * brevteksten (A2) leser det samme.
  */
-export function grunnerFraGrunnlaget(
+export function grunnerFraForholdet(
   svar: Svarinnhold,
   virkninger: Standpunktsvirkning[]
 ): Subsidiaergrunn[] {
   const ut: Subsidiaergrunn[] = [];
   if (prinsipalt(virkninger)?.art === 'rettidighet') ut.push('prekludert');
-  if (standpunktet(svar, 'grunnlag')?.resultat === 'avslaatt') ut.push('avslaatt');
+  if (standpunktet(svar, 'forhold')?.resultat === 'avslaatt') ut.push('avslaatt');
   return ut;
 }
 
 /**
- * GR-U7: byggherren har godkjent grunnlaget uten virksom preklusjon etter § 32.2,
+ * GR-U7: byggherren har godkjent forholdet uten virksom preklusjon etter § 32.2,
  * eller frafalt pålegget. Leses av standpunktene og virkningen i brevet om
- * grunnlaget, ikke av et utfall.
+ * forholdet, ikke av et utfall.
  */
-export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  const resultat = standpunktet(svar, 'grunnlag')?.resultat;
+export function forholdetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+  const resultat = standpunktet(svar, 'forhold')?.resultat;
   return (
     !preklusjonPaaberopt(svar, v) && (resultat === 'godkjent' || resultat === 'paalegg_frafalt')
   );
@@ -434,17 +433,17 @@ export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[])
 
 /**
  * MM-U13: byggherren påberoper prinsipalt preklusjon etter § 32.2 i svaret på
- * grunnlaget.
- * Rettidigheten i grunnlaget er alltid etter § 32.2 (`HJEMMEL`).
+ * forholdet.
+ * Rettidigheten i forholdet er alltid etter § 32.2 (`HJEMMEL`).
  */
 function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  return svar.spor === 'grunnlag' && v.some((p) => p.art === 'rettidighet' && p.virkning === 1);
+  return svar.spor === 'forhold' && v.some((p) => p.art === 'rettidighet' && p.virkning === 1);
 }
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
 function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   const prekludert = avvisesPrinsipalt(svar, v);
-  if (svar.spor === 'grunnlag') return {};
+  if (svar.spor === 'forhold') return {};
   if (svar.spor === 'vederlag') return { beloep: prekludert ? 0 : prinsipaltBeloep(svar, v) };
   if (prekludert) return { dager: 0 };
   const spesifisering = standpunktet(svar, 'spesifisering');
@@ -456,12 +455,12 @@ function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
 
 /**
  * Svaret godkjenner hele kravet i sporet, så standpunktene faller sammen
- * (GR-U7). For grunnlaget er det en godkjenning uten påberopt preklusjon
+ * (GR-U7). For forholdet er det en godkjenning uten påberopt preklusjon
  * (GR-U10).
  */
 function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   if (avvisesPrinsipalt(svar, v)) return false;
-  if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';
+  if (svar.spor === 'forhold') return standpunktet(svar, 'forhold')?.resultat === 'godkjent';
   // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
   // påberopelse etter § 33.6.1 i et lag, gir aldri sammenfall. Leses av standpunktene.
   if (standpunktet(svar, 'metode')?.aksepterer === false) return false;
@@ -483,7 +482,7 @@ export const sammenfallStemmer = (svar: Svar): boolean =>
   godkjennerHeleKravet(svar, svar.beslutningsgrunnlag.virkninger);
 
 /**
- * Et svar på grunnlaget i et brev sendt i appen er en endringsordre etter § 32.3
+ * Et svar på forholdet i et brev sendt i appen er en endringsordre etter § 32.3
  * første ledd a: svaret godkjenner hele kravet uten påberopt preklusjon
  * (sammenfall, GR-U10), og § 32.2 gjaldt kategorien (GR-U11, GR-U12). Leses av
  * det frosne beslutningsgrunnlaget.
@@ -502,7 +501,7 @@ export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): 
     regelversjon,
     virkninger,
     utfall: utfall(svar, virkninger),
-    vilkaar: svar.spor === 'grunnlag' ? null : 'grunnlag_avklart',
+    vilkaar: svar.spor === 'forhold' ? null : 'forhold_avklart',
   };
 }
 
@@ -519,8 +518,8 @@ export function kroner(n: number): string {
 /** «1 dag», «12 dager». Brevteksten og meldingen om en senket revisjon bruker samme ord (#628). */
 export const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
 
-/** Svaret på grunnlaget med ordene i brevet (#628). */
-export const GRUNNLAGSSVARET: Record<Grunnlagsresultat, string> = {
+/** Svaret på forholdet med ordene i brevet (#628). */
+export const SVARET_PAA_PAABEROPELSEN: Record<Forholdsresultat, string> = {
   godkjent: 'godkjent',
   avslaatt: 'avslått',
   paalegg_frafalt: 'pålegget frafalt (§ 32.3 c)',
@@ -530,12 +529,12 @@ export const GRUNNLAGSSVARET: Record<Grunnlagsresultat, string> = {
  * Linjen i brevet for svaret: byggherrens standpunkt, med den prinsipale grunnen først
  * (vedtaket 05.10 om avslag sammen med § 32.2). Leddene ordnes og etiketteres som i
  * brevteksten (HF-U2, VS-U3), med lagene i sporet flyttet ned med `forskyvning`, lagene
- * svaret på grunnlaget opptar foran sporet (OV-U32, OV-U33, svaret i #1199).
+ * svaret på forholdet opptar foran sporet (OV-U32, OV-U33, svaret i #1199).
  */
 function beslutningslinje(
   svar: Svarinnhold,
   v: Standpunktsvirkning[],
-  grunnlagskrav: Krav | null | undefined,
+  paaberopelse: Krav | null | undefined,
   forskyvning: number
 ): string {
   const spesifisert = standpunktet(svar, 'spesifisering');
@@ -555,7 +554,7 @@ function beslutningslinje(
     rettidighet: `${sene.join(' og ')} kom for sent`,
     // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
     hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
-      kategori(grunnlagskrav).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
+      kategori(paaberopelse).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
     })`,
     spesifisering: spesifisert?.dager
       ? `godkjent med ${spesifisert.dager} dager (§ 33.6.1)`
@@ -569,9 +568,9 @@ function beslutningslinje(
   );
   const virkning = (id: string) => v.find((p) => p.standpunkt === id)!.virkning;
   const sine: { tekst: string; virkning: Virkning }[] = [];
-  if (svar.spor === 'grunnlag') {
-    const g = standpunktet(svar, 'grunnlag')!;
-    sine.push({ tekst: GRUNNLAGSSVARET[g.resultat], virkning: virkning(g.id) });
+  if (svar.spor === 'forhold') {
+    const g = standpunktet(svar, 'forhold')!;
+    sine.push({ tekst: SVARET_PAA_PAABEROPELSEN[g.resultat], virkning: virkning(g.id) });
   } else if (svar.spor === 'vederlag') {
     // OV-U26: hver post for seg når kravet har posten etter § 34.1.3 annet ledd, med
     // begrensningen som eget ledd foran posten.
@@ -650,33 +649,33 @@ export const etikett = (lag: number): string =>
   lag === 1 ? 'prinsipalt' : lag === 2 ? 'subsidiært' : 'videre subsidiært';
 
 /**
- * OV-U32, OV-U33: lagene standpunktene i svaret på grunnlaget opptar foran vederlag og
+ * OV-U32, OV-U33: lagene standpunktene i svaret på forholdet opptar foran vederlag og
  * frist i brevet, ett for preklusjonen etter § 32.2 og ett for avslaget. Et frafall
  * flytter ikke lagene (GR-U7). Linjen leser det herfra; brevteksten skriver ett ledd for
- * hver av de samme grunnene (`grunnerFraGrunnlaget`).
+ * hver av de samme grunnene (`grunnerFraForholdet`).
  */
-export const lagFraGrunnlaget = (g: Svarinnhold | undefined, v: Standpunktsvirkning[]): number =>
-  g ? grunnerFraGrunnlaget(g, v).length : 0;
+export const lagFraForholdet = (g: Svarinnhold | undefined, v: Standpunktsvirkning[]): number =>
+  g ? grunnerFraForholdet(g, v).length : 0;
 
 /**
- * Brevet frosset når det sendes (MM-U9, MM-U11). For grunnlaget fryses også om
- * § 32.2 gjaldt kategorien i kravversjonen (GR-U12). `forskyvning` er `lagFraGrunnlaget`
- * for svaret på grunnlaget brevteksten setter foran sporet, og 0 for grunnlaget selv.
+ * Brevet frosset når det sendes (MM-U9, MM-U11). For forholdet fryses også om
+ * § 32.2 gjaldt kategorien i kravversjonen (GR-U12). `forskyvning` er `lagFraForholdet`
+ * for svaret på forholdet brevteksten setter foran sporet, og 0 for forholdet selv.
  */
 export function beslutningsgrunnlag(
   svar: Svarinnhold,
-  grunnlagskrav: Krav | null | undefined,
+  paaberopelse: Krav | null | undefined,
   regler: Regelsett,
   forskyvning: number
 ): Beslutningsgrunnlag {
-  const v = virkninger(svar, grunnlagskrav, regler, forskyvning);
+  const v = virkninger(svar, paaberopelse, regler, forskyvning);
   return {
     regelversjon: regler.versjon,
     virkninger: v,
-    linje: beslutningslinje(svar, v, grunnlagskrav, forskyvning),
+    linje: beslutningslinje(svar, v, paaberopelse, forskyvning),
     sammenfall: godkjennerHeleKravet(svar, v),
-    ...(svar.spor === 'grunnlag'
-      ? { varslingsplikt: gjelderVarslingsplikten(grunnlagskrav, regler) }
+    ...(svar.spor === 'forhold'
+      ? { varslingsplikt: gjelderVarslingsplikten(paaberopelse, regler) }
       : {}),
   };
 }
@@ -784,7 +783,7 @@ export const krevdProduktivitet = (krav: Krav): Oere | null =>
 
 /**
  * Serverens utregning av svaret, med navnene i formatet (`UTREGNING` i
- * `format.ts`). Grunnlaget har ingen utregning, bare kontrollen av
+ * `format.ts`). Forholdet har ingen utregning, bare kontrollen av
  * vurderingene. Kaster `UgyldigVurdering`, og `UgyldigBeloep` for et beløp i
  * vurderingene som ikke er et tall. Et krevd beløp som ikke kan leses, kaster
  * `Error` (`krevdBeloep`).
@@ -794,16 +793,16 @@ export function regnUtSvar(
   v: Svarvurdering,
   {
     krav,
-    grunnlagskrav,
+    paaberopelse,
     foresporsel = null,
-  }: { krav: Krav; grunnlagskrav: Krav | null; foresporsel?: Foresporselsrelasjon | null },
+  }: { krav: Krav; paaberopelse: Krav | null; foresporsel?: Foresporselsrelasjon | null },
   regler: Regelsett
 ): Record<string, unknown> {
-  if (spor === 'grunnlag') {
+  if (spor === 'forhold') {
     const { hovedkategori, underkategori } = kategori(krav);
     const feil: Record<string, string> = {};
     const resultat = v.resultat as never;
-    if (!regler.gyldigeGrunnlagsresultater(hovedkategori, underkategori).includes(resultat))
+    if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat))
       feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (§ 32.3 c)`;
     const iTide = v.grunnlag_varslet_i_tide;
     if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
@@ -819,7 +818,7 @@ export function regnUtSvar(
     return {};
   }
   if (spor === 'vederlag') {
-    const { hovedkategori, underkategori } = kategori(grunnlagskrav);
+    const { hovedkategori, underkategori } = kategori(paaberopelse);
     const post = krevdProduktivitet(krav);
     // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520).
     const utenPost: [boolean, (keyof Svarvurdering)[]][] = [
@@ -983,7 +982,7 @@ export const krevdSamlet = (krav: Krav): Oere =>
 
 /** Feltene klienten skal ha regnet likt med serveren. Beløp sammenliknes til hele øre. */
 export const SAMMENLIKNES: Record<Spor, string[]> = {
-  grunnlag: [],
+  forhold: [],
   vederlag: ['resultat', 'godkjent_beloep'],
   frist: ['resultat', 'godkjent_dager'],
 };

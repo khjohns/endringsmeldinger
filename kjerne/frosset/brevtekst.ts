@@ -17,7 +17,7 @@
 import { DATOEN_GJELDER, HJEMMEL } from '../format/format.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
-import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
+import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
@@ -26,7 +26,7 @@ import {
   etikett,
   laget,
   gjelderVarslingsplikten,
-  grunnerFraGrunnlaget,
+  grunnerFraForholdet,
   innsigelsenErOppgitt,
   innsigelsenPaaberoper,
   harHovedbeloep,
@@ -54,14 +54,14 @@ import type {
 
 /**
  * Saken slik den var før brevet: sak-ID-en og sakstittelen (KA-U22), gjeldende
- * svar på grunnlaget (A2), hvorfor svaret i et spor er subsidiært til grunnlaget
- * (LV-U4 punkt 6) og om grunnlaget er avklart ved frafall (GR-U23, GR-U26). Skrivingen
+ * svar på forholdet (A2), hvorfor svaret i et spor er subsidiært til forholdet
+ * (LV-U4 punkt 6) og om forholdet er avklart ved frafall (GR-U23, GR-U26). Skrivingen
  * leser dem av utledningen.
  */
 export interface Saken {
   saksnummer: string;
   tittel: string;
-  grunnlagssvar: string | null;
+  svarPaaPaaberopelsen: string | null;
   subsidiaer: Record<Kravspor, Subsidiaergrunn[]>;
   avklartVedFrafall: boolean;
 }
@@ -148,14 +148,14 @@ const LEDD_I_33_1: Record<string, string> = { svikt: 'b', andre_forhold: 'c' };
 const PART: Record<Part, string> = { TE: 'TE', BH: 'Byggherren' };
 
 const SPORNAVN: Record<Spor, string> = {
-  grunnlag: 'grunnlaget',
+  forhold: 'grunnlaget',
   vederlag: 'vederlaget',
   frist: 'fristen',
 };
 
 /** Det et svar eller en aksept gjelder, med kontraktens ord (LV-U4 punkt 4 og 6). */
 const SVARET_GJELDER: Record<Spor, string> = {
-  grunnlag: 'grunnlaget',
+  forhold: 'grunnlaget',
   vederlag: 'kravet om justering av vederlaget',
   frist: 'kravet om fristforlengelse',
 };
@@ -303,7 +303,7 @@ interface Tekst {
 /** LV-U4 punkt 1–3, GR-U16 og VS-U26. */
 function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
   const deler: string[] = [];
-  if (k.spor === 'grunnlag') {
+  if (k.spor === 'forhold') {
     const forholdet = `forholdet${typeof k.innhold.tittel === 'string' ? ` «${k.innhold.tittel}»` : ''} i ${sak}`;
     const hoved = k.innhold.hovedkategori as string;
     const under = k.innhold.underkategori as string;
@@ -463,18 +463,18 @@ const VARSELET: Record<Hjemmel, string> = {
 const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;
 
 /**
- * A2: standpunktene i svaret på grunnlaget som gjør et svar på vederlag eller frist
- * subsidiært (B-13 05.10): preklusjon etter § 32.2 og avslag. Svaret på grunnlaget
+ * A2: standpunktene i svaret på forholdet som gjør et svar på vederlag eller frist
+ * subsidiært (B-13 05.10): preklusjon etter § 32.2 og avslag. Svaret på forholdet
  * står i samme brev eller er gjeldende svar før brevet. Teksten sier hva byggherren
  * sa der, og tilskriver ikke byggherren noe nytt (LV-U3).
  */
-function grunnlagetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
-  if (s.spor === 'grunnlag') return [];
+function forholdetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
+  if (s.spor === 'forhold') return [];
   const g =
-    nytt.svar.find((x) => x.spor === 'grunnlag') ??
-    (saken.grunnlagssvar ? j.svar(saken.grunnlagssvar) : undefined);
+    nytt.svar.find((x) => x.spor === 'forhold') ??
+    (saken.svarPaaPaaberopelsen ? j.svar(saken.svarPaaPaaberopelsen) : undefined);
   if (!g) return [];
-  const grunner = grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger);
+  const grunner = grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger);
   const prekludert = grunner.includes('prekludert');
   const avslaatt = grunner.includes('avslaatt');
   if (g.dokument === nytt.id) {
@@ -500,35 +500,36 @@ function grunnlagetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
 
 /**
  * GR-U26: forbeholdet når byggherren svarer på vederlag eller frist uten å ha svart på
- * gjeldende versjon av grunnlaget, i brevet eller før det, og grunnlaget ikke er avklart
+ * gjeldende versjon av forholdet, i brevet eller før det, og forholdet ikke er avklart
  * ved frafall (GR-U23). Det er ikke et lag.
  */
-function forbeholdForGrunnlaget(s: Svar, { j, saken, nytt }: Tekst): string[] {
-  if (s.spor === 'grunnlag' || saken.grunnlagssvar !== null || saken.avklartVedFrafall) return [];
-  if (nytt.svar.some((x) => x.spor === 'grunnlag')) return [];
-  if (!s.grunnlagskrav) throw new KanIkkeUttrykkes(`${s.id} viser ikke til grunnlagskravet`);
+function forbeholdForForholdet(s: Svar, { j, saken, nytt }: Tekst): string[] {
+  if (s.spor === 'forhold' || saken.svarPaaPaaberopelsen !== null || saken.avklartVedFrafall)
+    return [];
+  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];
+  if (!s.paaberopelse) throw new KanIkkeUttrykkes(`${s.id} viser ikke til grunnlagskravet`);
   return [
-    `Byggherren har ennå ikke svart på grunnlaget i TEs krav i ${j.brevet(j.krav(s.grunnlagskrav).dokument)}.`,
+    `Byggherren har ennå ikke svart på grunnlaget i TEs krav i ${j.brevet(j.krav(s.paaberopelse).dokument)}.`,
     'Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.',
   ];
 }
 
-/** LV-U4 punkt 4 og 5, med A2 når grunnlaget er avslått eller prekludert, og GR-U26 når det er ubesvart. */
+/** LV-U4 punkt 4 og 5, med A2 når forholdet er avslått eller prekludert, og GR-U26 når det er ubesvart. */
 function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const { j, nytt } = t;
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
   const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);
-  // OV-U32: et avslått eller prekludert grunnlag står først, med lagene fra svaret på
-  // grunnlaget, og lagene i sporet flyttes ned med antallet lag de opptar (B-13, A2). Hvert
-  // ledd fra grunnlaget er ett lag der: preklusjonen etter § 32.2 er det første, og avslaget
+  // OV-U32: et avslått eller prekludert forhold står først, med lagene fra svaret på
+  // forholdet, og lagene i sporet flyttes ned med antallet lag de opptar (B-13, A2). Hvert
+  // ledd fra forholdet er ett lag der: preklusjonen etter § 32.2 er det første, og avslaget
   // står i laget etter. Et standpunkt uten lag, også et upåvirket, får ingen etikett. Metoden
   // står i laget til justeringen ellers (OV-U33, LV-U31). Standpunktene i samme lag står under
   // én etikett.
-  const grunnlaget = grunnlagetsStandpunkter(s, t);
-  const forskyvning = grunnlaget.length;
+  const forholdet = forholdetsStandpunkter(s, t);
+  const forskyvning = forholdet.length;
   const ledd = [
-    ...grunnlaget.map((tekst, i) => ({ tekst, plass: (i + 1) as number | null })),
+    ...forholdet.map((tekst, i) => ({ tekst, plass: (i + 1) as number | null })),
     ...s.standpunkter.map((p) => {
       const lag = laget(virkning.get(p.id)!);
       return {
@@ -545,7 +546,7 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const avsnitt: string[][] = [
     [
       `Byggherrens svar på ${SVARET_GJELDER[s.spor]} i TEs krav i ${j.brevet(krav.dokument)}:`,
-      ...forbeholdForGrunnlaget(s, t),
+      ...forbeholdForForholdet(s, t),
     ],
   ];
   if (ordnet) avsnitt.push([]);
@@ -570,7 +571,7 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
 /**
  * Varselet et standpunkt om rettidighet gjelder, med brevet det står i (HF-U1, #497). Uten
  * eget varsel er det brevet med TEs første krav i sporet, uten forbeholdet fra skjemaet
- * (LV-U21, OV-U28, OV-U29). TEs varsel etter § 32.2 er grunnlagskravet og nevnes uten brev
+ * (LV-U21, OV-U28, OV-U29). TEs varsel etter § 32.2 er påberopelsen og nevnes uten brev
  * (oppdragsgiver 17.10). For § 33.6.2 er det svaret på forespørselen, med brevet
  * forespørselen står i (LV-U18 setning 4).
  */
@@ -588,8 +589,7 @@ function standpunkttekst(
   j: Journalen,
   innsigelser: Innsigelse[]
 ): string {
-  const grunnlagskrav =
-    s.spor === 'grunnlag' ? krav : s.grunnlagskrav ? j.krav(s.grunnlagskrav) : null;
+  const paaberopelse = s.spor === 'forhold' ? krav : s.paaberopelse ? j.krav(s.paaberopelse) : null;
   switch (p.art) {
     case 'rettidighet': {
       // VS-U29, VS-U31: saken har én forespørsel, så standpunktet etter § 33.6.2 gjelder begrunnelsen.
@@ -608,7 +608,7 @@ function standpunkttekst(
         ? `byggherren gir opp ${henvisning} etter NS 8407 § 5 i ${brevene} og gjør ikke gjeldende at ${varselet} kom for sent.`
         : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;
     }
-    case 'grunnlag':
+    case 'forhold':
       if (p.resultat === 'godkjent')
         return blirEndringsordre(s.beslutningsgrunnlag)
           ? endringsordretekst(krav, j)
@@ -619,8 +619,7 @@ function standpunkttekst(
           : 'byggherren avslår grunnlaget.';
       return 'byggherren frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (NS 8407 § 32.3 første ledd c).';
     case 'hindring': {
-      const hjemmel =
-        grunnlagskrav?.innhold.hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
+      const hjemmel = paaberopelse?.innhold.hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
     case 'metode':
@@ -710,7 +709,7 @@ function beskriv(id: string, j: Journalen): string {
   const e = j.element(id);
   switch (e.art) {
     case 'krav':
-      return `TEs krav${e.krav.spor === 'grunnlag' ? '' : ` om ${KRAVET_OM[e.krav.spor]}`} i ${j.brevet(e.krav.dokument)}`;
+      return `TEs krav${e.krav.spor === 'forhold' ? '' : ` om ${KRAVET_OM[e.krav.spor]}`} i ${j.brevet(e.krav.dokument)}`;
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
     case 'standpunkt':
@@ -762,14 +761,14 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
     case 'aksept': {
       const svar = j.svar(u.gjelder);
       const aksept = `TE godtar byggherrens svar på ${SVARET_GJELDER[svar.spor]} i ${j.brevet(svar.dokument)}.`;
-      // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til grunnlaget.
-      if (svar.spor === 'grunnlag' || !saken.subsidiaer[svar.spor].length) return aksept;
+      // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til forholdet.
+      if (svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length) return aksept;
       return `${aksept} TE er enig i ${svar.spor === 'vederlag' ? 'beløpet' : 'antallet dager'}, men ikke i byggherrens standpunkt til grunnlaget.`;
     }
     case 'trekk': {
       const krav = j.krav(u.gjelder);
       // KA-U22, ordrett med saken satt inn.
-      if (krav.spor === 'grunnlag')
+      if (krav.spor === 'forhold')
         return `TE trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
       const verdi =
         krav.spor === 'vederlag' ? kravetsBeloep(krav) : dager(krav.innhold.dager as number);

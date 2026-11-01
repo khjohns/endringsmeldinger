@@ -148,20 +148,20 @@ def test_en_ukjent_kildetype_gir_feil(regler):
 
 
 def _maal_med_kontroll(kilde):
-    """Et forløp for KA-31 og VS-06 der én kontroll har regelkoden GRUNNLAG_IKKE_SENDT."""
+    """Et forløp for KA-31 og VS-06 der én kontroll har regelkoden PAABEROPELSE_IKKE_SENDT."""
     maal = copy.deepcopy(v.les_maalmodell())
-    kontroll = {"etter": 0, "rolle": "mal", "kilde": kilde, "forventet": {"regel": "GRUNNLAG_IKKE_SENDT"}}
+    kontroll = {"etter": 0, "rolle": "mal", "kilde": kilde, "forventet": {"regel": "PAABEROPELSE_IKKE_SENDT"}}
     for f in maal["forlop"]:
-        f["kontroller"] = [k for k in f["kontroller"] if k["forventet"].get("regel") != "GRUNNLAG_IKKE_SENDT"]
+        f["kontroller"] = [k for k in f["kontroller"] if k["forventet"].get("regel") != "PAABEROPELSE_IKKE_SENDT"]
     maal["forlop"].append({"id": "F-PROVE", "rader": ["KA-31", "VS-06"], "kontroller": [kontroll]})
     return maal
 
 
 def test_en_regelkode_gjelder_raden_kontrollen_viser_til_i_kilde(regler):
-    """Begge radene har GRUNNLAG_IKKE_SENDT. Viser kontrollen til KA-31, er koden ikke prøvd for VS-06."""
+    """Begge radene har PAABEROPELSE_IKKE_SENDT. Viser kontrollen til KA-31, er koden ikke prøvd for VS-06."""
     navngitt = v._valider_sporbarhet(regler, _maal_med_kontroll(["KA-31", "KA-U15"]), v.ROT)
     uten_rad = v._valider_sporbarhet(regler, _maal_med_kontroll(["KA-U15"]), v.ROT)
-    assert navngitt == ["VS-06: ingen bevis-sak for raden kontrollerer regelkoden GRUNNLAG_IKKE_SENDT"]
+    assert navngitt == ["VS-06: ingen bevis-sak for raden kontrollerer regelkoden PAABEROPELSE_IKKE_SENDT"]
     assert uten_rad == []
 
 

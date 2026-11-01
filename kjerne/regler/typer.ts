@@ -4,8 +4,8 @@
  * `koder.ts`.
  */
 
-export const GRUNNLAGSRESULTATER = ['godkjent', 'avslaatt', 'paalegg_frafalt'] as const;
-export type Grunnlagsresultat = (typeof GRUNNLAGSRESULTATER)[number];
+export const FORHOLDSRESULTATER = ['godkjent', 'avslaatt', 'paalegg_frafalt'] as const;
+export type Forholdsresultat = (typeof FORHOLDSRESULTATER)[number];
 export const VEDERLAGSRESULTATER = [
   'godkjent',
   'delvis_godkjent',

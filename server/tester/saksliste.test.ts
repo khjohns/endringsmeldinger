@@ -13,7 +13,7 @@ import { transaksjon } from '../datalag.ts';
 import type { Noekkeltall, Sakslinje } from '../saksliste.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
-  GRUNNLAGSKRAV,
+  PAABEROPELSE,
   kall,
   lagOppsett,
   opprettKjernesak,
@@ -57,7 +57,7 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
     o = await lagOppsett();
     server = await startServer(o);
     medKrav = await opprettKjernesak(o);
-    for (const [versjon, kommando] of [GRUNNLAGSKRAV, KRAV_VEDERLAG, KRAV_FRIST].entries()) {
+    for (const [versjon, kommando] of [PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST].entries()) {
       const svar = await sendKommando(server.url, o, medKrav, { versjon: versjon + 1, kommando });
       expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
     }
@@ -140,9 +140,9 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
         const visning = vist.kropp.visning as {
           spor: Record<string, { betegnelse: string | null }>;
         };
-        for (const spor of ['grunnlag', 'vederlag', 'frist'] as const)
+        for (const spor of ['forhold', 'vederlag', 'frist'] as const)
           expect(linje[spor].betegnelse, spor).toBe(visning.spor[spor]!.betegnelse);
-        expect(linje.grunnlag.betegnelse, 'kontroll').toBe(
+        expect(linje.forhold.betegnelse, 'kontroll').toBe(
           sakId === medKrav ? 'venter_paa_svar' : null
         );
       }

@@ -1674,7 +1674,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
+        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -1703,7 +1703,7 @@
       "funksjoner": [
         "kjerne/kommandoer/nyttelast.ts#kategorisperre",
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
+        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
         "kjerne/utledning/utled.ts#kanInngaaIEo"
       ],
       "regelkoder": [
@@ -1745,7 +1745,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
+        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -1767,7 +1767,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
+        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -1830,7 +1830,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget"
+        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet"
       ]
     },
     {
@@ -1952,7 +1952,7 @@
       "funksjoner": [
         "kjerne/utledning/utled.ts#kanInngaaIEo",
         "kjerne/utledning/utled.ts#kraveneErAvgjort",
-        "kjerne/frosset/standpunkt.ts#grunnlagetErAvklart"
+        "kjerne/frosset/standpunkt.ts#forholdetErAvklart"
       ]
     },
     {
@@ -1992,7 +1992,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#grunnlagetErAvklart",
+        "kjerne/frosset/standpunkt.ts#forholdetErAvklart",
         "kjerne/utledning/utled.ts#kraveneErAvgjort"
       ]
     },
@@ -2038,8 +2038,8 @@
       "funksjoner": [
         "kjerne/kommandoer/nyttelast.ts#kategorisperre",
         "kjerne/frosset/standpunkt.ts#regnUtSvar",
-        "kjerne/regler/grunnlag.ts#gyldigeResultater",
-        "kjerne/regler/grunnlag.ts#erByggherrensPaalegg"
+        "kjerne/regler/forhold.ts#gyldigeResultater",
+        "kjerne/regler/forhold.ts#erByggherrensPaalegg"
       ],
       "regelkoder": [
         "ANNEN_HJEMMEL",
@@ -2084,7 +2084,7 @@
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
-        "GRUNNLAG_AVVIST"
+        "FORHOLD_AVVIST"
       ]
     },
     {
@@ -2104,7 +2104,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#enighetensVirkning",
-        "kjerne/frosset/standpunkt.ts#grunnlagetErAvklart",
+        "kjerne/frosset/standpunkt.ts#forholdetErAvklart",
         "kjerne/utledning/utled.ts#kraveneErAvgjort"
       ]
     },
@@ -2250,12 +2250,12 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#trekkAvGrunnlagetErSperret",
+        "kjerne/utledning/utled.ts#trekkAvPaaberopelsenErSperret",
         "kjerne/frosset/standpunkt.ts#blirEndringsordre",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
-        "GRUNNLAG_ER_ENDRINGSORDRE"
+        "FORHOLD_ER_ENDRINGSORDRE"
       ]
     },
     {
@@ -2283,7 +2283,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/utledning/utled.ts#trekkAvGrunnlagetErSperret",
+        "kjerne/utledning/utled.ts#trekkAvPaaberopelsenErSperret",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ]
     },
@@ -2660,7 +2660,7 @@
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
         "kjerne/utledning/utled.ts#ikkeErstattet",
-        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget"
+        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet"
       ]
     },
     {
@@ -2799,7 +2799,7 @@
       "regelkoder": [
         "INGEN_KRAV_I_SPORET",
         "KRAV_I_SPORET",
-        "GRUNNLAG_IKKE_SENDT"
+        "PAABEROPELSE_IKKE_SENDT"
       ]
     },
     {
@@ -3130,7 +3130,7 @@
         "kjerne/kommandoer/forutsetninger.ts#henvisning"
       ],
       "regelkoder": [
-        "GRUNNLAG_AVVIST"
+        "FORHOLD_AVVIST"
       ]
     },
     {
@@ -3158,7 +3158,7 @@
       ],
       "regelkoder": [
         "VARSEL_REGISTRERT",
-        "GRUNNLAG_IKKE_SENDT",
+        "PAABEROPELSE_IKKE_SENDT",
         "INGEN_KRAV_I_SPORET",
         "FRISTKRAV_SENDT"
       ]

@@ -1,6 +1,6 @@
-/** Byggherrens svar på grunnlaget, NS 8407 § 32.2 og § 32.3. Port av `regler/grunnlag.py`. */
+/** Byggherrens svar på forholdet, NS 8407 § 32.2 og § 32.3. Port av `regler/forhold.py`. */
 
-import type { Grunnlagsresultat, Hovedkategori, Underkategori } from './typer.ts';
+import type { Forholdsresultat, Hovedkategori, Underkategori } from './typer.ts';
 import type { Regelsett } from './regelsett.ts';
 import { UgyldigVurdering } from './feil.ts';
 
@@ -47,9 +47,9 @@ export function erPrekludert(
   return erEndringMedVarslingsplikt(hovedkategori, underkategori) && varsletITide === false;
 }
 
-/** Hele vederlaget og hele fristen er subsidiære: grunnlaget er avslått eller prekludert etter § 32.2. */
-export function erGrunnlagSubsidiaert(
-  resultat: Grunnlagsresultat | null,
+/** Hele vederlaget og hele fristen er subsidiære: forholdet er avslått eller prekludert etter § 32.2. */
+export function erForholdSubsidiaert(
+  resultat: Forholdsresultat | null,
   hovedkategori: string | null,
   underkategori: string | string[] | null,
   varsletITide: boolean | null
@@ -63,25 +63,25 @@ export function erGrunnlagSubsidiaert(
 export function gyldigeResultater(
   hovedkategori: string | null,
   underkategori: string | null
-): Grunnlagsresultat[] {
-  const resultater: Grunnlagsresultat[] = ['godkjent', 'avslaatt'];
+): Forholdsresultat[] {
+  const resultater: Forholdsresultat[] = ['godkjent', 'avslaatt'];
   return erByggherrensPaalegg(hovedkategori, underkategori)
     ? [...resultater, 'paalegg_frafalt']
     : resultater;
 }
 
 /** Svaret mot svarvalgene og varslingsplikten i regelsettet, som kjernen leser dem (#514). */
-export function kontrollerGrunnlagssvar(
+export function kontrollerSvarPaaPaaberopelsen(
   regler: Regelsett,
   hovedkategori: string | null,
   underkategori: string | null,
-  resultat: Grunnlagsresultat | null,
+  resultat: Forholdsresultat | null,
   varsletITide: boolean | null
 ): void {
   const feil: Record<string, string> = {};
   if (resultat === null) {
     feil.resultat = 'mangler';
-  } else if (!regler.gyldigeGrunnlagsresultater(hovedkategori, underkategori).includes(resultat)) {
+  } else if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat)) {
     feil.resultat = `«${resultat}» kan ikke velges i denne kategorien (§ 32.3 c)`;
   }
   if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
@@ -94,15 +94,15 @@ export function kontrollerGrunnlagssvar(
 
 export type Subsidiaergrunn = 'avslaatt' | 'prekludert';
 
-/** M1: standpunktet i et svar på vederlag eller frist, utledet av grunnlaget. */
+/** M1: standpunktet i et svar på vederlag eller frist, utledet av forholdet. */
 export interface Standpunkt {
   subsidiaert: boolean;
   hovedgrunn: Subsidiaergrunn | null;
   aarsaker: Subsidiaergrunn[];
 }
 
-export interface GrunnlagForStandpunkt {
-  resultat: Grunnlagsresultat | null;
+export interface ForholdForStandpunkt {
+  resultat: Forholdsresultat | null;
   hovedkategori: string | null;
   underkategori: string | string[] | null;
   varsletITide: boolean | null;
@@ -110,12 +110,12 @@ export interface GrunnlagForStandpunkt {
 
 /**
  * Preklusjonen er hovedgrunnen når begge gjelder (vedtaket 05.10 om avslag
- * sammen med § 32.2). Et svar som var subsidiært da grunnlagssvaret falt,
- * forblir det til sporet eller grunnlaget besvares igjen (`tilNyttSvar`).
+ * sammen med § 32.2). Et svar som var subsidiært da svaret på påberopelsen falt,
+ * forblir det til sporet eller forholdet besvares igjen (`tilNyttSvar`).
  * Frafall er ikke avslag, men en § 32.2-preklusjon gjelder også ved frafall (#235).
  */
 export function standpunkt(
-  grunnlag: GrunnlagForStandpunkt,
+  forhold: ForholdForStandpunkt,
   tilNyttSvar: Subsidiaergrunn | null
 ): Standpunkt {
   if (tilNyttSvar !== null)
@@ -123,13 +123,13 @@ export function standpunkt(
   const aarsaker: Subsidiaergrunn[] = [];
   if (
     erPrekludert(
-      grunnlag.hovedkategori,
-      foersteUnderkategori(grunnlag.underkategori),
-      grunnlag.varsletITide
+      forhold.hovedkategori,
+      foersteUnderkategori(forhold.underkategori),
+      forhold.varsletITide
     )
   ) {
     aarsaker.push('prekludert');
   }
-  if (grunnlag.resultat === 'avslaatt') aarsaker.push('avslaatt');
+  if (forhold.resultat === 'avslaatt') aarsaker.push('avslaatt');
   return { subsidiaert: aarsaker.length > 0, hovedgrunn: aarsaker[0] ?? null, aarsaker };
 }

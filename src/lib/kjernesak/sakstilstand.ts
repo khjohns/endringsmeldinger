@@ -35,7 +35,7 @@ import type { TrackDisplay } from '$lib/components/kontraktsbord/derive';
 import type { SporKey } from '$lib/components/kontraktsbord/types';
 
 export const SPOR_FOR: Record<SporKey, Spor> = {
-  ansvar: 'grunnlag',
+  ansvar: 'forhold',
   vederlag: 'vederlag',
   frist: 'frist',
 };
@@ -99,7 +99,7 @@ export function tilSakState(
   journal: Journalrad[],
   u: Utledning
 ): SakState {
-  const g = u.spor.grunnlag.gjeldendeKrav;
+  const g = u.spor.forhold.gjeldendeKrav;
   const v = u.spor.vederlag.gjeldendeKrav;
   const f = u.spor.frist.gjeldendeKrav;
   const kroner = (oere: Oere | null | undefined) => (oere == null ? undefined : tilTall(oere));
@@ -115,7 +115,7 @@ export function tilSakState(
       sakstype: 'standard',
       grunnlag: utenStatus<SakState['grunnlag'], (typeof SPORETS_STATUSFELT)[number] | 'laast'>(
         {
-          ...sist('grunnlag'),
+          ...sist('forhold'),
           hovedkategori: tekst(tilKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, g?.innhold.hovedkategori)),
           underkategori: tekst(tilKatalogen(UNDERKATEGORI_FRA_KATALOGEN, g?.innhold.underkategori)),
           beskrivelse: utdypning(journal, u, g),
@@ -154,9 +154,10 @@ export function tilSakState(
 
 /** Sporet en hendelse har krav eller svar i. */
 function sporFor(u: Utledning, hendelse: string): SporType | null {
-  for (const spor of ['grunnlag', 'vederlag', 'frist'] as const) {
+  for (const spor of ['forhold', 'vederlag', 'frist'] as const) {
     const s = u.spor[spor];
-    if ([...s.krav, ...s.svar].some((e) => u.elementer[e.id]?.hendelse === hendelse)) return spor;
+    if ([...s.krav, ...s.svar].some((e) => u.elementer[e.id]?.hendelse === hendelse))
+      return spor === 'forhold' ? 'grunnlag' : spor;
   }
   return null;
 }

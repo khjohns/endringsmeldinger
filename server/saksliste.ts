@@ -6,11 +6,7 @@
  * først»). Feltnavnene er kontrakter (B-17); betydningen står i domenetabellen.
  */
 
-import type {
-  Fristresultat,
-  Grunnlagsresultat,
-  Vederlagsresultat,
-} from '../kjerne/regler/typer.ts';
+import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
 import type { Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
@@ -111,8 +107,8 @@ interface Foreligger {
   svar_ikke_godtatt: boolean;
 }
 
-export interface Grunnlagslinje extends Foreligger {
-  svar: { resultat: Grunnlagsresultat } | null;
+export interface Forholdslinje extends Foreligger {
+  svar: { resultat: Forholdsresultat } | null;
 }
 
 /**
@@ -148,7 +144,7 @@ export interface Sakslinje {
   saksbetegnelse: Saksbetegnelse | null;
   /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */
   brev_utenfor_appen: boolean;
-  grunnlag: Grunnlagslinje;
+  forhold: Forholdslinje;
   vederlag: Vederlagslinje;
   frist: Fristlinje;
 }
@@ -195,7 +191,7 @@ function vederlagssvaret(u: Utledning) {
 
 const avsluttet = (u: Utledning): boolean => {
   const b = saksbetegnelse(u);
-  return b === 'avslaget_paa_grunnlaget_godtatt' || b === 'grunnlaget_trukket';
+  return b === 'avslaget_paa_forholdet_godtatt' || b === 'paaberopelsen_trukket';
 };
 
 const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
@@ -258,17 +254,17 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
     return {
       ...felles,
       hovedkategori: null,
-      grunnlag: { ...INGENTING, svar: null },
+      forhold: { ...INGENTING, svar: null },
       vederlag: { ...INGENTING, kravet_staar: false, krav: null, svar: null, enighet: null },
       frist: { ...INGENTING, kravet_staar: false, krav: null, svar: null, enighet: null },
     };
-  const g = u.spor.grunnlag.gjeldendeSvar?.standpunkter.find((p) => p.art === 'grunnlag');
+  const g = u.spor.forhold.gjeldendeSvar?.standpunkter.find((p) => p.art === 'forhold');
   return {
     ...felles,
-    hovedkategori: tekst(u.spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori),
-    grunnlag: {
-      ...foreligger(u, 'grunnlag'),
-      svar: g?.art === 'grunnlag' ? { resultat: g.resultat } : null,
+    hovedkategori: tekst(u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori),
+    forhold: {
+      ...foreligger(u, 'forhold'),
+      svar: g?.art === 'forhold' ? { resultat: g.resultat } : null,
     },
     vederlag: vederlag(u),
     frist: frist(u),

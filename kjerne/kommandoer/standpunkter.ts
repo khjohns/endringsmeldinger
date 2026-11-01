@@ -4,7 +4,7 @@
  */
 
 import { HJEMMEL } from '../format/format.ts';
-import { grunnlagsstandpunkter } from '../frosset/frysing.ts';
+import { forholdsstandpunkter } from '../frosset/frysing.ts';
 import { vederlagsposter } from '../frosset/standpunkt.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Svarutkast } from './kommando.ts';
@@ -21,8 +21,8 @@ type Data = Record<string, unknown>;
 export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => string): Data[] {
   const v = s.vurderinger;
   const ut: Data[] = [];
-  if (s.spor === 'grunnlag') {
-    ut.push(...grunnlagsstandpunkter(v, krav, nyId));
+  if (s.spor === 'forhold') {
+    ut.push(...forholdsstandpunkter(v, krav, nyId));
   } else if (s.spor === 'vederlag') {
     // VS-U20, OV-U5, HF-U1: varselet før svaret, som i fristen.
     if (typeof v.hovedkrav_varslet_i_tide === 'boolean')

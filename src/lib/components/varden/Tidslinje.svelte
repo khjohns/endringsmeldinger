@@ -25,9 +25,10 @@
 
   const oppfoeringer = $derived<Oppfoering[]>(
     [
+      // To parter kan oppgi samme dato i samme brev, så datoene skilles på plassen (#1393).
       ...datoer.map(
-        (d): Oppfoering => ({
-          noekkel: `${d.hva}-${d.brev}-${d.dato}`,
+        (d, i): Oppfoering => ({
+          noekkel: `oppgitt-${i}`,
           naar: d.dato,
           merke: 'oppgitt',
           hva: OPPGITT[d.hva],
@@ -84,7 +85,7 @@
   .kort {
     background: var(--surface);
     border: var(--rule);
-    border-radius: 12px;
+    border-radius: var(--r-kort);
   }
   .hode {
     display: flex;
@@ -92,11 +93,16 @@
     gap: var(--spacing-2);
     min-height: 48px;
     padding: var(--spacing-3) var(--spacing-5);
-    border-radius: 12px;
   }
+  /* Fyller kortet, så hjørnene følger kortets innerkant. Åpen fortsetter lista under. */
   summary {
+    border-radius: calc(var(--r-kort) - 1px);
     cursor: pointer;
     list-style: none;
+  }
+  details[open] summary {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
   }
   summary:hover {
     background: var(--surface-inset);

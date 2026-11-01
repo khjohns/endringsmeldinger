@@ -59,9 +59,9 @@ async function bhSvarerIVarden(): Promise<string[]> {
   await fireEvent.click(await screen.findByText('Skriv brev'));
   await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
-  await fireEvent.click(screen.getByRole('radio', { name: 'Godtar metoden' }));
+  await fireEvent.click(screen.getByRole('radio', { name: 'Godkjenner metoden' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
-  await fireEvent.input(await screen.findByRole('textbox', { name: 'Beløpet du godtar' }), {
+  await fireEvent.input(await screen.findByRole('textbox', { name: 'Beløpet du godkjenner' }), {
     target: { value: '60 000' },
   });
   await fireEvent.input(screen.getByRole('textbox', { name: /Begrunnelse/ }), {
@@ -123,7 +123,13 @@ describe('Varden med brukerforløpet BF-01', () => {
     const vist = await bhSvarerIVarden();
     expect(vist.join(' ')).toMatch(/Prinsipalt: byggherren gjør gjeldende at varselet/);
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
-    expect(document.body.textContent).toMatch(/Begrunnelsen tolkes ikke\./);
+    // OV-U81 og #1443: hvordan løsningen virker, står på siden «Om Varden», ikke ved feltene.
+    // KA-U19: brevkontrollen sier i infotipset at teksten lages fra valgene (OV-U81, #1466).
+    // Setningen i skjemaet prøves i testen for #1466 og #1467.
+    expect(
+      [...document.querySelectorAll('[role="note"]')].map((e) => e.textContent).join(' ')
+    ).toMatch(/Teksten lages fra valgene/);
+    expect(document.body.textContent).not.toMatch(/tolkes ikke|vurderes ikke/);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
     expect(document.body.textContent).not.toMatch(/\bKA-U\d/);
     await sendBrevet('Send svaret til TE');
@@ -148,7 +154,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     });
     // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den.
     expect(panelet.textContent).toMatch(
-      /Aksepten omfatter også at BH gjør gjeldende at varselet etter § 34\.1\.2 kom for sent/
+      /Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt 34\.1\.2 kom for sent/
     );
     expect(panelet.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
     const panel = within(panelet);
@@ -190,16 +196,16 @@ describe('Varden med brukerforløpet BF-01', () => {
         .map((l) => l.textContent)
     ).toEqual([
       'Velg om varselet kom i tide.',
-      'Velg om du godtar beregningsmetoden.',
-      'Velg hvor mye av hovedkravet du godtar.',
+      'Velg om du godkjenner beregningsmetoden.',
+      'Velg hvor mye av vederlagsjusteringen du godkjenner.',
     ]);
     const ved = (spoersmaal: string) =>
       screen.getByRole('group', { name: spoersmaal }).getAttribute('aria-describedby');
     const tekstVed = (spoersmaal: string) =>
       document.getElementById(ved(spoersmaal) ?? '')?.textContent ?? null;
     expect(tekstVed('Kom varselet om kravet i tide?')).toBe('Velg om varselet kom i tide.');
-    expect(tekstVed('Hvor mye av hovedkravet godtar du?')).toBe(
-      'Velg hvor mye av hovedkravet du godtar.'
+    expect(tekstVed('Hvor mye av vederlagsjusteringen godkjenner du?')).toBe(
+      'Velg hvor mye av vederlagsjusteringen du godkjenner.'
     );
 
     // Beskjeden ved feltet forsvinner når feltet er besvart.
@@ -211,15 +217,15 @@ describe('Varden med brukerforløpet BF-01', () => {
       ).getAllByRole('listitem')
     ).toHaveLength(2);
 
-    await fireEvent.click(screen.getByRole('radio', { name: 'Godtar metoden' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Godkjenner metoden' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
-    const beloep = await screen.findByRole('textbox', { name: 'Beløpet du godtar' });
+    const beloep = await screen.findByRole('textbox', { name: 'Beløpet du godkjenner' });
     await fireEvent.input(beloep, { target: { value: '150 000' } });
     expect(beloep).toHaveAttribute('aria-invalid', 'true');
     expect(beloep.getAttribute('aria-describedby')).toMatch(/-beloep-feil$/);
     expect(
       screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
-    ).toMatch(/Beløpet du godtar må være mer enn 0 kr og mindre enn 100\s000\skr\./);
+    ).toMatch(/Beløpet du godkjenner må være mer enn 0 kr og mindre enn 100\s000\skr\./);
     // Et punktum er ikke desimaltegn i et beløp: «60.000» blir ikke 60 kr.
     await fireEvent.input(beloep, { target: { value: '60.000' } });
     expect(
@@ -253,7 +259,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
     await fireEvent.click(await screen.findByText('Skriv brev'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
-    const beloep = () => screen.getByRole('group', { name: 'Hvor mye av hovedkravet godtar du?' });
+    const beloep = () =>
+      screen.getByRole('group', { name: 'Hvor mye av vederlagsjusteringen godkjenner du?' });
     expect(beloep().getAttribute('aria-describedby')).toBeNull();
     expect(screen.queryByText('Gjelder hvis')).toBeNull();
 
@@ -271,7 +278,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText('Gjelder hvis')).toBeNull();
   });
 
-  it('BF-04: over beløpet står avslaget av grunnlaget først og så innsigelsen om sen varsling, og hovedlinjene begynner på avslaget (#1400, S1-A og S2-A, OV-U32, OV-U33)', async () => {
+  it('BF-04: over beløpet står avslaget av forholdet først og så innsigelsen om sen varsling, og hovedlinjene begynner på avslaget (#1400, S1-A og S2-A, OV-U32, OV-U33, OV-U76)', async () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
@@ -282,7 +289,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     await fireEvent.click(await screen.findByText('Skriv brev'));
     await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
     const forutsetningene = () => {
-      const beloep = screen.getByRole('group', { name: 'Hvor mye av hovedkravet godtar du?' });
+      const beloep = screen.getByRole('group', {
+        name: 'Hvor mye av vederlagsjusteringen godkjenner du?',
+      });
       const id = beloep.getAttribute('aria-describedby');
       return id
         ? [...document.getElementById(id)!.querySelectorAll('li')].map((li) =>
@@ -290,7 +299,7 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    const AVSLAGET = 'avslaget av grunnlaget i brev 3 ikke fører frem';
+    const AVSLAGET = 'avslaget av forholdet i brev 3 ikke fører frem';
 
     // S1-A: et ubesvart varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende.
     expect(forutsetningene()).toEqual([AVSLAGET]);
@@ -299,9 +308,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(forutsetningene()).toEqual([AVSLAGET, 'innsigelsen om sen varsling ikke fører frem']);
 
     // Avslått metode uten ønsket metode forstår ikke kjernen; skjemaet står, og lagene med det.
-    await fireEvent.click(screen.getByRole('radio', { name: 'Godtar ikke metoden' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Godkjenner ikke metoden' }));
     expect(forutsetningene()).toEqual([AVSLAGET, 'innsigelsen om sen varsling ikke fører frem']);
-    await fireEvent.click(screen.getByRole('radio', { name: 'Regningsarbeid (§ 34.4)' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Regningsarbeid (punkt 34.4)' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Ingenting' }));
 
     // Som i brevet står avslaget prinsipalt, foran sporet (OV-U33).
@@ -309,12 +318,12 @@ describe('Varden med brukerforløpet BF-01', () => {
       screen.getByRole('region', { name: 'Hovedlinjene i svaret' })
     ).getAllByRole('listitem');
     expect(linjer[0].textContent!.replace(/\s+/g, ' ').trim()).toBe(
-      'prinsipalt Du har avslått grunnlaget i brev 3'
+      'prinsipalt Du har avslått forholdet i brev 3'
     );
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
   });
 
-  it('BF-04: over varselet står avslaget av grunnlaget, og over metoden står i tillegg innsigelsen om sen varsling etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31)', async () => {
+  it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om sen varsling etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
@@ -332,9 +341,9 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    const AVSLAGET = ['avslaget av grunnlaget i brev 3 ikke fører frem'];
+    const AVSLAGET = ['avslaget av forholdet i brev 3 ikke fører frem'];
     const VARSEL = 'Kom varselet om kravet i tide?';
-    const METODE = /Godtar du det\?$/;
+    const METODE = /Godkjenner du det\?$/;
 
     expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
     expect(forutsetningene(METODE)).toEqual(AVSLAGET);
@@ -348,7 +357,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       'innsigelsen om sen varsling ikke fører frem',
     ]);
     // Svaret på metoden flytter ikke metoden ut av laget sitt.
-    await fireEvent.click(screen.getByRole('radio', { name: 'Godtar ikke metoden' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Godkjenner ikke metoden' }));
     expect(forutsetningene(METODE)).toEqual([
       ...AVSLAGET,
       'innsigelsen om sen varsling ikke fører frem',
@@ -373,8 +382,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast' }));
     expect(screen.queryByRole('form')).toBeNull();
     const melding = screen.getByText('Utkastet er forkastet.');
-    expect(melding.getAttribute('role')).toBe('status');
-    expect(document.activeElement).toBe(melding);
+    // Kvitteringen står i den levende regionen som finnes før meldingen kommer.
+    expect(melding.closest('[role="status"]')).not.toBeNull();
+    expect(document.activeElement).toBe(melding.closest('[role="status"]'));
     expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
     // Et nytt svar begynner tomt.
     await fireEvent.click(screen.getByText('Skriv brev'));
@@ -393,7 +403,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText('Skriv brev')).toBeNull();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
 
-    await fireEvent.click(panelet.getByRole('button', { name: /^Grunnlag/ }));
+    await fireEvent.click(panelet.getByRole('button', { name: /^Forholdet/ }));
     expect(screen.queryByRole('form')).toBeNull();
     expect(vederlag().textContent).toMatch(/Utkast/);
 
@@ -434,6 +444,50 @@ describe('Varden med brukerforløpet BF-01', () => {
       document.getElementById(avkrysning.getAttribute('aria-describedby')!)?.textContent
     ).toMatch(/Kryss av for at du har kontrollert brevet, så kan du sende\./);
     expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
+  });
+
+  it('#1466 og #1467: skjemaet og brevkontrollen bruker ordene i sprak.md og OV-U75, og forklaringene av løsningen står bare i infotipsene (OV-U81)', async () => {
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    // Teksten i brevet kommer fra kjernen og hører til #1433; infotipsene prøves for seg.
+    const synlig = () => {
+      const kopi = document.body.cloneNode(true) as HTMLElement;
+      kopi
+        .querySelectorAll('[role="note"], [data-testid="laast-tekst"]')
+        .forEach((e) => e.remove());
+      return kopi.textContent!.replace(/\s+/g, ' ');
+    };
+    const infotips = () =>
+      [...document.querySelectorAll('[role="note"]')].map((e) => e.textContent).join(' ');
+    const FORKLARINGER = [
+      'Løsningen viser datoene',
+      'Virkningen av svaret regnes ut fra valgene over',
+      'Teksten lages fra valgene og kan ikke endres her',
+      'Skjermvisning som tåler tekstforstørrelse',
+      'Et sendt brev kan ikke endres',
+    ];
+    const kontroller = () => {
+      const tekst = synlig();
+      expect(tekst).not.toMatch(/§/);
+      expect(tekst).not.toMatch(/hovedkrav/i);
+      // Totalentreprenøren godtar svaret; byggherren godkjenner (sprak.md, «Godkjenner og godtar»).
+      expect(tekst.replace(/TE godtar|Godtar TE/g, '')).not.toMatch(/\bgodtar\b/i);
+      expect(tekst).not.toMatch(/(?<!total)entreprenøren/i);
+      for (const f of FORKLARINGER) expect(tekst).not.toContain(f);
+    };
+
+    await bhSvarerIVarden();
+    kontroller();
+    expect(infotips()).toContain('Teksten lages fra valgene og kan ikke endres her');
+    expect(infotips()).toContain('Et sendt brev kan ikke endres');
+    expect(screen.getByRole('button', { name: 'Om brevet' })).toBeTruthy();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
+    kontroller();
+    expect(screen.getByText('Om varselet kom i tide, avgjør partene.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Om datoene' })).toBeTruthy();
+    // KA-U19: skjemaet sier at virkningen regnes ut fra valgene, i et infotips (OV-U81).
+    expect(screen.getByRole('button', { name: 'Om svaret' })).toBeTruthy();
+    expect(infotips()).toContain('Virkningen av svaret regnes ut fra valgene over.');
   });
 
   it('samme valg gir samme journal og brevtekst i Varden og i dagens visning', async () => {

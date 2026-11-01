@@ -5,11 +5,11 @@
  * (B-10, #273).
  */
 
-import type { Fristresultat, Grunnlagsresultat, Vederlagsresultat } from './regler/typer.ts';
+import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from './regler/typer.ts';
 
-export type Spor = 'grunnlag' | 'vederlag' | 'frist';
+export type Spor = 'forhold' | 'vederlag' | 'frist';
 export type Part = 'TE' | 'BH';
-export const SPOR: readonly Spor[] = ['grunnlag', 'vederlag', 'frist'];
+export const SPOR: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
 
@@ -86,7 +86,7 @@ export type Standpunkt =
       begrenset?: number;
     }
   /** «Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav. */
-  | { id: string; art: 'grunnlag'; resultat: Grunnlagsresultat }
+  | { id: string; art: 'forhold'; resultat: Forholdsresultat }
   /**
    * OV-U26: `godkjent` er beløpet byggherren godtar for posten uten begrensningen etter
    * § 34.1.3. `saerskilt` er posten etter § 34.1.3 annet ledd; uten den gjelder standpunktet
@@ -206,10 +206,10 @@ export interface Svar {
   /** Svaret denne revisjonen erstatter, på samme kravversjon. */
   erstatter: string | null;
   /**
-   * HF-U1, #342: grunnlagsversjonen et svar på vederlag eller frist ble regnet mot.
-   * `null` i et svar på grunnlaget.
+   * HF-U1, #342: påberopelsesversjonen et svar på vederlag eller frist ble regnet mot.
+   * `null` i et svar på forholdet.
    */
-  grunnlagskrav: string | null;
+  paaberopelse: string | null;
   standpunkter: Standpunkt[];
   /** Serverens utregning etter B-13, slik den er lagret. */
   utregning: Record<string, unknown>;
@@ -292,7 +292,7 @@ export type Domenehendelse =
 /**
  * Virkningen et standpunkt har i brevet: laget det står i, fra 1 og uten øvre grense,
  * eller upåvirket når ingen av byggherrens innsigelser rammer det (OV-U32). Lagene
- * regnes uten grunnlaget. Uten virkning er appens vurdering og ikke noe byggherren har
+ * regnes uten forholdet. Uten virkning er appens vurdering og ikke noe byggherren har
  * sagt (HF-U2). At svaret gjaldt et annet varsel enn det TE senere har registrert,
  * er ikke en virkning, men en relasjon som visningen leser (OV-U5).
  */
@@ -320,7 +320,7 @@ export interface Beslutningsgrunnlag {
   /**
    * GR-U12: appens vurdering av om § 32.2 gjaldt, etter reglene og
    * underkategorien da brevet ble sendt. Ikke en rettslig avgjørelse (MM-U9).
-   * Bare i et svar på grunnlaget.
+   * Bare i et svar på forholdet.
    */
   varslingsplikt?: boolean;
 }
@@ -342,8 +342,8 @@ export interface Enighetsgrunnlag {
   regelversjon: number;
   virkninger: Standpunktsvirkning[];
   utfall: Utfall;
-  /** Vilkåret for at enigheten får virkning: grunnlaget er avklart (GR-U7). Ingen for grunnlaget. */
-  vilkaar: 'grunnlag_avklart' | null;
+  /** Vilkåret for at enigheten får virkning: forholdet er avklart (GR-U7). Ingen for forholdet. */
+  vilkaar: 'forhold_avklart' | null;
 }
 
 export interface Avvisning {

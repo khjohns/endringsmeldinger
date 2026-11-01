@@ -41,7 +41,7 @@
       ]
     },
     "te_har_godtatt_svaret": {
-      "beskrivelse": "TE har godtatt BHs svar i sporet. Enigheten gjelder svaret med virkningen det hadde da det ble sendt, og omfatter beløpet i sporet. Løsningen registrerer enigheten og avgjør ikke om partene er bundet (MM-U12). TE kan ikke godta svaret på nytt, men kan sende en ny kravversjon fram til endringsordren.",
+      "beskrivelse": "TE har godtatt BHs svar i sporet. Enigheten gjelder svaret med virkningen det hadde da det ble sendt, og omfatter beløpet i sporet. Løsningen registrerer enigheten og avgjør ikke om partene er bundet (MM-U12). TE kan ikke godta svaret på nytt, men kan sende en ny kravversjon til byggherren har sendt en endringsordre som omfatter saken (MM-U34 punkt 19). Merket for endringsordren er EO-U13. Et innlegg kan sendes også etter enigheten og endringsordren (MM-U35).",
       "parametre": ["spor", "svar", "beloep"],
       "kontroller": [
         {

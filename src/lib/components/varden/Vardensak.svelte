@@ -14,9 +14,11 @@
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import Brevkontroll from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
+  import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
+  import { settOrganisasjoner } from './kontrakt';
   import { brevene } from './lesing';
   import {
     BREVKONTROLL,
@@ -52,6 +54,11 @@
       entreprenoer: c?.totalentreprenor_navn,
     };
   });
+  settOrganisasjoner(() => {
+    const k = kontrakt ?? fraProsjektet;
+    // Et tomt navn er ikke et navn (#1398), som i kontraktsradene.
+    return { BH: k.byggherre || undefined, TE: k.entreprenoer || undefined };
+  });
   // Et navn som mangler, står ikke der (#1398).
   const kontraktsrader = $derived.by(() => {
     const k = kontrakt ?? fraProsjektet;
@@ -80,7 +87,7 @@
   };
   type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
 
-  const SPORENE: Spor[] = ['grunnlag', 'vederlag', 'frist'];
+  const SPORENE: Spor[] = ['forhold', 'vederlag', 'frist'];
   let valgt = $state<Spor>('vederlag');
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
@@ -224,7 +231,12 @@
       >
     </div>
 
-    {#if (!u || !kjernesak.saksbilde) && kjernesak.feil}
+    {#if kjernesak.finnes === false}
+      <div class="lastefeil" role="alert">
+        <h1>{SAKEN.finnesIkke}</h1>
+        <p>{SAKEN.finnesIkkeForklaring}</p>
+      </div>
+    {:else if (!u || !kjernesak.saksbilde) && kjernesak.feil}
       <div class="lastefeil" role="alert">
         <h1>{SAKEN.lastefeil}</h1>
         <p>{SAKEN.lastefeilBeklager}</p>
@@ -240,16 +252,9 @@
       <p class="laster" role="status">{SAKEN.laster}</p>
     {:else}
       <main class="arbeid">
-        <p
-          class="melding"
-          class:sendt={melding?.art === 'sendt'}
-          class:tom={!melding}
-          role="status"
-          tabindex="-1"
-          bind:this={meldingen}
-        >
-          {melding?.tekst ?? ''}
-        </p>
+        <div class="melding" class:tom={!melding} role="status" tabindex="-1" bind:this={meldingen}>
+          {#if melding}<Melding art="kvittering" levende={false}>{melding.tekst}</Melding>{/if}
+        </div>
         {#if arbeid.art === 'kontroll'}
           {@const k = arbeid}
           <Brevkontroll
@@ -290,37 +295,41 @@
             }}
           />
         {:else}
-          <Sporlesing
-            {kjernesak}
-            {u}
-            spor={valgt}
-            onvelg={(n) => {
-              melding = null;
-              if (n === 'svare:vederlag') {
-                utkastAapent = true;
-                arbeid = { art: 'svar' };
-              }
-            }}
-            onakseptbrev={({ kommando, tekst }) => {
-              const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
-              arbeid = {
-                art: 'kontroll',
-                kommando,
-                tekst,
-                detteSender: svaret
-                  ? [{ tekst: STILLING.godtarBrev(svaret.nummer), lag: null }]
-                  : [],
-                virkninger: [],
-                tittel: brevtittel({ art: 'aksept', spor: [valgt] }),
-                handling: BREVKONTROLL.sendAksepten,
-                sendTekst: BREVKONTROLL.sendAksepten,
-                tilbakeTil: 'saken',
-                svarerPaa: svaret ? { nummer: svaret.nummer, registrert: svaret.registrert } : null,
-                tilbake: valgt === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' },
-                erUtkastet: false,
-              };
-            }}
-          />
+          {#key valgt}
+            <Sporlesing
+              {kjernesak}
+              {u}
+              spor={valgt}
+              onvelg={(n) => {
+                melding = null;
+                if (n === 'svare:vederlag') {
+                  utkastAapent = true;
+                  arbeid = { art: 'svar' };
+                }
+              }}
+              onakseptbrev={({ kommando, tekst }) => {
+                const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
+                arbeid = {
+                  art: 'kontroll',
+                  kommando,
+                  tekst,
+                  detteSender: svaret
+                    ? [{ tekst: STILLING.godtarBrev(svaret.nummer), lag: null }]
+                    : [],
+                  virkninger: [],
+                  tittel: brevtittel({ art: 'aksept', spor: [valgt] }),
+                  handling: BREVKONTROLL.sendAksepten,
+                  sendTekst: BREVKONTROLL.sendAksepten,
+                  tilbakeTil: 'saken',
+                  svarerPaa: svaret
+                    ? { nummer: svaret.nummer, registrert: svaret.registrert }
+                    : null,
+                  tilbake: valgt === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' },
+                  erUtkastet: false,
+                };
+              }}
+            />
+          {/key}
         {/if}
       </main>
     {/if}
@@ -439,7 +448,7 @@
     padding: var(--spacing-2) var(--spacing-3);
     border: 0;
     border-left: 3px solid transparent;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 var(--r-felt) var(--r-felt) 0;
     background: none;
     font: inherit;
     color: var(--sidebar-text);
@@ -470,11 +479,11 @@
   }
   .merke-utkast {
     padding: 0 var(--spacing-2);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     font-size: 12px;
     font-weight: 500;
     border: 1px dashed var(--draft-border);
-    background: var(--draft-bg);
+    background: var(--surface);
     color: var(--draft);
   }
   /* Kontrakten står nederst i panelet, som i dagens oversikt (oppdragsgiver 30.10). */
@@ -489,20 +498,20 @@
     align-self: flex-start;
     padding: 0 var(--spacing-2);
     border: 1px solid var(--sidebar-border);
-    border-radius: 999px;
+    border-radius: var(--r-merke);
     color: var(--sidebar-muted);
     font-size: 12px;
   }
   /* Topplinja, meldingen og lastingen har samme kanter som arbeidet, som står midtstilt. */
   .flate {
-    --kant: max(var(--spacing-10), calc((100% - var(--varden-arbeid)) / 2));
+    --kant: max(var(--spacing-6), calc((100% - var(--varden-arbeid)) / 2));
     min-width: 0;
   }
   .varden.innfelt {
     grid-template-columns: minmax(0, 1fr);
   }
   .innfelt .flate {
-    --kant: max(var(--spacing-10), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
+    --kant: max(var(--spacing-6), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
   }
   .topplinje {
     display: flex;
@@ -522,7 +531,7 @@
     color: var(--ink-3);
   }
   .arbeid {
-    padding: var(--spacing-6) var(--spacing-10) var(--spacing-12);
+    padding: 28px var(--kant) 64px;
   }
   .laster,
   .lastefeil {
@@ -550,17 +559,11 @@
   .melding {
     max-width: var(--varden-arbeid);
     margin: 0 auto var(--spacing-4);
-    padding: var(--spacing-3) var(--spacing-4);
-    background: var(--surface-inset);
-    border-radius: 4px;
-  }
-  .melding.sendt {
-    background: var(--success-bg);
   }
   .melding:focus {
     outline: none;
   }
-  @media (max-width: 1023px) {
+  @media (max-width: 860px) {
     .varden {
       grid-template-columns: minmax(0, 1fr);
     }

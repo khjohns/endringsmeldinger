@@ -13,7 +13,7 @@ import {
   kanSendesTilKjernen,
   opprettelse,
   type Grunnlagsvalg,
-} from '$lib/kjernesak/grunnlagskrav';
+} from '$lib/kjernesak/paaberopelse';
 import { formfeil } from '$kjerne/kommandoer/kommando';
 import { opprettelse as vurderOpprettelse } from '$kjerne/kommandoer/opprettelse';
 
@@ -33,7 +33,7 @@ describe('grunnlagskravet fra skjemaet for ny sak', () => {
     );
     expect(kommando).toEqual({
       type: 'krav',
-      spor: 'grunnlag',
+      spor: 'forhold',
       innhold: {
         hovedkategori: 'endring',
         underkategori: 'irregulaer_endring',

@@ -63,7 +63,7 @@ export type Brukerforloep = {
   prototype?: Prototype;
   bevis_saker: string[];
   visninger: Visning[];
-  endringer: { dato: string; grunnlag: string; hva: string }[];
+  endringer: { dato: string; forhold: string; hva: string }[];
 };
 
 /**

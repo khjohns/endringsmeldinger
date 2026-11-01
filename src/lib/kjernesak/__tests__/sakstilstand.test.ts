@@ -180,7 +180,7 @@ describe('TS-saken som Kontrollrommet leser den', () => {
   });
 
   it('et trukket grunnlag gir «Trukket» bare i spor der noe er sendt (GR-U25, #1140)', () => {
-    const journal = skrevet(medVederlag, 'TE', { type: 'trekk', spor: 'grunnlag' });
+    const journal = skrevet(medVederlag, 'TE', { type: 'trekk', spor: 'forhold' });
     const u = utledJournal(journal, KJERNE);
     const sak = tilSakState(SAK, null, journal, u);
     expect(sporvisning(sak, u, 'ansvar').isWithdrawn).toBe(true);

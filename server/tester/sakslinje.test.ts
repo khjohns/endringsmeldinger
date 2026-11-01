@@ -8,7 +8,7 @@
  * (https://github.com/khjohns/endringsmeldinger/issues/1022#issuecomment-6290027563),
  * ført som MM-U28 (krav, svar og enighet; summene) og MM-U29 (det som foreligger),
  * og MM-U22 for de fire saksbetegnelsene. Eksempelet i svar 2 er forløp A i
- * bevis-sakene: grunnlaget avslått, vederlaget vurdert subsidiært og godtatt.
+ * bevis-sakene: forholdet avslått, vederlaget vurdert subsidiært og godtatt.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -24,7 +24,7 @@ import { regnUtSvar, type Svarvurdering } from '../../kjerne/frosset/standpunkt.
 import type { Journalrad, Part, Spor } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { noekkeltall, sakslinje, type Sakslinje } from '../saksliste.ts';
-import { GRUNNLAGSKRAV } from './testbase.ts';
+import { PAABEROPELSE } from './testbase.ts';
 
 type Steg = (sak: Sak) => void;
 
@@ -79,7 +79,7 @@ class Sak {
       resultat: regnUtSvar(
         spor,
         v,
-        { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+        { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
         KJERNE.regler
       ),
       utdypning: 'Byggherrens begrunnelse.',
@@ -120,7 +120,7 @@ class Sak {
 
 const UTDYPNING = 'Kravet gjelder den endrede fundamenteringen.';
 const krav: Steg = (sak) => {
-  sak.send('TE', GRUNNLAGSKRAV);
+  sak.send('TE', PAABEROPELSE);
   sak.send('TE', {
     type: 'krav',
     spor: 'vederlag',
@@ -135,13 +135,13 @@ const FRIST_I_ORDEN = {
   vilkar_oppfylt: true,
   dager: 20,
 };
-/** Brevet D4 i forløp A i bevis-sakene: grunnlaget avslått, vederlaget delvis godkjent. */
+/** Brevet D4 i forløp A i bevis-sakene: forholdet avslått, vederlaget delvis godkjent. */
 const forloepA: Steg = (sak) => {
   krav(sak);
   sak.send('BH', {
     type: 'brev',
     svar: [
-      sak.svar('grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
+      sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
         hovedkrav_vurdering: 'delvis',
         hovedkrav_godkjent_beloep: 60000,
@@ -156,7 +156,7 @@ const fullGodkjenning: Steg = (sak) => {
   sak.send('BH', {
     type: 'brev',
     svar: [
-      sak.svar('grunnlag', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
         hovedkrav_vurdering: 'godkjent',
         hovedkrav_godkjent_beloep: 100000,
@@ -193,7 +193,7 @@ describe('linja i sakslisten (#1022)', () => {
       forstaatt: true,
       saksbetegnelse: null,
       hovedkategori: 'endring',
-      grunnlag: { svar: null, venter_paa_svar: true, svar_ikke_godtatt: false },
+      forhold: { svar: null, venter_paa_svar: true, svar_ikke_godtatt: false },
       vederlag: {
         krav: { beloep: 100000, metode: 'tilbud' },
         svar: null,
@@ -207,7 +207,7 @@ describe('linja i sakslisten (#1022)', () => {
 
   it('svar 2: et subsidiært beløp er merket, og svaret står uten enighet (MM-U28, MM-U29)', () => {
     const l = linje(forloepA);
-    expect(l.grunnlag).toMatchObject({
+    expect(l.forhold).toMatchObject({
       svar: { resultat: 'avslaatt' },
       venter_paa_svar: false,
       svar_ikke_godtatt: true,
@@ -239,7 +239,7 @@ describe('linja i sakslisten (#1022)', () => {
 
   it('et svar som godkjenner kravet fullt ut, gir enighet ved sammenfall og står ikke som ikke godtatt, i alle tre sporene', () => {
     const l = linje(fullGodkjenning);
-    for (const spor of ['grunnlag', 'vederlag', 'frist'] as const) {
+    for (const spor of ['forhold', 'vederlag', 'frist'] as const) {
       expect(l[spor].svar, spor).not.toBeNull();
       expect(l[spor].svar_ikke_godtatt, spor).toBe(false);
       expect(l[spor].venter_paa_svar, spor).toBe(false);
@@ -255,8 +255,8 @@ describe('linja i sakslisten (#1022)', () => {
   });
 
   it.each([
-    ['avslaget_paa_grunnlaget_godtatt', [forloepA, aksept('grunnlag')]],
-    ['grunnlaget_trukket', [krav, trekk('grunnlag')]],
+    ['avslaget_paa_forholdet_godtatt', [forloepA, aksept('forhold')]],
+    ['paaberopelsen_trukket', [krav, trekk('forhold')]],
   ])('saken har betegnelsen %s (MM-U22)', (betegnelse, steg) => {
     expect(linje(...steg).saksbetegnelse).toBe(betegnelse);
   });
@@ -264,33 +264,35 @@ describe('linja i sakslisten (#1022)', () => {
   it('trukne krav og krav i en avsluttet sak står på linja, men telles ikke i nøkkeltallene (svar 2 fra oppdragsgiver 20.10 i #1029)', () => {
     const staar = linje(krav);
     const vederlagTrukket = linje(krav, trekk('vederlag'));
-    const grunnlagTrukket = linje(krav, trekk('grunnlag'));
-    const avslagGodtatt = linje(forloepA, aksept('grunnlag'));
-    for (const l of [vederlagTrukket, grunnlagTrukket, avslagGodtatt])
+    const paaberopelsenTrukket = linje(krav, trekk('forhold'));
+    const avslagGodtatt = linje(forloepA, aksept('forhold'));
+    for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
       expect(l.vederlag.krav).toEqual({ beloep: 100000, metode: 'tilbud' });
     expect(vederlagTrukket.vederlag.betegnelse).toBe('trukket');
     expect(staar.vederlag.kravet_staar).toBe(true);
-    for (const l of [vederlagTrukket, grunnlagTrukket, avslagGodtatt])
+    for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
       expect(l.vederlag.kravet_staar).toBe(false);
     expect(vederlagTrukket.frist.kravet_staar).toBe(true);
-    expect(noekkeltall([staar, vederlagTrukket, grunnlagTrukket, avslagGodtatt])).toMatchObject({
+    expect(
+      noekkeltall([staar, vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
+    ).toMatchObject({
       vederlag: { krav_antall: 1, krav_sum: 100000 },
       frist: { krav_antall: 2 },
     });
   });
 
-  it('#1050, #1067: når TE godtar avslaget av grunnlaget alene, venter vederlag og frist ikke på svar og telles ikke (SK-01)', () => {
+  it('#1050, #1067: når TE godtar avslaget av forholdet alene, venter vederlag og frist ikke på svar og telles ikke (SK-01)', () => {
     const avslag: Steg = (sak) =>
       sak.send('BH', {
         type: 'brev',
-        svar: [sak.svar('grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
+        svar: [sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
       });
     expect(linje(krav, avslag).vederlag.venter_paa_svar, 'kontroll: før aksepten').toBe(true);
-    const l = linje(krav, avslag, aksept('grunnlag'));
-    expect(l.saksbetegnelse).toBe('avslaget_paa_grunnlaget_godtatt');
+    const l = linje(krav, avslag, aksept('forhold'));
+    expect(l.saksbetegnelse).toBe('avslaget_paa_forholdet_godtatt');
     for (const spor of ['vederlag', 'frist'] as const) {
       expect(l[spor].venter_paa_svar, spor).toBe(false);
-      // MM-U30: «Krav sendt» når TE har godtatt avslaget på grunnlaget uten enighet eller trekk.
+      // MM-U30: «Krav sendt» når TE har godtatt avslaget på forholdet uten enighet eller trekk.
       expect(l[spor].betegnelse, spor).toBe('krav_sendt');
     }
     expect(noekkeltall([l])).toMatchObject({
@@ -301,7 +303,7 @@ describe('linja i sakslisten (#1022)', () => {
 
   it('#1218: med posten etter § 34.1.3 annet ledd er kravet og svaret summen av postene, og svaret er subsidiært når posten er det (OV-U23, OV-U31, OV-U33)', () => {
     const medPost: Steg = (sak) => {
-      sak.send('TE', GRUNNLAGSKRAV);
+      sak.send('TE', PAABEROPELSE);
       sak.send('TE', {
         type: 'krav',
         spor: 'vederlag',
@@ -315,7 +317,7 @@ describe('linja i sakslisten (#1022)', () => {
       sak.send('BH', {
         type: 'brev',
         svar: [
-          sak.svar('grunnlag', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+          sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
           sak.svar('vederlag', {
             hovedkrav_vurdering: 'godkjent',
             hovedkrav_godkjent_beloep: 100000,
@@ -340,17 +342,17 @@ describe('linja i sakslisten (#1022)', () => {
   it('#1052: det subsidiære beløpet summeres bare når kravet står, som kravene (svar 3 fra oppdragsgiver 22.10)', () => {
     expect(noekkeltall([linje(forloepA)]).vederlag.svar_subsidiaert_sum, 'kontroll').toBe(60000);
     for (const l of [
-      linje(forloepA, aksept('grunnlag')),
+      linje(forloepA, aksept('forhold')),
       linje(forloepA, trekk('vederlag')),
-      linje(forloepA, trekk('grunnlag')),
+      linje(forloepA, trekk('forhold')),
     ]) {
       expect(l.vederlag.svar).toMatchObject({ beloep: 60000, subsidiaert: true });
       expect(noekkeltall([l]).vederlag).toMatchObject({ krav_sum: 0, svar_subsidiaert_sum: 0 });
     }
   });
 
-  it('#1050: når TE godtar avslaget av grunnlaget i forløp A, står det subsidiære svaret i vederlaget ikke som ikke godtatt (SK-01)', () => {
-    const l = linje(forloepA, aksept('grunnlag'));
+  it('#1050: når TE godtar avslaget av forholdet i forløp A, står det subsidiære svaret i vederlaget ikke som ikke godtatt (SK-01)', () => {
+    const l = linje(forloepA, aksept('forhold'));
     expect(l.vederlag).toMatchObject({
       svar: { beloep: 60000, subsidiaert: true },
       svar_ikke_godtatt: false,
@@ -362,12 +364,10 @@ describe('linja i sakslisten (#1022)', () => {
     const frafall: Steg = (sak) =>
       sak.send('BH', {
         type: 'brev',
-        svar: [
-          sak.svar('grunnlag', { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true }),
-        ],
+        svar: [sak.svar('forhold', { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true })],
       });
     const l = linje(krav, frafall);
-    expect(l.grunnlag).toMatchObject({
+    expect(l.forhold).toMatchObject({
       svar: { resultat: 'paalegg_frafalt' },
       venter_paa_svar: false,
       svar_ikke_godtatt: false,
@@ -376,18 +376,18 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.frist.venter_paa_svar).toBe(true);
     const nyVersjon = linje(krav, frafall, (sak) =>
       sak.send('TE', {
-        ...GRUNNLAGSKRAV,
-        innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Endret fundamentering 2' },
+        ...PAABEROPELSE,
+        innhold: { ...PAABEROPELSE.innhold, tittel: 'Endret fundamentering 2' },
       })
     );
-    expect(nyVersjon.grunnlag, 'GR-U23').toMatchObject({
+    expect(nyVersjon.forhold, 'GR-U23').toMatchObject({
       venter_paa_svar: true,
       svar_ikke_godtatt: false,
     });
   });
 
   it('en enighet uten virkning telles ikke, heller ikke uten beløp (svar 3 fra oppdragsgiver 20.10 i #1029)', () => {
-    const l = linje(forloepA, aksept('vederlag'), trekk('grunnlag'));
+    const l = linje(forloepA, aksept('vederlag'), trekk('forhold'));
     expect(l.vederlag.enighet).toEqual({ beloep: 60000, virkning: 'uten_virkning' });
     const utenBeloep: Sakslinje = {
       ...l,
@@ -412,7 +412,7 @@ describe('linja i sakslisten (#1022)', () => {
         krav: [
           {
             id: randomUUID(),
-            spor: 'grunnlag',
+            spor: 'forhold',
             hovedkategori: 'endring',
             underkategori: 'irregulaer_endring',
           },

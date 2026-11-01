@@ -27,8 +27,8 @@ export const NESTE_REGLER: Regelsett = {
   versjon: GJELDENDE_REGLER.versjon + 1,
   gjelderVarslingsplikten: (h, u) =>
     GJELDENDE_REGLER.gjelderVarslingsplikten(h, u) && u !== 'samordning',
-  gyldigeGrunnlagsresultater: (h, u) =>
-    GJELDENDE_REGLER.gyldigeGrunnlagsresultater(h, u).filter(
+  gyldigeForholdsresultater: (h, u) =>
+    GJELDENDE_REGLER.gyldigeForholdsresultater(h, u).filter(
       (r) => r !== 'paalegg_frafalt' || u !== 'valg_av_loesning'
     ),
 };
@@ -119,7 +119,7 @@ export const PART: Record<string, Part> = {
 };
 
 function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null): Svarvurdering {
-  if (spor === 'grunnlag')
+  if (spor === 'forhold')
     return { resultat: h.resultat, grunnlag_varslet_i_tide: h.varslet_i_tide };
   if (spor === 'vederlag')
     return {
@@ -150,12 +150,7 @@ function svarutkast(
   let resultat: Record<string, unknown> = {};
   try {
     if (krav)
-      resultat = regnUtSvar(
-        spor,
-        v,
-        { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
-        regler
-      );
+      resultat = regnUtSvar(spor, v, { krav, paaberopelse: u.spor.forhold.gjeldendeKrav }, regler);
   } catch (feil) {
     // Klienten sender likevel, så serveren avviser med sin begrunnelse.
     if (!(feil instanceof UgyldigVurdering)) throw feil;
@@ -181,7 +176,7 @@ const utdypning = (h: Record<string, unknown>) =>
     : { utdypning: typeof h.utdypning === 'string' ? h.utdypning : 'Utdypning i bevis-saken.' };
 
 const INNHOLD = {
-  grunnlag: (h: Handling) => {
+  forhold: (h: Handling) => {
     const hovedkategori = h.hovedkategori ?? 'endring';
     // VS-U26: datoen varslingsplikten løper fra, før kjørerens klokke, i feltet formatet har.
     const dato = oppgittDato(hovedkategori, h.underkategori);
@@ -356,7 +351,7 @@ export function radFor(
     };
     const v = vurderinger(spor, s, krav);
     const standpunkter: Record<string, unknown>[] = [];
-    if (spor === 'grunnlag' && typeof s.varslet_i_tide === 'boolean')
+    if (spor === 'forhold' && typeof s.varslet_i_tide === 'boolean')
       standpunkter.push({
         id: navn.nyId(),
         art: 'rettidighet',
@@ -364,8 +359,8 @@ export function radFor(
         hjemmel: '32.2',
         i_tide: s.varslet_i_tide,
       });
-    if (spor === 'grunnlag')
-      standpunkter.push({ id: navn.nyId(), art: 'grunnlag', resultat: s.resultat });
+    if (spor === 'forhold')
+      standpunkter.push({ id: navn.nyId(), art: 'forhold', resultat: s.resultat });
     else if (spor === 'frist') standpunkter.push({ id: navn.nyId(), art: 'dager' });
     else
       for (const post of vederlagsposter(v, krav))
@@ -380,25 +375,25 @@ export function radFor(
       spor,
       gjelder,
       ...(typeof s.erstatter === 'string' ? { erstatter: navn.reserver(s.erstatter) } : {}),
-      // #342: grunnlagsversjonen svaret er regnet mot; bevis-saken kan oppgi en annen.
-      ...(spor === 'grunnlag'
+      // #342: påberopelsesversjonen svaret er regnet mot; bevis-saken kan oppgi en annen.
+      ...(spor === 'forhold'
         ? {}
         : {
-            grunnlagskrav:
-              typeof s.grunnlagskrav === 'string'
-                ? ref(s.grunnlagskrav)
-                : (u.spor.grunnlag.gjeldendeKrav?.id ??
+            paaberopelse:
+              typeof s.paaberopelse === 'string'
+                ? ref(s.paaberopelse)
+                : (u.spor.forhold.gjeldendeKrav?.id ??
                   (() => {
-                    throw new Error('Bevis-saken mangler et grunnlagskrav for svaret');
+                    throw new Error('Bevis-saken mangler en påberopelse for svaret');
                   })()),
           }),
       standpunkter,
     };
-    if (spor !== 'grunnlag')
+    if (spor !== 'forhold')
       svar.utregning = regnUtSvar(
         spor,
         v,
-        { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+        { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
         GJELDENDE_REGLER
       );
     return svar;
@@ -446,7 +441,7 @@ export function radFor(
           ...(h.art === 'aksept' ? { regelversjon: GJELDENDE_REGLER.versjon } : {}),
         },
       ],
-      // Et krav i samme dokument som utsagnet, for eksempel trekket av grunnlaget (#434).
+      // Et krav i samme dokument som utsagnet, for eksempel trekket av forholdet (#434).
       ...(h.krav ? { krav: [kravversjon(h.krav as Handling)] } : {}),
     };
   } else if (h.krav === true) {

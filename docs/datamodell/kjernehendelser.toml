@@ -51,7 +51,7 @@ grunnlag = "MM-U10, LV-U2, OV-U4, OV-U16, OV-U17, OV-U18, designnotatet 4.1. Nav
 # ---------------------------------------------------------------------------
 
 [[krav]]
-spor = "grunnlag"
+spor = "forhold"
 beskrivelse = """
 En kravversjon av grunnlaget. `erstatter` er forrige kravversjon i sporet.
 `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste
@@ -82,7 +82,7 @@ felt = ["id", "spor", "erstatter", "dager"]
 grunnlag = "KA-U2, KA-U8"
 
 [[svar]]
-spor = "grunnlag"
+spor = "forhold"
 beskrivelse = """
 Byggherrens svar på en kravversjon av grunnlaget. `gjelder` er kravversjonen,
 `erstatter` svaret en revisjon erstatter. Grunnlaget har ingen utregning."""
@@ -95,7 +95,7 @@ beskrivelse = """
 Byggherrens svar på en kravversjon av vederlaget, med serverens utregning.
 `grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot. Om svaret er
 subsidiært til grunnlaget, leses av den og lagres ikke (#342)."""
-felt = ["id", "spor", "gjelder", "erstatter", "grunnlagskrav", "standpunkter", "utregning", "beslutningsgrunnlag"]
+felt = ["id", "spor", "gjelder", "erstatter", "paaberopelse", "standpunkter", "utregning", "beslutningsgrunnlag"]
 grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
 
 [[svar]]
@@ -103,7 +103,7 @@ spor = "frist"
 beskrivelse = """
 Byggherrens svar på en kravversjon av fristen, med serverens utregning.
 `grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot (#342)."""
-felt = ["id", "spor", "gjelder", "erstatter", "grunnlagskrav", "standpunkter", "utregning", "beslutningsgrunnlag"]
+felt = ["id", "spor", "gjelder", "erstatter", "paaberopelse", "standpunkter", "utregning", "beslutningsgrunnlag"]
 grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
 
 # Standpunktene i et svar, i rekkefølgen brevet setter dem. Arten avgjør
@@ -111,7 +111,7 @@ grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
 
 [[standpunkt]]
 art = "rettidighet"
-spor = ["grunnlag", "vederlag", "frist"]
+spor = ["forhold", "vederlag", "frist"]
 beskrivelse = """
 Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 eller § 34.1.3 i
 vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller TEs varsel etter
@@ -142,8 +142,8 @@ felt = ["id", "art", "gjelder", "hjemmel", "i_tide", "dager"]
 grunnlag = "VS-U3, VS-U4, KA-U4, arbeidsvalget i #479"
 
 [[standpunkt]]
-art = "grunnlag"
-spor = ["grunnlag"]
+art = "forhold"
+spor = ["forhold"]
 beskrivelse = """
 Byggherrens standpunkt til grunnlaget: `godkjent`, `avslaatt` eller
 `paalegg_frafalt`. Frafallet gjelder pålegget (§ 32.3 c), ikke TEs krav, og er

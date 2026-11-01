@@ -22,7 +22,7 @@ const vedSvaret = (journal: Journalrad[]) => {
 
 const svar = (
   journal: Journalrad[],
-  spor: 'grunnlag' | 'vederlag',
+  spor: 'forhold' | 'vederlag',
   vurderinger: object,
   resultat: object = {}
 ) =>
@@ -41,7 +41,7 @@ const svar = (
   });
 
 describe('etikettene ved svaret', () => {
-  const avslaatt = svar(medGrunnlag, 'grunnlag', {
+  const avslaatt = svar(medGrunnlag, 'forhold', {
     resultat: 'avslaatt',
     grunnlag_varslet_i_tide: true,
   });

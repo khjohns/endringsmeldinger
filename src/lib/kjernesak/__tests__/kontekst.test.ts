@@ -40,7 +40,7 @@ const opprettet: Journalrad = {
 
 const grunnlagskrav = {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
@@ -125,8 +125,8 @@ describe('sakskonteksten for en TS-sak', () => {
     await Promise.all([te.last(), bh.last()]);
     expect(te.handlinger).toEqual(handlinger(u, 'TE'));
     expect(bh.handlinger).toEqual(handlinger(u, 'BH'));
-    expect(bh.handlinger).toContain('svare:grunnlag');
-    expect(te.handlinger).not.toContain('svare:grunnlag');
+    expect(bh.handlinger).toContain('svare:forhold');
+    expect(te.handlinger).not.toContain('svare:forhold');
   });
 
   it('bruker leserens side fra serveren når ruta ikke oppgir en (#705)', async () => {
