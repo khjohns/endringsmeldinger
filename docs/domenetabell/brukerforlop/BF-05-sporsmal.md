@@ -170,6 +170,28 @@ varsel, og byggherren ser det tidligere varselet i samme brev.
 
 **Valget styrer** brevteksten i påberopelsen.
 
+## S-6, versjon 3
+
+Skrevet om 01.11 etter oppdragsgivers svar på S-4 og S-6 («6 viser da til registrert brev
+som vedlegg»). Ett alternativ, til bekreftelse hos oppdragsgiver gjennom orkestratoren før
+det brukes som domeneforventning.
+
+**Alternativ.** Har totalentreprenøren varslet etter punkt 32.2 på annen måte, registrerer
+totalentreprenøren brevet med varselet som korrespondanse med kategorien varsel
+([VS-U34](../../plans/vedtak.md#vs-u34)). Påberopelsen viser til det registrerte brevet som
+vedlegg, med brevets nummer og datoen totalentreprenøren oppga for varselet. Setningen om at
+totalentreprenøren varsler etter punkt 32.2 står ([GR-U31](../../plans/vedtak.md#gr-u31)).
+Forhold: presiserer GR-U31 og VS-U34.
+
 ## Svarene
 
-Ingen ennå.
+Oppdragsgiver 01.11, gjennom orkestratoren, ordrett:
+
+> «4. det forutsetter at TE registrerer brevet med varselet. Det er vel vist i prototypene,
+> siste designrunde, hvordan dette gjøres generelt. Hvis det gjøres så lan det inkluderes
+> nå. 6 viser da til registrert brev som vedlegg. Ellers enig med anbefalingene»
+
+Orkestratorens lesning: S-1, S-2, S-3 og S-5 får A. S-4 får A med vilkåret at TE registrerer
+brevet med varselet, slik prototypene fra siste designrunde viser registreringen. S-6 får
+verken A eller B ordrett. Påberopelsen viser til det registrerte brevet som vedlegg (S-6,
+versjon 3). S-3 endrer avgjørelsen 16.10 i #666 og føres som vedtak av orkestratoren.
