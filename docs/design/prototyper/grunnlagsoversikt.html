@@ -381,7 +381,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .brukermeny .meny a{padding:10px 12px;border-radius:6px;color:var(--ink);text-decoration:none;min-height:40px;display:flex;align-items:center}
 .brukermeny .meny a:hover{background:var(--surface-inset)}
 .brukermeny .meny hr{border:0;border-top:1px solid var(--rule-subtle-color);margin:4px 0}
-@media (max-width:560px){.brukermeny .hvem{display:none}}
+@media (max-width:560px){.brukermeny .hvem{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 
 /* Prosjektet og koblingene i panelet til venstre */
 .prosjektlenker{display:flex;flex-direction:column;gap:2px;margin-top:-8px}
@@ -528,7 +528,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
       <div class="topplinje-inner">
         <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page"><span class="fs f-endring">E-024</span><span class="fs f-grunn">E-027</span></span></nav>
         <details class="brukermeny">
-          <summary aria-label="Brukermenyen"><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
+          <summary><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
           <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
         </details>
       </div>
@@ -550,13 +550,13 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <div class="kun-te"><dt>Erstatter</dt><dd>Påberopelsen i brev 1 av 9. oktober 2026</dd>
                 <dt>Påberopt forhold</dt><dd><span class="fs f-endring">Irregulær endring (punkt&nbsp;32.1)</span><span class="fs f-grunn">Uforutsette forhold ved grunnen (punkt&nbsp;23.1)</span>. Det kan ikke endres i en ny versjon.</dd>
                 <dt>Endret så langt</dt><dd><span class="fs f-endring">Beskrivelsen av pålegget, med referatet fra byggemøte 14</span><span class="fs f-grunn">Beskrivelsen av forholdet, med profilmålingen</span></dd></div>
-                <div class="kun-bh"><span class="ts t-ubesvart"><dt>Svarer på</dt><dd>Påberopelsen i brev 1 av 9. oktober 2026</dd>
-                <dt>Valgt så langt</dt><dd><span class="fs f-endring">Avslår kravet på endringsordre (punkt&nbsp;32.3 første ledd b)</span><span class="fs f-grunn">Byggherren har ikke risikoen for forholdet (punkt&nbsp;23.1)</span></dd></span>
-                <span class="ts t-avslatt"><dt>Erstatter</dt><dd>Svaret i brev 5 av 28. oktober 2026</dd>
-                <dt>Valgt så langt</dt><dd><span class="fs f-endring">Frafaller pålegget mot endringsordre for arbeid som alt er utført (punkt&nbsp;32.3 første ledd c)</span><span class="fs f-grunn">Byggherren har risikoen for forholdet (punkt&nbsp;23.1)</span></dd></span>
-                <span class="ts t-frafall"><dt>Erstatter</dt><dd>Svaret i brev 5 av 28. oktober 2026</dd>
-                <dt>Valgt så langt</dt><dd>Utsteder endringsordre (punkt&nbsp;32.3 første ledd a). Etter frafallet kan svaret ikke bli et avslag.</dd></span></div>
-                <dt>Sist lagret</dt><dd>31. oktober 2026 kl. 09.12 av <span class="kun-te">Per Olsen</span><span class="kun-bh">Ola Nordmann</span></dd>
+                <div class="kun-bh ts t-ubesvart"><dt>Svarer på</dt><dd>Påberopelsen i brev 1 av 9. oktober 2026</dd>
+                <dt>Valgt så langt</dt><dd><span class="fs f-endring">Avslår kravet på endringsordre (punkt&nbsp;32.3 første ledd b)</span><span class="fs f-grunn">Byggherren har ikke risikoen for forholdet (punkt&nbsp;23.1)</span></dd></div>
+                <div class="kun-bh ts t-avslatt"><dt>Erstatter</dt><dd>Svaret i brev 5 av 28. oktober 2026</dd>
+                <dt>Valgt så langt</dt><dd><span class="fs f-endring">Frafaller pålegget mot endringsordre for arbeid som alt er utført (punkt&nbsp;32.3 første ledd c)</span><span class="fs f-grunn">Byggherren har risikoen for forholdet (punkt&nbsp;23.1)</span></dd></div>
+                <div class="kun-bh ts t-frafall"><dt>Erstatter</dt><dd>Svaret i brev 5 av 28. oktober 2026</dd>
+                <dt>Valgt så langt</dt><dd>Utsteder endringsordre (punkt&nbsp;32.3 første ledd a). Etter frafallet kan svaret ikke bli et avslag.</dd></div>
+                <div><dt>Sist lagret</dt><dd>31. oktober 2026 kl. 09.12 av <span class="kun-te">Per Olsen</span><span class="kun-bh">Ola Nordmann</span></dd></div>
               </dl>
             </div>
             <div class="utkast-fot">

@@ -283,7 +283,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .brukermeny .meny a{padding:10px 12px;border-radius:6px;color:var(--ink);text-decoration:none;min-height:40px;display:flex;align-items:center}
 .brukermeny .meny a:hover{background:var(--surface-inset)}
 .brukermeny .meny hr{border:0;border-top:1px solid var(--rule-subtle-color);margin:4px 0}
-@media (max-width:560px){.brukermeny .hvem{display:none}}
+@media (max-width:560px){.brukermeny .hvem{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 .sti .merkenavn[aria-current]{font-weight:600}
 
 .kolonner{grid-template-columns:minmax(0,1fr);max-width:960px}
@@ -358,7 +358,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
       <div class="topplinje-inner">
         <nav class="sti" aria-label="Du er her"><span class="merkenavn" aria-current="page">Varden</span></nav>
         <details class="brukermeny">
-          <summary aria-label="Brukermenyen"><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
+          <summary><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
           <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
         </details>
       </div>
