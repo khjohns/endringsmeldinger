@@ -16,7 +16,7 @@ import type { Brevet, OppgittDato } from './lesing';
 export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
 
 export const SPORNAVN: Record<Spor, string> = {
-  forhold: 'Grunnlag for kravet',
+  forhold: 'Forholdet',
   vederlag: 'Vederlagsjustering',
   frist: 'Fristforlengelse',
 };
@@ -28,7 +28,7 @@ const KRAV: Record<Spor, string> = {
 };
 
 const SVAR: Record<Spor, string> = {
-  forhold: 'Svar på grunnlaget',
+  forhold: 'Svar på forholdet',
   vederlag: 'Svar på krav om vederlagsjustering',
   frist: 'Svar på krav om fristforlengelse',
 };
@@ -96,8 +96,8 @@ export const metodenavn = (m: unknown) => METODE[m as string] ?? 'metoden TE opp
 /** En grunn fra svaret på grunnlaget i brev `brev`, som utsagn fra byggherren. */
 export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: number) =>
   grunn === 'avslaatt'
-    ? `${du ? 'Du' : 'BH'} har avslått grunnlaget i brev ${brev}`
-    : `${du ? 'Du' : 'BH'} har gjort gjeldende i brev ${brev} at varselet om grunnlaget kom for sent (punkt 32.2)`;
+    ? `${du ? 'Du' : 'BH'} har avslått forholdet i brev ${brev}`
+    : `${du ? 'Du' : 'BH'} har gjort gjeldende i brev ${brev} at varselet om forholdet kom for sent (punkt 32.2)`;
 
 /**
  * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
@@ -125,7 +125,7 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number): str
       return `${post}: ${hvemLiten} godkjenner ${kroner(s.godkjent)}${av}`;
     }
     case 'forhold':
-      return `${hvem} svarer på grunnlaget: ${s.resultat}`;
+      return `${hvem} svarer på forholdet: ${s.resultat}`;
     default:
       return `${hvem} tar stilling til ${s.art}`;
   }
@@ -167,8 +167,8 @@ export const SKJEMA = {
   // Grunnene fra svaret på grunnlaget har ikke noe felt i skjemaet; brevet står i teksten.
   grunnen: (grunn: Subsidiaergrunn, brev: number) =>
     grunn === 'avslaatt'
-      ? `avslaget av grunnlaget i brev ${brev}`
-      : `innsigelsen i brev ${brev} om at varselet om grunnlaget kom for sent (punkt 32.2)`,
+      ? `avslaget av forholdet i brev ${brev}`
+      : `innsigelsen i brev ${brev} om at varselet om forholdet kom for sent (punkt 32.2)`,
   ikkeFoererFrem: 'ikke fører frem',
   hele: 'Hele beløpet',
   deler: 'Deler av beløpet',
@@ -275,7 +275,7 @@ export const STILLING = {
     `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare det subsidiære beløpet.`,
   beloep: (b: number, n: number) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(b)}, etter brev ${n} slik det ble sendt.`,
-  vilkaar: 'Enigheten får virkning når grunnlaget er avklart.',
+  vilkaar: 'Enigheten får virkning når forholdet er avklart.',
   kilde: (n: number) => `Virkningen er regnet ut fra brev ${n} slik det ble sendt.`,
   seAksepten: 'Se akseptbrevet',
   godtarBrev: (n: number) => `Du godtar hele svaret i brev ${n}`,

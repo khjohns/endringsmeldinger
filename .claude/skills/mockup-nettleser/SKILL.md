@@ -140,7 +140,7 @@ Med `--visning varden` går de samme stegene gjennom Varden, den eksperimentelle
 visningen (#1331), og skjermbildene har de samme navnene, så de to visningene kan
 sammenlignes ved hvert kontrollpunkt. I Varden skriver skriptet også listen «Gjelder hvis»
 over beløpet og stopper når den ikke har ett punkt per lag foran beløpet: avslaget av
-grunnlaget når forløpet har kontrollpunktet `grunnlaget-er-avslaatt`, og innsigelsen om sen
+forholdet når forløpet har kontrollpunktet `forholdet-er-avslaatt`, og innsigelsen om sen
 varsling. I BF-04 er det to (#1400, #1410). Demopanelet starter lukket i begge visningene, og
 skriptet åpner det bare for å bytte side og starte på nytt, fordi det står over saken når det
 er åpent. Med `?brukertest` i
