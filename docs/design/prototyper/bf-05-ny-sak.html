@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ny sak i Varden</title>
 <!--
-  Skissen for BF-05 (docs/domenetabell/brukerforlop/BF-05.md), versjon 1. Tilstandene er
+  Skissen for BF-05 (docs/domenetabell/brukerforlop/BF-05.md), versjon 2. Tilstandene er
   ankrene #saksliste, #ny, #ny-feil, #annen-maate, #brev og #sendt. Ingenting sendes eller
   lagres. Fargene er Blekk (.tema-varden i src/lib/components/kontraktsbord/theme.css), og
   skallet er det samme som i saksliste.html og grunnlagsoversikt.html. Brevteksten etter
-  LV-U41, GR-U31, VS-U26 og LV-U35 står ordrett; resten er prototypetekst.
+  LV-U41, GR-U31, VS-U26 og LV-U35 står ordrett; resten er prototypetekst. Skissen dekker
+  forholdene der punkt 32.2 gjelder (S-7). Datoene er tekstfelt (dd.mm.åååå), så prototype.mjs
+  kan fylle dem, og «Lat som PDF-en er lastet opp» i demolinja står for opplastingen.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -145,8 +147,6 @@ input:focus-visible,textarea:focus-visible{outline:none;border-color:var(--contr
 .valg .h{color:var(--ink-3);font-size:12px;margin-left:auto;white-space:nowrap}
 .fast{display:flex;gap:10px;padding:12px 14px;background:var(--surface-inset);border-radius:6px;color:var(--ink-2)}
 .fast b{color:var(--ink)}
-.info{all:unset;cursor:pointer;display:inline-grid;place-items:center;width:22px;height:22px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:12px;font-weight:600;color:var(--ink-2);margin-left:8px;vertical-align:1px}
-.info:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
 .tips{padding:12px 14px;border:1px solid var(--rule-color);border-radius:6px;background:var(--surface-warm);color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
 .innrykk{padding-left:14px;border-left:2px solid var(--rule-strong-color);display:flex;flex-direction:column;gap:20px}
 .oppsummering{border:1.5px solid var(--danger);border-radius:var(--r-kort);padding:14px 16px;background:var(--danger-bg);display:flex;flex-direction:column;gap:6px}
@@ -206,8 +206,8 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
 
   <div class="flate">
     <div class="demolinje"><div class="inner">
-      <span><b>Prototype · BF-05 · versjon 1 · 01.11.2026</b> · Ingenting sendes eller lagres.</span>
-      <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#saksliste" id="start-paa-nytt">Start på nytt</a></span>
+      <span><b>Prototype · BF-05 · versjon 2 · 01.11.2026</b> · Ingenting sendes eller lagres.</span>
+      <span><label><input type="checkbox" id="demo-pdf"> Lat som PDF-en er lastet opp</label> · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#saksliste" id="start-paa-nytt">Start på nytt</a></span>
     </div></div>
     <header class="topplinje"><div class="inner">
       <nav class="sti" aria-label="Du er her"><span class="merkenavn">Varden</span><span aria-hidden="true">›</span><span aria-current="page">Skolebygg Nord</span></nav>
@@ -219,7 +219,7 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
       <!-- Sakslisten: #saksliste og #sendt -->
       <div class="ark bred" data-vis="saksliste sendt">
         <div class="kvittering" id="sendt" data-vis="sendt" tabindex="-1" data-spor="U-7 · D-7 · M-4">
-          <b>Påberopelsen av irregulær endring er sendt til BH 1. oktober 2026</b>
+          <b>Påberopelsen av <span class="sendt-forhold">irregulær endring</span> er sendt til BH 1. oktober 2026</b>
           <span>Saken <span class="num">E-032</span> er opprettet med påberopelsen som brev 1.</span>
           <span data-spor="D-7 · G-7">Brevet leveres til saken i Catenda når saken har fått sin topic der.</span>
         </div>
@@ -233,7 +233,7 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
             <li class="ny-rad" data-vis="sendt" data-spor="U-7 · D-5">
               <div class="rad">
                 <span class="id">E-032</span>
-                <div class="tittel"><b class="kopi-tittel">Endret føring av ventilasjonskanaler i 3. etasje</b><span class="forhold">Irregulær endring</span><span class="merke-n">Påberopelsen sendt 1. oktober 2026</span></div>
+                <div class="tittel"><b class="sendt-tittel">Endret føring av ventilasjonskanaler i 3. etasje</b><span class="forhold"><span class="sendt-forhold-navn">Irregulær endring</span> · pkt. <span class="sendt-punkt">32.1</span></span><span class="merke-n">Påberopelsen sendt 1. oktober 2026</span></div>
                 <div class="siste"><b>Brev 1 · TE</b>1. oktober 2026<br>Svar ikke registrert</div>
               </div>
             </li>
@@ -251,54 +251,50 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
 
             <div class="oppsummering" id="ny-feil" data-vis="ny-feil" tabindex="-1" role="group" aria-labelledby="feil-tittel" data-spor="U-5 · D-2">
               <h2 id="feil-tittel">Det mangler noe før du kan se brevet</h2>
-              <ul><li><a href="#beskrivelse" data-fokus="beskrivelse">Beskriv pålegget før du går videre.</a></li></ul>
+              <ul id="feil-liste"></ul>
               <p data-spor="S-3" data-foreslaatt="S-3">Ingen sak er opprettet ennå.</p>
             </div>
 
-            <fieldset data-spor="U-2 · D-1">
+            <fieldset id="felt-forhold" data-spor="U-2 · D-1 · U-5">
               <legend>Forholdet du påberoper</legend>
               <p class="hjelp">Velg bestemmelsen i kontrakten pålegget eller forholdet faller inn under.</p>
               <div class="gruppe"><p>Endringer, jf. punkt 31 og 32</p>
-                <label class="valg"><input type="radio" name="forhold" value="irregulaer_endring" checked> Irregulær endring <span class="h">pkt. 32.1</span></label>
-                <label class="valg"><input type="radio" name="forhold" value="valg_av_loesning"> Begrensning av valgrett <span class="h">pkt. 14.6</span></label>
-                <label class="valg"><input type="radio" name="forhold" value="samordning"> Samordning <span class="h">pkt. 21.4</span></label>
-                <label class="valg"><input type="radio" name="forhold" value="svar_paa_varsel"> Endring ved svar på varsel <span class="h">pkt. 24.2.2</span></label>
+                <label class="valg"><input type="radio" name="forhold" id="forhold-foerste" value="irregulaer_endring" data-punkt="32.1" data-skisse="ja"> Irregulær endring <span class="h">pkt. 32.1</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="valg_av_loesning" data-punkt="14.6" data-skisse="ja"> Begrensning av valgrett <span class="h">pkt. 14.6</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="samordning" data-punkt="21.4" data-skisse="ja"> Samordning <span class="h">pkt. 21.4</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="svar_paa_varsel" data-punkt="24.2.2" data-skisse="ja"> Endring ved svar på varsel <span class="h">pkt. 24.2.2</span></label>
               </div>
               <div class="gruppe"><p>Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24</p>
-                <label class="valg"><input type="radio" name="forhold" value="medvirkning"> Manglende medvirkning eller leveranser fra BH <span class="h">pkt. 22</span></label>
-                <label class="valg"><input type="radio" name="forhold" value="grunnforhold"> Uforutsette forhold ved grunnen <span class="h">pkt. 23.1</span></label>
-                <label class="valg"><input type="radio" name="forhold" value="prosjektering"> Svikt i byggherrens prosjektering <span class="h">pkt. 24.1</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="medvirkning" data-punkt="22"> Manglende medvirkning eller leveranser fra BH <span class="h">pkt. 22</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="grunnforhold" data-punkt="23.1"> Uforutsette forhold ved grunnen <span class="h">pkt. 23.1</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="prosjektering" data-punkt="24.1"> Svikt i byggherrens prosjektering <span class="h">pkt. 24.1</span></label>
               </div>
               <div class="gruppe"><p>Andre forhold byggherren har risikoen for</p>
-                <label class="valg"><input type="radio" name="forhold" value="skade_fra_byggherren"> Skade forårsaket av byggherren eller en sideentreprenør <span class="h">pkt. 19.1</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="skade_fra_byggherren" data-punkt="19.1"> Skade forårsaket av byggherren eller en sideentreprenør <span class="h">pkt. 19.1</span></label>
               </div>
               <div class="gruppe">
-                <label class="valg"><input type="radio" name="forhold" value="force_majeure"> Force majeure <span class="h">pkt. 33.3</span></label>
+                <label class="valg"><input type="radio" name="forhold" value="force_majeure" data-punkt="33.3"> Force majeure <span class="h">pkt. 33.3</span></label>
               </div>
+              <p class="fast" id="forhold-merknad" data-spor="S-7" data-foreslaatt="S-7" tabindex="-1" hidden><span><b>Dette forholdet er ikke med i skissen (S-7).</b></span></p>
               <p class="fast" data-spor="U-3 · D-3"><span><b>Forholdet står fast når brevet er sendt.</b> Vil du påberope et annet forhold senere, oppretter du en ny sak.</span></p>
             </fieldset>
 
-            <div class="felt" data-spor="G-3" data-foreslaatt="S-2">
+            <div class="felt" id="felt-tittel" data-spor="G-3 · U-5" data-foreslaatt="S-2">
               <label for="tittel">Tittel på saken</label>
               <span class="hjelp" id="tittel-hjelp">Står i sakslisten og i brevet.</span>
               <input type="text" id="tittel" aria-describedby="tittel-hjelp" aria-required="true">
             </div>
 
-            <div class="felt" id="felt-beskrivelse" data-spor="D-2 · M-2">
+            <div class="felt" id="felt-beskrivelse" data-spor="D-2 · M-2 · U-5">
               <label for="beskrivelse">Beskrivelse av pålegget</label>
               <span class="hjelp" id="beskrivelse-hjelp">Hva BH påla, når og hvordan, og hvorfor du mener det er en endring.</span>
-              <p class="feilmelding" id="beskrivelse-feil" data-vis="ny-feil">Beskriv pålegget før du går videre.</p>
               <textarea id="beskrivelse" aria-describedby="beskrivelse-hjelp" aria-required="true"></textarea>
             </div>
 
-            <div class="felt" data-spor="U-4 · D-4">
-              <label for="mottatt">Dato pålegget ble mottatt <button type="button" class="info" aria-expanded="false" aria-controls="mottatt-tips" aria-label="Om datoen">i</button></label>
-              <div class="tips" id="mottatt-tips" hidden>
-                <p>Datoen er din opplysning om når pålegget ble mottatt. Den står i brevet.</p>
-                <p>Løsningen vurderer ikke om varselet kommer i tide.</p>
-                <p>Er datoen feil, retter du den senere i et eget brev.</p>
-              </div>
-              <input type="date" id="mottatt" value="2026-09-15" max="2026-10-01" aria-required="true">
+            <div class="felt" id="felt-mottatt" data-spor="U-4 · D-4 · U-5">
+              <label for="mottatt">Dato pålegget ble mottatt</label>
+              <span class="hjelp" id="mottatt-hjelp">Datoen er din opplysning om når pålegget ble mottatt, og den står i brevet. Løsningen vurderer ikke om varselet kommer i tide. Er datoen feil, retter du den senere i et eget brev. Skriv den som dd.mm.åååå.</span>
+              <input type="text" id="mottatt" inputmode="numeric" autocomplete="off" aria-describedby="mottatt-hjelp" aria-required="true">
             </div>
 
             <div class="felt" data-spor="M-2 · S-5" data-foreslaatt="S-5">
@@ -308,30 +304,56 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
             </div>
 
             <fieldset class="ja-nei-sett" data-spor="D-8 · S-4" data-foreslaatt="S-4">
-              <legend>Har du allerede varslet BH om pålegget på annen måte?</legend>
+              <legend>Har du allerede varslet BH etter punkt 32.2, på annen måte, at pålegget er en endring?</legend>
               <div class="ja-nei" style="display:flex">
                 <label class="valg"><input type="radio" name="annen" value="nei" checked> Nei</label>
                 <label class="valg"><input type="radio" name="annen" value="ja"> Ja</label>
               </div>
             </fieldset>
 
-            <div class="innrykk" id="annen-maate" data-spor="D-8 · G-2" tabindex="-1">
-              <div class="felt">
-                <label for="varseldato">Dato varselet ble sendt</label>
-                <span class="hjelp" id="varseldato-hjelp">Datoen settes én gang. Retter du den senere til en senere dato, gjelder den straks. En tidligere dato gjelder først når BH godtar rettingen.</span>
-                <input type="date" id="varseldato" value="2026-09-16" max="2026-10-01" aria-describedby="varseldato-hjelp" aria-required="true">
+            <div class="innrykk" id="annen-maate" data-spor="D-8 · G-2" data-foreslaatt="S-6" tabindex="-1">
+              <fieldset id="felt-type">
+                <legend>Hva legger du til?</legend>
+                <label class="valg"><input type="radio" name="type" id="type-foerste" value="brev"> Brev</label>
+                <label class="valg"><input type="radio" name="type" value="e-post"> E-post</label>
+                <label class="valg"><input type="radio" name="type" value="møtereferat"> Møtereferat</label>
+                <label class="valg"><input type="radio" name="type" value="notat"> Notat eller annet dokument</label>
+              </fieldset>
+              <fieldset id="felt-kanal" hidden>
+                <legend>Hvordan ble brevet sendt?</legend>
+                <label class="valg"><input type="radio" name="kanal" id="kanal-foerste" value="post"> Brev per post</label>
+                <label class="valg"><input type="radio" name="kanal" value="pdf"> PDF i e-post</label>
+                <label class="valg"><input type="radio" name="kanal" value="hotell"> I prosjekthotellet</label>
+                <label class="valg"><input type="radio" name="kanal" value="annen"> På annen måte</label>
+              </fieldset>
+              <div class="felt" id="felt-varseldato">
+                <label for="varseldato">Datoen det ble sendt</label>
+                <span class="hjelp" id="varseldato-hjelp">Datoen avsenderen oppgir, som dd.mm.åååå. Datoen settes én gang. Retter du den senere til en senere dato, gjelder den straks. En tidligere dato gjelder først når BH godtar rettingen.</span>
+                <input type="text" id="varseldato" inputmode="numeric" autocomplete="off" aria-describedby="varseldato-hjelp" aria-required="true">
               </div>
-              <div class="felt">
-                <label for="varselmaate">Hvordan varselet ble sendt</label>
-                <span class="hjelp" id="varselmaate-hjelp">For eksempel e-post til prosjektlederen eller referat fra byggemøte.</span>
-                <input type="text" id="varselmaate" aria-describedby="varselmaate-hjelp" aria-required="true">
+              <div class="felt" id="felt-varselfil">
+                <label for="varselfil">Dokumentet</label>
+                <span class="hjelp" id="varselfil-hjelp">Last opp det som ble sendt, som PDF. En e-post lagres som PDF.</span>
+                <input type="file" id="varselfil" accept="application/pdf" aria-describedby="varselfil-hjelp" aria-required="true">
               </div>
-              <p class="merknad">Varselet legges til i saken som korrespondanse med kategorien varsel, sammen med påberopelsen.</p>
+              <div class="felt" id="felt-varselbeskrivelse">
+                <label for="varselbeskrivelse">Kort beskrivelse av varselet</label>
+                <span class="hjelp" id="varselbeskrivelse-hjelp">Kort, med egne ord.</span>
+                <textarea id="varselbeskrivelse" rows="3" style="min-height:80px" aria-describedby="varselbeskrivelse-hjelp" aria-required="true"></textarea>
+              </div>
+              <p class="merknad">Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.</p>
             </div>
 
             <div class="knapper">
               <a class="knapp primaer" href="#brev" id="se-brevet">Se brevet</a>
-              <a class="lenke" href="#saksliste" id="avbryt" data-spor="G-6">Avbryt</a>
+              <button class="lenke" type="button" id="avbryt" style="background:none;border:0;padding:0;cursor:pointer" aria-expanded="false" aria-controls="avbryt-spoersmaal" data-spor="G-6 · S-3">Avbryt</button>
+            </div>
+            <div class="tips" id="avbryt-spoersmaal" hidden>
+              <p>Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes.</p>
+              <div class="knapper">
+                <a class="knapp sekundaer" href="#saksliste" id="avbryt-ja">Ja, slett det du har skrevet</a>
+                <button class="lenke" type="button" id="avbryt-nei" style="background:none;border:0;padding:0;cursor:pointer">Nei, fortsett å skrive</button>
+              </div>
             </div>
           </div>
         </section>
@@ -350,27 +372,29 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
               <dt>Fra</dt><dd>Totalentreprenør AS</dd>
               <dt>Til</dt><dd>Oslobygg KF</dd>
               <dt>Dato</dt><dd>1. oktober 2026</dd>
-              <dt>Sak</dt><dd><span data-spor="S-3" data-foreslaatt="S-3">E-032</span></dd>
+              <dt>Sak</dt><dd><span data-spor="S-3" data-foreslaatt="S-3">E-032 (tildeles ved sending)</span></dd>
               <dt>Brev</dt><dd><span data-spor="D-5">1 · første versjon av påberopelsen</span></dd>
             </dl>
-            <h2 data-spor="D-6">Påberopelse av irregulær endring</h2>
-            <p data-spor="D-6 · G-3" data-foreslaatt="S-2">Totalentreprenøren krever endringsordre for «<span class="kopi-tittel"></span>» i sak E-032 som irregulær endring (NS 8407 punkt 32.1).</p>
+            <h2 data-spor="D-6">Påberopelse av <span class="kopi-forhold"></span></h2>
+            <p data-spor="D-6 · G-3" data-foreslaatt="S-2">Totalentreprenøren krever endringsordre for «<span class="kopi-tittel"></span>» i sak E-032 som <span class="kopi-forhold"></span> (NS 8407 punkt <span class="kopi-punkt"></span>).</p>
             <p data-spor="D-6">Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring.</p>
             <p data-spor="D-4">Totalentreprenøren opplyser at pålegget ble mottatt <span class="kopi-mottatt"></span>.</p>
-            <p class="kun-annen" data-spor="D-8" data-foreslaatt="S-6">Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 også ble sendt <span class="kopi-varseldato"></span>.</p>
+            <p class="kun-annen" data-spor="D-8" data-foreslaatt="S-6">Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 ble sendt i totalentreprenørens <span class="kopi-type"></span> av <span class="kopi-varseldato"></span>, som er vedlagt.</p>
             <h3>Beskrivelse av pålegget</h3>
             <p class="fritekst kopi-beskrivelse" data-spor="D-2"></p>
             <h3>Vedlegg</h3>
-            <p class="kopi-vedlegg" data-spor="S-5" data-foreslaatt="S-5"></p>
+            <ul class="kopi-vedlegg" data-spor="S-5 · S-6" data-foreslaatt="S-5" style="margin:0;padding-left:20px"></ul>
           </article>
           <div class="sendes">
-            <p class="merknad kun-annen" data-spor="D-8" data-foreslaatt="S-4">Sendes samtidig: varselet sendt <span class="kopi-varseldato"></span> (<span class="kopi-varselmaate"></span>) legges til i saken som korrespondanse med kategorien varsel.</p>
+            <p class="merknad kun-annen" data-spor="D-8" data-foreslaatt="S-6">Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.</p>
             <label class="kryss"><input type="checkbox" id="kontrollert" aria-describedby="kontrollert-feil"> Jeg har kontrollert brevet.</label>
             <p class="feilmelding" id="kontrollert-feil" hidden>Kryss av for at du har kontrollert brevet før du sender.</p>
             <div class="knapper" data-spor="D-7">
               <a class="knapp primaer" href="#sendt" id="send">Send til BH</a>
               <a class="knapp sekundaer" href="#ny" id="tilbake" data-spor="U-6 · G-6">Tilbake</a>
+              <a class="lenke" href="#saksliste" id="avbryt-brev" aria-describedby="avbryt-brev-hjelp" data-spor="G-6 · S-3">Avbryt</a>
             </div>
+            <p class="merknad" id="avbryt-brev-hjelp">Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes.</p>
           </div>
         </section>
       </div>
@@ -383,66 +407,127 @@ body.spor [data-foreslaatt]::before{content:"Foreslått (" attr(data-foreslaatt)
   const TILSTANDER = ['saksliste', 'ny', 'ny-feil', 'annen-maate', 'brev', 'sendt'];
   const MAANEDER = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
   const $ = (id) => document.getElementById(id);
-  const dato = (v) => { if (!v) return '[dato mangler]'; const [a, m, d] = v.split('-'); return `${Number(d)}. ${MAANEDER[Number(m) - 1]} ${a}`; };
-  const annen = () => document.querySelector('input[name=annen]:checked').value === 'ja';
-  let forrige = null;
+  const valgt = (navn) => document.querySelector(`input[name=${navn}]:checked`);
+  const annen = () => valgt('annen')?.value === 'ja';
+  const tolk = (v) => {
+    const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(v.trim());
+    if (!m || Number(m[2]) < 1 || Number(m[2]) > 12 || Number(m[1]) < 1 || Number(m[1]) > 31) return null;
+    return `${Number(m[1])}. ${MAANEDER[Number(m[2]) - 1]} ${m[3]}`;
+  };
+  const forholdNavn = () => valgt('forhold')?.parentElement.firstChild.nextSibling.textContent.trim() ?? '';
+  const forholdLiten = () => { const n = forholdNavn(); return n.charAt(0).toLowerCase() + n.slice(1); };
+  const iSkissen = () => valgt('forhold')?.dataset.skisse === 'ja';
+  const harPdf = () => $('varselfil').files.length > 0 || $('demo-pdf').checked;
+  const pdfNavn = () => $('varselfil').files[0]?.name ?? 'varsel.pdf';
+  const dato = (id, hva) => !$(id).value.trim() ? `Oppgi ${hva}.` : tolk($(id).value) ? null : 'Skriv datoen som dd.mm.åååå, for eksempel 15.09.2026.';
 
+  // Hvert påkrevde felt (U-5): feltet, det som får fokus, og meldingen når det mangler.
+  const KRAV = [
+    { felt: 'felt-forhold', fokus: 'forhold-foerste', feil: () => (valgt('forhold') ? null : 'Velg forholdet du påberoper.') },
+    { felt: 'felt-tittel', fokus: 'tittel', feil: () => ($('tittel').value.trim() ? null : 'Skriv tittelen på saken.') },
+    { felt: 'felt-beskrivelse', fokus: 'beskrivelse', feil: () => ($('beskrivelse').value.trim() ? null : 'Beskriv pålegget før du går videre.') },
+    { felt: 'felt-mottatt', fokus: 'mottatt', feil: () => dato('mottatt', 'datoen pålegget ble mottatt') },
+    { felt: 'felt-type', fokus: 'type-foerste', annen: true, feil: () => (valgt('type') ? null : 'Velg hva varselet ble sendt i.') },
+    { felt: 'felt-kanal', fokus: 'kanal-foerste', annen: true, feil: () => (valgt('type')?.value !== 'brev' || valgt('kanal') ? null : 'Velg hvordan brevet ble sendt.') },
+    { felt: 'felt-varseldato', fokus: 'varseldato', annen: true, feil: () => dato('varseldato', 'datoen varselet ble sendt') },
+    { felt: 'felt-varselfil', fokus: 'varselfil', annen: true, feil: () => (harPdf() ? null : 'Last opp varselet som PDF.') },
+    { felt: 'felt-varselbeskrivelse', fokus: 'varselbeskrivelse', annen: true, feil: () => ($('varselbeskrivelse').value.trim() ? null : 'Beskriv varselet kort.') },
+  ];
+  for (const k of KRAV) {
+    const p = document.createElement('p');
+    p.className = 'feilmelding'; p.id = `${k.felt}-feil`; p.hidden = true;
+    $(k.felt).querySelector('legend, label').after(p);
+  }
+  const mangler = () => KRAV.filter((k) => (!k.annen || annen()) && k.feil());
+
+  function visFeil(t) {
+    const liste = t === 'ny-feil' ? mangler() : [];
+    $('feil-liste').replaceChildren(...liste.map((k) => {
+      const li = document.createElement('li'), a = document.createElement('a');
+      a.href = `#${k.fokus}`; a.textContent = k.feil();
+      a.addEventListener('click', (e) => { e.preventDefault(); $(k.fokus).focus(); });
+      li.append(a); return li;
+    }));
+    for (const k of KRAV) {
+      const p = $(`${k.felt}-feil`), med = liste.includes(k);
+      p.hidden = !med; p.textContent = med ? k.feil() : '';
+      $(k.felt).classList.toggle('feil', med);
+      $(k.fokus).setAttribute('aria-invalid', String(med));
+    }
+  }
+
+  let forrige = null;
   function vis() {
     const naa = location.hash.slice(1);
-    const t = TILSTANDER.includes(naa) ? naa : 'saksliste';
+    let t = TILSTANDER.includes(naa) ? naa : 'saksliste';
+    if (t === 'brev' && (mangler().length || !iSkissen())) { history.replaceState(null, '', '#ny-feil'); t = 'ny-feil'; }
     for (const e of document.querySelectorAll('[data-vis]')) e.hidden = !e.dataset.vis.split(' ').includes(t);
     if (t === 'annen-maate') document.querySelector('input[name=annen][value=ja]').checked = true;
     if (t === 'ny') document.querySelector('input[name=annen][value=nei]').checked = true;
     $('annen-maate').hidden = !(t === 'annen-maate' || (t === 'ny-feil' && annen()));
-    $('beskrivelse-feil').hidden = !(t === 'ny-feil' && !$('beskrivelse').value.trim());
-    $('felt-beskrivelse').classList.toggle('feil', !$('beskrivelse-feil').hidden);
-    $('beskrivelse').setAttribute('aria-invalid', String(!$('beskrivelse-feil').hidden));
+    $('felt-kanal').hidden = valgt('type')?.value !== 'brev';
+    $('forhold-merknad').hidden = !valgt('forhold') || iSkissen();
+    visFeil(t);
     $('tilbake').href = annen() ? '#annen-maate' : '#ny';
-    const tittel = $('tittel').value.trim() || '[tittel mangler]';
-    for (const n of document.querySelectorAll('.kopi-tittel')) n.textContent = tittel;
-    for (const n of document.querySelectorAll('.kopi-mottatt')) n.textContent = dato($('mottatt').value);
-    for (const n of document.querySelectorAll('.kopi-beskrivelse')) n.textContent = $('beskrivelse').value;
-    const filer = [...$('vedlegg').files].map((f) => f.name);
-    for (const n of document.querySelectorAll('.kopi-vedlegg')) n.textContent = filer.length ? filer.join(', ') : 'Ingen vedlegg.';
-    for (const n of document.querySelectorAll('.kopi-varseldato')) n.textContent = dato($('varseldato').value);
-    for (const n of document.querySelectorAll('.kopi-varselmaate')) n.textContent = $('varselmaate').value.trim() || 'måten er ikke oppgitt';
-    for (const n of document.querySelectorAll('.kun-annen')) n.hidden = !annen();
-    if (t === 'brev') { $('kontrollert').checked = false; $('kontrollert-feil').hidden = true; }
+    if (t === 'brev') {
+      for (const n of document.querySelectorAll('.kopi-tittel')) n.textContent = $('tittel').value.trim();
+      for (const n of document.querySelectorAll('.kopi-forhold')) n.textContent = forholdLiten();
+      for (const n of document.querySelectorAll('.kopi-punkt')) n.textContent = valgt('forhold').dataset.punkt;
+      for (const n of document.querySelectorAll('.kopi-mottatt')) n.textContent = tolk($('mottatt').value);
+      for (const n of document.querySelectorAll('.kopi-beskrivelse')) n.textContent = $('beskrivelse').value;
+      const vedlegg = [...$('vedlegg').files].map((f) => f.name);
+      if (annen()) {
+        const type = valgt('type').value;
+        for (const n of document.querySelectorAll('.kopi-type')) n.textContent = type;
+        for (const n of document.querySelectorAll('.kopi-varseldato')) n.textContent = tolk($('varseldato').value);
+        vedlegg.unshift(`${pdfNavn()}: varselet i totalentreprenørens ${type} av ${tolk($('varseldato').value)}`);
+      }
+      for (const n of document.querySelectorAll('.kopi-vedlegg'))
+        n.replaceChildren(...(vedlegg.length ? vedlegg : ['Ingen vedlegg.']).map((v) => Object.assign(document.createElement('li'), { textContent: v })));
+      for (const n of document.querySelectorAll('.kun-annen')) n.hidden = !annen();
+      $('kontrollert').checked = false; $('kontrollert-feil').hidden = true;
+    }
     if (forrige !== null && forrige !== t) {
       const fokus = { 'ny-feil': 'ny-feil', brev: 'brev-tittel', sendt: 'sendt', ny: 'ny-tittel' }[t];
-      if (fokus && t !== 'annen-maate') $(fokus).focus({ preventScroll: t === 'ny' });
+      if (fokus) $(fokus).focus({ preventScroll: t === 'ny' });
     }
     forrige = t;
   }
 
+  function nullstill() {
+    for (const id of ['tittel', 'beskrivelse', 'mottatt', 'varseldato', 'varselbeskrivelse', 'vedlegg', 'varselfil']) $(id).value = '';
+    for (const r of document.querySelectorAll('input[name=forhold], input[name=type], input[name=kanal]')) r.checked = false;
+    document.querySelector('input[name=annen][value=nei]').checked = true;
+    $('demo-pdf').checked = false;
+    $('avbryt-spoersmaal').hidden = true; $('avbryt').setAttribute('aria-expanded', 'false');
+  }
+
   $('se-brevet').addEventListener('click', (e) => {
-    if (!$('beskrivelse').value.trim()) { e.preventDefault(); location.hash = 'ny-feil'; vis(); $('ny-feil').focus(); }
+    if (valgt('forhold') && !iSkissen()) { e.preventDefault(); $('forhold-merknad').focus(); return; }
+    if (mangler().length) { e.preventDefault(); history.replaceState(null, '', '#ny-feil'); vis(); $('ny-feil').focus(); }
   });
   $('send').addEventListener('click', (e) => {
-    if (!$('kontrollert').checked) { e.preventDefault(); $('kontrollert-feil').hidden = false; $('kontrollert').focus(); }
+    if (!$('kontrollert').checked) { e.preventDefault(); $('kontrollert-feil').hidden = false; $('kontrollert').focus(); return; }
+    // Kvitteringen og raden i sakslisten tar verdiene før skjemaet tømmes (K-9).
+    for (const n of document.querySelectorAll('.sendt-tittel')) n.textContent = $('tittel').value.trim();
+    for (const n of document.querySelectorAll('.sendt-forhold')) n.textContent = forholdLiten();
+    for (const n of document.querySelectorAll('.sendt-forhold-navn')) n.textContent = forholdNavn();
+    for (const n of document.querySelectorAll('.sendt-punkt')) n.textContent = valgt('forhold').dataset.punkt;
+    nullstill();
   });
   $('kontrollert').addEventListener('change', () => { if ($('kontrollert').checked) $('kontrollert-feil').hidden = true; });
-  $('beskrivelse').addEventListener('input', () => {
-    if ($('beskrivelse').value.trim()) { $('beskrivelse-feil').hidden = true; $('felt-beskrivelse').classList.remove('feil'); $('beskrivelse').setAttribute('aria-invalid', 'false'); }
+  for (const id of ['ny']) $(id).addEventListener('input', () => { if (location.hash === '#ny-feil') visFeil('ny-feil'); });
+  $('ny').addEventListener('change', (e) => {
+    if (e.target.name === 'forhold') $('forhold-merknad').hidden = iSkissen();
+    if (e.target.name === 'type') $('felt-kanal').hidden = e.target.value !== 'brev';
+    if (location.hash === '#ny-feil') visFeil('ny-feil');
   });
+  $('demo-pdf').addEventListener('change', () => { if (location.hash === '#ny-feil') visFeil('ny-feil'); });
   for (const r of document.querySelectorAll('input[name=annen]'))
     r.addEventListener('change', () => { location.hash = r.value === 'ja' ? 'annen-maate' : 'ny'; vis(); });
-  for (const a of document.querySelectorAll('a[data-fokus]'))
-    a.addEventListener('click', (e) => { e.preventDefault(); $(a.dataset.fokus).focus(); });
-  const info = document.querySelector('.info');
-  info.addEventListener('click', () => {
-    const aapen = info.getAttribute('aria-expanded') === 'true';
-    info.setAttribute('aria-expanded', String(!aapen));
-    $('mottatt-tips').hidden = aapen;
-  });
-  function nullstill() {
-    for (const id of ['tittel', 'beskrivelse', 'varselmaate']) $(id).value = '';
-    $('mottatt').value = '2026-09-15'; $('varseldato').value = '2026-09-16'; $('vedlegg').value = '';
-    document.querySelector('input[name=forhold][value=irregulaer_endring]').checked = true;
-    document.querySelector('input[name=annen][value=nei]').checked = true;
-  }
-  $('start-paa-nytt').addEventListener('click', nullstill);
-  $('avbryt').addEventListener('click', nullstill);
+  $('avbryt').addEventListener('click', () => { $('avbryt-spoersmaal').hidden = false; $('avbryt').setAttribute('aria-expanded', 'true'); $('avbryt-ja').focus(); });
+  $('avbryt-nei').addEventListener('click', () => { $('avbryt-spoersmaal').hidden = true; $('avbryt').setAttribute('aria-expanded', 'false'); $('avbryt').focus(); });
+  for (const id of ['start-paa-nytt', 'avbryt-ja', 'avbryt-brev']) $(id).addEventListener('click', nullstill);
   $('vis-spor').addEventListener('change', (e) => document.body.classList.toggle('spor', e.target.checked));
   addEventListener('hashchange', vis);
   vis();
