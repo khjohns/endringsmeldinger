@@ -495,14 +495,14 @@
   }
   /* Topplinja, meldingen og lastingen har samme kanter som arbeidet, som står midtstilt. */
   .flate {
-    --kant: max(var(--spacing-10), calc((100% - var(--varden-arbeid)) / 2));
+    --kant: max(var(--spacing-6), calc((100% - var(--varden-arbeid)) / 2));
     min-width: 0;
   }
   .varden.innfelt {
     grid-template-columns: minmax(0, 1fr);
   }
   .innfelt .flate {
-    --kant: max(var(--spacing-10), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
+    --kant: max(var(--spacing-6), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
   }
   .topplinje {
     display: flex;
@@ -522,7 +522,7 @@
     color: var(--ink-3);
   }
   .arbeid {
-    padding: 28px var(--spacing-6) 64px;
+    padding: 28px var(--kant) 64px;
   }
   .laster,
   .lastefeil {

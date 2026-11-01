@@ -548,7 +548,7 @@
   }
   .utkasthode {
     background: var(--draft-bg);
-    border-radius: var(--r-kort) var(--r-kort) 0 0;
+    border-radius: calc(var(--r-kort) - 1.5px) calc(var(--r-kort) - 1.5px) 0 0;
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;
     flex-direction: column;

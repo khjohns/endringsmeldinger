@@ -93,11 +93,16 @@
     gap: var(--spacing-2);
     min-height: 48px;
     padding: var(--spacing-3) var(--spacing-5);
-    border-radius: var(--r-innfelt);
   }
+  /* Fyller kortet, så hjørnene følger kortets innerkant. Åpen fortsetter lista under. */
   summary {
+    border-radius: calc(var(--r-kort) - 1px);
     cursor: pointer;
     list-style: none;
+  }
+  details[open] summary {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
   }
   summary:hover {
     background: var(--surface-inset);
