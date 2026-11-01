@@ -16,7 +16,7 @@ const saker = [
   ...[0, 1].map((i) =>
     lagSakslinje({
       sak_id: `CASE-${i}`,
-      grunnlag: { ...ingenting, venter_paa_svar: true, svar: null },
+      forhold: { ...ingenting, venter_paa_svar: true, svar: null },
       vederlag: { ...ingenting, venter_paa_svar: true, krav: null, svar: null, enighet: null },
       frist: { ...ingenting, venter_paa_svar: true, krav: null, svar: null, enighet: null },
     })

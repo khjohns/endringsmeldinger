@@ -30,7 +30,7 @@ const opprettet: Journalrad = {
 
 const grunnlagskrav = {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
@@ -92,14 +92,14 @@ describe('saksbildet for en TS-sak', () => {
 
   it('viser kravet i sporet det står i, med brevet fra journalen', () => {
     const { bilde, u } = bildeAv(journal);
-    const grunnlag = bilde.spor.find((s) => s.spor === 'grunnlag')!;
+    const grunnlag = bilde.spor.find((s) => s.spor === 'forhold')!;
     const vederlag = bilde.spor.find((s) => s.spor === 'vederlag')!;
     const frist = bilde.spor.find((s) => s.spor === 'frist')!;
 
     expect(grunnlag.poster).toEqual([
       expect.objectContaining({
         art: 'krav',
-        id: u.spor.grunnlag.gjeldendeKrav!.id,
+        id: u.spor.forhold.gjeldendeKrav!.id,
         brev: 2,
         gjeldende: true,
         revidert: false,
@@ -287,7 +287,7 @@ describe('et brev registrert som dokumentasjon i saksbildet (OV-U16, #1045)', ()
 
   it('viser motpartens brev ved kravet som venter på svar (svar 2 22.10), og merknaden for saken (svar 1)', () => {
     const { bilde } = bildeAv(journal);
-    expect(bilde.spor.find((s) => s.spor === 'grunnlag')!.registrerteBrev).toEqual([
+    expect(bilde.spor.find((s) => s.spor === 'forhold')!.registrerteBrev).toEqual([
       'Registrert brev fra BH, sendt 15. oktober 2026: Svar på kravet sendt på e-post',
     ]);
     expect(bilde.merknader.map((m) => m.tekst)).toEqual([
@@ -315,7 +315,7 @@ describe('et brev registrert som dokumentasjon i saksbildet (OV-U16, #1045)', ()
     const { bilde } = bildeAv([...journal, retting]);
     expect(bilde.journal[3].tittel).toBe('Retting fra BH: brevet hører ikke til saken');
     expect(bilde.journal[2].registrertBrev?.at(-1)).toBe('Rettet i hendelse 4.');
-    expect(bilde.spor.find((s) => s.spor === 'grunnlag')!.registrerteBrev).toEqual([]);
+    expect(bilde.spor.find((s) => s.spor === 'forhold')!.registrerteBrev).toEqual([]);
     expect(bilde.merknader).toEqual([]);
   });
 });

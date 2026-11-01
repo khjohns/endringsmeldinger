@@ -9,26 +9,26 @@
  */
 
 import { kroner } from '$kjerne/frosset/standpunkt';
-import type { Subsidiaergrunn } from '$kjerne/regler/grunnlag';
+import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Part, Spor, Standpunkt } from '$kjerne/typer';
 import type { Brevet, OppgittDato } from './lesing';
 
 export const PARTNAVN: Record<Part, string> = { TE: 'entreprenøren', BH: 'byggherren' };
 
 export const SPORNAVN: Record<Spor, string> = {
-  grunnlag: 'Grunnlag for kravet',
+  forhold: 'Grunnlag for kravet',
   vederlag: 'Vederlagsjustering',
   frist: 'Fristforlengelse',
 };
 
 const KRAV: Record<Spor, string> = {
-  grunnlag: 'Krav om endring',
+  forhold: 'Krav om endring',
   vederlag: 'Krav om vederlagsjustering',
   frist: 'Krav om fristforlengelse',
 };
 
 const SVAR: Record<Spor, string> = {
-  grunnlag: 'Svar på grunnlaget',
+  forhold: 'Svar på grunnlaget',
   vederlag: 'Svar på krav om vederlagsjustering',
   frist: 'Svar på krav om fristforlengelse',
 };
@@ -124,7 +124,7 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number): str
       const av = krevd !== undefined ? ` av ${kroner(krevd)}` : '';
       return `${post}: ${hvemLiten} godtar ${kroner(s.godkjent)}${av}`;
     }
-    case 'grunnlag':
+    case 'forhold':
       return `${hvem} svarer på grunnlaget: ${s.resultat}`;
     default:
       return `${hvem} tar stilling til ${s.art}`;

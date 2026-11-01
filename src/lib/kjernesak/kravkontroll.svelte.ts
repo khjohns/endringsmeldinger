@@ -15,7 +15,7 @@ import type { Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import type { Spor } from '$kjerne/typer';
 import { avvisningFoerBrevet, type Kjernesakkontekst } from './kontekst.svelte';
 import { fristkommandoFraSkjema, type Fristskjemadata } from './fristkrav';
-import { grunnlagsversjonFraSkjema } from './grunnlagskrav';
+import { grunnlagsversjonFraSkjema } from './paaberopelse';
 import { vedleggsoppslag } from './skjemadata';
 import { vederlagskommandoFraSkjema, type Vederlagsskjemadata } from './vederlagskrav';
 import { vederlagssvarFraSkjema } from './vederlagssvar';
@@ -36,7 +36,7 @@ type Kommando = Record<string, unknown> & { utdypning?: string };
 type Omslag = Pick<Kjernebrev, 'utdypning' | 'handling' | 'sendes'>;
 
 const SPORNAVN: Record<Spor, string> = {
-  grunnlag: 'Grunnlag',
+  forhold: 'Grunnlag',
   vederlag: 'Vederlag',
   frist: 'Frist',
 };
@@ -91,7 +91,7 @@ function kommandoFraSkjema(
   if (spor === 'grunnlag' && type === 'grunnlag_oppdatert')
     return {
       kommando: grunnlagsversjonFraSkjema(
-        kjernesak.utledning?.spor.grunnlag.gjeldendeKrav?.innhold,
+        kjernesak.utledning?.spor.forhold.gjeldendeKrav?.innhold,
         data
       ),
     };
@@ -194,7 +194,10 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
             throw new Error(kjernesak.feil ?? 'Varselet ble ikke registrert.');
           return;
         }
-        await visOgSend(kommando, brev(kommando, spor as Spor, vedlegg, omslag));
+        await visOgSend(
+          kommando,
+          brev(kommando, spor === 'grunnlag' ? 'forhold' : spor, vedlegg, omslag)
+        );
       } finally {
         sender = false;
       }

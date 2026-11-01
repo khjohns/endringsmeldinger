@@ -47,7 +47,7 @@ export function skrevet(
 
 export const medGrunnlag = skrevet([opprettet], 'TE', {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
@@ -63,14 +63,14 @@ export const medVederlag = skrevet(medGrunnlag, 'TE', {
 });
 
 const kravId = (journal: Journalrad[], spor: string) =>
-  utledJournal(journal, KJERNE).spor[spor as 'grunnlag'].gjeldendeKrav!.id;
+  utledJournal(journal, KJERNE).spor[spor as 'forhold'].gjeldendeKrav!.id;
 
 export const medSvar = skrevet(medVederlag, 'BH', {
   type: 'brev',
   svar: [
     {
-      spor: 'grunnlag',
-      gjelder: kravId(medVederlag, 'grunnlag'),
+      spor: 'forhold',
+      gjelder: kravId(medVederlag, 'forhold'),
       regelversjon: KJERNE.regler.versjon,
       vurderinger: { resultat: 'godkjent', grunnlag_varslet_i_tide: true },
       resultat: {},

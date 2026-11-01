@@ -37,8 +37,8 @@ const grunnlagssvar = (journal: Journalrad[], vurderinger: Record<string, unknow
     type: 'brev',
     svar: [
       {
-        spor: 'grunnlag',
-        gjelder: utledJournal(journal, KJERNE).spor.grunnlag.gjeldendeKrav!.id,
+        spor: 'forhold',
+        gjelder: utledJournal(journal, KJERNE).spor.forhold.gjeldendeKrav!.id,
         regelversjon: KJERNE.regler.versjon,
         vurderinger,
         resultat: {},
@@ -119,7 +119,7 @@ const vederlag = medVederlagskrav(medGrunnlag, { beloep: 250_000 });
 // § 34.1.2 gjelder ikke en endring (§ 34.1.1), så forløpene med den bruker svikt.
 const svikt = skrevet([opprettet], 'TE', {
   type: 'krav',
-  spor: 'grunnlag',
+  spor: 'forhold',
   innhold: {
     hovedkategori: 'svikt',
     underkategori: 'grunnforhold',

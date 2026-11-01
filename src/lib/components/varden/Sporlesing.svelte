@@ -172,10 +172,10 @@
             {STILLING.hele(vist.nummer)}
             {#if paaberopt?.art === 'rettidighet'}{STILLING.omfatter(paaberopt.hjemmel)}{/if}
           </p>
-          {#if enighet?.grunnlag.utfall.beloep !== undefined}
-            <p>{STILLING.beloep(enighet.grunnlag.utfall.beloep, vist.nummer)}</p>
+          {#if enighet?.forhold.utfall.beloep !== undefined}
+            <p>{STILLING.beloep(enighet.forhold.utfall.beloep, vist.nummer)}</p>
           {/if}
-          {#if enighet?.grunnlag.vilkaar === 'grunnlag_avklart' && !u.grunnlagAvklart}
+          {#if enighet?.forhold.vilkaar === 'forhold_avklart' && !u.forholdAvklart}
             <p>{STILLING.vilkaar}</p>
           {/if}
           <p class="dempet">{STILLING.kilde(vist.nummer)}</p>

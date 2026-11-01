@@ -18,8 +18,8 @@ type Merkevariant = ComponentProps<typeof Badge>['variant'];
 /** Tekstene følger statustekstene i visningen av saken (OV-U10). */
 const BETEGNELSE: Record<Saksbetegnelse, { label: string; variant: Merkevariant }> = {
   ikke_forstaatt: { label: 'Ikke forstått', variant: 'uavklart' },
-  avslaget_paa_grunnlaget_godtatt: { label: 'Avsluttet: avslått', variant: 'avslatt' },
-  grunnlaget_trukket: { label: 'Avsluttet: trukket', variant: 'avslatt' },
+  avslaget_paa_forholdet_godtatt: { label: 'Avsluttet: avslått', variant: 'avslatt' },
+  paaberopelsen_trukket: { label: 'Avsluttet: trukket', variant: 'avslatt' },
   kravene_avgjort: { label: 'Alle krav sendt i appen er avgjort', variant: 'godkjent' },
 };
 

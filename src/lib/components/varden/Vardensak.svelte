@@ -80,7 +80,7 @@
   };
   type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
 
-  const SPORENE: Spor[] = ['grunnlag', 'vederlag', 'frist'];
+  const SPORENE: Spor[] = ['forhold', 'vederlag', 'frist'];
   let valgt = $state<Spor>('vederlag');
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());

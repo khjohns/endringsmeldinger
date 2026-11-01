@@ -157,8 +157,8 @@ export interface CaseListHendelse {
  */
 export type Saksbetegnelse =
   | 'ikke_forstaatt'
-  | 'avslaget_paa_grunnlaget_godtatt'
-  | 'grunnlaget_trukket'
+  | 'avslaget_paa_forholdet_godtatt'
+  | 'paaberopelsen_trukket'
   | 'kravene_avgjort';
 
 /** Appens lesing av enighetens virkning (MM-U28). */
@@ -182,7 +182,7 @@ interface Foreligger {
   svar_ikke_godtatt: boolean;
 }
 
-export interface Grunnlagslinje extends Foreligger {
+export interface Forholdslinje extends Foreligger {
   svar: { resultat: 'godkjent' | 'avslaatt' | 'paalegg_frafalt' } | null;
 }
 
@@ -221,7 +221,7 @@ export interface Sakslinje {
   saksbetegnelse: Saksbetegnelse | null;
   /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */
   brev_utenfor_appen: boolean;
-  grunnlag: Grunnlagslinje;
+  forhold: Forholdslinje;
   vederlag: Vederlagslinje;
   frist: Fristlinje;
 }
