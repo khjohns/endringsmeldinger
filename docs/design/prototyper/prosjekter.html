@@ -6,8 +6,9 @@
 <title>Prosjektene i Varden</title>
 <!--
   Prototype av prosjektoversikten i Varden (#1402). Ankrene er #te, #bh, #te-tom og #bh-tom.
-  Har brukeren bare ett prosjekt, går innloggingen rett til sakslisten, som i dag.
-  Fargene er Blekk, og stilen er den samme som i grunnlagsoversikt.html.
+  Fokuset er brevene siden forrige innlogging, vist som en kort brevveksling med partsringene
+  fra sakssiden. Prosjekter uten nye brev står for seg, med mindre vekt. Har brukeren bare ett
+  prosjekt, går innloggingen rett til sakslisten. Fargene er Blekk.
 -->
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -269,7 +270,6 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .sti a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .sti .merkenavn{font-weight:600;font-size:16px;color:var(--ink);letter-spacing:-.01em}
 .sti [aria-current]{color:var(--ink);font-weight:500}
-.sti .merkenavn[aria-current]{font-weight:600}
 .brukermeny{position:relative}
 .brukermeny summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:6px;min-height:40px}
 .brukermeny summary::-webkit-details-marker{display:none}
@@ -284,35 +284,50 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .brukermeny .meny a:hover{background:var(--surface-inset)}
 .brukermeny .meny hr{border:0;border-top:1px solid var(--rule-subtle-color);margin:4px 0}
 @media (max-width:560px){.brukermeny .hvem{display:none}}
+.sti .merkenavn[aria-current]{font-weight:600}
 
-.kolonner{grid-template-columns:minmax(0,1fr);max-width:1080px}
-.toppskall .topplinje-inner,.demolinje .topplinje-inner{max-width:1080px}
-.side-hode{display:flex;flex-direction:column;gap:4px;margin-bottom:4px}
+.kolonner{grid-template-columns:minmax(0,1fr);max-width:960px}
+.toppskall .topplinje-inner,.demolinje .topplinje-inner{max-width:960px}
+.side-hode{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;margin-bottom:4px}
 .side-hode h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
-.side-hode p{color:var(--ink-2)}
-.prosjekter{list-style:none;margin:0;padding:0;display:grid;gap:16px}
-.prosjektkort{position:relative;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);padding:20px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 24px}
-.prosjektkort:hover{border-color:var(--rule-strong-color)}
-.prosjektkort h2{font-size:20px;font-weight:600;letter-spacing:-.01em}
-.prosjektkort h2 a{color:var(--ink);text-decoration:none}
-.prosjektkort h2 a::after{content:"";position:absolute;inset:0;border-radius:var(--r-kort)}
-.prosjektkort h2 a:focus-visible{outline:none}
-.prosjektkort:has(a:focus-visible){outline:2px solid var(--control-focus);outline-offset:2px}
-.prosjektkort .meta{font-size:14px;color:var(--ink-2)}
-.prosjektkort .pil{align-self:center;color:var(--ink-3)}
-.fakta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 24px;margin:0;padding-top:12px;border-top:1px solid var(--rule-subtle-color)}
-.fakta div{display:flex;flex-direction:column;gap:0}
-.fakta dt{font-size:12px;color:var(--ink-3)}
-.fakta dd{margin:0;font-size:14px;color:var(--ink)}
-.fakta dd .num{font-size:16px}
-.merker{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;position:relative;z-index:1}
+.side-hode p{color:var(--ink-2);font-size:14px}
+.prosjekter{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.pk{position:relative;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort)}
+.pk:hover{border-color:var(--rule-strong-color)}
+.pk:has(h2 a:focus-visible){outline:2px solid var(--control-focus);outline-offset:2px}
+.pk-hode{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 24px;padding:18px 20px 0;align-items:baseline}
+.pk h2{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.pk h2 a{color:var(--ink);text-decoration:none}
+.pk h2 a::after{content:"";position:absolute;inset:0;border-radius:var(--r-kort)}
+.pk h2 a:focus-visible{outline:none}
+.pk .meta{grid-column:1;font-size:14px;color:var(--ink-2)}
+.telling{grid-row:1/3;grid-column:2;font-size:14px;color:var(--ink-2);text-align:right;white-space:nowrap}
+.telling .num{color:var(--ink)}
+.nytt{padding:14px 20px 18px}
+.nytt-tittel{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+.brevrad{list-style:none;margin:0;padding:0;position:relative}
+.brevrad li{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:6px 0}
+.brevrad li::before{content:"";position:absolute;left:13px;top:0;bottom:0;border-left:1px solid var(--rule-strong-color)}
+.brevrad li:first-child::before{top:50%}
+.brevrad li:last-child::before{bottom:50%}
+.brevrad li:only-child::before{display:none}
+.ring{position:relative;z-index:1;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);display:grid;place-items:center;font-size:11px;font-weight:600}
+.brevrad .bt{font-size:14px;min-width:0}
+.brevrad .bt .sak{font-family:var(--font-mono);font-size:12px;color:var(--ink-3);margin-right:6px}
+.brevrad .bd{font-size:14px;color:var(--ink-3);white-space:nowrap}
+.merker{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 18px;position:relative;z-index:1}
 .merke-n{font-size:12px;font-weight:600;color:var(--ink);border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:1px 9px;white-space:nowrap}
 .merke-n.utkast{color:var(--draft);background:var(--draft-bg);border:1px dashed var(--draft-border)}
+.pk.stille .pk-hode{padding-bottom:16px}
+.pk.stille h2{font-size:16px}
+.pk.stille .stilletekst{grid-column:1;font-size:14px;color:var(--ink-3)}
+.stille-tittel{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:20px 0 4px}
 .tom{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);padding:24px 20px;color:var(--ink-2);display:flex;flex-direction:column;gap:8px}
 .tom b{color:var(--ink)}
 [data-v="flere"] .kun-tom,[data-v="tom"] .kun-flere{display:none}
 [data-rolle="TE"] .kun-bh-blokk{display:none}
 [data-rolle="BH"] .kun-te-blokk{display:none}
+@media (max-width:560px){.pk-hode{grid-template-columns:1fr}.telling{grid-row:auto;grid-column:1;text-align:left;white-space:normal}.brevrad li{grid-template-columns:28px minmax(0,1fr)}.brevrad .bd{grid-column:2}}
 </style>
 </head>
 <body>
@@ -335,7 +350,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
     </div></div></div>
     <header class="toppskall">
       <div class="topplinje-inner">
-        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html" aria-current="page">Varden</a></nav>
+        <nav class="sti" aria-label="Du er her"><span class="merkenavn" aria-current="page">Varden</span></nav>
         <details class="brukermeny">
           <summary aria-label="Brukermenyen"><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
           <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
@@ -346,25 +361,33 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
     <main class="arbeid">
       <div class="kolonner">
         <div class="hoved">
-          <div class="side-hode"><h1>Pågående prosjekter</h1><p class="kun-flere">Prosjektene du er medlem av i Catenda.</p></div>
+          <div class="side-hode"><h1>Pågående prosjekter</h1><p class="kun-flere">Sist innlogget 28. oktober 2026 kl. 14.10</p></div>
           <ul class="prosjekter kun-flere">
-          <li class="prosjektkort">
-            <div><h2><a href="saksliste.html">Skolebygg Nord</a></h2><p class="meta">Totalentreprise NS 8407 · <span class="kun-te">Totalentreprenør · Totalentreprenør AS</span><span class="kun-bh">Byggherre · Oslobygg KF</span></p></div>
-            <span class="pil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></span>
+          <li class="pk">
+            <div class="pk-hode"><h2><a href="saksliste.html">Skolebygg Nord</a></h2><span class="telling"><span class="num">7</span> krav · <span class="num">2</span> EO · <span class="num">1</span> forsering</span><p class="meta">Totalentreprise NS 8407 · <span class="kun-te">Totalentreprenør AS</span><span class="kun-bh">Oslobygg KF</span></p></div>
+            <div class="nytt"><p class="nytt-tittel">4 brev siden 28. oktober</p>
+              <ol class="brevrad">
+                <li><span class="ring" aria-label="Totalentreprenøren">TE</span><span class="bt"><span class="sak">E-031</span>Varsel om uforutsette forhold ved grunnen</span><span class="bd">31. okt.</span></li>
+                <li><span class="ring" aria-label="Byggherren">BH</span><span class="bt"><span class="sak">EO-012</span>Endringsordre om sprengning i byggegropen</span><span class="bd">30. okt.</span></li>
+                <li><span class="ring" aria-label="Totalentreprenøren">TE</span><span class="bt"><span class="sak">E-021</span>Forsering etter punkt 33.8</span><span class="bd">30. okt.</span></li>
+                <li><span class="ring" aria-label="Byggherren">BH</span><span class="bt"><span class="sak">E-024</span>Svar på varselet om irregulær endring</span><span class="bd">28. okt.</span></li>
+              </ol>
+            </div>
             <div class="merker"><span class="kun-te-blokk merke-n utkast">1 utkast fra teamet ditt</span><span class="kun-bh-blokk merke-n">2 svar til godkjenning hos deg</span></div>
-            <dl class="fakta"><div><dt>Krav om endringsordre</dt><dd><span class="num">7</span></dd></div><div><dt>Endringsordrer</dt><dd><span class="num">2</span></dd></div><div><dt>Forsering</dt><dd><span class="num">1</span></dd></div><div><dt>Siste brev</dt><dd>31. oktober 2026 · E-031</dd></div></dl>
           </li>
-          <li class="prosjektkort">
-            <div><h2><a href="saksliste.html">Flerbrukshall Øst</a></h2><p class="meta">Totalentreprise NS 8407 · <span class="kun-te">Totalentreprenør · Totalentreprenør AS</span><span class="kun-bh">Byggherre · Oslobygg KF</span></p></div>
-            <span class="pil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></span>
-            
-            <dl class="fakta"><div><dt>Krav om endringsordre</dt><dd><span class="num">3</span></dd></div><div><dt>Endringsordrer</dt><dd><span class="num">1</span></dd></div><div><dt>Siste brev</dt><dd>24. oktober 2026 · E-008</dd></div></dl>
+          <li class="pk">
+            <div class="pk-hode"><h2><a href="saksliste.html">Flerbrukshall Øst</a></h2><span class="telling"><span class="num">3</span> krav · <span class="num">1</span> EO</span><p class="meta">Totalentreprise NS 8407 · <span class="kun-te">Totalentreprenør AS</span><span class="kun-bh">Oslobygg KF</span></p></div>
+            <div class="nytt"><p class="nytt-tittel">1 brev siden 28. oktober</p>
+              <ol class="brevrad">
+                <li><span class="ring" aria-label="Byggherren">BH</span><span class="bt"><span class="sak">E-008</span>Svar på krav om fristforlengelse</span><span class="bd">29. okt.</span></li>
+              </ol>
+            </div>
           </li>
-          <li class="prosjektkort">
-            <div><h2><a href="saksliste.html">Barnehage Vest</a></h2><p class="meta">Totalentreprise NS 8407 · <span class="kun-te">Totalentreprenør · Totalentreprenør AS</span><span class="kun-bh">Byggherre · Oslobygg KF</span></p></div>
-            <span class="pil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></span>
-            
-            <dl class="fakta"><div><dt>Krav om endringsordre</dt><dd><span class="num">0</span></dd></div><div><dt>Siste brev</dt><dd>Ingen brev ennå</dd></div></dl>
+          </ul>
+          <p class="stille-tittel kun-flere">Uten nye brev</p>
+          <ul class="prosjekter kun-flere">
+          <li class="pk stille">
+            <div class="pk-hode"><h2><a href="saksliste.html">Barnehage Vest</a></h2><span class="telling"><span class="num">2</span> krav</span><p class="stilletekst">Ingen nye brev siden 28. oktober. Siste brev 12. oktober.</p></div>
           </li>
           </ul>
           <div class="tom kun-tom"><b>Du er ikke medlem av noe prosjekt som er koblet til Varden.</b><p>Medlemskapet hentes fra Catenda. Er du nylig lagt til i et prosjekt der, kan det ta litt tid før det vises her.</p></div>

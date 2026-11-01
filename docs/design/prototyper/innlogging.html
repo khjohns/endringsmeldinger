@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Innloggingen i Varden</title>
 <!--
-  Prototype av innloggingen i Varden (#1402). Ankrene er #vanlig og #feil. Innloggingen med
-  Oslo kommune-konto (Entra ID, #831, GFK-U5) er ikke klar, og knappen sier det når den trykkes.
-  Fargene er Blekk, og stilen er den samme som i grunnlagsoversikt.html.
+  Prototype av innloggingen i Varden (#1402). Ankrene er #catenda (brukeren kom fra en topic i
+  Catenda og havner i saken etterpå), #vanlig og #feil. Innloggingen med Oslo kommune-konto
+  (Entra ID, #831, GFK-U5) er ikke klar, og lenken sier det når den trykkes (MM-U32).
+  Siden er et ark med blekkstrek øverst, som brevene. Fargene er Blekk.
 -->
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -269,7 +270,6 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .sti a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .sti .merkenavn{font-weight:600;font-size:16px;color:var(--ink);letter-spacing:-.01em}
 .sti [aria-current]{color:var(--ink);font-weight:500}
-.sti .merkenavn[aria-current]{font-weight:600}
 .brukermeny{position:relative}
 .brukermeny summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:6px;min-height:40px}
 .brukermeny summary::-webkit-details-marker{display:none}
@@ -284,64 +284,80 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .brukermeny .meny a:hover{background:var(--surface-inset)}
 .brukermeny .meny hr{border:0;border-top:1px solid var(--rule-subtle-color);margin:4px 0}
 @media (max-width:560px){.brukermeny .hvem{display:none}}
+.sti .merkenavn[aria-current]{font-weight:600}
 
-.inn{flex:1;display:grid;place-items:center;padding:48px 24px}
-.innkort{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);padding:32px 28px;display:flex;flex-direction:column;gap:20px}
-.innkort h1{font-size:28px;font-weight:600;letter-spacing:-.02em}
-.innkort .beskrivelse{font-size:16px;color:var(--ink-2);margin-top:4px}
-.innkort .knapp{width:100%;text-decoration:none}
-.knapp.sekundaer{background:transparent;color:var(--brand)}
-.knapp.sekundaer:hover{background:var(--surface-inset)}
-.innkort .hjelp{font-size:14px;color:var(--ink-2)}
-.melding{display:flex;gap:10px;padding:12px 14px;border:1px solid var(--ink);background:var(--surface-inset);border-radius:6px;font-size:14px;color:var(--ink)}
+.inn{flex:1;padding:56px max(24px,env(safe-area-inset-right,0px)) 64px max(24px,env(safe-area-inset-left,0px))}
+.ark-inn{max-width:560px;margin:0 auto 0 calc(50% - 380px);background:var(--surface);border:1px solid var(--rule-color);border-top:3px solid var(--ink);border-radius:2px;padding:40px 44px 32px;display:flex;flex-direction:column;gap:24px}
+@media (max-width:1180px){.ark-inn{margin:0 auto}}
+.ark-inn h1{font-size:28px;font-weight:600;letter-spacing:-.02em}
+.ark-inn .ingress{font-size:16px;color:var(--ink-2);margin-top:6px}
+.henvisning{display:flex;gap:12px;padding:14px 16px;border:1px solid var(--rule-strong-color);border-radius:6px;background:var(--surface-warm)}
+.henvisning .hv{display:flex;flex-direction:column;gap:2px}
+.henvisning .over{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.henvisning b{font-weight:600}
+.henvisning span.m{font-size:14px;color:var(--ink-2)}
+.handling{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.handling .knapp{text-decoration:none}
+.handling .hjelp{font-size:14px;color:var(--ink-2)}
+.annen{border-top:1px solid var(--rule-subtle-color);padding-top:16px;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.annen .lenke{min-height:40px}
+.melding{display:flex;gap:10px;padding:12px 14px;border-left:3px solid var(--ink);background:var(--surface-inset);font-size:14px;color:var(--ink)}
 .melding[hidden]{display:none}
 .feil{display:flex;gap:10px;padding:12px 14px;border-left:3px solid var(--ink);background:var(--surface-inset);font-size:14px}
-.innfot{font-size:14px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap}
-.innfot a{color:var(--ink-2)}
-.panel .merke-stor{margin-top:auto;font-size:14px;color:var(--sidebar-muted)}
-[data-t="vanlig"] .kun-feil{display:none}
-[data-t="feil"] .kun-vanlig{display:none}
-@media (max-width:860px){.panel .merke-stor{display:none}}
+.arkfot{font-size:14px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap}
+.arkfot a{color:var(--ink-2)}
+.panel .produkt{margin-top:auto;display:flex;flex-direction:column;gap:2px}
+.panel .produkt b{font-size:16px;font-weight:600}
+.panel .produkt span{font-size:14px;color:var(--sidebar-muted)}
+[data-t="vanlig"] .kun-feil,[data-t="vanlig"] .kun-catenda,[data-t="catenda"] .kun-feil,[data-t="feil"] .kun-catenda{display:none}
+@media (max-width:860px){.panel .produkt{display:none}.ark-inn{padding:28px 20px 24px}.inn{padding-top:24px}}
 </style>
 </head>
 <body>
 
-<div class="skall" id="skall" data-t="vanlig">
+<div class="skall" id="skall" data-t="catenda">
   <aside class="panel" aria-label="Oslo kommune">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
-    <p class="merke-stor">Varden er laget av Oslobygg KF.</p>
+    <p class="produkt"><b>Varden</b><span>Krav og endringer i totalentrepriser</span></p>
   </aside>
   <div class="flate">
     <div class="demolinje"><div class="topplinje-inner"><div class="demo"><span>Mockup</span>
       <span class="vis-som" role="group" aria-label="Tilstand">
-        <button type="button" data-t="vanlig" aria-pressed="true">Vanlig</button>
+        <button type="button" data-t="catenda" aria-pressed="true">Fra en topic i Catenda</button>
+        <button type="button" data-t="vanlig" aria-pressed="false">Direkte</button>
         <button type="button" data-t="feil" aria-pressed="false">Catenda svarer ikke</button>
       </span></div></div></div>
+    <header class="toppskall"><div class="topplinje-inner"><nav class="sti" aria-label="Du er her"><span class="merkenavn" aria-current="page">Varden</span></nav></div></header>
     <main class="inn">
-      <div class="innkort">
+      <div class="ark-inn">
         <div>
-          <h1>Varden</h1>
-          <p class="beskrivelse">Krav og endringer i totalentrepriser</p>
+          <h1>Logg inn</h1>
+          <p class="ingress">Bruk Catenda-kontoen du bruker i prosjektene.</p>
         </div>
-        <div class="feil kun-feil" role="alert"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>Catenda svarte ikke, så innloggingen ble ikke fullført. Prøv igjen om litt.</p></div>
-        <a class="knapp primaer" href="prosjekter.html">Logg inn med Catenda</a>
-        <p class="hjelp">Bruk Catenda-kontoen du bruker i prosjektene. Du ser prosjektene du er medlem av.</p>
-        <button class="knapp sekundaer" type="button" id="entra" aria-controls="entra-melding" aria-expanded="false">Logg inn med Oslo kommune-konto</button>
-        <div class="melding" id="entra-melding" role="status" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>Innlogging med Oslo kommune-konto er ikke klar ennå. Den er for godkjennere hos byggherren. Bruk Catenda-kontoen inntil videre.</p></div>
-        <p class="innfot"><a href="#">Om Varden</a><a href="#">Personvern</a></p>
+        <div class="henvisning kun-catenda"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="flex:none;margin-top:3px"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><div class="hv"><span class="over">Etter innloggingen åpnes</span><b>E-027 · Fjell høyere enn antatt i byggegropen</b><span class="m">Skolebygg Nord. Du kom fra topicen i Catenda.</span></div></div>
+        <div class="feil kun-feil" role="alert"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:3px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>Catenda svarte ikke, så du ble ikke logget inn. Prøv igjen om litt.</p></div>
+        <div class="handling">
+          <a class="knapp primaer" href="prosjekter.html">Logg inn med Catenda</a>
+          <p class="hjelp">Du ser prosjektene du er medlem av i Catenda.</p>
+        </div>
+        <div class="annen">
+          <button class="lenke" type="button" id="entra" aria-controls="entra-melding" aria-expanded="false">Logg inn med Oslo kommune-konto</button>
+          <div class="melding" id="entra-melding" role="status" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:3px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>Innlogging med Oslo kommune-konto er ikke klar ennå. Den er for godkjennere hos byggherren. Bruk Catenda-kontoen inntil videre.</p></div>
+        </div>
+        <p class="arkfot"><a href="#">Om Varden</a><a href="#">Personvern</a></p>
       </div>
     </main>
   </div>
 </div>
 <script>
   const skall = document.getElementById('skall');
-  const tb = [...document.querySelectorAll('[data-t]')].filter(e => e.tagName === 'BUTTON');
+  const tb = [...document.querySelectorAll('button[data-t]')];
   function sett(t){ skall.dataset.t = t; tb.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.t === t))); const a = '#' + t; if (location.hash !== a) history.replaceState(null, '', a); }
   tb.forEach(b => b.addEventListener('click', () => sett(b.dataset.t)));
   const e = document.getElementById('entra'), m = document.getElementById('entra-melding');
   e.addEventListener('click', () => { m.hidden = false; e.setAttribute('aria-expanded', 'true'); });
-  // Ankrene er #vanlig og #feil.
-  const a = /^#(vanlig|feil)$/.exec(location.hash); if (a) sett(a[1]);
+  // Ankrene er #catenda, #vanlig og #feil.
+  const a = /^#(catenda|vanlig|feil)$/.exec(location.hash); if (a) sett(a[1]);
 </script>
 </body>
 </html>
