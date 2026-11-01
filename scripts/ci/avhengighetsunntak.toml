@@ -15,9 +15,3 @@ dato = "2026-10-18"
 issue = 268
 begrunnelse = "Fantes da skanningen ble innført. high: Effect `AsyncLocalStorage` context lost/contaminated inside Effect fibers under concurrent load with RPC"
 
-[[unntak]]
-advisory = "GHSA-6h2x-m376-mqjq"
-pakke = "joi"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: joi: Quadratic regular-expression backtracking in `Joi.string().isoDate()`"

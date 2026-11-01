@@ -380,6 +380,10 @@ prinsippet.
 **Vurdering:** registreringen hører til første versjon (OV-U1) og bør være
 bygget før første ekte sak.
 
+**Levert:** registreringen og rettingen er bygget i kjernen i PR #1148 og #1163, og
+kildene etter OV-U44 i #1045. Skjemaet i klienten er #807, og visningen bygges i Varden
+(#1414).
+
 ### MD-11 — målbildet har ikke tatt stilling til det som gjelder hele kontrakten
 
 **Alvorlighet: lav. Belegg: L, P.** Journalen er per sak. Sparringen peker på

@@ -5,6 +5,7 @@ ID gir feil, og en opphevet ID gir feil når den står som eneste grunnlag, unnt
 i en test merket historisk.
 """
 
+import collections
 import pathlib
 
 import pytest
@@ -310,3 +311,79 @@ def test_kildefilene_er_json_filene_i_domenetabellen(tmp_path):
         "docs/domenetabell/a.json",
         "docs/domenetabell/b/c.json",
     ]
+
+
+
+def test_en_rad_i_kjente_avvik_slipper_den_opphevede_id_en_i_fila_og_teller_treffet():
+    truffet = collections.Counter()
+    avvik = frozenset({("kjerne/regel.ts", "MM-U4")})
+    tekst = "// Avvises etter MM-U4.\nkode()\n// MM-U4 igjen"
+    assert vh.feil_i("kjerne/regel.ts", tekst, KJENTE, OPPHEVET, AAPNE, avvik, truffet) == []
+    assert truffet == {("kjerne/regel.ts", "MM-U4"): 2}
+
+
+def test_en_rad_i_kjente_avvik_gjelder_ikke_en_annen_fil():
+    avvik = frozenset({("kjerne/regel.ts", "MM-U4")})
+    feil = vh.feil_i(
+        "kjerne/annen.ts", "// MM-U4", KJENTE, OPPHEVET, AAPNE, avvik, collections.Counter()
+    )
+    assert feil == ["kjerne/annen.ts:1: MM-U4 er opphevet og står som eneste grunnlag"]
+
+
+@pytest.mark.parametrize(
+    ("treff", "melding"),
+    [
+        (0, "rett antallet eller fjern raden"),
+        (1, "rett antallet eller fjern raden"),
+        (3, "en ny henvisning må vise til et vedtak som gjelder"),
+    ],
+)
+def test_en_rad_i_kjente_avvik_med_et_annet_antall_treff_gir_feil(treff, melding):
+    rader = (("kjerne/regel.ts", "MM-U4", 2, "#1433"),)
+    feil = vh.avviksfeil(rader, collections.Counter({("kjerne/regel.ts", "MM-U4"): treff}))
+    assert len(feil) == 1 and melding in feil[0]
+
+
+def test_en_rad_i_kjente_avvik_med_riktig_antall_treff_gir_ingen_feil():
+    rader = (("kjerne/regel.ts", "MM-U4", 2, "#1433"),)
+    assert vh.avviksfeil(rader, collections.Counter({("kjerne/regel.ts", "MM-U4"): 2})) == []
+
+
+@pytest.mark.parametrize(
+    "rad",
+    [
+        ("kjerne/*.ts", "MM-U4", 1, "#1433"),
+        ("kjerne/", "MM-U4", 1, "#1433"),
+        ("kjerne/regel.ts", "MM-U4", 1, ""),
+        ("kjerne/regel.ts", "MM-U4 og MM-U5", 1, "#1433"),
+        ("kjerne/regel.ts", "MM-U4", 0, "#1433"),
+    ],
+)
+def test_en_rad_i_kjente_avvik_med_feil_form_gir_feil(rad):
+    feil = vh.avviksfeil((rad,), collections.Counter({(rad[0], rad[1]): rad[2]}))
+    assert len(feil) == 1 and "må ha én fil, én ID, antallet og issuet" in feil[0]
+
+
+def _tre(tmp_path, filer: dict[str, str]):
+    for sti, tekst in filer.items():
+        (tmp_path / sti).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / sti).write_text(tekst, encoding="utf-8")
+    (tmp_path / "docs" / "domenetabell").mkdir(parents=True, exist_ok=True)
+    return tmp_path
+
+
+def test_kontroller_slipper_bare_raden_og_teller_treffene_per_fil(register, plan, tmp_path):
+    # KA-U24 er opphevet av KA-U43 (#1433).
+    rot = _tre(tmp_path, {"kjerne/a.ts": "// KA-U24\n", "kjerne/b.ts": "// KA-U24\n"})
+    rader = (("kjerne/a.ts", "KA-U24", 1, "#1433"),)
+    assert vh.kontroller(register, plan, rot, rader) == [
+        "kjerne/b.ts:1: KA-U24 er opphevet og står som eneste grunnlag"
+    ]
+
+
+def test_kontroller_avviser_en_rad_med_feil_form_og_unntar_ingenting(register, plan, tmp_path):
+    rot = _tre(tmp_path, {"kjerne/a.ts": "// KA-U24\n"})
+    rader = (("kjerne/a.ts", "KA-U24", 1, ""),)
+    feil = vh.kontroller(register, plan, rot, rader)
+    assert "kjerne/a.ts:1: KA-U24 er opphevet og står som eneste grunnlag" in feil
+    assert any("må ha én fil, én ID, antallet og issuet" in f for f in feil)

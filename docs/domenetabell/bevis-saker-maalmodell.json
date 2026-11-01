@@ -895,10 +895,10 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U1"],
+          "kilde": ["MM-U1", "AV-1126"],
           "forventet": {
             "varsel.frist": null,
-            "visning.etiketter.frist": { "inneholder": ["varsel_ikke_registrert"] },
+            "visning.etiketter.frist": { "mangler": ["varsel_ikke_registrert"] },
             "handlinger.BH": { "inneholder": ["svare:frist"] }
           }
         },

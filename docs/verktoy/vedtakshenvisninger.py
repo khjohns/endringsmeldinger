@@ -3,7 +3,7 @@ vedtaksregisteret (#452, punkt 2 i #451).
 
     python3 docs/verktoy/vedtakshenvisninger.py    # list henvisningene som ikke holder
 
-To kontroller:
+Tre kontroller:
 
 - En ID som ikke er et vedtak i registeret, er ukjent. En B-ID som står åpen i
   3.4 i hovedplanen, er kjent: den er en beslutning, men ennå ikke et vedtak. Det
@@ -26,6 +26,7 @@ historisk gjelder ikke der, og `endringer` i et brukerforløp leses ikke, fordi 
 fører hva som er endret og hvorfor.
 """
 
+import collections
 import json
 import pathlib
 import re
@@ -53,6 +54,18 @@ HISTORISK = re.compile(r"(?<!ikke )\bhistorisk\b", re.IGNORECASE)
 KOMMENTAR = re.compile(r"^\s*(//|/\*|\*|<!--|#(\s|$))")
 MARKOERER = re.compile(r"/\*+|\*+/|//+|<!--|-->|^\s*\*+|^\s*#")
 LUKKES = {"/*": "*/", "<!--": "-->"}
+KJENTE_AVVIK = (
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U24", 1, "#1433"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U32", 2, "#1433"),
+    ("kjerne/tester/arkitektur.test.ts", "KA-U24", 1, "#1433"),
+    ("kjerne/tester/arkitektur.test.ts", "KA-U32", 1, "#1433"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U24", 3, "#1433"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U32", 1, "#1433"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U24", 5, "#1433"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U32", 1, "#1433"),
+    ("src/lib/components/varden/Vederlagssvar.svelte", "KA-U24", 1, "#1433"),
+    ("src/lib/components/varden/__tests__/Varden.test.ts", "KA-U24", 1, "#1433"),
+)
 
 
 def vedtaks_ider(post: dict) -> set[str]:
@@ -140,8 +153,15 @@ def er_test(sti: str) -> bool:
 
 
 def feil_i(
-    sti: str, tekst: str, kjente: set[str], opphevet: set[str], aapne: set[str]
+    sti: str,
+    tekst: str,
+    kjente: set[str],
+    opphevet: set[str],
+    aapne: set[str],
+    avvik: frozenset[tuple[str, str]] = frozenset(),
+    truffet: collections.Counter | None = None,
 ) -> list[str]:
+    """`avvik` er parene (fil, ID) i `KJENTE_AVVIK`; hvert treff telles i `truffet`."""
     feil = []
     for nr, henvisning in henvisninger(tekst):
         ider = HENVISNING.findall(henvisning)
@@ -151,10 +171,47 @@ def feil_i(
         gjeldende = [i for i in ider if i in kjente and i not in opphevet]
         historisk = er_test(sti) and HISTORISK.search(henvisning)
         if not gjeldende and not historisk:
-            feil.extend(
-                f"{sti}:{nr}: {i} er opphevet og står som eneste grunnlag"
-                for i in dict.fromkeys(ider)
-                if i in opphevet
+            for i in dict.fromkeys(ider):
+                if i not in opphevet:
+                    continue
+                if (sti, i) in avvik:
+                    if truffet is not None:
+                        truffet[(sti, i)] += 1
+                    continue
+                feil.append(f"{sti}:{nr}: {i} er opphevet og står som eneste grunnlag")
+    return feil
+
+
+def gyldig_rad(rad) -> bool:
+    fil, i, antall, issue = rad
+    return (
+        bool(re.fullmatch(r"#\d+", issue))
+        and bool(HENVISNING.fullmatch(i))
+        and isinstance(antall, int)
+        and antall > 0
+        and not any(t in fil for t in "*?[]")
+        and not fil.endswith("/")
+    )
+
+
+def avviksfeil(rader, truffet: collections.Counter) -> list[str]:
+    """Feilene i `KJENTE_AVVIK`: en rad med feil form, og en rad der antallet treff avviker."""
+    feil = []
+    for rad in rader:
+        fil, i, antall, issue = rad
+        if not gyldig_rad(rad):
+            feil.append(
+                f"KJENTE_AVVIK: raden ({fil}, {i}, {antall}, {issue}) må ha én fil, én ID, antallet og issuet"
+            )
+        elif (n := truffet[(fil, i)]) > antall:
+            feil.append(
+                f"KJENTE_AVVIK: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
+                f"tillater {antall}; en ny henvisning må vise til et vedtak som gjelder"
+            )
+        elif n < antall:
+            feil.append(
+                f"KJENTE_AVVIK: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
+                f"sier {antall}; rett antallet eller fjern raden"
             )
     return feil
 
@@ -225,14 +282,19 @@ def kildefiler(rot: pathlib.Path = vr.ROT):
         yield sti.relative_to(rot).as_posix(), data
 
 
-def kontroller(register: dict, plan: str, rot: pathlib.Path = vr.ROT) -> list[str]:
+def kontroller(
+    register: dict, plan: str, rot: pathlib.Path = vr.ROT, rader=KJENTE_AVVIK
+) -> list[str]:
     kjente, opphevet = vedtak(register)
     aapne = aapne_beslutninger(plan) | avgjorte_beslutninger(plan)
-    return [
+    avvik = frozenset((rad[0], rad[1]) for rad in rader if gyldig_rad(rad))
+    truffet: collections.Counter = collections.Counter()
+    feil = [
         f
         for sti, tekst in filer(rot)
-        for f in feil_i(sti, tekst, kjente, opphevet, aapne)
-    ] + [
+        for f in feil_i(sti, tekst, kjente, opphevet, aapne, avvik, truffet)
+    ]
+    return feil + avviksfeil(rader, truffet) + [
         f
         for sti, data in kildefiler(rot)
         for f in kildefeil(sti, data, kjente, opphevet, aapne)

@@ -16,7 +16,8 @@ Rådene under er med egne ord.
 - Bestemmelsene i NS 8407 forklares med egne ord. De gjengis ikke ordrett i visningen.
 - Lenketekster sier hvor lenken fører. «Les mer» står ikke alene.
 - Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (TE, BH, EO, KOE, varsel,
-  forsering), paragrafhenvisninger som «§ 33.8» og vedtatt ordlyd står som de er. Presisjonskravet
+  forsering), paragrafhenvisninger som «§ 33.8» og vedtatt ordlyd står som de er. I brevene
+  skrives partene fullt ut (se «Ordene i brevene og skjemaene»). Presisjonskravet
   i [`AGENTS.md`](../AGENTS.md) går foran. En vedtatt ordlyd endres bare gjennom
   [vedtaksregisteret](vedtaksregister/README.md).
 
@@ -56,3 +57,18 @@ Regelen gjelder ny og omskrevet tekst. Den er ingen grunn til å skrive om vedta
 sitater, lagrede navn eller vedtatt brevtekst; en vedtatt ordlyd endres bare gjennom
 [vedtaksregisteret](vedtaksregister/README.md), og merknaden «Appen vurderer ikke
 innholdet» (OV-U4, OV-U19) står til et vedtak endrer den.
+
+## Ordene i brevene og skjemaene
+
+Ordene under gjelder brevene, skjemaene og visningen av kravene. Begrepene står i
+[domenetabellen](domenetabell/README.md#begreper). Ny tekst følger reglene her. En vedtatt
+brevtekst står til et vedtak endrer den. Vedtaket for brevene føres i
+[#1433](https://github.com/khjohns/endringsmeldinger/issues/1433).
+
+| Ord | Regel | Grunnlag |
+| --- | --- | --- |
+| Partene | Brevene skriver «byggherren» og «totalentreprenøren» fullt ut, også i «totalentreprenørens krav» og «byggherrens svar». Forkortelsene BH og TE brukes i visningen, for eksempel «Du er byggherre (BH)», men ikke i teksten i et brev. | Oppdragsgiver 30.10 og 31.10 (#1433) |
+| Godkjenner og godtar | Byggherren «godkjenner», «avslår» og «gjør gjeldende». Totalentreprenøren «godtar» byggherrens svar. Skjemaet for byggherren spør «Hvor mye godkjenner du?», ikke «godtar du?». | [LV-U4](plans/vedtak.md#lv-u4) punkt 5, [HF-U2](plans/vedtak.md#hf-u2), [KA-U1](plans/vedtak.md#ka-u1) |
+| Vederlagsjustering | Posten i vederlagskravet etter § 34.1.1 eller § 34.1.2 heter «vederlagsjustering», med hjemmelen der det trengs for å skille den fra den særskilte. Ikke «hovedkrav» eller «justeringen ellers». | Kontrakten § 34.1, oppdragsgiver 30.10 (#1433). «Justeringen ellers» i [OV-U28](plans/vedtak.md#ov-u28) står til vedtaket i #1433 |
+| Særskilt vederlagsjustering | Kravet etter § 34.1.3 annet ledd heter «særskilt vederlagsjustering». Kontrakten skiller postene med ordet «særskilt». | Kontrakten § 34.1.3, oppdragsgiver 30.10 (#1433) |
+| Kravet, ikke sporet | «Spor» er et ord i koden og vedtakene. Visningen og brevene sier hva kravet gjelder: «vederlagsjusteringen», «kravet om fristforlengelse», «grunnlaget for kravet». | Oppdragsgiver 31.10 |

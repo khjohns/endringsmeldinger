@@ -90,9 +90,14 @@ Punktene under gjelder dagens visning.
   skjemaene, mer luft rundt brevteksten.
 - **Skallet:** `--mockup-sidebar-width`, `--mockup-drawer-width` og
   `--mockup-topbar-height`. Under 768 px legges kolonnene under hverandre.
-- **Radius:** skalaen i `app.css` (`--radius-sm`, `--radius-md`, `--radius-lg`) gir
-  skarpe hjørner, et juridisk preg. Klassene i `theme.css` bruker ennå egne verdier,
-  med runde knapper og stempler. Radius får tokens i #1184.
+- **Radius betyr noe i Varden** (oppdragsgiver 01.11, #1402). Bare knappene er runde,
+  som piller (`--r-knapp`), så en handling skiller seg fra alt annet. Kort og brev har
+  samme radius, 12 px (`--r-kort`): det gir ro på store flater, og brevet ser ikke
+  annerledes ut enn kortene ved siden av. Merker og stempler, som «Registrert»,
+  «Inngår i EO-012» og «Sendt …», har 2 px (`--r-merke`), så de leses som merker på et
+  dokument og ikke som knapper. Felt, valg og vedlegg har 4 px (`--r-felt`), og bokser
+  inne i et kort 6 px (`--r-innfelt`). Tokenene står i `theme.css`, og klassene tar dem i bruk med #1447. Den gamle
+  visningen beholder skalaen i `app.css` (`--radius-sm`, `--radius-md`, `--radius-lg`).
 
 ## Farge som betyr noe
 
@@ -168,6 +173,13 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
 - **Visningen er handlingsorientert.** Det som ikke trengs for å sende et krav eller svare
   på det, står ikke der. Arbeidet har ingen overskrift med spornavnet: lesingen begynner
   med det siste brevet og menyen, og svaret med utkastkortet.
+- **Visningen sier det løsningen vet, ikke hvem som skal handle.** Den viser hvilke brev
+  som er sendt eller registrert, av hvem og når, og at et svar ikke er registrert. Den sier
+  aldri hvem som skal gjøre neste handling, som «Venter på byggherren» eller «Neste steg»,
+  fordi løsningen ikke vet det (oppdragsgiver 31.10, #1402).
+- **Hvordan løsningen virker, forklares ikke ved feltene.** Setninger som «Teksten tolkes
+  ikke» og «Innholdet vurderes ikke» står ikke i flaten. Slike forklaringer hører på en
+  egen side om løsningen eller i et infotips (oppdragsgiver 01.11, #1402).
 - **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
   «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
   lesingen. Linjen nederst i vinduet vises bare når panelet er ute av syne.

@@ -1,11 +1,11 @@
 ---
-name: interface-design:design-deslop
+name: design-deslop
 description: Strip the signatures that make a UI look AI-generated — flat hierarchy, no focal point, monotone layout, timid palettes, generic tokens, defaulted type, missing states. The design counterpart to a code-deslop pass.
 ---
 
 # Remove design slop
 
-Every generated interface carries tells — the specific signatures that make someone glance at it and think *an AI made this*. This pass finds those tells and removes them. Fast, surgical, behavior-preserving. Not a full design review (that's `/interface-design:design-review`, which judges craft against an approval bar and can block). Here you have one job: **make it stop looking generated.**
+Every generated interface carries tells — the specific signatures that make someone glance at it and think *an AI made this*. This pass finds those tells and removes them. Fast, surgical, behavior-preserving. Not a full design review (that's `/design-review`, which judges craft against an approval bar and can block). Here you have one job: **make it stop looking generated.**
 
 The tell is rarely a single wrong value. It's the *sum* — every number the same size, every card identical, one accent color smeared everywhere, structure built from borders instead of space. Slop is compositional. So you can't catch it by reading CSS line by line; you have to **look at the rendered thing first**, then go fix the lines.
 
@@ -35,7 +35,7 @@ Now read what the branch changed and fix the concrete tells. Stay in the diff; t
 
 **Surfaces & depth** — harsh 1px solid borders → low-opacity rgba or a shadow · dramatic elevation jumps → a few percent lightness per step · sidebar a different color → same canvas + subtle border · mixed depth strategies → pick one · same radius on nested parent/child → concentric (`outer = inner + padding`).
 
-**States & motion** — missing interaction states (hover/focus/active/disabled) → add them, the fastest tell of unfinished UI · `transition: all` → exact properties · `ease-in`/default easing → custom ease-out under 300ms · no press feedback → `scale(0.97)` on `:active` · animation on a keyboard-repeated action → remove · hit areas under 44×44px (40 min) → extend. *(A wholly-absent empty/loading/error state is build work, not a surgical cleanup — note it and leave it to `/interface-design:design-review`.)*
+**States & motion** — missing interaction states (hover/focus/active/disabled) → add them, the fastest tell of unfinished UI · `transition: all` → exact properties · `ease-in`/default easing → custom ease-out under 300ms · no press feedback → `scale(0.97)` on `:active` · animation on a keyboard-repeated action → remove · hit areas under 44×44px (40 min) → extend. *(A wholly-absent empty/loading/error state is build work, not a surgical cleanup — note it and leave it to `/design-review`.)*
 
 **Spacing & structure** — off-grid values (17px, 23px on a 4/8 base) → snap to grid · unmotivated asymmetric padding → symmetrical · structural hacks (negative margins undoing parent padding, escape-hatch `calc()`, absolute positioning to dodge flow) → the clean layout that doesn't need them.
 
@@ -58,7 +58,8 @@ This filter is half the skill. Generated UI looks generated because it defaulted
 - Behavior unchanged unless you're fixing a clear visual bug.
 - Minimal, focused edits — this is deslop, not redesign. If a fix turns into a rebuild, that's a `design-review` job; flag it, don't do it here.
 - Match the surrounding code's conventions (Tailwind vs CSS vars, naming). Slop is partly *inconsistency with what's already there* — fix toward the local style, not your own.
+- **I dette repoet:** kjør «Sjekk igjen» i skillen `uu-sjekk` på det du har endret.
 
 ## Output
 
-Present changes as a markdown table grouped by category, **Before** and **After** columns, one row per fix, cite file + property when it isn't obvious. Put the compositional fixes (Pass 1) first — they matter most. Omit categories where nothing changed. Close with a 1–2 sentence summary, and if Pass 1 surfaced something too structural to fix surgically, say so and point to `/interface-design:design-review`.
+Present changes as a markdown table grouped by category, **Before** and **After** columns, one row per fix, cite file + property when it isn't obvious. Put the compositional fixes (Pass 1) first — they matter most. Omit categories where nothing changed. Close with a 1–2 sentence summary, and if Pass 1 surfaced something too structural to fix surgically, say so and point to `/design-review`.
