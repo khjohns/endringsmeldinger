@@ -1,15 +1,13 @@
 /**
- * Cellene i sakslisten i Varden (#1450). Hvert spor viser betegnelsen fra serveren etter
- * MM-U30, med byggherrens resultat og «subsidiært» eller enighetens virkning i linja under
- * (MM-U28), og verdiene med etiketten «Krevd» eller «Svar» (design-reviewet 01.11).
+ * Sakslisten i Varden (#1450, prototypen `saksliste-v2.html`, vedtaksforslaget 02.11). Raden
+ * viser bare det totalentreprenøren har krevd, og nøkkeltallene summerer kravene. Byggherrens
+ * svar, enigheten og betegnelsen per spor står på siden for saken.
  */
-import type { Enighetsvirkning, Sakslinje } from '$lib/types/api';
+import type { Sakslinje } from '$lib/types/api';
 import { HOVEDKATEGORI_FRA_KATALOGEN, tilKatalogen } from '$kjerne/format/koder';
-import { kroner } from '$kjerne/frosset/standpunkt';
+import { dager, kroner } from '$kjerne/frosset/standpunkt';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
-import { BETEGNELSE, SAKSBETEGNELSE, SAKSLISTE } from './tekster';
-
-const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
+import { SAKSLISTE } from './tekster';
 
 /** Sakstypene i panelet etter KT-U9. Forsering står ikke der ennå (svaret på M4). */
 export type Fane = 'koe' | 'eo';
@@ -23,78 +21,122 @@ const SAKSTYPE: Record<string, Fane> = { standard: 'koe', endringsordre: 'eo' };
 
 export const fanen = (linje: Sakslinje): Fane | null => SAKSTYPE[linje.sakstype] ?? null;
 
-const RESULTAT: Record<string, string> = {
-  godkjent: 'Godkjent',
-  delvis_godkjent: 'Delvis godkjent',
-  avslaatt: 'Avslått',
-  tilbakeholdelse: 'Tilbakeholdelse',
-  paalegg_frafalt: 'Pålegget er frafalt',
-};
+/** Dokumentkoden til endringsordren som omfatter saken, etter KOE-sakens ID (EO-U13, EO-U14). */
+export type Endringsordrer = Record<string, string>;
 
-/** Appens lesing av enighetens virkning, merket som appens (MM-U28). */
-const VIRKNING: Record<Enighetsvirkning, string> = {
-  betinget: 'etter appens lesing betinget',
-  virksom: 'etter appens lesing virksom',
-  uten_virkning: 'etter appens lesing uten virkning',
-};
+/** Saken er avsluttet av TE: påberopelsen er trukket, eller TE har godtatt avslaget. */
+export const avsluttetAvTe = (linje: Sakslinje): boolean =>
+  linje.saksbetegnelse === 'paaberopelsen_trukket' ||
+  linje.saksbetegnelse === 'avslaget_paa_forholdet_godtatt';
 
-export type Verdi = { etikett: string; tekst: string };
-export type Sporcelle = {
-  verdier: Verdi[];
-  betegnelse: string | null;
-  under: string | null;
-  ikkeKrevd: boolean;
-};
-
-const resultattekst = (svar: { resultat: string; subsidiaert?: boolean } | null) =>
-  svar
-    ? `${RESULTAT[svar.resultat] ?? svar.resultat}${svar.subsidiaert ? ', subsidiært' : ''}`
-    : null;
-
-/** Vederlag eller frist i raden. En sak kjernen ikke forstår, har ingen celle (MM-U2). */
-export function sporcelle(linje: Sakslinje, spor: 'vederlag' | 'frist'): Sporcelle | null {
-  if (!linje.forstaatt) return null;
-  const fmt = spor === 'vederlag' ? kroner : dager;
-  const l = linje[spor];
-  const krav = spor === 'vederlag' ? linje.vederlag.krav?.beloep : linje.frist.krav?.dager;
-  const svar = spor === 'vederlag' ? linje.vederlag.svar?.beloep : linje.frist.svar?.dager;
-  const enighet = spor === 'vederlag' ? linje.vederlag.enighet : linje.frist.enighet;
-  const enighetstall =
-    spor === 'vederlag' ? linje.vederlag.enighet?.beloep : linje.frist.enighet?.dager;
-  const verdier: Verdi[] = [];
-  if (krav != null) verdier.push({ etikett: SAKSLISTE.krevd, tekst: fmt(krav) });
-  if (svar != null) verdier.push({ etikett: SAKSLISTE.svar, tekst: fmt(svar) });
-  const under = enighet
-    ? [enighetstall == null ? null : fmt(enighetstall), VIRKNING[enighet.virkning]]
-        .filter(Boolean)
-        .join(', ')
-    : resultattekst(l.svar);
-  return {
-    verdier,
-    betegnelse: l.betegnelse ? BETEGNELSE[l.betegnelse] : null,
-    under: under ? under.charAt(0).toUpperCase() + under.slice(1) : null,
-    ikkeKrevd: krav == null && !l.betegnelse,
-  };
+/** Merket under tittelen når TE har avsluttet saken. */
+export function saksmerke(linje: Sakslinje): string | null {
+  if (linje.saksbetegnelse === 'paaberopelsen_trukket') return SAKSLISTE.paaberopelsenTrukket;
+  if (linje.saksbetegnelse === 'avslaget_paa_forholdet_godtatt') return SAKSLISTE.avslagetGodtatt;
+  return null;
 }
+
+/** Navnet på forholdet under tittelen (OV-U78). */
+export function forholdet(linje: Sakslinje): string | null {
+  if (!linje.forstaatt || !linje.hovedkategori) return null;
+  return (
+    getKontraktsforholdLabel(
+      String(tilKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, linje.hovedkategori))
+    ) || null
+  );
+}
+
+export type Krevd = {
+  tekst: string;
+  /** Et beløp eller antall dager, som står i mono og høyrestilt. */
+  tall: boolean;
+  /** Ikke med i summene: kravet står ikke, eller saken inngår i en endringsordre. */
+  dempet: boolean;
+  /** «trukket» når kravet i sporet er trukket og saken ellers ikke er avsluttet av TE. */
+  merknad: string | null;
+};
 
 /**
- * Forholdet under tittelen: navnet, og betegnelsen med resultatet på samme måte som
- * vederlag og frist. Det får ikke noe eget merke (avklaringen 02.11, punkt 3).
+ * Det TE har krevd i sporet: beløpet eller dagene, «Varslet», beregningsregelen eller
+ * «Ikke krevd» (vedtaksforslaget 02.11, punkt 1). En sak kjernen ikke forstår, har ingen
+ * celle, så tallene ikke leses som riktige (MM-U2).
  */
-export function forholdet(linje: Sakslinje) {
+export function krevd(
+  linje: Sakslinje,
+  spor: 'vederlag' | 'frist',
+  iEndringsordre: boolean
+): Krevd | null {
   if (!linje.forstaatt) return null;
-  const f = linje.forhold;
-  return {
-    navn: linje.hovedkategori
-      ? getKontraktsforholdLabel(
-          String(tilKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, linje.hovedkategori))
-        ) || null
-      : null,
-    betegnelse: f.betegnelse ? BETEGNELSE[f.betegnelse] : null,
-    under: resultattekst(f.svar),
-  };
+  const l = linje[spor];
+  const dempet = iEndringsordre || !l.kravet_staar;
+  const merknad = l.betegnelse === 'trukket' && !avsluttetAvTe(linje) ? SAKSLISTE.trukket : null;
+  if (spor === 'vederlag' && linje.vederlag.krav) {
+    const { beloep, metode } = linje.vederlag.krav;
+    if (metode !== 'tilbud')
+      return { tekst: SAKSLISTE.metode[metode] ?? metode, tall: false, dempet: true, merknad };
+    return { tekst: kroner(beloep), tall: true, dempet, merknad };
+  }
+  if (spor === 'frist' && linje.frist.krav)
+    return { tekst: dager(linje.frist.krav.dager), tall: true, dempet, merknad };
+  if (l.betegnelse === 'varslet')
+    return { tekst: SAKSLISTE.varslet, tall: false, dempet, merknad: null };
+  return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, merknad: null };
 }
 
-/** Saksbetegnelsen i MM-U22, også «Ikke forstått» (MM-U2), som et merke under tittelen. */
-export const saksmerke = (linje: Sakslinje): string | null =>
-  linje.saksbetegnelse ? SAKSBETEGNELSE[linje.saksbetegnelse] : null;
+export type Noekkeltall = {
+  /** `utenBeloep` er krav etter regningsarbeid eller enhetspriser: ukjent er ikke 0 (OV-U43). */
+  vederlag: { sum: number; krav: number; varslet: number; utenBeloep: number };
+  frist: { krav: number; varslet: number };
+};
+
+/**
+ * Kravene i sakene som ikke inngår i en endringsordre (vedtaksforslaget 02.11, punkt 2). Et
+ * krav telles når serveren sier at det står (`kravet_staar`, som utelater trukne krav og saker
+ * TE har avsluttet). Krav etter regningsarbeid eller enhetspriser har ikke beløp i lista og
+ * telles for seg. Fristdagene summeres ikke.
+ */
+export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): Noekkeltall {
+  const n: Noekkeltall = {
+    vederlag: { sum: 0, krav: 0, varslet: 0, utenBeloep: 0 },
+    frist: { krav: 0, varslet: 0 },
+  };
+  for (const l of linjer) {
+    if (!l.forstaatt || eo[l.sak_id] || avsluttetAvTe(l)) continue;
+    const v = l.vederlag;
+    if (v.krav && v.kravet_staar && v.krav.metode === 'tilbud') {
+      n.vederlag.krav += 1;
+      n.vederlag.sum += v.krav.beloep;
+    } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;
+    else if (!v.krav && v.betegnelse === 'varslet') n.vederlag.varslet += 1;
+    if (l.frist.krav && l.frist.kravet_staar) n.frist.krav += 1;
+    else if (!l.frist.krav && l.frist.betegnelse === 'varslet') n.frist.varslet += 1;
+  }
+  return n;
+}
+
+export type Utvalg = 'alle' | 'eo' | 'ikke-eo' | 'avsluttet';
+export type Sortering = 'oppdatert' | 'opprettet';
+
+export function iUtvalg(linje: Sakslinje, utvalg: Utvalg, eo: Endringsordrer): boolean {
+  if (utvalg === 'eo') return Boolean(eo[linje.sak_id]);
+  if (utvalg === 'ikke-eo') return !eo[linje.sak_id];
+  if (utvalg === 'avsluttet') return avsluttetAvTe(linje);
+  return true;
+}
+
+/** Søket leser tittelen, forholdet og koden for endringsordren. */
+export function treff(linje: Sakslinje, soek: string, eo: Endringsordrer): boolean {
+  const q = soek.trim().toLocaleLowerCase('nb');
+  if (!q) return true;
+  return [linje.sakstittel, forholdet(linje), eo[linje.sak_id]]
+    .filter(Boolean)
+    .some((t) => t!.toLocaleLowerCase('nb').includes(q));
+}
+
+/** Nyeste først, etter siste hendelse i journalen eller etter når saken ble opprettet. */
+export const sorter = (linjer: readonly Sakslinje[], etter: Sortering): Sakslinje[] =>
+  [...linjer].sort((a, b) =>
+    etter === 'oppdatert'
+      ? b.siste_hendelse.localeCompare(a.siste_hendelse)
+      : b.opprettet.localeCompare(a.opprettet)
+  );

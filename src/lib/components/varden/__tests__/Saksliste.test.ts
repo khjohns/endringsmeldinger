@@ -1,7 +1,8 @@
 /**
- * Sakslisten i Varden (#1450, økt A). Forventningene står i beskrivelsen av #1450 (punkt 2–8),
- * med svarene på M1–M8 og avklaringene 02.11 i kommentarene der, og vedtakene KT-U9, KT-U10,
- * EO-U13, MM-U28 og MM-U30.
+ * Sakslisten i Varden (#1450). Forventningene står i beskrivelsen av #1450 (punkt 2–8), med
+ * svarene på M1–M8, og i vedtaksforslaget 02.11 med prototypen `saksliste-v2.html`: raden viser
+ * det TE har krevd, og nøkkeltallene summerer kravene utenfor endringsordrene. KT-U9, KT-U10
+ * og EO-U13 gjelder også.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
@@ -77,27 +78,31 @@ describe('Sakslisten i Varden', () => {
     expect(screen.getByText('Ingen krav om endringsordre ennå.')).toBeTruthy();
   });
 
-  it('kolonnene er saken, «Vederlag» og «Frist», og hver rad lenker til saken (svaret på M7)', () => {
+  it('kolonnene er saken, kravene og «Oppdatert», og hver rad lenker til saken (prototypen v2)', () => {
     vis({ saker: [lagSakslinje({ sak_id: 'SAK-9', hovedkategori: 'endring' })] });
     const hode = document.querySelector('.radhode')!;
-    expect([...hode.querySelectorAll('span')].map((s) => s.textContent)).toEqual([
+    expect([...hode.children].map((s) => s.textContent?.replace(/\s+/g, ' ').trim())).toEqual([
       'Sak',
-      'Vederlag',
-      'Frist',
+      'Krevd vederlag eks. mva.',
+      'Krevd frist',
+      'Oppdatert',
     ]);
     const lenke = screen.getByRole('link', { name: 'Endring i grunnarbeider' });
     expect(lenke.getAttribute('href')).toBe('/p1/SAK-9');
-    expect(within(rad('Endring i grunnarbeider')).getByText('Endringer')).toBeTruthy();
+    const r = rad('Endring i grunnarbeider');
+    expect(within(r).getByText('Endringer')).toBeTruthy();
+    expect(r.querySelector('.oppdatert')!.textContent).toContain('22. desember 2025');
   });
 
-  it('vederlag og frist viser betegnelsen etter MM-U30, verdiene med «Krevd» og «Svar», og resultatet med «subsidiært» under (MM-U28)', () => {
+  it('raden viser det TE har krevd, og ikke byggherrens svar, enigheten eller betegnelsen (vedtaksforslaget 02.11, punkt 1)', () => {
     const linje: Sakslinje = lagSakslinje({
+      forhold: { ...ingenting, betegnelse: 'svar_ikke_godtatt', svar: { resultat: 'avslaatt' } },
       vederlag: {
         betegnelse: 'svar_ikke_godtatt',
         venter_paa_svar: false,
         svar_ikke_godtatt: true,
         kravet_staar: true,
-        krav: { beloep: 420000, metode: 'regning' },
+        krav: { beloep: 420000, metode: 'tilbud' },
         svar: { resultat: 'delvis_godkjent', beloep: 310000, subsidiaert: true },
         enighet: null,
       },
@@ -112,52 +117,207 @@ describe('Sakslisten i Varden', () => {
       },
     });
     vis({ saker: [linje] });
-    const [vederlag, frist] = [...rad('Endring i grunnarbeider').querySelectorAll('.spor')];
-
-    expect(within(vederlag as HTMLElement).getByText('Vederlag')).toBeTruthy();
-    const verdier = [...vederlag.querySelectorAll('dl div')].map((d) =>
-      [...d.children].map((c) => c.textContent?.replace(/\s/g, ' '))
+    const r = rad('Endring i grunnarbeider');
+    const [vederlag, frist] = [...r.querySelectorAll('.krevd')].map((c) =>
+      c.querySelector('.verdi')!.textContent?.replace(/\s/g, ' ')
     );
-    expect(verdier).toEqual([
-      ['Krevd', '420 000 kr'],
-      ['Svar', '310 000 kr'],
-    ]);
-    expect(vederlag.textContent).toContain('Svaret er ikke godtatt');
-    expect(vederlag.textContent).toContain('Delvis godkjent, subsidiært');
-    // Et subsidiært tall er et avslag og kalles ikke «godkjent» alene (MM-U28).
-    expect(vederlag.textContent).not.toMatch(/Godkjent(?!,)/);
-
-    expect(frist.textContent).toContain('Enige');
-    // Enighetens virkning er merket som appens lesing (MM-U28).
-    expect(frist.textContent).toContain('15 dager, etter appens lesing betinget');
+    expect([vederlag, frist]).toEqual(['420 000 kr', '15 dager']);
+    for (const ute of [
+      '310 000',
+      'Svar',
+      'subsidiært',
+      'Enige',
+      'etter appens lesing',
+      'Avslått',
+      'Svaret er ikke godtatt',
+    ])
+      expect(r.textContent).not.toContain(ute);
   });
 
-  it('en sak uten krav og uten betegnelse viser «Ikke krevd», og ingen betegnelse finnes på (MM-U30)', () => {
-    vis();
-    const [vederlag] = [...rad('Endring i grunnarbeider').querySelectorAll('.spor')];
-    expect(vederlag.textContent?.replace(/\s+/g, ' ').trim()).toBe('Vederlag Ikke krevd');
-  });
-
-  it('forholdet viser betegnelsen og resultatet under, uten eget merke (avklaringen 02.11, punkt 3)', () => {
+  it('cellen sier «Varslet», beregningsregelen eller «Ikke krevd» når det ikke er noe beløp eller dager (vedtaksforslaget 02.11, punkt 1, OV-U43)', () => {
+    const vederlag = (
+      krav: { beloep: number; metode: string } | null,
+      betegnelse: 'varslet' | null
+    ) => ({
+      ...ingenting,
+      betegnelse,
+      kravet_staar: krav !== null,
+      krav,
+      svar: null,
+      enighet: null,
+    });
     vis({
       saker: [
         lagSakslinje({
-          forhold: {
+          sak_id: 'A',
+          sakstittel: 'Regning',
+          vederlag: vederlag({ beloep: 85000, metode: 'regningsarbeid' }, null),
+        }),
+        lagSakslinje({
+          sak_id: 'B',
+          sakstittel: 'Enhet',
+          vederlag: vederlag({ beloep: 150000, metode: 'enhetspriser' }, null),
+        }),
+        lagSakslinje({
+          sak_id: 'C',
+          sakstittel: 'Varsel',
+          vederlag: vederlag(null, 'varslet'),
+          frist: {
             ...ingenting,
-            betegnelse: 'svar_ikke_godtatt',
-            svar_ikke_godtatt: true,
-            svar: { resultat: 'avslaatt' },
+            betegnelse: 'varslet',
+            kravet_staar: false,
+            krav: null,
+            svar: null,
+            enighet: null,
           },
         }),
+        lagSakslinje({ sak_id: 'D', sakstittel: 'Ingenting' }),
       ],
     });
-    const saken = rad('Endring i grunnarbeider').querySelector('.saken')!;
-    expect(saken.textContent).toContain('Svaret er ikke godtatt');
-    expect(saken.textContent).toContain('Avslått');
-    expect(saken.querySelector('.merker')).toBeNull();
+    const celler = (t: string) =>
+      [...rad(t).querySelectorAll('.krevd .verdi')].map((c) => c.textContent);
+    expect(celler('Regning')).toEqual(['Regningsarbeid', 'Ikke krevd']);
+    // Et anslag ved enhetspriser er ikke et krav om et beløp, så beløpet vises ikke (svaret 02.11).
+    expect(celler('Enhet')).toEqual(['Enhetspriser', 'Ikke krevd']);
+    expect(celler('Varsel')).toEqual(['Varslet', 'Varslet']);
+    expect(celler('Ingenting')).toEqual(['Ikke krevd', 'Ikke krevd']);
   });
 
-  it('en sak kjernen ikke forstår, viser bare betegnelsen (MM-U2, #1450 punkt 5)', () => {
+  it('tallene i en sak i en endringsordre, et trukket krav og en sak TE har avsluttet, er dempet, og merket sier hva TE har gjort (vedtaksforslaget 02.11, punkt 2)', () => {
+    const krav = (kravet_staar: boolean, betegnelse: 'trukket' | null = null) => ({
+      ...ingenting,
+      betegnelse,
+      kravet_staar,
+      krav: { beloep: 100000, metode: 'tilbud' },
+      svar: null,
+      enighet: null,
+    });
+    vis({
+      saker: [
+        lagSakslinje({ sak_id: 'A', sakstittel: 'I EO', vederlag: krav(true) }),
+        lagSakslinje({ sak_id: 'B', sakstittel: 'Trukket krav', vederlag: krav(false, 'trukket') }),
+        lagSakslinje({
+          sak_id: 'C',
+          sakstittel: 'Avslag godtatt',
+          saksbetegnelse: 'avslaget_paa_forholdet_godtatt',
+          vederlag: krav(false),
+        }),
+        lagSakslinje({
+          sak_id: 'D',
+          sakstittel: 'Påberopelse trukket',
+          saksbetegnelse: 'paaberopelsen_trukket',
+          vederlag: krav(false, 'trukket'),
+        }),
+        lagSakslinje({ sak_id: 'E', sakstittel: 'Står', vederlag: krav(true) }),
+      ],
+      endringsordrer: { A: 'EO-03' },
+    });
+    const vederlaget = (t: string) => rad(t).querySelector('.krevd')!;
+    for (const t of ['I EO', 'Trukket krav', 'Avslag godtatt', 'Påberopelse trukket'])
+      expect(vederlaget(t).classList.contains('dempet'), t).toBe(true);
+    expect(vederlaget('Står').classList.contains('dempet')).toBe(false);
+    // Et trukket krav har ordet, ikke bare fargen; i en avsluttet sak sier merket det.
+    expect(vederlaget('Trukket krav').textContent).toContain('trukket');
+    expect(vederlaget('Påberopelse trukket').querySelector('.merknad')).toBeNull();
+    expect(within(rad('Avslag godtatt')).getByText('Avslaget godtatt av TE')).toBeTruthy();
+    expect(within(rad('Påberopelse trukket')).getByText('Påberopelsen trukket')).toBeTruthy();
+  });
+
+  it('nøkkeltallene summerer kravene med beløp utenfor endringsordrene, teller varsler og krav uten beløp for seg og summerer ikke dagene (vedtaksforslaget 02.11, punkt 2)', () => {
+    const v = (beloep: number, metode = 'tilbud', kravet_staar = true) => ({
+      ...ingenting,
+      kravet_staar,
+      krav: { beloep, metode },
+      svar: null,
+      enighet: null,
+    });
+    const f = (dager: number) => ({
+      ...ingenting,
+      kravet_staar: true,
+      krav: { dager },
+      svar: null,
+      enighet: null,
+    });
+    vis({
+      saker: [
+        lagSakslinje({ sak_id: 'A', vederlag: v(420000), frist: f(15) }),
+        lagSakslinje({ sak_id: 'B', vederlag: v(190000), frist: f(20) }),
+        lagSakslinje({ sak_id: 'C', vederlag: v(85000, 'regningsarbeid') }),
+        lagSakslinje({
+          sak_id: 'D',
+          vederlag: { ...v(0), betegnelse: 'varslet', kravet_staar: false, krav: null },
+        }),
+        // Utenfor summene: i en endringsordre, trukket og avsluttet av TE.
+        lagSakslinje({ sak_id: 'E', vederlag: v(500000), frist: f(30) }),
+        lagSakslinje({ sak_id: 'F', vederlag: v(60000, 'tilbud', false) }),
+        lagSakslinje({
+          sak_id: 'G',
+          vederlag: v(95000),
+          saksbetegnelse: 'avslaget_paa_forholdet_godtatt',
+        }),
+      ],
+      endringsordrer: { E: 'EO-01' },
+    });
+    const [vederlag, frist] = [...document.querySelectorAll('.spor-kort')] as HTMLElement[];
+    expect(vederlag.querySelector('.hv')!.textContent?.replace(/\s+/g, ' ')).toBe('610 000 kr');
+    expect(vederlag.querySelector('.hm')!.textContent).toBe('2 krav · 1 varslet · 1 uten beløp');
+    expect(frist.querySelector('.hv')!.textContent).toBe('2 krav');
+    expect(frist.textContent).not.toContain('35');
+  });
+
+  it('utvalget, søket og sorteringen avgrenser og ordner lista, og uten treff kan alle sakene vises igjen (prototypen v2)', async () => {
+    vis({
+      saker: [
+        lagSakslinje({
+          sak_id: 'A',
+          sakstittel: 'Gammel',
+          siste_hendelse: '2026-09-01T10:00:00Z',
+          opprettet: '2026-09-01T10:00:00Z',
+        }),
+        lagSakslinje({
+          sak_id: 'B',
+          sakstittel: 'Ny',
+          siste_hendelse: '2026-10-30T10:00:00Z',
+          opprettet: '2026-08-01T10:00:00Z',
+        }),
+        lagSakslinje({
+          sak_id: 'C',
+          sakstittel: 'Trukket',
+          saksbetegnelse: 'paaberopelsen_trukket',
+          siste_hendelse: '2026-10-01T10:00:00Z',
+          opprettet: '2026-10-01T10:00:00Z',
+        }),
+      ],
+      endringsordrer: { A: 'EO-07' },
+    });
+    const titler = () =>
+      screen
+        .queryAllByRole('link')
+        .map((l) => l.textContent)
+        .filter((t) => t !== 'Nytt krav om endringsordre');
+    expect(titler()).toEqual(['Ny', 'Trukket', 'Gammel']);
+    await fireEvent.click(screen.getByRole('button', { name: 'Opprettet' }));
+    expect(titler()).toEqual(['Trukket', 'Gammel', 'Ny']);
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Inngår i EO' }));
+    expect(titler()).toEqual(['Gammel']);
+    await fireEvent.click(screen.getByRole('button', { name: 'Avsluttet av TE' }));
+    expect(titler()).toEqual(['Trukket']);
+    await fireEvent.click(screen.getByRole('button', { name: 'Alle' }));
+
+    await fireEvent.input(screen.getByRole('searchbox', { name: 'Søk i sakene' }), {
+      target: { value: 'eo-07' },
+    });
+    expect(titler()).toEqual(['Gammel']);
+    await fireEvent.input(screen.getByRole('searchbox', { name: 'Søk i sakene' }), {
+      target: { value: 'xyz' },
+    });
+    expect(screen.getByRole('status').textContent).toContain('Ingen saker passer med «xyz».');
+    await fireEvent.click(screen.getByRole('button', { name: 'Vis alle sakene' }));
+    expect(titler()).toHaveLength(3);
+  });
+
+  it('en sak kjernen ikke forstår, viser ingen tall og ingen egen tekst, og er ikke med i summene (vedtaksforslaget 02.11, punkt 3, MM-U2)', () => {
     vis({
       saker: [
         lagSakslinje({
@@ -166,8 +326,8 @@ describe('Sakslisten i Varden', () => {
           hovedkategori: null,
           vederlag: {
             ...ingenting,
-            kravet_staar: false,
-            krav: { beloep: 1, metode: 'x' },
+            kravet_staar: true,
+            krav: { beloep: 1000, metode: 'tilbud' },
             svar: null,
             enighet: null,
           },
@@ -175,9 +335,11 @@ describe('Sakslisten i Varden', () => {
       ],
     });
     const r = rad('Endring i grunnarbeider');
-    expect(within(r).getByText('Ikke forstått')).toBeTruthy();
-    expect(r.querySelectorAll('dl').length).toBe(0);
-    expect(r.textContent).not.toContain('Ikke krevd');
+    expect(r.querySelectorAll('.verdi').length).toBe(0);
+    expect(r.textContent).not.toContain('Ikke forstått');
+    expect(document.querySelector('.spor-kort .hv')!.textContent?.replace(/\s+/g, ' ')).toBe(
+      '0 kr'
+    );
   });
 
   it('merket «Inngår i EO-‹kode›» står på KOE-saken som en sendt endringsordre omfatter (EO-U13)', () => {
