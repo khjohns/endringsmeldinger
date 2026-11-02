@@ -196,7 +196,7 @@ export interface Opprettelsesrute extends Felles {
   tilgang: { prosjektrolle: 'member'; kontraktsrolle: 'kreves'; nySak: string };
   /** Kroppen er en fil, som leses etter tilgangskontrollen og ikke tolkes som JSON. */
   fil?: true;
-  /** Bare TE bruker inngangen, med meldingen BH får (KT-U10). Prøves før kroppen leses. */
+  /** Bare TE bruker inngangen, med meldingen BH får (KT-U10). Prøves før en fil leses. */
   bareTE?: string;
   behandle: Behandler<Opprettelsesforespoersel>;
 }
