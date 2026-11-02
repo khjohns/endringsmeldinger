@@ -60,7 +60,9 @@ import {
   KvittertBrevMangler,
   LaasIkkeGitt,
   opprettSak,
+  opprettSakMedPaaberopelse,
   SakFinnesIkke,
+  SakIdBrukt,
   SkrivingAvvist,
   skrivHendelse,
   UgyldigKommando,
@@ -483,14 +485,131 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   }
 }
 
+const NY_SAK = new Set(['kommando_id', 'ny_sak_id', 'tittel', 'paaberopelse', 'brevtekst']);
+
+const erObjekt = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
+
 /**
- * Oppretter saken med `sak_opprettet` som versjon 1. Kjernen avgjør om kommandoen
- * godtas, med parten fra kontraktsteamet; basen lager saks-ID-en.
+ * Oppretter saken og den første påberopelsen i én handling (KT-U11, #1487). Saks-ID-en er
+ * klientens, fordi brevteksten har saksnummeret (LV-U4). Feltet heter `ny_sak_id`, ikke
+ * `sak_id`, som tilgangskontrollen leser som en sak kroppen viser til og krever i prosjektet. Tittelen er én verdi, skrevet som
+ * `sakstittel` i `sak_opprettet` og som `tittel` i påberopelsen (LV-U43). Kjernen prøver
+ * påberopelsen mot `sak_opprettet` i minnet, med basens klokke, før noe skrives.
  */
-async function opprettNySak(
+async function opprettMedPaaberopelse(
   { bruker, prosjekt, side, kropp }: Opprettelsesforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
+  const ukjente = Object.keys(kropp).filter((k) => !NY_SAK.has(k));
+  if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
+  const id = kommandoId(kropp);
+  if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');
+  const { ny_sak_id: sakId, tittel, paaberopelse, brevtekst } = kropp;
+  if (typeof sakId !== 'string' || !UUID.test(sakId))
+    return ugyldig('ny_sak_id mangler eller er ikke en UUID med små bokstaver.');
+  if (typeof tittel !== 'string') return ugyldig('tittel mangler eller er ikke en tekst.');
+  if (!erObjekt(paaberopelse) || paaberopelse.type !== 'krav' || paaberopelse.spor !== 'forhold')
+    return ugyldig('paaberopelse må være et krav i sporet forhold.');
+  if (!erObjekt(paaberopelse.innhold) || 'tittel' in paaberopelse.innhold)
+    return ugyldig('paaberopelse.innhold må være et objekt uten tittel; tittelen står i tittel.');
+  if ('brevtekst' in paaberopelse)
+    return ugyldig('paaberopelse har ikke brevtekst; den står i brevtekst.');
+  const krav = {
+    ...paaberopelse,
+    innhold: { ...paaberopelse.innhold, tittel },
+    ...(brevtekst === undefined ? {} : { brevtekst }),
+  };
+  const kommando = {
+    id,
+    sha256: kommandosum({ rute: 'ny_sak', ny_sak_id: sakId, tittel, paaberopelse, brevtekst }),
+  };
+  const kontekst = skrivekontekst(bruker, prosjekt, side);
+  let utfall;
+  try {
+    utfall = await opprettSakMedPaaberopelse(
+      avh.datalag,
+      kontekst,
+      sakId,
+      kommando,
+      ({ tidspunkt }) => {
+        const nySak = opprettelse({ type: 'opprett_sak', sakstittel: tittel }, side.rolle);
+        if (!nySak.godtatt) return { skriv: false, avvisning: nySak };
+        const opprettet: Journalrad = {
+          event_id: avh.nyId(),
+          sak_id: sakId,
+          event_type: 'sak_opprettet',
+          versjon: 1,
+          tidsstempel: tidspunkt.toISOString(),
+          aktor_id: kontekst.aktor.toLowerCase(),
+          aktor_rolle: kontekst.side,
+          aktor_team_id: kontekst.team ?? null,
+          refererer_til_event_id: null,
+          format: nySak.format,
+          data: nySak.data,
+        };
+        const vurdert = vurder(
+          krav,
+          {
+            sakId,
+            aktoerId: kontekst.aktor,
+            part: kontekst.side,
+            teamId: kontekst.team ?? null,
+            tidspunkt: () => tidspunkt,
+            nyId: avh.nyId,
+          },
+          [opprettet],
+          avh.kjerne,
+          new Map()
+        );
+        if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
+        const [rad] = vurdert.hendelser;
+        const status = sakenSomVises([opprettet, rad], avh.kjerne).visning.status;
+        return {
+          skriv: true,
+          opprettet,
+          rad,
+          oppdrag: (maal) => lagOppdrag(rad, maal, status, avh.kjerne, avh.nyId),
+        };
+      }
+    );
+  } catch (feil) {
+    if (feil instanceof IngenTopicBoard)
+      return feilsvar(
+        409,
+        'INGEN_TOPIC_BOARD',
+        'Prosjektet har ikke noe topic-board i Catenda for nye saker. Saken er ikke opprettet.'
+      );
+    if (feil instanceof SakIdBrukt)
+      return feilsvar(409, 'SAK_ID_BRUKT', 'Saks-ID-en er brukt. Saken er ikke opprettet.');
+    return skriveavvisning(feil);
+  }
+  if (utfall.skriv === false) return regelavvisning(utfall.avvisning);
+  try {
+    avh.vekkJobbkjoereren();
+  } catch (feil) {
+    // Saken og påberopelsen er lagret; et nytt forsøk får kvitteringen og vekker igjen.
+    return usikkert(feil);
+  }
+  const { rad } = utfall;
+  return lagret(
+    [201, { success: true, sak_id: rad.sak_id, event_id: rad.event_id, versjon: rad.versjon }],
+    utfallUsikkert
+  );
+}
+
+/**
+ * Oppretter saken med `sak_opprettet` som versjon 1. Kjernen avgjør om kommandoen
+ * godtas, med parten fra kontraktsteamet; basen lager saks-ID-en. En kropp med `ny_sak_id`
+ * oppretter saken med den første påberopelsen (#1487). Formen uten påberopelse brukes av
+ * skjemaet og `saksrute.ts` til de går over (#1492).
+ */
+async function opprettNySak(
+  forespoersel: Opprettelsesforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  if ('ny_sak_id' in forespoersel.kropp) return opprettMedPaaberopelse(forespoersel, avh);
+  const { bruker, prosjekt, side, kropp } = forespoersel;
   const ukjente = Object.keys(kropp).filter((k) => k !== 'kommando' && k !== 'kommando_id');
   if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
@@ -556,7 +675,7 @@ const OPPRETTELSE: Opprettelsesrute = {
     prosjektrolle: 'member',
     kontraktsrolle: 'kreves',
     nySak:
-      'Opprettelsen: saken finnes ikke før basen har laget saks-ID-en, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE oppretter (OV-U1, #696).',
+      'Opprettelsen: saken finnes ikke før kommandoen er lagret, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE oppretter (OV-U1, #696).',
   },
   behandle: opprettNySak,
 };
