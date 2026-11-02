@@ -515,8 +515,8 @@
     color: var(--sidebar-muted);
   }
   .sakstyper button[aria-pressed='true'] {
-    background: var(--sidebar-active);
     color: var(--sidebar-text);
+    box-shadow: inset 3px 0 0 var(--sidebar-text);
   }
   .sakstyper button:hover {
     background: var(--sidebar-hover);
@@ -603,8 +603,8 @@
     align-items: center;
     gap: 8px;
     padding: 11px 16px;
-    background: var(--brand-contrast);
-    color: white;
+    background: var(--color-vekt);
+    color: var(--color-canvas);
     border-radius: 8px;
     text-decoration: none;
     font-size: 13px;
@@ -919,12 +919,11 @@
     .mobile-sakstyper button {
       width: auto;
       margin: 0;
-      padding: 8px 12px;
+      padding: 10px 12px;
       border: 1px solid var(--color-wire);
       color: var(--color-ink-secondary);
     }
     .mobile-sakstyper button[aria-pressed='true'] {
-      border-color: var(--color-vekt);
       background: transparent;
       color: var(--color-ink);
       box-shadow: inset 0 -2px 0 var(--color-vekt);
@@ -941,6 +940,7 @@
       padding: 24px 16px;
     }
     .page-heading {
+      flex-wrap: wrap;
       align-items: flex-start;
     }
     h1 {
