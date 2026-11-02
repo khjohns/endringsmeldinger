@@ -3,7 +3,7 @@
  *
  * Hver hjemmel har to avsnitt:
  * - regel: Trigger, handling og frist i naturlig prosa
- * - konsekvens: Konsekvens ved brudd (inkludert §5-mekanismen)
+ * - konsekvens: Konsekvens ved brudd (inkludert punkt 5-mekanismen)
  *
  * VIKTIG - OPPHAVSRETT (NS 8407):
  * Standard Norge har opphavsrett til NS 8407. Ved nye hjemler:
@@ -16,7 +16,7 @@
 export interface Kontraktsregel {
   /** Første avsnitt: Trigger, handling og frist i naturlig prosa */
   regel: string;
-  /** Andre avsnitt: Konsekvens ved brudd (inkludert §5) */
+  /** Andre avsnitt: Konsekvens ved brudd (inkludert punkt 5) */
   konsekvens: string;
 }
 
@@ -29,116 +29,116 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
 
   '31.3': {
     regel:
-      'Byggherren kan pålegge totalentreprenøren endringer ved å utstede skriftlig endringsordre (§31.3). Endringen kan gjelde arbeidsomfang, kvalitet, art, utførelse eller fremdrift.',
+      'Byggherren kan pålegge totalentreprenøren endringer ved å utstede skriftlig endringsordre (punkt 31.3). Endringen kan gjelde arbeidsomfang, kvalitet, art, utførelse eller fremdrift.',
     konsekvens:
-      'En endringsordre etter §31.3 etablerer at endringen er avtalt. Totalentreprenøren har utførelsesplikt og kan kreve vederlagsjustering (§34) og fristforlengelse (§33.1 a).',
+      'En endringsordre etter punkt 31.3 etablerer at endringen er avtalt. Totalentreprenøren har utførelsesplikt og kan kreve vederlagsjustering (punkt 34) og fristforlengelse (punkt 33.1 a).',
   },
 
   '32.1': {
     regel:
-      'Mottar totalentreprenøren pålegg uten endringsordre fra person med fullmakt eller via arbeidstegninger (§32.1), skal han iverksette pålegget og varsle etter §32.2 uten ugrunnet opphold dersom han mener det utgjør en endring.',
+      'Mottar totalentreprenøren pålegg uten endringsordre fra person med fullmakt eller via arbeidstegninger (punkt 32.1), skal den iverksette pålegget og varsle etter punkt 32.2 uten ugrunnet opphold dersom den mener det utgjør en endring.',
     konsekvens:
-      'Varsles det ikke i tide, tapes retten til å påberope at pålegget innebærer en endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Varsles det ikke i tide, tapes retten til å påberope at pålegget innebærer en endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   '14.6': {
     regel:
-      'Mottar totalentreprenøren pålegg som begrenser valgretten for materiale, utførelse eller løsning (§14.6), må han varsle etter §32.2 uten ugrunnet opphold dersom han mener dette utgjør en endring.',
+      'Mottar totalentreprenøren pålegg som begrenser valgretten for materiale, utførelse eller løsning (punkt 14.6), må den varsle etter punkt 32.2 uten ugrunnet opphold dersom den mener dette utgjør en endring.',
     konsekvens:
-      'Varsles det ikke i tide, tapes retten til å påberope begrensningen som endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Varsles det ikke i tide, tapes retten til å påberope begrensningen som endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   '24.2.2': {
     regel:
-      'Mottar totalentreprenøren svar fra byggherren på varsel etter §24.2.2 som innebærer en endring uten at endringsordre utstedes, må han varsle etter §32.2 uten ugrunnet opphold.',
+      'Mottar totalentreprenøren svar fra byggherren på varsel etter punkt 24.2.2 som innebærer en endring uten at endringsordre utstedes, må den varsle etter punkt 32.2 uten ugrunnet opphold.',
     konsekvens:
-      'Varsles det ikke i tide, tapes retten til å påberope at svaret innebærer en endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Varsles det ikke i tide, tapes retten til å påberope at svaret innebærer en endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   '14.4': {
     regel:
-      'Krever lovendring eller enkeltvedtak etter tilbudet endring av kontraktsgjenstanden (§14.4), må totalentreprenøren varsle etter §32.2 uten ugrunnet opphold dersom han mener dette utgjør en endring.',
+      'Krever lovendring eller enkeltvedtak etter tilbudet endring av kontraktsgjenstanden (punkt 14.4), må totalentreprenøren varsle etter punkt 32.2 uten ugrunnet opphold dersom den mener dette utgjør en endring.',
     konsekvens:
-      'Varsles det ikke i tide, tapes retten til å påberope forholdet som endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Varsles det ikke i tide, tapes retten til å påberope forholdet som endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   '15.2': {
     regel:
-      'Krever lovendring eller enkeltvedtak etter tilbudet endring av avtalte prosesskrav (§15.2), må totalentreprenøren varsle etter §32.2 uten ugrunnet opphold dersom han mener dette utgjør en endring.',
+      'Krever lovendring eller enkeltvedtak etter tilbudet endring av avtalte prosesskrav (punkt 15.2), må totalentreprenøren varsle etter punkt 32.2 uten ugrunnet opphold dersom den mener dette utgjør en endring.',
     konsekvens:
-      'Varsles det ikke i tide, tapes retten til å påberope forholdet som endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Varsles det ikke i tide, tapes retten til å påberope forholdet som endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   '26.3': {
     regel:
-      'Endres offentlige gebyrer eller avgifter etter tilbudet (§26.3), må totalentreprenøren varsle etter §32.2 uten ugrunnet opphold dersom han mener dette utgjør en endring.',
+      'Endres offentlige gebyrer eller avgifter etter tilbudet (punkt 26.3), må totalentreprenøren varsle etter punkt 32.2 uten ugrunnet opphold dersom den mener dette utgjør en endring.',
     konsekvens:
-      'Varsles det ikke i tide, tapes retten til å påberope forholdet som endring. Vederlagsjustering er uten påslag for indirekte kostnader, risiko og fortjeneste. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Varsles det ikke i tide, tapes retten til å påberope forholdet som endring. Vederlagsjustering er uten påslag for indirekte kostnader, risiko og fortjeneste. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   '21.4': {
     regel:
-      'Medfører byggherrens koordinering omlegging utover det påregnelige etter kontrakten (§21.4), må totalentreprenøren varsle etter §32.2 uten ugrunnet opphold dersom han mener dette utgjør en endring.',
+      'Medfører byggherrens koordinering omlegging utover det påregnelige etter kontrakten (punkt 21.4), må totalentreprenøren varsle etter punkt 32.2 uten ugrunnet opphold dersom den mener dette utgjør en endring.',
     konsekvens:
-      'Varsles det ikke i tide, tapes retten til å påberope forholdet som endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Varsles det ikke i tide, tapes retten til å påberope forholdet som endring. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   // ========== SVIKT ==========
 
   '22': {
     regel:
-      'Svikter byggherren i sin medvirkningsplikt etter §22.1-22.4, må totalentreprenøren varsle etter §25.1.2 uten ugrunnet opphold.',
+      'Svikter byggherren i sin medvirkningsplikt etter punkt 22.1-22.4, må totalentreprenøren varsle etter punkt 25.1.2 uten ugrunnet opphold.',
     konsekvens:
-      'Byggherren kan kreve erstatning for tap som kunne vært unngått ved rettidig varsel, men kravet tapes ikke. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Byggherren kan kreve erstatning for tap som kunne vært unngått ved rettidig varsel, men kravet tapes ikke. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   '23.1': {
     regel:
-      'Blir eller burde totalentreprenøren bli oppmerksom på at grunnforholdene avviker fra det han hadde grunn til å regne med (§23.1), må han varsle byggherren etter §25.1.2 uten ugrunnet opphold.',
+      'Blir eller burde totalentreprenøren bli oppmerksom på at grunnforholdene avviker fra det den hadde grunn til å regne med (punkt 23.1), må den varsle byggherren etter punkt 25.1.2 uten ugrunnet opphold.',
     konsekvens:
-      'Byggherren kan kreve erstatning for tap som kunne vært unngått ved rettidig varsel, men kravet tapes ikke. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Byggherren kan kreve erstatning for tap som kunne vært unngått ved rettidig varsel, men kravet tapes ikke. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   '23.3': {
     regel:
-      'Oppdager totalentreprenøren kulturminner (§23.3), må han straks innstille arbeidet, iverksette sikring og varsle byggherren etter §25.1.2 uten ugrunnet opphold.',
+      'Oppdager totalentreprenøren kulturminner (punkt 23.3), må den straks innstille arbeidet, iverksette sikring og varsle byggherren etter punkt 25.1.2 uten ugrunnet opphold.',
     konsekvens:
-      'Byggherren kan kreve erstatning for tap som kunne vært unngått. Totalentreprenøren har ikke risikoen for kulturminner med mindre han hadde kunnskap ved tilbudet.',
+      'Byggherren kan kreve erstatning for tap som kunne vært unngått. Totalentreprenøren har ikke risikoen for kulturminner med mindre den hadde kunnskap ved tilbudet.',
   },
 
   '24.1': {
     regel:
-      'Oppdager totalentreprenøren svikt i løsninger eller prosjektering som byggherren har foreskrevet eller pålagt (§24.1), må han varsle etter §25.1.2 uten ugrunnet opphold.',
+      'Oppdager totalentreprenøren svikt i løsninger eller prosjektering som byggherren har foreskrevet eller pålagt (punkt 24.1), må den varsle etter punkt 25.1.2 uten ugrunnet opphold.',
     konsekvens:
-      'Byggherren kan kreve erstatning for tap som kunne vært unngått, men kravet tapes ikke. Byggherren bærer risikoen for egen prosjektering. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Byggherren kan kreve erstatning for tap som kunne vært unngått, men kravet tapes ikke. Byggherren bærer risikoen for egen prosjektering. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   // ========== ANDRE ==========
 
   '10.2': {
     regel:
-      'Mottar byggherren underretning om valg av kontraktsmedhjelper (§10.2), må han melde fra om eventuell nektelse med saklig begrunnelse uten ugrunnet opphold, senest 14 dager etter mottak.',
+      'Mottar byggherren underretning om valg av kontraktsmedhjelper (punkt 10.2), må den melde fra om eventuell nektelse med saklig begrunnelse uten ugrunnet opphold, senest 14 dager etter mottak.',
     konsekvens:
       'Nektes kontraktsmedhjelperen uten saklig grunn, kan totalentreprenøren kreve fristforlengelse og vederlagsjustering.',
   },
 
   '19.1': {
     regel:
-      'Forårsaker byggherren eller hans kontraktsmedhjelpere skade på kontraktsgjenstanden (§19.1), må totalentreprenøren varsle uten ugrunnet opphold (§5).',
+      'Forårsaker byggherren eller byggherrens kontraktsmedhjelpere skade på kontraktsgjenstanden (punkt 19.1), må totalentreprenøren varsle uten ugrunnet opphold (punkt 5).',
     konsekvens:
       'Byggherren bærer risikoen for slik skade. Dette gjelder også ekstraordinære omstendigheter som krig, opprør og naturkatastrofer.',
   },
 
   '38.1 annet ledd': {
     regel:
-      'Tar byggherren kontraktsgjenstanden i bruk før overtakelse uten avtale (§38.1), må totalentreprenøren varsle uten ugrunnet opphold (§5).',
+      'Tar byggherren kontraktsgjenstanden i bruk før overtakelse uten avtale (punkt 38.1), må totalentreprenøren varsle uten ugrunnet opphold (punkt 5).',
     konsekvens:
       'Risikoen for delene som tas i bruk går automatisk over til byggherren, og eventuell dagmulkt reduseres forholdsmessig.',
   },
 
   '29.2': {
     regel:
-      'Ved vesentlig betalingsmislighold fra byggherren, eller dersom slikt mislighold klart vil inntre (§29.2), må totalentreprenøren varsle skriftlig minst 24 timer før stansing iverksettes.',
+      'Ved vesentlig betalingsmislighold fra byggherren, eller dersom slikt mislighold klart vil inntre (punkt 29.2), må totalentreprenøren varsle skriftlig minst 24 timer før stansing iverksettes.',
     konsekvens: 'Stansingsrett forutsetter vesentlig mislighold.',
   },
 
@@ -146,38 +146,38 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
     regel:
       'Andre forhold byggherren har risikoen for som ikke faller inn under endringer eller svikt, kan gi totalentreprenøren rett til fristforlengelse og vederlagsjustering.',
     konsekvens:
-      'Totalentreprenøren må varsle uten ugrunnet opphold. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Totalentreprenøren må varsle uten ugrunnet opphold. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   // ========== VEDERLAGSJUSTERING ==========
 
   '34.1': {
     regel:
-      'Totalentreprenøren har krav på vederlagsjustering ved en endring etter § 31 eller § 32 (§ 34.1.1), og ved forsinkelse eller svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for (§ 34.1.2).',
+      'Totalentreprenøren har krav på vederlagsjustering ved en endring etter punkt 31 eller punkt 32 (punkt 34.1.1), og ved forsinkelse eller svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for (punkt 34.1.2).',
     konsekvens:
-      'Varslingsplikten etter § 34.1.2 gjelder forsinkelse eller svikt ved byggherrens ytelser og andre forhold byggherren har risikoen for, ikke endringer etter § 34.1.1. Særskilt varsel etter § 34.1.3 er en egen regel.',
+      'Varslingsplikten etter punkt 34.1.2 gjelder forsinkelse eller svikt ved byggherrens ytelser og andre forhold byggherren har risikoen for, ikke endringer etter punkt 34.1.1. Særskilt varsel etter punkt 34.1.3 er en egen regel.',
   },
 
   '34.1.2': {
     regel:
-      'Når vederlagskravet bygger på forsinkelse eller svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for, skal totalentreprenøren varsle uten ugrunnet opphold etter at han ble eller burde blitt klar over forholdet.',
+      'Når vederlagskravet bygger på forsinkelse eller svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for, skal totalentreprenøren varsle uten ugrunnet opphold etter at den ble eller burde blitt klar over forholdet.',
     konsekvens:
-      'Retten til vederlagsjustering kan gå tapt dersom kravet varsles for sent. Byggherren må påberope preklusjon skriftlig uten ugrunnet opphold (§ 5).',
+      'Retten til vederlagsjustering kan gå tapt dersom kravet varsles for sent. Byggherren må påberope preklusjon skriftlig uten ugrunnet opphold (punkt 5).',
   },
 
   // Varslingsplikten følger kontraktsgrunnlaget Del II pkt. B.2.16 (OV-U25).
   '34.1.3': {
     regel:
-      'Totalentreprenøren kan kreve særskilt justering av vederlaget for økte utgifter til kapitalytelser, rigging, drift og nedrigging som er en nødvendig følge av forhold etter § 34.1.1 eller § 34.1.2 (første ledd), og for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid som er en følge av slike forhold (annet ledd). Etter kontraktsgrunnlaget (Del II pkt. B.2.16) gjelder den særskilte varslingsplikten bare kravet etter annet ledd: det må varsles særskilt uten ugrunnet opphold etter at totalentreprenøren ble eller burde ha blitt klar over at utgiftene ville påløpe.',
+      'Totalentreprenøren kan kreve særskilt justering av vederlaget for økte utgifter til kapitalytelser, rigging, drift og nedrigging som er en nødvendig følge av forhold etter punkt 34.1.1 eller punkt 34.1.2 (første ledd), og for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid som er en følge av slike forhold (annet ledd). Etter kontraktsgrunnlaget (Del II pkt. B.2.16) gjelder den særskilte varslingsplikten bare kravet etter annet ledd: det må varsles særskilt uten ugrunnet opphold etter at totalentreprenøren ble eller burde ha blitt klar over at utgiftene ville påløpe.',
     konsekvens:
-      'Varsles kravet etter annet ledd for sent, taper totalentreprenøren retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§ 5). Kravet etter første ledd har ingen særskilt varslingsplikt etter § 34.1.3.',
+      'Varsles kravet etter annet ledd for sent, taper totalentreprenøren retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5). Kravet etter første ledd har ingen særskilt varslingsplikt etter punkt 34.1.3.',
   },
 
   '34.2': {
     regel:
       'Vederlagsjusteringen skal fastsettes på grunnlag av kontraktens enhetspriser så langt disse passer. Der enhetspriser ikke passer, fastsettes vederlaget som regningsarbeid, eller ut fra annen avtalt metode.',
     konsekvens:
-      'Totalentreprenøren skal varsle uten ugrunnet opphold dersom han vil kreve vederlagsjustering, med opplysninger om hva kravet bygger på og om mulig kravets størrelse.',
+      'Totalentreprenøren skal varsle uten ugrunnet opphold dersom den vil kreve vederlagsjustering, med opplysninger om hva kravet bygger på og om mulig kravets størrelse.',
   },
 
   '34.4': {
@@ -193,14 +193,14 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
     regel:
       'Totalentreprenøren har krav på fristforlengelse dersom fremdriften hindres som følge av: a) endringer, b) svikt ved byggherrens ytelser, eller c) andre forhold som byggherren bærer risikoen for etter kontrakten.',
     konsekvens:
-      'Kravet om fristforlengelse må varsles uten ugrunnet opphold (§33.4). Når beregningsgrunnlaget foreligger, skal antall dager angis og begrunnes uten ugrunnet opphold (§33.6.1). Byggherren må svare uten ugrunnet opphold (§33.7).',
+      'Kravet om fristforlengelse må varsles uten ugrunnet opphold (punkt 33.4). Når beregningsgrunnlaget foreligger, skal antall dager angis og begrunnes uten ugrunnet opphold (punkt 33.6.1). Byggherren må svare uten ugrunnet opphold (punkt 33.7).',
   },
 
   '33.4': {
     regel:
-      'En part som vil kreve fristforlengelse etter §§33.1–33.3, skal skriftlig varsle motparten uten ugrunnet opphold, selv om kravet ennå ikke kan spesifiseres.',
+      'En part som vil kreve fristforlengelse etter punkt 33.1–33.3, skal skriftlig varsle motparten uten ugrunnet opphold, selv om kravet ennå ikke kan spesifiseres.',
     konsekvens:
-      'Ved sent varsel tapes fristkravet. Motparten må imidlertid gjøre forsinkelsen gjeldende skriftlig uten ugrunnet opphold; ellers anses varselet som rettidig (§5).',
+      'Ved sent varsel tapes fristkravet. Motparten må imidlertid gjøre forsinkelsen gjeldende skriftlig uten ugrunnet opphold; ellers anses varselet som rettidig (punkt 5).',
   },
 
   '33.5': {
@@ -212,18 +212,18 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
 
   '33.6.1': {
     regel:
-      'Når parten har grunnlag for å beregne omfanget, skal han uten ugrunnet opphold angi og begrunne antallet dager fristforlengelse som kreves.',
+      'Når parten har grunnlag for å beregne omfanget, skal den uten ugrunnet opphold angi og begrunne antallet dager fristforlengelse som kreves.',
     konsekvens:
-      'Ved for sen spesifisering er kravet begrenset til den fristforlengelsen motparten måtte forstå at parten hadde krav på. Motparten må svare uten ugrunnet opphold (§33.7).',
+      'Ved for sen spesifisering er kravet begrenset til den fristforlengelsen motparten måtte forstå at parten hadde krav på. Motparten må svare uten ugrunnet opphold (punkt 33.7).',
   },
 
   // ========== FORCE MAJEURE ==========
 
   '33.3': {
     regel:
-      'Partene har krav på fristforlengelse ved force majeure: ekstraordinære omstendigheter utenfor partens kontroll som han ikke burde ha forutsett ved avtaleinngåelsen og ikke med rimelighet kunne ha overvunnet eller avverget følgene av.',
+      'Partene har krav på fristforlengelse ved force majeure: ekstraordinære omstendigheter utenfor partens kontroll som den ikke burde ha forutsett ved avtaleinngåelsen og ikke med rimelighet kunne ha overvunnet eller avverget følgene av.',
     konsekvens:
-      'Force majeure gir bare rett til fristforlengelse, ikke vederlagsjustering. Kravet må varsles uten ugrunnet opphold etter §33.4.',
+      'Force majeure gir bare rett til fristforlengelse, ikke vederlagsjustering. Kravet må varsles uten ugrunnet opphold etter punkt 33.4.',
   },
 };
 

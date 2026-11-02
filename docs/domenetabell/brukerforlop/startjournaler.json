@@ -562,6 +562,98 @@
           }
         }
       ]
+    },
+    {
+      "id": "BF-05",
+      "tittel": "TE oppretter saken og påberoper forholdet",
+      "brukerhistorie": "TE har fått et pålegg som TE mener er en irregulær endring. TE velger «Nytt krav om endringsordre», velger forholdet, skriver tittelen på saken og beskrivelsen av pålegget, oppgir datoen pålegget ble mottatt og kontrollerer brevet før det sendes, så kravet ikke tapes for sent varsel etter punkt 32.2. Før sending ser TE at forholdet står fast. Etter sendingen står saken med påberopelsen sendt og venter på BHs svar.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "75ad8411",
+      "kontrollpunkter": [
+        {
+          "id": "start",
+          "beskrivelse": "Ingen sak finnes. TE fyller ut skjemaet for ny sak.",
+          "versjon": 0,
+          "forstaaelse": [
+            "TE velger forholdet blant kontraktens forhold, gruppert med kontraktens henvisning, uten ordene «grunnlag», «hovedkategori» eller «underkategori».",
+            "TE forstår før sending at forholdet står fast etter sendingen, og at et annet forhold betyr en ny sak.",
+            "TE forstår hvilken dato skjemaet spør etter: datoen pålegget ble mottatt, eller datoen TE ble klar over forholdet.",
+            "TE ser feilen ved feltet før brevkontrollen når forholdet, tittelen, beskrivelsen eller datoen mangler, og ingen sak er opprettet.",
+            "Der punkt 32.2 gjelder, svarer TE på om varselet alt er sendt til BH på annen måte, og ser hva kapittel B krever av et slikt varsel. Har TE svart ja ved en feil, går TE tilbake til nei før sending.",
+            "TE ser i brevkontrollen hele brevet som sendes, med partene skrevet fullt ut, og finner veien tilbake uten å miste det som er skrevet."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          }
+        },
+        {
+          "id": "paaberopelsen-er-sendt",
+          "beskrivelse": "TE har opprettet saken og sendt påberopelsen av irregulær endring. BH har ikke svart.",
+          "versjon": 2,
+          "forstaaelse": [
+            "TE ser etter sendingen at påberopelsen er sendt, med dato, og at svar ikke er registrert. Visningen sier ikke hvem som skal handle, og kvitteringen sier at brevet sendes til Catenda."
+          ],
+          "neste": null
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "1575b983-0000-4000-8000-000000000002",
+          "sak_id": "1575b983-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "TE oppretter saken og påberoper forholdet",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "1575b983-0000-4000-8000-000000000007",
+          "sak_id": "1575b983-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "1575b983-0000-4000-8000-000000000008",
+                "spor": "forhold",
+                "hovedkategori": "endring",
+                "underkategori": "irregulaer_endring",
+                "paalegg_mottatt": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "1575b983-0000-4000-8000-000000000008",
+                "laast": "TE krever endringsordre for forholdet i sak 1575b983-0000-4000-8000-000000000001 («TE oppretter saken og påberoper forholdet»). Grunnlaget er irregulær endring i form av pålegg (NS 8407 § 32.1). TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring. TE opplyser at pålegget ble mottatt 15. september 2026.",
+                "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

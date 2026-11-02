@@ -7,8 +7,8 @@
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount, tick } from 'svelte';
-  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Part } from '$kjerne/typer';
+  import type { Brevsending } from './nysak';
   import Brev from './Brev.svelte';
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
@@ -31,7 +31,8 @@
     ontilbake,
     onsendt,
   }: {
-    kjernesak: Kjernesakkontekst;
+    /** Saken brevet sendes i. Ved en ny sak er det skjemaets sending (`NySak.svelte`). */
+    kjernesak: Brevsending;
     kommando: Record<string, unknown>;
     tekst: string[];
     utdypning?: string;
@@ -62,6 +63,12 @@
   onMount(() => tittelen?.focus());
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 
+  // Feilen fra et tidligere forsøk står ikke over brevet når avsenderen kommer tilbake (#1393).
+  function tilbake() {
+    kjernesak.fjernFeil();
+    ontilbake();
+  }
+
   async function send() {
     if (!kontrollert) {
       manglerKontroll = true;
@@ -77,7 +84,7 @@
 
 <div class="kontroll">
   <div class="venstre">
-    <Knapp variant="lenke" onclick={ontilbake}
+    <Knapp variant="lenke" onclick={tilbake}
       ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
     >
     <Brev

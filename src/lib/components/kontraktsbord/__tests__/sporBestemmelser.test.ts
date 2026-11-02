@@ -52,14 +52,14 @@ describe('bestemmelsene under vederlag avgrenser varslingsplikten (#1267)', () =
   const vederlag = (ref: string) => sporBestemmelser('vederlag').find((b) => b.ref === ref);
 
   it('§ 34.1 viser til § 31 og § 32, ikke kapittel V', () => {
-    expect(vederlag('§ 34.1')?.text).toContain('endring etter § 31 eller § 32');
+    expect(vederlag('§ 34.1')?.text).toContain('endring etter punkt 31 eller punkt 32');
     expect(vederlag('§ 34.1')?.text).not.toContain('kapittel V');
   });
 
   it('§ 34.1 avgrenser varslingsplikten til § 34.1.2 og holder endringer etter § 34.1.1 utenfor', () => {
     const note = vederlag('§ 34.1')?.note;
-    expect(note).toContain('Varslingsplikten etter § 34.1.2');
-    expect(note).toContain('ikke endringer etter § 34.1.1');
+    expect(note).toContain('Varslingsplikten etter punkt 34.1.2');
+    expect(note).toContain('ikke endringer etter punkt 34.1.1');
     expect(note).not.toMatch(/^Kravet om vederlagsjustering må varsles/);
   });
 

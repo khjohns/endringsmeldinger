@@ -9,7 +9,7 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { projectStore } from '$lib/stores/project.svelte';
   import type { Spor } from '$kjerne/typer';
-  import { tick } from 'svelte';
+  import { tick, untrack } from 'svelte';
   import { Link } from 'lucide-svelte';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import Brevkontroll from './Brevkontroll.svelte';
@@ -39,8 +39,14 @@
   let {
     kjernesak,
     kontrakt,
+    kvittering,
+    saksliste,
   }: {
     kjernesak: Kjernesakkontekst;
+    /** Kvitteringen for brevet som opprettet saken (BF-05 steg 6, F-6). */
+    kvittering?: string;
+    /** Lenken til sakslisten, der saken ikke finnes (#1473). */
+    saksliste?: string;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
     kontrakt?: Kontrakt;
   } = $props();
@@ -88,7 +94,8 @@
   type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
 
   const SPORENE: Spor[] = ['forhold', 'vederlag', 'frist'];
-  let valgt = $state<Spor>('vederlag');
+  // Etter opprettelsen står saken i forholdet, med påberopelsen (BF-05 steg 6).
+  let valgt = $state<Spor>(untrack(() => (kvittering ? 'forhold' : 'vederlag')));
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
   // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
@@ -97,7 +104,9 @@
   // Utkastet til svaret står til det er sendt eller forkastet, også når BH velger et annet
   // spor (BF-01 S-8). Merket i panelet vises bare når et annet spor er valgt (#1391).
   let utkastAapent = $state(false);
-  let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' } | null>(null);
+  let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' } | null>(
+    untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
+  );
   let meldingen = $state<HTMLElement | null>(null);
   let lenkestatus = $state('');
   let proever = $state(false);
@@ -235,6 +244,8 @@
       <div class="lastefeil" role="alert">
         <h1>{SAKEN.finnesIkke}</h1>
         <p>{SAKEN.finnesIkkeForklaring}</p>
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+        {#if saksliste}<p><a href={saksliste}>{SAKEN.tilSakslisten}</a></p>{/if}
       </div>
     {:else if (!u || !kjernesak.saksbilde) && kjernesak.feil}
       <div class="lastefeil" role="alert">

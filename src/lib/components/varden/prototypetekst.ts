@@ -320,5 +320,50 @@ export const SAKEN = {
   finnesIkke: 'Saken finnes ikke',
   finnesIkkeForklaring:
     'Saken ble ikke funnet. Kontroller lenken, eller gå tilbake til sakslisten.',
+  tilSakslisten: 'Til sakslisten',
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden. Bruk dagens visning.',
+};
+
+/** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
+export const NYSAK = {
+  over: 'Ny sak',
+  tittel: 'Nytt krav om endringsordre',
+  forholdet: 'Forholdet du påberoper',
+  forholdetHjelp: 'Velg bestemmelsen i kontrakten pålegget eller forholdet faller inn under.',
+  sok: 'Søk etter forhold eller punkt',
+  ingenTreff: 'Ingen forhold passer med søket.',
+  endre: 'Endre',
+  staarFast:
+    'Forholdet står fast når brevet er sendt. Vil du påberope et annet forhold senere, oppretter du en ny sak.',
+  sakstittel: 'Tittel på saken',
+  sakstittelHjelp: 'Står i sakslisten og i brevet.',
+  beskrivelseHjelp: 'Hva som skjedde, når og hvordan, og hvorfor du mener det er en endring.',
+  endringsordre: 'Endringsordrens nummer eller dato',
+  vedlegg: 'Vedlegg (valgfritt)',
+  vedleggIkkeLaget: 'Vedlegg kan ikke legges ved ennå.',
+  alleredeVarslet:
+    'Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at pålegget er en endring?',
+  alleredeVarsletIkkeLaget:
+    'Registreringen av et varsel som alt er sendt, er ikke laget ennå. Velg nei for å gå videre.',
+  seBrevet: 'Se brevet',
+  avbryt: 'Avbryt',
+  avbrytSpoersmaal: 'Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes.',
+  avbrytJa: 'Ja, slett det du har skrevet',
+  avbrytNei: 'Nei, fortsett å skrive',
+  mangler: 'Det mangler noe før du kan se brevet',
+  ingenSak: 'Ingen sak er opprettet ennå.',
+  velgForholdet: 'Velg forholdet.',
+  skrivTittelen: 'Skriv tittelen.',
+  beskriv: (paalegg: boolean) => (paalegg ? 'Beskriv pålegget.' : 'Beskriv forholdet.'),
+  oppgiDatoen: 'Oppgi datoen.',
+  oppgiEndringsordren: 'Oppgi endringsordren.',
+  brevtittel: (forhold: string) => `Påberopelse av ${forhold.toLowerCase()}`,
+  handling: 'Send påberopelsen til byggherren',
+  detteSender: (forhold: string, punkt: string) =>
+    `Påberopelsen av ${forhold.toLowerCase()} etter punkt ${punkt}, som første brev i en ny sak`,
+  virkning: 'Saken opprettes når brevet sendes, og forholdet står fast etter sendingen.',
+  sendTekst: 'Send til byggherren',
+  tilbakeTil: 'skjemaet',
+  kvittering: 'Påberopelsen er sendt. Brevet sendes til Catenda.',
+  avbrutt: 'Brevet er ikke sendt, og ingen sak er opprettet.',
 };
