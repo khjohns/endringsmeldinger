@@ -4705,6 +4705,104 @@ tekst = '''
 «Annet» registreres som korrespondanse uten kategorien varsel. Datoen for varselet blir da datoen påberopelsen sendes.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U40"
+dato = 2026-11-02
+hvem = "oppdragsgiver"
+kilde = ["#807"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 02.11 i spørsmålsfila for G-2 (#807, kommentarene 6570337981 og 6570396541). Spørsmål 1 føres ikke som vedtak, fordi det følger av VS-U38 og VS-U37.
+
+**Bakgrunn.** Etter VS-U38 kan TE i skjemaet for ny sak oppgi at varselet etter punkt 32.2 alt er sendt, med datoen og dokumentet. Det lagres som korrespondanse med kategorien varsel (VS-U34, VS-U39). I dag finnes det ingen registrering av et varsel etter punkt 32.2. Påberopelsen er varselet, og byggherrens innsigelse om sen varsling etter punkt 32.2 gjelder påberopelsen byggherren svarer på.
+
+**Følger av vedtakene, uten spørsmål:**
+- I skjemaet for ny sak lagres varselet i samme handling som saken og påberopelsen. Datoen kan ikke være senere enn påberopelsen, og den settes én gang (VS-U38, OV-U80, KT-U11).
+- Spørsmålet stilles bare der punkt 32.2 gjelder (VS-U39).
+- Byggherren kan ikke svare at varselet etter punkt 32.2 kom for sent for et forhold der varslingsplikten ikke gjelder (GR-U11). En egen innsigelse som brev er utsatt (VS-U35).
+
+### 2. Varselet etter punkt 32.2 lagt til etter at saken er opprettet
+
+Styrer om totalentreprenøren kan legge til varselet senere, for eksempel etter at byggherren har svart.
+
+- **A (anbefalt):** Etter at saken er opprettet, kan totalentreprenøren legge til et varsel etter punkt 32.2 som korrespondanse med en dato før påberopelsen, på de samme vilkårene som i skjemaet for ny sak, så lenge det ikke er registrert et varsel etter punkt 32.2 i saken. Et svar byggherren alt har gitt, står.
+- **B:** Et varsel etter punkt 32.2 kan bare registreres i skjemaet for ny sak.
+
+Belegg: OV-U80 (korrespondanse lagt til etterpå, og «Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse»), VS-U38 (settes én gang), OV-U11.
+Forhold: A presiserer OV-U80 og VS-U38. B snevrer inn OV-U80.'''
+valgt = "A"
+svar = '''«1. ble ikke dette nettopp svart ut i siste vedtaksføring? 2. A 3. A men ikke forkortelsen TE - skriver totalentreprenøren»'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u80" },
+  { art = "presiserer", vedtak = "vs-u38" },
+]
+folge = '''
+Bygges i #807'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Etter at saken er opprettet, kan totalentreprenøren legge til et varsel etter punkt 32.2 som korrespondanse med en dato før påberopelsen, på de samme vilkårene som i skjemaet for ny sak, så lenge det ikke er registrert et varsel etter punkt 32.2 i saken. Et svar byggherren alt har gitt, står.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Et varsel etter punkt 32.2 kan bare registreres i skjemaet for ny sak.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U41"
+dato = 2026-11-02
+hvem = "oppdragsgiver"
+kilde = ["#807"]
+sporsmal = '''
+Spørsmål 3 ordrett slik det ble stilt 02.11 i spørsmålsfila for G-2 (#807, kommentarene 6570337981 og 6570396541). Alternativene står i posten.
+
+### 3. Ordlyden når byggherrens svar viser til varselet
+
+Styrer teksten i byggherrens svar.
+
+- **A (anbefalt):** Når byggherrens svar viser til et registrert varsel etter punkt 32.2, står det «TEs varsel etter NS 8407 punkt 32.2 i totalentreprenørens <brevtype> av <dato>», i formen LV-U42 gir. Uten registrert varsel nevnes varselet uten brev, som i dag.
+- **B:** Varselet nevnes uten brev også når det er registrert, som i dag: «TEs varsel etter NS 8407 punkt 32.2».
+
+Belegg: OV-U75 («punkt»), LV-U42, avgjørelsen 17.10 om at varselet etter punkt 32.2 nevnes uten brev.
+Forhold: A endrer avgjørelsen 17.10 for det registrerte varselet. B følger den.'''
+valgt = "A men ikke forkortelsen TE"
+svar = '''«1. ble ikke dette nettopp svart ut i siste vedtaksføring? 2. A 3. A men ikke forkortelsen TE - skriver totalentreprenøren»
+
+Svaret på mergespørsmålet 02.11, ordrett: «Litt dårlig språk, «totalentreprenøren» går igjen to ganger. Foreslå en retting»
+
+Oppfølgingsspørsmålet 02.11, ordrett:
+«- **A:** «totalentreprenørens varsel etter NS 8407 punkt 32.2 i <brevtype> av <dato>». Eksempel: «… i brev av 3. mars 2026».
+- **B (anbefalt):** «varsel etter NS 8407 punkt 32.2 i totalentreprenørens <brevtype> av <dato>». Eksempel: «… i totalentreprenørens brev av 3. mars 2026».»
+
+Svaret, ordrett: «A»'''
+folge = '''
+Bygges med #1489'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A men ikke forkortelsen TE"
+tekst = '''
+Når byggherrens svar viser til et registrert varsel etter punkt 32.2, står det «totalentreprenørens varsel etter NS 8407 punkt 32.2 i <brevtype> av <dato>», i formen LV-U42 gir. Uten registrert varsel nevnes varselet uten brev, som i dag.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A med retting totalentreprenørens"
+tekst = '''
+Når byggherrens svar viser til et registrert varsel etter punkt 32.2, står det «totalentreprenørens varsel etter NS 8407 punkt 32.2 i totalentreprenørens <brevtype> av <dato>», i formen LV-U42 gir. Uten registrert varsel nevnes varselet uten brev, som i dag.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B (oppfølging)"
+tekst = '''
+«varsel etter NS 8407 punkt 32.2 i totalentreprenørens <brevtype> av <dato>». Eksempel: «… i totalentreprenørens brev av 3. mars 2026».'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Varselet nevnes uten brev også når det er registrert, som i dag: «TEs varsel etter NS 8407 punkt 32.2».'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
