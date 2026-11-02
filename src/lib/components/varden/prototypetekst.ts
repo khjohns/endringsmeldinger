@@ -36,7 +36,8 @@ const SVAR: Record<Spor, string> = {
 /**
  * Forholdene med kjernens kode, i gruppene og rekkefølgen fra skissen versjon 3 (BF-05).
  * Gruppen har kontraktens henvisning (OV-U77), og navnet er forholdet selv (OV-U78).
- * Force majeure har ingen kode i kjernen ennå (#367).
+ * Force majeure har ingen kode i kjernen ennå (#367). Navnene har hjemmet sitt her, ikke i
+ * katalogen til `/mockup` (oppdragsgiver 02.11, #1492).
  */
 export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: string][] }[] = [
   {

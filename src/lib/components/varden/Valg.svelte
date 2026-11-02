@@ -62,7 +62,8 @@
   legend {
     padding: 0;
     margin-bottom: var(--spacing-3);
-    color: var(--ink-2);
+    font-weight: 600;
+    color: var(--ink);
   }
   .kort {
     display: flex;

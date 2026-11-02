@@ -602,7 +602,8 @@
   .feil {
     margin: 0;
     color: var(--danger);
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 500;
   }
   .grupper {
     display: grid;
