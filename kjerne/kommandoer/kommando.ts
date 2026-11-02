@@ -73,6 +73,11 @@ export type Kommando = (
        */
       varsel?: { sendt: string; dokumentasjon?: string[] };
       /**
+       * Vedleggene til påberopelsen, som ID-er i mellomlageret (LV-U14). Dokumentet med
+       * varselet etter punkt 32.2 TE alt har sendt, legges ved påberopelsen (VS-U38).
+       */
+      dokumentasjon?: string[];
+      /**
        * TEs utdypning under den låste teksten: beskrivelsen av forholdet i
        * forholdet (GR-U15), begrunnelsen i fristkravet (KA-U33). Appen tolker den
        * ikke (KA-U19).
@@ -182,6 +187,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: SPOR,
       innhold: { type: 'object' },
       varsel: objekt({ sendt: DATO, dokumentasjon: liste(ID) }, ['sendt']),
+      dokumentasjon: liste(ID),
       utdypning: TEKST,
       ...BREVTEKST,
     },
@@ -289,19 +295,21 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 type Innhold = Record<string, unknown>;
 
 /**
- * Feltet med datoen og vedleggene kommandoen viser til: brevets, eller varselets i et
- * fristkrav (OV-U5). Feilmeldingene har stien herfra (#984).
+ * Feltet med datoen og vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38),
+ * eller varselets i et fristkrav (OV-U5). Feilmeldingene har stien herfra (#984).
  */
 const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: string[] } =>
   k.type === 'krav'
-    ? { sti: '$.varsel.', ...k.varsel }
+    ? k.dokumentasjon
+      ? { sti: '$.', dokumentasjon: k.dokumentasjon }
+      : { sti: '$.varsel.', ...k.varsel }
     : {
         sti: '$.',
         ...('sendt' in k ? { sendt: k.sendt } : {}),
         ...('dokumentasjon' in k ? { dokumentasjon: k.dokumentasjon } : {}),
       };
 
-/** Vedleggene kommandoen viser til: brevets, eller varselets i et fristkrav (OV-U5). */
+/** Vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38), eller varselets i et fristkrav (OV-U5). */
 export const vedleggI = (k: Kommando): string[] => brevfelt(k).dokumentasjon ?? [];
 
 /**
@@ -358,6 +366,9 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
+    // VS-U38: vedleggene ved påberopelsen; et fristkrav har brevet med varselet i `varsel`.
+    if (k.spor !== 'forhold' && 'dokumentasjon' in k)
+      feil.push('$.dokumentasjon: bare påberopelsen har vedlegg ved kravet');
   }
   // OV-U5: varselet etter § 33.4 står i fristen, varselet etter § 34.1.2 i vederlaget.
   if ((type === 'varsel' || type === 'send_varsel') && !feil.length) {

@@ -55,6 +55,8 @@ const UTEN_TRIGGER: Record<string, string> = {
   notat: 'Notatet er ikke et kontraktsvarsel og kan endres og slettes (MS-05).',
   vedlegg:
     'Et ubundet vedlegg kan slettes av teamet som lastet det opp (#790). `koe.vedlegg_uten_endring` stopper hver endring, og `koe.vedlegg_bundet` slettingen av et bundet vedlegg.',
+  vedlegg_uten_sak:
+    'Et vedlegg til en ny sak slettes av teamet som lastet det opp, og flyttes til `koe.vedlegg` når saken opprettes (#1037). `koe.vedlegg_uten_sak_uten_endring` stopper hver endring.',
   kjernebuffer:
     'Bufferen er avledet og kan slettes og bygges på nytt fra journalen (arbeidsvalg 1 i #53).',
   skrivetidspunkt:

@@ -52,7 +52,7 @@ import {
 } from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
 import { SAKSLISTERUTER } from './saksliste.ts';
-import { lesSaken } from './lager.ts';
+import { lesSaken, type Leveringsmaal } from './lager.ts';
 import {
   IngenTopicBoard,
   KommandoIdBrukt,
@@ -70,7 +70,7 @@ import {
 } from './kommandoer.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
-import { lesFil, VEDLEGGSRUTER, type Fil } from './vedlegg.ts';
+import { lesFil, VEDLEGG_FOER_SAKEN, VEDLEGGSRUTER, type Fil } from './vedlegg.ts';
 import { BREVRUTER } from './brev.ts';
 import { WEBHOOKRUTER, type Webhook } from './webhook.ts';
 
@@ -120,12 +120,16 @@ export interface Forespoersel {
   fil: Fil | null;
 }
 
-/** Forespørselen til inngangen som oppretter en sak. */
-interface Opprettelsesforespoersel {
+/** Forespørselen til en inngang for en sak som ennå ikke finnes. */
+export interface Opprettelsesforespoersel {
   bruker: Bruker;
   prosjekt: Prosjekttilgang;
   side: Kontraktstilgang;
   kropp: Record<string, unknown>;
+  /** Første gruppe i stien, som vedlegget, eller `null`. */
+  ressurs: string | null;
+  /** Filen for en inngang med `fil`, ellers `null`. */
+  fil: Fil | null;
 }
 
 /** Forespørselen til en inngang til prosjektet selv. */
@@ -183,13 +187,17 @@ export interface Prosjektrute extends Felles {
 }
 
 /**
- * Inngangen som oppretter en sak: sesjon, prosjekttilgang og kontraktsrolle som en
- * saksinngang, men uten sak i stien, fordi saken ikke finnes ennå (#370).
- * Prosjektet er det i `X-Project-ID`. Begrunnelsen står i registeret.
+ * Inngangen som oppretter en sak, og vedleggene til den før den finnes (#1037): sesjon,
+ * prosjekttilgang og kontraktsrolle som en saksinngang, men uten sak i stien, fordi saken
+ * ikke finnes ennå (#370). Prosjektet er det i `X-Project-ID`. Begrunnelsen står i registeret.
  */
 export interface Opprettelsesrute extends Felles {
-  metode: 'POST';
+  metode: 'POST' | 'DELETE';
   tilgang: { prosjektrolle: 'member'; kontraktsrolle: 'kreves'; nySak: string };
+  /** Kroppen er en fil, som leses etter tilgangskontrollen og ikke tolkes som JSON. */
+  fil?: true;
+  /** Bare TE bruker inngangen, med meldingen BH får (KT-U10). Prøves før en fil leses. */
+  bareTE?: string;
   behandle: Behandler<Opprettelsesforespoersel>;
 }
 
@@ -485,7 +493,19 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   }
 }
 
-const NY_SAK = new Set(['kommando_id', 'ny_sak_id', 'tittel', 'paaberopelse', 'brevtekst']);
+const NY_SAK = new Set([
+  'kommando_id',
+  'ny_sak_id',
+  'tittel',
+  'paaberopelse',
+  'brevtekst',
+  'varsel',
+]);
+
+const VARSEL_I_NY_SAK = new Set(['sendt', 'dokumentasjon']);
+
+const tekstliste = (v: unknown): v is string[] =>
+  Array.isArray(v) && v.every((x) => typeof x === 'string');
 
 const erObjekt = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -496,6 +516,12 @@ const erObjekt = (v: unknown): v is Record<string, unknown> =>
  * `sak_id`, som tilgangskontrollen leser som en sak kroppen viser til og krever i prosjektet. Tittelen er én verdi, skrevet som
  * `sakstittel` i `sak_opprettet` og som `tittel` i påberopelsen (LV-U43). Kjernen prøver
  * påberopelsen mot `sak_opprettet` i minnet, med basens klokke, før noe skrives.
+ *
+ * Vedleggene i `paaberopelse.dokumentasjon` er lastet opp før saken fantes (#1037). Har TE
+ * alt sendt varselet etter punkt 32.2, står det i `varsel` med datoen og dokumentet, som
+ * også ligger ved påberopelsen (VS-U38, D-8). Kjernen prøver varselet mot påberopelsen før
+ * noe skrives, så datoen ikke kan være senere enn påberopelsen (`oppgittDatoEtterBrevet`),
+ * og det skrives som versjon 3 i samme transaksjon.
  */
 async function opprettMedPaaberopelse(
   { bruker, prosjekt, side, kropp }: Opprettelsesforespoersel,
@@ -505,7 +531,7 @@ async function opprettMedPaaberopelse(
   if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
   const id = kommandoId(kropp);
   if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');
-  const { ny_sak_id: sakId, tittel, paaberopelse, brevtekst } = kropp;
+  const { ny_sak_id: sakId, tittel, paaberopelse, brevtekst, varsel } = kropp;
   if (typeof sakId !== 'string' || !UUID.test(sakId))
     return ugyldig('ny_sak_id mangler eller er ikke en UUID med små bokstaver.');
   if (typeof tittel !== 'string' || !tittel.trim())
@@ -519,6 +545,22 @@ async function opprettMedPaaberopelse(
     return ugyldig('paaberopelse.innhold må være et objekt uten tittel; tittelen står i tittel.');
   if ('brevtekst' in paaberopelse)
     return ugyldig('paaberopelse har ikke brevtekst; den står i brevtekst.');
+  const vedleggider = tekstliste(paaberopelse.dokumentasjon)
+    ? [...new Set(paaberopelse.dokumentasjon.map((v) => v.toLowerCase()))]
+    : [];
+  if (varsel !== undefined) {
+    if (!erObjekt(varsel)) return ugyldig('varsel må være et objekt med sendt og dokumentasjon.');
+    const ukjenteIVarsel = Object.keys(varsel).filter((k) => !VARSEL_I_NY_SAK.has(k));
+    if (ukjenteIVarsel.length)
+      return ugyldig(`Ukjente felt i varsel: ${ukjenteIVarsel.join(', ')}.`);
+    if (!tekstliste(varsel.dokumentasjon) || !varsel.dokumentasjon.length)
+      return ugyldig('varsel.dokumentasjon mangler eller er ikke en liste med vedlegg.');
+    const utenfor = varsel.dokumentasjon.filter((v) => !vedleggider.includes(v.toLowerCase()));
+    if (utenfor.length)
+      return ugyldig(
+        `Dokumentet med varselet legges ved påberopelsen (VS-U38), men ${utenfor.join(', ')} står ikke i paaberopelse.dokumentasjon.`
+      );
+  }
   const krav = {
     ...paaberopelse,
     innhold: { ...paaberopelse.innhold, tittel },
@@ -526,7 +568,14 @@ async function opprettMedPaaberopelse(
   };
   const kommando = {
     id,
-    sha256: kommandosum({ rute: 'ny_sak', ny_sak_id: sakId, tittel, paaberopelse, brevtekst }),
+    sha256: kommandosum({
+      rute: 'ny_sak',
+      ny_sak_id: sakId,
+      tittel,
+      paaberopelse,
+      brevtekst,
+      varsel,
+    }),
   };
   const kontekst = skrivekontekst(bruker, prosjekt, side);
   let utfall;
@@ -536,7 +585,8 @@ async function opprettMedPaaberopelse(
       kontekst,
       sakId,
       kommando,
-      ({ tidspunkt }) => {
+      vedleggider,
+      ({ tidspunkt, vedlegg }) => {
         const nySak = opprettelse({ type: 'opprett_sak', sakstittel: tittel }, side.rolle);
         if (!nySak.godtatt) return { skriv: false, avvisning: nySak };
         const opprettet: Journalrad = {
@@ -552,28 +602,46 @@ async function opprettMedPaaberopelse(
           format: nySak.format,
           data: nySak.data,
         };
-        const vurdert = vurder(
-          krav,
-          {
-            sakId,
-            aktoerId: kontekst.aktor,
-            part: kontekst.side,
-            teamId: kontekst.team ?? null,
-            tidspunkt: () => tidspunkt,
-            nyId: avh.nyId,
-          },
-          [opprettet],
-          avh.kjerne,
-          new Map()
-        );
+        const kjernekontekst = (t: Date) => ({
+          sakId,
+          aktoerId: kontekst.aktor,
+          part: kontekst.side,
+          teamId: kontekst.team ?? null,
+          tidspunkt: () => t,
+          nyId: avh.nyId,
+        });
+        const vurdert = vurder(krav, kjernekontekst(tidspunkt), [opprettet], avh.kjerne, vedlegg);
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
         const [rad] = vurdert.hendelser;
         const status = sakenSomVises([opprettet, rad], avh.kjerne).visning.status;
+        const varselet =
+          varsel === undefined
+            ? null
+            : { type: 'varsel', spor: 'forhold', hjemmel: '32.2', ...varsel };
+        const lagVarsel = (t: Date) => {
+          const v = vurder(varselet, kjernekontekst(t), [opprettet, rad], avh.kjerne, vedlegg);
+          if (!v.godtatt) return { skriv: false as const, avvisning: v };
+          const [varselrad] = v.hendelser;
+          const etter = sakenSomVises([opprettet, rad, varselrad], avh.kjerne).visning.status;
+          return {
+            skriv: true as const,
+            rad: varselrad,
+            oppdrag: (maal: Leveringsmaal) =>
+              lagOppdrag(varselrad, maal, etter, avh.kjerne, avh.nyId),
+          };
+        };
+        // Varselet prøves med påberopelsens klokke før noe skrives, så datoen ikke kan være
+        // senere enn påberopelsen (VS-U38); det skrives med basens klokke for sin skriving.
+        if (varselet) {
+          const proeve = lagVarsel(tidspunkt);
+          if (!proeve.skriv) return proeve;
+        }
         return {
           skriv: true,
           opprettet,
           rad,
           oppdrag: (maal) => lagOppdrag(rad, maal, status, avh.kjerne, avh.nyId),
+          varsel: varselet ? ({ tidspunkt: t }) => lagVarsel(t) : null,
         };
       }
     );
@@ -690,6 +758,7 @@ export const RUTER: readonly Rute[] = [
   ...VEDLEGGSRUTER,
   ...BREVRUTER,
   OPPRETTELSE,
+  ...VEDLEGG_FOER_SAKEN,
   ...INNLOGGINGSRUTER,
   ...PROSJEKTRUTER,
   ...SAKSLISTERUTER,
@@ -767,9 +836,22 @@ export function lagServer(avh: Avhengigheter) {
     return r.behandle({ ...f, sakId, ressurs, fil }, full);
   }
 
-  async function opprettelsesrute(r: Opprettelsesrute, foresporsel: IncomingMessage) {
-    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, UTEN_STI);
-    return r.behandle({ ...f, side: medSide(f.side) }, full);
+  async function opprettelsesrute(
+    r: Opprettelsesrute,
+    treff: RegExpMatchArray,
+    foresporsel: IncomingMessage
+  ): Promise<Svar> {
+    let ressurs: string | null;
+    try {
+      ressurs = treff[1] === undefined ? null : decodeURIComponent(treff[1]);
+    } catch {
+      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs.');
+    }
+    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, UTEN_STI, r.fil);
+    if (r.bareTE !== undefined && f.side?.rolle !== 'TE')
+      return feilsvar(403, 'FORBIDDEN', r.bareTE);
+    const fil = r.fil ? await lesFil(foresporsel, f.side) : null;
+    return r.behandle({ ...f, side: medSide(f.side), ressurs, fil }, full);
   }
 
   async function prosjektrute(
@@ -806,7 +888,7 @@ export function lagServer(avh: Avhengigheter) {
     if (erAapen(r)) return r.behandle(foresporsel, full, treff);
     if (erUtenProsjekt(r)) return r.behandle(await krevSesjon(full.datalag, foresporsel), full);
     if (erUtenSak(r)) return prosjektrute(r, treff, foresporsel);
-    if (erOpprettelse(r)) return opprettelsesrute(r, foresporsel);
+    if (erOpprettelse(r)) return opprettelsesrute(r, treff, foresporsel);
     return saksrute(r, treff, foresporsel);
   }
 

@@ -438,6 +438,12 @@ erDiagram
         nvarchar_32 lastet_opp_team "uten fremmednøkkel"
         nvarchar_36 bundet_av_event_id FK
     }
+    koe_vedlegg_uten_sak {
+        uniqueidentifier vedlegg_id PK
+        nvarchar_100 prosjekt_id FK
+        uniqueidentifier lastet_opp_av FK
+        nvarchar_32 lastet_opp_team "uten fremmednøkkel"
+    }
     koe_vedleggskvittering {
         uniqueidentifier vedlegg_id PK, FK
         nvarchar_20 operasjon PK
@@ -505,6 +511,9 @@ erDiagram
     koe_app_users ||--o{ koe_vedlegg : "lastet_opp_av"
     koe_hendelse |o--o{ koe_vedlegg : "(bundet_av_event_id, sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_vedlegg : "lastet_opp_team"
+    koe_projects ||--o{ koe_vedlegg_uten_sak : "prosjekt_id"
+    koe_app_users ||--o{ koe_vedlegg_uten_sak : "lastet_opp_av"
+    koe_catenda_contract_teams |o..o{ koe_vedlegg_uten_sak : "lastet_opp_team"
     koe_projects ||--o{ koe_dagmulktssats : "prosjekt_id"
     koe_projects ||--o| koe_kontraktsparter : "prosjekt_id"
     koe_sak_metadata ||--o{ koe_godkjenningspakke : "(sak_id, prosjekt_id)"
@@ -641,6 +650,9 @@ erDiagram
 | `koe.vedlegg.lastet_opp_av` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). | — | K 18.10: katalogen. |
 | `koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id)` | `koe.hendelse.(event_id, sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den første hendelsen som viser til vedlegget (arbeidsvalg 4 i #790), i samme sak og prosjekt. Tom for et ubundet vedlegg. | — | K 18.10: katalogen. |
 | `koe.vedlegg.lastet_opp_team` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser og sletter vedlegget før det er bundet. Basen avviser et vedlegg uten team (AGENTS.md). | — | L 18.10: migrasjonen. |
+| `koe.vedlegg_uten_sak.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet vedlegget er lastet opp i, før saken finnes (#1037). Saken som opprettes, må være i samme prosjekt for at vedlegget flyttes. | — | K 02.11: katalogen. |
+| `koe.vedlegg_uten_sak.lastet_opp_av` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). Bare den samme aktøren kan flytte det inn i en sak. | — | K 02.11: katalogen. |
+| `koe.vedlegg_uten_sak.lastet_opp_team` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser og sletter vedlegget til saken er opprettet. Basen avviser et vedlegg uten team (AGENTS.md). | — | L 02.11: migrasjonen. |
 | `koe.dagmulktssats.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet satsen gjelder i. Uten rad mangler satsen (B-06). | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.kontraktsparter.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Prosjektet navnene gjelder i. Uten rad har prosjektet ingen navn på partene (#1398). | — | L 30.10: migrasjonen. K 30.10: `server/tester/prosjekter.test.ts`. |
 | `koe.godkjenningspakke.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken svaret i pakken gjelder, i samme prosjekt. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
@@ -931,6 +943,7 @@ flowchart LR
 | `koe.kvittering` | — | — | — |
 | `koe.brevdokument` | — | — | — |
 | `koe.vedlegg` | — | — | — |
+| `koe.vedlegg_uten_sak` | — | — | — |
 | `koe.dagmulktssats` | — | — | — |
 | `koe.kontraktsparter` | — | — | — |
 | `koe.godkjenningspakke` | — | — | — |

@@ -820,6 +820,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'toemmingsvern',
         'topic_kommentar',
         'vedlegg',
+        'vedlegg_uten_sak',
         'vedleggskvittering',
       ]);
       expect(k2).toEqual(k1);

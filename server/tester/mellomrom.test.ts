@@ -190,6 +190,10 @@ const UTEN_KONTROLL: Record<string, Grunn> = {
     kontroll: 'vedlegg_lastet_opp_side',
   },
   'koe.vedlegg.sak_id': { grunn: 'fremmednoekkel', til: 'koe.sak_metadata.sak_id' },
+  'koe.vedlegg_uten_sak.lastet_opp_side': {
+    grunn: 'verdiene_fyller_kolonnen',
+    kontroll: 'vedlegg_uten_sak_lastet_opp_side',
+  },
   'koe.vedlegg.bundet_av_event_id': { grunn: 'fremmednoekkel', til: 'koe.hendelse.event_id' },
 };
 

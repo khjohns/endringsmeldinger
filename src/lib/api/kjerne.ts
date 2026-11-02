@@ -78,8 +78,19 @@ export const opprettSak = (kommandoId: string, kommando: unknown, prosjektId: st
 export interface NySakTilServeren {
   sakId: string;
   opprettelse: { sakstittel: string };
-  paaberopelse: { type: 'krav'; spor: 'forhold'; innhold: Record<string, unknown> };
+  paaberopelse: {
+    type: 'krav';
+    spor: 'forhold';
+    innhold: Record<string, unknown>;
+    /** Vedleggene lastet opp med `lastOppVedleggForNySak` (#1037). */
+    dokumentasjon?: string[];
+  };
   tekst: string[];
+  /**
+   * Varselet etter punkt 32.2 TE alt har sendt, med datoen og dokumentet (VS-U38). Dokumentet
+   * står også i `paaberopelse.dokumentasjon`; ellers avviser serveren kallet (svar 2 i #1487).
+   */
+  varsel?: { sendt: string; dokumentasjon: string[] };
 }
 
 /**
@@ -100,6 +111,7 @@ export const sendNySak =
         tittel: nySak.opprettelse.sakstittel,
         paaberopelse: nySak.paaberopelse,
         brevtekst: nySak.tekst,
+        ...(nySak.varsel ? { varsel: nySak.varsel } : {}),
       }),
     }).then((s) => ({ sakId: s.sak_id }));
 
@@ -141,3 +153,28 @@ export const lastOppKjernevedlegg = (sakId: string, fil: File, prosjektId: strin
     },
     body: fil,
   }).then((s) => s.vedlegg);
+
+const VEDLEGG_FOR_NY_SAK = '/api/kjerne/vedlegg';
+
+/**
+ * Laster opp et vedlegg til en sak som ennå ikke finnes (#1037). Serveren flytter det inn
+ * i saken når saken opprettes med en påberopelse som viser til det. Bare TE laster opp
+ * (KT-U10).
+ */
+export const lastOppVedleggForNySak = (fil: File, prosjektId: string) =>
+  apiFetch<{ vedlegg: Kjernevedlegg }>(VEDLEGG_FOR_NY_SAK, {
+    method: 'POST',
+    headers: {
+      ...prosjekthode(prosjektId),
+      'Content-Type': 'application/octet-stream',
+      'X-Filnavn': encodeURIComponent(fil.name),
+    },
+    body: fil,
+  }).then((s) => s.vedlegg);
+
+/** Sletter et vedlegg teamet har lastet opp til en sak som ennå ikke finnes (#1037). */
+export const slettVedleggForNySak = (vedleggId: string, prosjektId: string) =>
+  apiFetch<{ success: true }>(`${VEDLEGG_FOR_NY_SAK}/${encodeURIComponent(vedleggId)}`, {
+    method: 'DELETE',
+    headers: prosjekthode(prosjektId),
+  });

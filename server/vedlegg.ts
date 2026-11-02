@@ -15,7 +15,14 @@
 
 import { createHash } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
-import type { Avhengigheter, Forespoersel, Saksrute, Svar } from './app.ts';
+import type {
+  Avhengigheter,
+  Forespoersel,
+  Opprettelsesforespoersel,
+  Opprettelsesrute,
+  Saksrute,
+  Svar,
+} from './app.ts';
 import { Nektet, type Kontraktstilgang } from './autorisasjon.ts';
 import { lagret, lesInntil } from './inngang.ts';
 import {
@@ -34,6 +41,12 @@ import { tegnSomIkkeKanVises, ulagringsbarTekst } from '../kjerne/format/skjema.
 export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;
 
 const STOERSTE_FILNAVN = 200;
+
+/** 51403 fra `lagre_vedlegg`: konteksten har ikke noe team eller ingen lagret form, eller saken er ukjent i prosjektet. */
+const LAGRING_NEKTET = NEKTET;
+
+/** 51409 fra `slett_vedlegg`: en hendelse har bundet vedlegget. */
+const VEDLEGGET_ER_BUNDET = KONFLIKT;
 
 /** Bytene i kroppen og filnavnet fra hodet `X-Filnavn`, kodet med `encodeURIComponent`. */
 export interface Fil {
@@ -171,9 +184,8 @@ const somSvar = (r: Vedleggsrad) => ({
   bundet_av_event_id: r.bundet_av_event_id,
 });
 
-async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
-  // `lesFil` har avvist en forespørsel uten team eller uten filnavn.
-  const fil = f.fil!;
+/** Filnavnet og innholdet kontrollert, eller avvisningen. */
+function kontrollertFil(fil: Fil): { filnavn: string; sum: string } | Svar {
   const filnavn = rensetFilnavn(fil.filnavn);
   if (filnavn === null) return feilsvar(400, 'UGYLDIG_FILNAVN', 'Filnavnet kan ikke brukes.');
   const ikkeVist = filnavnSomIkkeKanVises(filnavn);
@@ -181,8 +193,16 @@ async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
   if (!fil.innhold.length) return feilsvar(400, 'TOM_FIL', 'Filen er tom.');
   const galt = innholdsfeil(filnavn, fil.innhold);
   if (galt) return feilsvar(400, 'UGYLDIG_INNHOLD', galt);
+  return { filnavn, sum: createHash('sha256').update(fil.innhold).digest('hex') };
+}
+
+async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
+  // `lesFil` har avvist en forespørsel uten team eller uten filnavn.
+  const fil = f.fil!;
+  const kontrollert = kontrollertFil(fil);
+  if (Array.isArray(kontrollert)) return kontrollert;
+  const { filnavn, sum } = kontrollert;
   const vedleggId = avh.nyId();
-  const sum = createHash('sha256').update(fil.innhold).digest('hex');
   try {
     const rad = await transaksjon(avh.datalag, kontekst(f), async (foresp) => {
       await foresp()
@@ -200,7 +220,8 @@ async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
     return lagret([201, { success: true, vedlegg: somSvar(rad) }]);
   } catch (feil) {
     const nr = feilnummer(feil);
-    if (nr === NEKTET || nr === BLOKKERT) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+    if (nr === LAGRING_NEKTET || nr === BLOKKERT)
+      return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
     throw feil;
   }
 }
@@ -235,7 +256,7 @@ export const attrTegn = (navn: string) =>
   );
 
 /** Vedlegg-ID-en fra stien med små bokstaver, eller `null` når den ikke er en UUID (#815 punkt 3). */
-const vedleggId = (f: Forespoersel): string | null => {
+const vedleggId = (f: { ressurs: string | null }): string | null => {
   const id = f.ressurs?.toLowerCase();
   return id && UUID.test(id) ? id : null;
 };
@@ -283,7 +304,7 @@ async function slett(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Sva
     });
     return slettet ? lagret([200, { success: true }]) : finnesIkke();
   } catch (feil) {
-    if (feilnummer(feil) === KONFLIKT)
+    if (feilnummer(feil) === VEDLEGGET_ER_BUNDET)
       return feilsvar(
         409,
         'VEDLEGG_BUNDET',
@@ -326,5 +347,110 @@ export const VEDLEGGSRUTER: readonly Saksrute[] = [
     eksempel: (s) => `/api/kjerne/saker/${s}/vedlegg/${EKSEMPEL_ID}`,
     tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves' },
     behandle: slett,
+  },
+];
+
+/**
+ * Vedlegg til en sak som ennå ikke finnes (#1037, #1487): vedleggene i den første
+ * påberopelsen og dokumentet med varselet etter punkt 32.2 (VS-U38). De ligger i
+ * `koe.vedlegg_uten_sak` til saken opprettes, og flyttes da inn i saken og bindes i samme
+ * transaksjon (`opprettSakMedPaaberopelse` i `kommandoer.ts`). Bare TE laster opp, fordi
+ * bare TE oppretter en sak (KT-U10), og radsikkerheten viser et slikt vedlegg bare for
+ * teamet som lastet det opp.
+ */
+function kontekstUtenSak(
+  { bruker, prosjekt, side }: Opprettelsesforespoersel,
+  team: string
+): Kontekst {
+  return { aktor: bruker.id, prosjekt: prosjekt.prosjektId, side: side.rolle, team };
+}
+
+/** Teamet for et vedlegg uten sak, eller avvisningen uten entydig team. Ruteren har avvist BH. */
+function teamUtenSak(f: Opprettelsesforespoersel): string | Svar {
+  if (!f.side.teamId) return UTEN_TEAM;
+  return f.side.teamId;
+}
+
+async function lastOppUtenSak(
+  f: Opprettelsesforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const team = teamUtenSak(f);
+  if (typeof team !== 'string') return team;
+  // `lesFil` har avvist en forespørsel uten filnavn.
+  const fil = f.fil!;
+  const kontrollert = kontrollertFil(fil);
+  if (Array.isArray(kontrollert)) return kontrollert;
+  const { filnavn, sum } = kontrollert;
+  const vedleggId = avh.nyId();
+  try {
+    const rad = await transaksjon(avh.datalag, kontekstUtenSak(f, team), async (foresp) => {
+      await foresp()
+        .input('vedlegg_id', sql.UniqueIdentifier, vedleggId)
+        .input('filnavn', sql.NVarChar(STOERSTE_FILNAVN), filnavn)
+        .input('innhold', sql.VarBinary(sql.MAX), fil.innhold)
+        .input('innhold_sha256', sql.NVarChar(64), sum)
+        .execute('koe_api.lagre_vedlegg_uten_sak');
+      const svar = await foresp()
+        .input('id', sql.UniqueIdentifier, vedleggId)
+        .query<Vedleggsrad>(
+          `SELECT ${KOLONNER_UTEN_SAK} FROM koe.vedlegg_uten_sak WHERE vedlegg_id = @id`
+        );
+      return svar.recordset[0];
+    });
+    return lagret([201, { success: true, vedlegg: somSvar(rad) }]);
+  } catch (feil) {
+    const nr = feilnummer(feil);
+    if (nr === LAGRING_NEKTET || nr === BLOKKERT)
+      return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+    throw feil;
+  }
+}
+
+const KOLONNER_UTEN_SAK = `LOWER(CONVERT(nvarchar(36), vedlegg_id)) AS vedlegg_id, filnavn, stoerrelse,
+  innhold_sha256, lastet_opp_side, lastet_opp, CAST(NULL AS nvarchar(36)) AS bundet_av_event_id`;
+
+async function slettUtenSak(
+  f: Opprettelsesforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const id = vedleggId(f);
+  const finnesIkkeUtenSak = () =>
+    feilsvar(404, 'VEDLEGG_FINNES_IKKE', 'Vedlegget finnes ikke blant vedleggene til en ny sak.');
+  const team = teamUtenSak(f);
+  if (typeof team !== 'string') return team;
+  if (!id) return finnesIkkeUtenSak();
+  const slettet = await transaksjon(avh.datalag, kontekstUtenSak(f, team), async (foresp) => {
+    const svar = await foresp()
+      .input('vedlegg_id', sql.UniqueIdentifier, id)
+      .execute<{ slettet: number }>('koe_api.slett_vedlegg_uten_sak');
+    return svar.recordset[0].slettet;
+  });
+  return slettet ? lagret([200, { success: true }]) : finnesIkkeUtenSak();
+}
+
+const UTEN_SAK = '/api/kjerne/vedlegg';
+const BARE_TE =
+  'Du er på BH-siden. Vedlegg til en ny sak lastes opp og slettes av TE, som oppretter saken.';
+const NY_SAK_BEGRUNNELSE =
+  'Vedlegget til en sak som ennå ikke finnes: saken opprettes med påberopelsen, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE laster opp (KT-U10, #1037).';
+
+export const VEDLEGG_FOER_SAKEN: readonly Opprettelsesrute[] = [
+  {
+    metode: 'POST',
+    sti: new RegExp(`^${UTEN_SAK}$`),
+    eksempel: () => UTEN_SAK,
+    tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves', nySak: NY_SAK_BEGRUNNELSE },
+    fil: true,
+    bareTE: BARE_TE,
+    behandle: lastOppUtenSak,
+  },
+  {
+    metode: 'DELETE',
+    sti: new RegExp(`^${UTEN_SAK}/${ID}$`),
+    eksempel: () => `${UTEN_SAK}/${EKSEMPEL_ID}`,
+    tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves', nySak: NY_SAK_BEGRUNNELSE },
+    bareTE: BARE_TE,
+    behandle: slettUtenSak,
   },
 ];
