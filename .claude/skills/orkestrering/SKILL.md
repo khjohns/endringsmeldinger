@@ -195,7 +195,8 @@ issue. Oppdraget skal inneholde:
 - kildene som er fasit: issuet, bestillingen, vedtakene og kommentarene med arbeidsvalg.
   Oppdraget sier hvilken som er fasit, og gjengir eller tolker ikke innholdet. Funn fra
   kartleggingen er utgangspunkt, ikke krav. Peker issuet på en bestilling, er bestillingen
-  fasit, og en skisse gjelder bare der bestillingen ikke endrer noe. For bygging i Varden
+  fasit, og en skisse utenfor prototypene i `docs/design/prototyper/` gjelder bare der
+  bestillingen ikke endrer noe. For bygging i Varden
   er prototypene i `docs/design/prototyper/` og issuene fasit sammen (oppdragsgiver 02.11,
   #1450). Motstrid mellom dem avklares med oppdragsgiver før byggeøkta starter, og oppdraget
   viser ikke til den gamle visningen som utgangspunkt. Bestillingen fra designsløyfa er
