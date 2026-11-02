@@ -1073,13 +1073,34 @@ transaksjon som hendelsen (V-2). Når Catenda har kvittert for dokumentet, sette
 `koe_api.kvitter_vedlegg` innholdet til NULL og beholder filnavnet og summen
 (LV-U12, V-3). Triggeren `koe.vedlegg_uten_endring` slipper bare gjennom de to
 endringene."""
-lagres_fra = "`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`, `koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`, og `koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`."
+lagres_fra = "`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`, `koe_api.flytt_vedlegg_til_sak` og `koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`, og `koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Før levering finnes filen bare her."
 personopplysninger = "Filen og filnavnet kan ha navn på personer i prosjektet."
-skrivere = ["database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.lagre_vedlegg`, innført i `20261018193000_vedlegg.sql`, kalt fra `server/vedlegg.ts`)", "database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`)", "database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.bind_vedlegg`, innført i `20261019170000_vedleggsbinding.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_vedlegg`, innført i `20261020020000_vedleggslevering.sql`, kalt fra `server/jobber.ts`)"]
+skrivere = ["database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.lagre_vedlegg`, innført i `20261018193000_vedlegg.sql`, kalt fra `server/vedlegg.ts`)", "database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.slett_vedlegg`, innført i `20261018193000_vedlegg.sql`, kalt fra `server/vedlegg.ts`)", "database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.flytt_vedlegg_til_sak`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.bind_vedlegg`, innført i `20261019170000_vedleggsbinding.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_vedlegg`, innført i `20261020020000_vedleggslevering.sql`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonene. K 18.10: `server/tester/vedlegg.test.ts`."
+
+[[tabell]]
+navn = "koe.vedlegg_uten_sak"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Vedleggene TE laster opp før saken finnes (#1037, svar 1 i #1487): filen, filnavnet,
+størrelsen og SHA-256 av bytene, med prosjektet, aktøren og teamet som lastet opp.
+Bare teamet ser og sletter dem. Når saken opprettes med påberopelsen,
+flytter `koe_api.flytt_vedlegg_til_sak` dem påberopelsen viser til, til `koe.vedlegg`
+med samme `vedlegg_id`, og sletter dem her, i samme transaksjon (KT-U11). Bare
+aktørens egne flyttes. Triggeren `koe.vedlegg_uten_sak_uten_endring` stopper
+`UPDATE`. Rader som aldri blir brukt, blir liggende; ryddingen står i et eget issue."""
+lagres_fra = "`koe_api.lagre_vedlegg_uten_sak` og `koe_api.slett_vedlegg_uten_sak`, kalt fra `server/vedlegg.ts`, og `koe_api.flytt_vedlegg_til_sak`, kalt fra `server/kommandoer.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Filen finnes bare her til saken opprettes."
+personopplysninger = "Filen og filnavnet kan ha navn på personer i prosjektet."
+skrivere = ["database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.lagre_vedlegg_uten_sak`, kalt fra `server/vedlegg.ts`)", "database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.slett_vedlegg_uten_sak`, kalt fra `server/vedlegg.ts`)", "database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.flytt_vedlegg_til_sak`, kalt fra `server/kommandoer.ts`)"]
+funn = []
+belegg = "L 02.11: migrasjonen. K 02.11: `server/tester/ny_sak.test.ts`."
 
 [[tabell]]
 navn = "koe.dagmulktssats"

@@ -1196,6 +1196,36 @@ funn = []
 belegg = "L 18.10: migrasjonen."
 
 [[relasjon]]
+fra = "koe.vedlegg_uten_sak.prosjekt_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Prosjektet vedlegget er lastet opp i, før saken finnes (#1037). Saken som opprettes, må være i samme prosjekt for at vedlegget flyttes."""
+funn = []
+belegg = "K 02.11: katalogen."
+
+[[relasjon]]
+fra = "koe.vedlegg_uten_sak.lastet_opp_av"
+til = "koe.app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). Bare den samme aktøren kan flytte det inn i en sak."""
+funn = []
+belegg = "K 02.11: katalogen."
+
+[[relasjon]]
+fra = "koe.vedlegg_uten_sak.lastet_opp_team"
+til = "koe.catenda_contract_teams.team_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Teamet som ser og sletter vedlegget til saken er opprettet. Basen avviser et vedlegg uten team (AGENTS.md)."""
+funn = []
+belegg = "L 02.11: migrasjonen."
+
+[[relasjon]]
 fra = "koe.dagmulktssats.prosjekt_id"
 til = "koe.projects.id"
 art = "fremmednøkkel"
