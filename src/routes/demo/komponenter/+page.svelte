@@ -13,13 +13,7 @@
   import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
   import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
   import { brevene, oppgitteDatoer } from '$lib/components/varden/lesing';
-  import {
-    BREVMENY,
-    SAKEN,
-    SPORNAVN,
-    brevtittel,
-    dato,
-  } from '$lib/components/varden/prototypetekst';
+  import { BREVMENY, SAKEN, SPORNAVN, brevtittel, dato } from '$lib/components/varden/tekster';
   import Arbeid from './Arbeid.svelte';
   import { FORLOEPET, TILSTANDER, aapneSak } from './kjernesaker';
 

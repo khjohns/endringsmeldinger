@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import { ChevronDown } from 'lucide-svelte';
-  import { BREVTYPER, MOTTATT, ukjentHandling } from './prototypetekst';
+  import { BREVTYPER, MOTTATT, ukjentHandling } from './tekster';
 
   let {
     tittel,

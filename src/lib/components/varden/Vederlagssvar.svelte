@@ -43,7 +43,7 @@
     grunntekst,
     kalenderdager,
     standpunkttekst,
-  } from './prototypetekst';
+  } from './tekster';
 
   let {
     kjernesak,

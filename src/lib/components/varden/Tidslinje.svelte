@@ -7,7 +7,7 @@
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
   import type { Brevet, OppgittDato } from './lesing';
-  import { OPPGITT, TIDSLINJE, brevtittel, dato, klokke } from './prototypetekst';
+  import { OPPGITT, TIDSLINJE, brevtittel, dato, klokke } from './tekster';
 
   let {
     brev,

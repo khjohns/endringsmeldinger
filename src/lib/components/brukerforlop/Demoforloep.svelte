@@ -10,7 +10,7 @@
   import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
   import NySak from '$lib/components/varden/NySak.svelte';
   import Vardensak from '$lib/components/varden/Vardensak.svelte';
-  import { NYSAK } from '$lib/components/varden/prototypetekst';
+  import { NYSAK } from '$lib/components/varden/tekster';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import {
     DEMOKONTRAKT,

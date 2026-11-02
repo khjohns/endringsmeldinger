@@ -27,7 +27,7 @@
     type Forholdsvalg,
     type SendNySak,
   } from './nysak';
-  import { NYSAK } from './prototypetekst';
+  import { NYSAK } from './tekster';
 
   let {
     sakId,

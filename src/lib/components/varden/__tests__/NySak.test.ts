@@ -11,7 +11,7 @@ import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import type { SendNySak } from '$lib/components/varden/nysak';
 import { kravMotNySak } from '$lib/kjernesak/brevtekst';
 import { KJERNE } from '$kjerne/versjon';
-import { brevtittel } from '$lib/components/varden/prototypetekst';
+import { brevtittel } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
