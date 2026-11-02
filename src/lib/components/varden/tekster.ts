@@ -11,6 +11,7 @@
 import { kroner } from '$kjerne/frosset/standpunkt';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Part, Spor, Standpunkt } from '$kjerne/typer';
+import type { Betegnelse, Saksbetegnelse } from '$lib/types/api';
 import type { Brevet, OppgittDato } from './lesing';
 
 export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
@@ -478,4 +479,49 @@ export const NYSAK = {
   tilbakeTil: 'skjemaet',
   kvittering: 'Påberopelsen er sendt. Brevet sendes til Catenda.',
   avbrutt: 'Brevet er ikke sendt, og ingen sak er opprettet.',
+};
+
+/** Sakslisten i prosjektet (#1450, prototypen `saksliste.html`, svarene på M1–M8). */
+export const SAKSLISTE = {
+  saker: 'Saker',
+  koe: 'Krav om endringsordre',
+  eo: 'Endringsordrer',
+  antall: (n: number) => `${n} ${n === 1 ? 'sak' : 'saker'}`,
+  nyKoe: 'Nytt krav om endringsordre',
+  sak: 'Sak',
+  vederlag: 'Vederlag',
+  frist: 'Frist',
+  krevd: 'Krevd',
+  svar: 'Svar',
+  ikkeKrevd: 'Ikke krevd',
+  utenTittel: 'Uten tittel',
+  inngaarIEo: (kode: string) => `Inngår i ${kode}`,
+  laster: 'Laster sakene …',
+  lastefeil: 'Sakene kunne ikke lastes',
+  lastefeilBeklager: 'Beklager, sakene ble ikke hentet. Prøv igjen om litt.',
+  tomKoe: 'Ingen krav om endringsordre ennå.',
+  tomKoeTe: 'Ingen krav om endringsordre ennå. Et nytt krav begynner med påberopelsen.',
+  tomEo: 'Ingen endringsordrer ennå.',
+  tomEoForklaring: 'Endringsordrene vises her når de kan føres i løsningen.',
+};
+
+/** Betegnelsen per spor, slik lista står i MM-U30 (samme tekster som `betegnelsestekst`). */
+export const BETEGNELSE: Record<Betegnelse, string> = {
+  trukket: 'Trukket',
+  spesifisert_krav_etterspurt: 'Byggherren har bedt om spesifisert krav (§ 33.6.2)',
+  venter_paa_svar: 'Kravet venter på byggherrens svar',
+  paalegg_frafalt: 'Byggherren har frafalt pålegget',
+  enige: 'Enige',
+  svar_ikke_godtatt: 'Svaret er ikke godtatt',
+  krav_sendt: 'Krav sendt',
+  ingen_krav: 'Ingen krav',
+  varslet: 'Varslet',
+};
+
+/** Saksbetegnelsen i de fire tilfellene i MM-U22, med tekstene i visningen av saken (OV-U10). */
+export const SAKSBETEGNELSE: Record<Saksbetegnelse, string> = {
+  ikke_forstaatt: 'Ikke forstått',
+  avslaget_paa_forholdet_godtatt: 'Avsluttet: avslått',
+  paaberopelsen_trukket: 'Avsluttet: trukket',
+  kravene_avgjort: 'Alle krav sendt i appen er avgjort',
 };

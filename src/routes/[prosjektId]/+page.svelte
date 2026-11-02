@@ -1,7 +1,8 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import { resolve } from '$app/paths';
   import { createCaseListQuery } from '$lib/queries/caseList';
-  import ProjectOverview from '$lib/components/saksoversikt/ProjectOverview.svelte';
+  import Saksliste from '$lib/components/varden/Saksliste.svelte';
   import { projectToMeta } from '$lib/constants/projectMeta';
   import { projectStore } from '$lib/stores/project.svelte';
 
@@ -10,23 +11,19 @@
   const projectMeta = $derived(projectToMeta(projectStore.current, prosjektId));
 </script>
 
-<svelte:head><title>Krav og endringer — {projectMeta.name}</title></svelte:head>
+<svelte:head><title>Saker — {projectMeta.name}</title></svelte:head>
 
-<ProjectOverview
+<Saksliste
   saker={query.data?.saker ?? []}
-  noekkeltall={query.data?.noekkeltall ?? null}
   part={query.data?.part ?? null}
-  {prosjektId}
-  prosjektNavn={projectMeta.name}
-  entreprise={projectMeta.entreprise}
-  contract={projectStore.current?.settings.contract}
-  projectDescription={projectStore.current?.description}
-  projectImageUrl={projectStore.current?.settings.image_url}
-  projectImageAlt={projectStore.current?.settings.image_alt}
-  loading={query.isLoading}
-  error={query.isError
+  laster={query.isLoading}
+  feil={query.isError
     ? query.error instanceof Error
       ? query.error.message
       : 'Prøv igjen senere.'
     : null}
+  onproevIgjen={() => query.refetch()}
+  prosjektNavn={projectMeta.name}
+  sakslenke={(sakId) => resolve('/[prosjektId]/[sakId]', { prosjektId, sakId })}
+  nyttKrav={resolve('/[prosjektId]/ny', { prosjektId })}
 />
