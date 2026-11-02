@@ -195,8 +195,11 @@ issue. Oppdraget skal inneholde:
 - kildene som er fasit: issuet, bestillingen, vedtakene og kommentarene med arbeidsvalg.
   Oppdraget sier hvilken som er fasit, og gjengir eller tolker ikke innholdet. Funn fra
   kartleggingen er utgangspunkt, ikke krav. Peker issuet på en bestilling, er bestillingen
-  fasit, ikke en skisse eller prototype, og en skisse gjelder bare der bestillingen ikke
-  endrer noe. Økta leser kildene selv og skriver akseptkriteriene ut fra dem, etter
+  fasit, og en skisse gjelder bare der bestillingen ikke endrer noe. For bygging i Varden
+  er prototypene i `docs/design/prototyper/` og issuene fasit sammen (oppdragsgiver 02.11,
+  #1450). Motstrid mellom dem avklares med oppdragsgiver før byggeøkta starter, og oppdraget
+  viser ikke til den gamle visningen som utgangspunkt. Bestillingen fra designsløyfa er
+  fortsatt fasit der den finnes. Økta leser kildene selv og skriver akseptkriteriene ut fra dem, etter
   leveranseskillen. Avviker oppdraget fra en kilde, gjelder kilden, og økta skriver avviket
   i PR-en. En begrensning på lesingen, som «Les ikke historikken», gjelder aldri kildene
   som er fasit (oppdragsgiver 02.11, #1492);
