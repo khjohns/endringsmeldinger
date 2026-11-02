@@ -3446,6 +3446,8 @@
     "VEDLEGG_MANGLER": "Kontrollen av kommandoen: et fristkrav som registrerer varselet etter § 33.4, må ha brevet med varselet som vedlegg (OV-U5; at vedlegget bare kreves første gang, er arbeidsvalget i #909). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "FEIL_PART": "Kontrollen av kommandoen: en handling som bare én part kan gjøre, avvises for den andre, og bare TE kan opprette saken (#664). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/opprettelse.test.ts`.",
     "BEGRUNNELSE_MANGLER": "Kontrollen av teksten i svaret og fristkravet (KA-U24, KA-U31, KA-U33). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/brevtekst.test.ts`.",
-    "VARSLINGSPLIKT_GJELDER_IKKE": "Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges."
+    "VARSLINGSPLIKT_GJELDER_IKKE": "Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges.",
+    "DATO_KAN_IKKE_LESES": "Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den.",
+    "VARSEL_ETTER_PAABEROPELSEN": "Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`."
   }
 }

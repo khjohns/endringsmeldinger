@@ -414,6 +414,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `BESKRIVELSE_MANGLER` | GR-34 | — |
 | `BREVTEKST_MANGLER` | — | Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`. |
 | `DATO_ETTER_BREVET` | — | Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, og datoen et varsel etter § 33.4 ble sendt utenfor appen (#968), kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`. |
+| `DATO_KAN_IKKE_LESES` | — | Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den. |
 | `ENIGHET_I_SPORET` | GR-24, GR-25 | — |
 | `FEIL_KRAVREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
 | `FEIL_PART` | — | Kontrollen av kommandoen: en handling som bare én part kan gjøre, avvises for den andre, og bare TE kan opprette saken (#664). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/opprettelse.test.ts`. |
@@ -442,6 +443,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `UGYLDIG_FORM` | KA-28 | — |
 | `UGYLDIG_INNSIGELSE` | VS-01 | — |
 | `UGYLDIG_VURDERING` | GR-17, GR-18, VS-03 | — |
+| `VARSEL_ETTER_PAABEROPELSEN` | — | Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `VARSEL_REGISTRERT` | VS-06, VS-07 | — |
 | `VARSLINGSPLIKT_GJELDER_IKKE` | — | Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges. |
 | `VEDERLAGSKRAV_SENDT` | VS-07 | — |
