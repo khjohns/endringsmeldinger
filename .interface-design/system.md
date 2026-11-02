@@ -142,9 +142,10 @@ i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
   en dato med kalenderikonet, og et nummer eller en dato for endringsordren har et
   kort felt. Løpende tekst, som en tittel eller en beskrivelse, har full bredde
   (oppdragsgiver 02.11, #1492).
-- **To korte valg, som nei og ja, står ved siden av hverandre.** Lengre alternativer
-  står under hverandre i kort med lik bredde, så de leses som en liste og ikke brytes
-  ujevnt (oppdragsgiver 02.11, #1492).
+- **Korte valg, som nei og ja, står ved siden av hverandre.** Om to eller tre får
+  plass på én linje, vurderes i hvert tilfelle. Alternativer som ville brytes ujevnt
+  ved siden av hverandre, står under hverandre i kort med lik bredde, så de leses som
+  en liste (oppdragsgiver 02.11, #1492).
 - **Valgfrie felt merkes «(valgfritt)»**, og obligatoriske felt har
   `aria-required="true"` uten synlig merke. Appen bruker bare denne ene merkingen.
 - **Feilmeldingen står rett under feltet** og sier hva som hindrer (`AGENTS.md`,
