@@ -4803,6 +4803,77 @@ tekst = '''
 Varselet nevnes uten brev også når det er registrert, som i dag: «TEs varsel etter NS 8407 punkt 32.2».'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U42"
+dato = 2026-11-02
+hvem = "oppdragsgiver"
+kilde = ["#1288"]
+sporsmal = '''
+Spørsmål 2 ordrett slik det ble stilt 02.11 og lagret i #1288 (kommentaren 6573546850). Alternativene står i posten.
+
+### Spørsmål 2 (juridisk)
+
+**Bakgrunn.** Når byggherren avslår et varsel etter punkt 32.2 eller et krav om vederlagsjustering
+eller fristforlengelse, må TE etter punkt 35.2 enten kreve oppmann før overtakelsen (bokstav a) eller
+gå til søksmål eller voldgift senest åtte måneder etter overtakelsen (bokstav b). Ellers taper han
+kravet. Vedtaket om varsler og frister sier at løsningen for punkt 35.2 viser begge veiene.
+Kontraktsgrunnlaget (Del II pkt. B.2.17) stryker bokstav a, og stryker også punkt 50.3.1 om
+oppmannsavgjørelse (Del II pkt. B.2.21). Etter kontraktsgrunnlaget har TE bare søksmålsfristen.
+Løsningen viser ikke punkt 35.2 ennå, så valget gjelder det som skal bygges.
+
+**Belegg.** NS 8407 punkt 35.2; Del II pkt. B.2.17 og B.2.21; VS-U3; OV-U25, der løsningen følger
+kontraktsgrunnlaget for punkt 34.1.3.
+
+**Alternativene (vedtaksform):**
+
+- **A. Løsningen følger kontraktsgrunnlaget.** «Løsningen følger punkt 35.2 slik kontraktsgrunnlaget
+  (Del II pkt. B.2.17) endrer den: første ledd bokstav a om oppmann før overtakelsen gjelder ikke.
+  For punkt 35.2 viser løsningen bare fristen for å iverksette søksmål eller voldgift etter
+  overtakelsen, uten dato. Endrer VS-U3 for punkt 35.2.»
+- **B. Løsningen følger standarden.** «For punkt 35.2 viser løsningen både oppmann før overtakelsen
+  og søksmålsfristen, slik standarden lyder. Avvik i kontraktsgrunnlaget må partene håndtere utenfor
+  løsningen. Presiserer VS-U3.»
+- **C. Kontrakten angir det.** «Løsningen lar hver kontrakt angi om Del II pkt. B.2.17 gjelder, og
+  viser oppmann før overtakelsen bare når den ikke gjelder. Krever en kontraktsinnstilling og et
+  eget issue. Endrer VS-U3 for punkt 35.2.»
+
+**Anbefalt: A.** Den følger OV-U25, der oppdragsgiver valgte kontraktsgrunnlaget framfor standarden
+og framfor en innstilling per kontrakt. B kan få TE til å bruke en vei kontrakten ikke har, og tape
+kravet etter bokstav b. At kontraktsgrunnlaget er det som gjelder for prosjektene, er en antakelse
+fra OV-U25, ikke kontrollert her.
+
+**Hva valget styrer.** Teksten løsningen viser for punkt 35.2 når den bygges, og raden for § 35.2 i
+paragrafmatrisen. Ingen kode endres nå (ingen visning finnes). Punkt 35.2 er ikke bygget og har
+ikke et issue i den kritiske stien, så etter «Vedtak ved behov» kan spørsmålet vente til det
+bygges.
+
+**Forholdet:** A **endrer** VS-U3 for punkt 35.2 (som OV-U25 «endrer» OV-U8). B **presiserer** VS-U3.
+C **endrer** VS-U3 for punkt 35.2.'''
+valgt = "2A"
+svar = '''
+Oppdragsgiver 02.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1288#issuecomment-6573565275)): «1B,  2A (så lenge det er dokumentert i kode/vedtak at det følger av kontraktsgrunnlaget). 3A»'''
+forhold = [{ art = "endrer", vedtak = "vs-u3" }]
+folge = '''
+Svaret har vilkåret at det er dokumentert i kode eller vedtak at det følger av kontraktsgrunnlaget. Vedtaksteksten viser til Del II pkt. B.2.17, slik OV-U25 gjør for punkt 34.1.3. Svaret står også på #1284 og #1492.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2A"
+tekst = '''
+Løsningen følger punkt 35.2 slik kontraktsgrunnlaget (Del II pkt. B.2.17) endrer den: første ledd bokstav a om oppmann før overtakelsen gjelder ikke. For punkt 35.2 viser løsningen bare fristen for å iverksette søksmål eller voldgift etter overtakelsen, uten dato. Endrer VS-U3 for punkt 35.2.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2B"
+tekst = '''
+For punkt 35.2 viser løsningen både oppmann før overtakelsen og søksmålsfristen, slik standarden lyder. Avvik i kontraktsgrunnlaget må partene håndtere utenfor løsningen. Presiserer VS-U3.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2C"
+tekst = '''
+Løsningen lar hver kontrakt angi om Del II pkt. B.2.17 gjelder, og viser oppmann før overtakelsen bare når den ikke gjelder. Krever en kontraktsinnstilling og et eget issue. Endrer VS-U3 for punkt 35.2.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -13624,6 +13695,77 @@ anbefalt = true
 navn = "18B"
 tekst = '''
 Uttrykket ‹Kravet som gjelder› brukes ikke i visningen, heller ikke i oversiktene over vederlag og frist. Forhold: endrer ingen vedtak.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U88"
+dato = 2026-11-02
+hvem = "oppdragsgiver"
+kilde = ["#1284"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det ble stilt 02.11 og lagret i #1284 (kommentaren 6573546567). Alternativene står i posten.
+
+### Spørsmål 1 (juridisk)
+
+**Bakgrunn.** HF-U7 sier at et svar som avviker fra kravet, i løsningen ikke er en godkjenning av
+kravet. Siste setning sier at løsningen ikke avgjør «om et avvik er så lite at det likevel blir
+avtale», og viser til avtaleloven § 6 annet ledd. Den bestemmelsen handler ikke om hvor lite
+avviket er. Den gjelder når den som svarer, går ut fra at svaret stemmer med kravet, og den som
+fremmet kravet, må forstå det. Da må den som fremmet kravet, si fra uten ugrunnet opphold om han
+ikke godtar svaret. Ellers er avtale sluttet med det innholdet svaret har. Etter MM-U34 viser
+HF-U7 ikke lenger til første ledd, så henvisningen til annet ledd står alene.
+
+**Belegg.** Avtaleloven § 6 annet ledd (over). HF-U7, slik MM-U34 endret den. OV-U59, som sier det
+samme generelt. MM-U12: løsningen avgjør ikke det kontrakten overlater til partene, en oppmann eller
+domstolene.
+
+**Alternativene (vedtaksform; det valgte erstatter siste setning i HF-U7):**
+
+- **A. Omtalen rettes.** «Et svar som avviker, kan likevel gi avtale med svarets innhold når den som
+  svarte, gikk ut fra at svaret stemte med kravet, den som fremmet kravet, måtte forstå det, og den
+  som fremmet kravet, ikke sa fra uten ugrunnet opphold (avtaleloven § 6 annet ledd). Det avgjør
+  ikke løsningen (MM-U12). Endrer siste setning i HF-U7.»
+- **B. Henvisningen strykes, og setningen blir generell som i OV-U59.** «Løsningen avgjør ikke om
+  partene likevel har inngått avtale etter en konkret rettslig vurdering (MM-U12). Endrer siste
+  setning i HF-U7.»
+- **C. Setningen strykes.** «Siste setning i HF-U7, om avtaleloven § 6 annet ledd, strykes. At
+  løsningen ikke avgjør om partene likevel har inngått avtale, følger av MM-U12 og OV-U59. Endrer
+  HF-U7.»
+
+**Anbefalt: B.** Den følger retningen i MM-U34, der HF-U7 sluttet å beskrive avtalerettslige
+virkninger og bare sier hva løsningen gjør. Den bruker samme ord som OV-U59, så de to vedtakene ikke
+sier det samme på to måter. A er riktig, men beskriver en lovregel i et vedtak, og en senere
+omskriving kan gjøre den feil igjen. C fjerner en påminnelse som OV-U59 bare gir for beløp.
+
+**Hva valget styrer.** Bare ordlyden i HF-U7 og temavisningene som tar den med. Ingen kode leser
+setningen; løsningen gjør det samme etter alle tre (den avgjør ikke spørsmålet). Ikke et issue i den
+kritiske stien, så spørsmålet kan vente til en samlet runde.
+
+**Forholdet til HF-U7:** alle tre **endrer** HF-U7 (siste setning), slik den står etter MM-U34.
+Ingen endrer virkningen. (Presiserer passer ikke: teksten byttes ut.)'''
+valgt = "1B"
+svar = '''
+Oppdragsgiver 02.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1284#issuecomment-6573564983)): «1B,  2A (så lenge det er dokumentert i kode/vedtak at det følger av kontraktsgrunnlaget). 3A»'''
+forhold = [{ art = "endrer", vedtak = "hf-u7" }]
+folge = '''
+Svaret står også på #1288 og #1492.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1A"
+tekst = '''
+Et svar som avviker, kan likevel gi avtale med svarets innhold når den som svarte, gikk ut fra at svaret stemte med kravet, den som fremmet kravet, måtte forstå det, og den som fremmet kravet, ikke sa fra uten ugrunnet opphold (avtaleloven § 6 annet ledd). Det avgjør ikke løsningen (MM-U12). Endrer siste setning i HF-U7.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1B"
+tekst = '''
+Løsningen avgjør ikke om partene likevel har inngått avtale etter en konkret rettslig vurdering (MM-U12). Endrer siste setning i HF-U7.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1C"
+tekst = '''
+Siste setning i HF-U7, om avtaleloven § 6 annet ledd, strykes. At løsningen ikke avgjør om partene likevel har inngått avtale, følger av MM-U12 og OV-U59. Endrer HF-U7.'''
 forkastet = true
 
 
