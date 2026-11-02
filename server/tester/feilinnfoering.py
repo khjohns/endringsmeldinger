@@ -232,9 +232,9 @@ FEILINNFOERINGER = [
      "!NY_SAK.has(k));\n  if (ukjente.length) return",
      "!NY_SAK.has(k));\n  if (false) return",
      "avviser et ukjent felt med 400"),
-    ("S60", "påberopelsen får tittelen utrimmet, mens sakstittelen trimmes (LV-U43, #1487)", "server/app.ts",
-     "  const tittel = oppgittTittel.trim();", "  const tittel = oppgittTittel;",
-     "tittelen trimmes likt"),
+    ("S60", "en tittel med mellomrom i kanten blir to verdier, trimmet i saken og ikke i påberopelsen (LV-U43, #1487)", "server/app.ts",
+     "  if (tittel !== tittel.trim())\n    return", "  if (false)\n    return",
+     "avviser en tittel med mellomrom i kanten med 400"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

@@ -212,16 +212,6 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     expect(await antall()).toEqual(foer);
   });
 
-  it('tittelen trimmes likt i sakstittelen og i påberopelsen, så den er én verdi (LV-U43)', async () => {
-    const sakId = randomUUID();
-    const svar = await send(kropp(sakId, { tittel: `  ${TITTEL} ` }));
-    expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
-    const { hendelser, jobber } = await lagret(sakId);
-    expect(JSON.parse(hendelser[0].data).sakstittel).toBe(TITTEL);
-    expect(JSON.parse(hendelser[1].data).krav[0].tittel).toBe(TITTEL);
-    expect(jobber.find((j) => j.jobbtype === 'catenda_topic')?.tittel).toBe(TITTEL);
-  });
-
   it.each([
     ['et ukjent felt', { aktor_id: 'x' }, 'Ukjente felt: aktor_id.'],
     ['en saks-ID som ikke er en UUID', { ny_sak_id: 'SAK-1' }, 'ny_sak_id mangler'],
@@ -231,6 +221,12 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       'ny_sak_id mangler',
     ],
     ['ingen tittel', { tittel: undefined }, 'tittel mangler'],
+    // Kjernen trimmer sakstittelen og ville gitt to verdier for én tittel (LV-U43).
+    [
+      'en tittel med mellomrom i kanten',
+      { tittel: ` ${TITTEL} ` },
+      'tittel begynner eller slutter',
+    ],
     [
       'en annen kommando enn kravet om forholdet',
       { paaberopelse: { ...KRAV, spor: 'vederlag' } },
