@@ -385,9 +385,7 @@ a.merke-n:hover{background:var(--surface-inset)}
 .tall1 .tomt,.tall1 .art{font-family:var(--font-sans);font-size:12px;color:var(--ink-3);white-space:normal}
 .tall1.dempet{color:var(--ink-3)}
 .tall1.dempet .art{color:var(--ink-3)}
-.uten{grid-column:3 / span 2;font-size:12px;color:var(--ink-3);padding-top:2px}
 /* Nøkkeltallene */
-.tallnote{margin:-8px 20px 16px;font-size:12px;color:var(--ink-3)}
 /* Infotipset åpnes med klikk eller tastatur og lukkes med Escape */
 .tips{position:relative;display:inline-block;text-transform:none;letter-spacing:0;font-weight:400}
 .tips .info{cursor:pointer;position:relative}
@@ -397,8 +395,7 @@ a.merke-n:hover{background:var(--surface-inset)}
 .tips .lapp[hidden]{display:none}
 @media (max-width:900px){
   #innhold-koe .rad{grid-template-columns:52px minmax(0,1fr);gap:6px 12px}
-  #innhold-koe .rad > .tall1,#innhold-koe .rad > .uten{grid-column:2;display:flex;justify-content:space-between;gap:12px;text-align:right}
-  #innhold-koe .rad > .tall1::before{content:attr(data-navn);font-family:var(--font-sans);font-size:12px;color:var(--ink-3);text-align:left}
+  #innhold-koe .rad > .tall1,#innhold-koe .rad >   #innhold-koe .rad > .tall1::before{content:attr(data-navn);font-family:var(--font-sans);font-size:12px;color:var(--ink-3);text-align:left}
 }
 .sortering{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .sort-etikett{font-size:12px;color:var(--ink-3);margin-right:2px}
@@ -413,8 +410,7 @@ a.merke-n:hover{background:var(--surface-inset)}
 .tom-prosjekt{margin:8px 20px 24px;padding:40px 24px;border:1px dashed var(--rule-strong-color);border-radius:var(--r-innfelt);display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 .tom-prosjekt .tom-tittel{font-size:16px;font-weight:600;color:var(--ink)}
 .tom-prosjekt p{font-size:14px;color:var(--ink-2)}
-.skall[data-tom="ja"] #innhold-koe,.skall[data-tom="ja"] .noekkel,.skall[data-tom="ja"] .tallnote{display:none}
-.tom-prosjekt[hidden],.tom-liste[hidden]{display:none}
+.skall[data-tom="ja"] #innhold-koe,.skall[data-tom="ja"] .noekkel,.skall[data-tom="ja"] .tom-prosjekt[hidden],.tom-liste[hidden]{display:none}
 .radhode .enhet{font-weight:400;text-transform:none;letter-spacing:0}
 .demo-valg{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;min-height:32px;margin-left:12px}
 .demo-valg input{accent-color:var(--brand);width:16px;height:16px;margin:0}
@@ -450,7 +446,7 @@ a.merke-n:hover{background:var(--surface-inset)}
     <nav aria-labelledby="saker-etikett">
       <p class="etikett" id="saker-etikett">Saker</p>
       <ul class="spor">
-        <li><a href="#" data-fane="koe" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">11 saker<span class="kun-te"> · 1 utkast</span></span></a></li>
+        <li><a href="#" data-fane="koe" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">10 saker<span class="kun-te"> · 1 utkast</span></span></a></li>
         <li><a href="#" data-fane="eo"><span class="navn">Endringsordrer</span><span class="sist">5 utstedt</span></a></li>
         <li><a href="#" data-fane="forsering"><span class="navn">Forsering</span><span class="sist">1 sak</span></a></li>
       </ul>
@@ -517,7 +513,6 @@ a.merke-n:hover{background:var(--surface-inset)}
                 </div>
               </section>
             </div>
-            <p class="tallnote kun-fane f-koe">1 sak er ikke med i tallene, fordi oversikten ikke forstår den.</p>
 
             <div class="tom-prosjekt kun-fane f-koe" id="tomt-prosjekt" hidden>
               <p class="tom-tittel">Prosjektet har ingen krav om endringsordre ennå</p>
@@ -604,14 +599,6 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-010</a></div></div>
                   <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="tomt">Ikke krevd</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
                   <div class="siste2"><b>EO-010 · BH</b>24. september 2026</div>
-                </div>
-              </li>
-              <li data-dato="2026-10-12T12:30" data-nr="E-010" data-utvalg="ikke-eo">
-                <div class="rad">
-                  <span class="id">E-010</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Riving av eksisterende kulvert</a><span class="forhold">Irregulær endring</span></div>
-                  <div class="uten">Ingen tall: saken har noe oversikten ikke forstår.</div>
-                  <div class="siste2"><b>Brev 4 · BH</b>12. oktober 2026</div>
                 </div>
               </li>
               <li data-dato="2026-10-10T09:40" data-nr="E-016" data-utvalg="trukket ikke-eo">
