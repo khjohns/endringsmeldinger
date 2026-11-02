@@ -17,6 +17,7 @@ import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import type { Journalrad, Vedlegg } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId } from '../autorisasjon.ts';
+import { VEDLEGG_FOER_SAKEN } from '../vedlegg.ts';
 import { sql } from './sqlserver.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
@@ -444,5 +445,45 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       expect(igjen.status).toBe(404);
       expect(igjen.kropp.error).toBe('VEDLEGG_FINNES_IKKE');
     });
+
+    it('BH sletter ikke et vedlegg uten sak: 403 som for opplastingen, og vedlegget står (KT-U10)', async () => {
+      const v = (await lastOpp()).vedlegg!;
+      const svar = await kall(server.url, `${UTEN_SAK}/${v.vedlegg_id}`, {
+        bruker: o.bh,
+        prosjektId: o.prosjekt.id,
+        metode: 'DELETE',
+      });
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(403);
+      expect(svar.kropp.error).toBe('FORBIDDEN');
+      expect((await vedleggene(randomUUID())).utenSak).toContain(v.vedlegg_id);
+    });
+  });
+});
+
+describe('vedleggene før saken uten entydig team (#1037)', () => {
+  // Uten team finnes det ikke noe utkast å lese eller skrive (AGENTS.md), så rutene svarer
+  // 403 før basen spørres; et datalag som kaster, viser at den ikke spørres.
+  const avh = {
+    get datalag(): never {
+      throw new Error('Basen spørres ikke uten team.');
+    },
+  } as unknown as Parameters<(typeof VEDLEGG_FOER_SAKEN)[number]['behandle']>[1];
+  const foresp = (metode: 'POST' | 'DELETE') => ({
+    bruker: { id: randomUUID() },
+    prosjekt: { prosjektId: 'p' },
+    side: { rolle: 'TE' as const, teamId: null },
+    kropp: {},
+    ressurs: metode === 'DELETE' ? randomUUID() : null,
+    fil: metode === 'POST' ? { innhold: Buffer.from('%PDF-1.4\n%%EOF\n'), filnavn: 'a.pdf' } : null,
+  });
+
+  it.each(['POST', 'DELETE'] as const)('%s svarer 403 MANGLER_TEAM', async (metode) => {
+    const rute = VEDLEGG_FOER_SAKEN.find((r) => r.metode === metode)!;
+    const [status, kropp] = (await rute.behandle(
+      foresp(metode) as unknown as Parameters<typeof rute.behandle>[0],
+      avh
+    )) as [number, Record<string, unknown>];
+    expect(status).toBe(403);
+    expect(kropp.error).toBe('MANGLER_TEAM');
   });
 });

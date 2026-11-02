@@ -358,8 +358,11 @@ export const VEDLEGGSRUTER: readonly Saksrute[] = [
  * bare TE oppretter en sak (KT-U10), og radsikkerheten viser et slikt vedlegg bare for
  * teamet som lastet det opp.
  */
-function kontekstUtenSak({ bruker, prosjekt, side }: Opprettelsesforespoersel): Kontekst {
-  return { aktor: bruker.id, prosjekt: prosjekt.prosjektId, side: side.rolle, team: side.teamId! };
+function kontekstUtenSak(
+  { bruker, prosjekt, side }: Opprettelsesforespoersel,
+  team: string
+): Kontekst {
+  return { aktor: bruker.id, prosjekt: prosjekt.prosjektId, side: side.rolle, team };
 }
 
 const BARE_TE = feilsvar(
@@ -368,19 +371,26 @@ const BARE_TE = feilsvar(
   'Bare TE oppretter en sak og laster opp vedlegg til den.'
 );
 
+/** Teamet for et vedlegg uten sak, eller avvisningen: bare TE, og med entydig team. */
+function teamUtenSak(f: Opprettelsesforespoersel): string | Svar {
+  if (f.side.rolle !== 'TE') return BARE_TE;
+  return f.side.teamId ?? UTEN_TEAM;
+}
+
 async function lastOppUtenSak(
   f: Opprettelsesforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  if (f.side.rolle !== 'TE') return BARE_TE;
-  // `lesFil` har avvist en forespørsel uten team eller uten filnavn.
+  const team = teamUtenSak(f);
+  if (typeof team !== 'string') return team;
+  // `lesFil` har avvist en forespørsel uten filnavn.
   const fil = f.fil!;
   const kontrollert = kontrollertFil(fil);
   if (Array.isArray(kontrollert)) return kontrollert;
   const { filnavn, sum } = kontrollert;
   const vedleggId = avh.nyId();
   try {
-    const rad = await transaksjon(avh.datalag, kontekstUtenSak(f), async (foresp) => {
+    const rad = await transaksjon(avh.datalag, kontekstUtenSak(f, team), async (foresp) => {
       await foresp()
         .input('vedlegg_id', sql.UniqueIdentifier, vedleggId)
         .input('filnavn', sql.NVarChar(STOERSTE_FILNAVN), filnavn)
@@ -413,8 +423,10 @@ async function slettUtenSak(
   const id = vedleggId(f);
   const finnesIkkeUtenSak = () =>
     feilsvar(404, 'VEDLEGG_FINNES_IKKE', 'Vedlegget finnes ikke blant vedleggene til en ny sak.');
+  const team = teamUtenSak(f);
+  if (typeof team !== 'string') return team;
   if (!id) return finnesIkkeUtenSak();
-  const slettet = await transaksjon(avh.datalag, kontekstUtenSak(f), async (foresp) => {
+  const slettet = await transaksjon(avh.datalag, kontekstUtenSak(f, team), async (foresp) => {
     const svar = await foresp()
       .input('vedlegg_id', sql.UniqueIdentifier, id)
       .execute<{ slettet: number }>('koe_api.slett_vedlegg_uten_sak');
