@@ -3575,9 +3575,17 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
     expect(s.avvist('TE', registrering())).toBe('VARSLINGSPLIKT_GJELDER_IKKE');
   });
 
-  it('registreres etter påberopelsen, også i samme handling (VS-U38, S-2 i #807)', () => {
+  it('registreres ikke før påberopelsen er sendt (VS-U38, S-2 i #807)', () => {
     const s = sak();
     expect(s.avvist('TE', registrering())).toBe('PAABEROPELSE_IKKE_SENDT');
+  });
+
+  it('byggherren tilbys ikke innsigelse mot det registrerte varselet før det har brevtekst (S-4 i #807)', () => {
+    const s = medPaaberopelse();
+    const id = s.send('TE', registrering()).data.utsagn as Data[];
+    const varsel = String(id[0].id);
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('IKKE_I_FOERSTE_VERSJON');
+    expect(handlinger(s.u(), 'BH')).not.toContain(`innsigelse:${varsel}`);
   });
 
   it('bare TE registrerer varselet (OV-U80)', () => {

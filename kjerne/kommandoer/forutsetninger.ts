@@ -83,6 +83,12 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
   const maal = u.elementer[h.gjelder];
   switch (h.type) {
     case 'innsigelse':
+      // Det registrerte varselet etter § 32.2 har ingen brevtekst før S-4 i #807 er bygget.
+      if (kanFaaInnsigelse(maal, part) && u.spor.forhold.varsler['32.2']?.id === h.gjelder)
+        return avvis(
+          'IKKE_I_FOERSTE_VERSJON',
+          'Innsigelsen mot det registrerte varselet etter § 32.2 kan ikke sendes ennå. Brevet kan registreres som dokumentasjon.'
+        );
       // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
       return kanFaaInnsigelse(maal, part)
         ? null

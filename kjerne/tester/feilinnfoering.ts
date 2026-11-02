@@ -3536,6 +3536,37 @@ const MUTASJONER: Mutasjon[] = [
       'preklusjon etter § 32.2 og avslag står foran sporet',
     ],
   },
+  {
+    id: 'F431',
+    feilklasse:
+      'varselet etter § 32.2 kan ikke registreres med samme dag som påberopelsen (VS-U38)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (dag > paaberopelsen)', '  if (dag >= paaberopelsen)']],
+    mal: ['datoen kan ikke være senere enn påberopelsen'],
+  },
+  {
+    id: 'F432',
+    feilklasse:
+      'varselet etter § 32.2 registreres der varslingsplikten ikke gjelder kategorien (VS-U39)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['if (!gjelderVarslingsplikten(u.spor.forhold.gjeldendeKrav, regler))', 'if (false)'],
+    ],
+    mal: ['registreres bare der varslingsplikten'],
+  },
+  {
+    id: 'F433',
+    feilklasse:
+      'byggherren tilbys innsigelse mot det registrerte varselet etter § 32.2, som ikke har brevtekst (S-4 i #807)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "if (kanFaaInnsigelse(maal, part) && u.spor.forhold.varsler['32.2']?.id === h.gjelder)",
+        'if (false)',
+      ],
+    ],
+    mal: ['byggherren tilbys ikke innsigelse mot det registrerte varselet'],
+  },
 ];
 
 interface Testresultat {

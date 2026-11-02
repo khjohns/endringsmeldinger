@@ -211,7 +211,12 @@ function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett): Avvis
     );
   const paaberopelsen = foerste ? datoenKravetBleSendt(u, foerste) : null;
   const dag = kalenderdag(sendt);
-  if (paaberopelsen !== null && dag !== null && dag > paaberopelsen)
+  if (paaberopelsen === null || dag === null)
+    return avvis(
+      'VARSEL_ETTER_PAABEROPELSEN',
+      'Datoen for varselet etter § 32.2 eller for grunnlaget kan ikke leses, så det kan ikke avgjøres om varselet ble sendt før grunnlaget (VS-U38).'
+    );
+  if (dag > paaberopelsen)
     return avvis(
       'VARSEL_ETTER_PAABEROPELSEN',
       `Varselet etter § 32.2 er oppgitt sendt ${norskDato(dag)}, etter grunnlaget, som ble sendt ${norskDato(paaberopelsen)} (VS-U38).`
