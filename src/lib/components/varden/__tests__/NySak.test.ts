@@ -261,6 +261,22 @@ describe('skjemaet for ny sak (BF-05)', () => {
     ).toBeNull();
   });
 
+  it('tidslinja viser datoene TE fyller ut og dagen påberopelsen sendes (oppdragsgiver 02.11, #1492)', async () => {
+    aapne();
+    const tidslinja = () => within(screen.getByRole('region', { name: 'Tidslinje' }));
+    expect(tidslinja().getByText('Påberopelsen sendes')).toBeTruthy();
+    expect(tidslinja().queryByText('Mottok pålegget')).toBeNull();
+    await fyllIrregulaerEndring();
+    expect(tidslinja().getByText('15. september 2026')).toBeTruthy();
+    expect(tidslinja().getByText('Mottok pålegget')).toBeTruthy();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
+    await fireEvent.input(screen.getByLabelText('Datoen det ble sendt'), {
+      target: { value: '2026-09-16' },
+    });
+    expect(tidslinja().getByText('Varselet som alt er sendt')).toBeTruthy();
+    expect(tidslinja().getByText('16. september 2026')).toBeTruthy();
+  });
+
   it('D-8: utfylt varsel som alt er sendt, stanser før brevkontrollen til lagringen finnes (#807, #1487)', async () => {
     const { send } = aapne();
     await fyllIrregulaerEndring();

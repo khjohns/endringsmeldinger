@@ -12,6 +12,7 @@
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll from './Brevkontroll.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
+  import Tidslinje from './Tidslinje.svelte';
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
   import { ChevronDown } from 'lucide-svelte';
@@ -67,6 +68,26 @@
   const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
   const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
   const norskDato = (iso: string) => iso.split('-').reverse().join('.');
+  // Tidslinja viser datoene etter hvert som TE fyller dem ut, og dagen brevet sendes
+  // (oppdragsgiver 02.11, #1492).
+  const tidslinja = $derived(
+    [
+      felt.datotekst &&
+        dato && {
+          naar: dato,
+          hva: NYSAK.tidslinjeDato(felt.beskrivelse.endsWith('pålegget')),
+          kilde: NYSAK.oppgisIBrevet,
+        },
+      varselet &&
+        varseldato && {
+          naar: varseldato,
+          hva: NYSAK.tidslinjeVarselet,
+          kilde: NYSAK.sendtFoerSaken,
+        },
+      { naar: iDag, hva: NYSAK.tidslinjeSendes, kilde: NYSAK.naarDuSender },
+    ].filter((d): d is { naar: string; hva: string; kilde: string } => !!d)
+  );
+
   // Panelet viser det brevet sier, i brevets rekkefølge (F-1, GR-U31, VS-U38).
   const linjer = $derived(
     [
@@ -524,6 +545,7 @@
           alternativer={false}
           handling={sendeknapp}
         />
+        <Tidslinje brev={[]} datoer={[]} utfylt={tidslinja} />
       </div>
     {/snippet}
   </Arbeidsflate>

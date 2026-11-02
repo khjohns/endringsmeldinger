@@ -440,6 +440,13 @@ export const NYSAK = {
   // Panelet til høyre, som i de andre skjemaene i Varden (F-1).
   panel: 'Hovedlinjene i påberopelsen',
   panelTom: 'Velg forholdet, så står påberopelsen her.',
+  // Tidslinja under panelet, med datoene TE fyller ut (oppdragsgiver 02.11, #1492).
+  tidslinjeDato: (paalegg: boolean) => (paalegg ? 'Mottok pålegget' : 'Klar over forholdet'),
+  oppgisIBrevet: 'Oppgis i påberopelsen',
+  tidslinjeVarselet: 'Varselet som alt er sendt',
+  sendtFoerSaken: 'Sendt før saken ble opprettet',
+  tidslinjeSendes: 'Påberopelsen sendes',
+  naarDuSender: 'I dag, når du sender',
   linjeForholdet: 'Forholdet',
   linjeTittel: 'Tittel på saken',
   linjeVarselet: 'Varsel som alt er sendt',
