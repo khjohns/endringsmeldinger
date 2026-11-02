@@ -192,7 +192,8 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     const annenSak = randomUUID();
     for (const endret of [
       { ...k, tittel: 'Annen tittel', brevtekst: brevtekst(k.ny_sak_id, o.te.id, 'Annen tittel') },
-      { ...k, ny_sak_id: annenSak, brevtekst: brevtekst(annenSak, o.te.id) },
+      // Samme brevtekst, så bare saks-ID-en skiller kommandoene.
+      { ...k, ny_sak_id: annenSak },
     ]) {
       const avvist = await send(endret);
       expect(avvist.status, JSON.stringify(avvist.kropp)).toBe(422);
