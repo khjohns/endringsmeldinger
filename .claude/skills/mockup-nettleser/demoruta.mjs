@@ -57,8 +57,8 @@ function globalPlaywright() {
 
 async function startNettleser(chromium, start) {
   try {
-    // Datofeltet følger språket nettleseren startes med, ikke `locale` i konteksten.
-    return await chromium.launch({ ...start, args: [...(start.args ?? []), '--lang=nb-NO'] });
+    // Datofeltet følger `LANG` i prosessen, ikke `locale` i konteksten eller `--lang`.
+    return await chromium.launch({ ...start, env: { ...process.env, LANG: 'nb_NO.UTF-8' } });
   } catch (e) {
     throw new Error(`${e.message}\nNettleseren startet ikke. Kjør ikke «playwright install»; oppsettet står i ${NETTLESEROPPSETT}.`);
   }

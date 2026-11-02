@@ -179,8 +179,10 @@
   />
 {:else}
   <form class="nysak" novalidate onsubmit={(e) => (e.preventDefault(), seBrevet())}>
-    <p class="over">{NYSAK.over}</p>
-    <h1>{NYSAK.tittel}</h1>
+    <header class="hode">
+      <p class="over">{NYSAK.over}</p>
+      <h1>{NYSAK.tittel}</h1>
+    </header>
 
     {#if Object.keys(feil).length}
       <div
@@ -392,9 +394,14 @@
     border-radius: var(--r-kort);
     background: var(--surface);
   }
+  .hode {
+    display: grid;
+    gap: var(--spacing-1);
+  }
   .over {
     margin: 0;
     color: var(--ink-3);
+    font-size: 14px;
   }
   h1 {
     margin: 0;
@@ -462,7 +469,10 @@
   .gruppenavn :global(svg) {
     flex-shrink: 0;
     color: var(--ink-3);
-    transition: transform 0.15s;
+    transition: transform 0.15s ease-out;
+  }
+  .gruppenavn:hover :global(svg) {
+    color: var(--ink);
   }
   .gruppenavn[aria-expanded='true'] :global(svg) {
     transform: rotate(180deg);
@@ -486,6 +496,10 @@
     min-height: 44px;
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--r-felt);
+  }
+  .forhold:hover {
+    background: var(--canvas);
+    cursor: pointer;
   }
   .forhold:has(input:checked) {
     background: var(--canvas);
@@ -528,6 +542,11 @@
   }
   .kapittel-b {
     margin: 0;
+    color: var(--ink-2);
+  }
+  /* Søket hjelper velgeren og er ikke et felt i saken, så etiketten er lettere enn ledetekstene. */
+  .sok .etikett {
+    font-weight: 400;
     color: var(--ink-2);
   }
   .sok {
