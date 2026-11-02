@@ -125,6 +125,25 @@ describe('skjemaet for ny sak (BF-05)', () => {
     );
   });
 
+  it('brevkontrollen viser brev 2, nummeret påberopelsen får etter `sak_opprettet` (VS-U37, #1489)', async () => {
+    aapne();
+    await fyllIrregulaerEndring();
+    await seBrevet();
+    await screen.findByRole('region', { name: 'Sending' });
+    expect(screen.getByText('Brev 2')).toBeTruthy();
+  });
+
+  it('F-4: feilen for endringsordren forsvinner når feltet fylles ut', async () => {
+    aapne();
+    await fireEvent.click(screen.getByRole('radio', { name: /^Formell endringsordre/ }));
+    await seBrevet();
+    const felt = screen.getByLabelText('Endringsordrens nummer eller dato');
+    expect(felt.getAttribute('aria-invalid')).toBe('true');
+    await fireEvent.input(felt, { target: { value: 'EO-012' } });
+    expect(felt.getAttribute('aria-invalid')).toBe('false');
+    expect(screen.queryAllByText('Oppgi endringsordren.').length).toBe(0);
+  });
+
   it('KT-U11: sendingen går gjennom grensen med opprettelsen og påberopelsen samlet', async () => {
     const { send, onsendt } = aapne();
     await fyllIrregulaerEndring();

@@ -53,7 +53,8 @@
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : null);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
-  const iDag = new Date().toISOString().slice(0, 10);
+  const naa = new Date();
+  const iDag = `${naa.getFullYear()}-${String(naa.getMonth() + 1).padStart(2, '0')}-${String(naa.getDate()).padStart(2, '0')}`;
   const utfylling = () => ({ forhold: forhold!, tittel, beskrivelse, dato, endringsordre });
 
   const treff = (...tekster: string[]) =>
@@ -101,7 +102,8 @@
   let sendefeil = $state<string | null>(null);
   const sending: Brevsending = {
     part: 'TE',
-    versjon: 0,
+    // `sak_opprettet` er versjon 1, så påberopelsen blir brev 2 i saken til #1489 (VS-U37).
+    versjon: 1,
     get saksbilde() {
       return { tittel: tittel.trim() };
     },
@@ -198,7 +200,7 @@
         <div class="valgt">
           <div>
             <strong>{forholdsnavn(valgt.hjemmel.label)}</strong>
-            <span class="punkt">pkt. {valgt.hjemmel.hjemmel_basis}</span>
+            <span class="punkt">punkt {valgt.hjemmel.hjemmel_basis}</span>
           </div>
           {#if valgt.regel}
             <p>{valgt.regel.regel}</p>
@@ -218,7 +220,7 @@
         </p>
         {#each grupper as g (g.kode)}
           <div class="gruppe" role="radiogroup" aria-label={g.label}>
-            <p class="gruppenavn">{g.label} <span class="punkt">pkt. {g.hjemmel_frist}</span></p>
+            <p class="gruppenavn">{g.label} <span class="punkt">punkt {g.hjemmel_frist}</span></p>
             {#each g.hjemler as h (h.kode)}
               <label class="forhold">
                 <input
@@ -229,7 +231,7 @@
                 />
                 <span>
                   {forholdsnavn(h.label)}
-                  <span class="punkt">pkt. {h.hjemmel_basis}</span>
+                  <span class="punkt">punkt {h.hjemmel_basis}</span>
                 </span>
               </label>
             {/each}
@@ -298,6 +300,7 @@
             aria-required="true"
             aria-invalid={!!feil.endringsordre}
             aria-describedby={feil.endringsordre ? id('endringsordre-feil') : undefined}
+            oninput={() => delete feil.endringsordre}
           />
           {#if feil.endringsordre}<p class="feil" id={id('endringsordre-feil')}>
               {feil.endringsordre}

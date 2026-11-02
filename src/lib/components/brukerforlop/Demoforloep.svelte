@@ -94,6 +94,7 @@
   function byttSide(part: Part) {
     if (part === aapen.demosak.part) return;
     aapen.demosak.part = part;
+    kvittering = undefined;
     aapen = { demosak: aapen.demosak, kjernesak: kjernesakFor(aapen.demosak) };
     view = { ...view, mode: 'read', role: part };
   }
@@ -178,18 +179,21 @@
           </div>
         {/if}
 
-        <div class="felt">
-          <span class="etikett">Du handler som</span>
-          <SegmentedControl
-            value={aapen.demosak.part}
-            label="Du handler som"
-            options={[
-              { id: 'TE', label: 'TE' },
-              { id: 'BH', label: 'BH' },
-            ]}
-            onchange={byttSide}
-          />
-        </div>
+        <!-- Skjemaet for ny sak sendes av TE (BF-05), så siden byttes først når saken finnes. -->
+        {#if !utenSak}
+          <div class="felt">
+            <span class="etikett">Du handler som</span>
+            <SegmentedControl
+              value={aapen.demosak.part}
+              label="Du handler som"
+              options={[
+                { id: 'TE', label: 'TE' },
+                { id: 'BH', label: 'BH' },
+              ]}
+              onchange={byttSide}
+            />
+          </div>
+        {/if}
 
         {#if versjon !== null && !vedPunktet}
           <p class="neste">
