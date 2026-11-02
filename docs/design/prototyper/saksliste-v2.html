@@ -13,7 +13,9 @@
   endringsordre (EO-U13, EO-U14). Tallene i endringsordren står på fanen for endringsordrene. Merket «Inngår i EO-<nummer>» følger EO-U13 og EO-U14.
   En krevd celle sier «Varslet» når TE har varslet uten tall, og «Regningsarbeid» eller
   «Enhetspriser» når kravet følger en beregningsregel. Da er det ikke noe beløp (OV-U43, OV-U5).
-  En sak der TE har godtatt avslaget på forholdet, telles som trukket. Beløpene er eks. mva.
+  En sak der TE har godtatt avslaget på forholdet, telles som trukket. Saker som inngår i en
+  endringsordre, er ikke med i summene for kravene; vederlaget står i endringsordren. Beløpene
+  er eks. mva. «Til godkjenning hos deg» kommer tilbake når godkjenningsflyten er bygget.
   Ankrene er #te og #bh, og #eo eller #forsering kan legges til, som #bh-eo. #te-tom og #bh-tom
   viser prosjektet uten saker. Lista er sortert etter siste brev, nyeste først.
   Tallene og sakene er eksempler, og teksten er prototypetekst. Fargene er Blekk (.tema-varden).
@@ -442,7 +444,7 @@ a.merke-n:hover{background:var(--surface-inset)}
     <nav aria-labelledby="saker-etikett">
       <p class="etikett" id="saker-etikett">Saker</p>
       <ul class="spor">
-        <li><a href="#" data-fane="koe" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">10 saker<span class="kun-te"> · 1 utkast</span></span></a></li>
+        <li><a href="#" data-fane="koe" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">11 saker<span class="kun-te"> · 1 utkast</span></span></a></li>
         <li><a href="#" data-fane="eo"><span class="navn">Endringsordrer</span><span class="sist">5 utstedt</span></a></li>
         <li><a href="#" data-fane="forsering"><span class="navn">Forsering</span><span class="sist">1 sak</span></a></li>
       </ul>
@@ -494,9 +496,9 @@ a.merke-n:hover{background:var(--surface-inset)}
               </div>
             </div>
             <div class="tallrad kun-fane f-koe" aria-label="Tallene for sakene">
-              <div><span class="tl">Krevd vederlag<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-v" aria-label="Om tallene">i</button><span class="lapp" id="tips-v" role="note" hidden>Summen av kravene med beløp. Krav etter regningsarbeid eller enhetspriser har ikke beløp og er ikke med. Trukne krav og saker der TE har godtatt avslaget på forholdet, er ikke med. Krav i flere saker kan gjelde samme kostnad.</span></span></span><span class="tv">640 000<small>kr eks. mva.</small></span><span class="tf">4 krav · 2 etter regningsarbeid eller enhetspriser</span></div>
+              <div><span class="tl">Krevd vederlag<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-v" aria-label="Om tallene">i</button><span class="lapp" id="tips-v" role="note" hidden>Summen av kravene med beløp i sakene som ikke inngår i en endringsordre. Vederlaget i de andre sakene står i endringsordren. Krav etter regningsarbeid eller enhetspriser har ikke beløp og er ikke med. Saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.</span></span></span><span class="tv">610 000<small>kr eks. mva.</small></span><span class="tf">2 krav · 1 varslet · saker utenfor EO</span></div>
               <div><span class="tl">Vederlag i alle endringsordrene<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-eo" aria-label="Om tallet">i</button><span class="lapp" id="tips-eo" role="note" hidden>Alle endringsordrene i prosjektet, også dem som ikke omfatter et krav om endringsordre. Fradrag trekkes fra. Endringsordrene står på fanen Endringsordrer.</span></span></span><span class="tv">350 000<small>kr eks. mva.</small></span><span class="tf">5 EO · 1 er regningsarbeid uten beløp</span></div>
-              <div><span class="tl">Krav om fristforlengelse</span><span class="tv">4<small>krav</small></span><span class="tf">1 varslet uten dager · 2 EO med fristforlengelse</span></div>
+              <div><span class="tl">Krav om fristforlengelse<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-f" aria-label="Om tallene">i</button><span class="lapp" id="tips-f" role="note" hidden>Kravene i sakene som ikke inngår i en endringsordre, og endringsordrene som gir fristforlengelse. Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.</span></span></span><span class="tv">2<small>krav</small></span><span class="tf">1 varslet · 2 EO</span></div>
             </div>
             <p class="tallnote kun-fane f-koe">1 sak er ikke med i tallene, fordi oversikten ikke forstår den.</p>
 
@@ -511,7 +513,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <button type="button" data-u="alle" aria-pressed="true">Alle</button>
                   <button type="button" data-u="eo" aria-pressed="false">Inngår i EO</button>
                   <button type="button" data-u="ikke-eo" aria-pressed="false">Ikke i EO</button>
-                  <button type="button" data-u="trukket" aria-pressed="false">Trukket eller avslag godtatt</button>
+                  <button type="button" data-u="trukket" aria-pressed="false">Avsluttet av TE</button>
                 </div>
                 <div class="sortering" role="group" aria-label="Sorter etter">
                   <span class="sort-etikett" aria-hidden="true">Sorter etter</span>
@@ -523,19 +525,27 @@ a.merke-n:hover{background:var(--surface-inset)}
               <div class="radhode" aria-hidden="true"><span class="r2">Sak</span><span class="r2"></span><span class="r2 h">Krevd vederlag <span class="enhet">· kr eks. mva.</span></span><span class="r2 h">Krevd frist <span class="enhet">· dager</span></span><span class="r2">Siste brev</span></div>
               <div class="tom-liste" id="ingen-treff" role="status" hidden><p id="ingen-treff-tekst"></p><button type="button" class="knapp-lenke" id="vis-alle">Vis alle sakene</button></div>
               <ul class="rader" id="koe-rader">
-              <li data-dato="2026-10-29T10:12" data-nr="E-031" data-utvalg="eo">
+              <li data-dato="2026-10-30T14:05" data-nr="E-031" data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-031</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><span class="kun-te"><span class="merke-n utkast">Utkast · vederlagsjustering</span></span><a class="merke-n" href="#">Fra E-027</a><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr"><span class="tomt">Ikke krevd</span></div><div class="tall1 " data-navn="Krevd frist, dager"><span class="art">Varslet</span></div>
-                  <div class="siste2"><b>Brev 1 · TE</b>29. oktober 2026</div>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><a class="merke-n" href="#">Fra E-027</a><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva."><span class="tomt">Ikke krevd</span></div><div class="tall1 " data-navn="Krevd frist, dager"><span class="art">Varslet</span></div>
+                  <div class="siste2"><b>EO-012 · BH</b>30. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-10-31T13:20" data-nr="E-029" data-utvalg="ikke-eo">
+                <div class="rad">
+                  <span class="id">E-029</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Flytting av sluk i garderobene</a><span class="forhold">Irregulær endring</span><div class="merker"><span class="kun-te"><span class="merke-n utkast">Utkast · vederlagsjustering</span></span></div></div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva."><span class="art">Varslet</span></div><div class="tall1 " data-navn="Krevd frist, dager"><span class="art">Varslet</span></div>
+                  <div class="siste2"><b>Brev 1 · TE</b>31. oktober 2026</div>
                 </div>
               </li>
               <li data-dato="2026-10-30T14:05" data-nr="E-027" data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-027</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr">420 000</div><div class="tall1 " data-navn="Krevd frist, dager">15</div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva.">420 000</div><div class="tall1 " data-navn="Krevd frist, dager">15</div>
                   <div class="siste2"><b>EO-012 · BH</b>30. oktober 2026</div>
                 </div>
               </li>
@@ -543,7 +553,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-024</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Endret fasadeplate etter pålegg på byggemøte</a><span class="forhold">Irregulær endring</span></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr"><span class="art">Enhetspriser</span></div><div class="tall1 " data-navn="Krevd frist, dager">15</div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva.">420 000</div><div class="tall1 " data-navn="Krevd frist, dager">15</div>
                   <div class="siste2"><b>Brev 5 · BH</b>28. oktober 2026</div>
                 </div>
               </li>
@@ -551,7 +561,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-021</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Ny peling med produktivitetstap</a><span class="forhold">Svikt i byggherrens prosjektering</span><div class="merker"><a class="merke-n" href="#forsering">Forsering F-004</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr">190 000</div><div class="tall1 " data-navn="Krevd frist, dager">20</div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva.">190 000</div><div class="tall1 " data-navn="Krevd frist, dager">20</div>
                   <div class="siste2"><b>Brev 8 · TE</b>30. oktober 2026</div>
                 </div>
               </li>
@@ -559,7 +569,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-019</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Manglende medvirkning eller leveranser fra byggherren</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-013</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr"><span class="art">Regningsarbeid</span></div><div class="tall1 " data-navn="Krevd frist, dager">5</div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva."><span class="art">Regningsarbeid</span></div><div class="tall1 " data-navn="Krevd frist, dager">5</div>
                   <div class="siste2"><b>EO-013 · BH</b>25. oktober 2026</div>
                 </div>
               </li>
@@ -567,7 +577,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-018</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-009</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr">150 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva."><span class="art">Enhetspriser</span></div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
                   <div class="siste2"><b>EO-009 · BH</b>2. oktober 2026</div>
                 </div>
               </li>
@@ -575,7 +585,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-012</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-010</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr">−120 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva.">−120 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
                   <div class="siste2"><b>EO-010 · BH</b>24. september 2026</div>
                 </div>
               </li>
@@ -591,7 +601,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-016</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Ekstra brannisolering i trapperom</a><span class="forhold">Irregulær endring</span><div class="merker"><span class="merke-n">Avslaget godtatt av TE</span></div></div>
-                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr">95 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva.">95 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
                   <div class="siste2"><b>Brev 4 · TE</b>10. oktober 2026</div>
                 </div>
               </li>
@@ -599,7 +609,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-015</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Merarbeid ved stillas</a><span class="forhold">Irregulær endring</span><div class="merker"><span class="merke-n">Trukket</span></div></div>
-                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr">60 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva.">60 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
                   <div class="siste2"><b>Brev 3 · TE</b>18. september 2026</div>
                 </div>
               </li>
@@ -638,7 +648,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="tall2" data-navn="Frist"><span class="tomt">Ingen dager</span></div>
                   <div class="siste2"><b>Omfatter</b>1 sak</div>
                 </div>
-                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-018</span><div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">150 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-018</span><div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">Enhetspriser krevd</span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
               </li>
               <li class="eo-rad">
                 <div class="rad">
@@ -664,7 +674,7 @@ a.merke-n:hover{background:var(--surface-inset)}
 
             <div class="fane-innhold" id="innhold-forsering" hidden>
               <div class="verktoy"></div>
-              <div class="radhode" aria-hidden="true"><span>Sak</span><span></span><span>Antatt kostnad</span><span>Dager</span><span>Siste brev</span></div>
+              <div class="radhode" aria-hidden="true"><span>Sak</span><span></span><span>Antatt kostnad <span class="enhet">· eks. mva.</span></span><span>Dager</span><span>Siste brev</span></div>
               <ul class="rader">
                 <li><div class="rad"><span class="id">F-004</span><div class="tittel"><a href="#">Forsering av fristforlengelsen</a><span class="forhold">Totalentreprenøren anser avslaget som pålegg om forsering (punkt 33.8)</span><div class="merker"><a class="merke-n" href="#">Knyttet til E-021</a></div></div><div class="tall2" data-navn="Antatt kostnad"><span class="k">420 000 kr</span></div><div class="tall2" data-navn="Dager"><span class="k">20 dager</span></div><div class="siste2"><b>Brev 8 · TE</b>30. oktober 2026</div></div></li>
               </ul>
@@ -692,7 +702,7 @@ a.merke-n:hover{background:var(--surface-inset)}
   const rader = [...liste.children];
   const sok = document.getElementById('sok');
   const ingen = document.getElementById('ingen-treff'), ingenTekst = document.getElementById('ingen-treff-tekst');
-  const UTVALG = { eo: 'Ingen saker inngår i en endringsordre.', 'ikke-eo': 'Alle sakene inngår i en endringsordre.', trukket: 'Ingen krav er trukket, og ingen avslag er godtatt.' };
+  const UTVALG = { eo: 'Ingen saker inngår i en endringsordre.', 'ikke-eo': 'Alle sakene inngår i en endringsordre.', trukket: 'Ingen saker er avsluttet av TE.' };
   let utvalg = 'alle';
   function filtrer(){
     const q = sok.value.trim().toLowerCase();
