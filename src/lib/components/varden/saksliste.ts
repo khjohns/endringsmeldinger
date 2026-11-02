@@ -80,12 +80,22 @@ export function krevd(
   }
   if (spor === 'frist' && linje.frist.krav)
     return { tekst: dager(linje.frist.krav.dager), tall: true, dempet, merknad };
-  if (l.har_varsel) return { tekst: SAKSLISTE.varslet, tall: false, dempet, merknad };
+  if (varslet(l))
+    return {
+      tekst: SAKSLISTE.varslet,
+      tall: false,
+      dempet: iEndringsordre || trukket || avsluttetAvTe(linje),
+      merknad,
+    };
   return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, merknad: null };
 }
 
-const varsletOgStaar = (s: Sakslinje['vederlag'] | Sakslinje['frist']): boolean =>
-  s.har_varsel && s.betegnelse !== 'trukket';
+/**
+ * TE har varslet i sporet og ikke sagt «ingen krav» etter varselet (KA-U12). Betegnelsen
+ * `ingen_krav` går foran `varslet` i MM-U30, og sporet viser da «Ikke krevd».
+ */
+const varslet = (s: Sakslinje['vederlag'] | Sakslinje['frist']): boolean =>
+  s.har_varsel && s.betegnelse !== 'ingen_krav';
 
 export type Noekkeltall = {
   /** `utenBeloep` er krav etter regningsarbeid eller enhetspriser: ukjent er ikke 0 (OV-U43). */
@@ -96,7 +106,7 @@ export type Noekkeltall = {
 /**
  * Kravene i sakene som ikke inngår i en endringsordre (MM-U38). Et
  * krav telles når serveren sier at det står (`kravet_staar`, som utelater trukne krav og saker
- * TE har avsluttet). Et varsel uten krav telles for seg når sporet ikke er trukket. Krav
+ * TE har avsluttet). Et varsel uten krav telles for seg. Krav
  * etter regningsarbeid eller enhetspriser har ikke beløp i lista og telles for seg.
  * Fristdagene summeres ikke.
  */
@@ -112,9 +122,9 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
       n.vederlag.krav += 1;
       n.vederlag.sum += v.krav.beloep;
     } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;
-    else if (!v.krav && varsletOgStaar(v)) n.vederlag.varslet += 1;
+    else if (!v.krav && varslet(v)) n.vederlag.varslet += 1;
     if (l.frist.krav && l.frist.kravet_staar) n.frist.krav += 1;
-    else if (!l.frist.krav && varsletOgStaar(l.frist)) n.frist.varslet += 1;
+    else if (!l.frist.krav && varslet(l.frist)) n.frist.varslet += 1;
   }
   return n;
 }

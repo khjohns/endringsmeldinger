@@ -492,6 +492,10 @@ describe('linja i sakslisten (#1022)', () => {
     expect(trukket.saksbetegnelse).toBe('paaberopelsen_trukket');
     expect(trukket.frist).toMatchObject({ betegnelse: 'trukket', har_varsel: true });
 
+    // KA-U12: «ingen krav» etter varselet. Varselet står, og betegnelsen er `ingen_krav`.
+    const ingenKrav = linje(varsel, (sak) => sak.send('TE', { type: 'ingen_krav', spor: 'frist' }));
+    expect(ingenKrav.frist).toMatchObject({ betegnelse: 'ingen_krav', har_varsel: true });
+
     const utenVarsel = linje(krav);
     expect(utenVarsel.frist.har_varsel, 'kontrollsak: krav uten varsel').toBe(false);
   });

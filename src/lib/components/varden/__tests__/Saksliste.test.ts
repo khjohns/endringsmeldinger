@@ -297,8 +297,10 @@ describe('Sakslisten i Varden', () => {
     expect(frist.textContent).not.toContain('35');
   });
 
-  it('«Varslet» står og telles når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2, og dempet når påberopelsen er trukket (MM-U37, MM-U38)', () => {
-    const varsel = (betegnelse: 'spesifisert_krav_etterspurt' | 'trukket' | null) => ({
+  it('«Varslet» står og telles når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2, dempet når påberopelsen er trukket, og ikke etter «ingen krav» (MM-U37, MM-U38, KA-U12)', () => {
+    const varsel = (
+      betegnelse: 'spesifisert_krav_etterspurt' | 'trukket' | 'ingen_krav' | null
+    ) => ({
       ...ingenting,
       betegnelse,
       kravet_staar: false,
@@ -321,14 +323,18 @@ describe('Sakslisten i Varden', () => {
           frist: varsel('trukket'),
         }),
         lagSakslinje({ sak_id: 'C', sakstittel: 'Uten varsel', frist: varsel(null) }),
+        // KA-U12: TE har sagt «ingen krav» etter varselet.
+        lagSakslinje({ sak_id: 'D', sakstittel: 'Ingen krav', frist: varsel('ingen_krav') }),
       ],
     });
     const fristen = (t: string) => rad(t).querySelectorAll('.krevd')[1]!;
     expect(fristen('Etterspurt').querySelector('.verdi')!.textContent).toBe('Varslet');
     expect(fristen('Trukket').querySelector('.verdi')!.textContent).toBe('Varslet');
+    expect(fristen('Etterspurt').classList.contains('dempet')).toBe(false);
     expect(fristen('Trukket').classList.contains('dempet')).toBe(true);
     expect(within(rad('Trukket')).getByText('Påberopelsen trukket')).toBeTruthy();
     expect(fristen('Uten varsel').querySelector('.verdi')!.textContent).toBe('Ikke krevd');
+    expect(fristen('Ingen krav').querySelector('.verdi')!.textContent).toBe('Ikke krevd');
     const frist = document.querySelectorAll('.spor-kort')[1] as HTMLElement;
     expect(frist.querySelector('.hm')!.textContent).toBe('1 varslet');
   });
