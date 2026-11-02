@@ -185,6 +185,15 @@
     },
   };
 
+  // Feil for et felt som ikke lenger vises, står ikke i oppsummeringen (F-4).
+  function vises(f: string) {
+    if (f === 'dato') return !!felt.datotekst;
+    if (f === 'endringsordre') return felt.endringsordre;
+    if (f === 'sendemaate') return varselet && varseltype === 'brev';
+    if (f.startsWith('varsel')) return varselet;
+    return true;
+  }
+
   const FELTENE = [
     'forhold',
     'tittel',
@@ -198,6 +207,7 @@
     'varselLagres',
     'kjernen',
   ];
+  const synligeFeil = $derived(FELTENE.filter((f) => feil[f] && vises(f)));
 </script>
 
 {#if kontroll && valgt}
@@ -230,7 +240,7 @@
           <h1>{NYSAK.tittel}</h1>
         </header>
 
-        {#if Object.keys(feil).length}
+        {#if synligeFeil.length}
           <div
             class="oppsummering"
             tabindex="-1"
@@ -240,7 +250,7 @@
           >
             <h2 id={id('mangler')}>{NYSAK.mangler}</h2>
             <ul>
-              {#each FELTENE.filter((f) => feil[f]) as f (f)}
+              {#each synligeFeil as f (f)}
                 <li><a href={`#${id(f)}`}>{feil[f]}</a></li>
               {/each}
             </ul>

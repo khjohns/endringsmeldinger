@@ -240,6 +240,20 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
+  it('F-4: ved nei står feilene for varselet som alt er sendt, ikke lenger i oppsummeringen', async () => {
+    aapne();
+    await fyllIrregulaerEndring();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
+    await seBrevet();
+    expect(screen.getAllByText('Beskriv varselet.').length).toBe(2);
+    await fireEvent.click(screen.getByRole('radio', { name: 'Nei' }));
+    expect(screen.queryByText('Beskriv varselet.')).toBeNull();
+    expect(screen.queryByText('Velg hva du legger til.')).toBeNull();
+    expect(
+      screen.queryByRole('group', { name: 'Det mangler noe før du kan se brevet' })
+    ).toBeNull();
+  });
+
   it('D-8: utfylt varsel som alt er sendt, stanser før brevkontrollen til lagringen finnes (#807, #1487)', async () => {
     const { send } = aapne();
     await fyllIrregulaerEndring();

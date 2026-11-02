@@ -6,7 +6,7 @@
  */
 
 import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt';
-import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
+import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 
@@ -63,8 +63,13 @@ export function brevene(u: Utledning): Brevet[] {
         registrert: d.registrert,
         spor: [...i],
         art: artAv(d),
-        forhold:
-          (d.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori as string) ?? null,
+        forhold: foersteUnderkategori(
+          d.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori as
+            | string
+            | string[]
+            | null
+            | undefined
+        ),
         avsnitt: d.brevtekst,
       },
     ];
