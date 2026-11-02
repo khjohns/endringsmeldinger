@@ -68,14 +68,22 @@
   const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
   const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
   // Panelet og tidslinja står fast når de får plass i vinduet, som panelet i vederlagssvaret.
-  let kolonne = $state<HTMLElement | null>(null);
+  // Ellers står bare panelet fast, og tidslinja ruller under det (oppdragsgiver 02.11).
+  let panel = $state<HTMLElement | null>(null);
+  let linja = $state<HTMLElement | null>(null);
+  let panelhoeyde = $state(0);
   let faarPlass = $state(true);
   $effect(() => {
-    const el = kolonne;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const maal = () => (faarPlass = el.offsetHeight + 32 <= window.innerHeight);
+    const p = panel;
+    const l = linja;
+    if (!p || !l || typeof ResizeObserver === 'undefined') return;
+    const maal = () => {
+      panelhoeyde = p.offsetHeight;
+      faarPlass = p.offsetHeight + 16 + l.offsetHeight + 32 <= window.innerHeight;
+    };
     const ro = new ResizeObserver(maal);
-    ro.observe(el);
+    ro.observe(p);
+    ro.observe(l);
     window.addEventListener('resize', maal);
     maal();
     return () => {
@@ -547,7 +555,7 @@
       </form>
     {/snippet}
     {#snippet hoeyre()}
-      <div class="feste" class:fast={faarPlass} bind:this={kolonne}>
+      <div class="feste" bind:this={panel}>
         <Hovedlinjer
           tittel={NYSAK.panel}
           tom={NYSAK.panelTom}
@@ -555,6 +563,13 @@
           alternativer={false}
           handling={sendeknapp}
         />
+      </div>
+      <div
+        class="linja"
+        class:fast={faarPlass}
+        style:--panelhoeyde={`${panelhoeyde}px`}
+        bind:this={linja}
+      >
         <Tidslinje brev={[]} datoer={[]} utfylt={tidslinja} />
       </div>
     {/snippet}
@@ -735,12 +750,21 @@
     color: var(--ink);
   }
   .feste {
-    display: grid;
-    gap: var(--spacing-4);
-  }
-  .feste.fast {
     position: sticky;
     top: var(--spacing-4);
+    z-index: 1;
+  }
+  /* Dekker stripa over panelet, så tidslinja ikke synes der når den ruller under det. */
+  .feste::before {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--spacing-4)) 0 calc(100% - var(--r-kort));
+    z-index: -1;
+    background: var(--canvas);
+  }
+  .linja.fast {
+    position: sticky;
+    top: calc(2 * var(--spacing-4) + var(--panelhoeyde));
   }
   .sendes-til {
     margin: 0;
