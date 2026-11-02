@@ -3524,6 +3524,95 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
   });
 });
 
+describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i #807)', () => {
+  // Påberopelsen er brev 2 av 2. oktober 2026, og registreringen er brev 3 av 3. oktober.
+  const registrering = (sendt = '2026-09-28') => ({
+    type: 'varsel',
+    spor: 'forhold',
+    hjemmel: '32.2',
+    sendt,
+    dokumentasjon: [randomUUID()],
+  });
+  const medPaaberopelse = () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    return s;
+  };
+
+  it('registreres som varsel i forholdet med datoen og dokumentet, uten tekst fra løsningen (VS-U34, OV-U80, MM-U17)', () => {
+    const s = medPaaberopelse();
+    const rad = s.send('TE', registrering());
+    expect(rad.data.brevtekst).toBeUndefined();
+    expect(rad.data.utsagn).toMatchObject([{ art: 'varsel', hjemmel: '32.2' }]);
+    expect(rad.data.opplysninger).toMatchObject([{ hva: 'sendt', dato: '2026-09-28' }]);
+    expect(s.u().spor.forhold.varsler['32.2']?.dokument).toBe(rad.event_id);
+    expect(s.u().forstaatt).toBe(true);
+  });
+
+  it('datoen settes én gang (OV-U80, SK-12)', () => {
+    const s = medPaaberopelse();
+    s.send('TE', registrering());
+    expect(s.avvist('TE', registrering('2026-09-27'))).toBe('VARSEL_REGISTRERT');
+  });
+
+  it('datoen kan ikke være senere enn påberopelsen, men samme dag (VS-U38)', () => {
+    const s = medPaaberopelse();
+    expect(s.avvist('TE', registrering('2026-10-03'))).toBe('VARSEL_ETTER_PAABEROPELSEN');
+    expect(s.avvist('TE', registrering('2026-10-02'))).toBeNull();
+  });
+
+  it('registreres bare der varslingsplikten etter § 32.2 gjelder kategorien (VS-U39, GR-U11)', () => {
+    const s = sak();
+    s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: {
+        hovedkategori: 'svikt',
+        underkategori: 'medvirkning',
+        tittel: 'Sene tegninger',
+        ...KLAR_OVER,
+      },
+    });
+    expect(s.avvist('TE', registrering())).toBe('VARSLINGSPLIKT_GJELDER_IKKE');
+  });
+
+  it('registreres etter påberopelsen, også i samme handling (VS-U38, S-2 i #807)', () => {
+    const s = sak();
+    expect(s.avvist('TE', registrering())).toBe('PAABEROPELSE_IKKE_SENDT');
+  });
+
+  it('bare TE registrerer varselet (OV-U80)', () => {
+    expect(medPaaberopelse().avvist('BH', registrering())).toBe('FEIL_PART');
+  });
+
+  it('står i forholdet og sendes ikke fra løsningen, der påberopelsen er varselet (VS-U34, GR-U31)', () => {
+    const s = medPaaberopelse();
+    expect(s.avvist('TE', { ...registrering(), spor: 'frist' })).toBe('UGYLDIG_FORM');
+    expect(s.avvist('TE', { type: 'send_varsel', spor: 'forhold', hjemmel: '32.2' })).toBe(
+      'UGYLDIG_FORM'
+    );
+  });
+
+  // Fastholder dagens atferd til S-1 i #807 er besvart: rettidigheten etter § 32.2 gjelder kravet.
+  it('byggherrens påberopelse etter § 32.2 gjelder fortsatt kravet når varselet er registrert', () => {
+    const s = medPaaberopelse();
+    s.send('TE', registrering());
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: false,
+        }),
+      ],
+    });
+    const standpunkt = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
+      (p) => p.art === 'rettidighet'
+    );
+    expect(standpunkt?.gjelder).toBe(s.krav('forhold'));
+    expect(s.u().forstaatt).toBe(true);
+  });
+});
+
 describe('vedleggene står i teksten (A4)', () => {
   const dokument = (filnavn: string[]): Dokument => ({
     id: 'brevet',

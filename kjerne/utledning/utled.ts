@@ -18,7 +18,14 @@
  * ukjent, er saken ikke forstått, og ingenting utledes (MM-U2, 2.7 regel 1).
  */
 
-import { erRegistrert, lesJournal, sammeSlag } from '../format/leser.ts';
+import {
+  datoFor,
+  erRegistrert,
+  kalenderdag,
+  lesJournal,
+  registrertDato,
+  sammeSlag,
+} from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
@@ -93,8 +100,8 @@ export interface Sporutledning {
   /** TE har sagt at det ikke kreves noe i sporet (KA-U12). */
   ingenKrav: boolean;
   /**
-   * De registrerte varslene i sporet, ett per hjemmel (SK-12): § 33.4 i fristen, § 34.1.2
-   * og § 34.1.3 i vederlaget (OV-U5, OV-U25).
+   * De registrerte varslene i sporet, ett per hjemmel (SK-12): § 32.2 i forholdet (VS-U34),
+   * § 33.4 i fristen, § 34.1.2 og § 34.1.3 i vederlaget (OV-U5, OV-U25).
    */
   varsler: Partial<Record<Varselhjemmel, LestVarsel>>;
   /** § 33.6.2: forespørslene og det som svarte på dem; bare fristen. */
@@ -782,7 +789,8 @@ function kontrollerStandpunktet(
       );
     return;
   }
-  if (erVarselhjemmel(p.hjemmel)) {
+  // Etter § 32.2 gjelder rettidigheten kravet, også når et varsel er registrert (S-1 i #807).
+  if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel)) {
     const n = VARSELSPOR[p.hjemmel];
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
     const krav = kravSomVarsler(p.hjemmel, spor[n].krav);
@@ -793,7 +801,6 @@ function kontrollerStandpunktet(
       );
     return;
   }
-  // Etter § 32.2 gjelder rettidigheten kravet.
   if (p.gjelder !== s.gjelder) ugyldig(s.id, 'rettidigheten viser ikke til kravet');
 }
 
@@ -1040,7 +1047,8 @@ function svarberegninger(
   spor: Record<Spor, Sporutledning>
 ): Record<string, Svarberegning> {
   const annetVarsel = (p: Standpunkt) => {
-    if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;
+    if (p.art !== 'rettidighet' || p.hjemmel === '32.2' || !erVarselhjemmel(p.hjemmel))
+      return false;
     const varsel = spor[VARSELSPOR[p.hjemmel]].varsler[p.hjemmel];
     return varsel !== undefined && p.gjelder !== varsel.id;
   };
@@ -1252,6 +1260,20 @@ export function fristkravErFremmet(u: Utledning): boolean {
   for (const d of dokumenterI(u.journal))
     if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;
   return false;
+}
+
+/**
+ * Dagen kravet ble sendt: datoen parten oppga for et registrert krav (OV-U80), ellers
+ * dagen dokumentet ble registrert i løsningen (VS-U8). `null` når den oppgitte datoen
+ * ikke kan leses.
+ */
+export function datoenKravetBleSendt(u: Pick<Utledning, 'journal'>, krav: Krav): string | null {
+  for (const d of dokumenterI(u.journal)) {
+    if (d.id !== krav.dokument) continue;
+    const sendt = datoFor(krav, 'sendt', d.opplysninger);
+    return sendt ? kalenderdag(sendt.dato) : registrertDato(d);
+  }
+  throw new Error(`Kravet ${krav.id} står ikke i et dokument i journalen.`);
 }
 
 /** Dokumentene i journalen, i rekkefølge, uten å kopiere dem til en liste (#787). */

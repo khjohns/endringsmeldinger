@@ -22,6 +22,8 @@ export type Handlingsnoekkel =
   | { type: 'varsle' | 'sende_varsel'; spor: Kravspor }
   /** Det særskilte varselet etter § 34.1.3 tredje ledd, ved siden av varselet i sporet (OV-U25). */
   | { type: 'varsle' | 'sende_varsel'; spor: 'vederlag'; hjemmel: '34.1.3' }
+  /** VS-U34, VS-U38: varselet etter § 32.2 sendt utenfor løsningen, registrert etter påberopelsen. */
+  | { type: 'varsle'; spor: 'forhold'; hjemmel: '32.2' }
   | { type: 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | { type: 'registrere_brev' }
@@ -206,7 +208,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (!paaberopelseSendt)
         return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      if (s.ingenKrav)
+      if (h.spor !== 'forhold' && s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
       // SK-12 og MM-U1: et registrert varsel kan ikke flyttes. Et utledet varsel er ikke registrert.
       if (s.varsler['hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor]])

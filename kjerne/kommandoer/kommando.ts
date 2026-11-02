@@ -53,10 +53,14 @@ interface Brevtekst {
   brevtekst?: string[];
 }
 
+/** Varselet TE sender fra løsningen (VS-U15). Påberopelsen er varselet etter § 32.2 (GR-U31). */
 type Varselet =
   | { spor: 'frist'; hjemmel: '33.4' }
   | { spor: 'vederlag'; hjemmel: '34.1.2' }
   | { spor: 'vederlag'; hjemmel: '34.1.3' };
+
+/** Varselet TE har sendt utenfor løsningen og registrerer, også etter § 32.2 (VS-U34, VS-U38). */
+export type RegistrertVarsel = Varselet | { spor: 'forhold'; hjemmel: '32.2' };
 
 export type Kommando = (
   | {
@@ -85,11 +89,11 @@ export type Kommando = (
     }
   | { type: 'trekk'; spor: Spor }
   /**
-   * Registrerer et varsel etter § 33.4 eller § 34.1.2 sendt utenfor appen (MM-U1, SK-12,
-   * OV-U5), med brevet som vedlegg (OV-U4). `dokumentasjon` er ID-ene i mellomlageret
-   * (LV-U14). Hjemmelen følger sporet.
+   * Registrerer et varsel etter § 32.2, § 33.4, § 34.1.2 eller § 34.1.3 sendt utenfor appen
+   * (MM-U1, SK-12, OV-U5, VS-U34), med brevet som vedlegg (OV-U4). `dokumentasjon` er
+   * ID-ene i mellomlageret (LV-U14). Hjemmelen følger sporet.
    */
-  | ({ type: 'varsel'; sendt: string; dokumentasjon: string[] } & Varselet)
+  | ({ type: 'varsel'; sendt: string; dokumentasjon: string[] } & RegistrertVarsel)
   /**
    * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
    * beskrivelsen med egne ord, datoen det ble sendt og brevet som vedlegg. Uten `spor`
@@ -159,9 +163,13 @@ const SVARUTKAST = objekt(
 );
 
 const BREVTEKST = { brevtekst: liste(TEKST) };
-const VARSELET = {
-  spor: { enum: Object.values(VARSELSPOR) },
+const REGISTRERT_VARSEL = {
+  spor: { enum: [...new Set(Object.values(VARSELSPOR))] },
   hjemmel: { enum: Object.keys(VARSELSPOR) },
+};
+const VARSELET = {
+  spor: { enum: [...KRAVSPOR] },
+  hjemmel: { enum: Object.keys(VARSELSPOR).filter((h) => h !== '32.2') },
 };
 
 const henvisning = (type: string) =>
@@ -202,7 +210,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   varsel: objekt(
     {
       type: { const: 'varsel' },
-      ...VARSELET,
+      ...REGISTRERT_VARSEL,
       sendt: DATO,
       dokumentasjon: liste(ID),
     },
@@ -353,7 +361,7 @@ export function formfeil(kommando: unknown): string[] {
   }
   // OV-U5: varselet etter § 33.4 står i fristen, varselet etter § 34.1.2 i vederlaget.
   if ((type === 'varsel' || type === 'send_varsel') && !feil.length) {
-    const k = kommando as { spor: Kravspor; hjemmel: Varselhjemmel };
+    const k = kommando as { spor: Spor; hjemmel: Varselhjemmel };
     if (VARSELSPOR[k.hjemmel] !== k.spor)
       feil.push(`$.hjemmel: et varsel etter § ${k.hjemmel} står ikke i sporet ${k.spor}`);
   }

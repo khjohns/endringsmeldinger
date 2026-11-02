@@ -171,8 +171,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;",
-        "if (p.art !== 'rettidighet' || p.hjemmel !== '34.1.2') return false;",
+        "if (p.art !== 'rettidighet' || p.hjemmel === '32.2' || !erVarselhjemmel(p.hjemmel))",
+        "if (p.art !== 'rettidighet' || p.hjemmel !== '34.1.2')",
       ],
     ],
     mal: ['F-MM-D', 'F-MM-D-godtatt', 'visningen sier at svaret gjaldt et annet varsel'],
@@ -1313,8 +1313,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'at TE vil kreve ${VIL_KREVE[u.hjemmel]} som følge av forholdet i ${sak}.`',
-        'at TE vil kreve ${VIL_KREVE[u.hjemmel]}.`',
+        'at TE vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`',
+        'at TE vil kreve ${VIL_KREVE[hjemmel]}.`',
       ],
     ],
     mal: ['med teksten i VS-U15', 'med teksten i LV-U19'],
@@ -1337,7 +1337,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'varselet fra appen har ikke forutsetningene for et varsel (SK-12, VS-U15)',
     fil: `${K}/kommandoer/avvisning.ts`,
     endringer: [
-      ['          : { type, spor: k.spor },', "          : { type: 'krav', spor: 'frist' },"],
+      ['      return [{ type, spor: k.spor }];', "      return [{ type: 'krav', spor: 'frist' }];"],
     ],
     mal: ['F-VS-U15a'],
   },
@@ -1541,7 +1541,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en lagret påberopelse etter § 34.1.2 som viser til en senere kravversjon, forstås (HF-U1)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['if (erVarselhjemmel(p.hjemmel)) {', "if (p.hjemmel === '33.4') {"]],
+    endringer: [
+      ["if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel)) {", "if (p.hjemmel === '33.4') {"],
+    ],
     mal: ['påberopelsen etter § 34.1.2 viser til kravversjonen svaret gjelder'],
   },
   {
