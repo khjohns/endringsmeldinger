@@ -221,6 +221,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       'ny_sak_id mangler',
     ],
     ['ingen tittel', { tittel: undefined }, 'tittel mangler'],
+    ['en tittel med bare mellomrom', { tittel: '   ' }, 'tittel mangler'],
     // Kjernen trimmer sakstittelen og ville gitt to verdier for én tittel (LV-U43).
     [
       'en tittel med mellomrom i kanten',

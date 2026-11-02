@@ -508,10 +508,11 @@ async function opprettMedPaaberopelse(
   const { ny_sak_id: sakId, tittel, paaberopelse, brevtekst } = kropp;
   if (typeof sakId !== 'string' || !UUID.test(sakId))
     return ugyldig('ny_sak_id mangler eller er ikke en UUID med små bokstaver.');
-  if (typeof tittel !== 'string') return ugyldig('tittel mangler eller er ikke en tekst.');
+  if (typeof tittel !== 'string' || !tittel.trim())
+    return ugyldig('tittel mangler eller er ikke en tekst.');
   // Kjernen trimmer sakstittelen, men ikke tittelen i påberopelsen; én verdi krever begge like (LV-U43).
   if (tittel !== tittel.trim())
-    return ugyldig('tittel begynner eller slutter med mellomrom eller et usynlig tegn.');
+    return ugyldig('tittel begynner eller slutter med mellomrom eller et annet blankt tegn.');
   if (!erObjekt(paaberopelse) || paaberopelse.type !== 'krav' || paaberopelse.spor !== 'forhold')
     return ugyldig('paaberopelse må være et krav i sporet forhold.');
   if (!erObjekt(paaberopelse.innhold) || 'tittel' in paaberopelse.innhold)
