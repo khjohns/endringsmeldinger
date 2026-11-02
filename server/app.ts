@@ -602,7 +602,7 @@ async function opprettMedPaaberopelse(
  * Oppretter saken med `sak_opprettet` som versjon 1. Kjernen avgjør om kommandoen
  * godtas, med parten fra kontraktsteamet; basen lager saks-ID-en. En kropp med `ny_sak_id`
  * oppretter saken med den første påberopelsen (#1487). Formen uten påberopelse brukes av
- * skjemaet og `saksrute.ts` til de går over (#1492).
+ * skjemaet og `saksrute.ts` til de går over (#1499).
  */
 async function opprettNySak(
   forespoersel: Opprettelsesforespoersel,
