@@ -135,7 +135,16 @@ i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
   ord: «Send svar», ikke «OK». «Avbryt» betyr at ingenting lagres eller endres.
 - **Feltene står under hverandre**, med label over feltet og hjelpeteksten under
   labelen. Labelen har ikke kolon, og plassholdertekst bærer aldri mening. Ved to
-  til seks alternativer vises alle, ikke en nedtrekksliste.
+  til seks alternativer vises alle, ikke en nedtrekksliste. En nedtrekksliste passer
+  først når alternativene er for mange til å vises. En lang liste med grupper, som de
+  17 forholdene, får en egen velger med søk og grupper (oppdragsgiver 02.11, #1492).
+- **Bredden på feltet følger svaret det venter.** Et datofelt er om lag så bredt som
+  en dato med kalenderikonet, og et nummer eller en dato for endringsordren har et
+  kort felt. Løpende tekst, som en tittel eller en beskrivelse, har full bredde
+  (oppdragsgiver 02.11, #1492).
+- **To korte valg, som nei og ja, står ved siden av hverandre.** Lengre alternativer
+  står under hverandre i kort med lik bredde, så de leses som en liste og ikke brytes
+  ujevnt (oppdragsgiver 02.11, #1492).
 - **Valgfrie felt merkes «(valgfritt)»**, og obligatoriske felt har
   `aria-required="true"` uten synlig merke. Appen bruker bare denne ene merkingen.
 - **Feilmeldingen står rett under feltet** og sier hva som hindrer (`AGENTS.md`,
