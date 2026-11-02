@@ -6,7 +6,7 @@
  */
 
 import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt';
-import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
+import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 
@@ -18,6 +18,8 @@ export interface Brevet {
   registrert: string;
   spor: Spor[];
   art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'registrert' | 'annet';
+  /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
+  forhold: string | null;
   /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17). */
   avsnitt: Avsnitt[] | null;
 }
@@ -61,6 +63,13 @@ export function brevene(u: Utledning): Brevet[] {
         registrert: d.registrert,
         spor: [...i],
         art: artAv(d),
+        forhold: foersteUnderkategori(
+          d.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori as
+            | string
+            | string[]
+            | null
+            | undefined
+        ),
         avsnitt: d.brevtekst,
       },
     ];

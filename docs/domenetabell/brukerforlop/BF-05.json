@@ -2,10 +2,11 @@
   "id": "BF-05",
   "tittel": "TE oppretter saken og påberoper forholdet",
   "brukerhistorie": "TE har fått et pålegg som TE mener er en irregulær endring. TE velger «Nytt krav om endringsordre», velger forholdet, skriver tittelen på saken og beskrivelsen av pålegget, oppgir datoen pålegget ble mottatt og kontrollerer brevet før det sendes, så kravet ikke tapes for sent varsel etter punkt 32.2. Før sending ser TE at forholdet står fast. Etter sendingen står saken med påberopelsen sendt og venter på BHs svar.",
-  "status": "planlagt",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "Et prosjekt med kontrakt etter NS 8407. TE er innlogget med kontraktsrollen TE, og ingen sak finnes for pålegget. Pålegget ble mottatt 15. september 2026."
+    "beskrivelse": "Et prosjekt med kontrakt etter NS 8407. TE er innlogget med kontraktsrollen TE, og ingen sak finnes for pålegget. Pålegget ble mottatt 15. september 2026.",
+    "opprettes": true
   },
   "bestilling": "BF-05.md",
   "prototype": {
@@ -358,47 +359,11 @@
       }
     ]
   },
-  "kilder": [
-    "KT-U10",
-    "KT-U7",
-    "OV-U76",
-    "OV-U77",
-    "OV-U78",
-    "GR-U15",
-    "KT-U11",
-    "GR-U22",
-    "OV-U55",
-    "OV-U57",
-    "VS-U26",
-    "VS-U25",
-    "OV-U52",
-    "GR-U31",
-    "LV-U41",
-    "LV-U43",
-    "LV-U35",
-    "LV-U9",
-    "KT-U3",
-    "VS-U34",
-    "VS-U38",
-    "OV-U5",
-    "KT-U6",
-    "OV-U79",
-    "OV-U80",
-    "OV-U11",
-    "GR-U11",
-    "MM-U21",
-    "OV-U84",
-    "VS-U37",
-    "VS-U39"
-  ],
-  "venter_paa": [
-    "#1450",
-    "#1271",
-    "#1477",
-    "#1481"
-  ],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta",
+    "varden"
+  ],
   "endringer": [
     {
       "dato": "2026-11-01",
@@ -409,6 +374,144 @@
       "dato": "2026-11-01",
       "forhold": "#1483, #1477",
       "hva": "Kildene har vedtakene for S-2, S-3 og S-6 (LV-U43, KT-U11 og VS-U38). Skissen er versjon 3."
+    },
+    {
+      "dato": "2026-11-02",
+      "forhold": "#1481",
+      "hva": "Forløpet er kjørbart: steget med påberopelsen, kontrollene for GR-U15 og KT-U11, og forståelsen fra U-2–U-7. Kontrollpunktet «start» er før opprettelsen."
+    }
+  ],
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "endring",
+      "underkategori": "irregulaer_endring",
+      "navn": "K-p1",
+      "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "start",
+      "etter": 0,
+      "beskrivelse": "Ingen sak finnes. TE fyller ut skjemaet for ny sak.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "GR-U15",
+            "KT-U11"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "hovedkategori": "endring",
+            "underkategori": "irregulaer_endring",
+            "utdypning": false
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "BESKRIVELSE_MANGLER"
+          }
+        },
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "KT-U11"
+          ],
+          "forventet": {
+            "gjeldende_krav.forhold": null
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE velger forholdet blant kontraktens forhold, gruppert med kontraktens henvisning, uten ordene «grunnlag», «hovedkategori» eller «underkategori».",
+          "kilde": [
+            "KT-U10",
+            "KT-U7",
+            "OV-U76",
+            "OV-U77",
+            "OV-U78",
+            "GR-U11"
+          ]
+        },
+        {
+          "tekst": "TE forstår før sending at forholdet står fast etter sendingen, og at et annet forhold betyr en ny sak.",
+          "kilde": [
+            "GR-U22",
+            "OV-U55",
+            "OV-U57"
+          ]
+        },
+        {
+          "tekst": "TE forstår hvilken dato skjemaet spør etter: datoen pålegget ble mottatt, eller datoen TE ble klar over forholdet.",
+          "kilde": [
+            "VS-U26",
+            "VS-U25",
+            "OV-U52"
+          ]
+        },
+        {
+          "tekst": "TE ser feilen ved feltet før brevkontrollen når forholdet, tittelen, beskrivelsen eller datoen mangler, og ingen sak er opprettet.",
+          "kilde": [
+            "GR-U15",
+            "KT-U11"
+          ]
+        },
+        {
+          "tekst": "Der punkt 32.2 gjelder, svarer TE på om varselet alt er sendt til BH på annen måte, og ser hva kapittel B krever av et slikt varsel. Har TE svart ja ved en feil, går TE tilbake til nei før sending.",
+          "kilde": [
+            "VS-U34",
+            "VS-U39",
+            "VS-U38",
+            "OV-U5",
+            "OV-U79",
+            "OV-U80",
+            "OV-U11",
+            "MM-U21",
+            "OV-U84"
+          ]
+        },
+        {
+          "tekst": "TE ser i brevkontrollen hele brevet som sendes, med partene skrevet fullt ut, og finner veien tilbake uten å miste det som er skrevet.",
+          "kilde": [
+            "GR-U31",
+            "LV-U41",
+            "LV-U35",
+            "LV-U43"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "paaberopelsen-er-sendt",
+      "etter": 1,
+      "beskrivelse": "TE har opprettet saken og sendt påberopelsen av irregulær endring. BH har ikke svart.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "KT-U11",
+            "VS-U37"
+          ],
+          "forventet": {
+            "gjeldende_krav.forhold": "K-p1",
+            "gjeldende_svar.forhold": null
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser etter sendingen at påberopelsen er sendt, med dato, og at svar ikke er registrert. Visningen sier ikke hvem som skal handle, og kvitteringen sier at brevet sendes til Catenda.",
+          "kilde": [
+            "LV-U9",
+            "KT-U3",
+            "KT-U6"
+          ]
+        }
+      ]
     }
   ]
 }

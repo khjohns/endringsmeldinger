@@ -1,5 +1,5 @@
 /**
- * PROTOTYPETEKST (#1331). Spørsmålene, forklaringene og virkningstekstene Varden viser,
+ * TEKSTER (#1331). Spørsmålene, forklaringene og virkningstekstene Varden viser,
  * samlet her så de kan kontrolleres med linse A i `design-review` før brukertesten. De er
  * ikke vedtatt brevtekst eller produktdesign. Teksten i brevene kommer fra kjernen, og
  * teksten om svarets virkning er arbeidsvalget 26.10 (`$lib/kjernesak/svarvirkning`).
@@ -33,9 +33,62 @@ const SVAR: Record<Spor, string> = {
   frist: 'Svar på krav om fristforlengelse',
 };
 
+/**
+ * Forholdene med kjernens kode, i gruppene og rekkefølgen fra skissen versjon 3 (BF-05).
+ * Gruppen har kontraktens henvisning (OV-U77), og navnet er forholdet selv (OV-U78).
+ * Force majeure har ingen kode i kjernen ennå (#367). Navnene har hjemmet sitt her, ikke i
+ * katalogen til `/mockup` (oppdragsgiver 02.11, #1492).
+ */
+export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: string][] }[] = [
+  {
+    navn: 'Endringer, jf. punkt 31 og 32',
+    forhold: [
+      ['irregulaer_endring', 'Irregulær endring'],
+      ['valg_av_loesning', 'Begrensning av valgrett'],
+      ['samordning', 'Samordning'],
+      ['svar_paa_varsel', 'Endring ved svar på varsel'],
+      ['endringsordre', 'Endringsordre'],
+      ['lovendring_gjenstand', 'Endringer i lover og vedtak for kontraktsgjenstanden'],
+      ['lovendring_prosess', 'Endringer i lover og vedtak for prosessen'],
+      ['gebyrer_og_avgifter', 'Endrede offentlige gebyrer og avgifter'],
+    ],
+  },
+  {
+    navn: 'Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24',
+    forhold: [
+      ['medvirkning', 'Manglende medvirkning eller leveranser fra byggherren'],
+      ['grunnforhold', 'Uforutsette forhold ved grunnen'],
+      ['prosjektering', 'Svikt i byggherrens prosjektering'],
+      ['kulturminner', 'Funn av kulturminner'],
+    ],
+  },
+  {
+    navn: 'Andre forhold byggherren har risikoen for',
+    forhold: [
+      [
+        'skade_fra_byggherren',
+        'Skade forårsaket av byggherren eller byggherrens kontraktsmedhjelpere',
+      ],
+      ['nektet_kontraktsmedhjelper', 'Nektet valg av kontraktsmedhjelper'],
+      ['brukstakelse', 'Urettmessig brukstakelse'],
+      ['stans_ved_betalingsmislighold', 'Stans ved betalingsmislighold'],
+      ['annet_forhold', 'Annet forhold byggherren har risikoen for'],
+    ],
+  },
+];
+
+const FORHOLDSNAVN = new Map(FORHOLDSGRUPPER.flatMap((g) => g.forhold));
+
+/** Navnet på forholdet med kjernens kode (OV-U78), eller `null` for en ukjent kode. */
+export const forholdsnavn = (kode: unknown) =>
+  (typeof kode === 'string' && FORHOLDSNAVN.get(kode)) || null;
+
 /** Tittelen på brevet, av hva det inneholder og sporet det hører til. */
-export function brevtittel(b: Pick<Brevet, 'art' | 'spor'>): string {
+export function brevtittel(b: Pick<Brevet, 'art' | 'spor'> & { forhold?: string | null }): string {
   const spor = b.spor[0];
+  // Totalentreprenørens brev om forholdet heter «Påberopelse av <forholdet>» (GR-U31).
+  const navn = spor === 'forhold' ? forholdsnavn(b.forhold) : null;
+  if (b.art === 'krav' && navn) return NYSAK.brevtittel(navn);
   if (b.art === 'krav' && spor) return KRAV[spor];
   if (b.art === 'svar' && spor) return SVAR[spor];
   if (b.art === 'aksept') return 'Aksept av svaret';
@@ -320,5 +373,109 @@ export const SAKEN = {
   finnesIkke: 'Saken finnes ikke',
   finnesIkkeForklaring:
     'Saken ble ikke funnet. Kontroller lenken, eller gå tilbake til sakslisten.',
+  tilSakslisten: 'Til sakslisten',
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden. Bruk dagens visning.',
+};
+
+/** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
+export const NYSAK = {
+  over: 'Ny sak',
+  tittel: 'Nytt krav om endringsordre',
+  forholdet: 'Forholdet du påberoper',
+  forholdetHjelp: 'Velg bestemmelsen i kontrakten pålegget eller forholdet faller inn under.',
+  sok: 'Søk etter forhold eller punkt',
+  ingenTreff: 'Ingen forhold passer med søket.',
+  antallTreff: (n: number) =>
+    n === 0
+      ? NYSAK.ingenTreff
+      : n === 1
+        ? 'Ett forhold passer med søket.'
+        : `${n} forhold passer med søket.`,
+  endre: 'Endre',
+  staarFastInnledning: 'Forholdet står fast når brevet er sendt.',
+  staarFast: 'Vil du påberope et annet forhold senere, oppretter du en ny sak.',
+  sakstittel: 'Tittel på saken',
+  sakstittelHjelp: 'Står i sakslisten og i brevet.',
+  beskrivelseHjelp: 'Hva som skjedde, når og hvordan, og hvorfor du mener det er en endring.',
+  endringsordre: 'Endringsordrens nummer eller dato',
+  vedlegg: 'Vedlegg (valgfritt)',
+  vedleggIkkeLaget: 'Vedlegg kan ikke legges ved ennå.',
+  // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
+  alleredeVarslet: (paalegg: boolean) =>
+    `Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,
+  // Opplysningen fra kapittel B står ved spørsmålet uansett svar (VS-U39, F-8).
+  kapittelB:
+    'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',
+  // Varselet som alt er sendt, med det OV-U79 krever (D-8, VS-U38). Hjelpetekstene forklarer
+  // bare det det spørres om (F-3).
+  varseltype: 'Hva legger du til?',
+  varseltyper: [
+    { verdi: 'brev', tekst: 'Brev' },
+    { verdi: 'e_post', tekst: 'E-post' },
+    { verdi: 'moetereferat', tekst: 'Møtereferat' },
+    { verdi: 'notat', tekst: 'Notat eller annet dokument' },
+  ],
+  sendemaate: 'Hvordan ble brevet sendt?',
+  sendemaater: [
+    { verdi: 'post', tekst: 'Per post' },
+    { verdi: 'pdf_e_post', tekst: 'Som PDF i e-post' },
+    { verdi: 'prosjekthotell', tekst: 'I prosjekthotellet' },
+    { verdi: 'annen_maate', tekst: 'På annen måte' },
+  ],
+  varseldato: 'Datoen det ble sendt',
+  varseldatoHjelp: 'Datoen avsenderen oppgir.',
+  varseldokument: 'Dokumentet',
+  varseldokumentIkkeLaget: 'Dokumentet kan ikke legges ved ennå.',
+  varselbeskrivelse: 'Kort beskrivelse av varselet',
+  varselbeskrivelseHjelp: 'Kort, med egne ord.',
+  varselMerknad:
+    'Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.',
+  velgVarseltypen: 'Velg hva du legger til.',
+  velgSendemaaten: 'Velg sendemåten.',
+  oppgiVarseldatoen: 'Oppgi datoen varselet ble sendt.',
+  beskrivVarselet: 'Beskriv varselet.',
+  // Lagringen venter på #807 og #1487, og setningen i brevet på #1488.
+  varseletKanIkkeLagres:
+    'Varselet kan ikke legges til i saken ennå. Velg nei for å sende påberopelsen uten det.',
+  // Panelet til høyre, som i de andre skjemaene i Varden (F-1).
+  panel: 'Hovedlinjene i påberopelsen',
+  panelTom: 'Velg forholdet, så står påberopelsen her.',
+  // Tidslinja under panelet, med datoene TE fyller ut (oppdragsgiver 02.11, #1492).
+  tidslinjeDato: (paalegg: boolean) => (paalegg ? 'Mottok pålegget' : 'Klar over forholdet'),
+  oppgisIBrevet: 'Oppgis i påberopelsen',
+  tidslinjeVarselet: 'Varselet som alt er sendt',
+  sendtFoerSaken: 'Sendt før saken ble opprettet',
+  tidslinjeSendes: 'Påberopelsen sendes',
+  naarDuSender: 'I dag, når du sender',
+  linjeForholdet: 'Forholdet',
+  linjeTittel: 'Tittel på saken',
+  linjeVarselet: 'Varsel som alt er sendt',
+  // Der punkt 32.2 gjelder, sier brevet at TE varsler etter bestemmelsen (GR-U31, D-6).
+  linjeVarsel: 'Varsel',
+  varslerEtter322: 'Brevet varsler etter punkt 32.2',
+  linjeVedlegg: 'Vedlegg',
+  ingenVedlegg: 'Ingen vedlegg',
+  varseldokumentetVedlegges: 'Dokumentet med varselet som alt er sendt',
+  sendesTil: 'Saken opprettes og brevet sendes til byggherren når du sender.',
+  seBrevet: 'Se brevet før sending',
+  avbryt: 'Avbryt',
+  avbrytSpoersmaal: 'Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes.',
+  avbrytJa: 'Ja, slett det du har skrevet',
+  avbrytNei: 'Nei, fortsett å skrive',
+  mangler: 'Det mangler noe før du kan se brevet',
+  ingenSak: 'Ingen sak er opprettet ennå.',
+  velgForholdet: 'Velg forholdet.',
+  skrivTittelen: 'Skriv tittelen.',
+  beskriv: (paalegg: boolean) => (paalegg ? 'Beskriv pålegget.' : 'Beskriv forholdet.'),
+  oppgiDatoen: 'Oppgi datoen.',
+  oppgiEndringsordren: 'Oppgi endringsordren.',
+  brevtittel: (forhold: string) => `Påberopelse av ${forhold.toLowerCase()}`,
+  handling: 'Send påberopelsen til byggherren',
+  detteSender: (forhold: string, punkt: string) =>
+    `Påberopelsen av ${forhold.toLowerCase()} etter punkt ${punkt}, som første brev i en ny sak`,
+  virkning: 'Saken opprettes når brevet sendes, og forholdet står fast etter sendingen.',
+  sendTekst: 'Send til byggherren',
+  tilbakeTil: 'skjemaet',
+  kvittering: 'Påberopelsen er sendt. Brevet sendes til Catenda.',
+  avbrutt: 'Brevet er ikke sendt, og ingen sak er opprettet.',
 };

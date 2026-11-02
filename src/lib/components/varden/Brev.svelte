@@ -8,7 +8,7 @@
   import type { Snippet } from 'svelte';
   import type { Part } from '$kjerne/typer';
   import { organisasjonene } from './kontrakt';
-  import { MOTTATT, PARTNAVN } from './prototypetekst';
+  import { MOTTATT, PARTNAVN } from './tekster';
 
   let {
     avsender,

@@ -18,6 +18,7 @@ import type {
   lastOppKjernevedlegg,
   sendKommando,
 } from '$lib/api/kjerne';
+import { opprettelse } from '$kjerne/kommandoer/opprettelse';
 import { vurder } from '$kjerne/kommandoer/skriving';
 import type { Journalrad, Part } from '$kjerne/typer';
 import { KJERNE } from '$kjerne/versjon';
@@ -61,9 +62,13 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
   const rader: Journalrad[] = structuredClone(
     forloep.journal.filter((r) => r.versjon <= punkt.versjon)
   );
-  const sakId = rader[0].sak_id;
+  // Et forløp som oppretter saken (BF-05), starter uten rader; saken får ID-en og
+  // tidspunktet fra startjournalen.
+  const sakId = forloep.journal[0].sak_id;
   let nummer = 0;
-  let klokke = Date.parse(rader.at(-1)!.tidsstempel);
+  let klokke = rader.length
+    ? Date.parse(rader.at(-1)!.tidsstempel)
+    : Date.parse(forloep.journal[0].tidsstempel) - 60_000;
   const nyId = () =>
     `${forloep.idhode}-0000-4000-8000-${(++nummer).toString(16).padStart(12, '0')}`;
 
@@ -85,16 +90,19 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     data,
   });
 
-  const hent: typeof hentKjernesak = async () => ({
-    versjon: rader.at(-1)!.versjon,
-    part: demosak.part,
-    visning: {} as Awaited<ReturnType<typeof hentKjernesak>>['visning'],
-    journal: rader.map(linje),
-    leveringsoppdrag: [],
-  });
+  const hent: typeof hentKjernesak = async () => {
+    if (!rader.length) throw new ApiError(404, 'Saken finnes ikke.');
+    return {
+      versjon: rader.at(-1)!.versjon,
+      part: demosak.part,
+      visning: {} as Awaited<ReturnType<typeof hentKjernesak>>['visning'],
+      journal: rader.map(linje),
+      leveringsoppdrag: [],
+    };
+  };
 
   const send: typeof sendKommando = async (_sak, forventet, _kommandoId, kommando) => {
-    const naa = rader.at(-1)!.versjon;
+    const naa = rader.at(-1)?.versjon ?? 0;
     if (naa !== forventet)
       throw new ApiError(409, 'Saken er endret siden den ble lastet.', {
         error: 'VERSJONSKONFLIKT',
@@ -130,6 +138,49 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     };
   };
 
+  /**
+   * Saken og påberopelsen i én handling (KT-U11), som grensen `SendNySak` i Varden: saken
+   * skrives bare når kjernen godtar begge, så en avvisning etterlater ingen sak.
+   */
+  const opprett = async (nySak: {
+    sakId: string;
+    opprettelse: Record<string, unknown>;
+    paaberopelse: Record<string, unknown>;
+    tekst: string[];
+  }) => {
+    if (rader.length || nySak.sakId !== sakId)
+      throw new ApiError(409, 'Saken er alt opprettet.', { error: 'VERSJONSKONFLIKT' });
+    const opprettet = opprettelse(nySak.opprettelse, demosak.part);
+    if (!opprettet.godtatt)
+      throw new ApiError(400, opprettet.avvisning.melding, {
+        success: false,
+        error: opprettet.feil,
+        rule: opprettet.avvisning.regel,
+        message: opprettet.avvisning.melding,
+      });
+    const { aktor_id, aktor_team_id } = forloep.aktoerer[demosak.part];
+    rader.push({
+      event_id: nyId(),
+      sak_id: sakId,
+      event_type: 'sak_opprettet',
+      versjon: 1,
+      tidsstempel: new Date((klokke += 60_000)).toISOString(),
+      aktor_id,
+      aktor_rolle: demosak.part,
+      aktor_team_id,
+      refererer_til_event_id: null,
+      format: opprettet.format,
+      data: opprettet.data,
+    });
+    try {
+      await send(sakId, 1, '', { ...nySak.paaberopelse, brevtekst: nySak.tekst }, DEMOPROSJEKT);
+    } catch (e) {
+      rader.length = 0;
+      throw e;
+    }
+    return { sakId };
+  };
+
   // Vedlegget ville blitt lastet opp til serveren, og demoruta sender ingenting.
   const lastOppVedlegg: typeof lastOppKjernevedlegg = async () => {
     throw new ApiError(400, 'Vedlegg kan ikke lastes opp i demoen, som ikke sender noe.');
@@ -143,6 +194,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     part,
     hent,
     send,
+    opprett,
     lastOppVedlegg,
     /** Journalen slik kjernen har skrevet den, med demoaktørene. */
     journal: (): Journalrad[] => structuredClone(rader),

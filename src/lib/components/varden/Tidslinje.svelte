@@ -7,13 +7,20 @@
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
   import type { Brevet, OppgittDato } from './lesing';
-  import { OPPGITT, TIDSLINJE, brevtittel, dato, klokke } from './prototypetekst';
+  import { OPPGITT, TIDSLINJE, brevtittel, dato, klokke } from './tekster';
 
   let {
     brev,
     datoer,
+    utfylt = [],
     aapen = true,
-  }: { brev: Brevet[]; datoer: OppgittDato[]; aapen?: boolean } = $props();
+  }: {
+    brev: Brevet[];
+    datoer: OppgittDato[];
+    /** Datoene i et brev som ennå ikke er sendt, med teksten skjemaet gir dem. */
+    utfylt?: { naar: string; hva: string; kilde: string }[];
+    aapen?: boolean;
+  } = $props();
 
   type Oppfoering = {
     noekkel: string;
@@ -35,6 +42,7 @@
           kilde: TIDSLINJE.oppgitt(d.oppgittAv, d.brev),
         })
       ),
+      ...utfylt.map((d, i): Oppfoering => ({ noekkel: `utfylt-${i}`, merke: 'oppgitt', ...d })),
       ...brev.map(
         (b): Oppfoering => ({
           noekkel: b.id,
