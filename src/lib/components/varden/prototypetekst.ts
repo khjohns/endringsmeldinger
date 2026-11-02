@@ -47,8 +47,8 @@ export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: stri
       ['samordning', 'Samordning'],
       ['svar_paa_varsel', 'Endring ved svar på varsel'],
       ['endringsordre', 'Endringsordre'],
-      ['lovendring_gjenstand', 'Nye offentlige krav til kontraktsgjenstanden'],
-      ['lovendring_prosess', 'Nye offentlige krav til utførelsen'],
+      ['lovendring_gjenstand', 'Endringer i lover og vedtak for kontraktsgjenstanden'],
+      ['lovendring_prosess', 'Endringer i lover og vedtak for prosessen'],
       ['gebyrer_og_avgifter', 'Endrede offentlige gebyrer og avgifter'],
     ],
   },
@@ -64,8 +64,11 @@ export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: stri
   {
     navn: 'Andre forhold byggherren har risikoen for',
     forhold: [
-      ['skade_fra_byggherren', 'Skade forårsaket av byggherren eller en sideentreprenør'],
-      ['nektet_kontraktsmedhjelper', 'Nektet kontraktsmedhjelper'],
+      [
+        'skade_fra_byggherren',
+        'Skade forårsaket av byggherren eller byggherrens kontraktsmedhjelpere',
+      ],
+      ['nektet_kontraktsmedhjelper', 'Nektet valg av kontraktsmedhjelper'],
       ['brukstakelse', 'Urettmessig brukstakelse'],
       ['stans_ved_betalingsmislighold', 'Stans ved betalingsmislighold'],
       ['annet_forhold', 'Annet forhold byggherren har risikoen for'],
@@ -401,9 +404,45 @@ export const NYSAK = {
   // Opplysningen fra kapittel B står ved spørsmålet uansett svar (VS-U39, F-8).
   kapittelB:
     'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',
-  alleredeVarsletIkkeLaget:
-    'Registreringen av et varsel som alt er sendt, er ikke laget ennå. Velg nei for å gå videre.',
-  seBrevet: 'Se brevet',
+  // Varselet som alt er sendt, med det OV-U79 krever (D-8, VS-U38). Hjelpetekstene forklarer
+  // bare det det spørres om (F-3).
+  varseltype: 'Hva legger du til?',
+  varseltyper: [
+    { verdi: 'brev', tekst: 'Brev' },
+    { verdi: 'e_post', tekst: 'E-post' },
+    { verdi: 'moetereferat', tekst: 'Møtereferat' },
+    { verdi: 'notat', tekst: 'Notat eller annet dokument' },
+  ],
+  sendemaate: 'Hvordan ble brevet sendt?',
+  sendemaater: [
+    { verdi: 'post', tekst: 'Per post' },
+    { verdi: 'pdf_e_post', tekst: 'Som PDF i e-post' },
+    { verdi: 'prosjekthotell', tekst: 'I prosjekthotellet' },
+    { verdi: 'annen_maate', tekst: 'På annen måte' },
+  ],
+  varseldato: 'Datoen det ble sendt',
+  varseldatoHjelp: 'Datoen avsenderen oppgir.',
+  varseldokument: 'Dokumentet',
+  varseldokumentIkkeLaget: 'Dokumentet kan ikke legges ved ennå.',
+  varselbeskrivelse: 'Kort beskrivelse av varselet',
+  varselbeskrivelseHjelp: 'Kort, med egne ord.',
+  varselMerknad:
+    'Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.',
+  velgVarseltypen: 'Velg hva du legger til.',
+  velgSendemaaten: 'Velg sendemåten.',
+  oppgiVarseldatoen: 'Oppgi datoen varselet ble sendt.',
+  beskrivVarselet: 'Beskriv varselet.',
+  // Lagringen venter på #807 og #1487, og setningen i brevet på #1488.
+  varseletKanIkkeLagres:
+    'Varselet kan ikke legges til i saken ennå. Velg nei for å sende påberopelsen uten det.',
+  // Panelet til høyre, som i de andre skjemaene i Varden (F-1).
+  panel: 'Hovedlinjene i påberopelsen',
+  panelTom: 'Velg forholdet, så står påberopelsen her.',
+  linjeForholdet: 'Forholdet',
+  linjeTittel: 'Tittel på saken',
+  linjeVarselet: 'Varsel som alt er sendt',
+  sendesTil: 'Saken opprettes og brevet sendes til byggherren når du sender.',
+  seBrevet: 'Se brevet før sending',
   avbryt: 'Avbryt',
   avbrytSpoersmaal: 'Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes.',
   avbrytJa: 'Ja, slett det du har skrevet',

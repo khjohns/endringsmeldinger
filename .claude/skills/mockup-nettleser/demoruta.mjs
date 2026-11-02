@@ -165,7 +165,7 @@ try {
   await steg('ny-sak', true);
 
   // Steg 3f: feilene står ved feltet før brevkontrollen, og ingen sak er opprettet (F-4, U-5).
-  await knapp('Se brevet').click();
+  await knapp('Se brevet før sending').click();
   await page.getByRole('group', { name: 'Det mangler noe før du kan se brevet' }).waitFor();
   await steg('ny-feil', true);
 
@@ -173,7 +173,7 @@ try {
   await page.getByRole('radio', { name: /^Irregulær endring/ }).click();
   await page.getByLabel('Tittel på saken').fill(SAKSTITTEL);
   await page.getByLabel('Dato du mottok pålegget').fill('2026-09-15');
-  await knapp('Se brevet').click();
+  await knapp('Se brevet før sending').click();
   // Kjernen avviser påberopelsen uten beskrivelse (GR-U15), og feilen står ved feltet.
   await page.locator('p.feil', { hasText: 'Beskriv pålegget.' }).waitFor();
   await steg('ny-feil-beskrivelse', true);
@@ -181,20 +181,28 @@ try {
   await page
     .getByLabel('Beskrivelse av pålegget')
     .fill('Byggherren påla i byggemøtet 15. september 2026 teglforblending i stedet for platekledning.');
-  // Steg 4 og 4a: ja, og tilbake til nei.
+  // Steg 4 og 4a: ja, med varselet som alt er sendt (D-8, OV-U79). Det kan ikke legges til før
+  // lagringen finnes (#807, #1487), så TE går tilbake til nei.
   await page.getByRole('radio', { name: 'Ja', exact: true }).check();
+  await page.getByRole('radio', { name: 'Brev', exact: true }).check();
+  await page.getByRole('radio', { name: 'Som PDF i e-post', exact: true }).check();
+  await page.getByLabel('Datoen det ble sendt').fill('2026-09-16');
+  await page.getByLabel('Kort beskrivelse av varselet').fill('Varsel om endring på byggherrens skjema, sendt etter byggemøtet.');
   await steg('annen-maate', true);
+  await knapp('Se brevet før sending').click();
+  await page.locator('p.feil', { hasText: 'Varselet kan ikke legges til i saken ennå' }).waitFor();
+  await steg('annen-maate-stanset', true);
   await page.getByRole('radio', { name: 'Nei', exact: true }).check();
 
   // Steg 5: brevkontrollen, tilbake uten å miste det som er skrevet, og sending.
-  await knapp('Se brevet').click();
+  await knapp('Se brevet før sending').click();
   await page.getByRole('region', { name: 'Sending' }).waitFor();
   await page.getByText('Påberopelse av irregulær endring').first().waitFor();
   await steg('brev', true);
   await knapp('Tilbake til skjemaet').click();
   if ((await page.getByLabel('Tittel på saken').inputValue()) !== SAKSTITTEL)
     throw new Error('Tittelen ble borte da TE gikk tilbake fra brevkontrollen');
-  await knapp('Se brevet').click();
+  await knapp('Se brevet før sending').click();
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
   await knapp('Send til byggherren').click();
 

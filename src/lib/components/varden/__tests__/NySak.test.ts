@@ -33,7 +33,8 @@ async function velgForhold(gruppe: string, navn: RegExp) {
   await fireEvent.click(screen.getByRole('radio', { name: navn }));
 }
 
-const seBrevet = () => fireEvent.click(screen.getByRole('button', { name: 'Se brevet' }));
+const seBrevet = () =>
+  fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
 
 async function fyllIrregulaerEndring({ beskrivelse = BESKRIVELSE } = {}) {
   await velgForhold(ENDRINGER, /^Irregulær endring/);
@@ -174,6 +175,76 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.getByText(opplysning)).toBeTruthy();
     await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
     expect(screen.getByText(opplysning)).toBeTruthy();
+  });
+
+  it('oppdragsgiver 02.11 (PR #1492): de fire forholdene har navnene fra NS 8407 punkt 14.4, 15.2, 10.2 og 19.1', async () => {
+    aapne();
+    await fireEvent.click(screen.getByRole('button', { name: ENDRINGER }));
+    expect(
+      screen.getByRole('radio', { name: /^Endringer i lover og vedtak for kontraktsgjenstanden/ })
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('radio', { name: /^Endringer i lover og vedtak for prosessen/ })
+    ).toBeTruthy();
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Andre forhold byggherren har risikoen for' })
+    );
+    expect(screen.getByRole('radio', { name: /^Nektet valg av kontraktsmedhjelper/ })).toBeTruthy();
+    expect(
+      screen.getByRole('radio', {
+        name: /^Skade forårsaket av byggherren eller byggherrens kontraktsmedhjelpere/,
+      })
+    ).toBeTruthy();
+  });
+
+  it('F-1: «Se brevet før sending» står i panelet ved siden av skjemaet, som viser forholdet når det er valgt', async () => {
+    aapne();
+    const panel = screen.getByRole('region', { name: 'Hovedlinjene i påberopelsen' });
+    expect(within(panel).getByText('Velg forholdet, så står påberopelsen her.')).toBeTruthy();
+    expect(within(panel).getByRole('button', { name: 'Se brevet før sending' })).toBeTruthy();
+    await velgForhold(ENDRINGER, /^Irregulær endring/);
+    expect(within(panel).getByText(/^Irregulær endring, punkt 32\.1$/)).toBeTruthy();
+  });
+
+  it('D-8/VS-U38/OV-U79: ved ja ber skjemaet om typen, datoen og en kort beskrivelse, og sendemåten bare for et brev', async () => {
+    const { send } = aapne();
+    await fyllIrregulaerEndring();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
+    expect(screen.getByRole('group', { name: 'Hva legger du til?' })).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'Hvordan ble brevet sendt?' })).toBeNull();
+    await seBrevet();
+    for (const tekst of [
+      'Velg hva du legger til.',
+      'Oppgi datoen varselet ble sendt.',
+      'Beskriv varselet.',
+    ])
+      expect(screen.getAllByText(tekst).length).toBe(2);
+    await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
+    for (const navn of ['Per post', 'Som PDF i e-post', 'I prosjekthotellet', 'På annen måte'])
+      expect(screen.getByRole('radio', { name: navn })).toBeTruthy();
+    await seBrevet();
+    expect(screen.getAllByText('Velg sendemåten.').length).toBe(2);
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('D-8: utfylt varsel som alt er sendt, stanser før brevkontrollen til lagringen finnes (#807, #1487)', async () => {
+    const { send } = aapne();
+    await fyllIrregulaerEndring();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'E-post' }));
+    await fireEvent.input(screen.getByLabelText('Datoen det ble sendt'), {
+      target: { value: '2026-09-16' },
+    });
+    await fireEvent.input(screen.getByLabelText('Kort beskrivelse av varselet'), {
+      target: { value: 'Varsel om endring sendt etter byggemøtet.' },
+    });
+    await seBrevet();
+    expect(screen.getAllByText(/Varselet kan ikke legges til i saken ennå/).length).toBe(2);
+    expect(screen.queryByRole('region', { name: 'Sending' })).toBeNull();
+    expect(send).not.toHaveBeenCalled();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Nei' }));
+    await seBrevet();
+    expect(screen.getByRole('region', { name: 'Sending' })).toBeTruthy();
   });
 
   it('U-6: brevkontrollen viser brevet fra kjernen, og «Tilbake» beholder det som er skrevet', async () => {

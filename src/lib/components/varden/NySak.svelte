@@ -2,12 +2,16 @@
   Skjemaet for ny sak (BF-05, #1481): TE velger forholdet, skriver tittelen og beskrivelsen,
   oppgir datoen og kontrollerer brevet før det sendes. Saken finnes først når påberopelsen
   er sendt (KT-U11), så skjemaet sender gjennom grensen `send` og ikke gjennom en sak.
-  Feilene står ved feltet før brevkontrollen (F-4, MM-U32).
+  Feilene står ved feltet før brevkontrollen (F-4, MM-U32). «Se brevet før sending» står i
+  panelet til høyre, som i de andre skjemaene i Varden (F-1). Varselet som alt er sendt, fylles
+  ut etter OV-U79 (D-8), men kan ikke legges til før lagringen finnes (#807, #1487).
 -->
 <script lang="ts">
   import { tick } from 'svelte';
   import { KJERNE } from '$kjerne/versjon';
+  import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll from './Brevkontroll.svelte';
+  import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
   import { ChevronDown } from 'lucide-svelte';
@@ -48,6 +52,10 @@
   let dato = $state('');
   let endringsordre = $state('');
   let alleredeVarslet = $state<boolean | null>(false);
+  let varseltype = $state<string | null>(null);
+  let sendemaate = $state<string | null>(null);
+  let varseldato = $state('');
+  let varselbeskrivelse = $state('');
   let feil = $state<Record<string, string>>({});
   let avbryter = $state(false);
   let oppsummering = $state<HTMLElement | null>(null);
@@ -57,6 +65,24 @@
   const valgt = $derived(forhold ? forholdet(forhold) : null);
   // Dagens dato i norsk tid, som `dagensDato` i `skjemadata.ts` (VS-U8).
   const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+  const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
+  const norskDato = (iso: string) => iso.split('-').reverse().join('.');
+  const linjer = $derived(
+    [
+      valgt && { lag: NYSAK.linjeForholdet, tekst: `${valgt.navn}, punkt ${valgt.punkt}` },
+      tittel.trim() && { lag: NYSAK.linjeTittel, tekst: tittel.trim() },
+      felt.datotekst && dato && { lag: felt.datotekst, tekst: norskDato(dato) },
+      varselet && {
+        lag: NYSAK.linjeVarselet,
+        tekst: [
+          NYSAK.varseltyper.find((t) => t.verdi === varseltype)?.tekst ?? NYSAK.linjeVarselet,
+          varseldato && `av ${norskDato(varseldato)}`,
+        ]
+          .filter(Boolean)
+          .join(' '),
+      },
+    ].filter((l): l is { lag: string; tekst: string } => !!l)
+  );
   const utfylling = () => ({ forhold: forhold!, tittel, beskrivelse, dato, endringsordre });
 
   // Velgeren fra `/mockup` (arbeidsvalg 02.11): gruppene er felt sammen til TE åpner én,
@@ -92,7 +118,14 @@
     if (!tittel.trim()) ny.tittel = NYSAK.skrivTittelen;
     if (felt.datotekst && !dato) ny.dato = NYSAK.oppgiDatoen;
     if (felt.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
-    if (felt.punkt322 && alleredeVarslet) ny.varslet = NYSAK.alleredeVarsletIkkeLaget;
+    if (varselet) {
+      if (!varseltype) ny.varseltype = NYSAK.velgVarseltypen;
+      if (varseltype === 'brev' && !sendemaate) ny.sendemaate = NYSAK.velgSendemaaten;
+      if (!varseldato) ny.varseldato = NYSAK.oppgiVarseldatoen;
+      if (!varselbeskrivelse.trim()) ny.varselbeskrivelse = NYSAK.beskrivVarselet;
+      if (!ny.varseltype && !ny.sendemaate && !ny.varseldato && !ny.varselbeskrivelse)
+        ny.varselLagres = NYSAK.varseletKanIkkeLagres;
+    }
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
       const brev = brevet(utfylling(), sakId, KJERNE);
@@ -151,7 +184,11 @@
     'beskrivelse',
     'dato',
     'endringsordre',
-    'varslet',
+    'varseltype',
+    'sendemaate',
+    'varseldato',
+    'varselbeskrivelse',
+    'varselLagres',
     'kjernen',
   ];
 </script>
@@ -178,215 +215,307 @@
     onsendt={() => onsendt(sakId)}
   />
 {:else}
-  <form class="nysak" novalidate onsubmit={(e) => (e.preventDefault(), seBrevet())}>
-    <header class="hode">
-      <p class="over">{NYSAK.over}</p>
-      <h1>{NYSAK.tittel}</h1>
-    </header>
+  <Arbeidsflate>
+    {#snippet hoved()}
+      <form class="nysak" novalidate onsubmit={(e) => (e.preventDefault(), seBrevet())}>
+        <header class="hode">
+          <p class="over">{NYSAK.over}</p>
+          <h1>{NYSAK.tittel}</h1>
+        </header>
 
-    {#if Object.keys(feil).length}
-      <div
-        class="oppsummering"
-        tabindex="-1"
-        bind:this={oppsummering}
-        role="group"
-        aria-labelledby={id('mangler')}
-      >
-        <h2 id={id('mangler')}>{NYSAK.mangler}</h2>
-        <ul>
-          {#each FELTENE.filter((f) => feil[f]) as f (f)}
-            <li><a href={`#${id(f)}`}>{feil[f]}</a></li>
-          {/each}
-        </ul>
-        <p>{NYSAK.ingenSak}</p>
-      </div>
-    {/if}
-
-    <fieldset
-      class="felt"
-      id={id('forhold')}
-      tabindex="-1"
-      aria-describedby={`${id('forhold-hjelp')}${feil.forhold ? ` ${id('forhold-feil')}` : ''}`}
-    >
-      <legend>{NYSAK.forholdet}</legend>
-      <p class="hjelp" id={id('forhold-hjelp')}>{NYSAK.forholdetHjelp}</p>
-      {#if feil.forhold}<p class="feil" id={id('forhold-feil')}>{feil.forhold}</p>{/if}
-      <p class="visually-hidden" role="status">
-        {velgerAapen && sok.trim() ? NYSAK.antallTreff(antallTreff) : ''}
-      </p>
-      {#if valgt && !velgerAapen}
-        <div class="valgt">
-          <div>
-            <strong>{valgt.navn}</strong>
-            <span class="punkt">punkt {valgt.punkt}</span>
+        {#if Object.keys(feil).length}
+          <div
+            class="oppsummering"
+            tabindex="-1"
+            bind:this={oppsummering}
+            role="group"
+            aria-labelledby={id('mangler')}
+          >
+            <h2 id={id('mangler')}>{NYSAK.mangler}</h2>
+            <ul>
+              {#each FELTENE.filter((f) => feil[f]) as f (f)}
+                <li><a href={`#${id(f)}`}>{feil[f]}</a></li>
+              {/each}
+            </ul>
+            <p>{NYSAK.ingenSak}</p>
           </div>
-          {#if valgt.regel}
-            <p>{valgt.regel.regel}</p>
-            <p>{valgt.regel.konsekvens}</p>
-          {:else}
-            <p>{valgt.beskrivelse}</p>
-          {/if}
-          <Knapp variant="lenke" onclick={endre}>{NYSAK.endre}</Knapp>
-        </div>
-      {:else}
-        <label class="sok">
-          <span class="etikett">{NYSAK.sok}</span>
-          <input type="search" bind:value={sok} />
-        </label>
-        <div class="grupper">
-          {#each grupper as g (g.navn)}
-            {@const aapen = aapenGruppe === g.navn || !!sokeord}
-            {@const gid = id(`gruppe-${FORHOLDENE.findIndex((x) => x.navn === g.navn)}`)}
-            <div class="gruppe">
-              <button
-                type="button"
-                class="gruppenavn"
-                aria-expanded={aapen}
-                aria-controls={gid}
-                onclick={() => (aapenGruppe = aapenGruppe === g.navn ? null : g.navn)}
-              >
-                <span>{g.navn}</span>
-                <ChevronDown size={18} aria-hidden="true" />
-              </button>
-              <div
-                class="forholdene"
-                id={gid}
-                role="radiogroup"
-                aria-label={g.navn}
-                hidden={!aapen}
-              >
-                {#each g.forhold as f (f.kode)}
-                  <label class="forhold">
-                    <input
-                      type="radio"
-                      name={id('forholdet')}
-                      checked={forhold?.kode === f.kode}
-                      onchange={() => velg(f.gruppe, f.kode)}
-                    />
-                    <span class="navn">{f.navn}</span>
-                    <span class="punkt">punkt {f.punkt}</span>
-                  </label>
-                {/each}
+        {/if}
+
+        <fieldset
+          class="felt"
+          id={id('forhold')}
+          tabindex="-1"
+          aria-describedby={`${id('forhold-hjelp')}${feil.forhold ? ` ${id('forhold-feil')}` : ''}`}
+        >
+          <legend>{NYSAK.forholdet}</legend>
+          <p class="hjelp" id={id('forhold-hjelp')}>{NYSAK.forholdetHjelp}</p>
+          {#if feil.forhold}<p class="feil" id={id('forhold-feil')}>{feil.forhold}</p>{/if}
+          <p class="visually-hidden" role="status">
+            {velgerAapen && sok.trim() ? NYSAK.antallTreff(antallTreff) : ''}
+          </p>
+          {#if valgt && !velgerAapen}
+            <div class="valgt">
+              <div>
+                <strong>{valgt.navn}</strong>
+                <span class="punkt">punkt {valgt.punkt}</span>
               </div>
+              {#if valgt.regel}
+                <p>{valgt.regel.regel}</p>
+                <p>{valgt.regel.konsekvens}</p>
+              {:else}
+                <p>{valgt.beskrivelse}</p>
+              {/if}
+              <Knapp variant="lenke" onclick={endre}>{NYSAK.endre}</Knapp>
             </div>
           {:else}
-            <p class="hjelp">{NYSAK.ingenTreff}</p>
-          {/each}
+            <label class="sok">
+              <span class="etikett">{NYSAK.sok}</span>
+              <input type="search" bind:value={sok} />
+            </label>
+            <div class="grupper">
+              {#each grupper as g (g.navn)}
+                {@const aapen = aapenGruppe === g.navn || !!sokeord}
+                {@const gid = id(`gruppe-${FORHOLDENE.findIndex((x) => x.navn === g.navn)}`)}
+                <div class="gruppe">
+                  <button
+                    type="button"
+                    class="gruppenavn"
+                    aria-expanded={aapen}
+                    aria-controls={gid}
+                    onclick={() => (aapenGruppe = aapenGruppe === g.navn ? null : g.navn)}
+                  >
+                    <span>{g.navn}</span>
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </button>
+                  <div
+                    class="forholdene"
+                    id={gid}
+                    role="radiogroup"
+                    aria-label={g.navn}
+                    hidden={!aapen}
+                  >
+                    {#each g.forhold as f (f.kode)}
+                      <label class="forhold">
+                        <input
+                          type="radio"
+                          name={id('forholdet')}
+                          checked={forhold?.kode === f.kode}
+                          onchange={() => velg(f.gruppe, f.kode)}
+                        />
+                        <span class="navn">{f.navn}</span>
+                        <span class="punkt">punkt {f.punkt}</span>
+                      </label>
+                    {/each}
+                  </div>
+                </div>
+              {:else}
+                <p class="hjelp">{NYSAK.ingenTreff}</p>
+              {/each}
+            </div>
+          {/if}
+          <p class="staarfast">
+            <strong>{NYSAK.staarFastInnledning}</strong>
+            {NYSAK.staarFast}
+          </p>
+        </fieldset>
+
+        <div class="felt">
+          <label for={id('tittel')}>{NYSAK.sakstittel}</label>
+          <p class="hjelp" id={id('tittel-hjelp')}>{NYSAK.sakstittelHjelp}</p>
+          <input
+            id={id('tittel')}
+            bind:value={tittel}
+            aria-required="true"
+            aria-invalid={!!feil.tittel}
+            aria-describedby={`${id('tittel-hjelp')}${feil.tittel ? ` ${id('tittel-feil')}` : ''}`}
+            oninput={() => delete feil.tittel}
+          />
+          {#if feil.tittel}<p class="feil" id={id('tittel-feil')}>{feil.tittel}</p>{/if}
         </div>
-      {/if}
-      <p class="staarfast">
-        <strong>{NYSAK.staarFastInnledning}</strong>
-        {NYSAK.staarFast}
-      </p>
-    </fieldset>
 
-    <div class="felt">
-      <label for={id('tittel')}>{NYSAK.sakstittel}</label>
-      <p class="hjelp" id={id('tittel-hjelp')}>{NYSAK.sakstittelHjelp}</p>
-      <input
-        id={id('tittel')}
-        bind:value={tittel}
-        aria-required="true"
-        aria-invalid={!!feil.tittel}
-        aria-describedby={`${id('tittel-hjelp')}${feil.tittel ? ` ${id('tittel-feil')}` : ''}`}
-        oninput={() => delete feil.tittel}
-      />
-      {#if feil.tittel}<p class="feil" id={id('tittel-feil')}>{feil.tittel}</p>{/if}
-    </div>
+        <div class="felt">
+          <label for={id('beskrivelse')}>{felt.beskrivelse}</label>
+          <p class="hjelp" id={id('beskrivelse-hjelp')}>{NYSAK.beskrivelseHjelp}</p>
+          <textarea
+            id={id('beskrivelse')}
+            rows="6"
+            bind:value={beskrivelse}
+            aria-invalid={!!feil.beskrivelse}
+            aria-describedby={`${id('beskrivelse-hjelp')}${feil.beskrivelse ? ` ${id('beskrivelse-feil')}` : ''}`}
+            oninput={() => delete feil.beskrivelse}
+          ></textarea>
+          {#if feil.beskrivelse}<p class="feil" id={id('beskrivelse-feil')}>
+              {feil.beskrivelse}
+            </p>{/if}
+        </div>
 
-    <div class="felt">
-      <label for={id('beskrivelse')}>{felt.beskrivelse}</label>
-      <p class="hjelp" id={id('beskrivelse-hjelp')}>{NYSAK.beskrivelseHjelp}</p>
-      <textarea
-        id={id('beskrivelse')}
-        rows="6"
-        bind:value={beskrivelse}
-        aria-invalid={!!feil.beskrivelse}
-        aria-describedby={`${id('beskrivelse-hjelp')}${feil.beskrivelse ? ` ${id('beskrivelse-feil')}` : ''}`}
-        oninput={() => delete feil.beskrivelse}
-      ></textarea>
-      {#if feil.beskrivelse}<p class="feil" id={id('beskrivelse-feil')}>
-          {feil.beskrivelse}
-        </p>{/if}
-    </div>
+        {#if felt.datotekst}
+          <div class="felt">
+            <label for={id('dato')}>{felt.datotekst}</label>
+            <input
+              id={id('dato')}
+              type="date"
+              max={iDag}
+              bind:value={dato}
+              aria-required="true"
+              aria-invalid={!!feil.dato}
+              aria-describedby={feil.dato ? id('dato-feil') : undefined}
+              oninput={() => delete feil.dato}
+            />
+            {#if feil.dato}<p class="feil" id={id('dato-feil')}>{feil.dato}</p>{/if}
+          </div>
+        {/if}
 
-    {#if felt.datotekst}
-      <div class="felt">
-        <label for={id('dato')}>{felt.datotekst}</label>
-        <input
-          id={id('dato')}
-          type="date"
-          max={iDag}
-          bind:value={dato}
-          aria-required="true"
-          aria-invalid={!!feil.dato}
-          aria-describedby={feil.dato ? id('dato-feil') : undefined}
-          oninput={() => delete feil.dato}
+        {#if felt.endringsordre}
+          <div class="felt">
+            <label for={id('endringsordre')}>{NYSAK.endringsordre}</label>
+            <input
+              id={id('endringsordre')}
+              bind:value={endringsordre}
+              aria-required="true"
+              aria-invalid={!!feil.endringsordre}
+              aria-describedby={feil.endringsordre ? id('endringsordre-feil') : undefined}
+              oninput={() => delete feil.endringsordre}
+            />
+            {#if feil.endringsordre}<p class="feil" id={id('endringsordre-feil')}>
+                {feil.endringsordre}
+              </p>{/if}
+          </div>
+        {/if}
+
+        <div class="felt">
+          <span class="etikett">{NYSAK.vedlegg}</span>
+          <p class="hjelp">{NYSAK.vedleggIkkeLaget}</p>
+        </div>
+
+        {#if felt.punkt322}
+          <div class="felt">
+            <Valg
+              navn={id('varslet')}
+              spoersmaal={NYSAK.alleredeVarslet}
+              valg={[
+                { verdi: false, tekst: 'Nei' },
+                { verdi: true, tekst: 'Ja' },
+              ]}
+              bind:verdi={alleredeVarslet}
+              beskrevetAv={id('kapittel-b')}
+            />
+            <p class="kapittel-b" id={id('kapittel-b')}>{NYSAK.kapittelB}</p>
+          </div>
+          {#if varselet}
+            <div class="varselet">
+              <Valg
+                navn={id('varseltype')}
+                spoersmaal={NYSAK.varseltype}
+                valg={NYSAK.varseltyper}
+                bind:verdi={
+                  () => varseltype,
+                  (v) => {
+                    varseltype = v;
+                    delete feil.varseltype;
+                    delete feil.varselLagres;
+                  }
+                }
+                feil={feil.varseltype ?? null}
+              />
+              {#if varseltype === 'brev'}
+                <Valg
+                  navn={id('sendemaate')}
+                  spoersmaal={NYSAK.sendemaate}
+                  valg={NYSAK.sendemaater}
+                  bind:verdi={
+                    () => sendemaate,
+                    (v) => {
+                      sendemaate = v;
+                      delete feil.sendemaate;
+                    }
+                  }
+                  feil={feil.sendemaate ?? null}
+                />
+              {/if}
+              <div class="felt">
+                <label for={id('varseldato')}>{NYSAK.varseldato}</label>
+                <p class="hjelp" id={id('varseldato-hjelp')}>{NYSAK.varseldatoHjelp}</p>
+                <input
+                  id={id('varseldato')}
+                  type="date"
+                  max={iDag}
+                  bind:value={varseldato}
+                  aria-required="true"
+                  aria-invalid={!!feil.varseldato}
+                  aria-describedby={`${id('varseldato-hjelp')}${feil.varseldato ? ` ${id('varseldato-feil')}` : ''}`}
+                  oninput={() => delete feil.varseldato}
+                />
+                {#if feil.varseldato}<p class="feil" id={id('varseldato-feil')}>
+                    {feil.varseldato}
+                  </p>{/if}
+              </div>
+              <div class="felt">
+                <span class="etikett">{NYSAK.varseldokument}</span>
+                <p class="hjelp">{NYSAK.varseldokumentIkkeLaget}</p>
+              </div>
+              <div class="felt">
+                <label for={id('varselbeskrivelse')}>{NYSAK.varselbeskrivelse}</label>
+                <p class="hjelp" id={id('varselbeskrivelse-hjelp')}>
+                  {NYSAK.varselbeskrivelseHjelp}
+                </p>
+                <textarea
+                  id={id('varselbeskrivelse')}
+                  rows="3"
+                  bind:value={varselbeskrivelse}
+                  aria-required="true"
+                  aria-invalid={!!feil.varselbeskrivelse}
+                  aria-describedby={`${id('varselbeskrivelse-hjelp')}${feil.varselbeskrivelse ? ` ${id('varselbeskrivelse-feil')}` : ''}`}
+                  oninput={() => delete feil.varselbeskrivelse}
+                ></textarea>
+                {#if feil.varselbeskrivelse}<p class="feil" id={id('varselbeskrivelse-feil')}>
+                    {feil.varselbeskrivelse}
+                  </p>{/if}
+              </div>
+              <p class="merknad">{NYSAK.varselMerknad}</p>
+              {#if feil.varselLagres}<p class="feil" id={id('varselLagres')} tabindex="-1">
+                  {feil.varselLagres}
+                </p>{/if}
+            </div>
+          {/if}
+        {/if}
+
+        {#if feil.kjernen}<p class="feil" id={id('kjernen')}>{feil.kjernen}</p>{/if}
+
+        <div class="handlinger">
+          <Knapp variant="lenke" onclick={() => (avbryter = true)}>{NYSAK.avbryt}</Knapp>
+        </div>
+        {#if avbryter}
+          <div class="avbryt" role="group" aria-label={NYSAK.avbryt}>
+            <p>{NYSAK.avbrytSpoersmaal}</p>
+            <Knapp variant="sekundaer" onclick={onavbrutt}>{NYSAK.avbrytJa}</Knapp>
+            <Knapp variant="lenke" onclick={() => (avbryter = false)}>{NYSAK.avbrytNei}</Knapp>
+          </div>
+        {/if}
+      </form>
+    {/snippet}
+    {#snippet hoeyre()}
+      <div class="feste">
+        <Hovedlinjer
+          tittel={NYSAK.panel}
+          tom={NYSAK.panelTom}
+          {linjer}
+          alternativer={false}
+          handling={sendeknapp}
         />
-        {#if feil.dato}<p class="feil" id={id('dato-feil')}>{feil.dato}</p>{/if}
       </div>
-    {/if}
-
-    {#if felt.endringsordre}
-      <div class="felt">
-        <label for={id('endringsordre')}>{NYSAK.endringsordre}</label>
-        <input
-          id={id('endringsordre')}
-          bind:value={endringsordre}
-          aria-required="true"
-          aria-invalid={!!feil.endringsordre}
-          aria-describedby={feil.endringsordre ? id('endringsordre-feil') : undefined}
-          oninput={() => delete feil.endringsordre}
-        />
-        {#if feil.endringsordre}<p class="feil" id={id('endringsordre-feil')}>
-            {feil.endringsordre}
-          </p>{/if}
-      </div>
-    {/if}
-
-    <div class="felt">
-      <span class="etikett">{NYSAK.vedlegg}</span>
-      <p class="hjelp">{NYSAK.vedleggIkkeLaget}</p>
-    </div>
-
-    {#if felt.punkt322}
-      <div class="felt" id={id('varslet')} tabindex="-1">
-        <Valg
-          navn={id('alleredeVarslet')}
-          spoersmaal={NYSAK.alleredeVarslet}
-          valg={[
-            { verdi: false, tekst: 'Nei' },
-            { verdi: true, tekst: 'Ja' },
-          ]}
-          bind:verdi={alleredeVarslet}
-          feil={feil.varslet ?? null}
-          beskrevetAv={id('kapittel-b')}
-        />
-        <p class="kapittel-b" id={id('kapittel-b')}>{NYSAK.kapittelB}</p>
-      </div>
-    {/if}
-
-    {#if feil.kjernen}<p class="feil" id={id('kjernen')}>{feil.kjernen}</p>{/if}
-
-    <div class="handlinger">
-      <Knapp variant="primaer" type="submit">{NYSAK.seBrevet}</Knapp>
-      <Knapp variant="sekundaer" onclick={() => (avbryter = true)}>{NYSAK.avbryt}</Knapp>
-    </div>
-    {#if avbryter}
-      <div class="avbryt" role="group" aria-label={NYSAK.avbryt}>
-        <p>{NYSAK.avbrytSpoersmaal}</p>
-        <Knapp variant="sekundaer" onclick={onavbrutt}>{NYSAK.avbrytJa}</Knapp>
-        <Knapp variant="lenke" onclick={() => (avbryter = false)}>{NYSAK.avbrytNei}</Knapp>
-      </div>
-    {/if}
-  </form>
+    {/snippet}
+  </Arbeidsflate>
 {/if}
+
+{#snippet sendeknapp()}
+  <Knapp variant="primaer" onclick={seBrevet}>{NYSAK.seBrevet}</Knapp>
+  <p class="sendes-til">{NYSAK.sendesTil}</p>
+{/snippet}
 
 <style>
   /* Skjemaet står i et kort midt på flaten, som i skissen versjon 3. */
   .nysak {
-    max-width: var(--varden-ark);
-    margin-inline: auto;
     display: grid;
     gap: var(--spacing-6);
     padding: var(--spacing-6);
@@ -539,6 +668,26 @@
   }
   .staarfast strong {
     color: var(--ink);
+  }
+  .feste {
+    position: sticky;
+    top: var(--spacing-4);
+  }
+  .sendes-til {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  /* Varselet som alt er sendt, hører til svaret «Ja», så det står innrykket under spørsmålet. */
+  .varselet {
+    display: grid;
+    gap: var(--spacing-5);
+    padding-left: var(--spacing-5);
+    border-left: 2px solid var(--rule-strong-color);
+  }
+  .merknad {
+    margin: 0;
+    color: var(--ink-2);
   }
   .kapittel-b {
     margin: 0;

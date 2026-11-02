@@ -1,7 +1,8 @@
 <!--
-  Hovedlinjene i svaret (Varden, skjerm B): standpunktene og beløpene slik kjernen
+  Hovedlinjene i brevet (Varden, skjerm B): standpunktene og beløpene slik kjernen
   forhåndsviser brevet, i brevets rekkefølge og med laget. Alternative beløp summeres ikke.
-  Lista er en `aria-live`-region, så en endret linje leses opp.
+  Lista er en `aria-live`-region, så en endret linje leses opp. Skjemaet for ny sak bruker
+  panelet med egen tittel (BF-05, F-1).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -11,12 +12,17 @@
     linjer,
     alternativer,
     handling,
+    tittel = HOVEDLINJER.tittel,
+    tom = HOVEDLINJER.tom,
   }: {
     linjer: { tekst: string; lag: string | null }[];
     /** Svaret har beløp i mer enn ett lag. */
     alternativer: boolean;
     /** Primærhandlingen. Uten den har panelet ingen bunn. */
     handling?: Snippet;
+    tittel?: string;
+    /** Teksten før det finnes en linje. */
+    tom?: string;
   } = $props();
   const uid = $props.id();
 
@@ -27,7 +33,7 @@
 </script>
 
 <section class="kort" aria-labelledby={`${uid}-hovedlinjer-tittel`}>
-  <h2 class="hode" id={`${uid}-hovedlinjer-tittel`}>{HOVEDLINJER.tittel}</h2>
+  <h2 class="hode" id={`${uid}-hovedlinjer-tittel`}>{tittel}</h2>
   <div class="linjer" aria-live="polite">
     {#if linjer.length}
       <ul>
@@ -43,7 +49,7 @@
       </ul>
       {#if alternativer}<p class="merknad">Beløpene er {HOVEDLINJER.alternativer}.</p>{/if}
     {:else}
-      <p class="merknad">{HOVEDLINJER.tom}</p>
+      <p class="merknad">{tom}</p>
     {/if}
   </div>
   {#if handling}<div class="bunn">{@render handling()}</div>{/if}
