@@ -133,3 +133,9 @@ export const demoAktivitet: Aktivitetssak[] = SCENARIOS.map(({ sak, timeline }) 
       })
     ),
 }));
+
+/**
+ * Merket «Inngår i EO-…» i forhåndsvisningen (EO-U13, EO-U14). Den første demosaken regnes som
+ * omfattet av en sendt endringsordre med dokumentkoden EO-012 til EO-saken er bygget (#1423).
+ */
+export const demoEoMerker: Record<string, string> = { [demoSakslinjer[0]!.sak_id]: 'EO-012' };

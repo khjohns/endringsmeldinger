@@ -16,9 +16,10 @@
     linje: Sakslinje;
     prosjektId: string;
     href?: string;
+    eoMerke?: string | null;
   }
 
-  let { linje, prosjektId, href }: Props = $props();
+  let { linje, prosjektId, href, eoMerke = null }: Props = $props();
 
   const path = $derived(
     href ??
@@ -57,6 +58,8 @@
   <td class="cell cell-tittel">
     <span class="cell-text">{tittel}</span>
     <span class="case-type">KOE-krav</span>
+    <!-- EO-U13: merket sier bare at en sendt endringsordre omfatter saken, ingen rettsvirkning. -->
+    {#if eoMerke}<span class="eo-merke">Inngår i {eoMerke}</span>{/if}
   </td>
   <td class="cell cell-status">
     <div class="cell-inner">
@@ -136,6 +139,17 @@
     padding: 0 12px 10px;
     color: var(--color-ink-muted);
     font-size: 10px;
+    font-weight: 550;
+  }
+
+  .eo-merke {
+    display: inline-block;
+    margin: 0 12px 10px;
+    padding: 1px 6px;
+    border: 1px solid var(--color-wire-strong);
+    border-radius: var(--radius-sm, 4px);
+    color: var(--color-ink-secondary);
+    font-size: 11px;
     font-weight: 550;
   }
 

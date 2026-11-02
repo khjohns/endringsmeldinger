@@ -2,6 +2,7 @@
   import ProjectOverview from '$lib/components/saksoversikt/ProjectOverview.svelte';
   import {
     demoAktivitet,
+    demoEoMerker,
     demoOversiktNoekkeltall,
     demoSakslinjer,
     demoScenarioIds,
@@ -15,6 +16,7 @@
     noekkeltall={demoOversiktNoekkeltall}
     aktivitet={demoAktivitet}
     demoScenarios={demoScenarioIds}
+    eoMerker={demoEoMerker}
     prosjektId="P001"
     prosjektNavn="Operatunnelen — Parsell 3"
     contract={{

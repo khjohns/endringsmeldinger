@@ -75,12 +75,17 @@ it('carries the selected role from the overview into a case and back', async () 
   const user = userEvent.setup();
   const props = { saker, prosjektId: 'P001', prosjektNavn: 'Operatunnelen' };
   const overview = render(ProjectOverview, props);
-  expect(screen.queryByRole('link', { name: 'Ny sak' })).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('link', { name: 'Nytt krav om endringsordre' })
+  ).not.toBeInTheDocument();
   // Endringsordre hører ikke til første versjon (OV-U1); bare demoen har knappene.
   expect(screen.queryByRole('link', { name: 'Ny endringsordre' })).not.toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'Til godkjenning' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Entreprenør TE' }));
-  expect(screen.getByRole('link', { name: 'Ny sak' })).toHaveAttribute('href', '/P001/ny');
+  // KT-U10, #1450 forventning 2: rollevalget i topplinja er en visning og gir ikke knappen.
+  expect(
+    screen.queryByRole('link', { name: 'Nytt krav om endringsordre' })
+  ).not.toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'Ny endringsordre' })).not.toBeInTheDocument();
   expect(localStorage.getItem('koe-user-role')).toBe('TE');
   expect(screen.getByRole('link', { name: 'Åpne sak KOE-2024-047' })).toHaveAttribute(
@@ -112,7 +117,9 @@ it('carries the selected role from the overview into a case and back', async () 
     'aria-pressed',
     'true'
   );
-  expect(screen.queryByRole('link', { name: 'Ny sak' })).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('link', { name: 'Nytt krav om endringsordre' })
+  ).not.toBeInTheDocument();
 });
 
 it('rollevalget starter på leserens side fra serveren og kan byttes som visning (arbeidsvalg 4.2)', async () => {
@@ -255,10 +262,80 @@ it('viser BH uten saker ingen henvisning til «Ny endringsordre» utenfor demoen
   localStorage.setItem('koe-user-role', 'BH');
   const props = { saker: [], prosjektId: 'P001', prosjektNavn: 'Testprosjekt' };
   const ekte = render(ProjectOverview, props);
-  expect(screen.getByText(/Ingen saker ennå/)).toHaveTextContent(/^\s*Ingen saker ennå\.\s*$/);
-  ekte.unmount();
-  render(ProjectOverview, { ...props, demo: true });
-  expect(screen.getByText(/Ingen saker ennå/)).toHaveTextContent(
-    'Opprett den første endringsordren med «Ny endringsordre».'
+  expect(screen.getByText(/Ingen krav om endringsordre ennå/)).toHaveTextContent(
+    /^\s*Ingen krav om endringsordre ennå\.\s*$/
   );
+  expect(screen.queryByText(/Ny endringsordre/)).not.toBeInTheDocument();
+  ekte.unmount();
+  // TE fra serveren får henvisningen til knappen (KT-U10, #1450).
+  render(ProjectOverview, { ...props, part: 'TE' });
+  expect(screen.getByText(/Ingen krav om endringsordre ennå/)).toHaveTextContent(
+    'Opprett det første med «Nytt krav om endringsordre».'
+  );
+});
+
+it('TE fra serveren ser «Nytt krav om endringsordre», BH ser den ikke, og ingen ser «Ny endringsordre» (KT-U10, #1450)', async () => {
+  localStorage.setItem('koe-user-role', 'TE');
+  const user = userEvent.setup();
+  const props = { saker, prosjektId: 'P001', prosjektNavn: 'Operatunnelen' };
+  const te = render(ProjectOverview, { ...props, part: 'TE' });
+  expect(screen.getByRole('link', { name: 'Nytt krav om endringsordre' })).toHaveAttribute(
+    'href',
+    '/P001/ny'
+  );
+  // Rollevalget er en visning: TE som ser saken som BH, er fortsatt TE (KT-U10).
+  await user.click(screen.getByRole('button', { name: 'Byggherre BH' }));
+  expect(screen.getByRole('link', { name: 'Nytt krav om endringsordre' })).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Ny endringsordre' })).not.toBeInTheDocument();
+  te.unmount();
+
+  render(ProjectOverview, { ...props, part: 'BH' });
+  await user.click(screen.getByRole('button', { name: 'Entreprenør TE' }));
+  expect(
+    screen.queryByRole('link', { name: 'Nytt krav om endringsordre' })
+  ).not.toBeInTheDocument();
+  // «Ny endringsordre» finnes først når EO-saken er bygget (KT-U10, OV-U1, #1423).
+  expect(screen.queryByRole('link', { name: 'Ny endringsordre' })).not.toBeInTheDocument();
+});
+
+it('panelet viser de tre sakstypene med antall, og valget avgrenser listen (KT-U9, #1450)', async () => {
+  const user = userEvent.setup();
+  const ukjent = lagSakslinje({ sak_id: 'UKJENT-1', sakstittel: 'Ukjent', sakstype: 'ukjent' });
+  render(ProjectOverview, {
+    saker: [...saker, ukjent],
+    prosjektId: 'P001',
+    prosjektNavn: 'Operatunnelen',
+    part: 'TE',
+  });
+  // Panelet står to ganger: til venstre og over listen på smal skjerm.
+  const panel = screen.getAllByRole('group', { name: 'Saker', hidden: true })[0]!;
+  const typer = within(panel).getAllByRole('button', { hidden: true });
+  expect(typer.map((t) => t.textContent)).toEqual([
+    'Krav om endringsordre2 saker',
+    'Endringsordrer0 saker',
+    'Forsering0 saker',
+  ]);
+  expect(typer[0]).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('heading', { name: 'Krav om endringsordre' })).toBeInTheDocument();
+  expect(screen.getByText('2 av 2 saker')).toBeInTheDocument();
+  expect(screen.queryByText('UKJENT-1')).not.toBeInTheDocument();
+
+  await user.click(typer[1]!);
+  expect(typer[1]).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('heading', { name: 'Endringsordrer' })).toBeInTheDocument();
+  expect(screen.getByText('Ingen endringsordrer ennå.')).toBeInTheDocument();
+  expect(screen.queryByText('KOE-2024-047')).not.toBeInTheDocument();
+});
+
+it('merket «Inngår i EO-012» står på saken endringsordren omfatter, og bare der (EO-U13, EO-U14)', () => {
+  render(ProjectOverview, {
+    saker,
+    prosjektId: 'P001',
+    prosjektNavn: 'Operatunnelen',
+    eoMerker: { 'KOE-2024-047': 'EO-012' },
+  });
+  const rader = screen.getAllByRole('row').slice(1);
+  const medMerke = rader.filter((rad) => within(rad).queryByText('Inngår i EO-012'));
+  expect(medMerke).toHaveLength(1);
+  expect(within(medMerke[0]!).getByText('KOE-2024-047')).toBeInTheDocument();
 });

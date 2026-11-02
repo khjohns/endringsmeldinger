@@ -22,6 +22,7 @@
   import ProjectSummary from './ProjectSummary.svelte';
   import type { ContractSettings } from '$lib/types/project';
   import { SAKSUTVALG, velgSaker, type Saksutvalg } from './overview';
+  import { SAKSTYPER, antallSakerTekst, sakerAvType, type Sakstype } from './sakstyper';
   import type { Noekkeltall, Sakslinje } from '$lib/types/api';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
 
@@ -42,6 +43,7 @@
     projectImageAlt,
     demoScenarios = {},
     activePage = 'overview',
+    eoMerker = {},
   }: {
     saker: Sakslinje[];
     noekkeltall?: Noekkeltall | null;
@@ -61,6 +63,11 @@
     projectImageAlt?: string;
     demoScenarios?: Record<string, string>;
     activePage?: 'overview' | 'activity';
+    /**
+     * Dokumentkoden til den sendte endringsordren som omfatter saken, per sak (EO-U13, EO-U14).
+     * Bare forhåndsvisningen fyller den ut til EO-saken er bygget (#1423).
+     */
+    eoMerker?: Record<string, string>;
   } = $props();
 
   const overviewHref = $derived(
@@ -87,6 +94,15 @@
     savePreferredRole(next);
   }
 
+  let sakstype = $state<Sakstype>('koe');
+  const avType = $derived(sakerAvType(saker, sakstype));
+  const typenavn = $derived(SAKSTYPER.find((t) => t.id === sakstype)?.navn);
+  const tomListe: Record<Sakstype, string> = {
+    koe: 'Ingen krav om endringsordre ennå.',
+    eo: 'Ingen endringsordrer ennå.',
+    forsering: 'Ingen forseringssaker ennå.',
+  };
+
   let query = $state('');
   let filter = $state<Saksutvalg>('alle');
   let timeClaimsOnly = $state(false);
@@ -97,11 +113,24 @@
     query = '';
     registerElement?.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
-  const filtered = $derived(velgSaker(saker, query, filter, timeClaimsOnly));
+  const filtered = $derived(velgSaker(avType, query, filter, timeClaimsOnly));
   const filterBetydning = $derived(SAKSUTVALG.find((u) => u.id === filter)?.betydning);
   const fmt = visKroner;
-  const antallSaker = (n: number) => `${n} ${n === 1 ? 'sak' : 'saker'}`;
+  const antallSaker = antallSakerTekst;
 </script>
+
+{#snippet sakstypevalg(etikettId: string)}
+  <div class="sakstyper" role="group" aria-labelledby={etikettId}>
+    <p class="eyebrow" id={etikettId}>Saker</p>
+    {#each SAKSTYPER as type (type.id)}
+      <button type="button" aria-pressed={sakstype === type.id} onclick={() => (sakstype = type.id)}
+        ><span class="type-navn">{type.navn}</span><span class="count"
+          >{loading || error ? '—' : antallSaker(sakerAvType(saker, type.id).length)}</span
+        ></button
+      >
+    {/each}
+  </div>
+{/snippet}
 
 <div class="project-overview">
   <aside class="project-rail" aria-label="Prosjektmeny">
@@ -124,6 +153,7 @@
         >
       {/if}
     </nav>
+    {#if activePage === 'overview'}{@render sakstypevalg('sakstyper-panel')}{/if}
     <div class="rail-summary">
       <ProjectSummary
         name={prosjektNavn}
@@ -154,6 +184,9 @@
           >
         {/if}
       </nav>
+      {#if activePage === 'overview'}<div class="mobile-sakstyper">
+          {@render sakstypevalg('sakstyper-smal')}
+        </div>{/if}
       <header class="page-heading">
         <div>
           <p class="eyebrow">{prosjektNavn} · {entreprise}</p>
@@ -176,11 +209,12 @@
                 ><Plus size={17} />Ny endringsordre</a
               >{/if}
           </div>
-        {:else if role === 'TE' && activePage === 'overview'}
+        {:else if part === 'TE' && activePage === 'overview'}
+          <!-- KT-U10: bare TE oppretter en KOE-sak. Siden kommer fra serveren, ikke fra rollevalget. -->
           <a
             class="primary"
             href={resolve('/[prosjektId]/ny', { prosjektId: encodeURIComponent(prosjektId) })}
-            ><Plus size={17} /> Ny sak</a
+            ><Plus size={17} /> Nytt krav om endringsordre</a
           >
         {/if}
       </header>
@@ -299,7 +333,7 @@
             <div class="register-header">
               <div>
                 <p class="eyebrow">Felles saksoversikt</p>
-                <h2 id="register-heading">Saker i prosjektet</h2>
+                <h2 id="register-heading">{typenavn}</h2>
               </div>
             </div>
             <div class="filters" role="group" aria-label="Saksutvalg">
@@ -309,7 +343,7 @@
                   title={option.betydning}
                   onclick={() => (filter = option.id)}
                   >{option.label}<span
-                    >{velgSaker(saker, '', option.id, timeClaimsOnly).length}</span
+                    >{velgSaker(avType, '', option.id, timeClaimsOnly).length}</span
                   ></button
                 >{/each}
             </div>
@@ -324,7 +358,7 @@
                 /></label
               >
               <span class="result-count" role="status"
-                >{filtered.length} av {saker.length} saker</span
+                >{filtered.length} av {avType.length} saker</span
               >
             </div>
             {#if timeClaimsOnly}
@@ -336,12 +370,11 @@
                 >
               </div>
             {/if}
-            {#if !saker.length}<div class="state-message">
-                Ingen saker ennå. {role !== 'BH'
-                  ? 'Opprett det første KOE-kravet med «Ny sak».'
-                  : demo
-                    ? 'Opprett den første endringsordren med «Ny endringsordre».'
-                    : ''}
+            {#if !avType.length}<div class="state-message">
+                {tomListe[sakstype]}
+                {sakstype === 'koe' && part === 'TE' && !demo
+                  ? 'Opprett det første med «Nytt krav om endringsordre».'
+                  : ''}
               </div>
             {:else if !filtered.length}<div class="state-message">
                 Ingen saker passer søket og utvalget.<button
@@ -357,6 +390,7 @@
                 <CaseListTable
                   saker={filtered}
                   {prosjektId}
+                  eoMerke={(linje) => eoMerker[linje.sak_id] ?? null}
                   caseHref={(linje) =>
                     caseLink(
                       { caseId: linje.sak_id, type: 'K' },
@@ -452,8 +486,44 @@
   .rail-nav a:hover {
     background: var(--sidebar-hover);
   }
-  .mobile-project-nav {
+  .mobile-project-nav,
+  .mobile-sakstyper {
     display: none;
+  }
+  .sakstyper {
+    margin-top: 32px;
+  }
+  .sakstyper button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 6px;
+    padding: 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sidebar-link);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sakstyper .eyebrow {
+    margin-bottom: 8px;
+    color: var(--sidebar-muted);
+  }
+  .sakstyper button[aria-pressed='true'] {
+    background: var(--sidebar-active);
+    color: var(--sidebar-text);
+  }
+  .sakstyper button:hover {
+    background: var(--sidebar-hover);
+  }
+  .sakstyper button:focus-visible {
+    outline: 2px solid var(--sidebar-focus);
+    outline-offset: 2px;
   }
   .count {
     margin-left: auto;
@@ -829,6 +899,41 @@
     }
     .project-rail {
       display: none;
+    }
+    .mobile-sakstyper {
+      display: block;
+      margin-bottom: 24px;
+    }
+    .mobile-sakstyper .sakstyper {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+    .mobile-sakstyper .eyebrow {
+      flex-basis: 100%;
+      margin: 0;
+      color: var(--color-ink-muted);
+    }
+    .mobile-sakstyper button {
+      width: auto;
+      margin: 0;
+      padding: 8px 12px;
+      border: 1px solid var(--color-wire);
+      color: var(--color-ink-secondary);
+    }
+    .mobile-sakstyper button[aria-pressed='true'] {
+      border-color: var(--color-vekt);
+      background: transparent;
+      color: var(--color-ink);
+      box-shadow: inset 0 -2px 0 var(--color-vekt);
+    }
+    .mobile-sakstyper button:hover {
+      background: var(--color-felt-hover);
+    }
+    .mobile-sakstyper button:focus-visible {
+      outline-color: var(--color-wire-focus);
     }
   }
   @media (max-width: 640px) {

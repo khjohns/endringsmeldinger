@@ -7,9 +7,11 @@
     saker: Sakslinje[];
     prosjektId: string;
     caseHref?: (linje: Sakslinje) => string;
+    /** Dokumentkoden til endringsordren som omfatter saken (EO-U13, EO-U14), eller null. */
+    eoMerke?: (linje: Sakslinje) => string | null;
   }
 
-  let { saker, prosjektId, caseHref }: Props = $props();
+  let { saker, prosjektId, caseHref, eoMerke }: Props = $props();
 
   type SortKey =
     | 'sak_id'
@@ -66,8 +68,8 @@
     { key: 'sakstittel', label: 'Tittel' },
     { key: 'saksbetegnelse', label: 'Krav og svar' },
     { key: 'hovedkategori', label: 'Kategori' },
-    { key: 'vederlag', label: 'Beløp', numeric: true },
-    { key: 'frist', label: 'Dager', numeric: true },
+    { key: 'vederlag', label: 'Vederlag', numeric: true },
+    { key: 'frist', label: 'Frist', numeric: true },
     { key: 'siste_hendelse', label: 'Siste aktivitet' },
   ];
 </script>
@@ -108,7 +110,12 @@
     </thead>
     <tbody>
       {#each sortedCases as linje (linje.sak_id)}
-        <CaseListRow {linje} {prosjektId} href={caseHref?.(linje)} />
+        <CaseListRow
+          {linje}
+          {prosjektId}
+          href={caseHref?.(linje)}
+          eoMerke={eoMerke?.(linje) ?? null}
+        />
       {/each}
     </tbody>
   </table>
