@@ -1011,7 +1011,7 @@ Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til: t
 | Relasjoner | Nøkler: primærnøkkel (sak_id); unik (catenda_topic_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.sak_catenda_topic_sak_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |
-| Skrives av | database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.koble_topic`, kalt fra `koe_api.opprett_sak`) |
+| Skrives av | database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.koble_topic`, kalt fra `opprett_sak`, sist definert i `20261102100000_opprettelse_med_paaberopelse.sql`) |
 | Funn | — |
 | Belegg | L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 18.10: `server/tester/jobber.test.ts`. |
 

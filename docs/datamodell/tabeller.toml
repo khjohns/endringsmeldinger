@@ -1226,7 +1226,7 @@ lagres_fra = "`koe_api.kvitter_topic`, kalt av jobbkjøreren i `server/jobber.ts
 fra_catenda = "Ja, ID-ene er Catendas."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Nei."
-skrivere = ["database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.koble_topic`, kalt fra `koe_api.opprett_sak`)"]
+skrivere = ["database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.koble_topic`, kalt fra `opprett_sak`, sist definert i `20261102100000_opprettelse_med_paaberopelse.sql`)"]
 funn = []
 belegg = "L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 18.10: `server/tester/jobber.test.ts`."
 
