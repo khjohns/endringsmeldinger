@@ -701,8 +701,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
 - **Utsagn:** ingen. Fristen regnes fra overtakelsen, som saken ikke kjenner.
 - **Predikat:** ingen.
 - **Appen avgjør ikke:** om fristen er overholdt, eller om kravet er tapt.
-- **Appen:** *registrere og vise* ([VS-U3](plans/vedtak.md#vs-u3)).
-- **Vedtak:** [VS-U3](plans/vedtak.md#vs-u3). [VS-U2](plans/vedtak.md#vs-u2).
+- **Appen:** *registrere og vise* ([VS-U3](plans/vedtak.md#vs-u3)), slik [VS-U42](plans/vedtak.md#vs-u42) endrer den for punkt 35.2.
+- **Vedtak:** [VS-U42](plans/vedtak.md#vs-u42). [VS-U3](plans/vedtak.md#vs-u3). [VS-U2](plans/vedtak.md#vs-u2).
 - **Kjernen i dag:** ikke bygget.
 
 § 35.1 (utførelsesplikt ved uenighet) er ikke i #309. KA-U14 sier at brev og

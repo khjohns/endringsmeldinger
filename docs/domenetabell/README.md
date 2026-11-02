@@ -254,6 +254,40 @@ utløserne `grunnlag_avslaatt` og `grunnlag_prekludert_32_2`, regelinngangene
 | `kjerne/regler/grunnlag.ts`, `Grunnlagsresultat`, `GRUNNLAGSRESULTATER`, `grunnlagAvklart`, `grunnlagAvvist`, `grunnlagetErAvklart` | `kjerne/regler/forhold.ts`, `Forholdsresultat`, `FORHOLDSRESULTATER`, `forholdAvklart`, `forholdAvvist`, `forholdetErAvklart` | Kjernen. Resten av de interne navnene følger samme regel og står i PR-en for #1453 |
 | `src/lib/kjernesak/grunnlagskrav.ts`, `nyGrunnlagsversjon` | `src/lib/kjernesak/paaberopelse.ts`, `nyPaaberopelsesversjon` | Visningen |
 
+### Navnene på forholdene
+
+Tittelen på et forhold er forholdet selv ([OV-U78](../plans/vedtak.md#ov-u78)), og
+forholdene står i gruppene i [OV-U77](../plans/vedtak.md#ov-u77). Navnene under er et
+arbeidsvalg, ikke et vedtak: OV-U78 sier at titlene er arbeidsvalg i domenetabellen.
+Oppdragsgiver sa 02.11 «ja til forslagene»
+([kommentaren](https://github.com/khjohns/endringsmeldinger/pull/1492#issuecomment-6572609087))
+og svarte «3A» på
+[grunnlaget](https://github.com/khjohns/endringsmeldinger/pull/1492#issuecomment-6573550946)
+([ført i #1492](https://github.com/khjohns/endringsmeldinger/pull/1492#issuecomment-6573565569)).
+Svaret er lest som det første alternativet: navnene føres som arbeidsvalg her, ikke som vedtak.
+Fire navn er nye; det gamle står i kolonnen «Før». Punktene for de andre er tatt fra
+tabellen i spørsmålet til OV-U78, ikke kontrollert mot katalogen. Force majeure mangler og tas med #367.
+
+| Gruppe (OV-U77) | Punkt | Navn | Før |
+| --- | --- | --- | --- |
+| Endringer, jf. punkt 31 og 32 | 32.1 | Irregulær endring | |
+| | 14.6 | Begrensning av valgrett | |
+| | 21.4 | Samordning | |
+| | 24.2.2 | Endring ved svar på varsel | |
+| | 31.3 | Endringsordre | |
+| | 14.4 | Endringer i lover og vedtak for kontraktsgjenstanden | Nye offentlige krav til kontraktsgjenstanden |
+| | 15.2, og 15.1 om prosessen | Endringer i lover og vedtak for prosessen | Nye offentlige krav til utførelsen |
+| | 26.3 | Endrede offentlige gebyrer og avgifter | |
+| Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24 | 22 | Manglende medvirkning eller leveranser fra byggherren | |
+| | 23.1 | Uforutsette forhold ved grunnen | |
+| | 24.1 | Svikt i byggherrens prosjektering | |
+| | 23.3 | Funn av kulturminner | |
+| Andre forhold byggherren har risikoen for | 19.1 | Skade forårsaket av byggherren eller byggherrens kontraktsmedhjelpere | Skade forårsaket av byggherren eller en sideentreprenør |
+| | 10.2 | Nektet valg av kontraktsmedhjelper | Nektet kontraktsmedhjelper |
+| | 38.1 | Urettmessig brukstakelse | |
+| | 29.2 | Stans ved betalingsmislighold | |
+| | 33.1 c, 34.1.2 | Annet forhold byggherren har risikoen for | |
+
 ## Tabellen
 
 Skrevet av `python3 docs/verktoy/domenetabell.py --skriv`. Rett i JSON-filene,
