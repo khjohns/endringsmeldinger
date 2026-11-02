@@ -4767,16 +4767,35 @@ Styrer teksten i byggherrens svar.
 
 Belegg: OV-U75 («punkt»), LV-U42, avgjørelsen 17.10 om at varselet etter punkt 32.2 nevnes uten brev.
 Forhold: A endrer avgjørelsen 17.10 for det registrerte varselet. B følger den.'''
-valgt = "A"
-svar = '''«1. ble ikke dette nettopp svart ut i siste vedtaksføring? 2. A 3. A men ikke forkortelsen TE - skriver totalentreprenøren»'''
+valgt = "A men ikke forkortelsen TE"
+svar = '''«1. ble ikke dette nettopp svart ut i siste vedtaksføring? 2. A 3. A men ikke forkortelsen TE - skriver totalentreprenøren»
+
+Svaret på mergespørsmålet 02.11, ordrett: «Litt dårlig språk, «totalentreprenøren» går igjen to ganger. Foreslå en retting»
+
+Oppfølgingsspørsmålet 02.11, ordrett:
+«- **A:** «totalentreprenørens varsel etter NS 8407 punkt 32.2 i <brevtype> av <dato>». Eksempel: «… i brev av 3. mars 2026».
+- **B (anbefalt):** «varsel etter NS 8407 punkt 32.2 i totalentreprenørens <brevtype> av <dato>». Eksempel: «… i totalentreprenørens brev av 3. mars 2026».»
+
+Svaret, ordrett: «A»'''
 folge = '''
 Bygges med #1489'''
 
 [[gruppe.vedtak.alternativ]]
-navn = "A"
+navn = "A men ikke forkortelsen TE"
+tekst = '''
+Når byggherrens svar viser til et registrert varsel etter punkt 32.2, står det «totalentreprenørens varsel etter NS 8407 punkt 32.2 i <brevtype> av <dato>», i formen LV-U42 gir. Uten registrert varsel nevnes varselet uten brev, som i dag.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A med retting totalentreprenørens"
 tekst = '''
 Når byggherrens svar viser til et registrert varsel etter punkt 32.2, står det «totalentreprenørens varsel etter NS 8407 punkt 32.2 i totalentreprenørens <brevtype> av <dato>», i formen LV-U42 gir. Uten registrert varsel nevnes varselet uten brev, som i dag.'''
-anbefalt = true
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B (oppfølging)"
+tekst = '''
+«varsel etter NS 8407 punkt 32.2 i totalentreprenørens <brevtype> av <dato>». Eksempel: «… i totalentreprenørens brev av 3. mars 2026».'''
+forkastet = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
