@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `1730eeeb83e1323ee1818b1457d33bfd298b9016bdcd98465ff1f4729333d4db`
+Kontrollsum (SHA-256 over utdraget visningen leser): `70ac2289b1541bbdfe2b28128b4a6d8d5ce84c5c90ebffa75e480900a375e292`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1103,7 +1103,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 02.11, oppdragsgiver (#1450, #1510)
 
-**Følge:** Endrer [MM-U28](../../plans/vedtak.md#mm-u28). Snevrer inn [MM-U30](#mm-u30). Snevrer inn [MM-U31](#mm-u31). I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450 (PR #1510).
+**Følge:** Endrer [MM-U28](../../plans/vedtak.md#mm-u28). Snevrer inn [MM-U30](#mm-u30). Snevrer inn [MM-U31](#mm-u31). I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450.
 
 **Regelrader:** —
 
@@ -1115,7 +1115,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 02.11, oppdragsgiver (#1450, #1510)
 
-**Følge:** Endrer [OV-U61](../../plans/vedtak.md#ov-u61). Endrer [MM-U28](../../plans/vedtak.md#mm-u28). Presiserer [EO-U13](#eo-u13). I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Halvdelen for endringsordrene vises når EO-saken er bygget (#1423). Bygges i #1450 (PR #1510).
+**Følge:** Endrer [OV-U61](../../plans/vedtak.md#ov-u61). Endrer [MM-U28](../../plans/vedtak.md#mm-u28). Presiserer [EO-U13](#eo-u13). I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Bygges i #1450.
 
 **Regelrader:** —
 

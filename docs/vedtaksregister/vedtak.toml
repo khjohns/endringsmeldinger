@@ -8365,7 +8365,7 @@ svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
 forhold = [{ art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u30" }, { art = "snevrer inn", vedtak = "mm-u31" }]
 folge = '''
-I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450 (PR #1510).'''
+I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -8388,7 +8388,7 @@ svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
 forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "presiserer", vedtak = "eo-u13" }]
 folge = '''
-I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Halvdelen for endringsordrene vises når EO-saken er bygget (#1423). Bygges i #1450 (PR #1510).'''
+I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Bygges i #1450.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -8413,7 +8413,7 @@ svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
 forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u22" }]
 folge = '''
-MM-U2 står. Bygges i #1450 (PR #1510).'''
+Endrer OV-U61 og MM-U28 for slike saker. MM-U2 står. Bygges i #1450.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
