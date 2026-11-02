@@ -67,8 +67,8 @@ export class UgyldigKommando extends Error {}
  * aktøren er ikke lenger aktivt medlem av prosjektet, eller teamet er ikke lenger
  * kontraktsteam på siden), saken har ikke noe leveringsmål (`IngenLeveringsmaal` i `cause`),
  * eller konteksten har ingen kontraktsside, som `skrivHendelse` prøver før basen,
- * eller en annen side enn TE, som `opprettSak` prøver før basen. De to siste har
- * ingen `cause`.
+ * eller en annen side enn TE, som `opprettSak` og `opprettSakMedPaaberopelse` prøver
+ * etter kjernen og før basen. De to siste har ingen `cause`.
  */
 export class SkrivingAvvist extends Error {}
 
@@ -80,6 +80,9 @@ export class IngenTopicBoard extends Error {}
 
 /** Topicen saken skulle opprettes fra, hører alt til en sak (#741 punkt 17). */
 export class TopicHarSak extends Error {}
+
+/** Saks-ID-en klienten ga, er brukt, også om saken er i et annet prosjekt (#1487). */
+export class SakIdBrukt extends Error {}
 
 /**
  * Låsen på kommando-ID-en ble ikke gitt: tidsgrensen gikk ut, kallet ble avbrutt
@@ -127,9 +130,9 @@ function oversett(feil: unknown, forventet: number | null): unknown {
     case INGEN_BOARD:
       return new IngenTopicBoard(melding, { cause: feil });
     case UNIK_NOEKKEL:
-      return melding.includes('sak_catenda_topic_topic_unik')
-        ? new TopicHarSak(melding, { cause: feil })
-        : feil;
+      if (melding.includes('sak_catenda_topic_topic_unik'))
+        return new TopicHarSak(melding, { cause: feil });
+      return melding.includes('sak_metadata_pk') ? new SakIdBrukt(melding, { cause: feil }) : feil;
     case BLOKKERT:
       return new SkrivingAvvist(melding, { cause: feil });
     // Et forsøk med samme nøkkel holder låsen og kan ennå committe (#792 punkt 1).
@@ -421,6 +424,106 @@ export async function skrivHendelse<A>(
     }
   } catch (feil) {
     throw oversett(feil, forventet);
+  }
+}
+
+/** Saken og den første påberopelsen kjernen har godtatt, med oppdraget når målet er lest. */
+export type Opprettelsesutfall<A> =
+  | {
+      skriv: true;
+      opprettet: Journalrad;
+      rad: Journalrad;
+      oppdrag: (maal: Leveringsmaal) => Oppdragsrad | null;
+    }
+  | Avvist<A>;
+
+/**
+ * Oppretter saken med ID-en fra klienten og skriver den første påberopelsen som versjon 2,
+ * i én transaksjon (KT-U11, #1487). `lag` får basens klokke for skrivingen og avgjør begge
+ * radene før noe skrives; avviser kjernen, rulles transaksjonen tilbake, og det finnes
+ * ingen sak, ingen hendelse og ingen jobb for topicen. `sak_opprettet` får samme tidspunkt
+ * som påberopelsen. Kvitteringen gjelder påberopelsen, så et gjentak med samme innhold får
+ * den uten å kalle `lag`, og en annen sak eller et annet innhold med samme ID gir 51410.
+ * Påberopelsen binder ingen vedlegg: saken har ingen før den finnes (#1037).
+ *
+ * @throws SakIdBrukt, SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall
+ */
+export async function opprettSakMedPaaberopelse<A>(
+  pool: Pool,
+  kontekst: Kontekst,
+  sakId: string,
+  kommando: Kommando,
+  lag: (grunnlag: { tidspunkt: Date }) => Opprettelsesutfall<A>
+): Promise<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>> {
+  const forsoek = () =>
+    transaksjon<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>>(
+      pool,
+      kontekst,
+      async (foresp) => {
+        if (typeof sakId !== 'string' || !UUID.test(sakId))
+          throw new UgyldigKommando('Saks-ID-en er ikke en UUID med små bokstaver.');
+        const kvittering = kontekst.side === 'TE' ? await lesKvittering(foresp, kommando) : null;
+        if (kvittering)
+          return {
+            skriv: 'gjentatt',
+            rad: kvittertRad(
+              await lesJournal(foresp, kvittering.sak_id, false),
+              kvittering.event_id
+            ),
+          };
+        const tid = await foresp()
+          .output('tidspunkt', sql.DateTime2(3))
+          .execute('koe_api.skrivetidspunkt');
+        const tidspunkt = tid.output.tidspunkt as Date;
+        const utfall = lag({ tidspunkt });
+        if (!utfall.skriv) return new Tilbakerulling(utfall);
+        // Etter `lag`, så kjernens avvisning går foran avslaget her, som i `opprettSak`.
+        if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
+        const { opprettet, rad } = utfall;
+        kontrollerRad(opprettet, null, kontekst, sakId, 0, tidspunkt);
+        if (opprettet.event_type !== 'sak_opprettet')
+          throw new Error('Den første raden er ikke sak_opprettet.');
+        await foresp()
+          .input('format', sql.Int, opprettet.format)
+          .input('data', sql.NVarChar(sql.MAX), JSON.stringify(opprettet.data))
+          .input('kommando_id', sql.NVarChar(4000), kommando.id)
+          .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
+          .input('catenda_board_id', sql.NVarChar(100), null)
+          .input('catenda_topic_id', sql.NVarChar(100), null)
+          .output('sak_id', sql.NVarChar(36), sakId)
+          .output('event_id', sql.NVarChar(36), opprettet.event_id)
+          .output('tidsstempel', sql.DateTime2(3))
+          .execute('koe_api.opprett_sak');
+        // Målet finnes først når saken er lagret; topicen lages av jobben (KT-U3).
+        const oppdrag = utfall.oppdrag(await lesLeveringsmaal(foresp, sakId));
+        kontrollerRad(rad, oppdrag, kontekst, sakId, 1, tidspunkt);
+        await foresp()
+          .input('sak_id', sql.NVarChar(36), sakId)
+          .input('forventet_versjon', sql.Int, 1)
+          .input('event_id', sql.NVarChar(4000), rad.event_id)
+          .input('event_type', sql.NVarChar(4000), rad.event_type)
+          .input('tidsstempel', sql.DateTime2(3), tidspunkt)
+          .input('format', sql.Int, rad.format)
+          .input('data', sql.NVarChar(sql.MAX), JSON.stringify(rad.data))
+          .input('oppdrag_id', sql.NVarChar(4000), oppdrag?.id ?? null)
+          .input('dokumentnoekkel', sql.NVarChar(4000), oppdrag?.dokumentnoekkel ?? null)
+          .input('oppdrag', sql.NVarChar(sql.MAX), oppdrag ? JSON.stringify(oppdrag.innhold) : null)
+          .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
+          .input('kommando_id', sql.NVarChar(4000), kommando.id)
+          .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
+          .execute('koe_api.skriv_hendelse');
+        return { skriv: true, rad };
+      }
+    );
+  try {
+    try {
+      return await forsoek();
+    } catch (feil) {
+      if (feilnummer(feil) !== FOR_GAMMELT) throw feil;
+      return await forsoek();
+    }
+  } catch (feil) {
+    throw oversett(feil, null);
   }
 }
 

@@ -74,6 +74,35 @@ export const opprettSak = (kommandoId: string, kommando: unknown, prosjektId: st
     body: JSON.stringify({ kommando_id: kommandoId, kommando }),
   });
 
+/** Det skjemaet for ny sak sender (`NySak` i `src/lib/components/varden/nysak.ts`, #1492). */
+export interface NySakTilServeren {
+  sakId: string;
+  opprettelse: { sakstittel: string };
+  paaberopelse: { type: 'krav'; spor: 'forhold'; innhold: Record<string, unknown> };
+  tekst: string[];
+}
+
+/**
+ * Grensen `SendNySak` for saksruta: saken og den første påberopelsen i én handling
+ * (KT-U11, #1487). Saks-ID-en er klientens, fordi brevteksten har saksnummeret (LV-U4),
+ * og tittelen sendes én gang (LV-U43). Kommando-ID-en gjelder handlingen, så et nytt
+ * forsøk etter et usikkert utfall sender samme ID og får saken fra kvitteringen (#418).
+ */
+export const sendNySak =
+  (prosjektId: string, kommandoId: string = nyKommandoId()) =>
+  (nySak: NySakTilServeren): Promise<{ sakId: string }> =>
+    apiFetch<{ sak_id: string; event_id: string; versjon: number }>(SAKER, {
+      method: 'POST',
+      headers: prosjekthode(prosjektId),
+      body: JSON.stringify({
+        kommando_id: kommandoId,
+        ny_sak_id: nySak.sakId,
+        tittel: nySak.opprettelse.sakstittel,
+        paaberopelse: nySak.paaberopelse,
+        brevtekst: nySak.tekst,
+      }),
+    }).then((s) => ({ sakId: s.sak_id }));
+
 /** Kommandoen sendes med versjonen skjemaet så. Aktøren og tidspunktet settes av serveren. */
 export const sendKommando = (
   sakId: string,
