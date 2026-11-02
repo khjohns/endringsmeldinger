@@ -196,6 +196,8 @@ export interface Opprettelsesrute extends Felles {
   tilgang: { prosjektrolle: 'member'; kontraktsrolle: 'kreves'; nySak: string };
   /** Kroppen er en fil, som leses etter tilgangskontrollen og ikke tolkes som JSON. */
   fil?: true;
+  /** Bare TE bruker inngangen, med meldingen BH får (KT-U10). Prøves før kroppen leses. */
+  bareTE?: string;
   behandle: Behandler<Opprettelsesforespoersel>;
 }
 
@@ -846,6 +848,8 @@ export function lagServer(avh: Avhengigheter) {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs.');
     }
     const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, UTEN_STI, r.fil);
+    if (r.bareTE !== undefined && f.side?.rolle !== 'TE')
+      return feilsvar(403, 'FORBIDDEN', r.bareTE);
     const fil = r.fil ? await lesFil(foresporsel, f.side) : null;
     return r.behandle({ ...f, side: medSide(f.side), ressurs, fil }, full);
   }

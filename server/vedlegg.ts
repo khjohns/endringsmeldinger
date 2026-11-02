@@ -365,16 +365,10 @@ function kontekstUtenSak(
   return { aktor: bruker.id, prosjekt: prosjekt.prosjektId, side: side.rolle, team };
 }
 
-const BARE_TE = feilsvar(
-  403,
-  'FORBIDDEN',
-  'Bare TE oppretter en sak og laster opp vedlegg til den.'
-);
-
-/** Teamet for et vedlegg uten sak, eller avvisningen: bare TE, og med entydig team. */
+/** Teamet for et vedlegg uten sak, eller avvisningen uten entydig team. Ruteren har avvist BH. */
 function teamUtenSak(f: Opprettelsesforespoersel): string | Svar {
-  if (f.side.rolle !== 'TE') return BARE_TE;
-  return f.side.teamId ?? UTEN_TEAM;
+  if (!f.side.teamId) return UTEN_TEAM;
+  return f.side.teamId;
 }
 
 async function lastOppUtenSak(
@@ -436,6 +430,7 @@ async function slettUtenSak(
 }
 
 const UTEN_SAK = '/api/kjerne/vedlegg';
+const BARE_TE = 'Bare TE oppretter en sak og har vedlegg til den.';
 const NY_SAK_BEGRUNNELSE =
   'Vedlegget til en sak som ennå ikke finnes: saken opprettes med påberopelsen, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE laster opp (KT-U10, #1037).';
 
@@ -446,6 +441,7 @@ export const VEDLEGG_FOER_SAKEN: readonly Opprettelsesrute[] = [
     eksempel: () => UTEN_SAK,
     tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves', nySak: NY_SAK_BEGRUNNELSE },
     fil: true,
+    bareTE: BARE_TE,
     behandle: lastOppUtenSak,
   },
   {
@@ -453,6 +449,7 @@ export const VEDLEGG_FOER_SAKEN: readonly Opprettelsesrute[] = [
     sti: new RegExp(`^${UTEN_SAK}/${ID}$`),
     eksempel: () => `${UTEN_SAK}/${EKSEMPEL_ID}`,
     tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves', nySak: NY_SAK_BEGRUNNELSE },
+    bareTE: BARE_TE,
     behandle: slettUtenSak,
   },
 ];

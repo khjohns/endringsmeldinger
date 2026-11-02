@@ -17,7 +17,7 @@ import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import type { Journalrad, Vedlegg } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId } from '../autorisasjon.ts';
-import { VEDLEGG_FOER_SAKEN } from '../vedlegg.ts';
+import { STOERSTE_VEDLEGG, VEDLEGG_FOER_SAKEN } from '../vedlegg.ts';
 import { sql } from './sqlserver.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
@@ -266,7 +266,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       team: catendaId(o.prosjekt.teTeam)!,
     });
 
-    async function lastOpp(bruker: Testbruker = o.te, filnavn = 'varsel.pdf') {
+    async function lastOpp(bruker: Testbruker = o.te, filnavn = 'varsel.pdf', innhold = PDF) {
       const svar = await fetch(`${server.url}${UTEN_SAK}`, {
         method: 'POST',
         headers: {
@@ -276,7 +276,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
           'Content-Type': 'application/octet-stream',
           'X-Filnavn': encodeURIComponent(filnavn),
         },
-        body: new Uint8Array(PDF),
+        body: new Uint8Array(innhold),
       });
       const kropp = (await svar.json()) as Record<string, unknown> & { vedlegg?: Vedlegg };
       // Kjernen får bare feltene den leser, som serveren gir den (`lesVedleggUtenSak`).
@@ -430,6 +430,12 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       expect(svar.status, JSON.stringify(svar.kropp)).toBe(403);
     });
 
+    it('BH avvises før kroppen leses: en fil over 15 MiB gir 403 og ikke 413 (KT-U10, #815 punkt 1)', async () => {
+      const svar = await lastOpp(o.bh, 'stor.pdf', Buffer.alloc(STOERSTE_VEDLEGG + 1, 0x41));
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(403);
+      expect(svar.kropp.error).toBe('FORBIDDEN');
+    });
+
     it('TE sletter et vedlegg uten sak, og en ny sletting gir 404 (#1037)', async () => {
       const v = (await lastOpp()).vedlegg!;
       const slett = () =>
@@ -461,26 +467,26 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
 });
 
 describe('vedleggene før saken uten entydig team (#1037)', () => {
-  // Uten team finnes det ikke noe utkast å lese eller skrive (AGENTS.md), så rutene svarer
-  // 403 før basen spørres; et datalag som kaster, viser at den ikke spørres.
+  // Uten team finnes det ikke noe utkast å lese eller skrive (AGENTS.md), så slettingen
+  // svarer 403 før basen spørres; et datalag som kaster, viser at den ikke spørres. For
+  // opplastingen avviser `lesFil` uten team før kroppen leses.
+  const slett = VEDLEGG_FOER_SAKEN.find((r) => r.metode === 'DELETE')!;
   const avh = {
     get datalag(): never {
       throw new Error('Basen spørres ikke uten team.');
     },
-  } as unknown as Parameters<(typeof VEDLEGG_FOER_SAKEN)[number]['behandle']>[1];
-  const foresp = (metode: 'POST' | 'DELETE') => ({
-    bruker: { id: randomUUID() },
-    prosjekt: { prosjektId: 'p' },
-    side: { rolle: 'TE' as const, teamId: null },
-    kropp: {},
-    ressurs: metode === 'DELETE' ? randomUUID() : null,
-    fil: metode === 'POST' ? { innhold: Buffer.from('%PDF-1.4\n%%EOF\n'), filnavn: 'a.pdf' } : null,
-  });
+  } as unknown as Parameters<typeof slett.behandle>[1];
 
-  it.each(['POST', 'DELETE'] as const)('%s svarer 403 MANGLER_TEAM', async (metode) => {
-    const rute = VEDLEGG_FOER_SAKEN.find((r) => r.metode === metode)!;
-    const [status, kropp] = (await rute.behandle(
-      foresp(metode) as unknown as Parameters<typeof rute.behandle>[0],
+  it('slettingen svarer 403 MANGLER_TEAM', async () => {
+    const [status, kropp] = (await slett.behandle(
+      {
+        bruker: { id: randomUUID() },
+        prosjekt: { prosjektId: 'p' },
+        side: { rolle: 'TE', teamId: null },
+        kropp: {},
+        ressurs: randomUUID(),
+        fil: null,
+      } as unknown as Parameters<typeof slett.behandle>[0],
       avh
     )) as [number, Record<string, unknown>];
     expect(status).toBe(403);
