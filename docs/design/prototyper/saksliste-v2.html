@@ -11,7 +11,8 @@
   MM-U28, MM-U30 og OV-U61 for sakslisten og er ikke ført som vedtak ennå.
   Raden viser det TE krever, og merket «Inngår i EO-<nummer>» sier at saken inngår i en
   endringsordre (EO-U13, EO-U14). Tallene i endringsordren står på fanen for endringsordrene. Merket «Inngår i EO-<nummer>» følger EO-U13 og EO-U14.
-  Ankrene er de samme som i v1: #te og #bh, og #eo eller #forsering kan legges til, som #bh-eo.
+  Ankrene er #te og #bh, og #eo eller #forsering kan legges til, som #bh-eo. #te-tom og #bh-tom
+  viser prosjektet uten saker. Lista er sortert etter siste brev, nyeste først.
   Tallene og sakene er eksempler, og teksten er prototypetekst. Fargene er Blekk (.tema-varden).
 -->
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -380,7 +381,7 @@ a.merke-n:hover{background:var(--surface-inset)}
 
 /* v2: kravet og endringsordren i samme spor */
 .skjult{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-#innhold-koe .rad,#innhold-koe .radhode{grid-template-columns:64px minmax(0,1fr) 112px 88px 124px;column-gap:16px}
+#innhold-koe .rad,#innhold-koe .radhode{grid-template-columns:64px minmax(0,1fr) 152px 128px 124px;column-gap:16px}
 #innhold-koe .radhode .h{text-align:right}
 .radhode .r2{grid-row:1 / span 2}
 .tall1{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:14px;color:var(--ink);text-align:right;white-space:nowrap}
@@ -406,6 +407,24 @@ a.merke-n:hover{background:var(--surface-inset)}
   #innhold-koe .rad > .tall1::before{content:attr(data-navn);font-family:var(--font-sans);font-size:12px;color:var(--ink-3);text-align:left}
   .tallrad{grid-template-columns:1fr}
 }
+.sortering{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sort-etikett{font-size:12px;color:var(--ink-3);margin-right:2px}
+.sortering button{all:unset;cursor:pointer;font-size:14px;color:var(--ink-2);padding:6px 10px;min-height:32px;box-sizing:border-box;border-radius:var(--r-felt)}
+.sortering button[aria-pressed="true"]{color:var(--ink);font-weight:600;background:var(--surface-selected)}
+.sortering button:hover{background:var(--surface-inset)}
+.sortering button:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.tom-liste{padding:32px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;border-top:1px solid var(--rule-subtle-color)}
+.tom-liste p{font-size:14px;color:var(--ink-2)}
+.knapp-lenke{all:unset;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px;min-height:32px;display:inline-flex;align-items:center}
+.knapp-lenke:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.tom-prosjekt{margin:8px 20px 24px;padding:40px 24px;border:1px dashed var(--rule-strong-color);border-radius:var(--r-innfelt);display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.tom-prosjekt .tom-tittel{font-size:16px;font-weight:600;color:var(--ink)}
+.tom-prosjekt p{font-size:14px;color:var(--ink-2)}
+.skall[data-tom="ja"] #innhold-koe,.skall[data-tom="ja"] .tallrad,.skall[data-tom="ja"] .tallnote{display:none}
+.tom-prosjekt[hidden],.tom-liste[hidden]{display:none}
+.radhode .enhet{font-weight:400;text-transform:none;letter-spacing:0}
+.demo-valg{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;min-height:32px;margin-left:12px}
+.demo-valg input{accent-color:var(--brand);width:16px;height:16px;margin:0}
 </style>
 </head>
 <body>
@@ -448,6 +467,7 @@ a.merke-n:hover{background:var(--surface-inset)}
             <button type="button" id="vis-te" aria-pressed="true">TE</button>
             <button type="button" id="vis-bh" aria-pressed="false">BH</button>
           </span>
+          <label class="demo-valg"><input type="checkbox" id="vis-tom"> Uten saker</label>
         </div></div></div>
     <header class="toppskall">
       <div class="topplinje-inner">
@@ -462,13 +482,6 @@ a.merke-n:hover{background:var(--surface-inset)}
     <main class="arbeid">
       <div class="kolonner">
         <div class="hoved">
-          <section class="kort godkjenning kun-bh-blokk" aria-labelledby="godkjenning-tittel">
-            <div class="kort-hode"><h2 id="godkjenning-tittel">Til godkjenning hos deg</h2><span class="kilde">2 svar</span></div>
-            <ul>
-              <li><a href="godkjenning-vederlagssvar.html">Svar på vederlagsjustering · E-024</a><span class="k">Ola Nordmann · sendt til godkjenning 31. oktober 2026</span></li>
-              <li><a href="#">Svar på fristforlengelse · E-021</a><span class="k">Ola Nordmann · sendt til godkjenning 30. oktober 2026</span></li>
-            </ul>
-          </section>
           <section class="kort" aria-labelledby="liste-tittel">
             <div class="liste-hode">
               <div><p class="over">Skolebygg Nord</p><h1 id="liste-tittel"><span class="kun-fane f-koe">Krav om endringsordre</span><span class="kun-fane f-eo">Endringsordrer</span><span class="kun-fane f-forsering">Forsering</span></h1></div>
@@ -484,6 +497,11 @@ a.merke-n:hover{background:var(--surface-inset)}
             </div>
             <p class="tallnote kun-fane f-koe">1 sak er ikke med i tallene, fordi oversikten ikke forstår den.</p>
 
+            <div class="tom-prosjekt kun-fane f-koe" id="tomt-prosjekt" hidden>
+              <p class="tom-tittel">Prosjektet har ingen krav om endringsordre ennå</p>
+              <p class="kun-te">Kravene totalentreprenøren sender, og sakene byggherren registrerer, står her.</p>
+              <p class="kun-bh">Kravene totalentreprenøren sender, og sakene du registrerer, står her.</p>
+            </div>
             <div class="fane-innhold" id="innhold-koe">
               <div class="verktoy">
                 <div class="utvalg" role="group" aria-label="Utvalg">
@@ -492,19 +510,25 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <button type="button" data-u="ikke-eo" aria-pressed="false">Ikke i EO</button>
                   <button type="button" data-u="trukket" aria-pressed="false">Trukket</button>
                 </div>
-                <input class="sok" type="search" placeholder="Søk i sakene" aria-label="Søk i sakene">
+                <div class="sortering" role="group" aria-label="Sorter etter">
+                  <span class="sort-etikett" aria-hidden="true">Sorter etter</span>
+                  <button type="button" data-sort="dato" aria-pressed="true">Siste brev</button>
+                  <button type="button" data-sort="nr" aria-pressed="false">Saksnummer</button>
+                </div>
+                <input class="sok" id="sok" type="search" placeholder="Søk i sakene" aria-label="Søk i sakene">
               </div>
-              <div class="radhode" aria-hidden="true"><span class="r2">Sak</span><span class="r2"></span><span class="r2 h">Vederlag <span class="enhet">· kr</span></span><span class="r2 h">Frist <span class="enhet">· dager</span></span><span class="r2">Siste brev</span></div>
+              <div class="radhode" aria-hidden="true"><span class="r2">Sak</span><span class="r2"></span><span class="r2 h">Krevd vederlag <span class="enhet">· kr</span></span><span class="r2 h">Krevd frist <span class="enhet">· dager</span></span><span class="r2">Siste brev</span></div>
+              <div class="tom-liste" id="ingen-treff" role="status" hidden><p id="ingen-treff-tekst"></p><button type="button" class="knapp-lenke" id="vis-alle">Vis alle sakene</button></div>
               <ul class="rader" id="koe-rader">
-              <li data-utvalg="eo">
+              <li data-dato="2026-10-29T10:12" data-nr="E-031" data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-031</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><span class="kun-te"><span class="merke-n utkast">Utkast · ikke sendt</span></span><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><span class="kun-te"><span class="merke-n utkast">Utkast · vederlagsjustering</span></span><a class="merke-n" href="#">Fra E-027</a><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
                   <div class="tall1 " data-navn="Krevd vederlag, kr"><span class="tomt">Ikke krevd</span></div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
                   <div class="siste2"><b>Brev 1 · TE</b>29. oktober 2026</div>
                 </div>
               </li>
-              <li data-utvalg="eo">
+              <li data-dato="2026-10-30T14:05" data-nr="E-027" data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-027</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
@@ -512,7 +536,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="siste2"><b>EO-012 · BH</b>30. oktober 2026</div>
                 </div>
               </li>
-              <li data-utvalg="ikke-eo">
+              <li data-dato="2026-10-28T13:40" data-nr="E-024" data-utvalg="ikke-eo">
                 <div class="rad">
                   <span class="id">E-024</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Endret fasadeplate etter pålegg på byggemøte</a><span class="forhold">Irregulær endring</span></div>
@@ -520,23 +544,23 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="siste2"><b>Brev 5 · BH</b>28. oktober 2026</div>
                 </div>
               </li>
-              <li data-utvalg="ikke-eo">
+              <li data-dato="2026-10-30T08:30" data-nr="E-021" data-utvalg="ikke-eo">
                 <div class="rad">
                   <span class="id">E-021</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Ny peling med produktivitetstap</a><span class="forhold">Byggherrens valg av løsninger og prosjektering</span><div class="merker"><a class="merke-n" href="#forsering">Forsering F-004</a></div></div>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Ny peling med produktivitetstap</a><span class="forhold">Svikt i byggherrens prosjektering</span><div class="merker"><a class="merke-n" href="#forsering">Forsering F-004</a></div></div>
                   <div class="tall1 " data-navn="Krevd vederlag, kr">190 000</div><div class="tall1 " data-navn="Krevd frist, dager">20</div>
                   <div class="siste2"><b>Brev 8 · TE</b>30. oktober 2026</div>
                 </div>
               </li>
-              <li data-utvalg="eo">
+              <li data-dato="2026-10-25T11:00" data-nr="E-019" data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-019</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Byggherrens medvirkning</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-013</a></div></div>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Manglende medvirkning eller leveranser fra byggherren</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-013</a></div></div>
                   <div class="tall1 " data-navn="Krevd vederlag, kr">85 000</div><div class="tall1 " data-navn="Krevd frist, dager">5</div>
                   <div class="siste2"><b>EO-013 · BH</b>25. oktober 2026</div>
                 </div>
               </li>
-              <li data-utvalg="eo">
+              <li data-dato="2026-10-02T09:15" data-nr="E-018" data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-018</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-009</a></div></div>
@@ -544,7 +568,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="siste2"><b>EO-009 · BH</b>2. oktober 2026</div>
                 </div>
               </li>
-              <li data-utvalg="eo">
+              <li data-dato="2026-09-24T15:20" data-nr="E-012" data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-012</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-010</a></div></div>
@@ -552,7 +576,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="siste2"><b>EO-010 · BH</b>24. september 2026</div>
                 </div>
               </li>
-              <li data-utvalg="ikke-eo">
+              <li data-dato="2026-10-12T12:30" data-nr="E-010" data-utvalg="ikke-eo">
                 <div class="rad">
                   <span class="id">E-010</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Riving av eksisterende kulvert</a><span class="forhold">Irregulær endring</span></div>
@@ -560,7 +584,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="siste2"><b>Brev 4 · BH</b>12. oktober 2026</div>
                 </div>
               </li>
-              <li data-utvalg="trukket">
+              <li data-dato="2026-09-18T10:05" data-nr="E-015" data-utvalg="trukket">
                 <div class="rad">
                   <span class="id">E-015</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Merarbeid ved stillas</a><span class="forhold">Irregulær endring</span><div class="merker"><span class="merke-n">Trukket</span></div></div>
@@ -593,7 +617,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="tall2" data-navn="Frist"><span class="b">5 dager</span></div>
                   <div class="siste2"><b>Omfatter</b>1 sak</div>
                 </div>
-                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-019</span><div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Byggherrens medvirkning</span></div><div class="tall2" data-navn="Vederlag"><span class="k">85 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k">5 dager krevd</span></div></div></div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-019</span><div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Manglende medvirkning eller leveranser fra byggherren</span></div><div class="tall2" data-navn="Vederlag"><span class="k">85 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k">5 dager krevd</span></div></div></div>
               </li>
               <li class="eo-rad">
                 <div class="rad">
@@ -644,10 +668,40 @@ a.merke-n:hover{background:var(--surface-inset)}
   document.querySelectorAll('.merker a[href="#eo"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); velg('eo'); }));
   document.querySelectorAll('.merker a[href="#forsering"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); velg('forsering'); }));
   const ub = [...document.querySelectorAll('.utvalg button')];
-  ub.forEach(b => b.addEventListener('click', () => { ub.forEach(x => x.setAttribute('aria-pressed', String(x === b))); document.querySelectorAll('#koe-rader > li').forEach(li => { li.hidden = b.dataset.u !== 'alle' && li.dataset.utvalg !== b.dataset.u; }); }));
-  // Ankrene er #te og #bh, eventuelt med -eo eller -forsering for fanen.
-  function anker(){ const a = '#' + skall.dataset.rolle.toLowerCase() + (skall.dataset.fane && skall.dataset.fane !== 'koe' ? '-' + skall.dataset.fane : ''); if (location.hash !== a) history.replaceState(null, '', a); }
-  function lesAnker(){ const m = /^#(te|bh)(?:-(eo|forsering))?$/.exec(location.hash); if (m) { vis(m[1].toUpperCase()); velg(m[2] || 'koe'); } }
+  const liste = document.getElementById('koe-rader');
+  const rader = [...liste.children];
+  const sok = document.getElementById('sok');
+  const ingen = document.getElementById('ingen-treff'), ingenTekst = document.getElementById('ingen-treff-tekst');
+  const UTVALG = { eo: 'Ingen saker inngår i en endringsordre.', 'ikke-eo': 'Alle sakene inngår i en endringsordre.', trukket: 'Ingen krav er trukket.' };
+  let utvalg = 'alle';
+  function filtrer(){
+    const q = sok.value.trim().toLowerCase();
+    let synlige = 0;
+    rader.forEach(li => {
+      const iUtvalg = utvalg === 'alle' || li.dataset.utvalg.split(' ').includes(utvalg);
+      const iSok = !q || li.textContent.toLowerCase().includes(q);
+      li.hidden = !(iUtvalg && iSok); if (!li.hidden) synlige++;
+    });
+    ingen.hidden = synlige > 0;
+    if (!synlige) ingenTekst.textContent = q ? `Ingen saker passer med «${sok.value.trim()}».` : UTVALG[utvalg];
+  }
+  ub.forEach(b => b.addEventListener('click', () => { ub.forEach(x => x.setAttribute('aria-pressed', String(x === b))); utvalg = b.dataset.u; filtrer(); }));
+  sok.addEventListener('input', filtrer);
+  document.getElementById('vis-alle').addEventListener('click', () => { sok.value = ''; ub.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.u === 'alle'))); utvalg = 'alle'; filtrer(); });
+  const sb = [...document.querySelectorAll('.sortering button')];
+  function sorter(n){
+    sb.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.sort === n)));
+    const ordnet = [...rader].sort((a, b) => n === 'dato' ? b.dataset.dato.localeCompare(a.dataset.dato) : b.dataset.nr.localeCompare(a.dataset.nr, 'nb', { numeric: true }));
+    ordnet.forEach(li => liste.appendChild(li));
+  }
+  sb.forEach(x => x.addEventListener('click', () => sorter(x.dataset.sort)));
+  sorter('dato');
+  const vt = document.getElementById('vis-tom');
+  function tom(ja){ skall.dataset.tom = ja ? 'ja' : 'nei'; vt.checked = ja; document.getElementById('tomt-prosjekt').hidden = !ja; anker(); }
+  vt.addEventListener('change', () => tom(vt.checked));
+  // Ankrene er #te og #bh, eventuelt med -eo, -forsering eller -tom.
+  function anker(){ const f = skall.dataset.tom === 'ja' ? 'tom' : (skall.dataset.fane && skall.dataset.fane !== 'koe' ? skall.dataset.fane : ''); const a = '#' + skall.dataset.rolle.toLowerCase() + (f ? '-' + f : ''); if (location.hash !== a) history.replaceState(null, '', a); }
+  function lesAnker(){ const m = /^#(te|bh)(?:-(eo|forsering|tom))?$/.exec(location.hash); if (m) { vis(m[1].toUpperCase()); if (m[2] === 'tom') { velg('koe'); tom(true); } else { tom(false); velg(m[2] || 'koe'); } } }
   // Infotipsene: ett åpent om gangen, Escape lukker og gir fokus tilbake.
   const tipsene = [...document.querySelectorAll('.tips .info')];
   function lukk(b){ b.setAttribute('aria-expanded', 'false'); document.getElementById(b.getAttribute('aria-controls')).hidden = true; }
