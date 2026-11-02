@@ -12,6 +12,7 @@ const ingenting = {
   venter_paa_svar: false,
   svar_ikke_godtatt: false,
   kravet_staar: false,
+  har_varsel: false,
 };
 
 describe('CaseListRow', () => {

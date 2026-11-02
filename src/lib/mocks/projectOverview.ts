@@ -82,6 +82,8 @@ function demolinje(sak: SakState): Sakslinje {
     vederlag: {
       ...foreligger(vederlag),
       kravet_staar: harKrav(vederlag) && vederlag.krevd_belop != null && !avsluttet,
+      // Demoen har ingen varsler uten krav.
+      har_varsel: false,
       krav:
         harKrav(vederlag) && vederlag.krevd_belop != null
           ? { beloep: vederlag.krevd_belop, metode: 'tilbud' }
@@ -101,6 +103,7 @@ function demolinje(sak: SakState): Sakslinje {
     frist: {
       ...foreligger(frist),
       kravet_staar: harKrav(frist) && frist.krevd_dager != null && !avsluttet,
+      har_varsel: false,
       krav: harKrav(frist) && frist.krevd_dager != null ? { dager: frist.krevd_dager } : null,
       svar: fristSvar
         ? {

@@ -16,8 +16,22 @@ export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
     saksbetegnelse: null,
     brev_utenfor_appen: false,
     forhold: { ...ingenting, svar: null },
-    vederlag: { ...ingenting, kravet_staar: false, krav: null, svar: null, enighet: null },
-    frist: { ...ingenting, kravet_staar: false, krav: null, svar: null, enighet: null },
+    vederlag: {
+      ...ingenting,
+      kravet_staar: false,
+      har_varsel: false,
+      krav: null,
+      svar: null,
+      enighet: null,
+    },
+    frist: {
+      ...ingenting,
+      kravet_staar: false,
+      har_varsel: false,
+      krav: null,
+      svar: null,
+      enighet: null,
+    },
     ...overstyr,
   };
 }

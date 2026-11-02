@@ -58,8 +58,9 @@ export type Krevd = {
 
 /**
  * Det TE har krevd i sporet: beløpet eller dagene, «Varslet», beregningsregelen eller
- * «Ikke krevd» (MM-U37). En sak kjernen ikke forstår, har ingen
- * celle, så tallene ikke leses som riktige (MM-U2).
+ * «Ikke krevd» (MM-U37). «Varslet» leses av `har_varsel`, ikke av betegnelsen, som er en
+ * annen når byggherren har bedt om spesifisert krav eller sporet er trukket (MM-U30). En
+ * sak kjernen ikke forstår, har ingen celle, så tallene ikke leses som riktige (MM-U2).
  */
 export function krevd(
   linje: Sakslinje,
@@ -69,7 +70,8 @@ export function krevd(
   if (!linje.forstaatt) return null;
   const l = linje[spor];
   const dempet = iEndringsordre || !l.kravet_staar;
-  const merknad = l.betegnelse === 'trukket' && !avsluttetAvTe(linje) ? SAKSLISTE.trukket : null;
+  const trukket = l.betegnelse === 'trukket';
+  const merknad = trukket && !avsluttetAvTe(linje) ? SAKSLISTE.trukket : null;
   if (spor === 'vederlag' && linje.vederlag.krav) {
     const { beloep, metode } = linje.vederlag.krav;
     if (metode !== 'tilbud')
@@ -78,10 +80,12 @@ export function krevd(
   }
   if (spor === 'frist' && linje.frist.krav)
     return { tekst: dager(linje.frist.krav.dager), tall: true, dempet, merknad };
-  if (l.betegnelse === 'varslet')
-    return { tekst: SAKSLISTE.varslet, tall: false, dempet, merknad: null };
+  if (l.har_varsel) return { tekst: SAKSLISTE.varslet, tall: false, dempet, merknad };
   return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, merknad: null };
 }
+
+const varsletOgStaar = (s: Sakslinje['vederlag'] | Sakslinje['frist']): boolean =>
+  s.har_varsel && s.betegnelse !== 'trukket';
 
 export type Noekkeltall = {
   /** `utenBeloep` er krav etter regningsarbeid eller enhetspriser: ukjent er ikke 0 (OV-U43). */
@@ -92,8 +96,9 @@ export type Noekkeltall = {
 /**
  * Kravene i sakene som ikke inngår i en endringsordre (MM-U38). Et
  * krav telles når serveren sier at det står (`kravet_staar`, som utelater trukne krav og saker
- * TE har avsluttet). Krav etter regningsarbeid eller enhetspriser har ikke beløp i lista og
- * telles for seg. Fristdagene summeres ikke.
+ * TE har avsluttet). Et varsel uten krav telles for seg når sporet ikke er trukket. Krav
+ * etter regningsarbeid eller enhetspriser har ikke beløp i lista og telles for seg.
+ * Fristdagene summeres ikke.
  */
 export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): Noekkeltall {
   const n: Noekkeltall = {
@@ -107,9 +112,9 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
       n.vederlag.krav += 1;
       n.vederlag.sum += v.krav.beloep;
     } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;
-    else if (!v.krav && v.betegnelse === 'varslet') n.vederlag.varslet += 1;
+    else if (!v.krav && varsletOgStaar(v)) n.vederlag.varslet += 1;
     if (l.frist.krav && l.frist.kravet_staar) n.frist.krav += 1;
-    else if (!l.frist.krav && l.frist.betegnelse === 'varslet') n.frist.varslet += 1;
+    else if (!l.frist.krav && varsletOgStaar(l.frist)) n.frist.varslet += 1;
   }
   return n;
 }
