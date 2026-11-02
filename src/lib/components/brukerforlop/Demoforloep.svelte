@@ -121,15 +121,16 @@
 
 {#key omstarter + ':' + aapen.demosak.part}
   {#if utenSak && visning === 'varden'}
-    <main class="tema-varden nysak">
-      {#if kvittering}<p class="kvittering" role="status">{kvittering}</p>{/if}
-      <NySak
-        sakId={aapen.demosak.sakId}
-        send={aapen.demosak.opprett}
-        onsendt={opprettet}
-        onavbrutt={avbrutt}
-      />
-    </main>
+    <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} {kvittering}>
+      {#snippet nySak()}
+        <NySak
+          sakId={aapen.demosak.sakId}
+          send={aapen.demosak.opprett}
+          onsendt={opprettet}
+          onavbrutt={avbrutt}
+        />
+      {/snippet}
+    </Vardensak>
   {:else if utenSak}
     <p class="laster">Skjemaet for ny sak er bare laget i Varden.</p>
   {:else if visning === 'varden'}
@@ -224,15 +225,6 @@
 {/if}
 
 <style>
-  .nysak {
-    min-height: 100vh;
-    padding: var(--spacing-10) var(--spacing-6);
-    background: var(--surface);
-    color: var(--ink);
-  }
-  .kvittering {
-    margin: 0 0 var(--spacing-6);
-  }
   .laster {
     padding: var(--spacing-10);
     color: var(--ink-2);

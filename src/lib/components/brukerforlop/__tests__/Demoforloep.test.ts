@@ -108,6 +108,24 @@ describe('demoruta for brukerforløpet BF-01', () => {
     expect(screen.queryByRole('complementary', { name: 'Demo av brukerforløpet' })).toBeNull();
   });
 
+  // Oppdragsgiver 02.11 i PR #1492: skjemaet for ny sak står i skallet i Varden, med panelet
+  // og topplinja, og bare TE kan sende det (BF-05).
+  it('BF-05: skjemaet for ny sak står i skallet i Varden, og siden kan ikke byttes før saken finnes', async () => {
+    const bf05 = finnForloep('BF-05')!;
+    render(Demoforloep, {
+      forloep: bf05,
+      punkt: bf05.kontrollpunkter[0].id,
+      visning: 'varden',
+      onpunkt: () => {},
+    });
+    expect(await screen.findByRole('heading', { name: 'Nytt krav om endringsordre' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Kontrakten' })).toBeTruthy();
+    expect(screen.getByText('Du er totalentreprenør (TE)')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Kopier lenke' })).toBeNull();
+    expect(screen.queryByRole('radiogroup', { name: 'Du handler som' })).toBeNull();
+    expect(screen.queryByText('Du handler som')).toBeNull();
+  });
+
   it('BH sender svaret, TE ser akkurat det svaret og godtar det, og kontrollene ved kontrollpunktene holder', async () => {
     const forloep = somForloep(BF);
     const punkt = kontrollpunkt(BF, 'bh-har-mottatt-vederlagskravet');
