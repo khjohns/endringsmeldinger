@@ -68,20 +68,22 @@ export function utledetMed(
 }
 
 /**
- * Avvisningen kjernen gir kravet mot en ny sak med bare opprettelsen, eller `null`.
- * Reglene for kravet, som datoen etter brevet (VS-U26), prøves da før saken
- * opprettes, så en avvisning etterlater ingen sak uten krav (#711).
+ * Brevet kjernen lager for kravet mot en ny sak med bare opprettelsen: teksten, eller
+ * avvisningen. Kravet vurderes med `sendes` slik serveren vurderer det, med kravet til
+ * beskrivelsen (GR-U15) og vedleggene kommandoen viser til, så en avvisning står ved
+ * feltet før brevkontrollen og etterlater ingen sak uten krav (#711, #1271, KT-U11).
+ * Teksten har saksnummeret, så den gjelder bare for `sakId` saken faktisk får.
  */
 export function kravMotNySak(
   opprettelse: Record<string, unknown>,
   krav: Record<string, unknown>,
   part: Part,
-  kjerne: Kjerne
-): Avvisning | null {
+  kjerne: Kjerne,
+  vedlegg?: Vedleggsoppslag,
+  sakId: string = crypto.randomUUID()
+): Brev {
   const opprettet = opprett(opprettelse, part);
-  if (!opprettet.godtatt) return opprettet.avvisning;
-  const sakId = crypto.randomUUID();
-  // Raden serveren skriver for opprettelsen, i versjon 1.
+  if (!opprettet.godtatt) return { avvisning: opprettet.avvisning };
   const rad: Journalrad = {
     event_id: crypto.randomUUID(),
     sak_id: sakId,
@@ -95,6 +97,5 @@ export function kravMotNySak(
     format: opprettet.format,
     data: opprettet.data,
   };
-  const brev = brevFor(krav, sakId, part, [rad], kjerne);
-  return 'avvisning' in brev ? brev.avvisning : null;
+  return brevFor(krav, sakId, part, [rad], kjerne, vedlegg ?? new Map(), true);
 }

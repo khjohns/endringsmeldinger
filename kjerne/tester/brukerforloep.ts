@@ -50,7 +50,11 @@ export type Brukerforloep = {
   tittel: string;
   brukerhistorie: string;
   status: Status;
-  utgangspunkt: { start: string | null; beskrivelse: string };
+  /**
+   * `opprettes`: saken opprettes med det første steget (KT-U11), så kontrollpunktet etter 0
+   * er før opprettelsen og får versjon 0 i startjournalen. Kjøringen har saken fra start.
+   */
+  utgangspunkt: { start: string | null; beskrivelse: string; opprettes?: boolean };
   steg?: Handling[];
   kontrollpunkter?: Kontrollpunkt[];
   /** Vedtakene et planlagt forløp bygger på. */
@@ -245,7 +249,9 @@ export async function startjournal(b: Brukerforloep): Promise<Startjournal> {
   const versjoner: number[] = [];
   for (const p of b.kontrollpunkter ?? []) {
     const { bane } = await kjoerBrukerforloep(b, { til: p.id });
-    versjoner.push((await bane.journal()).at(-1)!.versjon);
+    versjoner.push(
+      b.utgangspunkt.opprettes && p.etter === 0 ? 0 : (await bane.journal()).at(-1)!.versjon
+    );
   }
   const { bane } = await kjoerBrukerforloep(b);
   return {

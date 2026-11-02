@@ -198,9 +198,12 @@
     });
     if (!createdCase) {
       if (!ventendeOpprettelse) {
-        // #711: kravet prøves før saken opprettes, så en avvisning etterlater ingen sak uten krav.
-        const avvist = kravMotNySak(opprettelse(tittel), kommando, 'TE', KJERNE);
-        if (avvist) throw avvisningFoerBrevet({ avvisning: avvist })!;
+        // #711, #1271: kravet prøves med `sendes` før saken opprettes, så en avvisning
+        // etterlater ingen sak uten krav. Kravet binder ingen vedlegg, så oppslaget er tomt.
+        const hindring = avvisningFoerBrevet(
+          kravMotNySak(opprettelse(tittel), kommando, 'TE', KJERNE, new Map())
+        );
+        if (hindring) throw hindring;
       }
       const forsoek = (ventendeOpprettelse ??= {
         kommandoId: nyKommandoId(),
@@ -228,7 +231,7 @@
     let lagret;
     if (ventendeKrav) lagret = await sak.provIgjen();
     else {
-      const brev = sak.brev(kommando);
+      const brev = sak.brev(kommando, new Map(), true);
       const hindring = brev && avvisningFoerBrevet(brev);
       if (hindring) throw hindring;
       const tekst = brev && 'tekst' in brev ? brev.tekst : null;

@@ -8,7 +8,9 @@
    */
   import { ChevronRight } from 'lucide-svelte';
   import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
+  import NySak from '$lib/components/varden/NySak.svelte';
   import Vardensak from '$lib/components/varden/Vardensak.svelte';
+  import { NYSAK } from '$lib/components/varden/prototypetekst';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import {
     DEMOKONTRAKT,
@@ -69,8 +71,14 @@
     return kjernesak;
   }
 
+  // Et forløp som oppretter saken (BF-05), starter med skjemaet for ny sak (KT-U11).
+  let utenSak = $state(false);
+  let kvittering = $state<string | undefined>(undefined);
+
   function aapne() {
     const demosak = lagDemosak(forloep, punkt, startside());
+    utenSak = demosak.journal().length === 0;
+    kvittering = undefined;
     const kjernesak = kjernesakFor(demosak);
     onstart?.(demosak, kjernesak);
     return { demosak, kjernesak };
@@ -78,7 +86,7 @@
 
   let aapen = $state.raw(aapne());
   // Neste steg og forståelsen gjelder bare saken slik den er ved kontrollpunktet.
-  const versjon = $derived(aapen.kjernesak.versjon);
+  const versjon = $derived(utenSak ? 0 : aapen.kjernesak.versjon);
   const vedPunktet = $derived(versjon === kontrollpunkt.versjon);
   let view = $state<WorkspaceView>({ track: 'ansvar', mode: 'read', role: startside() });
   let omstarter = $state(0);
@@ -86,8 +94,20 @@
   function byttSide(part: Part) {
     if (part === aapen.demosak.part) return;
     aapen.demosak.part = part;
+    kvittering = undefined;
     aapen = { demosak: aapen.demosak, kjernesak: kjernesakFor(aapen.demosak) };
     view = { ...view, mode: 'read', role: part };
+  }
+
+  function opprettet() {
+    utenSak = false;
+    aapen = { demosak: aapen.demosak, kjernesak: kjernesakFor(aapen.demosak) };
+    kvittering = NYSAK.kvittering;
+  }
+
+  function avbrutt() {
+    startPaaNytt();
+    kvittering = NYSAK.avbrutt;
   }
 
   function startPaaNytt() {
@@ -100,8 +120,21 @@
 <svelte:head><title>{forloep.id} — demo av brukerforløpet</title></svelte:head>
 
 {#key omstarter + ':' + aapen.demosak.part}
-  {#if visning === 'varden'}
-    <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} />
+  {#if utenSak && visning === 'varden'}
+    <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} {kvittering}>
+      {#snippet nySak()}
+        <NySak
+          sakId={aapen.demosak.sakId}
+          send={aapen.demosak.opprett}
+          onsendt={opprettet}
+          onavbrutt={avbrutt}
+        />
+      {/snippet}
+    </Vardensak>
+  {:else if utenSak}
+    <p class="laster">Skjemaet for ny sak er bare laget i Varden.</p>
+  {:else if visning === 'varden'}
+    <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} {kvittering} saksliste="/demo" />
   {:else if aapen.kjernesak.saksbilde}
     <Kjernesakrom
       kjernesak={aapen.kjernesak}
@@ -147,18 +180,21 @@
           </div>
         {/if}
 
-        <div class="felt">
-          <span class="etikett">Du handler som</span>
-          <SegmentedControl
-            value={aapen.demosak.part}
-            label="Du handler som"
-            options={[
-              { id: 'TE', label: 'TE' },
-              { id: 'BH', label: 'BH' },
-            ]}
-            onchange={byttSide}
-          />
-        </div>
+        <!-- Skjemaet for ny sak sendes av TE (BF-05), så siden byttes først når saken finnes. -->
+        {#if !utenSak}
+          <div class="felt">
+            <span class="etikett">Du handler som</span>
+            <SegmentedControl
+              value={aapen.demosak.part}
+              label="Du handler som"
+              options={[
+                { id: 'TE', label: 'TE' },
+                { id: 'BH', label: 'BH' },
+              ]}
+              onchange={byttSide}
+            />
+          </div>
+        {/if}
 
         {#if versjon !== null && !vedPunktet}
           <p class="neste">

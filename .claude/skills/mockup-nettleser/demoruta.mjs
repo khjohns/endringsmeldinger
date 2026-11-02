@@ -57,7 +57,8 @@ function globalPlaywright() {
 
 async function startNettleser(chromium, start) {
   try {
-    return await chromium.launch(start);
+    // Datofeltet følger `LANG` i prosessen, ikke `locale` i konteksten eller `--lang`.
+    return await chromium.launch({ ...start, env: { ...process.env, LANG: 'nb_NO.UTF-8' } });
   } catch (e) {
     throw new Error(`${e.message}\nNettleseren startet ikke. Kjør ikke «playwright install»; oppsettet står i ${NETTLESEROPPSETT}.`);
   }
@@ -102,14 +103,17 @@ const ETIKETTER = (
     .standpunkt ?? 'prinsipalt'
 ).match(/videre subsidiært|subsidiært|prinsipalt/g);
 const VARDEN = arg.visning === 'varden';
-if (!punktet('bh-har-mottatt-vederlagskravet'))
+// Et forløp som oppretter saken (BF-05), starter med TEs skjema for ny sak.
+const NY_SAK = Boolean(FORLOEP.utgangspunkt?.opprettes);
+if (NY_SAK && !VARDEN) throw new Error(`${arg.forlop} oppretter saken, og skjemaet finnes bare i Varden`);
+if (!NY_SAK && !punktet('bh-har-mottatt-vederlagskravet'))
   throw new Error(`${arg.forlop} har ikke kontrollpunktet bh-har-mottatt-vederlagskravet`);
 // Lagene foran beløpet, som er det siste laget: forholdet når BH har avslått det, og varselet.
 const FORUTSETNINGER = [
   ...(punktet('forholdet-er-avslaatt') ? [/avslaget av forholdet/] : []),
   /innsigelsen om sen varsling/,
 ];
-if (FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'prinsipalt' ? 1 : 0))
+if (!NY_SAK && FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'prinsipalt' ? 1 : 0))
   throw new Error(`Lagene ${ETIKETTER.join(', ')} i ${arg.forlop} passer ikke med forutsetningene skriptet venter`);
 const forloep = (punkt) =>
   `${arg.url}/demo/${arg.forlop}?punkt=${punkt ?? 'start'}${VARDEN ? '&visning=varden' : ''}`;
@@ -130,12 +134,15 @@ const feil = [];
 
 try {
   browser = await startNettleser(chromium, start);
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  // Norsk språk, så datofeltet viser dd.mm.åååå som for brukerne (oppdragsgiver 02.11, #1492).
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, locale: 'nb-NO' });
   page.setDefaultTimeout(30000);
   page.on('pageerror', (e) => feil.push(e.message));
   let nr = 0;
   const steg = async (navn, fullPage = false) => {
     const fil = join(arg.utdata, `${String(++nr).padStart(2, '0')}-${navn}.png`);
+    // Panelet til venstre er klebrig, så et helsidebilde tas fra toppen av siden.
+    if (fullPage) await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: fil, fullPage });
     console.log(`${nr}. ${navn} → ${fil}`);
   };
@@ -151,7 +158,68 @@ try {
     if ((await demo.getAttribute('open')) !== null !== aapent) await demo.locator('summary').first().click();
   };
 
-  if (VARDEN) {
+  if (NY_SAK) {
+  const SAKSTITTEL = 'Teglforblending på fasaden';
+  await page.goto(forloep(), { waitUntil: 'networkidle' });
+  await page.getByRole('heading', { name: 'Nytt krav om endringsordre', level: 1 }).waitFor();
+  await steg('ny-sak', true);
+
+  // Steg 3f: feilene står ved feltet før brevkontrollen, og ingen sak er opprettet (F-4, U-5).
+  await knapp('Se brevet før sending').click();
+  await page.getByRole('group', { name: 'Det mangler noe før du kan se brevet' }).waitFor();
+  await steg('ny-feil', true);
+
+  await page.getByRole('button', { name: 'Endringer, jf. punkt 31 og 32' }).click();
+  await page.getByRole('radio', { name: /^Irregulær endring/ }).click();
+  await page.getByLabel('Tittel på saken').fill(SAKSTITTEL);
+  await page.getByLabel('Dato du mottok pålegget').fill('2026-09-15');
+  await knapp('Se brevet før sending').click();
+  // Kjernen avviser påberopelsen uten beskrivelse (GR-U15), og feilen står ved feltet.
+  await page.locator('p.feil', { hasText: 'Beskriv pålegget.' }).waitFor();
+  await steg('ny-feil-beskrivelse', true);
+
+  await page
+    .getByLabel('Beskrivelse av pålegget')
+    .fill('Byggherren påla i byggemøtet 15. september 2026 teglforblending i stedet for platekledning.');
+  // Steg 4 og 4a: ja, med varselet som alt er sendt (D-8, OV-U79). Det kan ikke legges til før
+  // lagringen finnes (#807, #1487), så TE går tilbake til nei.
+  await page.getByRole('radio', { name: 'Ja', exact: true }).check();
+  await page.getByRole('radio', { name: 'Brev', exact: true }).check();
+  await page.getByRole('radio', { name: 'Som PDF i e-post', exact: true }).check();
+  await page.getByLabel('Datoen det ble sendt').fill('2026-09-16');
+  await page.getByLabel('Kort beskrivelse av varselet').fill('Varsel om endring på byggherrens skjema, sendt etter byggemøtet.');
+  await steg('annen-maate', true);
+  await knapp('Se brevet før sending').click();
+  await page.locator('p.feil', { hasText: 'Varselet kan ikke legges til i saken ennå' }).waitFor();
+  await steg('annen-maate-stanset', true);
+  await page.getByRole('radio', { name: 'Nei', exact: true }).check();
+
+  // Steg 5: brevkontrollen, tilbake uten å miste det som er skrevet, og sending.
+  await knapp('Se brevet før sending').click();
+  await page.getByRole('region', { name: 'Sending' }).waitFor();
+  await page.getByText('Påberopelse av irregulær endring').first().waitFor();
+  await steg('brev', true);
+  await knapp('Tilbake til skjemaet').click();
+  if ((await page.getByLabel('Tittel på saken').inputValue()) !== SAKSTITTEL)
+    throw new Error('Tittelen ble borte da TE gikk tilbake fra brevkontrollen');
+  await knapp('Se brevet før sending').click();
+  await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+  await knapp('Send til byggherren').click();
+
+  // Steg 6: saken står med påberopelsen sendt, og kvitteringen sier at brevet sendes til Catenda (F-6).
+  await page.getByRole('heading', { name: SAKSTITTEL, level: 1 }).waitFor();
+  await page.getByText('Brevet sendes til Catenda.').waitFor();
+  await steg('sendt', true);
+
+  // Steg 5a: avbryter TE, finnes ingen sak.
+  await demopanel(true);
+  await knapp('Start på nytt').click();
+  await demopanel(false);
+  await knapp('Avbryt').click();
+  await knapp('Ja, slett det du har skrevet').click();
+  await page.getByText('Brevet er ikke sendt, og ingen sak er opprettet.').waitFor();
+  await steg('avbrutt', true);
+  } else if (VARDEN) {
   const article = (name) => page.getByRole('article', { name });
 
   await page.goto(forloep(), { waitUntil: 'networkidle' });

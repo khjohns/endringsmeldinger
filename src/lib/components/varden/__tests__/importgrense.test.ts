@@ -29,6 +29,12 @@ const MODULER = new Set(
     // Prosjektet frontenden alt henter, med partsnavnene (#1398). Ingen regel.
     'stores/project.svelte',
     'components/kontraktsbord/theme.css',
+    // Katalogen over kontraktens forhold og regelteksten ved det valgte forholdet, som
+    // dagens skjema viser (arbeidsvalg 02.11 i #1481). Ingen regel.
+    'constants/categories',
+    'constants/kontraktsregler',
+    // Brevet kjernen lager for påberopelsen mot en ny sak (#1271). Kaller bare kjernen.
+    'kjernesak/brevtekst',
   ].map((m) => join(LIB, m))
 );
 // Logoen i panelet, som dagens visning bruker. Ingen regel.
