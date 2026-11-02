@@ -228,6 +228,13 @@ FEILINNFOERINGER = [
     ("S58", "summen for den nye saken utelater saks-ID-en (#418, #1487)", "server/app.ts",
      "rute: 'ny_sak', ny_sak_id: sakId,", "rute: 'ny_sak',",
      "samme kommando-ID med samme innhold gir samme svar uten ny sak"),
+    ("S59", "ukjente felt i kroppen for den nye saken godtas (#1487)", "server/app.ts",
+     "!NY_SAK.has(k));\n  if (ukjente.length) return",
+     "!NY_SAK.has(k));\n  if (false) return",
+     "avviser et ukjent felt med 400"),
+    ("S60", "påberopelsen får tittelen utrimmet, mens sakstittelen trimmes (LV-U43, #1487)", "server/app.ts",
+     "  const tittel = oppgittTittel.trim();", "  const tittel = oppgittTittel;",
+     "tittelen trimmes likt"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

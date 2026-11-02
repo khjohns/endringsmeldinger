@@ -505,10 +505,12 @@ async function opprettMedPaaberopelse(
   if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
   const id = kommandoId(kropp);
   if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');
-  const { ny_sak_id: sakId, tittel, paaberopelse, brevtekst } = kropp;
+  const { ny_sak_id: sakId, tittel: oppgittTittel, paaberopelse, brevtekst } = kropp;
   if (typeof sakId !== 'string' || !UUID.test(sakId))
     return ugyldig('ny_sak_id mangler eller er ikke en UUID med små bokstaver.');
-  if (typeof tittel !== 'string') return ugyldig('tittel mangler eller er ikke en tekst.');
+  if (typeof oppgittTittel !== 'string') return ugyldig('tittel mangler eller er ikke en tekst.');
+  // Kjernen lagrer sakstittelen trimmet, så påberopelsen får samme verdi (LV-U43).
+  const tittel = oppgittTittel.trim();
   if (!erObjekt(paaberopelse) || paaberopelse.type !== 'krav' || paaberopelse.spor !== 'forhold')
     return ugyldig('paaberopelse må være et krav i sporet forhold.');
   if (!erObjekt(paaberopelse.innhold) || 'tittel' in paaberopelse.innhold)
