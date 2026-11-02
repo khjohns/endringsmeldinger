@@ -52,6 +52,24 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
+  it('F-4: feilen for forholdet står under hjelpeteksten, før listen over forholdene', async () => {
+    aapne();
+    await seBrevet();
+    const feilen = screen
+      .getAllByText('Velg forholdet.')
+      .find((e) => e.tagName === 'P') as HTMLElement;
+    const forste = screen.getAllByRole('radio')[0];
+    expect(feilen.compareDocumentPosition(forste) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('WCAG 4.1.3: antallet forhold som passer med søket, leses opp', async () => {
+    aapne();
+    await fireEvent.input(screen.getByRole('searchbox'), { target: { value: 'finnes ikke' } });
+    expect(screen.getByRole('status').textContent).toContain('Ingen forhold passer med søket.');
+    await fireEvent.input(screen.getByRole('searchbox'), { target: { value: 'irregulær' } });
+    expect(screen.getByRole('status').textContent).toContain('Ett forhold passer med søket.');
+  });
+
   it('D-2/GR-U15: kjernen avviser påberopelsen uten beskrivelse, og feilen står ved feltet', async () => {
     const { send } = aapne();
     await fyllIrregulaerEndring({ beskrivelse: '' });

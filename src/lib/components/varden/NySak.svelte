@@ -64,6 +64,7 @@
       hjemler: g.hjemler.filter((h) => treff(g.label, h.label, h.hjemmel_basis, h.beskrivelse)),
     })).filter((g) => g.hjemler.length)
   );
+  const antallTreff = $derived(grupper.reduce((n, g) => n + g.hjemler.length, 0));
 
   function velg(gruppe: string, kode: string) {
     forhold = { gruppe, kode };
@@ -192,6 +193,7 @@
     >
       <legend>{NYSAK.forholdet}</legend>
       <p class="hjelp" id={id('forhold-hjelp')}>{NYSAK.forholdetHjelp}</p>
+      {#if feil.forhold}<p class="feil" id={id('forhold-feil')}>{feil.forhold}</p>{/if}
       {#if valgt && !velgerAapen}
         <div class="valgt">
           <div>
@@ -211,6 +213,9 @@
           <span class="etikett">{NYSAK.sok}</span>
           <input type="search" bind:value={sok} />
         </label>
+        <p class="visually-hidden" role="status">
+          {sok.trim() ? NYSAK.antallTreff(antallTreff) : ''}
+        </p>
         {#each grupper as g (g.kode)}
           <div class="gruppe" role="radiogroup" aria-label={g.label}>
             <p class="gruppenavn">{g.label} <span class="punkt">pkt. {g.hjemmel_frist}</span></p>
@@ -233,7 +238,6 @@
           <p class="hjelp">{NYSAK.ingenTreff}</p>
         {/each}
       {/if}
-      {#if feil.forhold}<p class="feil" id={id('forhold-feil')}>{feil.forhold}</p>{/if}
       <p class="staarfast">{NYSAK.staarFast}</p>
     </fieldset>
 
@@ -374,8 +378,8 @@
   input:not([type='radio']),
   textarea {
     font: inherit;
-    padding: var(--spacing-4);
-    border: var(--rule);
+    padding: var(--spacing-3);
+    border: var(--control-border);
     border-radius: var(--r-felt);
     background: var(--surface);
     color: var(--ink);

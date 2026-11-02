@@ -332,6 +332,12 @@ export const NYSAK = {
   forholdetHjelp: 'Velg bestemmelsen i kontrakten pålegget eller forholdet faller inn under.',
   sok: 'Søk etter forhold eller punkt',
   ingenTreff: 'Ingen forhold passer med søket.',
+  antallTreff: (n: number) =>
+    n === 0
+      ? 'Ingen forhold passer med søket.'
+      : n === 1
+        ? 'Ett forhold passer med søket.'
+        : `${n} forhold passer med søket.`,
   endre: 'Endre',
   staarFast:
     'Forholdet står fast når brevet er sendt. Vil du påberope et annet forhold senere, oppretter du en ny sak.',
