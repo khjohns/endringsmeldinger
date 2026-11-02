@@ -14,7 +14,8 @@
   En krevd celle sier «Varslet» når TE har varslet uten tall, og «Regningsarbeid» eller
   «Enhetspriser» når kravet følger en beregningsregel. Da er det ikke noe beløp (OV-U43, OV-U5).
   En sak der TE har godtatt avslaget på forholdet, telles som trukket. Saker som inngår i en
-  endringsordre, er ikke med i summene for kravene; vederlaget står i endringsordren. Beløpene
+  endringsordre, er ikke med i summene for kravene, og tallene deres er dempet; vederlaget står i
+  endringsordren. Nøkkeltallene har ett kort per spor, med kravene og endringsordrene side om side. Beløpene
   er eks. mva. «Til godkjenning hos deg» kommer tilbake når godkjenningsflyten er bygget.
   Ankrene er #te og #bh, og #eo eller #forsering kan legges til, som #bh-eo. #te-tom og #bh-tom
   viser prosjektet uten saker. Lista er sortert etter siste brev, nyeste først.
@@ -278,13 +279,6 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .liste-hode .over{font-size:12px;color:var(--ink-3)}
 .liste-hode h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
 .hode-knapper{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.tallrad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:20px 20px 20px;border:1px solid var(--rule-color);border-radius:6px}
-.tallrad > div{padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.tallrad > div + div{border-left:1px solid var(--rule-color)}
-.tallrad .tl{font-size:14px;color:var(--ink-2)}
-.tallrad .tv{font-family:var(--font-mono);font-size:22px;font-weight:500;letter-spacing:-.01em}
-.tallrad .tv small{font-size:14px;margin-left:4px;color:var(--ink-2)}
-.tallrad .tf{font-size:14px;color:var(--ink-3)}
 .info{all:unset;cursor:help;display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:11px;font-weight:600;color:var(--ink-2);margin-left:6px;vertical-align:1px}
 .faner{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--rule-color);overflow-x:auto}
 .faner button{all:unset;cursor:pointer;padding:12px 4px;margin-right:16px;font-weight:500;color:var(--ink-2);border-bottom:2px solid transparent;white-space:nowrap}
@@ -344,8 +338,6 @@ a.merke-n:hover{background:var(--surface-inset)}
   .tall2{flex-direction:row;flex-wrap:wrap;gap:2px 8px}
   .tall2::before{content:attr(data-navn);font-size:12px;font-weight:600;color:var(--ink-3);width:100%}
   .under{padding-left:20px}
-  .tallrad{grid-template-columns:1fr}
-  .tallrad > div + div{border-left:0;border-top:1px solid var(--rule-color)}
 }
 
 [data-rolle="TE"] .kun-bh-blokk{display:none}
@@ -392,12 +384,9 @@ a.merke-n:hover{background:var(--surface-inset)}
 .tall1{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:14px;color:var(--ink);text-align:right;white-space:nowrap}
 .tall1 .tomt,.tall1 .art{font-family:var(--font-sans);font-size:12px;color:var(--ink-3);white-space:normal}
 .tall1.dempet{color:var(--ink-3)}
+.tall1.dempet .art{color:var(--ink-3)}
 .uten{grid-column:3 / span 2;font-size:12px;color:var(--ink-3);padding-top:2px}
 /* Nøkkeltallene */
-.tallrad{grid-template-columns:repeat(3,minmax(0,1fr))}
-.tallrad .tv{font-size:20px}
-.tallrad .tl{display:flex;align-items:center}
-.tallrad .tv small{font-size:12px;font-family:var(--font-sans);color:var(--ink-3)}
 .tallnote{margin:-8px 20px 16px;font-size:12px;color:var(--ink-3)}
 /* Infotipset åpnes med klikk eller tastatur og lukkes med Escape */
 .tips{position:relative;display:inline-block;text-transform:none;letter-spacing:0;font-weight:400}
@@ -410,7 +399,6 @@ a.merke-n:hover{background:var(--surface-inset)}
   #innhold-koe .rad{grid-template-columns:52px minmax(0,1fr);gap:6px 12px}
   #innhold-koe .rad > .tall1,#innhold-koe .rad > .uten{grid-column:2;display:flex;justify-content:space-between;gap:12px;text-align:right}
   #innhold-koe .rad > .tall1::before{content:attr(data-navn);font-family:var(--font-sans);font-size:12px;color:var(--ink-3);text-align:left}
-  .tallrad{grid-template-columns:1fr}
 }
 .sortering{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .sort-etikett{font-size:12px;color:var(--ink-3);margin-right:2px}
@@ -425,11 +413,29 @@ a.merke-n:hover{background:var(--surface-inset)}
 .tom-prosjekt{margin:8px 20px 24px;padding:40px 24px;border:1px dashed var(--rule-strong-color);border-radius:var(--r-innfelt);display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 .tom-prosjekt .tom-tittel{font-size:16px;font-weight:600;color:var(--ink)}
 .tom-prosjekt p{font-size:14px;color:var(--ink-2)}
-.skall[data-tom="ja"] #innhold-koe,.skall[data-tom="ja"] .tallrad,.skall[data-tom="ja"] .tallnote{display:none}
+.skall[data-tom="ja"] #innhold-koe,.skall[data-tom="ja"] .noekkel,.skall[data-tom="ja"] .tallnote{display:none}
 .tom-prosjekt[hidden],.tom-liste[hidden]{display:none}
 .radhode .enhet{font-weight:400;text-transform:none;letter-spacing:0}
 .demo-valg{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;min-height:32px;margin-left:12px}
 .demo-valg input{accent-color:var(--brand);width:16px;height:16px;margin:0}
+/* Nøkkeltallene: ett kort per spor, kravene og endringsordrene med samme vekt */
+.noekkel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 20px 16px}
+.spor-kort{border:1px solid var(--rule-color);border-radius:var(--r-innfelt);padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.spor-tittel{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink)}
+.spor-tittel .enhet{font-size:12px;font-weight:400;color:var(--ink-3)}
+.spor-tittel .tips{margin-left:auto}
+.spor-tittel .info{margin-left:0}
+.halvdeler{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.halv{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.halv + .halv{border-left:1px solid var(--rule-subtle-color);padding-left:16px}
+.halv .hl{font-size:12px;color:var(--ink-2)}
+.halv .hv{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:20px;font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.3}
+.halv .hv small{font-family:var(--font-sans);font-size:12px;font-weight:400;color:var(--ink-3);margin-left:4px}
+.hm{all:unset;cursor:pointer;font-size:12px;color:var(--ink-3);text-decoration:underline;text-decoration-color:var(--rule-strong-color);text-underline-offset:3px;min-height:24px;display:inline-flex;align-items:center}
+.hm:hover{color:var(--ink);text-decoration-color:currentColor}
+.hm:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px;border-radius:2px}
+@media (max-width:900px){.noekkel{grid-template-columns:1fr}}
+.kontrakten .mva{font-family:var(--font-sans);font-size:12px;color:var(--sidebar-muted)}
 </style>
 </head>
 <body>
@@ -459,7 +465,7 @@ a.merke-n:hover{background:var(--surface-inset)}
       <h2 class="etikett" id="kontrakt-etikett">Kontrakten</h2>
       <dl>
         <div><dt>Kontraktsform</dt><dd>Totalentreprise NS 8407</dd></div>
-        <div><dt>Kontraktssum</dt><dd class="num">48 500 000 kr</dd></div>
+        <div><dt>Kontraktssum</dt><dd class="num">48 500 000 kr <span class="mva">eks. mva.</span></dd></div>
         <div><dt>Sluttfrist</dt><dd>15. juni 2027</dd></div>
         <div><dt>Totalentreprenør</dt><dd>Totalentreprenør AS</dd></div>
       </dl>
@@ -495,10 +501,21 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <span class="kun-bh"><a class="knapp primaer" href="#" style="text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Ny endringsordre</a></span>
               </div>
             </div>
-            <div class="tallrad kun-fane f-koe" aria-label="Tallene for sakene">
-              <div><span class="tl">Krevd vederlag<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-v" aria-label="Om tallene">i</button><span class="lapp" id="tips-v" role="note" hidden>Summen av kravene med beløp i sakene som ikke inngår i en endringsordre. Vederlaget i de andre sakene står i endringsordren. Krav etter regningsarbeid eller enhetspriser har ikke beløp og er ikke med. Saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.</span></span></span><span class="tv">610 000<small>kr eks. mva.</small></span><span class="tf">2 krav · 1 varslet · saker utenfor EO</span></div>
-              <div><span class="tl">Vederlag i alle endringsordrene<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-eo" aria-label="Om tallet">i</button><span class="lapp" id="tips-eo" role="note" hidden>Alle endringsordrene i prosjektet, også dem som ikke omfatter et krav om endringsordre. Fradrag trekkes fra. Endringsordrene står på fanen Endringsordrer.</span></span></span><span class="tv">350 000<small>kr eks. mva.</small></span><span class="tf">5 EO · 1 er regningsarbeid uten beløp</span></div>
-              <div><span class="tl">Krav om fristforlengelse<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-f" aria-label="Om tallene">i</button><span class="lapp" id="tips-f" role="note" hidden>Kravene i sakene som ikke inngår i en endringsordre, og endringsordrene som gir fristforlengelse. Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.</span></span></span><span class="tv">2<small>krav</small></span><span class="tf">1 varslet · 2 EO</span></div>
+            <div class="noekkel kun-fane f-koe" aria-label="Tallene for prosjektet">
+              <section class="spor-kort" aria-labelledby="nk-v">
+                <h2 class="spor-tittel" id="nk-v">Vederlag <span class="enhet">kr eks. mva.</span><span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-v" aria-label="Om tallene">i</button><span class="lapp" id="tips-v" role="note" hidden>Kravene er summen av kravene med beløp i sakene som ikke inngår i en endringsordre. Krav etter regningsarbeid eller enhetspriser har ikke beløp og er ikke med, heller ikke saker som TE har avsluttet. Endringsordrene er alle endringsordrene i prosjektet, også dem uten krav om endringsordre. Fradrag trekkes fra. Krav i flere saker kan gjelde samme kostnad.</span></span></h2>
+                <div class="halvdeler">
+                  <div class="halv"><span class="hl">Krevd utenfor EO</span><span class="hv">610 000</span><button type="button" class="hm" data-filter="ikke-eo">2 krav · 1 varslet</button></div>
+                  <div class="halv"><span class="hl">I endringsordrene</span><span class="hv">350 000</span><button type="button" class="hm" data-fane-til="eo">5 EO · 1 uten beløp</button></div>
+                </div>
+              </section>
+              <section class="spor-kort" aria-labelledby="nk-f">
+                <h2 class="spor-tittel" id="nk-f">Fristforlengelse<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-f" aria-label="Om tallene">i</button><span class="lapp" id="tips-f" role="note" hidden>Antall krav i sakene som ikke inngår i en endringsordre, og antall endringsordrer som gir fristforlengelse. Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.</span></span></h2>
+                <div class="halvdeler">
+                  <div class="halv"><span class="hl">Krevd utenfor EO</span><span class="hv">2<small>krav</small></span><button type="button" class="hm" data-filter="ikke-eo">1 varslet</button></div>
+                  <div class="halv"><span class="hl">I endringsordrene</span><span class="hv">2<small>EO</small></span><button type="button" class="hm" data-fane-til="eo">av 5 EO</button></div>
+                </div>
+              </section>
             </div>
             <p class="tallnote kun-fane f-koe">1 sak er ikke med i tallene, fordi oversikten ikke forstår den.</p>
 
@@ -529,7 +546,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-031</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><a class="merke-n" href="#">Fra E-027</a><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva."><span class="tomt">Ikke krevd</span></div><div class="tall1 " data-navn="Krevd frist, dager"><span class="art">Varslet</span></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="tomt">Ikke krevd</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager"><span class="art">Varslet</span></div>
                   <div class="siste2"><b>EO-012 · BH</b>30. oktober 2026</div>
                 </div>
               </li>
@@ -545,7 +562,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-027</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva.">420 000</div><div class="tall1 " data-navn="Krevd frist, dager">15</div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva.">420 000</div><div class="tall1 dempet" data-navn="Krevd frist, dager">15</div>
                   <div class="siste2"><b>EO-012 · BH</b>30. oktober 2026</div>
                 </div>
               </li>
@@ -569,7 +586,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-019</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Manglende medvirkning eller leveranser fra byggherren</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-013</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva."><span class="art">Regningsarbeid</span></div><div class="tall1 " data-navn="Krevd frist, dager">5</div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="art">Regningsarbeid</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager">5</div>
                   <div class="siste2"><b>EO-013 · BH</b>25. oktober 2026</div>
                 </div>
               </li>
@@ -577,7 +594,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-018</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-009</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva."><span class="art">Enhetspriser</span></div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="art">Enhetspriser</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
                   <div class="siste2"><b>EO-009 · BH</b>2. oktober 2026</div>
                 </div>
               </li>
@@ -585,7 +602,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-012</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-010</a></div></div>
-                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva.">−120 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="tomt">Ikke krevd</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
                   <div class="siste2"><b>EO-010 · BH</b>24. september 2026</div>
                 </div>
               </li>
@@ -658,7 +675,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="tall2" data-navn="Frist"><span class="tomt">Ingen dager</span></div>
                   <div class="siste2"><b>Omfatter</b>1 sak</div>
                 </div>
-                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-012</span><div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">−120 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-012</span><div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">Ikke krevd</span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
               </li>
               <li class="eo-rad">
                 <div class="rad">
@@ -738,6 +755,8 @@ a.merke-n:hover{background:var(--surface-inset)}
   tipsene.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const aapen = b.getAttribute('aria-expanded') === 'true'; tipsene.forEach(lukk); if (!aapen) { b.setAttribute('aria-expanded', 'true'); document.getElementById(b.getAttribute('aria-controls')).hidden = false; } }));
   document.addEventListener('click', () => tipsene.forEach(lukk));
   document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const b = tipsene.find(x => x.getAttribute('aria-expanded') === 'true'); if (b) { lukk(b); b.focus(); } });
+  document.querySelectorAll('.hm[data-filter]').forEach(x => x.addEventListener('click', () => { const k = ub.find(y => y.dataset.u === x.dataset.filter); k.click(); document.getElementById('koe-rader').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+  document.querySelectorAll('.hm[data-fane-til]').forEach(x => x.addEventListener('click', () => velg(x.dataset.faneTil)));
   lesAnker(); addEventListener('hashchange', lesAnker);
 </script>
 </body>
