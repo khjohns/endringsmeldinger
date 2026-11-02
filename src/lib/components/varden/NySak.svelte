@@ -67,9 +67,25 @@
   // Dagens dato i norsk tid, som `dagensDato` i `skjemadata.ts` (VS-U8).
   const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
   const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
-  const norskDato = (iso: string) => iso.split('-').reverse().join('.');
-  // Tidslinja viser datoene etter hvert som TE fyller dem ut, og dagen brevet sendes
-  // (oppdragsgiver 02.11, #1492).
+  // Panelet og tidslinja står fast når de får plass i vinduet, som panelet i vederlagssvaret.
+  let kolonne = $state<HTMLElement | null>(null);
+  let faarPlass = $state(true);
+  $effect(() => {
+    const el = kolonne;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const maal = () => (faarPlass = el.offsetHeight + 32 <= window.innerHeight);
+    const ro = new ResizeObserver(maal);
+    ro.observe(el);
+    window.addEventListener('resize', maal);
+    maal();
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', maal);
+    };
+  });
+
+  // Tidslinja viser datoene etter hvert som TE fyller dem ut, og dagen brevet sendes. Datoene
+  // står der og ikke i panelet (oppdragsgiver 02.11, #1492).
   const tidslinja = $derived(
     [
       felt.datotekst &&
@@ -94,15 +110,9 @@
       valgt && { lag: NYSAK.linjeForholdet, tekst: `${valgt.navn}, punkt ${valgt.punkt}` },
       felt.punkt322 && { lag: NYSAK.linjeVarsel, tekst: NYSAK.varslerEtter322 },
       tittel.trim() && { lag: NYSAK.linjeTittel, tekst: tittel.trim() },
-      felt.datotekst && dato && { lag: felt.datotekst, tekst: norskDato(dato) },
       varselet && {
         lag: NYSAK.linjeVarselet,
-        tekst: [
-          NYSAK.varseltyper.find((t) => t.verdi === varseltype)?.tekst ?? NYSAK.linjeVarselet,
-          varseldato && `av ${norskDato(varseldato)}`,
-        ]
-          .filter(Boolean)
-          .join(' '),
+        tekst: NYSAK.varseltyper.find((t) => t.verdi === varseltype)?.tekst ?? NYSAK.linjeVarselet,
       },
       // Filvalget finnes ikke ennå (F-7, #1037). Dokumentet med varselet legges ved brevet (VS-U38).
       valgt && {
@@ -537,7 +547,7 @@
       </form>
     {/snippet}
     {#snippet hoeyre()}
-      <div class="feste">
+      <div class="feste" class:fast={faarPlass} bind:this={kolonne}>
         <Hovedlinjer
           tittel={NYSAK.panel}
           tom={NYSAK.panelTom}
@@ -545,9 +555,8 @@
           alternativer={false}
           handling={sendeknapp}
         />
+        <Tidslinje brev={[]} datoer={[]} utfylt={tidslinja} />
       </div>
-      <!-- Bare panelet står fast, som i vederlagssvaret, så kolonnen ikke blir høyere enn vinduet. -->
-      <Tidslinje brev={[]} datoer={[]} utfylt={tidslinja} />
     {/snippet}
   </Arbeidsflate>
 {/if}
@@ -726,17 +735,12 @@
     color: var(--ink);
   }
   .feste {
+    display: grid;
+    gap: var(--spacing-4);
+  }
+  .feste.fast {
     position: sticky;
     top: var(--spacing-4);
-    z-index: 1;
-  }
-  /* Dekker stripa over det faste panelet, så tidslinja ikke synes der når den ruller forbi. */
-  .feste::before {
-    content: '';
-    position: absolute;
-    inset: calc(-1 * var(--spacing-4)) 0 calc(100% - var(--r-kort));
-    z-index: -1;
-    background: var(--canvas);
   }
   .sendes-til {
     margin: 0;
