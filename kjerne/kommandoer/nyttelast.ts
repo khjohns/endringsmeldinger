@@ -24,7 +24,11 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/standpunkt.ts';
-import { foresporselForFristsvar, type Utledning } from '../utledning/utled.ts';
+import {
+  datoenKravetBleSendt,
+  foresporselForFristsvar,
+  type Utledning,
+} from '../utledning/utled.ts';
 import type { Avvisning, Krav, Part, Standpunkt } from '../typer.ts';
 
 /**
@@ -191,6 +195,33 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
   return k.sendt === undefined && !k.utdypning?.trim()
     ? avvis('BEGRUNNELSE_MANGLER', 'Begrunnelsen har ingen tekst.')
     : null;
+}
+
+/**
+ * VS-U38, VS-U39: varselet etter § 32.2 sendt utenfor løsningen registreres bare der
+ * varslingsplikten gjelder kategorien i påberopelsen, og det kan ikke være sendt etter
+ * påberopelsen. Forutsetningene har alt krevd at påberopelsen er sendt.
+ */
+function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett): Avvisning | null {
+  const [foerste] = u.spor.forhold.krav;
+  if (!gjelderVarslingsplikten(u.spor.forhold.gjeldendeKrav, regler))
+    return avvis(
+      'VARSLINGSPLIKT_GJELDER_IKKE',
+      'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så det er ikke noe varsel etter punkt 32.2 å registrere (VS-U39).'
+    );
+  const paaberopelsen = foerste ? datoenKravetBleSendt(u, foerste) : null;
+  const dag = kalenderdag(sendt);
+  if (paaberopelsen === null || dag === null)
+    return avvis(
+      'DATO_KAN_IKKE_LESES',
+      'Datoen for varselet etter punkt 32.2 eller for påberopelsen av forholdet kan ikke leses, så det kan ikke avgjøres om varselet ble sendt før påberopelsen (VS-U38).'
+    );
+  if (dag > paaberopelsen)
+    return avvis(
+      'VARSEL_ETTER_PAABEROPELSEN',
+      `Varselet etter punkt 32.2 er oppgitt sendt ${norskDato(dag)}, etter påberopelsen av forholdet, som ble sendt ${norskDato(paaberopelsen)} (VS-U38).`
+    );
+  return null;
 }
 
 const varseletSendt = (hjemmel: string) => `varselet etter § ${hjemmel} ble sendt`;
@@ -368,8 +399,9 @@ export function nyttelastkontroll(
     case 'registrert_brev':
     case 'ikke_i_saken':
       return k.retter === undefined ? null : retting(k.retter, part, u);
-    case 'trekk':
     case 'varsel':
+      return k.hjemmel === '32.2' ? varseletEtter322(k.sendt, u, regler) : null;
+    case 'trekk':
     case 'send_varsel':
     case 'foresporsel':
     case 'foresporselssvar':

@@ -18,14 +18,18 @@ export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3';
 /**
  * TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2
  * (OV-U5), og det særskilte varselet etter § 34.1.3 tredje ledd for kravet etter annet ledd,
- * som etter OV-U25 er det eneste særskilte varselet.
+ * som etter OV-U25 er det eneste særskilte varselet. Varselet etter § 32.2 i forholdet er
+ * påberopelsen, eller et varsel sendt utenfor løsningen og registrert (VS-U34, VS-U38).
  */
-export type Varselhjemmel = '33.4' | '34.1.2' | '34.1.3';
+export type Varselhjemmel = '32.2' | '33.4' | '34.1.2' | '34.1.3';
+/** Varslene TE kan sende fra løsningen. Fra løsningen er påberopelsen varselet etter § 32.2 (GR-U31). */
+export type Kravvarselhjemmel = Exclude<Varselhjemmel, '32.2'>;
 export const VARSELSPOR = {
+  '32.2': 'forhold',
   '33.4': 'frist',
   '34.1.2': 'vederlag',
   '34.1.3': 'vederlag',
-} as const satisfies Record<Varselhjemmel, Kravspor>;
+} as const satisfies Record<Varselhjemmel, Spor>;
 export const erVarselhjemmel = (hjemmel: Hjemmel): hjemmel is Varselhjemmel =>
   hjemmel in VARSELSPOR;
 
