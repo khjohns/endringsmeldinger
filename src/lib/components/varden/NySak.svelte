@@ -53,8 +53,8 @@
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : null);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
-  const naa = new Date();
-  const iDag = `${naa.getFullYear()}-${String(naa.getMonth() + 1).padStart(2, '0')}-${String(naa.getDate()).padStart(2, '0')}`;
+  // Dagens dato i norsk tid, som `dagensDato` i `skjemadata.ts` (VS-U8).
+  const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
   const utfylling = () => ({ forhold: forhold!, tittel, beskrivelse, dato, endringsordre });
 
   const treff = (...tekster: string[]) =>
@@ -196,6 +196,9 @@
       <legend>{NYSAK.forholdet}</legend>
       <p class="hjelp" id={id('forhold-hjelp')}>{NYSAK.forholdetHjelp}</p>
       {#if feil.forhold}<p class="feil" id={id('forhold-feil')}>{feil.forhold}</p>{/if}
+      <p class="visually-hidden" role="status">
+        {velgerAapen && sok.trim() ? NYSAK.antallTreff(antallTreff) : ''}
+      </p>
       {#if valgt && !velgerAapen}
         <div class="valgt">
           <div>
@@ -215,9 +218,6 @@
           <span class="etikett">{NYSAK.sok}</span>
           <input type="search" bind:value={sok} />
         </label>
-        <p class="visually-hidden" role="status">
-          {sok.trim() ? NYSAK.antallTreff(antallTreff) : ''}
-        </p>
         {#each grupper as g (g.kode)}
           <div class="gruppe" role="radiogroup" aria-label={g.label}>
             <p class="gruppenavn">{g.label} <span class="punkt">punkt {g.hjemmel_frist}</span></p>

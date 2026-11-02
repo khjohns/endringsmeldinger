@@ -58,6 +58,10 @@ describe('skjemaet for ny sak (BF-05)', () => {
     const feilen = screen
       .getAllByText('Velg forholdet.')
       .find((e) => e.tagName === 'P') as HTMLElement;
+    const hjelp = screen.getByText(
+      'Velg bestemmelsen i kontrakten pålegget eller forholdet faller inn under.'
+    );
+    expect(hjelp.compareDocumentPosition(feilen) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const forste = screen.getAllByRole('radio')[0];
     expect(feilen.compareDocumentPosition(forste) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

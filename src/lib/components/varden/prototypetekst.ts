@@ -334,7 +334,7 @@ export const NYSAK = {
   ingenTreff: 'Ingen forhold passer med søket.',
   antallTreff: (n: number) =>
     n === 0
-      ? 'Ingen forhold passer med søket.'
+      ? NYSAK.ingenTreff
       : n === 1
         ? 'Ett forhold passer med søket.'
         : `${n} forhold passer med søket.`,
