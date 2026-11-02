@@ -28,7 +28,7 @@
     dato,
     innsigelsen,
     varselet,
-  } from './prototypetekst';
+  } from './tekster';
 
   let {
     kjernesak,

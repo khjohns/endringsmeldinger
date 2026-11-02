@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { HOVEDLINJER } from './prototypetekst';
+  import { HOVEDLINJER } from './tekster';
 
   let {
     linjer,

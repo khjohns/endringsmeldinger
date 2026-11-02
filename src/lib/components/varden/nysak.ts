@@ -14,7 +14,7 @@ import {
   tilKatalogen,
   UNDERKATEGORI_FRA_KATALOGEN,
 } from '$kjerne/format/koder';
-import { FORHOLDSGRUPPER } from './prototypetekst';
+import { FORHOLDSGRUPPER } from './tekster';
 import type { Kjerne } from '$kjerne/versjon';
 import type { Part } from '$kjerne/typer';
 

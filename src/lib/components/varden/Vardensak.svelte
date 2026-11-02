@@ -20,15 +20,7 @@
   import { tomtSvar } from './kommandoer';
   import { settOrganisasjoner } from './kontrakt';
   import { brevene } from './lesing';
-  import {
-    BREVKONTROLL,
-    MOTTATT,
-    SAKEN,
-    SPORNAVN,
-    STILLING,
-    brevtittel,
-    dato,
-  } from './prototypetekst';
+  import { BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, brevtittel, dato } from './tekster';
 
   type Kontrakt = {
     prosjekt?: string;

@@ -1,5 +1,5 @@
 /**
- * PROTOTYPETEKST (#1331). Spørsmålene, forklaringene og virkningstekstene Varden viser,
+ * TEKSTER (#1331). Spørsmålene, forklaringene og virkningstekstene Varden viser,
  * samlet her så de kan kontrolleres med linse A i `design-review` før brukertesten. De er
  * ikke vedtatt brevtekst eller produktdesign. Teksten i brevene kommer fra kjernen, og
  * teksten om svarets virkning er arbeidsvalget 26.10 (`$lib/kjernesak/svarvirkning`).

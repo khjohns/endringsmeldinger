@@ -14,7 +14,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL, PARTNAVN, dato } from './prototypetekst';
+  import { BREVKONTROLL, PARTNAVN, dato } from './tekster';
 
   let {
     kjernesak,
