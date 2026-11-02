@@ -361,6 +361,12 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
       expect(igjen.kropp).toEqual(svar.kropp);
       expect(await antall()).toEqual(foer);
+
+      // Uten varselet er det et annet innhold under samme kommando-ID (#418).
+      const utenVarsel = await send({ ...k, varsel: undefined });
+      expect(utenVarsel.status, JSON.stringify(utenVarsel.kropp)).toBe(422);
+      expect(utenVarsel.kropp.error).toBe('KOMMANDO_ID_BRUKT');
+      expect(await antall()).toEqual(foer);
     });
 
     it('avviser kjernen varselet fordi datoen er etter påberopelsen, finnes ingen sak, hendelse, kvittering eller jobb, og vedlegget ligger fortsatt uten sak (VS-U38, KT-U11)', async () => {
