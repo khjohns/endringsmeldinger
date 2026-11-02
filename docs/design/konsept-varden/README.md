@@ -1,5 +1,9 @@
 # Varden: eksperimentelt UX-konsept for saksvisningen
 
+> **Utdatert, ikke utgangspunkt for bygging.** Denne mappa er utdatert. Prototypene i
+> [`docs/design/prototyper/`](../prototyper/) og issuene gjelder (oppdragsgiver 02.11,
+> [#1450](https://github.com/khjohns/endringsmeldinger/issues/1450)).
+
 Et eksperimentelt UX-konsept for saksvisningen i appen. Det prøves som en egen
 visning ved siden av dagens saksvisning, med samme sak og samme kjerne
 ([#1331](https://github.com/khjohns/endringsmeldinger/issues/1331)). Det er ikke
