@@ -511,7 +511,7 @@ export const SAKSLISTE = {
   krav: (n: number) => `${n} krav`,
   varsletAntall: (n: number) => `${n} varslet`,
   utenBeloep: (n: number) => `${n} uten beløp`,
-  omTallene: 'Om tallene',
+  omTallene: (spor: string) => `Om tallene for ${spor.toLowerCase()}`,
   omVederlag:
     'Summen av kravene med beløp i sakene som ikke inngår i en sendt endringsordre. Krav etter regningsarbeid eller enhetspriser har ikke beløp og telles for seg. Trukne krav og saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.',
   omFrist:

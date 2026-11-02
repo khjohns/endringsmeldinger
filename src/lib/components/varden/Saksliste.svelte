@@ -105,14 +105,14 @@
 
 <svelte:window onkeydown={tipsTast} onclick={() => (aapentTips = null)} />
 
-{#snippet tips(id: string, tekst: string)}
+{#snippet tips(id: string, spor: string, tekst: string)}
   <span class="tips">
     <button
       type="button"
       class="info"
       aria-expanded={aapentTips === id}
       aria-controls={id}
-      aria-label={SAKSLISTE.omTallene}
+      aria-label={SAKSLISTE.omTallene(spor)}
       onclick={(e) => {
         e.stopPropagation();
         aapentTips = aapentTips === id ? null : id;
@@ -177,11 +177,11 @@
           {/if}
         </div>
       {:else}
-        <div class="noekkel" aria-label={SAKSLISTE.tallene}>
+        <div class="noekkel" role="group" aria-label={SAKSLISTE.tallene}>
           <section class="spor-kort" aria-labelledby="nk-vederlag">
             <h2 class="spor-tittel" id="nk-vederlag">
               {SAKSLISTE.vederlag} <span class="enhet">{SAKSLISTE.eksMva}</span>
-              {@render tips('tips-vederlag', SAKSLISTE.omVederlag)}
+              {@render tips('tips-vederlag', SAKSLISTE.vederlag, SAKSLISTE.omVederlag)}
             </h2>
             <div class="halv">
               <span class="hl">{SAKSLISTE.krevdUtenforEo}</span>
@@ -202,7 +202,7 @@
           <section class="spor-kort" aria-labelledby="nk-frist">
             <h2 class="spor-tittel" id="nk-frist">
               {SAKSLISTE.fristforlengelse}
-              {@render tips('tips-frist', SAKSLISTE.omFrist)}
+              {@render tips('tips-frist', SAKSLISTE.fristforlengelse, SAKSLISTE.omFrist)}
             </h2>
             <div class="halv">
               <span class="hl">{SAKSLISTE.krevdUtenforEo}</span>
@@ -247,14 +247,18 @@
           <span class="h">{SAKSLISTE.krevdFrist}</span>
           <span>{SAKSLISTE.oppdatert}</span>
         </div>
-        {#if synlige.length === 0}
-          <div class="ingen-treff" role="status">
-            <p>
+        <!-- Statusområdet står fast, så skjermleseren melder at utvalget ikke gir treff (WCAG 4.1.3). -->
+        <div class="ingen-treff" class:aapen={synlige.length === 0}>
+          <p role="status">
+            {#if synlige.length === 0}
               {soek.trim() ? SAKSLISTE.ingenTreffSoek(soek.trim()) : SAKSLISTE.ingenTreff[utvalg]}
-            </p>
+            {/if}
+          </p>
+          {#if synlige.length === 0}
             <button type="button" class="lenkeknapp" onclick={visAlle}>{SAKSLISTE.visAlle}</button>
-          </div>
-        {:else}
+          {/if}
+        </div>
+        {#if synlige.length > 0}
           <ul class="rader" aria-labelledby="liste-tittel">
             {#each synlige as s (s.sak_id)}
               {@const f = forholdet(s)}
@@ -389,9 +393,10 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
+  /* Cellene står på grunnlinjen til tittelen, selv om skriften er ulik. */
   .rad {
     position: relative;
-    align-items: start;
+    align-items: baseline;
     border-bottom: 1px solid var(--rule-subtle-color);
   }
   .rad:last-child {
@@ -502,7 +507,9 @@
     border: 1px solid var(--rule-color);
     border-radius: var(--r-innfelt);
   }
+  /* Lappen henger under overskriften og holder seg innenfor kortet på smal skjerm. */
   .spor-tittel {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
@@ -542,10 +549,8 @@
     font-size: 12px;
     font-weight: 400;
   }
-  .tips {
-    position: relative;
-  }
   .info {
+    position: relative;
     display: inline-grid;
     place-items: center;
     width: 20px;
@@ -571,10 +576,9 @@
   .lapp {
     position: absolute;
     top: calc(100% + 8px);
-    left: -8px;
+    left: 0;
     z-index: 5;
-    width: 300px;
-    max-width: calc(100vw - 48px);
+    width: min(300px, 100%);
     padding: var(--spacing-3);
     border: 1px solid var(--rule-strong-color);
     border-radius: var(--r-innfelt);
@@ -661,7 +665,10 @@
     border-color: var(--control-focus);
     box-shadow: var(--control-focus-ring);
   }
-  .ingen-treff {
+  .ingen-treff:not(.aapen) {
+    display: contents;
+  }
+  .ingen-treff.aapen {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
