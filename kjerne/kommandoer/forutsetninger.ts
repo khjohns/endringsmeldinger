@@ -87,7 +87,7 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
       if (kanFaaInnsigelse(maal, part) && u.spor.forhold.varsler['32.2']?.id === h.gjelder)
         return avvis(
           'IKKE_I_FOERSTE_VERSJON',
-          'Innsigelsen mot det registrerte varselet etter § 32.2 kan ikke sendes ennå. Brevet kan registreres som dokumentasjon.'
+          'Innsigelsen mot det registrerte varselet etter punkt 32.2 kan ikke sendes ennå. Brevet kan registreres som dokumentasjon.'
         );
       // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
       return kanFaaInnsigelse(maal, part)

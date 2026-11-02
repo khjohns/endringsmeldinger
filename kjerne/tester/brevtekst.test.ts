@@ -3582,8 +3582,9 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
 
   it('byggherren tilbys ikke innsigelse mot det registrerte varselet før det har brevtekst (S-4 i #807)', () => {
     const s = medPaaberopelse();
-    const id = s.send('TE', registrering()).data.utsagn as Data[];
-    const varsel = String(id[0].id);
+    s.send('TE', registrering());
+    const varsel = s.u().spor.forhold.varsler['32.2']?.id;
+    expect(varsel).toBeDefined();
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('IKKE_I_FOERSTE_VERSJON');
     expect(handlinger(s.u(), 'BH')).not.toContain(`innsigelse:${varsel}`);
   });
