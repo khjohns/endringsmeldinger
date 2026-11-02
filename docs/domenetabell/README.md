@@ -261,11 +261,12 @@ forholdene står i gruppene i [OV-U77](../plans/vedtak.md#ov-u77). Navnene under
 arbeidsvalg, ikke et vedtak: OV-U78 sier at titlene er arbeidsvalg i domenetabellen.
 Oppdragsgiver sa 02.11 «ja til forslagene»
 ([kommentaren](https://github.com/khjohns/endringsmeldinger/pull/1492#issuecomment-6572609087))
-og valgte å føre listen her, ikke som vedtak (svaret «3A» på
-[grunnlaget](https://github.com/khjohns/endringsmeldinger/pull/1492#issuecomment-6573550946),
-[ført i #1492](https://github.com/khjohns/endringsmeldinger/pull/1492#issuecomment-6573565569)).
+og svarte «3A» på
+[grunnlaget](https://github.com/khjohns/endringsmeldinger/pull/1492#issuecomment-6573550946)
+([ført i #1492](https://github.com/khjohns/endringsmeldinger/pull/1492#issuecomment-6573565569)).
+Svaret er lest som det første alternativet: navnene føres som arbeidsvalg her, ikke som vedtak.
 Fire navn er nye; det gamle står i kolonnen «Før». Punktene for de andre er tatt fra
-tabellen i spørsmålet til OV-U78. Force majeure mangler og tas med #367.
+tabellen i spørsmålet til OV-U78, ikke kontrollert mot katalogen. Force majeure mangler og tas med #367.
 
 | Gruppe (OV-U77) | Punkt | Navn | Før |
 | --- | --- | --- | --- |

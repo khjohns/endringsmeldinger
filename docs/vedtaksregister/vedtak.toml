@@ -4854,7 +4854,7 @@ svar = '''
 Oppdragsgiver 02.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1288#issuecomment-6573565275)): «1B,  2A (så lenge det er dokumentert i kode/vedtak at det følger av kontraktsgrunnlaget). 3A»'''
 forhold = [{ art = "endrer", vedtak = "vs-u3" }]
 folge = '''
-Svaret har vilkåret at det er dokumentert i kode eller vedtak at regelen følger av kontraktsgrunnlaget. Vedtaksteksten viser til Del II pkt. B.2.17, slik OV-U25 gjør for punkt 34.1.3. Svaret står også på #1284 og #1492.'''
+Svaret har vilkåret at det er dokumentert i kode eller vedtak at det følger av kontraktsgrunnlaget. Vedtaksteksten viser til Del II pkt. B.2.17, slik OV-U25 gjør for punkt 34.1.3. Svaret står også på #1284 og #1492.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "2A"
