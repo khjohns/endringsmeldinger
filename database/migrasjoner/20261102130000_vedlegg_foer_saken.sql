@@ -30,9 +30,11 @@ GO
 -- `koe_api.bind_vedlegg` binder dem der. En rad endres ikke; den slettes eller flyttes.
 CREATE TABLE koe.vedlegg_uten_sak (
   vedlegg_id uniqueidentifier NOT NULL CONSTRAINT vedlegg_uten_sak_pk PRIMARY KEY,
-  prosjekt_id nvarchar(100) NOT NULL CONSTRAINT vedlegg_uten_sak_prosjekt REFERENCES koe.projects (id),
+  prosjekt_id nvarchar(100) NOT NULL CONSTRAINT vedlegg_uten_sak_prosjekt REFERENCES koe.projects (id)
+    CONSTRAINT vedlegg_uten_sak_prosjekt_id_tegnklasse
+      CHECK (NOT prosjekt_id COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^!-~]%'),
   filnavn nvarchar(200) NOT NULL
-    CONSTRAINT vedlegg_uten_sak_filnavn CHECK (LEN(filnavn) > 0 AND DATALENGTH(filnavn) = DATALENGTH(RTRIM(filnavn))),
+    CONSTRAINT vedlegg_uten_sak_filnavn CHECK (DATALENGTH(filnavn) > 0 AND DATALENGTH(filnavn) = DATALENGTH(RTRIM(filnavn))),
   stoerrelse int NOT NULL CONSTRAINT vedlegg_uten_sak_stoerrelse CHECK (stoerrelse BETWEEN 1 AND 15728640),
   innhold_sha256 nvarchar(64) NOT NULL,
   innhold varbinary(max) NOT NULL,
