@@ -11,6 +11,7 @@
     verdi = $bindable(null),
     feil = null,
     beskrevetAv,
+    stablet = false,
   }: {
     navn: string;
     spoersmaal: string;
@@ -20,6 +21,8 @@
     feil?: string | null;
     /** Id-en til det spørsmålet bygger på, som forutsetningene for et subsidiært lag. */
     beskrevetAv?: string;
+    /** Valgene står under hverandre. For mer enn to valg eller lange tekster. */
+    stablet?: boolean;
   } = $props();
   const uid = $props.id();
   const beskrivelse = $derived(
@@ -29,7 +32,7 @@
 
 <fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse}>
   <legend>{spoersmaal}</legend>
-  <div class="kort">
+  <div class="kort" class:stablet>
     {#each valg as v (String(v.verdi))}
       <label class="valgkort" class:valgt={verdi === v.verdi}>
         <input
@@ -65,6 +68,13 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-2);
+  }
+  /* Under hverandre er kortene like brede, så valgene leses som en liste. */
+  .kort.stablet {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: fit-content;
+    max-width: 100%;
   }
   .valgkort {
     display: flex;

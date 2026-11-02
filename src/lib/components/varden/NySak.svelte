@@ -67,9 +67,11 @@
   const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
   const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
   const norskDato = (iso: string) => iso.split('-').reverse().join('.');
+  // Panelet viser det brevet sier, i brevets rekkefølge (F-1, GR-U31, VS-U38).
   const linjer = $derived(
     [
       valgt && { lag: NYSAK.linjeForholdet, tekst: `${valgt.navn}, punkt ${valgt.punkt}` },
+      felt.punkt322 && { lag: NYSAK.linjeVarsel, tekst: NYSAK.varslerEtter322 },
       tittel.trim() && { lag: NYSAK.linjeTittel, tekst: tittel.trim() },
       felt.datotekst && dato && { lag: felt.datotekst, tekst: norskDato(dato) },
       varselet && {
@@ -80,6 +82,11 @@
         ]
           .filter(Boolean)
           .join(' '),
+      },
+      // Filvalget finnes ikke ennå (F-7, #1037). Dokumentet med varselet legges ved brevet (VS-U38).
+      valgt && {
+        lag: NYSAK.linjeVedlegg,
+        tekst: varselet ? NYSAK.varseldokumentetVedlegges : NYSAK.ingenVedlegg,
       },
     ].filter((l): l is { lag: string; tekst: string } => !!l)
   );
@@ -371,6 +378,7 @@
             <label for={id('endringsordre')}>{NYSAK.endringsordre}</label>
             <input
               id={id('endringsordre')}
+              class="kort-felt"
               bind:value={endringsordre}
               aria-required="true"
               aria-invalid={!!feil.endringsordre}
@@ -408,6 +416,7 @@
                 navn={id('varseltype')}
                 spoersmaal={NYSAK.varseltype}
                 valg={NYSAK.varseltyper}
+                stablet
                 bind:verdi={
                   () => varseltype,
                   (v) => {
@@ -423,6 +432,7 @@
                   navn={id('sendemaate')}
                   spoersmaal={NYSAK.sendemaate}
                   valg={NYSAK.sendemaater}
+                  stablet
                   bind:verdi={
                     () => sendemaate,
                     (v) => {
@@ -563,6 +573,15 @@
     border-radius: var(--r-felt);
     background: var(--surface);
     color: var(--ink);
+  }
+  /* Feltene er så brede som svaret de venter: en dato er kort, en tittel er en linje. */
+  input[type='date'] {
+    inline-size: 12rem;
+    max-inline-size: 100%;
+  }
+  .kort-felt {
+    inline-size: 20rem;
+    max-inline-size: 100%;
   }
   [aria-invalid='true'] {
     border-color: var(--danger);

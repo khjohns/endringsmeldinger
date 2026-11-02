@@ -441,6 +441,12 @@ export const NYSAK = {
   linjeForholdet: 'Forholdet',
   linjeTittel: 'Tittel på saken',
   linjeVarselet: 'Varsel som alt er sendt',
+  // Der punkt 32.2 gjelder, sier brevet at TE varsler etter bestemmelsen (GR-U31, D-6).
+  linjeVarsel: 'Varsel',
+  varslerEtter322: 'Brevet varsler etter punkt 32.2',
+  linjeVedlegg: 'Vedlegg',
+  ingenVedlegg: 'Ingen vedlegg',
+  varseldokumentetVedlegges: 'Dokumentet med varselet som alt er sendt',
   sendesTil: 'Saken opprettes og brevet sendes til byggherren når du sender.',
   seBrevet: 'Se brevet før sending',
   avbryt: 'Avbryt',

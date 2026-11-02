@@ -204,6 +204,19 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(within(panel).getByRole('button', { name: 'Se brevet før sending' })).toBeTruthy();
     await velgForhold(ENDRINGER, /^Irregulær endring/);
     expect(within(panel).getByText(/^Irregulær endring, punkt 32\.1$/)).toBeTruthy();
+    // GR-U31: der punkt 32.2 gjelder, sier brevet at TE varsler etter bestemmelsen.
+    expect(within(panel).getByText('Brevet varsler etter punkt 32.2')).toBeTruthy();
+    expect(within(panel).getByText('Ingen vedlegg')).toBeTruthy();
+    // VS-U38: dokumentet med varselet som alt er sendt, legges ved brevet.
+    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
+    expect(within(panel).getByText('Dokumentet med varselet som alt er sendt')).toBeTruthy();
+  });
+
+  it('F-1/GR-U31: ved svikt sier panelet ikke at brevet varsler etter punkt 32.2', async () => {
+    aapne();
+    await velgForhold(SVIKT, /^Svikt i byggherrens prosjektering/);
+    const panel = screen.getByRole('region', { name: 'Hovedlinjene i påberopelsen' });
+    expect(within(panel).queryByText('Brevet varsler etter punkt 32.2')).toBeNull();
   });
 
   it('D-8/VS-U38/OV-U79: ved ja ber skjemaet om typen, datoen og en kort beskrivelse, og sendemåten bare for et brev', async () => {
