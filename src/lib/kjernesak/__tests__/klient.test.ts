@@ -1,7 +1,7 @@
 /** Klienten mot TS-serveren (#663). */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { opprettSak, sendKommando } from '$lib/api/kjerne';
+import { opprettSak, sendKommando, sendNySak } from '$lib/api/kjerne';
 
 import { setActiveProjectId } from '$lib/api/client';
 
@@ -39,6 +39,29 @@ describe('klienten mot TS-serveren', () => {
     const headers = new Headers(init.headers);
     expect(headers.get('X-Project-ID')).toBe('prosjekt-1');
     expect(headers.get('X-CSRF-Token')).toBe('token');
+  });
+
+  // Kilde: #1487 og kravene i kommentarene der (sak-ID-en over grensen, LV-U4; tittelen, LV-U43).
+  it('sender saken og påberopelsen i én kropp, med saks-ID-en fra skjemaet og samme kommando-ID ved et nytt forsøk', async () => {
+    const nySak = {
+      sakId: 'ny-sak',
+      opprettelse: { type: 'opprett_sak', sakstittel: 'Endret fundamentering' },
+      paaberopelse: { type: 'krav' as const, spor: 'forhold' as const, innhold: { a: 1 } },
+      tekst: ['brev'],
+    };
+    const send = sendNySak('prosjekt-2', ID);
+    expect(await send(nySak)).toEqual({ sakId: 's' });
+    await send(nySak);
+    expect(kall.map(([url]) => url)).toEqual(['/api/kjerne/saker', '/api/kjerne/saker']);
+    for (const [, init] of kall)
+      expect(JSON.parse(init.body as string)).toEqual({
+        kommando_id: ID,
+        ny_sak_id: 'ny-sak',
+        tittel: 'Endret fundamentering',
+        paaberopelse: nySak.paaberopelse,
+        brevtekst: ['brev'],
+      });
+    expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('prosjekt-2');
   });
 
   it('oppretter saken i prosjektet fra ruta, ikke i det aktive', async () => {

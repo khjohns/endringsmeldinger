@@ -172,7 +172,7 @@ tabellen gjentar dem ikke (oppdragsgiver 27.10, #1338).
 | Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Kan være én økt sammen med oppdragsgiver |
 | Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
 | Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | `AGENTS.md`, «Arbeidsform», og «Review i ny økt» |
-| Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget `AGENTS.md` gir dem. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | `AGENTS.md`, «Arbeidsform» |
+| Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget `AGENTS.md` gir dem. Viser issuet til en bestilling, også `brukerforlop`, for byggeøkta, ryddeøkta og reviewøkta. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | `AGENTS.md`, «Arbeidsform». Med bestilling kjøres `/design-review` også mot den, etter «Sammenligne en bygget visning» i `brukerforlop`, i den rekkefølgen `AGENTS.md`, «Arbeidsform», gir. Avvikstabellen og skjermbildene side om side, i samme bredde, står i PR-en før den meldes klar. `/design-deslop` endrer ikke det bestillingen fastsetter, med mindre endringen føres som bevisst endring i avvikstabellen. En bevisst endring er ikke godkjent før oppdragsgiver har sagt ja (oppdragsgiver 02.11, #1492) |
 | Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | Agenten `mekanisk-pr`, og `github` | `AGENTS.md`, «Arbeidsform», og «Subagent eller økt» |
 | Review i ny økt | Fortsetter en PR fra en byggeøkt | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | `AGENTS.md`, «Arbeidsform» |
 
@@ -192,6 +192,14 @@ issue. Oppdraget skal inneholde:
   når den PR-en er merget. Ellers kan tillatelsessystemet i økta nekte den å
   tilpasse seg etterpå, slik det skjedde med arkitekturtesten i FK runde 2;
 - avgjørelser oppdragsgiver allerede har tatt, ordrett;
+- kildene som er fasit: issuet, bestillingen, vedtakene og kommentarene med arbeidsvalg.
+  Oppdraget sier hvilken som er fasit, og gjengir eller tolker ikke innholdet. Funn fra
+  kartleggingen er utgangspunkt, ikke krav. Peker issuet på en bestilling, er bestillingen
+  fasit, ikke en skisse eller prototype, og en skisse gjelder bare der bestillingen ikke
+  endrer noe. Økta leser kildene selv og skriver akseptkriteriene ut fra dem, etter
+  leveranseskillen. Avviker oppdraget fra en kilde, gjelder kilden, og økta skriver avviket
+  i PR-en. En begrensning på lesingen, som «Les ikke historikken», gjelder aldri kildene
+  som er fasit (oppdragsgiver 02.11, #1492);
 - at spørsmål bare oppdragsgiver kan avgjøre (NS 8407, tiltenkt atferd), sendes
   samlet til `@parent` etter kartleggingen og før implementeringen, med
   alternativer, belegg og en anbefaling, og at økta venter på svar. Den velger
