@@ -54,6 +54,8 @@ describe('Sakslisten i Varden', () => {
     await fireEvent.click(within(panelet()).getByRole('button', { name: /Endringsordrer/ }));
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Endringsordrer');
     expect(screen.getByText('Ingen endringsordrer ennå.')).toBeTruthy();
+    // Knappen for KOE hører til KOE-fanen, og «Ny endringsordre» venter på #1423 (KT-U10).
+    expect(screen.queryByRole('link', { name: 'Nytt krav om endringsordre' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Endring i grunnarbeider' })).toBeNull();
   });
 

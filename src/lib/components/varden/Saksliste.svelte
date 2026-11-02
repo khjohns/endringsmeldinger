@@ -83,7 +83,7 @@
           <h1 id="liste-tittel">{FANENAVN[fane]}</h1>
         </div>
         <!-- Bare TE kan kreve endringsordre, og «Ny endringsordre» venter på EO-saken (KT-U10, #1423). -->
-        {#if part === 'TE'}
+        {#if part === 'TE' && fane === 'koe'}
           <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
           <a class="ny" href={nyttKrav}><Plus size={16} aria-hidden="true" />{SAKSLISTE.nyKoe}</a>
         {/if}
@@ -294,9 +294,11 @@
     color: var(--ink-2);
     font-size: 14px;
   }
+  /* Betegnelsen er sporets status og står over resultatet og forholdets navn. */
   .betegnelse {
     color: var(--ink);
     font-size: 14px;
+    font-weight: 500;
   }
   .resultat {
     color: var(--ink-3);
@@ -310,8 +312,8 @@
     z-index: 1;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-1) 6px;
-    margin-top: 6px;
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-2);
   }
   .merke {
     padding: 0 var(--spacing-2);
