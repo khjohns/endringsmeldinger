@@ -5,13 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sakslisten i Varden v2</title>
 <!--
-  Prototype v2 av sakslisten i Varden (#1402), forenklet etter oppdragsgiver 02.11: lista viser
-  bare det som står fast i dokumentene, det TE krever i KOE-sakene og det byggherren gir i
-  endringsordrene. Byggherrens svar, enigheten og hva en sak venter på, står i saken og ikke i
-  lista. Endrer MM-U28, MM-U30 og OV-U61 for sakslisten; endringen er ikke ført som vedtak ennå.
-  Merket «Inngår i EO-<nummer>» følger EO-U13 og EO-U14. Ankrene er de samme som i v1: #te og #bh,
-  og fanene #koe, #eo og #forsering kan legges til, som #bh-eo. Tallene og sakene er eksempler,
-  og teksten er prototypetekst. Fargene er Blekk (.tema-varden i theme.css).
+  Prototype v2 av sakslisten i Varden (#1402), forenklet etter oppdragsgiver 02.11. Lista viser
+  bare det som står fast i dokumentene: det TE krever i KOE-sakene, og det byggherren pålegger i
+  endringsordrene. Byggherrens svar, enigheten og hva en sak venter på, står i saken. Det endrer
+  MM-U28, MM-U30 og OV-U61 for sakslisten og er ikke ført som vedtak ennå.
+  Kravet og endringsordren står i hver sin kolonne under samme spor, så de kan leses mot hverandre.
+  Nøkkeltallene sammenligner bare sakene som har en endringsordre med beløp eller dager. En
+  endringsordre som omfatter flere saker, vises ikke per sak, og en endringsordre etter
+  regningsarbeid har ikke beløp (OV-U43). Merket «Inngår i EO-<nummer>» følger EO-U13 og EO-U14.
+  Ankrene er de samme som i v1: #te og #bh, og #eo eller #forsering kan legges til, som #bh-eo.
+  Tallene og sakene er eksempler, og teksten er prototypetekst. Fargene er Blekk (.tema-varden).
 -->
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -317,7 +320,6 @@ a.merke-n:hover{background:var(--surface-inset)}
 .under .rad{padding:8px 0;border-top:1px dashed var(--rule-color)}
 .under .rad .id{padding-left:14px;border-left:2px solid var(--rule-strong-color)}
 .rader > li.eo-rad .rad{padding-bottom:4px}
-#innhold-eo .rad,#innhold-eo .radhode,#innhold-forsering .rad,#innhold-forsering .radhode{grid-template-columns:64px minmax(0,1fr) 168px 132px 136px}
 .fane-innhold[hidden]{display:none}
 .tom-liste{padding:24px 20px;color:var(--ink-3)}
 .aktivitet ol{list-style:none;margin:0;padding:4px 20px 8px}
@@ -378,25 +380,47 @@ a.merke-n:hover{background:var(--surface-inset)}
 .fil{border-radius:var(--r-felt)}
 .ark-inn{border-radius:var(--r-kort)}
 
-/* v2: krav og endringsordre */
-.rad,.radhode{grid-template-columns:64px minmax(0,1fr) 120px 96px 172px 124px}
-.radhode .enhet{font-weight:400;text-transform:none;letter-spacing:0}
-.tall1{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:14px;color:var(--ink);text-align:right}
-.tall1 .tomt,.eo1 .tomt{font-family:var(--font-sans);color:var(--ink-3)}
-.tall1 .trukket{display:block;font-family:var(--font-sans);font-size:12px;color:var(--ink-3)}
-.eo1{display:flex;flex-direction:column;gap:2px;font-size:14px;align-items:flex-start}
-.eo1 .belop{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--ink);font-size:14px}
-.radhode .h{text-align:right}
-.uten{grid-column:3 / span 3;font-size:14px;color:var(--ink-2)}
+/* v2: kravet og endringsordren i samme spor */
+.skjult{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#innhold-koe .rad,#innhold-koe .radhode{grid-template-columns:64px minmax(0,1fr) 88px 88px 64px 64px 124px;column-gap:16px}
+#innhold-koe .radhode{row-gap:6px;align-items:end}
+.radhode .gruppe{grid-row:1;padding-bottom:5px;border-bottom:1px solid var(--rule-strong-color);text-align:center}
+.radhode .gruppe .enhet,.radhode .enhet{font-weight:400;text-transform:none;letter-spacing:0}
+.radhode .g-v{grid-column:3 / span 2}
+.radhode .g-f{grid-column:5 / span 2}
+.radhode .under-h{grid-row:2;text-align:right}
+.radhode .r2{grid-row:1 / span 2}
+.radhode .c3{grid-column:3}.radhode .c4{grid-column:4}.radhode .c5{grid-column:5}.radhode .c6{grid-column:6}
+.tall1{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:14px;color:var(--ink);text-align:right;white-space:nowrap}
+.tall1.eo{color:var(--ink)}
+.tall1 .tomt,.tall1 .art{font-family:var(--font-sans);font-size:12px;color:var(--ink-3);white-space:normal}
+.tall1.dempet{color:var(--ink-3)}
+.felles{font-family:var(--font-sans);font-size:12px;color:var(--ink-3);white-space:nowrap}
+.uten{grid-column:3 / span 4;font-size:12px;color:var(--ink-3);padding-top:2px}
+/* Nøkkeltallene */
 .tallrad{grid-template-columns:repeat(2,minmax(0,1fr))}
-.tallrad .par{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:6px}
-.tallrad .par > div{display:flex;flex-direction:column;gap:2px;min-width:0}
-.tallrad .grunnlag{font-size:12px;color:var(--ink-3);margin-top:8px}
+.tallrad > div{gap:10px}
+.tallrad .spor-h{display:flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.tallrad .par{display:grid;grid-template-columns:repeat(2,max-content);gap:4px 32px}
+.tallrad .par .tl{font-size:12px;color:var(--ink-2)}
+.tallrad .tv{font-size:20px}
+.tallrad .tv small{font-size:12px}
+.tallrad .total{font-size:14px;color:var(--ink-2)}
+.tallrad .total b{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:500;color:var(--ink)}
+.tallrad .utenfor{font-size:12px;color:var(--ink-3)}
 .tallnote{margin:-8px 20px 16px;font-size:12px;color:var(--ink-3)}
+/* Infotipset åpnes med klikk eller tastatur og lukkes med Escape */
+.tips{position:relative;display:inline-block;text-transform:none;letter-spacing:0;font-weight:400}
+.tips .info{cursor:pointer;position:relative}
+.tips .info::after{content:"";position:absolute;inset:-13px}
+.tips .info:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.tips .lapp{position:absolute;left:-8px;top:calc(100% + 8px);z-index:5;width:300px;max-width:calc(100vw - 48px);background:var(--surface);border:1px solid var(--rule-strong-color);border-radius:var(--r-innfelt);padding:10px 12px;font-size:14px;line-height:1.5;color:var(--ink);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.tips .lapp[hidden]{display:none}
 @media (max-width:900px){
-  .rad,.under .rad{grid-template-columns:52px minmax(0,1fr);gap:6px 12px}
-  .rad > .tall1,.rad > .eo1,.uten{grid-column:2;text-align:left}
-  .tall1::before,.eo1::before{content:attr(data-navn) " ";font-family:var(--font-sans);font-size:12px;font-weight:600;color:var(--ink-3)}
+  #innhold-koe .rad{grid-template-columns:52px minmax(0,1fr);gap:6px 12px}
+  #innhold-koe .rad > .tall1,#innhold-koe .rad > .uten{grid-column:2;display:flex;justify-content:space-between;gap:12px;text-align:right}
+  #innhold-koe .rad > .tall1::before{content:attr(data-navn);font-family:var(--font-sans);font-size:12px;color:var(--ink-3);text-align:left}
+  #innhold-koe .rad > .tall1.tom-eo{display:none}
   .tallrad{grid-template-columns:1fr}
 }
 </style>
@@ -413,8 +437,8 @@ a.merke-n:hover{background:var(--surface-inset)}
     <nav aria-labelledby="saker-etikett">
       <p class="etikett" id="saker-etikett">Saker</p>
       <ul class="spor">
-        <li><a href="#" data-fane="koe" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">8 saker<span class="kun-te"> · 1 utkast</span></span></a></li>
-        <li><a href="#" data-fane="eo"><span class="navn">Endringsordrer</span><span class="sist">2 utstedt</span></a></li>
+        <li><a href="#" data-fane="koe" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">9 saker<span class="kun-te"> · 1 utkast</span></span></a></li>
+        <li><a href="#" data-fane="eo"><span class="navn">Endringsordrer</span><span class="sist">4 utstedt</span></a></li>
         <li><a href="#" data-fane="forsering"><span class="navn">Forsering</span><span class="sist">1 sak</span></a></li>
       </ul>
     </nav>
@@ -472,23 +496,25 @@ a.merke-n:hover{background:var(--surface-inset)}
             </div>
             <div class="tallrad kun-fane f-koe" aria-label="Tallene for sakene">
               <div>
-                <span class="tl">Vederlag</span>
+                <span class="spor-h">Vederlag<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-v" aria-label="Om tallene">i</button><span class="lapp" id="tips-v" role="note" hidden>Sammenligningen tar med sakene som inngår i en endringsordre med beløp. Omfatter en endringsordre flere saker, er kravene i alle sakene med. Krav i flere saker kan gjelde samme kostnad. Trukne krav er ikke med.</span></span></span>
                 <div class="par">
-                  <div><span class="tf">Krevd i KOE</span><span class="tv">1 265 000<small>kr</small></span><span class="tf">5 krav</span></div>
-                  <div><span class="tf">Gitt i EO</span><span class="tv">460 000<small>kr</small></span><span class="tf">2 EO</span></div>
+                  <span class="tl">Krevd i sakene med EO</span><span class="tl">I endringsordrene</span>
+                  <span class="tv">450 000<small>kr</small></span><span class="tv">310 000<small>kr</small></span>
                 </div>
-                <p class="grunnlag">Sakene endringsordrene omfatter, har krevd 570 000 kr.</p>
+                <p class="utenfor">3 EO · EO-013 er regningsarbeid og har ikke beløp</p>
+                <p class="total">Krevd i alle sakene: <b>1 145 000 kr</b> i 6 krav</p>
               </div>
               <div>
-                <span class="tl">Fristforlengelse</span>
+                <span class="spor-h">Fristforlengelse<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-f" aria-label="Om tallene">i</button><span class="lapp" id="tips-f" role="note" hidden>Sammenligningen tar med sakene som inngår i en endringsordre med fristforlengelse. Dagene i ulike saker kan gjelde samme periode, så summen sier ikke hvor mye sluttfristen er forlenget.</span></span></span>
                 <div class="par">
-                  <div><span class="tf">Krevd i KOE</span><span class="tv">55<small>dager</small></span><span class="tf">4 krav</span></div>
-                  <div><span class="tf">Gitt i EO</span><span class="tv">15<small>dager</small></span><span class="tf">1 EO</span></div>
+                  <span class="tl">Krevd i sakene med EO</span><span class="tl">I endringsordrene</span>
+                  <span class="tv">20<small>dager</small></span><span class="tv">20<small>dager</small></span>
                 </div>
-                <p class="grunnlag">Sakene endringsordrene omfatter, har krevd 15 dager.</p>
+                <p class="utenfor">2 EO</p>
+                <p class="total">Krav om fristforlengelse i alle sakene: <b>4</b></p>
               </div>
             </div>
-            <p class="tallnote kun-fane f-koe">Trukne krav er ikke med. 1 sak er ikke med, fordi oversikten ikke forstår den. Krav i flere saker kan gjelde samme kostnad eller samme periode.</p>
+            <p class="tallnote kun-fane f-koe">1 sak er ikke med i tallene, fordi oversikten ikke forstår den.</p>
 
             <div class="fane-innhold" id="innhold-koe">
               <div class="verktoy">
@@ -500,21 +526,21 @@ a.merke-n:hover{background:var(--surface-inset)}
                 </div>
                 <input class="sok" type="search" placeholder="Søk i sakene" aria-label="Søk i sakene">
               </div>
-              <div class="radhode" aria-hidden="true"><span>Sak</span><span></span><span class="h">Krevd <span class="enhet">· kr</span></span><span class="h">Krevd <span class="enhet">· dager</span></span><span>Endringsordre</span><span>Siste brev</span></div>
+              <div class="radhode" aria-hidden="true"><span class="r2">Sak</span><span class="r2"></span><span class="gruppe g-v">Vederlag <span class="enhet">· kr</span></span><span class="gruppe g-f">Frist <span class="enhet">· dager</span></span><span class="r2" style="grid-column:7">Siste brev</span><span class="under-h c3">Krevd</span><span class="under-h c4">I EO</span><span class="under-h c5">Krevd</span><span class="under-h c6">I EO</span></div>
               <ul class="rader" id="koe-rader">
-              <li data-utvalg="ikke-eo">
+              <li data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-031</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><span class="kun-te"><span class="merke-n utkast">Utkast · ikke sendt</span></span><a class="merke-n" href="#">Fra E-027</a></div></div>
-                  <div class="tall1" data-navn="Krevd vederlag, kr"><span class="tomt">Ikke krevd</span></div><div class="tall1" data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div><div class="eo1" data-navn="Endringsordre"><span class="tomt">Ingen</span></div>
-                  <div class="siste2"><b>Brev 1 · TE</b>31. oktober 2026</div>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><span class="kun-te"><span class="merke-n utkast">Utkast · ikke sendt</span></span><a class="merke-n" href="#eo">Inngår i EO-012</a><span class="felles">sammen med E-027</span></div></div>
+                  <div class="tall1 " data-navn="Vederlag krevd, kr"><span class="tomt">Ikke krevd</span></div><div class="tall1 eo" data-navn="Vederlag i EO, kr"><span class="felles" title="Beløpet og dagene står i EO-012">felles</span></div><div class="tall1 " data-navn="Frist krevd, dager"><span class="tomt">Ikke krevd</span></div><div class="tall1 eo" data-navn="Frist i EO, dager"><span class="felles" title="Beløpet og dagene står i EO-012">felles</span></div>
+                  <div class="siste2"><b>Brev 1 · TE</b>29. oktober 2026</div>
                 </div>
               </li>
               <li data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-027</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span></div>
-                  <div class="tall1" data-navn="Krevd vederlag, kr">420 000</div><div class="tall1" data-navn="Krevd frist, dager">15</div><div class="eo1" data-navn="Endringsordre"><a class="merke-n" href="#eo">Inngår i EO-012</a><span class="belop">310 000 kr</span><span class="belop">15 dager</span></div>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-012</a><span class="felles">sammen med E-031</span></div></div>
+                  <div class="tall1 " data-navn="Vederlag krevd, kr">420 000</div><div class="tall1 eo" data-navn="Vederlag i EO, kr"><span class="felles" title="Beløpet og dagene står i EO-012">felles</span></div><div class="tall1 " data-navn="Frist krevd, dager">15</div><div class="tall1 eo" data-navn="Frist i EO, dager"><span class="felles" title="Beløpet og dagene står i EO-012">felles</span></div>
                   <div class="siste2"><b>EO-012 · BH</b>30. oktober 2026</div>
                 </div>
               </li>
@@ -522,7 +548,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-024</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Endret fasadeplate etter pålegg på byggemøte</a><span class="forhold">Irregulær endring</span></div>
-                  <div class="tall1" data-navn="Krevd vederlag, kr">420 000</div><div class="tall1" data-navn="Krevd frist, dager">15</div><div class="eo1" data-navn="Endringsordre"><span class="tomt">Ingen</span></div>
+                  <div class="tall1 " data-navn="Vederlag krevd, kr">420 000</div><div class="tall1 eo tom-eo" data-navn="Vederlag i EO, kr"><span class="skjult">Ingen endringsordre</span></div><div class="tall1 " data-navn="Frist krevd, dager">15</div><div class="tall1 eo tom-eo" data-navn="Frist i EO, dager"><span class="skjult">Ingen endringsordre</span></div>
                   <div class="siste2"><b>Brev 5 · BH</b>28. oktober 2026</div>
                 </div>
               </li>
@@ -530,31 +556,39 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-021</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Ny peling med produktivitetstap</a><span class="forhold">Byggherrens valg av løsninger og prosjektering</span><div class="merker"><a class="merke-n" href="#forsering">Forsering F-004</a></div></div>
-                  <div class="tall1" data-navn="Krevd vederlag, kr">190 000</div><div class="tall1" data-navn="Krevd frist, dager">20</div><div class="eo1" data-navn="Endringsordre"><span class="tomt">Ingen</span></div>
+                  <div class="tall1 " data-navn="Vederlag krevd, kr">190 000</div><div class="tall1 eo tom-eo" data-navn="Vederlag i EO, kr"><span class="skjult">Ingen endringsordre</span></div><div class="tall1 " data-navn="Frist krevd, dager">20</div><div class="tall1 eo tom-eo" data-navn="Frist i EO, dager"><span class="skjult">Ingen endringsordre</span></div>
                   <div class="siste2"><b>Brev 8 · TE</b>30. oktober 2026</div>
                 </div>
               </li>
-              <li data-utvalg="ikke-eo">
+              <li data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-019</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Byggherrens medvirkning</span></div>
-                  <div class="tall1" data-navn="Krevd vederlag, kr">85 000</div><div class="tall1" data-navn="Krevd frist, dager">5</div><div class="eo1" data-navn="Endringsordre"><span class="tomt">Ingen</span></div>
-                  <div class="siste2"><b>Brev 6 · TE</b>21. oktober 2026</div>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Byggherrens medvirkning</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-013</a></div></div>
+                  <div class="tall1 " data-navn="Vederlag krevd, kr">85 000</div><div class="tall1 eo" data-navn="Vederlag i EO, kr"><span class="art">regnings&shy;arbeid</span></div><div class="tall1 " data-navn="Frist krevd, dager">5</div><div class="tall1 eo" data-navn="Frist i EO, dager">5</div>
+                  <div class="siste2"><b>EO-013 · BH</b>25. oktober 2026</div>
                 </div>
               </li>
               <li data-utvalg="eo">
                 <div class="rad">
                   <span class="id">E-018</span>
-                  <div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span></div>
-                  <div class="tall1" data-navn="Krevd vederlag, kr">150 000</div><div class="tall1" data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div><div class="eo1" data-navn="Endringsordre"><a class="merke-n" href="#eo">Inngår i EO-009</a><span class="belop">150 000 kr</span></div>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-009</a></div></div>
+                  <div class="tall1 " data-navn="Vederlag krevd, kr">150 000</div><div class="tall1 eo" data-navn="Vederlag i EO, kr">150 000</div><div class="tall1 " data-navn="Frist krevd, dager"><span class="tomt">Ikke krevd</span></div><div class="tall1 eo tom-eo" data-navn="Frist i EO, dager"><span class="skjult">Ingen endringsordre</span></div>
                   <div class="siste2"><b>EO-009 · BH</b>2. oktober 2026</div>
+                </div>
+              </li>
+              <li data-utvalg="eo">
+                <div class="rad">
+                  <span class="id">E-012</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-010</a></div></div>
+                  <div class="tall1 " data-navn="Vederlag krevd, kr">−120 000</div><div class="tall1 eo" data-navn="Vederlag i EO, kr">−150 000</div><div class="tall1 " data-navn="Frist krevd, dager"><span class="tomt">Ikke krevd</span></div><div class="tall1 eo tom-eo" data-navn="Frist i EO, dager"><span class="skjult">Ingen endringsordre</span></div>
+                  <div class="siste2"><b>EO-010 · BH</b>24. september 2026</div>
                 </div>
               </li>
               <li data-utvalg="ikke-eo">
                 <div class="rad">
                   <span class="id">E-010</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Riving av eksisterende kulvert</a><span class="forhold">Irregulær endring</span></div>
-                  <div class="uten">Oversikten forstår ikke hele saken og viser ingen tall for den. Brevene står i saken.</div>
+                  <div class="uten">Ingen tall: saken har noe oversikten ikke forstår.</div>
                   <div class="siste2"><b>Brev 4 · BH</b>12. oktober 2026</div>
                 </div>
               </li>
@@ -562,7 +596,7 @@ a.merke-n:hover{background:var(--surface-inset)}
                 <div class="rad">
                   <span class="id">E-015</span>
                   <div class="tittel"><a href="grunnlagsoversikt.html">Merarbeid ved stillas</a><span class="forhold">Irregulær endring</span><div class="merker"><span class="merke-n">Trukket</span></div></div>
-                  <div class="tall1" data-navn="Krevd vederlag, kr">60 000<span class="trukket">trukket</span></div><div class="tall1" data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div><div class="eo1" data-navn="Endringsordre"><span class="tomt">Ingen</span></div>
+                  <div class="tall1 dempet" data-navn="Vederlag krevd, kr">60 000</div><div class="tall1 eo tom-eo" data-navn="Vederlag i EO, kr"><span class="skjult">Ingen endringsordre</span></div><div class="tall1 " data-navn="Frist krevd, dager"><span class="tomt">Ikke krevd</span></div><div class="tall1 eo tom-eo" data-navn="Frist i EO, dager"><span class="skjult">Ingen endringsordre</span></div>
                   <div class="siste2"><b>Brev 3 · TE</b>18. september 2026</div>
                 </div>
               </li>
@@ -579,11 +613,19 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="tittel"><a href="#">Endringsordre om sprengning i byggegropen</a><span class="forhold">Utstedt av byggherren 30. oktober 2026</span></div>
                   <div class="tall2" data-navn="Vederlag"><span class="b">310 000 kr</span></div>
                   <div class="tall2" data-navn="Frist"><span class="b">15 dager</span></div>
+                  <div class="siste2"><b>Omfatter</b>2 saker</div>
+                </div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-027</span><div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span></div><div class="tall2" data-navn="Vederlag"><span class="k">420 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k">15 dager krevd</span></div></div><div class="rad"><span class="id">E-031</span><div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span></div><div class="tall2" data-navn="Vederlag"><span class="k"><span class="tomt">Ikke krevd</span></span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
+              </li>
+              <li class="eo-rad">
+                <div class="rad">
+                  <span class="id">EO-013</span>
+                  <div class="tittel"><a href="#">Endringsordre om stans i påvente av tegning</a><span class="forhold">Utstedt av byggherren 25. oktober 2026</span></div>
+                  <div class="tall2" data-navn="Vederlag"><span class="b">Regningsarbeid</span></div>
+                  <div class="tall2" data-navn="Frist"><span class="b">5 dager</span></div>
                   <div class="siste2"><b>Omfatter</b>1 sak</div>
                 </div>
-                <div class="under" aria-label="Sakene endringsordren omfatter">
-                  <div class="rad"><span class="id">E-027</span><div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span></div><div class="tall2" data-navn="Vederlag"><span class="k">420 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k">15 dager krevd</span></div></div>
-                </div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-019</span><div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Byggherrens medvirkning</span></div><div class="tall2" data-navn="Vederlag"><span class="k">85 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k">5 dager krevd</span></div></div></div>
               </li>
               <li class="eo-rad">
                 <div class="rad">
@@ -593,9 +635,17 @@ a.merke-n:hover{background:var(--surface-inset)}
                   <div class="tall2" data-navn="Frist"><span class="tomt">Ingen dager</span></div>
                   <div class="siste2"><b>Omfatter</b>1 sak</div>
                 </div>
-                <div class="under" aria-label="Sakene endringsordren omfatter">
-                  <div class="rad"><span class="id">E-018</span><div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">150 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="tomt">Ingen dager</span></div></div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-018</span><div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">150 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
+              </li>
+              <li class="eo-rad">
+                <div class="rad">
+                  <span class="id">EO-010</span>
+                  <div class="tittel"><a href="#">Endringsordre om solavskjerming</a><span class="forhold">Utstedt av byggherren 24. september 2026</span></div>
+                  <div class="tall2" data-navn="Vederlag"><span class="b">−150 000 kr</span></div>
+                  <div class="tall2" data-navn="Frist"><span class="tomt">Ingen dager</span></div>
+                  <div class="siste2"><b>Omfatter</b>1 sak</div>
                 </div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-012</span><div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">−120 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
               </li>
               </ul>
             </div>
@@ -630,6 +680,12 @@ a.merke-n:hover{background:var(--surface-inset)}
   // Ankrene er #te og #bh, eventuelt med -eo eller -forsering for fanen.
   function anker(){ const a = '#' + skall.dataset.rolle.toLowerCase() + (skall.dataset.fane && skall.dataset.fane !== 'koe' ? '-' + skall.dataset.fane : ''); if (location.hash !== a) history.replaceState(null, '', a); }
   function lesAnker(){ const m = /^#(te|bh)(?:-(eo|forsering))?$/.exec(location.hash); if (m) { vis(m[1].toUpperCase()); velg(m[2] || 'koe'); } }
+  // Infotipsene: ett åpent om gangen, Escape lukker og gir fokus tilbake.
+  const tipsene = [...document.querySelectorAll('.tips .info')];
+  function lukk(b){ b.setAttribute('aria-expanded', 'false'); document.getElementById(b.getAttribute('aria-controls')).hidden = true; }
+  tipsene.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const aapen = b.getAttribute('aria-expanded') === 'true'; tipsene.forEach(lukk); if (!aapen) { b.setAttribute('aria-expanded', 'true'); document.getElementById(b.getAttribute('aria-controls')).hidden = false; } }));
+  document.addEventListener('click', () => tipsene.forEach(lukk));
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const b = tipsene.find(x => x.getAttribute('aria-expanded') === 'true'); if (b) { lukk(b); b.focus(); } });
   lesAnker(); addEventListener('hashchange', lesAnker);
 </script>
 </body>
