@@ -86,14 +86,15 @@ export interface Feltene {
 }
 
 /**
- * Feltene før forholdet er valgt: ledetekstene for et pålegg og spørsmålet om varsel som alt
- * er sendt, som i skissen versjon 3. De følger forholdet når det er valgt (F-5).
+ * Feltene før forholdet er valgt: ledetekstene for et pålegg, som i skissen versjon 3. De
+ * følger forholdet når det er valgt, og spørsmålet om varsel som alt er sendt, vises først
+ * når punkt 32.2 gjelder for forholdet (F-5, akseptkriterium 1 i #1481).
  */
 export const FELTENE_UTEN_FORHOLD: Feltene = {
   dato: null,
   beskrivelse: 'Beskrivelse av pålegget',
   datotekst: 'Dato du mottok pålegget',
-  punkt322: true,
+  punkt322: false,
   endringsordre: false,
 };
 

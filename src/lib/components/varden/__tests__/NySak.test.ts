@@ -72,7 +72,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
       'Velg bestemmelsen i kontrakten pålegget eller forholdet faller inn under.'
     );
     expect(hjelp.compareDocumentPosition(feilen) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    const forste = screen.getAllByRole('radio')[0];
+    const forste = screen.getByRole('button', { name: ENDRINGER });
     expect(feilen.compareDocumentPosition(forste) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -159,11 +159,12 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(new Set(utenPunkt).size).toBe(utenPunkt.length);
   });
 
-  it('skissen versjon 3: beskrivelsen, datoen og vedlegget står før forholdet er valgt', async () => {
+  it('skissen versjon 3 og F-5: beskrivelsen, datoen og vedlegget står før forholdet er valgt, spørsmålet om punkt 32.2 først når det gjelder', async () => {
     aapne();
     expect(screen.getByLabelText('Beskrivelse av pålegget')).toBeTruthy();
     expect(screen.getByLabelText('Dato du mottok pålegget')).toBeTruthy();
     expect(screen.getByText('Vedlegg (valgfritt)')).toBeTruthy();
+    expect(screen.queryByText(/allerede varslet byggherren etter punkt 32.2/)).toBeNull();
   });
 
   it('F-8/VS-U39: opplysningen fra kapittel B står ved spørsmålet, både ved nei og ved ja', async () => {
