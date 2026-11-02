@@ -734,7 +734,8 @@
   .feste::before {
     content: '';
     position: absolute;
-    inset: calc(-1 * var(--spacing-4)) 0 100%;
+    inset: calc(-1 * var(--spacing-4)) 0 calc(100% - var(--r-kort));
+    z-index: -1;
     background: var(--canvas);
   }
   .sendes-til {
