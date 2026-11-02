@@ -252,6 +252,10 @@ FEILINNFOERINGER = [
      "database/migrasjoner/20261102130000_vedlegg_foer_saken.sql",
      "  DELETE koe.vedlegg_uten_sak WHERE vedlegg_id = @vedlegg_id;", "  DELETE koe.vedlegg_uten_sak WHERE 1 = 0;",
      "TE sletter et vedlegg uten sak"),
+    ("S66", "ruteren slipper BH gjennom til vedleggene for en ny sak, og leser filen før avvisningen (KT-U10, #815 punkt 1)",
+     "server/app.ts",
+     "    if (r.bareTE !== undefined && f.side?.rolle !== 'TE')", "    if (false)",
+     "BH avvises før kroppen leses"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
