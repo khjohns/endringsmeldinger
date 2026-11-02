@@ -480,7 +480,7 @@ export const NYSAK = {
   avbrutt: 'Brevet er ikke sendt, og ingen sak er opprettet.',
 };
 
-/** Sakslisten i prosjektet (#1450, prototypen `saksliste-v2.html`, vedtaksforslaget 02.11). */
+/** Sakslisten i prosjektet (#1450, prototypen `saksliste-v2.html`, MM-U37–MM-U39). */
 export const SAKSLISTE = {
   saker: 'Saker',
   koe: 'Krav om endringsordre',

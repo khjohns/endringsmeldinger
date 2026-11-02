@@ -1,6 +1,6 @@
 /**
  * Sakslisten i Varden (#1450). Forventningene står i beskrivelsen av #1450 (punkt 2–8), med
- * svarene på M1–M8, og i vedtaksforslaget 02.11 med prototypen `saksliste-v2.html`: raden viser
+ * svarene på M1–M8, og i MM-U37–MM-U39 med prototypen `saksliste-v2.html`: raden viser
  * det TE har krevd, og nøkkeltallene summerer kravene utenfor endringsordrene. KT-U9, KT-U10
  * og EO-U13 gjelder også.
  */
@@ -94,7 +94,7 @@ describe('Sakslisten i Varden', () => {
     expect(r.querySelector('.oppdatert')!.textContent).toContain('22. desember 2025');
   });
 
-  it('raden viser det TE har krevd, og ikke byggherrens svar, enigheten eller betegnelsen (vedtaksforslaget 02.11, punkt 1)', () => {
+  it('raden viser det TE har krevd, og ikke byggherrens svar, enigheten eller betegnelsen (MM-U37)', () => {
     const linje: Sakslinje = lagSakslinje({
       forhold: { ...ingenting, betegnelse: 'svar_ikke_godtatt', svar: { resultat: 'avslaatt' } },
       vederlag: {
@@ -134,7 +134,7 @@ describe('Sakslisten i Varden', () => {
       expect(r.textContent).not.toContain(ute);
   });
 
-  it('cellen sier «Varslet», beregningsregelen eller «Ikke krevd» når det ikke er noe beløp eller dager (vedtaksforslaget 02.11, punkt 1, OV-U43)', () => {
+  it('cellen sier «Varslet», beregningsregelen eller «Ikke krevd» når det ikke er noe beløp eller dager (MM-U37, OV-U43)', () => {
     const vederlag = (
       krav: { beloep: number; metode: string } | null,
       betegnelse: 'varslet' | null
@@ -183,7 +183,7 @@ describe('Sakslisten i Varden', () => {
     expect(celler('Ingenting')).toEqual(['Ikke krevd', 'Ikke krevd']);
   });
 
-  it('tallene i en sak i en endringsordre, et trukket krav og en sak TE har avsluttet, er dempet, og merket sier hva TE har gjort (vedtaksforslaget 02.11, punkt 2)', () => {
+  it('tallene i en sak i en endringsordre, et trukket krav og en sak TE har avsluttet, er dempet, og merket sier hva TE har gjort (MM-U38)', () => {
     const krav = (kravet_staar: boolean, betegnelse: 'trukket' | null = null) => ({
       ...ingenting,
       betegnelse,
@@ -223,7 +223,7 @@ describe('Sakslisten i Varden', () => {
     expect(within(rad('Påberopelse trukket')).getByText('Påberopelsen trukket')).toBeTruthy();
   });
 
-  it('nøkkeltallene summerer kravene med beløp utenfor endringsordrene, teller varsler og krav uten beløp for seg og summerer ikke dagene (vedtaksforslaget 02.11, punkt 2)', () => {
+  it('nøkkeltallene summerer kravene med beløp utenfor endringsordrene, teller varsler og krav uten beløp for seg og summerer ikke dagene (MM-U38)', () => {
     const v = (beloep: number, metode = 'tilbud', kravet_staar = true) => ({
       ...ingenting,
       kravet_staar,
@@ -317,7 +317,7 @@ describe('Sakslisten i Varden', () => {
     expect(titler()).toHaveLength(3);
   });
 
-  it('en sak kjernen ikke forstår, viser ingen tall og ingen egen tekst, og er ikke med i summene (vedtaksforslaget 02.11, punkt 3, MM-U2)', () => {
+  it('en sak kjernen ikke forstår, viser ingen tall og ingen egen tekst, og er ikke med i summene (MM-U39, MM-U2)', () => {
     vis({
       saker: [
         lagSakslinje({

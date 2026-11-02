@@ -1,6 +1,6 @@
 <!--
   Sakslisten i prosjektet (#1450): prototypen `docs/design/prototyper/saksliste-v2.html` og
-  vedtaksforslaget 02.11. Panelet har sakstypene KOE og EO (KT-U9, M4). Lista viser det TE har
+  MM-U37–MM-U39. Panelet har sakstypene KOE og EO (KT-U9, M4). Lista viser det TE har
   krevd, og merket for endringsordren (EO-U13). Byggherrens svar og enigheten står i saken.
   Halvdelen for endringsordrene i nøkkeltallene kommer med EO-saken (#1423): til da finnes
   ingen tall å vise, og ukjent er ikke 0.
@@ -429,7 +429,7 @@
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
-  /* Dempet: ikke med i summene (vedtaksforslaget 02.11, punkt 2). */
+  /* Dempet: ikke med i summene (MM-U38). */
   .krevd.dempet .verdi {
     color: var(--ink-3);
   }

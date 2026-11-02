@@ -1,5 +1,5 @@
 /**
- * Sakslisten i Varden (#1450, prototypen `saksliste-v2.html`, vedtaksforslaget 02.11). Raden
+ * Sakslisten i Varden (#1450, prototypen `saksliste-v2.html`, MM-U37–MM-U39). Raden
  * viser bare det totalentreprenøren har krevd, og nøkkeltallene summerer kravene. Byggherrens
  * svar, enigheten og betegnelsen per spor står på siden for saken.
  */
@@ -58,7 +58,7 @@ export type Krevd = {
 
 /**
  * Det TE har krevd i sporet: beløpet eller dagene, «Varslet», beregningsregelen eller
- * «Ikke krevd» (vedtaksforslaget 02.11, punkt 1). En sak kjernen ikke forstår, har ingen
+ * «Ikke krevd» (MM-U37). En sak kjernen ikke forstår, har ingen
  * celle, så tallene ikke leses som riktige (MM-U2).
  */
 export function krevd(
@@ -90,7 +90,7 @@ export type Noekkeltall = {
 };
 
 /**
- * Kravene i sakene som ikke inngår i en endringsordre (vedtaksforslaget 02.11, punkt 2). Et
+ * Kravene i sakene som ikke inngår i en endringsordre (MM-U38). Et
  * krav telles når serveren sier at det står (`kravet_staar`, som utelater trukne krav og saker
  * TE har avsluttet). Krav etter regningsarbeid eller enhetspriser har ikke beløp i lista og
  * telles for seg. Fristdagene summeres ikke.
