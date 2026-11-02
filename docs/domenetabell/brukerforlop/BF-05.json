@@ -1,0 +1,414 @@
+{
+  "id": "BF-05",
+  "tittel": "TE oppretter saken og påberoper forholdet",
+  "brukerhistorie": "TE har fått et pålegg som TE mener er en irregulær endring. TE velger «Nytt krav om endringsordre», velger forholdet, skriver tittelen på saken og beskrivelsen av pålegget, oppgir datoen pålegget ble mottatt og kontrollerer brevet før det sendes, så kravet ikke tapes for sent varsel etter punkt 32.2. Før sending ser TE at forholdet står fast. Etter sendingen står saken med påberopelsen sendt og venter på BHs svar.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Et prosjekt med kontrakt etter NS 8407. TE er innlogget med kontraktsrollen TE, og ingen sak finnes for pålegget. Pålegget ble mottatt 15. september 2026."
+  },
+  "bestilling": "BF-05.md",
+  "prototype": {
+    "fil": "../../design/prototyper/bf-05-ny-sak.html",
+    "klikkstier": [
+      {
+        "id": "hovedveien",
+        "dekker": [
+          "1",
+          "2",
+          "3",
+          "5",
+          "6"
+        ],
+        "start": "saksliste",
+        "handlinger": [
+          {
+            "klikk": "Nytt krav om endringsordre",
+            "tilstand": "ny"
+          },
+          {
+            "staar": "Endringer, jf. punkt 31 og 32"
+          },
+          {
+            "velg": "Uforutsette forhold ved grunnen"
+          },
+          {
+            "staar": "Dette forholdet er ikke med i skissen (S-7)."
+          },
+          {
+            "velg": "Irregulær endring"
+          },
+          {
+            "staar": "Forholdet står fast når brevet er sendt."
+          },
+          {
+            "staar": "Vil du påberope et annet forhold senere, oppretter du en ny sak."
+          },
+          {
+            "fyll": "Tittel på saken",
+            "tekst": "Endret føring av ventilasjonskanaler i 3. etasje"
+          },
+          {
+            "fyll": "Beskrivelse av pålegget",
+            "tekst": "På byggemøtet 15. september 2026 påla BH at ventilasjonskanalene i 3. etasje føres over korridoren i stedet for gjennom tekniske rom."
+          },
+          {
+            "staar": "Løsningen vurderer ikke om varselet kommer i tide."
+          },
+          {
+            "staar": "Er datoen feil, retter du den senere i et eget brev."
+          },
+          {
+            "fyll": "Dato pålegget ble mottatt",
+            "tekst": "15.09.2026"
+          },
+          {
+            "staar": "Har du allerede varslet BH etter punkt 32.2, på annen måte, at pålegget er en endring?"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Påberopelse av irregulær endring"
+          },
+          {
+            "staar": "E-032 (tildeles ved sending)"
+          },
+          {
+            "staar": "Totalentreprenøren krever endringsordre for «Endret føring av ventilasjonskanaler i 3. etasje» i sak E-032 som irregulær endring (NS 8407 punkt 32.1)."
+          },
+          {
+            "staar": "Totalentreprenøren varsler etter NS 8407 punkt 32.2"
+          },
+          {
+            "staar": "Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026."
+          },
+          {
+            "staar": "påla BH at ventilasjonskanalene i 3. etasje føres over korridoren"
+          },
+          {
+            "klikk": "Tilbake",
+            "tilstand": "ny"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "påla BH at ventilasjonskanalene i 3. etasje føres over korridoren"
+          },
+          {
+            "klikk": "Send til BH",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Kryss av for at du har kontrollert brevet før du sender."
+          },
+          {
+            "kryss": "Jeg har kontrollert brevet."
+          },
+          {
+            "klikk": "Send til BH",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Påberopelsen av irregulær endring er sendt til BH 1. oktober 2026"
+          },
+          {
+            "staar": "Påberopelsen sendt 1. oktober 2026"
+          },
+          {
+            "staar": "Svar ikke registrert"
+          },
+          {
+            "staar": "Brevet leveres til saken i Catenda når saken har fått sin topic der."
+          },
+          {
+            "klikk": "Nytt krav om endringsordre",
+            "tilstand": "ny"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "ny-feil"
+          },
+          {
+            "staar": "Skriv tittelen på saken."
+          }
+        ]
+      },
+      {
+        "id": "uten-beskrivelse",
+        "dekker": [
+          "3f"
+        ],
+        "start": "ny",
+        "handlinger": [
+          {
+            "fyll": "Tittel på saken",
+            "tekst": "Endret føring av ventilasjonskanaler i 3. etasje"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "ny-feil"
+          },
+          {
+            "staar": "Velg forholdet du påberoper."
+          },
+          {
+            "staar": "Beskriv pålegget før du går videre."
+          },
+          {
+            "staar": "Oppgi datoen pålegget ble mottatt."
+          },
+          {
+            "staar": "Ingen sak er opprettet ennå."
+          },
+          {
+            "velg": "Irregulær endring"
+          },
+          {
+            "fyll": "Beskrivelse av pålegget",
+            "tekst": "BH påla endret føring av ventilasjonskanalene i 3. etasje."
+          },
+          {
+            "fyll": "Dato pålegget ble mottatt",
+            "tekst": "15.9"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "ny-feil"
+          },
+          {
+            "staar": "Skriv datoen som dd.mm.åååå, for eksempel 15.09.2026."
+          },
+          {
+            "fyll": "Dato pålegget ble mottatt",
+            "tekst": "15.09.2026"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "brev"
+          }
+        ]
+      },
+      {
+        "id": "annen-maate",
+        "dekker": [
+          "4"
+        ],
+        "start": "ny",
+        "handlinger": [
+          {
+            "staar": "Har du allerede varslet BH etter punkt 32.2, på annen måte, at pålegget er en endring?"
+          },
+          {
+            "velg": "Ja"
+          },
+          {
+            "staar": "Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet."
+          },
+          {
+            "staar": "En tidligere dato gjelder først når BH godtar rettingen."
+          },
+          {
+            "velg": "Irregulær endring"
+          },
+          {
+            "fyll": "Tittel på saken",
+            "tekst": "Endret føring av ventilasjonskanaler i 3. etasje"
+          },
+          {
+            "fyll": "Beskrivelse av pålegget",
+            "tekst": "BH påla endret føring av ventilasjonskanalene i 3. etasje."
+          },
+          {
+            "fyll": "Dato pålegget ble mottatt",
+            "tekst": "15.09.2026"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "ny-feil"
+          },
+          {
+            "staar": "Velg hva varselet ble sendt i."
+          },
+          {
+            "staar": "Oppgi datoen varselet ble sendt."
+          },
+          {
+            "staar": "Last opp varselet som PDF."
+          },
+          {
+            "staar": "Beskriv varselet kort."
+          },
+          {
+            "velg": "E-post"
+          },
+          {
+            "fyll": "Datoen det ble sendt",
+            "tekst": "16.09.2026"
+          },
+          {
+            "kryss": "Lat som PDF-en er lastet opp"
+          },
+          {
+            "fyll": "Kort beskrivelse av varselet",
+            "tekst": "E-post til BHs prosjektleder om pålegget."
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 ble sendt i totalentreprenørens e-post av 16. september 2026, som er vedlagt."
+          },
+          {
+            "staar": "varsel.pdf: varselet i totalentreprenørens e-post av 16. september 2026"
+          },
+          {
+            "klikk": "Tilbake",
+            "tilstand": "annen-maate"
+          }
+        ]
+      },
+      {
+        "id": "tilbake-til-nei",
+        "dekker": [
+          "4a"
+        ],
+        "start": "annen-maate",
+        "handlinger": [
+          {
+            "velg": "Nei"
+          },
+          {
+            "velg": "Irregulær endring"
+          },
+          {
+            "fyll": "Tittel på saken",
+            "tekst": "Endret føring av ventilasjonskanaler i 3. etasje"
+          },
+          {
+            "fyll": "Beskrivelse av pålegget",
+            "tekst": "BH påla endret føring av ventilasjonskanalene i 3. etasje."
+          },
+          {
+            "fyll": "Dato pålegget ble mottatt",
+            "tekst": "15.09.2026"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "brev"
+          },
+          {
+            "klikk": "Tilbake",
+            "tilstand": "ny"
+          }
+        ]
+      },
+      {
+        "id": "avbryt",
+        "dekker": [
+          "5a"
+        ],
+        "start": "ny",
+        "handlinger": [
+          {
+            "velg": "Irregulær endring"
+          },
+          {
+            "fyll": "Tittel på saken",
+            "tekst": "Endret føring av ventilasjonskanaler i 3. etasje"
+          },
+          {
+            "fyll": "Beskrivelse av pålegget",
+            "tekst": "BH påla endret føring av ventilasjonskanalene i 3. etasje."
+          },
+          {
+            "fyll": "Dato pålegget ble mottatt",
+            "tekst": "15.09.2026"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes."
+          },
+          {
+            "klikk": "Avbryt",
+            "tilstand": "saksliste"
+          },
+          {
+            "klikk": "Nytt krav om endringsordre",
+            "tilstand": "ny"
+          },
+          {
+            "klikk": "Se brevet",
+            "tilstand": "ny-feil"
+          },
+          {
+            "staar": "Velg forholdet du påberoper."
+          },
+          {
+            "staar": "Skriv tittelen på saken."
+          }
+        ]
+      }
+    ]
+  },
+  "kilder": [
+    "KT-U10",
+    "KT-U7",
+    "OV-U76",
+    "OV-U77",
+    "OV-U78",
+    "GR-U15",
+    "KT-U11",
+    "GR-U22",
+    "OV-U55",
+    "OV-U57",
+    "VS-U26",
+    "VS-U25",
+    "OV-U52",
+    "GR-U31",
+    "LV-U41",
+    "LV-U43",
+    "LV-U35",
+    "LV-U9",
+    "KT-U3",
+    "VS-U34",
+    "VS-U38",
+    "OV-U5",
+    "KT-U6",
+    "OV-U79",
+    "OV-U80",
+    "OV-U11",
+    "GR-U11",
+    "MM-U21",
+    "OV-U84",
+    "VS-U37",
+    "VS-U39"
+  ],
+  "venter_paa": [
+    "#1450",
+    "#1271",
+    "#1477",
+    "#1481"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-01",
+      "forhold": "#1477, #1427, #1065",
+      "hva": "Forløpet er registrert som planlagt, med bestilling og skisse av skjemaet for ny sak."
+    },
+    {
+      "dato": "2026-11-01",
+      "forhold": "#1483, #1477",
+      "hva": "Kildene har vedtakene for S-2, S-3 og S-6 (LV-U43, KT-U11 og VS-U38). Skissen er versjon 3."
+    }
+  ]
+}
