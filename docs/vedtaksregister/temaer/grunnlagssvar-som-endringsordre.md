@@ -4,7 +4,7 @@
 
 **[Vedtaksfila](../../plans/vedtak.md) er autoritativ.** Denne visningen er generert fra [vedtaksregisteret](../README.md) og er ikke et eget vedtaksgrunnlag. Den samler vedtakene ordrett, med forholdene mellom dem, og lager ingen sammenslått gjeldende ordlyd: hva som gjelder, leses av vedtakene sammen, etter forholdene.
 
-Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [GR-U26](#gr-u26), [GR-U27](#gr-u27), [GR-U29](#gr-u29), [GR-U32](#gr-u32), [GR-U33](#gr-u33), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [VS-U29](#vs-u29), [VS-U34](#vs-u34), [VS-U36](#vs-u36), [VS-U37](#vs-u37), [VS-U38](#vs-u38), [VS-U39](#vs-u39), [VS-U40](#vs-u40), [EO-U11](#eo-u11), [EO-U12](#eo-u12), [EO-U13](#eo-u13), [EO-U14](#eo-u14), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [LV-U19](#lv-u19), [LV-U21](#lv-u21), [MM-U30](#mm-u30), [MM-U31](#mm-u31), [LV-U23](#lv-u23), [LV-U25](#lv-u25), [LV-U26](#lv-u26), [LV-U29](#lv-u29), [LV-U31](#lv-u31), [LV-U32](#lv-u32), [MM-U34](#mm-u34), [LV-U34](#lv-u34), [LV-U36](#lv-u36), [LV-U37](#lv-u37), [MM-U35](#mm-u35), [LV-U39](#lv-u39), [LV-U40](#lv-u40), [LV-U41](#lv-u41), [LV-U42](#lv-u42), [MM-U36](#mm-u36), [LV-U43](#lv-u43), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13), [OV-U15](#ov-u15), [OV-U16](#ov-u16), [OV-U19](#ov-u19), [OV-U20](#ov-u20), [OV-U21](#ov-u21), [OV-U22](#ov-u22), [OV-U23](#ov-u23), [OV-U24](#ov-u24), [OV-U25](#ov-u25), [OV-U26](#ov-u26), [OV-U28](#ov-u28), [OV-U29](#ov-u29), [OV-U30](#ov-u30), [OV-U32](#ov-u32), [OV-U33](#ov-u33), [OV-U35](#ov-u35), [OV-U36](#ov-u36), [OV-U37](#ov-u37), [OV-U39](#ov-u39), [OV-U41](#ov-u41), [OV-U42](#ov-u42), [OV-U43](#ov-u43), [OV-U44](#ov-u44), [OV-U45](#ov-u45), [OV-U46](#ov-u46), [OV-U47](#ov-u47), [OV-U48](#ov-u48), [OV-U49](#ov-u49), [OV-U51](#ov-u51), [OV-U52](#ov-u52), [OV-U53](#ov-u53), [OV-U54](#ov-u54), [OV-U55](#ov-u55), [OV-U56](#ov-u56), [OV-U57](#ov-u57), [OV-U58](#ov-u58), [OV-U60](#ov-u60), [OV-U62](#ov-u62), [OV-U66](#ov-u66), [OV-U67](#ov-u67), [OV-U68](#ov-u68), [OV-U69](#ov-u69), [OV-U70](#ov-u70), [OV-U71](#ov-u71), [OV-U72](#ov-u72), [OV-U73](#ov-u73), [OV-U74](#ov-u74), [OV-U79](#ov-u79), [OV-U80](#ov-u80), [OV-U81](#ov-u81), [OV-U84](#ov-u84), [OV-U85](#ov-u85), [OV-U86](#ov-u86). Vedtak som temaet viser til, står som lenke til vedtaksfila.
+Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [GR-U26](#gr-u26), [GR-U27](#gr-u27), [GR-U29](#gr-u29), [GR-U32](#gr-u32), [GR-U33](#gr-u33), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [VS-U29](#vs-u29), [VS-U34](#vs-u34), [VS-U36](#vs-u36), [VS-U37](#vs-u37), [VS-U38](#vs-u38), [VS-U39](#vs-u39), [VS-U40](#vs-u40), [EO-U11](#eo-u11), [EO-U12](#eo-u12), [EO-U13](#eo-u13), [EO-U14](#eo-u14), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [LV-U19](#lv-u19), [LV-U21](#lv-u21), [MM-U30](#mm-u30), [MM-U31](#mm-u31), [LV-U23](#lv-u23), [LV-U25](#lv-u25), [LV-U26](#lv-u26), [LV-U29](#lv-u29), [LV-U31](#lv-u31), [LV-U32](#lv-u32), [MM-U34](#mm-u34), [LV-U34](#lv-u34), [LV-U36](#lv-u36), [LV-U37](#lv-u37), [MM-U35](#mm-u35), [LV-U39](#lv-u39), [LV-U40](#lv-u40), [LV-U41](#lv-u41), [LV-U42](#lv-u42), [MM-U36](#mm-u36), [LV-U43](#lv-u43), [MM-U37](#mm-u37), [MM-U38](#mm-u38), [MM-U40](#mm-u40), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13), [OV-U15](#ov-u15), [OV-U16](#ov-u16), [OV-U19](#ov-u19), [OV-U20](#ov-u20), [OV-U21](#ov-u21), [OV-U22](#ov-u22), [OV-U23](#ov-u23), [OV-U24](#ov-u24), [OV-U25](#ov-u25), [OV-U26](#ov-u26), [OV-U28](#ov-u28), [OV-U29](#ov-u29), [OV-U30](#ov-u30), [OV-U32](#ov-u32), [OV-U33](#ov-u33), [OV-U35](#ov-u35), [OV-U36](#ov-u36), [OV-U37](#ov-u37), [OV-U39](#ov-u39), [OV-U41](#ov-u41), [OV-U42](#ov-u42), [OV-U43](#ov-u43), [OV-U44](#ov-u44), [OV-U45](#ov-u45), [OV-U46](#ov-u46), [OV-U47](#ov-u47), [OV-U48](#ov-u48), [OV-U49](#ov-u49), [OV-U51](#ov-u51), [OV-U52](#ov-u52), [OV-U53](#ov-u53), [OV-U54](#ov-u54), [OV-U55](#ov-u55), [OV-U56](#ov-u56), [OV-U57](#ov-u57), [OV-U58](#ov-u58), [OV-U60](#ov-u60), [OV-U62](#ov-u62), [OV-U66](#ov-u66), [OV-U67](#ov-u67), [OV-U68](#ov-u68), [OV-U69](#ov-u69), [OV-U70](#ov-u70), [OV-U71](#ov-u71), [OV-U72](#ov-u72), [OV-U73](#ov-u73), [OV-U74](#ov-u74), [OV-U79](#ov-u79), [OV-U80](#ov-u80), [OV-U81](#ov-u81), [OV-U84](#ov-u84), [OV-U85](#ov-u85), [OV-U86](#ov-u86). Vedtak som temaet viser til, står som lenke til vedtaksfila.
 
 ## Kildegrunnlaget
 
@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `9b3c439395e8ca17e19dc438e8d60af7b3e5734c55dbe18c2d4042160753dbe7`
+Kontrollsum (SHA-256 over utdraget visningen leser): `1730eeeb83e1323ee1818b1457d33bfd298b9016bdcd98465ff1f4729333d4db`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -65,16 +65,16 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [VS-U40](#vs-u40) | Presiserer [OV-U80](#ov-u80); Presiserer [VS-U38](#vs-u38) | — |
 | [EO-U11](#eo-u11) | Presiserer [EO-U3](../../plans/vedtak.md#eo-u3); Presiserer [MM-U34](#mm-u34) | — |
 | [EO-U12](#eo-u12) | Endrer [OV-U6](#ov-u6); Presiserer [GR-U10](#gr-u10); Presiserer [KA-U13](../../plans/vedtak.md#ka-u13); Presiserer [EO-U3](../../plans/vedtak.md#eo-u3); Presiserer [MM-U34](#mm-u34) | — |
-| [EO-U13](#eo-u13) | Endrer [MM-U33](../../plans/vedtak.md#mm-u33); Endrer [MM-U34](#mm-u34) | Presisert av [EO-U14](#eo-u14) |
+| [EO-U13](#eo-u13) | Endrer [MM-U33](../../plans/vedtak.md#mm-u33); Endrer [MM-U34](#mm-u34) | Presisert av [EO-U14](#eo-u14); Presisert av [MM-U38](#mm-u38) |
 | [EO-U14](#eo-u14) | Presiserer [LV-U24](../../plans/vedtak.md#lv-u24); Presiserer [EO-U13](#eo-u13) | — |
 | [MM-U17](#mm-u17) | Endrer [GR-U12](#gr-u12); Endrer [GR-U13](#gr-u13); Endrer [KA-U10](../../plans/vedtak.md#ka-u10); Endrer [MM-U9](../../plans/vedtak.md#mm-u9); Endrer [MM-U11](../../plans/vedtak.md#mm-u11); Endrer [MM-U12](../../plans/vedtak.md#mm-u12) | Presisert av [HF-U13](#hf-u13); Endret av [OV-U4](#ov-u4) |
 | [MM-U24](#mm-u24) | Presiserer [VS-U2](../../plans/vedtak.md#vs-u2); Presiserer [VS-U10](../../plans/vedtak.md#vs-u10); Presiserer [HF-U5](#hf-u5); Presiserer [LV-U7](../../plans/vedtak.md#lv-u7); Presiserer [OV-U4](#ov-u4) | Presisert av [MM-U29](#mm-u29); Presisert av [MM-U30](#mm-u30); Endret av [MM-U34](#mm-u34) |
-| [MM-U29](#mm-u29) | Presiserer [MM-U24](#mm-u24) | Presisert av [MM-U30](#mm-u30) |
+| [MM-U29](#mm-u29) | Presiserer [MM-U24](#mm-u24) | Presisert av [MM-U30](#mm-u30); Endret av [MM-U40](#mm-u40) |
 | [LV-U15](#lv-u15) | Presiserer [LV-U2](../../plans/vedtak.md#lv-u2); Presiserer [GR-U13](#gr-u13) | Presisert av [LV-U23](#lv-u23) |
 | [LV-U19](#lv-u19) | Presiserer [OV-U5](#ov-u5) | Endret av [LV-U39](#lv-u39) |
 | [LV-U21](#lv-u21) | Presiserer [LV-U4](../../plans/vedtak.md#lv-u4); Presiserer [LV-U5](../../plans/vedtak.md#lv-u5); Presiserer [OV-U5](#ov-u5) | Utvidet av [VS-U37](#vs-u37); Endret av [LV-U39](#lv-u39); Utvidet av [OV-U28](#ov-u28); Presisert av [OV-U29](#ov-u29) |
-| [MM-U30](#mm-u30) | Presiserer [MM-U22](../../plans/vedtak.md#mm-u22); Presiserer [MM-U24](#mm-u24); Presiserer [MM-U29](#mm-u29) | Snevret inn av [MM-U31](#mm-u31); Presisert av [OV-U43](#ov-u43); Presisert av [OV-U49](#ov-u49) |
-| [MM-U31](#mm-u31) | Snevrer inn [MM-U30](#mm-u30) | — |
+| [MM-U30](#mm-u30) | Presiserer [MM-U22](../../plans/vedtak.md#mm-u22); Presiserer [MM-U24](#mm-u24); Presiserer [MM-U29](#mm-u29) | Snevret inn av [MM-U31](#mm-u31); Snevret inn av [MM-U37](#mm-u37); Presisert av [OV-U43](#ov-u43); Presisert av [OV-U49](#ov-u49) |
+| [MM-U31](#mm-u31) | Snevrer inn [MM-U30](#mm-u30) | Snevret inn av [MM-U37](#mm-u37) |
 | [LV-U23](#lv-u23) | Presiserer [LV-U2](../../plans/vedtak.md#lv-u2); Presiserer [LV-U15](#lv-u15) | Presisert av [LV-U25](#lv-u25) |
 | [LV-U25](#lv-u25) | Presiserer [LV-U23](#lv-u23) | Presisert av [LV-U26](#lv-u26) |
 | [LV-U26](#lv-u26) | Presiserer [LV-U2](../../plans/vedtak.md#lv-u2); Presiserer [LV-U25](#lv-u25) | — |
@@ -92,6 +92,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [LV-U42](#lv-u42) | Endrer [GR-U14](#gr-u14); Endrer [LV-U4](../../plans/vedtak.md#lv-u4) | — |
 | [MM-U36](#mm-u36) | Presiserer [MM-U35](#mm-u35); Presiserer [KA-U16](../../plans/vedtak.md#ka-u16) | — |
 | [LV-U43](#lv-u43) | Presiserer [LV-U41](#lv-u41) | — |
+| [MM-U37](#mm-u37) | Endrer [MM-U28](../../plans/vedtak.md#mm-u28); Snevrer inn [MM-U30](#mm-u30); Snevrer inn [MM-U31](#mm-u31) | — |
+| [MM-U38](#mm-u38) | Endrer [OV-U61](../../plans/vedtak.md#ov-u61); Endrer [MM-U28](../../plans/vedtak.md#mm-u28); Presiserer [EO-U13](#eo-u13) | — |
+| [MM-U40](#mm-u40) | Endrer [MM-U29](#mm-u29) | — |
 | [GFK-U2](#gfk-u2) | Presiserer [GR-U13](#gr-u13); Presiserer [EO-U6](../../plans/vedtak.md#eo-u6); Presiserer [FO-U6](../../plans/vedtak.md#fo-u6) | Presisert av [GFK-U14](#gfk-u14) |
 | [GFK-U14](#gfk-u14) | Presiserer [GFK-U2](#gfk-u2) | — |
 | [OV-U4](#ov-u4) | Endrer [KA-U16](../../plans/vedtak.md#ka-u16); Endrer [KA-U18](../../plans/vedtak.md#ka-u18); Endrer [KA-U19](../../plans/vedtak.md#ka-u19); Endrer [KA-U24](../../plans/vedtak.md#ka-u24); Endrer [KA-U35](../../plans/vedtak.md#ka-u35); Endrer [GR-U12](#gr-u12); Endrer [GR-U14](#gr-u14); Endrer [GR-U16](../../plans/vedtak.md#gr-u16); Endrer [MM-U17](#mm-u17); Endrer [MM-U18](../../plans/vedtak.md#mm-u18); Endrer [MM-U19](../../plans/vedtak.md#mm-u19); Endrer [VS-U8](../../plans/vedtak.md#vs-u8); Endrer [VS-U11](../../plans/vedtak.md#vs-u11) | Presisert av [HF-U13](#hf-u13); Presisert av [MM-U24](#mm-u24); Endret av [MM-U34](#mm-u34); Snevret inn av [OV-U5](#ov-u5); Snevret inn av [OV-U6](#ov-u6); Utvidet av [OV-U16](#ov-u16); Presisert av [OV-U19](#ov-u19); Presisert av [OV-U20](#ov-u20); Presisert av [OV-U44](#ov-u44); Utvidet av [OV-U62](#ov-u62); Endret av [OV-U70](#ov-u70); Endret av [OV-U79](#ov-u79); Endret av [OV-U80](#ov-u80); Endret av [OV-U81](#ov-u81) |
@@ -730,7 +733,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 01.11, oppdragsgiver (#1402)
 
-**Følge:** Endrer [MM-U33](../../plans/vedtak.md#mm-u33). Endrer [MM-U34](#mm-u34). Presisert 01.11 av [EO-U14](#eo-u14). Endringen i MM-U34 gjelder punkt 19. Nummeret i merket er avgjort i EO-U14. Bygges i #1449 og #1450.
+**Følge:** Endrer [MM-U33](../../plans/vedtak.md#mm-u33). Endrer [MM-U34](#mm-u34). Presisert 01.11 av [EO-U14](#eo-u14). Presisert 02.11 av [MM-U38](#mm-u38). Endringen i MM-U34 gjelder punkt 19. Nummeret i merket er avgjort i EO-U14. Bygges i #1449 og #1450.
 
 **Regelrader:** —
 
@@ -786,7 +789,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 20.10, oppdragsgiver (#1022)
 
-**Følge:** Presiserer [MM-U24](#mm-u24). Presisert 22.10 av [MM-U30](#mm-u30). Ikke bygget (#1029).
+**Følge:** Presiserer [MM-U24](#mm-u24). Presisert 22.10 av [MM-U30](#mm-u30). Endret 02.11 av [MM-U40](#mm-u40). Ikke bygget (#1029).
 
 **Regelrader:** —
 
@@ -842,7 +845,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 22.10, oppdragsgiver (#1043)
 
-**Følge:** Presiserer [MM-U22](../../plans/vedtak.md#mm-u22). Presiserer [MM-U24](#mm-u24). Presiserer [MM-U29](#mm-u29). Snevret inn 22.10 av [MM-U31](#mm-u31). Presisert 25.10 av [OV-U49](#ov-u49). Presisert 26.10 av [OV-U43](#ov-u43). Spørsmålet og alternativene står på #1043 (kommentaren 6339847386). Svaret er gitt med spørsmålsverktøyet 22.10.
+**Følge:** Presiserer [MM-U22](../../plans/vedtak.md#mm-u22). Presiserer [MM-U24](#mm-u24). Presiserer [MM-U29](#mm-u29). Snevret inn 22.10 av [MM-U31](#mm-u31). Presisert 25.10 av [OV-U49](#ov-u49). Presisert 26.10 av [OV-U43](#ov-u43). Snevret inn 02.11 av [MM-U37](#mm-u37). Spørsmålet og alternativene står på #1043 (kommentaren 6339847386). Svaret er gitt med spørsmålsverktøyet 22.10.
 
 **Regelrader:** —
 
@@ -856,7 +859,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 22.10, oppdragsgiver (#1043, #1137)
 
-**Følge:** Snevrer inn [MM-U30](#mm-u30). Spørsmålet og alternativene står på #1043 (kommentaren 6340640340). Svaret er gitt med spørsmålsverktøyet 22.10 (runde 14).
+**Følge:** Snevrer inn [MM-U30](#mm-u30). Snevret inn 02.11 av [MM-U37](#mm-u37). Spørsmålet og alternativene står på #1043 (kommentaren 6340640340). Svaret er gitt med spørsmålsverktøyet 22.10 (runde 14).
 
 **Regelrader:** —
 
@@ -1089,6 +1092,44 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 **Vedtatt:** 01.11, oppdragsgiver (#1477, #1482)
 
 **Følge:** Presiserer [LV-U41](#lv-u41). Bygges i #1481.
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="mm-u37"></a>MM-U37
+
+> MM-U37: Sakslisten viser for hver KOE-sak det totalentreprenøren har krevd eller varslet for vederlag og frist: beløpet eller dagene, ‹Varslet› når totalentreprenøren har varslet uten beløp eller dager, ‹Regningsarbeid› eller ‹Enhetspriser› når kravet følger en av disse beregningsreglene, og ellers ‹Ikke krevd›. ‹Varslet› gjelder varsler løsningen kjenner etter OV-U5. Beløpene er eks. mva. Omfatter en sendt endringsordre saken, viser lista merket etter EO-U13. Byggherrens svar, enigheten og betegnelsen for sporet står på siden for saken og ikke i sakslisten. Lista sier ikke hva en sak venter på, eller hvem som skal handle.
+
+**Vedtatt:** 02.11, oppdragsgiver (#1450, #1510)
+
+**Følge:** Endrer [MM-U28](../../plans/vedtak.md#mm-u28). Snevrer inn [MM-U30](#mm-u30). Snevrer inn [MM-U31](#mm-u31). I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450 (PR #1510).
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="mm-u38"></a>MM-U38
+
+> MM-U38: Over sakslisten står ett kort for vederlag og ett for fristforlengelse. Hvert kort viser kravene i sakene som ingen sendt endringsordre omfatter, og endringsordrene, side om side og med samme vekt. For vederlag er tallene summen av kravene med beløp og summen av vederlaget i alle sendte endringsordrer i prosjektet, også dem som ikke omfatter en KOE-sak, med fradrag trukket fra, eks. mva. For fristforlengelse er tallene antall krav og antall endringsordrer som gir fristforlengelse, og dagene summeres ikke. Varsler, krav etter regningsarbeid eller enhetspriser og endringsordrer uten samlet beløp telles for seg, fordi beløpet er ukjent og ikke 0. Saker som en sendt endringsordre omfatter, trukne krav og saker der totalentreprenøren har trukket påberopelsen eller godtatt avslaget på den, er ikke med i summene, og i lista er tallene for dem dempet. Det OV-U61 sier om beløp i brev som bare er registrert, om kompensasjonen for rigg og drift i uendret byggetid og om krav i flere saker som kan gjelde samme kostnad, står.
+
+**Vedtatt:** 02.11, oppdragsgiver (#1450, #1510)
+
+**Følge:** Endrer [OV-U61](../../plans/vedtak.md#ov-u61). Endrer [MM-U28](../../plans/vedtak.md#mm-u28). Presiserer [EO-U13](#eo-u13). I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Halvdelen for endringsordrene vises når EO-saken er bygget (#1423). Bygges i #1450 (PR #1510).
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="mm-u40"></a>MM-U40
+
+> MM-U40: Varden har ingen arbeidsliste. Siden for saken viser hvilke brev som er sendt, av hvem og når, og sier ikke hvem som skal handle.
+
+**Forkastet:** «Arbeidslista etter MM-U29 bygges senere som en egen visning. MM-U29 står.»
+
+**Vedtatt:** 02.11, oppdragsgiver (#1450, #1510)
+
+**Følge:** Endrer [MM-U29](#mm-u29). Følger føringen 31.10 i systemfila for visningen: visningen sier det løsningen vet, ikke hvem som skal handle (#1402).
 
 **Regelrader:** —
 
