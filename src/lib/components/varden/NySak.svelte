@@ -545,8 +545,9 @@
           alternativer={false}
           handling={sendeknapp}
         />
-        <Tidslinje brev={[]} datoer={[]} utfylt={tidslinja} />
       </div>
+      <!-- Bare panelet står fast, som i vederlagssvaret, så kolonnen ikke blir høyere enn vinduet. -->
+      <Tidslinje brev={[]} datoer={[]} utfylt={tidslinja} />
     {/snippet}
   </Arbeidsflate>
 {/if}
@@ -727,6 +728,7 @@
   .feste {
     position: sticky;
     top: var(--spacing-4);
+    z-index: 1;
   }
   .sendes-til {
     margin: 0;
