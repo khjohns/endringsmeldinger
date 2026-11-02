@@ -195,6 +195,11 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
 - **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
   «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
   lesingen. Linjen nederst i vinduet vises bare når panelet er ute av syne.
+- **Høyre kolonne i et skjema har panelet med hovedlinjene og tidslinja under.** Panelet
+  sier hva brevet sier. Tidslinja har datoene, også dem parten fyller ut før brevet er
+  sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
+  skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
+  vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
 - **En knapp er aldri sperret** (MM-U32). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens
