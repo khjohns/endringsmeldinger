@@ -117,6 +117,13 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.getByText(/allerede varslet byggherren etter punkt 32.2/)).toBeTruthy();
   });
 
+  it('F-5: spørsmålet om punkt 32.2 sier «forholdet» når forholdet ikke er et pålegg', async () => {
+    aapne();
+    await velgForhold(ENDRINGER, /^Samordning/);
+    expect(screen.getByLabelText('Beskrivelse av forholdet')).toBeTruthy();
+    expect(screen.getByText(/på annen måte, at forholdet er en endring\?/)).toBeTruthy();
+  });
+
   it('U-3/arbeidsvalg 02.11: det valgte forholdet viser kontraktens regel, og «Endre» åpner velgeren', async () => {
     aapne();
     await velgForhold(ENDRINGER, /^Irregulær endring/);

@@ -399,8 +399,9 @@ export const NYSAK = {
   endringsordre: 'Endringsordrens nummer eller dato',
   vedlegg: 'Vedlegg (valgfritt)',
   vedleggIkkeLaget: 'Vedlegg kan ikke legges ved ennå.',
-  alleredeVarslet:
-    'Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at pålegget er en endring?',
+  // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
+  alleredeVarslet: (paalegg: boolean) =>
+    `Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,
   // Opplysningen fra kapittel B står ved spørsmålet uansett svar (VS-U39, F-8).
   kapittelB:
     'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',

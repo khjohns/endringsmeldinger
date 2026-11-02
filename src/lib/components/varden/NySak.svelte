@@ -357,6 +357,7 @@
             id={id('beskrivelse')}
             rows="6"
             bind:value={beskrivelse}
+            aria-required="true"
             aria-invalid={!!feil.beskrivelse}
             aria-describedby={`${id('beskrivelse-hjelp')}${feil.beskrivelse ? ` ${id('beskrivelse-feil')}` : ''}`}
             oninput={() => delete feil.beskrivelse}
@@ -410,7 +411,7 @@
           <div class="felt">
             <Valg
               navn={id('varslet')}
-              spoersmaal={NYSAK.alleredeVarslet}
+              spoersmaal={NYSAK.alleredeVarslet(felt.beskrivelse.endsWith('pålegget'))}
               valg={[
                 { verdi: false, tekst: 'Nei' },
                 { verdi: true, tekst: 'Ja' },
@@ -593,7 +594,9 @@
     inline-size: 20rem;
     max-inline-size: 100%;
   }
-  [aria-invalid='true'] {
+  /* Like spesifikk som regelen for feltene, så feilkanten vises også på input. */
+  input:not([type='radio'])[aria-invalid='true'],
+  textarea[aria-invalid='true'] {
     border-color: var(--danger);
   }
   .feil {
