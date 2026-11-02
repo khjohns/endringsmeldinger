@@ -184,7 +184,12 @@
       </div>
     {/if}
 
-    <fieldset class="felt" id={id('forhold')} tabindex="-1" aria-describedby={id('forhold-hjelp')}>
+    <fieldset
+      class="felt"
+      id={id('forhold')}
+      tabindex="-1"
+      aria-describedby={`${id('forhold-hjelp')}${feil.forhold ? ` ${id('forhold-feil')}` : ''}`}
+    >
       <legend>{NYSAK.forholdet}</legend>
       <p class="hjelp" id={id('forhold-hjelp')}>{NYSAK.forholdetHjelp}</p>
       {#if valgt && !velgerAapen}
@@ -217,8 +222,10 @@
                   checked={forhold?.kode === h.kode}
                   onchange={() => velg(g.kode, h.kode)}
                 />
-                <span>{forholdsnavn(h.label)}</span>
-                <span class="punkt">pkt. {h.hjemmel_basis}</span>
+                <span>
+                  {forholdsnavn(h.label)}
+                  <span class="punkt">pkt. {h.hjemmel_basis}</span>
+                </span>
               </label>
             {/each}
           </div>
@@ -226,7 +233,7 @@
           <p class="hjelp">{NYSAK.ingenTreff}</p>
         {/each}
       {/if}
-      {#if feil.forhold}<p class="feil">{feil.forhold}</p>{/if}
+      {#if feil.forhold}<p class="feil" id={id('forhold-feil')}>{feil.forhold}</p>{/if}
       <p class="staarfast">{NYSAK.staarFast}</p>
     </fieldset>
 
@@ -349,7 +356,7 @@
   }
   .felt {
     display: grid;
-    gap: var(--spacing-3);
+    gap: var(--spacing-2);
     border: 0;
     padding: 0;
     margin: 0;
@@ -383,10 +390,9 @@
   }
   .gruppe {
     display: grid;
-    gap: var(--spacing-5);
   }
   .gruppenavn {
-    margin: var(--spacing-4) 0 0;
+    margin: var(--spacing-4) 0 var(--spacing-1);
     font-weight: 600;
   }
   .forhold {
@@ -395,10 +401,20 @@
     align-items: center;
     font-weight: 400;
     min-height: 44px;
+    padding: var(--spacing-1) 0;
+  }
+  .forhold input {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--ink);
   }
   .punkt {
+    margin-left: var(--spacing-1);
     color: var(--ink-3);
     font-weight: 400;
+    white-space: nowrap;
   }
   .valgt {
     display: grid;
@@ -412,12 +428,13 @@
     margin: 0;
   }
   .staarfast {
-    margin: 0;
-    font-weight: 600;
+    margin: var(--spacing-2) 0 0;
+    color: var(--ink-2);
   }
   .sok {
     display: grid;
-    gap: var(--spacing-5);
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
   }
   .oppsummering {
     padding: var(--spacing-4);
@@ -425,8 +442,21 @@
     border-radius: var(--r-kort);
   }
   .oppsummering h2 {
-    margin: 0 0 var(--spacing-5);
+    margin: 0 0 var(--spacing-2);
     font-size: 1rem;
+    font-weight: 600;
+  }
+  .oppsummering ul {
+    margin: 0 0 var(--spacing-3);
+    padding-left: var(--spacing-5);
+  }
+  .oppsummering a {
+    color: var(--danger);
+    font-weight: 600;
+  }
+  .oppsummering p {
+    margin: 0;
+    color: var(--ink-3);
   }
   .oppsummering:focus-visible {
     outline: 2px solid var(--control-focus);
