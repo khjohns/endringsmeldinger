@@ -113,10 +113,13 @@ function oversett(feil: unknown, forventet: number | null): unknown {
     return new SkrivingAvvist(melding, { cause: feil });
   }
   switch (feilnummer(feil)) {
+    // 51403: uten sak (`forventet` er null) er kontekst, medlemskap eller kontraktsteam
+    // ikke lenger gyldig; med sak er saken ukjent i prosjektet (`skriv_hendelse`).
     case NEKTET:
       return forventet === null
         ? new SkrivingAvvist(melding, { cause: feil })
         : new SakFinnesIkke(melding, { cause: feil });
+    // 51409 med meldingen om versjonen: journalen har en annen versjon enn forventet.
     case KONFLIKT: {
       const faktisk = KONFLIKTMELDING.exec(melding)?.[1];
       return faktisk === undefined

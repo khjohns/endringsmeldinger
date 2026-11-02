@@ -35,6 +35,12 @@ export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;
 
 const STOERSTE_FILNAVN = 200;
 
+/** 51403 fra `lagre_vedlegg`: konteksten har ikke noe team eller ingen lagret form, eller saken er ukjent i prosjektet. */
+const LAGRING_NEKTET = NEKTET;
+
+/** 51409 fra `slett_vedlegg`: en hendelse har bundet vedlegget. */
+const VEDLEGGET_ER_BUNDET = KONFLIKT;
+
 /** Bytene i kroppen og filnavnet fra hodet `X-Filnavn`, kodet med `encodeURIComponent`. */
 export interface Fil {
   innhold: Buffer;
@@ -200,7 +206,8 @@ async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
     return lagret([201, { success: true, vedlegg: somSvar(rad) }]);
   } catch (feil) {
     const nr = feilnummer(feil);
-    if (nr === NEKTET || nr === BLOKKERT) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+    if (nr === LAGRING_NEKTET || nr === BLOKKERT)
+      return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
     throw feil;
   }
 }
@@ -283,7 +290,7 @@ async function slett(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Sva
     });
     return slettet ? lagret([200, { success: true }]) : finnesIkke();
   } catch (feil) {
-    if (feilnummer(feil) === KONFLIKT)
+    if (feilnummer(feil) === VEDLEGGET_ER_BUNDET)
       return feilsvar(
         409,
         'VEDLEGG_BUNDET',
