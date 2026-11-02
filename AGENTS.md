@@ -362,10 +362,12 @@ oppfylt.
 forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
 **Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
 byggeøkta egen diff med kommandoen `/design-deslop` og lar PR-en stå som utkast.
-Deretter kjøres `/design-review` i en ny økt, før `/code-review`. Under om lag 200
-endrede linjer i `.svelte`- og CSS-filer kan byggeøkta kjøre den selv. Alvorligheten
-settes av `/design-review`; hva som rettes i PR-en, følger stoppregelen for funn
-(oppdragsgiver 23.10, #1080, og 29.10).
+Etter `/design-deslop` legger byggeøkta (eller rettingsøkta) skjermbildene i PR-en og stopper.
+`/design-review` kjøres i en ny økt, før `/code-review`, først når oppdragsgiver har sett over
+skjermbildene og sagt fra. Det gjelder også under om lag 200 endrede linjer i `.svelte`- og
+CSS-filer, der byggeøkta ellers kunne kjørt den selv. Alvorligheten settes av
+`/design-review`; hva som rettes i PR-en, følger stoppregelen for funn
+(oppdragsgiver 23.10, #1080, og 29.10; oppdragsgiver 02.11, #1492).
 
 En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
 ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
