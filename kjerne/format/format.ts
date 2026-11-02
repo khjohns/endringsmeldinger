@@ -341,11 +341,11 @@ export const OPPLYSNINGSSLAG = [
 ] as const satisfies readonly Opplysningsslag[];
 
 export const UTSAGN: Record<Utsagnsart, Skjema> = {
-  varsel: objekt({ ...artfelt('varsel'), hjemmel: { enum: ['33.4', '34.1.2', '34.1.3'] } }, [
-    'id',
-    'art',
-    'hjemmel',
-  ]),
+  // VS-U34: varselet etter § 32.2 sendt utenfor løsningen registreres som de andre.
+  varsel: objekt(
+    { ...artfelt('varsel'), hjemmel: { enum: ['32.2', '33.4', '34.1.2', '34.1.3'] } },
+    ['id', 'art', 'hjemmel']
+  ),
   trekk: objekt({ ...artfelt('trekk'), gjelder: ID }, ['id', 'art', 'gjelder']),
   aksept: objekt({ ...artfelt('aksept'), gjelder: ID, regelversjon: { type: 'integer' } }, [
     'id',

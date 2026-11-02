@@ -49,6 +49,7 @@ import type {
   Standpunkt,
   Svar,
   Utsagn,
+  Kravvarselhjemmel,
   Varselhjemmel,
 } from '../typer.ts';
 
@@ -430,7 +431,7 @@ const PRODUKTIVITET =
   'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
 
 /** Bestemmelsen varselet er gitt etter; etter OV-U25 gjelder varselet i § 34.1.3 tredje ledd bare annet ledd (LV-U29). */
-const VARSLET_ETTER: Record<Varselhjemmel, string> = {
+const VARSLET_ETTER: Record<Kravvarselhjemmel, string> = {
   '33.4': 'NS 8407 § 33.4',
   '34.1.2': 'NS 8407 § 34.1.2',
   '34.1.3': 'NS 8407 § 34.1.3 tredje ledd',
@@ -445,7 +446,7 @@ function kravetsBeloep(krav: Krav): string {
 }
 
 /** TEs eget varsel, slik brevteksten nevner det (LV-U4 punkt 3, OV-U5). */
-const VARSEL_OM: Record<Varselhjemmel, string> = {
+const VARSEL_OM: Record<Kravvarselhjemmel, string> = {
   '33.4': `om fristforlengelse etter ${VARSLET_ETTER['33.4']}`,
   '34.1.2': `om vederlagsjustering etter ${VARSLET_ETTER['34.1.2']}`,
   '34.1.3': `om særskilt justering for nedsatt produktivitet eller forstyrrelser etter ${VARSLET_ETTER['34.1.3']}`,
@@ -719,7 +720,7 @@ function beskriv(id: string, j: Journalen): string {
         : `påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`;
     case 'utsagn':
       if (e.utsagn.art === 'varsel')
-        return `TEs varsel ${VARSEL_OM[e.utsagn.hjemmel]} i ${j.brevet(e.dokument)}`;
+        return `TEs varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]} i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'innsigelse') return `innsigelsen i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'foresporselssvar')
         return `TEs svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 § 33.6.2`;
@@ -730,8 +731,18 @@ function beskriv(id: string, j: Journalen): string {
   throw new KanIkkeUttrykkes(`${id} har ingen brevtekst som det et utsagn viser til`);
 }
 
+/**
+ * Det registrerte varselet etter § 32.2 har ingen brevtekst ennå: teksten når et svar viser
+ * til det, venter på S-4 i #807, og fra løsningen er påberopelsen varselet (GR-U31).
+ */
+function uttrykkbar(hjemmel: Varselhjemmel): Kravvarselhjemmel {
+  if (hjemmel === '32.2')
+    throw new KanIkkeUttrykkes('varselet etter § 32.2 sendt utenfor løsningen har ingen brevtekst');
+  return hjemmel;
+}
+
 /** VS-U15 og LV-U19: det TE varsler at TE vil kreve. */
-const VIL_KREVE: Record<Varselhjemmel, string> = {
+const VIL_KREVE: Record<Kravvarselhjemmel, string> = {
   '33.4': 'fristforlengelse',
   '34.1.2': 'justering av vederlaget',
   '34.1.3': `særskilt justering av vederlaget etter annet ledd for ${PRODUKTIVITET}`,
@@ -749,14 +760,15 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
   const part = PART[nytt.avsender];
   switch (u.art) {
     case 'varsel': {
+      const hjemmel = uttrykkbar(u.hjemmel);
       const dato = nytt.opplysninger.find((o) => erDato(o) && o.gjelder === u.id);
       // VS-U15: et brev med bare varselet, uten en dato for det, er selve varselet.
       // LV-U19: varselet etter § 34.1.2 har samme form.
       if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
-        return `TE varsler etter ${VARSLET_ETTER[u.hjemmel]} at TE vil kreve ${VIL_KREVE[u.hjemmel]} som følge av forholdet i ${sak}.`;
+        return `TE varsler etter ${VARSLET_ETTER[hjemmel]} at TE vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`;
       if (dato?.hva !== 'sendt')
         throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');
-      return `TE opplyser at varsel ${VARSEL_OM[u.hjemmel]} ble sendt ${norskDato(dato.dato)}.`;
+      return `TE opplyser at varsel ${VARSEL_OM[hjemmel]} ble sendt ${norskDato(dato.dato)}.`;
     }
     case 'aksept': {
       const svar = j.svar(u.gjelder);

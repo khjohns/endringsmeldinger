@@ -45,7 +45,7 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Art | Innhold | Avsender | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
-| `varsel` | Varsel etter § 33.4 i fristen eller § 34.1.2 eller § 34.1.3 tredje ledd i vederlaget. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. | TE | `id`, `art`, `hjemmel` | MM-U1, SK-12, VS-U15, OV-U25 |
+| `varsel` | Varsel etter § 33.4 i fristen, § 34.1.2 eller § 34.1.3 tredje ledd i vederlaget, eller § 32.2 i grunnlaget. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. Varselet etter § 32.2 er alltid registrert: fra appen er påberopelsen varselet. | TE | `id`, `art`, `hjemmel` | MM-U1, SK-12, VS-U15, OV-U25, VS-U34, VS-U38 |
 | `trekk` | TE trekker kravet. `gjelder` er gjeldende kravversjon i sporet. | TE | `id`, `art`, `gjelder` | KA-U6, GR-U5 |
 | `aksept` | TE godtar ett svar. `regelversjon` er den TE fikk se. Innholdet står i brevet. | TE | `id`, `art`, `gjelder`, `regelversjon` | KA-U1, KA-U10 |
 | `bestridelse` | En part bestrider en opplysning fra motparten: at dokumentet ble sendt eller mottatt, eller at det var en endringsordre etter § 31.3. Uten virkning på utfallet. | TE eller BH | `id`, `art`, `gjelder`, `hva` | MM-U1, MM-U7 |
