@@ -103,6 +103,7 @@ describe('Sakslisten i Varden', () => {
         svar_ikke_godtatt: true,
         kravet_staar: true,
         har_varsel: false,
+        ingen_krav: false,
         krav: { beloep: 420000, metode: 'tilbud' },
         svar: { resultat: 'delvis_godkjent', beloep: 310000, subsidiaert: true },
         enighet: null,
@@ -113,6 +114,7 @@ describe('Sakslisten i Varden', () => {
         svar_ikke_godtatt: false,
         kravet_staar: true,
         har_varsel: false,
+        ingen_krav: false,
         krav: { dager: 15 },
         svar: { resultat: 'godkjent', dager: 15, subsidiaert: false },
         enighet: { dager: 15, virkning: 'betinget' },
@@ -145,6 +147,7 @@ describe('Sakslisten i Varden', () => {
       betegnelse,
       kravet_staar: krav !== null,
       har_varsel: betegnelse === 'varslet',
+      ingen_krav: false,
       krav,
       svar: null,
       enighet: null,
@@ -170,6 +173,7 @@ describe('Sakslisten i Varden', () => {
             betegnelse: 'varslet',
             kravet_staar: false,
             har_varsel: true,
+            ingen_krav: false,
             krav: null,
             svar: null,
             enighet: null,
@@ -193,6 +197,7 @@ describe('Sakslisten i Varden', () => {
       betegnelse,
       kravet_staar,
       har_varsel: false,
+      ingen_krav: false,
       krav: { beloep: 100000, metode: 'tilbud' },
       svar: null,
       enighet: null,
@@ -252,6 +257,7 @@ describe('Sakslisten i Varden', () => {
       ...ingenting,
       kravet_staar,
       har_varsel: false,
+      ingen_krav: false,
       krav: { beloep, metode },
       svar: null,
       enighet: null,
@@ -260,6 +266,7 @@ describe('Sakslisten i Varden', () => {
       ...ingenting,
       kravet_staar: true,
       har_varsel: false,
+      ingen_krav: false,
       krav: { dager },
       svar: null,
       enighet: null,
@@ -276,6 +283,7 @@ describe('Sakslisten i Varden', () => {
             betegnelse: 'varslet',
             kravet_staar: false,
             har_varsel: true,
+            ingen_krav: false,
             krav: null,
           },
         }),
@@ -297,14 +305,14 @@ describe('Sakslisten i Varden', () => {
     expect(frist.textContent).not.toContain('35');
   });
 
-  it('«Varslet» står og telles når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2, dempet når påberopelsen er trukket, og ikke etter «ingen krav» (MM-U37, MM-U38, KA-U12)', () => {
-    const varsel = (
-      betegnelse: 'spesifisert_krav_etterspurt' | 'trukket' | 'ingen_krav' | null
-    ) => ({
+  it('«Varslet» står og telles når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2, dempet og ikke telt når sporet er trukket, og «Ikke krevd» etter «ingen krav» (MM-U37, MM-U38, KA-U12)', () => {
+    type Betegnelse = 'spesifisert_krav_etterspurt' | 'trukket' | 'ingen_krav' | null;
+    const varsel = (betegnelse: Betegnelse, har_varsel = true, ingen_krav = false) => ({
       ...ingenting,
       betegnelse,
       kravet_staar: false,
-      har_varsel: betegnelse !== null,
+      har_varsel,
+      ingen_krav,
       krav: null,
       svar: null,
       enighet: null,
@@ -316,25 +324,35 @@ describe('Sakslisten i Varden', () => {
           sakstittel: 'Etterspurt',
           frist: varsel('spesifisert_krav_etterspurt'),
         }),
+        // Sporet er trukket, og saken er ikke avsluttet av TE.
+        lagSakslinje({ sak_id: 'B', sakstittel: 'Trukket', frist: varsel('trukket') }),
         lagSakslinje({
-          sak_id: 'B',
-          sakstittel: 'Trukket',
+          sak_id: 'C',
+          sakstittel: 'Påberopelse trukket',
           saksbetegnelse: 'paaberopelsen_trukket',
           frist: varsel('trukket'),
         }),
-        lagSakslinje({ sak_id: 'C', sakstittel: 'Uten varsel', frist: varsel(null) }),
-        // KA-U12: TE har sagt «ingen krav» etter varselet.
-        lagSakslinje({ sak_id: 'D', sakstittel: 'Ingen krav', frist: varsel('ingen_krav') }),
+        lagSakslinje({ sak_id: 'D', sakstittel: 'Uten varsel', frist: varsel(null, false) }),
+        // KA-U12: «ingen krav» etter varselet, også når en forespørsel gir en annen betegnelse.
+        lagSakslinje({
+          sak_id: 'E',
+          sakstittel: 'Ingen krav',
+          frist: varsel('spesifisert_krav_etterspurt', true, true),
+        }),
       ],
     });
     const fristen = (t: string) => rad(t).querySelectorAll('.krevd')[1]!;
-    expect(fristen('Etterspurt').querySelector('.verdi')!.textContent).toBe('Varslet');
-    expect(fristen('Trukket').querySelector('.verdi')!.textContent).toBe('Varslet');
+    const tekst = (t: string) => fristen(t).querySelector('.verdi')!.textContent;
+    expect(tekst('Etterspurt')).toBe('Varslet');
     expect(fristen('Etterspurt').classList.contains('dempet')).toBe(false);
+    expect(tekst('Trukket')).toBe('Varslet');
     expect(fristen('Trukket').classList.contains('dempet')).toBe(true);
-    expect(within(rad('Trukket')).getByText('Påberopelsen trukket')).toBeTruthy();
-    expect(fristen('Uten varsel').querySelector('.verdi')!.textContent).toBe('Ikke krevd');
-    expect(fristen('Ingen krav').querySelector('.verdi')!.textContent).toBe('Ikke krevd');
+    expect(fristen('Trukket').textContent).toContain('trukket');
+    expect(tekst('Påberopelse trukket')).toBe('Varslet');
+    expect(fristen('Påberopelse trukket').classList.contains('dempet')).toBe(true);
+    expect(within(rad('Påberopelse trukket')).getByText('Påberopelsen trukket')).toBeTruthy();
+    expect(tekst('Uten varsel')).toBe('Ikke krevd');
+    expect(tekst('Ingen krav')).toBe('Ikke krevd');
     const frist = document.querySelectorAll('.spor-kort')[1] as HTMLElement;
     expect(frist.querySelector('.hm')!.textContent).toBe('1 varslet');
   });
@@ -406,6 +424,7 @@ describe('Sakslisten i Varden', () => {
             ...ingenting,
             kravet_staar: true,
             har_varsel: false,
+            ingen_krav: false,
             krav: { beloep: 1000, metode: 'tilbud' },
             svar: null,
             enighet: null,

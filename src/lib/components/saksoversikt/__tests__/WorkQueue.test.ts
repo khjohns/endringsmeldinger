@@ -10,6 +10,7 @@ const ingenting = {
   svar_ikke_godtatt: false,
   kravet_staar: false,
   har_varsel: false,
+  ingen_krav: false,
 };
 
 /** To saker der alle tre kravene venter på svar, og én der vederlagssvaret står uten enighet. */

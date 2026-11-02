@@ -50,7 +50,7 @@ export type Krevd = {
   tekst: string;
   /** Et beløp eller antall dager, som står i mono og høyrestilt. */
   tall: boolean;
-  /** Ikke med i summene: kravet står ikke, eller saken inngår i en endringsordre. */
+  /** Ikke med i summene: kravet eller varselet står ikke, eller saken inngår i en endringsordre. */
   dempet: boolean;
   /** «trukket» når kravet i sporet er trukket og saken ellers ikke er avsluttet av TE. */
   merknad: string | null;
@@ -58,9 +58,10 @@ export type Krevd = {
 
 /**
  * Det TE har krevd i sporet: beløpet eller dagene, «Varslet», beregningsregelen eller
- * «Ikke krevd» (MM-U37). «Varslet» leses av `har_varsel`, ikke av betegnelsen, som er en
- * annen når byggherren har bedt om spesifisert krav eller sporet er trukket (MM-U30). En
- * sak kjernen ikke forstår, har ingen celle, så tallene ikke leses som riktige (MM-U2).
+ * «Ikke krevd» (MM-U37). «Varslet» leses av `har_varsel` og `ingen_krav` fra serveren, ikke av
+ * betegnelsen, som er en annen når byggherren har bedt om spesifisert krav eller sporet er
+ * trukket (MM-U30). En sak kjernen ikke forstår, har ingen celle, så tallene ikke leses som
+ * riktige (MM-U2).
  */
 export function krevd(
   linje: Sakslinje,
@@ -84,18 +85,30 @@ export function krevd(
     return {
       tekst: SAKSLISTE.varslet,
       tall: false,
-      dempet: iEndringsordre || trukket || avsluttetAvTe(linje),
+      dempet: !varselITallene(linje, spor, iEndringsordre),
       merknad,
     };
   return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, merknad: null };
 }
 
-/**
- * TE har varslet i sporet og ikke sagt «ingen krav» etter varselet (KA-U12). Betegnelsen
- * `ingen_krav` går foran `varslet` i MM-U30, og sporet viser da «Ikke krevd».
- */
+/** TE har varslet i sporet og ikke sagt «ingen krav» (KA-U12), som serveren gir det. */
 const varslet = (s: Sakslinje['vederlag'] | Sakslinje['frist']): boolean =>
-  s.har_varsel && s.betegnelse !== 'ingen_krav';
+  s.har_varsel && !s.ingen_krav;
+
+/**
+ * Et varsel uten krav telles for seg når sporet ikke er trukket, saken ikke inngår i en
+ * endringsordre og TE ikke har avsluttet saken (MM-U38). Ellers er det dempet i lista.
+ */
+function varselITallene(
+  linje: Sakslinje,
+  spor: 'vederlag' | 'frist',
+  iEndringsordre: boolean
+): boolean {
+  const s = linje[spor];
+  return (
+    !s.krav && varslet(s) && s.betegnelse !== 'trukket' && !iEndringsordre && !avsluttetAvTe(linje)
+  );
+}
 
 export type Noekkeltall = {
   /** `utenBeloep` er krav etter regningsarbeid eller enhetspriser: ukjent er ikke 0 (OV-U43). */
@@ -122,9 +135,9 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
       n.vederlag.krav += 1;
       n.vederlag.sum += v.krav.beloep;
     } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;
-    else if (!v.krav && varslet(v)) n.vederlag.varslet += 1;
+    else if (varselITallene(l, 'vederlag', false)) n.vederlag.varslet += 1;
     if (l.frist.krav && l.frist.kravet_staar) n.frist.krav += 1;
-    else if (!l.frist.krav && varslet(l.frist)) n.frist.varslet += 1;
+    else if (varselITallene(l, 'frist', false)) n.frist.varslet += 1;
   }
   return n;
 }

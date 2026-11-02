@@ -190,6 +190,7 @@ export interface Vederlagslinje extends Foreligger {
   /** Kravet står slik nøkkeltallene teller det; serveren avgjør det (#1068). */
   kravet_staar: boolean;
   har_varsel: boolean;
+  ingen_krav: boolean;
   krav: { beloep: number; metode: string } | null;
   svar: {
     resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt' | 'tilbakeholdelse';
@@ -202,6 +203,7 @@ export interface Vederlagslinje extends Foreligger {
 export interface Fristlinje extends Foreligger {
   kravet_staar: boolean;
   har_varsel: boolean;
+  ingen_krav: boolean;
   krav: { dager: number } | null;
   svar: {
     resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt';

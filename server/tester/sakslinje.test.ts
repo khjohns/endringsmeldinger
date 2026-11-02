@@ -469,7 +469,7 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.brev_utenfor_appen).toBe(true);
   });
 
-  it('har_varsel følger varselet når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2 og når sporet er trukket (MM-U37, MM-U30)', () => {
+  it('har_varsel og ingen_krav følger utsagnene når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2 og når sporet er trukket (MM-U37, MM-U30, KA-U12)', () => {
     const varsel: Steg = (sak) => {
       sak.send('TE', PAABEROPELSE);
       sak.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
@@ -492,9 +492,25 @@ describe('linja i sakslisten (#1022)', () => {
     expect(trukket.saksbetegnelse).toBe('paaberopelsen_trukket');
     expect(trukket.frist).toMatchObject({ betegnelse: 'trukket', har_varsel: true });
 
-    // KA-U12: «ingen krav» etter varselet. Varselet står, og betegnelsen er `ingen_krav`.
+    // KA-U12: «ingen krav» etter varselet står i eget flagg, også når en åpen forespørsel
+    // etter punkt 33.6.2 gir betegnelsen (MM-U30).
     const ingenKrav = linje(varsel, (sak) => sak.send('TE', { type: 'ingen_krav', spor: 'frist' }));
-    expect(ingenKrav.frist).toMatchObject({ betegnelse: 'ingen_krav', har_varsel: true });
+    expect(ingenKrav.frist).toMatchObject({
+      betegnelse: 'ingen_krav',
+      har_varsel: true,
+      ingen_krav: true,
+    });
+    const ingenKravEtterForespoersel = linje(
+      varsel,
+      (sak) => sak.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' }),
+      (sak) => sak.send('TE', { type: 'ingen_krav', spor: 'frist' })
+    );
+    expect(ingenKravEtterForespoersel.frist).toMatchObject({
+      betegnelse: 'spesifisert_krav_etterspurt',
+      har_varsel: true,
+      ingen_krav: true,
+    });
+    expect(etterspurt.frist.ingen_krav, 'kontrollsak: uten «ingen krav»').toBe(false);
 
     const utenVarsel = linje(krav);
     expect(utenVarsel.frist.har_varsel, 'kontrollsak: krav uten varsel').toBe(false);
