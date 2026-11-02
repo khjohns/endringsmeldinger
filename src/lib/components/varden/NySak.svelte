@@ -10,9 +10,10 @@
   import Brevkontroll from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
+  import { ChevronDown } from 'lucide-svelte';
   import {
+    FELTENE_UTEN_FORHOLD,
     FORHOLDENE,
-    forholdsnavn,
     brevet,
     feltene,
     forholdet,
@@ -40,6 +41,7 @@
 
   let forhold = $state<Forholdsvalg | null>(null);
   let velgerAapen = $state(true);
+  let aapenGruppe = $state<string | null>(null);
   let sok = $state('');
   let tittel = $state('');
   let beskrivelse = $state('');
@@ -51,41 +53,52 @@
   let oppsummering = $state<HTMLElement | null>(null);
   let kontroll = $state<{ tekst: string[]; kommando: Record<string, unknown> } | null>(null);
 
-  const felt = $derived(forhold ? feltene(forhold, KJERNE) : null);
+  const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
   // Dagens dato i norsk tid, som `dagensDato` i `skjemadata.ts` (VS-U8).
   const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
   const utfylling = () => ({ forhold: forhold!, tittel, beskrivelse, dato, endringsordre });
 
+  // Velgeren fra `/mockup` (arbeidsvalg 02.11): gruppene er felt sammen til TE åpner én,
+  // og et søk åpner alle gruppene med treff.
+  const sokeord = $derived(sok.trim().toLocaleLowerCase('nb-NO'));
   const treff = (...tekster: string[]) =>
-    tekster.some((t) => t.toLowerCase().includes(sok.trim().toLowerCase()));
+    tekster.some((t) => t.toLocaleLowerCase('nb-NO').includes(sokeord));
   const grupper = $derived(
     FORHOLDENE.map((g) => ({
       ...g,
-      hjemler: g.hjemler.filter((h) => treff(g.label, h.label, h.hjemmel_basis, h.beskrivelse)),
-    })).filter((g) => g.hjemler.length)
+      forhold: treff(g.navn)
+        ? g.forhold
+        : g.forhold.filter((f) => treff(f.navn, f.punkt, f.beskrivelse)),
+    })).filter((g) => g.forhold.length)
   );
-  const antallTreff = $derived(grupper.reduce((n, g) => n + g.hjemler.length, 0));
+  const antallTreff = $derived(grupper.reduce((n, g) => n + g.forhold.length, 0));
 
   function velg(gruppe: string, kode: string) {
     forhold = { gruppe, kode };
     velgerAapen = false;
+    sok = '';
     delete feil.forhold;
+  }
+
+  function endre() {
+    velgerAapen = true;
+    aapenGruppe = FORHOLDENE.find((g) => g.forhold.some((f) => f.kode === forhold?.kode))!.navn;
   }
 
   async function seBrevet() {
     const ny: Record<string, string> = {};
     if (!forhold) ny.forhold = NYSAK.velgForholdet;
     if (!tittel.trim()) ny.tittel = NYSAK.skrivTittelen;
-    if (felt?.dato && !dato) ny.dato = NYSAK.oppgiDatoen;
-    if (felt?.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
-    if (felt?.punkt322 && alleredeVarslet) ny.varslet = NYSAK.alleredeVarsletIkkeLaget;
+    if (felt.datotekst && !dato) ny.dato = NYSAK.oppgiDatoen;
+    if (felt.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
+    if (felt.punkt322 && alleredeVarslet) ny.varslet = NYSAK.alleredeVarsletIkkeLaget;
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
       const brev = brevet(utfylling(), sakId, KJERNE);
       if ('avvisning' in brev) {
         if (brev.avvisning.regel === 'BESKRIVELSE_MANGLER')
-          ny.beskrivelse = NYSAK.beskriv(felt!.beskrivelse.endsWith('pålegget'));
+          ny.beskrivelse = NYSAK.beskriv(felt.beskrivelse.endsWith('pålegget'));
         else ny.kjernen = brev.avvisning.melding;
       } else if (!Object.keys(ny).length && brev.tekst) {
         feil = {};
@@ -149,12 +162,12 @@
     kommando={kontroll.kommando}
     tekst={kontroll.tekst}
     utdypning={beskrivelse.trim()}
-    tittel={NYSAK.brevtittel(forholdsnavn(valgt.hjemmel.label))}
+    tittel={NYSAK.brevtittel(valgt.navn)}
     handling={NYSAK.handling}
     svarerPaa={null}
     detteSender={[
       {
-        tekst: NYSAK.detteSender(forholdsnavn(valgt.hjemmel.label), valgt.hjemmel.hjemmel_basis),
+        tekst: NYSAK.detteSender(valgt.navn, valgt.punkt),
         lag: null,
       },
     ]}
@@ -202,45 +215,67 @@
       {#if valgt && !velgerAapen}
         <div class="valgt">
           <div>
-            <strong>{forholdsnavn(valgt.hjemmel.label)}</strong>
-            <span class="punkt">punkt {valgt.hjemmel.hjemmel_basis}</span>
+            <strong>{valgt.navn}</strong>
+            <span class="punkt">punkt {valgt.punkt}</span>
           </div>
           {#if valgt.regel}
             <p>{valgt.regel.regel}</p>
             <p>{valgt.regel.konsekvens}</p>
           {:else}
-            <p>{valgt.hjemmel.beskrivelse}</p>
+            <p>{valgt.beskrivelse}</p>
           {/if}
-          <Knapp variant="lenke" onclick={() => (velgerAapen = true)}>{NYSAK.endre}</Knapp>
+          <Knapp variant="lenke" onclick={endre}>{NYSAK.endre}</Knapp>
         </div>
       {:else}
         <label class="sok">
           <span class="etikett">{NYSAK.sok}</span>
           <input type="search" bind:value={sok} />
         </label>
-        {#each grupper as g (g.kode)}
-          <div class="gruppe" role="radiogroup" aria-label={g.label}>
-            <p class="gruppenavn">{g.label} <span class="punkt">punkt {g.hjemmel_frist}</span></p>
-            {#each g.hjemler as h (h.kode)}
-              <label class="forhold">
-                <input
-                  type="radio"
-                  name={id('forholdet')}
-                  checked={forhold?.kode === h.kode}
-                  onchange={() => velg(g.kode, h.kode)}
-                />
-                <span>
-                  {forholdsnavn(h.label)}
-                  <span class="punkt">punkt {h.hjemmel_basis}</span>
-                </span>
-              </label>
-            {/each}
-          </div>
-        {:else}
-          <p class="hjelp">{NYSAK.ingenTreff}</p>
-        {/each}
+        <div class="grupper">
+          {#each grupper as g (g.navn)}
+            {@const aapen = aapenGruppe === g.navn || !!sokeord}
+            {@const gid = id(`gruppe-${FORHOLDENE.findIndex((x) => x.navn === g.navn)}`)}
+            <div class="gruppe">
+              <button
+                type="button"
+                class="gruppenavn"
+                aria-expanded={aapen}
+                aria-controls={gid}
+                onclick={() => (aapenGruppe = aapenGruppe === g.navn ? null : g.navn)}
+              >
+                <span>{g.navn}</span>
+                <ChevronDown size={18} aria-hidden="true" />
+              </button>
+              <div
+                class="forholdene"
+                id={gid}
+                role="radiogroup"
+                aria-label={g.navn}
+                hidden={!aapen}
+              >
+                {#each g.forhold as f (f.kode)}
+                  <label class="forhold">
+                    <input
+                      type="radio"
+                      name={id('forholdet')}
+                      checked={forhold?.kode === f.kode}
+                      onchange={() => velg(f.gruppe, f.kode)}
+                    />
+                    <span class="navn">{f.navn}</span>
+                    <span class="punkt">punkt {f.punkt}</span>
+                  </label>
+                {/each}
+              </div>
+            </div>
+          {:else}
+            <p class="hjelp">{NYSAK.ingenTreff}</p>
+          {/each}
+        </div>
       {/if}
-      <p class="staarfast">{NYSAK.staarFast}</p>
+      <p class="staarfast">
+        <strong>{NYSAK.staarFastInnledning}</strong>
+        {NYSAK.staarFast}
+      </p>
     </fieldset>
 
     <div class="felt">
@@ -257,76 +292,76 @@
       {#if feil.tittel}<p class="feil" id={id('tittel-feil')}>{feil.tittel}</p>{/if}
     </div>
 
-    {#if felt}
+    <div class="felt">
+      <label for={id('beskrivelse')}>{felt.beskrivelse}</label>
+      <p class="hjelp" id={id('beskrivelse-hjelp')}>{NYSAK.beskrivelseHjelp}</p>
+      <textarea
+        id={id('beskrivelse')}
+        rows="6"
+        bind:value={beskrivelse}
+        aria-invalid={!!feil.beskrivelse}
+        aria-describedby={`${id('beskrivelse-hjelp')}${feil.beskrivelse ? ` ${id('beskrivelse-feil')}` : ''}`}
+        oninput={() => delete feil.beskrivelse}
+      ></textarea>
+      {#if feil.beskrivelse}<p class="feil" id={id('beskrivelse-feil')}>
+          {feil.beskrivelse}
+        </p>{/if}
+    </div>
+
+    {#if felt.datotekst}
       <div class="felt">
-        <label for={id('beskrivelse')}>{felt.beskrivelse}</label>
-        <p class="hjelp" id={id('beskrivelse-hjelp')}>{NYSAK.beskrivelseHjelp}</p>
-        <textarea
-          id={id('beskrivelse')}
-          rows="6"
-          bind:value={beskrivelse}
-          aria-invalid={!!feil.beskrivelse}
-          aria-describedby={`${id('beskrivelse-hjelp')}${feil.beskrivelse ? ` ${id('beskrivelse-feil')}` : ''}`}
-          oninput={() => delete feil.beskrivelse}
-        ></textarea>
-        {#if feil.beskrivelse}<p class="feil" id={id('beskrivelse-feil')}>
-            {feil.beskrivelse}
+        <label for={id('dato')}>{felt.datotekst}</label>
+        <input
+          id={id('dato')}
+          type="date"
+          max={iDag}
+          bind:value={dato}
+          aria-required="true"
+          aria-invalid={!!feil.dato}
+          aria-describedby={feil.dato ? id('dato-feil') : undefined}
+          oninput={() => delete feil.dato}
+        />
+        {#if feil.dato}<p class="feil" id={id('dato-feil')}>{feil.dato}</p>{/if}
+      </div>
+    {/if}
+
+    {#if felt.endringsordre}
+      <div class="felt">
+        <label for={id('endringsordre')}>{NYSAK.endringsordre}</label>
+        <input
+          id={id('endringsordre')}
+          bind:value={endringsordre}
+          aria-required="true"
+          aria-invalid={!!feil.endringsordre}
+          aria-describedby={feil.endringsordre ? id('endringsordre-feil') : undefined}
+          oninput={() => delete feil.endringsordre}
+        />
+        {#if feil.endringsordre}<p class="feil" id={id('endringsordre-feil')}>
+            {feil.endringsordre}
           </p>{/if}
       </div>
+    {/if}
 
-      {#if felt.datotekst}
-        <div class="felt">
-          <label for={id('dato')}>{felt.datotekst}</label>
-          <input
-            id={id('dato')}
-            type="date"
-            max={iDag}
-            bind:value={dato}
-            aria-required="true"
-            aria-invalid={!!feil.dato}
-            aria-describedby={feil.dato ? id('dato-feil') : undefined}
-            oninput={() => delete feil.dato}
-          />
-          {#if feil.dato}<p class="feil" id={id('dato-feil')}>{feil.dato}</p>{/if}
-        </div>
-      {/if}
+    <div class="felt">
+      <span class="etikett">{NYSAK.vedlegg}</span>
+      <p class="hjelp">{NYSAK.vedleggIkkeLaget}</p>
+    </div>
 
-      {#if felt.endringsordre}
-        <div class="felt">
-          <label for={id('endringsordre')}>{NYSAK.endringsordre}</label>
-          <input
-            id={id('endringsordre')}
-            bind:value={endringsordre}
-            aria-required="true"
-            aria-invalid={!!feil.endringsordre}
-            aria-describedby={feil.endringsordre ? id('endringsordre-feil') : undefined}
-            oninput={() => delete feil.endringsordre}
-          />
-          {#if feil.endringsordre}<p class="feil" id={id('endringsordre-feil')}>
-              {feil.endringsordre}
-            </p>{/if}
-        </div>
-      {/if}
-
-      <div class="felt">
-        <span class="etikett">{NYSAK.vedlegg}</span>
-        <p class="hjelp">{NYSAK.vedleggIkkeLaget}</p>
+    {#if felt.punkt322}
+      <div class="felt" id={id('varslet')} tabindex="-1">
+        <Valg
+          navn={id('alleredeVarslet')}
+          spoersmaal={NYSAK.alleredeVarslet}
+          valg={[
+            { verdi: false, tekst: 'Nei' },
+            { verdi: true, tekst: 'Ja' },
+          ]}
+          bind:verdi={alleredeVarslet}
+          feil={feil.varslet ?? null}
+          beskrevetAv={id('kapittel-b')}
+        />
+        <p class="kapittel-b" id={id('kapittel-b')}>{NYSAK.kapittelB}</p>
       </div>
-
-      {#if felt.punkt322}
-        <div class="felt" id={id('varslet')} tabindex="-1">
-          <Valg
-            navn={id('alleredeVarslet')}
-            spoersmaal={NYSAK.alleredeVarslet}
-            valg={[
-              { verdi: false, tekst: 'Nei' },
-              { verdi: true, tekst: 'Ja' },
-            ]}
-            bind:verdi={alleredeVarslet}
-            feil={feil.varslet ?? null}
-          />
-        </div>
-      {/if}
     {/if}
 
     {#if feil.kjernen}<p class="feil" id={id('kjernen')}>{feil.kjernen}</p>{/if}
@@ -346,10 +381,16 @@
 {/if}
 
 <style>
+  /* Skjemaet står i et kort midt på flaten, som i skissen versjon 3. */
   .nysak {
     max-width: var(--varden-ark);
+    margin-inline: auto;
     display: grid;
     gap: var(--spacing-6);
+    padding: var(--spacing-6);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+    background: var(--surface);
   }
   .over {
     margin: 0;
@@ -395,12 +436,47 @@
     color: var(--danger);
     font-weight: 600;
   }
-  .gruppe {
+  .grupper {
     display: grid;
+    border-top: var(--rule);
+  }
+  .gruppe {
+    border-bottom: var(--rule);
   }
   .gruppenavn {
-    margin: var(--spacing-4) 0 var(--spacing-1);
+    display: flex;
+    width: 100%;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    padding: var(--spacing-2) 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
     font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .gruppenavn :global(svg) {
+    flex-shrink: 0;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .gruppenavn[aria-expanded='true'] :global(svg) {
+    transform: rotate(180deg);
+  }
+  .gruppenavn:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  .forholdene {
+    display: grid;
+    padding-bottom: var(--spacing-2);
+  }
+  .forholdene[hidden] {
+    display: none;
   }
   .forhold {
     display: flex;
@@ -408,7 +484,14 @@
     align-items: center;
     font-weight: 400;
     min-height: 44px;
-    padding: var(--spacing-1) 0;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--r-felt);
+  }
+  .forhold:has(input:checked) {
+    background: var(--canvas);
+  }
+  .forhold .navn {
+    flex: 1;
   }
   .forhold input {
     flex-shrink: 0;
@@ -418,7 +501,6 @@
     accent-color: var(--ink);
   }
   .punkt {
-    margin-left: var(--spacing-1);
     color: var(--ink-3);
     font-weight: 400;
     white-space: nowrap;
@@ -436,6 +518,16 @@
   }
   .staarfast {
     margin: var(--spacing-2) 0 0;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--r-felt);
+    background: var(--canvas);
+    color: var(--ink-2);
+  }
+  .staarfast strong {
+    color: var(--ink);
+  }
+  .kapittel-b {
+    margin: 0;
     color: var(--ink-2);
   }
   .sok {

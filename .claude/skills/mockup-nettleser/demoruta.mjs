@@ -57,7 +57,8 @@ function globalPlaywright() {
 
 async function startNettleser(chromium, start) {
   try {
-    return await chromium.launch(start);
+    // Datofeltet følger språket nettleseren startes med, ikke `locale` i konteksten.
+    return await chromium.launch({ ...start, args: [...(start.args ?? []), '--lang=nb-NO'] });
   } catch (e) {
     throw new Error(`${e.message}\nNettleseren startet ikke. Kjør ikke «playwright install»; oppsettet står i ${NETTLESEROPPSETT}.`);
   }
@@ -133,12 +134,15 @@ const feil = [];
 
 try {
   browser = await startNettleser(chromium, start);
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  // Norsk språk, så datofeltet viser dd.mm.åååå som for brukerne (oppdragsgiver 02.11, #1492).
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, locale: 'nb-NO' });
   page.setDefaultTimeout(30000);
   page.on('pageerror', (e) => feil.push(e.message));
   let nr = 0;
   const steg = async (navn, fullPage = false) => {
     const fil = join(arg.utdata, `${String(++nr).padStart(2, '0')}-${navn}.png`);
+    // Panelet til venstre er klebrig, så et helsidebilde tas fra toppen av siden.
+    if (fullPage) await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: fil, fullPage });
     console.log(`${nr}. ${navn} → ${fil}`);
   };
@@ -165,6 +169,7 @@ try {
   await page.getByRole('group', { name: 'Det mangler noe før du kan se brevet' }).waitFor();
   await steg('ny-feil', true);
 
+  await page.getByRole('button', { name: 'Endringer, jf. punkt 31 og 32' }).click();
   await page.getByRole('radio', { name: /^Irregulær endring/ }).click();
   await page.getByLabel('Tittel på saken').fill(SAKSTITTEL);
   await page.getByLabel('Dato du mottok pålegget').fill('2026-09-15');

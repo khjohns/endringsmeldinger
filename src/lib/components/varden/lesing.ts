@@ -18,6 +18,8 @@ export interface Brevet {
   registrert: string;
   spor: Spor[];
   art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'registrert' | 'annet';
+  /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
+  forhold: string | null;
   /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17). */
   avsnitt: Avsnitt[] | null;
 }
@@ -61,6 +63,8 @@ export function brevene(u: Utledning): Brevet[] {
         registrert: d.registrert,
         spor: [...i],
         art: artAv(d),
+        forhold:
+          (d.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori as string) ?? null,
         avsnitt: d.brevtekst,
       },
     ];

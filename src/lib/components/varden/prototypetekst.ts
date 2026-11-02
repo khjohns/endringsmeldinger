@@ -33,9 +33,58 @@ const SVAR: Record<Spor, string> = {
   frist: 'Svar på krav om fristforlengelse',
 };
 
+/**
+ * Forholdene med kjernens kode, i gruppene og rekkefølgen fra skissen versjon 3 (BF-05).
+ * Gruppen har kontraktens henvisning (OV-U77), og navnet er forholdet selv (OV-U78).
+ * Force majeure har ingen kode i kjernen ennå (#367).
+ */
+export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: string][] }[] = [
+  {
+    navn: 'Endringer, jf. punkt 31 og 32',
+    forhold: [
+      ['irregulaer_endring', 'Irregulær endring'],
+      ['valg_av_loesning', 'Begrensning av valgrett'],
+      ['samordning', 'Samordning'],
+      ['svar_paa_varsel', 'Endring ved svar på varsel'],
+      ['endringsordre', 'Endringsordre'],
+      ['lovendring_gjenstand', 'Nye offentlige krav til kontraktsgjenstanden'],
+      ['lovendring_prosess', 'Nye offentlige krav til utførelsen'],
+      ['gebyrer_og_avgifter', 'Endrede offentlige gebyrer og avgifter'],
+    ],
+  },
+  {
+    navn: 'Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24',
+    forhold: [
+      ['medvirkning', 'Manglende medvirkning eller leveranser fra byggherren'],
+      ['grunnforhold', 'Uforutsette forhold ved grunnen'],
+      ['prosjektering', 'Svikt i byggherrens prosjektering'],
+      ['kulturminner', 'Funn av kulturminner'],
+    ],
+  },
+  {
+    navn: 'Andre forhold byggherren har risikoen for',
+    forhold: [
+      ['skade_fra_byggherren', 'Skade forårsaket av byggherren eller en sideentreprenør'],
+      ['nektet_kontraktsmedhjelper', 'Nektet kontraktsmedhjelper'],
+      ['brukstakelse', 'Urettmessig brukstakelse'],
+      ['stans_ved_betalingsmislighold', 'Stans ved betalingsmislighold'],
+      ['annet_forhold', 'Annet forhold byggherren har risikoen for'],
+    ],
+  },
+];
+
+const FORHOLDSNAVN = new Map(FORHOLDSGRUPPER.flatMap((g) => g.forhold));
+
+/** Navnet på forholdet med kjernens kode (OV-U78), eller `null` for en ukjent kode. */
+export const forholdsnavn = (kode: unknown) =>
+  (typeof kode === 'string' && FORHOLDSNAVN.get(kode)) || null;
+
 /** Tittelen på brevet, av hva det inneholder og sporet det hører til. */
-export function brevtittel(b: Pick<Brevet, 'art' | 'spor'>): string {
+export function brevtittel(b: Pick<Brevet, 'art' | 'spor'> & { forhold?: string | null }): string {
   const spor = b.spor[0];
+  // Totalentreprenørens brev om forholdet heter «Påberopelse av <forholdet>» (GR-U31).
+  const navn = spor === 'forhold' ? forholdsnavn(b.forhold) : null;
+  if (b.art === 'krav' && navn) return NYSAK.brevtittel(navn);
   if (b.art === 'krav' && spor) return KRAV[spor];
   if (b.art === 'svar' && spor) return SVAR[spor];
   if (b.art === 'aksept') return 'Aksept av svaret';
@@ -339,8 +388,8 @@ export const NYSAK = {
         ? 'Ett forhold passer med søket.'
         : `${n} forhold passer med søket.`,
   endre: 'Endre',
-  staarFast:
-    'Forholdet står fast når brevet er sendt. Vil du påberope et annet forhold senere, oppretter du en ny sak.',
+  staarFastInnledning: 'Forholdet står fast når brevet er sendt.',
+  staarFast: 'Vil du påberope et annet forhold senere, oppretter du en ny sak.',
   sakstittel: 'Tittel på saken',
   sakstittelHjelp: 'Står i sakslisten og i brevet.',
   beskrivelseHjelp: 'Hva som skjedde, når og hvordan, og hvorfor du mener det er en endring.',
@@ -349,6 +398,9 @@ export const NYSAK = {
   vedleggIkkeLaget: 'Vedlegg kan ikke legges ved ennå.',
   alleredeVarslet:
     'Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at pålegget er en endring?',
+  // Opplysningen fra kapittel B står ved spørsmålet uansett svar (VS-U39, F-8).
+  kapittelB:
+    'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',
   alleredeVarsletIkkeLaget:
     'Registreringen av et varsel som alt er sendt, er ikke laget ennå. Velg nei for å gå videre.',
   seBrevet: 'Se brevet',

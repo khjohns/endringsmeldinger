@@ -11,6 +11,7 @@ import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import type { SendNySak } from '$lib/components/varden/nysak';
 import { kravMotNySak } from '$lib/kjernesak/brevtekst';
 import { KJERNE } from '$kjerne/versjon';
+import { brevtittel } from '$lib/components/varden/prototypetekst';
 
 afterEach(cleanup);
 
@@ -23,10 +24,19 @@ function aapne(send = vi.fn<SendNySak>(async () => ({ sakId: 'ny-sak' }))) {
   return { send, onsendt, onavbrutt };
 }
 
+const ENDRINGER = 'Endringer, jf. punkt 31 og 32';
+const SVIKT = 'Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24';
+
+/** Velgeren fra `/mockup` har gruppene felt sammen, så TE åpner gruppen før forholdet velges. */
+async function velgForhold(gruppe: string, navn: RegExp) {
+  await fireEvent.click(screen.getByRole('button', { name: gruppe }));
+  await fireEvent.click(screen.getByRole('radio', { name: navn }));
+}
+
 const seBrevet = () => fireEvent.click(screen.getByRole('button', { name: 'Se brevet' }));
 
 async function fyllIrregulaerEndring({ beskrivelse = BESKRIVELSE } = {}) {
-  await fireEvent.click(screen.getByRole('radio', { name: /^Irregulær endring/ }));
+  await velgForhold(ENDRINGER, /^Irregulær endring/);
   await fireEvent.input(screen.getByLabelText('Tittel på saken'), {
     target: { value: 'Teglforblending på fasaden' },
   });
@@ -86,7 +96,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
 
   it('F-4: mangler datoen pålegget ble mottatt, står «Oppgi datoen.»', async () => {
     aapne();
-    await fireEvent.click(screen.getByRole('radio', { name: /^Irregulær endring/ }));
+    await velgForhold(ENDRINGER, /^Irregulær endring/);
     await fireEvent.input(screen.getByLabelText('Tittel på saken'), { target: { value: 'T' } });
     await seBrevet();
     expect(screen.getAllByText('Oppgi datoen.').length).toBe(2);
@@ -94,7 +104,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
 
   it('F-5/VS-U26: ved svikt følger ledetekstene forholdet, og spørsmålet om punkt 32.2 vises ikke', async () => {
     aapne();
-    await fireEvent.click(screen.getByRole('radio', { name: /^Manglende medvirkning/ }));
+    await velgForhold(SVIKT, /^Manglende medvirkning/);
     expect(screen.getByLabelText('Beskrivelse av forholdet')).toBeTruthy();
     expect(screen.getByLabelText('Dato du ble klar over forholdet')).toBeTruthy();
     expect(screen.queryByText(/allerede varslet byggherren etter punkt 32.2/)).toBeNull();
@@ -102,18 +112,67 @@ describe('skjemaet for ny sak (BF-05)', () => {
 
   it('F-5: ved et pålegg der punkt 32.2 gjelder, spør skjemaet om varselet alt er sendt', async () => {
     aapne();
-    await fireEvent.click(screen.getByRole('radio', { name: /^Irregulær endring/ }));
+    await velgForhold(ENDRINGER, /^Irregulær endring/);
     expect(screen.getByText(/allerede varslet byggherren etter punkt 32.2/)).toBeTruthy();
   });
 
   it('U-3/arbeidsvalg 02.11: det valgte forholdet viser kontraktens regel, og «Endre» åpner velgeren', async () => {
     aapne();
-    await fireEvent.click(screen.getByRole('radio', { name: /^Irregulær endring/ }));
+    await velgForhold(ENDRINGER, /^Irregulær endring/);
     expect(screen.getByText(/varsle etter punkt 32.2/)).toBeTruthy();
     expect(screen.queryByText(/§|\bhan\b/)).toBeNull();
     expect(screen.getByText(/Forholdet står fast når brevet er sendt/)).toBeTruthy();
     await fireEvent.click(screen.getByRole('button', { name: 'Endre' }));
     expect(screen.getByRole('radio', { name: /^Irregulær endring/ })).toBeTruthy();
+  });
+
+  it('arbeidsvalg 02.11: gruppene i velgeren er felt sammen til TE åpner én, og et søk åpner gruppene med treff', async () => {
+    aapne();
+    expect(screen.queryByRole('radio', { name: /^Irregulær endring/ })).toBeNull();
+    const gruppe = screen.getByRole('button', { name: ENDRINGER });
+    expect(gruppe.getAttribute('aria-expanded')).toBe('false');
+    await fireEvent.click(gruppe);
+    expect(gruppe.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('radio', { name: /^Irregulær endring/ })).toBeTruthy();
+    await fireEvent.click(gruppe);
+    await fireEvent.input(screen.getByLabelText('Søk etter forhold eller punkt'), {
+      target: { value: 'grunnen' },
+    });
+    expect(screen.getByRole('radio', { name: /^Uforutsette forhold ved grunnen/ })).toBeTruthy();
+    expect(screen.queryByRole('radio', { name: /^Irregulær endring/ })).toBeNull();
+  });
+
+  it('OV-U77/OV-U78: gruppene har kontraktens henvisning, og hvert forhold har sitt eget navn uten skråstrek', async () => {
+    aapne();
+    const navnene: string[] = [];
+    for (const gruppe of [ENDRINGER, SVIKT, 'Andre forhold byggherren har risikoen for']) {
+      await fireEvent.click(screen.getByRole('button', { name: gruppe }));
+      for (const r of within(screen.getByRole('radiogroup', { name: gruppe })).getAllByRole(
+        'radio'
+      ))
+        navnene.push(r.closest('label')!.textContent!);
+    }
+    expect(navnene.some((n) => n.includes('Samordning'))).toBe(true);
+    expect(navnene.some((n) => n.includes('Endring ved svar på varsel'))).toBe(true);
+    expect(navnene.some((n) => n.includes('/'))).toBe(false);
+    const utenPunkt = navnene.map((n) => n.replace(/punkt .*$/, '').trim());
+    expect(new Set(utenPunkt).size).toBe(utenPunkt.length);
+  });
+
+  it('skissen versjon 3: beskrivelsen, datoen og vedlegget står før forholdet er valgt', async () => {
+    aapne();
+    expect(screen.getByLabelText('Beskrivelse av pålegget')).toBeTruthy();
+    expect(screen.getByLabelText('Dato du mottok pålegget')).toBeTruthy();
+    expect(screen.getByText('Vedlegg (valgfritt)')).toBeTruthy();
+  });
+
+  it('F-8/VS-U39: opplysningen fra kapittel B står ved spørsmålet, både ved nei og ved ja', async () => {
+    aapne();
+    await velgForhold(ENDRINGER, /^Irregulær endring/);
+    const opplysning = /Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes/;
+    expect(screen.getByText(opplysning)).toBeTruthy();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
+    expect(screen.getByText(opplysning)).toBeTruthy();
   });
 
   it('U-6: brevkontrollen viser brevet fra kjernen, og «Tilbake» beholder det som er skrevet', async () => {
@@ -139,7 +198,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
 
   it('F-4: feilen for endringsordren forsvinner når feltet fylles ut', async () => {
     aapne();
-    await fireEvent.click(screen.getByRole('radio', { name: /^Formell endringsordre/ }));
+    await velgForhold(ENDRINGER, /^Endringsordre/);
     await seBrevet();
     const felt = screen.getByLabelText('Endringsordrens nummer eller dato');
     expect(felt.getAttribute('aria-invalid')).toBe('true');
@@ -230,5 +289,14 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     expect(journal[0].event_type).toBe('sak_opprettet');
     const neste = forloep.kontrollpunkter.find((k) => k.id === 'paaberopelsen-er-sendt')!;
     expect(journal.at(-1)!.versjon).toBe(neste.versjon);
+  });
+
+  it('GR-U31: påberopelsen heter «Påberopelse av <forholdet>» også etter sendingen', () => {
+    expect(brevtittel({ art: 'krav', spor: ['forhold'], forhold: 'irregulaer_endring' })).toBe(
+      'Påberopelse av irregulær endring'
+    );
+    expect(brevtittel({ art: 'krav', spor: ['vederlag'], forhold: null })).toBe(
+      'Krav om vederlagsjustering'
+    );
   });
 });

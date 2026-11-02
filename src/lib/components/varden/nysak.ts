@@ -5,11 +5,16 @@
  * kommandoene samlet. Demoruta fyller grensen i minnet, og saksruta med kommandoen fra #1487.
  */
 
-import { KRAV_STRUKTUR_NS8407, type Kontraktsforhold } from '$lib/constants/categories';
+import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { getKontraktsregel, type Kontraktsregel } from '$lib/constants/kontraktsregler';
 import { kravMotNySak, type Brev } from '$lib/kjernesak/brevtekst';
 import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
-import { kategoriFraKatalogen, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
+import {
+  kategoriFraKatalogen,
+  tilKatalogen,
+  UNDERKATEGORI_FRA_KATALOGEN,
+} from '$kjerne/format/koder';
+import { FORHOLDSGRUPPER } from './prototypetekst';
 import type { Kjerne } from '$kjerne/versjon';
 import type { Part } from '$kjerne/typer';
 
@@ -36,11 +41,31 @@ export type Paaberopelse = {
  */
 export type SendNySak = (nySak: NySak) => Promise<{ sakId: string }>;
 
-/** Katalogens forhold med bare dem kjernen har en kode for. Force majeure har ingen (#367). */
-export const FORHOLDENE: Kontraktsforhold[] = KRAV_STRUKTUR_NS8407.map((g) => ({
-  ...g,
-  hjemler: g.hjemler.filter((h) => Object.hasOwn(UNDERKATEGORI_FRA_KATALOGEN, h.kode)),
-})).filter((g) => g.hjemler.length);
+/** Ett forhold i velgeren, med katalogens koder kjernen oversetter (`kategoriFraKatalogen`). */
+export interface Forholdet {
+  gruppe: string;
+  kode: string;
+  navn: string;
+  punkt: string;
+  beskrivelse: string;
+}
+
+/** Forholdene i gruppene fra skissen (OV-U77, OV-U78), med katalogens henvisning og beskrivelse. */
+export const FORHOLDENE: { navn: string; forhold: Forholdet[] }[] = FORHOLDSGRUPPER.map((g) => ({
+  navn: g.navn,
+  forhold: g.forhold.map(([kjernekode, navn]) => {
+    const kode = tilKatalogen(UNDERKATEGORI_FRA_KATALOGEN, kjernekode) as string;
+    const gruppe = KRAV_STRUKTUR_NS8407.find((k) => k.hjemler.some((h) => h.kode === kode))!;
+    const hjemmel = gruppe.hjemler.find((h) => h.kode === kode)!;
+    return {
+      gruppe: gruppe.kode,
+      kode,
+      navn,
+      punkt: hjemmel.hjemmel_basis,
+      beskrivelse: hjemmel.beskrivelse,
+    };
+  }),
+}));
 
 export interface Forholdsvalg {
   gruppe: string;
@@ -59,6 +84,18 @@ export interface Feltene {
   punkt322: boolean;
   endringsordre: boolean;
 }
+
+/**
+ * Feltene før forholdet er valgt: ledetekstene for et pålegg og spørsmålet om varsel som alt
+ * er sendt, som i skissen versjon 3. De følger forholdet når det er valgt (F-5).
+ */
+export const FELTENE_UTEN_FORHOLD: Feltene = {
+  dato: null,
+  beskrivelse: 'Beskrivelse av pålegget',
+  datotekst: 'Dato du mottok pålegget',
+  punkt322: true,
+  endringsordre: false,
+};
 
 /** Ledetekstene og feltene som følger forholdet (F-5, VS-U26, GR-U16). */
 export function feltene(valg: Forholdsvalg, kjerne: Kjerne): Feltene {
@@ -82,17 +119,9 @@ export function feltene(valg: Forholdsvalg, kjerne: Kjerne): Feltene {
   };
 }
 
-/** Forholdets navn uten katalogens merknad i parentes: «Irregulær endring» (OV-U77, D-1). */
-export const forholdsnavn = (label: string) => label.replace(/\s*\([^)]*\)\s*$/, '');
-
 export function forholdet(valg: Forholdsvalg) {
-  const gruppe = FORHOLDENE.find((g) => g.kode === valg.gruppe)!;
-  const hjemmel = gruppe.hjemler.find((h) => h.kode === valg.kode)!;
-  return {
-    gruppe,
-    hjemmel,
-    regel: getKontraktsregel(hjemmel.hjemmel_basis) as Kontraktsregel | null,
-  };
+  const forhold = FORHOLDENE.flatMap((g) => g.forhold).find((f) => f.kode === valg.kode)!;
+  return { ...forhold, regel: getKontraktsregel(forhold.punkt) as Kontraktsregel | null };
 }
 
 export interface Utfylling {
