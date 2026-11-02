@@ -730,6 +730,13 @@
     top: var(--spacing-4);
     z-index: 1;
   }
+  /* Dekker stripa over det faste panelet, så tidslinja ikke synes der når den ruller forbi. */
+  .feste::before {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--spacing-4)) 0 100%;
+    background: var(--canvas);
+  }
   .sendes-til {
     margin: 0;
     color: var(--ink-3);
