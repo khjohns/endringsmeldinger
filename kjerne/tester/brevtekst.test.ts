@@ -4383,7 +4383,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(k.u().frafalt, 'kontrollsak').toBe(true);
     });
 
-    it('etter frafall fra appen, en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3 er forholdet avklart ved frafallet, fordi et registrert svar ikke binder og ikke tar bort frafallet (GR-U20, GR-U23, OV-U4, OV-U6, #1388)', () => {
+    it('etter frafall fra appen, en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3 er forholdet avklart ved frafallet, fordi frafallet ikke faller bort ved en ny versjon og et registrert svar ikke tar det bort (GR-U20, GR-U23, OV-U4, OV-U6, #1388)', () => {
       const s = medFrafall();
       versjon(s, { tittel: 'Ny peling 2' });
       const v2 = s.u().spor.forhold.gjeldendeKrav!.id;

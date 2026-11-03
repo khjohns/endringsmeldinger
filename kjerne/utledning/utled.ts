@@ -414,9 +414,9 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
  * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor
  * (MM-U20), en aksept av et frafall (GR-U9) eller av et svar med registrert enighet
  * (GR-U8), noe som endrer utfallet etter at TE har godtatt et svar som avslår forholdet
- * eller påberoper preklusjon (GR-U27), og det som viser til et element uten virkning. Kontrollen gjelder bare disse
- * vedtakene, ikke vilkårene for å sende, så en strengere forutsetning senere gjør ikke et
- * eldre brev uforstått.
+ * eller påberoper preklusjon (GR-U27), og det som viser til et element uten virkning.
+ * Kontrollen gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
+ * forutsetning senere gjør ikke et eldre brev uforstått.
  */
 function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
   // Et krav havner aldri i `uten`: kravene i et registrert brev er dokumentasjon (OV-U4),
@@ -1142,7 +1142,8 @@ function forholdet(
   // GR-U23: venter en ny påberopelsesversjon på svar etter et frafall, er forholdet avklart
   // ved frafallet til byggherren svarer. Det siste svaret sendt fra appen leses, så et
   // frafall byggherren senere har revidert til avslag, avklarer ikke (MM-U34 punkt 7). Et
-  // registrert svar binder ikke og tar heller ikke bort frafallet (GR-U20, OV-U4, #1388).
+  // svar byggherren har registrert, også en endringsordre etter OV-U6, tar ikke bort
+  // frafallet (GR-U20, OV-U4, OV-U6, #1388).
   const sisteFraAppen = spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);
   const venterEtterFrafall =
     !spor.forhold.trukket &&
