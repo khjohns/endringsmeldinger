@@ -261,7 +261,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     ]);
   });
 
-  it('L1: leveringen hentes ikke før saken har topic, og den teller ikke som forsøk', async () => {
+  it('L1: leveringen hentes ikke før saken har topic (LV-U9), og den teller ikke som forsøk', async () => {
     const sakId = await opprettKjernesak(o);
     // Topicjobben parkeres, så saken står uten topic.
     await somKjoerer(`UPDATE koe.jobb SET tilstand = N'parkert' WHERE sak_id = @sak`, {

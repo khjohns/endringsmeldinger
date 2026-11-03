@@ -559,7 +559,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
   // `login_time` på samme forbindelse og samme økt-ID. Uten nullstilling er
   // tidspunktet det samme (kontrollsaken). Under last kan basens klokke stå på
   // samme verdi i flere rundturer, så kontrollsaken og nullstillingen venter til
-  // klokka har passert `login_time` (#960).
+  // klokka har passert `login_time` (#960). `login_time` er `datetime`, og et nytt
+  // `login_time` er målt inntil 2 ms før `SYSDATETIME()` lest før nullstillingen: verdien
+  // kuttes til hele millisekunder og rundes så til 1/300 s, så klokka .3784 rundes til
+  // .380 mens `login_time` .378 rundes til .377 (#1428). Etter 5 ms er et nytt
+  // `login_time` minst 3 ms senere enn det forrige.
   it('nullstillingen etter en transaksjon gir samme forbindelse og økt-ID et senere login_time, og uten nullstilling er det uendret', async () => {
     const innlogging = async () =>
       (
@@ -570,21 +574,26 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
             WHERE s.session_id = @@SPID`
         )
       ).recordset[0];
-    /** Basens klokke med oppløsningen til `login_time`, som er `datetime`. */
+    /** Basens klokke, og mikrosekundene siden `login_time` til økta. */
     const klokka = async () =>
       (
-        await pool.request().query<{
-          naa: string;
-        }>(`SELECT CONVERT(varchar(23), CAST(SYSDATETIME() AS datetime), 121) AS naa`)
-      ).recordset[0].naa;
+        await pool.request().query<{ naa: string; siden: string }>(
+          `SELECT CONVERT(varchar(27), SYSDATETIME(), 121) AS naa,
+                  CAST(DATEDIFF_BIG(microsecond, s.login_time, SYSDATETIME()) AS varchar(20)) AS siden
+             FROM sys.dm_exec_sessions s WHERE s.session_id = @@SPID`
+        )
+      ).recordset[0];
     const foer = await innlogging();
     const frist = Date.now() + 2_000;
     let passert = await klokka();
-    while (passert <= foer.innlogget && Date.now() < frist) {
+    while (Number(passert.siden) < 5_000 && Date.now() < frist) {
       await new Promise((ok) => setTimeout(ok, 1));
       passert = await klokka();
     }
-    expect(passert > foer.innlogget, `klokka ${passert}, login_time ${foer.innlogget}`).toBe(true);
+    expect(
+      Number(passert.siden) >= 5_000,
+      `klokka ${passert.naa}, login_time ${foer.innlogget}`
+    ).toBe(true);
     expect(await innlogging()).toEqual(foer);
     await transaksjon(pool, KONTEKST, async () => undefined);
     const etter = await innlogging();
@@ -592,7 +601,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     // Verdiene i meldingen skiller et uendret fra et tidligere tidspunkt (#960).
     expect(
       etter.innlogget > foer.innlogget,
-      `login_time før ${foer.innlogget}, klokka før nullstillingen ${passert}, etter ${etter.innlogget}`
+      `login_time før ${foer.innlogget}, klokka før nullstillingen ${passert.naa}, etter ${etter.innlogget}`
     ).toBe(true);
   });
 

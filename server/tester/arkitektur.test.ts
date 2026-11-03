@@ -21,8 +21,12 @@
  *   I tillegg leser typekontrolløren i TypeScript hvert kall på en pool, en
  *   transaksjon eller en forberedt spørring fra `mssql` og hver `new` av dem, så
  *   `pool.query`, `pool.batch`, `pool.transaction()` og
- *   `new sql.PreparedStatement(pool)` også er synlige (#877, #894-2). Den ser ikke
- *   en verdi med typen `any` eller `unknown`.
+ *   `new sql.PreparedStatement(pool)` også er synlige (#877, #894-2), også når
+ *   mottakeren er en union som `Pool | undefined` (#923 punkt 2). Den ser også et
+ *   kall på modulfunksjonene `connect`, `query` og `batch` i `mssql`, som bruker den
+ *   globale poolen, også gjennom et annet navn (#923 punkt 3); `batch` har ingen type
+ *   i `@types/mssql`, så `tsc` avviser den før testen. Den ser ikke en verdi med typen
+ *   `any` eller `unknown`.
  * - `pdf-lib` og `@pdf-lib/fontkit` importeres bare i `brevpdf.ts`, som lager PDF-en
  *   av brevet med skriften bygd inn (#371, #799).
  *
@@ -121,6 +125,10 @@ export function forespoersler(kilde: string): string[] {
 
 /** Typene i `mssql` som kan sende en spørring, og metodene på dem som gjør det. */
 const MSSQL_TYPER = new Set(['ConnectionPool', 'Transaction', 'PreparedStatement', 'Request']);
+/** Typene der metodene over er forbudt; en `Request` kommer fra `transaksjon` eller `utenKontekst`. */
+const MSSQL_MOTTAKERE = new Set(['ConnectionPool', 'Transaction', 'PreparedStatement']);
+/** Modulfunksjonene i `mssql` som sender en spørring gjennom den globale poolen (#923 punkt 3). */
+const MSSQL_MODULFUNKSJONER = new Set(['connect', 'query', 'batch']);
 const MSSQL_METODER = new Set([
   'request',
   'query',
@@ -151,26 +159,37 @@ export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): 
       : les(navn, ...resten);
   const program = ts.createProgram(sjekk, valg, vert);
   const kontroll = program.getTypeChecker();
-  const fraMssql = (type: ts.Type | undefined) => {
-    const symbol = type?.getSymbol();
+  const iMssql = (d: ts.Node) => d.getSourceFile().fileName.includes('/mssql/');
+  // En union som `Pool | undefined` har ikke noe symbol selv, så delene prøves hver for seg.
+  const fraMssql = (type: ts.Type, navn: Set<string>) =>
+    (type.isUnion() ? type.types : [type]).some((del) => {
+      const symbol = del.getSymbol();
+      return !!symbol && navn.has(symbol.getName()) && !!symbol.declarations?.some(iMssql);
+    });
+  const modulfunksjon = (node: ts.CallExpression | ts.TaggedTemplateExpression) => {
+    const d = kontroll.getResolvedSignature(node)?.getDeclaration();
     return (
-      !!symbol &&
-      MSSQL_TYPER.has(symbol.getName()) &&
-      !!symbol.declarations?.some((d) => d.getSourceFile().fileName.includes('/mssql/'))
+      !!d &&
+      ts.isFunctionDeclaration(d) &&
+      !!d.name &&
+      MSSQL_MODULFUNKSJONER.has(d.name.text) &&
+      ts.isSourceFile(d.parent) &&
+      iMssql(d)
     );
   };
   const funn: string[] = [];
   for (const navn of sjekk) {
     const fil = program.getSourceFile(navn)!;
     const besok = (node: ts.Node) => {
-      if (ts.isNewExpression(node) && fraMssql(kontroll.getTypeAtLocation(node)))
+      if (ts.isNewExpression(node) && fraMssql(kontroll.getTypeAtLocation(node), MSSQL_TYPER))
         funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
       if (
         ts.isPropertyAccessExpression(node) &&
         MSSQL_METODER.has(node.name.text) &&
-        fraMssql(kontroll.getTypeAtLocation(node.expression)) &&
-        kontroll.getTypeAtLocation(node.expression).getSymbol()?.getName() !== 'Request'
+        fraMssql(kontroll.getTypeAtLocation(node.expression), MSSQL_MOTTAKERE)
       )
+        funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
+      if ((ts.isCallExpression(node) || ts.isTaggedTemplateExpression(node)) && modulfunksjon(node))
         funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
       ts.forEachChild(node, besok);
     };
@@ -276,6 +295,13 @@ describe('grensene rundt TS-serveren', () => {
     ['(p: Pool) => new sql.PreparedStatement(p);'],
     ['(p: Pool) => new sql.Request(p);'],
     ['(t: sql.Transaction) => t.request();'],
+    ["(p: Pool | undefined) => p?.query('SELECT 1');"],
+    ["(p: sql.ConnectionPool | null) => p?.batch('SELECT 1');"],
+    ['(t: sql.Transaction | undefined) => t?.request();'],
+    ['(k: string) => sql.connect(k);'],
+    ["() => sql.query('SELECT 1');"],
+    ['() => sql.query`SELECT 1`;'],
+    ["() => { const q = sql.query; return q('SELECT 1'); };"],
   ])(
     'typekontrolløren oppdager %s i sesjon.ts',
     (linje) => {
