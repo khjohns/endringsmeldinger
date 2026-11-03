@@ -29,6 +29,9 @@
             "staar": "Sakene endringsordren omfatter"
           },
           {
+            "staar": "Hva endringen i KOE-017 går ut på"
+          },
+          {
             "staar": "Endringsordren sier ikke noe om fristforlengelsen i KOE-021."
           },
           {
@@ -62,6 +65,12 @@
           },
           {
             "staar": "Disse sakene lukkes når endringsordren er sendt"
+          },
+          {
+            "staar": "Byggherren krever at følgende endringer utføres:"
+          },
+          {
+            "staar": "Endringene har konsekvenser for annet."
           },
           {
             "staar": "Kravet om fristforlengelse er endret etter at saken ble lagt i utkastet"
@@ -106,7 +115,7 @@
         "start": "utkast",
         "handlinger": [
           {
-            "velg": "Tilbud for vederlagsjusteringen i KOE-017"
+            "kryss": "Gi beløpet som tilbud om oppgjør, vederlagsjusteringen i KOE-017"
           },
           {
             "klikk": "Se endringsordren før sending",
@@ -301,6 +310,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Prototypen versjon 3: valget mellom standpunkt og tilbud, å legge til og fjerne saker, en kortere liste over sakene, og visningen etter språkfila."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 4 etter oppdragsgivers gjennomgang: endringen beskrives fullt ut per sak (D-9), konsekvensene med avkrysning, og tilbud om oppgjør som avkrysning."
     }
   ]
 }

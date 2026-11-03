@@ -6,7 +6,7 @@
 <title>Endringsordren i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v3 av skjemaet byggherren bruker til endringsordren i en EO-sak, for BF-06 (#1525).
+  Prototype v4 av skjemaet byggherren bruker til endringsordren i en EO-sak, for BF-06 (#1525).
   Tilstandene er ankrene #utkast, #legg-til, #samlet (fristforlengelsen samlet),
   #vederlag-samlet, #kontroll, #godkjenning og #sendt, og bestillingen
   (docs/domenetabell/brukerforlop/BF-06.md) viser til dem. ID-ene i data-spor er punktene der.
@@ -215,6 +215,7 @@ button{font:inherit;color:inherit}
 .brev h2{font-size:19px;font-weight:600;margin:0 0 12px}
 .brev h3{font-size:15px;font-weight:600;margin:22px 0 4px}
 .brev p{margin:0 0 8px}
+.brev .endring-tittel{margin:14px 0 2px}
 .brev ul{margin:0 0 8px;padding-left:20px}
 .tbl{overflow-x:auto;margin:6px 0}
 .tbl table{width:100%;min-width:520px;border-collapse:collapse;font-size:13px}
@@ -287,7 +288,6 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 @media (prefers-reduced-motion:reduce){.knapp{transition:none}}
 [data-frist="samlet"] .kun-per-sak,[data-frist="per-sak"] .kun-samlet{display:none!important}
 [data-vederlag="samlet"] .kun-v-per-sak,[data-vederlag="per-sak"] .kun-v-samlet{display:none!important}
-.konsekvensfelt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .tekstinn{border:1px solid var(--control-border-color);border-radius:var(--r-felt);background:var(--control-bg);font:14px var(--font-sans);color:var(--ink);padding:9px 12px;width:100%;min-width:0}
 .tekstinn:focus{outline:none;border-color:var(--control-focus);box-shadow:var(--control-focus-ring)}
 .samlede{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
@@ -301,14 +301,21 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 .velg-sak ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .velg-sak li{display:flex;flex-wrap:wrap;gap:2px 16px;align-items:baseline;justify-content:space-between}
 .velg-sak .opptatt{font-size:12px;color:var(--ink-3)}
-.artvalg{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
-.artvalg legend{float:left;font-size:12px;color:var(--ink-3);margin-right:4px;padding:0}
-.artvalg label{display:inline-flex;gap:6px;align-items:center;min-height:32px;cursor:pointer;font-size:13px}
-.artvalg input{accent-color:var(--brand);width:16px;height:16px;margin:0}
-.artvalg label:has(input:checked){font-weight:600}
+/* Konsekvensene */
+.valg{display:flex;flex-wrap:wrap;gap:8px}
+.valg label{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 16px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);cursor:pointer;background:var(--surface)}
+.valg input,.avkrysning input,.tilbudvalg input{accent-color:var(--brand);width:18px;height:18px;margin:0}
+.valg label:has(input:checked){border:2px solid var(--ink);background:var(--surface-selected);font-weight:600;padding:0 15px}
+.kons-ja{display:flex;flex-direction:column;gap:12px;padding-left:14px;border-left:2px solid var(--rule-strong-color)}
+.avkrysning{display:flex;flex-wrap:wrap;gap:4px 20px}
+.avkrysning label{display:inline-flex;gap:8px;align-items:center;min-height:40px;cursor:pointer}
+.tekstfelt.stor{min-height:120px}
+/* Tilbud om oppgjør */
+.tilbudvalg{display:flex;flex-direction:column;gap:2px}
+.tilbudvalg label{display:inline-flex;gap:8px;align-items:center;min-height:36px;cursor:pointer;font-weight:500;align-self:flex-start}
+.tilbudvalg .hjelp{padding-left:26px}
 .fast-art{font-size:12px;color:var(--ink-3)}
 .fast-art b{color:var(--ink);font-weight:600}
-@media (max-width:860px){.konsekvensfelt{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -333,7 +340,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     <div class="topplinje">
       <div class="demo-bryter">
         <p>Du er byggherre (BH), prosjektleder</p>
-        <span class="d">Prototype v3 · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#utkast" class="nullstill">Start på nytt</a></span>
+        <span class="d">Prototype v4 · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#utkast" class="nullstill">Start på nytt</a></span>
       </div>
     </div>
 
@@ -363,20 +370,30 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
           </section>
 
           <section class="punkt" aria-labelledby="p-beskr">
-            <div class="punkt-hode"><span class="nr" aria-hidden="true">2</span><h2 id="p-beskr">Endringen</h2></div>
-            <div class="felt">
-              <label for="beskrivelse">Beskrivelse av endringen</label>
-              <span class="hjelp">Endringene er beskrevet i totalentreprenørens krav i hver sak. Skriv det som kommer i tillegg.</span>
-              <textarea class="tekstfelt" id="beskrivelse">Ventilasjonen i akse C–F legges om etter tegning V-312 rev. C.</textarea>
-            </div>
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">2</span><h2 id="p-beskr">Endringen</h2><span class="hjemmel">pkt. 31.3</span></div>
+            <p class="hjelp" data-spor="D-9">Beskriv hver endring fullt ut. Beskrivelsen er byggherrens pålegg og står i endringsordren.</p>
+            <div class="felt" data-sak="KOE-017"><label for="b-KOE-017">Hva endringen i KOE-017 går ut på</label><textarea class="tekstfelt" id="b-KOE-017" aria-required="true">Ventilasjonskanalene i akse C–F legges om under bjelkelaget etter tegning V-312 rev. C. Kanalene i himlingen demonteres. Brannspjeld og oppheng tilpasses den nye føringen.</textarea></div>
+            <div class="felt" data-sak="KOE-018"><label for="b-KOE-018">Hva endringen i KOE-018 går ut på</label><textarea class="tekstfelt" id="b-KOE-018" aria-required="true">Stålsøylene S1–S8 i akse A–D brannisoleres til R90 med brannmaling i stedet for R60. Søylene S3–S5 i akse D utgår og isoleres ikke.</textarea></div>
+            <div class="felt" data-sak="KOE-021"><label for="b-KOE-021">Hva endringen i KOE-021 går ut på</label><textarea class="tekstfelt" id="b-KOE-021" aria-required="true">Fundamentet ved trapperom B forsterkes med fire nye peler og en utvidet fundamentplate etter tegning K-118 rev. B. Arbeidet utføres før trapperommet støpes.</textarea></div>
+            <div class="felt" data-sak="KOE-022"><label for="b-KOE-022">Hva endringen i KOE-022 går ut på</label><textarea class="tekstfelt" id="b-KOE-022" aria-required="true">Sprinkleranlegget i hall 2 utvides med en egen seksjon for lageret i 2. etasje etter tegning R-204.</textarea></div>
             <fieldset class="felt" style="border:0;margin:0;padding:0">
-              <legend class="lbl" style="padding:0;margin-bottom:6px">Konsekvenser for SHA, kvalitet og annet</legend>
-              <div class="konsekvensfelt">
-                <div class="felt"><label for="k-sha">SHA</label><input class="tekstinn" id="k-sha" type="text" value="Ingen"></div>
-                <div class="felt"><label for="k-kval">Kvalitet</label><input class="tekstinn" id="k-kval" type="text" value="Ingen"></div>
-                <div class="felt"><label for="k-annet">Annet</label><input class="tekstinn" id="k-annet" type="text" value="Ny innregulering av ventilasjonen"></div>
+              <legend class="lbl" style="padding:0;margin-bottom:6px">Har endringene konsekvenser for SHA, kvalitet eller annet?</legend>
+              <div class="valg">
+                <label><input type="radio" name="kons" value="nei"> Nei</label>
+                <label><input type="radio" name="kons" value="ja" checked> Ja</label>
               </div>
             </fieldset>
+            <div class="kons-ja" id="kons-ja">
+              <fieldset class="felt" style="border:0;margin:0;padding:0">
+                <legend class="lbl" style="padding:0;margin-bottom:6px">Hva har endringene konsekvenser for?</legend>
+                <div class="avkrysning">
+                  <label><input type="checkbox" value="SHA" data-kons> SHA</label>
+                  <label><input type="checkbox" value="kvalitet" data-kons> Kvalitet</label>
+                  <label><input type="checkbox" value="annet" data-kons checked> Annet</label>
+                </div>
+              </fieldset>
+              <div class="felt"><label for="kons-tekst">Beskriv konsekvensene</label><textarea class="tekstfelt stor" id="kons-tekst">Ventilasjonen må innreguleres på nytt etter omleggingen i KOE-017. Innreguleringen gjøres før overtakelsen av hall 1.</textarea></div>
+            </div>
           </section>
 
           <section class="punkt" aria-labelledby="p-vederlag">
@@ -389,7 +406,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
               <article class="utsagn kun-v-per-sak" id="u1" aria-labelledby="u1-t" data-spor="D-3">
                 <div class="utsagn-hode"><span class="unr" data-u="u1"></span><h3 id="u1-t">Vederlagsjustering</h3><span class="gjelder-merker"><span class="sakmerke">KOE-017</span></span></div>
-                <fieldset class="artvalg" data-art="u1" data-navn="vederlagsjusteringen i KOE-017"></fieldset>
+                <div class="tilbudvalg" data-art="u1" data-navn="vederlagsjusteringen i KOE-017"></div>
                 <div class="utsagn-kropp">
                   <div class="felt"><label for="u1-form">Oppgjørsform</label><span class="velger"><select id="u1-form"><option>Fast sum</option><option>Kontraktens enhetspriser</option><option>Justerte enhetspriser</option><option>Regningsarbeid</option></select></span></div>
                   <div class="felt"><label for="u1-b">Beløp, eks. mva.</label><span class="inndata"><input id="u1-b" type="text" inputmode="decimal" value="650 000" data-oppdater><span aria-hidden="true">kr</span></span></div>
@@ -400,7 +417,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
               <article class="utsagn kun-v-samlet" id="vederlag-samlet" aria-labelledby="vs-t" data-spor="U-4 · D-3">
                 <div class="utsagn-hode"><span class="unr" data-u="vederlag-samlet"></span><h3 id="vs-t">Vederlagsjustering</h3><span class="gjelder-merker"><span class="samlet-merke">Samlet</span><span class="sakmerke">KOE-017</span><span class="sakmerke">KOE-021</span></span></div>
                 <p class="hjelp">KOE-018 er ikke med, fordi vederlagsjusteringen der er avtalt.</p>
-                <fieldset class="artvalg" data-art="vederlag-samlet" data-navn="vederlagsjusteringen for KOE-017 og KOE-021 samlet"></fieldset>
+                <div class="tilbudvalg" data-art="vederlag-samlet" data-navn="vederlagsjusteringen for KOE-017 og KOE-021 samlet"></div>
                 <div class="utsagn-kropp">
                   <div class="felt"><label for="vs-form">Oppgjørsform for sakene samlet</label><span class="velger"><select id="vs-form"><option>Fast sum</option><option>Kontraktens enhetspriser</option><option>Justerte enhetspriser</option><option>Regningsarbeid</option></select></span></div>
                   <div class="felt"><label for="vs-b">Vederlagsjustering for sakene samlet</label><span class="hjelp">Eks. mva.</span><span class="inndata"><input id="vs-b" type="text" inputmode="decimal" value="760 000" data-oppdater><span aria-hidden="true">kr</span></span></div>
@@ -411,7 +428,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
               <article class="utsagn" id="u2" data-sak="KOE-018" aria-labelledby="u2-t">
                 <div class="utsagn-hode"><span class="unr" data-u="u2"></span><h3 id="u2-t">Vederlagsjustering</h3><span class="gjelder-merker"><span class="sakmerke">KOE-018</span></span></div>
-                <p class="fast-art" data-spor="D-3">Posten er <b>en gjengivelse av det som er avtalt</b> og kan ikke endres her.</p>
+                <p class="fast-art" data-spor="D-3">Avtalt 20. oktober. Beløpet står som avtalt og kan ikke endres her.</p>
                 <div class="utsagn-kropp">
                   <div class="felt"><span class="lbl">Oppgjørsform</span><span>Fast sum</span></div>
                   <div class="felt"><span class="lbl">Beløp, eks. mva.</span><span class="num">300 000 kr</span></div>
@@ -421,7 +438,6 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
               <article class="utsagn kun-v-per-sak" id="u3" aria-labelledby="u3-t">
                 <div class="utsagn-hode"><span class="unr" data-u="u3"></span><h3 id="u3-t">Vederlagsjustering</h3><span class="gjelder-merker"><span class="sakmerke">KOE-021</span></span></div>
-                <p class="fast-art">Posten er <b>byggherrens standpunkt til beregningsregelen</b>.</p>
                 <div class="utsagn-kropp">
                   <div class="felt"><label for="u3-form">Oppgjørsform</label><span class="velger"><select id="u3-form"><option>Fast sum</option><option>Kontraktens enhetspriser</option><option>Justerte enhetspriser</option><option selected>Regningsarbeid</option></select></span></div>
                   <div class="felt"><label for="u3-o">Overslag (valgfritt)</label><span class="inndata"><input id="u3-o" type="text" inputmode="decimal" value="120 000" data-oppdater><span aria-hidden="true">kr</span></span><span class="hjelp">Overslaget er en opplysning. Beløpet avregnes etter punkt 30.</span></div>
@@ -431,7 +447,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
               <article class="utsagn" id="u4" aria-labelledby="u4-t" data-spor="U-4">
                 <div class="utsagn-hode"><span class="unr" data-u="u4"></span><h3 id="u4-t">Rigg og drift i forlenget byggetid</h3><span class="gjelder-merker"><span class="samlet-merke">Samlet</span><span class="sakmerke">KOE-017</span><span class="sakmerke">KOE-021</span></span></div>
-                <fieldset class="artvalg" data-art="u4" data-navn="rigg og drift for KOE-017 og KOE-021 samlet"></fieldset>
+                <div class="tilbudvalg" data-art="u4" data-navn="rigg og drift for KOE-017 og KOE-021 samlet"></div>
                 <div class="utsagn-kropp">
                   <div class="felt"><span class="lbl">Oppgjørsform</span><span>Fast sum</span></div>
                   <div class="felt"><label for="u4-b">Beløp samlet, eks. mva.</label><span class="inndata"><input id="u4-b" type="text" inputmode="decimal" value="180 000" data-oppdater><span aria-hidden="true">kr</span></span></div>
@@ -441,7 +457,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
               <article class="utsagn" id="u5" data-sak="KOE-022" aria-labelledby="u5-t" data-spor="U-3 · D-3">
                 <div class="utsagn-hode"><span class="unr" data-u="u5"></span><h3 id="u5-t">Vederlagsjustering</h3><span class="gjelder-merker"><span class="sakmerke">KOE-022</span></span></div>
-                <p class="fast-art">Posten er <b>et tilbud</b>. Totalentreprenøren har ikke sendt krav om vederlagsjustering i KOE-022.</p>
+                <p class="fast-art">Totalentreprenøren har ikke sendt krav om vederlagsjustering i KOE-022. Beløpet står som tilbud om oppgjør.</p>
                 <div class="utsagn-kropp">
                   <div class="felt"><span class="lbl">Oppgjørsform</span><span>Fast sum</span></div>
                   <div class="felt"><label for="u5-b">Tilbud for KOE-022</label><span class="hjelp">Eks. mva.</span><span class="inndata"><input id="u5-b" type="text" inputmode="decimal" value="90 000" data-oppdater><span aria-hidden="true">kr</span></span></div>
@@ -466,7 +482,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
               </div>
               <article class="utsagn" id="f1" aria-labelledby="f1-t">
                 <div class="utsagn-hode"><span class="unr" data-u="f1"></span><h3 id="f1-t">Fristforlengelse</h3><span class="gjelder-merker"><span class="sakmerke">KOE-017</span></span></div>
-                <fieldset class="artvalg" data-art="f1" data-navn="fristforlengelsen i KOE-017"></fieldset>
+                <div class="tilbudvalg" data-art="f1" data-navn="fristforlengelsen i KOE-017"></div>
                 <div class="utsagn-kropp">
                   <div class="felt"><label for="f1-d">Kalenderdager</label><span class="inndata kort"><input id="f1-d" type="text" inputmode="numeric" value="8" data-oppdater><span aria-hidden="true">d</span></span></div>
                   <div class="mot">Totalentreprenørens krav i brev 9: <b class="num">12 dager</b>, endret 28. oktober. Ditt svar: <span class="num">8 dager</span> på brev 7.</div>
@@ -474,7 +490,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
               </article>
               <article class="utsagn" id="f2" data-sak="KOE-018" aria-labelledby="f2-t">
                 <div class="utsagn-hode"><span class="unr" data-u="f2"></span><h3 id="f2-t">Fristforlengelse</h3><span class="gjelder-merker"><span class="sakmerke">KOE-018</span></span></div>
-                <fieldset class="artvalg" data-art="f2" data-navn="fristforlengelsen i KOE-018"></fieldset>
+                <div class="tilbudvalg" data-art="f2" data-navn="fristforlengelsen i KOE-018"></div>
                 <div class="utsagn-kropp">
                   <div class="felt"><label for="f2-d">Kalenderdager</label><span class="inndata kort"><input id="f2-d" type="text" inputmode="numeric" value="6" data-oppdater><span aria-hidden="true">d</span></span></div>
                   <div class="mot">Totalentreprenørens krav i brev 6: <b class="num">10 dager</b>. Ditt svar: <span class="num">6 dager</span>, ikke godtatt.</div>
@@ -491,7 +507,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
               <article class="utsagn" id="samlet" aria-labelledby="fs-t" data-spor="U-4 · D-3">
                 <div class="utsagn-hode"><span class="unr" data-u="samlet"></span><h3 id="fs-t">Fristforlengelse</h3><span class="gjelder-merker"><span class="samlet-merke">Samlet</span><span class="sakmerke">KOE-017</span><span class="sakmerke">KOE-018</span><span class="sakmerke">KOE-021</span></span></div>
                 <p class="hjelp">Gjelder KOE-017, KOE-018 og KOE-021</p>
-                <fieldset class="artvalg" data-art="samlet" data-navn="fristforlengelsen for KOE-017, KOE-018 og KOE-021 samlet"></fieldset>
+                <div class="tilbudvalg" data-art="samlet" data-navn="fristforlengelsen for KOE-017, KOE-018 og KOE-021 samlet"></div>
                 <div class="utsagn-kropp">
                   <div class="felt"><label for="frist-samlet">Fristforlengelse for sakene samlet</label><span class="hjelp">Kalenderdager</span><span class="inndata kort"><input id="frist-samlet" type="text" inputmode="numeric" value="25" data-oppdater><span aria-hidden="true">d</span></span></div>
                   <div class="mot">Totalentreprenørens krav i brev 9 (KOE-017), brev 6 (KOE-018) og brev 8 (KOE-021): <b class="num">12, 10 og 10 dager</b>.</div>
@@ -527,9 +543,8 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
               <div><dt>Til</dt><dd>Totalentreprenøren</dd></div>
             </dl>
             <h2>Endringsordre etter NS 8407 punkt 31.3</h2>
-            <p>Byggherren krever at endringene utføres slik de er beskrevet i totalentreprenørens krav om endringsordre:</p>
-            <ul id="brev-saker"></ul>
-            <p id="brev-beskrivelse"></p>
+            <p>Byggherren krever at følgende endringer utføres:</p>
+            <div id="brev-endringer"></div>
             <h3>Konsekvenser</h3>
             <p id="brev-konsekvenser"></p>
             <h3>Vederlagsjustering</h3>
@@ -720,7 +735,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     const r = [...st.med].sort();
     $('#antall-saker').textContent = `${r.length} saker`;
     $('#legg-til-lenke').hidden = st.med.has('KOE-022');
-    $('#panel-saker').replaceChildren(...r.map((s) => el('li', {}, el('span', { className: 'navn', textContent: `${s} · ${SAKER[s].tittel}` }), el('span', { className: 'sist', textContent: `Svaret på forholdet i brev ${SAKER[s].svar} er en endringsordre` }))));
+    $('#panel-saker').replaceChildren(...r.map((s) => el('li', {}, el('span', { className: 'navn', textContent: `${s} · ${SAKER[s].tittel}` }))));
     $('#sakliste').replaceChildren(...r.map((s) => {
       const a = el('a', { className: 'lenke', href: '#utkast', textContent: `Fjern ${s} fra endringsordren` });
       const melding = el('p', { className: 'feil', hidden: true, id: `fjern-${s}` });
@@ -737,7 +752,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
         tilUtkast();
       });
       return el('li', { className: 'sakrad' },
-        el('span', { className: 'tekst' }, el('b', { textContent: `${s} · ${SAKER[s].tittel}` }), el('span', { textContent: `Svaret på forholdet i brev ${SAKER[s].svar} er en endringsordre · ikke med i en sendt endringsordre` })),
+        el('span', { className: 'tekst' }, el('b', { textContent: `${s} · ${SAKER[s].tittel}` })),
         a, melding);
     }));
     for (const e of document.querySelectorAll('[data-sak]')) e.hidden = !st.med.has(e.dataset.sak);
@@ -801,9 +816,15 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
   function kontroll(alle, s) {
     const r = [...st.med].sort();
-    $('#brev-saker').replaceChildren(...r.map((x) => el('li', { textContent: `${x} ${SAKER[x].tittel}, brev ${SAKER[x].krav}` })));
-    $('#brev-beskrivelse').textContent = $('#beskrivelse').value;
-    $('#brev-konsekvenser').textContent = `SHA: ${$('#k-sha').value}. Kvalitet: ${$('#k-kval').value}. Annet: ${$('#k-annet').value}.`;
+    $('#brev-endringer').replaceChildren(...r.flatMap((x) => [
+      el('p', { className: 'endring-tittel' }, el('b', { textContent: `${x} ${SAKER[x].tittel}` })),
+      el('p', { textContent: $(`#b-${x}`).value }),
+    ]));
+    const kons = [...document.querySelectorAll('[data-kons]:checked')].map((k) => k.value);
+    const ja = document.querySelector('input[name="kons"]:checked').value === 'ja' && kons.length;
+    $('#brev-konsekvenser').textContent = ja
+      ? `Endringene har konsekvenser for ${liste(kons)}. ${$('#kons-tekst').value}`
+      : 'Endringene har ingen konsekvenser for SHA, kvalitet eller annet.';
     const gjelder = (u) => (u.saker.length > 1 ? `${u.saker.join(', ')} samlet` : u.saker[0]);
     $('#brev-vederlag').replaceChildren(
       ...alle.filter((u) => u.kol !== 'Frist').map((u) => el('tr', {},
@@ -871,22 +892,24 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
       el('span', { className: 'inngaar', textContent: 'Inngår i EO-014' }), el('span', { className: 'a', textContent: 'Avsluttet med EO' }))));
   }
 
-  // Valget av hva posten er: byggherrens standpunkt eller tilbud.
-  for (const fs of document.querySelectorAll('[data-art]')) {
-    const id = fs.dataset.art;
-    fs.append(el('legend', { textContent: 'Posten er' }));
-    for (const [verdi, tekst] of [['standpunkt', 'Byggherrens standpunkt'], ['tilbud', 'Tilbud']]) {
-      const inp = el('input', { type: 'radio', name: `art-${id}`, value: verdi, checked: verdi === 'standpunkt' });
-      inp.setAttribute('aria-label', `${tekst} for ${fs.dataset.navn}`);
-      inp.addEventListener('change', () => { st.art[id] = verdi; tegn(); });
-      fs.append(el('label', {}, inp, tekst));
-    }
+  // Tilbud om oppgjør: uten avkrysning står posten som byggherrens standpunkt.
+  for (const d of document.querySelectorAll('[data-art]')) {
+    const id = d.dataset.art;
+    const tekst = id.startsWith('f') || id === 'samlet' ? 'Gi dagene som tilbud om oppgjør' : 'Gi beløpet som tilbud om oppgjør';
+    const inp = el('input', { type: 'checkbox', name: `art-${id}` });
+    inp.setAttribute('aria-label', `${tekst}, ${d.dataset.navn}`);
+    const hjelp = el('span', { className: 'hjelp', textContent: 'Ellers står det som byggherrens standpunkt: det du mener er riktig.' });
+    hjelp.id = `art-hjelp-${id}`;
+    inp.setAttribute('aria-describedby', hjelp.id);
+    inp.addEventListener('change', () => { st.art[id] = inp.checked ? 'tilbud' : 'standpunkt'; tegn(); });
+    d.append(el('label', {}, inp, tekst), hjelp);
   }
 
   function tegn() {
     skall.dataset.frist = st.frist ? 'samlet' : 'per-sak';
     skall.dataset.vederlag = st.vederlag ? 'samlet' : 'per-sak';
-    for (const inp of document.querySelectorAll('[data-art] input')) inp.checked = art(inp.name.slice(4)) === inp.value;
+    for (const inp of document.querySelectorAll('[data-art] input')) inp.checked = art(inp.name.slice(4)) === 'tilbud';
+    $('#kons-ja').hidden = document.querySelector('input[name="kons"]:checked').value === 'nei';
     saker();
     const alle = poster();
     for (const n of document.querySelectorAll('[data-u]')) n.textContent = alle.find((u) => u.id === n.dataset.u)?.nr ?? '';
@@ -921,7 +944,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
   for (const a of document.querySelectorAll('[data-del]')) a.addEventListener('click', () => { st[a.dataset.del] = false; tilUtkast(); });
   for (const a of document.querySelectorAll('[data-legg]')) a.addEventListener('click', () => { st.med.add(a.dataset.legg); tilUtkast(); });
   for (const a of document.querySelectorAll('.nullstill')) a.addEventListener('click', () => { st = START(); tilUtkast(); });
-  for (const i of document.querySelectorAll('[data-oppdater], .tekstinn, select, #beskrivelse')) i.addEventListener('input', tegn);
+  for (const i of document.querySelectorAll('[data-oppdater], select, textarea, input[name="kons"], [data-kons]')) i.addEventListener(i.type === 'radio' || i.type === 'checkbox' ? 'change' : 'input', tegn);
   $('#vis-spor').addEventListener('change', (e) => document.body.classList.toggle('spor', e.target.checked));
   addEventListener('hashchange', ankomst);
   ankomst();
