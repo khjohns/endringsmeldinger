@@ -13,6 +13,7 @@ export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
     siste_hendelse: '2025-12-22T14:30:00Z',
     siste_brev: { avsender: 'TE', registrert: '2025-12-22T14:30:00Z' },
     hovedkategori: 'endring',
+    underkategori: 'irregulaer_endring',
     forstaatt: true,
     saksbetegnelse: null,
     brev_utenfor_appen: false,

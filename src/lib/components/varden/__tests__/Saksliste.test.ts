@@ -90,7 +90,27 @@ describe('Sakslisten i Varden', () => {
     const lenke = screen.getByRole('link', { name: 'Endring i grunnarbeider' });
     expect(lenke.getAttribute('href')).toBe('/p1/SAK-9');
     const r = rad('Endring i grunnarbeider');
-    expect(within(r).getByText('Endringer')).toBeTruthy();
+    expect(within(r).getByText('Irregulær endring · pkt. 32.1')).toBeTruthy();
+  });
+
+  it('forholdet har navnet og henvisningen fra skjemaet for ny sak, og ellers hovedkategorien (D-1 i BF-05, arbeidsvalg 03.11 i #1450)', () => {
+    vis({
+      saker: [
+        lagSakslinje({
+          sak_id: 'A',
+          sakstittel: 'Grunnen',
+          underkategori: 'grunnforhold',
+          hovedkategori: 'svikt',
+        }),
+        lagSakslinje({ sak_id: 'B', sakstittel: 'Ukjent forhold', underkategori: 'noe_annet' }),
+        lagSakslinje({ sak_id: 'C', sakstittel: 'Uten forhold', underkategori: null }),
+      ],
+    });
+    expect(
+      within(rad('Grunnen')).getByText('Uforutsette forhold ved grunnen · pkt. 23.1')
+    ).toBeTruthy();
+    expect(within(rad('Ukjent forhold')).getByText('Endringer')).toBeTruthy();
+    expect(within(rad('Uten forhold')).getByText('Endringer')).toBeTruthy();
   });
 
   it('«Siste brev» viser avsenderen og datoen for sakens siste brev fra serveren, og «Ingen brev» uten brev (#1450, arbeidsvalg 2 02.11)', () => {

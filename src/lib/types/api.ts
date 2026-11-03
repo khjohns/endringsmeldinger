@@ -223,6 +223,8 @@ export interface Sakslinje {
   /** Sakens siste brev med avsenderen og registreringstidspunktet; `null` uten brev eller forståelse. */
   siste_brev: { avsender: 'TE' | 'BH'; registrert: string } | null;
   hovedkategori: string | null;
+  /** Forholdet TE påberoper, med kjernens kode (arbeidsvalg 03.11 i #1450). */
+  underkategori: string | null;
   forstaatt: boolean;
   saksbetegnelse: Saksbetegnelse | null;
   /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */

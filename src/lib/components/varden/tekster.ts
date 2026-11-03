@@ -495,6 +495,7 @@ export const SAKSLISTE = {
   /** Avsenderen av sakens siste brev, til brevkoden er bygget (#1174). */
   brevFra: (avsender: string) => `Fra ${avsender}`,
   ingenBrev: 'Ingen brev',
+  forholdMedPunkt: (navn: string, punkt: string) => `${navn} · pkt.\u00a0${punkt}`,
   ikkeKrevd: 'Ikke krevd',
   varslet: 'Varslet',
   trukket: 'trukket',

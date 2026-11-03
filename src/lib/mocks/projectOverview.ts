@@ -63,6 +63,7 @@ function demolinje(sak: SakState): Sakslinje {
     siste_hendelse: sak.siste_aktivitet ?? sak.opprettet ?? '',
     siste_brev: null,
     hovedkategori: HOVEDKATEGORI_FRA_KATALOGEN[String(grunnlag.hovedkategori)] ?? null,
+    underkategori: null,
     forstaatt: true,
     saksbetegnelse:
       grunnlag.status === 'trukket'

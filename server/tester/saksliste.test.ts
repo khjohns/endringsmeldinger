@@ -83,6 +83,7 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
       sakstype: 'standard',
       sakstittel: 'Skiva',
       hovedkategori: 'endring',
+      underkategori: 'irregulaer_endring',
       forstaatt: true,
       saksbetegnelse: null,
       vederlag: { krav: { beloep: 100000, metode: 'tilbud' }, svar: null, venter_paa_svar: true },

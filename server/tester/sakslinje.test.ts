@@ -193,6 +193,7 @@ describe('linja i sakslisten (#1022)', () => {
       forstaatt: true,
       saksbetegnelse: null,
       hovedkategori: 'endring',
+      underkategori: 'irregulaer_endring',
       forhold: { svar: null, venter_paa_svar: true, svar_ikke_godtatt: false },
       vederlag: {
         krav: { beloep: 100000, metode: 'tilbud' },

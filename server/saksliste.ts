@@ -11,6 +11,7 @@ import type { Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import { krevdSamlet } from '../kjerne/frosset/standpunkt.ts';
+import { foersteUnderkategori } from '../kjerne/regler/forhold.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
   betegnelse,
@@ -153,6 +154,8 @@ export interface Sakslinje {
    */
   siste_brev: { avsender: Part; registrert: string } | null;
   hovedkategori: string | null;
+  /** Forholdet TE påberoper, med kjernens kode, så lista kan vise henvisningen (arbeidsvalg 03.11 i #1450). */
+  underkategori: string | null;
   forstaatt: boolean;
   saksbetegnelse: Saksbetegnelse | null;
   /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */
@@ -292,6 +295,7 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
       ...felles,
       siste_brev: null,
       hovedkategori: null,
+      underkategori: null,
       forhold: { ...INGENTING, svar: null },
       vederlag: {
         ...INGENTING,
@@ -317,6 +321,9 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
     ...felles,
     siste_brev: sisteBrev(u),
     hovedkategori: tekst(u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori),
+    underkategori: foersteUnderkategori(
+      u.spor.forhold.gjeldendeKrav?.innhold.underkategori as string | string[] | null | undefined
+    ),
     forhold: {
       ...foreligger(u, 'forhold'),
       svar: g?.art === 'forhold' ? { resultat: g.resultat } : null,

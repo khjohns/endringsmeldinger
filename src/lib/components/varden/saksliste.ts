@@ -4,9 +4,14 @@
  * svar, enigheten og betegnelsen per spor står på siden for saken.
  */
 import type { Sakslinje } from '$lib/types/api';
-import { HOVEDKATEGORI_FRA_KATALOGEN, tilKatalogen } from '$kjerne/format/koder';
+import {
+  HOVEDKATEGORI_FRA_KATALOGEN,
+  tilKatalogen,
+  UNDERKATEGORI_FRA_KATALOGEN,
+} from '$kjerne/format/koder';
 import { dager, kroner } from '$kjerne/frosset/standpunkt';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
+import { FORHOLDENE } from './nysak';
 import { SAKSLISTE } from './tekster';
 
 /** Sakstypene i panelet etter KT-U9. Forsering står ikke der ennå (svaret på M4). */
@@ -36,9 +41,17 @@ export function saksmerke(linje: Sakslinje): string | null {
   return null;
 }
 
-/** Navnet på forholdet under tittelen (OV-U78). */
+const FORHOLD = new Map(FORHOLDENE.flatMap((g) => g.forhold).map((f) => [f.kode, f]));
+
+/**
+ * Forholdet under tittelen med navnet og henvisningen fra skjemaet for ny sak, som
+ * «Irregulær endring · pkt. 32.1» (OV-U78, D-1 i BF-05, arbeidsvalg 03.11 i #1450). Et forhold
+ * skjemaet ikke har, viser hovedkategorien.
+ */
 export function forholdet(linje: Sakslinje): string | null {
   if (!linje.forstaatt || !linje.hovedkategori) return null;
+  const f = FORHOLD.get(String(tilKatalogen(UNDERKATEGORI_FRA_KATALOGEN, linje.underkategori)));
+  if (f) return SAKSLISTE.forholdMedPunkt(f.navn, f.punkt);
   return (
     getKontraktsforholdLabel(
       String(tilKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, linje.hovedkategori))
