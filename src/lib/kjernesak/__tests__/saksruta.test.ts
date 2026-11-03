@@ -13,13 +13,12 @@ const t = vi.hoisted(() => ({
   kontekst: null as ReturnType<typeof falskKjernesak> | null,
 }));
 
-vi.mock('$app/state', () => ({
-  page: {
-    params: { prosjektId: 'p-1', sakId: 'sak-1' },
-    url: new URL('http://lokal/p-1/sak-1'),
-    state: {},
-  },
+const side = vi.hoisted(() => ({
+  params: { prosjektId: 'p-1', sakId: 'sak-1' },
+  url: new URL('http://lokal/p-1/sak-1'),
+  state: {},
 }));
+vi.mock('$app/state', () => ({ page: side }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/paths', () => ({ resolve: () => '/p-1' }));
 vi.mock('$lib/kjernesak/kontekst.svelte', () => ({ lagKjernesak: () => t.kontekst }));
@@ -28,6 +27,7 @@ const Saksruta = (await import('../../../routes/[prosjektId]/[sakId]/+page.svelt
 
 beforeEach(() => {
   t.kontekst = falskKjernesak();
+  side.url = new URL('http://lokal/p-1/sak-1');
 });
 afterEach(cleanup);
 
@@ -53,5 +53,37 @@ describe('saksruta mot TS-serveren', () => {
     flushSync();
     expect(screen.getByRole('alert')).toHaveTextContent('Saken kunne ikke hentes.');
     expect(screen.getByRole('button', { name: 'Prøv igjen' })).toBeInTheDocument();
+  });
+});
+
+describe('sporet saken åpner i (S5 i #1414)', () => {
+  async function aapne(spor: string) {
+    const { lagKjernesak } = await vi.importActual<typeof import('$lib/kjernesak/kontekst.svelte')>(
+      '$lib/kjernesak/kontekst.svelte'
+    );
+    const { finnForloep, lagDemosak } = await import('$lib/kjernesak/demosak');
+    const demosak = lagDemosak(finnForloep('BF-01')!, 'bh-har-mottatt-vederlagskravet', 'TE');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'TE',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    t.kontekst = kjernesak as unknown as typeof t.kontekst;
+    side.url = new URL(`http://lokal/p-1/sak-1?spor=${spor}`);
+    const screen = render(Saksruta);
+    return (await screen.findAllByRole('button')).filter((b) => b.hasAttribute('aria-current'));
+  }
+
+  it('`?spor=frist` fra omdirigeringene åpner fristen', async () => {
+    const [valgt] = await aapne('frist');
+    expect(valgt).toHaveTextContent('Fristforlengelse');
+  });
+
+  it('et sporparameter som er en arvet nøkkel (`constructor`), åpner forholdet', async () => {
+    const [valgt] = await aapne('constructor');
+    expect(valgt).toHaveTextContent('Forholdet');
   });
 });

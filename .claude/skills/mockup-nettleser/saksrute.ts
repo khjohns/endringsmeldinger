@@ -666,7 +666,7 @@ try {
   }
   if (values.feil) {
     const u = utledJournal(await lesJournal(sak), KJERNE);
-    if (!u.spor.grunnlag.gjeldendeKrav || u.spor.vederlag.gjeldendeKrav)
+    if (!u.spor.forhold.gjeldendeKrav || u.spor.vederlag.gjeldendeKrav)
       throw new Error('--feil trenger et kontrollpunkt med grunnlagskrav og uten vederlagskrav (--til)');
     // Feiltilstandene i skjemaet (#1215): TE sender vederlagskravet, og `page.route` svarer
     // på kommandoruta i stedet for serveren. Kroppene har formen serveren gir

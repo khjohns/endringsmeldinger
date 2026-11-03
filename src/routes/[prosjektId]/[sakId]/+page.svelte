@@ -28,7 +28,10 @@
     vederlag: 'vederlag',
     frist: 'frist',
   };
-  const spor = $derived(SPORENE[page.url.searchParams.get('spor') ?? ''] ?? 'forhold');
+  const spor = $derived.by(() => {
+    const navn = page.url.searchParams.get('spor') ?? '';
+    return Object.hasOwn(SPORENE, navn) ? SPORENE[navn] : 'forhold';
+  });
 </script>
 
 <svelte:head><title>{kjernesak.saksbilde?.tittel ?? 'Sak'} — Kontraktsbordet</title></svelte:head>
