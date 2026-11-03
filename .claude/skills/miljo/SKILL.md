@@ -18,7 +18,9 @@ cd backend && /tmp/venv/bin/python -m pytest -q
 npm test && npm run check:error      # skal gi 0 errors
 npx tsc -p kjerne/tsconfig.json      # svelte-check ser ikke kjerne/
 npx tsc -p sprakprove/tsconfig.json  # eller sprakprove/
+npx tsc -p sprakprove/skrivesti/tsconfig.json  # skrivestien, som CI også kjører (#1469)
 npx tsc -p server/tsconfig.json      # eller server/
+python3 server/tester/feilinnfoering.py --ankre  # ankrene for serveren, som CI kjører (#1469)
 ruff check backend/                  # porten, skal være 0
 ```
 
@@ -223,3 +225,21 @@ feiler `npx vitest run` og `npx vite build` i arbeidstreet med «Tsconfig not fo
 (#1114). Oppstartshooken kjører derfor `npx svelte-kit sync` i hovedcheckouten. Står
 feilen likevel, kjør `npx svelte-kit sync` i hovedcheckouten; i arbeidstreet hjelper
 den ikke, og arbeidstreet trenger ingen `.svelte-kit/` selv (kontrollert 22.10).
+
+### Omvei: `CssSyntaxError` i Varden-testene (#1394)
+
+I checkouten `/home/user/endringsmeldinger` kan `Demoforloep.test.ts` og `Varden.test.ts`
+feile før en test kjører, med `CssSyntaxError: Invalid declaration` fra
+`@tailwindcss/vite:generate:serve`. Årsaken er ikke funnet. Å stoppe `vite dev`, slette
+`node_modules/.vite`, kjøre `npx svelte-kit sync` eller bytte `.svelte-kit` hjalp ikke
+(kontrollert 29.10). Omveien er et eget arbeidstre:
+
+```bash
+git worktree add ../wt origin/main && cp -r node_modules ../wt/
+# kopier inn grenens endrede filer, kjør npx vitest run i ../wt
+git worktree remove --force ../wt
+```
+
+`node_modules` som symlenke fungerte også i et arbeidstre under `.claude/worktrees/`
+(kontrollert 03.11, Varden-testene: 21 grønne). `npx vitest --clearCache` er ikke prøvd mot
+feilen, og den står ikke her før den er det.
