@@ -1203,3 +1203,165 @@ describe('lesevakten for diffkontroll', () => {
     }
   });
 });
+
+describe('sjekkene i miljø-skillen for mekanisk-pr (#1513)', () => {
+  let sjekktre: string;
+
+  function sjekk(command: string, cwd = sjekktre) {
+    return kjor({ tool_name: 'Bash', tool_input: { command }, cwd });
+  }
+
+  function tsconfig(fil: string, innhold: string) {
+    mkdirSync(path.dirname(path.join(sjekktre, fil)), { recursive: true });
+    writeFileSync(path.join(sjekktre, fil), innhold);
+  }
+
+  beforeAll(() => {
+    sjekktre = mkdtempSync(path.join(tmpdir(), 'skrivevakt-sjekk-'));
+    execFileSync('git', ['init', '-q', '-b', 'main', sjekktre]);
+    tsconfig(
+      'tsconfig.json',
+      '{\n  // som rota i repoet\n  "compilerOptions": { "noEmit": true, },\n}\n'
+    );
+    tsconfig('kjerne/tsconfig.json', '{ "compilerOptions": { "noEmit": true } }');
+    tsconfig('server/tsconfig.json', '{ "compilerOptions": { "noEmit": true } }');
+    tsconfig('sprakprove/skrivesti/tsconfig.json', '{ "extends": "../../tsconfig.json" }');
+    tsconfig('sprakprove/tsconfig.json', '{ "compilerOptions": { "outDir": "ut" } }');
+  });
+
+  afterAll(() => rmSync(sjekktre, { recursive: true, force: true }));
+
+  it('slipper typesjekkene og ankrene i miljø-skillen gjennom', () => {
+    for (const kommando of [
+      'npx tsc -p kjerne/tsconfig.json',
+      'npx tsc -p server/tsconfig.json',
+      'npx tsc -p sprakprove/skrivesti/tsconfig.json',
+      'npx tsc -p sprakprove/tsconfig.json --noEmit',
+      'npx tsc --noEmit -p sprakprove/tsconfig.json',
+      'python3 server/tester/feilinnfoering.py --ankre',
+      'timeout 300 npx tsc -p sprakprove/skrivesti/tsconfig.json',
+      'timeout 60s python3 server/tester/feilinnfoering.py --ankre',
+    ]) {
+      expect(sjekk(kommando).status, kommando).toBe(0);
+    }
+  });
+
+  it('slipper sjekkene gjennom med lesende ledd og ufarlig omdirigering', () => {
+    for (const kommando of [
+      'npx tsc -p server/tsconfig.json 2>&1 | tail -5',
+      'npx tsc -p kjerne/tsconfig.json && npx tsc -p server/tsconfig.json',
+      'python3 server/tester/feilinnfoering.py --ankre 2>&1 | grep -c S',
+      'npx tsc -p kjerne/tsconfig.json > /dev/null; git status --short',
+    ]) {
+      expect(sjekk(kommando).status, kommando).toBe(0);
+    }
+  });
+
+  it('stopper omdirigering, tee og en skrivende kommando etter sjekken', () => {
+    for (const kommando of [
+      'npx tsc -p server/tsconfig.json > server/ut.txt',
+      'npx tsc -p server/tsconfig.json > docs/ut.txt',
+      'npx tsc -p server/tsconfig.json 2>&1 | tee kjerne/ut.txt',
+      'python3 server/tester/feilinnfoering.py --ankre | tee server/ut.txt',
+      'npx tsc -p kjerne/tsconfig.json && touch kjerne/a.ts',
+      'python3 server/tester/feilinnfoering.py --ankre && rm -rf server',
+      'npx tsc -p kjerne/tsconfig.json; cp docs/a.md kjerne/a.md',
+    ]) {
+      expect(sjekk(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper tsc med en annen form, et annet flagg eller en annen tsconfig', () => {
+    for (const kommando of [
+      'npx tsc',
+      'npx tsc -p tsconfig.json',
+      'npx tsc -p ./kjerne/tsconfig.json',
+      'npx tsc --project kjerne/tsconfig.json',
+      'npx tsc -p kjerne/tsconfig.json --outDir docs',
+      'npx tsc -p kjerne/tsconfig.json --noEmit false',
+      'npx tsc -b kjerne/tsconfig.json',
+      'npx tsc kjerne/regler/a.ts',
+      'tsc -p kjerne/tsconfig.json',
+      'node node_modules/typescript/bin/tsc -p kjerne/tsconfig.json',
+      'timeout -s KILL 60 npx tsc -p kjerne/tsconfig.json',
+      'timeout 60 npx tsc -p kjerne/tsconfig.json --outDir docs',
+      'ln -s /x node_modules && npx tsc -p sprakprove/skrivesti/tsconfig.json',
+      'FOO=1 npx tsc -p kjerne/tsconfig.json',
+      "bash -c 'npx tsc -p kjerne/tsconfig.json --outDir docs'",
+    ]) {
+      expect(sjekk(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper tsc uten --noEmit når tsconfig skriver ut', () => {
+    const svar = sjekk('npx tsc -p sprakprove/tsconfig.json');
+    expect(svar.status).toBe(2);
+    expect(svar.stderr).toContain('sprakprove/tsconfig.json har ikke noEmit');
+  });
+
+  it('leser noEmit gjennom extends, og stopper når rota slutter å sette det', () => {
+    tsconfig('tsconfig.json', '{ "compilerOptions": { "noEmit": false } }');
+    try {
+      expect(sjekk('npx tsc -p sprakprove/skrivesti/tsconfig.json').status).toBe(2);
+      expect(sjekk('npx tsc -p sprakprove/skrivesti/tsconfig.json --noEmit').status).toBe(0);
+    } finally {
+      tsconfig('tsconfig.json', '{ "compilerOptions": { "noEmit": true } }');
+    }
+  });
+
+  it('stopper tsc når tsconfig skriver .tsbuildinfo, også med --noEmit', () => {
+    for (const valg of ['"incremental": true', '"composite": true']) {
+      tsconfig('tsconfig.json', `{ "compilerOptions": { "noEmit": true, ${valg} } }`);
+      try {
+        const svar = sjekk('npx tsc -p sprakprove/skrivesti/tsconfig.json --noEmit');
+        expect(svar.status, valg).toBe(2);
+        expect(svar.stderr).toContain('.tsbuildinfo');
+      } finally {
+        tsconfig('tsconfig.json', '{ "compilerOptions": { "noEmit": true } }');
+      }
+    }
+  });
+
+  it('stopper tsc når extends ikke kan leses eller peker ut av treet', () => {
+    for (const forelder of ['../../../utenfor.json', '../../mangler.json', 'pakke/tsconfig']) {
+      tsconfig('sprakprove/skrivesti/tsconfig.json', `{ "extends": "${forelder}" }`);
+      try {
+        expect(sjekk('npx tsc -p sprakprove/skrivesti/tsconfig.json').status, forelder).toBe(2);
+      } finally {
+        tsconfig('sprakprove/skrivesti/tsconfig.json', '{ "extends": "../../tsconfig.json" }');
+      }
+    }
+  });
+
+  it('stopper ankerskriptet med andre argumenter enn --ankre', () => {
+    for (const kommando of [
+      'python3 server/tester/feilinnfoering.py',
+      'python3 server/tester/feilinnfoering.py --ankre S1',
+      'python3 server/tester/feilinnfoering.py /tmp/kopi S1',
+      'python3 server/tester/feilinnfoering.py .',
+      'python3 -i server/tester/feilinnfoering.py --ankre',
+      'python server/tester/feilinnfoering.py --ankre',
+      'python3 ./server/tester/feilinnfoering.py --ankre',
+      'PYTHONPATH=docs python3 server/tester/feilinnfoering.py --ankre',
+    ]) {
+      expect(sjekk(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper sjekkene utenfor roten av arbeidstreet', () => {
+    const svar = sjekk('npx tsc -p tsconfig.json', path.join(sjekktre, 'kjerne'));
+    expect(svar.status).toBe(2);
+    expect(svar.stderr).toContain('roten av arbeidstreet');
+    expect(sjekk('python3 server/tester/feilinnfoering.py --ankre', tmpdir()).status).toBe(2);
+  });
+
+  it('lar tekst om sjekkene i lesende kommandoer og i en heredoc være', () => {
+    for (const kommando of [
+      'grep -n "tsc -p" .claude/skills/miljo/SKILL.md',
+      'cat server/tester/feilinnfoering.py',
+      "cat > /tmp/notat.md <<'EOF'\nkjør npx tsc --outDir x\nEOF",
+    ]) {
+      expect(sjekk(kommando).status, kommando).toBe(0);
+    }
+  });
+});
