@@ -167,9 +167,7 @@ export function kommandoene(u: Utfylling, kjerne: Kjerne) {
 export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev | Programfeil {
   try {
     const { opprettelse, paaberopelse } = kommandoene(u, kjerne);
-    // Serveren lager teksten med sakstittelen i påberopelsen (LV-U43, `server/app.ts`).
-    const innhold = { ...paaberopelse.innhold, tittel: opprettelse.sakstittel };
-    return kravMotNySak(opprettelse, { ...paaberopelse, innhold }, 'TE', kjerne, new Map(), sakId);
+    return kravMotNySak(opprettelse, paaberopelse, 'TE', kjerne, new Map(), sakId);
   } catch (e) {
     console.error(e);
     return { programfeil: PROGRAMFEIL };
