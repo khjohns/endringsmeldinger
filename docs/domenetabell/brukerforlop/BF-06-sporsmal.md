@@ -39,7 +39,7 @@ vedtaksteksten, de forkastede alternativene og forholdet. Tabellen viser hvor.
 | Vedtak | Under | Svaret og kilden | Forholdet, kort |
 | --- | --- | --- | --- |
 | S-1, svaret og endringsordren samtidig | S-1 | Drøftingen 03.11, ikke med egne ord. Tas med i den samlede tilslutningen | Presiserer EO-U12 og EO-U3 |
-| S-2, den registrerte endringsordren, med A1 og R-4 | S-2 | Drøftingen 03.11, og R-4 over | Utvider punkt 20 og 22 i MM-U34 og EO-U12. Endrer OV-U80. Presiserer OV-U6, LV-U44 og EO-U14. MM-U38 står |
+| S-2, den registrerte endringsordren, med A1 og R-4 | S-2 | Drøftingen 03.11, og R-4 over | Snevrer inn punkt 11, 20 og 22 i MM-U34 og EO-U12. Snevrer inn MM-U38 (R-4). Endrer OV-U80. Presiserer OV-U6, EO-U3 (R-4), LV-U44 og EO-U14 |
 | S-3, fullmakten, med D1 | S-3 | Drøftingen 03.11 | Endrer vedtaket 23.09 (GFK-06) og GFK-U4 for en endringsordre |
 | S-4, forbehold ved registrering | S-4 | Drøftingen 03.11 | Endrer OV-U80 og KA-U45. OV-U69 står |
 | S-6, samlet utsagn og overslag | S-6 | Drøftingen 03.11 | Utvider EO-U8, KA-U1 og OV-U43 |
@@ -47,12 +47,12 @@ vedtaksteksten, de forkastede alternativene og forholdet. Tabellen viser hvor.
 | S-8, tilbud | S-8 | Drøftingen 03.11 | Endrer EO-U8 og OV-U43 prinsipp 5. Presiserer HF-U12 |
 | S-9, svikt | S-9 | Drøftingen 03.11 | Presiserer punkt 22 og snevrer inn punkt 20 i MM-U34 |
 | S-10, regningsarbeid | S-10 | Drøftingen 03.11 | Presiserer punkt 19 i MM-U34. Snevrer inn OV-U43 prinsipp 2 og 3 |
-| S-11, uenighet og aksept, med C1, E1, R-1 og R-3c | S-11 | Drøftingen 03.11, og R-1 og R-3c over | Endrer EO-U4, EO-U1, EO-U8 og punkt 22 i MM-U34. Snevrer inn KA-U1 (C1) og MM-U21 (R-3c) |
+| S-11, uenighet og aksept, med C1, E1, R-1 og R-3c | S-11 | Drøftingen 03.11, og R-1 og R-3c over | Endrer EO-U4, EO-U1, EO-U8 og punkt 22 i MM-U34. Snevrer inn KA-U1 (C1), MM-U21 (R-3c) og punkt 20 i MM-U34 (R-1). Presiserer MM-U38 (R-3c) |
 | S-12, endring under godkjenningen, med R-2 | S-12 | Drøftingen 03.11, og R-2 over | Utvider og presiserer GFK-U7 |
 | S-14, lukkingen av en oppfølgende KOE | S-14 | Drøftingen 03.11 | Presiserer EO-U3 |
 | S-15, utsagn uten krav i en registrering | S-15 | Drøftingen 03.11 | Snevrer inn S-8. Presiserer MM-U38 og OV-U80 |
 | S-16, nøkkeltallene | S-16 | Drøftingen 03.11 | Endrer MM-U38 |
-| S-17, kjeden og tillegget, med O-1 | S-17 | Drøftingen 03.11, og O-1 over | Presiserer MM-U38 |
+| S-17, kjeden og tillegget, med O-1 | S-17 | Drøftingen 03.11, og O-1 over | Endrer MM-U38 |
 | S-18, én beskrivelse | S-18 | Drøftingen 03.11 | Presiserer GR-U13 |
 | B-01, relasjonsprojeksjonen | #1423 | «B01: A», 6616393286 | Avgjør B-01 i hovedplanen |
 
@@ -147,14 +147,16 @@ den siste godkjenningen. Endres noe i en av sakene, bekrefter byggherren listen 
 - (a) «En registrert endringsordre gjelder de sakene som er åpne når den siste godkjenningen
   gjøres. Lukkes en sak etter at registreringen er lagt fram til godkjenning, avvises den siste
   godkjenningen, og byggherren bekrefter listen på nytt. Registreringen gjelder deretter de sakene
-  som fortsatt er åpne.»
+  som fortsatt er åpne. Endres verdien godkjenningen regnes av, begynner godkjenningen på nytt. Er
+  ingen av sakene åpne, stopper registreringen.»
 - (b) «En registrert endringsordre gjelder de sakene som er åpne når den siste godkjenningen
   gjøres. Lukkes en sak etter at registreringen er lagt fram til godkjenning, faller saken ut av
-  registreringen uten at godkjenningen avvises.»
+  registreringen uten at godkjenningen avvises. Er ingen av sakene åpne, stopper registreringen.»
 
 *Forholdet.* (a) presiserer de to valgene over: «stopper … registreringen» betyr at den siste
-godkjenningen avvises. (b) endrer valget om at registreringen stopper, og snevrer inn valget om at
-godkjenningen avvises når noe endres, for en registrering. GFK-U7 står i begge: «Kan svaret ikke
+godkjenningen avvises, og en lukking er en endring etter valget om godkjenningen. (b) endrer valget
+om at registreringen stopper, og endrer valget om godkjenningen for en registrering, fordi verdien
+godkjenningen regnes av, da endres uten ny godkjenning. GFK-U7 står i begge: «Kan svaret ikke
 sendes fordi kravet er endret etter at svaret ble lagt fram, avvises godkjenningen.»
 
 *Hva valget styrer.* Om den som godkjenner, alltid godkjenner den listen over saker som faktisk
@@ -162,7 +164,9 @@ lukkes.
 
 *Anbefaling: (a).* Med (b) godkjenner den med fullmakt en liste som kan bli kortere etterpå uten
 at noen ser det. (a) bruker samme regel som for en endringsordre sendt fra løsningen. At en sak
-sjelden lukkes mens en registrering venter, er en antakelse.
+sjelden lukkes mens en registrering venter, er en antakelse. Tas en sak av en endringsordre sendt
+fra løsningen mens en registrering med tidligere brevdato venter, går saken til den senere
+endringsordren i begge alternativene, og løsningen avgjør ikke virkningen.
 
 **T-2. Må en registrert endringsordre ha et utsagn som erstatter et utsagn totalentreprenøren har bestridt?**
 
@@ -176,22 +180,28 @@ partens meddelelse.»
 *Alternativene i vedtaksform.*
 - (a) «Regelen om at en endringsordre som omfatter en KOE som bestrider et utsagn, har et utsagn
   som erstatter det, gjelder endringsordrer som sendes fra løsningen. En registrert endringsordre
-  gjengir det brevet sier. Sier brevet ikke noe om det bestridte utsagnet, står det som bestridt,
-  og totalentreprenøren kan bestride det på nytt i en ny KOE.»
+  gjengir det brevet sier. Sier brevet ikke noe om det bestridte utsagnet, står det som bestridt
+  og kan ikke godtas, og totalentreprenøren kan bestride det på nytt i en ny KOE.»
 - (b) «Også en registrert endringsordre som omfatter en KOE som bestrider et utsagn, har et utsagn
   som erstatter det. Sier brevet ikke noe om det bestridte utsagnet, kan brevet ikke registreres
   som endringsordre i en EO-sak.»
 
 *Forholdet.* (a) snevrer inn regelen om utsagnet som erstatter det bestridte, for en registrert
-endringsordre, og presiserer at registreringen gjengir brevet. (b) snevrer inn adgangen til å
-registrere en endringsordre i en EO-sak.
+endringsordre, og presiserer at registreringen gjengir brevet. Den presiserer også valget om at
+bare én KOE om gangen kan bestride et utsagn, regelen om at sperren bare oppheves når KOE-en
+trekkes, og kjeden: utsagnet har ingen etterfølger og er fortsatt det siste i kjeden. (b) snevrer
+inn adgangen til å registrere en endringsordre i en EO-sak, endrer valget om at en registrert
+endringsordre gjengir det brevet sier, for et slikt brev, og står i strid med OV-U80.
 
 *Hva valget styrer.* Om byggherren kan registrere et brev slik det er, eller må ta det opp med
 totalentreprenøren først.
 
 *Anbefaling: (a).* Brevet er alt sendt, og registreringen skal ikke si mer enn brevet (OV-U80).
 Med (b) blir KOE-en stående åpen selv om byggherren har sendt en endringsordre som omfatter den,
-og byggherren må sende en ny endringsordre fra løsningen for å lukke den.
+og byggherren må sende en ny endringsordre fra løsningen for å lukke den. Prisen ved (a): KOE-en
+lukkes, og totalentreprenøren kan tro at kravet er gjort opp. Bestillingen skal vise at det
+bestridte utsagnet står uten et utsagn som erstatter det (U-21). Det er byggherren som fører om
+brevet har et slikt utsagn, fordi løsningen ikke tolker brevet (KA-U16).
 
 **T-3. Kan byggherren rette en registrering som ikke stemmer med brevet?**
 
@@ -203,20 +213,29 @@ meddelelse.»
 *Alternativene i vedtaksform.*
 - (a) «En registrert endringsordre kan ikke rettes i løsningen, heller ikke når registreringen
   ikke stemmer med brevet. Byggherren tar feilen opp i et innlegg i EO-saken, og brevet er
-  byggherrens meddelelse.»
+  byggherrens meddelelse. Løsningen avgjør ikke hva en aksept av en post som ikke stemmer med
+  brevet, betyr.»
 - (b) «Stemmer en godkjent registrering ikke med brevet, kan byggherren rette registreringen.
   Rettingen går gjennom godkjenningen etter fullmakten, endrer ikke hvilke saker registreringen
-  omfatter, og brevet står uendret.»
+  omfatter, og brevet står uendret. Har totalentreprenøren godtatt eller bestridt posten før
+  rettingen, gjelder aksepten eller bestridelsen posten slik den var registrert.»
 
 *Forholdet.* (a) presiserer at regelen om at endringsordren ikke kan rettes, også gjelder en
-registrering. (b) snevrer den inn for en registrering, og utvider MM-U21 til en registrering.
+registrering. Den snevrer inn OV-U80 for en registrert endringsordre: «Avsenderen retter en feil
+kategori eller et feil varsel etter MM-U21.» Og den presiserer «summen viser det som ble sendt»:
+summen viser registreringen, ikke brevet. (b) snevrer inn regelen om at endringsordren ikke kan
+rettes, for en registrering. MM-U21 gjelder ikke, fordi rettingen gjelder etter fullmakten uten
+motpartens aksept.
 
 *Hva valget styrer.* Om summen og kjeden kan vise et beløp brevet ikke har, når registreringen er
 feil.
 
-*Anbefaling: (a).* Én regel for alt som er sendt, og brevet gjelder uansett (OV-U80). Prisen er at
-summen kan vise et feil beløp til en ny endringsordre erstatter utsagnet. At feil i registreringen
-er sjeldne, er en antakelse.
+*Anbefaling: (a), med en svakhet.* Én regel for alt som er sendt, og brevet gjelder uansett
+(OV-U80). Prisen er at summen kan vise et feil beløp til en ny endringsordre erstatter utsagnet. Er
+et beløp ført for høyt, kan totalentreprenøren godta posten, og løsningen viser da en enighet om et
+beløp brevet ikke har. Byggherren har bare et innlegg å svare med. (b) løser det, men sier ikke
+hva aksepten etterpå betyr. En sak som er tatt med ved en feil, lukkes i begge alternativene. At
+feil i registreringen er sjeldne, er en antakelse.
 
 ## Endret i versjon 4
 
@@ -388,8 +407,12 @@ løsningen.»
 samme måte som sending. Snevrer inn MM-U38: et brev som blir dokumentasjon fordi en sak er lukket,
 telles ikke i summen av vederlag i sendte endringsordrer. Endrer OV-U80: setningen om byggherrens egen endringsordre gjelder
 registrering som svar på forholdet. Presiserer OV-U6. EO-U14 og LV-U44 gjelder koden, se merknaden.
-Versjon 5: snevringen av MM-U38 for et brev som blir dokumentasjon, faller bort med F1. MM-U38
-står: registreringen telles etter S-15, og poster som ikke registreres, telles ikke.
+Versjon 5, rettet etter prøven mot vedtaksfila: «Utvider punkt 20 og 22 i MM-U34 og EO-U12» blir
+«Snevrer inn punkt 11, 20 og 22 i MM-U34 og EO-U12». Punkt 11 i MM-U34: «Saken lukkes bare av en
+endringsordre byggherren sender i en EO-sak.» Registreringen er et unntak fra «bare», og OV-U6
+førte samme slags unntak som «Snevrer inn OV-U4». Snevringen av MM-U38 for et brev som blir
+dokumentasjon, faller bort med F1. I stedet snevrer R-4 inn MM-U38: postene i brevet for den
+lukkede saken telles ikke, selv om brevet er sendt.
 
 **Merknad.** Versjon 4 hadde regelen om at registreringen bare godtas når sakene er åpne når den
 siste godkjenningen gjøres. Versjon 5 erstatter den med R-4. Når saken skal være åpen, står i
@@ -443,7 +466,7 @@ over. Forkastet: F1 over, «Er en av sakene en registrert endringsordre omfatter
 siste godkjenningen gjøres, stopper hele registreringen og sier hvilken sak som er lukket. Brevet
 legges til som dokumentasjon i sakene det gjelder, og løsningen registrerer ikke deler av et
 brev.», og F2, «Registreringen gjelder de åpne sakene, og brevet blir dokumentasjon i den
-lukkede.» Forhold: presiserer S-2 og EO-U3. I tråd med OV-U80 («Der skjemaet og dokumentet
+lukkede.» Forhold: presiserer EO-U3 og snevrer inn MM-U38 (se forholdet over). I tråd med OV-U80 («Der skjemaet og dokumentet
 spriker, er dokumentet partens meddelelse.»). O-3 faller bort.
 
 ## S-3. Hvordan regnes fullmakten for en endringsordre i en EO-sak?
@@ -912,7 +935,8 @@ Forhold: snevrer inn MM-U21 for en endringsordre: en endringsordre rettes ikke i
 ikke i motpartens favør. EO-U9 er opphevet 28.10 av punkt 22 i MM-U34, så forholdet til den føres
 ikke (se «Samspillet som står åpent», punkt 4). Presiserer S-11: «Endringsordren revideres ikke»
 står. Endrer valget G1 og presiseringen 3 i versjon 4, som faller bort. S-17 og R-1 står, og en feil
-til ulempe for totalentreprenøren rettes gjennom kjeden.
+til ulempe for totalentreprenøren rettes gjennom kjeden. «Summen viser det som ble sendt»
+presiserer MM-U38.
 
 **Valg R-1, besvart 03.11.** Spørsmålet slik det ble stilt, R-1 (E1 og O-2): «En endringsordre som
 omfatter en KOE som bestrider et utsagn, har et utsagn som erstatter det. Tillegget kan være 0.»
@@ -927,7 +951,9 @@ Forkastet: O-2 (b), «E1 står uten tilleggene.» Det andre tillegget i O-2 (a),
 sending viser byggherren en ny endringsordre uten et utsagn som erstatter det bestridte, «uten å
 stoppe sendingen», er ikke ført. R-1 krever utsagnet. Listen i O-2 (a) er design (U-17).
 
-Forhold: presiserer S-11, E1, S-14 og S-17. Merknaden om designet er U-12 i bestillingen, ikke en
+Forhold: presiserer S-11, E1, S-14 og S-17. Snevrer inn punkt 20 i MM-U34, som sier: «Byggherren
+kan la en endringsordre omfatte én eller flere hele KOE-saker, også når løsningen ikke har
+registrert enighet.» R-1 legger til et vilkår når en av sakene bestrider et utsagn. Merknaden om designet er U-12 i bestillingen, ikke en
 del av vedtaket (#1534).
 
 ## S-12. Avvises den siste godkjenningen når noe endres i en av sakene?
@@ -1038,7 +1064,10 @@ teller tilleggene. Dette er beregningsregler, og de avgjør ikke hva partene ret
 - «Et utsagn i en endringsordre som gjør opp et bestridt utsagn, står for seg, og summen teller
   begge.»
 
-**Forhold.** Presiserer MM-U38 og S-14.
+**Forhold.** Endrer MM-U38: summen teller tillegget og ikke hele vederlaget i hver sendte
+endringsordre, og et erstattet utsagn med overslag telles ikke lenger for seg. Presiserer S-14.
+Versjon 5, rettet etter prøven mot vedtaksfila. Før stod «Presiserer MM-U38». S-16 fører samme
+forhold.
 
 **Endret i versjon 4.** Setningene om når tillegget regnes, og om én direkte etterfølger, er lagt
 til. Den første følger av MM-U38: «endringsordrer uten samlet beløp telles for seg, fordi beløpet
@@ -1053,8 +1082,7 @@ punktet oppdragsgiver har godtatt. At S-16 krever «samme omfang og oppgjørsfor
 versjon 4»: «S-17 får også ‹samme oppgjørsform›, så de to reglene regner differansen i de samme
 tilfellene.» Svaret: «1 og 2: enig med deg.» (#1065, 6617137907). Vedtaksteksten har fått
 «, samme omfang og samme oppgjørsform» i stedet for «og samme omfang». Forkastet: O-1 (b),
-«Vilkårene står som de er.» Forhold: presiserer MM-U38, og S-16 og S-17 regner differansen i de
-samme tilfellene.
+«Vilkårene står som de er.» Forhold: S-16 og S-17 regner differansen i de samme tilfellene.
 
 **Merknad.** Regelen om tillegg med kjeden, null og negative tillegg og sperren for tidligere
 utsagn kom fra sparringen og ble lagt fram samlet før svaret. Det forkastede alternativet er ikke
