@@ -574,14 +574,16 @@ try {
         const nye = (await lesJournal(sak)).filter((r) => r.versjon > forventet);
         // Påberopelsen er kravet i dokumenthendelsen, med feltene TE fylte ut. Sakstittelen er
         // navnet på forholdet i brevteksten, ikke et felt i kravet (LV-U43).
-        const krav = nye
-          .flatMap((r) => ((r.data as { krav?: Record<string, unknown>[] }).krav ?? []))
-          .find((x) => x.spor === 'forhold');
+        type Dokumentdata = { krav?: Record<string, unknown>[]; brevtekst?: { laast: string }[] };
+        const dokument = nye
+          .map((r) => r.data as Dokumentdata)
+          .find((d) => d.krav?.some((x) => x.spor === 'forhold'));
+        const krav = dokument?.krav?.find((x) => x.spor === 'forhold');
         if (
           !krav ||
           krav.underkategori !== k.innhold.underkategori ||
           (dato && !Object.values(krav).includes(dato)) ||
-          !JSON.stringify(nye).includes(`«${tittel}»`)
+          !dokument?.brevtekst?.some((a) => a.laast.includes(`«${tittel.trim()}» i sak`))
         )
           throw new Error(`Journalen har ikke påberopelsen TE fylte ut: ${JSON.stringify(nye)}`);
         return nye;
