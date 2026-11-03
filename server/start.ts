@@ -117,7 +117,7 @@ if (klient && innlogging) {
     innboks: innboksintegrasjon(klient),
     hr: hr ?? undefined,
     saksadresse: (prosjektId, sakId) =>
-      `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}/kjerne`,
+      `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}`,
   });
 }
 
