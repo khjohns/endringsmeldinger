@@ -82,7 +82,11 @@ const UTEN_SAK = [
   'PATCH /api/projects/<prosjekt>/members/00000000-0000-0000-0000-000000000000',
   'GET /api/projects/<prosjekt>/saker',
 ];
-const NY_SAK = ['POST /api/kjerne/saker'];
+const NY_SAK = [
+  'POST /api/kjerne/saker',
+  'POST /api/kjerne/vedlegg',
+  'DELETE /api/kjerne/vedlegg/00000000-0000-4000-8000-000000000000',
+];
 
 describe('registeret over inngangene', () => {
   it('inngangene uten sesjon, uten prosjekt og uten sak er de i de lukkede listene', () => {
@@ -572,6 +576,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
 
   it.each(nySak)('%s: uten sesjon gir 401', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(''), {
+      metode: r.metode,
       bruker: null,
       prosjektId: o.prosjekt.id,
       kropp: {},
@@ -583,6 +588,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   it.each(nySak)('%s: uten eller med feil CSRF-token gir 403', async (_n, r) => {
     for (const csrf of [null, 'feil']) {
       const svar = await kall(server.url, r.eksempel(''), {
+        metode: r.metode,
         bruker: o.te,
         prosjektId: o.prosjekt.id,
         kropp: {},
@@ -600,11 +606,25 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
         { bruker: o.te, prosjektId: null, kropp: {} },
         { bruker: o.utenfor, prosjektId: o.prosjekt.id, kropp: {} },
         { bruker: o.te, prosjektId: o.annetProsjekt.id, kropp: {} },
-        { bruker: o.te, prosjektId: o.prosjekt.id, kropp: { sak_id: annenSak } },
-        { bruker: o.te, prosjektId: o.prosjekt.id, kropp: { prosjekt_id: o.annetProsjekt.id } },
+        // En filinngang leser ikke kroppen som JSON, så den har ingen sak eller prosjekt i kroppen.
+        ...(r.fil
+          ? []
+          : [
+              { bruker: o.te, prosjektId: o.prosjekt.id, kropp: { sak_id: annenSak } },
+              {
+                bruker: o.te,
+                prosjektId: o.prosjekt.id,
+                kropp: { prosjekt_id: o.annetProsjekt.id },
+              },
+            ]),
       ];
       for (const { bruker, prosjektId, kropp } of forsok) {
-        const svar = await kall(server.url, r.eksempel(''), { bruker, prosjektId, kropp });
+        const svar = await kall(server.url, r.eksempel(''), {
+          bruker,
+          prosjektId,
+          kropp,
+          metode: r.metode,
+        });
         expect(svar.status, JSON.stringify({ prosjektId, kropp })).toBe(403);
         expect(svar.kropp.error).toBe('FORBIDDEN');
       }
@@ -613,6 +633,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
 
   it.each(nySak)('%s: et medlem uten kontraktsteam gir 403', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(''), {
+      metode: r.metode,
       bruker: o.utenTeam,
       prosjektId: o.prosjekt.id,
       kropp: {},
@@ -621,10 +642,11 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
   });
 
-  it.each(nySak)(
+  it.each(nySak.filter(([, r]) => !r.fil))(
     '%s: et medlem uten kontraktsteam med en sak i et annet prosjekt i kroppen gir FORBIDDEN (#1106)',
     async (_n, r) => {
       const svar = await kall(server.url, r.eksempel(''), {
+        metode: r.metode,
         bruker: o.utenTeam,
         prosjektId: o.prosjekt.id,
         kropp: { sak_id: annenSak },
@@ -636,12 +658,20 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
 
   it.each(nySak)('%s: kontrollsaken kommer forbi tilgangen', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(''), {
+      metode: r.metode,
       bruker: o.te,
       prosjektId: o.prosjekt.id,
       kropp: {},
     });
-    expect(svar.status).toBe(400);
-    expect(svar.kropp.error).toBe('UGYLDIG_FORESPOERSEL');
+    // Opprettelsen avviser den tomme kroppen; vedlegget mangler filnavnet eller finnes ikke.
+    const [status, feil] =
+      r.eksempel('') === '/api/kjerne/saker'
+        ? [400, 'UGYLDIG_FORESPOERSEL']
+        : r.fil
+          ? [400, 'MANGLER_FILNAVN']
+          : [404, 'VEDLEGG_FINNES_IKKE'];
+    expect(svar.status, JSON.stringify(svar.kropp)).toBe(status);
+    expect(svar.kropp.error).toBe(feil);
   });
 
   it('lesingen av saken gir leserens side i part, og null med leserolle (#705, DL-U15)', async () => {

@@ -583,6 +583,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.dagmulktssats',
         'GRANT EXECUTE koe_api.deaktiver_ved_innlogging',
         'GRANT EXECUTE koe_api.entra_identitet',
+        'GRANT EXECUTE koe_api.flytt_vedlegg_til_sak',
         'GRANT EXECUTE koe_api.forny_lease',
         'GRANT EXECUTE koe_api.godkjenningskjede',
         'GRANT EXECUTE koe_api.hent_jobb',
@@ -599,6 +600,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.lag_godkjenningspakke',
         'GRANT EXECUTE koe_api.lagre_brevdokument',
         'GRANT EXECUTE koe_api.lagre_vedlegg',
+        'GRANT EXECUTE koe_api.lagre_vedlegg_uten_sak',
         'GRANT EXECUTE koe_api.les_sesjon',
         'GRANT EXECUTE koe_api.leveringsmaal',
         'GRANT EXECUTE koe_api.medlemmer',
@@ -625,6 +627,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.skrivetidspunkt',
         'GRANT EXECUTE koe_api.slett_sesjon',
         'GRANT EXECUTE koe_api.slett_vedlegg',
+        'GRANT EXECUTE koe_api.slett_vedlegg_uten_sak',
         'GRANT EXECUTE koe_api.stillingstitler',
         'GRANT EXECUTE koe_api.synkroniser_hr',
         'GRANT EXECUTE koe_api.synkroniser_medlemskap',
@@ -645,6 +648,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT SELECT koe.notat',
         'GRANT SELECT koe.sak_metadata',
         'GRANT SELECT koe.vedlegg',
+        'GRANT SELECT koe.vedlegg_uten_sak',
       ]);
     });
 
@@ -745,6 +749,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
           ...SAKSTABELLER,
           'leveringskvittering',
           'vedlegg',
+          'vedlegg_uten_sak',
           'godkjenningspakke',
           'godkjenningssteg',
           'godkjenningshandling',

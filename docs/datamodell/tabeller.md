@@ -55,6 +55,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.kvittering`](#koekvittering) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.brevdokument`](#koebrevdokument) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.vedlegg`](#koevedlegg) | SQL Server | transaksjon | i bruk | Ja | Nei |
+| [`koe.vedlegg_uten_sak`](#koevedlegg_uten_sak) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.dagmulktssats`](#koedagmulktssats) | SQL Server | grunndata | i bruk | Nei | Ja |
 | [`koe.kontraktsparter`](#koekontraktsparter) | SQL Server | grunndata | i bruk | Nei | Ja |
 | [`koe.godkjenningspakke`](#koegodkjenningspakke) | SQL Server | transaksjon | i bruk | Ja | Nei |
@@ -532,7 +533,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en Catenda-identitet sees. Tilbakekallet fra innloggingen kaller den fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet oppretter aldri en bruker ved innloggingen: driften registrerer den med `koe_drift.registrer_entra_identitet`, som ny bruker eller koblet til en eksisterende (S-1c del 1, #831). `koe_api.entra_identitet` oppdaterer navn og e-post ved innloggingen. `koe_drift.koble_catenda_identitet` kobler en Catenda-identitet til en bruker med Entra-identitet og sletter brukeren identiteten stod på, når den bare har medlemskap, fravær og sesjoner (#1002). |
 | Data fra Catenda | Delvis. Navn og e-post kommer fra Catenda-identiteten. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.hr_kopi.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.hr_kopi.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg_uten_sak.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
 | Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post); database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`) |
@@ -634,7 +635,7 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820). En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt, men endrer ikke virksomheten; skriptet sier fra når `--organisasjon` er en annen (#836). |
 | Data fra Catenda | Delvis. Navnet oppgis av driften; i Python kan det hentes fra Catenda-prosjektet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.dagmulktssats.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsparter.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.dagmulktssats.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsparter.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg_uten_sak.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
@@ -668,7 +669,7 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Driften setter teamene med skriptet `server/registrering.ts`, som kontrollerer dem mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`, direkte eller gjennom `koe_drift.registrer_prosjekt` (F-1, #820). Begge sider må ha minst ett team. Skriptet krever `--en-totalentreprenoer`, driftens bekreftelse på at alle TE-teamene hører til samme totalentreprenør (DL-U14). Uten saker erstatter listen teamene; står prosjektet i `koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764). Byttes Catenda-prosjektet, må teamene oppgis på nytt (#836). |
 | Data fra Catenda | Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes av driften. Dataflyt: fra Catenda i C18, C19 (arket Dataflyt). |
-| Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.aktor_team_id (uten fremmednøkkel); koe.hendelse.aktor_team_id (uten fremmednøkkel); koe.notat.aktor_team_id (uten fremmednøkkel); koe.vedlegg.lastet_opp_team (uten fremmednøkkel). |
+| Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.aktor_team_id (uten fremmednøkkel); koe.hendelse.aktor_team_id (uten fremmednøkkel); koe.notat.aktor_team_id (uten fremmednøkkel); koe.vedlegg.lastet_opp_team (uten fremmednøkkel); koe.vedlegg_uten_sak.lastet_opp_team (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, kalt fra `server/registrering.ts`); database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
@@ -870,14 +871,31 @@ Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og S
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`, `koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`, og `koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`. |
+| Hvor fra appen lagres og redigeres | `koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`, `koe_api.flytt_vedlegg_til_sak` og `koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`, og `koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`. |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (vedlegg_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_av → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); (bundet_av_event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_team → koe.catenda_contract_teams.team_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedleggskvittering.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Før levering finnes filen bare her. |
 | Personopplysninger | Filen og filnavnet kan ha navn på personer i prosjektet. |
-| Skrives av | database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.lagre_vedlegg`, innført i `20261018193000_vedlegg.sql`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.bind_vedlegg`, innført i `20261019170000_vedleggsbinding.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_vedlegg`, innført i `20261020020000_vedleggslevering.sql`, kalt fra `server/jobber.ts`) |
+| Skrives av | database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.lagre_vedlegg`, innført i `20261018193000_vedlegg.sql`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.slett_vedlegg`, innført i `20261018193000_vedlegg.sql`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.flytt_vedlegg_til_sak`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.bind_vedlegg`, innført i `20261019170000_vedleggsbinding.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_vedlegg`, innført i `20261020020000_vedleggslevering.sql`, kalt fra `server/jobber.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene. K 18.10: `server/tester/vedlegg.test.ts`. |
+
+### `koe.vedlegg_uten_sak`
+
+Vedleggene TE laster opp før saken finnes (#1037, svar 1 i #1487): filen, filnavnet, størrelsen og SHA-256 av bytene, med prosjektet, aktøren og teamet som lastet opp. Bare teamet ser og sletter dem. Når saken opprettes med påberopelsen, flytter `koe_api.flytt_vedlegg_til_sak` dem påberopelsen viser til, til `koe.vedlegg` med samme `vedlegg_id`, og sletter dem her, i samme transaksjon (KT-U11). Bare aktørens egne flyttes. Triggeren `koe.vedlegg_uten_sak_uten_endring` stopper `UPDATE`. Rader som aldri blir brukt, blir liggende; ryddingen står i et eget issue.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | transaksjon |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.lagre_vedlegg_uten_sak` og `koe_api.slett_vedlegg_uten_sak`, kalt fra `server/vedlegg.ts`, og `koe_api.flytt_vedlegg_til_sak`, kalt fra `server/kommandoer.ts`. |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (vedlegg_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_av → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_team → koe.catenda_contract_teams.team_id (uten fremmednøkkel). |
+| Kan bygges opp igjen | nei. Filen finnes bare her til saken opprettes. |
+| Personopplysninger | Filen og filnavnet kan ha navn på personer i prosjektet. |
+| Skrives av | database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.lagre_vedlegg_uten_sak`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.slett_vedlegg_uten_sak`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261102130000_vedlegg_foer_saken.sql (`koe_api.flytt_vedlegg_til_sak`, kalt fra `server/kommandoer.ts`) |
+| Funn | — |
+| Belegg | L 02.11: migrasjonen. K 02.11: `server/tester/ny_sak.test.ts`. |
 
 ### `koe.dagmulktssats`
 

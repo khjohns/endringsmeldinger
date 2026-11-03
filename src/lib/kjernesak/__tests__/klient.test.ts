@@ -64,6 +64,28 @@ describe('klienten mot TS-serveren', () => {
     expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('prosjekt-2');
   });
 
+  // Kilde: svar 2 i #1487 og VS-U38. Varselet står i kroppen som skjemaet ga det.
+  it('sender varselet etter punkt 32.2 med påberopelsen når skjemaet har det', async () => {
+    const paaberopelse = {
+      type: 'krav' as const,
+      spor: 'forhold' as const,
+      innhold: { a: 1 },
+      dokumentasjon: ['v1'],
+    };
+    const varsel = { sendt: '2026-10-01', dokumentasjon: ['v1'] };
+    await sendNySak(
+      'prosjekt-2',
+      ID
+    )({
+      sakId: 'ny-sak',
+      opprettelse: { sakstittel: 'T' },
+      paaberopelse,
+      tekst: ['brev'],
+      varsel,
+    });
+    expect(JSON.parse(kall[0][1].body as string)).toMatchObject({ paaberopelse, varsel });
+  });
+
   it('oppretter saken i prosjektet fra ruta, ikke i det aktive', async () => {
     await opprettSak(ID, { type: 'opprett' }, 'prosjekt-2');
     expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('prosjekt-2');

@@ -2843,6 +2843,39 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
   });
 });
 
+/**
+ * VS-U38: har TE alt sendt varselet etter punkt 32.2 utenfor løsningen, legges dokumentet
+ * med varselet ved påberopelsen. Et fristkrav har brevet med varselet i `varsel` (OV-U5).
+ */
+describe('vedleggene ved påberopelsen (VS-U38)', () => {
+  it('påberopelsen lagrer vedlegget med ID, filnavn og sum (VS-U38, LV-U14)', () => {
+    const s = sak();
+    const rad = s.send('TE', { ...PAABEROPELSE, dokumentasjon: [VARSELBREVET] });
+    expect(rad.data.dokumentasjon).toEqual([
+      { vedlegg_id: VARSELBREVET, filnavn: `${VARSELBREVET}.pdf`, innhold_sha256: '0'.repeat(64) },
+    ]);
+  });
+
+  it('et vedlegg ved et fristkrav utenfor varselet avvises i formen (OV-U5)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    expect(s.avvisning('TE', { ...FRISTKRAV, dokumentasjon: [VARSELBREVET] })?.melding).toBe(
+      '$.dokumentasjon: bare påberopelsen har vedlegg ved kravet'
+    );
+    expect(s.avvist('TE', FRISTKRAV), 'kontrollsak').toBeNull();
+  });
+
+  it('samme vedlegg to ganger ved påberopelsen avvises i formen', () => {
+    const s = sak();
+    expect(
+      s.avvisning('TE', {
+        ...PAABEROPELSE,
+        dokumentasjon: [VARSELBREVET, VARSELBREVET.toUpperCase()],
+      })?.melding
+    ).toBe('$.dokumentasjon: samme vedlegg står to ganger');
+  });
+});
+
 describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U29, LV-U18)', () => {
   const foresporsel = { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' };
   const begrunnelseB = 'Omfanget av omprosjekteringen er ikke kjent ennå.';

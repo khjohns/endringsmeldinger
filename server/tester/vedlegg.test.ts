@@ -150,8 +150,8 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       headers: { Cookie: `__Host-koe_session=${bruker.token}`, 'X-Project-ID': o.prosjekt.id },
     });
 
-  const slett = (bruker: Testbruker, id: string) =>
-    kall(server.url, `/api/kjerne/saker/${sak}/vedlegg/${id}`, {
+  const slett = (bruker: Testbruker, id: string, sakId = sak) =>
+    kall(server.url, `/api/kjerne/saker/${sakId}/vedlegg/${id}`, {
       bruker,
       prosjektId: o.prosjekt.id,
       kropp: {},
@@ -482,6 +482,33 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       expect(svar.status).toBe(400);
       expect(svar.kropp.rule).toBe('VEDLEGG_FINNES_IKKE');
       expect((await journal(sakId)).length).toBe(2);
+    });
+
+    it('sletting mens en kommando binder vedlegget, venter på bindingen og gir 409, ikke 404 (#923 punkt 1)', async () => {
+      const sakId = await sakMedPaaberopelse();
+      const id = (await lastOpp(o.te, PDF, 'binding.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+      const foerste = (await journal(sakId))[0].event_id;
+      let slipp!: () => void;
+      const holdt = new Promise<void>((r) => (slipp = r));
+      let laast!: () => void;
+      const bindingenHolder = new Promise<void>((r) => (laast = r));
+      // Bindingen holder raden til commit, som `skrivHendelse` gjør fra `lesVedlegg` til `bind_vedlegg`.
+      const binding = iTransaksjon(o.datalag.base.pool, teKontekst(), async (r) => {
+        await r()
+          .input('id', sql.UniqueIdentifier, id)
+          .input('hendelse', sql.NVarChar(36), foerste)
+          .query('UPDATE koe.vedlegg SET bundet_av_event_id = @hendelse WHERE vedlegg_id = @id');
+        laast();
+        await holdt;
+      });
+      await bindingenHolder;
+      const sletting = slett(o.te, id, sakId);
+      await new Promise((r) => setTimeout(r, 500));
+      slipp();
+      await binding;
+      const svar = await sletting;
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(409);
+      expect(svar.kropp.error).toBe('VEDLEGG_BUNDET');
     });
 
     it('et ubundet vedlegg BH har lastet opp, kan ikke bindes av TE (arbeidsvalg 3)', async () => {

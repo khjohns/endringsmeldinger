@@ -19,6 +19,7 @@
  * (arbeidsvalg 3 og 4 i #790). Et gjentak med kvittering binder ikke på nytt (KT-U5).
  */
 
+import { createHash } from 'node:crypto';
 import type { Vedleggsoppslag } from '../kjerne/kommandoer/skriving.ts';
 import type { Journalrad, Vedlegg } from '../kjerne/typer.ts';
 import {
@@ -113,10 +114,13 @@ function oversett(feil: unknown, forventet: number | null): unknown {
     return new SkrivingAvvist(melding, { cause: feil });
   }
   switch (feilnummer(feil)) {
+    // 51403: uten sak (`forventet` er null) er kontekst, medlemskap eller kontraktsteam
+    // ikke lenger gyldig; med sak er saken ukjent i prosjektet (`skriv_hendelse`).
     case NEKTET:
       return forventet === null
         ? new SkrivingAvvist(melding, { cause: feil })
         : new SakFinnesIkke(melding, { cause: feil });
+    // 51409 med meldingen om versjonen: journalen har en annen versjon enn forventet.
     case KONFLIKT: {
       const faktisk = KONFLIKTMELDING.exec(melding)?.[1];
       return faktisk === undefined
@@ -427,14 +431,23 @@ export async function skrivHendelse<A>(
   }
 }
 
-/** Saken og den første påberopelsen kjernen har godtatt, med oppdraget når målet er lest. */
+/** En rad kjernen har godtatt, med oppdraget når målet er lest. */
+export type Godtatt = {
+  skriv: true;
+  rad: Journalrad;
+  oppdrag: (maal: Leveringsmaal) => Oppdragsrad | null;
+};
+
+/**
+ * Saken og den første påberopelsen kjernen har godtatt, og eventuelt varselet etter
+ * punkt 32.2 TE alt har sendt (VS-U38). Varselet lages med basens klokke for sin egen
+ * skriving, etter at påberopelsen er skrevet.
+ */
 export type Opprettelsesutfall<A> =
-  | {
-      skriv: true;
+  | (Godtatt & {
       opprettet: Journalrad;
-      rad: Journalrad;
-      oppdrag: (maal: Leveringsmaal) => Oppdragsrad | null;
-    }
+      varsel: ((grunnlag: { tidspunkt: Date }) => Godtatt | Avvist<A>) | null;
+    })
   | Avvist<A>;
 
 /**
@@ -444,7 +457,12 @@ export type Opprettelsesutfall<A> =
  * ingen sak, ingen hendelse og ingen jobb for topicen. `sak_opprettet` får samme tidspunkt
  * som påberopelsen. Kvitteringen gjelder påberopelsen, så et gjentak med samme innhold får
  * den uten å kalle `lag`, og en annen sak eller et annet innhold med samme ID gir 51410.
- * Påberopelsen binder ingen vedlegg: saken har ingen før den finnes (#1037).
+ *
+ * Vedleggene i `vedleggider` er lastet opp før saken fantes (`koe.vedlegg_uten_sak`,
+ * #1037). `lag` får dem med oppdateringslås, og de flyttes inn i saken etter
+ * `opprett_sak` og bindes av påberopelsen. Varselet etter punkt 32.2 (VS-U38) skrives som
+ * versjon 3 i samme transaksjon, med basens klokke for sin skriving og en kvittering under
+ * en kommando-ID avledet av handlingens (`varseletsKommandoId`).
  *
  * @throws SakIdBrukt, SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall
  */
@@ -453,7 +471,8 @@ export async function opprettSakMedPaaberopelse<A>(
   kontekst: Kontekst,
   sakId: string,
   kommando: Kommando,
-  lag: (grunnlag: { tidspunkt: Date }) => Opprettelsesutfall<A>
+  vedleggider: readonly string[],
+  lag: (grunnlag: { tidspunkt: Date; vedlegg: Vedleggsoppslag }) => Opprettelsesutfall<A>
 ): Promise<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>> {
   const forsoek = () =>
     transaksjon<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>>(
@@ -471,11 +490,10 @@ export async function opprettSakMedPaaberopelse<A>(
               kvittering.event_id
             ),
           };
-        const tid = await foresp()
-          .output('tidspunkt', sql.DateTime2(3))
-          .execute('koe_api.skrivetidspunkt');
-        const tidspunkt = tid.output.tidspunkt as Date;
-        const utfall = lag({ tidspunkt });
+        // Før tidspunktet, så ventingen på låsen på vedleggene ikke eldes det (#880-1).
+        const vedlegg = await lesVedleggUtenSak(foresp, kontekst, vedleggider);
+        const tidspunkt = await skrivetidspunkt(foresp);
+        const utfall = lag({ tidspunkt, vedlegg });
         if (!utfall.skriv) return new Tilbakerulling(utfall);
         // Etter `lag`, så kjernens avvisning går foran avslaget her, som i `opprettSak`.
         if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
@@ -494,24 +512,24 @@ export async function opprettSakMedPaaberopelse<A>(
           .output('event_id', sql.NVarChar(36), opprettet.event_id)
           .output('tidsstempel', sql.DateTime2(3))
           .execute('koe_api.opprett_sak');
+        if (vedleggider.length)
+          await foresp()
+            .input('sak_id', sql.NVarChar(36), sakId)
+            .input('ider', sql.NVarChar(sql.MAX), JSON.stringify(vedleggider))
+            .execute('koe_api.flytt_vedlegg_til_sak');
         // Målet finnes først når saken er lagret; topicen lages av jobben (KT-U3).
-        const oppdrag = utfall.oppdrag(await lesLeveringsmaal(foresp, sakId));
-        kontrollerRad(rad, oppdrag, kontekst, sakId, 1, tidspunkt);
-        await foresp()
-          .input('sak_id', sql.NVarChar(36), sakId)
-          .input('forventet_versjon', sql.Int, 1)
-          .input('event_id', sql.NVarChar(4000), rad.event_id)
-          .input('event_type', sql.NVarChar(4000), rad.event_type)
-          .input('tidsstempel', sql.DateTime2(3), tidspunkt)
-          .input('format', sql.Int, rad.format)
-          .input('data', sql.NVarChar(sql.MAX), JSON.stringify(rad.data))
-          .input('oppdrag_id', sql.NVarChar(4000), oppdrag?.id ?? null)
-          .input('dokumentnoekkel', sql.NVarChar(4000), oppdrag?.dokumentnoekkel ?? null)
-          .input('oppdrag', sql.NVarChar(sql.MAX), oppdrag ? JSON.stringify(oppdrag.innhold) : null)
-          .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
-          .input('kommando_id', sql.NVarChar(4000), kommando.id)
-          .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
-          .execute('koe_api.skriv_hendelse');
+        const maal = await lesLeveringsmaal(foresp, sakId);
+        await skrivOgBind(foresp, kontekst, sakId, 1, tidspunkt, utfall, maal, kommando);
+        if (utfall.varsel) {
+          // `skriv_hendelse` har brukt tidspunktet for påberopelsen, så varselet får sitt eget.
+          const varseletsTid = await skrivetidspunkt(foresp);
+          const varsel = utfall.varsel({ tidspunkt: varseletsTid });
+          if (!varsel.skriv) return new Tilbakerulling(varsel);
+          await skrivOgBind(foresp, kontekst, sakId, 2, varseletsTid, varsel, maal, {
+            id: varseletsKommandoId(kommando.id),
+            sha256: kommando.sha256,
+          });
+        }
         return { skriv: true, rad };
       }
     );
@@ -525,6 +543,85 @@ export async function opprettSakMedPaaberopelse<A>(
   } catch (feil) {
     throw oversett(feil, null);
   }
+}
+
+async function skrivetidspunkt(foresp: Foresp): Promise<Date> {
+  const tid = await foresp()
+    .output('tidspunkt', sql.DateTime2(3))
+    .execute('koe_api.skrivetidspunkt');
+  return tid.output.tidspunkt as Date;
+}
+
+/** Skriver raden kjernen har godtatt som versjonen etter `forventet`, og binder vedleggene den viser til. */
+async function skrivOgBind(
+  foresp: Foresp,
+  kontekst: Kontekst,
+  sakId: string,
+  forventet: number,
+  tidspunkt: Date,
+  godtatt: Godtatt,
+  maal: Leveringsmaal,
+  kommando: Kommando
+): Promise<void> {
+  const { rad } = godtatt;
+  const oppdrag = godtatt.oppdrag(maal);
+  kontrollerRad(rad, oppdrag, kontekst, sakId, forventet, tidspunkt);
+  await foresp()
+    .input('sak_id', sql.NVarChar(36), sakId)
+    .input('forventet_versjon', sql.Int, forventet)
+    .input('event_id', sql.NVarChar(4000), rad.event_id)
+    .input('event_type', sql.NVarChar(4000), rad.event_type)
+    .input('tidsstempel', sql.DateTime2(3), tidspunkt)
+    .input('format', sql.Int, rad.format)
+    .input('data', sql.NVarChar(sql.MAX), JSON.stringify(rad.data))
+    .input('oppdrag_id', sql.NVarChar(4000), oppdrag?.id ?? null)
+    .input('dokumentnoekkel', sql.NVarChar(4000), oppdrag?.dokumentnoekkel ?? null)
+    .input('oppdrag', sql.NVarChar(sql.MAX), oppdrag ? JSON.stringify(oppdrag.innhold) : null)
+    .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
+    .input('kommando_id', sql.NVarChar(4000), kommando.id)
+    .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
+    .execute('koe_api.skriv_hendelse');
+  if (rad.data.dokumentasjon !== undefined)
+    await foresp()
+      .input('event_id', sql.NVarChar(36), rad.event_id)
+      .input('sak_id', sql.NVarChar(36), sakId)
+      .execute('koe_api.bind_vedlegg');
+}
+
+/**
+ * Kommando-ID-en varselet i opprettelsen kvitteres under (VS-U38). Kvitteringen har én
+ * rad per kommando-ID (`kvittering_pk`), og handlingens ID har påberopelsen. ID-en er en
+ * UUID av versjon 8 fra SHA-256 av handlingens ID, så et nytt forsøk får den samme.
+ */
+export function varseletsKommandoId(handlingensId: string): string {
+  const h = createHash('sha256').update(`varsel_32_2:${handlingensId}`).digest('hex');
+  const variant = ((parseInt(h[16], 16) & 0x3) | 0x8).toString(16);
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-8${h.slice(13, 16)}-${variant}${h.slice(17, 20)}-${h.slice(20, 32)}`;
+}
+
+/**
+ * Vedleggene uten sak aktøren har lastet opp i prosjektet med teamet i konteksten, med
+ * oppdateringslås, så en sletting venter på opprettelsen. Bare aktørens egne kan flyttes
+ * inn i saken (`koe_api.flytt_vedlegg_til_sak`).
+ */
+async function lesVedleggUtenSak(
+  foresp: Foresp,
+  kontekst: Kontekst,
+  ider: readonly string[]
+): Promise<Vedleggsoppslag> {
+  if (!ider.length) return new Map();
+  const svar = await foresp()
+    .input('prosjekt', sql.NVarChar(100), kontekst.prosjekt)
+    .input('aktor', sql.UniqueIdentifier, kontekst.aktor)
+    .input('team', sql.NVarChar(32), kontekst.team ?? null)
+    .input('ider', sql.NVarChar(sql.MAX), JSON.stringify(ider))
+    .query<Vedlegg>(
+      `SELECT LOWER(CONVERT(nvarchar(36), vedlegg_id)) AS vedlegg_id, filnavn, innhold_sha256
+         FROM koe.vedlegg_uten_sak WITH (UPDLOCK, HOLDLOCK)
+        WHERE prosjekt_id = @prosjekt AND lastet_opp_av = @aktor AND lastet_opp_team = @team
+          AND vedlegg_id IN (SELECT TRY_CAST(value AS uniqueidentifier) FROM OPENJSON(@ider))`
+    );
+  return new Map(svar.recordset.map((v) => [v.vedlegg_id, v]));
 }
 
 /**
