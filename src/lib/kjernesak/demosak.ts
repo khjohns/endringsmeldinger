@@ -173,7 +173,10 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
       data: opprettet.data,
     });
     try {
-      await send(sakId, 1, '', { ...nySak.paaberopelse, brevtekst: nySak.tekst }, DEMOPROSJEKT);
+      // Tittelen står i påberopelsen, som serveren setter den (LV-U43, `server/app.ts`).
+      const { paaberopelse, opprettelse: o } = nySak;
+      const innhold = { ...(paaberopelse.innhold as object), tittel: o.sakstittel };
+      await send(sakId, 1, '', { ...paaberopelse, innhold, brevtekst: nySak.tekst }, DEMOPROSJEKT);
     } catch (e) {
       rader.length = 0;
       throw e;

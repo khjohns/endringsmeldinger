@@ -26,8 +26,11 @@
     kvittering,
     saksliste,
     nySak,
+    spor,
   }: {
     kjernesak: Kjernesakkontekst;
+    /** Sporet saken åpner i. Uten det står saken i vederlaget, eller i forholdet etter opprettelsen. */
+    spor?: Spor;
     /** Kvitteringen for brevet som opprettet saken (BF-05 steg 6, F-6). */
     kvittering?: string;
     /** Lenken til sakslisten, der saken ikke finnes (#1473). */
@@ -63,7 +66,7 @@
 
   const SPORENE: Spor[] = ['forhold', 'vederlag', 'frist'];
   // Etter opprettelsen står saken i forholdet, med påberopelsen (BF-05 steg 6).
-  let valgt = $state<Spor>(untrack(() => (kvittering ? 'forhold' : 'vederlag')));
+  let valgt = $state<Spor>(untrack(() => spor ?? (kvittering ? 'forhold' : 'vederlag')));
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
   // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
