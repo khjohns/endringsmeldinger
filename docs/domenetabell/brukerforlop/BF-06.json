@@ -39,7 +39,7 @@
             "tilstand": "samlet"
           },
           {
-            "staar": "Gjelder KOE-017, KOE-018 og KOE-021"
+            "staar": "Krav i brev 9 (KOE-017), brev 6 (KOE-018) og brev 8 (KOE-021):"
           },
           {
             "fyll": "Fristforlengelse for sakene samlet",
@@ -115,7 +115,7 @@
         "start": "utkast",
         "handlinger": [
           {
-            "kryss": "Gi beløpet som tilbud om oppgjør, vederlagsjusteringen i KOE-017"
+            "kryss": "Tilbud om oppgjør, vederlagsjusteringen i KOE-017"
           },
           {
             "klikk": "Se endringsordren før sending",
@@ -274,6 +274,72 @@
             "staar": "Vederlagsjusteringen: byggherrens standpunkt på 280 000 kr. Avviker fra svaret totalentreprenøren godtok i brev 11."
           }
         ]
+      },
+      {
+        "id": "fra-svaret",
+        "dekker": [
+          "15"
+        ],
+        "start": "fra-svaret",
+        "handlinger": [
+          {
+            "staar": "Sendes sammen med svaret ditt på påberopelsen i KOE-017."
+          },
+          {
+            "staar": "1 sak"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "De to brevene godkjennes samlet. Avvises godkjenningen, sendes ingen av dem."
+          },
+          {
+            "kryss": "Listen over sakene er riktig"
+          },
+          {
+            "klikk": "Send til godkjenning",
+            "tilstand": "godkjenning"
+          },
+          {
+            "staar": "Den siste godkjenningen sender svaret og endringsordren samtidig"
+          },
+          {
+            "klikk": "Vis endringsordren når den er godkjent",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Svaret på påberopelsen i KOE-017 og endringsordren er sendt samtidig."
+          }
+        ]
+      },
+      {
+        "id": "krav-uten-post",
+        "dekker": [
+          "16"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Gi fristforlengelse for KOE-021",
+            "tilstand": "utkast"
+          },
+          {
+            "fyll": "Fristforlengelse for KOE-021",
+            "tekst": "7"
+          },
+          {
+            "staar": "Hvert krav har en post."
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Fristforlengelsen: byggherrens standpunkt på 7 dager mot kravet på 10 dager. Ikke registrert enighet."
+          }
+        ]
       }
     ]
   },
@@ -351,6 +417,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Én beskrivelse av endringen for hele endringsordren (D-9). Prototypen versjon 6."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 7 etter vurderingen av skjemaet: kravet først, kort avkrysning for tilbud, post for krav uten post, veien fra svaret på forholdet og færre rammer."
     }
   ]
 }
