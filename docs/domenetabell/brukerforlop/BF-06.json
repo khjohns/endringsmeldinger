@@ -20,7 +20,8 @@
           "4",
           "5",
           "6",
-          "7"
+          "7",
+          "8"
         ],
         "start": "utkast",
         "handlinger": [
@@ -45,6 +46,17 @@
             "staar": "Hvert spor med krav er dekket."
           },
           {
+            "klikk": "Samle vederlaget for KOE-017 og KOE-021",
+            "tilstand": "vederlag-samlet"
+          },
+          {
+            "staar": "KOE-018 er ikke med, fordi vederlaget der er avtalt."
+          },
+          {
+            "fyll": "Vederlag for sakene samlet",
+            "tekst": "760 000"
+          },
+          {
             "klikk": "Se endringsordren før sending",
             "tilstand": "kontroll"
           },
@@ -52,7 +64,13 @@
             "staar": "Disse sakene lukkes når endringsordren er sendt"
           },
           {
-            "staar": "Kravet er endret etter at saken ble lagt i utkastet"
+            "staar": "Fristkravet er endret etter at saken ble lagt i utkastet"
+          },
+          {
+            "staar": "TE kan bare godta eller bestride vederlaget for KOE-017 og KOE-021 samlet."
+          },
+          {
+            "staar": "TE kan bare godta eller bestride fristen for KOE-017, KOE-018 og KOE-021 samlet."
           },
           {
             "klikk": "Send til godkjenning",
@@ -83,7 +101,7 @@
       {
         "id": "uten-samling",
         "dekker": [
-          "8"
+          "9"
         ],
         "start": "utkast",
         "handlinger": [
@@ -95,11 +113,34 @@
             "staar": "Frist: Endringsordren sier ikke noe om fristen. TE krever 10 dager."
           },
           {
+            "staar": "Endringsordren går gjennom hele kjeden, fordi regningsarbeidet i KOE-021 ikke har et beløp."
+          },
+          {
             "klikk": "Tilbake til utkastet",
             "tilstand": "utkast"
           },
           {
             "staar": "Endringsordren sier ikke noe om fristen i KOE-021."
+          }
+        ]
+      },
+      {
+        "id": "del-opp-vederlaget",
+        "dekker": [
+          "10"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Samle vederlaget for KOE-017 og KOE-021",
+            "tilstand": "vederlag-samlet"
+          },
+          {
+            "klikk": "Del opp vederlaget per sak",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Overslaget er en opplysning."
           }
         ]
       }
@@ -154,6 +195,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Prototypen versjon 1 med BHs skjema for endringsordren, og bestillingen etter drøftingen med oppdragsgiver: regelen for lukkingen, utsagn som gjelder flere saker, og spørsmålene S-5–S-7."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Oppdragsgiver valgte A: vederlaget kan også samles. Prototypen versjon 2 med #vederlag-samlet."
     }
   ]
 }
