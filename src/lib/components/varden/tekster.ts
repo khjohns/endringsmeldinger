@@ -399,7 +399,15 @@ export const NYSAK = {
   beskrivelseHjelp: 'Hva som skjedde, når og hvordan, og hvorfor du mener det er en endring.',
   endringsordre: 'Endringsordrens nummer eller dato',
   vedlegg: 'Vedlegg (valgfritt)',
-  vedleggIkkeLaget: 'Vedlegg kan ikke legges ved ennå.',
+  vedleggHjelp:
+    'For eksempel pålegget selv, en tegning eller et referat. Hver fil kan være opptil 15 MB.',
+  velgFiler: 'Velg filer',
+  lasterOpp: (filnavn: string) => `Laster opp ${filnavn} …`,
+  fjernVedlegg: 'Fjern',
+  fjernVedleggNavn: (filnavn: string) => `Fjern ${filnavn}`,
+  forStorFil: (filnavn: string) => `${filnavn} er større enn 15 MB. Velg en mindre fil.`,
+  vedleggFeilet: (filnavn: string, melding: string) => `${filnavn} ble ikke lastet opp. ${melding}`,
+  ventPaaOpplastingen: 'Vent til vedleggene er lastet opp.',
   // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
   alleredeVarslet: (paalegg: boolean) =>
     `Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,

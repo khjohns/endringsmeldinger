@@ -12,15 +12,19 @@
 
 import startjournaler from '../../../docs/domenetabell/brukerforlop/startjournaler.json';
 import { ApiError } from '$lib/api/client';
-import type {
-  hentKjernesak,
-  Journallinje,
-  lastOppKjernevedlegg,
-  sendKommando,
+import {
+  nySakKropp,
+  type hentKjernesak,
+  type Journallinje,
+  type Kjernevedlegg,
+  type lastOppKjernevedlegg,
+  type NySakTilServeren,
+  type sendKommando,
 } from '$lib/api/kjerne';
+import { feilINySak } from '../../../server/nysak';
 import { opprettelse } from '$kjerne/kommandoer/opprettelse';
 import { vurder } from '$kjerne/kommandoer/skriving';
-import type { Journalrad, Part } from '$kjerne/typer';
+import type { Journalrad, Part, Vedlegg } from '$kjerne/typer';
 import { KJERNE } from '$kjerne/versjon';
 
 /** Startjournalen for et forløp, som `node kjerne/tester/brukerforloep.ts --skriv` lager den. */
@@ -44,6 +48,9 @@ export const FORLOEP = (startjournaler as unknown as { forlop: Startjournal[] })
 
 export const finnForloep = (id: string): Startjournal | null =>
   FORLOEP.find((f) => f.id === id) ?? null;
+
+/** Kommando-ID-en for opprettelsen i demoruta, som ikke sender noe og ikke prøver idempotens. */
+const DEMOKOMMANDO = '00000000-0000-4000-8000-000000000000';
 
 /** Prosjektet i demoruta. Det finnes ikke på serveren, og ingenting sendes dit. */
 export const DEMOPROSJEKT = 'demo';
@@ -71,6 +78,9 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     : Date.parse(forloep.journal[0].tidsstempel) - 60_000;
   const nyId = () =>
     `${forloep.idhode}-0000-4000-8000-${(++nummer).toString(16).padStart(12, '0')}`;
+
+  // Vedleggene til den nye saken, som mellomlageret på serveren. Kjernen slår dem opp.
+  const mellomlager = new Map<string, Vedlegg>();
 
   const linje = ({
     event_id,
@@ -120,7 +130,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
       },
       rader,
       KJERNE,
-      new Map()
+      mellomlager
     );
     if (!utfall.godtatt)
       // Samme form som regelavvisningen fra TS-serveren (`server/app.ts`).
@@ -140,17 +150,22 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
 
   /**
    * Saken og påberopelsen i én handling (KT-U11), som grensen `SendNySak` i Varden: saken
-   * skrives bare når kjernen godtar begge, så en avvisning etterlater ingen sak.
+   * skrives bare når kjernen godtar begge, så en avvisning etterlater ingen sak. Kroppen er
+   * den `sendNySak` sender, prøvd med serverens kontroll (#1526 punkt 3).
    */
-  const opprett = async (nySak: {
-    sakId: string;
-    opprettelse: Record<string, unknown>;
-    paaberopelse: Record<string, unknown>;
-    tekst: string[];
-  }) => {
+  const opprett = async (nySak: NySakTilServeren) => {
     if (rader.length || nySak.sakId !== sakId)
       throw new ApiError(409, 'Saken er alt opprettet.', { error: 'VERSJONSKONFLIKT' });
-    const opprettet = opprettelse(nySak.opprettelse, demosak.part);
+    const kropp = nySakKropp(nySak, DEMOKOMMANDO);
+    const feil = feilINySak(kropp);
+    if (feil)
+      // Samme form som `ugyldig` i `server/inngang.ts`.
+      throw new ApiError(400, feil, {
+        success: false,
+        error: 'UGYLDIG_FORESPOERSEL',
+        message: feil,
+      });
+    const opprettet = opprettelse({ type: 'opprett_sak', sakstittel: kropp.tittel }, demosak.part);
     if (!opprettet.godtatt)
       throw new ApiError(400, opprettet.avvisning.melding, {
         success: false,
@@ -174,14 +189,35 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     });
     try {
       // Tittelen står i påberopelsen, som serveren setter den (LV-U43, `server/app.ts`).
-      const { paaberopelse, opprettelse: o } = nySak;
-      const innhold = { ...(paaberopelse.innhold as object), tittel: o.sakstittel };
-      await send(sakId, 1, '', { ...paaberopelse, innhold, brevtekst: nySak.tekst }, DEMOPROSJEKT);
+      const { paaberopelse, tittel, brevtekst } = kropp;
+      const innhold = { ...paaberopelse.innhold, tittel };
+      await send(sakId, 1, '', { ...paaberopelse, innhold, brevtekst }, DEMOPROSJEKT);
     } catch (e) {
       rader.length = 0;
       throw e;
     }
     return { sakId };
+  };
+
+  /** Grensen for vedleggene til den nye saken, som `lastOppVedleggForNySak`. Ingenting sendes. */
+  const vedleggForNySak = {
+    async lastOpp(fil: File): Promise<Kjernevedlegg> {
+      const sum = await crypto.subtle.digest('SHA-256', await fil.arrayBuffer());
+      const vedlegg = {
+        vedlegg_id: crypto.randomUUID(),
+        filnavn: fil.name,
+        innhold_sha256: [...new Uint8Array(sum)]
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join(''),
+        stoerrelse: fil.size,
+      };
+      const { vedlegg_id, filnavn, innhold_sha256 } = vedlegg;
+      mellomlager.set(vedlegg_id, { vedlegg_id, filnavn, innhold_sha256 });
+      return vedlegg;
+    },
+    async slett(vedleggId: string) {
+      mellomlager.delete(vedleggId);
+    },
   };
 
   // Vedlegget ville blitt lastet opp til serveren, og demoruta sender ingenting.
@@ -198,6 +234,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     hent,
     send,
     opprett,
+    vedleggForNySak,
     lastOppVedlegg,
     /** Journalen slik kjernen har skrevet den, med demoaktørene. */
     journal: (): Journalrad[] => structuredClone(rader),
