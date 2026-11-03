@@ -9,6 +9,11 @@
  * - Det appen kan importere fra kjernen, når bare andre moduler i kjernen
  *   utenfor `kjerne/tester/`, direkte eller gjennom en annen modul. Ingen
  *   `node:`-modul og ingen pakke kommer med i nettleserbunten.
+ * - Fra serveren importerer appen utenom testene bare `server/nysak.ts`, kontrollen av
+ *   kroppen for ny sak, så demoruta prøver kroppen med serverens egen kontroll (#1526
+ *   punkt 3). Den modulen importerer ingenting, så serveren kommer ikke med i
+ *   nettleserbunten. Vakten ser ikke en import med et navn som settes sammen under
+ *   kjøringen, og ikke en global fra Node, som `process` eller `Buffer`, i modulen.
  *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
  * `export … from`, `import()` og `require()` teller likt, med og uten filendelse.
@@ -25,6 +30,9 @@ const ROT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SRC = join(ROT, 'src');
 const KJERNE = join(ROT, 'kjerne');
 const TESTER = join(KJERNE, 'tester');
+const SERVER = join(ROT, 'server');
+/** Den eneste servermodulen appen kan importere (#1526 punkt 3). */
+const NYSAK = join(SERVER, 'nysak.ts');
 const ALIAS = '$kjerne';
 
 function filer(mappe: string, endelser: RegExp): string[] {
@@ -81,6 +89,20 @@ export function testimporter(kilder: Map<string, string>): string[] {
     );
 }
 
+const iServeren = (sti: string) => sti === SERVER || sti.startsWith(SERVER + sep);
+const utenEndelse = (sti: string) => sti.replace(/\.(ts|js)$/, '');
+
+/** Importene fra `src/` utenom testene som går til serveren og ikke til `server/nysak.ts`. */
+export function serverimporter(kilder: Map<string, string>): string[] {
+  return [...kilder]
+    .filter(([fil]) => !erTest(fil))
+    .flatMap(([fil, kilde]) =>
+      importer(fil, kilde)
+        .filter((i) => iServeren(i) && utenEndelse(i) !== utenEndelse(NYSAK))
+        .map((i) => `${vis(fil)} → ${vis(i)}`)
+    );
+}
+
 /**
  * Det appen kan nå i kjernen, fra `start`: hver import som går til en pakke,
  * en `node:`-modul, `kjerne/tester/` eller ut av kjernen, med stien dit.
@@ -120,6 +142,14 @@ describe('grensen mellom appen og kjernen', () => {
     expect(testimporter(new Map(appfiler.map((f) => [f, readFileSync(f, 'utf8')])))).toEqual([]);
   });
 
+  it('ingen fil i src/ utenom testene importerer fra serveren utenom server/nysak.ts', () => {
+    expect(serverimporter(new Map(appfiler.map((f) => [f, readFileSync(f, 'utf8')])))).toEqual([]);
+  });
+
+  it('server/nysak.ts, som appen importerer, importerer ingenting', () => {
+    expect(importer(NYSAK, readFileSync(NYSAK, 'utf8'))).toEqual([]);
+  });
+
   it('det appen kan importere fra kjernen, når ingen pakke, node-modul eller test', () => {
     expect(kjernefiler.length).toBeGreaterThan(0);
     expect(utenforNettleseren(kjernefiler, lesFil)).toEqual([]);
@@ -143,6 +173,20 @@ describe('grensen mellom appen og kjernen', () => {
       'src/lib/b.ts → kjerne/tester',
       'src/lib/d.ts → kjerne/tester/klient',
       'src/lib/e.ts → kjerne/tester/klient',
+    ]);
+
+    const serverkilder = new Map([
+      [join(SRC, 'lib', 'h.ts'), `import { feilINySak } from '../../server/nysak';`],
+      [join(SRC, 'lib', 'i.ts'), `import { feilINySak } from '../../server/nysak.js';`],
+      [join(SRC, 'lib', 'j.ts'), `import { UUID } from '../../server/datalag.ts';`],
+      [join(SRC, 'lib', 'k.ts'), `import { lagre } from '$lib/../../server/lager';`],
+      [join(SRC, 'lib', 'l.js'), `const m = await import('/server/app.ts');`],
+      [join(SRC, 'lib', 'm.test.ts'), `import { lagre } from '../../server/lager';`],
+    ]);
+    expect(serverimporter(serverkilder)).toEqual([
+      'src/lib/j.ts → server/datalag.ts',
+      'src/lib/k.ts → server/lager',
+      'src/lib/l.js → server/app.ts',
     ]);
 
     const modul = join(KJERNE, 'modul.ts');
