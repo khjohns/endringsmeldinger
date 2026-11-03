@@ -94,7 +94,7 @@ FEILINNFOERINGER = [
      "(j.jobbtype = N'catenda_topic' AND c.topic_board_id = j.catenda_board_id)",
      "(j.jobbtype = N'catenda_topic')",
      "boardet er byttet"),
-    ("S20", "leveringen hentes før saken har topic (#371)", "database/migrasjoner/20261018120000_levering.sql",
+    ("S20", "leveringen hentes før saken har topic (LV-U9, #371)", "database/migrasjoner/20261018120000_levering.sql",
      "       AND (j.jobbtype <> N'levering' OR EXISTS (SELECT 1 FROM koe.sak_catenda_topic t WHERE t.sak_id = j.sak_id))\n",
      "",
      "hentes ikke før saken har topic"),

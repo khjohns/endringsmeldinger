@@ -345,6 +345,12 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       const varselet = JSON.parse(hendelser[2].data);
       expect(varselet.dokumentasjon).toEqual([v]);
       expect(hendelser[2].data).toContain(`"${iDag()}"`);
+      // Svaret har sakens versjon etter varselet, og påberopelsen i kvitteringen (#1507).
+      expect(svar.kropp).toMatchObject({
+        sak_id: k.ny_sak_id,
+        event_id: hendelser[1].event_id.toLowerCase(),
+        versjon: 3,
+      });
       // Påberopelsen og varselet har hver sin kvittering, under hver sin kommando-ID (#418).
       expect(kvitteringer).toHaveLength(2);
       expect(kvitteringer).toContainEqual({
