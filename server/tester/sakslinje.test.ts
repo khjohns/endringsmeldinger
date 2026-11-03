@@ -463,7 +463,9 @@ describe('linja i sakslisten (#1022)', () => {
   it('en registrering som en retting sier ikke hører til saken, og rettingen selv, er ikke sakens siste brev (OV-U17, OV-U18)', () => {
     const sak = new Sak();
     krav(sak);
-    sak.registrer(brevSomDokumentasjon('2026-10-01'), 'BH');
+    sak.registrer(brevSomDokumentasjon('2026-09-15'), 'BH');
+    const forste = sak.journal.at(-1)!;
+    sak.registrer({ ...brevSomDokumentasjon('2026-10-01'), retter: forste.event_id }, 'BH');
     const registrert = sak.journal.at(-1)!;
     expect(sak.linje().siste_brev, 'kontrollsak: registreringen er siste brev').toEqual({
       avsender: 'BH',
@@ -472,6 +474,20 @@ describe('linja i sakslisten (#1022)', () => {
     sak.registrer({ retter: registrert.event_id, ikke_i_saken: true }, 'BH');
     expect(sak.linje().forstaatt, 'forutsetning').toBe(true);
     expect(sak.linje().siste_brev).toEqual({ avsender: 'TE', dato: '2026-10-01' });
+  });
+
+  it('en retting av en registrering er brevet med datoen rettingen oppgir, og registreringen den retter, er ikke med (OV-U17)', () => {
+    const sak = new Sak();
+    krav(sak);
+    sak.registrer(brevSomDokumentasjon('2026-09-15'), 'BH');
+    const registrert = sak.journal.at(-1)!;
+    expect(sak.linje().siste_brev, 'kontrollsak: kravet er sakens siste brev').toEqual({
+      avsender: 'TE',
+      dato: '2026-10-01',
+    });
+    sak.registrer({ ...brevSomDokumentasjon('2026-10-15'), retter: registrert.event_id }, 'BH');
+    expect(sak.linje().forstaatt, 'forutsetning').toBe(true);
+    expect(sak.linje().siste_brev).toEqual({ avsender: 'BH', dato: '2026-10-15' });
   });
 
   it('en sak kjernen ikke forstår, har ikke noe siste brev, fordi det ukjente kan være et brev (MM-U2)', () => {

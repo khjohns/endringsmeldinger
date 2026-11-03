@@ -273,17 +273,15 @@ function brevetsDato(d: Dokument): string {
 
 /**
  * Brevet i saken med den seneste datoen, og ved samme dag det siste i journalen. En retting
- * av en registrering er ikke et nytt brev, og en registrering som en retting sier ikke hører
- * til saken, er heller ikke med (OV-U17, OV-U18).
+ * registrerer brevet på nytt, så det er den siste registreringen i kjeden som gjelder, ikke den
+ * den retter (OV-U17). En retting som sier at brevet ikke hører til saken, har ingen
+ * registrering etter seg, så da er brevet ikke med (OV-U18). En sak med en ugyldig retting er
+ * ikke forstått og kommer ikke hit.
  */
 function sisteBrev(u: Utledning): Sakslinje['siste_brev'] {
   const dokumenter = u.journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : []));
-  const retter = new Map(dokumenter.map((d) => [d.id, d.retter]));
-  const ikkeISaken = new Set<string>();
-  // En retting retter den siste registreringen i kjeden, så kjeden følges tilbake (#1045).
-  for (const d of dokumenter.filter((x) => x.ikkeISaken))
-    for (let id = d.retter; id; id = retter.get(id) ?? null) ikkeISaken.add(id);
-  const brev = dokumenter.filter((d) => d.retter === null && !ikkeISaken.has(d.id));
+  const rettet = new Set(dokumenter.map((d) => d.retter).filter((id) => id !== null));
+  const brev = dokumenter.filter((d) => !rettet.has(d.id) && !d.ikkeISaken);
   let siste: Sakslinje['siste_brev'] = null;
   for (const d of brev) {
     const dato = brevetsDato(d);
