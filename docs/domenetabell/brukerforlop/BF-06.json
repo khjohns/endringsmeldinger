@@ -108,24 +108,24 @@
         ]
       },
       {
-        "id": "tilbud",
+        "id": "kravet-forst",
         "dekker": [
           "3"
         ],
         "start": "utkast",
         "handlinger": [
           {
-            "kryss": "Tilbud om oppgjør, vederlagsjusteringen i KOE-017"
+            "staar": "Krav i brev 6:"
           },
           {
             "klikk": "Se endringsordren før sending",
             "tilstand": "kontroll"
           },
           {
-            "staar": "Vederlagsjusteringen: tilbud på 650 000 kr mot kravet på 800 000 kr. Ikke registrert enighet."
+            "staar": "Vederlagsjusteringen: 650 000 kr mot kravet på 800 000 kr. Ikke registrert enighet."
           },
           {
-            "staar": "V1 Tilbud"
+            "staar": "Fast sum (pkt. 34.2.1)"
           }
         ]
       },
@@ -194,11 +194,7 @@
             "tilstand": "utkast"
           },
           {
-            "staar": "Totalentreprenøren har ikke sendt krav om fristforlengelse i KOE-022."
-          },
-          {
-            "fyll": "Tilbud for KOE-022",
-            "tekst": "90 000"
+            "staar": "Totalentreprenøren har ikke sendt krav om vederlagsjustering i KOE-022."
           },
           {
             "staar": "4 saker"
@@ -208,10 +204,10 @@
             "tilstand": "kontroll"
           },
           {
-            "staar": "Vederlagsjusteringen: tilbud på 90 000 kr. Totalentreprenøren har ikke sendt krav."
+            "staar": "Vederlagsjusteringen: totalentreprenøren har ikke sendt krav."
           },
           {
-            "staar": "Endringsordren går gjennom hele kjeden, fordi regningsarbeidet i KOE-021 ikke har et beløp og totalentreprenøren ikke har sendt krav om fristforlengelse i KOE-022."
+            "staar": "Endringsordren går gjennom hele kjeden, fordi regningsarbeidet i KOE-021 ikke har et beløp og totalentreprenøren ikke har sendt krav i KOE-022."
           },
           {
             "klikk": "Tilbake til utkastet",
@@ -234,15 +230,15 @@
         "start": "utkast",
         "handlinger": [
           {
-            "klikk": "Fjern KOE-017 fra endringsordren",
-            "tilstand": "utkast"
-          },
-          {
-            "staar": "Endre den samlede posten for rigg og drift før du fjerner KOE-017."
+            "klikk": "Samle fristforlengelsen for KOE-017, KOE-018 og KOE-021",
+            "tilstand": "samlet"
           },
           {
             "klikk": "Fjern KOE-018 fra endringsordren",
             "tilstand": "utkast"
+          },
+          {
+            "staar": "KOE-018 er fjernet. Kontroller fristforlengelsen, som gjaldt sakene samlet."
           },
           {
             "staar": "2 saker"
@@ -271,7 +267,7 @@
             "tilstand": "kontroll"
           },
           {
-            "staar": "Vederlagsjusteringen: byggherrens standpunkt på 280 000 kr. Avviker fra svaret totalentreprenøren godtok i brev 11."
+            "staar": "Vederlagsjusteringen: 280 000 kr. Avviker fra svaret totalentreprenøren godtok i brev 11."
           }
         ]
       },
@@ -284,6 +280,12 @@
         "handlinger": [
           {
             "staar": "Sendes sammen med svaret ditt på påberopelsen i KOE-017."
+          },
+          {
+            "staar": "Saken du svarer på"
+          },
+          {
+            "staar": "Tilbake til svaret"
           },
           {
             "staar": "1 sak"
@@ -337,7 +339,42 @@
             "tilstand": "kontroll"
           },
           {
-            "staar": "Fristforlengelsen: byggherrens standpunkt på 7 dager mot kravet på 10 dager. Ikke registrert enighet."
+            "staar": "Fristforlengelsen: 7 dager mot kravet på 10 dager. Ikke registrert enighet."
+          }
+        ]
+      },
+      {
+        "id": "uten-koe-sak",
+        "dekker": [
+          "17"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Fjern KOE-017 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "klikk": "Fjern KOE-018 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "klikk": "Fjern KOE-021 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Endringsordren omfatter ingen KOE-sak."
+          },
+          {
+            "fyll": "Vederlagsjustering, eks. mva.",
+            "tekst": "250 000"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Ingen saker lukkes. Vederlagsjusteringen og fristforlengelsen står alene."
           }
         ]
       }
@@ -422,6 +459,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Prototypen versjon 7 etter vurderingen av skjemaet: kravet først, kort avkrysning for tilbud, post for krav uten post, veien fra svaret på forholdet og færre rammer."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "S-8: vederlag og frist i endringsordren er byggherrens tilbud, og BH svarer bare på krav som er sendt. Prototypen versjon 8 uten avkrysning for tilbud, med endringsordre uten KOE-sak og fjerning av sak i samlet post."
     }
   ]
 }
