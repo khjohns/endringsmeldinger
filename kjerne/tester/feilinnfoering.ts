@@ -1996,14 +1996,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F253',
     feilklasse: 'brevet sier ikke datoen pålegget ble mottatt (VS-U26, #664)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["if (typeof k.innhold.paalegg_mottatt === 'string')", 'if (false)']],
+    endringer: [["...dato('paalegg_mottatt'),", '']],
     mal: ['en endring der § 32.2 gjelder, med varselet', 'en ny kravversjon kan rette datoen'],
   },
   {
     id: 'F254',
     feilklasse: 'brevet sier ikke datoen TE ble klar over forholdet (VS-U26, #664)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["if (typeof k.innhold.klar_over_forholdet === 'string')", 'if (false)']],
+    endringer: [["...dato('klar_over_forholdet'),", '']],
     mal: ['svikt viser til § 33.1 b og § 34.1.2', 'annet forhold etter § 33.1 c'],
   },
   {
@@ -2889,7 +2889,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en sakstittel som ikke står i teksten, stopper brevet (#801, #1138)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
-      ["sak?.art === 'sak' && teksten.includes(`(«${sak.tittel}»)`)", "sak?.art === 'sak'"],
+      ["sak?.art === 'sak' && teksten.includes(`«${sak.tittel}»`)", "sak?.art === 'sak'"],
     ],
     mal: [
       'en sakstittel med et slikt tegn stopper ikke et brev der sakstittelen ikke står i teksten',

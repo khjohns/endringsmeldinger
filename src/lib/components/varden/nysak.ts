@@ -188,8 +188,6 @@ export function kommandoene(u: Utfylling, kjerne: Kjerne) {
 export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev | Programfeil {
   try {
     const { opprettelse, paaberopelse } = kommandoene(u, kjerne);
-    // Serveren lager teksten med sakstittelen i påberopelsen (LV-U43, `server/app.ts`).
-    const innhold = { ...paaberopelse.innhold, tittel: opprettelse.sakstittel };
     // Oppslaget har bare feltene brevet binder (`Vedlegg` i kjernen), ikke størrelsen.
     const vedlegg = new Map(
       u.vedlegg.map(({ vedlegg_id, filnavn, innhold_sha256 }) => [
@@ -197,7 +195,7 @@ export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev | Prog
         { vedlegg_id, filnavn, innhold_sha256 },
       ])
     );
-    return kravMotNySak(opprettelse, { ...paaberopelse, innhold }, 'TE', kjerne, vedlegg, sakId);
+    return kravMotNySak(opprettelse, paaberopelse, 'TE', kjerne, vedlegg, sakId);
   } catch (e) {
     console.error(e);
     return { programfeil: PROGRAMFEIL };

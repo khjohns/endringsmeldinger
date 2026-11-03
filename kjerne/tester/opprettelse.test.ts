@@ -81,7 +81,6 @@ describe('opprettelsen av en KOE-sak (#664)', () => {
     };
     expect(lesJournal([rad], KJERNE.leserformat)[0]).toMatchObject({
       art: 'sak',
-      tittel: 'Ny peling',
     });
     const krav = vurder(
       {

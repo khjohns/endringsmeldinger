@@ -342,7 +342,6 @@ export const PAABEROPELSE = {
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
-    tittel: 'Endret fundamentering',
     paalegg_mottatt: '2026-10-01',
   },
   utdypning: 'Byggherren har pålagt en annen fundamentering.',

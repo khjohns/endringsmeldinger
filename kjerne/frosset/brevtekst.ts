@@ -14,7 +14,8 @@
  * utdypningen (KA-U16, KA-U19).
  */
 
-import { DATOEN_GJELDER, HJEMMEL } from '../format/format.ts';
+import { HJEMMEL, type OppgittDato } from '../format/format.ts';
+import { forholdet, paaberopelsenAv } from './forholdene.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
@@ -113,35 +114,6 @@ const erDato = (o: Opplysning): o is Extract<Opplysning, { hva: 'sendt' | 'motta
   o.hva === 'sendt' || o.hva === 'mottatt';
 
 const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;
-
-/** Underkategoriene med betegnelsen i kontrakten og hjemmelen (LV-U4 punkt 1). */
-const UNDERKATEGORI: Record<string, { navn: string; hjemmel: string }> = {
-  irregulaer_endring: { navn: 'irregulær endring i form av pålegg', hjemmel: '32.1' },
-  valg_av_loesning: { navn: 'begrensning av valgrett', hjemmel: '14.6' },
-  svar_paa_varsel: { navn: 'endring ved svar på varsel', hjemmel: '24.2.2' },
-  lovendring_gjenstand: {
-    navn: 'endring i lover og vedtak som gjelder kontraktsgjenstanden',
-    hjemmel: '14.4',
-  },
-  lovendring_prosess: { navn: 'endring i lover og vedtak som gjelder utførelsen', hjemmel: '15.2' },
-  gebyrer_og_avgifter: { navn: 'endring i gebyrer og avgifter', hjemmel: '26.3' },
-  samordning: { navn: 'samordning', hjemmel: '21.4' },
-  medvirkning: {
-    navn: 'manglende medvirkning eller leveranser fra byggherren',
-    hjemmel: '22',
-  },
-  grunnforhold: { navn: 'uforutsette grunnforhold', hjemmel: '23.1' },
-  kulturminner: { navn: 'funn av kulturminner', hjemmel: '23.3' },
-  prosjektering: { navn: 'svikt i byggherrens prosjektering', hjemmel: '24.1' },
-  nektet_kontraktsmedhjelper: { navn: 'nektelse av kontraktsmedhjelper', hjemmel: '10.2' },
-  skade_fra_byggherren: {
-    navn: 'skade forårsaket av byggherren eller en sideentreprenør',
-    hjemmel: '19.1',
-  },
-  brukstakelse: { navn: 'urettmessig brukstakelse', hjemmel: '38.1 annet ledd' },
-  stans_ved_betalingsmislighold: { navn: 'stans ved betalingsmislighold', hjemmel: '29.2' },
-  annet_forhold: { navn: 'annet forhold', hjemmel: '33.1 c' },
-};
 
 /** Bokstaven i § 33.1 for hovedkategoriene svikt og andre forhold. */
 const LEDD_I_33_1: Record<string, string> = { svikt: 'b', andre_forhold: 'c' };
@@ -301,50 +273,79 @@ interface Tekst {
   sak: string;
 }
 
-/** LV-U4 punkt 1–3, GR-U16 og VS-U26. */
-function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
+/**
+ * Datoen totalentreprenøren oppgir, med partene skrevet fullt ut i brevet (VS-U26, LV-U35).
+ * Meldingene og skjemaet har ordene i `DATOEN_GJELDER`.
+ */
+const DATOEN_I_BREVET: Record<OppgittDato, string> = {
+  paalegg_mottatt: 'pålegget ble mottatt',
+  klar_over_forholdet: 'totalentreprenøren ble klar over forholdet',
+};
+
+/**
+ * Påberopelsen av forholdet: LV-U41 og LV-U43, med partene skrevet fullt ut (LV-U35) og
+ * henvisningen med «punkt» (LV-U39). Sakstittelen er navnet på forholdet og står én gang.
+ */
+function forholdstekst(k: Krav, { saken }: Tekst, regler: Regelsett): string[] {
+  const navnet = `«${saken.tittel}» i sak ${saken.saksnummer}`;
+  const hoved = k.innhold.hovedkategori as string;
+  const f = forholdet(k.innhold.underkategori);
+  const dato = (felt: OppgittDato) =>
+    typeof k.innhold[felt] === 'string'
+      ? [
+          `Totalentreprenøren opplyser at ${DATOEN_I_BREVET[felt]} ${norskDato(k.innhold[felt] as string)}.`,
+        ]
+      : [];
+  if (hoved === 'endring' && f?.kode === 'endringsordre')
+    return [
+      `Totalentreprenøren gjør gjeldende krav som følge av en endringsordre fra byggherren for ${navnet} (NS 8407 punkt 31.3).`,
+      `Totalentreprenøren viser til endringsordren «${k.innhold.endringsordre as string}».`,
+    ];
+  if (hoved === 'endring' && f)
+    return [
+      `Totalentreprenøren krever endringsordre for ${navnet} som ${f.navn.toLowerCase()} (NS 8407 punkt ${f.hjemmel}).`,
+      ...(gjelderVarslingsplikten(k, regler)
+        ? [
+            'Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring.',
+          ]
+        : []),
+      // VS-U26: etter setningen om punkt 32.2. Appen vurderer ikke rettidigheten.
+      ...dato('paalegg_mottatt'),
+    ];
+  const ledd = LEDD_I_33_1[hoved];
+  if (ledd && f) {
+    const hjemmel =
+      f.hjemmel === `33.1 ${ledd}`
+        ? `punkt 33.1 ${ledd} og 34.1.2`
+        : `punkt ${f.hjemmel}, jf. punkt 33.1 ${ledd} og 34.1.2`;
+    return [
+      `Totalentreprenøren påberoper ${f.navn.toLowerCase()} (NS 8407 ${hjemmel}) for ${navnet}.`,
+      // VS-U26: etter kategorisetningen.
+      ...dato('klar_over_forholdet'),
+    ];
+  }
+  // Force majeure kan ikke uttrykkes i formatet ennå (#367).
+  throw new KanIkkeUttrykkes(
+    `kategorien ${hoved}/${String(k.innhold.underkategori)} har ingen brevtekst`
+  );
+}
+
+/**
+ * Tittelen på brevet, frosset med teksten (MM-U3): «Påberopelse av <forholdet>» når brevet
+ * påberoper et forhold (GR-U31), ellers `null`, og visningen setter tittelen av innholdet.
+ */
+export function lagBrevtittel(nytt: Dokument): string | null {
+  if (nytt.svar.length) return null;
+  const f = forholdet(nytt.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori);
+  return f ? paaberopelsenAv(f.navn) : null;
+}
+
+/** LV-U4 punkt 2–3 og GR-U16. Forholdet står i `forholdstekst`. */
+function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
+  const { j } = t;
   const deler: string[] = [];
   if (k.spor === 'forhold') {
-    const forholdet = `forholdet${typeof k.innhold.tittel === 'string' ? ` «${k.innhold.tittel}»` : ''} i ${sak}`;
-    const hoved = k.innhold.hovedkategori as string;
-    const under = k.innhold.underkategori as string;
-    const u = UNDERKATEGORI[under];
-    if (hoved === 'endring' && under === 'endringsordre') {
-      deler.push(
-        `TE gjør gjeldende krav som følge av en endringsordre fra byggherren for ${forholdet} (NS 8407 § 31.3).`,
-        `TE viser til endringsordren «${k.innhold.endringsordre as string}».`
-      );
-    } else if (hoved === 'endring' && u) {
-      deler.push(
-        `TE krever endringsordre for ${forholdet}. Grunnlaget er ${u.navn} (NS 8407 § ${u.hjemmel}).`
-      );
-      if (gjelderVarslingsplikten(k, regler))
-        deler.push(
-          'TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring.'
-        );
-      // VS-U26: TEs opplysning, etter setningen om § 32.2. Appen vurderer ikke rettidigheten.
-      if (typeof k.innhold.paalegg_mottatt === 'string')
-        deler.push(
-          `TE opplyser at ${DATOEN_GJELDER.paalegg_mottatt} ${norskDato(k.innhold.paalegg_mottatt)}.`
-        );
-    } else if (LEDD_I_33_1[hoved] && u) {
-      const ledd = LEDD_I_33_1[hoved];
-      const hjemmel =
-        u.hjemmel === `33.1 ${ledd}`
-          ? `§ 33.1 ${ledd} og § 34.1.2`
-          : `§ ${u.hjemmel}, jf. § 33.1 ${ledd} og § 34.1.2`;
-      deler.push(
-        `TE gjør gjeldende krav som følge av ${u.navn} (NS 8407 ${hjemmel}) for ${forholdet}.`
-      );
-      // VS-U26: etter kategorisetningen.
-      if (typeof k.innhold.klar_over_forholdet === 'string')
-        deler.push(
-          `TE opplyser at ${DATOEN_GJELDER.klar_over_forholdet} ${norskDato(k.innhold.klar_over_forholdet)}.`
-        );
-    } else {
-      // Force majeure kan ikke uttrykkes i formatet ennå (#367).
-      throw new KanIkkeUttrykkes(`kategorien ${hoved}/${under} har ingen brevtekst`);
-    }
+    deler.push(...forholdstekst(k, t, regler));
   } else if (k.spor === 'vederlag') {
     const krever: string[] = [];
     if (harHovedbeloep(k))
@@ -369,8 +370,12 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
         `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(f.foresporsel))}.`
       );
   }
+  // LV-U35 for påberopelsen, så brevet ikke blander partsbetegnelsene. Ordlyden i LV-U41 for
+  // en ny versjon bygges i #1433.
   if (k.erstatter)
-    deler.push(`Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`);
+    deler.push(
+      `Kravet erstatter ${k.spor === 'forhold' ? 'totalentreprenørens' : 'TEs'} krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`
+    );
   return deler.join(' ');
 }
 

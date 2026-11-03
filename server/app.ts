@@ -498,7 +498,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
  * Oppretter saken og den første påberopelsen i én handling (KT-U11, #1487). Saks-ID-en er
  * klientens, fordi brevteksten har saksnummeret (LV-U4). Feltet heter `ny_sak_id`, ikke
  * `sak_id`, som tilgangskontrollen leser som en sak kroppen viser til og krever i prosjektet. Tittelen er én verdi, skrevet som
- * `sakstittel` i `sak_opprettet` og som `tittel` i påberopelsen (LV-U43). Kjernen prøver
+ * `sakstittel` i `sak_opprettet`, og brevteksten bruker den som navnet på forholdet (LV-U43). Kjernen prøver
  * påberopelsen mot `sak_opprettet` i minnet, med basens klokke, før noe skrives.
  *
  * Vedleggene i `paaberopelse.dokumentasjon` er lastet opp før saken fantes (#1037). Har TE
@@ -532,7 +532,8 @@ async function opprettMedPaaberopelse(
   const vedleggider = vedleggIder(paaberopelse);
   const krav = {
     ...paaberopelse,
-    innhold: { ...paaberopelse.innhold, tittel },
+    // LV-U43: tittelen er sakstittelen og navnet på forholdet; kravet har ingen egen.
+    innhold: paaberopelse.innhold,
     ...(brevtekst === undefined ? {} : { brevtekst }),
   };
   const kommando = {

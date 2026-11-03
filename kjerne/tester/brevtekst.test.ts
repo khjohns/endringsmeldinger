@@ -29,6 +29,8 @@ import {
 import { kroner, lagFraForholdet, postlisten, regnUtSvar } from '../frosset/standpunkt.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
+import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';
+import { oppgittDato } from '../format/format.ts';
 import { kalenderdag, lesJournal } from '../format/leser.ts';
 import {
   forhaandsvis,
@@ -70,6 +72,8 @@ type Data = Record<string, unknown>;
 const SAK = 'SAK-20261002-001';
 const TITTEL = 'Endret fundamentering';
 const I_SAKEN = `i sak ${SAK} («${TITTEL}»)`;
+/** Navnet på forholdet i påberopelsen, som er sakstittelen (LV-U43). */
+const NAVNET = `«${TITTEL}» i sak ${SAK}`;
 const KR = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr eks. mva.`;
 
 /**
@@ -202,8 +206,9 @@ const BESKRIVELSE = 'Byggherren har pålagt en annen fundamentering.';
 /** VS-U26: datoen varslingsplikten løper fra, som TE oppgir i påberopelsen. */
 const MOTTATT = { paalegg_mottatt: '2026-09-25' };
 const KLAR_OVER = { klar_over_forholdet: '2026-09-25' };
-const MOTTATT_TEKST = 'TE opplyser at pålegget ble mottatt 25. september 2026.';
-const KLAR_OVER_TEKST = 'TE opplyser at TE ble klar over forholdet 25. september 2026.';
+const MOTTATT_TEKST = 'Totalentreprenøren opplyser at pålegget ble mottatt 25. september 2026.';
+const KLAR_OVER_TEKST =
+  'Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 25. september 2026.';
 
 const PAABEROPELSE = {
   type: 'krav',
@@ -211,7 +216,6 @@ const PAABEROPELSE = {
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
-    tittel: 'Ny peling',
     ...MOTTATT,
   },
   utdypning: BESKRIVELSE,
@@ -335,12 +339,14 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     });
   };
 
+  // LV-U43: sakstittelen er navnet på forholdet og står én gang. LV-U35 og LV-U39 for hele
+  // påberopelsen, og VS-U26 for datoen etter setningen om punkt 32.2.
   it('en endring der § 32.2 gjelder, med varselet', () => {
     const rad = forhold(PAABEROPELSE.innhold, BESKRIVELSE);
     expect(tekst(rad)).toEqual([
       {
         gjelder: (rad.data.krav as Data[])[0].id,
-        laast: `TE krever endringsordre for forholdet «Ny peling» ${I_SAKEN}. Grunnlaget er irregulær endring i form av pålegg (NS 8407 § 32.1). TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring. ${MOTTATT_TEKST}`,
+        laast: `Totalentreprenøren krever endringsordre for ${NAVNET} som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. ${MOTTATT_TEKST}`,
         // A8: TEs beskrivelse er kravets utdypning og står bare der, ikke i kravet.
         utdypning: BESKRIVELSE,
       },
@@ -348,14 +354,21 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     expect((rad.data.krav as Data[])[0]).not.toHaveProperty('beskrivelse');
   });
 
-  it('uten tittel', () => {
+  it('sakstittelen står én gang, uten parentes (LV-U43)', () => {
+    const t = laast(forhold(PAABEROPELSE.innhold, BESKRIVELSE))[0];
+    expect(t.split(`«${TITTEL}»`)).toHaveLength(2);
+    expect(t).not.toContain(I_SAKEN);
+  });
+
+  // #1501: punkt 15.2 gjelder «de avtalte krav til prosessen», med navnet fra velgeren.
+  it('endringer i lover og vedtak etter punkt 15.2 gjelder prosessen (#1501)', () => {
     const rad = forhold(
-      { hovedkategori: 'endring', underkategori: 'samordning', ...MOTTATT },
+      { hovedkategori: 'endring', underkategori: 'lovendring_prosess', ...MOTTATT },
       BESKRIVELSE
     );
     expect(laast(rad)[0]).toMatch(
       new RegExp(
-        `^TE krever endringsordre for forholdet ${esc(I_SAKEN)}\\. Grunnlaget er samordning \\(NS 8407 § 21\\.4\\)\\.`
+        `^Totalentreprenøren krever endringsordre for ${esc(NAVNET)} som endringer i lover og vedtak for prosessen \\(NS 8407 punkt 15\\.2\\)\\.`
       )
     );
   });
@@ -364,11 +377,10 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     const rad = forhold({
       hovedkategori: 'endring',
       underkategori: 'endringsordre',
-      tittel: 'Ny peling',
       endringsordre: 'EO 12 av 1. oktober 2026',
     });
     expect(laast(rad)).toEqual([
-      `TE gjør gjeldende krav som følge av en endringsordre fra byggherren for forholdet «Ny peling» ${I_SAKEN} (NS 8407 § 31.3). TE viser til endringsordren «EO 12 av 1. oktober 2026».`,
+      `Totalentreprenøren gjør gjeldende krav som følge av en endringsordre fra byggherren for ${NAVNET} (NS 8407 punkt 31.3). Totalentreprenøren viser til endringsordren «EO 12 av 1. oktober 2026».`,
     ]);
   });
 
@@ -399,11 +411,10 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     const rad = forhold({
       hovedkategori: 'svikt',
       underkategori: 'grunnforhold',
-      tittel: 'Leire',
       ...KLAR_OVER,
     });
     expect(laast(rad)).toEqual([
-      `TE gjør gjeldende krav som følge av uforutsette grunnforhold (NS 8407 § 23.1, jf. § 33.1 b og § 34.1.2) for forholdet «Leire» ${I_SAKEN}. ${KLAR_OVER_TEKST}`,
+      `Totalentreprenøren påberoper uforutsette forhold ved grunnen (NS 8407 punkt 23.1, jf. punkt 33.1 b og 34.1.2) for ${NAVNET}. ${KLAR_OVER_TEKST}`,
     ]);
   });
 
@@ -414,7 +425,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
       ...KLAR_OVER,
     });
     expect(laast(rad)).toEqual([
-      `TE gjør gjeldende krav som følge av annet forhold (NS 8407 § 33.1 c og § 34.1.2) for forholdet ${I_SAKEN}. ${KLAR_OVER_TEKST}`,
+      `Totalentreprenøren påberoper annet forhold byggherren har risikoen for (NS 8407 punkt 33.1 c og 34.1.2) for ${NAVNET}. ${KLAR_OVER_TEKST}`,
     ]);
   });
 
@@ -549,7 +560,9 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
       ...PAABEROPELSE,
       innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
     });
-    expect(laast(rad)[0]).toContain('TE opplyser at pålegget ble mottatt 20. september 2026.');
+    expect(laast(rad)[0]).toContain(
+      'Totalentreprenøren opplyser at pålegget ble mottatt 20. september 2026.'
+    );
     expect(laast(rad)[0]).not.toContain('25. september 2026');
   });
 
@@ -742,7 +755,6 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       innhold: {
         hovedkategori: 'svikt',
         underkategori: 'medvirkning',
-        tittel: 'Sene tegninger',
         ...KLAR_OVER,
       },
     });
@@ -3237,6 +3249,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       svar: [],
       utsagn: [{ id: 'p', art: 'protest', gjelder }],
       brevtekst: null,
+      brevtittel: null,
       beskrivelse: null,
       spor: [],
       retter: null,
@@ -3322,6 +3335,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       svar: [],
       utsagn: [{ id: 'v', art: 'varsel', hjemmel: '33.4', dokument: 'brevet' }],
       brevtekst: null,
+      brevtittel: null,
       beskrivelse: null,
       spor: [],
       retter: null,
@@ -3404,7 +3418,6 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
             innhold: {
               hovedkategori,
               underkategori: 'medvirkning',
-              tittel: 'Sene tegninger',
               ...KLAR_OVER,
             },
           }
@@ -3601,7 +3614,6 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
       innhold: {
         hovedkategori: 'svikt',
         underkategori: 'medvirkning',
-        tittel: 'Sene tegninger',
         ...KLAR_OVER,
       },
     });
@@ -3670,6 +3682,7 @@ describe('vedleggene står i teksten (A4)', () => {
     svar: [],
     utsagn: [{ id: 'u', art: 'ingen_krav', spor: 'frist' }],
     brevtekst: null,
+    brevtittel: null,
     beskrivelse: null,
     spor: [],
     retter: null,
@@ -3893,7 +3906,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
   const nyPaaberopelsesversjon = (s: Sak) =>
     s.send('TE', {
       ...PAABEROPELSE,
-      innhold: { ...PAABEROPELSE.innhold, tittel: 'Ny peling 2' },
+      innhold: { ...PAABEROPELSE.innhold },
     });
 
   /** Delvis godkjent, så svaret ikke gir enighet ved sammenfall (GR-U10). */
@@ -3919,7 +3932,6 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
       innhold: {
         hovedkategori: 'svikt',
         underkategori: 'grunnforhold',
-        tittel: 'Kvikkleire',
         ...KLAR_OVER,
       },
     });
@@ -4130,7 +4142,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
 describe('en ny påberopelsesversjon beholder hjemmelen (GR-U22)', () => {
   const versjon = (innhold: Data) => ({
     ...PAABEROPELSE,
-    innhold: { tittel: 'Ny peling', ...innhold },
+    innhold,
   });
   const endringsordre = {
     hovedkategori: 'endring',
@@ -4284,7 +4296,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
   describe('en ny påberopelsesversjon etter frafallet (GR-U20, GR-U22)', () => {
     it('med samme hjemmel kan byggherren svare med frafall, endringsordre, avslag eller påberopelse etter § 32.2 (MM-U34 punkt 6 og 7, GR-U20)', () => {
       const s = medFrafall();
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       expect(s.u().spor.forhold.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
       expect(s.avvist('BH', nyttSvar(s, frafall))).toBeNull();
       expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBeNull();
@@ -4297,7 +4309,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       registrertSvar(s, 'paalegg_frafalt', true);
       expect(s.u().frafalt, 'det registrerte frafallet er dokumentasjon').toBe(false);
       expect(s.u().spor.forhold.gjeldendeSvar).toBeNull();
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
     });
   });
@@ -4330,7 +4342,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
 
     it('versjon 2 venter på svar, forholdet er avklart ved frafallet, og enigheten i vederlaget forblir virksom', () => {
       const s = medEnighetIVederlaget(medFrafall());
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       const u = s.u();
       expect(u.spor.forhold.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
       expect(u.spor.forhold.gjeldendeSvar, 'forutsetning: versjon 2 er ikke besvart').toBeNull();
@@ -4344,7 +4356,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
 
     it('byggherrens svar på versjon 2 avløser frafallet som gjeldende svar', () => {
       const s = medEnighetIVederlaget(medFrafall());
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       s.send('BH', nyttSvar(s, endringsordre));
       const u = s.u();
       expect(u.frafalt).toBe(false);
@@ -4361,7 +4373,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
         svar: [svar('vederlag', s.krav('vederlag'), vederlagFullt[0], vederlagFullt[1])],
       });
       expect(enighetensVirkning(s.u(), 'vederlag')).toBe('betinget');
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       const u = s.u();
       expect(u.forholdAvklart).toBe(false);
       expect(u.frafalt).toBe(false);
@@ -4371,21 +4383,21 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
     it('etter frafall, revisjon til avslag og en ny påberopelsesversjon er forholdet ikke avklart ved frafallet, fordi det siste svaret er avslaget (MM-U34 punkt 7, GR-U23)', () => {
       const s = medFrafall();
       s.send('BH', revisjon(s, avslag));
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       const u = s.u();
       expect(u.spor.forhold.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
       expect(u.forholdAvklart).toBe(false);
       expect(u.frafalt).toBe(false);
       // Kontrollsak: uten revisjonen er forholdet avklart ved frafallet (GR-U23).
       const k = medFrafall();
-      versjon(k, { tittel: 'Ny peling 2' });
+      versjon(k, {});
       expect(k.u().forholdAvklart, 'kontrollsak').toBe(true);
       expect(k.u().frafalt, 'kontrollsak').toBe(true);
     });
 
     it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og svaret på versjon 2 og trekket av forholdet godtas (MM-U34 punkt 12, OV-U3, KA-U11)', () => {
       const s = medEnighetIVederlaget(medFrafall());
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       s.send('BH', {
         type: 'brev',
         svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
@@ -4407,7 +4419,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
   describe('et avslag etter frafallet som ikke kommer gjennom kommandoene (MM-U19, MM-U18, OV-U4)', () => {
     it('et registrert avslag av en ny påberopelsesversjon får ingen virkning, og saken er forstått', () => {
       const s = medFrafall();
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       const id = registrertSvar(s, 'avslaatt', true);
       const u = s.u();
       expect(u.forstaatt).toBe(true);
@@ -4451,7 +4463,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       '%s til påberopelse etter § 32.2 får ingen virkning, og frafallet står (GR-U17, GR-U20)',
       (_n, nyVersjon) => {
         const s = medFrafall();
-        if (nyVersjon) versjon(s, { tittel: 'Ny peling 2' });
+        if (nyVersjon) versjon(s, {});
         const id = registrertSvar(s, 'godkjent', true, false);
         const u = s.u();
         expect(u.forstaatt).toBe(true);
@@ -4764,7 +4776,6 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
         innhold: {
           hovedkategori: 'svikt',
           underkategori: 'grunnforhold',
-          tittel: 'Kvikkleire',
           ...KLAR_OVER,
         },
       });
@@ -4860,7 +4871,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       brev(s, 'vederlag', delvis);
       s.send('TE', {
         ...PAABEROPELSE,
-        innhold: { ...PAABEROPELSE.innhold, tittel: 'Ny peling, utvidet beskrivelse' },
+        innhold: { ...PAABEROPELSE.innhold },
       });
       expect(
         s.avvist('BH', nyttSvar(s, 'vederlag', beloep(80000))),
@@ -5008,7 +5019,7 @@ describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)
     s.send('BH', { type: 'brev', svar: [utregnet(s, 'forhold', frafall)] });
     s.send('TE', {
       ...PAABEROPELSE,
-      innhold: { ...PAABEROPELSE.innhold, tittel: 'Ny peling 2' },
+      innhold: { ...PAABEROPELSE.innhold },
     });
     expect(s.u().frafalt, 'forutsetning: frafallet står (GR-U23)').toBe(true);
     expect(venterPaaSvar(s.u(), 'forhold')).toBe(true);
@@ -5039,13 +5050,17 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
     expect(s.avvist('TE', PAABEROPELSE), 'kontrollsak').toBeNull();
   });
 
-  it('kravtittelen og utdypningen i et svar kontrolleres også', () => {
+  it('endringsordren i kravet og utdypningen i et svar kontrolleres også', () => {
     const s = sak();
     expect(
-      s.avvisning('TE', { ...PAABEROPELSE, innhold: { ...PAABEROPELSE.innhold, tittel: '☺' } })
+      s.avvisning('TE', {
+        ...PAABEROPELSE,
+        innhold: { hovedkategori: 'endring', underkategori: 'endringsordre', endringsordre: '☺' },
+      })
     ).toEqual({
       regel: 'UGYLDIG_FORM',
-      melding: '$.innhold.tittel har tegnet «☺» (U+263A), som PDF-en av brevet ikke kan vise.',
+      melding:
+        '$.innhold.endringsordre har tegnet «☺» (U+263A), som PDF-en av brevet ikke kan vise.',
     });
     s.send('TE', PAABEROPELSE);
     const brev = (utdypning: string) => ({
@@ -5093,7 +5108,7 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
   it('ved sending nevner meldingen sakstittelen, ikke den låste teksten klienten sendte med (#1138)', () => {
     const s = sak('Fundament 😀');
     const vist = [
-      `TE krever endringsordre for forholdet «Ny peling» i sak ${SAK} («Fundament 😀»).`,
+      `Totalentreprenøren krever endringsordre for «Fundament 😀» i sak ${SAK} som irregulær endring (NS 8407 punkt 32.1).`,
     ];
     expect(s.avvisning('TE', { ...PAABEROPELSE, brevtekst: vist })).toEqual(iSakstittelen);
   });
@@ -6170,7 +6185,7 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     expect(
       s.avvist('TE', {
         ...PAABEROPELSE,
-        innhold: { ...PAABEROPELSE.innhold, tittel: 'Ny peling 2' },
+        innhold: { ...PAABEROPELSE.innhold },
       })
     ).toBeNull();
   });
@@ -6184,7 +6199,7 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     );
     s.send('TE', {
       ...PAABEROPELSE,
-      innhold: { ...PAABEROPELSE.innhold, tittel: 'Ny peling 2' },
+      innhold: { ...PAABEROPELSE.innhold },
     });
     expect(
       s.u().spor.forhold.gjeldendeSvar,
@@ -6306,7 +6321,7 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     s.send('BH', revisjon(s, 'forhold', avslag));
     s.send('TE', {
       ...PAABEROPELSE,
-      innhold: { ...PAABEROPELSE.innhold, tittel: 'Ny peling 2' },
+      innhold: { ...PAABEROPELSE.innhold },
     });
     const u = s.u();
     expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
@@ -6567,4 +6582,58 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     );
     expect(foer.at(-1)).toMatchObject({ besvart: true, etikett: 'videre subsidiært' });
   });
+});
+
+describe('brevtittelen fryses med brevet (MM-U3, svaret 03.11 i #1488)', () => {
+  it('påberopelsen får tittelen med navnet på forholdet fra kjernens liste, og leseren gir den', () => {
+    const s = sak();
+    const rad = s.send('TE', PAABEROPELSE);
+    expect(rad.data.brevtittel).toBe('Påberopelse av irregulær endring');
+    const lest = lesJournal(s.journal, KJERNE.leserformat).at(-1)!;
+    expect(lest.art === 'dokument' && lest.dokument.brevtittel).toBe(
+      'Påberopelse av irregulær endring'
+    );
+  });
+
+  it('et brev som ikke påberoper et forhold, får ingen frosset tittel', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const vederlag = {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { metode: 'tilbud', beloep: 1000 },
+    };
+    expect(s.send('TE', vederlag).data).not.toHaveProperty('brevtittel');
+  });
+
+  it('en brevtittel uten tekst fra appen er ikke forstått, og kontrollsaken med teksten er det', () => {
+    const s = sak();
+    const rad = s.send('TE', PAABEROPELSE);
+    const uten = { ...rad, data: { ...rad.data, brevtekst: undefined } };
+    delete uten.data.brevtekst;
+    expect(lesJournal([...s.journal.slice(0, -1), rad], KJERNE.leserformat).at(-1)!.art).toBe(
+      'dokument'
+    );
+    expect(lesJournal([...s.journal.slice(0, -1), uten], KJERNE.leserformat).at(-1)!.art).toBe(
+      'ukjent'
+    );
+  });
+});
+
+/**
+ * #698 punkt 1: formatet krever datoen pålegget ble mottatt der regelsettet sier at punkt 32.2
+ * gjelder, og brevet skriver datosetningen etter setningen om punkt 32.2 (VS-U26). Snevrer et
+ * regelsett inn punkt 32.2, må formatet følge med, ellers står datoen uten setningen.
+ */
+it('datoen pålegget ble mottatt følger varslingsplikten etter punkt 32.2 for hvert par i KATEGORIER (VS-U26, #698)', () => {
+  const avvik = HOVEDKATEGORIER.flatMap((h) =>
+    (KATEGORIER[h] as readonly string[])
+      .filter(
+        (u) =>
+          (oppgittDato(h, u) === 'paalegg_mottatt') !==
+          GJELDENDE_REGLER.gjelderVarslingsplikten(h, u)
+      )
+      .map((u) => `${h}/${u}`)
+  );
+  expect(avvik).toEqual([]);
 });

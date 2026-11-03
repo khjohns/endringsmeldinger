@@ -118,10 +118,11 @@
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000006",
-                "laast": "TE gjør gjeldende krav som følge av manglende medvirkning eller leveranser fra byggherren (NS 8407 § 22, jf. § 33.1 b og § 34.1.2) for forholdet i sak 1975bfcf-0000-4000-8000-000000000001 («BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret»). TE opplyser at TE ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak 1975bfcf-0000-4000-8000-000000000001. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
-            ]
+            ],
+            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren"
           }
         },
         {
@@ -149,7 +150,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 39,
+                  "regelversjon": 40,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -244,7 +245,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 39,
+                  "regelversjon": 40,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -290,7 +291,7 @@
                 "id": "1975bfcf-0000-4000-8000-00000000001e",
                 "art": "aksept",
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
-                "regelversjon": 39
+                "regelversjon": 40
               }
             ],
             "brevtekst": [
@@ -406,10 +407,11 @@
             "brevtekst": [
               {
                 "gjelder": "1475b7f0-0000-4000-8000-000000000006",
-                "laast": "TE gjør gjeldende krav som følge av manglende medvirkning eller leveranser fra byggherren (NS 8407 § 22, jf. § 33.1 b og § 34.1.2) for forholdet i sak 1475b7f0-0000-4000-8000-000000000001 («BH avslår forholdet og påberoper at vederlagsvarselet kom for sent»). TE opplyser at TE ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak 1475b7f0-0000-4000-8000-000000000001. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
-            ]
+            ],
+            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren"
           }
         },
         {
@@ -437,7 +439,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 39,
+                  "regelversjon": 40,
                   "linje": "Byggherrens standpunkt: avslått.",
                   "sammenfall": false,
                   "varslingsplikt": false,
@@ -532,7 +534,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 39,
+                  "regelversjon": 40,
                   "linje": "Byggherrens standpunkt: subsidiært varselet etter § 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -647,10 +649,11 @@
             "brevtekst": [
               {
                 "gjelder": "1575b983-0000-4000-8000-000000000008",
-                "laast": "TE krever endringsordre for forholdet i sak 1575b983-0000-4000-8000-000000000001 («TE oppretter saken og påberoper forholdet»). Grunnlaget er irregulær endring i form av pålegg (NS 8407 § 32.1). TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring. TE opplyser at pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak 1575b983-0000-4000-8000-000000000001 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
               }
-            ]
+            ],
+            "brevtittel": "Påberopelse av irregulær endring"
           }
         }
       ]

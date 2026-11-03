@@ -504,14 +504,10 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
 
   const opprettelse = { type: 'opprett_sak', sakstittel: 'Teglforblending' };
   const sakId = lagDemosak(forloep, 'start', 'TE').sakId;
-  // Serveren lager teksten med sakstittelen i påberopelsen (LV-U43, `server/app.ts`).
+  // Brevteksten har sakstittelen som navnet på forholdet (LV-U43).
   const brev = kravMotNySak(
     opprettelse,
-    {
-      ...paaberopelse,
-      innhold: { ...paaberopelse.innhold, tittel: opprettelse.sakstittel },
-      utdypning: BESKRIVELSE,
-    },
+    { ...paaberopelse, utdypning: BESKRIVELSE },
     'TE',
     KJERNE,
     new Map(),
@@ -581,7 +577,7 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     };
     const brevet = kravMotNySak(
       opprettelse,
-      { ...medVedlegg, innhold: { ...medVedlegg.innhold, tittel: opprettelse.sakstittel } },
+      medVedlegg,
       'TE',
       KJERNE,
       new Map([[vedlegg.vedlegg_id, bundet]]),

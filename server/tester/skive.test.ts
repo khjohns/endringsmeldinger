@@ -38,13 +38,13 @@ import {
   type Oppsett,
 } from './testbase.ts';
 
+const ENDRINGSORDRE = { hovedkategori: 'endring', underkategori: 'endringsordre' };
 const PAABEROPELSE = {
   type: 'krav',
   spor: 'forhold',
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
-    tittel: 'Endret fundamentering',
     paalegg_mottatt: '2026-10-01',
   },
   // GR-U15: TEs varsel etter § 32.2 beskriver pålegget.
@@ -322,7 +322,8 @@ describe.skipIf(!TESTBASE_URL)(
       expect(gjengirTro(g, tekst(innhold[0]))).toBe(true);
       expect(gjengirTro(v, tekst(innhold[1]))).toBe(true);
       expect(g).toContain(`Sak ${sakId}, brev 2`);
-      expect(g).toContain('«Endret fundamentering»');
+      // LV-U43: sakstittelen er navnet på forholdet i påberopelsen.
+      expect(g).toContain(`«Skiva» i sak ${sakId}`);
       expect(g).toContain(PAABEROPELSE.utdypning);
       expect(v).toContain('125\u00a0000\u00a0kr');
       // Kontrollsak: gjengivelsen av et annet brev er ikke tro mot dette.
@@ -359,8 +360,8 @@ describe.skipIf(!TESTBASE_URL)(
     it('tekst basen ikke kan lagre, gir 400 og skriver ingenting', async () => {
       const sakId = await opprettKjernesak(o);
       for (const [hva, innhold] of [
-        ['NUL', { ...PAABEROPELSE.innhold, tittel: 'a\u0000b' }],
-        ['enslig surrogat', { ...PAABEROPELSE.innhold, tittel: '\ud800' }],
+        ['NUL', { ...ENDRINGSORDRE, endringsordre: 'a\u0000b' }],
+        ['enslig surrogat', { ...ENDRINGSORDRE, endringsordre: '\ud800' }],
         ['NUL i en nøkkel', { ...PAABEROPELSE.innhold, 'a\u0000': 'b' }],
       ] as const) {
         const kommando = { ...PAABEROPELSE, innhold };
