@@ -13,10 +13,9 @@ alternativ ut i vedtaksform, så oppdragsgiver kan se teksten før den blir vedt
 **Slik svarer du:** «ja» til hele fila, eller rettelser per punkt. Ingenting er ført som vedtak.
 Vedtakstekstene under gjengir arbeidsmåten, D-punktene og S-punktene i
 [BF-06.md](BF-06.md). De legger ikke til noe nytt. Der en formulering ikke er sett av
-oppdragsgiver i den formen, står det under **Merknad**. Fire valg står åpne og legges fram for
-seg: hvilken kode merket viser for en registrert endringsordre (S-2), om en registrering eller en
-endringsordre som venter på godkjenning, holder av saken (S-7), om totalentreprenøren kan godta et
-utsagn som svarer på en eldre kravversjon (S-11), og vedtaket 23.09 om ubegrenset fullmakt (S-3).
+oppdragsgiver i den formen, står det under **Merknad**. Fire valg ble lagt fram for seg og besvart 03.11: A1 om koden for en registrert endringsordre
+(S-2), B1 om at ingenting som venter på godkjenning, holder av saken (S-7), C1 om aksept av et
+utsagn som svarer på en eldre kravversjon (S-11), og D1 om to signaturer (S-3).
 
 Sitater fra vedtak er ordrette fra [vedtaksfila](../../plans/vedtak.md). Sitater fra NS 8407 og
 del II er korte og står med punktnummer. Teksten ligger i det private repoet.
@@ -101,11 +100,18 @@ registrering som svar på forholdet. Presiserer OV-U6. EO-U14 og LV-U44 gjelder 
 **Merknad.** Regelen om at registreringen bare godtas når sakene er åpne, er formulert her for
 første gang som vedtakstekst. Svaret var tilslutning til anbefalingen.
 
-**Åpent valg.** Hvilken kode merket «Inngår i EO-…» viser for en registrert endringsordre. LV-U44
-(03.11) gir saken koden fra sitt første brev, «EO-nn når byggherren gjør det», og EO-U14 sier at
-merket viser dokumentkoden byggherrens endringsordre fikk etter LV-U24. EO-U14 forkastet at
-byggherren oppgir endringsordrens nummer etter sin egen nummerering. Skissen viser dokumentkoden i
-brevet. Oppdragsgiver avgjør det.
+**Valg A, besvart 03.11.** Spørsmålet slik det ble stilt: «A. Hvilket nummer får en registrert
+endringsordre? LV-U44 (vedtatt i dag) sier at en EO-sak får koden EO-nn med løpenummer når
+byggherren oppretter den. EO-U14 forkastet at byggherren bruker sin egen nummerering. Et brev sendt
+utenfor løsningen har likevel sitt eget nummer.» Alternativene: «A1. EO-saken får løsningens kode
+etter LV-U44. Brevets eget nummer lagres som brevets referanse og vises ved siden av. Merket i
+sakslisten bruker løsningens kode. Anbefalt: det følger LV-U44 og EO-U14.» og «A2. Merket bruker
+brevets eget nummer. Det strider mot EO-U14.» Svaret: «A1».
+
+Tillegg til vedtaksteksten: «EO-saken for en registrert endringsordre får koden etter LV-U44.
+Brevets eget nummer lagres som brevets referanse og vises ved siden av koden. Merket på KOE-sakene
+viser koden etter EO-U14.» Forkastet: «Merket viser brevets eget nummer.» Forhold: presiserer
+LV-U44 og EO-U14.
 
 ## S-3. Hvordan regnes fullmakten for en endringsordre i en EO-sak?
 
@@ -143,10 +149,17 @@ ingen av dem. Den siste godkjenningen sender.»
 regelen om krav som ikke er sendt, snevres inn. GFK-U2, GFK-U3, GFK-U4, GFK-U6, GFK-U7 og LV-U15
 står. Del II A.1.4 gir beløpsgrensene, og GFK-U6 sier hvordan de registreres.
 
-**Åpent valg.** Vedtaket 23.09 lar den som har ubegrenset fullmakt, sende alene når beløpet ikke
-kan verdsettes. EO-U6, som endret det, er opphevet, og prosedyren krever to underskrifter fra
-byggherren (G-7 i bestillingen). Om vedtaket 23.09 skal gjelde en endringsordre i en EO-sak,
-avgjør oppdragsgiver.
+**Valg D, besvart 03.11.** Spørsmålet slik det ble stilt: «D. Kan den med ubegrenset fullmakt
+sende alene? Vedtaket 23.09 sier at den som har ubegrenset fullmakt, kan sende alene når beløpet
+ikke kan verdsettes. Prosedyren og LV-U15 krever to signaturer. EO-U6, som endret vedtaket 23.09,
+er opphevet.» Alternativene: «D1. Ingen sender alene. Endringsordren har alltid to signaturer, som
+LV-U15 og prosedyren krever. Det endrer vedtaket 23.09. Anbefalt.» og «D2. Vedtaket 23.09 står.»
+Svaret: «D1».
+
+Tillegg til vedtaksteksten: «Ingen sender en endringsordre alene. Den har alltid to signaturer:
+den som utarbeidet den, og den som godkjente den med fullmakt (LV-U15), også når beløpet ikke kan
+verdsettes.» Forkastet: «Den som har ubegrenset fullmakt, kan sende alene når beløpet ikke kan
+verdsettes.» Forhold: endrer vedtaket 23.09 om ubegrenset fullmakt. LV-U15 står.
 
 **Merknad.** Regelen om at et krav som ikke er sendt, krever hele kjeden bare når endringsordren
 også er svaret på forholdet, og regelen om at et erstattende utsagn verdsettes med det samlede
@@ -250,10 +263,19 @@ gjøres samlet med sendingen.»
 
 **Merknad.** Valget er ikke bekreftet med egne ord. Det tas med i den samlede tilslutningen.
 
-**Åpent valg.** Om en endringsordre eller en registrering som venter på godkjenning, holder av
-saken. Teksten over sier at saken inngår fra endringsordren er sendt eller registrert, mens S-2
-lukker sakene først når registreringen er godkjent, og kontrollen ser bare etter en sendt
-endringsordre. Oppdragsgiver avgjør det.
+**Valg B, besvart 03.11.** Spørsmålet slik det ble stilt: «B. Holder en registrering som venter
+på godkjenning, av saken? S-7 sier at et utkast ikke holder av saken. Men en registrering gjelder
+et brev som alt er sendt, og den lukker sakene først når den er godkjent.» Alternativene: «B1. Nei.
+Den holder ikke av saken, som ellers. Er saken tatt av en annen endringsordre før den siste
+godkjenningen, stopper registreringen (S-12). Anbefalt: én regel for alt som venter på
+godkjenning.» og «B2. Ja. En registrering som venter på godkjenning, holder av saken.» Svaret:
+«B1».
+
+Tillegg til vedtaksteksten: «Verken et utkast, en endringsordre eller en registrering som venter
+på godkjenning, holder av saken. Saken inngår i endringsordren fra den er sendt, eller fra
+registreringen er godkjent. Er saken tatt av en annen endringsordre før den siste godkjenningen,
+stopper sendingen eller registreringen.» Forkastet: «En registrering som venter på godkjenning,
+holder av saken.» Forhold: presiserer EO-U3.
 
 ## S-8. Er vederlag og frist i endringsordren byggherrens standpunkt eller et tilbud?
 
@@ -430,9 +452,18 @@ og 21 i MM-U34. KA-U1 og punkt 9 i MM-U34 står. Forholdet «endringsordre» fø
 parkert (S-13). Aksepten gjelder hele utsagnet etter KA-U1. Reglene om retting og om at sperren
 oppheves når den nye KOE-en trekkes, kom fra sparringen og er ikke stilt som egne spørsmål.
 
-**Åpent valg.** KA-U1 avviser aksept av et svar på en tidligere kravversjon. Svarer et utsagn i
-endringsordren på en eldre kravversjon (F-10 i bestillingen), kan totalentreprenøren da ikke godta
-det. Om aksept av et slikt utsagn skal godtas, avgjør oppdragsgiver.
+**Valg C, besvart 03.11.** Spørsmålet slik det ble stilt: «C. Kan totalentreprenøren godta et
+utsagn som svarer på en eldre kravversjon? KA-U1 avviser aksept av et svar på en tidligere
+kravversjon. Hvis endringsordren ble sendt mens en ny kravversjon kom (F-10), kan
+totalentreprenøren da ikke godta utsagnet.» Alternativene: «C1. Ja. Saken er lukket, og
+endringsordren er det endelige tilbudet. Aksepten gjelder utsagnet slik det står. Det snevrer inn
+KA-U1 for endringsordre. Anbefalt: ellers kan en post aldri godtas i det tilfellet.» og «C2. Nei.
+KA-U1 står, og totalentreprenøren må sende en ny KOE.» Svaret: «C1».
+
+Tillegg til vedtaksteksten: «Totalentreprenøren kan godta et utsagn i en endringsordre også når
+det svarer på en tidligere kravversjon. Aksepten gjelder utsagnet slik det står.» Forkastet:
+«Svarer utsagnet på en tidligere kravversjon, avvises aksepten etter KA-U1, og
+totalentreprenøren sender en ny KOE.» Forhold: snevrer inn KA-U1 for utsagn i en endringsordre.
 
 ## S-12. Avvises den siste godkjenningen når noe endres i en av sakene?
 

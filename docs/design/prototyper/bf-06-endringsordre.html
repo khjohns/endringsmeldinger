@@ -6,7 +6,7 @@
 <title>Endringsordren i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v9 av skjemaet byggherren bruker til endringsordren i en EO-sak, for BF-06 (#1525).
+  Prototype v10 av skjemaet byggherren bruker til endringsordren i en EO-sak, for BF-06 (#1525).
   Tilstandene er ankrene #utkast, #legg-til, #samlet (fristforlengelsen samlet),
   #vederlag-samlet, #fra-svaret (én sak, sendt sammen med svaret på forholdet), #registrer
   (endringsordre sendt utenfor løsningen), #kontroll,
@@ -353,7 +353,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     <div class="topplinje">
       <div class="demo-bryter">
         <p>Du er byggherre (BH), prosjektleder</p>
-        <span class="d">Prototype v9 · <a href="#fra-svaret">Vis veien fra svaret på forholdet</a> · <a href="#registrer">Vis registreringen</a> · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#utkast" class="nullstill">Start på nytt</a></span>
+        <span class="d">Prototype v10 · <a href="#fra-svaret">Vis veien fra svaret på forholdet</a> · <a href="#registrer">Vis registreringen</a> · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#utkast" class="nullstill">Start på nytt</a></span>
       </div>
     </div>
 
@@ -371,9 +371,9 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
             <div class="felt" style="gap:10px;flex:1">
               <p><b>Registrer en endringsordre sendt utenfor løsningen.</b> Fyll ut skjemaet etter det brevet sier. Det lages ingen brevtekst, og der skjemaet og brevet spriker, er brevet byggherrens meddelelse.</p>
               <div class="felter">
-                <div class="felt"><span class="lbl">Brevet</span><span class="num" style="font-size:13px">EO-013 Flytting av teknisk rom.pdf</span></div>
+                <div class="felt"><span class="lbl">Brevet</span><span class="num" style="font-size:13px">EO-032 Flytting av teknisk rom.pdf</span></div>
                 <div class="felt"><label for="reg-dato">Datoen brevet ble sendt</label><span class="datofelt"><input id="reg-dato" type="text" value="25.10.2026" data-oppdater></span></div>
-                <div class="felt"><label for="reg-kode">Dokumentkoden i brevet</label><span class="datofelt" style="width:160px"><input id="reg-kode" type="text" value="EO-013" data-oppdater></span></div>
+                <div class="felt"><label for="reg-kode">Brevets referanse</label><span class="hjelp">Nummeret brevet har. Saken får koden EO-014.</span><span class="datofelt" style="width:160px"><input id="reg-kode" type="text" value="EO-032" data-oppdater></span></div>
               </div>
             </div>
           </div>
@@ -571,9 +571,9 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
           <article class="brev" id="reg-sammendrag" aria-label="Registreringen">
             <h2>Registrering av endringsordre sendt utenfor løsningen</h2>
             <dl class="ref" style="grid-template-columns:repeat(3,auto)">
-              <div><dt>Dokumentkode</dt><dd class="num" id="reg-kode-kopi"></dd></div>
+              <div><dt>Brevets referanse</dt><dd class="num" id="reg-kode-kopi"></dd></div>
               <div><dt>Sendt</dt><dd class="num" id="reg-dato-kopi"></dd></div>
-              <div><dt>Brevet</dt><dd>EO-013 Flytting av teknisk rom.pdf</dd></div>
+              <div><dt>Brevet</dt><dd>EO-032 Flytting av teknisk rom.pdf</dd></div>
             </dl>
             <p>Det lages ingen brevtekst. Registreringen viser det byggherren har fylt ut etter brevet, og brevet ligger ved. Der de spriker, er brevet byggherrens meddelelse.</p>
             <h3>Vederlagsjustering</h3>
@@ -778,7 +778,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
   const stor = (t) => t[0].toUpperCase() + t.slice(1);
   const med = (s) => st.med.has(s);
 
-  const eoNr = () => (st.registrer ? $('#reg-kode').value || 'EO-013' : 'EO-014');
+  const eoNr = () => 'EO-014';
   /** Datoen i formen dd.mm.åååå som tall åååammdd, eller 0 når den ikke kan leses. */
   const dato = (t) => { const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(t.trim()); return m ? Number(m[3] + m[2] + m[1]) : 0; };
 
@@ -1011,7 +1011,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     $('#reg-frist').replaceChildren(...$('#brev-frist').cloneNode(true).children);
     $('#stempel').textContent = st.registrer ? 'Registrert 6. november 2026' : 'Sendt 6. november 2026';
     $('#sendt-linje').textContent = st.registrer
-      ? `Brevet ble sendt ${$('#reg-dato').value} utenfor løsningen · registrert av prosjektleder og godkjent av seksjonslederen`
+      ? `Brevet ble sendt ${$('#reg-dato').value} utenfor løsningen · brevets referanse ${$('#reg-kode').value} · registrert av prosjektleder og godkjent av seksjonslederen`
       : 'Fra byggherren til totalentreprenøren · revisjon 0 · godkjent av utbyggingsdirektøren';
     $('#godkjenning-melding').textContent = st.registrer
       ? 'Registreringen er ikke lagret. Den siste godkjenningen registrerer endringsordren og lukker sakene.'

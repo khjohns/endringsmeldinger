@@ -82,6 +82,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U39](../../plans/vedtak.md#lv-u39) | — | — | BF-01V |
 | [LV-U41](../../plans/vedtak.md#lv-u41) | — | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret, BF-05 start | BF-01V |
 | [LV-U43](../../plans/vedtak.md#lv-u43) | — | BF-05 start | — |
+| [LV-U44](../../plans/vedtak.md#lv-u44) | — | — | BF-06 |
 | [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V |
 | [MM-U12](../../plans/vedtak.md#mm-u12) | — | — | BF-01V, BF-03, BF-06 |
 | [MM-U21](../../plans/vedtak.md#mm-u21) | — | BF-05 start | BF-02C, BF-06 |

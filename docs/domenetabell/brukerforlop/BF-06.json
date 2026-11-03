@@ -417,7 +417,10 @@
             "tilstand": "sendt"
           },
           {
-            "staar": "Inngår i EO-013"
+            "staar": "Inngår i EO-014"
+          },
+          {
+            "staar": "brevets referanse EO-032"
           }
         ]
       }
@@ -456,7 +459,8 @@
     "GFK-U7",
     "KA-U1",
     "EO-U14",
-    "MM-U37"
+    "MM-U37",
+    "LV-U44"
   ],
   "venter_paa": [
     "#1525",
@@ -514,6 +518,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Registreringen av en endringsordre sendt utenfor løsningen: S-2, S-4, S-15 og P-3 besvart, og prototypen versjon 9 med #registrer."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Valg A1: en registrert endringsordre får løsningens kode, og brevets nummer er en referanse. Prototypen versjon 10."
     }
   ]
 }
