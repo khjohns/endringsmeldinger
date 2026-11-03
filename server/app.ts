@@ -563,7 +563,8 @@ async function opprettMedPaaberopelse(
   }
   const krav = {
     ...paaberopelse,
-    innhold: { ...paaberopelse.innhold, tittel },
+    // LV-U43: tittelen er sakstittelen og navnet på forholdet; kravet har ingen egen.
+    innhold: paaberopelse.innhold,
     ...(brevtekst === undefined ? {} : { brevtekst }),
   };
   const kommando = {

@@ -26,7 +26,6 @@ const KRAV_PAABEROPELSE = {
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
-    tittel: 'Endret fundamentering',
     paalegg_mottatt: '2026-10-01',
   },
   utdypning: UTDYPNING,

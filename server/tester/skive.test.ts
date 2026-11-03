@@ -322,7 +322,8 @@ describe.skipIf(!TESTBASE_URL)(
       expect(gjengirTro(g, tekst(innhold[0]))).toBe(true);
       expect(gjengirTro(v, tekst(innhold[1]))).toBe(true);
       expect(g).toContain(`Sak ${sakId}, brev 2`);
-      expect(g).toContain('«Endret fundamentering»');
+      // LV-U43: sakstittelen er navnet på forholdet i påberopelsen.
+      expect(g).toContain(`«Skiva» i sak ${sakId}`);
       expect(g).toContain(PAABEROPELSE.utdypning);
       expect(v).toContain('125\u00a0000\u00a0kr');
       // Kontrollsak: gjengivelsen av et annet brev er ikke tro mot dette.

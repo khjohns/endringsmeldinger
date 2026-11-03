@@ -134,7 +134,7 @@ describe('skjemaet for ny sak på TS-stien', () => {
       brev.querySelectorAll('[data-testid="laast-tekst"] p'),
       (p) => p.textContent
     );
-    expect(vist[0]).toContain(`for forholdet i sak ${SAK} («Endret fundament»)`);
+    expect(vist[0]).toContain(`for «Endret fundament» i sak ${SAK} som`);
     expect(vist.join(' ')).toContain(
       'Totalentreprenøren opplyser at pålegget ble mottatt 1. september 2026.'
     );
