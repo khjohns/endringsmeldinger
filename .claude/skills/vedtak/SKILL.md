@@ -8,6 +8,10 @@ description: Spørsmålene til oppdragsgiver om domenet og vedtakene som føres 
 Domenespørsmålene fra øktene går gjennom orkestratoren, ikke rett til
 oppdragsgiver.
 
+- **Hva et vedtak er.** Et vedtak sier hva som binder partene, hvilken virkning en handling
+  har, hvordan NS 8407 tolkes, og hva løsningen teller eller regner. Hvordan skjemaet,
+  visningen og arbeidsflyten er bygget opp, står i brukerforløpet og endres av brukerprøven
+  uten nytt vedtak (oppdragsgiver 03.11, #1534).
 - **Vedtak ved behov.** Nye domenevedtak stilles bare når et issue i den
   kritiske stien trenger dem (oppdragsgiver 20.10, [spørsmål 4](../../../docs/vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md)).
   Den kritiske stien er milepælen «Første ekte sak».
@@ -57,8 +61,9 @@ oppdragsgiver.
   ikke et eget vedtak. Valget føres da som arbeidsvalg i paragrafmatrisen,
   domenetabellen eller issuet, med henvisning til prinsippet, og står til
   review. Et eget vedtak trengs når valget ikke følger av et prinsipp, endrer et
-  vedtak eller blir en kontrakt. Er spørsmålene mange og detaljerte, gå rett
-  til én samlet tilslutning: ett helhetlig forslag, eventuelt prøvd i juridisk
+  vedtak eller blir en kontrakt. Et valg om skjemaet, visningen eller arbeidsflyten føres i
+  brukerforløpet og ikke som vedtak. Er spørsmålene mange og detaljerte, gå rett til én
+  samlet tilslutning: ett helhetlig forslag, eventuelt prøvd i juridisk
   sparring, som oppdragsgiver kan svare «ja» på med rettelser per punkt. I FK
   runde 4 tok spørsmålene for byggedel 1 tre versjoner før oppdragsgiver
   sluttet seg til en samlet vurdering.
