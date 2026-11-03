@@ -215,7 +215,7 @@ let brudd = 0;
 
 try {
   browser = await startNettleser(chromium, start);
-  for (const oppsett of arg.varden ? [...OPPSETT, ...MØRK] : OPPSETT) {
+  for (const oppsett of arg.varden || arg.sti ? [...OPPSETT, ...MØRK] : OPPSETT) {
     const smal = oppsett.viewport.width < 768;
     for (const tilstand of arg.sti ? STIENE : arg.varden ? VARDEN : TILSTANDER) {
       if (tilstand.bareBred && smal) continue;
