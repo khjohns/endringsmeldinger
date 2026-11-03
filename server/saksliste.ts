@@ -7,10 +7,12 @@
  */
 
 import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
-import type { Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
+import type { Dokument, Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
+import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import { krevdSamlet } from '../kjerne/frosset/standpunkt.ts';
+import { foersteUnderkategori } from '../kjerne/regler/forhold.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
   betegnelse,
@@ -146,7 +148,15 @@ export interface Sakslinje {
   opprettet: string;
   /** Tidsstempelet på den siste hendelsen i journalen, ikke brevets dato. */
   siste_hendelse: string;
+  /**
+   * Sakens siste brev, med avsenderen og brevets dato (ÅÅÅÅ-MM-DD), se `brevetsDato`. `null`
+   * når saken ikke har noe brev, og når kjernen ikke forstår saken (MM-U2): da kan ikke
+   * lista vite om det ukjente er et brev.
+   */
+  siste_brev: { avsender: Part; dato: string } | null;
   hovedkategori: string | null;
+  /** Forholdet TE påberoper, med kjernens kode, så lista kan vise henvisningen (arbeidsvalg 03.11 i #1450). */
+  underkategori: string | null;
   forstaatt: boolean;
   saksbetegnelse: Saksbetegnelse | null;
   /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */
@@ -249,6 +259,38 @@ function frist(u: Utledning): Fristlinje {
 }
 
 /**
+ * Brevets dato: for et registrert brev datoen parten oppga at det ble sendt, ellers mottatt
+ * (OV-U80), og ellers dagen det ble registrert i løsningen (VS-U8). Oppdragsgiver 03.11 i
+ * #1450. En oppgitt dato som ikke kan leses, gir registreringsdagen.
+ */
+function brevetsDato(d: Dokument): string {
+  const om = (hva: string) =>
+    d.opplysninger.find((o) => o.hva === hva && !('gjelder' in o && o.gjelder));
+  const oppgitt = om('sendt') ?? om('mottatt');
+  const dag = oppgitt && 'dato' in oppgitt ? kalenderdag(oppgitt.dato) : null;
+  return dag ?? registrertDato(d);
+}
+
+/**
+ * Brevet i saken med den seneste datoen, og ved samme dag det siste i journalen. En retting
+ * registrerer brevet på nytt, så det er den siste registreringen i kjeden som gjelder, ikke den
+ * den retter (OV-U17). En retting som sier at brevet ikke hører til saken, har ingen
+ * registrering etter seg, så da er brevet ikke med (OV-U18). En sak med en ugyldig retting er
+ * ikke forstått og kommer ikke hit.
+ */
+function sisteBrev(u: Utledning): Sakslinje['siste_brev'] {
+  const dokumenter = u.journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : []));
+  const rettet = new Set(dokumenter.map((d) => d.retter).filter((id) => id !== null));
+  const brev = dokumenter.filter((d) => !rettet.has(d.id) && !d.ikkeISaken);
+  let siste: Sakslinje['siste_brev'] = null;
+  for (const d of brev) {
+    const dato = brevetsDato(d);
+    if (!siste || dato >= siste.dato) siste = { avsender: d.avsender, dato };
+  }
+  return siste;
+}
+
+/**
  * Linja for saken. En sak kjernen ikke forstår (MM-U2), har bare betegnelsen og
  * ingen krav, svar eller enighet, som visningen av saken.
  */
@@ -267,7 +309,9 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   if (!u.forstaatt)
     return {
       ...felles,
+      siste_brev: null,
       hovedkategori: null,
+      underkategori: null,
       forhold: { ...INGENTING, svar: null },
       vederlag: {
         ...INGENTING,
@@ -291,7 +335,13 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   const g = u.spor.forhold.gjeldendeSvar?.standpunkter.find((p) => p.art === 'forhold');
   return {
     ...felles,
+    siste_brev: sisteBrev(u),
     hovedkategori: tekst(u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori),
+    underkategori: tekst(
+      foersteUnderkategori(
+        u.spor.forhold.gjeldendeKrav?.innhold.underkategori as string | string[] | null | undefined
+      )
+    ),
     forhold: {
       ...foreligger(u, 'forhold'),
       svar: g?.art === 'forhold' ? { resultat: g.resultat } : null,

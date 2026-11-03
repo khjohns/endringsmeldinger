@@ -4,9 +4,15 @@
  * svar, enigheten og betegnelsen per spor står på siden for saken.
  */
 import type { Sakslinje } from '$lib/types/api';
-import { HOVEDKATEGORI_FRA_KATALOGEN, tilKatalogen } from '$kjerne/format/koder';
+import {
+  HOVEDKATEGORI_FRA_KATALOGEN,
+  tilKatalogen,
+  UNDERKATEGORI_FRA_KATALOGEN,
+} from '$kjerne/format/koder';
 import { dager, kroner } from '$kjerne/frosset/standpunkt';
+import { kalenderdag } from '$kjerne/format/leser';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
+import { FORHOLDENE } from './nysak';
 import { SAKSLISTE } from './tekster';
 
 /** Sakstypene i panelet etter KT-U9. Forsering står ikke der ennå (svaret på M4). */
@@ -36,9 +42,17 @@ export function saksmerke(linje: Sakslinje): string | null {
   return null;
 }
 
-/** Navnet på forholdet under tittelen (OV-U78). */
+const FORHOLD = new Map(FORHOLDENE.flatMap((g) => g.forhold).map((f) => [f.kode, f]));
+
+/**
+ * Forholdet under tittelen med navnet og henvisningen fra skjemaet for ny sak, som
+ * «Irregulær endring · pkt. 32.1» (OV-U78, D-1 i BF-05, arbeidsvalg 03.11 i #1450). Et forhold
+ * skjemaet ikke har, viser hovedkategorien.
+ */
 export function forholdet(linje: Sakslinje): string | null {
   if (!linje.forstaatt || !linje.hovedkategori) return null;
+  const f = FORHOLD.get(String(tilKatalogen(UNDERKATEGORI_FRA_KATALOGEN, linje.underkategori)));
+  if (f) return SAKSLISTE.forholdMedPunkt(f.navn, f.punkt);
   return (
     getKontraktsforholdLabel(
       String(tilKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, linje.hovedkategori))
@@ -143,7 +157,7 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
 }
 
 export type Utvalg = 'alle' | 'eo' | 'ikke-eo' | 'avsluttet';
-export type Sortering = 'oppdatert' | 'opprettet';
+export type Sortering = 'siste-brev' | 'opprettet';
 
 export function iUtvalg(linje: Sakslinje, utvalg: Utvalg, eo: Endringsordrer): boolean {
   if (utvalg === 'eo') return Boolean(eo[linje.sak_id]);
@@ -161,10 +175,15 @@ export function treff(linje: Sakslinje, soek: string, eo: Endringsordrer): boole
     .some((t) => t!.toLocaleLowerCase('nb').includes(q));
 }
 
-/** Nyeste først, etter siste hendelse i journalen eller etter når saken ble opprettet. */
-export const sorter = (linjer: readonly Sakslinje[], etter: Sortering): Sakslinje[] =>
-  [...linjer].sort((a, b) =>
-    etter === 'oppdatert'
-      ? b.siste_hendelse.localeCompare(a.siste_hendelse)
-      : b.opprettet.localeCompare(a.opprettet)
-  );
+/**
+ * Nyeste først, etter datoen for sakens siste brev eller etter når saken ble opprettet. En sak
+ * uten brev, eller som kjernen ikke forstår, sorteres etter dagen i Oslo for siste hendelse, som
+ * brevets dato. Samme dag sorteres etter siste hendelse.
+ */
+export const sorter = (linjer: readonly Sakslinje[], etter: Sortering): Sakslinje[] => {
+  const naar = (l: Sakslinje) =>
+    etter === 'siste-brev'
+      ? `${l.siste_brev?.dato ?? kalenderdag(l.siste_hendelse) ?? l.siste_hendelse} ${l.siste_hendelse}`
+      : l.opprettet;
+  return [...linjer].sort((a, b) => naar(b).localeCompare(naar(a)));
+};

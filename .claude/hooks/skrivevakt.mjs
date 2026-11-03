@@ -969,6 +969,123 @@ function utenforTreet(leddene, cwd, rot) {
   return null;
 }
 
+// De lesende sjekkene i miljø-skillen som nevner en sperret mappe (#1513). Hvert kall til tsc og
+// til ankerskriptet må passe en av formene ordrett, kjørt fra roten av arbeidstreet.
+const TSCONFIGER = [
+  'kjerne/tsconfig.json',
+  'server/tsconfig.json',
+  'sprakprove/tsconfig.json',
+  'sprakprove/skrivesti/tsconfig.json',
+];
+const ANKERSKRIPT = 'server/tester/feilinnfoering.py';
+const SJEKKFORMER =
+  'npx tsc -p <tsconfig> [--noEmit] eller python3 server/tester/feilinnfoering.py --ankre';
+
+// tsconfig er JSON med kommentarer og komma til slutt.
+function lesJsonc(tekst) {
+  let ut = '';
+  for (let i = 0; i < tekst.length; i++) {
+    if (tekst[i] === '"') {
+      let j = i + 1;
+      while (j < tekst.length && tekst[j] !== '"') j += tekst[j] === '\\' ? 2 : 1;
+      ut += tekst.slice(i, j + 1);
+      i = j;
+    } else if (tekst.startsWith('//', i)) {
+      while (i < tekst.length && tekst[i] !== '\n') i++;
+      ut += '\n';
+    } else if (tekst.startsWith('/*', i)) {
+      const slutt = tekst.indexOf('*/', i + 2);
+      if (slutt === -1) throw new Error('kommentaren lukkes ikke');
+      i = slutt + 1;
+      ut += ' ';
+    } else ut += tekst[i];
+  }
+  return JSON.parse(ut.replace(/,(\s*[}\]])/g, '$1'));
+}
+
+/**
+ * Begrunnelsen når tsc med denne tsconfig kan skrive en fil, ellers null. Kjeden av `extends`
+ * leses, og det nærmeste valget gjelder. tsc skriver .tsbuildinfo med `incremental` eller
+ * `composite`, også med `--noEmit`.
+ */
+function tscSkriver(fil, rot, noEmitFlagg) {
+  const valg = {};
+  let sti = fil;
+  for (let dybde = 0; sti; dybde++) {
+    if (dybde > 10) return 'tsconfig har for mange ledd med extends.';
+    let config;
+    try {
+      config = lesJsonc(readFileSync(sti, 'utf8'));
+    } catch (feil) {
+      return `Kunne ikke lese ${path.relative(rot, sti)} (${feil.message}).`;
+    }
+    for (const navn of ['noEmit', 'incremental', 'composite']) {
+      if (!(navn in valg) && config.compilerOptions && navn in config.compilerOptions) {
+        valg[navn] = config.compilerOptions[navn];
+      }
+    }
+    const { extends: forelder } = config;
+    if (forelder === undefined) break;
+    if (typeof forelder !== 'string' || !/^\.\.?\//.test(forelder) || !forelder.endsWith('.json')) {
+      return `extends i ${path.relative(rot, sti)} er ikke en relativ sti til en .json-fil.`;
+    }
+    sti = ekteSti(path.resolve(path.dirname(sti), forelder));
+    if (!innenfor(sti, rot)) return `extends i tsconfig peker ut av arbeidstreet.`;
+  }
+  if (valg.incremental === true || valg.composite === true) {
+    return `${path.relative(rot, fil)} har incremental eller composite, så tsc skriver .tsbuildinfo.`;
+  }
+  if (!noEmitFlagg && valg.noEmit !== true) {
+    return `${path.relative(rot, fil)} har ikke noEmit, så tsc uten --noEmit skriver filer.`;
+  }
+  return null;
+}
+
+/**
+ * For et ledd som kjører tsc eller ankerskriptet: null når det er en av sjekkene, ellers
+ * begrunnelsen. Andre ledd gir undefined.
+ */
+function sjekkBegrunnelse(del, cwd, rot) {
+  // `timeout <varighet>` foran er lov, som i miljø-skillen.
+  const varighet = (o = []) => o[0] === 'timeout' && /^\d+[smh]?$/.test(o[1] ?? '');
+  const ord = varighet(del.ord) ? del.ord.slice(2) : del.ord;
+  const forran = varighet(del.forran) && del.forran.length === 2 ? [] : (del.forran ?? []);
+  const navn = ord.map((o) => o.split('/').pop());
+  // Også bak en kommando som starter andre, som `xargs` og `find -exec`. Tekstkommandoene
+  // kjører ikke argumentene sine.
+  const starter = !TEKSTMOTTAKERE.has(navn[0]);
+  const tsc = starter && navn.some((o) => /^_?tsc(\.js)?$/.test(o));
+  const anker =
+    starter &&
+    navn.some((o) => /^python[\d.]*$/.test(o)) &&
+    ord.some((o) => o.endsWith('feilinnfoering.py'));
+  if (!tsc && !anker) return undefined;
+  if (forran.length) return `Sjekken kjøres uten prefiks eller miljøvariabler: ${SJEKKFORMER}.`;
+  if (!rot || ekteSti(cwd) !== ekteSti(rot)) {
+    return `Sjekken kjøres fra roten av arbeidstreet: ${SJEKKFORMER}.`;
+  }
+  if (anker) {
+    return ord.length === 3 &&
+      ord[0] === 'python3' &&
+      ord[1] === ANKERSKRIPT &&
+      ord[2] === '--ankre'
+      ? null
+      : `Ankerskriptet kjøres bare som python3 ${ANKERSKRIPT} --ankre.`;
+  }
+  const noEmit = ord.length === 5 && (ord[2] === '--noEmit' || ord[4] === '--noEmit');
+  const resten = noEmit ? ord.filter((o, i) => !(o === '--noEmit' && (i === 2 || i === 4))) : ord;
+  if (
+    resten.length !== 4 ||
+    resten[0] !== 'npx' ||
+    resten[1] !== 'tsc' ||
+    resten[2] !== '-p' ||
+    !TSCONFIGER.includes(resten[3])
+  ) {
+    return `tsc kjøres bare som npx tsc -p <tsconfig> [--noEmit], med en av ${TSCONFIGER.join(', ')}.`;
+  }
+  return tscSkriver(path.join(rot, resten[3]), rot, noEmit);
+}
+
 // Teksten uten linjene i `linjer`, som er [start, slutt).
 function utenLinjer(tekst, linjer) {
   let ut = '';
@@ -1008,9 +1125,28 @@ function vurderKall(input) {
   if (verktoy !== 'Bash') return null;
   const rakKommando = String(parametre.command ?? '');
   const leddene = lekser(rakKommando);
-  // Når hvert ledd er lesende, kan kallet verken skrive eller pushe, selv om et argument
-  // ligner en skrivende kommando (`grep "ruff format"`).
-  if (leddene.length && leddene.every((del) => lesingsBegrunnelse(del) === null)) return null;
+  const eff = effektiveKommandoer(leddene);
+  const sjekkene = eff
+    .filter((del) => !del.kropp && !del.ukjentKommando)
+    .map((del) => sjekkBegrunnelse(del, cwd, rot))
+    .filter((begrunnelse) => begrunnelse !== undefined);
+  const sjekk = sjekkene.find((begrunnelse) => typeof begrunnelse === 'string');
+  if (sjekk) return sjekk;
+  // Kontrollen leser tsconfig og skriptet fra cwd, så sjekken kan ikke kjøres fra en annen mappe.
+  if (sjekkene.length && eff.some((del) => ['cd', 'pushd', 'popd'].includes(del.ord[0]))) {
+    return `Sjekken kjøres i et eget kall uten cd, fra roten av arbeidstreet: ${SJEKKFORMER}.`;
+  }
+  // Når hvert ledd er lesende eller en av sjekkene, kan kallet verken skrive eller pushe, selv
+  // om et argument ligner en skrivende kommando (`grep "ruff format"`).
+  if (
+    leddene.length &&
+    leddene.every(
+      (del) =>
+        lesingsBegrunnelse(del) === null ||
+        (!del.ukjent && !del.kropp && sjekkBegrunnelse(del, cwd, rot) === null)
+    )
+  )
+    return null;
 
   const kommando = rakKommando
     .replace(/[\r\n]+/g, ' ; ')
@@ -1034,7 +1170,6 @@ function vurderKall(input) {
   if (/\$\{[^}]*@P/.test(rakKommando)) {
     return 'Kommandoen har ${…@P}, som kjører kommandosubstitusjonene i verdien.';
   }
-  const eff = effektiveKommandoer(leddene);
   if (eff.some((del) => del.ukjentPrefiks)) {
     return 'Kommandoen har et prefiks med flagg som vakten ikke kan tolke sikkert.';
   }
