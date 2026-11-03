@@ -16,12 +16,12 @@
         "dekker": [
           "1",
           "2",
-          "3",
           "4",
           "5",
           "6",
           "7",
-          "8"
+          "8",
+          "9"
         ],
         "start": "utkast",
         "handlinger": [
@@ -29,10 +29,10 @@
             "staar": "Sakene endringsordren omfatter"
           },
           {
-            "staar": "Endringsordren sier ikke noe om fristen i KOE-021."
+            "staar": "Endringsordren sier ikke noe om fristforlengelsen i KOE-021."
           },
           {
-            "klikk": "Samle fristen for de tre sakene",
+            "klikk": "Samle fristforlengelsen for KOE-017, KOE-018 og KOE-021",
             "tilstand": "samlet"
           },
           {
@@ -43,17 +43,17 @@
             "tekst": "25"
           },
           {
-            "staar": "Hvert spor med krav er dekket."
+            "staar": "Hvert krav har en post."
           },
           {
-            "klikk": "Samle vederlaget for KOE-017 og KOE-021",
+            "klikk": "Samle vederlagsjusteringen for KOE-017 og KOE-021",
             "tilstand": "vederlag-samlet"
           },
           {
-            "staar": "KOE-018 er ikke med, fordi vederlaget der er avtalt."
+            "staar": "KOE-018 er ikke med, fordi vederlagsjusteringen der er avtalt."
           },
           {
-            "fyll": "Vederlag for sakene samlet",
+            "fyll": "Vederlagsjustering for sakene samlet",
             "tekst": "760 000"
           },
           {
@@ -64,20 +64,20 @@
             "staar": "Disse sakene lukkes når endringsordren er sendt"
           },
           {
-            "staar": "Fristkravet er endret etter at saken ble lagt i utkastet"
+            "staar": "Kravet om fristforlengelse er endret etter at saken ble lagt i utkastet"
           },
           {
-            "staar": "TE kan bare godta eller bestride vederlaget for KOE-017 og KOE-021 samlet."
+            "staar": "Totalentreprenøren kan bare godta eller bestride vederlagsjusteringen for KOE-017 og KOE-021 samlet."
           },
           {
-            "staar": "TE kan bare godta eller bestride fristen for KOE-017, KOE-018 og KOE-021 samlet."
+            "staar": "Totalentreprenøren kan bare godta eller bestride fristforlengelsen for KOE-017, KOE-018 og KOE-021 samlet."
           },
           {
             "klikk": "Send til godkjenning",
             "tilstand": "kontroll"
           },
           {
-            "staar": "Bekreft at listen over sakene er riktig"
+            "staar": "Bekreft listen over sakene."
           },
           {
             "kryss": "Listen over sakene er riktig"
@@ -87,7 +87,7 @@
             "tilstand": "godkjenning"
           },
           {
-            "staar": "Ingenting er sendt til TE."
+            "staar": "Ingenting er sendt til totalentreprenøren."
           },
           {
             "klikk": "Vis endringsordren når den er godkjent",
@@ -99,9 +99,31 @@
         ]
       },
       {
+        "id": "tilbud",
+        "dekker": [
+          "3"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "velg": "Tilbud for vederlagsjusteringen i KOE-017"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Vederlagsjusteringen: tilbud på 650 000 kr mot kravet på 800 000 kr. Ikke registrert enighet."
+          },
+          {
+            "staar": "V1 Tilbud"
+          }
+        ]
+      },
+      {
         "id": "uten-samling",
         "dekker": [
-          "9"
+          "10"
         ],
         "start": "utkast",
         "handlinger": [
@@ -110,7 +132,7 @@
             "tilstand": "kontroll"
           },
           {
-            "staar": "Frist: Endringsordren sier ikke noe om fristen. TE krever 10 dager."
+            "staar": "Fristforlengelsen: endringsordren sier ikke noe om den. Kravet er 10 dager."
           },
           {
             "staar": "Endringsordren går gjennom hele kjeden, fordi regningsarbeidet i KOE-021 ikke har et beløp."
@@ -120,27 +142,101 @@
             "tilstand": "utkast"
           },
           {
-            "staar": "Endringsordren sier ikke noe om fristen i KOE-021."
+            "staar": "Endringsordren sier ikke noe om fristforlengelsen i KOE-021."
           }
         ]
       },
       {
         "id": "del-opp-vederlaget",
         "dekker": [
-          "10"
+          "11"
         ],
         "start": "utkast",
         "handlinger": [
           {
-            "klikk": "Samle vederlaget for KOE-017 og KOE-021",
+            "klikk": "Samle vederlagsjusteringen for KOE-017 og KOE-021",
             "tilstand": "vederlag-samlet"
           },
           {
-            "klikk": "Del opp vederlaget per sak",
+            "klikk": "Del opp vederlagsjusteringen per sak",
             "tilstand": "utkast"
           },
           {
             "staar": "Overslaget er en opplysning."
+          }
+        ]
+      },
+      {
+        "id": "legg-til-sak",
+        "dekker": [
+          "12"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Legg til en sak",
+            "tilstand": "legg-til"
+          },
+          {
+            "staar": "Inngår i EO-012"
+          },
+          {
+            "klikk": "Legg til KOE-022",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Totalentreprenøren har ikke sendt krav om fristforlengelse i KOE-022."
+          },
+          {
+            "fyll": "Tilbud for KOE-022",
+            "tekst": "90 000"
+          },
+          {
+            "staar": "4 saker"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Vederlagsjusteringen: tilbud på 90 000 kr. Totalentreprenøren har ikke sendt krav."
+          },
+          {
+            "staar": "Endringsordren går gjennom hele kjeden, fordi regningsarbeidet i KOE-021 ikke har et beløp og totalentreprenøren ikke har sendt krav om fristforlengelse i KOE-022."
+          },
+          {
+            "klikk": "Tilbake til utkastet",
+            "tilstand": "utkast"
+          },
+          {
+            "klikk": "Fjern KOE-022 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "3 saker"
+          }
+        ]
+      },
+      {
+        "id": "fjern-sak",
+        "dekker": [
+          "13"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Fjern KOE-017 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Endre den samlede posten for rigg og drift før du fjerner KOE-017."
+          },
+          {
+            "klikk": "Fjern KOE-018 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "2 saker"
           }
         ]
       }
@@ -200,6 +296,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Oppdragsgiver valgte A: vederlaget kan også samles. Prototypen versjon 2 med #vederlag-samlet."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 3: valget mellom standpunkt og tilbud, å legge til og fjerne saker, en kortere liste over sakene, og visningen etter språkfila."
     }
   ]
 }
