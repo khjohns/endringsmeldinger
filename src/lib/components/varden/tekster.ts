@@ -479,3 +479,66 @@ export const NYSAK = {
   kvittering: 'Påberopelsen er sendt. Brevet sendes til Catenda.',
   avbrutt: 'Brevet er ikke sendt, og ingen sak er opprettet.',
 };
+
+/** Sakslisten i prosjektet (#1450, prototypen `saksliste-v2.html`, MM-U37–MM-U39). */
+export const SAKSLISTE = {
+  saker: 'Saker',
+  koe: 'Krav om endringsordre',
+  eo: 'Endringsordrer',
+  antall: (n: number) => `${n} ${n === 1 ? 'sak' : 'saker'}`,
+  nyKoe: 'Nytt krav om endringsordre',
+  sak: 'Sak',
+  krevdVederlag: 'Krevd vederlag',
+  krevdFrist: 'Krevd frist',
+  eksMva: 'eks. mva.',
+  oppdatert: 'Oppdatert',
+  ikkeKrevd: 'Ikke krevd',
+  varslet: 'Varslet',
+  trukket: 'trukket',
+  metode: { regningsarbeid: 'Regningsarbeid', enhetspriser: 'Enhetspriser' } as Record<
+    string,
+    string
+  >,
+  utenTittel: 'Uten tittel',
+  inngaarIEo: (kode: string) => `Inngår i ${kode}`,
+  paaberopelsenTrukket: 'Påberopelsen trukket',
+  avslagetGodtatt: 'Avslaget godtatt av TE',
+  // Nøkkeltallene
+  tallene: 'Tallene for kravene',
+  vederlag: 'Vederlag',
+  fristforlengelse: 'Fristforlengelse',
+  krevdUtenforEo: 'Krevd utenfor EO',
+  krav: (n: number) => `${n} krav`,
+  varsletAntall: (n: number) => `${n} varslet`,
+  utenBeloep: (n: number) => `${n} uten beløp`,
+  omTallene: (spor: string) => `Om tallene for ${spor.toLowerCase()}`,
+  omVederlag:
+    'Summen av kravene med beløp i sakene som ikke inngår i en sendt endringsordre. Krav etter regningsarbeid eller enhetspriser har ikke beløp og telles for seg. Trukne krav og saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.',
+  omFrist:
+    'Antall krav i sakene som ikke inngår i en sendt endringsordre. Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.',
+  // Verktøylinja
+  utvalg: 'Utvalg',
+  alle: 'Alle',
+  iEo: 'Inngår i EO',
+  ikkeIEo: 'Ikke i EO',
+  avsluttet: 'Avsluttet av TE',
+  sorterEtter: 'Sorter etter',
+  sistOppdatert: 'Sist oppdatert',
+  opprettet: 'Opprettet',
+  soek: 'Søk i sakene',
+  ingenTreffSoek: (q: string) => `Ingen saker passer med «${q}».`,
+  ingenTreff: {
+    eo: 'Ingen saker inngår i en endringsordre.',
+    'ikke-eo': 'Alle sakene inngår i en endringsordre.',
+    avsluttet: 'Ingen saker er avsluttet av TE.',
+  } as Record<string, string>,
+  visAlle: 'Vis alle sakene',
+  // Tilstandene
+  laster: 'Laster sakene …',
+  lastefeil: 'Sakene kunne ikke lastes',
+  lastefeilBeklager: 'Beklager, sakene ble ikke hentet. Prøv igjen om litt.',
+  tomKoe: 'Ingen krav om endringsordre ennå.',
+  tomKoeTe: 'Ingen krav om endringsordre ennå. Et nytt krav begynner med påberopelsen.',
+  tomEo: 'Ingen endringsordrer ennå.',
+  tomEoForklaring: 'Endringsordrene vises her når de kan føres i løsningen.',
+};

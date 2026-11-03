@@ -117,6 +117,13 @@ export interface Forholdslinje extends Foreligger {
  */
 interface Staaende {
   kravet_staar: boolean;
+  /**
+   * Sporet har et varsel løsningen kjenner (OV-U5), uavhengig av betegnelsen, som kan være
+   * en annen når et varsel foreligger (MM-U30). Lista viser «Varslet» av flagget (MM-U37).
+   */
+  har_varsel: boolean;
+  /** TE har sagt at det ikke kreves noe i sporet (KA-U12), uavhengig av betegnelsen. */
+  ingen_krav: boolean;
 }
 
 export interface Vederlagslinje extends Foreligger, Staaende {
@@ -197,12 +204,17 @@ const avsluttet = (u: Utledning): boolean => {
 const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttet(u);
 
+const harVarsel = (u: Utledning, spor: Kravspor): boolean =>
+  Object.keys(u.spor[spor].varsler).length > 0;
+
 function vederlag(u: Utledning): Vederlagslinje {
   const s = u.spor.vederlag;
   const virkning = enighetensVirkning(u, 'vederlag');
   return {
     ...foreligger(u, 'vederlag'),
     kravet_staar: kravetStaar(u, 'vederlag'),
+    har_varsel: harVarsel(u, 'vederlag'),
+    ingen_krav: s.ingenKrav,
     // OV-U23: kravet er justeringen ellers og posten etter § 34.1.3 annet ledd.
     krav: s.gjeldendeKrav
       ? {
@@ -224,6 +236,8 @@ function frist(u: Utledning): Fristlinje {
   return {
     ...foreligger(u, 'frist'),
     kravet_staar: kravetStaar(u, 'frist'),
+    har_varsel: harVarsel(u, 'frist'),
+    ingen_krav: s.ingenKrav,
     krav: innhold ? { dager: tall(innhold.dager)! } : null,
     svar:
       sv?.st.art === 'dager'
@@ -255,8 +269,24 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
       ...felles,
       hovedkategori: null,
       forhold: { ...INGENTING, svar: null },
-      vederlag: { ...INGENTING, kravet_staar: false, krav: null, svar: null, enighet: null },
-      frist: { ...INGENTING, kravet_staar: false, krav: null, svar: null, enighet: null },
+      vederlag: {
+        ...INGENTING,
+        kravet_staar: false,
+        har_varsel: false,
+        ingen_krav: false,
+        krav: null,
+        svar: null,
+        enighet: null,
+      },
+      frist: {
+        ...INGENTING,
+        kravet_staar: false,
+        har_varsel: false,
+        ingen_krav: false,
+        krav: null,
+        svar: null,
+        enighet: null,
+      },
     };
   const g = u.spor.forhold.gjeldendeSvar?.standpunkter.find((p) => p.art === 'forhold');
   return {

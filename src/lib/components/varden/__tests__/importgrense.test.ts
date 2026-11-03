@@ -35,6 +35,8 @@ const MODULER = new Set(
     'constants/kontraktsregler',
     // Brevet kjernen lager for påberopelsen mot en ny sak (#1271). Kaller bare kjernen.
     'kjernesak/brevtekst',
+    // Typene for linja i sakslisten, som serveren regner med kjernen (#1450). Bare typer.
+    'types/api',
   ].map((m) => join(LIB, m))
 );
 // Logoen i panelet, som dagens visning bruker. Ingen regel.

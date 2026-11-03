@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sakslisten i Varden v2</title>
+<!--
+  Prototype v2 av sakslisten i Varden (#1402), forenklet etter oppdragsgiver 02.11. Lista viser
+  bare det som står fast i dokumentene: det TE krever i KOE-sakene, og det byggherren pålegger i
+  endringsordrene. Byggherrens svar, enigheten og hva en sak venter på, står i saken (MM-U37,
+  MM-U38, MM-U39 og MM-U40, oppdragsgiver 02.11).
+  Raden viser det TE krever, og merket «Inngår i EO-<nummer>» sier at saken inngår i en
+  endringsordre (EO-U13, EO-U14). Tallene i endringsordren står på fanen for endringsordrene. Merket «Inngår i EO-<nummer>» følger EO-U13 og EO-U14.
+  En krevd celle sier «Varslet» når TE har varslet uten tall, og «Regningsarbeid» eller
+  «Enhetspriser» når kravet følger en beregningsregel. Da er det ikke noe beløp (OV-U43, OV-U5).
+  En sak der TE har godtatt avslaget på forholdet, telles som trukket. Saker som inngår i en
+  endringsordre, er ikke med i summene for kravene, og tallene deres er dempet; vederlaget står i
+  endringsordren. Nøkkeltallene har ett kort per spor, med kravene og endringsordrene side om side. Beløpene
+  er eks. mva. «Til godkjenning hos deg» kommer tilbake når godkjenningsflyten er bygget.
+  Ankrene er #te og #bh, og #eo eller #forsering kan legges til, som #bh-eo. #te-tom og #bh-tom
+  viser prosjektet uten saker. Lista er sortert etter siste brev, nyeste først.
+  Tallene og sakene er eksempler, og teksten er prototypetekst. Fargene er Blekk (.tema-varden).
+-->
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Blekk (.tema-varden i theme.css): svart blekk på kjølig grått. Skallet: mørkt panel, ark + støttekolonne. */
+:root{
+  --brand:#15181d; --brand-bg:#e6e9ee;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672; --ink-ghost:#8a909a;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --control-focus:#2457d6; --control-focus-ring:0 0 0 3px rgba(36,87,214,.25);
+  --sidebar-bg:#15181d; --sidebar-active:#262b33; --sidebar-hover:#1e2228; --sidebar-text:#f3f4f6; --sidebar-muted:#a9afb9; --sidebar-border:#2e333b;
+  --on-brand:#ffffff;
+  --draft:#5f4a00; --draft-bg:#fff3c4; --draft-border:#9e7f12;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --varden-ark:760px; --varden-stoette:360px;
+  --r-kort:8px; --r-knapp:999px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --brand-bg:#2a2f37; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab; --ink-ghost:#6c727c;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20; --sidebar-border:#23272d;
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --brand-bg:#2a2f37; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab; --ink-ghost:#6c727c;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20; --sidebar-border:#23272d;
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+
+/* Skallet */
+.skall{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+.panel{background:var(--sidebar-bg);color:var(--sidebar-text);padding:20px 20px 24px;display:flex;flex-direction:column;gap:28px}
+.avsender{display:flex;gap:12px;align-items:center}
+.vapen{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--sidebar-text);display:grid;place-items:center;font-size:9px;letter-spacing:.04em;color:var(--sidebar-muted)}
+.avsender b{display:block;font-size:14px;font-weight:600}
+.avsender span{font-size:12px;color:var(--sidebar-muted)}
+.sak h2{font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.01em}
+.sak .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.etikett{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sidebar-muted);margin-bottom:8px}
+.spor{list-style:none;margin:0 -20px;padding:0}
+.spor a{display:block;padding:10px 20px 10px 17px;border-left:3px solid transparent;text-decoration:none}
+.spor a:hover{background:var(--sidebar-hover)}
+.spor a[aria-current]{background:var(--sidebar-active);border-left-color:var(--sidebar-text)}
+.spor .navn{display:block;font-size:16px}
+.spor .sist{font-size:12px;color:var(--sidebar-muted)}
+.kontrakten{margin-top:auto}
+.kontrakten dl{margin:0;display:grid;gap:10px}
+.kontrakten dt{font-size:12px;color:var(--sidebar-muted)}
+.kontrakten dd{margin:0;font-size:14px}
+
+.flate{min-width:0;display:flex;flex-direction:column}
+.topplinje{background:var(--surface);border-bottom:1px solid var(--rule-color);padding-block:14px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.topplinje-inner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+.rolle{color:var(--ink-2)}
+.demo{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+.vis-som{display:inline-flex;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:2px}
+.vis-som button{font:inherit;font-size:12px;font-weight:500;border:0;background:none;color:var(--ink-2);padding:4px 12px;border-radius:var(--r-knapp);cursor:pointer;min-height:28px}
+.vis-som button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand)}
+
+.arbeid{flex:1;padding-block:28px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.kolonner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) minmax(0,var(--varden-stoette));gap:24px;align-items:start}
+.hoved{display:flex;flex-direction:column;gap:20px;min-width:0}
+.stoette{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* Hodet */
+.sporhode{display:flex;flex-direction:column;gap:6px;padding:20px 20px 18px;border-bottom:1px solid var(--rule-subtle-color)}
+.sporhode .over{font-size:12px;color:var(--ink-3)}
+.sporhode h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
+.sporhode .tilstand{font-size:16px;color:var(--ink-2)}
+.sporhode .tilstand b{color:var(--ink);font-weight:600}
+
+/* Utkastet */
+.utkast{border:1.5px dashed var(--draft-border);border-radius:var(--r-kort);background:var(--surface);overflow:hidden}
+.utkast-hode{background:var(--draft-bg);padding:16px 20px;display:flex;flex-direction:column;gap:4px;border-bottom:1px dashed var(--draft-border)}
+.utkast-hode .linje{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.utkastmerke{font-size:12px;font-weight:500;color:var(--draft);background:var(--surface);border:1px dashed var(--draft-border);border-radius:var(--r-knapp);padding:1px 8px;white-space:nowrap}
+.utkast-hode h2{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.utkast-hode p{color:var(--draft);font-size:14px}
+.utkast-hode .laas{display:flex;gap:6px;align-items:center}
+.utkast-kropp{padding:16px 20px}
+.utkast-kropp dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 20px;margin:0}
+.utkast-kropp dt{color:var(--ink-3)}
+.utkast-kropp dd{margin:0}
+.utkast-fot{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;padding:4px 20px 20px}
+.paabegynt{display:inline-block;margin-left:6px;font-size:12px;font-weight:500;color:var(--draft);background:var(--draft-bg);border:1px dashed var(--draft-border);border-radius:var(--r-knapp);padding:0 7px;vertical-align:1px}
+.knapp.sekundaer{background:transparent;color:var(--brand)}
+.knapp.sekundaer:hover{background:var(--surface-inset)}
+.kun-utkast,.uten-utkast{display:contents}
+[data-utkast="nei"] .kun-utkast,[data-utkast="ja"] .uten-utkast{display:none}
+
+/* Kort */
+.kort,.utkast{min-width:0}
+.kort{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort)}
+.kort-hode{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;justify-content:space-between;padding:16px 20px 0}
+.stilling .kort-hode{padding-top:18px}
+.kort-hode h2{font-size:16px;font-weight:600}
+.kort-hode .kilde{font-size:12px;color:var(--ink-3)}
+.kort-kropp{padding:16px 20px 20px}
+
+/* Stillingen: målestokken */
+.stokk{position:relative;margin:56px 4px 52px;height:12px}
+.stokk .skala{position:absolute;inset:0;border:1.5px solid var(--ink);display:flex}
+.stokk .skala i{flex:1;border-right:1px solid var(--ink)}
+.stokk .skala i:nth-child(odd){background:var(--ink)}
+.stokk .skala i:last-child{border-right:0}
+.merke{position:absolute;top:-12px;bottom:-12px;width:2px;margin-left:-1px;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
+.merke .lapp{position:absolute;bottom:calc(100% + 4px);left:0;transform:translateX(-50%);white-space:nowrap;text-align:center;font-size:12px;line-height:1.3;color:var(--ink-2)}
+.merke .lapp b{display:block;font-size:14px;color:var(--ink);font-weight:600}
+.merke.under .lapp{bottom:auto;top:calc(100% + 4px)}
+.merke.krevd{background:repeating-linear-gradient(var(--ink) 0 4px,transparent 4px 7px);box-shadow:none}
+.merke.start .lapp{transform:none}
+.merke.slutt .lapp{transform:translateX(-100%)}
+.skalatall{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-4);margin:44px 4px 0}
+.gap{margin-top:12px;font-size:14px;color:var(--ink-2)}
+.gap b{color:var(--ink)}
+
+/* Avstemmingstabellen */
+.tabell{overflow-x:auto;margin-top:20px}
+table{width:100%;min-width:560px;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 0 10px 16px;text-align:right;vertical-align:top;border-bottom:1px solid var(--rule-subtle-color)}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+thead th{font-weight:600;font-size:14px;border-bottom:1px solid var(--rule-strong-color);vertical-align:bottom;line-height:1.3}
+thead th small{display:block;font-weight:400;font-size:12px;color:var(--ink-3);margin-top:2px}
+td .hj{display:block;font-size:12px;color:var(--ink-3)}
+tr.sum td{font-weight:600;border-bottom:0;border-top:1px solid var(--rule-strong-color)}
+td.n{font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.krevdkol{color:var(--ink-2)}
+
+.lagene{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px}
+.lagene li{display:grid;grid-template-columns:132px minmax(0,1fr);gap:4px 12px;padding-left:12px;border-left:2px solid var(--rule-strong-color)}
+.lagene b{font-weight:600}
+.lagene span{color:var(--ink-2)}
+@media (max-width:560px){.lagene li{grid-template-columns:1fr}}
+
+.forbehold{display:flex;gap:10px;margin-top:20px;padding:12px 14px;background:var(--surface-inset);border-radius:6px;color:var(--ink-2)}
+.forbehold svg{flex:none;margin-top:2px}
+.forbehold a{font-weight:500;color:var(--ink)}
+
+/* Kravet */
+.krav dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 20px;margin:0}
+.krav dt{color:var(--ink-3)}
+.krav dd{margin:0}
+.krav .tidligere{margin-top:14px;font-size:12px;color:var(--ink-3)}
+
+/* Brevene */
+.brevliste{list-style:none;margin:0;padding:0}
+.brevliste li{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:12px 20px;border-top:1px solid var(--rule-subtle-color)}
+.brevliste li:first-child{border-top:0}
+.brevliste .nr{color:var(--ink-3);font-family:var(--font-mono);font-size:12px}
+.brevliste .t{font-weight:500}
+.brevliste .m{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
+.lenke{font:inherit;font-weight:500;color:var(--ink);background:none;border:0;padding:8px 0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:40px}
+.lenke:hover{text-decoration-thickness:2px}
+
+/* Vedleggene */
+.brevliste .filer{grid-column:2/4;display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.filer.inne{display:flex;flex-wrap:wrap;gap:8px}
+.fil{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 6px;min-height:32px;padding:4px 10px;border:1px solid var(--rule-color);border-radius:6px;background:var(--surface);font-size:12px;color:var(--ink);text-decoration:none;max-width:100%}
+.fil span:not(.fm){font-weight:500;min-width:0;overflow-wrap:anywhere}
+.fil .fm{color:var(--ink-3);white-space:nowrap}
+.fil svg{flex:none;color:var(--ink-3)}
+a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color)}
+.fil.ventende{border-style:dashed;background:transparent}
+
+/* Kommentarene */
+.kommentar-merknad{margin:4px 20px 0;font-size:12px;color:var(--ink-3)}
+.kommentarliste{list-style:none;margin:0;padding:8px 20px 0}
+.kommentarliste li{padding:12px 0;border-top:1px solid var(--rule-subtle-color);display:flex;flex-direction:column;gap:4px}
+.kommentarliste li:first-child{border-top:0}
+.kommentarliste .hvem{font-size:12px;color:var(--ink-3)}
+.kommentarliste .hvem b{color:var(--ink);font-weight:600;font-size:14px}
+.kommentarliste.auto{padding:4px 0 0}
+.kommentarliste.auto li{padding:8px 0;color:var(--ink-2)}
+.lenke.liten{font-size:12px;min-height:32px;padding:4px 0;align-self:flex-start}
+.kommentar-fot{display:flex;flex-wrap:wrap;gap:4px 24px;align-items:baseline;justify-content:space-between;padding:4px 20px 12px;border-top:1px solid var(--rule-subtle-color)}
+.kommentar-fot details{font-size:12px;color:var(--ink-3);flex:1 1 100%}
+.kommentar-fot summary{cursor:pointer;min-height:40px;display:flex;align-items:center}
+.kommentar-fot summary:hover{color:var(--ink)}
+
+/* Handlingene */
+.handlinger .kort-kropp{display:flex;flex-direction:column;gap:16px}
+.venter{font-size:14px;color:var(--ink-2)}
+.venter b{color:var(--ink)}
+.knapp{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:16px;font-weight:600;min-height:48px;padding:0 22px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);cursor:pointer;transition:transform .12s cubic-bezier(.23,1,.32,1)}
+.knapp:active{transform:scale(.97)}
+.knapp.primaer{background:var(--brand);color:var(--on-brand)}
+.knapp.primaer:hover{background:var(--ink-2);border-color:var(--ink-2)}
+.virkning{font-size:14px;color:var(--ink-2);padding:12px 14px;background:var(--surface-inset);border-radius:6px}
+.virkning b{color:var(--ink)}
+.andre{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-subtle-color)}
+.andre li{border-bottom:1px solid var(--rule-subtle-color)}
+.andre button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) 16px;gap:2px 8px;width:100%;padding:12px 0;cursor:pointer;min-height:44px}
+.andre button:hover .h{text-decoration:underline;text-underline-offset:3px}
+.andre button:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.andre .h{font-weight:500;color:var(--ink)}
+.andre .b{grid-column:1;font-size:12px;color:var(--ink-3)}
+.andre svg{grid-row:1/3;grid-column:2;align-self:center;color:var(--ink-3)}
+.andre-tittel{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+
+/* Datoene */
+.datoer ol{list-style:none;margin:0;padding:0 20px 8px}
+.datoer li{position:relative;padding:0 0 16px 22px}
+.datoer li::before{content:"";position:absolute;left:3px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--ink)}
+.datoer li.oppgitt::before{background:var(--surface);border:1.5px solid var(--ink);width:6px;height:6px}
+.datoer li::after{content:"";position:absolute;left:7px;top:18px;bottom:0;border-left:1px solid var(--rule-strong-color)}
+.datoer li:last-child::after{display:none}
+.datoer .d{font-weight:600}
+.datoer .h{display:block}
+.datoer .k{display:block;font-size:12px;color:var(--ink-3)}
+.datoer .avstand{margin:0 20px 16px;font-size:12px;color:var(--ink-3)}
+
+.kun-te,.kun-bh{display:contents}
+[data-rolle="TE"] .kun-bh,[data-rolle="BH"] .kun-te{display:none}
+
+@media (max-width:1180px){
+  .kolonner{display:flex;flex-direction:column;gap:20px;align-items:stretch}
+  .hoved,.stoette{display:contents}
+  .utkast{order:0}.stilling{order:2}.handlinger{order:3}.krav{order:4}.brevkort{order:5}.kommentarer{order:6}.datoer{order:7}
+}
+@media (max-width:860px){
+  .skall{grid-template-columns:minmax(0,1fr)}
+  .panel{gap:16px}
+  .kontrakten,.panel .avsender{display:none}
+  .spor{display:flex;overflow-x:auto;margin:0 -20px}
+  .spor li{flex:none}
+  .spor a{border-left:0;border-bottom:3px solid transparent;padding:8px 16px}
+  .spor a[aria-current]{border-bottom-color:var(--sidebar-text)}
+  .spor .navn{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){.knapp{transition:none}}
+
+/* Sakslisten */
+.kolonner{grid-template-columns:minmax(0,1fr);max-width:1080px}
+.topplinje-inner{max-width:1080px}
+.demo{flex-wrap:wrap}
+.liste-hode{padding:20px 20px 0;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+.liste-hode .over{font-size:12px;color:var(--ink-3)}
+.liste-hode h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
+.hode-knapper{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.info{all:unset;cursor:help;display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--rule-strong-color);border-radius:50%;font-size:11px;font-weight:600;color:var(--ink-2);margin-left:6px;vertical-align:1px}
+.faner{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--rule-color);overflow-x:auto}
+.faner button{all:unset;cursor:pointer;padding:12px 4px;margin-right:16px;font-weight:500;color:var(--ink-2);border-bottom:2px solid transparent;white-space:nowrap}
+.faner button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.faner button:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.faner .antall{font-family:var(--font-mono);font-size:12px;color:var(--ink-3);margin-left:6px}
+.verktoy{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px}
+.utvalg{display:flex;flex-wrap:wrap;gap:6px}
+.utvalg button{font:inherit;font-size:14px;border:1px solid var(--rule-strong-color);background:var(--surface);color:var(--ink-2);border-radius:var(--r-knapp);padding:4px 12px;min-height:32px;cursor:pointer}
+.utvalg button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.sok{font:inherit;font-size:14px;border:1px solid var(--rule-strong-color);background:var(--surface-inset);border-radius:6px;padding:6px 10px;min-height:36px;width:220px;max-width:100%;color:var(--ink)}
+.sok:focus{outline:2px solid var(--control-focus);outline-offset:1px}
+.rad,.radhode{display:grid;grid-template-columns:64px minmax(0,1fr) 168px 132px 136px;gap:4px 16px;padding:12px 20px;align-items:start}
+.radhode{padding-top:8px;padding-bottom:8px;border-top:1px solid var(--rule-color);border-bottom:1px solid var(--rule-color);background:var(--surface-warm);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.rader{list-style:none;margin:0;padding:0}
+.rader > li{border-bottom:1px solid var(--rule-subtle-color);position:relative}
+.rader > li:last-child{border-bottom:0}
+.rader > li:hover{background:var(--surface-warm)}
+.rad .id{font-family:var(--font-mono);font-size:12px;color:var(--ink-3);padding-top:3px}
+.rad .tittel a{font-weight:600;color:var(--ink);text-decoration:none}
+.rad .tittel a::after{content:"";position:absolute;inset:0}
+.rad .tittel a:hover{text-decoration:underline;text-underline-offset:3px}
+.rad .tittel a:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.rad .forhold{display:block;font-size:14px;color:var(--ink-2)}
+.merker{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:6px;position:relative;z-index:1}
+.merke-n{font-size:12px;font-weight:600;color:var(--ink);border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:0 8px;white-space:nowrap;text-decoration:none}
+a.merke-n:hover{background:var(--surface-inset)}
+.merke-n.utkast{color:var(--draft);background:var(--draft-bg);border:1px dashed var(--draft-border)}
+.tall2{display:flex;flex-direction:column;gap:1px;font-size:14px}
+.tall2 .k{font-family:var(--font-mono);color:var(--ink)}
+.tall2 .b{font-family:var(--font-mono);color:var(--ink-2)}
+.tall2 .s{font-size:12px;color:var(--ink-3)}
+.tall2 .tomt{color:var(--ink-3)}
+.siste2{font-size:14px;color:var(--ink-2)}
+.siste2 b{display:block;color:var(--ink);font-weight:500}
+.under{padding:0 20px 12px;display:flex;flex-direction:column;gap:0}
+.under .rad{padding:8px 0;border-top:1px dashed var(--rule-color)}
+.under .rad .id{padding-left:14px;border-left:2px solid var(--rule-strong-color)}
+.rader > li.eo-rad .rad{padding-bottom:4px}
+.fane-innhold[hidden]{display:none}
+.tom-liste{padding:24px 20px;color:var(--ink-3)}
+.aktivitet ol{list-style:none;margin:0;padding:4px 20px 8px}
+.aktivitet li{padding:10px 0;border-top:1px solid var(--rule-subtle-color);display:flex;flex-direction:column;gap:2px}
+.aktivitet li:first-child{border-top:0}
+.aktivitet .h{font-weight:500}
+.aktivitet .k{font-size:14px;color:var(--ink-2)}
+.aktivitet .fot{padding:4px 20px 16px}
+.godkjenning ul{list-style:none;margin:0;padding:4px 20px 16px}
+.godkjenning li{padding:10px 0;border-top:1px solid var(--rule-subtle-color)}
+.godkjenning li:first-child{border-top:0}
+.godkjenning .k{display:block;font-size:14px;color:var(--ink-2)}
+@media (max-width:1180px){.kolonner{display:flex;flex-direction:column}.hoved,.stoette{display:flex;flex-direction:column;gap:16px}}
+@media (max-width:900px){
+  .radhode{display:none}
+  .rad,.under .rad{grid-template-columns:52px minmax(0,1fr);gap:6px 12px}
+  .rad > .tall2,.rad > .siste2{grid-column:2}
+  .tall2{flex-direction:row;flex-wrap:wrap;gap:2px 8px}
+  .tall2::before{content:attr(data-navn);font-size:12px;font-weight:600;color:var(--ink-3);width:100%}
+  .under{padding-left:20px}
+}
+
+[data-rolle="TE"] .kun-bh-blokk{display:none}
+[data-fane="koe"] .kun-fane:not(.f-koe),[data-fane="eo"] .kun-fane:not(.f-eo),[data-fane="forsering"] .kun-fane:not(.f-forsering){display:none}
+.verktoy:empty{padding:8px 0 0}
+
+/* Toppskallet: stien og brukermenyen, felles for alle sidene */
+.demolinje{background:var(--surface-inset);border-bottom:1px solid var(--rule-color);padding:6px max(24px,env(safe-area-inset-right,0px)) 6px max(24px,env(safe-area-inset-left,0px))}
+.demolinje .topplinje-inner{justify-content:flex-end}
+.toppskall{background:var(--surface);border-bottom:1px solid var(--rule-color);padding:10px max(24px,env(safe-area-inset-right,0px)) 10px max(24px,env(safe-area-inset-left,0px))}
+.toppskall .topplinje-inner{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+.sti{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px;color:var(--ink-3);min-width:0}
+.sti a{color:var(--ink-2);text-decoration:none}
+.sti a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.sti .merkenavn{font-weight:600;font-size:16px;color:var(--ink);letter-spacing:-.01em}
+.sti [aria-current]{color:var(--ink);font-weight:500}
+.sti .merkenavn[aria-current]{font-weight:600}
+.brukermeny{position:relative}
+.brukermeny summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:6px;min-height:40px}
+.brukermeny summary::-webkit-details-marker{display:none}
+.brukermeny summary:hover{background:var(--surface-inset)}
+.brukermeny summary:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.initialer{width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.brukermeny .hvem{display:flex;flex-direction:column;line-height:1.25;text-align:left}
+.brukermeny .hvem b{font-weight:600;font-size:14px}
+.brukermeny .hvem span{font-size:12px;color:var(--ink-3)}
+.brukermeny .meny{position:absolute;right:0;top:calc(100% + 6px);z-index:10;min-width:220px;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);box-shadow:0 0 0 1px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.08);padding:6px;display:flex;flex-direction:column}
+.brukermeny .meny a{padding:10px 12px;border-radius:6px;color:var(--ink);text-decoration:none;min-height:40px;display:flex;align-items:center}
+.brukermeny .meny a:hover{background:var(--surface-inset)}
+.brukermeny .meny hr{border:0;border-top:1px solid var(--rule-subtle-color);margin:4px 0}
+@media (max-width:560px){.brukermeny .hvem{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+
+/* Radius (oppdragsgiver 01.11): kort og brev 12 px, merker og stempler 2 px, felt 4 px, innfelt 6 px, knapper som piller */
+:root{--r-kort:12px;--r-merke:2px;--r-felt:4px;--r-innfelt:6px}
+.utkastmerke,.paabegynt,.merke-reg,.merke-n,.inngaar,.status,.lagmerke,.merke,.henv,.endret,.hjemmel{border-radius:var(--r-merke)}
+.fil{border-radius:var(--r-felt)}
+.ark-inn{border-radius:var(--r-kort)}
+
+/* v2: kravet og endringsordren i samme spor */
+.skjult{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#innhold-koe .rad,#innhold-koe .radhode{grid-template-columns:64px minmax(0,1fr) 196px 128px 124px;column-gap:16px}
+#innhold-koe .radhode .h{text-align:right}
+.radhode .r2{grid-row:1 / span 2}
+.tall1{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:14px;color:var(--ink);text-align:right;white-space:nowrap}
+.tall1 .tomt,.tall1 .art{font-family:var(--font-sans);font-size:12px;color:var(--ink-3);white-space:normal}
+.tall1.dempet{color:var(--ink-3)}
+.tall1.dempet .art{color:var(--ink-3)}
+/* Nøkkeltallene */
+/* Infotipset åpnes med klikk eller tastatur og lukkes med Escape */
+.tips{position:relative;display:inline-block;text-transform:none;letter-spacing:0;font-weight:400}
+.tips .info{cursor:pointer;position:relative}
+.tips .info::after{content:"";position:absolute;inset:-13px}
+.tips .info:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.tips .lapp{position:absolute;left:-8px;top:calc(100% + 8px);z-index:5;width:300px;max-width:calc(100vw - 48px);background:var(--surface);border:1px solid var(--rule-strong-color);border-radius:var(--r-innfelt);padding:10px 12px;font-size:14px;line-height:1.5;color:var(--ink);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.tips .lapp[hidden]{display:none}
+@media (max-width:900px){
+  #innhold-koe .rad{grid-template-columns:52px minmax(0,1fr);gap:6px 12px}
+  #innhold-koe .rad > .tall1,#innhold-koe .rad >   #innhold-koe .rad > .tall1::before{content:attr(data-navn);font-family:var(--font-sans);font-size:12px;color:var(--ink-3);text-align:left}
+}
+.sortering{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sort-etikett{font-size:12px;color:var(--ink-3);margin-right:2px}
+.sortering button{all:unset;cursor:pointer;font-size:14px;color:var(--ink-2);padding:6px 10px;min-height:32px;box-sizing:border-box;border-radius:var(--r-felt)}
+.sortering button[aria-pressed="true"]{color:var(--ink);font-weight:600;background:var(--surface-selected)}
+.sortering button:hover{background:var(--surface-inset)}
+.sortering button:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.tom-liste{padding:32px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;border-top:1px solid var(--rule-subtle-color)}
+.tom-liste p{font-size:14px;color:var(--ink-2)}
+.knapp-lenke{all:unset;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px;min-height:32px;display:inline-flex;align-items:center}
+.knapp-lenke:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.tom-prosjekt{margin:8px 20px 24px;padding:40px 24px;border:1px dashed var(--rule-strong-color);border-radius:var(--r-innfelt);display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.tom-prosjekt .tom-tittel{font-size:16px;font-weight:600;color:var(--ink)}
+.tom-prosjekt p{font-size:14px;color:var(--ink-2)}
+.skall[data-tom="ja"] #innhold-koe,.skall[data-tom="ja"] .noekkel,.skall[data-tom="ja"] .tom-prosjekt[hidden],.tom-liste[hidden]{display:none}
+.radhode .enhet{font-weight:400;text-transform:none;letter-spacing:0}
+.demo-valg{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;min-height:32px;margin-left:12px}
+.demo-valg input{accent-color:var(--brand);width:16px;height:16px;margin:0}
+/* Nøkkeltallene: ett kort per spor, kravene og endringsordrene med samme vekt */
+.noekkel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 20px 16px}
+.spor-kort{border:1px solid var(--rule-color);border-radius:var(--r-innfelt);padding:14px 16px 12px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.spor-tittel{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink)}
+.spor-tittel .enhet{font-size:12px;font-weight:400;color:var(--ink-3)}
+.spor-tittel .tips{margin-left:auto}
+.spor-tittel .info{margin-left:0}
+.halvdeler{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.halv{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.halv + .halv{border-left:1px solid var(--rule-subtle-color);padding-left:16px}
+.halv .hl{font-size:12px;color:var(--ink-2)}
+.halv .hv{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:20px;font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.3}
+.halv .hv small{font-family:var(--font-sans);font-size:12px;font-weight:400;color:var(--ink-3);margin-left:4px}
+.hm{all:unset;cursor:pointer;font-size:12px;color:var(--ink-3);text-decoration:underline;text-decoration-color:var(--rule-strong-color);text-underline-offset:3px;min-height:24px;display:inline-flex;align-items:center}
+.hm:hover{color:var(--ink);text-decoration-color:currentColor}
+.hm:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px;border-radius:2px}
+@media (max-width:900px){.noekkel{grid-template-columns:1fr}}
+.kontrakten .mva{font-family:var(--font-sans);font-size:12px;color:var(--sidebar-muted)}
+</style>
+</head>
+<body>
+
+<div class="skall" id="skall" data-rolle="TE" data-fane="koe">
+  <aside class="panel" aria-label="Prosjektet">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak">
+      <p class="id">Prosjekt</p>
+      <h2>Skolebygg Nord</h2>
+    </div>
+    <nav aria-labelledby="saker-etikett">
+      <p class="etikett" id="saker-etikett">Saker</p>
+      <ul class="spor">
+        <li><a href="#" data-fane="koe" aria-current="page"><span class="navn">Krav om endringsordre</span><span class="sist">10 saker<span class="kun-te"> · 1 utkast</span></span></a></li>
+        <li><a href="#" data-fane="eo"><span class="navn">Endringsordrer</span><span class="sist">5 utstedt</span></a></li>
+        <li><a href="#" data-fane="forsering"><span class="navn">Forsering</span><span class="sist">1 sak</span></a></li>
+      </ul>
+    </nav>
+    <nav aria-labelledby="prosjekt-etikett">
+      <p class="etikett" id="prosjekt-etikett">Prosjektet</p>
+      <ul class="spor">
+        <li><a href="#"><span class="navn">Aktivitet</span><span class="sist">Brevene i alle sakene</span></a></li>
+      </ul>
+    </nav>
+    <section class="kontrakten" aria-labelledby="kontrakt-etikett">
+      <h2 class="etikett" id="kontrakt-etikett">Kontrakten</h2>
+      <dl>
+        <div><dt>Kontraktsform</dt><dd>Totalentreprise NS 8407</dd></div>
+        <div><dt>Kontraktssum</dt><dd class="num">48 500 000 kr <span class="mva">eks. mva.</span></dd></div>
+        <div><dt>Sluttfrist</dt><dd>15. juni 2027</dd></div>
+        <div><dt>Totalentreprenør</dt><dd>Totalentreprenør AS</dd></div>
+      </dl>
+    </section>
+  </aside>
+
+  <div class="flate">
+    <div class="demolinje"><div class="topplinje-inner"><div class="demo"><span>Mockup · vis som</span>
+          <span class="vis-som" role="group" aria-label="Vis som part">
+            <button type="button" id="vis-te" aria-pressed="true">TE</button>
+            <button type="button" id="vis-bh" aria-pressed="false">BH</button>
+          </span>
+          <label class="demo-valg"><input type="checkbox" id="vis-tom"> Uten saker</label>
+        </div></div></div>
+    <header class="toppskall">
+      <div class="topplinje-inner">
+        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><span aria-current="page">Skolebygg Nord</span></nav>
+        <details class="brukermeny">
+          <summary><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
+          <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
+        </details>
+      </div>
+    </header>
+
+    <main class="arbeid">
+      <div class="kolonner">
+        <div class="hoved">
+          <section class="kort" aria-labelledby="liste-tittel">
+            <div class="liste-hode">
+              <div><p class="over">Skolebygg Nord</p><h1 id="liste-tittel"><span class="kun-fane f-koe">Krav om endringsordre</span><span class="kun-fane f-eo">Endringsordrer</span><span class="kun-fane f-forsering">Forsering</span></h1></div>
+              <div class="hode-knapper">
+                <span class="kun-te"><a class="knapp primaer" href="#" style="text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nytt krav om endringsordre</a></span>
+                <span class="kun-bh"><a class="knapp primaer" href="#" style="text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Ny endringsordre</a></span>
+              </div>
+            </div>
+            <div class="noekkel kun-fane f-koe" aria-label="Tallene for prosjektet">
+              <section class="spor-kort" aria-labelledby="nk-v">
+                <h2 class="spor-tittel" id="nk-v">Vederlag <span class="enhet">kr eks. mva.</span><span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-v" aria-label="Om tallene">i</button><span class="lapp" id="tips-v" role="note" hidden>Kravene er summen av kravene med beløp i sakene som ikke inngår i en endringsordre. Krav etter regningsarbeid eller enhetspriser har ikke beløp og er ikke med, heller ikke saker som TE har avsluttet. Endringsordrene er alle endringsordrene i prosjektet, også dem uten krav om endringsordre. Fradrag trekkes fra. Krav i flere saker kan gjelde samme kostnad.</span></span></h2>
+                <div class="halvdeler">
+                  <div class="halv"><span class="hl">Krevd utenfor EO</span><span class="hv">610 000</span><button type="button" class="hm" data-filter="ikke-eo">2 krav · 1 varslet</button></div>
+                  <div class="halv"><span class="hl">I endringsordrene</span><span class="hv">350 000</span><button type="button" class="hm" data-fane-til="eo">5 EO · 1 uten beløp</button></div>
+                </div>
+              </section>
+              <section class="spor-kort" aria-labelledby="nk-f">
+                <h2 class="spor-tittel" id="nk-f">Fristforlengelse<span class="tips"><button type="button" class="info" aria-expanded="false" aria-controls="tips-f" aria-label="Om tallene">i</button><span class="lapp" id="tips-f" role="note" hidden>Antall krav i sakene som ikke inngår i en endringsordre, og antall endringsordrer som gir fristforlengelse. Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.</span></span></h2>
+                <div class="halvdeler">
+                  <div class="halv"><span class="hl">Krevd utenfor EO</span><span class="hv">2<small>krav</small></span><button type="button" class="hm" data-filter="ikke-eo">1 varslet</button></div>
+                  <div class="halv"><span class="hl">I endringsordrene</span><span class="hv">2<small>EO</small></span><button type="button" class="hm" data-fane-til="eo">av 5 EO</button></div>
+                </div>
+              </section>
+            </div>
+
+            <div class="tom-prosjekt kun-fane f-koe" id="tomt-prosjekt" hidden>
+              <p class="tom-tittel">Prosjektet har ingen krav om endringsordre ennå</p>
+              <p class="kun-te">Kravene totalentreprenøren sender, og sakene byggherren registrerer, står her.</p>
+              <p class="kun-bh">Kravene totalentreprenøren sender, og sakene du registrerer, står her.</p>
+            </div>
+            <div class="fane-innhold" id="innhold-koe">
+              <div class="verktoy">
+                <div class="utvalg" role="group" aria-label="Utvalg">
+                  <button type="button" data-u="alle" aria-pressed="true">Alle</button>
+                  <button type="button" data-u="eo" aria-pressed="false">Inngår i EO</button>
+                  <button type="button" data-u="ikke-eo" aria-pressed="false">Ikke i EO</button>
+                  <button type="button" data-u="trukket" aria-pressed="false">Avsluttet av TE</button>
+                </div>
+                <div class="sortering" role="group" aria-label="Sorter etter">
+                  <span class="sort-etikett" aria-hidden="true">Sorter etter</span>
+                  <button type="button" data-sort="dato" aria-pressed="true">Siste brev</button>
+                  <button type="button" data-sort="nr" aria-pressed="false">Saksnummer</button>
+                </div>
+                <input class="sok" id="sok" type="search" placeholder="Søk i sakene" aria-label="Søk i sakene">
+              </div>
+              <div class="radhode" aria-hidden="true"><span class="r2">Sak</span><span class="r2"></span><span class="r2 h">Krevd vederlag <span class="enhet">· kr eks. mva.</span></span><span class="r2 h">Krevd frist <span class="enhet">· dager</span></span><span class="r2">Siste brev</span></div>
+              <div class="tom-liste" id="ingen-treff" role="status" hidden><p id="ingen-treff-tekst"></p><button type="button" class="knapp-lenke" id="vis-alle">Vis alle sakene</button></div>
+              <ul class="rader" id="koe-rader">
+              <li data-dato="2026-10-30T14:05" data-nr="E-031" data-utvalg="eo">
+                <div class="rad">
+                  <span class="id">E-031</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><a class="merke-n" href="#">Fra E-027</a><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="tomt">Ikke krevd</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager"><span class="art">Varslet</span></div>
+                  <div class="siste2"><b>EO-012 · BH</b>30. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-10-31T13:20" data-nr="E-029" data-utvalg="ikke-eo">
+                <div class="rad">
+                  <span class="id">E-029</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Flytting av sluk i garderobene</a><span class="forhold">Irregulær endring</span><div class="merker"><span class="kun-te"><span class="merke-n utkast">Utkast · vederlagsjustering</span></span></div></div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva."><span class="art">Varslet</span></div><div class="tall1 " data-navn="Krevd frist, dager"><span class="art">Varslet</span></div>
+                  <div class="siste2"><b>Brev 1 · TE</b>31. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-10-30T14:05" data-nr="E-027" data-utvalg="eo">
+                <div class="rad">
+                  <span class="id">E-027</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-012</a></div></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva.">420 000</div><div class="tall1 dempet" data-navn="Krevd frist, dager">15</div>
+                  <div class="siste2"><b>EO-012 · BH</b>30. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-10-28T13:40" data-nr="E-024" data-utvalg="ikke-eo">
+                <div class="rad">
+                  <span class="id">E-024</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Endret fasadeplate etter pålegg på byggemøte</a><span class="forhold">Irregulær endring</span></div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva.">420 000</div><div class="tall1 " data-navn="Krevd frist, dager">15</div>
+                  <div class="siste2"><b>Brev 5 · BH</b>28. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-10-30T08:30" data-nr="E-021" data-utvalg="ikke-eo">
+                <div class="rad">
+                  <span class="id">E-021</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Ny peling med produktivitetstap</a><span class="forhold">Svikt i byggherrens prosjektering</span><div class="merker"><a class="merke-n" href="#forsering">Forsering F-004</a></div></div>
+                  <div class="tall1 " data-navn="Krevd vederlag, kr eks. mva.">190 000</div><div class="tall1 " data-navn="Krevd frist, dager">20</div>
+                  <div class="siste2"><b>Brev 8 · TE</b>30. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-10-25T11:00" data-nr="E-019" data-utvalg="eo">
+                <div class="rad">
+                  <span class="id">E-019</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Manglende medvirkning eller leveranser fra byggherren</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-013</a></div></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="art">Regningsarbeid</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager">5</div>
+                  <div class="siste2"><b>EO-013 · BH</b>25. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-10-02T09:15" data-nr="E-018" data-utvalg="eo">
+                <div class="rad">
+                  <span class="id">E-018</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-009</a></div></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="art">Enhetspriser</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="siste2"><b>EO-009 · BH</b>2. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-09-24T15:20" data-nr="E-012" data-utvalg="eo">
+                <div class="rad">
+                  <span class="id">E-012</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span><div class="merker"><a class="merke-n" href="#eo">Inngår i EO-010</a></div></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva."><span class="tomt">Ikke krevd</span></div><div class="tall1 dempet" data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="siste2"><b>EO-010 · BH</b>24. september 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-10-10T09:40" data-nr="E-016" data-utvalg="trukket ikke-eo">
+                <div class="rad">
+                  <span class="id">E-016</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Ekstra brannisolering i trapperom</a><span class="forhold">Irregulær endring</span><div class="merker"><span class="merke-n">Avslaget godtatt av TE</span></div></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva.">95 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="siste2"><b>Brev 4 · TE</b>10. oktober 2026</div>
+                </div>
+              </li>
+              <li data-dato="2026-09-18T10:05" data-nr="E-015" data-utvalg="trukket">
+                <div class="rad">
+                  <span class="id">E-015</span>
+                  <div class="tittel"><a href="grunnlagsoversikt.html">Merarbeid ved stillas</a><span class="forhold">Irregulær endring</span><div class="merker"><span class="merke-n">Trukket</span></div></div>
+                  <div class="tall1 dempet" data-navn="Krevd vederlag, kr eks. mva.">60 000</div><div class="tall1 " data-navn="Krevd frist, dager"><span class="tomt">Ikke krevd</span></div>
+                  <div class="siste2"><b>Brev 3 · TE</b>18. september 2026</div>
+                </div>
+              </li>
+              </ul>
+            </div>
+
+            <div class="fane-innhold" id="innhold-eo" hidden>
+              <div class="verktoy"></div>
+              <div class="radhode" aria-hidden="true"><span>EO</span><span></span><span>Vederlag <span class="enhet">· eks. mva.</span></span><span>Frist</span><span>Saker</span></div>
+              <ul class="rader">
+              <li class="eo-rad">
+                <div class="rad">
+                  <span class="id">EO-012</span>
+                  <div class="tittel"><a href="#">Endringsordre om sprengning i byggegropen</a><span class="forhold">Utstedt av byggherren 30. oktober 2026</span></div>
+                  <div class="tall2" data-navn="Vederlag"><span class="b">310 000 kr</span></div>
+                  <div class="tall2" data-navn="Frist"><span class="b">15 dager</span></div>
+                  <div class="siste2"><b>Omfatter</b>2 saker</div>
+                </div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-027</span><div class="tittel"><a href="grunnlagsoversikt.html">Fjell høyere enn antatt i byggegropen</a><span class="forhold">Uforutsette forhold ved grunnen</span></div><div class="tall2" data-navn="Vederlag"><span class="k">420 000 kr krevd</span></div><div class="tall2" data-navn="Frist"><span class="k">15 dager krevd</span></div></div><div class="rad"><span class="id">E-031</span><div class="tittel"><a href="grunnlagsoversikt.html">Utvidet sprengning i akse 7–9</a><span class="forhold">Uforutsette forhold ved grunnen</span></div><div class="tall2" data-navn="Vederlag"><span class="k"><span class="tomt">Ikke krevd</span></span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
+              </li>
+              <li class="eo-rad">
+                <div class="rad">
+                  <span class="id">EO-013</span>
+                  <div class="tittel"><a href="#">Endringsordre om stans i påvente av tegning</a><span class="forhold">Utstedt av byggherren 25. oktober 2026</span></div>
+                  <div class="tall2" data-navn="Vederlag"><span class="b">Regningsarbeid</span></div>
+                  <div class="tall2" data-navn="Frist"><span class="b">5 dager</span></div>
+                  <div class="siste2"><b>Omfatter</b>1 sak</div>
+                </div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-019</span><div class="tittel"><a href="grunnlagsoversikt.html">Stans i påvente av revidert tegning</a><span class="forhold">Manglende medvirkning eller leveranser fra byggherren</span></div><div class="tall2" data-navn="Vederlag"><span class="k">Regningsarbeid krevd</span></div><div class="tall2" data-navn="Frist"><span class="k">5 dager krevd</span></div></div></div>
+              </li>
+              <li class="eo-rad">
+                <div class="rad">
+                  <span class="id">EO-009</span>
+                  <div class="tittel"><a href="#">Endringsordre om ventilasjonsaggregat</a><span class="forhold">Utstedt av byggherren 2. oktober 2026</span><div class="merker"><span class="merke-n">Godtatt av TE 5. oktober 2026</span></div></div>
+                  <div class="tall2" data-navn="Vederlag"><span class="b">150 000 kr</span></div>
+                  <div class="tall2" data-navn="Frist"><span class="tomt">Ingen dager</span></div>
+                  <div class="siste2"><b>Omfatter</b>1 sak</div>
+                </div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-018</span><div class="tittel"><a href="grunnlagsoversikt.html">Endret ventilasjonsaggregat</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">Enhetspriser krevd</span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
+              </li>
+              <li class="eo-rad">
+                <div class="rad">
+                  <span class="id">EO-010</span>
+                  <div class="tittel"><a href="#">Endringsordre om solavskjerming</a><span class="forhold">Utstedt av byggherren 24. september 2026</span></div>
+                  <div class="tall2" data-navn="Vederlag"><span class="b">−150 000 kr</span></div>
+                  <div class="tall2" data-navn="Frist"><span class="tomt">Ingen dager</span></div>
+                  <div class="siste2"><b>Omfatter</b>1 sak</div>
+                </div>
+                <div class="under" aria-label="Sakene endringsordren omfatter"><div class="rad"><span class="id">E-012</span><div class="tittel"><a href="grunnlagsoversikt.html">Utgått solavskjerming på sørfasaden</a><span class="forhold">Endringsordre</span></div><div class="tall2" data-navn="Vederlag"><span class="k">Ikke krevd</span></div><div class="tall2" data-navn="Frist"><span class="k"><span class="tomt">Ikke krevd</span></span></div></div></div>
+              </li>
+              <li class="eo-rad">
+                <div class="rad">
+                  <span class="id">EO-011</span>
+                  <div class="tittel"><a href="#">Endringsordre om flere stikkontakter i klasserommene</a><span class="forhold">Utstedt av byggherren 8. oktober 2026</span></div>
+                  <div class="tall2" data-navn="Vederlag"><span class="b">40 000 kr</span></div>
+                  <div class="tall2" data-navn="Frist"><span class="tomt">Ingen dager</span></div>
+                  <div class="siste2"><b>Omfatter</b>Ingen krav om endringsordre</div>
+                </div>
+              </li>
+              </ul>
+            </div>
+
+            <div class="fane-innhold" id="innhold-forsering" hidden>
+              <div class="verktoy"></div>
+              <div class="radhode" aria-hidden="true"><span>Sak</span><span></span><span>Antatt kostnad <span class="enhet">· eks. mva.</span></span><span>Dager</span><span>Siste brev</span></div>
+              <ul class="rader">
+                <li><div class="rad"><span class="id">F-004</span><div class="tittel"><a href="#">Forsering av fristforlengelsen</a><span class="forhold">Totalentreprenøren anser avslaget som pålegg om forsering (punkt 33.8)</span><div class="merker"><a class="merke-n" href="#">Knyttet til E-021</a></div></div><div class="tall2" data-navn="Antatt kostnad"><span class="k">420 000 kr</span></div><div class="tall2" data-navn="Dager"><span class="k">20 dager</span></div><div class="siste2"><b>Brev 8 · TE</b>30. oktober 2026</div></div></li>
+              </ul>
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const skall = document.getElementById('skall');
+  const te = document.getElementById('vis-te'), bh = document.getElementById('vis-bh');
+  const faner = [...document.querySelectorAll('[data-fane]')].filter(e => e.tagName === 'A');
+  function vis(rolle){ skall.dataset.rolle = rolle; te.setAttribute('aria-pressed', String(rolle==='TE')); bh.setAttribute('aria-pressed', String(rolle==='BH')); anker(); }
+  te.addEventListener('click', () => vis('TE')); bh.addEventListener('click', () => vis('BH'));
+  function velg(id){ faner.forEach(f => { const p = f.dataset.fane === id; if (p) f.setAttribute('aria-current', 'page'); else f.removeAttribute('aria-current'); document.getElementById('innhold-' + f.dataset.fane).hidden = !p; }); skall.dataset.fane = id; anker(); }
+  faner.forEach(f => f.addEventListener('click', e => { e.preventDefault(); velg(f.dataset.fane); }));
+  document.querySelectorAll('.merker a[href="#eo"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); velg('eo'); }));
+  document.querySelectorAll('.merker a[href="#forsering"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); velg('forsering'); }));
+  const ub = [...document.querySelectorAll('.utvalg button')];
+  const liste = document.getElementById('koe-rader');
+  const rader = [...liste.children];
+  const sok = document.getElementById('sok');
+  const ingen = document.getElementById('ingen-treff'), ingenTekst = document.getElementById('ingen-treff-tekst');
+  const UTVALG = { eo: 'Ingen saker inngår i en endringsordre.', 'ikke-eo': 'Alle sakene inngår i en endringsordre.', trukket: 'Ingen saker er avsluttet av TE.' };
+  let utvalg = 'alle';
+  function filtrer(){
+    const q = sok.value.trim().toLowerCase();
+    let synlige = 0;
+    rader.forEach(li => {
+      const iUtvalg = utvalg === 'alle' || li.dataset.utvalg.split(' ').includes(utvalg);
+      const iSok = !q || li.textContent.toLowerCase().includes(q);
+      li.hidden = !(iUtvalg && iSok); if (!li.hidden) synlige++;
+    });
+    ingen.hidden = synlige > 0;
+    if (!synlige) ingenTekst.textContent = q ? `Ingen saker passer med «${sok.value.trim()}».` : UTVALG[utvalg];
+  }
+  ub.forEach(b => b.addEventListener('click', () => { ub.forEach(x => x.setAttribute('aria-pressed', String(x === b))); utvalg = b.dataset.u; filtrer(); }));
+  sok.addEventListener('input', filtrer);
+  document.getElementById('vis-alle').addEventListener('click', () => { sok.value = ''; ub.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.u === 'alle'))); utvalg = 'alle'; filtrer(); });
+  const sb = [...document.querySelectorAll('.sortering button')];
+  function sorter(n){
+    sb.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.sort === n)));
+    const ordnet = [...rader].sort((a, b) => n === 'dato' ? b.dataset.dato.localeCompare(a.dataset.dato) : b.dataset.nr.localeCompare(a.dataset.nr, 'nb', { numeric: true }));
+    ordnet.forEach(li => liste.appendChild(li));
+  }
+  sb.forEach(x => x.addEventListener('click', () => sorter(x.dataset.sort)));
+  sorter('dato');
+  const vt = document.getElementById('vis-tom');
+  function tom(ja){ skall.dataset.tom = ja ? 'ja' : 'nei'; vt.checked = ja; document.getElementById('tomt-prosjekt').hidden = !ja; anker(); }
+  vt.addEventListener('change', () => tom(vt.checked));
+  // Ankrene er #te og #bh, eventuelt med -eo, -forsering eller -tom.
+  function anker(){ const f = skall.dataset.tom === 'ja' ? 'tom' : (skall.dataset.fane && skall.dataset.fane !== 'koe' ? skall.dataset.fane : ''); const a = '#' + skall.dataset.rolle.toLowerCase() + (f ? '-' + f : ''); if (location.hash !== a) history.replaceState(null, '', a); }
+  function lesAnker(){ const m = /^#(te|bh)(?:-(eo|forsering|tom))?$/.exec(location.hash); if (m) { vis(m[1].toUpperCase()); if (m[2] === 'tom') { velg('koe'); tom(true); } else { tom(false); velg(m[2] || 'koe'); } } }
+  // Infotipsene: ett åpent om gangen, Escape lukker og gir fokus tilbake.
+  const tipsene = [...document.querySelectorAll('.tips .info')];
+  function lukk(b){ b.setAttribute('aria-expanded', 'false'); document.getElementById(b.getAttribute('aria-controls')).hidden = true; }
+  tipsene.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const aapen = b.getAttribute('aria-expanded') === 'true'; tipsene.forEach(lukk); if (!aapen) { b.setAttribute('aria-expanded', 'true'); document.getElementById(b.getAttribute('aria-controls')).hidden = false; } }));
+  document.addEventListener('click', () => tipsene.forEach(lukk));
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const b = tipsene.find(x => x.getAttribute('aria-expanded') === 'true'); if (b) { lukk(b); b.focus(); } });
+  document.querySelectorAll('.hm[data-filter]').forEach(x => x.addEventListener('click', () => { const k = ub.find(y => y.dataset.u === x.dataset.filter); k.click(); document.getElementById('koe-rader').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+  document.querySelectorAll('.hm[data-fane-til]').forEach(x => x.addEventListener('click', () => velg(x.dataset.faneTil)));
+  lesAnker(); addEventListener('hashchange', lesAnker);
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import { getContext, setContext } from 'svelte';
 import type { Part } from '$kjerne/typer';
+import { projectStore } from '$lib/stores/project.svelte';
 
 /** Organisasjonene på hver side av kontrakten, slik prosjektet eller demoruta oppgir dem (#1398). */
 export type Organisasjoner = Partial<Record<Part, string>>;
@@ -16,4 +17,23 @@ export const settOrganisasjoner = (hent: () => Organisasjoner) => setContext(NOE
 export function organisasjonene(): () => Organisasjoner {
   const hent = getContext<(() => Organisasjoner) | undefined>(NOEKKEL);
   return () => hent?.() ?? {};
+}
+
+/** Prosjektet og partene, fra demoruta eller prosjektet (#1398). */
+export type Kontrakt = {
+  prosjekt?: string;
+  kontraktsform?: string;
+  byggherre?: string;
+  entreprenoer?: string;
+};
+
+/** Prosjektet og partene slik prosjektet oppgir dem. Serveren gir ikke kontraktsformen (#1398). */
+export function kontraktFraProsjektet(): Kontrakt {
+  const p = projectStore.current;
+  const c = p?.settings.contract;
+  return {
+    prosjekt: p?.name,
+    byggherre: c?.byggherre_navn,
+    entreprenoer: c?.totalentreprenor_navn,
+  };
 }

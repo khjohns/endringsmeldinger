@@ -8349,6 +8349,113 @@ tekst = '''
 Når totalentreprenøren oppretter saken, skriver totalentreprenøren både sakstittelen og et eget navn på det faktiske forholdet i påberopelsen. Brevet følger LV-U41 uendret.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "MM-U37"
+dato = 2026-11-02
+hvem = "oppdragsgiver"
+kilde = ["#1450", "#1510"]
+sporsmal = '''
+Punkt 1 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 02.11 etter prøvingen mot vedtaksfila. Forslaget var lagret i vedtaksform før det ble stilt, og alternativet står ordrett i posten. I økta ble det vist slik:
+
+**Raden.** Sakslisten viser for hver KOE-sak det TE har krevd eller varslet for vederlag og frist: beløpet eller dagene; ‹Varslet› når TE har varslet uten beløp eller dager, for varsler løsningen kjenner etter OV-U5; ‹Regningsarbeid› eller ‹Enhetspriser› når kravet følger en av disse beregningsreglene; ellers ‹Ikke krevd›. Beløpene er eks. mva. Omfatter en sendt endringsordre saken, står merket etter EO-U13. Byggherrens svar, enigheten og betegnelsen for sporet står på siden for saken. Lista sier ikke hva en sak venter på, eller hvem som skal handle. Endrer MM-U28. Snevrer inn MM-U30 og MM-U31 til siden for saken.
+
+Bakgrunnen er prototypen `docs/design/prototyper/saksliste-v2.html` og oppdragsgivers ord i økta: «Det vi vet sikkert: hva TE krever, og hva BH utsteder i en EO», og «Appen skal ikke oppfordre til handling som «venter på svar»».'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
+forhold = [{ art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u30" }, { art = "snevrer inn", vedtak = "mm-u31" }]
+folge = '''
+I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Sakslisten viser for hver KOE-sak det totalentreprenøren har krevd eller varslet for vederlag og frist: beløpet eller dagene, ‹Varslet› når totalentreprenøren har varslet uten beløp eller dager, ‹Regningsarbeid› eller ‹Enhetspriser› når kravet følger en av disse beregningsreglene, og ellers ‹Ikke krevd›. ‹Varslet› gjelder varsler løsningen kjenner etter OV-U5. Beløpene er eks. mva. Omfatter en sendt endringsordre saken, viser lista merket etter EO-U13. Byggherrens svar, enigheten og betegnelsen for sporet står på siden for saken og ikke i sakslisten. Lista sier ikke hva en sak venter på, eller hvem som skal handle.'''
+anbefalt = true
+
+
+[[gruppe.vedtak]]
+id = "MM-U38"
+dato = 2026-11-02
+hvem = "oppdragsgiver"
+kilde = ["#1450", "#1510"]
+sporsmal = '''
+Punkt 2 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 02.11 etter prøvingen mot vedtaksfila. Forslaget var lagret i vedtaksform før det ble stilt, og alternativet står ordrett i posten. I økta ble det vist slik:
+
+**Nøkkeltallene.** Ett kort for vederlag og ett for fristforlengelse. Hvert kort viser kravene i sakene ingen sendt endringsordre omfatter, og endringsordrene, side om side med samme vekt. Vederlag: summen av kravene med beløp og summen av vederlaget i alle sendte endringsordrer, med fradrag trukket fra, eks. mva. Frist: antall krav og antall endringsordrer. Dagene summeres ikke. Telles for seg: varsler, krav etter regningsarbeid eller enhetspriser, og endringsordrer uten samlet beløp. Ikke med i summene, og dempet i lista: saker i en sendt endringsordre, trukne krav, og saker der TE har trukket påberopelsen eller godtatt avslaget. Står fortsatt fra OV-U61: registrerte brev, rigg og drift i uendret byggetid, og at krav i flere saker kan gjelde samme kostnad. Endrer OV-U61 og MM-U28. Presiserer EO-U13.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
+forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "presiserer", vedtak = "eo-u13" }]
+folge = '''
+I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Bygges i #1450.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Over sakslisten står ett kort for vederlag og ett for fristforlengelse. Hvert kort viser kravene i sakene som ingen sendt endringsordre omfatter, og endringsordrene, side om side og med samme vekt. For vederlag er tallene summen av kravene med beløp og summen av vederlaget i alle sendte endringsordrer i prosjektet, også dem som ikke omfatter en KOE-sak, med fradrag trukket fra, eks. mva. For fristforlengelse er tallene antall krav og antall endringsordrer som gir fristforlengelse, og dagene summeres ikke. Varsler, krav etter regningsarbeid eller enhetspriser og endringsordrer uten samlet beløp telles for seg, fordi beløpet er ukjent og ikke 0. Saker som en sendt endringsordre omfatter, trukne krav og saker der totalentreprenøren har trukket påberopelsen eller godtatt avslaget på den, er ikke med i summene, og i lista er tallene for dem dempet. Det OV-U61 sier om beløp i brev som bare er registrert, om kompensasjonen for rigg og drift i uendret byggetid og om krav i flere saker som kan gjelde samme kostnad, står.'''
+anbefalt = true
+
+
+[[gruppe.vedtak]]
+id = "MM-U39"
+dato = 2026-11-02
+hvem = "oppdragsgiver"
+kilde = ["#1450", "#1510"]
+sporsmal = '''
+Punkt 3 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 02.11 etter prøvingen mot vedtaksfila. Forslaget var lagret i vedtaksform før det ble stilt, og alternativene står ordrett i posten. I økta ble det vist slik:
+
+**Saker som ikke er forstått.** A (anbefalt, etter det du sa): Ingen egen tekst. Raden viser ingen tall, saken er ikke med i summene, og antallet vises ikke, fordi slike saker ikke forekommer. Dette bryter med «ukjent er ikke 0» for slike saker: endrer OV-U61 og MM-U28 for dem, og snevrer inn MM-U22. B: Raden sier «Ingen tall», og nøkkeltallene sier hvor mange saker som ikke er med.
+
+Bakgrunnen er oppdragsgivers ord i økta: «‹Saken har noe oversikten ikke forstår› kan fjernes. Slike saker finnes ikke.»'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
+forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u22" }]
+folge = '''
+Endrer OV-U61 og MM-U28 for slike saker. MM-U2 står. Bygges i #1450.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Sakslisten har ingen egen tekst for en sak løsningen ikke forstår. Raden viser ingen tall, saken er ikke med i summene, og nøkkeltallene sier ikke hvor mange slike saker det er, fordi slike saker ikke forekommer i løsningen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Raden viser ingen tall og teksten ‹Ingen tall›, og nøkkeltallene sier hvor mange slike saker som ikke er med, som OV-U61 i dag.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "MM-U40"
+dato = 2026-11-02
+hvem = "oppdragsgiver"
+kilde = ["#1450", "#1510"]
+sporsmal = '''
+Punkt 4 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 02.11 etter prøvingen mot vedtaksfila. Forslaget var lagret i vedtaksform før det ble stilt, og alternativene står ordrett i posten. I økta ble det vist slik:
+
+**Arbeidslista (MM-U29).** Den har teksten «Kravet venter på byggherrens svar», som du ikke vil ha. A (anbefalt): Varden har ingen arbeidsliste. Endrer MM-U29. B: Arbeidslista bygges senere som en egen visning, og MM-U29 står.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
+forhold = [{ art = "endrer", vedtak = "mm-u29" }]
+folge = '''
+Følger føringen 31.10 i systemfila for visningen: visningen sier det løsningen vet, ikke hvem som skal handle (#1402).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Varden har ingen arbeidsliste. Siden for saken viser hvilke brev som er sendt, av hvem og når, og sier ikke hvem som skal handle.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Arbeidslista etter MM-U29 bygges senere som en egen visning. MM-U29 står.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
