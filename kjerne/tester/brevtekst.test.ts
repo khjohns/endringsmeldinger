@@ -4383,6 +4383,47 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(k.u().frafalt, 'kontrollsak').toBe(true);
     });
 
+    it('etter frafall fra appen, en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3 er forholdet avklart ved frafallet, fordi et registrert svar ikke binder og ikke tar bort frafallet (GR-U20, GR-U23, OV-U4, OV-U6, #1388)', () => {
+      const s = medFrafall();
+      versjon(s, { tittel: 'Ny peling 2' });
+      const v2 = s.u().spor.forhold.gjeldendeKrav!.id;
+      const eo = randomUUID();
+      s.rad('BH', {
+        svar: [
+          {
+            id: eo,
+            spor: 'forhold',
+            gjelder: v2,
+            standpunkter: [
+              { id: randomUUID(), art: 'rettidighet', gjelder: v2, hjemmel: '32.2', i_tide: true },
+              { id: randomUUID(), art: 'forhold', resultat: 'godkjent' },
+            ],
+          },
+        ],
+        opplysninger: [
+          { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
+          { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
+        ],
+      });
+      const etterEo = s.u();
+      expect(etterEo.forstaatt, JSON.stringify(etterEo.begrensninger)).toBe(true);
+      expect(
+        etterEo.spor.forhold.gjeldendeSvar?.id,
+        'forutsetning: den registrerte endringsordren er svaret på versjon 2 (OV-U6)'
+      ).toBe(eo);
+      expect(
+        etterEo.utenVirkning.map((x) => x.element),
+        'forutsetning: med virkning'
+      ).toEqual([]);
+      versjon(s, { tittel: 'Ny peling 3' });
+      const u = s.u();
+      expect(u.spor.forhold.krav.length, 'forutsetning: tre versjoner').toBe(3);
+      expect(u.spor.forhold.gjeldendeSvar, 'forutsetning: versjon 3 venter på svar').toBeNull();
+      expect(venterPaaSvar(u, 'forhold')).toBe(true);
+      expect(u.forholdAvklart).toBe(true);
+      expect(u.frafalt).toBe(true);
+    });
+
     it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og svaret på versjon 2 og trekket av forholdet godtas (MM-U34 punkt 12, OV-U3, KA-U11)', () => {
       const s = medEnighetIVederlaget(medFrafall());
       versjon(s, { tittel: 'Ny peling 2' });
