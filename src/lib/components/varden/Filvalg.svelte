@@ -29,6 +29,7 @@
     feil?: string | null;
   } = $props();
 
+  let velger: HTMLInputElement;
   let venter = $state<string[]>([]);
   let opplastingsfeil = $state<string[]>([]);
   const feilene = $derived([...(feil ? [feil] : []), ...opplastingsfeil]);
@@ -64,51 +65,62 @@
 
   async function fjern(v: Kjernevedlegg) {
     vedlegg = vedlegg.filter((x) => x.vedlegg_id !== v.vedlegg_id);
+    // Knappen forsvinner med raden, så fokus går tilbake til velgeren.
+    velger.focus();
     // Et vedlegg som ikke slettes, blir liggende ubundet i mellomlageret og ved ikke brevet.
     await grense.slett(v.vedlegg_id).catch(() => {});
   }
 </script>
 
 <div class="felt">
-  <label for={id}>{etikett}</label>
+  <label for={id} id={`${id}-etikett`}>{etikett}</label>
   <p class="hjelp" id={`${id}-hjelp`}>{hjelp}</p>
   <!-- Nettleserens tekst («Ingen fil valgt») sier ikke hva som er lastet opp, så knappen er
        bildet under den gjennomsiktige velgeren, og lista under viser filene. -->
   <div class="velger">
+    <!-- Navnet har også knappeteksten, så den som styrer med tale, kan si «Velg filer». -->
     <input
+      bind:this={velger}
       {id}
       type="file"
       multiple
+      aria-labelledby={`${id}-etikett ${id}-velg`}
       aria-invalid={feilene.length ? 'true' : undefined}
       aria-describedby={`${id}-hjelp${feilene.length ? ` ${id}-feil` : ''}`}
       onchange={velg}
     />
-    <span class="velg" aria-hidden="true">{NYSAK.velgFiler}</span>
+    <span class="velg" id={`${id}-velg`} aria-hidden="true">{NYSAK.velgFiler}</span>
   </div>
-  {#if vedlegg.length || venter.length}
-    <ul class="filer">
-      {#each vedlegg as v (v.vedlegg_id)}
-        <li>
-          <span class="navn">{v.filnavn}</span>
-          <span class="stoerrelse">{stoerrelse(v.stoerrelse)}</span>
-          <Knapp
-            variant="lenke"
-            aria-label={NYSAK.fjernVedleggNavn(v.filnavn)}
-            onclick={() => fjern(v)}
-          >
-            {NYSAK.fjernVedlegg}
-          </Knapp>
-        </li>
+  <!-- Lista er levende, så en skjermleser får vite når en fil er lastet opp. Lista og feilene
+       står i én rute i rutenettet, så de tomme beholderne ikke gir ekstra avstand. -->
+  <div class="status">
+    <div aria-live="polite">
+      {#if vedlegg.length || venter.length}
+        <ul class="filer">
+          {#each vedlegg as v (v.vedlegg_id)}
+            <li>
+              <span class="navn">{v.filnavn}</span>
+              <span class="stoerrelse">{stoerrelse(v.stoerrelse)}</span>
+              <Knapp
+                variant="lenke"
+                aria-label={NYSAK.fjernVedleggNavn(v.filnavn)}
+                onclick={() => fjern(v)}
+              >
+                {NYSAK.fjernVedlegg}
+              </Knapp>
+            </li>
+          {/each}
+          {#each venter as navn, i (`${navn}-${i}`)}
+            <li class="venter">{NYSAK.lasterOpp(navn)}</li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+    <div id={`${id}-feil`} aria-live="polite">
+      {#each feilene as f, i (i)}
+        <p class="feil">{f}</p>
       {/each}
-      {#each venter as navn, i (`${navn}-${i}`)}
-        <li class="venter">{NYSAK.lasterOpp(navn)}</li>
-      {/each}
-    </ul>
-  {/if}
-  <div id={`${id}-feil`} aria-live="polite">
-    {#each feilene as f, i (i)}
-      <p class="feil">{f}</p>
-    {/each}
+    </div>
   </div>
 </div>
 
@@ -160,9 +172,12 @@
   input[aria-invalid='true'] + .velg {
     border-color: var(--danger);
   }
+  .status {
+    display: grid;
+  }
   .filer {
     display: grid;
-    margin: 0;
+    margin: 0 0 var(--spacing-2);
     padding: 0;
     list-style: none;
     border-top: var(--rule);

@@ -417,9 +417,17 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await fireEvent.click(await screen.findByRole('button', { name: 'Fjern tegning.pdf' }));
     expect(vedleggForNySak.slett).toHaveBeenCalledWith('00000000-0000-4000-8000-000000000001');
     expect(screen.queryByText('tegning.pdf')).toBeNull();
+    // Knappen forsvant med raden, så fokus står på velgeren og ikke på siden (WCAG 2.4.3).
+    expect(document.activeElement).toBe(screen.getByLabelText(/Vedlegg/));
     await sendBrevet();
     await vi.waitFor(() => expect(onsendt).toHaveBeenCalled());
     expect(send.mock.calls[0][0].paaberopelse).not.toHaveProperty('dokumentasjon');
+  });
+
+  it('#1037: velgerens navn har knappeteksten «Velg filer» (WCAG 2.5.3)', () => {
+    aapne();
+    expect(screen.getByLabelText(/Vedlegg/).getAttribute('type')).toBe('file');
+    expect(screen.getByLabelText('Vedlegg (valgfritt) Velg filer')).toBeTruthy();
   });
 
   it('#1037: en fil over 15 MB lastes ikke opp, og feilen står ved feltet', async () => {
