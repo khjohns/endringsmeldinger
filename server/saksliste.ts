@@ -337,8 +337,10 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
     ...felles,
     siste_brev: sisteBrev(u),
     hovedkategori: tekst(u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori),
-    underkategori: foersteUnderkategori(
-      u.spor.forhold.gjeldendeKrav?.innhold.underkategori as string | string[] | null | undefined
+    underkategori: tekst(
+      foersteUnderkategori(
+        u.spor.forhold.gjeldendeKrav?.innhold.underkategori as string | string[] | null | undefined
+      )
     ),
     forhold: {
       ...foreligger(u, 'forhold'),
