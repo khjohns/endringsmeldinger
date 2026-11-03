@@ -18,17 +18,19 @@
  *   `Request` som verdi, også gjennom et annet navn enn `pool`, med hakeparentes og
  *   i en destrukturering. Den ser ikke en forespørsel gjennom en variabel
  *   med et annet navn eller en dynamisk nøkkel, og typen `sql.Request` er lov.
- *   I tillegg leser typekontrolløren i TypeScript hvert kall på en metode i
- *   `MSSQL_METODER` på en pool, en transaksjon eller en forberedt spørring fra `mssql`
- *   og hver `new` av dem, så `pool.query`, `pool.batch`, `pool.transaction()` og
- *   `new sql.PreparedStatement(pool)` også er synlige (#877, #894-2), også når
- *   mottakeren er en union som `Pool | undefined` (#923 punkt 2). Den ser også et
- *   kall på modulfunksjonene `connect`, `query` og `batch` i `mssql`, som bruker den
- *   globale poolen, også gjennom et annet navn (#923 punkt 3); `batch` har ingen type
- *   i `@types/mssql`, så `tsc` avviser den før testen. Den ser ikke en verdi med typen
- *   `any` eller `unknown`, en destrukturering eller hakeparentes på en pool, en
- *   modulfunksjon kalt gjennom `call` eller som argument, en subklasse, et snitt eller en
- *   typeparameter som mottaker, eller `commit`, `rollback` og `begin` (#1517).
+ *   I tillegg løser typekontrolløren i TypeScript hvert medlem som leses, til
+ *   deklarasjonen, gjennom alias, og gir funn for en metode i `MSSQL_METODER` på en
+ *   pool, en transaksjon eller en forberedt spørring fra `mssql` og for
+ *   modulfunksjonene `connect`, `query` og `batch`, som bruker den globale poolen
+ *   (#877, #894-2, #923). Da er kallet, en destrukturering, hakeparentes med en
+ *   streng, verdien uten kall (`sql.query.call`, `map(sql.query)`) og en subklasse,
+ *   et snitt, en union eller en typeparameter som mottaker synlige (#1517).
+ *   `commit`, `rollback` og `begin` er med, siden de avslutter eller åpner en
+ *   transaksjon forbi `transaksjon` i datalaget. Hver `new` og `super(…)` som når
+ *   konstruktøren til en pool, en transaksjon, en forberedt spørring eller en
+ *   forespørsel, er også et funn. `batch` har ingen type i `@types/mssql`, så `tsc`
+ *   avviser den før testen. Den ser ikke en verdi med typen `any` eller `unknown`,
+ *   en dynamisk nøkkel eller en verdi som er kastet til en type utenfor `mssql`.
  * - `pdf-lib` og `@pdf-lib/fontkit` importeres bare i `brevpdf.ts`, som lager PDF-en
  *   av brevet med skriften bygd inn (#371, #799).
  *
@@ -125,13 +127,16 @@ export function forespoersler(kilde: string): string[] {
   return funn;
 }
 
-/** Typene i `mssql` som kan sende en spørring; `new` av dem er et funn. */
+/** Klassene i `mssql` som kan sende en spørring; å lage en av dem er et funn. */
 const MSSQL_TYPER = new Set(['ConnectionPool', 'Transaction', 'PreparedStatement', 'Request']);
 /** Mottakerne for `MSSQL_METODER`; en `Request` kommer fra `transaksjon` eller `utenKontekst`. */
 const MSSQL_MOTTAKERE = new Set(['ConnectionPool', 'Transaction', 'PreparedStatement']);
 /** Modulfunksjonene i `mssql` som sender en spørring gjennom den globale poolen (#923 punkt 3). */
 const MSSQL_MODULFUNKSJONER = new Set(['connect', 'query', 'batch']);
-/** Metodene som sender en spørring; `commit`, `rollback` og `begin` er ikke med (#1517). */
+/**
+ * Metodene som sender en spørring, og `commit`, `rollback` og `begin`, som ellers ville
+ * avslutte eller åpne en transaksjon forbi `transaksjon` i datalaget (#1517).
+ */
 const MSSQL_METODER = new Set([
   'request',
   'query',
@@ -140,13 +145,18 @@ const MSSQL_METODER = new Set([
   'transaction',
   'prepare',
   'execute',
+  'commit',
+  'rollback',
+  'begin',
 ]);
 
 /**
  * Stedene i filene i `sjekk` som lager en pool, en transaksjon, en forberedt
- * spørring eller en forespørsel fra `mssql`, eller kaller en metode som sender en
- * spørring på en pool, en transaksjon eller en forberedt spørring (#894-2), eller
- * en modulfunksjon som bruker den globale poolen (#923 punkt 3).
+ * spørring eller en forespørsel fra `mssql`, også gjennom en subklasse, eller viser
+ * til en metode i `MSSQL_METODER` på en pool, en transaksjon eller en forberedt
+ * spørring (#894-2), eller til en modulfunksjon som bruker den globale poolen
+ * (#923 punkt 3). Hvert medlem som leses, løses til deklarasjonen sin, så kallet,
+ * destruktureringen, hakeparentesen og verdien uten kall er synlige (#1517).
  * `kilder` erstatter teksten i filene det gjelder.
  */
 export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): string[] {
@@ -164,37 +174,69 @@ export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): 
   const program = ts.createProgram(sjekk, valg, vert);
   const kontroll = program.getTypeChecker();
   const iMssql = (d: ts.Node) => d.getSourceFile().fileName.includes('/mssql/');
-  // En union som `Pool | undefined` har ikke noe symbol selv, så delene prøves hver for seg.
-  const fraMssql = (type: ts.Type, navn: Set<string>) =>
-    (type.isUnion() ? type.types : [type]).some((del) => {
-      const symbol = del.getSymbol();
-      return !!symbol && navn.has(symbol.getName()) && !!symbol.declarations?.some(iMssql);
-    });
-  const modulfunksjon = (node: ts.CallExpression | ts.TaggedTemplateExpression) => {
-    const d = kontroll.getResolvedSignature(node)?.getDeclaration();
+  const klassen = (d: ts.Node) =>
+    (ts.isClassDeclaration(d.parent) || ts.isInterfaceDeclaration(d.parent)) && d.parent.name
+      ? d.parent.name.text
+      : undefined;
+  const forbudt = (d: ts.Declaration) => {
+    if (!iMssql(d)) return false;
+    if (ts.isFunctionDeclaration(d))
+      return !!d.name && MSSQL_MODULFUNKSJONER.has(d.name.text) && ts.isSourceFile(d.parent);
+    if (ts.isConstructorDeclaration(d)) return MSSQL_TYPER.has(klassen(d) ?? '');
+    const navn = ts.getNameOfDeclaration(d);
     return (
-      !!d &&
-      ts.isFunctionDeclaration(d) &&
-      !!d.name &&
-      MSSQL_MODULFUNKSJONER.has(d.name.text) &&
-      ts.isSourceFile(d.parent) &&
-      iMssql(d)
+      !!navn &&
+      ts.isIdentifier(navn) &&
+      MSSQL_METODER.has(navn.text) &&
+      MSSQL_MOTTAKERE.has(klassen(d) ?? '')
     );
+  };
+  // Et alias er en import eller en eksport; et medlem i et snitt eller en union kan være
+  // satt sammen av flere, og da prøves hver del.
+  const deklarasjoner = (symbol: ts.Symbol | undefined): ts.Declaration[] => {
+    if (!symbol) return [];
+    const ekte = symbol.flags & ts.SymbolFlags.Alias ? kontroll.getAliasedSymbol(symbol) : symbol;
+    return ekte.declarations ?? [];
+  };
+  // Destruktureringen og hakeparentesen løses mot typen uten `undefined`, som `p?.['query']`.
+  const egenskap = (objekt: ts.Node, navn: string) =>
+    kontroll.getPropertyOfType(
+      kontroll.getNonNullableType(kontroll.getTypeAtLocation(objekt)),
+      navn
+    );
+  const medlem = (node: ts.Identifier | ts.StringLiteralLike): ts.Symbol | undefined => {
+    if (ts.isBindingElement(node.parent) && ts.isObjectBindingPattern(node.parent.parent))
+      return node === (node.parent.propertyName ?? node.parent.name)
+        ? egenskap(node.parent.parent, node.text)
+        : undefined;
+    if (ts.isElementAccessExpression(node.parent) && node.parent.argumentExpression === node)
+      return egenskap(node.parent.expression, node.text);
+    if (ts.isImportSpecifier(node.parent) || ts.isImportClause(node.parent)) return undefined;
+    return kontroll.getSymbolAtLocation(node);
   };
   const funn: string[] = [];
   for (const navn of sjekk) {
     const fil = program.getSourceFile(navn)!;
+    const meld = (node: ts.Node) => funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
     const besok = (node: ts.Node) => {
-      if (ts.isNewExpression(node) && fraMssql(kontroll.getTypeAtLocation(node), MSSQL_TYPER))
-        funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
       if (
-        ts.isPropertyAccessExpression(node) &&
-        MSSQL_METODER.has(node.name.text) &&
-        fraMssql(kontroll.getTypeAtLocation(node.expression), MSSQL_MOTTAKERE)
+        ts.isNewExpression(node) ||
+        (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.SuperKeyword)
+      ) {
+        const d = kontroll.getResolvedSignature(node)?.getDeclaration();
+        if (d && ts.isConstructorDeclaration(d) && forbudt(d)) meld(node);
+      }
+      if (
+        (ts.isIdentifier(node) ||
+          (ts.isStringLiteralLike(node) &&
+            (ts.isElementAccessExpression(node.parent) || ts.isBindingElement(node.parent)))) &&
+        deklarasjoner(medlem(node)).some((d) => !ts.isConstructorDeclaration(d) && forbudt(d))
       )
-        funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
-      if ((ts.isCallExpression(node) || ts.isTaggedTemplateExpression(node)) && modulfunksjon(node))
-        funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
+        meld(
+          ts.isPropertyAccessExpression(node.parent) || ts.isElementAccessExpression(node.parent)
+            ? node.parent
+            : node
+        );
       ts.forEachChild(node, besok);
     };
     besok(fil);
@@ -291,6 +333,17 @@ describe('grensene rundt TS-serveren', () => {
     expect(mssqlKall(utenForespoersel)).toEqual([]);
   }, 60_000);
 
+  it('vakten ser transaksjonshjelperen i datalaget, som har lov', () => {
+    expect(mssqlKall([join(SERVER, 'datalag.ts')])).toEqual(
+      expect.arrayContaining([
+        'datalag.ts: new sql.Transaction(forelder)',
+        'datalag.ts: tx.begin',
+        'datalag.ts: tx.commit',
+        'datalag.ts: tx.rollback',
+      ])
+    );
+  }, 60_000);
+
   it.each([
     ["(p: Pool) => p.query('SELECT 1');"],
     ["(p: Pool) => p.batch('SELECT 1');"],
@@ -306,6 +359,31 @@ describe('grensene rundt TS-serveren', () => {
     ["() => sql.query('SELECT 1');"],
     ['() => sql.query`SELECT 1`;'],
     ["() => { const q = sql.query; return q('SELECT 1'); };"],
+    // #1517 punkt 1: destrukturering og hakeparentes på en pool.
+    ["(p: Pool) => { const { query } = p; return query('SELECT 1'); };"],
+    ["(p: Pool) => { const { batch: b } = p; return b('SELECT 1'); };"],
+    ["(p: Pool) => p['query']('SELECT 1');"],
+    ["(p: Pool | undefined) => p?.['transaction']();"],
+    // #1517 punkt 2: modulfunksjonene kalt indirekte.
+    ["() => sql.query.call(undefined, 'SELECT 1');"],
+    ["() => ['SELECT 1'].map(sql.query);"],
+    ['(k: string) => sql.connect.apply(undefined, [k]);'],
+    // #1517 punkt 3: subklasse, snitt og typeparameter som mottaker.
+    ["(() => { class P extends sql.ConnectionPool {} return (p: P) => p.query('SELECT 1'); })();"],
+    ["(() => { class P extends sql.ConnectionPool {} return () => new P('k'); })();"],
+    [
+      "(() => { class P extends sql.ConnectionPool { constructor() { super('k'); } } return P; })();",
+    ],
+    ["(p: Pool & { navn: string }) => p.query('SELECT 1');"],
+    ["<T extends Pool>(p: T) => p.query('SELECT 1');"],
+    ['<T extends sql.Transaction>(t: T) => t.request();'],
+    ['(p: Pool | sql.Transaction) => p.request();'],
+    // #1517 punkt 4: commit, rollback og begin på en transaksjon.
+    ['(t: sql.Transaction) => t.commit();'],
+    ['(t: sql.Transaction) => t.rollback();'],
+    ['(t: sql.Transaction) => t.begin();'],
+    ['(f: () => sql.Request) => f().transaction.commit();'],
+    ['(t: sql.Transaction | undefined) => t?.rollback();'],
   ])(
     'typekontrolløren oppdager %s i sesjon.ts',
     (linje) => {
