@@ -18,15 +18,17 @@
  *   `Request` som verdi, også gjennom et annet navn enn `pool`, med hakeparentes og
  *   i en destrukturering. Den ser ikke en forespørsel gjennom en variabel
  *   med et annet navn eller en dynamisk nøkkel, og typen `sql.Request` er lov.
- *   I tillegg leser typekontrolløren i TypeScript hvert kall på en pool, en
- *   transaksjon eller en forberedt spørring fra `mssql` og hver `new` av dem, så
- *   `pool.query`, `pool.batch`, `pool.transaction()` og
+ *   I tillegg leser typekontrolløren i TypeScript hvert kall på en metode i
+ *   `MSSQL_METODER` på en pool, en transaksjon eller en forberedt spørring fra `mssql`
+ *   og hver `new` av dem, så `pool.query`, `pool.batch`, `pool.transaction()` og
  *   `new sql.PreparedStatement(pool)` også er synlige (#877, #894-2), også når
  *   mottakeren er en union som `Pool | undefined` (#923 punkt 2). Den ser også et
  *   kall på modulfunksjonene `connect`, `query` og `batch` i `mssql`, som bruker den
  *   globale poolen, også gjennom et annet navn (#923 punkt 3); `batch` har ingen type
  *   i `@types/mssql`, så `tsc` avviser den før testen. Den ser ikke en verdi med typen
- *   `any` eller `unknown`.
+ *   `any` eller `unknown`, en destrukturering eller hakeparentes på en pool, en
+ *   modulfunksjon kalt gjennom `call` eller som argument, en subklasse, et snitt eller en
+ *   typeparameter som mottaker, eller `commit`, `rollback` og `begin` (#1517).
  * - `pdf-lib` og `@pdf-lib/fontkit` importeres bare i `brevpdf.ts`, som lager PDF-en
  *   av brevet med skriften bygd inn (#371, #799).
  *
@@ -123,12 +125,13 @@ export function forespoersler(kilde: string): string[] {
   return funn;
 }
 
-/** Typene i `mssql` som kan sende en spørring, og metodene på dem som gjør det. */
+/** Typene i `mssql` som kan sende en spørring; `new` av dem er et funn. */
 const MSSQL_TYPER = new Set(['ConnectionPool', 'Transaction', 'PreparedStatement', 'Request']);
-/** Typene der metodene over er forbudt; en `Request` kommer fra `transaksjon` eller `utenKontekst`. */
+/** Mottakerne for `MSSQL_METODER`; en `Request` kommer fra `transaksjon` eller `utenKontekst`. */
 const MSSQL_MOTTAKERE = new Set(['ConnectionPool', 'Transaction', 'PreparedStatement']);
 /** Modulfunksjonene i `mssql` som sender en spørring gjennom den globale poolen (#923 punkt 3). */
 const MSSQL_MODULFUNKSJONER = new Set(['connect', 'query', 'batch']);
+/** Metodene som sender en spørring; `commit`, `rollback` og `begin` er ikke med (#1517). */
 const MSSQL_METODER = new Set([
   'request',
   'query',
@@ -142,7 +145,8 @@ const MSSQL_METODER = new Set([
 /**
  * Stedene i filene i `sjekk` som lager en pool, en transaksjon, en forberedt
  * spørring eller en forespørsel fra `mssql`, eller kaller en metode som sender en
- * spørring på en pool, en transaksjon eller en forberedt spørring (#894-2).
+ * spørring på en pool, en transaksjon eller en forberedt spørring (#894-2), eller
+ * en modulfunksjon som bruker den globale poolen (#923 punkt 3).
  * `kilder` erstatter teksten i filene det gjelder.
  */
 export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): string[] {
