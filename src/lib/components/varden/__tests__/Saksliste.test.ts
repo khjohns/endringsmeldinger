@@ -13,6 +13,7 @@ import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { ApiError } from '$lib/api/client';
 import type { Sakslinje } from '$lib/types/api';
+import { sorter } from '$lib/components/varden/saksliste';
 
 afterEach(cleanup);
 
@@ -536,5 +537,30 @@ describe('Saken i Varden etter at skallet er trukket ut', () => {
     expect(within(feil).getByRole('link', { name: 'Til sakslisten' }).getAttribute('href')).toBe(
       '/p1'
     );
+  });
+});
+
+describe('sorteringen etter «Siste brev»', () => {
+  it('en sak uten brev sorteres etter dagen i Oslo for siste hendelse, som brevets dato (#1450)', () => {
+    const medBrev = lagSakslinje({
+      sak_id: 'med-brev',
+      siste_hendelse: '2026-11-03T08:00:00Z',
+      siste_brev: { avsender: 'BH', dato: '2026-11-03' },
+    });
+    // 23.30 UTC 2. november er 3. november i Oslo, og senere enn hendelsen i den andre saken.
+    const utenBrev = lagSakslinje({
+      sak_id: 'uten-brev',
+      siste_hendelse: '2026-11-02T23:30:00Z',
+      siste_brev: null,
+    });
+    expect(sorter([medBrev, utenBrev], 'siste-brev').map((l) => l.sak_id)).toEqual([
+      'med-brev',
+      'uten-brev',
+    ]);
+    const senere = { ...medBrev, siste_hendelse: '2026-11-02T22:00:00Z' };
+    expect(
+      sorter([senere, utenBrev], 'siste-brev').map((l) => l.sak_id),
+      'samme dag i Oslo sorteres etter siste hendelse'
+    ).toEqual(['uten-brev', 'med-brev']);
   });
 });
