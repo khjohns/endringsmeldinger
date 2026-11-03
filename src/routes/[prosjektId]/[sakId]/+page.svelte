@@ -1,85 +1,46 @@
+<!--
+  Saken i Varden (#1414). Saken åpner i forholdet, eller i sporet `?spor=` fra
+  omdirigeringene. Etter opprettelsen kommer TE hit med kvitteringen (S1 i #1414).
+  Den gamle visningen står på `kjerne/` (S3).
+-->
 <script lang="ts">
   import { page } from '$app/state';
-  import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
+  import Vardensak from '$lib/components/varden/Vardensak.svelte';
+  import { NYSAK } from '$lib/components/varden/tekster';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-  import {
-    readWorkspaceView,
-    workspaceViewUrl,
-    type WorkspaceView,
-  } from '$lib/kontraktsbord/viewState';
+  import type { Spor } from '$kjerne/typer';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
-  // Leserens side kommer fra serveren (#705). Uten side viser Kontrollrommet ingen handling.
+  // Leserens side kommer fra serveren (#705).
   const kjernesak = $derived(lagKjernesak({ sakId, prosjektId }));
 
   $effect(() => {
     if (sakId) void kjernesak.last();
   });
-  const storedRole =
-    typeof localStorage !== 'undefined' && localStorage.getItem('koe-user-role') === 'TE'
-      ? 'TE'
-      : 'BH';
-  const view = $derived(readWorkspaceView(page.url.searchParams, storedRole));
 
-  $effect(() => {
-    localStorage.setItem('koe-user-role', view.role);
+  // Omdirigeringene skriver sporene med de gamle navnene.
+  const SPORENE: Record<string, Spor> = {
+    ansvar: 'forhold',
+    grunnlag: 'forhold',
+    forhold: 'forhold',
+    vederlag: 'vederlag',
+    frist: 'frist',
+  };
+  const spor = $derived.by(() => {
+    const navn = page.url.searchParams.get('spor') ?? '';
+    return Object.hasOwn(SPORENE, navn) ? SPORENE[navn] : 'forhold';
   });
-
-  function changeView(next: WorkspaceView) {
-    const href = workspaceViewUrl(page.url, next);
-    if (href !== page.url.pathname + page.url.search + page.url.hash)
-      // href er utledet av gjeldende URL (bare query endres), ikke en ny rute.
-      // eslint-disable-next-line svelte/no-navigation-without-resolve
-      void goto(href, { noScroll: true, keepFocus: true });
-  }
 </script>
 
 <svelte:head><title>{kjernesak.saksbilde?.tittel ?? 'Sak'} — Kontraktsbordet</title></svelte:head>
 
-{#if kjernesak.saksbilde}
-  {#key prosjektId + ':' + sakId}
-    <Kjernesakrom
-      {kjernesak}
-      projectId={prosjektId}
-      {view}
-      onviewchange={changeView}
-      onnewcase={() => goto(resolve('/[prosjektId]/ny', { prosjektId }))}
-    />
-  {/key}
-{:else if kjernesak.finnes === false}
-  <div class="case-message" role="alert">
-    <h1>Fant ikke saken</h1>
-    <p>Saken finnes ikke i prosjektet.</p>
-    <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
-  </div>
-{:else if kjernesak.feil}
-  <div class="case-message" role="alert">
-    <h1>Kunne ikke laste saken</h1>
-    <p>{kjernesak.feil}</p>
-    <button onclick={() => kjernesak.last()}>Prøv igjen</button>
-    <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
-  </div>
-{:else}
-  <div class="case-message" role="status">Laster sak …</div>
-{/if}
-
-<style>
-  .case-message {
-    padding: 40px;
-    color: var(--color-ink);
-  }
-  .case-message h1 {
-    font-size: 22px;
-    margin-bottom: 12px;
-  }
-  .case-message p {
-    margin-bottom: 16px;
-  }
-  .case-message button {
-    margin-right: 16px;
-    cursor: pointer;
-  }
-</style>
+{#key prosjektId + ':' + sakId}
+  <Vardensak
+    {kjernesak}
+    {spor}
+    kvittering={page.state.nySakSendt ? NYSAK.kvittering : undefined}
+    saksliste={resolve('/[prosjektId]', { prosjektId })}
+  />
+{/key}

@@ -8,6 +8,7 @@
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { getKontraktsregel, type Kontraktsregel } from '$lib/constants/kontraktsregler';
 import { kravMotNySak, type Brev } from '$lib/kjernesak/brevtekst';
+import { PROGRAMFEIL, type Programfeil } from '$lib/kjernesak/kontekst.svelte';
 import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
 import {
   kategoriFraKatalogen,
@@ -160,11 +161,19 @@ export function kommandoene(u: Utfylling, kjerne: Kjerne) {
 
 /**
  * Brevet kjernen lager for påberopelsen mot en ny sak, prøvd med `sendes` (#1271, GR-U15).
- * Påberopelsen binder ingen vedlegg ennå (#1037), så oppslaget er tomt.
+ * Påberopelsen binder ingen vedlegg ennå (#1037), så oppslaget er tomt. En programfeil i
+ * kjernen blir `PROGRAMFEIL`, som i `brev` i `lagKjernesak`, så skjemaet ikke velter (#898).
  */
-export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev {
-  const { opprettelse, paaberopelse } = kommandoene(u, kjerne);
-  return kravMotNySak(opprettelse, paaberopelse, 'TE', kjerne, new Map(), sakId);
+export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev | Programfeil {
+  try {
+    const { opprettelse, paaberopelse } = kommandoene(u, kjerne);
+    // Serveren lager teksten med sakstittelen i påberopelsen (LV-U43, `server/app.ts`).
+    const innhold = { ...paaberopelse.innhold, tittel: opprettelse.sakstittel };
+    return kravMotNySak(opprettelse, { ...paaberopelse, innhold }, 'TE', kjerne, new Map(), sakId);
+  } catch (e) {
+    console.error(e);
+    return { programfeil: PROGRAMFEIL };
+  }
 }
 
 /**

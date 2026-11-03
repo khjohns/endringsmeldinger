@@ -377,9 +377,14 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
 
   const opprettelse = { type: 'opprett_sak', sakstittel: 'Teglforblending' };
   const sakId = lagDemosak(forloep, 'start', 'TE').sakId;
+  // Serveren lager teksten med sakstittelen i påberopelsen (LV-U43, `server/app.ts`).
   const brev = kravMotNySak(
     opprettelse,
-    { ...paaberopelse, utdypning: BESKRIVELSE },
+    {
+      ...paaberopelse,
+      innhold: { ...paaberopelse.innhold, tittel: opprettelse.sakstittel },
+      utdypning: BESKRIVELSE,
+    },
     'TE',
     KJERNE,
     new Map(),
@@ -420,5 +425,29 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     expect(brevtittel({ art: 'krav', spor: ['vederlag'], forhold: null })).toBe(
       'Krav om vederlagsjustering'
     );
+  });
+});
+
+describe('programfeil i brevkontrollen for ny sak (#898)', () => {
+  it('en kjerne som kaster, gir PROGRAMFEIL og ikke en rå feil', async () => {
+    const { brevet } = await import('$lib/components/varden/nysak');
+    const { PROGRAMFEIL } = await import('$lib/kjernesak/kontekst.svelte');
+    const kjerne = {
+      ...KJERNE,
+      get regler(): typeof KJERNE.regler {
+        throw new Error('programfeil');
+      },
+    };
+    const feil = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const utfylling = {
+      forhold: { gruppe: 'ENDRING', kode: 'IRREG' },
+      tittel: 'Teglforblending',
+      beskrivelse: BESKRIVELSE,
+      dato: '2026-09-15',
+      endringsordre: '',
+    };
+    expect(brevet(utfylling, 'ny-sak', kjerne)).toEqual({ programfeil: PROGRAMFEIL });
+    expect(brevet(utfylling, 'ny-sak', KJERNE)).toHaveProperty('tekst');
+    feil.mockRestore();
   });
 });

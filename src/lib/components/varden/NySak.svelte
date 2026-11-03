@@ -175,7 +175,8 @@
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
       const brev = brevet(utfylling(), sakId, KJERNE);
-      if ('avvisning' in brev) {
+      if ('programfeil' in brev) ny.kjernen = brev.programfeil;
+      else if ('avvisning' in brev) {
         if (brev.avvisning.regel === 'BESKRIVELSE_MANGLER')
           ny.beskrivelse = NYSAK.beskriv(felt.beskrivelse.endsWith('pålegget'));
         else ny.kjernen = brev.avvisning.melding;

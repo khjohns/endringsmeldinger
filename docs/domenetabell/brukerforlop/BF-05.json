@@ -362,6 +362,7 @@
   "bevis_saker": [],
   "visninger": [
     "demoruta",
+    "saksruta",
     "varden"
   ],
   "endringer": [
@@ -379,6 +380,11 @@
       "dato": "2026-11-02",
       "forhold": "#1481",
       "hva": "Forløpet er kjørbart: steget med påberopelsen, kontrollene for GR-U15 og KT-U11, og forståelsen fra U-2–U-7. Kontrollpunktet «start» er før opprettelsen."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1414",
+      "hva": "Forløpet kjøres i saksruta: TE fyller ut og sender skjemaet på /{p}/ny i nettleseren."
     }
   ],
   "steg": [
