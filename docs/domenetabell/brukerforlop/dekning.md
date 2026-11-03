@@ -33,6 +33,7 @@ på kilden, men har ingen kontroller ennå.
 | [EO-U11](../../plans/vedtak.md#eo-u11) | — | — | BF-06 |
 | [EO-U12](../../plans/vedtak.md#eo-u12) | — | — | BF-06 |
 | [EO-U13](../../plans/vedtak.md#eo-u13) | — | — | BF-01V, BF-06 |
+| [EO-U14](../../plans/vedtak.md#eo-u14) | — | — | BF-06 |
 | [FO-U1](../../plans/vedtak.md#fo-u1) | — | — | BF-06 |
 | [FO-U8](../../plans/vedtak.md#fo-u8) | — | — | BF-06 |
 | [GFK-U7](../../plans/vedtak.md#gfk-u7) | — | — | BF-06 |
