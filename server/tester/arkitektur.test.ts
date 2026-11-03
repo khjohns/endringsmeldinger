@@ -24,13 +24,17 @@
  *   modulfunksjonene `connect`, `query` og `batch`, som bruker den globale poolen
  *   (#877, #894-2, #923). Da er kallet, en destrukturering, hakeparentes med en
  *   streng, verdien uten kall (`sql.query.call`, `map(sql.query)`) og en subklasse,
- *   et snitt, en union eller en typeparameter som mottaker synlige (#1517).
+ *   et snitt, en union eller en typeparameter som mottaker synlige (#1517). Det gjelder også
+ *   en tilordning med destrukturering og en nøkkel i hakeparentes eller i en
+ *   beregnet egenskap som har en bokstavelig type, også fra en konstant.
  *   `commit`, `rollback` og `begin` er med, siden de avslutter eller åpner en
  *   transaksjon forbi `transaksjon` i datalaget. Hver `new` og `super(…)` som når
  *   konstruktøren til en pool, en transaksjon, en forberedt spørring eller en
  *   forespørsel, er også et funn. `batch` har ingen type i `@types/mssql`, så `tsc`
  *   avviser den før testen. Den ser ikke en verdi med typen `any` eller `unknown`,
- *   en dynamisk nøkkel eller en verdi som er kastet til en type utenfor `mssql`.
+ *   en nøkkel med typen `string`, en verdi som er kastet til en type utenfor `mssql`
+ *   eller en metode som en subklasse overstyrer, når subklassen er deklarert i en
+ *   fil som har lov.
  * - `pdf-lib` og `@pdf-lib/fontkit` importeres bare i `brevpdf.ts`, som lager PDF-en
  *   av brevet med skriften bygd inn (#371, #799).
  *
@@ -191,28 +195,44 @@ export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): 
       MSSQL_MOTTAKERE.has(klassen(d) ?? '')
     );
   };
-  // Et alias er en import eller en eksport; et medlem i et snitt eller en union kan være
-  // satt sammen av flere, og da prøves hver del.
+  // Et alias er en import eller en eksport. Et medlem i et snitt eller en union har
+  // deklarasjonene fra hver del.
   const deklarasjoner = (symbol: ts.Symbol | undefined): ts.Declaration[] => {
     if (!symbol) return [];
     const ekte = symbol.flags & ts.SymbolFlags.Alias ? kontroll.getAliasedSymbol(symbol) : symbol;
     return ekte.declarations ?? [];
   };
-  // Destruktureringen og hakeparentesen løses mot typen uten `undefined`, som `p?.['query']`.
-  const egenskap = (objekt: ts.Node, navn: string) =>
-    kontroll.getPropertyOfType(
-      kontroll.getNonNullableType(kontroll.getTypeAtLocation(objekt)),
-      navn
+  // Et navn i et mønster er navnet. En nøkkel i hakeparentes eller i en beregnet
+  // egenskap gir navnene i den bokstavelige typen sin, også fra en konstant eller en
+  // union av strenger.
+  const navnene = (noekkel: ts.PropertyName | ts.Expression): string[] => {
+    if (
+      (ts.isIdentifier(noekkel) || ts.isStringLiteral(noekkel) || ts.isNumericLiteral(noekkel)) &&
+      !ts.isElementAccessExpression(noekkel.parent)
+    )
+      return [noekkel.text];
+    const uttrykk = ts.isComputedPropertyName(noekkel) ? noekkel.expression : noekkel;
+    const type = kontroll.getTypeAtLocation(uttrykk);
+    return (type.isUnion() ? type.types : [type]).flatMap((t) =>
+      t.isStringLiteral() || t.isNumberLiteral() ? [String(t.value)] : []
     );
-  const medlem = (node: ts.Identifier | ts.StringLiteralLike): ts.Symbol | undefined => {
-    if (ts.isBindingElement(node.parent) && ts.isObjectBindingPattern(node.parent.parent))
-      return node === (node.parent.propertyName ?? node.parent.name)
-        ? egenskap(node.parent.parent, node.text)
-        : undefined;
-    if (ts.isElementAccessExpression(node.parent) && node.parent.argumentExpression === node)
-      return egenskap(node.parent.expression, node.text);
-    if (ts.isImportSpecifier(node.parent) || ts.isImportClause(node.parent)) return undefined;
-    return kontroll.getSymbolAtLocation(node);
+  };
+  // Typen løses uten `undefined`, som `p?.['query']`.
+  const forbudtEgenskap = (type: ts.Type, noekkel: ts.PropertyName | ts.Expression) =>
+    navnene(noekkel).some((navn) =>
+      deklarasjoner(kontroll.getPropertyOfType(kontroll.getNonNullableType(type), navn)).some(
+        (d) => !ts.isConstructorDeclaration(d) && forbudt(d)
+      )
+    );
+  // Et objekt som tilordnes til med destrukturering, også inne i et annet mønster.
+  const moenster = (o: ts.ObjectLiteralExpression): boolean => {
+    const opp = o.parent;
+    if (ts.isBinaryExpression(opp))
+      return opp.left === o && opp.operatorToken.kind === ts.SyntaxKind.EqualsToken;
+    if (ts.isForOfStatement(opp) || ts.isForInStatement(opp)) return opp.initializer === o;
+    if (ts.isPropertyAssignment(opp) && ts.isObjectLiteralExpression(opp.parent))
+      return opp.initializer === o && moenster(opp.parent);
+    return false;
   };
   const funn: string[] = [];
   for (const navn of sjekk) {
@@ -225,18 +245,30 @@ export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): 
       ) {
         const d = kontroll.getResolvedSignature(node)?.getDeclaration();
         if (d && ts.isConstructorDeclaration(d) && forbudt(d)) meld(node);
-      }
-      if (
-        (ts.isIdentifier(node) ||
-          (ts.isStringLiteralLike(node) &&
-            (ts.isElementAccessExpression(node.parent) || ts.isBindingElement(node.parent)))) &&
-        deklarasjoner(medlem(node)).some((d) => !ts.isConstructorDeclaration(d) && forbudt(d))
+      } else if (ts.isElementAccessExpression(node)) {
+        if (forbudtEgenskap(kontroll.getTypeAtLocation(node.expression), node.argumentExpression))
+          meld(node);
+      } else if (ts.isBindingElement(node) && ts.isObjectBindingPattern(node.parent)) {
+        const noekkel = node.propertyName ?? (ts.isIdentifier(node.name) ? node.name : undefined);
+        if (noekkel && forbudtEgenskap(kontroll.getTypeAtLocation(node.parent), noekkel))
+          meld(node);
+      } else if (
+        (ts.isPropertyAssignment(node) || ts.isShorthandPropertyAssignment(node)) &&
+        ts.isObjectLiteralExpression(node.parent) &&
+        moenster(node.parent)
+      ) {
+        if (forbudtEgenskap(kontroll.getTypeOfAssignmentPattern(node.parent), node.name))
+          meld(node);
+      } else if (
+        ts.isIdentifier(node) &&
+        !ts.isImportSpecifier(node.parent) &&
+        !ts.isImportClause(node.parent) &&
+        !(ts.isBindingElement(node.parent) && node.parent.propertyName === node) &&
+        deklarasjoner(kontroll.getSymbolAtLocation(node)).some(
+          (d) => !ts.isConstructorDeclaration(d) && forbudt(d)
+        )
       )
-        meld(
-          ts.isPropertyAccessExpression(node.parent) || ts.isElementAccessExpression(node.parent)
-            ? node.parent
-            : node
-        );
+        meld(ts.isPropertyAccessExpression(node.parent) ? node.parent : node);
       ts.forEachChild(node, besok);
     };
     besok(fil);
@@ -364,6 +396,14 @@ describe('grensene rundt TS-serveren', () => {
     ["(p: Pool) => { const { batch: b } = p; return b('SELECT 1'); };"],
     ["(p: Pool) => p['query']('SELECT 1');"],
     ["(p: Pool | undefined) => p?.['transaction']();"],
+    // Reviewet av #1524: tilordning med destrukturering, beregnet nøkkel og konstant nøkkel.
+    ["(p: Pool) => { let query; ({ query } = p); return query!('SELECT 1'); };"],
+    ["(p: Pool) => { let q; ({ query: q } = p); return q!('SELECT 1'); };"],
+    ["(p: Pool) => { let q; ({ 'query': q } = p); return q!('SELECT 1'); };"],
+    ["(p: Pool) => { const { ['query']: q } = p; return q('SELECT 1'); };"],
+    ["(p: Pool) => { const { 'query': q } = p; return q('SELECT 1'); };"],
+    ["(p: Pool) => { const k = 'query' as const; return p[k]('SELECT 1'); };"],
+    ["(p: Pool, k: 'query' | 'connected') => p[k];"],
     // #1517 punkt 2: modulfunksjonene kalt indirekte.
     ["() => sql.query.call(undefined, 'SELECT 1');"],
     ["() => ['SELECT 1'].map(sql.query);"],
@@ -396,6 +436,17 @@ describe('grensene rundt TS-serveren', () => {
     },
     60_000
   );
+
+  it('typekontrolløren leser nøkkelen i hakeparentes som verdien, ikke navnet på variabelen', () => {
+    const fil = join(SERVER, 'sesjon.ts');
+    const linje = "(p: Pool) => { const query = 'connected' as const; return p[query]; };";
+    expect(
+      mssqlKall(
+        [fil],
+        new Map([[fil, `${readFileSync(fil, 'utf8')}\nexport const proeve = ${linje}\n`]])
+      )
+    ).toEqual([]);
+  }, 60_000);
 
   it.each([
     ["await pool.request().query('SELECT 1');"],
