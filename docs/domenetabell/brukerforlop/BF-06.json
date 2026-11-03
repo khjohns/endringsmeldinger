@@ -377,6 +377,49 @@
             "staar": "Ingen saker lukkes. Vederlagsjusteringen og fristforlengelsen står alene."
           }
         ]
+      },
+      {
+        "id": "registrer",
+        "dekker": [
+          "18"
+        ],
+        "start": "registrer",
+        "handlinger": [
+          {
+            "staar": "Fyll ut skjemaet etter det brevet sier."
+          },
+          {
+            "fyll": "Datoen brevet ble sendt",
+            "tekst": "25.10.2026"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Registrering av endringsordre sendt utenfor løsningen"
+          },
+          {
+            "staar": "Kravet om fristforlengelse er sendt etter datoen på brevet (brev 9, 28. oktober)."
+          },
+          {
+            "kryss": "Listen over sakene er riktig"
+          },
+          {
+            "klikk": "Send registreringen til godkjenning",
+            "tilstand": "godkjenning"
+          },
+          {
+            "staar": "Registreringen er ikke lagret."
+          },
+          {
+            "klikk": "Vis endringsordren når den er godkjent",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Inngår i EO-013"
+          }
+        ]
       }
     ]
   },
@@ -464,6 +507,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "S-8: vederlag og frist i endringsordren er byggherrens tilbud, og BH svarer bare på krav som er sendt. Prototypen versjon 8 uten avkrysning for tilbud, med endringsordre uten KOE-sak og fjerning av sak i samlet post."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Registreringen av en endringsordre sendt utenfor løsningen: S-2, S-4, S-15 og P-3 besvart, og prototypen versjon 9 med #registrer."
     }
   ]
 }
