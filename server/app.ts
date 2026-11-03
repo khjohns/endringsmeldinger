@@ -663,9 +663,13 @@ async function opprettMedPaaberopelse(
     // Saken og påberopelsen er lagret; et nytt forsøk får kvitteringen og vekker igjen.
     return usikkert(feil);
   }
+  // `versjon` er sakens, så klienten kan sende den som `expected_version` (#1507). Varselet
+  // er skrevet etter påberopelsen i samme transaksjon, og kommandosummen omfatter det, så
+  // også et gjentak fra kvitteringen har det. `event_id` er påberopelsens, som kvitteringen.
   const { rad } = utfall;
+  const versjon = rad.versjon + (varsel === undefined ? 0 : 1);
   return lagret(
-    [201, { success: true, sak_id: rad.sak_id, event_id: rad.event_id, versjon: rad.versjon }],
+    [201, { success: true, sak_id: rad.sak_id, event_id: rad.event_id, versjon }],
     utfallUsikkert
   );
 }
