@@ -978,7 +978,6 @@ const TSCONFIGER = [
   'sprakprove/skrivesti/tsconfig.json',
 ];
 const ANKERSKRIPT = 'server/tester/feilinnfoering.py';
-const STARTER_TSC = new Set(['npx', 'npm', 'pnpm', 'yarn', 'bunx', 'node']);
 const SJEKKFORMER =
   'npx tsc -p <tsconfig> [--noEmit] eller python3 server/tester/feilinnfoering.py --ankre';
 
@@ -1052,11 +1051,14 @@ function sjekkBegrunnelse(del, cwd, rot) {
   const ord = varighet(del.ord) ? del.ord.slice(2) : del.ord;
   const forran = varighet(del.forran) && del.forran.length === 2 ? [] : (del.forran ?? []);
   const navn = ord.map((o) => o.split('/').pop());
-  const tsc =
-    navn[0] === 'tsc' ||
-    (STARTER_TSC.has(navn[0]) && navn.slice(1).some((o) => /^tsc(\.js)?$/.test(o)));
+  // Også bak en kommando som starter andre, som `xargs` og `find -exec`. Tekstkommandoene
+  // kjører ikke argumentene sine.
+  const starter = !TEKSTMOTTAKERE.has(navn[0]);
+  const tsc = starter && navn.some((o) => /^_?tsc(\.js)?$/.test(o));
   const anker =
-    /^python[\d.]*$/.test(navn[0]) && ord.slice(1).some((o) => o.endsWith('feilinnfoering.py'));
+    starter &&
+    navn.some((o) => /^python[\d.]*$/.test(o)) &&
+    ord.some((o) => o.endsWith('feilinnfoering.py'));
   if (!tsc && !anker) return undefined;
   if (forran.length) return `Sjekken kjøres uten prefiks eller miljøvariabler: ${SJEKKFORMER}.`;
   if (!rot || ekteSti(cwd) !== ekteSti(rot)) {
@@ -1124,11 +1126,16 @@ function vurderKall(input) {
   const rakKommando = String(parametre.command ?? '');
   const leddene = lekser(rakKommando);
   const eff = effektiveKommandoer(leddene);
-  const sjekk = eff
+  const sjekkene = eff
     .filter((del) => !del.kropp && !del.ukjentKommando)
     .map((del) => sjekkBegrunnelse(del, cwd, rot))
-    .find((begrunnelse) => typeof begrunnelse === 'string');
+    .filter((begrunnelse) => begrunnelse !== undefined);
+  const sjekk = sjekkene.find((begrunnelse) => typeof begrunnelse === 'string');
   if (sjekk) return sjekk;
+  // Kontrollen leser tsconfig og skriptet fra cwd, så sjekken kan ikke kjøres fra en annen mappe.
+  if (sjekkene.length && eff.some((del) => ['cd', 'pushd', 'popd'].includes(del.ord[0]))) {
+    return `Sjekken kjøres i et eget kall uten cd, fra roten av arbeidstreet: ${SJEKKFORMER}.`;
+  }
   // Når hvert ledd er lesende eller en av sjekkene, kan kallet verken skrive eller pushe, selv
   // om et argument ligner en skrivende kommando (`grep "ruff format"`).
   if (

@@ -1355,6 +1355,30 @@ describe('sjekkene i miljø-skillen for mekanisk-pr (#1513)', () => {
     expect(sjekk('python3 server/tester/feilinnfoering.py --ankre', tmpdir()).status).toBe(2);
   });
 
+  it('stopper sjekkene etter cd i samme kall, der tsc ville lest en annen tsconfig', () => {
+    tsconfig('docs/kjerne/tsconfig.json', '{ "compilerOptions": { "outDir": "../../kjerne" } }');
+    for (const kommando of [
+      'cd docs && npx tsc -p kjerne/tsconfig.json',
+      'cd docs; npx tsc -p kjerne/tsconfig.json --noEmit',
+      'pushd docs && python3 server/tester/feilinnfoering.py --ankre',
+    ]) {
+      const svar = sjekk(kommando);
+      expect(svar.status, kommando).toBe(2);
+      expect(svar.stderr, kommando).toContain('uten cd');
+    }
+  });
+
+  it('stopper tsc og ankerskriptet bak xargs, find -exec og _tsc.js', () => {
+    for (const kommando of [
+      'echo sprakprove/tsconfig.json | xargs npx tsc -p',
+      'find . -name tsconfig.json -exec npx tsc -p {} ;',
+      'node node_modules/typescript/lib/_tsc.js -p sprakprove/tsconfig.json',
+      'echo 1 | xargs python3 server/tester/feilinnfoering.py',
+    ]) {
+      expect(sjekk(kommando).status, kommando).toBe(2);
+    }
+  });
+
   it('lar tekst om sjekkene i lesende kommandoer og i en heredoc være', () => {
     for (const kommando of [
       'grep -n "tsc -p" .claude/skills/miljo/SKILL.md',
