@@ -29,9 +29,12 @@ describe('omdirigeringene til skjemaene (S3 i #1414)', () => {
     ['rediger-grunnlag', redigerGrunnlag, 'spor=ansvar&mode=form&rolle=TE'],
     ['svar-grunnlag', svarGrunnlag, 'spor=ansvar&mode=form&rolle=BH'],
     ['svar-frist', svarFrist, 'spor=frist&mode=form&rolle=BH'],
-    ['svar-vederlag', svarVederlag, 'spor=vederlag&mode=form&rolle=BH'],
   ])('%s fører til skjemaet på /kjerne, der skjemaene står', (_navn, last, sok) => {
     expect(maal(last as Last, p)).toBe(`/P001/KOE-1/kjerne?${sok}`);
+  });
+
+  it('svar-vederlag fører til Varden, som har BHs svar på vederlag (S3 i #1414)', () => {
+    expect(maal(svarVederlag as Last, p)).toBe('/P001/KOE-1?spor=vederlag&mode=form&rolle=BH');
   });
 
   it('beholder parametrene i adressen, som scenario', () => {
