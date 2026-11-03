@@ -220,6 +220,8 @@ export interface Sakslinje {
   opprettet: string;
   /** Tidsstempelet på den siste hendelsen i journalen, ikke brevets dato. */
   siste_hendelse: string;
+  /** Sakens siste brev med avsenderen og registreringstidspunktet; `null` uten brev eller forståelse. */
+  siste_brev: { avsender: 'TE' | 'BH'; registrert: string } | null;
   hovedkategori: string | null;
   forstaatt: boolean;
   saksbetegnelse: Saksbetegnelse | null;

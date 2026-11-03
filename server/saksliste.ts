@@ -146,6 +146,12 @@ export interface Sakslinje {
   opprettet: string;
   /** Tidsstempelet på den siste hendelsen i journalen, ikke brevets dato. */
   siste_hendelse: string;
+  /**
+   * Sakens siste brev, med avsenderen og tidspunktet det ble registrert i løsningen, som
+   * tidslinja i saken (VS-U8). `null` når saken ikke har noe brev, og når kjernen ikke
+   * forstår saken (MM-U2): da kan ikke lista vite om det ukjente er et brev.
+   */
+  siste_brev: { avsender: Part; registrert: string } | null;
   hovedkategori: string | null;
   forstaatt: boolean;
   saksbetegnelse: Saksbetegnelse | null;
@@ -249,6 +255,23 @@ function frist(u: Utledning): Fristlinje {
 }
 
 /**
+ * Det siste dokumentet i journalen som er et brev i saken. En retting av en registrering er
+ * ikke et nytt brev, og en registrering som en retting sier ikke hører til saken, er heller
+ * ikke med (OV-U17, OV-U18).
+ */
+function sisteBrev(u: Utledning): Sakslinje['siste_brev'] {
+  const dokumenter = u.journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : []));
+  const retter = new Map(dokumenter.map((d) => [d.id, d.retter]));
+  const ikkeISaken = new Set<string>();
+  // En retting retter den siste registreringen i kjeden, så kjeden følges tilbake (#1045).
+  for (const d of dokumenter.filter((x) => x.ikkeISaken))
+    for (let id = d.retter; id; id = retter.get(id) ?? null) ikkeISaken.add(id);
+  const brev = dokumenter.filter((d) => d.retter === null && !ikkeISaken.has(d.id));
+  const siste = brev.at(-1);
+  return siste ? { avsender: siste.avsender, registrert: siste.registrert } : null;
+}
+
+/**
  * Linja for saken. En sak kjernen ikke forstår (MM-U2), har bare betegnelsen og
  * ingen krav, svar eller enighet, som visningen av saken.
  */
@@ -267,6 +290,7 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   if (!u.forstaatt)
     return {
       ...felles,
+      siste_brev: null,
       hovedkategori: null,
       forhold: { ...INGENTING, svar: null },
       vederlag: {
@@ -291,6 +315,7 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   const g = u.spor.forhold.gjeldendeSvar?.standpunkter.find((p) => p.art === 'forhold');
   return {
     ...felles,
+    siste_brev: sisteBrev(u),
     hovedkategori: tekst(u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori),
     forhold: {
       ...foreligger(u, 'forhold'),

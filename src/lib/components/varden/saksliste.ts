@@ -143,7 +143,7 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
 }
 
 export type Utvalg = 'alle' | 'eo' | 'ikke-eo' | 'avsluttet';
-export type Sortering = 'oppdatert' | 'opprettet';
+export type Sortering = 'siste-brev' | 'opprettet';
 
 export function iUtvalg(linje: Sakslinje, utvalg: Utvalg, eo: Endringsordrer): boolean {
   if (utvalg === 'eo') return Boolean(eo[linje.sak_id]);
@@ -161,10 +161,12 @@ export function treff(linje: Sakslinje, soek: string, eo: Endringsordrer): boole
     .some((t) => t!.toLocaleLowerCase('nb').includes(q));
 }
 
-/** Nyeste først, etter siste hendelse i journalen eller etter når saken ble opprettet. */
-export const sorter = (linjer: readonly Sakslinje[], etter: Sortering): Sakslinje[] =>
-  [...linjer].sort((a, b) =>
-    etter === 'oppdatert'
-      ? b.siste_hendelse.localeCompare(a.siste_hendelse)
-      : b.opprettet.localeCompare(a.opprettet)
-  );
+/**
+ * Nyeste først, etter sakens siste brev eller etter når saken ble opprettet. En sak uten
+ * brev, eller som kjernen ikke forstår, sorteres etter siste hendelse i journalen.
+ */
+export const sorter = (linjer: readonly Sakslinje[], etter: Sortering): Sakslinje[] => {
+  const naar = (l: Sakslinje) =>
+    etter === 'siste-brev' ? (l.siste_brev?.registrert ?? l.siste_hendelse) : l.opprettet;
+  return [...linjer].sort((a, b) => naar(b).localeCompare(naar(a)));
+};

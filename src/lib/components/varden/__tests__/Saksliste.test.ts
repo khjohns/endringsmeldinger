@@ -78,20 +78,37 @@ describe('Sakslisten i Varden', () => {
     expect(screen.getByText('Ingen krav om endringsordre ennå.')).toBeTruthy();
   });
 
-  it('kolonnene er saken, kravene og «Oppdatert», og hver rad lenker til saken (prototypen v2)', () => {
+  it('kolonnene er saken, kravene og «Siste brev», og hver rad lenker til saken (prototypen v2)', () => {
     vis({ saker: [lagSakslinje({ sak_id: 'SAK-9', hovedkategori: 'endring' })] });
     const hode = document.querySelector('.radhode')!;
     expect([...hode.children].map((s) => s.textContent?.replace(/\s+/g, ' ').trim())).toEqual([
       'Sak',
       'Krevd vederlag eks. mva.',
       'Krevd frist',
-      'Oppdatert',
+      'Siste brev',
     ]);
     const lenke = screen.getByRole('link', { name: 'Endring i grunnarbeider' });
     expect(lenke.getAttribute('href')).toBe('/p1/SAK-9');
     const r = rad('Endring i grunnarbeider');
     expect(within(r).getByText('Endringer')).toBeTruthy();
-    expect(r.querySelector('.oppdatert')!.textContent).toContain('22. desember 2025');
+  });
+
+  it('«Siste brev» viser avsenderen og datoen for sakens siste brev fra serveren, og «Ingen brev» uten brev (#1450, arbeidsvalg 2 02.11)', () => {
+    vis({
+      saker: [
+        lagSakslinje({
+          sak_id: 'A',
+          sakstittel: 'Med brev',
+          siste_hendelse: '2026-11-02T10:00:00Z',
+          siste_brev: { avsender: 'BH', registrert: '2026-10-30T10:00:00Z' },
+        }),
+        lagSakslinje({ sak_id: 'B', sakstittel: 'Uten brev', siste_brev: null }),
+      ],
+    });
+    const brevet = (t: string) =>
+      rad(t).querySelector('.brevet')!.textContent?.replace(/\s+/g, ' ').trim();
+    expect(brevet('Med brev')).toBe('Fra BH 30. oktober 2026');
+    expect(brevet('Uten brev')).toBe('Ingen brev');
   });
 
   it('raden viser det TE har krevd, og ikke byggherrens svar, enigheten eller betegnelsen (MM-U37)', () => {
@@ -252,6 +269,15 @@ describe('Sakslisten i Varden', () => {
     expect(vederlag).toHaveFocus();
   });
 
+  it('kortene heter bare det overskriften sier, også når infotipset er åpent (#1511)', async () => {
+    vis();
+    const kortet = (navn: string) => screen.getByRole('region', { name: navn });
+    await fireEvent.click(screen.getByRole('button', { name: 'Om tallene for vederlag' }));
+    expect(kortet('Vederlag eks. mva.')).toBeTruthy();
+    expect(kortet('Fristforlengelse')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Vederlag eks. mva.' })).toBeTruthy();
+  });
+
   it('nøkkeltallene summerer kravene med beløp utenfor endringsordrene, teller varsler og krav uten beløp for seg og summerer ikke dagene (MM-U38)', () => {
     const v = (beloep: number, metode = 'tilbud', kravet_staar = true) => ({
       ...ingenting,
@@ -363,13 +389,16 @@ describe('Sakslisten i Varden', () => {
         lagSakslinje({
           sak_id: 'A',
           sakstittel: 'Gammel',
-          siste_hendelse: '2026-09-01T10:00:00Z',
+          // En senere hendelse som ikke er et brev, flytter ikke saken opp.
+          siste_hendelse: '2026-11-01T10:00:00Z',
+          siste_brev: { avsender: 'TE', registrert: '2026-09-01T10:00:00Z' },
           opprettet: '2026-09-01T10:00:00Z',
         }),
         lagSakslinje({
           sak_id: 'B',
           sakstittel: 'Ny',
           siste_hendelse: '2026-10-30T10:00:00Z',
+          siste_brev: { avsender: 'BH', registrert: '2026-10-30T10:00:00Z' },
           opprettet: '2026-08-01T10:00:00Z',
         }),
         lagSakslinje({
@@ -377,6 +406,7 @@ describe('Sakslisten i Varden', () => {
           sakstittel: 'Trukket',
           saksbetegnelse: 'paaberopelsen_trukket',
           siste_hendelse: '2026-10-01T10:00:00Z',
+          siste_brev: null,
           opprettet: '2026-10-01T10:00:00Z',
         }),
       ],

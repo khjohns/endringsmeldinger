@@ -424,6 +424,55 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.brev_utenfor_appen).toBe(true);
   });
 
+  it('siste brev er det siste dokumentet i journalen, med avsenderen og registreringstidspunktet (#1450, MM-U37)', () => {
+    const sak = new Sak();
+    expect(sak.linje().siste_brev, 'en sak uten brev').toBeNull();
+    forloepA(sak);
+    const bh = sak.journal.at(-1)!;
+    expect(sak.linje().siste_brev).toEqual({ avsender: 'BH', registrert: bh.tidsstempel });
+    aksept('vederlag')(sak);
+    expect(sak.linje().siste_brev).toEqual({
+      avsender: 'TE',
+      registrert: sak.journal.at(-1)!.tidsstempel,
+    });
+  });
+
+  it('en registrering som en retting sier ikke hører til saken, og rettingen selv, er ikke sakens siste brev (OV-U17, OV-U18)', () => {
+    const sak = new Sak();
+    krav(sak);
+    const tePaastaar = sak.journal.at(-1)!;
+    sak.registrer({
+      beskrivelse: 'Brev om fundamenteringen',
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+      dokumentasjon: [
+        { vedlegg_id: randomUUID(), filnavn: 'brev.pdf', innhold_sha256: 'a'.repeat(64) },
+      ],
+    });
+    const registrert = sak.journal.at(-1)!;
+    expect(sak.linje().siste_brev, 'kontrollsak: registreringen er siste brev').toEqual({
+      avsender: 'TE',
+      registrert: registrert.tidsstempel,
+    });
+    sak.registrer({ retter: registrert.event_id, ikke_i_saken: true });
+    expect(sak.linje().forstaatt, 'forutsetning').toBe(true);
+    expect(sak.linje().siste_brev).toEqual({ avsender: 'TE', registrert: tePaastaar.tidsstempel });
+  });
+
+  it('en sak kjernen ikke forstår, har ikke noe siste brev, fordi det ukjente kan være et brev (MM-U2)', () => {
+    const sak = new Sak();
+    krav(sak);
+    expect(sak.linje().siste_brev, 'kontrollsak').not.toBeNull();
+    const siste = sak.journal.at(-1)!;
+    sak.journal.push({
+      ...siste,
+      event_id: randomUUID(),
+      versjon: siste.versjon + 1,
+      event_type: 'ukjent_hendelse',
+      data: {},
+    });
+    expect(sak.linje().siste_brev).toBeNull();
+  });
+
   it('en sak kjernen ikke forstår, står i lista med betegnelsen og telles ikke i summene (MM-U2, MM-U22)', () => {
     const sak = new Sak();
     krav(sak);

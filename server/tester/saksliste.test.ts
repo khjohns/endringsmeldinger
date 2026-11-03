@@ -91,6 +91,13 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
     expect(Date.parse(linje.siste_hendelse)).toBeGreaterThanOrEqual(Date.parse(linje.opprettet));
   });
 
+  it('linja har sakens siste brev med avsenderen og tidspunktet fra journalen i basen (#1450)', async () => {
+    const saker = await lista(o.te);
+    const linje = saker.find((s) => s.sak_id === medKrav)!;
+    expect(linje.siste_brev).toEqual({ avsender: 'TE', registrert: linje.siste_hendelse });
+    expect(saker.find((s) => s.sak_id === tom)!.siste_brev, 'en sak uten brev').toBeNull();
+  });
+
   it('en sak uten krav har ingen tall og ingen kategori', async () => {
     expect((await lista()).find((s) => s.sak_id === tom)).toMatchObject({
       hovedkategori: null,
