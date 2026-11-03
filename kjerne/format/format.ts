@@ -178,7 +178,6 @@ export const KRAVINNHOLD: Record<
     properties: {
       hovedkategori: { enum: HOVEDKATEGORIER },
       underkategori: { enum: UNDERKATEGORIER },
-      tittel: TEKST,
       endringsordre: TEKST,
       paalegg_mottatt: DATO,
       klar_over_forholdet: DATO,
@@ -449,6 +448,7 @@ export const DOKUMENT: Skjema = objekt(
     opplysninger: { type: 'array', minItems: 1 },
     dokumentasjon: liste(VEDLEGG),
     brevtekst: BREVTEKST,
+    brevtittel: TEKST,
     beskrivelse: TEKST,
     spor: liste({ enum: [...SPOR] }),
     retter: ID,

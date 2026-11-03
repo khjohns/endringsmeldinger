@@ -380,7 +380,7 @@ describe('linja i sakslisten (#1022)', () => {
     const nyVersjon = linje(krav, frafall, (sak) =>
       sak.send('TE', {
         ...PAABEROPELSE,
-        innhold: { ...PAABEROPELSE.innhold, tittel: 'Endret fundamentering 2' },
+        innhold: { ...PAABEROPELSE.innhold },
       })
     );
     expect(nyVersjon.forhold, 'GR-U23').toMatchObject({

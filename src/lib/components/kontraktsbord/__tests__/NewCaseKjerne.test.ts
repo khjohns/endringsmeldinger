@@ -135,7 +135,9 @@ describe('skjemaet for ny sak på TS-stien', () => {
       (p) => p.textContent
     );
     expect(vist[0]).toContain(`for forholdet i sak ${SAK} («Endret fundament»)`);
-    expect(vist.join(' ')).toContain('TE opplyser at pålegget ble mottatt 1. september 2026.');
+    expect(vist.join(' ')).toContain(
+      'Totalentreprenøren opplyser at pålegget ble mottatt 1. september 2026.'
+    );
     expect(screen.getByTestId('utdypning')).toHaveTextContent(
       'Byggherren har pålagt et større fundament.'
     );
