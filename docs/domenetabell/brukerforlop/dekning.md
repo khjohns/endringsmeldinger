@@ -93,6 +93,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret | BF-01V, BF-02B, BF-02C, BF-03, BF-06 |
 | [MM-U35](../../plans/vedtak.md#mm-u35) | — | BF-04 te-har-mottatt-svaret | BF-01V, BF-03, BF-06 |
 | [MM-U36](../../plans/vedtak.md#mm-u36) | — | — | BF-03 |
+| [MM-U37](../../plans/vedtak.md#mm-u37) | — | — | BF-06 |
 | [MM-U38](../../plans/vedtak.md#mm-u38) | — | — | BF-06 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | — |

@@ -486,6 +486,46 @@ telles i summen av vederlag i sendte endringsordrer.»
 
 **Forhold.** Presiserer S-8 og MM-U38.
 
+## S-16. Hvordan teller nøkkeltallene en KOE som bestrider en post i en endringsordre?
+
+**Bakgrunn.** MM-U38: «Hvert kort viser kravene i sakene som ingen sendt endringsordre omfatter,
+og endringsordrene, side om side og med samme vekt.» Og: «For vederlag er tallene summen av
+kravene med beløp og summen av vederlaget i alle sendte endringsordrer i prosjektet, også dem som
+ikke omfatter en KOE-sak, med fradrag trukket fra, eks. mva.» En ny KOE som bestrider en post (S-11),
+er ikke omfattet av noen sendt endringsordre før den er gjort opp. Med regelen i dag telles hele
+det samlede kravet i den nye KOE-en som krav utenfor endringsordre, samtidig som posten står i
+summen av endringsordrene. En post på 600 000 kr og et samlet krav på 800 000 kr gir da 1,4 mill.
+kr. Når den nye KOE-en er gjort opp, ville summen av endringsordrene telle både 600 000 kr og
+800 000 kr uten regelen om tillegg i S-14.
+
+**Spørsmålet slik det ble stilt.** «S-16. Når en ny KOE bestrider en post i en endringsordre,
+teller nøkkeltallet for krav utenfor endringsordre bare differansen mellom kravet og posten, når
+kravet har samme omfang og oppgjørsform. Ellers vises kravet for seg, uten at det legges til
+summen. Summen av endringsordrene teller tilleggene etter regelen om tillegg. Anbefaling: ja.»
+
+**Svaret.** Oppdragsgiver 03.11: «Ja, skriv seksjonen og S-16 nå». Svaret ba om at spørsmålet
+skrives inn. Valget tas med i den samlede tilslutningen.
+
+**Forslag til vedtakstekst.** «Bestrider en KOE et utsagn i en sendt endringsordre, telles kravet i
+nøkkeltallet for krav utenfor endringsordrene bare med differansen mellom kravet og utsagnet, når
+kravet har samme omfang og oppgjørsform som utsagnet. Ellers vises kravet for seg og legges ikke
+til summen. Summen av vederlaget i endringsordrene teller tillegget i et utsagn som erstatter et
+bestridt utsagn, ikke det samlede beløpet. Tallene er beregninger og avgjør ikke hva partene har
+avtalt.»
+
+**Forkastet.**
+- «Nøkkeltallet teller hele kravet i en KOE som bestrider et utsagn, som andre krav utenfor
+  endringsordrene.»
+- «En KOE som bestrider et utsagn, holdes utenfor nøkkeltallene til den er gjort opp i en ny
+  endringsordre.»
+
+**Forhold.** Endrer MM-U38. Presiserer S-14. MM-U37 står.
+
+**Merknad.** Sakslisten i Varden er bygget (#1450). Nøkkeltallene for kravene regnes i
+`noekkeltall` i `src/lib/components/varden/saksliste.ts`, som hopper over saker som inngår i en
+endringsordre. Halvdelen for endringsordrene og fanen for endringsordrene kommer med EO-saken
+(#1423). Regelen bygges der.
+
 ## Samlet forslag
 
 Modellen for oppgjøret etter endringsordren, som vedtakstekstene over gjengir:
@@ -511,6 +551,9 @@ Modellen for oppgjøret etter endringsordren, som vedtakstekstene over gjengir:
 10. **Registrering.** Samme skjema, datoen brevet ble sendt, og bare når sakene er åpne (S-2, S-15).
 11. **Forbehold.** Spørsmålet om forbehold stilles ikke, og erklæringen «uten forbehold» er
     parkert (S-4, S-13).
+12. **Saksoversikten.** Fanen for endringsordrene viser aksept og bestridelse per utsagn og
+    tillegget, og nøkkeltallene teller et bestridt utsagn som differanse og et tillegg som tillegg
+    (S-16, «Saksoversikten» i `BF-06.md`).
 
 ## Kontraktsgrunnlaget
 
