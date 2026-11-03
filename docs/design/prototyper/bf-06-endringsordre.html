@@ -6,7 +6,7 @@
 <title>Endringsordren i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v5 av skjemaet byggherren bruker til endringsordren i en EO-sak, for BF-06 (#1525).
+  Prototype v6 av skjemaet byggherren bruker til endringsordren i en EO-sak, for BF-06 (#1525).
   Tilstandene er ankrene #utkast, #legg-til, #samlet (fristforlengelsen samlet),
   #vederlag-samlet, #kontroll, #godkjenning og #sendt, og bestillingen
   (docs/domenetabell/brukerforlop/BF-06.md) viser til dem. ID-ene i data-spor er punktene der.
@@ -215,7 +215,6 @@ button{font:inherit;color:inherit}
 .brev h2{font-size:19px;font-weight:600;margin:0 0 12px}
 .brev h3{font-size:15px;font-weight:600;margin:22px 0 4px}
 .brev p{margin:0 0 8px}
-.brev .endring-tittel{margin:14px 0 2px}
 .brev ul{margin:0 0 8px;padding-left:20px}
 .tbl{overflow-x:auto;margin:6px 0}
 .tbl table{width:100%;min-width:520px;border-collapse:collapse;font-size:13px}
@@ -323,7 +322,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 <div class="skall" id="skall" data-frist="per-sak" data-vederlag="per-sak">
   <aside class="panel" aria-label="Endringsordren">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
-    <div class="sak"><p class="id num">EO-014</p><h2>Endringsordre for oktober</h2></div>
+    <div class="sak"><p class="id num">EO-014</p><h2>Flytting av teknisk rom</h2></div>
     <div>
       <p class="etikett">Sakene den omfatter</p>
       <ul class="saker" id="panel-saker"></ul>
@@ -341,7 +340,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     <div class="topplinje">
       <div class="demo-bryter">
         <p>Du er byggherre (BH), prosjektleder</p>
-        <span class="d">Prototype v5 · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#utkast" class="nullstill">Start på nytt</a></span>
+        <span class="d">Prototype v6 · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#utkast" class="nullstill">Start på nytt</a></span>
       </div>
     </div>
 
@@ -364,7 +363,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
               <span class="lbl" style="font-weight:600">Saker der svaret på forholdet er en endringsordre</span>
               <ul>
                 <li><span><b>KOE-020</b> · Rekkverk på tribune</span><span class="opptatt">Inngår i EO-012</span></li>
-                <li><span><b>KOE-022</b> · Utvidet sprinkleranlegg i hall 2</span><a class="lenke" href="#utkast" data-legg="KOE-022">Legg til KOE-022</a></li>
+                <li><span><b>KOE-022</b> · Sprinkler i nytt teknisk rom</span><a class="lenke" href="#utkast" data-legg="KOE-022">Legg til KOE-022</a></li>
               </ul>
               <a class="lenke" href="#utkast">Lukk listen</a>
             </div>
@@ -372,11 +371,14 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
           <section class="punkt" aria-labelledby="p-beskr">
             <div class="punkt-hode"><span class="nr" aria-hidden="true">2</span><h2 id="p-beskr">Endringen</h2><span class="hjemmel">pkt. 31.3</span></div>
-            <p class="hjelp" data-spor="D-9">Beskriv hver endring fullt ut. Beskrivelsen er byggherrens pålegg og står i endringsordren.</p>
-            <div class="felt" data-sak="KOE-017"><label for="b-KOE-017">Hva endringen i KOE-017 går ut på</label><textarea class="tekstfelt" id="b-KOE-017" aria-required="true">Ventilasjonskanalene i akse C–F legges om under bjelkelaget etter tegning V-312 rev. C. Kanalene i himlingen demonteres. Brannspjeld og oppheng tilpasses den nye føringen.</textarea></div>
-            <div class="felt" data-sak="KOE-018"><label for="b-KOE-018">Hva endringen i KOE-018 går ut på</label><textarea class="tekstfelt" id="b-KOE-018" aria-required="true">Stålsøylene S1–S8 i akse A–D brannisoleres til R90 med brannmaling i stedet for R60. Søylene S3–S5 i akse D utgår og isoleres ikke.</textarea></div>
-            <div class="felt" data-sak="KOE-021"><label for="b-KOE-021">Hva endringen i KOE-021 går ut på</label><textarea class="tekstfelt" id="b-KOE-021" aria-required="true">Fundamentet ved trapperom B forsterkes med fire nye peler og en utvidet fundamentplate etter tegning K-118 rev. B. Arbeidet utføres før trapperommet støpes.</textarea></div>
-            <div class="felt" data-sak="KOE-022"><label for="b-KOE-022">Hva endringen i KOE-022 går ut på</label><textarea class="tekstfelt" id="b-KOE-022" aria-required="true">Sprinkleranlegget i hall 2 utvides med en egen seksjon for lageret i 2. etasje etter tegning R-204.</textarea></div>
+            <div class="felt" data-spor="D-9">
+              <label for="beskrivelse">Beskrivelse av endringen</label>
+              <span class="hjelp">Beskriv endringen fullt ut. Beskrivelsen er byggherrens pålegg og står i endringsordren.</span>
+              <textarea class="tekstfelt stor" id="beskrivelse" aria-required="true">Teknisk rom flyttes fra plan U1 til plan 2 i akse C–F etter tegning A-210 rev. D. Flyttingen medfører at:
+– ventilasjonskanalene i akse C–F legges om under bjelkelaget etter tegning V-312 rev. C, og kanalene i himlingen demonteres;
+– stålsøylene S1–S8 i akse A–D brannisoleres til R90 i stedet for R60, og søylene S3–S5 i akse D utgår;
+– fundamentet ved trapperom B forsterkes med fire nye peler og en utvidet fundamentplate etter tegning K-118 rev. B.</textarea>
+            </div>
             <fieldset class="felt" style="border:0;margin:0;padding:0">
               <legend class="lbl" style="padding:0;margin-bottom:6px">Har endringene konsekvenser for SHA, kvalitet eller annet?</legend>
               <div class="valg">
@@ -545,8 +547,10 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
               <div><dt>Til</dt><dd>Totalentreprenøren</dd></div>
             </dl>
             <h2>Endringsordre etter NS 8407 punkt 31.3</h2>
-            <p>Byggherren krever at følgende endringer utføres:</p>
-            <div id="brev-endringer"></div>
+            <p>Endringsordren omfatter totalentreprenørens krav om endringsordre:</p>
+            <ul id="brev-saker"></ul>
+            <p>Byggherren krever at endringen utføres slik den er beskrevet her:</p>
+            <p id="brev-beskrivelse" style="white-space:pre-line"></p>
             <h3>Konsekvenser</h3>
             <p id="brev-konsekvenser"></p>
             <h3>Vederlagsjustering</h3>
@@ -687,7 +691,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     'KOE-017': { tittel: 'Omlegging av ventilasjon i akse C–F', svar: 4, krav: 2 },
     'KOE-018': { tittel: 'Brannisolering av stålsøyler', svar: 3, krav: 1 },
     'KOE-021': { tittel: 'Forsterket fundament ved trapperom B', svar: 5, krav: 2 },
-    'KOE-022': { tittel: 'Utvidet sprinkleranlegg i hall 2', svar: 3, krav: 1 },
+    'KOE-022': { tittel: 'Sprinkler i nytt teknisk rom', svar: 3, krav: 1 },
   };
   // Hvilke krav totalentreprenøren har sendt i hver sak.
   const KREVD = {
@@ -819,10 +823,8 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
   function kontroll(alle, s) {
     const r = [...st.med].sort();
-    $('#brev-endringer').replaceChildren(...r.flatMap((x) => [
-      el('p', { className: 'endring-tittel' }, el('b', { textContent: `${x} ${SAKER[x].tittel}` })),
-      el('p', { textContent: $(`#b-${x}`).value }),
-    ]));
+    $('#brev-saker').replaceChildren(...r.map((x) => el('li', { textContent: `${x} ${SAKER[x].tittel}, brev ${SAKER[x].krav}` })));
+    $('#brev-beskrivelse').textContent = $('#beskrivelse').value;
     const kons = [...document.querySelectorAll('[data-kons]:checked')].map((k) => k.value);
     const ja = document.querySelector('input[name="kons"]:checked').value === 'ja' && kons.length;
     $('#brev-konsekvenser').textContent = ja

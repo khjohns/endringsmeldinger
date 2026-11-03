@@ -29,7 +29,7 @@
             "staar": "Sakene endringsordren omfatter"
           },
           {
-            "staar": "Hva endringen i KOE-017 går ut på"
+            "staar": "Beskriv endringen fullt ut."
           },
           {
             "staar": "Endringsordren sier ikke noe om fristforlengelsen i KOE-021."
@@ -67,7 +67,7 @@
             "staar": "Disse sakene lukkes når endringsordren er sendt"
           },
           {
-            "staar": "Byggherren krever at følgende endringer utføres:"
+            "staar": "Byggherren krever at endringen utføres slik den er beskrevet her:"
           },
           {
             "staar": "Endringene har konsekvenser for annet."
@@ -346,6 +346,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "P-4 besvart: nei. Grensen om avtalt vederlag er tatt ut (punkt 23 i MM-U34), og prototypen versjon 5 viser en post som avviker fra en registrert enighet."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Én beskrivelse av endringen for hele endringsordren (D-9). Prototypen versjon 6."
     }
   ]
 }
