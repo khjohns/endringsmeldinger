@@ -1,13 +1,110 @@
 {
   "id": "BF-06",
   "tittel": "BH gjør opp én eller flere KOE-saker med en endringsordre, og TE tar stilling til den",
-  "brukerhistorie": "BH godkjenner grunnlaget i en KOE-sak, og svaret er en endringsordre etter kontrakten. BH velger om endringsordren i EO-saken sendes samtidig, om saken legges i en endringsordre under arbeid sammen med andre KOE-saker, eller om bare svaret sendes. Før sending ser BH hvilke saker endringsordren lukker og hvilke spor som ikke har registrert enighet. TE ser per KOE-sak hva endringsordren avklarer og ikke avklarer, godtar eller bestrider hvert utsagn, og fører det som ikke er avklart, videre i en ny KOE.",
+  "brukerhistorie": "BH godkjenner grunnlaget i en KOE-sak, og svaret er en endringsordre etter kontrakten. BH velger om endringsordren i EO-saken sendes samtidig, eller senere sammen med andre KOE-saker. I endringsordren gir BH vederlag og frist per sak, eller samlet for saker som henger sammen. Før sending ser BH hvilke saker endringsordren lukker, hvilke spor som ikke har registrert enighet, og hvilken verdi godkjenningen regnes av. TE ser hvert utsagn og sakene det gjelder, godtar eller bestrider det, og fører det som ikke er avklart, videre i en ny KOE.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
     "beskrivelse": "TE har opprettet en KOE-sak og påberopt et forhold i en underkategori der punkt 32.2 gjelder (BF-05). BH har ikke svart på grunnlaget. Prosjektet har to andre KOE-saker der grunnlaget er godkjent."
   },
   "bestilling": "BF-06.md",
+  "prototype": {
+    "fil": "../../design/prototyper/bf-06-endringsordre.html",
+    "klikkstier": [
+      {
+        "id": "samle-og-send",
+        "dekker": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "staar": "Sakene endringsordren omfatter"
+          },
+          {
+            "staar": "Endringsordren sier ikke noe om fristen i KOE-021."
+          },
+          {
+            "klikk": "Samle fristen for de tre sakene",
+            "tilstand": "samlet"
+          },
+          {
+            "staar": "Gjelder KOE-017, KOE-018 og KOE-021"
+          },
+          {
+            "fyll": "Fristforlengelse for sakene samlet",
+            "tekst": "25"
+          },
+          {
+            "staar": "Hvert spor med krav er dekket."
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Disse sakene lukkes når endringsordren er sendt"
+          },
+          {
+            "staar": "Kravet er endret etter at saken ble lagt i utkastet"
+          },
+          {
+            "klikk": "Send til godkjenning",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Bekreft at listen over sakene er riktig"
+          },
+          {
+            "kryss": "Listen over sakene er riktig"
+          },
+          {
+            "klikk": "Send til godkjenning",
+            "tilstand": "godkjenning"
+          },
+          {
+            "staar": "Ingenting er sendt til TE."
+          },
+          {
+            "klikk": "Vis endringsordren når den er godkjent",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Inngår i EO-014"
+          }
+        ]
+      },
+      {
+        "id": "uten-samling",
+        "dekker": [
+          "8"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Frist: Endringsordren sier ikke noe om fristen. TE krever 10 dager."
+          },
+          {
+            "klikk": "Tilbake til utkastet",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Endringsordren sier ikke noe om fristen i KOE-021."
+          }
+        ]
+      }
+    ]
+  },
   "kilder": [
     "GR-U14",
     "GR-U32",
@@ -35,7 +132,11 @@
     "MM-U21",
     "OV-U1",
     "OV-U69",
-    "KA-U45"
+    "KA-U45",
+    "OV-U43",
+    "LV-U15",
+    "GFK-U7",
+    "KA-U1"
   ],
   "venter_paa": [
     "#1525",
@@ -48,6 +149,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Forløpet er registrert som planlagt, med bestillingen og spørsmålene S-1–S-3."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 1 med BHs skjema for endringsordren, og bestillingen etter drøftingen med oppdragsgiver: regelen for lukkingen, utsagn som gjelder flere saker, og spørsmålene S-5–S-7."
     }
   ]
 }
