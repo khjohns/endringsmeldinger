@@ -8,6 +8,6 @@ export const load: PageLoad = ({ params, url }) => {
   search.set('rolle', 'BH');
   redirect(
     307,
-    `/${encodeURIComponent(params.prosjektId)}/${encodeURIComponent(params.sakId)}?${search}`
+    `/${encodeURIComponent(params.prosjektId)}/${encodeURIComponent(params.sakId)}/kjerne?${search}`
   );
 };
