@@ -175,11 +175,14 @@ export function treff(linje: Sakslinje, soek: string, eo: Endringsordrer): boole
 }
 
 /**
- * Nyeste først, etter sakens siste brev eller etter når saken ble opprettet. En sak uten
- * brev, eller som kjernen ikke forstår, sorteres etter siste hendelse i journalen.
+ * Nyeste først, etter datoen for sakens siste brev eller etter når saken ble opprettet. En sak
+ * uten brev, eller som kjernen ikke forstår, sorteres etter dagen for siste hendelse. Samme dag
+ * sorteres etter siste hendelse.
  */
 export const sorter = (linjer: readonly Sakslinje[], etter: Sortering): Sakslinje[] => {
   const naar = (l: Sakslinje) =>
-    etter === 'siste-brev' ? (l.siste_brev?.registrert ?? l.siste_hendelse) : l.opprettet;
+    etter === 'siste-brev'
+      ? `${l.siste_brev?.dato ?? l.siste_hendelse.slice(0, 10)} ${l.siste_hendelse}`
+      : l.opprettet;
   return [...linjer].sort((a, b) => naar(b).localeCompare(naar(a)));
 };

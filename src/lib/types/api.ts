@@ -220,8 +220,8 @@ export interface Sakslinje {
   opprettet: string;
   /** Tidsstempelet på den siste hendelsen i journalen, ikke brevets dato. */
   siste_hendelse: string;
-  /** Sakens siste brev med avsenderen og registreringstidspunktet; `null` uten brev eller forståelse. */
-  siste_brev: { avsender: 'TE' | 'BH'; registrert: string } | null;
+  /** Sakens siste brev med avsenderen og brevets dato (ÅÅÅÅ-MM-DD); `null` uten brev eller forståelse. */
+  siste_brev: { avsender: 'TE' | 'BH'; dato: string } | null;
   hovedkategori: string | null;
   /** Forholdet TE påberoper, med kjernens kode (arbeidsvalg 03.11 i #1450). */
   underkategori: string | null;

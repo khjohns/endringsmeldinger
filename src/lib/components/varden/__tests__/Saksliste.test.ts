@@ -120,7 +120,7 @@ describe('Sakslisten i Varden', () => {
           sak_id: 'A',
           sakstittel: 'Med brev',
           siste_hendelse: '2026-11-02T10:00:00Z',
-          siste_brev: { avsender: 'BH', registrert: '2026-10-30T10:00:00Z' },
+          siste_brev: { avsender: 'BH', dato: '2026-10-30' },
         }),
         lagSakslinje({ sak_id: 'B', sakstittel: 'Uten brev', siste_brev: null }),
       ],
@@ -411,14 +411,14 @@ describe('Sakslisten i Varden', () => {
           sakstittel: 'Gammel',
           // En senere hendelse som ikke er et brev, flytter ikke saken opp.
           siste_hendelse: '2026-11-01T10:00:00Z',
-          siste_brev: { avsender: 'TE', registrert: '2026-09-01T10:00:00Z' },
+          siste_brev: { avsender: 'TE', dato: '2026-09-01' },
           opprettet: '2026-09-01T10:00:00Z',
         }),
         lagSakslinje({
           sak_id: 'B',
           sakstittel: 'Ny',
           siste_hendelse: '2026-10-30T10:00:00Z',
-          siste_brev: { avsender: 'BH', registrert: '2026-10-30T10:00:00Z' },
+          siste_brev: { avsender: 'BH', dato: '2026-10-30' },
           opprettet: '2026-08-01T10:00:00Z',
         }),
         lagSakslinje({

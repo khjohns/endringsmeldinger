@@ -7,7 +7,8 @@
  */
 
 import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
-import type { Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
+import type { Dokument, Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
+import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import { krevdSamlet } from '../kjerne/frosset/standpunkt.ts';
@@ -148,11 +149,11 @@ export interface Sakslinje {
   /** Tidsstempelet på den siste hendelsen i journalen, ikke brevets dato. */
   siste_hendelse: string;
   /**
-   * Sakens siste brev, med avsenderen og tidspunktet det ble registrert i løsningen, som
-   * tidslinja i saken (VS-U8). `null` når saken ikke har noe brev, og når kjernen ikke
-   * forstår saken (MM-U2): da kan ikke lista vite om det ukjente er et brev.
+   * Sakens siste brev, med avsenderen og brevets dato (ÅÅÅÅ-MM-DD), se `brevetsDato`. `null`
+   * når saken ikke har noe brev, og når kjernen ikke forstår saken (MM-U2): da kan ikke
+   * lista vite om det ukjente er et brev.
    */
-  siste_brev: { avsender: Part; registrert: string } | null;
+  siste_brev: { avsender: Part; dato: string } | null;
   hovedkategori: string | null;
   /** Forholdet TE påberoper, med kjernens kode, så lista kan vise henvisningen (arbeidsvalg 03.11 i #1450). */
   underkategori: string | null;
@@ -258,9 +259,22 @@ function frist(u: Utledning): Fristlinje {
 }
 
 /**
- * Det siste dokumentet i journalen som er et brev i saken. En retting av en registrering er
- * ikke et nytt brev, og en registrering som en retting sier ikke hører til saken, er heller
- * ikke med (OV-U17, OV-U18).
+ * Brevets dato: for et registrert brev datoen parten oppga at det ble sendt, ellers mottatt
+ * (OV-U80), og ellers dagen det ble registrert i løsningen (VS-U8). Oppdragsgiver 03.11 i
+ * #1450. En oppgitt dato som ikke kan leses, gir registreringsdagen.
+ */
+function brevetsDato(d: Dokument): string {
+  const om = (hva: string) =>
+    d.opplysninger.find((o) => o.hva === hva && !('gjelder' in o && o.gjelder));
+  const oppgitt = om('sendt') ?? om('mottatt');
+  const dag = oppgitt && 'dato' in oppgitt ? kalenderdag(oppgitt.dato) : null;
+  return dag ?? registrertDato(d);
+}
+
+/**
+ * Brevet i saken med den seneste datoen, og ved samme dag det siste i journalen. En retting
+ * av en registrering er ikke et nytt brev, og en registrering som en retting sier ikke hører
+ * til saken, er heller ikke med (OV-U17, OV-U18).
  */
 function sisteBrev(u: Utledning): Sakslinje['siste_brev'] {
   const dokumenter = u.journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : []));
@@ -270,8 +284,12 @@ function sisteBrev(u: Utledning): Sakslinje['siste_brev'] {
   for (const d of dokumenter.filter((x) => x.ikkeISaken))
     for (let id = d.retter; id; id = retter.get(id) ?? null) ikkeISaken.add(id);
   const brev = dokumenter.filter((d) => d.retter === null && !ikkeISaken.has(d.id));
-  const siste = brev.at(-1);
-  return siste ? { avsender: siste.avsender, registrert: siste.registrert } : null;
+  let siste: Sakslinje['siste_brev'] = null;
+  for (const d of brev) {
+    const dato = brevetsDato(d);
+    if (!siste || dato >= siste.dato) siste = { avsender: d.avsender, dato };
+  }
+  return siste;
 }
 
 /**

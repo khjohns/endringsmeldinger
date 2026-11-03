@@ -11,7 +11,7 @@ export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
     sakstittel: 'Endring i grunnarbeider',
     opprettet: '2025-11-01T10:00:00Z',
     siste_hendelse: '2025-12-22T14:30:00Z',
-    siste_brev: { avsender: 'TE', registrert: '2025-12-22T14:30:00Z' },
+    siste_brev: { avsender: 'TE', dato: '2025-12-22' },
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
     forstaatt: true,

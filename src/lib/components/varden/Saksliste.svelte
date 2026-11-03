@@ -300,7 +300,7 @@
                   <span class="brevet">
                     {#if s.siste_brev}
                       <b>{SAKSLISTE.brevFra(s.siste_brev.avsender)}</b>
-                      {dato(s.siste_brev.registrert)}
+                      {dato(s.siste_brev.dato)}
                     {:else}
                       {SAKSLISTE.ingenBrev}
                     {/if}
