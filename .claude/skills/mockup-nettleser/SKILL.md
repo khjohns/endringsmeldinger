@@ -146,7 +146,7 @@ skriptet åpner det bare for å bytte side og starte på nytt, fordi det står o
 er åpent. Med `?brukertest` i
 adressen vises saken uten panelet. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
 kjører axe mot Varden, bred og smal.
-Med `--sti <sti>`, som kan gjentas, kjører den axe på samme måte mot stiene, som showcasen `/demo/komponenter` (#1371).
+Med `--sti <sti>`, som kan gjentas, kjører den axe mot stiene på samme måte som `--varden`, også i mørk modus. Showcasen `/demo/komponenter` er en av dem (#1371, #1471).
 axe går ikke inn i en iframe, så rammene i showcasen kjøres som egne stier (`/demo/komponenter/ramme?…`).
 Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Varden.test.ts`.
 
