@@ -126,6 +126,98 @@ Svarene passer på tekstene som ble stilt. Samspillet med de andre valgene gir d
    EO-U9 ble opphevet 28.10 av punkt 22 i MM-U34, så forholdet til EO-U9 kan ikke føres. Forholdet
    under S-11 er derfor «Snevrer inn MM-U21 for en endringsordre», med EO-U9 nevnt som opphevet.
 
+### Spørsmålene om samspillet, til oppdragsgiver
+
+Punkt 4 er avgjort av orkestratoren 03.11 slik det er ført. Punkt 1–3 legges fram slik, ordrett.
+Alle tre berører rettsregler og stilles i tekst, ikke med spørsmålsverktøyet. Svar gjerne med en
+bokstav per spørsmål.
+
+**T-1. Når må en sak være åpen for at en registrert endringsordre skal gjelde den?**
+
+*Bakgrunn.* Byggherren kan registrere en endringsordre som er sendt på papir eller e-post. Du har
+godtatt at registreringen gjelder de sakene som er åpne: «Registreringen gjelder de åpne sakene og
+viser at brevet også omfatter ‹sak›, som var lukket. Poster som gjelder den lukkede saken,
+registreres ikke.» Teksten sier ikke når saken må være åpen. Du har også godtatt: «Er saken tatt
+av en annen endringsordre før den siste godkjenningen, stopper sendingen eller registreringen.»
+Og: «Endres noe i en av sakene etter at endringsordren eller registreringen er lagt fram til
+godkjenning, ved en ny kravversjon, et trekk, en aksept, en lukking eller et nytt svar, avvises
+den siste godkjenningen. Endres noe i en av sakene, bekrefter byggherren listen på nytt.»
+
+*Alternativene i vedtaksform.*
+- (a) «En registrert endringsordre gjelder de sakene som er åpne når den siste godkjenningen
+  gjøres. Lukkes en sak etter at registreringen er lagt fram til godkjenning, avvises den siste
+  godkjenningen, og byggherren bekrefter listen på nytt. Registreringen gjelder deretter de sakene
+  som fortsatt er åpne.»
+- (b) «En registrert endringsordre gjelder de sakene som er åpne når den siste godkjenningen
+  gjøres. Lukkes en sak etter at registreringen er lagt fram til godkjenning, faller saken ut av
+  registreringen uten at godkjenningen avvises.»
+
+*Forholdet.* (a) presiserer de to valgene over: «stopper … registreringen» betyr at den siste
+godkjenningen avvises. (b) endrer valget om at registreringen stopper, og snevrer inn valget om at
+godkjenningen avvises når noe endres, for en registrering. GFK-U7 står i begge: «Kan svaret ikke
+sendes fordi kravet er endret etter at svaret ble lagt fram, avvises godkjenningen.»
+
+*Hva valget styrer.* Om den som godkjenner, alltid godkjenner den listen over saker som faktisk
+lukkes.
+
+*Anbefaling: (a).* Med (b) godkjenner den med fullmakt en liste som kan bli kortere etterpå uten
+at noen ser det. (a) bruker samme regel som for en endringsordre sendt fra løsningen. At en sak
+sjelden lukkes mens en registrering venter, er en antakelse.
+
+**T-2. Må en registrert endringsordre ha et utsagn som erstatter et utsagn totalentreprenøren har bestridt?**
+
+*Bakgrunn.* Du har godtatt: «En endringsordre som omfatter en KOE som bestrider et utsagn, har et
+utsagn som erstatter det. Tillegget kan være 0.» Et brev byggherren har sendt utenfor løsningen, kan
+omfatte en slik KOE uten å si noe om det bestridte utsagnet. Du har også godtatt: «En registrert
+endringsordre gjengir det brevet sier, også utsagn om vederlag og frist for krav
+totalentreprenøren ikke har sendt.» OV-U80: «Der skjemaet og dokumentet spriker, er dokumentet
+partens meddelelse.»
+
+*Alternativene i vedtaksform.*
+- (a) «Regelen om at en endringsordre som omfatter en KOE som bestrider et utsagn, har et utsagn
+  som erstatter det, gjelder endringsordrer som sendes fra løsningen. En registrert endringsordre
+  gjengir det brevet sier. Sier brevet ikke noe om det bestridte utsagnet, står det som bestridt,
+  og totalentreprenøren kan bestride det på nytt i en ny KOE.»
+- (b) «Også en registrert endringsordre som omfatter en KOE som bestrider et utsagn, har et utsagn
+  som erstatter det. Sier brevet ikke noe om det bestridte utsagnet, kan brevet ikke registreres
+  som endringsordre i en EO-sak.»
+
+*Forholdet.* (a) snevrer inn regelen om utsagnet som erstatter det bestridte, for en registrert
+endringsordre, og presiserer at registreringen gjengir brevet. (b) snevrer inn adgangen til å
+registrere en endringsordre i en EO-sak.
+
+*Hva valget styrer.* Om byggherren kan registrere et brev slik det er, eller må ta det opp med
+totalentreprenøren først.
+
+*Anbefaling: (a).* Brevet er alt sendt, og registreringen skal ikke si mer enn brevet (OV-U80).
+Med (b) blir KOE-en stående åpen selv om byggherren har sendt en endringsordre som omfatter den,
+og byggherren må sende en ny endringsordre fra løsningen for å lukke den.
+
+**T-3. Kan byggherren rette en registrering som ikke stemmer med brevet?**
+
+*Bakgrunn.* Du har godtatt: «Endringsordren kan ikke rettes i løsningen.» En registrering er
+byggherrens gjengivelse av et brev som alt er sendt, og den kan være ført feil, for eksempel et
+beløp som ikke står i brevet. OV-U80: «Der skjemaet og dokumentet spriker, er dokumentet partens
+meddelelse.»
+
+*Alternativene i vedtaksform.*
+- (a) «En registrert endringsordre kan ikke rettes i løsningen, heller ikke når registreringen
+  ikke stemmer med brevet. Byggherren tar feilen opp i et innlegg i EO-saken, og brevet er
+  byggherrens meddelelse.»
+- (b) «Stemmer en godkjent registrering ikke med brevet, kan byggherren rette registreringen.
+  Rettingen går gjennom godkjenningen etter fullmakten, endrer ikke hvilke saker registreringen
+  omfatter, og brevet står uendret.»
+
+*Forholdet.* (a) presiserer at regelen om at endringsordren ikke kan rettes, også gjelder en
+registrering. (b) snevrer den inn for en registrering, og utvider MM-U21 til en registrering.
+
+*Hva valget styrer.* Om summen og kjeden kan vise et beløp brevet ikke har, når registreringen er
+feil.
+
+*Anbefaling: (a).* Én regel for alt som er sendt, og brevet gjelder uansett (OV-U80). Prisen er at
+summen kan vise et feil beløp til en ny endringsordre erstatter utsagnet. At feil i registreringen
+er sjeldne, er en antakelse.
+
 ## Endret i versjon 4
 
 **Besvart 03.11.** Oppdragsgiver svarte på orkestratorens anbefalinger i oppdraget for versjon 4:
