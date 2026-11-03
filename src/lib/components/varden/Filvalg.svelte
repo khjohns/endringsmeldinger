@@ -72,14 +72,19 @@
 <div class="felt">
   <label for={id}>{etikett}</label>
   <p class="hjelp" id={`${id}-hjelp`}>{hjelp}</p>
-  <input
-    {id}
-    type="file"
-    multiple
-    aria-invalid={feilene.length ? 'true' : undefined}
-    aria-describedby={`${id}-hjelp${feilene.length ? ` ${id}-feil` : ''}`}
-    onchange={velg}
-  />
+  <!-- Nettleserens tekst («Ingen fil valgt») sier ikke hva som er lastet opp, så knappen er
+       bildet under den gjennomsiktige velgeren, og lista under viser filene. -->
+  <div class="velger">
+    <input
+      {id}
+      type="file"
+      multiple
+      aria-invalid={feilene.length ? 'true' : undefined}
+      aria-describedby={`${id}-hjelp${feilene.length ? ` ${id}-feil` : ''}`}
+      onchange={velg}
+    />
+    <span class="velg" aria-hidden="true">{NYSAK.velgFiler}</span>
+  </div>
   {#if vedlegg.length || venter.length}
     <ul class="filer">
       {#each vedlegg as v (v.vedlegg_id)}
@@ -120,27 +125,39 @@
     margin: 0;
     color: var(--ink-3);
   }
-  input {
-    font: inherit;
-    color: var(--ink-2);
-    max-inline-size: 100%;
+  .velger {
+    position: relative;
+    justify-self: start;
   }
-  input::file-selector-button {
+  /* Velgeren er skjult, men tar fokus og tastetrykk; knappen under viser fokuset. */
+  input {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .velg {
+    display: inline-flex;
+    align-items: center;
     min-height: 44px;
-    margin-inline-end: var(--spacing-3);
     padding: 0 var(--spacing-5);
     border: 1.5px solid var(--ink);
     border-radius: var(--r-knapp);
     background: var(--surface);
     color: var(--ink);
-    font: inherit;
     font-weight: 500;
-    cursor: pointer;
+    transition: background-color 150ms cubic-bezier(0.23, 1, 0.32, 1);
   }
-  input::file-selector-button:hover {
+  .velger:hover .velg {
     background: var(--surface-inset);
   }
-  input[aria-invalid='true']::file-selector-button {
+  input:focus-visible + .velg {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  input[aria-invalid='true'] + .velg {
     border-color: var(--danger);
   }
   .filer {
@@ -151,10 +168,10 @@
     border-top: var(--rule);
   }
   .filer li {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
-    gap: var(--spacing-3);
+    column-gap: var(--spacing-3);
     min-height: 44px;
     border-bottom: var(--rule);
   }
@@ -165,9 +182,7 @@
   .stoerrelse {
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
-  }
-  .filer li :global(.knapp) {
-    margin-inline-start: auto;
+    white-space: nowrap;
   }
   .venter {
     color: var(--ink-3);
