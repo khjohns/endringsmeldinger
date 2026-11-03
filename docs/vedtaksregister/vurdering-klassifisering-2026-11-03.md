@@ -5,8 +5,8 @@
 Kartleggingen gir hver rad i [vedtaksfila](../plans/vedtak.md) én klasse etter valg 1A i
 #1534, der prinsippet og klassene står ordrett: *vedtak*, *beslutning*, *design* eller
 *historisk*. Et vedtak som blander klassene, har klassen *vedtak* og en merknad om
-designdelen eller beslutningsdelen. Klassen er en anbefaling til oppdragsgiver, ikke et
-vedtak. Ingenting i [registeret](README.md) eller vedtaksfila er endret, og feltet for
+designdelen eller beslutningsdelen. Klassen følger
+anbefalingene og svarene fra oppdragsgiver 03.11 i PR #1537, og er ikke et vedtak. Ingenting i [registeret](README.md) eller vedtaksfila er endret, og feltet for
 klassen kommer i steg 3. Fila er grunnlaget for steg 3 og 4 og blir historisk når
 registeret har klassene.
 
@@ -36,65 +36,66 @@ mønster = re.compile(r'(?<![A-Za-z0-9])(' + '|'.join(sorted(map(re.escape, ids)
 
 | Prefiks | Vedtak | Beslutning | Design | Historisk | I alt | Vedtak med designdel |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| OV | 64 | 3 | 13 | 8 | 88 | 35 |
-| KA | 37 | 0 | 0 | 8 | 45 | 8 |
-| LV | 40 | 3 | 1 | 0 | 44 | 10 |
-| VS | 41 | 0 | 1 | 0 | 42 | 9 |
-| MM | 25 | 2 | 8 | 5 | 40 | 11 |
-| GR | 28 | 0 | 1 | 4 | 33 | 6 |
-| GFK | 22 | 1 | 0 | 0 | 23 | 5 |
-| HF | 17 | 1 | 0 | 4 | 22 | 5 |
+| OV | 53 | 9 | 18 | 8 | 88 | 31 |
+| KA | 33 | 2 | 2 | 8 | 45 | 6 |
+| LV | 35 | 6 | 3 | 0 | 44 | 8 |
+| VS | 36 | 3 | 3 | 0 | 42 | 7 |
+| MM | 21 | 4 | 10 | 5 | 40 | 7 |
+| GR | 24 | 3 | 2 | 4 | 33 | 4 |
+| GFK | 21 | 2 | 0 | 0 | 23 | 5 |
+| HF | 14 | 3 | 1 | 4 | 22 | 3 |
 | DL | 10 | 6 | 0 | 0 | 16 | 2 |
-| EO | 7 | 0 | 1 | 6 | 14 | 2 |
-| KT | 4 | 7 | 0 | 0 | 11 | 1 |
+| EO | 6 | 0 | 2 | 6 | 14 | 1 |
+| KT | 3 | 8 | 0 | 0 | 11 | 1 |
 | FO | 8 | 0 | 0 | 0 | 8 | 3 |
-| B | 1 | 6 | 0 | 0 | 7 | 0 |
+| B | 0 | 7 | 0 | 0 | 7 | 0 |
 | MP | 4 | 0 | 0 | 0 | 4 | 0 |
 | RP | 1 | 0 | 0 | 0 | 1 | 0 |
-| (uten ID) | 36 | 22 | 1 | 2 | 61 | 5 |
-| I alt | 345 | 51 | 26 | 37 | 459 | 102 |
+| (uten ID) | 34 | 24 | 1 | 2 | 61 | 5 |
+| I alt | 303 | 77 | 42 | 37 | 459 | 83 |
 
 ## Grensetilfellene
 
 Mønstrene samler de 88 grensetilfellene i de elleve rapportene fra klassifiseringen, én per
-prefiks eller gruppe («rapportene»). Klassen i tabellen er den anbefalte. Svarene fra
-oppdragsgiver står i PR-en.
+prefiks eller gruppe («rapportene»). Oppdragsgiver svarte 03.11 (PR #1537): B for mønster 1–6,
+og A for mønster 7–15 og enkelttilfellene. Tabellen følger svarene. Teksten under er det som
+ble lagt fram.
 
-1. **Visningen der løsningen ikke trekker den rettslige konklusjonen** (juridisk). EO-U11, HF-U22, MM-U23, MM-U24, VS-U2, VS-U10. Anbefalt: *vedtak*, med det som vises som designdel i forløpet. Alternativ: *design*. Teksten sier hva appen viser, men kjernen er hva løsningen regner: fristen etter § 33.7 og § 34.3.3, fristveiledningen regnet fra sendingen, at det ikke er noen fast frist, og at løsningen ikke sier at et krav er prekludert, at passivitet har virkning eller hvilke varsler som er relevante. Rapportene er enige.
+1. **Visningen der løsningen ikke trekker den rettslige konklusjonen** (juridisk). EO-U11, HF-U22, MM-U23, MM-U24, VS-U2, VS-U10. Anbefalt: *vedtak*, med det som vises som designdel i forløpet. Alternativ: *design*. Teksten sier hva appen viser, men kjernen er hva løsningen regner: fristen etter § 33.7 og § 34.3.3, fristveiledningen regnet fra sendingen, at det ikke er noen fast frist, og at løsningen ikke sier at et krav er prekludert, at passivitet har virkning eller hvilke varsler som er relevante. Rapportene er enige. **Svar 03.11: B.**
 
-2. **Brevets innhold beskrevet som et felt i skjemaet** (juridisk). GR-U16, KA-U31, KA-U41, LV-U25, LV-U43, OV-U16, OV-U42, OV-U60, OV-U62, OV-U78. Anbefalt: *vedtak*, med feltet, rekkefølgen, forhåndsutfyllingen og logoen og bunnteksten som designdel. Alternativ: *design*. Opplysningen står i brevet eller registreringen motparten ser, og etter valg 1A er brevets innhold vedtak, men teksten beskriver feltet. Rapportene for OV-1 og OV-3 anbefalte *design* for OV-U16 og OV-U62. Samlingen velger *vedtak*: beskrivelsen og datoen er det motparten får vite om brevet, og OV-U62 avgjør hvilke brev som regnes til sporet.
+2. **Brevets innhold beskrevet som et felt i skjemaet** (juridisk). GR-U16, KA-U31, KA-U41, LV-U25, LV-U43, OV-U16, OV-U42, OV-U60, OV-U62, OV-U78. Anbefalt: *vedtak*, med feltet, rekkefølgen, forhåndsutfyllingen og logoen og bunnteksten som designdel. Alternativ: *design*. Opplysningen står i brevet eller registreringen motparten ser, og etter valg 1A er brevets innhold vedtak, men teksten beskriver feltet. Rapportene for OV-1 og OV-3 anbefalte *design* for OV-U16 og OV-U62. Samlingen velger *vedtak*: beskrivelsen og datoen er det motparten får vite om brevet, og OV-U62 avgjør hvilke brev som regnes til sporet. **Svar 03.11: B.**
 
-3. **Når brevet er levert, og hva motparten har fått** (juridisk). B-03-DOKUMENT, GFK-U7, LV-U1, LV-U12, LV-U14. Anbefalt: *vedtak*. Alternativ: *beslutning*. Mekanismen er leveringsoppdraget og integrasjonen med Catenda, men regelen avgjør når svaret er sendt og binder, at et nytt forsøk ikke er en ny erklæring, hvilket vedlegg som ble meddelt, og at utkast ikke når motparten. LV-rapporten anbefalte *beslutning* for LV-U12. Samlingen velger *vedtak*, fordi skjermingen av utkastene er tilgang.
+3. **Når brevet er levert, og hva motparten har fått** (juridisk). B-03-DOKUMENT, GFK-U7, LV-U1, LV-U12, LV-U14. Anbefalt: *vedtak*. Alternativ: *beslutning*. Mekanismen er leveringsoppdraget og integrasjonen med Catenda, men regelen avgjør når svaret er sendt og binder, at et nytt forsøk ikke er en ny erklæring, hvilket vedlegg som ble meddelt, og at utkast ikke når motparten. LV-rapporten anbefalte *beslutning* for LV-U12. Samlingen velger *vedtak*, fordi skjermingen av utkastene er tilgang. **Svar 03.11: B.**
 
-4. **Teknisk form som avgjør hva et utsagn betyr eller hva som telles** (juridisk). GR-U25, HF-U1, HF-U2, KA-U2, KA-U4, MM-U39, OV-U31, OV-U82, rad-017. Anbefalt: *vedtak*, med hendelsestypene, lagringen og versjonsfeltet som merknad om beslutningsdelen. Alternativ: *beslutning*. Formen er en liste over hendelsestyper, et lagringsformat, et versjonsfelt eller en betegnelse. Innholdet avgjør likevel hva som regnes som krav, at en manglende vurdering ikke er «i tide», hva «frafalt» betyr, at et sendt svar ikke regnes om, hva trekket omfatter og hva som telles i summene. OV-2-rapporten anbefalte *beslutning* for OV-U31. Samlingen velger *vedtak*, fordi den definerer subsidiært godkjent beløp og mellomlaget.
+4. **Teknisk form som avgjør hva et utsagn betyr eller hva som telles** (juridisk). GR-U25, HF-U1, HF-U2, KA-U2, KA-U4, MM-U39, OV-U31, OV-U82, rad-017. Anbefalt: *vedtak*, med hendelsestypene, lagringen og versjonsfeltet som merknad om beslutningsdelen. Alternativ: *beslutning*. Formen er en liste over hendelsestyper, et lagringsformat, et versjonsfelt eller en betegnelse. Innholdet avgjør likevel hva som regnes som krav, at en manglende vurdering ikke er «i tide», hva «frafalt» betyr, at et sendt svar ikke regnes om, hva trekket omfatter og hva som telles i summene. OV-2-rapporten anbefalte *beslutning* for OV-U31. Samlingen velger *vedtak*, fordi den definerer subsidiært godkjent beløp og mellomlaget. **Svar 03.11: B.**
 
-5. **Avgrensningen av første versjon som sier hva løsningen regner nå** (juridisk). KT-U8, MM-U2, OV-U7, OV-U13, OV-U14, OV-U34, VS-U22, VS-U23, VS-U35. Anbefalt: *vedtak*, med rekkefølgen som beslutningsdel. Alternativ: *beslutning*. Formen er en rekkefølge, men teksten avgjør hva partene kan sende og hva løsningen utleder til da. Eksempler: en innsigelse etter § 5 er et utsagn uten utledning, fristen i § 35.2 regnes ikke med dato, en registrert forespørsel gir ingen utledet virkning, og det er fastsatt hvem som kan opplyse at et brev er en endringsordre. Rapportene delte seg (OV-U7, OV-U14, OV-U34 og VS-U35 som *beslutning*). Samlingen velger *vedtak*, fordi det løsningen ennå ikke kan, avvises og ikke forenkles, og avvisningen binder partene til den oppheves.
+5. **Avgrensningen av første versjon som sier hva løsningen regner nå** (juridisk). KT-U8, MM-U2, OV-U7, OV-U13, OV-U14, OV-U34, VS-U22, VS-U23, VS-U35. Anbefalt: *vedtak*, med rekkefølgen som beslutningsdel. Alternativ: *beslutning*. Formen er en rekkefølge, men teksten avgjør hva partene kan sende og hva løsningen utleder til da. Eksempler: en innsigelse etter § 5 er et utsagn uten utledning, fristen i § 35.2 regnes ikke med dato, en registrert forespørsel gir ingen utledet virkning, og det er fastsatt hvem som kan opplyse at et brev er en endringsordre. Rapportene delte seg (OV-U7, OV-U14, OV-U34 og VS-U35 som *beslutning*). Samlingen velger *vedtak*, fordi det løsningen ennå ikke kan, avvises og ikke forenkles, og avvisningen binder partene til den oppheves. **Svar 03.11: B.**
 
-6. **Endringsordren som egen sak etter frafall** (juridisk). GR-U3, GR-U28, rad-182. Anbefalt: *vedtak*. Alternativ: *beslutning*. Deler av teksten sier hvilken sak som eier endringsordren, men det som binder, er hva den omfatter, at den lukker saken, og at EO-saken ikke erstatter TEs krav i KOE-saken. Rapportene er enige.
+6. **Endringsordren som egen sak etter frafall** (juridisk). GR-U3, GR-U28, rad-182. Anbefalt: *vedtak*. Alternativ: *beslutning*. Deler av teksten sier hvilken sak som eier endringsordren, men det som binder, er hva den omfatter, at den lukker saken, og at EO-saken ikke erstatter TEs krav i KOE-saken. Rapportene er enige. **Svar 03.11: B.**
 
-7. **Bygger på et vedtak som er opphevet** (juridisk). HF-U20, MM-U27, OV-U48, OV-U49. Anbefalt: *historisk*. Alternativ: *vedtak*. HF-U20 presiserer bare HF-U17, og MM-U27 bygger på sperren og vernet som MM-U34 opphevet, men Følge sier ikke at de er opphevet. OV-U48 og OV-U49 er opphevet av OV-U69, men OV-U80 og KA-U45 bygger videre på dem (se motsigelsene). Rapportene anbefalte *vedtak* for HF-U20 og MM-U27 og *historisk* for OV-U48 og OV-U49. Samlingen velger *historisk* for alle fire, men oppdragsgiver må avgjøre om noe av regelen skal stå. Etter kontrollen er MM-U27 *vedtak*: MM-U34 lister det ikke, og punkt 6 løfter bare byggherrens «i tide», så HF-U4 gjelder fortsatt utsagn fra TE. Det er snevret inn, ikke opphevet.
+7. **Bygger på et vedtak som er opphevet** (juridisk). HF-U20, MM-U27, OV-U48, OV-U49. Anbefalt: *historisk*. Alternativ: *vedtak*. HF-U20 presiserer bare HF-U17, og MM-U27 bygger på sperren og vernet som MM-U34 opphevet, men Følge sier ikke at de er opphevet. OV-U48 og OV-U49 er opphevet av OV-U69, men OV-U80 og KA-U45 bygger videre på dem (se motsigelsene). Rapportene anbefalte *vedtak* for HF-U20 og MM-U27 og *historisk* for OV-U48 og OV-U49. Samlingen velger *historisk* for alle fire, men oppdragsgiver må avgjøre om noe av regelen skal stå. Etter kontrollen er MM-U27 *vedtak*: MM-U34 lister det ikke, og punkt 6 løfter bare byggherrens «i tide», så HF-U4 gjelder fortsatt utsagn fra TE. Det er snevret inn, ikke opphevet. Svar 03.11: A.
 
-8. **Den bindende setningen står i et annet vedtak** (teknisk). EO-U13, KT-U1, LV-U11, LV-U16, MM-U36, OV-U63, OV-U70, OV-U76, VS-U39. Anbefalt: *design* (*beslutning* for KT-U1 og LV-U11), med henvisning til kilden. Alternativ: *vedtak*. Det eneste som binder, gjentar MM-U12, MM-U35, EO-U8, OV-U79, OV-U82, KA-U1, LV-U7 eller LV-U22, så klassen følger resten når kilden dekker hele setningen. Det må kontrolleres for EO-U13, der kilden bare er prinsippet om at status er en etikett. Rapportene delte seg (EO-U13, LV-U16, MM-U36 og OV-U63 som *vedtak*). Samlingen velger klassen til resten, fordi en regel skal ha ett hjem. Etter kontrollen er EO-U13 *vedtak*, med merket som designdel i BF-06: det slår fast at løsningen ikke utleder noen rettsvirkning av knytningen, og hva merket ikke kan si.
+8. **Den bindende setningen står i et annet vedtak** (teknisk). EO-U13, KT-U1, LV-U11, LV-U16, MM-U36, OV-U63, OV-U70, OV-U76, VS-U39. Anbefalt: *design* (*beslutning* for KT-U1 og LV-U11), med henvisning til kilden. Alternativ: *vedtak*. Det eneste som binder, gjentar MM-U12, MM-U35, EO-U8, OV-U79, OV-U82, KA-U1, LV-U7 eller LV-U22, så klassen følger resten når kilden dekker hele setningen. Det må kontrolleres for EO-U13, der kilden bare er prinsippet om at status er en etikett. Rapportene delte seg (EO-U13, LV-U16, MM-U36 og OV-U63 som *vedtak*). Samlingen velger klassen til resten, fordi en regel skal ha ett hjem. Etter kontrollen er EO-U13 *vedtak*, med merket som designdel i BF-06: det slår fast at løsningen ikke utleder noen rettsvirkning av knytningen, og hva merket ikke kan si. Svar 03.11: A.
 
-9. **Regelversjon, utrulling og omregning** (teknisk). B-10, MM-U15, MM-U16. Anbefalt: *beslutning*. Alternativ: *vedtak*. Hoveddelen er versjonering, utrulling og omregning, og garantien om at frosne brev ikke endres, står i MM-U9, MM-U11 og MM-U17. MM-rapporten anbefalte *vedtak* for MM-U16. Samlingen velger *beslutning* av samme grunn som i mønster 8. Etter kontrollen er MM-U16 *vedtak*, med rapporten som beslutningsdel og merknaden på saken som designdel: brevene og standpunktene står, og utledningen følger nye regler.
+9. **Regelversjon, utrulling og omregning** (teknisk). B-10, MM-U15, MM-U16. Anbefalt: *beslutning*. Alternativ: *vedtak*. Hoveddelen er versjonering, utrulling og omregning, og garantien om at frosne brev ikke endres, står i MM-U9, MM-U11 og MM-U17. MM-rapporten anbefalte *vedtak* for MM-U16. Samlingen velger *beslutning* av samme grunn som i mønster 8. Etter kontrollen er MM-U16 *vedtak*, med rapporten som beslutningsdel og merknaden på saken som designdel: brevene og standpunktene står, og utledningen følger nye regler. Svar 03.11: A.
 
-10. **Statustekst, merknad og varsel uten egen telling** (teknisk). OV-U10, OV-U21, OV-U40, rad-083. Anbefalt: *design*. Alternativ: *vedtak*. Tellingen bak teksten gir ikke standpunkt, frist eller enighet og sperrer ikke sendingen. Det gir tvil at ordlyden ble valgt for at saken ikke skal si mer enn løsningen har vurdert (KK-05). Status er en etikett i visningen, så rad-083 kan ikke bety at saken er låst. Rapportene er enige.
+10. **Statustekst, merknad og varsel uten egen telling** (teknisk). OV-U10, OV-U21, OV-U40, rad-083. Anbefalt: *design*. Alternativ: *vedtak*. Tellingen bak teksten gir ikke standpunkt, frist eller enighet og sperrer ikke sendingen. Det gir tvil at ordlyden ble valgt for at saken ikke skal si mer enn løsningen har vurdert (KK-05). Status er en etikett i visningen, så rad-083 kan ikke bety at saken er låst. Rapportene er enige. Svar 03.11: A.
 
-11. **Tilgang, fullmakt og medlemskap formulert som drift** (teknisk). DL-U7, DL-U12, DL-U13, GFK-U1, GFK-U11, GFK-U12, RP-U1, rad-374, rad-427, rad-432. Anbefalt: *vedtak*, med drifts- og databasedelen som merknad. Alternativ: *beslutning*. Teksten er en synkroniseringsregel, en driftsparameter eller en utfasing av en tabell. Den avgjør likevel hvem som har medlemskap og hvem som kan lese, godkjenne og sende, og valg 1A regner tilgang som vedtak. DL-U13 avgjør også hvilken kontraktsside et sendt brev står på. Rapportene er enige.
+11. **Tilgang, fullmakt og medlemskap formulert som drift** (teknisk). DL-U7, DL-U12, DL-U13, GFK-U1, GFK-U11, GFK-U12, RP-U1, rad-374, rad-427, rad-432. Anbefalt: *vedtak*, med drifts- og databasedelen som merknad. Alternativ: *beslutning*. Teksten er en synkroniseringsregel, en driftsparameter eller en utfasing av en tabell. Den avgjør likevel hvem som har medlemskap og hvem som kan lese, godkjenne og sende, og valg 1A regner tilgang som vedtak. DL-U13 avgjør også hvilken kontraktsside et sendt brev står på. Rapportene er enige. Svar 03.11: A.
 
-12. **Driftens nødtilgang og sikringsnivået** (teknisk). rad-284, rad-429. Anbefalt: *beslutning*. Alternativ: *vedtak*. De gjelder driftens tilgang og restrisikoen ved godkjenningen, ikke hva partene kan lese eller sende. Rapportene er enige.
+12. **Driftens nødtilgang og sikringsnivået** (teknisk). rad-284, rad-429. Anbefalt: *beslutning*. Alternativ: *vedtak*. De gjelder driftens tilgang og restrisikoen ved godkjenningen, ikke hva partene kan lese eller sende. Rapportene er enige. Svar 03.11: A.
 
-13. **Opprettelsen av saken og topicen i Catenda** (teknisk). KT-U7, KT-U11, rad-314. Anbefalt: *beslutning*, med arbeidsflyten som designdel i BF-05. Alternativ: *design*. Det meste gjelder webhooken, kanalene og når topicen finnes. At bare TE oppretter KOE-saker, står i OV-U1 og KT-U10. Rapportene anbefalte tre ulike klasser (KT-U7 *vedtak*, KT-U11 *design* og rad-314 *beslutning*). Samlingen velger *beslutning*, fordi spørsmålet er når løsningen skriver til Catenda, og regelen om hvem som oppretter saken, står et annet sted.
+13. **Opprettelsen av saken og topicen i Catenda** (teknisk). KT-U7, KT-U11, rad-314. Anbefalt: *beslutning*, med arbeidsflyten som designdel i BF-05. Alternativ: *design*. Det meste gjelder webhooken, kanalene og når topicen finnes. At bare TE oppretter KOE-saker, står i OV-U1 og KT-U10. Rapportene anbefalte tre ulike klasser (KT-U7 *vedtak*, KT-U11 *design* og rad-314 *beslutning*). Samlingen velger *beslutning*, fordi spørsmålet er når løsningen skriver til Catenda, og regelen om hvem som oppretter saken, står et annet sted. Svar 03.11: A.
 
-14. **Erstattet i sin helhet, men Følge sier «Endret» eller ingenting** (teknisk). MM-U28, MM-U29, OV-U71, rad-076. Anbefalt: *historisk*, med Følge rettet. Alternativ: *vedtak* for MM-U28 og *design* for MM-U29 og OV-U71, som resten ville hatt. Klassen *historisk* gjelder etter valg 1A bare ved «Opphevet» eller «Erstattet», men MM-U37–MM-U39, MM-U40, OV-U86 og GR-U18 har tatt hele innholdet. Rapportene anbefalte *historisk* bare for rad-076. Samlingen velger *historisk* for alle fire der kontrollen viser at hele innholdet er tatt.
+14. **Erstattet i sin helhet, men Følge sier «Endret» eller ingenting** (teknisk). MM-U28, MM-U29, OV-U71, rad-076. Anbefalt: *historisk*, med Følge rettet. Alternativ: *vedtak* for MM-U28 og *design* for MM-U29 og OV-U71, som resten ville hatt. Klassen *historisk* gjelder etter valg 1A bare ved «Opphevet» eller «Erstattet», men MM-U37–MM-U39, MM-U40, OV-U86 og GR-U18 har tatt hele innholdet. Rapportene anbefalte *historisk* bare for rad-076. Samlingen velger *historisk* for alle fire der kontrollen viser at hele innholdet er tatt. Svar 03.11: A.
 
-15. **Kjernedelen er snudd, men resten står** (teknisk). GR-U19, KA-U20, VS-U29, rad-425. Anbefalt: *vedtak* (*beslutning* for rad-425), som ledd i kjeden. Alternativ: *historisk*. GR-U22, KA-U45, VS-U36 og B-12-DATABASEN snudde kjernedelen. Resten står likevel: hovedkategorien, at hver side registrerer sine egne brev, gjentakelsen i senere svar og plattformuavhengigheten. Blir de historiske, må resten inn i samlevedtaket. Rapportene er enige.
+15. **Kjernedelen er snudd, men resten står** (teknisk). GR-U19, KA-U20, VS-U29, rad-425. Anbefalt: *vedtak* (*beslutning* for rad-425), som ledd i kjeden. Alternativ: *historisk*. GR-U22, KA-U45, VS-U36 og B-12-DATABASEN snudde kjernedelen. Resten står likevel: hovedkategorien, at hver side registrerer sine egne brev, gjentakelsen i senere svar og plattformuavhengigheten. Blir de historiske, må resten inn i samlevedtaket. Rapportene er enige. Svar 03.11: A.
 
 Enkelttilfeller:
 
-- **KA-U44** (teknisk). Anbefalt: *vedtak*, slått inn i samlevedtaket om byggherrens begrunnelse. Alternativ: *beslutning*. Vedtaket har ingen egen regel og sier bare at KA-U33 og GR-U15 står etter KA-U43. Det er en registermerknad som hører hjemme i Følge for KA-U43.
-- **OV-U75** (teknisk). Anbefalt: *design* (system.md, ordlyden i grensesnittet). Alternativ: *beslutning*. Det er en språkregel for hele grensesnittet som også står i AGENTS.md og språkfila. AGENTS.md viser til OV-U75 ved ID, så henvisningen må følge med hvis vedtaket flyttes.
-- **LV-U26** (teknisk). Anbefalt: *beslutning*. Alternativ: *design*. Valget gjelder hvordan skriften og logoen hentes inn i brevet. At utseendet fryses med brevet, står i LV-U1-kjeden.
+- **KA-U44** (teknisk). Anbefalt: *vedtak*, slått inn i samlevedtaket om byggherrens begrunnelse. Alternativ: *beslutning*. Vedtaket har ingen egen regel og sier bare at KA-U33 og GR-U15 står etter KA-U43. Det er en registermerknad som hører hjemme i Følge for KA-U43. Svar 03.11: A.
+- **OV-U75** (teknisk). Anbefalt: *design* (system.md, ordlyden i grensesnittet). Alternativ: *beslutning*. Det er en språkregel for hele grensesnittet som også står i AGENTS.md og språkfila. AGENTS.md viser til OV-U75 ved ID, så henvisningen må følge med hvis vedtaket flyttes. Svar 03.11: A.
+- **LV-U26** (teknisk). Anbefalt: *beslutning*. Alternativ: *design*. Valget gjelder hvordan skriften og logoen hentes inn i brevet. At utseendet fryses med brevet, står i LV-U1-kjeden. Svar 03.11: A.
 
 ## Motsigelsene i registeret
 
@@ -160,50 +161,53 @@ Enkelttilfeller:
 Temaer: 41. Samlevedtak: 58 (anslag).
 
 377 av de 459 radene står i minst én kjede, talt med et skript over tabellen. Samlevedtakene
-for alle temaene ville derfor skrive om det meste av registeret. Rekkefølgen er et spørsmål
-til oppdragsgiver (se PR-en).
+for alle temaene ville derfor skrive om det meste av registeret. Svaret 03.11 (spørsmål 21, B):
+alle 41 temaene tas i steg 4, per prefiks. Etter spørsmål 19 (A) avgjøres en motsigelse i
+samlevedtaket for kjeden den står i, og de kjedene tas først.
 
 ## Omfanget av flyttingen
 
 Valg 2A i #1534: et designvedtak beholder ID-en i registeret med «Flyttet til BF-xx, punkt
-U-n», og teksten flyttes dit. Henvisningene i koden virker fortsatt. Tabellen gjelder klassene
-etter grensetilfellene, med de anbefalte svarene.
+U-n», og teksten flyttes dit. Henvisningene i koden virker fortsatt. Tabellen følger svarene
+fra oppdragsgiver 03.11 (PR #1537).
 
 | Mål | Designvedtak | Steder | Av dem i `kjerne/` | Vedtakene |
 | --- | ---: | ---: | ---: | --- |
-| `.interface-design/system.md` | 8 | 120 | 26 | GR-U30, MM-U22, MM-U25, MM-U30, MM-U31, MM-U32, MM-U40, OV-U75 |
-| BF-05 | 3 | 41 | 4 | OV-U76, OV-U77, VS-U39 |
-| BF-01 | 2 | 17 | 1 | MM-U36, OV-U20 |
+| `.interface-design/system.md` | 10 | 139 | 38 | GR-U30, MM-U22, MM-U23, MM-U24, MM-U25, MM-U30, MM-U31, MM-U32, MM-U40, OV-U75 |
+| BF-05 | 6 | 99 | 18 | GR-U16, LV-U43, OV-U76, OV-U77, OV-U78, VS-U39 |
+| BF-01 | 5 | 57 | 18 | KA-U31, KA-U41, MM-U36, OV-U20, OV-U62 |
 | BF-02B | 1 | 0 | 0 | OV-U87 |
 | BF-06 (under arbeid) | 1 | 3 | 0 | EO-U14 |
-| Nytt forløp: registrere et brev sendt utenfor løsningen | 5 | 62 | 34 | OV-U19, OV-U21, OV-U70, OV-U81, OV-U86 |
+| Nytt forløp: registrere et brev sendt utenfor løsningen | 6 | 88 | 53 | OV-U16, OV-U19, OV-U21, OV-U70, OV-U81, OV-U86 |
 | Nytt forløp: saksoversikten og statusen | 3 | 28 | 8 | MM-U37, OV-U10, rad-083 |
+| Nytt forløp: veiledningen om passivitet og frister | 2 | 0 | 0 | VS-U2, VS-U10 |
+| Nytt forløp: fristkravet og fristsvaret | 2 | 0 | 0 | OV-U42, OV-U63 |
+| Nytt forløp: krav om rigg og drift | 2 | 0 | 0 | OV-U40, OV-U60 |
 | Nytt forløp: levering av brev til Catenda | 1 | 11 | 0 | LV-U16 |
-| Nytt forløp: fristkravet og fristsvaret | 1 | 0 | 0 | OV-U63 |
-| Nytt forløp: krav om rigg og drift | 1 | 0 | 0 | OV-U40 |
-| **I alt** | **26** | **282** | **73** | |
+| Nytt forløp: brevmalen og profilen | 1 | 5 | 0 | LV-U25 |
+| Nytt forløp: BH endrer svaret etter akseptfristen | 1 | 6 | 0 | HF-U22 |
+| Nytt forløp: ny KOE etter en bestridt endringsordre | 1 | 0 | 0 | EO-U11 |
+| **I alt** | **42** | **436** | **135** | |
 
-I tillegg har 102 av vedtakene en designdel, med til sammen 1 936 steder. 55 av dem mangler
-et forløp å flytte delen til. De største gruppene er registrering av brev sendt utenfor
-løsningen, rigg og drift, forsering, sakslisten, innstillingene for brevene og veiledningen
-om passivitet og frister. Subagentene har navngitt målene fritt, så grupperingen er
-omtrentlig. 40 vedtak har en beslutningsdel.
+I tillegg har 83 av vedtakene en designdel, med til sammen 1 631 steder. 45 av dem mangler
+et forløp å flytte delen til. Subagentene har navngitt målene fritt, så grupperingen er
+omtrentlig. 25 vedtak har en beslutningsdel.
 
-73 av de 282 stedene som viser til et designvedtak, er i `kjerne/`, flest for OV-U19 (24),
-MM-U22 (12), OV-U21 (10) og MM-U30 (9). Kjernen regner ut betegnelsene og merknadene i
-visningen (mønster 10 under «Grensetilfellene»), så en henvisning fra kjernen betyr ikke at
-vedtaket binder partene.
+135 av de 436 stedene som viser til et designvedtak, er i `kjerne/`, flest for OV-U19 (24),
+OV-U16 (19), GR-U16 (14), MM-U22 (12) og MM-U23 (10). Når vedtakene flyttes, viser disse
+henvisningene til en ID med «Flyttet til», og vakttesten for henvisningene må godta det
+(steg 3).
 
-**Anbefalingen.**
+**Svaret 03.11 (spørsmål 20, A).** Spørsmålet ble stilt før svarene på mønster 1–6, og
+regelen i svaret er her brukt på klassene etter dem, så tallene er større enn i spørsmålet.
 
-1. *Flyttes nå*, i steg 4: de 14 designvedtakene med et forløp eller `system.md` som mål
-   (178 steder), unntatt BF-06. EO-U14 flyttes når BF-06 er merget.
-2. *Venter på et nytt forløp*: de 11 med «nytt forløp». De fem om brev sendt utenfor
-   løsningen flyttes samlet når det forløpet skrives.
-3. *Designdelene i de 102 vedtakene flyttes ikke nå.* Det ville kreve at vedtaksteksten
-   skrives om, og unntaket i valg 3A gjelder bare kjedene. Steg 3 gir registeret et felt som
-   sier hvilken del av vedtaket som er design og kan endres av brukerprøven. Teksten flyttes
-   når vedtaket går inn i et samlevedtak for en kjede.
+1. *Flyttes i steg 4*: de 22 designvedtakene med et forløp eller `system.md` som mål
+   (295 steder). EO-U14 flyttes når BF-06 er merget.
+2. *Venter på et nytt forløp*: de 19 med «Nytt forløp» (138 steder). De seks om brev sendt
+   utenfor løsningen flyttes samlet når det forløpet skrives.
+3. *Designdelene i de 83 vedtakene flyttes ikke nå.* Steg 3 gir registeret et felt som sier
+   hvilken del av vedtaket som er design og kan endres av brukerprøven. Teksten flyttes når
+   vedtaket går inn i et samlevedtak for en kjede.
 
 ## Tabellen
 
@@ -220,16 +224,16 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [OV-U4](../plans/vedtak.md#ov-u4) | vedtak | Et registrert brev er dokumentasjon uten virkning, og hver side registrerer bare sine egne brev. | designdel: visningen ved sporene, merknaden, skjemateksten og visningen ved «venter på svar» → nytt forløp trengs: registrere brev sendt utenfor appen | 240 (77/2/8/153) |
 | [OV-U5](../plans/vedtak.md#ov-u5) | vedtak | Varsel etter § 34.1.2 og § 34.1.3 fra appen og TEs oppgitte varseldato som premiss for rettidigheten. | designdel: teksten «TE oppgir at varselet ble sendt», skjemaet for byggherrens svar og for TEs aksept → BF-01 | 139 (72/1/26/40) |
 | [OV-U6](../plans/vedtak.md#ov-u6) | vedtak | Byggherrens registrerte endringsordre er en godkjenning av grunnlaget med enighet og fullmakt. | designdel: skjemaet som skiller standpunktet fra dokumentet, og visningen av opplysningen om § 31.3 → nytt forløp trengs: BH registrerer endringsordre som svar | 66 (22/0/0/44) |
-| [OV-U7](../plans/vedtak.md#ov-u7) | vedtak | Hvilke vedtak som ikke bygges i første versjon, og at de avvises til de bygges. | Grensetilfelle, mønster 5. | 103 (41/0/3/59) |
+| [OV-U7](../plans/vedtak.md#ov-u7) | beslutning | Hvilke vedtak som ikke bygges i første versjon, og at de avvises til de bygges. | Grensetilfelle, mønster 5; svar 03.11: B. | 103 (41/0/3/59) |
 | [OV-U8](../plans/vedtak.md#ov-u8) | vedtak | Når et varsel etter § 34.1.2 og § 34.1.3 avvises eller godtas, og at datoen settes én gang. |  | 9 (4/0/5/0) |
 | [OV-U9](../plans/vedtak.md#ov-u9) | vedtak | Byggherren tar stilling til rettidigheten etter § 33.4 med TEs oppgitte dato som premiss. | designdel: datoene ved siden av hverandre i svarskjemaet → nytt forløp trengs: BH påberoper fristvarsel for sent | 0 |
 | [OV-U10](../plans/vedtak.md#ov-u10) | design | Ordlyden i statusteksten og merknaden om registrerte brev. | nytt forløp trengs: status når kravene er avgjort Grensetilfelle, mønster 10. | 17 (8/2/5/2) |
 | [OV-U11](../plans/vedtak.md#ov-u11) | vedtak | Virkningen av å rette en oppgitt varseldato, til og fra TEs fordel. |  | 8 (0/0/0/8) |
 | [OV-U12](../plans/vedtak.md#ov-u12) | vedtak | En registrert endringsordre regnes bare som svar på et krav sendt fra appen. |  | 2 (2/0/0/0) |
-| [OV-U13](../plans/vedtak.md#ov-u13) | vedtak | Bare byggherrens registrering som svar kan opplyse at brevet er en endringsordre etter § 31.3. | beslutningsdel: senere avklaring av § 31.3 utsettes til merkingen bygges (OV-U7) Grensetilfelle, mønster 5. | 25 (15/0/0/10) |
-| [OV-U14](../plans/vedtak.md#ov-u14) | vedtak | Hvilke bestemmelser i § 34.3 som avvises til de er bygget. | Grensetilfelle, mønster 5. | 0 |
+| [OV-U13](../plans/vedtak.md#ov-u13) | beslutning | Bare byggherrens registrering som svar kan opplyse at brevet er en endringsordre etter § 31.3. | beslutningsdel: senere avklaring av § 31.3 utsettes til merkingen bygges (OV-U7) Grensetilfelle, mønster 5; svar 03.11: B. | 25 (15/0/0/10) |
+| [OV-U14](../plans/vedtak.md#ov-u14) | beslutning | Hvilke bestemmelser i § 34.3 som avvises til de er bygget. | Grensetilfelle, mønster 5; svar 03.11: B. | 0 |
 | [OV-U15](../plans/vedtak.md#ov-u15) | vedtak | Tolkningen av § 34.1.1: ved endring kreves ikke varsel, og appen utleder ingen virkning av det. | designdel: skjemateksten om at varsel ikke kreves → nytt forløp trengs: TE sender varsel om vederlagsjustering | 17 (5/0/4/8) |
-| [OV-U16](../plans/vedtak.md#ov-u16) | vedtak | Feltene den som registrerer et brev, fyller ut. | designdel: det som står i skjemaet → nytt forløp trengs: registrere brev sendt utenfor appen Grensetilfelle, mønster 2. | 26 (19/0/5/2) |
+| [OV-U16](../plans/vedtak.md#ov-u16) | design | Feltene den som registrerer et brev, fyller ut. | designdel: det som står i skjemaet → nytt forløp trengs: registrere brev sendt utenfor appen Grensetilfelle, mønster 2; svar 03.11: B. | 26 (19/0/5/2) |
 | [OV-U17](../plans/vedtak.md#ov-u17) | vedtak | Hvem som kan rette en registrering, og at det skjer uten godkjenning. |  | 44 (27/3/2/12) |
 | [OV-U18](../plans/vedtak.md#ov-u18) | vedtak | Virkningen av å rette en registrering i feil sak. | designdel: at registreringen vises som rettet og ikke ved sporene → nytt forløp trengs: registrere brev sendt utenfor appen | 50 (33/2/3/12) |
 | [OV-U19](../plans/vedtak.md#ov-u19) | design | Hvor merknaden om brev sendt utenfor appen vises. | nytt forløp trengs: registrere brev sendt utenfor appen | 32 (24/0/0/8) |
@@ -244,10 +248,10 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [OV-U28](../plans/vedtak.md#ov-u28) | vedtak | Vedtatt brevtekst for postene og etikettene prinsipalt og subsidiært. |  | 28 (14/0/5/9) |
 | [OV-U29](../plans/vedtak.md#ov-u29) | vedtak | Den første kravversjonen er TEs første kjente varsel etter § 34.1.2. |  | 1 (1/0/0/0) |
 | [OV-U30](../plans/vedtak.md#ov-u30) | vedtak | Etiketten i brevet settes etter den fryste verdien for hvert standpunkt. |  | 1 (0/0/0/1) |
-| [OV-U31](../plans/vedtak.md#ov-u31) | vedtak | Hvilke beløp som lagres, og hvilke som utledes av postene. | Grensetilfelle, mønster 4. | 12 (10/2/0/0) |
+| [OV-U31](../plans/vedtak.md#ov-u31) | beslutning | Hvilke beløp som lagres, og hvilke som utledes av postene. | Grensetilfelle, mønster 4; svar 03.11: B. | 12 (10/2/0/0) |
 | [OV-U32](../plans/vedtak.md#ov-u32) | vedtak | Lagene og etikettene i brevet avgjør rekkefølgen mellom standpunktene. |  | 71 (50/0/8/13) |
 | [OV-U33](../plans/vedtak.md#ov-u33) | vedtak | Når et standpunkt er upåvirket, og hvilket lag og hvilken etikett det får i brevet. |  | 57 (41/1/11/4) |
-| [OV-U34](../plans/vedtak.md#ov-u34) | vedtak | Henviser avklaringen av kunnskapsdato i TS-stien til #1171. | Grensetilfelle, mønster 5. | 0 |
+| [OV-U34](../plans/vedtak.md#ov-u34) | beslutning | Henviser avklaringen av kunnskapsdato i TS-stien til #1171. | Grensetilfelle, mønster 5; svar 03.11: B. | 0 |
 | [OV-U35](../plans/vedtak.md#ov-u35) | vedtak | Tolkningen av § 34.1.3 om varslingsplikten for kravet etter første ledd. |  | 0 |
 | [OV-U36](../plans/vedtak.md#ov-u36) | vedtak | Kompensasjonen i uendret byggetid gjelder kontrakten samlet, og avgrenser hva TE kan kreve i en sak. | designdel: opplysningen ved kravet om rigg og drift → nytt forløp trengs: krav om rigg og drift | 0 |
 | [OV-U37](../plans/vedtak.md#ov-u37) | vedtak | Rigg og drift i forlenget byggetid er en post som kan sendes før forlengelsen er avtalt. | designdel: visningen av forlengelsen som TEs premiss → nytt forløp trengs: krav om rigg og drift | 0 |
@@ -255,7 +259,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [OV-U39](../plans/vedtak.md#ov-u39) | vedtak | Regnestykket for rigg og drift, avrundingen og virkningen av partenes verdier. | designdel: feltene i skjemaet for posten → nytt forløp trengs: krav om rigg og drift | 0 |
 | [OV-U40](../plans/vedtak.md#ov-u40) | design | Varselet i skjemaet og visningen når regnestykket avviker fra beløpet. | nytt forløp trengs: krav om rigg og drift Grensetilfelle, mønster 10. | 0 |
 | [OV-U41](../plans/vedtak.md#ov-u41) | vedtak | TEs kunnskapsdato etter § 34.1.3 annet ledd, brevteksten og rettingen av den. | designdel: visningen av alle datoene TE har oppgitt → nytt forløp trengs: kunnskapsdato ved nedsatt produktivitet | 0 |
-| [OV-U42](../plans/vedtak.md#ov-u42) | vedtak | Standpunkter uten lagvirkning står samlet i brevet og danner ikke et lag. | Grensetilfelle, mønster 2. | 0 |
+| [OV-U42](../plans/vedtak.md#ov-u42) | design | Standpunkter uten lagvirkning står samlet i brevet og danner ikke et lag. | Grensetilfelle, mønster 2; svar 03.11: B. | 0 |
 | [OV-U43](../plans/vedtak.md#ov-u43) | vedtak | Prinsippene for beregningsregel, overslag og enighet i vederlagssporet. | designdel: teksten om at behandlingen er ferdig i løsningen → nytt forløp trengs: enighet om beregningsregel for vederlag | 2 (0/0/2/0) |
 | [OV-U44](../plans/vedtak.md#ov-u44) | vedtak | Et registrert brev sendt utenfor appen er dokumentasjon uten utledet virkning. | designdel: skillet mellom dokumentasjon, opplysning og utledning i visningen → system.md «Mønstre» | 17 (16/0/0/1) |
 | [OV-U45](../plans/vedtak.md#ov-u45) | vedtak | Brevteksten og virkningen av henvisningen når grunnlaget er ubesvart i appen. | designdel: spørsmålet og valget av dokumenttype i svarskjemaet → BF-01 | 1 (0/0/1/0) |
@@ -273,9 +277,9 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [OV-U57](../plans/vedtak.md#ov-u57) | vedtak | En ny sak med riktig hjemmel endrer ikke den gamle, og nøkkeltallene kan telle begge. | designdel: teksten i skjemaet før sending → BF-05 | 6 (0/0/0/6) |
 | [OV-U58](../plans/vedtak.md#ov-u58) | vedtak | Hvordan et beløp leses og avvises, i hele øre uten avrunding. | designdel: feilmeldingen ved ugyldig beløp → system.md «Knapper, skjemaer og feilmeldinger» | 33 (20/1/12/0) |
 | [OV-U59](../plans/vedtak.md#ov-u59) | vedtak | Beløpene sammenliknes i hele øre når sammenfall utledes. |  | 19 (8/0/4/7) |
-| [OV-U60](../plans/vedtak.md#ov-u60) | vedtak | Datoene for igangsetting og overtakelse i posten er partenes opplysninger i brevet. | designdel: datofeltene og kontrollen av rekkefølgen → nytt forløp trengs: krav om rigg og drift Grensetilfelle, mønster 2. | 0 |
+| [OV-U60](../plans/vedtak.md#ov-u60) | design | Datoene for igangsetting og overtakelse i posten er partenes opplysninger i brevet. | designdel: datofeltene og kontrollen av rekkefølgen → nytt forløp trengs: krav om rigg og drift Grensetilfelle, mønster 2; svar 03.11: B. | 0 |
 | [OV-U61](../plans/vedtak.md#ov-u61) | vedtak | Hva nøkkeltallene for krevd vederlag og enighet om vederlag teller og ikke teller. | designdel: særskilt visning, merking og antall ved summene → nytt forløp trengs: nøkkeltall for vederlag i oversikten | 3 (0/0/3/0) |
-| [OV-U62](../plans/vedtak.md#ov-u62) | vedtak | Hvilke registrerte brev som vises ved kravet som venter på svar, og med hvilken merknad. | designdel: det som står i skjemaet → BF-01 Grensetilfelle, mønster 2. | 10 (9/0/1/0) |
+| [OV-U62](../plans/vedtak.md#ov-u62) | design | Hvilke registrerte brev som vises ved kravet som venter på svar, og med hvilken merknad. | designdel: det som står i skjemaet → BF-01 Grensetilfelle, mønster 2; svar 03.11: B. | 10 (9/0/1/0) |
 | [OV-U63](../plans/vedtak.md#ov-u63) | design | Løsningen summerer ikke fristforlengelse på tvers av saker og kontrollerer ikke sammenhengen. | designdel: veiledningen i fristkravet og fristsvaret → nytt forløp trengs: fristkrav og fristsvar med veiledning Grensetilfelle, mønster 8. | 0 |
 | [OV-U64](../plans/vedtak.md#ov-u64) | historisk | Protestens omfang og grenser, opphevet i sin helhet. | Opphevet 28.10 av MM-U34 | 1 (0/0/0/1) |
 | [OV-U65](../plans/vedtak.md#ov-u65) | historisk | Sperren mot protest, innsigelse og bestridelse etter enighet, opphevet i sin helhet. | Opphevet 28.10 av MM-U34 | 4 (0/0/0/4) |
@@ -291,11 +295,11 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [OV-U75](../plans/vedtak.md#ov-u75) | design | Hvordan visningen skriver henvisninger til bestemmelsene i NS 8407. | «Retningen» Grensetilfelle, enkelttilfelle. | 13 (0/0/1/12) |
 | [OV-U76](../plans/vedtak.md#ov-u76) | design | Ordet visningen bruker om bestemmelsen TE påberoper. | BF-05 Grensetilfelle, mønster 8. | 20 (0/0/2/18) |
 | [OV-U77](../plans/vedtak.md#ov-u77) | design | Hvordan visningen viser gruppen forholdet hører til. | BF-05 | 9 (0/0/3/6) |
-| [OV-U78](../plans/vedtak.md#ov-u78) | vedtak | Endrer tittelen i den vedtatte brevteksten i LV-U4. | designdel: tittelen på forholdet i visningen → BF-05 Grensetilfelle, mønster 2. | 15 (0/0/5/10) |
+| [OV-U78](../plans/vedtak.md#ov-u78) | design | Endrer tittelen i den vedtatte brevteksten i LV-U4. | designdel: tittelen på forholdet i visningen → BF-05 Grensetilfelle, mønster 2; svar 03.11: B. | 15 (0/0/5/10) |
 | [OV-U79](../plans/vedtak.md#ov-u79) | vedtak | Hvem som kan legge til korrespondanse, og at løsningen ikke avgjør om sendemåten oppfyller kontrakten. | designdel: feltene som oppgis ved registreringen → nytt forløp trengs: registrere korrespondanse sendt utenfor løsningen | 28 (0/0/3/25) |
 | [OV-U80](../plans/vedtak.md#ov-u80) | vedtak | Hvem som kan velge kategori, og hvilken virkning og dato en registrert korrespondanse får. | designdel: spørsmålet ‹Hva er det etter kontrakten?› og merkingene → nytt forløp trengs: registrere korrespondanse sendt utenfor løsningen | 32 (4/2/0/26) |
 | [OV-U81](../plans/vedtak.md#ov-u81) | design | Hvor merknaden om at innholdet ikke er vurdert, står, og hva visningen sier om korrespondansen. | nytt forløp trengs: registrere korrespondanse sendt utenfor løsningen | 17 (0/0/12/5) |
-| [OV-U82](../plans/vedtak.md#ov-u82) | vedtak | Hva forholdet er etter kontrakten, og hvordan ordene i vedtakene og brevtekstene leses. | Grensetilfelle, mønster 4. | 3 (0/0/0/3) |
+| [OV-U82](../plans/vedtak.md#ov-u82) | beslutning | Hva forholdet er etter kontrakten, og hvordan ordene i vedtakene og brevtekstene leses. | Grensetilfelle, mønster 4; svar 03.11: B. | 3 (0/0/0/3) |
 | [OV-U83](../plans/vedtak.md#ov-u83) | beslutning | Når navnene i domenet byttes, og hvor gamle og nye navn føres. |  | 13 (0/0/0/13) |
 | [OV-U84](../plans/vedtak.md#ov-u84) | vedtak | Avsenderens senere valg av kategori er et nytt utsagn med virkning og dato. | designdel: visningen av når valget ble gjort → nytt forløp trengs: registrere korrespondanse sendt utenfor løsningen | 3 (0/0/0/3) |
 | [OV-U85](../plans/vedtak.md#ov-u85) | vedtak | Hvilken dato som gjelder for varselet, kravet eller svaret, og at løsningen ikke avgjør den. | designdel: visningen av begge datoene med parten → nytt forløp trengs: registrere korrespondanse sendt utenfor løsningen | 0 |
@@ -308,9 +312,9 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | ID | Klasse | Begrunnelse | Mål eller merknad | Steder |
 | --- | --- | --- | --- | ---: |
 | [KA-U1](../plans/vedtak.md#ka-u1) | vedtak | Hva TEs aksept gjelder, og når den avvises. |  | 112 (11/0/1/100) |
-| [KA-U2](../plans/vedtak.md#ka-u2) | vedtak | Hvilke utsagn løsningen regner som kravversjoner. | beslutningsdel: hendelsestypene og at godkjenningsflyten bruker samme definisjon Grensetilfelle, mønster 4. | 25 (5/2/0/18) |
+| [KA-U2](../plans/vedtak.md#ka-u2) | beslutning | Hvilke utsagn løsningen regner som kravversjoner. | beslutningsdel: hendelsestypene og at godkjenningsflyten bruker samme definisjon Grensetilfelle, mønster 4; svar 03.11: B. | 25 (5/2/0/18) |
 | [KA-U3](../plans/vedtak.md#ka-u3) | historisk | Opphevet i sin helhet. | Opphevet 15.10 av HF-U9 | 7 (0/0/0/7) |
-| [KA-U4](../plans/vedtak.md#ka-u4) | vedtak | En vurdering byggherren ikke har gjort, regnes ikke som i tide eller for sent. | beslutningsdel: kodingen true, false og null i hendelsen og tilstanden Grensetilfelle, mønster 4. | 44 (6/0/2/36) |
+| [KA-U4](../plans/vedtak.md#ka-u4) | beslutning | En vurdering byggherren ikke har gjort, regnes ikke som i tide eller for sent. | beslutningsdel: kodingen true, false og null i hendelsen og tilstanden Grensetilfelle, mønster 4; svar 03.11: B. | 44 (6/0/2/36) |
 | [KA-U5](../plans/vedtak.md#ka-u5) | historisk | Opphevet i sin helhet. | Opphevet 15.10 av HF-U9 | 17 (0/0/0/17) |
 | [KA-U6](../plans/vedtak.md#ka-u6) | vedtak | TE kan trekke et krav med enighet, og enigheten faller bort. |  | 38 (3/0/0/35) |
 | [KA-U7](../plans/vedtak.md#ka-u7) | historisk | Opphevet i sin helhet. | Opphevet 28.10 av MM-U34 | 27 (0/0/0/27) |
@@ -337,7 +341,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [KA-U28](../plans/vedtak.md#ka-u28) | historisk | Opphevet i sin helhet. | Opphevet 01.11 av KA-U45 | 7 (0/0/0/7) |
 | [KA-U29](../plans/vedtak.md#ka-u29) | vedtak | Hvilke utsagn som godtas uten virkning etter et godtatt avslag av grunnlaget. |  | 12 (1/0/0/11) |
 | [KA-U30](../plans/vedtak.md#ka-u30) | historisk | Opphevet i sin helhet. | Opphevet 01.11 av KA-U45 | 5 (0/0/0/5) |
-| [KA-U31](../plans/vedtak.md#ka-u31) | vedtak | Hvilken begrunnelse i brevet som hører til hvilket svar. | designdel: begrunnelsesfeltet per svar under den låste teksten → BF-01 Grensetilfelle, mønster 2. | 19 (8/0/2/9) |
+| [KA-U31](../plans/vedtak.md#ka-u31) | design | Hvilken begrunnelse i brevet som hører til hvilket svar. | designdel: begrunnelsesfeltet per svar under den låste teksten → BF-01 Grensetilfelle, mønster 2; svar 03.11: B. | 19 (8/0/2/9) |
 | [KA-U32](../plans/vedtak.md#ka-u32) | historisk | Opphevet i sin helhet. | Opphevet 31.10 av KA-U43 | 5 (5/0/0/0) |
 | [KA-U33](../plans/vedtak.md#ka-u33) | vedtak | TEs fristkrav fra løsningen må ha en begrunnelse etter § 33.6.1 og § 33.7. | designdel: begrunnelsesfeltet under kravets låste tekst → nytt forløp trengs: TE sender krav om fristforlengelse | 20 (10/0/7/3) |
 | [KA-U34](../plans/vedtak.md#ka-u34) | vedtak | Vedtatt brevtekst og virkning for en senere begrunnelse fra løsningen. |  | 27 (18/0/0/9) |
@@ -347,7 +351,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [KA-U38](../plans/vedtak.md#ka-u38) | vedtak | Hvilken dato et registrert svar sammenliknes med. |  | 6 (1/0/0/5) |
 | [KA-U39](../plans/vedtak.md#ka-u39) | vedtak | En bestridt dato endrer ikke datokontrollen. |  | 6 (1/0/0/5) |
 | [KA-U40](../plans/vedtak.md#ka-u40) | vedtak | Byggherren svarer bare på gjeldende kravversjon. |  | 0 |
-| [KA-U41](../plans/vedtak.md#ka-u41) | vedtak | Utdypningen i brevet har bare tekst byggherren selv skriver. | designdel: ingen forhåndsutfylt tekst i utdypningsfeltet → BF-01 Grensetilfelle, mønster 2. | 11 (0/0/11/0) |
+| [KA-U41](../plans/vedtak.md#ka-u41) | design | Utdypningen i brevet har bare tekst byggherren selv skriver. | designdel: ingen forhåndsutfylt tekst i utdypningsfeltet → BF-01 Grensetilfelle, mønster 2; svar 03.11: B. | 11 (0/0/11/0) |
 | [KA-U42](../plans/vedtak.md#ka-u42) | vedtak | Hva som regnes som avslått, delvis og godkjent for en beløpspost. |  | 31 (11/0/7/13) |
 | [KA-U43](../plans/vedtak.md#ka-u43) | vedtak | Begrunnelsen er påkrevd bare ved avslag av krav på endringsordre etter § 32.3 b. | designdel: begrunnelsesfeltet per punkt → BF-04 | 0 |
 | [KA-U44](../plans/vedtak.md#ka-u44) | vedtak | Avgrenser KA-U43 til byggherrens begrunnelser, slik at KA-U33 og GR-U15 står. | Grensetilfelle, enkelttilfelle. | 0 |
@@ -357,7 +361,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 
 | ID | Klasse | Begrunnelse | Mål eller merknad | Steder |
 | --- | --- | --- | --- | ---: |
-| [LV-U1](../plans/vedtak.md#lv-u1) | vedtak | Et nytt leveringsforsøk er ingen ny erklæring, og et lagret oppdrag beviser ikke sending eller mottak. | beslutningsdel: frysingen i samme transaksjon og at Python ikke tolker journalen Grensetilfelle, mønster 3. | 17 (0/14/0/3) |
+| [LV-U1](../plans/vedtak.md#lv-u1) | beslutning | Et nytt leveringsforsøk er ingen ny erklæring, og et lagret oppdrag beviser ikke sending eller mottak. | beslutningsdel: frysingen i samme transaksjon og at Python ikke tolker journalen Grensetilfelle, mønster 3; svar 03.11: B. | 17 (0/14/0/3) |
 | [LV-U2](../plans/vedtak.md#lv-u2) | vedtak | Teksten avsenderen godkjenner, er brevet som fryses, og dokumentet gjengir den tro. | beslutningsdel: når PDF-en lages og at den bevares fra første gang | 89 (23/21/22/23) |
 | [LV-U3](../plans/vedtak.md#lv-u3) | vedtak | Det som ikke står i brevteksten, regnes ikke som meddelt. |  | 25 (17/2/0/6) |
 | [LV-U4](../plans/vedtak.md#lv-u4) | vedtak | Vedtatt brevtekst for krav, svar, aksept, innsigelse, protest og trekk. |  | 52 (31/2/6/13) |
@@ -368,9 +372,9 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [LV-U9](../plans/vedtak.md#lv-u9) | vedtak | Brevet er sendt når det er lagret, også før saken har fått topicen. | beslutningsdel: leveringen venter på topicen | 12 (0/4/0/8) |
 | [LV-U10](../plans/vedtak.md#lv-u10) | vedtak | Vedtatt brevtekst for hvilket varsel byggherrens standpunkt til rettidigheten viser til. | designdel: at varselet er det første appen kjenner, står i skjemaet og visningen → BF-01 | 0 |
 | [LV-U11](../plans/vedtak.md#lv-u11) | beslutning | Hvordan et registrert brev og vedlegget lagres i Catenda. | designdel: visningen sier at brevet er sendt utenfor appen → nytt forløp trengs: levering av brev til Catenda Grensetilfelle, mønster 8. | 15 (0/12/3/0) |
-| [LV-U12](../plans/vedtak.md#lv-u12) | vedtak | Livsløpet til en vedleggsfil fra opplasting til sletting. | Grensetilfelle, mønster 3. | 4 (0/4/0/0) |
+| [LV-U12](../plans/vedtak.md#lv-u12) | beslutning | Livsløpet til en vedleggsfil fra opplasting til sletting. | Grensetilfelle, mønster 3; svar 03.11: B. | 4 (0/4/0/0) |
 | [LV-U13](../plans/vedtak.md#lv-u13) | vedtak | Hvem som leser brev og vedlegg i Catenda, styres av tilgangen på mappen, ikke av appen. | beslutningsdel: biblioteket og mappen fra prosjektets konfigurasjon | 0 |
-| [LV-U14](../plans/vedtak.md#lv-u14) | vedtak | Filnavnet og hashen avgjør hvilket vedlegg som er en del av brevet. | beslutningsdel: serveren fyller inn filnavn og hash Grensetilfelle, mønster 3. | 19 (13/2/2/2) |
+| [LV-U14](../plans/vedtak.md#lv-u14) | beslutning | Filnavnet og hashen avgjør hvilket vedlegg som er en del av brevet. | beslutningsdel: serveren fyller inn filnavn og hash Grensetilfelle, mønster 3; svar 03.11: B. | 19 (13/2/2/2) |
 | [LV-U15](../plans/vedtak.md#lv-u15) | vedtak | Den som har fullmakten, er avsenderen, og brevet har to signaturer. |  | 1 (0/1/0/0) |
 | [LV-U16](../plans/vedtak.md#lv-u16) | design | En stanset levering sperrer ingenting, og appen avgjør ikke når brevet er kommet fram. | designdel: stansen og rådet om å sende utenfor appen i visningen → nytt forløp trengs: levering av brev til Catenda; beslutningsdel: drift varsles og leveringene venter ikke på hverandre Grensetilfelle, mønster 8. | 11 (0/0/0/11) |
 | [LV-U17](../plans/vedtak.md#lv-u17) | beslutning | Hva eksporten av en sak omfatter. |  | 0 |
@@ -381,7 +385,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [LV-U22](../plans/vedtak.md#lv-u22) | vedtak | Et brev i byggherrens prosjekthotell er sendt på avtalt kanal etter § 5. |  | 0 |
 | [LV-U23](../plans/vedtak.md#lv-u23) | vedtak | Brevet er byggherrens formular etter pkt. B.2.4, og hodet etter pkt. D.1.2 er en del av brevet. |  | 4 (0/0/4/0) |
 | [LV-U24](../plans/vedtak.md#lv-u24) | vedtak | Merkingen av brevet etter pkt. D.1.2.5 er en del av brevet og fryses. | designdel: kontraktsforkortelsen i prosjektinnstillingene → nytt forløp trengs: prosjektinnstillingene for brevene | 0 |
-| [LV-U25](../plans/vedtak.md#lv-u25) | vedtak | Hvilke deler brevet har, med underskriverne, vedleggene og kopien. | designdel: logoen, bunnteksten og oppsettet → nytt forløp trengs: brevmalens oppsett og profil Grensetilfelle, mønster 2. | 5 (0/0/0/5) |
+| [LV-U25](../plans/vedtak.md#lv-u25) | design | Hvilke deler brevet har, med underskriverne, vedleggene og kopien. | designdel: logoen, bunnteksten og oppsettet → nytt forløp trengs: brevmalens oppsett og profil Grensetilfelle, mønster 2; svar 03.11: B. | 5 (0/0/0/5) |
 | [LV-U26](../plans/vedtak.md#lv-u26) | beslutning | Skriften og logoen hentes som avhengighet med fast versjon og fryses med brevet. | designdel: skriftene i brevet → nytt forløp trengs: brevmalens oppsett og profil Grensetilfelle, enkelttilfelle. | 0 |
 | [LV-U27](../plans/vedtak.md#lv-u27) | vedtak | Referansene og saksbehandleren er en del av brevet og fryses. |  | 0 |
 | [LV-U28](../plans/vedtak.md#lv-u28) | vedtak | Byggherrens saksnummer står i referanselinjen og fryses med brevet. | designdel: saksnummeret i prosjektinnstillingene → nytt forløp trengs: prosjektinnstillingene for brevene | 0 |
@@ -399,7 +403,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [LV-U40](../plans/vedtak.md#lv-u40) | vedtak | Presiserer henvisningene i vedtatt brevtekst. |  | 1 (0/0/0/1) |
 | [LV-U41](../plans/vedtak.md#lv-u41) | vedtak | Vedtatt brevtekst om forholdet, som erstatter «grunnlaget». |  | 24 (0/0/0/24) |
 | [LV-U42](../plans/vedtak.md#lv-u42) | vedtak | Vedtatt brevtekst for henvisningen til registrert korrespondanse. |  | 2 (0/0/0/2) |
-| [LV-U43](../plans/vedtak.md#lv-u43) | vedtak | Navnet på forholdet er navnet i den første påberopelsen, med vedtatt brevtekst. | designdel: ett navnefelt når saken opprettes → BF-05 Grensetilfelle, mønster 2. | 21 (0/6/5/10) |
+| [LV-U43](../plans/vedtak.md#lv-u43) | design | Navnet på forholdet er navnet i den første påberopelsen, med vedtatt brevtekst. | designdel: ett navnefelt når saken opprettes → BF-05 Grensetilfelle, mønster 2; svar 03.11: B. | 21 (0/6/5/10) |
 | [LV-U44](../plans/vedtak.md#lv-u44) | vedtak | Merkingen og henvisningen til tidligere brev etter pkt. D.1.2.5 er en del av brevet. | designdel: kontraktsforkortelsen i prosjektinnstillingene → nytt forløp trengs: prosjektinnstillingene for brevene | 0 |
 
 ### VS
@@ -407,7 +411,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | ID | Klasse | Begrunnelse | Mål eller merknad | Steder |
 | --- | --- | --- | --- | ---: |
 | [VS-U1](../plans/vedtak.md#vs-u1) | vedtak | Hva en innsigelse etter punkt 5 tredje ledd kan gjelde, og at løsningen ikke avgjør rettidigheten. | designdel: protesten vises ved siden av innsigelsen → system.md «Mønstre» | 52 (21/0/6/25) |
-| [VS-U2](../plans/vedtak.md#vs-u2) | vedtak | Løsningen trekker ingen konklusjon av passivitet og søksmålsfrist, men viser frist og bestemmelse. | designdel: veiledningen med frist og bestemmelse → nytt forløp trengs: veiledning om passivitet og frister Grensetilfelle, mønster 1. | 0 |
+| [VS-U2](../plans/vedtak.md#vs-u2) | design | Løsningen trekker ingen konklusjon av passivitet og søksmålsfrist, men viser frist og bestemmelse. | designdel: veiledningen med frist og bestemmelse → nytt forløp trengs: veiledning om passivitet og frister Grensetilfelle, mønster 1; svar 03.11: B. | 0 |
 | [VS-U3](../plans/vedtak.md#vs-u3) | vedtak | Hvilke bestemmelser løsningen utleder virkningen av, og hvilke den bare registrerer og viser. |  | 28 (9/0/0/19) |
 | [VS-U4](../plans/vedtak.md#vs-u4) | vedtak | Tolkningen av «måtte forstå» i punkt 33.6.1 og 34.3.3 som prinsipalt og subsidiært standpunkt. |  | 28 (15/0/0/13) |
 | [VS-U5](../plans/vedtak.md#vs-u5) | vedtak | Byggherrens prinsipale beløp når sent varsel etter punkt 34.1.3 påberopes. |  | 50 (28/1/21/0) |
@@ -415,7 +419,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [VS-U7](../plans/vedtak.md#vs-u7) | vedtak | Virkningen av å etterregistrere et varsel på en påberopt preklusjon og på godtakelsen av svaret. |  | 0 |
 | [VS-U8](../plans/vedtak.md#vs-u8) | vedtak | Hvilken dato et varsel har, sendt fra løsningen eller registrert, og at byggherren kan bestride den. |  | 16 (10/1/2/3) |
 | [VS-U9](../plans/vedtak.md#vs-u9) | vedtak | Påberopelsen i svaret er innsigelsen etter punkt 5, og hva en senere innsigelse virker. |  | 31 (14/0/3/14) |
-| [VS-U10](../plans/vedtak.md#vs-u10) | vedtak | Løsningen regner ingen fast frist for «uten ugrunnet opphold». | designdel: mottaksdatoen og dagene siden i visningen → nytt forløp trengs: veiledning om passivitet og frister Grensetilfelle, mønster 1. | 0 |
+| [VS-U10](../plans/vedtak.md#vs-u10) | design | Løsningen regner ingen fast frist for «uten ugrunnet opphold». | designdel: mottaksdatoen og dagene siden i visningen → nytt forløp trengs: veiledning om passivitet og frister Grensetilfelle, mønster 1; svar 03.11: B. | 0 |
 | [VS-U11](../plans/vedtak.md#vs-u11) | vedtak | Byggherren kan gi opp innsigelsen uttrykkelig, og taushet leses ikke som oppgivelse. |  | 36 (21/0/0/15) |
 | [VS-U12](../plans/vedtak.md#vs-u12) | vedtak | TE kan påberope passivitet etter punkt 32.3 annet ledd, uten utledet virkning og uten å sperre svaret. |  | 26 (17/0/0/9) |
 | [VS-U13](../plans/vedtak.md#vs-u13) | vedtak | Tolkningen av force majeure i punkt 33.3 som avslag av grunnlaget eller standpunkt om dagene. |  | 2 (2/0/0/0) |
@@ -427,8 +431,8 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [VS-U19](../plans/vedtak.md#vs-u19) | vedtak | Når byggherren kan sende en forespørsel etter punkt 33.6.2, formkravene i brevet og når virkningen utledes. |  | 19 (17/0/0/2) |
 | [VS-U20](../plans/vedtak.md#vs-u20) | vedtak | Påberopelsen av sent varsel etter punkt 33.4 står mot hver senere kravversjon til den uttrykkelig frafalles. |  | 22 (12/0/0/10) |
 | [VS-U21](../plans/vedtak.md#vs-u21) | vedtak | Hva et registrert brev fra byggherren leses som påberopelse av. |  | 1 (0/0/0/1) |
-| [VS-U22](../plans/vedtak.md#vs-u22) | vedtak | Et brev utenfor løsningen er dokumentasjon, og svaret tar stilling til punkt 33.4 og 33.6.1 hver for seg. | beslutningsdel: VS-U21 bygges ikke i første versjon Grensetilfelle, mønster 5. | 4 (0/0/0/4) |
-| [VS-U23](../plans/vedtak.md#vs-u23) | vedtak | En forespørsel sendt utenfor løsningen er dokumentasjon uten utledet virkning. | beslutningsdel: avgrensningen til første versjon Grensetilfelle, mønster 5. | 1 (1/0/0/0) |
+| [VS-U22](../plans/vedtak.md#vs-u22) | beslutning | Et brev utenfor løsningen er dokumentasjon, og svaret tar stilling til punkt 33.4 og 33.6.1 hver for seg. | beslutningsdel: VS-U21 bygges ikke i første versjon Grensetilfelle, mønster 5; svar 03.11: B. | 4 (0/0/0/4) |
+| [VS-U23](../plans/vedtak.md#vs-u23) | beslutning | En forespørsel sendt utenfor løsningen er dokumentasjon uten utledet virkning. | beslutningsdel: avgrensningen til første versjon Grensetilfelle, mønster 5; svar 03.11: B. | 1 (1/0/0/0) |
 | [VS-U24](../plans/vedtak.md#vs-u24) | vedtak | Når en egen innsigelse er en påberopelse etter en bestemmelse, og hvor påberopelsen står. |  | 68 (30/0/0/38) |
 | [VS-U25](../plans/vedtak.md#vs-u25) | vedtak | Datoen står i brevet som TEs opplysning, og løsningen vurderer ikke rettidigheten. |  | 3 (0/0/0/3) |
 | [VS-U26](../plans/vedtak.md#vs-u26) | vedtak | Hvilken dato varslingsplikten løper fra i hver kategori, med vedtatt brevtekst. | designdel: datofeltet er påkrevd i kravet → BF-05 | 68 (27/0/20/21) |
@@ -440,7 +444,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [VS-U32](../plans/vedtak.md#vs-u32) | vedtak | Påberopelsen av sen spesifisering står i svaret på det senere fristkravet. |  | 0 |
 | [VS-U33](../plans/vedtak.md#vs-u33) | vedtak | Bare et krav om dager fremmet i løsningen stopper forespørselen. |  | 10 (10/0/0/0) |
 | [VS-U34](../plans/vedtak.md#vs-u34) | vedtak | Datoen for et varsel utenfor løsningen er korrespondansens dato, og det egne brevet faller bort. | designdel: valget i kravskjemaet og korrespondansen i samme forløp → nytt forløp trengs: varsel sendt utenfor i kravskjemaet | 23 (11/0/0/12) |
-| [VS-U35](../plans/vedtak.md#vs-u35) | vedtak | Rekkefølgen: den egne innsigelsen, passiviteten og bestridelsen bygges ikke i første versjon. | Grensetilfelle, mønster 5. | 3 (0/0/0/3) |
+| [VS-U35](../plans/vedtak.md#vs-u35) | beslutning | Rekkefølgen: den egne innsigelsen, passiviteten og bestridelsen bygges ikke i første versjon. | Grensetilfelle, mønster 5; svar 03.11: B. | 3 (0/0/0/3) |
 | [VS-U36](../plans/vedtak.md#vs-u36) | vedtak | Påberopelsen mot begrunnelsen etter punkt 33.6.2 står i svaret på det første kravet med dager. |  | 0 |
 | [VS-U37](../plans/vedtak.md#vs-u37) | vedtak | Hva påberopelsen gjelder, og at en versjon i en annen underkategori er et nytt varsel. |  | 7 (0/0/2/5) |
 | [VS-U38](../plans/vedtak.md#vs-u38) | vedtak | Datoen for varselet etter punkt 32.2, rettingen av den og vedtatt brevtekst i påberopelsen. | designdel: spørsmålet og feltene i skjemaet for ny sak → BF-05 | 62 (22/14/7/19) |
@@ -454,7 +458,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | ID | Klasse | Begrunnelse | Mål eller merknad | Steder |
 | --- | --- | --- | --- | ---: |
 | [MM-U1](../plans/vedtak.md#mm-u1) | vedtak | Et varsel registrert etter kravet og virkningen for en påberopt preklusjon. |  | 49 (11/0/6/32) |
-| [MM-U2](../plans/vedtak.md#mm-u2) | vedtak | Ingen bindende kommando godtas i en sak kjernen ikke kan tolke. | designdel: teksten om sending utenfor appen → nytt forløp trengs: sak som kjernen ikke forstår Grensetilfelle, mønster 5. | 103 (42/5/12/44) |
+| [MM-U2](../plans/vedtak.md#mm-u2) | beslutning | Ingen bindende kommando godtas i en sak kjernen ikke kan tolke. | designdel: teksten om sending utenfor appen → nytt forløp trengs: sak som kjernen ikke forstår Grensetilfelle, mønster 5; svar 03.11: B. | 103 (42/5/12/44) |
 | [MM-U3](../plans/vedtak.md#mm-u3) | vedtak | Virkningen av en enighet fastsettes når den inngås. |  | 30 (7/0/0/23) |
 | [MM-U4](../plans/vedtak.md#mm-u4) | historisk | Sperren mot aksept etter en regelendring. | Opphevet 09.10 av MM-U9 | 5 (0/0/0/5) |
 | [MM-U5](../plans/vedtak.md#mm-u5) | historisk | Uavklart grunnlag etter en regelendring. | Opphevet 09.10 av MM-U9 | 4 (0/0/0/4) |
@@ -475,8 +479,8 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [MM-U20](../plans/vedtak.md#mm-u20) | vedtak | Svar og aksept i et trukket spor strider mot vedtakene om lukking. |  | 42 (11/0/0/31) |
 | [MM-U21](../plans/vedtak.md#mm-u21) | vedtak | Virkningen av en retting i og mot avsenderens favør. |  | 7 (0/0/0/7) |
 | [MM-U22](../plans/vedtak.md#mm-u22) | design | Den faste lista av betegnelser per krav og for saken i visningen. | system.md «Mønstre» | 34 (12/5/9/8) |
-| [MM-U23](../plans/vedtak.md#mm-u23) | vedtak | Appen sier aldri selv at et krav er prekludert, tapt eller avgjort, og appens vurdering merkes som appens. | designdel: partenes standpunkter med part, dato og brev ved kravet → system.md «Mønstre» Grensetilfelle, mønster 1. | 17 (10/0/3/4) |
-| [MM-U24](../plans/vedtak.md#mm-u24) | vedtak | Fristveiledningen regnes fra sendingen, og appen sier ikke at en frist er oversittet eller at en part har plikt. | designdel: det som foreligger ved kravet → system.md «Mønstre» Grensetilfelle, mønster 1. | 2 (2/0/0/0) |
+| [MM-U23](../plans/vedtak.md#mm-u23) | design | Appen sier aldri selv at et krav er prekludert, tapt eller avgjort, og appens vurdering merkes som appens. | designdel: partenes standpunkter med part, dato og brev ved kravet → system.md «Mønstre» Grensetilfelle, mønster 1; svar 03.11: B. | 17 (10/0/3/4) |
+| [MM-U24](../plans/vedtak.md#mm-u24) | design | Fristveiledningen regnes fra sendingen, og appen sier ikke at en frist er oversittet eller at en part har plikt. | designdel: det som foreligger ved kravet → system.md «Mønstre» Grensetilfelle, mønster 1; svar 03.11: B. | 2 (2/0/0/0) |
 | [MM-U25](../plans/vedtak.md#mm-u25) | design | Visningen viser bare handlingene parten kan gjøre nå, med én linje om det som hindrer. | system.md «Handlingene i Varden» | 7 (0/0/4/3) |
 | [MM-U26](../plans/vedtak.md#mm-u26) | vedtak | En retting fra byggherren går gjennom godkjenningen etter fullmakten. | designdel: hvordan motparten ser rettingen og tilbudet → BF-02A | 0 |
 | [MM-U27](../plans/vedtak.md#mm-u27) | vedtak | En påberopelse eller revisjon i strid med partens eget utsagn gjør saken ikke forstått. | Snevret inn av MM-U34 punkt 6, ikke opphevet; kandidat i kjeden. Grensetilfelle, mønster 7, rettet etter kontrollen. | 7 (4/0/0/3) |
@@ -491,7 +495,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [MM-U36](../plans/vedtak.md#mm-u36) | design | Utfallet leser bare standpunktene i svaret, ikke innleggene. | designdel: innleggene i skjemaet for svar og aksept → BF-01 Grensetilfelle, mønster 8. | 6 (0/0/0/6) |
 | [MM-U37](../plans/vedtak.md#mm-u37) | design | Hva sakslisten viser for hver KOE-sak. | nytt forløp trengs: sakslisten med krav og nøkkeltall | 11 (0/2/8/1) |
 | [MM-U38](../plans/vedtak.md#mm-u38) | vedtak | Hva kortene summerer og teller, og hvilke saker som holdes utenfor summene. | designdel: kortene side om side og de dempede tallene → nytt forløp trengs: sakslisten med krav og nøkkeltall | 6 (0/0/6/0) |
-| [MM-U39](../plans/vedtak.md#mm-u39) | vedtak | En sak løsningen ikke forstår, holdes utenfor summene. | designdel: raden uten tall og tekst → nytt forløp trengs: sakslisten med krav og nøkkeltall Grensetilfelle, mønster 4. | 5 (0/0/5/0) |
+| [MM-U39](../plans/vedtak.md#mm-u39) | beslutning | En sak løsningen ikke forstår, holdes utenfor summene. | designdel: raden uten tall og tekst → nytt forløp trengs: sakslisten med krav og nøkkeltall Grensetilfelle, mønster 4; svar 03.11: B. | 5 (0/0/5/0) |
 | [MM-U40](../plans/vedtak.md#mm-u40) | design | Varden har ingen arbeidsliste, og siden for saken sier ikke hvem som skal handle. | system.md «Retningen» | 0 |
 
 ### GR
@@ -500,7 +504,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | --- | --- | --- | --- | ---: |
 | [GR-U1](../plans/vedtak.md#gr-u1) | vedtak | Virkningen av en ny kravversjon av grunnlaget for svaret og for subsidiære svar. |  | 62 (6/0/0/56) |
 | [GR-U2](../plans/vedtak.md#gr-u2) | historisk | Opphevet i sin helhet. | Opphevet 28.10 av MM-U34 (endret 16.10 av GR-U22) | 3 (0/0/0/3) |
-| [GR-U3](../plans/vedtak.md#gr-u3) | vedtak | Hva som regnes som oppgjort etter frafall etter § 32.3 c. | beslutningsdel: endringsordren utstedes i en egen EO-sak (`kan_utstede_eo`) Grensetilfelle, mønster 6. | 21 (4/0/0/17) |
+| [GR-U3](../plans/vedtak.md#gr-u3) | beslutning | Hva som regnes som oppgjort etter frafall etter § 32.3 c. | beslutningsdel: endringsordren utstedes i en egen EO-sak (`kan_utstede_eo`) Grensetilfelle, mønster 6; svar 03.11: B. | 21 (4/0/0/17) |
 | [GR-U4](../plans/vedtak.md#gr-u4) | vedtak | Om et revidert svar er prinsipalt eller subsidiært mens grunnlaget venter. |  | 29 (1/0/0/28) |
 | [GR-U5](../plans/vedtak.md#gr-u5) | vedtak | Virkningen av at TE trekker grunnlaget for alle sendte krav. |  | 50 (13/0/1/36) |
 | [GR-U6](../plans/vedtak.md#gr-u6) | historisk | Erstattet i sin helhet før det ble bygget. | Erstattet 08.10 av GR-U7 | 0 |
@@ -513,7 +517,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [GR-U13](../plans/vedtak.md#gr-u13) | vedtak | Godkjenningen er en endringsordre bare når § 31.3 og fullmakten er oppfylt. |  | 27 (8/0/5/14) |
 | [GR-U14](../plans/vedtak.md#gr-u14) | vedtak | Vedtatt brevtekst for svaret som er en endringsordre. |  | 26 (15/0/0/11) |
 | [GR-U15](../plans/vedtak.md#gr-u15) | vedtak | TEs varsel etter § 32.2 fra appen må beskrive pålegget og avvises ellers. |  | 46 (12/1/9/24) |
-| [GR-U16](../plans/vedtak.md#gr-u16) | vedtak | Endringsordrens dato eller nummer er påkrevd innhold i kravet og i registreringen. | designdel: det påkrevde feltet i grunnlagskravet → BF-05 Grensetilfelle, mønster 2. | 22 (14/0/7/1) |
+| [GR-U16](../plans/vedtak.md#gr-u16) | design | Endringsordrens dato eller nummer er påkrevd innhold i kravet og i registreringen. | designdel: det påkrevde feltet i grunnlagskravet → BF-05 Grensetilfelle, mønster 2; svar 03.11: B. | 22 (14/0/7/1) |
 | [GR-U17](../plans/vedtak.md#gr-u17) | vedtak | Byggherren er bundet av løftet om endringsordre ved frafall. |  | 24 (8/0/0/16) |
 | [GR-U18](../plans/vedtak.md#gr-u18) | vedtak | Tolkningen av § 32.3 c for hvilke pålegg frafall er tillatt. |  | 16 (10/0/0/6) |
 | [GR-U19](../plans/vedtak.md#gr-u19) | vedtak | Hvilken hjemmel en ny grunnlagsversjon kan ha. | Grensetilfelle, mønster 15. | 3 (0/0/0/3) |
@@ -522,10 +526,10 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [GR-U22](../plans/vedtak.md#gr-u22) | vedtak | TE kan ikke endre hjemmelen, og overføringen til ny sak er ikke et avkall. |  | 62 (14/0/6/42) |
 | [GR-U23](../plans/vedtak.md#gr-u23) | vedtak | Grunnlaget er avklart ved frafallet mens den nye versjonen venter. |  | 38 (20/1/3/14) |
 | [GR-U24](../plans/vedtak.md#gr-u24) | historisk | Opphevet i sin helhet. | Opphevet 28.10 av MM-U34 | 3 (0/0/0/3) |
-| [GR-U25](../plans/vedtak.md#gr-u25) | vedtak | Trekket av grunnlaget omfatter også varsel og «ingen krav». | designdel: betegnelsen «Trukket» per spor → nytt forløp trengs: TE trekker påberopelsen av forholdet Grensetilfelle, mønster 4. | 10 (7/0/2/1) |
+| [GR-U25](../plans/vedtak.md#gr-u25) | beslutning | Trekket av grunnlaget omfatter også varsel og «ingen krav». | designdel: betegnelsen «Trukket» per spor → nytt forløp trengs: TE trekker påberopelsen av forholdet Grensetilfelle, mønster 4; svar 03.11: B. | 10 (7/0/2/1) |
 | [GR-U26](../plans/vedtak.md#gr-u26) | vedtak | Vedtatt forbehold i brevet og virkningen av godkjenning under forbeholdet. | designdel: visningen av standpunktet sammen med det senere grunnlagssvaret → BF-04 | 37 (15/0/12/10) |
 | [GR-U27](../plans/vedtak.md#gr-u27) | vedtak | TEs aksept av avslaget på grunnlaget eller trekket lukker KOE-saken. | designdel: varselet i skjemaet før sending og statusen → nytt forløp trengs: TE godtar avslaget på forholdet | 37 (27/0/0/10) |
-| [GR-U28](../plans/vedtak.md#gr-u28) | vedtak | Frafall hindrer ikke at KOE-saken omfattes av en endringsordre, som lukker den. | beslutningsdel: endringsordren sendes gjennom en EO-sak Grensetilfelle, mønster 6. | 22 (7/0/0/15) |
+| [GR-U28](../plans/vedtak.md#gr-u28) | beslutning | Frafall hindrer ikke at KOE-saken omfattes av en endringsordre, som lukker den. | beslutningsdel: endringsordren sendes gjennom en EO-sak Grensetilfelle, mønster 6; svar 03.11: B. | 22 (7/0/0/15) |
 | [GR-U29](../plans/vedtak.md#gr-u29) | vedtak | Vedtatt plassering og ordlyd for forbeholdet i brevet. |  | 0 |
 | [GR-U30](../plans/vedtak.md#gr-u30) | design | Navnet på TEs handling i grensesnittet. | «Handlingene i Varden» | 1 (0/0/0/1) |
 | [GR-U31](../plans/vedtak.md#gr-u31) | vedtak | Vedtatt brevnavn og brevtekst for TEs første brev. | designdel: handlingsnavnet ‹Svar› → «Handlingene i Varden» | 21 (5/0/6/10) |
@@ -542,7 +546,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [GFK-U4](../plans/vedtak.md#gfk-u4) | vedtak | Hvem som kan sende svaret alene når dagmulktsatsen mangler. |  | 5 (0/5/0/0) |
 | [GFK-U5](../plans/vedtak.md#gfk-u5) | beslutning | Når godkjenningsinngangene bygges. |  | 4 (0/4/0/0) |
 | [GFK-U6](../plans/vedtak.md#gfk-u6) | vedtak | Fullmakten følger beløpsgrensen for rollen og hierarkiet i HR-dataene. | beslutningsdel: HR-dataene som kilde | 6 (0/6/0/0) |
-| [GFK-U7](../plans/vedtak.md#gfk-u7) | vedtak | Den siste godkjenningen sender svaret, og godkjenningen avvises når kravet er endret. | Grensetilfelle, mønster 3. | 0 |
+| [GFK-U7](../plans/vedtak.md#gfk-u7) | beslutning | Den siste godkjenningen sender svaret, og godkjenningen avvises når kravet er endret. | Grensetilfelle, mønster 3; svar 03.11: B. | 0 |
 | [GFK-U8](../plans/vedtak.md#gfk-u8) | vedtak | Hvem i kjeden som må godkjenne svaret. |  | 5 (0/5/0/0) |
 | [GFK-U9](../plans/vedtak.md#gfk-u9) | vedtak | Hva godkjenneren kan lese. |  | 8 (0/8/0/0) |
 | [GFK-U10](../plans/vedtak.md#gfk-u10) | vedtak | Kjeden fryses, og pakken eller handlingen avvises når kjeden ikke kan avgjøres. |  | 13 (0/13/0/0) |
@@ -564,8 +568,8 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 
 | ID | Klasse | Begrunnelse | Mål eller merknad | Steder |
 | --- | --- | --- | --- | ---: |
-| [HF-U1](../plans/vedtak.md#hf-u1) | vedtak | Hvert utsagn viser til det det gjelder, og en manglende vurdering er ikke et standpunkt. | beslutningsdel: brevet lagres samlet, og ukjent innhold stopper saken (B-10) Grensetilfelle, mønster 4. | 90 (47/0/0/43) |
-| [HF-U2](../plans/vedtak.md#hf-u2) | vedtak | Hva «frafalt» og «hindring» betyr etter NS 8407, og at appens vurdering ikke er byggherrens utsagn. | beslutningsdel: begrepene og feltnavnene i hendelsene TS skriver (B-17); designdel: appens vurdering vises ikke som byggherrens → «Mønstre» Grensetilfelle, mønster 4. | 33 (18/0/2/13) |
+| [HF-U1](../plans/vedtak.md#hf-u1) | beslutning | Hvert utsagn viser til det det gjelder, og en manglende vurdering er ikke et standpunkt. | beslutningsdel: brevet lagres samlet, og ukjent innhold stopper saken (B-10) Grensetilfelle, mønster 4; svar 03.11: B. | 90 (47/0/0/43) |
+| [HF-U2](../plans/vedtak.md#hf-u2) | beslutning | Hva «frafalt» og «hindring» betyr etter NS 8407, og at appens vurdering ikke er byggherrens utsagn. | beslutningsdel: begrepene og feltnavnene i hendelsene TS skriver (B-17); designdel: appens vurdering vises ikke som byggherrens → «Mønstre» Grensetilfelle, mønster 4; svar 03.11: B. | 33 (18/0/2/13) |
 | [HF-U3](../plans/vedtak.md#hf-u3) | beslutning | Lagringsformen, med brevet som journalens eneste kilde og tabellene laget av brevene. |  | 0 |
 | [HF-U4](../plans/vedtak.md#hf-u4) | vedtak | Et uttrykkelig «i tide» binder parten og sperrer en senere påberopelse av «for sent» etter samme bestemmelse. |  | 61 (26/0/0/35) |
 | [HF-U5](../plans/vedtak.md#hf-u5) | vedtak | Krav og svar er tilbud og løfter, og en revisjon av svaret kan ikke senke det byggherren har innrømmet. |  | 46 (15/0/0/31) |
@@ -585,7 +589,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [HF-U19](../plans/vedtak.md#hf-u19) | historisk | Byggherrens svar på TEs tilbud etter akseptfristen. | opphevet 28.10 av MM-U34 | 0 |
 | [HF-U20](../plans/vedtak.md#hf-u20) | historisk | Et helt avslag som revideres til delvis godkjenning, kan få akseptfrist. | Grensetilfelle, mønster 7. | 0 |
 | [HF-U21](../plans/vedtak.md#hf-u21) | vedtak | En ny grunnlagsversjon med samme hjemmel endrer ikke bindingen i svar på vederlag og frist. |  | 12 (3/0/0/9) |
-| [HF-U22](../plans/vedtak.md#hf-u22) | vedtak | Senker byggherren etter akseptfristen, peker appen ut fristen etter § 33.7 og § 34.3.3 uten å trekke konklusjonen. | designdel: visningen av bestemmelsen og fristen → nytt forløp trengs: BH senker svar etter akseptfrist Grensetilfelle, mønster 1. | 6 (0/0/0/6) |
+| [HF-U22](../plans/vedtak.md#hf-u22) | design | Senker byggherren etter akseptfristen, peker appen ut fristen etter § 33.7 og § 34.3.3 uten å trekke konklusjonen. | designdel: visningen av bestemmelsen og fristen → nytt forløp trengs: BH senker svar etter akseptfrist Grensetilfelle, mønster 1; svar 03.11: B. | 6 (0/0/0/6) |
 
 ### DL
 
@@ -622,7 +626,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [EO-U8](../plans/vedtak.md#eo-u8) | vedtak | Hva utsagnene i en endringsordre er, og hva TEs aksept av den omfatter. |  | 0 |
 | [EO-U9](../plans/vedtak.md#eo-u9) | historisk | Forbudet mot å revidere en endringsordre som er svar på grunnlaget. | Opphevet 28.10 av MM-U34 | 0 |
 | [EO-U10](../plans/vedtak.md#eo-u10) | historisk | Innsnevringen av «delvis godkjent» i EO-U5. | Opphevet 28.10 av MM-U34 | 0 |
-| [EO-U11](../plans/vedtak.md#eo-u11) | vedtak | Partene har selv ansvar for historikken, og løsningen velger ikke hvilke varsler som er relevante. | designdel: varslene vises ikke i den nye KOE-saken → nytt forløp trengs: ny KOE etter bestridt endringsordre Grensetilfelle, mønster 1. | 0 |
+| [EO-U11](../plans/vedtak.md#eo-u11) | design | Partene har selv ansvar for historikken, og løsningen velger ikke hvilke varsler som er relevante. | designdel: varslene vises ikke i den nye KOE-saken → nytt forløp trengs: ny KOE etter bestridt endringsordre Grensetilfelle, mønster 1; svar 03.11: B. | 0 |
 | [EO-U12](../plans/vedtak.md#eo-u12) | vedtak | Godkjent grunnlag lukker ikke KOE-saken, mens endringsordren i EO-saken gjør det. |  | 47 (16/0/0/31) |
 | [EO-U13](../plans/vedtak.md#eo-u13) | vedtak | Løsningen utleder ingen rettsvirkning av at endringsordren omfatter KOE-saken. | designdel: merket «Inngår i EO-nummer» i sakslisten og på siden for saken → BF-06. Grensetilfelle, mønster 8, rettet etter kontrollen. | 12 (0/0/5/7) |
 | [EO-U14](../plans/vedtak.md#eo-u14) | design | Hvilken kode merket på KOE-saken viser. | BF-06 | 3 (0/0/2/1) |
@@ -638,7 +642,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [KT-U5](../plans/vedtak.md#kt-u5) | beslutning | Samme kvittering på et gjentatt kall. |  | 3 (0/3/0/0) |
 | [KT-U6](../plans/vedtak.md#kt-u6) | vedtak | En topic er ikke et varsel eller krav, og løsningen avgjør ikke om den var det. | beslutningsdel: saken får topicens tittel | 10 (0/5/0/5) |
 | [KT-U7](../plans/vedtak.md#kt-u7) | beslutning | Bare TE kan opprette en KOE-sak, også fra en topic. | beslutningsdel: hendelsen beholdes i innboksen, og topicen får en kommentar Grensetilfelle, mønster 13. | 8 (0/5/0/3) |
-| [KT-U8](../plans/vedtak.md#kt-u8) | vedtak | Løsningens omfang og at fristen i § 35.2 ikke regnes med dato. | beslutningsdel: hvilke deler av kontrakten løsningen dekker Grensetilfelle, mønster 5. | 0 |
+| [KT-U8](../plans/vedtak.md#kt-u8) | beslutning | Løsningens omfang og at fristen i § 35.2 ikke regnes med dato. | beslutningsdel: hvilke deler av kontrakten løsningen dekker Grensetilfelle, mønster 5; svar 03.11: B. | 0 |
 | [KT-U9](../plans/vedtak.md#kt-u9) | vedtak | TEs krav føres i en KOE-sak for alle forhold, og en endringsordre omfatter hele KOE-saker. | beslutningsdel: sakstypene og navnet på dem | 4 (0/0/4/0) |
 | [KT-U10](../plans/vedtak.md#kt-u10) | vedtak | Bare TE oppretter en KOE-sak, og bare BH oppretter en EO-sak. | designdel: navnene ‹Nytt krav om endringsordre› og ‹Ny endringsordre› på handlingene → BF-05 og BF-06 | 18 (0/8/7/3) |
 | [KT-U11](../plans/vedtak.md#kt-u11) | beslutning | Når saken og topicen opprettes i opprettelsesflyten. | BF-05 Grensetilfelle, mønster 13. | 37 (1/9/13/14) |
@@ -660,7 +664,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 
 | ID | Klasse | Begrunnelse | Mål eller merknad | Steder |
 | --- | --- | --- | --- | ---: |
-| [B-03-DOKUMENT](../plans/vedtak.md#b-03-dokument) | vedtak | Brevet leveres samlet som ett dokument i Catenda og revideres ikke. | beslutningsdel: dokumentnøkkel, navnestandard og avstemming i #310 Grensetilfelle, mønster 3. | 0 |
+| [B-03-DOKUMENT](../plans/vedtak.md#b-03-dokument) | beslutning | Brevet leveres samlet som ett dokument i Catenda og revideres ikke. | beslutningsdel: dokumentnøkkel, navnestandard og avstemming i #310 Grensetilfelle, mønster 3; svar 03.11: B. | 0 |
 | [B-12-DATABASEN](../plans/vedtak.md#b-12-databasen) | beslutning | Azure SQL Database som plattform. |  | 0 |
 | [B-10](../plans/vedtak.md#b-10) | beslutning | Versjonene og når et lagret resultat regnes ut på nytt. | Grensetilfelle, mønster 9. | 13 (12/1/0/0) |
 | [B-15](../plans/vedtak.md#b-15) | beslutning | Vurderingene regnes i klienten og valideres på nytt av serveren. |  | 8 (1/1/3/3) |
@@ -691,7 +695,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | rad-002 | Hver oppdatering fra TE av et vederlags- eller fristkrav … | vedtak | Hva som regnes som en ny kravversjon. |  |
 | rad-003 | Et krav TE har trukket, kan ikke tas opp … | vedtak | Virkningen av et trukket krav. |  |
 | rad-016 | B-13 hovedvalg: alternativ (2) i streng form. Backend regner … | vedtak | Resultat, beløp og dager regnes av vurderingene og uttrykker ingen egen vilje. | beslutningsdel: serveren regner og avviser klientens verdier |
-| rad-017 | B-13 regelversjon: klienten sender versjonen av reglene og tekstgeneratorene, … | vedtak | Lagrede resultater regnes ikke om, og presiseringene sier hva som regnes ved lesing. | beslutningsdel: versjonsfeltet, avvisningen og stoppen i `publish` Grensetilfelle, mønster 4. |
+| rad-017 | B-13 regelversjon: klienten sender versjonen av reglene og tekstgeneratorene, … | beslutning | Lagrede resultater regnes ikke om, og presiseringene sier hva som regnes ved lesing. | beslutningsdel: versjonsfeltet, avvisningen og stoppen i `publish` Grensetilfelle, mønster 4; svar 03.11: B. |
 | rad-018 | B-13 begrunnelsestekst (T-a): den låste teksten er partens, og … | vedtak | Byggherren er bundet av den låste teksten byggherren sender. | designdel: merkingen av teksten som byggherrens → BF-01; beslutningsdel: CI-testen for regelversjonen |
 | rad-024 | B-13 «godkjent» bare når hele kravet er godkjent, til … | vedtak | Når et krav regnes som godkjent. |  |
 | rad-026 | B-13 preklusjon ut fra byggherrens egen vurdering (§ 33.4, … | vedtak | Preklusjon ut fra byggherrens vurdering gir prinsipalt avslag med subsidiært standpunkt. |  |
@@ -712,7 +716,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | rad-110 | Nøytralt fristvarsel (TFR-06, DRF-01): BH kan sende innsigelse mot … | vedtak | Virkningen av innsigelse og forespørsel ved nøytralt fristvarsel. |  |
 | rad-115 | B-13 passivitet (§ 32.3 annet ledd) varsles, men systemet … | vedtak | Appen trekker ingen konklusjon av passivitet. | designdel: hvordan passiviteten vises → nytt forløp trengs: varsel om passivitet i saken |
 | rad-123 | DRF-03: sendedatoen for TEs varsel om justerte enhetspriser (§ … | vedtak | Hvilken dato varselet om justerte enhetspriser får. |  |
-| rad-182 | En endringsordresak kan følge av en KOE-sak, men ikke … | vedtak | En EO-sak erstatter ikke KOE-saken den følger av. | beslutningsdel: ingen EO-hendelse i KOE-saken Grensetilfelle, mønster 6. |
+| rad-182 | En endringsordresak kan følge av en KOE-sak, men ikke … | beslutning | En EO-sak erstatter ikke KOE-saken den følger av. | beslutningsdel: ingen EO-hendelse i KOE-saken Grensetilfelle, mønster 6; svar 03.11: B. |
 | rad-183 | TFR-02: forsering får aldri en lukket samlet status. En … | vedtak | En EO forhandles ikke, og uenighet føres i en KOE. | designdel: statusetikettene for forsering og EO → BF-06 |
 | rad-190 | Forsering er utenfor godkjenningsflyten … | vedtak | Hvilke forseringssvar som går utenom intern godkjenning. |  |
 | rad-198 | B-03 hovedvalg: hver innsending får sitt eget brev, som … | vedtak | Brevet er det autoritative uttrykket for partens standpunkt. | beslutningsdel: saksrapporten og dokumentet i Catenda |
