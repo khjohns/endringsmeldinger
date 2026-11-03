@@ -9,48 +9,76 @@ prøvd mot vedtaksfila. Versjon 3 er commit `5f5fbd3`. Versjon 1 (commit `eb44f0
 
 ## Endret i versjon 4
 
-Oppdragsgiver bekrefter bare denne listen. Valgene A1, B1, C1 og D1 og modellen ellers står.
+**Besvart 03.11.** Oppdragsgiver svarte på orkestratorens anbefalinger i oppdraget for versjon 4:
+«Enig med dine anbefalinger til spørsmålene.» Svaret gjelder valgene E1, F1 og G1 og
+presiseringene under. De står i vedtaksform under spørsmålene, slik A–D er ført.
 
 1. **Aksept og overslag (S-6, S-8, S-11).** Aksepten gjelder tilbudet om vederlag, oppgjørsform
    eller frist. Et overslag ved regningsarbeid kan ikke godtas, og enighet om regningsarbeid gjør
-   ikke overslaget til et fast beløp. Utvider OV-U43 til byggherrens overslag i endringsordren.
-2. **Oppgjørsformen i kjeden (S-17).** Tillegget regnes bare når både det nye og det erstattede
-   utsagnet har et samlet beløp, samme omfang og samme oppgjørsform. Ellers erstatter det nye
-   utsagnet det gamle i summen, uten tillegg, og et overslag brukes ikke som et fastsatt beløp.
-   Følger av MM-U38. S-16 er rettet så summen teller det samme.
-3. **Retting (S-11).** «Rent språklige feil behandles enklere» tas ikke inn, fordi løsningen ikke
-   tolker fritekst (KA-U16). Bare et utsagn som verken er bestridt eller erstattet, kan rettes. En
-   retting er ikke et nytt ledd i kjeden: til byggherrens fordel gjelder den først når
-   totalentreprenøren godtar den, og til da kan utsagnet slik det ble sendt, godtas eller
-   bestrides. Bestrides det, kan rettingen ikke lenger godtas i løsningen. Det rettede utsagnet
-   kan bestrides i en ny KOE. Dette snevrer inn MM-U21 for en endringsordre. Hvordan rettingen
-   godkjennes, er valg G.
-4. **Tidspunktet for registreringen (S-2).** Sakene må være åpne når den siste godkjenningen gjøres,
-   som i S-7. Ellers blir brevet dokumentasjon uten strukturert behandling: ingen aksept, ingen
-   kjede og ikke med i summen, som snevrer inn MM-U38. Et brev om flere saker er valg F.
-5. **«Er enig i forholdet» (S-9).** Gjelder forholdet slik endringsordren beskriver og omfatter
-   det. Den faste teksten ved svikt er skrevet, og den nevner bare sporene endringsordren har
-   utsagn for.
-6. **Fullmakten (S-3).** Et sendt krav som ikke er tallfestet, og et utsagn uten samlet beløp,
-   som regningsarbeid, krever hele kjeden (vedtaket 23.09, GFK-U3). D1 endrer også GFK-U4 for en endringsordre: den med ubegrenset fullmakt sender ikke
-   alene når dagmulktssatsen mangler.
-7. **Beskrivelsen (S-18).** «Med tilpasningen for svikt i S-9».
-8. **Sperren (S-11).** Med E1 kan bare én KOE bestride et utsagn om gangen, så sperren oppheves når
-   den KOE-en trekkes.
-9. **Henvisninger (S-8).** S-8 viser til S-6 om overslaget og til S-15 om registrerte
-   endringsordrer. Det endrer ikke noe der.
+   ikke overslaget til et fast beløp. S-8 viser til S-6 og S-15.
+2. **Oppgjørsformen i kjeden (S-17).** Tillegget regnes bare når begge utsagnene har et samlet
+   beløp og samme omfang. Ellers erstatter det nye utsagnet det gamle i summen, uten tillegg.
+3. **Retting (S-11, G1).** «Rent språklige feil behandles enklere» er avvist (KA-U16). Hver retting
+   av en endringsordre går gjennom fullmakten, og nytt arbeid krever en ny endringsordre.
+4. **Tidspunktet for registreringen (S-2, F1).** Sakene må være åpne når den siste godkjenningen
+   gjøres. Ellers stopper hele registreringen, og brevet blir dokumentasjon uten strukturert
+   behandling.
+5. **S-9.** «Er enig i forholdet» gjelder forholdet slik endringsordren beskriver og omfatter det,
+   og den faste teksten ved svikt nevner bare sporene endringsordren har utsagn for.
+6. **S-3.** Et sendt krav som ikke er tallfestet, krever hele kjeden. D1 endrer også GFK-U4 for en
+   endringsordre.
+7. **S-18.** «Med tilpasningen for svikt i S-9».
+8. **Sperren (S-11, E1).** Bare én KOE kan bestride et utsagn om gangen, så et utsagn har høyst én
+   direkte etterfølger.
 
-Nye valg:
+**Ikke sett av oppdragsgiver.** Prøven av arbeidsflyten og prøven mot vedtaksfila fant det som
+står under. Ingen av funnene endrer et valgt alternativ. Funn som ville endret et alternativ, står
+som oppfølgingsspørsmål med en anbefaling.
 
-- **E. Hvor mange KOE-er kan bestride samme utsagn?** Anbefalt E1: én om gangen, så utsagnet har
-  høyst én direkte etterfølger. TE oppgir for hvert utsagn om KOE-en bestrider det, og BH ser det
-  før sending hvis en ny endringsordre lukker KOE-en uten å erstatte utsagnet. E2: flere, men
-  utsagnet erstattes bare én gang.
-- **F. En registrert endringsordre gjelder flere saker, og én er lukket.** Anbefalt F1: hele
-  registreringen stopper, BH legger brevet til som dokumentasjon, og meldingen viser veiene
-  videre for de åpne sakene. F2: registreringen gjelder de åpne sakene.
-- **G. Hvilke rettinger av en endringsordre går gjennom fullmakten?** Anbefalt G1: hver retting.
-  G2: bare en retting som øker verdien, som i versjon 3.
+*Forholdene, rettet etter prøven mot vedtaksfila.* Teksten i alternativene er ikke endret.
+- Punkt 1 *utvider* OV-U43, og presiserer den ikke. Overslaget i OV-U43 prinsipp 2 er
+  totalentreprenørens opplysning etter punkt 30.2, og regelen gjelder her byggherrens overslag.
+- Punkt 4 og F1 *snevrer inn* MM-U38. Et brev som blir dokumentasjon, telles ikke i summen av
+  «alle sendte endringsordrer».
+- S-16 er rettet etter punkt 2. Summen teller tillegget når det regnes, og ellers det nye
+  utsagnet i stedet for det erstattede. Før sa S-16 at summen alltid teller tillegget.
+- Etter vedtaksprøven gjelder S-3 også et utsagn uten samlet beløp, for eksempel regningsarbeid:
+  det krever hele kjeden, som et krav som ikke er tallfestet (vedtaket 23.09). Prototypen viser
+  det allerede (steg 10 i BF-06.md). Dette følger av vedtaket og er ikke et nytt valg.
+
+*Oppfølgingsspørsmål.* Svar «ja» for å godta anbefalingen, eller velg den andre lesningen.
+
+- **O-1. Vilkåret for differansen.** S-16 regner differansen mot et utsagn når kravet har «samme
+  omfang og oppgjørsform». S-17 regner tillegget når utsagnene har «et samlet beløp og samme
+  omfang». Går en fast sum over til enhetspriser med et samlet beløp, gir S-17 et tillegg, mens
+  S-16 viser kravet for seg. (a) S-17 får også «samme oppgjørsform», så de to reglene regner
+  differansen i de samme tilfellene. Anbefalt. (b) Vilkårene står som de er.
+- **O-2. Tillegg til E1.** (a) Skjemaet for den nye KOE-en lister utsagnene i endringsordren for
+  saken, og totalentreprenøren oppgir for hvert om KOE-en bestrider det. Løsningen prøver ikke
+  svaret (MM-U12). Lukker en ny endringsordre den bestridende KOE-en uten et utsagn som erstatter
+  det bestridte, viser kontrollen før sending det til byggherren, uten å stoppe sendingen.
+  Anbefalt. Uten listen lønner det seg for totalentreprenøren å oppgi «gjelder noe nytt», godta
+  posten og samtidig kreve mer. Uten varselet blir utsagnet stående sperret uten at noen har ment
+  det, og byggherren må sende en ny endringsordre, eventuelt med tillegg 0. (b) E1 står uten
+  tilleggene.
+- **O-3. Tillegg til F1.** (a) Byggherren legger selv brevet til som dokumentasjon, i stedet for at
+  det skjer automatisk, så en feil i skjemaet ikke legger brevet i feil sak. Meldingen viser
+  veiene videre for de åpne sakene: å registrere brevet som svar på forholdet etter OV-U6, eller å
+  sende en endringsordre fra løsningen. Den sier også at en sak bare fjernes fra skjemaet når
+  brevet ikke omfatter den. Anbefalt. Ellers lønner det seg å fjerne den lukkede saken for å få
+  registreringen gjennom, og det er den delregistreringen F1 forbyr. (b) F1 står uten
+  tilleggene.
+- **O-4. Rettingen og kjeden (S-11).** (a) Bare et utsagn som verken er bestridt eller erstattet,
+  kan rettes. En retting er ikke et nytt ledd i kjeden. En retting til byggherrens fordel gjelder
+  først når totalentreprenøren godtar den, og til da kan utsagnet slik det ble sendt, godtas eller
+  bestrides. Bestrides utsagnet, kan rettingen ikke lenger godtas i løsningen, og løsningen avgjør
+  ikke om byggherren er bundet av den (MM-U12). Det rettede utsagnet kan bestrides i en ny KOE som
+  andre utsagn. Forhold: snevrer inn MM-U21 for en endringsordre, fordi et bestridt utsagn heller
+  ikke kan rettes i motpartens favør. Byggherren sender da en ny endringsordre. Anbefalt. Uten
+  dette kan en retting som ikke er godtatt, bli siste ledd i kjeden, og totalentreprenøren kan
+  verken godta eller bestride det som ble sendt. (b) MM-U21 gjelder uten presisering.
+  Byggherrens retting av et bestridt utsagn til totalentreprenørens fordel gjelder straks, og
+  kjeden må da ta stilling til rettingen.
 
 ## Grunnlaget for spørsmålene
 
@@ -60,8 +88,8 @@ ChatGPT og en gjennomgang av NS 8407 og konkurransegrunnlaget del II i `khjohns/
 (commit `5540b60`). Mange alternativer ble stilt i kortform. Denne versjonen skriver hvert valgt
 alternativ ut i vedtaksform, så oppdragsgiver kan se teksten før den blir vedtak.
 
-**Slik svarer du:** «ja» til listen «Endret i versjon 4» og valgene E, F og G, eller rettelser per
-punkt. Resten av fila var lagt fram som versjon 3. Ingenting er ført som vedtak.
+**Slik svarer du:** svar på oppfølgingsspørsmålene O-1–O-4 under «Endret i versjon 4». Resten
+av fila var lagt fram som versjon 3, og det under «Besvart 03.11» er besvart. Ingenting er ført som vedtak.
 Vedtakstekstene under gjengir arbeidsmåten, D-punktene og S-punktene i
 [BF-06.md](BF-06.md). De legger ikke til noe nytt. Der en formulering ikke er sett av
 oppdragsgiver i den formen, står det under **Merknad**. Fire valg ble lagt fram for seg og besvart 03.11: A1 om koden for en registrert endringsordre
@@ -133,8 +161,8 @@ lages ingen brevtekst, og der skjemaet og brevet spriker, er brevet byggherrens 
 Registreringen går gjennom godkjenningen etter fullmakten og lukker sakene den omfatter når den
 er godkjent. Den har datoen brevet ble sendt, men godtas bare når sakene er åpne når den siste
 godkjenningen gjøres. Er en sak lukket da, stopper registreringen og sier hvilken sak som er
-lukket. Byggherren legger brevet til som dokumentasjon i sakene det gjelder, og løsningen
-registrerer ikke deler av et brev (valg F). Brevet får da ingen strukturert behandling: totalentreprenøren kan ikke
+lukket. Brevet legges til som dokumentasjon i sakene det gjelder, og løsningen registrerer ikke
+deler av et brev (valg F). Brevet får da ingen strukturert behandling: totalentreprenøren kan ikke
 godta utsagnene i det, det inngår ikke i en kjede, og det telles ikke i summen av vederlag i
 sendte endringsordrer. Kontrollen før registreringen viser kravversjoner som er sendt etter datoen på brevet. Løsningen
 avgjør ikke virkningen. Totalentreprenøren kan godta et utsagn i en registrert endringsordre, en
@@ -172,38 +200,22 @@ LV-U44 og EO-U14.
 valg B (S-7), i stedet for «når den registreres». Konsekvensen for brevet står uttrykkelig.
 Merknaden over gjelder den nye formuleringen.
 
-**Valg F. En registrert endringsordre gjelder flere saker, og én av dem er lukket når den siste
-godkjenningen gjøres. Stopper hele registreringen?**
+**Valg F, besvart 03.11.** Spørsmålet slik orkestratoren la det fram i oppdraget: et brev som
+gjelder flere saker der én er lukket. Alternativene: «F1 (anbefalt): hele registreringen stopper og
+sier hvilken sak som er lukket. Brevet legges til som dokumentasjon i sakene det gjelder, og
+løsningen registrerer ikke deler av et brev. F2: registreringen gjelder de åpne sakene, og brevet
+blir dokumentasjon i den lukkede.» Svaret: «Enig med dine anbefalinger til spørsmålene.»
 
-*Bakgrunn.* En sak lukkes når den inngår i en sendt endringsordre (EO-U3), eller når
-totalentreprenøren godtar avslaget på forholdet eller trekker det (GR-U27). Valg B1 sier at
-ingenting som venter på godkjenning, holder av saken. Et brev sendt utenfor løsningen kan derfor
-gjelde en sak som er lukket i løsningen før registreringen er godkjent. Registrert i en EO-sak
-lukker brevet sakene det omfatter (over), og en sak inngår i høyst én endringsordre (EO-U3).
+Tillegg til vedtaksteksten: «Er en av sakene en registrert endringsordre omfatter, lukket når den
+siste godkjenningen gjøres, stopper hele registreringen og sier hvilken sak som er lukket. Brevet
+legges til som dokumentasjon i sakene det gjelder, og løsningen registrerer ikke deler av et
+brev.» Forkastet: «Registreringen gjelder de åpne sakene, og brevet blir dokumentasjon i den
+lukkede.» Forhold: presiserer S-2 og EO-U3, og snevrer inn MM-U38: et brev som blir dokumentasjon,
+telles ikke i summen. I tråd med OV-U80 («Der skjemaet og dokumentet spriker, er dokumentet partens
+meddelelse.»).
 
-- **F1. Hele registreringen stopper.** «Er en av sakene en registrert endringsordre omfatter,
-  lukket når den siste godkjenningen gjøres, stopper registreringen og sier hvilken sak som er
-  lukket. Byggherren legger brevet til som dokumentasjon i sakene det gjelder, og løsningen
-  registrerer ikke deler av et brev. De åpne sakene står åpne, og meldingen viser veiene videre:
-  byggherren kan registrere brevet som svar på forholdet etter OV-U6 eller sende en endringsordre
-  fra løsningen. Meldingen sier at en sak bare fjernes fra skjemaet når brevet ikke omfatter den.»
-  Anbefalt: brevet er én
-  meddelelse, og en registrering av en del ville vist en endringsordre med et annet omfang enn den
-  totalentreprenøren fikk. Det koster byggherren en ny handling for de åpne sakene, og
-  totalentreprenøren ser brevet i alle sakene.
-- **F2. Registreringen gjelder de åpne sakene.** «Er en av sakene en registrert endringsordre
-  omfatter, lukket når den siste godkjenningen gjøres, gjelder registreringen de åpne sakene, og
-  brevet legges til som dokumentasjon i den lukkede. Skjemaet viser at registreringen ikke dekker
-  hele brevet.»
-
-*Prøven av arbeidsflyten* (subagent, 03.11) fant at F1 holder. Den fant også at det lønner seg å
-fjerne den lukkede saken fra skjemaet for å få registreringen gjennom, som er den delregistreringen
-F1 forbyr. Løsningen kan ikke prøve det, så meldingen sier når en sak kan fjernes. At byggherren
-selv legger brevet til som dokumentasjon, hindrer at en feil i skjemaet legger brevet i feil sak.
-
-*Forhold.* Begge presiserer S-2 og EO-U3. F1 snevrer inn MM-U38 for hele brevet, F2 for den
-lukkede saken: det som blir dokumentasjon, telles ikke i summen. F1 er i tråd med OV-U80 («Der skjemaet og dokumentet
-spriker, er dokumentet partens meddelelse.»). F2 gir et skjema som bevisst spriker fra brevet.
+*Prøven av arbeidsflyten* (subagent, 03.11) fant at F1 holder, og fant to tillegg. De står som
+oppfølgingsspørsmål O-3.
 
 ## S-3. Hvordan regnes fullmakten for en endringsordre i en EO-sak?
 
@@ -551,18 +563,12 @@ noe nytt. Kravet i den nye KOE-en er det samlede kravet for det utsagnet gjelder
 bestridt, behandles resten av oppgjøret i den nye KOE-en, og utsagnet kan verken godtas eller
 rettes i løsningen. Det er en begrensning i løsningen. Løsningen sier ikke at utsagnet er avslått
 eller har falt bort, og avgjør ikke om byggherren fortsatt er bundet av det (MM-U12). Sperren
-oppheves bare når KOE-en som bestrider utsagnet, trekkes før den er gjort opp i en ny
+oppheves bare hvis den nye KOE-en trekkes før den er gjort opp i en ny
 endringsordre. Forholdet i den nye KOE-en er ‹endringsordre›, og løsningen utvider ikke
 byggherrens tidligere erkjennelse. Endringsordren revideres ikke. En feil byggherren oppdager
 etter sending, rettes etter MM-U21. En retting kan endre beløp, dager og feil i teksten, men ikke
-sakene endringsordren omfatter, og bare et utsagn som verken er bestridt eller erstattet, kan
-rettes. En retting er ikke et nytt ledd i kjeden. En retting til avsenderens fordel gjelder først
-når motparten godtar den, og til da kan utsagnet slik det ble sendt, godtas eller bestrides.
-Bestrides utsagnet, kan en retting som ikke er godtatt, ikke lenger godtas i løsningen, og
-løsningen avgjør ikke om byggherren er bundet av den (MM-U12). En
-retting som er til fordel for begge parter på ulike punkter, gjelder først når motparten godtar
-den, og aksepten gjelder bare rettingen. Utsagnet slik det er rettet, kan bestrides i en ny KOE som
-andre utsagn.»
+sakene endringsordren omfatter. En retting som er til fordel for begge parter på ulike punkter,
+gjelder først når motparten godtar den, og aksepten gjelder bare rettingen.»
 
 **Forkastet.**
 - «Totalentreprenøren bestrider et utsagn i EO-saken, og byggherren kan revidere endringsordren.
@@ -577,8 +583,7 @@ bestridelse gjelder ikke. At sakene bare endres før utstedelse, står. Endrer E
 «TEs aksept av endringsordren omfatter ikke hvert selvstendige utsagn i den» gjelder ikke, fordi
 det ikke finnes noen aksept av endringsordren som helhet. Endrer punkt 22 i MM-U34: «Revisjon
 følger EO-U4.» gjelder ikke. Presiserer MM-U21: en retting er ikke en revisjon. Presiserer punkt 19
-og 21 i MM-U34. Snevrer inn MM-U21 for en endringsordre: bare et utsagn som verken er bestridt
-eller erstattet, kan rettes, også i motpartens favør. KA-U1 og punkt 9 i MM-U34 står. Forholdet «endringsordre» følger KA-U13 og GR-U32.
+og 21 i MM-U34. KA-U1 og punkt 9 i MM-U34 står. Forholdet «endringsordre» følger KA-U13 og GR-U32.
 
 **Merknad.** «Da er det uten forbehold» ble ikke tatt med som erklæring, fordi erklæringen ble
 parkert (S-13). Aksepten gjelder hele utsagnet etter KA-U1. Reglene om retting og om at sperren
@@ -597,84 +602,44 @@ det svarer på en tidligere kravversjon. Aksepten gjelder utsagnet slik det stå
 «Svarer utsagnet på en tidligere kravversjon, avvises aksepten etter KA-U1, og
 totalentreprenøren sender en ny KOE.» Forhold: snevrer inn KA-U1 for utsagn i en endringsordre.
 
-**Endret i versjon 4.** Aksepten gjelder tilbudet, og et overslag kan ikke godtas (punkt 1 i
-endringslisten). «Rent språklige feil behandles enklere», som sparringen foreslo, er ikke tatt inn:
-løsningen tolker ikke fritekst (KA-U16) og kan ikke skille en språklig feil fra en endring i
-innholdet. MM-U21 sier alt at en retting er et nytt utsagn med henvisning, og at brevet står
-uendret. Setningen «En retting som øker verdien, går gjennom fullmakten.» er tatt ut og står nå som
-G2. Prøven av arbeidsflyten fant at en retting til byggherrens fordel ikke kan bli siste ledd i
-kjeden før totalentreprenøren har godtatt den. Ellers kunne totalentreprenøren verken godta eller
-bestride utsagnet slik det ble sendt, og tapte en posisjon. Setningene om at bare et utsagn som
-verken er bestridt eller erstattet, kan rettes, at en retting ikke er et nytt ledd i kjeden, og
-at det rettede utsagnet kan bestrides, er lagt til etter det. Prøven mot vedtaksfila fant at en
-retting som ikke er godtatt, ble hengende når utsagnet bestrides. Setningen om det er lagt til, og
-løsningen avgjør ikke om byggherren er bundet (MM-U12). Sperren er knyttet til KOE-en som
-bestrider utsagnet. Forholdet er rettet: å sperre rettingen av et bestridt utsagn, også i
-motpartens favør, snevrer inn MM-U21. Om byggherren kan trekke tilbake en retting som ikke er
-godtatt, er ikke regulert her. MM-U21 gjelder.
+**Endret i versjon 4.** Aksepten gjelder tilbudet, og et overslag kan ikke godtas (punkt 1).
+Setningen «En retting som øker verdien, går gjennom fullmakten.» er tatt ut. Hvilke rettinger som
+går gjennom fullmakten, avgjøres i valg G. «Rent språklige feil behandles enklere», som
+sparringen foreslo, er ikke tatt inn, fordi løsningen ikke tolker fritekst (KA-U16). Med valg E1
+bestrider bare én KOE et utsagn om gangen, så sperren oppheves når den KOE-en trekkes. Rettingen i
+kjeden er oppfølgingsspørsmål O-4.
 
-**Valg E. Hvor mange KOE-er kan bestride samme utsagn?**
+**Valg E, besvart 03.11.** Spørsmålet slik orkestratoren la det fram i oppdraget: «Hvor mange
+KOE-er kan bestride samme utsagn?» Bakgrunnen var eksempelet i sparringen: en post på 600 000 kr
+som bestrides i to KOE-er, gjøres opp til 800 000 og 900 000 kr, og gir summen 1 100 000 kr. Alternativene: «E1 (anbefalt): et
+utsagn kan bare bestrides av én KOE om gangen som ikke er lukket eller trukket. Kontrollen ved
+sendingen sikrer at et utsagn har høyst én direkte etterfølger. E2: flere KOE-er kan bestride
+samme utsagn, men utsagnet kan bare erstattes én gang. E1 løser også spørsmålet i punkt 4 om når
+sperren oppheves.» Svaret: «Enig med dine anbefalinger til spørsmålene.»
 
-*Bakgrunn.* S-17 sier at et utsagn som gjør opp et bestridt utsagn, erstatter det, og at summen
-teller tillegget. Ingenting hindrer i dag at to KOE-er bestrider samme utsagn og hver blir gjort
-opp i en ny endringsordre. Eksempel fra sparringen: en post på 600 000 kr bestrides i to KOE-er.
-Den ene gjøres opp til samlet 800 000 kr, tillegg 200 000 kr. Den andre gjøres opp til samlet
-900 000 kr, tillegg 300 000 kr mot samme post. Summen blir 1 100 000 kr, selv om oppgjøret for
-posten er 800 000 eller 900 000 kr. EO-U3 og S-7 hindrer at samme KOE-sak inngår i to
-endringsordrer, men ikke at samme utsagn erstattes to ganger.
+Tillegg til vedtaksteksten: «Et utsagn kan bare bestrides av én KOE om gangen som ikke er lukket
+eller trukket. Kontrollen ved sendingen sikrer at et utsagn har høyst én direkte etterfølger.»
+Forkastet: «Flere KOE-er kan bestride samme utsagn, men utsagnet kan bare erstattes én gang.»
+Forhold: presiserer S-11, S-16 og S-17. Med én KOE om gangen telles differansen mot et utsagn bare
+én gang i nøkkeltallet.
 
-- **E1. Én KOE om gangen.** «Et utsagn kan bestrides av bare én KOE om gangen som verken er
-  lukket eller trukket. Et samlet utsagn bestrides samlet i én KOE (S-6). Kontrollen gjøres samlet
-  med sendingen av KOE-en og sier hvilken KOE som alt bestrider utsagnet. Vil totalentreprenøren
-  endre kravet, sender totalentreprenøren en ny kravversjon i den KOE-en. Skjemaet for den nye
-  KOE-en lister utsagnene i endringsordren for saken, og totalentreprenøren oppgir for hvert om
-  KOE-en bestrider det. Løsningen prøver ikke svaret (MM-U12). Et utsagn har dermed høyst én
-  direkte etterfølger, og flere utsagn kan erstattes av ett samlet utsagn. Lukker en ny
-  endringsordre den bestridende KOE-en uten et utsagn som erstatter det bestridte, viser kontrollen
-  før sending det til byggherren, uten å stoppe sendingen. Utsagnet forblir sperret, og
-  totalentreprenøren kan bestride det i en ny KOE.» Anbefalt: det løser forgreningen der den
-  oppstår, og det gir sperren i S-11 ett vilkår: den oppheves når den ene KOE-en trekkes. Det
-  koster totalentreprenøren at et annet team må bruke KOE-en som finnes. Det koster byggherren
-  en ny endringsordre, eventuelt med tillegg 0, hvis totalentreprenøren vil godta et utsagn som
-  ble stående sperret, og en ny endringsordre i stedet for en retting når et bestridt utsagn skal
-  endres til totalentreprenørens fordel.
-- **E2. Flere KOE-er, én erstatning.** «Flere KOE-er kan bestride samme utsagn, men utsagnet kan
-  bare erstattes én gang. Kontrollen gjøres samlet med sendingen av endringsordren. Sperren
-  oppheves når alle KOE-ene som bestrider utsagnet, er trukket.» Prøven av arbeidsflyten fant en
-  blindvei: den andre KOE-en kan aldri få et utsagn som erstatter det bestridte, og nøkkeltallet
-  i S-16 teller differansen for hver av dem.
+*Prøven av arbeidsflyten* (subagent, 03.11) gikk gjennom fem forløp. Det var to team som bestrider
+samme post samtidig, et trekk fulgt av en ny KOE, en ny endringsordre som lukker KOE-en uten å
+erstatte det bestridte, en samlet post over to saker og et nytt beløp mens KOE-en er åpen. E1 kom
+i mål i alle. E2 ga en blindvei, fordi den andre KOE-en aldri kan få et utsagn som erstatter det
+bestridte. Prøven fant to tillegg til E1, som står som oppfølgingsspørsmål O-2.
 
-*Forhold.* Begge presiserer S-11 og S-17. E1 presiserer også S-16: med én KOE om gangen telles
-differansen mot et utsagn bare én gang. E2 krever i tillegg en regel i S-16 for flere krav mot
-samme utsagn. Kontrollen ved sendingen er samme slags kontroll som i S-7 og G-5 i BF-06.md.
+**Valg G, besvart 03.11.** Spørsmålet slik orkestratoren la det fram i oppdraget: hvilke
+rettinger av en endringsordre går gjennom godkjenningen etter fullmakten? Alternativene: «G1
+(anbefalt): hver retting av en endringsordre går gjennom godkjenningen etter fullmakten, og nytt
+eller endret arbeid krever en ny endringsordre, sagt i skjemaet, uten at løsningen prøver det. G2:
+bare en retting som øker verdien, går gjennom fullmakten, som i versjon 3.» Svaret: «Enig med dine
+anbefalinger til spørsmålene.»
 
-*Prøven av arbeidsflyten* (subagent, 03.11) gikk gjennom fem forløp: to team som bestrider samme
-post samtidig, et trekk og en ny KOE, en ny endringsordre som ikke erstatter det bestridte, en
-samlet post over to saker og et nytt beløp mens KOE-en er åpen. E1 kom i mål i alle, med
-varselet og listen over utsagnene som er tatt inn over. Listen er der fordi det ellers lønner seg
-for totalentreprenøren å oppgi «gjelder noe nytt» i stedet for å bestride, og så både godta posten
-og kreve mer. Løsningen kan ikke prøve svaret, men byggherren ser det og kan avslå.
-
-**Valg G. Hvilke rettinger av en endringsordre går gjennom godkjenningen etter fullmakten?**
-
-*Bakgrunn.* MM-U21: «En retting er et nytt utsagn fra avsenderen, med henvisning til brevet den
-retter, og brevet står uendret.» Versjon 3 sa at en retting som øker verdien, går gjennom
-fullmakten. En retting i teksten kan endre omfanget eller vilkårene uten å endre beløpet, og
-løsningen kan ikke skille en språklig feil fra en endring i innholdet (KA-U16).
-
-- **G1. Hver retting.** «Hver retting av en endringsordre går gjennom godkjenningen etter
-  fullmakten, som en endringsordre, og verdien regnes av utsagnene slik de er rettet. Nytt eller
-  endret arbeid krever en ny endringsordre. Skjemaet for rettingen sier det, og løsningen prøver
-  det ikke.» Anbefalt: godkjenneren har signert det rettingen endrer, også når den reduserer beløpet
-  eller bare endrer teksten. Det koster en langsommere retting av en ren skrivefeil.
-- **G2. Bare en retting som øker verdien.** «En retting av en endringsordre som øker verdien, går
-  gjennom godkjenningen etter fullmakten. Andre rettinger sendes av den som har fullmakt til
-  endringsordren.» Som i versjon 3. En endring i teksten uten nytt beløp går da ikke gjennom
-  kjeden.
-
-*Forhold.* Begge presiserer MM-U21 og S-3. G1 er i tråd med LV-U15 og D1 (to signaturer).
-Prøven av arbeidsflyten (subagent, 03.11) fant at G1 holder, med rettingen i kjeden som er tatt
-inn i vedtaksteksten over.
+Tillegg til vedtaksteksten: «Hver retting av en endringsordre går gjennom godkjenningen etter
+fullmakten. Nytt eller endret arbeid krever en ny endringsordre. Skjemaet for rettingen sier det,
+og løsningen prøver det ikke.» Forkastet: «Bare en retting av en endringsordre som øker verdien,
+går gjennom godkjenningen etter fullmakten.» Forhold: presiserer MM-U21 og S-3. LV-U15 og D1 står.
 
 ## S-12. Avvises den siste godkjenningen når noe endres i en av sakene?
 
@@ -759,8 +724,8 @@ og fullmakten.
 **Forslag til vedtakstekst.** «Et utsagn i en endringsordre som gjør opp et bestridt utsagn,
 erstatter det, og har flere utsagn vært bestridt samlet, erstatter det alle. Utsagnet oppgir det
 samlede beløpet i tilbudet og tillegget mot utsagnet eller utsagnene det erstatter direkte.
-Tillegget regnes bare når både det nye utsagnet og hvert utsagn det erstatter, har et samlet beløp,
-samme omfang og samme oppgjørsform. Ellers erstatter det nye utsagnet det gamle i summen, uten tillegg, og et overslag
+Tillegget regnes bare når både det nye utsagnet og hvert utsagn det erstatter, har et samlet beløp
+og samme omfang. Ellers erstatter det nye utsagnet det gamle i summen, uten tillegg, og et overslag
 brukes ikke som et tidligere fastsatt beløp. Et utsagn har høyst én direkte etterfølger (valg E).
 Tillegget kan være 0 eller negativt. En reduksjon endrer ikke en tidligere registrert enighet, men
 vises som avvik. Bare det siste utsagnet i kjeden kan godtas eller bestrides, og de tidligere
@@ -777,10 +742,10 @@ teller tilleggene. Dette er beregningsregler, og de avgjør ikke hva partene ret
 til. Den første følger av MM-U38: «endringsordrer uten samlet beløp telles for seg, fordi beløpet
 er ukjent og ikke 0». Eksempel: EO-014 har regningsarbeid med overslag 600 000 kr, og EO-015 gir
 fast sum 800 000 kr. EO-015 erstatter posten, summen teller 800 000 kr, og posten i EO-014 telles
-ikke lenger for seg. Det vises ikke noe tillegg på 200 000 kr. Vilkåret har også «samme
-oppgjørsform», som S-16, så de to reglene regner differansen i de samme tilfellene. S-16 er rettet
-tilsvarende: summen teller det S-17 sier, ikke alltid tillegget. Prøven mot vedtaksfila fant
-motsigelsen.
+ikke lenger for seg. Det vises ikke noe tillegg på 200 000 kr. Prøven mot vedtaksfila fant at
+S-16 sa at summen alltid teller tillegget. S-16 er rettet til å telle det S-17 sier, som følger av
+punktet oppdragsgiver har godtatt. At S-16 krever «samme omfang og oppgjørsform» og S-17 bare
+«samme omfang», er oppfølgingsspørsmål O-1.
 
 **Merknad.** Regelen om tillegg med kjeden, null og negative tillegg og sperren for tidligere
 utsagn kom fra sparringen og ble lagt fram samlet før svaret. Det forkastede alternativet er ikke
@@ -892,20 +857,19 @@ Modellen for oppgjøret etter endringsordren, som vedtakstekstene over gjengir:
    ikke et overslag. Løsningen viser alle enigheter og avvik og avgjør ikke hvilken som gjelder
    (S-6, S-11).
 5. **Ny KOE.** Uenighet og ubesvarte krav går i en ny KOE som oppgir hva den bestrider. Et bestridt
-   utsagn kan verken godtas eller rettes, og med det anbefalte valget E1 kan bare én KOE bestride
-   det om gangen. Endringsordren revideres ikke, og med det anbefalte valget G1 går hver retting
-   gjennom fullmakten (S-11).
+   utsagn kan verken godtas eller rettes, og bare én KOE kan bestride det om gangen (E1).
+   Endringsordren revideres ikke, og hver retting går gjennom fullmakten (S-11, G1).
 6. **Kjeden og tillegget.** Den nye KOE-en lukkes med en ny endringsordre (S-14), der utsagnet
    erstatter det bestridte og oppgir samlet beløp og tillegg. Tillegget regnes bare når begge
-   utsagnene har et samlet beløp, samme omfang og samme oppgjørsform (S-17).
+   utsagnene har et samlet beløp og samme omfang (S-17).
 7. **Oversikten.** Beløpet i endringsordren, det som er godtatt, det som er bestridt som
    differanse når det er sammenlignbart, ubesvarte krav og regningsarbeid som avregnes (S-16).
 8. **Regningsarbeid.** Overslag, varsler og oppgaver sendes som innlegg i EO-saken (S-10).
 9. **Fullmakt.** Per utsagn, summert, med kontraktens beløpsgrenser. Endringer under godkjenningen
    stopper sendingen (S-3, S-12).
 10. **Registrering.** Samme skjema, datoen brevet ble sendt, og bare når sakene er åpne når den
-    siste godkjenningen gjøres. Ellers blir brevet dokumentasjon, med det anbefalte valget F1 for
-    hele brevet (S-2, S-15).
+    siste godkjenningen gjøres. Ellers stopper hele registreringen, og brevet blir dokumentasjon
+    (S-2, F1, S-15).
 11. **Forbehold.** Spørsmålet om forbehold stilles ikke, og erklæringen «uten forbehold» er
     parkert (S-4, S-13).
 12. **Saksoversikten.** Fanen for endringsordrene viser aksept og bestridelse per utsagn og
