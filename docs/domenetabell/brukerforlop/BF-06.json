@@ -423,6 +423,159 @@
             "staar": "brevets referanse EO-032"
           }
         ]
+      },
+      {
+        "id": "te-mottatt",
+        "dekker": [
+          "19"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "staar": "Postene mot kravene dine"
+          },
+          {
+            "staar": "plikter du å utføre endringen"
+          },
+          {
+            "staar": "For KOE-017 og KOE-021 samlet"
+          },
+          {
+            "staar": "Ikke besvart"
+          }
+        ]
+      },
+      {
+        "id": "te-godta",
+        "dekker": [
+          "20"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "klikk": "Godta poster",
+            "tilstand": "te-godta"
+          },
+          {
+            "klikk": "Send aksepten",
+            "tilstand": "te-godta"
+          },
+          {
+            "staar": "Velg postene du godtar."
+          },
+          {
+            "kryss": "Godta V4"
+          },
+          {
+            "staar": "Aksepten gjelder hele posten"
+          },
+          {
+            "klikk": "Send aksepten",
+            "tilstand": "te-godtatt"
+          },
+          {
+            "staar": "Aksepten er sendt som brev 2 i sak EO-014. Den gjelder V4."
+          }
+        ]
+      },
+      {
+        "id": "te-bestrid",
+        "dekker": [
+          "21",
+          "22"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "klikk": "Bestrid V1 i ny KOE",
+            "tilstand": "te-ny-koe"
+          },
+          {
+            "staar": "Varslene i KOE-017 står ikke i den nye saken."
+          },
+          {
+            "fyll": "Samlet krav",
+            "tekst": "800 000"
+          },
+          {
+            "klikk": "Send kravet til byggherren",
+            "tilstand": "te-bestridt"
+          },
+          {
+            "staar": "Bestridt i KOE-031"
+          },
+          {
+            "staar": "behandlingen av posten fortsetter der"
+          }
+        ]
+      },
+      {
+        "id": "te-lukket",
+        "dekker": [
+          "23"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "klikk": "Se KOE-021",
+            "tilstand": "te-lukket-sak"
+          },
+          {
+            "staar": "Endringsordren svarer ikke på kravet ditt om 10 dager."
+          },
+          {
+            "staar": "sluttoppstillingen (punkt 39.1)"
+          },
+          {
+            "klikk": "Ny KOE om fristforlengelsen",
+            "tilstand": "te-ny-koe"
+          },
+          {
+            "staar": "som endringsordren ikke svarte på"
+          }
+        ]
+      },
+      {
+        "id": "te-regning",
+        "dekker": [
+          "24"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "klikk": "Send varsel eller regningsoppgaver for V3",
+            "tilstand": "te-regning"
+          },
+          {
+            "staar": "Innlegg i sak EO-014"
+          },
+          {
+            "klikk": "Send innlegget til byggherren",
+            "tilstand": "te-mottatt"
+          },
+          {
+            "staar": "Innlegget er sendt"
+          }
+        ]
+      },
+      {
+        "id": "te-tillegg",
+        "dekker": [
+          "25"
+        ],
+        "start": "te-bestridt",
+        "handlinger": [
+          {
+            "klikk": "Vis når byggherren har gjort opp KOE-031",
+            "tilstand": "te-tillegg"
+          },
+          {
+            "staar": "Tillegg 100 000 kr til V1 i EO-014"
+          },
+          {
+            "staar": "V1 i EO-015 erstatter V1 i EO-014."
+          }
+        ]
       }
     ]
   },
@@ -523,6 +676,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Valg A1: en registrert endringsordre får løsningens kode, og brevets nummer er en referanse. Prototypen versjon 10."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 11 med TEs del og rollebytte, og stegene 19–25."
     }
   ]
 }
