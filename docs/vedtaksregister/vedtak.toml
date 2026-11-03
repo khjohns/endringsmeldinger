@@ -8350,6 +8350,35 @@ Når totalentreprenøren oppretter saken, skriver totalentreprenøren både saks
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "LV-U44"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Vedtaket som ble lagt fram.
+
+Bakgrunn. Kontraktsgrunnlaget, Del II, «Navngiving av dokumenter» (pkt. D.1.2.5): «All korrespondanse i form av brev, skjemaer, referater, notater, etc. skal merkes slik: XXX-ZZ-nn … nn = Løpenummer (Løpenummer starter på 01 for hver kombinasjon av type korrespondanse)». Oppdragsgiver 03.11, ordrett: «det er krav til merking. Det er for å identifisere at brev hører til samme sak, f.eks. KOE-17, slik jeg forstår det. I Catenda opprettes saker med tittel kun KOE-x. Hvis ordlyden i kontraktsgrunnlaget ikke kan tolkes slik, så er den uklar.»
+
+Merkingen i brevhodet og dokumentnavnet er alternativ a: K201-KOE-17-03, altså sakens kode og brevets nummer i saken i én merking.'''
+valgt = "a"
+svar = '''
+«LV-U24 som foreslått, a»'''
+forhold = [{ art = "endrer", vedtak = "lv-u24" }]
+folge = '''
+Svaret står på #1497 (kommentaren 6595800193). Svaret på Q1, hvordan saken omtales i brevene, er A, ‹i sak KOE-17›. Q2 blir B med vedtaket over. Brevene telles i saken, og arbeidsvalget i #1489 om «Vår ref.» må leses mot vedtaket. Uklarheten i ordlyden i kontraktsgrunnlaget tas med i #1446. Vedtaket påvirker også #1489, #1174 og delen av #1488 om «i sak <saksnummer>». Oppfølgingsspørsmål 03.11, svar «2 A»: Setningene gjelder fortsatt, og LV-U44 endrer bare hvordan brevene nummereres. Merkingen `K201-KOE-17-03` står i brevhodet og i dokumentnavnet og fryses når brevet sendes.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "a"
+tekst = '''
+LV-U24 endres. Saken får koden fra sitt første brev, med løpenummer per kode i kontrakten (pkt. D.1.2.5): KOE-nn når totalentreprenøren oppretter saken, EO-nn når byggherren gjør det. Hvert brev i saken, også byggherrens svar, merkes med sakens kode og brevets nummer i saken. Et brev viser til et tidligere brev med nummeret i saken: ‹brev <n> i sak KOE-17 av <dato>›. BR brukes for brev som ikke hører til en sak. Kontraktsforkortelsen står i prosjektinnstillingene.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Den gjeldende LV-U24"
+tekst = '''
+Hvert brev merkes med eget løpenummer for sin kode i kontrakten …'''
+forkastet = true
+
+[[gruppe.vedtak]]
 id = "MM-U37"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
