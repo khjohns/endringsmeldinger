@@ -53,7 +53,7 @@
             "tilstand": "vederlag-samlet"
           },
           {
-            "staar": "KOE-018 er ikke med, fordi vederlagsjusteringen der er avtalt."
+            "staar": "KOE-018 står for seg med svaret totalentreprenøren godtok."
           },
           {
             "fyll": "Vederlagsjustering for sakene samlet",
@@ -248,6 +248,32 @@
             "staar": "2 saker"
           }
         ]
+      },
+      {
+        "id": "avvik-fra-enighet",
+        "dekker": [
+          "14"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "staar": "Registrert enighet: totalentreprenøren godtok i brev 11 svaret i brev 10 på kravet i brev 6"
+          },
+          {
+            "fyll": "Beløp for KOE-018",
+            "tekst": "280 000"
+          },
+          {
+            "staar": "Beløpet avviker fra svaret totalentreprenøren godtok i brev 11."
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Vederlagsjusteringen: byggherrens standpunkt på 280 000 kr. Avviker fra svaret totalentreprenøren godtok i brev 11."
+          }
+        ]
       }
     ]
   },
@@ -315,6 +341,11 @@
       "dato": "2026-11-03",
       "forhold": "#1525",
       "hva": "Prototypen versjon 4 etter oppdragsgivers gjennomgang: endringen beskrives fullt ut per sak (D-9), konsekvensene med avkrysning, og tilbud om oppgjør som avkrysning."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "P-4 besvart: nei. Grensen om avtalt vederlag er tatt ut (punkt 23 i MM-U34), og prototypen versjon 5 viser en post som avviker fra en registrert enighet."
     }
   ]
 }

@@ -6,7 +6,7 @@
 <title>Endringsordren i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v4 av skjemaet byggherren bruker til endringsordren i en EO-sak, for BF-06 (#1525).
+  Prototype v5 av skjemaet byggherren bruker til endringsordren i en EO-sak, for BF-06 (#1525).
   Tilstandene er ankrene #utkast, #legg-til, #samlet (fristforlengelsen samlet),
   #vederlag-samlet, #kontroll, #godkjenning og #sendt, og bestillingen
   (docs/domenetabell/brukerforlop/BF-06.md) viser til dem. ID-ene i data-spor er punktene der.
@@ -315,6 +315,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 .tilbudvalg label{display:inline-flex;gap:8px;align-items:center;min-height:36px;cursor:pointer;font-weight:500;align-self:flex-start}
 .tilbudvalg .hjelp{padding-left:26px}
 .fast-art{font-size:12px;color:var(--ink-3)}
+.avvik{font-size:13px;font-weight:500;padding-left:10px;border-left:3px solid var(--ink)}
 .fast-art b{color:var(--ink);font-weight:600}
 </style>
 </head>
@@ -340,7 +341,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     <div class="topplinje">
       <div class="demo-bryter">
         <p>Du er byggherre (BH), prosjektleder</p>
-        <span class="d">Prototype v4 · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#utkast" class="nullstill">Start på nytt</a></span>
+        <span class="d">Prototype v5 · <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#utkast" class="nullstill">Start på nytt</a></span>
       </div>
     </div>
 
@@ -400,7 +401,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
             <div class="punkt-hode"><span class="nr" aria-hidden="true">3</span><h2 id="p-vederlag">Vederlagsjustering</h2><span class="hjemmel">pkt. 34</span></div>
             <div class="utsagnliste">
               <div class="tips kun-v-per-sak" data-spor="U-4">
-                <span>Er vederlagsjusteringen forhandlet samlet, eller henger kostnadene sammen, gir du én post for sakene samlet. Det som er avtalt, står for seg.</span>
+                <span>Er vederlagsjusteringen forhandlet samlet, eller henger kostnadene sammen, gir du én post for sakene samlet.</span>
                 <a class="lenke" href="#vederlag-samlet">Samle vederlagsjusteringen for KOE-017 og KOE-021</a>
               </div>
 
@@ -416,7 +417,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
               <article class="utsagn kun-v-samlet" id="vederlag-samlet" aria-labelledby="vs-t" data-spor="U-4 · D-3">
                 <div class="utsagn-hode"><span class="unr" data-u="vederlag-samlet"></span><h3 id="vs-t">Vederlagsjustering</h3><span class="gjelder-merker"><span class="samlet-merke">Samlet</span><span class="sakmerke">KOE-017</span><span class="sakmerke">KOE-021</span></span></div>
-                <p class="hjelp">KOE-018 er ikke med, fordi vederlagsjusteringen der er avtalt.</p>
+                <p class="hjelp">KOE-018 står for seg med svaret totalentreprenøren godtok.</p>
                 <div class="tilbudvalg" data-art="vederlag-samlet" data-navn="vederlagsjusteringen for KOE-017 og KOE-021 samlet"></div>
                 <div class="utsagn-kropp">
                   <div class="felt"><label for="vs-form">Oppgjørsform for sakene samlet</label><span class="velger"><select id="vs-form"><option>Fast sum</option><option>Kontraktens enhetspriser</option><option>Justerte enhetspriser</option><option>Regningsarbeid</option></select></span></div>
@@ -428,12 +429,13 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
 
               <article class="utsagn" id="u2" data-sak="KOE-018" aria-labelledby="u2-t">
                 <div class="utsagn-hode"><span class="unr" data-u="u2"></span><h3 id="u2-t">Vederlagsjustering</h3><span class="gjelder-merker"><span class="sakmerke">KOE-018</span></span></div>
-                <p class="fast-art" data-spor="D-3">Avtalt 20. oktober. Beløpet står som avtalt og kan ikke endres her.</p>
+                <div class="tilbudvalg" data-art="u2" data-navn="vederlagsjusteringen i KOE-018"></div>
                 <div class="utsagn-kropp">
                   <div class="felt"><span class="lbl">Oppgjørsform</span><span>Fast sum</span></div>
-                  <div class="felt"><span class="lbl">Beløp, eks. mva.</span><span class="num">300 000 kr</span></div>
+                  <div class="felt"><label for="u2-b">Beløp for KOE-018, eks. mva.</label><span class="inndata"><input id="u2-b" type="text" inputmode="decimal" value="300 000" data-oppdater><span aria-hidden="true">kr</span></span></div>
                 </div>
-                <div class="mot">Registrert enighet 20. oktober: totalentreprenøren godtok svaret i brev 10 på kravet i brev 6.</div>
+                <div class="mot" data-spor="D-3">Registrert enighet: totalentreprenøren godtok i brev 11 svaret i brev 10 på kravet i brev 6, <span class="num">300 000 kr</span>.</div>
+                <p class="avvik" id="u2-avvik" hidden>Beløpet avviker fra svaret totalentreprenøren godtok i brev 11.</p>
               </article>
 
               <article class="utsagn kun-v-per-sak" id="u3" aria-labelledby="u3-t">
@@ -655,10 +657,11 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
           <section class="kort om" aria-labelledby="om-tittel">
             <div class="kort-hode"><h2 id="om-tittel">Om prototypen</h2></div>
             <div class="blokk">
-              <p>Vedtatt: endringsordren omfatter hele saker og lukker dem når den er sendt (EO-U3, MM-U34), postene om pris og tid sier hva de er, og endringsordren kan ikke ensidig endre det som er avtalt (EO-U8), to signaturer (LV-U15), og den siste godkjenningen sender (GFK-U7).</p>
+              <p>Vedtatt: endringsordren omfatter hele saker og lukker dem når den er sendt (EO-U3, MM-U34), postene om pris og tid sier hva de er, og løsningen avgjør ikke om endringsordren endrer det som er avtalt (EO-U8, MM-U34 punkt 23), to signaturer (LV-U15), og den siste godkjenningen sender (GFK-U7).</p>
               <p>Forslag, ikke vedtatt:</p>
               <ul>
-                <li>En post kan gjelde flere saker samlet, for alle krav. Det som er avtalt, står for seg, og en samlet post har én oppgjørsform.</li>
+                <li>En post kan gjelde flere saker samlet, for alle krav, og en samlet post har én oppgjørsform.</li>
+                <li>En post som avviker fra en registrert enighet, viser det.</li>
                 <li>Et overslag er en egen art av post.</li>
                 <li>Fullmakten regnes per post. Der endringsordren ikke svarer på et krav, gjelder kravet, og et krav som ikke er sendt, krever hele kjeden.</li>
                 <li>En sak inngår fra sending, ikke mens den ligger i et utkast.</li>
@@ -715,7 +718,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     const v = [];
     if (st.vederlag) v.push({ id: 'vederlag-samlet', kol: 'Vederlag', saker: ['KOE-017', 'KOE-021'], form: $('#vs-form').value, kr: tall('#vs-b'), art: artTekst('vederlag-samlet') });
     else v.push({ id: 'u1', kol: 'Vederlag', saker: ['KOE-017'], form: $('#u1-form').value, kr: tall('#u1-b'), art: artTekst('u1') });
-    if (med('KOE-018')) v.push({ id: 'u2', kol: 'Vederlag', saker: ['KOE-018'], form: 'Fast sum', kr: 300000, art: 'avtalt 20. oktober' });
+    if (med('KOE-018')) v.push({ id: 'u2', kol: 'Vederlag', saker: ['KOE-018'], form: 'Fast sum', kr: tall('#u2-b'), art: tall('#u2-b') === 300000 && art('u2') !== 'tilbud' ? 'som svaret i brev 10, godtatt i brev 11' : artTekst('u2') });
     if (!st.vederlag) v.push({ id: 'u3', kol: 'Vederlag', saker: ['KOE-021'], form: 'Regningsarbeid, pkt. 30', overslag: tall('#u3-o'), art: 'byggherrens standpunkt' });
     v.push({ id: 'u4', kol: 'Rigg og drift', saker: ['KOE-017', 'KOE-021'], form: 'Fast sum', kr: tall('#u4-b'), art: artTekst('u4') });
     if (med('KOE-022')) v.push({ id: 'u5', kol: 'Vederlag', saker: ['KOE-022'], form: 'Fast sum', kr: tall('#u5-b'), art: 'tilbud' });
@@ -850,7 +853,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
         'Kravet om fristforlengelse er endret etter at saken ble lagt i utkastet (brev 9, 28. oktober).',
       ],
       'KOE-018': [
-        'Vederlagsjusteringen: registrert enighet, gjengitt.',
+        tall('#u2-b') === 300000 && art('u2') !== 'tilbud' ? 'Vederlagsjusteringen: som svaret i brev 10, som totalentreprenøren godtok i brev 11.' : `Vederlagsjusteringen: ${artTekst('u2')} på ${kr(tall('#u2-b'))}. Avviker fra svaret totalentreprenøren godtok i brev 11.`,
         samletMed('Frist', 'KOE-018') ?? `Fristforlengelsen: ${artTekst('f2')} på ${tall('#f2-d')} dager mot kravet på 10 dager. Ikke registrert enighet.`,
       ],
       'KOE-021': [
@@ -909,6 +912,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;
     skall.dataset.frist = st.frist ? 'samlet' : 'per-sak';
     skall.dataset.vederlag = st.vederlag ? 'samlet' : 'per-sak';
     for (const inp of document.querySelectorAll('[data-art] input')) inp.checked = art(inp.name.slice(4)) === 'tilbud';
+    $('#u2-avvik').hidden = tall('#u2-b') === 300000;
     $('#kons-ja').hidden = document.querySelector('input[name="kons"]:checked').value === 'nei';
     saker();
     const alle = poster();
