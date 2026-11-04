@@ -1,0 +1,59 @@
+{
+  "id": "BF-07",
+  "tittel": "Brevhodet viser under Deres ref. hvilke av motpartens brev brevet tar stilling til",
+  "brukerhistorie": "Samme sak som BF-01. Hver part leser et brev fra motparten og ser under Deres ref. hvilke av sine egne brev det svarer på, godtar, bestrider eller ellers gjelder, med merkingen fra hvert av dem. Før sending ser avsenderen i brevkontrollen den samme Deres ref. som fryses med brevet. Et brev som ikke tar stilling til noe brev fra motparten, har ingen koder under Deres ref.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Samme sak som BF-01, fra start til kontrollpunktet te-har-godtatt-svaret. Saken er KOE-5 i prosjektet med kontraktsforkortelsen K201."
+  },
+  "bestilling": "BF-07.md",
+  "kilder": [
+    "DL-U2",
+    "HF-U1",
+    "KA-U10",
+    "LV-U1",
+    "LV-U18",
+    "LV-U2",
+    "LV-U23",
+    "LV-U27",
+    "LV-U28",
+    "LV-U42",
+    "LV-U44",
+    "LV-U45",
+    "LV-U46",
+    "LV-U47",
+    "LV-U48",
+    "LV-U49",
+    "LV-U50",
+    "LV-U51",
+    "MM-U9",
+    "OV-U4",
+    "OV-U80",
+    "OV-U84",
+    "VS-U23",
+    "VS-U27"
+  ],
+  "venter_paa": [
+    "#1497"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-04",
+      "forhold": "#1497",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen og spørsmålene S-1 og S-2."
+    },
+    {
+      "dato": "2026-11-04",
+      "forhold": "#1497",
+      "hva": "Svarene S-1 A og S-2 D er ført i bestillingen. En ny kravversjon viser under Deres ref. til BHs gjeldende svar på kravversjonen den erstatter."
+    },
+    {
+      "dato": "2026-11-04",
+      "forhold": "#1497",
+      "hva": "Bestillingen viser til LV-U49, LV-U50 og LV-U51, brevnumrene følger nummeret i saken fra A1 (#1548), og henvisningen til forespørselen i G-4 bygges i #1567."
+    }
+  ]
+}
