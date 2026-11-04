@@ -916,6 +916,14 @@ def valider(register: dict) -> list[str]:
     if feil:
         return feil
     feil += bindende_i_opphevet(register)
+    klasse = {anker(p): p.get("klasse") for p in poster(register) if anker(p)}
+    feil += [
+        f"{anker(p) or etikett(p)}: den bindende setningen står i {a}, som har klassen "
+        f"«{klasse[a]}»; den må stå i et vedtak"
+        for p in poster(register)
+        for a in p.get("bindende_i", [])
+        if klasse[a] != "vedtak"
+    ]
     if feil:
         return feil
     ix = indeks(register)

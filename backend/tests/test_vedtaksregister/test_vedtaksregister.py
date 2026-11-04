@@ -1147,8 +1147,8 @@ def test_vakta_melder_feil_i_klassen_og_delene(grunnregister, endring, melding):
     "felt",
     [
         {"klasse": "vedtak", "designdel": "x", "beslutningsdel": "y"},
-        {"klasse": "beslutning", "designdel": "x", "bindende_i": ["ka-u2"]},
-        {"klasse": "design", "bindende_i": ["ka-u2", "ka-u3"], "flyttet_til": "BF-06.md#u-12"},
+        {"klasse": "beslutning", "designdel": "x", "bindende_i": ["ka-u1"]},
+        {"klasse": "design", "bindende_i": ["ka-u1", "mm-u12"], "flyttet_til": "BF-06.md#u-12"},
     ],
 )
 def test_delene_og_hjemmet_som_passer_til_klassen_godtas(grunnregister, felt):
@@ -1164,27 +1164,40 @@ def test_en_importert_post_kan_ha_klassen_og_delene(grunnregister):
 def test_et_opphevet_vedtak_i_bindende_i_avvises_til_det_er_samlet(grunnregister):
     """Arbeidsvalget for kontroll 2 04.11 i #1534: verktøyet feiler når et vedtak i feltet er
     opphevet uten å være samlet."""
-    design = ny_post(id="XX-U1", klasse="design", bindende_i=["ka-u2"], forhold=[])
-    opphever = ny_post(id="XX-U2", forhold=[{"art": "opphever", "vedtak": "ka-u2"}])
+    design = ny_post(id="XX-U1", klasse="design", bindende_i=["ka-u1"], forhold=[])
+    opphever = ny_post(id="XX-U2", forhold=[{"art": "opphever", "vedtak": "ka-u1"}])
     endret = med(med(grunnregister, design), opphever)
     assert vr.valider(endret) == [
-        "xx-u1: den bindende setningen står i ka-u2, som er opphevet av xx-u2 og ikke samlet; "
+        "xx-u1: den bindende setningen står i ka-u1, som er opphevet av xx-u2 og ikke samlet; "
         "før den inn i et gjeldende vedtak"
     ]
-    samler = ny_post(id="XX-U3", forhold=[{"art": "samler", "vedtak": "ka-u2"}])
+    samler = ny_post(id="XX-U3", forhold=[{"art": "samler", "vedtak": "ka-u1"}])
     assert vr.valider(med(endret, samler)) == []
+
+
+def test_en_post_i_bindende_i_som_ikke_er_et_vedtak_avvises(grunnregister):
+    """Svar 2 og 8 04.11 i #1534: den bindende setningen har hjemmet sitt i et gjeldende vedtak.
+    En designpost som hjem kan endres i brukerprøven uten vedtak."""
+    hjem = ny_post(id="XX-U2", klasse="design", forhold=[])
+    design = ny_post(id="XX-U1", klasse="design", bindende_i=["xx-u2"], forhold=[])
+    assert vr.valider(med(med(grunnregister, hjem), design)) == [
+        "xx-u1: den bindende setningen står i xx-u2, som har klassen «design»; "
+        "den må stå i et vedtak"
+    ]
+    hjem["klasse"] = "vedtak"
+    assert vr.valider(med(med(grunnregister, hjem), design)) == []
 
 
 def test_et_vedtak_samlet_av_et_opphevet_samlevedtak_har_mistet_hjemmet(grunnregister):
     """Arbeidsvalget for kontroll 2 04.11 i #1534: et samlevedtak som er opphevet, gjelder
     ikke, så den bindende setningen har ikke noe gjeldende hjem."""
-    design = ny_post(id="XX-U1", klasse="design", bindende_i=["ka-u2"], forhold=[])
-    opphever = ny_post(id="XX-U2", forhold=[{"art": "opphever", "vedtak": "ka-u2"}])
-    samler = ny_post(id="XX-U3", forhold=[{"art": "samler", "vedtak": "ka-u2"}])
+    design = ny_post(id="XX-U1", klasse="design", bindende_i=["ka-u1"], forhold=[])
+    opphever = ny_post(id="XX-U2", forhold=[{"art": "opphever", "vedtak": "ka-u1"}])
+    samler = ny_post(id="XX-U3", forhold=[{"art": "samler", "vedtak": "ka-u1"}])
     opphever_samleren = ny_post(id="XX-U4", forhold=[{"art": "opphever", "vedtak": "xx-u3"}])
     endret = med(med(med(med(grunnregister, design), opphever), samler), opphever_samleren)
     assert vr.valider(endret) == [
-        "xx-u1: den bindende setningen står i ka-u2, som er opphevet av xx-u2 og ikke samlet; "
+        "xx-u1: den bindende setningen står i ka-u1, som er opphevet av xx-u2 og ikke samlet; "
         "før den inn i et gjeldende vedtak"
     ]
 
@@ -1213,13 +1226,13 @@ def test_folge_i_en_importert_post_leses_bare_med_de_fem_eldre_forholdene():
 
 def test_vedtaksfila_har_klassen_og_den_logiske_formen_har_den_ikke(grunnregister):
     """Kontrollene mot main leser 3.1 uten klassekolonnen, så klassen endrer ikke en rad der."""
-    post = ny_post(klasse="design", forhold=[], bindende_i=["ka-u2"], flyttet_til="BF-06.md#u-12")
+    post = ny_post(klasse="design", forhold=[], bindende_i=["ka-u1"], flyttet_til="BF-06.md#u-12")
     endret = med(grunnregister, post)
     assert vr.TABELLHODE_MED_KLASSE in vr.vedtaksfil(endret)
     assert vr.TABELLHODE_MED_KLASSE not in vr.logisk(endret)
     assert vr.rad(endret["gruppe"][0]["vedtak"][-1], endret, klasse=True) == (
         '| <a id="xx-u1"></a>XX-U1: TE kan trekke kravet. Forkastet: «TE kan ikke trekke kravet.» '
-        "| design. Bindende i [KA-U2](#ka-u2). Flyttet til "
+        "| design. Bindende i [KA-U1](#ka-u1). Flyttet til "
         "[BF-06 U-12](../domenetabell/brukerforlop/BF-06.md#u-12) "
         "| 12.10, oppdragsgiver (#413) | Ikke bygget |"
     )
