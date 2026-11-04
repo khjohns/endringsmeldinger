@@ -3581,6 +3581,19 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["if (k.spor !== 'forhold' && 'dokumentasjon' in k)", 'if (false)']],
     mal: ['et vedlegg ved et fristkrav utenfor varselet avvises i formen'],
   },
+  {
+    id: 'F436',
+    feilklasse:
+      'et registrert svar etter frafallet tar bort at forholdet er avklart ved frafallet mens en ny versjon venter (GR-U20, GR-U23, OV-U4, #1388)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);',
+        'spor.forhold.svar.at(-1);',
+      ],
+    ],
+    mal: ['en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3'],
+  },
 ];
 
 interface Testresultat {

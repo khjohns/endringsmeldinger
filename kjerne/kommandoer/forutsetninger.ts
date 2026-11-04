@@ -164,7 +164,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
   const eier = PART[h.type];
   if (eier !== null && eier !== part) return avvis('FEIL_PART', `Bare ${eier} kan gjøre dette.`);
   if ('gjelder' in h) return henvisning(h, part, u);
-  // GR-U27: TEs aksept av avslaget på forholdet lukker saken. MM-U34 punkt 12: at
+  // GR-U27: TEs aksept av et svar som avslår forholdet eller påberoper preklusjon, lukker saken. MM-U34 punkt 12: at
   // kravene er avgjort, sperrer ikke.
   if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);
 
