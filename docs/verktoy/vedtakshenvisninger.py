@@ -102,6 +102,8 @@ KJENTE_AVVIK = (
     ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1545"),
+    ("src/lib/components/varden/NySak.svelte", "VS-U37", 1, "#1489"),
+    ("src/lib/components/varden/__tests__/NySak.test.ts", "VS-U37", 1, "#1489"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare

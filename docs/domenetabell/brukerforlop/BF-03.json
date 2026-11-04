@@ -232,7 +232,9 @@
     "KA-U45",
     "OV-U79",
     "OV-U80",
-    "OV-U81"
+    "OV-U81",
+    "LV-U52",
+    "LV-U53"
   ],
   "venter_paa": ["#1381", "#1377", "#1379", "#807"],
   "bevis_saker": [],
@@ -257,6 +259,11 @@
       "dato": "2026-11-01",
       "forhold": "#1381, #1456, MM-U34, MM-U35, MM-U36",
       "hva": "Protesten er et innlegg som ikke endrer svaret og kan sendes etter enigheten. Aksepten gjelder hele svaret (MM-U34 punkt 16), og skjemaet for aksepten viser innleggene (MM-U36). En ny kravversjon har brevteksten i OV-U54 etter MM-U34 punkt 1. Sperren etter enighet og vernet i D-4 er tatt ut. Vedtakene MM-U34 opphever, er tatt ut av kildene, og korrespondansen etter OV-U79–OV-U81 og KA-U45 er lagt inn."
+    },
+    {
+      "dato": "2026-11-04",
+      "forhold": "#1571, LV-U52, LV-U53",
+      "hva": "D-3 og D-5 bruker merkingen på brevene (LV-U53), og setningen om TEs standpunkt i D-5 nevner brevet med svaret (LV-U52)."
     }
   ]
 }
