@@ -1543,9 +1543,46 @@ def test_et_forhold_oppdragsgiver_har_bestemt_kan_fjernes_etter_merge(grunnregis
     assert vr.mot_grunnlag(senere, vr.logisk(merget), merget) == []
 
 
+def test_et_annet_forhold_kan_ikke_fjernes_etter_merge_selv_om_lista_har_rader(
+    grunnregister, monkeypatch
+):
+    """Lista er lukket: bare raden selv kan fjernes, ikke et annet forhold i samme post."""
+    merget = med(grunnregister, ny_post())
+    merget["gruppe"][0]["vedtak"][-1]["forhold"].append({"art": "endrer", "vedtak": "ka-u2"})
+    senere = copy.deepcopy(merget)
+    senere["gruppe"][0]["vedtak"][-1]["forhold"].pop()
+    monkeypatch.setattr(
+        vr, "FORHOLD_FJERNET_ETTER_MERGE", {("xx-u1", "presiserer", "ka-u2"): "en test, #1"}
+    )
+    assert vr.mot_grunnlag(senere, vr.logisk(merget), merget) == [
+        "XX-U1: forholdet «endrer ka-u2» er fjernet etter merge"
+    ]
+
+
+def test_lista_over_fjernede_forhold_kan_bare_ha_forhold_som_er_fjernet(grunnregister):
+    """En rad med et forhold som fortsatt står, en post som ikke finnes, og en kilde uten
+    issuet, gir feil."""
+    med_forhold = med(grunnregister, ny_post(forhold=[{"art": "endrer", "vedtak": "ka-u2"}]))
+    assert vr.forhold_fjernet_feil(med_forhold, {("xx-u1", "endrer", "ka-u2"): "#1"}) == [
+        "FORHOLD_FJERNET_ETTER_MERGE: xx-u1 endrer ka-u2: forholdet står fortsatt i registeret; "
+        "fjern forholdet eller raden"
+    ]
+    assert vr.forhold_fjernet_feil(med_forhold, {("xx-u9", "endrer", "ka-u2"): "#1"}) == [
+        "FORHOLD_FJERNET_ETTER_MERGE: xx-u9 endrer ka-u2: posten eller vedtaket finnes ikke i "
+        "registeret"
+    ]
+    uten = med(grunnregister, ny_post())
+    assert vr.forhold_fjernet_feil(uten, {("xx-u1", "endrer", "ka-u2"): "#1"}) == []
+    assert vr.forhold_fjernet_feil(uten, {("xx-u1", "endrer", "ka-u2"): "E2"}) == [
+        "FORHOLD_FJERNET_ETTER_MERGE: xx-u1 endrer ka-u2: kilden må ha issuet"
+    ]
+
+
 def test_forholdene_ka_u49_e2_fjernet_staar_ikke_i_registeret(register):
+    assert vr.forhold_fjernet_feil(register) == []
     for post, art, vedtak in vr.FORHOLD_FJERNET_ETTER_MERGE:
         assert {"art": art, "vedtak": vedtak} not in _importert(register, post)["forhold"]
+    assert all(rad[:3] not in vr.FORHOLD_FJERNET_ETTER_MERGE for rad in vr.KJENTE_FORHOLD_TIL_OPPHEVET)
 
 
 def test_eo_u17_endrer_vedtaket_om_ubegrenset_fullmakt(register):

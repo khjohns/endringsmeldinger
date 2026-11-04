@@ -1588,11 +1588,28 @@ FORHOLD_FOERT_ETTER_MERGE = {
 # Forhold oppdragsgiver har bestemt at en merget post skal miste, som (posten, arten, vedtaket),
 # med kilden. Lenkene forholdet ga i Følge hos begge postene, faller bort med det.
 FORHOLD_FJERNET_ETTER_MERGE = {
-    ("ka-u45", "bygger på", "ov-u48"): "KA-U49 E2, V2 A 04.11, #1534",
-    ("ka-u45", "bygger på", "ov-u49"): "KA-U49 E2, V2 A 04.11, #1534",
-    ("ov-u80", "utvider", "ov-u48"): "KA-U49 E2, V2 A 04.11, #1534",
-    ("ov-u80", "utvider", "ov-u49"): "KA-U49 E2, V2 A 04.11, #1534",
+    ("ka-u45", "bygger på", "ov-u48"): "E2, V2 A 04.11, #1534",
+    ("ka-u45", "bygger på", "ov-u49"): "E2, V2 A 04.11, #1534",
+    ("ov-u80", "utvider", "ov-u48"): "E2, V2 A 04.11, #1534",
+    ("ov-u80", "utvider", "ov-u49"): "E2, V2 A 04.11, #1534",
 }
+
+
+def forhold_fjernet_feil(register: dict, liste: dict | None = None) -> list[str]:
+    """En rad i FORHOLD_FJERNET_ETTER_MERGE uten kilde med issue, med en post som ikke finnes,
+    eller med et forhold som fortsatt står i registeret."""
+    liste = FORHOLD_FJERNET_ETTER_MERGE if liste is None else liste
+    etter_navn = {anker(p): p for p in poster(register) if anker(p)}
+    feil = []
+    for (post, art, vedtak), kilde in sorted(liste.items()):
+        rad = f"FORHOLD_FJERNET_ETTER_MERGE: {post} {art} {vedtak}"
+        if not re.search(r"#\d+", kilde):
+            feil.append(f"{rad}: kilden må ha issuet")
+        if post not in etter_navn or vedtak not in etter_navn:
+            feil.append(f"{rad}: posten eller vedtaket finnes ikke i registeret")
+        elif {"art": art, "vedtak": vedtak} in etter_navn[post].get("forhold", []):
+            feil.append(f"{rad}: forholdet står fortsatt i registeret; fjern forholdet eller raden")
+    return feil
 
 
 def _lenke_fjernet_med_forhold(anker_: str | None, lenke: str) -> bool:
@@ -1727,11 +1744,16 @@ def main() -> int:
             return 1
         return 0
     if not feil:
-        feil = forholdfeil(register) + forhold_til_opphevet_feil(register) + [
-            f"{p['id']}: kodenavn i vedtaksteksten, {k}"
-            for p in _nye(register)
-            for k in kodenavn(p)
-        ]
+        feil = (
+            forholdfeil(register)
+            + forhold_til_opphevet_feil(register)
+            + forhold_fjernet_feil(register)
+            + [
+                f"{p['id']}: kodenavn i vedtaksteksten, {k}"
+                for p in _nye(register)
+                for k in kodenavn(p)
+            ]
+        )
     if feil:
         print("Registeret er ikke gyldig:", *feil, sep="\n  ")
         return 1
