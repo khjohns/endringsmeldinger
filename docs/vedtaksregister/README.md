@@ -3,16 +3,17 @@
 [`vedtak.toml`](vedtak.toml) er kilden [vedtaksfila](../plans/vedtak.md) lages
 av (#413). Vedtaksfila var avsnitt 3.1 i
 [hovedplanen](../plans/2026-09-16-godkjenning-og-varig-levering.md) til #1020, og
-«3.1» i teksten under betyr innholdet i den. For hvert nytt vedtak holder
-registeret spørsmålet, alternativene og oppdragsgivers svar ordrett, og raden i
-vedtaksfila lages av dem uten omskriving. Verktøyet er [`docs/verktoy/vedtaksregister.py`](../verktoy/vedtaksregister.py),
+«3.1» i teksten under betyr innholdet i den. En *post* er en rad i registeret, og
+klassen sier om posten er et vedtak, en beslutning eller design (se
+[Klassen](#klassen)). For hver ny post holder registeret spørsmålet, alternativene
+og oppdragsgivers svar ordrett, og raden i vedtaksfila lages av dem uten omskriving. Verktøyet er [`docs/verktoy/vedtaksregister.py`](../verktoy/vedtaksregister.py),
 og vakttestene står i
 [`backend/tests/test_vedtaksregister/`](../../backend/tests/test_vedtaksregister/test_vedtaksregister.py).
 
 ```bash
 python3 docs/verktoy/vedtaksregister.py           # kontroller registeret og skriv vedtaksfila
 python3 docs/verktoy/vedtaksregister.py --sjekk   # bare kontroller
-python3 docs/verktoy/vedtakshenvisninger.py       # vedtaks-ID-ene i koden og domenetabellen (#452)
+python3 docs/verktoy/vedtakshenvisninger.py       # vedtaks-ID-ene i koden, domenetabellen og dokumentene (#452)
 python3 docs/verktoy/byggestatus.py               # byggestatusen, laget av koden og issuene (#1021)
 ```
 
@@ -39,12 +40,12 @@ python3 docs/verktoy/byggestatus.py               # byggestatusen, laget av kode
 ## Postene
 
 Registeret har innledningen til 3.1, gruppene (`[[gruppe]]`, med `tittel` og
-eventuelt `etter`) og vedtakene i hver gruppe (`[[gruppe.vedtak]]`), i
+eventuelt `etter`) og postene i hver gruppe (`[[gruppe.vedtak]]`), i
 rekkefølgen i 3.1.
 
 **De importerte postene** er radene som sto i 3.1 12.10, ført inn ordrett med
 `--importer` etter oppdragsgivers svar 12.10 i #413. De har cellene fra tabellen:
-`vedtak`, `vedtatt` og `folge`, og `anker` når raden har et. Spørsmål finnes ikke
+`vedtak`, `vedtatt` og `folge`, og `anker` når raden har et, og klassen. Spørsmål finnes ikke
 for dem, så de feltene er tomme, det vil si at de ikke står i posten. Slik er resten
 av 3.1 tatt med uten endring:
 
@@ -86,6 +87,7 @@ id = "LV-U6"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
 kilde = ["#413"]
+klasse = "vedtak"
 sporsmal = '''
 Spørsmålet slik det ble stilt.'''
 valgt = "A"
@@ -117,9 +119,9 @@ tekst = "et ordrett utdrag"
   forkastet. Passer svaret ikke på et alternativ, stilles et oppfølgingsspørsmål;
   svarer oppdragsgiver med egne ord, er det svaret et eget alternativ.
 - **Vedtatt** blir `dato` som dd.mm, `hvem` og kildene i parentes.
-- **Følge** blir forholdene, så henvisningene fra senere vedtak, så `folge`.
-  `forhold` har én av artene `presiserer`, `utvider`, `snevrer inn`, `endrer` og
-  `opphever`, og viser til ankeret til et vedtak. Verktøyet skriver forholdet
+- **Følge** blir forholdene, så henvisningene fra senere poster, så `folge`.
+  `forhold` har én av artene `presiserer`, `utvider`, `snevrer inn`, `endrer`,
+  `opphever`, `samler` og `bygger på`, og viser til ankeret til en post. Verktøyet skriver forholdet
   begge veier: `Presiserer [KA-U1](#ka-u1).` hos det nye vedtaket, og
   `Presisert 13.10 av [LV-U6](#lv-u6).` først i Følge hos KA-U1. `folge` er resten,
   som issuet som bygger vedtaket. Byggestatus føres ikke der; den lages av
@@ -134,6 +136,63 @@ tekst = "et ordrett utdrag"
   anbefalingen» eller «Ja til alle anbefalingene» (#486). Et svar med forbehold,
   som «unntatt» eller «men», regnes ikke som tilslutning og må nevne alternativet
   (#604). Et anbefalt alternativ kan ikke være forkastet.
+
+## Klassen
+
+Hver post har en klasse: `vedtak`, `beslutning` eller `design`. Testen som avgjør
+klassen, står i [vedtaksskillen](../../.claude/skills/vedtak/SKILL.md), «Hva et vedtak
+er». «Historisk» er ikke en klasse. Om en post gjelder, regnes ut av forholdene: en post
+er opphevet når en annen post har forholdet `opphever` til den (svar 1 04.11 i
+[#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
+Klassene for postene som fantes 03.11, kommer fra tabellen i
+[vurderingen](vurdering-klassifisering-2026-11-03.md) og er ført inn med et skript.
+
+| Felt | Hva | Klasse |
+| --- | --- | --- |
+| `klasse` | `vedtak`, `beslutning` eller `design`. Påkrevd | alle |
+| `designdel` | Hvilken del av teksten som er skjema, visning eller arbeidsflyt. Teksten i posten endres ikke | `vedtak` og `beslutning` |
+| `beslutningsdel` | Hvilken del av teksten som sier hvordan løsningen er bygget, lagrer, leverer eller drives | `vedtak` |
+| `bindende_i` | Ankrene til postene der den bindende setningen står, som `["vs-u3", "hf-u11"]` | `beslutning` og `design` |
+| `flyttet_til` | Punktet i brukerforløpet teksten er flyttet til, som `BF-06.md#u-12` eller `BF-02A.md#u-3`, eller ankeret i systemfila, som `.interface-design/system.md#mm-u22`. Lenkekontrollen feiler når ankeret ikke finnes | alle |
+
+- **Det andre hjemmet.** `bindende_i` føres én gang i registeret og ikke i hver
+  henvisning i koden (arbeidsvalget for kontroll 2 i
+  [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623299573)).
+  Verktøyet feiler når en post i feltet er opphevet uten å være samlet. Om setningen
+  fortsatt står når posten i feltet blir endret, kontrolleres med skjønn.
+- **Hvem som retter klassen.** Klassen er en arbeidsvurdering. Den rettes etter en
+  uavhengig kontroll, slik [vedtaksskillen](../../.claude/skills/vedtak/SKILL.md) sier,
+  og kan rettes etter merge.
+- **Forholdene** `samler` og `bygger på` (svar 4 og 5 04.11 i #1534) står i Følge som
+  `Samler [X](#x).` og `Samlet 12.11 av [Y](#y).`, og `Bygger på [X](#x).` og
+  `Lagt til grunn 12.11 av [Y](#y).`. Et samlevedtak opphever ikke det det samler, så
+  en henvisning til den gamle posten gjelder samlevedtaket. Leseren av Følge i en
+  importert post kjenner bare de fem eldre forholdene. En importert post kan også få
+  `samler` og `bygger på`, og da skriver verktøyet dem som i en ny post, uten dato i den
+  passive formen (M2 A 04.11 i
+  [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6624255190)).
+- **Et forhold fra et opphevet vedtak** er merket i Følge (M2 A), som
+  `Utvidet 29.10 av [OV-U48](#ov-u48) (opphevet 30.10 av [OV-U69](#ov-u69)).`
+  Står forholdet i Følge i en importert post selv, skriver verktøyet en setning foran teksten,
+  som `[EO-U5](#eo-u5) er opphevet 28.10 av [MM-U34](#mm-u34).` Vedtaksteksten endres ikke.
+- **Et gjeldende vedtak presiserer, utvider, snevrer inn, endrer eller bygger ikke på et opphevet vedtak**
+  (svar 5 04.11 i #1534). Dagens tilfeller står i `KJENTE_FORHOLD_TIL_OPPHEVET` i verktøyet
+  og rettes i samlevedtakene i steg 4. Lista skal bare krympe.
+- **Etter merge** kan en ny post få forholdene `opphever`, `samler` og `bygger på`, og
+  et forhold kan bli `opphever` eller `samler` når et senere vedtak har tatt innholdet
+  (svar 14 i PR #1537). Andre forhold står, unntatt et forhold oppdragsgiver har bestemt,
+  som står i `FORHOLD_FOERT_ETTER_MERGE` med kilden.
+- **Varslene.** `vedtaksregister.py` varsler, uten å feile, om «app» utenfor sitattegn i det
+  valgte alternativet i en post som ikke står på `main`, og om et samlevedtak som har fått
+  tre endringer (svar 6 og 10 i #1534). Når steg 4 er avsluttet, settes `STEG_4_AVSLUTTET`,
+  og da telles også vedtakene som kom etter.
+- **En rad uten anker** kan få et anker, så et forhold kan vise til den. Vedtaket og
+  vedtaksdatoen står. Rad 76 i registeret, «B-13 «frafalt» …», har fått ankeret
+  `b-13-frafalt`, så GR-U18 kan oppheve den. Kontrollen av vedtaks-ID-ene regner da
+  B-13 som opphevet bare når hver rad for B-13 er opphevet.
+- **I vedtaksfila** står klassen i en egen kolonne, med delene posten har, lenkene i
+  `bindende_i` og lenken i `flyttet_til`. Teksten i delene står bare i registeret.
+  Kontrollene mot `main` leser 3.1 uten kolonnen.
 
 ## Byggestatusen
 
@@ -211,19 +270,22 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | Test | Gjelder |
 | --- | --- |
 | Vedtaksfila er lik det verktøyet lager | alle poster |
-| Vedtaket, ankeret og vedtaksdatoen i hver rad i 3.1 på `main` står uendret | alle rader, også de importerte |
+| Vedtaket, ankeret og vedtaksdatoen i hver rad i 3.1 på `main` står uendret; en rad uten anker kan få et | alle rader, også de importerte |
 | Innledningen, teksten etter tabellene (merknadene) og gruppetitlene kan bare få hele nye avsnitt lagt til; hver rad blir i gruppen sin; lenkene i Følge blir stående | 3.1 på `main` |
 | Følge i en importert rad står ordrett. Henvisningene fra nye vedtak kommer først og kan bli flere, og tekst kan legges til på slutten | importerte rader på `main` |
 | En post i importert form står i 3.1 på `main`; et nytt vedtak kan ikke føres i den formen | importerte poster |
 | Hvert anker står én gang i hovedplanen og vedtaksfila til sammen, og ID-en til en ny post står ikke i hovedplanen, arkivet eller vedtaksfila på `main` fra før, heller ikke uten anker | hovedplanen, arkivet og vedtaksfila |
-| Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret; bare `folge` kan endres | nye poster på `main` |
+| Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret. `folge` og klassen med delene kan endres, og forholdene etter [Klassen](#klassen) | nye poster på `main` |
+| Posten har klassen, og delene og `bindende_i` passer til den; `flyttet_til` har formen `BF-06.md#u-12`, `BF-02A.md#u-3` eller `.interface-design/system.md#mm-u22`; en post i `bindende_i` er ikke opphevet uten å være samlet | alle poster |
+| Et gjeldende vedtak presiserer, utvider, snevrer inn, endrer eller bygger ikke på et opphevet vedtak, utenom den lukkede lista | alle poster |
 | Forholdet står begge veier | nye poster med `forhold` |
 | Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil; en lenke i et uttrykkelig forhold går til et annet vedtak, og i passiv form til en importert post | importerte poster |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn. En omtale av et forkastet alternativ regnes ikke som et valg. Det gjør heller ikke en omtale med et spørsmålsnummer foran, som «2b-A», når nummeret ikke også står foran det valgte alternativet | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 | Følge får ikke ny byggestatus for hånd: «Ikke bygget», «Delvis bygget», «Del n bygget» eller «Bygget», med stor forbokstav, utover det som står på `main` | alle poster (#1021) |
-| En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452), og listene under `kilde` og `kilder` i JSON-filene i `docs/domenetabell/`, uten unntaket for en test merket historisk |
+| En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452), listene under `kilde` og `kilder` i JSON-filene i `docs/domenetabell/`, bestillingene `BF-*.md`, `.interface-design/system.md`, skillene og `AGENTS.md`, de fire siste uten unntaket for en test merket historisk |
+| En designpost er ikke eneste grunnlag; feilmeldingen foreslår vedtakene i `bindende_i`. Dagens tilfeller står i `KJENTE_DESIGNAVVIK` | `kjerne/frosset/`, `kjerne/kommandoer/`, `kjerne/regler/` og `kilde` i bevis-sakene (steg 3b i #1534) |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem
 på formen: en post med `vedtatt` er importert, og en ny post har `dato`. En

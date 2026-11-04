@@ -56,6 +56,7 @@ eksplisitt oppheves.
 tittel = "Krav, kravversjon og trekk"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 SK-02 og SK-03: et oppdatert krav fra TE åpner sporet igjen. Det venter på nytt svar, og
 en aksept av forrige svar faller. Et svar TE har godtatt, kan byggherren ikke revidere'''
@@ -68,6 +69,7 @@ Bygget 09.10 for godkjent og godtatt svar (SK-02, SK-03 i 4.2); ikke bygget på
 vedtaksdatoen'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 Hver oppdatering fra TE av et vederlags- eller fristkrav er en ny kravversjon, også når
 verdiene er uendret. Den åpner sporet igjen etter vedtaket over'''
@@ -79,6 +81,7 @@ Presisert 08.10 av [KA-U2](#ka-u2) (hvilke hendelser som er kravversjoner), og a
 bygget på vedtaksdatoen; virkningen på status og aksept er bygget 09.10 (SK-02). Vedtaket er snevret inn 25.10 av [OV-U54](#ov-u54).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 Et krav TE har trukket, kan ikke tas opp igjen med en oppdatering. Serveren avviser
 oppdateringen; et nytt krav om samme forhold går i en ny sak'''
@@ -87,6 +90,8 @@ folge = '''
 Ikke bygget. I dag godtas oppdateringen, og sporet står som `TRUKKET` (SK-02)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["ov-u3"]
 anker = "ka-u2"
 vedtak = '''
 KA-U2: kravversjonene er de hendelsene projeksjonen og frontenden regner som krav:
@@ -101,6 +106,7 @@ Presiserer vedtaket om ny kravversjon 05.10. Projeksjonen og `submissionRefs` f�
 det; `claims()` i godkjenningsflyten gjør det ikke (DT-02)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u3"
 vedtak = '''
 KA-U3: vedtaket om ny kravversjon gjelder til saken er `OMFORENT`. Deretter avvises en
@@ -114,6 +120,7 @@ ikke mens et annet spor er åpent. Som i dag: `CASE_NOT_CLOSED` avviser oppdater
 åpent'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u8"
 vedtak = '''
 KA-U8: en kravversjon på 0 dager eller 0 kr avvises. 0 er ikke et krav om noe (§ 33.6.1:
@@ -124,6 +131,8 @@ Avgjør #179. «Sender det ikke» er presisert 09.10 av [KA-U12](#ka-u12): TE si
 uttrykkelig «ingen krav». Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "begrunnelsesfeltet under kravets låste tekst"
 anker = "ka-u33"
 vedtak = '''
 KA-U33: TEs krav om fristforlengelse fra appen må ha en begrunnelse, som utdypningen
@@ -141,6 +150,7 @@ utdypningen. Brevteksten for fristkravet står i [LV-U4](#lv-u4), punkt 3. Ikke 
 Skjemaet hører til #313'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u12"
 vedtak = '''
 KA-U12: TE kan si uttrykkelig at det ikke kreves vederlag eller fristforlengelse i et
@@ -173,6 +183,8 @@ den er byggherrens svar på grunnlaget, er avgjort 10.10 av [EO-U6](#eo-u6). Mer
 [KA-U22](#ka-u22) for et trekk. Bygges ikke i første versjon (OV-U7). Kontrollert 20.10 (#417): kjernen har kommandoen «ingen krav» med sperrene etter KA-U15, og utledningen og brevteksten leser den (`forutsetninger` i `kjerne/kommandoer/forutsetninger.ts`, `kjerne/utledning/utled.ts`, `kjerne/frosset/brevtekst.ts`), med test i `kjerne/tester/kjerne.test.ts` og bevis-sakene F-MM-IK1–IK6. Grensesnittet tilbyr ikke kommandoen. Avvisningen etter OV-U7 er ikke bygget, som Følge hos [OV-U7](#ov-u7) sier.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "hva som avgjøres før «ingen krav» og forbehold tas i bruk"
 anker = "ka-u15"
 vedtak = '''
 KA-U15: TE kan si «ingen krav» (KA-U12) i fristsporet etter et varsel om
@@ -194,6 +206,7 @@ det, er avgjort 10.10 av [KA-U17](#ka-u17). Forbeholdet er avgjort 10.10 av
 hører til #309. Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u17"
 vedtak = '''
 KA-U17: «ingen krav» (KA-U12) er TEs avkall på krav om frist eller vederlag som følge av
@@ -211,6 +224,8 @@ avkall på med «ingen krav», og hvordan brevet uttrykker det. Brevteksten stå
 vederlag for forsering. Ikke bygget. Kommandoen og brevteksten hører til #309. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "veiledningen i skjemaet om at kravet ikke kan tas opp igjen"
 anker = "ka-u22"
 vedtak = '''
 KA-U22: brevet for et trekk av grunnlaget sier: «TE trekker sitt krav i sak <saksnummer>
@@ -247,6 +262,8 @@ rettighet som trekket ikke rører, avklares i byggedel 3. Presisert 11.10 av
 og «<tittel>». Ikke bygget. Den faste teksten hører til #309. Teksten for «ingen krav» bygges ikke i første versjon (OV-U7). Endret 16.10 i PR #588 (#587): sperren mot trekket etter en merking av et registrert brev er tatt ut (OV-U4, OV-U7). Sperren for et avtalt fradrag bygges med fradraget (KA-U9). Delvis bygget, kontrollert 20.10 (#417): de faste tekstene for trekk og «ingen krav» står ordrett i `kjerne/frosset/brevtekst.ts`, og trekket har ingen fritekst (`trekk` i `src/lib/kjernesak/kravkontroll.svelte.ts`), med test i `kjerne/tester/brevtekst.test.ts` («de faste tekstene står ordrett») og `src/lib/components/kjernesak/__tests__/TeSkjema.test.ts`. Sperren for et avtalt fradrag er ikke bygget; til fradraget (KA-U9) bygges, avviser formatet negative beløp (`kjerne/tester/byggedel1.test.ts`).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "§ 33.3 femte ledd vist som veiledning"
 anker = "ka-u23"
 vedtak = '''
 KA-U23: TE kan kreve vederlag i en sak med hovedkategorien force majeure (§ 33.3), og
@@ -267,6 +284,7 @@ avkall på vederlaget for en forsering, står i [KA-U25](#ka-u25). Veiledningen 
 #313. Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u25"
 vedtak = '''
 KA-U25: brevet for «ingen krav» i vederlagssporet (KA-U22) sier også: «Avkallet omfatter
@@ -287,6 +305,7 @@ Presiserer [KA-U17](#ka-u17) og brevteksten i [KA-U22](#ka-u22). I tråd med
 #382. Ikke bygget. Brevteksten hører til #309. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u27"
 vedtak = '''
 KA-U27: et trekk, også av grunnlaget, avvises når en enighet trekket rammer, gir
@@ -303,6 +322,7 @@ etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes
 bare sporene merkingen gjelder. Ikke bygget. Delen om merket brev bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u30"
 vedtak = '''
 KA-U30: et trekk avvises etter KA-U27 fordi en enighet bygger på et merket brev som ikke
@@ -326,6 +346,8 @@ alle spor utgangspunktet når den som merker, oppgir sporene (KA-U26). Ikke bygg
 tittel = "Svar og standpunkt"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "serveren regner og avviser klientens verdier"
 vedtak = '''
 B-13 hovedvalg: alternativ (2) i streng form. Backend regner ut resultat, beløp, dager
 og subsidiært standpunkt av vurderingene og kravet. Et svar der klientens verdier ikke
@@ -339,6 +361,8 @@ BR-01 bygger på dette ([designnotatet](../design-b13-sannhetskilde-2026-09-23.m
 avsnitt 4)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["mm-u9"]
 vedtak = '''
 B-13 regelversjon: klienten sender versjonen av reglene og tekstgeneratorene, serveren
 avviser en annen versjon og lagrer den i hendelsen. Projeksjonen regner aldri om.
@@ -358,6 +382,9 @@ utfall. Bygget 04.10 (#63). Feltet heter `regelversjon` og ligger i `data` på a
 BH-svar; konstanten er i `src/lib/domain/regelversjon.ts` og speilet i `backend/regler/`'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "merkingen av teksten som byggherrens"
+beslutningsdel = "CI-testen for regelversjonen"
 vedtak = '''
 B-13 begrunnelsestekst (T-a): den låste teksten er partens, og byggherren er bundet av
 den fordi byggherren sender den. Serveren kontrollerer feltene, ikke prosaen. En CI-test
@@ -368,6 +395,7 @@ folge = '''
 Ikke bygget. Den låste delen og utdypningen lagres hver for seg i alle inngangene'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u18"
 vedtak = '''
 KA-U18: et avslag av grunnlaget (§ 32.3 tredje ledd) som byggherren sender fra appen, må
@@ -385,6 +413,7 @@ av [KA-U24](#ka-u24) til alle spor og kategorier. Ikke bygget. Kravet til brevet
 egne utsagnet hører til #309'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u21"
 vedtak = '''
 KA-U21: påberoper byggherren i et svar fra appen at TEs varsel etter § 32.2 kom for
@@ -402,6 +431,7 @@ Presiserer [KA-U18](#ka-u18). Utvidet 11.10 av [KA-U24](#ka-u24) til alle spor o
 kategorier. Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u24"
 vedtak = '''
 KA-U24: et svar byggherren sender fra appen, må ha en begrunnelse når det har en
@@ -434,6 +464,7 @@ At teksten lagres, følger B-13 om begrunnelsestekst (T-a). Snevret inn 11.10 av
 skjemaet til #313 Delvis bygget, kontrollert 20.10 (#417): et svar fra appen med en avgrensning uten begrunnelse avvises med BEGRUNNELSE_MANGLER, også når kravet godkjennes subsidiært (`avgrensninger` og `kontrollerSvar` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts` og feilinnføringer i `kjerne/tester/feilinnfoering.ts`. Ikke bygget: avgrensningen etter § 34.1.3, fordi særskilte krav ennå ikke er i kjernen, og skjemaet (#313).'''
 
 [[gruppe.vedtak]]
+klasse = "design"
 anker = "ka-u31"
 vedtak = '''
 KA-U31: begrunnelsen i et svar byggherren sender fra appen, står per svar, som
@@ -450,6 +481,7 @@ standpunkter» gjelder standpunktene i samme svar. I tråd med B-13 om begrunnel
 (#369) Bygget i kjernen og brevteksten, kontrollert 20.10 (#417): begrunnelsen står per svar, og brevteksten setter den under svaret den gjelder, med den låste delen og utdypningen hver for seg (`kontrollerSvar` i `kjerne/kommandoer/nyttelast.ts`, `kjerne/frosset/brevtekst.ts`), med test i `kjerne/tester/brevtekst.test.ts`. Skjemaet er ikke bygget (#313).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u32"
 vedtak = '''
 KA-U32: byggherrens frafall etter § 32.3 første ledd c i et svar fra appen må ha en
@@ -466,6 +498,7 @@ Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V2). 
 Brevteksten for frafallet står i [LV-U4](#lv-u4), punkt 5. Ikke bygget (#369) Bygget i kjernen, kontrollert 20.10 (#417): frafall etter § 32.3 c krever begrunnelse (`avgrensninger` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts` og en feilinnføring i `kjerne/tester/feilinnfoering.ts`. Brevteksten for frafallet er ikke kontrollert. Skjemaet er ikke bygget (#313).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 B-13 «godkjent» bare når hele kravet er godkjent, til nærmeste krone eller dag. 99
 %-terskelen utgår'''
@@ -474,6 +507,7 @@ folge = '''
 Gjelder både vederlag og frist. Bygget 04.10 i backend og frontend (#63, #167). For beløp er «til nærmeste krone» endret 25.10 av [OV-U59](#ov-u59). Dagene endres ikke.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u9"
 vedtak = '''
 KA-U9: byggherrens standpunkt om beløp er et beløp med fortegn som ikke kan være
@@ -486,6 +520,7 @@ folge = '''
 Avgjør #189'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 B-13 preklusjon ut fra byggherrens egen vurdering (§ 33.4, § 34.1.2, § 34.1.3) trekkes
 av systemet: prinsipalt avslått, med subsidiært standpunkt'''
@@ -496,6 +531,7 @@ beløpet hen godtar etter begrensningen, og subsidiært beløpet hen godtar hvis
 innsigelsen ikke fører fram. Som skjemaet gjør i dag, nå eid av backend'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 B-13 frist uten fremdriftshindring (§ 33.1): dagene byggherren har vurdert, står som et
 videre subsidiært standpunkt i både brevet og hendelsen, også ved preklusjon etter §
@@ -509,6 +545,8 @@ innsigelse kom i tide, avgjør ikke appen ([VS-U2](#vs-u2), 09.10). Utvidet 11.1
 `subsidiaer_godkjent_dager` regnes av dagene uansett hindring; regelversjon 4'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["hf-u11", "vs-u3"]
 anker = "ka-u4"
 vedtak = '''
 KA-U4: i byggherrens vurderinger av varsel og rettidighet betyr `true` i tide og `false`
@@ -523,6 +561,7 @@ Bygget 08.10 for `spesifisert_krav_ok` (#272, DT-03), som før ble lagret som `t
 feltet manglet. Hendelser lagret før står med `true`'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u16"
 vedtak = '''
 KA-U16: første versjon har ingen egen type for forbehold i byggherrens svar. Byggherren
@@ -547,6 +586,8 @@ ikke lagres som ett felt. Presisert 10.10 av [KA-U19](#ka-u19) for brev fra appe
 appen ikke kan uttrykke. Presisert 11.10 av [KA-U26](#ka-u26). Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "den faste veiledningen i skjemaet"
 anker = "ka-u19"
 vedtak = '''
 KA-U19: i et brev fra appen beregner appen virkningen ut fra valgene parten gjør, og
@@ -565,6 +606,7 @@ Presiserer [KA-U16](#ka-u16) for brev fra appen og besvarer spørsmålet fra PR 
 Gjelder også brev fra TE. Ikke bygget. Skjemaet hører til #313'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u20"
 vedtak = '''
 KA-U20: et registrert brev med noe appen ikke kan uttrykke (KA-U16), merkes av den som
@@ -606,6 +648,7 @@ registrere sitt eget svar. Presisert 11.10 av [KA-U26](#ka-u26) og [KA-U28](#ka-
 Ikke bygget. Kjernen hører til #309, registreringen til #310. Merkingen bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u26"
 vedtak = '''
 KA-U26: når en part har merket at et registrert brev hadde et forbehold appen ikke kan
@@ -633,6 +676,7 @@ Merknaden i [GR-U7](#gr-u7) sier at et slikt brev «er ikke en ubetinget godkjen
 «avklart» defineres av standpunktene ([MM-U13](#mm-u13)). I skjemaet er alle spor
 utgangspunktet når den som merker, oppgir sporene. Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U34"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -708,6 +752,7 @@ kilde = "hovedplanen"
 tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U35"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -756,6 +801,7 @@ kilde = "hovedplanen"
 tekst = "Et registrert brev kan stå uten."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U36"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -802,6 +848,7 @@ kilde = "hovedplanen"
 tekst = "Den endrer ingen standpunkter, og appen vurderer ikke om den er tilstrekkelig eller kom i tide."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U37"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -837,6 +884,7 @@ tekst = "gjelder bare når svaret har en dato"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U38"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -867,6 +915,7 @@ tekst = '''
 Har svaret bare datoen det ble mottatt, sammenliknes begrunnelsen med den.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U39"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -901,6 +950,7 @@ kilde = "hovedplanen"
 tekst = "Bestridelsen registreres uten virkning på utfallet."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U40"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -938,6 +988,8 @@ En hevet kravversjon avvises før byggherren har svart.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["ka-u43", "mm-u33"]
 id = "KA-U41"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -972,6 +1024,7 @@ Appen fyller inn et forslag til begrunnelse, rettet til samme ordlyd og bestemme
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U42"
 dato = 2026-10-26
 hvem = "oppdragsgiver"
@@ -1026,6 +1079,8 @@ Ingen endring i denne PR-en. Svaret godtas som i dag, og tilfellet føres under 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "begrunnelsesfeltet per punkt"
 id = "KA-U43"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -1082,6 +1137,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U44"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -1115,6 +1171,7 @@ Svaret gjelder også totalentreprenøren. KA-U33 står, fordi § 33.6.1 krever b
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U45"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -1145,7 +1202,7 @@ domenetabellen.'''
 valgt = "13A"
 svar = '''
 Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
-forhold = [{ art = "opphever", vedtak = "ka-u26" }, { art = "opphever", vedtak = "ka-u28" }, { art = "opphever", vedtak = "ka-u30" }, { art = "snevrer inn", vedtak = "ka-u20" }, { art = "snevrer inn", vedtak = "ka-u27" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "lv-u4" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u16" }]
+forhold = [{ art = "opphever", vedtak = "ka-u26" }, { art = "opphever", vedtak = "ka-u28" }, { art = "opphever", vedtak = "ka-u30" }, { art = "snevrer inn", vedtak = "ka-u20" }, { art = "snevrer inn", vedtak = "ka-u27" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "lv-u4" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u16" }, { art = "bygger på", vedtak = "ov-u48" }, { art = "bygger på", vedtak = "ov-u49" }]
 folge = '''
 Alternativet opphever LV-U4 punkt 11 og 12 og snevrer inn LV-U4 punkt 10. I registeret er det ført som «snevrer inn» LV-U4, fordi resten av LV-U4 står. Bygges i #807.'''
 
@@ -1176,6 +1233,7 @@ tekst = "Sammenfallet er da løsningens utledning av valgene og avgjør ikke om 
 tittel = "Aksept og enighet"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u1"
 vedtak = '''
 KA-U1: TEs aksept gjelder hele det konkrete svaret byggherren har gitt på gjeldende
@@ -1198,6 +1256,7 @@ lest, også når de gamle reglene tillot en revisjon etterpå. Appen har ingen r
 Spørsmålet kom fra code-review i #297 (#274)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u5"
 vedtak = '''
 KA-U5: godtar TE et svar som er delvis godkjent, blir sporet `GODKJENT` med byggherrens
@@ -1211,6 +1270,7 @@ enighet om byggherrens beløp eller dager, og sporet er oppgjort når grunnlaget
 avklart'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u7"
 vedtak = '''
 GR-U7: TE kan godta byggherrens gjeldende svar på vederlag eller frist uavhengig av
@@ -1244,6 +1304,7 @@ språkprøven (#274). At en enighet står mens grunnlaget venter, er bygget 09.1
 rad GR-23). At et fullt godkjent svar er låst for revisjon, er ikke bygget (#298)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u6"
 vedtak = '''
 GR-U6: venter grunnlaget på nytt svar, avvises TEs aksept av et svar på vederlag eller
@@ -1258,6 +1319,7 @@ folge = '''
 regel modellen trengte, ikke kontrakten'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u8"
 vedtak = '''
 GR-U8: TE kan ikke godta et svar som godkjenner hele kravet. Partene er alt enige ved
@@ -1269,6 +1331,7 @@ Avgjør arbeidshypotesen i rad GR-25. Som i dag (`NOT_ALREADY_ACCEPTED`) i Pytho
 målmodellen'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u6"
 vedtak = '''
 KA-U6: TE kan trekke et krav i et spor der partene er enige, betinget eller virksomt, så
@@ -1288,6 +1351,7 @@ til byggedel 3: trekket avvises når appen ikke kan bevare byggherrens avtalte
 rettigheter.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u7"
 vedtak = '''
 KA-U7: en enighet binder begge parter. En ny kravversjon i et spor med enighet, betinget
@@ -1308,6 +1372,7 @@ avvises når godkjenningen av det er en endringsordre etter § 32.3 a. Presisert
 i dag opphever en ny kravversjon enigheten (SK-02)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u3"
 vedtak = '''
 MM-U3: virkningen av en enighet fastsettes når den inngås. Har TE godtatt et svar,
@@ -1331,6 +1396,8 @@ dag går et godtatt svar som var prinsipalt prekludert og subsidiært godkjent, 
 kjernen). Gjelder innsnevringen i #220. Forløp C i modellforslaget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "at aksepten lagrer regelversjonen TE fikk se"
 anker = "ka-u10"
 vedtak = '''
 KA-U10: godtar TE byggherrens svar, gjelder enigheten svaret med den virkningen brevet
@@ -1356,6 +1423,7 @@ vedtaket alene. Grunnlaget er B-03, KA-U1 og MM-U9 (rettet etter review av #322)
 bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u11"
 vedtak = '''
 KA-U11: kravene i saken er avgjort når grunnlaget er avklart etter GR-U7, hvert
@@ -1378,6 +1446,7 @@ som bygger på et merket brev. Presisert 11.10 av [KA-U26](#ka-u26), [KA-U28](#k
 [KA-U29](#ka-u29), og av [MM-U19](#mm-u19) for registrerte brev. Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u28"
 vedtak = '''
 KA-U28: når kravene er avgjort, godtas en avklaring etter KA-U20 fra den som sendte
@@ -1395,6 +1464,7 @@ Presiserer [KA-U11](#ka-u11) og [KA-U20](#ka-u20). Avklaringen er ikke en revisj
 endrer ikke utfallet og godtas, etter KA-U11 og [KA-U26](#ka-u26). Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u29"
 vedtak = '''
 KA-U29: når TE har godtatt byggherrens avslag av grunnlaget, godtas de samme utsagnene
@@ -1415,6 +1485,7 @@ passivitet godtas når kravene er avgjort, er et arbeidsvalg etter KA-U11 og MM-
 (paragrafmatrisen). Ikke bygget. Delene om bestridelse, protest, påberopt passivitet og merking bygges ikke i første versjon (OV-U7). Delvis bygget, kontrollert 20.10 (#417): etter et godtatt avslag av grunnlaget avvises de bindende handlingene med GRUNNLAG_AVVIST, og innsigelsen etter § 5 godtas (`forutsetninger` i `kjerne/kommandoer/forutsetninger.ts`, `grunnlagAvvist` i `kjerne/utledning/utled.ts`), med bevis-saken F-MM-A5a. Bestridelse og merking avvises med IKKE_I_FOERSTE_VERSJON. Protest og påberopt passivitet godtas fortsatt; avvisningen etter OV-U7 er ikke bygget, som Følge hos [OV-U7](#ov-u7) sier.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "ka-u13"
 vedtak = '''
 KA-U13: et trekk av grunnlaget avvises når byggherrens godkjenning av det er en
@@ -1444,6 +1515,8 @@ til byggedel 3: trekket avvises når appen ikke kan bevare byggherrens avtalte
 rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7). Bygget, kontrollert 20.10 (#417): trekket av grunnlaget avvises med GRUNNLAG_ER_ENDRINGSORDRE når byggherrens godkjenning, sendt fra appen, er en endringsordre (`trekkAvGrunnlagetErSperret` i `kjerne/utledning/utled.ts`), med bevis-sakene F-MM-G10 og F-MM-G13–G20 og feilinnføringene fra F23 i `kjerne/tester/feilinnfoering.ts`. Delen om «ingen krav» er utsatt etter OV-U7.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av et trekk"
 anker = "ka-u14"
 vedtak = '''
 KA-U14: trekk etter KA-U6 innebærer bare avkall på TEs eget, uttrykkelig identifiserte
@@ -1478,6 +1551,7 @@ som også sperrer et trekk av grunnlaget når appen ikke kan bevare byggherrens 
 rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 Aksept av avslag gir `AVSLATT_AKSEPTERT`'''
 vedtatt = "19.09"
@@ -1488,6 +1562,7 @@ TFR-01'''
 tittel = "Grunnlag, frafall og trekk av grunnlaget"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u1"
 vedtak = '''
 GR-U1: en ny kravversjon av grunnlaget åpner sporet også når underkategorien er uendret,
@@ -1501,6 +1576,7 @@ Ikke bygget (DT-04). Utvider vedtaket om endret underkategori 05.10 (#215) til a
 grunnlagsversjoner etter et svar som ikke er låst'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u2"
 vedtak = '''
 GR-U2: et grunnlag byggherren har godkjent og som er låst, kan ikke endres, heller ikke
@@ -1512,6 +1588,7 @@ Presisert 09.10 av [GR-U10](#gr-u10): «låst» er enighet ved sammenfall. Som i
 `NOT_LOCKED` avviser oppdateringen'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u10"
 vedtak = '''
 GR-U10: har byggherren godkjent grunnlaget uten å påberope preklusjon, er partene enige
@@ -1531,6 +1608,8 @@ en endringsordre etter § 32.3 a, gjelder underkategoriene som § 32.2 gjelder f
 endringsordre bare når § 31.3 også er oppfylt'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["gr-u7", "ov-u3", "eo-u1"]
 anker = "gr-u3"
 vedtak = '''
 GR-U3: etter frafall (§ 32.3 c) blir saken `OMFORENT` når vederlag og frist er oppgjort,
@@ -1545,6 +1624,7 @@ Som i dag: `OMFORENT` med godkjente krav og `kan_utstede_eo`. Godtatte avslag ga
 en KOE-sak avvises, og `kan_utstede_eo` betyr at KOE-saken kan inngå i en EO-sak'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u4"
 vedtak = '''
 GR-U4: reviderer byggherren svaret på vederlag eller frist mens grunnlaget venter på
@@ -1556,6 +1636,7 @@ folge = '''
 Som i dag i projeksjonen, fullmakten og brevet'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u5"
 vedtak = '''
 GR-U5: trekker TE grunnlaget, trekkes alle krav som er sendt, også et vederlag eller en
@@ -1572,6 +1653,7 @@ vederlag og godkjent fristforlengelse ([KA-U14](#ka-u14), 10.10). Snevret inn 10
 avtalte rettigheter.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u9"
 vedtak = '''
 GR-U9: TE kan ikke godta byggherrens frafall (§ 32.3 c). Frafallet er byggherrens
@@ -1584,6 +1666,7 @@ Presisert 09.10 av [KA-U11](#ka-u11): revisjonsretten og TEs nye kravversjon gje
 kravene er avgjort. Bygget i målmodellen i språkprøven (#304), rad GR-26'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u11"
 vedtak = '''
 GR-U11: § 32.2 gjelder alle underkategorier under ENDRING unntatt EO, som i dag. Hver
@@ -1597,6 +1680,8 @@ Avgjør #220, uten innsnevring. Vedtaket om `grunnlag_varslet_i_tide` under B-13
 uendret'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "varselet til BH og betegnelsen endringsordre i svarskjemaet"
 anker = "gr-u12"
 vedtak = '''
 GR-U12: godkjenner byggherren grunnlaget uten å påberope preklusjon i en underkategori
@@ -1617,6 +1702,7 @@ kjernen 10.10 (merknaden 10.10 til FK, runde 2). Frysingen hører til formatet (
 varselet og betegnelsen til frontenden (#313). Utvidet i kjernen 18.10 i PR #796 (#770, #776 p1): om § 32.2 gjelder kategorien i kravet en innsigelse gjelder, leses i utledningen og kommandoene av det frosne beslutningsgrunnlaget i svaret som sa «i tide» etter § 32.2 på en versjon i samme kategori, ikke av dagens regelsett (`innsigelsenEtterITide`). Brevteksten spør regelsettet når brevet skrives.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u13"
 vedtak = '''
 GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første
@@ -1647,6 +1733,7 @@ opplysningen registreres og avklares, avgjøres med kommandoen i #310. Endret 11
 utvidet av [GR-U15](#gr-u15) (beskrivelsen av pålegget i TEs varsel). Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u14"
 vedtak = '''
 GR-U14: et grunnlagssvar fra appen som etter GR-U12 og GR-U13 er en endringsordre, sier:
@@ -1677,6 +1764,7 @@ bygges i #310; ingen reelle brev sendes før #310 ([OV-U1](#ov-u1)). Ikke bygget
 bygges i #369'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "gr-u15"
 vedtak = '''
 GR-U15: TEs varsel etter § 32.2 fra appen må ha en beskrivelse av pålegget. Følgen for
@@ -1697,6 +1785,8 @@ varsle utenfor appen og registrere varselet»), og [GR-U14](#gr-u14) har ordlyde
 registrert krav. Ikke bygget Bygget, kontrollert 20.10 (#417): et varsel fra TE etter § 32.2 uten beskrivelse, eller med bare mellomrom, avvises med BESKRIVELSE_MANGLER (`kravetsUtdypning` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts`, og TE-skjemaet sender beskrivelsen (`src/lib/kjernesak/grunnlagskrav.ts`). Unntaket for et registrert varsel er ikke kontrollert.'''
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["lv-u4", "ov-u80"]
 anker = "gr-u16"
 vedtak = '''
 GR-U16: i TEs grunnlagskrav i underkategorien endringsordre (§ 31.3) oppgir TE
@@ -1719,6 +1809,7 @@ står. I tråd med [HF-U1](#hf-u1): et utsagn viser uttrykkelig til det det gjel
 Brevteksten gjengir opplysningen ([LV-U4](#lv-u4), punkt 1). Ikke bygget Bygget, kontrollert 20.10 (#417): formkontrollen krever endringsordrens dato eller nummer i underkategorien endringsordre og avviser feltet i andre underkategorier (`kategorisperre` i `kjerne/kommandoer/nyttelast.ts`), et registrert krav uten feltet er ikke forstått, og brevteksten gjengir opplysningen (`kjerne/frosset/brevtekst.ts`), med test i `kjerne/tester/koder.test.ts`, `kjerne/tester/brevtekst.test.ts` og `src/lib/components/kontraktsbord/__tests__/NewCaseKjerne.test.ts`.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 B-13 endret underkategori etter byggherrens svar på grunnlaget krever nytt svar.
 Låsingen og § 32.2-vurderingen fra det forrige svaret faller bort, og grunnlaget venter
@@ -1733,6 +1824,7 @@ på vederlag eller frist som var gitt subsidiært, forblir subsidiært til spore
 grunnlaget besvares igjen (oppdragsgiver 05.10). Merknad 16.10: [GR-U19](#gr-u19) snevrer inn denne raden: underkategorien kan bare endres når § 32.2 gjelder likt før og etter.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 B-13 svar på vederlag og frist når grunnlaget er avslått eller prekludert (§ 32.2):
 journalen og sporstatusen har resultatet av beløpene og dagene, som et subsidiært
@@ -1748,6 +1840,7 @@ brevteksten, etter [HF-U2](#hf-u2). Innholdet er uendret. Bygget i brev og fullm
 (#168). Ordet ble byttet i brevet 10.10 (#313). Saksvisningen i frontend: #214'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 B-13 `grunnlag_varslet_i_tide` avvises utenfor § 32.2 (endring som ikke er formell
 endringsordre). Fullmakt og brev snevres inn til samme omfang'''
@@ -1760,6 +1853,8 @@ før brukte status, fullmakt/brev og skjema tre ulike omfang. En eldre hendelse 
 feltet `false` ved EO prekluderer ikke'''
 
 [[gruppe.vedtak]]
+anker = "b-13-frafalt"
+klasse = "vedtak"
 vedtak = '''
 B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett'''
 vedtatt = "24.09, oppdragsgiver"
@@ -1767,6 +1862,8 @@ folge = '''
 Bygget 04.10 i forretningsreglene (#63). Merknad 15.10: [GR-U18](#gr-u18) tillater frafall også ved samordning og svar på varsel, og forkastet at denne raden står.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "preklusjonen først i visningen"
 vedtak = '''
 Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§
 32.2). Begge grunner gjelder; preklusjonen er hovedgrunnen, og avslaget gjelder
@@ -1777,6 +1874,7 @@ Godtas i dag (K 05.10). Brev, visning og standpunkt må vise begge, med preklusj
 først (B-14, M1)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 #235: frafall (§ 32.3 c) kan ikke kombineres med at grunnlaget er varslet for sent (§
 32.2). Frafall skjer mot endringsordre for allerede utført arbeid, og byggherren kan da
@@ -1787,6 +1885,8 @@ folge = '''
 Ikke bygget. Serveren godtar kombinasjonen i dag (#235)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "statusverdien `FRAFALT`"
 vedtak = '''
 Frafall (§ 32.3 c) gir grunnlaget en egen sporstatus, `FRAFALT`, som rollupen regner som
 avklart grunnlag på linje med godkjent. Endringsordren for utført arbeid følger av #69'''
@@ -1799,6 +1899,7 @@ grunnlaget `TRUKKET`. Den egne statusen er ikke bygget. En ny `SporStatus` kreve
 som teller statuser, oppdateres (`.claude/rules/python-domene.md`)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 SD-02: trekker TE grunnlaget før vederlag eller frist er sendt, er saken
 `LUKKET_TRUKKET`. Spor som ikke er sendt, regnes som trukket'''
@@ -1807,6 +1908,7 @@ folge = '''
 Ikke bygget (#231)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 #213: har TE godtatt avslaget på grunnlaget (`AVSLATT_AKSEPTERT`), er saken
 `LUKKET_AVSLATT`, uansett vederlag og frist, også når beløp eller dager er godkjent
@@ -1816,6 +1918,7 @@ folge = '''
 Bygget i backend (#213). Frontendens lukket-sett: #229'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 SK-01: godtar TE byggherrens svar om at grunnlaget er varslet for sent etter § 32.2, er
 det et godtatt avslag. Grunnlaget blir `AVSLATT_AKSEPTERT`, saken `LUKKET_AVSLATT`, og
@@ -1826,6 +1929,7 @@ Bygget 09.10 (SK-01). På vedtaksdatoen ble grunnlaget `GODKJENT`, saken `OMFORE
 utstedbar (SK-01 i 4.2)'''
 
 [[gruppe.vedtak]]
+klasse = "design"
 vedtak = '''
 TFR-05: en sak med godkjent eller låst grunnlag der resten ikke er sendt, har samlet
 status `UNDER_BEHANDLING`'''
@@ -1834,6 +1938,7 @@ folge = '''
 Rettet i spor D'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U17"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -1874,6 +1979,8 @@ Frafall etter § 32.3 c er avslag med nytt tilbud. TE kan godta det, og det kan 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+forhold = [{ art = "opphever", vedtak = "b-13-frafalt" }]
 id = "GR-U18"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -1910,6 +2017,7 @@ Raden i B-13 om frafall bare ved irregulær endring og valgrett står, og GR-U11
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U19"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -1948,6 +2056,7 @@ Hverken hovedkategori eller underkategori kan endres, som i skjemaet. Opphever B
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U20"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -1973,6 +2082,7 @@ Frafallet gjelder grunnlagsversjonen det svarer på. På en ny versjon kan byggh
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U21"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -2008,6 +2118,7 @@ Etter et frafall kan TE ikke sende en ny grunnlagsversjon i en underkategori der
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U22"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -2044,6 +2155,7 @@ Når TE har sendt grunnlaget, kan TE ikke sende en ny versjon av det. Vil TE end
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U23"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -2088,6 +2200,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U24"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -2128,6 +2241,9 @@ tekst = "også av et frafall"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "betegnelsen «Trukket» per spor"
+beslutningsdel = "hendelsestypene trekket lagres som"
 id = "GR-U25"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -2170,6 +2286,8 @@ Som det anbefalte alternativet, men et spor med «ingen krav» beholder «Ingen 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av standpunktet sammen med det senere grunnlagssvaret"
 id = "GR-U26"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -2207,6 +2325,8 @@ Når byggherren svarer på vederlag eller frist mens ansvarsgrunnlaget er ubesva
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "varselet i skjemaet før sending og statusen"
 id = "GR-U27"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -2237,6 +2357,8 @@ tekst = '''
 Saken står åpen for nye strukturerte standpunkter fra begge parter. Vedtakene over endres, og punkt 12 gjelder også disse sakene.'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["mm-u34", "mm-u12"]
 id = "GR-U28"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -2288,6 +2410,7 @@ kilde = "hovedplanen"
 tekst = "Endringsordren for utført arbeid utstedes i en egen EO-sak (#69) med egen fullmakt (GFK-06), ikke reaktivt fra KOE-saken; `kan_utstede_eo` er `false` i KOE-saken"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U29"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -2314,6 +2437,7 @@ Forbeholdet etter GR-U26 står i punktet ‹Forbehold›, sist i brevet, og ‹n
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "GR-U30"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -2351,6 +2475,8 @@ Totalentreprenørens handling for å trekke påberopelsen av forholdet heter ‹
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "handlingsnavnet ‹Svar›"
 id = "GR-U31"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -2412,6 +2538,7 @@ kilde = "hovedplanen"
 tekst = "Løsningen legger ingen erklæring i munnen på en part, og den avgjør ikke om en ny erklæring er rettslig virksom mot en tidligere (MM-U12)."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U32"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -2473,6 +2600,7 @@ tekst = "Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U33"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -2531,6 +2659,7 @@ tekst = "Når byggherren svarer på vederlag eller frist mens ansvarsgrunnlaget 
 tittel = "Varsler, frister og innsigelser"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 SK-12: datoen og metoden for et varsel fra TE settes én gang. Et senere krav med en
 annen dato avvises. Gjelder varselet om fristforlengelse (§ 33.4) og varslene om
@@ -2542,6 +2671,7 @@ Presisert 09.10 av [MM-U1](#mm-u1) for et varsel som bare er utledet. Utvidet 10
 (SK-12)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u1"
 vedtak = '''
 MM-U1: SK-12 låser et varsel som er registrert, ikke et varsel som bare er utledet. Er
@@ -2562,6 +2692,7 @@ mangler. Forløp D i
 [modellforslaget](../forslag-maalmodell-2026-10-09.md#forløp-d-et-varsel-registrert-etter-et-senere-krav)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u8"
 vedtak = '''
 MM-U8: MM-U4 gjelder også når en ny opplysning, ikke bare en regelendring, gjør at
@@ -2570,7 +2701,7 @@ byggherren har påberopt preklusjon for det utledede varselet, er preklusjonen u
 og TE kan ikke godta svaret før byggherren har svart på nytt. En enighet inngått før
 opplysningen står (MM-U3). Forkastet: å la TE godta svaret slik brevet uttrykte det'''
 vedtatt = "09.10, oppdragsgiver etter review av PR #306"
-forhold = [{ art = "presiserer", vedtak = "mm-u1" }]
+forhold = [{ art = "presiserer", vedtak = "mm-u1" }, { art = "bygger på", vedtak = "mm-u4" }]
 folge = '''
 Presiserer MM-U1. MM-U4, som vedtaksteksten viser til, er opphevet 09.10 av
 [MM-U9](#mm-u9), som gjelder regelendringer. MM-U8 gjelder en ny opplysning og står.
@@ -2580,6 +2711,7 @@ byggherren alt har gitt, står med virkningen det hadde, og TE kan godta det (op
 23.10, #1047)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u7"
 vedtak = '''
 MM-U7: en part kan bestride en opplysning fra motparten, for eksempel at et varsel ble
@@ -2595,6 +2727,7 @@ Avvises når saken ikke er forstått ([MM-U14](#mm-u14), 10.10). Utvidet 11.10 a
 [KA-U29](#ka-u29). Bygget i målmodellen i språkprøven (#304), rad KA-21. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u6"
 vedtak = '''
 VS-U6: TEs varsel etter § 34.1.2 registreres som et eget varsel med dato, slik varselet
@@ -2605,6 +2738,7 @@ folge = '''
 Utvider SK-12 til § 34.1.2. Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u7"
 vedtak = '''
 VS-U7: TE kan senere registrere et varsel etter § 34.1 med datoen det ble sendt. Det er
@@ -2623,6 +2757,7 @@ Utvider [MM-U1](#mm-u1) og [MM-U8](#mm-u8) til § 34.1. Ikke bygget (#309). Lese
 virkningen det hadde, og TE kan godta det (oppdragsgiver 23.10, #1047)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u8"
 vedtak = '''
 VS-U8: et varsel TE sender fra appen, får serverens dato. Et varsel sendt utenfor appen
@@ -2634,6 +2769,8 @@ Endrer DRF-03 («En dato fra klienten avvises») for registrerte brev. Bestridel
 [MM-U7](#mm-u7). Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "når varselet etter punkt 34.1.2 bygges"
 anker = "vs-u15"
 vedtak = '''
 VS-U15: TE kan sende et eget varsel etter § 33.4 fra appen uten å angi dager, også før
@@ -2658,6 +2795,7 @@ raden for § 34.1.2 i [paragrafmatrisen](../paragrafmatrise-koe-eo-forsering.md)
 vise til VS-U15. Bygges i #411. Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U16"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -2687,6 +2825,7 @@ Varselet godtas, som når et varsel registreres etter kravet (MM-U8). Byggherren
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 Nøytralt fristvarsel (TFR-06, DRF-01): BH kan sende innsigelse mot sen varsling (§ 5) og
 forespørsel om spesifisert krav (§ 33.6.2) som egne handlinger. De setter ikke resultat,
@@ -2700,6 +2839,8 @@ og DRF-01 bygger på dette. Oppdragsgiver presiserte samme dag: svarfristen i
 forespørselen er valgfri, og handlingene går utenom intern godkjenning'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "protesten vises ved siden av innsigelsen"
 anker = "vs-u1"
 vedtak = '''
 VS-U1: en innsigelse etter § 5 tredje ledd registreres som ett utsagn med sendetid. Den
@@ -2715,6 +2856,7 @@ utvidet 10.10 av [VS-U9](#vs-u9): påberopelsen i byggherrens svar er innsigelse
 VS-U1. Protesten bygges ikke i første versjon (OV-U7). MP-U7 er endret 25.10 av [OV-U50](#ov-u50).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u9"
 vedtak = '''
 VS-U9: påberoper byggherren i et svar at TE har varslet eller svart for sent, er
@@ -2740,6 +2882,7 @@ for første gang i eller i forbindelse med sluttoppgjøret.» Unntak 10.10 i
 appen. Utvidet 11.10 av [VS-U14](#vs-u14) til TE som mottaker. Ikke bygget (#309). Protestregelen bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u11"
 vedtak = '''
 VS-U11: byggherren kan i et senere svar fra appen gi opp sin egen innsigelse etter § 5
@@ -2760,6 +2903,8 @@ den»): gjentakelsen er utgangspunktet, ikke et krav. Utvidet 11.10 av [VS-U14](
 til TE som mottaker. Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "TEs påberopelse får virkning først når TE kan svare i løsningen"
 anker = "vs-u14"
 vedtak = '''
 VS-U14: VS-U9 og VS-U11 gjelder tilsvarende når TE mottar et varsel, krav eller svar fra
@@ -2782,6 +2927,8 @@ med [VS-U1](#vs-u1) («ethvert varsel, krav eller svar fra motparten») og
 [VS-U4](#vs-u4), som alt er symmetrisk. Ikke bygget. Formatet hører til #309'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "hvordan passiviteten vises"
 vedtak = '''
 B-13 passivitet (§ 32.3 annet ledd) varsles, men systemet trekker ingen konklusjon'''
 vedtatt = "24.09, oppdragsgiver"
@@ -2792,6 +2939,8 @@ antall dager siden og bestemmelsen, uten fast frist. Ikke bygget. Frontendens fa
 dager er bare veiledning'''
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["vs-u3"]
 anker = "vs-u2"
 vedtak = '''
 VS-U2: passivitet og søksmålsfrist vises som veiledning. § 32.3 annet ledd, § 33.6.2
@@ -2805,6 +2954,8 @@ byggherren uttrykkelig at TE svarte for sent, utledes virkningen. Presisert 10.1
 [VS-U10](#vs-u10): «frist» er bestemmelsen og fristens utgangspunkt, ikke en dato'''
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["vs-u36", "hf-u11"]
 anker = "vs-u10"
 vedtak = '''
 VS-U10: for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunnet opphold»
@@ -2818,6 +2969,7 @@ dato. Presiserer også vedtaket om passivitet under B-13: appen viser ingen fast
 Ikke bygget. Visningen hører til #313'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u12"
 vedtak = '''
 VS-U12: TE kan påberope byggherrens passivitet etter § 32.3 annet ledd som eget utsagn
@@ -2832,6 +2984,7 @@ Gjennomfører [VS-U3](#vs-u3) for § 32.3 annet ledd. Gjelder bare der § 32.2 g
 Visningen følger [VS-U10](#vs-u10). Ikke bygget (#309). Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u3"
 vedtak = '''
 VS-U3: appen behandler bestemmelsene om varsler, svar og frister på tre måter. Appen
@@ -2863,6 +3016,7 @@ og for § 33.3 første, tredje og femte ledd 11.10 av [VS-U13](#vs-u13) og
 #309, visningen til #313. Det vedtaket sier om § 32.3 annet ledd, bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u4"
 vedtak = '''
 VS-U4: påberoper parten som mottar kravet eller varselet, at kravet ble spesifisert for
@@ -2879,6 +3033,7 @@ Utledes etter [VS-U3](#vs-u3). DRF-03 gjelder datoen for varselet etter § 34.3.
 bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u5"
 vedtak = '''
 VS-U5: påberoper byggherren at TEs særskilte varsel etter § 34.1.3 kom for sent, oppgir
@@ -2895,7 +3050,9 @@ begrunnelsen kreves i et svar fra appen, og et registrert brev kan stå uten. Ik
 (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "vs-u13"
+forhold = [{ art = "bygger på", vedtak = "ka-u24" }]
 vedtak = '''
 VS-U13: i en sak med hovedkategorien force majeure (§ 33.3) er byggherrens standpunkt om
 at forholdet ikke var utenfor partens kontroll, at parten eller dens
@@ -2921,6 +3078,7 @@ er ikke plassert (#381). Brevteksten sier «grunnlaget», ikke «ansvarsgrunnlag
 (#367). Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 DRF-03: sendedatoen for TEs varsel om justerte enhetspriser (§ 34.3.3) settes av
 serveren, som den norske datoen for innsendingen når TE krever justering. Et oppdatert
@@ -2933,6 +3091,7 @@ utenfor appen får datoen TE oppgir, og byggherren kan bestride den. Bygget 29.0
 (merknaden i DRF-03)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mp-u4"
 vedtak = '''
 MP-U4: I metodeprøven etter rettidig og tilstrekkelig svar b etter § 33.6.2 fører BHs
@@ -2950,6 +3109,7 @@ rekursive arbeidshypotese. Avgrenset til prøven med oppgitte premisser; ingen e
 produksjonsregler eller øvrige åpne tolkninger'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mp-u5"
 vedtak = '''
 MP-U5: Når ett brev inneholder flere innsigelser, vurderes rettidigheten («uten ugrunnet
@@ -2962,6 +3122,7 @@ Avklarer U5 i
 (#284). Gjelder prøven; ingen endring av produksjonsregler'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mp-u6"
 vedtak = '''
 MP-U6: En TE-protest mot at BHs brev kom for sent, uten at innsigelsene skilles, gjelder
@@ -2973,6 +3134,7 @@ Avklarer U6 i metodeprøven (#284). Gjelder prøven. Regelen om hva en protest g
 tatt inn i appen 10.10 av [VS-U9](#vs-u9)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mp-u7"
 vedtak = '''
 MP-U7: En senere dokumentert innsigelse som strider mot premisset om at det ikke finnes
@@ -2988,6 +3150,7 @@ Avklarer U7 i
 låste opplysninger, avgjøres ikke (B-16)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U17"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -3021,6 +3184,8 @@ TEs begrunnelse etter § 33.6.2 annet ledd bokstav b registreres som TEs svar p�
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "punkt 33.5 som veiledning i fristkravet og fristsvaret"
 id = "VS-U18"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -3057,6 +3222,7 @@ kilde = "hovedplanen"
 tekst = "Appen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U19"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -3086,6 +3252,7 @@ tekst = '''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U20"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -3136,6 +3303,7 @@ tekst = "et registrert svar som ikke sier noe om rettidigheten, leses med innsig
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U21"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -3175,6 +3343,8 @@ utdrag = true
 
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["vs-u24", "vs-u21", "vs-u4"]
 id = "VS-U22"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -3211,6 +3381,8 @@ tekst = "Gjør han ikke dette, har han bare krav på slik fristforlengelse som d
 
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["vs-u27", "ov-u80"]
 id = "VS-U23"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -3241,6 +3413,7 @@ kilde = "ns8407"
 tekst = "Byggherren kan da ikke påberope at fristen i 33.6.1 er oversittet."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U24"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3273,6 +3446,7 @@ En påberopelse av at motparten har varslet, krevd eller svart for sent oppgir b
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U4"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3312,6 +3486,7 @@ Har en part uttrykkelig sagt at et varsel eller krav kom i tide, eller frafalt e
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U5"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3363,6 +3538,7 @@ Appen avviser en aksept etter fristen. TE kan i stedet sende en ny kravversjon, 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U6"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3396,6 +3572,7 @@ avkallet (HF-U10). Gjelder NS 8407 noe annet, går kontrakten foran (avtaleloven
 ledd). Om parten likevel er løst fra utsagnet, avgjør ikke appen (MM-U12).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U7"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3420,7 +3597,7 @@ A: ja, standpunkt for standpunkt (F2). B: bare de prinsipale og subsidiære dage
 valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
-forhold = [{ art = "presiserer", vedtak = "ka-u9" }, { art = "presiserer", vedtak = "ka-u21" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "gr-u7" }]
+forhold = [{ art = "presiserer", vedtak = "ka-u9" }, { art = "presiserer", vedtak = "ka-u21" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "gr-u7" }, { art = "bygger på", vedtak = "ka-u26" }]
 folge = '''
 Presiserer også raden i B-13 om «godkjent» bare når hele kravet er godkjent og raden i B-13 om preklusjon. Et forbehold appen ikke kan uttrykke, følger KA-U16 og KA-U26, der et svar med forbehold kan gi sammenfall. «Et avslag» i GR-U7 leses som avslag i forening med et betinget tilbud. Følger av HF-U5 (første setning etter «fristforlengelse»). Spørsmål 5 i vurderingen ble besvart med A. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
@@ -3435,6 +3612,7 @@ slik standpunktene står i brevet (MM-U11). Om et avvik er så lite at det likev
 blir avtale (avtaleloven § 6 annet ledd), avgjør ikke appen (MM-U12).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U8"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3469,6 +3647,7 @@ avgjør ikke appen (MM-U12). Et uttrykkelig standpunkt om at et varsel kom i tid
 eller et avkall, faller ikke bort med svaret (HF-U4, VS-U20, HF-U10).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U9"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3509,6 +3688,7 @@ der TE ikke har sendt et krav, går i samme sak (OV-U3). Et brev som viser til e
 avtale mellom partene, følger KA-U16, MM-U18 og MM-U19.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U10"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3548,6 +3728,8 @@ tekst = "uttrykkelig gitt opp sin innsigelse"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av bestemmelsen påberopelsen gjelder"
 id = "HF-U11"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3578,6 +3760,7 @@ innsigelse kom i tide, eller at taushet har gitt virkning (MM-U12). Taushet er i
 et uttrykkelig standpunkt og binder ikke som et slikt (HF-U4).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U12"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3614,6 +3797,8 @@ kravversjon i en KOE-sak, gjelder HF-U5 for det, ellers binder det byggherren so
 tilbud (HF-U6). En gjengivelse av noe partene har avtalt, følger HF-U9.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at visningen ikke påstår mer enn appen vet"
 id = "HF-U13"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3645,6 +3830,7 @@ etter OV-U5 og OV-U6, og visningen påstår ikke mer enn appen vet. Et varsel er
 ble sendt, og datoen settes én gang.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U14"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -3679,6 +3865,7 @@ som den er.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U15"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3741,6 +3928,7 @@ En aksept etter akseptfristen er alltid et nytt tilbud fra TE, også når svaret
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U16"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3769,6 +3957,7 @@ Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen. Faller 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U17"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3797,6 +3986,8 @@ Akseptfristen kan endres fritt ved revisjon.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at saken venter på TE"
 id = "HF-U18"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3825,6 +4016,7 @@ Etter akseptfristen venter sporet på et nytt svar fra byggherren.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U19"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3873,6 +4065,7 @@ TE kan godta svaret på nytt etter et avslag, og hver aksept er et nytt tilbud. 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U20"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3902,6 +4095,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "HF-U21"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3937,6 +4131,8 @@ Etter en ny grunnlagsversjon binder svaret ikke. Godtar TE det, er aksepten et n
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["vs-u3", "mm-u34"]
 id = "HF-U22"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3963,6 +4159,7 @@ navn = "A: binder under forsering"
 tekst = '''
 Så lenge en forseringssak viser til avslaget og TE derfor ikke kan godta svaret (FO-U5), faller svaret ikke bort ved akseptfristen, og en revisjon som senker godkjente dager, avvises (FO-U7).'''
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U25"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -3993,6 +4190,8 @@ tekst = '''
 Appen spør ikke etter datoen.'''
 forkastet = true
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "datofeltet er påkrevd i kravet"
 id = "VS-U26"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -4037,6 +4236,8 @@ utdrag = true
 tekst = "blir eller burde ha blitt klar over forholdene"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av en registrert forespørsel"
 id = "VS-U27"
 dato = 2026-10-19
 hvem = "oppdragsgiver"
@@ -4079,6 +4280,8 @@ Byggherrens forespørsel etter § 33.6.2 og totalentreprenørens svar etter boks
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "hva som sendes utenfor løsningen i første versjon"
 id = "VS-U28"
 dato = 2026-10-19
 hvem = "oppdragsgiver"
@@ -4121,6 +4324,7 @@ I første versjon avvises krav om vederlag etter regning (§ 34.4 og § 30), som
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U29"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -4155,6 +4359,7 @@ Byggherren gjør gjeldende at begrunnelsen etter § 33.6.2 annet ledd bokstav b 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U30"
 dato = 2026-10-21
 hvem = "oppdragsgiver"
@@ -4197,6 +4402,7 @@ Byggherrens svar på fristkravet tar bare stilling etter den nye forespørselen.
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U31"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -4241,6 +4447,7 @@ tekst = '''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U32"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -4283,6 +4490,7 @@ Innsigelsen kan også være en påberopelse etter § 33.6.1, som svaret på krav
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U33"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -4317,6 +4525,8 @@ TE må kunne merke at et registrert brev inneholder et krav om dager, og da stop
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "valget i kravskjemaet og korrespondansen i samme forløp"
 id = "VS-U34"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -4369,6 +4579,7 @@ OV-U11.'''
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "VS-U35"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -4434,6 +4645,7 @@ kilde = "hovedplanen"
 tekst = "Vedtakene står og bygges senere; avgrensningen gjelder rekkefølgen, som i OV-U1."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U36"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -4477,6 +4689,7 @@ kilde = "hovedplanen"
 tekst = "Byggherren gjør gjeldende at TEs begrunnelse etter § 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i en egen innsigelse etter § 5 tredje ledd mot begrunnelsen, sendt fra appen."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U37"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -4513,6 +4726,8 @@ Påberopelsen gjelder versjonen svaret gjelder, og brevet nevner ikke noe varsel
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "spørsmålet og feltene i skjemaet for ny sak"
 id = "VS-U38"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -4593,6 +4808,8 @@ Brevet nevner ikke det tidligere varselet. Det står i saken som korrespondanse 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "hjelpeteksten ved spørsmålet i skjemaet for ny sak, og hvor og når den står"
 id = "VS-U39"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -4706,6 +4923,7 @@ tekst = '''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U40"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -4751,6 +4969,7 @@ Et varsel etter punkt 32.2 kan bare registreres i skjemaet for ny sak.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U41"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -4804,6 +5023,8 @@ Varselet nevnes uten brev også når det er registrert, som i dag: «TEs varsel 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "fristen vises uten dato"
 id = "VS-U42"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -4878,6 +5099,8 @@ forkastet = true
 tittel = "Endringsordre og forsering"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "kommandoen og hendelsestypen `eo_utstedt`"
 anker = "eo-u1"
 vedtak = '''
 EO-U1: en endringsordre utstedes bare som EO-sak, gjennom kommandoen (B-02 punkt 3).
@@ -4885,7 +5108,7 @@ EO-U1: en endringsordre utstedes bare som EO-sak, gjennom kommandoen (B-02 punkt
 EO-sak, der TE godtar eller bestrider endringsordren (TFR-02). `kan_utstede_eo` betyr at
 KOE-saken kan inngå i en EO-sak'''
 vedtatt = "08.10, oppdragsgiver"
-forhold = [{ art = "presiserer", vedtak = "gr-u3" }]
+forhold = [{ art = "presiserer", vedtak = "gr-u3" }, { art = "bygger på", vedtak = "eo-u6" }]
 folge = '''
 Presiserer GR-U3. Avgrenset 10.10 av [GR-U13](#gr-u13) og [KA-U14](#ka-u14): er
 byggherrens godkjenning av grunnlaget i KOE-saken en endringsordre etter § 32.3 første
@@ -4897,6 +5120,7 @@ Frontenden og godkjenningskommandoen bruker ikke den veien. Radene står i
 [domenetabellen](../domenetabell/README.md)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "eo-u2"
 vedtak = '''
 EO-U2: en KOE-sak kan inngå i en endringsordre når saken er `OMFORENT`, grunnlaget er
@@ -4912,6 +5136,7 @@ fra spor som ikke er sendt; kandidatregelen `_is_agreed_koe` krever i tillegg et
 godkjent vederlag eller en godkjent frist (DT-06)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "eo-u3"
 vedtak = '''
 EO-U3: en KOE-sak inngår i høyst én endringsordre, også når den er bestridt. En revisjon
@@ -4925,6 +5150,7 @@ Avgjør B-08. Kandidatregelen i `EndringsordreService` holder det for
 det ikke (DT-08)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "eo-u4"
 vedtak = '''
 EO-U4: EO-sakens livsløp er strengt. Endringsordren utstedes én gang, og en ny utgave er
@@ -4941,6 +5167,7 @@ er svar på grunnlaget i en KOE-sak: byggherren kan ikke revidere den. Ikke bygg
 `UTKAST`; `/api/events` gjør det ikke'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "eo-u5"
 vedtak = '''
 EO-U5: en KOE-sak kan inngå i en endringsordre når grunnlaget er godkjent (GR-U10) og
@@ -4961,7 +5188,9 @@ Kandidatregelen i Python (`_is_agreed_koe`, DT-06) krever et godkjent vederlag e
 godkjent frist og rettes ikke (merknaden i 4.2). Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "eo-u6"
+forhold = [{ art = "endrer", vedtak = "ubegrenset-fullmakt" }]
 vedtak = '''
 EO-U6: utsteder byggherren en endringsordre i en EO-sak som svar på grunnlaget i en
 KOE-sak (KA-U12), lagres samtidig et grunnlagssvar i KOE-saken, med grunnlaget godkjent
@@ -4983,6 +5212,7 @@ og endringsordren skrives i samme transaksjon. Ikke bygget. Kjernen hører til #
 skrivestien og fullmakten til #310'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "eo-u7"
 vedtak = '''
 EO-U7: en KOE-sak der endringsordren er svar på grunnlaget (EO-U6), kan senere inngå i
@@ -4994,6 +5224,7 @@ folge = '''
 EO-U3 er uendret. Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "eo-u8"
 vedtak = '''
 EO-U8: en endringsordre kan inneholde pålegget og egne utsagn om pris og tid. Hvert
@@ -5013,6 +5244,7 @@ Presiserer [EO-U4](#eo-u4): TEs ene svar på hver utgave kan ta stilling til hve
 for seg (MM-U10). Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "eo-u9"
 vedtak = '''
 EO-U9: byggherren kan ikke revidere en endringsordre som er svar på grunnlaget i en
@@ -5027,6 +5259,8 @@ Endrer [EO-U4](#eo-u4) for dette tilfellet; GR-U7, GR-U10 og KA-U7 står. Ikke b
 (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["eo-u1", "mm-u12"]
 vedtak = '''
 En endringsordresak kan følge av en KOE-sak, men ikke erstatte den, verken i historikken
 eller som en egen hendelse i KOE-saken'''
@@ -5036,6 +5270,8 @@ Bygget 05.10 (#97); se DM-07 i 4.3. På vedtaksdatoen ble `eo_opprettet` godtatt
 KOE-sak'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "statusetikettene for forsering og EO"
 vedtak = '''
 TFR-02: forsering får aldri en lukket samlet status. En endringsordre er en ordre og
 forhandles ikke; er TE uenig, føres det videre i en KOE'''
@@ -5045,6 +5281,7 @@ Rettet i spor D. Utstedt og revidert EO er `VENTER_PAA_SVAR`, akseptert og bestr
 `LUKKET`'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "fo-u1"
 vedtak = '''
 FO-U1: TE kan velge å anse byggherrens avslag som et pålegg om forsering (§ 33.8) når
@@ -5062,6 +5299,7 @@ forseringssaken står i [FO-U2](#fo-u2)–[FO-U6](#fo-u6) (10.10). Ikke bygget:
 forseringskandidatene regnes av fristens eget resultat (SK-06)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "fo-u2"
 vedtak = '''
 FO-U2: TE melder valget etter § 33.8, å «anse avslaget som et pålegg om forsering», for
@@ -5074,6 +5312,8 @@ Bygger på [FO-U1](#fo-u1). «Ingen krav» i vederlagssporet i KOE-saken omfatte
 forseringsvederlaget ([KA-U25](#ka-u25), 11.10). Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "forutsetningene som vises ved utregningen"
 anker = "fo-u3"
 vedtak = '''
 FO-U3: byggherren har ingen svarplikt etter § 33.8. Byggherren kan stå fast på avslaget:
@@ -5094,6 +5334,8 @@ Bygger på [FO-U1](#fo-u1): appen avgjør ikke om avslaget var berettiget eller 
 visningen av grensen til #313'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at fristsvaret er endret, vises i forseringssaken"
 anker = "fo-u4"
 vedtak = '''
 FO-U4: reviderer byggherren fristsvaret og godkjenner dagene etter at TE har valgt
@@ -5108,6 +5350,7 @@ folge = '''
 Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "fo-u5"
 vedtak = '''
 FO-U5: TEs aksept av byggherrens avslag av fristkravet avvises så lenge en forseringssak
@@ -5126,6 +5369,7 @@ Snevrer inn [KA-U1](#ka-u1) med en ny grunn til å avvise en aksept, og presiser
 bare når en forseringssak i appen viser til avslaget. Ikke bygget (#309)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "fo-u6"
 vedtak = '''
 FO-U6: byggherrens svar på vederlagskravet for forseringen går gjennom fullmakten som
@@ -5139,6 +5383,7 @@ Endrer vedtaket 18.09 om forsering (raden under) for vederlagssvaret. Ikke bygge
 Fullmakten i TS-stien hører til #310'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 Forsering er utenfor godkjenningsflyten'''
 vedtatt = "18.09"
@@ -5150,6 +5395,7 @@ policy ikke svare på forseringsvarsel (GFK-04). Produktvalget om godkjenningsom
 tatt 10.10 for vederlagssvaret (FO-U6)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "EO-U10"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -5178,6 +5424,7 @@ tekst = '''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "FO-U7"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -5206,6 +5453,8 @@ TEs valg om å forsere for de avslåtte dagene gjør slutt på at byggherren er 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["ov-u3", "mm-u33"]
 id = "EO-U11"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -5236,6 +5485,7 @@ tekst = '''
 TE sender kravet i en ny KOE og viser til varslene i fritekst. Løsningen viser ikke varslene i den nye saken. En EO kan omfatte flere KOE-saker, og løsningen skal ikke velge hvilke tidligere varsler som er relevante for det nye kravet. Partene har selv ansvar for å undersøke historikken.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "EO-U12"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -5266,6 +5516,8 @@ tekst = '''
 Godkjenningen lukker saken som en endringsordre. Vederlag og frist som ikke er avgjort, går i en ny KOE etter spørsmål 1. OV-U6 og KA-U13 står.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "forbeholdet om taket ved utregningen"
 id = "FO-U8"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -5299,6 +5551,8 @@ Grensen regnes av høyst 10 % av kontraktssummen, som en øvre grense for saken 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "merket «Inngår i EO-nummer» i sakslisten og på siden for saken"
 id = "EO-U13"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -5363,6 +5617,7 @@ kilde = "hovedplanen"
 tekst = "en KOE-sak inngår i høyst én endringsordre, også når den er bestridt."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "EO-U14"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -5427,6 +5682,7 @@ tekst = "Saken har en tilfeldig unik ID som appen lager. Et lesbart løpenummer 
 
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "EO-U15"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -5474,6 +5730,9 @@ kilde = "hovedplanen"
 tekst = "Godkjenning av grunnlaget alene lukker ikke KOE-saken, selv om godkjenningen er en endringsordre etter kontrakten."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "samme skjema som en endringsordre sendt fra løsningen med vedlegg, dato og dokumentkode; at registreringen viser at brevet også omfatter den lukkede saken; kontrollen som viser kravversjoner sendt etter brevets dato; brevets nummer vist ved siden av koden og merket på KOE-sakene etter EO-U14"
+beslutningsdel = "det lages ingen brevtekst, og brevets eget nummer lagres som brevets referanse"
 id = "EO-U16"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -5570,6 +5829,8 @@ kilde = "hovedplanen"
 tekst = "Bare en endringsordre byggherren sender uttrykkelig som endringsordre i en EO-sak, lukker saken (EO-U12)."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "at den siste godkjenningen sender (godkjenningsflyten, som GFK-U7)"
 id = "EO-U17"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -5601,7 +5862,7 @@ svar = '''
 Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Faktisk er det kun EO som må gjennom fullmaktskjeden.» Til modellen: «Ja, før det inn slik.»
 
 Valg D: «D1».'''
-forhold = [{ art = "endrer", vedtak = "gfk-u4" }]
+forhold = [{ art = "endrer", vedtak = "gfk-u4" }, { art = "endrer", vedtak = "ubegrenset-fullmakt" }]
 folge = '''
 Endrer også presiseringen av GFK-06 24.09 og vedtaket 23.09 om ubegrenset fullmakt, for en endringsordre i en EO-sak. For svar i KOE-saken står de. GFK-U2, GFK-U3, GFK-U6, GFK-U7, GFK-U20 og LV-U15 står, og for en endringsordre gjelder GFK-U20 bare med GFK-U3.'''
 
@@ -5642,6 +5903,7 @@ kilde = "hovedplanen"
 tekst = "Brevet har to signaturer: den som utarbeidet svaret, og den som godkjente det med fullmakt til svaret."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "EO-U18"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -5690,6 +5952,8 @@ kilde = "hovedplanen"
 tekst = "Byggherrens forbehold i et registrert svar fanges etter OV-U48 og OV-U49."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at skjemaet viser avviket fra en registrert enighet"
 id = "EO-U19"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -5736,6 +6000,8 @@ kilde = "hovedplanen"
 tekst = "Ved flere KOE-saker summeres ikke dagene uten videre (§ 33.5)."
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "«stopper sendingen og sier hvilken» (meldingen til brukeren)."
 id = "EO-U20"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -5787,6 +6053,7 @@ kilde = "hovedplanen"
 tekst = "en KOE-sak inngår i høyst én endringsordre, også når den er bestridt."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "EO-U21"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -5828,6 +6095,7 @@ kilde = "hovedplanen"
 tekst = "Hvert utsagn sier hva det er: byggherrens standpunkt, et tilbud eller en gjengivelse av noe som er avtalt."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "EO-U22"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -5873,6 +6141,7 @@ kilde = "hovedplanen"
 tekst = "Sender byggherren en endringsordre i en EO-sak som svar på et grunnlagskrav, omfatter endringsordren hele KOE-saken og lukker den."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "EO-U23"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -5927,6 +6196,9 @@ tekst = "dersom det er grunn til å anta at kostnadsoverslaget vil bli overskred
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at løsningen viser alle registrerte enigheter om samme oppgjør, og at summen viser det som ble sendt"
+beslutningsdel = "begrensningene i løsningen: et bestridt utsagn kan verken godtas eller rettes i løsningen, endringsordren revideres ikke og kan ikke rettes i løsningen, og kontrollen ved sendingen som sikrer høyst én direkte etterfølger"
 id = "EO-U24"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6089,6 +6361,8 @@ tekst = "blir han forpliktet til å utføre endringsarbeidet"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "at byggherren bekrefter listen på nytt, og at godkjenningen legges fram igjen for den siste godkjenneren"
 id = "EO-U25"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6140,6 +6414,7 @@ kilde = "hovedplanen"
 tekst = "Den siste godkjenningen sender svaret med det samme. Kan svaret ikke sendes fordi kravet er endret etter at svaret ble lagt fram, avvises godkjenningen."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "EO-U26"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6181,6 +6456,8 @@ En KOE som følger opp oppgjøret etter en endringsordre, står åpen. Status pe
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "at en registrert endringsordre telles i summen av vederlag i sendte endringsordrer (hva oversikten summerer)"
 id = "EO-U27"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6215,6 +6492,8 @@ En registrert endringsordre har bare utsagn for krav totalentreprenøren har sen
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "at kravet ellers vises for seg og ikke legges til summen"
 id = "EO-U28"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -6271,6 +6550,9 @@ kilde = "hovedplanen"
 tekst = "For vederlag er tallene summen av kravene med beløp og summen av vederlaget i alle sendte endringsordrer i prosjektet, også dem som ikke omfatter en KOE-sak, med fradrag trukket fra, eks. mva."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at en reduksjon vises som avvik"
+beslutningsdel = "at summen av vederlag i sendte endringsordrer teller tilleggene, og når tillegget regnes i summen"
 id = "EO-U29"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6326,6 +6608,8 @@ kilde = "hovedplanen"
 tekst = "For vederlag er tallene summen av kravene med beløp og summen av vederlaget i alle sendte endringsordrer i prosjektet, også dem som ikke omfatter en KOE-sak, med fradrag trukket fra, eks. mva."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at sakene står i brevet som referanser"
 id = "EO-U30"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6359,6 +6643,9 @@ En endringsordre har én beskrivelse av endringen for hver KOE-sak den omfatter.
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at byggherren bekrefter listen på nytt"
+beslutningsdel = "at den siste godkjenningen avvises når en sak lukkes, og at godkjenningen begynner på nytt når verdien endres (godkjenningsflyten)"
 id = "EO-U31"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6411,6 +6698,7 @@ En registrert endringsordre gjelder de sakene som er åpne når den siste godkje
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "EO-U32"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6467,6 +6755,7 @@ kilde = "hovedplanen"
 tekst = "Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse."
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "EO-U33"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -6550,6 +6839,8 @@ etter = '''
 '''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "saksrapporten og dokumentet i Catenda"
 vedtak = '''
 B-03 hovedvalg: hver innsending får sitt eget brev, som gjelder én part og ett spor, og
 brevet er det autoritative uttrykket for partens standpunkt. Saksrapporten sendes ikke
@@ -6564,6 +6855,8 @@ dokument i Catenda eller en revisjon av ett dokument per part og spor, sto åpen
 B-03. Avgjort 10.10 av [B-03, dokumentet](#b-03-dokument): ett dokument per brev'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["mm-u26"]
 anker = "b-03-dokument"
 vedtak = '''
 B-03, dokumentet: hvert brev som leveres til Catenda, blir ett dokument der, også når
@@ -6581,6 +6874,8 @@ med dokumentnøkkelen og navnestandarden i #310. Konfliktsvaret ved `true` er ik
 observert (avsnitt 7). Ikke bygget (#310)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "merknaden om avviket"
 anker = "mm-u9"
 vedtak = '''
 MM-U9: et sendt brev beholder virkningen det hadde da det ble sendt. En endring i appens
@@ -6609,6 +6904,7 @@ slik brevet uttrykker dem (oppdragsgiver 09.10; kontrolleres i #310). Målmodell
 språkprøven (#304) bygger MM-U4–MM-U6'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u10"
 vedtak = '''
 MM-U10: et brev er fra én part og kan inneholde utsagn i flere spor. Byggherren kan i
@@ -6626,6 +6922,8 @@ dokumentet](#b-03-dokument): ett dokument per brev. Lagringsformatet for et brev
 flere utsagn er #273. Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "ingen regel leser et lagret utfall"
 anker = "mm-u11"
 vedtak = '''
 MM-U11: beslutningsgrunnlaget i byggherrens svar fryser hvert standpunkt med virkningen
@@ -6655,6 +6953,7 @@ registreringen, ikke da brevet ble sendt. Lagringsformatet står i
 [designnotatet](../design-hendelsesformat-2026-10-09.md) (#273). Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u12"
 vedtak = '''
 MM-U12: et sendt brev bevares slik det ble sendt, og beslutningsgrunnlaget bevarer
@@ -6672,6 +6971,7 @@ appens vurdering følger reglene ved registreringen, ikke da brevet ble sendt. I
 bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u4"
 vedtak = '''
 MM-U4: TE kan bare godta et svar når brevet stemmer med dagens utledning av svaret. Har
@@ -6692,6 +6992,7 @@ finnes ikke slike svar i TS (oppdragsgiver 09.10, Følge i MM-U9). Forløp C, st
 [modellforslaget](../forslag-maalmodell-2026-10-09.md#forløp-c-ett-brev-med-preklusjon-og-avslag)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u5"
 vedtak = '''
 MM-U5: avviker byggherrens svar på grunnlaget fra brevet etter en regelendring, og TE
@@ -6708,6 +7009,7 @@ for grunnlaget. Bygget i målmodellen i språkprøven (#304), rad KA-25 i
 [domenetabellen](../domenetabell/README.md)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u6"
 vedtak = '''
 MM-U6: TE kan ikke godta et svar uten lagret beslutningsgrunnlag, for eksempel et eldre
@@ -6721,6 +7023,9 @@ folge = '''
 målmodellen i språkprøven (#304)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "teksten om sending utenfor appen"
+bindende_i = ["ov-u80"]
 anker = "mm-u2"
 vedtak = '''
 MM-U2: kan ikke kjernen tolke en hendelse på saken, godtas ingen bindende kommando fra
@@ -6739,6 +7044,7 @@ forstått. Ikke bygget. Prøveserveren svarer 422; Python hopper over en kjent t
 behandler. Forløp E i modellforslaget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u14"
 vedtak = '''
 MM-U14: er saken ikke forstått (MM-U2), avvises også en bestridelse etter MM-U7.
@@ -6749,6 +7055,7 @@ folge = '''
 Presiserer MM-U2 og MM-U7. Som i kjernen i dag (`SAK_IKKE_FORSTAATT`, L 10.10). Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u18"
 vedtak = '''
 MM-U18: en hendelse i journalen som ikke kan forstås i samsvar med resten av journalen
@@ -6777,6 +7084,7 @@ kjernen kan tolke hendelsen, men den strider mot vedtakene om enighet og lukking
 [MM-U20](#mm-u20): svar og aksept etter trekk. Ikke bygget (#309). Delvis bygget 18.10 i PR #796 (#770, #776 p1): et nytt regelsett gjør ikke en innsigelse som kommandoen godtok, uforstått, fordi om § 32.2 gjelder, leses av det frosne svaret som sa «i tide» etter § 32.2 på en versjon i samme kategori (`innsigelsenEtterITide`). Bygget 11.10 i PR #394 (#326), kontrollert 20.10 (#417): en hendelse som strider mot vedtakene om enighet og lukking, gjør saken ikke forstått når den ikke er et registrert brev, og i et registrert brev får elementet ingen virkning (`strid` og `utled` i `kjerne/utledning/utled.ts`), med test i `kjerne/tester/byggedel1.test.ts` og `kjerne/tester/brevtekst.test.ts`.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u19"
 vedtak = '''
 MM-U19: et ekte registrert brev som ikke kan forstås i samsvar med vedtakene om enighet
@@ -6803,6 +7111,7 @@ Utvider [MM-U18](#mm-u18) til andre registrerte brev i samme klasse. Presiserer
 virkning. I tråd med [KA-U16](#ka-u16): brevet bevares og forkastes ikke. Ikke bygget Bygget 11.10 i PR #394 (#326), kontrollert 20.10 (#417): elementet i et registrert brev som strider mot enigheten eller lukkingen, får ingen virkning (`utenVirkning`), og saken er forstått (`utled` i `kjerne/utledning/utled.ts`), med test i `kjerne/tester/brevtekst.test.ts`. Etter OV-U4 (PR #654) gjelder det elementene som ikke er dokumentasjon.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u20"
 vedtak = '''
 MM-U20: et svar fra byggherren på et krav etter at TE har trukket det, eller TEs aksept,
@@ -6825,6 +7134,8 @@ utfallet, fordi sporet regnes som trukket. Om det samme gjelder et spor lukket m
 bygget. Bygges med bevis-sak og feilinnføring i #405 Bygget 12.10 i PR #421 (#405), kontrollert 20.10 (#417): et svar eller en aksept i et trukket spor gir strid etter MM-U18 (`strid` i `kjerne/utledning/utled.ts`), med bevis-sakene F-MM-U20a–d i `docs/domenetabell/bevis-saker-maalmodell.json` og feilinnføringer i `kjerne/tester/feilinnfoering.ts`.'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["hf-u4", "ka-u1", "hf-u11"]
 anker = "hf-u1"
 vedtak = '''
 HF-U1: et brev lagres samlet eller ikke i det hele tatt, og det er entydig fra lagringen
@@ -6846,6 +7157,7 @@ Versjonering, utrulling og tilbakerulling mellom TS-versjoner er avgjort 10.10 m
 [B-10](#b-10) (#316). Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "b-10"
 vedtak = '''
 B-10: appen holder sakens versjon, formatets versjon og reglenes versjon atskilt fra
@@ -6883,6 +7195,8 @@ resultatet, utrullingen i to trinn, utregningen på nytt og den tabellstyrte tes
 bygger dem'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "merket «Oppdateres» i oversikten"
 anker = "mm-u15"
 vedtak = '''
 MM-U15: er det lagrede resultatet for en sak regnet ut med andre versjoner enn appen og
@@ -6894,6 +7208,9 @@ folge = '''
 Del av [B-10](#b-10). Ikke bygget (#316)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "merknaden på saken."
+beslutningsdel = "rapporten om omregningen"
 anker = "mm-u16"
 vedtak = '''
 MM-U16: før en regelendring rulles ut, regnes alle saker med gamle og nye regler. En
@@ -6911,6 +7228,7 @@ og en regelendring har ingen virkning for det brevene sier. Del av [B-10](#b-10)
 bygget (#316)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "mm-u17"
 vedtak = '''
 MM-U17: for et brev sendt utenfor appen og registrert i den, fryser
@@ -6937,6 +7255,8 @@ beslutningsgrunnlaget følger reglene ved registreringen, ikke da brevet ble sen
 av [B-10](#b-10). Ikke bygget (#336)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u2", "lv-u7"]
 anker = "lv-u1"
 vedtak = '''
 LV-U1: det som skal leveres for et brev, fryses i leveringsoppdraget i samme transaksjon
@@ -6953,6 +7273,8 @@ B-18](../vurdering-b18-serverplassering-2026-10-10.md). Presisert 11.10 av
 Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "når PDF-en lages og at den bevares fra første gang"
 anker = "lv-u2"
 vedtak = '''
 LV-U2: i et brev appen sender, godkjenner avsenderen brevteksten appen lager av brevets
@@ -6974,6 +7296,7 @@ gjengir teksten tro, prøves med en test der. At dokumentet lages etter commit o
 første gang, gjelder #371. Hvor lenge det bevares, er B-05. Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "lv-u3"
 vedtak = '''
 LV-U3: brevteksten i et brev appen sender, lages av alle partens utsagn i brevet, slik
@@ -6992,6 +7315,7 @@ vurdering i beslutningsgrunnlaget er ikke partens meddelelse ([HF-U2](#hf-u2),
 med virkning står i teksten. Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "lv-u4"
 vedtak = '''
 LV-U4: brevtekstene appen lager av utsagnene, har denne ordlyden. Endret tekst gjelder
@@ -7094,6 +7418,7 @@ setningene for «i tide» og etter en innsigelse i punkt 5 nevner varselet. Ikke
 Brevteksten bygges i #369. Punkt 8–12 bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 anker = "lv-u5"
 vedtak = '''
 LV-U5: brevteksten for rettidighet, i tide ([LV-U4](#lv-u4) punkt 5), nevner varselet
@@ -7117,6 +7442,7 @@ fristforlengelse etter § 33.4] kom for sent.» Spørsmålet og svaret står på
 bygget. Bygges i #410'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U6"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -7146,6 +7472,8 @@ Brevteksten skriver «varselet om fristforlengelse etter § 33.4», som klammen 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "leveringskvitteringen vises ved siden av"
 id = "LV-U7"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -7184,6 +7512,7 @@ Et brev fra appen er kommet fram når Catenda har kvittert for leveringen.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U8"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -7211,6 +7540,8 @@ Nye brev får en ny tekst for et uttrykkelig «i tide» etter HF-U4.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "leveringen venter på topicen"
 id = "LV-U9"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7254,6 +7585,8 @@ Et brev som sendes før saken har fått sin topic, leveres til Catenda som dokum
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at varselet er det første appen kjenner, står i skjemaet og visningen"
 id = "LV-U10"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7300,6 +7633,9 @@ kilde = "hovedplanen"
 tekst = "Det som ikke står i teksten, er ikke meddelt (LV-U3)."
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "visningen sier at brevet er sendt utenfor appen"
+bindende_i = ["lv-u22", "ov-u4"]
 id = "LV-U11"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -7342,6 +7678,8 @@ Et registrert brev leveres til Catenda som et dokument med sak, part, dato og at
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["rp-u1"]
 id = "LV-U12"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -7379,6 +7717,8 @@ kilde = "hovedplanen"
 tekst = "vedlegg lagres bare i Catenda"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "biblioteket og mappen fra prosjektets konfigurasjon"
 id = "LV-U13"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -7420,6 +7760,7 @@ kilde = "hovedplanen"
 tekst = "Deltakere uten TE- eller BH-tilknytning leser ikke vedlegg"
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "LV-U14"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -7453,6 +7794,7 @@ Brevet lagrer bare vedleggets ID. Filnavn og hash står i vedleggsregisteret og 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "MM-U21"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -7493,6 +7835,7 @@ retting skjer bare utenfor appen, i en dokumentert prosess.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U22"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7561,6 +7904,8 @@ kilde = "hovedplanen"
 tekst = "Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles."
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["vs-u3", "hf-u11"]
 id = "MM-U23"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7625,6 +7970,8 @@ kilde = "hovedplanen"
 tekst = "I et brev fra appen utleder appen virkningen av standpunktet i den faste teksten."
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["lv-u9", "hf-u11"]
 id = "MM-U24"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7687,6 +8034,7 @@ kilde = "hovedplanen"
 tekst = "Når bindingen inntrer og når en akseptfrist løper ut, regner appen fra sendingen av brevet og viser leveringskvitteringen ved siden av, uten å avgjøre når brevet er kommet fram (MM-U12)."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U25"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7736,6 +8084,8 @@ kilde = "hovedplanen"
 tekst = "Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "hvordan motparten ser rettingen og tilbudet"
 id = "MM-U26"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7778,6 +8128,7 @@ Retting skjer ved at en administrator i appen registrerer rettingen etter skrift
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "MM-U27"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7820,6 +8171,7 @@ Kontrollen av HF-U4 og HF-U5 står bare i kommandoene. En hendelse utenfor komma
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U28"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -7852,6 +8204,7 @@ Lista viser TEs krav og byggherrens tall som «godkjent», også når tallet er 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U29"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -7884,6 +8237,7 @@ Arbeidslista vises ikke etter overgangen til TS før den leveres i et eget issue
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U15"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -7962,6 +8316,8 @@ kilde = "hovedplanen"
 tekst = "GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt: endringsordren «skal være skriftlig og gi beskjed om at det kreves en endring, samt hva endringen går ut på», og den «må være gitt av byggherrens representant, jf. punkt 9, eller av en person med skriftlig fullmakt til å utstede slike»."
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["lv-u7"]
 id = "LV-U16"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -8000,6 +8356,7 @@ Som B, men så lenge en levering i saken er stanset, godtar appen ingen nye brev
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "LV-U17"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -8031,6 +8388,7 @@ Eksporten viser til vedleggene i Catenda med ID, filnavn og hash, uten filene. P
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U18"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -8063,6 +8421,7 @@ Som over, men uten setning (3); kravet nevner ikke forespørselen, og appen kobl
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U19"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -8095,6 +8454,7 @@ Brevteksten for TEs varsel etter § 34.1.2: «TE varsler etter NS 8407 § 34.1.2
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U20"
 dato = 2026-10-21
 hvem = "oppdragsgiver"
@@ -8129,6 +8489,8 @@ Protesten lyder «mot påberopelsen av for sen varsling i svaret i brev n av dat
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at kravet er det første varselet appen kjenner, står i skjemaet"
 id = "LV-U21"
 dato = 2026-10-21
 hvem = "oppdragsgiver"
@@ -8176,6 +8538,7 @@ kilde = "hovedplanen"
 tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U30"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8219,6 +8582,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U31"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8253,6 +8617,7 @@ Betegnelsen står til forespørselen er besvart, også i en lukket sak. Som MM-U
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U32"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -8290,6 +8655,7 @@ tekst = "Appen viser bare handlingene parten kan gjøre nå."
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U22"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8326,6 +8692,7 @@ Partene sender brevet selv på avtalt kanal, og appen registrerer det som et bre
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U23"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8358,6 +8725,8 @@ Brevet beholder dagens hode med part og dato, og signaturene etter LV-U15 gjelde
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "kontraktsforkortelsen i prosjektinnstillingene"
 id = "LV-U24"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8390,6 +8759,8 @@ Dokumentnavnet beholdes som i dag, og kodene legges på i et eget issue senere.'
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["lv-u15", "lv-u23"]
 id = "LV-U25"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8422,6 +8793,8 @@ Byggherrens brev følger malen. Totalentreprenørens brev får hodet etter Del I
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "skriftene i brevet"
 id = "LV-U26"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8464,6 +8837,7 @@ Alle brev beholder Noto Sans. Byggherrens brev får logoen fra pakken. Presisere
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U27"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8490,6 +8864,8 @@ I byggherrens brev er Vår ref. byggherrens arkivsaksnummer fra prosjektinnstill
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "saksnummeret i prosjektinnstillingene"
 id = "LV-U28"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8522,6 +8898,7 @@ Saksnummeret i Websak står i prosjektinnstillingene og vises under Vår ref. ba
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U29"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -8553,6 +8930,7 @@ tekst = "økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser p
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U30"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -8588,6 +8966,7 @@ kilde = "ns8407"
 tekst = "34.2 Generelle regler for vederlagsjustering"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U31"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -8625,6 +9004,7 @@ Som et valg i appen, ikke en regel kontrakten krever, kan byggherren godta TEs t
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U32"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -8666,6 +9046,8 @@ Når byggherren godkjenner hele det krevde beløpet og godkjenner oppgjør som f
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "skjemateksten før sending"
 id = "MM-U33"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -8719,6 +9101,8 @@ Arbeidsflyten:
 Det betyr ikke at enighet rettslig bare kan oppstå på denne måten. Etiketten «Avsluttet med EO» utledes av at endringsordren er sendt og omfatter saken. Ingen regel leser etiketten.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "påminnelsene i skjemaet (punkt 1, 16 og 26)"
 id = "MM-U34"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -8826,6 +9210,7 @@ tekst = '''
 26. **«Byggherren er bundet …» i tekstene.** I svarskjemaet strykes «Byggherren er bundet av svaret som sendes herfra.» og «… og svaret kan ikke revideres». Svaret på S-11 i BF-01 og D-4 i BF-03 faller bort med vernet.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U33"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -8870,6 +9255,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "punktene har overskriftene og rekkefølgen i skjemaet for svaret"
 id = "LV-U34"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -8898,6 +9285,8 @@ anbefalt = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "BH og TE i visningen"
 id = "LV-U35"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -8925,6 +9314,7 @@ anbefalt = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U36"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -8960,6 +9350,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U37"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -8996,6 +9387,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U38"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -9030,6 +9422,9 @@ Setningen står som vedtatt. ‹Vederlagsjusteringen› i den setningen betyr he
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "tittelen parten skriver"
+beslutningsdel = "«i første versjon»"
 id = "MM-U35"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -9138,6 +9533,7 @@ kilde = "hovedplanen"
 tekst = "En påberopelse av at TE har varslet eller krevd for sent etter en bestemmelse står i byggherrens svar, med ett standpunkt for hver bestemmelse, som § 32.2, § 33.4, § 33.6.1 og § 34.1.2 (VS-U3, VS-U22)."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U39"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -9190,6 +9586,7 @@ kilde = "hovedplanen"
 tekst = "‹TE› i en vedtatt brevtekst leses som ‹totalentreprenøren›, og ‹TEs› som ‹totalentreprenørens›."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U40"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -9236,6 +9633,7 @@ kilde = "hovedplanen"
 tekst = "‹NS 8407› står bare første gang i brevet, og ‹eks. mva.› bare i innledningen."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U41"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -9303,6 +9701,7 @@ kilde = "hovedplanen"
 tekst = "TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U42"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -9353,6 +9752,8 @@ tekst = "vises det til byggherrens e-post av 14.10.2026"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["mm-u35", "mm-u33"]
 id = "MM-U36"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -9395,6 +9796,8 @@ tekst = "Svaret fra appen gjentar innsigelsen som utgangspunkt, og gir byggherre
 
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["lv-u41"]
 id = "LV-U43"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -9448,6 +9851,8 @@ Når totalentreprenøren oppretter saken, skriver totalentreprenøren både saks
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "kontraktsforkortelsen i prosjektinnstillingene"
 id = "LV-U44"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -9477,6 +9882,9 @@ Hvert brev merkes med eget løpenummer for sin kode i kontrakten …'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "Avsenderen oppgir merkingen når korrespondansen legges til eller senere etter OV-U84; korrespondanse motparten legger til, står uten nummer til avsenderen oppgir merkingen."
+beslutningsdel = "Løsningen gir ikke korrespondansen noe nummer, kontrollerer ikke merkingen og endrer ikke dokumentet; løsningens neste brev får nummeret etter det høyeste i saken."
 id = "LV-U45"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -9575,6 +9983,8 @@ kilde = "hovedplanen"
 tekst = "Et registrert brev blir ikke et eget dokument i Catenda, fordi det alt er sendt utenfor appen."
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "«Brevkontrollen viser nummeret saken vil få»; avsenderen får se brevet med det nye nummeret."
 id = "LV-U46"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -9632,6 +10042,7 @@ kilde = "hovedplanen"
 tekst = "Avbryter totalentreprenøren før sending, finnes ingen sak og ingen topic."
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "LV-U47"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -9676,6 +10087,7 @@ kilde = "hovedplanen"
 tekst = "Bare parten som sendte det, kan velge noe annet enn dokumentasjon."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U37"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -9689,7 +10101,7 @@ Bakgrunnen er prototypen `docs/design/prototyper/saksliste-v2.html` og oppdragsg
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u30" }, { art = "snevrer inn", vedtak = "mm-u31" }]
+forhold = [{ art = "opphever", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u30" }, { art = "snevrer inn", vedtak = "mm-u31" }]
 folge = '''
 I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450.'''
 
@@ -9701,6 +10113,8 @@ anbefalt = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "kortene side om side og de dempede tallene"
 id = "MM-U38"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -9712,7 +10126,7 @@ Punkt 2 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 0
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "presiserer", vedtak = "eo-u13" }]
+forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "opphever", vedtak = "mm-u28" }, { art = "presiserer", vedtak = "eo-u13" }]
 folge = '''
 I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Bygges i #1450.'''
 
@@ -9724,6 +10138,8 @@ anbefalt = true
 
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "raden uten tall og tekst"
 id = "MM-U39"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -9737,7 +10153,7 @@ Bakgrunnen er oppdragsgivers ord i økta: «‹Saken har noe oversikten ikke for
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u22" }]
+forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "opphever", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u22" }]
 folge = '''
 Endrer OV-U61 og MM-U28 for slike saker. MM-U2 står. Bygges i #1450.'''
 
@@ -9755,6 +10171,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "MM-U40"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -9766,7 +10183,7 @@ Punkt 4 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 0
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "mm-u29" }]
+forhold = [{ art = "opphever", vedtak = "mm-u29" }]
 folge = '''
 Følger føringen 31.10 i systemfila for visningen: visningen sier det løsningen vet, ikke hvem som skal handle (#1402).'''
 
@@ -9786,6 +10203,7 @@ forkastet = true
 tittel = "Fullmakt og intern godkjenning"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 Godkjenning av ansvarsgrunnlaget (GFK-06): fullmakten regnes av TEs krevde beløp,
 vederlag pluss krevde fristdager ganget med dagmulktssatsen. Er kravet ikke tallfestet,
@@ -9796,6 +10214,7 @@ Presisert 24.09 av raden under: ansvar har ingen egen verdi, og fullmakten regne
 spor. Bygget 24.09 (merknaden i GFK-06). Mangler dagmulktssatsen, gjelder B-06'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 GFK-06 presisert: ansvar har ingen egen verdi, fullmakten regnes per spor. Et spor som
 besvares i samme brev, har verdien i svaret; ellers gjelder TEs krav. Et krav som ikke
@@ -9807,6 +10226,8 @@ Bygget 24.09. Ved «frafalt» (§ 32.3 c) må byggherren utstede en endringsordr
 utførte arbeidet, med egen fullmakt; varsel eller tom EO-sak i frontenden er ikke bygget'''
 
 [[gruppe.vedtak]]
+anker = "ubegrenset-fullmakt"
+klasse = "vedtak"
 vedtak = '''
 Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes'''
 vedtatt = "23.09, oppdragsgiver"
@@ -9819,6 +10240,7 @@ GFK-02). Gjelder fristsvar med ny sluttdato (GFK-02) og endringsordrer
 lar seg verdsette'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 B-02 punkt 3: «ikke omgå godkjenning» betyr prosedyregaranti (v2 avsnitt 5, alternativ
 a)'''
@@ -9830,6 +10252,7 @@ restrisiko. Den føres i ROS-analysen og vurderes på nytt før produksjon (F5).
 menneskelig godkjenning (b) bygges ikke nå'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 Policy nøkles på `user_id`'''
 vedtatt = "18.09"
@@ -9837,6 +10260,8 @@ folge = '''
 `BH_APPROVAL_POLICIES` må ha `user_id` per oppføring før produksjon'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at appen ikke viser hvem som endret dem"
 id = "GFK-U1"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -9882,6 +10307,7 @@ kilde = "hovedplanen"
 tekst = "**En godkjenning** som ble gitt mens godkjenneren hadde fullmakt, står."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U2"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -9934,6 +10360,7 @@ kilde = "hovedplanen"
 tekst = "Svaret på forseringsvarselet (FO-U3) sendes uten intern godkjenning, fordi det ikke påtar byggherren noe ansvar."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U3"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -9985,6 +10412,7 @@ kilde = "hovedplanen"
 tekst = "Et krav som ikke er sendt, krever hele kjeden som et krav som ikke er tallfestet; et trukket krav er 0."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U4"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -10021,6 +10449,7 @@ kilde = "hovedplanen"
 tekst = "Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes"
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "GFK-U5"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -10053,6 +10482,8 @@ Godkjenningen bygges nå for den som har registrert fullmakt, uavhengig av team.
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "HR-dataene som kilde"
 id = "GFK-U6"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -10091,6 +10522,7 @@ tekst = '''
 Grensen avgjøres når innhentingen fra HR-dataene kartlegges.'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "GFK-U7"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -10121,6 +10553,7 @@ tekst = '''
 Den siste godkjenneren godkjenner og sender i to steg.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U8"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -10157,6 +10590,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U9"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -10193,6 +10627,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U10"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -10229,6 +10664,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "tabellen fases ut"
 id = "GFK-U11"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -10265,6 +10702,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U12"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -10313,6 +10751,7 @@ Driften setter grensen innenfor et fast intervall, for eksempel 1–24 timer.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U13"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -10354,6 +10793,7 @@ For dem som ikke er i HR, registrerer driften en startleder per saksbehandler el
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U14"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -10395,6 +10835,7 @@ GFK-U2 faller bort, og bare GFK-U10 gjelder.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U15"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -10424,6 +10865,8 @@ Bare en rolle som mangler, avvises. En lavere grense godtas.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "feltene i prosjektinnstillingene"
 id = "GFK-U16"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -10461,6 +10904,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at utregningen sier at kalenderdagene er brukt"
 id = "GFK-U17"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -10514,6 +10959,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "fristtabellen i prosjektinnstillingene"
 id = "GFK-U18"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -10559,6 +11006,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U19"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -10594,6 +11042,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U20"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -10629,6 +11078,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "utregningen viser hver frist for seg"
 id = "GFK-U21"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -10665,6 +11116,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U22"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -10701,6 +11153,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GFK-U23"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -10734,6 +11187,8 @@ fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet; b
 tittel = "Kontrakt, API og saksopprettelse"
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["ka-u1"]
 anker = "kt-u1"
 vedtak = '''
 KT-U1: hvert spor i den offentlige tilstanden har `gjeldende_respons_event_id`: ID-en
@@ -10747,6 +11202,7 @@ Bygget (#272). Utfører KA-U1 i kontrakten. `respons_event_id` er uendret og st�
 etter en ny kravversjon'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "kt-u2"
 vedtak = '''
 KT-U2: den smale kontrakten under B-14 (#272) gjelder den representative flyten i
@@ -10761,6 +11217,7 @@ Bygget (#272): [kontrakten](../domenetabell/README.md#kontrakten-for-flyten). Ak
 er den eneste nye kommandoen'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 API-et: tilstanden sender alltid alle felt, og `null` betyr at feltet finnes uten verdi.
 Hendelsesdata i tidslinjen utelater felt som ikke er satt. Frontendtypene følger: `X \|
@@ -10770,6 +11227,7 @@ folge = '''
 Serialiseringen er slik i dag; typene er det ikke (SK-08, SK-09, M5)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 Et tilstandsløst endepunkt som regner ut et utkast med serverens regler, utredes ikke
 nå. Speilet i `src/lib/domain/` står under regelversjonsvakten, og B-13 er uendret.
@@ -10781,6 +11239,7 @@ utredning skulle behandles separat under B-15. B-15 er avgjort 09.10 ([B-15](#b-
 serverbasert forhåndsvurdering utredes ikke som erstatning'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "b-15"
 vedtak = '''
 B-15: når nødvendig saksgrunnlag er lastet, skal brukeren kunne utforske vurderinger og
@@ -10792,6 +11251,7 @@ folge = '''
 Flyttet fra 3.4 ved sluttredigeringen 09.10'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 Saker opprettes både fra skjemaet i appen og fra en topic i Catenda'''
 vedtatt = "29.09, oppdragsgiver"
@@ -10799,6 +11259,7 @@ folge = '''
 Ikke bygget: skjemaet får 403 (DM-05)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "KT-U3"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -10826,6 +11287,7 @@ En sak som opprettes i appen, får ingen topic i Catenda. Brevene i saken levere
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "KT-U4"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -10871,6 +11333,7 @@ utdrag = true
 tekst = "prosjektets konfigurasjon angir"
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "KT-U5"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -10904,6 +11367,8 @@ Svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om 
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "saken får topicens tittel"
 id = "KT-U6"
 dato = 2026-10-19
 hvem = "oppdragsgiver"
@@ -10945,6 +11410,7 @@ Topicen regnes som TEs varsel etter § 32.2, med datoen topicen ble laget, og fr
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "KT-U7"
 dato = 2026-10-19
 hvem = "oppdragsgiver"
@@ -10987,6 +11453,8 @@ Topicen holdes i innboksen til TE tar den over i appen og oppretter saken.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["vs-u42"]
 id = "KT-U8"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -11016,6 +11484,8 @@ Målbildet dekker meddelelser for hele kontrakten: en part kan registrere overta
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "sakstypene og navnet på dem"
 id = "KT-U9"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -11067,6 +11537,8 @@ flere hele KOE-saker (MM-U34 punkt 20), i alle forhold.'''
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "navnene ‹Nytt krav om endringsordre› og ‹Ny endringsordre› på handlingene"
 id = "KT-U10"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -11113,6 +11585,7 @@ totalentreprenøren oppretter en KOE-sak, og bare byggherren oppretter en EO-sak
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "KT-U11"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -11202,6 +11675,7 @@ etter = '''
 '''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 B-14: målformene for M2, M1, M4 og M5 legges til grunn med presiseringene 07.10; M3
 følger grensene som endres. Modulær monolitt og serverautoritet beholdes. Domenetabell
@@ -11216,6 +11690,7 @@ Målformen M2 er presisert 08.10 av [KA-U1](#ka-u1). Retningen for språket er v
 09.10 (raden under), og B-15 er avgjort 09.10 ([B-15](#b-15)). B-16 står åpen (3.4)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 B-14, språket: TypeScript er retning for den delte domenekjernen, som brukes både i
 nettleseren og på serveren. Valget godkjenner ikke `sprakprove/kjerne/` som
@@ -11234,6 +11709,7 @@ arkitekturtest og regelversjonsvakt i CI. Kjernen er ren kode og avhenger ikke a
 produksjonskjerne. Valget av serverlag er [B-18](#b-18) (10.10)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "b-17"
 vedtak = '''
 B-17: TS tar over skrivingen i KOE-saker samlet, ikke én kommando om gangen. TS eier
@@ -11264,6 +11740,7 @@ formatet av [HF-U2](#hf-u2). Python kan beholde levering og integrasjon så leng
 leser eller skriver i databasen selv, og bare til de flyttes ([B-19](#b-19))'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "ov-u1"
 vedtak = '''
 OV-U1: første versjon av TS-stien, den som skriver den første reelle hendelsen (#310),
@@ -11287,6 +11764,9 @@ til første versjon, skal paragrafmatrisen for #309 (PR #350) vise, innenfor
 (merknaden 10.10 til B-01 i 3.4). Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at KOE-saken viser at de ikke støttes"
+beslutningsdel = "forsering og EO-sak føres utenfor appen i første versjon"
 anker = "ov-u2"
 vedtak = '''
 OV-U2: i første versjon (OV-U1) føres forsering og endringsordre som egen sak utenfor
@@ -11298,7 +11778,7 @@ appen ikke kan uttrykke i den, som pris og tid, følger KA-U16. Forkastet: at TE
 registrere i KOE-saken at forsering er varslet for avslåtte dager, uten en
 forseringssak, slik at registreringen sperrer aksepten etter FO-U5'''
 vedtatt = "10.10, oppdragsgiver (#358)"
-forhold = [{ art = "presiserer", vedtak = "fo-u5" }]
+forhold = [{ art = "presiserer", vedtak = "fo-u5" }, { art = "bygger på", vedtak = "eo-u6" }]
 folge = '''
 Presiserer [FO-U5](#fo-u5) for første versjon: sperren forutsetter en forseringssak i
 appen som viser til avslaget. Bygger på oppdragsgivers prinsipp 10.10 om at den som
@@ -11307,6 +11787,8 @@ sender et brev, er bundet av det og har ansvaret for innholdet (som i
 til da viser grunnlagssvaret ikke til en EO-sak. Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "statusteksten og påminnelsen i skjemaet ved første krav i sporet"
 id = "OV-U3"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -11325,6 +11807,8 @@ forhold = [
   { art = "endrer", vedtak = "ka-u23" },
   { art = "presiserer", vedtak = "gr-u3" },
   { art = "presiserer", vedtak = "mm-u13" },
+  { art = "bygger på", vedtak = "eo-u2" },
+  { art = "bygger på", vedtak = "eo-u5" },
 ]
 folge = '''
 Presiseringen av GR-U3: «oppgjort» gjelder kravene som er sendt. Presiseringen av MM-U13:
@@ -11358,6 +11842,8 @@ tekst = '''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen ved sporene, merknaden, skjemateksten og visningen ved «venter på svar»"
 id = "OV-U4"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -11400,6 +11886,8 @@ tekst = '''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "teksten «TE oppgir at varselet ble sendt», skjemaet for byggherrens svar og for TEs aksept"
 id = "OV-U5"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -11451,6 +11939,8 @@ tekst = '''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "skjemaet som skiller standpunktet fra dokumentet, og visningen av opplysningen om § 31.3"
 id = "OV-U6"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -11469,6 +11959,8 @@ forhold = [
   { art = "endrer", vedtak = "ka-u14" },
   { art = "snevrer inn", vedtak = "ka-u13" },
   { art = "snevrer inn", vedtak = "ov-u4" },
+  { art = "bygger på", vedtak = "eo-u6" },
+  { art = "bygger på", vedtak = "eo-u9" },
 ]
 folge = '''
 Endringen av KA-U14 gjelder leddet om registrert korrespondanse. Ikke bygget. GR-U12
@@ -11501,6 +11993,8 @@ At registreringen går utenom fullmakten fordi endringsordren alt er utstedt ett
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["vs-u3"]
 id = "OV-U7"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -11536,6 +12030,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U8"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -11573,6 +12068,8 @@ utdrag = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "datoene ved siden av hverandre i svarskjemaet"
 id = "OV-U9"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -11600,6 +12097,7 @@ Opplysningen om kravets dato gjelder § 33.6.1. Skal datoen også gjelde § 33.4
 
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U10"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -11631,6 +12129,7 @@ tekst = '''
 OV-U3 står uendret.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U11"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -11676,6 +12175,7 @@ TE kan rette datoen alene så lenge byggherren ikke har svart med datoen som pre
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U12"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -11722,6 +12222,8 @@ kilde = "hovedplanen"
 tekst = "At endringsordren bare er dokumentasjon."
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["ov-u6", "ov-u84"]
 id = "OV-U13"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -11767,6 +12269,7 @@ En senere avklaring av at byggherrens registrerte svar på grunnlaget var en end
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "OV-U14"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -11795,6 +12298,8 @@ tekst = '''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "skjemateksten om at varsel ikke kreves"
 id = "OV-U15"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -11827,6 +12332,8 @@ Varsel etter § 34.1.2 kan bare sendes og oppgis i svikt og andre forhold (§ 33
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["ov-u80", "ov-u85"]
 id = "OV-U16"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -11881,6 +12388,7 @@ kilde = "hovedplanen"
 tekst = "Appen viser at forespørselen er registrert, og avgjør ikke om svaret kom i tide."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U17"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -11926,6 +12434,8 @@ kilde = "hovedplanen"
 tekst = "Hver side registrerer bare sine egne brev, som etter KA-U20."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at registreringen vises som rettet og ikke ved sporene"
 id = "OV-U18"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -11967,6 +12477,7 @@ En registrering av et brev sendt utenfor appen i feil sak rettes ikke i appen. B
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U19"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -12009,6 +12520,7 @@ Så lenge et slikt brev står og ikke er rettet bort, har saken merknaden «Et r
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U20"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -12055,6 +12567,7 @@ kilde = "hovedplanen"
 tekst = "Ved «venter på svar» og fristveiledningen viser visningen at motparten har registrert brev i sporet."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U21"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -12087,6 +12600,7 @@ Bare merknaden etter MM-U2 vises mens saken ikke er forstått. Det strider mot O
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U22"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -12125,6 +12639,7 @@ kilde = "hovedplanen"
 tekst = "Etterregistreringen gjør preklusjonen uavklart bare når varselet gjelder det preklusjonen gjaldt."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U23"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -12150,6 +12665,7 @@ Et særskilt krav etter § 34.1.3 kan bare sendes i et vederlagskrav som også h
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U24"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -12180,6 +12696,7 @@ kilde = "hovedplanen"
 tekst = "SK-12 låser et varsel som er registrert, ikke et varsel som bare er utledet."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U25"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -12226,6 +12743,7 @@ Appen lar hver kontrakt angi om Del II pkt. B.2.16 gjelder, og reglene følger i
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U26"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12256,6 +12774,7 @@ kilde = "hovedplanen"
 tekst = "Byggherren tar stilling til de særskilte kravene som ellers."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U27"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12313,6 +12832,7 @@ tekst = "krav på vederlagsjustering"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U28"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12351,6 +12871,7 @@ kilde = "hovedplanen"
 tekst = "Byggherren avslår kravet."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U29"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12403,6 +12924,7 @@ tekst = "TEs første krav i sporet"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U30"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12435,6 +12957,8 @@ Bare prinsipalt og subsidiært fryses som i dag, og det tredje laget regnes ut m
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["vs-u5", "ov-u73"]
 id = "OV-U31"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12466,6 +12990,7 @@ Subsidiært godkjent beløp betyr mellomlaget når begge påberopes, og videre s
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U32"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12557,6 +13082,7 @@ Påberoper byggherren at kravet om fristforlengelse ble spesifisert for sent ett
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U33"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12583,6 +13109,8 @@ Samme tekst, men frafall av pålegget etter § 32.3 c flytter lagene som et avsl
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["ov-u53", "ov-u41"]
 id = "OV-U34"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -12638,6 +13166,7 @@ tekst = "blir eller burde ha blitt klar over at utgifter ville påløpe"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U35"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -12661,6 +13190,8 @@ tekst = '''
 I OV-U25 utgår halvsetningen «og byggherren kan ikke påberope at det er varslet for sent». Kravet etter første ledd har ingen særskilt varslingsplikt etter § 34.1.3. OV-U25 sier ikke noe om varslingsplikten etter § 34.1.2.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "opplysningen ved kravet om rigg og drift"
 id = "OV-U36"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -12687,6 +13218,8 @@ tekst = '''
 TE kan kreve kompensasjon for rigg og drift i uendret byggetid i en endringssak, med beløpet TE oppgir. Appen avgjør ikke om terskelen er nådd, og regner ikke ut beløpet. Byggherren tar stilling til beløpet i svaret. Presiserer OV-U23.'''
 forkastet = true
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av forlengelsen som TEs premiss"
 id = "OV-U37"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -12723,6 +13256,8 @@ kilde = "hovedplanen"
 tekst = "et nytt krav om samme forhold går i en ny sak"
 utdrag = true
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "advarselen i akseptskjemaet"
 id = "OV-U38"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -12770,6 +13305,8 @@ kilde = "hovedplanen"
 tekst = "Appens egen vurdering vises bare der et vedtak krever det"
 utdrag = true
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "feltene i skjemaet for posten"
 id = "OV-U39"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -12807,6 +13344,7 @@ kilde = "docs/design-hendelsesformat-2026-10-09.md"
 tekst = "Et felt som mangler, betyr at parten ikke har sagt det"
 utdrag = true
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U40"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -12837,6 +13375,8 @@ kilde = "docs/design-hendelsesformat-2026-10-09.md"
 tekst = "Et felt som mangler, betyr at parten ikke har sagt det"
 utdrag = true
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av alle datoene TE har oppgitt"
 id = "OV-U41"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -12869,6 +13409,8 @@ tekst = "Det er første registrering, ikke en flytting"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["ov-u32"]
 id = "OV-U42"
 dato = 2026-10-24
 hvem = "oppdragsgiver"
@@ -12918,6 +13460,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "teksten om at behandlingen er ferdig i løsningen"
 id = "OV-U43"
 dato = 2026-10-26
 hvem = "oppdragsgiver"
@@ -12969,6 +13513,9 @@ tekst = '''
 I første versjon tar løsningen bare imot vederlagskrav som tilbud om oppgjør som fast sum (§ 34.2.1). Et krav etter kontraktens enhetspriser (§ 34.3.1) eller regningsarbeid (§ 34.4), kostnadsoverslaget og varslene etter § 30.2 og § 34.4 sendes utenfor løsningen og registreres etter OV-U4. Skjemaet sier det når TE vil kreve etter en beregningsregel. Forhold: endrer VS-U28; snevrer inn OV-U14; presiserer OV-U4.'''
 forkastet = true
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "appens vurdering vises ikke som byggherrens"
+bindende_i = ["lv-u4", "mm-u12"]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
@@ -12991,6 +13538,7 @@ formatet til de er avklart i et eget issue før TS skriver den første reelle he
 Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "mm-u13"
 vedtak = '''
 MM-U13: en regel i kjernen stiller det presise kontraktsspørsmålet til utsagnene, for
@@ -13011,6 +13559,7 @@ Arkitekturtesten avgrenser «avklart» til reglene GR-U7 og KA-U11 gjelder. En i
 verdi kan bare avgrenses per modul (#344)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "b-18"
 vedtak = '''
 B-18: valget av serverlag for TS-kjernen overlates til utviklerne og IT innenfor tre
@@ -13030,6 +13579,7 @@ Endret 11.10 av [B-19](#b-19): innloggingen flyttes til TS, og backenden samles 
 Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "b-19"
 vedtak = '''
 B-19: backenden samles i TS. Det Python gjør mot databasen, flyttes til TS før databasen
@@ -13055,6 +13605,9 @@ normaliserte subjekt, og alle veiene inn bruker den samme. Forutsetter at IKT ik
 utelukker Node (#78, punkt 6 i #375). Arbeidet følges i #375. Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "leveringsstatusen"
+beslutningsdel = "frosne leveringsmål"
 vedtak = '''
 Leveringsmål fryses; samlet status skiller lagret, venter, usikkert og levert; fravær
 løses med sporbar ny godkjenning, ikke delt konto eller bypass'''
@@ -13063,6 +13616,7 @@ folge = '''
 Del av invariantene i 2.3'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 En enkel databasebasert worker, ikke en distribuert meldingsplattform'''
 vedtatt = "17.09"
@@ -13070,6 +13624,7 @@ folge = '''
 Volumet tilsier det'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 Ingen utrulling før den samlede produksjonsporten er passert'''
 vedtatt = "17.09"
@@ -13077,6 +13632,8 @@ folge = '''
 F5'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "skillet mellom dokumentasjon, opplysning og utledning i visningen"
 id = "OV-U44"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13133,6 +13690,8 @@ Som A, men byggherren kan ikke registrere en endringsordre sendt utenfor appen s
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "spørsmålet og valget av dokumenttype i svarskjemaet"
 id = "OV-U45"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13181,6 +13740,8 @@ kilde = "hovedplanen"
 tekst = "Byggherren har ennå ikke svart på grunnlaget i TEs krav i brev <n> av <dato>. Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "spørsmålet om forbehold og visningen av henvisningen ved nytt svar"
 id = "OV-U46"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13213,6 +13774,7 @@ Et svar gitt utenfor appen gir et svar på grunnlaget i appen bare når det er e
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U47"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13247,6 +13809,7 @@ Setningen står som LV-U32 sier. Har byggherren skrevet en begrunnelse til en fu
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U48"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13281,6 +13844,7 @@ Svarer byggherren ja, kan svaret sendes, men det gir ikke sammenfall. Det regnes
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U49"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13315,6 +13879,7 @@ Godtar motparten, registrerer løsningen partenes tilslutning til avklaringen, u
 D3, endringsordre: En sak der et spor har enighet med særskilte vilkår som ikke er avklart, kan ikke inngå i en endringsordre (EO-U5). Sperren gjelder hele saken, fordi en sak inngår i høyst én endringsordre og gjengis der samlet (EO-U3, EO-U8). Den gjelder ikke saker uten slike vilkår. Snevrer inn EO-U5, slik KA-U26 gjør for et registrert brev merket med et forbehold.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U50"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13340,6 +13905,7 @@ MP-U7 gjelder for innsigelser sendt fra løsningen. En innsigelse etter § 5 tre
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U51"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13374,6 +13940,8 @@ En ny grunnlagsversjon kan endre TEs opplysning om når pålegget ble mottatt el
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av tidligere opplysninger og hvilken et svar gjaldt"
 id = "OV-U52"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13416,6 +13984,8 @@ tekst = '''
 TE kan endre opplysningen om når TE ble klar over at økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid ville påløpe (§ 34.1.3 annet ledd), i et eget utsagn med henvisning til varselet det gjelder. Den nye opplysningen gjelder straks som TEs siste opplysning, uten byggherrens godkjenning, også når datoen er senere. Den erstatter ikke innholdet i tidligere brev eller premissene i tidligere svar. Alle datoene TE har oppgitt, beholdes og vises, og visningen sier hvilken opplysning et svar gjaldt. Løsningen avgjør ikke hvilken dato som faktisk eller rettslig skal legges til grunn, og beregner ikke rettidighet eller preklusjonsvirkning. Et svar byggherren alt har gitt, står med virkningen det hadde. Byggherren tar stilling i et senere svar der rettidigheten behandles, eller i en revisjon som ellers er tillatt (HF-U5). Sporet venter ikke på et nytt svar i løsningen. Endringen gjelder bare TEs opplysning om når TE faktisk ble klar over det, ikke varseldatoen etter OV-U11 og ikke når TE burde ha blitt klar over det. Endrer OV-U41 på punktet om retting til TEs fordel. Snevrer inn MM-U21.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av alle datoene"
 id = "OV-U53"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13458,6 +14028,8 @@ tekst = '''
 TE kan endre opplysningen om når TE ble klar over at økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid ville påløpe (§ 34.1.3 annet ledd), i et eget utsagn med henvisning til varselet det gjelder. Den nye opplysningen gjelder straks som TEs siste opplysning, uten byggherrens godkjenning, også når datoen er senere. Den erstatter ikke innholdet i tidligere brev eller premissene i tidligere svar. Alle datoene TE har oppgitt, beholdes og vises, og visningen sier hvilken opplysning et svar gjaldt. Løsningen avgjør ikke hvilken dato som faktisk eller rettslig skal legges til grunn, og beregner ikke rettidighet eller preklusjonsvirkning. Et svar byggherren alt har gitt, står med virkningen det hadde. Byggherren tar stilling i et senere svar der rettidigheten behandles, eller i en revisjon som ellers er tillatt (HF-U5). Sporet venter ikke på et nytt svar i løsningen. Endringen gjelder bare TEs opplysning om når TE faktisk ble klar over det, ikke varseldatoen etter OV-U11 og ikke når TE burde ha blitt klar over det. Endrer OV-U41 på punktet om retting til TEs fordel. Snevrer inn MM-U21.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "skjemaets forklaring før TE sender"
 id = "OV-U54"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13491,6 +14063,8 @@ HF-U8 står. Brevet sier som i dag at kravet erstatter TEs tidligere krav.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "valget mellom utdyping og ny kravversjon i skjemaet"
 id = "OV-U55"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13516,6 +14090,7 @@ Endrer svaret 25.10 på spørsmål 5b (5b-B). Utvider GR-U22 til endringsordren.
 TE kan foreslå å rette betegnelsen i grunnlagskravet, med henvisning til brevet med den. Brevet sier: ‹TE foreslår at betegnelsen på endringsordren i brev <n> av <dato> rettes fra <gammel> til <ny>. Betegnelsene gjelder samme endringsordre. Forslaget gjelder til <dato> og faller bort uten aksept.› TE setter en akseptfrist. Før sending er forslaget et utkast; det sendte forslaget binder TE som et tilbud (HF-U5, HF-U6, LV-U7) og kan ikke trekkes i løsningen. Bindingen varer til byggherren godtar eller avslår det, eller fristen er ute. Det finnes høyst ett åpent forslag om betegnelsen i saken; det hindrer ikke et forslag om særskilte vilkår, og omvendt. Lukkes saken mens forslaget står åpent, faller det bort. Forslaget og aksepten går gjennom godkjenningen etter fullmakten, som et svar gjør. Taushet har ingen virkning i løsningen. Godtar byggherren, bekrefter begge parter at betegnelsene gjelder samme dokument, og feltet får den nye betegnelsen. Løsningen registrerer partenes bekreftelse og kontrollerer ikke at betegnelsene gjelder samme dokument. Tidligere brev og betegnelser beholdes og vises. Mens forslaget står åpent, kan saken ikke inngå i en endringsordre; sperren opphører når forslaget er godtatt, avslått eller har falt bort. Forslaget godtas også i et spor med enighet og når kravene er avgjort, og det endrer ikke utfallet. Presiserer GR-U16. Snevrer inn MM-U21, fordi rettingen alltid krever byggherrens aksept. Snevrer inn EO-U5 mens forslaget står åpent. Utvider OV-U3 og LV-U4.'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "OV-U56"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13546,6 +14121,8 @@ Før første ekte sak bygges TEs utdyping av et krav, retting av betegnelsen på
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "teksten i skjemaet før sending"
 id = "OV-U57"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13576,6 +14153,8 @@ I første versjon oppretter TE en ny sak med riktig hjemmel eller endringsordre.
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "feilmeldingen ved ugyldig beløp"
 id = "OV-U58"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13606,6 +14185,7 @@ Beløp parten krever eller godkjenner, prinsipalt og subsidiært, også et ansl�
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U59"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13636,6 +14216,8 @@ Som i dag (B-13).'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["ov-u39", "ov-u38"]
 id = "OV-U60"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13664,6 +14246,8 @@ TE oppgir i posten datoen TE legger til grunn for faktisk igangsetting på bygge
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "særskilt visning, merking og antall ved summene"
 id = "OV-U61"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -13692,6 +14276,7 @@ Nøkkeltallene står som i MM-U28.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U62"
 dato = 2026-10-26
 hvem = "oppdragsgiver"
@@ -13730,6 +14315,8 @@ kilde = "hovedplanen"
 tekst = "Appen vurderer ikke innholdet"
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["eo-u8", "vs-u18"]
 id = "OV-U63"
 dato = 2026-10-26
 hvem = "oppdragsgiver"
@@ -13758,6 +14345,7 @@ Veiledningen etter § 33.5 i fristkravet oppfordrer TE til å beskrive i begrunn
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "OV-U64"
 dato = 2026-10-27
 hvem = "oppdragsgiver"
@@ -13824,6 +14412,7 @@ Valget gjelder leveranseomfanget. Det følger ikke av svaret «Jeg støtter ogs�
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U65"
 dato = 2026-10-27
 hvem = "oppdragsgiver"
@@ -13873,6 +14462,7 @@ tekst = '''
 Har partene inngått en enighet, avviser løsningen protest, innsigelse og bestridelse fra begge parter mot det enigheten omfatter. Sperren gjelder også standpunkter i svaret som inngår i enigheten. Det som ikke er omfattet av enigheten, følger de vanlige reglene. Et brev sendt utenfor løsningen kan fortsatt registreres etter OV-U4.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U66"
 dato = 2026-10-27
 hvem = "oppdragsgiver"
@@ -13916,6 +14506,7 @@ Påberopt passivitet og merking følger KA-U29 også etter enighet.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U67"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -14041,6 +14632,7 @@ tekst = "står mot hver senere kravversjon"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U68"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -14119,6 +14711,8 @@ tekst = "et sendt brev beholder virkningen det hadde da det ble sendt."
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "ingen egne felt for vilkår og tekstene skjemaet viser før sending"
 id = "OV-U69"
 dato = 2026-10-30
 hvem = "oppdragsgiver"
@@ -14183,6 +14777,8 @@ tekst = "Er godkjenningen avhengig av andre vilkår eller forbehold enn dem som 
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["mm-u12", "ov-u4", "ov-u80"]
 id = "OV-U70"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -14220,6 +14816,7 @@ kilde = "hovedplanen"
 tekst = "Appen vurderer ikke innholdet"
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U71"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -14254,6 +14851,8 @@ tekst = "Saken har brev sendt utenfor appen"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "feltet «Forbehold» i svarskjemaet"
 id = "OV-U72"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -14292,6 +14891,7 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U73"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -14336,6 +14936,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "ordet i skjemaet"
 id = "OV-U74"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -14362,6 +14964,7 @@ Posten etter § 34.1.1 eller § 34.1.2 heter ‹vederlagsjustering› i brevet o
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U75"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14412,6 +15015,8 @@ tekst = "mellomrom i «§ 33.8»"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["ov-u82"]
 id = "OV-U76"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14474,6 +15079,7 @@ tekst = "som følge av forholdet i sak"
 utdrag = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U77"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14519,6 +15125,7 @@ forholdet det samme, og gruppelinjen faller bort.'''
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U78"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14581,6 +15188,8 @@ kilde = "hovedplanen"
 tekst = "Tittelen er TEs navn på forholdet, ikke endringsordrens."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "feltene som oppgis ved registreringen"
 id = "OV-U79"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14647,6 +15256,8 @@ kilde = "hovedplanen"
 tekst = "Hver side registrerer bare sine egne brev, som etter KA-U20."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "spørsmålet ‹Hva er det etter kontrakten?› og merkingene"
 id = "OV-U80"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14732,6 +15343,7 @@ forhold = [
   { art = "presiserer", vedtak = "vs-u16" },
   { art = "utvider", vedtak = "ov-u48" },
   { art = "utvider", vedtak = "ov-u49" },
+  { art = "bygger på", vedtak = "ka-u24" },
 ]
 folge = '''
 Alternativet «Til godkjenning» er forslaget med merket ‹Til godkjenning› i stedet for ‹Venter på godkjenning›, rettet etter svaret. Resten av teksten er forslaget ordrett. Forholdet til LV-U4 er ikke ført i forhold: spørsmålet sier bare at punktet også gjelder registrerte krav og svar i LV-U4. Bygges i #807.'''
@@ -14811,6 +15423,7 @@ kilde = "hovedplanen"
 tekst = "Å strukturere standpunkter, forbehold og bestridelser i registrerte brev i første versjon."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U81"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14864,6 +15477,8 @@ kilde = "hovedplanen"
 tekst = "Appen vurderer ikke innholdet"
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "hvordan ordene i vedtakene og brevtekstene leses."
 id = "OV-U82"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14903,6 +15518,7 @@ Som A, men ordet byttes i hvert vedtak, som ved ordbyttet 11.10 (#384). Forhold:
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "OV-U83"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -14963,6 +15579,8 @@ kilde = "hovedplanen"
 tekst = "Byggherrens standpunkt til grunnlaget heter «grunnlag», ikke «ansvar», med verdiene godkjent, avslått og frafalt, fordi frafall av et pålegg ikke er en vurdering av ansvar."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av når valget ble gjort"
 id = "OV-U84"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15014,6 +15632,8 @@ kilde = "hovedplanen"
 tekst = "Et svar byggherren alt har gitt, står med virkningen det hadde (OV-U5), og byggherren kan ta stilling på nytt."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen av begge datoene med parten"
 id = "OV-U85"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15055,6 +15675,7 @@ kilde = "hovedplanen"
 tekst = "Visningen sier «TE oppgir at varselet ble sendt <dato>», og byggherren tar stilling til rettidigheten i svaret med opplysningen som premiss."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U86"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15076,7 +15697,7 @@ om saken. Antakelse: at risikoen OV-U19 skulle dekke, er større når motparten 
 valgt = "12A"
 svar = '''
 Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
-forhold = [{ art = "endrer", vedtak = "ov-u10" }, { art = "endrer", vedtak = "ov-u19" }, { art = "endrer", vedtak = "ov-u70" }]
+forhold = [{ art = "endrer", vedtak = "ov-u10" }, { art = "endrer", vedtak = "ov-u19" }, { art = "endrer", vedtak = "ov-u70" }, { art = "opphever", vedtak = "ov-u71" }]
 folge = '''
 Bygges i #807.'''
 
@@ -15097,6 +15718,7 @@ kilde = "hovedplanen"
 tekst = "Så lenge et brev sendt utenfor appen står registrert som dokumentasjon i saken og ikke er rettet bort, har saken merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.», i tillegg til merknaden ved brevet."
 
 [[gruppe.vedtak]]
+klasse = "design"
 id = "OV-U87"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15131,6 +15753,7 @@ Uttrykket ‹Kravet som gjelder› brukes ikke i visningen, heller ikke i oversi
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "OV-U88"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -15254,6 +15877,7 @@ etter = '''
 '''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 ~~PostgreSQL og RPC over PostgREST er utgangspunkt for transaksjoner~~'''
 vedtatt = "16.–17.09, bekreftet i AF-02. **Opphevet 23.09** med TM-01 som motbelegg"
@@ -15261,6 +15885,7 @@ folge = '''
 Se raden under og merknaden etter tabellen'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 PostgreSQL over direkte tilkobling er utgangspunkt for transaksjoner (B-02 alternativ C,
 transport T2)'''
@@ -15273,6 +15898,7 @@ endret 11.10 av [B-12, databasen](#b-12-databasen); direkte tilkobling og én tr
 per bindende kommando gjelder fortsatt'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 B-02 hovedvalg: alternativ C. RLS med kontekst for lesing, avgrensede `SECURITY
 DEFINER`-kommandoer for bindende skriving, og operasjonsmodellen for journal,
@@ -15286,6 +15912,7 @@ databasen](#b-12-databasen)); hovedvalget står, og mekanismen uttrykkes og prø
 T-SQL (#395)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 Designet avhenger ikke av plattformen. Foreløpig mål er Azure Database for PostgreSQL
 (Flexible Server, versjon 17)'''
@@ -15297,6 +15924,7 @@ hosting er B-12. Målet og kravet om ren PostgreSQL er endret 11.10 av [B-12,
 databasen](#b-12-databasen); alternativ C må prøves i T-SQL (#395)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 TS2-02: JSON-hendelseslageret, CSV-metadatalageret og Supabase-lagrene går ut av
 kjøretidsstien'''
@@ -15309,6 +15937,8 @@ databasen](#b-12-databasen)), og delen om PostgreSQL er endret. Python-lagrene s
 ikke om ([B-19](#b-19))'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "registreringen hos drift"
 vedtak = '''
 B-02 punkt 4: prosjekt og kontraktsteam registreres bare av drift (TM-12)'''
 vedtatt = "23.09, oppdragsgiver"
@@ -15317,6 +15947,7 @@ En navngitt administrator bestemmer hvilke Catenda-team som representerer TE og 
 Runtime får ikke kalle `koe_register_project` eller `koe_set_contract_teams` (F1)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 B-02 punkt 5 og B-04: tilbakekalling'''
 vedtatt = "23.09, oppdragsgiver"
@@ -15326,6 +15957,7 @@ har registrert endringen; en gitt godkjenning står; utkast blir hos teamet; ved
 medlemsliste fortsetter appen, og drift varsles'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 B-02 punkt 6: break-glass er navngitt, tidsbegrenset og logget'''
 vedtatt = "23.09, oppdragsgiver"
@@ -15335,6 +15967,7 @@ krever, fjernet etterpå, alt logget. To-personskontroll og varsel til motparten
 ikke. Hvem som kan få og godkjenne nødtilgang, avklares i F5'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 Bare Catenda-innlogging'''
 vedtatt = "18.09"
@@ -15342,6 +15975,7 @@ folge = '''
 Anonym innlogging og OAuth-serveren slås av i Supabase-konsollet før produksjon'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 MG-02: webhook kan opprette brukerrader gjennom `koe_resolve_identity`'''
 vedtatt = "21.09"
@@ -15349,6 +15983,7 @@ folge = '''
 Gjennomført'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 DB-05: `viewer` skal finnes som ren leserolle'''
 vedtatt = "21.09"
@@ -15356,6 +15991,7 @@ folge = '''
 Besluttet, ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 Webhookens kontraktsside utledes av forfatterens lagmedlemskap'''
 vedtatt = "19.09"
@@ -15363,6 +15999,7 @@ folge = '''
 Fail-closed uten entydig side (INT-04)'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 vedtak = '''
 Vedlegg er kontraktskorrespondanse'''
 vedtatt = "18.09"
@@ -15370,6 +16007,8 @@ folge = '''
 Deltakere uten TE- eller BH-tilknytning leser ikke vedlegg'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "tapsfri rapportering av brevene til Fabric"
 anker = "rp-u1"
 vedtak = '''
 RP-U1: innholdet i brevene skal komme tapsfritt fram til Microsoft Fabric for
@@ -15389,6 +16028,7 @@ er et mulig middel, ikke kravet. Skjermingen følger invariant 1 og 8 og merknad
 til B-12. Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 anker = "b-12-databasen"
 vedtak = '''
 B-12, databasen: appens database er Azure SQL Database. Forbeholdet er at IKT bekrefter
@@ -15409,6 +16049,7 @@ T-SQL (#395). Grunnlaget er [vurderingen av JSON i Azure
 SQL](../vurdering-json-azure-sql-2026-10-11.md). Ikke bygget'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "HF-U3"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -15446,6 +16087,7 @@ Valget av lagringsform venter på en prøve mot Azure til IKT har levert en data
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "DL-U1"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -15475,6 +16117,7 @@ tekst = '''
 Det bygges ingen vei ut av Supabase for dagens Python- og PostgreSQL-stakk. Datalaget bygges i TS rett mot SQL Server, lokalt i Docker i skyøkta og mot Azure SQL Database når det blir aktuelt.'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "DL-U2"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -15505,6 +16148,7 @@ Sikkerhetsfeil i Python rettes fortsatt. Ellers rettes bare det som er nødvendi
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "DL-U3"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -15542,6 +16186,7 @@ datetimeoffset for appen og en UTC-kolonne for speilingen. To kilder til samme t
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "DL-U4"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -15578,6 +16223,7 @@ Har avsenderen flere kontraktsteam på samme side, velger avsenderen teamet når
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "DL-U5"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -15606,6 +16252,7 @@ F0b bygger journalen, notatet, oppdragene, bufferen og vernet mot endring. Radsi
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "DL-U6"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -15647,6 +16294,8 @@ kilde = "hovedplanen"
 tekst = "TE krever endringsordre for forholdet «<tittel>» i sak <saksnummer> («<sakstittel>»)."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "hva synkroniseringen lagrer"
 id = "DL-U7"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -15679,6 +16328,7 @@ kilde = "hovedplanen"
 tekst = "Varselet skal utløses av alderen på listen, ikke bare av feil, fordi en ufullstendig liste ikke gir noen feil."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "DL-U8"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -15708,6 +16358,7 @@ Deaktiveringen ved innlogging gjelder til neste synkronisering, uansett når lis
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "DL-U9"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -15749,6 +16400,7 @@ kilde = "docs/vedtaksregister/vedtak.toml"
 tekst = "En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet."
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "DL-U10"
 dato = 2026-10-16
 hvem = "oppdragsgiver"
@@ -15780,6 +16432,8 @@ delt (inaktive når koblingen oppheves; står til ny liste når den endres)'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "prosjektet vises som inaktivt i lista"
 id = "DL-U11"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -15808,6 +16462,8 @@ tekst = '''
 At et prosjekt er inaktivt, betyr bare at det ikke vises i lista over brukerens prosjekter. Medlemmene kan fortsatt lese og handle i prosjektet.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "navnet ved hver hendelse i tidslinjen"
 id = "DL-U12"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -15838,6 +16494,7 @@ tekst = '''
 TE og BH ser navnene; prosjektmedlemmer uten kontraktsside ser bare TE eller BH.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "DL-U13"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
@@ -15868,6 +16525,7 @@ tekst = '''
 Teamene ligger fast når første sak er opprettet.'''
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "DL-U14"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -15893,6 +16551,7 @@ Et prosjekt kan omfatte flere entreprisekontrakter. Hver sak hører til én kont
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
 id = "DL-U15"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -15919,6 +16578,7 @@ Alle aktive medlemmer av Catenda-prosjektet kan lese sakene og brevene, men ikke
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 id = "DL-U16"
 dato = 2026-10-20
 hvem = "oppdragsgiver"
@@ -15953,6 +16613,7 @@ forkastet = true
 tittel = "Premissene P1–P7"
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 P1: magic links utgår'''
 vedtatt = "20.09"
@@ -15960,6 +16621,7 @@ folge = '''
 `magic_links` fjernes (MS-15)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 P2, P3: BIM er relevant; et objekt hører til én sak; formålet er å se hvilke komponenter
 som fører til tvist'''
@@ -15968,6 +16630,7 @@ folge = '''
 Retning MS-13, MS-14. Ikke prioritert'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 P4: vedlegg lagres bare i Catenda'''
 vedtatt = "20.09"
@@ -15975,6 +16638,7 @@ folge = '''
 Hash og frosset grunnlag hos oss (MS-11, AF-04)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 P5: løsningen skal i prinsippet støtte andre virksomheter'''
 vedtatt = "20.09"
@@ -15982,6 +16646,7 @@ folge = '''
 `organisasjon_id` (MS-10, gjennomført)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 P6: to kan arbeide i ulike spor samtidig'''
 vedtatt = "20.09"
@@ -15989,6 +16654,7 @@ folge = '''
 Total orden beholdes (MS-03)'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
 vedtak = '''
 P7: arkivplikt går foran sletteplikt for journalen'''
 vedtatt = "21.09"

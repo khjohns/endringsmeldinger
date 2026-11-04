@@ -2510,7 +2510,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F315',
     feilklasse:
-      'tallet i svaret er ikke subsidiært når svaret på forholdet avviser ansvaret (MM-U9, MM-U28, #1050)',
+      'tallet i svaret er ikke subsidiært når svaret på forholdet avviser ansvaret (MM-U9, OV-U32, #1050)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['    s.subsidiaer.length > 0 ||\n    (s.gjeldendeSvar', '    (s.gjeldendeSvar']],
     mal: ['SK-01: når TE godtar avslaget av forholdet i forløp A'],
@@ -3092,7 +3092,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F377',
-    feilklasse: 'et standpunkt i lag 3 regnes ikke som subsidiært (OV-U32, MM-U28)',
+    feilklasse: 'et standpunkt i lag 3 regnes ikke som subsidiært (OV-U32)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [["typeof v.virkning === 'number' && v.virkning > 1", 'v.virkning === 2']],
     mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],
@@ -3580,6 +3580,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [["if (k.spor !== 'forhold' && 'dokumentasjon' in k)", 'if (false)']],
     mal: ['et vedlegg ved et fristkrav utenfor varselet avvises i formen'],
+  },
+  {
+    id: 'F436',
+    feilklasse:
+      'et registrert svar etter frafallet tar bort at forholdet er avklart ved frafallet mens en ny versjon venter (GR-U20, GR-U23, OV-U4, #1388)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);',
+        'spor.forhold.svar.at(-1);',
+      ],
+    ],
+    mal: ['en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3'],
   },
   {
     id: 'F437',

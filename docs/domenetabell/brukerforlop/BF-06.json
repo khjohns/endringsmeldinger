@@ -1,0 +1,705 @@
+{
+  "id": "BF-06",
+  "tittel": "BH gjør opp én eller flere KOE-saker med en endringsordre, og TE tar stilling til den",
+  "brukerhistorie": "BH godkjenner grunnlaget i en KOE-sak, og svaret er en endringsordre etter kontrakten. BH velger om endringsordren i EO-saken sendes samtidig, eller senere sammen med andre KOE-saker. I endringsordren gir BH vederlag og frist per sak, eller samlet for saker som henger sammen. Før sending ser BH hvilke saker endringsordren lukker, hvilke spor som ikke har registrert enighet, og hvilken verdi godkjenningen regnes av. TE ser hvert utsagn og sakene det gjelder, godtar eller bestrider det, og fører det som ikke er avklart, videre i en ny KOE.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har opprettet en KOE-sak og påberopt et forhold i en underkategori der punkt 32.2 gjelder (BF-05). BH har ikke svart på grunnlaget. Prosjektet har to andre KOE-saker der grunnlaget er godkjent."
+  },
+  "bestilling": "BF-06.md",
+  "prototype": {
+    "fil": "../../design/prototyper/bf-06-endringsordre.html",
+    "klikkstier": [
+      {
+        "id": "samle-og-send",
+        "dekker": [
+          "1",
+          "2",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "staar": "Sakene endringsordren omfatter"
+          },
+          {
+            "staar": "Beskriv endringen fullt ut."
+          },
+          {
+            "staar": "Endringsordren sier ikke noe om fristforlengelsen i KOE-021."
+          },
+          {
+            "klikk": "Samle fristforlengelsen for KOE-017, KOE-018 og KOE-021",
+            "tilstand": "samlet"
+          },
+          {
+            "staar": "Krav i brev 9 (KOE-017), brev 6 (KOE-018) og brev 8 (KOE-021):"
+          },
+          {
+            "fyll": "Fristforlengelse for sakene samlet",
+            "tekst": "25"
+          },
+          {
+            "staar": "Hvert krav har en post."
+          },
+          {
+            "klikk": "Samle vederlagsjusteringen for KOE-017 og KOE-021",
+            "tilstand": "vederlag-samlet"
+          },
+          {
+            "staar": "KOE-018 står for seg med svaret totalentreprenøren godtok."
+          },
+          {
+            "fyll": "Vederlagsjustering for sakene samlet",
+            "tekst": "760 000"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Disse sakene lukkes når endringsordren er sendt"
+          },
+          {
+            "staar": "Byggherren krever at endringen utføres slik den er beskrevet her:"
+          },
+          {
+            "staar": "Endringene har konsekvenser for annet."
+          },
+          {
+            "staar": "Kravet om fristforlengelse er endret etter at saken ble lagt i utkastet"
+          },
+          {
+            "staar": "Totalentreprenøren kan bare godta eller bestride vederlagsjusteringen for KOE-017 og KOE-021 samlet."
+          },
+          {
+            "staar": "Totalentreprenøren kan bare godta eller bestride fristforlengelsen for KOE-017, KOE-018 og KOE-021 samlet."
+          },
+          {
+            "klikk": "Send til godkjenning",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Bekreft listen over sakene."
+          },
+          {
+            "kryss": "Listen over sakene er riktig"
+          },
+          {
+            "klikk": "Send til godkjenning",
+            "tilstand": "godkjenning"
+          },
+          {
+            "staar": "Ingenting er sendt til totalentreprenøren."
+          },
+          {
+            "klikk": "Vis endringsordren når den er godkjent",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Inngår i EO-014"
+          }
+        ]
+      },
+      {
+        "id": "kravet-forst",
+        "dekker": [
+          "3"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "staar": "Krav i brev 6:"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Vederlagsjusteringen: 650 000 kr mot kravet på 800 000 kr. Ikke registrert enighet."
+          },
+          {
+            "staar": "Fast sum (pkt. 34.2.1)"
+          }
+        ]
+      },
+      {
+        "id": "uten-samling",
+        "dekker": [
+          "10"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Fristforlengelsen: endringsordren sier ikke noe om den. Kravet er 10 dager."
+          },
+          {
+            "staar": "Endringsordren går gjennom hele kjeden, fordi regningsarbeidet i KOE-021 ikke har et beløp."
+          },
+          {
+            "klikk": "Tilbake til utkastet",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Endringsordren sier ikke noe om fristforlengelsen i KOE-021."
+          }
+        ]
+      },
+      {
+        "id": "del-opp-vederlaget",
+        "dekker": [
+          "11"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Samle vederlagsjusteringen for KOE-017 og KOE-021",
+            "tilstand": "vederlag-samlet"
+          },
+          {
+            "klikk": "Del opp vederlagsjusteringen per sak",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Overslaget er en opplysning."
+          }
+        ]
+      },
+      {
+        "id": "legg-til-sak",
+        "dekker": [
+          "12"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Legg til en sak",
+            "tilstand": "legg-til"
+          },
+          {
+            "staar": "Inngår i EO-012"
+          },
+          {
+            "klikk": "Legg til KOE-022",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Totalentreprenøren har ikke sendt krav om vederlagsjustering i KOE-022."
+          },
+          {
+            "staar": "4 saker"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Vederlagsjusteringen: totalentreprenøren har ikke sendt krav."
+          },
+          {
+            "staar": "Endringsordren går gjennom hele kjeden, fordi regningsarbeidet i KOE-021 ikke har et beløp og totalentreprenøren ikke har sendt krav i KOE-022."
+          },
+          {
+            "klikk": "Tilbake til utkastet",
+            "tilstand": "utkast"
+          },
+          {
+            "klikk": "Fjern KOE-022 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "3 saker"
+          }
+        ]
+      },
+      {
+        "id": "fjern-sak",
+        "dekker": [
+          "13"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Samle fristforlengelsen for KOE-017, KOE-018 og KOE-021",
+            "tilstand": "samlet"
+          },
+          {
+            "klikk": "Fjern KOE-018 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "KOE-018 er fjernet. Kontroller fristforlengelsen, som gjaldt sakene samlet."
+          },
+          {
+            "staar": "2 saker"
+          }
+        ]
+      },
+      {
+        "id": "avvik-fra-enighet",
+        "dekker": [
+          "14"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "staar": "Registrert enighet: totalentreprenøren godtok i brev 11 svaret i brev 10 på kravet i brev 6"
+          },
+          {
+            "fyll": "Beløp for KOE-018",
+            "tekst": "280 000"
+          },
+          {
+            "staar": "Beløpet avviker fra svaret totalentreprenøren godtok i brev 11."
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Vederlagsjusteringen: 280 000 kr. Avviker fra svaret totalentreprenøren godtok i brev 11."
+          }
+        ]
+      },
+      {
+        "id": "fra-svaret",
+        "dekker": [
+          "15"
+        ],
+        "start": "fra-svaret",
+        "handlinger": [
+          {
+            "staar": "Sendes sammen med svaret ditt på påberopelsen i KOE-017."
+          },
+          {
+            "staar": "Saken du svarer på"
+          },
+          {
+            "staar": "Tilbake til svaret"
+          },
+          {
+            "staar": "1 sak"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "De to brevene godkjennes samlet. Avvises godkjenningen, sendes ingen av dem."
+          },
+          {
+            "kryss": "Listen over sakene er riktig"
+          },
+          {
+            "klikk": "Send til godkjenning",
+            "tilstand": "godkjenning"
+          },
+          {
+            "staar": "Den siste godkjenningen sender svaret og endringsordren samtidig"
+          },
+          {
+            "klikk": "Vis endringsordren når den er godkjent",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Svaret på påberopelsen i KOE-017 og endringsordren er sendt samtidig."
+          }
+        ]
+      },
+      {
+        "id": "krav-uten-post",
+        "dekker": [
+          "16"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Gi fristforlengelse for KOE-021",
+            "tilstand": "utkast"
+          },
+          {
+            "fyll": "Fristforlengelse for KOE-021",
+            "tekst": "7"
+          },
+          {
+            "staar": "Hvert krav har en post."
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Fristforlengelsen: 7 dager mot kravet på 10 dager. Ikke registrert enighet."
+          }
+        ]
+      },
+      {
+        "id": "uten-koe-sak",
+        "dekker": [
+          "17"
+        ],
+        "start": "utkast",
+        "handlinger": [
+          {
+            "klikk": "Fjern KOE-017 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "klikk": "Fjern KOE-018 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "klikk": "Fjern KOE-021 fra endringsordren",
+            "tilstand": "utkast"
+          },
+          {
+            "staar": "Endringsordren omfatter ingen KOE-sak."
+          },
+          {
+            "fyll": "Vederlagsjustering, eks. mva.",
+            "tekst": "250 000"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Ingen saker lukkes. Vederlagsjusteringen og fristforlengelsen står alene."
+          }
+        ]
+      },
+      {
+        "id": "registrer",
+        "dekker": [
+          "18"
+        ],
+        "start": "registrer",
+        "handlinger": [
+          {
+            "staar": "Fyll ut skjemaet etter det brevet sier."
+          },
+          {
+            "fyll": "Datoen brevet ble sendt",
+            "tekst": "25.10.2026"
+          },
+          {
+            "klikk": "Se endringsordren før sending",
+            "tilstand": "kontroll"
+          },
+          {
+            "staar": "Registrering av endringsordre sendt utenfor løsningen"
+          },
+          {
+            "staar": "Kravet om fristforlengelse er sendt etter datoen på brevet (brev 9, 28. oktober)."
+          },
+          {
+            "kryss": "Listen over sakene er riktig"
+          },
+          {
+            "klikk": "Send registreringen til godkjenning",
+            "tilstand": "godkjenning"
+          },
+          {
+            "staar": "Registreringen er ikke lagret."
+          },
+          {
+            "klikk": "Vis endringsordren når den er godkjent",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Inngår i EO-014"
+          },
+          {
+            "staar": "brevets referanse EO-032"
+          }
+        ]
+      },
+      {
+        "id": "te-mottatt",
+        "dekker": [
+          "19"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "staar": "Postene mot kravene dine"
+          },
+          {
+            "staar": "plikter du å utføre endringen"
+          },
+          {
+            "staar": "For KOE-017 og KOE-021 samlet"
+          },
+          {
+            "staar": "Ikke besvart"
+          }
+        ]
+      },
+      {
+        "id": "te-godta",
+        "dekker": [
+          "20"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "klikk": "Godta poster",
+            "tilstand": "te-godta"
+          },
+          {
+            "klikk": "Send aksepten",
+            "tilstand": "te-godta"
+          },
+          {
+            "staar": "Velg postene du godtar."
+          },
+          {
+            "kryss": "Godta V4"
+          },
+          {
+            "staar": "Aksepten gjelder hele posten"
+          },
+          {
+            "klikk": "Send aksepten",
+            "tilstand": "te-godtatt"
+          },
+          {
+            "staar": "Aksepten er sendt som brev 2 i sak EO-014. Den gjelder V4."
+          }
+        ]
+      },
+      {
+        "id": "te-bestrid",
+        "dekker": [
+          "21",
+          "22"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "klikk": "Bestrid V1 i ny KOE",
+            "tilstand": "te-ny-koe"
+          },
+          {
+            "staar": "Varslene i KOE-017 står ikke i den nye saken."
+          },
+          {
+            "fyll": "Samlet krav",
+            "tekst": "800 000"
+          },
+          {
+            "klikk": "Send kravet til byggherren",
+            "tilstand": "te-bestridt"
+          },
+          {
+            "staar": "Bestridt i KOE-031"
+          },
+          {
+            "staar": "behandlingen av posten fortsetter der"
+          }
+        ]
+      },
+      {
+        "id": "te-lukket",
+        "dekker": [
+          "23"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "klikk": "Se KOE-021",
+            "tilstand": "te-lukket-sak"
+          },
+          {
+            "staar": "Endringsordren svarer ikke på kravet ditt om 10 dager."
+          },
+          {
+            "staar": "sluttoppstillingen (punkt 39.1)"
+          },
+          {
+            "klikk": "Ny KOE om fristforlengelsen",
+            "tilstand": "te-ny-koe"
+          },
+          {
+            "staar": "som endringsordren ikke svarte på"
+          }
+        ]
+      },
+      {
+        "id": "te-regning",
+        "dekker": [
+          "24"
+        ],
+        "start": "te-mottatt",
+        "handlinger": [
+          {
+            "klikk": "Send varsel eller regningsoppgaver for V3",
+            "tilstand": "te-regning"
+          },
+          {
+            "staar": "Innlegg i sak EO-014"
+          },
+          {
+            "klikk": "Send innlegget til byggherren",
+            "tilstand": "te-mottatt"
+          },
+          {
+            "staar": "Innlegget er sendt"
+          }
+        ]
+      },
+      {
+        "id": "te-tillegg",
+        "dekker": [
+          "25"
+        ],
+        "start": "te-bestridt",
+        "handlinger": [
+          {
+            "klikk": "Vis når byggherren har gjort opp KOE-031",
+            "tilstand": "te-tillegg"
+          },
+          {
+            "staar": "Tillegg 100 000 kr til V1 i EO-014"
+          },
+          {
+            "staar": "V1 i EO-015 erstatter V1 i EO-014."
+          }
+        ]
+      }
+    ]
+  },
+  "kilder": [
+    "GR-U14",
+    "GR-U32",
+    "KA-U14",
+    "EO-U3",
+    "EO-U4",
+    "EO-U8",
+    "EO-U11",
+    "EO-U12",
+    "EO-U13",
+    "HF-U12",
+    "MM-U12",
+    "MM-U34",
+    "MM-U35",
+    "OV-U6",
+    "OV-U80",
+    "B-17",
+    "DL-U2",
+    "FO-U1",
+    "FO-U8",
+    "GR-U27",
+    "MM-U38",
+    "GR-U13",
+    "KA-U13",
+    "MM-U21",
+    "OV-U1",
+    "OV-U69",
+    "KA-U45",
+    "OV-U43",
+    "LV-U15",
+    "GFK-U7",
+    "KA-U1",
+    "EO-U14",
+    "EO-U15",
+    "EO-U16",
+    "EO-U17",
+    "EO-U18",
+    "EO-U19",
+    "EO-U20",
+    "EO-U21",
+    "EO-U22",
+    "EO-U23",
+    "EO-U24",
+    "EO-U25",
+    "EO-U26",
+    "EO-U27",
+    "EO-U28",
+    "EO-U29",
+    "EO-U30",
+    "EO-U31",
+    "EO-U32",
+    "EO-U33",
+    "MM-U37",
+    "LV-U44"
+  ],
+  "venter_paa": [
+    "#1525",
+    "#1519"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen og spørsmålene S-1–S-3."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 1 med BHs skjema for endringsordren, og bestillingen etter drøftingen med oppdragsgiver: regelen for lukkingen, utsagn som gjelder flere saker, og spørsmålene S-5–S-7."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Oppdragsgiver valgte A: vederlaget kan også samles. Prototypen versjon 2 med #vederlag-samlet."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 3: valget mellom standpunkt og tilbud, å legge til og fjerne saker, en kortere liste over sakene, og visningen etter språkfila."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 4 etter oppdragsgivers gjennomgang: endringen beskrives fullt ut per sak (D-9), konsekvensene med avkrysning, og tilbud om oppgjør som avkrysning."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "P-4 besvart: nei. Grensen om avtalt vederlag er tatt ut (punkt 23 i MM-U34), og prototypen versjon 5 viser en post som avviker fra en registrert enighet."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Én beskrivelse av endringen for hele endringsordren (D-9). Prototypen versjon 6."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 7 etter vurderingen av skjemaet: kravet først, kort avkrysning for tilbud, post for krav uten post, veien fra svaret på forholdet og færre rammer."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "S-8: vederlag og frist i endringsordren er byggherrens tilbud, og BH svarer bare på krav som er sendt. Prototypen versjon 8 uten avkrysning for tilbud, med endringsordre uten KOE-sak og fjerning av sak i samlet post."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Registreringen av en endringsordre sendt utenfor løsningen: S-2, S-4, S-15 og P-3 besvart, og prototypen versjon 9 med #registrer."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Valg A1: en registrert endringsordre får løsningens kode, og brevets nummer er en referanse. Prototypen versjon 10."
+    },
+    {
+      "dato": "2026-11-03",
+      "forhold": "#1525",
+      "hva": "Prototypen versjon 11 med TEs del og rollebytte, og stegene 19–25."
+    }
+  ]
+}

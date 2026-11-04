@@ -1,5 +1,5 @@
-"""Vedtaks-ID-ene i kjerne/, server/ og src/ og kildene i docs/domenetabell/ mot
-vedtaksregisteret (#452, punkt 2 i #451).
+"""Vedtaks-ID-ene i kjerne/, server/ og src/, kildene i docs/domenetabell/ og dokumentene
+der designet står, mot vedtaksregisteret (#452, punkt 2 i #451, steg 3b i #1534).
 
     python3 docs/verktoy/vedtakshenvisninger.py    # list henvisningene som ikke holder
 
@@ -24,6 +24,16 @@ henvisningen en liste eller en tekst under `kilde` eller `kilder`, og ID-ene les
 i koden, også midt i en tekst som `B-14 (bevisgrunnlaget)`. Unntaket for en test merket
 historisk gjelder ikke der, og `endringer` i et brukerforløp leses ikke, fordi den
 fører hva som er endret og hvorfor.
+
+Dokumentene er bestillingene for brukerforløpene (`BF-*.md`), `.interface-design/system.md`,
+skillene og `AGENTS.md`, der designet fra registeret flyttes (svar 5 04.11 i #1534). Der er
+henvisningen et avsnitt, et punkt i en liste, en tabellrad eller en overskrift, og ID-ene
+kontrolleres som i koden, uten unntaket for en test merket historisk.
+
+En post med klassen design er ikke eneste grunnlag i `kjerne/frosset/`, `kjerne/kommandoer/`
+og `kjerne/regler/`, og heller ikke i `kilde` og `kilder` i bevis-sakene. Samme henvisning
+må vise til vedtaket med den bindende setningen, og feilmeldingen foreslår vedtakene i
+`bindende_i` (arbeidsvalget for kontroll 2 04.11 i #1534).
 """
 
 import collections
@@ -40,6 +50,14 @@ vr = last("vedtaksregister")
 
 MAPPER = ("kjerne", "server", "src")
 KILDEMAPPE = "docs/domenetabell"
+DOKUMENTER = (
+    "docs/domenetabell/brukerforlop/BF-*.md",
+    ".interface-design/system.md",
+    ".claude/skills/**/*.md",
+    "AGENTS.md",
+)
+GRUNNLAGSMAPPER = ("kjerne/frosset/", "kjerne/kommandoer/", "kjerne/regler/")
+BEVIS_SAKER = "docs/domenetabell/bevis-saker*.json"
 KILDEFELT = ("kilde", "kilder")
 HOPP_OVER = {"node_modules", ".svelte-kit", "dist", "build"}
 U_ID = r"[A-Z]{2,3}-U\d+"
@@ -54,6 +72,10 @@ HISTORISK = re.compile(r"(?<!ikke )\bhistorisk\b", re.IGNORECASE)
 KOMMENTAR = re.compile(r"^\s*(//|/\*|\*|<!--|#(\s|$))")
 MARKOERER = re.compile(r"/\*+|\*+/|//+|<!--|-->|^\s*\*+|^\s*#")
 LUKKES = {"/*": "*/", "<!--": "-->"}
+# Det som begynner en ny henvisning i et dokument: en overskrift, et punkt i en liste og en
+# tabellrad. En tom linje avslutter et avsnitt.
+NY_I_DOKUMENT = re.compile(r"^\s*(?:#{1,6}\s|[-*+]\s|\d+[.)]\s|\|)")
+AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
 KJENTE_AVVIK = (
     ("kjerne/kommandoer/nyttelast.ts", "KA-U24", 1, "#1433"),
     ("kjerne/kommandoer/nyttelast.ts", "KA-U32", 2, "#1433"),
@@ -65,6 +87,26 @@ KJENTE_AVVIK = (
     ("kjerne/tester/feilinnfoering.ts", "KA-U32", 1, "#1433"),
     ("src/lib/components/varden/Vederlagssvar.svelte", "KA-U24", 1, "#1433"),
     ("src/lib/components/varden/__tests__/Varden.test.ts", "KA-U24", 1, "#1433"),
+    ("server/saksliste.ts", "MM-U28", 2, "#1545"),
+    ("server/saksliste.ts", "MM-U29", 2, "#1545"),
+    ("server/tester/sakslinje.test.ts", "MM-U28", 2, "#1545"),
+    ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1545"),
+    ("src/lib/components/case-list/__tests__/CaseListRow.test.ts", "MM-U28", 2, "#1545"),
+    ("src/lib/components/case-list/presentation.ts", "MM-U28", 1, "#1545"),
+    ("src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts", "MM-U29", 1, "#1545"),
+    ("src/lib/components/saksoversikt/__tests__/WorkQueue.test.ts", "MM-U29", 3, "#1545"),
+    ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1545"),
+    ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1545"),
+    ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1545"),
+)
+# En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
+# som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
+# krympe.
+KJENTE_DESIGNAVVIK = (
+    ("docs/domenetabell/bevis-saker-maalmodell.json", "MM-U22", 2, "#1534, steg 4"),
+    ("kjerne/frosset/forholdene.ts", "OV-U77", 1, "#1534, steg 4"),
+    ("kjerne/frosset/forholdene.ts", "OV-U78", 1, "#1534, steg 4"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U31", 1, "#1534, steg 4"),
 )
 
 
@@ -80,19 +122,58 @@ def vedtaks_ider(post: dict) -> set[str]:
 
 
 def vedtak(register: dict) -> tuple[set[str], set[str]]:
-    """ID-ene til vedtakene i registeret og ID-ene til dem som er opphevet."""
+    """ID-ene til vedtakene i registeret og ID-ene til dem som er opphevet.
+
+    En ID er opphevet når hver post den er vedtaket for, er opphevet. B-13 er vedtaket for
+    flere rader, og en opphevet rad gjør ikke B-13 opphevet (svar 14 i PR #1537)."""
     ider = [(p, vedtaks_ider(p)) for p in vr.poster(register)]
-    etter_anker = {vr.anker(p): i for p, i in ider if vr.anker(p)}
-    opphevet = set()
+    ankrene = {vr.anker(p) for p, _ in ider if vr.anker(p)}
+    opphevede_ankre = set()
     for p, _ in ider:
         for f in p.get("forhold", []):
             if f["art"] == "opphever":
-                if f["vedtak"].lower() not in etter_anker:
+                if f["vedtak"].lower() not in ankrene:
                     raise ValueError(
                         f"{f['vedtak']} i et forhold er ikke et anker i registeret"
                     )
-                opphevet |= etter_anker[f["vedtak"].lower()]
-    return set().union(*(i for _, i in ider)), opphevet
+                opphevede_ankre.add(f["vedtak"].lower())
+    poster_for = collections.defaultdict(list)
+    for p, i in ider:
+        for id_ in i:
+            poster_for[id_].append(vr.anker(p))
+    opphevet = {
+        id_ for id_, ankre in poster_for.items() if all(a in opphevede_ankre for a in ankre)
+    }
+    return set(poster_for), opphevet
+
+
+def design(register: dict) -> dict[str, list[str]]:
+    """ID-ene der hver post er design, med ID-ene til vedtakene i `bindende_i` for dem."""
+    alle = {vr.anker(p): p for p in vr.poster(register) if vr.anker(p)}
+    klasser = collections.defaultdict(set)
+    bindende = collections.defaultdict(list)
+    for p in vr.poster(register):
+        for id_ in vedtaks_ider(p):
+            klasser[id_].add(p["klasse"])
+            for a in p.get("bindende_i", []):
+                bindende[id_] += sorted(vedtaks_ider(alle[a])) or [vr.etikett(alle[a])]
+    return {
+        id_: list(dict.fromkeys(bindende[id_]))
+        for id_, k in klasser.items()
+        if k == {"design"}
+    }
+
+
+def _designfeil(sted: str, ider: list[str], design_: dict[str, list[str]]) -> list[str]:
+    feil = []
+    for i in dict.fromkeys(ider):
+        forslag = (
+            f"vis også til {', '.join(design_[i])}"
+            if design_[i]
+            else "før vedtaket med den bindende setningen i bindende_i i registeret"
+        )
+        feil.append(f"{sted}: {i} er design og står som eneste grunnlag; {forslag}")
+    return feil
 
 
 def _avsnitt_3_4(plan: str) -> str:
@@ -145,6 +226,30 @@ def henvisninger(tekst: str) -> list[tuple[int, str]]:
     return [(nr, "\n".join(linjer)) for nr, linjer in blokker]
 
 
+def avsnitt(tekst: str) -> list[tuple[int, str]]:
+    """Linjenummeret og teksten for hver henvisning i et dokument: et avsnitt, et punkt i en
+    liste, en tabellrad eller en overskrift."""
+    blokker: list[tuple[int, list[str]]] = []
+    aapen = False
+    for nr, linje in enumerate(tekst.splitlines(), 1):
+        if not linje.strip():
+            aapen = False
+        elif aapen and not NY_I_DOKUMENT.match(linje):
+            blokker[-1][1].append(linje)
+        else:
+            blokker.append((nr, [linje]))
+            aapen = not linje.lstrip().startswith(("#", "|"))
+    return [(nr, "\n".join(linjer)) for nr, linjer in blokker]
+
+
+def er_dokument(sti: str) -> bool:
+    return sti.endswith(".md")
+
+
+def i_grunnlagsmappe(sti: str) -> bool:
+    return sti.startswith(GRUNNLAGSMAPPER)
+
+
 def er_test(sti: str) -> bool:
     deler = pathlib.PurePosixPath(sti).parts
     return any(d in ("tester", "tests", "__tests__") for d in deler[:-1]) or bool(
@@ -160,15 +265,28 @@ def feil_i(
     aapne: set[str],
     avvik: frozenset[tuple[str, str]] = frozenset(),
     truffet: collections.Counter | None = None,
+    design_: dict[str, list[str]] | None = None,
+    designavvik: frozenset[tuple[str, str]] = frozenset(),
+    designtruffet: collections.Counter | None = None,
 ) -> list[str]:
-    """`avvik` er parene (fil, ID) i `KJENTE_AVVIK`; hvert treff telles i `truffet`."""
+    """`avvik` er parene (fil, ID) i `KJENTE_AVVIK`, og `designavvik` dem i
+    `KJENTE_DESIGNAVVIK`; hvert treff telles i `truffet` og `designtruffet`. `design_` er
+    ID-ene til designpostene med vedtakene i `bindende_i`, og leses bare i GRUNNLAGSMAPPER."""
     feil = []
-    for nr, henvisning in henvisninger(tekst):
+    deler = avsnitt(tekst) if er_dokument(sti) else henvisninger(tekst)
+    for nr, henvisning in deler:
         ider = HENVISNING.findall(henvisning)
         for i in dict.fromkeys(ider):
             if i not in kjente and i not in aapne:
                 feil.append(f"{sti}:{nr}: {i} er ikke et vedtak i registeret")
         gjeldende = [i for i in ider if i in kjente and i not in opphevet]
+        if design_ and i_grunnlagsmappe(sti) and gjeldende and all(i in design_ for i in gjeldende):
+            for i in dict.fromkeys(gjeldende):
+                if (sti, i) in designavvik:
+                    if designtruffet is not None:
+                        designtruffet[(sti, i)] += 1
+                else:
+                    feil += _designfeil(f"{sti}:{nr}", [i], design_)
         historisk = er_test(sti) and HISTORISK.search(henvisning)
         if not gjeldende and not historisk:
             for i in dict.fromkeys(ider):
@@ -185,7 +303,7 @@ def feil_i(
 def gyldig_rad(rad) -> bool:
     fil, i, antall, issue = rad
     return (
-        bool(re.fullmatch(r"#\d+", issue))
+        bool(AVVIKSISSUE.fullmatch(issue))
         and bool(HENVISNING.fullmatch(i))
         and isinstance(antall, int)
         and antall > 0
@@ -194,23 +312,24 @@ def gyldig_rad(rad) -> bool:
     )
 
 
-def avviksfeil(rader, truffet: collections.Counter) -> list[str]:
-    """Feilene i `KJENTE_AVVIK`: en rad med feil form, og en rad der antallet treff avviker."""
+def avviksfeil(rader, truffet: collections.Counter, navn: str = "KJENTE_AVVIK") -> list[str]:
+    """Feilene i en liste over kjente avvik: en rad med feil form, og en rad der antallet treff
+    avviker."""
     feil = []
     for rad in rader:
         fil, i, antall, issue = rad
         if not gyldig_rad(rad):
             feil.append(
-                f"KJENTE_AVVIK: raden ({fil}, {i}, {antall}, {issue}) må ha én fil, én ID, antallet og issuet"
+                f"{navn}: raden ({fil}, {i}, {antall}, {issue}) må ha én fil, én ID, antallet og issuet"
             )
         elif (n := truffet[(fil, i)]) > antall:
             feil.append(
-                f"KJENTE_AVVIK: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
+                f"{navn}: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
                 f"tillater {antall}; en ny henvisning må vise til et vedtak som gjelder"
             )
         elif n < antall:
             feil.append(
-                f"KJENTE_AVVIK: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
+                f"{navn}: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
                 f"sier {antall}; rett antallet eller fjern raden"
             )
     return feil
@@ -227,6 +346,12 @@ def filer(rot: pathlib.Path = vr.ROT):
                     )
                 except UnicodeDecodeError:
                     continue
+
+
+def dokumenter(rot: pathlib.Path = vr.ROT):
+    stier = {sti for monster in DOKUMENTER for sti in rot.glob(monster) if sti.is_file()}
+    for sti in sorted(stier):
+        yield sti.relative_to(rot).as_posix(), sti.read_text(encoding="utf-8")
 
 
 def kildelister(data, sted: str = "") -> list[tuple[str, list[str]]]:
@@ -258,16 +383,36 @@ def kildelister(data, sted: str = "") -> list[tuple[str, list[str]]]:
     return ut
 
 
+def er_bevis_sak(sti: str) -> bool:
+    return pathlib.PurePosixPath(sti).match(BEVIS_SAKER)
+
+
 def kildefeil(
-    sti: str, data, kjente: set[str], opphevet: set[str], aapne: set[str]
+    sti: str,
+    data,
+    kjente: set[str],
+    opphevet: set[str],
+    aapne: set[str],
+    design_: dict[str, list[str]] | None = None,
+    designavvik: frozenset[tuple[str, str]] = frozenset(),
+    designtruffet: collections.Counter | None = None,
 ) -> list[str]:
+    """Som `feil_i`, for kildelistene i en JSON-fil. `design_` leses bare i bevis-sakene."""
     feil = []
     for sted, kilder in kildelister(data):
         ider = [i for k in kilder for i in HENVISNING.findall(k)]
         for i in dict.fromkeys(ider):
             if i not in kjente and i not in aapne:
                 feil.append(f"{sti}: {sted}: {i} er ikke et vedtak i registeret")
-        if not [i for i in ider if i in kjente and i not in opphevet]:
+        gjeldende = [i for i in ider if i in kjente and i not in opphevet]
+        if design_ and er_bevis_sak(sti) and gjeldende and all(i in design_ for i in gjeldende):
+            for i in dict.fromkeys(gjeldende):
+                if (sti, i) in designavvik:
+                    if designtruffet is not None:
+                        designtruffet[(sti, i)] += 1
+                else:
+                    feil += _designfeil(f"{sti}: {sted}", [i], design_)
+        if not gjeldende:
             feil.extend(
                 f"{sti}: {sted}: {i} er opphevet og står som eneste grunnlag"
                 for i in dict.fromkeys(ider)
@@ -283,22 +428,39 @@ def kildefiler(rot: pathlib.Path = vr.ROT):
 
 
 def kontroller(
-    register: dict, plan: str, rot: pathlib.Path = vr.ROT, rader=KJENTE_AVVIK
+    register: dict,
+    plan: str,
+    rot: pathlib.Path = vr.ROT,
+    rader=KJENTE_AVVIK,
+    designrader=KJENTE_DESIGNAVVIK,
 ) -> list[str]:
     kjente, opphevet = vedtak(register)
+    design_ = design(register)
     aapne = aapne_beslutninger(plan) | avgjorte_beslutninger(plan)
     avvik = frozenset((rad[0], rad[1]) for rad in rader if gyldig_rad(rad))
+    designavvik = frozenset((rad[0], rad[1]) for rad in designrader if gyldig_rad(rad))
     truffet: collections.Counter = collections.Counter()
+    designtruffet: collections.Counter = collections.Counter()
     feil = [
         f
-        for sti, tekst in filer(rot)
-        for f in feil_i(sti, tekst, kjente, opphevet, aapne, avvik, truffet)
+        for sti, tekst in (*filer(rot), *dokumenter(rot))
+        for f in feil_i(
+            sti, tekst, kjente, opphevet, aapne, avvik, truffet,
+            design_, designavvik, designtruffet,
+        )
     ]
-    return feil + avviksfeil(rader, truffet) + [
+    feil += [
         f
         for sti, data in kildefiler(rot)
-        for f in kildefeil(sti, data, kjente, opphevet, aapne)
+        for f in kildefeil(
+            sti, data, kjente, opphevet, aapne, design_, designavvik, designtruffet
+        )
     ]
+    return (
+        feil
+        + avviksfeil(rader, truffet)
+        + avviksfeil(designrader, designtruffet, "KJENTE_DESIGNAVVIK")
+    )
 
 
 def main() -> int:
@@ -306,7 +468,11 @@ def main() -> int:
     if feil:
         print("Vedtakshenvisningene holder ikke:", *feil, sep="\n  ")
         return 1
-    print("Vedtakshenvisningene i " + ", ".join((*MAPPER, KILDEMAPPE)) + " holder")
+    print(
+        "Vedtakshenvisningene i "
+        + ", ".join((*MAPPER, KILDEMAPPE, *DOKUMENTER))
+        + " holder"
+    )
     return 0
 
 

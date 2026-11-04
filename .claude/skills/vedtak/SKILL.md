@@ -25,9 +25,21 @@ oppdragsgiver.
   3. Ellers sier raden hvordan skjemaet, visningen og arbeidsflyten er bygget opp. Da er
      den *design*, og står i brukerforløpet eller `system.md`. Brukerprøven endrer den uten
      vedtak, men en endring som ville endre noe et vedtak sier, krever nytt vedtak.
+
+  En *post* er en rad i [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og
+  *vedtak* er klassen. Hver post har en klasse, og feltene for delene og det andre hjemmet
+  står i [registeret](../../../docs/vedtaksregister/README.md#klassen).
+- **Hvem som retter klassen.** Klassen er en arbeidsvurdering. Orkestratoren kan rette den,
+  men bare etter at en subagent eller en egen økt har kontrollert rettingen uavhengig,
+  etter testen over. Rettingen føres i issuet med resultatet av kontrollen. Det samme
+  gjelder klassen for en ny post (oppdragsgiver 04.11, svar 8 i #1534).
 - **Vedtak ved behov.** Nye domenevedtak stilles bare når et issue i den
   kritiske stien trenger dem (oppdragsgiver 20.10, [spørsmål 4](../../../docs/vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md)).
-  Den kritiske stien er milepælen «Første ekte sak».
+  Den kritiske stien er milepælen «Første ekte sak». Unntakene er samlevedtakene: for alle
+  temaene i steg 4 i #1534 (svar 21 B i [PR #1537](https://github.com/khjohns/endringsmeldinger/pull/1537)),
+  og for et vedtak som har fått sin tredje endring etter at temaet er samlet (svar 6 og 10 i
+  #1534, [6623299573](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623299573) og [6623620205](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623620205)).
+  `vedtaksregister.py` varsler om det.
 - **Det prinsipielle først.** Still først spørsmålene som avgjør retningen. Et
   eksempel er om appen skal vurdere selv eller bare registrere, eller hva et
   sendt brev binder. Detaljene venter til retningen er avgjort: for
@@ -75,7 +87,7 @@ oppdragsgiver.
   domenetabellen eller issuet, med henvisning til prinsippet, og står til
   review. Et eget vedtak trengs når valget ikke følger av et prinsipp, endrer et
   vedtak eller blir en kontrakt. Et valg om skjemaet, visningen eller arbeidsflyten føres i
-  brukerforløpet og ikke som vedtak. Er spørsmålene mange og detaljerte, gå rett til én
+  brukerforløpet og ikke som en post i registeret. Er spørsmålene mange og detaljerte, gå rett til én
   samlet tilslutning: ett helhetlig forslag, eventuelt prøvd i juridisk
   sparring, som oppdragsgiver kan svare «ja» på med rettelser per punkt. I FK
   runde 4 tok spørsmålene for byggedel 1 tre versjoner før oppdragsgiver
@@ -153,9 +165,9 @@ autoritativ for dem og var avsnitt 3.1 i hovedplanen (#1020), gjennom
 skriver ikke der.
 
 - Svarene fra en spørsmålsrunde fører orkestratoren inn i én liten PR: én ny
-  post i `docs/vedtaksregister/vedtak.toml` per vedtak, med spørsmålet,
-  alternativene, det valgte, svaret ordrett, kilden, forholdet til andre vedtak
-  og sitatene. `python3 docs/verktoy/vedtaksregister.py` skriver raden i
+  post i `docs/vedtaksregister/vedtak.toml` per svar, med spørsmålet,
+  alternativene, det valgte, svaret ordrett, kilden, forholdet til andre poster,
+  sitatene og klassen etter testen over. `python3 docs/verktoy/vedtaksregister.py` skriver raden i
   vedtaksfila og henvisningen i Følge hos vedtaket forholdet gjelder. Skriv ikke
   i vedtaksfila for hånd. PR-en merges før arbeids-PR-ene, som viser til ID-ene.
   Da får parallelle PR-er ikke konflikt i vedtaksfila. Lenker et vedtak til et dokument i en
@@ -167,6 +179,11 @@ skriver ikke der.
   erstatter kontrollrundene av vedtaksteksten. Det som krever skjønn, er
   kontrollert én gang, da spørsmålet ble stilt (over). Kommer et svar som ikke
   passer på et alternativ, stilles et oppfølgingsspørsmål.
+- **Samlevedtakene er unntaket** fra regelen over, i de samme tilfellene som under «Vedtak ved
+  behov». Et samlevedtak skriver regelen for et tema med nye ord og føres med forholdet
+  `samler` til vedtakene det samler. Formen, med kilden for hver setning og lista «Endret
+  innhold», står i svar 7 A i #1534 ([6623423185](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623423185)).
+  Løser samlevedtaket en motsigelse og endrer innholdet, opphever det i stedet (svar 4 A, [6623211248](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
 - Før vedtaks-PR-en merges, kontrollerer en subagent én gang `folge` i de nye
   postene, hver endret `folge` i en importert post og hver ny eller endret
   tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,

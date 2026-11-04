@@ -97,13 +97,28 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
   eller utsagn hver handling lager, hvilke virkninger som oppstår og består, og hva som
   skjer ved et ugyldig valg og ved avbrudd. Byggeøkta skal ikke måtte finne på forventet
   atferd. En virkning gjengis med alle vilkårene i vedtaket. Et D-punkt sier bare hva som
-  binder og hva som regnes med etter kontrakten.
+  binder og hva som regnes med etter kontrakten. Belegget er en post med klassen vedtak
+  eller beslutning, aldri en designpost alene.
 - **G, gjennomføringen:** hva som finnes, hva som mangler, og hva som må prøves teknisk.
 - **S, spørsmålene:** stilles og lagres ordrett etter vedtaksskillen. Et svar som følger
   av et vedtak, føres som arbeidsvalg i bestillingen. Et svar som endrer et vedtak, føres
   i vedtaksregisteret.
 - **P, produktspørsmål utenfor forløpet:** står der til de tas opp i et eget issue.
 - **Endringer:** dato, grunnlag og hva som er endret, per versjon.
+
+**Et designvedtak som flyttes, blir et U-punkt** (svar 5 04.11 i
+[#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)):
+
+- Punktet får et anker foran ID-en, `- <a id="u-12"></a>**U-12** …`, så det kan lenkes til.
+  Ankeret er ID-en med små bokstaver og står én gang i fila.
+- Posten i registeret får `flyttet_til = "BF-06.md#u-12"`, med bokstaven når forløpet har
+  en (`BF-02A.md#u-3`). Lenkekontrollen feiler når ankeret ikke finnes
+  ([registeret](../../../docs/vedtaksregister/README.md#klassen)).
+- Teksten skrives etter språkreglene ([språkfila](../../../docs/sprak.md#hva-løsningen-kalles)).
+  Den flyttede teksten er ny tekst. Den sier hva visningen bygger på, ikke «appens
+  vurdering», som i lesningen av MM-U23 i svarene 04.11.
+- Har designvedtaket en del som binder partene, står den delen i vedtaket i `bindende_i`, og
+  punktet viser til det.
 
 ## Prototypen
 

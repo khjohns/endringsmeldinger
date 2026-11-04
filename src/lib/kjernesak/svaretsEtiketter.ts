@@ -5,7 +5,7 @@ import type { Etikett, Saksbilde } from './saksbilde';
 /**
  * VG-B-02: etikettene fra `visning` som partene ser ved byggherrens svar før TE godtar det: svaret
  * gjaldt et annet varsel (OV-U5), standpunktet er subsidiært, og enigheten er betinget av grunnlaget
- * (GR-U26) eller uten virkning (MM-U28, MM-U30). Varselet står ikke i brevteksten (OV-U5).
+ * (GR-U26) eller uten virkning (GR-U7, KA-U6, MM-U30). Varselet står ikke i brevteksten (OV-U5).
  */
 const VED_SVARET = [
   'svaret_gjaldt_et_annet_varsel',

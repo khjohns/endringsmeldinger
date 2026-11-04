@@ -161,7 +161,7 @@ export type Saksbetegnelse =
   | 'paaberopelsen_trukket'
   | 'kravene_avgjort';
 
-/** Appens lesing av enighetens virkning (MM-U28). */
+/** Appens lesing av enighetens virkning (GR-U7, MM-U3, KA-U6), som `enighetensVirkning` i kjernen. */
 export type Enighetsvirkning = 'betinget' | 'virksom' | 'uten_virkning';
 
 /** Betegnelsen per spor fra den faste lista i MM-U30 (`BETEGNELSER` i `kjerne/utledning/visning.ts`). */
@@ -234,7 +234,7 @@ export interface Sakslinje {
   frist: Fristlinje;
 }
 
-/** Regnet i serveren. Ukjent er ikke 0, og fristdagene summeres ikke (MM-U28). */
+/** Regnet i serveren. Ukjent er ikke 0, og fristdagene summeres ikke (MM-U38). */
 export interface Noekkeltall {
   saker: number;
   ikke_forstaatt: number;
