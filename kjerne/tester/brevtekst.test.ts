@@ -1082,7 +1082,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       'Videre subsidiært:',
     ]);
     const dagene = s.u().spor.frist.gjeldendeSvar!.standpunkter.find((p) => p.art === 'dager')!;
-    expect(standpunktetErSubsidiaert(s.u(), 'frist', dagene.id), 'MM-U28').toBe(true);
+    expect(standpunktetErSubsidiaert(s.u(), 'frist', dagene.id), 'OV-U32').toBe(true);
   });
 
   it('kontrollsak: med fremdriftshindring står dagene i lag 2, ikke 3 (OV-U32)', () => {
@@ -4410,7 +4410,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(s.avvist('TE', { type: 'trekk', spor: 'forhold' })).toBeNull();
       expect(
         visning(u, GJELDENDE_REGLER).spor.forhold.etiketter,
-        'svaret godtas, så versjon 2 venter på svar (MM-U29)'
+        'svaret godtas, så versjon 2 venter på svar (MM-U24)'
       ).toContain('venter_paa_svar');
       expect(visning(u, GJELDENDE_REGLER).status?.kode).toBe('alle_krav_avgjort');
     });
@@ -4951,7 +4951,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
 });
 
 /**
- * MM-U29 med lukkingen i SK-01 og OV-U3 (#1050, #1067): et krav venter ikke på svar, og
+ * MM-U24 og MM-U30 med lukkingen i SK-01 og OV-U3 (#1050, #1067): et krav venter ikke på svar, og
  * et svar står ikke som ikke godtatt, når et svar eller en aksept i sporet ville blitt
  * avvist. Frafallet etter arbeidsvalget 20.10 i #1050: TE kan ikke godta et frafall
  * (GR-U9), og en ny påberopelsesversjon etter det venter på svar (GR-U23). I vederlag og
@@ -4996,7 +4996,7 @@ describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)
       svar: [utregnet(s, 'forhold', avslag), utregnet(s, 'vederlag', VEDERLAG_DELVIS[0])],
     });
     const st = s.u().spor.vederlag.gjeldendeSvar!.standpunkter.find((p) => p.art === 'beloep')!;
-    expect(standpunktetErSubsidiaert(s.u(), 'vederlag', st.id), 'MM-U9, MM-U28').toBe(true);
+    expect(standpunktetErSubsidiaert(s.u(), 'vederlag', st.id), 'MM-U9, OV-U32').toBe(true);
     expect(svarIkkeGodtatt(s.u(), 'vederlag'), 'kontroll: før aksepten').toBe(true);
     godtar(s, 'forhold');
     expect(svarIkkeGodtatt(s.u(), 'vederlag')).toBe(false);

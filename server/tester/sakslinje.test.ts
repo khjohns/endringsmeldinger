@@ -6,9 +6,10 @@
  *
  * Kildene for forventningene: svarene fra oppdragsgiver 20.10 i #1022
  * (https://github.com/khjohns/endringsmeldinger/issues/1022#issuecomment-6290027563),
- * ført som MM-U28 (krav, svar og enighet; summene) og MM-U29 (det som foreligger),
- * og MM-U22 for de fire saksbetegnelsene. Eksempelet i svar 2 er forløp A i
- * bevis-sakene: forholdet avslått, vederlaget vurdert subsidiært og godtatt.
+ * ført som MM-U28 (krav, svar og enighet; summene) og MM-U29 (det som foreligger), og
+ * MM-U22 for de fire saksbetegnelsene. MM-U37–MM-U40 har opphevet MM-U28 og MM-U29, og
+ * testene gjelder den gamle oversikten til den fjernes i #1545. Eksempelet i svar 2
+ * er forløp A i bevis-sakene: forholdet avslått, vederlaget vurdert subsidiært og godtatt.
  */
 
 import { randomUUID } from 'node:crypto';

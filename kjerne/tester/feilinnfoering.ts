@@ -2510,7 +2510,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F315',
     feilklasse:
-      'tallet i svaret er ikke subsidiært når svaret på forholdet avviser ansvaret (MM-U9, MM-U28, #1050)',
+      'tallet i svaret er ikke subsidiært når svaret på forholdet avviser ansvaret (MM-U9, OV-U32, #1050)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['    s.subsidiaer.length > 0 ||\n    (s.gjeldendeSvar', '    (s.gjeldendeSvar']],
     mal: ['SK-01: når TE godtar avslaget av forholdet i forløp A'],
@@ -3092,7 +3092,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F377',
-    feilklasse: 'et standpunkt i lag 3 regnes ikke som subsidiært (OV-U32, MM-U28)',
+    feilklasse: 'et standpunkt i lag 3 regnes ikke som subsidiært (OV-U32)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [["typeof v.virkning === 'number' && v.virkning > 1", 'v.virkning === 2']],
     mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],

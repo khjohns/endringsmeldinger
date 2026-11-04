@@ -109,7 +109,9 @@ DEL_I_KLASSE = {"designdel": {"vedtak", "beslutning"}, "beslutningsdel": {"vedta
 # Den bindende setningen i en design- eller beslutningspost står i et annet vedtak
 # (arbeidsvalget for kontroll 2 04.11 i #1534). En vedtakspost har den selv.
 BINDENDE_I_KLASSE = {"beslutning", "design"}
-FLYTTET_TIL = re.compile(r"BF-\d{2}\.md#u-\d+")
+# Punktet i bestillingen for et brukerforløp, med bokstaven når forløpet har en, som BF-02A
+# (reviewet av PR #1542). Lenkekontrollen feiler når ankeret ikke finnes.
+FLYTTET_TIL = re.compile(r"BF-\d{2}[A-Z]?\.md#u-\d+")
 IMPORTERT = {"anker", "vedtak", "vedtatt", "folge", "forhold"} | KLASSEFELT
 NY = {
     "id",
@@ -206,8 +208,11 @@ def _nye(register: dict | None) -> list[dict]:
 
 
 def _skrevne_forhold(post: dict) -> list[dict]:
-    """Forholdene verktøyet skriver. I en importert post står de allerede i Følge (#423)."""
-    return post.get("forhold", []) if er_ny(post) else []
+    """Forholdene verktøyet skriver. I en importert post står de fem eldre allerede i Følge
+    (#423); «samler» og «bygger på» skrives som i en ny post."""
+    if er_ny(post):
+        return post.get("forhold", [])
+    return [f for f in post.get("forhold", []) if f["art"] not in FORHOLD_I_FOLGE]
 
 
 def er_ny(post: dict) -> bool:
@@ -259,25 +264,77 @@ def vedtattcelle(post: dict) -> str:
     return f"{_dato(post['dato'])}, {post['hvem']} ({', '.join(post['kilde'])})"
 
 
-def indeks(register: dict) -> tuple[dict, dict]:
-    """Vedtakene etter anker, og forholdene fra nye poster etter ankeret de viser til."""
+class Indeks(tuple):
+    """(alle, senere) fra indeks(), med `opphevet`: postene som opphever hvert vedtak, med
+    datoen når den finnes, og `fra_importerte`: de importerte postene med et forhold som Følge
+    sier selv, unntatt «opphever», begge etter ankeret til vedtaket."""
+
+    opphevet: dict
+    fra_importerte: dict
+
+
+def indeks(register: dict) -> Indeks:
+    """Vedtakene etter anker, og forholdene verktøyet skriver etter ankeret de viser til. En
+    importert post har ingen dato."""
     alle = {anker(p): p for p in poster(register) if anker(p)}
     senere = {}
+    opphevet = {}
+    fra_importerte = {}
     for p in poster(register):
+        for f in p.get("forhold", []):
+            if not er_ny(p) and f["art"] in FORHOLD_I_FOLGE and f["art"] != "opphever":
+                kilder = fra_importerte.setdefault(f["vedtak"], [])
+                if not any(q is p for q in kilder):
+                    kilder.append(p)
         for f in _skrevne_forhold(p):
-            senere.setdefault(f["vedtak"], []).append((p["dato"], f["art"], p["id"], p))
-    return alle, senere
+            senere.setdefault(f["vedtak"], []).append(
+                (p.get("dato"), f["art"], anker(p) or etikett(p), p)
+            )
+        for f in p.get("forhold", []):
+            if f["art"] == "opphever":
+                opphevet.setdefault(f["vedtak"], []).append((p.get("dato"), p))
+    ix = Indeks((alle, senere))
+    ix.opphevet = opphevet
+    ix.fra_importerte = fra_importerte
+    return ix
 
 
-def folgecelle(post: dict, register: dict, ix: tuple[dict, dict] | None = None) -> str:
-    alle, senere = ix or indeks(register)
+def _dato_eller_tidlig(dato: datetime.date | None) -> datetime.date:
+    return dato or datetime.date.min
+
+
+def _av(dato: datetime.date | None, p: dict) -> str:
+    return f"{_dato(dato)} av {_lenke(p)}" if dato else f"av {_lenke(p)}"
+
+
+def opphevet_av(a: str, ix: Indeks) -> str | None:
+    """«opphevet 30.10 av [OV-U69](#ov-u69)» for et vedtak som er opphevet, ellers None."""
+    av = sorted(ix.opphevet.get(a, []), key=lambda t: (_dato_eller_tidlig(t[0]), anker(t[1])))
+    return "opphevet " + _liste_med_og([_av(d, p) for d, p in av]) if av else None
+
+
+def folgecelle(post: dict, register: dict, ix: Indeks | None = None) -> str:
+    """Forholdene verktøyet skriver, så `folge`. Et forhold fra et vedtak som er opphevet, er
+    merket med opphevelsen (M2 A 04.11 i #1534): i passiv form i parentes, og for et forhold
+    som Følge i en importert post sier selv, som en egen setning."""
+    ix = ix if isinstance(ix, Indeks) else indeks(register)
+    alle, senere = ix
     deler = [
         f"{f['art'].capitalize()} {_lenke(alle[f['vedtak']])}."
         for f in _skrevne_forhold(post)
     ]
+    for dato, art, _, p in sorted(
+        senere.get(anker(post), []),
+        key=lambda t: (_dato_eller_tidlig(t[0]), t[1], t[2]),
+    ):
+        merke = opphevet_av(anker(p), ix) if art != "opphever" else None
+        deler.append(
+            f"{FORHOLD[art]} {_av(dato, p)}" + (f" ({merke})." if merke else ".")
+        )
     deler += [
-        f"{FORHOLD[art]} {_dato(dato)} av {_lenke(p)}."
-        for dato, art, _, p in sorted(senere.get(anker(post), []), key=lambda t: t[:3])
+        f"{_lenke(p)} er {merke}."
+        for p in (ix.fra_importerte.get(anker(post), []) if anker(post) else [])
+        if (merke := opphevet_av(anker(p), ix))
     ]
     if post.get("folge"):
         deler.append(linje(post["folge"]))
@@ -291,7 +348,7 @@ def _liste_med_og(deler: list[str]) -> str:
 def klassecelle(post: dict, ix: tuple[dict, dict]) -> str:
     """Klassen, delene posten har, vedtakene der den bindende setningen står, og punktet i
     brukerforløpet posten er flyttet til."""
-    alle, _ = ix
+    alle = ix[0]
     deler = [d for d in ("designdel", "beslutningsdel") if d in post]
     tekst = post["klasse"] + (f" med {_liste_med_og(deler)}" if deler else "")
     if post.get("bindende_i"):
@@ -306,7 +363,7 @@ def klassecelle(post: dict, ix: tuple[dict, dict]) -> str:
 def rad(
     post: dict, register: dict, ix: tuple[dict, dict] | None = None, klasse: bool = False
 ) -> str:
-    ix = ix or indeks(register)
+    ix = ix if isinstance(ix, Indeks) else indeks(register)
     celler = [vedtakscelle(post), vedtattcelle(post), folgecelle(post, register, ix)]
     if klasse:
         celler.insert(1, klassecelle(post, ix))
@@ -518,7 +575,9 @@ def forholdfeil(register: dict) -> list[str]:
         per_post[i][art, a] += 1
     for i, p, navn in _importerte(ps):
         foert = collections.Counter(
-            (f["art"], f["vedtak"]) for f in p.get("forhold", [])
+            (f["art"], f["vedtak"])
+            for f in p.get("forhold", [])
+            if f["art"] in FORHOLD_I_FOLGE
         )
         lest = per_post[i]
         feil += [
@@ -546,6 +605,8 @@ EN_VEI = frozenset(
         ("b-19", "endrer", "b-18", "passiv"),
         ("eo-u1", "presiserer", "gr-u3", "passiv"),
         ("eo-u5", "presiserer", "eo-u2", "passiv"),
+        # Ført 04.11 i steg 3b i #1534: raden 23.09 fikk ankeret, og Følge der sier forholdet (M2 A).
+        ("eo-u6", "endrer", "ubegrenset-fullmakt", "passiv"),
         ("gr-u10", "presiserer", "gr-u2", "passiv"),
         ("gr-u10", "presiserer", "gr-u7", "passiv"),
         ("gr-u13", "endrer", "gr-u10", "passiv"),
@@ -901,6 +962,10 @@ def valider(register: dict) -> list[str]:
         return feil
     for p in poster(register):
         navn = anker(p) or linje(p["vedtak"])[:40]
+        if _skrevne_forhold(p) and not anker(p):
+            feil.append(
+                f"{navn}: en rad uten anker kan ikke ha «samler» eller «bygger på»; gi raden et anker"
+            )
         for f in p.get("forhold", []):
             if f["vedtak"] not in ankre:
                 feil.append(
@@ -974,6 +1039,149 @@ def bindende_i_opphevet(register: dict) -> list[str]:
         for a in p.get("bindende_i", [])
         if a in opphevet and a not in samlet
     ]
+
+
+# Et gjeldende vedtak som presiserer, utvider, endrer eller bygger på et opphevet vedtak, er en
+# motsigelse (svar 5 04.11 i #1534). Dagens tilfeller rettes i samlevedtakene i steg 4, og
+# lista skal bare krympe.
+FORHOLD_TIL_OPPHEVET = ("presiserer", "utvider", "endrer", "bygger på")
+KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
+    {
+        ("eo-u1", "bygger på", "eo-u6", "#1534, steg 4"),
+        ("gfk-u2", "presiserer", "eo-u6", "#1534, steg 4"),
+        ("gr-u10", "presiserer", "gr-u2", "#1534, steg 4"),
+        ("gr-u22", "endrer", "gr-u2", "#1534, steg 4"),
+        ("gr-u7", "presiserer", "ka-u5", "#1534, steg 4"),
+        ("hf-u12", "presiserer", "eo-u9", "#1534, steg 4"),
+        ("hf-u20", "presiserer", "hf-u17", "#1534, steg 4"),
+        ("hf-u22", "presiserer", "hf-u17", "#1534, steg 4"),
+        ("hf-u7", "bygger på", "ka-u26", "#1534, steg 4"),
+        ("hf-u7", "presiserer", "ka-u24", "#1534, steg 4"),
+        ("hf-u9", "presiserer", "gr-u2", "#1534, steg 4"),
+        ("hf-u9", "presiserer", "ka-u7", "#1534, steg 4"),
+        ("ka-u12", "presiserer", "eo-u5", "#1534, steg 4"),
+        ("ka-u20", "presiserer", "ka-u7", "#1534, steg 4"),
+        ("ka-u34", "presiserer", "ka-u24", "#1534, steg 4"),
+        ("ka-u41", "presiserer", "ka-u24", "#1534, steg 4"),
+        ("ka-u45", "bygger på", "ov-u48", "#1534, steg 4"),
+        ("ka-u45", "bygger på", "ov-u49", "#1534, steg 4"),
+        ("lv-u31", "presiserer", "hf-u14", "#1534, steg 4"),
+        ("mm-u19", "presiserer", "ka-u7", "#1534, steg 4"),
+        ("mm-u21", "utvider", "eo-u9", "#1534, steg 4"),
+        ("mm-u30", "presiserer", "mm-u29", "#1534, steg 4"),
+        ("mm-u34", "endrer", "ka-u26", "#1534, steg 4"),
+        ("mm-u34", "endrer", "ka-u28", "#1534, steg 4"),
+        ("mm-u34", "endrer", "ov-u48", "#1534, steg 4"),
+        ("mm-u34", "endrer", "ov-u49", "#1534, steg 4"),
+        ("mm-u34", "endrer", "ov-u51", "#1534, steg 4"),
+        ("mm-u8", "bygger på", "mm-u4", "#1534, steg 4"),
+        ("ov-u2", "bygger på", "eo-u6", "#1534, steg 4"),
+        ("ov-u3", "bygger på", "eo-u2", "#1534, steg 4"),
+        ("ov-u3", "bygger på", "eo-u5", "#1534, steg 4"),
+        ("ov-u3", "endrer", "ka-u3", "#1534, steg 4"),
+        ("ov-u38", "presiserer", "ka-u7", "#1534, steg 4"),
+        ("ov-u4", "endrer", "ka-u24", "#1534, steg 4"),
+        ("ov-u43", "presiserer", "mm-u28", "#1534, steg 4"),
+        ("ov-u43", "utvider", "eo-u5", "#1534, steg 4"),
+        ("ov-u43", "utvider", "ka-u7", "#1534, steg 4"),
+        ("ov-u6", "bygger på", "eo-u6", "#1534, steg 4"),
+        ("ov-u6", "bygger på", "eo-u9", "#1534, steg 4"),
+        ("ov-u61", "presiserer", "mm-u28", "#1534, steg 4"),
+        ("ov-u67", "presiserer", "ov-u65", "#1534, steg 4"),
+        ("ov-u67", "presiserer", "ov-u66", "#1534, steg 4"),
+        ("ov-u80", "bygger på", "ka-u24", "#1534, steg 4"),
+        ("ov-u80", "utvider", "ov-u48", "#1534, steg 4"),
+        ("ov-u80", "utvider", "ov-u49", "#1534, steg 4"),
+        ("vs-u13", "bygger på", "ka-u24", "#1534, steg 4"),
+    }
+)
+_AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
+
+
+def forhold_til_opphevet(register: dict) -> dict[tuple[str, str, str], list[str]]:
+    """(posten, arten, vedtaket) for hvert gjeldende vedtak med et forhold i
+    FORHOLD_TIL_OPPHEVET til et opphevet vedtak, med vedtakene som opphever det."""
+    opphevet, _ = opphevet_og_samlet(register)
+    return {
+        (anker(p) or etikett(p), f["art"], f["vedtak"]): opphevet[f["vedtak"]]
+        for p in poster(register)
+        if (anker(p) or etikett(p)) not in opphevet
+        for f in p.get("forhold", [])
+        if f["art"] in FORHOLD_TIL_OPPHEVET and f["vedtak"] in opphevet
+    }
+
+
+def forhold_til_opphevet_feil(
+    register: dict, kjente: frozenset = KJENTE_FORHOLD_TIL_OPPHEVET
+) -> list[str]:
+    """Et nytt forhold fra et gjeldende vedtak til et opphevet vedtak, en rad i lista som ikke
+    lenger finnes, og en rad med feil form."""
+    funnet = forhold_til_opphevet(register)
+    feil = [
+        f"KJENTE_FORHOLD_TIL_OPPHEVET: raden {rad} må ha posten, arten, vedtaket og issuet"
+        for rad in sorted(kjente)
+        if len(rad) != 4 or not _AVVIKSISSUE.fullmatch(rad[3])
+    ]
+    lista = {rad[:3] for rad in kjente}
+    feil += [
+        f"{post}: {art} {vedtak}, som er opphevet av {', '.join(av)}; et gjeldende vedtak kan "
+        "ikke presisere, utvide, endre eller bygge på et opphevet vedtak"
+        for (post, art, vedtak), av in sorted(funnet.items())
+        if (post, art, vedtak) not in lista
+    ]
+    feil += [
+        f"KJENTE_FORHOLD_TIL_OPPHEVET: {post} {art} {vedtak} finnes ikke lenger; fjern raden"
+        for post, art, vedtak in sorted(lista - set(funnet))
+    ]
+    return feil
+
+
+# Varslene (svar 6 og 10 04.11 i #1534). Et samlevedtak har forholdet «samler». Når steg 4 er
+# avsluttet, settes datoen, og da telles også endringene av et vedtak fra etter den datoen.
+ENDRINGER = ("endrer", "snevrer inn", "utvider", "presiserer")
+STEG_4_AVSLUTTET: datetime.date | None = None
+APP = re.compile(r"(?<![\w-])app(?:en|ens|er|ene|ers)?(?![\w-])", re.IGNORECASE)
+SITERT = re.compile(r"«[^»]*»|‹[^›]*›|\"[^\"]*\"|“[^”]*”")
+
+
+def app_utenfor_sitat(tekst: str) -> bool:
+    return bool(APP.search(SITERT.sub("", linje(tekst))))
+
+
+def varsler(register: dict, gammel_register: dict | None) -> list[str]:
+    """Varslene, som ikke gjør registeret ugyldig: «app» utenfor sitattegn i den valgte teksten
+    i en post som ikke står på main, og et samlet vedtak som har fått tre endringer eller mer."""
+    ut = []
+    if gammel_register is not None:
+        paa_main = {p["id"] for p in _nye(gammel_register)}
+        ut += [
+            f"{p['id']}: «app» utenfor sitattegn i vedtaksteksten; se språkreglene i docs/sprak.md"
+            for p in _nye(register)
+            if p["id"] not in paa_main and app_utenfor_sitat(_valgt(p)["tekst"])
+        ]
+    opphevet, _ = opphevet_og_samlet(register)
+    telles = {
+        anker(p)
+        for p in poster(register)
+        if anker(p) not in opphevet
+        and (
+            any(f["art"] == "samler" for f in p.get("forhold", []))
+            or (STEG_4_AVSLUTTET and er_ny(p) and p["dato"] > STEG_4_AVSLUTTET)
+        )
+    }
+    endringer = collections.Counter(
+        f["vedtak"]
+        for p in poster(register)
+        for f in p.get("forhold", [])
+        if f["art"] in ENDRINGER and f["vedtak"] in telles
+    )
+    ut += [
+        f"{a}: har fått {n} endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+        for a, n in sorted(endringer.items())
+        if n >= 3
+    ]
+    return ut
 
 
 def _fil_i_treet(sti: str) -> bool:
@@ -1234,8 +1442,14 @@ def _bare_lagt_til(gammel: str, ny: str) -> bool:
     return all(any(g == n for n in avsnitt_) for g in _avsnittene(gammel))
 
 
+_OPPHEVET = rf"opphevet(?: \d{{2}}\.\d{{2}})? av {_LENKE}(?:(?:, | og )(?:\d{{2}}\.\d{{2}} )?av {_LENKE})*"
+# Det verktøyet skriver først i Følge: forholdene i aktiv form som Følge i en importert post ikke
+# sier selv, forholdene fra senere vedtak i passiv form, og merknaden om et vedtak som er opphevet.
 HENVISNINGER = re.compile(
-    rf"^(?:(?:{'|'.join(FORHOLD.values())}) \d{{2}}\.\d{{2}} av {_LENKE}\.(?: |$))*"
+    rf"^(?:(?:(?:{'|'.join(FORHOLD.values())})(?: \d{{2}}\.\d{{2}})? av {_LENKE}"
+    rf"(?: \({_OPPHEVET}\))?\."
+    rf"|(?:Samler|Bygger på) {_LENKE}\."
+    rf"|{_LENKE} er {_OPPHEVET}\.)(?: |$))*"
 )
 
 
@@ -1342,10 +1556,17 @@ def _innholdet(post: dict) -> dict:
     return {k: v for k, v in post.items() if k not in KLASSEFELT | {"folge", "forhold"}}
 
 
+# Forhold oppdragsgiver har bestemt at en merget post skal få, som (posten, arten, vedtaket),
+# med kilden. Teksten i posten sa forholdet med ord, uten lenke.
+FORHOLD_FOERT_ETTER_MERGE = {
+    ("eo-u17", "endrer", "ubegrenset-fullmakt"): "M2 A 04.11, #1534",
+}
+
+
 def _forhold_etter_merge(id_: str, gammel: dict, naa: dict) -> list[str]:
     """Etter merge kan en post få forholdene i FORHOLD_ETTER_MERGE, og et forhold kan bli
     «opphever» eller «samler» når et senere vedtak har tatt innholdet (svar 14 i PR #1537).
-    Ellers står forholdene."""
+    Ellers står forholdene, unntatt dem i FORHOLD_FOERT_ETTER_MERGE."""
     foer = collections.Counter((f["art"], f["vedtak"]) for f in gammel.get("forhold", []))
     etter = collections.Counter((f["art"], f["vedtak"]) for f in naa.get("forhold", []))
     lagt_til, borte = etter - foer, foer - etter
@@ -1354,6 +1575,7 @@ def _forhold_etter_merge(id_: str, gammel: dict, naa: dict) -> list[str]:
         f"{', '.join(sorted(FORHOLD_ETTER_MERGE))} kan legges til"
         for art, a in lagt_til
         if art not in FORHOLD_ETTER_MERGE
+        and (id_.lower(), art, a) not in FORHOLD_FOERT_ETTER_MERGE
     ]
     # Et «opphever» står: blir det «samler», gjelder det opphevede vedtaket igjen.
     erstattet = {a for art, a in lagt_til if art in ("opphever", "samler")}
@@ -1465,7 +1687,7 @@ def main() -> int:
             return 1
         return 0
     if not feil:
-        feil = forholdfeil(register) + [
+        feil = forholdfeil(register) + forhold_til_opphevet_feil(register) + [
             f"{p['id']}: kodenavn i vedtaksteksten, {k}"
             for p in _nye(register)
             for k in kodenavn(p)
@@ -1487,6 +1709,9 @@ def main() -> int:
         )
     if ns_8407() is None:
         print(f"Sitatene fra NS 8407 er hoppet over: teksten mangler. {NS_8407_HJELP}")
+    gammel_tekst = git_fil(commit, REGISTER.relative_to(ROT).as_posix()) if commit else None
+    for v in varsler(register, tomllib.loads(gammel_tekst) if gammel_tekst else None):
+        print(f"Varsel: {v}")
     feil = historiske_feil(register, plan, commit)
     if feil:
         print("Registeret eller planen holder ikke:", *feil, sep="\n  ")

@@ -1202,7 +1202,7 @@ domenetabellen.'''
 valgt = "13A"
 svar = '''
 Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
-forhold = [{ art = "opphever", vedtak = "ka-u26" }, { art = "opphever", vedtak = "ka-u28" }, { art = "opphever", vedtak = "ka-u30" }, { art = "snevrer inn", vedtak = "ka-u20" }, { art = "snevrer inn", vedtak = "ka-u27" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "lv-u4" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u16" }]
+forhold = [{ art = "opphever", vedtak = "ka-u26" }, { art = "opphever", vedtak = "ka-u28" }, { art = "opphever", vedtak = "ka-u30" }, { art = "snevrer inn", vedtak = "ka-u20" }, { art = "snevrer inn", vedtak = "ka-u27" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "lv-u4" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u16" }, { art = "bygger på", vedtak = "ov-u48" }, { art = "bygger på", vedtak = "ov-u49" }]
 folge = '''
 Alternativet opphever LV-U4 punkt 11 og 12 og snevrer inn LV-U4 punkt 10. I registeret er det ført som «snevrer inn» LV-U4, fordi resten av LV-U4 står. Bygges i #807.'''
 
@@ -2701,7 +2701,7 @@ byggherren har påberopt preklusjon for det utledede varselet, er preklusjonen u
 og TE kan ikke godta svaret før byggherren har svart på nytt. En enighet inngått før
 opplysningen står (MM-U3). Forkastet: å la TE godta svaret slik brevet uttrykte det'''
 vedtatt = "09.10, oppdragsgiver etter review av PR #306"
-forhold = [{ art = "presiserer", vedtak = "mm-u1" }]
+forhold = [{ art = "presiserer", vedtak = "mm-u1" }, { art = "bygger på", vedtak = "mm-u4" }]
 folge = '''
 Presiserer MM-U1. MM-U4, som vedtaksteksten viser til, er opphevet 09.10 av
 [MM-U9](#mm-u9), som gjelder regelendringer. MM-U8 gjelder en ny opplysning og står.
@@ -3052,6 +3052,7 @@ begrunnelsen kreves i et svar fra appen, og et registrert brev kan stå uten. Ik
 [[gruppe.vedtak]]
 klasse = "vedtak"
 anker = "vs-u13"
+forhold = [{ art = "bygger på", vedtak = "ka-u24" }]
 vedtak = '''
 VS-U13: i en sak med hovedkategorien force majeure (§ 33.3) er byggherrens standpunkt om
 at forholdet ikke var utenfor partens kontroll, at parten eller dens
@@ -3596,7 +3597,7 @@ A: ja, standpunkt for standpunkt (F2). B: bare de prinsipale og subsidiære dage
 valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
-forhold = [{ art = "presiserer", vedtak = "ka-u9" }, { art = "presiserer", vedtak = "ka-u21" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "gr-u7" }]
+forhold = [{ art = "presiserer", vedtak = "ka-u9" }, { art = "presiserer", vedtak = "ka-u21" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "gr-u7" }, { art = "bygger på", vedtak = "ka-u26" }]
 folge = '''
 Presiserer også raden i B-13 om «godkjent» bare når hele kravet er godkjent og raden i B-13 om preklusjon. Et forbehold appen ikke kan uttrykke, følger KA-U16 og KA-U26, der et svar med forbehold kan gi sammenfall. «Et avslag» i GR-U7 leses som avslag i forening med et betinget tilbud. Følger av HF-U5 (første setning etter «fristforlengelse»). Spørsmål 5 i vurderingen ble besvart med A. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
@@ -5107,7 +5108,7 @@ EO-U1: en endringsordre utstedes bare som EO-sak, gjennom kommandoen (B-02 punkt
 EO-sak, der TE godtar eller bestrider endringsordren (TFR-02). `kan_utstede_eo` betyr at
 KOE-saken kan inngå i en EO-sak'''
 vedtatt = "08.10, oppdragsgiver"
-forhold = [{ art = "presiserer", vedtak = "gr-u3" }]
+forhold = [{ art = "presiserer", vedtak = "gr-u3" }, { art = "bygger på", vedtak = "eo-u6" }]
 folge = '''
 Presiserer GR-U3. Avgrenset 10.10 av [GR-U13](#gr-u13) og [KA-U14](#ka-u14): er
 byggherrens godkjenning av grunnlaget i KOE-saken en endringsordre etter § 32.3 første
@@ -5189,6 +5190,7 @@ godkjent frist og rettes ikke (merknaden i 4.2). Ikke bygget'''
 [[gruppe.vedtak]]
 klasse = "vedtak"
 anker = "eo-u6"
+forhold = [{ art = "endrer", vedtak = "ubegrenset-fullmakt" }]
 vedtak = '''
 EO-U6: utsteder byggherren en endringsordre i en EO-sak som svar på grunnlaget i en
 KOE-sak (KA-U12), lagres samtidig et grunnlagssvar i KOE-saken, med grunnlaget godkjent
@@ -5860,7 +5862,7 @@ svar = '''
 Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Faktisk er det kun EO som må gjennom fullmaktskjeden.» Til modellen: «Ja, før det inn slik.»
 
 Valg D: «D1».'''
-forhold = [{ art = "endrer", vedtak = "gfk-u4" }]
+forhold = [{ art = "endrer", vedtak = "gfk-u4" }, { art = "endrer", vedtak = "ubegrenset-fullmakt" }]
 folge = '''
 Endrer også presiseringen av GFK-06 24.09 og vedtaket 23.09 om ubegrenset fullmakt, for en endringsordre i en EO-sak. For svar i KOE-saken står de. GFK-U2, GFK-U3, GFK-U6, GFK-U7, GFK-U20 og LV-U15 står, og for en endringsordre gjelder GFK-U20 bare med GFK-U3.'''
 
@@ -10099,7 +10101,7 @@ Bakgrunnen er prototypen `docs/design/prototyper/saksliste-v2.html` og oppdragsg
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u30" }, { art = "snevrer inn", vedtak = "mm-u31" }]
+forhold = [{ art = "opphever", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u30" }, { art = "snevrer inn", vedtak = "mm-u31" }]
 folge = '''
 I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450.'''
 
@@ -10124,7 +10126,7 @@ Punkt 2 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 0
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "presiserer", vedtak = "eo-u13" }]
+forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "opphever", vedtak = "mm-u28" }, { art = "presiserer", vedtak = "eo-u13" }]
 folge = '''
 I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Bygges i #1450.'''
 
@@ -10151,7 +10153,7 @@ Bakgrunnen er oppdragsgivers ord i økta: «‹Saken har noe oversikten ikke for
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u22" }]
+forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "opphever", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u22" }]
 folge = '''
 Endrer OV-U61 og MM-U28 for slike saker. MM-U2 står. Bygges i #1450.'''
 
@@ -10181,7 +10183,7 @@ Punkt 4 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 0
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "mm-u29" }]
+forhold = [{ art = "opphever", vedtak = "mm-u29" }]
 folge = '''
 Følger føringen 31.10 i systemfila for visningen: visningen sier det løsningen vet, ikke hvem som skal handle (#1402).'''
 
@@ -10224,6 +10226,7 @@ Bygget 24.09. Ved «frafalt» (§ 32.3 c) må byggherren utstede en endringsordr
 utførte arbeidet, med egen fullmakt; varsel eller tom EO-sak i frontenden er ikke bygget'''
 
 [[gruppe.vedtak]]
+anker = "ubegrenset-fullmakt"
 klasse = "vedtak"
 vedtak = '''
 Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes'''
@@ -11775,7 +11778,7 @@ appen ikke kan uttrykke i den, som pris og tid, følger KA-U16. Forkastet: at TE
 registrere i KOE-saken at forsering er varslet for avslåtte dager, uten en
 forseringssak, slik at registreringen sperrer aksepten etter FO-U5'''
 vedtatt = "10.10, oppdragsgiver (#358)"
-forhold = [{ art = "presiserer", vedtak = "fo-u5" }]
+forhold = [{ art = "presiserer", vedtak = "fo-u5" }, { art = "bygger på", vedtak = "eo-u6" }]
 folge = '''
 Presiserer [FO-U5](#fo-u5) for første versjon: sperren forutsetter en forseringssak i
 appen som viser til avslaget. Bygger på oppdragsgivers prinsipp 10.10 om at den som
@@ -11804,6 +11807,8 @@ forhold = [
   { art = "endrer", vedtak = "ka-u23" },
   { art = "presiserer", vedtak = "gr-u3" },
   { art = "presiserer", vedtak = "mm-u13" },
+  { art = "bygger på", vedtak = "eo-u2" },
+  { art = "bygger på", vedtak = "eo-u5" },
 ]
 folge = '''
 Presiseringen av GR-U3: «oppgjort» gjelder kravene som er sendt. Presiseringen av MM-U13:
@@ -11954,6 +11959,8 @@ forhold = [
   { art = "endrer", vedtak = "ka-u14" },
   { art = "snevrer inn", vedtak = "ka-u13" },
   { art = "snevrer inn", vedtak = "ov-u4" },
+  { art = "bygger på", vedtak = "eo-u6" },
+  { art = "bygger på", vedtak = "eo-u9" },
 ]
 folge = '''
 Endringen av KA-U14 gjelder leddet om registrert korrespondanse. Ikke bygget. GR-U12
@@ -15336,6 +15343,7 @@ forhold = [
   { art = "presiserer", vedtak = "vs-u16" },
   { art = "utvider", vedtak = "ov-u48" },
   { art = "utvider", vedtak = "ov-u49" },
+  { art = "bygger på", vedtak = "ka-u24" },
 ]
 folge = '''
 Alternativet «Til godkjenning» er forslaget med merket ‹Til godkjenning› i stedet for ‹Venter på godkjenning›, rettet etter svaret. Resten av teksten er forslaget ordrett. Forholdet til LV-U4 er ikke ført i forhold: spørsmålet sier bare at punktet også gjelder registrerte krav og svar i LV-U4. Bygges i #807.'''
