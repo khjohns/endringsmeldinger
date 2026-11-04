@@ -28,6 +28,22 @@ export const brevmerking = (
     utfylt(brevnummer, 2),
   ].join('-');
 
+/**
+ * Hvorfor leseren ikke forstår merkingen i et brev, eller `null`. Merkingen fryses bare i et
+ * brev fra løsningen, med nummeret, og slutter med det (LV-U53, LV-U48, MM-U2).
+ */
+export function avvikIMerkingen(
+  merking: string,
+  brevnummer: number | undefined,
+  registrert: boolean
+): string | null {
+  if (registrert || brevnummer === undefined)
+    return 'merkingen står bare i et brev fra løsningen, med nummeret (LV-U53)';
+  if (!merking.endsWith(`-${utfylt(brevnummer, 2)}`))
+    return 'merkingen slutter ikke med brevnummeret (LV-U48)';
+  return null;
+}
+
 /** Tittelen med sakens kode, slik skrivingen fryser den: «Krav om endring i sak KOE-17» (LV-U27). */
 export const medSakskode = (tittel: string, s: Sakskode): string =>
   `${tittel} i sak ${sakensKode(s)}`;

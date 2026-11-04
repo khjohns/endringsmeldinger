@@ -6,6 +6,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
+import { brevene } from '$lib/components/varden/lesing';
+import type { Utledning } from '$kjerne/utledning/utled';
 
 afterEach(cleanup);
 
@@ -21,10 +23,54 @@ describe('Tidslinje', () => {
       dato: '2026-10-01',
       hva: 'klar_over_forholdet' as const,
       oppgittAv: 'TE' as const,
-      brev: 1,
+      brev: { id: 'brev-1', nummer: 1, registrert: '2026-10-02T10:00:00Z' },
       spor: [],
     };
     const { container } = render(Tidslinje, { brev: [], datoer: [d, { ...d }], aapen: true });
     expect(container.querySelectorAll('li')).toHaveLength(2);
+  });
+
+  it('LV-U44, LV-U45: brevet etter registrert korrespondanse får brevnummeret, ikke versjonen, og det registrerte brevet får ikke noe nummer', () => {
+    const dokument = (id: string, nummer: number | null, tittel: string | null, tid: string) => ({
+      art: 'dokument',
+      versjon: 0,
+      dokument: {
+        id,
+        avsender: 'TE',
+        registrert: tid,
+        spor: [],
+        krav: [],
+        svar: [],
+        utsagn: [],
+        brevnummer: nummer,
+        brevtittel: tittel,
+        brevtekst: tittel === null ? null : [{ laast: 'Teksten.' }],
+      },
+    });
+    const journal = [
+      {
+        ...dokument('brev-a', 1, 'Krav om endring i sak KOE-17', '2026-10-01T08:00:00Z'),
+        versjon: 2,
+      },
+      { ...dokument('registrert', null, null, '2026-10-02T08:00:00Z'), versjon: 3 },
+      {
+        ...dokument('brev-b', 2, 'Krav om vederlagsjustering i sak KOE-17', '2026-10-03T08:00:00Z'),
+        versjon: 4,
+      },
+    ];
+    const tomt = { krav: [], svar: [] };
+    const u = {
+      journal,
+      spor: { forhold: tomt, vederlag: tomt, frist: tomt },
+    } as unknown as Utledning;
+    const brev = brevene(u);
+    expect(brev.map((b) => b.nummer)).toEqual([1, null, 2]);
+
+    const { container } = render(Tidslinje, { brev, datoer: [], aapen: true });
+    const linjer = [...container.querySelectorAll('li')].map((li) => li.textContent ?? '');
+    expect(linjer[1]).toContain('Korrespondanse');
+    expect(linjer[1]).not.toMatch(/Brev \d/);
+    expect(linjer[2]).toContain('Brev 2 · Krav om vederlagsjustering i sak KOE-17');
+    expect(container.textContent).not.toContain('Brev 4');
   });
 });

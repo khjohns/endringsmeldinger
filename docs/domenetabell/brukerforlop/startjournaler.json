@@ -123,7 +123,8 @@
               }
             ],
             "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren i sak KOE-17",
-            "brevnummer": 1
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
           }
         },
         {
@@ -172,7 +173,8 @@
               }
             ],
             "brevtittel": "Svar på forholdet i sak KOE-17",
-            "brevnummer": 2
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02"
           }
         },
         {
@@ -202,7 +204,8 @@
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
-            "brevnummer": 3
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
           }
         },
         {
@@ -278,7 +281,8 @@
               }
             ],
             "brevtittel": "Svar på krav om vederlagsjustering i sak KOE-17",
-            "brevnummer": 4
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04"
           }
         },
         {
@@ -308,7 +312,8 @@
               }
             ],
             "brevtittel": "Aksept av svaret i sak KOE-17",
-            "brevnummer": 5
+            "brevnummer": 5,
+            "merking": "K201-KOE-017-05"
           }
         }
       ]
@@ -421,7 +426,8 @@
               }
             ],
             "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren i sak KOE-17",
-            "brevnummer": 1
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
           }
         },
         {
@@ -470,7 +476,8 @@
               }
             ],
             "brevtittel": "Svar på forholdet i sak KOE-17",
-            "brevnummer": 2
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02"
           }
         },
         {
@@ -500,7 +507,8 @@
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
-            "brevnummer": 3
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
           }
         },
         {
@@ -576,7 +584,8 @@
               }
             ],
             "brevtittel": "Svar på krav om vederlagsjustering i sak KOE-17",
-            "brevnummer": 4
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04"
           }
         }
       ]
@@ -670,7 +679,8 @@
               }
             ],
             "brevtittel": "Påberopelse av irregulær endring i sak KOE-17",
-            "brevnummer": 1
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
           }
         }
       ]

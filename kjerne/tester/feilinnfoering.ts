@@ -3636,14 +3636,9 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F442',
-    feilklasse: 'henvisningen bruker saksversjonen, ikke brevets nummer i merkingen (LV-U53)',
+    feilklasse: 'henvisningen bruker brevnummeret, ikke merkingen frosset på brevet (LV-U53)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        'brevmerking(kontraktsforkortelse, sakskode, d.brevnummer)',
-        'brevmerking(kontraktsforkortelse, sakskode, b.versjon)',
-      ],
-    ],
+    endringer: [['`brev ${d.merking} av', '`brev ${d.brevnummer} av']],
     mal: ['et brev fra løsningen omtales med merkingen og datoen'],
   },
   {
@@ -3685,12 +3680,25 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F447',
-    feilklasse: 'henvisningen skrives uten kontraktsforkortelsen (LV-U53)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    feilklasse:
+      'merkingen fryses ikke med forkortelsen prosjektet har når brevet skrives (LV-U53, LV-U24)',
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
-      ['      if (!kontraktsforkortelse)\n', '      if (kontraktsforkortelse === undefined)\n'],
+      [
+        'brevmerking(kontekst.kontraktsforkortelse, kontekst.sakskode, brevnummer)',
+        "brevmerking('K201', kontekst.sakskode, brevnummer)",
+      ],
     ],
-    mal: ['uten kontraktsforkortelsen kan brevet ikke vise til merkingen'],
+    mal: ['henvisningen beholder merkingen fra brevet når kontraktsforkortelsen er endret etterpå'],
+  },
+  {
+    id: 'F448',
+    feilklasse: 'leseren godtar en merking som ikke slutter med brevnummeret (LV-U48, MM-U2)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [
+      ["    return 'merkingen slutter ikke med brevnummeret (LV-U48)';", '    return null;'],
+    ],
+    mal: ['en merking som ikke slutter med brevnummeret, eller står uten nummeret'],
   },
 ];
 

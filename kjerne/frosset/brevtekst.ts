@@ -16,7 +16,7 @@
 
 import { HJEMMEL, type OppgittDato } from '../format/format.ts';
 import { forholdet } from './forholdene.ts';
-import { brevmerking, sakensKode } from './brevtittel.ts';
+import { sakensKode } from './brevtittel.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
@@ -65,8 +65,6 @@ import type {
  */
 export interface Saken {
   sakskode: Sakskode;
-  /** Kontraktsforkortelsen merkingen begynner med, `null` når prosjektet ikke har den (LV-U53). */
-  kontraktsforkortelse: string | null;
   tittel: string;
   svarPaaPaaberopelsen: string | null;
   subsidiaer: Record<Kravspor, Subsidiaergrunn[]>;
@@ -168,14 +166,7 @@ class Journalen {
   private readonly elementer = new Map<string, Element>();
   readonly dokumenter: Dokument[] = [];
 
-  private readonly saken: Pick<Saken, 'sakskode' | 'kontraktsforkortelse'>;
-
-  constructor(
-    foer: Domenehendelse[],
-    nytt: Dokument,
-    saken: Pick<Saken, 'sakskode' | 'kontraktsforkortelse'>
-  ) {
-    this.saken = saken;
+  constructor(foer: Domenehendelse[], nytt: Dokument) {
     for (const h of foer) if (h.art === 'dokument') this.legg(h.dokument, h.versjon);
     this.legg(nytt, 0);
   }
@@ -203,10 +194,10 @@ class Journalen {
   }
 
   /**
-   * Et tidligere brev med merkingen og datoen det ble sendt: «brev K201-KOE-017-03 av
-   * 2. oktober 2026» (LV-U53), også registrert korrespondanse med avsenderens egen merking
-   * (LV-U45). Registrert korrespondanse uten merking omtales med parten, typen og datoen:
-   * «totalentreprenørens e-post av 2. oktober 2026» (LV-U42).
+   * Et tidligere brev med merkingen som er frosset på det, og datoen det ble sendt: «brev
+   * K201-KOE-017-03 av 2. oktober 2026» (LV-U53, oppdragsgiver 04.11 i #1570). Registrert
+   * korrespondanse har ingen frosset merking ennå (LV-U45) og omtales med parten, typen og
+   * datoen: «totalentreprenørens e-post av 2. oktober 2026» (LV-U42).
    */
   brevet(id: string): string {
     const b = this.brev.get(id);
@@ -216,17 +207,12 @@ class Journalen {
     const sendt = registrert
       ? d.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)!.dato
       : d.registrert;
-    if (d.brevnummer !== null) {
-      const { kontraktsforkortelse, sakskode } = this.saken;
-      if (!kontraktsforkortelse)
-        throw new KanIkkeUttrykkes(
-          `prosjektet har ingen kontraktsforkortelse, så brevet kan ikke vise til merkingen på ${id}`
-        );
-      return `brev ${brevmerking(kontraktsforkortelse, sakskode, d.brevnummer)} av ${norskDato(sendt)}`;
-    }
+    if (d.merking !== null) return `brev ${d.merking} av ${norskDato(sendt)}`;
     if (registrert && d.korrespondansetype !== null)
       return `${PARTENS[d.avsender]} ${KORRESPONDANSEN[d.korrespondansetype]} av ${norskDato(sendt)}`;
-    throw new KanIkkeUttrykkes(`${id} har verken nummer i saken eller korrespondansetype`);
+    throw new KanIkkeUttrykkes(
+      `${id} har ingen merking, fordi prosjektet hadde ingen kontraktsforkortelse da brevet ble skrevet`
+    );
   }
 
   erRegistrert(dokument: string): boolean {
@@ -275,7 +261,7 @@ export function lagBrevtekst(
 ): Avsnitt[] {
   if (erRegistrert(nytt.opplysninger))
     throw new KanIkkeUttrykkes('et registrert brev står som det ble sendt (MM-U17)');
-  const j = new Journalen(foer, nytt, saken);
+  const j = new Journalen(foer, nytt);
   const t: Tekst = {
     j,
     saken,

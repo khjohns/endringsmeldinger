@@ -8,19 +8,21 @@
   import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount, tick } from 'svelte';
   import type { Part } from '$kjerne/typer';
+  import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
   import Brev from './Brev.svelte';
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL, PARTNAVN, dato } from './tekster';
+  import { BREVKONTROLL, PARTNAVN, brevrefStor } from './tekster';
 
   let {
     kjernesak,
     kommando,
     tekst,
     utdypning,
+    brevnummer,
     tittel,
     handling,
     svarerPaa,
@@ -36,10 +38,15 @@
     kommando: Record<string, unknown>;
     tekst: string[];
     utdypning?: string;
-    tittel: string;
+    /**
+     * Nummeret og tittelen kjernen fryser i raden forhåndsvisningen gir (LV-U44, LV-U27).
+     * Nettleseren regner dem ikke ut selv; uten rad vises ikke noe nummer.
+     */
+    brevnummer: number | null;
+    tittel: string | null;
     /** Det avsenderen gjør, som overskrift i panelet. */
     handling: string;
-    svarerPaa: { nummer: number; registrert: string } | null;
+    svarerPaa: Brevref | null;
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
     sendTekst: string;
@@ -90,10 +97,10 @@
     <Brev
       {avsender}
       sak={kjernesak.saksbilde?.tittel ?? ''}
-      nummer={String((kjernesak.versjon ?? 0) + 1)}
+      nummer={brevnummer === null ? null : String(brevnummer)}
       dato={BREVKONTROLL.datoSettes}
-      {tittel}
-      svarerPaa={svarerPaa ? `Brev ${svarerPaa.nummer}` : undefined}
+      tittel={tittel ?? ''}
+      svarerPaa={svarerPaa ? brevrefStor(svarerPaa) : undefined}
       avsnitt={tekst.map((laast, i) => ({
         laast,
         utdypning: i === tekst.length - 1 ? utdypning : undefined,
@@ -115,7 +122,7 @@
       <dd>{partnavn(mottaker)}</dd>
       {#if svarerPaa}
         <dt>{BREVKONTROLL.svarerPaa}</dt>
-        <dd>Brev {svarerPaa.nummer}, {dato(svarerPaa.registrert)}</dd>
+        <dd>{BREVKONTROLL.svarerPaaBrev(svarerPaa)}</dd>
       {/if}
     </dl>
     <div class="sender">

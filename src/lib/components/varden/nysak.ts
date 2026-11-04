@@ -213,7 +213,6 @@ export function brevet(
  */
 export interface Brevsending {
   readonly part: Part | null;
-  readonly versjon: number | null;
   readonly saksbilde: { tittel: string | null } | null;
   readonly sender: boolean;
   readonly feil: string | null;

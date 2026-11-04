@@ -16,12 +16,15 @@ import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
  * den låste teksten, eller avvisningen. `tekst` er `null` når kommandoen ikke lager
  * en tekst, som et registrert brev; da trenger kjernen vedleggene kommandoen viser
  * til (`vedlegg`). Avsenderen ser teksten, og kommandoen bærer den;
- * serveren avviser en annen (LV-U2). Med `sendes` vurderes kommandoen med teksten slik
+ * serveren avviser en annen (LV-U2). `brevnummer` og `brevtittel` er det kjernen fryser i
+ * raden (LV-U44, LV-U27), så nettleseren ikke regner dem ut selv. Med `sendes` vurderes kommandoen med teksten slik
  * serveren vurderer den, med kravet til begrunnelse og beskrivelse, så et brev serveren
  * vil avvise, ikke vises til kontroll (#1254). Uten den kan teksten vises før
  * begrunnelsen er skrevet (A1). En programfeil i kjernen kastes videre (#695).
  */
-export type Brev = { tekst: string[] | null } | { avvisning: Avvisning };
+export type Brev =
+  | { tekst: string[] | null; brevnummer: number | null; brevtittel: string | null }
+  | { avvisning: Avvisning };
 
 /**
  * Sakens kode og kontraktsforkortelsen, lest fra serveren før forhåndsvisningen. Teksten
@@ -53,11 +56,17 @@ export function brevFor(
   const kontekst = stemplet(sakId, part, merking);
   const vist = forhaandsvis(kommando, kontekst, journal, kjerne, vedlegg);
   if (!vist.godtatt) return { avvisning: vist.avvisning };
-  const tekst = laastTekst(vist.hendelser[0]);
-  if (!sendes) return { tekst };
+  const rad = vist.hendelser[0];
+  const tekst = laastTekst(rad);
+  const brev = {
+    tekst,
+    brevnummer: typeof rad.data.brevnummer === 'number' ? rad.data.brevnummer : null,
+    brevtittel: typeof rad.data.brevtittel === 'string' ? rad.data.brevtittel : null,
+  };
+  if (!sendes) return brev;
   const medTekst = tekst ? { ...kommando, brevtekst: tekst } : kommando;
   const vurdert = vurder(medTekst, kontekst, journal, kjerne, vedlegg ?? new Map());
-  return vurdert.godtatt ? { tekst } : { avvisning: vurdert.avvisning };
+  return vurdert.godtatt ? brev : { avvisning: vurdert.avvisning };
 }
 
 /**

@@ -26,6 +26,7 @@ import {
   lagBrevtekst,
   norskDato,
 } from '../frosset/brevtekst.ts';
+import { brevmerking } from '../frosset/brevtittel.ts';
 import { kroner, lagFraForholdet, postlisten, regnUtSvar } from '../frosset/standpunkt.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
@@ -84,11 +85,9 @@ const KR = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr eks. mva.`;
  * Klienten sender den låste teksten fra forhåndsvisningen (A1), med mindre
  * kommandoen alt har en.
  */
-function sak(
-  sakstittel = TITTEL,
-  sakskode?: Sakskode,
-  kontraktsforkortelse: string | null = 'K201'
-) {
+function sak(sakstittel = TITTEL, sakskode?: Sakskode, forkortelse: string | null = 'K201') {
+  // Driften kan endre kontraktsforkortelsen etter at saken har brev (`koe_drift.sett_kontraktsparter`).
+  let kontraktsforkortelse = forkortelse;
   const journal: Journalrad[] = [
     {
       event_id: randomUUID(),
@@ -183,13 +182,14 @@ function sak(
       aktor_team_id: null,
       refererer_til_event_id: null,
       format: 1,
-      // Et brev fra løsningen, skrevet her uten teksten, har nummeret skrivingen gir (LV-U44).
+      // Et brev fra løsningen, skrevet her uten teksten, har nummeret og merkingen skrivingen
+      // gir (LV-U44, LV-U53).
       data:
         erRegistrert(
           (data.opplysninger as { hva: string; gjelder?: string }[] | undefined) ?? []
         ) || 'brevnummer' in data
           ? data
-          : { ...data, brevnummer: nesteNummer() },
+          : medNummer(data),
     };
     frysBrev(r, journal, KJERNE);
     journal.push(r);
@@ -197,9 +197,22 @@ function sak(
   };
   const nesteNummer = () =>
     Math.max(0, ...journal.map((h) => (h.data.brevnummer as number | undefined) ?? 0)) + 1;
+  const medNummer = (data: Data): Data => {
+    const brevnummer = nesteNummer();
+    return kontraktsforkortelse
+      ? {
+          ...data,
+          brevnummer,
+          merking: brevmerking(kontraktsforkortelse, sakskode ?? KOE_17, brevnummer),
+        }
+      : { ...data, brevnummer };
+  };
+  const endreForkortelse = (ny: string) => {
+    kontraktsforkortelse = ny;
+  };
   const u = () => utledJournal(journal, KJERNE);
   const krav = (spor: 'forhold' | 'vederlag' | 'frist') => gjeldendeKrav(u(), spor).id;
-  return { journal, send, vis, avvisning, avvist, rad, u, krav };
+  return { journal, send, vis, avvisning, avvist, rad, u, krav, endreForkortelse };
 }
 
 /** Det gjeldende kravet i sporet. Mangler det, feiler testen med en assertion. */
@@ -3295,6 +3308,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       brevtekst: null,
       brevtittel: null,
       brevnummer: null,
+      merking: null,
       korrespondansetype: null,
       beskrivelse: null,
       spor: [],
@@ -3303,7 +3317,6 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     });
     const saken = {
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
-      kontraktsforkortelse: 'K201',
       tittel: TITTEL,
       svarPaaPaaberopelsen: null,
       subsidiaer: { vederlag: [], frist: [] },
@@ -3384,6 +3397,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       brevtekst: null,
       brevtittel: null,
       brevnummer: null,
+      merking: null,
       korrespondansetype: null,
       beskrivelse: null,
       spor: [],
@@ -3392,7 +3406,6 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
     };
     const saken = {
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
-      kontraktsforkortelse: 'K201',
       tittel: TITTEL,
       svarPaaPaaberopelsen: null,
       subsidiaer: { vederlag: [], frist: [] },
@@ -3737,6 +3750,7 @@ describe('vedleggene står i teksten (A4)', () => {
     brevtekst: null,
     brevtittel: null,
     brevnummer: null,
+    merking: null,
     korrespondansetype: null,
     beskrivelse: null,
     spor: [],
@@ -3745,7 +3759,6 @@ describe('vedleggene står i teksten (A4)', () => {
   });
   const saken = {
     sakskode: { kode: 'koe' as const, loepenummer: 17 },
-    kontraktsforkortelse: 'K201',
     tittel: TITTEL,
     svarPaaPaaberopelsen: null,
     subsidiaer: { vederlag: [], frist: [] },
@@ -6847,14 +6860,14 @@ describe('brevets nummer i saken (LV-U44, LV-U45, N3 i #1497)', () => {
   it('et høyere nummer i journalen gir det neste, og to brev kan ha samme nummer', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    s.journal.at(-1)!.data.brevnummer = 5;
+    Object.assign(s.journal.at(-1)!.data, { brevnummer: 5, merking: 'K201-KOE-017-05' });
     const neste = s.send('TE', {
       type: 'krav',
       spor: 'vederlag',
       innhold: { metode: 'tilbud', beloep: 1000 },
     });
     expect(neste.data.brevnummer).toBe(6);
-    s.journal.at(-1)!.data.brevnummer = 5;
+    Object.assign(s.journal.at(-1)!.data, { brevnummer: 5, merking: 'K201-KOE-017-05' });
     expect(lesJournal(s.journal, KJERNE.leserformat).every((h) => h.art !== 'ukjent')).toBe(true);
   });
 
@@ -6913,6 +6926,32 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     const s = sak(TITTEL, KOE_17, null);
     const trekk = trekkEtterEpost(s);
     expect(() => s.vis('TE', trekk)).toThrow(/ingen kontraktsforkortelse/);
+  });
+
+  it('henvisningen beholder merkingen fra brevet når kontraktsforkortelsen er endret etterpå (LV-U53, LV-U24)', () => {
+    const s = sak();
+    const trekk = trekkEtterEpost(s);
+    expect(s.journal.at(-1)!.data.merking, 'kravet ble merket da det ble skrevet').toBe(
+      'K201-KOE-017-02'
+    );
+    s.endreForkortelse('K305');
+    const sendt = s.send('TE', trekk);
+    expect(tekst(sendt)[0].laast).toContain('fremsatt i brev K201-KOE-017-02 av 4. oktober 2026');
+    expect(sendt.data.merking, 'det nye brevet merkes med forkortelsen nå').toBe('K305-KOE-017-03');
+  });
+
+  it('en merking som ikke slutter med brevnummeret, eller står uten nummeret, er ikke forstått (LV-U53, LV-U48, MM-U2)', () => {
+    const s = sak();
+    const rad = s.send('TE', PAABEROPELSE);
+    expect(rad.data.merking).toBe('K201-KOE-017-01');
+    const med = (data: Data) =>
+      lesJournal(
+        [...s.journal.slice(0, -1), { ...rad, data: { ...rad.data, ...data } }],
+        KJERNE.leserformat
+      ).at(-1)!.art;
+    expect(med({}), 'kontrollsak').toBe('dokument');
+    expect(med({ merking: 'K201-KOE-017-02' })).toBe('ukjent');
+    expect(med({ brevnummer: undefined })).toBe('ukjent');
   });
 
   it('registrert korrespondanse omtales med parten, typen og datoen (LV-U42)', () => {

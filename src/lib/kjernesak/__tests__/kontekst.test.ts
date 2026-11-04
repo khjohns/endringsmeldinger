@@ -495,8 +495,8 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(avvisningFoerBrevet(brev!)).not.toBeInstanceOf(Feltavvisning);
     expect(avvisningFoerBrevet(brev!)?.message).toBe(`Brevet kan ikke sendes ennå. ${aarsak}`);
     expect(brevaarsak(null)).toBeNull();
-    expect(brevaarsak({ tekst: ['brevet'] })).toBeNull();
-    expect(brevaarsak({ tekst: null })).toBeNull();
+    expect(brevaarsak({ tekst: ['brevet'], brevnummer: 1, brevtittel: 'Brevet' })).toBeNull();
+    expect(brevaarsak({ tekst: null, brevnummer: null, brevtittel: null })).toBeNull();
   });
 
   // Kilde: #865 p1. En programfeil i kjernen blir en melding om feil i appen, ikke en

@@ -686,8 +686,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Sakskode', 'kontekst', 'kode loepenummer', ['frosset/brevtittel.ts']],
   // LV-U44, S3 i #1497: brevteksten omtaler saken og tidligere brev med koden.
   ['frosset/brevtittel.ts', 'brevtekst', 'sakensKode', ['frosset/brevtekst.ts']],
-  // LV-U53: henvisningen til et tidligere brev bruker merkingen på det.
-  ['frosset/brevtittel.ts', 'brevtekst', 'brevmerking', ['frosset/brevtekst.ts']],
+  // LV-U53, LV-U24: merkingen fryses i brevet når det skrives, og leseren prøver den (#1570).
+  [
+    'frosset/brevtittel.ts',
+    'brevtekst',
+    'brevmerking avvikIMerkingen',
+    ['kommandoer/skriving.ts:skriv', 'format/leser.ts:lesDokument'],
+  ],
+  // LV-U53: henvisningen til et tidligere brev bruker merkingen som er frosset på det.
+  ['Dokument', 'brevtekst', 'merking', ['frosset/brevtekst.ts']],
   // LV-U42, D1 A i #1497: typen registrert korrespondanse, i skjemaene.
   ['typer.ts', 'skjema', 'KORRESPONDANSETYPER', ['format/format.ts', 'kommandoer/kommando.ts']],
   ['Kjerne', 'kontekst', 'regler format leserformat'],
@@ -925,7 +932,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesDokument',
     'rad',
-    'brevtekst brevtittel brevnummer korrespondansetype',
+    'brevtekst brevtittel brevnummer merking korrespondansetype',
     ['format/leser.ts'],
   ],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevtekst.ts']],
@@ -990,12 +997,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse', ['frosset/brevtittel.ts']],
   // LV-U44, LV-U45: brevets nummer i saken, det neste etter det høyeste.
-  [
-    'Dokument',
-    'brevtekst',
-    'brevnummer',
-    ['kommandoer/skriving.ts:nesteBrevnummer', 'frosset/brevtekst.ts'],
-  ],
+  ['Dokument', 'brevtekst', 'brevnummer', ['kommandoer/skriving.ts:nesteBrevnummer']],
   // LV-U42: registrert korrespondanse omtales med parten, typen og datoen.
   ['Dokument', 'brevtekst', 'korrespondansetype', ['frosset/brevtekst.ts']],
   [
@@ -1029,7 +1031,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Saken',
     'brevtekst',
-    'sakskode kontraktsforkortelse tittel svarPaaPaaberopelsen subsidiaer avklartVedFrafall',
+    'sakskode tittel svarPaaPaaberopelsen subsidiaer avklartVedFrafall',
     ['frosset/brevtekst.ts'],
   ],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
@@ -1059,7 +1061,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Journalen',
     'brevtekst',
-    'legg brev brevet dokument dokumentetTil dokumenter element elementer erRegistrert krav saken svar utdypning versjon',
+    'legg brev brevet dokument dokumentetTil dokumenter element elementer erRegistrert krav svar utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],

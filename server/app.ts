@@ -466,10 +466,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         return {
           skriv: true,
           rad,
-          oppdrag: lagOppdrag(rad, maal, etter.visning.status, avh.kjerne, avh.nyId, {
-            kontraktsforkortelse,
-            sakskode: tilKjernen(sakskode),
-          }),
+          oppdrag: lagOppdrag(rad, maal, etter.visning.status, avh.kjerne, avh.nyId),
         };
       }
     );
@@ -606,10 +603,6 @@ async function opprettMedPaaberopelse(
           sakskode: tilKjernen(sakskode),
           kontraktsforkortelse,
         });
-        // Uten sakens kode avvises opprettelsen før oppdraget lages (`opprettSakMedPaaberopelse`).
-        const merkingsgrunnlag = () => {
-          return { kontraktsforkortelse, sakskode: tilKjernen(sakskode) };
-        };
         const vurdert = vurder(krav, kjernekontekst(tidspunkt), [opprettet], avh.kjerne, vedlegg);
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
         const [rad] = vurdert.hendelser;
@@ -627,7 +620,7 @@ async function opprettMedPaaberopelse(
             skriv: true as const,
             rad: varselrad,
             oppdrag: (maal: Leveringsmaal) =>
-              lagOppdrag(varselrad, maal, etter, avh.kjerne, avh.nyId, merkingsgrunnlag()),
+              lagOppdrag(varselrad, maal, etter, avh.kjerne, avh.nyId),
           };
         };
         // Varselet prøves med påberopelsens klokke før noe skrives, så datoen ikke kan være
@@ -640,8 +633,7 @@ async function opprettMedPaaberopelse(
           skriv: true,
           opprettet,
           rad,
-          oppdrag: (maal) =>
-            lagOppdrag(rad, maal, status, avh.kjerne, avh.nyId, merkingsgrunnlag()),
+          oppdrag: (maal) => lagOppdrag(rad, maal, status, avh.kjerne, avh.nyId),
           varsel: varselet ? ({ tidspunkt: t }) => lagVarsel(t) : null,
         };
       }

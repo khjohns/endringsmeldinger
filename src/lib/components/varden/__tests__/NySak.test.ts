@@ -351,19 +351,20 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await seBrevet();
     const panel = await screen.findByRole('region', { name: 'Sending' });
     expect(within(panel).getByText('Send påberopelsen til byggherren')).toBeTruthy();
-    expect(screen.getByText('Påberopelse av irregulær endring')).toBeTruthy();
+    expect(screen.getByText('Påberopelse av irregulær endring i sak KOE-17')).toBeTruthy();
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til skjemaet' }));
     expect((screen.getByLabelText('Tittel på saken') as HTMLInputElement).value).toBe(
       'Teglforblending på fasaden'
     );
   });
 
-  it('brevkontrollen viser brev 2, nummeret påberopelsen får etter `sak_opprettet` (VS-U37, #1489)', async () => {
+  it('LV-U44: brevkontrollen viser brev 1, brevnummeret kjernen fryser for påberopelsen, ikke versjonen', async () => {
     aapne();
     await fyllIrregulaerEndring();
     await seBrevet();
     await screen.findByRole('region', { name: 'Sending' });
-    expect(screen.getByText('Brev 2')).toBeTruthy();
+    expect(screen.getByText('Brev 1')).toBeTruthy();
+    expect(screen.queryByText('Brev 2')).toBeNull();
   });
 
   it('F-4: feilen for endringsordren forsvinner når feltet fylles ut', async () => {
@@ -600,13 +601,10 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     expect(JSON.stringify(demosak.journal().at(-1)!.data)).toContain(vedlegg.vedlegg_id);
   });
 
-  it('GR-U31: påberopelsen heter «Påberopelse av <forholdet>» også etter sendingen', () => {
-    expect(brevtittel({ art: 'krav', spor: ['forhold'], forhold: 'irregulaer_endring' })).toBe(
-      'Påberopelse av irregulær endring'
-    );
-    expect(brevtittel({ art: 'krav', spor: ['vederlag'], forhold: null })).toBe(
-      'Krav om vederlagsjustering'
-    );
+  it('LV-U27, MM-U17: brevet viser tittelen som ble frosset, og et registrert brev uten tittel heter «Korrespondanse»', () => {
+    const frosset = 'Påberopelse av irregulær endring i sak KOE-17';
+    expect(brevtittel({ art: 'krav', brevtittel: frosset })).toBe(frosset);
+    expect(brevtittel({ art: 'registrert', brevtittel: null })).toBe('Korrespondanse');
   });
 });
 

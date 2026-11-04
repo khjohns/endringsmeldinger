@@ -11,6 +11,7 @@ import { handlinger } from '../kommandoer/handlinger.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
 import { erRegistrert, Uforstaatt } from '../format/leser.ts';
+import { brevmerking } from '../frosset/brevtittel.ts';
 import {
   forhaandsvis,
   frysBrev,
@@ -217,10 +218,16 @@ export class Kjoering {
         aktor_rolle: part,
         aktor_team_id: teamId,
       });
-      // En rad uten `sendt` står for et brev fra løsningen og har nummeret skrivingen gir (LV-U44).
-      if (typeof h.sendt !== 'string')
-        rad.data.brevnummer =
+      // En rad uten `sendt` står for et brev fra løsningen og har nummeret og merkingen
+      // skrivingen gir (LV-U44, LV-U53).
+      if (typeof h.sendt !== 'string') {
+        const nummer =
           Math.max(0, ...journal.map((r) => (r.data.brevnummer as number | undefined) ?? 0)) + 1;
+        const { sakskode, kontraktsforkortelse } = this.kontekst(h, part);
+        rad.data.brevnummer = nummer;
+        if (kontraktsforkortelse)
+          rad.data.merking = brevmerking(kontraktsforkortelse, sakskode, nummer);
+      }
       // Registrert korrespondanse får brevet frosset som et svar fra kjernen (merknaden til
       // MM-U9), også når relasjonene ikke henger sammen, så forløp E prøver relasjonene.
       try {

@@ -79,7 +79,12 @@
   let feil = $state<Record<string, string>>({});
   let avbryter = $state(false);
   let oppsummering = $state<HTMLElement | null>(null);
-  let kontroll = $state<{ tekst: string[]; kommando: Record<string, unknown> } | null>(null);
+  let kontroll = $state<{
+    tekst: string[];
+    brevnummer: number | null;
+    brevtittel: string | null;
+    kommando: Record<string, unknown>;
+  } | null>(null);
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
@@ -214,7 +219,12 @@
         else ny.kjernen = brev.avvisning.melding;
       } else if (!Object.keys(ny).length && brev.tekst) {
         feil = {};
-        kontroll = { tekst: brev.tekst, kommando: kommandoene(utfylling(), KJERNE).paaberopelse };
+        kontroll = {
+          tekst: brev.tekst,
+          brevnummer: brev.brevnummer,
+          brevtittel: brev.brevtittel,
+          kommando: kommandoene(utfylling(), KJERNE).paaberopelse,
+        };
         return;
       }
     }
@@ -237,8 +247,6 @@
   let sendefeil = $state<string | null>(null);
   const sending: Brevsending = {
     part: 'TE',
-    // `sak_opprettet` er versjon 1, så påberopelsen blir brev 2 i saken til #1489 (VS-U37).
-    versjon: 1,
     get saksbilde() {
       return { tittel: tittel.trim() };
     },
@@ -262,7 +270,12 @@
           // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
           const brev = await brevetMedNummer();
           if (brev && 'tekst' in brev && brev.tekst && kontroll) {
-            kontroll = { ...kontroll, tekst: brev.tekst };
+            kontroll = {
+              ...kontroll,
+              tekst: brev.tekst,
+              brevnummer: brev.brevnummer,
+              brevtittel: brev.brevtittel,
+            };
             sendefeil = NYSAK.nyttNummer;
           }
         }
@@ -308,7 +321,8 @@
     kommando={kontroll.kommando}
     tekst={kontroll.tekst}
     utdypning={beskrivelse.trim()}
-    tittel={NYSAK.brevtittel(valgt.navn)}
+    brevnummer={kontroll.brevnummer}
+    tittel={kontroll.brevtittel}
     handling={NYSAK.handling}
     svarerPaa={null}
     detteSender={[

@@ -12,7 +12,7 @@ import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
-import { lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
+import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import { avvis } from './forutsetninger.ts';
 import {
   brevtekstI,
@@ -448,7 +448,13 @@ function skriv(
     data.brevtekst = brevtekst;
     if (brevtittel) data.brevtittel = brevtittel;
     // LV-U44, LV-U45: nummeret etter det høyeste i saken, også det avsenderen har oppgitt.
-    data.brevnummer = nesteBrevnummer(lest);
+    const brevnummer = nesteBrevnummer(lest);
+    data.brevnummer = brevnummer;
+    // LV-U53, LV-U24: merkingen fryses i brevet, så en senere henvisning viser til den som
+    // står på det, også om kontraktsforkortelsen endres (oppdragsgiver 04.11 i #1570). Uten
+    // forkortelsen merkes brevet ikke, og leveringen avviser sendingen (S2 A i #1497).
+    if (kontekst.kontraktsforkortelse)
+      data.merking = brevmerking(kontekst.kontraktsforkortelse, kontekst.sakskode, brevnummer);
   }
   if (sendes) {
     const avvik = tekstavvik(k.brevtekst, brevtekst);
@@ -513,7 +519,7 @@ function brevtekstFor(
   u: Utledning,
   kjerne: Kjerne,
   utdypninger: Utdypninger,
-  { sakskode, kontraktsforkortelse }: Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'>
+  { sakskode }: Pick<Kontekst, 'sakskode'>
 ): { tekst: Avsnitt[]; tittel: string | null } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -530,7 +536,6 @@ function brevtekstFor(
       lest,
       {
         sakskode,
-        kontraktsforkortelse,
         tittel: sak.tittel,
         svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },

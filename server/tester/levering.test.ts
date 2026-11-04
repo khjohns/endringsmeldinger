@@ -26,7 +26,8 @@ import { lesSaken } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { lesBrevPdf } from '../brevpdf.ts';
-import { KontraktsforkortelseMangler, merking, pdfsum, vedleggsnavn } from '../levering.ts';
+import { KontraktsforkortelseMangler, merkingI, pdfsum, vedleggsnavn } from '../levering.ts';
+import { brevmerking } from '../../kjerne/frosset/brevtittel.ts';
 import { sql } from './sqlserver.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
@@ -1404,14 +1405,14 @@ describe('merkingen av brevet (LV-U44, LV-U48)', () => {
     ['koe', 17, 1, 'K201-KOE-017-01'],
     ['koe', 1234, 100, 'K201-KOE-1234-100'],
   ] as const)('%s %i, brev %i, blir %s', (kode, loepenummer, brevnummer, forventet) => {
-    expect(
-      merking({ kontraktsforkortelse: 'K201', sakskode: { kode, loepenummer } }, brevnummer)
-    ).toBe(forventet);
+    const merking = brevmerking('K201', { kode, loepenummer }, brevnummer);
+    expect(merking).toBe(forventet);
+    expect(merkingI({ data: { merking } }), 'oppdraget leser merkingen i brevet (LV-U53)').toBe(
+      forventet
+    );
   });
 
-  it('uten kontraktsforkortelse lages ingen merking (S2 A i #1497)', () => {
-    expect(() =>
-      merking({ kontraktsforkortelse: null, sakskode: { kode: 'koe', loepenummer: 5 } }, 3)
-    ).toThrow(KontraktsforkortelseMangler);
+  it('et brev kjernen ikke merket, fordi prosjektet manglet forkortelsen, merkes ikke (S2 A i #1497)', () => {
+    expect(() => merkingI({ data: { brevnummer: 3 } })).toThrow(KontraktsforkortelseMangler);
   });
 });
