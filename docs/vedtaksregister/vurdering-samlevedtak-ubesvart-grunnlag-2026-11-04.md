@@ -143,12 +143,19 @@ står i parentes etter hver setning; «s» er setningen i posten.
     godkjent uten påberopt preklusjon eller frafalt (GR-U7; GR-U23), og som subsidiært når
     forholdet er avslått eller preklusjon er påberopt. Det følger av svaret på forholdet. (GR-U4 s2;
     GR-U26 s9; E4) Har byggherren frafalt etter punkt 32.3 første ledd c i NS 8407 og i et nytt svar
-    avslått eller påberopt at varselet kom for sent, viser løsningen frafallet sammen med det nye
-    svaret, uten å trekke konklusjonen. (HF-U25 punkt 4; HF-U27)
-    En enighet om vederlag eller frist er betinget til forholdet er avklart. Den får ingen virkning
-    når TE godtar avslaget (GR-U7) eller preklusjonen, eller trekker påberopelsen (GR-U5). Den får
-    virkning når byggherren i et nytt svar godkjenner forholdet eller frafaller (HF-U25 punkt 1;
-    GR-U7). Kommer en ny versjon av påberopelsen, er den fortsatt betinget (GR-U1; punkt 14). (E4)
+    avslått forholdet, gjelder ikke første setning eller det punktet ellers sier om virkningen av en
+    enighet om vederlag eller frist: løsningen viser frafallet sammen med det nye svaret, uten å
+    trekke konklusjonen. (HF-U25 punkt 4; E4) Påberoper byggherren i et slikt nytt svar at varselet
+    kom for sent etter punkt 32.2 i NS 8407, gjelder HF-U27 i stedet for første setning og det
+    punktet ellers sier om virkningen av enigheten: «Løsningen viser frafallet sammen med det nye svaret, uten å trekke
+    konklusjonen, og utleder virkningen av standpunktet etter punkt 32.2 som ellers (VS-U3).»
+    (HF-U27 s2) En enighet om vederlag eller frist er betinget til forholdet er avklart. Den får
+    ingen virkning når TE godtar avslaget (GR-U7) eller preklusjonen, eller trekker påberopelsen
+    (GR-U5). Den får virkning når byggherren godkjenner forholdet uten påberopt preklusjon eller
+    frafaller, i det første svaret på versjonen (første setning) eller i et nytt svar (HF-U25
+    punkt 1). (GR-U7) Kommer en ny versjon av påberopelsen før forholdet er avklart, er enigheten
+    fortsatt betinget (GR-U1; punkt 14). Etter et frafall er forholdet avklart ved frafallet også
+    mens en ny versjon venter på byggherrens svar (GR-U23). (E4)
 13. Avslaget er byggherrens standpunkt, ikke løsningens avgjørelse av om betingelsen er oppfylt.
     (GR-U26 s10)
 14. Venter en ny versjon av påberopelsen på svar, også etter at byggherren har avslått den forrige
@@ -202,18 +209,29 @@ standpunktet sammen med det senere grunnlagssvaret: som avklart når grunnlaget 
 subsidiært når grunnlaget er avslått eller preklusjon er påberopt.»; GR-U7 «Godtar TE avslaget på
 grunnlaget, lukkes saken, og enigheten om beløp eller dager får ingen virkning.»; GR-U5 «trekker TE
 grunnlaget, trekkes alle krav som er sendt, også et vederlag eller en frist byggherren har godkjent,
-fordi ansvarsgrunnlaget bærer dem.» (del av setningen). Samlevedtaket: punkt 12. Slutninger, ikke
+fordi ansvarsgrunnlaget bærer dem.» (første setning). Samlevedtaket: punkt 12. Slutninger, ikke
 ordlyden i et vedtak:
 
 - Punkt 12 gjør det GR-U26 s9 sier om visningen, til en regel for hva svaret gjelder som, og tar med
-  frafallet og preklusjonen etter GR-U7 og GR-U23. Det presiserer GR-U26 s9. Unntaket etter et
-  frafall står i HF-U25 punkt 4 og HF-U27.
+  frafallet og preklusjonen etter GR-U7 og GR-U23. Det presiserer GR-U26 s9.
+- Unntaket etter et frafall står i HF-U25 punkt 4 og HF-U27. At det gjelder i stedet for første
+  setning og for det punktet ellers sier om virkningen av enigheten, er vår lesning av «uten å
+  trekke konklusjonen» (del av HF-U25 punkt 4 og HF-U27 s2). HF-U27 sier ikke hvordan «utleder
+  virkningen av standpunktet etter punkt 32.2 som ellers» (del av HF-U27 s2) forholder seg til
+  første setning. Derfor gjengir punkt 12 HF-U27 s2 ordrett og trekker ingen slutning om det.
 - Mellom avslaget og TEs aksept av det er enigheten fortsatt betinget, ikke bortfalt.
 - At en godtatt preklusjon gir samme virkning som et godtatt avslag, står ikke i GR-U7 eller GR-U27,
   som bare nevner avslaget. Koden gjør det slik (`forholdAvvist` i `kjerne/utledning/utled.ts`).
 - At enigheten får ingen virkning når TE trekker påberopelsen, er vår lesning av GR-U5.
-- At enigheten får virkning når byggherren senere godkjenner forholdet eller frafaller, følger av
-  GR-U7 og HF-U25 punkt 1. At den er betinget når en ny versjon kommer, følger av GR-U1 og punkt 14.
+- At enigheten får virkning når byggherren godkjenner forholdet uten påberopt preklusjon eller
+  frafaller, følger av GR-U7, i et nytt svar sammen med HF-U25 punkt 1. At den er betinget når en
+  ny versjon kommer før forholdet er avklart, følger av GR-U1 og punkt 14. Etter et frafall er
+  forholdet avklart også mens den nye versjonen venter (GR-U23).
+- Punkt 12 sier ikke hva en ny versjon gjør med enigheten når forholdet var godkjent uten påberopt
+  preklusjon, og heller ikke hva et senere nytt svar som avslår forholdet eller påberoper
+  preklusjon etter en godkjenning, gjør med en enighet som har fått virkning. Postene i kjeden sier
+  det ikke uttrykkelig. HF-U25 punkt 2 sier at det nye svaret erstatter det tidligere som
+  byggherrens siste svar, men ikke hva det gjør med enigheten.
 
 Det presiserer GR-U7, som får forholdet «presiserer».
 
@@ -322,8 +340,41 @@ Rettingene:
 10. Belegget for anbefalingen skiller hva koden og domenetabellen bygger på for E2, E4 og E5, og
     antakelsen står for seg.
 
-Sitatene som bare er en del av en setning, er merket. Rettingene etter den andre prøvingen er ikke
-prøvd på nytt.
+Sitatene som bare er en del av en setning, er merket.
+
+Den andre prøvingen i orkestratoren på `f0723fd`
+([kommentaren 6643248936](https://github.com/khjohns/endringsmeldinger/pull/1585#issuecomment-6643248936))
+fant fem funn. Rettingene:
+
+1. Unntaket etter et frafall gjelder i stedet for første setning i punkt 12 og det punktet ellers
+   sier om virkningen av enigheten. HF-U27 s2 står ordrett, også «og utleder virkningen av
+   standpunktet etter punkt 32.2 som ellers (VS-U3)». E4 sier at virkeområdet er vår lesning.
+2. Setningen om når enigheten får virkning, har vilkåret «uten påberopt preklusjon» (GR-U7).
+3. Setningen om en ny versjon gjelder bare før forholdet er avklart, og unntaket i GR-U23 står.
+   Hva en ny versjon gjør etter en godkjenning, er ført som hull i E4, og anbefalingen sier ikke
+   lenger «hver måte».
+4. Det første svaret på en versjon er skilt fra et nytt svar (HF-U25 punkt 1).
+5. Overskriften «Endret innhold» i utkastet har seks `#`.
+
+Ved B blir setningene om enigheten de fem siste i punkt 12.
+
+En uavhengig subagent prøvde punkt 12, E4, B og anbefalingen etter rettingene, mot `main`
+(`46a2cdd`). Sitatene er ordrette, punkt 12 har ni setninger, og «de fem siste» treffer
+setningene om enigheten. Den fant ingen motstrid mot GR-U23 eller HF-U27. Funnene og rettingene:
+
+1. Unntaket etter et frafall gjaldt bare første setning, men setningene om enigheten sa noe annet.
+   Unntaket gjelder nå også «det punktet ellers sier om virkningen av en enighet».
+2. Et senere nytt svar som avslår forholdet etter en godkjenning (HF-U25 punkt 2), var ikke tatt
+   med. Det er ført som hull i E4 og i anbefalingen. Punkt 12 er ikke fylt ut, fordi det ville være
+   et nytt domenevalg.
+3. «(femte setning)» pekte feil. Det står nå «(første setning)».
+4. Anbefalingen sa «med kilden for hver», men preklusjonen og GR-U5 er slutninger. Den sier nå «med
+   kilde eller merket slutning (E4)».
+5. B sa ikke om unntaket etter et frafall står. B sier nå at det står, med punktet i E4.
+6. GR-U5 i E4 er hele første setning og er merket slik. Delsitatene fra HF-U25 punkt 4 og HF-U27 s2
+   er merket.
+
+Rettingene etter prøvingen er ikke prøvd på nytt. Påstandene om koden er ikke kontrollert på nytt.
 
 ## Spørsmålene til oppdragsgiver
 
@@ -343,9 +394,10 @@ preklusjon mot den forrige versjonen).
   GR-U4 om retten til å gi et nytt svar gjelder HF-U25 punkt 1. Forhold: samler GR-U4, GR-U26,
   GR-U29, GR-U33 og OV-U45; utvider GR-U29 (E2); presiserer GR-U26 s9 og GR-U7 (E4); presiserer GR-U1
   (E5). Klasse: vedtak med designdel.»
-- **B:** «Som A, men uten de fire siste setningene i punkt 12, uten slutningene om enigheten i E4 og
+- **B:** «Som A, men uten de fem siste setningene i punkt 12, uten slutningene om enigheten i E4 og
   uten forholdet til GR-U7. Hva en enighet om vederlag eller frist er når forholdet senere besvares,
-  følger av punkt 9 og GR-U7.»
+  følger av punkt 9 og GR-U7. Unntaket etter et frafall i tredje og fjerde setning i punkt 12 og
+  punktet om det i E4 står.»
 
 *Belegg:* E-punktene, med postene ordrett. Koden og domenetabellen bygger bare delvis på slutningene:
 
@@ -356,8 +408,9 @@ preklusjon mot den forrige versjonen).
 - E2 er ikke bygget. Brevet har fortsatt «nedenfor» (`kjerne/frosset/brevtekst.ts`), og
   henvisningen bygges i #1306.
 
-*Anbefaling:* A. Punkt 12 sier da hver måte en enighet om vederlag eller frist får eller mister
-virkning på, med kilden for hver. Med B dekker punkt 9 og GR-U7 tidsrommet, men uten de enkelte
+*Anbefaling:* A. Punkt 12 sier da, med kilde eller merket slutning (E4), når en enighet om vederlag
+eller frist får eller mister virkning, og unntaket etter et frafall. Det sier ikke hva en ny versjon
+eller et senere nytt svar som avslår, gjør med enigheten etter at forholdet er godkjent (E4). Med B dekker punkt 9 og GR-U7 tidsrommet, men uten de enkelte
 tilfellene. *Antakelse:* at byggeøkta for #1433 og #1306 trenger tilfellene uttrykkelig.
 
 *Hva valget styrer:* teksten i GR-U34, forholdene til de samlede postene, og hva byggeøkta for
