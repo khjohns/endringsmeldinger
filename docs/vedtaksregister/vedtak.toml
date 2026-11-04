@@ -5101,7 +5101,7 @@ forkastet = true
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 etter = '''
-##### Samlevedtaket for endringsordren (EO-U34)
+##### <a id="samlevedtak-eo"></a>Samlevedtaket for endringsordren (EO-U34)
 
 Teksten under er samlevedtaket [EO-U34](#eo-u34), vedtatt 04.11 av oppdragsgiver (#1534), ordrett slik
 det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-endringsordre-2026-11-04.md),
@@ -7246,7 +7246,7 @@ svar = '''
 Oppdragsgiver 04.11, ordrett: «1A, 2A, 3B, 4A» ([#1534, 6626551632](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6626551632)).'''
 forhold = [{ art = "opphever", vedtak = "eo-u1" }, { art = "opphever", vedtak = "eo-u3" }, { art = "opphever", vedtak = "eo-u4" }, { art = "opphever", vedtak = "eo-u8" }, { art = "opphever", vedtak = "eo-u16" }, { art = "opphever", vedtak = "eo-u20" }, { art = "opphever", vedtak = "eo-u24" }, { art = "samler", vedtak = "eo-u11" }, { art = "samler", vedtak = "eo-u12" }, { art = "samler", vedtak = "eo-u13" }, { art = "samler", vedtak = "eo-u14" }, { art = "samler", vedtak = "eo-u15" }, { art = "samler", vedtak = "eo-u17" }, { art = "samler", vedtak = "eo-u18" }, { art = "samler", vedtak = "eo-u19" }, { art = "samler", vedtak = "eo-u21" }, { art = "samler", vedtak = "eo-u22" }, { art = "samler", vedtak = "eo-u23" }, { art = "samler", vedtak = "eo-u25" }, { art = "samler", vedtak = "eo-u26" }, { art = "samler", vedtak = "eo-u27" }, { art = "samler", vedtak = "eo-u28" }, { art = "samler", vedtak = "eo-u29" }, { art = "samler", vedtak = "eo-u30" }, { art = "samler", vedtak = "eo-u31" }, { art = "samler", vedtak = "eo-u32" }, { art = "samler", vedtak = "eo-u33" }, { art = "samler", vedtak = "ov-u6" }, { art = "endrer", vedtak = "hf-u12" }, { art = "endrer", vedtak = "ka-u12" }, { art = "endrer", vedtak = "ka-u45" }, { art = "endrer", vedtak = "mm-u21" }, { art = "endrer", vedtak = "mm-u33" }, { art = "endrer", vedtak = "mm-u34" }, { art = "endrer", vedtak = "ov-u2" }, { art = "endrer", vedtak = "ov-u3" }, { art = "endrer", vedtak = "ov-u6" }, { art = "endrer", vedtak = "ov-u43" }, { art = "endrer", vedtak = "ov-u80" }, { art = "endrer", vedtak = "ubegrenset-fullmakt" }]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for endringsordren](#samlevedtaket-for-endringsordren-eo-u34).'''
+Teksten står under tabellen, i [Samlevedtaket for endringsordren](#samlevedtak-eo).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1A"
