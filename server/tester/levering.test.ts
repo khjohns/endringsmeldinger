@@ -26,7 +26,7 @@ import { lesSaken } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { lesBrevPdf } from '../brevpdf.ts';
-import { pdfsum, vedleggsnavn } from '../levering.ts';
+import { KontraktsforkortelseMangler, merking, pdfsum, vedleggsnavn } from '../levering.ts';
 import { sql } from './sqlserver.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
@@ -273,7 +273,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(catenda.opplastinger).toBe(0);
   });
 
-  it('L2: kjøreren laster opp brevet med dokumentnøkkelen i navnet, setter referansen og kvitterer hver operasjon (B-03)', async () => {
+  it('L2: kjøreren laster opp brevet med merkingen og dokumentnøkkelen i navnet, setter referansen og kvitterer hver operasjon (B-03, LV-U44)', async () => {
     const sakId = await sakMedBrev();
     const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const };
     expect((await lesSaken(o.datalag.kjoeretid.pool, leser, sakId)).oppdrag[0].levert).toBeNull();
@@ -287,10 +287,12 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     );
     const brev = journal.at(-1)!;
     const oppdrag = oppdragene.find((x) => x.event_id === brev.event_id)!;
-    expect(navn).toBe(`brev-${sakId}-2-${brev.event_id}.pdf`);
+    // Sakens første brev, med løpenummeret saken fikk i prosjektet (LV-U44, LV-U48).
+    const merking = /^K201-KOE-\d{3}-01/.exec(navn)?.[0];
+    expect(navn).toBe(`${merking}-${brev.event_id}.pdf`);
     const { brevtekst } = oppdrag.innhold.brev as { brevtekst: Avsnitt[] };
     expect(gjengirTro(lesBrevPdf(dokument.innhold), brevtekst)).toBe(true);
-    expect(lesBrevPdf(dokument.innhold)).toContain(`Sak ${sakId}, brev 2`);
+    expect(lesBrevPdf(dokument.innhold)).toContain(`Vår ref.: ${merking}\n`);
     expect(await brevdokumentene(sakId)).toEqual([
       { pdf_sha256: pdfsum(dokument.innhold), pdf: dokument.innhold },
     ]);
@@ -1389,5 +1391,26 @@ describe('navnet vedlegget får i Catenda (#876)', () => {
     ['uten_endelse', 'uten_endelse-ID'],
   ])('%s blir %s', (filnavn, navn) => {
     expect(vedleggsnavn(filnavn, 'ID')).toBe(navn);
+  });
+});
+
+describe('merkingen av brevet (LV-U44, LV-U48)', () => {
+  // Kilde: LV-U48, minst tre sifre i løpenummeret og minst to i brevnummeret,
+  // `K201-KOE-005-03`, og tilsvarende EO (LV-U44, svaret på D3 i #1497).
+  it.each([
+    ['koe', 5, 3, 'K201-KOE-005-03'],
+    ['eo', 5, 3, 'K201-EO-005-03'],
+    ['koe', 17, 1, 'K201-KOE-017-01'],
+    ['koe', 1234, 100, 'K201-KOE-1234-100'],
+  ] as const)('%s %i, brev %i, blir %s', (kode, loepenummer, brevnummer, forventet) => {
+    expect(
+      merking({ kontraktsforkortelse: 'K201', sakskode: { kode, loepenummer } }, brevnummer)
+    ).toBe(forventet);
+  });
+
+  it('uten kontraktsforkortelse lages ingen merking (S2 A i #1497)', () => {
+    expect(() =>
+      merking({ kontraktsforkortelse: null, sakskode: { kode: 'koe', loepenummer: 5 } }, 3)
+    ).toThrow(KontraktsforkortelseMangler);
   });
 });

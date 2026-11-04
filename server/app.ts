@@ -69,7 +69,7 @@ import {
   Versjonskonflikt,
   type Sakskode,
 } from './kommandoer.ts';
-import { filnavn, lagOppdrag } from './levering.ts';
+import { filnavn, KontraktsforkortelseMangler, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
 import { lesFil, VEDLEGG_FOER_SAKEN, VEDLEGGSRUTER, type Fil } from './vedlegg.ts';
 import { feilINySak, vedleggIder } from './nysak.ts';
@@ -304,6 +304,12 @@ const utfallUsikkert = () =>
  */
 function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+  if (feil instanceof KontraktsforkortelseMangler)
+    return feilsvar(
+      409,
+      'KONTRAKTSFORKORTELSE_MANGLER',
+      'Prosjektet mangler kontraktsforkortelsen, så brevet kan ikke merkes. Brevet er ikke sendt.'
+    );
   if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
   if (feil instanceof KommandoIdBrukt)
     return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
@@ -429,7 +435,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       sakId,
       forventet,
       kommando,
-      ({ journal, tidspunkt, maal, vedlegg, sakskode }) => {
+      ({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse }) => {
         const vurdert = vurder(
           kropp.kommando,
           {
@@ -451,7 +457,10 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         return {
           skriv: true,
           rad,
-          oppdrag: lagOppdrag(rad, maal, etter.visning.status, avh.kjerne, avh.nyId),
+          oppdrag: lagOppdrag(rad, maal, etter.visning.status, avh.kjerne, avh.nyId, {
+            kontraktsforkortelse,
+            sakskode: tilKjernen(sakskode),
+          }),
         };
       }
     );
@@ -561,7 +570,7 @@ async function opprettMedPaaberopelse(
       sakId,
       kommando,
       vedleggider,
-      ({ tidspunkt, vedlegg, sakskode }) => {
+      ({ tidspunkt, vedlegg, sakskode, kontraktsforkortelse }) => {
         const nySak = opprettelse({ type: 'opprett_sak', sakstittel: tittel }, side.rolle);
         if (!nySak.godtatt) return { skriv: false, avvisning: nySak };
         const opprettet: Journalrad = {
@@ -587,6 +596,11 @@ async function opprettMedPaaberopelse(
           nyId: avh.nyId,
           ...(sakskode ? { sakskode: tilKjernen(sakskode) } : {}),
         });
+        // Uten sakens kode avvises opprettelsen før oppdraget lages (`opprettSakMedPaaberopelse`).
+        const merkingsgrunnlag = () => {
+          if (!sakskode) throw new SkrivingAvvist('Bare TE oppretter en sak.');
+          return { kontraktsforkortelse, sakskode: tilKjernen(sakskode) };
+        };
         const vurdert = vurder(krav, kjernekontekst(tidspunkt), [opprettet], avh.kjerne, vedlegg);
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
         const [rad] = vurdert.hendelser;
@@ -604,7 +618,7 @@ async function opprettMedPaaberopelse(
             skriv: true as const,
             rad: varselrad,
             oppdrag: (maal: Leveringsmaal) =>
-              lagOppdrag(varselrad, maal, etter, avh.kjerne, avh.nyId),
+              lagOppdrag(varselrad, maal, etter, avh.kjerne, avh.nyId, merkingsgrunnlag()),
           };
         };
         // Varselet prøves med påberopelsens klokke før noe skrives, så datoen ikke kan være
@@ -617,7 +631,8 @@ async function opprettMedPaaberopelse(
           skriv: true,
           opprettet,
           rad,
-          oppdrag: (maal) => lagOppdrag(rad, maal, status, avh.kjerne, avh.nyId),
+          oppdrag: (maal) =>
+            lagOppdrag(rad, maal, status, avh.kjerne, avh.nyId, merkingsgrunnlag()),
           varsel: varselet ? ({ tidspunkt: t }) => lagVarsel(t) : null,
         };
       }

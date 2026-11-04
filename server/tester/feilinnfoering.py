@@ -280,6 +280,16 @@ FEILINNFOERINGER = [
     ("S72", "prosjektet gir ikke kontraktsforkortelsen videre (N1, #1497)", "server/prosjekter.ts",
      "          kontraktsforkortelse: parter.kontraktsforkortelse,\n", "",
      "kontraktsforkortelsen i settings.contract"),
+    ("S73", "løpenummeret i merkingen får ikke tre sifre (LV-U48, #1497)", "server/levering.ts",
+     "    utfylt(sakskode.loepenummer, 3),", "    utfylt(sakskode.loepenummer, 2),",
+     "merkingen av brevet"),
+    ("S74", "et prosjekt uten kontraktsforkortelse merker brevet uten den (S2 A, #1497)", "server/levering.ts",
+     "  if (!kontraktsforkortelse)\n    throw new KontraktsforkortelseMangler(",
+     "  if (false)\n    throw new KontraktsforkortelseMangler(",
+     "KONTRAKTSFORKORTELSE_MANGLER"),
+    ("S75", "hodet viser ikke merkingen som Vår ref. (LV-U27, #1497)", "server/levering.ts",
+     "    `Vår ref.: ${brev.merking}`,", "    'Vår ref.:',",
+     "merkingen og dokumentnøkkelen i navnet"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

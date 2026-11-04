@@ -25,8 +25,10 @@ import {
   kall,
   type KjorendeServer,
   lagOppsett,
+  opprettKjernesak,
   type Oppsett,
   rydd,
+  sendKommando,
   startServer,
   TESTBASE_URL,
   type Testbruker,
@@ -508,5 +510,57 @@ describe('vedleggene før saken uten entydig team (#1037)', () => {
     )) as [number, Record<string, unknown>];
     expect(status).toBe(403);
     expect(kropp.error).toBe('MANGLER_TEAM');
+  });
+});
+
+describe.skipIf(!TESTBASE_URL)('et prosjekt uten kontraktsforkortelse (S2 A i #1497)', () => {
+  // Kilde: arbeidsvalget S2 A i #1497. Uten forkortelsen kan brevet ikke merkes etter
+  // LV-U44, og sendingen avvises med en melding om at forkortelsen mangler.
+  let o: Oppsett;
+  let server: KjorendeServer;
+
+  beforeAll(async () => {
+    o = await lagOppsett(undefined, { utenKontraktsforkortelse: true });
+    server = await startServer(o);
+  });
+  afterAll(async () => {
+    await server?.stopp();
+    if (o) await rydd(o);
+  });
+
+  const hendelser = () =>
+    iTransaksjon(
+      o.datalag.base.pool,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE', team: null },
+      async (r) =>
+        (await r().query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.hendelse')).recordset[0].n
+    );
+
+  it('opprettelsen med påberopelsen avvises med KONTRAKTSFORKORTELSE_MANGLER, og ingenting skrives', async () => {
+    const sakId = randomUUID();
+    const foer = await hendelser();
+    const svar = await kall(server.url, SAKER, {
+      bruker: o.te,
+      prosjektId: o.prosjekt.id,
+      kropp: {
+        kommando_id: randomUUID(),
+        ny_sak_id: sakId,
+        tittel: TITTEL,
+        paaberopelse: KRAV,
+        brevtekst: brevtekst(sakId, o.te.id),
+      },
+    });
+    expect(svar.status, JSON.stringify(svar.kropp)).toBe(409);
+    expect(svar.kropp.error).toBe('KONTRAKTSFORKORTELSE_MANGLER');
+    expect(await hendelser()).toBe(foer);
+  });
+
+  it('et brev i en sak som finnes, avvises med KONTRAKTSFORKORTELSE_MANGLER, og ingenting skrives', async () => {
+    const sakId = await opprettKjernesak(o);
+    const foer = await hendelser();
+    const svar = await sendKommando(server.url, o, sakId, { versjon: 1 });
+    expect(svar.status, JSON.stringify(svar.kropp)).toBe(409);
+    expect(svar.kropp.error).toBe('KONTRAKTSFORKORTELSE_MANGLER');
+    expect(await hendelser()).toBe(foer);
   });
 });
