@@ -985,7 +985,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: svaret på påberopelsen og om sporene er subsidiære, lest av
   // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
-  // MM-U9, MM-U28: om tallet i gjeldende svar er subsidiært, som sakslisten leser (#1050).
+  // MM-U9, OV-U32: om tallet i gjeldende svar er subsidiært, som den gamle sakslisten leser til #1545 (#1050).
   [
     'Sporutledning',
     'predikat',

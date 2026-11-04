@@ -65,6 +65,9 @@ def grunnregister(register):
         for p in g["vedtak"]:
             # Det andre hjemmet kan være en ny post (#1534).
             p.pop("bindende_i", None)
+            # «samler» og «bygger på» er ført etter importen (steg 3b i #1534).
+            if "forhold" in p:
+                p["forhold"] = [f for f in p["forhold"] if f["art"] in vr.FORHOLD_I_FOLGE]
     return grunn
 
 
@@ -335,12 +338,13 @@ def test_forholdene_i_de_importerte_postene_er_de_folge_sier_uttrykkelig(registe
 
 def test_et_importert_forhold_star_begge_veier_i_folge(register):
     """Uavhengig av leseren: lenken til vedtaket står hos posten, og lenken til posten hos
-    vedtaket, for hvert importert forhold som ikke står i EN_VEI."""
+    vedtaket, for hvert importert forhold som ikke står i EN_VEI. «samler» og «bygger på»
+    skriver verktøyet, så de står ikke i Følge i den importerte posten."""
     en_vei = {(a, art, b) for a, art, b, _ in vr.EN_VEI}
     antall = 0
     for p in vr.poster(register):
         for f in [] if vr.er_ny(p) else p.get("forhold", []):
-            if (vr.anker(p), f["art"], f["vedtak"]) in en_vei:
+            if (vr.anker(p), f["art"], f["vedtak"]) in en_vei or f["art"] not in vr.FORHOLD_I_FOLGE:
                 continue
             assert f"](#{f['vedtak']})" in vr.linje(p["folge"])
             assert f"](#{vr.anker(p)})" in vr.linje(
@@ -1133,7 +1137,7 @@ def test_en_post_uten_klasse_avvises(grunnregister, ny):
         (lambda p: p.update(klasse="design", bindende_i=["finnes-ikke"]), "som ikke er ankeret til et vedtak"),
         (lambda p: p.update(klasse="design", bindende_i=["xx-u1"]), "bindende_i viser til posten selv"),
         (lambda p: p.update(flyttet_til="BF-06.md"), "er ikke et punkt i et brukerforløp"),
-        (lambda p: p.update(flyttet_til="system.md#u-1"), "er ikke et punkt i et brukerforløp"),
+        (lambda p: p.update(flyttet_til="system.md#mm-u22"), "er ikke et punkt i et brukerforløp"),
     ],
 )
 def test_vakta_melder_feil_i_klassen_og_delene(grunnregister, endring, melding):
@@ -1327,9 +1331,221 @@ def test_byggestatusen_i_en_rad_som_har_faatt_anker_er_ikke_ny(grunnregister):
     assert vr.ny_byggestatus(grunnregister, endret) == []
 
 
-def test_ov_u71_og_rad_076_er_opphevet_etter_svar_14(register):
-    """Svar 14 i PR #1537 og svar 1 04.11 i #1534: vedtaket som har tatt innholdet, opphever.
-    MM-U28 og MM-U29 venter på 3b, sammen med henvisningene til dem i koden."""
+def test_ov_u71_rad_076_mm_u28_og_mm_u29_er_opphevet_etter_svar_14(register):
+    """Svar 14 i PR #1537 og svar 1 04.11 i #1534: vedtaket som har tatt innholdet, opphever."""
     opphevet, _ = vr.opphevet_og_samlet(register)
+    assert sorted(opphevet["mm-u28"]) == ["mm-u37", "mm-u38", "mm-u39"]
+    assert opphevet["mm-u29"] == ["mm-u40"]
     assert opphevet["ov-u71"] == ["ov-u86"]
     assert opphevet["b-13-frafalt"] == ["gr-u18"]
+
+
+# --------------------------------------------------------------------------
+# Kontrollene i steg 3b i #1534
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "flyttet_til, gyldig",
+    [
+        ("BF-06.md#u-12", True),
+        ("BF-02A.md#u-3", True),
+        ("BF-01V.md#u-1", True),
+        ("BF-2A.md#u-3", False),
+        ("BF-02AB.md#u-3", False),
+        ("BF-06.md#U-12", False),
+        ("BF-06.json#u-12", False),
+        (".interface-design/system.md#mm-u22", True),
+        (".interface-design/system.md#gfk-u2", True),
+        (".interface-design/system.md#u-1", False),
+        (".interface-design/system.md#MM-U22", False),
+        ("system.md#mm-u22", False),
+    ],
+)
+def test_flyttet_til_er_et_punkt_i_et_brukerforloep_ogsaa_med_bokstav(
+    grunnregister, flyttet_til, gyldig
+):
+    """Kravet fra reviewet av PR #1542: forløpene BF-01V og BF-02A–BF-02C har en bokstav. I
+    systemfila er punktet ankeret med vedtakets ID (arbeidsvalg 04.11 fra økta som følger #1534)."""
+    endret = med(grunnregister, ny_post(klasse="design", forhold=[], flyttet_til=flyttet_til))
+    feil = vr.valider(endret)
+    assert (feil == []) is gyldig, feil
+
+
+def test_lenken_i_flyttet_til_gaar_til_ankeret_lenkekontrollen_leser(grunnregister, tmp_path):
+    """Lenkekontrollen feiler når ankeret i «Flyttet til» ikke finnes (svar 5 04.11 i #1534).
+    Den leser et U-punkt med ankeret foran, som `<a id="u-3"></a>**U-3**`."""
+    lk = last("lenkekontroll")
+    post = ny_post(klasse="design", forhold=[], flyttet_til="BF-02A.md#u-3")
+    celle = vr.klassecelle(post, vr.indeks(med(grunnregister, post)))
+    assert celle.endswith("Flyttet til [BF-02A U-3](../domenetabell/brukerforlop/BF-02A.md#u-3)")
+    bestilling = tmp_path / "BF-02A.md"
+    bestilling.write_text('- <a id="u-3"></a>**U-3** BH ser svaret.\n', encoding="utf-8")
+    assert "u-3" in lk.ankre(bestilling)
+    assert "u-4" not in lk.ankre(bestilling)
+    post = ny_post(klasse="design", forhold=[], flyttet_til=".interface-design/system.md#mm-u22")
+    assert vr.klassecelle(post, vr.indeks(med(grunnregister, post))).endswith(
+        "Flyttet til [system.md MM-U22](../../.interface-design/system.md#mm-u22)"
+    )
+
+
+def _opphever(id_: str, vedtak: str, dato=datetime.date(2026, 10, 13)) -> dict:
+    return ny_post(id=id_, dato=dato, forhold=[{"art": "opphever", "vedtak": vedtak}])
+
+
+@pytest.mark.parametrize("art", ["presiserer", "utvider", "snevrer inn", "endrer", "bygger på"])
+def test_et_gjeldende_vedtak_med_forhold_til_et_opphevet_vedtak_gir_feil(grunnregister, art):
+    """Svar 5 04.11 i #1534: et gjeldende vedtak presiserer, utvider, endrer eller bygger ikke
+    på et opphevet vedtak. «snevrer inn» etter arbeidsvalget 04.11 fra økta som følger #1534."""
+    endret = med(
+        med(grunnregister, ny_post(forhold=[{"art": art, "vedtak": "ka-u2"}])),
+        _opphever("XX-U2", "ka-u2"),
+    )
+    assert vr.forhold_til_opphevet_feil(endret, frozenset()) == [
+        f"xx-u1: {art} ka-u2, som er opphevet av xx-u2; et gjeldende vedtak kan ikke "
+        "presisere, utvide, snevre inn, endre eller bygge på et opphevet vedtak"
+    ]
+    kjent = frozenset({("xx-u1", art, "ka-u2", "#1534, steg 4")})
+    assert vr.forhold_til_opphevet_feil(endret, kjent) == []
+
+
+def test_et_opphevet_vedtak_eller_et_samlevedtak_gir_ingen_feil(grunnregister):
+    """Kontrollen gjelder gjeldende vedtak, og ikke «samler»: et samlevedtak opphever ikke."""
+    endret = med(
+        med(grunnregister, ny_post(forhold=[{"art": "samler", "vedtak": "ka-u2"}])),
+        _opphever("XX-U2", "ka-u2"),
+    )
+    assert vr.forhold_til_opphevet(endret) == {}
+    endret = med(
+        med(grunnregister, ny_post(forhold=[{"art": "presiserer", "vedtak": "ka-u2"}])),
+        _opphever("XX-U2", "ka-u2"),
+    )
+    endret = med(endret, _opphever("XX-U3", "xx-u1"))
+    assert vr.forhold_til_opphevet(endret) == {}
+
+
+def test_lista_over_forhold_til_opphevede_vedtak_kan_bare_krympe(grunnregister):
+    """En rad som ikke lenger finnes, og en rad uten issuet, gir feil."""
+    assert vr.forhold_til_opphevet_feil(
+        grunnregister, frozenset({("xx-u1", "presiserer", "ka-u1", "#1534, steg 4")})
+    ) == ["KJENTE_FORHOLD_TIL_OPPHEVET: xx-u1 presiserer ka-u1 finnes ikke lenger; fjern raden"]
+    assert vr.forhold_til_opphevet_feil(
+        grunnregister, frozenset({("xx-u1", "presiserer", "ka-u1", "steg 4")})
+    )[0].startswith("KJENTE_FORHOLD_TIL_OPPHEVET: raden")
+
+
+def test_forholdene_til_opphevede_vedtak_i_registeret_er_de_kjente(register):
+    assert vr.forhold_til_opphevet_feil(register) == []
+
+
+def test_et_forhold_fra_et_opphevet_vedtak_er_merket_i_foelge(grunnregister, grunnplan):
+    """M2 A 04.11 i #1534: «Utvidet av OV-U48 (opphevet 30.10 av OV-U69)». Følge i den
+    importerte posten får bare tekst verktøyet skriver først, så kontrollen mot main holder."""
+    endret = med(
+        med(grunnregister, ny_post(forhold=[{"art": "utvider", "vedtak": "ka-u2"}])),
+        _opphever("XX-U2", "xx-u1"),
+    )
+    assert vr.folgecelle(_importert(endret, "ka-u2"), endret).startswith(
+        "Utvidet 12.10 av [XX-U1](#xx-u1) (opphevet 13.10 av [XX-U2](#xx-u2))."
+    )
+    assert vr.endret_rundt_vedtakene(grunnplan, vr.logisk(endret)) == []
+
+
+def test_et_forhold_fra_et_opphevet_importert_vedtak_er_merket_i_foelge(grunnregister, grunnplan):
+    """Står forholdet i Følge i den importerte posten selv, som at EO-U5 presiserer EO-U2,
+    merkes opphevelsen med en egen setning foran teksten."""
+    endret = med(grunnregister, _opphever("XX-U1", "eo-u5", datetime.date(2026, 10, 12)))
+    folge = vr.folgecelle(_importert(endret, "eo-u2"), endret)
+    assert folge.startswith("[EO-U5](#eo-u5) er opphevet 12.10 av [XX-U1](#xx-u1). ")
+    assert folge.endswith(vr.linje(_importert(endret, "eo-u2")["folge"]))
+    assert vr.endret_rundt_vedtakene(grunnplan, vr.logisk(endret)) == []
+
+
+def test_en_importert_post_kan_faa_bygger_paa_og_verktoeyet_skriver_det(grunnregister, grunnplan):
+    """M2 A 04.11 i #1534: forholdene for OV-U2 og EO-U1 føres i registeret. Følge i en
+    importert post sier dem ikke, så verktøyet skriver dem begge veier, som i en ny post."""
+    endret = copy.deepcopy(grunnregister)
+    ka_u1 = _importert(endret, "ka-u1")
+    ka_u1["forhold"] = ka_u1.get("forhold", []) + [{"art": "bygger på", "vedtak": "ka-u2"}]
+    assert vr.valider(endret) == []
+    assert vr.forholdfeil(endret) == []
+    assert vr.folgecelle(ka_u1, endret).startswith("Bygger på [KA-U2](#ka-u2). ")
+    assert vr.folgecelle(_importert(endret, "ka-u2"), endret).startswith(
+        "Lagt til grunn av [KA-U1](#ka-u1). "
+    )
+    assert vr.endret_rundt_vedtakene(grunnplan, vr.logisk(endret)) == []
+
+
+def test_en_rad_uten_anker_kan_ikke_faa_bygger_paa(grunnregister):
+    endret = copy.deepcopy(grunnregister)
+    _rad_uten_anker(endret)["forhold"] = [{"art": "bygger på", "vedtak": "ka-u2"}]
+    assert any("gi raden et anker" in f for f in vr.valider(endret))
+
+
+def test_et_forhold_oppdragsgiver_har_bestemt_kan_foeres_etter_merge(grunnregister, monkeypatch):
+    """M2 A 04.11 i #1534: EO-U17 får sin endring av vedtaket 23.09 om ubegrenset fullmakt."""
+    merget = med(grunnregister, ny_post())
+    senere = copy.deepcopy(merget)
+    senere["gruppe"][0]["vedtak"][-1]["forhold"].append({"art": "endrer", "vedtak": "ka-u2"})
+    assert len(vr.mot_grunnlag(senere, vr.logisk(merget), merget)) == 1
+    monkeypatch.setattr(
+        vr, "FORHOLD_FOERT_ETTER_MERGE", {("xx-u1", "endrer", "ka-u2"): "en test"}
+    )
+    assert vr.mot_grunnlag(senere, vr.logisk(merget), merget) == []
+
+
+def test_eo_u17_endrer_vedtaket_om_ubegrenset_fullmakt(register):
+    eo_u17 = _importert(register, "eo-u17")
+    assert {"art": "endrer", "vedtak": "ubegrenset-fullmakt"} in eo_u17["forhold"]
+    for post, art, vedtak in vr.FORHOLD_FOERT_ETTER_MERGE:
+        assert {"art": art, "vedtak": vedtak} in _importert(register, post)["forhold"]
+
+
+@pytest.mark.parametrize(
+    "tekst, varsel",
+    [
+        ("Appen viser svaret.", True),
+        ("Løsningen viser det i appen.", True),
+        ("Brevet sier «sendt fra appen».", False),
+        ("Merket ‹Registrert i appen› står.", False),
+        ("Løsningen viser svaret.", False),
+        ("Applikasjonen og en app-lignende visning.", False),
+    ],
+)
+def test_app_utenfor_sitattegn_i_en_ny_post_gir_et_varsel(grunnregister, tekst, varsel):
+    """Svar 6 04.11 i #1534 (kontroll 3) og språkreglene i docs/sprak.md."""
+    post = ny_post()
+    post["alternativ"][0]["tekst"] = tekst
+    endret = med(grunnregister, post)
+    forventet = ["XX-U1: «app» utenfor sitattegn i vedtaksteksten; se språkreglene i docs/sprak.md"]
+    assert vr.varsler(endret, grunnregister) == (forventet if varsel else [])
+    assert vr.varsler(endret, endret) == []
+
+
+def test_varselet_om_app_gjelder_bare_det_valgte_alternativet(grunnregister):
+    post = ny_post()
+    post["alternativ"][1]["tekst"] = "Appen avgjør."
+    assert vr.varsler(med(grunnregister, post), grunnregister) == []
+
+
+@pytest.mark.parametrize("antall, varsel", [(2, False), (3, True)])
+def test_den_tredje_endringen_av_et_samlevedtak_gir_et_varsel(grunnregister, antall, varsel):
+    """Svar 6 og 10 04.11 i #1534: tellingen begynner når temaet er samlet."""
+    endret = med(grunnregister, ny_post(forhold=[{"art": "samler", "vedtak": "ka-u1"}]))
+    for i, art in zip(range(antall), ("presiserer", "endrer", "snevrer inn")):
+        endret = med(
+            endret, ny_post(id=f"XX-U{i + 2}", forhold=[{"art": art, "vedtak": "xx-u1"}])
+        )
+    forventet = [
+        "xx-u1: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+    assert vr.varsler(endret, endret) == (forventet if varsel else [])
+
+
+def test_et_vedtak_som_ikke_er_samlet_telles_ikke(grunnregister):
+    """Svar 10 04.11 i #1534: til temaet er samlet, skrives en ny endring som før."""
+    endret = grunnregister
+    for i in range(4):
+        endret = med(endret, ny_post(id=f"XX-U{i + 1}", forhold=[{"art": "endrer", "vedtak": "ka-u1"}]))
+    assert vr.varsler(endret, endret) == []

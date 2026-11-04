@@ -12,6 +12,14 @@ som nevnes her, ikke finnes der. Det som betyr noe juridisk, står i
 
 Språket i teksten står i [språkfila](../docs/sprak.md).
 
+Fila har også design som er flyttet fra [vedtaksregisteret](../docs/vedtaksregister/README.md#klassen):
+poster med klassen design, som viser hit med «Flyttet til» (svar 5 04.11 i
+[#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
+Den flyttede teksten har et anker med vedtakets ID i små bokstaver, som `<a id="mm-u22"></a>`,
+og er skrevet etter språkfila.
+Brukerprøven endrer det uten vedtak, men ikke noe et vedtak sier. En endring som ville endre
+noe et vedtak sier, krever nytt vedtak ([vedtaksskillen](../.claude/skills/vedtak/SKILL.md)).
+
 ## Retningen
 
 **Varden er visningen** (oppdragsgiver 28.10, #1338, runde 6): «Ja, jeg tenker Varden er visningen, men det er fortsatt elementer fra dagens visning som kan være aktuelle.»
