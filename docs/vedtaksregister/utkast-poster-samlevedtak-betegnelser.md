@@ -238,3 +238,37 @@ om nøkkeltallene, faller bort med det.» Følge for OV-U61 sier det ikke (M3).
 ```text
 Etter [MM-U41](#mm-u41), E4: OV-U69 opphevet OV-U49, og «Endringene OV-U49 gjorde i andre vedtak, blant annet i GR-U7, GR-U8, KA-U16 og svaret 25.10 på spørsmål 8 om nøkkeltallene, faller bort med det.»
 ```
+
+## Føringen
+
+Skriptet under fører utkastet inn i `vedtak.toml` (lagret som fil og kjørt fra rota). Etter det: tilføy `"MM-U41"` sist i `vedtak` i temaet i `docs/vedtaksregister/temaer.toml`, ta raden `("ov-u61", "presiserer", "mm-u28", …)` ut av `KJENTE_FORHOLD_TIL_OPPHEVET` i `docs/verktoy/vedtaksregister.py`, før de tre henvisningene til OV-U61 i `src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts` inn i `KJENTE_AVVIK` i `docs/verktoy/vedtakshenvisninger.py` med #1450, og kjør verktøyene. Prøvd på `main` (`d79468a`).
+
+```python
+"""Fører utkastet inn i vedtak.toml i arbeidstreet det kjøres fra."""
+import re
+U = "docs/vedtaksregister/utkast-poster-samlevedtak-betegnelser.md"
+T = "docs/vedtaksregister/vedtak.toml"
+u = open(U).read()
+blokker = re.findall(r"```(?:toml|markdown|text)\n(.*?)```", u, re.S)
+poster, etter, tillegg = blokker[0], blokker[1], blokker[2].strip()
+t = open(T).read()
+# 1. Postene etter MM-U40 (før neste [[gruppe]])
+i = t.index('id = "MM-U40"'); j = t.index("\n[[gruppe]]\n", i)
+t = t[:j].rstrip("\n") + "\n\n" + poster.rstrip("\n") + "\n" + t[j:]
+# 2. etter i gruppa
+g = t.index('tittel = "Sendte brev, regelendring og saker kjernen ikke forstår"\netter = \'\'\'\n')
+k = g + len('tittel = "Sendte brev, regelendring og saker kjernen ikke forstår"\netter = \'\'\'\n')
+t = t[:k] + etter + "\n" + t[k:]
+# 3. Klassen for MM-U38 og OV-U61
+BI = {"MM-U38": '["eo-u34", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]', "OV-U61": '["gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u6", "ov-u57"]'}
+for pid in ("MM-U38", "OV-U61"):
+    p = t.index(f'id = "{pid}"'); s = t.rindex("[[gruppe.vedtak]]\n", 0, p)
+    blokk = t[s:p]
+    assert 'klasse = "vedtak"' in blokk, pid
+    t = t[:s] + blokk.replace('klasse = "vedtak"', 'klasse = "beslutning"').rstrip("\n") + "\nbindende_i = " + BI[pid] + "\n" + t[p:]
+# 4. Følge for OV-U61
+p = t.index('id = "OV-U61"'); f = t.index("folge = '''\n", p); e = t.index("'''", f + 12)
+t = t[:e] + " " + tillegg + t[e:]
+open(T, "w").write(t)
+
+```
