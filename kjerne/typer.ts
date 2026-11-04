@@ -9,6 +9,15 @@ import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from './regle
 
 export type Spor = 'forhold' | 'vederlag' | 'frist';
 export type Part = 'TE' | 'BH';
+
+/**
+ * Sakens kode i kontrakten og løpenummeret for koden i prosjektet (LV-U44, LV-U46): koden
+ * saken har, eller den sakens første brev fra løsningen gir den. Lagret i sakens metadata.
+ */
+export interface Sakskode {
+  kode: 'koe' | 'eo';
+  loepenummer: number;
+}
 export const SPOR: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
@@ -254,8 +263,13 @@ export interface Dokument {
   utsagn: LestUtsagn[];
   /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17). */
   brevtekst: Avsnitt[] | null;
-  /** Tittelen på et brev om forholdet, frosset med teksten (MM-U3). `null` ellers. */
+  /** Tittelen på et brev løsningen sendte, frosset med teksten (MM-U3, #1536). `null` ellers. */
   brevtittel: string | null;
+  /**
+   * Brevets nummer i saken (LV-U44, N3 i #1497): satt av kjernen for et brev fra løsningen, og
+   * oppgitt av avsenderen for registrert korrespondanse (LV-U45). Ikke unikt i saken.
+   */
+  brevnummer: number | null;
   /**
    * OV-U16: beskrivelsen av et brev registrert som dokumentasjon (OV-U4), med ordene til den
    * som registrerte. Appen tolker den ikke. `null` i et annet dokument.

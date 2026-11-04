@@ -48,7 +48,11 @@ function endre(rader: Journalrad[], k: Kjoering, navn: string, endring: (e: Data
       ...((r.data.krav ?? []) as Data[]),
       ...((r.data.utsagn ?? []) as Data[]),
     ])
-      if (e.id === id) endring(e);
+      if (e.id === id) {
+        endring(e);
+        // Tittelen ble frosset av det opprinnelige innholdet, og leseren avviser den (#1533).
+        delete r.data.brevtittel;
+      }
     return r;
   });
 }
