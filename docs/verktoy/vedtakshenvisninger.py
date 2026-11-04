@@ -115,6 +115,17 @@ KJENTE_AVVIK = (
     ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1545"),
     ("src/lib/components/varden/NySak.svelte", "VS-U37", 1, "#1489"),
     ("src/lib/components/varden/__tests__/NySak.test.ts", "VS-U37", 1, "#1489"),
+    ("docs/domenetabell/bevis-saker-maalmodell.json", "KA-U7", 1, "#1579"),
+    ("docs/domenetabell/bevis-saker-maalmodell.json", "MM-U18", 11, "#1579"),
+    ("docs/domenetabell/bevis-saker-maalmodell.json", "MM-U20", 2, "#1579"),
+    ("kjerne/frosset/standpunkt.ts", "MM-U18", 1, "#1579"),
+    ("kjerne/tester/arkitektur.test.ts", "MM-U18", 2, "#1579"),
+    ("kjerne/tester/brevtekst.test.ts", "MM-U18", 3, "#1579"),
+    ("kjerne/tester/byggedel1.test.ts", "MM-U18", 1, "#1579"),
+    ("kjerne/tester/feilinnfoering.ts", "MM-U18", 6, "#1579"),
+    ("kjerne/tester/feilinnfoering.ts", "MM-U20", 3, "#1579"),
+    ("kjerne/tester/klient.ts", "MM-U18", 1, "#1579"),
+    ("kjerne/utledning/utled.ts", "MM-U18", 3, "#1579"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
