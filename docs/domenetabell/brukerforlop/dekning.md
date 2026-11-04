@@ -27,6 +27,7 @@ på kilden, men har ingen kontroller ennå.
 | [B-15](../../plans/vedtak.md#b-15) | — | — | BF-01V |
 | [B-17](../../plans/vedtak.md#b-17) | — | — | BF-06 |
 | [DL-U2](../../plans/vedtak.md#dl-u2) | — | — | BF-06 |
+| [DL-U6](../../plans/vedtak.md#dl-u6) | — | — | BF-06 |
 | [EO-U3](../../plans/vedtak.md#eo-u3) | — | — | BF-03, BF-06 |
 | [EO-U4](../../plans/vedtak.md#eo-u4) | — | — | BF-06 |
 | [EO-U8](../../plans/vedtak.md#eo-u8) | — | — | BF-06 |
@@ -80,6 +81,8 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U13](../../plans/vedtak.md#ka-u13) | — | — | BF-06 |
 | [KA-U14](../../plans/vedtak.md#ka-u14) | — | — | BF-06 |
 | [KA-U31](../../plans/vedtak.md#ka-u31) | — | — | BF-01V |
+| [KA-U41](../../plans/vedtak.md#ka-u41) | — | — | BF-01V |
+| [KA-U43](../../plans/vedtak.md#ka-u43) | — | — | BF-01V |
 | [KA-U45](../../plans/vedtak.md#ka-u45) | — | — | BF-03, BF-06 |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
@@ -89,11 +92,12 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U1](../../plans/vedtak.md#lv-u1) | — | — | BF-01V |
 | [LV-U2](../../plans/vedtak.md#lv-u2) | — | — | BF-01V |
 | [LV-U3](../../plans/vedtak.md#lv-u3) | — | — | BF-01V |
-| [LV-U4](../../plans/vedtak.md#lv-u4) | — | — | BF-01V |
+| [LV-U4](../../plans/vedtak.md#lv-u4) | — | BF-05 start | BF-01V |
 | [LV-U7](../../plans/vedtak.md#lv-u7) | — | — | BF-01V |
 | [LV-U9](../../plans/vedtak.md#lv-u9) | — | BF-05 paaberopelsen-er-sendt | BF-01V |
 | [LV-U15](../../plans/vedtak.md#lv-u15) | — | — | BF-06 |
 | [LV-U16](../../plans/vedtak.md#lv-u16) | — | — | BF-01V |
+| [LV-U24](../../plans/vedtak.md#lv-u24) | — | — | BF-06 |
 | [LV-U25](../../plans/vedtak.md#lv-u25) | — | — | BF-01V |
 | [LV-U31](../../plans/vedtak.md#lv-u31) | — | — | BF-01V |
 | [LV-U32](../../plans/vedtak.md#lv-u32) | — | — | BF-01V |
@@ -112,7 +116,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U33](../../plans/vedtak.md#mm-u33) | — | — | BF-01V, BF-03 |
 | [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret | BF-01V, BF-02B, BF-02C, BF-03, BF-06 |
 | [MM-U35](../../plans/vedtak.md#mm-u35) | — | BF-04 te-har-mottatt-svaret | BF-01V, BF-03, BF-06 |
-| [MM-U36](../../plans/vedtak.md#mm-u36) | — | — | BF-03 |
+| [MM-U36](../../plans/vedtak.md#mm-u36) | — | — | BF-01V, BF-03 |
 | [MM-U37](../../plans/vedtak.md#mm-u37) | — | — | BF-06 |
 | [MM-U38](../../plans/vedtak.md#mm-u38) | — | — | BF-06 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
@@ -120,6 +124,8 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U6](../../plans/vedtak.md#ov-u6) | — | — | BF-06 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
 | [OV-U11](../../plans/vedtak.md#ov-u11) | — | BF-05 start | — |
+| [OV-U18](../../plans/vedtak.md#ov-u18) | — | — | BF-01V |
+| [OV-U20](../../plans/vedtak.md#ov-u20) | — | — | BF-01V |
 | [OV-U27](../../plans/vedtak.md#ov-u27) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — |
 | [OV-U28](../../plans/vedtak.md#ov-u28) | — | — | BF-01V |
 | [OV-U32](../../plans/vedtak.md#ov-u32) | BF-04 te-har-mottatt-svaret | BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | — |
@@ -129,18 +135,22 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-02B, BF-02C, BF-03 |
 | [OV-U55](../../plans/vedtak.md#ov-u55) | — | BF-05 start | — |
 | [OV-U57](../../plans/vedtak.md#ov-u57) | — | BF-05 start | — |
+| [OV-U62](../../plans/vedtak.md#ov-u62) | — | — | BF-01V |
 | [OV-U69](../../plans/vedtak.md#ov-u69) | — | — | BF-06 |
+| [OV-U70](../../plans/vedtak.md#ov-u70) | — | — | BF-01V |
 | [OV-U75](../../plans/vedtak.md#ov-u75) | — | BF-01 bh-har-mottatt-vederlagskravet, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01V |
 | [OV-U76](../../plans/vedtak.md#ov-u76) | — | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret, BF-05 start | BF-01V |
 | [OV-U77](../../plans/vedtak.md#ov-u77) | — | BF-05 start | — |
 | [OV-U78](../../plans/vedtak.md#ov-u78) | — | BF-05 start | BF-01V |
 | [OV-U79](../../plans/vedtak.md#ov-u79) | — | BF-05 start | BF-01V, BF-02A, BF-02B, BF-02C, BF-03 |
 | [OV-U80](../../plans/vedtak.md#ov-u80) | — | BF-05 start | BF-02A, BF-02B, BF-02C, BF-03, BF-06 |
-| [OV-U81](../../plans/vedtak.md#ov-u81) | — | — | BF-03 |
+| [OV-U81](../../plans/vedtak.md#ov-u81) | — | — | BF-01V, BF-03 |
+| [OV-U82](../../plans/vedtak.md#ov-u82) | — | BF-05 start | — |
 | [OV-U83](../../plans/vedtak.md#ov-u83) | — | — | BF-01V |
 | [OV-U84](../../plans/vedtak.md#ov-u84) | — | BF-05 start | — |
 | [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — |
 | [VS-U9](../../plans/vedtak.md#vs-u9) | — | — | BF-03 |
+| [VS-U11](../../plans/vedtak.md#vs-u11) | — | — | BF-01V |
 | [VS-U24](../../plans/vedtak.md#vs-u24) | — | — | BF-03 |
 | [VS-U25](../../plans/vedtak.md#vs-u25) | — | BF-05 start | — |
 | [VS-U26](../../plans/vedtak.md#vs-u26) | — | BF-05 start | BF-02A, BF-02C |

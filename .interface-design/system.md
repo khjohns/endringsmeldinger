@@ -132,7 +132,7 @@ Bygger på rådene i Punkt om [plassering av knapper](https://punkt.oslo.kommune
 [skjemadesign](https://punkt.oslo.kommune.no/latest/god-praksis/skjemadesign/) og
 [deaktiverte knapper](https://punkt.oslo.kommune.no/latest/god-praksis/disabled-states/),
 med egne ord (#1187). Hvilke handlinger som vises, og når en knapp er inaktiv, står
-i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
+i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
 [`uu-sjekk`](../.claude/skills/uu-sjekk/SKILL.md).
 
 - **Rekkefølgen er primær, sekundær, tertiær**, venstrestilt, også i dialoger og
@@ -159,8 +159,67 @@ i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
 - **Feilmeldingen står rett under feltet** og sier hva som hindrer (`AGENTS.md`,
   «Skriv etter hva teksten gjør»), med forslag til retting der appen kan gi det. Den
   forsvinner når feltet er rettet. Når kontrollen skjer, og hva som vises øverst i
-  skjemaet, står i MM-U32. En feil fra serveren beklager og sier hva parten kan gjøre;
+  skjemaet, står i [MM-U32](#mm-u32). En feil fra serveren beklager og sier hva parten kan gjøre;
   en feil i utfyllingen går rett på sak. Ingen feilmelding i en egen dialog.
+
+## Ordene i visningen
+
+Ordene i brev og skjemaer står i [språkfila](../docs/sprak.md). Punktene her er flyttet fra
+vedtaksregisteret (#1534).
+
+- <a id="ov-u75"></a>**OV-U75** Visningen viser til bestemmelsene i NS 8407 med «punkt», for
+  eksempel «punkt 33.4» og «jf. punkt 31.3». Der henvisningen står alene som merke, eller i en
+  tabellcelle uten en setning rundt, står «pkt. 33.4». Skjermbredden avgjør ikke valget. Lover
+  står med «§», for eksempel «avtaleloven § 4». Tekst parten skriver selv, endres ikke.
+
+## Kravene, sporene og handlingene
+
+Punktene her er flyttet fra vedtaksregisteret (#1534). Hvert punkt har ID-en fra registeret, og
+i parentes vedtakene der den bindende setningen står, og de senere postene som har endret
+punktet. Det juridiske står i vedtakene, ikke her.
+
+- <a id="mm-u22"></a>**MM-U22** Hvert krav har én kort betegnelse fra en fast liste, som bare
+  sier hvilket utsagn eller hvilken relasjon som foreligger, med partenes siste krav og svar og
+  brevet under. Saken har ingen samlet betegnelse, unntatt når kravene er avgjort ([OV-U10](../docs/plans/vedtak.md#ov-u10)),
+  avslaget på grunnlaget er godtatt (SK-01), grunnlaget er trukket ([GR-U5](../docs/plans/vedtak.md#gr-u5)) eller saken
+  ikke er forstått ([MM-U2](../docs/plans/vedtak.md#mm-u2)). Lista står i [MM-U30](#mm-u30) (snevret inn av [MM-U39](../docs/plans/vedtak.md#mm-u39)).
+- <a id="mm-u30"></a>**MM-U30** Hvert spor har høyst én betegnelse, i denne rekkefølgen:
+  «Trukket»; «Byggherren har bedt om spesifisert krav (punkt 33.6.2)» (bare frist, til
+  forespørselen er besvart); «Kravet venter på byggherrens svar»; «Byggherren har frafalt
+  pålegget» (bare grunnlaget); «Enige»; «Svaret er ikke godtatt»; «Krav sendt» (TE har godtatt
+  avslaget på grunnlaget, og sporet har verken enighet eller trekk); «Ingen krav»; «Varslet».
+  Ingen betegnelse når ingenting er sendt. Byggherrens resultat, enighetens virkning,
+  innsigelser, protester og passivitet står i linja under. Presiserer [MM-U22](#mm-u22) og
+  [MM-U24](#mm-u24) (snevret inn av [MM-U31](#mm-u31) og [MM-U37](../docs/plans/vedtak.md#mm-u37); presisert av
+  [OV-U43](../docs/plans/vedtak.md#ov-u43) og [OV-U49](../docs/plans/vedtak.md#ov-u49)).
+- <a id="mm-u31"></a>**MM-U31** Betegnelsen for byggherrens forespørsel om spesifisert krav
+  gjelder til forespørselen er besvart, og bare så lenge saken ikke er lukket. Etter et godtatt
+  avslag viser fristen det som ellers foreligger, for eksempel «Varslet». Snevrer inn
+  [MM-U30](#mm-u30), i samme retning som [MM-U24](#mm-u24) og SK-01 (snevret inn av
+  [MM-U37](../docs/plans/vedtak.md#mm-u37)).
+- <a id="mm-u24"></a>**MM-U24** Ved kravet står det som foreligger: et krav som venter på
+  byggherrens svar, et svar TE ikke har godtatt (med akseptfristen), eller en aksept etter fristen
+  som venter på byggherren. Fristveiledningen står ved kravet, regnet fra sendingen. Visningen
+  sier ikke at en part har plikt, at en frist er oversittet, eller at TE ikke har flere krav
+  (bindende i [LV-U9](../docs/plans/vedtak.md#lv-u9) og [HF-U11](../docs/plans/vedtak.md#hf-u11); endret av [MM-U34](../docs/plans/vedtak.md#mm-u34)).
+- <a id="mm-u23"></a>**MM-U23** Ved kravet står partenes standpunkter med part, dato og
+  henvisning til brevet, for eksempel «BH: varslet for sent», og hvert tall skal kunne finnes igjen
+  i et brev. En vurdering løsningen gjør selv, vises bare der et vedtak krever det, og teksten
+  sier da hva den bygger på, så den ikke leses som en parts standpunkt. At visningen aldri sier at
+  et krav er prekludert, tapt eller avgjort, står i [VS-U3](../docs/plans/vedtak.md#vs-u3) og [HF-U11](../docs/plans/vedtak.md#hf-u11), og at løsningen
+  ikke legger en vurdering i munnen på en part, i [MM-U33](../docs/plans/vedtak.md#mm-u33) (lesningen 04.11 i
+  [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
+- <a id="mm-u25"></a>**MM-U25** Visningen viser bare handlingene parten kan gjøre nå. Kan et krav
+  ikke lenger endres, sier kravet det i én linje, med henvisning til utsagnet som hindrer. Der
+  [OV-U2](../docs/plans/vedtak.md#ov-u2) og [MM-U2](../docs/plans/vedtak.md#mm-u2) krever det, sier saken at noe må sendes utenfor løsningen
+  (presisert av [MM-U32](#mm-u32)).
+- <a id="mm-u32"></a>**MM-U32** En handling parten kan gjøre nå, er alltid aktiv. Mangler noe i
+  skjemaet, kontrolleres det når parten sender, og skjemaet sier ved feltet og øverst hva som
+  mangler. En knapp er inaktiv bare mens en sending pågår.
+- <a id="mm-u40"></a>**MM-U40** Varden har ingen arbeidsliste. Siden for saken viser hvilke brev
+  som er sendt, av hvem og når, og sier ikke hvem som skal handle (opphever [MM-U29](../docs/plans/vedtak.md#mm-u29)).
+- <a id="gr-u30"></a>**GR-U30** TEs handling for å trekke påberopelsen av forholdet heter
+  «Trekk påberopelsen».
 
 ## Mønstre
 
@@ -182,7 +241,7 @@ inn fra komponentene i designrundene (#1391), og står under tabellen.
 | Begrunnelse | `patterns/ExpandableReasoning.svelte` | Lang begrunnelse som kan foldes ut |
 | Segmentvalg | `primitives/SegmentedControl.svelte` | Valg mellom få gjensidig utelukkende verdier |
 | Seksjonsoverskrift | `primitives/SectionHeading.svelte` | Overskrift for en seksjon i lesevisningen |
-| Handlingslinje | `kontraktsbord/ActionBar.svelte` | Handlingene for parten nå (MM-U25) |
+| Handlingslinje | `kontraktsbord/ActionBar.svelte` | Handlingene for parten nå ([MM-U25](#mm-u25)) |
 | Rik tekst | `primitives/RichTextEditor.svelte` | Begrunnelser og brevtekst |
 
 ### Handlingene i Varden
@@ -208,7 +267,7 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
-- **En knapp er aldri sperret** (MM-U32). Mangler noe, står det rett under feltet og i en
+- **En knapp er aldri sperret** ([MM-U32](#mm-u32)). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens
   avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
@@ -223,7 +282,7 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   lengre brev ruller i den. Kolonnene er da like brede, og panelet til venstre er felt inn.
   På smal skjerm står brevet i skjemaet.
 - **Menyen med brevtypene** (`Brevtyper`) vises bare når kjernen tilbyr en handling
-  (MM-U25), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget, står under
+  ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget, står under
   én felles linje.
 - **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
   blekk (`--ink`) på `--surface-inset`. Den er ikke gul, fordi gult betyr utkast, og
