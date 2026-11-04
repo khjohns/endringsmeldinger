@@ -147,7 +147,7 @@ folge = '''
 Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V3). I tråd med
 [KA-U24](#ka-u24) for byggherrens svar og [KA-U19](#ka-u19): appen tolker ikke
 utdypningen. Brevteksten for fristkravet står i [LV-U4](#lv-u4), punkt 3. Ikke bygget.
-Skjemaet hører til #313 Etter [KA-U46](#ka-u46), E1: «Samlevedtaket: henvisningene gjelder samlevedtaket, og plikten er punkt 1–3.» og «Innholdet i setningene utenfor kjeden endres ikke: byggherren kan fortsatt si det der i en begrunnelse, men den er valgfri utenom punkt 32.3 første ledd b.»'''
+Skjemaet hører til #313. Etter [KA-U46](#ka-u46), E1: «Samlevedtaket: henvisningene gjelder samlevedtaket, og plikten er punkt 1–3.» og «Innholdet i setningene utenfor kjeden endres ikke: byggherren kan fortsatt si det der i en begrunnelse, men den er valgfri utenom punkt 32.3 første ledd b.»'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -549,7 +549,7 @@ begrunnelse uten ugrunnet opphold etter avslaget (§ 32.3 tredje ledd), og en se
 begrunnelse registreres som eget utsagn. Presisert 10.10 av [KA-U21](#ka-u21): også
 påberopt preklusjon etter § 32.2 med subsidiær godkjenning må begrunnes. Utvidet 11.10
 av [KA-U24](#ka-u24) til alle spor og kategorier. Ikke bygget. Kravet til brevet og det
-egne utsagnet hører til #309 Etter [KA-U46](#ka-u46), E1: «Utvidelsen til alle spor og kategorier gjelder ikke.» E7: «Samlevedtaket: punkt 9 og 12, den senere begrunnelsen er et innlegg eller dokumentasjon.»'''
+egne utsagnet hører til #309. Etter [KA-U46](#ka-u46), E1: «Utvidelsen til alle spor og kategorier gjelder ikke.» E7: «Samlevedtaket: punkt 9 og 12, den senere begrunnelsen er et innlegg eller dokumentasjon.»'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -567,7 +567,7 @@ vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
 forhold = [{ art = "presiserer", vedtak = "ka-u18" }]
 folge = '''
 Presiserer [KA-U18](#ka-u18). Utvidet 11.10 av [KA-U24](#ka-u24) til alle spor og
-kategorier. Ikke bygget (#309) Etter [KA-U46](#ka-u46), E1: «Utvidelsen til alle spor og kategorier gjelder ikke.»'''
+kategorier. Ikke bygget (#309). Etter [KA-U46](#ka-u46), E1: «Utvidelsen til alle spor og kategorier gjelder ikke.»'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -1150,7 +1150,7 @@ Ja til 1 B
 Vedtaksteksten er god. Den fjerner automatisk utfylling uten å innføre kontroll av begrunnelsens innhold eller forfatterskap. «Byggherren selv skriver» bør forstås som at BH oppgir teksten i feltet; det utelukker ikke innliming av tekst.'''
 forhold = [{ art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "ka-u31" }, { art = "presiserer", vedtak = "ka-u19" }]
 folge = '''
-Bygges i #1237 Etter [KA-U46](#ka-u46): «henvisningen til KA-U24 gjelder samlevedtaket» (tabellen «Postene i kjeden»).'''
+Bygges i #1237. Etter [KA-U46](#ka-u46): «henvisningen til KA-U24 gjelder samlevedtaket» (tabellen «Postene i kjeden»).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
@@ -3766,7 +3766,7 @@ fremdriftshindring (05.10) og «hindring» i [HF-U2](#hf-u2) til § 33.3. § 32.
 saken står i [KA-U23](#ka-u23), begrunnelsen i [KA-U24](#ka-u24). Annet og fjerde ledd
 er ikke plassert (#381). Brevteksten sier «grunnlaget», ikke «ansvarsgrunnlaget»
 ([HF-U2](#hf-u2)). Forutsetter at formatet kan uttrykke et grunnlagskrav i force majeure
-(#367). Ikke bygget (#309) Etter [KA-U46](#ka-u46), E1: «Samlevedtaket: henvisningene gjelder samlevedtaket, og plikten er punkt 1–3.» og «Innholdet i setningene utenfor kjeden endres ikke: byggherren kan fortsatt si det der i en begrunnelse, men den er valgfri utenom punkt 32.3 første ledd b.» og «Det gjelder også et avslag av forholdet ved force majeure (VS-U13).»'''
+(#367). Ikke bygget (#309). Etter [KA-U46](#ka-u46), E1: «Samlevedtaket: henvisningene gjelder samlevedtaket, og plikten er punkt 1–3.» og «Innholdet i setningene utenfor kjeden endres ikke: byggherren kan fortsatt si det der i en begrunnelse, men den er valgfri utenom punkt 32.3 første ledd b.» og «Det gjelder også et avslag av forholdet ved force majeure (VS-U13).»'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
