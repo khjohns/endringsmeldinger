@@ -105,7 +105,7 @@ spørsmål 2.
    revisjon etter at kravene er avgjort. Fram til endringsordren kan TE sende en ny kravversjon
    og byggherren et nytt svar også i et spor med registrert enighet. Visningen viser at det nye
    avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).
-   For en sak lukket etter GR-U27 gjelder punkt 6. (MM-U34 punkt 9 og 12; E1)
+   For en sak lukket etter GR-U27 gjelder punkt 6. (MM-U34 punkt 9, 11 og 12; E1)
 8. Det er en kontroll av at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet.
    Strengere vilkår for å sende senere gjør ikke et brev som var tillatt da det ble sendt,
    uforstått. Endres utledningen, følger det MM-U16. (MM-U18)
@@ -161,7 +161,10 @@ spor med registrert enighet.» og «Visningen viser at det nye avviker fra den r
 enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).»; punkt 12 «Sperren mot trekk, ny kravversjon
 og revisjon når kravene er avgjort, oppheves, og sperren gjelder fra endringsordren er sendt
 (punkt 19).» MM-U34 opphever KA-U7 og lister ikke MM-U18, men endret MM-U19 på samme måte
-(punkt 12). Det forkastede alternativet i MM-U18 står som forkastet, med KA-U7 opphevet.
+(punkt 12). Punkt 11 opphevet sperren mot å revidere et godtatt svar: «Sperrene mot å revidere
+et godtatt svar og et svar som stemmer med kravet, oppheves». Revisjonskjeden fant den samme
+motstriden (fordelingen 04.11, [6629614102](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629614102)),
+og MM-U18 hører hit. Det forkastede alternativet i MM-U18 står som forkastet, med KA-U7 opphevet.
 
 **E2 Et registrert brev i strid med enigheten eller lukkingen.** Gammel tekst: MM-U18 «Et ekte
 registrert brev som entydig er et ensidig forsøk på å trekke tilbake en bindende godkjenning,
