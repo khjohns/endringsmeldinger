@@ -316,7 +316,11 @@
     "OV-U62",
     "OV-U70",
     "OV-U81",
-    "VS-U11"
+    "VS-U11",
+    "KA-U16",
+    "KA-U19",
+    "KA-U24",
+    "OV-U4"
   ],
   "venter_paa": ["#1046"],
   "bevis_saker": [],

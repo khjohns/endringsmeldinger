@@ -80,6 +80,9 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U10](../../plans/vedtak.md#ka-u10) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-godtatt-svaret | BF-01V, BF-03 |
 | [KA-U13](../../plans/vedtak.md#ka-u13) | — | — | BF-06 |
 | [KA-U14](../../plans/vedtak.md#ka-u14) | — | — | BF-06 |
+| [KA-U16](../../plans/vedtak.md#ka-u16) | — | — | BF-01V |
+| [KA-U19](../../plans/vedtak.md#ka-u19) | — | — | BF-01V |
+| [KA-U24](../../plans/vedtak.md#ka-u24) | — | — | BF-01V |
 | [KA-U31](../../plans/vedtak.md#ka-u31) | — | — | BF-01V |
 | [KA-U41](../../plans/vedtak.md#ka-u41) | — | — | BF-01V |
 | [KA-U43](../../plans/vedtak.md#ka-u43) | — | — | BF-01V |
@@ -120,6 +123,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U37](../../plans/vedtak.md#mm-u37) | — | — | BF-06 |
 | [MM-U38](../../plans/vedtak.md#mm-u38) | — | — | BF-06 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
+| [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-01V |
 | [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | — |
 | [OV-U6](../../plans/vedtak.md#ov-u6) | — | — | BF-06 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |

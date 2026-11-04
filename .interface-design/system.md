@@ -173,7 +173,8 @@ vedtaksregisteret (#1534).
   står med «§», for eksempel «avtaleloven § 4». Tekst parten skriver selv, endres ikke.
 - <a id="ov-u87"></a>**OV-U87** Uttrykket «Kravet som gjelder» brukes ikke om forholdet. I
   oversiktene over vederlag og frist står det om den gjeldende versjonen av kravet. Hva forholdet
-  heter i visningen, står i [U-9 i BF-05](../docs/domenetabell/brukerforlop/BF-05.md#u-9).
+  heter i visningen, står i [U-9 i BF-05](../docs/domenetabell/brukerforlop/BF-05.md#u-9). Posten
+  endrer ingen vedtak.
 
 ## Kravene, sporene og handlingene
 
@@ -185,7 +186,9 @@ punktet. Det juridiske står i vedtakene, ikke her.
   sier hvilket utsagn eller hvilken relasjon som foreligger, med partenes siste krav og svar og
   brevet under. Saken har ingen samlet betegnelse, unntatt når kravene er avgjort ([OV-U10](../docs/plans/vedtak.md#ov-u10)),
   avslaget på grunnlaget er godtatt (SK-01), grunnlaget er trukket ([GR-U5](../docs/plans/vedtak.md#gr-u5)) eller saken
-  ikke er forstått ([MM-U2](../docs/plans/vedtak.md#mm-u2)). Lista står i [MM-U30](#mm-u30) (snevret inn av [MM-U39](../docs/plans/vedtak.md#mm-u39)).
+  ikke er forstått ([MM-U2](../docs/plans/vedtak.md#mm-u2)). Lista står i [MM-U30](#mm-u30)
+  (presiserer [OV-U3](../docs/plans/vedtak.md#ov-u3), OV-U10, GR-U5, MM-U2, [MM-U15](../docs/plans/vedtak.md#mm-u15) og [B-03 om dokumentet](../docs/plans/vedtak.md#b-03-dokument);
+  snevret inn av [MM-U39](../docs/plans/vedtak.md#mm-u39)).
 - <a id="mm-u30"></a>**MM-U30** Hvert spor har høyst én betegnelse, i denne rekkefølgen:
   «Trukket»; «Byggherren har bedt om spesifisert krav (punkt 33.6.2)» (bare frist, til
   forespørselen er besvart); «Svar ikke registrert»; «Byggherren har frafalt
@@ -194,9 +197,8 @@ punktet. Det juridiske står i vedtakene, ikke her.
   Ingen betegnelse når ingenting er sendt. Byggherrens resultat, enighetens virkning,
   innsigelser, protester og passivitet står i linja under. Presiserer [MM-U22](#mm-u22) og
   [MM-U24](#mm-u24) (snevret inn av [MM-U31](#mm-u31) og [MM-U37](../docs/plans/vedtak.md#mm-u37); presisert av
-  [OV-U43](../docs/plans/vedtak.md#ov-u43) og [OV-U49](../docs/plans/vedtak.md#ov-u49)).
-- <a id="mm-u31"></a>**MM-U31** Betegnelsen for byggherrens forespørsel om spesifisert krav
-  gjelder til forespørselen er besvart, og bare så lenge saken ikke er lukket. Etter et godtatt
+  [OV-U43](../docs/plans/vedtak.md#ov-u43)).
+- <a id="mm-u31"></a>**MM-U31** Betegnelsen gjelder til forespørselen er besvart, og bare så lenge saken ikke er lukket. Etter et godtatt
   avslag viser fristen det som ellers foreligger, for eksempel «Varslet». Snevrer inn
   [MM-U30](#mm-u30), i samme retning som [MM-U24](#mm-u24) og SK-01 (snevret inn av
   [MM-U37](../docs/plans/vedtak.md#mm-u37)).
@@ -205,21 +207,23 @@ punktet. Det juridiske står i vedtakene, ikke her.
   uten registrert svar fra byggherren. Betegnelsene sier ikke hvem som skal handle, etter føringen
   31.10 under «Handlingene i Varden» (oppdragsgiver 04.11, PR #1552). Fristveiledningen står ved kravet, regnet fra sendingen. Visningen
   sier ikke at en part har plikt, at en frist er oversittet, eller at TE ikke har flere krav
-  (bindende i [LV-U9](../docs/plans/vedtak.md#lv-u9) og [HF-U11](../docs/plans/vedtak.md#hf-u11); endret av [MM-U34](../docs/plans/vedtak.md#mm-u34)).
+  (presiserer [VS-U2](../docs/plans/vedtak.md#vs-u2), [VS-U10](../docs/plans/vedtak.md#vs-u10), [HF-U5](../docs/plans/vedtak.md#hf-u5), [LV-U7](../docs/plans/vedtak.md#lv-u7) og [OV-U4](../docs/plans/vedtak.md#ov-u4); bindende i
+  [LV-U9](../docs/plans/vedtak.md#lv-u9) og [HF-U11](../docs/plans/vedtak.md#hf-u11); endret av [MM-U34](../docs/plans/vedtak.md#mm-u34)).
 - <a id="mm-u23"></a>**MM-U23** Ved kravet står partenes standpunkter med part, dato og
   henvisning til brevet, for eksempel «BH: varslet for sent», og hvert tall skal kunne finnes igjen
   i et brev. En vurdering løsningen gjør selv, vises bare der et vedtak krever det, og teksten
   sier da hva den bygger på, så den ikke leses som en parts standpunkt. At visningen aldri sier at
   et krav er prekludert, tapt eller avgjort, står i [VS-U3](../docs/plans/vedtak.md#vs-u3) og [HF-U11](../docs/plans/vedtak.md#hf-u11), og at løsningen
-  ikke legger en vurdering i munnen på en part, i [MM-U33](../docs/plans/vedtak.md#mm-u33) (lesningen 04.11 i
+  ikke legger en vurdering i munnen på en part, i [MM-U33](../docs/plans/vedtak.md#mm-u33). Posten utvider [HF-U2](../docs/plans/vedtak.md#hf-u2) og
+  presiserer [MM-U12](../docs/plans/vedtak.md#mm-u12) (lesningen 04.11 i
   [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
 - <a id="mm-u25"></a>**MM-U25** Visningen viser bare handlingene parten kan gjøre nå. Kan et krav
   ikke lenger endres, sier kravet det i én linje, med henvisning til utsagnet som hindrer. Der
   [OV-U2](../docs/plans/vedtak.md#ov-u2) og [MM-U2](../docs/plans/vedtak.md#mm-u2) krever det, sier saken at noe må sendes utenfor løsningen
-  (presisert av [MM-U32](#mm-u32)).
+  (presiserer [OV-U2](../docs/plans/vedtak.md#ov-u2) og MM-U2; presisert av [MM-U32](#mm-u32)).
 - <a id="mm-u32"></a>**MM-U32** En handling parten kan gjøre nå, er alltid aktiv. Mangler noe i
   skjemaet, kontrolleres det når parten sender, og skjemaet sier ved feltet og øverst hva som
-  mangler. En knapp er inaktiv bare mens en sending pågår.
+  mangler. En knapp er inaktiv bare mens en sending pågår (presiserer [MM-U25](#mm-u25)).
 - <a id="mm-u40"></a>**MM-U40** Varden har ingen arbeidsliste. Siden for saken viser hvilke brev
   som er sendt, av hvem og når, og sier ikke hvem som skal handle (opphever [MM-U29](../docs/plans/vedtak.md#mm-u29)).
 - <a id="gr-u30"></a>**GR-U30** TEs handling for å trekke påberopelsen av forholdet heter
