@@ -1089,8 +1089,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ov-u55", "snevrer inn", "eo-u5", "#1534, steg 4"),
         ("ov-u6", "bygger på", "eo-u6", "#1534, steg 4"),
         ("ov-u6", "bygger på", "eo-u9", "#1534, steg 4"),
-        ("ov-u67", "presiserer", "ov-u65", "#1534, steg 4"),
-        ("ov-u67", "presiserer", "ov-u66", "#1534, steg 4"),
         ("ov-u80", "bygger på", "ka-u24", "#1534, steg 4"),
         ("vs-u13", "bygger på", "ka-u24", "#1534, steg 4"),
     }

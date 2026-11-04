@@ -346,4 +346,10 @@ Styrer: om en ny økt kan skrive postene når svarene foreligger.
 
 ## Svarene
 
-*Føres inn når de foreligger.*
+Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A»
+([#1534, 6633997187](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6633997187)).
+Forholdene i spørsmål 1 og 2 ble lagt fram forkortet, og de er ført herfra (noten i samme kommentar).
+
+- Spørsmål 1: A. Ført som [MM-U48](../plans/vedtak.md#mm-u48).
+- Spørsmål 2: A. Ført som [MM-U49](../plans/vedtak.md#mm-u49).
+- Spørsmål 3: A. Samlevedtaket er ført som [MM-U47](../plans/vedtak.md#mm-u47).
