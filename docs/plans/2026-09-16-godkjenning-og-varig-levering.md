@@ -443,6 +443,12 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 > overlot 10.10 valget til utviklerne med review i byggedel 4, med alternativ (a)
 > som utgangspunkt (AF-03). Beslutningsstatus er uendret: åpen.
 
+> **Merknad 2026-11-03 til B-01:** avgjort av oppdragsgiver 03.11 med alternativ (a),
+> relasjonsprojeksjon med prosjektavgrensede fremmednøkler og én skriver. Spørsmålet og
+> svaret, «B01: A», står ordrett i
+> [#1423](https://github.com/khjohns/endringsmeldinger/issues/1423#issuecomment-6616393286).
+> Beslutningsstatus: avgjort.
+
 > **Merknad til B-12, samlet ved sluttredigeringen 09.10** fra merknadene 23.09,
 > 29.09 og 09.10. Beslutningsstatus er uendret: åpen.
 >
