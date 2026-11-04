@@ -3829,10 +3829,19 @@ describe('leseren kontrollerer brevteksten (HF-U1, MM-U17)', () => {
   });
 
   it('brevtekst i et registrert brev gjør raden ikke forstått', () => {
-    const h = medTekst((d) => {
-      d.opplysninger = [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }];
-    });
-    expect(h.art).toBe('ukjent');
+    // Registrert korrespondanse slik leseren ellers forstår den (LV-U42, LV-U45), så bare
+    // brevteksten skiller raden fra kontrollsaken.
+    const registrert = (medBrevtekst: boolean) =>
+      medTekst((d) => {
+        d.opplysninger = [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }];
+        d.korrespondansetype = 'e_post';
+        delete d.merking;
+        delete d.brevnummer;
+        delete d.brevtittel;
+        if (!medBrevtekst) delete d.brevtekst;
+      });
+    expect(registrert(false).art, 'kontrollsak uten brevtekst').toBe('dokument');
+    expect(registrert(true).art).toBe('ukjent');
   });
 });
 
