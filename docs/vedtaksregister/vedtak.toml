@@ -14392,14 +14392,14 @@ grunnlag av enigheten.
 Styrer: om det finnes en egen regel for hva en enighet omfatter ved siden av HF-U9, KA-U10 og KA-U1.'''
 valgt = "A"
 svar = '''
-Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A» ([#1534, 6633997187](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6633997187)). 1A, 2A og 3A er alternativ A i spørsmål 1–3 i vurderingen. Forholdene i alternativene ble lagt fram forkortet og er ført fra vurderingsfila (noten i samme kommentar).'''
+Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A» ([#1534, 6633997187](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6633997187)). 1A, 2A og 3A er alternativ A i spørsmål 1–3 i vurderingen. Forholdene og alternativ B ble lagt fram forkortet og er ført fra vurderingsfila (noten i samme kommentar).'''
 forhold = [
   { art = "opphever", vedtak = "ov-u67" },
   { art = "endrer", vedtak = "ov-u68" },
   { art = "samler", vedtak = "mm-u34" },
 ]
 folge = '''
-Teksten er punkt 12 og det tredje punktet i designdelen i [samlevedtaket](#samlevedtak-protest-innlegg). Svaret på spørsmål 2 i samlevedtaket MM-U47. Forholdet til OV-U68: s1 slik MM-U34 punkt 13 endret den, samles som designdel, og s2–s3 oppheves. Forholdet til MM-U34 gjelder punkt 13. I tråd med HF-U9, KA-U10 og KA-U1.'''
+Teksten er punkt 12, det tredje punktet i designdelen og E4 i [samlevedtaket](#samlevedtak-protest-innlegg). Svaret på spørsmål 2 i samlevedtaket MM-U47. Forholdet til OV-U68: s1 slik MM-U34 punkt 13 endret den, samles som designdel, og s2–s3 oppheves. Forholdet til MM-U34 gjelder punkt 13. I tråd med HF-U9, KA-U10 og KA-U1.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

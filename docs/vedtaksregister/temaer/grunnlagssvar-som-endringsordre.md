@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `2918136f20791146713c410378a484e9b238cd9fbe2723dadd3d51d22b5198c3`
+Kontrollsum (SHA-256 over utdraget visningen leser): `f4a85f23cccab248f6a327da900261f6c316f5605aae62d73a035b1c7e52ffab`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1774,7 +1774,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 04.11, oppdragsgiver (#1534, #1065)
 
-**Følge:** Opphever [OV-U67](#ov-u67). Endrer [OV-U68](#ov-u68). Samler [MM-U34](#mm-u34). Teksten er punkt 12 og det tredje punktet i designdelen i [samlevedtaket](../../plans/vedtak.md#samlevedtak-protest-innlegg). Svaret på spørsmål 2 i samlevedtaket MM-U47. Forholdet til OV-U68: s1 slik MM-U34 punkt 13 endret den, samles som designdel, og s2–s3 oppheves. Forholdet til MM-U34 gjelder punkt 13. I tråd med HF-U9, KA-U10 og KA-U1.
+**Følge:** Opphever [OV-U67](#ov-u67). Endrer [OV-U68](#ov-u68). Samler [MM-U34](#mm-u34). Teksten er punkt 12, det tredje punktet i designdelen og E4 i [samlevedtaket](../../plans/vedtak.md#samlevedtak-protest-innlegg). Svaret på spørsmål 2 i samlevedtaket MM-U47. Forholdet til OV-U68: s1 slik MM-U34 punkt 13 endret den, samles som designdel, og s2–s3 oppheves. Forholdet til MM-U34 gjelder punkt 13. I tråd med HF-U9, KA-U10 og KA-U1.
 
 **Regelrader:** —
 
