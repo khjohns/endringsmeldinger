@@ -79,8 +79,9 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
     spor: 'forhold',
     innhold: {
       hovedkategori: 'endring',
-      underkategori: 'irregulaer_endring',
-      paalegg_mottatt: '2026-10-01',
+      ...(innhold.underkategori === 'endringsordre'
+        ? {}
+        : { underkategori: 'irregulaer_endring', paalegg_mottatt: '2026-10-01' }),
       ...innhold,
     },
     utdypning: 'Pålegget.',
@@ -100,9 +101,9 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
   };
 
   it.each([
-    ['NUL i en tekst', { tittel: 'a\u0000b' }],
-    ['en enslig høy surrogat', { tittel: 'a\ud800' }],
-    ['en enslig lav surrogat', { tittel: '\udc00b' }],
+    ['NUL i en tekst', { underkategori: 'endringsordre', endringsordre: 'a\u0000b' }],
+    ['en enslig høy surrogat', { underkategori: 'endringsordre', endringsordre: 'a\ud800' }],
+    ['en enslig lav surrogat', { underkategori: 'endringsordre', endringsordre: '\udc00b' }],
     ['NUL i et feltnavn', { 'tit\u0000tel': 'x' }],
   ])('%s gir TEKST_KAN_IKKE_LAGRES', async (_navn, innhold) => {
     const u = await utfall(krav(innhold));
@@ -111,16 +112,25 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
 
   it('kontrollsak: et gyldig surrogatpar godtas', async () => {
     // U+1D400, som PDF-en kan sette med reserveskriften (#801).
-    expect((await utfall(krav({ tittel: 'Riving \u{1D400}' }))).godtatt).toBe(true);
+    expect(
+      (await utfall(krav({ underkategori: 'endringsordre', endringsordre: 'Riving \u{1D400}' })))
+        .godtatt
+    ).toBe(true);
   });
 
   it('en lagret rad med NUL i teksten er ikke forstått', async () => {
     const bane = minnebane();
     const k = await bygg(bane, ['krav_irreg']);
     const journal = await bane.journal();
-    const med = endre(journal, k, 'K-g1', (e) => void (e.tittel = 'x\u0000'));
-    expect(forstaatt(journal)).toBe(true);
-    expect(forstaatt(med)).toBe(false);
+    // Kontrollsaken skiller seg bare i NUL i teksten om endringsordren.
+    const med = (endringsordre: string) =>
+      endre(journal, k, 'K-g1', (e) => {
+        e.underkategori = 'endringsordre';
+        delete e.paalegg_mottatt;
+        e.endringsordre = endringsordre;
+      });
+    expect(forstaatt(med('x')), 'kontrollsak').toBe(true);
+    expect(forstaatt(med('x\u0000'))).toBe(false);
   });
 });
 

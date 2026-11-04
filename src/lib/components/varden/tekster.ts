@@ -8,6 +8,7 @@
  * brevnummer). Den finner ikke på virkningen.
  */
 
+import { FORHOLDSGRUPPER as KJERNENS_FORHOLD, paaberopelsenAv } from '$kjerne/frosset/forholdene';
 import { kroner } from '$kjerne/frosset/standpunkt';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Part, Spor, Standpunkt } from '$kjerne/typer';
@@ -34,48 +35,15 @@ const SVAR: Record<Spor, string> = {
 };
 
 /**
- * Forholdene med kjernens kode, i gruppene og rekkefølgen fra skissen versjon 3 (BF-05).
- * Gruppen har kontraktens henvisning (OV-U77), og navnet er forholdet selv (OV-U78).
- * Force majeure har ingen kode i kjernen ennå (#367). Navnene har hjemmet sitt her, ikke i
- * katalogen til `/mockup` (oppdragsgiver 02.11, #1492).
+ * Forholdene med kjernens kode og navnet, i gruppene fra kjernen (OV-U77, OV-U78). Lista har
+ * hjemmet sitt i `kjerne/frosset/forholdene.ts`, så brevet og velgeren sier det samme (svaret
+ * på Q3 i #1488).
  */
-export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: string][] }[] = [
-  {
-    navn: 'Endringer, jf. punkt 31 og 32',
-    forhold: [
-      ['irregulaer_endring', 'Irregulær endring'],
-      ['valg_av_loesning', 'Begrensning av valgrett'],
-      ['samordning', 'Samordning'],
-      ['svar_paa_varsel', 'Endring ved svar på varsel'],
-      ['endringsordre', 'Endringsordre'],
-      ['lovendring_gjenstand', 'Endringer i lover og vedtak for kontraktsgjenstanden'],
-      ['lovendring_prosess', 'Endringer i lover og vedtak for prosessen'],
-      ['gebyrer_og_avgifter', 'Endrede offentlige gebyrer og avgifter'],
-    ],
-  },
-  {
-    navn: 'Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24',
-    forhold: [
-      ['medvirkning', 'Manglende medvirkning eller leveranser fra byggherren'],
-      ['grunnforhold', 'Uforutsette forhold ved grunnen'],
-      ['prosjektering', 'Svikt i byggherrens prosjektering'],
-      ['kulturminner', 'Funn av kulturminner'],
-    ],
-  },
-  {
-    navn: 'Andre forhold byggherren har risikoen for',
-    forhold: [
-      [
-        'skade_fra_byggherren',
-        'Skade forårsaket av byggherren eller byggherrens kontraktsmedhjelpere',
-      ],
-      ['nektet_kontraktsmedhjelper', 'Nektet valg av kontraktsmedhjelper'],
-      ['brukstakelse', 'Urettmessig brukstakelse'],
-      ['stans_ved_betalingsmislighold', 'Stans ved betalingsmislighold'],
-      ['annet_forhold', 'Annet forhold byggherren har risikoen for'],
-    ],
-  },
-];
+export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: string][] }[] =
+  KJERNENS_FORHOLD.map((g) => ({
+    navn: g.navn,
+    forhold: g.forhold.map((f): [string, string] => [f.kode, f.navn]),
+  }));
 
 const FORHOLDSNAVN = new Map(FORHOLDSGRUPPER.flatMap((g) => g.forhold));
 
@@ -83,8 +51,14 @@ const FORHOLDSNAVN = new Map(FORHOLDSGRUPPER.flatMap((g) => g.forhold));
 export const forholdsnavn = (kode: unknown) =>
   (typeof kode === 'string' && FORHOLDSNAVN.get(kode)) || null;
 
-/** Tittelen på brevet, av hva det inneholder og sporet det hører til. */
-export function brevtittel(b: Pick<Brevet, 'art' | 'spor'> & { forhold?: string | null }): string {
+/**
+ * Tittelen på brevet: den som ble frosset med brevet (MM-U3), ellers av hva det inneholder og
+ * sporet det hører til.
+ */
+export function brevtittel(
+  b: Pick<Brevet, 'art' | 'spor'> & { forhold?: string | null; brevtittel?: string | null }
+): string {
+  if (b.brevtittel) return b.brevtittel;
   const spor = b.spor[0];
   // Totalentreprenørens brev om forholdet heter «Påberopelse av <forholdet>» (GR-U31).
   const navn = spor === 'forhold' ? forholdsnavn(b.forhold) : null;
@@ -399,7 +373,15 @@ export const NYSAK = {
   beskrivelseHjelp: 'Hva som skjedde, når og hvordan, og hvorfor du mener det er en endring.',
   endringsordre: 'Endringsordrens nummer eller dato',
   vedlegg: 'Vedlegg (valgfritt)',
-  vedleggIkkeLaget: 'Vedlegg kan ikke legges ved ennå.',
+  vedleggHjelp:
+    'For eksempel pålegget selv, en tegning eller et referat. Hver fil kan være opptil 15 MB.',
+  velgFiler: 'Velg filer',
+  lasterOpp: (filnavn: string) => `Laster opp ${filnavn} …`,
+  fjernVedlegg: 'Fjern',
+  fjernVedleggNavn: (filnavn: string) => `Fjern ${filnavn}`,
+  forStorFil: (filnavn: string) => `${filnavn} er større enn 15 MB. Velg en mindre fil.`,
+  vedleggFeilet: (filnavn: string, melding: string) => `${filnavn} ble ikke lastet opp. ${melding}`,
+  ventPaaOpplastingen: 'Vent til vedleggene er lastet opp.',
   // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
   alleredeVarslet: (paalegg: boolean) =>
     `Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,
@@ -469,7 +451,7 @@ export const NYSAK = {
   beskriv: (paalegg: boolean) => (paalegg ? 'Beskriv pålegget.' : 'Beskriv forholdet.'),
   oppgiDatoen: 'Oppgi datoen.',
   oppgiEndringsordren: 'Oppgi endringsordren.',
-  brevtittel: (forhold: string) => `Påberopelse av ${forhold.toLowerCase()}`,
+  brevtittel: paaberopelsenAv,
   handling: 'Send påberopelsen til byggherren',
   detteSender: (forhold: string, punkt: string) =>
     `Påberopelsen av ${forhold.toLowerCase()} etter punkt ${punkt}, som første brev i en ny sak`,

@@ -5,6 +5,7 @@
   Feilene står ved feltet før brevkontrollen (F-4, MM-U32). «Se brevet før sending» står i
   panelet til høyre, som i de andre skjemaene i Varden (F-1). Varselet som alt er sendt, fylles
   ut etter OV-U79 (D-8), men kan ikke legges til før lagringen finnes (#807, #1487).
+  Vedleggene lastes opp før saken finnes og bindes av påberopelsen (#1037).
 -->
 <script lang="ts">
   import { tick } from 'svelte';
@@ -15,6 +16,7 @@
   import Tidslinje from './Tidslinje.svelte';
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
+  import Filvalg from './Filvalg.svelte';
   import { ChevronDown } from 'lucide-svelte';
   import {
     FELTENE_UTEN_FORHOLD,
@@ -26,32 +28,44 @@
     type Brevsending,
     type Forholdsvalg,
     type SendNySak,
+    type Kjernevedlegg,
+    type Utfylling,
+    type VedleggForNySak,
   } from './nysak';
   import { NYSAK } from './tekster';
 
   let {
     sakId,
     send,
+    vedleggForNySak,
+    utkast = null,
     onsendt,
     onavbrutt,
   }: {
     /** ID-en saken får (`NySak.sakId`). */
     sakId: string;
     send: SendNySak;
+    vedleggForNySak: VedleggForNySak;
+    /** Skjemaet fra et forsøk med usikkert utfall, så et nytt forsøk sender det samme (#1526). */
+    utkast?: Utfylling | null;
     onsendt: (sakId: string) => void;
     onavbrutt: () => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
 
-  let forhold = $state<Forholdsvalg | null>(null);
-  let velgerAapen = $state(true);
+  // Skjemaet starter fra utkastet én gang; det følger ikke propen etterpå.
+  const start = (() => utkast)();
+  let forhold = $state<Forholdsvalg | null>(start?.forhold ?? null);
+  let velgerAapen = $state(!start);
   let aapenGruppe = $state<string | null>(null);
   let sok = $state('');
-  let tittel = $state('');
-  let beskrivelse = $state('');
-  let dato = $state('');
-  let endringsordre = $state('');
+  let tittel = $state(start?.tittel ?? '');
+  let beskrivelse = $state(start?.beskrivelse ?? '');
+  let dato = $state(start?.dato ?? '');
+  let endringsordre = $state(start?.endringsordre ?? '');
+  let vedlegg = $state<Kjernevedlegg[]>(start?.vedlegg ?? []);
+  let lasterOpp = $state(false);
   let alleredeVarslet = $state<boolean | null>(false);
   let varseltype = $state<string | null>(null);
   let sendemaate = $state<string | null>(null);
@@ -122,14 +136,25 @@
         lag: NYSAK.linjeVarselet,
         tekst: NYSAK.varseltyper.find((t) => t.verdi === varseltype)?.tekst ?? NYSAK.linjeVarselet,
       },
-      // Filvalget finnes ikke ennå (F-7, #1037). Dokumentet med varselet legges ved brevet (VS-U38).
+      // Dokumentet med varselet legges ved brevet (VS-U38).
       valgt && {
         lag: NYSAK.linjeVedlegg,
-        tekst: varselet ? NYSAK.varseldokumentetVedlegges : NYSAK.ingenVedlegg,
+        tekst:
+          [
+            ...(varselet ? [NYSAK.varseldokumentetVedlegges] : []),
+            ...vedlegg.map((v) => v.filnavn),
+          ].join(', ') || NYSAK.ingenVedlegg,
       },
     ].filter((l): l is { lag: string; tekst: string } => !!l)
   );
-  const utfylling = () => ({ forhold: forhold!, tittel, beskrivelse, dato, endringsordre });
+  const utfylling = (): Utfylling => ({
+    forhold: forhold!,
+    tittel,
+    beskrivelse,
+    dato,
+    endringsordre,
+    vedlegg,
+  });
 
   // Velgeren fra `/mockup` (arbeidsvalg 02.11): gruppene er felt sammen til TE åpner én,
   // og et søk åpner alle gruppene med treff.
@@ -164,6 +189,7 @@
     if (!tittel.trim()) ny.tittel = NYSAK.skrivTittelen;
     if (felt.datotekst && !dato) ny.dato = NYSAK.oppgiDatoen;
     if (felt.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
+    if (lasterOpp) ny.vedlegg = NYSAK.ventPaaOpplastingen;
     if (varselet) {
       if (!varseltype) ny.varseltype = NYSAK.velgVarseltypen;
       if (varseltype === 'brev' && !sendemaate) ny.sendemaate = NYSAK.velgSendemaaten;
@@ -172,7 +198,7 @@
       if (!ny.varseltype && !ny.sendemaate && !ny.varseldato && !ny.varselbeskrivelse)
         ny.varselLagres = NYSAK.varseletKanIkkeLagres;
     }
-    if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre) {
+    if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
       const brev = brevet(utfylling(), sakId, KJERNE);
       if ('programfeil' in brev) ny.kjernen = brev.programfeil;
@@ -210,8 +236,9 @@
       sender = true;
       sendefeil = null;
       try {
-        const { opprettelse, paaberopelse } = kommandoene(utfylling(), KJERNE);
-        await send({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [] });
+        const utkast = utfylling();
+        const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
+        await send({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [], utkast });
         return true;
       } catch (e) {
         sendefeil = e instanceof Error ? e.message : String(e);
@@ -240,6 +267,7 @@
     'beskrivelse',
     'dato',
     'endringsordre',
+    'vedlegg',
     'varseltype',
     'sendemaate',
     'varseldato',
@@ -442,10 +470,21 @@
           </div>
         {/if}
 
-        <div class="felt">
-          <span class="etikett">{NYSAK.vedlegg}</span>
-          <p class="hjelp">{NYSAK.vedleggIkkeLaget}</p>
-        </div>
+        <Filvalg
+          id={id('vedlegg')}
+          etikett={NYSAK.vedlegg}
+          hjelp={NYSAK.vedleggHjelp}
+          grense={vedleggForNySak}
+          bind:vedlegg
+          bind:laster={
+            () => lasterOpp,
+            (v) => {
+              lasterOpp = v;
+              if (!v) delete feil.vedlegg;
+            }
+          }
+          feil={feil.vedlegg ?? null}
+        />
 
         {#if felt.punkt322}
           <div class="felt">

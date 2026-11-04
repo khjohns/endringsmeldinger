@@ -20,6 +20,8 @@ export interface Brevet {
   art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'registrert' | 'annet';
   /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
   forhold: string | null;
+  /** Tittelen som ble frosset med brevet (MM-U3), eller `null` når brevet ikke har en. */
+  brevtittel: string | null;
   /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17). */
   avsnitt: Avsnitt[] | null;
 }
@@ -70,6 +72,7 @@ export function brevene(u: Utledning): Brevet[] {
             | null
             | undefined
         ),
+        brevtittel: d.brevtittel,
         avsnitt: d.brevtekst,
       },
     ];

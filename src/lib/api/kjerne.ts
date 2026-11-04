@@ -82,6 +82,7 @@ export interface NySakTilServeren {
     type: 'krav';
     spor: 'forhold';
     innhold: Record<string, unknown>;
+    utdypning?: string;
     /** Vedleggene lastet opp med `lastOppVedleggForNySak` (#1037). */
     dokumentasjon?: string[];
   };
@@ -105,15 +106,18 @@ export const sendNySak =
     apiFetch<{ sak_id: string; event_id: string; versjon: number }>(SAKER, {
       method: 'POST',
       headers: prosjekthode(prosjektId),
-      body: JSON.stringify({
-        kommando_id: kommandoId,
-        ny_sak_id: nySak.sakId,
-        tittel: nySak.opprettelse.sakstittel,
-        paaberopelse: nySak.paaberopelse,
-        brevtekst: nySak.tekst,
-        ...(nySak.varsel ? { varsel: nySak.varsel } : {}),
-      }),
+      body: JSON.stringify(nySakKropp(nySak, kommandoId)),
     }).then((s) => ({ sakId: s.sak_id }));
+
+/** Kroppen `sendNySak` sender. Demoruta prøver den samme kroppen (#1526 punkt 3). */
+export const nySakKropp = (nySak: NySakTilServeren, kommandoId: string) => ({
+  kommando_id: kommandoId,
+  ny_sak_id: nySak.sakId,
+  tittel: nySak.opprettelse.sakstittel,
+  paaberopelse: nySak.paaberopelse,
+  brevtekst: nySak.tekst,
+  ...(nySak.varsel ? { varsel: nySak.varsel } : {}),
+});
 
 /** Kommandoen sendes med versjonen skjemaet så. Aktøren og tidspunktet settes av serveren. */
 export const sendKommando = (

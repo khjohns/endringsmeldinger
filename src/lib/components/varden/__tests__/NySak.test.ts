@@ -8,7 +8,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import NySak from '$lib/components/varden/NySak.svelte';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
-import type { SendNySak } from '$lib/components/varden/nysak';
+import {
+  fjernVentende,
+  lagreVentende,
+  lesVentende,
+  type SendNySak,
+  type Utfylling,
+  type VedleggForNySak,
+} from '$lib/components/varden/nysak';
+import type { Kjernevedlegg } from '$lib/api/kjerne';
 import { kravMotNySak } from '$lib/kjernesak/brevtekst';
 import { KJERNE } from '$kjerne/versjon';
 import { brevtittel } from '$lib/components/varden/tekster';
@@ -17,11 +25,42 @@ afterEach(cleanup);
 
 const BESKRIVELSE = 'Byggherren påla teglforblending i stedet for platekledning.';
 
-function aapne(send = vi.fn<SendNySak>(async () => ({ sakId: 'ny-sak' }))) {
+/** Mellomlageret for vedleggene før saken finnes, som `lastOppVedleggForNySak` svarer. */
+function lagVedleggsgrense() {
+  let n = 0;
+  return {
+    lastOpp: vi.fn<VedleggForNySak['lastOpp']>(
+      async (fil): Promise<Kjernevedlegg> => ({
+        vedlegg_id: `00000000-0000-4000-8000-${(++n).toString().padStart(12, '0')}`,
+        filnavn: fil.name,
+        innhold_sha256: 'a'.repeat(64),
+        stoerrelse: fil.size,
+      })
+    ),
+    slett: vi.fn<VedleggForNySak['slett']>(async () => ({ success: true })),
+  };
+}
+
+function aapne(
+  send = vi.fn<SendNySak>(async () => ({ sakId: 'ny-sak' })),
+  { utkast = null as Utfylling | null } = {}
+) {
   const onsendt = vi.fn();
   const onavbrutt = vi.fn();
-  render(NySak, { sakId: 'ny-sak', send, onsendt, onavbrutt });
-  return { send, onsendt, onavbrutt };
+  const vedleggForNySak = lagVedleggsgrense();
+  render(NySak, { sakId: 'ny-sak', send, vedleggForNySak, utkast, onsendt, onavbrutt });
+  return { send, onsendt, onavbrutt, vedleggForNySak };
+}
+
+const velgFiler = (...filer: File[]) =>
+  fireEvent.change(screen.getByLabelText('Vedlegg (valgfritt)'), { target: { files: filer } });
+
+async function sendBrevet() {
+  await seBrevet();
+  await fireEvent.click(
+    await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' })
+  );
+  await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
 }
 
 const ENDRINGER = 'Endringer, jf. punkt 31 og 32';
@@ -353,6 +392,94 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(sendt.tekst.length).toBeGreaterThan(0);
   });
 
+  it('#1037: vedleggene lastes opp før saken finnes, og påberopelsen og brevet binder dem', async () => {
+    const { send, onsendt, vedleggForNySak } = aapne();
+    await fyllIrregulaerEndring();
+    await velgFiler(new File(['tegning'], 'tegning.pdf'), new File(['referat'], 'referat.pdf'));
+    await screen.findByRole('button', { name: 'Fjern referat.pdf' });
+    expect(vedleggForNySak.lastOpp).toHaveBeenCalledTimes(2);
+    await sendBrevet();
+    await vi.waitFor(() => expect(onsendt).toHaveBeenCalled());
+    const sendt = send.mock.calls[0][0];
+    const ider = (await Promise.all(vedleggForNySak.lastOpp.mock.results.map((r) => r.value))).map(
+      (v) => v.vedlegg_id
+    );
+    expect(sendt.paaberopelse.dokumentasjon).toEqual(ider);
+    // Brevet kjernen lager, oppgir vedleggene (LV-U14).
+    expect(sendt.tekst.join('\n')).toContain('tegning.pdf');
+    expect(sendt.utkast.vedlegg.map((v) => v.filnavn)).toEqual(['tegning.pdf', 'referat.pdf']);
+  });
+
+  it('#1037: et fjernet vedlegg slettes fra mellomlageret og står ikke i påberopelsen', async () => {
+    const { send, onsendt, vedleggForNySak } = aapne();
+    await fyllIrregulaerEndring();
+    await velgFiler(new File(['tegning'], 'tegning.pdf'));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Fjern tegning.pdf' }));
+    expect(vedleggForNySak.slett).toHaveBeenCalledWith('00000000-0000-4000-8000-000000000001');
+    expect(screen.queryByText('tegning.pdf')).toBeNull();
+    // Knappen forsvant med raden, så fokus står på velgeren og ikke på siden (WCAG 2.4.3).
+    expect(document.activeElement).toBe(screen.getByLabelText(/Vedlegg/));
+    await sendBrevet();
+    await vi.waitFor(() => expect(onsendt).toHaveBeenCalled());
+    expect(send.mock.calls[0][0].paaberopelse).not.toHaveProperty('dokumentasjon');
+  });
+
+  it('#1037: velgerens navn har knappeteksten «Velg filer» (WCAG 2.5.3)', () => {
+    aapne();
+    expect(screen.getByLabelText(/Vedlegg/).getAttribute('type')).toBe('file');
+    expect(screen.getByLabelText('Vedlegg (valgfritt) Velg filer')).toBeTruthy();
+  });
+
+  it('#1037: en fil over 15 MB lastes ikke opp, og feilen står ved feltet', async () => {
+    const { vedleggForNySak } = aapne();
+    const stor = new File(['x'], 'modell.ifc');
+    Object.defineProperty(stor, 'size', { value: 15 * 1024 * 1024 + 1 });
+    await velgFiler(stor);
+    expect(vedleggForNySak.lastOpp).not.toHaveBeenCalled();
+    expect(screen.getByText('modell.ifc er større enn 15 MB. Velg en mindre fil.')).toBeTruthy();
+  });
+
+  it('#1037: en opplasting som feiler, står ved feltet med serverens melding', async () => {
+    const { vedleggForNySak } = aapne();
+    vedleggForNySak.lastOpp.mockRejectedValueOnce(new Error('Filen er tom.'));
+    await velgFiler(new File([''], 'tom.pdf'));
+    expect(await screen.findByText('tom.pdf ble ikke lastet opp. Filen er tom.')).toBeTruthy();
+  });
+
+  it('#1037: mens en fil lastes opp, venter brevkontrollen på den', async () => {
+    const { vedleggForNySak } = aapne();
+    vedleggForNySak.lastOpp.mockReturnValueOnce(new Promise(() => {}));
+    await fyllIrregulaerEndring();
+    await velgFiler(new File(['tegning'], 'tegning.pdf'));
+    await seBrevet();
+    const liste = await screen.findByRole('group', {
+      name: 'Det mangler noe før du kan se brevet',
+    });
+    expect(within(liste).getByText('Vent til vedleggene er lastet opp.')).toBeTruthy();
+    expect(screen.queryByRole('checkbox', { name: 'Jeg har kontrollert brevet' })).toBeNull();
+  });
+
+  it('#1526 punkt 1: utkastet fra et forsøk med usikkert utfall gir den samme sendingen', async () => {
+    const foerste = aapne();
+    await fyllIrregulaerEndring();
+    await velgFiler(new File(['tegning'], 'tegning.pdf'));
+    await screen.findByRole('button', { name: 'Fjern tegning.pdf' });
+    await sendBrevet();
+    await vi.waitFor(() => expect(foerste.send).toHaveBeenCalled());
+    const forsoek = foerste.send.mock.calls[0][0];
+    cleanup();
+
+    // Ny innlasting: skjemaet starter fra utkastet, og TE sender uten å skrive noe på nytt.
+    const andre = aapne(undefined, { utkast: forsoek.utkast });
+    await sendBrevet();
+    await vi.waitFor(() => expect(andre.send).toHaveBeenCalled());
+    const nytt = andre.send.mock.calls[0][0];
+    expect(nytt.opprettelse).toEqual(forsoek.opprettelse);
+    expect(nytt.paaberopelse).toEqual(forsoek.paaberopelse);
+    expect(nytt.tekst).toEqual(forsoek.tekst);
+    expect(andre.vedleggForNySak.lastOpp).not.toHaveBeenCalled();
+  });
+
   it('5a: «Avbryt» spør før det som er skrevet slettes, og sender ingenting', async () => {
     const { send, onavbrutt } = aapne();
     await fireEvent.click(screen.getByRole('button', { name: 'Avbryt' }));
@@ -366,8 +493,8 @@ describe('skjemaet for ny sak (BF-05)', () => {
 describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
   const forloep = finnForloep('BF-05')!;
   const paaberopelse = {
-    type: 'krav',
-    spor: 'forhold',
+    type: 'krav' as const,
+    spor: 'forhold' as const,
     innhold: {
       hovedkategori: 'endring',
       underkategori: 'irregulaer_endring',
@@ -377,14 +504,10 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
 
   const opprettelse = { type: 'opprett_sak', sakstittel: 'Teglforblending' };
   const sakId = lagDemosak(forloep, 'start', 'TE').sakId;
-  // Serveren lager teksten med sakstittelen i påberopelsen (LV-U43, `server/app.ts`).
+  // Brevteksten har sakstittelen som navnet på forholdet (LV-U43).
   const brev = kravMotNySak(
     opprettelse,
-    {
-      ...paaberopelse,
-      innhold: { ...paaberopelse.innhold, tittel: opprettelse.sakstittel },
-      utdypning: BESKRIVELSE,
-    },
+    { ...paaberopelse, utdypning: BESKRIVELSE },
     'TE',
     KJERNE,
     new Map(),
@@ -418,6 +541,54 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     expect(journal.at(-1)!.versjon).toBe(neste.versjon);
   });
 
+  it('#1526 punkt 3: demoruta avviser en kropp som serveren avviser, og etterlater ingen sak', async () => {
+    const gyldig = { ...paaberopelse, utdypning: BESKRIVELSE };
+    const avvist = [
+      { sakId, opprettelse: { sakstittel: 'Teglforblending ' }, paaberopelse: gyldig, tekst },
+      {
+        sakId,
+        opprettelse,
+        paaberopelse: { ...gyldig, innhold: { ...gyldig.innhold, tittel: 'Teglforblending' } },
+        tekst,
+      },
+    ];
+    for (const kropp of avvist) {
+      const demosak = lagDemosak(forloep, 'start', 'TE');
+      await expect(demosak.opprett(kropp)).rejects.toMatchObject({
+        status: 400,
+        data: { error: 'UGYLDIG_FORESPOERSEL' },
+      });
+      expect(demosak.journal()).toEqual([]);
+    }
+  });
+
+  it('#1037: demoruta binder vedleggene i minnet til påberopelsen', async () => {
+    const demosak = lagDemosak(forloep, 'start', 'TE');
+    const vedlegg = await demosak.vedleggForNySak.lastOpp(new File(['tegning'], 'tegning.pdf'));
+    const medVedlegg = {
+      ...paaberopelse,
+      utdypning: BESKRIVELSE,
+      dokumentasjon: [vedlegg.vedlegg_id],
+    };
+    const bundet = {
+      vedlegg_id: vedlegg.vedlegg_id,
+      filnavn: vedlegg.filnavn,
+      innhold_sha256: vedlegg.innhold_sha256,
+    };
+    const brevet = kravMotNySak(
+      opprettelse,
+      medVedlegg,
+      'TE',
+      KJERNE,
+      new Map([[vedlegg.vedlegg_id, bundet]]),
+      sakId
+    );
+    const brevtekst = 'tekst' in brevet ? brevet.tekst! : [];
+    expect(brevtekst.join('\n')).toContain('tegning.pdf');
+    await demosak.opprett({ sakId, opprettelse, paaberopelse: medVedlegg, tekst: brevtekst });
+    expect(JSON.stringify(demosak.journal().at(-1)!.data)).toContain(vedlegg.vedlegg_id);
+  });
+
   it('GR-U31: påberopelsen heter «Påberopelse av <forholdet>» også etter sendingen', () => {
     expect(brevtittel({ art: 'krav', spor: ['forhold'], forhold: 'irregulaer_endring' })).toBe(
       'Påberopelse av irregulær endring'
@@ -445,9 +616,21 @@ describe('programfeil i brevkontrollen for ny sak (#898)', () => {
       beskrivelse: BESKRIVELSE,
       dato: '2026-09-15',
       endringsordre: '',
+      vedlegg: [],
     };
     expect(brevet(utfylling, 'ny-sak', kjerne)).toEqual({ programfeil: PROGRAMFEIL });
     expect(brevet(utfylling, 'ny-sak', KJERNE)).toHaveProperty('tekst');
     feil.mockRestore();
+  });
+});
+
+describe('den ventende opprettelsen (#1526 punkt 1)', () => {
+  it('ID-ene og utkastet leses tilbake etter ny innlasting, per prosjekt, til de fjernes', () => {
+    const ventende = { sakId: 'sak-1', kommandoId: 'kommando-1', utkast: null };
+    lagreVentende('p1', ventende);
+    expect(lesVentende('p1')).toEqual(ventende);
+    expect(lesVentende('p2')).toBeNull();
+    fjernVentende('p1');
+    expect(lesVentende('p1')).toBeNull();
   });
 });

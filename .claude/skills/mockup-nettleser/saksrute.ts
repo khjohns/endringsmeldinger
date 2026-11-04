@@ -572,15 +572,18 @@ try {
         await te.getByRole('heading', { name: tittel, level: 1 }).waitFor();
         await te.screenshot({ path: join(UT, 'ny-sak-sendt.png'), fullPage: true });
         const nye = (await lesJournal(sak)).filter((r) => r.versjon > forventet);
-        // Påberopelsen er kravet i dokumenthendelsen, med feltene TE fylte ut.
-        const krav = nye
-          .flatMap((r) => ((r.data as { krav?: Record<string, unknown>[] }).krav ?? []))
-          .find((x) => x.spor === 'forhold');
+        // Påberopelsen er kravet i dokumenthendelsen, med feltene TE fylte ut. Sakstittelen er
+        // navnet på forholdet i brevteksten, ikke et felt i kravet (LV-U43).
+        type Dokumentdata = { krav?: Record<string, unknown>[]; brevtekst?: { laast: string }[] };
+        const dokument = nye
+          .map((r) => r.data as Dokumentdata)
+          .find((d) => d.krav?.some((x) => x.spor === 'forhold'));
+        const krav = dokument?.krav?.find((x) => x.spor === 'forhold');
         if (
           !krav ||
           krav.underkategori !== k.innhold.underkategori ||
           (dato && !Object.values(krav).includes(dato)) ||
-          krav.tittel !== tittel
+          !dokument?.brevtekst?.some((a) => a.laast.includes(`«${tittel.trim()}» i sak`))
         )
           throw new Error(`Journalen har ikke påberopelsen TE fylte ut: ${JSON.stringify(nye)}`);
         return nye;

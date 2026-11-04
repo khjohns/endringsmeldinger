@@ -126,6 +126,7 @@
         <NySak
           sakId={aapen.demosak.sakId}
           send={aapen.demosak.opprett}
+          vedleggForNySak={aapen.demosak.vedleggForNySak}
           onsendt={opprettet}
           onavbrutt={avbrutt}
         />

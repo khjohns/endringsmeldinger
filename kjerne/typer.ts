@@ -254,6 +254,8 @@ export interface Dokument {
   utsagn: LestUtsagn[];
   /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17). */
   brevtekst: Avsnitt[] | null;
+  /** Tittelen på et brev om forholdet, frosset med teksten (MM-U3). `null` ellers. */
+  brevtittel: string | null;
   /**
    * OV-U16: beskrivelsen av et brev registrert som dokumentasjon (OV-U4), med ordene til den
    * som registrerte. Appen tolker den ikke. `null` i et annet dokument.
