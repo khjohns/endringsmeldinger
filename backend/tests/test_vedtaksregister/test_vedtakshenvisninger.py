@@ -527,3 +527,24 @@ def test_lista_over_kjente_designavvik_kan_bare_krympe(register, plan, tmp_path)
         "KJENTE_DESIGNAVVIK: OV-U81 står som eneste grunnlag 1 ganger i kjerne/regler/a.ts, og "
         "raden (#1534, steg 4) sier 2; rett antallet eller fjern raden"
     ]
+
+
+def test_et_kjent_avvik_i_en_kildeliste_telles_og_gir_ingen_feil():
+    """En opphevet ID alene i en JSON-kilde kan stå i KJENTE_AVVIK med issuet som skriver den om
+    (#1553), som i koden. Kontrollsaken: uten raden gir den feil."""
+    avvik = frozenset({("a.json", "MM-U4")})
+    truffet: collections.Counter = collections.Counter()
+    data = {"kilder": ["MM-U4"]}
+    assert vh.kildefeil("a.json", data, KJENTE, OPPHEVET, AAPNE, avvik=avvik, truffet=truffet) == []
+    assert truffet[("a.json", "MM-U4")] == 1
+    assert len(_kildefeil(data)) == 1
+
+
+def test_en_historisk_sporsmalsfil_kan_ha_en_opphevet_id_alene():
+    """BF-06-sporsmal.md fører spørsmålene ordrett slik de ble stilt (S2 A, #1534). En ukjent ID
+    gir fortsatt feil der."""
+    sti = "docs/domenetabell/brukerforlop/BF-06-sporsmal.md"
+    assert sti in vh.HISTORISKE_DOKUMENTER
+    assert _feil("Følger MM-U4.", sti) == []
+    assert len(_feil("Følger XX-U99.", sti)) == 1
+    assert len(_feil("Følger MM-U4.", "docs/domenetabell/brukerforlop/BF-06.md")) == 1

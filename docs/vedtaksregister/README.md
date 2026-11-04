@@ -177,7 +177,12 @@ Klassene for postene som fantes 03.11, kommer fra tabellen i
   som `[EO-U5](#eo-u5) er opphevet 28.10 av [MM-U34](#mm-u34).` Vedtaksteksten endres ikke.
 - **Et gjeldende vedtak presiserer, utvider, snevrer inn, endrer eller bygger ikke på et opphevet vedtak**
   (svar 5 04.11 i #1534). Dagens tilfeller står i `KJENTE_FORHOLD_TIL_OPPHEVET` i verktøyet
-  og rettes i samlevedtakene i steg 4. Lista skal bare krympe.
+  og rettes i samlevedtakene i steg 4. Lista skal bare krympe. Et forhold til et vedtak som
+  et gjeldende samlevedtak opphever, leses som et forhold til samlevedtaket, fordi
+  samlevedtaket har tatt innholdet, slik en henvisning til et vedtak det samler gjelder
+  samlevedtaket (svar 4 A 04.11 i #1534). Vakttesten godtar det, og Følge merker opphevelsen
+  som over. Regelen gjelder alle samlevedtak (S1 A i vedtaks-PR-en for samlevedtaket for
+  endringsordren).
 - **Etter merge** kan en ny post få forholdene `opphever`, `samler` og `bygger på`, og
   et forhold kan bli `opphever` eller `samler` når et senere vedtak har tatt innholdet
   (svar 14 i PR #1537). Andre forhold står, unntatt et forhold oppdragsgiver har bestemt,
@@ -277,14 +282,14 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | Hvert anker står én gang i hovedplanen og vedtaksfila til sammen, og ID-en til en ny post står ikke i hovedplanen, arkivet eller vedtaksfila på `main` fra før, heller ikke uten anker | hovedplanen, arkivet og vedtaksfila |
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret. `folge` og klassen med delene kan endres, og forholdene etter [Klassen](#klassen) | nye poster på `main` |
 | Posten har klassen, og delene og `bindende_i` passer til den; `flyttet_til` har formen `BF-06.md#u-12`, `BF-02A.md#u-3` eller `.interface-design/system.md#mm-u22`; en post i `bindende_i` er ikke opphevet uten å være samlet | alle poster |
-| Et gjeldende vedtak presiserer, utvider, snevrer inn, endrer eller bygger ikke på et opphevet vedtak, utenom den lukkede lista | alle poster |
+| Et gjeldende vedtak presiserer, utvider, snevrer inn, endrer eller bygger ikke på et opphevet vedtak, utenom den lukkede lista og vedtak som et gjeldende samlevedtak opphever | alle poster |
 | Forholdet står begge veier | nye poster med `forhold` |
 | Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil; en lenke i et uttrykkelig forhold går til et annet vedtak, og i passiv form til en importert post | importerte poster |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn. En omtale av et forkastet alternativ regnes ikke som et valg. Det gjør heller ikke en omtale med et spørsmålsnummer foran, som «2b-A», når nummeret ikke også står foran det valgte alternativet | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 | Følge får ikke ny byggestatus for hånd: «Ikke bygget», «Delvis bygget», «Del n bygget» eller «Bygget», med stor forbokstav, utover det som står på `main` | alle poster (#1021) |
-| En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452), listene under `kilde` og `kilder` i JSON-filene i `docs/domenetabell/`, bestillingene `BF-*.md`, `.interface-design/system.md`, skillene og `AGENTS.md`, de fire siste uten unntaket for en test merket historisk |
+| En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452), listene under `kilde` og `kilder` i JSON-filene i `docs/domenetabell/`, bestillingene `BF-*.md`, `.interface-design/system.md`, skillene og `AGENTS.md`, de fire siste uten unntaket for en test merket historisk. Spørsmålsfilene i `HISTORISKE_DOKUMENTER` har samme unntak som en test merket historisk |
 | En designpost er ikke eneste grunnlag; feilmeldingen foreslår vedtakene i `bindende_i`. Dagens tilfeller står i `KJENTE_DESIGNAVVIK` | `kjerne/frosset/`, `kjerne/kommandoer/`, `kjerne/regler/` og `kilde` i bevis-sakene (steg 3b i #1534) |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem
