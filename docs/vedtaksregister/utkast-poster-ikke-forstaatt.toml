@@ -18,7 +18,9 @@
 #    ikke forstår (MM-U2), godtas bare dokumentasjon.»
 # 5. Kjør docs/verktoy/vedtaksregister.py og vakttestene. Sitatene under er fra vedtaksfila
 #    (kilde = "hovedplanen", som i de andre postene).
-# 6. Klassene er kontrollert uavhengig (svar 8); resultatet står i PR-en og føres i #1534.
+# 6. Klassene er kontrollert uavhengig 04.11 (svar 8): klassen for begge samsvarer. Kontrollen
+#    førte punkt 7 (visningssetningen) til designdel, og punkt 8, punkt 10 (utsettelsen) og
+#    «og drift varsles» til beslutningsdel. Rettet her. Resultatet føres i #1534.
 
 etter = '''
 ##### <a id="samlevedtak-ikke-forstaatt"></a>Samlevedtaket for saker løsningen ikke forstår (MM-U43)
@@ -169,8 +171,8 @@ bestridelse som eget utsagn, som er utsatt.'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket, og i punkt 5 «Visningen sier at et varsel med frist som ikke kan sendes som innlegg, må sendes utenfor løsningen og registreres senere.»"
-beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket, og «før en kjerne som forstår den, er rullet ut» i punkt 2"
+designdel = "avsnittet «Designdel» i samlevedtaket, unntatt «og drift varsles»; i punkt 7 «Visningen viser at det nye avviker fra den registrerte enigheten»; og i punkt 5 «Visningen sier at et varsel med frist som ikke kan sendes som innlegg, må sendes utenfor løsningen og registreres senere.»"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket; «før en kjerne som forstår den, er rullet ut» i punkt 2; «Endres utledningen, følger det MM-U16.» i punkt 8; «Så lenge den egne innsigelsen etter punkt 5 tredje ledd er utsatt, har kontrollen ingen oppgitt innsigelse å lese (VS-U35).» i punkt 10; og «og drift varsles» i designdelen"
 id = "MM-U43"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
