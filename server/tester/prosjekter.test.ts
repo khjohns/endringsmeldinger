@@ -232,20 +232,25 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
   });
 
   // Forventningen er `ContractSettings` i `src/lib/types/project.ts` og arbeidsvalget
-  // 30.10 i #1398: prosjektet har partsnavnene i `settings.contract`, og uten navn
-  // står `contract` ikke der.
-  it('prosjektet har navnene på byggherren og totalentreprenøren i settings.contract (#1398)', async () => {
+  // 30.10 i #1398 og N1 04.11 i #1497: prosjektet har partsnavnene og kontraktsforkortelsen
+  // i `settings.contract`, og uten navn står `contract` ikke der.
+  it('prosjektet har navnene på byggherren og totalentreprenøren og kontraktsforkortelsen i settings.contract (#1398, #1497)', async () => {
     const b = await nyBruker();
     const id = await prosjekt(b);
     await settInn(eier, 'kontraktsparter', {
       prosjekt_id: id,
       byggherre_navn: 'Byggherren AS',
       totalentreprenor_navn: 'Entreprenøren AS',
+      kontraktsforkortelse: 'K201',
     });
     const svar = await kall(server.url, `/api/projects/${id}`, { bruker: b, prosjektId: id });
     expect(svar.status).toBe(200);
     expect(svar.kropp.settings).toEqual({
-      contract: { byggherre_navn: 'Byggherren AS', totalentreprenor_navn: 'Entreprenøren AS' },
+      contract: {
+        byggherre_navn: 'Byggherren AS',
+        totalentreprenor_navn: 'Entreprenøren AS',
+        kontraktsforkortelse: 'K201',
+      },
     });
   });
 
@@ -259,6 +264,7 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
         prosjekt_id: p,
         byggherre_navn: 'Byggherren AS',
         totalentreprenor_navn: 'Entreprenøren AS',
+        kontraktsforkortelse: 'K201',
       });
     const les = async (aktor: string, p: string) =>
       (

@@ -114,6 +114,7 @@ class Sak {
         sakId: this.sakId,
         sakstype: 'standard',
         opprettet: this.journal[0]!.tidsstempel,
+        sakskode: null,
         journal: this.journal,
       },
       KJERNE

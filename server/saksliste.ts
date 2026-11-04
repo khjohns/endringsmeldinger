@@ -37,6 +37,8 @@ interface Listerad {
   sak_id: string;
   sakstype: string;
   opprettet: Date;
+  kode: 'koe' | 'eo' | null;
+  loepenummer: number | null;
   event_id: string;
   event_type: string;
   versjon: number;
@@ -53,6 +55,8 @@ export interface LestSak {
   sakId: string;
   sakstype: string;
   opprettet: string;
+  /** Sakens kode og løpenummer fra `koe.sak_kode`, eller `null` før sakens første brev fra løsningen (LV-U47). */
+  sakskode: { kode: 'koe' | 'eo'; loepenummer: number } | null;
   journal: Journalrad[];
 }
 
@@ -74,6 +78,10 @@ export async function lesSakslisten(pool: Pool, kontekst: Kontekst): Promise<Les
         sakId: r.sak_id,
         sakstype: r.sakstype,
         opprettet: r.opprettet.toISOString(),
+        sakskode:
+          r.kode !== null && r.loepenummer !== null
+            ? { kode: r.kode, loepenummer: r.loepenummer }
+            : null,
         journal: [],
       };
       saker.set(r.sak_id, sak);
@@ -146,6 +154,13 @@ export interface Sakslinje {
   sakstype: string;
   sakstittel: string | null;
   opprettet: string;
+  /**
+   * Sakens kode, `koe` eller `eo`, og løpenummeret for koden i prosjektet (LV-U44, LV-U46).
+   * Begge er `null` til sakens første brev fra løsningen er sendt (LV-U47). Visningen setter
+   * sammen «KOE-17».
+   */
+  kode: 'koe' | 'eo' | null;
+  loepenummer: number | null;
   /** Tidsstempelet på den siste hendelsen i journalen, ikke brevets dato. */
   siste_hendelse: string;
   /**
@@ -301,6 +316,8 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
     sakstype: sak.sakstype,
     sakstittel: tekst(sak.journal[0]!.data.sakstittel),
     opprettet: sak.opprettet,
+    kode: sak.sakskode?.kode ?? null,
+    loepenummer: sak.sakskode?.loepenummer ?? null,
     siste_hendelse: sak.journal.at(-1)!.tidsstempel,
     forstaatt: u.forstaatt,
     saksbetegnelse: saksbetegnelse(u),

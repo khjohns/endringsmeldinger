@@ -1153,7 +1153,8 @@
     "kolonner": [
      ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
      ["byggherre_navn", "nvarchar(400)", "NOT NULL"],
-     ["totalentreprenor_navn", "nvarchar(400)", "NOT NULL"]
+     ["totalentreprenor_navn", "nvarchar(400)", "NOT NULL"],
+     ["kontraktsforkortelse", "nvarchar(20)", "NOT NULL"]
     ],
     "primærnøkkel": ["prosjekt_id"],
     "unike": [],
@@ -1340,6 +1341,33 @@
      }
     ]
    },
+   "koe.sak_kode": {
+    "kolonner": [
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["kode", "nvarchar(3)", "NOT NULL"],
+     ["loepenummer", "int", "NOT NULL"]
+    ],
+    "primærnøkkel": ["sak_id"],
+    "unike": [
+     ["prosjekt_id", "kode", "loepenummer"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["prosjekt_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.sak_metadata": {
     "kolonner": [
      ["sak_id", "nvarchar(36)", "NOT NULL"],
@@ -1417,7 +1445,8 @@
      ["innkommende_hendelse_id", "bigint", "NULL"],
      ["innkommende_behandling_id", "bigint", "NULL"],
      ["innkommende_forsoek_id", "bigint", "NULL"],
-     ["topic_kommentar_id", "bigint", "NULL"]
+     ["topic_kommentar_id", "bigint", "NULL"],
+     ["sak_kode_sak_id", "nvarchar(36)", "NULL"]
     ],
     "primærnøkkel": [],
     "unike": [],
@@ -1480,6 +1509,12 @@
      {
       "kolonner": ["sak_catenda_topic_sak_id"],
       "til": "koe.sak_catenda_topic",
+      "til_kolonner": ["sak_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["sak_kode_sak_id"],
+      "til": "koe.sak_kode",
       "til_kolonner": ["sak_id"],
       "ved_sletting": "NO ACTION"
      },

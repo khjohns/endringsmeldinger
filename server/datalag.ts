@@ -77,6 +77,7 @@ export const LAAS_FEILET = 51407;
 export const LAAS_IKKE_GITT = 51408;
 export const KONFLIKT = 51409;
 export const ID_BRUKT = 51410;
+export const LOEPENUMMER_TATT = 51411;
 export const INGEN_BOARD = 51412;
 export const FOR_GAMMELT = 51419;
 export const UGYLDIG = 51422;

@@ -717,14 +717,20 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     const { prosjekt } = await nyttProsjekt([]);
     linjer.length = 0;
     await skript('kontraktsparter', prosjekt);
-    expect(linjer).toEqual(['Byggherre: (ikke satt)', 'Totalentreprenør: (ikke satt)']);
+    expect(linjer).toEqual([
+      'Byggherre: (ikke satt)',
+      'Totalentreprenør: (ikke satt)',
+      'Kontraktsforkortelse: (ikke satt)',
+    ]);
     await skript(
       'kontraktsparter',
       prosjekt,
       '--byggherre',
       'Byggherren AS',
       '--totalentreprenoer',
-      'Entreprenøren AS'
+      'Entreprenøren AS',
+      '--kontraktsforkortelse',
+      'K201'
     );
     await skript(
       'kontraktsparter',
@@ -732,11 +738,17 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       '--byggherre',
       'Ny byggherre',
       '--totalentreprenoer',
-      'Ny TE'
+      'Ny TE',
+      '--kontraktsforkortelse',
+      'K202'
     );
     linjer.length = 0;
     await skript('kontraktsparter', '--prosjekt', prosjekt);
-    expect(linjer).toEqual(['Byggherre: Ny byggherre', 'Totalentreprenør: Ny TE']);
+    expect(linjer).toEqual([
+      'Byggherre: Ny byggherre',
+      'Totalentreprenør: Ny TE',
+      'Kontraktsforkortelse: K202',
+    ]);
   });
 
   it('kontraktsparter avviser ett navn alene, et tomt navn, et prosjekt som ikke er registrert og en prosjekt-ID med mellomrom til slutt (#1398)', async () => {
@@ -744,15 +756,32 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     await expect(skript('kontraktsparter', prosjekt, '--byggherre', 'B')).rejects.toThrow(
       /--totalentreprenoer må oppgis/
     );
+    const k = ['--kontraktsforkortelse', 'K201'];
     await expect(
-      skript('kontraktsparter', prosjekt, '--byggherre', ' B', '--totalentreprenoer', 'T')
+      skript('kontraktsparter', prosjekt, '--byggherre', ' B', '--totalentreprenoer', 'T', ...k)
     ).rejects.toThrow(/Byggherrens navn .*\(52065\)/);
     await expect(
-      skript('kontraktsparter', 'p-finnes-ikke', '--byggherre', 'B', '--totalentreprenoer', 'T')
+      skript(
+        'kontraktsparter',
+        'p-finnes-ikke',
+        '--byggherre',
+        'B',
+        '--totalentreprenoer',
+        'T',
+        ...k
+      )
     ).rejects.toThrow(/\(52073\)/);
     // Med mellomrom til slutt ville oppslaget i koe.projects truffet prosjektet.
     await expect(
-      skript('kontraktsparter', `${prosjekt} `, '--byggherre', 'B', '--totalentreprenoer', 'T')
+      skript(
+        'kontraktsparter',
+        `${prosjekt} `,
+        '--byggherre',
+        'B',
+        '--totalentreprenoer',
+        'T',
+        ...k
+      )
     ).rejects.toThrow(/Prosjekt-ID-en .*\(52043\)/);
     expect(await lesKontraktsparter(drift.pool, prosjekt)).toBeNull();
     // Tabellen avviser et tomt navn også uten prosedyren.
@@ -762,10 +791,44 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
           .request()
           .input('p', prosjekt)
           .query(
-            "INSERT koe.kontraktsparter (prosjekt_id, byggherre_navn, totalentreprenor_navn) VALUES (@p, N'   ', N'T')"
+            "INSERT koe.kontraktsparter (prosjekt_id, byggherre_navn, totalentreprenor_navn, kontraktsforkortelse) VALUES (@p, N'   ', N'T', N'K201')"
           )
       )
     ).toBe(547);
+  });
+
+  // Arbeidsvalget N1 04.11 i #1497: driften setter kontraktsforkortelsen sammen med
+  // navnene. Formen (1–20 tegn, A–Z og 0–9) er det tekniske valget i PR-en, så K201 i
+  // `K201-KOE-17-03` (LV-U44) ikke kan inneholde skilletegnet.
+  it('kontraktsparter krever kontraktsforkortelsen og avviser en med andre tegn enn A–Z og 0–9 (#1497)', async () => {
+    const { prosjekt } = await nyttProsjekt([]);
+    const navn = ['--byggherre', 'B', '--totalentreprenoer', 'T'];
+    await expect(skript('kontraktsparter', prosjekt, ...navn)).rejects.toThrow(
+      /--kontraktsforkortelse må oppgis/
+    );
+    for (const feil of ['k201', 'K-201', 'K201 ', 'K'.repeat(21)])
+      await expect(
+        skript('kontraktsparter', prosjekt, ...navn, '--kontraktsforkortelse', feil)
+      ).rejects.toThrow(/Kontraktsforkortelsen .*\(52074\)/);
+    expect(await lesKontraktsparter(drift.pool, prosjekt)).toBeNull();
+    await skript('kontraktsparter', prosjekt, ...navn, '--kontraktsforkortelse', 'K'.repeat(20));
+    expect((await lesKontraktsparter(drift.pool, prosjekt))?.kontraktsforkortelse).toBe(
+      'K'.repeat(20)
+    );
+    // Tabellen avviser formen også uten prosedyren.
+    const annet = (await nyttProsjekt([])).prosjekt;
+    for (const feil of ['', 'k201', 'K-201'])
+      expect(
+        await avvisning(
+          o.datalag.base.pool
+            .request()
+            .input('p', annet)
+            .input('k', feil)
+            .query(
+              "INSERT koe.kontraktsparter (prosjekt_id, byggherre_navn, totalentreprenor_navn, kontraktsforkortelse) VALUES (@p, N'B', N'T', @k)"
+            )
+        )
+      ).toBe(547);
   });
 
   it('kjøretiden kan ikke sette navnene (#1398)', async () => {
@@ -776,6 +839,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
           .input('prosjekt', o.prosjekt.id)
           .input('byggherre', 'B')
           .input('totalentreprenor', 'T')
+          .input('kontraktsforkortelse', 'K201')
           .execute('koe_drift.sett_kontraktsparter')
       )
     ).toBe(229);

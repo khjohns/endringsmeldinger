@@ -922,6 +922,27 @@ funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. L 20.10: `20261020180000_saksliste.sql`. K 20.10: `server/tester/saksliste.test.ts` mot testbasen."
 
 [[tabell]]
+navn = "koe.sak_kode"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Sakens kode, `koe` eller `eo`, og løpenummeret for koden i prosjektet (LV-U44,
+arbeidsvalget N2 04.11 i #1497). Raden skrives én gang, når sakens første brev fra
+løsningen skrives (LV-U46): koden følger parten som sendte brevet, og nummeret er det
+neste for koden i prosjektet, kontrollert under lås, så rekken ikke får hull. Et
+registrert brev gir ikke saken en kode, og til det første brevet er sendt, har saken
+ingen rad (LV-U47). «KOE-17» lagres ikke, men settes sammen når det vises. En trigger
+avviser endring og sletting. Sakslisten leser koden gjennom `koe_api.saksliste`."""
+lagres_fra = "`koe_api.skriv_hendelse` for sakens første brev fra løsningen, med løpenummeret `koe_api.sakskode` foreslo i samme transaksjon, kalt fra `skrivHendelse` og `opprettSakMedPaaberopelse` i `server/kommandoer.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Nummeret står i de sendte brevene."
+personopplysninger = "Nei."
+skrivere = ["database/migrasjoner/20261104100000_sakskode.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)"]
+funn = []
+belegg = "L 04.11: `database/migrasjoner/20261104100000_sakskode.sql`. K 04.11: `server/tester/sakskode.test.ts` mot testbasen."
+
+[[tabell]]
 navn = "koe.hendelse"
 lagring = "SQL Server"
 type = ["transaksjon"]
@@ -939,7 +960,7 @@ personopplysninger = """
 personopplysninger."""
 skrivere = [
     "database/migrasjoner/20261102100000_opprettelse_med_paaberopelse.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`)",
-    "database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)",
+    "database/migrasjoner/20261104100000_sakskode.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)",
     "server/kommandoer.ts",
 ]
 funn = []
@@ -1015,7 +1036,7 @@ lagres_fra = "`koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme
 fra_catenda = "Nei, men oppdraget gjelder en levering til Catenda."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innholdet er brevet og kan inneholde personopplysninger."
-skrivere = ["database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261104100000_sakskode.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -1034,7 +1055,7 @@ lagres_fra = "`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `ko
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Aktørens `app_users.id`."
-skrivere = ["database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261102100000_opprettelse_med_paaberopelse.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261104100000_sakskode.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261102100000_opprettelse_med_paaberopelse.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`."
 
@@ -1125,16 +1146,18 @@ lagring = "SQL Server"
 type = ["grunndata"]
 status = "i bruk"
 beskrivelse = """
-Navnene på byggherren og totalentreprenøren i prosjektet (#1398). Ett prosjekt er én
-kontrakt (DL-U14). Begge navnene settes sammen, og uten rad har prosjektet ingen
-navn. Et sendt brev fryser navnene det viste (LV-U1, #1173)."""
+Navnene på byggherren og totalentreprenøren i prosjektet (#1398), og
+kontraktsforkortelsen i merkingen av brevene (LV-U44, arbeidsvalget N1 04.11 i #1497).
+Ett prosjekt er én kontrakt (DL-U14). Navnene og forkortelsen settes sammen, og uten
+rad har prosjektet ingen. Et sendt brev fryser navnene det viste (LV-U1, #1173), og en
+rettet forkortelse gjelder bare nye brev (LV-U24)."""
 lagres_fra = "Driftsskriptet `server/registrering.ts kontraktsparter`. Lest av `koe_api.kontraktsparter` fra `server/prosjekter.ts` (`GET /api/projects/:id`, `settings.contract`)."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Kontrakten er kilden."
 personopplysninger = "Navnene er normalt virksomheter. Et enkeltpersonforetak har innehaverens navn i foretaksnavnet."
-skrivere = ["database/migrasjoner/20261030100000_kontraktsparter.sql (`koe_drift.sett_kontraktsparter`, kalt fra `server/registrering.ts`)"]
+skrivere = ["database/migrasjoner/20261104100000_sakskode.sql (`koe_drift.sett_kontraktsparter`, innført i `20261030100000_kontraktsparter.sql`, kalt fra `server/registrering.ts`)"]
 funn = []
-belegg = "L 30.10: migrasjonen. K 30.10: `server/tester/registrering.test.ts` og `server/tester/prosjekter.test.ts`."
+belegg = "L 30.10: migrasjonen. K 30.10: `server/tester/registrering.test.ts` og `server/tester/prosjekter.test.ts`. L 04.11: `20261104100000_sakskode.sql`. K 04.11: de samme testene."
 
 [[tabell]]
 navn = "koe.godkjenningspakke"
@@ -1385,7 +1408,7 @@ tidspunkt. Tabellen har høyst én rad per økt-ID."""
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Raden brukes bare i transaksjonen som førte den."
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`)", "database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`)", "database/migrasjoner/20261104100000_sakskode.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)"]
 funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`. K 18.10: `server/tester/skrivetidspunkt.test.ts` (grensen på 30 sekunder)."
 
@@ -1404,7 +1427,7 @@ lagres_fra = "Ingen. Migrasjonen lager tabellen, og skranken avviser hver rad."
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Tabellen har ingen rader."
 personopplysninger = "Nei."
-skrivere = ["database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad)", "database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene)", "database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen)", "database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (legger til fremmednøklene til forsøkene i innboksen og kommentarkvitteringene)"]
+skrivere = ["database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad)", "database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene)", "database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen)", "database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (legger til fremmednøklene til forsøkene i innboksen og kommentarkvitteringene)", "database/migrasjoner/20261104100000_sakskode.sql (legger til fremmednøkkelen til sakens kode)"]
 funn = []
 belegg = "L 18.10: `database/migrasjoner/20261020011000_toemmingsvern.sql`. L 19.10: `database/migrasjoner/20261020021000_vedleggskvittering_vern.sql`. K 18.10: `server/tester/journal.test.ts`."
 

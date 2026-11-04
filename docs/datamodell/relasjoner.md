@@ -395,6 +395,12 @@ erDiagram
         nvarchar_100 prosjekt_id FK
         nvarchar_100 catenda_topic_id UK
     }
+    koe_sak_kode {
+        nvarchar_36 sak_id PK, FK
+        nvarchar_100 prosjekt_id FK, UK
+        nvarchar_3 kode UK
+        int loepenummer UK
+    }
     koe_sak_metadata {
         nvarchar_36 sak_id PK, UK
         nvarchar_100 prosjekt_id FK, UK
@@ -426,6 +432,7 @@ erDiagram
         bigint innkommende_behandling_id FK
         bigint innkommende_forsoek_id FK
         bigint topic_kommentar_id FK
+        nvarchar_36 sak_kode_sak_id FK
     }
     koe_topic_kommentar {
         bigint innkommende_hendelse_id PK, FK
@@ -511,6 +518,9 @@ erDiagram
     koe_app_users ||--o{ koe_vedlegg : "lastet_opp_av"
     koe_hendelse |o--o{ koe_vedlegg : "(bundet_av_event_id, sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_vedlegg : "lastet_opp_team"
+    koe_sak_metadata ||--o| koe_sak_kode : "(sak_id, prosjekt_id)"
+    koe_projects ||--o{ koe_sak_kode : "prosjekt_id"
+    koe_sak_kode |o--o{ koe_toemmingsvern : "sak_kode_sak_id"
     koe_projects ||--o{ koe_vedlegg_uten_sak : "prosjekt_id"
     koe_app_users ||--o{ koe_vedlegg_uten_sak : "lastet_opp_av"
     koe_catenda_contract_teams |o..o{ koe_vedlegg_uten_sak : "lastet_opp_team"
@@ -650,6 +660,9 @@ erDiagram
 | `koe.vedlegg.lastet_opp_av` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). | — | K 18.10: katalogen. |
 | `koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id)` | `koe.hendelse.(event_id, sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den første hendelsen som viser til vedlegget (arbeidsvalg 4 i #790), i samme sak og prosjekt. Tom for et ubundet vedlegg. | — | K 18.10: katalogen. |
 | `koe.vedlegg.lastet_opp_team` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser og sletter vedlegget før det er bundet. Basen avviser et vedlegg uten team (AGENTS.md). | — | L 18.10: migrasjonen. |
+| `koe.sak_kode.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken koden og løpenummeret gjelder (LV-U44). `sak_id` er primærnøkkel, så saken har én kode. Sammensatt med `prosjekt_id`, så løpenummeret telles i sakens prosjekt. | — | K 04.11: katalogen. |
+| `koe.sak_kode.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet løpenummeret telles i. `sak_kode_loepenummer` gjør koden og nummeret unike i prosjektet (LV-U46). | — | K 04.11: katalogen. |
+| `koe.toemmingsvern.sak_kode_sak_id` | `koe.sak_kode.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 04.11: katalogen. |
 | `koe.vedlegg_uten_sak.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet vedlegget er lastet opp i, før saken finnes (#1037). Saken som opprettes, må være i samme prosjekt for at vedlegget flyttes. | — | K 02.11: katalogen. |
 | `koe.vedlegg_uten_sak.lastet_opp_av` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). Bare den samme aktøren kan flytte det inn i en sak. | — | K 02.11: katalogen. |
 | `koe.vedlegg_uten_sak.lastet_opp_team` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser og sletter vedlegget til saken er opprettet. Basen avviser et vedlegg uten team (AGENTS.md). | — | L 02.11: migrasjonen. |
@@ -935,6 +948,7 @@ flowchart LR
 | `koe.app_membership_absences` | — | — | — |
 | `koe.app_membership_sync` | — | — | — |
 | `koe.sak_metadata` | C22 | — | — |
+| `koe.sak_kode` | — | — | — |
 | `koe.hendelse` | C22 | — | — |
 | `koe.notat` | — | — | — |
 | `koe.jobb` | — | — | — |
