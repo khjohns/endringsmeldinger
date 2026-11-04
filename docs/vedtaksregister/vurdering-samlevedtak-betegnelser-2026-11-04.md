@@ -161,9 +161,32 @@ Etter testen i vedtaksskillen (oppdragsgiver 04.11):
   eller virksom, gjaldt summen for enighet. Faller summen bort (E1), står det som regel om
   enighet bare i vedtakene om enighet (GR-U7, MM-U33 steg 5).
 
-Samlevedtaket blir derfor en *beslutning* med designdel. MM-U38 og OV-U61 er *vedtak* i dag.
-Klassen for samlevedtaket er en ny klasse etter svar 8 B og kontrolleres uavhengig. Se
-«Kontrollen av klassene».
+Samlevedtaket blir derfor en *beslutning* med designdel. MM-U38 og OV-U61 er *vedtak* i
+registeret; etter testen er begge *beslutning med designdel* (se «Kontrollen av klassene»).
+
+## Kontrollen av klassene
+
+En subagent kontrollerte klassene uavhengig 04.11, etter testen i vedtaksskillen, og
+konkluderte før den leste avsnittet «Klassene» (svar 8 B i #1534).
+
+- **Samlevedtaket: beslutning med designdel.** Enig. Setningene som kunne gitt *vedtak*, står
+  i et annet gjeldende vedtak: punkt 1 i EO-U34 punkt 67 og MM-U12, punkt 5 i EO-U27 og
+  EO-U34, virkningen av trekk og godtatt avslag bak punkt 8 i GR-U7 og KA-U6, punkt 9 om
+  registrerte brev i OV-U4, og punkt 11 bygger på MM-U2. Punkt 2 sier hvordan oversikten
+  teller, ikke hva som regnes med etter kontrakten.
+- **MM-U37: design. MM-U39: beslutning med designdel.** Som i registeret.
+- **MM-U38: beslutning med designdel**, ikke *vedtak* som i registeret. Hver setning sier
+  hvilke kort, summer og tellinger oversikten har; ingen setning binder partene uten å stå i
+  KA-U6, GR-U7, OV-U4 eller EO-U27.
+- **OV-U61: beslutning med designdel, grensetilfelle**, ikke *vedtak*. Reglene om enighet står
+  i GR-U7. Setningen om at svaret på grunnlaget avgjør om enigheten er betinget eller virksom,
+  «også når svaret er en endringsordre registrert etter OV-U6», står ikke ordrett i GR-U7
+  eller OV-U6, men følger av de to sammen. Avviket betyr lite når OV-U61 oppheves (E1).
+
+Forslaget til retting av klassen, for orkestratoren etter svar 8 B: MM-U38 og OV-U61 til
+*beslutning med designdel*, med kontrollen over som resultat i #1534. Ikke kontrollert av
+subagenten: henvisningen til MM-U33 steg 5 og til MM-U24 og MM-U29 i «Klassene», og klassene
+for MM-U22, MM-U28, MM-U30, MM-U31, OV-U43, OV-U3 og OV-U10, som ikke endres her.
 
 ## Endret innhold
 
