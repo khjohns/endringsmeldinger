@@ -11209,6 +11209,8 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "at totalentreprenøren ikke angir svaret, slik at skjemaet for kravet ikke får et valg av brev"
+beslutningsdel = "at henvisningen finnes av at kravversjonen erstatter den forrige og at svaret gjelder den"
 id = "LV-U50"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
