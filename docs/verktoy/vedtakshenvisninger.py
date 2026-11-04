@@ -126,6 +126,10 @@ KJENTE_AVVIK = (
     ("kjerne/tester/feilinnfoering.ts", "MM-U20", 3, "#1579"),
     ("kjerne/tester/klient.ts", "MM-U18", 1, "#1579"),
     ("kjerne/utledning/utled.ts", "MM-U18", 3, "#1579"),
+    ("kjerne/kommandoer/forutsetninger.ts", "OV-U8", 1, "#1576"),
+    ("kjerne/tester/feilinnfoering.ts", "OV-U8", 1, "#1576"),
+    ("src/lib/components/kjernesak/__tests__/TeSkjema.test.ts", "OV-U8", 1, "#1576"),
+    ("src/lib/components/kontraktsbord/TeVederlagForm.svelte", "OV-U8", 1, "#1576"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
