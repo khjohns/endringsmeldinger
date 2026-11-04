@@ -89,7 +89,7 @@ side. Skjerming av interne notater og utkast går på **team**, ikke på side.
 ## Domenekjernen
 
 **Kontrakten først, aldri status.** En regel i kjernen begrunnes i bestemmelsen i
-NS 8407 eller vedtaket, utsagnet den gjelder (hvem sier hva om hva) og predikatet
+NS 8407, vedtaket eller beslutningen, utsagnet den gjelder (hvem sier hva om hva) og predikatet
 som leses av utsagnene og relasjonene. Ingen regel leser status, «låst»,
 «oppgjort» eller en annen oppsummering; status er en etikett i visningen. Et sendt
 brev og en inngått enighet betyr det de sa da (MM-U3, MM-U9). Det kjernen leser,
@@ -274,7 +274,7 @@ vedtak kan bare stå sammen med et som gjelder, eller i en test merket med «his
 
 | Hva | Hvor |
 | --- | --- |
-| Vedtakene | Vedtaksfila, generert fra [vedtaksregisteret](docs/vedtaksregister/README.md) og rettet bare der. Til #1020 var den avsnitt 3.1 i hovedplanen |
+| Vedtakene og beslutningene | Vedtaksfila, generert fra [vedtaksregisteret](docs/vedtaksregister/README.md) og rettet bare der. Til #1020 var den avsnitt 3.1 i hovedplanen. Skjemaet, visningen og arbeidsflyten står i brukerforløpet eller `system.md`. Hva som er hva, avgjøres av testen i [vedtaksskillen](.claude/skills/vedtak/SKILL.md) |
 | Funnstatus og alvorlighet, de åpne beslutningene og føringene, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
 | Avsluttede funn og leveransemerknadene fram til 24.10 | Arkivet, flyttet ordrett fra hovedplanen (#1020). Åpnes et funn igjen, flyttes raden tilbake |
 | Invarianter og regler som står seg | Denne fila |

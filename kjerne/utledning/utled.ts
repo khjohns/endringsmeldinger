@@ -211,8 +211,8 @@ export interface Utledning {
   /**
    * GR-U7: byggherren har godkjent forholdet uten virksom preklusjon etter
    * § 32.2, eller frafalt pålegget, etter brevet eller enigheten om det. Venter en ny
-   * påberopelsesversjon på svar, og var det siste svaret et frafall, er forholdet avklart
-   * ved frafallet (GR-U23).
+   * påberopelsesversjon på svar, og var det siste svaret sendt fra appen et frafall, er
+   * forholdet avklart ved frafallet (GR-U23).
    */
   forholdAvklart: boolean;
   /** SK-01, #213, MM-U13: TE har godtatt et svar på påberopelsen som ikke avklarer forholdet etter GR-U7. */
@@ -413,10 +413,10 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
  * det og vedtakene om enighet og lukking: en ny kravversjon i et trukket spor eller et spor
  * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor
  * (MM-U20), en aksept av et frafall (GR-U9) eller av et svar med registrert enighet
- * (GR-U8), noe som endrer utfallet etter at TE har godtatt avslaget på forholdet
- * (GR-U27), og det som viser til et element uten virkning. Kontrollen gjelder bare disse
- * vedtakene, ikke vilkårene for å sende, så en strengere forutsetning senere gjør ikke et
- * eldre brev uforstått.
+ * (GR-U8), noe som endrer utfallet etter at TE har godtatt et svar som avslår forholdet
+ * eller påberoper preklusjon (GR-U27), og det som viser til et element uten virkning.
+ * Kontrollen gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
+ * forutsetning senere gjør ikke et eldre brev uforstått.
  */
 function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
   // Et krav havner aldri i `uten`: kravene i et registrert brev er dokumentasjon (OV-U4),
@@ -1140,16 +1140,17 @@ function forholdet(
   const eg = spor.forhold.enighet;
   const gBrev = gSvar ? svar[gSvar.id] : null;
   // GR-U23: venter en ny påberopelsesversjon på svar etter et frafall, er forholdet avklart
-  // ved frafallet til byggherren svarer. Det siste svaret leses, så et frafall byggherren
-  // senere har revidert til avslag, avklarer ikke (MM-U34 punkt 7).
-  const sisteSvar = spor.forhold.svar.at(-1);
+  // ved frafallet til byggherren svarer. Det siste svaret sendt fra appen leses, så et
+  // frafall byggherren senere har revidert til avslag, avklarer ikke (MM-U34 punkt 7). Et
+  // svar byggherren har registrert, også en endringsordre etter OV-U6, tar ikke bort
+  // frafallet (GR-U20, OV-U4, OV-U6, #1388).
+  const sisteFraAppen = spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);
   const venterEtterFrafall =
     !spor.forhold.trukket &&
     gSvar === null &&
     spor.forhold.gjeldendeKrav !== null &&
-    sisteSvar !== undefined &&
-    sendtFraAppen({ elementer }, sisteSvar) &&
-    frafaller(sisteSvar);
+    sisteFraAppen !== undefined &&
+    frafaller(sisteFraAppen);
   return {
     // Utledet av standpunktene i brevet om forholdet, som også er innholdet i en
     // enighet om det (KA-U10, MM-U11).
@@ -1224,7 +1225,8 @@ export function kraveneErAvgjort(u: Utledning): boolean {
 /**
  * MM-U34 punkt 20: byggherren kan la en endringsordre omfatte hele KOE-saken når
  * forholdet er sendt, også uten registrert enighet. Unntatt er en sak som er lukket
- * etter GR-U27, fordi TE har godtatt avslaget på forholdet eller trukket forholdet.
+ * etter GR-U27, fordi TE har godtatt et svar som avslår forholdet eller påberoper
+ * preklusjon, eller har trukket forholdet.
  * Et frafall etter § 32.3 c hindrer ikke (GR-U28). At saken alt er omfattet av en
  * endringsordre (EO-U3), leses der EO-saken bygges (#1378).
  */
@@ -1313,9 +1315,9 @@ export function paaberopelseFor(
 }
 
 /**
- * GR-U27: TE har godtatt avslaget på forholdet, så saken er lukket, og et svar eller en
- * aksept i sporet avvises (`strid`). Et trukket forhold lukker hvert spor gjennom
- * `trukket` (GR-U5).
+ * GR-U27: TE har godtatt et svar som avslår forholdet eller påberoper preklusjon, så saken
+ * er lukket, og et svar eller en aksept i sporet avvises (`strid`). Et trukket forhold
+ * lukker hvert spor gjennom `trukket` (GR-U5).
  */
 export const sporetErLukket = (u: Utledning): boolean => u.forholdAvvist;
 
