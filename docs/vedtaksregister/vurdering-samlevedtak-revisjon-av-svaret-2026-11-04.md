@@ -38,7 +38,9 @@ kjeden eier resten av MM-U27 og HF-U4. Orkestratoren godtok forslaget 04.11
 
 Etter prøvingen er to forslag til sendt til orkestratoren 04.11: MM-U18 («en revisjon eller
 en ny kravversjon i et spor med enighet») eies av kjeden for saker kjernen ikke forstår, og
-revisjonskjeden endrer setningen om revisjon i OV-U5 (E2). *Foreslått; venter på svar.*
+revisjonskjeden endrer setningen om revisjon i OV-U5 (E2). Orkestratoren godtok begge 04.11, og
+også at revisjonskjeden endrer setningen i raden SK-02 og SK-03 og punkt 46 i EO-U34 (tillegget
+i samme kommentar).
 
 ## Postene i kjeden
 
@@ -53,7 +55,7 @@ endres, og resten av posten står og hører til en annen kjede.
 | MM-U27 | vedtak | gjeldende | endrer andre setning, «Det samme gjelder en revisjon som senker …»; resten hører til kjeden for saker kjernen ikke forstår | E1 |
 | GR-U7 | vedtak | gjeldende | endrer setningen «Revisjonsretten etter GR-U4 gjelder svar som ikke er godtatt.»; resten hører til kjeden for aksept og enighet | E2 |
 | SK-02 og SK-03 | vedtak | gjeldende | endrer setningen «Et svar TE har godtatt, kan byggherren ikke revidere» | E2 |
-| OV-U5 | vedtak | gjeldende | endrer setningen «Byggherren kan revidere svaret så lenge det ikke er godtatt (SK-03, GR-U7).» (foreslått, se «Overlapp») | E2 |
+| OV-U5 | vedtak | gjeldende | endrer setningen «Byggherren kan revidere svaret så lenge det ikke er godtatt (SK-03, GR-U7).» | E2 |
 | EO-U34 | vedtak med designdel og beslutningsdel | gjeldende | endrer «også som revisjon av et svar som ikke er godtatt (GR-U7)» i punkt 46; punkt 12, 13 og 50 er kilder | E2 |
 | GR-U17 | vedtak | gjeldende | endrer setningen «En revisjon til avslag eller til påberopelse etter § 32.2 avvises, mens en revisjon til endringsordre er tillatt.» etter spørsmål 3; resten hører til kjeden for frafall | E3 |
 | GR-U20 | vedtak | gjeldende | endrer «, ikke med avslag» i «Byggherren kan svare på den med frafall eller endringsordre, ikke med avslag.»; resten hører til kjeden for frafall | E3 |
@@ -147,7 +149,7 @@ Setningene om vernet står derfor uendret i radtekstene.
 **E2 Et nytt svar også etter aksept.** Gammel tekst: GR-U7 «Revisjonsretten etter GR-U4
 gjelder svar som ikke er godtatt.»; SK-02 og SK-03 «Et svar TE har godtatt, kan byggherren
 ikke revidere»; OV-U5 «Byggherren kan revidere svaret så lenge det ikke er godtatt (SK-03,
-GR-U7).» (foreslått); EO-U34 punkt 46 «også som revisjon av et svar som ikke er godtatt
+GR-U7).»; EO-U34 punkt 46 «også som revisjon av et svar som ikke er godtatt
 (GR-U7)». Samlevedtaket: punkt 3. Setningene i GR-U7, SK-02 og SK-03 og OV-U5 gjelder ikke
 lenger, og i EO-U34 punkt 46 blir uttrykket «også som et nytt svar etter samlevedtaket for
 revisjon av byggherrens svar». Hvorfor: MM-U34 punkt 11 strøk de to setningene før og etter i
@@ -200,8 +202,7 @@ parten likevel er løst fra utsagnet, avgjør ikke appen (MM-U12).»
   revideres som før (GR-U7).» Unntaket gjelder byggherrens «i tide», som MM-U34 punkt 6
   opphevet. Hjem: kjeden for påberopelse av sent varsel.
 - MM-U18 «Det gjelder for eksempel en revisjon eller en ny kravversjon i et spor med enighet
-  …» strider mot MM-U34 punkt 9. Hjem: kjeden for saker kjernen ikke forstår (foreslått til
-  orkestratoren).
+  …» strider mot MM-U34 punkt 9. Hjem: kjeden for saker kjernen ikke forstår (orkestratoren 04.11).
 - Følge i HF-U21 og GR-U20 beskriver sperrene som bygget («avvises med regelkoden
   SENKER_INNROEMMELSE», «byggherren kan ikke svare med avslag»). Kjernen har dem ikke (se
   «Koden»). Følge rettes når postene føres.
