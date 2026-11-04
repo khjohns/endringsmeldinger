@@ -10099,7 +10099,7 @@ Bakgrunnen er prototypen `docs/design/prototyper/saksliste-v2.html` og oppdragsg
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "opphever", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u30" }, { art = "snevrer inn", vedtak = "mm-u31" }]
+forhold = [{ art = "endrer", vedtak = "mm-u28" }, { art = "snevrer inn", vedtak = "mm-u30" }, { art = "snevrer inn", vedtak = "mm-u31" }]
 folge = '''
 I tråd med OV-U5, OV-U43 og EO-U13. Bygges i #1450.'''
 
@@ -10124,7 +10124,7 @@ Punkt 2 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 0
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "opphever", vedtak = "mm-u28" }, { art = "presiserer", vedtak = "eo-u13" }]
+forhold = [{ art = "endrer", vedtak = "ov-u61" }, { art = "endrer", vedtak = "mm-u28" }, { art = "presiserer", vedtak = "eo-u13" }]
 folge = '''
 I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Bygges i #1450.'''
 
@@ -10181,7 +10181,7 @@ Punkt 4 i vedtaksforslaget for sakslisten, lagt fram for oppdragsgiver i økta 0
 valgt = "A"
 svar = '''
 Oppdragsgiver 02.11, ordrett: «Ja til alle anbefalingene.»'''
-forhold = [{ art = "opphever", vedtak = "mm-u29" }]
+forhold = [{ art = "endrer", vedtak = "mm-u29" }]
 folge = '''
 Følger føringen 31.10 i systemfila for visningen: visningen sier det løsningen vet, ikke hvem som skal handle (#1402).'''
 

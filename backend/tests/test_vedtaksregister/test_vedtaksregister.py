@@ -1289,10 +1289,9 @@ def test_byggestatusen_i_en_rad_som_har_faatt_anker_er_ikke_ny(grunnregister):
     assert vr.ny_byggestatus(grunnregister, endret) == []
 
 
-def test_de_fire_postene_fra_svar_14_er_opphevet(register):
-    """Svar 14 i PR #1537 og svar 1 04.11 i #1534: vedtaket som har tatt innholdet, opphever."""
+def test_ov_u71_og_rad_076_er_opphevet_etter_svar_14(register):
+    """Svar 14 i PR #1537 og svar 1 04.11 i #1534: vedtaket som har tatt innholdet, opphever.
+    MM-U28 og MM-U29 venter på 3b, sammen med henvisningene til dem i koden."""
     opphevet, _ = vr.opphevet_og_samlet(register)
-    assert sorted(opphevet["mm-u28"]) == ["mm-u37", "mm-u38"]
-    assert opphevet["mm-u29"] == ["mm-u40"]
     assert opphevet["ov-u71"] == ["ov-u86"]
     assert opphevet["b-13-frafalt"] == ["gr-u18"]

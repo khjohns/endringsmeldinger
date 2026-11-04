@@ -65,20 +65,6 @@ KJENTE_AVVIK = (
     ("kjerne/tester/feilinnfoering.ts", "KA-U32", 1, "#1433"),
     ("src/lib/components/varden/Vederlagssvar.svelte", "KA-U24", 1, "#1433"),
     ("src/lib/components/varden/__tests__/Varden.test.ts", "KA-U24", 1, "#1433"),
-    ("kjerne/tester/brevtekst.test.ts", "MM-U28", 1, "#1541"),
-    ("kjerne/tester/brevtekst.test.ts", "MM-U29", 1, "#1541"),
-    ("server/saksliste.ts", "MM-U28", 2, "#1541"),
-    ("server/saksliste.ts", "MM-U29", 2, "#1541"),
-    ("server/tester/sakslinje.test.ts", "MM-U28", 2, "#1541"),
-    ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1541"),
-    ("src/lib/components/case-list/__tests__/CaseListRow.test.ts", "MM-U28", 2, "#1541"),
-    ("src/lib/components/case-list/presentation.ts", "MM-U28", 1, "#1541"),
-    ("src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts", "MM-U29", 1, "#1541"),
-    ("src/lib/components/saksoversikt/__tests__/WorkQueue.test.ts", "MM-U29", 3, "#1541"),
-    ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1541"),
-    ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1541"),
-    ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1541"),
-    ("src/lib/types/api.ts", "MM-U28", 2, "#1541"),
 )
 
 
