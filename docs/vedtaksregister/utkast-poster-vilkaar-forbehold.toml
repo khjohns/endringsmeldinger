@@ -1,0 +1,144 @@
+# Utkast til postene for samlevedtaket for vilkår og forbehold i byggherrens svar (#1534, steg 4,
+# trinn 2). Fila er et utkast og slettes når postene er skrevet i vedtak.toml. Den leses ikke av
+# noe verktøy.
+#
+# Oppskrift for økta som skriver postene, når svarene foreligger og vedtak.toml er ledig:
+# 1. «etter» fylles med avsnittene «Forslaget» og «Endret innhold» fra vurderingsfila
+#    (vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md), ordrett slik de ble lagt fram på
+#    commiten der spørsmålene ble sendt, med punkt 3 og 7 etter svarene på spørsmål 1 og 2 og
+#    rettelsene oppdragsgiver gir per punkt. Teksten legges til i «etter» i gruppen «Svar og
+#    standpunkt», før den første [[gruppe.vedtak]] i gruppen.
+# 2. De tre postene legges sist i den gruppen. ID-ene KA-U49, KA-U50 og KA-U51 er foreløpige: sjekk
+#    den høyeste KA-ID-en på main når vedtak.toml er ledig, og bytt ID-ene og ankrene her og i
+#    vurderingsfila.
+# 3. Forholdene i KA-U49 følger tabellen «Postene i kjeden» i vurderingsfila. «Endrer» til KA-U20
+#    og KA-U29 gjelder bare setningene E6 navngir. MM-U34 får «opphever» bare for delene orkestratoren
+#    fordeler hit (avsnittet «Fordelingen» i vurderingsfila). OV-U80 og KA-U45 får ingen ny
+#    tekst: E2 fjerner forholdene «Utvider OV-U48/OV-U49» og «Bygger på OV-U48/OV-U49» i
+#    registeret. Er det en endring i en importert post, kontrolleres den mot svaret ordrett før
+#    merge (vedtaksskillen).
+# 4. KA-U50 er svaret på spørsmål 1, og KA-U51 svaret på spørsmål 2. Velger oppdragsgiver B,
+#    byttes «valgt» og «forkastet», og forholdene byttes til dem i alternativ B.
+# 5. Kjør docs/verktoy/vedtaksregister.py og vakttestene. Sitatene er fra vedtaksfila
+#    (kilde = "hovedplanen", som i de andre postene).
+# 6. Klassene er kontrollert uavhengig 04.11 (svar 8). Resultatet står i vurderingsfila under
+#    «Prøvingen» og føres i #1534.
+
+etter = '''
+##### <a id="samlevedtak-vilkaar-forbehold"></a>Samlevedtaket for vilkår og forbehold i byggherrens svar (KA-U49)
+
+Teksten under er samlevedtaket [KA-U49](#ka-u49), vedtatt <dato> av oppdragsgiver (#1534), ordrett
+slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md),
+med «Endret innhold» E1–E7. Svarene på spørsmål 1 og 2 i vurderingen er [KA-U50](#ka-u50) og
+[KA-U51](#ka-u51).
+
+<Forslaget og Endret innhold, ordrett etter punkt 1 i oppskriften.>'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "KA-U49"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmål 3 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
+valgt = "A"
+svar = '''
+<Oppdragsgivers svar, ordrett.>'''
+forhold = [
+  { art = "samler", vedtak = "ov-u69" },
+  { art = "samler", vedtak = "ov-u72" },
+  { art = "opphever", vedtak = "ka-u16" },
+  { art = "samler", vedtak = "ka-u19" },
+  { art = "samler", vedtak = "ka-u45" },
+  { art = "endrer", vedtak = "ka-u20" },
+  { art = "samler", vedtak = "ka-u27" },
+  { art = "endrer", vedtak = "ka-u29" },
+  { art = "samler", vedtak = "lv-u32" },
+  { art = "opphever", vedtak = "mm-u34" },
+  { art = "samler", vedtak = "ov-u46" },
+]
+folge = '''
+Samler setningene om vilkår og forbehold i byggherrens svar. Tabellen «Postene i kjeden» i
+vurderingen sier hvilke setninger hver post bidrar med. Forholdet til MM-U34 gjelder bare
+delene i E5.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Forslaget i punkt 1–13 med designdelen og beslutningsdelen, og E1–E7, gjelder slik det står, med svarene på spørsmål 1 og 2 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Forslaget legges fram på nytt etter rettelsene.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U50"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
+valgt = "A"
+svar = '''
+<Oppdragsgivers svar, ordrett.>'''
+forhold = [
+  { art = "samler", vedtak = "ov-u72" },
+  { art = "endrer", vedtak = "ov-u69" },
+  { art = "endrer", vedtak = "eo-u18" },
+]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Vilkår og forbehold byggherren knytter til svaret, skrives i svaret: i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret. Et innlegg kan uttrykke forbehold (MM-U33 steg 3), men endrer ikke svaret i løsningen, og løsningen avgjør ikke om et forbehold i et innlegg binder (MM-U12).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Vilkår og forbehold skrives i begrunnelsen for punktet, under «Forbehold» eller i et innlegg. Løsningen tolker ingen av dem.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Vilkår og forbehold skrives i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Vilkår, forbehold og andre betingelser skriver parten i begrunnelsen eller i et innlegg (MM-U33 steg 2 og 3)."
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U51"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmål 2 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
+valgt = "A"
+svar = '''
+<Oppdragsgivers svar, ordrett.>'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u61" },
+  { art = "presiserer", vedtak = "ov-u69" },
+]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et vilkår eller forbehold i begrunnelsen eller under «Forbehold» gjør ikke enigheten betinget i løsningen. Enigheten er betinget bare under forbeholdet for ubesvart grunnlag, og byggherrens svar på grunnlaget avgjør om den er betinget eller virksom.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren kan i svaret angi at godkjenningen er betinget av vilkårene i teksten. Enigheten vises og telles da som betinget, uten at løsningen tolker vilkårene.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Betinget enighet vises særskilt."
