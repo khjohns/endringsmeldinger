@@ -385,6 +385,7 @@ export async function medLaastTekst(
       aktoerId: o.te.id,
       part: 'TE',
       teamId: null,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tidspunkt: () => new Date(),
       nyId: randomUUID,
     },

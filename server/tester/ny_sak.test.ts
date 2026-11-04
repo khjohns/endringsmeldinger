@@ -69,6 +69,7 @@ function brevtekst(
       aktoerId: aktoer,
       part: 'TE',
       teamId: null,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tidspunkt: () => new Date(),
       nyId: randomUUID,
     },

@@ -594,11 +594,10 @@ async function opprettMedPaaberopelse(
           teamId: kontekst.team ?? null,
           tidspunkt: () => t,
           nyId: avh.nyId,
-          ...(sakskode ? { sakskode: tilKjernen(sakskode) } : {}),
+          sakskode: tilKjernen(sakskode),
         });
         // Uten sakens kode avvises opprettelsen før oppdraget lages (`opprettSakMedPaaberopelse`).
         const merkingsgrunnlag = () => {
-          if (!sakskode) throw new SkrivingAvvist('Bare TE oppretter en sak.');
           return { kontraktsforkortelse, sakskode: tilKjernen(sakskode) };
         };
         const vurdert = vurder(krav, kjernekontekst(tidspunkt), [opprettet], avh.kjerne, vedlegg);

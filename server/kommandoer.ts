@@ -542,7 +542,7 @@ export async function opprettSakMedPaaberopelse<A>(
   lag: (grunnlag: {
     tidspunkt: Date;
     vedlegg: Vedleggsoppslag;
-    sakskode: Sakskode | null;
+    sakskode: Sakskode;
     kontraktsforkortelse: string | null;
   }) => Opprettelsesutfall<A>
 ): Promise<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>> {
@@ -564,15 +564,15 @@ export async function opprettSakMedPaaberopelse<A>(
           };
         // Før tidspunktet, så ventingen på låsen på vedleggene ikke eldes det (#880-1).
         const vedlegg = await lesVedleggUtenSak(foresp, kontekst, vedleggider);
-        // Bare TE oppretter en sak; for en annen side avvises kommandoen etter `lag`.
-        const sakskode = kontekst.side === 'TE' ? await lesSakskode(foresp, sakId) : null;
+        // Bare TE oppretter en sak; for en annen side avvises kommandoen etter `lag`. Kjernen
+        // trenger koden for teksten også da (S3 i #1497), og `koe_api.sakskode` gir EO for BH.
+        const sakskode = await lesSakskode(foresp, sakId);
         const kontraktsforkortelse = await lesKontraktsforkortelse(foresp, kontekst);
         const tidspunkt = await skrivetidspunkt(foresp);
         const utfall = lag({ tidspunkt, vedlegg, sakskode, kontraktsforkortelse });
         if (!utfall.skriv) return new Tilbakerulling(utfall);
         // Etter `lag`, så kjernens avvisning går foran avslaget her, som i `opprettSak`.
-        if (kontekst.side !== 'TE' || !sakskode)
-          throw new SkrivingAvvist('Bare TE oppretter en sak.');
+        if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
         const { opprettet, rad } = utfall;
         kontrollerRad(opprettet, null, kontekst, sakId, 0, tidspunkt);
         if (opprettet.event_type !== 'sak_opprettet')

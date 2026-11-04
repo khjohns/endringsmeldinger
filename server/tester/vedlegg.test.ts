@@ -543,6 +543,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
               aktoerId: o.te.id,
               part: 'TE',
               teamId: teKontekst().team,
+              sakskode: { kode: 'koe' as const, loepenummer: 17 },
               tidspunkt: () => tidspunkt,
               nyId: randomUUID,
             },

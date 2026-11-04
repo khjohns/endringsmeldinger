@@ -56,6 +56,7 @@ class Sak {
       aktoerId: part.toLowerCase(),
       part,
       teamId: `team-${part.toLowerCase()}`,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tidspunkt: () => naa,
       nyId: randomUUID,
     };
