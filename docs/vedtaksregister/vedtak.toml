@@ -14771,7 +14771,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
-bindende_i = ["mm-u12", "ov-u4", "ov-u81"]
+bindende_i = ["mm-u12", "ov-u4", "ov-u80"]
 id = "OV-U70"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
