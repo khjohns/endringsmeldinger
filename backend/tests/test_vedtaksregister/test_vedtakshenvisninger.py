@@ -85,6 +85,24 @@ def test_et_opphevet_vedtak_med_anker_som_ikke_er_id_en_gjelder_b_id_en():
     assert vh.vedtak(register) == ({"B-03", "KA-U1"}, {"B-03"})
 
 
+def test_en_b_id_er_opphevet_bare_naar_hver_rad_for_den_er_opphevet():
+    """Svar 14 i PR #1537: rad-076, en av radene for B-13, er opphevet av GR-U18. B-13 er
+    vedtaket for flere rader, og de andre gjelder."""
+    to_rader = [
+        {"anker": "b-13-frafalt", "vedtak": "B-13 «frafalt» x", "vedtatt": "d"},
+        {"vedtak": "B-13 hovedvalg: y", "vedtatt": "d"},
+        {
+            "anker": "gr-u18",
+            "vedtak": "GR-U18: z",
+            "vedtatt": "d",
+            "forhold": [{"art": "opphever", "vedtak": "b-13-frafalt"}],
+        },
+    ]
+    assert vh.vedtak({"gruppe": [{"vedtak": to_rader}]})[1] == set()
+    del to_rader[1]
+    assert vh.vedtak({"gruppe": [{"vedtak": to_rader}]})[1] == {"B-13"}
+
+
 @pytest.mark.parametrize("neste", ["## 4. Funnregister", "# Vedlegg", "### 3.5 x"])
 def test_aapne_beslutninger_leses_bare_fra_3_4(neste):
     plan = (

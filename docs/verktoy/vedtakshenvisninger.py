@@ -80,19 +80,29 @@ def vedtaks_ider(post: dict) -> set[str]:
 
 
 def vedtak(register: dict) -> tuple[set[str], set[str]]:
-    """ID-ene til vedtakene i registeret og ID-ene til dem som er opphevet."""
+    """ID-ene til vedtakene i registeret og ID-ene til dem som er opphevet.
+
+    En ID er opphevet når hver post den er vedtaket for, er opphevet. B-13 er vedtaket for
+    flere rader, og en opphevet rad gjør ikke B-13 opphevet (svar 14 i PR #1537)."""
     ider = [(p, vedtaks_ider(p)) for p in vr.poster(register)]
-    etter_anker = {vr.anker(p): i for p, i in ider if vr.anker(p)}
-    opphevet = set()
+    ankrene = {vr.anker(p) for p, _ in ider if vr.anker(p)}
+    opphevede_ankre = set()
     for p, _ in ider:
         for f in p.get("forhold", []):
             if f["art"] == "opphever":
-                if f["vedtak"].lower() not in etter_anker:
+                if f["vedtak"].lower() not in ankrene:
                     raise ValueError(
                         f"{f['vedtak']} i et forhold er ikke et anker i registeret"
                     )
-                opphevet |= etter_anker[f["vedtak"].lower()]
-    return set().union(*(i for _, i in ider)), opphevet
+                opphevede_ankre.add(f["vedtak"].lower())
+    poster_for = collections.defaultdict(list)
+    for p, i in ider:
+        for id_ in i:
+            poster_for[id_].append(vr.anker(p))
+    opphevet = {
+        id_ for id_, ankre in poster_for.items() if all(a in opphevede_ankre for a in ankre)
+    }
+    return set(poster_for), opphevet
 
 
 def _avsnitt_3_4(plan: str) -> str:
