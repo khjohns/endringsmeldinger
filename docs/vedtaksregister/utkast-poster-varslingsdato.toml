@@ -9,7 +9,10 @@
 # 3. Klassen rettes i OV-U34 og VS-U37 (svar 8; kontrollert uavhengig 04.11, #1534):
 #    OV-U34: klasse = "vedtak", bindende_i fjernes,
 #      beslutningsdel = "«Behovet for kunnskapsdato i TS-stien, og eventuell visning i skjema og brev, avklares i #1171.» og «C1 endres ikke.»"
-#    VS-U37: designdel = "«og brevet nevner brevet og datoen»"
+#    VS-U37: foreslått etter kontroll (b) 04.11: beslutningsdel = "«Det føres som vedtak og bygges i et eget issue.»",
+#      ingen designdel. Den første kontrollen foreslo designdel = "«og brevet nevner brevet og datoen»".
+#      Orkestratoren avgjør (svar 8), og designdelen i VS-U43 over følger samme valg.
+# 4. VS-U44: bindende_i = ["<retting-id>"] når ID-en er kjent (kontroll (b)).
 
 etter = '''
 ##### <a id="samlevedtak-varslingsdato"></a>Samlevedtaket for varslingsdatoen (VS-U43)
@@ -178,7 +181,7 @@ endres.
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket"
+designdel = "«Datoen er påkrevd» i punkt 2, «og skjemaet viser byggherren det» i punkt 7, og i avsnittet «Designdel» setningene «Brevet sier ikke at kravet er det første varselet løsningen kjenner; det står i skjemaet og visningen» og «Alle datoene totalentreprenøren har oppgitt, beholdes og vises som totalentreprenørens utsagn»"
 id = "VS-U43"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
