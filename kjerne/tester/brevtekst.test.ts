@@ -6700,6 +6700,13 @@ describe('brevtittelen fryses med brevet (MM-U3, svaret 03.11 i #1488)', () => {
     expect(lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endringsordre' })).toBe(
       'ukjent'
     );
+    expect(lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endring og forsinkelse' })).toBe(
+      'ukjent'
+    );
+    expect(
+      lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endring i sak KOE-3 og forsinkelse' })
+    ).toBe('ukjent');
+    // Leseren kjenner igjen formen fra medSakskode, men ikke koden, som ikke står i journalen (DM-06).
     expect(lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endring i sak KOE-3' })).toBe(
       'dokument'
     );

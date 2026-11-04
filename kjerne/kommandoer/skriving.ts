@@ -12,7 +12,7 @@ import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
-import { lagBrevtittel, sakensKode } from '../frosset/brevtittel.ts';
+import { lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import { avvis } from './forutsetninger.ts';
 import {
   brevtekstI,
@@ -533,7 +533,7 @@ function brevtekstFor(
     const tittel = lagBrevtittel(ny.dokument);
     return {
       tekst,
-      tittel: tittel && sakskode ? `${tittel} i sak ${sakensKode(sakskode)}` : tittel,
+      tittel: tittel && sakskode ? medSakskode(tittel, sakskode) : tittel,
     };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)

@@ -969,7 +969,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevtittel.ts',
     'brevtekst',
-    'lagBrevtittel avvikITittelen sakensKode',
+    'lagBrevtittel avvikITittelen medSakskode',
     ['kommandoer/skriving.ts:brevtekstFor', 'format/leser.ts:lesDokument'],
   ],
   ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse', ['frosset/brevtittel.ts']],

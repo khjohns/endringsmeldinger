@@ -3608,10 +3608,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'leseren godtar en påberopelse med tittelen for et annet forhold (GR-U31, #1533)',
     fil: `${K}/frosset/brevtittel.ts`,
     endringer: [
-      [
-        'if (forventet ? tittel !== forventet && !tittel.startsWith(`${forventet} i sak `) : paaberoper)',
-        'if (forventet ? !paaberoper : paaberoper)',
-      ],
+      ['if (forventet ? !somForventet : paaberoper)', 'if (forventet ? !paaberoper : paaberoper)'],
     ],
     mal: ['en påberopelse med tittelen for et annet forhold er ikke forstått'],
   },
@@ -3619,12 +3616,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F441',
     feilklasse: 'leseren godtar tekst etter forholdet i påberopelsens tittel (GR-U31, #1533)',
     fil: `${K}/frosset/brevtittel.ts`,
-    endringer: [
-      [
-        'tittel !== forventet && !tittel.startsWith(`${forventet} i sak `)',
-        '!tittel.startsWith(forventet)',
-      ],
-    ],
+    endringer: [['SAKSKODE_ETTER_TITTELEN.test(tittel.slice(forventet.length))', 'true']],
     mal: ['en påberopelse med tittelen for et annet forhold er ikke forstått'],
   },
   {

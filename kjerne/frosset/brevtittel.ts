@@ -9,6 +9,13 @@ import type { Dokument, Sakskode, Spor } from '../typer.ts';
 /** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */
 export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.loepenummer}`;
 
+/** Tittelen med sakens kode, slik skrivingen fryser den: «Krav om endring i sak KOE-17» (LV-U27). */
+export const medSakskode = (tittel: string, s: Sakskode): string =>
+  `${tittel} i sak ${sakensKode(s)}`;
+
+/** Det `medSakskode` legger til, slik leseren kjenner det igjen. */
+const SAKSKODE_ETTER_TITTELEN = /^ i sak (KOE|EO)-[1-9]\d*$/;
+
 export const KRAVTITTEL: Record<Spor, string> = {
   forhold: 'Krav om endring',
   vederlag: 'Krav om vederlagsjustering',
@@ -62,7 +69,12 @@ export function avvikITittelen(
   const f = paaberoptForhold(d);
   const paaberoper = tittel.startsWith(paaberopelsenAv(''));
   const forventet = f && paaberopelsenAv(f.navn);
-  if (forventet ? tittel !== forventet && !tittel.startsWith(`${forventet} i sak `) : paaberoper)
+  const somForventet =
+    !!forventet &&
+    (tittel === forventet ||
+      (tittel.startsWith(forventet) &&
+        SAKSKODE_ETTER_TITTELEN.test(tittel.slice(forventet.length))));
+  if (forventet ? !somForventet : paaberoper)
     return 'brevtittelen nevner ikke forholdet kravet påberoper (GR-U31)';
   return null;
 }
