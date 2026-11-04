@@ -605,9 +605,10 @@
   }
   .tittelrad {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
   }
   .tittel {
+    flex: 1;
     display: flex;
     line-height: 1.4;
     flex-wrap: wrap;
