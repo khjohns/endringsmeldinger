@@ -79,10 +79,10 @@ med «Endret innhold» E1–E6. Samlevedtaket er et *vedtak* med designdel. Rett
 12. Besvares forholdet senere, gjelder svaret på vederlag eller frist som avklart når forholdet er
     godkjent uten påberopt preklusjon eller frafalt (GR-U7; GR-U23), og som subsidiært når
     forholdet er avslått eller preklusjon er påberopt. Det følger av svaret på forholdet. (GR-U4 s2;
-    GR-U26 s9; E4) Har byggherren frafalt etter punkt 32.3 første ledd c i NS 8407 og i et nytt svar
-    avslått forholdet, gjelder ikke første setning eller det punktet ellers sier om virkningen av en
+    GR-U26 s9; E4) Har byggherren frafalt etter punkt 32.3 første ledd c i NS 8407 og i et nytt svar,
+    også i det første svaret på en ny versjon av påberopelsen, avslått forholdet, gjelder ikke første setning eller det punktet ellers sier om virkningen av en
     enighet om vederlag eller frist: løsningen viser frafallet sammen med det nye svaret, uten å
-    trekke konklusjonen. (HF-U25 punkt 4; E4) Påberoper byggherren i et slikt nytt svar at varselet
+    trekke konklusjonen. (HF-U25 punkt 4; E4) Påberoper byggherren i et slikt svar at varselet
     kom for sent etter punkt 32.2 i NS 8407, gjelder HF-U27 i stedet for første setning og det
     punktet ellers sier om virkningen av enigheten: «Løsningen viser frafallet sammen med det nye svaret, uten å trekke
     konklusjonen, og utleder virkningen av standpunktet etter punkt 32.2 som ellers (VS-U3).»
@@ -168,7 +168,8 @@ ordlyden i et vedtak:
   preklusjon, og heller ikke hva et senere nytt svar som avslår forholdet eller påberoper
   preklusjon etter en godkjenning, gjør med en enighet som har fått virkning. Postene i kjeden sier
   det ikke uttrykkelig. HF-U25 punkt 2 sier at det nye svaret erstatter det tidligere som
-  byggherrens siste svar, men ikke hva det gjør med enigheten.
+  byggherrens siste svar, og HF-U25 punkt 3 sier: «En registrert enighet bevares og vises.» Ingen
+  av dem sier hva det nye svaret gjør med enighetens virkning.
 
 Det presiserer GR-U7, som får forholdet «presiserer».
 
@@ -222,14 +223,24 @@ preklusjon mot den forrige versjonen).
 - **B:** «Som A, men uten de fem siste setningene i punkt 12, uten slutningene om enigheten i E4 og
   uten forholdet til GR-U7. Hva en enighet om vederlag eller frist er når forholdet senere besvares,
   følger av punkt 9 og GR-U7. Unntaket etter et frafall i tredje og fjerde setning i punkt 12 og
-  punktet om det i E4 står.»
+  punktet om det i E4 står, og der viser «det punktet ellers sier om virkningen av en enighet» til
+  punkt 9 og GR-U7. Unntaket går foran dem.»
 
 *Belegg:* E-punktene, med postene ordrett. Koden og domenetabellen bygger bare delvis på slutningene:
 
 - E5 stemmer med regelen GR-08 i domenetabellen og testene i `kjerne/tester/brevtekst.test.ts`. GR-08
   gjelder bare et avslag, ikke en påberopt preklusjon, som punkt 14 også tar med.
-- E4 stemmer med koden (`enighetensVirkning` i `kjerne/utledning/utled.ts`), men domenetabellen har
-  ingen regel for den.
+- Setning 5–8 i punkt 12 stemmer med koden (`enighetensVirkning` i `kjerne/utledning/utled.ts`),
+  men domenetabellen har ingen regel for den. Den tredje prøvingen
+  ([6643455252](https://github.com/khjohns/endringsmeldinger/pull/1585#issuecomment-6643455252))
+  fant tre avvik:
+  - Setning 3 strider mot koden. Etter et frafall og et nytt avslag gir koden en betinget enighet
+    og subsidiære svar, og godtar TE avslaget, får enigheten ingen virkning. Koden trekker
+    konklusjonen. Avviket er et kodefunn og står i #1584.
+  - Setning 9 har ikke to vilkår koden har: frafallet må være det siste svaret sendt fra løsningen,
+    så et registrert svar teller ikke, og forholdet må ikke være trukket.
+  - I hullene i E4 gjør koden enigheten betinget igjen etter en ny versjon eller et senere nytt
+    avslag etter en godkjenning. Det er ikke vedtatt.
 - E2 er ikke bygget. Brevet har fortsatt «nedenfor» (`kjerne/frosset/brevtekst.ts`), og
   henvisningen bygges i #1306.
 
@@ -270,5 +281,6 @@ tekst = '''
 Som A, men uten de fem siste setningene i punkt 12, uten slutningene om enigheten i E4 og
   uten forholdet til GR-U7. Hva en enighet om vederlag eller frist er når forholdet senere besvares,
   følger av punkt 9 og GR-U7. Unntaket etter et frafall i tredje og fjerde setning i punkt 12 og
-  punktet om det i E4 står.
+  punktet om det i E4 står, og der viser «det punktet ellers sier om virkningen av en enighet» til
+  punkt 9 og GR-U7. Unntaket går foran dem.
 '''
