@@ -54,7 +54,11 @@ Spørsmålene om klassene etter kartleggingen ble stilt 04.11, og svarene står 
 - **Svar 2 (A).** Definisjonene og testen står i vedtaksskillen. Klassen for de 37 radene er
   satt etter den.
 - **Svar 3 (A).** GR-U25 og OV-U82 er *vedtak* med beslutningsdel. De andre 40 i mønster 1–6
-  beholder klassen fra 03.11. MM-U24 og VS-U10 er fortsatt *design*.
+  beholder klassen fra 03.11. MM-U24 og VS-U10 er fortsatt *design*. Belegget står under
+  «Kontrollen av mønster 1–6 (04.11)».
+- **Svar 6 og kontroll 2** ([kommentaren om spørsmål 6](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623299573)). Feltet for det andre hjemmet til
+  den bindende setningen føres i registeret i steg 3, med tabellene under «Kontrollen av
+  mønster 1–6 (04.11)» som kilde.
 - **MM-U23.** Designdelen flyttes til `system.md` og skrives etter
   [språkreglene](../sprak.md#hva-løsningen-kalles), som i lesningen i kommentaren.
   Merknaden står i raden.
@@ -130,6 +134,111 @@ Enkelttilfeller:
 - **KA-U44** (teknisk). Anbefalt: *vedtak*, slått inn i samlevedtaket om byggherrens begrunnelse. Alternativ: *beslutning*. Vedtaket har ingen egen regel og sier bare at KA-U33 og GR-U15 står etter KA-U43. Det er en registermerknad som hører hjemme i Følge for KA-U43. Svar 03.11: A.
 - **OV-U75** (teknisk). Anbefalt: *design* (system.md, ordlyden i grensesnittet). Alternativ: *beslutning*. Det er en språkregel for hele grensesnittet som også står i AGENTS.md og språkfila. AGENTS.md viser til OV-U75 ved ID, så henvisningen må følge med hvis vedtaket flyttes. Svar 03.11: A.
 - **LV-U26** (teknisk). Anbefalt: *beslutning*. Alternativ: *design*. Valget gjelder hvordan skriften og logoen hentes inn i brevet. At utseendet fryses med brevet, står i LV-U1-kjeden. Svar 03.11: A.
+
+## Kontrollen av mønster 1–6 (04.11)
+
+Tabellen er belegget for svar 3. For hver rad i mønster 1–6 viser den den bindende setningen
+og om den også står i et annet gjeldende vedtak eller i `AGENTS.md` («annet hjem»). En
+subagent satte tabellen mot `docs/plans/vedtak.md` på `4d42559`. Hovedøkta har
+stikkprøvekontrollert sitatene i kolonnen «Annet hjem» for VS-U3, LV-U4 punkt 1, OV-U3, GR-U7,
+LV-U9, OV-U82 og HF-U11. Sitatene står her fordi fila er en vurdering. Etter svaret på
+spørsmål 6 og arbeidsvalget for kontroll 2 ([kommentaren om spørsmål 6](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623299573)) føres koblingen til det andre hjemmet som et
+felt i registeret i steg 3, og kilden er disse to tabellene. Kolonnen «Klasse nå» er klassen
+før svar 3. GR-U25 og OV-U82 er etter svar 3 *vedtak*.
+
+| ID | Klasse nå | Bindende setning | Annet hjem | Etter regelen i svar 8 |
+| --- | --- | --- | --- | --- |
+| EO-U11 | design | «løsningen skal ikke velge hvilke tidligere varsler som er relevante» | OV-U3: «Appen avgjør ikke om et senere krav er avskåret»; MM-U33: «Partene har selv ansvar» | står |
+| HF-U22 | design | § 33.7 annet ledd / § 34.3.3 annet ledd vises «uten å trekke konklusjonen» | VS-U3: samme bestemmelser «uten automatisk utledning»; MM-U34 punkt 8 (gjeldende ordlyd) | står |
+| MM-U23 | design | «Appen sier aldri selv at et krav er prekludert, tapt eller avgjort» | VS-U3: «ikke å fastslå at kravet er prekludert»; HF-U11 | står |
+| MM-U24 | design | Fristveiledningen «regnet fra sendingen»; sier ikke «at en frist er oversittet» | LV-U9: «appen regner bindingen og akseptfristen fra sendingen»; HF-U11: «trekker ikke selv slutningen om at en frist er oversittet» | står |
+| VS-U2 | design | Passivitetsbestemmelsene vises «uten at appen trekker konklusjonen» | VS-U3: «registrerer og viser utsagnet med frist og bestemmelse … uten automatisk utledning»; rad-115 | står |
+| VS-U10 | design | «uten en fast frist» ved «uten ugrunnet opphold» | VS-U36: «avgjør ikke om påberopelsen kom uten ugrunnet opphold»; HF-U11 | står |
+| GR-U16 | design | TE oppgir endringsordrens dato eller nummer i kravet | LV-U4 punkt 1: «TE viser til endringsordren «&lt;dato eller nummer&gt;»»; OV-U80: «de samme påkrevde feltene» | står |
+| KA-U31 | design | ingen (hvor begrunnelsen står i brevet) | – (plikten står i KA-U43) | står |
+| KA-U41 | design | Begrunnelsen må skrives før sending; appen fyller ikke inn tekst | KA-U43: «må … ha en begrunnelse før svaret sendes»; MM-U33: «legger ingen erklæring i munnen på en part» | står |
+| LV-U25 | design | To underskrivere «der brevet er godkjent med fullmakt» | LV-U15: «Brevet har to signaturer»; LV-U23: «Hodet fryses med brevteksten» | står |
+| LV-U43 | design | &lt;krever endringsordre for «&lt;tittel&gt;» … som &lt;forholdet&gt; (NS 8407 punkt &lt;hjemmel&gt;)&gt; | LV-U41: samme setning, med sakstittelen | står |
+| OV-U16 | design | «Appen utleder ingenting av brevet»; datoen det ble sendt | OV-U80: «Løsningen utleder ikke noe av den»; OV-U85: «datoen avsenderen oppgir» | står |
+| OV-U42 | design | «Avsnittet oppretter ikke et lag» | OV-U32: «Laget angir rekkefølgen …; et upåvirket standpunkt står uten etikett» | står |
+| OV-U60 | design | Avvikende datoer hindrer ikke enighet; løsningen «avgjør ikke hva enigheten omfatter» | OV-U39: «Avvikende beregningsverdier hindrer ikke … enighet»; OV-U38: «avgjør ikke om kravet er omfattet» | står |
+| OV-U62 | design | ingen (hvilke registrerte brev som vises ved kravet) | – | står |
+| OV-U78 | design | ingen (tittelen; erklæringen står i LV-U41) | – | står |
+| B-03-DOKUMENT | beslutning | «Dokumentet revideres ikke, heller ikke ved en retting» | MM-U26: «Det første brevet og dokumentet i Catenda står» | står |
+| GFK-U7 | beslutning | ingen (godkjenningsflyten) | – | står |
+| LV-U1 | beslutning | Et nytt forsøk «skaper ingen ny erklæring»; oppdraget beviser ikke mottak | LV-U2: «hvert leveringsforsøk sender det samme dokumentet»; LV-U7: «uten å avgjøre når brevet er kommet fram» | står |
+| LV-U12 | beslutning | Et vedlegg som ikke blir del av et brev, «når aldri Catenda» | AGENTS.md, Sikkerhetsinvarianter: «Interne notater og utkast er fail-closed»; RP-U1 | står |
+| LV-U14 | beslutning | ingen (lagring av ID, filnavn og hash) | – | står |
+| GR-U25 | beslutning | Trekket gir «Trukket» også i spor med bare et varsel (utvider GR-U5) | ingen for varselet: GR-U5 gjelder «alle krav som er sendt», KA-U12 bare «ingen krav» | vedtak med design-/beslutningsdel |
+| HF-U1 | beslutning | «Hvert utsagn viser uttrykkelig til det det gjelder»; en manglende vurdering «er ikke et standpunkt» | HF-U4: «Utsagnet gjelder det det viser til»; KA-U1; HF-U11: «Taushet er ikke et uttrykkelig standpunkt» | står |
+| HF-U2 | beslutning | «Frafalt» etter § 32.3 c; «hindring» etter § 33.1 | LV-U4 punkt 5: «Byggherren frafaller pålegget … (§ 32.3 første ledd c)», «fremdriften hindres … (§ 33.1)»; MM-U12 | står |
+| KA-U2 | beslutning | Et frittstående varsel er ikke en kravversjon | OV-U3: «et varsel alene er ikke et krav» | står |
+| KA-U4 | beslutning | En vurdering som ikke er gjort, er verken i tide eller for sent | HF-U11: «Taushet er ikke et uttrykkelig standpunkt»; VS-U3: «Å utlede betyr å registrere standpunktet» | står |
+| MM-U39 | beslutning | ingen (summene i sakslisten) | – | står |
+| OV-U31 | beslutning | Subsidiært godkjent beløp er beløpet «om ingen påberopelse fører fram»; mellomlaget er summen av postene i laget | VS-U5: «subsidiært det beløpet hen godtar hvis innsigelsen ikke fører fram»; OV-U73: sumraden i hvert lag | står |
+| OV-U82 | beslutning | «Forholdet er den bestemmelsen i kontrakten totalentreprenøren påberoper … Forholdet er ikke et krav» | ingen (LV-U41 bruker ordet og gir en leseregel bare for brevtekster) | vedtak med design-/beslutningsdel |
+| rad-017 | beslutning | «Projeksjonen regner aldri om» | MM-U9: «nye regler gjelder bare nye brev»; AGENTS.md, Domenekjernen | står |
+| KT-U8 | beslutning | «fristen i § 35.2 vises uten dato» | VS-U42: «… søksmål eller voldgift etter overtakelsen, uten dato» | står |
+| MM-U2 | beslutning | Ingen bindende kommando i en sak kjernen ikke forstår | AGENTS.md: «gjør saken ikke forstått (MM-U2)»; OV-U80: «godtas bare dokumentasjon» | står |
+| OV-U7 | beslutning | § 5 tredje ledd er et utsagn uten utledning; et utsatt utsagn regnes ikke som fraværende | VS-U3: § 5 tredje ledd «uten automatisk utledning»; AGENTS.md: «avvises og forenkles ikke» | står |
+| OV-U13 | beslutning | Bare byggherrens registrerte svar kan si at brevet er en endringsordre etter § 31.3 | OV-U6: «For andre registrerte brev oppgis det ikke»; OV-U84 | står |
+| OV-U14 | beslutning | ingen (byggerekkefølgen) | – | står |
+| OV-U34 | beslutning | Varseldato og kunnskapsdato er forskjellige opplysninger | OV-U53: «… ikke varseldatoen etter OV-U11»; OV-U41 | står |
+| VS-U22 | beslutning | Stilling til § 33.4 og § 33.6.1 «hver for seg»; påberopelse uten tall | VS-U24: «ett standpunkt for hver bestemmelse»; VS-U21 og VS-U4 | står |
+| VS-U23 | beslutning | En registrert forespørsel er dokumentasjon | VS-U27: «registrert som dokumentasjon (VS-U23, OV-U4)»; OV-U80 | står |
+| VS-U35 | beslutning | ingen (rekkefølgen; innlegget) | – | står |
+| GR-U3 | beslutning | Etter frafall er saken oppgjort ved godkjenning eller godtatt avslag | GR-U7: «oppgjort først når grunnlaget også er avklart: … eller frafalt»; OV-U3; EO-U1 | står |
+| GR-U28 | beslutning | Frafallet hindrer ikke at saken inngår i en EO; løsningen avgjør ikke rettsvirkningene | MM-U34 punkt 20: «én eller flere hele KOE-saker»; MM-U12 | står |
+| rad-182 | beslutning | EO-saken erstatter ikke KOE-saken | EO-U1: «`eo_utstedt` i en KOE-sak avvises»; MM-U12: «uten at … historikken skrives om» | står |
+
+Subagentens usikre tilfeller:
+
+- GR-U25: Regnes «Trukket» bare som en betegnelse etter at GR-U27 har lukket saken, er det
+  ingen bindende setning, og raden står. Lest som en utvidelse av hva trekket omfatter.
+- MM-U24 og VS-U10: Hjemmene er generelle. LV-U9 gjelder bindingen og akseptfristen, ikke
+  fristveiledningen. MM-U34 punkt 17 tok «regner fra sendingen» ut av LV-U7. HF-U11 og VS-U36
+  sier ikke at det ikke vises en fast frist. Oppdragsgiver har avgjort (svar 3, A) at begge
+  står som design, fordi fristveiledningen ikke er en frist etter kontrakten.
+- HF-U1: Hjemmet for uttrykkelig henvisning er én setning i HF-U4, og KA-U1 for aksepten. Begge
+  viser tilbake til HF-U1.
+- HF-U22 og OV-U7: En del av hjemmet er MM-U34 punkt 8 og 15, endringsvedtaket som skrev den
+  gjeldende ordlyden.
+- Brevteksten: Vedtatt brevtekst er regnet som bindende der den sier hva parten erklærer, med
+  hjem i LV-U4 og LV-U41. Tittel, felt og plassering (KA-U31, OV-U62, OV-U78) er ikke regnet
+  som bindende.
+
+### Mønster 8
+
+Radene i mønster 8 fikk klassen 03.11 (svar 8, A) uten en tilsvarende kolonne. En ny subagent
+satte den 04.11 i samme form, mot samme commit, uten å endre klassen. Hovedøkta har kontrollert
+at sitatene fra VS-U39, EO-U8, MM-U35, LV-U7, EO-U13 og MM-U33 står i vedtaksfila på `4d42559`.
+
+| ID | Klasse nå | Bindende setning | Annet hjem | Etter regelen i svar 8 |
+| --- | --- | --- | --- | --- |
+| LV-U16 | design | «Appen avgjør ikke hva stansen betyr for når brevet er kommet fram (LV-U7).» Resten gjelder visningen, varselet til drift og rekkefølgen leveringene skjer i. | LV-U7: «regner appen fra sendingen av brevet og viser leveringskvitteringen ved siden av, uten å avgjøre når brevet er kommet fram (MM-U12)» | står |
+| MM-U36 | design | «Løsningen tolker dem ikke og fyller ikke ut et standpunkt ut fra dem. Utfallet i løsningen leser bare standpunktene i svaret.» | MM-U35: «Løsningen tolker ikke innlegget og endrer ikke utfallet eller et standpunkt på grunnlag av det.» Også MM-U33 punkt 3, som er endret og ikke opphevet: «Løsningen tolker ikke teksten og oppdaterer ikke strukturerte standpunkter på grunnlag av den.» | står |
+| OV-U63 | design | «Løsningen tar ikke hensyn til fristkrav i andre saker, kontrollerer ikke sammenhengen og summerer ikke dagene på tvers av saker (EO-U8).» Veiledningen sier også at forlengelsen i flere saker «ikke uten videre kan legges sammen». | EO-U8: «Ved flere KOE-saker summeres ikke dagene uten videre (§ 33.5).» VS-U18: «Appen avgjør ikke hvor mange dager fristforlengelsen skal svare til etter § 33.5» og «om dagene sammenlikner appen bare TEs og byggherrens tall» | står |
+| OV-U70 | design | «oversikten ikke avgjør hvilken betydning det har for partenes rettigheter og plikter» (merknaden; endret av OV-U81 og OV-U86, som flytter den til et infotips) | MM-U12: «Appen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene.» OV-U4: «Appen utleder ingenting av det». OV-U81, som gjelder: «At løsningen ikke vurderer innholdet i dokumentet og ikke avgjør hvilken betydning det har for partenes rettigheter og plikter, forklares i et infotips» | står |
+| OV-U76 | design | «Forholdet gir grunnlag for mulige krav om justering av vederlaget eller fristforlengelse, men er ikke selv et krav.» | OV-U82: «Forholdet er den bestemmelsen i kontrakten totalentreprenøren påberoper, som gir grunnlag for mulige krav om justering av vederlaget eller fristforlengelse. Forholdet er ikke et krav.» | står |
+| VS-U39 | design | «løsningen avgjør ikke om det oppfyller kravene i kontrakten (OV-U79, MM-U12)». Opplysningen sier også hva kontrakten krever: «Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet … En e-post alene eller et møtereferat er ikke nok.» | OV-U79: «Løsningen avgjør ikke om sendemåten oppfyller kravene i kontrakten til skriftlighet og adresse.» MM-U12: «Appen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene.» | dekkes ikke helt: hva kapittel B krever («En e-post alene eller et møtereferat er ikke nok»), står bare i VS-U39 |
+| KT-U1 | beslutning | «TEs aksept viser til dette svaret i `refererer_til_event_id`, og serveren avviser en aksept av et annet svar». Gjeldende svar er `null` «også når sporet venter på svar på en ny versjon». | KA-U1: «Aksepten peker på svarets hendelse. Venter sporet på svar, eller gjelder svaret en tidligere kravversjon, avvises aksepten.» | står |
+| LV-U11 | beslutning | «Et registrert brev blir ikke et eget dokument i Catenda, fordi det alt er sendt utenfor appen.» Virkningen: leveringen er ikke en ny sending. | LV-U22: «Et brev appen lagrer og legger i byggherrens prosjekthotell, er sendt på avtalt kanal etter § 5». OV-U4: «et brev sendt utenfor appen og registrert i den dokumentasjon» | står |
+| EO-U13 | vedtak | «Løsningen utleder ingen rettsvirkning av knytningen. Merket sier ikke at noe er rettslig avgjort, at totalentreprenøren har godtatt endringsordren eller at kravene er oppgjort.» Også «ingen regel leser merket». | MM-U33: «Det betyr ikke at noe er rettslig avgjort, eller at TE har akseptert endringsordren.» og «Ingen regel leser etiketten.» (samme ordlyd i MM-U34 punkt 19). AGENTS.md: «Ingen regel leser status, «låst», «oppgjort» eller en annen oppsummering». MM-U12: «Appen avgjør ikke det kontrakten overlater til partene» | Bare i EO-U13 står merket ‹Inngår i EO-&lt;nummer&gt;› og hvor det vises (designdelen), at merket heller ikke sier at kravene er oppgjort, og «ingen rettsvirkning av knytningen» som uttrykkelig setning |
+
+Subagentens usikre tilfeller:
+
+- EO-U13: Setningene i MM-U33 og MM-U34 punkt 19 gjelder etiketten «Avsluttet med EO», som
+  EO-U13 endrer. Står de for den endrede etiketten, har EO-U13 ingen annen kilde enn
+  `AGENTS.md` og MM-U12 for disse delene.
+- VS-U39: Det er usikkert om opplysningen om kapittel B binder eller bare er brukertekst. Den er
+  en tolkning av kontraktsgrunnlaget og står ikke i noe annet vedtak. Klassen er ikke endret;
+  spørsmålet står under «Åpne spørsmål» i PR #1537.
+- LV-U11: LV-U22 sier at et brev løsningen legger i prosjekthotellet, er sendt. At det samme
+  ikke gjelder når et registrert brev lagres i Catenda som vedlegg, følger bare av
+  sammenhengen med OV-U4 og OV-U79.
+- OV-U63: EO-U8 gjelder endringsordrer med flere KOE-saker. For fristkravet generelt hviler
+  «står» på VS-U18.
+- Ingen av vedtakene i kolonnen «Annet hjem» er opphevet eller erstattet på `4d42559`.
 
 ## Motsigelsene i registeret
 
