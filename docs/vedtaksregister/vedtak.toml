@@ -66,7 +66,7 @@ Endret 09.10 av [KA-U7](#ka-u7) for spor med enighet: der avvises en ny kravvers
 enigheten står. Presisert 08.10 av [KA-U1](#ka-u1): aksepten gjelder svaret på gjeldende
 kravversjon. Hva som er en ny kravversjon, og et trukket krav: se de to radene under.
 Bygget 09.10 for godkjent og godtatt svar (SK-02, SK-03 i 4.2); ikke bygget på
-vedtaksdatoen'''
+vedtaksdatoen. Merknad 04.11: «Et svar TE har godtatt, kan byggherren ikke revidere» gjelder ikke lenger etter E2 i samlevedtaket [HF-U25](#hf-u25).'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -482,6 +482,289 @@ kommer senere, er et eget utsagn.», og i Følge «en senere begrunnelse registr
 utsagn». Samlevedtaket: punkt 9 og 12, den senere begrunnelsen er et innlegg eller
 dokumentasjon. Hvorfor: MM-U34 punkt 24; OV-U4 «En senere begrunnelse sendt utenfor appen
 registreres også som dokumentasjon.»
+
+##### <a id="samlevedtak-revisjon"></a>Samlevedtaket for revisjon av byggherrens svar (HF-U25)
+
+Teksten under er samlevedtaket [HF-U25](#hf-u25), vedtatt 04.11 av oppdragsgiver (#1534), ordrett slik
+det ble lagt fram i [vurderingen](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md),
+med «Endret innhold» E1–E5. Svarene på spørsmål 2 og 3 i vurderingen er [HF-U26](#hf-u26) og
+[HF-U27](#hf-u27), og punkt 9 og siste del av punkt 4 er teksten i de valgte alternativene A, ordrett.
+Merket «foreslått» i E2 gjaldt orkestratorens fordeling av postene mellom kjedene, som ble
+godtatt 04.11 ([#1534, 6629614102](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629614102)).
+
+###### Forslaget
+
+Samlevedtaket er et *vedtak* med designdel. Punkt 4 står etter svaret på spørsmål 3, og punkt
+9 etter svaret på spørsmål 2.
+
+###### A. Byggherrens nye svar
+
+1. Byggherren kan sende et nytt strukturert svar på en kravversjon byggherren alt har
+   svart på, også med lavere beløp eller andre endringer. Tidligere brev bevares uendret.
+   Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12). (MM-U34 punkt 4)
+2. Det nye svaret erstatter det tidligere som byggherrens siste svar i løsningen, uten
+   totalentreprenørens aksept. (MM-U42) Brevet sier: ‹Svaret erstatter byggherrens svar i
+   brev <n> av <dato>.› (LV-U34)
+3. Det gjelder også når totalentreprenøren har godtatt svaret, når svaret stemmer med kravet,
+   og i et spor med registrert enighet. En registrert enighet bevares og vises. (MM-U34
+   punkt 9 og 11; E2) For en sak som er lukket ved totalentreprenørens aksept av avslaget
+   på grunnlaget eller trekk av grunnlaget, gjelder GR-U27. (MM-U34 punkt 12; GR-U27)
+4. Det gjelder også etter et frafall etter punkt 32.3 første ledd c, også på en ny
+   grunnlagsversjon: byggherren kan svare med avslag. Løsningen viser frafallet sammen med
+   det nye svaret, uten å trekke konklusjonen. (MM-U34 punkt 7; E3) «Etter et frafall etter punkt 32.3 første ledd c kan byggherren i et nytt svar også påberope at varselet kom for sent etter punkt 32.2. Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen, og utleder virkningen av standpunktet etter punkt 32.2 som ellers (VS-U3).» (spørsmål 3 A, [HF-U27](#hf-u27))
+5. En retting av et standpunkt i svaret sendes som et nytt svar etter punkt 1–2, med
+   henvisning til brevet den retter. (MM-U42)
+6. Løsningen avviser ikke et nytt svar fordi det senker noe byggherren har innrømmet.
+   (MM-U34 punkt 4 og 15; E1)
+7. I en KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter, avviser
+   løsningen et nytt svar. Fram til endringsordren i EO-saken kan byggherren sende et nytt
+   svar på grunnlaget, også etter en endringsordre registrert som svar. Løsningen avgjør
+   ikke om det nye svaret er virksomt mot endringsordren i brevet (MM-U12). (EO-U34 punkt 12
+   og 13; EO-U35; MM-U42)
+
+###### B. Det løsningen viser
+
+8. Senker byggherren i et nytt svar dager eller beløp byggherren har godkjent, viser
+   løsningen det tidligere svaret og, for frist og enhetspriser, punkt 33.7 annet ledd eller
+   punkt 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2).
+   (MM-U34 punkt 8) Avviker det nye svaret fra en registrert enighet, viser visningen det, og
+   løsningen avgjør ikke om enigheten står (MM-U12). (MM-U34 punkt 9) Etter en endringsordre
+   registrert som svar sier brev og visning ikke at endringsordren i brevet er bortfalt.
+   (EO-U35)
+9. «Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en merknad. Så langt et nytt svar er tillatt, sier merknaden at byggherren kan sende et nytt svar. Den oppfordrer ikke til en bestemt endring. Løsningen avgjør ikke om et nytt svar er rettslig virksomt (MM-U12).» (MM-U9; HF-U5; E4; spørsmål 2 A, [HF-U26](#hf-u26))
+
+###### C. Det samlevedtaket ikke gjelder
+
+10. Hva et nytt svar på vederlag eller frist er mens grunnlaget er ubesvart, følger GR-U26.
+    (GR-U4; GR-U26)
+11. Om byggherren kan påberope at et varsel kom for sent etter å ha sagt at det kom i tide,
+    følger MM-U34 punkt 6. (MM-U34 punkt 6)
+12. Om svaret på vederlag og frist binder etter en ny grunnlagsversjon, følger HF-U21 og
+    kjeden for grunnlagskravet. (HF-U21)
+
+###### Designdel
+
+Svarskjemaet har ikke setningene «Byggherren er bundet av svaret som sendes herfra.» og «… og
+svaret kan ikke revideres» (MM-U34 punkt 26). Et forløp for det nye svaret skrives når det
+bygges.
+
+###### Endret innhold
+
+**E1 Vernet mot revisjon.** Gammel tekst: HF-U5 «I en revisjon av et svar TE ikke har
+godtatt, avviser appen en endring som senker noe byggherren har innrømmet i svaret: godkjent
+grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, eller en
+innsigelse hen har gitt opp. Sammenlikningen gjøres standpunkt for standpunkt, slik
+standpunktene står i brevene (MM-U11), og en revisjon som senker ett standpunkt, avvises også
+når den hever et annet. En revisjon som bare endrer i TEs favør, er tillatt, …»; MM-U27 «Det
+samme gjelder en revisjon som senker noe byggherren har innrømmet i et svar TE ikke har
+godtatt (HF-U5).» Samlevedtaket: punkt 1 og 6. Setningene gjelder ikke lenger. Hvorfor:
+MM-U34 punkt 4 «Vernet mot revisjon oppheves. Ny kjerne: «Byggherren kan sende et nytt
+strukturert svar, også med lavere beløp eller andre endringer. Tidligere brev bevares
+uendret. Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12).»» Punkt 4 endret
+ved navn bare setningen om avslag i forening med nytt tilbud, og MM-U34 lister ikke MM-U27.
+Setningene om vernet står derfor uendret i radtekstene.
+
+**E2 Et nytt svar også etter aksept.** Gammel tekst: GR-U7 «Revisjonsretten etter GR-U4
+gjelder svar som ikke er godtatt.»; SK-02 og SK-03 «Et svar TE har godtatt, kan byggherren
+ikke revidere»; OV-U5 «Byggherren kan revidere svaret så lenge det ikke er godtatt (SK-03,
+GR-U7).» (foreslått); EO-U34 punkt 46 «også som revisjon av et svar som ikke er godtatt
+(GR-U7)». Samlevedtaket: punkt 3. Setningene i GR-U7, SK-02 og SK-03 og OV-U5 gjelder ikke
+lenger, og i EO-U34 punkt 46 blir uttrykket «også som et nytt svar etter samlevedtaket for
+revisjon av byggherrens svar». Hvorfor: MM-U34 punkt 11 strøk de to setningene før og etter i
+GR-U7, «En enighet står: byggherren kan ikke revidere et godtatt svar (SK-03) …» og «Et slikt
+svar er låst for revisjon …», men ikke denne, og ingen av de andre. Punkt 9: «Fram til
+endringsordren kan TE sende en ny kravversjon og byggherren et nytt svar også i et spor med
+registrert enighet.»
+
+**E3 Frafall (spørsmål 3).** Gammel tekst: GR-U17 «En revisjon til avslag eller til
+påberopelse etter § 32.2 avvises, mens en revisjon til endringsordre er tillatt.»; GR-U20
+«Byggherren kan svare på den med frafall eller endringsordre, ikke med avslag.»; GR-U23
+«Byggherren kan svare på versjonen med frafall eller endringsordre (GR-U20).» Samlevedtaket:
+punkt 4. Sperren mot avslag gjelder ikke lenger. I GR-U20 gjelder «, ikke med avslag» ikke
+lenger, og i GR-U23 gjelder setningen ikke lenger. Om sperren mot påberopelse etter punkt 32.2
+faller, avgjøres i spørsmål 3. Hvorfor: MM-U34 punkt 7 «**GR-U17, GR-U20, GR-U23.** Sperrene
+mot at byggherren svarer med avslag etter et frafall etter § 32.3 c, oppheves. Løsningen viser
+frafallet sammen med det nye svaret, uten å trekke konklusjonen.» Punkt 7 nevner ikke
+påberopelsen etter § 32.2. «Byggherren er bundet av løftet om endringsordre for utført arbeid»
+i GR-U17 og «Frafallet faller ikke bort» i GR-U20 hører til kjeden for frafall.
+
+**E4 Merknaden etter MM-U9 (spørsmål 2).** Gammel tekst: MM-U9 «Gir dagens regler et
+standpunkt i brevet en annen virkning, vises avviket som en merknad som oppfordrer byggherren
+til å revidere svaret (GR-U4).»; HF-U5 «… og oppfordringen i MM-U9 gjelder bare en slik
+revisjon.» Samlevedtaket: punkt 9. Hvorfor: HF-U5 setter oppfordringen ved siden av regelen om
+at bare en revisjon i totalentreprenørens favør er tillatt. Etter MM-U34 punkt 4 kan
+byggherren også endre i egen favør, og HF-U5 sier ikke om begrensningen av oppfordringen skal
+stå uten regelen.
+
+**E5 Setningene MM-U34 punkt 5 strøk i HF-U6.** Gammel tekst: MM-U34 punkt 5 «‹En senere
+hendelse fra samme part kan ikke ta tilbake eller svekke det parten har gitt motparten.› og
+setningene om unntak og vern strykes.» Samlevedtaket leser «setningene om unntak og vern»
+som disse tre setningene i HF-U6: «Unntaket er TEs nye kravversjon, som er et nytt tilbud
+(HF-U8).», «En revisjon av et svar TE ikke har godtatt, avvises ikke når den bare endrer i
+TEs favør (HF-U5).» og «Hvilke hendelser appen avviser for å verne bindingen, står i
+vedtakene om svaret (HF-U4, HF-U5), enigheten (HF-U9) og avkallet (HF-U10).» De gjelder ikke
+lenger. Hvorfor: punkt 5 navngir ikke setningene. Den første er unntaket fra setningen punkt
+5 strøk, den andre og den tredje gjelder vernet. Resten av HF-U6 står og hører til kjeden for
+påberopelse av sent varsel, også «Gjelder NS 8407 noe annet, går kontrakten foran …» og «Om
+parten likevel er løst fra utsagnet, avgjør ikke appen (MM-U12).»
+
+##### <a id="samlevedtak-vilkaar-forbehold"></a>Samlevedtaket for vilkår og forbehold i byggherrens svar (KA-U49)
+
+Teksten under er samlevedtaket [KA-U49](#ka-u49), vedtatt 04.11 av oppdragsgiver (#1534), ordrett slik
+det ble lagt fram i [vurderingen](https://github.com/khjohns/endringsmeldinger/blob/375b787/docs/vedtaksregister/vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md),
+med «Endret innhold» E1–E8. Svaret på spørsmål 1 i vurderingen er [KA-U50](#ka-u50), og punkt 1 er
+teksten i det valgte alternativet A, ordrett.
+
+###### Forslaget
+
+Samlevedtaket for vilkår og forbehold i byggherrens svar. Hver setning har kilden i parentes.
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Punkt 1 står etter svaret på
+spørsmål 1.
+
+###### A. Hvor vilkår og forbehold står
+
+1. «Vilkår og forbehold byggherren knytter til svaret, skrives i svaret: i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret. Vil byggherren knytte et vilkår eller forbehold til svaret etter at det er sendt, sender byggherren et nytt svar så lenge det kan sendes. Et innlegg kan uttrykke forbehold (MM-U33 steg 3), men endrer ikke svaret i løsningen og inngår ikke i det TE godtar ved aksept. Løsningen avgjør ikke om et forbehold i et innlegg binder (MM-U12). Hva som gjelder for totalentreprenørens vilkår og forbehold, endres ikke.» (OV-U72 s4; OV-U69 s3 slik OV-U72 presiserte den; spørsmål 1 A, [KA-U50](#ka-u50))
+2. Teksten under «Forbehold» oppfyller ikke kravet om begrunnelse i et punkt, og den sperrer
+   ingenting. (OV-U72 s2–s3)
+3. Vilkår og forbehold vises med svaret og tolkes ikke, og partene følger dem opp selv. (OV-U69
+   s4; KA-U19 s2–s3 slik OV-U69 endret dem)
+
+###### B. Virkningen
+
+4. Løsningen utleder virkningen av svaret ut fra valgene og tolker ikke begrunnelsen. Den
+   registrerer enighet ut fra valgene. (KA-U16 s3–s4; KA-U19 s1; OV-U69 s5) Det gjelder også et
+   svar som er registrert med svarskjemaet. (OV-U80, setningen «Krav og svar: …»; E1)
+5. Et vilkår eller forbehold i begrunnelsen eller under «Forbehold» gjør ikke enigheten betinget
+   i løsningen. (E3)
+6. Registrert enighet er ikke en avgjørelse av om partene rettslig er enige eller om et vilkår
+   er oppfylt (MM-U12). (OV-U69 s7; MM-U34 punkt 12; GR-U26 s10) Om et svar med et vilkår i teksten
+   rettslig er en godkjenning eller et avslag med nytt tilbud, avgjør ikke løsningen. (HF-U7 s2
+   og s5; E8) Brevet er det autoritative uttrykket for partens standpunkt (B-03). (OV-U69 s8;
+   KA-U16 s5; KA-U19 s4) For et svar registrert med svarskjemaet er dokumentet partens meddelelse
+   der skjemaet og dokumentet spriker. (OV-U80, setningen «Der skjemaet og dokumentet spriker, er
+   dokumentet partens meddelelse.»)
+7. TEs aksept gjelder hele det konkrete svaret byggherren har gitt, slik det står i brevet, også
+   begrunnelsen og teksten under «Forbehold». (KA-U1 s1; OV-U69 s6; E7) Aksepten erklærer ikke
+   frafall av andre krav eller av innsigelser. (MM-U34 punkt 16)
+8. Godkjenner byggherren oppgjør som fast sum, sier brevet: «Byggherren godkjenner oppgjør som
+   fast sum med beløpet og forbeholdene som fremgår av svaret.» Brevet betegner ikke tilbudet som
+   akseptert. Om partene er enige, følger av at svaret godkjenner hele kravet (GR-U7, HF-U7), ikke
+   av setningen. (LV-U32 s1, s3 og s4; OV-U69 s13)
+9. For et svar på grunnlaget som etter GR-U12 og GR-U13 er en endringsordre, står setningen i
+   GR-U14 i brevet også når begrunnelsen har vilkår eller forbehold. (OV-U69 s15–s16)
+
+###### C. Registrerte brev og bekreftelse
+
+10. Et registrert brev bevares med teksten. Løsningen merker ikke et registrert brev for et
+    forbehold, og ingen handling sperres fordi et brev har et forbehold. (KA-U45 s1; KA-U16 s6–s7;
+    E1) Motpartens syn på et forbehold sendes som innlegg (MM-U33). (KA-U45 s3)
+11. Bekrefter byggherren et svar gitt utenfor løsningen (OV-U46), utleder løsningen virkningen av
+    bekreftelsen ut fra valgene, og et forbehold i det tidligere svaret tolkes ikke. (OV-U69 s12)
+
+###### Designdel
+
+Skjemaet har ikke et eget spørsmål om vilkår eller forbehold i byggherrens svar, og ingen egne
+felt for særskilte vilkår, heller ikke når byggherren registrerer korrespondanse som svar eller en
+endringsordre. (OV-U69 s1; EO-U18 s1; KA-U16 s1) Skjemaet hjelper partene å svare med valgene
+kontrakten gir, og byggherren bruker standpunktene som finnes. (OV-U69 s2; KA-U16 s2) Svarskjemaet
+har feltet «Forbehold» for hele svaret, og teksten står sist i brevet. (OV-U72 s1) Skjemaet sier
+før sending at løsningen registrerer enighet ut fra valgene. (OV-U69 s5) Skjemaet for TEs aksept
+sier før sending at aksepten gjelder hele svaret slik det står i brevet, også begrunnelsen, og at
+løsningen ikke tolker begrunnelsen. (OV-U69 s6) Det nevner også teksten under «Forbehold». (E7)
+Skjemaet for svar og aksept viser innleggene fra begge parter som viser til brevene. (MM-U36 s1)
+Skjemaet viser setningen i GR-U14 før sending og sier at den står i brevet også når begrunnelsen
+har vilkår eller forbehold. (OV-U69 s16) Visningen av en registrert enighet viser at svaret har
+tekst under «Forbehold», uten å tolke den. (Ny, fra prøvingen 04.11; design) Hjem: BF-01, som
+klassifiseringen sier for OV-U69 og OV-U72.
+
+###### Beslutningsdel
+
+Første versjon har ikke et eget spørsmål om vilkår eller forbehold i byggherrens svar, og ingen
+egne felt for særskilte vilkår. (OV-U69 s1; KA-U16 s1) Et trekk, også av grunnlaget, avvises når
+det gir byggherren et fradrag, fordi løsningen da ikke vet hva byggherren har avtalt. Delen bygges
+når fradrag kan uttrykkes (KA-U9). (KA-U27 s1 slik MM-U34 punkt 15 og KA-U45 snevret den inn;
+Følge i KA-U27)
+
+###### Endret innhold
+
+**E1 Sperren for et registrert brev med forbehold (KA-U16 s6–s7).** Gammel tekst: KA-U16 «Et
+registrert brev med et forbehold appen ikke kan uttrykke, bevares med teksten, men regnes ikke som
+en ubetinget godkjenning, og bindende handlinger som bygger på det, sperres til det er avklart. Det
+gjelder ethvert ekte registrert brev med noe appen ikke kan uttrykke: det bevares og forkastes
+ikke, og bindende handlinger som bygger på det, sperres etter mønsteret i MM-U2.» Samlevedtaket:
+brevet bevares med teksten, og ingenting sperres (punkt 10). Et svar registrert med svarskjemaet
+leses ut fra valgene, som et svar sendt fra løsningen (punkt 4). Det KA-U16 forkastet foreløpig,
+«at forbeholdet registreres uten virkning», er dermed regelen i løsningen. Løsningen avgjør ikke
+om forbeholdet har virkning mellom partene (punkt 6). Hvorfor: KA-U45 «Merkingen og avklaringen
+av registrerte brev oppheves med sperrene sine.»; EO-U18 «Spørsmålet om vilkår eller forbehold
+stilles ikke, heller ikke når byggherren registrerer korrespondanse som svar eller en
+endringsordre.»; OV-U80 «Krav og svar: kravskjemaet eller svarskjemaet åpnes i samme forløp, viser
+til korrespondansen og fylles ut med de samme påkrevde feltene som for et krav eller svar sendt
+fra løsningen.» Uten merking finnes det ikke noe som utløser eller opphever sperren.
+Følgen i KA-U16 («Presisert 10.10 av KA-U19 for brev fra appen og av KA-U20 for registrerte brev:
+sperren følger det som faktisk bygger på det appen ikke kan uttrykke.») gjelder ikke lenger. Det
+samme gjelder merknadene som bygger på KA-U16 s6: GR-U7 «Et registrert brev med et forbehold appen
+ikke kan uttrykke, er ikke en ubetinget godkjenning.» og HF-U7 «Et forbehold appen ikke kan
+uttrykke, følger KA-U16 og KA-U26, der et svar med forbehold kan gi sammenfall.»
+
+**E2 Forholdene til opphevede poster (OV-U80, KA-U45).** Gammel tekst: Følge i OV-U80 «Utvider
+OV-U48. Utvider OV-U49.»; Følge i KA-U45 «Bygger på OV-U48. Bygger på OV-U49.» Samlevedtaket:
+forholdene fjernes. Innholdet endres ikke: setningene de bygger på, er endret av EO-U18 og E11 i
+EO-U34. Hvorfor: OV-U69 «OV-U48 og OV-U49 oppheves, også spørsmålet ved registrering av en
+endringsordre som svar på grunnlaget etter OV-U6»; EO-U34 E11 «forbehold spørres ikke om
+(designdelen)».
+
+**E3 Et vilkår i teksten gjør ikke enigheten betinget.** Gammel tekst: OV-U49 D1 hadde «enighet
+med særskilte vilkår», og OV-U61 «Betinget enighet vises særskilt.» OV-U69 sier at endringene
+OV-U49 gjorde «og svaret 25.10 på spørsmål 8 om nøkkeltallene», faller bort. Samlevedtaket for
+sakslisten og nøkkeltallene i #1566 (foreslått som MM-U45 og MM-U46) opphever OV-U61, også
+setningene om betinget enighet i summen. Samlevedtaket her: punkt 5. Det er en presisering og vår slutning, ikke
+ordlyden i et vedtak: den følger av OV-U69 «Løsningen registrerer enighet ut fra valgene (MM-U33 steg 5)».
+Når enigheten ellers er betinget, hører til kjeden «Svar på vederlag og frist mens grunnlaget er
+ubesvart» (GR-U26). Koden gjør det slik i dag (`enighetensVirkning` i
+`kjerne/utledning/utled.ts`). Spørsmålet om betinget enighet ble tatt ut 04.11 etter fordelingen
+fra orkestratoren, fordi valget følger av OV-U69 og ikke lenger styrer noen sum.
+
+**E4 Forbehold i et innlegg.** Gammel tekst: OV-U69 «Vilkår, forbehold og andre betingelser
+skriver parten i begrunnelsen eller i et innlegg (MM-U33 steg 2 og 3).»; EO-U18 «Vilkår, forbehold
+og andre betingelser skriver parten i begrunnelsen eller i et innlegg.»; OV-U72 «Forhold:
+presiserer OV-U69 («i begrunnelsen eller i et innlegg» blir «i begrunnelsen for punktet eller under
+«Forbehold»»)». Samlevedtaket etter spørsmål 1.
+
+**E5 MM-U34 punkt 15, 18, 20 og 25.** Gammel tekst: punkt 25 «Svarer byggherren ja på spørsmålet
+om godkjenningen er avhengig av andre vilkår eller forbehold, avvises sendingen ikke. …»; punkt 18
+«Særskilte forslag oppheves: OV-U49 D2 (forslag om vilkår) og forslaget om å rette betegnelsen i
+OV-U55.»; punkt 15 «KA-U27: «når en enighet trekket rammer» strykes. Sperren ved fradrag og ved et
+merket brev som ikke er avklart, står som en begrensning i løsningen, fordi løsningen da ikke vet
+hva byggherren har avtalt. KA-U30 står.»; punkt 20 «EO-U2, EO-U5, EO-U10, vilkåret i KA-U26 og «som oppgjort i EO-U5» i KA-U12 oppheves som
+vilkår for endringsordre.» (bare leddet «vilkåret i KA-U26»)
+Samlevedtaket: punkt 25 og delen «OV-U49 D2 (forslag om vilkår)» i punkt 18 står opphevet; i punkt
+15 står delen om fradrag (beslutningsdelen), og delen om merket brev og «KA-U30 står» er opphevet;
+leddet «vilkåret i KA-U26» i punkt 20 står, og KA-U26 er opphevet. Hvorfor: OV-U69 «MM-U34 punkt 25 faller bort»;
+OV-U69 «OV-U48 og OV-U49 oppheves»; KA-U45 (01.11, etter MM-U34) «Forhold: opphever KA-U26,
+KA-U28, KA-U30 og LV-U4 punkt 11 og 12.» Raden for MM-U34 sier det ikke på punktnivå.
+
+**E6 Setningene KA-U45 snevret inn (KA-U20, KA-U27, KA-U29).** KA-U45 sier «Snevrer inn KA-U20,
+KA-U27, KA-U29», men ikke hvilke setninger. Samlevedtaket navngir dem: i KA-U20 alt om merking,
+sperre og avklaring (s1 og s4–s11); i KA-U27 «eller bygger på et brev som er merket etter KA-U20 og
+ikke avklart» og «Delen om merket brev gjelder fra første versjon.»; i KA-U29 «og merking etter
+KA-U20». Innholdet endres ikke ut over KA-U45. Hvorfor: KA-U45 s1.
+
+**E7 Aksepten omfatter teksten under «Forbehold».** OV-U69 s6 sier «hele svaret slik det står i
+brevet, også begrunnelsen». OV-U72 kom etter og la til teksten under «Forbehold», som står i
+brevet. Punkt 7 og designdelen nevner den uttrykkelig. Det er vår slutning fra at teksten står i brevet (OV-U72
+s1), ikke ordlyden i et vedtak.
+
+**E8 Et vilkår i teksten og godkjenningen (HF-U7).** Gammel tekst: HF-U7 «Et svar som avviker,
+også med et vilkår eller en påberopelse av preklusjon med subsidiært standpunkt, er avslag i
+forening med nytt tilbud (avtaleloven § 6 første ledd).» Samlevedtaket: løsningen sammenligner
+valgene med kravet, og et vilkår som bare står i teksten, gjør ikke svaret til et avvik i
+løsningen (punkt 4). Om svaret rettslig er en godkjenning eller et avslag med nytt tilbud, avgjør
+partene (punkt 6). Forhold: presiserer HF-U7 («vilkår» i s2 er i løsningen et vilkår uttrykt i
+valgene). Hvorfor: OV-U69 (30.10) «Løsningen registrerer enighet ut fra valgene» og «Registrert
+enighet er ikke en avgjørelse av om partene rettslig er enige eller om et vilkår er oppfylt»;
+HF-U7 «Om et avvik er så lite at det likevel blir avtale (avtaleloven § 6 annet ledd), avgjør ikke
+appen (MM-U12).»
 '''
 
 [[gruppe.vedtak]]
@@ -1343,7 +1626,7 @@ domenetabellen.'''
 valgt = "13A"
 svar = '''
 Oppdragsgiver 01.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1402#issuecomment-6556403308)): «Del II: 1A, 2A, 3A, 4B (handlingen heter bare «Svar»), 5A, 6C, 7A, 8C, 9: bruk dokumentkoden fra K3 (#1174), 10A, 11A, 12A, 13A, 14A, 15B, 16A, 17A, 18A, 19A.»'''
-forhold = [{ art = "opphever", vedtak = "ka-u26" }, { art = "opphever", vedtak = "ka-u28" }, { art = "opphever", vedtak = "ka-u30" }, { art = "snevrer inn", vedtak = "ka-u20" }, { art = "snevrer inn", vedtak = "ka-u27" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "lv-u4" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u16" }, { art = "bygger på", vedtak = "ov-u48" }, { art = "bygger på", vedtak = "ov-u49" }]
+forhold = [{ art = "opphever", vedtak = "ka-u26" }, { art = "opphever", vedtak = "ka-u28" }, { art = "opphever", vedtak = "ka-u30" }, { art = "snevrer inn", vedtak = "ka-u20" }, { art = "snevrer inn", vedtak = "ka-u27" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "lv-u4" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u16" }]
 folge = '''
 Alternativet opphever LV-U4 punkt 11 og 12 og snevrer inn LV-U4 punkt 10. I registeret er det ført som «snevrer inn» LV-U4, fordi resten av LV-U4 står. Bygges i #807.'''
 
@@ -1585,6 +1868,319 @@ tekst = "En senere begrunnelse sendt utenfor appen registreres også som dokumen
 kilde = "hovedplanen"
 tekst = "Dokumentasjon står ved sporene eller saken. Løsningen utleder ikke noe av den."
 utdrag = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "de to første setningene i punkt 8, punkt 9 uten den siste setningen, og første setning i avsnittet «Designdel»"
+beslutningsdel = "«Et forløp for det nye svaret skrives når det bygges.»"
+id = "HF-U25"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 1.
+
+1. **Tilslutning til samlevedtaket for revisjon av byggherrens svar.** Bakgrunn: vedtaket
+   28.10 opphevet vernet mot at byggherren senker et svar, sperren mot å endre et godtatt svar
+   og sperren mot avslag etter et frafall. Flere radtekster står likevel uendret: vernet i
+   vedtaket om tilbud og løfter og kontrollen av det i vedtaket om saker løsningen ikke
+   forstår, fire setninger om at bare et svar som ikke er godtatt kan endres, sperren mot
+   avslag etter frafall i tre vedtak, og setningene i vedtaket om løfter som vedtaket 28.10
+   strøk uten å navngi dem. Forslaget samler reglene for byggherrens nye svar i én tekst med
+   kilde per setning, og endrer de navngitte setningene i HF-U5, HF-U6, MM-U27, GR-U7, SK-02
+   og SK-03, OV-U5, EO-U34 punkt 46, GR-U17, GR-U20, GR-U23 og MM-U9. Hver endring står i
+   E1–E5 med gammel tekst, ny tekst og kilde. To av endringene er en lesning av vedtaket 28.10:
+   hvilke setninger punkt 5 strøk i HF-U6 (E5), og at sperren mot avslag etter frafall også
+   gjelder GR-U23 (E3). Reglene for endringsordren og saker lukket ved aksept av avslaget på
+   grunnlaget eller trekk gjelder foran (punkt 3 og 7). Alternativene: **A.** «Samlevedtaket
+   for revisjon av byggherrens svar gjelder med E1–E5. I postene det endrer, gjelder de
+   navngitte setningene ikke lenger.» **B.** Samme som A, med rettingene oppdragsgiver gir
+   per E-punkt. Anbefalt: A, «ja». Hva valget styrer: hvilken tekst som er regelgrunnlaget for
+   et nytt svar fra byggherren. De gamle radtekstene leses ikke lenger alene. Forholdet til
+   andre poster: endrer, som i tabellen «Postene i kjeden», og presiserer MM-U34 punkt 5 og 7.
+   Ingen post samles eller oppheves i sin helhet. Nye regler kommer bare fra spørsmål 2 og 3.
+   Klasse: vedtak med designdel.'''
+valgt = "1A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A» ([#1534, 6629935331](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629935331)).'''
+forhold = [{ art = "endrer", vedtak = "hf-u5" }, { art = "endrer", vedtak = "hf-u6" }, { art = "endrer", vedtak = "mm-u27" }, { art = "endrer", vedtak = "gr-u7" }, { art = "endrer", vedtak = "ov-u5" }, { art = "endrer", vedtak = "eo-u34" }, { art = "endrer", vedtak = "gr-u17" }, { art = "endrer", vedtak = "gr-u20" }, { art = "endrer", vedtak = "gr-u23" }, { art = "endrer", vedtak = "mm-u9" }, { art = "presiserer", vedtak = "mm-u34" }]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar](#samlevedtak-revisjon). Forholdene står i spørsmål 1: «endrer, som i tabellen «Postene i kjeden», og presiserer MM-U34 punkt 5 og 7», i [vurderingen](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#postene-i-kjeden). I postene det endrer, gjelder de navngitte setningene ikke lenger. I EO-U34 punkt 46 endres uttrykket slik E2 sier. Raden SK-02 og SK-03 endres også (E2). Merknaden etter MM-U9 er [HF-U26](#hf-u26), og påberopelsen etter frafall er [HF-U27](#hf-u27).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1A"
+tekst = '''
+Samlevedtaket for revisjon av byggherrens svar gjelder med E1–E5. I postene det endrer, gjelder de navngitte setningene ikke lenger.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1B"
+tekst = '''
+Samme som A, med rettingene oppdragsgiver gir per E-punkt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["mm-u9", "mm-u12"]
+id = "HF-U26"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 2.
+
+2. **Merknaden når dagens regler gir et sendt svar en annen virkning.** Bakgrunn: et sendt
+   brev beholder virkningen det hadde da det ble sendt. Gir dagens regler et standpunkt en
+   annen virkning, vises en merknad som oppfordrer byggherren til å revidere svaret. Vedtaket
+   om tilbud og løfter 15.10 sier at bare en revisjon i totalentreprenørens favør er tillatt,
+   og at oppfordringen bare gjelder en slik revisjon. Etter vedtaket 28.10 kan byggherren også
+   endre svaret i egen favør. Belegg: MM-U9 «Gir dagens regler et standpunkt i brevet en annen
+   virkning, vises avviket som en merknad som oppfordrer byggherren til å revidere svaret
+   (GR-U4).»; HF-U5 «En revisjon som bare endrer i TEs favør, er tillatt, og oppfordringen i
+   MM-U9 gjelder bare en slik revisjon.»; MM-U34 punkt 4 «Byggherren kan sende et nytt
+   strukturert svar, også med lavere beløp eller andre endringer. Tidligere brev bevares
+   uendret. Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12).»; MM-U33
+   «Løsningen legger ingen erklæring i munnen på en part, og den avgjør ikke om en ny
+   erklæring er rettslig virksom mot en tidligere (MM-U12).» Alternativene:
+   **A.** «Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket
+   som en merknad. Så langt et nytt svar er tillatt, sier merknaden at byggherren kan sende et
+   nytt svar. Den oppfordrer ikke til en bestemt endring. Løsningen avgjør ikke om et nytt svar
+   er rettslig virksomt (MM-U12).» Forhold: endrer MM-U9 (setningen om merknaden) og HF-U5
+   (oppfordringen).
+   **B.** «Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket
+   som en merknad. Så langt et nytt svar er tillatt, oppfordrer merknaden byggherren til å
+   sende et nytt svar bare når dagens regler gir standpunktet en virkning i
+   totalentreprenørens favør. Ellers vises avviket uten oppfordring.» Forhold: endrer MM-U9
+   (setningen om merknaden); begrensningen i HF-U5 føres videre; utvider VS-U3, fordi
+   løsningen vurderer hvem virkningen er til fordel for.
+   **C.** «Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket
+   som en merknad som oppfordrer byggherren til å sende et nytt svar (samlevedtaket for
+   revisjon av byggherrens svar, punkt 1), så langt et nytt svar er tillatt, uansett hvilken
+   part endringen er til fordel for.» Forhold: endrer HF-U5 (begrensningen av oppfordringen
+   faller) og MM-U9 (setningen om merknaden).
+   Anbefalt: A. Belegg: MM-U12 og MM-U33. Løsningen avgjør ikke om et nytt svar er virksomt,
+   og en merknad som ber om en bestemt endring, peker likevel ut hva byggherren bør mene. Det
+   er en slutning fra MM-U33, ikke ordlyden: en oppfordring er ikke en erklæring. B krever at
+   løsningen vurderer hvem en endret virkning er til fordel for, og den begrensningen sto ved
+   siden av vernet, som er opphevet. C lar løsningen be byggherren også om en endring til
+   ugunst for totalentreprenøren. Hva hvert valg koster: A gir byggherren
+   mindre veiledning. Dagens kjerne viser
+   merknaden som «Regelen er endret etter brevet», uten oppfordring (lest i koden, se
+   «Koden»). Hva valget styrer: teksten i merknaden, og om den skiller på hvem endringen er til
+   fordel for. Klasse: vedtak med designdel.'''
+valgt = "2A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A» ([#1534, 6629935331](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629935331)).'''
+forhold = [{ art = "endrer", vedtak = "mm-u9" }, { art = "endrer", vedtak = "hf-u5" }]
+folge = '''
+Teksten er punkt 9 i [samlevedtaket for revisjon av byggherrens svar](#samlevedtak-revisjon), [HF-U25](#hf-u25). Forholdene står under «Forhold:» i alternativ A: «endrer MM-U9 (setningen om merknaden) og HF-U5 (oppfordringen)». Spørsmålet ble stilt med «Klasse: vedtak med designdel». Klassen er *design* etter orkestratorens beslutning 04.11 etter den uavhengige kontrollen ([#1534, 6630037986](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6630037986)).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2A"
+tekst = '''
+Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en merknad. Så langt et nytt svar er tillatt, sier merknaden at byggherren kan sende et nytt svar. Den oppfordrer ikke til en bestemt endring. Løsningen avgjør ikke om et nytt svar er rettslig virksomt (MM-U12).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2B"
+tekst = '''
+Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en merknad. Så langt et nytt svar er tillatt, oppfordrer merknaden byggherren til å sende et nytt svar bare når dagens regler gir standpunktet en virkning i totalentreprenørens favør. Ellers vises avviket uten oppfordring.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2C"
+tekst = '''
+Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en merknad som oppfordrer byggherren til å sende et nytt svar (samlevedtaket for revisjon av byggherrens svar, punkt 1), så langt et nytt svar er tillatt, uansett hvilken part endringen er til fordel for.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "HF-U27"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 3.
+
+3. **Påberopelse av for sent varsel etter frafall.** Bakgrunn: frafaller byggherren pålegget
+   etter punkt 32.3 første ledd c, sier vedtaket 15.10 at et nytt svar med avslag eller med
+   påberopelse av for sent varsel etter punkt 32.2 avvises. Vedtaket 28.10 opphevet sperrene
+   mot avslag etter et frafall, men nevner ikke påberopelsen. Samme vedtak opphevet sperren
+   mot at byggherren påberoper for sent varsel etter å ha sagt at varselet kom i tide. I
+   løsningen avviste begge med regelkoden `SAGT_I_TIDE` (Følge i GR-U17 og HF-U4). Belegg: GR-U17 «En revisjon til avslag eller til
+   påberopelse etter § 32.2 avvises, mens en revisjon til endringsordre er tillatt.»; MM-U34
+   punkt 7 «Sperrene mot at byggherren svarer med avslag etter et frafall etter § 32.3 c,
+   oppheves. Løsningen viser frafallet sammen med det nye svaret, uten å trekke
+   konklusjonen.»; MM-U34 punkt 6 «Sperren mot at byggherren senere påberoper at et varsel kom
+   for sent etter å ha sagt at varselet kom i tide, oppheves.»; MM-U34 punkt 4 «Byggherren kan
+   sende et nytt strukturert svar, også med lavere beløp eller andre endringer.» Alternativene:
+   **A.** «Etter et frafall etter punkt 32.3 første ledd c kan byggherren i et nytt svar også
+   påberope at varselet kom for sent etter punkt 32.2. Løsningen viser frafallet sammen med
+   det nye svaret, uten å trekke konklusjonen, og utleder virkningen av standpunktet etter
+   punkt 32.2 som ellers (VS-U3).» Forhold: endrer GR-U17 (sperren mot påberopelse), GR-U20 og
+   GR-U23 (svarene byggherren kan gi); presiserer MM-U34 punkt 7.
+   **B.** «Etter et frafall etter punkt 32.3 første ledd c avviser løsningen et nytt svar som
+   påberoper at varselet kom for sent etter punkt 32.2. Det er en begrensning i løsningen.
+   Byggherren kan svare med avslag (MM-U34 punkt 7).» Forhold: delen av GR-U17 om påberopelsen
+   står; presiserer MM-U34 punkt 7; snevrer inn MM-U34 punkt 4 («også med lavere beløp eller
+   andre endringer») og punkt 4 i arbeidsflyten i MM-U33.
+   Anbefalt: A. Belegg: MM-U34 punkt 4 tillater «andre endringer», og punkt 6 og 7 opphevet de
+   to nærmeste sperrene. Ved B kan byggherren avslå grunnlaget, men ikke påberope for sent
+   varsel. Det er en antakelse at B ikke har en egen begrunnelse i kontrakten. Vedtakene sier
+   ikke noe om det. Hva hvert valg koster: A tar fra
+   totalentreprenøren sperren i løsningen. Frafallet vises sammen med det nye svaret, og
+   totalentreprenøren hevder bindingen utenfor løsningen. B krever at sperren bygges på nytt. Hva valget styrer: om
+   sperren mot påberopelse etter frafall står i regelsettet. Kjernen har den ikke i dag, selv
+   om Følge i GR-U17 sier at den er bygget (se «Koden»).
+   Klasse: vedtak.'''
+valgt = "3A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A» ([#1534, 6629935331](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629935331)).'''
+forhold = [{ art = "endrer", vedtak = "gr-u17" }, { art = "endrer", vedtak = "gr-u20" }, { art = "endrer", vedtak = "gr-u23" }, { art = "presiserer", vedtak = "mm-u34" }]
+folge = '''
+Teksten er punkt 4 i [samlevedtaket for revisjon av byggherrens svar](#samlevedtak-revisjon), [HF-U25](#hf-u25). Forholdene står under «Forhold:» i alternativ A: «endrer GR-U17 (sperren mot påberopelse), GR-U20 og GR-U23 (svarene byggherren kan gi); presiserer MM-U34 punkt 7».'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "3A"
+tekst = '''
+Etter et frafall etter punkt 32.3 første ledd c kan byggherren i et nytt svar også påberope at varselet kom for sent etter punkt 32.2. Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen, og utleder virkningen av standpunktet etter punkt 32.2 som ellers (VS-U3).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3B"
+tekst = '''
+Etter et frafall etter punkt 32.3 første ledd c avviser løsningen et nytt svar som påberoper at varselet kom for sent etter punkt 32.2. Det er en begrensning i løsningen. Byggherren kan svare med avslag (MM-U34 punkt 7).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "KA-U49"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/375b787/docs/vedtaksregister/vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 2.
+
+**2. Samlet tilslutning til forslaget (prosess).**
+- **A (anbefalt):** forslaget i punkt 1–11 med designdelen og beslutningsdelen, og E1–E8, gjelder
+  slik det står, med svaret på spørsmål 1 og rettelsene oppdragsgiver gir per punkt. De
+  gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».
+- **B:** forslaget legges fram på nytt etter rettelsene.
+Styrer: om en ny økt kan skrive postene når svarene foreligger.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «V1 A, V2A, S1 A, S2 A, S3 A. Godkjenner merge av 1566» ([#1534, 6631244776](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6631244776)). V1 og V2 er spørsmål 1 og 2 i vurderingen.'''
+forhold = [
+  { art = "samler", vedtak = "ov-u69" },
+  { art = "samler", vedtak = "ov-u72" },
+  { art = "endrer", vedtak = "ka-u16" },
+  { art = "samler", vedtak = "ka-u19" },
+  { art = "samler", vedtak = "ka-u45" },
+  { art = "endrer", vedtak = "ka-u20" },
+  { art = "samler", vedtak = "ka-u27" },
+  { art = "endrer", vedtak = "ka-u29" },
+  { art = "samler", vedtak = "lv-u32" },
+  { art = "endrer", vedtak = "mm-u34" },
+  { art = "samler", vedtak = "ov-u46" },
+  { art = "presiserer", vedtak = "hf-u7" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for vilkår og forbehold i byggherrens svar](#samlevedtak-vilkaar-forbehold). Samler setningene om vilkår og forbehold i byggherrens svar. Tabellen «Postene i kjeden» i [vurderingen](https://github.com/khjohns/endringsmeldinger/blob/375b787/docs/vedtaksregister/vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md#postene-i-kjeden) sier hvilke setninger hver post bidrar med. Forholdet til MM-U34 gjelder bare delene i E5. Svaret på spørsmål 1 er [KA-U50](#ka-u50).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Forslaget i punkt 1–11 med designdelen og beslutningsdelen, og E1–E8, gjelder slik det står, med svaret på spørsmål 1 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Forslaget legges fram på nytt etter rettelsene.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U50"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/375b787/docs/vedtaksregister/vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 1.
+
+**1. Et forbehold byggherren sender i et innlegg etter svaret (juridisk).**
+Bakgrunn: Byggherren kan skrive vilkår og forbehold i begrunnelsen for hvert punkt i svaret, eller
+i et eget felt «Forbehold» for hele svaret. Et vedtak fra 30.10 sa «i begrunnelsen eller i et
+innlegg». Et vedtak fra 31.10 presiserte det til begrunnelsen og feltet, men et vedtak fra 03.11
+om registrering, som nå står i samlevedtaket for endringsordren, gjentar «i begrunnelsen eller i
+et innlegg». Et innlegg er en egen melding etter svaret. Løsningen tolker det ikke og endrer ikke
+standpunktene ut fra det. Totalentreprenørens aksept gjelder hele det konkrete svaret byggherren
+har gitt, slik det står i brevet. Byggherren kan sende et nytt svar fram til endringsordren, også i
+et spor med registrert enighet. Et forbehold byggherren kommer på etter endringsordren, kan bare stå
+i et innlegg utenfor svaret.
+Belegg: OV-U69 «Vilkår, forbehold og andre betingelser skriver parten i begrunnelsen eller i et
+innlegg (MM-U33 steg 2 og 3).»; OV-U72 «Vilkår og forbehold skrives i begrunnelsen for punktet de
+gjelder, eller under «Forbehold» når de gjelder hele svaret.»; EO-U18 «Vilkår, forbehold og andre
+betingelser skriver parten i begrunnelsen eller i et innlegg.»; MM-U33 steg 3 «Innlegget kan
+uttrykke innsigelser, protester, presiseringer, endrede standpunkter, forbehold, særskilte og
+subsidiære aksepter og forslag til enighet. Løsningen tolker ikke teksten og oppdaterer ikke
+strukturerte standpunkter på grunnlag av den.»; KA-U1 «TEs aksept gjelder hele det konkrete
+svaret byggherren har gitt på gjeldende kravversjon i sporet, med alle standpunktene i det:
+preklusjon, vilkår, beløp eller dager og subsidiære standpunkter.»; MM-U34 punkt 9 «Fram til
+endringsordren kan TE sende en ny kravversjon og byggherren et nytt svar også i et spor med
+registrert enighet.»
+- **A (anbefalt):** «Vilkår og forbehold byggherren knytter til svaret, skrives i svaret: i
+  begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret. Vil
+  byggherren knytte et vilkår eller forbehold til svaret etter at det er sendt, sender byggherren
+  et nytt svar så lenge det kan sendes. Et innlegg kan uttrykke forbehold (MM-U33 steg 3), men
+  endrer ikke svaret i løsningen og inngår ikke i det TE godtar ved aksept. Løsningen avgjør ikke
+  om et forbehold i et innlegg binder (MM-U12). Hva som gjelder for totalentreprenørens vilkår og
+  forbehold, endres ikke.» Forhold: samler OV-U72 og OV-U69 s3 slik OV-U72 presiserte den; endrer
+  designdelen i samlevedtaket for endringsordren («eller i et innlegg» gjelder ikke vilkår
+  byggherren knytter til svaret); i tråd med KA-U1 og MM-U35.
+- **B:** «Vilkår og forbehold skrives i begrunnelsen for punktet, under «Forbehold» eller i et
+  innlegg. Løsningen tolker ingen av dem. TEs aksept gjelder svaret slik det står i brevet, og et
+  vilkår i et innlegg står utenfor aksepten i løsningen.» Forhold: endrer OV-U72 (innlegget kommer
+  tilbake som sted for vilkår); samler designdelen i samlevedtaket for endringsordren.
+Anbefaling: A. Et forbehold i et senere innlegg står ikke i brevet totalentreprenøren godtar. Med
+B sier løsningen at et vilkår kan settes i et innlegg, men aksepten omfatter det ikke, så
+byggherren kan tro at vilkåret er en del av svaret når totalentreprenøren godtar. A tar ikke fra
+byggherren muligheten til å sende forbeholdet; det står bare ikke som en del av svaret i
+løsningen, og om det binder, avgjør partene. Prøvingen med forløpene fant ingen blindvei med A.
+Styrer: hva skjemaet for svar og aksept sier om forbehold, og om et innlegg etter svaret vises som
+en del av svaret.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «V1 A, V2A, S1 A, S2 A, S3 A. Godkjenner merge av 1566» ([#1534, 6631244776](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6631244776)). V1 og V2 er spørsmål 1 og 2 i vurderingen.'''
+forhold = [
+  { art = "samler", vedtak = "ov-u72" },
+  { art = "samler", vedtak = "ov-u69" },
+  { art = "endrer", vedtak = "eo-u34" },
+]
+folge = '''
+Teksten er punkt 1 i [Samlevedtaket for vilkår og forbehold i byggherrens svar](#samlevedtak-vilkaar-forbehold). Forholdet til OV-U69 gjelder s3 slik OV-U72 presiserte den. Forholdet til EO-U34 gjelder setningen i designdelen om at parten skriver vilkår og forbehold «i begrunnelsen eller i et innlegg (EO-U18)». I tråd med KA-U1 og MM-U35.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Vilkår og forbehold byggherren knytter til svaret, skrives i svaret: i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret. Vil byggherren knytte et vilkår eller forbehold til svaret etter at det er sendt, sender byggherren et nytt svar så lenge det kan sendes. Et innlegg kan uttrykke forbehold (MM-U33 steg 3), men endrer ikke svaret i løsningen og inngår ikke i det TE godtar ved aksept. Løsningen avgjør ikke om et forbehold i et innlegg binder (MM-U12). Hva som gjelder for totalentreprenørens vilkår og forbehold, endres ikke.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Vilkår og forbehold skrives i begrunnelsen for punktet, under «Forbehold» eller i et innlegg. Løsningen tolker ingen av dem. TEs aksept gjelder svaret slik det står i brevet, og et vilkår i et innlegg står utenfor aksepten i løsningen.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Vilkår og forbehold skrives i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Vilkår, forbehold og andre betingelser skriver parten i begrunnelsen eller i et innlegg (MM-U33 steg 2 og 3)."
 
 [[gruppe]]
 tittel = "Aksept og enighet"
@@ -2316,7 +2912,7 @@ svar = '''
 Ja til alle anbefalingene'''
 forhold = [{ art = "snevrer inn", vedtak = "gr-u9" }, { art = "snevrer inn", vedtak = "hf-u5" }]
 folge = '''
-Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 16.10 i PR #557 (#510): en revisjon av et frafall sendt fra appen avvises med regelkoden FRAFALT når den er et avslag, og med SAGT_I_TIDE når den er en påberopelse etter § 32.2. Et avslag eller en påberopelse i et registrert brev etter frafallet får ingen virkning (MM-U19). PROJEKSJONSVERSJON 20.'''
+Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 16.10 i PR #557 (#510): en revisjon av et frafall sendt fra appen avvises med regelkoden FRAFALT når den er et avslag, og med SAGT_I_TIDE når den er en påberopelse etter § 32.2. Et avslag eller en påberopelse i et registrert brev etter frafallet får ingen virkning (MM-U19). PROJEKSJONSVERSJON 20. Merknad 04.11 (vurderingen til HF-U25): kjernen har ikke sperrene (lest i koden, ikke kjørt).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -2425,7 +3021,7 @@ svar = '''
 A: frafallet står (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "gr-u17" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "snevrer inn", vedtak = "gr-u1" }, { art = "snevrer inn", vedtak = "hf-u5" }]
 folge = '''
-Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510, som GR-U23 erstatter for hva som gjelder mens den venter), og bindingen varer ut over den nye versjonen (HF-U5). Bygget 16.10 i PR #557 (#510): etter et frafall sendt fra appen avvises et avslag av en ny grunnlagsversjon med FRAFALT, også etter bytte til en underkategori der § 32.2 gjelder likt. Et registrert frafall binder ikke (OV-U4). PROJEKSJONSVERSJON 20.'''
+Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510, som GR-U23 erstatter for hva som gjelder mens den venter), og bindingen varer ut over den nye versjonen (HF-U5). Bygget 16.10 i PR #557 (#510): etter et frafall sendt fra appen avvises et avslag av en ny grunnlagsversjon med FRAFALT, også etter bytte til en underkategori der § 32.2 gjelder likt. Et registrert frafall binder ikke (OV-U4). PROJEKSJONSVERSJON 20. Merknad 04.11 (vurderingen til HF-U25): kjernen har ikke sperren (lest i koden, ikke kjørt).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -3347,6 +3943,205 @@ av setningene. Hvorfor: kunnskapsdatoen ble avgjort i OV-U41 24.10, som sier «A
 annen kunnskapsdato for § 34.1.3.» (punkt 13). C1 var arbeidsøkta for #1047 og #1219, og
 byggeissuet etter VS-U37 er #1489. Det er arbeidsstatus, som hører til issuene. Ingen regel
 endres.
+
+##### <a id="samlevedtak-saerskilt-varsel"></a>Samlevedtaket for særskilt varsel etter punkt 34.1.3, og rigg og drift (OV-U89)
+
+Teksten under er samlevedtaket [OV-U89](#ov-u89), vedtatt 04.11 av oppdragsgiver (#1534), ordrett slik
+det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-saerskilt-varsel-2026-11-04.md),
+med «Endret innhold» E1–E7. Svaret på spørsmål 1 er [OV-U90](#ov-u90), og svaret på spørsmål 2 er
+[OV-U91](#ov-u91).
+
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. «Kravet etter første ledd» er kravet om
+økte utgifter til kapitalytelser, rigging, drift og nedrigging, og «kravet etter annet ledd» er kravet
+om økte utgifter på grunn av nedsatt produktivitet og forstyrrelser på annet arbeid, begge i punkt
+34.1.3. Punkt 5 og 22 står etter svarene på spørsmål 1 og 2. Rettet etter prøvingen 04.11.
+
+###### A. Særskilt varsel etter punkt 34.1.3
+
+1. Løsningen følger punkt 34.1.3 slik kontraktsgrunnlaget (Del II pkt. B.2.16) endrer den: særskilt
+   varsel, og tap av retten ved for sent varsel, gjelder bare kravet etter annet ledd. (OV-U25)
+2. Kravet etter første ledd har ingen særskilt varslingsplikt etter punkt 34.1.3. Det sier ikke noe
+   om varslingsplikten etter punkt 34.1.2. (OV-U25; OV-U35)
+3. Når TE har sendt vederlagskravet, avvises et nytt varsel etter punkt 34.1.2 fra løsningen.
+   (OV-U8, første setning)
+4. TE kan sende et særskilt varsel etter annet ledd fra løsningen også etter vederlagskravet, så
+   lenge det ikke er sendt eller oppgitt et særskilt varsel om det samme kravet før. Et varsel
+   løsningen utleder av vederlagskravet, hindrer det ikke. Datoen for varselet settes én gang.
+   (OV-U8; OV-U25; VS-U43 punkt 9)
+5. Løsningen har ikke noe særskilt varsel for kravet etter første ledd.
+   (OV-U25; OV-U35; E1)
+6. TE kan sende et vederlagskrav med bare posten for rigg og drift i forlenget byggetid, bare kravet
+   etter annet ledd, eller begge, uten et beløp for justeringen ellers. Løsningen avgjør ikke om
+   utgiftene er en følge av forholdet saken gjelder. (OV-U23; OV-U36)
+7. Byggherren tar stilling til beløpet for justeringen ellers, til posten for rigg og drift og til
+   kravet etter annet ledd hver for seg, med godkjent, delvis godkjent eller avslått for hver.
+   Svarets samlede resultat regnes av beløpene. (OV-U26; OV-U37; OV-U39)
+
+###### B. Byggherrens påberopelse av for sent varsel
+
+8. Påberoper byggherren at det særskilte varselet etter annet ledd kom for sent, oppgir byggherren
+   prinsipalt det beløpet byggherren godtar etter begrensningen, som kan være null, og subsidiært
+   det beløpet byggherren godtar hvis innsigelsen ikke fører fram. Kravet er ikke prinsipalt
+   avslått. (VS-U5; OV-U22; rad-026)
+9. Påberopelsen etter punkt 34.1.3 er ett standpunkt og gjelder bare kravet etter annet ledd.
+   (VS-U24; OV-U22; OV-U25)
+10. Registreres eller oppgis et særskilt varsel etter at byggherren har svart, står svaret med
+    virkningen det hadde, og varselet gjelder som premiss for nye svar. (OV-U22, lest etter
+    merknaden 23.10; VS-U43 punkt 10)
+11. Påberoper byggherren at varselet etter punkt 34.1.2 kom for sent, gjelder påberopelsen hele
+    vederlagskravet, også kravet etter annet ledd og posten for rigg og drift. Påberopelsen er ett
+    standpunkt for bestemmelsen. (OV-U27; OV-U37; VS-U24; E6)
+12. Har byggherren påberopt begge, oppgir byggherren prinsipalt standpunktet etter punkt 34.1.2,
+    subsidiært beløpet for justeringen ellers, beløpet for posten for rigg og drift og beløpet
+    etter begrensningen etter punkt 34.1.3, og videre subsidiært beløpet for kravet etter annet
+    ledd hvis ingen av innsigelsene fører fram. De to påberopelsene viser hver til sitt varsel og
+    kan stå i samme brev. (OV-U27; E6)
+13. Punkt 11 og 12 gjelder ikke når saken gjelder en endring, der punkt 34.1.2 ikke krever varsel.
+    (OV-U27; OV-U15)
+14. Løsningen avgjør ikke hvilke utgifter som er påløpt eller rammet, eller om varslene kom i tide.
+    (VS-U5; OV-U27; OV-U8 siste setning; VS-U43 punkt 16)
+
+Begrunnelsen for avgrensningen etter punkt 34.1.3 følger KA-U46 og gjentas ikke her.
+
+###### C. Rigg og drift i forlenget byggetid
+
+15. Kompensasjonen for kapitalytelser, rigging, drift og nedrigging i uendret byggetid etter
+    kontraktsgrunnlaget (Del II pkt. B.2.16) gjelder kontrakten samlet. Den regnes av netto
+    vederlagsjusteringer i hele kontrakten og av kontraktsverdien ved den opprinnelige sluttfristen.
+    (OV-U36)
+16. At kompensasjonen i uendret byggetid ikke kreves i en sak i løsningen (beslutningsdelen), er
+    ikke en regel om når eller hvordan TE kan fremme kravet. (OV-U36)
+17. Kravet om rigg og drift i forlenget byggetid er en post i vederlagskravet i saken, med eget
+    beløp, også når vederlaget ellers følger en beregningsregel. TE kan sende posten før
+    forlengelsen er avtalt eller avgjort, med beløpet TE mener følger av den avtalte regelen ut fra
+    forlengelsen TE legger til grunn. Løsningen krever ikke enighet om fristen før posten sendes
+    eller besvares. TE kan sende en ny versjon av vederlagskravet når forlengelsen er avklart, så
+    langt en ny kravversjon er tillatt, også når løsningen har registrert enighet om
+    vederlagskravet. (OV-U37; OV-U43 prinsipp 1; MM-U34 punkt 9; MM-U42; E2)
+18. Mener byggherren at TE ikke har krav på fristforlengelse, ikke på så lang forlengelse, eller at
+    forlengelsen alt er kompensert i en annen sak, kan byggherren si det i begrunnelsen.
+    Begrunnelsen er valgfri. (OV-U37; KA-U46 punkt 1; E4)
+19. Løsningen avgjør ikke om TE har krav på fristforlengelse. (OV-U37)
+20. Beløpet TE krever, er det TE krever, også når regnestykket gir et annet beløp. (OV-U39)
+21. Byggherren kan i svaret oppgi egne verdier for forlengelsen, perioden, den opprinnelige
+    byggetiden, rigg- og driftskapitlet, andelen og reguleringen, innenfor de samme grensene, og
+    egne datoer for igangsetting og ny overtakelse. De står ved siden av TEs og endrer dem ikke, og
+    verdier byggherren ikke oppgir, har byggherren ikke tatt stilling til. Løsningen avgjør ikke
+    hvilke verdier som er riktige, og bruker verdiene bare i regnestykket. Avvikende verdier eller
+    datoer hindrer ikke i seg selv at løsningen registrerer enighet om beløpet, og utløser ikke alene
+    kravet til begrunnelse. Vil byggherren avgrense hva det godkjente beløpet omfatter, gjør
+    byggherren det med standpunktene og i begrunnelsen. Løsningen tolker ikke verdiene eller
+    begrunnelsen som en slik avgrensning, og avgjør ikke hva enigheten omfatter. (OV-U39; OV-U60;
+    K2)
+22. Løsningen registrerer enighet om beløpet for posten for rigg og drift som
+    for de andre postene, og en registrert enighet om vederlagskravet omfatter posten. Enigheten om
+    posten bevares og vises. Mener TE at en ytterligere forlengelse gir et krav som enigheten ikke
+    omfatter, kan TE fremme det i en ny versjon av vederlagskravet, så langt en ny kravversjon er
+    tillatt, eller i en ny sak. Løsningen avgjør ikke om kravet er omfattet av enigheten eller
+    ellers i behold. Byggherren tar stilling til det i svaret. (OV-U38; HF-U9; MM-U34 punkt 9, 10
+    og 15; MM-U42; E3)
+23. Regnestykket for posten er 0,7 × rigg- og driftskapitlet × andelen × forlengelsen / opprinnelig
+    byggetid, pluss reguleringen. Forlengelsen er forskjellen mellom den opprinnelige og den nye
+    byggetiden, og den nye byggetiden regnes fra faktisk igangsetting på byggeplass til den nye
+    datoen for overtakelse. (OV-U39; OV-U60; B.2.16)
+24. Forlengelsen og den opprinnelige byggetiden regnes i hverdager. Gjelder fristforlengelsen bare
+    deler av arbeidene, reduseres rigg- og driftskapitlet forholdsmessig, og andelen er den
+    reduksjonen. Forlengelsen og andelen kan være null. (OV-U39; B.2.16)
+25. Forlengelsen, datoen for igangsetting og den nye overtakelsesdatoen er TEs opplysninger, ikke
+    noe partene har avtalt. TE begrunner verdiene, særlig forlengelsen, andelen og avgrensningen mot
+    krav i andre saker. (OV-U37; OV-U39; OV-U60)
+26. Enighet om beregningsregelen gjør behandlingen ferdig bare når løsningen også har registrert
+    enighet om beløpet for posten for rigg og drift. (OV-U43 prinsipp 3, andre setning; MM-U34
+    punkt 10; E5)
+27. Endringsordren skiller mellom beregningsregelen og beløpet for posten for rigg og drift.
+    (OV-U43 prinsipp 5, slik EO-U21 endret det og EO-U34 samlet det)
+28. Beløpet for posten oppgis i kroner med høyst to desimaler, som andre beløp. (OV-U58)
+
+###### Designdel
+
+- Ved posten opplyser visningen at kompensasjonen i uendret byggetid gjelder kontrakten samlet og
+  kreves utenfor saken. Den sier ikke at TE må vente til sluttoppgjøret, eller at andre
+  varslingsregler faller bort. (OV-U36)
+- Skjemaet for særskilt varsel sier at det ikke finnes særskilt varsel for
+  kravet etter første ledd, og at posten for rigg og drift kreves i vederlagskravet, også i en ny
+  kravversjon. (E1)
+- Setningen om visningen i merknaden 23.10 til OV-U22, ordrett. (OV-U22)
+- Forlengelsen, datoen for igangsetting og den nye overtakelsesdatoen vises som TEs opplysninger.
+  (OV-U37; OV-U60)
+- Feltene i posten: beløpet i kroner ekskl. mva.; forlengelsen i hele hverdager og perioden med
+  første og siste dag regnet med; den opprinnelige byggetiden i hele hverdager, større enn null;
+  avtalt pris på det opprinnelige rigg- og driftskapitlet ekskl. mva., før forholdsmessig reduksjon;
+  andelen i prosent, høyst 100 %, der 100 % betyr at fristforlengelsen gjelder alle arbeidene;
+  reguleringen i kroner, som kan være negativ; datoen for igangsetting og den nye
+  overtakelsesdatoen. Datoene inngår ikke i regnestykket. Løsningen avviser en ny overtakelsesdato
+  som ikke er etter datoen for igangsetting. (OV-U39; OV-U60)
+- Andelen brukes som brøk, det regnes uten avrunding underveis, og resultatet avrundes til nærmeste
+  hele krone. Regnestykket merkes «Beregnet ut fra TEs opplysninger» eller «Beregnet ut fra
+  byggherrens opplysninger». Regnestykket med byggherrens verdier vises bare når byggherren har
+  oppgitt alle verdiene det bruker, og løsningen fyller ikke inn TEs verdier for dem byggherren ikke
+  har oppgitt. Beregningsverdiene og avrundingen følger dette også når beløpet ellers oppgis med to
+  desimaler. (OV-U39; OV-U58)
+- Gir regnestykket og beløpet parten oppgir, begge avrundet til hel krone, ulike tall, viser skjemaet
+  og visningen forskjellen før brevet sendes og ved posten. Brevet sendes likevel. Løsningen
+  avgjør ikke hvilket av dem som er riktig. (OV-U40)
+- Før TE godtar et svar, viser skjemaet hvilken forlengelse posten bygger på i kravet, og i
+  byggherrens verdier når de er oppgitt. (E7)
+
+###### Beslutningsdel
+
+- Kompensasjonen i uendret byggetid kreves og besvares ikke gjennom endringssakene i løsningen. Det
+  er en avgrensning av løsningen. I en sak kan TE etter første ledd bare kreve rigg og drift i
+  forlenget byggetid. (OV-U36; KT-U8; K1)
+- Løsningen kontrollerer ikke overlapp mellom saker, teller ikke hverdagene i perioden, viser ikke
+  forlengelsen som kontrollert mot perioden eller datoene, og sammenlikner ikke datoene mellom
+  saker. (OV-U37; OV-U39; OV-U60)
+
+## Endret innhold
+
+Hvert punkt tas stilling til for seg. «Følger av» betyr at endringen bare gjør teksten lik et
+vedtak som alt gjelder.
+
+- **E1. Ett særskilt varsel, ikke to (OV-U8; spørsmål 1).** OV-U8 sier at et særskilt varsel kan
+  sendes «for rigg og drift og for produktivitetstap hver for seg», og at datoen settes for «hvert av
+  de to varslene». OV-U25 sier at særskilt varsel bare gjelder kravet etter annet ledd, og sier at
+  OV-U8 endres, men ikke hvordan. Punkt 4 og 5 og designdelen gjør det.
+- **E2. Ny versjon av posten etter registrert enighet (OV-U37). Følger av MM-U34 punkt 9, med
+  vilkårene i MM-U42 og GR-U27.** OV-U37 sier at TE kan sende en ny versjon «så lenge partene ikke er
+  enige om vederlagskravet (KA-U7, HF-U9)». MM-U34 punkt 9 opphevet KA-U7. Punkt 17.
+- **E3. Enigheten om posten og veien videre (OV-U38; spørsmål 2).** OV-U38 sier at enigheten
+  «binder også posten (KA-U7)», og at en ytterligere forlengelse må fremmes i en ny sak. MM-U34 punkt
+  9 og 10 sier at løsningen registrerer enigheten og ikke avgjør om den står, og punkt 15 strøk
+  sperren mot et nytt beløp for posten. Punkt 22.
+- **E4. Begrunnelsen for posten er valgfri (OV-U37). Følger av KA-U46 punkt 1.** OV-U37 sier at
+  byggherren sier det i begrunnelsen «(KA-U24)». KA-U24 er opphevet. Punkt 18.
+- **E5. «Registrert enighet» i stedet for «partene er enige» (OV-U43 prinsipp 3, andre setning).
+  Følger av MM-U34 punkt 10.** Bare ordlyden. Den siste setningen i prinsipp 3, om nøkkeltallene,
+  hører ikke hit. Den samles i samlevedtaket for betegnelsene (#1566). Punkt 26.
+- **E6. Påberopelsen etter punkt 34.1.2 gjelder også posten for rigg og drift (OV-U27).** OV-U27
+  nevner justeringen ellers og kravet etter annet ledd. Posten for rigg og drift er en post i
+  vederlagskravet (OV-U37), og OV-U27 sier «hele vederlagskravet», så setningen følger av de to.
+  Men ordet «posten» er nytt, og punkt 12 setter posten i det subsidiære laget. Punkt 11 og 12.
+- **E7. Forlengelsen vises før aksepten (ny designsetning).** Forløp 5 i prøvingen: TE kan godta et
+  svar der byggherren har oppgitt en kortere forlengelse, og enigheten omfatter da posten slik den
+  er beregnet. Skjemaet hadde en advarsel om dette før MM-U34 punkt 15 strøk sperren. Det nye
+  designpunktet gir ingen sperre. Det er *design* og kan endres av brukerprøven.
+
+Uten innholdsendring:
+- «Uavklart» i OV-U22 er skrevet etter merknaden 23.10 og VS-U43 punkt 10 (punkt 10).
+- «Byggherren begrunner avgrensningen» i VS-U5 er ikke tatt med, fordi KA-U46 punkt 8 strøk den.
+- Punkt 27 må kontrolleres mot EO-U34 av økta som skriver postene.
+
+###### Klassene
+
+Kontrollert uavhengig av en subagent 04.11 (svar 8). Samlevedtaket er et *vedtak* med designdel og
+beslutningsdel.
+
+- **K1.** OV-U36 er ført som *vedtak*. Setningene om at kompensasjonen i uendret byggetid kreves og
+  besvares utenfor endringssakene, og at TE i en sak bare kan kreve rigg og drift i forlenget
+  byggetid, sier hvordan løsningen er avgrenset. De blir beslutningsdel. Innholdet endres ikke.
+- **K2.** OV-U60 er ført som *design*. Setningen om at avvikende datoer ikke hindrer enighet, sier
+  hva som regnes med etter kontrakten, og står i punkt 21 med OV-U39. Resten av OV-U60 er designdel,
+  og kontrollen av datoene er flyttet dit.
 '''
 
 [[gruppe.vedtak]]
@@ -4203,7 +4998,7 @@ svar = '''
 8. Ja, rett og før (anb.)'''
 forhold = [{ art = "snevrer inn", vedtak = "gr-u4" }, { art = "snevrer inn", vedtak = "gr-u7" }, { art = "snevrer inn", vedtak = "mm-u9" }, { art = "snevrer inn", vedtak = "ov-u5" }, { art = "snevrer inn", vedtak = "ka-u1" }, { art = "utvider", vedtak = "ka-u10" }, { art = "utvider", vedtak = "fo-u5" }, { art = "presiserer", vedtak = "gr-u9" }, { art = "presiserer", vedtak = "hf-u4" }]
 folge = '''
-Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Del 1 bygget 16.10 i PR #622 (#502): en revisjon av et svar TE ikke har godtatt, sammenliknes standpunkt for standpunkt med svaret den erstatter (grunnlag, beløp, dager, hindring og aksept av beregningsmåten), og en revisjon som senker ett standpunkt, avvises med regelkoden SENKER_INNROEMMELSE, også når den hever et annet. Del 2 av #502 (akseptfristen) er ikke med.'''
+Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Del 1 bygget 16.10 i PR #622 (#502): en revisjon av et svar TE ikke har godtatt, sammenliknes standpunkt for standpunkt med svaret den erstatter (grunnlag, beløp, dager, hindring og aksept av beregningsmåten), og en revisjon som senker ett standpunkt, avvises med regelkoden SENKER_INNROEMMELSE, også når den hever et annet. Del 2 av #502 (akseptfristen) er ikke med. Merknad 04.11 (vurderingen til HF-U25): kjernen har ikke sperren (lest i koden, ikke kjørt).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Bundet, med akseptfrist"
@@ -4804,7 +5599,7 @@ svar = '''
 A: bindingen står (Anbefalt)'''
 forhold = [{ art = "endrer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "presiserer", vedtak = "gr-u1" }]
 folge = '''
-Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Bygget 16.10 i PR #622 (#502, del 1): bindingen i svar på vederlag og frist står etter en ny grunnlagsversjon med samme hjemmel. En revisjon sammenliknes med svaret den erstatter, uansett hvilken grunnlagsversjon svaret ble gitt mot, og en revisjon som senker et standpunkt, avvises med regelkoden SENKER_INNROEMMELSE. Et nytt svar på samme kravversjon avvises som før med ALLEREDE_SVART.'''
+Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Bygget 16.10 i PR #622 (#502, del 1): bindingen i svar på vederlag og frist står etter en ny grunnlagsversjon med samme hjemmel. En revisjon sammenliknes med svaret den erstatter, uansett hvilken grunnlagsversjon svaret ble gitt mot, og en revisjon som senker et standpunkt, avvises med regelkoden SENKER_INNROEMMELSE. Et nytt svar på samme kravversjon avvises som før med ALLEREDE_SVART. Merknad 04.11 (vurderingen til HF-U25): kjernen har ikke sperren (lest i koden, ikke kjørt).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A: bindingen står"
@@ -6142,6 +6937,196 @@ tekst = "Et valg godtas der den samme handlingen sendt fra løsningen ville vær
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Løsningen avgjør ikke om kravet omfattes av en tidligere enighet, eller om varsling og frister er ivaretatt."
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket, og punkt 16, som viser til den"
+id = "OV-U89"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/b69498e/docs/vedtaksregister/vurdering-samlevedtak-saerskilt-varsel-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 3.
+
+**3. Tilslutning til samlevedtaket.** Forslaget over, med «Endret innhold» E1–E7. E1 og E3 følger
+svarene på spørsmål 1 og 2. E2, E4 og E5 følger av vedtak som alt gjelder (MM-U34 punkt 9 og 10,
+MM-U42 og KA-U46 punkt 1). E6 er ordet «posten» i påberopelsen etter punkt 34.1.2. E7 er et nytt
+designpunkt.
+
+- **A (anbefalt):** «Samlevedtaket for særskilt varsel etter punkt 34.1.3, og rigg og drift, gjelder
+  med E1–E7. Postene det samler, gjelder som «Samlet i samlevedtaket for særskilt varsel og rigg og
+  drift». OV-U8, OV-U37 og OV-U38 gjelder ikke lenger.»
+- **B:** «Som A, med rettelsene oppdragsgiver gir per punkt.»
+
+Styrer: om postene kan skrives når grenen får plassen sin i køen for `vedtak.toml`.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «V1 A, V2A, S1 A, S2 A, S3 A. Godkjenner merge av 1566» ([#1534, 6631244776](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6631244776)). S1–S3 er spørsmål 1–3 i vurderingen.'''
+forhold = [
+  { art = "opphever", vedtak = "ov-u8" },
+  { art = "samler", vedtak = "ov-u22" },
+  { art = "samler", vedtak = "ov-u23" },
+  { art = "samler", vedtak = "ov-u25" },
+  { art = "samler", vedtak = "ov-u35" },
+  { art = "samler", vedtak = "ov-u26" },
+  { art = "samler", vedtak = "ov-u27" },
+  { art = "samler", vedtak = "vs-u5" },
+  { art = "samler", vedtak = "ov-u36" },
+  { art = "opphever", vedtak = "ov-u37" },
+  { art = "opphever", vedtak = "ov-u38" },
+  { art = "samler", vedtak = "ov-u39" },
+  { art = "samler", vedtak = "ov-u40" },
+  { art = "samler", vedtak = "ov-u60" },
+  { art = "samler", vedtak = "ov-u43" },
+  { art = "samler", vedtak = "ov-u58" },
+  { art = "samler", vedtak = "mm-u34" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for særskilt varsel etter punkt 34.1.3, og rigg og drift](#samlevedtak-saerskilt-varsel). Svaret på spørsmål 1 er [OV-U90](#ov-u90), og svaret på spørsmål 2 er [OV-U91](#ov-u91). OV-U43 er samlet bare for prinsipp 1, siste setning, andre setning i prinsipp 3 og posten i prinsipp 5. OV-U58 er samlet bare for «beløpet for hver post» og siste setning. MM-U34 er samlet bare for kulepunktet om OV-U38 i punkt 15. Henvisningen til OV-U8 i VS-U43 punkt 9 viser etter samlevedtaket til punkt 4 (oppskriften i utkastet til postene, orkestratoren 04.11).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Samlevedtaket for særskilt varsel etter punkt 34.1.3, og rigg og drift, gjelder med E1–E7. Postene det samler, gjelder som «Samlet i samlevedtaket for særskilt varsel og rigg og drift». OV-U8, OV-U37 og OV-U38 gjelder ikke lenger.'''
+anbefalt = true
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, med rettelsene oppdragsgiver gir per punkt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "«Skjemaet for særskilt varsel sier det, og at posten for rigg og drift kreves i vederlagskravet, også i en ny kravversjon.»"
+id = "OV-U90"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/b69498e/docs/vedtaksregister/vurdering-samlevedtak-saerskilt-varsel-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 1.
+
+**1. Særskilt varsel for rigg og drift (juridisk).** Kontraktsgrunnlaget (Del II pkt. B.2.16)
+erstatter første setning i punkt 34.1.3 tredje ledd. Dermed gjelder særskilt varsel, og tap av retten
+ved for sent varsel, bare kravet om økte utgifter på grunn av nedsatt produktivitet og forstyrrelser
+på annet arbeid (annet ledd). Det er vedtatt (OV-U25, OV-U35). Et eldre vedtak (OV-U8) lar likevel
+TE sende et særskilt varsel for rigg og drift og et for produktivitetstapet «hver for seg», med en
+dato for hvert. OV-U25 sier at OV-U8 endres, men ikke hvordan. I dag har skjemaet for særskilt
+varsel bare varselet etter annet ledd.
+
+- **A (anbefalt):** «TE kan sende et særskilt varsel etter punkt 34.1.3 annet ledd fra løsningen
+  også etter vederlagskravet, så lenge det ikke er sendt eller oppgitt et særskilt varsel om det
+  samme kravet før. Et varsel løsningen utleder av vederlagskravet, hindrer det ikke. Datoen for
+  varselet settes én gang. Løsningen har ikke noe særskilt varsel for kravet om økte utgifter til
+  kapitalytelser, rigging, drift og nedrigging etter første ledd. Skjemaet for særskilt varsel sier
+  det, og at posten for rigg og drift kreves i vederlagskravet, også i en ny kravversjon.»
+  Opphever OV-U8. Første og siste setning i OV-U8 står i samlevedtaket punkt 3 og 14.
+- **C:** «TE kan fortsatt sende et særskilt varsel for rigg og drift og et for produktivitetstapet
+  hver for seg, med en dato for hvert. Varselet for rigg og drift har ingen virkning for tap av
+  retten etter punkt 34.1.3.» Endrer OV-U25, som sier at særskilt varsel bare gjelder annet ledd.
+
+Belegg: B.2.16 og OV-U25 nevner bare annet ledd. Et varsel med dato og uten virkning (C) kan leses
+som et varsel som verner kravet. Da kan den andre parten tro at en frist er overholdt eller
+oversittet. Under A taper TE ingen posisjon, fordi B.2.16 ikke har preklusjon for første ledd.
+Et tredje alternativ, en melding om rigg og drift som innlegg, er tatt ut av prøvingen. Et innlegg
+kan alt sendes (MM-U35), så det ga ikke noe A ikke gir.
+
+Styrer: om skjemaet for særskilt varsel har ett valg eller to, og punkt 4 og 5 i samlevedtaket.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «V1 A, V2A, S1 A, S2 A, S3 A. Godkjenner merge av 1566» ([#1534, 6631244776](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6631244776)). S1–S3 er spørsmål 1–3 i vurderingen.'''
+forhold = [
+  { art = "opphever", vedtak = "ov-u8" },
+]
+folge = '''
+Teksten er punkt 4 og 5 og det andre punktet i designdelen i [samlevedtaket](#samlevedtak-saerskilt-varsel). Svaret på spørsmål 1 i samlevedtaket OV-U89. Alternativ C ville endret OV-U25.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+TE kan sende et særskilt varsel etter punkt 34.1.3 annet ledd fra løsningen også etter vederlagskravet, så lenge det ikke er sendt eller oppgitt et særskilt varsel om det samme kravet før. Et varsel løsningen utleder av vederlagskravet, hindrer det ikke. Datoen for varselet settes én gang. Løsningen har ikke noe særskilt varsel for kravet om økte utgifter til kapitalytelser, rigging, drift og nedrigging etter første ledd. Skjemaet for særskilt varsel sier det, og at posten for rigg og drift kreves i vederlagskravet, også i en ny kravversjon.'''
+anbefalt = true
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+TE kan fortsatt sende et særskilt varsel for rigg og drift og et for produktivitetstapet hver for seg, med en dato for hvert. Varselet for rigg og drift har ingen virkning for tap av retten etter punkt 34.1.3.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "hver for seg"
+utdrag = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U91"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/b69498e/docs/vedtaksregister/vurdering-samlevedtak-saerskilt-varsel-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 2.
+
+**2. Enigheten om posten for rigg og drift og en ytterligere forlengelse (juridisk).** Etter
+kontraktsgrunnlaget forutsetter kravet at TE har krav på fristforlengelse, og forlengelsen regnes
+til avtalt ny dato for overtakelse. I løsningen kan TE sende posten før forlengelsen er avtalt, med
+forlengelsen TE legger til grunn (OV-U37). Et eldre vedtak (OV-U38) sier at en enighet om
+vederlagskravet «binder også posten». Mener TE at en ytterligere forlengelse gir et krav som
+enigheten ikke omfatter, kan TE etter OV-U38 fremme det i en ny sak. Prinsippvedtaket 28.10 (MM-U34
+punkt 9, 10 og 15) endret dette: løsningen registrerer enigheten og avgjør ikke om den står. TE kan
+sende en ny kravversjon også etter registrert enighet, så langt en ny kravversjon er tillatt, og
+sperren mot et nytt beløp for posten er strøket.
+
+- **A (anbefalt):** «Løsningen registrerer enighet om beløpet for posten for rigg og drift som for
+  de andre postene, og en registrert enighet om vederlagskravet omfatter posten. Enigheten om
+  posten bevares og vises. Mener TE at en ytterligere forlengelse gir et krav som enigheten ikke
+  omfatter, kan TE fremme det i en ny versjon av vederlagskravet, så langt en ny kravversjon er
+  tillatt, eller i en ny sak. Løsningen avgjør ikke om kravet er omfattet av enigheten eller ellers
+  i behold. Byggherren tar stilling til det i svaret.» Opphever OV-U38. Samler kulepunktet om OV-U38
+  i MM-U34 punkt 15.
+- **B:** «Som A, men et krav for en ytterligere forlengelse kan TE bare fremme i en ny sak, ikke i en
+  ny versjon av vederlagskravet i saken.» Opphever OV-U38. Endrer MM-U34 punkt 9 og 15 for posten
+  for rigg og drift.
+- **C:** «OV-U38 oppheves uten ny tekst. Enigheten om posten følger reglene for enighet om
+  vederlagskravet.» Opphever OV-U38.
+
+Belegg: MM-U34 punkt 9, 10 og 15, og MM-U42. B gjeninnfører for posten en sperre som
+prinsippvedtaket opphevet. Løsningen kan heller ikke se om en ny versjon gjelder en ytterligere
+forlengelse uten å tolke fritekst, så B blir i praksis en full sperre mot et nytt beløp for posten.
+C mister opplysningen om at en ytterligere forlengelse kan fremmes i en ny sak. Den står ikke i noe
+annet vedtak. At TE trenger opplysningen, er en antakelse.
+
+Styrer: om skjemaet lar TE sende et nytt beløp for posten i saken etter registrert enighet, og hva
+visningen sier ved posten.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «V1 A, V2A, S1 A, S2 A, S3 A. Godkjenner merge av 1566» ([#1534, 6631244776](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6631244776)). S1–S3 er spørsmål 1–3 i vurderingen.'''
+forhold = [
+  { art = "opphever", vedtak = "ov-u38" },
+  { art = "samler", vedtak = "mm-u34" },
+]
+folge = '''
+Teksten er punkt 22 i [samlevedtaket](#samlevedtak-saerskilt-varsel). Svaret på spørsmål 2 i samlevedtaket OV-U89. MM-U34 gjelder bare kulepunktet om OV-U38 i punkt 15. Alternativ B ville endret MM-U34 punkt 9 og 15 for posten.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Løsningen registrerer enighet om beløpet for posten for rigg og drift som for de andre postene, og en registrert enighet om vederlagskravet omfatter posten. Enigheten om posten bevares og vises. Mener TE at en ytterligere forlengelse gir et krav som enigheten ikke omfatter, kan TE fremme det i en ny versjon av vederlagskravet, så langt en ny kravversjon er tillatt, eller i en ny sak. Løsningen avgjør ikke om kravet er omfattet av enigheten eller ellers i behold. Byggherren tar stilling til det i svaret.'''
+anbefalt = true
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, men et krav for en ytterligere forlengelse kan TE bare fremme i en ny sak, ikke i en ny versjon av vederlagskravet i saken.'''
+forkastet = true
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+OV-U38 oppheves uten ny tekst. Enigheten om posten følger reglene for enighet om vederlagskravet.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "binder også posten"
+utdrag = true
 
 [[gruppe]]
 tittel = "Endringsordre og forsering"
@@ -8896,6 +9881,153 @@ TEs retting av datoen TE ble klar over at utgiftene etter § 34.1.3 ville pålø
 «Endrer OV-U7: TEs utdyping og byggherrens senere begrunnelse etter KA-U34 bygges i første
 versjon». Samlevedtaket: beslutningsdelen, uten utdypingen, betegnelsen og «hvis vedtatt».
 Hvorfor: MM-U34 punkt 18 og 24 (E5); OV-U53 ble vedtatt 25.10.
+
+##### <a id="samlevedtak-ikke-forstaatt"></a>Samlevedtaket for saker løsningen ikke forstår (MM-U43)
+
+Teksten under er samlevedtaket [MM-U43](#mm-u43), vedtatt 04.11 av oppdragsgiver (#1534), ordrett slik
+det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-ikke-forstaatt-2026-11-04.md),
+med «Endret innhold» E1–E4. Svaret på spørsmål 2 i vurderingen er [MM-U44](#mm-u44), og punkt 5
+er teksten i det valgte alternativet A, ordrett. MM-U34 punkt 11 er tatt med som kilde i punkt 7 og E1
+etter at spørsmålene var sendt, etter orkestratorens beslutning 04.11 ([6629947305](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629947305)).
+
+###### Forslaget
+
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Punkt 5 står etter svaret på
+spørsmål 2.
+
+###### A. En sak løsningen ikke forstår
+
+1. Inneholder en hendelse noe kjernen ikke kjenner, er saken ikke forstått, og ingenting hoppes
+   over. (HF-U1)
+2. Kan ikke kjernen tolke en hendelse på saken, godtas ingen bindende kommando fra noen part
+   før en kjerne som forstår den, er rullet ut. Journalen og interne notater kan fortsatt
+   leses. (MM-U2)
+3. Saken er heller ikke forstått når en hendelse strider mot vedtakene om enighet og lukking
+   (punkt 6–9) eller mot partens eget utsagn (punkt 10). (MM-U18; MM-U27)
+4. Er saken ikke forstått, godtas registreringen av et brev sendt utenfor løsningen, men ikke
+   unntakene i OV-U5 og OV-U6. (OV-U4) Ellers godtas bare dokumentasjon. (OV-U80) *Ved
+   spørsmål 2 A: godtas også et innlegg.*
+5. «I en sak løsningen ikke forstår, godtas også et innlegg, også et innlegg med en innsigelse, en protest, en påberopelse av passivitet eller en bestridelse av en opplysning. Et innlegg er ikke en bindende kommando. Bindende kommandoer avvises som før (MM-U2). Visningen sier at et varsel med frist som ikke kan sendes som innlegg, må sendes utenfor løsningen og registreres senere.» (MM-U14; MM-U35; VS-U35; E4; spørsmål 2 A, [MM-U44](#mm-u44))
+
+###### B. Strid med enighet og lukking
+
+6. En hendelse i journalen som ikke kan forstås i samsvar med resten av journalen og vedtakene
+   om enighet og lukking, gjør saken ikke forstått når den ikke er et registrert brev. Det
+   gjelder for eksempel en aksept av et frafall, et svar fra byggherren på et krav etter at TE
+   har trukket det, TEs aksept, etter trekket, av et svar i sporet, og en hendelse som endrer
+   utfallet etter at saken er lukket: et krav, et svar, en aksept eller et trekk i en KOE-sak
+   som en sendt endringsordre eller en godkjent registrering omfatter, og i en sak lukket ved
+   TEs aksept av avslaget på grunnlaget eller trekk av grunnlaget (GR-U27). Et trekk lukker
+   sporet (KA-U12, KA-U11). (MM-U18; MM-U20; samlevedtaket for endringsordren, punkt 11 og 12;
+   GR-U27; E1)
+7. En ny kravversjon og et nytt svar i et spor med registrert enighet strider ikke mot
+   vedtakene om enighet og lukking, og heller ikke et trekk, en ny kravversjon eller en
+   revisjon etter at kravene er avgjort. Fram til endringsordren kan TE sende en ny kravversjon
+   og byggherren et nytt svar også i et spor med registrert enighet. Visningen viser at det nye
+   avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).
+   For en sak lukket etter GR-U27 gjelder punkt 6. (MM-U34 punkt 9, 11 og 12; E1)
+8. Det er en kontroll av at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet.
+   Strengere vilkår for å sende senere gjør ikke et brev som var tillatt da det ble sendt,
+   uforstått. Endres utledningen, følger det MM-U16. (MM-U18)
+9. Et registrert brev gjør ikke saken ikke forstått. Et ekte registrert brev som strider mot
+   enigheten eller lukkingen, bevares og vises. Det står som dokumentasjon: en aksept, et trekk
+   eller et annet utsagn sendt utenfor løsningen står som dokumentasjon, og et valg av krav
+   eller svar godtas bare der den samme handlingen sendt fra løsningen ville vært godtatt.
+   Løsningen utleder ikke noe av det, og det gir ingen sperre (OV-U4). Løsningen avgjør ikke om
+   brevet er virksomt (MM-U12). Kan løsningen ikke uttrykke innholdet, gjelder KA-U16 slik OV-U4
+   har endret den. (MM-U18; MM-U19;
+   MM-U20; MM-U34 punkt 12; OV-U4; OV-U80; E2)
+
+###### C. Strid med partens eget utsagn
+
+10. En hendelse som ikke er et registrert brev, og som påberoper at et varsel, krav eller svar
+    kom for sent etter en bestemmelse der samme part i et utsagn sendt fra løsningen
+    uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det, gjør saken
+    ikke forstått så langt HF-U4 avviser en slik påberopelse. Det er en kontroll av at dataene
+    henger sammen, ikke en rettslig avgjørelse om gyldighet. Så lenge den egne innsigelsen etter
+    punkt 5 tredje ledd er utsatt, har kontrollen ingen oppgitt innsigelse å lese (VS-U35).
+    (MM-U27; HF-U4; VS-U35; E3)
+11. En påberopelse fra byggherren av at et varsel kom for sent, etter at byggherren har sagt at
+    varselet kom i tide, gjør ikke saken ikke forstått. (MM-U34 punkt 6; E3) Om en revisjon som
+    senker noe byggherren har innrømmet, gjør saken ikke forstått, følger samlevedtaket for
+    revisjon av byggherrens svar. (MM-U27 andre setning)
+
+###### Designdel
+
+Visningen sier at et varsel med frist må sendes utenfor løsningen og registreres senere, og
+drift varsles. (MM-U2) *Ved spørsmål 2 A gjelder det et varsel med frist som ikke sendes som
+innlegg.* Det brukeren ser i saken, står i `system.md` (MM-U22, MM-U25) og i brukerforløpet
+(OV-U21). Sakslisten og nøkkeltallene for en sak løsningen ikke forstår, følger samlevedtaket
+for sakslisten (MM-U39, OV-U61, #1566).
+
+###### Beslutningsdel
+
+Ingen bindende kommando godtas før en kjerne som forstår hendelsen, er rullet ut (MM-U2).
+Rulles løsningen tilbake, følger det B-10. For strid etter punkt 6 og 10 følger en endring av
+utledningen MM-U16 (MM-U18).
+
+###### Endret innhold
+
+**E1 Strid med enighet etter at sperren etter enighet er opphevet.** Gammel tekst: MM-U18 «Det
+gjelder for eksempel en revisjon eller en ny kravversjon i et spor med enighet, en aksept av et
+frafall, eller en hendelse som endrer utfallet etter at kravene er avgjort, når den ikke er et
+registrert brev.» og «Forkastet: at en slik hendelse leses som gyldig, som i dag, fordi den da
+kan oppheve en enighet (KA-U7, GR-U10, MM-U3); og at et registrert brev gjør saken ikke
+forstått». Samlevedtaket: punkt 6 og 7; «en revisjon eller
+en ny kravversjon i et spor med enighet» faller, og «etter at kravene er avgjort» blir «etter at
+saken er lukket» etter samlevedtaket for endringsordren og GR-U27. Hvorfor: MM-U34 punkt 9
+«Fram til endringsordren kan TE sende en ny kravversjon og byggherren et nytt svar også i et
+spor med registrert enighet.» og «Visningen viser at det nye avviker fra den registrerte
+enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).»; punkt 12 «Sperren mot trekk, ny kravversjon
+og revisjon når kravene er avgjort, oppheves, og sperren gjelder fra endringsordren er sendt
+(punkt 19).» MM-U34 opphever KA-U7 og lister ikke MM-U18, men endret MM-U19 på samme måte
+(punkt 12). Punkt 11 opphevet sperren mot å revidere et godtatt svar: «Sperrene mot å revidere
+et godtatt svar og et svar som stemmer med kravet, oppheves». Revisjonskjeden fant den samme
+motstriden (fordelingen 04.11, [6629614102](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629614102)),
+og MM-U18 hører hit. Det forkastede alternativet i MM-U18 står som forkastet, med KA-U7 opphevet.
+
+**E2 Et registrert brev i strid med enigheten eller lukkingen.** Gammel tekst: MM-U18 «Et ekte
+registrert brev som entydig er et ensidig forsøk på å trekke tilbake en bindende godkjenning,
+bevares og vises med appens vurdering atskilt (HF-U2, MM-U12): brevet endrer ikke den
+registrerte enigheten, og ingenting sperres. Et brev som viser til en ny avtale, hevder at
+enigheten er ugyldig eller inneholder vilkår, er ikke samme tilfelle.»; MM-U19 hele raden, med
+endringen i MM-U34 punkt 12; MM-U20 «Et ekte registrert brev behandles etter MM-U19 som i dag.»
+Samlevedtaket: punkt 9. Hvorfor: MM-U34 punkt 12 «I MM-U19 gjelder regelen bare et brev som
+strider mot at saken er lukket med endringsordre. «Det som strider mot enigheten …, får ingen
+virkning på utfallet, enigheten står» blir «Løsningen avgjør ikke om brevet er virksomt
+(MM-U12).»»; OV-U4 «Appen utleder ingenting av det: ingen standpunkt, enighet, sperre eller
+uavklart utfall, og den fryser ingen vurdering av det.»; OV-U80 «Et valg godtas der den samme handlingen sendt fra løsningen ville
+vært godtatt.» og «En aksept, et trekk eller et annet utsagn sendt utenfor løsningen står som
+dokumentasjon.» Etter OV-U4 og OV-U80 er et registrert brev i strid alltid dokumentasjon, så
+skillet i MM-U18 og MM-U19 mellom et entydig ensidig forsøk og et brev som viser til en ny
+avtale, gir ikke lenger ulik virkning. Det som gjenstår, er KA-U16 for innhold løsningen ikke
+kan uttrykke.
+
+**E3 Påberopelsen etter «i tide» (motsigelsen om MM-U27).** Gammel tekst: MM-U27 første
+setning uten avgrensningen «så langt HF-U4 avviser en slik påberopelse». Samlevedtaket: punkt 10
+og 11. Hvorfor: MM-U34 punkt 6 «Sperren mot at byggherren senere påberoper at et varsel kom for
+sent etter å ha sagt at varselet kom i tide, oppheves.» MM-U34 lister ikke MM-U27. Punkt 10
+følger HF-U4 slik den står etter MM-U34 punkt 6, og avgjør ikke hvor langt HF-U4 gjelder; det
+hører til kjeden for «i tide». Andre setning i MM-U27, «Det samme gjelder en revisjon som senker
+noe byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5).», bygger på vernet MM-U34
+punkt 4 opphevet, og avgjøres i samlevedtaket for revisjon av byggherrens svar (fordelingen
+04.11).
+
+**E4 Innlegg og bestridelse i en sak løsningen ikke forstår (spørsmål 2).** Gammel tekst: MM-U14
+«er saken ikke forstått (MM-U2), avvises også en bestridelse etter MM-U7. Kontrollen av at
+bestridelsen gjelder en opplysning fra motparten, trenger tilstanden. Parten kan bestride
+utenfor appen og registrere det senere, som for varsler etter MM-U2»; OV-U80 «I en sak
+løsningen ikke forstår (MM-U2), godtas bare dokumentasjon.» Samlevedtaket ved A: punkt 4 og 5.
+Hvorfor: MM-U35 «I første versjon sender en part innsigelse etter punkt 5 tredje ledd, protest mot
+en innsigelse, påberopelse av passivitet etter punkt 32.3 annet ledd og bestridelse av en
+opplysning som innlegg i fritekst.», «Løsningen tolker ikke innlegget og endrer ikke utfallet
+eller et standpunkt på grunnlag av det.» og «Innlegget sperrer ingenting og kan sendes etter et
+svar, en enighet og en endringsordre.»; VS-U35 «Påberopelsen av passivitet og bestridelsen av en
+opplysning er fortsatt utsatt (OV-U7). Til de bygges, uttrykker partene dem i et innlegg.»; etter
+lukking godtas innlegg (GR-U27 «Innlegg og dokumentasjon kan fortsatt legges til.»;
+samlevedtaket for endringsordren, punkt 12, «Innlegg, dokumentasjon og innsigelser etter punkt 5
+tredje ledd godtas.»). Begrunnelsen i MM-U14, at kontrollen trenger tilstanden, gjelder en
+bestridelse som eget utsagn, som er utsatt.
 
 '''
 
@@ -12812,6 +13944,162 @@ forkastet = true
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Byggherrens svar, enigheten og betegnelsen for sporet står på siden for saken og ikke i sakslisten."
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket, unntatt «og drift varsles»; i punkt 7 «Visningen viser at det nye avviker fra den registrerte enigheten»; og i punkt 5 «Visningen sier at et varsel med frist som ikke kan sendes som innlegg, må sendes utenfor løsningen og registreres senere.»"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket; «før en kjerne som forstår den, er rullet ut» i punkt 2; «Endres utledningen, følger det MM-U16.» i punkt 8; «Så lenge den egne innsigelsen etter punkt 5 tredje ledd er utsatt, har kontrollen ingen oppgitt innsigelse å lese (VS-U35).» i punkt 10; og «og drift varsles» i designdelen"
+id = "MM-U43"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/fc44e37/docs/vedtaksregister/vurdering-samlevedtak-ikke-forstaatt-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 1. Alternativene står under.
+
+1. **Tilslutning til samlevedtaket for saker løsningen ikke forstår.** Bakgrunn: kjeden har tolv
+   poster, og OV-U80 er tatt med. Reglene for en sak løsningen ikke forstår, står spredt i HF-U1, MM-U2, MM-U14, OV-U4 og
+   OV-U80, og reglene for en hendelse i strid med enighet, lukking eller partens eget utsagn i
+   MM-U18, MM-U19, MM-U20 og MM-U27. Flere radtekster står uendret etter at vedtaket 28.10
+   opphevet sperren etter enighet, vernet mot revisjon og sperren mot byggherrens «for sent»
+   etter «i tide»: eksemplene i MM-U18 på en ny kravversjon i et spor med enighet og en hendelse
+   etter at kravene er avgjort, den særskilte behandlingen av et registrert brev i MM-U18 og
+   MM-U19, og første setning i MM-U27 om byggherrens «for sent» etter «i tide».
+   Forslaget samler reglene i én tekst med kilde per setning, opphever MM-U18, MM-U19 og MM-U20
+   som egne regler, endrer de navngitte setningene i MM-U27, og
+   samler de navngitte setningene i HF-U1, OV-U4 og OV-U80. Andre setning i MM-U27, om en
+   revisjon som senker det byggherren har innrømmet, avgjøres i samlevedtaket for revisjon av
+   byggherrens svar. Hver innholdsendring står i E1–E4 med gammel tekst, ny tekst og kilde.
+   Sakslisten følger samlevedtaket for sakslisten.
+   Alternativene: **A.** «Samlevedtaket for saker løsningen ikke forstår gjelder med E1–E3, og
+   med E4 etter svaret på spørsmål 2.
+   Postene det samler, gjelder som «Samlet i samlevedtaket for saker løsningen ikke forstår».
+   Postene det opphever, gjelder ikke lenger, og i postene det endrer, gjelder de navngitte
+   setningene ikke lenger.» **B.** Samme som A, med rettingene oppdragsgiver gir per E-punkt.
+   Anbefalt: A, «ja». Hva valget styrer: hvilken tekst som er regelgrunnlaget for når en sak
+   ikke er forstått og for strid med enighet og lukking; de gamle radtekstene leses ikke lenger
+   alene. Forholdet til andre poster: samler, opphever og endrer som i tabellen «Postene i
+   kjeden»; ingen ny regel utover svaret på spørsmål 2. Klasse: vedtak med designdel og beslutningsdel.'''
+valgt = "1A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «1A, 2A» ([#1534, 6629853128](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629853128)). 1A er spørsmål 1, A.'''
+forhold = [{ art = "samler", vedtak = "hf-u1" }, { art = "samler", vedtak = "mm-u2" }, { art = "samler", vedtak = "ov-u4" }, { art = "opphever", vedtak = "mm-u18" }, { art = "opphever", vedtak = "mm-u19" }, { art = "opphever", vedtak = "mm-u20" }, { art = "endrer", vedtak = "mm-u27" }, { art = "presiserer", vedtak = "ka-u11" }]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for saker løsningen ikke forstår](#samlevedtak-ikke-forstaatt). Forholdene står i spørsmål 1: «samler, opphever og endrer som i tabellen «Postene i kjeden»», i [vurderingen](../vedtaksregister/vurdering-samlevedtak-ikke-forstaatt-2026-11-04.md#postene-i-kjeden). HF-U1 og OV-U4 samles for setningene tabellen nevner, og i MM-U27 gjelder bare de navngitte setningene ikke lenger. OV-U80 endres av svaret på spørsmål 2, [MM-U44](#mm-u44). Forholdene samlevedtaket overtar, står i vurderingen: «MM-U18 utvider MM-U2 og presiserer HF-U1; MM-U19 presiserer KA-U11 og er i tråd med KA-U16 (KA-U7 er opphevet av MM-U34 punkt 9); MM-U20 presiserer MM-U18; MM-U27 utvider MM-U18 (for første setning).»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1A"
+tekst = '''
+Samlevedtaket for saker løsningen ikke forstår gjelder med E1–E3, og med E4 etter svaret på spørsmål 2. Postene det samler, gjelder som «Samlet i samlevedtaket for saker løsningen ikke forstår». Postene det opphever, gjelder ikke lenger, og i postene det endrer, gjelder de navngitte setningene ikke lenger.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1B"
+tekst = '''
+Samme som A, med rettingene oppdragsgiver gir per E-punkt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "«Visningen sier at et varsel med frist som ikke kan sendes som innlegg, må sendes utenfor løsningen og registreres senere.»"
+id = "MM-U44"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 04.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/fc44e37/docs/vedtaksregister/vurdering-samlevedtak-ikke-forstaatt-2026-11-04.md#spørsmålene-til-oppdragsgiver), spørsmål 2. Alternativene står under.
+
+2. **Innlegg i en sak løsningen ikke forstår.** Bakgrunn: når løsningen ikke forstår en sak,
+   godtas ingen bindende handling fra noen part før en versjon som forstår den, er tatt i bruk,
+   og bare dokumentasjon kan legges til. Vedtaket 10.10 avviste også en bestridelse, fordi
+   kontrollen av at den gjelder en opplysning fra motparten trenger tilstanden. Etter vedtakene
+   28.10 sender en part i første versjon innsigelsen etter punkt 5 tredje ledd, protest,
+   påberopelse av passivitet og bestridelse som innlegg i fritekst. Innlegget sendes som brev på
+   den avtalte kanalen, sperrer ingenting, og løsningen tolker det ikke og avgjør ikke om det kom
+   i tide. Bestridelsen som eget utsagn er utsatt. Etter at saken er lukket, godtas innlegg.
+   Belegg: MM-U2 «kan ikke kjernen tolke en hendelse på saken, godtas ingen bindende kommando fra
+   noen part før en kjerne som forstår den, er rullet ut.» og «Visningen sier at et varsel med
+   frist må sendes utenfor appen og registreres senere, og drift varsles.»; MM-U14 «er saken ikke
+   forstått (MM-U2), avvises også en bestridelse etter MM-U7. Kontrollen av at bestridelsen
+   gjelder en opplysning fra motparten, trenger tilstanden.»; OV-U80 «I en sak løsningen ikke
+   forstår (MM-U2), godtas bare dokumentasjon.»; MM-U35 «I første versjon sender en part
+   innsigelse etter punkt 5 tredje ledd, protest mot en innsigelse, påberopelse av passivitet
+   etter punkt 32.3 annet ledd og bestridelse av en opplysning som innlegg i fritekst.», «Det
+   sendes som brev på den kanalen partene har avtalt, som de andre brevene fra løsningen.»,
+   «Løsningen tolker ikke innlegget og endrer ikke utfallet eller et standpunkt på grunnlag av
+   det.», «Innlegget sperrer ingenting og kan sendes etter et svar, en enighet og en
+   endringsordre.» og «Løsningen avgjør ikke om innlegget kom i tide eller hvilken virkning det
+   har.»; VS-U35 «Påberopelsen av passivitet og bestridelsen av en opplysning er fortsatt utsatt
+   (OV-U7). Til de bygges, uttrykker partene dem i et innlegg.»; GR-U27 «Innlegg og
+   dokumentasjon kan fortsatt legges til.»
+   Alternativene:
+   **A.** «I en sak løsningen ikke forstår, godtas også et innlegg, også et innlegg med en
+   innsigelse, en protest, en påberopelse av passivitet eller en bestridelse av en opplysning.
+   Et innlegg er ikke en bindende kommando. Bindende kommandoer avvises som før (MM-U2).
+   Visningen sier at et varsel med frist som ikke kan sendes som innlegg, må sendes utenfor
+   løsningen og registreres senere.» Forhold: utvider MM-U35 til en sak løsningen ikke forstår;
+   presiserer MM-U2 (et innlegg er ikke en bindende kommando) og endrer designdelen i MM-U2;
+   snevrer inn MM-U14 til bestridelsen som eget utsagn, som er utsatt (VS-U35); endrer OV-U80 i
+   setningen om en sak løsningen ikke forstår.
+   **B.** «I en sak løsningen ikke forstår, avvises også et innlegg, også et innlegg med en
+   innsigelse, en protest, en påberopelse av passivitet eller en bestridelse av en opplysning.
+   Parten kan sende det utenfor løsningen og registrere det som dokumentasjon.» Forhold: snevrer
+   inn MM-U35 og MM-U33 punkt 3 («Begge parter kan sende innlegg i fritekst i saken, med henvisning til et brev og med dokumentasjon.»); utvider MM-U14
+   fra bestridelsen til alle innlegg; samler OV-U80 i setningen om en sak løsningen ikke forstår.
+   Anbefalt: A. Belegg: et innlegg sperrer ingenting, løsningen tolker det ikke og avgjør ikke om
+   det kom i tide (MM-U35), så grunnen i MM-U2 og MM-U14, at kontrollen trenger tilstanden,
+   rammer det ikke. Innlegg godtas også etter lukking (GR-U27, samlevedtaket for endringsordren
+   punkt 12). Hva hvert valg koster: ved A får motparten et innlegg fra løsningen i en sak der
+   løsningen ikke kan vise tilstanden, og løsningen avgjør ikke hva innlegget betyr. Ved B må en
+   part som skal fremme en innsigelse med frist, sende den utenfor løsningen og registrere den;
+   et registrert brev sendes ikke fra løsningen og får ikke løsningens sending på den avtalte
+   kanalen. Hva valget styrer: om skjemaet for innlegg er tilgjengelig i en sak løsningen ikke
+   forstår, og hva visningen sier om varsler med frist. Klasse: vedtak med designdel.'''
+valgt = "2A"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «1A, 2A» ([#1534, 6629853128](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629853128)). 2A er spørsmål 2, A.'''
+forhold = [{ art = "utvider", vedtak = "mm-u35" }, { art = "presiserer", vedtak = "mm-u2" }, { art = "endrer", vedtak = "mm-u2" }, { art = "snevrer inn", vedtak = "mm-u14" }, { art = "endrer", vedtak = "ov-u80" }]
+folge = '''
+Punkt 5 i [samlevedtaket](#samlevedtak-ikke-forstaatt) er teksten i alternativet. Forholdene står i spørsmålet: «utvider MM-U35 til en sak løsningen ikke forstår; presiserer MM-U2 (et innlegg er ikke en bindende kommando) og endrer designdelen i MM-U2; snevrer inn MM-U14 til bestridelsen som eget utsagn, som er utsatt (VS-U35); endrer OV-U80 i setningen om en sak løsningen ikke forstår.»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2A"
+tekst = '''
+I en sak løsningen ikke forstår, godtas også et innlegg, også et innlegg med en innsigelse, en protest, en påberopelse av passivitet eller en bestridelse av en opplysning. Et innlegg er ikke en bindende kommando. Bindende kommandoer avvises som før (MM-U2). Visningen sier at et varsel med frist som ikke kan sendes som innlegg, må sendes utenfor løsningen og registreres senere.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2B"
+tekst = '''
+I en sak løsningen ikke forstår, avvises også et innlegg, også et innlegg med en innsigelse, en protest, en påberopelse av passivitet eller en bestridelse av en opplysning. Parten kan sende det utenfor løsningen og registrere det som dokumentasjon.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "kan ikke kjernen tolke en hendelse på saken, godtas ingen bindende kommando fra noen part før en kjerne som forstår den, er rullet ut."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Kontrollen av at bestridelsen gjelder en opplysning fra motparten, trenger tilstanden."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "I en sak løsningen ikke forstår (MM-U2), godtas bare dokumentasjon."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Innlegget sperrer ingenting og kan sendes etter et svar, en enighet og en endringsordre."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Løsningen avgjør ikke om innlegget kom i tide eller hvilken virkning det har."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Til de bygges, uttrykker partene dem i et innlegg."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Innlegg og dokumentasjon kan fortsatt legges til."
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
@@ -16834,7 +18122,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
-bindende_i = ["ov-u39", "ov-u38"]
+bindende_i = ["ov-u39", "ov-u89"]
 id = "OV-U60"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -17964,8 +19252,6 @@ forhold = [
   { art = "presiserer", vedtak = "ov-u9" },
   { art = "presiserer", vedtak = "ov-u5" },
   { art = "presiserer", vedtak = "vs-u16" },
-  { art = "utvider", vedtak = "ov-u48" },
-  { art = "utvider", vedtak = "ov-u49" },
   { art = "bygger på", vedtak = "ka-u24" },
 ]
 folge = '''

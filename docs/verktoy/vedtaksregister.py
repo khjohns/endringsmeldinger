@@ -1070,10 +1070,7 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ka-u20", "presiserer", "ka-u7", "#1534, steg 4"),
         ("ka-u31", "snevrer inn", "ka-u24", "#1534, steg 4"),
         ("ka-u41", "presiserer", "ka-u24", "#1534, steg 4"),
-        ("ka-u45", "bygger på", "ov-u48", "#1534, steg 4"),
-        ("ka-u45", "bygger på", "ov-u49", "#1534, steg 4"),
         ("lv-u31", "presiserer", "hf-u14", "#1534, steg 4"),
-        ("mm-u19", "presiserer", "ka-u7", "#1534, steg 4"),
         ("mm-u30", "presiserer", "mm-u29", "#1534, steg 4"),
         ("mm-u34", "endrer", "ka-u26", "#1534, steg 4"),
         ("mm-u34", "endrer", "ka-u28", "#1534, steg 4"),
@@ -1085,7 +1082,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ov-u3", "bygger på", "eo-u2", "#1534, steg 4"),
         ("ov-u3", "bygger på", "eo-u5", "#1534, steg 4"),
         ("ov-u3", "endrer", "ka-u3", "#1534, steg 4"),
-        ("ov-u38", "presiserer", "ka-u7", "#1534, steg 4"),
         ("ov-u4", "endrer", "ka-u24", "#1534, steg 4"),
         ("ov-u43", "presiserer", "mm-u28", "#1534, steg 4"),
         ("ov-u43", "utvider", "eo-u5", "#1534, steg 4"),
@@ -1096,8 +1092,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ov-u67", "presiserer", "ov-u65", "#1534, steg 4"),
         ("ov-u67", "presiserer", "ov-u66", "#1534, steg 4"),
         ("ov-u80", "bygger på", "ka-u24", "#1534, steg 4"),
-        ("ov-u80", "utvider", "ov-u48", "#1534, steg 4"),
-        ("ov-u80", "utvider", "ov-u49", "#1534, steg 4"),
         ("vs-u13", "bygger på", "ka-u24", "#1534, steg 4"),
     }
 )
@@ -1524,7 +1518,11 @@ def endret_rundt_vedtakene(
         borte = collections.Counter(LENKE.findall(p["folge"])) - collections.Counter(
             LENKE.findall(naa["folge"])
         )
-        feil += [f"{navn}: lenken {lenke} er fjernet fra Følge" for lenke in borte]
+        feil += [
+            f"{navn}: lenken {lenke} er fjernet fra Følge"
+            for lenke in borte
+            if not _lenke_fjernet_med_forhold(p.get("anker"), lenke)
+        ]
         if p.get("anker") not in nye_ankre and not folge_bare_lagt_til(
             p["folge"], naa["folge"]
         ):
@@ -1586,11 +1584,44 @@ FORHOLD_FOERT_ETTER_MERGE = {
     ("eo-u17", "endrer", "ubegrenset-fullmakt"): "M2 A 04.11, #1534",
 }
 
+# Forhold oppdragsgiver har bestemt at en merget post skal miste, som (posten, arten, vedtaket),
+# med kilden. Lenkene forholdet ga i Følge hos begge postene, faller bort med det.
+FORHOLD_FJERNET_ETTER_MERGE = {
+    ("ka-u45", "bygger på", "ov-u48"): "E2, V2 A 04.11, #1534",
+    ("ka-u45", "bygger på", "ov-u49"): "E2, V2 A 04.11, #1534",
+    ("ov-u80", "utvider", "ov-u48"): "E2, V2 A 04.11, #1534",
+    ("ov-u80", "utvider", "ov-u49"): "E2, V2 A 04.11, #1534",
+}
+
+
+def forhold_fjernet_feil(register: dict, liste: dict | None = None) -> list[str]:
+    """En rad i FORHOLD_FJERNET_ETTER_MERGE uten kilde med issue, med en post som ikke finnes,
+    eller med et forhold som fortsatt står i registeret."""
+    liste = FORHOLD_FJERNET_ETTER_MERGE if liste is None else liste
+    etter_navn = {anker(p): p for p in poster(register) if anker(p)}
+    feil = []
+    for (post, art, vedtak), kilde in sorted(liste.items()):
+        rad = f"FORHOLD_FJERNET_ETTER_MERGE: {post} {art} {vedtak}"
+        if not re.search(r"#\d+", kilde):
+            feil.append(f"{rad}: kilden må ha issuet")
+        if post not in etter_navn or vedtak not in etter_navn:
+            feil.append(f"{rad}: posten eller vedtaket finnes ikke i registeret")
+        elif {"art": art, "vedtak": vedtak} in etter_navn[post].get("forhold", []):
+            feil.append(f"{rad}: forholdet står fortsatt i registeret; fjern forholdet eller raden")
+    return feil
+
+
+def _lenke_fjernet_med_forhold(anker_: str | None, lenke: str) -> bool:
+    maal = lenke[lenke.index("(#") + 2 : -1]
+    par = {(post, vedtak) for post, _, vedtak in FORHOLD_FJERNET_ETTER_MERGE}
+    return (anker_, maal) in par or (maal, anker_) in par
+
 
 def _forhold_etter_merge(id_: str, gammel: dict, naa: dict) -> list[str]:
     """Etter merge kan en post få forholdene i FORHOLD_ETTER_MERGE, og et forhold kan bli
     «opphever» eller «samler» når et senere vedtak har tatt innholdet (svar 14 i PR #1537).
-    Ellers står forholdene, unntatt dem i FORHOLD_FOERT_ETTER_MERGE."""
+    Ellers står forholdene, unntatt dem i FORHOLD_FOERT_ETTER_MERGE, og forholdene i
+    FORHOLD_FJERNET_ETTER_MERGE kan fjernes."""
     foer = collections.Counter((f["art"], f["vedtak"]) for f in gammel.get("forhold", []))
     etter = collections.Counter((f["art"], f["vedtak"]) for f in naa.get("forhold", []))
     lagt_til, borte = etter - foer, foer - etter
@@ -1606,7 +1637,8 @@ def _forhold_etter_merge(id_: str, gammel: dict, naa: dict) -> list[str]:
     feil += [
         f"{id_}: forholdet «{art} {a}» er fjernet etter merge"
         for art, a in borte
-        if a not in erstattet or art == "opphever"
+        if (a not in erstattet or art == "opphever")
+        and (id_.lower(), art, a) not in FORHOLD_FJERNET_ETTER_MERGE
     ]
     return feil
 
@@ -1711,11 +1743,16 @@ def main() -> int:
             return 1
         return 0
     if not feil:
-        feil = forholdfeil(register) + forhold_til_opphevet_feil(register) + [
-            f"{p['id']}: kodenavn i vedtaksteksten, {k}"
-            for p in _nye(register)
-            for k in kodenavn(p)
-        ]
+        feil = (
+            forholdfeil(register)
+            + forhold_til_opphevet_feil(register)
+            + forhold_fjernet_feil(register)
+            + [
+                f"{p['id']}: kodenavn i vedtaksteksten, {k}"
+                for p in _nye(register)
+                for k in kodenavn(p)
+            ]
+        )
     if feil:
         print("Registeret er ikke gyldig:", *feil, sep="\n  ")
         return 1
