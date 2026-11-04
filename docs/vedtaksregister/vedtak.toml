@@ -11183,7 +11183,7 @@ dato = 2026-11-04
 hvem = "oppdragsgiver"
 kilde = ["#1497"]
 sporsmal = '''
-Spørsmål S-1, ordrett slik det står i bestillingen for brukerforløpet BF-07 (`docs/domenetabell/brukerforlop/BF-07.md`, PR #1555, commit `bb1f6bc`), stilt 04.11 i orkestreringsrunde 10 (#1065). Tabellene T-5 til T-11 og G-1 og G-4 står i BF-07. Det første svaret passet ikke på et alternativ, og spørsmålet ble stilt på nytt med A og B uendret i #1497 (kommentaren 6628090746). Alternativene står i posten.
+Spørsmål S-1, ordrett slik det står i bestillingen for brukerforløpet BF-07 (`docs/domenetabell/brukerforlop/BF-07.md`, PR #1555, commit `bb1f6bc`), stilt 04.11 i orkestreringsrunde 10 (#1065). Tabellene T-5 til T-11 og G-1 og G-4 står i BF-07. Spørsmålet ble stilt på nytt med A og B uendret i #1497 (kommentaren 6628090746). Alternativene står i posten.
 
 **S-1. Hvilke av motpartens brev står under Deres ref.?** Dette er S4 i #1497, nå med tilfellene i tabellene over. LV-U27 sier «brevene det svares på». LV-U28, som endret LV-U27, legger byggherrens saksnummer i Websak under Deres ref. i TEs brev, og det står der uansett svar.
 
@@ -11228,7 +11228,7 @@ Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldin
 Svaret på den første versjonen, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6628164953)): «S1 A, S2: Hvorfor ikke A automatisk? JEg tenker flyten i praksis ofte vil være slik: TE sender krav. BH svarer. TE og BH har da noen runder med brev som er innlegg (fritekst). Partene er nærmere hverandre, og TE sender nytt krav - det er en respons på BHs svar til første krav, men på bakgrunn av brevene som har vært mellom partene tidligere. Eller er det tungvindt? Hvis dette er vanskelig - da velger vi S2 B. S5 A»'''
 forhold = [{ art = "presiserer", vedtak = "lv-u27" }, { art = "utvider", vedtak = "lv-u49" }]
 folge = '''
-Gjelder en ny kravversjon. Henvisningen følger av relasjonene `Krav.erstatter` og `Svar.gjelder`, ikke av et utsagn, slik det ble forklart i spørsmålet. Bygges i #1497.'''
+Gjelder en ny kravversjon. Henvisningen følger av relasjonene `Krav.erstatter` og `Svar.gjelder`, og ikke av rekkefølgen i journalen, slik det ble forklart i spørsmålet. Den er ikke et utsagn i kravversjonen: en ny kravversjon «viser i dag ikke til svaret i noe utsagn» (S-2 i BF-07). Bygges i #1497.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "D"
