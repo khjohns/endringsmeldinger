@@ -76,7 +76,7 @@ hvem = "oppdragsgiver"
 kilde = ["#1497", "#1065"]
 klasse = "vedtak"
 sporsmal = '''
-Spørsmål S-1, ordrett slik det ble stilt 04.11 i orkestreringsrunde 12 (#1065, PR #1570) og lagret i #1497 ([kommentaren 6629603578](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6629603578)), med tillegget med alternativ C ([kommentaren 6629700535](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6629700535)). Hvorfor spørsmålet ikke var avgjort, og prøvingen mot vedtaksfila, står i den første kommentaren. Alternativene står i posten.
+Spørsmål S-1, ordrett slik det ble stilt 04.11 i orkestreringsrunde 12 (#1065, PR #1570) og lagret i #1497 ([kommentaren 6629603578](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6629603578)), med tillegget med alternativ C ([kommentaren 6629700535](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6629700535)). Delene «Er spørsmålet alt avgjort?», belegget under bakgrunnen og under anbefalingen, antakelsene, avsnittet «Velges A, …» og prøvingen mot vedtaksfila står bare i den første kommentaren. Alternativene står i posten.
 
 **Skal et brev som viser til et tidligere brev i samme sak, nevne sakens kode?**
 
@@ -91,7 +91,11 @@ Spørsmål S-1, ordrett slik det ble stilt 04.11 i orkestreringsrunde 12 (#1065,
 - Forventningene i testene for brevteksten i PR #1570.
 - Forholdet som føres i registeret. Med A endrer det de eldre vedtakene. Med B snevrer det inn LV-U44 og LV-U45.
 
-Tillegget: Oppdragsgiver spurte 04.11, ordrett: «Kan vi ikke gjennomgående i alle brev skrive noe ala "Byggherren viser til brev K201-KOE-17-03 av 5. oktober 2026."» Det passer ikke på A eller B, så det er lagt fram som et tredje alternativ, C.
+Tillegg til spørsmål S-1 (orkestratoren, runde 12 i #1065). Oppdragsgiver spurte 04.11, ordrett: «Kan vi ikke gjennomgående i alle brev skrive noe ala "Byggherren viser til brev K201-KOE-17-03 av 5. oktober 2026."»
+
+Det passer ikke på A eller B, så det er lagt fram som et tredje alternativ:
+
+(Alternativ C står i posten.)
 
 Merknader:
 - Merkingen har tre sifre i løpenummeret etter LV-U48: K201-KOE-017-03, ikke K201-KOE-17-03.
