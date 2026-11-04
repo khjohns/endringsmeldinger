@@ -69,14 +69,14 @@ Mot kjeder som er besvart eller ikke startet:
 ## Postene i kjeden
 
 «Samler»: regelen står i samlevedtaket med uendret innhold, og den gamle ID-en gjelder som
-«Samlet i samlevedtaket for svar mens grunnlaget er ubesvart». «Opphever»: samlevedtaket løser en
+«Samlet i samlevedtaket for svar mens forholdet er ubesvart». «Opphever»: samlevedtaket løser en
 motsigelse og endrer innholdet. Klassene er kontrollert uavhengig 04.11 (svar 8); se «Prøvingen».
 
 | Post | Klasse | Status nå | Forhold til samlevedtaket | E-punkt |
 | --- | --- | --- | --- | --- |
 | GR-U4 | vedtak | gjeldende, endret og utvidet av GR-U26, snevret inn av HF-U5 | samler; s1 står i punkt 14, s2 i punkt 12; retten til et nytt svar står i HF-U25 punkt 1 | E5 |
-| GR-U26 | vedtak med designdel | gjeldende, endret av OV-U45, GR-U29, LV-U41, GR-U33 og LV-U53 | samler; s9 står i designdelen | E1, E3, E4 |
-| GR-U29 | vedtak | gjeldende, endret av LV-U41, GR-U33 og LV-U53 | samler | E1 |
+| GR-U26 | vedtak med designdel | gjeldende, endret av OV-U45, GR-U29, LV-U41, GR-U33 og LV-U53 | samler; presiserer s9 (E4); s9 står også i designdelen | E1, E3, E4 |
+| GR-U29 | vedtak | gjeldende, endret av LV-U41, GR-U33 og LV-U53 | samler; utvider (plasseringen gjelder også henvisningen) | E1, E2 |
 | GR-U33 | vedtak | gjeldende | samler | E1 |
 | OV-U45 | vedtak med designdel | gjeldende, endret av LV-U41, GR-U33 og LV-U53 | samler; s1 (spørsmålet) og s3 står i designdelen | E2, E6 |
 | LV-U41 | vedtak | gjeldende | står; s8 og s9 er kilder; resten hører til andre kjeder | E1, E2 |
@@ -84,7 +84,8 @@ motsigelse og endrer innholdet. Klassene er kontrollert uavhengig 04.11 (svar 8)
 | OV-U46, OV-U69 | vedtak med designdel | samlet i KA-U49 eller i kjeden for svar utenfor løsningen | står; kilder | – |
 | OV-U49 | vedtak | opphevet 30.10 av OV-U69 | står opphevet | – |
 | KA-U49 | vedtak med designdel og beslutningsdel | gjeldende | står; punkt 10 er i tråd med punkt 5 og E3 | E3 |
-| LV-U53, GR-U1, GR-U7, GR-U23, HF-U21 | vedtak | gjeldende | står; kilder | – |
+| GR-U1, GR-U7 | vedtak | gjeldende | står; presiseres av punkt 14 og punkt 12 | E4, E5 |
+| LV-U53, GR-U5, GR-U23, GR-U27, HF-U21, HF-U27 | vedtak | gjeldende | står; kilder | – |
 | GR-U31 | vedtak med designdel | gjeldende | står; kilde | – |
 | HF-U25 | vedtak med designdel og beslutningsdel | gjeldende | står; punkt 10 viser hit, og punkt 1 har retten til et nytt svar | E5 |
 
@@ -114,7 +115,7 @@ står i parentes etter hver setning; «s» er setningen i posten.
 6. Har byggherren alt svart på forholdet utenfor løsningen, kan byggherren vise til det svaret.
    Brevnummeret og datoen i forbeholdet er kravets. Byggherren oppgir et registrert dokument,
    eller dokumenttypen (brev, e-post eller annet dokument), datoen og en kort identifikasjon.
-   Valget av dokumenttype sier ikke noe om formkravet i punkt 5. Henvisningen til et dokument med
+   Valget av dokumenttype sier ikke noe om formkravet i punkt 5 i NS 8407. Henvisningen til et dokument med
    merking følger LV-U53. Brevet sier da i punktet
    «Forbehold»: ‹For byggherrens standpunkt til totalentreprenørens påberopelse av <forholdet> i
    brev <merking> av <dato> vises det til byggherrens <dokumenttype> av <dato>. Standpunktene
@@ -141,8 +142,13 @@ står i parentes etter hver setning; «s» er setningen i posten.
 12. Besvares forholdet senere, gjelder svaret på vederlag eller frist som avklart når forholdet er
     godkjent uten påberopt preklusjon eller frafalt (GR-U7; GR-U23), og som subsidiært når
     forholdet er avslått eller preklusjon er påberopt. Det følger av svaret på forholdet. (GR-U4 s2;
-    GR-U26 s9; E4) En enighet om vederlag eller frist er betinget til TE godtar avslaget eller
-    preklusjonen, og får da ingen virkning (GR-U7). (E4)
+    GR-U26 s9; E4) Har byggherren frafalt etter punkt 32.3 første ledd c i NS 8407 og i et nytt svar
+    avslått eller påberopt at varselet kom for sent, viser løsningen frafallet sammen med det nye
+    svaret, uten å trekke konklusjonen. (HF-U25 punkt 4; HF-U27)
+    En enighet om vederlag eller frist er betinget til forholdet er avklart. Den får ingen virkning
+    når TE godtar avslaget (GR-U7) eller preklusjonen, eller trekker påberopelsen (GR-U5). Den får
+    virkning når byggherren i et nytt svar godkjenner forholdet eller frafaller (HF-U25 punkt 1;
+    GR-U7). Kommer en ny versjon av påberopelsen, er den fortsatt betinget (GR-U1; punkt 14). (E4)
 13. Avslaget er byggherrens standpunkt, ikke løsningens avgjørelse av om betingelsen er oppfylt.
     (GR-U26 s10)
 14. Venter en ny versjon av påberopelsen på svar, også etter at byggherren har avslått den forrige
@@ -162,13 +168,13 @@ står i parentes etter hver setning; «s» er setningen i posten.
 
 ## Endret innhold
 
-**E1 Den sammensatte ordlyden.** Gammel tekst: GR-U26 s1 «Byggherren har ennå ikke svart på
+**E1 Den sammensatte ordlyden.** Gammel tekst: GR-U26 s1, del av setningen, «Byggherren har ennå ikke svart på
 grunnlaget i TEs krav i brev <n> av <dato>. Standpunktene nedenfor gjelder under forutsetning av at
 grunnlaget for kravet foreligger.»; GR-U29 s1, plasseringen og «ovenfor»; LV-U41 s8
 «Forbeholdets første setning: ‹Byggherren har ennå ikke svart på totalentreprenørens <påberopelsen>
-i brev <n> av <dato>.›»; GR-U33 s1 «Standpunktene ovenfor gjelder under forutsetning av at forholdet
+i brev <n> av <dato>.›»; GR-U33 s1, del av setningen, «Standpunktene ovenfor gjelder under forutsetning av at forholdet
 gir grunnlag for kravet.»; GR-U31 «Brevteksten kaller brevet ‹påberopelsen av <forholdet>›.»;
-LV-U53 «‹brev K201-KOE-017-03 av <dato>›». Samlevedtaket: punkt 3. Innholdet er ikke endret; teksten
+LV-U53, del av setningen, «‹brev K201-KOE-017-03 av <dato>›». Samlevedtaket: punkt 3. Innholdet er ikke endret; teksten
 er satt sammen av de senere endringene. ‹<merking>› står for merkingen etter LV-U53. Plasseringen sist
 i brevet er en del av vedtaket, fordi «ovenfor» bygger på den. I KA-U49 står plasseringen av
 byggherrens egen tekst i designdelen.
@@ -180,7 +186,8 @@ Henvisningen og forbeholdet endrer ikke byggherrens tidligere meddelte standpunk
 grunnlaget.» Samlevedtaket: punkt 6. Ordene følger leseregelen i LV-U41 s9 («‹grunnlaget i TEs krav›
 som ‹totalentreprenørens <påberopelsen>›») og GR-U33, som endret OV-U45. At henvisningen står i
 punktet «Forbehold», er vår slutning: GR-U29 nevner bare GR-U26, men GR-U33 ga henvisningen
-«ovenfor», som bare passer når teksten står etter standpunktene.
+«ovenfor», som bare passer når teksten står etter standpunktene. Det utvider GR-U29, som får det
+forholdet i tillegg til «samler».
 
 **E3 Det faste forbeholdet og KA-U49.** Gammel tekst: KA-U49 punkt 5 «Et vilkår eller forbehold i
 begrunnelsen eller under «Forbehold» gjør ikke enigheten betinget i løsningen.»; E3 i KA-U49
@@ -190,13 +197,25 @@ ubesvart» (GR-U26).» Samlevedtaket: punkt 10. Etter GR-U29 står det faste for
 ikke av teksten. Det er i tråd med KA-U49 punkt 5 og E3, og KA-U49 punkt 2 og 7 gjelder også det
 faste forbeholdet. Innholdet er ikke endret.
 
-**E4 Enigheten etter et senere avslag.** Gammel tekst: GR-U26 s9 «Visningen viser standpunktet sammen
-med det senere grunnlagssvaret: som avklart når grunnlaget er godkjent, og som subsidiært når
-grunnlaget er avslått eller preklusjon er påberopt.»; GR-U7 «Godtar TE avslaget på grunnlaget,
-lukkes saken, og enigheten om beløp eller dager får ingen virkning.» Samlevedtaket: punkt 12. To
-slutninger, ikke ordlyden i et vedtak. Først: punkt 12 gjør det GR-U26 s9 sier om visningen, til en
-regel for hva svaret gjelder som, og tar med frafallet og preklusjonen etter GR-U7 og GR-U23.
-Dernest: mellom avslaget og TEs aksept av det er enigheten fortsatt betinget, ikke bortfalt.
+**E4 Enigheten etter et senere svar på forholdet.** Gammel tekst: GR-U26 s9 «Visningen viser
+standpunktet sammen med det senere grunnlagssvaret: som avklart når grunnlaget er godkjent, og som
+subsidiært når grunnlaget er avslått eller preklusjon er påberopt.»; GR-U7 «Godtar TE avslaget på
+grunnlaget, lukkes saken, og enigheten om beløp eller dager får ingen virkning.»; GR-U5 «trekker TE
+grunnlaget, trekkes alle krav som er sendt, også et vederlag eller en frist byggherren har godkjent,
+fordi ansvarsgrunnlaget bærer dem.» (del av setningen). Samlevedtaket: punkt 12. Slutninger, ikke
+ordlyden i et vedtak:
+
+- Punkt 12 gjør det GR-U26 s9 sier om visningen, til en regel for hva svaret gjelder som, og tar med
+  frafallet og preklusjonen etter GR-U7 og GR-U23. Det presiserer GR-U26 s9. Unntaket etter et
+  frafall står i HF-U25 punkt 4 og HF-U27.
+- Mellom avslaget og TEs aksept av det er enigheten fortsatt betinget, ikke bortfalt.
+- At en godtatt preklusjon gir samme virkning som et godtatt avslag, står ikke i GR-U7 eller GR-U27,
+  som bare nevner avslaget. Koden gjør det slik (`forholdAvvist` i `kjerne/utledning/utled.ts`).
+- At enigheten får ingen virkning når TE trekker påberopelsen, er vår lesning av GR-U5.
+- At enigheten får virkning når byggherren senere godkjenner forholdet eller frafaller, følger av
+  GR-U7 og HF-U25 punkt 1. At den er betinget når en ny versjon kommer, følger av GR-U1 og punkt 14.
+
+Det presiserer GR-U7, som får forholdet «presiserer».
 
 **E5 GR-U4 s1 og en ny versjon etter et avslag.** Gammel tekst: GR-U4 «reviderer byggherren svaret
 på vederlag eller frist mens grunnlaget venter på nytt svar, er det nye svaret prinsipalt.»; GR-U1
@@ -206,9 +225,18 @@ ubetingede «prinsipalt» med forbeholdet, og alternativet «A: GR-U4 står» bl
 på den forrige versjonen ikke gjør det nye svaret subsidiært, er vår lesning av GR-U1. Regelen GR-08
 i domenetabellen og forløpet i #1239 bygger på den samme lesningen. GR-U4 samles, og henvisningene
 til GR-U4 om retten til å gi et nytt svar (GR-U9, MM-U9 og forholdet fra HF-U5) gjelder HF-U25
-punkt 1, ikke samlevedtaket. Innholdet er ikke endret.
+punkt 1, ikke samlevedtaket. Punkt 14 presiserer GR-U1, som får forholdet «presiserer».
 
-**E6 «I appen» og «grunnlaget».** Gammel tekst: OV-U45 s1 «ikke er besvart i appen»; GR-U26 s4 «I
+De forkastede alternativene i GR-U26 har setninger som ligger nær punkt 14: «A: GR-U4 står» sa
+«Byggherrens svar på en tidligere versjon av grunnlaget er ikke forbehold for det.», og «S» sa
+«Forbeholdet bygger på at ansvarsgrunnlaget er uavklart, ikke på automatisk videreføring av et
+tidligere grunnlagsavslag.» Det valgte alternativet S⁗ bygger på S («S″ + Astras presisering + HF-U7
++ skillet mellom brev og visning»), og det gir forbeholdet når gjeldende versjon ikke er besvart,
+også etter et avslag på den forrige. Vår lesning er at A ble forkastet fordi den ga et ubetinget
+prinsipalt svar uten forbehold, og at S ble forkastet for ordlyden. Det er en antakelse: svaret i
+GR-U26 sier ikke hvorfor de ble forkastet.
+
+**E6 «I appen» og «grunnlaget».** Gammel tekst: OV-U45 s1 «ikke er besvart i appen»; GR-U26 s4, del av setningen, «I
 appen er forbeholdet ikke et vilkår etter HF-U7»; GR-U26 og OV-U45 «grunnlaget». Samlevedtaket
 bruker «i løsningen» og «forholdet» (LV-U41 s9; AGENTS.md om betegnelsen). Innholdet er ikke
 endret. Spørsmålet i skjemaet er design og står i BF-01.
@@ -268,14 +296,34 @@ En egen subagent kontrollerte påstandene om koden på samme commit. Funnene og 
 - **Overlappen** nevner nå kjedene «Den vedtatte brevteksten i LV-U4» og «Forholdet som begrep».
 - **Punkt 6** sier at henvisningen til et dokument med merking følger LV-U53.
 - **Klassene** for GR-U31 og HF-U25 i tabellen er rettet. E1 sier at plasseringen er vedtak.
-- **Spørsmål 2** er nå det eneste spørsmålet, i vedtaksform, og skiller slutningene E2, E4 og E5
+- **Spørsmål 1** (tilslutningen) er nå det eneste spørsmålet, i vedtaksform, og skiller slutningene E2, E4 og E5
   fra samlingen av ordlyden.
 - **Ikke rettet, design:** prøvingen fant at skjemaet etter OV-U45 lar byggherren vise til et
   svar på en tidligere versjon av påberopelsen uten at det synes i brevet (forløp 3). Spørsmålet i
   skjemaet er design og hører til BF-01. Punkt 7 sier at henvisningen gjelder gjeldende versjon, og
   det står. Funnet er ført i oppfølgingsissuet #1584.
 
-Rettingene er ikke prøvd på nytt.
+En ny prøving av spørsmål 1 og forslaget på `c30ecb6` ble gjort av en subagent i orkestratoren 04.11
+([kommentaren 6637203315](https://github.com/khjohns/endringsmeldinger/pull/1585#issuecomment-6637203315)).
+Rettingene:
+
+1. Punkt 12 har unntaket etter et frafall (HF-U25 punkt 4; HF-U27).
+2. Punkt 12 og E4 tar med alle måtene enigheten får eller mister virkning på: TEs aksept av avslaget
+   eller preklusjonen, TEs trekk (GR-U5), et nytt svar som godkjenner eller frafaller (HF-U25 punkt
+   1), og en ny versjon (GR-U1).
+3. E4 sier at virkningen av en godtatt preklusjon er en slutning, med koden som belegg.
+4. Forholdene i A er skrevet ut: utvider GR-U29 (E2), presiserer GR-U26 s9 og GR-U7 (E4), presiserer
+   GR-U1 (E5). Tabellen og utkastet er rettet.
+5. B viser til punkt 9 og GR-U7.
+6. Navnet etter «Samlet i …» sier «forholdet».
+7. Punkt 6 sier «punkt 5 i NS 8407».
+8. «Prøvingen» viser til spørsmål 1.
+9. E5 sier hvorfor de forkastede alternativene i GR-U26 ikke treffer punkt 14, merket som antakelse.
+10. Belegget for anbefalingen skiller hva koden og domenetabellen bygger på for E2, E4 og E5, og
+    antakelsen står for seg.
+
+Sitatene som bare er en del av en setning, er merket. Rettingene etter den andre prøvingen er ikke
+prøvd på nytt.
 
 ## Spørsmålene til oppdragsgiver
 
@@ -284,21 +332,33 @@ Lagret ordrett før de ble sendt.
 **1. Tilslutning til samlevedtaket for svar på vederlag og frist mens forholdet er ubesvart.**
 Forslaget over, punkt 1–15 med designdelen og «Endret innhold» E1–E6. E1, E3 og E6 samler ordlyden
 uten å endre innholdet. Tre punkter er slutninger, ikke ordlyden i et vedtak: E2 (henvisningen til
-et svar utenfor løsningen står også under «Forbehold»), E4 (et svar gjelder som subsidiært når
-forholdet senere avslås, og en enighet er betinget til TE godtar avslaget) og E5 (et nytt svar mens
-en ny versjon venter, gjelder ikke subsidiært etter avslaget på den forrige versjonen).
+et svar utenfor løsningen står også under «Forbehold»), E4 (hva et svar gjelder som når forholdet
+senere besvares, og når en enighet om vederlag eller frist får eller mister virkning) og E5 (et nytt
+svar mens en ny versjon venter, gjelder ikke subsidiært etter et avslag på eller en påberopt
+preklusjon mot den forrige versjonen).
 
 - **A (anbefalt):** «Samlevedtaket for svar på vederlag og frist mens forholdet er ubesvart (GR-U34)
   gjelder slik det står i punkt 1–15 med designdelen og E1–E6. GR-U4, GR-U26, GR-U29, GR-U33 og
-  OV-U45 gjelder som «Samlet i samlevedtaket for svar mens grunnlaget er ubesvart». Henvisningene til
-  GR-U4 om retten til å gi et nytt svar gjelder HF-U25 punkt 1. Klasse: vedtak med designdel.»
-- **B:** «Som A, men uten siste setning i punkt 12 og uten den andre slutningen i E4. Mellom
-  byggherrens senere avslag og TEs aksept av det gjelder GR-U7, GR-U26 s5 og OV-U45 s10 slik de
-  står.»
+  OV-U45 gjelder som «Samlet i samlevedtaket for svar mens forholdet er ubesvart». Henvisningene til
+  GR-U4 om retten til å gi et nytt svar gjelder HF-U25 punkt 1. Forhold: samler GR-U4, GR-U26,
+  GR-U29, GR-U33 og OV-U45; utvider GR-U29 (E2); presiserer GR-U26 s9 og GR-U7 (E4); presiserer GR-U1
+  (E5). Klasse: vedtak med designdel.»
+- **B:** «Som A, men uten de fire siste setningene i punkt 12, uten slutningene om enigheten i E4 og
+  uten forholdet til GR-U7. Hva en enighet om vederlag eller frist er når forholdet senere besvares,
+  følger av punkt 9 og GR-U7.»
 
-*Belegg:* E-punktene, med postene ordrett. *Anbefaling:* A. Slutningene i E2, E4 og E5 er de
-lesningene koden og domenetabellen (GR-08) bygger på i dag, og B lar et tilfelle stå uten en
-uttrykkelig regel.
+*Belegg:* E-punktene, med postene ordrett. Koden og domenetabellen bygger bare delvis på slutningene:
+
+- E5 stemmer med regelen GR-08 i domenetabellen og testene i `kjerne/tester/brevtekst.test.ts`. GR-08
+  gjelder bare et avslag, ikke en påberopt preklusjon, som punkt 14 også tar med.
+- E4 stemmer med koden (`enighetensVirkning` i `kjerne/utledning/utled.ts`), men domenetabellen har
+  ingen regel for den.
+- E2 er ikke bygget. Brevet har fortsatt «nedenfor» (`kjerne/frosset/brevtekst.ts`), og
+  henvisningen bygges i #1306.
+
+*Anbefaling:* A. Punkt 12 sier da hver måte en enighet om vederlag eller frist får eller mister
+virkning på, med kilden for hver. Med B dekker punkt 9 og GR-U7 tidsrommet, men uten de enkelte
+tilfellene. *Antakelse:* at byggeøkta for #1433 og #1306 trenger tilfellene uttrykkelig.
 
 *Hva valget styrer:* teksten i GR-U34, forholdene til de samlede postene, og hva byggeøkta for
 #1433 og #1306 bygger forbeholdet og henvisningen etter.
