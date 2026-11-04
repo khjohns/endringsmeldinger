@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `83990d7868e5fbd2a8c2b1652909a93533aaaf41553ce4de28db8e5062f41b46`
+Kontrollsum (SHA-256 over utdraget visningen leser): `e8175012ddb1b35fd06c37a62e3095501dfcea536395f42a7ebcb98b2dd291e6`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -891,7 +891,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 04.11, oppdragsgiver (#1534, #1065)
 
-**Følge:** Opphever [OV-U8](#ov-u8). Samler [OV-U22](#ov-u22). Samler [OV-U23](#ov-u23). Samler [OV-U25](#ov-u25). Samler [OV-U35](#ov-u35). Samler [OV-U26](#ov-u26). Samler [OV-U27](../../plans/vedtak.md#ov-u27). Samler [VS-U5](../../plans/vedtak.md#vs-u5). Samler [OV-U36](#ov-u36). Opphever [OV-U37](#ov-u37). Opphever [OV-U38](../../plans/vedtak.md#ov-u38). Samler [OV-U39](#ov-u39). Samler [OV-U40](../../plans/vedtak.md#ov-u40). Samler [OV-U60](#ov-u60). Samler [OV-U43](#ov-u43). Samler [OV-U58](#ov-u58). Samler [MM-U34](#mm-u34). Teksten står under tabellen, i [Samlevedtaket for særskilt varsel etter punkt 34.1.3, og rigg og drift](../../plans/vedtak.md#samlevedtak-saerskilt-varsel). Svaret på spørsmål 1 er [OV-U90](#ov-u90), og svaret på spørsmål 2 er [OV-U91](#ov-u91). OV-U43 er samlet bare for prinsipp 1, siste setning, andre setning i prinsipp 3 og posten i prinsipp 5. OV-U58 er samlet bare for «beløpet for hver post» og siste setning. MM-U34 er samlet bare for kulepunktet om OV-U38 i punkt 15. Etter samlevedtaket gjelder henvisningen til OV-U8 i VS-U43 punkt 9 punkt 4 i samlevedtaket.
+**Følge:** Opphever [OV-U8](#ov-u8). Samler [OV-U22](#ov-u22). Samler [OV-U23](#ov-u23). Samler [OV-U25](#ov-u25). Samler [OV-U35](#ov-u35). Samler [OV-U26](#ov-u26). Samler [OV-U27](../../plans/vedtak.md#ov-u27). Samler [VS-U5](../../plans/vedtak.md#vs-u5). Samler [OV-U36](#ov-u36). Opphever [OV-U37](#ov-u37). Opphever [OV-U38](../../plans/vedtak.md#ov-u38). Samler [OV-U39](#ov-u39). Samler [OV-U40](../../plans/vedtak.md#ov-u40). Samler [OV-U60](#ov-u60). Samler [OV-U43](#ov-u43). Samler [OV-U58](#ov-u58). Samler [MM-U34](#mm-u34). Teksten står under tabellen, i [Samlevedtaket for særskilt varsel etter punkt 34.1.3, og rigg og drift](../../plans/vedtak.md#samlevedtak-saerskilt-varsel). Svaret på spørsmål 1 er [OV-U90](#ov-u90), og svaret på spørsmål 2 er [OV-U91](#ov-u91). OV-U43 er samlet bare for prinsipp 1, siste setning, andre setning i prinsipp 3 og posten i prinsipp 5. OV-U58 er samlet bare for «beløpet for hver post» og siste setning. MM-U34 er samlet bare for kulepunktet om OV-U38 i punkt 15. Henvisningen til OV-U8 i VS-U43 punkt 9 viser etter samlevedtaket til punkt 4 (oppskriften i utkastet til postene, orkestratoren 04.11).
 
 **Regelrader:** —
 
