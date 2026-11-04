@@ -408,3 +408,49 @@ Setningen føyes til sist i `folge`, etter et mellomrom.
 
 - `docs/vedtaksregister/temaer/grunnlagssvar-som-endringsordre.md`: skrives på nytt med `python3 docs/verktoy/temavisning.py`. `temaer.toml` endres ikke.
 - Prøvd 04.11 mot `main` på `d79468a` i et eget arbeidstre: generering, `--sjekk`, `vedtakshenvisninger.py` (med radene over), `temavisning.py --sjekk`, lenkekontrollen og `pytest tests/test_vedtaksregister/` (434 bestått, med sitattestene).
+
+## Føringen
+
+Skriptet under fører utkastet inn (`python3 forer.py .` fra roten, med skriptet lagret utenfor repoet). Radene i `KJENTE_AVVIK` føres for hånd.
+
+```python
+"""Fører utkastet inn i vedtak.toml og vedtaksregister.py. Bruk: python3 forer_utkast.py <repo-rot>"""
+
+import re
+import sys
+from pathlib import Path
+
+rot = Path(sys.argv[1])
+utkast = (rot / "docs/vedtaksregister/utkast-poster-samlevedtak-begrunnelse.md").read_text()
+blokker = re.findall(r"```toml\n(.*?)\n```", utkast, flags=re.S)
+etter, poster = blokker
+tillegg = dict(re.findall(r"^\| ([A-Z]+-U\d+) \| (.*) \|$", utkast, flags=re.M))
+
+sti = rot / "docs/vedtaksregister/vedtak.toml"
+t = sti.read_text()
+merke = '[[gruppe]]\ntittel = "Svar og standpunkt"\n'
+assert t.count(merke) == 1
+t = t.replace(merke, merke + etter + "\n")
+neste = '[[gruppe]]\ntittel = "Aksept og enighet"\n'
+assert t.count(neste) == 1
+t = t.replace(neste, poster + "\n\n" + neste)
+
+for post, setning in tillegg.items():
+    m = re.search(rf'^(?:id = "{post}"|anker = "{post.lower()}")$', t, flags=re.M)
+    assert m, post
+    start = t.rfind("[[gruppe.vedtak]]", 0, m.start())
+    slutt = t.find("\n[[gruppe", m.end())
+    blokk = t[start:slutt]
+    f = re.search(r"^folge = '''\n(.*?)'''", blokk, flags=re.M | re.S)
+    assert f, post
+    ny = blokk[: f.end(1)] + " " + setning + blokk[f.end(1) :]
+    t = t[:start] + ny + t[slutt:]
+sti.write_text(t)
+
+py = rot / "docs/verktoy/vedtaksregister.py"
+p = py.read_text()
+linje = '        ("ka-u34", "presiserer", "ka-u24", "#1534, steg 4"),\n'
+assert p.count(linje) == 1
+py.write_text(p.replace(linje, ""))
+print("ført")
+```
