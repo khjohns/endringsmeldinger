@@ -12,7 +12,7 @@ import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar, vederlagsposter, type Svarvurdering } from '../frosset/standpunkt.ts';
 import type { Utledning } from '../utledning/utled.ts';
-import type { Krav, Part, Spor } from '../typer.ts';
+import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
@@ -253,6 +253,8 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         type: 'varsel',
         ...varselet,
         sendt: h.sendt as string,
+        // LV-U42: forløpene nevner sjelden typen; uten den registreres korrespondansen som brev.
+        korrespondansetype: (h.korrespondansetype as Korrespondansetype | undefined) ?? 'brev',
         // OV-U4: det registrerte varselet har brevet som vedlegg, også når forløpet ikke nevner det.
         dokumentasjon: Array.isArray(h.dokumentasjon)
           ? (h.dokumentasjon as string[])
@@ -288,7 +290,9 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       return {
         type: 'begrunnelse',
         gjelder: navn.id(h.gjelder as string),
-        ...(typeof h.sendt === 'string' ? { sendt: h.sendt } : utdypning(h)),
+        ...(typeof h.sendt === 'string'
+          ? { sendt: h.sendt, korrespondansetype: 'brev' as const }
+          : utdypning(h)),
         ...(typeof h.sendt === 'string' && typeof h.utdypning === 'string'
           ? { utdypning: h.utdypning }
           : {}),
@@ -300,6 +304,8 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         type: 'registrert_brev',
         ...(Array.isArray(h.sporene) ? { spor: h.sporene as Spor[] } : {}),
         sendt: h.sendt as string,
+        // LV-U42: forløpene nevner sjelden typen; uten den registreres korrespondansen som brev.
+        korrespondansetype: (h.korrespondansetype as Korrespondansetype | undefined) ?? 'brev',
         beskrivelse: h.beskrivelse as string,
         dokumentasjon: [navn.nyId()],
         ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
@@ -462,6 +468,10 @@ export function radFor(
         ? [{ id: navn.nyId(), hva: 'kan_ikke_uttrykkes', spor: h.merking }]
         : []),
     ];
+  // LV-U42: forløpene nevner sjelden typen; uten den registreres korrespondansen som brev.
+  if (typeof h.sendt === 'string')
+    data.korrespondansetype =
+      typeof h.korrespondansetype === 'string' ? h.korrespondansetype : 'brev';
   return {
     ...felles,
     event_id: eventId,

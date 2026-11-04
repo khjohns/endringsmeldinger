@@ -24,6 +24,7 @@
     MOTTATT,
     SPORNAVN,
     STILLING,
+    brevhode,
     brevtittel,
     dato,
     innsigelsen,
@@ -42,7 +43,12 @@
     spor: Spor;
     /** Brukeren valgte en brevtype i menyen, som `svare:vederlag`. */
     onvelg: (noekkel: string) => void;
-    onakseptbrev: (k: { kommando: Record<string, unknown>; tekst: string[] }) => void;
+    onakseptbrev: (k: {
+      kommando: Record<string, unknown>;
+      tekst: string[];
+      brevnummer: number | null;
+      tittel: string | null;
+    }) => void;
   } = $props();
   const uid = $props.id();
 
@@ -97,7 +103,12 @@
       hindring = (b && brevaarsak(b)) ?? STILLING.godta;
       return;
     }
-    onakseptbrev({ kommando: akseptkommando!, tekst: b.tekst });
+    onakseptbrev({
+      kommando: akseptkommando!,
+      tekst: b.tekst,
+      brevnummer: b.brevnummer,
+      tittel: b.brevtittel,
+    });
   }
 </script>
 
@@ -115,7 +126,7 @@
     {#if vist}
       <div class="linje">
         <h2>
-          Brev {vist.nummer} · {brevtittel(vist)}
+          {brevhode(vist)}
           <span class="dempet">
             · {vist.avsender} · {vist.avsender === part ? 'sendt' : 'mottatt'}
             {dato(vist.registrert)}</span
@@ -140,7 +151,7 @@
         <Brev
           avsender={vist.avsender}
           sak={kjernesak.saksbilde?.tittel ?? ''}
-          nummer={`${vist.nummer}, ${SPORNAVN[spor].toLowerCase()}`}
+          nummer={vist.nummer === null ? null : `${vist.nummer}, ${SPORNAVN[spor].toLowerCase()}`}
           dato={dato(vist.registrert)}
           tittel={brevtittel(vist)}
           avsnitt={vist.avsnitt}
@@ -162,7 +173,7 @@
       <section class="kort" id={`${uid}-stillingspanel`} aria-labelledby={`${uid}-stilling-tittel`}>
         <header class="hode">
           <h2 id={`${uid}-stilling-tittel`} tabindex="-1" bind:this={stillingTittel}>
-            {STILLING.tittel(vist.nummer)}
+            {STILLING.tittel(vist)}
           </h2>
           <Knapp variant="lenke" onclick={lukkStilling}
             ><X size={16} aria-hidden="true" />{STILLING.lukk}</Knapp
@@ -171,16 +182,16 @@
         <div class="innhold">
           <h3>{STILLING.godta}</h3>
           <p>
-            {STILLING.hele(vist.nummer)}
+            {STILLING.hele(vist)}
             {#if paaberopt?.art === 'rettidighet'}{STILLING.omfatter(paaberopt.hjemmel)}{/if}
           </p>
           {#if enighet?.grunnlag.utfall.beloep !== undefined}
-            <p>{STILLING.beloep(enighet.grunnlag.utfall.beloep, vist.nummer)}</p>
+            <p>{STILLING.beloep(enighet.grunnlag.utfall.beloep, vist)}</p>
           {/if}
           {#if enighet?.grunnlag.vilkaar === 'forhold_avklart' && !u.forholdAvklart}
             <p>{STILLING.vilkaar}</p>
           {/if}
-          <p class="dempet">{STILLING.kilde(vist.nummer)}</p>
+          <p class="dempet">{STILLING.kilde(vist)}</p>
           <Knapp onclick={seAksepten}>{STILLING.seAksepten}</Knapp>
           {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}
         </div>

@@ -14,6 +14,7 @@
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import {
     DEMOKONTRAKT,
+    DEMOMERKING,
     DEMOPROSJEKT,
     lagDemosak,
     type Demosak,
@@ -126,6 +127,7 @@
         <NySak
           sakId={aapen.demosak.sakId}
           send={aapen.demosak.opprett}
+          hentMerking={async () => DEMOMERKING}
           vedleggForNySak={aapen.demosak.vedleggForNySak}
           onsendt={opprettet}
           onavbrutt={avbrutt}

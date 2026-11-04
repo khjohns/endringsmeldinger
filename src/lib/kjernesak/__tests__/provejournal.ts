@@ -1,10 +1,17 @@
 /** Journalen for prøvene av TS-saken i Kontrollrommet, skrevet av kjernen selv (#718). */
 
+import type { Saksmerking } from '$lib/kjernesak/brevtekst';
 import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad, Part } from '$kjerne/typer';
 
 export const SAK = 'sak-1';
+
+/** Koden og kontraktsforkortelsen serveren gir saken i prøvene (LV-U46, LV-U53). */
+export const MERKING: Saksmerking = {
+  sakskode: { kode: 'koe', loepenummer: 17 },
+  kontraktsforkortelse: 'K201',
+};
 
 export const opprettet: Journalrad = {
   event_id: 'e-1',
@@ -29,6 +36,7 @@ export function skrevet(
   const utfall = forhaandsvis(
     kommando,
     {
+      ...MERKING,
       sakId: SAK,
       aktoerId: part.toLowerCase(),
       part,
@@ -108,6 +116,7 @@ export const medFristvarsel = skrevet(
     spor: 'frist',
     hjemmel: '33.4',
     sendt: '2026-10-10',
+    korrespondansetype: 'brev',
     dokumentasjon: [VARSELBREVET],
   },
   new Map([
@@ -127,6 +136,7 @@ export const medVederlagsvarsel = skrevet(
     spor: 'vederlag',
     hjemmel: '34.1.2',
     sendt: '2026-10-10',
+    korrespondansetype: 'brev',
     dokumentasjon: [VARSELBREVET],
   },
   new Map([

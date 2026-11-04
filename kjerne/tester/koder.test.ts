@@ -409,6 +409,7 @@ describe('datoen varslingsplikten løper fra, i påberopelsen (VS-U26)', () => {
       data: {
         krav: [{ id: 'k', spor: 'forhold', ...innhold }],
         opplysninger: [{ id: 'o', hva: 'sendt', dato: '2026-10-01' }],
+        korrespondansetype: 'brev',
       },
     });
     const art = (innhold: Record<string, unknown>) =>

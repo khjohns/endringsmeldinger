@@ -10,7 +10,7 @@
   import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
   import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
   import { brevene } from '$lib/components/varden/lesing';
-  import { BREVKONTROLL, SAKEN, STILLING, brevtittel } from '$lib/components/varden/tekster';
+  import { BREVKONTROLL, SAKEN, STILLING } from '$lib/components/varden/tekster';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 
   let {
@@ -67,11 +67,10 @@
       const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
       kontroll = {
         ...k,
-        tittel: brevtittel({ art: 'svar', spor: ['vederlag'] }),
         handling: BREVKONTROLL.sendSvaret,
         sendTekst: BREVKONTROLL.sendSvaret,
         tilbakeTil: 'utkastet',
-        svarerPaa: krav ? { nummer: krav.nummer, registrert: krav.registrert } : null,
+        svarerPaa: krav ?? null,
       };
     }}
   />
@@ -83,18 +82,19 @@
     onvelg={(n) => {
       if (n === `svare:${spor}`) svarer = true;
     }}
-    onakseptbrev={({ kommando, tekst }) => {
+    onakseptbrev={({ kommando, tekst, brevnummer, tittel }) => {
       const svaret = brev.find((b) => b.id === u.spor[spor].gjeldendeSvar?.dokument);
       kontroll = {
         kommando,
         tekst,
-        detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret.nummer), lag: null }] : [],
+        detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
         virkninger: [],
-        tittel: brevtittel({ art: 'aksept', spor: [spor] }),
+        brevnummer,
+        tittel,
         handling: BREVKONTROLL.sendAksepten,
         sendTekst: BREVKONTROLL.sendAksepten,
         tilbakeTil: 'saken',
-        svarerPaa: svaret ? { nummer: svaret.nummer, registrert: svaret.registrert } : null,
+        svarerPaa: svaret ?? null,
       };
     }}
   />

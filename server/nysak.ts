@@ -13,7 +13,8 @@ const NY_SAK = new Set([
   'varsel',
 ]);
 
-const VARSEL_I_NY_SAK = new Set(['sendt', 'dokumentasjon']);
+/** Kjernen prøver verdiene, også at korrespondansetypen er oppgitt (LV-U42, D1 A i #1497). */
+const VARSEL_I_NY_SAK = new Set(['sendt', 'korrespondansetype', 'dokumentasjon']);
 
 /** En UUID med små bokstaver, som basen krever (51422). Samme mønster som `UUID` i `datalag.ts`. */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -49,7 +50,8 @@ export function feilINySak(kropp: Record<string, unknown>): string | null {
     return 'paaberopelse.innhold må være et objekt uten tittel; tittelen står i tittel.';
   if ('brevtekst' in paaberopelse) return 'paaberopelse har ikke brevtekst; den står i brevtekst.';
   if (varsel !== undefined) {
-    if (!erObjekt(varsel)) return 'varsel må være et objekt med sendt og dokumentasjon.';
+    if (!erObjekt(varsel))
+      return 'varsel må være et objekt med sendt, korrespondansetype og dokumentasjon.';
     const ukjenteIVarsel = Object.keys(varsel).filter((k) => !VARSEL_I_NY_SAK.has(k));
     if (ukjenteIVarsel.length) return `Ukjente felt i varsel: ${ukjenteIVarsel.join(', ')}.`;
     if (!tekstliste(varsel.dokumentasjon) || !varsel.dokumentasjon.length)

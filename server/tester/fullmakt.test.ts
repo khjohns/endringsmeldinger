@@ -64,6 +64,8 @@ function utledning(krav: object[]): Utledning {
       aktoerId: 'te',
       part: 'TE' as const,
       teamId: 'team-te',
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
+      kontraktsforkortelse: 'K201',
       tidspunkt: () => new Date((klokke += 60_000)),
       nyId: () => randomUUID(),
     };

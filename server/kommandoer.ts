@@ -364,6 +364,30 @@ async function lesSakskode(foresp: Foresp, sakId: string): Promise<Sakskode> {
 }
 
 /**
+ * Koden og løpenummeret saken har, eller dem sakens første brev fra løsningen vil få, lest
+ * i en kort transaksjon med siden i konteksten, så brevkontrollen kan vise nummeret
+ * (LV-U46). En sak uten journal gir det neste nummeret, som for en ny sak. Nummeret er
+ * ikke holdt av når transaksjonen er ferdig; skrivingen leser det på nytt.
+ *
+ * @throws SkrivingAvvist, UgyldigKontekst
+ */
+export async function lesNesteSakskode(
+  pool: Pool,
+  kontekst: Kontekst,
+  sakId: string
+): Promise<Sakskode & { kontraktsforkortelse: string | null }> {
+  try {
+    return await transaksjon(pool, kontekst, async (foresp) => {
+      if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
+      const sakskode = await lesSakskode(foresp, sakId);
+      return { ...sakskode, kontraktsforkortelse: await lesKontraktsforkortelse(foresp, kontekst) };
+    });
+  } catch (feil) {
+    throw oversett(feil, null);
+  }
+}
+
+/**
  * Kontraktsforkortelsen for merkingen av brevet (LV-U44), lest med `koe_api.kontraktsparter`
  * i skrivetransaksjonen, eller `null` når prosjektet ikke har den (S2 A i #1497).
  */
@@ -542,7 +566,7 @@ export async function opprettSakMedPaaberopelse<A>(
   lag: (grunnlag: {
     tidspunkt: Date;
     vedlegg: Vedleggsoppslag;
-    sakskode: Sakskode | null;
+    sakskode: Sakskode;
     kontraktsforkortelse: string | null;
   }) => Opprettelsesutfall<A>
 ): Promise<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>> {
@@ -564,15 +588,15 @@ export async function opprettSakMedPaaberopelse<A>(
           };
         // Før tidspunktet, så ventingen på låsen på vedleggene ikke eldes det (#880-1).
         const vedlegg = await lesVedleggUtenSak(foresp, kontekst, vedleggider);
-        // Bare TE oppretter en sak; for en annen side avvises kommandoen etter `lag`.
-        const sakskode = kontekst.side === 'TE' ? await lesSakskode(foresp, sakId) : null;
+        // Bare TE oppretter en sak; for en annen side avvises kommandoen etter `lag`. Kjernen
+        // trenger koden for teksten også da (S3 i #1497), og `koe_api.sakskode` gir EO for BH.
+        const sakskode = await lesSakskode(foresp, sakId);
         const kontraktsforkortelse = await lesKontraktsforkortelse(foresp, kontekst);
         const tidspunkt = await skrivetidspunkt(foresp);
         const utfall = lag({ tidspunkt, vedlegg, sakskode, kontraktsforkortelse });
         if (!utfall.skriv) return new Tilbakerulling(utfall);
         // Etter `lag`, så kjernens avvisning går foran avslaget her, som i `opprettSak`.
-        if (kontekst.side !== 'TE' || !sakskode)
-          throw new SkrivingAvvist('Bare TE oppretter en sak.');
+        if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
         const { opprettet, rad } = utfall;
         kontrollerRad(opprettet, null, kontekst, sakId, 0, tidspunkt);
         if (opprettet.event_type !== 'sak_opprettet')

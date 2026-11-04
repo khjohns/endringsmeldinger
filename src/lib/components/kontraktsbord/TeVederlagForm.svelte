@@ -33,7 +33,8 @@
     type Vederlagsvarsel,
   } from '$lib/kjernesak/vederlagskrav';
   import type { Kjernevedlegg } from '$lib/api/kjerne';
-  import { dagensDato, varselhindring } from '$lib/kjernesak/skjemadata';
+  import { dagensDato, typehindring, varselhindring } from '$lib/kjernesak/skjemadata';
+  import type { Korrespondansetype } from '$kjerne/typer';
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import { fmt } from './utils.js';
@@ -73,6 +74,7 @@
   const registrerer = $derived(mode === 'registrert');
   let varselSendt = $state('');
   let registrerteVedlegg = $state<Kjernevedlegg[]>([]);
+  let korrespondansetype = $state<Korrespondansetype | null>(null);
   let vedleggOpptatt = $state(false);
   const varselet = $derived({ sendt: varselSendt, vedlegg: registrerteVedlegg });
   // Varslene kjernen tilbyr i valget. Det særskilte varselet etter § 34.1.3 kan også sendes
@@ -183,7 +185,9 @@
       (kjernevalg
         ? kjernevalg.includes(mode) &&
           (mode === 'varsel' ||
-            (registrerer && varselhindring(varselet, dagensDato()) === null) ||
+            (registrerer &&
+              varselhindring(varselet, dagensDato()) === null &&
+              typehindring(korrespondansetype) === null) ||
             (mode === 'spesifisert' && metodeKanSendesTilKjernen(metode) && (kravSum ?? 0) > 0))
         : mode === 'varsel'
           ? Object.keys(noticeData).length > 0
@@ -191,7 +195,7 @@
   );
   const kjernedata = (): Vederlagsskjemadata =>
     registrerer
-      ? { registrert: varselet, hjemmel: varselhjemmel }
+      ? { registrert: { ...varselet, korrespondansetype }, hjemmel: varselhjemmel }
       : mode === 'varsel'
         ? { varsel_type: 'varsel', hjemmel: varselhjemmel }
         : {
@@ -343,6 +347,8 @@
         bind:sendt={varselSendt}
         bind:vedlegg={registrerteVedlegg}
         bind:opptatt={vedleggOpptatt}
+        medKorrespondansetype
+        bind:korrespondansetype
       />
     {/if}
     {#if krevesIkke && varselhjemmel === '34.1.2'}

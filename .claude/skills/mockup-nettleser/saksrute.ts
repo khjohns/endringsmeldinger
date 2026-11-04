@@ -39,7 +39,7 @@ import { kopierMigrertTestbase, settInn } from '../../../server/tester/sqlserver
 import { opprettKjoeretid, slettAlle } from '../../../server/tester/sqlserver.ts';
 import { utledJournal } from '../../../kjerne/kommandoer/skriving.ts';
 import { opprettelse } from '../../../kjerne/kommandoer/opprettelse.ts';
-import type { Journalrad, Part } from '../../../kjerne/typer.ts';
+import type { Journalrad, Part, Sakskode } from '../../../kjerne/typer.ts';
 import { KJERNE } from '../../../kjerne/versjon.ts';
 import type { Bane } from '../../../kjerne/tester/bane.ts';
 import { finn, kontrollpunkt, somForloep } from '../../../kjerne/tester/brukerforloep.ts';
@@ -326,6 +326,13 @@ try {
     organisasjon_id: 'org-saksrute',
     is_active: true,
   });
+  // Uten kontraktsforkortelsen merkes ikke brevet, og serveren sender det ikke (LV-U53).
+  await settInn(r, 'kontraktsparter', {
+    prosjekt_id: katalog.prosjekt,
+    byggherre_navn: 'Byggherren',
+    totalentreprenor_navn: 'Totalentreprenøren',
+    kontraktsforkortelse: 'K201',
+  });
   await settInn(r, 'catenda_project_configs', {
     internal_project_id: katalog.prosjekt,
     catenda_project_id: katalog.catendaProsjekt,
@@ -475,8 +482,9 @@ try {
    * parten som handler, med `expected_version`. Serveren vurderer den på nytt, stempler
    * aktøren, ID-ene og tidspunktet og skriver radene; kjøreren leser dem tilbake med `GET`.
    */
-  const serverbane = (sak: string): Bane => ({
+  const serverbane = (sak: string, sakskode: Sakskode): Bane => ({
     sakId: sak,
+    sakskode,
     aktor: (part) => part.toLowerCase(),
     journal: () => lesJournal(sak),
     skriv: async () => {
@@ -618,7 +626,13 @@ try {
     const til = values.til ? kontrollpunkt(FORLOEP, values.til).etter : forloep.steg.length;
     // Kontrollene ved hvert kontrollpunkt leses av journalen serveren gir tilbake.
     const ny = OPPRETTES ? nySaksbane(tittel) : null;
-    await kjoer(forloep, ny ? ny.bane : serverbane(sak), { til, valg: { klokke: veggklokke } });
+    // Teksten lages med koden saken får av serveren, som skjemaet gjør (LV-U46).
+    const kode = async () => {
+      const lest = await kjerneKall<Sakskode>(te, 'GET', `/api/kjerne/saker/${sak}/sakskode`);
+      if (lest.status !== 200) throw new Error(`GET sakskode ga ${lest.status}`);
+      return { kode: lest.kropp.kode, loepenummer: lest.kropp.loepenummer };
+    };
+    await kjoer(forloep, ny ? ny.bane : serverbane(sak, await kode()), { til, valg: { klokke: veggklokke } });
     if (ny) {
       if (!ny.sak()) throw new Error(`${FORLOEP.id}: saken ble ikke opprettet i skjemaet (--til)`);
       sak = ny.sak()!;

@@ -10,13 +10,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import Kjernesakrom from '../Kjernesakrom.svelte';
-import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import type { Journallinje, Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
 import { ApiError } from '$lib/api/client';
 import { lagKjernesak, PROGRAMFEIL, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { forhaandsvis } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad, Part } from '$kjerne/typer';
+import { MERKING } from '$lib/kjernesak/__tests__/provejournal';
 
 const SAK = 'sak-1';
 
@@ -44,6 +45,7 @@ function medKrav(foer: Journalrad[], kommando: Record<string, unknown>): Journal
       teamId: null,
       tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
       nyId: () => crypto.randomUUID(),
+      ...MERKING,
     },
     foer,
     KJERNE
@@ -61,7 +63,7 @@ const journal = medKrav([opprettet], {
     paalegg_mottatt: '2026-10-01',
   },
 });
-const svar = (part: Part | null, rader = journal): Kjernesak => ({
+const svar = (part: Part | null, rader = journal): LastetKjernesak => ({
   versjon: rader.length,
   part,
   visning: {} as Kjernesak['visning'],
@@ -77,6 +79,7 @@ const svar = (part: Part | null, rader = journal): Kjernesak => ({
     })
   ),
   leveringsoppdrag: [],
+  merking: MERKING,
 });
 
 const VIEW = { track: 'vederlag', mode: 'read', role: 'BH' } as const;

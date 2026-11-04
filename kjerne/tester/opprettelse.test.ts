@@ -97,6 +97,8 @@ describe('opprettelsen av en KOE-sak (#664)', () => {
         aktoerId: 'te',
         part: 'TE',
         teamId: null,
+        sakskode: { kode: 'koe' as const, loepenummer: 17 },
+        kontraktsforkortelse: 'K201',
         tidspunkt: () => new Date('2026-10-02T08:00:00Z'),
         nyId: () => crypto.randomUUID(),
       },

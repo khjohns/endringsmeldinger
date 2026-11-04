@@ -12,7 +12,7 @@ import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
-import { lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
+import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import { avvis } from './forutsetninger.ts';
 import {
   brevtekstI,
@@ -51,10 +51,16 @@ export interface Kontekst {
   tidspunkt: () => Date;
   nyId: () => string;
   /**
-   * Sakens kode (LV-U44, LV-U46). Serveren setter den alltid (`Serverkontekst` i
-   * `server/app.ts`). Uten den, som i forhåndsvisningen i nettleseren, får tittelen ingen kode.
+   * Sakens kode, eller koden og løpenummeret saken får med sitt første brev (LV-U44, LV-U46).
+   * Tittelen og teksten omtaler saken med den (S3 i #1497), så nettleseren henter den før
+   * forhåndsvisningen, og serveren leser den i skrivetransaksjonen.
    */
-  sakskode?: Sakskode;
+  sakskode: Sakskode;
+  /**
+   * Kontraktsforkortelsen i prosjektinnstillingene, `null` når prosjektet ikke har den. Et brev
+   * viser til et tidligere brev med merkingen, og merkingen begynner med den (LV-U53, LV-U44).
+   */
+  kontraktsforkortelse: string | null;
 }
 
 /**
@@ -227,6 +233,7 @@ function dokument(
       return {
         utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }],
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+        korrespondansetype: k.korrespondansetype,
         dokumentasjon: bundne,
       };
     case 'registrert_brev':
@@ -235,6 +242,7 @@ function dokument(
         beskrivelse: k.beskrivelse,
         ...(k.spor ? { spor: k.spor } : {}),
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+        korrespondansetype: k.korrespondansetype,
         dokumentasjon: bundne,
         // OV-U17: rettingen er en fullstendig ny registrering med henvisning til den feil.
         ...(k.retter ? { retter: k.retter } : {}),
@@ -273,6 +281,7 @@ function dokument(
         return {
           utsagn,
           opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+          korrespondansetype: k.korrespondansetype,
           ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
         };
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
@@ -403,7 +412,7 @@ function skriv(
   let brevtekst: Avsnitt[] | null;
   let brevtittel: string | null = null;
   try {
-    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst.sakskode);
+    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst);
     brevtekst = brevet?.tekst ?? null;
     brevtittel = brevet?.tittel ?? null;
   } catch (feil) {
@@ -439,7 +448,13 @@ function skriv(
     data.brevtekst = brevtekst;
     if (brevtittel) data.brevtittel = brevtittel;
     // LV-U44, LV-U45: nummeret etter det høyeste i saken, også det avsenderen har oppgitt.
-    data.brevnummer = nesteBrevnummer(lest);
+    const brevnummer = nesteBrevnummer(lest);
+    data.brevnummer = brevnummer;
+    // LV-U53, LV-U24: merkingen fryses i brevet, så en senere henvisning viser til den som
+    // står på det, også om kontraktsforkortelsen endres (oppdragsgiver 04.11 i #1570). Uten
+    // forkortelsen merkes brevet ikke, og leveringen avviser sendingen (S2 A i #1497).
+    if (kontekst.kontraktsforkortelse)
+      data.merking = brevmerking(kontekst.kontraktsforkortelse, kontekst.sakskode, brevnummer);
   }
   if (sendes) {
     const avvik = tekstavvik(k.brevtekst, brevtekst);
@@ -504,7 +519,7 @@ function brevtekstFor(
   u: Utledning,
   kjerne: Kjerne,
   utdypninger: Utdypninger,
-  sakskode: Sakskode | undefined
+  { sakskode }: Pick<Kontekst, 'sakskode'>
 ): { tekst: Avsnitt[]; tittel: string | null } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -520,7 +535,7 @@ function brevtekstFor(
       ny.dokument,
       lest,
       {
-        saksnummer: rad.sak_id,
+        sakskode,
         tittel: sak.tittel,
         svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
@@ -531,10 +546,7 @@ function brevtekstFor(
     );
     // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
     const tittel = lagBrevtittel(ny.dokument);
-    return {
-      tekst,
-      tittel: tittel && sakskode ? medSakskode(tittel, sakskode) : tittel,
-    };
+    return { tekst, tittel: tittel && medSakskode(tittel, sakskode) };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)
       throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);

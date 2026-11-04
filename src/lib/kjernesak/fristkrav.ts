@@ -15,6 +15,7 @@ import {
   registrering,
   utenVedlegg,
   varselFraAppen,
+  type RegistrertKorrespondanse,
   type RegistrertVarsel,
 } from './skjemadata';
 
@@ -36,7 +37,7 @@ export interface Fristskjemadata {
   begrunnelse?: string;
   vedlegg_ids?: string[];
   /** Varselet registreres for seg. */
-  registrert?: RegistrertVarsel;
+  registrert?: RegistrertKorrespondanse;
   /** Varselet TE oppgir i det spesifiserte kravet. */
   tidligereVarsel?: RegistrertVarsel;
 }

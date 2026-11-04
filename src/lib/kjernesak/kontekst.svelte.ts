@@ -12,11 +12,11 @@ import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
 import { grunnlagetForSvaret } from './vederlagssvar';
 import {
-  hentKjernesak,
+  hentKjernesakMedMerking,
   lastOppKjernevedlegg,
   nyKommandoId,
   sendKommando,
-  type Kjernesak,
+  type LastetKjernesak,
 } from '$lib/api/kjerne';
 import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
@@ -48,13 +48,33 @@ export interface Kjernesakvalg {
    * den brukes leserens side fra serveren (#705). Uten side tilbys ingen handling.
    */
   part?: Part | null;
-  hent?: typeof hentKjernesak;
+  /** Saken og merkingen brevteksten lages med (LV-U53). */
+  hent?: typeof hentKjernesakMedMerking;
   send?: typeof sendKommando;
   lastOppVedlegg?: typeof lastOppKjernevedlegg;
   kjerne?: Kjerne;
   /** Kommandoen med usikkert utfall fra et tidligere forsøk, som i utkastet for opprettelsen. */
   ventende?: Ventende | null;
 }
+
+/**
+ * En konflikt, eller en tekst serveren ville laget annerledes (`ANNEN_BREVTEKST`), for
+ * eksempel fordi en annen sak har fått nummeret (LV-U46). Saken lastes da på nytt, og
+ * serverens melding står.
+ */
+const maaLastesPaaNytt = (e: unknown) =>
+  (e instanceof ApiError && e.status === 409) || tekstenKanVaereUtdatert(e);
+
+/**
+ * Teksten eller nummeret kan være utdatert (LV-U46). Kjernen avviser teksten (regelen
+ * `ANNEN_BREVTEKST` i `rule`), også når appen er en annen versjon, eller serveren avviser
+ * nummeret (`LOEPENUMMER_TATT`). Om nummeret er endret, avgjøres av teksten bygget på nytt.
+ */
+export const tekstenKanVaereUtdatert = (e: unknown) => {
+  if (!(e instanceof ApiError)) return false;
+  const svar = e.data as { error?: unknown; rule?: unknown } | undefined;
+  return svar?.rule === 'ANNEN_BREVTEKST' || svar?.error === 'LOEPENUMMER_TATT';
+};
 
 const meldingFra = (e: unknown, reserve: string | null) =>
   e instanceof ApiError ? e.message : reserve;
@@ -111,11 +131,11 @@ export function avvisningFoerBrevet(brev: Brev | Programfeil): Error | null {
 
 export function lagKjernesak(valg: Kjernesakvalg) {
   const { sakId } = valg;
-  const hent = valg.hent ?? hentKjernesak;
+  const hent = valg.hent ?? hentKjernesakMedMerking;
   const send = valg.send ?? sendKommando;
   const kjerne = valg.kjerne ?? KJERNE;
 
-  let sak = $state<Kjernesak | null>(null);
+  let sak = $state<LastetKjernesak | null>(null);
   let feil = $state<string | null>(null);
   let sender = $state(false);
   let finnes = $state<boolean | null>(null);
@@ -190,9 +210,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     vedlegg?: Vedleggsoppslag,
     sendes = false
   ): Brev | Programfeil | null {
-    if (!sak || !part) return null;
+    if (!sak?.merking || !part) return null;
     try {
-      return brevFor(kommando, sakId, part, journal, kjerne, vedlegg, sendes);
+      return brevFor(kommando, sakId, part, sak.merking, journal, kjerne, vedlegg, sendes);
     } catch (e) {
       console.error(e);
       return { programfeil: PROGRAMFEIL };
@@ -204,9 +224,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * uten side, når kjernen avviser kommandoen og ved en programfeil i kjernen.
    */
   function forhaandsvist(kommando: Record<string, unknown>) {
-    if (!sak || !part) return null;
+    if (!sak?.merking || !part) return null;
     try {
-      return utledetMed(kommando, sakId, part, journal, kjerne);
+      return utledetMed(kommando, sakId, part, sak.merking, journal, kjerne);
     } catch (e) {
       console.error(e);
       return null;
@@ -284,8 +304,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       const e = utfall.feil;
       const hva = ventende ? USIKKERT : 'Brevet ble ikke sendt.';
       const aarsak = ventende ? null : meldingFra(e, null);
-      // Saken er endret siden den ble lastet. Den lastes på nytt, og meldingen skal stå etterpå.
-      const lastet = e instanceof ApiError && e.status === 409 ? await last() : true;
+      // Saken er endret siden den ble lastet, eller en annen sak har fått nummeret i teksten
+      // (LV-U46). Den lastes på nytt med nummeret, og meldingen skal stå etterpå.
+      const lastet = maaLastesPaaNytt(e) ? await last() : true;
       // Lastefeilen alene: meldingen om et tidligere lagret brev står etter Avbryt.
       feil = melding(melding(hva, aarsak), lastet ? null : lastefeil);
       return false;

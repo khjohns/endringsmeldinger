@@ -69,7 +69,7 @@ async function bhSvarerIVarden(): Promise<string[]> {
   });
   await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
   return avsnittene(
-    await screen.findByRole('article', { name: 'Svar på krav om vederlagsjustering' })
+    await screen.findByRole('article', { name: 'Svar på krav om vederlagsjustering i sak KOE-17' })
   );
 }
 
@@ -145,12 +145,13 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Steg 5: TE åpner saken og ser akkurat det svaret BH skrev, i sin helhet.
     await fireEvent.click(demopanel().getByRole('radio', { name: 'TE' }));
     const mottatt = await screen.findByRole('article', {
-      name: 'Svar på krav om vederlagsjustering',
+      name: 'Svar på krav om vederlagsjustering i sak KOE-17',
     });
     expect(avsnittene(mottatt)).toEqual(vist);
     await fireEvent.click(screen.getByRole('button', { name: 'Ta stilling til svaret' }));
     const panelet = screen.getByRole('region', {
-      name: `Ta stilling til svaret i brev ${svaret.versjon}`,
+      // LV-U44: panelet viser til brevnummeret kjernen frøs i svaret, ikke versjonen.
+      name: `Ta stilling til svaret i brev ${svaret.data.brevnummer as number}`,
     });
     // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den.
     expect(panelet.textContent).toMatch(
@@ -184,7 +185,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     await fireEvent.click(seBrevet);
     expect(
-      screen.queryByRole('article', { name: 'Svar på krav om vederlagsjustering' })
+      screen.queryByRole('article', { name: 'Svar på krav om vederlagsjustering i sak KOE-17' })
     ).toBeNull();
     const oeverst = await screen.findByRole('group', {
       name: 'Dette mangler før brevet kan lages:',
@@ -251,7 +252,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('group', { name: 'Dette mangler før brevet kan lages:' })).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     expect(
-      await screen.findByRole('article', { name: 'Svar på krav om vederlagsjustering' })
+      await screen.findByRole('article', {
+        name: 'Svar på krav om vederlagsjustering i sak KOE-17',
+      })
     ).toBeInTheDocument();
   });
 
@@ -299,7 +302,8 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    const AVSLAGET = 'avslaget av forholdet i brev 3 ikke fører frem';
+    // LV-U44: svaret på grunnlaget er brev 2 i saken (versjon 3, etter `sak_opprettet`).
+    const AVSLAGET = 'avslaget av forholdet i brev 2 ikke fører frem';
 
     // S1-A: et ubesvart varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende.
     expect(forutsetningene()).toEqual([AVSLAGET]);
@@ -318,7 +322,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       screen.getByRole('region', { name: 'Hovedlinjene i svaret' })
     ).getAllByRole('listitem');
     expect(linjer[0].textContent!.replace(/\s+/g, ' ').trim()).toBe(
-      'prinsipalt Du har avslått forholdet i brev 3'
+      'prinsipalt Du har avslått forholdet i brev 2'
     );
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
   });
@@ -341,7 +345,8 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    const AVSLAGET = ['avslaget av forholdet i brev 3 ikke fører frem'];
+    // LV-U44: brevnummeret, ikke versjonen i journalen.
+    const AVSLAGET = ['avslaget av forholdet i brev 2 ikke fører frem'];
     const VARSEL = 'Kom varselet om kravet i tide?';
     const METODE = /Godkjenner du det\?$/;
 
@@ -527,7 +532,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     const varden = aapne(punkt, 'varden');
     await fireEvent.click(await screen.findByRole('button', { name: 'Ta stilling til svaret' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Se akseptbrevet' }));
-    const brev = await screen.findByRole('article', { name: 'Aksept av svaret' });
+    const brev = await screen.findByRole('article', { name: 'Aksept av svaret i sak KOE-17' });
     expect(avsnittene(brev)).toEqual(tekstIDagens);
     await sendBrevet('Send aksepten til BH');
     await vi.waitFor(() => expect(nyeRader(varden(), versjonVed(punkt))).toHaveLength(1));

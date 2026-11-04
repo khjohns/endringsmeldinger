@@ -24,8 +24,8 @@
   }: {
     avsender: Part;
     sak: string;
-    /** Brevnummeret, eller teksten som står før det er satt. */
-    nummer: string;
+    /** Brevnummeret (LV-U44). Et brev uten nummer har ingen «Vår ref.» (LV-U45). */
+    nummer: string | null;
     dato: string;
     tittel: string;
     avsnitt: { laast: string; utdypning?: string }[];
@@ -65,10 +65,10 @@
           <dt>Deres ref.:</dt>
           <dd>{svarerPaa}</dd>
         </div>{/if}
-      <div>
-        <dt>Vår ref.:</dt>
-        <dd>Brev {nummer}</dd>
-      </div>
+      {#if nummer !== null}<div>
+          <dt>Vår ref.:</dt>
+          <dd>Brev {nummer}</dd>
+        </div>{/if}
       <div>
         <dt>Dato:</dt>
         <dd>{dato}</dd>

@@ -10,10 +10,13 @@ import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forho
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 
-/** Ett brev i saken. `nummer` er versjonen i journalen, som brevteksten kaller «brev 5». */
+/**
+ * Ett brev i saken. `nummer` er brevets nummer i saken, som brevteksten kaller «brev 5»
+ * (LV-U44), og `null` for et registrert brev uten nummer (LV-U45).
+ */
 export interface Brevet {
   id: string;
-  nummer: number;
+  nummer: number | null;
   avsender: Part;
   registrert: string;
   spor: Spor[];
@@ -60,7 +63,7 @@ export function brevene(u: Utledning): Brevet[] {
     return [
       {
         id: d.id,
-        nummer: h.versjon,
+        nummer: d.brevnummer,
         avsender: d.avsender,
         registrert: d.registrert,
         spor: [...i],
@@ -79,6 +82,11 @@ export function brevene(u: Utledning): Brevet[] {
   });
 }
 
+/** Det en tekst trenger for å vise til et brev, med eller uten nummer. */
+export type Brevref = Pick<Brevet, 'id' | 'nummer' | 'registrert'>;
+
+const ref = ({ id, nummer, registrert }: Brevref): Brevref => ({ id, nummer, registrert });
+
 /** Brevet med dokumentet `id`. */
 export const brevet = (u: Utledning, id: string) => brevene(u).find((b) => b.id === id) ?? null;
 
@@ -87,7 +95,7 @@ export interface OppgittDato {
   dato: string;
   hva: 'klar_over_forholdet' | 'sendt' | 'mottatt';
   oppgittAv: Part;
-  brev: number;
+  brev: Brevref;
   spor: Spor[];
 }
 
@@ -106,14 +114,14 @@ export function oppgitteDatoer(u: Utledning): OppgittDato[] {
         dato,
         hva: 'klar_over_forholdet',
         oppgittAv: b.avsender,
-        brev: b.nummer,
+        brev: ref(b),
         spor: ['forhold'],
       });
   }
   for (const { opplysning: o } of u.opplysninger) {
     const b = brev.get(o.dokument);
     if ((o.hva === 'sendt' || o.hva === 'mottatt') && b)
-      ut.push({ dato: o.dato, hva: o.hva, oppgittAv: o.oppgittAv, brev: b.nummer, spor: b.spor });
+      ut.push({ dato: o.dato, hva: o.hva, oppgittAv: o.oppgittAv, brev: ref(b), spor: b.spor });
   }
   return ut;
 }
@@ -133,7 +141,7 @@ export function klarOverForholdet(u: Utledning): OppgittDato | null {
   const krav = u.spor.forhold.gjeldendeKrav;
   const b = krav && brevet(u, krav.dokument);
   return (
-    oppgitteDatoer(u).find((d) => d.hva === 'klar_over_forholdet' && d.brev === b?.nummer) ?? null
+    oppgitteDatoer(u).find((d) => d.hva === 'klar_over_forholdet' && d.brev.id === b?.id) ?? null
   );
 }
 
@@ -142,7 +150,7 @@ export function klarOverForholdet(u: Utledning): OppgittDato | null {
  * fra gjeldende svar på grunnlaget, med brevet det står i, eller et standpunkt i svaret.
  */
 export type Standpunktet = { lag: string | null } & (
-  | { grunn: Subsidiaergrunn; brev: number }
+  | { grunn: Subsidiaergrunn; brev: Brevref }
   | { standpunkt: Standpunkt }
 );
 
@@ -162,7 +170,7 @@ export function standpunktene(svar: Svar, foer: Utledning): Standpunktet[] {
   return [
     ...grunner.map((grunn, i) => ({
       grunn,
-      brev: brevet(foer, g!.dokument)!.nummer,
+      brev: ref(brevet(foer, g!.dokument)!),
       lag: merket(i + 1),
     })),
     ...svar.standpunkter.map((s) => ({

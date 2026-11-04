@@ -56,6 +56,8 @@ class Sak {
       aktoerId: part.toLowerCase(),
       part,
       teamId: `team-${part.toLowerCase()}`,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
+      kontraktsforkortelse: 'K201',
       tidspunkt: () => naa,
       nyId: randomUUID,
     };
@@ -98,7 +100,9 @@ class Sak {
       versjon: this.journal.at(-1)!.versjon + 1,
       tidsstempel: new Date((this.klokke += 60_000)).toISOString(),
       format: 1,
-      data,
+      // Registrert korrespondanse har typen (LV-U42, D1 A i #1497).
+      // En retting som sier at et brev ikke hører til saken, er ikke korrespondanse.
+      data: 'ikke_i_saken' in data ? data : { korrespondansetype: 'brev', ...data },
     };
     frysBrev(rad, this.journal, KJERNE);
     this.journal.push(rad);

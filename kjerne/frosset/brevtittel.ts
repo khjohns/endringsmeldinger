@@ -9,6 +9,41 @@ import type { Dokument, Sakskode, Spor } from '../typer.ts';
 /** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */
 export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.loepenummer}`;
 
+const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
+
+/**
+ * Merkingen på et brev fra løsningen, `K201-KOE-005-03`: kontraktsforkortelsen, sakens kode,
+ * minst tre sifre i løpenummeret og minst to i brevnummeret (LV-U44, LV-U48). Den står i
+ * hodet og i dokumentnavnet, og et senere brev viser til brevet med den (LV-U53).
+ */
+export const brevmerking = (
+  kontraktsforkortelse: string,
+  s: Sakskode,
+  brevnummer: number
+): string =>
+  [
+    kontraktsforkortelse,
+    s.kode.toUpperCase(),
+    utfylt(s.loepenummer, 3),
+    utfylt(brevnummer, 2),
+  ].join('-');
+
+/**
+ * Hvorfor leseren ikke forstår merkingen i et brev, eller `null`. Merkingen fryses bare i et
+ * brev fra løsningen, med nummeret, og slutter med det (LV-U53, LV-U48, MM-U2).
+ */
+export function avvikIMerkingen(
+  merking: string,
+  brevnummer: number | undefined,
+  registrert: boolean
+): string | null {
+  if (registrert || brevnummer === undefined)
+    return 'merkingen står bare i et brev fra løsningen, med nummeret (LV-U53)';
+  if (!merking.endsWith(`-${utfylt(brevnummer, 2)}`))
+    return 'merkingen slutter ikke med brevnummeret (LV-U48)';
+  return null;
+}
+
 /** Tittelen med sakens kode, slik skrivingen fryser den: «Krav om endring i sak KOE-17» (LV-U27). */
 export const medSakskode = (tittel: string, s: Sakskode): string =>
   `${tittel} i sak ${sakensKode(s)}`;

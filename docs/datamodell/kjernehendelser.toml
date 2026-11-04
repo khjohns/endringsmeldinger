@@ -40,14 +40,17 @@ dokumentasjon. Avsenderen er `actorrole`. Et brev appen sender, har brevteksten
 (`brevtekst`); et registrert brev har ingen. Et brev appen sender med krav, svar,
 aksept, trekk eller innsigelse, har også tittelen på brevet, frosset med teksten
 (`brevtittel`, MM-U3, #1536), og hvert brev appen sender, har nummeret sitt i saken
-(`brevnummer`, LV-U44, LV-U45). Et brev registrert som
+(`brevnummer`, LV-U44, LV-U45) og merkingen, frosset da brevet ble skrevet
+(`merking`, for eksempel K201-KOE-017-03, LV-U53, LV-U24). Registrert korrespondanse har typen, brev eller
+e-post (`korrespondansetype`, `brev` eller `e_post`, LV-U42), og et brev fra appen
+har den ikke. Et brev registrert som
 dokumentasjon har beskrivelsen med egne ord (`beskrivelse`), sporene det hører
 til (`spor`, uten dem saken), datoen det ble sendt og brevet som vedlegg, og
 ikke noe annet. En retting av en slik registrering fra samme side viser til den
 (`retter`): enten en fullstendig ny registrering, eller, når brevet ikke hører
 til saken, bare henvisningen og `ikke_i_saken`. Registreringen som rettes, står."""
-felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon", "brevtekst", "brevtittel", "brevnummer", "beskrivelse", "spor", "retter", "ikke_i_saken"]
-grunnlag = "MM-U10, LV-U2, OV-U4, OV-U16, OV-U17, OV-U18, designnotatet 4.1. Navnene `retter` og `ikke_i_saken` er arbeidsvalget 22.10 i #1045. `brevtittel` er MM-U3 og svaret 03.11 i #1488. `brevnummer` er arbeidsvalget N3 A i #1497"
+felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon", "brevtekst", "brevtittel", "brevnummer", "merking", "korrespondansetype", "beskrivelse", "spor", "retter", "ikke_i_saken"]
+grunnlag = "MM-U10, LV-U2, OV-U4, OV-U16, OV-U17, OV-U18, designnotatet 4.1. Navnene `retter` og `ikke_i_saken` er arbeidsvalget 22.10 i #1045. `brevtittel` er MM-U3 og svaret 03.11 i #1488. `brevnummer` er arbeidsvalget N3 A i #1497. `korrespondansetype` er D1 A i #1497. `merking` er avgjørelsen fra oppdragsgiver 04.11 i #1570"
 
 # ---------------------------------------------------------------------------
 # Elementene i dokumentet. Hvert har en `id` (UUID) satt av serveren.

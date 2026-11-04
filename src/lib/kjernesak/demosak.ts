@@ -14,7 +14,7 @@ import startjournaler from '../../../docs/domenetabell/brukerforlop/startjournal
 import { ApiError } from '$lib/api/client';
 import {
   nySakKropp,
-  type hentKjernesak,
+  type hentKjernesakMedMerking,
   type Journallinje,
   type Kjernevedlegg,
   type lastOppKjernevedlegg,
@@ -26,6 +26,16 @@ import { opprettelse } from '$kjerne/kommandoer/opprettelse';
 import { vurder } from '$kjerne/kommandoer/skriving';
 import type { Journalrad, Part, Vedlegg } from '$kjerne/typer';
 import { KJERNE } from '$kjerne/versjon';
+import type { Saksmerking } from './brevtekst';
+
+/**
+ * Koden og kontraktsforkortelsen i demoen, de samme som startjournalene er skrevet med i
+ * `kjerne/tester/kjoerer.ts`, så teksten i demoen er den forløpet har.
+ */
+export const DEMOMERKING: Saksmerking = {
+  sakskode: { kode: 'koe', loepenummer: 17 },
+  kontraktsforkortelse: 'K201',
+};
 
 /** Startjournalen for et forløp, som `node kjerne/tester/brukerforloep.ts --skriv` lager den. */
 export interface Startjournal {
@@ -100,14 +110,15 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     data,
   });
 
-  const hent: typeof hentKjernesak = async () => {
+  const hent: typeof hentKjernesakMedMerking = async () => {
     if (!rader.length) throw new ApiError(404, 'Saken finnes ikke.');
     return {
       versjon: rader.at(-1)!.versjon,
       part: demosak.part,
-      visning: {} as Awaited<ReturnType<typeof hentKjernesak>>['visning'],
+      visning: {} as Awaited<ReturnType<typeof hentKjernesakMedMerking>>['visning'],
       journal: rader.map(linje),
       leveringsoppdrag: [],
+      merking: DEMOMERKING,
     };
   };
 
@@ -127,6 +138,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
         teamId: aktor_team_id,
         tidspunkt: () => new Date((klokke += 60_000)),
         nyId,
+        ...DEMOMERKING,
       },
       rader,
       KJERNE,

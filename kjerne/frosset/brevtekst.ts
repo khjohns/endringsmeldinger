@@ -16,6 +16,7 @@
 
 import { HJEMMEL, type OppgittDato } from '../format/format.ts';
 import { forholdet } from './forholdene.ts';
+import { sakensKode } from './brevtittel.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
@@ -46,6 +47,8 @@ import type {
   Krav,
   Opplysning,
   Part,
+  Korrespondansetype,
+  Sakskode,
   Spor,
   Standpunkt,
   Svar,
@@ -55,13 +58,13 @@ import type {
 } from '../typer.ts';
 
 /**
- * Saken slik den var før brevet: sak-ID-en og sakstittelen (KA-U22), gjeldende
+ * Saken slik den var før brevet: sakens kode (LV-U44, S3 i #1497) og sakstittelen (KA-U22), gjeldende
  * svar på forholdet (A2), hvorfor svaret i et spor er subsidiært til forholdet
  * (LV-U4 punkt 6) og om forholdet er avklart ved frafall (GR-U23, GR-U26). Skrivingen
  * leser dem av utledningen.
  */
 export interface Saken {
-  saksnummer: string;
+  sakskode: Sakskode;
   tittel: string;
   svarPaaPaaberopelsen: string | null;
   subsidiaer: Record<Kravspor, Subsidiaergrunn[]>;
@@ -151,6 +154,12 @@ type Element =
   | { art: 'opplysning'; opplysning: Opplysning }
   | { art: 'dokument'; dokument: Dokument };
 
+/** Parten med eieform, skrevet fullt ut i brevet (LV-U35, LV-U42). */
+const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggherrens' };
+
+/** Typen registrert korrespondanse slik brevet nevner den (LV-U42). */
+const KORRESPONDANSEN: Record<Korrespondansetype, string> = { brev: 'brev', e_post: 'e-post' };
+
 /** Oppslagene teksten trenger i journalen før brevet og i brevet selv. */
 class Journalen {
   private readonly brev = new Map<string, { versjon: number; dokument: Dokument }>();
@@ -184,14 +193,26 @@ class Journalen {
     return e;
   }
 
-  /** «brev 3 av 2. oktober 2026»: saksversjonen og datoen brevet ble sendt (HF-U1, A5). */
+  /**
+   * Et tidligere brev med merkingen som er frosset på det, og datoen det ble sendt: «brev
+   * K201-KOE-017-03 av 2. oktober 2026» (LV-U53, oppdragsgiver 04.11 i #1570). Registrert
+   * korrespondanse har ingen frosset merking ennå (LV-U45) og omtales med parten, typen og
+   * datoen: «totalentreprenørens e-post av 2. oktober 2026» (LV-U42).
+   */
   brevet(id: string): string {
     const b = this.brev.get(id);
     if (!b || b.versjon === 0) throw new KanIkkeUttrykkes(`${id} er ikke et tidligere brev`);
-    const sendt = erRegistrert(b.dokument.opplysninger)
-      ? b.dokument.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)!.dato
-      : b.dokument.registrert;
-    return `brev ${b.versjon} av ${norskDato(sendt)}`;
+    const d = b.dokument;
+    const registrert = erRegistrert(d.opplysninger);
+    const sendt = registrert
+      ? d.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)!.dato
+      : d.registrert;
+    if (d.merking !== null) return `brev ${d.merking} av ${norskDato(sendt)}`;
+    if (registrert && d.korrespondansetype !== null)
+      return `${PARTENS[d.avsender]} ${KORRESPONDANSEN[d.korrespondansetype]} av ${norskDato(sendt)}`;
+    throw new KanIkkeUttrykkes(
+      `${id} har ingen merking, fordi prosjektet hadde ingen kontraktsforkortelse da brevet ble skrevet`
+    );
   }
 
   erRegistrert(dokument: string): boolean {
@@ -241,7 +262,12 @@ export function lagBrevtekst(
   if (erRegistrert(nytt.opplysninger))
     throw new KanIkkeUttrykkes('et registrert brev står som det ble sendt (MM-U17)');
   const j = new Journalen(foer, nytt);
-  const t: Tekst = { j, saken, nytt, sak: `sak ${saken.saksnummer} («${saken.tittel}»)` };
+  const t: Tekst = {
+    j,
+    saken,
+    nytt,
+    sak: `sak ${sakensKode(saken.sakskode)} («${saken.tittel}»)`,
+  };
 
   const avsnitt: Avsnitt[] = [];
   const legg = (gjelder: string, laast: string) => {
@@ -269,7 +295,7 @@ interface Tekst {
   j: Journalen;
   saken: Saken;
   nytt: Dokument;
-  /** «sak <saksnummer> («<sakstittel>»)» (KA-U22). */
+  /** «sak KOE-17 («<sakstittel>»)» (KA-U22, LV-U44). */
   sak: string;
 }
 
@@ -287,7 +313,7 @@ const DATOEN_I_BREVET: Record<OppgittDato, string> = {
  * henvisningen med «punkt» (LV-U39). Sakstittelen er navnet på forholdet og står én gang.
  */
 function forholdstekst(k: Krav, { saken }: Tekst, regler: Regelsett): string[] {
-  const navnet = `«${saken.tittel}» i sak ${saken.saksnummer}`;
+  const navnet = `«${saken.tittel}» i sak ${sakensKode(saken.sakskode)}`;
   const hoved = k.innhold.hovedkategori as string;
   const f = forholdet(k.innhold.underkategori);
   const dato = (felt: OppgittDato) =>

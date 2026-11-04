@@ -4,7 +4,8 @@
  */
 
 import { ApiError, apiFetch } from '$lib/api/client';
-import type { Journalrad, Part, Vedlegg } from '$kjerne/typer';
+import type { Saksmerking } from '$lib/kjernesak/brevtekst';
+import type { Journalrad, Korrespondansetype, Part, Vedlegg } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
 /** Navnet er slått opp ved visning; uten treff er det `aktor_id` (#820). */
@@ -66,6 +67,48 @@ const prosjekthode = (prosjektId: string) => ({ 'X-Project-ID': prosjektId });
 export const hentKjernesak = (sakId: string, prosjektId: string) =>
   apiFetch<Kjernesak>(sti(sakId), { headers: prosjekthode(prosjektId) });
 
+/** Svaret fra leseinngangene for sakens kode (LV-U46). */
+interface Sakskodesvar {
+  kode: 'koe' | 'eo';
+  loepenummer: number;
+  tildelt: boolean;
+  kontraktsforkortelse: string | null;
+}
+
+const somMerking = ({ kode, loepenummer, kontraktsforkortelse }: Sakskodesvar): Saksmerking => ({
+  sakskode: { kode, loepenummer },
+  kontraktsforkortelse,
+});
+
+/**
+ * Koden saken har, eller den sakens første brev vil få, og kontraktsforkortelsen, som
+ * brevteksten trenger (LV-U46, LV-U53). Inngangen krever kontraktsside.
+ */
+export const hentSaksmerking = (sakId: string, prosjektId: string) =>
+  apiFetch<Sakskodesvar>(`${sti(sakId)}/sakskode`, { headers: prosjekthode(prosjektId) }).then(
+    somMerking
+  );
+
+/** Som `hentSaksmerking`, for en ny sak: det neste nummeret for koden (LV-U46). Bare TE. */
+export const hentSaksmerkingForNySak = (prosjektId: string) =>
+  apiFetch<Sakskodesvar>('/api/kjerne/sakskode', { headers: prosjekthode(prosjektId) }).then(
+    somMerking
+  );
+
+/** Saken med merkingen brevteksten lages med, `null` når leseren ikke har kontraktsside. */
+export interface LastetKjernesak extends Kjernesak {
+  merking: Saksmerking | null;
+}
+
+/** Saken, og merkingen når leseren har en kontraktsside og kan sende brev i den. */
+export async function hentKjernesakMedMerking(
+  sakId: string,
+  prosjektId: string
+): Promise<LastetKjernesak> {
+  const sak = await hentKjernesak(sakId, prosjektId);
+  return { ...sak, merking: sak.part ? await hentSaksmerking(sakId, prosjektId) : null };
+}
+
 /** Oppretter saken i prosjektet. Serveren lager saks-ID-en og stempler aktøren og tidspunktet. */
 export const opprettSak = (kommandoId: string, kommando: unknown, prosjektId: string) =>
   apiFetch<{ sak_id: string; versjon: number }>(SAKER, {
@@ -91,7 +134,7 @@ export interface NySakTilServeren {
    * Varselet etter punkt 32.2 TE alt har sendt, med datoen og dokumentet (VS-U38). Dokumentet
    * står også i `paaberopelse.dokumentasjon`; ellers avviser serveren kallet (svar 2 i #1487).
    */
-  varsel?: { sendt: string; dokumentasjon: string[] };
+  varsel?: { sendt: string; korrespondansetype: Korrespondansetype; dokumentasjon: string[] };
 }
 
 /**

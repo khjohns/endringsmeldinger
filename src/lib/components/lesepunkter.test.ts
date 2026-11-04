@@ -115,7 +115,7 @@ const KJERNELESING: [string, RegExp, ((klausul: string) => boolean)?][] = [
     (klausul) => !bareTyper(klausul),
   ],
   ['kjernekall', new RegExp(String.raw`\bimport\s*\(?\s*${KJERNE}`, 'g')],
-  ['kjernehenting', /\bhentKjernesak\b/g],
+  ['kjernehenting', /\bhentKjernesak(?:MedMerking)?\b/g],
 ];
 
 /** Lesingene av en TS-sak utenom lesepunktet, med linjenummer. En import over flere linjer telles på første. */

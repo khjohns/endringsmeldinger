@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import NySak from '$lib/components/varden/NySak.svelte';
-import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
+import { DEMOMERKING, finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import {
   fjernVentende,
   lagreVentende,
@@ -17,9 +17,10 @@ import {
   type VedleggForNySak,
 } from '$lib/components/varden/nysak';
 import type { Kjernevedlegg } from '$lib/api/kjerne';
-import { kravMotNySak } from '$lib/kjernesak/brevtekst';
+import { kravMotNySak, type Saksmerking } from '$lib/kjernesak/brevtekst';
+import { ApiError } from '$lib/api/client';
 import { KJERNE } from '$kjerne/versjon';
-import { brevtittel } from '$lib/components/varden/tekster';
+import { brevtittel, NYSAK } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
@@ -43,12 +44,23 @@ function lagVedleggsgrense() {
 
 function aapne(
   send = vi.fn<SendNySak>(async () => ({ sakId: 'ny-sak' })),
-  { utkast = null as Utfylling | null } = {}
+  {
+    utkast = null as Utfylling | null,
+    hentMerking = async (): Promise<Saksmerking> => DEMOMERKING,
+  } = {}
 ) {
   const onsendt = vi.fn();
   const onavbrutt = vi.fn();
   const vedleggForNySak = lagVedleggsgrense();
-  render(NySak, { sakId: 'ny-sak', send, vedleggForNySak, utkast, onsendt, onavbrutt });
+  render(NySak, {
+    sakId: 'ny-sak',
+    send,
+    hentMerking,
+    vedleggForNySak,
+    utkast,
+    onsendt,
+    onavbrutt,
+  });
   return { send, onsendt, onavbrutt, vedleggForNySak };
 }
 
@@ -342,19 +354,20 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await seBrevet();
     const panel = await screen.findByRole('region', { name: 'Sending' });
     expect(within(panel).getByText('Send påberopelsen til byggherren')).toBeTruthy();
-    expect(screen.getByText('Påberopelse av irregulær endring')).toBeTruthy();
+    expect(screen.getByText('Påberopelse av irregulær endring i sak KOE-17')).toBeTruthy();
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til skjemaet' }));
     expect((screen.getByLabelText('Tittel på saken') as HTMLInputElement).value).toBe(
       'Teglforblending på fasaden'
     );
   });
 
-  it('brevkontrollen viser brev 2, nummeret påberopelsen får etter `sak_opprettet` (VS-U37, #1489)', async () => {
+  it('LV-U44: brevkontrollen viser brev 1, brevnummeret kjernen fryser for påberopelsen, ikke versjonen', async () => {
     aapne();
     await fyllIrregulaerEndring();
     await seBrevet();
     await screen.findByRole('region', { name: 'Sending' });
-    expect(screen.getByText('Brev 2')).toBeTruthy();
+    expect(screen.getByText('Brev 1')).toBeTruthy();
+    expect(screen.queryByText('Brev 2')).toBeNull();
   });
 
   it('F-4: feilen for endringsordren forsvinner når feltet fylles ut', async () => {
@@ -480,6 +493,56 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(andre.vedleggForNySak.lastOpp).not.toHaveBeenCalled();
   });
 
+  it('LV-U46: tok en annen sak nummeret, vises brevet med det nye nummeret og sendes med det', async () => {
+    let nummer = 17;
+    const send = vi
+      .fn<SendNySak>()
+      .mockImplementationOnce(async () => {
+        nummer = 18;
+        throw new ApiError(400, 'Teksten er en annen.', {
+          error: 'REGELBRUDD',
+          rule: 'ANNEN_BREVTEKST',
+        });
+      })
+      .mockResolvedValue({ sakId: 'ny-sak' });
+    const hentMerking = async (): Promise<Saksmerking> => ({
+      ...DEMOMERKING,
+      sakskode: { kode: 'koe', loepenummer: nummer },
+    });
+    aapne(send, { hentMerking });
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await screen.findByText(NYSAK.nyttNummer);
+    expect(send.mock.calls[0][0].tekst.join(' ')).toContain('KOE-17');
+    const avkrysning = screen.getByRole('checkbox', {
+      name: 'Jeg har kontrollert brevet',
+    }) as HTMLInputElement;
+    expect(avkrysning.checked, 'brevet med det nye nummeret er ikke kontrollert').toBe(false);
+    expect(screen.getAllByText(/KOE-18/).length).toBeGreaterThan(0);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
+    expect(send).toHaveBeenCalledTimes(1);
+    // Avsenderen kontrollerer brevet med det nye nummeret og sender det.
+    await fireEvent.click(avkrysning);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
+    expect(send.mock.calls[1][0].tekst.join(' ')).toContain('KOE-18');
+  });
+
+  it('LV-U46: er teksten annerledes av en annen grunn, står serverens melding og ikke meldingen om nummeret', async () => {
+    const melding = 'Teksten avsenderen har sett, er ikke den serveren lager.';
+    const send = vi
+      .fn<SendNySak>()
+      .mockRejectedValue(
+        new ApiError(400, melding, { error: 'REGELBRUDD', rule: 'ANNEN_BREVTEKST' })
+      );
+    aapne(send);
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    await screen.findByText(melding, { exact: false });
+    expect(screen.queryByText(NYSAK.nyttNummer)).toBeNull();
+  });
+
   it('5a: «Avbryt» spør før det som er skrevet slettes, og sender ingenting', async () => {
     const { send, onavbrutt } = aapne();
     await fireEvent.click(screen.getByRole('button', { name: 'Avbryt' }));
@@ -509,6 +572,7 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     opprettelse,
     { ...paaberopelse, utdypning: BESKRIVELSE },
     'TE',
+    DEMOMERKING,
     KJERNE,
     new Map(),
     sakId
@@ -579,6 +643,7 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
       opprettelse,
       medVedlegg,
       'TE',
+      DEMOMERKING,
       KJERNE,
       new Map([[vedlegg.vedlegg_id, bundet]]),
       sakId
@@ -589,13 +654,10 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     expect(JSON.stringify(demosak.journal().at(-1)!.data)).toContain(vedlegg.vedlegg_id);
   });
 
-  it('GR-U31: påberopelsen heter «Påberopelse av <forholdet>» også etter sendingen', () => {
-    expect(brevtittel({ art: 'krav', spor: ['forhold'], forhold: 'irregulaer_endring' })).toBe(
-      'Påberopelse av irregulær endring'
-    );
-    expect(brevtittel({ art: 'krav', spor: ['vederlag'], forhold: null })).toBe(
-      'Krav om vederlagsjustering'
-    );
+  it('LV-U27, MM-U17: brevet viser tittelen som ble frosset, og et registrert brev uten tittel heter «Korrespondanse»', () => {
+    const frosset = 'Påberopelse av irregulær endring i sak KOE-17';
+    expect(brevtittel({ art: 'krav', brevtittel: frosset })).toBe(frosset);
+    expect(brevtittel({ art: 'registrert', brevtittel: null })).toBe('Korrespondanse');
   });
 });
 
@@ -618,8 +680,8 @@ describe('programfeil i brevkontrollen for ny sak (#898)', () => {
       endringsordre: '',
       vedlegg: [],
     };
-    expect(brevet(utfylling, 'ny-sak', kjerne)).toEqual({ programfeil: PROGRAMFEIL });
-    expect(brevet(utfylling, 'ny-sak', KJERNE)).toHaveProperty('tekst');
+    expect(brevet(utfylling, 'ny-sak', DEMOMERKING, kjerne)).toEqual({ programfeil: PROGRAMFEIL });
+    expect(brevet(utfylling, 'ny-sak', DEMOMERKING, KJERNE)).toHaveProperty('tekst');
     feil.mockRestore();
   });
 });
