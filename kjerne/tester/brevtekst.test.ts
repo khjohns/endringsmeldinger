@@ -4397,7 +4397,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
 
     it('etter frafall fra appen, en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3 er forholdet avklart ved frafallet, fordi frafallet ikke faller bort ved en ny versjon og et registrert svar ikke tar det bort (GR-U20, GR-U23, OV-U4, OV-U6, #1388)', () => {
       const s = medFrafall();
-      versjon(s, { tittel: 'Ny peling 2' });
+      versjon(s, {});
       const v2 = s.u().spor.forhold.gjeldendeKrav!.id;
       const eo = randomUUID();
       s.rad('BH', {
@@ -4427,7 +4427,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
         etterEo.utenVirkning.map((x) => x.element),
         'forutsetning: med virkning'
       ).toEqual([]);
-      versjon(s, { tittel: 'Ny peling 3' });
+      versjon(s, {});
       const u = s.u();
       expect(u.spor.forhold.krav.length, 'forutsetning: tre versjoner').toBe(3);
       expect(u.spor.forhold.gjeldendeSvar, 'forutsetning: versjon 3 venter på svar').toBeNull();
