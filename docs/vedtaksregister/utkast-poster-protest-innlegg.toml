@@ -30,7 +30,7 @@ etter = '''
 
 Teksten under er samlevedtaket [MM-U47](#mm-u47), vedtatt <dato> av oppdragsgiver (#1534), ordrett
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-protest-innlegg-2026-11-04.md),
-med «Endret innhold» E1–E6. Svarene på spørsmål 1 og 2 i vurderingen er [MM-U48](#mm-u48) og
+med «Endret innhold» E1–E7. Svarene på spørsmål 1 og 2 i vurderingen er [MM-U48](#mm-u48) og
 [MM-U49](#mm-u49).
 
 <Forslaget og Endret innhold, ordrett etter punkt 1 i oppskriften.>'''
@@ -56,18 +56,19 @@ forhold = [
   { art = "endrer", vedtak = "ov-u7" },
   { art = "endrer", vedtak = "vs-u9" },
   { art = "opphever", vedtak = "ov-u67" },
-  { art = "opphever", vedtak = "ov-u68" },
+  { art = "endrer", vedtak = "ov-u68" },
+  { art = "presiserer", vedtak = "dl-u11" },
 ]
 folge = '''
 Samler reglene for protest, bestridelse og innlegg og det som står igjen av sperren etter enighet.
 Tabellen «Postene i kjeden» i vurderingen sier hvilke setninger hver post bidrar med. Forholdene
-til KA-U29, MM-U34, OV-U7 og VS-U9 gjelder bare delene i E1–E6. MP-U4 og MP-U6 står for
+til KA-U29, MM-U34, OV-U7 og VS-U9 gjelder bare delene i E1–E7. MP-U4 og MP-U6 står for
 metodeprøven (E2).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-Forslaget i punkt 1–12 med designdelen og beslutningsdelen, og E1–E6, gjelder slik det står, med svarene på spørsmål 1 og 2 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».'''
+Forslaget i punkt 1–12 med designdelen og beslutningsdelen, og E1–E7, gjelder slik det står, med svarene på spørsmål 1 og 2 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …», «Endret av …» eller «Opphevet av …» etter tabellen «Postene i kjeden». Punkt 5 s2 gjelder når samlevedtaket for saker løsningen ikke forstår (#1572) er merget.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
@@ -91,21 +92,29 @@ forhold = [
   { art = "endrer", vedtak = "ov-u7" },
   { art = "endrer", vedtak = "mm-u35" },
   { art = "endrer", vedtak = "vs-u35" },
+  { art = "endrer", vedtak = "vs-u1" },
+  { art = "snevrer inn", vedtak = "mm-u1" },
+  { art = "snevrer inn", vedtak = "mm-u7" },
+  { art = "snevrer inn", vedtak = "mm-u14" },
+  { art = "snevrer inn", vedtak = "vs-u8" },
+  { art = "snevrer inn", vedtak = "ka-u39" },
 ]
 folge = '''
 Forholdet til MM-U34 gjelder punkt 24. Forholdet til OV-U7 gjelder bestridelse, protest mot en
 innsigelse og delene av KA-U29 om dem. Forholdene til MM-U35 og VS-U35 gjelder «i første versjon»
-i MM-U35 s1 og «fortsatt utsatt» i VS-U35 s2. I tråd med MM-U33 steg 3.'''
+i MM-U35 s1 og «fortsatt utsatt» og «bygges senere» i VS-U35 s2–s4. Forholdet til VS-U1 gjelder
+protesten, og innsnevringene bestridelsen i et innlegg. Tar opp igjen for bestridelsen alternativet
+VS-U35 forkastet 01.11. I tråd med MM-U33 steg 3.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-Protest mot en innsigelse og bestridelse av en opplysning sendes som innlegg i fritekst, også etter første versjon. Løsningen har ingen egen handling for dem.'''
+Protest mot en innsigelse og bestridelse av en opplysning sendes som innlegg i fritekst, også etter første versjon. Løsningen har ingen egen handling for dem. Skal en av dem bli en egen handling senere, krever det et nytt vedtak.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
 tekst = '''
-Protest mot en innsigelse og bestridelse av en opplysning sendes som innlegg i første versjon. De står som egne utsagn uten virkning på utfallet og bygges senere.'''
+Protest mot en innsigelse og bestridelse av en opplysning sendes som innlegg i første versjon. Bestridelsen står som eget utsagn uten virkning på utfallet og bygges senere. Skal protesten bli et eget utsagn, krever det et nytt vedtak.'''
 forkastet = true
 
 [[gruppe.vedtak.sitat]]
@@ -134,21 +143,22 @@ svar = '''
 <Oppdragsgivers svar, ordrett.>'''
 forhold = [
   { art = "opphever", vedtak = "ov-u67" },
-  { art = "opphever", vedtak = "ov-u68" },
+  { art = "endrer", vedtak = "ov-u68" },
   { art = "samler", vedtak = "mm-u34" },
 ]
 folge = '''
-Forholdet til MM-U34 gjelder punkt 13. I tråd med KA-U1.'''
+Forholdet til OV-U68: s1 slik MM-U34 punkt 13 endret den, samles som designdel, og s2–s3
+oppheves. Forholdet til MM-U34 gjelder punkt 13. I tråd med HF-U9, KA-U10 og KA-U1.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-En registrert enighet sperrer ikke innsigelse, protest, bestridelse eller påberopt passivitet, og løsningen avgjør ikke om de er virksomme mot enigheten (MM-U12). Hva TE godtar ved aksept, følger KA-U1. Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, bevares og vises med enigheten.'''
+En registrert enighet sperrer ikke innsigelse, protest, bestridelse eller påberopt passivitet, og løsningen avgjør ikke om de er rettslig virksomme mot enigheten (MM-U12). Innholdet i enigheten følger HF-U9 og KA-U10, og det TE godtar ved aksept, KA-U1.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
 tekst = '''
-En registrert enighet sperrer ikke innsigelse, protest, bestridelse eller påberopt passivitet, og løsningen avgjør ikke om de er virksomme mot enigheten (MM-U12). En enighet omfatter det gjeldende kravet og det gjeldende svaret, med de standpunktene som står mot det gjeldende kravet, og varselet og opplysningene et standpunkt om varslingen bygger på. Eldre kravversjoner og svarene på dem omfattes ikke. Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, bevares og vises med enigheten.'''
+En registrert enighet sperrer ikke innsigelse, protest, bestridelse eller påberopt passivitet, og løsningen avgjør ikke om de er rettslig virksomme mot enigheten (MM-U12). En enighet omfatter det gjeldende kravet og det gjeldende svaret, med de standpunktene som står mot det gjeldende kravet, og varselet og opplysningene et standpunkt om varslingen bygger på. Eldre kravversjoner og svarene på dem omfattes ikke. Et varsel ingen av disse standpunktene gjelder, er ikke omfattet. Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, bevares og vises med enigheten. Kravversjonen standpunktet gjaldt, inngår ikke når den er en eldre kravversjon og TE etter svaret har registrert et eget varsel etter samme bestemmelse.'''
 forkastet = true
 
 [[gruppe.vedtak.sitat]]
