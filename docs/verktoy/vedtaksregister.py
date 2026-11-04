@@ -1069,7 +1069,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ka-u13", "snevrer inn", "ka-u7", "#1534, steg 4"),
         ("ka-u20", "presiserer", "ka-u7", "#1534, steg 4"),
         ("ka-u31", "snevrer inn", "ka-u24", "#1534, steg 4"),
-        ("ka-u34", "presiserer", "ka-u24", "#1534, steg 4"),
         ("ka-u41", "presiserer", "ka-u24", "#1534, steg 4"),
         ("ka-u45", "bygger på", "ov-u48", "#1534, steg 4"),
         ("ka-u45", "bygger på", "ov-u49", "#1534, steg 4"),
