@@ -75,8 +75,8 @@ andre poster. Henvisningene til GR-U4 som kilden for revisjonsretten (GR-U7, MM-
 
 ## Forslaget
 
-Samlevedtaket er et *vedtak* med designdel. Punkt 4 står etter svaret på spørsmål 3, og punkt
-9 etter svaret på spørsmål 2.
+Samlevedtaket er et *vedtak* med designdel. Punkt 4 har fått teksten fra svaret på spørsmål
+3 A, og punkt 9 teksten fra svaret på spørsmål 2 A.
 
 ### A. Byggherrens nye svar
 
@@ -92,8 +92,10 @@ Samlevedtaket er et *vedtak* med designdel. Punkt 4 står etter svaret på spør
    på grunnlaget eller trekk av grunnlaget, gjelder GR-U27. (MM-U34 punkt 12; GR-U27)
 4. Det gjelder også etter et frafall etter punkt 32.3 første ledd c, også på en ny
    grunnlagsversjon: byggherren kan svare med avslag. Løsningen viser frafallet sammen med
-   det nye svaret, uten å trekke konklusjonen. (MM-U34 punkt 7; E3) *Teksten i det valgte
-   alternativet i spørsmål 3 om påberopelse etter punkt 32.2.*
+   det nye svaret, uten å trekke konklusjonen. (MM-U34 punkt 7; E3) Etter et frafall etter punkt 32.3 første ledd c
+   kan byggherren i et nytt svar også påberope at varselet kom for sent etter punkt 32.2.
+   Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen, og
+   utleder virkningen av standpunktet etter punkt 32.2 som ellers (VS-U3). (Spørsmål 3 A)
 5. En retting av et standpunkt i svaret sendes som et nytt svar etter punkt 1–2, med
    henvisning til brevet den retter. (MM-U42)
 6. Løsningen avviser ikke et nytt svar fordi det senker noe byggherren har innrømmet.
@@ -113,7 +115,10 @@ Samlevedtaket er et *vedtak* med designdel. Punkt 4 står etter svaret på spør
    løsningen avgjør ikke om enigheten står (MM-U12). (MM-U34 punkt 9) Etter en endringsordre
    registrert som svar sier brev og visning ikke at endringsordren i brevet er bortfalt.
    (EO-U35)
-9. *Teksten i det valgte alternativet i spørsmål 2.* (MM-U9; HF-U5; E4)
+9. Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en
+   merknad. Så langt et nytt svar er tillatt, sier merknaden at byggherren kan sende et nytt
+   svar. Den oppfordrer ikke til en bestemt endring. Løsningen avgjør ikke om et nytt svar er
+   rettslig virksomt (MM-U12). (Spørsmål 2 A; MM-U9; HF-U5; E4)
 
 ### C. Det samlevedtaket ikke gjelder
 
@@ -164,7 +169,8 @@ påberopelse etter § 32.2 avvises, mens en revisjon til endringsordre er tillat
 «Byggherren kan svare på versjonen med frafall eller endringsordre (GR-U20).» Samlevedtaket:
 punkt 4. Sperren mot avslag gjelder ikke lenger. I GR-U20 gjelder «, ikke med avslag» ikke
 lenger, og i GR-U23 gjelder setningen ikke lenger. Om sperren mot påberopelse etter punkt 32.2
-faller, avgjøres i spørsmål 3. Hvorfor: MM-U34 punkt 7 «**GR-U17, GR-U20, GR-U23.** Sperrene
+faller, er avgjort i spørsmål 3 A: den faller også, og i GR-U17 gjelder hele setningen ikke
+lenger. Hvorfor: MM-U34 punkt 7 «**GR-U17, GR-U20, GR-U23.** Sperrene
 mot at byggherren svarer med avslag etter et frafall etter § 32.3 c, oppheves. Løsningen viser
 frafallet sammen med det nye svaret, uten å trekke konklusjonen.» Punkt 7 nevner ikke
 påberopelsen etter § 32.2. «Byggherren er bundet av løftet om endringsordre for utført arbeid»
@@ -324,3 +330,14 @@ En subagent leste koden 04.11 på commiten over. Lest i koden, ikke kjørt:
    sperren mot påberopelse etter frafall står i regelsettet. Kjernen har den ikke i dag, selv
    om Følge i GR-U17 sier at den er bygget (se «Koden»).
    Klasse: vedtak.
+
+## Svarene
+
+Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A»
+([#1534, 6629935331](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629935331)).
+
+- **1: A** er valgt, og **B** er forkastet.
+- **2: A** er valgt, og **B** og **C** er forkastet.
+- **3: A** er valgt, og **B** er forkastet.
+
+Postene står som utkast i [`utkast-poster-revisjon-av-svaret.toml`](utkast-poster-revisjon-av-svaret.toml).
