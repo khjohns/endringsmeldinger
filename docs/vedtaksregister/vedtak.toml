@@ -10087,6 +10087,47 @@ kilde = "hovedplanen"
 tekst = "Bare parten som sendte det, kan velge noe annet enn dokumentasjon."
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u44"]
+id = "LV-U48"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål D3, ordrett slik det ble stilt 04.11 i orkestreringsrunde 7 (#1065), ført i #1497 (kommentaren 6625520661). Det er den siste versjonen før svaret. Den første versjonen hadde alternativene A, B og C. Oppdragsgiver svarte på den med spørsmålet «D3 - er ikke B best mtp sortering hvis brevene er lastet ned fra flere saker?», og versjonen under kom etter det. Alternativene står i posten, uten kodeformateringen i eksemplene. Svaret og tillegget står i kommentarene 6625242802 og 6625261913.
+
+**D3:** Ja, B sorterer bedre. Filnavn sorteres som tekst, tegn for tegn. Med A havner `K201-KOE-17-03` foran `K201-KOE-5-03`, fordi tegnet «1» kommer før «5». Med B kommer `KOE-05` foran `KOE-17`, i riktig rekkefølge.
+
+B sorterer likevel bare riktig til og med sak 99. Kommer prosjektet til sak 100, havner `KOE-100` foran `KOE-99`. Med mange endringer i et stort prosjekt kan det skje.
+
+- **B:** to sifre i begge tallene, `K201-KOE-05-03`. Det følger «KOE-nn» i LV-U44 og sorterer riktig til og med sak 99.
+- **B3 (anbefalt):** tre sifre i løpenummeret og to i brevnummeret, `K201-KOE-005-03`. Det sorterer riktig til og med sak 999, men avviker fra «KOE-nn».
+
+Henvisningen i brevteksten står uten utfylling i begge, som «brev 3 i sak KOE-17».
+
+Velger du B eller B3?'''
+valgt = "B3"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6625242802)): «D5 A, D3 B3»
+
+Tillegg fra oppdragsgiver 04.11, ordrett ([tillegget](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6625261913)): «Og om D3 - tilsvarende må gjelde for andre brevtyper feks EO»'''
+forhold = [{ art = "endrer", vedtak = "lv-u44" }]
+folge = '''
+Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+to sifre i begge tallene, K201-KOE-05-03. Det følger «KOE-nn» i LV-U44 og sorterer riktig til og med sak 99.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B3"
+tekst = '''
+tre sifre i løpenummeret og to i brevnummeret, K201-KOE-005-03. Det sorterer riktig til og med sak 999, men avviker fra «KOE-nn».'''
+anbefalt = true
+
+[[gruppe.vedtak]]
 klasse = "design"
 id = "MM-U37"
 dato = 2026-11-02
