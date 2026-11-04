@@ -3609,8 +3609,20 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtittel.ts`,
     endringer: [
       [
-        'if (f ? !tittel.startsWith(paaberopelsenAv(f.navn)) : paaberoper)',
-        'if (f ? !paaberoper : paaberoper)',
+        'if (forventet ? tittel !== forventet && !tittel.startsWith(`${forventet} i sak `) : paaberoper)',
+        'if (forventet ? !paaberoper : paaberoper)',
+      ],
+    ],
+    mal: ['en påberopelse med tittelen for et annet forhold er ikke forstått'],
+  },
+  {
+    id: 'F441',
+    feilklasse: 'leseren godtar tekst etter forholdet i påberopelsens tittel (GR-U31, #1533)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [
+      [
+        'tittel !== forventet && !tittel.startsWith(`${forventet} i sak `)',
+        '!tittel.startsWith(forventet)',
       ],
     ],
     mal: ['en påberopelse med tittelen for et annet forhold er ikke forstått'],

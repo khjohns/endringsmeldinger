@@ -6697,6 +6697,12 @@ describe('brevtittelen fryses med brevet (MM-U3, svaret 03.11 i #1488)', () => {
     expect(lestMed(s, rad, {}), 'kontrollsak').toBe('dokument');
     expect(lestMed(s, rad, { brevtittel: 'Påberopelse av forsinkelse' })).toBe('ukjent');
     expect(lestMed(s, rad, { brevtittel: 'Krav om endring' })).toBe('ukjent');
+    expect(lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endringsordre' })).toBe(
+      'ukjent'
+    );
+    expect(lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endring i sak KOE-3' })).toBe(
+      'dokument'
+    );
   });
 
   it('et svar med tittelen for en påberopelse er ikke forstått (#1533)', () => {

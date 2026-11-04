@@ -61,7 +61,8 @@ export function avvikITittelen(
     return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U3)';
   const f = paaberoptForhold(d);
   const paaberoper = tittel.startsWith(paaberopelsenAv(''));
-  if (f ? !tittel.startsWith(paaberopelsenAv(f.navn)) : paaberoper)
+  const forventet = f && paaberopelsenAv(f.navn);
+  if (forventet ? tittel !== forventet && !tittel.startsWith(`${forventet} i sak `) : paaberoper)
     return 'brevtittelen nevner ikke forholdet kravet påberoper (GR-U31)';
   return null;
 }
