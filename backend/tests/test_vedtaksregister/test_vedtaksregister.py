@@ -1175,6 +1175,20 @@ def test_et_opphevet_vedtak_i_bindende_i_avvises_til_det_er_samlet(grunnregister
     assert vr.valider(med(endret, samler)) == []
 
 
+def test_et_vedtak_samlet_av_et_opphevet_samlevedtak_har_mistet_hjemmet(grunnregister):
+    """Arbeidsvalget for kontroll 2 04.11 i #1534: et samlevedtak som er opphevet, gjelder
+    ikke, så den bindende setningen har ikke noe gjeldende hjem."""
+    design = ny_post(id="XX-U1", klasse="design", bindende_i=["ka-u2"], forhold=[])
+    opphever = ny_post(id="XX-U2", forhold=[{"art": "opphever", "vedtak": "ka-u2"}])
+    samler = ny_post(id="XX-U3", forhold=[{"art": "samler", "vedtak": "ka-u2"}])
+    opphever_samleren = ny_post(id="XX-U4", forhold=[{"art": "opphever", "vedtak": "xx-u3"}])
+    endret = med(med(med(med(grunnregister, design), opphever), samler), opphever_samleren)
+    assert vr.valider(endret) == [
+        "xx-u1: den bindende setningen står i ka-u2, som er opphevet av xx-u2 og ikke samlet; "
+        "før den inn i et gjeldende vedtak"
+    ]
+
+
 def test_samler_og_bygger_paa_staar_begge_veier(grunnregister):
     """Svar 4 og 5 04.11 i #1534. Den passive formen for «bygger på» er «Lagt til grunn», så
     den ikke leses som byggestatus («Bygget»)."""
@@ -1247,6 +1261,17 @@ def test_et_forhold_etter_merge_kan_bare_bli_opphever_eller_samler(grunnregister
     senere = copy.deepcopy(merget)
     senere["gruppe"][0]["vedtak"][-1]["forhold"] = forhold
     assert sorted(vr.mot_grunnlag(senere, vr.logisk(merget), merget)) == sorted(feil)
+
+
+def test_et_opphever_etter_merge_kan_ikke_bli_samler(grunnregister):
+    """Svar 14 i PR #1537: et forhold kan bli «opphever» eller «samler». Et «opphever» som blir
+    «samler», ville gjort det opphevede vedtaket gjeldende igjen."""
+    merget = med(grunnregister, ny_post(forhold=[{"art": "opphever", "vedtak": "ka-u1"}]))
+    senere = copy.deepcopy(merget)
+    senere["gruppe"][0]["vedtak"][-1]["forhold"] = [{"art": "samler", "vedtak": "ka-u1"}]
+    assert vr.mot_grunnlag(senere, vr.logisk(merget), merget) == [
+        "XX-U1: forholdet «opphever ka-u1» er fjernet etter merge"
+    ]
 
 
 def _rad_uten_anker(register: dict) -> dict:

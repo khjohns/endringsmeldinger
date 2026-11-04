@@ -938,14 +938,20 @@ def valider(register: dict) -> list[str]:
 
 def opphevet_og_samlet(register: dict) -> tuple[dict, set[str]]:
     """Vedtakene som er opphevet, med ankrene til vedtakene som opphever dem, og ankrene til
-    vedtakene som er samlet. Om en post gjelder, regnes ut av forholdene (svar 1 04.11 i #1534)."""
-    opphevet, samlet = {}, set()
+    vedtakene som er samlet av et samlevedtak som ikke selv er opphevet. Om en post gjelder,
+    regnes ut av forholdene (svar 1 04.11 i #1534)."""
+    opphevet = {}
     for p in poster(register):
         for f in p.get("forhold", []):
             if f["art"] == "opphever":
                 opphevet.setdefault(f["vedtak"], []).append(anker(p) or etikett(p))
-            elif f["art"] == "samler":
-                samlet.add(f["vedtak"])
+    samlet = {
+        f["vedtak"]
+        for p in poster(register)
+        if anker(p) not in opphevet
+        for f in p.get("forhold", [])
+        if f["art"] == "samler"
+    }
     return opphevet, samlet
 
 
@@ -1341,11 +1347,12 @@ def _forhold_etter_merge(id_: str, gammel: dict, naa: dict) -> list[str]:
         for art, a in lagt_til
         if art not in FORHOLD_ETTER_MERGE
     ]
+    # Et «opphever» står: blir det «samler», gjelder det opphevede vedtaket igjen.
     erstattet = {a for art, a in lagt_til if art in ("opphever", "samler")}
     feil += [
         f"{id_}: forholdet «{art} {a}» er fjernet etter merge"
         for art, a in borte
-        if a not in erstattet
+        if a not in erstattet or art == "opphever"
     ]
     return feil
 
