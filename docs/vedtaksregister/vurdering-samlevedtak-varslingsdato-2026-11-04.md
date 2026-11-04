@@ -6,7 +6,7 @@ Fila er et forslag til samlet tilslutning til reglene for datoen varslingsplikte
 for hvilket brev som er varselet når det ikke finnes et eget varsel, og for kunnskapsdatoen
 etter punkt 34.1.3 annet ledd. Hver setning i forslaget viser vedtaket og eventuelt punktet
 den kommer fra. Det som endrer innholdet i en eldre post, også en motsigelse forslaget løser,
-står i «Endret innhold» (E1–E4), og oppdragsgiver tar stilling til hvert punkt. Spørsmålene
+står i «Endret innhold» (E1–E5), og oppdragsgiver tar stilling til hvert punkt. Spørsmålene
 står ordrett slik de sendes, og svarene føres inn her. Sitatene fra vedtaksfila er ordrette
 og kontrollert mot [`vedtak.md`](../plans/vedtak.md) på commiten over. Forslaget siterer ikke
 NS 8407.
@@ -68,13 +68,20 @@ navngitte setningene; resten av posten står og hører til en annen kjede.
 | MM-U21 | vedtak | gjeldende | ingen setning endres; gjennom samlevedtaket for retting | – |
 | MM-U34 | vedtak med designdel | gjeldende | ingen setning endres; kilde | – |
 
+**Retting av klassen (svar 8).** Den uavhengige kontrollen fant at OV-U34 har en bindende
+setning som ikke står uttrykkelig i et annet gjeldende vedtak: «Varseldato og kunnskapsdato
+behandles som forskjellige opplysninger.» OV-U41 og OV-U53 forutsetter skillet, men sier det
+ikke. Forslag: OV-U34 blir *vedtak med beslutningsdel*. VS-U37 blir *vedtak med designdel*,
+fordi «brevet nevner brevet og datoen» er design. Rettingen føres i #1534 med resultatet av
+kontrollen.
+
 Forhold samlevedtaket overtar fra postene det opphever og samler: VS-U37 har ingen forhold i
 registeret. OV-U41 presiserer OV-U34, utvider OV-U5 og OV-U24 og følger MM-U21. OV-U24
 presiserer OV-U5. Henvisningen til VS-U37 i #1489 gjelder samlevedtaket.
 
 ## Forslaget
 
-Samlevedtaket er et *vedtak* med designdel og beslutningsdel.
+Samlevedtaket er et *vedtak* med designdel.
 
 ### A. Datoen varslingsplikten løper fra
 
@@ -94,9 +101,14 @@ Samlevedtaket er et *vedtak* med designdel og beslutningsdel.
 
 ### B. Varselet når det ikke finnes et eget varsel
 
-6. Er ikke noe eget varsel etter punkt 32.2 registrert eller oppgitt, er varselet etter punkt
-   32.2 det første grunnlagskravet for pålegget. En senere versjon er ikke et nytt varsel.
-   (VS-U37; OV-U5; LV-U21; E3)
+6. Varselet etter punkt 32.2 er det første grunnlagskravet for pålegget. Har
+   totalentreprenøren registrert eller oppgitt et eget varsel etter punkt 32.2 med en
+   tidligere dato, er det varselet. En senere versjon av grunnlagskravet er ikke et nytt
+   varsel. (VS-U37; OV-U5; OV-U80; E3)
+   *Ved spørsmål 3 A kommer i tillegg:* I en ny sak etter GR-U22 kan totalentreprenøren
+   oppgi brevet med grunnlagskravet i den gamle saken som eget varsel etter punkt 32.2, også
+   om det er sendt fra løsningen. Løsningen avgjør ikke om det varselet dekker den nye
+   hjemmelen (MM-U12; OV-U57). (GR-U22; OV-U57; E2)
 7. Er ikke noe varsel etter punkt 33.4 registrert, er det første fristkravet i sporet det
    første varselet løsningen kjenner. (OV-U5)
 8. Er ikke noe særskilt varsel etter punkt 34.1.3 registrert for et særskilt krav, er det
@@ -113,9 +125,10 @@ Samlevedtaket er et *vedtak* med designdel og beslutningsdel.
    kjenner, og rettidigheten etter punkt 34.1.2 og punkt 34.1.3 når vederlagskravet er det
    første varselet løsningen kjenner. Løsningen kontrollerer ikke at dokumentet er det samme
    kravet, eller at datoen er riktig. (OV-U5)
-10. Gjør byggherren gjeldende at varselet kom for sent, og totalentreprenøren ikke har sendt
-    eller oppgitt et eget varsel, gjelder påberopelsen det første varselet løsningen kjenner
-    etter punkt 6–8. Det samme gjelder «i tide» og en innsigelse. (VS-U37; LV-U21)
+10. Gjør byggherren gjeldende at varselet kom for sent, gjelder påberopelsen varselet etter
+    punkt 6, eller, når totalentreprenøren ikke har sendt eller oppgitt et eget varsel, det
+    første varselet løsningen kjenner etter punkt 7 og 8. Det samme gjelder «i tide» og en
+    innsigelse. (VS-U37; LV-U21; E3)
 
 ### C. Kunnskapsdatoen etter punkt 34.1.3 annet ledd
 
@@ -159,11 +172,6 @@ varseldatoen: «TE oppgir å ha blitt klar over at utgiftene ville påløpe <dat
 totalentreprenøren har oppgitt, beholdes og vises som totalentreprenørens utsagn (OV-U41).
 Endret brevtekst gjelder bare nye brev (MM-U9; VS-U26; LV-U21).
 
-### Beslutningsdel
-
-Behovet for kunnskapsdato i TS-stien utover punkt 12–15, og eventuell visning i skjema og
-brev, avklares i #1171. C1 endres ikke. (OV-U34)
-
 ## Endret innhold
 
 **E1 Hvilken versjon datoen står i.** Gammel tekst: VS-U37 «Mottaksdatoen er TEs opplysning i
@@ -176,31 +184,48 @@ setningen i VS-U37 ikke gjelder etter OV-U52, og at bare Følge sier det.
 
 **E2 En versjon i en annen underkategori (spørsmål 3).** Gammel tekst: VS-U37 «En versjon i en
 annen underkategori, registrert utenfor appen (HF-U8), er et nytt varsel.» Samlevedtaket ved
-spørsmål 3 A: setningen faller, og punkt 6 gjelder i hver sak. Hvorfor: GR-U22 «Når TE har
+spørsmål 3 A: setningen faller, punkt 6 gjelder i hver sak, og tillegget i punkt 6 lar
+totalentreprenøren oppgi brevet i den gamle saken som eget varsel i den nye. Hvorfor: GR-U22 «Når TE har
 sendt grunnlaget, kan TE ikke endre hjemmelen: hovedkategorien og underkategorien står.» og
 «Vil TE påberope en annen hjemmel, oppretter TE en ny sak og overfører kravene dit.
 Overføringen er ikke et avkall, og den nye saken viser til varselet i den gamle.»; OV-U55
 (25.10) «En ny grunnlagsversjon kan ikke endre dem.»; OV-U80 (01.11) «Et valg godtas der den
 samme handlingen sendt fra løsningen ville vært godtatt.» Etter OV-U55 og OV-U80 kan en
 versjon i en annen underkategori verken sendes fra løsningen eller registreres i saken.
-HF-U8 sier ingenting om underkategorien.
+HF-U8 sier ingenting om underkategorien. Tillegget kom fra prøven av arbeidsflyten: uten
+det er varselet i den nye saken det nye grunnlagskravet, selv om den gamle saken har et
+tidligere brev, og OV-U5 gjelder bare et varsel «sendt utenfor appen». Det løsningen ikke
+avgjør her: om et «i tide» eller en binding i den gamle saken følger med til den nye; det
+avgjøres særskilt etter OV-U55 og OV-U57.
 
-**E3 Vilkåret om et eget varsel etter punkt 32.2.** Gammel tekst: VS-U37 «Påberopelsen gjelder
-det første grunnlagskravet for pålegget, og brevet nevner brevet og datoen.» Samlevedtaket:
-punkt 6 og 10, med vilkåret «Er ikke noe eget varsel etter punkt 32.2 registrert eller
-oppgitt». Hvorfor: OV-U5 «Unntak fra OV-U4: TE kan oppgi datoen for sitt eget varsel etter
-§ 32.2, § 33.4, § 34.1.2 eller § 34.1.3 som er sendt utenfor appen, også etter et krav og
-etter byggherrens svar.» og «Det samme gjelder rettidigheten etter § 32.2 når grunnlagskravet
-er det første varselet appen kjenner.»; OV-U80 lar totalentreprenøren registrere et varsel
-«etter punkt 32.2»; LV-U21 har vilkåret for punkt 33.4 og 34.1.2: «og TE ikke har sendt eller
-oppgitt et eget varsel». VS-U37 har ikke vilkåret. Uten det gjelder påberopelsen det første
-grunnlagskravet også når et tidligere varsel etter punkt 32.2 er oppgitt. Forslaget snevrer
-inn VS-U37 til tilfellet uten eget varsel.
+**E3 Et eget varsel etter punkt 32.2.** Gammel tekst: VS-U37 «Påberopelsen gjelder det
+første grunnlagskravet for pålegget, og brevet nevner brevet og datoen.» Samlevedtaket: punkt
+6 og 10. Påberopelsen gjelder et eget varsel etter punkt 32.2 som totalentreprenøren har
+registrert eller oppgitt, når det har en tidligere dato enn det første grunnlagskravet.
+Hvorfor: OV-U5 «Unntak fra OV-U4: TE kan oppgi datoen for sitt eget varsel etter § 32.2,
+§ 33.4, § 34.1.2 eller § 34.1.3 som er sendt utenfor appen, også etter et krav og etter
+byggherrens svar.» og «Det samme gjelder rettidigheten etter § 32.2 når grunnlagskravet er det
+første varselet appen kjenner.»; OV-U80 lar totalentreprenøren registrere et varsel «etter
+punkt 32.2»; LV-U21 har vilkåret for punkt 33.4 og 34.1.2: «og TE ikke har sendt eller oppgitt
+et eget varsel». VS-U37 har ikke vilkåret, så påberopelsen ville gjelde det første
+grunnlagskravet også når et tidligere varsel er oppgitt. Kravet om en tidligere dato kom fra
+prøven av arbeidsflyten: uten det ville et eget varsel oppgitt ved en feil, med senere dato,
+flytte påberopelsen fra et rettidig grunnlagskrav til et senere brev. Forslaget snevrer inn
+VS-U37 til det første av de to brevene. For punkt 33.4 og 34.1.2 kan LV-U21 ha samme svakhet;
+den avgjøres i kjeden for brev og varsel utenfor løsningen.
 
 **E4 OV-U51 i Følge.** Ingen innholdsendring. GR-U22, OV-U41 og VS-U26 fører endringer fra
 OV-U51, som OV-U52 opphevet 25.10, og MM-U34 punkt 15 endrer OV-U51. Samlevedtaket tar ingen
 setning fra OV-U51. Rettingen av datoen står i samlevedtaket for retting (punkt 10–11 der),
 som fører MM-U34 punkt 15 videre (E2 og E3 der).
+
+**E5 Arbeidsstatus i OV-U34 og VS-U37 tas ikke med.** Gammel tekst: OV-U34 «Behovet for
+kunnskapsdato i TS-stien, og eventuell visning i skjema og brev, avklares i #1171.» og «C1
+endres ikke.»; VS-U37 «Det føres som vedtak og bygges i et eget issue.» Samlevedtaket: ingen
+av setningene. Hvorfor: kunnskapsdatoen ble avgjort i OV-U41 24.10, som sier «Appen har ingen
+annen kunnskapsdato for § 34.1.3.» (punkt 13). C1 var arbeidsøkta for #1047 og #1219, og
+byggeissuet etter VS-U37 er #1489. Det er arbeidsstatus, som hører til issuene. Ingen regel
+endres.
 
 ## Prøvingen
 
