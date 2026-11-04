@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `207e888b8d62c8328fd6155ecb31316b6775b43743e503ba91334edc97512f9a`
+Kontrollsum (SHA-256 over utdraget visningen leser): `f498e0dce0fa5ad633f4bc154af2a168672fbf07d58cc9721578c93af3fc9ea8`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -66,7 +66,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [VS-U38](#vs-u38) | Presiserer [VS-U34](#vs-u34); Presiserer [GR-U31](../../plans/vedtak.md#gr-u31) | Presisert av [VS-U39](#vs-u39); Presisert av [VS-U40](#vs-u40) |
 | [VS-U39](#vs-u39) | Presiserer [VS-U38](#vs-u38); Presiserer [OV-U79](#ov-u79) | — |
 | [VS-U40](#vs-u40) | Presiserer [OV-U80](#ov-u80); Presiserer [VS-U38](#vs-u38) | — |
-| [VS-U43](#vs-u43) | Opphever [VS-U37](#vs-u37); Samler [VS-U25](../../plans/vedtak.md#vs-u25); Samler [VS-U26](../../plans/vedtak.md#vs-u26); Samler [OV-U24](#ov-u24); Samler [OV-U29](#ov-u29); Samler [OV-U34](../../plans/vedtak.md#ov-u34); Samler [OV-U41](#ov-u41); Samler [LV-U10](../../plans/vedtak.md#lv-u10); Samler [LV-U21](#lv-u21); Samler [OV-U5](#ov-u5) | — |
+| [VS-U43](#vs-u43) | Opphever [VS-U37](#vs-u37); Samler [VS-U25](../../plans/vedtak.md#vs-u25); Samler [VS-U26](../../plans/vedtak.md#vs-u26); Samler [OV-U24](#ov-u24); Samler [OV-U29](#ov-u29); Samler [OV-U34](../../plans/vedtak.md#ov-u34); Samler [OV-U41](#ov-u41); Samler [LV-U10](../../plans/vedtak.md#lv-u10); Samler [LV-U21](#lv-u21); Samler [OV-U5](#ov-u5) | Endret av [LV-U53](#lv-u53) |
 | [VS-U45](#vs-u45) | Snevrer inn [VS-U37](#vs-u37); Bygger på [GR-U22](#gr-u22); Bygger på [OV-U57](#ov-u57) | — |
 | [EO-U11](#eo-u11) | Presiserer [EO-U3](../../plans/vedtak.md#eo-u3); Presiserer [MM-U34](#mm-u34) | Samlet av [EO-U34](#eo-u34) |
 | [EO-U12](#eo-u12) | Endrer [OV-U6](#ov-u6); Presiserer [GR-U10](#gr-u10); Presiserer [KA-U13](../../plans/vedtak.md#ka-u13); Presiserer [EO-U3](../../plans/vedtak.md#eo-u3); Presiserer [MM-U34](#mm-u34) | Presisert av [EO-U15](#eo-u15); Snevret inn av [EO-U16](#eo-u16); Samlet av [EO-U34](#eo-u34); Presisert av [EO-U35](#eo-u35) |
@@ -118,7 +118,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [LV-U43](#lv-u43) | Presiserer [LV-U41](#lv-u41) | — |
 | [LV-U45](#lv-u45) | Presiserer [LV-U44](../../plans/vedtak.md#lv-u44); Endrer [LV-U42](#lv-u42) | Endret av [LV-U53](#lv-u53) |
 | [LV-U52](#lv-u52) | Endrer [MM-U34](#mm-u34); Presiserer [LV-U50](../../plans/vedtak.md#lv-u50) | Endret av [LV-U53](#lv-u53) |
-| [LV-U53](#lv-u53) | Endrer [LV-U44](../../plans/vedtak.md#lv-u44); Endrer [LV-U45](#lv-u45); Endrer [GR-U14](#gr-u14); Endrer [GR-U26](#gr-u26); Endrer [GR-U29](#gr-u29); Endrer [KA-U34](../../plans/vedtak.md#ka-u34); Endrer [LV-U4](../../plans/vedtak.md#lv-u4); Endrer [LV-U5](../../plans/vedtak.md#lv-u5); Endrer [LV-U10](../../plans/vedtak.md#lv-u10); Endrer [LV-U18](../../plans/vedtak.md#lv-u18); Endrer [LV-U20](../../plans/vedtak.md#lv-u20); Endrer [LV-U21](#lv-u21); Endrer [LV-U34](#lv-u34); Endrer [LV-U41](#lv-u41); Endrer [MM-U34](#mm-u34); Endrer [MM-U35](#mm-u35); Endrer [MM-U41](#mm-u41); Endrer [OV-U5](#ov-u5); Endrer [OV-U28](#ov-u28); Endrer [OV-U45](#ov-u45); Endrer [OV-U46](#ov-u46); Endrer [OV-U54](#ov-u54); Endrer [OV-U55](#ov-u55); Endrer [LV-U52](#lv-u52) | — |
+| [LV-U53](#lv-u53) | Endrer [LV-U44](../../plans/vedtak.md#lv-u44); Endrer [LV-U45](#lv-u45); Endrer [GR-U14](#gr-u14); Endrer [GR-U26](#gr-u26); Endrer [GR-U29](#gr-u29); Endrer [KA-U34](../../plans/vedtak.md#ka-u34); Endrer [LV-U4](../../plans/vedtak.md#lv-u4); Endrer [LV-U5](../../plans/vedtak.md#lv-u5); Endrer [LV-U10](../../plans/vedtak.md#lv-u10); Endrer [LV-U18](../../plans/vedtak.md#lv-u18); Endrer [LV-U20](../../plans/vedtak.md#lv-u20); Endrer [LV-U21](#lv-u21); Endrer [LV-U34](#lv-u34); Endrer [LV-U41](#lv-u41); Endrer [MM-U34](#mm-u34); Endrer [MM-U35](#mm-u35); Endrer [MM-U41](#mm-u41); Endrer [OV-U5](#ov-u5); Endrer [OV-U28](#ov-u28); Endrer [OV-U45](#ov-u45); Endrer [OV-U46](#ov-u46); Endrer [OV-U54](#ov-u54); Endrer [OV-U55](#ov-u55); Endrer [VS-U43](#vs-u43); Endrer [LV-U52](#lv-u52) | — |
 | [MM-U37](#mm-u37) | Opphever [MM-U28](../../plans/vedtak.md#mm-u28); Snevrer inn [MM-U30](#mm-u30); Snevrer inn [MM-U31](#mm-u31) | — |
 | [MM-U38](#mm-u38) | Endrer [OV-U61](../../plans/vedtak.md#ov-u61); Opphever [MM-U28](../../plans/vedtak.md#mm-u28); Presiserer [EO-U13](#eo-u13) | Snevret inn av [EO-U16](#eo-u16); Presisert av [EO-U24](#eo-u24); Presisert av [EO-U27](#eo-u27); Endret av [EO-U28](#eo-u28); Endret av [EO-U29](#eo-u29) |
 | [MM-U40](#mm-u40) | Opphever [MM-U29](#mm-u29) | — |
@@ -782,7 +782,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 04.11, oppdragsgiver (#1534, #1065)
 
-**Følge:** Opphever [VS-U37](#vs-u37). Samler [VS-U25](../../plans/vedtak.md#vs-u25). Samler [VS-U26](../../plans/vedtak.md#vs-u26). Samler [OV-U24](#ov-u24). Samler [OV-U29](#ov-u29). Samler [OV-U34](../../plans/vedtak.md#ov-u34). Samler [OV-U41](#ov-u41). Samler [LV-U10](../../plans/vedtak.md#lv-u10). Samler [LV-U21](#lv-u21). Samler [OV-U5](#ov-u5). Teksten står under tabellen, i [Samlevedtaket for varslingsdatoen](../../plans/vedtak.md#samlevedtak-varslingsdato). Forholdene står i spørsmål 1: «opphever VS-U37; samler VS-U25, VS-U26, OV-U24, OV-U29, OV-U34, OV-U41 (unntatt setningene om retting), LV-U10, LV-U21 og setningen om det første fristkravet i OV-U5.» Forholdet til OV-U41 gjelder ikke setningene om retting, og forholdet til OV-U5 gjelder bare setningen om det første fristkravet.
+**Følge:** Opphever [VS-U37](#vs-u37). Samler [VS-U25](../../plans/vedtak.md#vs-u25). Samler [VS-U26](../../plans/vedtak.md#vs-u26). Samler [OV-U24](#ov-u24). Samler [OV-U29](#ov-u29). Samler [OV-U34](../../plans/vedtak.md#ov-u34). Samler [OV-U41](#ov-u41). Samler [LV-U10](../../plans/vedtak.md#lv-u10). Samler [LV-U21](#lv-u21). Samler [OV-U5](#ov-u5). Endret 04.11 av [LV-U53](#lv-u53). Teksten står under tabellen, i [Samlevedtaket for varslingsdatoen](../../plans/vedtak.md#samlevedtak-varslingsdato). Forholdene står i spørsmål 1: «opphever VS-U37; samler VS-U25, VS-U26, OV-U24, OV-U29, OV-U34, OV-U41 (unntatt setningene om retting), LV-U10, LV-U21 og setningen om det første fristkravet i OV-U5.» Forholdet til OV-U41 gjelder ikke setningene om retting, og forholdet til OV-U5 gjelder bare setningen om det første fristkravet.
 
 **Regelrader:** —
 
@@ -1498,7 +1498,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 04.11, oppdragsgiver (#1497, #1065)
 
-**Følge:** Endrer [LV-U44](../../plans/vedtak.md#lv-u44). Endrer [LV-U45](#lv-u45). Endrer [GR-U14](#gr-u14). Endrer [GR-U26](#gr-u26). Endrer [GR-U29](#gr-u29). Endrer [KA-U34](../../plans/vedtak.md#ka-u34). Endrer [LV-U4](../../plans/vedtak.md#lv-u4). Endrer [LV-U5](../../plans/vedtak.md#lv-u5). Endrer [LV-U10](../../plans/vedtak.md#lv-u10). Endrer [LV-U18](../../plans/vedtak.md#lv-u18). Endrer [LV-U20](../../plans/vedtak.md#lv-u20). Endrer [LV-U21](#lv-u21). Endrer [LV-U34](#lv-u34). Endrer [LV-U41](#lv-u41). Endrer [MM-U34](#mm-u34). Endrer [MM-U35](#mm-u35). Endrer [MM-U41](#mm-u41). Endrer [OV-U5](#ov-u5). Endrer [OV-U28](#ov-u28). Endrer [OV-U45](#ov-u45). Endrer [OV-U46](#ov-u46). Endrer [OV-U54](#ov-u54). Endrer [OV-U55](#ov-u55). Endrer [LV-U52](#lv-u52). Endringen i LV-U45 gjelder eksempelet på formen. Bygges i #1570.
+**Følge:** Endrer [LV-U44](../../plans/vedtak.md#lv-u44). Endrer [LV-U45](#lv-u45). Endrer [GR-U14](#gr-u14). Endrer [GR-U26](#gr-u26). Endrer [GR-U29](#gr-u29). Endrer [KA-U34](../../plans/vedtak.md#ka-u34). Endrer [LV-U4](../../plans/vedtak.md#lv-u4). Endrer [LV-U5](../../plans/vedtak.md#lv-u5). Endrer [LV-U10](../../plans/vedtak.md#lv-u10). Endrer [LV-U18](../../plans/vedtak.md#lv-u18). Endrer [LV-U20](../../plans/vedtak.md#lv-u20). Endrer [LV-U21](#lv-u21). Endrer [LV-U34](#lv-u34). Endrer [LV-U41](#lv-u41). Endrer [MM-U34](#mm-u34). Endrer [MM-U35](#mm-u35). Endrer [MM-U41](#mm-u41). Endrer [OV-U5](#ov-u5). Endrer [OV-U28](#ov-u28). Endrer [OV-U45](#ov-u45). Endrer [OV-U46](#ov-u46). Endrer [OV-U54](#ov-u54). Endrer [OV-U55](#ov-u55). Endrer [VS-U43](#vs-u43). Endrer [LV-U52](#lv-u52). Endringen i LV-U45 gjelder eksempelet på formen. Bygges i #1570.
 
 **Regelrader:** —
 

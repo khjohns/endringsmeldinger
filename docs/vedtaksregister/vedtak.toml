@@ -11940,6 +11940,7 @@ forhold = [
   { art = "endrer", vedtak = "ov-u46" },
   { art = "endrer", vedtak = "ov-u54" },
   { art = "endrer", vedtak = "ov-u55" },
+  { art = "endrer", vedtak = "vs-u43" },
   { art = "endrer", vedtak = "lv-u52" },
 ]
 folge = '''
