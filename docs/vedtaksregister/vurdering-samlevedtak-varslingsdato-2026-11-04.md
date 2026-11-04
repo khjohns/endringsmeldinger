@@ -355,4 +355,8 @@ står, og stilles i samme liste.
 
 ## Svarene
 
-*Føres inn når de kommer.*
+Oppdragsgiver 04.11, ordrett: «M ja, S-2 D, R1 A, R2 A, V1 A, V2 A, V3 A, B1 A, B2 A, G1 A, G2 A, G3 A» ([#1534, 6628301789](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6628301789)). Nummereringen er orkestratorens: V1 = spørsmål 1, A. V2 = spørsmål 2, A. V3 = spørsmål 3, A.
+
+- **1: A** er valgt, og **B** er forkastet.
+- **2: A** er valgt, og **B** er forkastet.
+- **3: A** er valgt, og **B** er forkastet.
