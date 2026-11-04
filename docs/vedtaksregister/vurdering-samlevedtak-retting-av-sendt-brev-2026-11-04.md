@@ -341,4 +341,7 @@ ført inn over. Det som avgjorde spørsmål 2:
 
 ## Svarene
 
-*Ikke besvart.*
+Oppdragsgiver 04.11, ordrett: «M ja, S-2 D, R1 A, R2 A, V1 A, V2 A, V3 A, B1 A, B2 A, G1 A, G2 A, G3 A» ([#1534, 6628301789](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6628301789)). Nummereringen er orkestratorens: «R1 = spørsmål 1, A. R2 = spørsmål 2, A.»
+
+- **1: A** er valgt, og **B** er forkastet. Ført som [MM-U41](../plans/vedtak.md#mm-u41).
+- **2: A** er valgt, og **B** og **C** er forkastet. Ført som [MM-U42](../plans/vedtak.md#mm-u42).
