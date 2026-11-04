@@ -113,8 +113,6 @@ KJENTE_AVVIK = (
     ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1545"),
-    ("src/lib/components/varden/NySak.svelte", "VS-U37", 1, "#1489"),
-    ("src/lib/components/varden/__tests__/NySak.test.ts", "VS-U37", 1, "#1489"),
     ("docs/domenetabell/bevis-saker-maalmodell.json", "KA-U7", 1, "#1579"),
     ("docs/domenetabell/bevis-saker-maalmodell.json", "MM-U18", 11, "#1579"),
     ("docs/domenetabell/bevis-saker-maalmodell.json", "MM-U20", 2, "#1579"),
