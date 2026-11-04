@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `7ab0215ef6c17a49124c5ba349ceac45c4d5c118e747021c195d8eb44b714eae`
+Kontrollsum (SHA-256 over utdraget visningen leser): `1c2a71dc07b434b86713d9a0f994072dbf7a9e5b177e03d97aca35f273497ef6`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -164,7 +164,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [OV-U68](#ov-u68) | Presiserer [OV-U67](#ov-u67) | Endret av [MM-U34](#mm-u34) |
 | [OV-U69](#ov-u69) | Opphever [OV-U47](#ov-u47); Opphever [OV-U48](#ov-u48); Opphever [OV-U49](#ov-u49); Endrer [MM-U34](#mm-u34); Endrer [OV-U46](#ov-u46); Endrer [LV-U32](#lv-u32); Endrer [KA-U19](../../plans/vedtak.md#ka-u19); Presiserer [MM-U33](../../plans/vedtak.md#mm-u33) | Presisert av [OV-U72](#ov-u72) |
 | [OV-U70](#ov-u70) | Endrer [OV-U4](#ov-u4); Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [OV-U19](#ov-u19); Endrer [OV-U62](#ov-u62) | Endret av [OV-U81](#ov-u81); Endret av [OV-U86](#ov-u86) |
-| [OV-U71](#ov-u71) | Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [OV-U19](#ov-u19) | — |
+| [OV-U71](#ov-u71) | Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [OV-U19](#ov-u19) | Opphevet av [OV-U86](#ov-u86) |
 | [OV-U72](#ov-u72) | Presiserer [OV-U69](#ov-u69); Presiserer [KA-U19](../../plans/vedtak.md#ka-u19) | — |
 | [OV-U73](#ov-u73) | Endrer [OV-U28](#ov-u28) | — |
 | [OV-U74](#ov-u74) | Endrer [OV-U28](#ov-u28) | Endret av [LV-U39](#lv-u39) |
@@ -173,7 +173,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [OV-U81](#ov-u81) | Endrer [OV-U4](#ov-u4); Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [OV-U62](#ov-u62); Endrer [OV-U70](#ov-u70) | — |
 | [OV-U84](#ov-u84) | Presiserer [OV-U80](#ov-u80); Endrer [OV-U13](#ov-u13) | — |
 | [OV-U85](#ov-u85) | Presiserer [OV-U5](#ov-u5); Presiserer [OV-U16](#ov-u16) | — |
-| [OV-U86](#ov-u86) | Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [OV-U19](#ov-u19); Endrer [OV-U70](#ov-u70) | — |
+| [OV-U86](#ov-u86) | Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [OV-U19](#ov-u19); Endrer [OV-U70](#ov-u70); Opphever [OV-U71](#ov-u71) | — |
 
 ## Vedtakene
 
@@ -2107,7 +2107,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 31.10, oppdragsgiver (#1414)
 
-**Følge:** Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [OV-U19](#ov-u19). Bygges i #1414.
+**Følge:** Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [OV-U19](#ov-u19). Opphevet 01.11 av [OV-U86](#ov-u86). Bygges i #1414.
 
 **Regelrader:** —
 
@@ -2225,7 +2225,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 01.11, oppdragsgiver (#1402)
 
-**Følge:** Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [OV-U19](#ov-u19). Endrer [OV-U70](#ov-u70). Bygges i #807.
+**Følge:** Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [OV-U19](#ov-u19). Endrer [OV-U70](#ov-u70). Opphever [OV-U71](#ov-u71). Bygges i #807.
 
 **Regelrader:** —
 

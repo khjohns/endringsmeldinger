@@ -17,7 +17,8 @@ Det er to former for poster. En importert post har cellene fra 3.1 ordrett:
 `vedtak`, `vedtatt` og `folge`, og eventuelt `anker`. En ny post har `id`, `dato`,
 `hvem`, `kilde`, `sporsmal`, alternativene, `valgt`, `svar` og eventuelt `forhold`,
 `folge` og `sitat`; raden lages av dem. Kontrollene av kodenavn og sitater gjelder
-de nye postene.
+de nye postene. Begge former har `klasse`, og eventuelt `designdel`, `beslutningsdel`,
+`bindende_i` og `flyttet_til` (#1534); vedtaksfila viser dem i en egen kolonne.
 
 En importert post kan også ha `forhold`: de forholdene Følge sier uttrykkelig (#423).
 De står allerede i teksten, så verktøyet skriver dem ikke; kontrollen holder dem lik
@@ -65,6 +66,12 @@ koden og issuene med `python3 docs/verktoy/byggestatus.py` (#1021).
 OVERSKRIFT = "### 3.1 Vedtatte premisser og beslutninger\n"
 NESTE = "### 3.2 "
 TABELLHODE = "| Beslutning | Vedtatt | Følge |\n| --- | --- | --- |\n"
+# Vedtaksfila har klassen i en egen kolonne. 3.1 i den logiske formen har den ikke, så
+# kontrollene mot main leser radene slik de sto før klassene (#1534).
+TABELLHODE_MED_KLASSE = (
+    "| Beslutning | Klasse | Vedtatt | Følge |\n| --- | --- | --- | --- |\n"
+)
+BRUKERFORLOP = "../domenetabell/brukerforlop/"
 
 # NS 8407-teksten er opphavsrettsbeskyttet og ligger i det private repoet
 # khjohns/kontrakt, ikke i dette repoet eller historikken (#424). Sjekksummen
@@ -77,14 +84,33 @@ NS_8407_HJELP = (
     f"eller sett {NS_8407_MILJO} til fila."
 )
 
-FORHOLD = {
+# Forholdene Følge i de importerte postene kan si uttrykkelig (#423), med den passive formen.
+FORHOLD_I_FOLGE = {
     "presiserer": "Presisert",
     "utvider": "Utvidet",
     "snevrer inn": "Snevret inn",
     "endrer": "Endret",
     "opphever": "Opphevet",
 }
-IMPORTERT = {"anker", "vedtak", "vedtatt", "folge", "forhold"}
+# «samler» og «bygger på» kom med klassene (svar 4 og 5 04.11 i #1534). Et samlevedtak
+# samler et vedtak uten å oppheve det, så en henvisning til det gamle gjelder samlevedtaket.
+# «bygger på» er et vedtak som forutsetter et annet uten å presisere, utvide eller endre det.
+FORHOLD = FORHOLD_I_FOLGE | {"samler": "Samlet", "bygger på": "Lagt til grunn"}
+# Forholdene som kan føres i en ny post etter merge: de sier hvordan vedtaket står til et
+# senere eller eldre vedtak, ikke noe nytt om innholdet (svar 14 i PR #1537).
+FORHOLD_ETTER_MERGE = {"opphever", "samler", "bygger på"}
+
+# Klassen og delene (svar 1 og 2 04.11 i #1534, svar 20 i PR #1537). Testen som avgjør
+# klassen, står i vedtaksskillen, «Hva et vedtak er».
+KLASSER = ("vedtak", "beslutning", "design")
+KLASSEFELT = {"klasse", "designdel", "beslutningsdel", "bindende_i", "flyttet_til"}
+# En del kan bare stå i en klasse som er høyere i testen enn delen.
+DEL_I_KLASSE = {"designdel": {"vedtak", "beslutning"}, "beslutningsdel": {"vedtak"}}
+# Den bindende setningen i en design- eller beslutningspost står i et annet vedtak
+# (arbeidsvalget for kontroll 2 04.11 i #1534). En vedtakspost har den selv.
+BINDENDE_I_KLASSE = {"beslutning", "design"}
+FLYTTET_TIL = re.compile(r"BF-\d{2}\.md#u-\d+")
+IMPORTERT = {"anker", "vedtak", "vedtatt", "folge", "forhold"} | KLASSEFELT
 NY = {
     "id",
     "dato",
@@ -97,7 +123,7 @@ NY = {
     "forhold",
     "folge",
     "sitat",
-}
+} | KLASSEFELT
 NY_PAAKREVD = {"id", "dato", "hvem", "kilde", "sporsmal", "alternativ", "valgt", "svar"}
 SITATKILDER = ("ns8407", "hovedplanen")
 ID = re.compile(r"[A-ZÆØÅ]+(-[A-Z0-9]+)+")
@@ -258,17 +284,44 @@ def folgecelle(post: dict, register: dict, ix: tuple[dict, dict] | None = None) 
     return " ".join(deler)
 
 
-def rad(post: dict, register: dict, ix: tuple[dict, dict] | None = None) -> str:
-    return f"| {vedtakscelle(post)} | {vedtattcelle(post)} | {folgecelle(post, register, ix)} |"
+def _liste_med_og(deler: list[str]) -> str:
+    return " og ".join(deler) if len(deler) < 3 else ", ".join(deler[:-1]) + " og " + deler[-1]
 
 
-def markdown(register: dict) -> str:
-    """Innholdet i 3.1, fra linjen etter overskriften til «### 3.2»."""
+def klassecelle(post: dict, ix: tuple[dict, dict]) -> str:
+    """Klassen, delene posten har, vedtakene der den bindende setningen står, og punktet i
+    brukerforløpet posten er flyttet til."""
+    alle, _ = ix
+    deler = [d for d in ("designdel", "beslutningsdel") if d in post]
+    tekst = post["klasse"] + (f" med {_liste_med_og(deler)}" if deler else "")
+    if post.get("bindende_i"):
+        lenker = [_lenke(alle[a]) for a in post["bindende_i"]]
+        tekst += f". Bindende i {_liste_med_og(lenker)}"
+    if post.get("flyttet_til"):
+        fil, punkt = post["flyttet_til"].split("#")
+        tekst += f". Flyttet til [{fil.removesuffix('.md')} {punkt.upper()}]({BRUKERFORLOP}{fil}#{punkt})"
+    return tekst
+
+
+def rad(
+    post: dict, register: dict, ix: tuple[dict, dict] | None = None, klasse: bool = False
+) -> str:
+    ix = ix or indeks(register)
+    celler = [vedtakscelle(post), vedtattcelle(post), folgecelle(post, register, ix)]
+    if klasse:
+        celler.insert(1, klassecelle(post, ix))
+    return "| " + " | ".join(celler) + " |"
+
+
+def markdown(register: dict, klasse: bool = False) -> str:
+    """Innholdet i 3.1, fra linjen etter overskriften til «### 3.2». Med `klasse` har
+    tabellene klassekolonnen, som i vedtaksfila."""
     ix = indeks(register)
     tekst = register["innledning"]
+    hode = TABELLHODE_MED_KLASSE if klasse else TABELLHODE
     for g in register["gruppe"]:
-        tekst += f"#### {g['tittel']}\n\n{TABELLHODE}"
-        tekst += "".join(rad(p, register, ix) + "\n" for p in g["vedtak"])
+        tekst += f"#### {g['tittel']}\n\n{hode}"
+        tekst += "".join(rad(p, register, ix, klasse) + "\n" for p in g["vedtak"])
         tekst += "\n" + g.get("etter", "")
     return tekst
 
@@ -289,7 +342,7 @@ LENKE_TIL_PLANANKER = re.compile(
 def vedtaksfil(register: dict) -> str:
     """Vedtaksfila: hodet og 3.1. En lenke til et anker i 3.1 går til ankeret i fila, og en
     lenke til et annet anker i hovedplanen går dit."""
-    tekst = markdown(register)
+    tekst = markdown(register, klasse=True)
     ankre = set(ankre_i(tekst))
 
     def til_planen(m: re.Match) -> str:
@@ -305,7 +358,7 @@ def vedtaksfil(register: dict) -> str:
 # Forholdene Følge i en importert post sier uttrykkelig (#423)
 # --------------------------------------------------------------------------
 
-PASSIV = {navn.lower(): art for art, navn in FORHOLD.items()}
+PASSIV = {navn.lower(): art for art, navn in FORHOLD_I_FOLGE.items()}
 _LENKE = r"\[[^\]]+\]\(#[^)]+\)"
 LENKE = re.compile(_LENKE)
 _LISTE = rf"{_LENKE}(?:, {_LENKE})*(?: og {_LENKE})?"
@@ -319,8 +372,8 @@ def _verb(former, stor: bool = False) -> str:
     return rf"(?:{foerste})(?: og (?:{alle}))*(?!\w)"
 
 
-AKTIV_FOERST = re.compile(rf"({_verb(FORHOLD, True)})(?: også)? ({_LISTE})?")
-AKTIV_SENERE = re.compile(rf",? og ({_verb(FORHOLD)})(?: også)? ({_LISTE})")
+AKTIV_FOERST = re.compile(rf"({_verb(FORHOLD_I_FOLGE, True)})(?: også)? ({_LISTE})?")
+AKTIV_SENERE = re.compile(rf",? og ({_verb(FORHOLD_I_FOLGE)})(?: også)? ({_LISTE})")
 PASSIV_FOERST = re.compile(rf"({_verb(PASSIV, True)}){_DATO}(?: av ({_LISTE}))?")
 PASSIV_SENERE = re.compile(rf",? og (?:({_verb(PASSIV)}){_DATO} )?av ({_LISTE})")
 VERBFORMER = re.compile(
@@ -421,12 +474,12 @@ def uttrykkelige_forhold(register: dict) -> tuple[dict, list[str], list[str]]:
                 noekkel = (i, art, a)
             elif er_ny(ps[alle[a]]):
                 feil.append(
-                    f"{navn}: «{FORHOLD[art]} av #{a}» står i teksten, men #{a} er en ny post"
+                    f"{navn}: «{FORHOLD_I_FOLGE[art]} av #{a}» står i teksten, men #{a} er en ny post"
                 )
                 continue
             elif not anker(p):
                 avvik.append(
-                    f"{navn}: «{FORHOLD[art]} av #{a}» står i en rad uten anker og kan ikke føres"
+                    f"{navn}: «{FORHOLD_I_FOLGE[art]} av #{a}» står i en rad uten anker og kan ikke føres"
                 )
                 continue
             else:
@@ -536,6 +589,11 @@ TYPER_NY = {
     "alternativ": (list, "en liste med tabeller"),
     "forhold": (list, "en liste med tabeller"),
     "sitat": (list, "en liste med tabeller"),
+    "klasse": TEKST,
+    "designdel": TEKST,
+    "beslutningsdel": TEKST,
+    "bindende_i": (list, 'en liste med ankre, som ["vs-u3"]'),
+    "flyttet_til": TEKST,
 }
 DELER = {
     "alternativ": (
@@ -546,7 +604,9 @@ DELER = {
     "sitat": ({"kilde": TEKST, "tekst": TEKST}, {"utdrag": (bool, "true eller false")}),
 }
 IMPORTERT_PAAKREVD = {"vedtak", "vedtatt", "folge"}
-TYPER_IMPORTERT = dict.fromkeys(IMPORTERT, TEKST) | {"forhold": TYPER_NY["forhold"]}
+TYPER_IMPORTERT = dict.fromkeys(IMPORTERT, TEKST) | {
+    f: TYPER_NY[f] for f in ("forhold", *KLASSEFELT)
+}
 DELER_IMPORTERT = {"forhold": DELER["forhold"]}
 
 
@@ -556,6 +616,35 @@ def _typefeil(navn: str, o: dict, typer: dict) -> list[str]:
         for f, (type_, forklaring) in typer.items()
         if f in o and not isinstance(o[f], type_)
     ]
+
+
+def _klassefeil(p: dict, navn: str) -> list[str]:
+    """Klassen er påkrevd i hver post (kontroll 1 04.11 i #1534), og delene og det andre hjemmet
+    passer til klassen."""
+    if "klasse" not in p:
+        return [f"{navn}: mangler klasse; bruk {', '.join(KLASSER)} (testen i vedtaksskillen)"]
+    klasse = p["klasse"]
+    if klasse not in KLASSER:
+        return [f"{navn}: ukjent klasse «{klasse}»; bruk {', '.join(KLASSER)}"]
+    feil = [
+        f"{navn}: en post med klassen {klasse} har ingen {del_}; hele posten er {klasse}"
+        for del_, klasser in DEL_I_KLASSE.items()
+        if del_ in p and klasse not in klasser
+    ]
+    if "bindende_i" in p and klasse not in BINDENDE_I_KLASSE:
+        feil.append(
+            f"{navn}: bindende_i hører til en design- eller beslutningspost; "
+            "i et vedtak står den bindende setningen i posten selv"
+        )
+    if isinstance(p.get("bindende_i"), list) and (
+        not p["bindende_i"] or not all(isinstance(a, str) for a in p["bindende_i"])
+    ):
+        feil.append(f"{navn}: bindende_i skal være {TYPER_NY['bindende_i'][1]}")
+    if isinstance(p.get("flyttet_til"), str) and not FLYTTET_TIL.fullmatch(p["flyttet_til"]):
+        feil.append(
+            f"{navn}: flyttet_til «{p['flyttet_til']}» er ikke et punkt i et brukerforløp, som BF-06.md#u-12"
+        )
+    return feil
 
 
 def _formfeil(p, navn: str) -> list[str]:
@@ -570,6 +659,7 @@ def _formfeil(p, navn: str) -> list[str]:
         ]
         feil += [f"{navn}: mangler {f}" for f in sorted(IMPORTERT_PAAKREVD - felt)]
         feil += _typefeil(navn, p, TYPER_IMPORTERT)
+        feil += [] if feil else _klassefeil(p, navn)
         return feil + _delfeil(p, navn, DELER_IMPORTERT)
     feil = [f"{navn}: mangler {f}" for f in sorted(NY_PAAKREVD - felt)]
     feil += [f"{navn}: ukjent felt {f}" for f in sorted(felt - NY)]
@@ -585,6 +675,7 @@ def _formfeil(p, navn: str) -> list[str]:
         not p["kilde"] or not all(isinstance(k, str) for k in p["kilde"])
     ):
         feil.append(f"{navn}: kilde skal være {TYPER_NY['kilde'][1]}")
+    feil += [] if _typefeil(navn, p, TYPER_NY) else _klassefeil(p, navn)
     return feil + _delfeil(p, navn, DELER)
 
 
@@ -817,12 +908,33 @@ def valider(register: dict) -> list[str]:
                 )
             elif f["vedtak"] == anker(p):
                 feil.append(f"{navn}: forholdet viser til vedtaket selv")
+        for a in p.get("bindende_i", []):
+            if a not in ankre:
+                feil.append(f"{navn}: bindende_i viser til «{a}», som ikke er ankeret til et vedtak")
+            elif a == anker(p):
+                feil.append(f"{navn}: bindende_i viser til posten selv")
+    if feil:
+        return feil
+    feil += bindende_i_opphevet(register)
+    klasse = {anker(p): p.get("klasse") for p in poster(register) if anker(p)}
+    feil += [
+        f"{anker(p) or etikett(p)}: den bindende setningen står i {a}, som har klassen "
+        f"«{klasse[a]}»; den må stå i et vedtak"
+        for p in poster(register)
+        for a in p.get("bindende_i", [])
+        if klasse[a] != "vedtak"
+    ]
     if feil:
         return feil
     ix = indeks(register)
     for p in poster(register):
         navn = anker(p) or linje(p["vedtak"])[:40]
-        for celle in (vedtakscelle(p), vedtattcelle(p), folgecelle(p, register, ix)):
+        for celle in (
+            vedtakscelle(p),
+            klassecelle(p, ix),
+            vedtattcelle(p),
+            folgecelle(p, register, ix),
+        ):
             if re.search(r"(?<!\\)\|", celle):
                 feil.append(f"{navn}: en celle har | uten \\; tabellen brytes")
             if "  " in celle or celle != celle.strip():
@@ -830,6 +942,38 @@ def valider(register: dict) -> list[str]:
                     f"{navn}: en celle har dobbelt mellomrom eller mellomrom i kanten"
                 )
     return feil
+
+
+def opphevet_og_samlet(register: dict) -> tuple[dict, set[str]]:
+    """Vedtakene som er opphevet, med ankrene til vedtakene som opphever dem, og ankrene til
+    vedtakene som er samlet av et samlevedtak som ikke selv er opphevet. Om en post gjelder,
+    regnes ut av forholdene (svar 1 04.11 i #1534)."""
+    opphevet = {}
+    for p in poster(register):
+        for f in p.get("forhold", []):
+            if f["art"] == "opphever":
+                opphevet.setdefault(f["vedtak"], []).append(anker(p) or etikett(p))
+    samlet = {
+        f["vedtak"]
+        for p in poster(register)
+        if anker(p) not in opphevet
+        for f in p.get("forhold", [])
+        if f["art"] == "samler"
+    }
+    return opphevet, samlet
+
+
+def bindende_i_opphevet(register: dict) -> list[str]:
+    """Et vedtak i bindende_i er gjeldende eller samlet. Er det opphevet uten å være samlet, har
+    den bindende setningen mistet hjemmet sitt (arbeidsvalget for kontroll 2 04.11 i #1534)."""
+    opphevet, samlet = opphevet_og_samlet(register)
+    return [
+        f"{anker(p) or etikett(p)}: den bindende setningen står i {a}, som er opphevet av "
+        f"{', '.join(opphevet[a])} og ikke samlet; før den inn i et gjeldende vedtak"
+        for p in poster(register)
+        for a in p.get("bindende_i", [])
+        if a in opphevet and a not in samlet
+    ]
 
 
 def _fil_i_treet(sti: str) -> bool:
@@ -1046,15 +1190,36 @@ def _noekkel(p: dict) -> tuple:
     return (p.get("anker"), linje(p["vedtak"]), p["vedtatt"])
 
 
+def _par(gamle: list[dict], nye: list[dict]) -> list[tuple[dict, dict | None]]:
+    """Hver rad i `gamle` med raden i `nye` den står som, eller None når den er endret eller
+    fjernet. En rad uten anker kan få et anker, så et forhold kan vise til den (svar 14 i
+    PR #1537). Den står da som raden med samme vedtak og vedtaksdato."""
+    ledige = collections.defaultdict(list)
+    for p in nye:
+        ledige[_noekkel(p)].append(p)
+    par, uparet = [], []
+    for g in gamle:
+        if ledige[_noekkel(g)]:
+            par.append((g, ledige[_noekkel(g)].pop(0)))
+        else:
+            uparet.append(g)
+    med_nytt_anker = collections.defaultdict(list)
+    for (a, *resten), ps in ledige.items():
+        if a is not None:
+            med_nytt_anker[tuple(resten)].extend(ps)
+    for g in uparet:
+        a, *resten = _noekkel(g)
+        kandidater = med_nytt_anker[tuple(resten)] if a is None else []
+        par.append((g, kandidater.pop(0) if kandidater else None))
+    return par
+
+
 def endrede_rader(gammel_plan: str, plan: str) -> list[str]:
     """Rader i 3.1 i den gamle planen der ankeret, vedtaket eller datoen ikke står uendret i den nye."""
-    mangler = collections.Counter(
-        map(_noekkel, _rader(gammel_plan))
-    ) - collections.Counter(map(_noekkel, _rader(plan)))
     return [
-        f"{a or v[:60]}: vedtaket, ankeret eller vedtaksdatoen er endret eller fjernet"
-        for (a, v, _), n in mangler.items()
-        for _ in range(n)
+        f"{g.get('anker') or linje(g['vedtak'])[:60]}: vedtaket, ankeret eller vedtaksdatoen er endret eller fjernet"
+        for g, n in _par(_rader(gammel_plan), _rader(plan))
+        if n is None
     ]
 
 
@@ -1110,27 +1275,24 @@ def endret_rundt_vedtakene(
             feil.append(
                 f"teksten etter gruppen «{g['tittel']}»: tekst er endret eller fjernet"
             )
-    gruppe_naa = {
-        _noekkel(p): (g["tittel"], p) for g in ny["gruppe"] for p in g["vedtak"]
-    }
-    for g in gammel["gruppe"]:
-        for p in g["vedtak"]:
-            if _noekkel(p) not in gruppe_naa:
-                continue
-            navn = p.get("anker") or p["vedtak"][:60]
-            tittel, naa = gruppe_naa[_noekkel(p)]
-            if tittel != g["tittel"]:
-                feil.append(f"{navn}: raden er flyttet fra gruppen «{g['tittel']}»")
-            borte = collections.Counter(
-                LENKE.findall(p["folge"])
-            ) - collections.Counter(LENKE.findall(naa["folge"]))
-            feil += [f"{navn}: lenken {lenke} er fjernet fra Følge" for lenke in borte]
-            if p.get("anker") not in nye_ankre and not folge_bare_lagt_til(
-                p["folge"], naa["folge"]
-            ):
-                feil.append(
-                    f"{navn}: Følge er endret; i en importert rad kan bare tekst legges til"
-                )
+    tittel_naa = {id(p): g["tittel"] for g in ny["gruppe"] for p in g["vedtak"]}
+    tittel_foer = {id(p): g["tittel"] for g in gammel["gruppe"] for p in g["vedtak"]}
+    for p, naa in _par(poster(gammel), poster(ny)):
+        if naa is None:
+            continue
+        navn = p.get("anker") or p["vedtak"][:60]
+        if tittel_naa[id(naa)] != tittel_foer[id(p)]:
+            feil.append(f"{navn}: raden er flyttet fra gruppen «{tittel_foer[id(p)]}»")
+        borte = collections.Counter(LENKE.findall(p["folge"])) - collections.Counter(
+            LENKE.findall(naa["folge"])
+        )
+        feil += [f"{navn}: lenken {lenke} er fjernet fra Følge" for lenke in borte]
+        if p.get("anker") not in nye_ankre and not folge_bare_lagt_til(
+            p["folge"], naa["folge"]
+        ):
+            feil.append(
+                f"{navn}: Følge er endret; i en importert rad kan bare tekst legges til"
+            )
     return feil
 
 
@@ -1146,15 +1308,14 @@ def mot_grunnlag(
     `gammel_plan` har 3.1 på main, og `soketekst` er teksten en ny ID ikke kan stå i fra før:
     hovedplanen, arkivet og vedtaksfila på main. Uten den søkes det i `gammel_plan`."""
     feil = []
-    importerte = collections.Counter(
-        _noekkel(p) for p in poster(register) if not er_ny(p)
-    )
-    for (a, v, _), n in (
-        importerte - collections.Counter(map(_noekkel, _rader(gammel_plan)))
-    ).items():
-        feil += [
-            f"{a or v[:60]}: en importert post som ikke står i 3.1 på main; et nytt vedtak føres som ny post"
-        ] * n
+    importerte = [p for p in poster(register) if not er_ny(p)]
+    paret = {id(n) for _, n in _par(_rader(gammel_plan), importerte) if n is not None}
+    feil += [
+        f"{p.get('anker') or linje(p['vedtak'])[:60]}: en importert post som ikke står i 3.1 på main; "
+        "et nytt vedtak føres som ny post"
+        for p in importerte
+        if id(p) not in paret
+    ]
     gamle_nye = {p["id"]: p for p in _nye(gammel_register)}
     for p in _nye(register):
         if p["id"] not in gamle_nye and re.search(
@@ -1165,10 +1326,42 @@ def mot_grunnlag(
     for id_, gammel in gamle_nye.items():
         if id_ not in naa:
             feil.append(f"{id_}: posten er fjernet fra registeret")
-        elif gammel | {"folge": None} != naa[id_] | {"folge": None}:
+        elif _innholdet(gammel) != _innholdet(naa[id_]):
             feil.append(
-                f"{id_}: spørsmålet, alternativene, svaret eller et annet felt enn folge er endret etter merge"
+                f"{id_}: spørsmålet, alternativene, svaret eller et annet felt enn folge, "
+                "forholdene og klassen er endret etter merge"
             )
+        else:
+            feil += _forhold_etter_merge(id_, gammel, naa[id_])
+    return feil
+
+
+def _innholdet(post: dict) -> dict:
+    """Feltene i en ny post som står etter merge. `folge` kan endres, og klassen kan rettes
+    etter en uavhengig kontroll (svar 8 04.11 i #1534)."""
+    return {k: v for k, v in post.items() if k not in KLASSEFELT | {"folge", "forhold"}}
+
+
+def _forhold_etter_merge(id_: str, gammel: dict, naa: dict) -> list[str]:
+    """Etter merge kan en post få forholdene i FORHOLD_ETTER_MERGE, og et forhold kan bli
+    «opphever» eller «samler» når et senere vedtak har tatt innholdet (svar 14 i PR #1537).
+    Ellers står forholdene."""
+    foer = collections.Counter((f["art"], f["vedtak"]) for f in gammel.get("forhold", []))
+    etter = collections.Counter((f["art"], f["vedtak"]) for f in naa.get("forhold", []))
+    lagt_til, borte = etter - foer, foer - etter
+    feil = [
+        f"{id_}: forholdet «{art} {a}» er lagt til etter merge; bare "
+        f"{', '.join(sorted(FORHOLD_ETTER_MERGE))} kan legges til"
+        for art, a in lagt_til
+        if art not in FORHOLD_ETTER_MERGE
+    ]
+    # Et «opphever» står: blir det «samler», gjelder det opphevede vedtaket igjen.
+    erstattet = {a for art, a in lagt_til if art in ("opphever", "samler")}
+    feil += [
+        f"{id_}: forholdet «{art} {a}» er fjernet etter merge"
+        for art, a in borte
+        if a not in erstattet or art == "opphever"
+    ]
     return feil
 
 
@@ -1189,7 +1382,8 @@ def ny_byggestatus(gammel_register: dict, register: dict) -> list[str]:
     stående."""
 
     def noekkel(p: dict) -> str:
-        return anker(p) or linje(p["vedtak"])
+        """En importert rad kan få et anker (svar 14 i PR #1537), så den kjennes på teksten."""
+        return p["id"] if er_ny(p) else linje(p["vedtak"])
 
     gamle = {
         noekkel(p): collections.Counter(byggestatus_i(p.get("folge", "")))
@@ -1298,7 +1492,7 @@ def main() -> int:
         print("Registeret eller planen holder ikke:", *feil, sep="\n  ")
         return 1
     if ny == naa:
-        print(f"Vedtaksfila er lik registeret: {len(poster(register))} vedtak")
+        print(f"Vedtaksfila er lik registeret: {len(poster(register))} poster")
         return 0
     if valg.sjekk:
         print(
