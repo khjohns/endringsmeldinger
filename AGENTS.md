@@ -114,7 +114,8 @@ liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres d
 `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
 `kjerne/versjon.ts`. `kjerne/frosset/` bestemmer hva beslutningsgrunnlaget fryser, så
 endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke for en
-flytting som bare endrer importstiene. Lagringstestene mot
+flytting som bare endrer importstiene, og heller ikke når bare kommentarene er endret
+(#1549). Lagringstestene mot
 testbasen i SQL Server står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-koden for de tre sakstypene er overgangskode, og feil i Python rettes
 etter [DL-U2](docs/plans/vedtak.md#dl-u2).

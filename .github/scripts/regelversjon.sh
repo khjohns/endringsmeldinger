@@ -2,7 +2,8 @@
 # Regelversjonsvakten. Tre kontroller, som hver kan feile:
 #
 # 1. B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/
-#    eller backend/regler/, må REGELVERSJON økes i begge speilene.
+#    eller backend/regler/, må REGELVERSJON økes i begge speilene. En fil der
+#    bare kommentarene er endret, regnes ikke som endret (#1549).
 # 2. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
 #    REGELVERSJON i kjerne/regler/regelsett.ts økes. Det samme gjelder
 #    kjerne/frosset/, som bestemmer hva beslutningsgrunnlaget fryser
@@ -12,7 +13,8 @@
 #    TS-koden i kjernen utenom testene, må PROJEKSJONSVERSJON i
 #    kjerne/versjon.ts økes, fordi et bufret resultat ellers kan brukes av en
 #    kjerne som regner annerledes (2.7 i modellforslaget). En fil der en
-#    flytting bare har endret importstiene, regnes ikke som endret, men en
+#    flytting bare har endret importstiene, eller der bare kommentarene er
+#    endret (#1549), regnes ikke som endret, men en
 #    flytting ut av det en versjon dekker, krever den versjonen (#309).
 #    Omfanget står i .github/scripts/flytting.py.
 # 3. B-10 og #316: et nytt format leses i én versjon før det skrives i den
@@ -44,10 +46,14 @@ okt() {
 ts=src/lib/domain/regelversjon.ts
 py=backend/regler/__init__.py
 fixtur=backend/tests/fixtures/skjemaenes_nyttelast.json
-endret=$(git diff --name-only "$BASE"...HEAD -- src/lib/domain backend/regler \
-  ":(exclude)src/lib/domain/__tests__") || exit 2
+# En fil der bare kommentarene er endret, regnes ikke som endret (#1549).
+# .github/scripts/kommentarer.py avgjør det.
+fra=$(git merge-base "$BASE" HEAD) || exit 2
+endret=$(set -o pipefail; git -c core.quotePath=false diff --name-status --no-renames "$fra" HEAD \
+  -- src/lib/domain backend/regler ":(exclude)src/lib/domain/__tests__" \
+  | python3 "$(dirname "$0")/kommentarer.py" "$fra") || exit 2
 if [ -z "$endret" ]; then
-  echo "Ingen endring i src/lib/domain/ eller backend/regler/ utenom testene."
+  echo "Ingen endring i src/lib/domain/ eller backend/regler/ utenom testene og kommentarene."
 else
   echo "Endret:"; echo "$endret"
   les_ts() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
@@ -82,10 +88,9 @@ if [ -d kjerne ] && [ ! -f "$standpunkt" ]; then
   echo "::error::$standpunkt finnes ikke. Flytt kravet om REGELVERSJON i $0 med funksjonene som bestemmer hva beslutningsgrunnlaget fryser."
   feil=1
 fi
-# En fil der bare importstiene er endret av en flytting, regnes ikke som endret
-# (#309). .github/scripts/flytting.py avgjør det og hvilke versjoner hver
-# endring krever.
-fra=$(git merge-base "$BASE" HEAD) || exit 2
+# En fil der bare importstiene er endret av en flytting, eller bare
+# kommentarene, regnes ikke som endret (#309, #1549). .github/scripts/flytting.py
+# avgjør det og hvilke versjoner hver endring krever.
 # core.quotePath=false: en sti med æ, ø eller å skrives som den er, ikke i anførselstegn.
 flytting=$(git -c core.quotePath=false diff --name-status -M "$fra" HEAD \
   -- ':(glob)kjerne/**/*.ts' ":(exclude)kjerne/tester") || exit 2
@@ -93,7 +98,7 @@ krav=$(python3 "$(dirname "$0")/flytting.py" "$fra" <<< "$flytting") || exit 2
 krav_til() { awk -F'\t' -v v="$1" '$1 == v { print $2 }' <<< "$krav"; }
 flyttet=$(krav_til flyttet)
 if [ -n "$flyttet" ]; then
-  echo "Bare flyttet eller med ombundne importstier, uten krav om ny versjon:"; echo "$flyttet"
+  echo "Bare flyttet, med ombundne importstier eller med endrede kommentarer, uten krav om ny versjon:"; echo "$flyttet"
 fi
 regler=$(krav_til REGELVERSJON)
 if [ -z "$regler" ]; then
