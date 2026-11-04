@@ -12,7 +12,7 @@ import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
-import { lagBrevtittel } from '../frosset/brevtittel.ts';
+import { lagBrevtittel, sakensKode } from '../frosset/brevtittel.ts';
 import { avvis } from './forutsetninger.ts';
 import {
   brevtekstI,
@@ -36,6 +36,7 @@ import type {
   Journalrad,
   Krav,
   Part,
+  Sakskode,
   Spor,
   Svar,
   Vedlegg,
@@ -49,6 +50,11 @@ export interface Kontekst {
   teamId: string | null;
   tidspunkt: () => Date;
   nyId: () => string;
+  /**
+   * Sakens kode (LV-U44, LV-U46). Serveren setter den alltid (`Serverkontekst` i
+   * `server/app.ts`). Uten den, som i forhåndsvisningen i nettleseren, får tittelen ingen kode.
+   */
+  sakskode?: Sakskode;
 }
 
 /**
@@ -397,7 +403,7 @@ function skriv(
   let brevtekst: Avsnitt[] | null;
   let brevtittel: string | null = null;
   try {
-    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger);
+    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst.sakskode);
     brevtekst = brevet?.tekst ?? null;
     brevtittel = brevet?.tittel ?? null;
   } catch (feil) {
@@ -497,7 +503,8 @@ function brevtekstFor(
   lest: ReturnType<typeof lesJournal>,
   u: Utledning,
   kjerne: Kjerne,
-  utdypninger: Utdypninger
+  utdypninger: Utdypninger,
+  sakskode: Sakskode | undefined
 ): { tekst: Avsnitt[]; tittel: string | null } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -522,7 +529,12 @@ function brevtekstFor(
       kjerne.regler,
       utdypninger
     );
-    return { tekst, tittel: lagBrevtittel(ny.dokument) };
+    // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
+    const tittel = lagBrevtittel(ny.dokument);
+    return {
+      tekst,
+      tittel: tittel && sakskode ? `${tittel} i sak ${sakensKode(sakskode)}` : tittel,
+    };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)
       throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);

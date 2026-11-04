@@ -9,6 +9,15 @@ import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from './regle
 
 export type Spor = 'forhold' | 'vederlag' | 'frist';
 export type Part = 'TE' | 'BH';
+
+/**
+ * Sakens kode i kontrakten og løpenummeret for koden i prosjektet (LV-U44, LV-U46): koden
+ * saken har, eller den sakens første brev fra løsningen gir den. Lagret i sakens metadata.
+ */
+export interface Sakskode {
+  kode: 'koe' | 'eo';
+  loepenummer: number;
+}
 export const SPOR: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];

@@ -675,7 +675,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['format/skjema.ts:feilI(s).properties', 'skjema', '*'],
   ['format/skjema.ts:oppslag(d)', 'skjema', '*'],
-  ['Kontekst', 'kontekst', 'sakId aktoerId part teamId tidspunkt nyId'],
+  ['Kontekst', 'kontekst', 'sakId aktoerId part teamId tidspunkt nyId sakskode'],
+  // LV-U27, LV-U44: sakens kode i tittelen.
+  ['Sakskode', 'kontekst', 'kode loepenummer', ['frosset/brevtittel.ts']],
   ['Kjerne', 'kontekst', 'regler format leserformat'],
 
   // Formatet (format.ts): skjemaene radene leses og kommandoene kontrolleres mot.
@@ -967,7 +969,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevtittel.ts',
     'brevtekst',
-    'lagBrevtittel avvikITittelen',
+    'lagBrevtittel avvikITittelen sakensKode',
     ['kommandoer/skriving.ts:brevtekstFor', 'format/leser.ts:lesDokument'],
   ],
   ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse', ['frosset/brevtittel.ts']],

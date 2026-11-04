@@ -3622,6 +3622,13 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['if (lagBrevtittel(d) === null)', 'if (false)']],
     mal: ['en bestridelse med tittelen fra innsigelsen er ikke forstått'],
   },
+  {
+    id: 'F440',
+    feilklasse: 'brevtittelen fryses uten sakens kode (LV-U27, LV-U44)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['tittel: tittel && sakskode ?', 'tittel: tittel && !sakskode ?']],
+    mal: ['tittelen har sakens kode uten utfylling, og leseren forstår den'],
+  },
 ];
 
 interface Testresultat {

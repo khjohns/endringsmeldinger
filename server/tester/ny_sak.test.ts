@@ -138,6 +138,8 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
           ).recordset,
           jobber: (await les('SELECT jobbtype, tittel FROM koe.jobb WHERE sak_id = @sak_id'))
             .recordset,
+          kode: (await les('SELECT kode, loepenummer FROM koe.sak_kode WHERE sak_id = @sak_id'))
+            .recordset,
         };
       }
     );
@@ -149,7 +151,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
     expect(svar.kropp).toMatchObject({ success: true, sak_id: sakId, versjon: 2 });
 
-    const { hendelser, kvitteringer, jobber } = await lagret(sakId);
+    const { hendelser, kvitteringer, jobber, kode } = await lagret(sakId);
     expect(hendelser.map((h) => [h.event_type, h.versjon, h.aktor_rolle])).toEqual([
       ['sak_opprettet', 1, 'TE'],
       ['dokument_registrert', 2, 'TE'],
@@ -158,9 +160,13 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     expect(hendelser[0].tidsstempel).toEqual(hendelser[1].tidsstempel);
     // Tittelen er én verdi i begge radene (LV-U43).
     expect(JSON.parse(hendelser[0].data).sakstittel).toBe(TITTEL);
-    // LV-U43: navnet står én gang, i sakstittelen, og brevet er frosset med tittelen (MM-U3).
+    // LV-U43: navnet står én gang, i sakstittelen, og brevet er frosset med tittelen (MM-U3),
+    // med koden saken fikk da brevet ble sendt (LV-U27, LV-U46).
     expect(JSON.parse(hendelser[1].data).krav[0]).not.toHaveProperty('tittel');
-    expect(JSON.parse(hendelser[1].data).brevtittel).toBe('Påberopelse av irregulær endring');
+    expect(kode).toEqual([{ kode: 'koe', loepenummer: expect.any(Number) }]);
+    expect(JSON.parse(hendelser[1].data).brevtittel).toBe(
+      `Påberopelse av irregulær endring i sak KOE-${kode[0].loepenummer}`
+    );
     // Kvitteringen gjelder påberopelsen, så kommando-ID-en har én (#418).
     expect(kvitteringer).toEqual([{ kommando_id: k.kommando_id, event_id: svar.kropp.event_id }]);
     // Topicen lages av jobben, og brevet leveres etter den (KT-U3, LV-U9).

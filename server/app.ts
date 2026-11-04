@@ -18,7 +18,7 @@ import { randomUUID } from 'node:crypto';
 import { STATUS_CODES, type IncomingMessage, type ServerResponse } from 'node:http';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import { utledJournal, vurder } from '../kjerne/kommandoer/skriving.ts';
-import type { Avvisning, Journalrad } from '../kjerne/typer.ts';
+import type { Avvisning, Journalrad, Sakskode as Kjernesakskode } from '../kjerne/typer.ts';
 import { KJERNE, type Kjerne } from '../kjerne/versjon.ts';
 import { visning } from '../kjerne/utledning/visning.ts';
 import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
@@ -67,6 +67,7 @@ import {
   skrivHendelse,
   UgyldigKommando,
   Versjonskonflikt,
+  type Sakskode,
 } from './kommandoer.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
@@ -395,6 +396,9 @@ const skrivekontekst = (bruker: Bruker, prosjekt: Prosjekttilgang, side: Kontrak
   ...(side.teamId ? { team: side.teamId } : {}),
 });
 
+/** Sakens kode til kjernen, som setter den i tittelen (LV-U27, LV-U44). */
+const tilKjernen = ({ kode, loepenummer }: Sakskode): Kjernesakskode => ({ kode, loepenummer });
+
 const KOMMANDOKROPP = new Set(['expected_version', 'kommando', 'kommando_id']);
 
 async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
@@ -425,7 +429,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       sakId,
       forventet,
       kommando,
-      ({ journal, tidspunkt, maal, vedlegg }) => {
+      ({ journal, tidspunkt, maal, vedlegg, sakskode }) => {
         const vurdert = vurder(
           kropp.kommando,
           {
@@ -435,6 +439,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
             teamId: kontekst.team ?? null,
             tidspunkt: () => tidspunkt,
             nyId: avh.nyId,
+            sakskode: tilKjernen(sakskode),
           },
           journal,
           avh.kjerne,
@@ -556,7 +561,7 @@ async function opprettMedPaaberopelse(
       sakId,
       kommando,
       vedleggider,
-      ({ tidspunkt, vedlegg }) => {
+      ({ tidspunkt, vedlegg, sakskode }) => {
         const nySak = opprettelse({ type: 'opprett_sak', sakstittel: tittel }, side.rolle);
         if (!nySak.godtatt) return { skriv: false, avvisning: nySak };
         const opprettet: Journalrad = {
@@ -572,6 +577,7 @@ async function opprettMedPaaberopelse(
           format: nySak.format,
           data: nySak.data,
         };
+        // Uten kode (BH) avviser `opprettSakMedPaaberopelse` kommandoen etter `lag`.
         const kjernekontekst = (t: Date) => ({
           sakId,
           aktoerId: kontekst.aktor,
@@ -579,6 +585,7 @@ async function opprettMedPaaberopelse(
           teamId: kontekst.team ?? null,
           tidspunkt: () => t,
           nyId: avh.nyId,
+          ...(sakskode ? { sakskode: tilKjernen(sakskode) } : {}),
         });
         const vurdert = vurder(krav, kjernekontekst(tidspunkt), [opprettet], avh.kjerne, vedlegg);
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };

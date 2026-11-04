@@ -51,6 +51,7 @@ import {
   type Dokument,
   type Journalrad,
   type Part,
+  type Sakskode,
   type Standpunkt,
 } from '../typer.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
@@ -81,7 +82,7 @@ const KR = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr eks. mva.`;
  * Klienten sender den låste teksten fra forhåndsvisningen (A1), med mindre
  * kommandoen alt har en.
  */
-function sak(sakstittel = TITTEL) {
+function sak(sakstittel = TITTEL, sakskode?: Sakskode) {
   const journal: Journalrad[] = [
     {
       event_id: randomUUID(),
@@ -107,6 +108,7 @@ function sak(sakstittel = TITTEL) {
       teamId: null,
       tidspunkt: () => tid,
       nyId: randomUUID,
+      ...(sakskode ? { sakskode } : {}),
     };
   };
   const prov = (part: Part, kommando: Data, kjerne = KJERNE): Utfall => {
@@ -6658,6 +6660,28 @@ describe('brevtittelen fryses med brevet (MM-U3, svaret 03.11 i #1488)', () => {
     expect(svaret.data.brevtittel).toBe('Svar på forholdet');
     const lest = lesJournal(s.journal, KJERNE.leserformat).at(-1)!;
     expect(lest.art === 'dokument' && lest.dokument.brevtittel).toBe('Svar på forholdet');
+  });
+
+  // LV-U27: sakens kode står i brevtittelen, og saken omtales «i sak KOE-17» (LV-U44, svaret på Q1).
+  it('tittelen har sakens kode uten utfylling, og leseren forstår den (LV-U27, LV-U44)', () => {
+    const s = sak(TITTEL, { kode: 'koe', loepenummer: 5 });
+    const rad = s.send('TE', PAABEROPELSE);
+    expect(rad.data.brevtittel).toBe('Påberopelse av irregulær endring i sak KOE-5');
+    const svaret = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      ],
+    });
+    expect(svaret.data.brevtittel).toBe('Svar på forholdet i sak KOE-5');
+    expect(lesJournal(s.journal, KJERNE.leserformat).map((h) => h.art)).not.toContain('ukjent');
+  });
+
+  it('en endringsordresak omtales med EO og løpenummeret (LV-U44)', () => {
+    const s = sak(TITTEL, { kode: 'eo', loepenummer: 12 });
+    expect(s.send('TE', PAABEROPELSE).data.brevtittel).toBe(
+      'Påberopelse av irregulær endring i sak EO-12'
+    );
   });
 
   // #1533, MM-U2: leseren avviser en tittel skrivingen ikke lager.
