@@ -9508,7 +9508,7 @@ svar = '''
 Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6623439127)): «D.»'''
 forhold = [{ art = "presiserer", vedtak = "lv-u44" }, { art = "endrer", vedtak = "lv-u42" }]
 folge = '''
-Bygges i #1497.'''
+Bygges i #1497 og #1489.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

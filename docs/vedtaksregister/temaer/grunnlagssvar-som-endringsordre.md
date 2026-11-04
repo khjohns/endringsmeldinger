@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `f4cedcbec1483b77a3ffcce1c7e4a56a88509806f6175cc5ab07fb2fc5e4286b`
+Kontrollsum (SHA-256 over utdraget visningen leser): `7ab0215ef6c17a49124c5ba349ceac45c4d5c118e747021c195d8eb44b714eae`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1331,7 +1331,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 04.11, oppdragsgiver (#1497)
 
-**Følge:** Presiserer [LV-U44](../../plans/vedtak.md#lv-u44). Endrer [LV-U42](#lv-u42). Bygges i #1497.
+**Følge:** Presiserer [LV-U44](../../plans/vedtak.md#lv-u44). Endrer [LV-U42](#lv-u42). Bygges i #1497 og #1489.
 
 **Regelrader:** —
 
