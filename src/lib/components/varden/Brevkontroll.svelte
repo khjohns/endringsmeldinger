@@ -61,6 +61,13 @@
   const hentOrganisasjoner = organisasjonene();
   const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTNAVN[p])} (${p})`;
   let kontrollert = $state(false);
+  // Et brev som er endret, for eksempel med et nytt nummer, kontrolleres på nytt (LV-U46).
+  let kontrollertTekst: string | null = null;
+  $effect.pre(() => {
+    const naa = tekst.join('\n');
+    if (kontrollertTekst !== null && naa !== kontrollertTekst) kontrollert = false;
+    kontrollertTekst = naa;
+  });
   let manglerKontroll = $state(false);
   let avkrysning = $state<HTMLInputElement | null>(null);
   let tittelen = $state<HTMLElement | null>(null);

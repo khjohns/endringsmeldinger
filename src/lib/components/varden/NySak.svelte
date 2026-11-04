@@ -11,7 +11,7 @@
   import { tick } from 'svelte';
   import { KJERNE } from '$kjerne/versjon';
   import type { Saksmerking } from '$lib/kjernesak/brevtekst';
-  import { nummeretErTatt } from '$lib/kjernesak/kontekst.svelte';
+  import { tekstenKanVaereUtdatert } from '$lib/kjernesak/kontekst.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll from './Brevkontroll.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
@@ -269,7 +269,7 @@
         return true;
       } catch (e) {
         sendefeil = e instanceof Error ? e.message : String(e);
-        if (nummeretErTatt(e)) {
+        if (tekstenKanVaereUtdatert(e)) {
           // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
           const brev = await brevetMedNummer();
           // Samme tekst betyr at teksten var annerledes av en annen grunn; da står serverens melding.

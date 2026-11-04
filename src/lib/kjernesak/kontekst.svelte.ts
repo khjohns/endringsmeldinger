@@ -63,14 +63,14 @@ export interface Kjernesakvalg {
  * serverens melding står.
  */
 const maaLastesPaaNytt = (e: unknown) =>
-  (e instanceof ApiError && e.status === 409) || nummeretErTatt(e);
+  (e instanceof ApiError && e.status === 409) || tekstenKanVaereUtdatert(e);
 
 /**
  * Teksten eller nummeret kan være utdatert (LV-U46). Kjernen avviser teksten (regelen
  * `ANNEN_BREVTEKST` i `rule`), også når appen er en annen versjon, eller serveren avviser
  * nummeret (`LOEPENUMMER_TATT`). Om nummeret er endret, avgjøres av teksten bygget på nytt.
  */
-export const nummeretErTatt = (e: unknown) => {
+export const tekstenKanVaereUtdatert = (e: unknown) => {
   if (!(e instanceof ApiError)) return false;
   const svar = e.data as { error?: unknown; rule?: unknown } | undefined;
   return svar?.rule === 'ANNEN_BREVTEKST' || svar?.error === 'LOEPENUMMER_TATT';

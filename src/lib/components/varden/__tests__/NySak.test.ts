@@ -514,7 +514,15 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await sendBrevet();
     await screen.findByText(NYSAK.nyttNummer);
     expect(send.mock.calls[0][0].tekst.join(' ')).toContain('KOE-17');
-    // Avsenderen godkjenner brevet med det nye nummeret.
+    const avkrysning = screen.getByRole('checkbox', {
+      name: 'Jeg har kontrollert brevet',
+    }) as HTMLInputElement;
+    expect(avkrysning.checked, 'brevet med det nye nummeret er ikke kontrollert').toBe(false);
+    expect(screen.getAllByText(/KOE-18/).length).toBeGreaterThan(0);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
+    expect(send).toHaveBeenCalledTimes(1);
+    // Avsenderen kontrollerer brevet med det nye nummeret og sender det.
+    await fireEvent.click(avkrysning);
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
     expect(send.mock.calls[1][0].tekst.join(' ')).toContain('KOE-18');

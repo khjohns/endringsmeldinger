@@ -14,7 +14,7 @@ import {
   brevhindring,
   Feltavvisning,
   lagKjernesak,
-  nummeretErTatt,
+  tekstenKanVaereUtdatert,
   PROGRAMFEIL,
 } from '$lib/kjernesak/kontekst.svelte';
 import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
@@ -234,10 +234,16 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(await sak.send(grunnlagskrav)).toBe(false);
     expect(hent).toHaveBeenCalledTimes(2);
     expect(
-      nummeretErTatt(new ApiError(400, '', { error: 'REGELBRUDD', rule: 'ANNEN_BREVTEKST' }))
+      tekstenKanVaereUtdatert(
+        new ApiError(400, '', { error: 'REGELBRUDD', rule: 'ANNEN_BREVTEKST' })
+      )
     ).toBe(true);
-    expect(nummeretErTatt(new ApiError(409, '', { error: 'LOEPENUMMER_TATT' }))).toBe(true);
-    expect(nummeretErTatt(new ApiError(400, '', { error: 'ANNEN_BREVTEKST' }))).toBe(false);
+    expect(tekstenKanVaereUtdatert(new ApiError(409, '', { error: 'LOEPENUMMER_TATT' }))).toBe(
+      true
+    );
+    expect(tekstenKanVaereUtdatert(new ApiError(400, '', { error: 'ANNEN_BREVTEKST' }))).toBe(
+      false
+    );
   });
 
   it('laster ikke saken på nytt når serveren avviser kommandoen av en annen grunn', async () => {
