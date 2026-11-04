@@ -1,0 +1,160 @@
+# Utkast til postene for samlevedtaket for protest, bestridelse og innlegg, og sperren etter
+# enighet (#1534, steg 4, trinn 2). Fila er et utkast og slettes når postene er skrevet i
+# vedtak.toml. Den leses ikke av noe verktøy.
+#
+# Oppskrift for økta som skriver postene, når svarene foreligger og vedtak.toml er ledig:
+# 1. «etter» fylles med avsnittene «Forslaget» og «Endret innhold» fra vurderingsfila
+#    (vurdering-samlevedtak-protest-innlegg-2026-11-04.md), ordrett slik de ble lagt fram på
+#    commiten der spørsmålene ble sendt, med punkt 1, 8 og 12 etter svarene på spørsmål 1 og 2
+#    og rettelsene oppdragsgiver gir per punkt. Teksten legges til i «etter» i gruppen «Sendte
+#    brev, regelendring og saker kjernen ikke forstår», etter teksten som står der.
+# 2. De tre postene legges sist i den gruppen. ID-ene MM-U47, MM-U48 og MM-U49 er foreløpige.
+#    MM-U43 og MM-U44 er tatt av #1572. Sjekk den høyeste MM-ID-en på main når vedtak.toml er
+#    ledig, og bytt ID-ene og ankrene her og i vurderingsfila.
+# 3. Forholdene i MM-U47 følger tabellen «Postene i kjeden» i vurderingsfila. «Endrer» til
+#    KA-U29, MM-U34, OV-U7 og VS-U9 gjelder bare setningene E-punktene og fordelingen navngir.
+#    Forholdene til OV-U67 og OV-U68 følger svaret på spørsmål 2: ved A «opphever», ved B
+#    «samler» med endringen i E4.
+# 4. MM-U48 er svaret på spørsmål 1, og MM-U49 svaret på spørsmål 2. Velger oppdragsgiver B,
+#    byttes «valgt» og «forkastet», og forholdene byttes til dem i alternativ B.
+# 5. Kjør docs/verktoy/vedtaksregister.py og vakttestene. Sitatene er fra vedtaksfila
+#    (kilde = "hovedplanen", som i de andre postene).
+# 6. Klassene er kontrollert uavhengig 04.11 (svar 8). Resultatet står i vurderingsfila under
+#    «Prøvingen» og føres i #1534.
+# 7. Berørt kode: ved E2 fjernes protestregelen i kjernen (`kanFaaProtest` i
+#    kjerne/utledning/utled.ts). Ved spørsmål 1 A sier oppdraget til byggeøkta at kommandoene
+#    for protest og bestridelse fjernes, ikke står utsatt (leveranseskillen).
+
+etter = '''
+##### <a id="samlevedtak-protest-innlegg"></a>Samlevedtaket for protest, bestridelse og innlegg (MM-U47)
+
+Teksten under er samlevedtaket [MM-U47](#mm-u47), vedtatt <dato> av oppdragsgiver (#1534), ordrett
+slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-protest-innlegg-2026-11-04.md),
+med «Endret innhold» E1–E6. Svarene på spørsmål 1 og 2 i vurderingen er [MM-U48](#mm-u48) og
+[MM-U49](#mm-u49).
+
+<Forslaget og Endret innhold, ordrett etter punkt 1 i oppskriften.>'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "MM-U47"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmål 3 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
+valgt = "A"
+svar = '''
+<Oppdragsgivers svar, ordrett.>'''
+forhold = [
+  { art = "samler", vedtak = "mm-u35" },
+  { art = "samler", vedtak = "mm-u7" },
+  { art = "endrer", vedtak = "ka-u29" },
+  { art = "endrer", vedtak = "mm-u34" },
+  { art = "endrer", vedtak = "ov-u7" },
+  { art = "endrer", vedtak = "vs-u9" },
+  { art = "opphever", vedtak = "ov-u67" },
+  { art = "opphever", vedtak = "ov-u68" },
+]
+folge = '''
+Samler reglene for protest, bestridelse og innlegg og det som står igjen av sperren etter enighet.
+Tabellen «Postene i kjeden» i vurderingen sier hvilke setninger hver post bidrar med. Forholdene
+til KA-U29, MM-U34, OV-U7 og VS-U9 gjelder bare delene i E1–E6. MP-U4 og MP-U6 står for
+metodeprøven (E2).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Forslaget i punkt 1–12 med designdelen og beslutningsdelen, og E1–E6, gjelder slik det står, med svarene på spørsmål 1 og 2 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Forslaget legges fram på nytt etter rettelsene.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+id = "MM-U48"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
+valgt = "A"
+svar = '''
+<Oppdragsgivers svar, ordrett.>'''
+forhold = [
+  { art = "samler", vedtak = "mm-u34" },
+  { art = "endrer", vedtak = "ov-u7" },
+  { art = "endrer", vedtak = "mm-u35" },
+  { art = "endrer", vedtak = "vs-u35" },
+]
+folge = '''
+Forholdet til MM-U34 gjelder punkt 24. Forholdet til OV-U7 gjelder bestridelse, protest mot en
+innsigelse og delene av KA-U29 om dem. Forholdene til MM-U35 og VS-U35 gjelder «i første versjon»
+i MM-U35 s1 og «fortsatt utsatt» i VS-U35 s2. I tråd med MM-U33 steg 3.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Protest mot en innsigelse og bestridelse av en opplysning sendes som innlegg i fritekst, også etter første versjon. Løsningen har ingen egen handling for dem.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Protest mot en innsigelse og bestridelse av en opplysning sendes som innlegg i første versjon. De står som egne utsagn uten virkning på utfallet og bygges senere.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "OV-U64, regelen om hva en protest gjelder, og protestformene oppheves."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Løsningen har ingen egne prosesser for ulike typer innsigelser og protester, og ingen egen modell for subsidiær aksept."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Påberopelsen av passivitet og bestridelsen av en opplysning er fortsatt utsatt (OV-U7)."
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "setningen om at byggherrens tidligere standpunkt bevares og vises med enigheten"
+id = "MM-U49"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmål 2 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
+valgt = "A"
+svar = '''
+<Oppdragsgivers svar, ordrett.>'''
+forhold = [
+  { art = "opphever", vedtak = "ov-u67" },
+  { art = "opphever", vedtak = "ov-u68" },
+  { art = "samler", vedtak = "mm-u34" },
+]
+folge = '''
+Forholdet til MM-U34 gjelder punkt 13. I tråd med KA-U1.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En registrert enighet sperrer ikke innsigelse, protest, bestridelse eller påberopt passivitet, og løsningen avgjør ikke om de er virksomme mot enigheten (MM-U12). Hva TE godtar ved aksept, følger KA-U1. Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, bevares og vises med enigheten.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En registrert enighet sperrer ikke innsigelse, protest, bestridelse eller påberopt passivitet, og løsningen avgjør ikke om de er virksomme mot enigheten (MM-U12). En enighet omfatter det gjeldende kravet og det gjeldende svaret, med de standpunktene som står mot det gjeldende kravet, og varselet og opplysningene et standpunkt om varslingen bygger på. Eldre kravversjoner og svarene på dem omfattes ikke. Byggherrens uttrykkelige standpunkt i et tidligere svar om at varselet kom i tide, bevares og vises med enigheten.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Sperren mot protest, innsigelse, bestridelse, påberopt passivitet og merking mot det en enighet omfatter, oppheves."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "TEs aksept gjelder hele det konkrete svaret byggherren har gitt på gjeldende kravversjon i sporet, med alle standpunktene i det: preklusjon, vilkår, beløp eller dager og subsidiære standpunkter."
