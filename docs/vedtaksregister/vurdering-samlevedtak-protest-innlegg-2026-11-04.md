@@ -210,7 +210,10 @@ Foreslått til orkestratoren 04.11 før forslaget ble skrevet, etter setning:
 5. VS-U9: her bare s4. Resten i påberopelseskjeden.
 6. OV-U7: her bestridelse, protest og delene av KA-U29.
 
-*Svaret fra orkestratoren føres inn her.*
+Orkestratoren 04.11, ordrett: «Fordelingen er godtatt slik du foreslo, punkt 1–7. Den er ført i
+https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6633691183. En setning som er
+gitt til en kjede som ikke er startet, er bare kilde her.» Punkt 7 i meldingen var at OV-U64–OV-U68,
+MP-U4 og MP-U6 ikke deler setninger med andre kjeder.
 
 ## Prøvingen
 
