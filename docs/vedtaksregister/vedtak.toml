@@ -11596,8 +11596,8 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket"
-beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+designdel = "avsnittet «Designdel» i samlevedtaket; i punkt 6 «og en ny kravversjon venter på byggherrens svar»; i punkt 8 «Mener mottakeren at datoen er feil, sier mottakeren det i begrunnelsen for svaret eller i et innlegg.»; i punkt 11 og 12 «Sporet venter ikke på et nytt svar i løsningen.»; i punkt 14 «Et forslag om å rette betegnelsen på endringsordren sendes som innlegg.»; i punkt 15 «blir innlegg etter MM-U34 punkt 24»"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket, og «og dokumentet i Catenda» i punkt 2"
 id = "MM-U41"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -11643,6 +11643,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "«og en ny kravversjon venter på byggherrens svar»"
 id = "MM-U42"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -15586,6 +15587,7 @@ TE kan endre opplysningen om når TE ble klar over at økte utgifter på grunn a
 [[gruppe.vedtak]]
 klasse = "vedtak"
 designdel = "skjemaets forklaring før TE sender"
+beslutningsdel = "«Rettingen etter MM-U21 bygges før første ekte sak, og det som står åpent om den under B-16, avgjøres da.»"
 id = "OV-U54"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
@@ -15620,7 +15622,8 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "valget mellom utdyping og ny kravversjon i skjemaet"
+designdel = "valget mellom utdyping og ny kravversjon i skjemaet, og «Sporet venter ikke på et nytt svar i løsningen.»"
+beslutningsdel = "«TEs utdyping og byggherrens senere begrunnelse etter KA-U34 bygges i første versjon; datokontrollene for registrert begrunnelse (KA-U36–KA-U39) står utsatt»"
 id = "OV-U55"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
