@@ -1,9 +1,9 @@
-# Samlevedtak: betegnelsene, sakslisten og nøkkeltallene
+# Samlevedtak: sakslisten og nøkkeltallene
 
 Dato: 04.11.2026. Kontrollert commit: `b2e8057`. Del av #1534, steg 4, trinn 2.
 
-Fila er et forslag til samlet tilslutning til reglene for betegnelsene, sakslisten og
-nøkkeltallene. Kjeden er raden «Betegnelser, sakslisten og nøkkeltallene» i
+Fila er et forslag til samlet tilslutning til reglene for sakslisten og nøkkeltallene
+(«samlevedtaket for sakslisten og nøkkeltallene»). Betegnelsene er design og samles ikke. Kjeden er raden «Betegnelser, sakslisten og nøkkeltallene» i
 [klassifiseringen](vurdering-klassifisering-2026-11-03.md#kjedene). Hver setning i forslaget
 viser vedtaket og eventuelt punktet den kommer fra. Det som endrer innholdet i en eldre post,
 også en motsigelse forslaget løser, står i «Endret innhold» (E1–E4), og oppdragsgiver tar
@@ -29,7 +29,7 @@ vedtak («Hva oversiktene summerer, er beslutning eller design», oppdragsgiver 
 ## Postene i kjeden
 
 «Samler»: regelen står i samlevedtaket med uendret innhold, og den gamle ID-en gjelder
-fortsatt som «Samlet i samlevedtaket for nøkkeltallene». «Opphever»: samlevedtaket løser en
+fortsatt som «Samlet i samlevedtaket for sakslisten og nøkkeltallene». «Opphever»: samlevedtaket løser en
 motsigelse og endrer innholdet. «Endrer»: bare de navngitte setningene endres; resten av
 posten står. «Ingen»: ingen setning samles eller endres.
 
@@ -89,8 +89,8 @@ nøkkeltallene over den for KOE-sakene.
 
 ### A. Hva tallene er
 
-1. Punkt 67 i samlevedtaket for endringsordren gjelder for tallene i sakslisten og
-   nøkkeltallene. (EO-U34 punkt 67; MM-U12)
+1. Punkt 67 i samlevedtaket for endringsordren gjelder for summene og nøkkeltallene.
+   (EO-U34 punkt 67)
 2. Et ukjent beløp er ikke 0. Varsler, krav etter regningsarbeid eller enhetspriser og
    endringsordrer uten samlet beløp telles for seg, fordi beløpet er ukjent og ikke 0.
    (MM-U38; OV-U43 punkt 3; MM-U28)
@@ -106,16 +106,16 @@ nøkkeltallene over den for KOE-sakene.
    erstatter det telles, står i samlevedtaket for endringsordren. (EO-U27, EO-U28, EO-U29;
    EO-U34)
 6. Summen av kravene er summen av totalentreprenørens gjeldende krav, også når kravene er
-   avgjort. (OV-U61; MM-U38)
+   avgjort. (OV-U61)
 7. For fristforlengelse er tallene antall krav og antall endringsordrer som gir
-   fristforlengelse, og dagene summeres ikke. (MM-U38)
+   fristforlengelse, og dagene summeres ikke. (MM-U38; i tråd med OV-U63)
 8. Saker som en sendt endringsordre omfatter, trukne krav og saker der totalentreprenøren har
    trukket påberopelsen eller godtatt avslaget på den, er ikke med i summene. (MM-U38;
    OV-U61)
 9. Beløp i dokumenter som bare er registrert som dokumentasjon etter OV-U4, inngår ikke i
    summene. Kompensasjonen for rigg og drift i uendret byggetid er ikke med. Krav i flere
    saker kan gjelde samme kostnad, og løsningen kontrollerer det ikke. (OV-U61, slik MM-U38
-   lar det stå)
+   lar det stå; OV-U57)
 10. Nøkkeltallene har ingen sum for enighet og ingen sum for byggherrens svar. Byggherrens
     svar og enigheten står på siden for saken. (MM-U37; MM-U38; E1)
 11. En sak løsningen ikke forstår, er ikke med i summene, og nøkkeltallene sier ikke hvor
@@ -134,28 +134,31 @@ eller forløpet for sakslisten når det skrives (#1450). Raden viser beløpet el
 ‹Varslet› når totalentreprenøren har varslet uten beløp eller dager, for varsler løsningen
 kjenner etter OV-U5, ‹Regningsarbeid› eller ‹Enhetspriser› når kravet følger en av disse
 beregningsreglene, og ellers ‹Ikke krevd›. Omfatter en sendt endringsordre saken, viser lista
-merket etter EO-U13 (MM-U37). Kortene står side om side og med samme vekt, og i lista er
-tallene dempet for sakene i punkt 8 (MM-U38, designdelen). En sak løsningen ikke forstår, har
-ingen egen tekst og ingen tall i raden (MM-U39, designdelen). Betegnelsen per spor etter
+merket etter EO-U13 (MM-U37). I hvert kort står kravene og endringsordrene side om side og
+med samme vekt, og i lista er tallene dempet for sakene i punkt 8 (MM-U38, designdelen). En sak løsningen ikke forstår, har
+ingen egen tekst og ingen tall i raden (MM-U39, designdelen). Det snevrer inn OV-U21 for
+sakslisten: der OV-U21 sier at hvert registrert brev teller mens saken ikke er forstått, og
+Følge sier at sakslisten leser det, viser sakslisten ingen tekst for saken. Betegnelsen per spor etter
 MM-U30 og MM-U31 står på siden for saken, ikke i sakslisten (MM-U37). Den samlede betegnelsen
 for saken etter MM-U22 står der den står i `system.md`; at sakslisten ikke har en tekst for en
 sak som ikke er forstått, snevrer inn MM-U22 for lista (MM-U39).
 
 ### Beslutningsdel
 
-Saker løsningen ikke forstår, har ingen egen tekst i sakslisten og telles ikke, fordi slike
-saker ikke forekommer i løsningen (MM-U39). MM-U2 står: en hendelse kjernen ikke forstår,
+Grunnen til punkt 11 og til designdelen for saker løsningen ikke forstår, er at slike saker
+ikke forekommer i løsningen (MM-U39). MM-U2 står: en hendelse kjernen ikke forstår,
 gjør saken ikke forstått.
 
 ## Klassene
 
 Etter testen i vedtaksskillen (oppdragsgiver 04.11):
 
-- Punkt 1 har en setning om hva som binder partene, men den står alt i MM-U12 og i punkt 67
-  i EO-U34, og forslaget viser bare til den.
+- Punkt 1 har en setning om hva som binder partene, men den står alt i punkt 67 i EO-U34, og
+  forslaget viser bare til den.
 - Punkt 2–11 sier hva oversiktene summerer. Det er beslutning eller design.
-- Punkt 12 sier hvordan visningen er bygget opp, og er design. Siste setning står også i
-  MM-U24 og MM-U29 («Den sier ikke at parten har plikt eller neste trekk»).
+- Punkt 12 sier hvordan visningen er bygget opp, og er design. Siste setning er i tråd med
+  MM-U40 («sier ikke hvem som skal handle») og MM-U24 («Appen sier ikke at en part har
+  plikt»). MM-U29 er opphevet av MM-U40.
 - Det OV-U61 sa om hva som regnes som enighet («Byggherrens svar som TE ikke har godtatt,
   regnes ikke som enighet»), og om at svaret på grunnlaget avgjør om en enighet er betinget
   eller virksom, gjaldt summen for enighet. Faller summen bort (E1), står det som regel om
@@ -210,14 +213,16 @@ summene bygger på. ‹Krevd vederlag› er summen av TEs gjeldende krav i saker
 og der kravet står, også når kravene er avgjort.» Samlevedtaket: punkt 4–6. Hvorfor: MM-U38
 erstatter ‹Krevd vederlag› med kortet for vederlag, som viser kravene i sakene ingen sendt
 endringsordre omfatter, og summen i endringsordrene. «også når kravene er avgjort» står
-(punkt 6). Endringen gjorde MM-U38 02.11; radteksten i OV-U61 er ikke rettet.
+(punkt 6). Setningen «Nøkkeltallene for vederlag sier hva summene bygger på.» faller bort som
+regel; kortene viser hva de teller etter designdelen. Endringen gjorde MM-U38 02.11; radteksten i OV-U61 er ikke rettet.
 
 **E3 Antallet saker som ikke er forstått.** Gammel tekst: OV-U61 «Saker løsningen ikke
 forstår, er ikke med i noen sum, og oversikten sier ved summene hvor mange de er.»
 Samlevedtaket: punkt 11. Hvorfor: MM-U39 gjorde endringen 02.11 (alternativ B, «som OV-U61 i
 dag», ble forkastet); radteksten i OV-U61 er ikke rettet (M2).
 
-**E4 Vilkår som ikke er avklart.** Gammel tekst: OV-U49, D1: «Vilkår som ikke er avklart, er
+**E4 Vilkår som ikke er avklart.** Endrer ikke gjeldende innhold; punktet retter bare at Følge
+for OV-U61 ikke sier at endringen er falt bort. Gammel tekst: OV-U49, D1: «Vilkår som ikke er avklart, er
 et eget forhold i tillegg: til de er avklart etter avklaringsreglene nedenfor, regnes kravet
 ikke som avgjort etter OV-U3, og beløpet inngår ikke i summen av virksom enighet, også når
 grunnlaget er avklart.» og «Nøkkeltallene viser enigheten særskilt og sier hva den bygger
@@ -262,7 +267,22 @@ punkt 12 her, som bare sier at sakslisten ikke sier hva en sak venter på.
 
 ## Prøvingen
 
-UTKAST.
+Tre subagenter 04.11, på commiten over:
+
+- **Overlappet** med EO-U34 og samlevedtaket for akseptfristen: se avsnittet over.
+- **Klassene:** se «Kontrollen av klassene».
+- **Alternativene og punktene mot vedtaksfila.** Sitatene er ordrette. Funnene er rettet i
+  fila: bakgrunnen i spørsmål 1 (datoene og hva som står uendret), at 1A forutsetter svaret på
+  spørsmål 2, ett navn på samlevedtaket, at 2B tok bare en del av 25.10-vedtaket og oppga feil
+  forhold, et ekstra belegg for 2A (MM-U38 opphevet MM-U28, som summerte virksom enighet),
+  lesingen av «side om side» i MM-U38, kildene i punkt 1, 6, 7 og 9 (OV-U57, OV-U63),
+  setningen om hva summene bygger på (E2), MM-U29, som er opphevet av MM-U40, beslutningsdelen
+  om saker som ikke er forstått, og innsnevringen av OV-U21 for sakslisten (designdelen).
+  Motstriden i OV-U61 (summen for enighet og antallet saker som ikke er forstått) er av typen
+  der vedtaket bør vike, og forholdet står i 2A, E1 og E3. 1B har ikke eget innhold, men står
+  som i EO-U34, så rettinger per punkt kan gis.
+- **Ikke prøvd:** arbeidsflyten med forløp, fordi ingen av spørsmålene endrer hva en bruker
+  gjør. Ingen sitater fra NS 8407, så kontraktsteksten er ikke lest.
 
 ## Spørsmålene til oppdragsgiver
 
@@ -271,26 +291,26 @@ summerer og viser. Arbeidsflyten er derfor ikke prøvd med forløp (vedtaksskill
 arbeidsflyten før vedtaksteksten skrives»). Klassen er ikke et spørsmål her: den rettes etter
 svar 8 B i #1534, etter den uavhengige kontrollen under «Kontrollen av klassene».
 
-1. **Tilslutning til samlevedtaket for betegnelsene, sakslisten og nøkkeltallene.**
-   Bakgrunn: reglene for sakslisten og nøkkeltallene står i fem poster fra 17.10 til 02.11.
+1. **Tilslutning til samlevedtaket for sakslisten og nøkkeltallene.**
+   Bakgrunn: reglene for sakslisten og nøkkeltallene står i fem vedtak fra 25.10 til 02.11.
    Sakslisten og nøkkeltallene ble vedtatt på nytt 02.11 (sakslisten, kortene og sakene som
-   ikke er forstått), men radteksten fra 25.10 om nøkkeltallene står uendret, også der den
-   senere er endret: antallet saker som ikke er forstått, og vilkårene fra et vedtak som er
-   opphevet. Betegnelsene per krav og per spor står alt i designsystemet og endres ikke.
+   ikke er forstått), men teksten i vedtaksfila fra 25.10 om nøkkeltallene står uendret, også
+   der den senere er endret: summen av krav og antallet saker som ikke er forstått. At
+   endringen fra et vedtak som senere er opphevet, er falt bort, står ikke ved den. Betegnelsene per krav og per spor står alt i designsystemet og endres ikke.
    Forslaget samler reglene i én tekst med kilde per setning, opphever 25.10-vedtaket om
    nøkkeltallene som egen regel, og samler de tre vedtakene fra 02.11. Hver innholdsendring
    står i E1–E4 med gammel tekst, ny tekst og kilde. Ingen setning et annet samlevedtak
    endrer, endres her; der samlevedtaket for endringsordren alt har regelen, viser forslaget
-   dit. Alternativene: **A.** «Samlevedtaket for betegnelsene, sakslisten og nøkkeltallene
-   gjelder med E1–E4. Postene det samler, gjelder som «Samlet i samlevedtaket for
-   nøkkeltallene». Posten det opphever, gjelder ikke lenger, og i posten det samler én
+   dit. Alternativene: **A.** «Samlevedtaket for sakslisten og nøkkeltallene gjelder med E2–E4, og med
+   E1 slik spørsmål 2 avgjør. Vedtakene det samler, gjelder som «Samlet i samlevedtaket for
+   sakslisten og nøkkeltallene». Vedtaket det opphever, gjelder ikke lenger, og i vedtaket det samler én
    setning fra, gjelder resten uendret.» **B.** Samme som A, med rettingene oppdragsgiver gir
    per E-punkt. Anbefalt: A, «ja». Hva valget styrer: hvilken tekst som er regelgrunnlaget
-   for sakslisten og nøkkeltallene; de gamle radtekstene leses ikke lenger alene. Forholdet
+   for sakslisten og nøkkeltallene; de gamle tekstene leses ikke lenger alene. Forholdet
    til andre poster: samler MM-U37, MM-U38 og MM-U39 og setningen om nøkkeltallene i punkt 3
-   i OV-U43; opphever OV-U61; ingen ny regel utover E1. Klasse: beslutning med designdel.
+   i OV-U43; opphever OV-U61; ingen ny regel utover svaret på spørsmål 2.
 
-2. **Summen for enighet og for byggherrens svar (E1).** Bakgrunn: vedtaket 25.10 om
+2. **Summen for enighet og for byggherrens svar.** Bakgrunn: vedtaket 25.10 om
    nøkkeltallene har en sum for ‹Enighet om vederlag› (virksom enighet, betinget enighet
    særskilt, enighet uten beløp som antall) og en særskilt visning av byggherrens svar med
    subsidiært standpunkt som totalentreprenøren ikke har godtatt. Vedtaket 02.11 om
@@ -298,23 +318,21 @@ svar 8 B i #1534, etter den uavhengige kontrollen under «Kontrollen av klassene
    beløp i brev som bare er registrert, rigg og drift i uendret byggetid, og krav i flere
    saker som kan gjelde samme kostnad. Kortene har bare krav og endringsordrer. Vedtaket 02.11
    om sakslisten sier: «Byggherrens svar, enigheten og betegnelsen for sporet står på siden
-   for saken og ikke i sakslisten.» Bakgrunnen for de to var oppdragsgivers ord 02.11: «Det vi
-   vet sikkert: hva TE krever, og hva BH utsteder i en EO». Ingen av de to sier uttrykkelig
-   at summen for enighet faller bort.
+   for saken og ikke i sakslisten.» I bakgrunnen for vedtaket om sakslisten står oppdragsgivers ord
+   02.11: «Det vi vet sikkert: hva TE krever, og hva BH utsteder i en EO». Ingen av de to
+   vedtakene sier uttrykkelig at summen for enighet faller bort.
    Alternativene: **A.** «Nøkkeltallene har ingen sum for enighet og ingen sum for
    byggherrens svar. Byggherrens svar og enigheten står på siden for saken.» Forhold:
    opphever setningene i 25.10-vedtaket om ‹Enighet om vederlag›, betinget enighet, enighet
    uten beløp, svar som ikke er godtatt, svar med subsidiært standpunkt og at svaret på
-   grunnlaget avgjør om en enighet er betinget eller virksom i summen. **B.** «Kortet for
-   vederlag viser i tillegg summen av beløpene løsningen leser som virksom enighet, med
-   betinget enighet særskilt og enighet uten beløp som antall. Byggherrens svar som
-   totalentreprenøren ikke har godtatt, regnes ikke som enighet, og svar med subsidiært
-   standpunkt vises særskilt.» Forhold: presiserer vedtaket 02.11 om nøkkeltallene, slik at
-   «endrer» bare gjelder summen av krav. Anbefalt: A. Belegg: vedtaket 02.11 lister det som
+   grunnlaget avgjør om en enighet er betinget eller virksom i summen. **B.** «Kortet for vederlag viser i tillegg enigheten og byggherrens svar slik vedtaket 25.10 om
+   nøkkeltallene sier.» Forhold: endrer vedtaket 02.11 om nøkkeltallene, slik at kortet for
+   vederlag får en tredje sum, og snevrer inn endringen det gjorde i vedtaket 25.10. Anbefalt: A. Belegg: vedtaket 02.11 lister det som
    står, og summene for enighet og svar er ikke med; vedtaket om sakslisten legger svaret og
-   enigheten på siden for saken; oppdragsgivers ord om det som vites sikkert. Det er vår
-   lesing at listen er uttømmende; teksten sier det ikke. Hva valget styrer: om
-   nøkkeltallene i #1450 får en tredje sum, og om regelen for hva som regnes som virksom
+   enigheten på siden for saken; vedtaket 02.11 opphevet også vedtaket 20.10 om at
+   nøkkeltallene summerer krav og virksom enighet hver for seg; oppdragsgivers ord om det som
+   vites sikkert. Det er vår lesing at listen er uttømmende; teksten sier det ikke. Hva valget styrer: om
+   nøkkeltallene i første versjon får en tredje sum, og om regelen for hva som regnes som virksom
    enighet i en sum trengs i første versjon. Hva som er enighet mellom partene, avgjøres ikke
    av valget; det står i vedtakene om enighet.
 
