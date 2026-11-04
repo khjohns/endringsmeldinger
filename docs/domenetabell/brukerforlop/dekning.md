@@ -34,6 +34,25 @@ på kilden, men har ingen kontroller ennå.
 | [EO-U12](../../plans/vedtak.md#eo-u12) | — | — | BF-06 |
 | [EO-U13](../../plans/vedtak.md#eo-u13) | — | — | BF-01V, BF-06 |
 | [EO-U14](../../plans/vedtak.md#eo-u14) | — | — | BF-06 |
+| [EO-U15](../../plans/vedtak.md#eo-u15) | — | — | BF-06 |
+| [EO-U16](../../plans/vedtak.md#eo-u16) | — | — | BF-06 |
+| [EO-U17](../../plans/vedtak.md#eo-u17) | — | — | BF-06 |
+| [EO-U18](../../plans/vedtak.md#eo-u18) | — | — | BF-06 |
+| [EO-U19](../../plans/vedtak.md#eo-u19) | — | — | BF-06 |
+| [EO-U20](../../plans/vedtak.md#eo-u20) | — | — | BF-06 |
+| [EO-U21](../../plans/vedtak.md#eo-u21) | — | — | BF-06 |
+| [EO-U22](../../plans/vedtak.md#eo-u22) | — | — | BF-06 |
+| [EO-U23](../../plans/vedtak.md#eo-u23) | — | — | BF-06 |
+| [EO-U24](../../plans/vedtak.md#eo-u24) | — | — | BF-06 |
+| [EO-U25](../../plans/vedtak.md#eo-u25) | — | — | BF-06 |
+| [EO-U26](../../plans/vedtak.md#eo-u26) | — | — | BF-06 |
+| [EO-U27](../../plans/vedtak.md#eo-u27) | — | — | BF-06 |
+| [EO-U28](../../plans/vedtak.md#eo-u28) | — | — | BF-06 |
+| [EO-U29](../../plans/vedtak.md#eo-u29) | — | — | BF-06 |
+| [EO-U30](../../plans/vedtak.md#eo-u30) | — | — | BF-06 |
+| [EO-U31](../../plans/vedtak.md#eo-u31) | — | — | BF-06 |
+| [EO-U32](../../plans/vedtak.md#eo-u32) | — | — | BF-06 |
+| [EO-U33](../../plans/vedtak.md#eo-u33) | — | — | BF-06 |
 | [FO-U1](../../plans/vedtak.md#fo-u1) | — | — | BF-06 |
 | [FO-U8](../../plans/vedtak.md#fo-u8) | — | — | BF-06 |
 | [GFK-U7](../../plans/vedtak.md#gfk-u7) | — | — | BF-06 |
