@@ -1,0 +1,57 @@
+# Utkast til posten for svaret A-1 A i #1497 (runde 12 i #1065).
+# Fila er et utkast og slettes når posten er skrevet i vedtak.toml. Den leses ikke av noe verktøy.
+#
+# Oppskrift for skrivingen, når vedtak.toml er ledig (etter PR #1565):
+# 1. Posten under legges sist i gruppen «Sendte brev, regelendring og saker kjernen ikke
+#    forstår», etter LV-U51. ID-en settes da: forslaget er LV-U52, som sjekkes mot main
+#    (den neste ledige LV-ID-en). <ID> byttes ut.
+# 2. Forholdene skrives begge veier av verktøyet: «Endret 04.11 av <ID>» først i Følge hos
+#    MM-U34 og «Presisert 04.11 av <ID>» hos LV-U50. Ingen tekst i «etter» eller «innledning»
+#    endres, og ingen importert post får endret «folge».
+# 3. Kjør `python3 docs/verktoy/vedtaksregister.py` (skriver docs/plans/vedtak.md),
+#    `python3 docs/verktoy/vedtaksregister.py --sjekk`, `python3 docs/verktoy/temavisning.py --sjekk`
+#    og `cd backend && /tmp/venv/bin/python -m pytest -q tests/test_vedtaksregister/`.
+# 4. Temaet «grunnlagssvar-som-endringsordre» har MM-U34 i kjeden, så <ID> legges sist i
+#    `vedtak` der i temaer.toml, og `python3 docs/verktoy/temavisning.py` skriver
+#    docs/vedtaksregister/temaer/grunnlagssvar-som-endringsordre.md på nytt (prøvd 04.11).
+# 5. Brukerforløpene som må rettes ved skrivingen, står i PR-en for utkastet («Ved skrivingen»).
+# 6. Slett denne fila i samme PR.
+#
+# Alternativ A er teksten i spørsmålet ordrett, uten de ytre anførselstegnene, og med
+# forholdet slik det sto etter teksten. Alternativ B er ordrett med forholdet slik det sto.
+
+[[gruppe.vedtak]]
+id = "<ID>"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497", "#1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål A-1, ordrett slik det ble stilt 04.11 i orkestreringsrunde 11 (#1065) og lagret i #1497 ([kommentaren 6628903880](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6628903880)). Alternativene står i posten.
+
+**A-1 (juridisk). Skal et brev med en ny kravversjon nevne brevet med byggherrens svar i setningen om TEs standpunkt?**
+
+Bakgrunn: Når TE sender en ny kravversjon, sier brevet etter MM-U34 punkt 1 at TEs standpunkt til byggherrens tidligere svar fremgår av begrunnelsen, men setningen nevner ikke hvilket brev svaret sto i. Deres ref. i brevhodet viser koden for det samme svaret (LV-U50, LV-U51). Formen ‹brev <n> i sak KOE-17 av <dato>› for setningen om hvilken kravversjon som erstattes, følger alt av LV-U44 og er ikke en del av valget.
+
+Anbefaling: A, fordi brevteksten og hodet da viser til de samme brevene. Styrer: den frosne teksten i en ny kravversjon, som bygges i #1379, ikke i A2. Teksten som sendes, får samme versjonssjekk før sending som Deres ref.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svarene](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6628951077)): «A-1 A, A-2 B, A-3 A»'''
+forhold = [
+  { art = "endrer", vedtak = "mm-u34" },
+  { art = "presiserer", vedtak = "lv-u50" },
+]
+folge = '''
+Endringen i MM-U34 gjelder punkt 1. Bygges i #1379.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Har byggherren svart på kravversjonen som erstattes, sier brevet: ‹TEs standpunkt til BHs svar i brev <n> i sak KOE-17 av <dato> fremgår av begrunnelsen.› Svaret er det siste byggherren har gitt på kravversjonen som erstattes, slik det står når den nye kravversjonen sendes (LV-U51), og brevet er det samme som står under Deres ref. Står svarene i flere brev, nevnes hvert av dem. Er svaret registrert korrespondanse, omtales det etter LV-U45 eller LV-U42. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer ordlyden i MM-U34 punkt 1, presiserer LV-U50.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Setningen i MM-U34 punkt 1 står uendret. Brevet med svaret vises bare under Deres ref. (LV-U50). Forhold: i tråd med MM-U34 punkt 1 og LV-U50; snevrer inn designmålet U-6 i BF-07 for en ny kravversjon.'''
