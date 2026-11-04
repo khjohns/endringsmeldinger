@@ -13,6 +13,7 @@
     "HF-U1",
     "KA-U10",
     "LV-U1",
+    "LV-U18",
     "LV-U2",
     "LV-U23",
     "LV-U27",
@@ -26,7 +27,9 @@
     "MM-U9",
     "OV-U4",
     "OV-U80",
-    "OV-U84"
+    "OV-U84",
+    "VS-U23",
+    "VS-U27"
   ],
   "venter_paa": [
     "#1497",
@@ -38,7 +41,7 @@
     {
       "dato": "2026-11-04",
       "forhold": "#1497",
-      "hva": "Forløpet er registrert som planlagt, med bestillingen og spørsmålene S-1 til S-3."
+      "hva": "Forløpet er registrert som planlagt, med bestillingen og spørsmålene S-1 og S-2."
     }
   ]
 }
