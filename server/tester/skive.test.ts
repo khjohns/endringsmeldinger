@@ -321,7 +321,10 @@ describe.skipIf(!TESTBASE_URL)(
       const tekst = (i: (typeof innhold)[number]) => i.brev.brevtekst as Avsnitt[];
       expect(gjengirTro(g, tekst(innhold[0]))).toBe(true);
       expect(gjengirTro(v, tekst(innhold[1]))).toBe(true);
-      expect(g).toContain(`Sak ${sakId}, brev 2`);
+      // Vår ref. er merkingen med brevets nummer i saken (LV-U27, LV-U44, LV-U48).
+      const loepenummer = /^Vår ref\.: K201-KOE-(\d{3})-01\n/.exec(g)?.[1];
+      expect(loepenummer).toBeDefined();
+      expect(v).toMatch(new RegExp(`^Vår ref\\.: K201-KOE-${loepenummer}-02\\n`));
       // LV-U43: sakstittelen er navnet på forholdet i påberopelsen.
       expect(g).toContain(`«Skiva» i sak ${sakId}`);
       expect(g).toContain(PAABEROPELSE.utdypning);

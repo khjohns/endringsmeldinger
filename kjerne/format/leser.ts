@@ -24,6 +24,7 @@ import {
   UTSAGN,
 } from './format.ts';
 import { beloep } from '../regler/beloep.ts';
+import { avvikITittelen } from '../frosset/brevtittel.ts';
 import { erKalenderdato, erObjekt, feilI, type Skjema } from './skjema.ts';
 import type {
   Avsnitt,
@@ -420,6 +421,7 @@ function lesDokument(h: Journalrad): Dokument {
     dokumentasjon?: Vedlegg[];
     brevtekst?: Avsnitt[];
     brevtittel?: string;
+    brevnummer?: number;
     beskrivelse?: string;
     spor?: Spor[];
     retter?: string;
@@ -511,6 +513,7 @@ function lesDokument(h: Journalrad): Dokument {
     svar: (data.svar ?? []).map((v, i) => lesSvar(v, id, `$.svar[${i}]`)),
     brevtekst: data.brevtekst ?? null,
     brevtittel: data.brevtittel ?? null,
+    brevnummer: data.brevnummer ?? null,
     beskrivelse: data.beskrivelse ?? null,
     spor: data.spor ?? [],
     retter: data.retter ?? null,
@@ -545,6 +548,10 @@ function lesDokument(h: Journalrad): Dokument {
       throw new Uforstaatt('opplysningen gjelder ikke et varsel i dokumentet');
   if (data.brevtittel !== undefined && !data.brevtekst)
     throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U3)');
+  if (data.brevtittel !== undefined) {
+    const avvik = avvikITittelen(data.brevtittel, dokument);
+    if (avvik) throw new Uforstaatt(avvik);
+  }
   if (data.brevtekst) {
     // MM-U17: et registrert brev står som det ble sendt og har ingen tekst fra appen.
     if (erRegistrert(dokument.opplysninger))
@@ -588,6 +595,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
     utsagn: [],
     brevtekst: null,
     brevtittel: null,
+    brevnummer: null,
     beskrivelse: null,
     spor: [],
     retter: data.retter,
