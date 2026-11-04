@@ -3599,6 +3599,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'løsningens brev får det høyeste nummeret i saken, ikke det neste (LV-U44, LV-U45)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
+      ['Math.max(0, ...lest', 'Math.max(1, ...lest'],
       ['(h.dokument.brevnummer ?? 0) : 0))) + 1', '(h.dokument.brevnummer ?? 0) : 0))) + 0'],
     ],
     mal: ['løsningens brev får nummeret etter det høyeste i saken'],
@@ -3630,7 +3631,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F440',
     feilklasse: 'brevtittelen fryses uten sakens kode (LV-U27, LV-U44)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['tittel: tittel && sakskode ?', 'tittel: tittel && !sakskode ?']],
+    endringer: [['? medSakskode(tittel, sakskode) : tittel', '? tittel : tittel']],
     mal: ['tittelen har sakens kode uten utfylling, og leseren forstår den'],
   },
 ];
