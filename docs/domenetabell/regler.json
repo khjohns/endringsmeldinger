@@ -198,11 +198,11 @@
       "radetikett": "GR-U7: TE kan godta byggherrens gjeldende svar på vederlag eller frist uavhengig av grunnlaget"
     },
     {
-      "id": "EO-U1",
+      "id": "EO-U34",
       "type": "vedtak",
-      "dato": "2026-10-08",
-      "ref": "../plans/vedtak.md#eo-u1",
-      "radetikett": "EO-U1: en endringsordre utstedes bare som EO-sak"
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#eo-u34",
+      "radetikett": "EO-U34: Samlevedtaket for endringsordren gjelder med E1–E13"
     },
     {
       "id": "EO-U2",
@@ -210,20 +210,6 @@
       "dato": "2026-10-08",
       "ref": "../plans/vedtak.md#eo-u2",
       "radetikett": "EO-U2: en KOE-sak kan inngå i en endringsordre når saken er `OMFORENT`"
-    },
-    {
-      "id": "EO-U3",
-      "type": "vedtak",
-      "dato": "2026-10-08",
-      "ref": "../plans/vedtak.md#eo-u3",
-      "radetikett": "EO-U3: en KOE-sak inngår i høyst én endringsordre"
-    },
-    {
-      "id": "EO-U4",
-      "type": "vedtak",
-      "dato": "2026-10-08",
-      "ref": "../plans/vedtak.md#eo-u4",
-      "radetikett": "EO-U4: EO-sakens livsløp er strengt"
     },
     {
       "id": "V-TFR02",
@@ -1938,7 +1924,7 @@
       "tilfelle": "Byggherren frafaller pålegget og godkjenner deretter vederlag og frist.",
       "forventet": "Svarene på vederlag og frist er prinsipale, og kravene er avgjort. KOE-saken kan inngå i en endringsordre.",
       "bh_standpunkt": "Frafalt grunnlag. Prinsipalt godkjent vederlag og frist.",
-      "rettslig_virkning": "Avklart grunnlag. Endringsordren sendes gjennom en EO-sak, og frafallet hindrer ikke at den omfatter KOE-saken.",
+      "rettslig_virkning": "Avklart grunnlag. Endringsordren sendes gjennom en EO-sak, og frafallet hindrer ikke at den omfatter KOE-saken (EO-U34 punkt 1 og 5).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -1946,7 +1932,7 @@
         "GR-U28",
         "V-235",
         "NS-32.3-1c",
-        "EO-U1"
+        "EO-U34"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2292,11 +2278,11 @@
       "tilfelle": "Byggherren utsteder en endringsordre i en KOE-sak som er `OMFORENT` (`eo_utstedt` i KOE-saken).",
       "forventet": "Utstedelsen avvises, og journalen er uendret. Sporene står med de avtalte beløpene og dagene.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "En endringsordre utstedes som EO-sak, der TE kan godta eller bestride den. Enigheten i KOE-saken står.",
+      "rettslig_virkning": "En endringsordre etter punkt 31.3 utstedes i en EO-sak (EO-U34 punkt 1). At hendelsen avvises i KOE-saken, er en regel for kjernen og ikke for kontrakten (EO-U34, E13). Enigheten i KOE-saken står.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U1",
+        "EO-U34",
         "V-B02-3",
         "V-EO-KOE"
       ],
@@ -2390,28 +2376,15 @@
       "tolkningsstatus": "avklart_tolkning"
     },
     {
-      "id": "EO-08",
-      "tilfelle": "Byggherren oppretter en EO-sak med en omforent KOE-sak.",
-      "forventet": "`kan_utstede_eo` er `false` i KOE-saken.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "KOE-saken inngår i en endringsordre og kan ikke inngå i en annen.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "EO-U3"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
       "id": "EO-09",
-      "tilfelle": "Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen EO-sak som TE har bestridt.",
+      "tilfelle": "Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen utstedt EO-sak, og TE har bestridt et utsagn i den.",
       "forventet": "Tilknytningen avvises, og journalen er uendret.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "KOE-saken inngår i høyst én endringsordre, også når den er bestridt. TEs uenighet føres i en ny KOE.",
+      "rettslig_virkning": "KOE-saken inngår i høyst én endringsordre, også når et utsagn i den er bestridt (EO-U34 punkt 7). TEs uenighet føres i en ny KOE (EO-U34 punkt 35).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U3",
+        "EO-U34",
         "V-TFR02"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -2443,121 +2416,29 @@
       "tolkningsstatus": "avklart_tolkning"
     },
     {
-      "id": "EO-12",
-      "tilfelle": "TE godtar endringsordren.",
-      "forventet": "Endringsordren er `AKSEPTERT`, og saken `LUKKET`.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "Endringsordren er avtalt.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "V-TFR02"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
-      "id": "EO-13",
-      "tilfelle": "TE bestrider endringsordren.",
-      "forventet": "Endringsordren er `BESTRIDT`, og saken `LUKKET`.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "En endringsordre forhandles ikke. TEs uenighet føres i en KOE.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "V-TFR02"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
-      "id": "EO-14",
-      "tilfelle": "Byggherren reviderer en bestridt endringsordre, og TE godtar revisjonen.",
-      "forventet": "Etter revisjonen er endringsordren `REVIDERT` med revisjon 1, TEs svar er nullstilt, og saken `VENTER_PAA_SVAR`. Etter aksepten er saken `LUKKET`.",
-      "bh_standpunkt": "Den reviderte endringsordren.",
-      "rettslig_virkning": "TE svarer på den nye utgaven.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "V-TFR02",
-        "EO-U4"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
       "id": "EO-15",
-      "tilfelle": "TE godtar en endringsordre som ikke er utstedt.",
+      "tilfelle": "TE godtar et utsagn i en endringsordre som ikke er utstedt.",
       "forventet": "Aksepten avvises, og journalen er uendret.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Det finnes ingen utstedt endringsordre å godta.",
+      "rettslig_virkning": "Det finnes ingen utstedt endringsordre og ikke noe utsagn å godta. TE godtar et utsagn i en utstedt endringsordre, ikke endringsordren som helhet (EO-U34 punkt 29 og 33).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "V-TFR02",
-        "EO-U4"
+        "EO-U34"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "EO-16",
-      "tilfelle": "Byggherren utsteder samme endringsordre på nytt før TE har svart.",
+      "tilfelle": "Byggherren utsteder samme endringsordre på nytt.",
       "forventet": "Utstedelsen avvises, og endringsordren står med beløpet fra første utstedelse.",
       "bh_standpunkt": "Første utstedelse.",
-      "rettslig_virkning": "Endringsordren utstedes én gang. En ny utgave er en revisjon.",
+      "rettslig_virkning": "Endringsordren utstedes én gang og revideres ikke (EO-U34 punkt 41).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U4"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
-      "id": "EO-17",
-      "tilfelle": "Byggherren utsteder endringsordren på nytt etter at TE har godtatt den.",
-      "forventet": "Utstedelsen avvises. Endringsordren står som `AKSEPTERT`, med TEs aksept og det avtalte beløpet.",
-      "bh_standpunkt": "Den godtatte endringsordren.",
-      "rettslig_virkning": "En akseptert endringsordre er endelig.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "EO-U4"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
-      "id": "EO-18",
-      "tilfelle": "Byggherren reviderer en utstedt endringsordre som TE ikke har bestridt.",
-      "forventet": "Revisjonen avvises, og endringsordren står som `UTSTEDT` med revisjon 0. En bestridt endringsordre kan revideres.",
-      "bh_standpunkt": "Den utstedte endringsordren.",
-      "rettslig_virkning": "Byggherren reviderer bare en bestridt endringsordre.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "EO-U4"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
-      "id": "EO-19",
-      "tilfelle": "TE bestrider endringsordren en gang til.",
-      "forventet": "Den andre bestridelsen avvises, og journalen er uendret.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "TE svarer én gang på hver utgave.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "EO-U4"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
-      "id": "EO-20",
-      "tilfelle": "TE godtar endringsordren etter å ha bestridt den.",
-      "forventet": "Aksepten avvises, og endringsordren står som `BESTRIDT`.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "TE svarer én gang på hver utgave. En revisjon gir TE et nytt svar.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "EO-U4"
+        "EO-U34"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2566,11 +2447,11 @@
       "tilfelle": "Byggherren knytter en omforent KOE-sak til en EO-sak etter utstedelsen.",
       "forventet": "Tilknytningen avvises, og journalen er uendret. Før utstedelsen godtas den.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "KOE-tilknytningen endres bare før utstedelse.",
+      "rettslig_virkning": "KOE-tilknytningen endres bare før utstedelse (EO-U34 punkt 7).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U4"
+        "EO-U34"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2579,11 +2460,11 @@
       "tilfelle": "Byggherren fjerner en KOE-sak fra en utstedt endringsordre.",
       "forventet": "Fjerningen avvises, og KOE-saken inngår fortsatt. Før utstedelsen godtas den.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "KOE-tilknytningen endres bare før utstedelse.",
+      "rettslig_virkning": "KOE-tilknytningen endres bare før utstedelse (EO-U34 punkt 7).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U4"
+        "EO-U34"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2597,7 +2478,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "V-EO-KOE",
-        "EO-U1"
+        "EO-U34"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2606,11 +2487,11 @@
       "tilfelle": "Byggherren utsteder en EO-sak med en KOE-sak i utkastet, og utstedelsen nevner ikke KOE-sakene.",
       "forventet": "KOE-saken inngår fortsatt i endringsordren.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Tilknytningen er registrert før utstedelse (EO-U4). At en utstedelse uten KOE-liste ikke fjerner den, er ikke vedtatt.",
+      "rettslig_virkning": "Tilknytningen er registrert før utstedelse (EO-U34 punkt 7). At en utstedelse uten KOE-liste ikke fjerner den, er ikke vedtatt.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "EO-U4"
+        "EO-U34"
       ],
       "tolkningsstatus": "arbeidshypotese"
     },

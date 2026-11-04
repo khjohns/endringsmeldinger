@@ -15,7 +15,7 @@
  */
 
 import { HJEMMEL, type OppgittDato } from '../format/format.ts';
-import { forholdet, paaberopelsenAv } from './forholdene.ts';
+import { forholdet } from './forholdene.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
@@ -328,16 +328,6 @@ function forholdstekst(k: Krav, { saken }: Tekst, regler: Regelsett): string[] {
   throw new KanIkkeUttrykkes(
     `kategorien ${hoved}/${String(k.innhold.underkategori)} har ingen brevtekst`
   );
-}
-
-/**
- * Tittelen på brevet, frosset med teksten (MM-U3): «Påberopelse av <forholdet>» når brevet
- * påberoper et forhold (GR-U31), ellers `null`, og visningen setter tittelen av innholdet.
- */
-export function lagBrevtittel(nytt: Dokument): string | null {
-  if (nytt.svar.length) return null;
-  const f = forholdet(nytt.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori);
-  return f ? paaberopelsenAv(f.navn) : null;
 }
 
 /** LV-U4 punkt 2–3 og GR-U16. Forholdet står i `forholdstekst`. */

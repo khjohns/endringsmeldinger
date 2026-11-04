@@ -12,6 +12,7 @@ import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
 import {
   catendaFra,
   kall,
+  KONTRAKTSFORKORTELSE,
   lagOppsett,
   rydd,
   startServer,
@@ -219,7 +220,17 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
         prosjektId: o.prosjekt.id,
       });
       expect(svar.status).toBe(200);
-      expect(svar.kropp).toEqual(iLista);
+      // Lista har ikke kontraktspartene, som testoppsettet gir prosjektet (#1398, #1497).
+      expect(svar.kropp).toEqual({
+        ...(iLista as object),
+        settings: {
+          contract: {
+            byggherre_navn: 'Byggherren',
+            totalentreprenor_navn: 'Totalentreprenøren',
+            kontraktsforkortelse: KONTRAKTSFORKORTELSE,
+          },
+        },
+      });
     }
   });
 

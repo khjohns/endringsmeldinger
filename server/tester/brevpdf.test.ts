@@ -16,13 +16,12 @@ const TIDSSTEMPEL = '2026-10-01T10:00:00.000Z';
 
 const oppdrag = (brevtekst: Avsnitt[] | null) => ({
   brev: {
-    sak_id: 'sak-1',
-    saksversjon: 2,
     tidsstempel: TIDSSTEMPEL,
     avsender: { part: 'TE' },
     brevtekst,
+    merking: brevtekst ? 'K201-KOE-005-03' : null,
   },
-  dokument: brevtekst ? { noekkel: 'noekkel-1', filnavn: 'brev-sak-1-2.pdf' } : null,
+  dokument: brevtekst ? { noekkel: 'noekkel-1', filnavn: 'K201-KOE-005-03.pdf' } : null,
 });
 
 /** Nok tekst til flere sider, med tegnene utenfor ASCII som brevene bruker. */
@@ -36,7 +35,8 @@ describe('PDF-en av brevet (#371 del 2)', () => {
   it('gjengir en tekst over flere sider tro, med hodet først, og har navnet med dokumentnøkkelen', async () => {
     const dokument = await brevdokument(oppdrag(LANG), 'noekkel-1');
     const lest = lesBrevPdf(dokument.innhold);
-    expect(dokument.navn).toBe('brev-sak-1-2-noekkel-1.pdf');
+    expect(dokument.navn).toBe('K201-KOE-005-03-noekkel-1.pdf');
+    expect(lest.startsWith('Vår ref.: K201-KOE-005-03\n')).toBe(true);
     expect(new TextDecoder().decode(dokument.innhold.subarray(0, 8))).toBe('%PDF-1.7');
     expect((lest.match(/\n/g) ?? []).length).toBeGreaterThan(60);
     expect(gjengirTro(lest, LANG)).toBe(true);

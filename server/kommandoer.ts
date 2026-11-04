@@ -335,6 +335,8 @@ export interface Skrivegrunnlag {
   vedlegg: Vedleggsoppslag;
   /** Sakens kode og løpenummer, eller dem sakens første brev fra løsningen vil få. */
   sakskode: Sakskode;
+  /** Kontraktsforkortelsen i prosjektinnstillingene, `null` når prosjektet ikke har den. */
+  kontraktsforkortelse: string | null;
 }
 
 /**
@@ -359,6 +361,19 @@ async function lesSakskode(foresp: Foresp, sakId: string): Promise<Sakskode> {
   const [rad] = svar.recordset;
   if (!rad) throw new Error('koe_api.sakskode ga ingen rad.');
   return { kode: rad.kode, loepenummer: rad.loepenummer, tildelt: rad.tildelt };
+}
+
+/**
+ * Kontraktsforkortelsen for merkingen av brevet (LV-U44), lest med `koe_api.kontraktsparter`
+ * i skrivetransaksjonen, eller `null` når prosjektet ikke har den (S2 A i #1497).
+ */
+async function lesKontraktsforkortelse(foresp: Foresp, kontekst: Kontekst): Promise<string | null> {
+  const svar = await foresp()
+    .input('aktor', sql.UniqueIdentifier, kontekst.aktor)
+    .input('prosjekt', sql.NVarChar(4000), kontekst.prosjekt)
+    .execute<{ kontraktsforkortelse: string }>('koe_api.kontraktsparter');
+  const [rad] = svar.recordset;
+  return rad ? rad.kontraktsforkortelse : null;
 }
 
 /**
@@ -438,11 +453,12 @@ export async function skrivHendelse<A>(
       if (versjon !== forventet) throw new Versjonskonflikt(forventet, versjon);
       // Før tidspunktet, så ventingen på låsen på vedleggene ikke eldes det (#880-1).
       const vedlegg = await lesVedlegg(foresp, kontekst, sakId, vedleggider);
+      const kontraktsforkortelse = await lesKontraktsforkortelse(foresp, kontekst);
       const tid = await foresp()
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      const utfall = lag({ journal, tidspunkt, maal, vedlegg, sakskode });
+      const utfall = lag({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse });
       // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
       if (!utfall.skriv) return new Tilbakerulling(utfall);
       const { rad, oppdrag } = utfall;
@@ -527,6 +543,7 @@ export async function opprettSakMedPaaberopelse<A>(
     tidspunkt: Date;
     vedlegg: Vedleggsoppslag;
     sakskode: Sakskode | null;
+    kontraktsforkortelse: string | null;
   }) => Opprettelsesutfall<A>
 ): Promise<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>> {
   const forsoek = () =>
@@ -549,8 +566,9 @@ export async function opprettSakMedPaaberopelse<A>(
         const vedlegg = await lesVedleggUtenSak(foresp, kontekst, vedleggider);
         // Bare TE oppretter en sak; for en annen side avvises kommandoen etter `lag`.
         const sakskode = kontekst.side === 'TE' ? await lesSakskode(foresp, sakId) : null;
+        const kontraktsforkortelse = await lesKontraktsforkortelse(foresp, kontekst);
         const tidspunkt = await skrivetidspunkt(foresp);
-        const utfall = lag({ tidspunkt, vedlegg, sakskode });
+        const utfall = lag({ tidspunkt, vedlegg, sakskode, kontraktsforkortelse });
         if (!utfall.skriv) return new Tilbakerulling(utfall);
         // Etter `lag`, så kjernens avvisning går foran avslaget her, som i `opprettSak`.
         if (kontekst.side !== 'TE' || !sakskode)

@@ -11,12 +11,8 @@ import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.t
 import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
-import {
-  BrevetAvvises,
-  KanIkkeUttrykkes,
-  lagBrevtekst,
-  lagBrevtittel,
-} from '../frosset/brevtekst.ts';
+import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
+import { lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import { avvis } from './forutsetninger.ts';
 import {
   brevtekstI,
@@ -40,6 +36,7 @@ import type {
   Journalrad,
   Krav,
   Part,
+  Sakskode,
   Spor,
   Svar,
   Vedlegg,
@@ -53,6 +50,11 @@ export interface Kontekst {
   teamId: string | null;
   tidspunkt: () => Date;
   nyId: () => string;
+  /**
+   * Sakens kode (LV-U44, LV-U46). Serveren setter den alltid (`Serverkontekst` i
+   * `server/app.ts`). Uten den, som i forhåndsvisningen i nettleseren, får tittelen ingen kode.
+   */
+  sakskode?: Sakskode;
 }
 
 /**
@@ -401,7 +403,7 @@ function skriv(
   let brevtekst: Avsnitt[] | null;
   let brevtittel: string | null = null;
   try {
-    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger);
+    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst.sakskode);
     brevtekst = brevet?.tekst ?? null;
     brevtittel = brevet?.tittel ?? null;
   } catch (feil) {
@@ -436,6 +438,8 @@ function skriv(
     if (tegn) return ugyldigForm(tegn);
     data.brevtekst = brevtekst;
     if (brevtittel) data.brevtittel = brevtittel;
+    // LV-U44, LV-U45: nummeret etter det høyeste i saken, også det avsenderen har oppgitt.
+    data.brevnummer = nesteBrevnummer(lest);
   }
   if (sendes) {
     const avvik = tekstavvik(k.brevtekst, brevtekst);
@@ -454,6 +458,13 @@ function skriv(
       `Kjernen forstår ikke dokumentet den selv skriver: ${hindrer.map((b) => b.grunn).join('; ')}`
     );
   return { godtatt: true, hendelser: [rad] };
+}
+
+/** LV-U45: et nummer kan stå to ganger i saken, så det neste regnes fra det høyeste. */
+function nesteBrevnummer(lest: ReturnType<typeof lesJournal>): number {
+  return (
+    Math.max(0, ...lest.map((h) => (h.art === 'dokument' ? (h.dokument.brevnummer ?? 0) : 0))) + 1
+  );
 }
 
 /**
@@ -492,7 +503,8 @@ function brevtekstFor(
   lest: ReturnType<typeof lesJournal>,
   u: Utledning,
   kjerne: Kjerne,
-  utdypninger: Utdypninger
+  utdypninger: Utdypninger,
+  sakskode: Sakskode | undefined
 ): { tekst: Avsnitt[]; tittel: string | null } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -517,7 +529,12 @@ function brevtekstFor(
       kjerne.regler,
       utdypninger
     );
-    return { tekst, tittel: lagBrevtittel(ny.dokument) };
+    // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
+    const tittel = lagBrevtittel(ny.dokument);
+    return {
+      tekst,
+      tittel: tittel && sakskode ? medSakskode(tittel, sakskode) : tittel,
+    };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)
       throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);

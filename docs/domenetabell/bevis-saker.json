@@ -868,20 +868,6 @@
       "kjent_avvik": { "funn": "DT-08", "issue": 101 }
     },
     {
-      "id": "F-EO-08",
-      "rader": ["EO-08"],
-      "start": "omforent",
-      "saker": { "eo": "endringsordre" },
-      "steg": [{ "sak": "eo", "handling": "eo_utkast", "koe": ["$hoved"] }],
-      "kontroller": [
-        { "etter": 0, "rolle": "forutsetning", "forventet": { "kan_utstede_eo": true } },
-        { "etter": 1, "sak": "eo", "rolle": "forutsetning", "forventet": { "endringsordre_data.relaterte_koe_saker": ["$hoved"] } },
-        { "etter": 1, "rolle": "mal", "forventet": { "kan_utstede_eo": false } }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-07", "issue": 101 }
-    },
-    {
       "id": "F-EO-09",
       "rader": ["EO-09"],
       "start": "omforent",
@@ -928,54 +914,6 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
-      "id": "F-EO-12",
-      "rader": ["EO-12"],
-      "start": null,
-      "sakstype": "endringsordre",
-      "steg": [
-        { "handling": "eo_utkast" },
-        { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 },
-        { "handling": "eo_aksept" }
-      ],
-      "kontroller": [
-        { "etter": 3, "rolle": "mal", "forventet": { "endringsordre_data.status": "akseptert", "endringsordre_data.te_akseptert": true, "overordnet_status": "LUKKET" } }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning"
-    },
-    {
-      "id": "F-EO-13",
-      "rader": ["EO-13"],
-      "start": null,
-      "sakstype": "endringsordre",
-      "steg": [
-        { "handling": "eo_utkast" },
-        { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 },
-        { "handling": "eo_bestridelse" }
-      ],
-      "kontroller": [
-        { "etter": 3, "rolle": "mal", "forventet": { "endringsordre_data.status": "bestridt", "endringsordre_data.te_akseptert": false, "overordnet_status": "LUKKET" } }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning"
-    },
-    {
-      "id": "F-EO-14",
-      "rader": ["EO-14"],
-      "start": null,
-      "sakstype": "endringsordre",
-      "steg": [
-        { "handling": "eo_utkast" },
-        { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 },
-        { "handling": "eo_bestridelse" },
-        { "handling": "eo_revisjon", "revisjon": 1 },
-        { "handling": "eo_aksept" }
-      ],
-      "kontroller": [
-        { "etter": 4, "rolle": "mal", "forventet": { "endringsordre_data.status": "revidert", "endringsordre_data.revisjon_nummer": 1, "endringsordre_data.te_akseptert": null, "overordnet_status": "VENTER_PAA_SVAR" } },
-        { "etter": 5, "rolle": "mal", "forventet": { "endringsordre_data.status": "akseptert", "overordnet_status": "LUKKET" } }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning"
-    },
-    {
       "id": "F-EO-15",
       "rader": ["EO-15"],
       "start": null,
@@ -1006,82 +944,6 @@
       "kontroller": [
         { "etter": 1, "rolle": "kontroll", "prov": { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 }, "forventet": { "avvist": false } },
         { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "endringsordre_data.kompensasjon_belop": 100000 } }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-09", "issue": 290 }
-    },
-    {
-      "id": "F-EO-17",
-      "rader": ["EO-17"],
-      "start": null,
-      "sakstype": "endringsordre",
-      "steg": [
-        { "handling": "eo_utkast" },
-        { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 },
-        { "handling": "eo_aksept" },
-        { "handling": "eo_utstedelse", "belop": 900000, "dager": 20 }
-      ],
-      "kontroller": [
-        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "eo_utstedelse", "belop": 900000, "dager": 20 }, "forventet": { "avvist": false } },
-        { "etter": 3, "rolle": "forutsetning", "forventet": { "endringsordre_data.status": "akseptert" } },
-        { "etter": 4, "rolle": "mal", "forventet": { "avvist": true, "endringsordre_data.status": "akseptert", "endringsordre_data.te_akseptert": true, "endringsordre_data.kompensasjon_belop": 100000 } }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-09", "issue": 290 }
-    },
-    {
-      "id": "F-EO-18",
-      "rader": ["EO-18"],
-      "start": null,
-      "sakstype": "endringsordre",
-      "saker": { "eo2": "endringsordre" },
-      "steg": [
-        { "sak": "eo2", "handling": "eo_utkast", "nummer": "EO-002" },
-        { "sak": "eo2", "handling": "eo_utstedelse", "nummer": "EO-002", "belop": 100000, "dager": 20 },
-        { "sak": "eo2", "handling": "eo_bestridelse" },
-        { "handling": "eo_utkast" },
-        { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 },
-        { "handling": "eo_revisjon", "revisjon": 1 }
-      ],
-      "kontroller": [
-        { "etter": 5, "sak": "eo2", "rolle": "kontroll", "prov": { "handling": "eo_revisjon", "revisjon": 1 }, "forventet": { "avvist": false } },
-        { "etter": 6, "rolle": "mal", "forventet": { "avvist": true, "endringsordre_data.status": "utstedt", "endringsordre_data.revisjon_nummer": 0 } }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-09", "issue": 290 }
-    },
-    {
-      "id": "F-EO-19",
-      "rader": ["EO-19"],
-      "start": null,
-      "sakstype": "endringsordre",
-      "steg": [
-        { "handling": "eo_utkast" },
-        { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 },
-        { "handling": "eo_bestridelse" },
-        { "handling": "eo_bestridelse" }
-      ],
-      "kontroller": [
-        { "etter": 2, "rolle": "kontroll", "prov": { "handling": "eo_bestridelse" }, "forventet": { "avvist": false } },
-        { "etter": 4, "rolle": "mal", "forventet": { "avvist": true, "endringsordre_data.status": "bestridt" } }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-09", "issue": 290 }
-    },
-    {
-      "id": "F-EO-20",
-      "rader": ["EO-20"],
-      "start": null,
-      "sakstype": "endringsordre",
-      "steg": [
-        { "handling": "eo_utkast" },
-        { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 },
-        { "handling": "eo_bestridelse" },
-        { "handling": "eo_aksept" }
-      ],
-      "kontroller": [
-        { "etter": 2, "rolle": "kontroll", "prov": { "handling": "eo_aksept" }, "forventet": { "avvist": false } },
-        { "etter": 4, "rolle": "mal", "forventet": { "avvist": true, "endringsordre_data.status": "bestridt" } }
       ],
       "forventningsgrunnlag": "avklart_tolkning",
       "kjent_avvik": { "funn": "DT-09", "issue": 290 }

@@ -10,6 +10,7 @@
 
 import { FORHOLDSGRUPPER as KJERNENS_FORHOLD, paaberopelsenAv } from '$kjerne/frosset/forholdene';
 import { kroner } from '$kjerne/frosset/standpunkt';
+import { KRAVTITTEL, SVARTITTEL, UTSAGNSTITTEL } from '$kjerne/frosset/brevtittel';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Part, Spor, Standpunkt } from '$kjerne/typer';
 import type { Brevet, OppgittDato } from './lesing';
@@ -20,18 +21,6 @@ export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
   vederlag: 'Vederlagsjustering',
   frist: 'Fristforlengelse',
-};
-
-const KRAV: Record<Spor, string> = {
-  forhold: 'Krav om endring',
-  vederlag: 'Krav om vederlagsjustering',
-  frist: 'Krav om fristforlengelse',
-};
-
-const SVAR: Record<Spor, string> = {
-  forhold: 'Svar på forholdet',
-  vederlag: 'Svar på krav om vederlagsjustering',
-  frist: 'Svar på krav om fristforlengelse',
 };
 
 /**
@@ -52,8 +41,9 @@ export const forholdsnavn = (kode: unknown) =>
   (typeof kode === 'string' && FORHOLDSNAVN.get(kode)) || null;
 
 /**
- * Tittelen på brevet: den som ble frosset med brevet (MM-U3), ellers av hva det inneholder og
- * sporet det hører til.
+ * Tittelen på brevet: den som ble frosset med brevet (MM-U3, #1536). Et brev som ennå ikke er
+ * sendt, får tittelen kjernen vil fryse, og et registrert brev får etiketten «Korrespondanse»
+ * (MM-U17).
  */
 export function brevtittel(
   b: Pick<Brevet, 'art' | 'spor'> & { forhold?: string | null; brevtittel?: string | null }
@@ -63,11 +53,10 @@ export function brevtittel(
   // Totalentreprenørens brev om forholdet heter «Påberopelse av <forholdet>» (GR-U31).
   const navn = spor === 'forhold' ? forholdsnavn(b.forhold) : null;
   if (b.art === 'krav' && navn) return NYSAK.brevtittel(navn);
-  if (b.art === 'krav' && spor) return KRAV[spor];
-  if (b.art === 'svar' && spor) return SVAR[spor];
-  if (b.art === 'aksept') return 'Aksept av svaret';
-  if (b.art === 'trekk') return 'Trekk av kravet';
-  if (b.art === 'innsigelse') return 'Innsigelse etter punkt 5';
+  if (b.art === 'krav' && spor) return KRAVTITTEL[spor];
+  if (b.art === 'svar' && spor) return SVARTITTEL[spor];
+  if (b.art === 'aksept' || b.art === 'trekk' || b.art === 'innsigelse')
+    return UTSAGNSTITTEL[b.art];
   if (b.art === 'registrert') return 'Korrespondanse';
   return 'Brev';
 }

@@ -54,6 +54,10 @@ på kilden, men har ingen kontroller ennå.
 | [EO-U31](../../plans/vedtak.md#eo-u31) | — | — | BF-06 |
 | [EO-U32](../../plans/vedtak.md#eo-u32) | — | — | BF-06 |
 | [EO-U33](../../plans/vedtak.md#eo-u33) | — | — | BF-06 |
+| [EO-U34](../../plans/vedtak.md#eo-u34) | — | — | BF-06 |
+| [EO-U35](../../plans/vedtak.md#eo-u35) | — | — | BF-06 |
+| [EO-U36](../../plans/vedtak.md#eo-u36) | — | — | BF-06 |
+| [EO-U37](../../plans/vedtak.md#eo-u37) | — | — | BF-06 |
 | [FO-U1](../../plans/vedtak.md#fo-u1) | — | — | BF-06 |
 | [FO-U8](../../plans/vedtak.md#fo-u8) | — | — | BF-06 |
 | [GFK-U7](../../plans/vedtak.md#gfk-u7) | — | — | BF-06 |
