@@ -5,7 +5,7 @@
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "Samme sak som BF-01, fra start til kontrollpunktet te-har-godtatt-svaret. Saken er KOE-005 i prosjektet med kontraktsforkortelsen K201."
+    "beskrivelse": "Samme sak som BF-01, fra start til kontrollpunktet te-har-godtatt-svaret. Saken er KOE-5 i prosjektet med kontraktsforkortelsen K201."
   },
   "bestilling": "BF-07.md",
   "kilder": [
@@ -24,6 +24,9 @@
     "LV-U46",
     "LV-U47",
     "LV-U48",
+    "LV-U49",
+    "LV-U50",
+    "LV-U51",
     "MM-U9",
     "OV-U4",
     "OV-U80",
@@ -32,8 +35,7 @@
     "VS-U27"
   ],
   "venter_paa": [
-    "#1497",
-    "#1548"
+    "#1497"
   ],
   "bevis_saker": [],
   "visninger": [],
@@ -47,6 +49,11 @@
       "dato": "2026-11-04",
       "forhold": "#1497",
       "hva": "Svarene S-1 A og S-2 D er ført i bestillingen. En ny kravversjon viser under Deres ref. til BHs gjeldende svar på kravversjonen den erstatter."
+    },
+    {
+      "dato": "2026-11-04",
+      "forhold": "#1497",
+      "hva": "Bestillingen viser til LV-U49, LV-U50 og LV-U51, brevnumrene følger nummeret i saken fra A1 (#1548), og henvisningen til forespørselen i G-4 bygges i #1567."
     }
   ]
 }
