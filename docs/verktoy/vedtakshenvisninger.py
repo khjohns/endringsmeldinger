@@ -108,6 +108,7 @@ KJENTE_AVVIK = (
     ("src/lib/components/case-list/__tests__/CaseListRow.test.ts", "MM-U28", 2, "#1545"),
     ("src/lib/components/case-list/presentation.ts", "MM-U28", 1, "#1545"),
     ("src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts", "MM-U29", 1, "#1545"),
+    ("src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts", "OV-U61", 3, "#1450"),
     ("src/lib/components/saksoversikt/__tests__/WorkQueue.test.ts", "MM-U29", 3, "#1545"),
     ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1545"),
