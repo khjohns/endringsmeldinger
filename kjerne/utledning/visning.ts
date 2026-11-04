@@ -129,7 +129,8 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   paalegg_frafalt: (u, spor) => spor === 'forhold' && u.frafalt,
   enige: (u, spor) => u.spor[spor].enighet !== null,
   svar_ikke_godtatt: svarIkkeGodtatt,
-  // Står igjen når sporet er lukket uten enighet, som når TE har godtatt avslaget på forholdet.
+  // Står igjen når sporet er lukket uten enighet, som når TE har godtatt et svar som avslår
+  // forholdet eller påberoper preklusjon (GR-U27).
   krav_sendt: (u, spor) => u.spor[spor].gjeldendeKrav !== null,
   ingen_krav: (u, spor) => u.spor[spor].ingenKrav,
   varslet: harVarsel,
