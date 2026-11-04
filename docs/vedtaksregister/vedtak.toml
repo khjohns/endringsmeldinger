@@ -1747,7 +1747,7 @@ svar = '''
 Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A» ([#1534, 6629935331](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629935331)).'''
 forhold = [{ art = "endrer", vedtak = "hf-u5" }, { art = "endrer", vedtak = "hf-u6" }, { art = "endrer", vedtak = "mm-u27" }, { art = "endrer", vedtak = "gr-u7" }, { art = "endrer", vedtak = "ov-u5" }, { art = "endrer", vedtak = "eo-u34" }, { art = "endrer", vedtak = "gr-u17" }, { art = "endrer", vedtak = "gr-u20" }, { art = "endrer", vedtak = "gr-u23" }, { art = "endrer", vedtak = "mm-u9" }, { art = "presiserer", vedtak = "mm-u34" }]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar](#samlevedtak-revisjon). Forholdene står i spørsmål 1: «endrer, som i tabellen «Postene i kjeden», og presiserer MM-U34 punkt 5 og 7», i [vurderingen](../vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#postene-i-kjeden). I postene det endrer, gjelder bare de navngitte setningene ikke lenger. I EO-U34 punkt 46 endres uttrykket slik E2 sier. Raden SK-02 og SK-03 endres også (E2). Merknaden etter MM-U9 er [HF-U26](#hf-u26), og påberopelsen etter frafall er [HF-U27](#hf-u27).'''
+Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar](#samlevedtak-revisjon). Forholdene står i spørsmål 1: «endrer, som i tabellen «Postene i kjeden», og presiserer MM-U34 punkt 5 og 7», i [vurderingen](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#postene-i-kjeden). I postene det endrer, gjelder de navngitte setningene ikke lenger. I EO-U34 punkt 46 endres uttrykket slik E2 sier. Raden SK-02 og SK-03 endres også (E2). Merknaden etter MM-U9 er [HF-U26](#hf-u26), og påberopelsen etter frafall er [HF-U27](#hf-u27).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1A"
@@ -2624,7 +2624,7 @@ svar = '''
 Ja til alle anbefalingene'''
 forhold = [{ art = "snevrer inn", vedtak = "gr-u9" }, { art = "snevrer inn", vedtak = "hf-u5" }]
 folge = '''
-Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 16.10 i PR #557 (#510): en revisjon av et frafall sendt fra appen avvises med regelkoden FRAFALT når den er et avslag, og med SAGT_I_TIDE når den er en påberopelse etter § 32.2. Et avslag eller en påberopelse i et registrert brev etter frafallet får ingen virkning (MM-U19). PROJEKSJONSVERSJON 20. Merknad 04.11 (vurderingen til HF-U25): kjernen har ikke sperren (lest i koden, ikke kjørt).'''
+Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 16.10 i PR #557 (#510): en revisjon av et frafall sendt fra appen avvises med regelkoden FRAFALT når den er et avslag, og med SAGT_I_TIDE når den er en påberopelse etter § 32.2. Et avslag eller en påberopelse i et registrert brev etter frafallet får ingen virkning (MM-U19). PROJEKSJONSVERSJON 20. Merknad 04.11 (vurderingen til HF-U25): kjernen har ikke sperrene (lest i koden, ikke kjørt).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"

@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `c6392626ab600711b9da0607c20778ec26fbbe13d109a4e31c5f4b46a4b996ad`
+Kontrollsum (SHA-256 over utdraget visningen leser): `435f0f4f509a1ac8644cdebbbb8e8ed32eb20b7bf8a56db3e2a96d8b436b4049`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -218,7 +218,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 04.11, oppdragsgiver (#1534, #1065)
 
-**Følge:** Endrer [HF-U5](#hf-u5). Endrer [HF-U6](#hf-u6). Endrer [MM-U27](../../plans/vedtak.md#mm-u27). Endrer [GR-U7](../../plans/vedtak.md#gr-u7). Endrer [OV-U5](#ov-u5). Endrer [EO-U34](#eo-u34). Endrer [GR-U17](#gr-u17). Endrer [GR-U20](#gr-u20). Endrer [GR-U23](#gr-u23). Endrer [MM-U9](../../plans/vedtak.md#mm-u9). Presiserer [MM-U34](#mm-u34). Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar](../../plans/vedtak.md#samlevedtak-revisjon). Forholdene står i spørsmål 1: «endrer, som i tabellen «Postene i kjeden», og presiserer MM-U34 punkt 5 og 7», i [vurderingen](../vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#postene-i-kjeden). I postene det endrer, gjelder bare de navngitte setningene ikke lenger. I EO-U34 punkt 46 endres uttrykket slik E2 sier. Raden SK-02 og SK-03 endres også (E2). Merknaden etter MM-U9 er [HF-U26](#hf-u26), og påberopelsen etter frafall er [HF-U27](#hf-u27).
+**Følge:** Endrer [HF-U5](#hf-u5). Endrer [HF-U6](#hf-u6). Endrer [MM-U27](../../plans/vedtak.md#mm-u27). Endrer [GR-U7](../../plans/vedtak.md#gr-u7). Endrer [OV-U5](#ov-u5). Endrer [EO-U34](#eo-u34). Endrer [GR-U17](#gr-u17). Endrer [GR-U20](#gr-u20). Endrer [GR-U23](#gr-u23). Endrer [MM-U9](../../plans/vedtak.md#mm-u9). Presiserer [MM-U34](#mm-u34). Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar](../../plans/vedtak.md#samlevedtak-revisjon). Forholdene står i spørsmål 1: «endrer, som i tabellen «Postene i kjeden», og presiserer MM-U34 punkt 5 og 7», i [vurderingen](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#postene-i-kjeden). I postene det endrer, gjelder de navngitte setningene ikke lenger. I EO-U34 punkt 46 endres uttrykket slik E2 sier. Raden SK-02 og SK-03 endres også (E2). Merknaden etter MM-U9 er [HF-U26](#hf-u26), og påberopelsen etter frafall er [HF-U27](#hf-u27).
 
 **Regelrader:** —
 
@@ -328,7 +328,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.10, oppdragsgiver (#504)
 
-**Følge:** Snevrer inn [GR-U9](../../plans/vedtak.md#gr-u9). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U20](#gr-u20). Presisert 16.10 av [GR-U24](#gr-u24) (opphevet 28.10 av [MM-U34](#mm-u34)). Endret 28.10 av [MM-U34](#mm-u34). Endret 04.11 av [HF-U25](#hf-u25). Endret 04.11 av [HF-U27](#hf-u27). Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 16.10 i PR #557 (#510): en revisjon av et frafall sendt fra appen avvises med regelkoden FRAFALT når den er et avslag, og med SAGT_I_TIDE når den er en påberopelse etter § 32.2. Et avslag eller en påberopelse i et registrert brev etter frafallet får ingen virkning (MM-U19). PROJEKSJONSVERSJON 20. Merknad 04.11 (vurderingen til HF-U25): kjernen har ikke sperren (lest i koden, ikke kjørt).
+**Følge:** Snevrer inn [GR-U9](../../plans/vedtak.md#gr-u9). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U20](#gr-u20). Presisert 16.10 av [GR-U24](#gr-u24) (opphevet 28.10 av [MM-U34](#mm-u34)). Endret 28.10 av [MM-U34](#mm-u34). Endret 04.11 av [HF-U25](#hf-u25). Endret 04.11 av [HF-U27](#hf-u27). Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 16.10 i PR #557 (#510): en revisjon av et frafall sendt fra appen avvises med regelkoden FRAFALT når den er et avslag, og med SAGT_I_TIDE når den er en påberopelse etter § 32.2. Et avslag eller en påberopelse i et registrert brev etter frafallet får ingen virkning (MM-U19). PROJEKSJONSVERSJON 20. Merknad 04.11 (vurderingen til HF-U25): kjernen har ikke sperrene (lest i koden, ikke kjørt).
 
 **Regelrader:** [GR-31](#rad-gr-31), [GR-32](#rad-gr-32), [GR-33](#rad-gr-33)
 
