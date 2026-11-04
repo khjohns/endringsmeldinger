@@ -11,7 +11,8 @@ etter = '''
 Teksten under er samlevedtaket [KA-U46](#ka-u46), vedtatt 04.11 av oppdragsgiver (#1534), ordrett slik
 det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-begrunnelse-2026-11-04.md),
 med «Endret innhold» E1–E7. Svarene på spørsmål 2 og 3 i vurderingen er
-[KA-U47](#ka-u47) og [KA-U48](#ka-u48).
+[KA-U47](#ka-u47) og [KA-U48](#ka-u48). Henvisningene til tabellen, M1–M6 og spørsmålene gjelder
+vurderingen.
 
 ###### Forslaget
 
@@ -151,6 +152,7 @@ registreres også som dokumentasjon.»
 [[gruppe.vedtak]]
 klasse = "vedtak"
 designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "«Teksten lagres.» i punkt 5, og «Det gjelder i første versjon; utsettelsen i OV-U7 gjelder datokontrollen.» i punkt 13"
 id = "KA-U46"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -389,4 +391,20 @@ Setningen føyes til sist i `folge`, etter et mellomrom.
 ## Andre filer
 
 - `docs/verktoy/vedtaksregister.py`: `("ka-u34", "presiserer", "ka-u24", …)` går ut av `KJENTE_FORHOLD_TIL_OPPHEVET`, fordi KA-U34 oppheves.
-- `docs/vedtaksregister/temaer.toml`: KA-U46, KA-U47 og KA-U48 føyes til temaet om verktøyet krever det.
+- `docs/verktoy/vedtakshenvisninger.py` (eies av PR #1558 til den er merget): radene under føyes til `KJENTE_AVVIK`, fordi henvisningene i `kjerne/` til KA-U34, KA-U35 og KA-U38 blir eneste grunnlag i et opphevet vedtak. Antallet telles på nytt mot `main` når de føres; PR #1548 eier `kjerne/`. Tellingen 04.11 mot `d79468a`:
+
+```python
+    ("kjerne/format/leser.ts", "KA-U34", 1, "#1433"),
+    ("kjerne/frosset/brevtekst.ts", "KA-U34", 1, "#1433"),
+    ("kjerne/kommandoer/kommando.ts", "KA-U34", 2, "#1433"),
+    ("kjerne/kommandoer/kommando.ts", "KA-U35", 2, "#1433"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U38", 1, "#1433"),
+    ("kjerne/kommandoer/skriving.ts", "KA-U35", 1, "#1433"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U34", 1, "#1433"),
+    ("kjerne/tester/klient.ts", "KA-U35", 1, "#1433"),
+    ("kjerne/typer.ts", "KA-U34", 1, "#1433"),
+    ("kjerne/utledning/utled.ts", "KA-U34", 1, "#1433"),
+```
+
+- `docs/vedtaksregister/temaer/grunnlagssvar-som-endringsordre.md`: skrives på nytt med `python3 docs/verktoy/temavisning.py`. `temaer.toml` endres ikke.
+- Prøvd 04.11 mot `main` på `d79468a` i et eget arbeidstre: generering, `--sjekk`, `vedtakshenvisninger.py` (med radene over), `temavisning.py --sjekk`, lenkekontrollen og `pytest tests/test_vedtaksregister/` (434 bestått, med sitattestene).
