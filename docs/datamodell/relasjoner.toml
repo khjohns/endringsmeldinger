@@ -1196,6 +1196,35 @@ funn = []
 belegg = "L 18.10: migrasjonen."
 
 [[relasjon]]
+fra = ["koe.sak_kode.sak_id", "koe.sak_kode.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Saken koden og løpenummeret gjelder (LV-U44). `sak_id` er primærnøkkel, så saken har én kode. Sammensatt med `prosjekt_id`, så løpenummeret telles i sakens prosjekt."""
+funn = []
+belegg = "K 04.11: katalogen."
+
+[[relasjon]]
+fra = "koe.sak_kode.prosjekt_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Prosjektet løpenummeret telles i. `sak_kode_loepenummer` gjør koden og nummeret unike i prosjektet (LV-U46)."""
+funn = []
+belegg = "K 04.11: katalogen."
+
+[[relasjon]]
+fra = "koe.toemmingsvern.sak_kode_sak_id"
+til = "koe.sak_kode.sak_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 04.11: katalogen."
+
+[[relasjon]]
 fra = "koe.vedlegg_uten_sak.prosjekt_id"
 til = "koe.projects.id"
 art = "fremmednøkkel"

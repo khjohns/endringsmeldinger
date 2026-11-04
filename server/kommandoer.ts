@@ -31,6 +31,7 @@ import {
   KONFLIKT,
   LAAS_FEILET,
   LAAS_IKKE_GITT,
+  LOEPENUMMER_TATT,
   NEKTET,
   sql,
   Tilbakerulling,
@@ -86,6 +87,12 @@ export class TopicHarSak extends Error {}
 export class SakIdBrukt extends Error {}
 
 /**
+ * Løpenummeret sakens første brev fra løsningen skulle få, er ikke det neste for koden i
+ * prosjektet (51411, LV-U46). Ingenting er skrevet; meldingen fra basen har det neste.
+ */
+export class LoepenummerTatt extends Error {}
+
+/**
  * Låsen på kommando-ID-en ble ikke gitt: tidsgrensen gikk ut, kallet ble avbrutt
  * eller valgt som vranglåsoffer (51408). Denne
  * transaksjonen er rullet tilbake, men et forsøk med samme ID holder låsen og kan
@@ -131,6 +138,8 @@ function oversett(feil: unknown, forventet: number | null): unknown {
       return new UgyldigKommando(melding, { cause: feil });
     case ID_BRUKT:
       return new KommandoIdBrukt(melding, { cause: feil });
+    case LOEPENUMMER_TATT:
+      return new LoepenummerTatt(melding, { cause: feil });
     case INGEN_BOARD:
       return new IngenTopicBoard(melding, { cause: feil });
     case UNIK_NOEKKEL:
@@ -324,6 +333,44 @@ export interface Skrivegrunnlag {
   maal: Leveringsmaal;
   /** Vedleggene i saken kommandoen kan binde. */
   vedlegg: Vedleggsoppslag;
+  /** Sakens kode og løpenummer, eller dem sakens første brev fra løsningen vil få. */
+  sakskode: Sakskode;
+}
+
+/**
+ * Koden og løpenummeret saken har (`tildelt`), eller koden etter parten i konteksten og
+ * det neste løpenummeret for koden i prosjektet, som sakens første brev fra løsningen
+ * gir saken (LV-U44, LV-U46, LV-U47). «KOE-17» settes sammen når det vises.
+ */
+export interface Sakskode {
+  kode: 'koe' | 'eo';
+  loepenummer: number;
+  tildelt: boolean;
+}
+
+/**
+ * Leser `koe_api.sakskode`. Uten tildelt kode holder transaksjonen låsen på løpenumrene
+ * for koden i prosjektet til den er ferdig, så ingen annen sak får nummeret imens.
+ */
+async function lesSakskode(foresp: Foresp, sakId: string): Promise<Sakskode> {
+  const svar = await foresp()
+    .input('sak_id', sql.NVarChar(36), sakId)
+    .execute<Sakskode>('koe_api.sakskode');
+  const [rad] = svar.recordset;
+  if (!rad) throw new Error('koe_api.sakskode ga ingen rad.');
+  return { kode: rad.kode, loepenummer: rad.loepenummer, tildelt: rad.tildelt };
+}
+
+/**
+ * Løpenummeret `koe_api.skriv_hendelse` skal ha: nummeret saken får, når raden er sakens
+ * første brev fra løsningen, ellers `null`. Et brev fra løsningen har brevteksten (MM-U17).
+ */
+function loepenummerFor(rad: Journalrad, sakskode: Sakskode): number | null {
+  return !sakskode.tildelt &&
+    rad.event_type === 'dokument_registrert' &&
+    rad.data.brevtekst !== undefined
+    ? sakskode.loepenummer
+    : null;
 }
 
 /** Kjernens avvisning; ingenting skrives. */
@@ -353,7 +400,7 @@ export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
  * prøves skrivingen én gang til med et nytt tidspunkt (#599). Avvises også den,
  * kastes basens feil.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall
+ * @throws Versjonskonflikt, LoepenummerTatt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall
  */
 export async function skrivHendelse<A>(
   pool: Pool,
@@ -374,6 +421,9 @@ export async function skrivHendelse<A>(
         throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
       // Kvitteringen låses før saken, i samme rekkefølge som opprettelsen.
       const kvittering = await lesKvittering(foresp, kommando);
+      // Løpenumrene låses før saken, som i opprettelsen. Ellers kan to saker uten kode
+      // låse hver sin journal og vente på hverandre (vranglås, 1205).
+      const sakskode = await lesSakskode(foresp, sakId);
       // En sak uten journal er ikke skrevet av kjernen (#739, #597). Et gjentak skriver
       // ingenting, så journalen låses ikke (#792 punkt 3).
       const journal = await lesJournal(foresp, sakId, !kvittering);
@@ -392,7 +442,7 @@ export async function skrivHendelse<A>(
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      const utfall = lag({ journal, tidspunkt, maal, vedlegg });
+      const utfall = lag({ journal, tidspunkt, maal, vedlegg, sakskode });
       // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
       if (!utfall.skriv) return new Tilbakerulling(utfall);
       const { rad, oppdrag } = utfall;
@@ -411,6 +461,7 @@ export async function skrivHendelse<A>(
         .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
         .input('kommando_id', sql.NVarChar(4000), kommando.id)
         .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
+        .input('loepenummer', sql.Int, loepenummerFor(rad, sakskode))
         .execute('koe_api.skriv_hendelse');
       if (rad.data.dokumentasjon !== undefined)
         await foresp()
@@ -464,7 +515,7 @@ export type Opprettelsesutfall<A> =
  * versjon 3 i samme transaksjon, med basens klokke for sin skriving og en kvittering under
  * en kommando-ID avledet av handlingens (`varseletsKommandoId`).
  *
- * @throws SakIdBrukt, SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall
+ * @throws SakIdBrukt, LoepenummerTatt, SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall
  */
 export async function opprettSakMedPaaberopelse<A>(
   pool: Pool,
@@ -472,7 +523,11 @@ export async function opprettSakMedPaaberopelse<A>(
   sakId: string,
   kommando: Kommando,
   vedleggider: readonly string[],
-  lag: (grunnlag: { tidspunkt: Date; vedlegg: Vedleggsoppslag }) => Opprettelsesutfall<A>
+  lag: (grunnlag: {
+    tidspunkt: Date;
+    vedlegg: Vedleggsoppslag;
+    sakskode: Sakskode | null;
+  }) => Opprettelsesutfall<A>
 ): Promise<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>> {
   const forsoek = () =>
     transaksjon<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>>(
@@ -492,11 +547,14 @@ export async function opprettSakMedPaaberopelse<A>(
           };
         // Før tidspunktet, så ventingen på låsen på vedleggene ikke eldes det (#880-1).
         const vedlegg = await lesVedleggUtenSak(foresp, kontekst, vedleggider);
+        // Bare TE oppretter en sak; for en annen side avvises kommandoen etter `lag`.
+        const sakskode = kontekst.side === 'TE' ? await lesSakskode(foresp, sakId) : null;
         const tidspunkt = await skrivetidspunkt(foresp);
-        const utfall = lag({ tidspunkt, vedlegg });
+        const utfall = lag({ tidspunkt, vedlegg, sakskode });
         if (!utfall.skriv) return new Tilbakerulling(utfall);
         // Etter `lag`, så kjernens avvisning går foran avslaget her, som i `opprettSak`.
-        if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
+        if (kontekst.side !== 'TE' || !sakskode)
+          throw new SkrivingAvvist('Bare TE oppretter en sak.');
         const { opprettet, rad } = utfall;
         kontrollerRad(opprettet, null, kontekst, sakId, 0, tidspunkt);
         if (opprettet.event_type !== 'sak_opprettet')
@@ -519,16 +577,23 @@ export async function opprettSakMedPaaberopelse<A>(
             .execute('koe_api.flytt_vedlegg_til_sak');
         // Målet finnes først når saken er lagret; topicen lages av jobben (KT-U3).
         const maal = await lesLeveringsmaal(foresp, sakId);
-        await skrivOgBind(foresp, kontekst, sakId, 1, tidspunkt, utfall, maal, kommando);
+        await skrivOgBind(foresp, kontekst, sakId, 1, tidspunkt, utfall, maal, kommando, sakskode);
         if (utfall.varsel) {
           // `skriv_hendelse` har brukt tidspunktet for påberopelsen, så varselet får sitt eget.
           const varseletsTid = await skrivetidspunkt(foresp);
           const varsel = utfall.varsel({ tidspunkt: varseletsTid });
           if (!varsel.skriv) return new Tilbakerulling(varsel);
-          await skrivOgBind(foresp, kontekst, sakId, 2, varseletsTid, varsel, maal, {
-            id: varseletsKommandoId(kommando.id),
-            sha256: kommando.sha256,
-          });
+          await skrivOgBind(
+            foresp,
+            kontekst,
+            sakId,
+            2,
+            varseletsTid,
+            varsel,
+            maal,
+            { id: varseletsKommandoId(kommando.id), sha256: kommando.sha256 },
+            await lesSakskode(foresp, sakId)
+          );
         }
         return { skriv: true, rad };
       }
@@ -561,7 +626,8 @@ async function skrivOgBind(
   tidspunkt: Date,
   godtatt: Godtatt,
   maal: Leveringsmaal,
-  kommando: Kommando
+  kommando: Kommando,
+  sakskode: Sakskode
 ): Promise<void> {
   const { rad } = godtatt;
   const oppdrag = godtatt.oppdrag(maal);
@@ -580,6 +646,7 @@ async function skrivOgBind(
     .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
     .input('kommando_id', sql.NVarChar(4000), kommando.id)
     .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
+    .input('loepenummer', sql.Int, loepenummerFor(rad, sakskode))
     .execute('koe_api.skriv_hendelse');
   if (rad.data.dokumentasjon !== undefined)
     await foresp()

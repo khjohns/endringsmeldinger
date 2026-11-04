@@ -621,6 +621,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.registrer_jobbfeil',
         'GRANT EXECUTE koe_api.rydd_utloepte',
         'GRANT EXECUTE koe_api.saker_i_prosjektet',
+        'GRANT EXECUTE koe_api.sakskode',
         'GRANT EXECUTE koe_api.saksliste',
         'GRANT EXECUTE koe_api.sett_leserolle',
         'GRANT EXECUTE koe_api.skriv_hendelse',

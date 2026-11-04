@@ -10,7 +10,8 @@
  *
  * `koe.projects` har ikke `settings` og `created_by`; svaret har `{}` og
  * `null`, som Python gir et prosjekt uten dem (#660). Ett prosjekt har i tillegg
- * partsnavnene fra `koe.kontraktsparter` i `settings.contract` (#1398).
+ * partsnavnene og kontraktsforkortelsen fra `koe.kontraktsparter` i `settings.contract`
+ * (#1398, #1497).
  *
  * Medlemsinngangene (F-1a, #820) har stiene og svarene fra
  * `backend/routes/membership_routes.py`. Medlemskapet har ingen egen ID i SQL
@@ -35,6 +36,8 @@ interface Prosjektrad {
 interface Kontraktsparter {
   byggherre_navn: string;
   totalentreprenor_navn: string;
+  /** K201 i merkingen `K201-KOE-17-03` (LV-U44, arbeidsvalget N1 04.11 i #1497). */
+  kontraktsforkortelse: string;
 }
 
 /** `Project` i `src/lib/types/project.ts`. */
@@ -48,6 +51,7 @@ const prosjektet = (r: Prosjektrad, parter?: Kontraktsparter) => ({
         contract: {
           byggherre_navn: parter.byggherre_navn,
           totalentreprenor_navn: parter.totalentreprenor_navn,
+          kontraktsforkortelse: parter.kontraktsforkortelse,
         },
       }
     : {},

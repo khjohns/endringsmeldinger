@@ -13,7 +13,7 @@
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsteam oslobygg \
  *     [--bh … --te … --en-totalentreprenoer]
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsparter oslobygg \
- *     [--byggherre "…" --totalentreprenoer "…"]
+ *     [--byggherre "…" --totalentreprenoer "…" --kontraktsforkortelse K201]
  *
  * `KOE_DRIFT_TILKOBLING` er tilkoblingsstrengen for en bruker med
  * `koe_driftsrolle`. Med `--bh` og `--te` kontrolleres teamene mot Catenda-
@@ -22,8 +22,8 @@
  * Uten dem viser `kontraktsteam` teamene som står. Som i Python kan én `--bh` eller
  * `--te` ha flere team (`--bh a b`). Med `--en-totalentreprenoer` bekrefter drift at
  * alle TE-teamene hører til samme totalentreprenør, og uten den avvises teamene (DL-U14).
- * `kontraktsparter` setter navnene på byggherren og totalentreprenøren, begge sammen,
- * og viser dem uten flaggene (#1398).
+ * `kontraktsparter` setter navnene på byggherren og totalentreprenøren og
+ * kontraktsforkortelsen, alle sammen, og viser dem uten flaggene (#1398, #1497).
  */
 
 import { fileURLToPath } from 'node:url';
@@ -154,6 +154,8 @@ async function settKontraktsteam(
 export interface Kontraktsparter {
   byggherre_navn: string;
   totalentreprenor_navn: string;
+  /** K201 i merkingen `K201-KOE-17-03` (LV-U44). Bare A–Z og 0–9. */
+  kontraktsforkortelse: string;
 }
 
 /** Navnene på partene, eller `null` når de ikke er satt. */
@@ -177,10 +179,11 @@ async function settKontraktsparter(
       .input('prosjekt', sql.NVarChar(4000), prosjekt)
       .input('byggherre', sql.NVarChar(4000), parter.byggherre_navn)
       .input('totalentreprenor', sql.NVarChar(4000), parter.totalentreprenor_navn)
+      .input('kontraktsforkortelse', sql.NVarChar(4000), parter.kontraktsforkortelse)
       .execute('koe_drift.sett_kontraktsparter');
   } catch (feil) {
     const { number, message } = feil as { number?: unknown; message?: unknown };
-    if (number === 52043 || number === 52065 || number === 52073)
+    if (number === 52043 || number === 52065 || number === 52073 || number === 52074)
       throw new Registreringsfeil(`${String(message)} (${number}).`, { cause: feil });
     throw feil;
   }
@@ -231,11 +234,12 @@ const VALG = {
   'en-totalentreprenoer': { type: 'boolean' },
   byggherre: { type: 'string' },
   totalentreprenoer: { type: 'string' },
+  kontraktsforkortelse: { type: 'string' },
 } as const;
 
 type Valg = keyof typeof VALG;
 const FELLES = ['prosjekt', 'bh', 'te', 'en-totalentreprenoer'];
-const PARTER: Valg[] = ['byggherre', 'totalentreprenoer'];
+const PARTER: Valg[] = ['byggherre', 'totalentreprenoer', 'kontraktsforkortelse'];
 const BARE_REGISTRER = (Object.keys(VALG) as Valg[]).filter(
   (navn) => !FELLES.includes(navn) && !PARTER.includes(navn)
 );
@@ -368,18 +372,24 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
     avvisFlagg(BARE_REGISTRER, 'registrer');
     if (oppgittTeam) throw new Registreringsfeil('--bh og --te gjelder bare «kontraktsteam».');
-    if (v.byggherre === undefined && v.totalentreprenoer === undefined) {
+    if (
+      v.byggherre === undefined &&
+      v.totalentreprenoer === undefined &&
+      v.kontraktsforkortelse === undefined
+    ) {
       const parter = await lesKontraktsparter(await a.pool(), prosjekt);
       a.skriv(`Byggherre: ${parter?.byggherre_navn ?? '(ikke satt)'}`);
       a.skriv(`Totalentreprenør: ${parter?.totalentreprenor_navn ?? '(ikke satt)'}`);
+      a.skriv(`Kontraktsforkortelse: ${parter?.kontraktsforkortelse ?? '(ikke satt)'}`);
       return;
     }
     const parter = {
       byggherre_navn: paakrevd(v.byggherre, 'byggherre'),
       totalentreprenor_navn: paakrevd(v.totalentreprenoer, 'totalentreprenoer'),
+      kontraktsforkortelse: paakrevd(v.kontraktsforkortelse, 'kontraktsforkortelse'),
     };
     await settKontraktsparter(await a.pool(), prosjekt, parter);
-    a.skriv(`Navnene på partene i ${prosjekt} er lagret.`);
+    a.skriv(`Navnene og kontraktsforkortelsen i ${prosjekt} er lagret.`);
     return;
   }
 

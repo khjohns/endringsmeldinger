@@ -814,6 +814,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'prosjekt_med_saker',
         'rolle',
         'sak_catenda_topic',
+        'sak_kode',
         'sak_metadata',
         'skrivetidspunkt',
         'stillingstittel',
