@@ -404,6 +404,7 @@ export async function medLaastTekst(
       part: 'TE',
       teamId: null,
       sakskode: await sakskodeFor(o, sakId),
+      kontraktsforkortelse: KONTRAKTSFORKORTELSE,
       tidspunkt: () => new Date(),
       nyId: randomUUID,
     },

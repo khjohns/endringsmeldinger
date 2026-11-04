@@ -406,6 +406,10 @@ export const NYSAK = {
   oppgiVarseldatoen: 'Oppgi datoen varselet ble sendt.',
   beskrivVarselet: 'Beskriv varselet.',
   // Lagringen venter på #807 og #1487, og setningen i brevet på #1488.
+  /** LV-U46: en annen sak fikk nummeret før brevet ble sendt. */
+  nyttNummer:
+    'En annen sak fikk nummeret før brevet ble sendt. Se over brevet med det nye nummeret og send det på nytt.',
+  ingenMerking: 'Sakens nummer kunne ikke hentes, så brevet kan ikke vises.',
   varseletKanIkkeLagres:
     'Varselet kan ikke legges til i saken ennå. Velg nei for å sende påberopelsen uten det.',
   // Panelet til høyre, som i de andre skjemaene i Varden (F-1).

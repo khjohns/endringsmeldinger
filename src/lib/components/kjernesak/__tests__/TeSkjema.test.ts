@@ -16,7 +16,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import type { Journallinje, Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
 import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 import { fristkommandoFraSkjema } from '$lib/kjernesak/fristkrav';
 import { vederlagskommandoFraSkjema } from '$lib/kjernesak/vederlagskrav';
@@ -29,9 +29,15 @@ import type { Kommando } from '$kjerne/kommandoer/kommando';
 import type { Journalrad, Part } from '$kjerne/typer';
 import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { SporKey } from '$lib/components/kontraktsbord/types';
-import { SAK, medGrunnlag, medVederlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
+import {
+  MERKING,
+  SAK,
+  medGrunnlag,
+  medVederlag,
+  skrevet,
+} from '$lib/kjernesak/__tests__/provejournal';
 
-const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
+const svar = (journal: Journalrad[], part: Part | null): LastetKjernesak => ({
   versjon: journal.length,
   part,
   visning: {} as Kjernesak['visning'],
@@ -47,6 +53,7 @@ const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
     })
   ),
   leveringsoppdrag: [],
+  merking: MERKING,
 });
 
 const medHandlinger = (k: Kjernesakkontekst, handlinger: string[]): Kjernesakkontekst =>
@@ -170,6 +177,7 @@ describe('fristsporet fra TE-skjemaet', () => {
       teamId: null,
       tidspunkt: () => new Date('2026-10-17T09:00:00.000Z'),
       nyId: () => crypto.randomUUID(),
+      ...MERKING,
     };
     expect(forhaandsvis(kommando, kontekst, medGrunnlag, KJERNE).godtatt).toBe(true);
     const utenUtdypning = { type: 'krav', spor: 'frist', innhold: { dager: 12 } };
@@ -426,6 +434,8 @@ describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
       target: { files: [fil] },
     });
     await screen.findByText('varsel.pdf');
+    expect(knapp, 'typen er ikke valgt (LV-U42)').toBeDisabled();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
     expect(lastOpp).toHaveBeenCalledWith(fil);
     // MM-U17: registreringen sender ikke noe brev fra appen, så teksten sier ikke «Sender».
     expect(screen.getByText('Registrerer varselet sendt utenfor appen')).toBeInTheDocument();
@@ -438,6 +448,7 @@ describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
       hjemmel: '33.4',
       sendt: '2026-10-10',
       dokumentasjon: ['V-1'],
+      korrespondansetype: 'brev',
     });
   });
 
@@ -519,15 +530,36 @@ describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
   });
 
   it.each([
-    ['uten vedlegg', { sendt: '2026-10-10', vedlegg: [] }, '', 'Legg ved brevet'],
-    ['uten dato', { sendt: '', vedlegg: [vedlegg] }, '', 'Oppgi datoen'],
+    [
+      'uten vedlegg',
+      { sendt: '2026-10-10', vedlegg: [], korrespondansetype: 'brev' as const },
+      '',
+      'Legg ved brevet',
+    ],
+    [
+      'uten dato',
+      { sendt: '', vedlegg: [vedlegg], korrespondansetype: 'brev' as const },
+      '',
+      'Oppgi datoen',
+    ],
     [
       'med en dato etter i dag',
-      { sendt: '2026-10-20', vedlegg: [vedlegg] },
+      { sendt: '2026-10-20', vedlegg: [vedlegg], korrespondansetype: 'brev' as const },
       '',
       'etter dagens dato',
     ],
-    ['med tekst fra appen', { sendt: '2026-10-10', vedlegg: [vedlegg] }, '<p>T</p>', 'ingen tekst'],
+    [
+      'med tekst fra appen',
+      { sendt: '2026-10-10', vedlegg: [vedlegg], korrespondansetype: 'brev' as const },
+      '<p>T</p>',
+      'ingen tekst',
+    ],
+    [
+      'uten typen (LV-U42)',
+      { sendt: '2026-10-10', vedlegg: [vedlegg], korrespondansetype: null },
+      '',
+      'brev eller e-post',
+    ],
   ])(
     'adapteren avviser registreringen %s i stedet for å forenkle den',
     (_n, registrert, tekst, melding) => {
@@ -646,6 +678,8 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
       target: { files: [new File(['%PDF'], 'varsel.pdf', { type: 'application/pdf' })] },
     });
     await screen.findByText('varsel.pdf');
+    expect(knapp, 'typen er ikke valgt (LV-U42)').toBeDisabled();
+    await fireEvent.click(screen.getByRole('radio', { name: 'E-post' }));
     expect(screen.getByText('Registrerer varselet sendt utenfor appen')).toBeInTheDocument();
     await fireEvent.click(knapp);
     await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
@@ -656,6 +690,7 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
       hjemmel: '34.1.2',
       sendt: '2026-10-10',
       dokumentasjon: ['V-1'],
+      korrespondansetype: 'e_post',
     });
   });
 
@@ -696,13 +731,25 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
     ],
     [
       'registreringen uten vedlegg',
-      { registrert: { sendt: '2026-10-10', vedlegg: [] } },
+      { registrert: { sendt: '2026-10-10', vedlegg: [], korrespondansetype: 'brev' as const } },
       'Legg ved brevet',
     ],
     [
       'registreringen med tekst fra appen',
-      { registrert: { sendt: '2026-10-10', vedlegg: [vedlegg] }, begrunnelse: '<p>T</p>' },
+      {
+        registrert: {
+          sendt: '2026-10-10',
+          vedlegg: [vedlegg],
+          korrespondansetype: 'brev' as const,
+        },
+        begrunnelse: '<p>T</p>',
+      },
       'ingen tekst',
+    ],
+    [
+      'registreringen uten typen (LV-U42)',
+      { registrert: { sendt: '2026-10-10', vedlegg: [vedlegg], korrespondansetype: null } },
+      'brev eller e-post',
     ],
   ])('adapteren avviser %s i stedet for å forenkle den', (_n, data, melding) => {
     expect(() => vederlagskommandoFraSkjema(data, '2026-10-19')).toThrow(melding);
@@ -757,6 +804,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
       target: { files: [new File(['%PDF'], 'varsel.pdf', { type: 'application/pdf' })] },
     });
     await screen.findByText('varsel.pdf');
+    await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
     await fireEvent.click(screen.getByRole('button', { name: /Registrer varselet/ }));
     await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
     expect(sendt(send)).toEqual({
@@ -765,6 +813,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
       hjemmel: '34.1.3',
       sendt: '2026-10-10',
       dokumentasjon: ['V-1'],
+      korrespondansetype: 'brev',
     });
   });
 

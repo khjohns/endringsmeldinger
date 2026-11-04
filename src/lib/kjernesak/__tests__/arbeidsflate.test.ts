@@ -5,15 +5,15 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '$lib/api/client';
-import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import type { Journallinje, Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
 import type { Journalrad, Part } from '$kjerne/typer';
 import { lagKjernesakflate } from '$lib/kjernesak/arbeidsflate.svelte';
 import { Feltavvisning, lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { vederlagssvarFraSkjema } from '$lib/kjernesak/vederlagssvar';
-import { SAK, medVederlag, medVederlagssvar } from './provejournal';
+import { MERKING, SAK, medVederlag, medVederlagssvar } from './provejournal';
 
-const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
+const svar = (journal: Journalrad[], part: Part | null): LastetKjernesak => ({
   versjon: journal.length,
   part,
   visning: {} as Kjernesak['visning'],
@@ -29,6 +29,7 @@ const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
     })
   ),
   leveringsoppdrag: [],
+  merking: MERKING,
 });
 
 describe('TS-saken i Kontrollrommet etter en ny lasting', () => {

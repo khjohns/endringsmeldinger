@@ -8,7 +8,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import type { Journallinje, Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
 import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 import { lagKjernesakflate } from '$lib/kjernesak/arbeidsflate.svelte';
 import { kandidater } from '$kjerne/kommandoer/handlinger';
@@ -17,6 +17,7 @@ import type { Journalrad, Part } from '$kjerne/typer';
 import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { Mode, SporKey } from '$lib/components/kontraktsbord/types';
 import {
+  MERKING,
   SAK,
   medFristvarsel,
   medGrunnlag,
@@ -28,7 +29,7 @@ import {
   opprettet,
 } from '$lib/kjernesak/__tests__/provejournal';
 
-const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
+const svar = (journal: Journalrad[], part: Part | null): LastetKjernesak => ({
   versjon: journal.length,
   part,
   visning: {} as Kjernesak['visning'],
@@ -53,6 +54,7 @@ const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
     opprettet: '2026-10-16T09:00:01.000Z',
     levert: null,
   })),
+  merking: MERKING,
 });
 
 /** Konteksten med handlingene i `handlinger` i stedet for dem kjernen regner ut. */

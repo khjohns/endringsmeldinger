@@ -4,9 +4,10 @@
  * falske `hent` og `send`; at serveren avgjør, prøves over HTTP i `server/tester/`.
  */
 
+import { MERKING } from './provejournal';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError, NETTFEIL } from '$lib/api/client';
-import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import type { Journallinje, Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
 import {
   avvisningFoerBrevet,
   brevaarsak,
@@ -55,6 +56,7 @@ const kontekst = {
   teamId: null,
   tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
   nyId: () => crypto.randomUUID(),
+  ...MERKING,
 };
 
 /** Raden kjernen selv skriver for kommandoen, som versjonen etter `journal`. */
@@ -83,12 +85,13 @@ const linje = ({
 });
 
 /** Svaret fra serveren, med en visning kjernen aldri lager, så det synes om konteksten leser den. */
-const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): Kjernesak => ({
+const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): LastetKjernesak => ({
   versjon: journal.at(-1)!.versjon,
   part,
   visning: { status: { kode: 'fra_serveren', tekst: 'Fra serveren' } } as unknown as Visning,
   journal: journal.map(linje),
   leveringsoppdrag: [],
+  merking: MERKING,
 });
 
 describe('sakskonteksten for en TS-sak', () => {

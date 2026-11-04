@@ -375,11 +375,12 @@ export async function lesNesteSakskode(
   pool: Pool,
   kontekst: Kontekst,
   sakId: string
-): Promise<Sakskode> {
+): Promise<Sakskode & { kontraktsforkortelse: string | null }> {
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
       if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
-      return lesSakskode(foresp, sakId);
+      const sakskode = await lesSakskode(foresp, sakId);
+      return { ...sakskode, kontraktsforkortelse: await lesKontraktsforkortelse(foresp, kontekst) };
     });
   } catch (feil) {
     throw oversett(feil, null);

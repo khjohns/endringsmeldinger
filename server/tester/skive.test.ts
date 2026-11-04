@@ -37,6 +37,7 @@ import {
   type KjorendeServer,
   type Oppsett,
   sakskodeFor,
+  KONTRAKTSFORKORTELSE,
 } from './testbase.ts';
 
 const ENDRINGSORDRE = { hovedkategori: 'endring', underkategori: 'endringsordre' };
@@ -96,6 +97,7 @@ describe.skipIf(!TESTBASE_URL)(
             part: bruker === o.bh ? 'BH' : 'TE',
             teamId: null,
             sakskode: await sakskodeFor(o, sakId, bruker === o.bh ? 'BH' : 'TE'),
+            kontraktsforkortelse: KONTRAKTSFORKORTELSE,
             tidspunkt: () => new Date(),
             nyId: randomUUID,
           },

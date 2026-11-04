@@ -27,6 +27,7 @@ import {
   type Oppsett,
   type Testbruker,
   sakskodeFor,
+  KONTRAKTSFORKORTELSE,
 } from './testbase.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 
@@ -116,6 +117,7 @@ describe.skipIf(!TESTBASE_URL)('lesingen av vedleggene i skrivingen', () => {
         part: 'TE',
         teamId: null,
         sakskode: await sakskodeFor(o, sakId),
+        kontraktsforkortelse: KONTRAKTSFORKORTELSE,
         tidspunkt: () => new Date(),
         nyId: randomUUID,
       },

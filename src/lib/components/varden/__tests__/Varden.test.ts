@@ -145,7 +145,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Steg 5: TE åpner saken og ser akkurat det svaret BH skrev, i sin helhet.
     await fireEvent.click(demopanel().getByRole('radio', { name: 'TE' }));
     const mottatt = await screen.findByRole('article', {
-      name: 'Svar på krav om vederlagsjustering',
+      name: 'Svar på krav om vederlagsjustering i sak KOE-17',
     });
     expect(avsnittene(mottatt)).toEqual(vist);
     await fireEvent.click(screen.getByRole('button', { name: 'Ta stilling til svaret' }));

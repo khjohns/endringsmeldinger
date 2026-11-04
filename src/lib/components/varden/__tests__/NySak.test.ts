@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import NySak from '$lib/components/varden/NySak.svelte';
-import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
+import { DEMOMERKING, finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import {
   fjernVentende,
   lagreVentende,
@@ -48,7 +48,16 @@ function aapne(
   const onsendt = vi.fn();
   const onavbrutt = vi.fn();
   const vedleggForNySak = lagVedleggsgrense();
-  render(NySak, { sakId: 'ny-sak', send, vedleggForNySak, utkast, onsendt, onavbrutt });
+  const hentMerking = async () => DEMOMERKING;
+  render(NySak, {
+    sakId: 'ny-sak',
+    send,
+    hentMerking,
+    vedleggForNySak,
+    utkast,
+    onsendt,
+    onavbrutt,
+  });
   return { send, onsendt, onavbrutt, vedleggForNySak };
 }
 
@@ -509,6 +518,7 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     opprettelse,
     { ...paaberopelse, utdypning: BESKRIVELSE },
     'TE',
+    DEMOMERKING,
     KJERNE,
     new Map(),
     sakId
@@ -579,6 +589,7 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
       opprettelse,
       medVedlegg,
       'TE',
+      DEMOMERKING,
       KJERNE,
       new Map([[vedlegg.vedlegg_id, bundet]]),
       sakId
@@ -618,8 +629,8 @@ describe('programfeil i brevkontrollen for ny sak (#898)', () => {
       endringsordre: '',
       vedlegg: [],
     };
-    expect(brevet(utfylling, 'ny-sak', kjerne)).toEqual({ programfeil: PROGRAMFEIL });
-    expect(brevet(utfylling, 'ny-sak', KJERNE)).toHaveProperty('tekst');
+    expect(brevet(utfylling, 'ny-sak', DEMOMERKING, kjerne)).toEqual({ programfeil: PROGRAMFEIL });
+    expect(brevet(utfylling, 'ny-sak', DEMOMERKING, KJERNE)).toHaveProperty('tekst');
     feil.mockRestore();
   });
 });

@@ -535,7 +535,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
         sakId,
         2,
         { id: randomUUID(), sha256: 'a'.repeat(64) },
-        ({ journal: j, tidspunkt, vedlegg, sakskode }) => {
+        ({ journal: j, tidspunkt, vedlegg, sakskode, kontraktsforkortelse }) => {
           expect(vedlegg.has(falskt), 'forutsetning: serveren fant ikke vedlegget').toBe(false);
           const vurdert = vurder(
             varsel([falskt]),
@@ -545,6 +545,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
               part: 'TE',
               teamId: teKontekst().team,
               sakskode: { kode: sakskode.kode, loepenummer: sakskode.loepenummer },
+              kontraktsforkortelse,
               tidspunkt: () => tidspunkt,
               nyId: randomUUID,
             },

@@ -1312,7 +1312,9 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
     const foerste = radMed(rader, k, 'K-f1').data.brevnummer;
     if (foerste === radMed(rader, k, 'K-f2').data.brevnummer)
       throw new Error('Forutsetning: kravversjonene står i hvert sitt brev');
-    expect(avsnitt.laast).toContain(`§ 33.4 i brev ${foerste} i sak KOE-17 av`);
+    expect(avsnitt.laast).toContain(
+      `§ 33.4 i brev K201-KOE-017-${String(foerste).padStart(2, '0')} av`
+    );
   });
 
   it('kontrollsak: med registrert varsel gjelder den varselet', async () => {
@@ -1550,6 +1552,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
     part,
     teamId: null,
     sakskode: { kode: 'koe' as const, loepenummer: 17 },
+    kontraktsforkortelse: 'K201',
     tidspunkt: () => new Date(`${dag}T10:00:00Z`),
     nyId: randomUUID,
   });
@@ -1711,6 +1714,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     part,
     teamId: null,
     sakskode: { kode: 'koe' as const, loepenummer: 17 },
+    kontraktsforkortelse: 'K201',
     tidspunkt: () => new Date('2026-10-21T10:00:00Z'),
     nyId: randomUUID,
   });

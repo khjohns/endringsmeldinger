@@ -454,6 +454,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
             tidspunkt: () => tidspunkt,
             nyId: avh.nyId,
             sakskode: tilKjernen(sakskode),
+            kontraktsforkortelse,
           },
           journal,
           avh.kjerne,
@@ -603,6 +604,7 @@ async function opprettMedPaaberopelse(
           tidspunkt: () => t,
           nyId: avh.nyId,
           sakskode: tilKjernen(sakskode),
+          kontraktsforkortelse,
         });
         // Uten sakens kode avvises opprettelsen før oppdraget lages (`opprettSakMedPaaberopelse`).
         const merkingsgrunnlag = () => {
@@ -721,10 +723,18 @@ async function opprettNySak(
   );
 }
 
-/** Koden og løpenummeret brevkontrollen viser (LV-U46), i formen kjernen tar. */
-const sakskodesvar = ({ kode, loepenummer, tildelt }: Sakskode): Svar => [
+/**
+ * Koden og løpenummeret brevkontrollen viser (LV-U46), i formen kjernen tar, og
+ * kontraktsforkortelsen henvisningene i brevteksten bruker (LV-U53).
+ */
+const sakskodesvar = ({
+  kode,
+  loepenummer,
+  tildelt,
+  kontraktsforkortelse,
+}: Sakskode & { kontraktsforkortelse: string | null }): Svar => [
   200,
-  { success: true, kode, loepenummer, tildelt },
+  { success: true, kode, loepenummer, tildelt, kontraktsforkortelse },
 ];
 
 async function visSakskode(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {

@@ -16,7 +16,7 @@ import {
   registrering,
   utenVedlegg,
   varselFraAppen,
-  type RegistrertVarsel,
+  type RegistrertKorrespondanse,
 } from './skjemadata';
 
 export interface Vederlagsvalg {
@@ -81,7 +81,7 @@ export interface Vederlagsskjemadata {
   /** `varsel` for varselet fra appen. Uten: kravet. */
   varsel_type?: string;
   /** Varselet sendt utenfor appen, som registreres for seg. */
-  registrert?: RegistrertVarsel;
+  registrert?: RegistrertKorrespondanse;
   /** Hjemmelen for varselet. Uten: § 34.1.2. */
   hjemmel?: Vederlagsvarsel;
 }

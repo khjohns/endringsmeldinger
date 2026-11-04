@@ -33,6 +33,7 @@ import {
   TESTBASE_URL,
   type Testbruker,
   sakskodeFor,
+  KONTRAKTSFORKORTELSE,
 } from './testbase.ts';
 
 const SAKER = '/api/kjerne/saker';
@@ -74,6 +75,7 @@ function brevtekst(
       part: 'TE',
       teamId: null,
       sakskode: neste,
+      kontraktsforkortelse: KONTRAKTSFORKORTELSE,
       tidspunkt: () => new Date(),
       nyId: randomUUID,
     },

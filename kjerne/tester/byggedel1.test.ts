@@ -76,6 +76,7 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
     part: 'TE' as const,
     teamId: null,
     sakskode: { kode: 'koe' as const, loepenummer: 17 },
+    kontraktsforkortelse: 'K201',
     tidspunkt: () => new Date('2026-10-11T08:00:00Z'),
     nyId: () => randomUUID(),
   };
@@ -418,6 +419,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
         part: 'BH',
         teamId: null,
         sakskode: { kode: 'koe' as const, loepenummer: 17 },
+        kontraktsforkortelse: 'K201',
         tidspunkt: () => new Date('2026-10-11T08:00:00Z'),
         nyId: () => randomUUID(),
       },

@@ -30,6 +30,7 @@
 import { createHash } from 'node:crypto';
 import type { Brevdokument } from './catenda.ts';
 import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
+import { brevmerking } from '../kjerne/frosset/brevtittel.ts';
 import { brevtekstI } from '../kjerne/format/leser.ts';
 import { lesBrevPdf, skrivBrevPdf, TegnUtenforSkriften } from './brevpdf.ts';
 import { sjekksum } from './sjekksum.ts';
@@ -51,8 +52,6 @@ export interface Merkingsgrunnlag {
 /** Prosjektet har ingen kontraktsforkortelse, så brevet kan ikke merkes (S2 A i #1497). */
 export class KontraktsforkortelseMangler extends Error {}
 
-const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
-
 /**
  * Merkingen `K201-KOE-005-03`: minst tre sifre i løpenummeret og minst to i
  * brevnummeret (LV-U48), og tilsvarende `K201-EO-005-03` (LV-U44).
@@ -65,12 +64,7 @@ export function merking(grunnlag: Merkingsgrunnlag, brevnummer: number): string 
     throw new KontraktsforkortelseMangler(
       'Prosjektet har ingen kontraktsforkortelse, så brevet kan ikke merkes.'
     );
-  return [
-    kontraktsforkortelse,
-    sakskode.kode.toUpperCase(),
-    utfylt(sakskode.loepenummer, 3),
-    utfylt(brevnummer, 2),
-  ].join('-');
+  return brevmerking(kontraktsforkortelse, sakskode, brevnummer);
 }
 
 /** Filnavnet dokumentet får i Catenda, fra innholdet i et lagret oppdrag. */

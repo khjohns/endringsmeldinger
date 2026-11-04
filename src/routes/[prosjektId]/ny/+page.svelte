@@ -17,6 +17,7 @@
     type VedleggForNySak,
   } from '$lib/components/varden/nysak';
   import {
+    hentSaksmerkingForNySak,
     lastOppVedleggForNySak,
     nyKommandoId,
     sendNySak,
@@ -53,6 +54,7 @@
       <NySak
         {sakId}
         {send}
+        hentMerking={() => hentSaksmerkingForNySak(prosjektId)}
         {vedleggForNySak}
         utkast={ventende?.utkast ?? null}
         onsendt={(s) =>

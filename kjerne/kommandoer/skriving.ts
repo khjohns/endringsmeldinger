@@ -56,6 +56,11 @@ export interface Kontekst {
    * forhåndsvisningen, og serveren leser den i skrivetransaksjonen.
    */
   sakskode: Sakskode;
+  /**
+   * Kontraktsforkortelsen i prosjektinnstillingene, `null` når prosjektet ikke har den. Et brev
+   * viser til et tidligere brev med merkingen, og merkingen begynner med den (LV-U53, LV-U44).
+   */
+  kontraktsforkortelse: string | null;
 }
 
 /**
@@ -407,7 +412,7 @@ function skriv(
   let brevtekst: Avsnitt[] | null;
   let brevtittel: string | null = null;
   try {
-    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst.sakskode);
+    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst);
     brevtekst = brevet?.tekst ?? null;
     brevtittel = brevet?.tittel ?? null;
   } catch (feil) {
@@ -508,7 +513,7 @@ function brevtekstFor(
   u: Utledning,
   kjerne: Kjerne,
   utdypninger: Utdypninger,
-  sakskode: Sakskode
+  { sakskode, kontraktsforkortelse }: Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'>
 ): { tekst: Avsnitt[]; tittel: string | null } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -525,6 +530,7 @@ function brevtekstFor(
       lest,
       {
         sakskode,
+        kontraktsforkortelse,
         tittel: sak.tittel,
         svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },

@@ -4,7 +4,12 @@
  * avvises her og sendes ikke. Et registrert brev har vedleggene i kommandoen.
  */
 
-import { VARSELSPOR, type Varselhjemmel, type Vedlegg } from '$kjerne/typer';
+import {
+  VARSELSPOR,
+  type Korrespondansetype,
+  type Varselhjemmel,
+  type Vedlegg,
+} from '$kjerne/typer';
 import type { Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 
 export function utenVedlegg(data: { vedlegg_ids?: string[] }): void {
@@ -29,6 +34,18 @@ export interface RegistrertVarsel {
   sendt: string;
   vedlegg: Vedlegg[];
 }
+
+/**
+ * Varselet TE legger til i saken, med om det ble sendt som brev eller e-post. Brevene fra
+ * løsningen omtaler det med typen (LV-U42, D1 A i #1497).
+ */
+export interface RegistrertKorrespondanse extends RegistrertVarsel {
+  korrespondansetype: Korrespondansetype | null;
+}
+
+/** Det som hindrer at typen er oppgitt, eller `null` (LV-U42). Kjernen krever typen. */
+export const typehindring = (korrespondansetype: Korrespondansetype | null): string | null =>
+  korrespondansetype ? null : 'Velg om varselet ble sendt som brev eller e-post.';
 
 const ISO_DATO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -57,17 +74,21 @@ export function oppgittVarsel(varsel: RegistrertVarsel, idag: string) {
 /** Registreringen av et varsel sendt utenfor appen, uten tekst fra appen (MM-U17). */
 export function registrering<H extends Varselhjemmel>(
   hjemmel: H,
-  varsel: RegistrertVarsel,
+  varsel: RegistrertKorrespondanse,
   utdypning: string,
   idag: string
 ) {
   if (utdypning)
     throw new Error('Et registrert varsel har ingen tekst fra appen. Fjern teksten i skjemaet.');
+  const oppgitt = oppgittVarsel(varsel, idag);
+  const { korrespondansetype } = varsel;
+  if (!korrespondansetype) throw new Error(typehindring(korrespondansetype)!);
   return {
     type: 'varsel' as const,
     spor: VARSELSPOR[hjemmel],
     hjemmel,
-    ...oppgittVarsel(varsel, idag),
+    ...oppgitt,
+    korrespondansetype,
   };
 }
 

@@ -10,6 +10,8 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { KJERNE } from '$kjerne/versjon';
+  import type { Saksmerking } from '$lib/kjernesak/brevtekst';
+  import { nummeretErTatt } from '$lib/kjernesak/kontekst.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll from './Brevkontroll.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
@@ -37,6 +39,7 @@
   let {
     sakId,
     send,
+    hentMerking,
     vedleggForNySak,
     utkast = null,
     onsendt,
@@ -45,6 +48,8 @@
     /** ID-en saken får (`NySak.sakId`). */
     sakId: string;
     send: SendNySak;
+    /** Koden saken vil få og kontraktsforkortelsen, lest før brevet vises (LV-U46). */
+    hentMerking: () => Promise<Saksmerking>;
     vedleggForNySak: VedleggForNySak;
     /** Skjemaet fra et forsøk med usikkert utfall, så et nytt forsøk sender det samme (#1526). */
     utkast?: Utfylling | null;
@@ -200,8 +205,9 @@
     }
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
-      const brev = brevet(utfylling(), sakId, KJERNE);
-      if ('programfeil' in brev) ny.kjernen = brev.programfeil;
+      const brev = await brevetMedNummer();
+      if (!brev) ny.kjernen = NYSAK.ingenMerking;
+      else if ('programfeil' in brev) ny.kjernen = brev.programfeil;
       else if ('avvisning' in brev) {
         if (brev.avvisning.regel === 'BESKRIVELSE_MANGLER')
           ny.beskrivelse = NYSAK.beskriv(felt.beskrivelse.endsWith('pålegget'));
@@ -215,6 +221,16 @@
     feil = ny;
     await tick();
     oppsummering?.focus();
+  }
+
+  /** Brevet med nummeret saken vil få nå (LV-U46), eller `null` når nummeret ikke kan hentes. */
+  async function brevetMedNummer() {
+    try {
+      return brevet(utfylling(), sakId, await hentMerking(), KJERNE);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 
   let sender = $state(false);
@@ -242,6 +258,14 @@
         return true;
       } catch (e) {
         sendefeil = e instanceof Error ? e.message : String(e);
+        if (nummeretErTatt(e)) {
+          // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
+          const brev = await brevetMedNummer();
+          if (brev && 'tekst' in brev && brev.tekst && kontroll) {
+            kontroll = { ...kontroll, tekst: brev.tekst };
+            sendefeil = NYSAK.nyttNummer;
+          }
+        }
         return false;
       } finally {
         sender = false;

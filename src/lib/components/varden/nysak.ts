@@ -7,7 +7,7 @@
 
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { getKontraktsregel, type Kontraktsregel } from '$lib/constants/kontraktsregler';
-import { kravMotNySak, type Brev } from '$lib/kjernesak/brevtekst';
+import { kravMotNySak, type Brev, type Saksmerking } from '$lib/kjernesak/brevtekst';
 import { PROGRAMFEIL, type Programfeil } from '$lib/kjernesak/kontekst.svelte';
 import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
 import {
@@ -185,7 +185,12 @@ export function kommandoene(u: Utfylling, kjerne: Kjerne) {
  * Kjernen slår opp vedleggene påberopelsen binder, som serveren gjør (#1037). En programfeil i
  * kjernen blir `PROGRAMFEIL`, som i `brev` i `lagKjernesak`, så skjemaet ikke velter (#898).
  */
-export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev | Programfeil {
+export function brevet(
+  u: Utfylling,
+  sakId: string,
+  merking: Saksmerking,
+  kjerne: Kjerne
+): Brev | Programfeil {
   try {
     const { opprettelse, paaberopelse } = kommandoene(u, kjerne);
     // Oppslaget har bare feltene brevet binder (`Vedlegg` i kjernen), ikke størrelsen.
@@ -195,7 +200,7 @@ export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev | Prog
         { vedlegg_id, filnavn, innhold_sha256 },
       ])
     );
-    return kravMotNySak(opprettelse, paaberopelse, 'TE', kjerne, vedlegg, sakId);
+    return kravMotNySak(opprettelse, paaberopelse, 'TE', merking, kjerne, vedlegg, sakId);
   } catch (e) {
     console.error(e);
     return { programfeil: PROGRAMFEIL };

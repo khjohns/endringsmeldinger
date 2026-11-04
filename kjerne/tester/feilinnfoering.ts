@@ -3636,10 +3636,15 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F442',
-    feilklasse: 'henvisningen bruker saksversjonen, ikke brevets nummer i saken (LV-U44)',
+    feilklasse: 'henvisningen bruker saksversjonen, ikke brevets nummer i merkingen (LV-U53)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['`brev ${d.brevnummer} i sak', '`brev ${b.versjon} i sak']],
-    mal: ['et brev fra løsningen omtales med nummeret i saken og sakens kode'],
+    endringer: [
+      [
+        'brevmerking(kontraktsforkortelse, sakskode, d.brevnummer)',
+        'brevmerking(kontraktsforkortelse, sakskode, b.versjon)',
+      ],
+    ],
+    mal: ['et brev fra løsningen omtales med merkingen og datoen'],
   },
   {
     id: 'F443',
@@ -3669,7 +3674,23 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['sak: `sak ${sakensKode(saken.sakskode)} («', 'sak: `sak ${saken.tittel.length} («'],
     ],
-    mal: ['et brev fra løsningen omtales med nummeret i saken og sakens kode'],
+    mal: ['et brev fra løsningen omtales med merkingen og datoen'],
+  },
+  {
+    id: 'F446',
+    feilklasse: 'merkingen i henvisningen har to sifre i løpenummeret (LV-U53, LV-U48)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [['utfylt(s.loepenummer, 3)', 'utfylt(s.loepenummer, 2)']],
+    mal: ['merkingen i henvisningen har sakens kode og tre sifre i løpenummeret'],
+  },
+  {
+    id: 'F447',
+    feilklasse: 'henvisningen skrives uten kontraktsforkortelsen (LV-U53)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ['      if (!kontraktsforkortelse)\n', '      if (kontraktsforkortelse === undefined)\n'],
+    ],
+    mal: ['uten kontraktsforkortelsen kan brevet ikke vise til merkingen'],
   },
 ];
 

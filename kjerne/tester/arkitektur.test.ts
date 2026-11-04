@@ -677,11 +677,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['format/skjema.ts:feilI(s).properties', 'skjema', '*'],
   ['format/skjema.ts:oppslag(d)', 'skjema', '*'],
-  ['Kontekst', 'kontekst', 'sakId aktoerId part teamId tidspunkt nyId sakskode'],
+  [
+    'Kontekst',
+    'kontekst',
+    'sakId aktoerId part teamId tidspunkt nyId sakskode kontraktsforkortelse',
+  ],
   // LV-U27, LV-U44: sakens kode i tittelen.
   ['Sakskode', 'kontekst', 'kode loepenummer', ['frosset/brevtittel.ts']],
   // LV-U44, S3 i #1497: brevteksten omtaler saken og tidligere brev med koden.
   ['frosset/brevtittel.ts', 'brevtekst', 'sakensKode', ['frosset/brevtekst.ts']],
+  // LV-U53: henvisningen til et tidligere brev bruker merkingen på det.
+  ['frosset/brevtittel.ts', 'brevtekst', 'brevmerking', ['frosset/brevtekst.ts']],
   // LV-U42, D1 A i #1497: typen registrert korrespondanse, i skjemaene.
   ['typer.ts', 'skjema', 'KORRESPONDANSETYPER', ['format/format.ts', 'kommandoer/kommando.ts']],
   ['Kjerne', 'kontekst', 'regler format leserformat'],
@@ -1023,7 +1029,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Saken',
     'brevtekst',
-    'sakskode tittel svarPaaPaaberopelsen subsidiaer avklartVedFrafall',
+    'sakskode kontraktsforkortelse tittel svarPaaPaaberopelsen subsidiaer avklartVedFrafall',
     ['frosset/brevtekst.ts'],
   ],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
@@ -1053,7 +1059,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Journalen',
     'brevtekst',
-    'legg brev brevet dokument dokumentetTil dokumenter element elementer erRegistrert krav sakskode svar utdypning versjon',
+    'legg brev brevet dokument dokumentetTil dokumenter element elementer erRegistrert krav saken svar utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],

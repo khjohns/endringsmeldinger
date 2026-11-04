@@ -11,13 +11,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import NewCaseForm from '../NewCaseForm.svelte';
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { ApiError } from '$lib/api/client';
-import { hentKjernesak, opprettSak, sendKommando } from '$lib/api/kjerne';
+import {
+  hentKjernesakMedMerking,
+  hentSaksmerkingForNySak,
+  opprettSak,
+  sendKommando,
+} from '$lib/api/kjerne';
+import { MERKING } from '$lib/kjernesak/__tests__/provejournal';
 import { setDraftOwner } from '$lib/utils/draftOwner';
 
 vi.mock('$lib/api/kjerne', async (original) => ({
   ...(await original<typeof import('$lib/api/kjerne')>()),
   opprettSak: vi.fn(),
-  hentKjernesak: vi.fn(),
+  hentKjernesakMedMerking: vi.fn(),
+  hentSaksmerkingForNySak: vi.fn(),
   sendKommando: vi.fn(),
 }));
 vi.mock('$app/environment', () => ({ browser: true }));
@@ -48,13 +55,15 @@ beforeEach(() => {
   localStorage.clear();
   setDraftOwner(EIER);
   vi.mocked(opprettSak).mockReset().mockResolvedValue({ sak_id: SAK, versjon: 1 });
-  vi.mocked(hentKjernesak)
+  vi.mocked(hentSaksmerkingForNySak).mockReset().mockResolvedValue(MERKING);
+  vi.mocked(hentKjernesakMedMerking)
     .mockReset()
     .mockResolvedValue({
       versjon: 1,
       part: 'TE',
       visning: {} as never,
       leveringsoppdrag: [],
+      merking: MERKING,
       journal: [
         {
           event_id: 'e-1',
@@ -129,12 +138,12 @@ describe('skjemaet for ny sak på TS-stien', () => {
       { type: 'opprett_sak', sakstittel: 'Endret fundament' },
       'project'
     );
-    expect(hentKjernesak).toHaveBeenCalledWith(SAK, 'project');
+    expect(hentKjernesakMedMerking).toHaveBeenCalledWith(SAK, 'project');
     const vist = Array.from(
       brev.querySelectorAll('[data-testid="laast-tekst"] p'),
       (p) => p.textContent
     );
-    expect(vist[0]).toContain(`for «Endret fundament» i sak ${SAK} som`);
+    expect(vist[0]).toContain('for «Endret fundament» i sak KOE-17 som');
     expect(vist.join(' ')).toContain(
       'Totalentreprenøren opplyser at pålegget ble mottatt 1. september 2026.'
     );
@@ -301,7 +310,8 @@ describe('skjemaet for ny sak på TS-stien', () => {
       const felt = () => screen.getByTestId('skjemafelt').inert;
       expect(felt()).toBe(false);
       actions()!.send();
-      expect(await screen.findByRole('status')).toHaveTextContent('Skjemaet er låst');
+      // Koden for den nye saken hentes før opprettelsen (LV-U46), så statusen kommer etter den.
+      await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Skjemaet er låst'));
       expect(felt()).toBe(true);
 
       actions()!.send();
@@ -313,8 +323,8 @@ describe('skjemaet for ny sak på TS-stien', () => {
 
   // Kilde: #705 og #711 p3: siden er leserens side fra serveren, ikke fast TE.
   it('bruker leserens side fra serveren, og sender ikke kravet uten side', async () => {
-    const lest = await vi.mocked(hentKjernesak).getMockImplementation()!(SAK, 'project');
-    vi.mocked(hentKjernesak).mockResolvedValue({ ...lest, part: null });
+    const lest = await vi.mocked(hentKjernesakMedMerking).getMockImplementation()!(SAK, 'project');
+    vi.mocked(hentKjernesakMedMerking).mockResolvedValue({ ...lest, part: null });
     const { screen, complete, actions } = vis();
     await waitFor(() => expect(actions()?.canSend).toBe(true));
     actions()!.send();

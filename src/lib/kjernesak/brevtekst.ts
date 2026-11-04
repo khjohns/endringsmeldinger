@@ -23,8 +23,15 @@ import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
  */
 export type Brev = { tekst: string[] | null } | { avvisning: Avvisning };
 
-const stemplet = (sakId: string, part: Part): Kontekst => ({
+/**
+ * Sakens kode og kontraktsforkortelsen, lest fra serveren før forhåndsvisningen. Teksten
+ * omtaler saken med koden og et tidligere brev med merkingen (S3 i #1497, LV-U53).
+ */
+export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'>;
+
+const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
   // Aktøren, tidspunktet og ID-ene settes av serveren og endrer ikke den låste teksten.
+  ...merking,
   sakId,
   aktoerId: '',
   part,
@@ -37,12 +44,13 @@ export function brevFor(
   kommando: Record<string, unknown>,
   sakId: string,
   part: Part,
+  merking: Saksmerking,
   journal: Journalrad[],
   kjerne: Kjerne,
   vedlegg?: Vedleggsoppslag,
   sendes = false
 ): Brev {
-  const kontekst = stemplet(sakId, part);
+  const kontekst = stemplet(sakId, part, merking);
   const vist = forhaandsvis(kommando, kontekst, journal, kjerne, vedlegg);
   if (!vist.godtatt) return { avvisning: vist.avvisning };
   const tekst = laastTekst(vist.hendelser[0]);
@@ -60,10 +68,11 @@ export function utledetMed(
   kommando: Record<string, unknown>,
   sakId: string,
   part: Part,
+  merking: Saksmerking,
   journal: Journalrad[],
   kjerne: Kjerne
 ): Utledning | null {
-  const vist = forhaandsvis(kommando, stemplet(sakId, part), journal, kjerne);
+  const vist = forhaandsvis(kommando, stemplet(sakId, part, merking), journal, kjerne);
   return vist.godtatt ? utledJournal([...journal, ...vist.hendelser], kjerne) : null;
 }
 
@@ -72,12 +81,13 @@ export function utledetMed(
  * avvisningen. Kravet vurderes med `sendes` slik serveren vurderer det, med kravet til
  * beskrivelsen (GR-U15) og vedleggene kommandoen viser til, så en avvisning står ved
  * feltet før brevkontrollen og etterlater ingen sak uten krav (#711, #1271, KT-U11).
- * Teksten har saksnummeret, så den gjelder bare for `sakId` saken faktisk får.
+ * Teksten har sakens kode, så den gjelder bare for koden saken faktisk får (LV-U46).
  */
 export function kravMotNySak(
   opprettelse: Record<string, unknown>,
   krav: Record<string, unknown>,
   part: Part,
+  merking: Saksmerking,
   kjerne: Kjerne,
   vedlegg?: Vedleggsoppslag,
   sakId: string = crypto.randomUUID()
@@ -97,5 +107,5 @@ export function kravMotNySak(
     format: opprettet.format,
     data: opprettet.data,
   };
-  return brevFor(krav, sakId, part, [rad], kjerne, vedlegg ?? new Map(), true);
+  return brevFor(krav, sakId, part, merking, [rad], kjerne, vedlegg ?? new Map(), true);
 }
