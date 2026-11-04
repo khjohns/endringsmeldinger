@@ -1530,6 +1530,24 @@ def test_et_forhold_oppdragsgiver_har_bestemt_kan_foeres_etter_merge(grunnregist
     assert vr.mot_grunnlag(senere, vr.logisk(merget), merget) == []
 
 
+def test_et_forhold_oppdragsgiver_har_bestemt_kan_fjernes_etter_merge(grunnregister, monkeypatch):
+    """KA-U49 E2 (V2 A 04.11 i #1534): KA-U45 og OV-U80 mister forholdene til OV-U48 og OV-U49."""
+    merget = med(grunnregister, ny_post())
+    merget["gruppe"][0]["vedtak"][-1]["forhold"].append({"art": "endrer", "vedtak": "ka-u2"})
+    senere = copy.deepcopy(merget)
+    senere["gruppe"][0]["vedtak"][-1]["forhold"].pop()
+    assert len(vr.mot_grunnlag(senere, vr.logisk(merget), merget)) == 1
+    monkeypatch.setattr(
+        vr, "FORHOLD_FJERNET_ETTER_MERGE", {("xx-u1", "endrer", "ka-u2"): "en test"}
+    )
+    assert vr.mot_grunnlag(senere, vr.logisk(merget), merget) == []
+
+
+def test_forholdene_ka_u49_e2_fjernet_staar_ikke_i_registeret(register):
+    for post, art, vedtak in vr.FORHOLD_FJERNET_ETTER_MERGE:
+        assert {"art": art, "vedtak": vedtak} not in _importert(register, post)["forhold"]
+
+
 def test_eo_u17_endrer_vedtaket_om_ubegrenset_fullmakt(register):
     eo_u17 = _importert(register, "eo-u17")
     assert {"art": "endrer", "vedtak": "ubegrenset-fullmakt"} in eo_u17["forhold"]

@@ -366,4 +366,9 @@ Styrer: om en ny økt kan skrive postene når svarene foreligger.
 
 ## Svarene
 
-*Føres inn når de foreligger.*
+Oppdragsgiver 04.11, ordrett: «V1 A, V2A, S1 A, S2 A, S3 A. Godkjenner merge av 1566»
+([#1534, 6631244776](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6631244776)).
+V1 og V2 er spørsmål 1 og 2 her. S1–S3 gjelder en annen vurdering.
+
+- Spørsmål 1: A, ført som [KA-U50](../plans/vedtak.md#ka-u50).
+- Spørsmål 2: A, ført som [KA-U49](../plans/vedtak.md#ka-u49).
