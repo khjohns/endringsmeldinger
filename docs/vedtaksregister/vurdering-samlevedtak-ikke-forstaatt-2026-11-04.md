@@ -249,6 +249,8 @@ er gjort hele. Rettingene er ført inn over og i spørsmålene.
 
 ## Funn som ikke avgjøres her
 
+Funnene i koden er ført i oppfølgingsissuet #1574.
+
 - MM-U27 sier «Bygget 18.10 i PR #775», men utledningen har ingen kontroll etter MM-U27 i dag.
   Punkt 10 krever en slik kontroll så langt HF-U4 gjelder. Hjem: byggestatusen og issuet for
   kjernen.
@@ -331,4 +333,9 @@ er gjort hele. Rettingene er ført inn over og i spørsmålene.
 
 ## Svarene
 
-*Føres inn ordrett når de er kommet.*
+Oppdragsgiver 04.11, ordrett: «1A, 2A» ([#1534, 6629853128](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629853128)). Spørsmålene ble sendt slik de står over, på commit `fc44e37`.
+
+- **1: A** er valgt, og **B** er forkastet. Føres som samlevedtaket, foreløpig MM-U43.
+- **2: A** er valgt, og **B** er forkastet. Føres som foreløpig MM-U44. Punkt 4 og 5 og designdelen i samlevedtaket leses med A.
+
+Utkastet til postene står i [`utkast-poster-ikke-forstaatt.toml`](utkast-poster-ikke-forstaatt.toml).
