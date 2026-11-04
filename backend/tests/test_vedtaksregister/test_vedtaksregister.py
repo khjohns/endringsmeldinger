@@ -62,6 +62,9 @@ def grunnregister(register):
     grunn = copy.deepcopy(register)
     for g in grunn["gruppe"]:
         g["vedtak"] = [p for p in g["vedtak"] if not vr.er_ny(p)]
+        for p in g["vedtak"]:
+            # Det andre hjemmet kan være en ny post (#1534).
+            p.pop("bindende_i", None)
     return grunn
 
 
@@ -87,6 +90,7 @@ def ny_post(**endringer) -> dict:
         "svar": "«A»",
         "forhold": [{"art": "presiserer", "vedtak": "ka-u1"}],
         "folge": "Ikke bygget",
+        "klasse": "vedtak",
         "sitat": [
             {
                 "kilde": "hovedplanen",
@@ -153,10 +157,11 @@ def test_en_lenke_til_et_anker_utenfor_3_1_gaar_til_hovedplanen(grunnregister):
 
 def test_de_importerte_postene_har_tomme_felt_for_sporsmal(register):
     """Oppdragsgiver 12.10 (#413): spørsmålene finnes ikke for de eldre radene. Forholdene
-    Følge sier uttrykkelig, føres (oppdragsgiver 12.10 i #423)."""
+    Følge sier uttrykkelig, føres (oppdragsgiver 12.10 i #423), og klassen med delene
+    (#1534)."""
     for p in vr.poster(register):
         if not vr.er_ny(p):
-            assert set(p) <= {"anker", "vedtak", "vedtatt", "folge", "forhold"}
+            assert set(p) <= {"anker", "vedtak", "vedtatt", "folge", "forhold"} | vr.KLASSEFELT
 
 
 @pytest.mark.parametrize(
@@ -581,6 +586,7 @@ def test_vakta_melder_ny_post_i_importert_form(grunnregister, grunnplan):
             "vedtak": "ZZ-U9: `kode_navn`",
             "vedtatt": "12.10",
             "folge": "x",
+            "klasse": "vedtak",
         }
     )
     assert vr.valider(endret) == []
@@ -628,7 +634,8 @@ def test_en_merget_ny_post_har_ledig_id_og_kan_bare_endre_folge(
         endret = copy.deepcopy(merget)
         endret["gruppe"][0]["vedtak"][-1][felt] = verdi
         assert vr.mot_grunnlag(endret, gammel_plan, merget) == [
-            "XX-U1: spørsmålet, alternativene, svaret eller et annet felt enn folge er endret etter merge"
+            "XX-U1: spørsmålet, alternativene, svaret eller et annet felt enn folge, "
+            "forholdene og klassen er endret etter merge"
         ]
     assert vr.mot_grunnlag(grunnregister, gammel_plan, merget) == [
         "XX-U1: posten er fjernet fra registeret"
@@ -1081,3 +1088,211 @@ def test_forste_setning_etter_en_overskrift_i_ns_8407():
         "begrunne det antall dager han krever som fristforlengelse.",
         tekst,
     )
+
+
+# --------------------------------------------------------------------------
+# Klassen, delene og det andre hjemmet (#1534, steg 3a)
+# --------------------------------------------------------------------------
+# Kildene er svarene 04.11 i #1534: svar 1 (klassen er vedtak, beslutning eller design, og
+# om posten gjelder, regnes av forholdene), svar 4 og 5 (samler og bygger på), kontroll 1
+# (klassen er påkrevd) og arbeidsvalget for kontroll 2 (det andre hjemmet), og svar 14 og 20
+# i PR #1537 (forholdene for de fire postene og feltene for delene).
+
+
+def _importert(register: dict, anker: str) -> dict:
+    return next(p for p in vr.poster(register) if vr.anker(p) == anker)
+
+
+def test_hver_post_i_registeret_har_en_av_de_tre_klassene(register):
+    assert {p["klasse"] for p in vr.poster(register)} <= set(vr.KLASSER)
+
+
+@pytest.mark.parametrize("ny", [True, False])
+def test_en_post_uten_klasse_avvises(grunnregister, ny):
+    if ny:
+        post = ny_post()
+        del post["klasse"]
+        endret = med(grunnregister, post)
+    else:
+        endret = copy.deepcopy(grunnregister)
+        del endret["gruppe"][0]["vedtak"][0]["klasse"]
+    assert any("mangler klasse" in f for f in vr.valider(endret)), vr.valider(endret)
+
+
+@pytest.mark.parametrize(
+    ("endring", "melding"),
+    [
+        (lambda p: p.update(klasse="historisk"), "ukjent klasse «historisk»"),
+        (lambda p: p.update(klasse=["vedtak"]), "klasse skal være tekst"),
+        (lambda p: p.update(klasse="design", designdel="x"), "har ingen designdel"),
+        (lambda p: p.update(klasse="beslutning", beslutningsdel="x"), "har ingen beslutningsdel"),
+        (lambda p: p.update(klasse="design", beslutningsdel="x"), "har ingen beslutningsdel"),
+        (lambda p: p.update(bindende_i=["ka-u2"]), "bindende_i hører til en design- eller beslutningspost"),
+        (lambda p: p.update(klasse="design", bindende_i="ka-u2"), "bindende_i skal være en liste"),
+        (lambda p: p.update(klasse="design", bindende_i=[]), "bindende_i skal være en liste"),
+        (lambda p: p.update(klasse="design", bindende_i=["finnes-ikke"]), "som ikke er ankeret til et vedtak"),
+        (lambda p: p.update(klasse="design", bindende_i=["xx-u1"]), "bindende_i viser til posten selv"),
+        (lambda p: p.update(flyttet_til="BF-06.md"), "er ikke et punkt i et brukerforløp"),
+        (lambda p: p.update(flyttet_til="system.md#u-1"), "er ikke et punkt i et brukerforløp"),
+    ],
+)
+def test_vakta_melder_feil_i_klassen_og_delene(grunnregister, endring, melding):
+    post = ny_post()
+    endring(post)
+    feil = vr.valider(med(grunnregister, post))
+    assert any(melding in f for f in feil), feil
+
+
+@pytest.mark.parametrize(
+    "felt",
+    [
+        {"klasse": "vedtak", "designdel": "x", "beslutningsdel": "y"},
+        {"klasse": "beslutning", "designdel": "x", "bindende_i": ["ka-u2"]},
+        {"klasse": "design", "bindende_i": ["ka-u2", "ka-u3"], "flyttet_til": "BF-06.md#u-12"},
+    ],
+)
+def test_delene_og_hjemmet_som_passer_til_klassen_godtas(grunnregister, felt):
+    assert vr.valider(med(grunnregister, ny_post(**felt))) == []
+
+
+def test_en_importert_post_kan_ha_klassen_og_delene(grunnregister):
+    endret = copy.deepcopy(grunnregister)
+    endret["gruppe"][0]["vedtak"][0].update(klasse="beslutning", designdel="x")
+    assert vr.valider(endret) == []
+
+
+def test_et_opphevet_vedtak_i_bindende_i_avvises_til_det_er_samlet(grunnregister):
+    """Arbeidsvalget for kontroll 2 04.11 i #1534: verktøyet feiler når et vedtak i feltet er
+    opphevet uten å være samlet."""
+    design = ny_post(id="XX-U1", klasse="design", bindende_i=["ka-u2"], forhold=[])
+    opphever = ny_post(id="XX-U2", forhold=[{"art": "opphever", "vedtak": "ka-u2"}])
+    endret = med(med(grunnregister, design), opphever)
+    assert vr.valider(endret) == [
+        "xx-u1: den bindende setningen står i ka-u2, som er opphevet av xx-u2 og ikke samlet; "
+        "før den inn i et gjeldende vedtak"
+    ]
+    samler = ny_post(id="XX-U3", forhold=[{"art": "samler", "vedtak": "ka-u2"}])
+    assert vr.valider(med(endret, samler)) == []
+
+
+def test_samler_og_bygger_paa_staar_begge_veier(grunnregister):
+    """Svar 4 og 5 04.11 i #1534. Den passive formen for «bygger på» er «Lagt til grunn», så
+    den ikke leses som byggestatus («Bygget»)."""
+    post = ny_post(
+        forhold=[{"art": "samler", "vedtak": "ka-u1"}, {"art": "bygger på", "vedtak": "ka-u2"}]
+    )
+    endret = med(grunnregister, post)
+    assert vr.valider(endret) == []
+    assert vr.folgecelle(endret["gruppe"][0]["vedtak"][-1], endret).startswith(
+        "Samler [KA-U1](#ka-u1). Bygger på [KA-U2](#ka-u2)."
+    )
+    assert vr.folgecelle(_importert(endret, "ka-u1"), endret).startswith("Samlet 12.10 av [XX-U1](#xx-u1).")
+    folge = vr.folgecelle(_importert(endret, "ka-u2"), endret)
+    assert folge.startswith("Lagt til grunn 12.10 av [XX-U1](#xx-u1).")
+    assert vr.byggestatus_i(folge) == vr.byggestatus_i(_importert(endret, "ka-u2")["folge"])
+
+
+def test_folge_i_en_importert_post_leses_bare_med_de_fem_eldre_forholdene():
+    """«samler» og «bygger på» kom etter importen (#423), så en importert Følge leses ikke for dem."""
+    assert vr.les_forhold("Samler [KA-U1](#ka-u1). Bygger på [KA-U2](#ka-u2).")[0] == []
+
+
+def test_vedtaksfila_har_klassen_og_den_logiske_formen_har_den_ikke(grunnregister):
+    """Kontrollene mot main leser 3.1 uten klassekolonnen, så klassen endrer ikke en rad der."""
+    post = ny_post(klasse="design", forhold=[], bindende_i=["ka-u2"], flyttet_til="BF-06.md#u-12")
+    endret = med(grunnregister, post)
+    assert vr.TABELLHODE_MED_KLASSE in vr.vedtaksfil(endret)
+    assert vr.TABELLHODE_MED_KLASSE not in vr.logisk(endret)
+    assert vr.rad(endret["gruppe"][0]["vedtak"][-1], endret, klasse=True) == (
+        '| <a id="xx-u1"></a>XX-U1: TE kan trekke kravet. Forkastet: «TE kan ikke trekke kravet.» '
+        "| design. Bindende i [KA-U2](#ka-u2). Flyttet til "
+        "[BF-06 U-12](../domenetabell/brukerforlop/BF-06.md#u-12) "
+        "| 12.10, oppdragsgiver (#413) | Ikke bygget |"
+    )
+    vedtak = ny_post(id="XX-U2", designdel="x", beslutningsdel="y")
+    assert vr.klassecelle(vedtak, vr.indeks(endret)) == "vedtak med designdel og beslutningsdel"
+
+
+def test_klassen_kan_rettes_etter_merge(grunnregister):
+    """Svar 8 04.11 i #1534: orkestratoren kan rette klassen etter en uavhengig kontroll."""
+    merget = med(grunnregister, ny_post())
+    senere = copy.deepcopy(merget)
+    senere["gruppe"][0]["vedtak"][-1].update(klasse="beslutning", designdel="x")
+    assert vr.mot_grunnlag(senere, vr.logisk(merget), merget) == []
+
+
+@pytest.mark.parametrize(
+    ("forhold", "feil"),
+    [
+        ([{"art": "opphever", "vedtak": "ka-u1"}], []),
+        ([{"art": "samler", "vedtak": "ka-u1"}], []),
+        ([{"art": "presiserer", "vedtak": "ka-u1"}, {"art": "bygger på", "vedtak": "ka-u2"}], []),
+        (
+            [{"art": "presiserer", "vedtak": "ka-u1"}, {"art": "endrer", "vedtak": "ka-u2"}],
+            ["XX-U1: forholdet «endrer ka-u2» er lagt til etter merge; bare bygger på, opphever, samler kan legges til"],
+        ),
+        ([], ["XX-U1: forholdet «presiserer ka-u1» er fjernet etter merge"]),
+        (
+            [{"art": "endrer", "vedtak": "ka-u1"}],
+            [
+                "XX-U1: forholdet «endrer ka-u1» er lagt til etter merge; bare bygger på, opphever, samler kan legges til",
+                "XX-U1: forholdet «presiserer ka-u1» er fjernet etter merge",
+            ],
+        ),
+    ],
+)
+def test_et_forhold_etter_merge_kan_bare_bli_opphever_eller_samler(grunnregister, forhold, feil):
+    """Svar 14 i PR #1537: et senere vedtak som har tatt innholdet, opphever det eldre."""
+    merget = med(grunnregister, ny_post())
+    senere = copy.deepcopy(merget)
+    senere["gruppe"][0]["vedtak"][-1]["forhold"] = forhold
+    assert sorted(vr.mot_grunnlag(senere, vr.logisk(merget), merget)) == sorted(feil)
+
+
+def _rad_uten_anker(register: dict) -> dict:
+    return next(p for p in vr.poster(register) if not vr.er_ny(p) and "anker" not in p)
+
+
+def test_en_rad_uten_anker_kan_faa_et_anker(grunnregister, grunnplan):
+    """Svar 14 i PR #1537: rad-076 får forholdet «opphever», og et forhold viser til et anker."""
+    endret = copy.deepcopy(grunnregister)
+    rad_ = _rad_uten_anker(endret)
+    rad_["anker"] = "rad-med-nytt-anker"
+    plan = vr.logisk(endret)
+    assert vr.valider(endret) == []
+    assert vr.endrede_rader(grunnplan, plan) == []
+    assert vr.endret_rundt_vedtakene(grunnplan, plan) == []
+    assert vr.mot_grunnlag(endret, grunnplan, grunnregister) == []
+    rad_["vedtak"] += " endret"
+    plan = vr.logisk(endret)
+    assert len(vr.endrede_rader(grunnplan, plan)) == 1
+    assert len(vr.mot_grunnlag(endret, grunnplan, grunnregister)) == 1
+
+
+def test_folge_i_en_rad_som_har_faatt_anker_prooves_fortsatt(grunnregister, grunnplan):
+    endret = copy.deepcopy(grunnregister)
+    rad_ = _rad_uten_anker(endret)
+    rad_["anker"] = "rad-med-nytt-anker"
+    rad_["folge"] = "Ny tekst. " + rad_["folge"]
+    assert any(
+        "Følge er endret" in f for f in vr.endret_rundt_vedtakene(grunnplan, vr.logisk(endret))
+    )
+
+
+def test_byggestatusen_i_en_rad_som_har_faatt_anker_er_ikke_ny(grunnregister):
+    endret = copy.deepcopy(grunnregister)
+    rad_ = next(
+        p for p in vr.poster(endret)
+        if not vr.er_ny(p) and "anker" not in p and vr.byggestatus_i(p["folge"])
+    )
+    rad_["anker"] = "rad-med-nytt-anker"
+    assert vr.ny_byggestatus(grunnregister, endret) == []
+
+
+def test_de_fire_postene_fra_svar_14_er_opphevet(register):
+    """Svar 14 i PR #1537 og svar 1 04.11 i #1534: vedtaket som har tatt innholdet, opphever."""
+    opphevet, _ = vr.opphevet_og_samlet(register)
+    assert sorted(opphevet["mm-u28"]) == ["mm-u37", "mm-u38"]
+    assert opphevet["mm-u29"] == ["mm-u40"]
+    assert opphevet["ov-u71"] == ["ov-u86"]
+    assert opphevet["b-13-frafalt"] == ["gr-u18"]
