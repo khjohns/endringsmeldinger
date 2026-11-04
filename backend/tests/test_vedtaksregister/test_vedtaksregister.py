@@ -1424,6 +1424,31 @@ def test_et_opphevet_vedtak_eller_et_samlevedtak_gir_ingen_feil(grunnregister):
     assert vr.forhold_til_opphevet(endret) == {}
 
 
+def test_et_forhold_til_et_vedtak_et_samlevedtak_opphever_gir_ingen_feil(grunnregister):
+    """S1 A i vedtaks-PR-en for samlevedtaket for endringsordren, etter svar 4 A 04.11 i #1534:
+    samlevedtaket har tatt innholdet, så forholdet leses som et forhold til samlevedtaket.
+    Kontrollsaken: et vedtak som opphever uten å samle, gir fortsatt feil."""
+    presiserer = ny_post(forhold=[{"art": "presiserer", "vedtak": "ka-u2"}])
+    samlevedtak = ny_post(
+        id="XX-U2",
+        dato=datetime.date(2026, 10, 13),
+        forhold=[{"art": "opphever", "vedtak": "ka-u2"}, {"art": "samler", "vedtak": "ka-u1"}],
+    )
+    assert vr.forhold_til_opphevet_feil(med(med(grunnregister, presiserer), samlevedtak), frozenset()) == []
+    endret = med(med(grunnregister, presiserer), _opphever("XX-U2", "ka-u2"))
+    assert vr.forhold_til_opphevet(endret) != {}
+    selv = copy.deepcopy(samlevedtak)
+    selv["forhold"].append({"art": "bygger på", "vedtak": "ka-u2"})
+    assert vr.forhold_til_opphevet(med(grunnregister, selv)) != {}
+
+
+def test_en_gruppe_uten_tekst_etter_tabellen_kan_faa_tekst():
+    """Teksten etter en tabell kan bare få hele avsnitt lagt til, også når det ikke sto noe der."""
+    assert vr._bare_lagt_til("", "##### Ny overskrift\n\nEt nytt avsnitt.\n")
+    assert vr._bare_lagt_til("\n", "Et nytt avsnitt.\n")
+    assert not vr._bare_lagt_til("Et avsnitt.", "Et annet avsnitt.")
+
+
 def test_lista_over_forhold_til_opphevede_vedtak_kan_bare_krympe(grunnregister):
     """En rad som ikke lenger finnes, og en rad uten issuet, gir feil."""
     assert vr.forhold_til_opphevet_feil(
