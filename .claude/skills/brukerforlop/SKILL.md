@@ -79,8 +79,8 @@ Tabellen gjelder også et designvalg i en bygget visning uten bestilling, for ek
 designrunde for Varden, før valget bygges (oppdragsgiver 30.10, #1391, #1400).
 
 Ikke alle funn skal bli vedtak, og ikke alle skal presses inn som endringer i visningen.
-En ny handling, eller noe som endrer hva en part godtar eller er bundet av, er domene.
-Hvordan handlingene samles og vises, er design.
+Om et funn er vedtak, beslutning eller design, avgjøres av testen under «Hva et vedtak
+er» i [vedtaksskillen](../vedtak/SKILL.md).
 
 ## Bestillingen
 
@@ -97,7 +97,7 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
   eller utsagn hver handling lager, hvilke virkninger som oppstår og består, og hva som
   skjer ved et ugyldig valg og ved avbrudd. Byggeøkta skal ikke måtte finne på forventet
   atferd. En virkning gjengis med alle vilkårene i vedtaket. Et D-punkt sier bare hva som
-  binder og hva som telles.
+  binder og hva som regnes med etter kontrakten.
 - **G, gjennomføringen:** hva som finnes, hva som mangler, og hva som må prøves teknisk.
 - **S, spørsmålene:** stilles og lagres ordrett etter vedtaksskillen. Et svar som følger
   av et vedtak, føres som arbeidsvalg i bestillingen. Et svar som endrer et vedtak, føres

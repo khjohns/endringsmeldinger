@@ -11,7 +11,20 @@ oppdragsgiver.
 - **Hva et vedtak er.** Et vedtak sier hva som binder partene, hvilken virkning en handling
   har, hvordan NS 8407 tolkes, og hva løsningen teller eller regner. Hvordan skjemaet,
   visningen og arbeidsflyten er bygget opp, står i brukerforløpet og endres av brukerprøven
-  uten nytt vedtak (oppdragsgiver 03.11, #1534).
+  uten nytt vedtak (oppdragsgiver 03.11, #1534). «Hva løsningen teller eller regner» leses
+  som det som regnes med etter kontrakten. Hva oversiktene summerer, er beslutning eller
+  design. Klassen avgjøres av testen under, i denne rekkefølgen (oppdragsgiver 04.11,
+  #1534):
+  1. Har raden en setning om hva som binder partene, hvilken virkning en handling har,
+     hvordan NS 8407 tolkes, hva som regnes med etter kontrakten (frist, beløp, enighet,
+     «i tide»), eller hvem som har tilgang, og står setningen ikke i et annet gjeldende
+     vedtak? Da er raden *vedtak*, og resten av teksten er design- eller beslutningsdel.
+  2. Sier raden hvordan løsningen er bygget, lagrer, leverer eller drives, eller hva som
+     venter til en senere versjon? Da er raden *beslutning*. Den avgjøres av
+     oppdragsgiver og endres med en ny beslutning.
+  3. Ellers sier raden hvordan skjemaet, visningen og arbeidsflyten er bygget opp. Da er
+     den *design*, og står i brukerforløpet eller `system.md`. Brukerprøven endrer den uten
+     vedtak, men en endring som ville endre noe et vedtak sier, krever nytt vedtak.
 - **Vedtak ved behov.** Nye domenevedtak stilles bare når et issue i den
   kritiske stien trenger dem (oppdragsgiver 20.10, [spørsmål 4](../../../docs/vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md)).
   Den kritiske stien er milepælen «Første ekte sak».
