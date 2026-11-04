@@ -1058,7 +1058,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("gr-u22", "endrer", "gr-u2", "#1534, steg 4"),
         ("gr-u7", "presiserer", "ka-u5", "#1534, steg 4"),
         ("hf-u12", "presiserer", "eo-u9", "#1534, steg 4"),
-        ("hf-u20", "presiserer", "hf-u17", "#1534, steg 4"),
         ("hf-u22", "presiserer", "hf-u17", "#1534, steg 4"),
         ("hf-u7", "bygger på", "ka-u26", "#1534, steg 4"),
         ("hf-u7", "presiserer", "ka-u24", "#1534, steg 4"),
