@@ -17,7 +17,8 @@ Det er to former for poster. En importert post har cellene fra 3.1 ordrett:
 `vedtak`, `vedtatt` og `folge`, og eventuelt `anker`. En ny post har `id`, `dato`,
 `hvem`, `kilde`, `sporsmal`, alternativene, `valgt`, `svar` og eventuelt `forhold`,
 `folge` og `sitat`; raden lages av dem. Kontrollene av kodenavn og sitater gjelder
-de nye postene.
+de nye postene. Begge former har `klasse`, og eventuelt `designdel`, `beslutningsdel`,
+`bindende_i` og `flyttet_til` (#1534); vedtaksfila viser dem i en egen kolonne.
 
 En importert post kan også ha `forhold`: de forholdene Følge sier uttrykkelig (#423).
 De står allerede i teksten, så verktøyet skriver dem ikke; kontrollen holder dem lik
