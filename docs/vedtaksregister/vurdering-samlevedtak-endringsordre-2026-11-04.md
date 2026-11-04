@@ -614,4 +614,9 @@ slik KOE-sak (punkt 57). Ved B står teksten.
 
 ## Svarene
 
-Ikke besvart ennå.
+Oppdragsgiver 04.11, ordrett: «1A, 2A, 3B, 4A» ([#1534, 6626551632](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6626551632)).
+
+- **1: A** er valgt, og **B** er forkastet.
+- **2: A** er valgt, og **B** er forkastet.
+- **3: B** er valgt, og **A** er forkastet.
+- **4: A** er valgt, og **B** er forkastet.
