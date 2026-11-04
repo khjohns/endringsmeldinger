@@ -12459,7 +12459,7 @@ anbefalt = true
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "kortene side om side og de dempede tallene"
-bindende_i = ["eo-u34", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
+bindende_i = ["eo-u34", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
 id = "MM-U38"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -16865,7 +16865,7 @@ anbefalt = true
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "særskilt visning, merking og antall ved summene"
-bindende_i = ["gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u6", "ov-u57"]
+bindende_i = ["gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u6", "ov-u57"]
 id = "OV-U61"
 dato = 2026-10-25
 hvem = "oppdragsgiver"
