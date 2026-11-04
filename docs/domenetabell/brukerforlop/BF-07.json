@@ -27,6 +27,8 @@
     "LV-U49",
     "LV-U50",
     "LV-U51",
+    "LV-U52",
+    "LV-U53",
     "MM-U9",
     "OV-U4",
     "OV-U80",
@@ -54,6 +56,11 @@
       "dato": "2026-11-04",
       "forhold": "#1497",
       "hva": "Bestillingen viser til LV-U49, LV-U50 og LV-U51, brevnumrene følger nummeret i saken fra A1 (#1548), og henvisningen til forespørselen i G-4 bygges i #1567."
+    },
+    {
+      "dato": "2026-11-04",
+      "forhold": "#1571, LV-U52, LV-U53",
+      "hva": "Brevteksten og Deres ref. bruker den samme merkingen (LV-U53), og en ny kravversjon nevner brevet med svaret i brevteksten (LV-U52)."
     }
   ]
 }
