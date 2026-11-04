@@ -110,8 +110,10 @@ DEL_I_KLASSE = {"designdel": {"vedtak", "beslutning"}, "beslutningsdel": {"vedta
 # (arbeidsvalget for kontroll 2 04.11 i #1534). En vedtakspost har den selv.
 BINDENDE_I_KLASSE = {"beslutning", "design"}
 # Punktet i bestillingen for et brukerforløp, med bokstaven når forløpet har en, som BF-02A
-# (reviewet av PR #1542). Lenkekontrollen feiler når ankeret ikke finnes.
-FLYTTET_TIL = re.compile(r"BF-\d{2}[A-Z]?\.md#u-\d+")
+# (reviewet av PR #1542), eller ankeret med vedtakets ID i systemfila (arbeidsvalg 04.11 fra
+# økta som følger #1534). Lenkekontrollen feiler når ankeret ikke finnes.
+SYSTEMFIL = ".interface-design/system.md"
+FLYTTET_TIL = re.compile(rf"BF-\d{{2}}[A-Z]?\.md#u-\d+|{re.escape(SYSTEMFIL)}#[a-z]{{2,3}}-u\d+")
 IMPORTERT = {"anker", "vedtak", "vedtatt", "folge", "forhold"} | KLASSEFELT
 NY = {
     "id",
@@ -356,7 +358,10 @@ def klassecelle(post: dict, ix: tuple[dict, dict]) -> str:
         tekst += f". Bindende i {_liste_med_og(lenker)}"
     if post.get("flyttet_til"):
         fil, punkt = post["flyttet_til"].split("#")
-        tekst += f". Flyttet til [{fil.removesuffix('.md')} {punkt.upper()}]({BRUKERFORLOP}{fil}#{punkt})"
+        if fil == SYSTEMFIL:
+            tekst += f". Flyttet til [system.md {punkt.upper()}](../../{fil}#{punkt})"
+        else:
+            tekst += f". Flyttet til [{fil.removesuffix('.md')} {punkt.upper()}]({BRUKERFORLOP}{fil}#{punkt})"
     return tekst
 
 
@@ -703,7 +708,7 @@ def _klassefeil(p: dict, navn: str) -> list[str]:
         feil.append(f"{navn}: bindende_i skal være {TYPER_NY['bindende_i'][1]}")
     if isinstance(p.get("flyttet_til"), str) and not FLYTTET_TIL.fullmatch(p["flyttet_til"]):
         feil.append(
-            f"{navn}: flyttet_til «{p['flyttet_til']}» er ikke et punkt i et brukerforløp, som BF-06.md#u-12"
+            f"{navn}: flyttet_til «{p['flyttet_til']}» er ikke et punkt i et brukerforløp, som BF-06.md#u-12, eller et anker i systemfila, som .interface-design/system.md#mm-u22"
         )
     return feil
 
@@ -1041,10 +1046,11 @@ def bindende_i_opphevet(register: dict) -> list[str]:
     ]
 
 
-# Et gjeldende vedtak som presiserer, utvider, endrer eller bygger på et opphevet vedtak, er en
-# motsigelse (svar 5 04.11 i #1534). Dagens tilfeller rettes i samlevedtakene i steg 4, og
+# Et gjeldende vedtak som presiserer, utvider, snevrer inn, endrer eller bygger på et opphevet
+# vedtak, er en motsigelse (svar 5 04.11 i #1534; «snevrer inn» etter arbeidsvalg 04.11 fra
+# økta som følger #1534). Dagens tilfeller rettes i samlevedtakene i steg 4, og
 # lista skal bare krympe.
-FORHOLD_TIL_OPPHEVET = ("presiserer", "utvider", "endrer", "bygger på")
+FORHOLD_TIL_OPPHEVET = ("presiserer", "utvider", "snevrer inn", "endrer", "bygger på")
 KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
     {
         ("eo-u1", "bygger på", "eo-u6", "#1534, steg 4"),
@@ -1059,8 +1065,12 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("hf-u7", "presiserer", "ka-u24", "#1534, steg 4"),
         ("hf-u9", "presiserer", "gr-u2", "#1534, steg 4"),
         ("hf-u9", "presiserer", "ka-u7", "#1534, steg 4"),
+        ("hf-u9", "snevrer inn", "eo-u2", "#1534, steg 4"),
+        ("hf-u9", "snevrer inn", "eo-u5", "#1534, steg 4"),
         ("ka-u12", "presiserer", "eo-u5", "#1534, steg 4"),
+        ("ka-u13", "snevrer inn", "ka-u7", "#1534, steg 4"),
         ("ka-u20", "presiserer", "ka-u7", "#1534, steg 4"),
+        ("ka-u31", "snevrer inn", "ka-u24", "#1534, steg 4"),
         ("ka-u34", "presiserer", "ka-u24", "#1534, steg 4"),
         ("ka-u41", "presiserer", "ka-u24", "#1534, steg 4"),
         ("ka-u45", "bygger på", "ov-u48", "#1534, steg 4"),
@@ -1084,6 +1094,7 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ov-u43", "presiserer", "mm-u28", "#1534, steg 4"),
         ("ov-u43", "utvider", "eo-u5", "#1534, steg 4"),
         ("ov-u43", "utvider", "ka-u7", "#1534, steg 4"),
+        ("ov-u55", "snevrer inn", "eo-u5", "#1534, steg 4"),
         ("ov-u6", "bygger på", "eo-u6", "#1534, steg 4"),
         ("ov-u6", "bygger på", "eo-u9", "#1534, steg 4"),
         ("ov-u61", "presiserer", "mm-u28", "#1534, steg 4"),
@@ -1125,7 +1136,7 @@ def forhold_til_opphevet_feil(
     lista = {rad[:3] for rad in kjente}
     feil += [
         f"{post}: {art} {vedtak}, som er opphevet av {', '.join(av)}; et gjeldende vedtak kan "
-        "ikke presisere, utvide, endre eller bygge på et opphevet vedtak"
+        "ikke presisere, utvide, snevre inn, endre eller bygge på et opphevet vedtak"
         for (post, art, vedtak), av in sorted(funnet.items())
         if (post, art, vedtak) not in lista
     ]

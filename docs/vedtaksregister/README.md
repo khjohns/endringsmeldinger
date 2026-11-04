@@ -153,7 +153,7 @@ Klassene for postene som fantes 03.11, kommer fra tabellen i
 | `designdel` | Hvilken del av teksten som er skjema, visning eller arbeidsflyt. Teksten i posten endres ikke | `vedtak` og `beslutning` |
 | `beslutningsdel` | Hvilken del av teksten som sier hvordan løsningen er bygget, lagrer, leverer eller drives | `vedtak` |
 | `bindende_i` | Ankrene til postene der den bindende setningen står, som `["vs-u3", "hf-u11"]` | `beslutning` og `design` |
-| `flyttet_til` | Punktet i brukerforløpet teksten er flyttet til, som `BF-06.md#u-12` eller `BF-02A.md#u-3`. Lenkekontrollen feiler når ankeret ikke finnes | alle |
+| `flyttet_til` | Punktet i brukerforløpet teksten er flyttet til, som `BF-06.md#u-12` eller `BF-02A.md#u-3`, eller ankeret i systemfila, som `.interface-design/system.md#mm-u22`. Lenkekontrollen feiler når ankeret ikke finnes | alle |
 
 - **Det andre hjemmet.** `bindende_i` føres én gang i registeret og ikke i hver
   henvisning i koden (arbeidsvalget for kontroll 2 i
@@ -175,7 +175,7 @@ Klassene for postene som fantes 03.11, kommer fra tabellen i
   `Utvidet 29.10 av [OV-U48](#ov-u48) (opphevet 30.10 av [OV-U69](#ov-u69)).`
   Står forholdet i Følge i en importert post selv, skriver verktøyet en setning foran teksten,
   som `[EO-U5](#eo-u5) er opphevet 28.10 av [MM-U34](#mm-u34).` Vedtaksteksten endres ikke.
-- **Et gjeldende vedtak presiserer, utvider, endrer eller bygger ikke på et opphevet vedtak**
+- **Et gjeldende vedtak presiserer, utvider, snevrer inn, endrer eller bygger ikke på et opphevet vedtak**
   (svar 5 04.11 i #1534). Dagens tilfeller står i `KJENTE_FORHOLD_TIL_OPPHEVET` i verktøyet
   og rettes i samlevedtakene i steg 4. Lista skal bare krympe.
 - **Etter merge** kan en ny post få forholdene `opphever`, `samler` og `bygger på`, og
@@ -276,8 +276,8 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | En post i importert form står i 3.1 på `main`; et nytt vedtak kan ikke føres i den formen | importerte poster |
 | Hvert anker står én gang i hovedplanen og vedtaksfila til sammen, og ID-en til en ny post står ikke i hovedplanen, arkivet eller vedtaksfila på `main` fra før, heller ikke uten anker | hovedplanen, arkivet og vedtaksfila |
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret. `folge` og klassen med delene kan endres, og forholdene etter [Klassen](#klassen) | nye poster på `main` |
-| Posten har klassen, og delene og `bindende_i` passer til den; `flyttet_til` har formen `BF-06.md#u-12` eller `BF-02A.md#u-3`; en post i `bindende_i` er ikke opphevet uten å være samlet | alle poster |
-| Et gjeldende vedtak presiserer, utvider, endrer eller bygger ikke på et opphevet vedtak, utenom den lukkede lista | alle poster |
+| Posten har klassen, og delene og `bindende_i` passer til den; `flyttet_til` har formen `BF-06.md#u-12`, `BF-02A.md#u-3` eller `.interface-design/system.md#mm-u22`; en post i `bindende_i` er ikke opphevet uten å være samlet | alle poster |
+| Et gjeldende vedtak presiserer, utvider, snevrer inn, endrer eller bygger ikke på et opphevet vedtak, utenom den lukkede lista | alle poster |
 | Forholdet står begge veier | nye poster med `forhold` |
 | Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil; en lenke i et uttrykkelig forhold går til et annet vedtak, og i passiv form til en importert post | importerte poster |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
