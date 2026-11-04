@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `b723a61c0e6cf807a9c014678a69cb56243cdf11dc9f73293662063cbed36640`
+Kontrollsum (SHA-256 over utdraget visningen leser): `c5985747652f6e3eed8bc86c60f1a3375e27e6adaa7afaec0d02deffc5e88500`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -624,7 +624,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#578, #502)
 
-**Følge:** Presiserer [VS-U2](../../plans/vedtak.md#vs-u2). Presiserer [HF-U17](#hf-u17). Endret 28.10 av [MM-U34](#mm-u34). Alternativ A er ikke forkastet: om fristsvaret binder under forsering (FO-U5, FO-U7), avgjøres når forsering bygges (OV-U1). Forholdet til HF-U17 fant kontrollen av føringen 16.10: vedtaket sier hva appen viser når byggherren senker etter akseptfristen, som HF-U17 tillater. Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).
+**Følge:** Presiserer [VS-U2](../../plans/vedtak.md#vs-u2). Presiserer [HF-U17](#hf-u17). Endret 28.10 av [MM-U34](#mm-u34). Alternativ A er ikke forkastet: om fristsvaret binder under forsering (FO-U5, FO-U7), avgjøres når forsering bygges (OV-U1). Forholdet til HF-U17 fant kontrollen av føringen 16.10: vedtaket sier hva appen viser når byggherren senker etter akseptfristen, som HF-U17 tillater. Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502). Etter [HF-U23](#hf-u23), E5: «Begrunnelsen i Følge og forholdet til HF-U17 gjelder ikke lenger.»
 
 **Regelrader:** [KA-49](#rad-ka-49)
 
@@ -638,7 +638,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 04.11, oppdragsgiver (#1534, #1065)
 
-**Følge:** Samler [HF-U8](../../plans/vedtak.md#hf-u8). Samler [HF-U15](#hf-u15). Samler [HF-U16](#hf-u16). Samler [HF-U18](#hf-u18). Samler [LV-U7](../../plans/vedtak.md#lv-u7). Samler [MM-U34](#mm-u34). Opphever [HF-U20](#hf-u20). Endrer [HF-U5](#hf-u5). Endrer [OV-U54](#ov-u54). Endrer [LV-U9](../../plans/vedtak.md#lv-u9). Teksten står under tabellen, i [Samlevedtaket for akseptfristen](../../plans/vedtak.md#samlevedtak-akseptfrist).
+**Følge:** Samler [HF-U8](../../plans/vedtak.md#hf-u8). Samler [HF-U15](#hf-u15). Samler [HF-U16](#hf-u16). Samler [HF-U18](#hf-u18). Samler [LV-U7](../../plans/vedtak.md#lv-u7). Samler [MM-U34](#mm-u34). Opphever [HF-U20](#hf-u20). Endrer [HF-U5](#hf-u5). Endrer [OV-U54](#ov-u54). Endrer [LV-U9](../../plans/vedtak.md#lv-u9). Teksten står under tabellen, i [Samlevedtaket for akseptfristen](../../plans/vedtak.md#samlevedtak-akseptfrist). Forholdene står i spørsmål 1: «samler HF-U8, HF-U15 (uten setningen om avkall), HF-U16, HF-U18, LV-U7 og MM-U34 punkt 17». Forholdet til MM-U34 gjelder bare punkt 17, og forholdet til HF-U15 gjelder ikke setningen om avkall (E7). Spørsmål 1 sier også: «HF-U22 og LV-U31 står, uten forholdet til de opphevede vedtakene.»
 
 **Regelrader:** —
 
@@ -1260,7 +1260,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 24.10, oppdragsgiver (#1240)
 
-**Følge:** Presiserer [LV-U4](../../plans/vedtak.md#lv-u4). Presiserer [HF-U7](../../plans/vedtak.md#hf-u7). Presiserer [HF-U14](#hf-u14). Presiserer [OV-U32](#ov-u32). Presiserer [OV-U33](#ov-u33). Utvidet 24.10 av [LV-U32](#lv-u32). Endret 01.11 av [LV-U39](#lv-u39). Bygges i #1240. «Fast sum» er appens begrep, ikke standardens, og føres i domenetabellen.
+**Følge:** Presiserer [LV-U4](../../plans/vedtak.md#lv-u4). Presiserer [HF-U7](../../plans/vedtak.md#hf-u7). Presiserer [HF-U14](#hf-u14). Presiserer [OV-U32](#ov-u32). Presiserer [OV-U33](#ov-u33). Utvidet 24.10 av [LV-U32](#lv-u32). Endret 01.11 av [LV-U39](#lv-u39). Bygges i #1240. «Fast sum» er appens begrep, ikke standardens, og føres i domenetabellen. Etter [HF-U23](#hf-u23), E6: «Forholdet til HF-U14 har ikke noe å virke på og leses ikke som at sperren i HF-U14 står.»
 
 **Regelrader:** —
 

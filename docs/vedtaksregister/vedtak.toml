@@ -4321,7 +4321,7 @@ svar = '''
 B nå, forsering senere (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "vs-u2" }, { art = "presiserer", vedtak = "hf-u17" }]
 folge = '''
-Alternativ A er ikke forkastet: om fristsvaret binder under forsering (FO-U5, FO-U7), avgjøres når forsering bygges (OV-U1). Forholdet til HF-U17 fant kontrollen av føringen 16.10: vedtaket sier hva appen viser når byggherren senker etter akseptfristen, som HF-U17 tillater. Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).'''
+Alternativ A er ikke forkastet: om fristsvaret binder under forsering (FO-U5, FO-U7), avgjøres når forsering bygges (OV-U1). Forholdet til HF-U17 fant kontrollen av føringen 16.10: vedtaket sier hva appen viser når byggherren senker etter akseptfristen, som HF-U17 tillater. Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502). Etter [HF-U23](#hf-u23), E5: «Begrunnelsen i Følge og forholdet til HF-U17 gjelder ikke lenger.»'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B nå, forsering senere"
@@ -4366,7 +4366,7 @@ svar = '''
 Oppdragsgiver 04.11, ordrett: «1A, 2A» ([#1534, 6626650139](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6626650139)).'''
 forhold = [{ art = "samler", vedtak = "hf-u8" }, { art = "samler", vedtak = "hf-u15" }, { art = "samler", vedtak = "hf-u16" }, { art = "samler", vedtak = "hf-u18" }, { art = "samler", vedtak = "lv-u7" }, { art = "samler", vedtak = "mm-u34" }, { art = "opphever", vedtak = "hf-u20" }, { art = "endrer", vedtak = "hf-u5" }, { art = "endrer", vedtak = "ov-u54" }, { art = "endrer", vedtak = "lv-u9" }]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for akseptfristen](#samlevedtak-akseptfrist).'''
+Teksten står under tabellen, i [Samlevedtaket for akseptfristen](#samlevedtak-akseptfrist). Forholdene står i spørsmål 1: «samler HF-U8, HF-U15 (uten setningen om avkall), HF-U16, HF-U18, LV-U7 og MM-U34 punkt 17». Forholdet til MM-U34 gjelder bare punkt 17, og forholdet til HF-U15 gjelder ikke setningen om avkall (E7). Spørsmål 1 sier også: «HF-U22 og LV-U31 står, uten forholdet til de opphevede vedtakene.»'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1A"
@@ -10028,7 +10028,7 @@ Jeg støtter følgende fra Astra.
 Lagt fram slått sammen med rettelsene, med S⁗ i spørsmål 1 og 2‴ i spørsmål 2: Ja til begge'''
 forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "hf-u7" }, { art = "presiserer", vedtak = "hf-u14" }, { art = "presiserer", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u33" }]
 folge = '''
-Bygges i #1240. «Fast sum» er appens begrep, ikke standardens, og føres i domenetabellen.'''
+Bygges i #1240. «Fast sum» er appens begrep, ikke standardens, og føres i domenetabellen. Etter [HF-U23](#hf-u23), E6: «Forholdet til HF-U14 har ikke noe å virke på og leses ikke som at sperren i HF-U14 står.»'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "2‴"
