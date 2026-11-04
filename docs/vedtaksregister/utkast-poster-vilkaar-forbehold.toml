@@ -5,7 +5,7 @@
 # Oppskrift for økta som skriver postene, når svarene foreligger og vedtak.toml er ledig:
 # 1. «etter» fylles med avsnittene «Forslaget» og «Endret innhold» fra vurderingsfila
 #    (vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md), ordrett slik de ble lagt fram på
-#    commiten der spørsmålene ble sendt, med punkt 3 etter svaret på spørsmål 1 og
+#    commiten der spørsmålene ble sendt, med punkt 1 etter svaret på spørsmål 1 og
 #    rettelsene oppdragsgiver gir per punkt. Teksten legges til i «etter» i gruppen «Svar og
 #    standpunkt», før den første [[gruppe.vedtak]] i gruppen.
 # 2. De to postene legges sist i den gruppen. ID-ene KA-U49 og KA-U50 er foreløpige: sjekk
@@ -29,7 +29,7 @@ etter = '''
 
 Teksten under er samlevedtaket [KA-U49](#ka-u49), vedtatt <dato> av oppdragsgiver (#1534), ordrett
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md),
-med «Endret innhold» E1–E7. Svaret på spørsmål 1 i vurderingen er [KA-U50](#ka-u50).
+med «Endret innhold» E1–E8. Svaret på spørsmål 1 i vurderingen er [KA-U50](#ka-u50).
 
 <Forslaget og Endret innhold, ordrett etter punkt 1 i oppskriften.>'''
 
@@ -49,15 +49,16 @@ svar = '''
 forhold = [
   { art = "samler", vedtak = "ov-u69" },
   { art = "samler", vedtak = "ov-u72" },
-  { art = "opphever", vedtak = "ka-u16" },
+  { art = "endrer", vedtak = "ka-u16" },
   { art = "samler", vedtak = "ka-u19" },
   { art = "samler", vedtak = "ka-u45" },
   { art = "endrer", vedtak = "ka-u20" },
   { art = "samler", vedtak = "ka-u27" },
   { art = "endrer", vedtak = "ka-u29" },
   { art = "samler", vedtak = "lv-u32" },
-  { art = "opphever", vedtak = "mm-u34" },
+  { art = "endrer", vedtak = "mm-u34" },
   { art = "samler", vedtak = "ov-u46" },
+  { art = "presiserer", vedtak = "hf-u7" },
 ]
 folge = '''
 Samler setningene om vilkår og forbehold i byggherrens svar. Tabellen «Postene i kjeden» i
@@ -67,7 +68,7 @@ delene i E5.'''
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-Forslaget i punkt 1–13 med designdelen og beslutningsdelen, og E1–E7, gjelder slik det står, med svaret på spørsmål 1 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».'''
+Forslaget i punkt 1–11 med designdelen og beslutningsdelen, og E1–E8, gjelder slik det står, med svaret på spørsmål 1 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
@@ -88,19 +89,23 @@ svar = '''
 <Oppdragsgivers svar, ordrett.>'''
 forhold = [
   { art = "samler", vedtak = "ov-u72" },
-  { art = "endrer", vedtak = "ov-u69" },
-  { art = "endrer", vedtak = "eo-u18" },
+  { art = "samler", vedtak = "ov-u69" },
+  { art = "endrer", vedtak = "eo-u34" },
 ]
+folge = '''
+Forholdet til OV-U69 gjelder s3 slik OV-U72 presiserte den. Forholdet til EO-U34 gjelder setningen
+i designdelen om at parten skriver vilkår og forbehold «i begrunnelsen eller i et innlegg (EO-U18)».
+I tråd med KA-U1 og MM-U35.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-Vilkår og forbehold byggherren knytter til svaret, skrives i svaret: i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret. Et innlegg kan uttrykke forbehold (MM-U33 steg 3), men endrer ikke svaret i løsningen, og løsningen avgjør ikke om et forbehold i et innlegg binder (MM-U12).'''
+Vilkår og forbehold byggherren knytter til svaret, skrives i svaret: i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de gjelder hele svaret. Vil byggherren knytte et vilkår eller forbehold til svaret etter at det er sendt, sender byggherren et nytt svar så lenge det kan sendes. Et innlegg kan uttrykke forbehold (MM-U33 steg 3), men endrer ikke svaret i løsningen og inngår ikke i det TE godtar ved aksept. Løsningen avgjør ikke om et forbehold i et innlegg binder (MM-U12). Hva som gjelder for totalentreprenørens vilkår og forbehold, endres ikke.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
 tekst = '''
-Vilkår og forbehold skrives i begrunnelsen for punktet, under «Forbehold» eller i et innlegg. Løsningen tolker ingen av dem.'''
+Vilkår og forbehold skrives i begrunnelsen for punktet, under «Forbehold» eller i et innlegg. Løsningen tolker ingen av dem. TEs aksept gjelder svaret slik det står i brevet, og et vilkår i et innlegg står utenfor aksepten i løsningen.'''
 forkastet = true
 
 [[gruppe.vedtak.sitat]]
