@@ -1456,7 +1456,7 @@ def endrede_rader(gammel_plan: str, plan: str) -> list[str]:
 
 
 def _avsnittene(tekst: str) -> list[str]:
-    return re.split(r"\n(?:[ \t]*>)?[ \t]*\n", tekst)
+    return re.split(r"\n(?:[ \t]*>)?[ \t]*\n", tekst.rstrip("\n"))
 
 
 def _bare_lagt_til(gammel: str, ny: str) -> bool:
