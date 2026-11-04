@@ -1053,7 +1053,6 @@ def bindende_i_opphevet(register: dict) -> list[str]:
 FORHOLD_TIL_OPPHEVET = ("presiserer", "utvider", "snevrer inn", "endrer", "bygger på")
 KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
     {
-        ("eo-u1", "bygger på", "eo-u6", "#1534, steg 4"),
         ("gfk-u2", "presiserer", "eo-u6", "#1534, steg 4"),
         ("gr-u10", "presiserer", "gr-u2", "#1534, steg 4"),
         ("gr-u22", "endrer", "gr-u2", "#1534, steg 4"),
@@ -1109,16 +1108,32 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
 _AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
 
 
+def samlevedtakene(register: dict, opphevet: dict) -> set[str]:
+    """Ankrene til de gjeldende samlevedtakene: postene med forholdet «samler»."""
+    return {
+        anker(p) or etikett(p)
+        for p in poster(register)
+        if (anker(p) or etikett(p)) not in opphevet
+        and any(f["art"] == "samler" for f in p.get("forhold", []))
+    }
+
+
 def forhold_til_opphevet(register: dict) -> dict[tuple[str, str, str], list[str]]:
     """(posten, arten, vedtaket) for hvert gjeldende vedtak med et forhold i
-    FORHOLD_TIL_OPPHEVET til et opphevet vedtak, med vedtakene som opphever det."""
+    FORHOLD_TIL_OPPHEVET til et opphevet vedtak, med vedtakene som opphever det. Et forhold
+    til et vedtak som et gjeldende samlevedtak opphever, leses som et forhold til
+    samlevedtaket, som har tatt innholdet (svar 4 A 04.11 i #1534, S1 A i vedtaks-PR-en
+    for samlevedtaket for endringsordren)."""
     opphevet, _ = opphevet_og_samlet(register)
+    samlevedtak = samlevedtakene(register, opphevet)
     return {
         (anker(p) or etikett(p), f["art"], f["vedtak"]): opphevet[f["vedtak"]]
         for p in poster(register)
         if (anker(p) or etikett(p)) not in opphevet
         for f in p.get("forhold", [])
-        if f["art"] in FORHOLD_TIL_OPPHEVET and f["vedtak"] in opphevet
+        if f["art"] in FORHOLD_TIL_OPPHEVET
+        and f["vedtak"] in opphevet
+        and not samlevedtak.intersection(opphevet[f["vedtak"]])
     }
 
 
@@ -1449,6 +1464,8 @@ def _avsnittene(tekst: str) -> list[str]:
 def _bare_lagt_til(gammel: str, ny: str) -> bool:
     """Hvert avsnitt i den gamle teksten står uendret i den nye, i samme rekkefølge, så ny
     tekst er hele nye avsnitt. Et avsnitt i en merknad skilles med en linje med bare >."""
+    if not gammel:
+        return True
     avsnitt_ = iter(_avsnittene(ny))
     return all(any(g == n for n in avsnitt_) for g in _avsnittene(gammel))
 

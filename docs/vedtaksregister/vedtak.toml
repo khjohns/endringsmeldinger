@@ -7217,7 +7217,7 @@ tekst = "Avsenderen retter en feil kategori eller et feil varsel etter MM-U21."
 [[gruppe.vedtak]]
 klasse = "vedtak"
 designdel = "avsnittet «Designdel» i samlevedtaket"
-beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket, med sperrene i punkt 12, 14 og 37 som avsnittet viser til"
 id = "EO-U34"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
