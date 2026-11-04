@@ -394,7 +394,7 @@ def test_kontroller_slipper_bare_raden_og_teller_treffene_per_fil(register, plan
     # KA-U24 er opphevet av KA-U43 (#1433).
     rot = _tre(tmp_path, {"kjerne/a.ts": "// KA-U24\n", "kjerne/b.ts": "// KA-U24\n"})
     rader = (("kjerne/a.ts", "KA-U24", 1, "#1433"),)
-    assert vh.kontroller(register, plan, rot, rader) == [
+    assert vh.kontroller(register, plan, rot, rader, ()) == [
         "kjerne/b.ts:1: KA-U24 er opphevet og står som eneste grunnlag"
     ]
 
@@ -402,6 +402,128 @@ def test_kontroller_slipper_bare_raden_og_teller_treffene_per_fil(register, plan
 def test_kontroller_avviser_en_rad_med_feil_form_og_unntar_ingenting(register, plan, tmp_path):
     rot = _tre(tmp_path, {"kjerne/a.ts": "// KA-U24\n"})
     rader = (("kjerne/a.ts", "KA-U24", 1, ""),)
-    feil = vh.kontroller(register, plan, rot, rader)
+    feil = vh.kontroller(register, plan, rot, rader, ())
     assert "kjerne/a.ts:1: KA-U24 er opphevet og står som eneste grunnlag" in feil
     assert any("må ha én fil, én ID, antallet og issuet" in f for f in feil)
+
+
+# --------------------------------------------------------------------------
+# Dokumentene og designpostene (steg 3b i #1534)
+# --------------------------------------------------------------------------
+
+
+def test_dokumentene_er_bestillingene_systemfila_skillene_og_agents(tmp_path):
+    """Svar 5 04.11 i #1534: der designet fra registeret flyttes."""
+    for sti in (
+        "docs/domenetabell/brukerforlop/BF-02A.md",
+        "docs/domenetabell/brukerforlop/README.md",
+        ".interface-design/system.md",
+        ".claude/skills/vedtak/SKILL.md",
+        ".claude/skills/miljo/referanse/x.md",
+        "AGENTS.md",
+        "docs/annet.md",
+    ):
+        (tmp_path / sti).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / sti).write_text("KA-U1\n", encoding="utf-8")
+    assert [sti for sti, _ in vh.dokumenter(tmp_path)] == [
+        ".claude/skills/miljo/referanse/x.md",
+        ".claude/skills/vedtak/SKILL.md",
+        ".interface-design/system.md",
+        "AGENTS.md",
+        "docs/domenetabell/brukerforlop/BF-02A.md",
+    ]
+
+
+@pytest.mark.parametrize(
+    "tekst, feil",
+    [
+        ("Regelen står i MM-U4\nog i MM-U9.\n", []),
+        ("Regelen står i MM-U4.\n\nDen står i MM-U9.\n", ["x.md:1: MM-U4 er opphevet og står som eneste grunnlag"]),
+        ("- MM-U4 gjelder.\n- MM-U9 gjelder.\n", ["x.md:1: MM-U4 er opphevet og står som eneste grunnlag"]),
+        ("| MM-U4 |\n| MM-U9 |\n", ["x.md:1: MM-U4 er opphevet og står som eneste grunnlag"]),
+        ("## MM-U4\nMM-U9 gjelder.\n", ["x.md:1: MM-U4 er opphevet og står som eneste grunnlag"]),
+        ("- MM-U4 gjelder\n  fortsatt etter MM-U9.\n", []),
+        ("Se XX-U7.\n", ["x.md:1: XX-U7 er ikke et vedtak i registeret"]),
+    ],
+)
+def test_i_et_dokument_er_henvisningen_et_avsnitt_et_punkt_en_rad_eller_en_overskrift(tekst, feil):
+    assert _feil(tekst, "x.md") == feil
+
+
+def test_historisk_slipper_ikke_en_opphevet_id_i_et_dokument():
+    assert _feil("Historisk: MM-U4.\n", "AGENTS.md") == [
+        "AGENTS.md:1: MM-U4 er opphevet og står som eneste grunnlag"
+    ]
+
+
+DESIGN = {"MM-U22": ["VS-U3"], "OV-U77": []}
+KJENTE_D = KJENTE | {"MM-U22", "OV-U77", "VS-U3"}
+
+
+def _designfeil(tekst: str, sti: str) -> list[str]:
+    return vh.feil_i(sti, tekst, KJENTE_D, OPPHEVET, AAPNE, design_=DESIGN)
+
+
+@pytest.mark.parametrize("mappe", ["kjerne/frosset", "kjerne/kommandoer", "kjerne/regler"])
+def test_en_designpost_alene_i_reglene_gir_feil_som_foreslaar_bindende_i(mappe):
+    """Arbeidsvalget for kontroll 2 04.11 i #1534."""
+    assert _designfeil("// MM-U22\n", f"{mappe}/a.ts") == [
+        f"{mappe}/a.ts:1: MM-U22 er design og står som eneste grunnlag; vis også til VS-U3"
+    ]
+    assert _designfeil("// MM-U22, VS-U3\n", f"{mappe}/a.ts") == []
+
+
+def test_en_designpost_uten_bindende_i_ber_om_feltet():
+    assert _designfeil("// OV-U77\n", "kjerne/regler/a.ts") == [
+        "kjerne/regler/a.ts:1: OV-U77 er design og står som eneste grunnlag; "
+        "før vedtaket med den bindende setningen i bindende_i i registeret"
+    ]
+
+
+@pytest.mark.parametrize("sti", ["kjerne/utledning/a.ts", "server/a.ts", "src/a.ts", "kjerne/reglerx/a.ts"])
+def test_en_designpost_alene_utenfor_reglene_er_lov(sti):
+    assert _designfeil("// MM-U22\n", sti) == []
+
+
+def test_en_kjent_designhenvisning_telles_og_slipper_gjennom():
+    truffet = collections.Counter()
+    feil = vh.feil_i(
+        "kjerne/regler/a.ts", "// MM-U22\n", KJENTE_D, OPPHEVET, AAPNE,
+        design_=DESIGN, designavvik=frozenset({("kjerne/regler/a.ts", "MM-U22")}),
+        designtruffet=truffet,
+    )
+    assert feil == [] and truffet == {("kjerne/regler/a.ts", "MM-U22"): 1}
+
+
+def test_en_designpost_alene_i_en_bevis_sak_gir_feil():
+    """Steg 3b i #1534: `kilde` i bevis-sakene er ikke bare en designpost."""
+    data = {"saker": [{"id": "S-1", "kilde": ["MM-U22"]}]}
+    def feil(sti):
+        return vh.kildefeil(sti, data, KJENTE_D, OPPHEVET, AAPNE, DESIGN)
+    assert feil("docs/domenetabell/bevis-saker.json") == [
+        "docs/domenetabell/bevis-saker.json: saker/S-1/kilde: MM-U22 er design og står som "
+        "eneste grunnlag; vis også til VS-U3"
+    ]
+    assert feil("docs/domenetabell/brukerforlop/BF-01.json") == []
+    data["saker"][0]["kilde"].append("VS-U3")
+    assert feil("docs/domenetabell/bevis-saker-maalmodell.json") == []
+
+
+def test_designpostene_er_id_ene_der_hver_post_er_design(register):
+    design = vh.design(register)
+    assert "OV-U81" in design and "VS-U3" not in design
+    assert design["OV-U70"] == ["MM-U12", "OV-U4", "OV-U80"]
+
+
+@pytest.mark.parametrize("issue, gyldig", [("#1534, steg 4", True), ("#1433", True), ("steg 4", False), ("#1534 steg 4", False)])
+def test_en_rad_i_lista_viser_til_issuet_eventuelt_med_steget(issue, gyldig):
+    assert vh.gyldig_rad(("kjerne/a.ts", "MM-U22", 1, issue)) is gyldig
+
+
+def test_lista_over_kjente_designavvik_kan_bare_krympe(register, plan, tmp_path):
+    rot = _tre(tmp_path, {"kjerne/regler/a.ts": "// OV-U81\n"})
+    rader = (("kjerne/regler/a.ts", "OV-U81", 2, "#1534, steg 4"),)
+    assert vh.kontroller(register, plan, rot, (), rader) == [
+        "KJENTE_DESIGNAVVIK: OV-U81 står som eneste grunnlag 1 ganger i kjerne/regler/a.ts, og "
+        "raden (#1534, steg 4) sier 2; rett antallet eller fjern raden"
+    ]

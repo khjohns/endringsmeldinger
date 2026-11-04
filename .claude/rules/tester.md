@@ -85,6 +85,14 @@ koden: NS 8407, et vedtak i vedtaksfila eller en forventning oppdragsgiver har
 godkjent. Testen skal vise til kilden. En test som bare fastholder dagens
 atferd, er nyttig ved en omskriving, men skal si at det er det den gjør.
 
+**En domeneforventning har ikke en designpost alene som kilde.** En post med klassen
+design i [vedtaksregisteret](../../docs/vedtaksregister/README.md#klassen) sier hvordan
+skjemaet, visningen og arbeidsflyten er bygget opp, og brukerprøven kan endre den uten vedtak.
+Kilden er vedtaket med den bindende setningen, som `bindende_i` for posten viser til.
+`docs/verktoy/vedtakshenvisninger.py` avviser en designpost alene i `kilde` i bevis-sakene
+og i `kjerne/frosset/`, `kjerne/kommandoer/` og `kjerne/regler/`. En forventning om
+visningen kan vise til et U-punkt i bestillingen for brukerforløpet (steg 3b i #1534).
+
 ## Vis at kritiske tester oppdager feil
 
 Når endringen gir en endret tilgangsavgjørelse, statusovergang, beregningsregel,

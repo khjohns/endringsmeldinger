@@ -35,7 +35,11 @@ oppdragsgiver.
   gjelder klassen for en ny post (oppdragsgiver 04.11, svar 8 i #1534).
 - **Vedtak ved behov.** Nye domenevedtak stilles bare når et issue i den
   kritiske stien trenger dem (oppdragsgiver 20.10, [spørsmål 4](../../../docs/vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md)).
-  Den kritiske stien er milepælen «Første ekte sak».
+  Den kritiske stien er milepælen «Første ekte sak». Unntakene er samlevedtakene: for alle
+  temaene i steg 4 i #1534 (svar 21 B i [PR #1537](https://github.com/khjohns/endringsmeldinger/pull/1537)),
+  og for et vedtak som har fått sin tredje endring etter at temaet er samlet (svar 6 og 10 i
+  #1534, [6623299573](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623299573) og [6623620205](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623620205)).
+  `vedtaksregister.py` varsler om det.
 - **Det prinsipielle først.** Still først spørsmålene som avgjør retningen. Et
   eksempel er om appen skal vurdere selv eller bare registrere, eller hva et
   sendt brev binder. Detaljene venter til retningen er avgjort: for
@@ -175,6 +179,11 @@ skriver ikke der.
   erstatter kontrollrundene av vedtaksteksten. Det som krever skjønn, er
   kontrollert én gang, da spørsmålet ble stilt (over). Kommer et svar som ikke
   passer på et alternativ, stilles et oppfølgingsspørsmål.
+- **Samlevedtakene er unntaket** fra regelen over, i de samme tilfellene som under «Vedtak ved
+  behov». Et samlevedtak skriver regelen for et tema med nye ord og føres med forholdet
+  `samler` til vedtakene det samler. Formen, med kilden for hver setning og lista «Endret
+  innhold», står i svar 7 A i #1534 ([6623423185](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623423185)).
+  Løser samlevedtaket en motsigelse og endrer innholdet, opphever det i stedet (svar 4 A, [6623211248](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
 - Før vedtaks-PR-en merges, kontrollerer en subagent én gang `folge` i de nye
   postene, hver endret `folge` i en importert post og hver ny eller endret
   tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,

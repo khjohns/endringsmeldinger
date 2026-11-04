@@ -1332,7 +1332,7 @@ export function venterPaaSvar(u: Utledning, spor: Spor): boolean {
 }
 
 /**
- * MM-U29: byggherrens gjeldende svar i sporet står uten enighet, kravet er ikke trukket,
+ * MM-U24, MM-U30: byggherrens gjeldende svar i sporet står uten enighet, kravet er ikke trukket,
  * og sporet er ikke lukket, så TE kan fortsatt godta det. Et frafall av pålegget kan TE
  * ikke godta (GR-U9), så det står ikke som et svar som ikke er godtatt. Unntaket gjelder
  * bare forholdet (arbeidsvalget 20.10 i #1050).
@@ -1349,7 +1349,7 @@ export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
 }
 
 /**
- * MM-U9, MM-U28: standpunktet i sporets gjeldende svar er subsidiært, fordi svaret på
+ * MM-U9: standpunktet i sporets gjeldende svar er subsidiært, fordi svaret på
  * forholdet avviser ansvaret (`subsidiaer`), eller fordi brevet selv ga standpunktet
  * et lag etter det første (OV-U32). Virkningen leses slik brevet sa den. Er forholdet
  * avvist, er også et standpunkt ingen påberopelse i sporet rammer, betinget av ansvaret
