@@ -12709,7 +12709,7 @@ tekst = "Byggherren kan likevel gi et nytt svar på grunnlaget i KOE-saken, som 
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "avsnittet «Designdel» i samlevedtaket, punkt 12, og i punkt 10 «Byggherrens svar og enigheten står på siden for saken.»"
-bindende_i = ["eo-u34", "mm-u12", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
+bindende_i = ["eo-u34", "mm-u12", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
 id = "MM-U45"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
