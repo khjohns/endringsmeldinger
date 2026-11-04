@@ -63,7 +63,7 @@ er for det meste alt løst i innholdet. Bare forholdene står igjen:
 
 Kontrollert 04.11 mot #1572 (saker løsningen ikke forstår), #1573 (revisjon av byggherrens svar),
 #1566 (sakslisten og nøkkeltallene) og kartleggingen av «Særskilt varsel etter § 34.1.3 og rigg
-og drift». Fordelingen av setningene i MM-U34 venter på svar fra orkestratoren (se «Fordelingen»).
+og drift». Fordelingen av setningene i MM-U34 står under «Fordelingen».
 
 - **MM-U34**: her samles eller oppheves bare punkt 25, delen «OV-U49 D2 (forslag om vilkår)» i
   punkt 18, kulepunktet om KA-U27 og KA-U30 i punkt 15 og setningen «Vilkåret i KA-U26 oppheves
@@ -71,12 +71,12 @@ og drift». Fordelingen av setningene i MM-U34 venter på svar fra orkestratoren
   15 hører til #1572 og kjeden for brev utenfor løsningen, og kulepunktet om OV-U38 til «Særskilt
   varsel». Punkt 4–8, 11 og 17 er kilder i #1573.
 - **OV-U4**: #1572 samler setningen om en sak som ikke er forstått. Her er OV-U4 bare kilde.
-- **OV-U61**: #1572 sier at OV-U61 samles i #1566. Her er s4 og s15 bare kilder, og spørsmål 2
-  presiserer hva «betinget» betyr uten å samle OV-U61.
+- **OV-U61**: fordeles ikke hit. #1566 opphever den (foreslått MM-U45) og endrer den (MM-U46).
+  Her er den ikke kilde.
 - **OV-U80**: #1572 endrer setningen om en sak som ikke er forstått, og KA-U46 viser til
   begrunnelsen. Her fjernes bare forholdene til OV-U48 og OV-U49 (E2).
 - **GR-U26, GR-U29, GR-U33**: forbeholdet i brevet når grunnlaget er ubesvart hører til kjeden
-  «Svar på vederlag og frist mens grunnlaget er ubesvart». Her er GR-U26 s4, s5 og s10 bare kilder.
+  «Svar på vederlag og frist mens grunnlaget er ubesvart». Her er GR-U26 s10 bare kilde.
 - **OV-U6**: s5 («byggherren kan ikke revidere svaret») hører til #1573.
 
 ## Postene i kjeden
@@ -97,7 +97,7 @@ står og hører til en annen kjede.
 | KA-U27 | vedtak | gjeldende, endret av MM-U34, snevret inn av KA-U45 | samler delen om fradrag (beslutningsdel); delen om merket brev står opphevet | E6 |
 | KA-U29 | vedtak | gjeldende, snevret inn av KA-U45 | endrer: «og merking etter KA-U20» står opphevet; resten hører til kjeden for godtatt avslag av grunnlaget | E6 |
 | LV-U32 | vedtak | gjeldende, endret 30.10 av OV-U69 | samler s1, s3 og s4; s2 og s5 hører til brevtekstene for fast sum | – |
-| MM-U34 | vedtak med designdel og beslutningsdel | gjeldende | opphever punkt 25 og de navngitte delene av punkt 15, 18 og 20 (venter på fordelingen); punkt 9, 10, 12 og 16 er kilder | E5 |
+| MM-U34 | vedtak med designdel og beslutningsdel | gjeldende | opphever punkt 25 og de navngitte delene av punkt 15, 18 og 20 (etter fordelingen); punkt 9, 10, 12 og 16 er kilder | E5 |
 | OV-U80 | vedtak med designdel | gjeldende | ingen setning endres her; forholdene «Utvider OV-U48» og «Utvider OV-U49» fjernes | E2 |
 | OV-U46 | vedtak med designdel | gjeldende, endret 30.10 av OV-U69 | samler setningen OV-U69 la til («Løsningen utleder virkningen av bekreftelsen …»); resten hører til kjeden for svar gitt utenfor løsningen | – |
 | EO-U18 | design | gjeldende, samlet av EO-U34 | kilde for punkt 1; «eller i et innlegg» etter spørsmål 1 | E4 |
@@ -105,8 +105,8 @@ står og hører til en annen kjede.
 | OV-U47, OV-U48, OV-U49 | vedtak | opphevet 30.10 av OV-U69 | står opphevet | – |
 | MM-U33 | vedtak med designdel | gjeldende | står; kilde for punkt 3, 12 og spørsmål 1 (steg 2, 3 og 5) | – |
 | MM-U36 | design | gjeldende, flyttet til BF-01 | står; kilde | – |
-| GR-U26 | vedtak med designdel | gjeldende | står; s4, s5 og s10 er kilder for punkt 7 og 8 | – |
-| OV-U61 | vedtak med designdel | gjeldende | står (samles i #1566); s4 og s15 er kilder for spørsmål 2 | E3 |
+| GR-U26 | vedtak med designdel | gjeldende | står; s10 er kilde for punkt 8 | – |
+| OV-U61 | vedtak med designdel | gjeldende; oppheves i #1566 | står utenfor; ikke kilde | E3 |
 | OV-U4, OV-U6, OV-U79 | vedtak med designdel | gjeldende | står; hører til andre kjeder | – |
 
 ## Forslaget
@@ -134,9 +134,7 @@ Samlevedtaket for vilkår og forbehold i byggherrens svar. Hver setning har kild
    vilkår eller forbehold. (KA-U16 s3–s4; KA-U19 s1; OV-U69 s5) Det gjelder også et svar som er
    registrert med svarskjemaet. (OV-U80; E1)
 7. Et vilkår eller forbehold i begrunnelsen eller under «Forbehold» gjør ikke enigheten betinget
-   i løsningen. Enigheten er betinget bare under forbeholdet for ubesvart grunnlag, og byggherrens
-   svar på grunnlaget avgjør om den er betinget eller virksom. (GR-U26 s4–s5; OV-U61 s15; E3)
-   *Etter spørsmål 2.*
+   i løsningen. (OV-U69 s5; E3)
 8. Registrert enighet er ikke en avgjørelse av om partene rettslig er enige eller om et vilkår
    er oppfylt (MM-U12). (OV-U69 s7; MM-U34 punkt 12; GR-U26 s10) Brevet er det autoritative
    uttrykket for partens standpunkt (B-03). (OV-U69 s8; KA-U16 s5; KA-U19 s4)
@@ -199,13 +197,16 @@ EO-U34. Hvorfor: OV-U69 «OV-U48 og OV-U49 oppheves, også spørsmålet ved regi
 endringsordre som svar på grunnlaget etter OV-U6»; EO-U34 E11 «forbehold spørres ikke om
 (designdelen)».
 
-**E3 Hva «betinget enighet» betyr.** Gammel tekst: OV-U61 «Betinget enighet vises særskilt.» og
-«Byggherrens svar på grunnlaget avgjør om enigheten om et beløp er betinget eller virksom, også
-når svaret er en endringsordre registrert etter OV-U6.» OV-U49 D1 hadde «enighet med særskilte
-vilkår», og OV-U69 sier at endringene OV-U49 gjorde «i svaret 25.10 på spørsmål 8 om
-nøkkeltallene», faller bort. Samlevedtaket, etter spørsmål 2: «betinget» gjelder bare forbeholdet
-for ubesvart grunnlag (punkt 7). Det er en presisering. Koden gjør det slik i dag
-(`enighetensVirkning`).
+**E3 Et vilkår i teksten gjør ikke enigheten betinget.** Gammel tekst: OV-U49 D1 hadde «enighet
+med særskilte vilkår», og OV-U61 «Betinget enighet vises særskilt.» OV-U69 sier at endringene
+OV-U49 gjorde «i svaret 25.10 på spørsmål 8 om nøkkeltallene», faller bort. Samlevedtaket for
+sakslisten og nøkkeltallene i #1566 (foreslått som MM-U45 og MM-U46) opphever OV-U61, også
+setningene om betinget enighet i summen. Samlevedtaket her: punkt 7. Det er en presisering, ikke
+en ny regel: den følger av OV-U69 «Løsningen registrerer enighet ut fra valgene (MM-U33 steg 5)».
+Når enigheten ellers er betinget, hører til kjeden «Svar på vederlag og frist mens grunnlaget er
+ubesvart» (GR-U26). Koden gjør det slik i dag (`enighetensVirkning` i
+`kjerne/utledning/utled.ts`). Spørsmålet om betinget enighet ble tatt ut 04.11 etter fordelingen
+fra orkestratoren, fordi valget følger av OV-U69 og ikke lenger styrer noen sum.
 
 **E4 Forbehold i et innlegg.** Gammel tekst: OV-U69 «Vilkår, forbehold og andre betingelser
 skriver parten i begrunnelsen eller i et innlegg (MM-U33 steg 2 og 3).»; EO-U18 «Vilkår, forbehold
@@ -223,8 +224,7 @@ Samlevedtaket: punkt 25 og delen «OV-U49 D2 (forslag om vilkår)» i punkt 18 s
 15 står delen om fradrag (beslutningsdelen), og delen om merket brev og «KA-U30 står» er opphevet;
 setningen i punkt 20 står, og KA-U26 er opphevet. Hvorfor: OV-U69 «MM-U34 punkt 25 faller bort»;
 OV-U69 «OV-U48 og OV-U49 oppheves»; KA-U45 (01.11, etter MM-U34) «Forhold: opphever KA-U26,
-KA-U28, KA-U30». Raden for MM-U34 sier det ikke på punktnivå. *Fordelingen av punktene venter på
-orkestratoren.*
+KA-U28, KA-U30». Raden for MM-U34 sier det ikke på punktnivå.
 
 **E6 Setningene KA-U45 snevret inn (KA-U20, KA-U27, KA-U29).** KA-U45 sier «Snevrer inn KA-U20,
 KA-U27, KA-U29», men ikke hvilke setninger. Samlevedtaket navngir dem: i KA-U20 alt om merking,
@@ -240,8 +240,13 @@ s1), ikke ordlyden i et vedtak.
 ## Fordelingen
 
 Sendt til orkestratoren 04.11, før forslaget ble skrevet: punkt 25, delen om OV-U49 D2 i punkt
-18, kulepunktet om KA-U27 og KA-U30 i punkt 15 og setningen om KA-U26 i punkt 20. Svaret føres
-inn her.
+18, kulepunktet om KA-U27 og KA-U30 i punkt 15 og setningen om KA-U26 i punkt 20.
+
+Svaret fra orkestratoren 04.11: «Ja til punkt 1–4 slik du foreslo. Det kolliderer ikke med
+«Særskilt varsel», som har kulepunktet om OV-U38 i punkt 15 og bare viser til punkt 8 og 24.
+Punktene 9, 10, 12 og 16 kan du bruke som kilde. OV-U61 blir ikke fordelt til deg.» OV-U61
+oppheves i #1566 og er derfor ikke kilde her. Setningen i GR-U26 overlates til kjeden for svar
+mens grunnlaget er ubesvart.
 
 ## Prøvingen
 
@@ -249,7 +254,7 @@ inn her.
 
 ## Spørsmålene til oppdragsgiver
 
-Ordrett slik de sendes. Spørsmål 1 og 2 er juridiske og stilles i tekst.
+Ordrett slik de sendes. Spørsmål 1 er juridisk og stilles i tekst.
 
 **1. Et forbehold byggherren sender i et innlegg etter svaret (juridisk).**
 Bakgrunn: Byggherren kan skrive vilkår og forbehold i begrunnelsen for hvert punkt i svaret, eller
@@ -280,34 +285,9 @@ partene.
 Styrer: hva skjemaet for svar og aksept sier om forbehold, og om et innlegg etter svaret vises som
 en del av svaret.
 
-**2. Hva «betinget enighet» betyr i løsningen (juridisk).**
-Bakgrunn: Løsningen registrerer enighet ut fra valgene i svaret og tolker ikke teksten. Oversikten
-over vederlaget viser betinget enighet særskilt. I dag er enigheten betinget bare når byggherren
-har svart på vederlaget under forbeholdet for ubesvart grunnlag; den blir virksom når grunnlaget er
-avklart. Det opphevede vedtaket om særskilte vilkår brukte også «enighet med særskilte vilkår».
-Belegg: OV-U61 «Betinget enighet vises særskilt.» og «Byggherrens svar på grunnlaget avgjør om
-enigheten om et beløp er betinget eller virksom, også når svaret er en endringsordre registrert
-etter OV-U6.»; GR-U26 «I appen er forbeholdet ikke et vilkår etter HF-U7: godkjenner byggherren
-hele det krevde beløpet eller antallet dager, er partene enige om beløpet eller dagene uten
-aksept (GR-U7).»; OV-U69 «Løsningen registrerer enighet ut fra valgene (MM-U33 steg 5), og
-skjemaet sier det før sending.» og «Registrert enighet er ikke en avgjørelse av om partene
-rettslig er enige eller om et vilkår er oppfylt (MM-U12, MM-U34 punkt 12).»
-- **A (anbefalt):** «Et vilkår eller forbehold i begrunnelsen eller under «Forbehold» gjør ikke
-  enigheten betinget i løsningen. Enigheten er betinget bare under forbeholdet for ubesvart
-  grunnlag, og byggherrens svar på grunnlaget avgjør om den er betinget eller virksom.» Forhold:
-  presiserer OV-U61 og OV-U69.
-- **B:** «Byggherren kan i svaret angi at godkjenningen er betinget av vilkårene i teksten.
-  Enigheten vises og telles da som betinget, uten at løsningen tolker vilkårene.» Forhold: endrer
-  OV-U69 («ingen egne felt for særskilte vilkår» faller bort for dette valget) og utvider OV-U61.
-Anbefaling: A. Med B ville byggherren få et valg som gjør enigheten betinget uten at noen kan se
-i løsningen når vilkåret er oppfylt, og enigheten ble stående betinget til en part sendte noe nytt.
-Det er det OV-U69 opphevet. Med A står et vilkår i teksten og vises med svaret, og løsningen
-registrerer enigheten ut fra valgene. Totalentreprenøren ser vilkåret i brevet før aksepten.
-Styrer: hva oversikten over vederlaget teller som betinget og som virksom enighet.
-
-**3. Samlet tilslutning til forslaget (prosess).**
+**2. Samlet tilslutning til forslaget (prosess).**
 - **A (anbefalt):** forslaget i punkt 1–13 med designdelen og beslutningsdelen, og E1–E7, gjelder
-  slik det står, med svarene på spørsmål 1 og 2 og rettelsene oppdragsgiver gir per punkt. De
+  slik det står, med svaret på spørsmål 1 og rettelsene oppdragsgiver gir per punkt. De
   gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».
 - **B:** forslaget legges fram på nytt etter rettelsene.
 Styrer: om en ny økt kan skrive postene når svarene foreligger.

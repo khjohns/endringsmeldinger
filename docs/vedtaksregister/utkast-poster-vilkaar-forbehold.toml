@@ -5,10 +5,10 @@
 # Oppskrift for økta som skriver postene, når svarene foreligger og vedtak.toml er ledig:
 # 1. «etter» fylles med avsnittene «Forslaget» og «Endret innhold» fra vurderingsfila
 #    (vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md), ordrett slik de ble lagt fram på
-#    commiten der spørsmålene ble sendt, med punkt 3 og 7 etter svarene på spørsmål 1 og 2 og
+#    commiten der spørsmålene ble sendt, med punkt 3 etter svaret på spørsmål 1 og
 #    rettelsene oppdragsgiver gir per punkt. Teksten legges til i «etter» i gruppen «Svar og
 #    standpunkt», før den første [[gruppe.vedtak]] i gruppen.
-# 2. De tre postene legges sist i den gruppen. ID-ene KA-U49, KA-U50 og KA-U51 er foreløpige: sjekk
+# 2. De to postene legges sist i den gruppen. ID-ene KA-U49 og KA-U50 er foreløpige: sjekk
 #    den høyeste KA-ID-en på main når vedtak.toml er ledig, og bytt ID-ene og ankrene her og i
 #    vurderingsfila.
 # 3. Forholdene i KA-U49 følger tabellen «Postene i kjeden» i vurderingsfila. «Endrer» til KA-U20
@@ -17,7 +17,7 @@
 #    tekst: E2 fjerner forholdene «Utvider OV-U48/OV-U49» og «Bygger på OV-U48/OV-U49» i
 #    registeret. Er det en endring i en importert post, kontrolleres den mot svaret ordrett før
 #    merge (vedtaksskillen).
-# 4. KA-U50 er svaret på spørsmål 1, og KA-U51 svaret på spørsmål 2. Velger oppdragsgiver B,
+# 4. KA-U50 er svaret på spørsmål 1. Spørsmålet om betinget enighet ble tatt ut (E3). Velger oppdragsgiver B,
 #    byttes «valgt» og «forkastet», og forholdene byttes til dem i alternativ B.
 # 5. Kjør docs/verktoy/vedtaksregister.py og vakttestene. Sitatene er fra vedtaksfila
 #    (kilde = "hovedplanen", som i de andre postene).
@@ -29,8 +29,7 @@ etter = '''
 
 Teksten under er samlevedtaket [KA-U49](#ka-u49), vedtatt <dato> av oppdragsgiver (#1534), ordrett
 slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-vilkaar-forbehold-2026-11-04.md),
-med «Endret innhold» E1–E7. Svarene på spørsmål 1 og 2 i vurderingen er [KA-U50](#ka-u50) og
-[KA-U51](#ka-u51).
+med «Endret innhold» E1–E7. Svaret på spørsmål 1 i vurderingen er [KA-U50](#ka-u50).
 
 <Forslaget og Endret innhold, ordrett etter punkt 1 i oppskriften.>'''
 
@@ -43,7 +42,7 @@ dato = 2026-11-04
 hvem = "oppdragsgiver"
 kilde = ["#1534", "#1065"]
 sporsmal = '''
-Spørsmål 3 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
+Spørsmål 2 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
 valgt = "A"
 svar = '''
 <Oppdragsgivers svar, ordrett.>'''
@@ -68,7 +67,7 @@ delene i E5.'''
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-Forslaget i punkt 1–13 med designdelen og beslutningsdelen, og E1–E7, gjelder slik det står, med svarene på spørsmål 1 og 2 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».'''
+Forslaget i punkt 1–13 med designdelen og beslutningsdelen, og E1–E7, gjelder slik det står, med svaret på spørsmål 1 og rettelsene oppdragsgiver gir per punkt. De gamle ID-ene står som «Samlet i …» eller «Opphevet av …» etter tabellen «Postene i kjeden».'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
@@ -111,34 +110,3 @@ tekst = "Vilkår og forbehold skrives i begrunnelsen for punktet de gjelder, ell
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Vilkår, forbehold og andre betingelser skriver parten i begrunnelsen eller i et innlegg (MM-U33 steg 2 og 3)."
-
-[[gruppe.vedtak]]
-klasse = "vedtak"
-id = "KA-U51"
-dato = 2026-11-04
-hvem = "oppdragsgiver"
-kilde = ["#1534", "#1065"]
-sporsmal = '''
-Spørsmål 2 ordrett slik det ble stilt i vurderingsfila, «Spørsmålene til oppdragsgiver».'''
-valgt = "A"
-svar = '''
-<Oppdragsgivers svar, ordrett.>'''
-forhold = [
-  { art = "presiserer", vedtak = "ov-u61" },
-  { art = "presiserer", vedtak = "ov-u69" },
-]
-
-[[gruppe.vedtak.alternativ]]
-navn = "A"
-tekst = '''
-Et vilkår eller forbehold i begrunnelsen eller under «Forbehold» gjør ikke enigheten betinget i løsningen. Enigheten er betinget bare under forbeholdet for ubesvart grunnlag, og byggherrens svar på grunnlaget avgjør om den er betinget eller virksom.'''
-
-[[gruppe.vedtak.alternativ]]
-navn = "B"
-tekst = '''
-Byggherren kan i svaret angi at godkjenningen er betinget av vilkårene i teksten. Enigheten vises og telles da som betinget, uten at løsningen tolker vilkårene.'''
-forkastet = true
-
-[[gruppe.vedtak.sitat]]
-kilde = "hovedplanen"
-tekst = "Betinget enighet vises særskilt."
