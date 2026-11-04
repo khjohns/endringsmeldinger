@@ -11251,6 +11251,39 @@ Totalentreprenøren velger svaret kravversjonen følger etter i skjemaet, henvis
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+id = "LV-U51"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål S-2b, ordrett slik det ble stilt 04.11 i orkestreringsrunde 10 (#1065) og lagret i #1497 (kommentaren 6628374067). D er LV-U50. Alternativene står i posten.
+
+Bakgrunn: prøvingen av D mot vedtakene fant ingen motstrid med vedtaksfila, men at «gjeldende svar» er uklart. I vedtakene brukes «gjeldende» om sporets svar, og når den nye kravversjonen er sendt, er svaret på den forrige kravversjonen ikke lenger gjeldende i den betydningen. Vedtaksteksten i D skrives ikke om.
+
+**S-2b. Hva er «byggherrens gjeldende svar» i D?**
+
+Anbefaling: A. Brevet viser da til det siste svaret totalentreprenøren faktisk svarer etter, og løsningen sjekker før sending om byggherren har svart i mellomtiden (krav til A2). Med B kan hodet vise til et svar som er erstattet når brevet sendes. Hva valget styrer: hvilken kode som fryses under Deres ref. i en ny kravversjon.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6628507118)): «S-2B A»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u50" }]
+folge = '''
+Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Med byggherrens gjeldende svar i D menes det siste svaret byggherren har gitt på kravversjonen som erstattes, slik det står når den nye kravversjonen sendes. Presiserer D.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherrens svar på kravversjonen som erstattes, slik det står når totalentreprenøren godkjenner teksten, også om byggherren svarer før kravversjonen sendes. Presiserer D.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 klasse = "design"
 id = "MM-U37"
 dato = 2026-11-02
