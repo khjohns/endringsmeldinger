@@ -3786,6 +3786,7 @@ blir avtale (avtaleloven § 6 annet ledd), avgjør ikke appen (MM-U12).'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "«venter sporet på nytt svar» i ordlyden etter MM-U34 punkt 2"
 beslutningsdel = "den andre og tredje setningen i ordlyden etter MM-U34 punkt 2: «Byggherrens svar på den tidligere versjonen kan da ikke godtas i løsningen (KA-U1). Det er en begrensning i løsningen.»"
 id = "HF-U8"
 dato = 2026-10-15
@@ -4335,7 +4336,7 @@ Så lenge en forseringssak viser til avslaget og TE derfor ikke kan godta svaret
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket, med punkt 4 og designsetningene i punkt 10"
+designdel = "avsnittet «Designdel» i samlevedtaket, med punkt 4 og designsetningene i punkt 10; i punkt 8 «Mener byggherren at svaret ikke lenger bandt, tar byggherren det opp i et innlegg eller sender et nytt svar»; i punkt 9 «venter sporet på nytt svar»"
 beslutningsdel = "setningen «Byggherren har ikke noe eget svar på aksepten i løsningen» i punkt 8, og den andre og tredje setningen i punkt 9"
 id = "HF-U23"
 dato = 2026-11-04
@@ -4382,6 +4383,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "«Mener byggherren at svaret ikke lenger bandt, tar byggherren det opp i et innlegg eller sender et nytt svar»"
 beslutningsdel = "setningen «Byggherren har ikke noe eget svar på aksepten i løsningen»"
 id = "HF-U24"
 dato = 2026-11-04
@@ -10146,7 +10148,7 @@ Det betyr ikke at enighet rettslig bare kan oppstå på denne måten. Etiketten 
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "påminnelsene i skjemaet (punkt 1, 16 og 26)"
+designdel = "påminnelsene i skjemaet (punkt 1, 16 og 26); «venter sporet på nytt svar» i ordlyden for HF-U8 i punkt 2; i punkt 17 «og den vises» og ordlyden for LV-U7 «Akseptfristen vises med datoen, og appen viser leveringskvitteringen ved siden av»"
 beslutningsdel = "den andre og tredje setningen i ordlyden for HF-U8 i punkt 2: «Byggherrens svar på den tidligere versjonen kan da ikke godtas i løsningen (KA-U1). Det er en begrensning i løsningen.»"
 id = "MM-U34"
 dato = 2026-10-28
