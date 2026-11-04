@@ -1,0 +1,44 @@
+{
+  "id": "BF-07",
+  "tittel": "Brevhodet viser under Deres ref. hvilke av motpartens brev brevet tar stilling til",
+  "brukerhistorie": "Samme sak som BF-01. Hver part leser et brev fra motparten og ser under Deres ref. hvilke av sine egne brev det svarer på, godtar, bestrider eller ellers gjelder, med merkingen fra hvert av dem. Før sending ser avsenderen i brevkontrollen den samme Deres ref. som fryses med brevet. Et brev som ikke tar stilling til noe brev fra motparten, har ingen koder under Deres ref.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Samme sak som BF-01, fra start til kontrollpunktet te-har-godtatt-svaret. Saken er KOE-005 i prosjektet med kontraktsforkortelsen K201."
+  },
+  "bestilling": "BF-07.md",
+  "kilder": [
+    "DL-U2",
+    "HF-U1",
+    "KA-U10",
+    "LV-U1",
+    "LV-U2",
+    "LV-U23",
+    "LV-U27",
+    "LV-U28",
+    "LV-U42",
+    "LV-U44",
+    "LV-U45",
+    "LV-U46",
+    "LV-U47",
+    "LV-U48",
+    "MM-U9",
+    "OV-U4",
+    "OV-U80",
+    "OV-U84"
+  ],
+  "venter_paa": [
+    "#1497",
+    "#1548"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-04",
+      "forhold": "#1497",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen og spørsmålene S-1 og S-2."
+    }
+  ]
+}
