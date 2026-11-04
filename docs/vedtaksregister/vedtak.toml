@@ -465,6 +465,7 @@ skjemaet til #313 Delvis bygget, kontrollert 20.10 (#417): et svar fra appen med
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-9"
 anker = "ka-u31"
 vedtak = '''
 KA-U31: begrunnelsen i et svar byggherren sender fra appen, står per svar, som
@@ -989,6 +990,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-10"
 bindende_i = ["ka-u43", "mm-u33"]
 id = "KA-U41"
 dato = 2026-10-23
@@ -2438,6 +2440,7 @@ anbefalt = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#gr-u30"
 id = "GR-U30"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -5618,6 +5621,7 @@ tekst = "en KOE-sak inngår i høyst én endringsordre, også når den er bestri
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-06.md#u-22"
 id = "EO-U14"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -7836,6 +7840,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u22"
 id = "MM-U22"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -7905,6 +7910,7 @@ tekst = "Visningen sier at et varsel med frist må sendes utenfor appen og regis
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u23"
 bindende_i = ["vs-u3", "hf-u11"]
 id = "MM-U23"
 dato = 2026-10-17
@@ -7971,6 +7977,7 @@ tekst = "I et brev fra appen utleder appen virkningen av standpunktet i den fast
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u24"
 bindende_i = ["lv-u9", "hf-u11"]
 id = "MM-U24"
 dato = 2026-10-17
@@ -8035,6 +8042,7 @@ tekst = "Når bindingen inntrer og når en akseptfrist løper ut, regner appen f
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u25"
 id = "MM-U25"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -8539,6 +8547,7 @@ tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u30"
 id = "MM-U30"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8583,6 +8592,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u31"
 id = "MM-U31"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -8618,6 +8628,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u32"
 id = "MM-U32"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -9753,6 +9764,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-11"
 bindende_i = ["mm-u35", "mm-u33"]
 id = "MM-U36"
 dato = 2026-11-01
@@ -9797,6 +9809,7 @@ tekst = "Svaret fra appen gjentar innsigelsen som utgangspunkt, og gir byggherre
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-05.md#u-8"
 bindende_i = ["lv-u41"]
 id = "LV-U43"
 dato = 2026-11-01
@@ -10213,6 +10226,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u40"
 id = "MM-U40"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -12562,6 +12576,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-12"
 id = "OV-U20"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -14318,6 +14333,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-13"
 id = "OV-U62"
 dato = 2026-10-26
 hvem = "oppdragsgiver"
@@ -15006,6 +15022,7 @@ anbefalt = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#ov-u75"
 id = "OV-U75"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15057,6 +15074,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-05.md#u-9"
 bindende_i = ["ov-u82"]
 id = "OV-U76"
 dato = 2026-11-01
@@ -15121,6 +15139,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-05.md#u-10"
 id = "OV-U77"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15167,6 +15186,7 @@ anbefalt = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-05.md#u-11"
 id = "OV-U78"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15760,6 +15780,7 @@ tekst = "Så lenge et brev sendt utenfor appen står registrert som dokumentasjo
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#ov-u87"
 id = "OV-U87"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
