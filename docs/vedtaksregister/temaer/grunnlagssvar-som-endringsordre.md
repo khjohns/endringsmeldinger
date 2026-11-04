@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `a121485ab18e43625f087693f77653df204c35ced3562d3dd11495b99b1bbe83`
+Kontrollsum (SHA-256 over utdraget visningen leser): `467c6632c01121f1fe152744a575597ea73481f300cec193e0cd6a048ac80c0c`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -736,7 +736,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 28.10, oppdragsgiver (#1336, #1338)
 
-**Følge:** Endrer [OV-U6](#ov-u6). Presiserer [GR-U10](#gr-u10). Presiserer [KA-U13](../../plans/vedtak.md#ka-u13). Presiserer [EO-U3](../../plans/vedtak.md#eo-u3). Presiserer [MM-U34](#mm-u34). Presisert 03.11 av [EO-U15](#eo-u15). Snevret inn 03.11 av [EO-U16](#eo-u16).
+**Følge:** Endrer [OV-U6](#ov-u6). Presiserer [GR-U10](#gr-u10). Presiserer [KA-U13](../../plans/vedtak.md#ka-u13). Presiserer [EO-U3](../../plans/vedtak.md#eo-u3). Presiserer [MM-U34](#mm-u34). Snevret inn 03.11 av [EO-U16](#eo-u16). Presisert 04.11 av [EO-U15](#eo-u15).
 
 **Regelrader:** [GR-27](#rad-gr-27), [GR-28](#rad-gr-28), [EO-02](#rad-eo-02), [EO-03](#rad-eo-03), [EO-04](#rad-eo-04), [EO-05](#rad-eo-05), [EO-06](#rad-eo-06), [EO-07](#rad-eo-07)
 
@@ -774,7 +774,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Forkastet:** «Når byggherren godkjenner forholdet uten å påberope preklusjon, i en underkategori der punkt 32.2 gjelder, sender byggherren alltid samtidig en endringsordre i en EO-sak som omfatter saken, og saken lukkes.»; «Løsningen foreslår ikke en endringsordre i EO-saken sammen med svaret. Saken står åpen til byggherren sender en endringsordre i en EO-sak som omfatter den.»
 
-**Vedtatt:** 03.11, oppdragsgiver (#1525, #1065)
+**Vedtatt:** 04.11, oppdragsgiver (#1525, #1065)
 
 **Følge:** Presiserer [EO-U12](#eo-u12). Presiserer [EO-U3](../../plans/vedtak.md#eo-u3). GR-U14 og GR-U32 står. S-3 i teksten er EO-U17.
 
@@ -900,7 +900,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Forkastet:** «Nøkkeltallet teller hele kravet i en KOE som bestrider et utsagn, som andre krav utenfor endringsordrene.»; «En KOE som bestrider et utsagn, holdes utenfor nøkkeltallene til den er gjort opp i en ny endringsordre.»
 
-**Vedtatt:** 03.11, oppdragsgiver (#1525, #1065)
+**Vedtatt:** 04.11, oppdragsgiver (#1525, #1065)
 
 **Følge:** Endrer [MM-U38](#mm-u38). Presiserer [EO-U29](#eo-u29). Presisert 03.11 av [EO-U24](#eo-u24). MM-U37 står. S-17 i teksten er EO-U29.
 
@@ -916,7 +916,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 03.11, oppdragsgiver (#1525, #1065)
 
-**Følge:** Endrer [MM-U38](#mm-u38). Presiserer [EO-U26](../../plans/vedtak.md#eo-u26). Presisert 03.11 av [EO-U24](#eo-u24). Presisert 03.11 av [EO-U28](#eo-u28). Presisert 03.11 av [EO-U32](#eo-u32). Valg E i teksten er tillegget E1 i EO-U24. EO-U28 og EO-U29 regner differansen i de samme tilfellene.
+**Følge:** Endrer [MM-U38](#mm-u38). Presiserer [EO-U26](../../plans/vedtak.md#eo-u26). Presisert 03.11 av [EO-U24](#eo-u24). Presisert 03.11 av [EO-U32](#eo-u32). Presisert 04.11 av [EO-U28](#eo-u28). Valg E i teksten er tillegget E1 i EO-U24. EO-U28 og EO-U29 regner differansen i de samme tilfellene.
 
 **Regelrader:** —
 
@@ -1340,7 +1340,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 02.11, oppdragsgiver (#1450, #1510)
 
-**Følge:** Endrer [OV-U61](../../plans/vedtak.md#ov-u61). Endrer [MM-U28](../../plans/vedtak.md#mm-u28). Presiserer [EO-U13](#eo-u13). Endret 03.11 av [EO-U28](#eo-u28). Endret 03.11 av [EO-U29](#eo-u29). Presisert 03.11 av [EO-U24](#eo-u24). Presisert 03.11 av [EO-U27](#eo-u27). Snevret inn 03.11 av [EO-U16](#eo-u16). I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Bygges i #1450.
+**Følge:** Endrer [OV-U61](../../plans/vedtak.md#ov-u61). Endrer [MM-U28](../../plans/vedtak.md#mm-u28). Presiserer [EO-U13](#eo-u13). Endret 03.11 av [EO-U29](#eo-u29). Presisert 03.11 av [EO-U24](#eo-u24). Presisert 03.11 av [EO-U27](#eo-u27). Snevret inn 03.11 av [EO-U16](#eo-u16). Endret 04.11 av [EO-U28](#eo-u28). I tråd med OV-U43 punkt 3, GR-U7, GR-U27 og OV-U57. Bygges i #1450.
 
 **Regelrader:** —
 

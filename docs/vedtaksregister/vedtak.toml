@@ -5428,7 +5428,7 @@ tekst = "Saken har en tilfeldig unik ID som appen lager. Et lesbart løpenummer 
 
 [[gruppe.vedtak]]
 id = "EO-U15"
-dato = 2026-11-03
+dato = 2026-11-04
 hvem = "oppdragsgiver"
 kilde = ["#1525", "#1065"]
 sporsmal = '''
@@ -5445,15 +5445,15 @@ at det er grunnlag. Teksten i versjon 2 ble ikke stilt.
 **Spørsmålet slik det ble stilt.** Det ble lagt fram som flyt 1 i oversikten over arbeidsmåten
 03.11, med to valg i svarskjemaet: «Send svaret og endringsordren nå» og «Send svaret nå,
 endringsordren senere».'''
-valgt = "VALGT_S1"
+valgt = "ja"
 svar = '''
-Midlertidig VALGT_S1'''
+Oppdragsgiver 04.11, ordrett: «ja til S-1, S-7 og S-16» (#1065, [6623214211](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6623214211)).'''
 forhold = [{ art = "presiserer", vedtak = "eo-u12" }, { art = "presiserer", vedtak = "eo-u3" }]
 folge = '''
 GR-U14 og GR-U32 står. S-3 i teksten er EO-U17.'''
 
 [[gruppe.vedtak.alternativ]]
-navn = "VALGT_S1"
+navn = "ja"
 tekst = '''
 Når byggherren godkjenner forholdet uten å påberope preklusjon, i en underkategori der punkt 32.2 gjelder, spør svarskjemaet når endringsordren i EO-saken sendes. Ved ‹Send svaret og endringsordren nå› lager skjemaet endringsordren i en ny EO-sak som omfatter saken. De to brevene godkjennes samlet etter fullmakten (S-3) og sendes samtidig og udelelig, og KOE-saken lukkes. Ved ‹Send svaret nå, endringsordren senere› sendes svaret alene, saken står åpen, og vederlag og frist behandles videre i saken til en endringsordre i en EO-sak omfatter den. Svaret er i begge tilfeller en endringsordre etter punkt 32.3 første ledd a, jf. punkt 31.3.'''
 
@@ -5737,7 +5737,7 @@ tekst = "Ved flere KOE-saker summeres ikke dagene uten videre (§ 33.5)."
 
 [[gruppe.vedtak]]
 id = "EO-U20"
-dato = 2026-11-03
+dato = 2026-11-04
 hvem = "oppdragsgiver"
 kilde = ["#1525", "#1065"]
 sporsmal = '''
@@ -5758,13 +5758,15 @@ Den holder ikke av saken, som ellers. Er saken tatt av en annen endringsordre f�
 godkjenningen, stopper registreringen (S-12). Anbefalt: én regel for alt som venter på
 godkjenning.» og «B2. Ja. En registrering som venter på godkjenning, holder av saken.» Svaret:
 «B1».'''
-valgt = "VALGT_S7"
+valgt = "ja"
 svar = '''
-Midlertidig VALGT_S7'''
+Oppdragsgiver 04.11, ordrett: «ja til S-1, S-7 og S-16» (#1065, [6623214211](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6623214211)).
+
+Valg B, 03.11: «B1».'''
 forhold = [{ art = "presiserer", vedtak = "eo-u3" }]
 
 [[gruppe.vedtak.alternativ]]
-navn = "VALGT_S7"
+navn = "ja"
 tekst = '''
 En KOE-sak inngår i en endringsordre fra endringsordren er sendt eller registrert, ikke mens den ligger i et utkast. To utkast kan omfatte samme sak. Er saken alt med i en sendt endringsordre når byggherren sender, stopper sendingen og sier hvilken. Kontrollen gjøres samlet med sendingen. Verken et utkast, en endringsordre eller en registrering som venter på godkjenning, holder av saken. Saken inngår i endringsordren fra den er sendt, eller fra registreringen er godkjent. Er saken tatt av en annen endringsordre før den siste godkjenningen, stopper sendingen eller registreringen.'''
 
@@ -6214,7 +6216,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 id = "EO-U28"
-dato = 2026-11-03
+dato = 2026-11-04
 hvem = "oppdragsgiver"
 kilde = ["#1525", "#1065"]
 sporsmal = '''
@@ -6236,15 +6238,15 @@ kr. Når den nye KOE-en er gjort opp, ville summen av endringsordrene telle båd
 teller nøkkeltallet for krav utenfor endringsordre bare differansen mellom kravet og posten, når
 kravet har samme omfang og oppgjørsform. Ellers vises kravet for seg, uten at det legges til
 summen. Summen av endringsordrene teller tilleggene etter regelen om tillegg. Anbefaling: ja.»'''
-valgt = "VALGT_S16"
+valgt = "ja"
 svar = '''
-Midlertidig VALGT_S16'''
+Oppdragsgiver 04.11, ordrett: «ja til S-1, S-7 og S-16» (#1065, [6623214211](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6623214211)).'''
 forhold = [{ art = "endrer", vedtak = "mm-u38" }, { art = "presiserer", vedtak = "eo-u29" }]
 folge = '''
 MM-U37 står. S-17 i teksten er EO-U29.'''
 
 [[gruppe.vedtak.alternativ]]
-navn = "VALGT_S16"
+navn = "ja"
 tekst = '''
 Bestrider en KOE et utsagn i en sendt endringsordre, telles kravet i nøkkeltallet for krav utenfor endringsordrene bare med differansen mellom kravet og utsagnet, når kravet har samme omfang og oppgjørsform som utsagnet. Ellers vises kravet for seg og legges ikke til summen. Summen av vederlaget i endringsordrene teller et utsagn som erstatter et bestridt utsagn, etter S-17: tillegget når det regnes, og ellers det nye utsagnet i stedet for det erstattede. Tallene er beregninger og avgjør ikke hva partene har avtalt.'''
 
