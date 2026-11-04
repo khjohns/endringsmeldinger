@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `f4f1df5bdc85df2909a115ec414313aac20e62b7ac59b4683e5d06c8d3c256e9`
+Kontrollsum (SHA-256 over utdraget visningen leser): `c5c0cf01fcc32dde353b5866bfd54e81e72c1cb0a38cc851e07c1b6bf74e7492`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1038,7 +1038,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Opphever [EO-U1](../../plans/vedtak.md#eo-u1). Opphever [EO-U3](../../plans/vedtak.md#eo-u3). Opphever [EO-U4](../../plans/vedtak.md#eo-u4). Opphever [EO-U8](../../plans/vedtak.md#eo-u8). Opphever [EO-U16](#eo-u16). Opphever [EO-U20](../../plans/vedtak.md#eo-u20). Opphever [EO-U24](#eo-u24). Samler [EO-U11](#eo-u11). Samler [EO-U12](#eo-u12). Samler [EO-U13](#eo-u13). Samler [EO-U14](#eo-u14). Samler [EO-U15](#eo-u15). Samler [EO-U17](../../plans/vedtak.md#eo-u17). Samler [EO-U18](#eo-u18). Samler [EO-U19](#eo-u19). Samler [EO-U21](#eo-u21). Samler [EO-U22](#eo-u22). Samler [EO-U23](#eo-u23). Samler [EO-U25](../../plans/vedtak.md#eo-u25). Samler [EO-U26](../../plans/vedtak.md#eo-u26). Samler [EO-U27](#eo-u27). Samler [EO-U28](#eo-u28). Samler [EO-U29](#eo-u29). Samler [EO-U30](#eo-u30). Samler [EO-U31](#eo-u31). Samler [EO-U32](#eo-u32). Samler [EO-U33](#eo-u33). Samler [OV-U6](#ov-u6). Endrer [HF-U12](#hf-u12). Endrer [KA-U12](../../plans/vedtak.md#ka-u12). Endrer [KA-U45](#ka-u45). Endrer [MM-U21](../../plans/vedtak.md#mm-u21). Endrer [MM-U33](../../plans/vedtak.md#mm-u33). Endrer [MM-U34](#mm-u34). Endrer [OV-U2](../../plans/vedtak.md#ov-u2). Endrer [OV-U3](../../plans/vedtak.md#ov-u3). Endrer [OV-U6](#ov-u6). Endrer [OV-U43](#ov-u43). Endrer [OV-U80](#ov-u80). Endrer [Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes](../../plans/vedtak.md#ubegrenset-fullmakt). Teksten står under tabellen, i [Samlevedtaket for endringsordren](../../plans/vedtak.md#samlevedtak-eo).
 
-**Regelrader:** —
+**Regelrader:** [GR-14](#rad-gr-14), [EO-01](#rad-eo-01), [EO-09](#rad-eo-09), [EO-15](#rad-eo-15), [EO-16](#rad-eo-16), [EO-21](#rad-eo-21), [EO-22](#rad-eo-22), [EO-23](#rad-eo-23), [EO-24](#rad-eo-24)
 
 **Bevis-saker som viser til vedtaket:** —
 
@@ -2351,6 +2351,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-02"></a>GR-02 | TE sender en ny grunnlagsversjon som endrer underkategorien fra pålegg (IRREG) til endringsordre (EO), etter et svar som påberoper preklusjon etter § 32.2. | [GR-U22](#gr-u22), [MM-U34](#mm-u34) | F-GR-02, F-MM-G28 (målmodellen) |
 | <a id="rad-gr-07"></a>GR-07 | TE sender en ny grunnlagsversjon etter at byggherren har godkjent grunnlaget uten å påberope preklusjon. | [GR-U10](#gr-u10), [MM-U34](#mm-u34) | F-GR-07, F-MM-G30 (målmodellen), F-MM-G30-kontroll (målmodellen) |
 | <a id="rad-gr-08"></a>GR-08 | Byggherren reviderer vederlagssvaret mens grunnlaget venter på nytt svar etter en ny grunnlagsversjon, og avslår deretter grunnlaget igjen. | [GR-U26](#gr-u26) | F-GR-08, F-MM-G31 (målmodellen) |
+| <a id="rad-gr-14"></a>GR-14 | Byggherren frafaller pålegget og godkjenner deretter vederlag og frist. | [EO-U34](#eo-u34) | F-GR-14, F-MM-G32 (målmodellen) |
 | <a id="rad-gr-18"></a>GR-18 | TE sender en ny grunnlagsversjon som endrer underkategorien fra pålegg (IRREG) til endringsordre (EO), før byggherren har svart, og byggherren svarer deretter «frafalt». | [GR-U22](#gr-u22) | F-GR-18, F-MM-G34 (målmodellen) |
 | <a id="rad-gr-19"></a>GR-19 | TE godtar et delvis godkjent vederlagssvar mens byggherren har avslått grunnlaget. | [MM-U34](#mm-u34) | F-GR-19, F-MM-A (målmodellen), F-MM-A1 (målmodellen) |
 | <a id="rad-gr-21"></a>GR-21 | TE endrer underkategorien etter et avslag i en kravversjon fra en annen skriver (MM-U18) og godtar vederlagssvaret mens grunnlaget venter på nytt svar. Byggherren godkjenner deretter grunnlaget. | [GR-U22](#gr-u22) | F-GR-21, F-MM-A5b (målmodellen) |
@@ -2359,12 +2360,20 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-27"></a>GR-27 | Byggherren har godkjent grunnlaget uten å påberope preklusjon. Byggherren vil deretter revidere svaret, eller TE sender en ny kravversjon av grunnlaget. | [GR-U10](#gr-u10), [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-MM-G10 (målmodellen) |
 | <a id="rad-gr-28"></a>GR-28 | TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon. | [EO-U12](#eo-u12), [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4) | F-MM-G10 (målmodellen), F-MM-G13 (målmodellen), F-MM-G14 (målmodellen), F-MM-G15 (målmodellen), F-MM-G16 (målmodellen), F-MM-G17 (målmodellen), F-MM-G18 (målmodellen), F-MM-G19 (målmodellen) |
 | <a id="rad-gr-29"></a>GR-29 | Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting. | [GR-U12](#gr-u12), [GR-U10](#gr-u10), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4), [OV-U13](#ov-u13) | F-MM-G43 (målmodellen), F-MM-G45 (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen) |
+| <a id="rad-eo-01"></a>EO-01 | Byggherren utsteder en endringsordre i en KOE-sak som er `OMFORENT` (`eo_utstedt` i KOE-saken). | [EO-U34](#eo-u34) | F-EO-01 |
 | <a id="rad-eo-02"></a>EO-02 | Byggherren har godkjent grunnlaget, og TE har ikke sendt vederlag eller frist. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-02 |
 | <a id="rad-eo-03"></a>EO-03 | Byggherren har godkjent grunnlaget og vederlaget, og TE har ikke sendt frist. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-03 |
 | <a id="rad-eo-04"></a>EO-04 | TE trekker vederlag og frist etter at byggherren har godkjent grunnlaget. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-04, F-MM-EO3 (målmodellen) |
 | <a id="rad-eo-05"></a>EO-05 | Byggherren godkjenner vederlaget og avslår fristen, og TE godtar avslaget. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-05 |
 | <a id="rad-eo-06"></a>EO-06 | TE godtar et delvis godkjent vederlagssvar, og byggherren godkjenner fristen. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-06 |
 | <a id="rad-eo-07"></a>EO-07 | Byggherren knytter en KOE-sak som ikke er `OMFORENT`, til en EO-sak gjennom `/api/events` (`eo_koe_lagt_til`). | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-07 |
+| <a id="rad-eo-09"></a>EO-09 | Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen utstedt EO-sak, og TE har bestridt et utsagn i den. | [EO-U34](#eo-u34) | F-EO-09 |
+| <a id="rad-eo-15"></a>EO-15 | TE godtar et utsagn i en endringsordre som ikke er utstedt. | [EO-U34](#eo-u34) | F-EO-15 |
+| <a id="rad-eo-16"></a>EO-16 | Byggherren utsteder samme endringsordre på nytt. | [EO-U34](#eo-u34) | F-EO-16 |
+| <a id="rad-eo-21"></a>EO-21 | Byggherren knytter en omforent KOE-sak til en EO-sak etter utstedelsen. | [EO-U34](#eo-u34) | F-EO-21 |
+| <a id="rad-eo-22"></a>EO-22 | Byggherren fjerner en KOE-sak fra en utstedt endringsordre. | [EO-U34](#eo-u34) | F-EO-22 |
+| <a id="rad-eo-23"></a>EO-23 | Byggherren oppretter en endringsordre i en KOE-sak (`eo_opprettet`). | [EO-U34](#eo-u34) | F-EO-23 |
+| <a id="rad-eo-24"></a>EO-24 | Byggherren utsteder en EO-sak med en KOE-sak i utkastet, og utstedelsen nevner ikke KOE-sakene. | [EO-U34](#eo-u34) | F-EO-24 |
 | <a id="rad-eo-25"></a>EO-25 | Byggherren har godkjent grunnlaget og hele fristkravet, og TE trekker vederlagskravet. | [MM-U34](#mm-u34) | F-MM-EO1 (målmodellen) |
 | <a id="rad-eo-26"></a>EO-26 | Byggherren har godkjent grunnlaget og avslått vederlag og frist, og TE godtar begge avslagene. | [MM-U34](#mm-u34) | F-MM-EO2 (målmodellen) |
 | <a id="rad-gr-31"></a>GR-31 | Byggherren har frafalt pålegget (§ 32.3 c) i et svar sendt fra appen, og reviderer svaret. | [MM-U34](#mm-u34), [GR-U17](#gr-u17), [OV-U4](#ov-u4) | F-MM-G37 (målmodellen), F-MM-G37x (målmodellen), F-MM-G41 (målmodellen), F-MM-G41x (målmodellen) |
