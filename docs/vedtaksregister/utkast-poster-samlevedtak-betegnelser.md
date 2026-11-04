@@ -8,7 +8,7 @@ Utkast, ikke ført i registeret. Føres i `vedtak.toml` når grenen er fjerde i 
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "avsnittet «Designdel» i samlevedtaket, punkt 12, og i punkt 10 «Byggherrens svar og enigheten står på siden for saken.»"
-bindende_i = ["eo-u34", "mm-u12", "gr-u7", "ka-u6", "ov-u4"]
+bindende_i = ["eo-u34", "mm-u12", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
 id = "MM-U41"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -56,6 +56,7 @@ forkastet = true
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "«Byggherrens svar og enigheten står på siden for saken.»"
+bindende_i = ["eo-u34", "gr-u7"]
 id = "MM-U42"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -230,8 +231,8 @@ om nøkkeltallene, faller bort med det.» Følge for OV-U61 sier det ikke (M3).
 
 ## Endringer i postene som finnes
 
-- MM-U38: `klasse = "beslutning"` (fra `vedtak`), etter kontrollen av klassene (svar 8 B).
-- OV-U61: `klasse = "beslutning"` (fra `vedtak`), etter kontrollen av klassene (svar 8 B).
+- MM-U38: `klasse = "beslutning"` (fra `vedtak`) og `bindende_i = ["eo-u34", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]`, etter kontrollen av klassene (svar 8 B).
+- OV-U61: `klasse = "beslutning"` (fra `vedtak`) og `bindende_i = ["gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u6", "ov-u57"]`, etter kontrollen av klassene (svar 8 B).
 - OV-U61: tillegg sist i `folge` (E4):
 
 ```text
