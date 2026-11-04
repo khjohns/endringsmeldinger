@@ -5,7 +5,7 @@ Kartleggingen for samlevedtaket for kjeden «Særskilt varsel etter § 34.1.3 og
 [vurderingen av klassene](vurdering-klassifisering-2026-11-03.md#kjedene). Formen følger svar 4,
 7, 8 og 10 i #1534: hver setning har en kilde, innholdet som endres, står i «Endret innhold», og
 hver post har forholdet «samler» eller «opphever». Utkastet til postene står i
-[`utkast-poster-saerskilt-varsel.toml`](utkast-poster-saerskilt-varsel.toml). Ingenting her er
+[`utkast-poster-saerskilt-varsel.toml`](https://github.com/khjohns/endringsmeldinger/blob/b69498e/docs/vedtaksregister/utkast-poster-saerskilt-varsel.toml). Ingenting her er
 vedtatt før oppdragsgiver har svart. Teksten fra NS 8407 og kontraktsgrunnlaget er kontrollert mot
 `khjohns/kontrakt`, men gjengis ikke her. Bare bestemmelsen er oppgitt.
 
@@ -379,4 +379,10 @@ Styrer: om postene kan skrives når grenen får plassen sin i køen for `vedtak.
 
 ## Svarene
 
-_Ikke besvart._
+Oppdragsgiver 04.11, ordrett: «V1 A, V2A, S1 A, S2 A, S3 A. Godkjenner merge av 1566»
+([#1534, 6631244776](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6631244776)).
+S1–S3 er spørsmål 1–3 her. V1 og V2 gjaldt samlevedtaket for vilkår og forbehold (#1578).
+
+- Spørsmål 1: A. Ført som [OV-U90](../plans/vedtak.md#ov-u90).
+- Spørsmål 2: A. Ført som [OV-U91](../plans/vedtak.md#ov-u91).
+- Spørsmål 3: A. Samlevedtaket er ført som [OV-U89](../plans/vedtak.md#ov-u89).
