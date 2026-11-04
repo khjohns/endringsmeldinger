@@ -46,24 +46,28 @@ endres; resten av posten står og hører til en annen kjede.
 | --- | --- | --- | --- | --- |
 | HF-U1 | beslutning | gjeldende | samler setningen «Inneholder en hendelse noe kjernen ikke kjenner, er saken ikke forstått (MM-U2), og ingenting hoppes over.»; resten hører til lagringsformatet | – |
 | MM-U2 | beslutning med designdel | gjeldende | samler | – |
-| MM-U14 | vedtak | gjeldende | opphever ved spørsmål 2 A; samler ved B | E4 |
+| MM-U14 | vedtak | gjeldende | ved spørsmål 2 A står den for bestridelsen som eget utsagn, som er utsatt (VS-U35), og snevres inn for innlegget; ved B samles den og utvides til alle innlegg | E4 |
 | MM-U18 | vedtak | gjeldende | opphever | E1, E2 |
 | MM-U19 | vedtak | gjeldende, endret 28.10 av MM-U34 punkt 12 | opphever | E2 |
 | MM-U20 | vedtak | gjeldende | opphever (setningen om et registrert brev) | E2 |
 | MM-U27 | vedtak | gjeldende | endrer første setning, «Det er en kontroll av at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet.» og det første «Forkastet»; andre setning hører til samlevedtaket for revisjon av byggherrens svar | E3 |
 | OV-U4 | vedtak med designdel | gjeldende | samler setningen «Er saken ikke forstått (MM-U2), godtas registreringen, men ikke unntakene i OV-U5 og OV-U6.»; resten hører til kjeden for brev utenfor løsningen | – |
 | OV-U80 | vedtak med designdel | gjeldende | endrer ved spørsmål 2 A setningen «I en sak løsningen ikke forstår (MM-U2), godtas bare dokumentasjon.»; samler den ved B | E4 |
-| HF-U4 | vedtak | gjeldende, endret 28.10 av MM-U34 punkt 6 | ingen setning endres; kilde for punkt 11 | – |
+| HF-U4 | vedtak | gjeldende, endret 28.10 av MM-U34 punkt 6 | ingen setning endres; kilde for punkt 10 | – |
 | HF-U5 | vedtak | gjeldende, endret 28.10 av MM-U34 punkt 4 | ingen setning endres eller samles; vernet mot revisjon hører til samlevedtaket for revisjon av byggherrens svar | – |
-| MM-U34 | vedtak med designdel og beslutningsdel | gjeldende | ingen setning endres; punkt 4, 6, 9, 12, 19 og 24 er kilder | – |
+| MM-U34 | vedtak med designdel og beslutningsdel | gjeldende | ingen setning endres; punkt 6, 9 og 12 er kilder | – |
 | MM-U39 | beslutning med designdel | gjeldende | står utenfor; samles i samlevedtaket for sakslisten (#1566) | – |
+| OV-U21 | design | gjeldende | står utenfor; hører til brukerforløpet («Mens saken ikke er forstått, teller hvert registrert brev som ikke er rettet.») | – |
+| OV-U61 | vedtak med designdel | gjeldende | står utenfor; samles i samlevedtaket for sakslisten (#1566) | – |
+| MM-U35, MM-U33, EO-U34, GR-U27, EO-U23 | – | gjeldende | står utenfor; kilder for punkt 6, 7 og spørsmål 2 | – |
 | KA-U16, HF-U9, MM-U7, MM-U16, VS-U35, B-10 | – | gjeldende | står utenfor; viser til postene i kjeden, og henvisningene gjelder samlevedtaket | – |
 
 Forhold samlevedtaket overtar fra postene det opphever: MM-U18 utvider MM-U2 og presiserer
-HF-U1; MM-U19 presiserer KA-U7 og KA-U11 og er i tråd med KA-U16; MM-U20 presiserer MM-U18;
-MM-U27 utvider MM-U18 (for første setning); MM-U14 presiserer MM-U2 og MM-U7. Henvisningene til MM-U2 i KA-U16, B-10,
-OV-U12, OV-U21 og LV-U16, til MM-U18 og MM-U19 i HF-U9, og til MM-U14 i OV-U7 og VS-U35 gjelder
-samlevedtaket og endres ikke. MM-U22 og MM-U25 presiserer designdelen i MM-U2 og står i
+HF-U1; MM-U19 presiserer KA-U11 og er i tråd med KA-U16 (KA-U7 er opphevet av MM-U34 punkt 9); MM-U20 presiserer MM-U18;
+MM-U27 utvider MM-U18 (for første setning). MM-U14 presiserer MM-U2 og MM-U7 og står ved
+spørsmål 2 A for bestridelsen som eget utsagn, så henvisningene til MM-U14 i OV-U7 og VS-U35
+endres ikke. Henvisningene til MM-U2 i KA-U16, B-10, OV-U12, OV-U21 og LV-U16, og til MM-U18 og
+MM-U19 i HF-U9, gjelder samlevedtaket og endres ikke. MM-U22 og MM-U25 presiserer designdelen i MM-U2 og står i
 `system.md`.
 
 ## Forslaget
@@ -83,7 +87,7 @@ spørsmål 2.
 4. Er saken ikke forstått, godtas registreringen av et brev sendt utenfor løsningen, men ikke
    unntakene i OV-U5 og OV-U6. (OV-U4) Ellers godtas bare dokumentasjon. (OV-U80) *Ved
    spørsmål 2 A: godtas også et innlegg.*
-5. *Teksten i det valgte alternativet i spørsmål 2.* (MM-U14; MM-U34 punkt 24; VS-U35; E4)
+5. *Teksten i det valgte alternativet i spørsmål 2.* (MM-U14; MM-U35; VS-U35; E4)
 
 ### B. Strid med enighet og lukking
 
@@ -91,12 +95,17 @@ spørsmål 2.
    om enighet og lukking, gjør saken ikke forstått når den ikke er et registrert brev. Det
    gjelder for eksempel en aksept av et frafall, et svar fra byggherren på et krav etter at TE
    har trukket det, TEs aksept, etter trekket, av et svar i sporet, og en hendelse som endrer
-   utfallet etter at saken er lukket med endringsordre. Et trekk lukker sporet (KA-U12,
-   KA-U11). (MM-U18; MM-U20; MM-U34 punkt 12; E1)
-7. En ny kravversjon og et nytt svar i et spor med registrert enighet, og en hendelse etter at
-   kravene er avgjort, strider ikke mot vedtakene om enighet og lukking. Fram til endringsordren
-   kan TE sende en ny kravversjon og byggherren et nytt svar også i et spor med registrert
-   enighet, og løsningen avgjør ikke om enigheten står (MM-U12). (MM-U34 punkt 9 og 12; E1)
+   utfallet etter at saken er lukket: et krav, et svar, en aksept eller et trekk i en KOE-sak
+   som en sendt endringsordre eller en godkjent registrering omfatter, og i en sak lukket ved
+   TEs aksept av avslaget på grunnlaget eller trekk av grunnlaget (GR-U27). Et trekk lukker
+   sporet (KA-U12, KA-U11). (MM-U18; MM-U20; samlevedtaket for endringsordren, punkt 11 og 12;
+   GR-U27; E1)
+7. En ny kravversjon og et nytt svar i et spor med registrert enighet strider ikke mot
+   vedtakene om enighet og lukking, og heller ikke et trekk, en ny kravversjon eller en
+   revisjon etter at kravene er avgjort. Fram til endringsordren kan TE sende en ny kravversjon
+   og byggherren et nytt svar også i et spor med registrert enighet. Visningen viser at det nye
+   avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).
+   For en sak lukket etter GR-U27 gjelder punkt 6. (MM-U34 punkt 9 og 12; E1)
 8. Det er en kontroll av at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet.
    Strengere vilkår for å sende senere gjør ikke et brev som var tillatt da det ble sendt,
    uforstått. Endres utledningen, følger det MM-U16. (MM-U18)
@@ -104,8 +113,9 @@ spørsmål 2.
    enigheten eller lukkingen, bevares og vises. Det står som dokumentasjon: en aksept, et trekk
    eller et annet utsagn sendt utenfor løsningen står som dokumentasjon, og et valg av krav
    eller svar godtas bare der den samme handlingen sendt fra løsningen ville vært godtatt.
-   Løsningen utleder ikke noe av det, og ingenting sperres. Løsningen avgjør ikke om brevet er
-   virksomt (MM-U12). Kan løsningen ikke uttrykke innholdet, gjelder KA-U16. (MM-U18; MM-U19;
+   Løsningen utleder ikke noe av det, og det gir ingen sperre (OV-U4). Løsningen avgjør ikke om
+   brevet er virksomt (MM-U12). Kan løsningen ikke uttrykke innholdet, gjelder KA-U16 slik OV-U4
+   har endret den. (MM-U18; MM-U19;
    MM-U20; MM-U34 punkt 12; OV-U4; OV-U80; E2)
 
 ### C. Strid med partens eget utsagn
@@ -114,7 +124,9 @@ spørsmål 2.
     kom for sent etter en bestemmelse der samme part i et utsagn sendt fra løsningen
     uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det, gjør saken
     ikke forstått så langt HF-U4 avviser en slik påberopelse. Det er en kontroll av at dataene
-    henger sammen, ikke en rettslig avgjørelse om gyldighet. (MM-U27; HF-U4; E3)
+    henger sammen, ikke en rettslig avgjørelse om gyldighet. Så lenge den egne innsigelsen etter
+    punkt 5 tredje ledd er utsatt, har kontrollen ingen oppgitt innsigelse å lese (VS-U35).
+    (MM-U27; HF-U4; VS-U35; E3)
 11. En påberopelse fra byggherren av at et varsel kom for sent, etter at byggherren har sagt at
     varselet kom i tide, gjør ikke saken ikke forstått. (MM-U34 punkt 6; E3) Om en revisjon som
     senker noe byggherren har innrømmet, gjør saken ikke forstått, følger samlevedtaket for
@@ -123,14 +135,16 @@ spørsmål 2.
 ### Designdel
 
 Visningen sier at et varsel med frist må sendes utenfor løsningen og registreres senere, og
-drift varsles. (MM-U2) Det brukeren ser i saken, står i `system.md` (MM-U22, MM-U25). Sakslisten
-og nøkkeltallene for en sak løsningen ikke forstår, følger samlevedtaket for sakslisten
-(MM-U39, #1566).
+drift varsles. (MM-U2) *Ved spørsmål 2 A gjelder det et varsel med frist som ikke sendes som
+innlegg.* Det brukeren ser i saken, står i `system.md` (MM-U22, MM-U25) og i brukerforløpet
+(OV-U21). Sakslisten og nøkkeltallene for en sak løsningen ikke forstår, følger samlevedtaket
+for sakslisten (MM-U39, OV-U61, #1566).
 
 ### Beslutningsdel
 
-En sak forblir ikke forstått til en kjerne som forstår hendelsen, er rullet ut (MM-U2).
-Rulles løsningen tilbake, følger det B-10.
+Ingen bindende kommando godtas før en kjerne som forstår hendelsen, er rullet ut (MM-U2).
+Rulles løsningen tilbake, følger det B-10. For strid etter punkt 6 og 10 følger en endring av
+utledningen MM-U16 (MM-U18).
 
 ## Endret innhold
 
@@ -138,11 +152,13 @@ Rulles løsningen tilbake, følger det B-10.
 gjelder for eksempel en revisjon eller en ny kravversjon i et spor med enighet, en aksept av et
 frafall, eller en hendelse som endrer utfallet etter at kravene er avgjort, når den ikke er et
 registrert brev.» og «Forkastet: at en slik hendelse leses som gyldig, som i dag, fordi den da
-kan oppheve en enighet (KA-U7, GR-U10, MM-U3)». Samlevedtaket: punkt 6 og 7; «en revisjon eller
+kan oppheve en enighet (KA-U7, GR-U10, MM-U3); og at et registrert brev gjør saken ikke
+forstått». Samlevedtaket: punkt 6 og 7; «en revisjon eller
 en ny kravversjon i et spor med enighet» faller, og «etter at kravene er avgjort» blir «etter at
-saken er lukket med endringsordre». Hvorfor: MM-U34 punkt 9 «Fram til endringsordren kan TE
-sende en ny kravversjon og byggherren et nytt svar også i et spor med registrert enighet.» og
-«løsningen avgjør ikke om enigheten står (MM-U12)»; punkt 12 «Sperren mot trekk, ny kravversjon
+saken er lukket» etter samlevedtaket for endringsordren og GR-U27. Hvorfor: MM-U34 punkt 9
+«Fram til endringsordren kan TE sende en ny kravversjon og byggherren et nytt svar også i et
+spor med registrert enighet.» og «Visningen viser at det nye avviker fra den registrerte
+enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).»; punkt 12 «Sperren mot trekk, ny kravversjon
 og revisjon når kravene er avgjort, oppheves, og sperren gjelder fra endringsordren er sendt
 (punkt 19).» MM-U34 opphever KA-U7 og lister ikke MM-U18, men endret MM-U19 på samme måte
 (punkt 12). Det forkastede alternativet i MM-U18 står som forkastet, med KA-U7 opphevet.
@@ -157,7 +173,7 @@ Samlevedtaket: punkt 9. Hvorfor: MM-U34 punkt 12 «I MM-U19 gjelder regelen bare
 strider mot at saken er lukket med endringsordre. «Det som strider mot enigheten …, får ingen
 virkning på utfallet, enigheten står» blir «Løsningen avgjør ikke om brevet er virksomt
 (MM-U12).»»; OV-U4 «Appen utleder ingenting av det: ingen standpunkt, enighet, sperre eller
-uavklart utfall»; OV-U80 «Et valg godtas der den samme handlingen sendt fra løsningen ville
+uavklart utfall, og den fryser ingen vurdering av det.»; OV-U80 «Et valg godtas der den samme handlingen sendt fra løsningen ville
 vært godtatt.» og «En aksept, et trekk eller et annet utsagn sendt utenfor løsningen står som
 dokumentasjon.» Etter OV-U4 og OV-U80 er et registrert brev i strid alltid dokumentasjon, så
 skillet i MM-U18 og MM-U19 mellom et entydig ensidig forsøk og et brev som viser til en ny
@@ -179,13 +195,16 @@ punkt 4 opphevet, og avgjøres i samlevedtaket for revisjon av byggherrens svar 
 bestridelsen gjelder en opplysning fra motparten, trenger tilstanden. Parten kan bestride
 utenfor appen og registrere det senere, som for varsler etter MM-U2»; OV-U80 «I en sak
 løsningen ikke forstår (MM-U2), godtas bare dokumentasjon.» Samlevedtaket ved A: punkt 4 og 5.
-Hvorfor: MM-U34 punkt 24 «TEs utdyping, byggherrens senere begrunnelse og bestridelsen av en
-opplysning blir innlegg.»; VS-U35 «Påberopelsen av passivitet og bestridelsen av en opplysning er
-fortsatt utsatt (OV-U7). Til de bygges, uttrykker partene dem i et innlegg.» Et innlegg viser
-til et brev: ‹<Part> viser til brev <n> av <dato>:› (MM-U34 punkt 24). Etter lukking godtas
-innlegg (GR-U27 «Innlegg og dokumentasjon kan fortsatt legges til.»; MM-U34 punkt 19 «Innlegg,
-dokumentasjon og innsigelser etter § 5 tredje ledd godtas.»). Begrunnelsen i MM-U14, at
-kontrollen trenger tilstanden, gjelder en bestridelse som eget utsagn, som er utsatt.
+Hvorfor: MM-U35 «I første versjon sender en part innsigelse etter punkt 5 tredje ledd, protest mot
+en innsigelse, påberopelse av passivitet etter punkt 32.3 annet ledd og bestridelse av en
+opplysning som innlegg i fritekst.», «Løsningen tolker ikke innlegget og endrer ikke utfallet
+eller et standpunkt på grunnlag av det.» og «Innlegget sperrer ingenting og kan sendes etter et
+svar, en enighet og en endringsordre.»; VS-U35 «Påberopelsen av passivitet og bestridelsen av en
+opplysning er fortsatt utsatt (OV-U7). Til de bygges, uttrykker partene dem i et innlegg.»; etter
+lukking godtas innlegg (GR-U27 «Innlegg og dokumentasjon kan fortsatt legges til.»;
+samlevedtaket for endringsordren, punkt 12, «Innlegg, dokumentasjon og innsigelser etter punkt 5
+tredje ledd godtas.»). Begrunnelsen i MM-U14, at kontrollen trenger tilstanden, gjelder en
+bestridelse som eget utsagn, som er utsatt.
 
 ## Prøvingen
 
@@ -216,7 +235,14 @@ mot vedtakene i vedtaksfila. Resultatet står under, og rettingene er ført inn 
   frist må sendes utenfor appen og registreres senere.» (`kjerne/utledning/visning.ts`,
   `src/lib/kjernesak/saksbilde.ts`). Ingen varsling til drift er funnet.
 
-**Prøvingen av alternativene mot vedtakene:** *føres inn når den er kjørt.*
+**Prøvingen av forslaget og alternativene mot vedtakene** fant blant annet at punkt 6 manglet
+lukkingen etter GR-U27, at punkt 7 var bredere enn MM-U34 punkt 12, at kildene for innlegget og
+for lukkingen var MM-U35 og samlevedtaket for endringsordren (EO-U3 er opphevet av EO-U34), at
+spørsmål 2 A snevrer inn MM-U14 og ikke opphever den, at B utvider MM-U14 og snevrer inn MM-U35
+og MM-U33, at A endrer designdelen i MM-U2, og at kostnaden i spørsmål 2 var feil: et innlegg
+sendes som brev på den avtalte kanalen (MM-U35), et registrert brev sendes ikke fra løsningen.
+OV-U21, OV-U61, MM-U35, MM-U33, EO-U34, GR-U27 og EO-U23 er lagt til i tabellen. Fire sitater
+er gjort hele. Rettingene er ført inn over og i spørsmålene.
 
 ## Funn som ikke avgjøres her
 
@@ -230,7 +256,7 @@ mot vedtakene i vedtaksfila. Resultatet står under, og rettingene er ført inn 
 ## Spørsmålene til oppdragsgiver
 
 1. **Tilslutning til samlevedtaket for saker løsningen ikke forstår.** Bakgrunn: kjeden har tolv
-   poster. Reglene for en sak løsningen ikke forstår, står spredt i HF-U1, MM-U2, MM-U14, OV-U4 og
+   poster, og OV-U80 er tatt med. Reglene for en sak løsningen ikke forstår, står spredt i HF-U1, MM-U2, MM-U14, OV-U4 og
    OV-U80, og reglene for en hendelse i strid med enighet, lukking eller partens eget utsagn i
    MM-U18, MM-U19, MM-U20 og MM-U27. Flere radtekster står uendret etter at vedtaket 28.10
    opphevet sperren etter enighet, vernet mot revisjon og sperren mot byggherrens «for sent»
@@ -238,50 +264,67 @@ mot vedtakene i vedtaksfila. Resultatet står under, og rettingene er ført inn 
    etter at kravene er avgjort, den særskilte behandlingen av et registrert brev i MM-U18 og
    MM-U19, og første setning i MM-U27 om byggherrens «for sent» etter «i tide».
    Forslaget samler reglene i én tekst med kilde per setning, opphever MM-U18, MM-U19 og MM-U20
-   som egne regler (og MM-U14 ved spørsmål 2 A), endrer de navngitte setningene i MM-U27, og
+   som egne regler, endrer de navngitte setningene i MM-U27, og
    samler de navngitte setningene i HF-U1, OV-U4 og OV-U80. Andre setning i MM-U27, om en
    revisjon som senker det byggherren har innrømmet, avgjøres i samlevedtaket for revisjon av
    byggherrens svar. Hver innholdsendring står i E1–E4 med gammel tekst, ny tekst og kilde.
    Sakslisten følger samlevedtaket for sakslisten.
-   Alternativene: **A.** «Samlevedtaket for saker løsningen ikke forstår gjelder med E1–E4.
+   Alternativene: **A.** «Samlevedtaket for saker løsningen ikke forstår gjelder med E1–E3, og
+   med E4 etter svaret på spørsmål 2.
    Postene det samler, gjelder som «Samlet i samlevedtaket for saker løsningen ikke forstår».
    Postene det opphever, gjelder ikke lenger, og i postene det endrer, gjelder de navngitte
    setningene ikke lenger.» **B.** Samme som A, med rettingene oppdragsgiver gir per E-punkt.
    Anbefalt: A, «ja». Hva valget styrer: hvilken tekst som er regelgrunnlaget for når en sak
    ikke er forstått og for strid med enighet og lukking; de gamle radtekstene leses ikke lenger
    alene. Forholdet til andre poster: samler, opphever og endrer som i tabellen «Postene i
-   kjeden»; ingen ny regel utover E4. Klasse: vedtak med designdel og beslutningsdel.
+   kjeden»; ingen ny regel utover svaret på spørsmål 2. Klasse: vedtak med designdel og beslutningsdel.
 
-2. **Innlegg og bestridelse i en sak løsningen ikke forstår.** Bakgrunn: når løsningen ikke
-   forstår en sak, godtas ingen bindende handling fra noen part før en versjon som forstår den,
-   er tatt i bruk, og bare dokumentasjon kan legges til. Vedtaket 10.10 avviste også en
-   bestridelse, fordi kontrollen av at den gjelder en opplysning fra motparten trenger
-   tilstanden. Etter vedtaket 28.10 er en bestridelse et innlegg som viser til et brev, og
-   bestridelsen som eget utsagn er utsatt. Etter at saken er lukket, godtas innlegg. Belegg:
-   MM-U2 «kan ikke kjernen tolke en hendelse på saken, godtas ingen bindende kommando fra noen
-   part før en kjerne som forstår den, er rullet ut.»; MM-U14 «er saken ikke forstått (MM-U2),
-   avvises også en bestridelse etter MM-U7. Kontrollen av at bestridelsen gjelder en opplysning
-   fra motparten, trenger tilstanden.»; OV-U80 «I en sak løsningen ikke forstår (MM-U2), godtas
-   bare dokumentasjon.»; MM-U34 punkt 24 «TEs utdyping, byggherrens senere begrunnelse og
-   bestridelsen av en opplysning blir innlegg.»; VS-U35 «Påberopelsen av passivitet og
-   bestridelsen av en opplysning er fortsatt utsatt (OV-U7). Til de bygges, uttrykker partene
-   dem i et innlegg.»; GR-U27 «Innlegg og dokumentasjon kan fortsatt legges til.»
+2. **Innlegg i en sak løsningen ikke forstår.** Bakgrunn: når løsningen ikke forstår en sak,
+   godtas ingen bindende handling fra noen part før en versjon som forstår den, er tatt i bruk,
+   og bare dokumentasjon kan legges til. Vedtaket 10.10 avviste også en bestridelse, fordi
+   kontrollen av at den gjelder en opplysning fra motparten trenger tilstanden. Etter vedtakene
+   28.10 sender en part i første versjon innsigelsen etter punkt 5 tredje ledd, protest,
+   påberopelse av passivitet og bestridelse som innlegg i fritekst. Innlegget sendes som brev på
+   den avtalte kanalen, sperrer ingenting, og løsningen tolker det ikke og avgjør ikke om det kom
+   i tide. Bestridelsen som eget utsagn er utsatt. Etter at saken er lukket, godtas innlegg.
+   Belegg: MM-U2 «kan ikke kjernen tolke en hendelse på saken, godtas ingen bindende kommando fra
+   noen part før en kjerne som forstår den, er rullet ut.» og «Visningen sier at et varsel med
+   frist må sendes utenfor appen og registreres senere, og drift varsles.»; MM-U14 «er saken ikke
+   forstått (MM-U2), avvises også en bestridelse etter MM-U7. Kontrollen av at bestridelsen
+   gjelder en opplysning fra motparten, trenger tilstanden.»; OV-U80 «I en sak løsningen ikke
+   forstår (MM-U2), godtas bare dokumentasjon.»; MM-U35 «I første versjon sender en part
+   innsigelse etter punkt 5 tredje ledd, protest mot en innsigelse, påberopelse av passivitet
+   etter punkt 32.3 annet ledd og bestridelse av en opplysning som innlegg i fritekst.», «Det
+   sendes som brev på den kanalen partene har avtalt, som de andre brevene fra løsningen.»,
+   «Løsningen tolker ikke innlegget og endrer ikke utfallet eller et standpunkt på grunnlag av
+   det.», «Innlegget sperrer ingenting og kan sendes etter et svar, en enighet og en
+   endringsordre.» og «Løsningen avgjør ikke om innlegget kom i tide eller hvilken virkning det
+   har.»; VS-U35 «Påberopelsen av passivitet og bestridelsen av en opplysning er fortsatt utsatt
+   (OV-U7). Til de bygges, uttrykker partene dem i et innlegg.»; GR-U27 «Innlegg og
+   dokumentasjon kan fortsatt legges til.»
    Alternativene:
    **A.** «I en sak løsningen ikke forstår, godtas også et innlegg, også et innlegg med en
-   bestridelse av en opplysning. Innlegget viser til et brev i saken, og løsningen utleder ikke
-   noe av det. Bindende handlinger avvises som før (MM-U2).» Forhold: opphever MM-U14; endrer
-   OV-U80 i setningen om en sak løsningen ikke forstår; presiserer MM-U2.
+   innsigelse, en protest, en påberopelse av passivitet eller en bestridelse av en opplysning.
+   Et innlegg er ikke en bindende kommando. Bindende kommandoer avvises som før (MM-U2).
+   Visningen sier at et varsel med frist som ikke kan sendes som innlegg, må sendes utenfor
+   løsningen og registreres senere.» Forhold: utvider MM-U35 til en sak løsningen ikke forstår;
+   presiserer MM-U2 (et innlegg er ikke en bindende kommando) og endrer designdelen i MM-U2;
+   snevrer inn MM-U14 til bestridelsen som eget utsagn, som er utsatt (VS-U35); endrer OV-U80 i
+   setningen om en sak løsningen ikke forstår.
    **B.** «I en sak løsningen ikke forstår, avvises også et innlegg, også et innlegg med en
-   bestridelse av en opplysning. Parten kan sende det utenfor løsningen og registrere det som
-   dokumentasjon.» Forhold: samler MM-U14 og OV-U80; presiserer MM-U34 punkt 24.
-   Anbefalt: A. Belegg: et innlegg er ikke en bindende handling, løsningen utleder ikke noe av
-   det (MM-U34 punkt 24, VS-U35), og det godtas også etter at saken er lukket (GR-U27, MM-U34
-   punkt 19). Grunnen i MM-U14, at kontrollen trenger tilstanden, gjaldt bestridelsen som eget
-   utsagn, som er utsatt. Hva hvert valg koster: ved A får motparten et innlegg i løsningen i
-   en sak der løsningen ikke kan vise tilstanden; innlegget har samme virkning i løsningen som
-   et registrert brev, altså ingen. Ved B må parten sende innlegget utenfor løsningen og
-   registrere det, med samme virkning og mer arbeid. Hva valget styrer: om skjemaet for innlegg
-   er tilgjengelig i en sak løsningen ikke forstår. Klasse: vedtak.
+   innsigelse, en protest, en påberopelse av passivitet eller en bestridelse av en opplysning.
+   Parten kan sende det utenfor løsningen og registrere det som dokumentasjon.» Forhold: snevrer
+   inn MM-U35 og MM-U33 punkt 3 («Begge parter kan sende innlegg i fritekst i saken, med henvisning til et brev og med dokumentasjon.»); utvider MM-U14
+   fra bestridelsen til alle innlegg; samler OV-U80 i setningen om en sak løsningen ikke forstår.
+   Anbefalt: A. Belegg: et innlegg sperrer ingenting, løsningen tolker det ikke og avgjør ikke om
+   det kom i tide (MM-U35), så grunnen i MM-U2 og MM-U14, at kontrollen trenger tilstanden,
+   rammer det ikke. Innlegg godtas også etter lukking (GR-U27, samlevedtaket for endringsordren
+   punkt 12). Hva hvert valg koster: ved A får motparten et innlegg fra løsningen i en sak der
+   løsningen ikke kan vise tilstanden, og løsningen avgjør ikke hva innlegget betyr. Ved B må en
+   part som skal fremme en innsigelse med frist, sende den utenfor løsningen og registrere den;
+   et registrert brev sendes ikke fra løsningen og får ikke løsningens sending på den avtalte
+   kanalen. Hva valget styrer: om skjemaet for innlegg er tilgjengelig i en sak løsningen ikke
+   forstår, og hva visningen sier om varsler med frist. Klasse: vedtak med designdel.
 
 ## Svarene
 
