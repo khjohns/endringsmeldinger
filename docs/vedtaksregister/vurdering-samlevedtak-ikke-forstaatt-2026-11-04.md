@@ -338,4 +338,4 @@ Oppdragsgiver 04.11, ordrett: «1A, 2A» ([#1534, 6629853128](https://github.com
 - **1: A** er valgt, og **B** er forkastet. Føres som samlevedtaket, foreløpig MM-U43.
 - **2: A** er valgt, og **B** er forkastet. Føres som foreløpig MM-U44. Punkt 4 og 5 og designdelen i samlevedtaket leses med A.
 
-Utkastet til postene står i [`utkast-poster-ikke-forstaatt.toml`](utkast-poster-ikke-forstaatt.toml).
+Postene er ført i registeret som [MM-U43](../plans/vedtak.md#mm-u43) og [MM-U44](../plans/vedtak.md#mm-u44) (PR #1572).
