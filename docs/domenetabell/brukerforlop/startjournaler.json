@@ -122,7 +122,8 @@
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
-            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren"
+            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren",
+            "brevnummer": 1
           }
         },
         {
@@ -150,7 +151,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 40,
+                  "regelversjon": 41,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -169,7 +170,9 @@
                 "laast": "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 1. oktober 2026: Byggherren godkjenner grunnlaget.",
                 "utdypning": "Byggherren erkjenner at tegningene kom for sent."
               }
-            ]
+            ],
+            "brevtittel": "Svar på forholdet",
+            "brevnummer": 2
           }
         },
         {
@@ -197,7 +200,9 @@
                 "gjelder": "1975bfcf-0000-4000-8000-000000000010",
                 "laast": "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
               }
-            ]
+            ],
+            "brevtittel": "Krav om vederlagsjustering",
+            "brevnummer": 3
           }
         },
         {
@@ -245,7 +250,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 40,
+                  "regelversjon": 41,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -271,7 +276,9 @@
                 "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
                 "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
-            ]
+            ],
+            "brevtittel": "Svar på krav om vederlagsjustering",
+            "brevnummer": 4
           }
         },
         {
@@ -291,7 +298,7 @@
                 "id": "1975bfcf-0000-4000-8000-00000000001e",
                 "art": "aksept",
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
-                "regelversjon": 40
+                "regelversjon": 41
               }
             ],
             "brevtekst": [
@@ -299,7 +306,9 @@
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001e",
                 "laast": "TE godtar byggherrens svar på kravet om justering av vederlaget i brev 5 av 1. oktober 2026."
               }
-            ]
+            ],
+            "brevtittel": "Aksept av svaret",
+            "brevnummer": 5
           }
         }
       ]
@@ -411,7 +420,8 @@
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
-            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren"
+            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren",
+            "brevnummer": 1
           }
         },
         {
@@ -439,7 +449,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 40,
+                  "regelversjon": 41,
                   "linje": "Byggherrens standpunkt: avslått.",
                   "sammenfall": false,
                   "varslingsplikt": false,
@@ -458,7 +468,9 @@
                 "laast": "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 1. oktober 2026: Byggherren avslår grunnlaget.",
                 "utdypning": "Tegningene ble levert til avtalt tid etter den reviderte fremdriftsplanen."
               }
-            ]
+            ],
+            "brevtittel": "Svar på forholdet",
+            "brevnummer": 2
           }
         },
         {
@@ -486,7 +498,9 @@
                 "gjelder": "1475b7f0-0000-4000-8000-000000000010",
                 "laast": "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
               }
-            ]
+            ],
+            "brevtittel": "Krav om vederlagsjustering",
+            "brevnummer": 3
           }
         },
         {
@@ -534,7 +548,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 40,
+                  "regelversjon": 41,
                   "linje": "Byggherrens standpunkt: subsidiært varselet etter § 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -560,7 +574,9 @@
                 "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:\n\nPrinsipalt: byggherren har avslått grunnlaget i brev 3 av 1. oktober 2026.\n\nSubsidiært: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.\n\nVidere subsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
                 "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
-            ]
+            ],
+            "brevtittel": "Svar på krav om vederlagsjustering",
+            "brevnummer": 4
           }
         }
       ]
@@ -653,7 +669,8 @@
                 "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
               }
             ],
-            "brevtittel": "Påberopelse av irregulær endring"
+            "brevtittel": "Påberopelse av irregulær endring",
+            "brevnummer": 1
           }
         }
       ]

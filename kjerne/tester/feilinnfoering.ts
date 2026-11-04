@@ -3594,6 +3594,46 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3'],
   },
+  {
+    id: 'F437',
+    feilklasse: 'løsningens brev får det høyeste nummeret i saken, ikke det neste (LV-U44, LV-U45)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['Math.max(0, ...lest', 'Math.max(1, ...lest'],
+      ['(h.dokument.brevnummer ?? 0) : 0))) + 1', '(h.dokument.brevnummer ?? 0) : 0))) + 0'],
+    ],
+    mal: ['løsningens brev får nummeret etter det høyeste i saken'],
+  },
+  {
+    id: 'F438',
+    feilklasse: 'leseren godtar en påberopelse med tittelen for et annet forhold (GR-U31, #1533)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [
+      ['if (forventet ? !somForventet : paaberoper)', 'if (forventet ? !paaberoper : paaberoper)'],
+    ],
+    mal: ['en påberopelse med tittelen for et annet forhold er ikke forstått'],
+  },
+  {
+    id: 'F441',
+    feilklasse: 'leseren godtar tekst etter forholdet i påberopelsens tittel (GR-U31, #1533)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [['SAKSKODE_ETTER_TITTELEN.test(tittel.slice(forventet.length))', 'true']],
+    mal: ['en påberopelse med tittelen for et annet forhold er ikke forstått'],
+  },
+  {
+    id: 'F439',
+    feilklasse: 'leseren godtar en tittel i et brev løsningen ikke gir en tittel (MM-U3, #1533)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [['if (lagBrevtittel(d) === null)', 'if (false)']],
+    mal: ['en bestridelse med tittelen fra innsigelsen er ikke forstått'],
+  },
+  {
+    id: 'F440',
+    feilklasse: 'brevtittelen fryses uten sakens kode (LV-U27, LV-U44)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['? medSakskode(tittel, sakskode) : tittel', '? tittel : tittel']],
+    mal: ['tittelen har sakens kode uten utfylling, og leseren forstår den'],
+  },
 ];
 
 interface Testresultat {

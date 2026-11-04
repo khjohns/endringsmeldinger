@@ -939,6 +939,17 @@ def test_tekst_lagt_til_rundt_vedtakene_er_lov(plan):
 
 
 @pytest.mark.parametrize(
+    "gammel",
+    ["Merknaden.\n", "Merknaden.\n\n", "> Første.\n>\n> Andre.\n"],
+)
+def test_nytt_avsnitt_etter_tekst_med_linjeskift_paa_slutten_er_lov(gammel):
+    """Teksten etter en gruppe slutter med linjeskift. Et nytt avsnitt etter den er lagt
+    til og ikke en endring (PR #1564, PR #1565)."""
+    assert vr._bare_lagt_til(gammel, gammel.rstrip("\n") + "\n\nNytt avsnitt.\n")
+    assert not vr._bare_lagt_til(gammel, "Endret.\n\nNytt avsnitt.\n")
+
+
+@pytest.mark.parametrize(
     ("sitat", "hele"),
     [
         ("Det kan lages etter at brevet er lagret", False),
