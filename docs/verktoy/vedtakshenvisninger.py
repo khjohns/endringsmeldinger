@@ -102,6 +102,15 @@ KJENTE_AVVIK = (
     ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1545"),
+    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U16", 1, "#1553"),
+    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U20", 1, "#1553"),
+    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U24", 2, "#1553"),
+    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U3", 1, "#1553"),
+    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U4", 3, "#1553"),
+    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U8", 1, "#1553"),
+    ("docs/domenetabell/regler.json", "EO-U1", 2, "#1553"),
+    ("docs/domenetabell/regler.json", "EO-U3", 2, "#1553"),
+    ("docs/domenetabell/regler.json", "EO-U4", 10, "#1553"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
@@ -400,6 +409,8 @@ def kildefeil(
     design_: dict[str, list[str]] | None = None,
     designavvik: frozenset[tuple[str, str]] = frozenset(),
     designtruffet: collections.Counter | None = None,
+    avvik: frozenset[tuple[str, str]] = frozenset(),
+    truffet: collections.Counter | None = None,
 ) -> list[str]:
     """Som `feil_i`, for kildelistene i en JSON-fil. `design_` leses bare i bevis-sakene."""
     feil = []
@@ -417,11 +428,14 @@ def kildefeil(
                 else:
                     feil += _designfeil(f"{sti}: {sted}", [i], design_)
         if not gjeldende:
-            feil.extend(
-                f"{sti}: {sted}: {i} er opphevet og står som eneste grunnlag"
-                for i in dict.fromkeys(ider)
-                if i in opphevet
-            )
+            for i in dict.fromkeys(ider):
+                if i not in opphevet:
+                    continue
+                if (sti, i) in avvik:
+                    if truffet is not None:
+                        truffet[(sti, i)] += 1
+                    continue
+                feil.append(f"{sti}: {sted}: {i} er opphevet og står som eneste grunnlag")
     return feil
 
 
@@ -457,7 +471,8 @@ def kontroller(
         f
         for sti, data in kildefiler(rot)
         for f in kildefeil(
-            sti, data, kjente, opphevet, aapne, design_, designavvik, designtruffet
+            sti, data, kjente, opphevet, aapne, design_, designavvik, designtruffet,
+            avvik, truffet,
         )
     ]
     return (
