@@ -30,6 +30,12 @@ Kontrollen er gjort setning for setning mot `main` (EO-U34), grenen
   MM-U34 er bare kilde her.
 - **Endringsordren (EO-U34).** EO-U34 endret henvisningen til EO-U9 i MM-U21. MM-U21 er bare
   kilde her, gjennom samlevedtaket for retting.
+- **Byggherrens begrunnelse** (grenen `claude/samlevedtak-begrunnelse-1534`). Den bytter
+  henvisningen til KA-U24 i OV-U5 og OV-U80 og vurderer å oppheve KA-U35–KA-U39, som «etter
+  KA-U34» i OV-U55 viser til. Setningene med de henvisningene («Mener byggherren at varselet
+  ikke ble sendt eller mottatt den dagen, sier hen det i begrunnelsen for svaret (KA-U24).»,
+  «Utdypningen og begrunnelsen er unntatt (KA-U24).» og setningene om utdypingen i OV-U55)
+  samles ikke og endres ikke her.
 - **Brev og varsel sendt eller registrert utenfor løsningen.** Kjeden er ikke i arbeid. OV-U5,
   OV-U80 og LV-U4 punkt 3 og 10 står i begge kjedene. Forslaget samler bare de navngitte
   setningene om det første varselet løsningen kjenner, og om datoen i et krav sendt også
