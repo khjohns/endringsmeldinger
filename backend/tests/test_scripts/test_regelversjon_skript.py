@@ -393,3 +393,58 @@ def test_formatet_leses_fra_omdoepingen_git_kjenner_igjen(kjerne):
     assert "FORMAT 1 -> 2" in svar.stdout
     assert "versjonen før leste bare format 1" in svar.stdout
     assert "Fant FORMAT i flere filer" not in svar.stdout
+
+
+# #1549: en fil der bare kommentarene er endret, krever ingen ny versjon. Koden
+# sammenlignes uten kommentarer; en streng, et uttrykk og en docstring teller.
+UTLED = (
+    "// Utledningen (MM-U1).\n"
+    "/** Virkningen av et svar. */\n"
+    "export const utled = (s: string) => s === 'avslått' ? 1 : 2;\n"
+)
+REGEL_PY = '"""Reglene."""\n# B-13\nVERDI = 1\n'
+
+
+@pytest.mark.parametrize(
+    "sti_, for_, etter, ventet",
+    [
+        pytest.param("kjerne/utled.ts", UTLED, UTLED.replace("(MM-U1)", "(MM-U2)"), 0, id="bare en kommentar i kjernen"),
+        pytest.param("kjerne/utled.ts", UTLED, UTLED.replace("Virkningen", "Følgen"), 0, id="bare JSDoc i kjernen"),
+        pytest.param(
+            "kjerne/regler/frist.ts", UTLED, UTLED.replace("/** Virkningen av et svar. */\n", "/**\n * Ny.\n */\n"), 0,
+            id="bare JSDoc i regelsettet",
+        ),
+        pytest.param("src/lib/domain/regel.ts", UTLED, UTLED.replace("(MM-U1)", "(MM-U2)"), 0, id="bare en kommentar i speilet"),
+        pytest.param(PY, REGEL_PY + "REGELVERSJON = 3\n", REGEL_PY.replace("B-13", "B-14") + "REGELVERSJON = 3\n", 0, id="bare en kommentar i Python"),
+        pytest.param("kjerne/utled.ts", UTLED, UTLED.replace("'avslått'", "'godkjent'"), 1, id="en endret streng"),
+        pytest.param("kjerne/utled.ts", UTLED, UTLED.replace("? 1 : 2", "? 2 : 1"), 1, id="et endret uttrykk"),
+        pytest.param(
+            "kjerne/utled.ts", UTLED, UTLED.replace("(MM-U1)", "(MM-U2)").replace("? 1 : 2", "? 1 : 3"), 1,
+            id="en kommentar sammen med en kodeendring",
+        ),
+        pytest.param(
+            "kjerne/regler/frist.ts", UTLED, UTLED.replace("'avslått'", "'godkjent'"), 1, id="en endret streng i regelsettet",
+        ),
+        pytest.param("src/lib/domain/regel.ts", UTLED, UTLED.replace("'avslått'", "'godkjent'"), 1, id="en endret streng i speilet"),
+        pytest.param(PY, REGEL_PY + "REGELVERSJON = 3\n", REGEL_PY.replace("Reglene.", "Regler.") + "REGELVERSJON = 3\n", 1, id="en endret docstring i Python"),
+        pytest.param("kjerne/utled.ts", UTLED + "const = ;\n// a\n", UTLED + "const = ;\n// b\n", 1, id="en fil som ikke kan parses"),
+        pytest.param(PY, REGEL_PY + "def (:\n# a\n", REGEL_PY + "def (:\n# b\n", 1, id="Python som ikke kan parses"),
+        pytest.param("src/lib/domain/regler.json", "{}\n", "{}\n\n", 1, id="et ukjent språk"),
+    ],
+)
+def test_en_endring_bare_i_kommentarene_krever_ingen_ny_versjon(kjerne, sti_, for_, etter, ventet):
+    sti, _ = kjerne
+    _skriv(sti, {sti_: for_})
+    base = _git(sti, "rev-parse", "HEAD")
+    _skriv(sti, {sti_: etter})
+    svar = _kjor(sti, base)
+    assert svar.returncode == ventet, svar.stdout + svar.stderr
+
+
+def test_en_flytting_med_endrede_kommentarer_krever_ingen_ny_versjon(flytting):
+    sti, base = flytting
+    _flytt(sti, "// Standpunktet (MM-U11).\n" + STANDPUNKT_FLYTTET)
+    svar = _kjor(sti, base)
+    assert svar.returncode == 0, svar.stdout + svar.stderr
+    assert KJERNE_STANDPUNKT in svar.stdout.split("uten krav om ny versjon:")[1]
+

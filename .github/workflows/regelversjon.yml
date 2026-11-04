@@ -1,7 +1,8 @@
 # B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/ eller
 # backend/regler/, må REGELVERSJON økes i begge speilene. B-14 og #308: endres
 # kjerne/, må regelversjonen eller projeksjonsversjonen i kjernen økes, og
-# begge for kjerne/frosset/ (#330, #309).
+# begge for kjerne/frosset/ (#330, #309). En endring bare i kommentarene krever
+# ingen ny versjon (#1549).
 # Kontrollen står i .github/scripts/regelversjon.sh, som også kan kjøres
 # lokalt med BASE=<sha>.
 #
@@ -39,6 +40,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # Vakten fjerner kommentarene med typescript før den sammenligner (#1549).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci --ignore-scripts
 
       - name: Kontroller regelversjonen
         env:
