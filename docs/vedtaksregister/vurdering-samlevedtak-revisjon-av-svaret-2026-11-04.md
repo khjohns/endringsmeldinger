@@ -341,4 +341,4 @@ Oppdragsgiver 04.11, ordrett: «1A, 2A, 3A»
 - **2: A** er valgt, og **B** og **C** er forkastet. Teksten blir punkt 9.
 - **3: A** er valgt, og **B** er forkastet. Teksten blir siste del av punkt 4.
 
-Postene står som utkast i [`utkast-poster-revisjon-av-svaret.toml`](utkast-poster-revisjon-av-svaret.toml).
+Postene er ført i registeret som [HF-U25](../plans/vedtak.md#hf-u25), [HF-U26](../plans/vedtak.md#hf-u26) og [HF-U27](../plans/vedtak.md#hf-u27) (PR #1573). HF-U26 har klassen *design* etter orkestratorens beslutning ([#1534, 6630037986](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6630037986)).
