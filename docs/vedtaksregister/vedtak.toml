@@ -5516,7 +5516,7 @@ Valg A: «A1».
 R-4 (#1065, [6616977149](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6616977149)): «R4: ja».'''
 forhold = [{ art = "snevrer inn", vedtak = "mm-u34" }, { art = "snevrer inn", vedtak = "eo-u12" }, { art = "snevrer inn", vedtak = "mm-u38" }, { art = "endrer", vedtak = "ov-u80" }, { art = "presiserer", vedtak = "ov-u6" }, { art = "presiserer", vedtak = "eo-u3" }, { art = "presiserer", vedtak = "lv-u44" }, { art = "presiserer", vedtak = "eo-u14" }]
 folge = '''
-Innsnevringen av MM-U34 gjelder punkt 11, 20 og 22. Endringen i OV-U80 gjelder setningen om byggherrens egen endringsordre, som gjelder registrering som svar på forholdet. S-17 i teksten er EO-U29.'''
+Innsnevringen av MM-U34 gjelder punkt 11, 20 og 22. Endringen i OV-U80: setningen om byggherrens egen endringsordre gjelder registrering som svar på forholdet. S-17 i teksten er EO-U29.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
@@ -5603,7 +5603,7 @@ Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står un
 Valg D: «D1».'''
 forhold = [{ art = "endrer", vedtak = "gfk-u4" }]
 folge = '''
-Endrer også presiseringen av GFK-06 24.09 og vedtaket 23.09 om ubegrenset fullmakt, for en endringsordre i en EO-sak. De har ikke anker. For svar i KOE-saken står de. GFK-U2, GFK-U3, GFK-U6, GFK-U7, GFK-U20 og LV-U15 står, og for en endringsordre gjelder GFK-U20 bare med GFK-U3.'''
+Endrer også presiseringen av GFK-06 24.09 og vedtaket 23.09 om ubegrenset fullmakt, for en endringsordre i en EO-sak. For svar i KOE-saken står de. GFK-U2, GFK-U3, GFK-U6, GFK-U7, GFK-U20 og LV-U15 står, og for en endringsordre gjelder GFK-U20 bare med GFK-U3.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "D1"
@@ -5992,9 +5992,9 @@ R-1 (#1065, [6616977149](https://github.com/khjohns/endringsmeldinger/issues/106
 R-3 (samme kommentarer): først «R3 - må vi ha retting? Eller bedre at BH trekker og utsteder ny?», etter oppfølgingsspørsmålet «r3c».
 
 O-2 (#1065, [6617137907](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6617137907)): «1 og 2: enig med deg.» O-2 utgikk som eget vedtak.'''
-forhold = [{ art = "endrer", vedtak = "eo-u4" }, { art = "endrer", vedtak = "eo-u1" }, { art = "endrer", vedtak = "eo-u8" }, { art = "endrer", vedtak = "mm-u34" }, { art = "snevrer inn", vedtak = "ka-u1" }, { art = "snevrer inn", vedtak = "mm-u21" }, { art = "snevrer inn", vedtak = "mm-u34" }, { art = "presiserer", vedtak = "mm-u38" }]
+forhold = [{ art = "endrer", vedtak = "eo-u4" }, { art = "endrer", vedtak = "eo-u1" }, { art = "endrer", vedtak = "eo-u8" }, { art = "endrer", vedtak = "mm-u34" }, { art = "snevrer inn", vedtak = "ka-u1" }, { art = "snevrer inn", vedtak = "mm-u21" }, { art = "snevrer inn", vedtak = "mm-u34" }, { art = "presiserer", vedtak = "mm-u34" }, { art = "presiserer", vedtak = "mm-u38" }, { art = "presiserer", vedtak = "eo-u26" }, { art = "presiserer", vedtak = "eo-u28" }, { art = "presiserer", vedtak = "eo-u29" }]
 folge = '''
-Endringen i MM-U34 gjelder punkt 22, og innsnevringen punkt 20. KA-U1 og punkt 9 i MM-U34 står. Forholdet «endringsordre» følger KA-U13 og GR-U32. Forholdet til EO-U9 føres ikke, fordi EO-U9 ble opphevet 28.10 av punkt 22 i MM-U34 (orkestratoren 03.11, #1065, [6618004199](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6618004199)).'''
+Endringen i MM-U34 gjelder punkt 22, innsnevringen punkt 20 og presiseringen punkt 19 og 21. Innsnevringen av KA-U1 gjelder utsagn i en endringsordre. Ellers står KA-U1, og punkt 9 i MM-U34 står. Forholdet «endringsordre» følger KA-U13 og GR-U32. Forholdet til EO-U9 føres ikke, fordi EO-U9 ble opphevet 28.10 av punkt 22 i MM-U34 (orkestratoren 03.11, #1065, [6618004199](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6618004199)).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
