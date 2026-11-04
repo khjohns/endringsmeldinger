@@ -326,4 +326,7 @@ for HF-U5 og MM-U34 ved siden av de andre, uten å skrive dem om.
 
 ## Svarene
 
-Ikke stilt ennå.
+Oppdragsgiver 04.11, ordrett: «1A, 2A» ([#1534, 6626650139](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6626650139)).
+
+- **1: A** er valgt, og **B** er forkastet. Ført som [HF-U23](../plans/vedtak.md#hf-u23).
+- **2: A** er valgt, og **B** og **C** er forkastet. Ført som [HF-U24](../plans/vedtak.md#hf-u24).
