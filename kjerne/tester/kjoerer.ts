@@ -131,7 +131,7 @@ export class Kjoering {
       aktoerId: this.bane.aktor(part),
       part,
       teamId: `team-${part.toLowerCase()}`,
-      sakskode: { kode: 'koe' as const, loepenummer: 17 },
+      sakskode: this.bane.sakskode ?? { kode: 'koe' as const, loepenummer: 17 },
       kontraktsforkortelse: 'K201',
       tidspunkt: () => this.klokke.neste(),
       nyId: this.navn.nyId,
