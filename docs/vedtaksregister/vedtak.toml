@@ -10087,7 +10087,8 @@ kilde = "hovedplanen"
 tekst = "Bare parten som sendte det, kan velge noe annet enn dokumentasjon."
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
+klasse = "beslutning"
+bindende_i = ["lv-u44"]
 id = "LV-U48"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
