@@ -366,4 +366,11 @@ Tre subagenter prøvde forslaget 04.11, hver med egen bestilling. Funnene er ret
 
 ## Svarene
 
-Ikke stilt ennå.
+Oppdragsgiver 04.11 i runde 10 i #1065, ordrett: «M ja, S-2 D, R1 A, R2 A, V1 A, V2 A, V3 A,
+B1 A, B2 A, G1 A, G2 A, G3 A» ([#1534, 6628301789](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6628301789)).
+Nummereringen i svaret er orkestratorens, slik spørsmålene ble lagt fram: «G1 = spørsmål 1, A.
+G2 = spørsmål 2, A. G3 = spørsmål 3, A.»
+
+- **Spørsmål 1: A** er valgt, og **B** er forkastet.
+- **Spørsmål 2: A** er valgt, og **B** er forkastet.
+- **Spørsmål 3: A** er valgt, og **B** er forkastet.
