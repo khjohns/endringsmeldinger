@@ -44,7 +44,6 @@ const grunnlagskrav = {
   innhold: {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
-    tittel: 'Ny peling',
     paalegg_mottatt: '2026-10-01',
   },
 };

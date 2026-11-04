@@ -71,6 +71,7 @@ import {
 import { filnavn, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
 import { lesFil, VEDLEGG_FOER_SAKEN, VEDLEGGSRUTER, type Fil } from './vedlegg.ts';
+import { feilINySak, vedleggIder } from './nysak.ts';
 import { BREVRUTER } from './brev.ts';
 import { WEBHOOKRUTER, type Webhook } from './webhook.ts';
 
@@ -493,28 +494,11 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   }
 }
 
-const NY_SAK = new Set([
-  'kommando_id',
-  'ny_sak_id',
-  'tittel',
-  'paaberopelse',
-  'brevtekst',
-  'varsel',
-]);
-
-const VARSEL_I_NY_SAK = new Set(['sendt', 'dokumentasjon']);
-
-const tekstliste = (v: unknown): v is string[] =>
-  Array.isArray(v) && v.every((x) => typeof x === 'string');
-
-const erObjekt = (v: unknown): v is Record<string, unknown> =>
-  typeof v === 'object' && v !== null && !Array.isArray(v);
-
 /**
  * Oppretter saken og den første påberopelsen i én handling (KT-U11, #1487). Saks-ID-en er
  * klientens, fordi brevteksten har saksnummeret (LV-U4). Feltet heter `ny_sak_id`, ikke
  * `sak_id`, som tilgangskontrollen leser som en sak kroppen viser til og krever i prosjektet. Tittelen er én verdi, skrevet som
- * `sakstittel` i `sak_opprettet` og som `tittel` i påberopelsen (LV-U43). Kjernen prøver
+ * `sakstittel` i `sak_opprettet`, og brevteksten bruker den som navnet på forholdet (LV-U43). Kjernen prøver
  * påberopelsen mot `sak_opprettet` i minnet, med basens klokke, før noe skrives.
  *
  * Vedleggene i `paaberopelse.dokumentasjon` er lastet opp før saken fantes (#1037). Har TE
@@ -527,43 +511,29 @@ async function opprettMedPaaberopelse(
   { bruker, prosjekt, side, kropp }: Opprettelsesforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const ukjente = Object.keys(kropp).filter((k) => !NY_SAK.has(k));
-  if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
-  const id = kommandoId(kropp);
-  if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');
-  const { ny_sak_id: sakId, tittel, paaberopelse, brevtekst, varsel } = kropp;
-  if (typeof sakId !== 'string' || !UUID.test(sakId))
-    return ugyldig('ny_sak_id mangler eller er ikke en UUID med små bokstaver.');
-  if (typeof tittel !== 'string' || !tittel.trim())
-    return ugyldig('tittel mangler eller er ikke en tekst.');
-  // Kjernen trimmer sakstittelen, men ikke tittelen i påberopelsen; én verdi krever begge like (LV-U43).
-  if (tittel !== tittel.trim())
-    return ugyldig('tittel begynner eller slutter med mellomrom eller et annet blankt tegn.');
-  if (!erObjekt(paaberopelse) || paaberopelse.type !== 'krav' || paaberopelse.spor !== 'forhold')
-    return ugyldig('paaberopelse må være et krav i sporet forhold.');
-  if (!erObjekt(paaberopelse.innhold) || 'tittel' in paaberopelse.innhold)
-    return ugyldig('paaberopelse.innhold må være et objekt uten tittel; tittelen står i tittel.');
-  if ('brevtekst' in paaberopelse)
-    return ugyldig('paaberopelse har ikke brevtekst; den står i brevtekst.');
-  const vedleggider = tekstliste(paaberopelse.dokumentasjon)
-    ? [...new Set(paaberopelse.dokumentasjon.map((v) => v.toLowerCase()))]
-    : [];
-  if (varsel !== undefined) {
-    if (!erObjekt(varsel)) return ugyldig('varsel må være et objekt med sendt og dokumentasjon.');
-    const ukjenteIVarsel = Object.keys(varsel).filter((k) => !VARSEL_I_NY_SAK.has(k));
-    if (ukjenteIVarsel.length)
-      return ugyldig(`Ukjente felt i varsel: ${ukjenteIVarsel.join(', ')}.`);
-    if (!tekstliste(varsel.dokumentasjon) || !varsel.dokumentasjon.length)
-      return ugyldig('varsel.dokumentasjon mangler eller er ikke en liste med vedlegg.');
-    const utenfor = varsel.dokumentasjon.filter((v) => !vedleggider.includes(v.toLowerCase()));
-    if (utenfor.length)
-      return ugyldig(
-        `Dokumentet med varselet legges ved påberopelsen (VS-U38), men ${utenfor.join(', ')} står ikke i paaberopelse.dokumentasjon.`
-      );
-  }
+  const feil = feilINySak(kropp);
+  if (feil) return ugyldig(feil);
+  // `feilINySak` har prøvd formen på feltene.
+  const {
+    kommando_id: id,
+    ny_sak_id: sakId,
+    tittel,
+    paaberopelse,
+    brevtekst,
+    varsel,
+  } = kropp as {
+    kommando_id: string;
+    ny_sak_id: string;
+    tittel: string;
+    paaberopelse: Record<string, unknown> & { innhold: Record<string, unknown> };
+    brevtekst?: unknown;
+    varsel?: Record<string, unknown>;
+  };
+  const vedleggider = vedleggIder(paaberopelse);
   const krav = {
     ...paaberopelse,
-    innhold: { ...paaberopelse.innhold, tittel },
+    // LV-U43: tittelen er sakstittelen og navnet på forholdet; kravet har ingen egen.
+    innhold: paaberopelse.innhold,
     ...(brevtekst === undefined ? {} : { brevtekst }),
   };
   const kommando = {
@@ -663,9 +633,13 @@ async function opprettMedPaaberopelse(
     // Saken og påberopelsen er lagret; et nytt forsøk får kvitteringen og vekker igjen.
     return usikkert(feil);
   }
+  // `versjon` er sakens, så klienten kan sende den som `expected_version` (#1507). Varselet
+  // er skrevet etter påberopelsen i samme transaksjon, og kommandosummen omfatter det, så
+  // også et gjentak fra kvitteringen har det. `event_id` er påberopelsens, som kvitteringen.
   const { rad } = utfall;
+  const versjon = rad.versjon + (varsel === undefined ? 0 : 1);
   return lagret(
-    [201, { success: true, sak_id: rad.sak_id, event_id: rad.event_id, versjon: rad.versjon }],
+    [201, { success: true, sak_id: rad.sak_id, event_id: rad.event_id, versjon }],
     utfallUsikkert
   );
 }

@@ -761,12 +761,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'oppgittDatoEtterBrevet',
     ['kommandoer/avvisning.ts:avvisning'],
   ],
-  // #698: det datoen gjelder, med de samme ordene i brevet, meldingene og skjemaet.
+  // #698: det datoen gjelder, med de samme ordene i meldingene og skjemaet. Brevet skriver
+  // partene fullt ut (LV-U35) og har ordene i `DATOEN_I_BREVET`.
   [
     'format/format.ts',
     'brevtekst',
     'DATOEN_GJELDER',
-    ['frosset/brevtekst.ts', 'kommandoer/kommando.ts', 'kommandoer/nyttelast.ts'],
+    ['kommandoer/kommando.ts', 'kommandoer/nyttelast.ts'],
   ],
   // Brevets dato er serverens tidspunkt i norsk tid (VS-U8).
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
@@ -907,7 +908,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
 
   // Brevteksten (frosset/brevtekst.ts, LV-U2, LV-U3, #369). Leses bare når brevet skrives.
-  ['format/leser.ts:lesDokument', 'rad', 'brevtekst', ['format/leser.ts']],
+  ['format/leser.ts:lesDokument', 'rad', 'brevtekst brevtittel', ['format/leser.ts']],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevtekst.ts']],
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts']],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
@@ -962,6 +963,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'lagBrevtekst KanIkkeUttrykkes BrevetAvvises',
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
+  // MM-U3: brevtittelen fryses med teksten.
+  ['frosset/brevtekst.ts', 'brevtekst', 'lagBrevtittel', ['kommandoer/skriving.ts:brevtekstFor']],
+  [
+    'kommandoer/skriving.ts:brevtekstFor',
+    'brevtekst',
+    'tekst tittel',
+    ['kommandoer/skriving.ts:skriv'],
+  ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
   ['frosset/standpunkt.ts', 'brevtekst', 'kroner dager', ['frosset/brevtekst.ts']],
   // OV-U32: etiketten brevet bruker for laget.
@@ -1012,7 +1021,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'brevtekst', 'brevtekst', ['frosset/brevtekst.ts']],
   ['Krav', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
   ['Krav', 'relasjon', 'dokument', ['utledning/utled.ts:datoenKravetBleSendt']],
-  ['Krav.innhold', 'utsagn', 'tittel endringsordre', ['frosset/brevtekst.ts']],
+  ['Krav.innhold', 'utsagn', 'endringsordre', ['frosset/brevtekst.ts']],
   ['Krav.innhold', 'utsagn', 'paalegg_mottatt klar_over_forholdet', ['frosset/brevtekst.ts']],
   [
     'Journalen',
@@ -1021,8 +1030,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],
-  ['frosset/brevtekst.ts.UNDERKATEGORI', 'brevtekst', '*', ['frosset/brevtekst.ts']],
-  ['UNDERKATEGORI', 'brevtekst', 'navn hjemmel', ['frosset/brevtekst.ts']],
+  // Forholdene med navnet og hjemmelen (svaret på Q3 i #1488, LV-U43).
+  ['frosset/forholdene.ts', 'brevtekst', 'forholdet paaberopelsenAv', ['frosset/brevtekst.ts']],
+  ['FORHOLDSGRUPPER', 'brevtekst', 'forhold', ['frosset/forholdene.ts']],
+  ['Forholdet', 'brevtekst', 'kode', ['frosset/forholdene.ts', 'frosset/brevtekst.ts']],
+  ['Forholdet', 'brevtekst', 'navn hjemmel', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
   ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],

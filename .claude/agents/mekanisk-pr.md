@@ -81,6 +81,13 @@ annet arbeidstre eller på `origin`, stopp og si det i rapporten.
   du lager ikke issues.
 - Kjør sjekkene oppdraget nevner, og alltid `npm run lint`. Finner ikke
   arbeidstreet pakkene, kjør `npm ci` der først.
+- Typesjekkene og ankrene i miljø-skillen kjøres fra roten av arbeidstreet, i
+  et eget kall og bare i disse formene: `npx tsc -p <tsconfig> [--noEmit]` med
+  tsconfig for `kjerne/`, `server/`, `sprakprove/` eller `sprakprove/skrivesti/`,
+  og `python3 server/tester/feilinnfoering.py --ankre`. `timeout <varighet>`
+  foran, `2>&1` og et rør til `grep`, `head` eller `tail` er lov. Hooken stopper
+  tsc og ankerskriptet i alle andre former, og tsc når tsconfig kan skrive filer
+  (#1513). Lag symlenken til `node_modules` i et eget kall først.
 - Feiler `npx vitest run` eller `npx vite build` i arbeidstreet med «Tsconfig not
   found», kjør `npx svelte-kit sync` i hovedcheckouten, ikke i arbeidstreet, og prøv
   igjen (#1114, miljø-skillen).

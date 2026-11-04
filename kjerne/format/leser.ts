@@ -419,6 +419,7 @@ function lesDokument(h: Journalrad): Dokument {
     opplysninger?: Data[];
     dokumentasjon?: Vedlegg[];
     brevtekst?: Avsnitt[];
+    brevtittel?: string;
     beskrivelse?: string;
     spor?: Spor[];
     retter?: string;
@@ -509,6 +510,7 @@ function lesDokument(h: Journalrad): Dokument {
     }),
     svar: (data.svar ?? []).map((v, i) => lesSvar(v, id, `$.svar[${i}]`)),
     brevtekst: data.brevtekst ?? null,
+    brevtittel: data.brevtittel ?? null,
     beskrivelse: data.beskrivelse ?? null,
     spor: data.spor ?? [],
     retter: data.retter ?? null,
@@ -541,6 +543,8 @@ function lesDokument(h: Journalrad): Dokument {
       !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)
     )
       throw new Uforstaatt('opplysningen gjelder ikke et varsel i dokumentet');
+  if (data.brevtittel !== undefined && !data.brevtekst)
+    throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U3)');
   if (data.brevtekst) {
     // MM-U17: et registrert brev står som det ble sendt og har ingen tekst fra appen.
     if (erRegistrert(dokument.opplysninger))
@@ -583,6 +587,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
     svar: [],
     utsagn: [],
     brevtekst: null,
+    brevtittel: null,
     beskrivelse: null,
     spor: [],
     retter: data.retter,

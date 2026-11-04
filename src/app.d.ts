@@ -5,7 +5,10 @@ declare global {
     // interface Error {}
     // interface Locals {}
     // interface PageData {}
-    // interface PageState {}
+    interface PageState {
+      /** TE kommer til saken fra skjemaet for ny sak, og saken viser kvitteringen (#1414). */
+      nySakSendt?: boolean;
+    }
     // interface Platform {}
   }
 }

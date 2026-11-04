@@ -79,8 +79,8 @@ Tabellen gjelder også et designvalg i en bygget visning uten bestilling, for ek
 designrunde for Varden, før valget bygges (oppdragsgiver 30.10, #1391, #1400).
 
 Ikke alle funn skal bli vedtak, og ikke alle skal presses inn som endringer i visningen.
-En ny handling, eller noe som endrer hva en part godtar eller er bundet av, er domene.
-Hvordan handlingene samles og vises, er design.
+Om et funn er vedtak, beslutning eller design, avgjøres av testen under «Hva et vedtak
+er» i [vedtaksskillen](../vedtak/SKILL.md).
 
 ## Bestillingen
 
@@ -90,12 +90,14 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
 - **Avgrensningen:** hva forløpet ikke dekker, og hvorfor. Den står også i grensesnittet
   når brukeren ellers kan tro at en vei løser mer enn den gjør.
 - **U, det brukeren skal finne og forstå:** designmål. De prøves på brukere og trenger
-  ikke vedtak.
+  ikke vedtak. De bærer også avveiningene om skjemaet og arbeidsflyten, som ikke blir vedtak
+  (se [vedtaksskillen](../vedtak/SKILL.md)).
 - **D, domeneforventningene:** hva som sendes og aksepteres, og hvilke bindinger som
   påvirkes, med vedtaksbelegg som lenker til vedtaksfila. Til sammen sier de hvilket brev
   eller utsagn hver handling lager, hvilke virkninger som oppstår og består, og hva som
   skjer ved et ugyldig valg og ved avbrudd. Byggeøkta skal ikke måtte finne på forventet
-  atferd. En virkning gjengis med alle vilkårene i vedtaket.
+  atferd. En virkning gjengis med alle vilkårene i vedtaket. Et D-punkt sier bare hva som
+  binder og hva som regnes med etter kontrakten.
 - **G, gjennomføringen:** hva som finnes, hva som mangler, og hva som må prøves teknisk.
 - **S, spørsmålene:** stilles og lagres ordrett etter vedtaksskillen. Et svar som følger
   av et vedtak, føres som arbeidsvalg i bestillingen. Et svar som endrer et vedtak, føres

@@ -79,10 +79,17 @@ ikke er det forventede:
    journalen serveren gir tilbake, så samme forløp er prøvd i minnet, mot testbasen og
    gjennom serveren. Et forløp kjøres her bare når `visninger` i forløpsfila har
    `saksruta`. Skriptet venter til jobbkjøreren har levert alle brevene til den falske Catenda.
+   Har forløpet `utgangspunkt.opprettes` (BF-05, KT-U11), oppretter ikke skriptet saken med
+   `POST`. TE fyller ut og sender det første steget i skjemaet på `/{prosjekt}/ny` i
+   nettleseren, og skriptet tar `ny-sak-skjema.png`, `ny-sak-brev.png` og `ny-sak-sendt.png`,
+   kontrollerer at TE kommer til saken med kvitteringen, og at påberopelsen i journalen har
+   feltene TE fylte ut. Til slutt avbryter TE et nytt skjema og kommer til sakslisten
+   (`ny-sak-avbrutt.png`).
 7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta.
 8. Med `--feil` (krever et kontrollpunkt med grunnlagskrav og uten vederlagskrav, som
    `--forlop BF-01 --til forholdet-er-godkjent`) framkaller skriptet
-   feiltilstandene i skjemaet (#1215). TE fyller ut vederlagskravet, går til brevet og
+   feiltilstandene i skjemaet (#1215) i den gamle visningen på `/{prosjekt}/{sak}/kjerne`, til
+   Varden har skjemaene (#1516). TE fyller ut vederlagskravet, går til brevet og
    krysser av, og `page.route` på `**/api/kjerne/saker/{sak}/kommandoer` svarer på
    `POST` i stedet for serveren: 409 `VERSJONSKONFLIKT`, 403 `FORBIDDEN`, 500
    `INTERNAL_ERROR`, og et avbrudd (`route.abort`), som er et usikkert utfall. Kroppene

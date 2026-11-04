@@ -11,7 +11,12 @@ import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.t
 import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
-import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
+import {
+  BrevetAvvises,
+  KanIkkeUttrykkes,
+  lagBrevtekst,
+  lagBrevtittel,
+} from '../frosset/brevtekst.ts';
 import { avvis } from './forutsetninger.ts';
 import {
   brevtekstI,
@@ -394,8 +399,11 @@ function skriv(
     data,
   };
   let brevtekst: Avsnitt[] | null;
+  let brevtittel: string | null = null;
   try {
-    brevtekst = brevtekstFor(rad, lest, u, kjerne, utdypninger);
+    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger);
+    brevtekst = brevet?.tekst ?? null;
+    brevtittel = brevet?.tittel ?? null;
   } catch (feil) {
     if (feil instanceof BrevetAvvises)
       return {
@@ -412,7 +420,7 @@ function skriv(
     const teksten = brevtekst.map((a) => a.laast).join('\n');
     const sak = lest.find((h) => h.art === 'sak');
     const tegn =
-      (sak?.art === 'sak' && teksten.includes(`(«${sak.tittel}»)`)
+      (sak?.art === 'sak' && teksten.includes(`«${sak.tittel}»`)
         ? tegnSomIkkeKanVises(sak.tittel, 'Sakstittelen')
         : null) ??
       bundne.reduce<Avvisning | null>(
@@ -427,6 +435,7 @@ function skriv(
       );
     if (tegn) return ugyldigForm(tegn);
     data.brevtekst = brevtekst;
+    if (brevtittel) data.brevtittel = brevtittel;
   }
   if (sendes) {
     const avvik = tekstavvik(k.brevtekst, brevtekst);
@@ -484,7 +493,7 @@ function brevtekstFor(
   u: Utledning,
   kjerne: Kjerne,
   utdypninger: Utdypninger
-): Avsnitt[] | null {
+): { tekst: Avsnitt[]; tittel: string | null } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
     throw new Skrivefeil(
@@ -495,7 +504,7 @@ function brevtekstFor(
   const sak = lest.find((h) => h.art === 'sak');
   if (sak?.art !== 'sak') throw new Skrivefeil('Saken har ingen tittel å sette i brevteksten.');
   try {
-    return lagBrevtekst(
+    const tekst = lagBrevtekst(
       ny.dokument,
       lest,
       {
@@ -508,6 +517,7 @@ function brevtekstFor(
       kjerne.regler,
       utdypninger
     );
+    return { tekst, tittel: lagBrevtittel(ny.dokument) };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)
       throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);

@@ -6,7 +6,8 @@
  * at jobben blir gjort. Løkka krever en instans som alltid kjører (B-07, B-12).
  *
  * Jobbene er topicen for en ny sak og leveringen av et brev med vedleggene (L-1b, #371;
- * V-3, #790). Etter jobbene behandler løkka hendelsene i innboksen fra webhooken
+ * V-3, #790). `koe_api.hent_jobb` henter leveringen først når saken har topicen
+ * (LV-U9). Etter jobbene behandler løkka hendelsene i innboksen fra webhooken
  * (`server/hendelser.ts`, #819). Med en kilde for HR-dataene synkroniserer løkka også
  * HR-kopien, høyst én gang per `HR_INTERVALL_MS` (`server/hrdata.ts`, #831).
  * Bare en gyldig lease kvitterer (invariant 7). Et usikkert eller varig avvist

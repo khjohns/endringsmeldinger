@@ -17,6 +17,11 @@
  *    og BH-ens kall avvises der, leser saken med `GET` som begge, og tar skjermbilder av
  *    saksruta `/{prosjekt}/{sak}` for begge.
  *
+ * Med `utgangspunkt.opprettes` i forløpet (BF-05, KT-U11) sender TE det første steget i
+ * skjemaet på `/{prosjekt}/ny` i nettleseren, og saken og påberopelsen lagres i én handling.
+ * Kontrollene før sendingen prøves mot opprettelsen alene, som i minnet, og kontrollene etter
+ * den mot journalen serveren gir. Til slutt avbryter TE et nytt skjema og kommer til sakslisten.
+ *
  * Med `--behold` står alt og kjører til Ctrl+C, med innlogging per side i nettleseren:
  * `http://localhost:5173/api/auth/catenda/login?return_to=/<prosjekt>/<sak>` med cookien
  * `bruker=te|bh` på den falske Catenda-adressen.
@@ -33,6 +38,7 @@ import { parseArgs } from 'node:util';
 import { kopierMigrertTestbase, settInn } from '../../../server/tester/sqlserver_migrert.ts';
 import { opprettKjoeretid, slettAlle } from '../../../server/tester/sqlserver.ts';
 import { utledJournal } from '../../../kjerne/kommandoer/skriving.ts';
+import { opprettelse } from '../../../kjerne/kommandoer/opprettelse.ts';
 import type { Journalrad, Part } from '../../../kjerne/typer.ts';
 import { KJERNE } from '../../../kjerne/versjon.ts';
 import type { Bane } from '../../../kjerne/tester/bane.ts';
@@ -492,15 +498,112 @@ try {
     },
   });
 
+  /** Forholdene skjemaet for ny sak er kjørt med, med feltene i `NySak.svelte`. */
+  const SKJEMAETS_FORHOLD: Record<string, { gruppe: string; forhold: RegExp; dato: string; beskrivelse: string }> = {
+    irregulaer_endring: {
+      gruppe: 'Endringer, jf. punkt 31 og 32',
+      forhold: /^Irregulær endring/,
+      dato: 'Dato du mottok pålegget',
+      beskrivelse: 'Beskrivelse av pålegget',
+    },
+  };
+
+  /**
+   * Banen for et forløp der saken opprettes med det første steget (KT-U11): før sendingen er
+   * journalen opprettelsen alene, som i minnet, og det første steget fylles ut og sendes i
+   * skjemaet på `/{prosjekt}/ny`. Saks-ID-en er den skjemaet laget, lest av adressen etterpå.
+   */
+  const nySaksbane = (tittel: string) => {
+    let sak: string | null = null;
+    const opprettet = opprettelse({ type: 'opprett_sak', sakstittel: tittel }, 'TE');
+    if (!opprettet.godtatt) throw new Error(`Opprettelsen ble avvist: ${opprettet.avvisning.melding}`);
+    const foer: Journalrad[] = [
+      {
+        event_id: randomUUID(),
+        sak_id: 'ny-sak',
+        event_type: 'sak_opprettet',
+        versjon: 1,
+        tidsstempel: new Date().toISOString(),
+        aktor_id: '',
+        aktor_rolle: 'TE',
+        aktor_team_id: null,
+        refererer_til_event_id: null,
+        format: opprettet.format,
+        data: opprettet.data,
+      },
+    ];
+    const bane: Bane = {
+      sakId: 'ny-sak',
+      aktor: (part) => part.toLowerCase(),
+      journal: async () => (sak ? lesJournal(sak) : foer),
+      skriv: async () => {
+        throw new Error('Saksruta skriver bare gjennom skjemaet og kommandoene til TS-serveren');
+      },
+      async kommando(kommando, part, forventet) {
+        if (sak) return serverbane(sak).kommando!(kommando, part, forventet);
+        const k = kommando as { type: string; spor?: string; innhold: Record<string, unknown>; utdypning?: string };
+        const felt = SKJEMAETS_FORHOLD[String(k.innhold?.underkategori)];
+        if (part !== 'TE' || k.type !== 'krav' || k.spor !== 'forhold' || !felt)
+          throw new Error(`Skjemaet for ny sak er ikke kjørt for ${JSON.stringify(kommando)}`);
+        const dato = Object.values(k.innhold).find((v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v));
+        await te.goto(`${FRONTEND}/${katalog.prosjekt}/ny`);
+        await te.getByRole('heading', { name: 'Nytt krav om endringsordre', level: 1 }).waitFor({ timeout: 30_000 });
+        await te.getByRole('button', { name: felt.gruppe }).click();
+        await te.getByRole('radio', { name: felt.forhold }).click();
+        await te.getByLabel('Tittel på saken').fill(tittel);
+        if (dato) await te.getByLabel(felt.dato).fill(dato as string);
+        await te.getByLabel(felt.beskrivelse).fill(k.utdypning ?? '');
+        await te.screenshot({ path: join(UT, 'ny-sak-skjema.png'), fullPage: true });
+        await te.getByRole('button', { name: 'Se brevet før sending', exact: true }).click();
+        await te.getByRole('region', { name: 'Sending' }).waitFor();
+        await te.screenshot({ path: join(UT, 'ny-sak-brev.png'), fullPage: true });
+        await te.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+        const svar = te.waitForResponse(
+          (r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/api/kjerne/saker'
+        );
+        await te.getByRole('button', { name: 'Send til byggherren', exact: true }).click();
+        const sendt = await svar;
+        console.log(`TE  POST /api/kjerne/saker fra /{p}/ny: ${sendt.status()} ${await sendt.text()}`);
+        if (sendt.status() !== 201) throw new Error('Serveren lagret ikke saken fra skjemaet');
+        // S1 i #1414: TE kommer til saken, med kvitteringen.
+        await te.waitForURL(new RegExp(`/${katalog.prosjekt}/[0-9a-f-]{36}$`), { timeout: 30_000 });
+        sak = new URL(te.url()).pathname.split('/').at(-1)!;
+        await te.getByText('Brevet sendes til Catenda.').waitFor({ timeout: 30_000 });
+        await te.getByRole('heading', { name: tittel, level: 1 }).waitFor();
+        await te.screenshot({ path: join(UT, 'ny-sak-sendt.png'), fullPage: true });
+        const nye = (await lesJournal(sak)).filter((r) => r.versjon > forventet);
+        // Påberopelsen er kravet i dokumenthendelsen, med feltene TE fylte ut. Sakstittelen er
+        // navnet på forholdet i brevteksten, ikke et felt i kravet (LV-U43).
+        type Dokumentdata = { krav?: Record<string, unknown>[]; brevtekst?: { laast: string }[] };
+        const dokument = nye
+          .map((r) => r.data as Dokumentdata)
+          .find((d) => d.krav?.some((x) => x.spor === 'forhold'));
+        const krav = dokument?.krav?.find((x) => x.spor === 'forhold');
+        if (
+          !krav ||
+          krav.underkategori !== k.innhold.underkategori ||
+          (dato && !Object.values(krav).includes(dato)) ||
+          !dokument?.brevtekst?.some((a) => a.laast.includes(`«${tittel.trim()}» i sak`))
+        )
+          throw new Error(`Journalen har ikke påberopelsen TE fylte ut: ${JSON.stringify(nye)}`);
+        return nye;
+      },
+    };
+    return { bane, sak: () => sak };
+  };
+
+  const OPPRETTES = !!FORLOEP?.utgangspunkt.opprettes;
   const te = await loggInn('te', `/${katalog.prosjekt}`);
   const tittel = FORLOEP?.tittel ?? 'Ny peling ved akse C';
-  const opprettet = await opprettSak(te, tittel);
-  console.log(`TE  POST /api/kjerne/saker: ${opprettet.status} ${JSON.stringify(opprettet.kropp)}`);
-  if (opprettet.status !== 201) throw new Error('TE fikk ikke opprettet saken');
-  const sak = opprettet.kropp.sak_id as string;
-  const saksrute = `/${katalog.prosjekt}/${sak}`;
+  let sak = '';
+  if (!OPPRETTES) {
+    const opprettet = await opprettSak(te, tittel);
+    console.log(`TE  POST /api/kjerne/saker: ${opprettet.status} ${JSON.stringify(opprettet.kropp)}`);
+    if (opprettet.status !== 201) throw new Error('TE fikk ikke opprettet saken');
+    sak = opprettet.kropp.sak_id as string;
+  }
 
-  const bh = await loggInn('bh', saksrute);
+  const bh = await loggInn('bh', OPPRETTES ? `/${katalog.prosjekt}` : `/${katalog.prosjekt}/${sak}`);
   // Uten CSRF-token stopper autentiseringen kallet; med det slipper tilgangskontrollen
   // BH gjennom (kontraktsrolle `kreves`), og kjernen avviser kommandoen.
   const utenCsrf = await opprettSak(bh, 'Uten CSRF-token', false);
@@ -514,7 +617,12 @@ try {
     const forloep = somForloep(FORLOEP);
     const til = values.til ? kontrollpunkt(FORLOEP, values.til).etter : forloep.steg.length;
     // Kontrollene ved hvert kontrollpunkt leses av journalen serveren gir tilbake.
-    await kjoer(forloep, serverbane(sak), { til, valg: { klokke: veggklokke } });
+    const ny = OPPRETTES ? nySaksbane(tittel) : null;
+    await kjoer(forloep, ny ? ny.bane : serverbane(sak), { til, valg: { klokke: veggklokke } });
+    if (ny) {
+      if (!ny.sak()) throw new Error(`${FORLOEP.id}: saken ble ikke opprettet i skjemaet (--til)`);
+      sak = ny.sak()!;
+    }
     console.log(`${FORLOEP.id}: ${til} steg sendt, og kontrollene ved kontrollpunktene holder`);
     // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert.
     if (til > 0)
@@ -534,6 +642,8 @@ try {
       }
   }
 
+  if (!sak) throw new Error('Ingen sak å vise');
+  const saksrute = `/${katalog.prosjekt}/${sak}`;
   for (const [navn, side] of [
     ['te', te],
     ['bh', bh],
@@ -559,7 +669,7 @@ try {
   }
   if (values.feil) {
     const u = utledJournal(await lesJournal(sak), KJERNE);
-    if (!u.spor.grunnlag.gjeldendeKrav || u.spor.vederlag.gjeldendeKrav)
+    if (!u.spor.forhold.gjeldendeKrav || u.spor.vederlag.gjeldendeKrav)
       throw new Error('--feil trenger et kontrollpunkt med grunnlagskrav og uten vederlagskrav (--til)');
     // Feiltilstandene i skjemaet (#1215): TE sender vederlagskravet, og `page.route` svarer
     // på kommandoruta i stedet for serveren. Kroppene har formen serveren gir
@@ -605,7 +715,7 @@ try {
     const kommandoruta = `**/api/kjerne/saker/${sak}/kommandoer`;
     const sporene = te.getByRole('navigation', { name: 'Sakens spor' });
     for (const tilstand of FEILTILSTANDER) {
-      await te.goto(`${FRONTEND}${saksrute}`);
+      await te.goto(`${FRONTEND}${saksrute}/kjerne`);
       await sporene.getByRole('button', { name: /Vederlag/ }).click();
       await te.getByRole('button', { name: /^Send (varsel eller krav|krav om vederlagsjustering)$/ }).click();
       await te.getByLabel('Fast sum').fill('125000');
@@ -639,6 +749,19 @@ try {
       await te.screenshot({ path: join(UT, `feil-${tilstand.navn}.png`), fullPage: true });
       await te.unroute(kommandoruta);
     }
+  }
+  if (OPPRETTES) {
+    // S2 i #1414: «Avbryt» fører til sakslisten uten melding, og ingen sak opprettes.
+    await te.goto(`${FRONTEND}/${katalog.prosjekt}/ny`);
+    await te.getByRole('heading', { name: 'Nytt krav om endringsordre', level: 1 }).waitFor({ timeout: 30_000 });
+    await te.getByLabel('Tittel på saken').fill('Avbrytes');
+    await te.getByRole('button', { name: 'Avbryt', exact: true }).click();
+    await te.getByRole('button', { name: 'Ja, slett det du har skrevet', exact: true }).click();
+    await te.waitForURL(new RegExp(`/${katalog.prosjekt}$`), { timeout: 30_000 });
+    await te.waitForLoadState('networkidle');
+    if (await te.getByText('Avbrytes').count()) throw new Error('Sakslisten viser saken som ble avbrutt');
+    await te.screenshot({ path: join(UT, 'ny-sak-avbrutt.png'), fullPage: true });
+    console.log('TE  «Avbryt» i /{p}/ny: til sakslisten');
   }
   console.log(`Skjermbilder i ${UT}. Saksruta: ${FRONTEND}${saksrute}`);
   if (ukjenteKall.length) throw new Error(`Ukjente kall til falsk Catenda:\n${ukjenteKall.join('\n')}`);

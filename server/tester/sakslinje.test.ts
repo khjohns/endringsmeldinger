@@ -86,10 +86,12 @@ class Sak {
     };
   }
 
-  /** Et brev TE sendte utenfor appen, registrert som korrespondanse (OV-U4). */
-  registrer(data: Record<string, unknown>): void {
+  /** Et brev sendt utenfor appen, registrert som korrespondanse av `part` (OV-U4). */
+  registrer(data: Record<string, unknown>, part: Part = 'TE'): void {
     const rad: Journalrad = {
       ...this.journal[0]!,
+      aktor_id: part.toLowerCase(),
+      aktor_rolle: part,
       event_id: randomUUID(),
       event_type: 'dokument_registrert',
       versjon: this.journal.at(-1)!.versjon + 1,
@@ -193,6 +195,7 @@ describe('linja i sakslisten (#1022)', () => {
       forstaatt: true,
       saksbetegnelse: null,
       hovedkategori: 'endring',
+      underkategori: 'irregulaer_endring',
       forhold: { svar: null, venter_paa_svar: true, svar_ikke_godtatt: false },
       vederlag: {
         krav: { beloep: 100000, metode: 'tilbud' },
@@ -377,7 +380,7 @@ describe('linja i sakslisten (#1022)', () => {
     const nyVersjon = linje(krav, frafall, (sak) =>
       sak.send('TE', {
         ...PAABEROPELSE,
-        innhold: { ...PAABEROPELSE.innhold, tittel: 'Endret fundamentering 2' },
+        innhold: { ...PAABEROPELSE.innhold },
       })
     );
     expect(nyVersjon.forhold, 'GR-U23').toMatchObject({
@@ -422,6 +425,84 @@ describe('linja i sakslisten (#1022)', () => {
     );
     expect(l.forstaatt).toBe(true);
     expect(l.brev_utenfor_appen).toBe(true);
+  });
+
+  it('siste brev er brevet med den seneste datoen, med avsenderen og dagen det ble sendt herfra (#1450)', () => {
+    const sak = new Sak();
+    expect(sak.linje().siste_brev, 'en sak uten brev').toBeNull();
+    forloepA(sak);
+    expect(sak.linje().siste_brev).toEqual({ avsender: 'BH', dato: '2026-10-01' });
+    aksept('vederlag')(sak);
+    expect(sak.linje().siste_brev).toEqual({ avsender: 'TE', dato: '2026-10-01' });
+  });
+
+  const brevSomDokumentasjon = (sendt: string) => ({
+    beskrivelse: 'Brev om fundamenteringen',
+    opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
+    dokumentasjon: [
+      { vedlegg_id: randomUUID(), filnavn: 'brev.pdf', innhold_sha256: 'a'.repeat(64) },
+    ],
+  });
+
+  it('et registrert brev har datoen parten oppga at det ble sendt, ikke registreringsdagen (oppdragsgiver 03.11 i #1450, OV-U80)', () => {
+    const sak = new Sak();
+    krav(sak);
+    sak.registrer(brevSomDokumentasjon('2026-10-01'), 'BH');
+    expect(sak.linje().siste_brev, 'kontrollsak: sendt samme dag som kravet').toEqual({
+      avsender: 'BH',
+      dato: '2026-10-01',
+    });
+    const eldre = new Sak();
+    krav(eldre);
+    eldre.registrer(brevSomDokumentasjon('2026-09-15'), 'BH');
+    expect(eldre.linje().forstaatt, 'forutsetning').toBe(true);
+    // Brevet ble registrert etter kravet, men sendt før det, så kravet er sakens siste brev.
+    expect(eldre.linje().siste_brev).toEqual({ avsender: 'TE', dato: '2026-10-01' });
+  });
+
+  it('en registrering som en retting sier ikke hører til saken, og rettingen selv, er ikke sakens siste brev (OV-U17, OV-U18)', () => {
+    const sak = new Sak();
+    krav(sak);
+    sak.registrer(brevSomDokumentasjon('2026-09-15'), 'BH');
+    const forste = sak.journal.at(-1)!;
+    sak.registrer({ ...brevSomDokumentasjon('2026-10-01'), retter: forste.event_id }, 'BH');
+    const registrert = sak.journal.at(-1)!;
+    expect(sak.linje().siste_brev, 'kontrollsak: registreringen er siste brev').toEqual({
+      avsender: 'BH',
+      dato: '2026-10-01',
+    });
+    sak.registrer({ retter: registrert.event_id, ikke_i_saken: true }, 'BH');
+    expect(sak.linje().forstaatt, 'forutsetning').toBe(true);
+    expect(sak.linje().siste_brev).toEqual({ avsender: 'TE', dato: '2026-10-01' });
+  });
+
+  it('en retting av en registrering er brevet med datoen rettingen oppgir, og registreringen den retter, er ikke med (OV-U17)', () => {
+    const sak = new Sak();
+    krav(sak);
+    sak.registrer(brevSomDokumentasjon('2026-09-15'), 'BH');
+    const registrert = sak.journal.at(-1)!;
+    expect(sak.linje().siste_brev, 'kontrollsak: kravet er sakens siste brev').toEqual({
+      avsender: 'TE',
+      dato: '2026-10-01',
+    });
+    sak.registrer({ ...brevSomDokumentasjon('2026-10-15'), retter: registrert.event_id }, 'BH');
+    expect(sak.linje().forstaatt, 'forutsetning').toBe(true);
+    expect(sak.linje().siste_brev).toEqual({ avsender: 'BH', dato: '2026-10-15' });
+  });
+
+  it('en sak kjernen ikke forstår, har ikke noe siste brev, fordi det ukjente kan være et brev (MM-U2)', () => {
+    const sak = new Sak();
+    krav(sak);
+    expect(sak.linje().siste_brev, 'kontrollsak').not.toBeNull();
+    const siste = sak.journal.at(-1)!;
+    sak.journal.push({
+      ...siste,
+      event_id: randomUUID(),
+      versjon: siste.versjon + 1,
+      event_type: 'ukjent_hendelse',
+      data: {},
+    });
+    expect(sak.linje().siste_brev).toBeNull();
   });
 
   it('en sak kjernen ikke forstår, står i lista med betegnelsen og telles ikke i summene (MM-U2, MM-U22)', () => {

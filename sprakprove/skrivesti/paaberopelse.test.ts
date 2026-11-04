@@ -96,7 +96,7 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
         underkategori: 'GRUNN',
         datoer: { klar_over_forholdet: '2026-10-01' },
       }),
-      'TE ble klar over forholdet',
+      'totalentreprenøren ble klar over forholdet',
     ],
     [
       'endringsordre',

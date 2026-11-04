@@ -76,11 +76,11 @@
     ['avsluttet', SAKSLISTE.avsluttet],
   ];
   const SORTERINGENE: [Sortering, string][] = [
-    ['oppdatert', SAKSLISTE.sistOppdatert],
+    ['siste-brev', SAKSLISTE.sisteBrev],
     ['opprettet', SAKSLISTE.opprettet],
   ];
   let utvalg = $state<Utvalg>('alle');
-  let sortering = $state<Sortering>('oppdatert');
+  let sortering = $state<Sortering>('siste-brev');
   let soek = $state('');
   const synlige = $derived(
     sorter(
@@ -179,10 +179,13 @@
       {:else}
         <div class="noekkel" role="group" aria-label={SAKSLISTE.tallene}>
           <section class="spor-kort" aria-labelledby="nk-vederlag">
-            <h2 class="spor-tittel" id="nk-vederlag">
-              {SAKSLISTE.vederlag} <span class="enhet">{SAKSLISTE.eksMva}</span>
+            <!-- Tipset står utenfor overskriften, så kortet bare heter det overskriften sier (#1511). -->
+            <div class="spor-tittel">
+              <h2 id="nk-vederlag">
+                {SAKSLISTE.vederlag} <span class="enhet">{SAKSLISTE.eksMva}</span>
+              </h2>
               {@render tips('tips-vederlag', SAKSLISTE.vederlag, SAKSLISTE.omVederlag)}
-            </h2>
+            </div>
             <div class="halv">
               <span class="hl">{SAKSLISTE.krevdUtenforEo}</span>
               <span class="hv"
@@ -200,10 +203,12 @@
             </div>
           </section>
           <section class="spor-kort" aria-labelledby="nk-frist">
-            <h2 class="spor-tittel" id="nk-frist">
-              {SAKSLISTE.fristforlengelse}
+            <div class="spor-tittel">
+              <h2 id="nk-frist">
+                {SAKSLISTE.fristforlengelse}
+              </h2>
               {@render tips('tips-frist', SAKSLISTE.fristforlengelse, SAKSLISTE.omFrist)}
-            </h2>
+            </div>
             <div class="halv">
               <span class="hl">{SAKSLISTE.krevdUtenforEo}</span>
               <span class="hv">{tall.frist.krav} <small>krav</small></span>
@@ -245,7 +250,7 @@
             >{SAKSLISTE.krevdVederlag} <span class="enhet">{SAKSLISTE.eksMva}</span></span
           >
           <span class="h">{SAKSLISTE.krevdFrist}</span>
-          <span>{SAKSLISTE.oppdatert}</span>
+          <span>{SAKSLISTE.sisteBrev}</span>
         </div>
         <!-- Statusområdet står fast, så skjermleseren melder at utvalget ikke gir treff (WCAG 4.1.3). -->
         <div class="ingen-treff" class:aapen={synlige.length === 0}>
@@ -290,9 +295,16 @@
                     {/if}
                   </div>
                 {/each}
-                <div class="oppdatert">
-                  <span class="kolonnenavn">{SAKSLISTE.oppdatert}</span>
-                  {dato(s.siste_hendelse)}
+                <div class="siste-brev">
+                  <span class="kolonnenavn">{SAKSLISTE.sisteBrev}</span>
+                  <span class="brevet">
+                    {#if s.siste_brev}
+                      <b>{SAKSLISTE.brevFra(s.siste_brev.avsender)}</b>
+                      {dato(s.siste_brev.dato)}
+                    {:else}
+                      {SAKSLISTE.ingenBrev}
+                    {/if}
+                  </span>
                 </div>
               </li>
             {/each}
@@ -438,9 +450,14 @@
   .krevd.dempet .verdi {
     color: var(--ink-3);
   }
-  .oppdatert {
+  .siste-brev {
     color: var(--ink-2);
     font-size: 14px;
+  }
+  .siste-brev b {
+    display: block;
+    color: var(--ink);
+    font-weight: 500;
   }
   .tittel {
     color: var(--ink);
@@ -516,6 +533,10 @@
     color: var(--ink);
     font-size: 14px;
     font-weight: 600;
+  }
+  .spor-tittel h2 {
+    margin: 0;
+    font: inherit;
   }
   .spor-tittel .enhet {
     color: var(--ink-3);
@@ -704,11 +725,15 @@
       gap: var(--spacing-2);
     }
     .krevd,
-    .oppdatert {
+    .siste-brev {
+      display: flex;
       flex-direction: row;
       align-items: baseline;
       justify-content: space-between;
       gap: var(--spacing-3);
+    }
+    .brevet {
+      text-align: right;
     }
     .kolonnenavn {
       position: static;

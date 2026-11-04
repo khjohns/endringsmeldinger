@@ -5426,6 +5426,1104 @@ kilde = "hovedplanen"
 tekst = "Saken har en tilfeldig unik ID som appen lager. Et lesbart løpenummer per prosjekt er saksnummeret i brevene."
 
 
+[[gruppe.vedtak]]
+id = "EO-U15"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-1](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-1-sendes-endringsordren-i-eo-saken-samtidig-med-godkjenningen-av-forholdet)), med bakgrunnen ordrett:
+
+**S-1. Sendes endringsordren i EO-saken samtidig med godkjenningen av forholdet?**
+
+**Bakgrunn.** EO-U12: «Godkjenning av grunnlaget alene lukker ikke KOE-saken, selv om
+godkjenningen er en endringsordre etter kontrakten.» Oppdragsgiver sa før drøftingen at
+løsningen må «legge opp til» at byggherren utsteder endringsordren samtidig med svaret.
+Prosedyren for endringshåndtering sier at det skal utstedes endringsordre når byggherren godtar
+at det er grunnlag. Teksten i versjon 2 ble ikke stilt.
+
+**Spørsmålet slik det ble stilt.** Det ble lagt fram som flyt 1 i oversikten over arbeidsmåten
+03.11, med to valg i svarskjemaet: «Send svaret og endringsordren nå» og «Send svaret nå,
+endringsordren senere».'''
+valgt = "ja"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «ja til S-1, S-7 og S-16» (#1065, [6623214211](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6623214211)).'''
+forhold = [{ art = "presiserer", vedtak = "eo-u12" }, { art = "presiserer", vedtak = "eo-u3" }]
+folge = '''
+GR-U14 og GR-U32 står. S-3 i teksten er EO-U17.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Når byggherren godkjenner forholdet uten å påberope preklusjon, i en underkategori der punkt 32.2 gjelder, spør svarskjemaet når endringsordren i EO-saken sendes. Ved ‹Send svaret og endringsordren nå› lager skjemaet endringsordren i en ny EO-sak som omfatter saken. De to brevene godkjennes samlet etter fullmakten (S-3) og sendes samtidig og udelelig, og KOE-saken lukkes. Ved ‹Send svaret nå, endringsordren senere› sendes svaret alene, saken står åpen, og vederlag og frist behandles videre i saken til en endringsordre i en EO-sak omfatter den. Svaret er i begge tilfeller en endringsordre etter punkt 32.3 første ledd a, jf. punkt 31.3.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "alltid samtidig"
+tekst = '''
+Når byggherren godkjenner forholdet uten å påberope preklusjon, i en underkategori der punkt 32.2 gjelder, sender byggherren alltid samtidig en endringsordre i en EO-sak som omfatter saken, og saken lukkes.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "ingen endringsordre med svaret"
+tekst = '''
+Løsningen foreslår ikke en endringsordre i EO-saken sammen med svaret. Saken står åpen til byggherren sender en endringsordre i en EO-sak som omfatter den.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Godkjenning av grunnlaget alene lukker ikke KOE-saken, selv om godkjenningen er en endringsordre etter kontrakten."
+
+[[gruppe.vedtak]]
+id = "EO-U16"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065", "#1519"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-2](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-2-hva-gjør-en-registrert-endringsordre-med-koe-saken)), med bakgrunnen ordrett:
+
+**S-2. Hva gjør en registrert endringsordre med KOE-saken?**
+
+**Bakgrunn.** OV-U6: «Registreringen er byggherrens godkjenning av grunnlaget og går gjennom
+fullmakten som en godkjenning av grunnlaget etter GFK-06.» OV-U80: «Byggherrens egen
+endringsordre er et valg i svaret, på vilkårene i OV-U6.» og «Der skjemaet og dokumentet
+spriker, er dokumentet partens meddelelse.» Punkt 20 i MM-U34: «Bare en endringsordre byggherren
+sender uttrykkelig som endringsordre i en EO-sak, lukker saken (EO-U12).» Teksten i versjon 2 ble
+ikke stilt.
+
+**Spørsmålet slik det ble stilt.** «Registrert endringsordre: ja, både flyten og skjemaet må
+oppdateres», med fem punkter: skjemaet for registrering, tidspunktet, poster uten krav (S-15),
+modellen for oppgjøret og P-3. Forslaget til tidspunktet var: «Registreringen godtas bare når
+sakene fortsatt er åpne når den registreres.»
+
+**Valg A, besvart 03.11.** Spørsmålet slik det ble stilt: «A. Hvilket nummer får en registrert
+endringsordre? LV-U44 (vedtatt i dag) sier at en EO-sak får koden EO-nn med løpenummer når
+byggherren oppretter den. EO-U14 forkastet at byggherren bruker sin egen nummerering. Et brev sendt
+utenfor løsningen har likevel sitt eget nummer.» Alternativene: «A1. EO-saken får løsningens kode
+etter LV-U44. Brevets eget nummer lagres som brevets referanse og vises ved siden av. Merket i
+sakslisten bruker løsningens kode. Anbefalt: det følger LV-U44 og EO-U14.» og «A2. Merket bruker
+brevets eget nummer. Det strider mot EO-U14.» Svaret: «A1».
+
+**Valg F erstattet av R-4, besvart 03.11.** Teksten slik den ble stilt (#1065, 6616942512): «R-4
+(erstatter F1): ‹Registreringen gjelder de åpne sakene og viser at brevet også omfatter ‹sak›, som
+var lukket. Poster som gjelder den lukkede saken, registreres ikke.›» Svaret: «R4: ja» (#1065,
+6616977149).'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «B. Ja dette er særskilt unntak med tydelig informasjon til BH som registrerer EO.» (fra reviewet av #1519). Til forslagene om registreringen: «Ja. Enig med dine anbefalinger».
+
+Valg A: «A1».
+
+R-4 (#1065, [6616977149](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6616977149)): «R4: ja».'''
+forhold = [{ art = "snevrer inn", vedtak = "mm-u34" }, { art = "snevrer inn", vedtak = "eo-u12" }, { art = "snevrer inn", vedtak = "mm-u38" }, { art = "endrer", vedtak = "ov-u80" }, { art = "presiserer", vedtak = "ov-u6" }, { art = "presiserer", vedtak = "eo-u3" }, { art = "presiserer", vedtak = "lv-u44" }, { art = "presiserer", vedtak = "eo-u14" }]
+folge = '''
+Innsnevringen av MM-U34 gjelder punkt 11, 20 og 22. Endringen i OV-U80: setningen om byggherrens egen endringsordre gjelder registrering som svar på forholdet. S-17 i teksten er EO-U29.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren kan registrere en endringsordre sendt utenfor løsningen på to måter. Registreres den som svar på forholdet etter OV-U6, står saken åpen, og vederlag og frist behandles videre i saken. Registreres den som endringsordre i en EO-sak, bruker registreringen samme skjema som en endringsordre sendt fra løsningen, med brevet som vedlegg, datoen det ble sendt og dokumentkoden i brevet. Det lages ingen brevtekst, og der skjemaet og brevet spriker, er brevet byggherrens meddelelse. Registreringen går gjennom godkjenningen etter fullmakten og lukker sakene den omfatter når den er godkjent. Den har datoen brevet ble sendt. Registreringen gjelder de åpne sakene og viser at brevet også omfatter ‹sak›, som var lukket. Poster som gjelder den lukkede saken, registreres ikke. Kontrollen før registreringen viser kravversjoner som er sendt etter datoen på brevet. Løsningen avgjør ikke virkningen. Totalentreprenøren kan godta et utsagn i en registrert endringsordre, en ny KOE kan bestride det, og det kan inngå i en kjede etter S-17, som for en endringsordre sendt fra løsningen. EO-saken for en registrert endringsordre får koden etter LV-U44. Brevets eget nummer lagres som brevets referanse og vises ved siden av koden. Merket på KOE-sakene viser koden etter EO-U14.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "bare som svar på forholdet"
+tekst = '''
+En registrert endringsordre registreres bare som svar på forholdet etter OV-U6, og saken står åpen til byggherren sender en endringsordre i en EO-sak.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "byggherren opplyser"
+tekst = '''
+Byggherren opplyser ved registreringen om endringsordren avslutter saken. Ved ja lukkes saken, ellers står den åpen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A2"
+tekst = '''
+Merket viser brevets eget nummer.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "F1"
+tekst = '''
+Er en av sakene en registrert endringsordre omfatter, lukket når den siste godkjenningen gjøres, stopper hele registreringen og sier hvilken sak som er lukket. Brevet legges til som dokumentasjon i sakene det gjelder, og løsningen registrerer ikke deler av et brev.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "F2"
+tekst = '''
+Registreringen gjelder de åpne sakene, og brevet blir dokumentasjon i den lukkede.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Registreringen er byggherrens godkjenning av grunnlaget og går gjennom fullmakten som en godkjenning av grunnlaget etter GFK-06."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherrens egen endringsordre er et valg i svaret, på vilkårene i OV-U6."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Bare en endringsordre byggherren sender uttrykkelig som endringsordre i en EO-sak, lukker saken (EO-U12)."
+
+[[gruppe.vedtak]]
+id = "EO-U17"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-3](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-3-hvordan-regnes-fullmakten-for-en-endringsordre-i-en-eo-sak)), med bakgrunnen ordrett:
+
+**S-3. Hvordan regnes fullmakten for en endringsordre i en EO-sak?**
+
+**Bakgrunn.** Presiseringen av GFK-06 24.09 i vedtaksfila: «GFK-06 presisert: ansvar har ingen
+egen verdi, fullmakten regnes per spor. Et spor som besvares i samme brev, har verdien i svaret;
+ellers gjelder TEs krav. Et krav som ikke er sendt, krever hele kjeden som et krav som ikke er
+tallfestet; et trukket krav er 0. Avslått og frafalt ansvar er 0» Del II A.1.4 har beløpsgrensene for fullmakt per rolle. GFK-U7: «Den siste godkjenningen
+sender svaret med det samme.» LV-U15: «Brevet har to signaturer: den som utarbeidet svaret, og den
+som godkjente det med fullmakt til svaret.» Teksten i versjon 2 ble ikke stilt.
+
+**Spørsmålet slik det ble stilt.** Lagt fram i modellen 03.11, punkt 6 og 9 i ChatGPTs andre
+runde, og som punkt 7 i «Modellen samlet»: «Fullmakten bruker grensene i A.1.4 og kjeden i
+GFK-vedtakene.»
+
+**Valg D, besvart 03.11.** Spørsmålet slik det ble stilt: «D. Kan den med ubegrenset fullmakt
+sende alene? Vedtaket 23.09 sier at den som har ubegrenset fullmakt, kan sende alene når beløpet
+ikke kan verdsettes. Prosedyren og LV-U15 krever to signaturer. EO-U6, som endret vedtaket 23.09,
+er opphevet.» Alternativene: «D1. Ingen sender alene. Endringsordren har alltid to signaturer, som
+LV-U15 og prosedyren krever. Det endrer vedtaket 23.09. Anbefalt.» og «D2. Vedtaket 23.09 står.»
+Svaret: «D1».'''
+valgt = "D1"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Faktisk er det kun EO som må gjennom fullmaktskjeden.» Til modellen: «Ja, før det inn slik.»
+
+Valg D: «D1».'''
+forhold = [{ art = "endrer", vedtak = "gfk-u4" }]
+folge = '''
+Endrer også presiseringen av GFK-06 24.09 og vedtaket 23.09 om ubegrenset fullmakt, for en endringsordre i en EO-sak. For svar i KOE-saken står de. GFK-U2, GFK-U3, GFK-U6, GFK-U7, GFK-U20 og LV-U15 står, og for en endringsordre gjelder GFK-U20 bare med GFK-U3.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "D1"
+tekst = '''
+En endringsordre i en EO-sak går gjennom godkjenningen etter fullmakten. Verdien regnes per utsagn og summeres for hele utsendingen. Et utsagn som gjelder flere saker samlet, verdsettes én gang, og verdien dekker kravene i sakene det gjelder. Der endringsordren ikke svarer på et krav som er sendt, gjelder kravet. Et krav som er sendt, men ikke er tallfestet, og et utsagn uten samlet beløp, krever hele kjeden. Et krav som ikke er sendt, krever hele kjeden bare når endringsordren sendes samtidig med svaret på forholdet, eller selv er svaret på forholdet. Et trukket krav er 0. Et utsagn som erstatter et bestridt utsagn, verdsettes med det samlede beløpet i tilbudet. Beløpsgrensene er kontraktens, og kjeden følger vedtakene om godkjenning. Sendes svaret på forholdet og endringsordren samtidig, godkjennes de samlet, og avvises godkjenningen, sendes ingen av dem. Den siste godkjenningen sender. Ingen sender en endringsordre alene. Den har alltid to signaturer: den som utarbeidet den, og den som godkjente den med fullmakt (LV-U15), også når beløpet ikke kan verdsettes.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "hvert brev for seg"
+tekst = '''
+Sender byggherren svaret på forholdet og endringsordren samtidig, godkjennes hvert brev for seg, og hvert brev sendes når det er godkjent.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "per utsagn for seg"
+tekst = '''
+Fullmakten prøves per utsagn for seg mot beløpsgrensene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "D2"
+tekst = '''
+Den som har ubegrenset fullmakt, kan sende alene når beløpet ikke kan verdsettes.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "GFK-06 presisert: ansvar har ingen egen verdi, fullmakten regnes per spor. Et spor som besvares i samme brev, har verdien i svaret; ellers gjelder TEs krav. Et krav som ikke er sendt, krever hele kjeden som et krav som ikke er tallfestet; et trukket krav er 0. Avslått og frafalt ansvar er 0"
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Den siste godkjenningen sender svaret med det samme."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Brevet har to signaturer: den som utarbeidet svaret, og den som godkjente det med fullmakt til svaret."
+
+[[gruppe.vedtak]]
+id = "EO-U18"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-4](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-4-stilles-spørsmålet-om-vilkår-eller-forbehold-når-byggherren-registrerer-et-svar)), med bakgrunnen ordrett:
+
+**S-4. Stilles spørsmålet om vilkår eller forbehold når byggherren registrerer et svar?**
+
+**Bakgrunn.** OV-U69: «Første versjon har ikke et eget spørsmål om vilkår eller forbehold i
+byggherrens svar, og ingen egne felt for særskilte vilkår.» OV-U80: «Spørsmålet i OV-U48 og
+OV-U49 stilles i svarskjemaet.» KA-U45: «Byggherrens forbehold i et registrert svar fanges etter
+OV-U48 og OV-U49.» De to siste viser til vedtak som OV-U69 hadde opphevet. Teksten i versjon 2 ble
+ikke stilt.
+
+**Spørsmålet slik det ble stilt.** «S-4 er i praksis avgjort: erklæringen ‹uten forbehold› er
+parkert, så spørsmålet om forbehold stilles ikke ved registrering (OV-U69 står).»'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Ja. Enig med dine anbefalinger».'''
+forhold = [{ art = "endrer", vedtak = "ov-u80" }, { art = "endrer", vedtak = "ka-u45" }]
+folge = '''
+Endringen i OV-U80 gjelder setningene «Spørsmålet i OV-U48 og OV-U49 stilles i svarskjemaet.» og «Svarer byggherren ja, står korrespondansen som dokumentasjon, merket ‹Svaret har forbehold skjemaet ikke kan uttrykke›.». Endringen i KA-U45 gjelder setningen om at forbehold i et registrert svar fanges etter OV-U48 og OV-U49. OV-U69 står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Spørsmålet om vilkår eller forbehold stilles ikke, heller ikke når byggherren registrerer korrespondanse som svar eller en endringsordre. Vilkår, forbehold og andre betingelser skriver parten i begrunnelsen eller i et innlegg.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "spørsmålet stilles"
+tekst = '''
+Spørsmålet om vilkår eller forbehold stilles når byggherren registrerer korrespondanse som svar. Svarer byggherren ja, står korrespondansen som dokumentasjon og er ikke et svar.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Første versjon har ikke et eget spørsmål om vilkår eller forbehold i byggherrens svar, og ingen egne felt for særskilte vilkår."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Spørsmålet i OV-U48 og OV-U49 stilles i svarskjemaet."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherrens forbehold i et registrert svar fanges etter OV-U48 og OV-U49."
+
+[[gruppe.vedtak]]
+id = "EO-U19"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-6](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-6-kan-et-utsagn-gjelde-flere-saker-samlet-og-er-et-overslag-en-egen-art)), med bakgrunnen ordrett:
+
+**S-6. Kan et utsagn gjelde flere saker samlet, og er et overslag en egen art?**
+
+**Bakgrunn.** EO-U8: «Ved flere KOE-saker summeres ikke dagene uten videre (§ 33.5).» OV-U43 skiller
+et tilbud om fast sum fra et krav etter en beregningsregel, og et overslag er en opplysning.
+
+**Spørsmålet slik det ble stilt.** «Skal vederlaget også kunne samles?» med alternativene
+«A (anbefalt): Alle spor og poster kan samles, med de tre grensene over. B: Bare fristen og poster
+som følger av den, som rigg og drift i forlenget byggetid, kan samles. C: Ingenting samles, og alt
+står per sak.»'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «A. Legg det inn.» Senere samme dag: «Løsningen utleder ikke rettsvirkninger. Den registreres. Det kan være at ‹avtalen› er med forbehold, gitt i fritekst.»'''
+forhold = [{ art = "utvider", vedtak = "eo-u8" }, { art = "utvider", vedtak = "ka-u1" }, { art = "utvider", vedtak = "ov-u43" }]
+folge = '''
+Punkt 9 og 23 i MM-U34 står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et utsagn i endringsordren gjelder ett spor eller én post i én sak eller i en gruppe saker, og svarer på kravversjonene i sakene det gjelder. Byggherren kan gi ett utsagn for flere saker. Et samlet utsagn har én oppgjørsform, og vederlaget samles per post: vederlagsjustering, særskilt vederlagsjustering og rigg og drift. Totalentreprenøren kan bare godta eller bestride et samlet utsagn samlet. Et overslag ved regningsarbeid er en opplysning, ikke et tilbud, og det kan ikke godtas. Et utsagn kan avvike fra en registrert enighet. Skjemaet viser avviket, og løsningen avgjør ikke om endringsordren endrer det som er avtalt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Bare fristforlengelsen og poster som følger av den, som rigg og drift i forlenget byggetid, kan samles for flere saker.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Hvert utsagn gjelder én sak. Ingenting samles.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Ved flere KOE-saker summeres ikke dagene uten videre (§ 33.5)."
+
+[[gruppe.vedtak]]
+id = "EO-U20"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-7](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-7-holder-et-utkast-til-endringsordre-av-saken)), med bakgrunnen ordrett:
+
+**S-7. Holder et utkast til endringsordre av saken?**
+
+**Bakgrunn.** EO-U3: «en KOE-sak inngår i høyst én endringsordre, også når den er bestridt.» Et
+utkast er skjermet per team etter sikkerhetsinvarianten for utkast.
+
+**Spørsmålet slik det ble stilt.** Punkt 6 i listen over vedtak på oversiktssiden 03.11: «En sak
+‹inngår› i en endringsordre fra den er sendt eller registrert, ikke mens den ligger i et utkast».
+
+**Valg B, besvart 03.11.** Spørsmålet slik det ble stilt: «B. Holder en registrering som venter
+på godkjenning, av saken? S-7 sier at et utkast ikke holder av saken. Men en registrering gjelder
+et brev som alt er sendt, og den lukker sakene først når den er godkjent.» Alternativene: «B1. Nei.
+Den holder ikke av saken, som ellers. Er saken tatt av en annen endringsordre før den siste
+godkjenningen, stopper registreringen (S-12). Anbefalt: én regel for alt som venter på
+godkjenning.» og «B2. Ja. En registrering som venter på godkjenning, holder av saken.» Svaret:
+«B1».'''
+valgt = "ja"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «ja til S-1, S-7 og S-16» (#1065, [6623214211](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6623214211)).
+
+Valg B, 03.11: «B1».'''
+forhold = [{ art = "presiserer", vedtak = "eo-u3" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+En KOE-sak inngår i en endringsordre fra endringsordren er sendt eller registrert, ikke mens den ligger i et utkast. To utkast kan omfatte samme sak. Er saken alt med i en sendt endringsordre når byggherren sender, stopper sendingen og sier hvilken. Kontrollen gjøres samlet med sendingen. Verken et utkast, en endringsordre eller en registrering som venter på godkjenning, holder av saken. Saken inngår i endringsordren fra den er sendt, eller fra registreringen er godkjent. Er saken tatt av en annen endringsordre før den siste godkjenningen, stopper sendingen eller registreringen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "utkastet holder av saken"
+tekst = '''
+En sak som er lagt i et utkast til endringsordre, kan ikke legges i et annet utkast.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B2"
+tekst = '''
+En registrering som venter på godkjenning, holder av saken.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "en KOE-sak inngår i høyst én endringsordre, også når den er bestridt."
+
+[[gruppe.vedtak]]
+id = "EO-U21"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-8](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-8-er-vederlag-og-frist-i-endringsordren-byggherrens-standpunkt-eller-et-tilbud)), med bakgrunnen ordrett:
+
+**S-8. Er vederlag og frist i endringsordren byggherrens standpunkt eller et tilbud?**
+
+**Bakgrunn.** EO-U8: «Hvert utsagn sier hva det er: byggherrens standpunkt, et tilbud eller en
+gjengivelse av noe som er avtalt.» Prosedyren sier at byggherren kan gi den fristforlengelsen
+byggherren mener er riktig, gjennom endringsordren.
+
+**Spørsmålet slik det ble stilt.** Oppdragsgiver reiste det selv, til påstanden «Prosedyren sier
+bare at BH kan gi ‹den fristforlengelse han mener er riktig gjennom EO›. Det er et standpunkt, ikke
+et tilbud.» Samtidig ble det spurt: «Følger tilbud om oppgjør fra prosedyre eller dagens word
+skjema?» og sagt: «I KOE-sak kan BH kun svare på krav, ikke gi tilbud uoppfordret uten et
+eksisterende krav.»'''
+valgt = "tilbud"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Nei, det er jo klart et tilbud når det fremgårav EO. Om TE er uenig sender han KOE og viser til EO.»'''
+forhold = [{ art = "endrer", vedtak = "eo-u8" }, { art = "endrer", vedtak = "ov-u43" }, { art = "presiserer", vedtak = "hf-u12" }]
+folge = '''
+Endringen i OV-U43 gjelder prinsipp 5. S-6 i teksten er EO-U19. S-15 i teksten er EO-U27.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "tilbud"
+tekst = '''
+Vederlag og frist i en endringsordre er byggherrens tilbud, eller en gjengivelse av en registrert enighet. Er totalentreprenøren uenig, sender totalentreprenøren en ny KOE og viser til endringsordren. Byggherren gir utsagn om vederlag og frist bare for krav totalentreprenøren har sendt, og ikke tilbud i et spor uten krav. En endringsordre som ikke omfatter noen KOE-sak, står alene med vederlag og frist. Et overslag ved regningsarbeid er en opplysning, ikke et tilbud (S-6). En registrert endringsordre gjengir det brevet sier (S-15).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "standpunkt eller tilbud"
+tekst = '''
+Byggherren velger for hvert utsagn om det er byggherrens standpunkt eller et tilbud om oppgjør.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hvert utsagn sier hva det er: byggherrens standpunkt, et tilbud eller en gjengivelse av noe som er avtalt."
+
+[[gruppe.vedtak]]
+id = "EO-U22"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-9](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-9-kan-en-koe-sak-om-svikt-eller-et-annet-forhold-som-ikke-er-en-endring-tas-med-i-en-endringsordre)), med bakgrunnen ordrett:
+
+**S-9. Kan en KOE-sak om svikt eller et annet forhold som ikke er en endring, tas med i en endringsordre?**
+
+**Bakgrunn.** Punkt 31.3: endringsordren skal gi beskjed om at det kreves en endring, og hva den
+går ut på. Punkt 22 i MM-U34: «Sender byggherren en endringsordre i en EO-sak som svar på et
+grunnlagskrav, omfatter endringsordren hele KOE-saken og lukker den.»
+
+**Spørsmålet slik det ble stilt.** «S-9. Kan en KOE-sak om svikt eller et annet risikoforhold tas
+med i en endringsordre?» med alternativene A: ja, med beskrivelsen av hva endringsordren gjelder,
+B: nei, og C: bare i en egen endringsordre uten pålegg.'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «EO er altså ikke bare pålegg; det er også erkjennelse av ansvar. MEN: det innebærer ikke at ansvar for et forhold som ikke er kategorisert som endring blir erkjent som at dette er en endring da EO utstedes. Det kan godt være en standard forbehold tekst for slike tilfeller.» Presisert samme dag: «erkjenner kun ansvar innenfor det som følger av EO, og eventuelt tidligere uttalelser i KOE-sak. Omfanget av dette er opp til partene å tolke. Ingen erkjennelse av ansvar for nødvendigvis alle TEs påberopelser.» Til forslaget om feltet ved svikt: «Ja, før det inn slik.»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u34" }, { art = "snevrer inn", vedtak = "mm-u34" }, { art = "presiserer", vedtak = "eo-u3" }]
+folge = '''
+Presiseringen av MM-U34 gjelder punkt 22, og innsnevringen punkt 20: en sak lukket etter GR-U27 kan ikke tas med. Ordvalget «er enig i forholdet» følger GR-U32. HF-U12 og GR-U13 står, men for en sak om svikt finnes det ikke noe pålegg, så om bindingen etter punkt 31.3 gjelder den saken, avgjør ikke løsningen. GR-U27 står. S-18 i teksten er EO-U30.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+En endringsordre formaliserer kravene og er byggherrens instruks og eventuelt erkjennelse av ansvar, innenfor det som følger av endringsordren og byggherrens tidligere utsagn i KOE-saken. Den er ikke nødvendigvis en erkjennelse av alt totalentreprenøren har påberopt, og hvor langt den rekker, er opp til partene å tolke. Omfatter endringsordren en sak der forholdet ikke er besvart eller er avslått, sier endringsordren uttrykkelig at byggherren er enig i forholdet i saken, slik endringsordren beskriver og omfatter det. Omfatter den en sak om svikt eller et annet forhold som ikke er en endring, har brevet en fast tekst: ‹Endringsordren gjelder også ‹sak›, der totalentreprenøren påberoper ‹forholdet›. For dette forholdet gjelder endringsordren ‹vederlagsjustering og/eller fristforlengelse›. Den innebærer ikke at byggherren mener forholdet er en endring.› Teksten nevner bare sporene endringsordren har utsagn for i saken. Den ene beskrivelsen i endringsordren (S-18) beskriver da følgene som gjøres opp, og omfatter endringsordren både endringer og svikt, beskriver den både pålegget og følgene. En sak som er lukket, fordi den inngår i en sendt endringsordre eller fordi totalentreprenøren har godtatt avslaget på forholdet eller trukket det, kan ikke tas med.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En KOE-sak om svikt eller et annet forhold som ikke er en endring, gjøres opp med svar og enighet i KOE-saken, uten endringsordre.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+En KOE-sak om svikt eller et annet forhold som ikke er en endring, kan bare tas med i en egen endringsordre uten pålegg.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Sender byggherren en endringsordre i en EO-sak som svar på et grunnlagskrav, omfatter endringsordren hele KOE-saken og lukker den."
+
+[[gruppe.vedtak]]
+id = "EO-U23"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-10](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-10-hvor-følges-regningsarbeid-opp-etter-endringsordren)), med bakgrunnen ordrett:
+
+**S-10. Hvor følges regningsarbeid opp etter endringsordren?**
+
+**Bakgrunn.** Punkt 30.2: totalentreprenøren skal varsle byggherren «dersom det er grunn til å anta
+at kostnadsoverslaget vil bli overskredet». Punkt 30.3 har oppgaver og kontroll med frister for
+begge. OV-U43: «Etter at behandlingen er ferdig, godtas fortsatt overslag og varsler etter
+prinsipp 2 og en endring etter prinsipp 4.» Punkt 19 i MM-U34 tar imot innlegg, dokumentasjon og
+innsigelser i en lukket sak.
+
+**Spørsmålet slik det ble stilt.** Først: «S-10. Kan totalentreprenøren sende overslag og varsel
+etter punkt 30.2 og 34.4 i en sak som er lukket med endringsordre?» Så: «Holder det at varselet
+etter punkt 30.2 sendes som innlegg i den lukkede saken, og at regningsoppgavene legges til som
+dokumentasjon?» Til slutt, spørsmål C: «Skal varselet etter punkt 30.2 og regningsoppgavene sendes
+som innlegg i EO-saken i stedet for i den lukkede KOE-saken?»'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «S-10: Saken er lukket. Hva betyr det? Hva er behovet for at TE skal kunne sende varsler osv? Det er noe annet med innlegg; det er ikke krav som sådan (da brukes skjemaene) men dokumentasjon og avklaringer til saken, har jeg tenkt.» Så: «S-10: da er det OK». Til spørsmål C: «Ja, før det inn slik.»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u34" }, { art = "snevrer inn", vedtak = "ov-u43" }]
+folge = '''
+Presiseringen gjelder punkt 19 i MM-U34, og innsnevringen prinsipp 2 og 3 i OV-U43. MM-U35 står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Fastsetter endringsordren regningsarbeid, sender totalentreprenøren overslag, varsel om at overslaget vil bli overskredet, og regningsoppgaver som innlegg i EO-saken. Byggherrens merknader sendes samme vei. Kostnader over overslaget for samme arbeid er avregning etter oppgjørsformen. Nytt arbeid eller annen kompensasjon er et krav i en ny KOE.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "i den lukkede KOE-saken"
+tekst = '''
+Varselet om at overslaget vil bli overskredet sendes som innlegg i den lukkede KOE-saken, og regningsoppgavene legges til der som dokumentasjon.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "egne varsler i den lukkede saken"
+tekst = '''
+Overslag og varsler tas imot som egne varsler i en sak som er lukket med endringsordre.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Etter at behandlingen er ferdig, godtas fortsatt overslag og varsler etter prinsipp 2 og en endring etter prinsipp 4."
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "dersom det er grunn til å anta at kostnadsoverslaget vil bli overskredet"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "EO-U24"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-11](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-11-hvordan-fører-totalentreprenøren-uenighet-med-et-utsagn-og-kan-totalentreprenøren-godta-et-utsagn)), med bakgrunnen ordrett:
+
+**S-11. Hvordan fører totalentreprenøren uenighet med et utsagn, og kan totalentreprenøren godta et utsagn?**
+
+**Bakgrunn.** Punkt 31.3: når totalentreprenøren mottar endringsordren, «blir han forpliktet til
+å utføre endringsarbeidet». EO-U4: «Byggherren reviderer bare en bestridt endringsordre.» Punkt 19
+i MM-U34: «Er TE uenig, sender TE en ny KOE.»
+
+**Spørsmålet slik det ble stilt.** «S-11. Hvordan fører totalentreprenøren uenighet med en post i
+endringsordren?» med alternativene A: bare med en ny KOE, uten revisjon, og B: bestridelse i
+EO-saken og revisjon. Så: om totalentreprenøren skal kunne godta en post uten forbehold. Så
+modellen M1b, der totalentreprenøren ikke godtar. Til slutt «Modellen samlet» med aksept av en
+post.
+
+**Valg C, besvart 03.11.** Spørsmålet slik det ble stilt: «C. Kan totalentreprenøren godta et
+utsagn som svarer på en eldre kravversjon? KA-U1 avviser aksept av et svar på en tidligere
+kravversjon. Hvis endringsordren ble sendt mens en ny kravversjon kom (F-10), kan
+totalentreprenøren da ikke godta utsagnet.» Alternativene: «C1. Ja. Saken er lukket, og
+endringsordren er det endelige tilbudet. Aksepten gjelder utsagnet slik det står. Det snevrer inn
+KA-U1 for endringsordre. Anbefalt: ellers kan en post aldri godtas i det tilfellet.» og «C2. Nei.
+KA-U1 står, og totalentreprenøren må sende en ny KOE.» Svaret: «C1».
+
+**Valg E, besvart 03.11.** Spørsmålet slik orkestratoren la det fram i oppdraget: «Hvor mange
+KOE-er kan bestride samme utsagn?» Bakgrunnen var eksempelet i sparringen: en post på 600 000 kr
+som bestrides i to KOE-er, gjøres opp til 800 000 og 900 000 kr, og gir summen 1 100 000 kr. Alternativene: «E1 (anbefalt): et
+utsagn kan bare bestrides av én KOE om gangen som ikke er lukket eller trukket. Kontrollen ved
+sendingen sikrer at et utsagn har høyst én direkte etterfølger. E2: flere KOE-er kan bestride
+samme utsagn, men utsagnet kan bare erstattes én gang. E1 løser også spørsmålet i punkt 4 om når
+sperren oppheves.» Svaret: «Enig med dine anbefalinger til spørsmålene.»
+
+**Valg G, besvart 03.11, falt bort med R-3c.** Spørsmålet slik orkestratoren la det fram i oppdraget: hvilke
+rettinger av en endringsordre går gjennom godkjenningen etter fullmakten? Alternativene: «G1
+(anbefalt): hver retting av en endringsordre går gjennom godkjenningen etter fullmakten, og nytt
+eller endret arbeid krever en ny endringsordre, sagt i skjemaet, uten at løsningen prøver det. G2:
+bare en retting som øker verdien, går gjennom fullmakten, som i versjon 3.» Svaret: «Enig med dine
+anbefalinger til spørsmålene.»
+
+**Valg R-3, besvart 03.11.** Spørsmålet slik det ble stilt, R-3 (S-11 og O-4): «En retting kan
+endre beløp, dager, oppgjørsform og teksten, og gi et utsagn for et sendt krav endringsordren ikke
+svarte på, men ikke sakene. En retting av teksten gjelder når totalentreprenøren godtar den.
+Endret arbeid krever en ny endringsordre.» G1 står. (#1065, 6616942512.) Svaret: «R3 - må vi ha
+retting? Eller bedre at BH trekker og utsteder ny?» (#1065, 6616977149). Oppfølgingsspørsmålet ble
+stilt i orkestreringsøkta med R-3a, R-3b og R-3c. Svaret: «r3c» (#1065, 6617101997).
+
+**Valg R-1, besvart 03.11.** Spørsmålet slik det ble stilt, R-1 (E1 og O-2): «En endringsordre som
+omfatter en KOE som bestrider et utsagn, har et utsagn som erstatter det. Tillegget kan være 0.»
+(#1065, 6616942512.) Svaret: «R1 : hva legges i å bestride utsagn? Hva er utsagn? Hvordan vet
+appen det?» (#1065, 6616977149). Etter oppfølgingsspørsmålet: «R1: OK. Design vil være sentralt her
+slik at det ikke kompliserer unødvendig typisk koe-sak.» (#1065, 6617101997).'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «S-11: A. Det disiplinerer også BH før utsendelse av EO.» Så: «S-11 presisering: I utgangspunktet godtar ikke TE, kun mottar. Det er byggherrens instruks, evt erkjennelse av ansvar, ikke noe TE godtar. Om det derimot er gode grunner for at TE godtar vederlagsjustering og fristforlengelse som angitt, så er jeg likevel åpen for det. Da er det uten forbehold; ellers tenker jeg KOE-sak er riktig vei.» Til modellen med aksept av en post: «Ja, før det inn slik.»
+
+Valg C: «C1».
+
+Valg E, G og presiseringene i versjon 4 (#1065, [6616942512](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6616942512)): «Enig med dine anbefalinger til spørsmålene.»
+
+R-1 (#1065, [6616977149](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6616977149) og [6617101997](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6617101997)): først «R1 : hva legges i å bestride utsagn? Hva er utsagn? Hvordan vet appen det?», etter oppfølgingsspørsmålet «R1: OK. Design vil være sentralt her slik at det ikke kompliserer unødvendig typisk koe-sak.»
+
+R-3 (samme kommentarer): først «R3 - må vi ha retting? Eller bedre at BH trekker og utsteder ny?», etter oppfølgingsspørsmålet «r3c».
+
+O-2 (#1065, [6617137907](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6617137907)): «1 og 2: enig med deg.» O-2 utgikk som eget vedtak.'''
+forhold = [{ art = "endrer", vedtak = "eo-u4" }, { art = "endrer", vedtak = "eo-u1" }, { art = "endrer", vedtak = "eo-u8" }, { art = "endrer", vedtak = "mm-u34" }, { art = "snevrer inn", vedtak = "ka-u1" }, { art = "snevrer inn", vedtak = "mm-u21" }, { art = "snevrer inn", vedtak = "mm-u34" }, { art = "presiserer", vedtak = "mm-u34" }, { art = "presiserer", vedtak = "mm-u38" }, { art = "presiserer", vedtak = "eo-u26" }, { art = "presiserer", vedtak = "eo-u28" }, { art = "presiserer", vedtak = "eo-u29" }]
+folge = '''
+Endringen i MM-U34 gjelder punkt 22, innsnevringen punkt 20 og presiseringen punkt 19 og 21. Innsnevringen av KA-U1 gjelder utsagn i en endringsordre. Ellers står KA-U1, og punkt 9 i MM-U34 står. Forholdet «endringsordre» følger KA-U13 og GR-U32. Forholdet til EO-U9 føres ikke, fordi EO-U9 ble opphevet 28.10 av punkt 22 i MM-U34 (orkestratoren 03.11, #1065, [6618004199](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6618004199)).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Totalentreprenøren mottar endringsordren. Totalentreprenøren kan godta et utsagn i EO-saken, og aksepten gjelder hele utsagnet: tilbudet om vederlag, oppgjørsform eller frist. Et overslag ved regningsarbeid kan ikke godtas, og godtar totalentreprenøren et utsagn om regningsarbeid, gjør det ikke overslaget til et fast beløp. Det finnes ingen aksept av endringsordren som helhet, og svaret er frivillig. Fravær av protest er ikke enighet. Løsningen viser alle registrerte enigheter om samme oppgjør, også en fra KOE-saken som utsagnet avviker fra, og avgjør ikke hvilken som gjelder. Er totalentreprenøren uenig, eller er et krav ikke besvart, sender totalentreprenøren en ny KOE fra den lukkede saken, eller en ny KOE når endringsordren ikke omfatter noen KOE-sak. Den viser til endringsordren og oppgir om den bestrider et utsagn, gjelder et krav endringsordren ikke svarte på, eller gjelder noe nytt. Kravet i den nye KOE-en er det samlede kravet for det utsagnet gjelder. Når et utsagn er bestridt, behandles resten av oppgjøret i den nye KOE-en, og utsagnet kan verken godtas eller rettes i løsningen. Det er en begrensning i løsningen. Løsningen sier ikke at utsagnet er avslått eller har falt bort, og avgjør ikke om byggherren fortsatt er bundet av det (MM-U12). Sperren oppheves bare hvis den nye KOE-en trekkes før den er gjort opp i en ny endringsordre. Forholdet i den nye KOE-en er ‹endringsordre›, og løsningen utvider ikke byggherrens tidligere erkjennelse. Endringsordren revideres ikke. Totalentreprenøren kan godta et utsagn i en endringsordre også når det svarer på en tidligere kravversjon. Aksepten gjelder utsagnet slik det står. Et utsagn kan bare bestrides av én KOE om gangen som ikke er lukket eller trukket. Kontrollen ved sendingen sikrer at et utsagn har høyst én direkte etterfølger. En endringsordre som omfatter en KOE som bestrider et utsagn, har et utsagn som erstatter det. Tillegget kan være 0. Endringsordren kan ikke rettes i løsningen. En feil til ulempe for totalentreprenøren rettes ved at totalentreprenøren bestrider utsagnet eller krever i en ny KOE, og byggherren svarer med et utsagn som erstatter det. En feil til ulempe for byggherren tar byggherren opp i et innlegg i EO-saken. Løsningen avgjør ikke virkningen, og summen viser det som ble sendt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Totalentreprenøren bestrider et utsagn i EO-saken, og byggherren kan revidere endringsordren. Revisjonen godkjennes på nytt, og godtatte utsagn står.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "godtar ikke utsagn"
+tekst = '''
+Totalentreprenøren mottar endringsordren og godtar ikke utsagn. Uenighet føres i en ny KOE.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "én vei til registrert enighet"
+tekst = '''
+Totalentreprenøren kan godta et utsagn bare når det ikke allerede gjengir en registrert enighet uten forbehold, så hvert utsagn har én vei til registrert enighet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C2"
+tekst = '''
+Svarer utsagnet på en tidligere kravversjon, avvises aksepten etter KA-U1, og totalentreprenøren sender en ny KOE.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "E2"
+tekst = '''
+Flere KOE-er kan bestride samme utsagn, men utsagnet kan bare erstattes én gang.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "G1"
+tekst = '''
+Hver retting av en endringsordre går gjennom godkjenningen etter fullmakten. Nytt eller endret arbeid krever en ny endringsordre. Skjemaet for rettingen sier det, og løsningen prøver det ikke.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "G2"
+tekst = '''
+Bare en retting av en endringsordre som øker verdien, går gjennom godkjenningen etter fullmakten.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "R-3a"
+tekst = '''
+En retting kan endre beløp, dager, oppgjørsform og teksten, og gi et utsagn for et sendt krav endringsordren ikke svarte på, men ikke sakene. En retting av teksten gjelder når totalentreprenøren godtar den. Endret arbeid krever en ny endringsordre.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "R-3b"
+tekst = '''
+byggherren trekker endringsordren og utsteder en ny'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "versjon 4"
+tekst = '''
+En feil byggherren oppdager etter sending, rettes etter MM-U21. En retting kan endre beløp, dager og feil i teksten, men ikke sakene endringsordren omfatter. En retting som er til fordel for begge parter på ulike punkter, gjelder først når motparten godtar den, og aksepten gjelder bare rettingen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "O-4 (a)"
+tekst = '''
+Bare et utsagn som verken er bestridt eller erstattet, kan rettes. En retting er ikke et nytt ledd i kjeden. En retting til byggherrens fordel gjelder først når totalentreprenøren godtar den, og til da kan utsagnet slik det ble sendt, godtas eller bestrides. Bestrides utsagnet, kan rettingen ikke lenger godtas i løsningen, og løsningen avgjør ikke om byggherren er bundet av den (MM-U12). Det rettede utsagnet kan bestrides i en ny KOE som andre utsagn. Forhold: snevrer inn MM-U21 for en endringsordre, fordi et bestridt utsagn heller ikke kan rettes i motpartens favør. Byggherren sender da en ny endringsordre.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "O-2 (b)"
+tekst = '''
+E1 står uten tilleggene.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren reviderer bare en bestridt endringsordre."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Er TE uenig, sender TE en ny KOE."
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "blir han forpliktet til å utføre endringsarbeidet"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "EO-U25"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-12](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-12-avvises-den-siste-godkjenningen-når-noe-endres-i-en-av-sakene)), med bakgrunnen ordrett:
+
+**S-12. Avvises den siste godkjenningen når noe endres i en av sakene?**
+
+**Bakgrunn.** GFK-U7: «Den siste godkjenningen sender svaret med det samme. Kan svaret ikke sendes
+fordi kravet er endret etter at svaret ble lagt fram, avvises godkjenningen.»
+
+**Spørsmålet slik det ble stilt.** «S-12. Skal byggherren bekrefte listen over sakene på nytt når
+noe endres i en av dem mens endringsordren er til godkjenning?» med A: ja, den siste godkjenningen
+avvises, og B: nei, endringen vises for godkjenneren.
+
+**Valg R-2, besvart 03.11.** Spørsmålet slik det ble stilt, R-2 (S-12): «Endres noe i en av
+sakene, bekrefter byggherren listen på nytt. Endrer byggherren et utsagn, eller endres verdien
+godkjenningen regnes av, begynner godkjenningen på nytt. Ellers legges den fram igjen for den
+siste godkjenneren.» (#1065, 6616942512.) Svaret: «R2 Ja» (#1065, 6616977149).'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «S-12: A Det høres fornuftig ut, uten å være særlig til ulempe for brukeropplevelsen.»
+
+R-2 (#1065, [6616977149](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6616977149)): «R2 Ja».'''
+forhold = [{ art = "utvider", vedtak = "gfk-u7" }, { art = "presiserer", vedtak = "gfk-u7" }]
+folge = '''
+Utvidelsen gjelder en endringsordre i en EO-sak og registreringen i EO-U16. Presiseringen: godkjenningen begynner bare på nytt når et utsagn eller verdien endres.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Endres noe i en av sakene etter at endringsordren eller registreringen er lagt fram til godkjenning, ved en ny kravversjon, et trekk, en aksept, en lukking eller et nytt svar, avvises den siste godkjenningen. Endres noe i en av sakene, bekrefter byggherren listen på nytt. Endrer byggherren et utsagn, eller endres verdien godkjenningen regnes av, begynner godkjenningen på nytt. Ellers legges den fram igjen for den siste godkjenneren. Innlegg og dokumentasjon stopper ikke sendingen. Sendes svaret på forholdet og endringsordren samtidig, sendes begge eller ingen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Endringen vises for godkjenneren, som kan sende likevel.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "versjon 4"
+tekst = '''
+Byggherren ser endringen, og godkjenningen begynner på nytt.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Den siste godkjenningen sender svaret med det samme. Kan svaret ikke sendes fordi kravet er endret etter at svaret ble lagt fram, avvises godkjenningen."
+
+[[gruppe.vedtak]]
+id = "EO-U26"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-14](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-14-hvordan-lukkes-en-koe-som-følger-opp-oppgjøret-etter-en-endringsordre)), med bakgrunnen ordrett:
+
+**S-14. Hvordan lukkes en KOE som følger opp oppgjøret etter en endringsordre?**
+
+**Bakgrunn.** Del II D.1.9: godkjente endringsordrer «skal faktureres separat pr. endringsordre»,
+med signert endringsordre fra byggherren. Del II til punkt 27.3 og 39.2 skiller mellom omtvistet og
+uomtvistet delfaktura.
+
+**Spørsmålet slik det ble stilt.** «S-14. Hvordan lukkes en KOE som følger opp oppgjøret etter en
+endringsordre?» med A: med en ny endringsordre, B: ved registrert enighet om alle kravene, og C:
+saken står åpen.'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Ja, før det inn slik.»'''
+forhold = [{ art = "presiserer", vedtak = "eo-u3" }]
+folge = '''
+Punkt 19–22 i MM-U34 står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+En KOE som følger opp oppgjøret etter en endringsordre, lukkes som andre KOE-saker, med en endringsordre i en EO-sak.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En KOE som bare følger opp oppgjøret etter en endringsordre, lukkes ved registrert enighet om alle kravene i saken.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+En KOE som følger opp oppgjøret etter en endringsordre, står åpen. Status per spor viser enigheten.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "EO-U27"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-15](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-15-kan-en-registrert-endringsordre-ha-utsagn-for-krav-totalentreprenøren-ikke-har-sendt)), med bakgrunnen ordrett:
+
+**S-15. Kan en registrert endringsordre ha utsagn for krav totalentreprenøren ikke har sendt?**
+
+**Bakgrunn.** S-8: byggherren gir utsagn om vederlag og frist bare for krav som er sendt.
+
+**Spørsmålet slik det ble stilt.** «Skal en registrert endringsordre kunne ha poster for spor der
+totalentreprenøren ikke har sendt krav?» med «A. Ja. Registreringen gjengir det brevet sier, og
+regelen om bare å svare på krav gjelder det som sendes fra løsningen.» og «B. Nei. Beløpet står
+bare i dokumentet.»'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Ja. Enig med dine anbefalinger».'''
+forhold = [{ art = "snevrer inn", vedtak = "eo-u21" }, { art = "presiserer", vedtak = "mm-u38" }, { art = "presiserer", vedtak = "ov-u80" }]
+folge = '''
+Innsnevringen av EO-U21 gjelder registrerte endringsordrer. Presiseringen av OV-U80: en registrering kan ha utsagn som ikke kan sendes fra løsningen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+En registrert endringsordre gjengir det brevet sier, også utsagn om vederlag og frist for krav totalentreprenøren ikke har sendt. Regelen om at byggherren bare svarer på krav som er sendt, gjelder det som sendes fra løsningen. En registrert endringsordre telles i summen av vederlag i sendte endringsordrer.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En registrert endringsordre har bare utsagn for krav totalentreprenøren har sendt. Beløp for andre spor står bare i dokumentet.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "EO-U28"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-16](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-16-hvordan-teller-nøkkeltallene-en-koe-som-bestrider-en-post-i-en-endringsordre)), med bakgrunnen ordrett:
+
+**S-16. Hvordan teller nøkkeltallene en KOE som bestrider en post i en endringsordre?**
+
+**Bakgrunn.** MM-U38: «Hvert kort viser kravene i sakene som ingen sendt endringsordre omfatter,
+og endringsordrene, side om side og med samme vekt.» Og: «For vederlag er tallene summen av
+kravene med beløp og summen av vederlaget i alle sendte endringsordrer i prosjektet, også dem som
+ikke omfatter en KOE-sak, med fradrag trukket fra, eks. mva.» En ny KOE som bestrider en post (S-11),
+er ikke omfattet av noen sendt endringsordre før den er gjort opp. Med regelen i dag telles hele
+det samlede kravet i den nye KOE-en som krav utenfor endringsordre, samtidig som posten står i
+summen av endringsordrene. En post på 600 000 kr og et samlet krav på 800 000 kr gir da 1,4 mill.
+kr. Når den nye KOE-en er gjort opp, ville summen av endringsordrene telle både 600 000 kr og
+800 000 kr uten regelen om tillegg i S-17.
+
+**Spørsmålet slik det ble stilt.** «S-16. Når en ny KOE bestrider en post i en endringsordre,
+teller nøkkeltallet for krav utenfor endringsordre bare differansen mellom kravet og posten, når
+kravet har samme omfang og oppgjørsform. Ellers vises kravet for seg, uten at det legges til
+summen. Summen av endringsordrene teller tilleggene etter regelen om tillegg. Anbefaling: ja.»'''
+valgt = "ja"
+svar = '''
+Oppdragsgiver 04.11, ordrett: «ja til S-1, S-7 og S-16» (#1065, [6623214211](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6623214211)).'''
+forhold = [{ art = "endrer", vedtak = "mm-u38" }, { art = "presiserer", vedtak = "eo-u29" }]
+folge = '''
+MM-U37 står. S-17 i teksten er EO-U29.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ja"
+tekst = '''
+Bestrider en KOE et utsagn i en sendt endringsordre, telles kravet i nøkkeltallet for krav utenfor endringsordrene bare med differansen mellom kravet og utsagnet, når kravet har samme omfang og oppgjørsform som utsagnet. Ellers vises kravet for seg og legges ikke til summen. Summen av vederlaget i endringsordrene teller et utsagn som erstatter et bestridt utsagn, etter S-17: tillegget når det regnes, og ellers det nye utsagnet i stedet for det erstattede. Tallene er beregninger og avgjør ikke hva partene har avtalt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "hele kravet"
+tekst = '''
+Nøkkeltallet teller hele kravet i en KOE som bestrider et utsagn, som andre krav utenfor endringsordrene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "holdes utenfor"
+tekst = '''
+En KOE som bestrider et utsagn, holdes utenfor nøkkeltallene til den er gjort opp i en ny endringsordre.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hvert kort viser kravene i sakene som ingen sendt endringsordre omfatter, og endringsordrene, side om side og med samme vekt."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "For vederlag er tallene summen av kravene med beløp og summen av vederlaget i alle sendte endringsordrer i prosjektet, også dem som ikke omfatter en KOE-sak, med fradrag trukket fra, eks. mva."
+
+[[gruppe.vedtak]]
+id = "EO-U29"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-17](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-17-hvordan-regnes-et-utsagn-som-erstatter-et-bestridt-utsagn)), med bakgrunnen ordrett:
+
+**S-17. Hvordan regnes et utsagn som erstatter et bestridt utsagn?**
+
+**Bakgrunn.** MM-U38: «For vederlag er tallene summen av kravene med beløp og summen av vederlaget
+i alle sendte endringsordrer i prosjektet, også dem som ikke omfatter en KOE-sak, med fradrag
+trukket fra, eks. mva.» Uten en regel for tillegg ville en ny endringsordre som gjør opp en
+bestridt post, bli talt i tillegg til den første.
+
+**Spørsmålet slik det ble stilt.** Lagt fram samlet med S-14 som regelen om tillegg med kjeden:
+«En post i en endringsordre som gjør opp en KOE som bestrider en tidligere post, erstatter den
+posten.», med null og reduksjon, at den siste posten i kjeden gjelder for aksept og bestridelse,
+og fullmakten.
+
+**Endret i versjon 5, valg O-1.** Spørsmålet slik det ble stilt, O-1 (a) under «Endret i
+versjon 4»: «S-17 får også ‹samme oppgjørsform›, så de to reglene regner differansen i de samme
+tilfellene.» Svaret: «1 og 2: enig med deg.» (#1065, 6617137907). Vedtaksteksten har fått
+«, samme omfang og samme oppgjørsform» i stedet for «og samme omfang». Forkastet: O-1 (b),
+«Vilkårene står som de er.» Forhold: S-16 og S-17 regner differansen i de samme tilfellene.'''
+valgt = "Ja"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Ja, før det inn slik.»
+
+O-1 (#1065, [6617137907](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6617137907)): «1 og 2: enig med deg.»'''
+forhold = [{ art = "endrer", vedtak = "mm-u38" }, { art = "presiserer", vedtak = "eo-u26" }]
+folge = '''
+Valg E i teksten er tillegget E1 i EO-U24. EO-U28 og EO-U29 regner differansen i de samme tilfellene.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Et utsagn i en endringsordre som gjør opp et bestridt utsagn, erstatter det, og har flere utsagn vært bestridt samlet, erstatter det alle. Utsagnet oppgir det samlede beløpet i tilbudet og tillegget mot utsagnet eller utsagnene det erstatter direkte. Tillegget regnes bare når både det nye utsagnet og hvert utsagn det erstatter, har et samlet beløp, samme omfang og samme oppgjørsform. Ellers erstatter det nye utsagnet det gamle i summen, uten tillegg, og et overslag brukes ikke som et tidligere fastsatt beløp. Et utsagn har høyst én direkte etterfølger (valg E). Tillegget kan være 0 eller negativt. En reduksjon endrer ikke en tidligere registrert enighet, men vises som avvik. Bare det siste utsagnet i kjeden kan godtas eller bestrides, og de tidligere forblir sperret, også når den nye KOE-en er lukket. Summen av vederlag i sendte endringsordrer teller tilleggene. Dette er beregningsregler, og de avgjør ikke hva partene rettslig har avtalt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "står for seg"
+tekst = '''
+Et utsagn i en endringsordre som gjør opp et bestridt utsagn, står for seg, og summen teller begge.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "O-1 (b)"
+tekst = '''
+Vilkårene står som de er.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "For vederlag er tallene summen av kravene med beløp og summen av vederlaget i alle sendte endringsordrer i prosjektet, også dem som ikke omfatter en KOE-sak, med fradrag trukket fra, eks. mva."
+
+[[gruppe.vedtak]]
+id = "EO-U30"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet slik det står i spørsmålsfila for BF-06, versjon 5 ([S-18](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#s-18-har-endringsordren-én-beskrivelse-av-endringen)), med bakgrunnen ordrett:
+
+**S-18. Har endringsordren én beskrivelse av endringen?**
+
+**Bakgrunn.** Punkt 31.3: endringsordren skal gi beskjed om at det kreves en endring, og hva den
+går ut på. GR-U13 sier hva som skal til for at et brev er en endringsordre etter punkt 31.3.
+
+**Spørsmålet slik det ble stilt.** Skissen hadde ett felt per sak, «Hva endringen i KOE-017 går ut
+på».'''
+valgt = "kun en endringsbeskrivelse"
+svar = '''
+Oppdragsgiver 03.11, ordrett, fra drøftingen i økta for #1525 (svaret står under spørsmålet i spørsmålsfila): «Det er en EO. Selv om den samler flere KOEr, tenker jeg disse blir samlet fordi de har en innbyrdes sammenheng. Da trenger vi kun en endringsbeskrivelse, ikke en for hver KOE.» Tidligere samme dag: «Under punkt 2: Endringen tenker jeg må beskrives fullt ut. Dette er byggherrens INSTRUKS. Bør ikke vise til tidligere krav da.»'''
+forhold = [{ art = "presiserer", vedtak = "gr-u13" }]
+folge = '''
+GR-U14, punkt 23 i MM-U34 og MM-U12 står. S-9 i teksten er EO-U22.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "kun en endringsbeskrivelse"
+tekst = '''
+En endringsordre har én beskrivelse av endringen, også når den omfatter flere KOE-saker. Beskrivelsen er byggherrens pålegg, med tilpasningen for svikt i S-9, og beskriver endringen fullt ut uten å vise til totalentreprenørens krav. Sakene står i brevet som referanser. Avviker beskrivelsen fra pålegget i kravet eller fra svaret på forholdet, avgjør ikke løsningen hva som gjelder.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "én per sak"
+tekst = '''
+En endringsordre har én beskrivelse av endringen for hver KOE-sak den omfatter.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "EO-U31"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 03.11 i spørsmålsfila for BF-06, versjon 5 ([Spørsmålene om samspillet, til oppdragsgiver](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#spørsmålene-om-samspillet-til-oppdragsgiver)). Alternativene står i posten.
+
+**T-1. Når må en sak være åpen for at en registrert endringsordre skal gjelde den?**
+
+*Bakgrunn.* Byggherren kan registrere en endringsordre som er sendt på papir eller e-post. Du har
+godtatt at registreringen gjelder de sakene som er åpne: «Registreringen gjelder de åpne sakene og
+viser at brevet også omfatter ‹sak›, som var lukket. Poster som gjelder den lukkede saken,
+registreres ikke.» Teksten sier ikke når saken må være åpen. Du har også godtatt: «Er saken tatt
+av en annen endringsordre før den siste godkjenningen, stopper sendingen eller registreringen.»
+Og: «Endres noe i en av sakene etter at endringsordren eller registreringen er lagt fram til
+godkjenning, ved en ny kravversjon, et trekk, en aksept, en lukking eller et nytt svar, avvises
+den siste godkjenningen. Endres noe i en av sakene, bekrefter byggherren listen på nytt.»
+
+*Forholdet.* (a) presiserer de to valgene over: «stopper … registreringen» betyr at den siste
+godkjenningen avvises, og en lukking er en endring etter valget om godkjenningen. (b) endrer valget
+om at registreringen stopper, og endrer valget om godkjenningen for en registrering, fordi verdien
+godkjenningen regnes av, da endres uten ny godkjenning. GFK-U7 står i begge: «Kan svaret ikke
+sendes fordi kravet er endret etter at svaret ble lagt fram, avvises godkjenningen.»
+
+*Hva valget styrer.* Om den som godkjenner, alltid godkjenner den listen over saker som faktisk
+lukkes.
+
+*Anbefaling: (a).* Med (b) godkjenner den med fullmakt en liste som kan bli kortere etterpå uten
+at noen ser det. (a) bruker samme regel som for en endringsordre sendt fra løsningen. At en sak
+sjelden lukkes mens en registrering venter, er en antakelse. Tas en sak av en endringsordre sendt
+fra løsningen mens en registrering med tidligere brevdato venter, går saken til den senere
+endringsordren i begge alternativene, og løsningen avgjør ikke virkningen.'''
+valgt = "a"
+svar = '''
+Oppdragsgiver 03.11, ordrett: «T-1 a, T-2 a, T-3 a» (#1065, [6618029253](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6618029253)).'''
+forhold = [{ art = "presiserer", vedtak = "eo-u20" }, { art = "presiserer", vedtak = "eo-u25" }]
+folge = '''
+Presiseringen gjelder «stopper sendingen eller registreringen» i EO-U20 (B1) og valget om godkjenningen i EO-U25. GFK-U7 står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "a"
+tekst = '''
+En registrert endringsordre gjelder de sakene som er åpne når den siste godkjenningen gjøres. Lukkes en sak etter at registreringen er lagt fram til godkjenning, avvises den siste godkjenningen, og byggherren bekrefter listen på nytt. Registreringen gjelder deretter de sakene som fortsatt er åpne. Endres verdien godkjenningen regnes av, begynner godkjenningen på nytt. Er ingen av sakene åpne, stopper registreringen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "b"
+tekst = '''
+En registrert endringsordre gjelder de sakene som er åpne når den siste godkjenningen gjøres. Lukkes en sak etter at registreringen er lagt fram til godkjenning, faller saken ut av registreringen uten at godkjenningen avvises. Er ingen av sakene åpne, stopper registreringen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "EO-U32"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 03.11 i spørsmålsfila for BF-06, versjon 5 ([Spørsmålene om samspillet, til oppdragsgiver](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#spørsmålene-om-samspillet-til-oppdragsgiver)). Alternativene står i posten.
+
+**T-2. Må en registrert endringsordre ha et utsagn som erstatter et utsagn totalentreprenøren har bestridt?**
+
+*Bakgrunn.* Du har godtatt: «En endringsordre som omfatter en KOE som bestrider et utsagn, har et
+utsagn som erstatter det. Tillegget kan være 0.» Et brev byggherren har sendt utenfor løsningen, kan
+omfatte en slik KOE uten å si noe om det bestridte utsagnet. Du har også godtatt: «En registrert
+endringsordre gjengir det brevet sier, også utsagn om vederlag og frist for krav
+totalentreprenøren ikke har sendt.» OV-U80: «Der skjemaet og dokumentet spriker, er dokumentet
+partens meddelelse.»
+
+*Forholdet.* (a) snevrer inn regelen om utsagnet som erstatter det bestridte, for en registrert
+endringsordre, og presiserer at registreringen gjengir brevet. Den presiserer også valget om at
+bare én KOE om gangen kan bestride et utsagn, regelen om at sperren bare oppheves når KOE-en
+trekkes, og kjeden: utsagnet har ingen etterfølger og er fortsatt det siste i kjeden. (b) snevrer
+inn adgangen til å registrere en endringsordre i en EO-sak, endrer valget om at en registrert
+endringsordre gjengir det brevet sier, for et slikt brev, og står i strid med OV-U80.
+
+*Hva valget styrer.* Om byggherren kan registrere et brev slik det er, eller må ta det opp med
+totalentreprenøren først.
+
+*Anbefaling: (a).* Brevet er alt sendt, og registreringen skal ikke si mer enn brevet (OV-U80).
+Med (b) blir KOE-en stående åpen selv om byggherren har sendt en endringsordre som omfatter den,
+og byggherren må sende en ny endringsordre fra løsningen for å lukke den. Prisen ved (a): KOE-en
+lukkes, og totalentreprenøren kan tro at kravet er gjort opp. Bestillingen skal vise at det
+bestridte utsagnet står uten et utsagn som erstatter det (U-21). Det er byggherren som fører om
+brevet har et slikt utsagn, fordi løsningen ikke tolker brevet (KA-U16).'''
+valgt = "a"
+svar = '''
+Oppdragsgiver 03.11, ordrett: «T-1 a, T-2 a, T-3 a» (#1065, [6618029253](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6618029253)).'''
+forhold = [{ art = "snevrer inn", vedtak = "eo-u24" }, { art = "presiserer", vedtak = "eo-u24" }, { art = "presiserer", vedtak = "eo-u27" }, { art = "presiserer", vedtak = "eo-u29" }]
+folge = '''
+Innsnevringen gjelder regelen i EO-U24 om at en endringsordre som omfatter en KOE som bestrider et utsagn, har et utsagn som erstatter det, for en registrert endringsordre. Presiseringen av EO-U24 gjelder at bare én KOE om gangen kan bestride et utsagn, og at sperren bare oppheves når KOE-en trekkes. Presiseringen av EO-U29 gjelder kjeden: utsagnet har ingen etterfølger og er fortsatt det siste i kjeden. Presiseringen av EO-U27 gjelder at registreringen gjengir brevet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "a"
+tekst = '''
+Regelen om at en endringsordre som omfatter en KOE som bestrider et utsagn, har et utsagn som erstatter det, gjelder endringsordrer som sendes fra løsningen. En registrert endringsordre gjengir det brevet sier. Sier brevet ikke noe om det bestridte utsagnet, står det som bestridt og kan ikke godtas, og totalentreprenøren kan bestride det på nytt i en ny KOE.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "b"
+tekst = '''
+Også en registrert endringsordre som omfatter en KOE som bestrider et utsagn, har et utsagn som erstatter det. Sier brevet ikke noe om det bestridte utsagnet, kan brevet ikke registreres som endringsordre i en EO-sak.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse."
+
+[[gruppe.vedtak]]
+id = "EO-U33"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1525", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 03.11 i spørsmålsfila for BF-06, versjon 5 ([Spørsmålene om samspillet, til oppdragsgiver](https://github.com/khjohns/endringsmeldinger/blob/08ada9d31d7b1fa049074365420add9c54048f82/docs/domenetabell/brukerforlop/BF-06-sporsmal.md#spørsmålene-om-samspillet-til-oppdragsgiver)). Alternativene står i posten.
+
+**T-3. Kan byggherren rette en registrering som ikke stemmer med brevet?**
+
+*Bakgrunn.* Du har godtatt: «Endringsordren kan ikke rettes i løsningen.» En registrering er
+byggherrens gjengivelse av et brev som alt er sendt, og den kan være ført feil, for eksempel et
+beløp som ikke står i brevet. OV-U80: «Der skjemaet og dokumentet spriker, er dokumentet partens
+meddelelse.»
+
+*Forholdet.* (a) presiserer at regelen om at endringsordren ikke kan rettes, også gjelder en
+registrering. Den snevrer inn OV-U80 for en registrert endringsordre: «Avsenderen retter en feil
+kategori eller et feil varsel etter MM-U21.» Og den presiserer «summen viser det som ble sendt»:
+summen viser registreringen, ikke brevet. (b) snevrer inn regelen om at endringsordren ikke kan
+rettes, for en registrering. MM-U21 gjelder ikke, fordi rettingen gjelder etter fullmakten uten
+motpartens aksept.
+
+*Hva valget styrer.* Om summen og kjeden kan vise et beløp brevet ikke har, når registreringen er
+feil.
+
+*Anbefaling: (a), med en svakhet.* Én regel for alt som er sendt, og brevet gjelder uansett
+(OV-U80). Prisen er at summen kan vise et feil beløp til en ny endringsordre erstatter utsagnet. Er
+et beløp ført for høyt, kan totalentreprenøren godta posten, og løsningen viser da en enighet om et
+beløp brevet ikke har. Byggherren har bare et innlegg å svare med. (b) løser det, men sier ikke
+hva aksepten etterpå betyr. En sak som er tatt med ved en feil, lukkes i begge alternativene. At
+feil i registreringen er sjeldne, er en antakelse.'''
+valgt = "a"
+svar = '''
+Oppdragsgiver 03.11, ordrett: «T-1 a, T-2 a, T-3 a» (#1065, [6618029253](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6618029253)).'''
+forhold = [{ art = "presiserer", vedtak = "eo-u24" }, { art = "snevrer inn", vedtak = "ov-u80" }]
+folge = '''
+Presiseringen gjelder regelen i EO-U24 om at endringsordren ikke kan rettes, som også gjelder en registrering, og «summen viser det som ble sendt»: summen viser registreringen, ikke brevet. Innsnevringen av OV-U80 gjelder en registrert endringsordre.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "a"
+tekst = '''
+En registrert endringsordre kan ikke rettes i løsningen, heller ikke når registreringen ikke stemmer med brevet. Byggherren tar feilen opp i et innlegg i EO-saken, og brevet er byggherrens meddelelse. Løsningen avgjør ikke hva en aksept av en post som ikke stemmer med brevet, betyr.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "b"
+tekst = '''
+Stemmer en godkjent registrering ikke med brevet, kan byggherren rette registreringen. Rettingen går gjennom godkjenningen etter fullmakten, endrer ikke hvilke saker registreringen omfatter, og brevet står uendret. Har totalentreprenøren godtatt eller bestridt posten før rettingen, gjelder aksepten eller bestridelsen posten slik den var registrert.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Avsenderen retter en feil kategori eller et feil varsel etter MM-U21."
+
 [[gruppe]]
 tittel = "Sendte brev, regelendring og saker kjernen ikke forstår"
 etter = '''
@@ -8348,6 +9446,234 @@ navn = "B"
 tekst = '''
 Når totalentreprenøren oppretter saken, skriver totalentreprenøren både sakstittelen og et eget navn på det faktiske forholdet i påberopelsen. Brevet følger LV-U41 uendret.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U44"
+dato = 2026-11-03
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Vedtaket som ble lagt fram.
+
+Bakgrunn. Kontraktsgrunnlaget, Del II, «Navngiving av dokumenter» (pkt. D.1.2.5): «All korrespondanse i form av brev, skjemaer, referater, notater, etc. skal merkes slik: XXX-ZZ-nn … nn = Løpenummer (Løpenummer starter på 01 for hver kombinasjon av type korrespondanse)». Oppdragsgiver 03.11, ordrett: «det er krav til merking. Det er for å identifisere at brev hører til samme sak, f.eks. KOE-17, slik jeg forstår det. I Catenda opprettes saker med tittel kun KOE-x. Hvis ordlyden i kontraktsgrunnlaget ikke kan tolkes slik, så er den uklar.»
+
+Merkingen i brevhodet og dokumentnavnet er alternativ a: K201-KOE-17-03, altså sakens kode og brevets nummer i saken i én merking.'''
+valgt = "a"
+svar = '''
+«LV-U24 som foreslått, a»'''
+forhold = [{ art = "endrer", vedtak = "lv-u24" }]
+folge = '''
+Svaret står på #1497 (kommentaren 6595800193). Svaret på Q1, hvordan saken omtales i brevene, er A, ‹i sak KOE-17›. Q2 blir B med vedtaket over. Brevene telles i saken, og arbeidsvalget i #1489 om «Vår ref.» må leses mot vedtaket. Uklarheten i ordlyden i kontraktsgrunnlaget tas med i #1446. Vedtaket påvirker også #1489, #1174 og delen av #1488 om «i sak <saksnummer>». Oppfølgingsspørsmål 03.11, svar «2 A»: Setningene gjelder fortsatt, og LV-U44 endrer bare hvordan brevene nummereres. Merkingen `K201-KOE-17-03` står i brevhodet og i dokumentnavnet og fryses når brevet sendes.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "a"
+tekst = '''
+LV-U24 endres. Saken får koden fra sitt første brev, med løpenummer per kode i kontrakten (pkt. D.1.2.5): KOE-nn når totalentreprenøren oppretter saken, EO-nn når byggherren gjør det. Hvert brev i saken, også byggherrens svar, merkes med sakens kode og brevets nummer i saken. Et brev viser til et tidligere brev med nummeret i saken: ‹brev <n> i sak KOE-17 av <dato>›. BR brukes for brev som ikke hører til en sak. Kontraktsforkortelsen står i prosjektinnstillingene.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Den gjeldende LV-U24"
+tekst = '''
+Hvert brev merkes med eget løpenummer for sin kode i kontrakten …'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U45"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål 1, ordrett slik det ble stilt på nytt 04.11 i #1497 (kommentaren 6623368759), etter oppdragsgivers svar «1. se repo khjohns/kontrakt, konkurransegrunnlag for å vurdere nærmere.» på den første versjonen. Den første versjonen (kommentaren 6623109004) ble ikke besvart og er ikke kilde. Alternativene står i posten.
+
+**Spørsmål 1, stilt på nytt 04.11 etter vurderingen mot kontraktsgrunnlaget i `khjohns/kontrakt`** (oppdragsgiver: «se repo khjohns/kontrakt, konkurransegrunnlag for å vurdere nærmere»). Kontraktsteksten står ikke her, bare punktnumrene (#424).
+
+**Spørsmål 1. Får korrespondanse som er sendt utenfor løsningen og registrert i den, et nummer i saken?**
+
+*Bakgrunn.* LV-U44 nummererer brevene i saken. Etter svarene på spørsmål 2 og 3 får saken koden og løpenummeret når det første brevet sendes fra løsningen. Korrespondanse som er sendt utenfor løsningen, kan legges til av avsenderen eller motparten (OV-U80). Kontraktsgrunnlaget krever at brev og skjemaer bærer en merking med løpenummer. Merkingen står på dokumentet, så det er avsenderen som merker. Spørsmålet er om registrert korrespondanse får et nummer i rekken i saken, og om den teller når løsningens neste brev nummereres.
+
+*Belegg:*
+- Konkurransegrunnlaget Del II pkt. D.1.2.5 (merkingen XXX-ZZ-nn av brev, skjemaer, referater og notater, med løpenummer per type korrespondanse), pkt. B.2.4 (byggherrens formularer og blanketter for varsler og krav skal brukes, og e-post alene erstatter dem ikke) og pkt. D.1.2.2 (e-post til enkle avklaringer, merket med prosjekt og tema). NS 8407 har ingen regel om merking eller nummer.
+- LV-U44: «Hvert brev i saken, også byggherrens svar, merkes med sakens kode og brevets nummer i saken.» «Et brev viser til et tidligere brev med nummeret i saken: ‹brev <n> i sak KOE-17 av <dato>›.»
+- LV-U24, som gjelder etter svaret «2 A»: «Merkingen står i brevhodet og i dokumentnavnet i prosjekthotellet og fryses når brevet sendes.»
+- LV-U42: «Viser et brev fra løsningen til registrert korrespondanse, nevner brevet parten, typen og datoen: ‹totalentreprenørens e-post av <dato>›.» Forkastet 01.11: «Registrert korrespondanse får løpenummeret i saken, og brevet sier ‹brev <n> av <dato>›, som før.»
+- MM-U17: «Brevets innhold står som det ble sendt.»
+- OV-U80: «Bare parten som sendte det, kan velge noe annet enn dokumentasjon.» «Løsningen kontrollerer ikke at dokumentet er det parten oppgir.»
+- OV-U84: «Avsenderen kan senere velge hva korrespondansen er og fylle ut skjemaet.»
+- LV-U11: «Et registrert brev blir ikke et eget dokument i Catenda, fordi det alt er sendt utenfor appen.»
+
+*Anbefaling: D.* Belegg: pkt. D.1.2.5 legger merkingen på dokumentet, og bare avsenderen kan sette den der. Etter MM-U17 og LV-U11 kan løsningen ikke merke et brev den ikke sendte. Et nummer som bare står i løsningen (B, C), er derfor ingen merking etter kontrakten, og LV-U42 forkastet det 01.11. D tar med den eneste merkingen kontrakten kjenner, den avsenderen selv har satt, og løsningen unngår å gi sitt neste brev et nummer som alt er brukt. D endrer LV-U42 bare for de merkede brevene. Antakelse: brev sendt utenfor løsningen er sjelden merket med sakens kode og et nummer i saken, fordi formen er ny. Er det ikke verdt et ekstra felt i registreringen, er A det minste valget, og prisen er et mulig dobbelt nummer.
+
+*Hva valget styrer:* om registreringen har et felt for avsenderens merking (D); om kjernen fortsatt skriver «brev <n>» om registrerte brev, eller bruker formen i LV-U42; hvordan løsningens neste nummer i saken regnes; «Vår ref.», panelet i Varden og filnavnet og hodet i PDF-en; hvordan et brev etter VS-U37 viser til et registrert varsel etter punkt 32.2 (#1489).'''
+valgt = "D"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6623439127)): «D.»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u44" }, { art = "endrer", vedtak = "lv-u42" }]
+folge = '''
+Bygges i #1497 og #1489.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Bare brev sendt fra løsningen får et nummer i saken. Korrespondanse som er sendt utenfor løsningen og registrert i den, får ikke noe nummer. Det gjelder enten avsenderen eller motparten har lagt den til, og enten den står som dokumentasjon, varsel, krav eller svar. Den teller heller ikke når brevene fra løsningen nummereres. Et brev fra løsningen omtaler registrert korrespondanse med parten, typen og datoen etter LV-U42. Har avsenderen merket sitt eget brev med et nummer i saken, kan løsningens neste brev få det samme nummeret. *Forhold: presiserer LV-U44, der «hvert brev i saken» leses som hvert brev sendt fra løsningen. I tråd med LV-U42, MM-U17, OV-U80, LV-U11 og svarene på spørsmål 2 og 3.*'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Korrespondanse som avsenderen har valgt som varsel, krav eller svar, får et nummer i saken når valget gjøres, i samme rekke som brevene sendt fra løsningen. Korrespondanse som står som dokumentasjon, får ikke noe nummer. Nummeret står i løsningen og ikke på brevet, som står som det ble sendt. Et brev fra løsningen omtaler den nummererte korrespondansen med nummeret: ‹brev <n> i sak KOE-17 av <dato>›. Gjøres valget senere (OV-U84), får korrespondansen nummeret først da, etter brev som er sendt i mellomtiden. Nummeret er ingen merking etter pkt. D.1.2.5, fordi det ikke står på dokumentet. *Forhold: endrer LV-U42 for registrert varsel, krav og svar, og tar opp igjen det forkastede alternativet for dem. Presiserer LV-U44.*'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+All korrespondanse som registreres i saken, får et nummer i saken når den registreres, i samme rekke som brevene sendt fra løsningen. Det gjelder også dokumentasjon og det motparten har lagt til. Nummeret står i løsningen og ikke på brevet, og det er ingen merking etter pkt. D.1.2.5. Et brev fra løsningen omtaler korrespondansen med nummeret. *Forhold: endrer LV-U42 og tar opp igjen det forkastede alternativet. Presiserer LV-U44 etter ordlyden «hvert brev i saken».*'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "D"
+tekst = '''
+Løsningen gir ikke korrespondanse sendt utenfor løsningen noe nummer. Har avsenderen merket den selv etter pkt. D.1.2.5 med sakens kode og et nummer i saken, oppgir avsenderen merkingen når korrespondansen legges til, eller senere etter OV-U84. Den står da med nummeret avsenderen ga den. Løsningens neste brev i saken får nummeret etter det høyeste i saken. Et brev fra løsningen omtaler slik korrespondanse med merkingen som står på den: ‹brev <n> i sak KOE-17 av <dato>›. Annen registrert korrespondanse omtales etter LV-U42. Løsningen kontrollerer ikke merkingen og endrer ikke dokumentet. Et brev løsningen alt har sendt med samme nummer, står som det ble sendt. Legger motparten korrespondansen til, står den uten nummer til avsenderen oppgir merkingen. *Forhold: presiserer LV-U44. Endrer LV-U42 for korrespondanse som bærer avsenderens egen merking. Følger mønsteret i OV-U80 og OV-U84. I tråd med MM-U17, LV-U11, LV-U24 og svarene på spørsmål 2 og 3.*'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hvert brev i saken, også byggherrens svar, merkes med sakens kode og brevets nummer i saken."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et brev viser til et tidligere brev med nummeret i saken: ‹brev <n> i sak KOE-17 av <dato>›."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Merkingen står i brevhodet og i dokumentnavnet i prosjekthotellet og fryses når brevet sendes."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Viser et brev fra løsningen til registrert korrespondanse, nevner brevet parten, typen og datoen: ‹totalentreprenørens e-post av <dato>›."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Registrert korrespondanse får løpenummeret i saken, og brevet sier ‹brev <n> av <dato>›, som før."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Brevets innhold står som det ble sendt."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Bare parten som sendte det, kan velge noe annet enn dokumentasjon."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Løsningen kontrollerer ikke at dokumentet er det parten oppgir."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Avsenderen kan senere velge hva korrespondansen er og fylle ut skjemaet."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et registrert brev blir ikke et eget dokument i Catenda, fordi det alt er sendt utenfor appen."
+
+[[gruppe.vedtak]]
+id = "LV-U46"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål 2, ordrett slik det ble stilt 04.11 i #1497 (kommentaren 6623109004). Alternativene står i posten.
+
+**Spørsmål 2. Når får saken koden og løpenummeret?**
+
+*Bakgrunn.* Etter LV-U44 får saken KOE-nn eller EO-nn med løpenummer per kode i prosjektet. Teksten avsenderen godkjenner, har sakens kode. To saker kan forberedes samtidig i samme prosjekt, og et brev som skal godkjennes med fullmakt, kan vente en stund før det sendes.
+
+*Belegg:*
+- LV-U44: «Saken får koden fra sitt første brev, med løpenummer per kode i kontrakten (pkt. D.1.2.5): KOE-nn når totalentreprenøren oppretter saken, EO-nn når byggherren gjør det.»
+- LV-U2: «Teksten avsenderen godkjenner, og teksten som fryses, er den samme.»
+- KT-U11: «En sak totalentreprenøren oppretter i løsningen, opprettes når den første påberopelsen sendes, og ikke før.» «Avbryter totalentreprenøren før sending, finnes ingen sak og ingen topic.»
+
+*Avgrensning, som følger av LV-U44 og KT-U6:* en sak som er opprettet fra en topic, har ingen kode før sitt første brev.
+
+*Anbefaling: A.* Belegg: KT-U11 knytter saken til sendingen, og LV-U2 krever at den godkjente teksten er den som fryses. Begge holder i A uten at noe holdes av. Antakelse: det er sjelden at to saker med samme kode sendes samtidig i samme prosjekt, så det sjelden trengs ny godkjenning. Et hull i rekken kan dessuten se ut som et brev som mangler, for motparten.
+
+*Hva valget styrer:* hvor og når nummeret tildeles (i opprettelsen eller ved sakens første brev); om brevkontrollen må kunne be om ny godkjenning; hvordan godkjenning med fullmakt (LV-U15) virker når det første brevet ligger og venter.'''
+valgt = "2A"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6623323475)): «1. se repo khjohns/kontrakt, konkurransegrunnlag for å vurdere nærmere. 2A 3A»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u44" }]
+folge = '''
+Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2A"
+tekst = '''
+Saken får koden og løpenummeret når det første brevet i saken sendes. Nummeret er det neste ubrukte for koden i prosjektet. Brevkontrollen viser nummeret saken vil få. Har en annen sak fått det nummeret før brevet sendes, sendes brevet ikke. Avsenderen får da se brevet med det nye nummeret og godkjenner det på nytt. Nummerrekken har ingen hull. *Forhold: presiserer LV-U44. I tråd med LV-U2 og KT-U11.*'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2B"
+tekst = '''
+Løsningen holder av det neste ubrukte nummeret for koden når avsenderen åpner brevkontrollen for sakens første brev. Teksten avsenderen godkjenner, har det nummeret, og ingen annen sak kan få det. Sendes brevet ikke, brukes nummeret ikke, og nummerrekken får et hull. *Forhold: presiserer LV-U44. I tråd med LV-U2. Nummeret holdes av uten at det finnes en sak, så det strider ikke mot KT-U11.*'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Saken får koden fra sitt første brev, med løpenummer per kode i kontrakten (pkt. D.1.2.5): KOE-nn når totalentreprenøren oppretter saken, EO-nn når byggherren gjør det."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Teksten avsenderen godkjenner, og teksten som fryses, er den samme."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En sak totalentreprenøren oppretter i løsningen, opprettes når den første påberopelsen sendes, og ikke før."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Avbryter totalentreprenøren før sending, finnes ingen sak og ingen topic."
+
+[[gruppe.vedtak]]
+id = "LV-U47"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål 3, ordrett slik det ble stilt 04.11 i #1497 (kommentaren 6623109004). Alternativene står i posten.
+
+**Spørsmål 3. Kan sakens kode komme fra korrespondanse som er registrert?**
+
+*Bakgrunn.* En sak fra en topic kan få registrert korrespondanse før løsningen har sendt noe brev i saken, for eksempel et varsel totalentreprenøren sendte utenfor løsningen. LV-U44 gir saken koden «fra sitt første brev».
+
+*Belegg:* LV-U44, som sitert i spørsmål 2. KT-U6: «Topicen er ikke et varsel eller krav i appen, og TE må sende varsel og krav fra appen.» OV-U80: «Bare parten som sendte det, kan velge noe annet enn dokumentasjon.»
+
+*Anbefaling: A.* Belegg: A følger samme linje som anbefalingen i spørsmål 1, og koden settes da samtidig med nummeret på det første brevet (spørsmål 2). Antakelse: de fleste saker fra en topic får sitt første brev fra løsningen, slik KT-U6 forutsetter.
+
+*Hva valget styrer:* om koden settes ved registreringen eller ved sendingen; hva sakslisten har å vise for en sak uten kode (formen avgjøres i brukerforløpet).'''
+valgt = "3A"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6623323475)): «1. se repo khjohns/kontrakt, konkurransegrunnlag for å vurdere nærmere. 2A 3A»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u44" }]
+folge = '''
+Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "3A"
+tekst = '''
+Saken får koden fra det første brevet som sendes fra løsningen i saken. Registrert korrespondanse gir ikke saken en kode. Til det første brevet er sendt fra løsningen, har saken ingen kode. *Forhold: presiserer LV-U44. I tråd med LV-U42 og OV-U80.*'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3B"
+tekst = '''
+Har avsenderen valgt sakens første registrerte korrespondanse som varsel, krav eller svar, får saken koden etter parten som sendte den: KOE-nn når det er totalentreprenøren, EO-nn når det er byggherren. Dokumentasjon gir ikke saken en kode. *Forhold: presiserer LV-U44.*'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Topicen er ikke et varsel eller krav i appen, og TE må sende varsel og krav fra appen."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Bare parten som sendte det, kan velge noe annet enn dokumentasjon."
 
 [[gruppe.vedtak]]
 id = "MM-U37"

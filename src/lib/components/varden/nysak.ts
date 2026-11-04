@@ -8,6 +8,7 @@
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { getKontraktsregel, type Kontraktsregel } from '$lib/constants/kontraktsregler';
 import { kravMotNySak, type Brev } from '$lib/kjernesak/brevtekst';
+import { PROGRAMFEIL, type Programfeil } from '$lib/kjernesak/kontekst.svelte';
 import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
 import {
   kategoriFraKatalogen,
@@ -16,7 +17,7 @@ import {
 } from '$kjerne/format/koder';
 import { FORHOLDSGRUPPER } from './tekster';
 import type { Kjerne } from '$kjerne/versjon';
-import type { Part } from '$kjerne/typer';
+import type { Part, Vedlegg } from '$kjerne/typer';
 
 /** Opprettelsen og påberopelsen, med brevteksten kjernen laget i brevkontrollen. */
 export interface NySak {
@@ -25,6 +26,8 @@ export interface NySak {
   opprettelse: { type: 'opprett_sak'; sakstittel: string };
   paaberopelse: Paaberopelse;
   tekst: string[];
+  /** Skjemaet slik det var sendt, så et nytt forsøk etter ny innlasting sender det samme (#1526). */
+  utkast: Utfylling;
 }
 
 export type Paaberopelse = {
@@ -32,7 +35,24 @@ export type Paaberopelse = {
   spor: 'forhold';
   innhold: Record<string, unknown>;
   utdypning?: string;
+  /** Vedleggene lastet opp før saken finnes (#1037). */
+  dokumentasjon?: string[];
 };
+
+/** Vedlegget i mellomlageret, med størrelsen, som `Kjernevedlegg` i `$lib/api/kjerne`. */
+export type Kjernevedlegg = Vedlegg & { stoerrelse: number };
+
+/**
+ * Grensen for vedleggene før saken finnes (#1037): `lastOppVedleggForNySak` og
+ * `slettVedleggForNySak` i saksruta, og minnet i demoruta.
+ */
+export interface VedleggForNySak {
+  lastOpp(fil: File): Promise<Kjernevedlegg>;
+  slett(vedleggId: string): Promise<unknown>;
+}
+
+/** Filene serveren tar imot (`STOERSTE_VEDLEGG` i `server/vedlegg.ts`). */
+export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;
 
 /**
  * Grensen skjemaet sender gjennom, som `send?` i `lagKjernesak`. Den gir saken som ble
@@ -131,6 +151,7 @@ export interface Utfylling {
   beskrivelse: string;
   dato: string;
   endringsordre: string;
+  vedlegg: Kjernevedlegg[];
 }
 
 /** Kommandoene for utfyllingen. Tittelen er sakstittelen (avgjørelse 2 i #666, G-3). */
@@ -154,17 +175,31 @@ export function kommandoene(u: Utfylling, kjerne: Kjerne) {
         : {}),
     },
     ...(utdypning ? { utdypning } : {}),
+    ...(u.vedlegg.length ? { dokumentasjon: u.vedlegg.map((v) => v.vedlegg_id) } : {}),
   };
   return { opprettelse, paaberopelse };
 }
 
 /**
  * Brevet kjernen lager for påberopelsen mot en ny sak, prøvd med `sendes` (#1271, GR-U15).
- * Påberopelsen binder ingen vedlegg ennå (#1037), så oppslaget er tomt.
+ * Kjernen slår opp vedleggene påberopelsen binder, som serveren gjør (#1037). En programfeil i
+ * kjernen blir `PROGRAMFEIL`, som i `brev` i `lagKjernesak`, så skjemaet ikke velter (#898).
  */
-export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev {
-  const { opprettelse, paaberopelse } = kommandoene(u, kjerne);
-  return kravMotNySak(opprettelse, paaberopelse, 'TE', kjerne, new Map(), sakId);
+export function brevet(u: Utfylling, sakId: string, kjerne: Kjerne): Brev | Programfeil {
+  try {
+    const { opprettelse, paaberopelse } = kommandoene(u, kjerne);
+    // Oppslaget har bare feltene brevet binder (`Vedlegg` i kjernen), ikke størrelsen.
+    const vedlegg = new Map(
+      u.vedlegg.map(({ vedlegg_id, filnavn, innhold_sha256 }) => [
+        vedlegg_id,
+        { vedlegg_id, filnavn, innhold_sha256 },
+      ])
+    );
+    return kravMotNySak(opprettelse, paaberopelse, 'TE', kjerne, vedlegg, sakId);
+  } catch (e) {
+    console.error(e);
+    return { programfeil: PROGRAMFEIL };
+  }
 }
 
 /**
@@ -179,4 +214,44 @@ export interface Brevsending {
   readonly feil: string | null;
   send(kommando: Record<string, unknown>, tekst?: string[]): Promise<boolean>;
   fjernFeil(): void;
+}
+
+/**
+ * Opprettelsen som er sendt uten at utfallet er kjent (#1526 punkt 1). Saks-ID-en og
+ * kommando-ID-en gjelder handlingen, så et nytt forsøk etter ny innlasting sender de samme
+ * ID-ene med det samme skjemaet. Har serveren lagret det første forsøket, får TE saken fra
+ * kvitteringen, og det blir ikke to saker. Den fjernes når saken er opprettet, eller når TE
+ * avbryter. Lagringen er per fane, og skjemaet virker uten den.
+ */
+export interface VentendeOpprettelse {
+  sakId: string;
+  kommandoId: string;
+  utkast: Utfylling | null;
+}
+
+const ventendeNoekkel = (prosjektId: string) => `nysak:ventende:${prosjektId}`;
+
+export function lesVentende(prosjektId: string): VentendeOpprettelse | null {
+  try {
+    const lagret = sessionStorage.getItem(ventendeNoekkel(prosjektId));
+    return lagret ? (JSON.parse(lagret) as VentendeOpprettelse) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function lagreVentende(prosjektId: string, ventende: VentendeOpprettelse) {
+  try {
+    sessionStorage.setItem(ventendeNoekkel(prosjektId), JSON.stringify(ventende));
+  } catch {
+    // Uten lagringen sender et nytt forsøk i samme visning fortsatt samme ID-er.
+  }
+}
+
+export function fjernVentende(prosjektId: string) {
+  try {
+    sessionStorage.removeItem(ventendeNoekkel(prosjektId));
+  } catch {
+    // Som over.
+  }
 }

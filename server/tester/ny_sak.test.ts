@@ -35,7 +35,6 @@ import {
 const SAKER = '/api/kjerne/saker';
 const TITTEL = 'Endret fundamentering';
 const INNHOLD: Record<string, unknown> = { ...PAABEROPELSE.innhold };
-delete INNHOLD.tittel;
 const KRAV = { ...PAABEROPELSE, innhold: INNHOLD };
 
 /** Den låste teksten kjernen gir for påberopelsen i en sak som ennå ikke finnes (LV-U2). */
@@ -62,7 +61,7 @@ function brevtekst(
     data: ny.data,
   };
   const vist = forhaandsvis(
-    { ...krav, innhold: { ...INNHOLD, tittel } },
+    krav,
     {
       sakId,
       aktoerId: aktoer,
@@ -159,7 +158,9 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     expect(hendelser[0].tidsstempel).toEqual(hendelser[1].tidsstempel);
     // Tittelen er én verdi i begge radene (LV-U43).
     expect(JSON.parse(hendelser[0].data).sakstittel).toBe(TITTEL);
-    expect(JSON.parse(hendelser[1].data).krav[0].tittel).toBe(TITTEL);
+    // LV-U43: navnet står én gang, i sakstittelen, og brevet er frosset med tittelen (MM-U3).
+    expect(JSON.parse(hendelser[1].data).krav[0]).not.toHaveProperty('tittel');
+    expect(JSON.parse(hendelser[1].data).brevtittel).toBe('Påberopelse av irregulær endring');
     // Kvitteringen gjelder påberopelsen, så kommando-ID-en har én (#418).
     expect(kvitteringer).toEqual([{ kommando_id: k.kommando_id, event_id: svar.kropp.event_id }]);
     // Topicen lages av jobben, og brevet leveres etter den (KT-U3, LV-U9).
@@ -242,7 +243,11 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       { paaberopelse: { ...KRAV, spor: 'vederlag' } },
       'paaberopelse må være',
     ],
-    ['tittelen i innholdet', { paaberopelse: PAABEROPELSE }, 'paaberopelse.innhold må være'],
+    [
+      'tittelen i innholdet',
+      { paaberopelse: { ...KRAV, innhold: { ...INNHOLD, tittel: TITTEL } } },
+      'paaberopelse.innhold må være',
+    ],
     [
       'brevteksten i påberopelsen',
       { paaberopelse: { ...KRAV, brevtekst: [] } },
@@ -345,6 +350,12 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       const varselet = JSON.parse(hendelser[2].data);
       expect(varselet.dokumentasjon).toEqual([v]);
       expect(hendelser[2].data).toContain(`"${iDag()}"`);
+      // Svaret har sakens versjon etter varselet, og påberopelsen i kvitteringen (#1507).
+      expect(svar.kropp).toMatchObject({
+        sak_id: k.ny_sak_id,
+        event_id: hendelser[1].event_id.toLowerCase(),
+        versjon: 3,
+      });
       // Påberopelsen og varselet har hver sin kvittering, under hver sin kommando-ID (#418).
       expect(kvitteringer).toHaveLength(2);
       expect(kvitteringer).toContainEqual({
