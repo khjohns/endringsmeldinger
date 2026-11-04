@@ -250,12 +250,26 @@ describe('lesereglene for referansene (4.2)', () => {
   const element = (r: Journalrad[], k: Kjoering, navn: string, felt: 'krav' | 'utsagn') =>
     (radMed(r, k, navn).data[felt] as Data[])[0];
   const id = (k: Kjoering, navn: string) => k.navn.id(navn);
-  const tilBestridelse = (r: Journalrad[], k: Kjoering) =>
-    Object.assign(element(r, k, 'D5', 'utsagn'), {
+  const tilBestridelse = (r: Journalrad[], k: Kjoering) => {
+    // Raden lages for hånd (OV-U7), så den har ikke tittelen innsigelsen ble frosset med (#1533).
+    delete radMed(r, k, 'D5').data.brevtittel;
+    return Object.assign(element(r, k, 'D5', 'utsagn'), {
       art: 'bestridelse',
       gjelder: id(k, 'D4#sendt'),
       hva: 'mottatt',
     });
+  };
+
+  it('en bestridelse med tittelen fra innsigelsen er ikke forstått (MM-U3, #1533)', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, varselOgInnsigelse as Parameters<typeof bygg>[1]);
+    const rader = structuredClone(await bane.journal());
+    const tittel = radMed(rader, k, 'D5').data.brevtittel;
+    expect(tittel, 'forutsetning').toBe('Innsigelse etter punkt 5');
+    tilBestridelse(rader, k);
+    radMed(rader, k, 'D5').data.brevtittel = tittel;
+    expect(utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(false);
+  });
 
   it('en bestridelse fra motparten som står i journalen, leses (MM-U7)', async () => {
     const bane = minnebane();

@@ -573,7 +573,10 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
         const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const };
         const { journal, oppdrag } = await lesSaken(o.datalag.kjoeretid.pool, leser, sakId);
         const brev = journal.at(-1)!;
-        const navn = `${PREFIKS}brev-${sakId}-2-${brev.event_id}.pdf`;
+        const { merking } = oppdrag.find((x) => x.event_id === brev.event_id)!.innhold.brev as {
+          merking: string;
+        };
+        const navn = `${PREFIKS}${merking}-${brev.event_id}.pdf`;
         const kvitteringer = (
           await somKjoerer<{ operasjon: string; catenda_id: string }>(
             `SELECT k.operasjon, k.catenda_id FROM koe.leveringskvittering k
