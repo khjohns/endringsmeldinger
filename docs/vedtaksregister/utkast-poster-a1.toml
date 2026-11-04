@@ -1,4 +1,4 @@
-# Utkast til posten for svaret A-1 A i #1497 (runde 12 i #1065).
+# Utkast til postene for svarene A-1 A og S-1 C i #1497 (runde 12 i #1065).
 # Fila er et utkast og slettes når posten er skrevet i vedtak.toml. Den leses ikke av noe verktøy.
 #
 # Oppskrift for skrivingen, når vedtak.toml er ledig (etter PR #1565):
@@ -11,8 +11,9 @@
 # 3. Kjør `python3 docs/verktoy/vedtaksregister.py` (skriver docs/plans/vedtak.md),
 #    `python3 docs/verktoy/vedtaksregister.py --sjekk`, `python3 docs/verktoy/temavisning.py --sjekk`
 #    og `cd backend && /tmp/venv/bin/python -m pytest -q tests/test_vedtaksregister/`.
-# 4. Temaet «grunnlagssvar-som-endringsordre» har MM-U34 i kjeden, så <ID> legges sist i
-#    `vedtak` der i temaer.toml, og `python3 docs/verktoy/temavisning.py` skriver
+# 4. Temaet «grunnlagssvar-som-endringsordre» har MM-U34, OV-U28, OV-U45, OV-U46, OV-U54 og
+#    OV-U55 i kjeden, så <ID> og <ID-C> (posten for S-1 C under) legges sist i `vedtak` der i
+#    temaer.toml, og `python3 docs/verktoy/temavisning.py` skriver
 #    docs/vedtaksregister/temaer/grunnlagssvar-som-endringsordre.md på nytt (prøvd 04.11).
 # 5. Brukerforløpene som må rettes ved skrivingen, står i PR-en for utkastet («Ved skrivingen»).
 # 6. Slett denne fila i samme PR.
@@ -60,6 +61,10 @@ Setningen i MM-U34 punkt 1 står uendret. Brevet med svaret vises bare under Der
 # Posten for svaret S-1 C (#1497, runde 12 i #1065). Legges rett etter posten for A-1, i samme
 # gruppe. <ID-C> byttes ut ved skrivingen (forslag: LV-U53). <ID> er posten for A-1 over, som
 # bruker formen ‹brev <n> i sak KOE-17 av <dato>›, og som C derfor også endrer.
+# <id> er ankeret til den posten, med små bokstaver (forslag: lv-u52). LV-U45 har ikke
+# forholdet, fordi C sier «I tråd med … LV-U45». MM-U34 er samlet av HF-U23 bare for punkt 17,
+# og formen står i punkt 1 og 24, så forholdet går til MM-U34. OV-U49 og OV-U52 er opphevet og
+# har ikke forholdet; formen i OV-U52 er videreført i punkt 10 i MM-U41.
 # Alternativene er ordrett, uten kursivmarkeringen rundt «Forhold: …». B var anbefalt, men er
 # forkastet, og et anbefalt alternativ kan ikke være forkastet (README), så B har ikke
 # `anbefalt`. Anbefalingen står i spørsmålet.
@@ -96,7 +101,29 @@ valgt = "C"
 svar = '''
 Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6629741684)): «C.»'''
 forhold = [
-  # FORHOLD-C
+  { art = "endrer", vedtak = "lv-u44" },
+  { art = "endrer", vedtak = "gr-u14" },
+  { art = "endrer", vedtak = "gr-u26" },
+  { art = "endrer", vedtak = "gr-u29" },
+  { art = "endrer", vedtak = "ka-u34" },
+  { art = "endrer", vedtak = "lv-u4" },
+  { art = "endrer", vedtak = "lv-u5" },
+  { art = "endrer", vedtak = "lv-u10" },
+  { art = "endrer", vedtak = "lv-u18" },
+  { art = "endrer", vedtak = "lv-u20" },
+  { art = "endrer", vedtak = "lv-u21" },
+  { art = "endrer", vedtak = "lv-u34" },
+  { art = "endrer", vedtak = "lv-u41" },
+  { art = "endrer", vedtak = "mm-u34" },
+  { art = "endrer", vedtak = "mm-u35" },
+  { art = "endrer", vedtak = "mm-u41" },
+  { art = "endrer", vedtak = "ov-u5" },
+  { art = "endrer", vedtak = "ov-u28" },
+  { art = "endrer", vedtak = "ov-u45" },
+  { art = "endrer", vedtak = "ov-u46" },
+  { art = "endrer", vedtak = "ov-u54" },
+  { art = "endrer", vedtak = "ov-u55" },
+  { art = "endrer", vedtak = "<id>" },
 ]
 folge = '''
 Bygges i #1570.'''
