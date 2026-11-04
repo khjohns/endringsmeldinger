@@ -205,11 +205,10 @@ Samlevedtaket er et *vedtak* med designdel og beslutningsdel.
     er bortfalt. (OV-U6; KA-U14)
 49. Byggherren kan senere velge at korrespondanse som er lagt til, er en endringsordre
     registrert som svar etter OV-U6. (OV-U84)
-50. *Etter svaret på spørsmål 2 (E14), forslag A:* En endringsordre registrert som svar
-    etter OV-U6 revideres og rettes ikke. Byggherren tar en feil i registreringen opp i et
+50. *Etter svaret på spørsmål 2 (E14), forslag A:* En endringsordre registrert som svar etter OV-U6 rettes ikke, og endringsordren i brevet står uendret. Byggherren tar en feil i registreringen opp i et
     innlegg i KOE-saken, og brevet er byggherrens meddelelse. Byggherren kan likevel gi et
     nytt svar på grunnlaget i KOE-saken, som et nytt utsagn, fram til en endringsordre i en
-    EO-sak omfatter saken. Godtar totalentreprenøren et senere avslag på grunnlaget, eller
+    EO-sak omfatter saken. Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet (MM-U12). Godtar totalentreprenøren uttrykkelig et senere avslag på grunnlaget, eller
     trekker totalentreprenøren grunnlaget, lukkes saken etter GR-U27. Brev og visning sier
     ikke at endringsordren i brevet er bortfalt. (EO-U12; MM-U34 punkt 11; EO-U33 og EO-U24
     tilsvarende; GR-U27; KA-U14; OV-U6)
@@ -226,11 +225,10 @@ Samlevedtaket er et *vedtak* med designdel og beslutningsdel.
 55. Totalentreprenøren kan godta et utsagn i en registrert endringsordre, en ny KOE kan
     bestride det, og det kan inngå i en kjede etter EO-U29, som for en endringsordre sendt fra
     løsningen. (EO-U16)
-56. Sier brevet ikke noe om et bestridt utsagn, står det som bestridt og kan ikke godtas,
-    og totalentreprenøren kan bestride det på nytt i en ny KOE. (EO-U32)
+56. Sier brevet ikke noe om et bestridt utsagn, står det som bestridt og kan ikke godtas. Ved forslag A i spørsmål 4 står KOE-saken som bestrider det, åpen (punkt 57); ved forslag B kan totalentreprenøren bestride det på nytt i en ny KOE. (EO-U32; spørsmål 4)
 57. *Etter svaret på spørsmål 4 (E16), forslag A:* En registrert endringsordre lukker ikke en
     KOE-sak som bestrider et utsagn, når brevet ikke har et utsagn som erstatter det
-    bestridte. Den KOE-saken står åpen. (forslag A i spørsmål 4; EO-U32)
+    bestridte. Den KOE-saken står åpen til en endringsordre med et utsagn som erstatter det bestridte, omfatter den, eller til totalentreprenøren trekker den. (forslag A i spørsmål 4; EO-U32; EO-U24)
 58. Stemmer en registrert endringsordre ikke med brevet, tar byggherren feilen opp i et
     innlegg i EO-saken, og brevet er byggherrens meddelelse. (EO-U33; EO-U24)
 
@@ -497,7 +495,7 @@ slik KOE-sak (punkt 57). Ved B står teksten.
    EO-U16 samles eller oppheves, avgjøres i spørsmål 3 og 4. Klasse: vedtak med designdel og
    beslutningsdel.
 
-2. **En endringsordre registrert som svar etter punkt 31.3 (OV-U6): revisjon og nytt svar.**
+2. **En endringsordre registrert som svar på grunnlaget (OV-U6): retting og nytt svar.**
    Bakgrunn: oppdragsgiver 04.11: «Sperren fra GR-U10 i OV-U6 faller for svaret på
    grunnlaget (MM-U34 punkt 11), men endringsordren selv revideres ikke (EO-U24). Hvordan dette
    gjelder en endringsordre som er registrert som svar etter OV-U6, avgjøres i
@@ -516,19 +514,13 @@ slik KOE-sak (punkt 57). Ved B står teksten.
    punkt 31.3 annet ledd: «Når totalentreprenøren mottar endringsordre i overensstemmelse med
    foregående ledd, blir han forpliktet til å utføre endringsarbeidet.»
    Alternativene:
-   **A.** «En endringsordre registrert som svar etter OV-U6 revideres og rettes ikke.
+   **A.** «En endringsordre registrert som svar etter OV-U6 rettes ikke, og endringsordren i brevet står uendret.
    Byggherren tar en feil i registreringen opp i et innlegg i KOE-saken, og brevet er
    byggherrens meddelelse. Byggherren kan likevel gi et nytt svar på grunnlaget i KOE-saken,
-   som et nytt utsagn, fram til en endringsordre i en EO-sak omfatter saken. Løsningen
-   avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet (MM-U12). Godtar
-   totalentreprenøren et senere avslag på grunnlaget, eller trekker totalentreprenøren
+   som et nytt utsagn, fram til en endringsordre i en EO-sak omfatter saken. Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet (MM-U12). Godtar totalentreprenøren uttrykkelig et senere avslag på grunnlaget, eller trekker totalentreprenøren
    grunnlaget, lukkes saken etter GR-U27. Brev og visning sier ikke at endringsordren i
-   brevet er bortfalt (OV-U6; KA-U14).» Forhold: presiserer EO-U12, OV-U6 og GR-U27; utvider
-   EO-U33 til registreringen som svar; snevrer inn MM-U21 for registreringen som svar.
-   **B.** «Etter en registrering av en endringsordre som svar etter OV-U6 kan byggherren
-   ikke gi et nytt svar på grunnlaget i saken. Byggherren tar en endring opp i et innlegg
-   eller i en endringsordre i en EO-sak.» Forhold: endrer EO-U12 (gjeninnfører sperren i
-   OV-U6 som EO-U12 strøk); snevrer inn MM-U34 punkt 11.
+   brevet er bortfalt (OV-U6; KA-U14).» Forhold: presiserer EO-U12, OV-U6 og GR-U27; utvider EO-U33 til registreringen som svar; snevrer inn MM-U21 for registreringen som svar. Et nytt svar på grunnlaget er et nytt utsagn, ikke en retting av registreringen.
+   **B.** «Etter en registrering av en endringsordre som svar etter OV-U6 kan byggherren ikke gi et nytt svar på grunnlaget i saken, og registreringen rettes ikke. Byggherren tar en feil eller et endret standpunkt opp i et innlegg i KOE-saken eller i en endringsordre i en EO-sak.» Forhold: endrer EO-U12 og OV-U6 (gjeninnfører «og byggherren kan ikke revidere svaret»); snevrer inn MM-U34 punkt 11 og MM-U21; utvider EO-U33 til registreringen som svar.
    Anbefalt: A. Belegg: EO-U12 gir byggherren et nytt svar fram til endringsordren i EO-saken
    uten unntak for registreringen, og EO-U12 er vedtatt etter OV-U6 og stryker nettopp
    revisjonssperren der. At registreringen ikke rettes, følger mønsteret i EO-U24 og EO-U33.
@@ -567,16 +559,12 @@ slik KOE-sak (punkt 57). Ved B står teksten.
    fikk etter LV-U24.» Oppdragsgiver valgte 03.11 i brukerforløpet BF-06: «A1: en registrert
    endringsordre får løsningens kode, og brevets nummer er en referanse.»
    Alternativene:
-   **A.** «En EO-sak som er opprettet ved registrering av en endringsordre, har ingen kode før
-   det første brevet er sendt fra løsningen i saken, uansett hvem som sender det første
-   brevet (LV-U47). Brevets eget nummer lagres som brevets referanse og vises. Mens EO-saken
-   ikke har noen kode, viser merket på KOE-sakene brevets referanse.» Forhold: opphever
-   EO-U16 og EO-U14 i samlevedtaket for en registrert endringsordre; tar opp igjen det
+   **A.** «En EO-sak som er opprettet ved registrering av en endringsordre, har ingen kode før det første brevet er sendt fra løsningen i saken. Da får saken koden EO-nn etter LV-U44, også når det første brevet er totalentreprenørens (LV-U47). Brevets eget nummer lagres som brevets referanse og vises. Mens EO-saken
+   ikke har noen kode, viser merket på KOE-sakene brevets referanse.» Forhold: endrer EO-U16 (setningene om koden, brevets nummer og merket) og EO-U14 for en registrert endringsordre; tar opp igjen det
    forkastede alternativet i EO-U16 «Merket viser brevets eget nummer.»; i tråd med LV-U47.
    **B.** «EO-saken for en registrert endringsordre får koden etter LV-U44 når registreringen
    er godkjent, som et unntak fra LV-U47. Brevets eget nummer lagres som brevets referanse og
-   vises ved siden av koden. Merket på KOE-sakene viser koden etter EO-U14.» Forhold: EO-U16
-   og EO-U14 samles uendret; snevrer inn LV-U47 for en EO-sak opprettet ved registrering.
+   vises ved siden av koden. Merket på KOE-sakene viser koden etter EO-U14.» Forhold: presiserer EO-U16 (tidspunktet for koden); EO-U14 samles uendret; snevrer inn LV-U47 for en EO-sak opprettet ved registrering; tar ikke opp igjen det forkastede alternativet i LV-U47, som gjaldt korrespondanse valgt som varsel, krav eller svar.
    Anbefalt: B. Belegg: EO-U16 er det eldste vedtaket og det særskilte for endringsordren;
    oppdragsgiver valgte A1 i BF-06 03.11, og EO-U16 forkastet «Merket viser brevets eget
    nummer.» LV-U47 nevner ikke EO-U16 i forholdet, og det forkastede alternativet der gjaldt
@@ -609,14 +597,12 @@ slik KOE-sak (punkt 57). Ved B står teksten.
    godkjenningen etter fullmakten og lukker sakene den omfatter når den er godkjent.»
    Alternativene:
    **A.** «En registrert endringsordre lukker ikke en KOE-sak som bestrider et utsagn, når
-   brevet ikke har et utsagn som erstatter det bestridte. Den KOE-saken står åpen.» Forhold:
-   snevrer inn EO-U16 for hvilke saker registreringen lukker; presiserer EO-U32.
+   brevet ikke har et utsagn som erstatter det bestridte. Den KOE-saken står åpen til en endringsordre med et utsagn som erstatter det bestridte, omfatter den, eller til totalentreprenøren trekker den.» Forhold: snevrer inn EO-U16 for hvilke saker registreringen lukker; endrer EO-U32: leddet «og totalentreprenøren kan bestride det på nytt i en ny KOE» gjelder ikke, fordi KOE-saken som bestrider utsagnet, står åpen.
    **B.** «En registrert endringsordre lukker også en KOE-sak som bestrider et utsagn brevet
    ikke sier noe om. Kontrollen før den siste godkjenningen sier at saken lukkes uten svar
    på det bestridte utsagnet.» Forhold: EO-U16 og EO-U32 står; presiserer EO-U16 med
    kontrollen.
-   Anbefalt: A. Belegg: EO-U24 krever at en KOE som bestrider et utsagn, får et svar før den
-   lukkes, og EO-U32 avgrenser bare erstatningskravet, ikke lukkingen. A lar registreringen
+   Anbefalt: A. Belegg: EO-U24 krever at en endringsordre fra løsningen som omfatter en KOE som bestrider et utsagn, har et utsagn som erstatter det, og EO-U24 lar bare én KOE om gangen bestride et utsagn. EO-U32 avgrenser erstatningskravet for registreringen; A endrer leddet der om ny KOE. A lar registreringen
    gå videre, så den tar ikke opp igjen det forkastede alternativet i EO-U32, der brevet
    ikke kunne registreres. Antakelse: at EO-U32 tok stilling til om det bestridte utsagnet
    står, men ikke til om KOE-saken skal lukkes. Hva hvert valg koster: A krever at
