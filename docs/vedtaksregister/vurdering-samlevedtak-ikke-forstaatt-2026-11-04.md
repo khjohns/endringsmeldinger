@@ -28,10 +28,12 @@ Kontrollert 04.11 mot grenene for #1565 (varslingsdatoen), #1569 (byggherrens be
   setningen om en sak som ikke er forstått. Ingen setning samles to steder.
 - **OV-U80**: #1565 og #1569 bruker andre setninger som kilde. MM-U41 samlet setningene om
   retting. Her endres bare setningen om en sak som ikke er forstått, og bare ved spørsmål 2 A.
-- **HF-U4 og HF-U5** er bare kilder her. De hører til kjedene for «i tide» og for revisjon av
-  byggherrens svar. Kartleggingen av «Revisjon av byggherrens svar» starter samtidig. MM-U27
-  står ikke i den kjeden, men andre setning i MM-U27 bygger på vernet i HF-U5 (E3). Det er
-  meldt til orkestratoren, så den kartleggingen ikke også tar MM-U27.
+- **HF-U4, HF-U5 og MM-U27** er fordelt av orkestratoren 04.11
+  ([#1534, 6629614102](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629614102)):
+  samlevedtaket for revisjon av byggherrens svar eier de tre setningene om vernet mot revisjon i
+  HF-U5 og andre setning i MM-U27 («Det samme gjelder en revisjon som senker noe byggherren har
+  innrømmet …»). Dette samlevedtaket eier resten av MM-U27 og HF-U4, og viser bare til HF-U5 og
+  samlevedtaket for revisjon. Ingen setning i HF-U5 samles her.
 
 ## Postene i kjeden
 
@@ -48,18 +50,18 @@ endres; resten av posten står og hører til en annen kjede.
 | MM-U18 | vedtak | gjeldende | opphever | E1, E2 |
 | MM-U19 | vedtak | gjeldende, endret 28.10 av MM-U34 punkt 12 | opphever | E2 |
 | MM-U20 | vedtak | gjeldende | opphever (setningen om et registrert brev) | E2 |
-| MM-U27 | vedtak | gjeldende | opphever | E3 |
+| MM-U27 | vedtak | gjeldende | endrer første setning, «Det er en kontroll av at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet.» og det første «Forkastet»; andre setning hører til samlevedtaket for revisjon av byggherrens svar | E3 |
 | OV-U4 | vedtak med designdel | gjeldende | samler setningen «Er saken ikke forstått (MM-U2), godtas registreringen, men ikke unntakene i OV-U5 og OV-U6.»; resten hører til kjeden for brev utenfor løsningen | – |
 | OV-U80 | vedtak med designdel | gjeldende | endrer ved spørsmål 2 A setningen «I en sak løsningen ikke forstår (MM-U2), godtas bare dokumentasjon.»; samler den ved B | E4 |
 | HF-U4 | vedtak | gjeldende, endret 28.10 av MM-U34 punkt 6 | ingen setning endres; kilde for punkt 11 | – |
-| HF-U5 | vedtak | gjeldende, endret 28.10 av MM-U34 punkt 4 | ingen setning endres; kilde for E3 | – |
+| HF-U5 | vedtak | gjeldende, endret 28.10 av MM-U34 punkt 4 | ingen setning endres eller samles; vernet mot revisjon hører til samlevedtaket for revisjon av byggherrens svar | – |
 | MM-U34 | vedtak med designdel og beslutningsdel | gjeldende | ingen setning endres; punkt 4, 6, 9, 12, 19 og 24 er kilder | – |
 | MM-U39 | beslutning med designdel | gjeldende | står utenfor; samles i samlevedtaket for sakslisten (#1566) | – |
 | KA-U16, HF-U9, MM-U7, MM-U16, VS-U35, B-10 | – | gjeldende | står utenfor; viser til postene i kjeden, og henvisningene gjelder samlevedtaket | – |
 
 Forhold samlevedtaket overtar fra postene det opphever: MM-U18 utvider MM-U2 og presiserer
 HF-U1; MM-U19 presiserer KA-U7 og KA-U11 og er i tråd med KA-U16; MM-U20 presiserer MM-U18;
-MM-U27 utvider MM-U18; MM-U14 presiserer MM-U2 og MM-U7. Henvisningene til MM-U2 i KA-U16, B-10,
+MM-U27 utvider MM-U18 (for første setning); MM-U14 presiserer MM-U2 og MM-U7. Henvisningene til MM-U2 i KA-U16, B-10,
 OV-U12, OV-U21 og LV-U16, til MM-U18 og MM-U19 i HF-U9, og til MM-U14 i OV-U7 og VS-U35 gjelder
 samlevedtaket og endres ikke. MM-U22 og MM-U25 presiserer designdelen i MM-U2 og står i
 `system.md`.
@@ -114,8 +116,9 @@ spørsmål 2.
     ikke forstått så langt HF-U4 avviser en slik påberopelse. Det er en kontroll av at dataene
     henger sammen, ikke en rettslig avgjørelse om gyldighet. (MM-U27; HF-U4; E3)
 11. En påberopelse fra byggherren av at et varsel kom for sent, etter at byggherren har sagt at
-    varselet kom i tide, og et nytt svar som senker noe byggherren har innrømmet, gjør ikke
-    saken ikke forstått. (MM-U34 punkt 4 og 6; MM-U42; E3)
+    varselet kom i tide, gjør ikke saken ikke forstått. (MM-U34 punkt 6; E3) Om en revisjon som
+    senker noe byggherren har innrømmet, gjør saken ikke forstått, følger samlevedtaket for
+    revisjon av byggherrens svar. (MM-U27 andre setning)
 
 ### Designdel
 
@@ -161,16 +164,15 @@ skillet i MM-U18 og MM-U19 mellom et entydig ensidig forsøk og et brev som vise
 avtale, gir ikke lenger ulik virkning. Det som gjenstår, er KA-U16 for innhold løsningen ikke
 kan uttrykke.
 
-**E3 Påberopelsen etter «i tide» og revisjonen som senker en innrømmelse (motsigelsen om MM-U27).**
-Gammel tekst: MM-U27 «Det samme gjelder en revisjon som senker noe byggherren har innrømmet i et
-svar TE ikke har godtatt (HF-U5).» og første setning uten avgrensningen «så langt HF-U4 avviser en
-slik påberopelse». Samlevedtaket: punkt 10 og 11. Hvorfor: MM-U34 punkt 4 «Vernet mot revisjon
-oppheves. Ny kjerne: «Byggherren kan sende et nytt strukturert svar, også med lavere beløp eller
-andre endringer. …»»; punkt 6 «Sperren mot at byggherren senere påberoper at et varsel kom for
-sent etter å ha sagt at varselet kom i tide, oppheves.»; MM-U42 «Et nytt svar erstatter det
-tidligere som byggherrens siste svar i løsningen, uten totalentreprenørens aksept». MM-U34
-lister ikke MM-U27. Punkt 10 følger HF-U4 slik den står etter MM-U34 punkt 6, og avgjør ikke
-hvor langt HF-U4 gjelder; det hører til kjeden for «i tide».
+**E3 Påberopelsen etter «i tide» (motsigelsen om MM-U27).** Gammel tekst: MM-U27 første
+setning uten avgrensningen «så langt HF-U4 avviser en slik påberopelse». Samlevedtaket: punkt 10
+og 11. Hvorfor: MM-U34 punkt 6 «Sperren mot at byggherren senere påberoper at et varsel kom for
+sent etter å ha sagt at varselet kom i tide, oppheves.» MM-U34 lister ikke MM-U27. Punkt 10
+følger HF-U4 slik den står etter MM-U34 punkt 6, og avgjør ikke hvor langt HF-U4 gjelder; det
+hører til kjeden for «i tide». Andre setning i MM-U27, «Det samme gjelder en revisjon som senker
+noe byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5).», bygger på vernet MM-U34
+punkt 4 opphevet, og avgjøres i samlevedtaket for revisjon av byggherrens svar (fordelingen
+04.11).
 
 **E4 Innlegg og bestridelse i en sak løsningen ikke forstår (spørsmål 2).** Gammel tekst: MM-U14
 «er saken ikke forstått (MM-U2), avvises også en bestridelse etter MM-U7. Kontrollen av at
@@ -234,10 +236,12 @@ mot vedtakene i vedtaksfila. Resultatet står under, og rettingene er ført inn 
    opphevet sperren etter enighet, vernet mot revisjon og sperren mot byggherrens «for sent»
    etter «i tide»: eksemplene i MM-U18 på en ny kravversjon i et spor med enighet og en hendelse
    etter at kravene er avgjort, den særskilte behandlingen av et registrert brev i MM-U18 og
-   MM-U19, og andre setning i MM-U27 om en revisjon som senker det byggherren har innrømmet.
-   Forslaget samler reglene i én tekst med kilde per setning, opphever MM-U18, MM-U19, MM-U20 og
-   MM-U27 som egne regler (og MM-U14 ved spørsmål 2 A), og samler de navngitte setningene i
-   HF-U1, OV-U4 og OV-U80. Hver innholdsendring står i E1–E4 med gammel tekst, ny tekst og kilde.
+   MM-U19, og første setning i MM-U27 om byggherrens «for sent» etter «i tide».
+   Forslaget samler reglene i én tekst med kilde per setning, opphever MM-U18, MM-U19 og MM-U20
+   som egne regler (og MM-U14 ved spørsmål 2 A), endrer de navngitte setningene i MM-U27, og
+   samler de navngitte setningene i HF-U1, OV-U4 og OV-U80. Andre setning i MM-U27, om en
+   revisjon som senker det byggherren har innrømmet, avgjøres i samlevedtaket for revisjon av
+   byggherrens svar. Hver innholdsendring står i E1–E4 med gammel tekst, ny tekst og kilde.
    Sakslisten følger samlevedtaket for sakslisten.
    Alternativene: **A.** «Samlevedtaket for saker løsningen ikke forstår gjelder med E1–E4.
    Postene det samler, gjelder som «Samlet i samlevedtaket for saker løsningen ikke forstår».
