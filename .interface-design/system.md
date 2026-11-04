@@ -171,6 +171,9 @@ vedtaksregisteret (#1534).
   eksempel «punkt 33.4» og «jf. punkt 31.3». Der henvisningen står alene som merke, eller i en
   tabellcelle uten en setning rundt, står «pkt. 33.4». Skjermbredden avgjør ikke valget. Lover
   står med «§», for eksempel «avtaleloven § 4». Tekst parten skriver selv, endres ikke.
+- <a id="ov-u87"></a>**OV-U87** Uttrykket «Kravet som gjelder» brukes ikke om forholdet. I
+  oversiktene over vederlag og frist står det om den gjeldende versjonen av kravet. Hva forholdet
+  heter i visningen, står i [U-9 i BF-05](../docs/domenetabell/brukerforlop/BF-05.md#u-9).
 
 ## Kravene, sporene og handlingene
 
