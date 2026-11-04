@@ -179,6 +179,6 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U27](../../plans/vedtak.md#vs-u27) | — | — | BF-07 |
 | [VS-U34](../../plans/vedtak.md#vs-u34) | — | BF-05 start | — |
 | [VS-U35](../../plans/vedtak.md#vs-u35) | — | — | BF-03 |
-| [VS-U37](../../plans/vedtak.md#vs-u37) | BF-05 paaberopelsen-er-sendt | — | — |
 | [VS-U38](../../plans/vedtak.md#vs-u38) | — | BF-05 start | — |
 | [VS-U39](../../plans/vedtak.md#vs-u39) | — | BF-05 start | — |
+| [VS-U43](../../plans/vedtak.md#vs-u43) | BF-05 paaberopelsen-er-sendt | — | — |
