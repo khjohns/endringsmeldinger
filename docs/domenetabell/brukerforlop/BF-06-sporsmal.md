@@ -1,8 +1,7 @@
 # Spørsmålene i BF-06
 
 Spørsmålene i [bestillingen for BF-06](BF-06.md), med svarene og forslaget til vedtakstekst, etter
-[vedtaksskillen](../../../.claude/skills/vedtak/SKILL.md). Vedtakene føres av orkestratoren fra
-denne fila.
+[vedtaksskillen](../../../.claude/skills/vedtak/SKILL.md). Vedtakene føres i [vedtaksregisteret](../../vedtaksregister/README.md), ikke fra denne fila.
 
 Versjon 5, 03.11, med svarene på R-1–R-4, O-1 og O-2 og designet flyttet til bestillingen.
 Versjon 4 (commit `a4632d3`) kom etter ChatGPTs vurdering av versjon 3
@@ -31,29 +30,28 @@ hvordan NS 8407 tolkes og hva løsningen teller eller regner. Versjon 4 er commi
 R-3b ble ikke lagt fram som eget alternativ i vedtaksform. Teksten over er orkestratorens
 gjengivelse i 6617101997, og den er en revisjon, som S-11 forkaster.
 
-### Vedtakene for vedtaks-PR-en
+### Vedtakene
 
-Hvert vedtak står under spørsmålet med bakgrunnen, sitatene, teksten slik den ble stilt, svaret,
-vedtaksteksten, de forkastede alternativene og forholdet. Tabellen viser hvor.
+Vedtakene står i vedtaksregisteret under ID-en i første kolonne, med spørsmålet, svaret og forholdet. Tabellen viser hvilket spørsmål i denne fila hver ID hører til.
 
 | Vedtak | Under | Svaret og kilden | Forholdet, kort |
 | --- | --- | --- | --- |
-| S-1, svaret og endringsordren samtidig | S-1 | Drøftingen 03.11, ikke med egne ord. Tas med i den samlede tilslutningen | Presiserer EO-U12 og EO-U3 |
-| S-2, den registrerte endringsordren, med A1 og R-4 | S-2 | Drøftingen 03.11, og R-4 over | Snevrer inn punkt 11, 20 og 22 i MM-U34 og EO-U12. Snevrer inn MM-U38 (R-4). Endrer OV-U80. Presiserer OV-U6, EO-U3 (R-4), LV-U44 og EO-U14 |
-| S-3, fullmakten, med D1 | S-3 | Drøftingen 03.11 | Endrer vedtaket 23.09 (GFK-06) og GFK-U4 for en endringsordre |
-| S-4, forbehold ved registrering | S-4 | Drøftingen 03.11 | Endrer OV-U80 og KA-U45. OV-U69 står |
-| S-6, samlet utsagn og overslag | S-6 | Drøftingen 03.11 | Utvider EO-U8, KA-U1 og OV-U43 |
-| S-7, utkast og registrering holder ikke av saken, med B1 | S-7 | Drøftingen 03.11 | Presiserer EO-U3 |
-| S-8, tilbud | S-8 | Drøftingen 03.11 | Endrer EO-U8 og OV-U43 prinsipp 5. Presiserer HF-U12 |
-| S-9, svikt | S-9 | Drøftingen 03.11 | Presiserer punkt 22 og snevrer inn punkt 20 i MM-U34 |
-| S-10, regningsarbeid | S-10 | Drøftingen 03.11 | Presiserer punkt 19 i MM-U34. Snevrer inn OV-U43 prinsipp 2 og 3 |
-| S-11, uenighet og aksept, med C1, E1, R-1 og R-3c | S-11 | Drøftingen 03.11, og R-1 og R-3c over | Endrer EO-U4, EO-U1, EO-U8 og punkt 22 i MM-U34. Snevrer inn KA-U1 (C1), MM-U21 (R-3c) og punkt 20 i MM-U34 (R-1). Presiserer MM-U38 (R-3c) |
-| S-12, endring under godkjenningen, med R-2 | S-12 | Drøftingen 03.11, og R-2 over | Utvider og presiserer GFK-U7 |
-| S-14, lukkingen av en oppfølgende KOE | S-14 | Drøftingen 03.11 | Presiserer EO-U3 |
-| S-15, utsagn uten krav i en registrering | S-15 | Drøftingen 03.11 | Snevrer inn S-8. Presiserer MM-U38 og OV-U80 |
-| S-16, nøkkeltallene | S-16 | Drøftingen 03.11 | Endrer MM-U38 |
-| S-17, kjeden og tillegget, med O-1 | S-17 | Drøftingen 03.11, og O-1 over | Endrer MM-U38 |
-| S-18, én beskrivelse | S-18 | Drøftingen 03.11 | Presiserer GR-U13 |
+| EO-U15 (S-1), svaret og endringsordren samtidig | S-1 | Drøftingen 03.11, ikke med egne ord. Tas med i den samlede tilslutningen | Presiserer EO-U12 og EO-U3 |
+| EO-U16 (S-2), den registrerte endringsordren, med A1 og R-4 | S-2 | Drøftingen 03.11, og R-4 over | Snevrer inn punkt 11, 20 og 22 i MM-U34 og EO-U12. Snevrer inn MM-U38 (R-4). Endrer OV-U80. Presiserer OV-U6, EO-U3 (R-4), LV-U44 og EO-U14 |
+| EO-U17 (S-3), fullmakten, med D1 | S-3 | Drøftingen 03.11 | Endrer vedtaket 23.09 (GFK-06) og GFK-U4 for en endringsordre |
+| EO-U18 (S-4), forbehold ved registrering | S-4 | Drøftingen 03.11 | Endrer OV-U80 og KA-U45. OV-U69 står |
+| EO-U19 (S-6), samlet utsagn og overslag | S-6 | Drøftingen 03.11 | Utvider EO-U8, KA-U1 og OV-U43 |
+| EO-U20 (S-7), utkast og registrering holder ikke av saken, med B1 | S-7 | Drøftingen 03.11 | Presiserer EO-U3 |
+| EO-U21 (S-8), tilbud | S-8 | Drøftingen 03.11 | Endrer EO-U8 og OV-U43 prinsipp 5. Presiserer HF-U12 |
+| EO-U22 (S-9), svikt | S-9 | Drøftingen 03.11 | Presiserer punkt 22 og snevrer inn punkt 20 i MM-U34 |
+| EO-U23 (S-10), regningsarbeid | S-10 | Drøftingen 03.11 | Presiserer punkt 19 i MM-U34. Snevrer inn OV-U43 prinsipp 2 og 3 |
+| EO-U24 (S-11), uenighet og aksept, med C1, E1, R-1 og R-3c | S-11 | Drøftingen 03.11, og R-1 og R-3c over | Endrer EO-U4, EO-U1, EO-U8 og punkt 22 i MM-U34. Snevrer inn KA-U1 (C1), MM-U21 (R-3c) og punkt 20 i MM-U34 (R-1). Presiserer MM-U38 (R-3c) |
+| EO-U25 (S-12), endring under godkjenningen, med R-2 | S-12 | Drøftingen 03.11, og R-2 over | Utvider og presiserer GFK-U7 |
+| EO-U26 (S-14), lukkingen av en oppfølgende KOE | S-14 | Drøftingen 03.11 | Presiserer EO-U3 |
+| EO-U27 (S-15), utsagn uten krav i en registrering | S-15 | Drøftingen 03.11 | Snevrer inn S-8. Presiserer MM-U38 og OV-U80 |
+| EO-U28 (S-16), nøkkeltallene | S-16 | Drøftingen 03.11 | Endrer MM-U38 |
+| EO-U29 (S-17), kjeden og tillegget, med O-1 | S-17 | Drøftingen 03.11, og O-1 over | Endrer MM-U38 |
+| EO-U30 (S-18), én beskrivelse | S-18 | Drøftingen 03.11 | Presiserer GR-U13 |
 | B-01, relasjonsprojeksjonen | #1423 | «B01: A», 6616393286 | Avgjør B-01 i hovedplanen |
 
 Ingen vedtak: S-5 (besvart gjennom S-11), S-13 (parkert), O-2 (design, U-17), O-3 og F1
@@ -320,7 +318,7 @@ ChatGPT og en gjennomgang av NS 8407 og konkurransegrunnlaget del II i `khjohns/
 (commit `5540b60`). Mange alternativer ble stilt i kortform. Denne versjonen skriver hvert valgt
 alternativ ut i vedtaksform, så oppdragsgiver kan se teksten før den blir vedtak.
 
-Alle spørsmålene er besvart (versjon 5). Ingenting er ført som vedtak.
+Alle spørsmålene er besvart (versjon 5). Vedtakene for S-1–S-18 og T-1–T-3 er ført som EO-U15–EO-U33, unntatt S-5 og S-13, som ikke har vedtak. Svarene på R-, O-, E-, F- og G-punktene har ingen egen vedtaks-ID her.
 Vedtakstekstene under gjengir arbeidsmåten, D-punktene og S-punktene i
 [BF-06.md](BF-06.md). De legger ikke til noe nytt. Der en formulering ikke er sett av
 oppdragsgiver i den formen, står det under **Merknad**. Fire valg ble lagt fram for seg og besvart 03.11: A1 om koden for en registrert endringsordre
