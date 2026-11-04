@@ -953,6 +953,11 @@ gjelder, står i én gruppe i flyttetabellen. Henvisningene er ikke talt på nyt
 Følge-cellen i vedtaksfila, ikke av koden. Følge-cellen er delvis ført for hånd og kan være
 ufullstendig. En kjede der et senere vedtak ikke står i Følge, er derfor ikke funnet.
 
+**Omfanget.** Tabellen dekker de 459 radene i registeret på `4d42559`, som har de samme
+radene som `06bd715`. PR #1538 (merget som `4832569`) la til 19 poster, EO-U15–EO-U33, for
+BF-06. De er ikke klassifisert her, og de får klasse i steg 3 etter testen fra svar 2 i
+vedtaksskillen.
+
 **Ikke kontrollert.** At klassen er riktig for hver rad utenfor kontrollutvalget. Klassene
 for de 37 radene er ikke kontrollert av en ny subagent. Subagenten var i tvil om OV-U47
 (brevtekst, *vedtak* eller *design*), KA-U24 og KA-U32 (tolkning eller løsningens atferd),
