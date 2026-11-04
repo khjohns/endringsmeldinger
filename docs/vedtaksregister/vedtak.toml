@@ -11177,6 +11177,113 @@ tre sifre i løpenummeret og to i brevnummeret, K201-KOE-005-03. Det sorterer ri
 anbefalt = true
 
 [[gruppe.vedtak]]
+klasse = "vedtak"
+id = "LV-U49"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål S-1, ordrett slik det står i bestillingen for brukerforløpet BF-07 (`docs/domenetabell/brukerforlop/BF-07.md`, PR #1555, commit `bb1f6bc`), stilt 04.11 i orkestreringsrunde 10 (#1065). Tabellene T-5 til T-11 og G-1 og G-4 står i BF-07. Spørsmålet ble stilt på nytt med A og B uendret i #1497 (kommentaren 6628090746). Alternativene står i posten.
+
+**S-1. Hvilke av motpartens brev står under Deres ref.?** Dette er S4 i #1497, nå med tilfellene i tabellene over. LV-U27 sier «brevene det svares på». LV-U28, som endret LV-U27, legger byggherrens saksnummer i Websak under Deres ref. i TEs brev, og det står der uansett svar.
+
+Forskjellen er T-5, T-8, T-9 og T-10. Med A står koden til BHs svar i TEs aksept og innsigelse, og koden til forespørselen i TEs svar på den og i TEs krav som svarer på den. Med B står bare Websak-nummeret under Deres ref. i TEs brev, og BHs brev har kodene til TEs kravbrev. Anbefalingen er A, fordi mottakeren ser hvilket brev det tas stilling til. Kjernen har alt henvisningen for aksept, innsigelse og svar på forespørsel (G-1). For kravet som svarer på en forespørsel, mangler den (G-4). Det er en vurdering av hva som er nyttig for leseren, og den er ikke prøvd med brukere.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6628164953)): «S1 A, S2: Hvorfor ikke A automatisk? JEg tenker flyten i praksis ofte vil være slik: TE sender krav. BH svarer. TE og BH har da noen runder med brev som er innlegg (fritekst). Partene er nærmere hverandre, og TE sender nytt krav - det er en respons på BHs svar til første krav, men på bakgrunn av brevene som har vært mellom partene tidligere. Eller er det tungvindt? Hvis dette er vanskelig - da velger vi S2 B. S5 A»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u27" }]
+folge = '''
+Rekkefølgen på kodene står i BF-07 (U-2). Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Kodene til motpartens brev som brevet svarer på, godtar eller bestrider, slik utsagnene i brevet uttrykkelig viser til dem (HF-U1). Presiserer LV-U27.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Bare kodene til motpartens brev med krav som brevet svarer på. En aksept eller innsigelse svarer også på et brev, men står ikke. Snevrer inn LV-U27.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at totalentreprenøren ikke angir svaret, slik at skjemaet for kravet ikke får et valg av brev"
+beslutningsdel = "at henvisningen finnes av at kravversjonen erstatter den forrige og at svaret gjelder den"
+id = "LV-U50"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Oppfølgingsspørsmålet til S-2, ordrett slik det ble stilt 04.11 i orkestreringsrunde 10 (#1065) og lagret i #1497 (kommentaren 6628164953). Den første versjonen av S-2 står i bestillingen for brukerforløpet BF-07 (PR #1555, commit `bb1f6bc`) med alternativene A, B og C. Svaret på den passet ikke på et alternativ, og spørsmålet under kom etter det. Alternativene står i posten.
+
+**Fakta (kjernen på `main`).** En kravversjon har `erstatter` (kravversjonen den erstatter), og et svar har `gjelder` (kravversjonen det svarer på) og `erstatter` (svaret det erstatter på samme kravversjon) i `kjerne/typer.ts`. Byggherrens gjeldende svar på forrige kravversjon kan derfor finnes av henvisningene alene, uten rekkefølgen i journalen (HF-U1). Et innlegg har ingen henvisning til et bestemt brev i løsningen.
+
+**S-2 (oppfølging). Viser en ny kravversjon til byggherrens svar under Deres ref.?**
+
+Anbefaling: D. Det er ikke tungvint: henvisningen finnes alt, og totalentreprenøren trenger ikke gjøre noe. E gir et valg i skjemaet og en ny henvisning som må lagres og bygges. Hva valget styrer: Deres ref. i en ny kravversjon (T-11 i BF-07), og om skjemaet for kravet får et valg av brev (bare E og B). Det valgte alternativet prøves mot vedtakene i en subagent før vedtaket føres, og motstrid legges fram.'''
+valgt = "D"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6628302133)): «S-2 D»
+
+Svaret på den første versjonen, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6628164953)): «S1 A, S2: Hvorfor ikke A automatisk? JEg tenker flyten i praksis ofte vil være slik: TE sender krav. BH svarer. TE og BH har da noen runder med brev som er innlegg (fritekst). Partene er nærmere hverandre, og TE sender nytt krav - det er en respons på BHs svar til første krav, men på bakgrunn av brevene som har vært mellom partene tidligere. Eller er det tungvindt? Hvis dette er vanskelig - da velger vi S2 B. S5 A»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u27" }, { art = "utvider", vedtak = "lv-u49" }]
+folge = '''
+Gjelder en ny kravversjon. Henvisningen følger av relasjonene `Krav.erstatter` og `Svar.gjelder`, og ikke av rekkefølgen i journalen, slik det ble forklart i spørsmålet. Den er ikke et utsagn i kravversjonen: en ny kravversjon «viser i dag ikke til svaret i noe utsagn» (S-2 i BF-07). Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "D"
+tekst = '''
+Ja, uten at totalentreprenøren angir det. En ny kravversjon viser under Deres ref. koden til byggherrens gjeldende svar på kravversjonen den erstatter. Henvisningen følger av at kravversjonen erstatter den forrige, og at svaret gjelder den, ikke av rekkefølgen i journalen. Har byggherren ikke svart på den forrige kravversjonen, står ingen kode. Innlegg står ikke under Deres ref.; totalentreprenøren omtaler dem i begrunnelsen. Presiserer LV-U27.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "E"
+tekst = '''
+Som D, og i tillegg kan totalentreprenøren i skjemaet velge andre brev fra byggherren i saken, for eksempel innlegg. Valget står i brevteksten som en henvisning (HF-U1), og kodene står under Deres ref. Presiserer LV-U27.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Totalentreprenøren velger svaret kravversjonen følger etter i skjemaet, henvisningen står i brevteksten, og koden står under Deres ref. Presiserer LV-U27.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "LV-U51"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål S-2b, ordrett slik det ble stilt 04.11 i orkestreringsrunde 10 (#1065) og lagret i #1497 (kommentaren 6628374067). D er LV-U50. Alternativene står i posten.
+
+Bakgrunn: prøvingen av D mot vedtakene fant ingen motstrid med vedtaksfila, men at «gjeldende svar» er uklart. I vedtakene brukes «gjeldende» om sporets svar, og når den nye kravversjonen er sendt, er svaret på den forrige kravversjonen ikke lenger gjeldende i den betydningen. Vedtaksteksten i D skrives ikke om.
+
+**S-2b. Hva er «byggherrens gjeldende svar» i D?**
+
+Anbefaling: A. Brevet viser da til det siste svaret totalentreprenøren faktisk svarer etter, og løsningen sjekker før sending om byggherren har svart i mellomtiden (krav til A2). Med B kan hodet vise til et svar som er erstattet når brevet sendes. Hva valget styrer: hvilken kode som fryses under Deres ref. i en ny kravversjon.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6628507118)): «S-2B A»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u50" }]
+folge = '''
+Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Med byggherrens gjeldende svar i D menes det siste svaret byggherren har gitt på kravversjonen som erstattes, slik det står når den nye kravversjonen sendes. Presiserer D.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherrens svar på kravversjonen som erstattes, slik det står når totalentreprenøren godkjenner teksten, også om byggherren svarer før kravversjonen sendes. Presiserer D.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 klasse = "design"
 id = "MM-U37"
 dato = 2026-11-02
