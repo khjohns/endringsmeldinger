@@ -69,7 +69,17 @@ export interface Catendakobling {
   board: string;
 }
 
-export async function lagOppsett(kobling?: Catendakobling): Promise<Oppsett> {
+/** Kontraktsforkortelsen i testprosjektene, K201 i merkingen `K201-KOE-005-03` (LV-U44). */
+export const KONTRAKTSFORKORTELSE = 'K201';
+
+/**
+ * Med `utenKontraktsforkortelse` har prosjektet ingen kontraktsparter, og et brev fra
+ * løsningen kan ikke merkes (S2 A i #1497).
+ */
+export async function lagOppsett(
+  kobling?: Catendakobling,
+  { utenKontraktsforkortelse = false }: { utenKontraktsforkortelse?: boolean } = {}
+): Promise<Oppsett> {
   const brukerFor = (): Testbruker => ({
     id: randomUUID(),
     subjekt: randomUUID(),
@@ -105,6 +115,13 @@ export async function lagOppsett(kobling?: Catendakobling): Promise<Oppsett> {
         organisasjon_id: 'org-test',
         is_active: true,
       });
+      if (prosjekt !== p || !utenKontraktsforkortelse)
+        await settInn(r, 'kontraktsparter', {
+          prosjekt_id: prosjekt.id,
+          byggherre_navn: 'Byggherren',
+          totalentreprenor_navn: 'Totalentreprenøren',
+          kontraktsforkortelse: KONTRAKTSFORKORTELSE,
+        });
       const ekte = prosjekt === p ? kobling : undefined;
       await settInn(r, 'catenda_project_configs', {
         internal_project_id: prosjekt.id,
