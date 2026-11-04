@@ -102,15 +102,6 @@ KJENTE_AVVIK = (
     ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1545"),
     ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1545"),
-    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U16", 1, "#1553"),
-    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U20", 1, "#1553"),
-    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U24", 2, "#1553"),
-    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U3", 1, "#1553"),
-    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U4", 3, "#1553"),
-    ("docs/domenetabell/brukerforlop/BF-06.md", "EO-U8", 1, "#1553"),
-    ("docs/domenetabell/regler.json", "EO-U1", 2, "#1553"),
-    ("docs/domenetabell/regler.json", "EO-U3", 2, "#1553"),
-    ("docs/domenetabell/regler.json", "EO-U4", 10, "#1553"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
