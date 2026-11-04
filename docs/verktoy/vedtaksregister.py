@@ -1058,7 +1058,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("gr-u22", "endrer", "gr-u2", "#1534, steg 4"),
         ("gr-u7", "presiserer", "ka-u5", "#1534, steg 4"),
         ("hf-u12", "presiserer", "eo-u9", "#1534, steg 4"),
-        ("hf-u20", "presiserer", "hf-u17", "#1534, steg 4"),
         ("hf-u22", "presiserer", "hf-u17", "#1534, steg 4"),
         ("hf-u7", "bygger på", "ka-u26", "#1534, steg 4"),
         ("hf-u7", "presiserer", "ka-u24", "#1534, steg 4"),
@@ -1070,13 +1069,11 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ka-u13", "snevrer inn", "ka-u7", "#1534, steg 4"),
         ("ka-u20", "presiserer", "ka-u7", "#1534, steg 4"),
         ("ka-u31", "snevrer inn", "ka-u24", "#1534, steg 4"),
-        ("ka-u34", "presiserer", "ka-u24", "#1534, steg 4"),
         ("ka-u41", "presiserer", "ka-u24", "#1534, steg 4"),
         ("ka-u45", "bygger på", "ov-u48", "#1534, steg 4"),
         ("ka-u45", "bygger på", "ov-u49", "#1534, steg 4"),
         ("lv-u31", "presiserer", "hf-u14", "#1534, steg 4"),
         ("mm-u19", "presiserer", "ka-u7", "#1534, steg 4"),
-        ("mm-u21", "utvider", "eo-u9", "#1534, steg 4"),
         ("mm-u30", "presiserer", "mm-u29", "#1534, steg 4"),
         ("mm-u34", "endrer", "ka-u26", "#1534, steg 4"),
         ("mm-u34", "endrer", "ka-u28", "#1534, steg 4"),
@@ -1458,7 +1455,7 @@ def endrede_rader(gammel_plan: str, plan: str) -> list[str]:
 
 
 def _avsnittene(tekst: str) -> list[str]:
-    return re.split(r"\n(?:[ \t]*>)?[ \t]*\n", tekst)
+    return re.split(r"\n(?:[ \t]*>)?[ \t]*\n", tekst.rstrip("\n"))
 
 
 def _bare_lagt_til(gammel: str, ny: str) -> bool:

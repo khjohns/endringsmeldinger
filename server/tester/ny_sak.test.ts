@@ -25,8 +25,10 @@ import {
   kall,
   type KjorendeServer,
   lagOppsett,
+  opprettKjernesak,
   type Oppsett,
   rydd,
+  sendKommando,
   startServer,
   TESTBASE_URL,
   type Testbruker,
@@ -138,6 +140,8 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
           ).recordset,
           jobber: (await les('SELECT jobbtype, tittel FROM koe.jobb WHERE sak_id = @sak_id'))
             .recordset,
+          kode: (await les('SELECT kode, loepenummer FROM koe.sak_kode WHERE sak_id = @sak_id'))
+            .recordset,
         };
       }
     );
@@ -149,7 +153,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
     expect(svar.kropp).toMatchObject({ success: true, sak_id: sakId, versjon: 2 });
 
-    const { hendelser, kvitteringer, jobber } = await lagret(sakId);
+    const { hendelser, kvitteringer, jobber, kode } = await lagret(sakId);
     expect(hendelser.map((h) => [h.event_type, h.versjon, h.aktor_rolle])).toEqual([
       ['sak_opprettet', 1, 'TE'],
       ['dokument_registrert', 2, 'TE'],
@@ -158,9 +162,13 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     expect(hendelser[0].tidsstempel).toEqual(hendelser[1].tidsstempel);
     // Tittelen er én verdi i begge radene (LV-U43).
     expect(JSON.parse(hendelser[0].data).sakstittel).toBe(TITTEL);
-    // LV-U43: navnet står én gang, i sakstittelen, og brevet er frosset med tittelen (MM-U3).
+    // LV-U43: navnet står én gang, i sakstittelen, og brevet er frosset med tittelen (MM-U3),
+    // med koden saken fikk da brevet ble sendt (LV-U27, LV-U46).
     expect(JSON.parse(hendelser[1].data).krav[0]).not.toHaveProperty('tittel');
-    expect(JSON.parse(hendelser[1].data).brevtittel).toBe('Påberopelse av irregulær endring');
+    expect(kode).toEqual([{ kode: 'koe', loepenummer: expect.any(Number) }]);
+    expect(JSON.parse(hendelser[1].data).brevtittel).toBe(
+      `Påberopelse av irregulær endring i sak KOE-${kode[0].loepenummer}`
+    );
     // Kvitteringen gjelder påberopelsen, så kommando-ID-en har én (#418).
     expect(kvitteringer).toEqual([{ kommando_id: k.kommando_id, event_id: svar.kropp.event_id }]);
     // Topicen lages av jobben, og brevet leveres etter den (KT-U3, LV-U9).
@@ -502,5 +510,57 @@ describe('vedleggene før saken uten entydig team (#1037)', () => {
     )) as [number, Record<string, unknown>];
     expect(status).toBe(403);
     expect(kropp.error).toBe('MANGLER_TEAM');
+  });
+});
+
+describe.skipIf(!TESTBASE_URL)('et prosjekt uten kontraktsforkortelse (S2 A i #1497)', () => {
+  // Kilde: arbeidsvalget S2 A i #1497. Uten forkortelsen kan brevet ikke merkes etter
+  // LV-U44, og sendingen avvises med en melding om at forkortelsen mangler.
+  let o: Oppsett;
+  let server: KjorendeServer;
+
+  beforeAll(async () => {
+    o = await lagOppsett(undefined, { utenKontraktsforkortelse: true });
+    server = await startServer(o);
+  });
+  afterAll(async () => {
+    await server?.stopp();
+    if (o) await rydd(o);
+  });
+
+  const hendelser = () =>
+    iTransaksjon(
+      o.datalag.base.pool,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE', team: null },
+      async (r) =>
+        (await r().query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.hendelse')).recordset[0].n
+    );
+
+  it('opprettelsen med påberopelsen avvises med KONTRAKTSFORKORTELSE_MANGLER, og ingenting skrives', async () => {
+    const sakId = randomUUID();
+    const foer = await hendelser();
+    const svar = await kall(server.url, SAKER, {
+      bruker: o.te,
+      prosjektId: o.prosjekt.id,
+      kropp: {
+        kommando_id: randomUUID(),
+        ny_sak_id: sakId,
+        tittel: TITTEL,
+        paaberopelse: KRAV,
+        brevtekst: brevtekst(sakId, o.te.id),
+      },
+    });
+    expect(svar.status, JSON.stringify(svar.kropp)).toBe(409);
+    expect(svar.kropp.error).toBe('KONTRAKTSFORKORTELSE_MANGLER');
+    expect(await hendelser()).toBe(foer);
+  });
+
+  it('et brev i en sak som finnes, avvises med KONTRAKTSFORKORTELSE_MANGLER, og ingenting skrives', async () => {
+    const sakId = await opprettKjernesak(o);
+    const foer = await hendelser();
+    const svar = await sendKommando(server.url, o, sakId, { versjon: 1 });
+    expect(svar.status, JSON.stringify(svar.kropp)).toBe(409);
+    expect(svar.kropp.error).toBe('KONTRAKTSFORKORTELSE_MANGLER');
+    expect(await hendelser()).toBe(foer);
   });
 });

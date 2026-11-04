@@ -15,6 +15,12 @@
  * `brevtekst` er `null`, og `dokument` er `null`, fordi brevet alt er sendt utenfor
  * appen og ikke blir et eget dokument i Catenda (LV-U11).
  *
+ * Hvert brev med tekst fra løsningen merkes med kontraktsforkortelsen, sakens kode og
+ * brevets nummer i saken, `K201-KOE-005-03` (LV-U44, LV-U48). Merkingen er Vår ref. i
+ * hodet (LV-U27) og navnet på dokumentet, og fryses i oppdraget. Uten
+ * kontraktsforkortelsen lages ingen merking, og sendingen avvises
+ * (`KontraktsforkortelseMangler`, arbeidsvalget S2 A i #1497).
+ *
  * Vedleggene brevet binder, står bare i brevet, i `dokumentasjon` med ID-en, filnavnet
  * og summen (LV-U14), og leveringen leser dem der (#827 punkt 6). Et oppdrag med
  * vedlegg får leveringsjobben også uten dokument (LV-U11, triggeren
@@ -27,13 +33,45 @@ import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
 import { brevtekstI } from '../kjerne/format/leser.ts';
 import { lesBrevPdf, skrivBrevPdf, TegnUtenforSkriften } from './brevpdf.ts';
 import { sjekksum } from './sjekksum.ts';
-import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
+import type { Avsnitt, Journalrad, Sakskode } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
-export const OPPDRAGSFORMAT = 7;
+export const OPPDRAGSFORMAT = 8;
+
+/** Det merkingen settes sammen av, utenom brevnummeret, lest i skrivetransaksjonen. */
+export interface Merkingsgrunnlag {
+  /** Fra prosjektinnstillingene (`koe.kontraktsparter`), `null` når prosjektet ikke har den. */
+  kontraktsforkortelse: string | null;
+  sakskode: Sakskode;
+}
+
+/** Prosjektet har ingen kontraktsforkortelse, så brevet kan ikke merkes (S2 A i #1497). */
+export class KontraktsforkortelseMangler extends Error {}
+
+const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
+
+/**
+ * Merkingen `K201-KOE-005-03`: minst tre sifre i løpenummeret og minst to i
+ * brevnummeret (LV-U48), og tilsvarende `K201-EO-005-03` (LV-U44).
+ *
+ * @throws KontraktsforkortelseMangler
+ */
+export function merking(grunnlag: Merkingsgrunnlag, brevnummer: number): string {
+  const { kontraktsforkortelse, sakskode } = grunnlag;
+  if (!kontraktsforkortelse)
+    throw new KontraktsforkortelseMangler(
+      'Prosjektet har ingen kontraktsforkortelse, så brevet kan ikke merkes.'
+    );
+  return [
+    kontraktsforkortelse,
+    sakskode.kode.toUpperCase(),
+    utfylt(sakskode.loepenummer, 3),
+    utfylt(brevnummer, 2),
+  ].join('-');
+}
 
 /** Filnavnet dokumentet får i Catenda, fra innholdet i et lagret oppdrag. */
 export const filnavn = (innhold: Record<string, unknown>): string | null =>
@@ -44,9 +82,11 @@ export function lagOppdrag(
   maal: Leveringsmaal,
   status: Visning['status'],
   kjerne: Kjerne,
-  nyId: () => string
+  nyId: () => string,
+  grunnlag: Merkingsgrunnlag
 ): Oppdragsrad {
   const brevtekst = brevtekstI(rad);
+  const merket = brevtekst ? merking(grunnlag, brevnummerI(rad)) : null;
   const innhold = {
     oppdragsformat: OPPDRAGSFORMAT,
     brev: {
@@ -58,10 +98,9 @@ export function lagOppdrag(
       hendelsesformat: rad.format,
       dokument: rad.data,
       brevtekst,
+      merking: merket,
     },
-    dokument: brevtekst
-      ? { noekkel: rad.event_id, filnavn: `brev-${rad.sak_id}-${rad.versjon}.pdf` }
-      : null,
+    dokument: merket ? { noekkel: rad.event_id, filnavn: `${merket}.pdf` } : null,
     maal,
     status,
     kjerne: {
@@ -79,6 +118,14 @@ export function lagOppdrag(
   };
 }
 
+/** Nummeret kjernen ga brevet i saken (LV-U44, LV-U45); et brev med tekst har det alltid. */
+function brevnummerI(rad: Journalrad): number {
+  const nummer = rad.data.brevnummer;
+  if (typeof nummer !== 'number' || !Number.isInteger(nummer) || nummer < 1)
+    throw new Error(`Brevet ${rad.event_id} har tekst, men ikke noe brevnummer.`);
+  return nummer;
+}
+
 /**
  * Brevet i et lagret oppdrag som ren tekst, av oppdraget alene (LV-U1, B-17):
  * hodet og brevteksten slik den ble frosset. PDF-en gjengir den samme teksten.
@@ -89,10 +136,12 @@ export function gjengiOppdrag(innhold: Record<string, unknown>): string | null {
   return brev.brevtekst ? gjengiBrev(brev, brev.brevtekst) : null;
 }
 
+/** Hodet etter LV-U27, uten Deres ref. (S4 i #1497) og Websak-nummeret (#1173). */
 function gjengiBrev(brev: Oppdragsbrev, brevtekst: Avsnitt[]): string {
   const fra = brev.avsender.part === 'TE' ? 'Totalentreprenøren (TE)' : 'Byggherren (BH)';
+  if (!brev.merking) throw new UgjengivbartBrev('Oppdraget har brevtekst, men ingen merking');
   return [
-    `Sak ${brev.sak_id}, brev ${brev.saksversjon}`,
+    `Vår ref.: ${brev.merking}`,
     `Fra: ${fra}`,
     `Dato: ${norskDato(brev.tidsstempel)}`,
     '',
@@ -101,9 +150,8 @@ function gjengiBrev(brev: Oppdragsbrev, brevtekst: Avsnitt[]): string {
 }
 
 interface Oppdragsbrev {
-  sak_id: string;
-  saksversjon: number;
   tidsstempel: string;
+  merking: string | null;
   avsender: { part: 'TE' | 'BH' };
   brevtekst: Avsnitt[] | null;
 }
