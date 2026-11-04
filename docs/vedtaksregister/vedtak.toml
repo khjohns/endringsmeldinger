@@ -9477,6 +9477,205 @@ Hvert brev merkes med eget løpenummer for sin kode i kontrakten …'''
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "LV-U45"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål 1, ordrett slik det ble stilt på nytt 04.11 i #1497 (kommentaren 6623368759), etter oppdragsgivers svar «1. se repo khjohns/kontrakt, konkurransegrunnlag for å vurdere nærmere.» på den første versjonen. Den første versjonen (kommentaren 6623109004) ble ikke besvart og er ikke kilde. Alternativene står i posten.
+
+**Spørsmål 1, stilt på nytt 04.11 etter vurderingen mot kontraktsgrunnlaget i `khjohns/kontrakt`** (oppdragsgiver: «se repo khjohns/kontrakt, konkurransegrunnlag for å vurdere nærmere»). Kontraktsteksten står ikke her, bare punktnumrene (#424).
+
+**Spørsmål 1. Får korrespondanse som er sendt utenfor løsningen og registrert i den, et nummer i saken?**
+
+*Bakgrunn.* LV-U44 nummererer brevene i saken. Etter svarene på spørsmål 2 og 3 får saken koden og løpenummeret når det første brevet sendes fra løsningen. Korrespondanse som er sendt utenfor løsningen, kan legges til av avsenderen eller motparten (OV-U80). Kontraktsgrunnlaget krever at brev og skjemaer bærer en merking med løpenummer. Merkingen står på dokumentet, så det er avsenderen som merker. Spørsmålet er om registrert korrespondanse får et nummer i rekken i saken, og om den teller når løsningens neste brev nummereres.
+
+*Belegg:*
+- Konkurransegrunnlaget Del II pkt. D.1.2.5 (merkingen XXX-ZZ-nn av brev, skjemaer, referater og notater, med løpenummer per type korrespondanse), pkt. B.2.4 (byggherrens formularer og blanketter for varsler og krav skal brukes, og e-post alene erstatter dem ikke) og pkt. D.1.2.2 (e-post til enkle avklaringer, merket med prosjekt og tema). NS 8407 har ingen regel om merking eller nummer.
+- LV-U44: «Hvert brev i saken, også byggherrens svar, merkes med sakens kode og brevets nummer i saken.» «Et brev viser til et tidligere brev med nummeret i saken: ‹brev <n> i sak KOE-17 av <dato>›.»
+- LV-U24, som gjelder etter svaret «2 A»: «Merkingen står i brevhodet og i dokumentnavnet i prosjekthotellet og fryses når brevet sendes.»
+- LV-U42: «Viser et brev fra løsningen til registrert korrespondanse, nevner brevet parten, typen og datoen: ‹totalentreprenørens e-post av <dato>›.» Forkastet 01.11: «Registrert korrespondanse får løpenummeret i saken, og brevet sier ‹brev <n> av <dato>›, som før.»
+- MM-U17: «Brevets innhold står som det ble sendt.»
+- OV-U80: «Bare parten som sendte det, kan velge noe annet enn dokumentasjon.» «Løsningen kontrollerer ikke at dokumentet er det parten oppgir.»
+- OV-U84: «Avsenderen kan senere velge hva korrespondansen er og fylle ut skjemaet.»
+- LV-U11: «Et registrert brev blir ikke et eget dokument i Catenda, fordi det alt er sendt utenfor appen.»
+
+*Anbefaling: D.* Belegg: pkt. D.1.2.5 legger merkingen på dokumentet, og bare avsenderen kan sette den der. Etter MM-U17 og LV-U11 kan løsningen ikke merke et brev den ikke sendte. Et nummer som bare står i løsningen (B, C), er derfor ingen merking etter kontrakten, og LV-U42 forkastet det 01.11. D tar med den eneste merkingen kontrakten kjenner, den avsenderen selv har satt, og løsningen unngår å gi sitt neste brev et nummer som alt er brukt. D endrer LV-U42 bare for de merkede brevene. Antakelse: brev sendt utenfor løsningen er sjelden merket med sakens kode og et nummer i saken, fordi formen er ny. Er det ikke verdt et ekstra felt i registreringen, er A det minste valget, og prisen er et mulig dobbelt nummer.
+
+*Hva valget styrer:* om registreringen har et felt for avsenderens merking (D); om kjernen fortsatt skriver «brev <n>» om registrerte brev, eller bruker formen i LV-U42; hvordan løsningens neste nummer i saken regnes; «Vår ref.», panelet i Varden og filnavnet og hodet i PDF-en; hvordan et brev etter VS-U37 viser til et registrert varsel etter punkt 32.2 (#1489).'''
+valgt = "D"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6623439127)): «D.»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u44" }, { art = "endrer", vedtak = "lv-u42" }]
+folge = '''
+Bygges i #1497 og #1489.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Bare brev sendt fra løsningen får et nummer i saken. Korrespondanse som er sendt utenfor løsningen og registrert i den, får ikke noe nummer. Det gjelder enten avsenderen eller motparten har lagt den til, og enten den står som dokumentasjon, varsel, krav eller svar. Den teller heller ikke når brevene fra løsningen nummereres. Et brev fra løsningen omtaler registrert korrespondanse med parten, typen og datoen etter LV-U42. Har avsenderen merket sitt eget brev med et nummer i saken, kan løsningens neste brev få det samme nummeret. *Forhold: presiserer LV-U44, der «hvert brev i saken» leses som hvert brev sendt fra løsningen. I tråd med LV-U42, MM-U17, OV-U80, LV-U11 og svarene på spørsmål 2 og 3.*'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Korrespondanse som avsenderen har valgt som varsel, krav eller svar, får et nummer i saken når valget gjøres, i samme rekke som brevene sendt fra løsningen. Korrespondanse som står som dokumentasjon, får ikke noe nummer. Nummeret står i løsningen og ikke på brevet, som står som det ble sendt. Et brev fra løsningen omtaler den nummererte korrespondansen med nummeret: ‹brev <n> i sak KOE-17 av <dato>›. Gjøres valget senere (OV-U84), får korrespondansen nummeret først da, etter brev som er sendt i mellomtiden. Nummeret er ingen merking etter pkt. D.1.2.5, fordi det ikke står på dokumentet. *Forhold: endrer LV-U42 for registrert varsel, krav og svar, og tar opp igjen det forkastede alternativet for dem. Presiserer LV-U44.*'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+All korrespondanse som registreres i saken, får et nummer i saken når den registreres, i samme rekke som brevene sendt fra løsningen. Det gjelder også dokumentasjon og det motparten har lagt til. Nummeret står i løsningen og ikke på brevet, og det er ingen merking etter pkt. D.1.2.5. Et brev fra løsningen omtaler korrespondansen med nummeret. *Forhold: endrer LV-U42 og tar opp igjen det forkastede alternativet. Presiserer LV-U44 etter ordlyden «hvert brev i saken».*'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "D"
+tekst = '''
+Løsningen gir ikke korrespondanse sendt utenfor løsningen noe nummer. Har avsenderen merket den selv etter pkt. D.1.2.5 med sakens kode og et nummer i saken, oppgir avsenderen merkingen når korrespondansen legges til, eller senere etter OV-U84. Den står da med nummeret avsenderen ga den. Løsningens neste brev i saken får nummeret etter det høyeste i saken. Et brev fra løsningen omtaler slik korrespondanse med merkingen som står på den: ‹brev <n> i sak KOE-17 av <dato>›. Annen registrert korrespondanse omtales etter LV-U42. Løsningen kontrollerer ikke merkingen og endrer ikke dokumentet. Et brev løsningen alt har sendt med samme nummer, står som det ble sendt. Legger motparten korrespondansen til, står den uten nummer til avsenderen oppgir merkingen. *Forhold: presiserer LV-U44. Endrer LV-U42 for korrespondanse som bærer avsenderens egen merking. Følger mønsteret i OV-U80 og OV-U84. I tråd med MM-U17, LV-U11, LV-U24 og svarene på spørsmål 2 og 3.*'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hvert brev i saken, også byggherrens svar, merkes med sakens kode og brevets nummer i saken."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et brev viser til et tidligere brev med nummeret i saken: ‹brev <n> i sak KOE-17 av <dato>›."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Merkingen står i brevhodet og i dokumentnavnet i prosjekthotellet og fryses når brevet sendes."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Viser et brev fra løsningen til registrert korrespondanse, nevner brevet parten, typen og datoen: ‹totalentreprenørens e-post av <dato>›."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Registrert korrespondanse får løpenummeret i saken, og brevet sier ‹brev <n> av <dato>›, som før."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Brevets innhold står som det ble sendt."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Bare parten som sendte det, kan velge noe annet enn dokumentasjon."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Løsningen kontrollerer ikke at dokumentet er det parten oppgir."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Avsenderen kan senere velge hva korrespondansen er og fylle ut skjemaet."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et registrert brev blir ikke et eget dokument i Catenda, fordi det alt er sendt utenfor appen."
+
+[[gruppe.vedtak]]
+id = "LV-U46"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål 2, ordrett slik det ble stilt 04.11 i #1497 (kommentaren 6623109004). Alternativene står i posten.
+
+**Spørsmål 2. Når får saken koden og løpenummeret?**
+
+*Bakgrunn.* Etter LV-U44 får saken KOE-nn eller EO-nn med løpenummer per kode i prosjektet. Teksten avsenderen godkjenner, har sakens kode. To saker kan forberedes samtidig i samme prosjekt, og et brev som skal godkjennes med fullmakt, kan vente en stund før det sendes.
+
+*Belegg:*
+- LV-U44: «Saken får koden fra sitt første brev, med løpenummer per kode i kontrakten (pkt. D.1.2.5): KOE-nn når totalentreprenøren oppretter saken, EO-nn når byggherren gjør det.»
+- LV-U2: «Teksten avsenderen godkjenner, og teksten som fryses, er den samme.»
+- KT-U11: «En sak totalentreprenøren oppretter i løsningen, opprettes når den første påberopelsen sendes, og ikke før.» «Avbryter totalentreprenøren før sending, finnes ingen sak og ingen topic.»
+
+*Avgrensning, som følger av LV-U44 og KT-U6:* en sak som er opprettet fra en topic, har ingen kode før sitt første brev.
+
+*Anbefaling: A.* Belegg: KT-U11 knytter saken til sendingen, og LV-U2 krever at den godkjente teksten er den som fryses. Begge holder i A uten at noe holdes av. Antakelse: det er sjelden at to saker med samme kode sendes samtidig i samme prosjekt, så det sjelden trengs ny godkjenning. Et hull i rekken kan dessuten se ut som et brev som mangler, for motparten.
+
+*Hva valget styrer:* hvor og når nummeret tildeles (i opprettelsen eller ved sakens første brev); om brevkontrollen må kunne be om ny godkjenning; hvordan godkjenning med fullmakt (LV-U15) virker når det første brevet ligger og venter.'''
+valgt = "2A"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6623323475)): «1. se repo khjohns/kontrakt, konkurransegrunnlag for å vurdere nærmere. 2A 3A»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u44" }]
+folge = '''
+Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2A"
+tekst = '''
+Saken får koden og løpenummeret når det første brevet i saken sendes. Nummeret er det neste ubrukte for koden i prosjektet. Brevkontrollen viser nummeret saken vil få. Har en annen sak fått det nummeret før brevet sendes, sendes brevet ikke. Avsenderen får da se brevet med det nye nummeret og godkjenner det på nytt. Nummerrekken har ingen hull. *Forhold: presiserer LV-U44. I tråd med LV-U2 og KT-U11.*'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2B"
+tekst = '''
+Løsningen holder av det neste ubrukte nummeret for koden når avsenderen åpner brevkontrollen for sakens første brev. Teksten avsenderen godkjenner, har det nummeret, og ingen annen sak kan få det. Sendes brevet ikke, brukes nummeret ikke, og nummerrekken får et hull. *Forhold: presiserer LV-U44. I tråd med LV-U2. Nummeret holdes av uten at det finnes en sak, så det strider ikke mot KT-U11.*'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Saken får koden fra sitt første brev, med løpenummer per kode i kontrakten (pkt. D.1.2.5): KOE-nn når totalentreprenøren oppretter saken, EO-nn når byggherren gjør det."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Teksten avsenderen godkjenner, og teksten som fryses, er den samme."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En sak totalentreprenøren oppretter i løsningen, opprettes når den første påberopelsen sendes, og ikke før."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Avbryter totalentreprenøren før sending, finnes ingen sak og ingen topic."
+
+[[gruppe.vedtak]]
+id = "LV-U47"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål 3, ordrett slik det ble stilt 04.11 i #1497 (kommentaren 6623109004). Alternativene står i posten.
+
+**Spørsmål 3. Kan sakens kode komme fra korrespondanse som er registrert?**
+
+*Bakgrunn.* En sak fra en topic kan få registrert korrespondanse før løsningen har sendt noe brev i saken, for eksempel et varsel totalentreprenøren sendte utenfor løsningen. LV-U44 gir saken koden «fra sitt første brev».
+
+*Belegg:* LV-U44, som sitert i spørsmål 2. KT-U6: «Topicen er ikke et varsel eller krav i appen, og TE må sende varsel og krav fra appen.» OV-U80: «Bare parten som sendte det, kan velge noe annet enn dokumentasjon.»
+
+*Anbefaling: A.* Belegg: A følger samme linje som anbefalingen i spørsmål 1, og koden settes da samtidig med nummeret på det første brevet (spørsmål 2). Antakelse: de fleste saker fra en topic får sitt første brev fra løsningen, slik KT-U6 forutsetter.
+
+*Hva valget styrer:* om koden settes ved registreringen eller ved sendingen; hva sakslisten har å vise for en sak uten kode (formen avgjøres i brukerforløpet).'''
+valgt = "3A"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6623323475)): «1. se repo khjohns/kontrakt, konkurransegrunnlag for å vurdere nærmere. 2A 3A»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u44" }]
+folge = '''
+Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "3A"
+tekst = '''
+Saken får koden fra det første brevet som sendes fra løsningen i saken. Registrert korrespondanse gir ikke saken en kode. Til det første brevet er sendt fra løsningen, har saken ingen kode. *Forhold: presiserer LV-U44. I tråd med LV-U42 og OV-U80.*'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3B"
+tekst = '''
+Har avsenderen valgt sakens første registrerte korrespondanse som varsel, krav eller svar, får saken koden etter parten som sendte den: KOE-nn når det er totalentreprenøren, EO-nn når det er byggherren. Dokumentasjon gir ikke saken en kode. *Forhold: presiserer LV-U44.*'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Topicen er ikke et varsel eller krav i appen, og TE må sende varsel og krav fra appen."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Bare parten som sendte det, kan velge noe annet enn dokumentasjon."
+
+[[gruppe.vedtak]]
 id = "MM-U37"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
