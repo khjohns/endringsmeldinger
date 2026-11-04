@@ -59,6 +59,8 @@ Spørsmålene om klassene etter kartleggingen ble stilt 04.11, og svarene står 
 - **Svar 6 og kontroll 2** ([kommentaren om spørsmål 6](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623299573)). Feltet for det andre hjemmet til
   den bindende setningen føres i registeret i steg 3, med tabellene under «Kontrollen av
   mønster 1–6 (04.11)» som kilde.
+- **Svar 9 (A).** VS-U39 er *vedtak* med designdel, og testen i vedtaksskillen sier «hvordan
+  kontrakten tolkes (NS 8407 og kontraktsgrunnlaget)». Avgjørelsen står under «Mønster 8».
 - **MM-U23.** Designdelen flyttes til `system.md` og skrives etter
   [språkreglene](../sprak.md#hva-løsningen-kalles), som i lesningen i kommentaren.
   Merknaden står i raden.
@@ -72,7 +74,7 @@ Spørsmålene om klassene etter kartleggingen ble stilt 04.11, og svarene står 
 | OV | 60 | 9 | 19 | 88 | 31 | 2 | 8 |
 | KA | 41 | 2 | 2 | 45 | 6 | 2 | 8 |
 | LV | 35 | 6 | 3 | 44 | 8 | 3 | 0 |
-| VS | 36 | 3 | 3 | 42 | 7 | 3 | 0 |
+| VS | 37 | 3 | 2 | 42 | 8 | 3 | 0 |
 | MM | 24 | 4 | 12 | 40 | 7 | 3 | 5 |
 | GR | 29 | 2 | 2 | 33 | 5 | 1 | 4 |
 | GFK | 21 | 2 | 0 | 23 | 5 | 2 | 0 |
@@ -85,9 +87,9 @@ Spørsmålene om klassene etter kartleggingen ble stilt 04.11, og svarene står 
 | MP | 4 | 0 | 0 | 4 | 0 | 0 | 0 |
 | RP | 1 | 0 | 0 | 1 | 0 | 1 | 0 |
 | (uten ID) | 35 | 25 | 1 | 61 | 5 | 6 | 2 |
-| I alt | 337 | 77 | 45 | 459 | 84 | 27 | 36 |
+| I alt | 338 | 77 | 44 | 459 | 85 | 27 | 36 |
 
-Av de 423 radene som gjelder, er 306 *vedtak*, 75 *beslutning* og 42 *design*. Av de 36 som
+Av de 423 radene som gjelder, er 307 *vedtak*, 75 *beslutning* og 41 *design*. Av de 36 som
 er opphevet eller erstattet, er 31 *vedtak*, 2 *beslutning* og 3 *design*. Tabellen er regnet
 med et skript over tabellene under «Tabellen».
 
@@ -113,7 +115,7 @@ ble lagt fram.
 
 7. **Bygger på et vedtak som er opphevet** (juridisk). HF-U20, MM-U27, OV-U48, OV-U49. Anbefalt: *historisk*. Alternativ: *vedtak*. HF-U20 presiserer bare HF-U17, og MM-U27 bygger på sperren og vernet som MM-U34 opphevet, men Følge sier ikke at de er opphevet. OV-U48 og OV-U49 er opphevet av OV-U69, men OV-U80 og KA-U45 bygger videre på dem (se motsigelsene). Rapportene anbefalte *vedtak* for HF-U20 og MM-U27 og *historisk* for OV-U48 og OV-U49. Samlingen velger *historisk* for alle fire, men oppdragsgiver må avgjøre om noe av regelen skal stå. Etter kontrollen er MM-U27 *vedtak*: MM-U34 lister det ikke, og punkt 6 løfter bare byggherrens «i tide», så HF-U4 gjelder fortsatt utsagn fra TE. Det er snevret inn, ikke opphevet. Svar 03.11: A. Svar 04.11 (1): «historisk» er en tilstand. OV-U48 og OV-U49 er opphevet, med klassen *vedtak*. HF-U20 er *vedtak* og gjeldende, med motsigelsen, til samlevedtaket for akseptfristen opphever det.
 
-8. **Den bindende setningen står i et annet vedtak** (teknisk). EO-U13, KT-U1, LV-U11, LV-U16, MM-U36, OV-U63, OV-U70, OV-U76, VS-U39. Anbefalt: *design* (*beslutning* for KT-U1 og LV-U11), med henvisning til kilden. Alternativ: *vedtak*. Det eneste som binder, gjentar MM-U12, MM-U35, EO-U8, OV-U79, OV-U82, KA-U1, LV-U7 eller LV-U22, så klassen følger resten når kilden dekker hele setningen. Det må kontrolleres for EO-U13, der kilden bare er prinsippet om at status er en etikett. Rapportene delte seg (EO-U13, LV-U16, MM-U36 og OV-U63 som *vedtak*). Samlingen velger klassen til resten, fordi en regel skal ha ett hjem. Etter kontrollen er EO-U13 *vedtak*, med merket som designdel i BF-06: det slår fast at løsningen ikke utleder noen rettsvirkning av knytningen, og hva merket ikke kan si. Svar 03.11: A.
+8. **Den bindende setningen står i et annet vedtak** (teknisk). EO-U13, KT-U1, LV-U11, LV-U16, MM-U36, OV-U63, OV-U70, OV-U76, VS-U39. Anbefalt: *design* (*beslutning* for KT-U1 og LV-U11), med henvisning til kilden. Alternativ: *vedtak*. Det eneste som binder, gjentar MM-U12, MM-U35, EO-U8, OV-U79, OV-U82, KA-U1, LV-U7 eller LV-U22, så klassen følger resten når kilden dekker hele setningen. Det må kontrolleres for EO-U13, der kilden bare er prinsippet om at status er en etikett. Rapportene delte seg (EO-U13, LV-U16, MM-U36 og OV-U63 som *vedtak*). Samlingen velger klassen til resten, fordi en regel skal ha ett hjem. Etter kontrollen er EO-U13 *vedtak*, med merket som designdel i BF-06: det slår fast at løsningen ikke utleder noen rettsvirkning av knytningen, og hva merket ikke kan si. Svar 03.11: A. Svar 04.11 (9): A for VS-U39, som er *vedtak* med designdel (se «Kontrollen av mønster 1–6 (04.11)»).
 
 9. **Regelversjon, utrulling og omregning** (teknisk). B-10, MM-U15, MM-U16. Anbefalt: *beslutning*. Alternativ: *vedtak*. Hoveddelen er versjonering, utrulling og omregning, og garantien om at frosne brev ikke endres, står i MM-U9, MM-U11 og MM-U17. MM-rapporten anbefalte *vedtak* for MM-U16. Samlingen velger *beslutning* av samme grunn som i mønster 8. Etter kontrollen er MM-U16 *vedtak*, med rapporten som beslutningsdel og merknaden på saken som designdel: brevene og standpunktene står, og utledningen følger nye regler. Svar 03.11: A.
 
@@ -231,8 +233,12 @@ Subagentens usikre tilfeller:
   EO-U13 endrer. Står de for den endrede etiketten, har EO-U13 ingen annen kilde enn
   `AGENTS.md` og MM-U12 for disse delene.
 - VS-U39: Det er usikkert om opplysningen om kapittel B binder eller bare er brukertekst. Den er
-  en tolkning av kontraktsgrunnlaget og står ikke i noe annet vedtak. Klassen er ikke endret;
-  spørsmålet står under «Åpne spørsmål» i PR #1537.
+  en tolkning av kontraktsgrunnlaget og står ikke i noe annet vedtak.
+
+**Avgjort for VS-U39 (oppdragsgiver 04.11, spørsmål 9 i #1534): A.** VS-U39 er *vedtak* med
+designdel. Setningen om hva kapittel B krever, er løsningens gjengivelse av kontrakten og
+endres bare med vedtak. Hvor og når opplysningen står, er designdelen (BF-05). Testen i
+vedtaksskillen sier derfor «hvordan kontrakten tolkes (NS 8407 og kontraktsgrunnlaget)».
 - LV-U11: LV-U22 sier at et brev løsningen legger i prosjekthotellet, er sendt. At det samme
   ikke gjelder når et registrert brev lagres i Catenda som vedlegg, følger bare av
   sammenhengen med OV-U4 og OV-U79.
@@ -331,7 +337,7 @@ fra oppdragsgiver 03.11 (PR #1537).
 | Mål | Designvedtak | Steder | Av dem i `kjerne/` | Vedtakene |
 | --- | ---: | ---: | ---: | --- |
 | `.interface-design/system.md` | 10 | 139 | 38 | GR-U30, MM-U22, MM-U23, MM-U24, MM-U25, MM-U30, MM-U31, MM-U32, MM-U40, OV-U75 |
-| BF-05 | 6 | 99 | 18 | GR-U16, LV-U43, OV-U76, OV-U77, OV-U78, VS-U39 |
+| BF-05 | 5 | 87 | 14 | GR-U16, LV-U43, OV-U76, OV-U77, OV-U78 |
 | BF-01 | 5 | 57 | 18 | KA-U31, KA-U41, MM-U36, OV-U20, OV-U62 |
 | BF-02B | 1 | 0 | 0 | OV-U87 |
 | BF-06 (under arbeid) | 1 | 3 | 0 | EO-U14 |
@@ -344,9 +350,9 @@ fra oppdragsgiver 03.11 (PR #1537).
 | Nytt forløp: brevmalen og profilen | 1 | 5 | 0 | LV-U25 |
 | Nytt forløp: BH endrer svaret etter akseptfristen | 1 | 6 | 0 | HF-U22 |
 | Nytt forløp: ny KOE etter en bestridt endringsordre | 1 | 0 | 0 | EO-U11 |
-| **I alt** | **42** | **436** | **135** | |
+| **I alt** | **41** | **424** | **131** | |
 
-I tillegg har 84 av vedtakene en designdel, med til sammen 1 641 steder. 46 av dem mangler
+I tillegg har 85 av vedtakene en designdel, med til sammen 1 653 steder. 46 av dem mangler
 et forløp å flytte delen til. Subagentene har navngitt målene fritt, så grupperingen er
 omtrentlig. 27 vedtak har en beslutningsdel. Ingen av dem er opphevet. Tabellen og tallene
 gjelder bare designvedtak som gjelder; de tre designradene som er opphevet eller erstattet
@@ -355,7 +361,7 @@ gjelder bare designvedtak som gjelder; de tre designradene som er opphevet eller
 Seks rader med klassen *beslutning* har også en designdel (HF-U2, LV-U11, LV-U26, MM-U2, MM-U15
 og MM-U39), med 160 steder. Fem av dem mangler et forløp. Feltet i steg 3 gjelder også dem.
 
-135 av de 436 stedene som viser til et designvedtak, er i `kjerne/`, flest for OV-U19 (24),
+131 av de 424 stedene som viser til et designvedtak, er i `kjerne/`, flest for OV-U19 (24),
 OV-U16 (19), GR-U16 (14), MM-U22 (12) og MM-U23 (10). Når vedtakene flyttes, viser disse
 henvisningene til en ID med «Flyttet til», og vakttesten for henvisningene må godta det
 (steg 3).
@@ -363,11 +369,11 @@ henvisningene til en ID med «Flyttet til», og vakttesten for henvisningene må
 **Svaret 03.11 (spørsmål 20, A).** Spørsmålet ble stilt før svarene på mønster 1–6, og
 regelen i svaret er her brukt på klassene etter dem, så tallene er større enn i spørsmålet.
 
-1. *Flyttes i steg 4*: de 22 designvedtakene med et forløp eller `system.md` som mål
-   (295 steder). EO-U14 flyttes når BF-06 er merget.
+1. *Flyttes i steg 4*: de 21 designvedtakene med et forløp eller `system.md` som mål
+   (283 steder). VS-U39 er tatt ut etter svar 9 den 04.11. EO-U14 flyttes når BF-06 er merget.
 2. *Venter på et nytt forløp*: de 19 med «Nytt forløp» (138 steder). De seks om brev sendt
    utenfor løsningen flyttes samlet når det forløpet skrives.
-3. *Designdelene i de 84 vedtakene flyttes ikke nå.* Steg 3 gir registeret et felt som sier
+3. *Designdelene i de 85 vedtakene flyttes ikke nå.* Steg 3 gir registeret et felt som sier
    hvilken del av vedtaket som er design og kan endres av brukerprøven. Teksten flyttes når
    vedtaket går inn i et samlevedtak for en kjede.
 
@@ -625,7 +631,7 @@ derfor bare rader med klassen *vedtak*.
 | [VS-U36](../plans/vedtak.md#vs-u36) | vedtak | gjeldende | Påberopelsen mot begrunnelsen etter punkt 33.6.2 står i svaret på det første kravet med dager. |  | 0 |
 | [VS-U37](../plans/vedtak.md#vs-u37) | vedtak | gjeldende | Hva påberopelsen gjelder, og at en versjon i en annen underkategori er et nytt varsel. |  | 7 (0/0/2/5) |
 | [VS-U38](../plans/vedtak.md#vs-u38) | vedtak | gjeldende | Datoen for varselet etter punkt 32.2, rettingen av den og vedtatt brevtekst i påberopelsen. | designdel: spørsmålet og feltene i skjemaet for ny sak → BF-05 | 62 (22/14/7/19) |
-| [VS-U39](../plans/vedtak.md#vs-u39) | design | gjeldende | Hjelpeteksten ved spørsmålet i skjemaet for ny sak og når spørsmålet stilles. | BF-05 Grensetilfelle, mønster 8. | 12 (4/0/2/6) |
+| [VS-U39](../plans/vedtak.md#vs-u39) | vedtak | gjeldende | Hva kapittel B i kontraktsgrunnlaget krever av et varsel om endring, slik løsningen gjengir det. | designdel: hjelpeteksten ved spørsmålet i skjemaet for ny sak, og hvor og når den står → BF-05. Grensetilfelle, mønster 8; svar 04.11 (9): A. | 12 (4/0/2/6) |
 | [VS-U40](../plans/vedtak.md#vs-u40) | vedtak | gjeldende | TE kan legge til et varsel etter punkt 32.2 etter opprettelsen, og et gitt svar står. |  | 0 |
 | [VS-U41](../plans/vedtak.md#vs-u41) | vedtak | gjeldende | Vedtatt brevtekst i byggherrens svar om et registrert varsel. |  | 0 |
 | [VS-U42](../plans/vedtak.md#vs-u42) | vedtak | gjeldende | Tolkningen av punkt 35.2 slik kontraktsgrunnlaget endrer den. | designdel: fristen vises uten dato → nytt forløp trengs: veiledning om passivitet og frister | 0 |

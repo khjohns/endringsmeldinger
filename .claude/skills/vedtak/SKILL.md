@@ -16,9 +16,9 @@ oppdragsgiver.
   design. Klassen avgjøres av testen under, i denne rekkefølgen (oppdragsgiver 04.11,
   #1534):
   1. Har raden en setning om hva som binder partene, hvilken virkning en handling har,
-     hvordan NS 8407 tolkes, hva som regnes med etter kontrakten (frist, beløp, enighet,
-     «i tide»), eller hvem som har tilgang, og står setningen ikke i et annet gjeldende
-     vedtak? Da er raden *vedtak*, og resten av teksten er design- eller beslutningsdel.
+     hvordan kontrakten tolkes (NS 8407 og kontraktsgrunnlaget), hva som regnes med etter
+     kontrakten (frist, beløp, enighet, «i tide»), eller hvem som har tilgang, og står
+     setningen ikke i et annet gjeldende vedtak? Da er raden *vedtak*, og resten av teksten er design- eller beslutningsdel.
   2. Sier raden hvordan løsningen er bygget, lagrer, leverer eller drives, eller hva som
      venter til en senere versjon? Da er raden *beslutning*. Den avgjøres av
      oppdragsgiver og endres med en ny beslutning.
