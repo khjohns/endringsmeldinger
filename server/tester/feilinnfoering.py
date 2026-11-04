@@ -290,6 +290,16 @@ FEILINNFOERINGER = [
     ("S75", "hodet viser ikke merkingen som Vår ref. (LV-U27, #1497)", "server/levering.ts",
      "    `Vår ref.: ${brev.merking}`,", "    'Vår ref.:',",
      "merkingen og dokumentnøkkelen i navnet"),
+    ("S76", "leseinngangen sier at nummeret ikke er tildelt etter sakens første brev (LV-U46, #1497)",
+     "server/app.ts",
+     "  { success: true, kode, loepenummer, tildelt },", "  { success: true, kode, loepenummer, tildelt: false },",
+     "brevkontrollen leser nummeret sakens første brev vil få"),
+    ("S77", "BH får nummeret for en ny sak (KT-U10, #1497)", "server/app.ts",
+     "  bareTE: 'Du er på BH-siden. En ny sak opprettes av TE.',\n", "",
+     "BH får ikke nummeret for en ny sak"),
+    ("S78", "varselet i en ny sak kan ikke ha korrespondansetypen (LV-U42, D1 A i #1497)", "server/nysak.ts",
+     "new Set(['sendt', 'korrespondansetype', 'dokumentasjon'])", "new Set(['sendt', 'dokumentasjon'])",
+     "binder det til påberopelsen og skriver varselet som versjon 3"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

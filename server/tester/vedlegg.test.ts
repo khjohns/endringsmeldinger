@@ -377,6 +377,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-10-01',
+      korrespondansetype: 'brev',
       dokumentasjon,
     });
     const journal = async (sakId: string) =>
@@ -534,7 +535,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
         sakId,
         2,
         { id: randomUUID(), sha256: 'a'.repeat(64) },
-        ({ journal: j, tidspunkt, vedlegg }) => {
+        ({ journal: j, tidspunkt, vedlegg, sakskode }) => {
           expect(vedlegg.has(falskt), 'forutsetning: serveren fant ikke vedlegget').toBe(false);
           const vurdert = vurder(
             varsel([falskt]),
@@ -543,7 +544,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
               aktoerId: o.te.id,
               part: 'TE',
               teamId: teKontekst().team,
-              sakskode: { kode: 'koe' as const, loepenummer: 17 },
+              sakskode: { kode: sakskode.kode, loepenummer: sakskode.loepenummer },
               tidspunkt: () => tidspunkt,
               nyId: randomUUID,
             },

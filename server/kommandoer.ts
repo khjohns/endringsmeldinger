@@ -364,6 +364,29 @@ async function lesSakskode(foresp: Foresp, sakId: string): Promise<Sakskode> {
 }
 
 /**
+ * Koden og løpenummeret saken har, eller dem sakens første brev fra løsningen vil få, lest
+ * i en kort transaksjon med siden i konteksten, så brevkontrollen kan vise nummeret
+ * (LV-U46). En sak uten journal gir det neste nummeret, som for en ny sak. Nummeret er
+ * ikke holdt av når transaksjonen er ferdig; skrivingen leser det på nytt.
+ *
+ * @throws SkrivingAvvist, UgyldigKontekst
+ */
+export async function lesNesteSakskode(
+  pool: Pool,
+  kontekst: Kontekst,
+  sakId: string
+): Promise<Sakskode> {
+  try {
+    return await transaksjon(pool, kontekst, async (foresp) => {
+      if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
+      return lesSakskode(foresp, sakId);
+    });
+  } catch (feil) {
+    throw oversett(feil, null);
+  }
+}
+
+/**
  * Kontraktsforkortelsen for merkingen av brevet (LV-U44), lest med `koe_api.kontraktsparter`
  * i skrivetransaksjonen, eller `null` når prosjektet ikke har den (S2 A i #1497).
  */

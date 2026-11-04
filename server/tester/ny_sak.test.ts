@@ -11,10 +11,10 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
-import type { Journalrad, Vedlegg } from '../../kjerne/typer.ts';
+import type { Journalrad, Sakskode, Vedlegg } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId } from '../autorisasjon.ts';
 import { STOERSTE_VEDLEGG, VEDLEGG_FOER_SAKEN } from '../vedlegg.ts';
@@ -32,12 +32,16 @@ import {
   startServer,
   TESTBASE_URL,
   type Testbruker,
+  sakskodeFor,
 } from './testbase.ts';
 
 const SAKER = '/api/kjerne/saker';
 const TITTEL = 'Endret fundamentering';
 const INNHOLD: Record<string, unknown> = { ...PAABEROPELSE.innhold };
 const KRAV = { ...PAABEROPELSE, innhold: INNHOLD };
+
+/** Det neste nummeret for KOE i prosjektet, som en ny sak får; lest før hver test (LV-U46). */
+let neste: Sakskode = { kode: 'koe', loepenummer: 0 };
 
 /** Den låste teksten kjernen gir for påberopelsen i en sak som ennå ikke finnes (LV-U2). */
 function brevtekst(
@@ -69,7 +73,7 @@ function brevtekst(
       aktoerId: aktoer,
       part: 'TE',
       teamId: null,
-      sakskode: { kode: 'koe' as const, loepenummer: 17 },
+      sakskode: neste,
       tidspunkt: () => new Date(),
       nyId: randomUUID,
     },
@@ -89,6 +93,9 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
   beforeAll(async () => {
     o = await lagOppsett();
     server = await startServer(o);
+  });
+  beforeEach(async () => {
+    neste = await sakskodeFor(o);
   });
   afterAll(async () => {
     await server?.stopp();
@@ -328,7 +335,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     /** Kroppen med påberopelsen, vedleggene og eventuelt varselet, med brevteksten for dem. */
     function medVedlegg(
       vedlegg: Vedlegg[],
-      varsel?: { sendt: string; dokumentasjon: string[] },
+      varsel?: { sendt: string; korrespondansetype: 'brev' | 'e_post'; dokumentasjon: string[] },
       sakId = randomUUID()
     ) {
       const krav = { ...KRAV, dokumentasjon: vedlegg.map((v) => v.vedlegg_id) };
@@ -346,7 +353,11 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       const opplastet = await lastOpp();
       expect(opplastet.status, JSON.stringify(opplastet.kropp)).toBe(201);
       const v = opplastet.vedlegg!;
-      const k = medVedlegg([v], { sendt: iDag(), dokumentasjon: [v.vedlegg_id] });
+      const k = medVedlegg([v], {
+        sendt: iDag(),
+        korrespondansetype: 'brev',
+        dokumentasjon: [v.vedlegg_id],
+      });
       const svar = await send(k);
       expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
 
@@ -393,7 +404,11 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     it('avviser kjernen varselet fordi datoen er etter påberopelsen, finnes ingen sak, hendelse, kvittering eller jobb, og vedlegget ligger fortsatt uten sak (VS-U38, KT-U11)', async () => {
       const v = (await lastOpp()).vedlegg!;
       const imorgen = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
-      const k = medVedlegg([v], { sendt: imorgen, dokumentasjon: [v.vedlegg_id] });
+      const k = medVedlegg([v], {
+        sendt: imorgen,
+        korrespondansetype: 'brev',
+        dokumentasjon: [v.vedlegg_id],
+      });
       const foer = await antall();
       const svar = await send(k);
       expect(svar.status, JSON.stringify(svar.kropp)).toBe(400);
@@ -435,7 +450,11 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     it('et dokument i varselet som ikke står ved påberopelsen, gir 400 før noe skrives (svar 2 i #1487, VS-U38)', async () => {
       const v = (await lastOpp()).vedlegg!;
       const annet = (await lastOpp(o.te, 'annet.pdf')).vedlegg!;
-      const k = medVedlegg([v], { sendt: iDag(), dokumentasjon: [annet.vedlegg_id] });
+      const k = medVedlegg([v], {
+        sendt: iDag(),
+        korrespondansetype: 'brev',
+        dokumentasjon: [annet.vedlegg_id],
+      });
       const foer = await antall();
       const svar = await send(k);
       expect(svar.status, JSON.stringify(svar.kropp)).toBe(400);
@@ -523,6 +542,9 @@ describe.skipIf(!TESTBASE_URL)('et prosjekt uten kontraktsforkortelse (S2 A i #1
   beforeAll(async () => {
     o = await lagOppsett(undefined, { utenKontraktsforkortelse: true });
     server = await startServer(o);
+  });
+  beforeEach(async () => {
+    neste = await sakskodeFor(o);
   });
   afterAll(async () => {
     await server?.stopp();

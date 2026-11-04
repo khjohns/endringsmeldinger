@@ -594,6 +594,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
           spor: 'frist',
           hjemmel: '33.4',
           sendt: '2026-10-01',
+          korrespondansetype: 'brev',
           dokumentasjon: vedlegg,
         },
       },

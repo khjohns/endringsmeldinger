@@ -59,6 +59,8 @@ import {
   kommandosum,
   KvittertBrevMangler,
   LaasIkkeGitt,
+  lesNesteSakskode,
+  LoepenummerTatt,
   opprettSak,
   opprettSakMedPaaberopelse,
   SakFinnesIkke,
@@ -194,7 +196,7 @@ export interface Prosjektrute extends Felles {
  * ikke finnes ennå (#370). Prosjektet er det i `X-Project-ID`. Begrunnelsen står i registeret.
  */
 export interface Opprettelsesrute extends Felles {
-  metode: 'POST' | 'DELETE';
+  metode: 'GET' | 'POST' | 'DELETE';
   tilgang: { prosjektrolle: 'member'; kontraktsrolle: 'kreves'; nySak: string };
   /** Kroppen er en fil, som leses etter tilgangskontrollen og ikke tolkes som JSON. */
   fil?: true;
@@ -309,6 +311,12 @@ function skriveavvisning(feil: unknown): Svar {
       409,
       'KONTRAKTSFORKORTELSE_MANGLER',
       'Prosjektet mangler kontraktsforkortelsen, så brevet kan ikke merkes. Brevet er ikke sendt.'
+    );
+  if (feil instanceof LoepenummerTatt)
+    return feilsvar(
+      409,
+      'LOEPENUMMER_TATT',
+      'En annen sak har fått nummeret i brevet. Brevet er ikke sendt. Se over brevet med det nye nummeret, og godkjenn det på nytt.'
     );
   if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
   if (feil instanceof KommandoIdBrukt)
@@ -713,6 +721,34 @@ async function opprettNySak(
   );
 }
 
+/** Koden og løpenummeret brevkontrollen viser (LV-U46), i formen kjernen tar. */
+const sakskodesvar = ({ kode, loepenummer, tildelt }: Sakskode): Svar => [
+  200,
+  { success: true, kode, loepenummer, tildelt },
+];
+
+async function visSakskode(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
+  const kontekst = skrivekontekst(f.bruker, f.prosjekt, medSide(f.side));
+  try {
+    return sakskodesvar(await lesNesteSakskode(avh.datalag, kontekst, f.sakId));
+  } catch (feil) {
+    return skriveavvisning(feil);
+  }
+}
+
+/** For en ny sak: en ID uten kode, så svaret er det neste nummeret for koden. */
+async function visSakskodeForNySak(
+  f: Opprettelsesforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const kontekst = skrivekontekst(f.bruker, f.prosjekt, f.side);
+  try {
+    return sakskodesvar(await lesNesteSakskode(avh.datalag, kontekst, avh.nyId()));
+  } catch (feil) {
+    return skriveavvisning(feil);
+  }
+}
+
 const SAK = '([^/]+)';
 
 const KJERNERUTER: readonly Saksrute[] = [
@@ -733,6 +769,14 @@ const KJERNERUTER: readonly Saksrute[] = [
     tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves' },
     behandle: sendKommando,
   },
+  {
+    metode: 'GET',
+    sti: new RegExp(`^/api/kjerne/saker/${SAK}/sakskode$`),
+    eksempel: (s) => `/api/kjerne/saker/${s}/sakskode`,
+    // Nummeret avhenger av siden, så det krever kontraktsrollen, som skrivingen.
+    tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves' },
+    behandle: visSakskode,
+  },
 ];
 
 const OPPRETTELSE: Opprettelsesrute = {
@@ -747,12 +791,26 @@ const OPPRETTELSE: Opprettelsesrute = {
   behandle: opprettNySak,
 };
 
+const SAKSKODE_FOR_NY_SAK: Opprettelsesrute = {
+  metode: 'GET',
+  ...fast('/api/kjerne/sakskode'),
+  tilgang: {
+    prosjektrolle: 'member',
+    kontraktsrolle: 'kreves',
+    nySak:
+      'Brevkontrollen for en ny sak viser nummeret saken vil få (LV-U46), før saken finnes, så stien har ingen sak. Prosjektet er det i `X-Project-ID`.',
+  },
+  bareTE: 'Du er på BH-siden. En ny sak opprettes av TE.',
+  behandle: visSakskodeForNySak,
+};
+
 /** Registeret over inngangene. En ny inngang står her, ellers finnes den ikke. */
 export const RUTER: readonly Rute[] = [
   ...KJERNERUTER,
   ...VEDLEGGSRUTER,
   ...BREVRUTER,
   OPPRETTELSE,
+  SAKSKODE_FOR_NY_SAK,
   ...VEDLEGG_FOER_SAKEN,
   ...INNLOGGINGSRUTER,
   ...PROSJEKTRUTER,

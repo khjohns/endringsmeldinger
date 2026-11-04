@@ -15,7 +15,7 @@ import { forkast, reservasjon, sql, type Utlaan } from '../datalag.ts';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import { kommandosum, opprettSak } from '../kommandoer.ts';
+import { kommandosum, lesNesteSakskode, opprettSak } from '../kommandoer.ts';
 import { lesSaken } from '../lager.ts';
 import { opprettKjoeretid, SQLSERVER_TILKOBLING, type Pool, type Testbase } from './sqlserver.ts';
 import { iTransaksjon, kopierMigrertTestbase, settInn } from './sqlserver_migrert.ts';
@@ -365,6 +365,24 @@ export const PAABEROPELSE = {
 };
 
 /**
+ * Koden og løpenummeret saken har, eller dem sakens første brev fra løsningen vil få, for
+ * siden, slik brevkontrollen leser dem (LV-U46). Uten sak: det neste for en ny sak.
+ */
+export async function sakskodeFor(
+  o: Oppsett,
+  sakId: string = randomUUID(),
+  side: 'TE' | 'BH' = 'TE'
+): Promise<{ kode: 'koe' | 'eo'; loepenummer: number }> {
+  const [bruker, team] = side === 'TE' ? [o.te, o.prosjekt.teTeam] : [o.bh, o.prosjekt.bhTeam];
+  const { kode, loepenummer } = await lesNesteSakskode(
+    o.datalag.kjoeretid.pool,
+    { aktor: bruker.id, prosjekt: o.prosjekt.id, side, team: catendaId(team)! },
+    sakId
+  );
+  return { kode, loepenummer };
+}
+
+/**
  * TEs kommando med den låste teksten forhåndsvisningen i kjernen gir for saken slik
  * den er lagret nå, som skjemaet viser den (LV-U2).
  */
@@ -385,7 +403,7 @@ export async function medLaastTekst(
       aktoerId: o.te.id,
       part: 'TE',
       teamId: null,
-      sakskode: { kode: 'koe' as const, loepenummer: 17 },
+      sakskode: await sakskodeFor(o, sakId),
       tidspunkt: () => new Date(),
       nyId: randomUUID,
     },

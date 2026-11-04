@@ -132,6 +132,29 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
     expect(await kodenTil(foerste)).toEqual({ kode: 'koe', loepenummer: neste });
   });
 
+  it('brevkontrollen leser nummeret sakens første brev vil få, og etter brevet koden saken fikk; BH får ikke nummeret for en ny sak (LV-U46, LV-U44)', async () => {
+    const les = (sti: string, bruker = o.te) =>
+      kall(server.url, sti, { bruker, prosjektId: o.prosjekt.id });
+    const neste = await nesteFor('koe');
+    const forNySak = await les('/api/kjerne/sakskode');
+    expect(forNySak.status, JSON.stringify(forNySak.kropp)).toBe(200);
+    expect(forNySak.kropp).toMatchObject({ kode: 'koe', loepenummer: neste, tildelt: false });
+    // Kilde: KT-U10, bare TE oppretter en sak.
+    expect((await les('/api/kjerne/sakskode', o.bh)).status).toBe(403);
+
+    const sak = await opprettKjernesak(o);
+    const foer = await les(`/api/kjerne/saker/${sak}/sakskode`);
+    expect(foer.kropp).toMatchObject({ kode: 'koe', loepenummer: neste, tildelt: false });
+    // Lesingen holder ikke av nummeret; en annen sak kan få det før brevet sendes.
+    expect(await kodenTil(sak)).toBeNull();
+    expect((await sendKommando(server.url, o, sak, { versjon: 1 })).status).toBe(201);
+    const etter = await les(`/api/kjerne/saker/${sak}/sakskode`);
+    expect(etter.kropp).toMatchObject({ kode: 'koe', loepenummer: neste, tildelt: true });
+    // Kontrollsak: BH leser samme kode for saken, ikke et EO-nummer.
+    const forBh = await les(`/api/kjerne/saker/${sak}/sakskode`, o.bh);
+    expect(forBh.kropp).toMatchObject({ kode: 'koe', loepenummer: neste, tildelt: true });
+  });
+
   it('en sak uten brev fra løsningen har ingen kode, og sakslisten gir koden og løpenummeret videre (LV-U47)', async () => {
     const uten = await opprettKjernesak(o);
     const med = await opprettKjernesak(o);
@@ -196,13 +219,20 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
       ).toBe(51001);
   });
 
-  it('første brev i to saker samtidig får to nummer etter hverandre, uten hull og uten dobbelt nummer (LV-U46)', async () => {
+  it('første brev i to saker samtidig med samme nummer i teksten: det ene sendes, det andre sendes først med det nye nummeret, uten hull og uten dobbelt nummer (LV-U46)', async () => {
     const saker = [await opprettKjernesak(o), await opprettKjernesak(o)];
     const neste = await nesteFor('koe');
+    // Begge tekstene har nummeret brevkontrollen viste før noen av dem var sendt.
     const svar = await Promise.all(
       saker.map((sak) => sendKommando(server.url, o, sak, { versjon: 1 }))
     );
-    for (const s of svar) expect(s.status, JSON.stringify(s.kropp)).toBe(201);
+    expect(svar.map((s) => s.status).sort()).toEqual([201, 400]);
+    const taperen = saker[svar.findIndex((s) => s.status === 400)];
+    expect(svar.find((s) => s.status === 400)!.kropp.rule).toBe('ANNEN_BREVTEKST');
+    expect(await kodenTil(taperen), 'brevet med det tatte nummeret er ikke sendt').toBeNull();
+    // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt.
+    const igjen = await sendKommando(server.url, o, taperen, { versjon: 1 });
+    expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
     const numre = await Promise.all(saker.map(async (s) => (await kodenTil(s))?.loepenummer));
     expect(numre.sort()).toEqual([neste, neste + 1]);
     const rekke = (await koder()).filter((k) => k.kode === 'koe').map((k) => k.loepenummer);
