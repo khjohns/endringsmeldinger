@@ -2376,19 +2376,6 @@
       "tolkningsstatus": "avklart_tolkning"
     },
     {
-      "id": "EO-08",
-      "tilfelle": "Byggherren oppretter en EO-sak med en omforent KOE-sak.",
-      "forventet": "`kan_utstede_eo` er `false` i KOE-saken.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "KOE-saken inngår i en endringsordre og kan ikke inngå i en annen (EO-U34 punkt 7).",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "EO-U34"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
       "id": "EO-09",
       "tilfelle": "Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen utstedt EO-sak, og TE har bestridt et utsagn i den.",
       "forventet": "Tilknytningen avvises, og journalen er uendret.",
@@ -2421,32 +2408,6 @@
       "forventet": "Endringsordren er `UTSTEDT`, og saken `VENTER_PAA_SVAR`.",
       "bh_standpunkt": "Endringsordrens beløp og dager.",
       "rettslig_virkning": "Byggherren har pålagt endringen. TE har ikke svart.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "V-TFR02"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
-      "id": "EO-12",
-      "tilfelle": "TE godtar endringsordren.",
-      "forventet": "Endringsordren er `AKSEPTERT`, og saken `LUKKET`.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "Endringsordren er avtalt.",
-      "rettidighet": "—",
-      "tidsakse": "registrering",
-      "kilder": [
-        "V-TFR02"
-      ],
-      "tolkningsstatus": "avklart_tolkning"
-    },
-    {
-      "id": "EO-13",
-      "tilfelle": "TE bestrider endringsordren.",
-      "forventet": "Endringsordren er `BESTRIDT`, og saken `LUKKET`.",
-      "bh_standpunkt": "—",
-      "rettslig_virkning": "En endringsordre forhandles ikke. TEs uenighet føres i en KOE.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [

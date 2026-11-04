@@ -19,10 +19,11 @@ grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag.
 Radene GR-19–GR-25 gjelder enighet om vederlag og frist mens grunnlaget er
 omtvistet (GR-U7).
 Radene EO-01–EO-24 gjelder endringsordrene: endringsordre i KOE-saken (EO-01,
-EO-23), når en KOE-sak kan inngå i en endringsordre (EO-02–EO-09),
-EO-sakens livsløp (EO-10–EO-13, EO-15 og EO-16) og KOE-tilknytningen (EO-21, EO-22, EO-24).
-Radene EO-14 og EO-17–EO-20, om revisjon og om TEs svar på hele endringsordren, er fjernet
-med bevis-sakene sine, fordi EO-U34 opphever reglene (punkt 33 og 41, #1553).
+EO-23), når en KOE-sak kan inngå i en endringsordre (EO-02–EO-07 og EO-09),
+EO-sakens livsløp (EO-10, EO-11, EO-15 og EO-16) og KOE-tilknytningen (EO-21, EO-22, EO-24).
+Radene EO-12–EO-14 og EO-17–EO-20, om revisjon og om TEs svar på hele endringsordren, er
+fjernet med bevis-sakene sine, fordi EO-U34 opphever reglene (punkt 33 og 41, #1553). EO-08
+er fjernet fordi et utkast ikke holder av saken (EO-U34, «Når saken inngår»).
 
 **Merknad 2026-10-09:** vedtakene 09.10 i hovedplanen endrer forventningen i
 flere rader. #308 har skrevet om radene etter MM-U9, GR-U10 og KA-U7: KA-03,
@@ -370,12 +371,9 @@ issuenummeret til et vedtak i 3.1.
 | EO-05 | Byggherren godkjenner vederlaget og avslår fristen, og TE godtar avslaget. | Byggherren kan la en endringsordre omfatte saken. | Godkjent vederlag. Avslått frist. | Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12). | — | registrering | [V-TFR01](../plans/vedtak.md), [MM-U34](../plans/vedtak.md#mm-u34), [EO-U12](../plans/vedtak.md#eo-u12) | avklart tolkning | F-EO-05 | — |
 | EO-06 | TE godtar et delvis godkjent vederlagssvar, og byggherren godkjenner fristen. | Byggherren kan la en endringsordre omfatte saken. | Delvis godkjent vederlag, godtatt av TE. Godkjent frist. | Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12). | — | registrering | [MM-U34](../plans/vedtak.md#mm-u34), [EO-U12](../plans/vedtak.md#eo-u12) | avklart tolkning | F-EO-06 | — |
 | EO-07 | Byggherren knytter en KOE-sak som ikke er `OMFORENT`, til en EO-sak gjennom `/api/events` (`eo_koe_lagt_til`). | Tilknytningen godtas, også når KOE-saken ikke har registrert enighet i alle spor. Skjemaet opplyser om sporene uten registrert enighet. | — | Endringsordren omfatter hele KOE-saken. Bare en endringsordre byggherren sender i en EO-sak, lukker saken (EO-U12). | — | registrering | [MM-U34](../plans/vedtak.md#mm-u34), [EO-U12](../plans/vedtak.md#eo-u12) | avklart tolkning | F-EO-07 | DT-08 |
-| EO-08 | Byggherren oppretter en EO-sak med en omforent KOE-sak. | `kan_utstede_eo` er `false` i KOE-saken. | — | KOE-saken inngår i en endringsordre og kan ikke inngå i en annen (EO-U34 punkt 7). | — | registrering | [EO-U34](../plans/vedtak.md#eo-u34) | avklart tolkning | F-EO-08 | DT-07 |
 | EO-09 | Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen utstedt EO-sak, og TE har bestridt et utsagn i den. | Tilknytningen avvises, og journalen er uendret. | — | KOE-saken inngår i høyst én endringsordre, også når et utsagn i den er bestridt (EO-U34 punkt 7). TEs uenighet føres i en ny KOE (EO-U34 punkt 35). | — | registrering | [EO-U34](../plans/vedtak.md#eo-u34), [V-TFR02](../plans/vedtak.md) | avklart tolkning | F-EO-09 | DT-08 |
 | EO-10 | Byggherren oppretter en EO-sak (`eo_opprettet`). | Endringsordren er `UTKAST`, og saken er `UTKAST`. | — | Endringsordren er ikke utstedt. | — | registrering | [V-TFR02](../plans/vedtak.md) | avklart tolkning | F-EO-10 | — |
 | EO-11 | Byggherren utsteder endringsordren. | Endringsordren er `UTSTEDT`, og saken `VENTER_PAA_SVAR`. | Endringsordrens beløp og dager. | Byggherren har pålagt endringen. TE har ikke svart. | — | registrering | [V-TFR02](../plans/vedtak.md) | avklart tolkning | F-EO-11 | — |
-| EO-12 | TE godtar endringsordren. | Endringsordren er `AKSEPTERT`, og saken `LUKKET`. | — | Endringsordren er avtalt. | — | registrering | [V-TFR02](../plans/vedtak.md) | avklart tolkning | F-EO-12 | — |
-| EO-13 | TE bestrider endringsordren. | Endringsordren er `BESTRIDT`, og saken `LUKKET`. | — | En endringsordre forhandles ikke. TEs uenighet føres i en KOE. | — | registrering | [V-TFR02](../plans/vedtak.md) | avklart tolkning | F-EO-13 | — |
 | EO-15 | TE godtar et utsagn i en endringsordre som ikke er utstedt. | Aksepten avvises, og journalen er uendret. | — | Det finnes ingen utstedt endringsordre og ikke noe utsagn å godta. TE godtar et utsagn i en utstedt endringsordre, ikke endringsordren som helhet (EO-U34 punkt 29 og 33). | — | registrering | [V-TFR02](../plans/vedtak.md), [EO-U34](../plans/vedtak.md#eo-u34) | avklart tolkning | F-EO-15 | — |
 | EO-16 | Byggherren utsteder samme endringsordre på nytt. | Utstedelsen avvises, og endringsordren står med beløpet fra første utstedelse. | Første utstedelse. | Endringsordren utstedes én gang og revideres ikke (EO-U34 punkt 41). | — | registrering | [EO-U34](../plans/vedtak.md#eo-u34) | avklart tolkning | F-EO-16 | DT-09 |
 | EO-21 | Byggherren knytter en omforent KOE-sak til en EO-sak etter utstedelsen. | Tilknytningen avvises, og journalen er uendret. Før utstedelsen godtas den. | — | KOE-tilknytningen endres bare før utstedelse (EO-U34 punkt 7). | — | registrering | [EO-U34](../plans/vedtak.md#eo-u34) | avklart tolkning | F-EO-21 | DT-09 |
