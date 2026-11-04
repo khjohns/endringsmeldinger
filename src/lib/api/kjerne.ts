@@ -5,7 +5,7 @@
 
 import { ApiError, apiFetch } from '$lib/api/client';
 import type { Saksmerking } from '$lib/kjernesak/brevtekst';
-import type { Journalrad, Part, Vedlegg } from '$kjerne/typer';
+import type { Journalrad, Korrespondansetype, Part, Vedlegg } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
 /** Navnet er slått opp ved visning; uten treff er det `aktor_id` (#820). */
@@ -134,7 +134,7 @@ export interface NySakTilServeren {
    * Varselet etter punkt 32.2 TE alt har sendt, med datoen og dokumentet (VS-U38). Dokumentet
    * står også i `paaberopelse.dokumentasjon`; ellers avviser serveren kallet (svar 2 i #1487).
    */
-  varsel?: { sendt: string; dokumentasjon: string[] };
+  varsel?: { sendt: string; korrespondansetype: Korrespondansetype; dokumentasjon: string[] };
 }
 
 /**

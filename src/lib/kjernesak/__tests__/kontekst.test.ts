@@ -14,6 +14,7 @@ import {
   brevhindring,
   Feltavvisning,
   lagKjernesak,
+  nummeretErTatt,
   PROGRAMFEIL,
 } from '$lib/kjernesak/kontekst.svelte';
 import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
@@ -216,6 +217,27 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.versjon).toBe(2);
     expect(sak.feil).toBe('Brevet ble ikke sendt. Saken er endret. Last den inn på nytt.');
     expect(sak.sender).toBe(false);
+  });
+
+  it('laster saken på nytt når kjernen avviser teksten fordi en annen sak fikk nummeret (LV-U46)', async () => {
+    const hent = vi.fn(async () => svar([opprettet]));
+    // Formen fra `regelavvisning` i server/app.ts: regelen står i `rule`, ikke i `error`.
+    const send = vi.fn(async () => {
+      throw new ApiError(400, 'Teksten er en annen.', {
+        error: 'REGELBRUDD',
+        rule: 'ANNEN_BREVTEKST',
+      });
+    });
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(hent).toHaveBeenCalledTimes(2);
+    expect(
+      nummeretErTatt(new ApiError(400, '', { error: 'REGELBRUDD', rule: 'ANNEN_BREVTEKST' }))
+    ).toBe(true);
+    expect(nummeretErTatt(new ApiError(409, '', { error: 'LOEPENUMMER_TATT' }))).toBe(true);
+    expect(nummeretErTatt(new ApiError(400, '', { error: 'ANNEN_BREVTEKST' }))).toBe(false);
   });
 
   it('laster ikke saken på nytt når serveren avviser kommandoen av en annen grunn', async () => {

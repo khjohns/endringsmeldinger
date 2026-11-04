@@ -72,7 +72,11 @@ describe('klienten mot TS-serveren', () => {
       innhold: { a: 1 },
       dokumentasjon: ['v1'],
     };
-    const varsel = { sendt: '2026-10-01', dokumentasjon: ['v1'] };
+    const varsel = {
+      sendt: '2026-10-01',
+      korrespondansetype: 'brev' as const,
+      dokumentasjon: ['v1'],
+    };
     await sendNySak(
       'prosjekt-2',
       ID

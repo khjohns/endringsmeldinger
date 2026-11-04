@@ -65,12 +65,13 @@ const maaLastesPaaNytt = (e: unknown) =>
   (e instanceof ApiError && e.status === 409) || nummeretErTatt(e);
 
 /**
- * LV-U46: en annen sak fikk nummeret i teksten før sendingen. Serveren avviser teksten
- * (`ANNEN_BREVTEKST`), eller nummeret (`LOEPENUMMER_TATT`).
+ * LV-U46: en annen sak fikk nummeret i teksten før sendingen. Kjernen avviser teksten
+ * (regelen `ANNEN_BREVTEKST` i `rule`), eller serveren avviser nummeret (`LOEPENUMMER_TATT`).
  */
 export const nummeretErTatt = (e: unknown) => {
-  const kode = e instanceof ApiError && (e.data as { error?: unknown } | undefined)?.error;
-  return kode === 'ANNEN_BREVTEKST' || kode === 'LOEPENUMMER_TATT';
+  if (!(e instanceof ApiError)) return false;
+  const svar = e.data as { error?: unknown; rule?: unknown } | undefined;
+  return svar?.rule === 'ANNEN_BREVTEKST' || svar?.error === 'LOEPENUMMER_TATT';
 };
 
 const meldingFra = (e: unknown, reserve: string | null) =>
