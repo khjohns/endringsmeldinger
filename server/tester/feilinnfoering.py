@@ -282,7 +282,7 @@ FEILINNFOERINGER = [
      "kontraktsforkortelsen i settings.contract"),
     ("S73", "løpenummeret i merkingen får ikke tre sifre (LV-U48, #1497)", "server/levering.ts",
      "    utfylt(sakskode.loepenummer, 3),", "    utfylt(sakskode.loepenummer, 2),",
-     "merkingen av brevet"),
+     "blir K201-KOE-005-03"),
     ("S74", "et prosjekt uten kontraktsforkortelse merker brevet uten den (S2 A, #1497)", "server/levering.ts",
      "  if (!kontraktsforkortelse)\n    throw new KontraktsforkortelseMangler(",
      "  if (false)\n    throw new KontraktsforkortelseMangler(",
