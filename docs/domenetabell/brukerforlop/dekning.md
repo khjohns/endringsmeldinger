@@ -92,6 +92,8 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U41](../../plans/vedtak.md#ka-u41) | — | — | BF-01V |
 | [KA-U43](../../plans/vedtak.md#ka-u43) | — | — | BF-01V |
 | [KA-U45](../../plans/vedtak.md#ka-u45) | — | — | BF-03, BF-06 |
+| [KA-U46](../../plans/vedtak.md#ka-u46) | — | — | BF-01V |
+| [KA-U47](../../plans/vedtak.md#ka-u47) | — | — | BF-01V |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U7](../../plans/vedtak.md#kt-u7) | — | BF-05 start | — |
