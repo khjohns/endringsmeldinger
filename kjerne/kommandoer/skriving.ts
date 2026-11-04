@@ -11,12 +11,8 @@ import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.t
 import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
-import {
-  BrevetAvvises,
-  KanIkkeUttrykkes,
-  lagBrevtekst,
-  lagBrevtittel,
-} from '../frosset/brevtekst.ts';
+import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
+import { lagBrevtittel } from '../frosset/brevtittel.ts';
 import { avvis } from './forutsetninger.ts';
 import {
   brevtekstI,
@@ -436,6 +432,8 @@ function skriv(
     if (tegn) return ugyldigForm(tegn);
     data.brevtekst = brevtekst;
     if (brevtittel) data.brevtittel = brevtittel;
+    // LV-U44, LV-U45: nummeret etter det høyeste i saken, også det avsenderen har oppgitt.
+    data.brevnummer = nesteBrevnummer(lest);
   }
   if (sendes) {
     const avvik = tekstavvik(k.brevtekst, brevtekst);
@@ -454,6 +452,13 @@ function skriv(
       `Kjernen forstår ikke dokumentet den selv skriver: ${hindrer.map((b) => b.grunn).join('; ')}`
     );
   return { godtatt: true, hendelser: [rad] };
+}
+
+/** LV-U45: et nummer kan stå to ganger i saken, så det neste regnes fra det høyeste. */
+function nesteBrevnummer(lest: ReturnType<typeof lesJournal>): number {
+  return (
+    Math.max(0, ...lest.map((h) => (h.art === 'dokument' ? (h.dokument.brevnummer ?? 0) : 0))) + 1
+  );
 }
 
 /**

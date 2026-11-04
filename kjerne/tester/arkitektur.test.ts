@@ -908,7 +908,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
 
   // Brevteksten (frosset/brevtekst.ts, LV-U2, LV-U3, #369). Leses bare når brevet skrives.
-  ['format/leser.ts:lesDokument', 'rad', 'brevtekst brevtittel', ['format/leser.ts']],
+  ['format/leser.ts:lesDokument', 'rad', 'brevtekst brevtittel brevnummer', ['format/leser.ts']],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevtekst.ts']],
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts']],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
@@ -963,8 +963,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'lagBrevtekst KanIkkeUttrykkes BrevetAvvises',
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
-  // MM-U3: brevtittelen fryses med teksten.
-  ['frosset/brevtekst.ts', 'brevtekst', 'lagBrevtittel', ['kommandoer/skriving.ts:brevtekstFor']],
+  // MM-U3, #1536: brevtittelen fryses med teksten, og leseren avviser en tittel skrivingen ikke lager (#1533).
+  [
+    'frosset/brevtittel.ts',
+    'brevtekst',
+    'lagBrevtittel avvikITittelen',
+    ['kommandoer/skriving.ts:brevtekstFor', 'format/leser.ts:lesDokument'],
+  ],
+  ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse', ['frosset/brevtittel.ts']],
+  // LV-U44, LV-U45: brevets nummer i saken, det neste etter det høyeste.
+  ['Dokument', 'brevtekst', 'brevnummer', ['kommandoer/skriving.ts:nesteBrevnummer']],
   [
     'kommandoer/skriving.ts:brevtekstFor',
     'brevtekst',
@@ -1031,10 +1039,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],
   // Forholdene med navnet og hjemmelen (svaret på Q3 i #1488, LV-U43).
-  ['frosset/forholdene.ts', 'brevtekst', 'forholdet paaberopelsenAv', ['frosset/brevtekst.ts']],
+  ['frosset/forholdene.ts', 'brevtekst', 'forholdet', ['frosset/brevtekst.ts']],
+  ['frosset/forholdene.ts', 'brevtekst', 'forholdet paaberopelsenAv', ['frosset/brevtittel.ts']],
   ['FORHOLDSGRUPPER', 'brevtekst', 'forhold', ['frosset/forholdene.ts']],
   ['Forholdet', 'brevtekst', 'kode', ['frosset/forholdene.ts', 'frosset/brevtekst.ts']],
   ['Forholdet', 'brevtekst', 'navn hjemmel', ['frosset/brevtekst.ts']],
+  ['Forholdet', 'brevtekst', 'navn', ['frosset/brevtittel.ts']],
   ['frosset/brevtekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
   ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],

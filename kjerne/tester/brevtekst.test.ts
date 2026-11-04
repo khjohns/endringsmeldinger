@@ -3250,6 +3250,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       utsagn: [{ id: 'p', art: 'protest', gjelder }],
       brevtekst: null,
       brevtittel: null,
+      brevnummer: null,
       beskrivelse: null,
       spor: [],
       retter: null,
@@ -3336,6 +3337,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       utsagn: [{ id: 'v', art: 'varsel', hjemmel: '33.4', dokument: 'brevet' }],
       brevtekst: null,
       brevtittel: null,
+      brevnummer: null,
       beskrivelse: null,
       spor: [],
       retter: null,
@@ -3683,6 +3685,7 @@ describe('vedleggene står i teksten (A4)', () => {
     utsagn: [{ id: 'u', art: 'ingen_krav', spor: 'frist' }],
     brevtekst: null,
     brevtittel: null,
+    brevnummer: null,
     beskrivelse: null,
     spor: [],
     retter: null,
@@ -6595,15 +6598,53 @@ describe('brevtittelen fryses med brevet (MM-U3, svaret 03.11 i #1488)', () => {
     );
   });
 
-  it('et brev som ikke påberoper et forhold, får ingen frosset tittel', () => {
+  // #1536: hvert brev løsningen sender, fryser tittelen visningen ga det (tekster.ts før #1536).
+  it('kravet og svaret fryser tittelen sin med teksten (#1536)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    const vederlag = {
+    const krav = s.send('TE', {
       type: 'krav',
       spor: 'vederlag',
       innhold: { metode: 'tilbud', beloep: 1000 },
-    };
-    expect(s.send('TE', vederlag).data).not.toHaveProperty('brevtittel');
+    });
+    expect(krav.data.brevtittel).toBe('Krav om vederlagsjustering');
+    const svaret = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      ],
+    });
+    expect(svaret.data.brevtittel).toBe('Svar på forholdet');
+    const lest = lesJournal(s.journal, KJERNE.leserformat).at(-1)!;
+    expect(lest.art === 'dokument' && lest.dokument.brevtittel).toBe('Svar på forholdet');
+  });
+
+  // #1533, MM-U2: leseren avviser en tittel skrivingen ikke lager.
+  const lestMed = (s: ReturnType<typeof sak>, rad: Journalrad, data: Data) =>
+    lesJournal(
+      [...s.journal.slice(0, -1), { ...rad, data: { ...rad.data, ...data } }],
+      KJERNE.leserformat
+    ).at(-1)!.art;
+
+  it('en påberopelse med tittelen for et annet forhold er ikke forstått (#1533)', () => {
+    const s = sak();
+    const rad = s.send('TE', PAABEROPELSE);
+    expect(lestMed(s, rad, {}), 'kontrollsak').toBe('dokument');
+    expect(lestMed(s, rad, { brevtittel: 'Påberopelse av forsinkelse' })).toBe('ukjent');
+    expect(lestMed(s, rad, { brevtittel: 'Krav om endring' })).toBe('ukjent');
+  });
+
+  it('et svar med tittelen for en påberopelse er ikke forstått (#1533)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      ],
+    });
+    expect(lestMed(s, rad, {}), 'kontrollsak').toBe('dokument');
+    expect(lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endring' })).toBe('ukjent');
   });
 
   it('en brevtittel uten tekst fra appen er ikke forstått, og kontrollsaken med teksten er det', () => {
@@ -6636,4 +6677,47 @@ it('datoen pålegget ble mottatt følger varslingsplikten etter punkt 32.2 for h
       .map((u) => `${h}/${u}`)
   );
   expect(avvik).toEqual([]);
+});
+
+describe('brevets nummer i saken (LV-U44, LV-U45, N3 i #1497)', () => {
+  it('løsningens brev får nummeret etter det høyeste i saken', () => {
+    const s = sak();
+    expect(s.send('TE', PAABEROPELSE).data.brevnummer).toBe(1);
+    const neste = s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { metode: 'tilbud', beloep: 1000 },
+    });
+    expect(neste.data.brevnummer).toBe(2);
+    const lest = lesJournal(s.journal, KJERNE.leserformat).at(-1)!;
+    expect(lest.art === 'dokument' && lest.dokument.brevnummer).toBe(2);
+  });
+
+  // LV-U45: avsenderens eget nummer telles, og et nummer kan stå to ganger.
+  it('et høyere nummer i journalen gir det neste, og to brev kan ha samme nummer', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.journal.at(-1)!.data.brevnummer = 5;
+    const neste = s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { metode: 'tilbud', beloep: 1000 },
+    });
+    expect(neste.data.brevnummer).toBe(6);
+    s.journal.at(-1)!.data.brevnummer = 5;
+    expect(lesJournal(s.journal, KJERNE.leserformat).every((h) => h.art !== 'ukjent')).toBe(true);
+  });
+
+  it('et brevnummer som ikke er et positivt heltall, er ikke forstått', () => {
+    const s = sak();
+    const rad = s.send('TE', PAABEROPELSE);
+    const med = (brevnummer: unknown) =>
+      lesJournal(
+        [...s.journal.slice(0, -1), { ...rad, data: { ...rad.data, brevnummer } }],
+        KJERNE.leserformat
+      ).at(-1)!.art;
+    expect(med(1), 'kontrollsak').toBe('dokument');
+    expect(med(0)).toBe('ukjent');
+    expect(med(1.5)).toBe('ukjent');
+  });
 });

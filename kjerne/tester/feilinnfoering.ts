@@ -3581,6 +3581,34 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["if (k.spor !== 'forhold' && 'dokumentasjon' in k)", 'if (false)']],
     mal: ['et vedlegg ved et fristkrav utenfor varselet avvises i formen'],
   },
+  {
+    id: 'F437',
+    feilklasse: 'løsningens brev får det høyeste nummeret i saken, ikke det neste (LV-U44, LV-U45)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['(h.dokument.brevnummer ?? 0) : 0))) + 1', '(h.dokument.brevnummer ?? 0) : 0))) + 0'],
+    ],
+    mal: ['løsningens brev får nummeret etter det høyeste i saken'],
+  },
+  {
+    id: 'F438',
+    feilklasse: 'leseren godtar en påberopelse med tittelen for et annet forhold (GR-U31, #1533)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [
+      [
+        'if (f ? !tittel.startsWith(paaberopelsenAv(f.navn)) : paaberoper)',
+        'if (f ? !paaberoper : paaberoper)',
+      ],
+    ],
+    mal: ['en påberopelse med tittelen for et annet forhold er ikke forstått'],
+  },
+  {
+    id: 'F439',
+    feilklasse: 'leseren godtar en tittel i et brev løsningen ikke gir en tittel (MM-U3, #1533)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [['if (lagBrevtittel(d) === null)', 'if (false)']],
+    mal: ['en bestridelse med tittelen fra innsigelsen er ikke forstått'],
+  },
 ];
 
 interface Testresultat {
