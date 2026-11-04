@@ -472,7 +472,7 @@ def kontroller(
         for sti, data in kildefiler(rot)
         for f in kildefeil(
             sti, data, kjente, opphevet, aapne, design_, designavvik, designtruffet,
-            avvik, truffet,
+            avvik=avvik, truffet=truffet,
         )
     ]
     return (

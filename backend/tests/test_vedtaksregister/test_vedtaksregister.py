@@ -1437,11 +1437,15 @@ def test_et_forhold_til_et_vedtak_et_samlevedtak_opphever_gir_ingen_feil(grunnre
     assert vr.forhold_til_opphevet_feil(med(med(grunnregister, presiserer), samlevedtak), frozenset()) == []
     endret = med(med(grunnregister, presiserer), _opphever("XX-U2", "ka-u2"))
     assert vr.forhold_til_opphevet(endret) != {}
+    selv = copy.deepcopy(samlevedtak)
+    selv["forhold"].append({"art": "bygger på", "vedtak": "ka-u2"})
+    assert vr.forhold_til_opphevet(med(grunnregister, selv)) != {}
 
 
 def test_en_gruppe_uten_tekst_etter_tabellen_kan_faa_tekst():
     """Teksten etter en tabell kan bare få hele avsnitt lagt til, også når det ikke sto noe der."""
     assert vr._bare_lagt_til("", "##### Ny overskrift\n\nEt nytt avsnitt.\n")
+    assert vr._bare_lagt_til("\n", "Et nytt avsnitt.\n")
     assert not vr._bare_lagt_til("Et avsnitt.", "Et annet avsnitt.")
 
 

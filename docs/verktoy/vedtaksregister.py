@@ -1133,7 +1133,7 @@ def forhold_til_opphevet(register: dict) -> dict[tuple[str, str, str], list[str]
         for f in p.get("forhold", [])
         if f["art"] in FORHOLD_TIL_OPPHEVET
         and f["vedtak"] in opphevet
-        and not samlevedtak.intersection(opphevet[f["vedtak"]])
+        and not (samlevedtak - {anker(p) or etikett(p)}).intersection(opphevet[f["vedtak"]])
     }
 
 
@@ -1464,7 +1464,7 @@ def _avsnittene(tekst: str) -> list[str]:
 def _bare_lagt_til(gammel: str, ny: str) -> bool:
     """Hvert avsnitt i den gamle teksten står uendret i den nye, i samme rekkefølge, så ny
     tekst er hele nye avsnitt. Et avsnitt i en merknad skilles med en linje med bare >."""
-    if not gammel:
+    if not gammel.strip():
         return True
     avsnitt_ = iter(_avsnittene(ny))
     return all(any(g == n for n in avsnitt_) for g in _avsnittene(gammel))
