@@ -58,15 +58,17 @@ export interface Kjernesakvalg {
 }
 
 /**
- * En konflikt, eller en tekst serveren ville laget annerledes, fordi en annen sak har fått
- * nummeret (`ANNEN_BREVTEKST`, LV-U46). Brevet vises da med saken slik den er lagret nå.
+ * En konflikt, eller en tekst serveren ville laget annerledes (`ANNEN_BREVTEKST`), for
+ * eksempel fordi en annen sak har fått nummeret (LV-U46). Saken lastes da på nytt, og
+ * serverens melding står.
  */
 const maaLastesPaaNytt = (e: unknown) =>
   (e instanceof ApiError && e.status === 409) || nummeretErTatt(e);
 
 /**
- * LV-U46: en annen sak fikk nummeret i teksten før sendingen. Kjernen avviser teksten
- * (regelen `ANNEN_BREVTEKST` i `rule`), eller serveren avviser nummeret (`LOEPENUMMER_TATT`).
+ * Teksten eller nummeret kan være utdatert (LV-U46). Kjernen avviser teksten (regelen
+ * `ANNEN_BREVTEKST` i `rule`), også når appen er en annen versjon, eller serveren avviser
+ * nummeret (`LOEPENUMMER_TATT`). Om nummeret er endret, avgjøres av teksten bygget på nytt.
  */
 export const nummeretErTatt = (e: unknown) => {
   if (!(e instanceof ApiError)) return false;

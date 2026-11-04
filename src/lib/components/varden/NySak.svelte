@@ -233,6 +233,9 @@
     oppsummering?.focus();
   }
 
+  const sammeTekst = (a: string[], b: string[]) =>
+    a.length === b.length && a.every((t, i) => t === b[i]);
+
   /** Brevet med nummeret saken vil få nå (LV-U46), eller `null` når nummeret ikke kan hentes. */
   async function brevetMedNummer() {
     try {
@@ -269,7 +272,14 @@
         if (nummeretErTatt(e)) {
           // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
           const brev = await brevetMedNummer();
-          if (brev && 'tekst' in brev && brev.tekst && kontroll) {
+          // Samme tekst betyr at teksten var annerledes av en annen grunn; da står serverens melding.
+          if (
+            brev &&
+            'tekst' in brev &&
+            brev.tekst &&
+            kontroll &&
+            !sammeTekst(brev.tekst, kontroll.tekst)
+          ) {
             kontroll = {
               ...kontroll,
               tekst: brev.tekst,

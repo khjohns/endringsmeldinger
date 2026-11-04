@@ -17,9 +17,10 @@ import {
   type VedleggForNySak,
 } from '$lib/components/varden/nysak';
 import type { Kjernevedlegg } from '$lib/api/kjerne';
-import { kravMotNySak } from '$lib/kjernesak/brevtekst';
+import { kravMotNySak, type Saksmerking } from '$lib/kjernesak/brevtekst';
+import { ApiError } from '$lib/api/client';
 import { KJERNE } from '$kjerne/versjon';
-import { brevtittel } from '$lib/components/varden/tekster';
+import { brevtittel, NYSAK } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
@@ -43,12 +44,14 @@ function lagVedleggsgrense() {
 
 function aapne(
   send = vi.fn<SendNySak>(async () => ({ sakId: 'ny-sak' })),
-  { utkast = null as Utfylling | null } = {}
+  {
+    utkast = null as Utfylling | null,
+    hentMerking = async (): Promise<Saksmerking> => DEMOMERKING,
+  } = {}
 ) {
   const onsendt = vi.fn();
   const onavbrutt = vi.fn();
   const vedleggForNySak = lagVedleggsgrense();
-  const hentMerking = async () => DEMOMERKING;
   render(NySak, {
     sakId: 'ny-sak',
     send,
@@ -488,6 +491,48 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(nytt.paaberopelse).toEqual(forsoek.paaberopelse);
     expect(nytt.tekst).toEqual(forsoek.tekst);
     expect(andre.vedleggForNySak.lastOpp).not.toHaveBeenCalled();
+  });
+
+  it('LV-U46: tok en annen sak nummeret, vises brevet med det nye nummeret og sendes med det', async () => {
+    let nummer = 17;
+    const send = vi
+      .fn<SendNySak>()
+      .mockImplementationOnce(async () => {
+        nummer = 18;
+        throw new ApiError(400, 'Teksten er en annen.', {
+          error: 'REGELBRUDD',
+          rule: 'ANNEN_BREVTEKST',
+        });
+      })
+      .mockResolvedValue({ sakId: 'ny-sak' });
+    const hentMerking = async (): Promise<Saksmerking> => ({
+      ...DEMOMERKING,
+      sakskode: { kode: 'koe', loepenummer: nummer },
+    });
+    aapne(send, { hentMerking });
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await screen.findByText(NYSAK.nyttNummer);
+    expect(send.mock.calls[0][0].tekst.join(' ')).toContain('KOE-17');
+    // Avsenderen godkjenner brevet med det nye nummeret.
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
+    expect(send.mock.calls[1][0].tekst.join(' ')).toContain('KOE-18');
+  });
+
+  it('LV-U46: er teksten annerledes av en annen grunn, står serverens melding og ikke meldingen om nummeret', async () => {
+    const melding = 'Teksten avsenderen har sett, er ikke den serveren lager.';
+    const send = vi
+      .fn<SendNySak>()
+      .mockRejectedValue(
+        new ApiError(400, melding, { error: 'REGELBRUDD', rule: 'ANNEN_BREVTEKST' })
+      );
+    aapne(send);
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    await screen.findByText(melding, { exact: false });
+    expect(screen.queryByText(NYSAK.nyttNummer)).toBeNull();
   });
 
   it('5a: «Avbryt» spør før det som er skrevet slettes, og sender ingenting', async () => {
