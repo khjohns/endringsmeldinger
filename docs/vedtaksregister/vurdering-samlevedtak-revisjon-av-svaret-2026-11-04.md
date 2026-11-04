@@ -15,8 +15,7 @@ poster: GR-U4, GR-U7, GR-U17, GR-U20, HF-U5, HF-U6, HF-U14, HF-U21, MM-U9, MM-U2
 Motsigelsen MM-U27, HF-U4, HF-U5 og MM-U34 i
 [klassifiseringen](vurdering-klassifisering-2026-11-03.md#motsigelsene-i-registeret) sier at
 delen av MM-U27 om en revisjon «avgjøres i samlevedtaket for kjeden». MM-U27 står også i
-kjeden for saker kjernen ikke forstår. Hvem som eier setningen, er sendt til orkestratoren
-(se «Overlapp»). Kildene ellers er MM-U42, EO-U34, EO-U35 og LV-U34.
+kjeden for saker kjernen ikke forstår. Orkestratoren har lagt setningen hit (se «Overlapp»). Kildene ellers er MM-U42, EO-U34, EO-U35 og LV-U34.
 
 Alle postene i kjeden unntatt HF-U14 og MM-U34 står også i andre kjeder, og HF-U5 i tretten.
 Samlevedtaket endrer derfor bare de setningene som gjelder et nytt svar. Resten av postene
@@ -32,7 +31,8 @@ endrer ingen av dem.
 Overlapp med kjeden «Saker kjernen ikke forstår, og strid med enighet», som kartlegges
 samtidig: begge kjedene har HF-U5 og MM-U27. Forslaget til orkestratoren 04.11: revisjonskjeden
 endrer de tre setningene om vernet i HF-U5 (E1) og andre setning i MM-U27 (E1), og den andre
-kjeden eier resten av MM-U27 og HF-U4. *Venter på svar.*
+kjeden eier resten av MM-U27 og HF-U4. Orkestratoren godtok forslaget 04.11
+([#1534, 6629614102](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6629614102)).
 
 ## Postene i kjeden
 
@@ -49,7 +49,7 @@ endres, og resten av posten står og hører til en annen kjede.
 | GR-U17 | vedtak | gjeldende | endrer setningen «En revisjon til avslag eller til påberopelse etter § 32.2 avvises, mens en revisjon til endringsordre er tillatt.»; resten hører til kjeden for frafall | E3 |
 | GR-U20 | vedtak | gjeldende | endrer «, ikke med avslag» i «Byggherren kan svare på den med frafall eller endringsordre, ikke med avslag.»; resten hører til kjeden for frafall | E3 |
 | MM-U9 | vedtak med designdel | gjeldende | endrer setningen om merknaden ved spørsmål 2 A og C; samler den ved B; resten hører til kjeden for sendte brev | E4 |
-| MM-U27 | vedtak | gjeldende | endrer andre setning, hvis orkestratoren legger den hit | E1 |
+| MM-U27 | vedtak | gjeldende | endrer andre setning, «Det samme gjelder en revisjon som senker …»; resten hører til kjeden for saker kjernen ikke forstår | E1 |
 | GR-U4 | vedtak | gjeldende | ingen setning endres; regelen for et nytt svar mens grunnlaget er ubesvart står i GR-U26 og hører til kjeden for det | – |
 | HF-U21 | vedtak | gjeldende | ingen setning endres; bindingen etter en ny grunnlagsversjon hører til kjeden for grunnlagskravet | – |
 | HF-U14 | vedtak | opphevet 28.10 av MM-U34 punkt 15 | står opphevet; LV-U31 står etter HF-U23 | – |
@@ -120,8 +120,7 @@ godtatt, avviser appen en endring som senker noe byggherren har innrømmet i sva
 grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, eller en
 innsigelse hen har gitt opp. Sammenlikningen gjøres standpunkt for standpunkt, slik
 standpunktene står i brevene (MM-U11), og en revisjon som senker ett standpunkt, avvises også
-når den hever et annet. En revisjon som bare endrer i TEs favør, er tillatt, …». Hvis
-orkestratoren legger setningen hit: MM-U27 «Det samme gjelder en revisjon som senker noe
+når den hever et annet. En revisjon som bare endrer i TEs favør, er tillatt, …»; MM-U27 «Det samme gjelder en revisjon som senker noe
 byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5).» Samlevedtaket: punkt 1 og
 6. Setningene gjelder ikke lenger. Hvorfor: MM-U34 punkt 4 «Vernet mot revisjon oppheves. Ny
 kjerne: «Byggherren kan sende et nytt strukturert svar, også med lavere beløp eller andre
@@ -215,7 +214,7 @@ vedtakene.*
    svar som ikke er godtatt, sperren mot påberopelse etter frafall og setningene i vedtaket
    om løfter som vedtaket 28.10 strøk uten å navngi dem. Forslaget samler reglene for
    byggherrens nye svar i én tekst med kilde per setning, og endrer de navngitte setningene
-   i HF-U5, HF-U6, GR-U7, GR-U17, GR-U20 og MM-U9 (og MM-U27, hvis den legges hit). Hver
+   i HF-U5, HF-U6, GR-U7, GR-U17, GR-U20, MM-U9 og MM-U27. Hver
    innholdsendring står i E1–E5 med gammel tekst, ny tekst og kilde. Reglene for
    endringsordren gjelder foran (punkt 7). Alternativene: **A.** «Samlevedtaket for revisjon
    av byggherrens svar gjelder med E1–E5. I postene det endrer, gjelder de navngitte
