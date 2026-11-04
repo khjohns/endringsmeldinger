@@ -17,6 +17,20 @@
 #    «forhold» skrives av verktøyet.
 # 6. Forholdet «presiserer» til MM-U34 gjelder punkt 5 og 7, og forholdet til EO-U34 gjelder
 #    bare punkt 46 (står i «folge»).
+# 7. Klassene er kontrollert uavhengig 04.11 av en subagent etter testen i vedtaksskillen
+#    (svar 8 i #1534). Resultatet, som orkestratoren avgjør og fører i #1534:
+#    HF-U25: vedtak, som i utkastet. Delene er rettet etter kontrollen (designdel smalere, ny
+#      beslutningsdel «Et forløp for det nye svaret skrives når det bygges.»). Kontrollen sier
+#      at sperren i første setning i punkt 7 kan føres i beslutningsdelen, som i EO-U34
+#      («med sperrene i punkt 12, 14 og 37»), men at det er skjønn (MM-U42 har sperren uten
+#      beslutningsdel). Utkastet følger MM-U42. Teksten i samlevedtaket sier «*vedtak* med
+#      designdel» og endres ikke, fordi den er ordrett slik den ble lagt fram.
+#    HF-U26: kontrollen foreslår klasse = "design", bindende_i = ["mm-u9", "mm-u12"], uten
+#      designdel: «Løsningen avgjør ikke om et nytt svar er rettslig virksomt» står i MM-U12,
+#      MM-U34 punkt 4 og MM-U42, og resten er teksten i en visning (MM-U9 har designdel =
+#      «merknaden om avviket»). Spørsmålet ble stilt med «Klasse: vedtak med designdel».
+#      Utkastet står som vedtak til orkestratoren har avgjort.
+#    HF-U27: vedtak, som i utkastet.
 
 etter = '''
 ##### <a id="samlevedtak-revisjon"></a>Samlevedtaket for revisjon av byggherrens svar (HF-U25)
@@ -147,7 +161,8 @@ parten likevel er løst fra utsagnet, avgjør ikke appen (MM-U12).»
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "punkt 8 og avsnittet «Designdel»"
+designdel = "de to første setningene i punkt 8, punkt 9 uten den siste setningen, og første setning i avsnittet «Designdel»"
+beslutningsdel = "«Et forløp for det nye svaret skrives når det bygges.»"
 id = "HF-U25"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
