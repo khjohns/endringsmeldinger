@@ -11,8 +11,10 @@ eksportsetningene med sti er byte-lik, og hver relativ sti i dem peker på den
 samme fila, regnet gjennom omdøpingene. I setningene ses det bort fra blanktegn
 og et komma før `}`, som prettier legger til når en import brytes over flere
 linjer. En import med doble anførselstegn eller noe etter stien er tekst og må
-være lik. Kjenner ikke git igjen omdøpingen, er fila slettet og ny, og begge
-teller som endret.
+være lik. Er teksten ikke lik, sammenlignes den på samme måte uten kommentarer
+(`kommentarer.py`, #1549), så en fil der bare kommentarene er endret, også
+regnes som flyttet. Kjenner ikke git igjen omdøpingen, er fila slettet og ny,
+og begge teller som endret.
 
 En endret fil krever versjonene for både den gamle og den nye plassen. En fil
 som bare er flyttet, krever versjonen som dekket den gamle plassen og ikke den
@@ -24,8 +26,9 @@ Bruk: git -c core.quotePath=false diff --name-status -M FRA HEAD \\
 
 import posixpath
 import re
-import subprocess
 import sys
+
+from kommentarer import tekst, uten_kommentarer
 
 REGELVERSJON = ("kjerne/regler/", "kjerne/frosset/")
 
@@ -37,10 +40,6 @@ def dekker(versjon: str, sti: str) -> bool:
 
 
 SETNING = re.compile(r"^(?:import|export)\b[^;'\"]*?\bfrom\s*'([^']*)';|^import\s*'([^']*)';", re.MULTILINE)
-
-
-def tekst(ref: str, sti: str) -> str:
-    return subprocess.run(["git", "show", f"{ref}:{sti}"], check=True, capture_output=True, text=True).stdout
 
 
 def normalisert(innhold: str, sti: str, omdoept: dict[str, str]) -> list[str]:
@@ -68,7 +67,11 @@ def main() -> int:
         status = l[0][0]
         if status in "RM":
             gammel, ny = (l[1], l[2]) if status == "R" else (l[1], l[1])
-            lik = normalisert(tekst(fra, gammel), gammel, omdoept) == normalisert(tekst("HEAD", ny), ny, {})
+            for_, etter = tekst(fra, gammel), tekst("HEAD", ny)
+            lik = normalisert(for_, gammel, omdoept) == normalisert(etter, ny, {})
+            if not lik:
+                for_, etter = uten_kommentarer(for_, gammel), uten_kommentarer(etter, ny)
+                lik = None not in (for_, etter) and normalisert(for_, gammel, omdoept) == normalisert(etter, ny, {})
         else:
             gammel = ny = l[-1]
             lik = False

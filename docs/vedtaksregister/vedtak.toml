@@ -465,6 +465,7 @@ skjemaet til #313 Delvis bygget, kontrollert 20.10 (#417): et svar fra appen med
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-9"
 anker = "ka-u31"
 vedtak = '''
 KA-U31: begrunnelsen i et svar byggherren sender fra appen, står per svar, som
@@ -989,6 +990,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-10"
 bindende_i = ["ka-u43", "mm-u33"]
 id = "KA-U41"
 dato = 2026-10-23
@@ -2438,6 +2440,7 @@ anbefalt = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#gr-u30"
 id = "GR-U30"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -6015,6 +6018,7 @@ tekst = "en KOE-sak inngår i høyst én endringsordre, også når den er bestri
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-06.md#u-22"
 id = "EO-U14"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -8539,6 +8543,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u22"
 id = "MM-U22"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -8608,6 +8613,7 @@ tekst = "Visningen sier at et varsel med frist må sendes utenfor appen og regis
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u23"
 bindende_i = ["vs-u3", "hf-u11"]
 id = "MM-U23"
 dato = 2026-10-17
@@ -8674,6 +8680,7 @@ tekst = "I et brev fra appen utleder appen virkningen av standpunktet i den fast
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u24"
 bindende_i = ["lv-u9", "hf-u11"]
 id = "MM-U24"
 dato = 2026-10-17
@@ -8738,6 +8745,7 @@ tekst = "Når bindingen inntrer og når en akseptfrist løper ut, regner appen f
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u25"
 id = "MM-U25"
 dato = 2026-10-17
 hvem = "oppdragsgiver"
@@ -9242,6 +9250,7 @@ tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u30"
 id = "MM-U30"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -9286,6 +9295,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u31"
 id = "MM-U31"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -9321,6 +9331,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u32"
 id = "MM-U32"
 dato = 2026-10-23
 hvem = "oppdragsgiver"
@@ -10456,6 +10467,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-11"
 bindende_i = ["mm-u35", "mm-u33"]
 id = "MM-U36"
 dato = 2026-11-01
@@ -10500,6 +10512,7 @@ tekst = "Svaret fra appen gjentar innsigelsen som utgangspunkt, og gir byggherre
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-05.md#u-8"
 bindende_i = ["lv-u41"]
 id = "LV-U43"
 dato = 2026-11-01
@@ -10790,6 +10803,47 @@ kilde = "hovedplanen"
 tekst = "Bare parten som sendte det, kan velge noe annet enn dokumentasjon."
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u44"]
+id = "LV-U48"
+dato = 2026-11-04
+hvem = "oppdragsgiver"
+kilde = ["#1497"]
+sporsmal = '''
+Spørsmål D3, ordrett slik det ble stilt 04.11 i orkestreringsrunde 7 (#1065), ført i #1497 (kommentaren 6625520661). Det er den siste versjonen før svaret. Den første versjonen hadde alternativene A, B og C. Oppdragsgiver svarte på den med spørsmålet «D3 - er ikke B best mtp sortering hvis brevene er lastet ned fra flere saker?», og versjonen under kom etter det. Alternativene står i posten, uten kodeformateringen i eksemplene. Svaret og tillegget står i kommentarene 6625242802 og 6625261913.
+
+**D3:** Ja, B sorterer bedre. Filnavn sorteres som tekst, tegn for tegn. Med A havner `K201-KOE-17-03` foran `K201-KOE-5-03`, fordi tegnet «1» kommer før «5». Med B kommer `KOE-05` foran `KOE-17`, i riktig rekkefølge.
+
+B sorterer likevel bare riktig til og med sak 99. Kommer prosjektet til sak 100, havner `KOE-100` foran `KOE-99`. Med mange endringer i et stort prosjekt kan det skje.
+
+- **B:** to sifre i begge tallene, `K201-KOE-05-03`. Det følger «KOE-nn» i LV-U44 og sorterer riktig til og med sak 99.
+- **B3 (anbefalt):** tre sifre i løpenummeret og to i brevnummeret, `K201-KOE-005-03`. Det sorterer riktig til og med sak 999, men avviker fra «KOE-nn».
+
+Henvisningen i brevteksten står uten utfylling i begge, som «brev 3 i sak KOE-17».
+
+Velger du B eller B3?'''
+valgt = "B3"
+svar = '''
+Oppdragsgiver 04.11, ordrett ([svaret](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6625242802)): «D5 A, D3 B3»
+
+Tillegg fra oppdragsgiver 04.11, ordrett ([tillegget](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6625261913)): «Og om D3 - tilsvarende må gjelde for andre brevtyper feks EO»'''
+forhold = [{ art = "endrer", vedtak = "lv-u44" }]
+folge = '''
+Bygges i #1497.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+to sifre i begge tallene, K201-KOE-05-03. Det følger «KOE-nn» i LV-U44 og sorterer riktig til og med sak 99.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B3"
+tekst = '''
+tre sifre i løpenummeret og to i brevnummeret, K201-KOE-005-03. Det sorterer riktig til og med sak 999, men avviker fra «KOE-nn».'''
+anbefalt = true
+
+[[gruppe.vedtak]]
 klasse = "design"
 id = "MM-U37"
 dato = 2026-11-02
@@ -10875,6 +10929,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#mm-u40"
 id = "MM-U40"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -13224,6 +13279,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-12"
 id = "OV-U20"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
@@ -14980,6 +15036,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-01.md#u-13"
 id = "OV-U62"
 dato = 2026-10-26
 hvem = "oppdragsgiver"
@@ -15668,6 +15725,7 @@ anbefalt = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#ov-u75"
 id = "OV-U75"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15719,6 +15777,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-05.md#u-9"
 bindende_i = ["ov-u82"]
 id = "OV-U76"
 dato = 2026-11-01
@@ -15783,6 +15842,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-05.md#u-10"
 id = "OV-U77"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15829,6 +15889,7 @@ anbefalt = true
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = "BF-05.md#u-11"
 id = "OV-U78"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -16422,6 +16483,7 @@ tekst = "Så lenge et brev sendt utenfor appen står registrert som dokumentasjo
 
 [[gruppe.vedtak]]
 klasse = "design"
+flyttet_til = ".interface-design/system.md#ov-u87"
 id = "OV-U87"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
