@@ -49,7 +49,7 @@ Spørsmålene om klassene etter kartleggingen ble stilt 04.11, og svarene står 
 - **Svar 1 (A).** Klassen er *vedtak*, *beslutning* eller *design*. «Historisk» er fjernet
   som klasse og står som tilstand i en egen kolonne. Av de 37 radene som var *historisk*, er
   32 opphevet eller erstattet etter Følge. MM-U28, MM-U29, OV-U71 og rad-076 er opphevet når
-  Følge rettes i steg 3, og står slik i kolonnen. HF-U20 er gjeldende, med motsigelsen, til
+  Følge rettes i steg 3, og står slik i kolonnen (MM-U29 som erstattet av MM-U40). HF-U20 er gjeldende, med motsigelsen, til
   samlevedtaket for akseptfristen opphever det.
 - **Svar 2 (A).** Definisjonene og testen står i vedtaksskillen. Klassen for de 37 radene er
   satt etter den.
@@ -137,7 +137,7 @@ Enkelttilfeller:
 - OV-U69 og 16 vedtak: OV-U69 sier at endringene OV-U49 gjorde i andre vedtak, faller bort. Følge i GR-U7, GR-U8, GR-U26, HF-U5, HF-U9, HF-U15, KA-U6, KA-U10, KA-U16, KA-U19, KA-U22, LV-U4, MM-U28, MM-U30, OV-U3 og OV-U61 fører dem likevel uten merknad, og bare OV-U43 sier det. Det samme gjelder OV-U48 i KA-U19 og OV-U6, og OV-U47 i LV-U32.
 - KA-U24, KA-U43, OV-U80: KA-U43 opphevet KA-U24 31.10, men OV-U80 (01.11) viser til KA-U24 for at begrunnelsen er unntatt. HF-U7, KA-U34, KA-U41 og VS-U13 viser også til KA-U24 som gjeldende, og HF-U7 viser til KA-U26, som KA-U45 opphevet.
 - HF-U17, HF-U20, HF-U22, HF-U14, LV-U31: HF-U20 og HF-U22 presiserer HF-U17, og LV-U31 presiserer HF-U14. MM-U34 opphevet både HF-U17 og HF-U14. HF-U20 og LV-U31 er ikke endret av den grunn, og Følge for HF-U22 begrunner den fortsatt med det HF-U17 tillater.
-- MM-U27, HF-U4, HF-U5, MM-U34: MM-U27 bygger på sperren i HF-U4 og vernet i HF-U5, som MM-U34 punkt 6 og 4 opphevet, men MM-U34 lister ikke MM-U27 blant vedtakene det endrer.
+- MM-U27, HF-U4, HF-U5, MM-U34: MM-U27 bygger på sperren i HF-U4 og vernet i HF-U5, som MM-U34 punkt 6 og 4 endret, men MM-U34 lister ikke MM-U27 blant vedtakene det endrer. Etter kontrollen er HF-U4 og MM-U27 snevret inn, ikke opphevet: punkt 6 løfter bare byggherrens «i tide» (mønster 7).
 - EO-U9, MM-U21, HF-U12: MM-U21 utvider og HF-U12 presiserer EO-U9, som MM-U34 opphevet, og ingen av dem er endret av den grunn.
 - EO-U2, EO-U5, EO-U6, EO-U9, OV-U2, OV-U3, OV-U6, EO-U1, GFK-U2, rad-283: Følge og tekst sier at EO-U2, EO-U5, EO-U6 og EO-U9 gjelder, eller må avgjøres, når endringsordre som egen sak bygges. MM-U34 opphevet alle fire 28.10.
 - OV-U64, OV-U65, OV-U66, OV-U67, OV-U68: OV-U67 og OV-U68 presiserer OV-U65 og OV-U66, som MM-U34 opphevet, men Følge sier bare at MM-U34 endret dem.
@@ -181,7 +181,7 @@ Enkelttilfeller:
 | Forholdet som begrep, og begrepene i hendelsene | GR-U26, GR-U29, GR-U32, HF-U2, KA-U22, KA-U34, LV-U4, LV-U41, LV-U43, MM-U23, OV-U45, OV-U78, OV-U82, OV-U83, VS-U13 | 1 | LV-U41 snur «grunnlaget» til «forholdet» med en leseregel over flere vedtak, OV-U78 endrer tittelen i LV-U4, OV-U82 definerer forholdet, og HF-U2 er utvidet av MM-U23 og endret av OV-U83. |
 | Brevet som dokument: hva som fryses, levering og merking | B-03-DOKUMENT, B-19, EO-U14, LV-U1, LV-U2, LV-U11, LV-U15, LV-U23, LV-U24, LV-U25, LV-U26, LV-U27, LV-U28, LV-U44, MM-U10, MM-U22, rad-198 | 2 | LV-U1 fryser brev og vedlegg og sju senere LV-vedtak legger til hver sin del, B-03-DOKUMENT er presisert av MM-U22, LV-U11 og LV-U24, og LV-U44 snur løpenummeret i LV-U24. |
 | Sendte brev og regelendring | GR-U12, GR-U13, HF-U5, HF-U9, HF-U13, KA-U10, MM-U3, MM-U9, MM-U11, MM-U12, MM-U16, MM-U17, rad-017 | 1 | MM-U9 fryser virkningen, MM-U11 unntar sammensetningen til utfall, MM-U17 endrer tidspunktet for registrerte brev, og merknaden i rad-017 er snevret inn av tre av dem. |
-| Saker kjernen ikke forstår, og strid med enighet | HF-U1, HF-U4, HF-U5, MM-U2, MM-U14, MM-U18, MM-U19, MM-U20, MM-U27, MM-U34, MM-U39, OV-U4 | 1 | MM-U18 er utvidet av MM-U19, MM-U20 og MM-U27 og endret av OV-U4, og MM-U34 snur kjernedelen i MM-U19 og fjerner grunnlaget for MM-U27. |
+| Saker kjernen ikke forstår, og strid med enighet | HF-U1, HF-U4, HF-U5, MM-U2, MM-U14, MM-U18, MM-U19, MM-U20, MM-U27, MM-U34, MM-U39, OV-U4 | 1 | MM-U18 er utvidet av MM-U19, MM-U20 og MM-U27 og endret av OV-U4, og MM-U34 snur kjernedelen i MM-U19 og snevrer inn grunnlaget for MM-U27. |
 | Betegnelser, sakslisten og nøkkeltallene | MM-U22, MM-U28, MM-U30, MM-U31, MM-U37, MM-U38, MM-U39, OV-U3, OV-U10, OV-U43, OV-U49, OV-U61, OV-U69 | 1 | MM-U28 er endret av tre vedtak 02.11 og OV-U61 av tre senere, endringen fra OV-U49 falt bort med OV-U69, og betegnelsene i MM-U22, MM-U30 og MM-U31 hører til visningen. |
 | Statusteksten og merknaden om registrerte brev | HF-U13, MM-U22, OV-U4, OV-U10, OV-U19, OV-U21, OV-U43, OV-U62, OV-U70, OV-U71, OV-U81, OV-U86 | 0 (design) | Ordlyden er endret tre ganger på to dager, og OV-U71 og OV-U86 gir begge ny ordlyd for OV-U10 og OV-U19; teksten hører til forløpet, ikke et samlevedtak. |
 | Avgrensningen av første versjon | KA-U45, KT-U7, MM-U34, MM-U35, OV-U1, OV-U7, OV-U55, OV-U64, OV-U65, VS-U35 | 1 | Hva som avvises i første versjon, er endret og snevret inn i flere runder, blant annet av MM-U34, MM-U35 og KA-U45, så lista må settes sammen av alle. |
@@ -243,6 +243,9 @@ omtrentlig. 27 vedtak har en beslutningsdel. Ingen av dem er opphevet. Tabellen 
 gjelder bare designvedtak som gjelder; de tre opphevede designradene (MM-U28, MM-U29 og
 OV-U71) flyttes ikke.
 
+Seks rader med klassen *beslutning* har også en designdel (HF-U2, LV-U11, LV-U26, MM-U2, MM-U15
+og MM-U39), med 160 steder. Fem av dem mangler et forløp. Feltet i steg 3 gjelder også dem.
+
 135 av de 436 stedene som viser til et designvedtak, er i `kjerne/`, flest for OV-U19 (24),
 OV-U16 (19), GR-U16 (14), MM-U22 (12) og MM-U23 (10). Når vedtakene flyttes, viser disse
 henvisningene til en ID med «Flyttet til», og vakttesten for henvisningene må godta det
@@ -274,7 +277,10 @@ regelen i svaret er her brukt på klassene etter dem, så tallene er større enn
 ## Tabellen
 
 Steder er linjer som nevner ID-en, i alt og i parentes fordelt på `kjerne/`, `server/`, `src/` og `docs/domenetabell/`. 
-Radene uten eget anker står til slutt, med begynnelsen av teksten.
+Radene uten eget anker står til slutt, med begynnelsen av teksten. I en rad med klassen
+*design* eller *beslutning* sier «designdel:» og «beslutningsdel:» hvor teksten hører hjemme,
+ikke at raden blander klassene. Tellingen av vedtak med designdel eller beslutningsdel gjelder
+derfor bare rader med klassen *vedtak*.
 
 ### OV
 
@@ -547,7 +553,7 @@ Radene uten eget anker står til slutt, med begynnelsen av teksten.
 | [MM-U26](../plans/vedtak.md#mm-u26) | vedtak | gjeldende | En retting fra byggherren går gjennom godkjenningen etter fullmakten. | designdel: hvordan motparten ser rettingen og tilbudet → BF-02A | 0 |
 | [MM-U27](../plans/vedtak.md#mm-u27) | vedtak | gjeldende | En påberopelse eller revisjon i strid med partens eget utsagn gjør saken ikke forstått. | Snevret inn av MM-U34 punkt 6, ikke opphevet; kandidat i kjeden. Grensetilfelle, mønster 7, rettet etter kontrollen. | 7 (4/0/0/3) |
 | [MM-U28](../plans/vedtak.md#mm-u28) | design | opphevet når Følge rettes (steg 3) | Hva lista og nøkkeltallene viser og summerer. Enighetens virkning er fastsatt andre steder. | designdel: radene i lista og eksempelet → nytt forløp trengs: sakslisten med krav og nøkkeltall Grensetilfelle, mønster 14. Var *historisk*; klassen er satt etter testen 04.11. | 28 (6/6/8/8) |
-| [MM-U29](../plans/vedtak.md#mm-u29) | design | opphevet når Følge rettes (steg 3) | Hvilke krav arbeidslista viser, og teksten der. Den sier ingenting om plikt eller neste trekk. | system.md «Handlingene i Varden» Grensetilfelle, mønster 14. Følge bør si «erstattet av MM-U40». Var *historisk*; klassen er satt etter testen 04.11. | 18 (3/6/8/1) |
+| [MM-U29](../plans/vedtak.md#mm-u29) | design | erstattet av MM-U40 når Følge rettes (steg 3) | Hvilke krav arbeidslista viser, og teksten der. Den sier ingenting om plikt eller neste trekk. | system.md «Handlingene i Varden» Grensetilfelle, mønster 14. Følge bør si «erstattet av MM-U40». Var *historisk*; klassen er satt etter testen 04.11. | 18 (3/6/8/1) |
 | [MM-U30](../plans/vedtak.md#mm-u30) | design | gjeldende | Betegnelsene per spor og rekkefølgen mellom dem. | system.md «Mønstre» | 38 (9/7/21/1) |
 | [MM-U31](../plans/vedtak.md#mm-u31) | design | gjeldende | Når betegnelsen for forespørselen etter § 33.6.2 vises. | system.md «Mønstre» | 5 (5/0/0/0) |
 | [MM-U32](../plans/vedtak.md#mm-u32) | design | gjeldende | Handlingene er aktive, og skjemaet sier ved feltet hva som mangler. | system.md «Knapper, skjemaer og feilmeldinger» | 22 (0/0/14/8) |
