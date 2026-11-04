@@ -51,10 +51,11 @@ export interface Kontekst {
   tidspunkt: () => Date;
   nyId: () => string;
   /**
-   * Sakens kode (LV-U44, LV-U46). Serveren setter den alltid (`Serverkontekst` i
-   * `server/app.ts`). Uten den, som i forhåndsvisningen i nettleseren, får tittelen ingen kode.
+   * Sakens kode, eller koden og løpenummeret saken får med sitt første brev (LV-U44, LV-U46).
+   * Tittelen og teksten omtaler saken med den (S3 i #1497), så nettleseren henter den før
+   * forhåndsvisningen, og serveren leser den i skrivetransaksjonen.
    */
-  sakskode?: Sakskode;
+  sakskode: Sakskode;
 }
 
 /**
@@ -227,6 +228,7 @@ function dokument(
       return {
         utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }],
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+        korrespondansetype: k.korrespondansetype,
         dokumentasjon: bundne,
       };
     case 'registrert_brev':
@@ -235,6 +237,7 @@ function dokument(
         beskrivelse: k.beskrivelse,
         ...(k.spor ? { spor: k.spor } : {}),
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+        korrespondansetype: k.korrespondansetype,
         dokumentasjon: bundne,
         // OV-U17: rettingen er en fullstendig ny registrering med henvisning til den feil.
         ...(k.retter ? { retter: k.retter } : {}),
@@ -273,6 +276,7 @@ function dokument(
         return {
           utsagn,
           opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+          korrespondansetype: k.korrespondansetype,
           ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
         };
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
@@ -504,7 +508,7 @@ function brevtekstFor(
   u: Utledning,
   kjerne: Kjerne,
   utdypninger: Utdypninger,
-  sakskode: Sakskode | undefined
+  sakskode: Sakskode
 ): { tekst: Avsnitt[]; tittel: string | null } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -520,7 +524,7 @@ function brevtekstFor(
       ny.dokument,
       lest,
       {
-        saksnummer: rad.sak_id,
+        sakskode,
         tittel: sak.tittel,
         svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
@@ -531,10 +535,7 @@ function brevtekstFor(
     );
     // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
     const tittel = lagBrevtittel(ny.dokument);
-    return {
-      tekst,
-      tittel: tittel && sakskode ? medSakskode(tittel, sakskode) : tittel,
-    };
+    return { tekst, tittel: tittel && medSakskode(tittel, sakskode) };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)
       throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);

@@ -2247,8 +2247,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
       [
-        "['type', 'spor', 'hjemmel', 'sendt', 'dokumentasjon']",
-        "['type', 'spor', 'hjemmel', 'sendt']",
+        "['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype', 'dokumentasjon']",
+        "['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype']",
       ],
     ],
     mal: ['avviser et registrert varsel uten vedlegg'],
@@ -3631,8 +3631,45 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F440',
     feilklasse: 'brevtittelen fryses uten sakens kode (LV-U27, LV-U44)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['? medSakskode(tittel, sakskode) : tittel', '? tittel : tittel']],
+    endringer: [['tittel && medSakskode(tittel, sakskode)', 'tittel']],
     mal: ['tittelen har sakens kode uten utfylling, og leseren forstår den'],
+  },
+  {
+    id: 'F442',
+    feilklasse: 'henvisningen bruker saksversjonen, ikke brevets nummer i saken (LV-U44)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['`brev ${d.brevnummer} i sak', '`brev ${b.versjon} i sak']],
+    mal: ['et brev fra løsningen omtales med nummeret i saken og sakens kode'],
+  },
+  {
+    id: 'F443',
+    feilklasse: 'registrert korrespondanse omtales med feil type (LV-U42)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["{ brev: 'brev', e_post: 'e-post' }", "{ brev: 'brev', e_post: 'brev' }"]],
+    mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
+  },
+  {
+    id: 'F444',
+    feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        'if (erRegistrert(dokument.opplysninger) !== (data.korrespondansetype !== undefined))',
+        'if (!erRegistrert(dokument.opplysninger) && data.korrespondansetype !== undefined)',
+      ],
+    ],
+    mal: [
+      'registrert korrespondanse uten typen, og typen i et brev fra løsningen, er ikke forstått',
+    ],
+  },
+  {
+    id: 'F445',
+    feilklasse: 'brevteksten omtaler saken med sak-ID-en, ikke koden (S3 i #1497, LV-U44)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ['sak: `sak ${sakensKode(saken.sakskode)} («', 'sak: `sak ${saken.tittel.length} («'],
+    ],
+    mal: ['et brev fra løsningen omtales med nummeret i saken og sakens kode'],
   },
 ];
 

@@ -46,6 +46,7 @@ import type {
   Varselhjemmel,
   Vedlegg,
   Virkning,
+  Korrespondansetype,
 } from '../typer.ts';
 
 /**
@@ -422,6 +423,7 @@ function lesDokument(h: Journalrad): Dokument {
     brevtekst?: Avsnitt[];
     brevtittel?: string;
     brevnummer?: number;
+    korrespondansetype?: Korrespondansetype;
     beskrivelse?: string;
     spor?: Spor[];
     retter?: string;
@@ -514,6 +516,7 @@ function lesDokument(h: Journalrad): Dokument {
     brevtekst: data.brevtekst ?? null,
     brevtittel: data.brevtittel ?? null,
     brevnummer: data.brevnummer ?? null,
+    korrespondansetype: data.korrespondansetype ?? null,
     beskrivelse: data.beskrivelse ?? null,
     spor: data.spor ?? [],
     retter: data.retter ?? null,
@@ -546,6 +549,13 @@ function lesDokument(h: Journalrad): Dokument {
       !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)
     )
       throw new Uforstaatt('opplysningen gjelder ikke et varsel i dokumentet');
+  // LV-U42, D1 A i #1497: registrert korrespondanse har typen, et brev fra løsningen ingen.
+  if (erRegistrert(dokument.opplysninger) !== (data.korrespondansetype !== undefined))
+    throw new Uforstaatt(
+      erRegistrert(dokument.opplysninger)
+        ? 'registrert korrespondanse har ingen korrespondansetype (LV-U42)'
+        : 'korrespondansetypen står i et dokument som ikke er registrert korrespondanse'
+    );
   if (data.brevtittel !== undefined && !data.brevtekst)
     throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U3)');
   if (data.brevtittel !== undefined) {
@@ -596,6 +606,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
     brevtekst: null,
     brevtittel: null,
     brevnummer: null,
+    korrespondansetype: null,
     beskrivelse: null,
     spor: [],
     retter: data.retter,

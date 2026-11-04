@@ -75,6 +75,7 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
     aktoerId: 'te',
     part: 'TE' as const,
     teamId: null,
+    sakskode: { kode: 'koe' as const, loepenummer: 17 },
     tidspunkt: () => new Date('2026-10-11T08:00:00Z'),
     nyId: () => randomUUID(),
   };
@@ -406,6 +407,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
       type: 'begrunnelse',
       gjelder: k.navn.id('S-v1'),
       sendt: '2026-10-01',
+      korrespondansetype: 'brev',
       dokumentasjon: [randomUUID()],
     };
     const u = vurder(
@@ -415,6 +417,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
         aktoerId: 'bh',
         part: 'BH',
         teamId: null,
+        sakskode: { kode: 'koe' as const, loepenummer: 17 },
         tidspunkt: () => new Date('2026-10-11T08:00:00Z'),
         nyId: () => randomUUID(),
       },

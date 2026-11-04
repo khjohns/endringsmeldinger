@@ -130,6 +130,7 @@ export class Kjoering {
       aktoerId: this.bane.aktor(part),
       part,
       teamId: `team-${part.toLowerCase()}`,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tidspunkt: () => this.klokke.neste(),
       nyId: this.navn.nyId,
     };
@@ -215,6 +216,10 @@ export class Kjoering {
         aktor_rolle: part,
         aktor_team_id: teamId,
       });
+      // En rad uten `sendt` står for et brev fra løsningen og har nummeret skrivingen gir (LV-U44).
+      if (typeof h.sendt !== 'string')
+        rad.data.brevnummer =
+          Math.max(0, ...journal.map((r) => (r.data.brevnummer as number | undefined) ?? 0)) + 1;
       // Registrert korrespondanse får brevet frosset som et svar fra kjernen (merknaden til
       // MM-U9), også når relasjonene ikke henger sammen, så forløp E prøver relasjonene.
       try {

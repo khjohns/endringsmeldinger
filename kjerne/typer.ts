@@ -18,6 +18,9 @@ export interface Sakskode {
   kode: 'koe' | 'eo';
   loepenummer: number;
 }
+/** Typen registrert korrespondanse (D1 A i #1497). */
+export const KORRESPONDANSETYPER = ['brev', 'e_post'] as const;
+export type Korrespondansetype = (typeof KORRESPONDANSETYPER)[number];
 export const SPOR: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
@@ -270,6 +273,11 @@ export interface Dokument {
    * oppgitt av avsenderen for registrert korrespondanse (LV-U45). Ikke unikt i saken.
    */
   brevnummer: number | null;
+  /**
+   * Om registrert korrespondanse var et brev eller en e-post (LV-U42, N4 og D1 A i #1497). Brevene
+   * fra løsningen omtaler den med typen. `null` i et brev fra løsningen.
+   */
+  korrespondansetype: Korrespondansetype | null;
   /**
    * OV-U16: beskrivelsen av et brev registrert som dokumentasjon (OV-U4), med ordene til den
    * som registrerte. Appen tolker den ikke. `null` i et annet dokument.

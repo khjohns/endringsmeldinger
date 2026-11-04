@@ -41,6 +41,7 @@ class Sak {
       aktoerId: part.toLowerCase(),
       part,
       teamId: null,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tidspunkt: () => naa,
       nyId: randomUUID,
     };
@@ -106,6 +107,7 @@ const krav: Steg = (sak) => [paaberopelse, vederlagskrav, fristkrav].forEach((s)
 const varselIFristen: Steg = (sak) =>
   sak.send('TE', {
     type: 'varsel',
+    korrespondansetype: 'brev',
     spor: 'frist',
     hjemmel: '33.4',
     sendt: '2026-10-01',
