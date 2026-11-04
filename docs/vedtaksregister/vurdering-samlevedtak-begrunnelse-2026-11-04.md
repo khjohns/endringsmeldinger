@@ -36,7 +36,10 @@ posten står.
 | OV-U4 | vedtak med designdel | gjeldende | samler setningen «En senere begrunnelse sendt utenfor appen registreres også som dokumentasjon.»; resten står | E5 |
 | VS-U5 | vedtak | gjeldende, endret av KA-U43 | endrer: «Byggherren begrunner avgrensningen.» gjelder ikke | E4 |
 
-Poster utenfor kjeden der forslaget endrer en henvisning (meldt til orkestratoren 04.11):
+Poster utenfor kjeden der forslaget endrer en henvisning, ikke innholdet (meldt til
+orkestratoren 04.11). OV-U5 og OV-U80 er også i kjeden for datoen varslingsplikten løper fra
+(grenen `claude/samlevedtak-varslingsdato-1534`), som ikke endrer setningene under. OV-U55 er
+i kjeden for retting av sendt brev, som endrer setningene om den senere begrunnelsen:
 
 | Post | Setningen | Endringen | E-punkt |
 | --- | --- | --- | --- |
@@ -48,7 +51,7 @@ Poster utenfor kjeden der forslaget endrer en henvisning (meldt til orkestratore
 | OV-U31 | «Følger OV-U28, GFK-06 og KA-U24 uendret.» | henvisningen gjelder samlevedtaket | E1 |
 | OV-U39 | tre setninger med «(KA-U24)» om hva byggherren sier i begrunnelsen | henvisningen gjelder samlevedtaket | E1 |
 | OV-U7 | «senere begrunnelse fra appen og datokontrollene for registrert begrunnelse (KA-U34, KA-U36–KA-U39)» | har ikke noe å virke på ved spørsmål 3 A | E2, E5 |
-| OV-U55 | «Byggherren kan på samme måte sende en senere begrunnelse for sitt svar etter KA-U34.» | den senere begrunnelsen er et innlegg (MM-U34 punkt 24) | E2 |
+| OV-U55 | «Byggherren kan på samme måte sende en senere begrunnelse for sitt svar etter KA-U34.» og «Endrer OV-U7: TEs utdyping og byggherrens senere begrunnelse etter KA-U34 bygges i første versjon; datokontrollene for registrert begrunnelse (KA-U36–KA-U39) står utsatt.» | ingen setning endres her; begge endres i samlevedtaket for retting av sendt brev (E5 og E7 der, grenen `claude/samlevedtak-retting-1534`) | – |
 | VS-U35 | snevrer inn KA-U39 til bestridelse i et innlegg | har ikke noe å virke på ved spørsmål 3 A | E5 |
 
 ## Motsigelsene
@@ -164,8 +167,7 @@ forholdet ved force majeure (VS-U13).
 kan sende en senere begrunnelse fra appen, per spor. Brevet sier: «Byggherren begrunner sitt
 svar på <grunnlaget / kravet om justering av vederlaget / kravet om fristforlengelse> i brev <n>
 av <dato>:», og byggherrens tekst følger.»; LV-U41, som leser ‹grunnlaget› i den brevteksten som
-‹forholdet›; OV-U55 «Byggherren kan på samme måte sende en senere begrunnelse for sitt svar etter
-KA-U34.»; OV-U7 «senere begrunnelse fra appen … (KA-U34 …)». Samlevedtaket: punkt 9, den senere
+‹forholdet›; OV-U7 «senere begrunnelse fra appen … (KA-U34 …)». Samlevedtaket: punkt 9, den senere
 begrunnelsen er et innlegg med innleggets brevtekst. Hvorfor: MM-U34 punkt 24 (28.10) «TEs
 utdyping, byggherrens senere begrunnelse og bestridelsen av en opplysning blir innlegg.» og
 ‹<Part> viser til brev <n> av <dato>:›. Endringen i LV-U41 (01.11) gjaldt en brevtekst som alt var
