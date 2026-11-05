@@ -293,3 +293,67 @@ Kontrolleres av subagenten under «Kontrollen».
 ## Prøvingen
 
 ## Spørsmålene til oppdragsgiver
+
+Lagret ordrett før de ble sendt. Begge er juridiske og stilles i tekst, ikke med spørsmålsverktøyet.
+
+**1. Tilslutning til samlevedtaket for sendte brev og regelendring.** Forslaget over, punkt 1–25
+med designdelen, beslutningsdelen og «Endret innhold» E1–E9. Samlevedtaket sier ett sted at et
+sendt brev beholder virkningen det hadde, hva en regelendring kan endre (sammensetningen til et
+utfall og relasjonen mellom brev) og ikke kan endre (standpunktene i et sendt brev og innholdet i en
+enighet), at vurderingen som fryses, ikke er en rettslig avgjørelse, og at et registrert brev
+vurderes etter reglene ved registreringen der løsningen utleder virkning av det. E1, E4, E5 og E6
+samler ordlyden slik senere vedtak alt har endret den, uten nytt innhold. E1 løser motsigelsen: en
+ny opplysning gjør ikke et svar uavklart, slik det ble avgjort 13.10 for et varsel totalentreprenøren
+oppgir etter svaret. E2 endrer innhold: enigheten i KA-U10 og MM-U3 omtales som registrert enighet,
+med forbeholdet om at løsningen ikke avgjør om partene rettslig er enige, slik MM-U34 punkt 10 alt
+sier for HF-U9. E3 avgjøres i spørsmål 2.
+
+- **A (anbefalt):** «Reglene for sendte brev og regelendring står i samlevedtaket MM-U50, punkt
+  1–25 med designdelen, beslutningsdelen og E1–E9. MM-U3, MM-U8, MM-U9 (unntatt tredje setning),
+  MM-U11, MM-U12, MM-U16, MM-U17, KA-U10, HF-U13 (unntatt siste setning), tredje setning i GR-U12,
+  sjette setning i GR-U13, fjerde og femte setning i HF-U9, setningene i OV-U5 om et svar byggherren
+  alt har gitt, og merknaden 05.10 i B-13 regelversjon gjelder som «Samlet i samlevedtaket for sendte
+  brev og regelendring». Forhold: samler de postene; endrer første setning i KA-U10 og andre setning
+  i MM-U3 (E2) og første setning i HF-U13 etter spørsmål 2 (E3). Forholdene «MM-U8 bygger på MM-U4»
+  og «VS-U7 utvider MM-U8» fjernes (E9). Klasse: vedtak med designdel og beslutningsdel.»
+- **B:** «Som A, men KA-U10 og MM-U3 beholder «enigheten gjelder» uten forbeholdet om at løsningen
+  ikke avgjør om partene rettslig er enige, og E2 gjelder ikke.»
+
+*Belegg:* MM-U34 punkt 10, ordrett: «‹Partene er enige om et standpunkt når …› blir ‹Løsningen
+registrerer enighet om et standpunkt når …› … Tillegg: ‹Løsningen avgjør ikke om partene rettslig er
+enige (MM-U12).›» OV-U5, forkastet alternativ B: «At et varsel registrert etter svaret gjør
+preklusjonen eller begrensningen uavklart og sperrer TEs aksept.» MM-U12: «Appen avgjør ikke det
+kontrakten overlater til partene, en oppmann eller domstolene.»
+
+*Anbefaling:* A. Da sier de tre postene om enigheten det samme, og MM-U8 sier ikke lenger noe
+OV-U5 har forkastet.
+
+*Hva valget styrer:* teksten i MM-U50, forholdene til de samlede postene, og at raden for MM-U8 i
+lista over kjente forhold til opphevede poster fjernes.
+
+**2. Binder det en part har meddelt, eller står det slik det ble sendt?** I dag sier ett vedtak at
+det en part har meddelt skriftlig etter punkt 5 i NS 8407, «binder slik det sto da det ble sendt».
+Samlevedtaket for påberopelse av sent varsel strøk 05.11 en tilsvarende setning om at et utsagn
+binder parten, fordi et annet vedtak sier at løsningen ikke avgjør om parten er bundet av et
+tidligere utsagn. Spørsmålet er om samlevedtaket skal si det samme her.
+
+- **A (anbefalt):** «Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble
+  sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene
+  binder ingen av partene, og løsningen avgjør ikke om en part er bundet av et utsagn eller kan komme
+  løs fra det (MM-U12). Forhold: endrer første setning i HF-U13.»
+- **B:** «Det en part har meddelt skriftlig etter punkt 5 i NS 8407, binder slik det sto da det ble
+  sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene
+  binder ingen av partene. Forhold: samler første til tredje setning i HF-U13 uendret.»
+
+*Belegg:* HF-U13, ordrett: «Det en part har meddelt skriftlig etter NS 8407 § 5, binder slik det sto
+da det ble sendt.» Setningen MM-U34 punkt 5 la til i HF-U6: «Løsningen avgjør ikke om parten er
+bundet av et tidligere utsagn (MM-U12).» Oppdragsgiver 05.11: «Men appen låser som hovedregel ikke -
+det er opp til partene å vurdere rettsvirkninger, herunder muligheten til å kalle tilbake noe som er
+tidligere meddelt.»
+
+*Anbefaling:* A. Med B sier samlevedtaket at meddelelsen binder, mens samlevedtaket for påberopelse
+av sent varsel sier at løsningen ikke avgjør det. Om en meddelelse binder etter kontrakten og
+avtaleloven, endres ikke av valget; valget gjelder hva løsningen sier om det.
+
+*Hva valget styrer:* punkt 7 og 8 i MM-U50 og forholdet til HF-U13. Ingen sperre eller handling i
+løsningen endres.
