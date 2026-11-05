@@ -494,8 +494,9 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
 
 /**
  * VS-U26: datoen varslingsplikten løper fra står i brevteksten som TEs opplysning.
- * At en dato etter brevets dato avvises, og at en ny kravversjon kan rette den, er
- * arbeidsvalg 1 og 2 i #664. Ingen av dem vurderer rettidigheten.
+ * At en dato etter brevets dato avvises, er arbeidsvalg 1 i #664, og vurderer ikke
+ * rettidigheten. Datoen endres i en korrigering, ikke i en ny kravversjon (punkt 10 i
+ * samlevedtaket for retting av sendt brev, MM-U41).
  */
 describe('datoen varslingsplikten løper fra (VS-U26)', () => {
   it('en dato etter brevets dato avvises; samme dag godtas (arbeidsvalg 1 i #664)', () => {
@@ -587,19 +588,6 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
     expect(regel('2026-10-17')).toBe('DATO_ETTER_BREVET');
   });
 
-  it('en ny kravversjon kan rette datoen, og brevet sier den nye (arbeidsvalg 2 i #664, GR-U22)', () => {
-    const s = sak();
-    s.send('TE', PAABEROPELSE);
-    const rad = s.send('TE', {
-      ...PAABEROPELSE,
-      innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
-    });
-    expect(laast(rad)[0]).toContain(
-      'Totalentreprenøren opplyser at pålegget ble mottatt 20. september 2026.'
-    );
-    expect(laast(rad)[0]).not.toContain('25. september 2026');
-  });
-
   it('underkategorien endringsordre har ingen dato i brevet (VS-U26)', () => {
     const s = sak();
     const rad = s.send('TE', {
@@ -608,6 +596,195 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
       innhold: { hovedkategori: 'endring', underkategori: 'endringsordre', endringsordre: 'EO 12' },
     });
     expect(laast(rad)[0]).not.toContain('TE opplyser');
+  });
+});
+
+/**
+ * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U41), med partene skrevet fullt
+ * ut (LV-U35) og henvisningen etter LV-U53. Teksten i en ny grunnlagsversjon etter en
+ * korrigering er LV-U54, og korrigeringen i en lukket sak er MM-U51. At korrigeringen avvises
+ * når henvisningen er ugyldig, når datoen er uendret og når datoen er etter brevets dato, er
+ * arbeidsvalgene i avgrensningen av #1308.
+ */
+describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41)', () => {
+  /** Korrigeringen med henvisning til TEs siste opplysning om datoen. */
+  const korrigering = (
+    s: ReturnType<typeof sak>,
+    felt: string,
+    dato: string,
+    gjelder?: string
+  ) => ({
+    type: 'korrigering',
+    gjelder: gjelder ?? s.u().datoopplysninger.at(-1)!.id,
+    [felt]: dato,
+  });
+
+  it('brevet har teksten i punkt 10 og viser til brevet med opplysningen (LV-U35, LV-U53)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
+    expect(laast(rad)).toEqual([
+      'Totalentreprenøren oppgir nå at pålegget ble mottatt 20. september 2026. I brev K201-KOE-017-01 av 2. oktober 2026 oppga totalentreprenøren 25. september 2026.',
+    ]);
+    expect(rad.data.krav, 'punkt 10: ikke en ny kravversjon').toBeUndefined();
+    expect(rad.data.svar).toBeUndefined();
+  });
+
+  it('i svikt og andre forhold gjelder korrigeringen datoen TE ble klar over forholdet', () => {
+    const s = sak();
+    s.send('TE', {
+      type: 'krav',
+      spor: 'forhold',
+      innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+    });
+    expect(
+      s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20')),
+      'feltet kategorien ikke har'
+    ).toBe('UGYLDIG_KORRIGERING');
+    const rad = s.send('TE', korrigering(s, 'klar_over_forholdet', '2026-09-28'));
+    expect(laast(rad)).toEqual([
+      'Totalentreprenøren oppgir nå at totalentreprenøren ble klar over forholdet 28. september 2026. I brev K201-KOE-017-01 av 2. oktober 2026 oppga totalentreprenøren 25. september 2026.',
+    ]);
+  });
+
+  it('den nye opplysningen gjelder straks, også en senere dato, og svaret står og gjaldt den forrige (punkt 10 og 11, designdelen)', () => {
+    const s = sakMedKrav();
+    const svaret = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'forhold',
+          s.krav('forhold'),
+          { resultat: 'godkjent', grunnlag_varslet_i_tide: false },
+          {},
+          BEGRUNNELSE
+        ),
+      ],
+    });
+    const svarId = (svaret.data.svar as { id: string }[])[0].id;
+    const kravId = s.krav('forhold');
+    const rad = s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-28'));
+    const korrigeringen = (rad.data.utsagn as { id: string }[])[0].id;
+    const u = s.u();
+    expect(u.datoopplysninger.map((o) => [o.id, o.dato])).toEqual([
+      [kravId, '2026-09-25'],
+      [korrigeringen, '2026-09-28'],
+    ]);
+    expect(u.spor.forhold.gjeldendeSvar?.id, 'svaret står').toBe(svarId);
+    expect(u.svar[svarId].datoopplysning, 'svaret gjaldt opplysningen i kravet').toBe(kravId);
+    expect(venterPaaSvar(u, 'forhold'), 'punkt 11: sporet venter ikke på et nytt svar').toBe(false);
+  });
+
+  it('en ny grunnlagsversjon kan ikke endre datoen, og gjengir TEs siste opplysning med henvisning til korrigeringen (punkt 10, LV-U54)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    expect(
+      s.avvisning('TE', {
+        ...PAABEROPELSE,
+        innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
+      })
+    ).toEqual({
+      regel: 'DATOEN_KAN_IKKE_ENDRES',
+      melding:
+        'En ny versjon av grunnlaget kan ikke endre datoen pålegget ble mottatt. TEs siste opplysning er 25. september 2026. Datoen korrigeres i et eget brev.',
+    });
+    expect(laast(s.send('TE', PAABEROPELSE))[0], 'kontrollsak: samme dato').toContain(
+      MOTTATT_TEKST
+    );
+    s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
+    expect(s.avvist('TE', PAABEROPELSE), 'den tidligere datoen').toBe('DATOEN_KAN_IKKE_ENDRES');
+    const ny = s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
+    });
+    expect(laast(ny)[0]).toContain(
+      'Totalentreprenøren opplyser at pålegget ble mottatt 20. september 2026, slik totalentreprenøren oppga i brev K201-KOE-017-03 av 4. oktober 2026.'
+    );
+    expect(s.u().datoopplysninger, 'gjengivelsen er ikke en ny opplysning').toHaveLength(2);
+  });
+
+  it('en ny korrigering viser til den forrige, og en ny grunnlagsversjon til den siste (punkt 10, LV-U54)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
+    const krav = s.krav('forhold');
+    expect(
+      s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-22', krav)),
+      'henvisning til kravet, som ikke har TEs siste opplysning'
+    ).toBe('UGYLDIG_KORRIGERING');
+    const andre = s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-22'));
+    expect(laast(andre)).toEqual([
+      'Totalentreprenøren oppgir nå at pålegget ble mottatt 22. september 2026. I brev K201-KOE-017-02 av 3. oktober 2026 oppga totalentreprenøren 20. september 2026.',
+    ]);
+    const ny = s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-22' },
+    });
+    expect(laast(ny)[0]).toContain(
+      'Totalentreprenøren opplyser at pålegget ble mottatt 22. september 2026, slik totalentreprenøren oppga i brev K201-KOE-017-03 av 4. oktober 2026.'
+    );
+  });
+
+  it('korrigeringen avvises når datoen er uendret eller etter brevets dato, og godtas samme dag (arbeidsvalgene i #1308)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    expect(s.avvisning('TE', korrigering(s, 'paalegg_mottatt', '2026-09-25'))).toEqual({
+      regel: 'DATOEN_ER_UENDRET',
+      melding:
+        'TE har alt oppgitt at pålegget ble mottatt 25. september 2026. Korrigeringen må oppgi en annen dato.',
+    });
+    // Brevet med korrigeringen er datert 3. oktober 2026.
+    expect(s.avvisning('TE', korrigering(s, 'paalegg_mottatt', '2026-10-04'))).toEqual({
+      regel: 'DATO_ETTER_BREVET',
+      melding:
+        'TE har oppgitt at pålegget ble mottatt 4. oktober 2026, etter brevets dato 3. oktober 2026.',
+    });
+    expect(
+      s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-10-03')),
+      'kontrollsak'
+    ).toBeNull();
+  });
+
+  it('korrigeringen avvises når henvisningen er ugyldig, fra byggherren og før grunnlaget er sendt', () => {
+    const s = sak();
+    expect(s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20', randomUUID()))).toBe(
+      'PAABEROPELSE_IKKE_SENDT'
+    );
+    s.send('TE', PAABEROPELSE);
+    expect(s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20', randomUUID()))).toBe(
+      'UGYLDIG_KORRIGERING'
+    );
+    expect(s.avvist('BH', korrigering(s, 'paalegg_mottatt', '2026-09-20'))).toBe('FEIL_PART');
+    expect(
+      s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20')),
+      'kontrollsak'
+    ).toBeNull();
+  });
+
+  it('korrigeringen avvises i underkategorien endringsordre, der TE ikke oppgir noen slik dato (punkt 10)', () => {
+    const s = sak();
+    const eo = s.send('TE', {
+      type: 'krav',
+      spor: 'forhold',
+      innhold: { hovedkategori: 'endring', underkategori: 'endringsordre', endringsordre: 'EO 12' },
+    });
+    const kravId = (eo.data.krav as { id: string }[])[0].id;
+    expect(s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20', kravId))).toBe(
+      'INGEN_DATO_I_KATEGORIEN'
+    );
+    expect(handlinger(s.u(), 'TE').some((h) => h.startsWith('korrigere:'))).toBe(false);
+  });
+
+  it('TE får tilbud om korrigeringen med henvisning til TEs siste opplysning (INV-MM-1)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const krav = s.krav('forhold');
+    expect(handlinger(s.u(), 'TE')).toContain(`korrigere:${krav}`);
+    const rad = s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
+    const korrigeringen = (rad.data.utsagn as { id: string }[])[0].id;
+    expect(handlinger(s.u(), 'TE')).toContain(`korrigere:${korrigeringen}`);
+    expect(handlinger(s.u(), 'TE')).not.toContain(`korrigere:${krav}`);
+    expect(handlinger(s.u(), 'BH').some((h) => h.startsWith('korrigere:'))).toBe(false);
   });
 });
 

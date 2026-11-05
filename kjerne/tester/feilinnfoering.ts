@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 punkt 10 og 11, MM-U51, LV-U54, #1308). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -2000,7 +2000,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'brevet sier ikke datoen pålegget ble mottatt (VS-U26, #664)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [["...dato('paalegg_mottatt'),", '']],
-    mal: ['en endring der § 32.2 gjelder, med varselet', 'en ny kravversjon kan rette datoen'],
+    mal: [
+      'en endring der § 32.2 gjelder, med varselet',
+      'en ny grunnlagsversjon kan ikke endre datoen',
+    ],
   },
   {
     id: 'F254',
@@ -3788,6 +3791,113 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['      k.gjelder === undefined &&', '      false &&']],
     mal: ['fristkrav uten henvisning til den ubesvarte forespørselen'],
+  },
+
+  // #1308: TEs korrigering av datoen etter punkt 10 og 11 i samlevedtaket for retting av sendt
+  // brev (MM-U41), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U54).
+  {
+    id: 'F456',
+    feilklasse:
+      'korrigeringen godtas med henvisning til noe annet enn TEs siste opplysning (arbeidsvalget i #1308)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['  return siste.id === gjelder', '  return siste.id === gjelder || true']],
+    mal: [
+      'korrigeringen avvises når henvisningen er ugyldig',
+      'en ny korrigering viser til den forrige',
+      'F-MM-KORR1',
+    ],
+  },
+  {
+    id: 'F457',
+    feilklasse: 'korrigeringen godtas med uendret dato (arbeidsvalget i #1308)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  return sisteDatoopplysning(u, felt)?.dato === dato',
+        '  return sisteDatoopplysning(u, felt)?.dato === null',
+      ],
+    ],
+    mal: ['korrigeringen avvises når datoen er uendret', 'F-MM-KORR1'],
+  },
+  {
+    id: 'F458',
+    feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U41 punkt 10)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;',
+        '  if (felt === null || siste === null || k.innhold[felt] !== null) return null;',
+      ],
+    ],
+    mal: ['en ny grunnlagsversjon kan ikke endre datoen', 'F-MM-KORR3'],
+  },
+  {
+    id: 'F459',
+    feilklasse: 'korrigeringen avvises i en sak lukket etter GR-U27 (MM-U51)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        '  const krav = u.spor.forhold.gjeldendeKrav;\n  if (!krav)',
+        "  const krav = u.spor.forhold.gjeldendeKrav;\n  if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', '');\n  if (!krav)",
+      ],
+    ],
+    mal: ['F-MM-KORR1'],
+  },
+  {
+    id: 'F460',
+    feilklasse: 'korrigeringen viser ikke til brevet med opplysningen (MM-U41 punkt 10, LV-U53)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '. I ${j.brevet(dokument)} oppga totalentreprenøren ${norskDato(tidligere)}.`;',
+        '. Totalentreprenøren oppga tidligere ${norskDato(tidligere)}.`;',
+      ],
+    ],
+    mal: ['brevet har teksten i punkt 10', 'i svikt og andre forhold gjelder korrigeringen'],
+  },
+  {
+    id: 'F461',
+    feilklasse: 'en ny grunnlagsversjon etter en korrigering viser ikke til korrigeringen (LV-U54)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '      korrigert\n        ? `${opplyser}, slik',
+        '      false\n        ? `${opplyser}, slik',
+      ],
+    ],
+    mal: [
+      'en ny grunnlagsversjon kan ikke endre datoen',
+      'en ny korrigering viser til den forrige',
+    ],
+  },
+  {
+    id: 'F462',
+    feilklasse:
+      'svaret leses som om det gjaldt TEs senere opplysning (MM-U41 designdelen og punkt 11)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['versjonen(o.id) < versjonen(b.svar.id)', 'versjonen(o.id) > 0']],
+    mal: ['den nye opplysningen gjelder straks', 'F-MM-KORR1', 'F-MM-KORR2'],
+  },
+  {
+    id: 'F463',
+    feilklasse:
+      'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U41 punkt 10)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["      'INGEN_DATO_I_KATEGORIEN',", "      'UGYLDIG_KORRIGERING',"]],
+    mal: ['korrigeringen avvises i underkategorien endringsordre', 'F-MM-KORR4'],
+  },
+  {
+    id: 'F464',
+    feilklasse:
+      'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U41 punkt 10)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "typeof dato !== 'string' || sisteOm(felt)?.dato === dato) continue;",
+        "typeof dato !== 'string') continue;",
+      ],
+    ],
+    mal: ['en ny grunnlagsversjon kan ikke endre datoen'],
   },
 ];
 

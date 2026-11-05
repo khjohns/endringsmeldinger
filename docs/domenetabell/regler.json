@@ -1156,6 +1156,48 @@
       "dato": "2026-10-28",
       "ref": "../plans/vedtak.md#gr-u28",
       "radetikett": "GR-U28: At BH har frafalt pålegget etter § 32.3 c, skal ikke hindre at KOE-saken inngår i en EO"
+    },
+    {
+      "id": "VS-U26",
+      "type": "vedtak",
+      "dato": "2026-10-21",
+      "ref": "../plans/vedtak.md#vs-u26",
+      "radetikett": "VS-U26: I grunnlagskravet oppgir TE datoen varslingsplikten løper fra"
+    },
+    {
+      "id": "LV-U35",
+      "type": "vedtak",
+      "dato": "2026-10-31",
+      "ref": "../plans/vedtak.md#lv-u35",
+      "radetikett": "LV-U35: I brevtekstene skrives partene fullt ut"
+    },
+    {
+      "id": "LV-U53",
+      "type": "vedtak",
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#lv-u53",
+      "radetikett": "LV-U53: Et brev viser til et tidligere brev med merkingen som står på det, og datoen"
+    },
+    {
+      "id": "MM-U41",
+      "type": "vedtak",
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#mm-u41",
+      "radetikett": "MM-U41: Samlevedtaket for retting av sendt brev gjelder med E1–E7"
+    },
+    {
+      "id": "MM-U51",
+      "type": "vedtak",
+      "dato": "2026-11-05",
+      "ref": "../plans/vedtak.md#mm-u51",
+      "radetikett": "MM-U51: I en sak som er lukket etter GR-U27"
+    },
+    {
+      "id": "LV-U54",
+      "type": "vedtak",
+      "dato": "2026-11-05",
+      "ref": "../plans/vedtak.md#lv-u54",
+      "radetikett": "LV-U54: Etter en korrigering etter punkt 10 i samlevedtaket for retting av sendt brev sier en ny grunnlagsversjon"
     }
   ],
   "rader": [
@@ -2671,6 +2713,59 @@
       ],
       "regelkoder": [
         "PAALEGGET_IKKE_BESKREVET"
+      ]
+    },
+    {
+      "id": "GR-36",
+      "tilfelle": "TE korrigerer sin opplysning om datoen pålegget ble mottatt eller TE ble klar over forholdet, i et eget brev fra løsningen med henvisning til brevet med opplysningen. Byggherren har svart og påberopt at varselet kom for sent, og saken kan være avgjort ved enighet eller lukket.",
+      "forventet": "Brevet godtas og har teksten i punkt 10 i samlevedtaket for retting av sendt brev, med partene skrevet fullt ut og henvisningen med merkingen. Det er ikke en ny kravversjon og avslår ikke svaret. Den nye opplysningen gjelder straks som TEs siste opplysning, også når datoen er senere, og de tidligere opplysningene beholdes. Svaret står med virkningen det hadde, påberopelsen står med tidspunktet, visningen kan si hvilken opplysning svaret gjaldt, og sporet venter ikke på et nytt svar. Brevet godtas også i et spor med enighet, når kravene er avgjort og i en sak lukket etter GR-U27, og endrer ikke utfallet. Det avvises i underkategorien endringsordre, når henvisningen ikke er til TEs siste opplysning, når datoen er uendret og når datoen er etter brevets dato.",
+      "bh_standpunkt": "Byggherren tar stilling til opplysningen i et senere svar, i et nytt svar eller, i en lukket sak, i et innlegg.",
+      "rettslig_virkning": "Løsningen avgjør ikke hvilken opplysning som er riktig, når varslingsfristen begynte å løpe, om varselet var rettidig, eller om korrigeringen gir byggherren en plikt etter kontrakten (MM-U12).",
+      "rettidighet": "Ikke vurdert av løsningen.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U41",
+        "MM-U51",
+        "VS-U26",
+        "VS-U9",
+        "LV-U35",
+        "LV-U53",
+        "GR-U27",
+        "MM-U12"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#korrigering",
+        "kjerne/kommandoer/nyttelast.ts#kontrollerKorrigering",
+        "kjerne/utledning/utled.ts#opplysningerOmDatoen"
+      ],
+      "regelkoder": [
+        "UGYLDIG_KORRIGERING",
+        "INGEN_DATO_I_KATEGORIEN",
+        "DATOEN_ER_UENDRET"
+      ]
+    },
+    {
+      "id": "GR-37",
+      "tilfelle": "TE sender en ny grunnlagsversjon etter at TE har oppgitt datoen pålegget ble mottatt eller TE ble klar over forholdet, med eller uten en korrigering av datoen.",
+      "forventet": "En ny grunnlagsversjon med en annen dato enn TEs siste opplysning avvises. Med samme dato godtas den, og etter en korrigering sier den at TE oppga datoen i det siste brevet med en korrigering. Gjengivelsen er ikke en ny opplysning.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Den nye grunnlagsversjonen endrer ikke tidligere brev eller premissene i tidligere svar.",
+      "rettidighet": "Ikke vurdert av løsningen.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U41",
+        "LV-U54",
+        "VS-U26",
+        "LV-U53"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/nyttelast.ts#datosperre",
+        "kjerne/frosset/brevtekst.ts#forholdstekst"
+      ],
+      "regelkoder": [
+        "DATOEN_KAN_IKKE_ENDRES"
       ]
     },
     {
