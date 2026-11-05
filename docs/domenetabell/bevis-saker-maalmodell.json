@@ -297,7 +297,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U34", "MM-U41", "MM-U51"],
+          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U34", "MM-U41", "MM-U52", "MM-U51"],
           "forventet": {
             "avvist": false,
             "forhold_avvist": true,
@@ -497,7 +497,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "GR-U28", "V-TFR01", "KA-U1", "GR-U7", "KA-U11", "MM-U34", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "MM-U41"],
+          "kilde": ["GR-U3", "GR-U28", "V-TFR01", "KA-U1", "GR-U7", "KA-U11", "MM-U34", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "MM-U41", "MM-U52"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
@@ -564,7 +564,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U41", "MM-U51"],
+          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U41", "MM-U52", "MM-U51"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,
@@ -12253,7 +12253,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U51", "MM-U41", "VS-U9"],
+          "kilde": ["MM-U51", "MM-U41", "MM-U52", "VS-U9"],
           "forventet": {
             "avvist": false,
             "forhold_avvist": true,
@@ -12273,21 +12273,21 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U41"],
+          "kilde": ["MM-U41", "MM-U52"],
           "prov": { "handling": "korrigering", "dato": "2026-09-20" },
           "forventet": { "avvist": true, "regel": "DATOEN_ER_UENDRET" }
         },
         {
           "etter": 4,
           "rolle": "kontroll",
-          "kilde": ["MM-U41", "MM-U51"],
+          "kilde": ["MM-U41", "MM-U52", "MM-U51"],
           "prov": { "handling": "korrigering", "dato": "2026-09-18" },
           "forventet": { "avvist": false }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U41"],
+          "kilde": ["MM-U41", "MM-U52"],
           "prov": { "handling": "korrigering", "gjelder": "K-g1", "dato": "2026-09-18" },
           "forventet": { "avvist": true, "regel": "UGYLDIG_KORRIGERING" }
         }
@@ -12326,7 +12326,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U41"],
+          "kilde": ["MM-U41", "MM-U52"],
           "forventet": {
             "avvist": false,
             "kravene_avgjort": true,
@@ -12355,21 +12355,21 @@
         {
           "etter": 1,
           "rolle": "kontroll",
-          "kilde": ["MM-U41", "VS-U26"],
+          "kilde": ["MM-U41", "MM-U52", "VS-U26"],
           "prov": { "handling": "krav", "spor": "forhold", "underkategori": "irregulaer_endring" },
           "forventet": { "avvist": false }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U41", "LV-U54"],
+          "kilde": ["MM-U41", "MM-U52", "LV-U54"],
           "prov": { "handling": "krav", "spor": "forhold", "underkategori": "irregulaer_endring" },
           "forventet": { "avvist": true, "regel": "DATOEN_KAN_IKKE_ENDRES" }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U41"],
+          "kilde": ["MM-U41", "MM-U52"],
           "forventet": {
             "gjeldende_krav.forhold": "K-g1",
             "datoopplysninger": ["K-g1:2026-09-15", "D2#korrigering:2026-09-12"]
@@ -12390,14 +12390,14 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U41", "VS-U26"],
+          "kilde": ["MM-U41", "MM-U52", "VS-U26"],
           "prov": { "handling": "korrigering", "gjelder": "K-g1", "felt": "paalegg_mottatt", "dato": "2026-09-20" },
           "forventet": { "avvist": true, "regel": "INGEN_DATO_I_KATEGORIEN" }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U41"],
+          "kilde": ["MM-U41", "MM-U52"],
           "forventet": { "datoopplysninger": [], "handlinger.TE": { "mangler": ["korrigere:K-g1"] } }
         }
       ],

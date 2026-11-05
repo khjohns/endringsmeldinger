@@ -7,7 +7,7 @@
     "start": null,
     "beskrivelse": "Som BF-02A: TE har sendt et krav med en opplysning etter VS-U26, fra løsningen eller lagt til som korrespondanse med kategorien krav (OV-U80), og BH har svart."
   },
-  "kilder": ["OV-U54", "OV-U52", "MM-U41", "MM-U34", "MM-U21", "VS-U26", "OV-U79", "OV-U80"],
+  "kilder": ["OV-U54", "OV-U52", "MM-U41", "MM-U52", "MM-U34", "MM-U21", "VS-U26", "OV-U79", "OV-U80"],
   "venter_paa": ["#1308", "#1309", "#807"],
   "bevis_saker": [],
   "visninger": [],

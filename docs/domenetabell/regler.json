@@ -1214,6 +1214,13 @@
       "radetikett": "MM-U51: I en sak som er lukket etter GR-U27"
     },
     {
+      "id": "MM-U52",
+      "type": "vedtak",
+      "dato": "2026-11-05",
+      "ref": "../plans/vedtak.md#mm-u52",
+      "radetikett": "MM-U52: Spørsmål 1: Samlevedtaket for retting av sendt brev, versjon 2, gjelder med E1–E8"
+    },
+    {
       "id": "LV-U54",
       "type": "vedtak",
       "dato": "2026-11-05",
@@ -2767,6 +2774,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U41",
+        "MM-U52",
         "MM-U51",
         "VS-U26",
         "VS-U9",
@@ -2798,6 +2806,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U41",
+        "MM-U52",
         "LV-U54",
         "VS-U26",
         "LV-U53"
