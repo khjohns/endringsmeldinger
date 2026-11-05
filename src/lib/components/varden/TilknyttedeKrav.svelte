@@ -9,7 +9,7 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import { ChevronRight } from 'lucide-svelte';
   import Knapp from './Knapp.svelte';
-  import type { Brevet } from './lesing';
+  import { brevForLinja, type Brevet } from './lesing';
   import { BETEGNELSE, FORHOLDET, SAKEN, SPORNAVN } from './tekster';
 
   let {
@@ -27,7 +27,7 @@
   const kravene = $derived(
     (['vederlag', 'frist'] as const).flatMap((spor) => {
       const b = betegnelse(u, spor);
-      const siste = brev.filter((x) => x.spor.includes(spor)).at(-1);
+      const siste = brevForLinja(brev, spor, b === 'trukket');
       return b && siste ? [{ spor, betegnelse: BETEGNELSE[b], siste }] : [];
     })
   );

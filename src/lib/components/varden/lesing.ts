@@ -216,6 +216,15 @@ export function standpunktene(svar: Svar, foer: Utledning): Standpunktet[] {
 }
 
 /**
+ * Brevet linja for sporet viser til: siste brev i sporet, eller trekket når sporet er trukket.
+ * Trekket av påberopelsen trekker kravene som bygger på den (GR-U5), men brevet hører til
+ * forholdet, så siste brev i kravsporet er et annet.
+ */
+export const brevForLinja = (brev: Brevet[], spor: Spor, trukket: boolean): Brevet | undefined =>
+  (trukket ? brev.findLast((b) => b.art === 'trekk') : undefined) ??
+  brev.filter((b) => b.spor.includes(spor)).at(-1);
+
+/**
  * Forholdet TE påberoper i gjeldende krav, med gruppen fra kjernens liste (OV-U77, OV-U78).
  * Uten krav, eller med en kode lista ikke har, er begge `null`.
  */

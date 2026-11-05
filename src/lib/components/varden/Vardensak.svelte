@@ -18,7 +18,7 @@
   import { tomtSvar } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
   import { betegnelse } from '$kjerne/utledning/visning';
-  import { brevene, forholdetISaken, type Brevref } from './lesing';
+  import { brevForLinja, brevene, forholdetISaken, type Brevref } from './lesing';
   import { BETEGNELSE, BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
 
   let {
@@ -182,8 +182,8 @@
         <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
         <ul class="valgene" aria-labelledby="spor-etikett">
           {#each SPORENE as s (s)}
-            {@const sisteBrev = brev.filter((b) => b.spor.includes(s)).at(-1)}
             {@const merke = betegnelse(u, s)}
+            {@const sisteBrev = brevForLinja(brev, s, merke === 'trukket')}
             <li>
               <button
                 type="button"

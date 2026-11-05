@@ -90,7 +90,9 @@ describe('Siden for forholdet', () => {
     expect(within(brev[0]).getByRole('heading', { level: 3 }).textContent?.trim()).toMatch(
       /^Brev 1 · Påberopelse av irregulær endring/
     );
-    expect(brev[0].textContent).toContain('Totalentreprenøren · ');
+    expect(brev[0].querySelector('.meta')?.textContent?.trim()).toMatch(
+      /^Totalentreprenøren · \d+\. \w+ 2026 · K201-/
+    );
     expect(brev[1].textContent).toContain('Svar ikke registrert.');
     expect(screen.getByText(/^Siste brev: brev .* fra TE\.$/)).toBeTruthy();
   });
@@ -135,10 +137,14 @@ describe('Siden for forholdet', () => {
   });
 
   it('trukket påberopelse: trekket står i sporhodet, og kravet står som «Trukket» (kriterium 4, GR-U30, MM-U30)', async () => {
-    await vis([PAABEROPELSE, VEDERLAG, { handling: 'trekk', spor: 'forhold' }]);
+    const { u } = await vis([PAABEROPELSE, VEDERLAG, { handling: 'trekk', spor: 'forhold' }]);
     expect(screen.getByRole('note').textContent).toMatch(/^Påberopelsen er trukket i brev /);
     const kortet = within(screen.getByRole('region', { name: 'Tilknyttede krav' }));
-    expect(kortet.getByText(/^Trukket · /)).toBeTruthy();
+    // Linja viser til trekket, ikke til siste brev i vederlaget (funnet i saksruta).
+    const trekket = u.journal.findLast((h) => h.art === 'dokument')!;
+    const linja = kortet.getByText(/^Trukket · /).textContent!;
+    expect(trekket.art === 'dokument' && trekket.dokument.brevnummer).toBe(3);
+    expect(linja).toMatch(/brev (3|\S+-03 av [^·]*) fra TE$/);
     expect(traad().queryByText('Svar ikke registrert.')).toBeNull();
   });
 

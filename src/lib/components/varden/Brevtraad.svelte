@@ -51,10 +51,14 @@
           >
         {/if}
         <p class="meta">
-          {registrert && b.sendt
-            ? FORHOLDET.sendtIfoelge(b.avsender, b.sendt, b.registrert)
-            : FORHOLDET.sendtHerfra(b.avsender, b.registrert)}{#if b.merking}
-            · {b.merking}{/if}
+          {[
+            registrert && b.sendt
+              ? FORHOLDET.sendtIfoelge(b.avsender, b.sendt, b.registrert)
+              : FORHOLDET.sendtHerfra(b.avsender, b.registrert),
+            b.merking,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </p>
       </div>
     </li>
