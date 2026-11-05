@@ -1,8 +1,8 @@
 """Vedtaks-ID-ene i kjerne/, server/ og src/ mot vedtaksregisteret (#452).
 
 Reglene står i docs/verktoy/vedtakshenvisninger.py og i #451, punkt 2: en ukjent
-ID gir feil, og en opphevet ID gir feil når den står som eneste grunnlag, unntatt
-i en test merket historisk.
+ID gir feil, og en opphevet ID gir feil når den står uten posten som opphever den,
+unntatt i en test merket historisk (oppdragsgiver 05.11, #1606).
 """
 
 import collections
@@ -19,7 +19,7 @@ vh = last("vedtakshenvisninger")
 vr = vh.vr
 
 KJENTE = {"MM-U4", "MM-U9", "KA-U1", "B-13"}
-OPPHEVET = {"MM-U4"}
+OPPHEVET = {"MM-U4": {"MM-U9"}}
 AAPNE = {"B-06"}
 
 
@@ -58,7 +58,9 @@ def test_filer_leser_de_tre_mappene_og_hopper_over_byggmappene(tmp_path):
 def test_mm_u9_gjoer_mm_u4_til_mm_u6_opphevet(register):
     # Forventningen er raden til MM-U9 i 3.1: «Opphever MM-U4, MM-U5 og MM-U6».
     kjente, opphevet = vh.vedtak(register)
-    assert {"MM-U4", "MM-U5", "MM-U6"} <= opphevet
+    assert {i: opphevet[i] for i in ("MM-U4", "MM-U5", "MM-U6")} == dict.fromkeys(
+        ("MM-U4", "MM-U5", "MM-U6"), {"MM-U9"}
+    )
     assert {"MM-U4", "MM-U9", "B-13", "B-17"} <= kjente
 
 
@@ -82,7 +84,7 @@ def test_et_opphevet_vedtak_med_anker_som_ikke_er_id_en_gjelder_b_id_en():
             }
         ]
     }
-    assert vh.vedtak(register) == ({"B-03", "KA-U1"}, {"B-03"})
+    assert vh.vedtak(register) == ({"B-03", "KA-U1"}, {"B-03": {"KA-U1"}})
 
 
 def test_en_b_id_er_opphevet_bare_naar_hver_rad_for_den_er_opphevet():
@@ -98,9 +100,9 @@ def test_en_b_id_er_opphevet_bare_naar_hver_rad_for_den_er_opphevet():
             "forhold": [{"art": "opphever", "vedtak": "b-13-frafalt"}],
         },
     ]
-    assert vh.vedtak({"gruppe": [{"vedtak": to_rader}]})[1] == set()
+    assert vh.vedtak({"gruppe": [{"vedtak": to_rader}]})[1] == {}
     del to_rader[1]
-    assert vh.vedtak({"gruppe": [{"vedtak": to_rader}]})[1] == {"B-13"}
+    assert vh.vedtak({"gruppe": [{"vedtak": to_rader}]})[1] == {"B-13": {"GR-U18"}}
 
 
 @pytest.mark.parametrize("neste", ["## 4. Funnregister", "# Vedlegg", "### 3.5 x"])
@@ -175,7 +177,7 @@ def test_id_som_del_av_et_lengre_navn_leses_ikke():
 
 def test_opphevet_id_alene_gir_feil():
     assert _feil("// Avvises etter MM-U4.") == [
-        "kjerne/regel.ts:1: MM-U4 er opphevet og står som eneste grunnlag"
+        "kjerne/regel.ts:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 
@@ -184,16 +186,76 @@ def test_opphevet_id_med_gjeldende_vedtak_i_samme_kommentarblokk_er_lov():
     assert _feil(tekst) == []
 
 
+def test_opphevet_id_med_bare_et_annet_gjeldende_vedtak_gir_feil():
+    """Oppdragsgiver 05.11, #1606: det er ikke nok at et annet vedtak som gjelder, står der."""
+    assert _feil("// Var MM-U4, se også KA-U1.") == [
+        "kjerne/regel.ts:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
+    ]
+
+
+def test_opphevet_id_med_en_av_flere_poster_som_opphever_den_er_lov():
+    opphevet = {"MM-U4": {"MM-U9", "KA-U1"}}
+    assert vh.feil_i("kjerne/regel.ts", "// MM-U4, KA-U1", KJENTE, opphevet, AAPNE) == []
+
+
+@pytest.mark.parametrize(
+    ("kilde", "feil"),
+    [
+        (["MM-U4", "MM-U9"], []),
+        (["MM-U4", "KA-U1"], ["a.json: x/kilde: MM-U4 er opphevet og står uten MM-U9, som opphever den"]),
+        ("MM-U4, KA-U1", ["a.json: x/kilde: MM-U4 er opphevet og står uten MM-U9, som opphever den"]),
+    ],
+)
+def test_en_kildeliste_godtar_den_opphevede_id_en_bare_med_posten_som_opphever_den(kilde, feil):
+    assert vh.kildefeil("a.json", {"x": {"kilde": kilde}}, KJENTE, OPPHEVET, AAPNE) == feil
+
+
+@pytest.mark.parametrize(
+    ("tekst", "feil"),
+    [
+        ("Regelen sto i MM-U4 (opphevet av MM-U9).\n", []),
+        ("Regelen sto i MM-U4, se KA-U1.\n", ["x.md:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"]),
+    ],
+)
+def test_et_dokument_godtar_den_opphevede_id_en_bare_med_posten_som_opphever_den(tekst, feil):
+    assert vh.feil_i("x.md", tekst, KJENTE, OPPHEVET, AAPNE) == feil
+
+
+def test_kontroller_leser_posten_som_opphever_av_registeret(register, plan, tmp_path):
+    """MM-U50 opphever MM-U3 (svar Y i #1534). MM-U9 gjelder, men opphever ikke MM-U3."""
+    rot = _tre(
+        tmp_path,
+        {"kjerne/a.ts": "// MM-U3, MM-U50\n", "kjerne/b.ts": "// MM-U3, MM-U9\n"},
+    )
+    assert vh.kontroller(register, plan, rot, (), ()) == [
+        "kjerne/b.ts:1: MM-U3 er opphevet og står uten MM-U50, som opphever den"
+    ]
+
+
+def test_radene_for_samme_fil_og_id_telles_sammen():
+    rader = (
+        ("kjerne/regel.ts", "MM-U4", 1, "#1433"),
+        ("kjerne/regel.ts", "MM-U4", 2, "#1606"),
+    )
+    treff = collections.Counter({("kjerne/regel.ts", "MM-U4"): 3})
+    assert vh.avviksfeil(rader, treff) == []
+    treff[("kjerne/regel.ts", "MM-U4")] = 4
+    assert vh.avviksfeil(rader, treff) == [
+        "KJENTE_AVVIK: MM-U4 står uten posten som opphever den 4 ganger i kjerne/regel.ts, og "
+        "radene (#1433, #1606) tillater 3; en ny henvisning må vise til posten som opphever den"
+    ]
+
+
 def test_gjeldende_vedtak_utenfor_kommentarblokken_teller_ikke():
     tekst = "// Avvises etter MM-U4.\nkode()\n// MM-U9"
     assert _feil(tekst) == [
-        "kjerne/regel.ts:1: MM-U4 er opphevet og står som eneste grunnlag"
+        "kjerne/regel.ts:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 
 def test_aapen_b_id_er_ikke_et_gjeldende_grunnlag_for_en_opphevet_id():
     assert _feil("// MM-U4 og B-06") == [
-        "kjerne/regel.ts:1: MM-U4 er opphevet og står som eneste grunnlag"
+        "kjerne/regel.ts:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 
@@ -212,7 +274,7 @@ def test_opphevet_id_i_en_test_merket_historisk_er_lov(sti):
 
 def test_opphevet_id_i_en_test_uten_merket_gir_feil():
     assert _feil("it('MM-U4 avviser brevet', () => {})", "src/lib/a.test.ts") == [
-        "src/lib/a.test.ts:1: MM-U4 er opphevet og står som eneste grunnlag"
+        "src/lib/a.test.ts:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 
@@ -228,14 +290,14 @@ def test_ikke_historisk_er_ikke_merket():
 
 def test_merket_historisk_utenfor_en_test_gir_feil():
     assert _feil("// historisk: MM-U4") == [
-        "kjerne/regel.ts:1: MM-U4 er opphevet og står som eneste grunnlag"
+        "kjerne/regel.ts:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 
 def test_linjenummeret_er_starten_paa_avsnittet():
     tekst = "kode()\n/**\n * Etter MM-U4.\n */"
     assert _feil(tekst) == [
-        "kjerne/regel.ts:3: MM-U4 er opphevet og står som eneste grunnlag"
+        "kjerne/regel.ts:3: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 
@@ -266,7 +328,7 @@ def test_et_annet_avsnitt_eller_en_kodelinje_er_en_egen_henvisning(tekst):
 
 def test_en_glob_i_koden_aapner_ingen_kommentar():
     assert _feil("const m = 'src/**/*.ts';\nkode() // MM-U9\nx('MM-U4')") == [
-        "kjerne/regel.ts:3: MM-U4 er opphevet og står som eneste grunnlag"
+        "kjerne/regel.ts:3: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 
@@ -301,7 +363,7 @@ def test_en_kildeliste_med_et_opphevet_vedtak_alene_eller_en_ukjent_id_gir_feil(
     `endringer` fører historikken og leses ikke, og KA-01 er en rad, ikke et vedtak."""
     assert _kildefeil(FORLOEP) == [
         "a.json: BF-99/kontrollpunkter/p/forstaaelse[0]/kilde: MM-U4 er opphevet "
-        "og står som eneste grunnlag",
+        "og står uten MM-U9, som opphever den",
         "a.json: BF-99/kilder: KA-U99 er ikke et vedtak i registeret",
     ]
 
@@ -311,7 +373,7 @@ def test_en_kilde_som_tekst_og_en_id_med_merknad_kontrolleres():
     assert _kildefeil(
         {"invarianter": [{"kilde": "MM-U4"}, {"kilde": "KA-U99 (merknad), MM-U9"}]}
     ) == [
-        "a.json: invarianter[0]/kilde: MM-U4 er opphevet og står som eneste grunnlag",
+        "a.json: invarianter[0]/kilde: MM-U4 er opphevet og står uten MM-U9, som opphever den",
         "a.json: invarianter[1]/kilde: KA-U99 er ikke et vedtak i registeret",
     ]
 
@@ -345,7 +407,7 @@ def test_en_rad_i_kjente_avvik_gjelder_ikke_en_annen_fil():
     feil = vh.feil_i(
         "kjerne/annen.ts", "// MM-U4", KJENTE, OPPHEVET, AAPNE, avvik, collections.Counter()
     )
-    assert feil == ["kjerne/annen.ts:1: MM-U4 er opphevet og står som eneste grunnlag"]
+    assert feil == ["kjerne/annen.ts:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"]
 
 
 @pytest.mark.parametrize(
@@ -353,7 +415,7 @@ def test_en_rad_i_kjente_avvik_gjelder_ikke_en_annen_fil():
     [
         (0, "rett antallet eller fjern raden"),
         (1, "rett antallet eller fjern raden"),
-        (3, "en ny henvisning må vise til et vedtak som gjelder"),
+        (3, "en ny henvisning må vise til posten som opphever den"),
     ],
 )
 def test_en_rad_i_kjente_avvik_med_et_annet_antall_treff_gir_feil(treff, melding):
@@ -391,11 +453,11 @@ def _tre(tmp_path, filer: dict[str, str]):
 
 
 def test_kontroller_slipper_bare_raden_og_teller_treffene_per_fil(register, plan, tmp_path):
-    # KA-U24 er opphevet av KA-U43 (#1433).
+    # KA-U24 er opphevet av KA-U43 (#1433) og KA-U46.
     rot = _tre(tmp_path, {"kjerne/a.ts": "// KA-U24\n", "kjerne/b.ts": "// KA-U24\n"})
     rader = (("kjerne/a.ts", "KA-U24", 1, "#1433"),)
     assert vh.kontroller(register, plan, rot, rader, ()) == [
-        "kjerne/b.ts:1: KA-U24 er opphevet og står som eneste grunnlag"
+        "kjerne/b.ts:1: KA-U24 er opphevet og står uten KA-U43 eller KA-U46, som opphever den"
     ]
 
 
@@ -403,7 +465,7 @@ def test_kontroller_avviser_en_rad_med_feil_form_og_unntar_ingenting(register, p
     rot = _tre(tmp_path, {"kjerne/a.ts": "// KA-U24\n"})
     rader = (("kjerne/a.ts", "KA-U24", 1, ""),)
     feil = vh.kontroller(register, plan, rot, rader, ())
-    assert "kjerne/a.ts:1: KA-U24 er opphevet og står som eneste grunnlag" in feil
+    assert "kjerne/a.ts:1: KA-U24 er opphevet og står uten KA-U43 eller KA-U46, som opphever den" in feil
     assert any("må ha én fil, én ID, antallet og issuet" in f for f in feil)
 
 
@@ -438,10 +500,10 @@ def test_dokumentene_er_bestillingene_systemfila_skillene_og_agents(tmp_path):
     "tekst, feil",
     [
         ("Regelen står i MM-U4\nog i MM-U9.\n", []),
-        ("Regelen står i MM-U4.\n\nDen står i MM-U9.\n", ["x.md:1: MM-U4 er opphevet og står som eneste grunnlag"]),
-        ("- MM-U4 gjelder.\n- MM-U9 gjelder.\n", ["x.md:1: MM-U4 er opphevet og står som eneste grunnlag"]),
-        ("| MM-U4 |\n| MM-U9 |\n", ["x.md:1: MM-U4 er opphevet og står som eneste grunnlag"]),
-        ("## MM-U4\nMM-U9 gjelder.\n", ["x.md:1: MM-U4 er opphevet og står som eneste grunnlag"]),
+        ("Regelen står i MM-U4.\n\nDen står i MM-U9.\n", ["x.md:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"]),
+        ("- MM-U4 gjelder.\n- MM-U9 gjelder.\n", ["x.md:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"]),
+        ("| MM-U4 |\n| MM-U9 |\n", ["x.md:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"]),
+        ("## MM-U4\nMM-U9 gjelder.\n", ["x.md:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"]),
         ("- MM-U4 gjelder\n  fortsatt etter MM-U9.\n", []),
         ("Se XX-U7.\n", ["x.md:1: XX-U7 er ikke et vedtak i registeret"]),
     ],
@@ -452,7 +514,7 @@ def test_i_et_dokument_er_henvisningen_et_avsnitt_et_punkt_en_rad_eller_en_overs
 
 def test_historisk_slipper_ikke_en_opphevet_id_i_et_dokument():
     assert _feil("Historisk: MM-U4.\n", "AGENTS.md") == [
-        "AGENTS.md:1: MM-U4 er opphevet og står som eneste grunnlag"
+        "AGENTS.md:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 

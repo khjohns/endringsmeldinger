@@ -135,7 +135,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U7", "MM-U3"],
+          "kilde": ["GR-U7", "MM-U3", "MM-U50"],
           "forventet": {
             "enighet.frist.kilde": "sammenfall",
             "enighet.frist.svar": "S-f1",
@@ -222,7 +222,7 @@
         {
           "etter": 6,
           "rolle": "mal",
-          "kilde": ["GR-U7", "MM-U3", "KA-U1", "KA-U11", "KA-U10"],
+          "kilde": ["GR-U7", "MM-U3", "MM-U50", "KA-U1", "KA-U11", "KA-U10"],
           "forventet": {
             "avvist": false,
             "enighet.vederlag.kilde": "aksept",
@@ -395,7 +395,9 @@
           "kilde": [
             "GR-U7",
             "MM-U3",
+            "MM-U50",
             "KA-U5",
+            "HF-U9",
             "GR-U10",
             "KA-U11",
             "MM-U34",
@@ -620,7 +622,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["V-SK01", "MM-U3", "KA-U1", "KA-U10"],
+          "kilde": ["V-SK01", "MM-U3", "MM-U50", "KA-U1", "KA-U10"],
           "forventet": {
             "enighet.forhold.virkning.rettidighet": 1,
             "enighet.forhold.virkning.forhold": 2,
@@ -650,7 +652,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U9", "V-B13-REGELVERSJON", "MM-U3"],
+          "kilde": ["MM-U9", "V-B13-REGELVERSJON", "MM-U3", "MM-U50"],
           "forventet": {
             "nye_hendelser": 0,
             "virkning.S-g1.rettidighet": 1,
@@ -714,7 +716,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U3", "KA-U1", "KA-U10"],
+          "kilde": ["MM-U3", "MM-U50", "KA-U1", "KA-U10"],
           "forventet": {
             "forhold_avklart": false,
             "forhold_avvist": true,
@@ -728,7 +730,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U3", "MM-U9"],
+          "kilde": ["MM-U3", "MM-U50", "MM-U9"],
           "forventet": {
             "virkning.S-g1.rettidighet": 1,
             "visning.etiketter.forhold": {
@@ -764,7 +766,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U9", "MM-U3", "KA-U1", "KA-U10"],
+          "kilde": ["MM-U9", "MM-U3", "MM-U50", "KA-U1", "KA-U10"],
           "forventet": {
             "avvist": false,
             "enighet.forhold.svar": "S-g1",
@@ -814,7 +816,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U3", "KA-U1", "KA-U10"],
+          "kilde": ["MM-U3", "MM-U50", "KA-U1", "KA-U10"],
           "forventet": {
             "avvist": false,
             "enighet.forhold.svar": "S-g2",
@@ -856,7 +858,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["KA-U10", "MM-U9", "MM-U3", "KA-U1"],
+          "kilde": ["KA-U10", "MM-U50", "MM-U9", "MM-U3", "KA-U1"],
           "forventet": {
             "avvist": false,
             "enighet.forhold.svar": "S-g1",
@@ -1004,13 +1006,13 @@
         {
           "etter": 3,
           "rolle": "forutsetning",
-          "kilde": ["KA-U1", "KA-U10"],
+          "kilde": ["KA-U1", "KA-U10", "MM-U50"],
           "forventet": { "enighet.frist.utfall.dager": 0, "enighet.frist.virkning.rettidighet": 1 }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U1", "KA-U1", "MM-U3", "MM-U8", "KA-U10", "MM-U34"],
+          "kilde": ["MM-U1", "KA-U1", "MM-U3", "MM-U50", "MM-U8", "KA-U10", "MM-U34"],
           "forventet": {
             "avvist": false,
             "varsel.frist": "D5",
@@ -1084,7 +1086,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["KA-U1", "KA-U5"],
+          "kilde": ["KA-U1", "KA-U5", "HF-U9"],
           "forventet": { "avvist": false, "enighet.vederlag.svar": "S-v2", "enighet.vederlag.utfall.beloep": 90000 }
         }
       ],
@@ -1324,7 +1326,7 @@
         {
           "etter": 6,
           "rolle": "mal",
-          "kilde": ["MM-U9", "GR-U7", "MM-U3", "KA-U11", "MM-U34"],
+          "kilde": ["MM-U9", "GR-U7", "MM-U3", "MM-U50", "KA-U11", "MM-U34"],
           "forventet": {
             "nye_hendelser": 0,
             "virkning.S-g1.rettidighet": 1,
@@ -1352,7 +1354,7 @@
         {
           "etter": 7,
           "rolle": "mal",
-          "kilde": ["GR-U10", "GR-U7", "MM-U3", "KA-U11", "MM-U34"],
+          "kilde": ["GR-U10", "GR-U7", "MM-U3", "MM-U50", "KA-U11", "MM-U34"],
           "forventet": {
             "avvist": false,
             "gjeldende_svar.forhold": "S-g2",
@@ -1586,7 +1588,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U34", "KA-U1", "KA-U5"],
+          "kilde": ["MM-U34", "KA-U1", "KA-U5", "HF-U9"],
           "forventet": {
             "avvist": false,
             "enighet.vederlag.utfall.beloep": 50000,
@@ -1679,7 +1681,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U10", "GR-U7", "GR-U8", "KA-U13", "MM-U11", "MM-U34", "EO-U12"],
+          "kilde": ["GR-U10", "GR-U7", "GR-U8", "KA-U13", "MM-U11", "MM-U50", "MM-U34", "EO-U12"],
           "forventet": {
             "enighet.forhold.kilde": "sammenfall",
             "enighet.forhold.holder": "S-g1",
@@ -1795,7 +1797,7 @@
         {
           "etter": 5,
           "rolle": "mal",
-          "kilde": ["MM-U34", "KA-U11", "KA-U10"],
+          "kilde": ["MM-U34", "KA-U11", "KA-U10", "MM-U50"],
           "forventet": {
             "avvist": false,
             "enighet.vederlag.utfall.beloep": 0,
@@ -1890,7 +1892,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U8", "KA-U1", "KA-U10"],
+          "kilde": ["MM-U8", "MM-U50", "KA-U1", "KA-U10"],
           "forventet": { "avvist": false, "enighet.frist.utfall.dager": 10 }
         }
       ]
@@ -2373,7 +2375,8 @@
           "rolle": "mal",
           "kilde": [
             "OV-U6",
-            "MM-U17"
+            "MM-U17",
+            "MM-U50"
           ],
           "forventet": {
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
@@ -2493,6 +2496,7 @@
           "rolle": "mal",
           "kilde": [
             "MM-U17",
+            "MM-U50",
             "OV-U6"
           ],
           "forventet": {
@@ -5551,7 +5555,8 @@
           "rolle": "mal",
           "kilde": [
             "OV-U4",
-            "KA-U7"
+            "KA-U7",
+            "MM-U34"
           ],
           "forventet": {
             "forstaatt": true,
@@ -5984,7 +5989,8 @@
           "rolle": "mal",
           "kilde": [
             "OV-U5",
-            "MM-U8"
+            "MM-U8",
+            "MM-U50"
           ],
           "forventet": {
             "avvist": false,
@@ -6265,7 +6271,8 @@
           "rolle": "mal",
           "kilde": [
             "MM-U43",
-            "KA-U10"
+            "KA-U10",
+            "MM-U50"
           ],
           "forventet": {
             "forstaatt": true,
@@ -6470,7 +6477,8 @@
           "rolle": "mal",
           "kilde": [
             "VS-U16",
-            "MM-U8"
+            "MM-U8",
+            "MM-U50"
           ],
           "forventet": {
             "handlinger.TE": {
@@ -6488,7 +6496,8 @@
           "rolle": "mal",
           "kilde": [
             "VS-U16",
-            "MM-U8"
+            "MM-U8",
+            "MM-U50"
           ],
           "forventet": {
             "avvist": true,
@@ -6753,7 +6762,8 @@
           "kilde": [
             "OV-U4",
             "GR-U10",
-            "KA-U7"
+            "KA-U7",
+            "MM-U34"
           ],
           "forventet": {
             "uten_virkning": [],
@@ -7641,6 +7651,7 @@
           "rolle": "mal",
           "kilde": [
             "KA-U3",
+            "HF-U9",
             "KA-U11"
           ],
           "forventet": {
@@ -7667,6 +7678,7 @@
           "rolle": "mal",
           "kilde": [
             "KA-U3",
+            "HF-U9",
             "KA-U11",
             "GR-U7",
             "GR-U10"
@@ -8774,6 +8786,7 @@
           "kilde": [
             "GR-U7",
             "KA-U5",
+            "HF-U9",
             "KA-U11"
           ],
           "forventet": {
@@ -8790,6 +8803,7 @@
           "kilde": [
             "GR-U7",
             "KA-U5",
+            "HF-U9",
             "KA-U11",
             "GR-U10"
           ],
@@ -8885,6 +8899,7 @@
           "kilde": [
             "VS-U3",
             "KA-U10",
+            "MM-U50",
             "NS-34.1.2-2"
           ],
           "forventet": {
@@ -9725,7 +9740,8 @@
           "rolle": "mal",
           "kilde": [
             "VS-U3",
-            "KA-U10"
+            "KA-U10",
+            "MM-U50"
           ],
           "forventet": {
             "avvist": false,
@@ -9789,7 +9805,8 @@
           "rolle": "mal",
           "kilde": [
             "VS-U4",
-            "KA-U10"
+            "KA-U10",
+            "MM-U50"
           ],
           "forventet": {
             "avvist": false,
@@ -12457,7 +12474,7 @@
     },
     {
       "id": "INV-MM-5",
-      "kilde": "MM-U3, MM-U9, V-B13-REGELVERSJON",
+      "kilde": "MM-U3, MM-U50, MM-U9, V-B13-REGELVERSJON",
       "tekst": "En regelendring endrer ikke et beslutningsgrunnlag, innholdet i en enighet eller et sendt brev. Prøves ved hver regelendring i de genererte forløpene og i regelendringstesten."
     },
     {
@@ -12467,12 +12484,12 @@
     },
     {
       "id": "INV-MM-7",
-      "kilde": "B-13, KA-U10, MM-U9",
+      "kilde": "B-13, KA-U10, MM-U50, MM-U9",
       "tekst": "En aksept med en annen regelversjon enn serverens avvises, og journalen er uendret (F-MM-C3d-kontroll). Innholdet i enigheten er brevets (KA-U10), og at dagens regler gir brevet en annen virkning, sperrer ikke aksepten (F-MM-C3d)."
     },
     {
       "id": "INV-MM-10",
-      "kilde": "MM-U9, KA-U10, DM-06, B-17",
+      "kilde": "MM-U9, KA-U10, MM-U50, DM-06, B-17",
       "tekst": "Virkningen av et sendt svar og innholdet i en enighet om det leses fra beslutningsgrunnlaget. Et svar uten et fullstendig beslutningsgrunnlag og en aksept uten regelversjon er ikke forstått (kjernetesten)."
     },
     {

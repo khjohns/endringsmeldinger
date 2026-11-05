@@ -215,7 +215,7 @@ punktet. Det juridiske står i vedtakene, ikke her.
   sier da hva den bygger på, så den ikke leses som en parts standpunkt. At visningen aldri sier at
   et krav er prekludert, tapt eller avgjort, står i [VS-U3](../docs/plans/vedtak.md#vs-u3) og [HF-U11](../docs/plans/vedtak.md#hf-u11), og at løsningen
   ikke legger en vurdering i munnen på en part, i [MM-U33](../docs/plans/vedtak.md#mm-u33). Posten utvider [HF-U2](../docs/plans/vedtak.md#hf-u2) og
-  presiserer [MM-U12](../docs/plans/vedtak.md#mm-u12) (lesningen 04.11 i
+  presiserer [MM-U12](../docs/plans/vedtak.md#mm-u12) (opphevet av MM-U50) (lesningen 04.11 i
   [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
 - <a id="mm-u25"></a>**MM-U25** Visningen viser bare handlingene parten kan gjøre nå. Kan et krav
   ikke lenger endres, sier kravet det i én linje, med henvisning til utsagnet som hindrer. Der
