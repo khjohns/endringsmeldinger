@@ -86,8 +86,11 @@ grunnlag = "KA-U2, KA-U8, OV-U23"
 
 [[krav]]
 spor = "frist"
-beskrivelse = "En kravversjon av fristforlengelsen, i dager over 0."
-felt = ["id", "spor", "erstatter", "dager"]
+beskrivelse = """
+En kravversjon av fristforlengelsen, i dager over 0. `gjelder` er byggherrens forespørsel
+etter § 33.6.2 kravet svarer på, satt når kravet sendes mens forespørselen er ubesvart
+(HF-U1, LV-U18 punkt 3)."""
+felt = ["id", "spor", "erstatter", "gjelder", "dager"]
 grunnlag = "KA-U2, KA-U8"
 
 [[svar]]

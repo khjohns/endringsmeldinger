@@ -188,6 +188,7 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | `hendelsesformat` i `data` | Kolonnen `format` | Leses før `data` tolkes |
 | `refererer_til_event_id` (`referstoid`), `vederlag_krav_id`, `frist_krav_id`, `grunnlag_event_id` | `gjelder` | Uttrykkelig referanse, også i trekket og rettidigheten |
 | `original_respons_id` | `erstatter` i svaret | «Svar», ikke «respons» |
+| Finnes ikke; kravet ble knyttet til forespørselen etter rekkefølgen i journalen | `gjelder` i fristkravet | [HF-U1](../plans/vedtak.md#hf-u1), [LV-U18](../plans/vedtak.md#lv-u18) punkt 3: kravet viser uttrykkelig til forespørselen etter § 33.6.2 det svarer på, som `gjelder` i protesten. Forkastet: `svar_paa`, `besvarer` og `foresporsel` (oppdragsgiver 05.11, #1567) |
 | Kravversjon uten referanse til den forrige | `erstatter` i kravet | Kravversjonene er en kjede, som svarene (KA-U2) |
 | `<event_id>#<art>` (utsagns-ID laget av leseren) | En UUID per element, satt av serveren | En referanse avhenger ikke av art eller rekkefølge |
 | `belop_direkte`, `antall_dager`, `varsel_type` | `beloep`, `dager`; `varsel_type` utgår | Varselet etter § 33.4 er et eget utsagn |
