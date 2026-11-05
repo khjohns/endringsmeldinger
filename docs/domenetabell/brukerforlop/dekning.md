@@ -143,6 +143,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U36](../../plans/vedtak.md#mm-u36) | — | — | BF-01V, BF-03 |
 | [MM-U37](../../plans/vedtak.md#mm-u37) | — | — | BF-06 |
 | [MM-U38](../../plans/vedtak.md#mm-u38) | — | — | BF-06 |
+| [MM-U50](../../plans/vedtak.md#mm-u50) | — | — | BF-06 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-01V, BF-07 |
 | [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | — |

@@ -66,7 +66,7 @@ export type Opplysning =
       hva: 'endringsordre';
       oppfylt: boolean;
       oppgittAv: Part;
-      /** Brevet opplysningen gjelder: dokumentet selv, eller et registrert brev før det (MM-U12). */
+      /** Brevet opplysningen gjelder: dokumentet selv, eller et registrert brev før det (MM-U12, MM-U50). */
       brev: string;
     }
   /**
@@ -118,7 +118,7 @@ export type Standpunkt =
   /**
    * § 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept oppgir byggherren metoden
    * byggherren mener vederlaget skal justeres etter (`oensket`); appen avgjør ikke om
-   * § 34.3 eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12).
+   * § 34.3 eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12, MM-U50).
    */
   | {
       id: string;
@@ -264,9 +264,9 @@ export interface Dokument {
   krav: Krav[];
   svar: Svar[];
   utsagn: LestUtsagn[];
-  /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17). */
+  /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17, MM-U50). */
   brevtekst: Avsnitt[] | null;
-  /** Tittelen på et brev løsningen sendte, frosset med teksten (MM-U3, #1536). `null` ellers. */
+  /** Tittelen på et brev løsningen sendte, frosset med teksten (MM-U3, MM-U50, #1536). `null` ellers. */
   brevtittel: string | null;
   /**
    * Brevets nummer i saken (LV-U44, N3 i #1497): satt av kjernen for et brev fra løsningen, og
@@ -374,7 +374,7 @@ export interface Utfall {
 /**
  * Innholdet i en enighet: brevets standpunkter, med kilden, og utfallet og
  * vilkåret utledet av dem. Det lagres ikke, men leses fra brevet, så innholdet
- * har ett hjem (KA-U10, MM-U3, MM-U11).
+ * har ett hjem (KA-U10, MM-U3, MM-U11, MM-U50).
  */
 export interface Enighetsgrunnlag {
   spor: Spor;

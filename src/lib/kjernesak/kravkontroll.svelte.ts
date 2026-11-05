@@ -188,7 +188,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
       sender = true;
       try {
         const { kommando, vedlegg, omslag } = kommandoFraSkjema(kjernesak, spor, type, data);
-        // MM-U17: et registrert brev har ingen tekst fra appen, så det er ikke noe brev å kontrollere.
+        // MM-U17, MM-U50: et registrert brev har ingen tekst fra appen, så det er ikke noe brev å kontrollere.
         if (kommando.type === 'varsel') {
           if (!(await kjernesak.send(kommando, undefined, vedlegg)))
             throw new Error(kjernesak.feil ?? 'Varselet ble ikke registrert.');
@@ -206,7 +206,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     trekk: (spor: Spor) => utsagn({ type: 'trekk', spor }, spor),
     /**
      * Aksepten av byggherrens svar `svar`, det gjeldende svaret knappen er vist for, med
-     * regelversjonen brevet er forhåndsvist med (KA-U10). Ingen fritekst: kommandoen har ingen.
+     * regelversjonen brevet er forhåndsvist med (KA-U10, MM-U50). Ingen fritekst: kommandoen har ingen.
      */
     aksept: (spor: Spor, svar: string) =>
       sendUtsagn(() =>

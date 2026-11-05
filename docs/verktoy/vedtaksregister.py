@@ -584,7 +584,14 @@ def forholdfeil(register: dict) -> list[str]:
             for f in p.get("forhold", [])
             if f["art"] in FORHOLD_I_FOLGE
         )
-        lest = per_post[i]
+        # Et forhold som er fjernet etter merge, kan fortsatt stå med ord i Følge.
+        lest = collections.Counter(
+            {
+                (art, a): n
+                for (art, a), n in per_post[i].items()
+                if (anker(p), art, a) not in FORHOLD_FJERNET_ETTER_MERGE
+            }
+        )
         feil += [
             f"{navn}: forholdet «{art} #{a}» står i registeret, men ikke uttrykkelig i Følge"
             for art, a in foert - lest
@@ -1074,7 +1081,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("mm-u34", "endrer", "ov-u48", "#1534, steg 4"),
         ("mm-u34", "endrer", "ov-u49", "#1534, steg 4"),
         ("mm-u34", "endrer", "ov-u51", "#1534, steg 4"),
-        ("mm-u8", "bygger på", "mm-u4", "#1534, steg 4"),
         ("ov-u2", "bygger på", "eo-u6", "#1534, steg 4"),
         ("ov-u3", "bygger på", "eo-u2", "#1534, steg 4"),
         ("ov-u3", "bygger på", "eo-u5", "#1534, steg 4"),
@@ -1463,13 +1469,16 @@ HENVISNINGER = re.compile(
 )
 
 
-def folge_bare_lagt_til(gammel: str, ny: str) -> bool:
+def folge_bare_lagt_til(gammel: str, ny: str, anker_: str | None = None) -> bool:
     """Følge i en importert rad: henvisningene verktøyet setter først, kan bli flere, og
-    resten står ordrett, eventuelt med tekst lagt til etter."""
+    resten står ordrett, eventuelt med tekst lagt til etter. En henvisning til et forhold i
+    FORHOLD_FJERNET_ETTER_MERGE kan falle bort."""
     gamle_h = HENVISNINGER.match(gammel).group(0)
     nye_h = HENVISNINGER.match(ny).group(0)
-    if collections.Counter(LENKE.findall(gamle_h)) - collections.Counter(
-        LENKE.findall(nye_h)
+    if any(
+        not _lenke_fjernet_med_forhold(anker_, lenke)
+        for lenke in collections.Counter(LENKE.findall(gamle_h))
+        - collections.Counter(LENKE.findall(nye_h))
     ):
         return False
     rest_gammel, rest_ny = gammel[len(gamle_h) :], ny[len(nye_h) :]
@@ -1516,7 +1525,7 @@ def endret_rundt_vedtakene(
             if not _lenke_fjernet_med_forhold(p.get("anker"), lenke)
         ]
         if p.get("anker") not in nye_ankre and not folge_bare_lagt_til(
-            p["folge"], naa["folge"]
+            p["folge"], naa["folge"], p.get("anker")
         ):
             feil.append(
                 f"{navn}: Følge er endret; i en importert rad kan bare tekst legges til"
@@ -1583,6 +1592,7 @@ FORHOLD_FJERNET_ETTER_MERGE = {
     ("ka-u45", "bygger på", "ov-u49"): "E2, V2 A 04.11, #1534",
     ("ov-u80", "utvider", "ov-u48"): "E2, V2 A 04.11, #1534",
     ("ov-u80", "utvider", "ov-u49"): "E2, V2 A 04.11, #1534",
+    ("mm-u8", "bygger på", "mm-u4"): "E1 og E9 i MM-U50, svar 1 A 05.11, #1534",
 }
 
 

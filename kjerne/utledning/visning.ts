@@ -174,7 +174,7 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
 
 /**
  * Svaret er registrert korrespondanse. Beslutningsgrunnlaget er da appens vurdering
- * etter reglene ved registreringen, ikke da brevet ble sendt (MM-U17).
+ * etter reglene ved registreringen, ikke da brevet ble sendt (MM-U17, MM-U50).
  */
 function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
   const dokument = u.svar[svarId].svar.dokument;

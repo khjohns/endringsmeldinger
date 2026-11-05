@@ -1,7 +1,7 @@
 /**
  * Kommandoene i kjernen, slik klienten sender dem, og kontrollen av formen mot
  * skjemaene her (`feilI`). Aksepten bærer svaret og regelversjonen TE fikk se
- * (KA-U10); det har ikke `kontrakt.json` (#304). Innholdet i et krav har
+ * (KA-U10, MM-U50); det har ikke `kontrakt.json` (#304). Innholdet i et krav har
  * feltene i formatet (`KRAVINNHOLD` i `format.ts`). Vurderingene i et svar har
  * navnene reglene regner med, og blir standpunkter og utregning når brevet
  * skrives.

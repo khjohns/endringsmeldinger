@@ -512,7 +512,7 @@ def test_en_designpost_alene_i_en_bevis_sak_gir_feil():
 def test_designpostene_er_id_ene_der_hver_post_er_design(register):
     design = vh.design(register)
     assert "OV-U81" in design and "VS-U3" not in design
-    assert design["OV-U70"] == ["MM-U12", "OV-U4", "OV-U80"]
+    assert design["OV-U70"] == ["MM-U50", "OV-U4", "OV-U80"]
 
 
 @pytest.mark.parametrize("issue, gyldig", [("#1534, steg 4", True), ("#1433", True), ("steg 4", False), ("#1534 steg 4", False)])
