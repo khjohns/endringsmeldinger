@@ -173,4 +173,40 @@ Spørsmål 1–4 er juridiske. Spørsmål 5 er teknisk.
 
 ## Svarene
 
-Ikke mottatt.
+Oppdragsgiver 05.11, ordrett ([#1534, 6668555694](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6668555694)):
+
+> 2A, 3A, 4A, 5A. 1A, men språket må forbedres. «Grunnlaget» brukes ikke lenger - det er forhold eller påberopelse.
+
+- **2 A, 3 A, 4 A og 5 A** er valgt, og B er forkastet i hvert av dem.
+- **1 A** er valgt med rettelse i språket. Den rettede ordlyden under venter på godkjenning.
+  1 B er forkastet.
+
+Spørsmålene over står slik de ble stilt. Betegnelsen er hentet fra OV-U82, svar 3 A: «I
+vedtakene leses ‹grunnlaget› og ‹ansvarsgrunnlaget›, der de gjelder det totalentreprenøren
+påberoper, som ‹forholdet›, ‹grunnlagskravet› som ‹totalentreprenørens påberopelse av
+forholdet›». Domenetabellen, «Påberopelse av forholdet»: «Totalentreprenørens første brev i
+saken, byggherrens svar på det og trekket av det.» Byggherren svarer derfor på
+påberopelsen, og i punkt 13 gjelder begrensningen sporet, som heter forholdet.
+
+**1 A, rettet ordlyd (venter på godkjenning):**
+
+| Før (stilt) | Rettet |
+| --- | --- |
+| ‹Svaret er byggherrens nye svar på grunnlaget. | ‹Svaret er byggherrens nye svar på påberopelsen av forholdet. |
+| Byggherrens tidligere svar på grunnlaget er endringsordren i <brevet …>.› | Byggherrens tidligere svar på påberopelsen er endringsordren i <brevet …>.› |
+
+Resten av 1 A står ordrett.
+
+**Samme betegnelse i de valgte alternativene:**
+
+- 2 A, «Vil byggherren gi et annet svar på grunnlaget enn godkjenningen som er registrert»,
+  blir «Vil byggherren gi et annet svar på påberopelsen enn godkjenningen som er
+  registrert». Dette er bare språket.
+- 3 A, forholdet «som ikke lenger begrenser svaret til grunnlaget», blir «som ikke lenger
+  begrenser svaret til forholdet». Dette er bare språket.
+- 4 A og 5 A bruker ikke ordet.
+- Sitatene fra EO-U38, HF-U25 og LV-U34 står ordrett. Den nye posten for EO-U38 punkt 13 og
+  50 skriver «forholdet» der «grunnlaget» gjelder det totalentreprenøren påberoper (OV-U82).
+- «Godkjenningen» står. Det er ikke avgjort om standpunktet «godkjent» i HF-U2 får et nytt
+  navn (OV-U83 svar 8 C: «Forhold: endrer HF-U2 for standpunktet»), og det hører ikke til
+  her.
