@@ -219,6 +219,21 @@ KJENTE_AVVIK = (
     ("src/lib/kjernesak/vederlagskrav.ts", "MM-U17", 2, "#1606"),
     ("src/lib/kjernesak/vederlagssvar.ts", "KA-U24", 1, "#1606"),
     ("src/lib/types/api.ts", "MM-U3", 1, "#1606"),
+    # Henvisningene til MM-U41 som #1611 la inn i kjerne/, uten MM-U52, som opphever den (#1613).
+    ("kjerne/format/format.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/frosset/brevtekst.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/kommandoer/forutsetninger.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/kommandoer/handlinger.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/kommandoer/kommando.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/kommandoer/nyttelast.ts", "MM-U41", 2, "#1606"),
+    ("kjerne/kommandoer/skriving.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/tester/arkitektur.test.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/tester/brevtekst.test.ts", "MM-U41", 3, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "MM-U41", 7, "#1606"),
+    ("kjerne/tester/kjoerer.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/tester/klient.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/typer.ts", "MM-U41", 1, "#1606"),
+    ("kjerne/utledning/utled.ts", "MM-U41", 7, "#1606"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
