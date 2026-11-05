@@ -684,6 +684,14 @@ function utledSporene(
   kontrollerEndringsordrene(opplysninger, dokumenter, ugyldig);
   kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig);
   kontrollerForesporslene(foresporsler, fristkravIAppen, henvisninger, bakover, ugyldig);
+  kontrollerSvaretPaaForesporselen(
+    kravMedUten,
+    fristkravIAppen,
+    elementer,
+    besvart,
+    bakover,
+    ugyldig
+  );
   kontrollerBestridelsene(bestridelser, alleOpplysninger, avsenderAv, bakover, ugyldig);
   kontrollerIngenKrav(ingenKrav, spor, bakover, ugyldig);
   kontrollerVarslene(varsler, ugyldig);
@@ -959,6 +967,38 @@ function kontrollerForesporslene(
       ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter TEs begrunnelse (VS-U30)');
     else if (f !== foresporsler[0])
       ugyldig(f.id, 'saken har alt en forespørsel etter § 33.6.2 fra appen (VS-U31)');
+}
+
+/**
+ * HF-U1, LV-U18 punkt 3: fristkravet viser til forespørselen etter § 33.6.2 det svarer på, og
+ * et krav om dager i appen mens forespørselen er ubesvart, er svaret og viser til den
+ * (avgrensningen i #1567). Et krav i et registrert brev svarer ikke (OV-U4).
+ */
+function kontrollerSvaretPaaForesporselen(
+  kravMedUten: ReadonlyMap<string, Krav>,
+  fristkravIAppen: readonly Krav[],
+  elementer: Record<string, Element>,
+  besvart: readonly ForesporselOgSvar[],
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
+  for (const k of kravMedUten.values()) {
+    if (k.gjelder === undefined) continue;
+    if (elementer[k.gjelder]?.art !== 'foresporsel' || !bakover(k.id, k.gjelder))
+      ugyldig(k.id, 'fristkravet viser ikke til en forespørsel etter § 33.6.2 før kravet');
+    else if (!fristkravIAppen.includes(k))
+      ugyldig(k.id, 'et registrert krav svarer ikke på forespørselen etter § 33.6.2 (OV-U4)');
+    else if (!besvart.some((f) => f.foresporsel === k.gjelder && f.svar === k.id))
+      ugyldig(k.id, 'fristkravet viser til en forespørsel etter § 33.6.2 som alt er besvart');
+  }
+  for (const k of fristkravIAppen)
+    if (
+      k.gjelder === undefined &&
+      besvart.some(
+        (f) => bakover(k.id, f.foresporsel) && (f.svar === null || !bakover(k.id, f.svar))
+      )
+    )
+      ugyldig(k.id, 'fristkravet viser ikke til forespørselen etter § 33.6.2 det svarer på');
 }
 
 function kontrollerBestridelsene(
