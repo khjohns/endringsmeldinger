@@ -50,9 +50,9 @@ EO-U38. Den kontrolleres mot `main` når posten føres. Fila skriver ikke i `ved
   noe om setningene med andre ord, ikke med ordene i (b). E9 sier det med ordene.
 - **Henvisningene til EO-U34 utenfor registeret:** ingen i `kjerne/`, `server/` eller `src/`. I
   `docs/domenetabell/`: `regler.json` og `README.md` (21 hver), BF-06.md (38), BF-03.md, BF-03.json,
-  BF-06.json og `dekning.md`. EO-U35–EO-U37 står i BF-06.md, BF-06.json og `dekning.md`. Seks sitater
-  i `vedtak.toml` har `eo-u34` i `bindende_i` (i postene KA-U50, OV-U91, MM-U37, MM-U42, MM-U45 og
-  OV-U62, etter linjenummeret). Se spørsmål 1, «Hva valget styrer».
+  BF-06.json og `dekning.md`. EO-U35–EO-U37 står i BF-06.md, BF-06.json og `dekning.md`. Seks poster
+  i `vedtak.toml` har `eo-u34` i `bindende_i`: GR-U3, beslutningen «En endringsordresak kan følge av
+  en KOE-sak …» (29.09), MM-U38, MM-U45, MM-U46 og OV-U63. Se spørsmål 1, «Hva valget styrer».
 - **PR #1612 (OV-U94, ikke ført) viser til EO-U34 punkt 12, 21, 24 og 28.** Nummereringen må stå.
 
 ## Overlapp med andre samlevedtak og kjeder
@@ -140,7 +140,7 @@ der E-punktet sier noe annet.
 12. I en KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter,
     avviser løsningen krav, svar, aksept og trekk. (EO-U34 punkt 12) Innlegg, dokumentasjon og
     innsigelser etter punkt 5 tredje ledd godtas, og korrigeringen av datoen etter MM-U52 punkt
-    24 og rettingen av varseldatoen etter punkt 68. (EO-U34 punkt 12; MM-U47 punkt 1 og 5;
+    24 og rettingen av varseldatoen etter punkt 68. (EO-U34 punkt 12; MM-U47 punkt 5 og beslutningsdelen;
     MM-U51, forholdet; 05.11 3.5 B, forholdet; E3; E8)
 13. Fram til endringsordren i EO-saken kan byggherren sende et nytt svar på grunnlaget.
     (EO-U34 punkt 13)
@@ -472,7 +472,9 @@ endringsordre får koden etter LV-U44 når registreringen er godkjent, og brevet
 ved siden av koden (EO-U16).» og «For en registrert endringsordre lages ingen brevtekst, og brevets
 eget nummer lagres som referanse (EO-U16).»; designdelen «For en registrert endringsordre viser
 merket koden etter EO-U14 ved spørsmål 3 B, og brevets referanse ved A (E15).» Ny tekst: EO-U36
-ordrett, de to første setningene i beslutningsdelen og den tredje i designdelen. Kilde: EO-U36, svar
+ordrett, de to første setningene i beslutningsdelen, og den tredje i designdelen med «For en
+registrert endringsordre viser merket» for «Merket på KOE-sakene viser», fordi merket i designdelen
+alt står på KOE-saken. Kilde: EO-U36, svar
 3 B 04.11 (6626551632). Teksten i EO-U34 manglet «som et unntak fra LV-U47» og «Merket på
 KOE-sakene viser koden etter EO-U14.». Redaksjonelt: «og brevets eget nummer lagres som referanse»
 er strøket fra setningen om brevteksten, fordi EO-U36 sier det samme. Ikke nytt innhold.
@@ -490,7 +492,8 @@ er strøket fra setningen om brevteksten, fordi EO-U36 sier det samme. Ikke nytt
 - «(EO-U24; MM-U21 snevret inn av EO-U24)» i beslutningsdelen står som «(EO-U24; MM-U52 punkt 4 og
   16)». Kilde: MM-U52 opphevet MM-U21, og henvisningene gjelder samlevedtaket (MM-U52 svar 2 A);
   punkt 4 der er regelen fra MM-U21, og punkt 16 sier at endringsordren ikke rettes i løsningen.
-- Kilden for innsigelsene i punkt 12 er MM-U47 punkt 1 og 5, ikke MM-U34 punkt 19 alene. MM-U35
+- Kilden for innsigelsene i punkt 12 er MM-U47 punkt 5 og beslutningsdelen («I første versjon sendes
+  også innsigelsen etter punkt 5 tredje ledd […] som innlegg»), ikke MM-U34 punkt 19 alene. MM-U35
   endret MM-U34 punkt 19 slik at innsigelsen sendes som innlegg (raden MM-U35: «Endringen i MM-U34
   gjelder punkt 19»), og MM-U35 er samlet i MM-U47. Ordlyden i punkt 12 står.
 - «E7», «E8» og «E10» i designdelen og beslutningsdelen står som «EO-U34 E7», «EO-U34 E8» og «EO-U34
@@ -583,6 +586,11 @@ Ingen av disse endrer innholdet i forslaget. De er ikke sagt av oppdragsgiver og
   spørsmål, fordi lesingen følger av punkt 9, 44 og 50.
 - **«MM-U34 punkt 1, 16 og 26» i designdelen.** Punkt 26 i MM-U34 stryker setninger i svarskjemaet og
   er ikke en påminnelse. Kilde: kartleggingen av HF-U25, punkt 5. Hjem: BF-06.
+- **Forholdene i EO-U35–EO-U37 som «står» (E9).** OV-U92 sier at samlevedtaket sier om (a) eller (b)
+  gjelder for forholdene til postene det samler. E9 sier (b) for «snevrer inn MM-U21», men bare at
+  resten «står», også forholdene til EO-U16 (opphevet av EO-U34) og til EO-U12, EO-U32, EO-U33 og
+  OV-U6 (samlet i EO-U34, som versjon 2 opphever). Om «står» er nok, eller om E9 skal si (a) eller (b)
+  for hvert, er ikke avgjort. Kilde: OV-U92, siste setning; kontrollen 05.11.
 
 ## Spørsmålene til oppdragsgiver
 
@@ -664,8 +672,9 @@ MM-U50 og punkt 1–12 i MM-U47; tabellen over (c) i `vurdering-kjente-avvik-202
 `vurdering-samlevedtak-retting-av-sendt-brev-2026-11-05.md`. Grunnlaget er kartleggingene av HF-U25,
 KA-U50, MM-U51, punkt 25, M3 og V1, og kjeden (05.11). Tellingen av henvisningene til EO-U34–EO-U37 er
 et søk med ordgrense i `kjerne/`, `server/`, `src/`, `sprakprove/` og `docs/domenetabell/`. Eierne av
-`bindende_i` er funnet etter linjenummer i `vedtak.toml` og ikke kontrollert enkeltvis. Artene for de
-seks forholdene i E9 er tatt fra vurderingen av kjente avvik, ikke lest i `vedtak.toml`.
-`vedtaksregister.py` er ikke kjørt; varselet er tatt fra kartleggingen av kjeden. Punkt 1–67 er
-skrevet av fra EO-U34 slik den står i vedtaksfila; ingen difflib-kontroll er kjørt. NS 8407 er ikke
+`bindende_i` er lest per post i `vedtak.toml` (id eller anker i samme post). Artene for de seks
+forholdene i E9 og forholdene i EO-U35–EO-U37 er lest i `vedtak.toml`.
+`vedtaksregister.py` er ikke kjørt; varselet er tatt fra kartleggingen av kjeden. Punkt 1–67, designdelen og
+beslutningsdelen er sammenlignet med EO-U34 i vedtaksfila med `difflib`, uten kildeparentesene og
+linjebrytingen; hver forskjell er dekket av E1–E8. NS 8407 er ikke
 lest for denne fila; kartleggingen av punkt 25 fant ingen strid med punkt 5, 31.3, 32.2 eller 32.3.
