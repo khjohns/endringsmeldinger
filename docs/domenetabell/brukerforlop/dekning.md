@@ -145,6 +145,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U38](../../plans/vedtak.md#mm-u38) | — | — | BF-06 |
 | [MM-U41](../../plans/vedtak.md#mm-u41) | — | BF-05 start | BF-02A, BF-02C, BF-06 |
 | [MM-U50](../../plans/vedtak.md#mm-u50) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-godtatt-svaret | BF-01V, BF-03, BF-06, BF-07 |
+| [MM-U52](../../plans/vedtak.md#mm-u52) | — | BF-05 start | BF-02A, BF-02C, BF-06 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-01V, BF-07 |
 | [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | — |

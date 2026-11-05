@@ -594,4 +594,16 @@ kan bygge rettingen i en lukket sak når versjon 2 er ført.
 
 ## Svarene
 
-Føres her når de kommer.
+Oppdragsgiver 05.11, ordrett ([#1309, 6658191101](https://github.com/khjohns/endringsmeldinger/issues/1309#issuecomment-6658191101)):
+
+> R: 1 A, 2 A, 3 C
+
+- **1 A:** samlevedtaket gjelder med E1–E8, uten rettelser. B er forkastet. Funnene under «Funn
+  som ikke avgjøres her» er ikke tatt inn.
+- **2 A:** versjon 2 opphever MM-U41 og MM-U42 og samler MM-U51 og LV-U54. B er forkastet.
+- **3 C:** punkt 25 (3.5 B, retting i en lukket sak) føres ikke med versjon 2. Det føres i et nytt
+  samlevedtak for endringsordren, med HF-U25, KA-U50, MM-U51 og 3.5 B, i en egen kartlegging. A
+  og B er forkastet.
+
+Samlevedtaket er ført som [MM-U52](../plans/vedtak.md#mm-u52), med punkt 1–24 og uten punkt 25 og
+det som bare gjaldt det.
