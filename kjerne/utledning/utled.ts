@@ -789,8 +789,9 @@ function kontrollerStandpunktet(
       );
     return;
   }
-  // Etter § 32.2 gjelder rettidigheten kravet, også når et varsel er registrert (S-1 i #807).
-  if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel)) {
+  // VS-U43 punkt 6 og 10: etter § 32.2 gjelder påberopelsen det registrerte varselet, ellers
+  // det første grunnlagskravet, og en senere versjon er ikke et nytt varsel.
+  if (erVarselhjemmel(p.hjemmel)) {
     const n = VARSELSPOR[p.hjemmel];
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
     const krav = kravSomVarsler(p.hjemmel, spor[n].krav);
@@ -799,9 +800,7 @@ function kontrollerStandpunktet(
         s.id,
         `påberopelsen etter § ${p.hjemmel} viser ikke til varselet før svaret eller, uten varsel, det første kravet som varsler`
       );
-    return;
   }
-  if (p.gjelder !== s.gjelder) ugyldig(s.id, 'rettidigheten viser ikke til kravet');
 }
 
 /**
@@ -1038,17 +1037,16 @@ function fyllSporene(
 }
 
 /**
- * OV-U5, HF-U1: et svar står med virkningen det hadde, også når TE senere har registrert
- * et annet varsel enn det påberopelsen etter § 33.4, § 34.1.2 eller § 34.1.3 gjaldt. Visningen
- * sier det.
+ * OV-U5, HF-U1, VS-U43 punkt 10: et svar står med virkningen det hadde, også når TE senere
+ * har registrert et annet varsel enn det påberopelsen etter § 32.2, § 33.4, § 34.1.2 eller
+ * § 34.1.3 gjaldt. Visningen sier det.
  */
 function svarberegninger(
   alleSvar: Map<string, Svar>,
   spor: Record<Spor, Sporutledning>
 ): Record<string, Svarberegning> {
   const annetVarsel = (p: Standpunkt) => {
-    if (p.art !== 'rettidighet' || p.hjemmel === '32.2' || !erVarselhjemmel(p.hjemmel))
-      return false;
+    if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;
     const varsel = spor[VARSELSPOR[p.hjemmel]].varsler[p.hjemmel];
     return varsel !== undefined && p.gjelder !== varsel.id;
   };
@@ -1378,10 +1376,11 @@ export const kravSomVarsler = (hjemmel: Varselhjemmel, krav: readonly Krav[]): r
   hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav;
 
 /**
- * VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4, § 34.1.2 eller § 34.1.3
- * gjelder, er varselet etter hjemmelen som var registrert da svaret ble sendt, ellers det
- * første kravet som varsler (`kravSomVarsler`), som er det første varselet appen kjenner
- * (arbeidsvalgene i #309 og #479, OV-U24).
+ * VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse etter § 32.2, § 33.4,
+ * § 34.1.2 eller § 34.1.3 gjelder, er varselet etter hjemmelen som var registrert da svaret
+ * ble sendt, ellers det første kravet som varsler (`kravSomVarsler`), som er det første
+ * varselet appen kjenner (arbeidsvalgene i #309 og #479, OV-U24). Vilkåret i E3 om en
+ * tidligere dato for § 32.2 er ikke bygget (#1600).
  * `foerSvaret` sier om et varsel står før svaret. Skriveren og valideringen leser det
  * herfra (#496).
  */

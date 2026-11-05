@@ -171,8 +171,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "if (p.art !== 'rettidighet' || p.hjemmel === '32.2' || !erVarselhjemmel(p.hjemmel))",
-        "if (p.art !== 'rettidighet' || p.hjemmel !== '34.1.2')",
+        "if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;",
+        "if (p.art !== 'rettidighet' || p.hjemmel !== '34.1.2') return false;",
       ],
     ],
     mal: ['F-MM-D', 'F-MM-D-godtatt', 'visningen sier at svaret gjaldt et annet varsel'],
@@ -726,8 +726,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'standpunkter: forholdsstandpunkter(vurderinger, krav,',
-        'standpunkter: forholdsstandpunkter({ resultat: vurderinger.resultat }, krav,',
+        'standpunkter: forholdsstandpunkter(vurderinger, krav.id,',
+        'standpunkter: forholdsstandpunkter({ resultat: vurderinger.resultat }, krav.id,',
       ],
     ],
     mal: ['svarutkastet blir en endringsordre som brevet det gir'],
@@ -1255,10 +1255,9 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        "  if (p.hjemmel === '32.2') return VARSELET[p.hjemmel];",
-        "  if (p.hjemmel === '32.2') return VARSELET['33.4'];",
+        '  return `${VARSELET[p.hjemmel]} i ',
+        "  return `${VARSELET[p.hjemmel === '32.2' ? '33.4' : '32.2']} i ",
       ],
-      ['  return `${VARSELET[p.hjemmel]} i ', "  return `${VARSELET['32.2']} i "],
     ],
     mal: [
       'nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)',
@@ -1542,7 +1541,10 @@ const MUTASJONER: Mutasjon[] = [
       'en lagret påberopelse etter § 34.1.2 som viser til en senere kravversjon, forstås (HF-U1)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel)) {", "if (p.hjemmel === '33.4') {"],
+      [
+        '  if (erVarselhjemmel(p.hjemmel)) {\n    const n',
+        "  if (p.hjemmel === '33.4') {\n    const n",
+      ],
     ],
     mal: ['påberopelsen etter § 34.1.2 viser til kravversjonen svaret gjelder'],
   },
@@ -3701,6 +3703,74 @@ const MUTASJONER: Mutasjon[] = [
       ["    return 'merkingen slutter ikke med brevnummeret (LV-U48)';", '    return null;'],
     ],
     mal: ['en merking som ikke slutter med brevnummeret, eller står uten nummeret'],
+  },
+  // #1489: varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 og 10).
+  {
+    id: 'F449',
+    feilklasse: 'påberopelsen etter § 32.2 gjelder versjonen svaret gjelder (VS-U43 punkt 6)',
+    fil: `${K}/kommandoer/standpunkter.ts`,
+    endringer: [
+      [
+        "forholdsstandpunkter(v, varseletForNyttSvar(u, '32.2'), nyId)",
+        'forholdsstandpunkter(v, krav.id, nyId)',
+      ],
+    ],
+    mal: ['svaret på versjon 2 påberoper varselet i den første versjonen'],
+  },
+  {
+    id: 'F450',
+    feilklasse:
+      'en lagret påberopelse etter § 32.2 som viser til en senere versjon, forstås (VS-U43 punkt 6)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '  if (erVarselhjemmel(p.hjemmel)) {\n    const n',
+        "  if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel)) {\n    const n",
+      ],
+    ],
+    mal: ['en lagret påberopelse etter § 32.2 som viser til versjon 2, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F451',
+    feilklasse: 'brevet nevner ikke brevet med det første grunnlagskravet (VS-U43 designdelen)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "  if (p.hjemmel === '32.2' && j.element(p.gjelder).art !== 'krav')\n    throw new KanIkkeUttrykkes('varselet etter § 32.2 sendt utenfor løsningen har ingen brevtekst');",
+        "  if (p.hjemmel === '32.2') return VARSELET[p.hjemmel];",
+      ],
+    ],
+    mal: ['svaret på versjon 2 påberoper varselet i den første versjonen'],
+  },
+  {
+    id: 'F452',
+    feilklasse:
+      'svaret på grunnlaget tilbys og skrives med et registrert varsel etter § 32.2 som ikke har brevtekst (VS-U43 E3, #1600)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      ["  return registrert && varseletForNyttSvar(u, '32.2') === registrert.id", '  return false'],
+    ],
+    mal: [
+      'byggherrens svar på grunnlaget når varselet etter § 32.2 er registrert',
+      'revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert',
+    ],
+  },
+  {
+    id: 'F453',
+    feilklasse:
+      'sperren for et registrert varsel etter § 32.2 mangler i revisjonen og stopper svaret i de andre sporene (VS-U43 E3, #1600)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;",
+        '      return null;',
+      ],
+      [
+        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;",
+        "      return svaretPaaberoperRegistrertVarsel(u, 'Svaret');",
+      ],
+    ],
+    mal: ['revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert'],
   },
 ];
 
