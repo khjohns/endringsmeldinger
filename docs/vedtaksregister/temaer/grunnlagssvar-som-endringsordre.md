@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `6e69bd2ed7ce1589be0f90423a8a16ca97c778df688739148abaf8eccbdae0cd`
+Kontrollsum (SHA-256 over utdraget visningen leser): `cb936e834b62fd67efeddf385215266c0906097eaf8c2cba17fea672ae9a8525`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -465,7 +465,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [VS-05](#rad-vs-05)
 
-**Bevis-saker som viser til vedtaket:** F-MM-A5a (målmodellen), F-MM-B2 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-A5a (målmodellen), F-MM-B2 (målmodellen), F-MM-U326a (målmodellen)
 
 ### <a id="gr-u29"></a>GR-U29
 
@@ -1737,7 +1737,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** —
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-A5b (målmodellen), F-MM-U326a (målmodellen), F-MM-U326a-kontroll (målmodellen), F-MM-U326b (målmodellen), F-MM-U326c (målmodellen), F-MM-U326d (målmodellen), F-MM-U326f (målmodellen), F-MM-U326g (målmodellen), F-MM-U326h (målmodellen), F-MM-U326h-kontroll (målmodellen), F-MM-IK5b (målmodellen), F-MM-IK6b (målmodellen), F-MM-IK6-kontroll (målmodellen), F-MM-U326b-kontroll (målmodellen), F-MM-U326c-kontroll (målmodellen), F-MM-U326d-kontroll (målmodellen), F-MM-U20a (målmodellen), F-MM-U20a-kontroll (målmodellen), F-MM-U20b (målmodellen), F-MM-U20b-kontroll (målmodellen), F-MM-U20c (målmodellen), F-MM-U20d (målmodellen), F-MM-U20c-kontroll (målmodellen), F-MM-U20d-kontroll (målmodellen), F-MM-U20h (målmodellen), F-MM-U20k (målmodellen), F-MM-G28 (målmodellen), F-MM-G34 (målmodellen), F-MM-F-33-6-1-alle-dagene (målmodellen), F-MM-F-33-4-alle-dagene (målmodellen), F-MM-V-34-1-2-hele-beloepet (målmodellen), F-MM-G37x (målmodellen), F-MM-G41x (målmodellen)
 
 ### <a id="mm-u44"></a>MM-U44
 

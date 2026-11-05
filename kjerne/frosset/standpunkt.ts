@@ -182,7 +182,7 @@ export const kravetErDokumentasjon = (d: Pick<Dokument, 'opplysninger'>): boolea
  * påberoper § 32.2 i svaret (arbeidsvalg 1 i #770). Kommandoene, utledningen og
  * brevteksten finner det innsigelsen gjelder, i `dokumenter` her (#536). `varslingsplikt`
  * sier om § 32.2 gjelder kategorien: brevteksten spør regelsettet når brevet skrives,
- * utledningen leser det som er frosset (MM-U18, #776).
+ * utledningen leser det som er frosset (MM-U43 punkt 8, #776).
  */
 export function innsigelsenPaaberoper(
   gjelder: string,
@@ -474,7 +474,7 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
 }
 
 /**
- * MM-U18: sammenfallet i beslutningsgrunnlaget stemmer med standpunktene og
+ * MM-U43 punkt 8: sammenfallet i beslutningsgrunnlaget stemmer med standpunktene og
  * virkningene i samme brev. Leses av det frosne brevet, ikke av dagens regler.
  */
 export const sammenfallStemmer = (svar: Svar): boolean =>

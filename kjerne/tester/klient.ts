@@ -404,7 +404,7 @@ export function radFor(
       );
     return svar;
   };
-  // En kravversjon fra TE, for eksempel registrert korrespondanse (MM-U18).
+  // En kravversjon fra TE, for eksempel registrert korrespondanse (MM-U43).
   const kravversjon = (k: Handling): Record<string, unknown> => {
     if (typeof k.navn !== 'string' || !(typeof k.spor === 'string' && k.spor in INNHOLD))
       throw new Error('Kravet i raden må ha `navn` og `spor`');
