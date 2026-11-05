@@ -347,7 +347,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get handlinger() {
       return tilbudt;
     },
-    /** Regelversjonen brevet forhåndsvises med, som aksepten bærer (KA-U10). */
+    /** Regelversjonen brevet forhåndsvises med, som aksepten bærer (KA-U10, MM-U50). */
     get regelversjon() {
       return kjerne.regler.versjon;
     },

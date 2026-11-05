@@ -783,6 +783,7 @@ BR-01 bygger på dette ([designnotatet](../design-b13-sannhetskilde-2026-09-23.m
 avsnitt 4)'''
 
 [[gruppe.vedtak]]
+anker = "b-13-regelversjon"
 klasse = "beslutning"
 bindende_i = ["mm-u9"]
 vedtak = '''
@@ -1921,7 +1922,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
-bindende_i = ["mm-u9", "mm-u12"]
+bindende_i = ["mm-u9", "mm-u50"]
 id = "HF-U26"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -3485,7 +3486,7 @@ Saken står åpen for nye strukturerte standpunkter fra begge parter. Vedtakene 
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["mm-u34", "mm-u12"]
+bindende_i = ["mm-u34", "mm-u50"]
 id = "GR-U28"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -4691,14 +4692,15 @@ byggherren har påberopt preklusjon for det utledede varselet, er preklusjonen u
 og TE kan ikke godta svaret før byggherren har svart på nytt. En enighet inngått før
 opplysningen står (MM-U3). Forkastet: å la TE godta svaret slik brevet uttrykte det'''
 vedtatt = "09.10, oppdragsgiver etter review av PR #306"
-forhold = [{ art = "presiserer", vedtak = "mm-u1" }, { art = "bygger på", vedtak = "mm-u4" }]
+forhold = [{ art = "presiserer", vedtak = "mm-u1" }]
 folge = '''
 Presiserer MM-U1. MM-U4, som vedtaksteksten viser til, er opphevet 09.10 av
 [MM-U9](#mm-u9), som gjelder regelendringer. MM-U8 gjelder en ny opplysning og står.
 Utvidet 10.10 av [VS-U7](#vs-u7) til § 34.1, ikke bygget. Bygget i målmodellen i
 språkprøven (#304), forløp D. Leses etter [OV-U5](#ov-u5), som endret MM-U8 13.10: et svar
 byggherren alt har gitt, står med virkningen det hadde, og TE kan godta det (oppdragsgiver
-23.10, #1047)'''
+23.10, #1047). Forholdet til [MM-U4](#mm-u4), som MM-U8 bygde på, er fjernet 05.11 av
+[MM-U50](#mm-u50) (E1, E9).'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -8498,7 +8500,7 @@ Endrer [EO-U4](#eo-u4) for dette tilfellet; GR-U7, GR-U10 og KA-U7 står. Ikke b
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["eo-u34", "mm-u12"]
+bindende_i = ["eo-u34", "mm-u50"]
 vedtak = '''
 En endringsordresak kan følge av en KOE-sak, men ikke erstatte den, verken i historikken
 eller som en egen hendelse i KOE-saken'''
@@ -10943,6 +10945,254 @@ DL-U11 (MM-U35 s1 og s3).
 er avsluttet» i MM-U7 i punkt 12 samles her. Resten av MM-U34 hører til andre kjeder etter
 fordelingen.
 
+
+##### <a id="samlevedtak-sendte-brev"></a>Samlevedtaket for sendte brev og regelendring (MM-U50)
+
+Teksten under er samlevedtaket [MM-U50](#mm-u50), vedtatt 05.11 av oppdragsgiver (#1534), ordrett slik
+det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-sendte-brev-2026-11-05.md),
+med «Endret innhold» E1–E10, med tre unntak: henvisningen i punkt 8 til HF-U6 viser nå til VS-U46
+punkt 20, som har samlet det som gjaldt av HF-U6, siste setning i E3 sier at svar 1 A for VS-U46
+er ført, og E1 og E9 sier at samlevedtaket opphever MM-U3, MM-U8, MM-U11, MM-U12, MM-U16, MM-U17 og
+KA-U10, og at «VS-U7 utvider MM-U8» står (svar Y, M1 og K1). Svaret på spørsmål 2 står i punkt 7 og
+8 og E3.
+
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Kildene står i parentes etter hver
+setning; «s» er setningen i posten, talt fra vedtaksteksten etter ID-en, og for en ny post fra det
+valgte alternativet.
+
+###### A. Det sendte brevet
+
+1. Et sendt brev bevares slik det ble sendt, og beholder virkningen det hadde da det ble sendt.
+   (MM-U12 s1; MM-U9 s1)
+2. En endring i løsningens regler endrer ikke virkningen av et brev som allerede er sendt: virkningen
+   leses fra beslutningsgrunnlaget i brevet, og nye regler gjelder bare nye brev. (MM-U9 s2)
+3. Beslutningsgrunnlaget i byggherrens svar fryser hvert standpunkt med virkningen det hadde da
+   brevet ble sendt: prinsipalt eller subsidiært, preklusjon, godkjent eller avslått, beløp eller
+   dager. Det fryser også om svaret godkjenner hele kravet (sammenfall). (MM-U11 s1–s2)
+4. Det fryser også om punkt 32.2 gjaldt for underkategorien da brevet ble sendt, som en del av
+   virkningen brevet hadde, med regelversjonen og atskilt fra det byggherren sa. (GR-U12 s3; GR-U13
+   s6; E7)
+5. Det som er frosset, er løsningens vurdering da brevet ble sendt, for eksempel at et standpunkt er
+   uten virkning eller at punkt 32.2 gjaldt. Vurderingen er ikke en rettslig avgjørelse, og den blir
+   ikke riktig eller bindende fordi den er frosset. (MM-U12 s1–s2)
+6. Løsningen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene. En senere
+   avklaring registreres som et nytt utsagn, uten at brevet eller historikken skrives om. (MM-U12
+   s4–s5)
+7. Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble sendt. Det som ikke
+   står i teksten, er ikke meddelt (LV-U3). (HF-U13 s1, endret etter spørsmål 2, og s2; E3)
+8. Løsningens vurdering av utsagnene binder ingen av partene, og løsningen avgjør ikke om en part er
+   bundet av et utsagn eller kan komme løs fra det (MM-U12). (HF-U13 s3; VS-U46 punkt 20, som samler
+   setningen MM-U34 punkt 5 la til i HF-U6; E3)
+
+###### B. Regelendring og utledningen
+
+9. Utfallet i sporet og vilkåret for en enighet utledes av de frosne standpunktene. (MM-U11 s3)
+10. Regelen som setter standpunktene sammen til et utfall, følger gjeldende regler, også for sendte
+    brev. Endres den, kan utfallet av et sendt brev endre seg. Sammensetningen følger punkt 32.3
+    første ledd a–c og vedtakene om prinsipale og subsidiære standpunkter, som GR-U7. (MM-U11 Følge;
+    MM-U11 s4–s5; MM-U16 s5; HF-U13 s4)
+11. Det samme gjelder relasjonen mellom brev, for eksempel at et vederlagssvar er subsidiært fordi
+    grunnlagssvaret er avslått. Standpunktene i ett sendt brev vurderes ikke på nytt. (rad-017,
+    merknaden 05.10 slik MM-U9 snevret den inn; MM-U16 s6–s7; E5)
+12. En regelendring som endrer utfallet i gamle saker, skal si det. (rad-017, merknaden 05.10; MM-U3
+    s4; E5)
+
+###### C. Enigheten
+
+13. Har TE godtatt byggherrens svar, gjelder den registrerte enigheten svaret med alle standpunktene
+    og den virkningen brevet hadde da det ble sendt, slik beslutningsgrunnlaget i brevet uttrykker
+    den. For et registrert svar er det vurderingen ved registreringen (punkt 19). (MM-U3 s1–s2;
+    KA-U10 s1; MM-U17; MM-U34 punkt 10; E2)
+14. Innholdet i enigheten er det svaret og kravet hadde da den ble inngått, og en senere endring av
+    reglene endrer det ikke. Det gjelder også når reglene er endret mellom brevet og aksepten. (HF-U9
+    s4; KA-U10 s2; MM-U3 s2; E2)
+15. Om vilkåret for virkning er oppfylt, utledes løpende (GR-U7), så en betinget enighet blir virksom
+    når grunnlaget avklares. (MM-U3, presiseringen 09.10 i Følge)
+16. Ved enighet ved sammenfall (GR-U8, GR-U10) er brevet og enigheten samtidige. (KA-U10 s5)
+17. Utfallet av saken utledes fortsatt med gjeldende regler (punkt 10). Løsningen avgjør ikke om
+    partene rettslig er enige (MM-U12). (HF-U9 s5; HF-U9 slik MM-U34 punkt 10 endret den; E2)
+
+###### D. Brev sendt utenfor løsningen og registrert i den
+
+18. Et brev sendt utenfor løsningen kan ha full virkning etter kontrakten. Innholdet i et
+    registrert brev står som det ble sendt. (HF-U13 s5; MM-U17 s2)
+19. Så langt løsningen utleder virkning av et registrert brev, etter unntakene i OV-U4 (OV-U5, OV-U6)
+    og etter OV-U80, fryser beslutningsgrunnlaget løsningens vurdering etter reglene ved
+    registreringen, ikke reglene da brevet ble sendt. Det gjelder også om punkt 32.2 gjaldt. (MM-U17
+    s1 og Følge; HF-U13 s5; OV-U4; OV-U80; E4)
+20. Registratorens vurdering av korrespondansen er heller ikke en rettslig avgjørelse, og den blir
+    ikke riktig eller bindende fordi den er frosset (punkt 5). (MM-U12 s3)
+
+###### E. Et varsel TE oppgir etter byggherrens svar
+
+21. Oppgir TE etter byggherrens svar datoen for et varsel sendt tidligere utenfor løsningen, står et
+    svar byggherren alt har gitt, med virkningen det hadde, og blir ikke uavklart. Retten til å
+    oppgi datoen følger OV-U5. (OV-U5, «Et svar byggherren alt har gitt …»; OV-U5 Følge; MM-U8 slik
+    OV-U5 endret den; E1)
+22. Svaret viser til varselet det gjaldt (HF-U1). Løsningen gir ikke svaret virkning for det senere
+    varselet og avgjør ikke om svaret omfatter det. (OV-U5, de to setningene etter; E1)
+23. En registrert enighet fra før opplysningen bevares, og opplysningen endrer den ikke. Løsningen
+    avgjør ikke om enigheten står (MM-U12). (MM-U8 s3; MM-U34 punkt 9; E10)
+24. Om byggherren kan sende et nytt svar, følger HF-U25 punkt 1–3. (HF-U25 E2, som endret setningen
+    om revisjon i OV-U5)
+
+###### Designdel
+
+- Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en merknad
+  etter HF-U26. (MM-U9 s3 slik HF-U25 og HF-U26 endret den; MM-U3 s3; E6)
+- Endrer en regelendring utfallet i en sak, viser saken en merknad om det. Ordlyden står i
+  brukerforløpet og følger språkreglene. (MM-U16 s4, designdelen; E4)
+- Vurderingen i et registrert brev vises som vurderingen ved registreringen. (MM-U17 s1, merket; E4)
+- Visningen og skjemaet for TEs aksept viser hvilket varsel svaret gjaldt, og at TE senere har
+  oppgitt et annet. (OV-U5, designdelen)
+- Visningen påstår ikke mer enn løsningen vet. (HF-U13, designdelen)
+
+###### Beslutningsdel
+
+- Ingen regel leser et lagret utfall. (MM-U11, beslutningsdelen)
+- Aksepten viser til svaret og lagrer regelversjonen TE fikk se. Innholdet i enigheten leses fra
+  beslutningsgrunnlaget og kopieres ikke. (KA-U10 s3–s4; Klassene)
+- Før en regelendring tas i bruk, regnes alle saker med gamle og nye regler. Omregningen gir en
+  rapport over hver sak der utfallet endres, med utfallet før og etter og hvilke handlinger som
+  dermed tillates eller sperres. Rapporten legges ved vedtaket om regelendringen, og en
+  regelendring som endrer utfallet i gamle saker, krever eget vedtak. (MM-U16 s1–s3; rad-017,
+  merknaden 05.10; Klassene)
+- Regelversjonen i hendelsen, avvisningen av en annen versjon og stoppen i `publish` står i rad-017.
+  Omregning etter B-10. Formen på en senere avklaring følger B-16. (rad-017; B-10; MM-U12 s6)
+
+###### Endret innhold
+
+**E1 MM-U8 og MM-U4 (motsigelsen).** Gammel tekst: MM-U8 s1–s2 «MM-U4 gjelder også når en ny
+opplysning, ikke bare en regelendring, gjør at dagens utledning av svaret avviker fra brevet.
+Registrerer TE et varsel etter at byggherren har påberopt preklusjon for det utledede varselet, er
+preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt.» Samlevedtaket:
+punkt 21–22. Innholdet er OV-U5, som endret MM-U8 13.10 og forkastet alternativ B («At et varsel
+registrert etter svaret gjør preklusjonen eller begrensningen uavklart og sperrer TEs aksept»), og
+Følge i MM-U8 sier det alt («Leses etter OV-U5, som endret MM-U8 13.10: et svar byggherren alt har
+gitt, står med virkningen det hadde, og TE kan godta det (oppdragsgiver 23.10, #1047)»). Det snur
+også det forkastede alternativet i MM-U8, «å la TE godta svaret slik brevet uttrykte det».
+Samlevedtaket endrer ikke innholdet. MM-U8 oppheves av samlevedtaket, og henvisningene til den
+gjelder samlevedtaket (OV-U92 (a), svar Y og M1). Forholdet «MM-U8 bygger på MM-U4» har ikke noe å virke på, fordi regelen i MM-U4 ikke gjelder for en ny opplysning
+heller: (b), forholdet fjernes, og raden i `KJENTE_FORHOLD_TIL_OPPHEVET` fjernes med det.
+MM-U1 femte setning, VS-U7 og OV-U22 sier fortsatt «uavklart» med en merknad om OV-U5. De leses etter
+punkt 21 og hører til kjeden for brev utenfor løsningen (c).
+
+Henvisningene til MM-U8 i koden og registeret gjelder to ting. `kjerne/utledning/utled.ts`
+(modulheaderen) bruker MM-U8 om at en rettidighetsvurdering gjelder det registrerte varselet, altså
+punkt 22. `kjerne/kommandoer/forutsetninger.ts` (grenen for VS-U16 og OV-U5) og VS-U19 bruker MM-U8
+om retten til å registrere et tidligere varsel. Den retten følger av OV-U5 (Følge i OV-U5: «Retten
+VS-U16 viser til i MM-U8, å registrere et varsel sendt tidligere utenfor appen, følger av OV-U5.»).
+Punkt 21 sier det, så henvisningen leder fram. Henvisningen i `forutsetninger.ts` bør vise til OV-U5
+når koden likevel endres.
+
+**E2 «Registrert enighet» også i KA-U10 og MM-U3.** Gammel tekst: KA-U10 s1 «godtar TE byggherrens
+svar, gjelder enigheten svaret med den virkningen brevet hadde da det ble sendt …»; MM-U3 s2 «Har TE
+godtatt et svar, gjelder enigheten svaret med alle standpunktene slik det ble godtatt (KA-U1) …».
+Samlevedtaket: punkt 13 og 17. MM-U34 punkt 10 ga HF-U9 «Løsningen registrerer enighet om et
+standpunkt når …» og tillegget «Løsningen avgjør ikke om partene rettslig er enige (MM-U12).»
+KA-U10 og MM-U3 fikk ikke den endringen. Samlevedtaket bruker den også her, og tillegget i HF-U9
+samles. Det er innholdet fra MM-U34 punkt 10 og MM-U12, ingen ny regel, men det endrer ordlyden i to
+poster. Postene om enighet ved sammenfall (GR-U8, GR-U10, GR-U26, OV-U38) sier fortsatt «partene er
+enige» uten forbeholdet. De samles ikke her og hører til kjeden «Aksept og enighet om vederlag og
+frist».
+
+Punkt 14 leser «da den ble inngått» i HF-U9 s4 som brevets virkning da det ble sendt, slik Følge i
+KA-U10 sier: «‹fastsettes når den inngås› betyr brevets virkning, slik brevet ble godtatt.» Det er
+lesingen KA-U10 alt har vedtatt, ikke et nytt valg. For et registrert svar gjelder vurderingen ved
+registreringen, fordi MM-U17 endret KA-U10 (punkt 13).
+
+**E3 «Binder slik det sto» i HF-U13.** Gammel tekst: HF-U13 s1 «Det en part har meddelt skriftlig
+etter NS 8407 § 5, binder slik det sto da det ble sendt.» Samlevedtaket: punkt 7 og 8, etter
+spørsmål 2. Svar 1 A for VS-U46 strøk de to setningene i HF-U6 om at et utsagn binder parten, fordi
+setningen MM-U34 punkt 5 la til sier «Løsningen avgjør ikke om parten er bundet av et tidligere
+utsagn (MM-U12).» Oppdragsgiver svarte 05.11 på et spørsmål om å registrere feil (oppfølgingsspørsmål
+3 for VS-U46), ordrett: «Men appen låser som hovedregel ikke - det er opp til partene å vurdere
+rettsvirkninger, herunder muligheten til å kalle tilbake noe som er tidligere meddelt.» Følge i
+MM-U16 har et eldre prinsipp, ordrett: «Bygger på oppdragsgivers prinsipp 10.10: det som er meddelt,
+binder, og en regelendring har ingen virkning for det brevene sier.» Punkt 8 er vår slutning av
+svarene 05.11. Ved 2A leses også begrunnelsen i MM-U17 s3, «den som sender et brev, er bundet av det
+hen har meddelt», og prinsippet 10.10 i Følge i MM-U16 som at det parten har meddelt, står som
+partens utsagn, slik MM-U34 punkt 15 skrev om OV-U4. KA-U10 s6 gjengir punkt 34.2.2 i kontrakten
+og endres ikke. Svar 1 A for VS-U46 er ført (VS-U46 punkt 20 og E8 der).
+
+**E4 Registrerte brev etter OV-U4 og OV-U80.** Gammel tekst: MM-U17 s1 «for et brev sendt utenfor
+appen og registrert i den, fryser beslutningsgrunnlaget appens vurdering etter reglene ved
+registreringen, merket «appens vurdering ved registreringen».» Samlevedtaket: punkt 19. OV-U4 endret
+MM-U17: «Appen utleder ingenting av det: ingen standpunkt, enighet, sperre eller uavklart utfall, og
+den fryser ingen vurdering av det. Unntakene står i OV-U5 og OV-U6.» HF-U13 s5 sier det samme. OV-U80
+ga et registrert krav eller svar «samme virkning i løsningen som et krav eller svar sendt derfra».
+Punkt 19 sier at MM-U17 gjelder i de tilfellene. Det er innholdet etter OV-U4 og OV-U80, ikke en ny
+endring. Merkingen «appens vurdering ved registreringen» flyttes til designdelen, og ordlyden følger
+språkreglene. Det samme gjelder merknaden i MM-U16, «Appens vurdering av utfallet er endret av nye
+regler». MM-U17 s3–s5 er begrunnelsen og forkastet-teksten; de står i MM-U17 og gjentas ikke. Det
+samme gjelder begrunnelsen i KA-U10 s6 og forkastet-teksten i KA-U10, MM-U11 og MM-U16.
+
+Kostnaden ved punkt 19, som MM-U17 valgte: MM-U17 forkastet «at den som registrerer, velger
+regelsettet». Etter en kjent regelendring kan den som registrerer, likevel velge regelsettet ved å
+velge når brevet registreres. Regelendringer er sjeldne og rapporteres (beslutningsdelen), så
+kostnaden er liten. Det står her og ikke i samlevedtaket.
+
+**E5 Merknaden 05.10 i rad-017.** Gammel tekst, Følge i rad-017: «‹regner aldri om› gjelder de
+lagrede resultatene (resultat, beløp, dager). Standpunkt som utledes ved lesing, som subsidiært
+standpunkt og godtatt preklusjon, regnes med gjeldende regler. En regelendring som endrer gamle
+saker, skal si det og krever eget vedtak.» Samlevedtaket: punkt 9–12 og beslutningsdelen, slik MM-U9
+snevret inn, MM-U11 unntok og MM-U3 presiserte for enigheter. Ingen ny endring. Rad-017 står som
+beslutning for versjonsfeltet, avvisningen og stoppen i `publish`, og `bindende_i` viser fortsatt
+til MM-U9, som gjelder samlevedtaket.
+
+**E6 Merknaden i MM-U9.** MM-U9 s3, «Gir dagens regler et standpunkt i brevet en annen virkning,
+vises avviket som en merknad som oppfordrer byggherren til å revidere svaret (GR-U4).», er endret av
+HF-U25 punkt 9 og HF-U26 (E4 i HF-U25). Den samles ikke her, og designdelen viser til HF-U26.
+Forkastet-teksten i MM-U9 står i MM-U9.
+
+**E7 GR-U12 og GR-U13.** Bare frysingen av om punkt 32.2 gjaldt samles (GR-U12 s3, GR-U13 s6).
+At godkjenningen er en endringsordre, vilkåret i punkt 31.3 og registratorens opplysning hører til
+kjeden «Grunnlaget godkjent som endringsordre», som ikke er samlet. Den kjeden tar også betegnelsen
+i designdelen av GR-U12.
+
+**E8 Setninger som står.** HF-U13 siste setning, «Et varsel er et eget utsagn med datoen det ble
+sendt, og datoen settes én gang.», står; den er snevret inn av OV-U11, som MM-U41 samler. Fra HF-U9
+samles bare s4–s5 og tillegget fra MM-U34 punkt 10; resten hører til kjeden «Aksept og enighet om
+vederlag og frist». Fra OV-U5 samles bare setningene i punkt 21–22; retten til å oppgi datoen hører
+til kjeden «Brev og varsel sendt eller registrert utenfor løsningen», og setningen om det første
+fristkravet er samlet av VS-U43. HF-U5 nevnes bare. Forholdene fra HF-U5 til MM-U9, KA-U10 og OV-U5
+står. Innholdet i dem er endret av HF-U23 (E2) og HF-U25 (E2, E4).
+
+**E9 Forholdene til postene samlevedtaket samler** (hovedregelen 05.11, punkt 2). Samlevedtaket
+opphever MM-U3, MM-U8, MM-U11, MM-U12, MM-U16, MM-U17 og KA-U10, som det tar helt inn, og som står
+i radene med (a) (OV-U92 (a), svar Y, M1 og K1). Henvisningene til dem gjelder samlevedtaket. For
+postene det bare tar inn deler av, gjelder (a) og (b) forholdene, ikke postene. «Står» betyr at forholdet står
+som før, og at det leses som et forhold til samlevedtaket der det gjelder en setning som er samlet.
+
+| Forhold | Regel | Hvorfor |
+| --- | --- | --- |
+| MM-U9 opphever MM-U4, MM-U5, MM-U6 | står | regelen står i punkt 1–2 |
+| MM-U8 bygger på MM-U4 | (b), fjernes | E1 |
+| VS-U7 utvider MM-U8 | står (c) | punkt 21–23 og OV-U5 dekker utvidelsen til punkt 34.1, men samlevedtaket sier ikke med ord at forholdet ikke gjelder eller ikke har noe å virke på (OV-U93, svar Y) |
+| OV-U5 endrer MM-U8 | (a) | punkt 21–22 |
+| MM-U8 presiserer MM-U1 | (a) | punkt 21; setningen om uavklart preklusjon i MM-U1 hører til kjeden for brev utenfor løsningen (c) |
+| MM-U17 endrer GR-U12, GR-U13, KA-U10, MM-U9, MM-U11, MM-U12 | (a) | punkt 13 og 19 |
+| OV-U4 endrer MM-U17 og GR-U12 | (a) | punkt 19 |
+| OV-U80 endrer HF-U13 og presiserer OV-U5 | (a) | punkt 18–19 |
+| OV-U11 snevrer inn HF-U13 | står | gjelder siste setning (E8) |
+| OV-U44 og OV-U46 presiserer HF-U13; OV-U46 presiserer GR-U12 og GR-U13 | står | gjelder registrering og bekreftelse (MM-U41, KA-U49) |
+| MM-U34 endrer HF-U9 | (a) | punkt 13 og 17 (E2) |
+| HF-U25 og HF-U26 endrer MM-U9 | står | gjelder merknaden (E6) |
+| OV-U6 og GR-U14 endrer GR-U13; GR-U15 utvider GR-U13 | står | gjelder endringsordren (E7) |
+| GR-U13 endrer GR-U12 | står | gjelder endringsordren (E7) |
+| KA-U10 presiserer MM-U3; MM-U11 og MM-U12 presiserer MM-U9 | (a) | punkt 1–17 |
+| HF-U9 presiserer MM-U3, MM-U11, MM-U16; HF-U13 presiserer MM-U12, MM-U16, MM-U17 | (a) | punkt 7–19 |
+| KA-U20 presiserer MM-U3; OV-U43 og OV-U49 til HF-U9 og KA-U10; OV-U30, OV-U32 og MM-U13 presiserer MM-U11 | står | de gjelder merket brev, kravversjoner og lagdelingen, ikke det som samles |
+| HF-U5 til MM-U9, KA-U10 og OV-U5 | står | E8 |
+| HF-U4, OV-U8, OV-U9, OV-U11, OV-U15, OV-U24, OV-U29, OV-U41, OV-U85, VS-U28, VS-U34, LV-U19, LV-U21, LV-U29, LV-U53 til OV-U5 | står | de gjelder setningene i OV-U5 som ikke samles her |
+| De andre forholdene til MM-U12 (MM-U21, MM-U23, MM-U33, MM-U41, OV-U43, KA-U20 m.fl.) | står | de bruker prinsippet i punkt 5–6 |
+
+**E10 En enighet fra før opplysningen.** Gammel tekst: MM-U8 s3 «En enighet inngått før
+opplysningen står (MM-U3).» Samlevedtaket: punkt 23. MM-U34 punkt 9 (28.10) sier: «Fram til
+endringsordren kan TE sende en ny kravversjon … også i et spor med registrert enighet … løsningen
+avgjør ikke om enigheten står (MM-U12).» «Står» i MM-U8 ville sagt det motsatte av det løsningen lar
+partene gjøre. Punkt 23 sier at opplysningen ikke endrer enigheten, og at løsningen ikke avgjør om
+den står. Det endrer ordlyden i MM-U8 etter MM-U34 punkt 9, ingen ny regel.
 '''
 
 [[gruppe.vedtak]]
@@ -14755,7 +15005,7 @@ tekst = "Byggherren kan likevel gi et nytt svar på grunnlaget i KOE-saken, som 
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "avsnittet «Designdel» i samlevedtaket, punkt 12, og i punkt 10 «Byggherrens svar og enigheten står på siden for saken.»"
-bindende_i = ["eo-u34", "mm-u12", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
+bindende_i = ["eo-u34", "mm-u50", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
 id = "MM-U45"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -15227,6 +15477,179 @@ tekst = "Sperren mot protest, innsigelse, bestridelse, påberopt passivitet og m
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "TEs aksept gjelder hele det konkrete svaret byggherren har gitt på gjeldende kravversjon i sporet, med alle standpunktene i det: preklusjon, vilkår, beløp eller dager og subsidiære standpunkter."
+
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "MM-U50"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 05.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/f5c5d2ba/docs/vedtaksregister/vurdering-samlevedtak-sendte-brev-2026-11-05.md#spørsmålene-til-oppdragsgiver) og i [PR #1602, 6654415720](https://github.com/khjohns/endringsmeldinger/pull/1602#issuecomment-6654415720).
+
+**1. Tilslutning til samlevedtaket for sendte brev og regelendring.** Forslaget over, punkt 1–24
+med designdelen, beslutningsdelen og «Endret innhold» E1–E10. Samlevedtaket sier ett sted at et
+sendt brev beholder virkningen det hadde, hva en regelendring kan endre (sammensetningen til et
+utfall og relasjonen mellom brev) og ikke kan endre (standpunktene i et sendt brev og innholdet i en
+enighet), at vurderingen som fryses, ikke er en rettslig avgjørelse, og at et registrert brev
+vurderes etter reglene ved registreringen der løsningen utleder virkning av det. E1 løser
+motsigelsen: en ny opplysning gjør ikke et svar uavklart, slik det ble avgjort 13.10 for et varsel
+totalentreprenøren oppgir etter svaret. E4–E9 samler ordlyden slik senere vedtak alt har endret
+den, uten nytt innhold. E2 og E10 endrer ordlyden etter MM-U34: en enighet etter aksept omtales som
+registrert enighet, med forbeholdet om at løsningen ikke avgjør om partene rettslig er enige, og en
+enighet fra før en ny opplysning «står» ikke, men bevares, og løsningen avgjør ikke om den står. E3
+avgjøres i spørsmål 2. Omregningen før en regelendring og kravet om eget vedtak for den blir
+beslutning, og det samme gjør to setninger om hvordan aksepten lagres («Klassene»).
+
+- **A (anbefalt):** «Reglene for sendte brev og regelendring står i samlevedtaket MM-U50, punkt
+  1–24 med designdelen, beslutningsdelen og E1–E10. MM-U3, MM-U8, MM-U9 (unntatt tredje setning),
+  MM-U11, MM-U12, MM-U16, MM-U17, KA-U10, HF-U13 (unntatt siste setning), tredje setning i GR-U12,
+  sjette setning i GR-U13, fjerde og femte setning i HF-U9 med tillegget fra MM-U34 punkt 10,
+  setningene i OV-U5 om et svar byggherren alt har gitt, og merknaden 05.10 i B-13 regelversjon
+  gjelder som «Samlet i samlevedtaket for sendte brev og regelendring». Forhold: samler de postene;
+  endrer første setning i KA-U10 og andre setning i MM-U3 (E2) og tredje setning i MM-U8 (E10).
+  Forholdet til første setning i HF-U13 følger svaret på spørsmål 2. Forholdene «MM-U8 bygger på
+  MM-U4» og «VS-U7 utvider MM-U8» fjernes (E9). Klasse: vedtak med designdel og beslutningsdel.»
+- **B:** «Som A, men KA-U10, MM-U3 og MM-U8 beholder «enigheten gjelder» og «En enighet inngått før
+  opplysningen står» uten forbeholdet om at løsningen ikke avgjør om partene rettslig er enige, eller
+  om enigheten står. E2 og E10 gjelder ikke, og samlevedtaket strider da i ordlyden mot MM-U34
+  punkt 9 og 10.»
+
+*Belegg:* MM-U34 punkt 10, ordrett: «‹Partene er enige om et standpunkt når …› blir ‹Løsningen
+registrerer enighet om et standpunkt når …› … Tillegg: ‹Løsningen avgjør ikke om partene rettslig er
+enige (MM-U12).›» MM-U34 punkt 9: «Fram til endringsordren kan TE sende en ny kravversjon … også i
+et spor med registrert enighet … løsningen avgjør ikke om enigheten står (MM-U12).» OV-U5, forkastet
+alternativ B: «At et varsel registrert etter svaret gjør preklusjonen eller begrensningen uavklart og
+sperrer TEs aksept.» MM-U12: «Appen avgjør ikke det kontrakten overlater til partene, en oppmann
+eller domstolene.»
+
+*Anbefaling:* A. Da sier vedtakene om en enighet etter aksept det samme som MM-U34, og MM-U8 sier
+ikke lenger noe OV-U5 har forkastet. Postene om enighet ved sammenfall har fortsatt den gamle
+ordlyden og tas i kjeden for aksept og enighet (E2).
+
+*Hva valget styrer:* teksten i MM-U50, forholdene til de samlede postene, klassen for to setninger
+i KA-U10 og første setning i MM-U16, og at raden for MM-U8 i lista over kjente forhold til
+opphevede poster fjernes.
+
+**2. Binder det en part har meddelt, eller står det slik det ble sendt?** I dag sier ett vedtak at
+det en part har meddelt skriftlig etter punkt 5 i NS 8407, «binder slik det sto da det ble sendt».
+Et annet vedtak sier at løsningen ikke avgjør om parten er bundet av et tidligere utsagn, og
+samlevedtaket for påberopelse av sent varsel strøk 05.11 en setning om at et utsagn binder parten.
+Spørsmålet er hva samlevedtaket skal si om det en part har meddelt. Om en meddelelse binder etter
+kontrakten og avtaleloven, endres ikke av valget; valget gjelder hva løsningen sier om det.
+
+- **A (anbefalt):** «Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble
+  sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene
+  binder ingen av partene, og løsningen avgjør ikke om en part er bundet av et utsagn eller kan komme
+  løs fra det (MM-U12). Forhold: endrer første setning i HF-U13. Begrunnelsen i tredje setning i
+  MM-U17 («den som sender et brev, er bundet av det hen har meddelt») og prinsippet fra 10.10 i
+  MM-U16 («det som er meddelt, binder») leses som at det parten har meddelt, står som partens
+  utsagn.»
+- **B:** «Det en part har meddelt skriftlig etter punkt 5 i NS 8407, binder slik det sto da det ble
+  sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene
+  binder ingen av partene. Forhold: samler første til tredje setning i HF-U13 uendret. Det endrer
+  setningen MM-U34 punkt 5 la til i HF-U6, «Løsningen avgjør ikke om parten er bundet av et
+  tidligere utsagn (MM-U12).», og strider mot den tilsvarende setningen i samlevedtaket for
+  påberopelse av sent varsel.»
+
+*Belegg:* HF-U13, ordrett: «Det en part har meddelt skriftlig etter NS 8407 § 5, binder slik det sto
+da det ble sendt.» Setningen MM-U34 punkt 5 la til i HF-U6: «Løsningen avgjør ikke om parten er
+bundet av et tidligere utsagn (MM-U12).» Følge i MM-U16: «Bygger på oppdragsgivers prinsipp 10.10:
+det som er meddelt, binder, og en regelendring har ingen virkning for det brevene sier.» Oppdragsgiver
+05.11, i svaret om å registrere feil i samlevedtaket for påberopelse av sent varsel: «Men appen låser
+som hovedregel ikke - det er opp til partene å vurdere rettsvirkninger, herunder muligheten til å
+kalle tilbake noe som er tidligere meddelt.»
+
+*Anbefaling:* A. Med B sier samlevedtaket at meddelelsen binder, mens HF-U6 og samlevedtaket for
+påberopelse av sent varsel sier at løsningen ikke avgjør det. Prinsippet fra 10.10 gjaldt at en
+regelendring ikke endrer det brevene sier, og det står i punkt 1–2 og 7 også med A. At A er i tråd
+med svaret 05.11, er vår slutning; svaret ble gitt om å registrere feil, ikke om dette vedtaket.
+
+*Hva valget styrer:* punkt 7 og 8 i MM-U50 og forholdet til HF-U13. Ingen sperre eller handling i
+løsningen endres.
+
+**Oppfølgingsspørsmålet om forholdene i E9**, med valget ordrett slik det ble lagt fram 05.11 ([#1534, 6655430467](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6655430467)). Spørsmålet fra oppdragsgiver: «Løses L1,L2,L3 av hovedregelen?» Valget ble lagt fram slik:
+
+- **X:** «1 A slik den står (L1, ført i PR-en). Svaret ditt på dette samlevedtaket går foran hovedregelen. «(a)» i E9 betyr at forholdet leses mot samlevedtaket, ikke at postene oppheves. Ingen omarbeiding.»
+- **Y:** «hovedregelen gjelder fullt ut (L2 og L3). «(a)» i E9 forstås som i OV-U92, og E9 viser selv til «hovedregelen 05.11». MM-U50 opphever da postene i (a)-radene i stedet for å samle dem, og hver henvisning til dem i koden og `docs/` må stå sammen med MM-U50. «VS-U7 utvider MM-U8» står.»
+
+*Anbefaling:* Y.
+
+**Oppfølgingsspørsmålet om MM-U8, MM-U3 og KA-U10**, ordrett slik det ble lagt fram 05.11 ([#1534, 6655504111](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6655504111)):
+
+1. **MM-U8.** E1 sier uttrykkelig: «Samlevedtaket endrer ikke innholdet, så MM-U8 samles og oppheves ikke (svar 4 A).» Samtidig står MM-U8 i to (a)-rader i E9.
+   - **M1 (anbefalt):** MM-U8 oppheves etter Y; setningen i E1 rettes, og `endrer` tredje setning i MM-U8 faller bort, fordi hele innholdet står i punkt 21–23.
+   - **M2:** MM-U8 samles som nå, fordi E1 sier det med ord.
+2. **MM-U3 og KA-U10.** MM-U50 endrer én setning i hver og samler resten, så hele innholdet står i punkt 13–17.
+   - **K1 (anbefalt):** de oppheves, og `endrer` faller bort, som for MM-U8.
+   - **K2:** de oppheves og beholder `endrer`.
+   - **K3:** de samles og endres som nå (KA-U46 endret bare poster der resten sto).'''
+valgt = "1 A, 2 A, Y, M1, K1"
+svar = '''
+Oppdragsgiver 05.11, ordrett: «1 A, 2 A» ([#1534, 6654554952](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6654554952)). På oppfølgingsspørsmålet om E9, ordrett: «Y, og godkjenner merge av 1602 når klar» ([#1534, 6655430467](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6655430467)). På oppfølgingsspørsmålet om MM-U8, MM-U3 og KA-U10, ordrett: «M1, K1» ([#1534, 6655504111](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6655504111)). Valgt samlet: 1 A, 2 A, Y, M1, K1.'''
+forhold = [
+  { art = "opphever", vedtak = "mm-u3" },
+  { art = "opphever", vedtak = "mm-u8" },
+  { art = "samler", vedtak = "mm-u9" },
+  { art = "opphever", vedtak = "mm-u11" },
+  { art = "opphever", vedtak = "mm-u12" },
+  { art = "opphever", vedtak = "mm-u16" },
+  { art = "opphever", vedtak = "mm-u17" },
+  { art = "opphever", vedtak = "ka-u10" },
+  { art = "samler", vedtak = "hf-u13" },
+  { art = "samler", vedtak = "gr-u12" },
+  { art = "samler", vedtak = "gr-u13" },
+  { art = "samler", vedtak = "hf-u9" },
+  { art = "samler", vedtak = "ov-u5" },
+  { art = "samler", vedtak = "b-13-regelversjon" },
+  { art = "endrer", vedtak = "hf-u13" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for sendte brev og regelendring](#samlevedtak-sendte-brev). Opphever MM-U3, MM-U8 slik OV-U5 endret den, MM-U11, MM-U12, MM-U16, MM-U17 slik OV-U4 og OV-U80 endret den, og KA-U10 ([OV-U92](#ov-u92) (a), svar Y, M1 og K1); henvisningene til dem gjelder samlevedtaket. Samler MM-U9 unntatt setningen om merknaden (HF-U25 punkt 9), HF-U13 unntatt siste setning, tredje setning i GR-U12, sjette setning i GR-U13, fjerde og femte setning i HF-U9 med tillegget fra MM-U34 punkt 10, setningene i OV-U5 om et svar byggherren alt har gitt, og merknaden 05.10 i B-13 regelversjon. Endrer første setning i HF-U13 (spørsmål 2). Den nye ordlyden for første setning i KA-U10 og andre setning i MM-U3 (E2) og tredje setning i MM-U8 (E10) står i samlevedtaket; forholdet «endrer» til dem falt bort da postene ble opphevet (M1, K1). Forholdet «MM-U8 bygger på MM-U4» er fjernet (E1, E9). Forholdet «VS-U7 utvider MM-U8» står etter (c) ([OV-U93](#ov-u93), svar Y). HF-U5 nevnes bare (E8).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A, Y, M1, K1"
+tekst = '''
+Spørsmål 1: Reglene for sendte brev og regelendring står i samlevedtaket MM-U50, punkt 1–24 med designdelen, beslutningsdelen og E1–E10. MM-U3, MM-U8, MM-U9 (unntatt tredje setning), MM-U11, MM-U12, MM-U16, MM-U17, KA-U10, HF-U13 (unntatt siste setning), tredje setning i GR-U12, sjette setning i GR-U13, fjerde og femte setning i HF-U9 med tillegget fra MM-U34 punkt 10, setningene i OV-U5 om et svar byggherren alt har gitt, og merknaden 05.10 i B-13 regelversjon gjelder som «Samlet i samlevedtaket for sendte brev og regelendring». Forhold: samler de postene; endrer første setning i KA-U10 og andre setning i MM-U3 (E2) og tredje setning i MM-U8 (E10). Forholdet til første setning i HF-U13 følger svaret på spørsmål 2. Forholdene «MM-U8 bygger på MM-U4» og «VS-U7 utvider MM-U8» fjernes (E9). Klasse: vedtak med designdel og beslutningsdel. Spørsmål 2: Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene binder ingen av partene, og løsningen avgjør ikke om en part er bundet av et utsagn eller kan komme løs fra det (MM-U12). Forhold: endrer første setning i HF-U13. Begrunnelsen i tredje setning i MM-U17 («den som sender et brev, er bundet av det hen har meddelt») og prinsippet fra 10.10 i MM-U16 («det som er meddelt, binder») leses som at det parten har meddelt, står som partens utsagn. Oppfølgingsspørsmålet om E9, Y: hovedregelen gjelder fullt ut (L2 og L3). «(a)» i E9 forstås som i OV-U92, og E9 viser selv til «hovedregelen 05.11». MM-U50 opphever da postene i (a)-radene i stedet for å samle dem, og hver henvisning til dem i koden og «docs/» må stå sammen med MM-U50. «VS-U7 utvider MM-U8» står. Oppfølgingsspørsmålet om MM-U8, MM-U3 og KA-U10, M1: MM-U8 oppheves etter Y; setningen i E1 rettes, og «endrer» tredje setning i MM-U8 faller bort, fordi hele innholdet står i punkt 21–23. K1: de oppheves, og «endrer» faller bort, som for MM-U8.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+Som A, men KA-U10, MM-U3 og MM-U8 beholder «enigheten gjelder» og «En enighet inngått før opplysningen står» uten forbeholdet om at løsningen ikke avgjør om partene rettslig er enige, eller om enigheten står. E2 og E10 gjelder ikke, og samlevedtaket strider da i ordlyden mot MM-U34 punkt 9 og 10.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "X"
+tekst = '''
+1 A slik den står (L1, ført i PR-en). Svaret ditt på dette samlevedtaket går foran hovedregelen. «(a)» i E9 betyr at forholdet leses mot samlevedtaket, ikke at postene oppheves. Ingen omarbeiding.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "M2"
+tekst = '''
+MM-U8 samles som nå, fordi E1 sier det med ord.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "K2"
+tekst = '''
+de oppheves og beholder «endrer».'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "K3"
+tekst = '''
+de samles og endres som nå (KA-U46 endret bare poster der resten sto).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+Det en part har meddelt skriftlig etter punkt 5 i NS 8407, binder slik det sto da det ble sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene binder ingen av partene. Forhold: samler første til tredje setning i HF-U13 uendret. Det endrer setningen MM-U34 punkt 5 la til i HF-U6, «Løsningen avgjør ikke om parten er bundet av et tidligere utsagn (MM-U12).», og strider mot den tilsvarende setningen i samlevedtaket for påberopelse av sent varsel.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
@@ -18545,7 +18968,7 @@ forkastet = true
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "appens vurdering vises ikke som byggherrens"
-bindende_i = ["lv-u4", "mm-u12"]
+bindende_i = ["lv-u4", "mm-u50"]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
@@ -19812,7 +20235,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
-bindende_i = ["mm-u12", "ov-u4", "ov-u80"]
+bindende_i = ["mm-u50", "ov-u4", "ov-u80"]
 id = "OV-U70"
 dato = 2026-10-31
 hvem = "oppdragsgiver"

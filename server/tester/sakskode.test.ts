@@ -67,7 +67,7 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
 
   /**
    * Skriver ett dokument med `koe_api.skriv_hendelse` som kjøretiden. Et brev fra
-   * løsningen har brevteksten; et registrert brev har ingen (MM-U17).
+   * løsningen har brevteksten; et registrert brev har ingen (MM-U17, MM-U50).
    */
   const skriv = (
     side: 'TE' | 'BH',

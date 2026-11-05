@@ -86,7 +86,7 @@
     canSend: boolean;
     sendLabel?: string;
     send: () => void;
-    /** Et registrert brev har ingen brevkontroll (MM-U17), så knappen har skjemaets tekst. */
+    /** Et registrert brev har ingen brevkontroll (MM-U17, MM-U50), så knappen har skjemaets tekst. */
     utenBrev?: boolean;
   } | null>(null);
   let activeEvent: TimelineEvent | null = $state(null);

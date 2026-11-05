@@ -101,7 +101,7 @@ export function vederlagssvaret(
   };
 }
 
-/** TEs aksept av svaret `svar`, med regelversjonen brevet forhåndsvises med (KA-U10). */
+/** TEs aksept av svaret `svar`, med regelversjonen brevet forhåndsvises med (KA-U10, MM-U50). */
 export const aksepten = (spor: Spor, svar: string, regelversjon: number) => ({
   type: 'aksept' as const,
   spor,

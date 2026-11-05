@@ -356,7 +356,7 @@ const avslaattGrunnlag = () => {
 };
 
 describe('aksept og innsigelse (S-2a.2)', () => {
-  it('TE godtar byggherrens gjeldende svar med svaret og regelversjonen brevet er vist med (KA-U10)', async () => {
+  it('TE godtar byggherrens gjeldende svar med svaret og regelversjonen brevet er vist med (KA-U10, MM-U50)', async () => {
     const journal = avslaattGrunnlag();
     const svarId = utledJournal(journal, KJERNE).spor.forhold.gjeldendeSvar!.id;
     const { send } = await vis(journal, 'ansvar');
@@ -437,7 +437,7 @@ describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
     expect(knapp, 'typen er ikke valgt (LV-U42)').toBeDisabled();
     await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
     expect(lastOpp).toHaveBeenCalledWith(fil);
-    // MM-U17: registreringen sender ikke noe brev fra appen, så teksten sier ikke «Sender».
+    // MM-U17, MM-U50: registreringen sender ikke noe brev fra appen, så teksten sier ikke «Sender».
     expect(screen.getByText('Registrerer varselet sendt utenfor appen')).toBeInTheDocument();
     await fireEvent.click(knapp);
     await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
@@ -791,7 +791,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
     expect(screen.getByText('Særskilt varsel om produktivitetstap')).toBeInTheDocument();
   });
 
-  it('etter kravet registrerer TE et særskilt varsel sendt utenfor appen, uten brevkontroll (OV-U8, MM-U17)', async () => {
+  it('etter kravet registrerer TE et særskilt varsel sendt utenfor appen, uten brevkontroll (OV-U8, MM-U17, MM-U50)', async () => {
     const lastOpp = vi.fn().mockResolvedValue({ ...vedlegg, stoerrelse: 10 });
     const { send } = await vis(medPosten, 'vederlag', undefined, lastOpp);
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));

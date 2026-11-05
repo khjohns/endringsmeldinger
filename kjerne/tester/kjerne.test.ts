@@ -266,7 +266,7 @@ describe('lesereglene for referansene (4.2)', () => {
     });
   };
 
-  it('en bestridelse med tittelen fra innsigelsen er ikke forstått (MM-U3, #1533)', async () => {
+  it('en bestridelse med tittelen fra innsigelsen er ikke forstått (MM-U3, MM-U50, #1533)', async () => {
     const bane = minnebane();
     const k = await bygg(bane, varselOgInnsigelse as Parameters<typeof bygg>[1]);
     const rader = structuredClone(await bane.journal());
@@ -966,7 +966,7 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
     ]);
     return { k, rader: await bane.journal() };
   };
-  /** Et registrert brev kan ha en utregning som sier «godkjent» (MM-U17); sammenfallet leses av standpunktene. */
+  /** Et registrert brev kan ha en utregning som sier «godkjent» (MM-U17, MM-U50); sammenfallet leses av standpunktene. */
   const godkjentMedSammenfall = (s: Data) => {
     (s.utregning as Data).resultat = 'godkjent';
     (s.beslutningsgrunnlag as Data).sammenfall = true;
@@ -1576,7 +1576,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
     ['uten vedlegg', { dokumentasjon: undefined }],
     ['med en beskrivelse uten tegn', { beskrivelse: '  ' }],
     ['med samme spor to ganger', { spor: ['frist', 'frist'] }],
-    ['med brevtekst fra appen (MM-U17)', { brevtekst: ['Brevet'] }],
+    ['med brevtekst fra appen (MM-U17, MM-U50)', { brevtekst: ['Brevet'] }],
     ['med en dato som ikke er en dato', { sendt: '2026-10-32' }],
   ])('avviser formen %s', (_, ekstra) => {
     expect(formfeil(registrering({}))).toEqual([]);
@@ -1673,7 +1673,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
       'spor uten beskrivelse',
     ],
     [
-      'med brevtekst (MM-U17)',
+      'med brevtekst (MM-U17, MM-U50)',
       (d) => (d.brevtekst = [{ gjelder: randomUUID(), laast: 'x' }]),
       'har brevtekst fra appen',
     ],

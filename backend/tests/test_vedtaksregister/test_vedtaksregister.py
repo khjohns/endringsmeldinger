@@ -1559,6 +1559,34 @@ def test_et_annet_forhold_kan_ikke_fjernes_etter_merge_selv_om_lista_har_rader(
     ]
 
 
+def test_et_fjernet_forhold_kan_fortsatt_sta_med_ord_i_folge_i_en_importert_post(
+    register, monkeypatch
+):
+    """MM-U50 E9 (svar 1 A 05.11 i #1534): Følge i VS-U7 sier fortsatt «Utvider [MM-U8]», og
+    forholdet er fjernet."""
+    endret = copy.deepcopy(register)
+    ka_u20 = _post(endret, "ka-u20")
+    ka_u20["folge"] = vr.linje(ka_u20["folge"]) + ". Presiserer [KA-U1](#ka-u1)."
+    melding = "ka-u20: Følge sier «presiserer #ka-u1», men forholdet står ikke i registeret"
+    assert melding in vr.forholdfeil(endret)
+    monkeypatch.setattr(
+        vr, "FORHOLD_FJERNET_ETTER_MERGE", {("ka-u20", "presiserer", "ka-u1"): "en test, #1"}
+    )
+    assert melding not in vr.forholdfeil(endret)
+
+
+def test_henvisningen_verktoyet_satte_for_et_fjernet_forhold_kan_falle_bort(monkeypatch):
+    """MM-U50 E1 (svar 1 A 05.11 i #1534): MM-U4 mister «Lagt til grunn av [MM-U8]» i Følge."""
+    gammel = "Presisert 10.10 av [KA-U15](#ka-u15). Ikke bygget"
+    ny = "Ikke bygget"
+    assert not vr.folge_bare_lagt_til(gammel, ny, "ka-u12")
+    monkeypatch.setattr(
+        vr, "FORHOLD_FJERNET_ETTER_MERGE", {("ka-u15", "presiserer", "ka-u12"): "en test, #1"}
+    )
+    assert vr.folge_bare_lagt_til(gammel, ny, "ka-u12")
+    assert not vr.folge_bare_lagt_til(gammel, ny, "ka-u13")
+
+
 def test_lista_over_fjernede_forhold_kan_bare_ha_forhold_som_er_fjernet(grunnregister):
     """En rad med et forhold som fortsatt står, en post som ikke finnes, og en kilde uten
     issuet, gir feil."""

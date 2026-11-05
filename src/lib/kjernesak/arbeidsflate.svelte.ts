@@ -189,7 +189,7 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
       const etter = kjernesak.forhaandsvist(vederlagssvarFraSkjema(data, u, kjernesak.regler));
       return etter ? vederlagslag(u, etter) : null;
     },
-    /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */
+    /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10, MM-U50), ellers `null`. */
     godtar(nokkel: SporKey): string | null {
       const spor = SPOR_FOR[nokkel];
       return tilbyrTe(`godta:${spor}`)

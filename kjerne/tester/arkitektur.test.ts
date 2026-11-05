@@ -215,7 +215,7 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
 /**
  * Hva en verdi reglene leser, er. En oppsummering har ingen klasse: et utfall,
  * en status eller en etikett som står for flere utsagn, leses ikke av noen regel
- * («Kontrakten først, aldri status» i AGENTS.md, MM-U11).
+ * («Kontrakten først, aldri status» i AGENTS.md, MM-U11, MM-U50).
  */
 type Klasse =
   /** Det en part har sagt i et dokument: krav, svar, varsel, aksept, trekk, opplysning (2.2). */
@@ -995,7 +995,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'lagBrevtekst lagDeresRef KanIkkeUttrykkes BrevetAvvises',
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
-  // MM-U3, #1536: brevtittelen fryses med teksten, og leseren avviser en tittel skrivingen ikke lager (#1533).
+  // MM-U3, MM-U50, #1536: brevtittelen fryses med teksten, og leseren avviser en tittel skrivingen ikke lager (#1533).
   [
     'frosset/brevtittel.ts',
     'brevtekst',

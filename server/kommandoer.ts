@@ -402,7 +402,7 @@ async function lesKontraktsforkortelse(foresp: Foresp, kontekst: Kontekst): Prom
 
 /**
  * Løpenummeret `koe_api.skriv_hendelse` skal ha: nummeret saken får, når raden er sakens
- * første brev fra løsningen, ellers `null`. Et brev fra løsningen har brevteksten (MM-U17).
+ * første brev fra løsningen, ellers `null`. Et brev fra løsningen har brevteksten (MM-U17, MM-U50).
  */
 function loepenummerFor(rad: Journalrad, sakskode: Sakskode): number | null {
   return !sakskode.tildelt &&
