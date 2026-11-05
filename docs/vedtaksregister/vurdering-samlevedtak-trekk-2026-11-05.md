@@ -263,7 +263,7 @@ uvirksomme.
 *Anbefaling:* A. Innholdet er det du alt har vedtatt, og E-punktene følger av senere vedtak.
 
 *Hva valget styrer:* hvilken tekst som er regelgrunnlaget for trekk i KOE-sakene (sperren
-`trekkAvGrunnlagetErSperret` i kjernen viser i dag til KA-U13), og hvilke henvisninger i
+`trekkAvPaaberopelsenErSperret` i kjernen viser i dag til KA-U13), og hvilke henvisninger i
 domenetabellen som får samlevedtaket ved siden av.
 
 *Forholdet:* samler KA-U6, KA-U13, KA-U14, GR-U5, GR-U25, SD-02 og vedtaket 05.10 uten ID; endrer
@@ -311,8 +311,22 @@ sier.
 
 *Klassen:* vedtak.
 
+## Svarene
+
+Oppdragsgiver 05.11, ordrett ([#1534, 6661636213](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6661636213)):
+
+> A, A
+
+- **1 A:** samlevedtaket for trekk gjelder med E1–E8, og med E6 og punkt 10 etter svaret på
+  spørsmål 2. KA-U6, KA-U13, KA-U14, GR-U5, GR-U25, SD-02 og vedtaket 05.10 uten ID gjelder som
+  «Samlet i samlevedtaket for trekk». I HF-U9 og KA-U22 gjelder de setningene E1 og E5 navngir,
+  ikke lenger. B er forkastet.
+- **2 A:** at kravene er avgjort, sperrer ikke trekket av grunnlaget. Samlevedtaket endrer
+  KA-U13 s7 (E6). B er forkastet.
+
 ## Verifikasjon og grenser
 
 Lest ut av vedtaksfila og `vedtak.toml` på `main` (`e4a3b6f`), vurderingsfilene for OV-U94, MM-U43
 og kjente avvik, og vurderingsfila for endringsordren på grenen for PR #1619. Ingen kode er kjørt.
-Påstanden om `trekkAvGrunnlagetErSperret` er lest av KA-U13 i vedtaksfila, ikke av koden.
+Påstanden om `trekkAvPaaberopelsenErSperret` er lest av KA-U13 i vedtaksfila. Funksjonen står i
+`kjerne/utledning/utled.ts` og sperrer i dag trekket bare når godkjenningen er en endringsordre.
