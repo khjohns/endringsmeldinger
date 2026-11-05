@@ -353,6 +353,24 @@ ikke (E4). Ved B endrer det VS-U21 s4 og VS-U22 s3 og følger OV-U80.
 
 *Klassen:* vedtak.
 
+## Svarene
+
+Oppdragsgiver 05.11, ordrett ([#1534, 6664755862](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6664755862)):
+
+> Spes: 1 A, 2 A, 3 A. Krav: 1 A, 2 A
+
+«Spes» gjelder denne fila; «Krav» gjelder kjeden for kravversjon.
+
+- **1 A:** samlevedtaket for spesifisering gjelder med E1–E6, og med punkt 3 og 11 og E4 og E5 etter
+  svarene på spørsmål 2 og 3. VS-U4 (delen om punkt 33.6.1), VS-U17, VS-U19, VS-U21, VS-U22, VS-U23,
+  VS-U27, VS-U29, VS-U30, VS-U31, VS-U32, VS-U33 og VS-U36 gjelder som «Samlet i samlevedtaket for
+  spesifisering». B er forkastet.
+- **2 A:** et krav om dager som TE har registrert med utfylt kravskjema, stopper forespørselen.
+  Samlevedtaket endrer VS-U33 s1–s2 (E5). B er forkastet.
+- **3 A:** påberopelsen etter punkt 33.6.1 i et registrert svar kan stå uten tall. Samlevedtaket
+  samler VS-U22 s3, snevrer inn VS-U4 og gjør et unntak fra OV-U80 for tallet; «brevet kan merkes» i
+  VS-U21 s4 gjelder ikke (E4). B er forkastet.
+
 ## Verifikasjon og grenser
 
 Lest ut av vedtaksfila og `vedtak.toml` på `main` (`27f8bab`), vurderingsfilene for VS-U46, KA-U51,
