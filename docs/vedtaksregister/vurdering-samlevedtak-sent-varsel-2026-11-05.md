@@ -547,6 +547,82 @@ løsningen skal avvise totalentreprenørens påberopelse etter et «i tide».
 
 Rettelser kan gis per punkt.
 
+## Oppfølgingsspørsmål 3 (funn 6)
+
+Skrevet 05.11 etter funn 6 i den andre prøvingen
+([PR #1593, 6652290020](https://github.com/khjohns/endringsmeldinger/pull/1593#issuecomment-6652290020)),
+etter svarene på spørsmål 1, 2a og 2b. Orkestratoren avgjorde 05.11 at funnet ikke kan rettes som en
+teknisk retting. Lagret ordrett før det stilles.
+
+**3. Gir totalentreprenøren opp sin påberopelse av sent varsel ved å si at det kom i tide?**
+Bakgrunn: Punkt 19 i samlevedtaket sier at punkt 10 og 12 gjelder tilsvarende når totalentreprenøren
+påberoper at et varsel, krav eller svar fra byggherren kom for sent. Punkt 10 og 12 sier at
+påberopelsen er oppgitt når parten uttrykkelig gir den opp, eller sier at varselet kom i tide. Den
+siste delen kommer fra et vedtak fra 12.10, som gjelder byggherrens påberopelse etter punkt 33.4.
+Vedtaket fra 11.10 om totalentreprenørens påberopelse viste bare til vedtakene om at påberopelsen
+kan gis opp uttrykkelig, ikke til vedtaket fra 12.10. Spørsmål 1 sa at E9 ikke endrer innholdet, så
+punkt 19 sier etter ordlyden mer enn det oppdragsgiver sluttet seg til.
+
+Svaret på spørsmål 2b gjelder samspillet: har totalentreprenøren i et brev sendt fra løsningen
+uttrykkelig sagt at byggherrens varsel, krav eller svar kom i tide, avviser løsningen en senere
+påberopelse fra totalentreprenøren av at det samme kom for sent. Sperren gjelder en *senere*
+påberopelse. Den sier ikke hva som skjer med en påberopelse totalentreprenøren alt har gitt.
+
+Med X står totalentreprenørens tidligere påberopelse etter et «i tide», og løsningen gjentar den som
+utgangspunkt i totalentreprenørens neste svar (punkt 9). Samtidig står «i tide», og sperren etter 2b
+avviser en ny påberopelse av det samme. Løsningen leser da to motstridende standpunkter fra
+totalentreprenøren om det samme varselet, kravet eller svaret. Det er en motsigelse, ikke en
+blindvei: totalentreprenøren kommer ut av den ved uttrykkelig å gi opp påberopelsen. Med Y er
+påberopelsen oppgitt når totalentreprenøren sier «i tide», og sperren avviser en ny. Da står ett
+standpunkt.
+
+Valget får virkning først når totalentreprenøren kan svare på krav fra byggherren i løsningen
+(beslutningsdelen i samlevedtaket).
+
+- **X:** «Det punkt 10 og 12 sier om at varselet kom i tide, gjelder ikke for totalentreprenøren.
+  Punkt 19, første setning, lyder: «Det punkt 1, 3–6, 9, 10 og 12 sier, gjelder tilsvarende når TE
+  påberoper at et varsel, krav eller svar fra byggherren kom for sent, fordi punkt 5 tredje ledd
+  gjelder «en part», unntatt det punkt 10 og 12 sier om at varselet kom i tide.» E9 får før siste
+  setning: «Det punkt 10 og 12 har fra VS-U20 s3, er heller ikke tatt med.» Totalentreprenørens
+  påberopelse er oppgitt bare når totalentreprenøren uttrykkelig gir den opp. Har
+  totalentreprenøren sagt at det kom i tide etter å ha påberopt at det kom for sent, står
+  påberopelsen, og sperren etter 2b avviser en ny påberopelse av det samme. Forhold: ingen nye; E9
+  samler VS-U14 uten å endre innholdet.»
+- **Y (anbefalt):** «Det punkt 10 og 12 sier om at varselet kom i tide, gjelder også for
+  totalentreprenøren. Punkt 19, første setning, står. E9 får før siste setning: «Punkt 10 og 12 har
+  fra VS-U20 s3 at også et uttrykkelig standpunkt om at varselet kom i tide gir opp påberopelsen.
+  Punkt 19 lar det gjelde for TE, og det er en utvidelse av VS-U14.», og siste setning i E9 lyder:
+  «Innholdet er endret. Forholdet: utvider VS-U14.» Har totalentreprenøren sagt at det kom i tide
+  etter å ha påberopt at det kom for sent, er påberopelsen oppgitt, og sperren etter 2b avviser en
+  ny påberopelse av det samme. Forhold: utvider VS-U14 (VS-U20 s3 gjelder også for
+  totalentreprenøren).»
+
+*Belegg:* Vedtaket fra 12.10 (VS-U20, tredje setning): «Appen leser den som oppgitt bare når
+byggherren uttrykkelig har frafalt påberopelsen eller sagt at varselet kom i tide (VS-U11).»
+Vedtaket fra 11.10 (VS-U14, første og andre setning): «VS-U9 og VS-U11 gjelder tilsvarende når TE
+mottar et varsel, krav eller svar fra byggherren og påberoper at det kom for sent, fordi § 5 tredje
+ledd gjelder «en part».» og «Påberopelsen i TEs svar er innsigelsen etter § 5, og TE kan gi den opp
+uttrykkelig i et senere svar fra appen.» VS-U14 forkastet «ulike regler for partene». Svaret på 2b
+tok det opp igjen bare for sperren.
+
+*Anbefaling:* Y. Totalentreprenøren får samme regel som byggherren for hva som gir opp
+påberopelsen, slik VS-U14 forkastet ulike regler for partene. Sammen med 2b gir Y ett standpunkt
+etter et «i tide». Med X står påberopelsen og «i tide» samtidig.
+
+*Hva det koster:*
+- *X, totalentreprenøren selv:* vil totalentreprenøren gi opp påberopelsen, må det sies uttrykkelig.
+  Sier totalentreprenøren bare «i tide», gjentar løsningen påberopelsen i neste svar, og
+  totalentreprenøren kan ikke påberope på nytt hvis den gamle senere gis opp.
+- *X, byggherren:* byggherren leser i løsningen både en påberopelse og et «i tide» fra
+  totalentreprenøren om det samme, og må selv gjøre gjeldende hva det betyr.
+- *Y, totalentreprenøren selv:* et uttrykkelig «i tide» gir opp en påberopelse totalentreprenøren
+  alt har gitt, og etter 2b kan den ikke gis på nytt. Har totalentreprenøren sagt «i tide» ved en
+  feil, kan påberopelsen ikke uttrykkes i løsningen igjen (som under «Hva B koster» i 2b).
+- *Y, byggherren:* ingen; standpunktet er entydig.
+
+*Hva valget styrer:* punkt 19 og E9 i VS-U46, forholdet til VS-U14, og hva løsningen leser når
+totalentreprenøren sier «i tide» etter å ha påberopt at noe kom for sent.
+
 ## Svarene
 
 Oppdragsgiver svarte 05.11. Spørsmål 1, ordrett: «Samlevedtal: A»
@@ -556,4 +632,6 @@ Spørsmål 2a og 2b, ordrett: «2a A og 2b B»
 Valgt er 1 A, 2a A og 2b B, og 1 B, 2a B og 2b A er forkastet. Ingen punkter er rettet.
 
 VS-U46 var ledig på `main`. Samlevedtaket er ført i `vedtak.toml` i PR #1593, med teksten i 2a A
-i punkt 13 og teksten i 2b B i punkt 19.
+i punkt 13 og teksten i 2b B i punkt 19, uten «Forhold:» (orkestratorens arbeidsvalg 05.11,
+[#1534, 6652735878](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6652735878)).
+Punkt 19 og E9 står som i forslaget til oppfølgingsspørsmål 3 er besvart.
