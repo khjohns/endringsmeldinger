@@ -407,7 +407,7 @@ det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-kravv
 med «Endret innhold» E1–E6, og med siste setning i punkt 5 etter svar 2 A (svar 1 A). Samlevedtaket samler
 [vedtaket 05.10](#oppdatert-krav) om at et oppdatert krav åpner sporet igjen, [vedtaket 05.10](#ny-kravversjon)
 om at hver oppdatering er en ny kravversjon, [KA-U40](#ka-u40), [OV-U54](#ov-u54) og [MM-U34](#mm-u34)
-punkt 1, 9, 10 og 12, så langt de gjelder ny kravversjon, som gjelder som «Samlet i samlevedtaket for
+punkt 1, 9, 10 og 12, så langt de gjelder ny kravversjon. De gjelder som «Samlet i samlevedtaket for
 kravversjon». Det opphever [KA-U3](#ka-u3) og [KA-U7](#ka-u7), og henvisningene til dem gjelder
 samlevedtaket, unntatt KA-U13 s5 ([KA-U51](#ka-u51) E4). I postene det samler eller endrer, gjelder
 setningene E1–E6 navngir, ikke lenger (svar 1 A). Punkt 5 presiserer [MM-U52](#mm-u52) punkt 19 og 20 og
