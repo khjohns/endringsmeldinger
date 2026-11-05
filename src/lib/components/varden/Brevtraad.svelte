@@ -144,8 +144,13 @@
     border-radius: var(--r-merke);
     color: var(--ink);
   }
+  .hode > :global(.knapp) {
+    grid-row: 1 / 3;
+    grid-column: 2;
+    align-self: start;
+  }
   .meta {
-    grid-column: 1 / -1;
+    grid-column: 1;
     font-size: 14px;
     color: var(--ink-3);
   }
@@ -164,6 +169,12 @@
     }
     .hode {
       grid-template-columns: 1fr;
+    }
+    .hode > :global(.knapp) {
+      grid-row: auto;
+      grid-column: 1;
+      justify-self: start;
+      margin-left: calc(-1 * var(--spacing-2));
     }
   }
 </style>
