@@ -11,10 +11,10 @@ postene i `vedtak.toml` og vedtaksfila på `main` (`27f8bab`) og svarene i #1534
 Formen følger svar 4, 7, 8 og 10 i #1534 og [samlevedtaket for trekk](vurdering-samlevedtak-trekk-2026-11-05.md)
 (KA-U51). Den foreløpige ID-en er KA-U52; vedtaksøkta setter den endelige.
 
-**Venter på #1309.** Hva en ny kravversjon gjør med et svar som har en aksept av en retting av
-varseldatoen (MM-U52 punkt 20), stilles i spørsmålene før byggingen av #1309, og svaret føres i
-`vedtak.toml` før dette samlevedtaket. Det tas inn i punkt 5 når det er ført. Samlevedtaket her
-siterer MM-U52 punkt 10 og 20 uendret og endrer dem ikke.
+**Aksepten av en retting.** Hva en ny kravversjon gjør med byggherrens aksept av en retting av
+varseldatoen, skulle først stilles for #1309. Etter at #1309 ble satt til å vente 05.11, er det
+spørsmål 2 her, og svar 2 A avgjør også punkt (b) i spørsmålene for #1309. Samlevedtaket siterer
+MM-U52 punkt 10 og 20 uendret og endrer dem ikke.
 
 ## Det kartleggingen fant
 
@@ -116,8 +116,9 @@ stedet for å gjengi den.
    tidligere versjonen, fordi aksepten er en registrert enighet. Utenom sperrene i punkt 6 kan TE
    sende en ny kravversjon og byggherren et nytt svar også i et spor med registrert enighet, og
    løsningen avgjør ikke om enigheten står. (MM-U34 punkt 9; HF-U9 s1 slik MM-U34 punkt 10 endret
-   den; MM-U50 punkt 13; MM-U43 punkt 7; OV-U94 punkt 16; E1, E5) *Hva en ny kravversjon gjør med
-   byggherrens aksept av en retting av varseldatoen, avgjøres i spørsmål 2.*
+   den; MM-U50 punkt 13; MM-U43 punkt 7; OV-U94 punkt 16; E1, E5) Byggherrens aksept av en
+   retting av varseldatoen eller kravdatoen står også, og datoen gjelder etter MM-U52 punkt 19 til
+   en senere retting begynner å gjelde. (Svar 2 A)
 6. At kravene i saken er avgjort, sperrer ikke en ny kravversjon (MM-U34 punkt 12; MM-U43 punkt
    7). Sperrene står andre steder: for en sak lukket etter GR-U27 i GR-U27 og MM-U34 punkt 12 første setning (og MM-U43 punkt 6), for et
    krav TE har trukket i KA-U51 punkt 11, og for en KOE-sak som en sendt endringsordre eller en
@@ -335,7 +336,21 @@ samlevedtaket for akseptfristen for en ny kravversjon.
 
 ## Svarene
 
-*Føres når oppdragsgiver har svart.*
+Oppdragsgiver 05.11, ordrett ([#1534, 6664755862](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6664755862)):
+
+> Spes: 1 A, 2 A, 3 A. Krav: 1 A, 2 A
+
+«Spes» gjelder kjeden for spesifisering; «Krav» gjelder denne fila.
+
+- **1 A:** samlevedtaket for kravversjon gjelder med E1–E6. Det opphever KA-U3 og KA-U7, og
+  henvisningene til dem gjelder samlevedtaket, unntatt KA-U13 s5 (KA-U51 E4). Rad-001, rad-002,
+  KA-U40, OV-U54 og MM-U34 punkt 1, 9, 10 og 12, så langt de gjelder ny kravversjon, gjelder som
+  «Samlet i samlevedtaket for kravversjon». I postene det samler eller endrer, gjelder setningene
+  E1–E6 navngir, ikke lenger. B er forkastet.
+- **2 A:** byggherrens aksept av en retting av varseldatoen står når TE sender en ny kravversjon, og
+  datoen gjelder etter MM-U52 punkt 19 til en senere retting begynner å gjelde; det samme gjelder
+  datoen for et krav sendt utenfor løsningen. Presiserer MM-U52 punkt 19 og 20 og HF-U23 punkt 9.
+  B er forkastet.
 
 ## Verifikasjon og grenser
 
