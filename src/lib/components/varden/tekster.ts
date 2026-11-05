@@ -49,6 +49,13 @@ export const brevtittel = (b: { art?: Brevet['art']; brevtittel: string | null }
 export const brevref = (b: Brevref) =>
   b.omtale ?? (b.nummer === null ? `brevet registrert ${dato(b.registrert)}` : `brev ${b.nummer}`);
 
+/**
+ * Henvisningen med avsenderen: «brev K201-KOE-017-03 av … fra TE». Omtalen av registrert
+ * korrespondanse nevner parten selv (LV-U42), så den står ikke to ganger.
+ */
+export const brevrefFra = (b: Brevref, part: Part) =>
+  b.omtale && b.art === 'registrert' ? b.omtale : `${brevref(b)} fra ${part}`;
+
 /** Henvisningen som begynner en linje: «Brev 3», eller «Brevet registrert …» uten nummer. */
 export const brevrefStor = (b: Brevref) => brevref(b)[0].toUpperCase() + brevref(b).slice(1);
 
@@ -149,13 +156,11 @@ export const SKJEMA = {
   overskrift: 'Svar på kravet',
   // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
   omSvaret: 'Om svaret',
-  // Omtalen har datoen i seg, og parten for registrert korrespondanse (LV-U53, LV-U42).
+  // Omtalen har datoen i seg (LV-U53, LV-U42).
   svarerPaa: (b: Brevref) =>
-    !b.omtale
-      ? `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`
-      : b.art === 'registrert'
-        ? `Svar på ${b.omtale}`
-        : `Svar på ${b.omtale} fra TE`,
+    b.omtale
+      ? `Svar på ${brevrefFra(b, 'TE')}`
+      : `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`,
   lesBrevet: 'Les brevet ved siden av',
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevetHer: 'Les brevet',
@@ -172,9 +177,7 @@ export const SKJEMA = {
   klarOver: (d: string, b: Brevref) =>
     `TE oppgir at TE ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   kravSendt: (d: string, b: Brevref) =>
-    // Avstanden regnes til `registrert`. Omtalen av registrert korrespondanse har datoen TE
-    // oppgir, og den står derfor ikke alene her.
-    b.omtale && b.art !== 'registrert'
+    b.omtale
       ? `Kravet om vederlagsjustering ble sendt med ${b.omtale}.`
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
@@ -321,7 +324,7 @@ export const SAKEN = {
   spor: 'Krav og svar',
   utkast: 'Utkast',
   ingenBrev: 'Ingen brev',
-  sist: (b: Brevref, part: Part) => `Siste: ${brevref(b)} fra ${part}`,
+  sist: (b: Brevref, part: Part) => `Siste: ${brevrefFra(b, part)}`,
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',

@@ -934,7 +934,8 @@ export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[]): string[] {
  * Det et standpunkt om rettidighet gjelder: varselet, kravversjonen eller TEs svar på
  * forespørselen etter § 33.6.2, også når svaret er en begrunnelse i et eget brev (LV-U49, D-1 og
  * U-6 i BF-07, arbeidsvalgene A i #1497). Påberopelsen etter § 32.2 nevnes uten brev og står ikke.
- * Forespørselen er byggherrens eget brev og står heller ikke.
+ * Forespørselen, som brevteksten nevner for § 33.6.2, er byggherrens eget brev og holdes ute av
+ * filteret på avsender i `lagDeresRef`.
  */
 const detRettidighetenGjelder = (p: Standpunkt): string[] =>
   p.art === 'rettidighet' && p.hjemmel !== '32.2' ? [p.gjelder] : [];
