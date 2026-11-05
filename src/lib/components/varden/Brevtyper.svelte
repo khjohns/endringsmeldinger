@@ -127,7 +127,7 @@
     left: 0;
     z-index: 10;
     margin-top: var(--spacing-2);
-    width: min(340px, calc(100vw - 4 * var(--spacing-4)));
+    width: min(18rem, calc(100vw - 4 * var(--spacing-4)));
     padding: var(--spacing-2);
     background: var(--surface);
     border: var(--rule-strong);
