@@ -5589,7 +5589,7 @@ A: ja, standpunkt for standpunkt (F2). B: bare de prinsipale og subsidiære dage
 valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
-forhold = [{ art = "presiserer", vedtak = "ka-u9" }, { art = "presiserer", vedtak = "ka-u21" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "gr-u7" }, { art = "bygger på", vedtak = "ka-u26" }]
+forhold = [{ art = "presiserer", vedtak = "ka-u9" }, { art = "presiserer", vedtak = "ka-u21" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "gr-u7" }]
 folge = '''
 Presiserer også raden i B-13 om «godkjent» bare når hele kravet er godkjent og raden i B-13 om preklusjon. Et forbehold appen ikke kan uttrykke, følger KA-U16 og KA-U26, der et svar med forbehold kan gi sammenfall. «Et avslag» i GR-U7 leses som avslag i forening med et betinget tilbud. Følger av HF-U5 (første setning etter «fristforlengelse»). Spørsmål 5 i vurderingen ble besvart med A. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Etter [KA-U46](#ka-u46): «ingen setning endres; forholdet «presiserer KA-U24» har ikke noe å virke på» (tabellen «Postene i kjeden»).'''
 
@@ -5661,7 +5661,7 @@ A: ja (avtl. § 6, KA-U1, KA-U5). B: nei, byggherrens binding etter HF-U5 er nok
 valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
-forhold = [{ art = "opphever", vedtak = "ka-u3" }, { art = "opphever", vedtak = "ka-u5" }, { art = "presiserer", vedtak = "ka-u6" }, { art = "presiserer", vedtak = "ka-u7" }, { art = "presiserer", vedtak = "ka-u10" }, { art = "presiserer", vedtak = "ka-u11" }, { art = "presiserer", vedtak = "ka-u14" }, { art = "presiserer", vedtak = "gr-u2" }, { art = "presiserer", vedtak = "gr-u8" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "mm-u3" }, { art = "presiserer", vedtak = "mm-u11" }, { art = "presiserer", vedtak = "mm-u16" }, { art = "presiserer", vedtak = "mm-u18" }, { art = "presiserer", vedtak = "mm-u19" }, { art = "presiserer", vedtak = "ov-u3" }, { art = "snevrer inn", vedtak = "eo-u5" }, { art = "snevrer inn", vedtak = "eo-u2" }]
+forhold = [{ art = "opphever", vedtak = "ka-u3" }, { art = "opphever", vedtak = "ka-u5" }, { art = "presiserer", vedtak = "ka-u6" }, { art = "presiserer", vedtak = "ka-u7" }, { art = "presiserer", vedtak = "ka-u10" }, { art = "presiserer", vedtak = "ka-u11" }, { art = "presiserer", vedtak = "ka-u14" }, { art = "presiserer", vedtak = "gr-u2" }, { art = "presiserer", vedtak = "gr-u8" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "mm-u3" }, { art = "presiserer", vedtak = "mm-u11" }, { art = "presiserer", vedtak = "mm-u16" }, { art = "presiserer", vedtak = "mm-u18" }, { art = "presiserer", vedtak = "mm-u19" }, { art = "presiserer", vedtak = "ov-u3" }]
 folge = '''
 Presiserer også SK-01. Innsnevringen av EO-U5 og EO-U2 følger av svaret på spørsmål 3 i vurderingen ([EO-U10](#eo-u10)). Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
@@ -6139,7 +6139,7 @@ Etter akseptfristen binder svaret ikke byggherren i appen (HF-U17), så hen kan 
 valgt = "B nå, forsering senere"
 svar = '''
 B nå, forsering senere (Anbefalt)'''
-forhold = [{ art = "presiserer", vedtak = "vs-u2" }, { art = "presiserer", vedtak = "hf-u17" }]
+forhold = [{ art = "presiserer", vedtak = "vs-u2" }]
 folge = '''
 Alternativ A er ikke forkastet: om fristsvaret binder under forsering (FO-U5, FO-U7), avgjøres når forsering bygges (OV-U1). Forholdet til HF-U17 fant kontrollen av føringen 16.10: vedtaket sier hva appen viser når byggherren senker etter akseptfristen, som HF-U17 tillater. Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502). Etter [HF-U23](#hf-u23), E5: «Begrunnelsen i Følge og forholdet til HF-U17 gjelder ikke lenger.»'''
 
@@ -13346,7 +13346,7 @@ svar = '''
 Jeg støtter følgende fra Astra.
 
 Lagt fram slått sammen med rettelsene, med S⁗ i spørsmål 1 og 2‴ i spørsmål 2: Ja til begge'''
-forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "hf-u7" }, { art = "presiserer", vedtak = "hf-u14" }, { art = "presiserer", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u33" }]
+forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "hf-u7" }, { art = "presiserer", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u33" }]
 folge = '''
 Bygges i #1240. «Fast sum» er appens begrep, ikke standardens, og føres i domenetabellen. Etter [HF-U23](#hf-u23), E6: «Forholdet til HF-U14 har ikke noe å virke på og leses ikke som at sperren i HF-U14 står.»'''
 
@@ -17230,7 +17230,7 @@ appen ikke kan uttrykke i den, som pris og tid, følger KA-U16. Forkastet: at TE
 registrere i KOE-saken at forsering er varslet for avslåtte dager, uten en
 forseringssak, slik at registreringen sperrer aksepten etter FO-U5'''
 vedtatt = "10.10, oppdragsgiver (#358)"
-forhold = [{ art = "presiserer", vedtak = "fo-u5" }, { art = "bygger på", vedtak = "eo-u6" }]
+forhold = [{ art = "presiserer", vedtak = "fo-u5" }]
 folge = '''
 Presiserer [FO-U5](#fo-u5) for første versjon: sperren forutsetter en forseringssak i
 appen som viser til avslaget. Bygger på oppdragsgivers prinsipp 10.10 om at den som
@@ -17411,8 +17411,6 @@ forhold = [
   { art = "endrer", vedtak = "ka-u14" },
   { art = "snevrer inn", vedtak = "ka-u13" },
   { art = "snevrer inn", vedtak = "ov-u4" },
-  { art = "bygger på", vedtak = "eo-u6" },
-  { art = "bygger på", vedtak = "eo-u9" },
 ]
 folge = '''
 Endringen av KA-U14 gjelder leddet om registrert korrespondanse. Ikke bygget. GR-U12
@@ -18938,7 +18936,6 @@ forhold = [
   { art = "presiserer", vedtak = "gr-u7" },
   { art = "utvider", vedtak = "ka-u7" },
   { art = "utvider", vedtak = "hf-u9" },
-  { art = "utvider", vedtak = "eo-u5" },
   { art = "presiserer", vedtak = "eo-u8" },
   { art = "presiserer", vedtak = "ov-u37" },
   { art = "presiserer", vedtak = "ov-u38" },
