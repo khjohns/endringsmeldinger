@@ -610,12 +610,12 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
 /**
  * Varselet et standpunkt om rettidighet gjelder, med brevet det står i (HF-U1, #497). Uten
  * eget varsel er det brevet med TEs første krav i sporet, uten forbeholdet fra skjemaet
- * (LV-U21, OV-U28, OV-U29). TEs varsel etter § 32.2 er påberopelsen og nevnes uten brev
- * (oppdragsgiver 17.10). For § 33.6.2 er det svaret på forespørselen, med brevet
- * forespørselen står i (LV-U18 setning 4).
+ * (LV-U21, OV-U28, OV-U29), og etter § 32.2 det første grunnlagskravet (VS-U43 punkt 6 og 10
+ * med designdelen). For § 33.6.2 er det svaret på forespørselen, med brevet forespørselen
+ * står i (LV-U18 setning 4).
  */
 function varseletMedBrevet(p: Extract<Standpunkt, { art: 'rettidighet' }>, j: Journalen): string {
-  if (p.hjemmel === '32.2') return VARSELET[p.hjemmel];
+  if (p.hjemmel === '32.2' && j.element(p.gjelder).art !== 'krav') uttrykkbar(p.hjemmel);
   const gjelder = p.hjemmel === '33.6.2' ? foresporselenTil(p.gjelder, j) : p.gjelder;
   return `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
 }
@@ -933,12 +933,12 @@ export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[]): string[] {
 /**
  * Det et standpunkt om rettidighet gjelder: varselet, kravversjonen eller TEs svar på
  * forespørselen etter § 33.6.2, også når svaret er en begrunnelse i et eget brev (LV-U49, D-1 og
- * U-6 i BF-07, arbeidsvalgene A i #1497). Påberopelsen etter § 32.2 nevnes uten brev og står ikke.
- * Forespørselen, som brevteksten nevner for § 33.6.2, er byggherrens eget brev og holdes ute av
+ * U-6 i BF-07, arbeidsvalgene A i #1497), også det første grunnlagskravet etter § 32.2
+ * (VS-U43 punkt 10). Forespørselen, som brevteksten nevner for § 33.6.2, er byggherrens eget brev og holdes ute av
  * filteret på avsender i `lagDeresRef`.
  */
 const detRettidighetenGjelder = (p: Standpunkt): string[] =>
-  p.art === 'rettidighet' && p.hjemmel !== '32.2' ? [p.gjelder] : [];
+  p.art === 'rettidighet' ? [p.gjelder] : [];
 
 /** LV-U51: svaret på kravversjonen som ingen senere revisjon erstatter, eller ingen. */
 function sisteSvarPaa(krav: string, j: Journalen): string[] {
