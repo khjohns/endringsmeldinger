@@ -425,12 +425,10 @@
           {@render gjelderHvis('itide', grunnene)}
           <div class="datoer">
             {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
-            <p>{SKJEMA.kravSendt(kravbrevet.registrert, kravbrevet)}</p>
+            <p>{SKJEMA.kravSendt(kravbrevet.sendt, kravbrevet)}</p>
             {#if klarOver}
               <p>
-                <strong
-                  >{SKJEMA.avstand(kalenderdager(klarOver.dato, kravbrevet.registrert))}</strong
-                >
+                <strong>{SKJEMA.avstand(kalenderdager(klarOver.dato, kravbrevet.sendt))}</strong>
               </p>
             {/if}
             <p class="dempet">{SKJEMA.datoGrense}</p>
