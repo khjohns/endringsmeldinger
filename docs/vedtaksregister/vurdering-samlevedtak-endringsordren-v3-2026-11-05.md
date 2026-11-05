@@ -181,7 +181,7 @@ Oppdragsgiver 05.11, ordrett ([#1534, 6668555694](https://github.com/khjohns/end
 - **1 A** er valgt med rettelse i språket. Den rettede ordlyden under venter på godkjenning.
   1 B er forkastet.
 
-Spørsmålene over står slik de ble stilt. Betegnelsen er hentet fra OV-U82, svar 3 A: «I
+Spørsmålene over står slik de ble stilt. Betegnelsen er hentet fra OV-U82: «I
 vedtakene leses ‹grunnlaget› og ‹ansvarsgrunnlaget›, der de gjelder det totalentreprenøren
 påberoper, som ‹forholdet›, ‹grunnlagskravet› som ‹totalentreprenørens påberopelse av
 forholdet›». Domenetabellen, «Påberopelse av forholdet»: «Totalentreprenørens første brev i
