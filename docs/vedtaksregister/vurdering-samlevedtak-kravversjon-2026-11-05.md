@@ -119,7 +119,7 @@ stedet for å gjengi den.
    den; MM-U50 punkt 13; MM-U43 punkt 7; OV-U94 punkt 16; E1, E5) *Hva en ny kravversjon gjør med
    byggherrens aksept av en retting av varseldatoen, avgjøres i spørsmål 2.*
 6. At kravene i saken er avgjort, sperrer ikke en ny kravversjon (MM-U34 punkt 12; MM-U43 punkt
-   7). Sperrene står andre steder: for en sak lukket etter GR-U27 i GR-U27 og MM-U43 punkt 6, for et
+   7). Sperrene står andre steder: for en sak lukket etter GR-U27 i GR-U27 og MM-U34 punkt 12 første setning (og MM-U43 punkt 6), for et
    krav TE har trukket i KA-U51 punkt 11, og for en KOE-sak som en sendt endringsordre eller en
    godkjent registrering av en endringsordre omfatter, i EO-U38 punkt 12. (E4, E5)
 7. I et spor der TE ikke har sendt et krav, går TEs første krav i samme sak, unntatt der punkt 6
@@ -169,7 +169,8 @@ stedet for å gjengi den.
   «Skjemaet sier også at et uttrykkelig standpunkt om at et varsel kom i tide, og et avkall, står
   (HF-U4, HF-U8).» falt alt med MM-U41 E2, som MM-U52 fører videre. Korrigeringen står i MM-U52
   punkt 13, og «En ny kravversjon som bare retter en slik opplysning, avvises, og TE sender
-  korrigeringen i stedet.» er opphevet av MM-U34 punkt 1. Det som står, er punkt 9.
+  korrigeringen i stedet.» er opphevet av MM-U34 punkt 1. Det som står, er punkt 9, «Den nye teksten
+  gjelder bare nye brev (MM-U9).» (punkt 4) og henvisningen til versjonsmodellen (punkt 3).
 - **E4.** OV-U55: «sperrene etter enighet (KA-U7, OV-U3)» og «En enighet i saken står (KA-U7).»
   leses etter punkt 5 og 6: enighet og avgjorte krav sperrer ikke en ny grunnlagsversjon, sperrene
   er de punkt 6 viser til, og en registrert enighet bevares.
@@ -241,7 +242,13 @@ alternativ …»). Rettet etter prøvingen:
 E1, E2 og E5 holdt. Prøvingen fant ingen motstrid med MM-U10, MM-U33, OV-U90, OV-U91, GR-U20 eller
 GR-U23. KA-U8 (0 dager eller 0 kr) hører til kjeden om «ingen krav».
 
-Spørsmål 2 og de rettede punktene er prøvd én gang til; se «Prøvingen av spørsmål 2».
+Spørsmål 2 og de rettede punktene er prøvd én gang til. Rettet etter den: punkt 10 i samlevedtaket
+for retting gjelder datoen etter VS-U26, ikke varseldatoen, og er tatt ut av belegget for spørsmål 2,
+som nå viser til punkt 8; vilkåret i punkt 19 og kravdatoen etter punkt 18 er tatt inn i A og B; B
+manglet sperrene etter GR-U27 og EO-U38 punkt 12; forholdet for A og B manglet HF-U23 punkt 9 og,
+for B, punkt 8 og 20; spørsmål 1 nevnte bare E4 og E6 og beskrev OV-U54 ved avslagsregelen E3 tar
+bort; punkt 6 viste for GR-U27 til MM-U43 punkt 6, som ikke er sperren; E3 manglet to setninger
+som står.
 
 ## Spørsmålene til oppdragsgiver
 
@@ -265,12 +272,9 @@ gjort uvirksomme.
   parter og at en ny kravversjon i et spor med enighet avvises; henvisningene til dem gjelder
   samlevedtaket, unntatt der samlevedtaket for trekk viser henvisningen til sitt punkt 3. Vedtakene
   om at et oppdatert krav åpner sporet igjen, om at hver oppdatering er en ny kravversjon, om en
-  hevet kravversjon før byggherren har svart, og om en ny kravversjon som avslag på byggherrens
-  tilbud, gjelder som «Samlet i samlevedtaket for kravversjon». Det samme gjelder punkt 1 og 9,
+  hevet kravversjon før byggherren har svart, og om brevet for en ny kravversjon og innsigelsen som bevares, gjelder som «Samlet i samlevedtaket for kravversjon». Det samme gjelder punkt 1 og 9,
   strykningen i punkt 10 og sperren mot ny kravversjon i punkt 12 i vedtaket 28.10 om registrert
-  enighet. I vedtaket om en utdypende begrunnelse og en ny grunnlagsversjon med samme hjemmel og i
-  vedtaket om at en ny grunnlagsversjon åpner sporet, gjelder de setningene E4 og E6 navngir, ikke
-  lenger.»
+  enighet. I postene det samler eller endrer, gjelder setningene E1–E6 navngir, ikke lenger.»
 - **B:** Samme som A, med rettelsene du gir per punkt eller E-punkt.
 
 *Anbefaling:* A. Innholdet er det du alt har vedtatt, og E-punktene følger av senere vedtak.
@@ -280,7 +284,7 @@ gjort uvirksomme.
 vedtaket 08.10 om aksepten er det bygget at en ny kravversjon opphever en aksept (SK-02); etter E1
 fjernes den virkningen fra koden.
 
-*Forholdet:* samler rad-001, rad-002, KA-U40, OV-U54 og MM-U34 (punkt 1, 9, 10 og 12, så langt de
+*Forholdet:* samler rad-001 (med E1), rad-002 (med E2), KA-U40, OV-U54 (med E3) og MM-U34 (punkt 1, 9, 10 og 12, så langt de
 gjelder ny kravversjon); opphever KA-U3 og KA-U7 (E5); endrer OV-U55 (E4) og GR-U1 (E6).
 
 *Klassen:* vedtak med designdel og beslutningsdel.
@@ -296,31 +300,36 @@ en følge av punkt 19 i samlevedtaket for retting, men det er ikke bekreftet av 
 *Belegg:* Samlevedtaket for retting av sendt brev, punkt 19: «Datoen som gjelder, er datoen i den
 rettingen som sist begynte å gjelde, enten straks fordi den var til en senere dag, eller da
 byggherren godtok den; uten en slik retting er det datoen totalentreprenøren først oppga.» Punkt 20:
-«Et nytt svar etter punkt 6 tar ikke bort en aksept i svaret det erstatter.» Punkt 10: «En ny
-grunnlagsversjon kan ikke endre datoen. Den gjengir totalentreprenørens siste opplysning, med
-henvisning til brevet med korrigeringen, og endrer ikke tidligere brev eller premissene i tidligere
-svar.» Punkt 10 og 20 endres ikke av noen av alternativene.
+«Et nytt svar etter punkt 6 tar ikke bort en aksept i svaret det erstatter.» Punkt 8: «Et svar
+byggherren alt har gitt, står med virkningen det hadde, og byggherren kan ta stilling på nytt.»
+Punkt 18: «I punkt 19 og 21–23 gjelder «varseldatoen» også denne datoen.» (datoen for et krav sendt
+utenfor løsningen). Punkt 10 endres ikke av noen av alternativene, og A endrer heller ikke punkt 20.
 
 - **A (anbefalt):** «Sender totalentreprenøren en ny kravversjon etter at byggherren i et svar har
   godtatt totalentreprenørens retting til en tidligere varseldato, står aksepten av rettingen, og
-  datoen i rettingen gjelder fortsatt etter punkt 19 i samlevedtaket for retting av sendt brev. At
+  datoen i rettingen gjelder etter punkt 19 i samlevedtaket for retting av sendt brev, til en
+  senere retting begynner å gjelde. Det samme gjelder en godtatt retting av datoen for et krav sendt
+  utenfor løsningen (punkt 18 der). At
   svaret på den tidligere versjonen ikke kan godtas i løsningen, gjelder standpunktene i svaret og
   ikke aksepten av rettingen.»
 - **B:** «Sender totalentreprenøren en ny kravversjon, faller byggherrens aksept av rettingen
-  sammen med svaret den sto i, og datoen som gjaldt før aksepten, gjelder igjen til byggherren
-  godtar rettingen i et svar på den nye versjonen.»
+  i svaret på den tidligere versjonen, og datoen som gjaldt før aksepten, gjelder igjen til
+  byggherren godtar rettingen i et svar på den nye versjonen, unntatt der et nytt svar avvises
+  (GR-U27; EO-U38 punkt 12). Det samme gjelder datoen for et krav sendt utenfor løsningen.»
 
 *Anbefaling:* A. Aksepten er byggherrens svar på totalentreprenørens tilbud om å rette datoen, ikke
 en del av byggherrens tilbud som den nye versjonen erstatter. Punkt 19 regner datoen fra aksepten,
-punkt 20 lar et nytt svar ikke ta bort aksepten, og punkt 10 sier at en ny grunnlagsversjon ikke kan
-endre datoen. B lar byggherren komme fra en aksept fordi totalentreprenøren sender en ny versjon av
-et annet standpunkt, og gjør punkt 10 uklart.
+punkt 20 lar et nytt svar ikke ta bort aksepten, og etter punkt 8 står et svar byggherren alt har
+gitt, med virkningen det hadde. B lar byggherren komme fra en aksept fordi totalentreprenøren sender
+en ny versjon av et annet standpunkt, og en ny kravversjon gjør ellers ikke at svaret faller
+(HF-U23 punkt 9).
 
 *Hva valget styrer:* punkt 5 i samlevedtaket (setningen i kursiv erstattes av det valgte), og
 hvilken dato kjernen regner som gjeldende etter en ny kravversjon i #1309.
 
-*Forholdet:* A presiserer samlevedtaket for retting av sendt brev, punkt 19 og 20. B endrer punkt 19
-der for en ny kravversjon.
+*Forholdet:* A presiserer samlevedtaket for retting av sendt brev, punkt 19 og 20, og samlevedtaket
+for akseptfristen, punkt 9. B endrer punkt 8, 19 og 20 i samlevedtaket for retting og punkt 9 i
+samlevedtaket for akseptfristen for en ny kravversjon.
 
 *Klassen:* vedtak.
 
@@ -332,4 +341,6 @@ der for en ny kravversjon.
 
 Lest ut av vedtaksfila og `vedtak.toml` på `main` (`27f8bab`), vurderingsfilene for KA-U51, OV-U94,
 MM-U52, kjente avvik og klassifiseringen. `python3 docs/verktoy/vedtaksregister.py --sjekk` er grønn
-på `main`. Ingen kode er kjørt utover det.
+på `main`. At de fem forholdene forsvinner ved E5, er lest av `forhold_til_opphevet` og prøvd i minnet,
+ikke kjørt. Påstanden om at kjernen i dag lar en ny kravversjon oppheve en aksept, er lest av Følge i
+KA-U1, ikke av koden. NS 8407 er ikke lest; spørsmålene siterer ikke kontraktsteksten.
