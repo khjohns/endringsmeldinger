@@ -496,7 +496,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
  * VS-U26: datoen varslingsplikten løper fra står i brevteksten som TEs opplysning.
  * At en dato etter brevets dato avvises, er arbeidsvalg 1 i #664, og vurderer ikke
  * rettidigheten. Datoen endres i en korrigering, ikke i en ny kravversjon (punkt 10 i
- * samlevedtaket for retting av sendt brev, MM-U41).
+ * samlevedtaket for retting av sendt brev, MM-U41 (opphevet av MM-U52)).
  */
 describe('datoen varslingsplikten løper fra (VS-U26)', () => {
   it('en dato etter brevets dato avvises; samme dag godtas (arbeidsvalg 1 i #664)', () => {
@@ -600,13 +600,13 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
 });
 
 /**
- * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U41), med partene skrevet fullt
+ * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)), med partene skrevet fullt
  * ut (LV-U35) og henvisningen etter LV-U53. Teksten i en ny grunnlagsversjon etter en
  * korrigering er LV-U54, og korrigeringen i en lukket sak er MM-U51. At korrigeringen avvises
  * når henvisningen er ugyldig, når datoen er uendret og når datoen er etter brevets dato, er
  * arbeidsvalgene i avgrensningen av #1308.
  */
-describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41)', () => {
+describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41 (opphevet av MM-U52))', () => {
   /** Korrigeringen med henvisning til TEs siste opplysning om datoen. */
   const korrigering = (
     s: ReturnType<typeof sak>,

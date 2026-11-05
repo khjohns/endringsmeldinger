@@ -751,7 +751,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:opplysningerOmDatoen',
     ],
   ],
-  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TEs korrigering av datoen
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TEs korrigering av datoen
   // etter VS-U26, og TEs opplysninger om datoen i grunnlagskravet og i korrigeringene. Den
   // siste er TEs siste opplysning; ingen regel vurderer rettidigheten (punkt 11).
   ['Utsagn', 'utsagn', 'felt dato'],

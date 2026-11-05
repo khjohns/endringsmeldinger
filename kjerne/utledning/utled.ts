@@ -83,7 +83,7 @@ export interface Svarberegning {
    */
   gjaldtEtAnnetVarsel: string[];
   /**
-   * Designdelen i samlevedtaket for retting av sendt brev (MM-U41): TEs opplysning om datoen
+   * Designdelen i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TEs opplysning om datoen
    * etter VS-U26 som var TEs siste da svaret på grunnlaget ble gitt (`Datoopplysning.id`).
    * `null` i de andre sporene og når TE ikke hadde oppgitt datoen.
    */
@@ -91,7 +91,7 @@ export interface Svarberegning {
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): én opplysning fra TE om datoen
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): én opplysning fra TE om datoen
  * etter VS-U26, i grunnlagskravet eller i en korrigering. En ny kravversjon som gjengir TEs
  * siste opplysning, er ikke en ny opplysning.
  */
@@ -224,7 +224,7 @@ export interface Utledning {
   /** VS-U12: TEs påberopelse av byggherrens passivitet etter § 32.3 annet ledd. */
   passivitet: Paaberopelse[];
   /**
-   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TEs opplysninger om datoen
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TEs opplysninger om datoen
    * etter VS-U26, i rekkefølgen i journalen. Den siste med et felt er TEs siste opplysning om
    * den datoen, og de andre er de tidligere (designdelen). Løsningen avgjør ikke hvilken som er
    * riktig (punkt 11).
@@ -994,7 +994,7 @@ function kanGjelde(
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): en korrigering viser bakover
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): en korrigering viser bakover
  * til grunnlagskravet eller en tidligere korrigering, som har opplysningen den endrer.
  */
 function kontrollerKorrigeringene(
@@ -1015,7 +1015,7 @@ function kontrollerKorrigeringene(
 /**
  * TEs opplysninger om datoen etter VS-U26 (`Datoopplysning`), i rekkefølgen i journalen: hver
  * versjon av grunnlagskravet som oppgir en annen dato enn TEs siste opplysning om samme dato, og
- * hver korrigering (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41).
+ * hver korrigering (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41 (opphevet av MM-U52)).
  */
 function opplysningerOmDatoen(
   journal: readonly Domenehendelse[],
@@ -1050,7 +1050,7 @@ function opplysningerOmDatoen(
 
 /**
  * TEs siste opplysning om datoen i feltet (punkt 10 i samlevedtaket for retting av sendt brev,
- * MM-U41), eller `null` når TE ikke har oppgitt den.
+ * MM-U41 (opphevet av MM-U52)), eller `null` når TE ikke har oppgitt den.
  */
 export function sisteDatoopplysning(u: Utledning, felt: OppgittDatofelt): Datoopplysning | null {
   return u.datoopplysninger.filter((o) => o.felt === felt).at(-1) ?? null;
@@ -1207,7 +1207,7 @@ function svarberegninger(
 }
 
 /**
- * Designdelen i samlevedtaket for retting av sendt brev (MM-U41): opplysningen om datoen som var
+ * Designdelen i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): opplysningen om datoen som var
  * TEs siste da svaret på grunnlaget ble gitt.
  */
 function settDatoopplysningene(

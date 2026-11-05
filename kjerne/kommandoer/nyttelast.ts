@@ -189,7 +189,7 @@ function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): A
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): en ny grunnlagsversjon kan ikke
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): en ny grunnlagsversjon kan ikke
  * endre datoen etter VS-U26, og gjengir TEs siste opplysning. Datoen endres i en korrigering.
  */
 function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
@@ -204,7 +204,7 @@ function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvis
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): korrigeringen har datoen
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): korrigeringen har datoen
  * kategorien har, og endrer TEs siste opplysning (arbeidsvalget i avgrensningen av #1308).
  * Forutsetningene har kontrollert at den viser til den siste opplysningen.
  */
