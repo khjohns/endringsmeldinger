@@ -535,7 +535,22 @@ Etter testen i vedtaksskillen (forslag, før den uavhengige kontrollen):
 - Beslutningsdelen er *beslutning*: fullmakt og verdi, når saken inngår, sperrene, sum og kode.
   Koden etter EO-U36 er *beslutning*, som posten.
 
-**Kontrollen.** Kontrollen kjøres etter at fila er skrevet.
+**Kontrollen** (subagent, 05.11): testen i vedtaksskillen, trinn 1–3, er brukt før avsnittet over
+ble lest, og klassene i registeret er slått opp i `vedtak.toml` (EO-U33 og EO-U36 *beslutning*,
+EO-U35 og EO-U37 *vedtak*, LV-U47 *beslutning*).
+
+- Samlevedtaket som helhet: samsvar. Punkt 1–68 har setninger om virkning og binding etter trinn 1,
+  så posten er *vedtak* med designdel og beslutningsdel.
+- Punkt 1–67: samsvar. Punkt 50 og 57 som *vedtak*: samsvar med registeret.
+- Punkt 68: samsvar. Det sier hvilken virkning rettingen har og hva løsningen ikke avgjør (trinn 1).
+- Designdelen: samsvar, også vilkår og forbehold (E2) og visningen av rettingen fra 05.11 3.5 B.
+- Beslutningsdelen: samsvar for fullmakt og verdi, når saken inngår, sperrene og summen.
+- EO-U36 i «Sum og kode»: avvik for én setningsdel. «og vises ved siden av koden» er visning
+  (trinn 3) og hører til designdelen. At koden gis og brevets nummer lagres, er *beslutning*.
+- Merknader, ikke avvik: første setning i punkt 51 (registreres som vedlegg med dato og
+  dokumentkode) er lagring og står i vedtaket fordi datoen har virkning (punkt 52). Første setning i
+  punkt 50 («rettes ikke») har samme art som EO-U33-setningen i beslutningsdelen, men står i
+  vedtaket sammen med at endringsordren i brevet står uendret.
 
 ## Funn som ikke avgjøres her
 
