@@ -46,12 +46,13 @@
       ...brev.map(
         (b): Oppfoering => ({
           noekkel: b.id,
-          naar: b.registrert,
+          // Registrert korrespondanse står på datoen avsenderen oppgir (OV-U85, #1596).
+          naar: b.sendt ?? b.registrert,
           merke: b.art === 'registrert' ? 'registrert' : 'sendt',
           hva: brevhode(b),
           kilde:
             b.art === 'registrert'
-              ? TIDSLINJE.registrert(b.avsender)
+              ? TIDSLINJE.registrert(b.avsender, b.registrert)
               : `${TIDSLINJE.sendt(b.avsender)} kl. ${klokke(b.registrert)}`,
         })
       ),

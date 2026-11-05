@@ -419,7 +419,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText('Skriv brev')).toBeNull();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
 
-    await fireEvent.click(panelet.getByRole('button', { name: /^Forholdet/ }));
+    // Forholdet heter det TE påberoper (OV-U78).
+    await fireEvent.click(panelet.getByRole('button', { name: /^Manglende medvirkning/ }));
     expect(screen.queryByRole('form')).toBeNull();
     expect(vederlag().textContent).toMatch(/Utkast/);
 

@@ -68,9 +68,10 @@ describe('Tidslinje', () => {
         versjon: 4,
       },
     ];
-    const tomt = { krav: [], svar: [] };
+    const tomt = { krav: [], svar: [], varsler: {}, foresporsler: [] };
     const u = {
       journal,
+      registrerteBrev: [],
       spor: { forhold: tomt, vederlag: tomt, frist: tomt },
     } as unknown as Utledning;
     const brev = brevene(u);

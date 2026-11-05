@@ -17,8 +17,9 @@
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
-  import { brevene, type Brevref } from './lesing';
-  import { BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
+  import { betegnelse } from '$kjerne/utledning/visning';
+  import { brevene, forholdetISaken, type Brevref } from './lesing';
+  import { BETEGNELSE, BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
 
   let {
     kjernesak,
@@ -87,6 +88,8 @@
 
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
+  // Forholdet heter det TE påberoper i sporlista, som i sporhodet (OV-U78).
+  const forholdsnavn = $derived((u && forholdetISaken(u)?.navn) ?? SPORNAVN.forhold);
 
   function velgSpor(s: Spor) {
     valgt = s;
@@ -180,6 +183,7 @@
         <ul class="valgene" aria-labelledby="spor-etikett">
           {#each SPORENE as s (s)}
             {@const sisteBrev = brev.filter((b) => b.spor.includes(s)).at(-1)}
+            {@const merke = betegnelse(u, s)}
             <li>
               <button
                 type="button"
@@ -188,13 +192,17 @@
                 onclick={() => velgSpor(s)}
               >
                 <span class="navn">
-                  {SPORNAVN[s]}
+                  {s === 'forhold' ? forholdsnavn : SPORNAVN[s]}
                   {#if s === 'vederlag' && utkastAapent && valgt !== s}<span class="merke-utkast"
                       >{SAKEN.utkast}</span
                     >{/if}
                 </span>
                 <span class="under"
-                  >{sisteBrev ? SAKEN.sist(sisteBrev, sisteBrev.avsender) : SAKEN.ingenBrev}</span
+                  >{sisteBrev
+                    ? merke
+                      ? SAKEN.betegnelse(BETEGNELSE[merke], sisteBrev, sisteBrev.avsender)
+                      : SAKEN.sist(sisteBrev, sisteBrev.avsender)
+                    : SAKEN.ingenBrev}</span
                 >
               </button>
             </li>
@@ -293,6 +301,7 @@
             {kjernesak}
             {u}
             spor={valgt}
+            onspor={velgSpor}
             onvelg={(n) => {
               melding = null;
               if (n === 'svare:vederlag') {

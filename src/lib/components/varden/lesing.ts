@@ -6,6 +6,7 @@
  */
 
 import { omtalen } from '$kjerne/frosset/brevtekst';
+import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
@@ -20,6 +21,11 @@ export interface Brevet {
   nummer: number | null;
   avsender: Part;
   registrert: string;
+  /**
+   * Datoen avsenderen oppgir at et registrert brev ble sendt (OV-U85), og `null` for et brev
+   * sendt herfra, der `registrert` er sendingen.
+   */
+  sendt: string | null;
   spor: Spor[];
   art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'registrert' | 'annet';
   /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
@@ -39,11 +45,19 @@ export interface Brevet {
   avsnitt: Avsnitt[] | null;
 }
 
-/** Sporet hvert krav og svar i saken hører til, så et utsagn som viser til dem, får sporet. */
+/**
+ * Sporet hvert krav, svar, varsel og hver forespørsel i saken hører til, så et utsagn som viser
+ * til dem, får sporet (#1393).
+ */
 function sporFor(u: Utledning): Map<string, Spor> {
   const ut = new Map<string, Spor>();
-  for (const [spor, s] of Object.entries(u.spor) as [Spor, Utledning['spor'][Spor]][])
-    for (const e of [...s.krav, ...s.svar]) ut.set(e.id, spor);
+  for (const [spor, s] of Object.entries(u.spor) as [Spor, Utledning['spor'][Spor]][]) {
+    for (const e of [...s.krav, ...s.svar, ...Object.values(s.varsler)]) if (e) ut.set(e.id, spor);
+    for (const f of s.foresporsler) {
+      ut.set(f.foresporsel, spor);
+      if (f.svar) ut.set(f.svar, spor);
+    }
+  }
   return ut;
 }
 
@@ -58,6 +72,7 @@ function artAv(d: Dokument): Brevet['art'] {
 /** Brevene i saken i rekkefølgen i journalen. */
 export function brevene(u: Utledning): Brevet[] {
   const spor = sporFor(u);
+  const sendt = new Map(u.registrerteBrev.map((r) => [r.dokument, r.sendt]));
   return u.journal.flatMap((h) => {
     if (h.art !== 'dokument') return [];
     const d = h.dokument;
@@ -76,6 +91,7 @@ export function brevene(u: Utledning): Brevet[] {
         nummer: d.brevnummer,
         avsender: d.avsender,
         registrert: d.registrert,
+        sendt: sendt.get(d.id) ?? null,
         spor: [...i],
         art: artAv(d),
         forhold: foersteUnderkategori(
@@ -197,6 +213,19 @@ export function standpunktene(svar: Svar, foer: Utledning): Standpunktet[] {
       lag: merket(lagene.find((x) => x.id === s.id)?.lag ?? null),
     })),
   ];
+}
+
+/**
+ * Forholdet TE påberoper i gjeldende krav, med gruppen fra kjernens liste (OV-U77, OV-U78).
+ * Uten krav, eller med en kode lista ikke har, er begge `null`.
+ */
+export function forholdetISaken(u: Utledning): { navn: string; gruppe: string } | null {
+  const kode = foersteUnderkategori(
+    u.spor.forhold.gjeldendeKrav?.innhold.underkategori as string | string[] | null | undefined
+  );
+  const f = forholdet(kode);
+  const g = f && FORHOLDSGRUPPER.find((x) => x.forhold.some((y) => y.kode === f.kode));
+  return f && g ? { navn: f.navn, gruppe: g.navn } : null;
 }
 
 /**

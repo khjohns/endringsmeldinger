@@ -11,6 +11,7 @@
 import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/frosset/forholdene';
 import { kroner } from '$kjerne/frosset/standpunkt';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
+import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Part, Spor, Standpunkt } from '$kjerne/typer';
 import type { Brevet, Brevref, OppgittDato } from './lesing';
 
@@ -319,8 +320,50 @@ export const TIDSLINJE = {
   oppfoeringer: (n: number) => `${n} ${n === 1 ? 'oppføring' : 'oppføringer'}`,
   oppgitt: (part: Part, b: Brevref) => `Oppgitt av ${part} i ${brevref(b)}`,
   sendt: (part: Part) => `Brev sendt av ${part}`,
-  registrert: (part: Part) => `Korrespondanse lagt til av ${part}`,
+  registrert: (part: Part, lagtTil: string) => `Sendt ifølge ${part}, lagt til ${dato(lagtTil)}`,
   tom: 'Ingen datoer eller brev ennå.',
+};
+
+/** Betegnelsene i MM-U30, slik lista står i system.md. */
+export const BETEGNELSE: Record<Betegnelse, string> = {
+  trukket: 'Trukket',
+  spesifisert_krav_etterspurt: 'Byggherren har bedt om spesifisert krav (punkt 33.6.2)',
+  venter_paa_svar: 'Svar ikke registrert',
+  paalegg_frafalt: 'Byggherren har frafalt pålegget',
+  enige: 'Enige',
+  svar_ikke_godtatt: 'Svaret er ikke godtatt',
+  krav_sendt: 'Krav sendt',
+  ingen_krav: 'Ingen krav',
+  varslet: 'Varslet',
+};
+
+const stor = (t: string) => t[0].toUpperCase() + t.slice(1);
+
+/** Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`, OV-U76–OV-U78). */
+export const FORHOLDET = {
+  utenNavn: 'Forholdet',
+  siste: (b: Brevref, part: Part) => `Siste brev: ${brevrefFra(b, part)}.`,
+  traad: 'Brevene om forholdet',
+  tittel: (b: Pick<Brevet, 'nummer' | 'art' | 'brevtittel'>) =>
+    b.nummer === null ? brevtittel(b) : `Brev ${b.nummer} · ${brevtittel(b)}`,
+  registrertTittel: (part: Part) => `Korrespondanse fra ${PARTNAVN[part]}`,
+  dokumentasjon: 'Dokumentasjon',
+  sendtHerfra: (part: Part, d: string) => `${stor(PARTNAVN[part])} · ${dato(d)}`,
+  sendtIfoelge: (part: Part, sendt: string, registrert: string) =>
+    `Sendt ${dato(sendt)}, ifølge ${PARTNAVN[part]} · lagt til ${dato(registrert)}`,
+  lesBrevet: 'Les brevet',
+  tilbake: 'Tilbake til forholdet',
+  svarIkkeRegistrert: 'Svar ikke registrert.',
+  trukket: (b: Brevref | null) =>
+    b ? `Påberopelsen er trukket i ${brevref(b)}.` : 'Påberopelsen er trukket.',
+  omKorrespondansen: 'Om korrespondansen',
+  omKorrespondansenTekst:
+    'Løsningen vurderer ikke innholdet i dokumentet, og avgjør ikke hvilken betydning det har for partenes rettigheter og plikter.',
+  tilknyttede: 'Tilknyttede krav',
+  tilknyttedeKilde: 'Kravene som bygger på forholdet',
+  ingenKrav: 'Ingen krav om vederlagsjustering eller fristforlengelse ennå.',
+  aapne: (spor: string) => `Åpne ${spor.toLowerCase()}`,
+  trekk: 'Trekk påberopelsen',
 };
 
 export const SAKEN = {
@@ -329,6 +372,8 @@ export const SAKEN = {
   utkast: 'Utkast',
   ingenBrev: 'Ingen brev',
   sist: (b: Brevref, part: Part) => `Siste: ${brevrefFra(b, part)}`,
+  /** Betegnelsen i MM-U30 med sporets siste brev: «Svar ikke registrert · brev 1 fra TE». */
+  betegnelse: (tekst: string, b: Brevref, part: Part) => `${tekst} · ${brevrefFra(b, part)}`,
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',

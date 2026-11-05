@@ -1,5 +1,6 @@
 <!--
-  Sporet med siste brev i sin helhet (Varden, skjerm D): brevet slik det ble frosset da det ble
+  Sporet med siste brev i sin helhet (Varden, skjerm D). I forholdet står siden for forholdet i
+  stedet, og «Les brevet» der viser brevet her (#1449): brevet slik det ble frosset da det ble
   sendt, ikke en ny gjengivelse av dataene. Er det et svar kjernen tilbyr leseren å godta, står
   «Ta stilling til svaret» over brevet, og panelet i høyre kolonne viser aksepten og
   virkningen kjernen regner ut. Brevtypene kjernen tilbyr ellers, står i menyen.
@@ -14,6 +15,7 @@
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevtyper from './Brevtyper.svelte';
+  import Forholdsoversikt from './Forholdsoversikt.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
@@ -21,6 +23,7 @@
   import { brevene, handlingerISporet, datoerISporet } from './lesing';
   import {
     BREVMENY,
+    FORHOLDET,
     MOTTATT,
     STILLING,
     brevhode,
@@ -35,6 +38,7 @@
     u,
     spor,
     onvelg,
+    onspor,
     onakseptbrev,
   }: {
     kjernesak: Kjernesakkontekst;
@@ -42,6 +46,8 @@
     spor: Spor;
     /** Brukeren valgte en brevtype i menyen, som `svare:vederlag`. */
     onvelg: (noekkel: string) => void;
+    /** Brukeren valgte et annet spor på siden for forholdet. */
+    onspor?: (spor: Spor) => void;
     onakseptbrev: (k: {
       kommando: Record<string, unknown>;
       tekst: string[];
@@ -59,7 +65,24 @@
   const svaret = $derived(u.spor[spor].gjeldendeSvar);
   const kanGodta = $derived(svaret !== null && iSporet.includes(`godta:${spor}`));
   const svarbrevet = $derived(svaret ? sporbrev.find((b) => b.id === svaret.dokument) : undefined);
-  const vist = $derived(kanGodta && svarbrevet ? svarbrevet : siste);
+  // Brevet brukeren valgte å lese på siden for forholdet, og `null` på selve siden.
+  let lest = $state<string | null>(null);
+  const oversikt = $derived(spor === 'forhold' && lest === null);
+  const lestBrev = $derived(lest === null ? undefined : sporbrev.find((b) => b.id === lest));
+  const vist = $derived(lestBrev ?? (kanGodta && svarbrevet ? svarbrevet : siste));
+
+  async function lesBrevet(id: string) {
+    lest = id;
+    await tick();
+    document.getElementById(`${uid}-brevtittel`)?.focus();
+  }
+
+  async function tilbakeTilForholdet() {
+    const id = lest;
+    lest = null;
+    await tick();
+    document.querySelector<HTMLElement>(`[data-les="${id}"]`)?.focus();
+  }
 
   let stilling = $state(false);
   let stillingTittel = $state<HTMLElement | null>(null);
@@ -92,6 +115,7 @@
   function innsigelsestekst(n: string): string | null {
     const [type, id] = n.split(':');
     if (type === 'varsle' || type === 'sende_varsel') return varselet(type, id);
+    if (n === 'trekke:forhold') return FORHOLDET.trekk;
     const e = u.elementer[id];
     if (type !== 'innsigelse' || !e) return null;
     return innsigelsen(e.art, sporbrev.find((b) => b.id === e.hendelse)?.nummer ?? null);
@@ -113,41 +137,52 @@
   }
 </script>
 
+{#snippet meny()}
+  <Brevtyper
+    tittel={kanGodta ? BREVMENY.andre : BREVMENY.skriv}
+    handlinger={iSporet.filter((n) => n !== `godta:${spor}`)}
+    bygget={spor === 'vederlag' ? ['svare'] : []}
+    tekstFor={innsigelsestekst}
+    {onvelg}
+  />
+{/snippet}
+
+{#snippet taStilling()}
+  <div class="stilling">
+    <p class="dempet">{MOTTATT.iSinHelhet(vist!.avsender)}</p>
+    <Knapp
+      variant="primaer"
+      aria-expanded={stilling}
+      aria-controls={`${uid}-stillingspanel`}
+      id={`${uid}-ta-stilling`}
+      onclick={aapneStilling}
+      >{MOTTATT.taStilling}<ChevronRight size={16} aria-hidden="true" /></Knapp
+    >
+  </div>
+{/snippet}
+
 <Arbeidsflate>
   {#snippet hoved()}
-    {#snippet meny()}
-      <Brevtyper
-        tittel={kanGodta ? BREVMENY.andre : BREVMENY.skriv}
-        handlinger={iSporet.filter((n) => n !== `godta:${spor}`)}
-        bygget={spor === 'vederlag' ? ['svare'] : []}
-        tekstFor={innsigelsestekst}
-        {onvelg}
-      />
-    {/snippet}
-    {#if vist}
+    {#if oversikt}
+      {#if kanGodta && vist}{@render taStilling()}{/if}
+      <Forholdsoversikt {u} onles={lesBrevet} {onspor} />
+    {:else if vist}
+      {#if lestBrev}
+        <p>
+          <Knapp variant="lenke" onclick={tilbakeTilForholdet}>{FORHOLDET.tilbake}</Knapp>
+        </p>
+      {/if}
       <div class="linje">
-        <h2>
+        <h2 id={`${uid}-brevtittel`} tabindex="-1">
           {brevhode(vist)}
           <span class="dempet">
-            · {vist.avsender} · {vist.avsender === part ? 'sendt' : 'mottatt'}
-            {dato(vist.registrert)}</span
+            · {vist.avsender} · {vist.avsender === part || vist.sendt ? 'sendt' : 'mottatt'}
+            {dato(vist.sendt ?? vist.registrert)}</span
           >
         </h2>
         {@render meny()}
       </div>
-      {#if kanGodta}
-        <div class="stilling">
-          <p class="dempet">{MOTTATT.iSinHelhet(vist.avsender)}</p>
-          <Knapp
-            variant="primaer"
-            aria-expanded={stilling}
-            aria-controls={`${uid}-stillingspanel`}
-            id={`${uid}-ta-stilling`}
-            onclick={aapneStilling}
-            >{MOTTATT.taStilling}<ChevronRight size={16} aria-hidden="true" /></Knapp
-          >
-        </div>
-      {/if}
+      {#if kanGodta && !lestBrev}{@render taStilling()}{/if}
       {#if vist.avsnitt}
         <Brev
           avsender={vist.avsender}
@@ -171,6 +206,7 @@
   {/snippet}
 
   {#snippet hoeyre()}
+    {#if oversikt}<div class="meny">{@render meny()}</div>{/if}
     {#if stilling && kanGodta && vist}
       <section class="kort" id={`${uid}-stillingspanel`} aria-labelledby={`${uid}-stilling-tittel`}>
         <header class="hode">
@@ -218,6 +254,10 @@
   }
   .linje .dempet {
     font-weight: 400;
+  }
+  .meny {
+    display: flex;
+    justify-content: flex-end;
   }
   .stilling {
     display: flex;
