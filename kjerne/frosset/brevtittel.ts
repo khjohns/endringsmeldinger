@@ -100,7 +100,7 @@ export function avvikITittelen(
   d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>
 ): string | null {
   if (lagBrevtittel(d) === null)
-    return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U3)'; // MM-U50
+    return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U3)'; // MM-U3 er opphevet av MM-U50, som har regelen.
   const f = paaberoptForhold(d);
   const paaberoper = tittel.startsWith(paaberopelsenAv(''));
   const forventet = f && paaberopelsenAv(f.navn);

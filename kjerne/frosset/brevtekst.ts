@@ -277,7 +277,7 @@ export function lagBrevtekst(
   utdypninger: ReadonlyMap<string, string> = new Map()
 ): Avsnitt[] {
   if (erRegistrert(nytt.opplysninger))
-    throw new KanIkkeUttrykkes('et registrert brev står som det ble sendt (MM-U17)'); // MM-U50
+    throw new KanIkkeUttrykkes('et registrert brev står som det ble sendt (MM-U17)'); // MM-U17 er opphevet av MM-U50, som har regelen.
   const j = new Journalen(foer, nytt);
   const t: Tekst = {
     j,

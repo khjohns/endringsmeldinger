@@ -561,7 +561,7 @@ function lesDokument(h: Journalrad): Dokument {
         : 'korrespondansetypen står i et dokument som ikke er registrert korrespondanse'
     );
   if (data.brevtittel !== undefined && !data.brevtekst)
-    throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U3)'); // MM-U50
+    throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U3)'); // MM-U3 er opphevet av MM-U50, som har regelen.
   if (data.brevtittel !== undefined) {
     const avvik = avvikITittelen(data.brevtittel, dokument);
     if (avvik) throw new Uforstaatt(avvik);
