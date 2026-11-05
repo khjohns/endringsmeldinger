@@ -35,8 +35,8 @@ senere PR. Ingen post og ingen rad er endret.
 - **E-punkt** sier om et punkt under «Endret innhold» (E-punkt), en tabellrad eller en merknad i
   vurderingsfila for et samlevedtak sier noe om forholdet til det opphevede målet:
   - *ja, gjelder ikke*: punktet sier at forholdet eller setningen det bar, ikke gjelder, eller at
-    forholdet ikke har noe å virke på (EO-U34 E11 og E12, HF-U23 E5 og E6, og tabellraden for
-    HF-U9 i EO-U34);
+    forholdet ikke har noe å virke på (EO-U34 E11 og E12, HF-U23 E5 og E6, KA-U49 E1 og
+    tabellraden for HF-U9 i EO-U34);
   - *ja, omdirigert*: punktet sier at henvisningen gjelder samlevedtaket (KA-U46 E1);
   - *delvis*: punktet sier bare at setningen eller målet forholdet bar, står opphevet;
   - *nei*: punktet sier ikke noe om forholdet.
@@ -76,7 +76,7 @@ senere PR. Ingen post og ingen rad er endret.
 | ov-u4 endrer ka-u24 | Byggherrens begrunnelse: plikten og datokontrollen | Nei. OV-U4 (13.10) er eldre enn KA-U43 | Samlet i MM-U43 | Nei: KA-U46 E5 sier ingenting om forholdet |
 | ov-u80 bygger på ka-u24 | Byggherrens begrunnelse: plikten og datokontrollen | Nei. Unntaket står i KA-U46 punkt 6 og KA-U18. Forholdet ble ført 01.11, etter opphevelsen | Samlet i MM-U41, endret av EO-U34 | Ja, omdirigert: KA-U46 E1 |
 | vs-u13 bygger på ka-u24 | Byggherrens begrunnelse: plikten og datokontrollen | Nei. Henvisningen gjelder samlevedtaket | Ingen | Ja, omdirigert: KA-U46 E1 |
-| hf-u7 bygger på ka-u26 | Vilkår og forbehold i byggherrens svar | Nei. KA-U45 opphevet KA-U26 og tok innholdet | Annet: presisert av KA-U49 i et annet punkt | Nei: KA-U49 E1 nevner verken HF-U7 eller KA-U26 |
+| hf-u7 bygger på ka-u26 | Vilkår og forbehold i byggherrens svar | Nei. KA-U45 opphevet KA-U26 og tok innholdet | Annet: presisert av KA-U49 i et annet punkt | Ja, gjelder ikke: KA-U49 E1 nevner merknaden i HF-U7 som viser til KA-U26 |
 | mm-u34 endrer ka-u26 | Vilkår og forbehold i byggherrens svar | Nei. Punkt 20 opphevet vilkåret før KA-U45 opphevet hele KA-U26 | Samlet i HF-U23, MM-U48, MM-U49, OV-U89 og OV-U91. Også endret av KA-U49, EO-U34 og MM-U47 | Delvis: KA-U49 E5 sier at leddet står og at KA-U26 er opphevet |
 | mm-u34 endrer ka-u28 | Kravene er avgjort, og sperren etter det | Nei. MM-U34 strøk én setning, og KA-U45 opphevet senere hele KA-U28 | Samlet i fem, som raden over | Nei |
 | mm-u34 endrer ov-u48 | Vilkår og forbehold i byggherrens svar | Nei. OV-U69 sier at punkt 25 faller bort | Samlet i fem, som raden over | Delvis: KA-U49 E5, punkt 25 står opphevet |
@@ -107,7 +107,7 @@ ikke disse sakene». Den mulige motsigelsen gjelder derfor bare de andre sakene.
 | Posten har et annet forhold til et samlevedtak | 12: ov-u3 ×3, ka-u12, ov-u2 og hf-u12 (EO-U34), ov-u55 og gr-u22 (MM-U41), ka-u20 og hf-u7 ×2 (KA-U49) og gr-u7 (GR-U34) |
 | Ingen | 12: gfk-u2, gr-u10, hf-u22, hf-u9 ×4, ka-u13, lv-u31, mm-u30, mm-u8 og vs-u13 |
 
-Etter kolonnen «E-punkt» har 17 rader *ja* (13 *gjelder ikke*, 4 *omdirigert*), 6 *delvis* og 15
+Etter kolonnen «E-punkt» har 18 rader *ja* (14 *gjelder ikke*, 4 *omdirigert*), 6 *delvis* og 14
 *nei*. Graden og E-punktet er uavhengige: ka-u31 og ov-u4 er samlet og har *nei*, og seks rader
 uten samlevedtak har *ja*.
 
@@ -172,22 +172,25 @@ for ka-u31 og ov-u4, som E1 ikke nevner, sto i A i spørsmål 2, som (a) gir.
 | vs-u13 bygger på ka-u24 | E1 siterer VS-U13 som gammel tekst | KA-U46 E1 |
 
 **(b) Forholdet fjernes: 9 rader.** Punktet sier at forholdet eller setningen det bar, ikke
-gjelder, ikke har noe å virke på, eller faller bort. EO-U34 opphever ikke EO-U2, EO-U5, EO-U6
-og EO-U9 (B i spørsmål 3, som (b) gir).
+gjelder eller ikke har noe å virke på. EO-U34 opphever ikke EO-U2, EO-U5, EO-U6 og EO-U9 (B i
+spørsmål 3, som (b) gir). For HF-U9 er kilden en rad i tabellen «Postene i kjeden». Den regnes
+som en del av EO-U34, fordi posten i registeret sier at EO-U34 «samler, opphever og endrer som i
+tabellen «Postene i kjeden»». M4 for MM-U45 er derimot en merknad i vurderingsfila, som posten
+ikke viser til (se (c)).
 
 | Rad | Begrunnelse | Kilde |
 | --- | --- | --- |
-| hf-u9 snevrer inn eo-u2 | «forholdet til EO-U2 og EO-U5 har ikke noe å virke på» | EO-U34, tabellen «Postene i kjeden», raden for HF-U9 |
+| hf-u9 snevrer inn eo-u2 | «forholdet til EO-U2 og EO-U5 har ikke noe å virke på». E12 nevner HF-U9 bare som gammel tekst | EO-U34, tabellen «Postene i kjeden», raden for HF-U9 |
 | hf-u9 snevrer inn eo-u5 | Samme setning | EO-U34, raden for HF-U9 |
-| ka-u12 presiserer eo-u5 | «“som oppgjort i EO-U5” faller bort». At «faller bort» er det samme som «ikke gjelder», er vår lesing | EO-U34 E12 |
 | ov-u43 utvider eo-u5 | «setningen i OV-U43 gjelder ikke som vilkår» | EO-U34 E12 |
 | ov-u2 bygger på eo-u6 | «setningene om EO-U6 og EO-U9 gjelder ikke». Merknaden i OV-U2 er sitert som gammel tekst | EO-U34 E11 |
 | ov-u6 bygger på eo-u6 | Samme setning. Merknaden i OV-U6 er sitert som gammel tekst | EO-U34 E11 |
 | ov-u6 bygger på eo-u9 | Samme setning og merknad | EO-U34 E11 |
 | lv-u31 presiserer hf-u14 | «Forholdet til HF-U14 har ikke noe å virke på» | HF-U23 E6 |
 | hf-u22 presiserer hf-u17 | «Begrunnelsen i Følge og forholdet til HF-U17 gjelder ikke lenger.» | HF-U23 E5 |
+| hf-u7 bygger på ka-u26 | E1 sier at Følgen i KA-U16 «gjelder ikke lenger», og «Det samme gjelder merknadene som bygger på KA-U16 s6», blant dem HF-U7 «Et forbehold appen ikke kan uttrykke, følger KA-U16 og KA-U26 …». Merknaden bærer forholdet | KA-U49 E1 |
 
-**Uavklart mellom (b) og (c): 4 rader.** Punktet sier noe om setningen eller posten, men ikke med
+**Uavklart mellom (b) og (c): 5 rader.** Punktet sier noe om setningen eller posten, men ikke med
 ordene i (b). Det er oppfølgingsspørsmål 1.
 
 | Rad | Hva punktet sier | Kilde |
@@ -195,9 +198,10 @@ ordene i (b). Det er oppfølgingsspørsmål 1.
 | ov-u3 bygger på eo-u2 | Merknaden i OV-U3 er sitert som gammel tekst. Tabellen sier «endrer merknaden om EO-U2 og EO-U5», og det nye innholdet er punkt 5 («enighet er ikke vilkår for at en sak inngår») | EO-U34 E12 og raden for OV-U3 |
 | ov-u3 bygger på eo-u5 | Som raden over | EO-U34 E12 og raden for OV-U3 |
 | ov-u55 snevrer inn eo-u5 | «Sperren i OV-U55 […] tas ikke med», fordi MM-U34 punkt 18 opphevet forslaget sperren gjelder. Tabellen: «ingen setning samles» | EO-U34 E12 og raden for OV-U55 |
-| gfk-u2 presiserer eo-u6 | «GFK-U2 nevner endringsordren bare i de forkastede alternativene og står.» Tabellen: «ingen setning endres» | EO-U34 E11 og raden for GFK-U2 |
+| ka-u12 presiserer eo-u5 | «“som oppgjort i EO-U5” faller bort». «Faller bort» står ikke i (b) | EO-U34 E12 |
+| gfk-u2 presiserer eo-u6 | «GFK-U2 nevner endringsordren bare i de forkastede alternativene og står.» Tabellen: «ingen setning endres; fullmakten for en endringsordre følger EO-U17» | EO-U34 E11 og raden for GFK-U2 |
 
-**(c) Forholdet står til neste samlevedtak som rører kjeden: 19 rader.** Ingen av punktene sier
+**(c) Forholdet står til neste samlevedtak som rører kjeden: 18 rader.** Ingen av punktene sier
 at innholdet står i samlevedtaket, eller at forholdet eller setningen ikke gjelder. De seks
 radene med *delvis* sier at setningen eller målet står opphevet, men ikke noe om forholdet; de
 var spørsmål 5, som (c) gjelder.
@@ -212,7 +216,6 @@ var spørsmål 5, som (c) gjelder.
 | ka-u13 snevrer inn ka-u7 | Ingen samlevedtak har forhold til KA-U13 | Ingen | Trekk og sperrene mot trekk (trinn 2, nr. 2) |
 | ka-u20 presiserer ka-u7 | E6 navngir setningene KA-U45 snevret inn, men ikke forholdet | KA-U49 E6 (*delvis*) | Vilkår og forbehold i byggherrens svar |
 | ov-u43 utvider ka-u7 | Motsigelse (svak). Ingen punkt sier noe om forholdet | Ingen | Vederlagsmetoden (trinn 2, nr. 1) |
-| hf-u7 bygger på ka-u26 | KA-U49 E1 nevner verken HF-U7 eller KA-U26 | Ingen (KA-U49) | Vilkår og forbehold i byggherrens svar |
 | mm-u34 endrer ka-u26 | E5: «leddet “vilkåret i KA-U26” i punkt 20 står, og KA-U26 er opphevet» | KA-U49 E5 (*delvis*) | Vilkår og forbehold i byggherrens svar |
 | mm-u34 endrer ka-u28 | Ingen punkt sier noe om forholdet | Ingen | Kravene er avgjort, og sperren etter det |
 | mm-u34 endrer ov-u48 | E5: punkt 25 står opphevet | KA-U49 E5 (*delvis*) | Vilkår og forbehold i byggherrens svar |
@@ -224,8 +227,11 @@ var spørsmål 5, som (c) gjelder.
 | mm-u8 bygger på mm-u4 | Motsigelse. Ingen samlevedtak har forhold til MM-U8 | Ingen | Sendte brev og regelendring (trinn 2, nr. 3) |
 | ov-u43 presiserer mm-u28 | M4 sier at henvisningen «rettes når Følge rettes etter svar 14», men M4 er en merknad i vurderingsfila og ikke et punkt i samlevedtaket | MM-U45, M4 (*delvis*) | Betegnelser, sakslisten og nøkkeltallene |
 
-**Talt:** (a) 6, (b) 9, uavklart 4, (c) 19, til sammen 38. Ved A i oppfølgingsspørsmål 1 blir
-(b) 13 og (c) 19. Ved B blir (b) 9 og (c) 23.
+**Talt:** (a) 6, (b) 9, uavklart 5, (c) 18, til sammen 38. Ved A i oppfølgingsspørsmål 1 blir
+(b) 14 og (c) 18. Ved B blir (b) 9 og (c) 23.
+
+Kolonnen «E-punkt» i tabellen over er kartleggingen. Fordelingen prøver hver rad mot ordlyden i
+hovedregelen, så en rad med *ja, gjelder ikke* kan være uavklart her.
 
 ## Funnene fra den andre kontrollen
 
@@ -234,7 +240,7 @@ Kontrollen av `50862e9` fant fire funn (runde 18 i #1065,
 
 1. **«Spørsmål 1, A, er smalere enn virkningen. E11, E12 og OV-U55 bærer ikke alle de 13
    radene.»** Delvis løst. Hovedregelen fordeler rad for rad etter hva punktet sier, så
-   virkningen følger ordlyden og ikke en telling. Ni av de 13 radene har ordene i (b). For fire
+   virkningen følger ordlyden og ikke en telling. Åtte av de 13 radene har ordene i (b). For fem
    rader sier E11 og E12 noe om setningen eller posten med andre ord. Det løser ikke
    hovedregelen, og det er oppfølgingsspørsmål 1.
 2. **«hf-u12 passer ikke i A i spørsmål 4.»** Løst. Hovedregelen legger spørsmål 4 under (c),
@@ -260,6 +266,8 @@ sendt til orkestratoren.
 gjelder, eller ikke har noe å virke på». For fire rader sier samlevedtaket EO-U34 noe om
 setningen eller posten, men med andre ord:
 
+- KA-U12 mot EO-U5: E12 sier «“som oppgjort i EO-U5” faller bort», og punkt 15 gir ny ordlyd.
+
 - OV-U3 mot EO-U2 og EO-U5: E12 siterer merknaden i OV-U3 som gammel tekst, og tabellen sier
   at EO-U34 «endrer merknaden om EO-U2 og EO-U5». Det nye innholdet er punkt 5: «enighet er ikke
   vilkår for at en sak inngår».
@@ -270,22 +278,22 @@ setningen eller posten, men med andre ord:
 
 **Alternativene.**
 
-- **A:** «Skriver et samlevedtak om setningen som bar forholdet, sier det at setningen ikke tas
-  med fordi målet er opphevet, eller sier det at målet bare står i de forkastede alternativene,
-  fjernes forholdet etter (b), med punktet som kilde.»
+- **A:** «Skriver et samlevedtak om setningen som bar forholdet, sier det at setningen faller
+  bort eller ikke tas med fordi målet er opphevet, eller sier det at målet bare står i de
+  forkastede alternativene, fjernes forholdet etter (b), med punktet som kilde.»
 - **B:** «Et forhold fjernes etter (b) bare når punktet sier med ord at forholdet eller
-  setningen ikke gjelder, ikke har noe å virke på eller faller bort. Ellers står forholdet etter
-  (c).»
+  setningen ikke gjelder eller ikke har noe å virke på. Ellers står forholdet etter (c).»
 
 **Anbefaling: B.** (b) begynner med «Sier samlevedtaket at …», og hovedregelen sier at hvert
 kommende samlevedtak «sier i “Endret innhold” om (a) eller (b) gjelder». Begge krever at
 samlevedtaket sier det. A lar oss lese det ut av andre ord, og det var den slutningen funn 1
-gjaldt. Ulempen ved B er at fire rader står lenger.
+gjaldt. Ulempen ved B er at fem rader står lenger, også ka-u12, der «faller bort» ligger
+nærmest ordene i (b).
 
-**Hva valget styrer.** Ved A fjernes 13 forhold med punktet som kilde i PR-en som fjerner
-radene. Ved B fjernes 9, og de fire står til neste samlevedtak for kjedene «Kravene er avgjort,
-og sperren etter det», «Retting av sendt brev» og «Fullmakt og godkjenningskjeden». ka-u12
-(«faller bort») er (b) ved begge.
+**Hva valget styrer.** Ved A fjernes 14 forhold med punktet som kilde i PR-en som fjerner
+radene. Ved B fjernes 9, og de fem står til neste samlevedtak for kjedene «Kravene er avgjort,
+og sperren etter det», «Endringsordren som omfatter KOE-sakene», «Retting av sendt brev» og
+«Fullmakt og godkjenningskjeden».
 
 ## Verifikasjon og grenser
 
@@ -309,7 +317,8 @@ og sperren etter det», «Retting av sendt brev» og «Fullmakt og godkjenningsk
   er lest av `forhold_til_opphevet` og ikke kjørt. Hvordan verktøyet skriver Følge i en importert
   post når et forhold i `FORHOLD_FJERNET_ETTER_MERGE` fjernes, er ikke kontrollert. Kjeden er
   valgt etter temaet der målet ikke står i «Kjedene» (EO-U2, OV-U2). For MM-U8 er «Sendte brev
-  og regelendring» valgt fordi MM-U9, som opphevet MM-U4, står der. Det rettede dokumentet er
+  og regelendring» valgt fordi MM-U9, som opphevet MM-U4, står der. Fordelingen er kontrollert
+  av en subagent mot hovedregelen ordrett og kildene (PR #1595); rettingene etter kontrollen er
   ikke kontrollert på nytt.
 - **Avvik i README.** «Etter merge» i [README](README.md) nevner bare `FORHOLD_FOERT_ETTER_MERGE`.
   Begge listene finnes i `vedtaksregister.py`, men det er `FORHOLD_FJERNET_ETTER_MERGE` som lar et
