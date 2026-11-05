@@ -22,122 +22,85 @@ tre følger av endringene der:
 
 ## Funnene
 
-**Funn 3. Brevteksten mot en registrert endringsordre.** HF-U25 punkt 2: «Brevet sier:
-‹Svaret erstatter byggherrens svar i brev <n> av <dato>.› (LV-U34)». Punkt 50: «Brev og
-visning sier ikke at endringsordren i brevet er bortfalt (OV-U6; KA-U14).» Punkt 50:
-«Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet.» Er det
-tidligere svaret en endringsordre registrert som svar, kan «erstatter» leses som at
-endringsordren er erstattet. Brevet er sendt utenfor løsningen og har bare sin egen
-referanse (EO-U36; designdelen i EO-U38).
+Sitatene står i belegget til hvert spørsmål.
 
-**Funn 4. Retting som nytt svar mot innlegg.** HF-U25 punkt 5: «En retting av et
-standpunkt i svaret sendes som et nytt svar etter punkt 1–2, med henvisning til brevet den
-retter. (MM-U42)». Punkt 50: «En endringsordre registrert som svar etter OV-U6 rettes ikke,
-og endringsordren i brevet står uendret. Byggherren tar en feil i registreringen opp i et
-innlegg i KOE-saken …». MM-U52 punkt 16: «endringsordren rettes ikke i løsningen, og en
-feil tas opp etter punkt 42, 50 og 58 der.» Skillet mellom en feil i registreringen og et
-endret standpunkt er ikke trukket.
-
-**Funn 5. Tre ordlyder for grensen for nytt svar.** Punkt 13: «Fram til endringsordren i
-EO-saken kan byggherren sende et nytt svar på grunnlaget.» Punkt 50: «… fram til en
-endringsordre i en EO-sak omfatter saken.» HF-U25 punkt 7: «I en KOE-sak som en sendt
-endringsordre eller en godkjent registrering omfatter, avviser løsningen et nytt svar.»
-Punkt 9 og 12 knytter lukkingen til den sendte endringsordren eller den godkjente
-registreringen. «Omfatter» og «endringsordren i EO-saken» kan leses som tilknytningen til
-et utkast, som punkt 7 lar byggherren endre før utstedelsen. Punkt 53: «gjelder de sakene
-som er åpne når den siste godkjenningen gjøres».
-
-**Funn 10. Forholdene som «står» (E9).** OV-U92, siste setning: «Regelen gjelder også for
-kommende samlevedtak: hvert av dem sier i «Endret innhold» om (a) eller (b) gjelder for
-forholdene til postene det samler.» OV-U92 (b): «Sier samlevedtaket at forholdet eller
-setningen ikke gjelder, eller ikke har noe å virke på, fjernes forholdet». E9 sier at
-forholdene «står», også de til EO-U16 (opphevet) og MM-U21 (opphevet av MM-U52), og bruker
-for MM-U21 samtidig ordene i (b).
+- **Funn 3 → spørsmål 1.** «Svaret erstatter byggherrens svar …» (HF-U25 punkt 2; LV-U34)
+  mot «Brev og visning sier ikke at endringsordren i brevet er bortfalt» (EO-U38 punkt 50).
+- **Funn 4 → spørsmål 2.** Retting som nytt svar (HF-U25 punkt 5) mot innlegg for en feil i
+  registreringen (EO-U38 punkt 50; MM-U52 punkt 16). Skillet er ikke trukket.
+- **Funn 5 → spørsmål 3.** Grensen for nytt svar i EO-U38 punkt 13, 50 og 64, HF-U25 punkt
+  7 og MM-U52 punkt 6, mot lukkingen i punkt 9 og 12.
+- **Funn 10 → spørsmål 4.** E9 sier at forholdene «står», mot OV-U92, siste setning, og
+  bruker for MM-U21 samtidig ordene i (b).
 
 ## Forslaget
 
-Teksten under erstatter de oppgitte setningene i EO-U38 og HF-U25. Resten av de to
-postene står.
-
-**Til punkt 50, ny setning, og HF-U25 punkt 2, tillegg (funn 3):**
-- «Når byggherrens tidligere svar er en endringsordre registrert som svar, sier brevet
-  med det nye svaret: ‹Svaret er byggherrens nye svar på grunnlaget etter endringsordren i
-  brev <referanse> av <dato>.›» (Ny. Referansen: EO-U36 og designdelen i EO-U38.)
-- «Brevet sier ikke at endringsordren er erstattet eller bortfalt.» (Punkt 50; HF-U25
-  punkt 8.)
-- «Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet.»
-  (Punkt 50.)
-- «Dette går foran setningen i LV-U34 for dette tilfellet.» (Ny. Forhold: snevrer inn
-  LV-U34.)
-
-**Til punkt 50, i stedet for skillet som mangler, og HF-U25 punkt 5, tillegg (funn 4):**
-- «Stemmer registreringen av en endringsordre registrert som svar ikke med brevet, er det
-  en feil i registreringen. Byggherren tar den opp i et innlegg i KOE-saken, og brevet er
-  byggherrens meddelelse.» (Punkt 50 og 58; MM-U52 punkt 16.)
-- «Vil byggherren endre et standpunkt endringsordren i brevet ga, sender byggherren et nytt
-  svar innenfor grensen i punkt 13.» (Punkt 50; HF-U25 punkt 5.)
-- «Svaret er et nytt utsagn, ikke en retting av endringsordren, og det viser til brevet.»
-  (Punkt 50, «som et nytt utsagn»; MM-U52 punkt 16.)
-- HF-U25 punkt 5 får tillegget: «For en endringsordre registrert som svar gjelder punkt 50
-  i samlevedtaket for endringsordren.»
-
-**Punkt 13, ny tekst (funn 5):**
-- «Byggherren kan sende et nytt svar i en KOE-sak, også etter en endringsordre registrert
-  som svar, fram til saken inngår i en endringsordre byggherren har sendt i en EO-sak, eller
-  i en godkjent registrering av en endringsordre i en EO-sak.» (Punkt 9, 12, 13 og 50;
-  HF-U25 punkt 1 og 7; punkt 53.)
-- «Deretter avviser løsningen et nytt svar.» (Punkt 12; HF-U25 punkt 7.)
-- Fjerde setning i punkt 50, fra «Byggherren kan likevel …» til «… omfatter saken», og
-  HF-U25 punkt 7, første og andre setning, viser i stedet til punkt 13. Punkt 9 og 12 står.
-
-**E9, ny tekst (funn 10):**
-- «Forholdene ‹EO-U36 presiserer EO-U16› og ‹EO-U37 snevrer inn EO-U16› har ikke noe å
-  virke på. EO-U16 er opphevet, og det EO-U36 og EO-U37 sier om registreringen, står i punkt
-  56–57 og designdelen her.» (OV-U92 (b); EO-U34.)
-- «Forholdet ‹EO-U35 snevrer inn MM-U21› har ikke noe å virke på. MM-U21 er opphevet av
-  MM-U52, og innsnevringen står i MM-U52 punkt 16 og punkt 50 her.» (OV-U92 (b); E9.)
-- «Forholdene i EO-U35, EO-U36 og EO-U37 til EO-U12, EO-U32, EO-U33, OV-U6, GR-U27 og LV-U47
-  står. Postene de gjelder, er ikke opphevet, og OV-U92 gjelder ikke for dem.» (OV-U92,
-  spørsmålsteksten: forhold «til et opphevet vedtak».)
+Forslaget er det anbefalte alternativet i spørsmål 1–4, med kilden per setning i
+parentes. Teksten erstatter bare de oppgitte setningene i EO-U38 og HF-U25. Resten av de
+to postene står. Der HF-U25 viser til MM-U12, viser den nye posten til MM-U50 punkt 8,
+fordi MM-U12 er opphevet av MM-U50.
 
 ## Endret innhold
 
-1. Ny brevtekst for et nytt svar etter en endringsordre registrert som svar. Den går foran
-   LV-U34 for det tilfellet (funn 3).
-2. Grensen mellom en feil i registreringen (innlegg) og et endret standpunkt (nytt svar),
-   for en endringsordre registrert som svar (funn 4).
-3. Grensen for nytt svar knyttes til samme tidspunkt som lukkingen i punkt 9 og 12, ikke til
-   tilknytningen til en EO-sak, og «på grunnlaget» er ikke lenger en begrensning (funn 5).
-   En registrering som venter på godkjenning, sperrer ikke.
-4. Forholdene i E9: tre forhold fjernes etter OV-U92 (b), og resten står fordi målet ikke er
-   opphevet. Motsigelsen i E9 om MM-U21 er løst (funn 10).
+1. Ny brevtekst for et nytt svar etter en endringsordre registrert som svar. Brev og
+   visning sier ikke at endringsordren er erstattet. Den går foran LV-U34 og HF-U25 punkt
+   2 for det tilfellet (spørsmål 1).
+2. Grensen mellom en feil i registreringen (innlegg) og et annet svar enn godkjenningen
+   (nytt svar), for en endringsordre registrert som svar. Et nytt svar er ikke en retting
+   med henvisning (spørsmål 2).
+3. Grensen for nytt svar knyttes til samme tidspunkt som lukkingen i punkt 9 og 12, ikke
+   til tilknytningen til en EO-sak. «På grunnlaget» i punkt 13 og 64 er ikke lenger en
+   begrensning. En registrering som venter på godkjenning, sperrer ikke (spørsmål 3).
+4. Forholdene i E9: tre forhold fjernes etter OV-U92 (b), og for resten gjelder verken (a)
+   eller (b). Motsigelsen i E9 om MM-U21 er løst (spørsmål 4).
 
 ## Prøvingen
 
-<!-- Fylles etter prøvingen mot vedtakene. -->
+En subagent prøvde hvert alternativ én gang mot vedtakene 05.11. Sitatene i belegget var
+ordrette. Rettet etter funnene:
+
+- 1: referansen følger LV-U53, ikke EO-U36, som gjelder en registrering i en EO-sak.
+  Teksten gjelder brev og visning, og forholdet tar med HF-U25 punkt 2. «Etter
+  endringsordren» er tatt ut, fordi det kan leses som «i henhold til».
+- 2: «endre et standpunkt endringsordren ga» er erstattet med «et annet svar enn
+  godkjenningen som er registrert» (punkt 45 og 50). Forholdet er «snevrer inn», ikke
+  «presiserer». Belegget i anbefalingen viser til punkt 50, ikke punkt 58, som gjelder en
+  registrering i en EO-sak. A har fått en setning om forbehold registreringen ikke fikk med
+  (forløpet med tapt posisjon).
+- 3: ordlyden er den fra punkt 9 og 12, og forholdet tar med punkt 64 og MM-U52 punkt 6.
+  At «på grunnlaget» faller bort, står i alternativet.
+- 4: ordene «innholdet står her», som kunne utløse OV-U92 (a), er tatt ut. «OV-U92 gjelder
+  ikke» er erstattet med «verken (a) eller (b) gjelder».
+- Ikke rettet: kontrollen i designdelen av EO-U38 viser bare kravversjoner sendt etter
+  datoen på brevet, ikke byggherrens svar sendt etter den. Det er design og står i BF-06.
 
 ## Spørsmålene til oppdragsgiver
 
-1. **Brevet når byggherren svarer på nytt etter en endringsordre registrert som svar.**
-   Bakgrunn: et nytt svar sier i dag i brevet at det erstatter byggherrens svar i det
-   tidligere brevet. Er det tidligere svaret en endringsordre byggherren sendte utenfor
-   løsningen, kan setningen leses som at endringsordren er erstattet. Belegg: HF-U25 punkt
-   2 og LV-U34 («Svaret erstatter byggherrens svar i brev <n> av <dato>.»); EO-U38 punkt
-   50 («Brev og visning sier ikke at endringsordren i brevet er bortfalt» og «Løsningen
-   avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet»).
-   - **A (anbefalt):** «Når byggherrens tidligere svar er en endringsordre registrert som
-     svar, sier brevet med det nye svaret: ‹Svaret er byggherrens nye svar på grunnlaget
-     etter endringsordren i brev <referanse> av <dato>.› Brevet sier ikke at
-     endringsordren er erstattet eller bortfalt. Løsningen avgjør ikke om det nye svaret
-     er virksomt mot endringsordren i brevet.» Forhold: snevrer inn LV-U34.
-   - **B:** «Når byggherrens tidligere svar er en endringsordre registrert som svar, sier
-     brevet med det nye svaret: ‹Svaret erstatter byggherrens svar i brev <referanse> av
-     <dato>. Endringsordren i brevet står uendret.›»
-   - Anbefaling: A. B sier i brevet hvilken virkning endringsordren har, og det avgjør
-     løsningen ikke etter punkt 50.
-   - Styrer: brevteksten i svaret og punkt 50 i samlevedtaket.
+Spørsmål 1–4 er juridiske. Spørsmål 5 er teknisk.
 
-2. **Feil i registreringen eller nytt standpunkt.** Bakgrunn: en endringsordre registrert
+1. **Brevet når byggherren svarer på nytt etter en endringsordre registrert som svar.**
+   Bakgrunn: et nytt svar sier i brevet at det erstatter byggherrens svar i det tidligere
+   brevet. Er det tidligere svaret en endringsordre byggherren sendte utenfor løsningen,
+   kan setningen leses som at endringsordren er erstattet. Belegg: HF-U25 punkt 2 og LV-U34
+   («Svaret erstatter byggherrens svar i brev <n> av <dato>.»); EO-U38 punkt 50 («Brev og
+   visning sier ikke at endringsordren i brevet er bortfalt» og «Løsningen avgjør ikke om
+   det nye svaret er virksomt mot endringsordren i brevet»).
+   - **A (anbefalt):** «Når byggherrens tidligere svar er en endringsordre registrert som
+     svar, sier brevet med det nye svaret: ‹Svaret er byggherrens nye svar på grunnlaget.
+     Byggherrens tidligere svar på grunnlaget er endringsordren i <brevet, omtalt med
+     avsenderens merking, eller med parten, typen og datoen>.› (Ny; LV-U53.) Brev og
+     visning sier ikke at endringsordren er erstattet eller bortfalt. (EO-U38 punkt 50;
+     HF-U25 punkt 8.) Løsningen avgjør ikke om det nye svaret er virksomt mot
+     endringsordren i brevet. (EO-U38 punkt 50; MM-U50 punkt 8.)» Forhold: snevrer inn
+     LV-U34 og HF-U25 punkt 2.
+   - **B:** «Når byggherrens tidligere svar er en endringsordre registrert som svar, sier
+     brevet med det nye svaret: ‹Svaret erstatter byggherrens svar i <brevet>.
+     Endringsordren i brevet står uendret.›»
+   - Anbefaling: A. B beholder «erstatter» og sier i brevet hvilken virkning endringsordren
+     har, og det avgjør løsningen ikke (EO-U38 punkt 50 og 64; MM-U50 punkt 8).
+   - Styrer: brevteksten i svaret og punkt 50.
+
+2. **Feil i registreringen eller et annet svar.** Bakgrunn: en endringsordre registrert
    som svar rettes ikke. En feil i registreringen tas opp i et innlegg, mens en retting av
    et standpunkt i et svar sendes som et nytt svar. Hvor grensen går, er ikke sagt.
    Belegg: HF-U25 punkt 5 («En retting av et standpunkt i svaret sendes som et nytt svar
@@ -146,59 +109,67 @@ postene står.
    innlegg i KOE-saken»); MM-U52 punkt 16.
    - **A (anbefalt):** «Stemmer registreringen av en endringsordre registrert som svar ikke
      med brevet, er det en feil i registreringen. Byggherren tar den opp i et innlegg i
-     KOE-saken, og brevet er byggherrens meddelelse. Vil byggherren endre et standpunkt
-     endringsordren i brevet ga, sender byggherren et nytt svar innenfor grensen for nytt
-     svar. Svaret er et nytt utsagn, ikke en retting av endringsordren, og det viser til
-     brevet.» Forhold: presiserer HF-U25 punkt 5.
-   - **B:** «En endringsordre registrert som svar rettes ikke med et nytt svar. Enhver feil
-     i den tas opp i et innlegg i KOE-saken. Et nytt svar etter en endringsordre registrert
-     som svar er et nytt standpunkt og viser ikke til brevet som en retting.» Forhold:
-     snevrer inn HF-U25 punkt 5.
-   - Anbefaling: A. Skillet mellom registreringen og brevet står alt i punkt 58, og A
-     beholder det nye svaret som vei, slik punkt 50 åpner for.
-   - Styrer: hva byggherren velger i svarskjemaet etter en endringsordre registrert som
-     svar.
+     KOE-saken, og brevet er byggherrens meddelelse. (EO-U38 punkt 50.) Vil byggherren gi
+     et annet svar på grunnlaget enn godkjenningen som er registrert, sender byggherren et
+     nytt svar innenfor grensen for nytt svar. (EO-U38 punkt 45 og 50; HF-U25 punkt 5.)
+     Gjelder feilen det standpunktet registreringen gir, for eksempel et forbehold
+     registreringen ikke fikk med, kan byggherren også sende et nytt svar. (Ny.) Svaret er
+     et nytt utsagn, ikke en retting av endringsordren, og det viser til brevet. (EO-U38
+     punkt 50; MM-U52 punkt 16; LV-U53.)» Forhold: snevrer inn HF-U25 punkt 5; presiserer
+     EO-U38 punkt 50.
+   - **B:** «En endringsordre registrert som svar rettes ikke med et nytt svar. En feil i
+     registreringen tas opp i et innlegg i KOE-saken. Et nytt svar etter en endringsordre
+     registrert som svar er et nytt standpunkt og viser ikke til brevet som en retting.»
+     Forhold: snevrer inn HF-U25 punkt 5.
+   - Anbefaling: A. Skillet mellom registreringen og brevet står i punkt 50, og A beholder
+     det nye svaret som vei, slik punkt 50 åpner for. Under B kan byggherren tro at et
+     annet standpunkt også går som innlegg, og et innlegg er ikke et svar.
+   - Styrer: hva byggherren velger etter en endringsordre registrert som svar.
 
-3. **Hvor lenge byggherren kan svare på nytt.** Bakgrunn: grensen står med tre ordlyder.
-   To av dem kan leses som at grensen går når saken knyttes til et utkast til
-   endringsordre. Den tredje knytter den til den sendte endringsordren eller den godkjente
-   registreringen, som lukkingen. Belegg: EO-U38 punkt 13 («Fram til endringsordren i
-   EO-saken …»), punkt 50 («fram til en endringsordre i en EO-sak omfatter saken»), punkt
-   9, 12 og 53, og HF-U25 punkt 7.
+3. **Hvor lenge byggherren kan svare på nytt.** Bakgrunn: grensen står med flere
+   ordlyder. To kan leses som at grensen går når saken knyttes til et utkast til
+   endringsordre. Punkt 9 og 12 knytter lukkingen til den sendte endringsordren eller den
+   godkjente registreringen. Belegg: EO-U38 punkt 13 («Fram til endringsordren i EO-saken
+   kan byggherren sende et nytt svar på grunnlaget.»), punkt 50 («fram til en endringsordre
+   i en EO-sak omfatter saken»), punkt 64, punkt 7 («KOE-tilknytningen endres bare før
+   utstedelse»), punkt 53 («gjelder de sakene som er åpne når den siste godkjenningen
+   gjøres»), HF-U25 punkt 7 og MM-U52 punkt 6.
    - **A (anbefalt):** «Byggherren kan sende et nytt svar i en KOE-sak, også etter en
-     endringsordre registrert som svar, fram til saken inngår i en endringsordre byggherren
-     har sendt i en EO-sak, eller i en godkjent registrering av en endringsordre i en
-     EO-sak. Deretter avviser løsningen et nytt svar.» Forhold: endrer EO-U38 punkt 13 og
-     50 og HF-U25 punkt 7, som viser hit.
-   - **B:** som A, men grensen går når saken er knyttet til en EO-sak, også før
-     endringsordren er sendt: «Byggherren kan sende et nytt svar i en KOE-sak, også etter
-     en endringsordre registrert som svar, til saken er knyttet til en EO-sak. Deretter
-     avviser løsningen et nytt svar.»
-   - Anbefaling: A. Tilknytningen kan endres før utstedelsen (punkt 7), og en registrering
-     som venter på godkjenning, lukker ikke (punkt 53).
-   - Styrer: når svarskjemaet stenges i KOE-saken.
+     endringsordre registrert som svar, til en sendt endringsordre eller en godkjent
+     registrering av en endringsordre i en EO-sak omfatter saken. (EO-U38 punkt 9, 12, 13
+     og 50; HF-U25 punkt 1 og 7.) Deretter gjelder punkt 12. (EO-U38 punkt 12.)» Forhold:
+     endrer EO-U38 punkt 13, 50 og 64, som ikke lenger begrenser svaret til grunnlaget;
+     presiserer MM-U52 punkt 6; HF-U25 punkt 7 viser hit.
+   - **B:** «Byggherren kan sende et nytt svar i en KOE-sak, også etter en endringsordre
+     registrert som svar, til saken er knyttet til en EO-sak. Deretter avviser løsningen et
+     nytt svar.» Forhold: endrer EO-U38 punkt 13, 50 og 64.
+   - Anbefaling: A. Under B kan TE sende en ny kravversjon mens saken er knyttet til et
+     utkast, uten at byggherren kan svare, og et utkast som aldri sendes, blir en sperre.
+   - Styrer: når byggherren ikke lenger kan svare i KOE-saken.
 
-4. **Forholdene til de samlede postene (føring).** Bakgrunn: samlevedtaket skal si om
-   forholdene til postene det samler, gjelder samlevedtaket eller ikke har noe å virke på.
-   Versjon 2 sier bare at de står. Belegg: OV-U92, siste setning, og (a) og (b); E9.
+4. **Forholdene til postene samlevedtaket samler (føring).** Bakgrunn: samlevedtaket skal
+   si om (a) eller (b) gjelder for forholdene til postene det samler. Versjon 2 sier bare at
+   de står. Belegg: OV-U92, siste setning («hvert av dem sier i «Endret innhold» om (a)
+   eller (b) gjelder for forholdene til postene det samler»), og (b) («Sier samlevedtaket
+   at forholdet eller setningen ikke gjelder, eller ikke har noe å virke på, fjernes
+   forholdet»).
    - **A (anbefalt):** «Forholdene ‹EO-U36 presiserer EO-U16›, ‹EO-U37 snevrer inn EO-U16›
-     og ‹EO-U35 snevrer inn MM-U21› har ikke noe å virke på. EO-U16 og MM-U21 er opphevet,
-     og innholdet står i punkt 50 og 56–57 og designdelen her og i MM-U52 punkt 16.
-     Forholdene til EO-U12, EO-U32, EO-U33, OV-U6, GR-U27 og LV-U47 står, fordi postene de
-     gjelder, ikke er opphevet.»
-   - **B:** forholdene til EO-U16 gjelder samlevedtaket etter OV-U92 (a), og forholdet til
-     MM-U21 fjernes etter (b).
-   - Anbefaling: A. Etter (a) ville EO-U36 og EO-U37 presisere og snevre inn samlevedtaket
-     som samler dem.
+     og ‹EO-U35 snevrer inn MM-U21› har ikke noe å virke på: EO-U16 er opphevet av EO-U34
+     og EO-U38, og MM-U21 av MM-U52. (OV-U92 (b).) Verken (a) eller (b) gjelder for
+     forholdene til EO-U12, EO-U32, EO-U33, OV-U6, GR-U27 og LV-U47, og de står. EO-U12,
+     EO-U32, EO-U33 og OV-U6 er samlet her, og GR-U27 og LV-U47 gjelder. (OV-U92; E9.)»
+   - **B:** forholdene til EO-U16 står og leses som forhold til samlevedtaket, og forholdet
+     til MM-U21 fjernes.
+   - Anbefaling: A. Under B presiserer EO-U36 og snevrer EO-U37 inn det samlevedtaket som
+     samler dem.
    - Styrer: Følge i registeret, ikke hva partene gjør.
 
 5. **Føringsformen (teknisk).** Versjon 3 endrer innhold i EO-U38 og HF-U25. Etter svar 4
    A i #1534 opphever en ny post dem i stedet for å endre dem.
    - **A (anbefalt):** to nye poster, én som opphever EO-U38 og én som opphever HF-U25,
-     hver med sin tekst og endringene over. Temaene står da hver for seg, som før.
-   - **B:** én ny post, versjon 3, som opphever EO-U38 og HF-U25 og har teksten til
-     begge.
-   - Styrer: føringen i #1626 eller en senere vedtaks-PR.
+     hver med sin tekst og endringene over.
+   - **B:** én ny post som opphever begge og har teksten til begge.
+   - Styrer: føringen i en senere vedtaks-PR.
 
 ## Svarene
 
