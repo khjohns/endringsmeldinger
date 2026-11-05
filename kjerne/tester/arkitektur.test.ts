@@ -222,7 +222,7 @@ type Klasse =
   | 'utsagn'
   /** Identiteten og relasjonene mellom utsagnene: `id`, `gjelder`, `erstatter`, spor og avsender. */
   | 'relasjon'
-  /** Beslutningsgrunnlaget slik brevet ble sendt (MM-U9, MM-U11). */
+  /** Beslutningsgrunnlaget slik brevet ble sendt (MM-U9, MM-U11 (opphevet av MM-U50)). */
   | 'frosset'
   /** Utledet av utsagnene og relasjonene, med vedtaket ved siden av (`utledning/utled.ts`, 2.6). */
   | 'predikat'
@@ -230,7 +230,7 @@ type Klasse =
   | 'regelsett'
   /**
    * Byggherrens frosne svar etter B-13, i serverens utregning: «godkjent eller
-   * avslått, beløp eller dager» (MM-U11). Leses bare av `godkjennerHeleKravet`,
+   * avslått, beløp eller dager» (MM-U11 (opphevet av MM-U50)). Leses bare av `godkjennerHeleKravet`,
    * når brevet fryses, og ikke av `utfall()` eller annet som kalles ved lesing.
    */
   | 'frosset svar'
@@ -317,7 +317,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Utledning.begrensninger', 'predikat', 'grunn hendelse', ['kommandoer/skriving.ts:skriv']],
   // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): vilkåret for
-  // enigheten (GR-U7) og at kravene er avgjort (KA-U11, som EO-U5 bygger på).
+  // enigheten (GR-U7) og at kravene er avgjort (KA-U11, som EO-U5 (opphevet av MM-U34) bygger på).
   [
     'Utledning',
     'predikat',
@@ -972,7 +972,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
-  // #474: datoene i KA-U36 og VS-U26 sammenliknes som kalenderdager.
+  // #474: datoene i KA-U36 (opphevet av KA-U46) og VS-U26 sammenliknes som kalenderdager.
   [
     'format/leser.ts',
     'relasjon',
@@ -998,7 +998,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
   // Utdypningen kopieres til teksten. Kontrollene leser bare om den finnes (A6 i
-  // paragrafmatrisen, KA-U31–KA-U34, GR-U15).
+  // paragrafmatrisen, KA-U31–KA-U34 (opphevet av KA-U46), GR-U15).
   [
     'Svarutkast',
     'kommando',

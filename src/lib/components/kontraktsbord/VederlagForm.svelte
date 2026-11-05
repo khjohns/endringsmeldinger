@@ -502,7 +502,7 @@
     if (akseptererMetode === false && !oensketMetode) return false;
     if (kravlinjer.some((l) => !erKravlinjeGyldig(l.vurdering, l.godkjentBelop))) return false;
     if (!erBegrensetBelopGyldig(formState, domainConfig)) return false;
-    // I TS-saken avgjør kjernen når svaret må ha en begrunnelse (KA-U24, KA-U41).
+    // I TS-saken avgjør kjernen når svaret må ha en begrunnelse (KA-U24 (opphevet av KA-U46), KA-U41).
     if (!store.erKjernesak && isHtmlEmpty(begrunnelseHtml)) return false;
     return true;
   });

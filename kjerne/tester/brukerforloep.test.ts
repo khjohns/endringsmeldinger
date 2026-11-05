@@ -219,7 +219,7 @@ describe('vakttestene for brukerforløpene', () => {
     );
   });
 
-  // Kilde: #1330, punkt 4. OV-U52 er ikke bygget (#1308, #1309), og handlingen og
+  // Kilde: #1330, punkt 4. OV-U52 (opphevet av MM-U41) er ikke bygget (#1308, #1309), og handlingen og
   // brevteksten etter OV-U54 er ikke kontrollert som bygget (#276).
   it('korrigeringen (4A) og den avviste rettingen (4C) er planlagt', () => {
     const status = Object.fromEntries(BRUKERFORLOEP.map((b) => [b.id, b.status]));

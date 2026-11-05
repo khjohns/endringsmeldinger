@@ -154,7 +154,7 @@
     showWithdrawModal = false;
     void trekk.send();
   }
-  // Aksepten og innsigelsen har ingen fritekst (KA-U10, VS-U1). En avvisning står i hodet.
+  // Aksepten og innsigelsen har ingen fritekst (KA-U10 (opphevet av MM-U50), VS-U1). En avvisning står i hodet.
   let innsigelseApen = $state(false);
   const innsigelsesvalg = $derived.by(() => {
     if (!kjernesak) return [];

@@ -190,7 +190,7 @@
   const kjernedata = (): Fristskjemadata => ({
     varsel_type: registrerer ? 'varsel' : varselType,
     antall_dager: varselType === 'spesifisert' ? antallDager : undefined,
-    // Varselet fra appen og det registrerte varselet har ingen fritekst (VS-U15, MM-U17).
+    // Varselet fra appen og det registrerte varselet har ingen fritekst (VS-U15, MM-U17 (opphevet av MM-U50)).
     begrunnelse: varselType === 'spesifisert' ? begrunnelse : '',
     ...(registrerer
       ? { registrert: { ...varselet, korrespondansetype } }

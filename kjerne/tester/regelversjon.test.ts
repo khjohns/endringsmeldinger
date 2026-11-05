@@ -1,6 +1,6 @@
 /**
  * Serveren godtar bare en kommando regnet ut med serverens regelversjon, verken en
- * lavere eller en høyere (B-13, KA-U10; #386). Klienten regner med gjeldende regler,
+ * lavere eller en høyere (B-13, KA-U10 (opphevet av MM-U50); #386). Klienten regner med gjeldende regler,
  * og serveren får en regelversjon én under, lik og én over.
  */
 
@@ -32,7 +32,7 @@ async function utfall(steg: (Handling | string)[], h: Handling, forskjell: numbe
   return u.godtatt ? 'godtatt' : u.avvisning.regel;
 }
 
-describe('regelversjonen i kommandoen må være serverens (B-13, KA-U10)', () => {
+describe('regelversjonen i kommandoen må være serverens (B-13, KA-U10 (opphevet av MM-U50))', () => {
   it.each(SERVEREN)('et svar, med serverens regelversjon %s', async (_, forskjell, forventet) => {
     expect(await utfall(['krav_irreg'], brev, forskjell)).toBe(forventet);
   });

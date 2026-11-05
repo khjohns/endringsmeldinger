@@ -6,7 +6,7 @@
  * formatet og avvises (#1171). TEs begrunnelse er utdypningen under kravet og er valgfri
  * (oppdragsgiver 17.10, #667). Varselet etter § 34.1.2 og det særskilte varselet etter
  * § 34.1.3 sendes fra appen uten beløp og uten fritekst, eller registreres med datoen og
- * brevet som vedlegg når det er sendt utenfor appen (OV-U5, OV-U25, MM-U17).
+ * brevet som vedlegg når det er sendt utenfor appen (OV-U5, OV-U25, MM-U17 (opphevet av MM-U50)).
  */
 
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
@@ -97,7 +97,7 @@ export type Vederlagskommando =
 /**
  * Kommandoen fra dataene `TeVederlagForm` bygger (#718, #1096). Begrunnelsen er HTML fra
  * editoren og blir utdypningen som ren tekst. Varselet fra appen og det registrerte
- * varselet har ingen fritekst (OV-U5, MM-U17). Rigg og drift og vedlegg kan ikke sendes
+ * varselet har ingen fritekst (OV-U5, MM-U17 (opphevet av MM-U50)). Rigg og drift og vedlegg kan ikke sendes
  * ennå (#1171, #828), så de avvises her og sendes ikke.
  */
 export function vederlagskommandoFraSkjema(

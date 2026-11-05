@@ -443,7 +443,7 @@ export function radFor(
   let data: Record<string, unknown>;
   let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : navn.nyId();
   if (typeof h.avklarer === 'string') {
-    // MM-U12: en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
+    // MM-U12 (opphevet av MM-U50): en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
     // Leseren avviser den i første versjon (OV-U13).
     eventId = navn.ta(h.navn);
     data = {

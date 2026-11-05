@@ -6,9 +6,9 @@
  * Det er én beregning per svar, som alle leser:
  * - brevet slik det ble sendt: virkningene i beslutningsgrunnlaget (MM-U9);
  * - en eventuell enighet: en aksept av svaret, eller sammenfall i brevet. Innholdet
- *   er brevets (KA-U10, MM-U3);
+ *   er brevets (KA-U10 og MM-U3, opphevet av MM-U50);
  * - predikatene av relasjonene: hva svaret `gjelder`, hva det `erstatter`, om
- *   en rettidighetsvurdering gjelder det registrerte varselet (MM-U8), og om
+ *   en rettidighetsvurdering gjelder det registrerte varselet (MM-U8 (opphevet av MM-U50)), og om
  *   vilkåret for enigheten er oppfylt (GR-U7).
  *
  * Regelsettet brukes ikke til å vurdere et sendt brev på nytt. Relasjonene
@@ -234,7 +234,7 @@ export interface Utledning {
    * MM-U43 punkt 9: elementer i et registrert brev
    * som strider mot en enighet eller mot at saken er lukket. Brevet bevares og
    * vises, elementet har ingen virkning på utfallet, og ingenting sperres. Det er
-   * appens vurdering, atskilt fra det parten sa (HF-U2, MM-U12).
+   * appens vurdering, atskilt fra det parten sa (HF-U2, MM-U12 (opphevet av MM-U50)).
    */
   utenVirkning: { element: string; hendelse: string; grunn: string }[];
   spor: Record<Spor, Sporutledning>;
@@ -487,7 +487,8 @@ function svaretStrider(
   const l = lukket(u);
   if (l) return `et svar etter at ${l}`;
   if (utenVirkning(s.erstatter)) return 'svaret viser til et element uten virkning';
-  if (u.spor[s.spor].trukket) return 'et svar på et krav etter at det er trukket (MM-U20, GR-U5)';
+  if (u.spor[s.spor].trukket)
+    return 'et svar på et krav etter at det er trukket (MM-U20 (opphevet av MM-U43), GR-U5)';
   return null;
 }
 
@@ -508,7 +509,7 @@ function utsagnetStrider(
   if (l) return `${x.art} etter at ${l}`;
   if (utenVirkning(gjelder)) return `${x.art} viser til et element uten virkning`;
   if (sporet && u.spor[sporet].trukket)
-    return 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)';
+    return 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20 (opphevet av MM-U43), GR-U5)';
   if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && u.frafalt)
     return 'en aksept av et frafall (GR-U9)';
   if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)
@@ -519,7 +520,7 @@ function utsagnetStrider(
 /**
  * Lagene svaret på forholdet opptok foran sporet da brevet med `svar` ble sendt, som
  * frysingen regnet dem: svaret på forholdet i samme dokument, ellers svaret på
- * påberopelsesversjonen `svar` ble regnet mot som gjaldt før dokumentet (OV-U32, MM-U11,
+ * påberopelsesversjonen `svar` ble regnet mot som gjaldt før dokumentet (OV-U32, MM-U11 (opphevet av MM-U50),
  * svaret i #1199). Et svar på påberopelsen revidert etter brevet endrer ikke det brevet sa.
  * 0 for forholdet selv.
  */
@@ -806,7 +807,10 @@ function kontrollerSvarene(
       ugyldig(s.id, 'svaret viser ikke til en grunnlagsversjon før det');
     // MM-U43 punkt 8: sammenfallet er appens vurdering av samme brev og må stemme med standpunktene.
     if (!sammenfallStemmer(s))
-      ugyldig(s.id, 'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18)');
+      ugyldig(
+        s.id,
+        'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18 (opphevet av MM-U43))'
+      );
     for (const p of s.standpunkter)
       kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, ugyldig);
   }
@@ -1345,7 +1349,7 @@ function forholdet(
 export const trekkAvPaaberopelsenErSperret = (u: Utledning): boolean => u.endringsordre === 'ja';
 
 /**
- * Om enigheten i sporet har virkning (GR-U7, MM-U3): `betinget` til vilkåret
+ * Om enigheten i sporet har virkning (GR-U7, MM-U3 (opphevet av MM-U50)): `betinget` til vilkåret
  * er oppfylt, `virksom` når det er det, og `uten_virkning` når forholdet er
  * avvist ved enighet eller kravet er trukket (KA-U6). `null` uten enighet.
  */
@@ -1383,7 +1387,7 @@ export function kraveneErAvgjort(u: Utledning): boolean {
  * etter GR-U27, fordi TE har godtatt et svar som avslår forholdet eller påberoper
  * preklusjon, eller har trukket forholdet.
  * Et frafall etter § 32.3 c hindrer ikke (GR-U28). At saken alt er omfattet av en
- * endringsordre (EO-U3), leses der EO-saken bygges (#1378).
+ * endringsordre (EO-U3 (opphevet av EO-U34)), leses der EO-saken bygges (#1378).
  */
 export function kanInngaaIEo(u: Utledning): boolean {
   return u.spor.forhold.gjeldendeKrav !== null && !u.forholdAvvist && !u.spor.forhold.trukket;

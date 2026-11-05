@@ -494,7 +494,7 @@ export function blirEndringsordre(b: Beslutningsgrunnlag): boolean {
   return b.sammenfall && b.varslingsplikt === true;
 }
 
-/** Enigheten om svaret slik brevet uttrykte det (KA-U10, MM-U3, MM-U9, MM-U11). */
+/** Enigheten om svaret slik brevet uttrykte det (MM-U9; KA-U10, MM-U3 og MM-U11, opphevet av MM-U50). */
 export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): Enighetsgrunnlag {
   const { regelversjon, virkninger } = svar.beslutningsgrunnlag;
   return {
@@ -661,7 +661,7 @@ export const lagFraForholdet = (g: Svarinnhold | undefined, v: Standpunktsvirkni
   g ? grunnerFraForholdet(g, v).length : 0;
 
 /**
- * Brevet frosset når det sendes (MM-U9, MM-U11). For forholdet fryses også om
+ * Brevet frosset når det sendes (MM-U9, MM-U11 (opphevet av MM-U50)). For forholdet fryses også om
  * § 32.2 gjaldt kategorien i kravversjonen (GR-U12). `forskyvning` er `lagFraForholdet`
  * for svaret på forholdet brevteksten setter foran sporet, og 0 for forholdet selv.
  */

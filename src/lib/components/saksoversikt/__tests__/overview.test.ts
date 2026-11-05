@@ -50,9 +50,12 @@ describe('utvalgene i prosjektoversikten leser det som foreligger, ikke en statu
     ['svar_ikke_godtatt', [svart]],
     ['med_saksbetegnelse', [avgjort]],
     ['ikke_forstaatt', [ukjent]],
-  ] as [Saksutvalg, unknown[]][])('%s (MM-U22, MM-U29)', (utvalg, forventet) => {
-    expect(saker.filter((l) => iUtvalg(l, utvalg))).toEqual(forventet);
-  });
+  ] as [Saksutvalg, unknown[]][])(
+    '%s (MM-U22, MM-U29 (opphevet av MM-U40))',
+    (utvalg, forventet) => {
+      expect(saker.filter((l) => iUtvalg(l, utvalg))).toEqual(forventet);
+    }
+  );
 
   it('en sak som ikke er forstått, er ikke «med saksbetegnelse» selv om den har en', () => {
     expect(iUtvalg(ukjent, 'med_saksbetegnelse')).toBe(false);

@@ -203,7 +203,7 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  it('et delvis godkjent svar uten begrunnelse vises ikke i brevkontrollen, og meldingen sier hva som hindrer (#1254, KA-U24, KA-U31)', async () => {
+  it('et delvis godkjent svar uten begrunnelse vises ikke i brevkontrollen, og meldingen sier hva som hindrer (#1254, KA-U24 (opphevet av KA-U46), KA-U31)', async () => {
     const send = vi.fn();
     const kjernesak = lagKjernesak({
       sakId: SAK,

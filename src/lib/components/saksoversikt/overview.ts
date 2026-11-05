@@ -1,6 +1,6 @@
 /**
  * Utvalgene i prosjektoversikten (#1023). De er grupper i visningen med en skrevet
- * betydning, ikke en status: de leser det som foreligger per spor (MM-U29) og
+ * betydning, ikke en status: de leser det som foreligger per spor (MM-U29 (opphevet av MM-U40)) og
  * saksbetegnelsen (MM-U22) i linja fra serveren.
  */
 import type { Sakslinje } from '$lib/types/api';

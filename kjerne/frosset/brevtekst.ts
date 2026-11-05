@@ -5,11 +5,11 @@
  * for seg (B-13 om begrunnelsestekst). Ordlyden er LV-U4, GR-U14 og GR-U16, og
  * hva teksten omfatter, A2–A5 i paragrafmatrisen. Teksten lages når brevet
  * skrives, fryses i dokumentet og lages ikke på nytt (MM-U9). Ingen regel leser
- * den. Et registrert brev får ingen tekst (MM-U17).
+ * den. Et registrert brev får ingen tekst (MM-U17 (opphevet av MM-U50)).
  *
  * Teksten sier det parten sa, også et standpunkt appen regner som uten virkning.
  * Appens vurdering står ikke der: at et standpunkt er uten virkning, om § 32.2
- * gjaldt, eller sammenfallet (LV-U3, HF-U2, MM-U12). «Prinsipalt» og
+ * gjaldt, eller sammenfallet (LV-U3, HF-U2, MM-U12 (opphevet av MM-U50)). «Prinsipalt» og
  * «subsidiært» er slik brevet ordner standpunktene (HF-U2). Appen tolker ikke
  * utdypningen (KA-U16, KA-U19).
  */
@@ -286,7 +286,7 @@ export function lagBrevtekst(
   utdypninger: ReadonlyMap<string, string> = new Map()
 ): Avsnitt[] {
   if (erRegistrert(nytt.opplysninger))
-    throw new KanIkkeUttrykkes('et registrert brev står som det ble sendt (MM-U17)'); // MM-U17 er opphevet av MM-U50, som har regelen.
+    throw new KanIkkeUttrykkes('et registrert brev står som det ble sendt (MM-U50)');
   const j = new Journalen(foer, nytt);
   const t: Tekst = {
     j,
@@ -713,7 +713,7 @@ function standpunkttekst(
  * GR-U14, GR-U15: setningen etter § 31.3 i en godkjenning som er en endringsordre.
  * TEs beskrivelse av pålegget står som utdypningen under kravet i brevet kravet står
  * i, og siteres; appen tolker den ikke (KA-U19). Et registrert krav står som det ble
- * sendt (MM-U17), og godkjenningen viser til pålegget i det (GR-U13). Et krav fra
+ * sendt (MM-U17 (opphevet av MM-U50)), og godkjenningen viser til pålegget i det (GR-U13). Et krav fra
  * appen uten beskrivelse kan ikke si hva endringen går ut på, og svaret avvises.
  */
 function endringsordretekst(krav: Krav, j: Journalen): string {
@@ -808,7 +808,7 @@ function varselhjemmel(id: string, j: Journalen): Varselhjemmel {
   throw new KanIkkeUttrykkes(`${id} er ikke et varsel`);
 }
 
-/** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22, KA-U25 og KA-U34 ordrett. */
+/** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22, KA-U25 og KA-U34 (opphevet av KA-U46) ordrett. */
 function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
   const part = PART[nytt.avsender];
   switch (u.art) {
