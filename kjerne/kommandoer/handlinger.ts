@@ -30,6 +30,9 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
     if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
     if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });
   }
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): korrigeringen viser til TEs
+  // siste opplysning om datoen.
+  for (const o of u.datoopplysninger) ut.push({ type: 'korrigere', gjelder: o.id });
   return ut;
 }
 

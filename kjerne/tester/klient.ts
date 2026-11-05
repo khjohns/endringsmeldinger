@@ -114,6 +114,7 @@ export const PART: Record<string, Part> = {
   varsel: 'TE',
   ingen_krav: 'TE',
   passivitet: 'TE',
+  korrigering: 'TE',
   brev: 'BH',
   revisjon: 'BH',
 };
@@ -312,6 +313,23 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       };
     case 'ikke_i_saken':
       return { type: 'ikke_i_saken', retter: navn.id(h.retter as string) };
+    case 'korrigering': {
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): datoen i feltet kategorien
+      // har, uten `gjelder` til TEs siste opplysning. `felt` prøver et annet felt.
+      const krav = u.spor.forhold.gjeldendeKrav;
+      const felt =
+        (h.felt as string | undefined) ??
+        (krav ? oppgittDato(krav.innhold.hovedkategori, krav.innhold.underkategori) : null) ??
+        'paalegg_mottatt';
+      return {
+        type: 'korrigering',
+        gjelder:
+          typeof h.gjelder === 'string'
+            ? navn.id(h.gjelder)
+            : (u.datoopplysninger.at(-1)?.id ?? 'ingen'),
+        [felt]: h.dato as string,
+      };
+    }
     default:
       throw new Error(`Handlingen ${h.handling} er ikke en kommando`);
   }

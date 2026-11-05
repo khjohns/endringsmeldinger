@@ -26,6 +26,7 @@ import {
   registrertDato,
   sammeSlag,
 } from '../format/leser.ts';
+import { oppgittDato } from '../format/format.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
@@ -57,6 +58,7 @@ import {
   type Kravspor,
   type LestOpplysning,
   type LestUtsagn,
+  type OppgittDatofelt,
   type Opplysningsslag,
   type Part,
   type Spor,
@@ -80,6 +82,27 @@ export interface Svarberegning {
    * Svaret står med sin virkning (OV-U5), og bare visningen leser dette.
    */
   gjaldtEtAnnetVarsel: string[];
+  /**
+   * Designdelen i samlevedtaket for retting av sendt brev (MM-U41): TEs opplysning om datoen
+   * etter VS-U26 som var TEs siste da svaret på grunnlaget ble gitt (`Datoopplysning.id`).
+   * `null` i de andre sporene og når TE ikke hadde oppgitt datoen.
+   */
+  datoopplysning: string | null;
+}
+
+/**
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): én opplysning fra TE om datoen
+ * etter VS-U26, i grunnlagskravet eller i en korrigering. En ny kravversjon som gjengir TEs
+ * siste opplysning, er ikke en ny opplysning.
+ */
+export interface Datoopplysning {
+  /** Kravet eller korrigeringen med opplysningen. */
+  id: string;
+  /** Dokumentet opplysningen står i. */
+  dokument: string;
+  felt: OppgittDatofelt;
+  dato: string;
+  korrigering: boolean;
 }
 
 export interface Enighet {
@@ -201,6 +224,13 @@ export interface Utledning {
   /** VS-U12: TEs påberopelse av byggherrens passivitet etter § 32.3 annet ledd. */
   passivitet: Paaberopelse[];
   /**
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TEs opplysninger om datoen
+   * etter VS-U26, i rekkefølgen i journalen. Den siste med et felt er TEs siste opplysning om
+   * den datoen, og de andre er de tidligere (designdelen). Løsningen avgjør ikke hvilken som er
+   * riktig (punkt 11).
+   */
+  datoopplysninger: Datoopplysning[];
+  /**
    * MM-U43 punkt 9: elementer i et registrert brev
    * som strider mot en enighet eller mot at saken er lukket. Brevet bevares og
    * vises, elementet har ingen virkning på utfallet, og ingenting sperres. Det er
@@ -276,6 +306,7 @@ function tom(
     innsigelser: [],
     protester: [],
     passivitet: [],
+    datoopplysninger: [],
     utenVirkning: [],
     spor: tommeSpor(),
     forholdAvklart: false,
@@ -576,6 +607,7 @@ function utledSporene(
   const varsler: LestVarsel[] = [];
   const henvisninger: Henvisning[] = [];
   const foresporsler: Utsagn<'foresporsel'>[] = [];
+  const korrigeringer: Utsagn<'korrigering'>[] = [];
   const opplysninger: LestOpplysning[] = [];
   /** Hvert krav i saken, også de uten virkning (MM-U43 punkt 9). */
   const kravMedUten = new Map<string, Krav>();
@@ -604,6 +636,8 @@ function utledSporene(
         return varsler.push(u);
       case 'foresporsel':
         return foresporsler.push(u);
+      case 'korrigering':
+        return korrigeringer.push(u);
       default:
         return henvisninger.push(u);
     }
@@ -695,12 +729,15 @@ function utledSporene(
   kontrollerBestridelsene(bestridelser, alleOpplysninger, avsenderAv, bakover, ugyldig);
   kontrollerIngenKrav(ingenKrav, spor, bakover, ugyldig);
   kontrollerVarslene(varsler, ugyldig);
+  kontrollerKorrigeringene(korrigeringer, kravMedUten, elementer, bakover, ugyldig);
 
   begrensninger.push(...registreringer(journal).feil);
   if (begrensninger.length) return tom(journal, regler, begrensninger);
 
   fyllSporene(spor, varsler, besvart, trekk, ingenKrav, alleKrav);
+  const datoopplysninger = opplysningerOmDatoen(journal, spor.forhold.krav, korrigeringer);
   const svar = svarberegninger(alleSvar, spor);
+  settDatoopplysningene(svar, datoopplysninger, (id) => plass.get(id)!.versjon);
   settEnighetene(spor, aksepter, (id) => plass.get(id)!.hendelse);
   settSubsidiaer(spor, svar);
   return {
@@ -711,6 +748,7 @@ function utledSporene(
     innsigelser: paaberopelser(henvisninger, elementer, 'innsigelse'),
     protester: paaberopelser(henvisninger, elementer, 'protest'),
     passivitet: paaberopelser(henvisninger, elementer, 'passivitet'),
+    datoopplysninger,
     utenVirkning: [...uten].map(([element, x]) => ({ element, ...x })),
     opplysninger: opplysninger.map((o) => ({
       opplysning: o,
@@ -952,6 +990,69 @@ function kanGjelde(
   }
 }
 
+/**
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): en korrigering viser bakover
+ * til grunnlagskravet eller en tidligere korrigering, som har opplysningen den endrer.
+ */
+function kontrollerKorrigeringene(
+  korrigeringer: readonly Utsagn<'korrigering'>[],
+  kravMedUten: Map<string, Krav>,
+  elementer: Record<string, Element>,
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
+  for (const x of korrigeringer) {
+    const maal = elementer[x.gjelder];
+    const kanGjelde = kravMedUten.get(x.gjelder)?.spor === 'forhold' || maal?.art === 'korrigering';
+    if (!maal || !kanGjelde || !bakover(x.id, x.gjelder))
+      ugyldig(x.id, 'korrigeringen viser ikke til et grunnlagskrav eller en korrigering før den');
+  }
+}
+
+/**
+ * TEs opplysninger om datoen etter VS-U26 (`Datoopplysning`), i rekkefølgen i journalen: hver
+ * versjon av grunnlagskravet som oppgir en annen dato enn TEs siste opplysning om samme dato, og
+ * hver korrigering (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41).
+ */
+function opplysningerOmDatoen(
+  journal: readonly Domenehendelse[],
+  forholdskrav: readonly Krav[],
+  korrigeringer: readonly Utsagn<'korrigering'>[]
+): Datoopplysning[] {
+  const krav = new Set(forholdskrav.map((k) => k.id));
+  const korr = new Set(korrigeringer.map((k) => k.id));
+  const ut: Datoopplysning[] = [];
+  const sisteOm = (felt: OppgittDatofelt) => ut.filter((o) => o.felt === felt).at(-1);
+  for (const h of journal) {
+    if (h.art !== 'dokument') continue;
+    for (const k of h.dokument.krav) {
+      if (!krav.has(k.id)) continue;
+      const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
+      const dato = felt === null ? undefined : k.innhold[felt];
+      if (felt === null || typeof dato !== 'string' || sisteOm(felt)?.dato === dato) continue;
+      ut.push({ id: k.id, dokument: h.dokument.id, felt, dato, korrigering: false });
+    }
+    for (const u of h.dokument.utsagn)
+      if (u.art === 'korrigering' && korr.has(u.id))
+        ut.push({
+          id: u.id,
+          dokument: h.dokument.id,
+          felt: u.felt,
+          dato: u.dato,
+          korrigering: true,
+        });
+  }
+  return ut;
+}
+
+/**
+ * TEs siste opplysning om datoen i feltet (punkt 10 i samlevedtaket for retting av sendt brev,
+ * MM-U41), eller `null` når TE ikke har oppgitt den.
+ */
+export function sisteDatoopplysning(u: Utledning, felt: OppgittDatofelt): Datoopplysning | null {
+  return u.datoopplysninger.filter((o) => o.felt === felt).at(-1) ?? null;
+}
+
 /** VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen. */
 function kontrollerForesporslene(
   foresporsler: readonly Utsagn<'foresporsel'>[],
@@ -1096,9 +1197,25 @@ function svarberegninger(
       svar: s,
       virkninger: s.beslutningsgrunnlag.virkninger,
       gjaldtEtAnnetVarsel: s.standpunkter.filter(annetVarsel).map((p) => p.id),
+      datoopplysning: null,
     };
   }
   return svar;
+}
+
+/**
+ * Designdelen i samlevedtaket for retting av sendt brev (MM-U41): opplysningen om datoen som var
+ * TEs siste da svaret på grunnlaget ble gitt.
+ */
+function settDatoopplysningene(
+  svar: Record<string, Svarberegning>,
+  datoopplysninger: readonly Datoopplysning[],
+  versjonen: (id: string) => number
+): void {
+  for (const b of Object.values(svar))
+    if (b.svar.spor === 'forhold')
+      b.datoopplysning =
+        datoopplysninger.filter((o) => versjonen(o.id) < versjonen(b.svar.id)).at(-1)?.id ?? null;
 }
 
 /** Enigheten i hvert spor: en aksept av gjeldende svar, eller sammenfall i svaret. */

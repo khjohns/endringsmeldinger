@@ -21,6 +21,7 @@ import {
   KRAVSPOR,
   SPOR,
   type Hjemmel,
+  type OppgittDatofelt,
   type Opplysningsslag,
   type Spor,
   type Standpunkt,
@@ -105,7 +106,7 @@ export const OPPGITT_DATO = {
   endring: 'paalegg_mottatt',
   svikt: 'klar_over_forholdet',
   andre_forhold: 'klar_over_forholdet',
-} as const satisfies Partial<Record<Hovedkategori, string>>;
+} as const satisfies Partial<Record<Hovedkategori, OppgittDatofelt>>;
 
 export type OppgittDato = (typeof OPPGITT_DATO)[keyof typeof OPPGITT_DATO];
 
@@ -390,6 +391,21 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
   protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
   passivitet: objekt({ ...artfelt('passivitet'), gjelder: ID }, ['id', 'art', 'gjelder']),
   begrunnelse: objekt({ ...artfelt('begrunnelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): datoen står i samme felt som
+  // i kravet, og korrigeringen har nøyaktig én av dem.
+  korrigering: objekt(
+    {
+      ...artfelt('korrigering'),
+      gjelder: ID,
+      paalegg_mottatt: DATO,
+      klar_over_forholdet: DATO,
+    },
+    ['id', 'art', 'gjelder'],
+    [
+      { required: ['paalegg_mottatt'], properties: { klar_over_forholdet: { enum: [] } } },
+      { required: ['klar_over_forholdet'], properties: { paalegg_mottatt: { enum: [] } } },
+    ]
+  ),
 };
 
 export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];

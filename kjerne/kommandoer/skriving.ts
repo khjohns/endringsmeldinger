@@ -7,7 +7,7 @@
  */
 
 import { avvisning } from './avvisning.ts';
-import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
+import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
@@ -303,6 +303,11 @@ function dokument(
         };
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
       return { utsagn };
+    }
+    case 'korrigering': {
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): datoen i feltet kravet har.
+      const { felt, dato } = korrigertDato(k);
+      return { utsagn: [{ id: nyId(), art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
     }
     case 'bestridelse':
     case 'merking':

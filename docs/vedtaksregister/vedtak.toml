@@ -7318,7 +7318,7 @@ tekst = "En ny grunnlagsversjon kan ikke endre datoen."
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["mm-u41"]
+bindende_i = ["mm-u52"]
 id = "VS-U44"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -11193,6 +11193,444 @@ endringsordren kan TE sende en ny kravversjon … også i et spor med registrert
 avgjør ikke om enigheten står (MM-U12).» «Står» i MM-U8 ville sagt det motsatte av det løsningen lar
 partene gjøre. Punkt 23 sier at opplysningen ikke endrer enigheten, og at løsningen ikke avgjør om
 den står. Det endrer ordlyden i MM-U8 etter MM-U34 punkt 9, ingen ny regel.
+
+##### <a id="samlevedtak-retting-2"></a>Samlevedtaket for retting av sendt brev, versjon 2 (MM-U52)
+
+Teksten under er samlevedtaket [MM-U52](#mm-u52), vedtatt 05.11 av oppdragsgiver (#1309, #1534), ordrett slik
+det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-retting-av-sendt-brev-2026-11-05.md),
+med «Endret innhold» E1–E8, uten punkt 25 og det som bare gjaldt punkt 25 (svar 3 C). Punkt 25 føres i et
+nytt samlevedtak for endringsordren. Samlevedtaket opphever [MM-U41](#mm-u41) og [MM-U42](#mm-u42), og
+henvisningene til dem gjelder samlevedtaket. Det samler [MM-U51](#mm-u51) og [LV-U54](#lv-u54) (svar 2 A).
+Kildene står i parentes etter hver setning. «05.11 1 C», «05.11 3.1 A» og så videre er svarene 05.11 på
+spørsmålene før bygging av #1309, versjon 5 ([6657601681](https://github.com/khjohns/endringsmeldinger/issues/1309#issuecomment-6657601681)),
+med spørsmålsnummeret.
+
+###### Forslaget
+
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Punkt 1–17 er versjon 1 (MM-U41)
+med E1–E6 og E8. Punkt 18–24 er nye. Nummereringen i versjon 1 står, så «punkt 8» og «punkt 10» i
+andre vedtak og i brukerforløpene gjelder det samme.
+
+###### A. Hva en retting er
+
+1. En retting er et nytt utsagn fra avsenderen, med henvisning til brevet den retter, og brevet
+   står uendret. (MM-U41 punkt 1)
+2. En retting sendes av avsenderens side som et nytt brev fra løsningen. Det første brevet og
+   dokumentet i Catenda står. (MM-U41 punkt 2)
+3. Løsningen avgjør ikke om avsenderen er løst (MM-U50 punkt 8). (MM-U41 punkt 3; E6)
+
+###### B. Virkningen etter hvem rettingen er til fordel for
+
+4. En retting i motpartens favør gjelder som en revisjon i motpartens favør. (MM-U41 punkt 4)
+5. En retting til avsenderens fordel er et tilbud om å endre det brevet sa, og den gjelder når
+   motparten godtar den. Punkt 5 gjelder ikke for et standpunkt i et krav eller et svar; der
+   gjelder punkt 6. (MM-U41 punkt 5 med svaret 2 A, MM-U42)
+6. En retting av et standpunkt i et krav eller et svar sendes som en ny kravversjon eller et nytt
+   svar, også når den er til avsenderens fordel, og med henvisning til brevet den retter. Et
+   nytt svar erstatter det tidligere som byggherrens siste svar i løsningen, uten
+   totalentreprenørens aksept, og en ny kravversjon venter på byggherrens svar. Tidligere brev
+   bevares uendret, og løsningen avgjør ikke om endringen er rettslig virksom (MM-U50 punkt 8).
+   Det gjelder så langt et nytt svar eller en ny kravversjon er tillatt; i en KOE-sak som en
+   endringsordre omfatter, avvises de. For andre opplysninger i et brev er en retting til
+   avsenderens fordel et tilbud som gjelder når motparten godtar den. (MM-U42; E6) At et nytt
+   svar erstatter det tidligere som byggherrens siste svar i løsningen, gjelder standpunktene i
+   svaret, ikke aksepten av en retting etter punkt 20. (05.11 1 C, forholdet; E1)
+7. En retting fra byggherren går gjennom godkjenningen etter fullmakten som et svar med det
+   innholdet rettingen gir, også når rettingen er et tilbud til byggherrens fordel. Et nytt svar
+   etter punkt 6 går gjennom godkjenningen som andre svar. (MM-U41 punkt 7)
+
+###### C. Opplysninger med egne regler
+
+8. En feil dato totalentreprenøren har oppgitt for et varsel sendt utenfor løsningen, rettes
+   etter punkt 1–5. Totalentreprenøren sender en retting med henvisning til brevet med
+   opplysningen, og opplysningen i det brevet står uendret. En senere dato er en retting i
+   byggherrens favør og gjelder straks som premiss for nye svar. En tidligere dato er til
+   totalentreprenørens fordel og gjelder først når byggherren godtar rettingen; til da gjelder
+   datoen totalentreprenøren først oppga. Et svar byggherren alt har gitt, står med virkningen
+   det hadde, og byggherren kan ta stilling på nytt. At datoen settes én gang, betyr at
+   totalentreprenøren ikke kan endre den alene til sin egen fordel. Løsningen avgjør ikke
+   hvilken dato som er riktig (MM-U50 punkt 6). Mener mottakeren at datoen er feil, sier
+   mottakeren det i begrunnelsen for svaret eller i et innlegg. (MM-U41 punkt 8; E6) Hvilken
+   dato en ny retting sammenlignes med, og hva «datoen totalentreprenøren først oppga» er etter
+   en tidligere retting, står i punkt 19. Punkt 8, 19 og 21–23 gjelder også datoen for et krav sendt utenfor løsningen (punkt 18). (05.11 2 A og 3.1 A; E2; E3)
+9. Avsenderen retter en feil kategori eller et feil varsel etter punkt 1–5, unntatt for en
+   endringsordre (punkt 16). En retting som gir et varsel en tidligere dato, gjelder først når
+   motparten godtar den, og et svar motparten alt har gitt, står med virkningen det hadde.
+   (MM-U41 punkt 9)
+10. Totalentreprenøren kan endre sin opplysning etter VS-U26 om når pålegget ble mottatt eller
+    totalentreprenøren ble klar over forholdet, i et eget brev med henvisning til brevet med
+    opplysningen. Brevet er ikke en ny kravversjon og avslår ikke byggherrens svar. Det sier:
+    ‹Totalentreprenøren oppgir nå at <pålegget ble mottatt \| totalentreprenøren ble klar over
+    forholdet> <dato>. I brev <merking> av <dato> oppga totalentreprenøren <dato>.› Den nye
+    opplysningen gjelder straks som totalentreprenørens siste opplysning, uten byggherrens
+    godkjenning, også når datoen er senere. Den nye opplysningen erstatter ikke innholdet i
+    tidligere brev eller premissene i tidligere svar. En ny grunnlagsversjon kan ikke endre
+    datoen. Den gjengir totalentreprenørens siste opplysning, med henvisning til brevet med
+    korrigeringen, og endrer ikke tidligere brev eller premissene i tidligere svar. I
+    underkategorien endringsordre, der totalentreprenøren ikke oppgir noen slik dato, avvises
+    brevet. Brevet godtas også i et spor med enighet og når kravene er avgjort, og det endrer
+    ikke utfallet. (MM-U41 punkt 10; E5) Etter en korrigering etter punkt 10 sier en ny
+    grunnlagsversjon: ‹Totalentreprenøren opplyser at pålegget ble mottatt <dato>, slik
+    totalentreprenøren oppga i brev <merking> av <dato>.› I svikt og andre forhold:
+    ‹Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet <dato>, slik
+    totalentreprenøren oppga i brev <merking> av <dato>.› Brevet det vises til, er det siste
+    brevet med en korrigering. (LV-U54)
+11. For opplysningen i punkt 10 gjelder: et svar byggherren alt har gitt, står med virkningen
+    det hadde. Byggherren tar stilling til opplysningen i et senere svar der rettidigheten etter
+    den aktuelle bestemmelsen behandles, eller i et nytt svar. Sporet venter ikke på et nytt
+    svar i løsningen, og løsningen avgjør ikke om korrigeringen gir byggherren en plikt etter
+    kontrakten (MM-U50 punkt 6). Løsningen avgjør ikke hvilken opplysning som er riktig, når
+    varslingsfristen begynte å løpe eller om varselet var rettidig. En påberopelse byggherren
+    alt har fremsatt, bevares med tidspunktet (VS-U9). (MM-U41 punkt 11; E6) For en lukket sak gjelder punkt 24. (MM-U51, forholdet)
+12. Totalentreprenøren kan endre opplysningen om når totalentreprenøren ble klar over at økte
+    utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid ville påløpe
+    (punkt 34.1.3 annet ledd), i et eget utsagn med henvisning til varselet det gjelder. Den nye
+    opplysningen gjelder straks som totalentreprenørens siste opplysning, uten byggherrens
+    godkjenning, også når datoen er senere. Den erstatter ikke innholdet i tidligere brev eller
+    premissene i tidligere svar. Løsningen avgjør ikke hvilken dato som faktisk eller rettslig
+    skal legges til grunn, og beregner ikke rettidighet eller preklusjonsvirkning. Et svar
+    byggherren alt har gitt, står med virkningen det hadde. Byggherren tar stilling i et senere
+    svar der rettidigheten behandles, eller i et nytt svar. Sporet venter ikke på et nytt svar i
+    løsningen. Endringen gjelder bare totalentreprenørens opplysning om når totalentreprenøren
+    faktisk ble klar over det, ikke varseldatoen etter punkt 8 og ikke når totalentreprenøren
+    burde ha blitt klar over det. (MM-U41 punkt 12)
+13. En endring som bare retter en faktisk opplysning totalentreprenøren har oppgitt i kravet,
+    som en dato, et nummer eller en henvisning, uten å endre det totalentreprenøren krever, er
+    en korrigering. Korrigeringen er et eget utsagn etter punkt 1–5, ikke en ny kravversjon, og
+    lar svaret stå. Totalentreprenøren kan likevel sende en ny kravversjon. (MM-U41 punkt 13)
+    Datoen et krav sendt utenfor løsningen og lagt til med kategorien krav ble sendt, rettes etter punkt 18, ikke som en korrigering. (05.11 2 A, forholdet; E3) For datoen totalentreprenøren oppgir i et krav sendt fra løsningen for en tidligere sending av samme krav utenfor løsningen, står setningen i OV-U5 (punkt 18). (05.11 2 A; E3)
+14. Når totalentreprenøren har sendt grunnlaget, står hovedkategorien, underkategorien og, i
+    underkategorien endringsordre, hvilken endringsordre kravet bygger på. En ny
+    grunnlagsversjon kan ikke endre dem. Vil totalentreprenøren påberope en annen hjemmel eller
+    en annen endringsordre, går det i en ny sak etter GR-U22. Et forslag om å rette betegnelsen
+    på endringsordren sendes som innlegg. (MM-U41 punkt 14)
+15. Totalentreprenørens utdyping, byggherrens senere begrunnelse og bestridelsen av en
+    opplysning blir innlegg etter MM-U34 punkt 24. En opplysning i fritekst rettes ikke etter
+    punkt 1–5. (MM-U41 punkt 15)
+
+###### D. Det samlevedtaket ikke gjelder
+
+16. For en endringsordre, også en registrert endringsordre og en endringsordre registrert som
+    svar, gjelder samlevedtaket for endringsordren foran punkt 1–15 og 18–23: endringsordren
+    rettes ikke i løsningen, og en feil tas opp etter punkt 42, 50 og 58 der. At EO-U9 er
+    opphevet, åpner ikke for revisjon. (MM-U41 punkt 16; «og 18–23» E4) Punkt 24 sier selv hva som godtas i en sak en endringsordre omfatter.
+17. En registrering av et brev sendt utenfor løsningen rettes etter OV-U17 og OV-U18.
+    (MM-U41 punkt 17)
+
+###### E. Rettingen av varseldatoen og kravdatoen etter punkt 8
+
+18. Rettingen etter punkt 8 gjelder også datoen for et krav sendt utenfor løsningen og lagt til
+    som korrespondanse med kategorien krav, med de samme reglene som for varseldatoen:
+    totalentreprenøren sender en retting med henvisning til brevet med opplysningen, og
+    opplysningen i det brevet står uendret. En senere dato er en retting i byggherrens favør og
+    gjelder straks som premiss for nye svar. En tidligere dato er til totalentreprenørens fordel
+    og gjelder først når byggherren godtar rettingen; til da gjelder datoen totalentreprenøren
+    først oppga. Et svar byggherren alt har gitt, står med virkningen det hadde, og byggherren
+    kan ta stilling på nytt. Løsningen avgjør ikke hvilken dato som er riktig (MM-U50 punkt 6).
+    Setningen «Datoen oppgis når kravet sendes, og endres ikke senere.» i OV-U5 gjelder ikke
+    datoen for et krav lagt til med kategorien krav. For datoen totalentreprenøren oppgir i et
+    krav sendt fra løsningen for en tidligere sending av samme krav utenfor løsningen, står
+    setningen. (05.11 2 A) «En feil dato» i VS-U34 gjelder både varselet og kravet. (05.11 2 A,
+    forholdet) Punkt 17 gjelder ikke datoen. (05.11 2 A, forholdet) I punkt 19 og 21–23 gjelder «varseldatoen» også denne datoen. (05.11 3, innledningen:
+    «Ved 2 A gjelder punktene også datoen for kravet.»)
+19. En ny retting av varseldatoen sammenlignes med datoen som gjelder når rettingen sendes.
+    Datoen som gjelder, er datoen i den rettingen som sist begynte å gjelde, enten straks fordi
+    den var til en senere dag, eller da byggherren godtok den; uten en slik retting er det
+    datoen totalentreprenøren først oppga. En dato før den er til totalentreprenørens fordel og
+    gjelder først når byggherren godtar rettingen; til da gjelder datoen som gjaldt da rettingen
+    ble sendt. En dato etter den er i byggherrens favør og gjelder straks som premiss for nye
+    svar. Godtar byggherren en eldre retting som sto åpen, etter at en senere retting til en
+    senere dag har begynt å gjelde, gjelder datoen i den godtatte rettingen fra aksepten.
+    (05.11 3.1 A)
+20. Byggherren godtar totalentreprenørens retting til en tidligere varseldato i et svar i
+    sporet varselet gjelder, sammen med standpunktet om varselet kom i tide, eller i et nytt
+    svar etter punkt 6. Aksepten går da gjennom godkjenningen etter fullmakten med svaret.
+    Aksepten og standpunktet om rettidigheten er to ulike opplysninger i svaret, og aksepten er
+    ikke i seg selv et «i tide»-standpunkt. Et nytt svar etter punkt 6 tar ikke bort en aksept i
+    svaret det erstatter. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt
+    endringsordre eller en godkjent registrering av en endringsordre omfatter, avvises et nytt
+    svar (punkt 6; GR-U27; EO-U34 punkt 12), og rettingen kan da ikke godtas i løsningen. Til
+    byggherren har godtatt rettingen, gjelder datoen etter punkt 8, også når byggherren ikke
+    svarer. (05.11 1 C)
+21. Totalentreprenørens retting til en tidligere varseldato har ingen akseptfrist. Løsningen
+    sperrer ikke byggherrens aksept fordi tid har gått, og sier ikke at rettingen har falt bort
+    eller ikke lenger binder totalentreprenøren (MM-U50 punkt 8). (05.11 3.2 A)
+22. Sender totalentreprenøren en ny retting av samme varseldato mens en tidligere retting til
+    en tidligere dato står åpen, står begge åpne, og byggherren kan godta hvilken som helst av
+    dem i løsningen, unntatt når aksepten avvises etter GR-U27 eller EO-U34 punkt 12. Løsningen
+    sier ikke at den tidligere rettingen er tatt tilbake, og avgjør ikke om totalentreprenøren
+    fortsatt er bundet av den (MM-U50 punkt 8). Vil totalentreprenøren si at den tidligere
+    rettingen ikke lenger står, sier totalentreprenøren det i den nye rettingen eller i et
+    innlegg. Aksepten viser til rettingen den gjelder. (05.11 3.3 B)
+23. Har byggherren godtatt én retting av varseldatoen, kan de andre rettingene av samme dato som
+    sto åpne da aksepten ble sendt, ikke godtas i løsningen. Det er en begrensning i løsningen.
+    Løsningen sier ikke at de andre rettingene er avslått eller har falt bort, og avgjør ikke om
+    totalentreprenøren fortsatt er bundet av dem (MM-U50 punkt 8). Vil byggherren godta en av
+    dem, kan totalentreprenøren sende den på nytt som en ny retting. (05.11 3.4 B) Et nytt svar kan ikke godta en av de andre rettingene. (05.11 3.4 B, forholdet)
+
+###### F. Retting i en lukket sak
+
+24. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en
+    godkjent registrering av en endringsordre omfatter, godtas også korrigeringen av datoen
+    etter punkt 10, og den endrer ikke utfallet. Den nye opplysningen gjelder straks som
+    totalentreprenørens siste opplysning. Et svar byggherren alt har gitt, står med virkningen
+    det hadde, og en påberopelse byggherren alt har fremsatt, bevares med tidspunktet (VS-U9).
+    Byggherren kan ta stilling til opplysningen i et innlegg, og saken står lukket. Løsningen
+    avgjør ikke om korrigeringen gir byggherren en plikt etter kontrakten (MM-U50 punkt 6).
+    (MM-U51; E6)
+
+###### Designdel
+
+Motparten ser rettingen som et nytt brev med henvisning til brevet den retter. En retting til
+avsenderens fordel vises som et tilbud til motparten har godtatt den, unntatt et nytt svar eller
+en ny kravversjon etter punkt 6. Et nytt svar sier: ‹Svaret erstatter byggherrens svar i brev
+<merking> av <dato>.› (LV-U34), og visningen viser at det avviker fra en registrert enighet
+(MM-U34 punkt 9). Skjemaet for en ny kravversjon anbefaler korrigeringen etter punkt 13 (MM-U34
+punkt 1). Tidligere opplysninger beholdes og vises, og visningen sier hvilken opplysning et svar
+gjaldt. Hjemmet for punkt 10 er brukerforløpene BF-02A, BF-02C og BF-05; for resten skrives et
+forløp når rettingen bygges. (MM-U41, designdelen; E5)
+
+###### Beslutningsdel
+
+Før første ekte sak bygges totalentreprenørens retting av datoen i grunnlagskravet (punkt 10),
+rettingen av datoen etter punkt 12 og rettingen av varseldatoen etter punkt 8, som beholder sin
+egen modell. For andre rettinger skal det før første ekte sak finnes en avklart og gjennomførbar
+korrigeringsprosess; den kan være manuell. Det som står åpent om rettingen under B-16 i
+hovedplanen (aktørrettigheter, godkjenning og innsyn for motparten), avgjøres for den manuelle
+prosessen før første ekte sak. Den fullstendige rettingsflyten etter punkt 1–7 kan bygges
+senere. (MM-U41, beslutningsdelen) Rettingen av kravdatoen etter punkt 18 bygges før første ekte
+sak sammen med rettingen av varseldatoen og har samme modell. (05.11 2 A; E3)
+
+###### Forkastet 05.11
+
+Ordrett fra versjon 5 ([6656940092](https://github.com/khjohns/endringsmeldinger/issues/1309#issuecomment-6656940092)),
+med «Forhold»-delen, under punktet de gjelder.
+
+**Punkt 20 (spørsmål 1).**
+
+- **A.** Byggherren godtar totalentreprenørens retting til en tidligere varseldato i et eget
+  utsagn med henvisning til brevet med rettingen. Aksepten går gjennom godkjenningen etter
+  fullmakten, som et svar gjør. Aksepten tar ikke stilling til om varselet kom i tide; det gjør
+  byggherren i et svar. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt
+  endringsordre eller en godkjent registrering av en endringsordre omfatter, avvises aksepten
+  (GR-U27; EO-U34 punkt 12). Til byggherren har godtatt
+  rettingen, gjelder datoen etter punkt 8 i samlevedtaket for retting av sendt brev, også når
+  byggherren ikke svarer.
+  *Forhold:* utvider punkt 7 i samlevedtaket for retting av sendt brev (MM-U41) til byggherrens
+  aksept av en retting fra totalentreprenøren. I tråd med OV-U80, EO-U34 punkt 12 og føringen
+  25.10 i #276. Etter vår lesing betyr «Innlegg og dokumentasjon kan fortsatt legges til.» i
+  GR-U27 at en aksept ikke kan legges til. Aksepten har ikke beløp eller dager, så A utvider
+  vedtaket «Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes» (23.09, som etter
+  følgen gjelder fristsvar med ny sluttdato; for endringsordren endret av EO-U17) til aksepten: den
+  med ubegrenset fullmakt kan godta alene, og alle andre trenger hele kjeden. Ingen motstrid funnet.
+- **B.** Byggherren godtar totalentreprenørens retting til en tidligere varseldato i et eget
+  utsagn med henvisning til brevet med rettingen. Aksepten går ikke gjennom godkjenningen etter
+  fullmakten, fordi den ikke tar stilling til om varselet kom i tide; det gjør byggherren i et
+  svar, som går gjennom godkjenningen. I en sak som er lukket etter GR-U27, og i en KOE-sak som en
+  sendt endringsordre eller en godkjent registrering av en endringsordre omfatter, avvises
+  aksepten (GR-U27; EO-U34 punkt 12). Til byggherren
+  har godtatt rettingen, gjelder datoen etter punkt 8 i samlevedtaket for retting av sendt brev,
+  også når byggherren ikke svarer.
+  *Forhold:* presiserer punkt 8 i samlevedtaket for retting av sendt brev (MM-U41). I tråd med
+  GR-U27 (lest som i A), EO-U34 punkt 12 og føringen 25.10 i #276. Ingen motstrid med et gjeldende vedtak, men et annet
+  mønster enn punkt 7 og OV-U80, der byggherrens bindende utsagn går gjennom godkjenningen. Etter
+  GFK-U13 kan en ekstern rådgiver ikke sende et svar som krever godkjenning. Ved B kan en ekstern
+  rådgiver på byggherrens side godta rettingen.
+
+**Punkt 18 (spørsmål 2).**
+
+- **B.** Datoen for et krav sendt utenfor løsningen og lagt til med kategorien krav er en faktisk
+  opplysning totalentreprenøren har oppgitt i kravet, og rettes som en korrigering etter punkt 13
+  i samlevedtaket for retting av sendt brev, ikke etter punkt 8. Korrigeringen er et eget utsagn
+  etter punkt 1–5 og lar svaret stå. En senere dato gjelder som en revisjon i byggherrens favør
+  (punkt 4), og en tidligere dato er et tilbud som gjelder når byggherren godtar det (punkt 5).
+  Løsningen avgjør ikke om totalentreprenøren er løst (punkt 3). Før første ekte sak er det nok med
+  en avklart og gjennomførbar korrigeringsprosess, som kan være manuell. Det som står åpent om
+  rettingen under B-16 i hovedplanen (aktørrettigheter, godkjenning og innsyn for motparten),
+  avgjøres for den manuelle prosessen før første ekte sak. Setningen «Datoen oppgis når kravet
+  sendes, og endres ikke senere.» i OV-U5 gjelder ikke datoen for et krav lagt til med kategorien
+  krav. For datoen totalentreprenøren oppgir i et krav sendt fra løsningen for en tidligere sending
+  av samme krav utenfor løsningen, står setningen.
+  *Forhold:* presiserer VS-U34: «En feil dato» gjelder bare varselet, og datoen for kravet rettes
+  etter punkt 13. Presiserer punkt 13 i MM-U41: «en dato» i kravet omfatter datoen et registrert
+  krav ble sendt. Følger beslutningsdelen i MM-U41 for andre rettinger, med vilkåret om B-16.
+  Presiserer OV-U5 som A. OV-U85 behandler datoen for varselet, kravet og svaret likt. B retter de
+  to datoene etter ulike punkter, med nesten samme virkning, men ulik plan for byggingen; det er
+  ikke motstrid, fordi OV-U85 sier hvem som oppgir datoen, ikke hvordan den rettes. Leses «En feil
+  dato» i VS-U34 også om kravet, snevrer B inn VS-U34. B avviker fra «Avsenderen retter den etter
+  OV-U11.» i det forkastede alternativet i OV-U85, som ikke er motstrid.
+- **C.** Rettingen etter punkt 8 i samlevedtaket for retting av sendt brev gjelder bare datoen for
+  et varsel lagt til som korrespondanse med kategorien varsel. Datoen for et krav sendt utenfor
+  løsningen og lagt til med kategorien krav settes én gang og endres ikke senere, heller ikke som
+  en korrigering etter punkt 13. Mener totalentreprenøren at den er feil, sier totalentreprenøren
+  det i et innlegg, og løsningen regner videre med den. Datoen for kravet rettes dermed ikke i
+  løsningen. Det er modellen OV-U11 forkastet for varseldatoen («at datoen ikke kan rettes i
+  appen»), og den gjelder her bare for kravet; for varseldatoen gjelder punkt 8.
+  *Forhold:* presiserer VS-U34: «En feil dato» gjelder bare varselet. Utvider OV-U5 og OV-U80 til
+  et krav lagt til med kategorien krav: «endres ikke senere» i OV-U5 gjelder datoen oppgitt i et
+  krav sendt fra løsningen, og «settes én gang» i OV-U80 gjelder varselet. I tråd med ordlyden i
+  punkt 8. Snevrer inn punkt 13 i MM-U41: datoen et registrert krav ble sendt, korrigeres ikke.
+  Gir datoen for kravet den modellen OV-U11 forkastet for varseldatoen. Punkt 8, som samler OV-U11,
+  endres ikke, men C behandler to datoer som kan være premiss for samme rettidighet, ulikt. Det
+  avviker fra OV-U85, som behandler datoen for varselet, kravet og svaret likt; ordlyden i OV-U85
+  sier hvem som oppgir datoen, ikke hvordan den rettes, så det er ikke motstrid. Leses «En feil
+  dato» i VS-U34 også om kravet, snevrer C inn VS-U34. C avviker fra «Avsenderen retter den etter
+  OV-U11.» i det forkastede alternativet i OV-U85, som ikke er motstrid.
+
+**Punkt 19 (3.1).**
+
+- **B.** En ny retting av varseldatoen sammenlignes alltid med
+  datoen totalentreprenøren først oppga. En dato før den er til totalentreprenørens fordel og
+  gjelder først når byggherren godtar rettingen; til da gjelder datoen totalentreprenøren først
+  oppga. En dato etter den gjelder straks som premiss for nye svar.
+  *Forhold:* følger ordlyden i punkt 8 og «endre det brevet sa» i punkt 5. Snevrer inn «At datoen
+  settes én gang, betyr at totalentreprenøren ikke kan endre den alene til sin egen fordel.» i
+  punkt 8, fordi totalentreprenøren etter en retting til en senere dag kan flytte datoen tilbake uten
+  aksept.
+
+**Punkt 21 (3.2).**
+
+- **B.** Totalentreprenøren kan sette en akseptfrist i rettingen til en tidligere varseldato.
+  Fristen er valgfri. Akseptfristen er en dato i rettingen, og den er ute ved utgangen av datoen i
+  norsk tid. Totalentreprenøren kan ikke sette en frist som ligger før datoen for rettingen, eller
+  som faller på en lørdag, helligdag eller høytidsdag (NS 8407 punkt 6). Løsningen knytter ingen
+  virkning til akseptfristen: byggherren kan godta rettingen også etter fristen, og løsningen
+  regner ikke aksepten som rettidig eller for sen etter avtaleloven, sier ikke at rettingen har
+  falt bort eller ikke lenger binder totalentreprenøren, og avgjør ikke når et brev er kommet fram
+  (MM-U50 punkt 6 og 8). Godtar byggherren rettingen etter akseptfristen, sier brevet at aksepten
+  er sendt etter akseptfristen <dato> i totalentreprenørens retting.
+  *Forhold:* presiserer punkt 5 og 8 i MM-U41. Gir totalentreprenørens tilbud samme regel som
+  byggherrens akseptfrist i HF-U23 punkt 2, 5, 6 og 7 og MM-U34 punkt 17 («fristen står som
+  opplysning, virkningene oppheves»). Punkt 3 og 8 i HF-U23 overføres ikke: punkt 3 gjelder
+  akseptfristen i et nytt svar, og punkt 8 gjelder TEs aksept og byggherrens innlegg eller nye
+  svar etter den. HF-U23 punkt 1 gjelder bare byggherrens svar og endres ikke. I tråd med MM-U50
+  punkt 6 og 8 og VS-U46 punkt 20. Ingen motstrid funnet.
+- **C.** Totalentreprenøren kan sette en akseptfrist i rettingen til en tidligere varseldato.
+  Fristen er valgfri. Akseptfristen er en dato i rettingen, og den er ute ved utgangen av datoen i
+  norsk tid. Totalentreprenøren kan ikke sette en frist som ligger før datoen for rettingen, eller
+  som faller på en lørdag, helligdag eller høytidsdag (NS 8407 punkt 6). Etter fristen kan
+  byggherren ikke godta rettingen i løsningen. Det er en begrensning i løsningen. Løsningen sier
+  ikke at rettingen har falt bort eller er tatt tilbake, og avgjør ikke om totalentreprenøren
+  fortsatt er bundet av den (MM-U50 punkt 8). Uten frist kan byggherren godta rettingen uten
+  tidsgrense i løsningen.
+  *Forhold:* presiserer punkt 5 og 8 i MM-U41. Avviker fra HF-U23 punkt 5 og 6 og MM-U34 punkt 17,
+  der løsningen ikke knytter virkning til byggherrens akseptfrist og TE kan godta svaret etter
+  fristen. Det er ikke motstrid, fordi de punktene gjelder byggherrens svar, men det gir to ulike
+  regler for en akseptfrist. Leses MM-U50 punkt 8 og VS-U46 punkt 20 slik at sperren avgjør at
+  totalentreprenøren er løst, endrer C de punktene; med vår lesing, at sperren er en begrensning
+  i løsningen, er det ingen motstrid.
+
+**Punkt 22 (3.3).**
+
+- **A.** Sender totalentreprenøren en ny retting av samme varseldato mens en tidligere retting til
+  en tidligere dato står åpen, kan byggherren bare godta den siste i løsningen. Den tidligere
+  rettingen kan ikke godtas i løsningen. Det er en begrensning i løsningen. Løsningen sier ikke at
+  den tidligere rettingen er tatt tilbake eller har falt bort, og avgjør ikke om
+  totalentreprenøren fortsatt er bundet av den (MM-U50 punkt 8). Aksepten viser til rettingen den
+  gjelder.
+  *Forhold:* presiserer punkt 5 og 8 i MM-U41, og KA-U1 og punkt 1 i MM-U41. Form som HF-U23
+  punkt 9, men der stenger mottakerens nye utsagn, mens A lar avsenderens nye tilbud stenge for
+  aksept av avsenderens eget tidligere tilbud. Leses MM-U50 punkt 8 og VS-U46 punkt 20 slik at
+  sperren avgjør at totalentreprenøren er løst, endrer A de punktene; med vår lesing, at sperren
+  er en begrensning i løsningen, er det ingen motstrid.
+- **C.** Sender totalentreprenøren en ny retting av samme varseldato til en dato før den som
+  gjelder, mens en tidligere retting til en tidligere dato står åpen, avvises den nye rettingen.
+  Den åpne rettingen står til byggherren har godtatt den, eller til den ikke lenger kan godtas i
+  løsningen. Det er en begrensning i løsningen. Løsningen sier ikke at totalentreprenøren er bundet
+  av den åpne rettingen, og avgjør ikke om totalentreprenøren er løst fra den (MM-U50 punkt 8). Vil
+  totalentreprenøren si at den åpne rettingen er feil, sier totalentreprenøren det i et innlegg. En
+  retting til en senere dato enn den som gjelder, avvises ikke. Aksepten viser til rettingen den
+  gjelder.
+  *Forhold:* presiserer punkt 5 og 8 i MM-U41, og KA-U1 og punkt 1 i MM-U41. Gir rettingen formen
+  i de opphevede forslagene om vilkår og om betegnelsen (høyst ett åpent forslag, og et nytt
+  avvises), som MM-U34 punkt 18 opphevet fordi slike forslag sendes som innlegg. C tar ikke med
+  bindingen de forslagene hadde («det kan ikke trekkes eller svekkes i løsningen»), som MM-U34
+  punkt 5 strøk i HF-U6. Leses MM-U50 punkt 8 og VS-U46 punkt 20 slik at avvisningen avgjør at
+  totalentreprenøren er bundet, endrer C de punktene; med vår lesing er det ingen motstrid.
+
+**Punkt 23 (3.4).**
+
+- **A.** Har byggherren godtatt mer enn én retting av samme varseldato, gjelder datoen i den
+  siste aksepten. Løsningen sier ikke at den tidligere aksepten er tatt tilbake, og avgjør ikke om
+  byggherren fortsatt er bundet av den (MM-U50 punkt 8). Mener totalentreprenøren at den
+  tidligere aksepten står, sier totalentreprenøren det i et innlegg.
+  *Forhold:* ved spørsmål 1 A eller 1 B snevrer A inn punkt 5 i MM-U41 og siste setning i punkt 6
+  der («For andre opplysninger i et brev er en retting til avsenderens fordel et tilbud som gjelder
+  når motparten godtar den.»): en godtatt retting gjelder bare til byggherren godtar en annen
+  retting av samme dato, også når den andre gir en senere dato, til byggherrens fordel. Ved
+  spørsmål 1 C er A i tråd med punkt 6, der det nye svaret erstatter det tidligere som byggherrens
+  siste svar i løsningen; den siste aksepten går da foran setningen i 1 C om at et nytt svar ikke
+  tar bort aksepten i svaret det erstatter. I tråd med MM-U50 punkt 8 og VS-U46 punkt 20, så langt
+  løsningen ikke avgjør om byggherren er bundet av den første aksepten.
+- **C.** Har byggherren godtatt mer enn én retting av samme varseldato, gjelder den tidligste av de
+  godtatte datoene. Løsningen avgjør ikke om byggherren fortsatt er bundet av den tidligere
+  aksepten, eller om den senere aksepten har virkning mellom partene (MM-U50 punkt 8). Mener
+  byggherren at den tidligere aksepten ikke står, sier byggherren det i et innlegg.
+  *Forhold:* ved spørsmål 1 A eller 1 B snevrer C inn punkt 5 i MM-U41: en retting byggherren
+  godtar, gjelder ikke når en annen godtatt retting av samme dato gir en tidligere dato. En aksept
+  flytter datoen da bare til totalentreprenørens fordel. Ved spørsmål 1 C avviker C fra punkt 6,
+  der det siste svaret gjelder i løsningen: aksepten i et svar som er erstattet, går foran
+  aksepten i svaret som erstatter det. C presiserer da punkt 6 for aksepten. I tråd med MM-U50
+  punkt 8 og VS-U46 punkt 20, så langt regelen bare sier hvilken dato som er premiss i løsningen.
+
+Forkastet tidligere og ført videre fra MM-U42, som oppheves, ordrett som de står i registeret. De forkastede alternativene i MM-U51 og LV-U54 står i postene, som samles.
+
+**Punkt 6 (MM-U42).**
+
+- **2B.** En retting av et standpunkt i byggherrens svar sendes som et nytt svar, også når den er til byggherrens fordel, og med henvisning til brevet den retter. Det nye svaret erstatter det tidligere som byggherrens siste svar i løsningen, uten totalentreprenørens aksept. Tidligere brev bevares uendret, og løsningen avgjør ikke om endringen er rettslig virksom (MM-U12). Det gjelder så langt et nytt svar er tillatt; i en KOE-sak som en endringsordre omfatter, avvises det. For totalentreprenørens krav og for andre opplysninger er en retting til avsenderens fordel et tilbud som gjelder når motparten godtar den.
+- **2C.** En retting til avsenderens fordel er et tilbud og gjelder når motparten godtar den, også for et standpunkt i et krav eller et svar (MM-U21). Avsenderen kan i stedet sende en ny kravversjon eller et nytt svar.
+
+###### Endret innhold
+
+Gammel tekst er ordrett fra vedtaksfila på `d049d6a`. Svarene 05.11 er vedtatt innhold; E1–E4 viser hvor de endrer en gjeldende post. E5–E8 gir ingen ny regel.
+
+**E1 Et nytt svar og aksepten av en retting (punkt 6 og 20).** Gammel tekst: MM-U42 «Et nytt svar
+erstatter det tidligere som byggherrens siste svar i løsningen, uten totalentreprenørens aksept,
+og en ny kravversjon venter på byggherrens svar.» Ny tekst: siste setning i punkt 6. Kilde:
+forholdet i 05.11 1 C: «Presiserer punkt 6 der: «Et nytt svar erstatter det tidligere som
+byggherrens siste svar i løsningen» gjelder standpunktene i svaret, ikke aksepten av en
+retting.» Punkt 7 gjelder fortsatt bare en retting fra byggherren; aksepten går gjennom
+godkjenningen med svaret etter punkt 20.
+
+**E2 Datoen en ny retting sammenlignes med (punkt 8 og 19).** Gammel tekst: MM-U41 punkt 8 «til da
+gjelder datoen totalentreprenøren først oppga». Ny tekst: punkt 19, og henvisningen i punkt 8.
+Kilde: forholdet i 05.11 3.1 A: ««til da gjelder datoen totalentreprenøren først oppga» leses som
+datoen som gjaldt da rettingen ble sendt, og en tidligere dato gjelder fra byggherrens aksept,
+også når en senere retting er sendt etter den.» Ordlyden i punkt 8 står; punkt 19 sier hvordan
+den leses.
+
+**E3 Kravdatoen (punkt 8, 13 og 18 og beslutningsdelen).** Gammel tekst: MM-U41 punkt 8 «En feil
+dato totalentreprenøren har oppgitt for et varsel sendt utenfor løsningen», punkt 13 og
+beslutningsdelen; VS-U34 «En feil dato rettes etter OV-U11.»; OV-U5 «Datoen oppgis når kravet
+sendes, og endres ikke senere.» Ny tekst: punkt 18, tillegget i punkt 8 og 13 og siste setning i
+beslutningsdelen. Kilde: forholdet i 05.11 2 A: «presiserer VS-U34: «En feil dato» gjelder både
+varselet og kravet. Utvider punkt 8 og beslutningsdelen i samlevedtaket for retting av sendt brev
+(MM-U41) fra varselet til kravet. Snevrer inn punkt 13 i MM-U41: datoen et registrert krav ble
+sendt, rettes etter punkt 8, ikke som en korrigering. Punkt 17 gjelder ikke datoen. Presiserer OV-U5: …» Redaksjonelt: setningen «Rettingen bygges før første ekte sak sammen med rettingen av varseldatoen og har samme modell.» står i beslutningsdelen som «Rettingen av kravdatoen etter punkt 18 bygges …», og «rettes etter punkt 8» står i punkt 13 som «rettes etter punkt 18», som viser til punkt 8.
+
+**E4 Endringsordren går foran også punkt 18–23 (punkt 16).** Gammel tekst: MM-U41 punkt 16 «foran
+punkt 1–15». Ny tekst: «foran punkt 1–15 og 18–23». Kilde: kartleggingen. Punkt 18–23 er nye og
+gjelder ikke en endringsordre; for rettingen i en lukket sak gjelder punkt 24 uttrykkelig.
+Oppdragsgiver har ikke sagt dette; det er vår slutning av punkt 16.
+
+**E5 Brevtekstene (punkt 10 og designdelen).** Gammel tekst: MM-U41 punkt 10 «‹TE oppgir nå at
+<pålegget ble mottatt \| TE ble klar over forholdet> <dato>. I brev <n> av <dato> oppga TE
+<dato>.›» og designdelen «‹Svaret erstatter byggherrens svar i brev <n> av <dato>.›». Ny tekst:
+som i punkt 10 og designdelen. Kilde: LV-U35 «‹TE› i en vedtatt brevtekst leses som
+‹totalentreprenøren›, og ‹TEs› som ‹totalentreprenørens›.» og LV-U53, som endrer henvisningsformen
+«også i ordlyden i LV-U4, LV-U10, LV-U34, GR-U14, punkt 10 i samlevedtaket for retting av sendt
+brev». Ikke nytt innhold.
+
+**E6 Henvisningene til MM-U12 (punkt 3, 6, 8, 11 og 24).** Gammel tekst: «(MM-U12)». Ny tekst:
+«(MM-U50 punkt 8)» der setningen gjelder om en part er løst eller bundet, ellers «(MM-U50 punkt
+6)». Kilde: MM-U50 opphevet MM-U12, og henvisningene til den gjelder samlevedtaket (OV-U92 (a)). Ikke nytt innhold. «Rettslig virksom» i punkt 6 knyttes til punkt 8 i MM-U50, fordi setningen gjelder om en part er bundet av endringen.
+
+**E7 Lukket sak (punkt 24).** Gammel tekst: GR-U27 «Innlegg og dokumentasjon kan fortsatt
+legges til.»; EO-U34 punkt 12 «I en KOE-sak som en sendt endringsordre eller en godkjent
+registrering omfatter, avviser løsningen krav, svar, aksept og trekk.» og «Innlegg, dokumentasjon
+og innsigelser etter punkt 5 tredje ledd godtas.» Ny tekst: punkt 24 (MM-U51, uendret innhold).
+
+**E8 Redaksjonelt (punkt 5–7, 10, 18, 20 og 24).** Selvhenvisningene «punkt 8 i samlevedtaket for retting av sendt brev» (05.11 1 C og 2 A) og «punkt 10 i samlevedtaket for retting av sendt brev» (MM-U51, LV-U54) står som «punkt 8» og «punkt 10». De betingede setningene i kursiv i punkt 5 og 7 i versjon 1 («Ved spørsmål 2 A …») er skrevet etter svaret 2 A (MM-U42). «etter punkt 20» i punkt 6 viser til aksepten fra 05.11 1 C. Ikke nytt innhold.
 '''
 
 [[gruppe.vedtak]]
@@ -11213,7 +11651,7 @@ B-03. Avgjort 10.10 av [B-03, dokumentet](#b-03-dokument): ett dokument per brev
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["mm-u41"]
+bindende_i = ["mm-u52"]
 anker = "b-03-dokument"
 vedtak = '''
 B-03, dokumentet: hvert brev som leveres til Catenda, blir ett dokument der, også når
@@ -15758,6 +16196,143 @@ tekst = "En ny grunnlagsversjon kan ikke endre datoen. Den gjengir totalentrepre
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "TE opplyser at pålegget ble mottatt <dato>."
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "MM-U52"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1309", "#1534", "#1065"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 05.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/140a550/docs/vedtaksregister/vurdering-samlevedtak-retting-av-sendt-brev-2026-11-05.md#spørsmålene-til-oppdragsgiver). Alternativene står i posten.
+
+Spørsmål 1 og 3 er juridiske og stilles i tekst. Spørsmål 2 er teknisk, men står i samme liste,
+fordi det avgjør forholdet i spørsmål 1. Svar for eksempel «1 A, 2 A, 3 C».
+
+**1. Tilslutning til samlevedtaket for retting av sendt brev, versjon 2.** Forslaget over, punkt
+1–25 med designdelen, beslutningsdelen, «Forkastet 05.11» og E1–E8. Punkt 1–17 er versjon 1 med
+ordlyden slik senere vedtak alt har endret den (E5, E6, E8). Punkt 18–23 og 25 og tilleggene i
+punkt 6, 8, 13, 23 og beslutningsdelen er svarene dine 05.11 på spørsmålene før bygging av #1309,
+ordrett. Punkt 24 er korrigeringen i en lukket sak fra 05.11 (MM-U51), og brevteksten etter en
+korrigering (LV-U54) står i punkt 10. E4 er vår slutning: endringsordren går foran også punkt
+18–23.
+
+- **A (anbefalt):** «Samlevedtaket for retting av sendt brev, versjon 2, gjelder med E1–E8, med
+  forholdene etter svaret på spørsmål 2 og 3. Forhold: presiserer VS-U34, OV-U5 og KA-U1.»
+- **B:** Samme som A, med rettingene du gir per punkt eller E-punkt, også funnene under «Funn som
+  ikke avgjøres her».
+
+*Anbefaling:* A. Innholdet er det du alt har svart på; samlevedtaket setter det inn i én tekst med
+kilde for hver setning.
+
+*Hva valget styrer:* hvilken tekst som er regelgrunnlaget for rettingen i #1309 og #1308.
+
+**2. Hva samlevedtaket gjør med MM-U41, MM-U42, MM-U51 og LV-U54 (teknisk).** Svar 4 A i #1534: et
+samlevedtak samler, og opphever når det endrer innholdet. Svarene 05.11 endrer innholdet i MM-U41
+og MM-U42 (E1–E3). MM-U51 og LV-U54 står med uendret innhold.
+
+- **A (anbefalt):** Versjon 2 opphever MM-U41 og MM-U42, og henvisningene til dem gjelder
+  samlevedtaket (som OV-U92 (a)). Den samler MM-U51 og LV-U54, som gjelder som «Samlet i
+  samlevedtaket for retting av sendt brev». Forholdene i MM-U41 og MM-U42 føres videre i versjon 2
+  («Postene i kjeden»); forholdene i MM-U51 og LV-U54 står i postene. I vedtaks-PR-en får
+  henvisningene til MM-U41 i de seks brukerforløpsfilene samlevedtaket ved siden av, og
+  `bindende_i` i VS-U44 og B-03-DOKUMENT viser til samlevedtaket.
+- **B:** Versjon 2 samler alle fire. De står som gjeldende, og ingen henvisninger skrives om.
+  Temaet står da i to samlevedtak, versjon 1 og 2, og varselet for MM-U41 står, fordi den alt har
+  tre endringer. B strider mot svar 4 A, fordi E1–E3 endrer innholdet.
+
+*Anbefaling:* A. Det følger svar 4 A for alle fire. Det koster seks filer med henvisninger i
+vedtaks-PR-en.
+
+*Hva valget styrer:* forholdene i posten, om brukerforløpene må endres i vedtaks-PR-en, og om
+varselet for MM-U41 står.
+
+**3. Hvordan føres utvidelsen av EO-U34 punkt 12 i punkt 25?** Punkt 25 (05.11 3.5 B) lar
+totalentreprenørens retting av varseldatoen godtas i en KOE-sak som en endringsordre omfatter. Det
+utvider punkt 12 i samlevedtaket for endringsordren (EO-U34), som alt har tre endringer etter
+samlingen (HF-U25, KA-U50 og MM-U51). Etter svar 6 A skrives da «den neste endringen i temaet» som
+et samlevedtak. Punkt 24 (MM-U51) er alt en av de tre og endres ikke. Innholdet i punkt 25 er
+vedtatt; spørsmålet gjelder bare hvor det føres.
+
+- **A:** Punkt 25 står i samlevedtaket for retting av sendt brev med forholdet «utvider EO-U34».
+  EO-U34 samles ikke nå. Det er vår lesing at et samlevedtak for retting oppfyller svar 6 A.
+  EO-U34 får da sin fjerde endring, og varselet står.
+- **B:** Som A, og i tillegg en ny samlet tekst for punkt 12 i EO-U34 i samme tilslutning: ‹I en
+  KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter, avviser løsningen
+  krav, svar, aksept og trekk. Innlegg, dokumentasjon og innsigelser etter punkt 5 tredje ledd
+  godtas, og rettingene etter punkt 24 og 25 i samlevedtaket for retting av sendt brev.› Forhold:
+  endrer EO-U34 punkt 12. Punkt 12 leses i én tekst, men endringen er fortsatt ikke et samlevedtak
+  for endringsordren.
+- **C (anbefalt):** Punkt 25 føres ikke med versjon 2. Det føres i et nytt samlevedtak for
+  endringsordren, som skrives i en egen kartlegging med HF-U25, KA-U50, MM-U51 og 3.5 B. #1309
+  bygger rettingen i en lukket sak når det er godkjent; resten av #1309 venter ikke.
+
+*Anbefaling:* C. Svar 6 A skulle hindre at et samlet vedtak vokser igjen, og ved A og B får
+EO-U34 en fjerde endring utenfor et samlevedtak for temaet. C koster en kartlegging til og
+forsinker bare rettingen i en lukket sak, som er et kanttilfelle i #1309.
+
+*Hva valget styrer:* om punkt 25 står i versjon 2, forholdet til EO-U34 og GR-U27, og om #1309
+kan bygge rettingen i en lukket sak når versjon 2 er ført.'''
+valgt = "1 A, 2 A, 3 C"
+svar = '''
+Oppdragsgiver 05.11, ordrett ([#1309, 6658191101](https://github.com/khjohns/endringsmeldinger/issues/1309#issuecomment-6658191101)): «R: 1 A, 2 A, 3 C». Valgt samlet: 1 A, 2 A, 3 C.'''
+forhold = [
+  { art = "opphever", vedtak = "mm-u41" },
+  { art = "opphever", vedtak = "mm-u42" },
+  { art = "samler", vedtak = "mm-u51" },
+  { art = "samler", vedtak = "lv-u54" },
+  { art = "presiserer", vedtak = "vs-u34" },
+  { art = "presiserer", vedtak = "ov-u5" },
+  { art = "presiserer", vedtak = "ka-u1" },
+  { art = "samler", vedtak = "ov-u11" },
+  { art = "samler", vedtak = "ov-u80" },
+  { art = "opphever", vedtak = "mm-u21" },
+  { art = "opphever", vedtak = "mm-u26" },
+  { art = "opphever", vedtak = "ov-u52" },
+  { art = "opphever", vedtak = "ov-u53" },
+  { art = "endrer", vedtak = "ov-u41" },
+  { art = "endrer", vedtak = "ov-u54" },
+  { art = "endrer", vedtak = "ov-u55" },
+  { art = "endrer", vedtak = "ov-u56" },
+  { art = "snevrer inn", vedtak = "gr-u22" },
+  { art = "presiserer", vedtak = "vs-u26" },
+  { art = "utvider", vedtak = "ov-u3" },
+  { art = "utvider", vedtak = "lv-u4" },
+  { art = "presiserer", vedtak = "mm-u34" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for retting av sendt brev, versjon 2](#samlevedtak-retting-2), uten punkt 25 (svar 3 C). Opphever MM-U41 og MM-U42, og henvisningene til dem gjelder samlevedtaket; samler MM-U51 og LV-U54 (svar 2 A). Presiserer VS-U34, OV-U5 og KA-U1 (svar 1 A). Forholdene til OV-U11, OV-U80, MM-U21, MM-U26, OV-U52, OV-U53, OV-U41, OV-U54, OV-U55, OV-U56, GR-U22, VS-U26, OV-U3, LV-U4 og MM-U34 er overtatt fra MM-U41 og MM-U42, slik «Postene i kjeden» i [vurderingen](../vedtaksregister/vurdering-samlevedtak-retting-av-sendt-brev-2026-11-05.md#postene-i-kjeden) sier. «Presiserer MM-U12» føres ikke videre, fordi MM-U50 har opphevet MM-U12. Punkt 25 føres i et nytt samlevedtak for endringsordren (svar 3 C). Bygges i #1309.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A, 3 C"
+tekst = '''
+Spørsmål 1: Samlevedtaket for retting av sendt brev, versjon 2, gjelder med E1–E8, med forholdene etter svaret på spørsmål 2 og 3. Forhold: presiserer VS-U34, OV-U5 og KA-U1. Spørsmål 2: Versjon 2 opphever MM-U41 og MM-U42, og henvisningene til dem gjelder samlevedtaket (som OV-U92 (a)). Den samler MM-U51 og LV-U54, som gjelder som «Samlet i samlevedtaket for retting av sendt brev». Forholdene i MM-U41 og MM-U42 føres videre i versjon 2 («Postene i kjeden»); forholdene i MM-U51 og LV-U54 står i postene. I vedtaks-PR-en får henvisningene til MM-U41 i de seks brukerforløpsfilene samlevedtaket ved siden av, og «bindende i» i VS-U44 og B-03-DOKUMENT viser til samlevedtaket. Spørsmål 3: Punkt 25 føres ikke med versjon 2. Det føres i et nytt samlevedtak for endringsordren, som skrives i en egen kartlegging med HF-U25, KA-U50, MM-U51 og 3.5 B. #1309 bygger rettingen i en lukket sak når det er godkjent; resten av #1309 venter ikke.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+Samme som A, med rettingene du gir per punkt eller E-punkt, også funnene under «Funn som ikke avgjøres her».'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+Versjon 2 samler alle fire. De står som gjeldende, og ingen henvisninger skrives om. Temaet står da i to samlevedtak, versjon 1 og 2, og varselet for MM-U41 står, fordi den alt har tre endringer. B strider mot svar 4 A, fordi E1–E3 endrer innholdet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 A"
+tekst = '''
+Punkt 25 står i samlevedtaket for retting av sendt brev med forholdet «utvider EO-U34». EO-U34 samles ikke nå. Det er vår lesing at et samlevedtak for retting oppfyller svar 6 A. EO-U34 får da sin fjerde endring, og varselet står.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+Som A, og i tillegg en ny samlet tekst for punkt 12 i EO-U34 i samme tilslutning: ‹I en KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter, avviser løsningen krav, svar, aksept og trekk. Innlegg, dokumentasjon og innsigelser etter punkt 5 tredje ledd godtas, og rettingene etter punkt 24 og 25 i samlevedtaket for retting av sendt brev.› Forhold: endrer EO-U34 punkt 12. Punkt 12 leses i én tekst, men endringen er fortsatt ikke et samlevedtak for endringsordren.'''
+forkastet = true
+
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
