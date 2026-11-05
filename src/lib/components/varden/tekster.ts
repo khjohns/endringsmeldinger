@@ -177,9 +177,13 @@ export const SKJEMA = {
   klarOver: (d: string, b: Brevref) =>
     `TE oppgir at TE ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   kravSendt: (d: string, b: Brevref) =>
-    b.omtale
-      ? `Kravet om vederlagsjustering ble sendt med ${b.omtale}.`
-      : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
+    // Avstanden under regnes til `registrert`, så den datoen står med for registrert
+    // korrespondanse, der omtalen har datoen parten oppgir (LV-U42).
+    b.omtale && b.art === 'registrert'
+      ? `Kravet om vederlagsjustering står i ${b.omtale}, registrert ${dato(d)}.`
+      : b.omtale
+        ? `Kravet om vederlagsjustering ble sendt med ${b.omtale}.`
+        : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
   metodeTittel: 'Beregningsmetode',
   metodeSpoersmaal: (m: unknown) => `TE krever oppgjør etter ${metodenavn(m)}. Godkjenner du det?`,

@@ -115,10 +115,10 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
     );
   });
 
-  it('registrert korrespondanse nevner parten én gang og datoen TE oppgir (LV-U42)', () => {
+  it('registrert korrespondanse nevner parten én gang, og datoen avstanden regnes til står med (LV-U42)', () => {
     expect(SKJEMA.svarerPaa(epost)).toBe('Svar på totalentreprenørens e-post av 1. oktober 2026');
     expect(SKJEMA.kravSendt(epost.registrert, epost)).toBe(
-      'Kravet om vederlagsjustering ble sendt med totalentreprenørens e-post av 1. oktober 2026.'
+      'Kravet om vederlagsjustering står i totalentreprenørens e-post av 1. oktober 2026, registrert 5. oktober 2026.'
     );
     expect(SAKEN.sist(epost, 'TE')).toBe('Siste: totalentreprenørens e-post av 1. oktober 2026');
     expect(SAKEN.sist(kravbrev, 'TE')).toBe(

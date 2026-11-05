@@ -5,7 +5,7 @@
  * sier og hva en aksept gir, kommer fra kjernen gjennom `lagKjernesak`.
  */
 
-import { omtalen, sendtDato } from '$kjerne/frosset/brevtekst';
+import { omtalen } from '$kjerne/frosset/brevtekst';
 import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
@@ -20,11 +20,6 @@ export interface Brevet {
   nummer: number | null;
   avsender: Part;
   registrert: string;
-  /**
-   * Datoen brevet ble sendt, som omtalen bruker: datoen parten oppgir for registrert
-   * korrespondanse (LV-U42), ellers `registrert`.
-   */
-  sendt: string;
   spor: Spor[];
   art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'registrert' | 'annet';
   /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
@@ -81,7 +76,6 @@ export function brevene(u: Utledning): Brevet[] {
         nummer: d.brevnummer,
         avsender: d.avsender,
         registrert: d.registrert,
-        sendt: sendtDato(d) ?? d.registrert,
         spor: [...i],
         art: artAv(d),
         forhold: foersteUnderkategori(

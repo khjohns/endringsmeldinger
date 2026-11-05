@@ -169,22 +169,14 @@ const KORRESPONDANSEN: Record<Korrespondansetype, string> = { brev: 'brev', e_po
  */
 export function omtalen(d: Dokument): string | null {
   const registrert = erRegistrert(d.opplysninger);
-  const sendt = sendtDato(d);
+  const sendt = registrert
+    ? d.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)?.dato
+    : d.registrert;
   if (sendt === undefined) return null;
   if (d.merking !== null) return `brev ${d.merking} av ${norskDato(sendt)}`;
   if (registrert && d.korrespondansetype !== null)
     return `${PARTENS[d.avsender]} ${KORRESPONDANSEN[d.korrespondansetype]} av ${norskDato(sendt)}`;
   return null;
-}
-
-/**
- * Datoen brevet ble sendt: for registrert korrespondanse datoen parten oppgir (LV-U42), ellers
- * da løsningen registrerte det. `undefined` for registrert korrespondanse uten den datoen.
- */
-export function sendtDato(d: Dokument): string | undefined {
-  return erRegistrert(d.opplysninger)
-    ? d.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)?.dato
-    : d.registrert;
 }
 
 /** Oppslagene teksten trenger i journalen før brevet og i brevet selv. */
