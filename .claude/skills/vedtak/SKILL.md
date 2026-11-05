@@ -184,6 +184,7 @@ skriver ikke der.
   `samler` til vedtakene det samler. Formen, med kilden for hver setning og lista «Endret
   innhold», står i svar 7 A i #1534 ([6623423185](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623423185)).
   Løser samlevedtaket en motsigelse og endrer innholdet, opphever det i stedet (svar 4 A, [6623211248](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
+  Kartleggingen av et samlevedtak følger punkt 4–6 under «Kartlegging med subagenter» i [orkestreringsskillen](../orkestrering/SKILL.md#kontekst-i-arbeidsøktene) (oppdragsgiver 05.11, #1065).
 - Før vedtaks-PR-en merges, kontrollerer en subagent én gang `folge` i de nye
   postene, hver endret `folge` i en importert post og hver ny eller endret
   tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,
