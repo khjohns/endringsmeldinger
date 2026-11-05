@@ -1,6 +1,6 @@
 /**
  * Formen og lesereglene byggedel 1 av #309 la til: tekst basen ikke kan lagre
- * (#373), påberopelsesversjonen i svaret (#342, HF-U1), sammenfallet (MM-U18, #326),
+ * (#373), påberopelsesversjonen i svaret (#342, HF-U1), sammenfallet (MM-U43 punkt 8, #326),
  * merkingen (KA-U16, KA-U20), innsigelsen, protesten og påberopt passivitet (§ 5,
  * VS-U1, VS-U12), og at et registrert svar ikke leses med en innsigelse (VS-U24,
  * OV-U4). Forløpene gjennom kommandoene står som bevis-saker i domenetabellen.
@@ -174,7 +174,7 @@ describe('svaret på vederlag og frist viser til påberopelsesversjonen (#342, H
   });
 });
 
-describe('sammenfallet må stemme med standpunktene i brevet (MM-U18, #326)', () => {
+describe('sammenfallet må stemme med standpunktene i brevet (MM-U43 punkt 8, #326)', () => {
   it('et avslag lagret med sammenfall er ikke forstått; kontrollsak: slik kjernen skrev det', async () => {
     const bane = minnebane();
     const k = await bygg(bane, avslag);
@@ -347,7 +347,7 @@ describe('formatet har ingen negative beløp ennå (KA-U22, KA-U9)', () => {
 
 /**
  * Code-review av PR #394: det som viser til et registrert element, stopper ikke saken
- * (MM-U18). Kravversjonen og svaret er dokumentasjon (OV-U4).
+ * (MM-U43 punkt 9). Kravversjonen og svaret er dokumentasjon (OV-U4).
  */
 describe('registrerte brev som viser til en registrert kravversjon', () => {
   const foer = [
