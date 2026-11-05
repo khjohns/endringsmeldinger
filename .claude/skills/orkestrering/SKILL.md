@@ -391,6 +391,22 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   hver med sin avgrensede bestilling. Bestillingen sier hva sluttrapporten skal
   inneholde, og at den ikke gjengir filer, differ eller testutdata (oppdragsgiver
   17.10). Bestillingen til subagenten har også med setningen «Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.», ordrett og på engelsk, for bedre balanse mellom grundighet og tid (kilde: Claude Code 2.1.299, oppdragsgiver 18.10, #779).
+- **Kartlegging med subagenter** (oppdragsgiver 05.11, #1065). Punkt 1–3 gjelder alt
+  mekanisk arbeid i alle øktene, ikke bare kartleggingen. Punkt 4–6 gjelder samlevedtakene.
+  1. **Hovedøkta leser ikke registeret.** Den leser ikke `vedtak.md`, `vedtak.toml` eller
+     store vurderingsfiler selv. Subagentene leser og rapporterer korte utdrag med ID og punkt.
+  2. **Haiku for innsamling.** Innsamlingen går på Haiku etter «Modell for subagenten», med
+     innsats `medium` eller `high`: henting av tekstene til postene, følging av `folge`-kjedene,
+     radene i `KJENTE_FORHOLD_TIL_OPPHEVET`, henvisningene i koden og telling. Standardmodellen
+     gjør det som krever skjønn: prøver alternativene mot vedtakene og skriver forslaget og
+     spørsmålene.
+  3. **Små, tette subagenter.** Én subagent per spørsmål, ferdig i én tur. Kallene skal komme
+     tett, så hurtigbufferen holder seg varm. Ingen subagent venter på noe utenfor seg selv.
+  4. **Kort vurderingsfil.** Fila har høyst om lag 150 linjer for en ny versjon av et
+     samlevedtak og om lag 250 for en ny kjede. Den viser til punktene og gjengir dem ikke.
+  5. **Én kontrollrunde.** Alternativene prøves én gang mot vedtakene, og funnene rettes én gang.
+  6. **Spørsmålene før 150 000 tokens.** Kartleggingsøkta sender spørsmålene før om lag
+     150 000 tokens. Klarer den ikke det, skriver den tilstanden og stopper.
 - **Hovedtråden leser ikke det subagenten har lest.** Når arbeidet er
   delegert, holder økta seg til bestillinger, rapporter og beslutninger. Skal en
   rapport kontrolleres, gjør en ny subagent det (oppdragsgiver 17.10).
