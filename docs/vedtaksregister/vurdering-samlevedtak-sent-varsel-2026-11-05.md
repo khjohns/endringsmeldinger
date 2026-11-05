@@ -552,7 +552,8 @@ Rettelser kan gis per punkt.
 Skrevet 05.11 etter funn 6 i den andre prøvingen
 ([PR #1593, 6652290020](https://github.com/khjohns/endringsmeldinger/pull/1593#issuecomment-6652290020)),
 etter svarene på spørsmål 1, 2a og 2b. Orkestratoren avgjorde 05.11 at funnet ikke kan rettes som en
-teknisk retting. Lagret ordrett før det stilles.
+teknisk retting. Rettet 05.11 etter prøvingen av spørsmålet (kommentaren «Prøving av
+oppfølgingsspørsmål 3» i PR #1593). Lagret ordrett før det stilles.
 
 **3. Gir totalentreprenøren opp sin påberopelse av sent varsel ved å si at det kom i tide?**
 Bakgrunn: Punkt 19 i samlevedtaket sier at punkt 10 og 12 gjelder tilsvarende når totalentreprenøren
@@ -563,39 +564,66 @@ Vedtaket fra 11.10 om totalentreprenørens påberopelse viste bare til vedtakene
 kan gis opp uttrykkelig, ikke til vedtaket fra 12.10. Spørsmål 1 sa at E9 ikke endrer innholdet, så
 punkt 19 sier etter ordlyden mer enn det oppdragsgiver sluttet seg til.
 
+Punkt 19 tar også med punkt 6. Andre setning i punkt 6 sier at en ny påberopelse etter at
+påberopelsen er gitt opp, eller etter et «i tide», er et nytt utsagn med sitt eget tidspunkt. Brukt
+tilsvarende for totalentreprenøren motsier den svaret på 2b, og den er vår slutning i E1, ikke
+ordlyden i vedtakene E9 viser til. Begge alternativene tar derfor bare med første setning i punkt 6
+for totalentreprenøren. Det følger av svaret på 2b og er ikke en del av valget.
+
 Svaret på spørsmål 2b gjelder samspillet: har totalentreprenøren i et brev sendt fra løsningen
-uttrykkelig sagt at byggherrens varsel, krav eller svar kom i tide, avviser løsningen en senere
-påberopelse fra totalentreprenøren av at det samme kom for sent. Sperren gjelder en *senere*
-påberopelse. Den sier ikke hva som skjer med en påberopelse totalentreprenøren alt har gitt.
+uttrykkelig sagt at byggherrens varsel, krav eller svar kom i tide etter en bestemmelse, avviser
+løsningen en senere påberopelse fra totalentreprenøren av at det samme kom for sent etter samme
+bestemmelse. Sperren gjelder en *senere* påberopelse. Den sier ikke hva som skjer med en påberopelse
+totalentreprenøren alt har gitt.
 
-Med X står totalentreprenørens tidligere påberopelse etter et «i tide», og løsningen gjentar den som
-utgangspunkt i totalentreprenørens neste svar (punkt 9). Samtidig står «i tide», og sperren etter 2b
-avviser en ny påberopelse av det samme. Løsningen leser da to motstridende standpunkter fra
-totalentreprenøren om det samme varselet, kravet eller svaret. Det er en motsigelse, ikke en
+Med X står totalentreprenørens tidligere påberopelse etter et «i tide». Løsningen gjentar den som
+utgangspunkt i totalentreprenørens neste svar (punkt 9), og X sier at gjentakelsen ikke er en ny
+påberopelse, så sperren avviser den ikke (punkt 6 første setning). Samtidig står «i tide», og
+sperren avviser en ny påberopelse av det samme. Vår lesning er at løsningen da leser to
+motstridende standpunkter fra totalentreprenøren om det samme, og at det er en motsigelse, ikke en
 blindvei: totalentreprenøren kommer ut av den ved uttrykkelig å gi opp påberopelsen. Med Y er
-påberopelsen oppgitt når totalentreprenøren sier «i tide», og sperren avviser en ny. Da står ett
-standpunkt.
+påberopelsen oppgitt når totalentreprenøren i et brev sendt fra løsningen sier «i tide» etter samme
+bestemmelse, og sperren avviser en ny. Da står ett standpunkt i det som er sendt fra løsningen. Et
+registrert brev gir ikke noe standpunkt og ingen sperre, verken med X eller Y (punkt 12).
 
-Valget får virkning først når totalentreprenøren kan svare på krav fra byggherren i løsningen
-(beslutningsdelen i samlevedtaket).
+Valget får virkning først når det bygges. Vedtaket fra 11.10 (VS-U14) sier: «Påberopelsen i TEs svar
+og oppgivelsen får virkning når TE kan svare på krav fra byggherren i appen, først ved § 34.3.3, som
+avvises i første versjon (OV-U1).»
 
-- **X:** «Det punkt 10 og 12 sier om at varselet kom i tide, gjelder ikke for totalentreprenøren.
-  Punkt 19, første setning, lyder: «Det punkt 1, 3–6, 9, 10 og 12 sier, gjelder tilsvarende når TE
-  påberoper at et varsel, krav eller svar fra byggherren kom for sent, fordi punkt 5 tredje ledd
-  gjelder «en part», unntatt det punkt 10 og 12 sier om at varselet kom i tide.» E9 får før siste
-  setning: «Det punkt 10 og 12 har fra VS-U20 s3, er heller ikke tatt med.» Totalentreprenørens
-  påberopelse er oppgitt bare når totalentreprenøren uttrykkelig gir den opp. Har
-  totalentreprenøren sagt at det kom i tide etter å ha påberopt at det kom for sent, står
-  påberopelsen, og sperren etter 2b avviser en ny påberopelse av det samme. Forhold: ingen nye; E9
-  samler VS-U14 uten å endre innholdet.»
-- **Y (anbefalt):** «Det punkt 10 og 12 sier om at varselet kom i tide, gjelder også for
-  totalentreprenøren. Punkt 19, første setning, står. E9 får før siste setning: «Punkt 10 og 12 har
-  fra VS-U20 s3 at også et uttrykkelig standpunkt om at varselet kom i tide gir opp påberopelsen.
-  Punkt 19 lar det gjelde for TE, og det er en utvidelse av VS-U14.», og siste setning i E9 lyder:
-  «Innholdet er endret. Forholdet: utvider VS-U14.» Har totalentreprenøren sagt at det kom i tide
-  etter å ha påberopt at det kom for sent, er påberopelsen oppgitt, og sperren etter 2b avviser en
-  ny påberopelse av det samme. Forhold: utvider VS-U14 (VS-U20 s3 gjelder også for
-  totalentreprenøren).»
+- **X:** «Et uttrykkelig «i tide» gir ikke opp totalentreprenørens påberopelse. Punkt 19, første
+  setning, lyder: «Det punkt 1, 3–5, 6 første setning, 9, 10 og 12 sier, unntatt at et uttrykkelig
+  «i tide» gir opp påberopelsen (punkt 10 og 12), gjelder tilsvarende når TE påberoper at et varsel,
+  krav eller svar fra byggherren kom for sent, fordi punkt 5 tredje ledd gjelder «en part».» E9
+  lyder: «**E9 Hva som gjelder for TE.** Gammel tekst: VS-U14 s1 «VS-U9 og VS-U11 gjelder
+  tilsvarende når TE mottar et varsel, krav eller svar fra byggherren og påberoper at det kom for
+  sent, fordi § 5 tredje ledd gjelder «en part».» Samlevedtaket: punkt 19, som nevner punktene i
+  samlevedtaket som kommer fra VS-U9 og VS-U11. Punkt 2 og 7 (VS-U24 og VS-U20) gjelder byggherrens
+  svar og er ikke tatt med. Det samme gjelder det punkt 10 og 12 har fra VS-U20 tredje setning, at
+  et uttrykkelig «i tide» gir opp påberopelsen, og andre setning i punkt 6, som er vår slutning i
+  E1. Innholdet i VS-U14 er ikke endret.» Totalentreprenørens påberopelse er oppgitt bare når
+  totalentreprenøren uttrykkelig gir den opp. TE kan fortsatt si «i tide» i et senere svar (punkt
+  10), og da gjelder sperren etter 2b. Har totalentreprenøren sagt at det kom i tide etter å ha
+  påberopt at det kom for sent, står påberopelsen, og løsningen gjentar den i neste svar (punkt 9).
+  Gjentakelsen er ikke en ny påberopelse, og sperren etter 2b avviser den ikke. Sperren avviser en
+  ny påberopelse av det samme. Forhold: tar opp igjen for dette det VS-U14 forkastet, «ulike regler
+  for partene».»
+- **Y (anbefalt):** «Et uttrykkelig «i tide» gir opp totalentreprenørens påberopelse etter samme
+  bestemmelse. Punkt 19, første setning, lyder: «Det punkt 1, 3–5, 6 første setning, 9, 10 og 12
+  sier, gjelder tilsvarende når TE påberoper at et varsel, krav eller svar fra byggherren kom for
+  sent, fordi punkt 5 tredje ledd gjelder «en part».» og punkt 19 får som andre setning: «Har TE i et
+  brev sendt fra løsningen uttrykkelig sagt at byggherrens varsel, krav eller svar kom i tide etter
+  en bestemmelse, er påberopelsen etter samme bestemmelse oppgitt (punkt 10 og 12).» E9 lyder: «**E9
+  Hva som gjelder for TE.** Gammel tekst: VS-U14 s1 «VS-U9 og VS-U11 gjelder tilsvarende når TE
+  mottar et varsel, krav eller svar fra byggherren og påberoper at det kom for sent, fordi § 5
+  tredje ledd gjelder «en part».» Samlevedtaket: punkt 19, som nevner punktene i samlevedtaket som
+  kommer fra VS-U9 og VS-U11, og punkt 10 og 12, som også har VS-U20 tredje setning. Punkt 2 og 7
+  (VS-U24 og VS-U20 første setning) gjelder byggherrens svar og er ikke tatt med, og heller ikke
+  andre setning i punkt 6, som er vår slutning i E1. At et uttrykkelig «i tide» fra TE gir opp
+  påberopelsen etter samme bestemmelse, kommer fra VS-U20 tredje setning og er en utvidelse.
+  Innholdet er endret. Forholdet: utvider VS-U14 og VS-U20 tredje setning til TE.» Har
+  totalentreprenøren sagt at det kom i tide etter å ha påberopt at det kom for sent, er
+  påberopelsen etter samme bestemmelse oppgitt, og sperren etter 2b avviser en ny påberopelse av
+  det samme. Forhold: utvider VS-U14 og VS-U20 tredje setning til totalentreprenøren.»
 
 *Belegg:* Vedtaket fra 12.10 (VS-U20, tredje setning): «Appen leser den som oppgitt bare når
 byggherren uttrykkelig har frafalt påberopelsen eller sagt at varselet kom i tide (VS-U11).»
@@ -607,21 +635,25 @@ tok det opp igjen bare for sperren.
 
 *Anbefaling:* Y. Totalentreprenøren får samme regel som byggherren for hva som gir opp
 påberopelsen, slik VS-U14 forkastet ulike regler for partene. Sammen med 2b gir Y ett standpunkt
-etter et «i tide». Med X står påberopelsen og «i tide» samtidig.
+etter et «i tide» i et brev sendt fra løsningen. Med X står påberopelsen og «i tide» samtidig, og X
+tar opp igjen ulike regler for partene på et punkt til.
 
 *Hva det koster:*
 - *X, totalentreprenøren selv:* vil totalentreprenøren gi opp påberopelsen, må det sies uttrykkelig.
-  Sier totalentreprenøren bare «i tide», gjentar løsningen påberopelsen i neste svar, og
-  totalentreprenøren kan ikke påberope på nytt hvis den gamle senere gis opp.
+  Et «i tide» koster ellers totalentreprenøren ingenting i løsningen for en påberopelse som alt er
+  gitt: den står og gjentas. Det lønner seg derfor å si «i tide» uten å mene det, fordi byggherren
+  bærer motsigelsen.
 - *X, byggherren:* byggherren leser i løsningen både en påberopelse og et «i tide» fra
   totalentreprenøren om det samme, og må selv gjøre gjeldende hva det betyr.
-- *Y, totalentreprenøren selv:* et uttrykkelig «i tide» gir opp en påberopelse totalentreprenøren
-  alt har gitt, og etter 2b kan den ikke gis på nytt. Har totalentreprenøren sagt «i tide» ved en
-  feil, kan påberopelsen ikke uttrykkes i løsningen igjen (som under «Hva B koster» i 2b).
-- *Y, byggherren:* ingen; standpunktet er entydig.
+- *Y, totalentreprenøren selv:* et uttrykkelig «i tide» i et brev sendt fra løsningen gir opp en
+  påberopelse totalentreprenøren alt har gitt etter samme bestemmelse, og etter 2b kan den ikke gis
+  på nytt. Har totalentreprenøren sagt «i tide» ved en feil, kan påberopelsen ikke uttrykkes i
+  løsningen igjen (som under «Hva B koster» i 2b).
+- *Y, byggherren:* standpunktet i det som er sendt fra løsningen, er entydig. Et registrert brev
+  gir fortsatt ikke noe standpunkt (punkt 12).
 
-*Hva valget styrer:* punkt 19 og E9 i VS-U46, forholdet til VS-U14, og hva løsningen leser når
-totalentreprenøren sier «i tide» etter å ha påberopt at noe kom for sent.
+*Hva valget styrer:* punkt 19 og E9 i VS-U46, forholdet til VS-U14 og VS-U20, og hva løsningen leser
+når totalentreprenøren sier «i tide» etter å ha påberopt at noe kom for sent.
 
 ## Svarene
 
