@@ -6871,7 +6871,7 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
   });
 });
 
-describe('brevtittelen fryses med brevet (MM-U3, svaret 03.11 i #1488)', () => {
+describe('brevtittelen fryses med brevet (MM-U3, MM-U50, svaret 03.11 i #1488)', () => {
   it('påberopelsen får tittelen med navnet på forholdet fra kjernens liste, og leseren gir den', () => {
     const s = sak();
     const rad = s.send('TE', PAABEROPELSE);

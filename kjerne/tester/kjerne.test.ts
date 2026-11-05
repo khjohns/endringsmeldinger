@@ -266,7 +266,7 @@ describe('lesereglene for referansene (4.2)', () => {
     });
   };
 
-  it('en bestridelse med tittelen fra innsigelsen er ikke forstått (MM-U3, #1533)', async () => {
+  it('en bestridelse med tittelen fra innsigelsen er ikke forstått (MM-U3, MM-U50, #1533)', async () => {
     const bane = minnebane();
     const k = await bygg(bane, varselOgInnsigelse as Parameters<typeof bygg>[1]);
     const rader = structuredClone(await bane.journal());

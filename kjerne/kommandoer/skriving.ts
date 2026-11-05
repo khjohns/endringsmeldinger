@@ -228,7 +228,7 @@ function dokument(
         svar: frosneSvar([svar(k.svar, u, nyId, utdypninger, bygde, k.erstatter)], u, kjerne),
       };
     case 'aksept':
-      // KA-U10: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
+      // KA-U10, MM-U50: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
       return {
         utsagn: [{ id: nyId(), art: 'aksept', gjelder: k.svar, regelversjon: k.regelversjon }],
       };

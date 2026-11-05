@@ -194,8 +194,8 @@ registrert etter svaret gjør preklusjonen eller begrensningen uavklart og sperr
 Følge i MM-U8 sier det alt («Leses etter OV-U5, som endret MM-U8 13.10: et svar byggherren alt har
 gitt, står med virkningen det hadde, og TE kan godta det (oppdragsgiver 23.10, #1047)»). Det snur
 også det forkastede alternativet i MM-U8, «å la TE godta svaret slik brevet uttrykte det».
-Samlevedtaket endrer ikke innholdet, så MM-U8 samles og oppheves ikke (svar 4 A). Forholdet «MM-U8
-bygger på MM-U4» har ikke noe å virke på, fordi regelen i MM-U4 ikke gjelder for en ny opplysning
+Samlevedtaket endrer ikke innholdet. MM-U8 oppheves av samlevedtaket, og henvisningene til den
+gjelder samlevedtaket (OV-U92 (a), svar Y og M1). Forholdet «MM-U8 bygger på MM-U4» har ikke noe å virke på, fordi regelen i MM-U4 ikke gjelder for en ny opplysning
 heller: (b), forholdet fjernes, og raden i `KJENTE_FORHOLD_TIL_OPPHEVET` fjernes med det.
 MM-U1 femte setning, VS-U7 og OV-U22 sier fortsatt «uavklart» med en merknad om OV-U5. De leses etter
 punkt 21 og hører til kjeden for brev utenfor løsningen (c).
@@ -286,14 +286,16 @@ fristkravet er samlet av VS-U43. HF-U5 nevnes bare. Forholdene fra HF-U5 til MM-
 står. Innholdet i dem er endret av HF-U23 (E2) og HF-U25 (E2, E4).
 
 **E9 Forholdene til postene samlevedtaket samler** (hovedregelen 05.11, punkt 2). Samlevedtaket
-opphever ingen post, så (a) og (b) gjelder forholdene, ikke postene. «Står» betyr at forholdet står
+opphever MM-U3, MM-U8, MM-U11, MM-U12, MM-U16, MM-U17 og KA-U10, som det tar helt inn, og som står
+i radene med (a) (OV-U92 (a), svar Y, M1 og K1). Henvisningene til dem gjelder samlevedtaket. For
+postene det bare tar inn deler av, gjelder (a) og (b) forholdene, ikke postene. «Står» betyr at forholdet står
 som før, og at det leses som et forhold til samlevedtaket der det gjelder en setning som er samlet.
 
 | Forhold | Regel | Hvorfor |
 | --- | --- | --- |
 | MM-U9 opphever MM-U4, MM-U5, MM-U6 | står | regelen står i punkt 1–2 |
 | MM-U8 bygger på MM-U4 | (b), fjernes | E1 |
-| VS-U7 utvider MM-U8 | (b), fjernes | utvidelsen til punkt 34.1 gjaldt at preklusjonen blir uavklart, at en enighet står, og at det bare gjelder når varselet gjelder det preklusjonen gjaldt; punkt 21–23 og OV-U5 dekker alt punkt 34.1.2 og 34.1.3, og OV-U5 endret VS-U7 |
+| VS-U7 utvider MM-U8 | står (c) | punkt 21–23 og OV-U5 dekker utvidelsen til punkt 34.1, men samlevedtaket sier ikke med ord at forholdet ikke gjelder eller ikke har noe å virke på (OV-U93, svar Y) |
 | OV-U5 endrer MM-U8 | (a) | punkt 21–22 |
 | MM-U8 presiserer MM-U1 | (a) | punkt 21; setningen om uavklart preklusjon i MM-U1 hører til kjeden for brev utenfor løsningen (c) |
 | MM-U17 endrer GR-U12, GR-U13, KA-U10, MM-U9, MM-U11, MM-U12 | (a) | punkt 13 og 19 |

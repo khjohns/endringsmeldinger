@@ -1151,7 +1151,7 @@ function forholdet(
     frafaller(sisteFraAppen);
   return {
     // Utledet av standpunktene i brevet om forholdet, som også er innholdet i en
-    // enighet om det (KA-U10, MM-U11).
+    // enighet om det (KA-U10, MM-U11, MM-U50).
     forholdAvklart:
       venterEtterFrafall ||
       (!spor.forhold.trukket && gBrev !== null && forholdetErAvklart(gBrev.svar, gBrev.virkninger)),

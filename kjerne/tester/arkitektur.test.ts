@@ -994,7 +994,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'lagBrevtekst lagDeresRef KanIkkeUttrykkes BrevetAvvises',
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
-  // MM-U3, #1536: brevtittelen fryses med teksten, og leseren avviser en tittel skrivingen ikke lager (#1533).
+  // MM-U3, MM-U50, #1536: brevtittelen fryses med teksten, og leseren avviser en tittel skrivingen ikke lager (#1533).
   [
     'frosset/brevtittel.ts',
     'brevtekst',

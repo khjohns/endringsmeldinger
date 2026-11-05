@@ -1,5 +1,5 @@
 /**
- * Tittelen på brevet løsningen sender, frosset med teksten (MM-U3, #1536). Et registrert
+ * Tittelen på brevet løsningen sender, frosset med teksten (MM-U3, MM-U50, #1536). Et registrert
  * brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
  */
 
@@ -100,7 +100,7 @@ export function avvikITittelen(
   d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>
 ): string | null {
   if (lagBrevtittel(d) === null)
-    return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U3)';
+    return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U3)'; // MM-U50
   const f = paaberoptForhold(d);
   const paaberoper = tittel.startsWith(paaberopelsenAv(''));
   const forventet = f && paaberopelsenAv(f.navn);

@@ -33,7 +33,7 @@ export interface Brevet {
    * «totalentreprenørens e-post av …» for registrert korrespondanse (LV-U53, LV-U42).
    */
   omtale: string | null;
-  /** Tittelen som ble frosset med brevet (MM-U3), eller `null` når brevet ikke har en. */
+  /** Tittelen som ble frosset med brevet (MM-U3, MM-U50), eller `null` når brevet ikke har en. */
   brevtittel: string | null;
   /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17, MM-U50). */
   avsnitt: Avsnitt[] | null;

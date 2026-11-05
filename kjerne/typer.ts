@@ -266,7 +266,7 @@ export interface Dokument {
   utsagn: LestUtsagn[];
   /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17, MM-U50). */
   brevtekst: Avsnitt[] | null;
-  /** Tittelen på et brev løsningen sendte, frosset med teksten (MM-U3, #1536). `null` ellers. */
+  /** Tittelen på et brev løsningen sendte, frosset med teksten (MM-U3, MM-U50, #1536). `null` ellers. */
   brevtittel: string | null;
   /**
    * Brevets nummer i saken (LV-U44, N3 i #1497): satt av kjernen for et brev fra løsningen, og
@@ -374,7 +374,7 @@ export interface Utfall {
 /**
  * Innholdet i en enighet: brevets standpunkter, med kilden, og utfallet og
  * vilkåret utledet av dem. Det lagres ikke, men leses fra brevet, så innholdet
- * har ett hjem (KA-U10, MM-U3, MM-U11).
+ * har ett hjem (KA-U10, MM-U3, MM-U11, MM-U50).
  */
 export interface Enighetsgrunnlag {
   spor: Spor;

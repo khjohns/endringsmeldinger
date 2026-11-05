@@ -80,7 +80,7 @@
   const akseptkommando = $derived(
     kanGodta && svaret ? aksepten(spor, svaret.id, kjernesak.regelversjon) : null
   );
-  // Virkningen av aksepten slik kjernen regner den, av svaret slik det ble sendt (KA-U10).
+  // Virkningen av aksepten slik kjernen regner den, av svaret slik det ble sendt (KA-U10, MM-U50).
   const enighet = $derived(
     akseptkommando ? (kjernesak.forhaandsvist(akseptkommando)?.spor[spor].enighet ?? null) : null
   );

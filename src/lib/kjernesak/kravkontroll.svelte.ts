@@ -206,7 +206,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     trekk: (spor: Spor) => utsagn({ type: 'trekk', spor }, spor),
     /**
      * Aksepten av byggherrens svar `svar`, det gjeldende svaret knappen er vist for, med
-     * regelversjonen brevet er forhåndsvist med (KA-U10). Ingen fritekst: kommandoen har ingen.
+     * regelversjonen brevet er forhåndsvist med (KA-U10, MM-U50). Ingen fritekst: kommandoen har ingen.
      */
     aksept: (spor: Spor, svar: string) =>
       sendUtsagn(() =>

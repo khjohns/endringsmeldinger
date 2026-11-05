@@ -3626,7 +3626,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F439',
-    feilklasse: 'leseren godtar en tittel i et brev løsningen ikke gir en tittel (MM-U3, #1533)',
+    feilklasse:
+      'leseren godtar en tittel i et brev løsningen ikke gir en tittel (MM-U3, MM-U50, #1533)',
     fil: `${K}/frosset/brevtittel.ts`,
     endringer: [['if (lagBrevtittel(d) === null)', 'if (false)']],
     mal: ['en bestridelse med tittelen fra innsigelsen er ikke forstått'],

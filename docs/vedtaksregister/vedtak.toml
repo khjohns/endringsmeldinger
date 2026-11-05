@@ -10950,9 +10950,11 @@ fordelingen.
 
 Teksten under er samlevedtaket [MM-U50](#mm-u50), vedtatt 05.11 av oppdragsgiver (#1534), ordrett slik
 det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-sendte-brev-2026-11-05.md),
-med «Endret innhold» E1–E10, med to unntak: henvisningen i punkt 8 til HF-U6 viser nå til VS-U46
-punkt 20, som har samlet det som gjaldt av HF-U6, og siste setning i E3 sier at svar 1 A for VS-U46
-er ført. Svaret på spørsmål 2 står i punkt 7 og 8 og E3.
+med «Endret innhold» E1–E10, med tre unntak: henvisningen i punkt 8 til HF-U6 viser nå til VS-U46
+punkt 20, som har samlet det som gjaldt av HF-U6, siste setning i E3 sier at svar 1 A for VS-U46
+er ført, og E1 og E9 sier at samlevedtaket opphever MM-U3, MM-U8, MM-U11, MM-U12, MM-U16, MM-U17 og
+KA-U10, og at «VS-U7 utvider MM-U8» står (svar Y, M1 og K1). Svaret på spørsmål 2 står i punkt 7 og
+8 og E3.
 
 Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Kildene står i parentes etter hver
 setning; «s» er setningen i posten, talt fra vedtaksteksten etter ID-en, og for en ny post fra det
@@ -11069,8 +11071,8 @@ registrert etter svaret gjør preklusjonen eller begrensningen uavklart og sperr
 Følge i MM-U8 sier det alt («Leses etter OV-U5, som endret MM-U8 13.10: et svar byggherren alt har
 gitt, står med virkningen det hadde, og TE kan godta det (oppdragsgiver 23.10, #1047)»). Det snur
 også det forkastede alternativet i MM-U8, «å la TE godta svaret slik brevet uttrykte det».
-Samlevedtaket endrer ikke innholdet, så MM-U8 samles og oppheves ikke (svar 4 A). Forholdet «MM-U8
-bygger på MM-U4» har ikke noe å virke på, fordi regelen i MM-U4 ikke gjelder for en ny opplysning
+Samlevedtaket endrer ikke innholdet. MM-U8 oppheves av samlevedtaket, og henvisningene til den
+gjelder samlevedtaket (OV-U92 (a), svar Y og M1). Forholdet «MM-U8 bygger på MM-U4» har ikke noe å virke på, fordi regelen i MM-U4 ikke gjelder for en ny opplysning
 heller: (b), forholdet fjernes, og raden i `KJENTE_FORHOLD_TIL_OPPHEVET` fjernes med det.
 MM-U1 femte setning, VS-U7 og OV-U22 sier fortsatt «uavklart» med en merknad om OV-U5. De leses etter
 punkt 21 og hører til kjeden for brev utenfor løsningen (c).
@@ -11157,14 +11159,16 @@ fristkravet er samlet av VS-U43. HF-U5 nevnes bare. Forholdene fra HF-U5 til MM-
 står. Innholdet i dem er endret av HF-U23 (E2) og HF-U25 (E2, E4).
 
 **E9 Forholdene til postene samlevedtaket samler** (hovedregelen 05.11, punkt 2). Samlevedtaket
-opphever ingen post, så (a) og (b) gjelder forholdene, ikke postene. «Står» betyr at forholdet står
+opphever MM-U3, MM-U8, MM-U11, MM-U12, MM-U16, MM-U17 og KA-U10, som det tar helt inn, og som står
+i radene med (a) (OV-U92 (a), svar Y, M1 og K1). Henvisningene til dem gjelder samlevedtaket. For
+postene det bare tar inn deler av, gjelder (a) og (b) forholdene, ikke postene. «Står» betyr at forholdet står
 som før, og at det leses som et forhold til samlevedtaket der det gjelder en setning som er samlet.
 
 | Forhold | Regel | Hvorfor |
 | --- | --- | --- |
 | MM-U9 opphever MM-U4, MM-U5, MM-U6 | står | regelen står i punkt 1–2 |
 | MM-U8 bygger på MM-U4 | (b), fjernes | E1 |
-| VS-U7 utvider MM-U8 | (b), fjernes | utvidelsen til punkt 34.1 gjaldt at preklusjonen blir uavklart, at en enighet står, og at det bare gjelder når varselet gjelder det preklusjonen gjaldt; punkt 21–23 og OV-U5 dekker alt punkt 34.1.2 og 34.1.3, og OV-U5 endret VS-U7 |
+| VS-U7 utvider MM-U8 | står (c) | punkt 21–23 og OV-U5 dekker utvidelsen til punkt 34.1, men samlevedtaket sier ikke med ord at forholdet ikke gjelder eller ikke har noe å virke på (OV-U93, svar Y) |
 | OV-U5 endrer MM-U8 | (a) | punkt 21–22 |
 | MM-U8 presiserer MM-U1 | (a) | punkt 21; setningen om uavklart preklusjon i MM-U1 hører til kjeden for brev utenfor løsningen (c) |
 | MM-U17 endrer GR-U12, GR-U13, KA-U10, MM-U9, MM-U11, MM-U12 | (a) | punkt 13 og 19 |
@@ -15565,42 +15569,80 @@ regelendring ikke endrer det brevene sier, og det står i punkt 1–2 og 7 også
 med svaret 05.11, er vår slutning; svaret ble gitt om å registrere feil, ikke om dette vedtaket.
 
 *Hva valget styrer:* punkt 7 og 8 i MM-U50 og forholdet til HF-U13. Ingen sperre eller handling i
-løsningen endres.'''
-valgt = "1 A, 2 A"
+løsningen endres.
+
+**Oppfølgingsspørsmålet om forholdene i E9**, ordrett slik det ble lagt fram 05.11 ([#1534, 6655430467](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6655430467)). Spørsmålet fra oppdragsgiver: «Løses L1,L2,L3 av hovedregelen?» Valget ble lagt fram slik:
+
+- **X:** «1 A slik den står (L1, ført i PR-en). Svaret ditt på dette samlevedtaket går foran hovedregelen. «(a)» i E9 betyr at forholdet leses mot samlevedtaket, ikke at postene oppheves. Ingen omarbeiding.»
+- **Y:** «hovedregelen gjelder fullt ut (L2 og L3). «(a)» i E9 forstås som i OV-U92, og E9 viser selv til «hovedregelen 05.11». MM-U50 opphever da postene i (a)-radene i stedet for å samle dem, og hver henvisning til dem i koden og `docs/` må stå sammen med MM-U50. «VS-U7 utvider MM-U8» står.»
+
+*Anbefaling:* Y.
+
+**Oppfølgingsspørsmålet om MM-U8, MM-U3 og KA-U10**, ordrett slik det ble lagt fram 05.11 ([#1534, 6655504111](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6655504111)):
+
+1. **MM-U8.** E1 sier uttrykkelig: «Samlevedtaket endrer ikke innholdet, så MM-U8 samles og oppheves ikke (svar 4 A).» Samtidig står MM-U8 i to (a)-rader i E9.
+   - **M1 (anbefalt):** MM-U8 oppheves etter Y; setningen i E1 rettes, og `endrer` tredje setning i MM-U8 faller bort, fordi hele innholdet står i punkt 21–23.
+   - **M2:** MM-U8 samles som nå, fordi E1 sier det med ord.
+2. **MM-U3 og KA-U10.** MM-U50 endrer én setning i hver og samler resten, så hele innholdet står i punkt 13–17.
+   - **K1 (anbefalt):** de oppheves, og `endrer` faller bort, som for MM-U8.
+   - **K2:** de oppheves og beholder `endrer`.
+   - **K3:** de samles og endres som nå (KA-U46 endret bare poster der resten sto).'''
+valgt = "1 A, 2 A, Y, M1, K1"
 svar = '''
-Oppdragsgiver 05.11, ordrett: «1 A, 2 A» ([#1534, 6654554952](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6654554952)).'''
+Oppdragsgiver 05.11, ordrett: «1 A, 2 A» ([#1534, 6654554952](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6654554952)). På oppfølgingsspørsmålet om E9, ordrett: «Y, og godkjenner merge av 1602 når klar» ([#1534, 6655430467](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6655430467)). På oppfølgingsspørsmålet om MM-U8, MM-U3 og KA-U10, ordrett: «M1, K1» ([#1534, 6655504111](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6655504111)). Valgt samlet: 1 A, 2 A, Y, M1, K1.'''
 forhold = [
-  { art = "samler", vedtak = "mm-u3" },
-  { art = "samler", vedtak = "mm-u8" },
+  { art = "opphever", vedtak = "mm-u3" },
+  { art = "opphever", vedtak = "mm-u8" },
   { art = "samler", vedtak = "mm-u9" },
   { art = "opphever", vedtak = "mm-u11" },
   { art = "opphever", vedtak = "mm-u12" },
   { art = "opphever", vedtak = "mm-u16" },
   { art = "opphever", vedtak = "mm-u17" },
-  { art = "samler", vedtak = "ka-u10" },
+  { art = "opphever", vedtak = "ka-u10" },
   { art = "samler", vedtak = "hf-u13" },
   { art = "samler", vedtak = "gr-u12" },
   { art = "samler", vedtak = "gr-u13" },
   { art = "samler", vedtak = "hf-u9" },
   { art = "samler", vedtak = "ov-u5" },
   { art = "samler", vedtak = "b-13-regelversjon" },
-  { art = "endrer", vedtak = "ka-u10" },
-  { art = "endrer", vedtak = "mm-u3" },
-  { art = "endrer", vedtak = "mm-u8" },
   { art = "endrer", vedtak = "hf-u13" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for sendte brev og regelendring](#samlevedtak-sendte-brev). Samler MM-U3, MM-U8 slik OV-U5 endret den, MM-U9 unntatt setningen om merknaden (HF-U25 punkt 9), MM-U11, MM-U12, MM-U16, MM-U17 slik OV-U4 og OV-U80 endret den, KA-U10, HF-U13 unntatt siste setning, tredje setning i GR-U12, sjette setning i GR-U13, fjerde og femte setning i HF-U9 med tillegget fra MM-U34 punkt 10, setningene i OV-U5 om et svar byggherren alt har gitt, og merknaden 05.10 i B-13 regelversjon. Endrer første setning i KA-U10 og andre setning i MM-U3 (E2), tredje setning i MM-U8 (E10) og første setning i HF-U13 (spørsmål 2). Forholdene «MM-U8 bygger på MM-U4» og «VS-U7 utvider MM-U8» er fjernet (E9). HF-U5 nevnes bare (E8).'''
+Teksten står under tabellen, i [Samlevedtaket for sendte brev og regelendring](#samlevedtak-sendte-brev). Opphever MM-U3, MM-U8 slik OV-U5 endret den, MM-U11, MM-U12, MM-U16, MM-U17 slik OV-U4 og OV-U80 endret den, og KA-U10 ([OV-U92](#ov-u92) (a), svar Y, M1 og K1); henvisningene til dem gjelder samlevedtaket. Samler MM-U9 unntatt setningen om merknaden (HF-U25 punkt 9), HF-U13 unntatt siste setning, tredje setning i GR-U12, sjette setning i GR-U13, fjerde og femte setning i HF-U9 med tillegget fra MM-U34 punkt 10, setningene i OV-U5 om et svar byggherren alt har gitt, og merknaden 05.10 i B-13 regelversjon. Endrer første setning i HF-U13 (spørsmål 2). Den nye ordlyden for første setning i KA-U10 og andre setning i MM-U3 (E2) og tredje setning i MM-U8 (E10) står i samlevedtaket; forholdet «endrer» til dem falt bort da postene ble opphevet (M1, K1). Forholdet «MM-U8 bygger på MM-U4» er fjernet (E1, E9). Forholdet «VS-U7 utvider MM-U8» står etter (c) ([OV-U93](#ov-u93), svar Y). HF-U5 nevnes bare (E8).'''
 
 [[gruppe.vedtak.alternativ]]
-navn = "1 A, 2 A"
+navn = "1 A, 2 A, Y, M1, K1"
 tekst = '''
-Spørsmål 1: Reglene for sendte brev og regelendring står i samlevedtaket MM-U50, punkt 1–24 med designdelen, beslutningsdelen og E1–E10. MM-U3, MM-U8, MM-U9 (unntatt tredje setning), MM-U11, MM-U12, MM-U16, MM-U17, KA-U10, HF-U13 (unntatt siste setning), tredje setning i GR-U12, sjette setning i GR-U13, fjerde og femte setning i HF-U9 med tillegget fra MM-U34 punkt 10, setningene i OV-U5 om et svar byggherren alt har gitt, og merknaden 05.10 i B-13 regelversjon gjelder som «Samlet i samlevedtaket for sendte brev og regelendring». Forhold: samler de postene; endrer første setning i KA-U10 og andre setning i MM-U3 (E2) og tredje setning i MM-U8 (E10). Forholdet til første setning i HF-U13 følger svaret på spørsmål 2. Forholdene «MM-U8 bygger på MM-U4» og «VS-U7 utvider MM-U8» fjernes (E9). Klasse: vedtak med designdel og beslutningsdel. Spørsmål 2: Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene binder ingen av partene, og løsningen avgjør ikke om en part er bundet av et utsagn eller kan komme løs fra det (MM-U12). Forhold: endrer første setning i HF-U13. Begrunnelsen i tredje setning i MM-U17 («den som sender et brev, er bundet av det hen har meddelt») og prinsippet fra 10.10 i MM-U16 («det som er meddelt, binder») leses som at det parten har meddelt, står som partens utsagn.'''
+Spørsmål 1: Reglene for sendte brev og regelendring står i samlevedtaket MM-U50, punkt 1–24 med designdelen, beslutningsdelen og E1–E10. MM-U3, MM-U8, MM-U9 (unntatt tredje setning), MM-U11, MM-U12, MM-U16, MM-U17, KA-U10, HF-U13 (unntatt siste setning), tredje setning i GR-U12, sjette setning i GR-U13, fjerde og femte setning i HF-U9 med tillegget fra MM-U34 punkt 10, setningene i OV-U5 om et svar byggherren alt har gitt, og merknaden 05.10 i B-13 regelversjon gjelder som «Samlet i samlevedtaket for sendte brev og regelendring». Forhold: samler de postene; endrer første setning i KA-U10 og andre setning i MM-U3 (E2) og tredje setning i MM-U8 (E10). Forholdet til første setning i HF-U13 følger svaret på spørsmål 2. Forholdene «MM-U8 bygger på MM-U4» og «VS-U7 utvider MM-U8» fjernes (E9). Klasse: vedtak med designdel og beslutningsdel. Spørsmål 2: Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene binder ingen av partene, og løsningen avgjør ikke om en part er bundet av et utsagn eller kan komme løs fra det (MM-U12). Forhold: endrer første setning i HF-U13. Begrunnelsen i tredje setning i MM-U17 («den som sender et brev, er bundet av det hen har meddelt») og prinsippet fra 10.10 i MM-U16 («det som er meddelt, binder») leses som at det parten har meddelt, står som partens utsagn. Oppfølgingsspørsmålet om E9, Y: hovedregelen gjelder fullt ut (L2 og L3). «(a)» i E9 forstås som i OV-U92, og E9 viser selv til «hovedregelen 05.11». MM-U50 opphever da postene i (a)-radene i stedet for å samle dem, og hver henvisning til dem i koden og docs/ må stå sammen med MM-U50. «VS-U7 utvider MM-U8» står. Oppfølgingsspørsmålet om MM-U8, MM-U3 og KA-U10, M1: MM-U8 oppheves etter Y; setningen i E1 rettes, og «endrer» tredje setning i MM-U8 faller bort, fordi hele innholdet står i punkt 21–23. K1: de oppheves, og «endrer» faller bort, som for MM-U8.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1 B"
 tekst = '''
 Som A, men KA-U10, MM-U3 og MM-U8 beholder «enigheten gjelder» og «En enighet inngått før opplysningen står» uten forbeholdet om at løsningen ikke avgjør om partene rettslig er enige, eller om enigheten står. E2 og E10 gjelder ikke, og samlevedtaket strider da i ordlyden mot MM-U34 punkt 9 og 10.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "X"
+tekst = '''
+1 A slik den står (L1, ført i PR-en). Svaret ditt på dette samlevedtaket går foran hovedregelen. «(a)» i E9 betyr at forholdet leses mot samlevedtaket, ikke at postene oppheves. Ingen omarbeiding.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "M2"
+tekst = '''
+MM-U8 samles som nå, fordi E1 sier det med ord.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "K2"
+tekst = '''
+De oppheves og beholder «endrer».'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "K3"
+tekst = '''
+De samles og endres som nå (KA-U46 endret bare poster der resten sto).'''
 forkastet = true
 
 [[gruppe.vedtak.alternativ]]

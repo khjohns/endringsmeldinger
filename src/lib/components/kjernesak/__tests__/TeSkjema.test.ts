@@ -356,7 +356,7 @@ const avslaattGrunnlag = () => {
 };
 
 describe('aksept og innsigelse (S-2a.2)', () => {
-  it('TE godtar byggherrens gjeldende svar med svaret og regelversjonen brevet er vist med (KA-U10)', async () => {
+  it('TE godtar byggherrens gjeldende svar med svaret og regelversjonen brevet er vist med (KA-U10, MM-U50)', async () => {
     const journal = avslaattGrunnlag();
     const svarId = utledJournal(journal, KJERNE).spor.forhold.gjeldendeSvar!.id;
     const { send } = await vis(journal, 'ansvar');

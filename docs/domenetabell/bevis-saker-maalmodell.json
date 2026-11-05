@@ -850,7 +850,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U10", "V-B13-REGELVERSJON"],
+          "kilde": ["KA-U10", "V-B13-REGELVERSJON", "MM-U50"],
           "forventet": { "avvist": true, "regel": "ANNEN_REGELVERSJON", "enighet.forhold": null }
         },
         {
@@ -6453,7 +6453,8 @@
           "rolle": "kontroll",
           "kilde": [
             "MM-U8",
-            "V-SK12"
+            "V-SK12",
+            "MM-U50"
           ],
           "prov": {
             "handling": "varsel",
@@ -8985,7 +8986,8 @@
           "etter": 4,
           "rolle": "mal",
           "kilde": [
-            "KA-U10"
+            "KA-U10",
+            "MM-U50"
           ],
           "forventet": {
             "avvist": false,
@@ -9244,7 +9246,8 @@
           "rolle": "mal",
           "kilde": [
             "AV-479",
-            "KA-U10"
+            "KA-U10",
+            "MM-U50"
           ],
           "forventet": {
             "avvist": false,
@@ -9576,7 +9579,8 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "KA-U10"
+            "KA-U10",
+            "MM-U50"
           ],
           "forventet": {
             "avvist": false,
