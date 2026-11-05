@@ -184,5 +184,199 @@
         }
       ]
     }
-  ]
+  ],
+  "prototype": {
+    "fil": "../../design/prototyper/korrigering-av-datoen.html",
+    "klikkstier": [
+      {
+        "id": "korriger",
+        "dekker": [
+          "1",
+          "2",
+          "3",
+          "G-2"
+        ],
+        "start": "saken",
+        "handlinger": [
+          {
+            "staar": "TE opplyser at pålegget ble mottatt 15. september 2026."
+          },
+          {
+            "staar": "påberoper at varselet etter punkt 32.2 kom for sent"
+          },
+          {
+            "klikk": "Korriger datoen",
+            "tilstand": "korrigering"
+          },
+          {
+            "staar": "Den er ikke en ny kravversjon og avslår ikke svaret"
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "20.09.2026"
+          },
+          {
+            "fyll": "Forklaring",
+            "tekst": "Pålegget ble gitt muntlig 15. september og bekreftet i referatet 20. september."
+          },
+          {
+            "staar": "Korrigering av datoen i sak KOE-17"
+          },
+          {
+            "staar": "Totalentreprenøren oppgir nå at pålegget ble mottatt 20. september 2026. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026."
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "TEs siste opplysning"
+          },
+          {
+            "staar": "De gjaldt opplysningen 15. september 2026."
+          },
+          {
+            "staar": "Saken venter ikke på BH."
+          }
+        ]
+      },
+      {
+        "id": "uendret",
+        "dekker": [
+          "2",
+          "3"
+        ],
+        "start": "korrigering",
+        "handlinger": [
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "uendret"
+          },
+          {
+            "staar": "Datoen er den samme som i brev K201-KOE-017-01, 15. september 2026."
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "06.11.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "uendret"
+          },
+          {
+            "staar": "6. november 2026 er etter dagens dato"
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "20.09.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "sendt"
+          }
+        ]
+      },
+      {
+        "id": "ny-versjon",
+        "dekker": [
+          "2C",
+          "2",
+          "G-3"
+        ],
+        "start": "saken",
+        "handlinger": [
+          {
+            "klikk": "Send ny versjon av grunnlaget",
+            "tilstand": "ny-versjon"
+          },
+          {
+            "staar": "TEs siste opplysning: 15. september 2026"
+          },
+          {
+            "staar": "Datoen kan ikke endres i en ny versjon. Korriger datoen i et eget brev."
+          },
+          {
+            "staar": "Korrigeringen av datoen lar svaret stå."
+          },
+          {
+            "fyll": "Beskrivelse",
+            "tekst": "Pålegget gjaldt flytting av ventilasjonskanalene i 3. etasje."
+          },
+          {
+            "klikk": "Korriger datoen i et eget brev",
+            "tilstand": "korrigering"
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "20.09.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "sendt"
+          },
+          {
+            "klikk": "Fortsett med den nye versjonen",
+            "tilstand": "ny-versjon-etter"
+          },
+          {
+            "staar": "TEs siste opplysning: 20. september 2026"
+          },
+          {
+            "staar": "Totalentreprenøren opplyser at pålegget ble mottatt 20. september 2026, slik totalentreprenøren oppga i brev K201-KOE-017-03 av 5. november 2026."
+          }
+        ]
+      },
+      {
+        "id": "bh",
+        "dekker": [
+          "4"
+        ],
+        "start": "sendt",
+        "handlinger": [
+          {
+            "klikk": "Se saken som BH",
+            "tilstand": "bh"
+          },
+          {
+            "staar": "Korrigering av datoen i sak KOE-17"
+          },
+          {
+            "staar": "Viser til grunnlagskravet, brev K201-KOE-017-01 av 1. oktober 2026"
+          },
+          {
+            "staar": "Svaret ditt i brev K201-KOE-017-02 gjaldt opplysningen 15. september 2026."
+          },
+          {
+            "staar": "Korrigeringen venter ikke på svar fra BH."
+          },
+          {
+            "klikk": "Se saken som TE",
+            "tilstand": "sendt"
+          }
+        ]
+      },
+      {
+        "id": "lukket",
+        "dekker": [
+          "2D"
+        ],
+        "start": "lukket",
+        "handlinger": [
+          {
+            "staar": "Korrigeringen endrer ikke utfallet, og saken står lukket."
+          },
+          {
+            "staar": "Innlegg: ikke støttet ennå"
+          },
+          {
+            "klikk": "Korriger datoen",
+            "tilstand": "korrigering"
+          },
+          {
+            "staar": "Saken står lukket. Korrigeringen endrer ikke utfallet."
+          }
+        ]
+      }
+    ]
+  }
 }

@@ -10,7 +10,7 @@ den ekte saksruta.
 | --- | --- |
 | Status | Utkast 05.11. S-1 og S-2 er besvart 05.11 og venter på vedtaks-PR-en. Arbeidet følges i [#1615](https://github.com/khjohns/endringsmeldinger/issues/1615) |
 | Demoruta | `/demo/BF-02A`, `/demo/BF-02C` og `/demo/BF-02D`, med kjernen i nettleseren |
-| Prototypen | [`korrigering-av-datoen.html`](../../design/prototyper/korrigering-av-datoen.html), for skjemaet for korrigeringen og det låste datofeltet i en ny grunnlagsversjon, som ingen komponent har (G-2) |
+| Prototypen | [`korrigering-av-datoen.html`](../../design/prototyper/korrigering-av-datoen.html), for skjemaet for korrigeringen og det låste datofeltet i en ny grunnlagsversjon, som ingen komponent har (G-2). Versjon 1, 05.11 |
 | Bygger på | [MM-U52](../../plans/vedtak.md#mm-u52) punkt 10, 11, 13 og 24 og designdelen, med svarene «1 A, 2 A» 05.11 ([MM-U51](../../plans/vedtak.md#mm-u51), [LV-U54](../../plans/vedtak.md#lv-u54)) og de lagrede navnene i [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308) |
 
 Hver opplysning under har en ID: **M** for målene, **U** for det brukeren skal finne og
@@ -64,11 +64,12 @@ finner ut at pålegget ble mottatt 20.09.2026.
 
 | Steg | Hvem | Hva brukeren gjør | Hva brukeren ser |
 | --- | --- | --- | --- |
-| 1 | TE | Åpner saken etter svaret | Datoen TE oppga i grunnlagskravet, med handlingen «Korriger datoen» ved den (U-1) |
-| 2 | TE | Velger «Korriger datoen» | Skjemaet: den gjeldende opplysningen og brevet den står i, ett datofelt og brevteksten slik den blir (U-2, U-3) |
-| 3 | TE | Skriver den nye datoen og sender | Kvittering med brevet og at svaret står (U-4) |
-| 4 | BH | Åpner saken | Brevet med korrigeringen ved grunnlagskravet, den nye og den tidligere datoen, og at saken ikke venter på BH (U-5, U-6) |
-| 2C | TE | Begynner på en ny versjon av grunnlagskravet | Datoen står låst som TEs siste opplysning, med lenken «Korriger datoen i et eget brev» (U-7) |
+| 1 | TE | Åpner saken etter svaret | Datoen TE oppga i grunnlagskravet, med handlingen «Korriger datoen» ved den (U-1). `#saken` |
+| 2 | TE | Velger «Korriger datoen» | Skjemaet: den gjeldende opplysningen og brevet den står i, ett datofelt og brevteksten slik den blir (U-2, U-3). En uendret dato stoppes i skjemaet. `#korrigering`, `#uendret` |
+| 3 | TE | Skriver den nye datoen og sender | Kvittering med brevet og at svaret står (U-4). `#sendt` |
+| 4 | BH | Åpner saken | Brevet med korrigeringen ved grunnlagskravet, den nye og den tidligere datoen, og at saken ikke venter på BH (U-5, U-6). `#bh` |
+| 2C | TE | Begynner på en ny versjon av grunnlagskravet | Datoen står låst som TEs siste opplysning, med lenken «Korriger datoen i et eget brev» (U-7). Etter korrigeringen gjengir versjonen datoen med henvisning til brevet. `#ny-versjon`, `#ny-versjon-etter` |
+| 2D | TE | Åpner saken etter at TE har godtatt svaret | «Korriger datoen» står ved datoen, med at korrigeringen ikke endrer utfallet og at BH kan ta stilling i et innlegg (U-1, U-6). `#lukket` |
 
 ## Det brukeren skal finne og forstå
 
