@@ -346,7 +346,8 @@ KOE-saken som utsagnet avviker fra (EO-U24). Stopper sendingen fordi saken alt e
 endringsordre, sier den hvilken (EO-U20). Den nye KOE-en viser ikke varslene fra den lukkede
 saken, og totalentreprenøren viser til dem i fritekst (EO-U11). (EO-U34, designdelen) I en lukket
 sak vises en retting til totalentreprenørens fordel som et tilbud som ikke kan godtas. (05.11 3.5
-B, forholdet; E4)
+B, forholdet; E4) Brevets eget nummer vises ved siden av koden. (EO-U36; E7; flyttet fra
+beslutningsdelen etter kontrollen av klassene)
 
 ### Beslutningsdel
 
@@ -388,7 +389,7 @@ endringsordre det som ble registrert (EO-U24; EO-U33; EO-U34 E8). I EO-U24 står
 summen i designdelen; her står den i beslutningsdelen. For en registrert endringsordre lages
 ingen brevtekst (EO-U16). (EO-U34, beslutningsdelen; E8) EO-saken for en registrert
 endringsordre får koden etter LV-U44 når registreringen er godkjent, som et unntak fra LV-U47.
-Brevets eget nummer lagres som brevets referanse og vises ved siden av koden. (EO-U36; E7)
+Brevets eget nummer lagres som brevets referanse. (EO-U36; E7)
 
 ### Forkastet
 
@@ -550,6 +551,8 @@ EO-U35 og EO-U37 *vedtak*, LV-U47 *beslutning*).
 - Beslutningsdelen: samsvar for fullmakt og verdi, når saken inngår, sperrene og summen.
 - EO-U36 i «Sum og kode»: avvik for én setningsdel. «og vises ved siden av koden» er visning
   (trinn 3) og hører til designdelen. At koden gis og brevets nummer lagres, er *beslutning*.
+  Orkestratoren har flyttet setningsdelen til designdelen etter kontrollen (vedtaksskillen,
+  «Hvem som retter klassen»).
 - Merknader, ikke avvik: første setning i punkt 51 (registreres som vedlegg med dato og
   dokumentkode) er lagring og står i vedtaket fordi datoen har virkning (punkt 52). Første setning i
   punkt 50 («rettes ikke») har samme art som EO-U33-setningen i beslutningsdelen, men står i
