@@ -160,7 +160,6 @@ KJENTE_AVVIK = (
     ("kjerne/tester/brevtekst.test.ts", "MM-U19", 1, "#1606"),
     ("kjerne/tester/brevtekst.test.ts", "MM-U20", 2, "#1606"),
     ("kjerne/tester/brevtekst.test.ts", "OV-U8", 2, "#1606"),
-    ("kjerne/tester/brukerforloep.test.ts", "OV-U52", 1, "#1606"),
     ("kjerne/tester/byggedel1.test.ts", "KA-U34", 1, "#1606"),
     ("kjerne/tester/byggedel1.test.ts", "KA-U36", 1, "#1606"),
     ("kjerne/tester/feilinnfoering.ts", "KA-U10", 4, "#1606"),
