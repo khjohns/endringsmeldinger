@@ -443,4 +443,8 @@ Rettelser kan gis per punkt.
 
 ## Svarene
 
-Ikke gitt ennå.
+Oppdragsgiver 05.11, ordrett: «1585: A som anbefalt»
+([#1534, 6650395330](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6650395330)).
+Ingen punkter er rettet.
+
+- Spørsmål 1: A. Samlevedtaket er ført som [GR-U34](../plans/vedtak.md#gr-u34). ID-en var ledig på `main`.
