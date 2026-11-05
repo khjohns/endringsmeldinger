@@ -23,7 +23,7 @@
       "kontroller": [
         {
           "rolle": "mal",
-          "kilde": ["GR-U7", "KA-U10", "MM-U34"],
+          "kilde": ["GR-U7", "KA-U10", "MM-U50", "MM-U34"],
           "forventet": {
             "gjeldende_svar.{spor}": "{svar}",
             "enighet.{spor}": null,
@@ -46,7 +46,7 @@
       "kontroller": [
         {
           "rolle": "mal",
-          "kilde": ["KA-U10", "GR-U7"],
+          "kilde": ["KA-U10", "MM-U50", "GR-U7"],
           "forventet": {
             "avvist": false,
             "enighet.{spor}.svar": "{svar}",

@@ -7,7 +7,7 @@
     "start": null,
     "beskrivelse": "TE har sendt et krav med en opplysning etter VS-U26 om når pålegget ble mottatt, fra løsningen eller utenfor den og lagt til som korrespondanse med kategorien krav, med de samme påkrevde feltene (OV-U80). BH har svart."
   },
-  "kilder": ["OV-U52", "VS-U26", "OV-U79", "OV-U80"],
+  "kilder": ["OV-U52", "MM-U41", "VS-U26", "OV-U79", "OV-U80"],
   "venter_paa": ["#1308", "#1309", "#807"],
   "bevis_saker": [],
   "visninger": [],

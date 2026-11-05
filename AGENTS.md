@@ -92,7 +92,7 @@ side. Skjerming av interne notater og utkast går på **team**, ikke på side.
 NS 8407, vedtaket eller beslutningen, utsagnet den gjelder (hvem sier hva om hva) og predikatet
 som leses av utsagnene og relasjonene. Ingen regel leser status, «låst»,
 «oppgjort» eller en annen oppsummering; status er en etikett i visningen. Et sendt
-brev og en inngått enighet betyr det de sa da (MM-U3, MM-U9). Det kjernen leser,
+brev og en inngått enighet betyr det de sa da (MM-U3 (opphevet av MM-U50), MM-U9). Det kjernen leser,
 må være lagret (DM-06). En hendelse den ikke forstår, gjør saken ikke forstått
 (MM-U2). Det den ennå ikke kan, avvises og forenkles ikke. Appen avgjør ikke det
 kontrakten overlater til partene, en oppmann eller domstolene. Begrepene står i
@@ -270,8 +270,8 @@ aldri regelgrunnlag. Matrisen og domenetabellen viser til vedtaks-ID-en, en
 bevis-sak viser til raden og en PR viser til issuet og vedtaket. Ingen av dem
 skriver vedtaket om med egne ord. En vedtaks-ID i `kjerne/`, `server/` og `src/`, og
 i kildene i bevis-sakene og brukerforløpene, må finnes i vedtaksregisteret. Et opphevet
-vedtak kan bare stå sammen med et som gjelder, eller i en test merket med «historisk»
-(`docs/verktoy/vedtakshenvisninger.py`, #452).
+vedtak kan bare stå sammen med posten som opphever det, eller i en test merket med
+«historisk» (`docs/verktoy/vedtakshenvisninger.py`, #452; oppdragsgiver 05.11, #1606).
 
 | Hva | Hvor |
 | --- | --- |

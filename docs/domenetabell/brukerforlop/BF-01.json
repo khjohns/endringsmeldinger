@@ -128,13 +128,13 @@
       "beskrivelse": "TE har godtatt svaret.",
       "kontrollsett": [{ "sett": "te_har_godtatt_svaret", "med": { "spor": "vederlag", "svar": "S-v1", "beloep": 0 } }],
       "kontroller": [
-        { "rolle": "mal", "kilde": ["KA-U10", "VS-U3"], "forventet": { "enighet.vederlag.virkning.rettidighet": 1 } },
+        { "rolle": "mal", "kilde": ["KA-U10", "MM-U50", "VS-U3"], "forventet": { "enighet.vederlag.virkning.rettidighet": 1 } },
         { "rolle": "mal", "kilde": ["LV-U27", "LV-U49"], "forventet": { "vaar_ref.D5": "05", "deres_ref.D5": ["04"] } }
       ],
       "forstaaelse": [
         {
           "tekst": "TE ser at enigheten gjelder svaret slik det ble sendt, med beløpet 0 kr etter påberopelsen.",
-          "kilde": ["KA-U10", "VS-U3"]
+          "kilde": ["KA-U10", "MM-U50", "VS-U3"]
         }
       ]
     }
