@@ -17,8 +17,7 @@
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
-  import { betegnelse } from '$kjerne/utledning/visning';
-  import { brevForLinja, brevene, forholdetISaken, type Brevref } from './lesing';
+  import { betegnelsene, brevForLinja, brevene, forholdetISaken, type Brevref } from './lesing';
   import { BETEGNELSE, BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
 
   let {
@@ -89,6 +88,7 @@
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
   // Forholdet heter det TE påberoper i sporlista, som i sporhodet (OV-U78).
+  const betegnelser = $derived(betegnelsene(kjernesak.saksbilde));
   const forholdsnavn = $derived((u && forholdetISaken(u)?.navn) ?? SPORNAVN.forhold);
 
   function velgSpor(s: Spor) {
@@ -182,7 +182,7 @@
         <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
         <ul class="valgene" aria-labelledby="spor-etikett">
           {#each SPORENE as s (s)}
-            {@const merke = betegnelse(u, s)}
+            {@const merke = betegnelser[s]}
             {@const sisteBrev = brevForLinja(brev, s, merke === 'trukket')}
             <li>
               <button

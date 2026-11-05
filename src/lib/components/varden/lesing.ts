@@ -11,6 +11,8 @@ import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt'
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
+import type { Betegnelse } from '$kjerne/utledning/visning';
+import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 
 /**
  * Ett brev i saken. `nummer` er brevets nummer i saken, som brevteksten kaller «brev 5»
@@ -255,3 +257,15 @@ export function handlingerISporet(u: Utledning, tilbudt: string[], spor: Spor): 
     return iSporet.get(hva) === spor;
   });
 }
+
+/**
+ * Betegnelsen i MM-U30 for hvert spor, slik lesepunktet har utledet den i saksbildet. Visningen
+ * kaller ikke utledningen i kjernen selv (lesepunktvakten i `lesepunkter.test.ts`).
+ */
+export const betegnelsene = (
+  bilde: Kjernesakkontekst['saksbilde']
+): Record<Spor, Betegnelse | null> => {
+  const kode = (spor: Spor) =>
+    (bilde?.spor.find((s) => s.spor === spor)?.betegnelse?.kode ?? null) as Betegnelse | null;
+  return { forhold: kode('forhold'), vederlag: kode('vederlag'), frist: kode('frist') };
+};

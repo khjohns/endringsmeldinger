@@ -12,6 +12,7 @@ import OmVarden from '$lib/components/om-varden/OmVarden.svelte';
 import Login from '../../../../routes/login/+page.svelte';
 import { load } from '../../../../routes/+layout';
 import { OM_VARDEN_STI } from '$lib/components/om-varden/sti';
+import { FORHOLDET } from '$lib/components/varden/tekster';
 
 const getSession = vi.hoisted(() => vi.fn());
 vi.mock('$lib/api/auth', () => ({ getSession, loginUrl: (r: string) => r }));
@@ -52,9 +53,10 @@ describe('siden «Om Varden»', () => {
   it('#1443: ingen fil i Varden forklarer ved feltene at innholdet ikke vurderes eller teksten ikke tolkes', () => {
     const mappe = join(process.cwd(), 'src/lib/components/varden');
     const filer = readdirSync(mappe).filter((f) => /\.(svelte|ts)$/.test(f));
+    // OV-U81 lar forklaringen ved korrespondansen stå i et infotips, ikke ved feltet.
     const treff = filer.filter((f) =>
       /(vurderes|tolkes) ikke|(vurderer|tolker) ikke (innholdet|teksten|begrunnelsen)/i.test(
-        readFileSync(join(mappe, f), 'utf8')
+        readFileSync(join(mappe, f), 'utf8').replace(FORHOLDET.omKorrespondansenTekst, '')
       )
     );
     expect(treff).toEqual([]);

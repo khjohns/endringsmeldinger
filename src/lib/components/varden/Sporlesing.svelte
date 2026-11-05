@@ -21,7 +21,7 @@
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import { aksepten } from './kommandoer';
-  import { brevene, handlingerISporet, datoerISporet } from './lesing';
+  import { betegnelsene, brevene, handlingerISporet, datoerISporet } from './lesing';
   import {
     BREVMENY,
     FORHOLDET,
@@ -171,7 +171,12 @@
 <Arbeidsflate>
   {#snippet hoved()}
     {#if oversikt}
-      <Forholdsoversikt {u} onles={lesBrevet} {onspor} />
+      <Forholdsoversikt
+        {u}
+        betegnelser={betegnelsene(kjernesak.saksbilde)}
+        onles={lesBrevet}
+        {onspor}
+      />
     {:else if vist}
       {#if lestBrev}
         <p class="tilbake">

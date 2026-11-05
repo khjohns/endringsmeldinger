@@ -5,7 +5,7 @@
   venter på designsløyfa for BHs svar (#1380, #1384).
 -->
 <script lang="ts">
-  import { betegnelse } from '$kjerne/utledning/visning';
+  import type { Betegnelse } from '$kjerne/utledning/visning';
   import type { Spor } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Brevtraad from './Brevtraad.svelte';
@@ -15,10 +15,13 @@
 
   let {
     u,
+    betegnelser,
     onles,
     onspor,
   }: {
     u: Utledning;
+    /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */
+    betegnelser: Record<Spor, Betegnelse | null>;
     onles: (id: string) => void;
     onspor?: (spor: Spor) => void;
   } = $props();
@@ -28,7 +31,7 @@
   const traad = $derived(alle.filter((b) => b.spor.includes('forhold')));
   const forholdet = $derived(forholdetISaken(u));
   const siste = $derived(traad.at(-1) ?? null);
-  const merke = $derived(betegnelse(u, 'forhold'));
+  const merke = $derived(betegnelser.forhold);
   const trekket = $derived(
     u.spor.forhold.trukket ? (traad.findLast((b) => b.art === 'trekk') ?? null) : undefined
   );
@@ -53,7 +56,7 @@
   />
 </section>
 
-<TilknyttedeKrav {u} brev={alle} {onspor} />
+<TilknyttedeKrav {betegnelser} brev={alle} {onspor} />
 
 <style>
   .kort {

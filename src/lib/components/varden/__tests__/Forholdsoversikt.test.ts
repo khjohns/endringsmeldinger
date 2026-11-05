@@ -15,6 +15,15 @@ import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
 import { brevForLinja, brevene, type Brevet } from '$lib/components/varden/lesing';
 import Brevtraad from '$lib/components/varden/Brevtraad.svelte';
 import type { Spor } from '$kjerne/typer';
+import type { Utledning } from '$kjerne/utledning/utled';
+import { betegnelse } from '$kjerne/utledning/visning';
+
+/** Betegnelsene slik saksbildet gir dem (`betegnelsene`), regnet av kjernen. */
+const betegnelserI = (u: Utledning) => ({
+  forhold: betegnelse(u, 'forhold'),
+  vederlag: betegnelse(u, 'vederlag'),
+  frist: betegnelse(u, 'frist'),
+});
 
 afterEach(cleanup);
 
@@ -61,6 +70,7 @@ async function vis(steg: Handling[], ekstra: Record<string, unknown> = {}) {
   const valgt: string[] = [];
   render(Forholdsoversikt, {
     u,
+    betegnelser: betegnelserI(u),
     onles: (id: string) => lest.push(id),
     onspor: (s: string) => valgt.push(s),
     ...ekstra,
@@ -78,8 +88,10 @@ describe('Siden for forholdet', () => {
   });
 
   it('ingen tekst brukeren ser, sier «grunnlag» (kriterium 1, OV-U76)', async () => {
+    const u = await utledning([PAABEROPELSE, REGISTRERT, VEDERLAG, AVSLAG]);
     const { container } = render(Forholdsoversikt, {
-      u: await utledning([PAABEROPELSE, REGISTRERT, VEDERLAG, AVSLAG]),
+      u,
+      betegnelser: betegnelserI(u),
       onles: () => {},
     });
     expect(container.textContent).not.toMatch(/grunnlag/i);

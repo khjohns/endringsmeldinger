@@ -4,20 +4,19 @@
   svar gjelder, venter på oversiktene for sporene (#1402) og designsløyfa for BHs svar.
 -->
 <script lang="ts">
-  import { betegnelse } from '$kjerne/utledning/visning';
+  import type { Betegnelse } from '$kjerne/utledning/visning';
   import type { Spor } from '$kjerne/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
   import { ChevronRight } from 'lucide-svelte';
   import Knapp from './Knapp.svelte';
   import { brevForLinja, type Brevet } from './lesing';
   import { BETEGNELSE, FORHOLDET, SAKEN, SPORNAVN } from './tekster';
 
   let {
-    u,
+    betegnelser,
     brev,
     onspor,
   }: {
-    u: Utledning;
+    betegnelser: Record<Spor, Betegnelse | null>;
     brev: Brevet[];
     /** Uten den står kravene uten lenke, som i komponentdemoen. */
     onspor?: (spor: Spor) => void;
@@ -26,7 +25,7 @@
 
   const kravene = $derived(
     (['vederlag', 'frist'] as const).flatMap((spor) => {
-      const b = betegnelse(u, spor);
+      const b = betegnelser[spor];
       const siste = brevForLinja(brev, spor, b === 'trukket');
       return b && siste ? [{ spor, betegnelse: BETEGNELSE[b], siste }] : [];
     })
