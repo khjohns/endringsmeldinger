@@ -309,7 +309,7 @@ export function kilden(d: Dokument, forstaatt: boolean): Kilde {
 /**
  * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som kjernen
  * ikke vurderer innholdet i: kilden er dokumentasjon. Et varsel eller en endringsordre uten
- * virkning vurderer kjernen (MM-U19).
+ * virkning vurderer kjernen (MM-U43 punkt 9).
  */
 function ikkeVurderte(
   journal: Domenehendelse[],
