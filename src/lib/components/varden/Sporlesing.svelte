@@ -75,6 +75,7 @@
   const iForholdet = $derived(oversikt || lestBrev !== undefined);
 
   async function lesBrevet(id: string) {
+    stilling = false;
     lest = id;
     await tick();
     document.getElementById(`${uid}-brevtittel`)?.focus();
@@ -82,6 +83,7 @@
 
   async function tilbakeTilForholdet() {
     const id = lest;
+    stilling = false;
     lest = null;
     await tick();
     document.querySelector<HTMLElement>(`[data-les="${id}"]`)?.focus();
@@ -211,7 +213,7 @@
     {#if iForholdet}
       <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
         <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
-        {#if kanGodta && vist && oversikt}{@render taStilling()}{/if}
+        {#if kanGodta && svarbrevet && (oversikt || vist === svarbrevet)}{@render taStilling()}{/if}
         {@render meny()}
       </section>
     {/if}

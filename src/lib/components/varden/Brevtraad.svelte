@@ -52,8 +52,10 @@
         {/if}
         <p class="meta">
           {[
-            registrert && b.sendt
-              ? FORHOLDET.sendtIfoelge(b.avsender, b.sendt, b.registrert)
+            registrert
+              ? b.sendt
+                ? FORHOLDET.sendtIfoelge(b.avsender, b.sendt, b.registrert)
+                : FORHOLDET.lagtTil(b.avsender, b.registrert)
               : FORHOLDET.sendtHerfra(b.avsender, b.registrert),
             b.merking,
           ]

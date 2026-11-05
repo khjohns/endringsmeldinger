@@ -12,7 +12,9 @@ import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
 import type { Handling } from '$kjerne/tester/klient';
 import Forholdsoversikt from '$lib/components/varden/Forholdsoversikt.svelte';
 import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
-import { brevene } from '$lib/components/varden/lesing';
+import { brevForLinja, brevene, type Brevet } from '$lib/components/varden/lesing';
+import { FORHOLDET } from '$lib/components/varden/tekster';
+import type { Spor } from '$kjerne/typer';
 
 afterEach(cleanup);
 
@@ -156,5 +158,32 @@ describe('Siden for forholdet', () => {
     );
     expect(linje?.textContent).toContain('20. september 2026');
     expect(linje?.textContent).toMatch(/lagt til \d+\. \w+ 2026/);
+  });
+});
+
+describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
+  const brev = (id: string, art: Brevet['art'], spor: Spor[]): Brevet =>
+    ({ id, art, spor }) as unknown as Brevet;
+  const alle = [
+    brev('k', 'krav', ['forhold']),
+    brev('v', 'krav', ['vederlag']),
+    brev('tv', 'trekk', ['vederlag']),
+    brev('tf', 'trekk', ['frist']),
+  ];
+
+  it('et trukket spor viser til trekket i sporet, ikke et senere trekk i et annet spor', () => {
+    expect(brevForLinja(alle, 'vederlag', true)?.id).toBe('tv');
+  });
+
+  it('uten trekk i sporet viser linja til trekket av påberopelsen (GR-U5)', () => {
+    const medForhold = [...alle, brev('tp', 'trekk', ['forhold'])];
+    expect(brevForLinja(medForhold, 'vederlag', true)?.id).toBe('tv');
+    expect(brevForLinja([brev('tp', 'trekk', ['forhold'])], 'frist', true)?.id).toBe('tp');
+  });
+
+  it('registrert korrespondanse uten datoen avsenderen oppgir, står ikke som sendt herfra (OV-U85)', () => {
+    expect(FORHOLDET.lagtTil('BH', '2026-11-03T10:00:00Z')).toBe(
+      'Fra byggherren · lagt til 3. november 2026'
+    );
   });
 });

@@ -350,6 +350,8 @@ export const FORHOLDET = {
   sendtHerfra: (part: Part, d: string) => `${stor(PARTNAVN[part])} · ${dato(d)}`,
   sendtIfoelge: (part: Part, sendt: string, registrert: string) =>
     `Sendt ${dato(sendt)}, ifølge ${PARTNAVN[part]} · lagt til ${dato(registrert)}`,
+  lagtTil: (part: Part, registrert: string) =>
+    `Fra ${PARTNAVN[part]} · lagt til ${dato(registrert)}`,
   lesBrevet: 'Les brevet',
   tilbake: 'Tilbake til forholdet',
   svarIkkeRegistrert: 'Svar ikke registrert.',
