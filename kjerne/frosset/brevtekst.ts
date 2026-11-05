@@ -913,7 +913,7 @@ export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[]): string[] {
   const j = new Journalen(foer, nytt);
   const viserTil: string[] = [
     ...nytt.svar.map((s) => s.gjelder),
-    ...nytt.svar.flatMap((s) => s.standpunkter.flatMap(varseletRettidighetenGjelder)),
+    ...nytt.svar.flatMap((s) => s.standpunkter.flatMap(detRettidighetenGjelder)),
     ...nytt.utsagn.flatMap((x) =>
       SVARER_GODTAR_BESTRIDER.has(x.art) && 'gjelder' in x ? [x.gjelder] : []
     ),
@@ -931,13 +931,13 @@ export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[]): string[] {
 }
 
 /**
- * Varselet eller kravversjonen et standpunkt om rettidighet gjelder, når brevteksten nevner
- * brevet det står i (`varseletMedBrevet`, LV-U49, U-6 i BF-07, arbeidsvalget A i #1497).
- * Påberopelsen etter § 32.2 nevnes uten brev, og forespørselen etter § 33.6.2 er byggherrens
- * eget brev, så ingen av dem står.
+ * Det et standpunkt om rettidighet gjelder: varselet, kravversjonen eller TEs svar på
+ * forespørselen etter § 33.6.2, også når svaret er en begrunnelse i et eget brev (LV-U49, D-1 og
+ * U-6 i BF-07, arbeidsvalgene A i #1497). Påberopelsen etter § 32.2 nevnes uten brev og står ikke.
+ * Forespørselen er byggherrens eget brev og står heller ikke.
  */
-const varseletRettidighetenGjelder = (p: Standpunkt): string[] =>
-  p.art === 'rettidighet' && p.hjemmel !== '32.2' && p.hjemmel !== '33.6.2' ? [p.gjelder] : [];
+const detRettidighetenGjelder = (p: Standpunkt): string[] =>
+  p.art === 'rettidighet' && p.hjemmel !== '32.2' ? [p.gjelder] : [];
 
 /** LV-U51: svaret på kravversjonen som ingen senere revisjon erstatter, eller ingen. */
 function sisteSvarPaa(krav: string, j: Journalen): string[] {
