@@ -216,18 +216,16 @@ export function standpunktene(svar: Svar, foer: Utledning): Standpunktet[] {
 }
 
 /**
- * Brevet linja for sporet viser til: siste brev i sporet, eller trekket når sporet er trukket,
- * med trekket i sporet selv foran trekket av påberopelsen. Trekket av påberopelsen trekker
- * kravene som bygger på den (GR-U5), men brevet hører til forholdet, så siste brev i kravsporet
- * er et annet.
+ * Brevet linja for sporet viser til: siste brev i sporet, eller, når sporet er trukket, det
+ * siste trekket i sporet selv eller av påberopelsen. Trekket av påberopelsen trekker kravene som
+ * bygger på den (GR-U5), men brevet hører til forholdet, så siste brev i kravsporet er et annet.
  */
-export const brevForLinja = (brev: Brevet[], spor: Spor, trukket: boolean): Brevet | undefined => {
-  const trekk = (s: Spor) => brev.findLast((b) => b.art === 'trekk' && b.spor.includes(s));
-  return (
-    (trukket ? (trekk(spor) ?? trekk('forhold')) : undefined) ??
-    brev.filter((b) => b.spor.includes(spor)).at(-1)
-  );
-};
+export const brevForLinja = (brev: Brevet[], spor: Spor, trukket: boolean): Brevet | undefined =>
+  (trukket
+    ? brev.findLast(
+        (b) => b.art === 'trekk' && (b.spor.includes(spor) || b.spor.includes('forhold'))
+      )
+    : undefined) ?? brev.filter((b) => b.spor.includes(spor)).at(-1);
 
 /**
  * Forholdet TE påberoper i gjeldende krav, med gruppen fra kjernens liste (OV-U77, OV-U78).

@@ -13,7 +13,7 @@ import type { Handling } from '$kjerne/tester/klient';
 import Forholdsoversikt from '$lib/components/varden/Forholdsoversikt.svelte';
 import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
 import { brevForLinja, brevene, type Brevet } from '$lib/components/varden/lesing';
-import { FORHOLDET } from '$lib/components/varden/tekster';
+import Brevtraad from '$lib/components/varden/Brevtraad.svelte';
 import type { Spor } from '$kjerne/typer';
 
 afterEach(cleanup);
@@ -175,14 +175,25 @@ describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
     expect(brevForLinja(alle, 'vederlag', true)?.id).toBe('tv');
   });
 
-  it('uten trekk i sporet viser linja til trekket av påberopelsen (GR-U5)', () => {
+  it('linja viser til det siste av trekket i sporet og trekket av påberopelsen (GR-U5)', () => {
     const medForhold = [...alle, brev('tp', 'trekk', ['forhold'])];
-    expect(brevForLinja(medForhold, 'vederlag', true)?.id).toBe('tv');
+    expect(brevForLinja(medForhold, 'vederlag', true)?.id).toBe('tp');
     expect(brevForLinja([brev('tp', 'trekk', ['forhold'])], 'frist', true)?.id).toBe('tp');
   });
 
   it('registrert korrespondanse uten datoen avsenderen oppgir, står ikke som sendt herfra (OV-U85)', () => {
-    expect(FORHOLDET.lagtTil('BH', '2026-11-03T10:00:00Z')).toBe(
+    const r = {
+      ...brev('r', 'registrert', ['forhold']),
+      avsender: 'BH',
+      sendt: null,
+      registrert: '2026-11-03T10:00:00Z',
+      nummer: null,
+      avsnitt: null,
+      merking: null,
+      brevtittel: null,
+    } as Brevet;
+    render(Brevtraad, { brev: [r], dokumentasjon: [], venterPaaSvar: false, onles: () => {} });
+    expect(document.querySelector('.meta')?.textContent?.trim()).toBe(
       'Fra byggherren · lagt til 3. november 2026'
     );
   });

@@ -28,7 +28,7 @@
 <ol class="traad" aria-label={FORHOLDET.traad}>
   {#each brev as b (b.id)}
     {@const registrert = b.art === 'registrert'}
-    <li class="innlegg" class:registrert>
+    <li class="innlegg">
       <span class="part" aria-hidden="true">{b.avsender}</span>
       <div class="hode">
         <div class="tittellinje">

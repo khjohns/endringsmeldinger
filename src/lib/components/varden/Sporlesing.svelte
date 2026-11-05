@@ -73,6 +73,8 @@
   // På siden for forholdet og i brevet som leses derfra, står handlingene i et kort i høyre
   // kolonne, på linje med kortet i midten, som i prototypen `grunnlagsoversikt.html`.
   const iForholdet = $derived(oversikt || lestBrev !== undefined);
+  const menyvalg = $derived(iSporet.filter((n) => n !== `godta:${spor}`));
+  const viserStilling = $derived(kanGodta && vist !== null && (oversikt || vist === svarbrevet));
 
   async function lesBrevet(id: string) {
     stilling = false;
@@ -145,7 +147,7 @@
 {#snippet meny()}
   <Brevtyper
     tittel={kanGodta ? BREVMENY.andre : BREVMENY.skriv}
-    handlinger={iSporet.filter((n) => n !== `godta:${spor}`)}
+    handlinger={menyvalg}
     bygget={spor === 'vederlag' ? ['svare'] : []}
     tekstFor={innsigelsestekst}
     {onvelg}
@@ -210,10 +212,10 @@
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if iForholdet}
+    {#if iForholdet && (menyvalg.length || viserStilling)}
       <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
         <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
-        {#if kanGodta && svarbrevet && (oversikt || vist === svarbrevet)}{@render taStilling()}{/if}
+        {#if viserStilling}{@render taStilling()}{/if}
         {@render meny()}
       </section>
     {/if}
