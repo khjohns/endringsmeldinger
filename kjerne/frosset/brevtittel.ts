@@ -67,6 +67,8 @@ export const UTSAGNSTITTEL = {
   aksept: 'Aksept av svaret',
   trekk: 'Trekk av kravet',
   innsigelse: 'Innsigelse etter punkt 5',
+  // LV-U55: brevet med korrigeringen etter punkt 10 i samlevedtaket for retting av sendt brev (MM-U52).
+  korrigering: 'Korrigering av datoen',
 } as const;
 
 /** Forholdet brevet påberoper (GR-U31): et krav i forholdssporet i et brev uten svar. */
@@ -85,7 +87,12 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
   if (f) return paaberopelsenAv(f.navn);
   if (d.krav.length) return KRAVTITTEL[d.krav[0].spor];
   for (const x of d.utsagn)
-    if (x.art === 'aksept' || x.art === 'trekk' || x.art === 'innsigelse')
+    if (
+      x.art === 'aksept' ||
+      x.art === 'trekk' ||
+      x.art === 'innsigelse' ||
+      x.art === 'korrigering'
+    )
       return UTSAGNSTITTEL[x.art];
   return null;
 }

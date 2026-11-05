@@ -3905,6 +3905,25 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en ny grunnlagsversjon kan ikke endre datoen'],
   },
+  {
+    id: 'F465',
+    feilklasse: 'brevet med korrigeringen av datoen får ingen tittel (LV-U55)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [[" || x.art === 'korrigering')", ')']],
+    mal: ['brevet har tittelen «Korrigering av datoen i sak <kode>»'],
+  },
+  {
+    id: 'F466',
+    feilklasse: 'TEs forklaring i korrigeringen av datoen kommer ikke med i brevet (MM-U53)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);\n      return { utsagn: [{ id, art: 'korrigering'",
+        "return { utsagn: [{ id, art: 'korrigering'",
+      ],
+    ],
+    mal: ['TEs forklaring står i fritekst under den vedtatte teksten'],
+  },
 ];
 
 interface Testresultat {

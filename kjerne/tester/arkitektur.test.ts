@@ -1047,7 +1047,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'lagBrevtittel avvikITittelen medSakskode',
     ['kommandoer/skriving.ts:brevtekstFor', 'format/leser.ts:lesDokument'],
   ],
-  ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse', ['frosset/brevtittel.ts']],
+  ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse korrigering', ['frosset/brevtittel.ts']],
   // LV-U44, LV-U45: brevets nummer i saken, det neste etter det høyeste.
   ['Dokument', 'brevtekst', 'brevnummer', ['kommandoer/skriving.ts:nesteBrevnummer']],
   // LV-U49, U-2 i BF-07: Deres ref. står i rekkefølgen etter brevnummeret.
