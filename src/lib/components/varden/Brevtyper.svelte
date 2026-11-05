@@ -94,10 +94,9 @@
 {/if}
 
 <style>
-  /* Står til høyre også når linjen brytes, så lista åpner seg innenfor arbeidet. */
+  /* Står til venstre i kortet med handlingene, og lista åpner seg nedover fra knappen. */
   .meny {
     position: relative;
-    margin-left: auto;
   }
   summary {
     display: inline-flex;
@@ -125,10 +124,10 @@
   }
   .liste {
     position: absolute;
-    right: 0;
+    left: 0;
     z-index: 10;
     margin-top: var(--spacing-2);
-    width: 340px;
+    width: min(340px, calc(100vw - 4 * var(--spacing-4)));
     padding: var(--spacing-2);
     background: var(--surface);
     border: var(--rule-strong);
