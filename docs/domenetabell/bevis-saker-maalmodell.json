@@ -564,7 +564,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U41"],
+          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "GR-U27", "OV-U7", "AV-587", "OV-U4", "MM-U41", "MM-U51"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,

@@ -149,7 +149,8 @@ function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjo
 /**
  * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TE korrigerer sin siste
  * opplysning om datoen kategorien har, med henvisning til brevet med den. Brevet godtas også i et
- * spor med enighet, når kravene er avgjort og i en lukket sak (MM-U51), så ingen av dem sperrer.
+ * spor med enighet, når kravene er avgjort og i en sak lukket etter GR-U27, også ved trekk etter
+ * GR-U5 (MM-U51), så ingen av dem sperrer.
  */
 function korrigering(gjelder: string, u: Utledning): Avvisning | null {
   const krav = u.spor.forhold.gjeldendeKrav;
