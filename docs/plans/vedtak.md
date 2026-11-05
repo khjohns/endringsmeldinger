@@ -3406,7 +3406,7 @@ med «Forhold»-delen, under punktet de gjelder.
   aksepten i svaret som erstatter det. C presiserer da punkt 6 for aksepten. I tråd med MM-U50
   punkt 8 og VS-U46 punkt 20, så langt regelen bare sier hvilken dato som er premiss i løsningen.
 
-Forkastet tidligere og ført videre fra posten som oppheves, ordrett som det står i registeret. De forkastede alternativene i MM-U51 og LV-U54 står i postene, som samles.
+Forkastet tidligere og ført videre fra MM-U42, som oppheves, ordrett som de står i registeret. De forkastede alternativene i MM-U51 og LV-U54 står i postene, som samles.
 
 **Punkt 6 (MM-U42).**
 
