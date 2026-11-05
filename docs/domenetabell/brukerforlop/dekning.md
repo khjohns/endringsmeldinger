@@ -111,7 +111,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U23](../../plans/vedtak.md#lv-u23) | — | — | BF-07 |
 | [LV-U24](../../plans/vedtak.md#lv-u24) | — | — | BF-06 |
 | [LV-U25](../../plans/vedtak.md#lv-u25) | — | — | BF-01V |
-| [LV-U27](../../plans/vedtak.md#lv-u27) | — | — | BF-07 |
+| [LV-U27](../../plans/vedtak.md#lv-u27) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — | BF-07 |
 | [LV-U28](../../plans/vedtak.md#lv-u28) | — | — | BF-07 |
 | [LV-U31](../../plans/vedtak.md#lv-u31) | — | — | BF-01V |
 | [LV-U32](../../plans/vedtak.md#lv-u32) | — | — | BF-01V |
@@ -125,7 +125,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U46](../../plans/vedtak.md#lv-u46) | — | — | BF-07 |
 | [LV-U47](../../plans/vedtak.md#lv-u47) | — | — | BF-07 |
 | [LV-U48](../../plans/vedtak.md#lv-u48) | — | — | BF-07 |
-| [LV-U49](../../plans/vedtak.md#lv-u49) | — | — | BF-07 |
+| [LV-U49](../../plans/vedtak.md#lv-u49) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — | BF-07 |
 | [LV-U50](../../plans/vedtak.md#lv-u50) | — | — | BF-07 |
 | [LV-U51](../../plans/vedtak.md#lv-u51) | — | — | BF-07 |
 | [LV-U52](../../plans/vedtak.md#lv-u52) | — | — | BF-02B, BF-03, BF-07 |

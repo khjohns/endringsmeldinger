@@ -280,6 +280,13 @@ export interface Dokument {
    */
   merking: string | null;
   /**
+   * Deres ref. i brevhodet: merkingen på hvert av motpartens brev som brevet svarer på, godtar
+   * eller bestrider, i rekkefølgen etter brevnummeret, frosset da brevet ble skrevet (LV-U27,
+   * LV-U49, LV-U50, LV-U51, A-3 A i #1497). Tom når brevet ikke viser til noe slikt brev med
+   * merking, og for registrert korrespondanse.
+   */
+  deresRef: string[];
+  /**
    * Om registrert korrespondanse var et brev eller en e-post (LV-U42, N4 og D1 A i #1497). Brevene
    * fra løsningen omtaler den med typen. `null` i et brev fra løsningen.
    */

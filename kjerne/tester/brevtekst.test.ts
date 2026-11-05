@@ -3213,6 +3213,18 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
   });
 
+  it('standpunktet etter § 33.6.2 gir TEs brev med begrunnelsen under Deres ref., men ikke forespørselen (LV-U49, D-1 i BF-07, arbeidsvalget A i #1497)', () => {
+    const { s, b } = medBegrunnelse();
+    s.send('BH', { type: 'innsigelse', gjelder: b });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(
+      s,
+      { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    expect(rad.data.deres_ref).toEqual(['K201-KOE-017-03', 'K201-KOE-017-05']);
+  });
+
   it('etter «i tide» etter § 33.6.2 godtas en senere innsigelse mot begrunnelsen (MM-U34 punkt 6, HF-U4)', () => {
     const { s, b } = medBegrunnelse();
     s.send('BH', { type: 'innsigelse', gjelder: b });
@@ -3309,6 +3321,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       brevtittel: null,
       brevnummer: null,
       merking: null,
+      deresRef: [],
       korrespondansetype: null,
       beskrivelse: null,
       spor: [],
@@ -3398,6 +3411,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       brevtittel: null,
       brevnummer: null,
       merking: null,
+      deresRef: [],
       korrespondansetype: null,
       beskrivelse: null,
       spor: [],
@@ -3751,6 +3765,7 @@ describe('vedleggene står i teksten (A4)', () => {
     brevtittel: null,
     brevnummer: null,
     merking: null,
+    deresRef: [],
     korrespondansetype: null,
     beskrivelse: null,
     spor: [],

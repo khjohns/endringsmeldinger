@@ -361,13 +361,13 @@ describe('skjemaet for ny sak (BF-05)', () => {
     );
   });
 
-  it('LV-U44: brevkontrollen viser brev 1, brevnummeret kjernen fryser for påberopelsen, ikke versjonen', async () => {
+  it('LV-U44, LV-U53: brevkontrollen viser Vår ref. med brev 1, merkingen kjernen fryser for påberopelsen, ikke versjonen, og ingen Deres ref. (U-3 i BF-07)', async () => {
     aapne();
     await fyllIrregulaerEndring();
     await seBrevet();
     await screen.findByRole('region', { name: 'Sending' });
-    expect(screen.getByText('Brev 1')).toBeTruthy();
-    expect(screen.queryByText('Brev 2')).toBeNull();
+    expect(screen.getByTestId('vaar-ref').textContent).toBe('K201-KOE-017-01');
+    expect(screen.queryByTestId('deres-ref')).toBeNull();
   });
 
   it('F-4: feilen for endringsordren forsvinner når feltet fylles ut', async () => {

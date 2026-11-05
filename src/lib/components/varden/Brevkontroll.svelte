@@ -15,14 +15,15 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL, PARTNAVN, brevrefStor } from './tekster';
+  import { BREVKONTROLL, PARTNAVN } from './tekster';
 
   let {
     kjernesak,
     kommando,
     tekst,
     utdypning,
-    brevnummer,
+    merking,
+    deresRef,
     tittel,
     handling,
     svarerPaa,
@@ -32,6 +33,7 @@
     tilbakeTil,
     ontilbake,
     onsendt,
+    onavvist,
   }: {
     /** Saken brevet sendes i. Ved en ny sak er det skjemaets sending (`NySak.svelte`). */
     kjernesak: Brevsending;
@@ -39,10 +41,12 @@
     tekst: string[];
     utdypning?: string;
     /**
-     * Nummeret og tittelen kjernen fryser i raden forhåndsvisningen gir (LV-U44, LV-U27).
-     * Nettleseren regner dem ikke ut selv; uten rad vises ikke noe nummer.
+     * Vår ref., Deres ref. og tittelen kjernen fryser i raden forhåndsvisningen gir (LV-U27,
+     * LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de er en del av det avsenderen
+     * godkjenner (LV-U2, U-4 i BF-07).
      */
-    brevnummer: number | null;
+    merking: string | null;
+    deresRef: string[];
     tittel: string | null;
     /** Det avsenderen gjør, som overskrift i panelet. */
     handling: string;
@@ -53,6 +57,11 @@
     tilbakeTil: string;
     ontilbake: () => void;
     onsendt: () => void;
+    /**
+     * Sendingen ble ikke lagret. Saken kan være lastet på nytt, så eieren lager brevet igjen
+     * mot saken slik den står (LV-U2, LV-U51, D-5 i BF-07).
+     */
+    onavvist?: () => void;
   } = $props();
   const uid = $props.id();
 
@@ -61,10 +70,11 @@
   const hentOrganisasjoner = organisasjonene();
   const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTNAVN[p])} (${p})`;
   let kontrollert = $state(false);
-  // Et brev som er endret, for eksempel med et nytt nummer, kontrolleres på nytt (LV-U46).
+  // Et brev som er endret, for eksempel med et nytt nummer eller en ny Deres ref., kontrolleres
+  // på nytt (LV-U46, LV-U51).
   let kontrollertTekst: string | null = null;
   $effect.pre(() => {
-    const naa = tekst.join('\n');
+    const naa = [merking, ...deresRef, ...tekst].join('\n');
     if (kontrollertTekst !== null && naa !== kontrollertTekst) kontrollert = false;
     kontrollertTekst = naa;
   });
@@ -93,6 +103,7 @@
     }
     harSendt = true;
     if (await kjernesak.send(kommando, tekst)) onsendt();
+    else onavvist?.();
   }
 </script>
 
@@ -104,10 +115,10 @@
     <Brev
       {avsender}
       sak={kjernesak.saksbilde?.tittel ?? ''}
-      nummer={brevnummer === null ? null : String(brevnummer)}
+      {merking}
+      {deresRef}
       dato={BREVKONTROLL.datoSettes}
       tittel={tittel ?? ''}
-      svarerPaa={svarerPaa ? brevrefStor(svarerPaa) : undefined}
       avsnitt={tekst.map((laast, i) => ({
         laast,
         utdypning: i === tekst.length - 1 ? utdypning : undefined,

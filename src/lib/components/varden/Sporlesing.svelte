@@ -22,7 +22,6 @@
   import {
     BREVMENY,
     MOTTATT,
-    SPORNAVN,
     STILLING,
     brevhode,
     brevtittel,
@@ -46,7 +45,8 @@
     onakseptbrev: (k: {
       kommando: Record<string, unknown>;
       tekst: string[];
-      brevnummer: number | null;
+      merking: string | null;
+      deresRef: string[];
       tittel: string | null;
     }) => void;
   } = $props();
@@ -106,7 +106,8 @@
     onakseptbrev({
       kommando: akseptkommando!,
       tekst: b.tekst,
-      brevnummer: b.brevnummer,
+      merking: b.merking,
+      deresRef: b.deresRef,
       tittel: b.brevtittel,
     });
   }
@@ -151,7 +152,8 @@
         <Brev
           avsender={vist.avsender}
           sak={kjernesak.saksbilde?.tittel ?? ''}
-          nummer={vist.nummer === null ? null : `${vist.nummer}, ${SPORNAVN[spor].toLowerCase()}`}
+          merking={vist.merking}
+          deresRef={vist.deresRef}
           dato={dato(vist.registrert)}
           tittel={brevtittel(vist)}
           avsnitt={vist.avsnitt}

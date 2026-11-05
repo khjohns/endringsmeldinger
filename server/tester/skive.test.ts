@@ -326,9 +326,15 @@ describe.skipIf(!TESTBASE_URL)(
       expect(gjengirTro(g, tekst(innhold[0]))).toBe(true);
       expect(gjengirTro(v, tekst(innhold[1]))).toBe(true);
       // Vår ref. er merkingen med brevets nummer i saken (LV-U27, LV-U44, LV-U48).
-      const loepenummer = /^Vår ref\.: K201-KOE-(\d{3})-01\n/.exec(g)?.[1];
+      const loepenummer = /^Vår ref\.: K201-KOE-(\d{3})-01\n/m.exec(g)?.[1];
       expect(loepenummer).toBeDefined();
-      expect(v).toMatch(new RegExp(`^Vår ref\\.: K201-KOE-${loepenummer}-02\\n`));
+      expect(v).toMatch(new RegExp(`^Vår ref\\.: K201-KOE-${loepenummer}-02\\n`, 'm'));
+      // #1533 punkt 2: tittelen kjernen frøs, står øverst i det som leveres (GR-U31, MM-U3).
+      expect(g.split('\n')[0]).toBe(
+        (innhold[0].brev.dokument as { brevtittel: string }).brevtittel
+      );
+      // Et krav uten motpartens brev har ingen Deres ref. (U-3 i BF-07).
+      expect(v).not.toContain('Deres ref.');
       // LV-U43: sakstittelen er navnet på forholdet i påberopelsen.
       // S3 i #1497: saken omtales med koden, ikke med saks-ID-en.
       expect(g).toContain(`«Skiva» i sak KOE-${Number(loepenummer)}`);

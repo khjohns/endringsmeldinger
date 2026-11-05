@@ -64,7 +64,8 @@
       utdypning?: string;
       detteSender: { tekst: string; lag: string | null }[];
       virkninger: string[];
-      brevnummer: number | null;
+      merking: string | null;
+      deresRef: string[];
       tittel: string | null;
     }) => void;
     /** BH har bekreftet at utkastet skal forkastes. */
@@ -231,7 +232,8 @@
       utdypning: kommando.svar[0].utdypning,
       detteSender: linjer,
       virkninger,
-      brevnummer: b.brevnummer,
+      merking: b.merking,
+      deresRef: b.deresRef,
       tittel: b.brevtittel,
     });
   }
@@ -332,7 +334,8 @@
   <Brev
     avsender={kravbrevet.avsender}
     sak={kjernesak.saksbilde?.tittel ?? ''}
-    nummer={kravbrevet.nummer === null ? null : String(kravbrevet.nummer)}
+    merking={kravbrevet.merking}
+    deresRef={kravbrevet.deresRef}
     dato={dato(kravbrevet.registrert)}
     tittel={brevtittel(kravbrevet)}
     avsnitt={kravbrevet.avsnitt ?? []}
@@ -364,7 +367,7 @@
             <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
             {#if utkastbrev}<span
                 >{brevhode({
-                  nummer: utkastbrev.brevnummer,
+                  merking: utkastbrev.merking,
                   art: 'svar',
                   brevtittel: utkastbrev.brevtittel,
                 })}</span

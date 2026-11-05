@@ -23,7 +23,14 @@ import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
  * begrunnelsen er skrevet (A1). En programfeil i kjernen kastes videre (#695).
  */
 export type Brev =
-  | { tekst: string[] | null; brevnummer: number | null; brevtittel: string | null }
+  | {
+      tekst: string[] | null;
+      brevnummer: number | null;
+      brevtittel: string | null;
+      /** Vår ref. og Deres ref. slik kjernen fryser dem i hodet (LV-U27, LV-U49, U-4 i BF-07). */
+      merking: string | null;
+      deresRef: string[];
+    }
   | { avvisning: Avvisning };
 
 /**
@@ -62,6 +69,8 @@ export function brevFor(
     tekst,
     brevnummer: typeof rad.data.brevnummer === 'number' ? rad.data.brevnummer : null,
     brevtittel: typeof rad.data.brevtittel === 'string' ? rad.data.brevtittel : null,
+    merking: typeof rad.data.merking === 'string' ? rad.data.merking : null,
+    deresRef: Array.isArray(rad.data.deres_ref) ? (rad.data.deres_ref as string[]) : [],
   };
   if (!sendes) return brev;
   const medTekst = tekst ? { ...kommando, brevtekst: tekst } : kommando;

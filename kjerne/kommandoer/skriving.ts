@@ -11,7 +11,12 @@ import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.t
 import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
-import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
+import {
+  BrevetAvvises,
+  KanIkkeUttrykkes,
+  lagBrevtekst,
+  lagDeresRef,
+} from '../frosset/brevtekst.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import { avvis } from './forutsetninger.ts';
 import {
@@ -411,10 +416,12 @@ function skriv(
   };
   let brevtekst: Avsnitt[] | null;
   let brevtittel: string | null = null;
+  let deresRef: string[] = [];
   try {
     const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst);
     brevtekst = brevet?.tekst ?? null;
     brevtittel = brevet?.tittel ?? null;
+    deresRef = brevet?.deresRef ?? [];
   } catch (feil) {
     if (feil instanceof BrevetAvvises)
       return {
@@ -453,8 +460,12 @@ function skriv(
     // LV-U53, LV-U24: merkingen fryses i brevet, så en senere henvisning viser til den som
     // står på det, også om kontraktsforkortelsen endres (oppdragsgiver 04.11 i #1570). Uten
     // forkortelsen merkes brevet ikke, og leveringen avviser sendingen (S2 A i #1497).
-    if (kontekst.kontraktsforkortelse)
+    if (kontekst.kontraktsforkortelse) {
       data.merking = brevmerking(kontekst.kontraktsforkortelse, kontekst.sakskode, brevnummer);
+      // LV-U23, LV-U27, A-3 A i #1497: Deres ref. fryses med hodet, slik journalen står nå.
+      // Versjonssjekken før sending sørger for at det er den avsenderen godkjente (LV-U2, LV-U51).
+      if (deresRef.length) data.deres_ref = deresRef;
+    }
   }
   if (sendes) {
     const avvik = tekstavvik(k.brevtekst, brevtekst);
@@ -520,7 +531,7 @@ function brevtekstFor(
   kjerne: Kjerne,
   utdypninger: Utdypninger,
   { sakskode }: Pick<Kontekst, 'sakskode'>
-): { tekst: Avsnitt[]; tittel: string | null } | null {
+): { tekst: Avsnitt[]; tittel: string | null; deresRef: string[] } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
     throw new Skrivefeil(
@@ -546,7 +557,11 @@ function brevtekstFor(
     );
     // LV-U27: sakens kode står i tittelen, «Krav om endring i sak KOE-17».
     const tittel = lagBrevtittel(ny.dokument);
-    return { tekst, tittel: tittel && medSakskode(tittel, sakskode) };
+    return {
+      tekst,
+      tittel: tittel && medSakskode(tittel, sakskode),
+      deresRef: lagDeresRef(ny.dokument, lest),
+    };
   } catch (feil) {
     if (feil instanceof KanIkkeUttrykkes)
       throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);

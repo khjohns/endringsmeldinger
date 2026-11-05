@@ -114,11 +114,19 @@ export function gjengiOppdrag(innhold: Record<string, unknown>): string | null {
   return brev.brevtekst ? gjengiBrev(brev, brev.brevtekst) : null;
 }
 
-/** Hodet etter LV-U27, uten Deres ref. (S4 i #1497) og Websak-nummeret (#1173). */
+/**
+ * Hodet kjernen frøs med brevet (LV-U23, LV-U27): tittelen (GR-U31, MM-U3), Deres ref. med
+ * én kode per linje (LV-U49, U-2 og U-3 i BF-07), Vår ref., avsenderen og datoen. Uten koder
+ * står ikke «Deres ref.». Websak-nummeret kommer med #1173.
+ */
 function gjengiBrev(brev: Oppdragsbrev, brevtekst: Avsnitt[]): string {
   const fra = brev.avsender.part === 'TE' ? 'Totalentreprenøren (TE)' : 'Byggherren (BH)';
   if (!brev.merking) throw new UgjengivbartBrev('Oppdraget har brevtekst, men ingen merking');
+  const tittel = brev.dokument?.brevtittel;
+  const deresRef = brev.dokument?.deres_ref ?? [];
   return [
+    ...(tittel ? [tittel, ''] : []),
+    ...deresRef.map((kode, i) => `${i === 0 ? 'Deres ref.:' : '           '} ${kode}`),
     `Vår ref.: ${brev.merking}`,
     `Fra: ${fra}`,
     `Dato: ${norskDato(brev.tidsstempel)}`,
@@ -132,6 +140,8 @@ interface Oppdragsbrev {
   merking: string | null;
   avsender: { part: 'TE' | 'BH' };
   brevtekst: Avsnitt[] | null;
+  /** Dokumentet slik kjernen frøs det, med tittelen og Deres ref. */
+  dokument?: { brevtittel?: string; deres_ref?: string[] };
 }
 
 /** Oppdraget har et dokument, men brevteksten mangler, eller PDF-en gjengir den ikke tro. */

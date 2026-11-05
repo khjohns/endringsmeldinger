@@ -81,7 +81,8 @@
   let oppsummering = $state<HTMLElement | null>(null);
   let kontroll = $state<{
     tekst: string[];
-    brevnummer: number | null;
+    merking: string | null;
+    deresRef: string[];
     brevtittel: string | null;
     kommando: Record<string, unknown>;
   } | null>(null);
@@ -221,7 +222,8 @@
         feil = {};
         kontroll = {
           tekst: brev.tekst,
-          brevnummer: brev.brevnummer,
+          merking: brev.merking,
+          deresRef: brev.deresRef,
           brevtittel: brev.brevtittel,
           kommando: kommandoene(utfylling(), KJERNE).paaberopelse,
         };
@@ -283,7 +285,8 @@
             kontroll = {
               ...kontroll,
               tekst: brev.tekst,
-              brevnummer: brev.brevnummer,
+              merking: brev.merking,
+              deresRef: brev.deresRef,
               brevtittel: brev.brevtittel,
             };
             sendefeil = NYSAK.nyttNummer;
@@ -331,7 +334,8 @@
     kommando={kontroll.kommando}
     tekst={kontroll.tekst}
     utdypning={beskrivelse.trim()}
-    brevnummer={kontroll.brevnummer}
+    merking={kontroll.merking}
+    deresRef={kontroll.deresRef}
     tittel={kontroll.brevtittel}
     handling={NYSAK.handling}
     svarerPaa={null}

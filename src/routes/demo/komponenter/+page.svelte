@@ -220,7 +220,8 @@
                 <Brev
                   avsender={b.avsender}
                   sak={godtatt.saksbilde?.tittel ?? ''}
-                  nummer={b.nummer === null ? null : String(b.nummer)}
+                  merking={b.merking}
+                  deresRef={b.deresRef}
                   dato={dato(b.registrert)}
                   tittel={brevtittel(b)}
                   avsnitt={b.avsnitt}

@@ -23,7 +23,13 @@ describe('Tidslinje', () => {
       dato: '2026-10-01',
       hva: 'klar_over_forholdet' as const,
       oppgittAv: 'TE' as const,
-      brev: { id: 'brev-1', nummer: 1, registrert: '2026-10-02T10:00:00Z' },
+      brev: {
+        id: 'brev-1',
+        nummer: 1,
+        registrert: '2026-10-02T10:00:00Z',
+        omtale: null,
+        art: 'krav' as const,
+      },
       spor: [],
     };
     const { container } = render(Tidslinje, { brev: [], datoer: [d, { ...d }], aapen: true });
@@ -42,7 +48,11 @@ describe('Tidslinje', () => {
         krav: [],
         svar: [],
         utsagn: [],
+        opplysninger: [],
         brevnummer: nummer,
+        merking: nummer === null ? null : `K201-KOE-017-0${nummer}`,
+        deresRef: [],
+        korrespondansetype: null,
         brevtittel: tittel,
         brevtekst: tittel === null ? null : [{ laast: 'Teksten.' }],
       },
@@ -70,7 +80,8 @@ describe('Tidslinje', () => {
     const linjer = [...container.querySelectorAll('li')].map((li) => li.textContent ?? '');
     expect(linjer[1]).toContain('Korrespondanse');
     expect(linjer[1]).not.toMatch(/Brev \d/);
-    expect(linjer[2]).toContain('Brev 2 · Krav om vederlagsjustering i sak KOE-17');
-    expect(container.textContent).not.toContain('Brev 4');
+    // LV-U53: brevet står med merkingen kjernen frøs, som har brevnummeret, ikke versjonen.
+    expect(linjer[2]).toContain('K201-KOE-017-02 · Krav om vederlagsjustering i sak KOE-17');
+    expect(container.textContent).not.toContain('K201-KOE-017-04');
   });
 });

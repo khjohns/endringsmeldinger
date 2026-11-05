@@ -53,7 +53,8 @@
     utdypning?: string;
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
-    brevnummer: number | null;
+    merking: string | null;
+    deresRef: string[];
     tittel: string | null;
     handling: string;
     sendTekst: string;
@@ -123,6 +124,25 @@
     }
     arbeid = { art: 'les' };
     melding = { tekst: MOTTATT.dittBrev, art: 'sendt' };
+  }
+
+  /**
+   * Etter en avvist sending kan saken være lastet på nytt, med et nytt brev fra motparten eller
+   * et nytt nummer. Brevet lages da igjen av den samme kommandoen, så teksten og hodet avsenderen
+   * godkjenner, er det som sendes (LV-U2, LV-U51, D-5 i BF-07). Avviser kjernen kommandoen nå,
+   * står brevet og meldingen fra sendingen.
+   */
+  function byggPaaNytt(k: Kontroll) {
+    const b = kjernesak.brev(k.kommando, undefined, true);
+    if (!b || !('tekst' in b) || !b.tekst) return;
+    if (arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
+    arbeid = {
+      ...arbeid,
+      tekst: b.tekst,
+      merking: b.merking,
+      deresRef: b.deresRef,
+      tittel: b.brevtittel,
+    };
   }
 
   async function forkast() {
@@ -233,7 +253,8 @@
           kommando={k.kommando}
           tekst={k.tekst}
           utdypning={k.utdypning}
-          brevnummer={k.brevnummer}
+          merking={k.merking}
+          deresRef={k.deresRef}
           tittel={k.tittel}
           handling={k.handling}
           svarerPaa={k.svarerPaa}
@@ -243,6 +264,7 @@
           tilbakeTil={k.tilbakeTil}
           ontilbake={() => (arbeid = k.tilbake)}
           onsendt={sendt}
+          onavvist={() => byggPaaNytt(k)}
         />
       {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
         <Vederlagssvar
@@ -278,7 +300,7 @@
                 arbeid = { art: 'svar' };
               }
             }}
-            onakseptbrev={({ kommando, tekst, brevnummer, tittel }) => {
+            onakseptbrev={({ kommando, tekst, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
               arbeid = {
                 art: 'kontroll',
@@ -286,7 +308,8 @@
                 tekst,
                 detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
                 virkninger: [],
-                brevnummer,
+                merking,
+                deresRef,
                 tittel,
                 handling: BREVKONTROLL.sendAksepten,
                 sendTekst: BREVKONTROLL.sendAksepten,
