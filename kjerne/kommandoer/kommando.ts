@@ -171,6 +171,8 @@ export type Kommando = (
       gjelder: string;
       paalegg_mottatt?: string;
       klar_over_forholdet?: string;
+      /** MM-U53: TEs valgfrie forklaring under den vedtatte teksten. Løsningen tolker den ikke. */
+      utdypning?: string;
     }
 ) &
   Brevtekst;
@@ -322,6 +324,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       gjelder: ID,
       paalegg_mottatt: DATO,
       klar_over_forholdet: DATO,
+      utdypning: TEKST,
       ...BREVTEKST,
     },
     ['type', 'gjelder'],

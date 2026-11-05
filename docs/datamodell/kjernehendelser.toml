@@ -301,9 +301,11 @@ korrigeringen har nøyaktig ett av dem. Ikke en kravversjon, avslår ikke bygghe
 svar og endrer ikke utfallet. Den nye opplysningen gjelder straks som TEs siste
 opplysning, og et svar byggherren alt har gitt, står med virkningen det hadde. Godtas
 også i et spor med enighet, når kravene er avgjort og i en lukket sak. En korrigering
-sendt utenfor løsningen står som dokumentasjon."""
+sendt utenfor løsningen står som dokumentasjon. Brevet har tittelen «Korrigering av
+datoen i sak <kode>», og TEs valgfrie forklaring står som utdypningen under den faste
+teksten."""
 felt = ["id", "art", "gjelder", "paalegg_mottatt", "klar_over_forholdet"]
-grunnlag = "MM-U41, MM-U51, VS-U26, VS-U9, OV-U4"
+grunnlag = "MM-U41, MM-U51, VS-U26, VS-U9, OV-U4, MM-U53, LV-U55"
 
 # ---------------------------------------------------------------------------
 # Delene i svaret og dokumentet.
