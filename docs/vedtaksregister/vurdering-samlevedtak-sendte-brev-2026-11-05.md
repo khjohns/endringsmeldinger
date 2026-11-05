@@ -43,7 +43,7 @@ punkt 2), og E9 sier om (a) eller (b) gjelder. Den foreløpige ID-en er MM-U50. 
 | --- | --- | --- | --- |
 | VS-U43 (varslingsdatoen) | OV-U5 | setningen om det første fristkravet | setningene om svaret som står, i punkt 21–22; de to samlevedtakene samler ulike setninger i OV-U5 |
 | HF-U25 og HF-U26 (revisjon av svaret) | MM-U9, HF-U5, OV-U5 | merknaden om avviket og oppfordringen i MM-U9 og HF-U5 (HF-U25 E4, punkt 9 = HF-U26); setningen om revisjon i OV-U5 (HF-U25 E2) | MM-U9 unntatt merknaden; punkt 24 viser til HF-U25 punkt 1–3 |
-| VS-U46 (påberopelse av sent varsel, PR #1593, ikke merget) | – (HF-U6) | at et utsagn binder parten, strøket i HF-U6 (E8 der, svar 1 A) | punkt 8 sier det samme om HF-U13 etter spørsmål 2 |
+| VS-U46 (påberopelse av sent varsel, merget 05.11) | – (HF-U6) | at et utsagn binder parten, strøket i HF-U6 (E8 der, svar 1 A); punkt 20 sier at løsningen ikke avgjør om parten er bundet | punkt 8 sier det samme om HF-U13 etter spørsmål 2 |
 | HF-U23 (akseptfristen) | HF-U5 | akseptfristen og aksept etter fristen | ingenting fra HF-U5 |
 | MM-U41 (retting av sendt brev) | – (OV-U11, OV-U80) | retting av datoen og at datoen settes én gang | HF-U13 siste setning nevnes bare (E8) |
 | MM-U43 (saker løsningen ikke forstår) | – (OV-U4) | OV-U4 | OV-U4 er kilde for punkt 19 |
@@ -104,8 +104,8 @@ valgte alternativet.
 7. Det en part har meddelt skriftlig etter punkt 5 i NS 8407, står slik det ble sendt. Det som ikke
    står i teksten, er ikke meddelt (LV-U3). (HF-U13 s1, endret etter spørsmål 2, og s2; E3)
 8. Løsningens vurdering av utsagnene binder ingen av partene, og løsningen avgjør ikke om en part er
-   bundet av et utsagn eller kan komme løs fra det (MM-U12). (HF-U13 s3; HF-U6 slik MM-U34 punkt 5
-   endret den; E3)
+   bundet av et utsagn eller kan komme løs fra det (MM-U12). (HF-U13 s3; VS-U46 punkt 20, som samler
+   setningen MM-U34 punkt 5 la til i HF-U6; E3)
 
 ### B. Regelendring og utledningen
 
@@ -236,8 +236,11 @@ binder, og en regelendring har ingen virkning for det brevene sier.» Punkt 8 er
 svarene 05.11. Ved 2A leses også begrunnelsen i MM-U17 s3, «den som sender et brev, er bundet av det
 hen har meddelt», og prinsippet 10.10 i Følge i MM-U16 som at det parten har meddelt, står som
 partens utsagn, slik MM-U34 punkt 15 skrev om OV-U4. KA-U10 s6 gjengir punkt 34.2.2 i kontrakten
-og endres ikke. Svar 1 A føres i PR #1593; er den ikke merget når samlevedtaket føres, er belegget
-svaret i #1534.
+og endres ikke. Svar 1 A for VS-U46 er ført (VS-U46 punkt 20 og E8 der).
+
+*Kontroll mot `main` 05.11 (`53f5f5c`):* VS-U46 er merget. Det som gjelder av HF-U6, står i VS-U46
+punkt 20, og punkt 8 viser dit. Innholdet i punkt 8 er det samme. VS-U46 samler bare punkt 6 i
+MM-U34, så henvisningene til MM-U34 punkt 9 og 10 står.
 
 **E4 Registrerte brev etter OV-U4 og OV-U80.** Gammel tekst: MM-U17 s1 «for et brev sendt utenfor
 appen og registrert i den, fryser beslutningsgrunnlaget appens vurdering etter reglene ved
