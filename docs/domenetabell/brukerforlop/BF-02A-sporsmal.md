@@ -33,6 +33,8 @@ og fritekst kan si mer enn korrigeringen gjør. Det B koster: før #1377 kan tot
 ikke forklare korrigeringen fra løsningen, og byggherren ser bare to datoer.
 Valget styrer: kommandoen, skjemaet (U-2, U-3) og brevteksten.
 
+**Svar fra oppdragsgiver 05.11, ordrett: «1 A, 2A».** S-1: A. Forkastet: B.
+
 **S-2. Tittelen på brevet med korrigeringen**
 
 Bakgrunn: Hvert brev fra løsningen har en tittel med sakens kode (LV-U27), som
@@ -49,5 +51,7 @@ Anbefalt: A. Tittelen er kort i tidslinjen og i arkivet, og brevteksten sier hvi
 er korrigert. Det A koster: tittelen alene skiller ikke de to datoene. Det B koster: lange
 titler.
 Valget styrer: tittelen i kjernen (`kjerne/frosset/brevtittel.ts`) og én test av tittelen.
+
+**Svar fra oppdragsgiver 05.11, ordrett: «1 A, 2A».** S-2: A. Forkastet: B.
 
 **S-3** Hvor handlingen står (U-1) er et designvalg og prøves på brukere, ikke som vedtak.

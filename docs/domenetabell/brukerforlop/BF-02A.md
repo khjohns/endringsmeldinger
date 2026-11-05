@@ -8,7 +8,7 @@ den ekte saksruta.
 
 | | |
 | --- | --- |
-| Status | Utkast 05.11. Spørsmålene S-1 og S-2 er ikke besvart. Arbeidet følges i [#1615](https://github.com/khjohns/endringsmeldinger/issues/1615) |
+| Status | Utkast 05.11. S-1 og S-2 er besvart 05.11 og venter på vedtaks-PR-en. Arbeidet følges i [#1615](https://github.com/khjohns/endringsmeldinger/issues/1615) |
 | Demoruta | `/demo/BF-02A`, `/demo/BF-02C` og `/demo/BF-02D`, med kjernen i nettleseren |
 | Prototypen | [`korrigering-av-datoen.html`](../../design/prototyper/korrigering-av-datoen.html), for skjemaet for korrigeringen og det låste datofeltet i en ny grunnlagsversjon, som ingen komponent har (G-2) |
 | Bygger på | [MM-U52](../../plans/vedtak.md#mm-u52) punkt 10, 11, 13 og 24 og designdelen, med svarene «1 A, 2 A» 05.11 ([MM-U51](../../plans/vedtak.md#mm-u51), [LV-U54](../../plans/vedtak.md#lv-u54)) og de lagrede navnene i [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308) |
@@ -132,9 +132,11 @@ finner ut at pålegget ble mottatt 20.09.2026.
   (`kjerne/tester/klient.ts`). BF-02C kan derfor ikke vise en godtatt ny versjon med den
   korrigerte datoen, bare avvisningen. Teksten etter LV-U54 er prøvd i
   `kjerne/tester/brevtekst.test.ts`.
+- **G-8** Kommandoen `korrigering` har ingen forklaring i fritekst. S-1 A krever et valgfritt
+  felt (#1616).
 - **G-6** Brevet med korrigeringen har ingen tittel i kjernen (`UTSAGNSTITTEL` i
   `kjerne/frosset/brevtittel.ts`), og Varden viser det som «Brev» i tidslinjen. Domenegap,
-  meldt i #1616. Tittelen venter på S-2.
+  meldt i #1616, med forklaringen etter S-1.
 - **G-7** Varden viser ikke datoen TE oppga i grunnlagskravet, og heller ikke den siste og de
   tidligere opplysningene. Utledningen har dem (`datoopplysninger`), så visningen må bare lese
   dem.
@@ -145,8 +147,8 @@ finner ut at pålegget ble mottatt 20.09.2026.
 
 Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svarene.
 
-- **S-1** Om brevet med korrigeringen kan ha TEs forklaring i fritekst. Ikke besvart.
-- **S-2** Tittelen på brevet med korrigeringen (G-6). Ikke besvart.
+- **S-1** Om brevet med korrigeringen kan ha TEs forklaring i fritekst. Besvart 05.11: A, en valgfri forklaring under den vedtatte teksten. Føres som vedtak av orkestratoren.
+- **S-2** Tittelen på brevet med korrigeringen (G-6). Besvart 05.11: A, «Korrigering av datoen i sak <kode>». Føres som vedtak av orkestratoren.
 - **S-3** Hvor handlingen står (U-1). Designvalg, prøves på brukere.
 
 ## Produktspørsmål utenfor forløpene
