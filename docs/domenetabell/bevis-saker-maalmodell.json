@@ -12241,9 +12241,10 @@
       "kontroller": [
         {
           "etter": 3,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": ["GR-U27", "VS-U9"],
           "forventet": {
+            "avvist": false,
             "forhold_avvist": true,
             "virkning.S-g1.rettidighet": 1,
             "datoopplysninger": ["K-g1:2026-09-15"]
@@ -12318,9 +12319,9 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": ["KA-U11", "GR-U7"],
-          "forventet": { "kravene_avgjort": true, "enighet.forhold.holder": "S-g1", "enighet.vederlag.utfall.beloep": 100000 }
+          "forventet": { "avvist": false, "kravene_avgjort": true, "enighet.forhold.holder": "S-g1", "enighet.vederlag.utfall.beloep": 100000 }
         },
         {
           "etter": 2,
