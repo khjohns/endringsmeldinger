@@ -205,6 +205,13 @@
       "radetikett": "EO-U34: Samlevedtaket for endringsordren gjelder med E1–E13"
     },
     {
+      "id": "EO-U38",
+      "type": "vedtak",
+      "dato": "2026-11-05",
+      "ref": "../plans/vedtak.md#eo-u38",
+      "radetikett": "EO-U38: Spørsmål 1: Samlevedtaket for endringsordren, versjon 2, gjelder med E1–E9"
+    },
+    {
       "id": "EO-U2",
       "type": "vedtak",
       "dato": "2026-10-08",

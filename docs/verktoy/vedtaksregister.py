@@ -1060,14 +1060,11 @@ def bindende_i_opphevet(register: dict) -> list[str]:
 FORHOLD_TIL_OPPHEVET = ("presiserer", "utvider", "snevrer inn", "endrer", "bygger på")
 KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
     {
-        ("gfk-u2", "presiserer", "eo-u6", "#1534, steg 4"),
         ("gr-u10", "presiserer", "gr-u2", "#1534, steg 4"),
         ("gr-u22", "endrer", "gr-u2", "#1534, steg 4"),
         ("gr-u7", "presiserer", "ka-u5", "#1534, steg 4"),
-        ("hf-u12", "presiserer", "eo-u9", "#1534, steg 4"),
         ("hf-u9", "presiserer", "gr-u2", "#1534, steg 4"),
         ("hf-u9", "presiserer", "ka-u7", "#1534, steg 4"),
-        ("ka-u12", "presiserer", "eo-u5", "#1534, steg 4"),
         ("ka-u13", "snevrer inn", "ka-u7", "#1534, steg 4"),
         ("ka-u20", "presiserer", "ka-u7", "#1534, steg 4"),
         ("mm-u30", "presiserer", "mm-u29", "#1534, steg 4"),
@@ -1076,12 +1073,9 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("mm-u34", "endrer", "ov-u48", "#1534, steg 4"),
         ("mm-u34", "endrer", "ov-u49", "#1534, steg 4"),
         ("mm-u34", "endrer", "ov-u51", "#1534, steg 4"),
-        ("ov-u3", "bygger på", "eo-u2", "#1534, steg 4"),
-        ("ov-u3", "bygger på", "eo-u5", "#1534, steg 4"),
         ("ov-u3", "endrer", "ka-u3", "#1534, steg 4"),
         ("ov-u43", "presiserer", "mm-u28", "#1534, steg 4"),
         ("ov-u43", "utvider", "ka-u7", "#1534, steg 4"),
-        ("ov-u55", "snevrer inn", "eo-u5", "#1534, steg 4"),
     }
 )
 _AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
@@ -1593,6 +1587,12 @@ FORHOLD_FJERNET_ETTER_MERGE = {
     ("lv-u31", "presiserer", "hf-u14"): "E6 i HF-U23, OV-U92 (b) og OV-U93, #1603",
     ("hf-u22", "presiserer", "hf-u17"): "E5 i HF-U23, OV-U92 (b) og OV-U93, #1603",
     ("hf-u7", "bygger på", "ka-u26"): "E1 i KA-U49, OV-U92 (b) og OV-U93, #1603",
+    ("ka-u12", "presiserer", "eo-u5"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
+    ("ov-u3", "bygger på", "eo-u2"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
+    ("ov-u3", "bygger på", "eo-u5"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
+    ("ov-u55", "snevrer inn", "eo-u5"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
+    ("gfk-u2", "presiserer", "eo-u6"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
+    ("hf-u12", "presiserer", "eo-u9"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
 }
 
 
