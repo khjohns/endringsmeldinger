@@ -3794,8 +3794,13 @@ describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 
         }),
       ],
     });
-  const rettidigheten = (rad: Journalrad) =>
-    ((rad.data.svar as Data[])[0].standpunkter as Data[]).find((p) => p.art === 'rettidighet')!;
+  const rettidigheten = (rad: Journalrad) => {
+    const p = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
+      (x) => x.art === 'rettidighet'
+    );
+    expect(p, 'forutsetning: svaret har et standpunkt om rettidigheten').toBeDefined();
+    return p!;
+  };
 
   it('svaret på versjon 2 påberoper varselet i den første versjonen, og brevet nevner det brevet (VS-U43 punkt 6 og 10 med designdelen)', () => {
     const s = medToVersjoner();
@@ -3848,7 +3853,8 @@ describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 
     s.send('TE', PAABEROPELSE);
     svarPaaGjeldende(s, false);
     const gjeldende = s.u().spor.forhold.gjeldendeSvar!;
-    const rettidighet = gjeldende.standpunkter.find((p) => p.art === 'rettidighet')!;
+    const rettidighet = gjeldende.standpunkter.find((p) => p.art === 'rettidighet');
+    expect(rettidighet, 'forutsetning: svaret har et standpunkt om rettidigheten').toBeDefined();
     s.send('TE', {
       type: 'varsel',
       korrespondansetype: 'brev',
@@ -3859,7 +3865,7 @@ describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 
     });
     const u = s.u();
     expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
-    expect(u.svar[gjeldende.id].gjaldtEtAnnetVarsel).toEqual([rettidighet.id]);
+    expect(u.svar[gjeldende.id].gjaldtEtAnnetVarsel).toEqual([rettidighet!.id]);
     expect(u.svar[gjeldende.id].virkninger).toEqual(gjeldende.beslutningsgrunnlag.virkninger);
   });
 });

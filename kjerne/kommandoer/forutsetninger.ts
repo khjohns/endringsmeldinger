@@ -286,9 +286,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
         return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på gjeldende krav å revidere.');
-      if (h.spor === 'forhold') return svaretPaaberoperRegistrertVarsel(u, 'Revisjonen');
       // MM-U34 punkt 11, EO-U12: også et svar TE har godtatt eller som stemmer med kravet.
-      return null;
+      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;
     case 'godta':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)

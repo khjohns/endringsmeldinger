@@ -3762,7 +3762,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      if (h.spor === 'forhold') return svaretPaaberoperRegistrertVarsel(u, 'Revisjonen');",
+        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;",
         '      return null;',
       ],
       [
