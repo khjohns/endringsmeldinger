@@ -16671,7 +16671,7 @@ forkastet = true
 id = "MM-U53"
 dato = 2026-11-05
 hvem = "oppdragsgiver"
-kilde = ["#1615", "#1618"]
+kilde = ["#1615", "#1618", "#1616"]
 klasse = "vedtak"
 designdel = "at forklaringen står under den vedtatte teksten og er valgfri"
 sporsmal = '''
@@ -16696,7 +16696,7 @@ forhold = [
   { art = "snevrer inn", vedtak = "mm-u34" },
 ]
 folge = '''
-Forholdene står i alternativ A: «presiserer punkt 10 og avgrenser MM-U34 punkt 24 for korrigeringen». Spørsmålet sier «avgrenser»; registeret har ikke den arten, så det er ført som «snevrer inn». Bygges i #1616.'''
+Forholdene står i alternativ A: «presiserer punkt 10 og avgrenser MM-U34 punkt 24 for korrigeringen». Spørsmålet sier «avgrenser»; registeret har ikke den arten, så det er ført som «snevrer inn». Forholdet ble stilt som oppfølgingsspørsmål 05.11 ([kommentaren 6661079806](https://github.com/khjohns/endringsmeldinger/issues/1616#issuecomment-6661079806)). Oppdragsgiver svarte ordrett «A» ([kommentaren 6661259752](https://github.com/khjohns/endringsmeldinger/issues/1616#issuecomment-6661259752)), det vil si: «S-1 presiserer punkt 10 i samlevedtaket for retting av sendt brev og snevrer inn regelen om innlegg (MM-U34 punkt 24), også slik punkt 15 viser til den.» Bygges i #1616.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
