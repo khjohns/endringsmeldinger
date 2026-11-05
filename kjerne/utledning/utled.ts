@@ -201,7 +201,7 @@ export interface Utledning {
   /** VS-U12: TEs påberopelse av byggherrens passivitet etter § 32.3 annet ledd. */
   passivitet: Paaberopelse[];
   /**
-   * MM-U18, MM-U19: elementer i et registrert brev
+   * MM-U43 punkt 9: elementer i et registrert brev
    * som strider mot en enighet eller mot at saken er lukket. Brevet bevares og
    * vises, elementet har ingen virkning på utfallet, og ingenting sperres. Det er
    * appens vurdering, atskilt fra det parten sa (HF-U2, MM-U12).
@@ -309,7 +309,7 @@ export function kilden(d: Dokument, forstaatt: boolean): Kilde {
 /**
  * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som kjernen
  * ikke vurderer innholdet i: kilden er dokumentasjon. Et varsel eller en endringsordre uten
- * virkning vurderer kjernen (MM-U19).
+ * virkning vurderer kjernen (MM-U43 punkt 9).
  */
 function ikkeVurderte(
   journal: Domenehendelse[],
@@ -409,10 +409,10 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
 }
 
 /**
- * MM-U18: elementene i dokumentet som ikke kan forstås i samsvar med journalen før
+ * MM-U43 punkt 6: elementene i dokumentet som ikke kan forstås i samsvar med journalen før
  * det og vedtakene om enighet og lukking: en ny kravversjon i et trukket spor eller et spor
- * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor
- * (MM-U20), en aksept av et frafall (GR-U9) eller av et svar med registrert enighet
+ * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor,
+ * en aksept av et frafall (GR-U9) eller av et svar med registrert enighet
  * (GR-U8), noe som endrer utfallet etter at TE har godtatt et svar som avslår forholdet
  * eller påberoper preklusjon (GR-U27), og det som viser til et element uten virkning.
  * Kontrollen gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
@@ -509,7 +509,7 @@ export function forskyvningIBrevet(svar: Svar, u: Utledning): number {
 
 /**
  * Utledningen av journalen. Hvert dokument kontrolleres mot journalen før det
- * (MM-U18, `strid`): en strid i en hendelse som ikke er et registrert brev, gjør
+ * (MM-U43 punkt 6 og 9, `strid`): en strid i en hendelse som ikke er et registrert brev, gjør
  * saken ikke forstått, og i et registrert brev får elementet ingen virkning.
  */
 export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
@@ -577,7 +577,7 @@ function utledSporene(
   const henvisninger: Henvisning[] = [];
   const foresporsler: Utsagn<'foresporsel'>[] = [];
   const opplysninger: LestOpplysning[] = [];
-  /** Hvert krav i saken, også de uten virkning (MM-U18). */
+  /** Hvert krav i saken, også de uten virkning (MM-U43 punkt 9). */
   const kravMedUten = new Map<string, Krav>();
   /** VS-U33: kravene om dager fremmet i appen, også de uten virkning. */
   const fristkravIAppen: Krav[] = [];
@@ -758,7 +758,7 @@ function kontrollerSvarene(
         (alleKrav.get(s.paaberopelse)?.spor !== 'forhold' || !bakover(s.id, s.paaberopelse)))
     )
       ugyldig(s.id, 'svaret viser ikke til en grunnlagsversjon før det');
-    // MM-U18: sammenfallet er appens vurdering av samme brev og må stemme med standpunktene.
+    // MM-U43 punkt 8: sammenfallet er appens vurdering av samme brev og må stemme med standpunktene.
     if (!sammenfallStemmer(s))
       ugyldig(s.id, 'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18)');
     for (const p of s.standpunkter)
@@ -889,7 +889,7 @@ function kontrollerEndringsordrene(
 /**
  * § 5 og VS-U12: hvert utsagn som viser til et annet, viser bakover til noe det kan
  * gjelde. Innsigelsen og protesten gjelder motparten (VS-U1, VS-U14, MP-U6).
- * Et element uten virkning er bevart og vist (MM-U18), så et utsagn kan vise til det,
+ * Et element uten virkning er bevart og vist (MM-U43 punkt 9), så et utsagn kan vise til det,
  * med samme krav til art og part.
  */
 function kontrollerHenvisningene(

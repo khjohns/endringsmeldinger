@@ -37,10 +37,32 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     const lest = lesBrevPdf(dokument.innhold);
     expect(dokument.navn).toBe('K201-KOE-005-03-noekkel-1.pdf');
     expect(lest.startsWith('Vår ref.: K201-KOE-005-03\n')).toBe(true);
+    expect(lest).not.toContain('Deres ref.');
     expect(new TextDecoder().decode(dokument.innhold.subarray(0, 8))).toBe('%PDF-1.7');
     expect((lest.match(/\n/g) ?? []).length).toBeGreaterThan(60);
     expect(gjengirTro(lest, LANG)).toBe(true);
     expect(lest.replace(/\s+/g, ' ')).toBe(gjengiOppdrag(oppdrag(LANG))!.replace(/\s+/g, ' '));
+  });
+
+  it('gjengir tittelen og Deres ref. kjernen frøs, med én kode per linje (#1533 punkt 2, LV-U23, LV-U49, U-2 i BF-07)', async () => {
+    const medHode = {
+      ...oppdrag(LANG.slice(0, 2)),
+      brev: {
+        ...oppdrag(LANG.slice(0, 2)).brev,
+        dokument: {
+          brevtittel: 'Svar på krav om vederlagsjustering i sak KOE-5',
+          deres_ref: ['K201-KOE-005-01', 'K201-KOE-005-02'],
+        },
+      },
+    };
+    const lest = lesBrevPdf((await brevdokument(medHode, 'n')).innhold);
+    expect(lest.split('\n').slice(0, 5)).toEqual([
+      'Svar på krav om vederlagsjustering i sak KOE-5',
+      'Deres ref.: K201-KOE-005-01',
+      'K201-KOE-005-02',
+      'Vår ref.: K201-KOE-005-03',
+      'Fra: Totalentreprenøren (TE)',
+    ]);
   });
 
   it('lesingen ser at en side mangler, så kontrollen ikke godtar en utelatelse ved sidebrekk', async () => {

@@ -41,18 +41,30 @@ export const brevtittel = (b: { art?: Brevet['art']; brevtittel: string | null }
   b.brevtittel ?? (b.art === 'registrert' ? 'Korrespondanse' : 'Brev');
 
 /**
- * Henvisningen til et brev i en setning: «brev 3» med brevnummeret (LV-U44). Et registrert
- * brev uten nummer (LV-U45) får ikke et oppdiktet nummer, men datoen det ble registrert.
+ * Henvisningen til et brev i en setning, slik brevteksten omtaler det: «brev K201-KOE-017-03 av
+ * 2. oktober 2026», eller «totalentreprenørens e-post av …» for registrert korrespondanse
+ * (LV-U53, LV-U42). Har brevet ingen slik omtale, får det ikke en oppdiktet, men nummeret eller
+ * datoen det ble registrert.
  */
 export const brevref = (b: Brevref) =>
-  b.nummer === null ? `brevet registrert ${dato(b.registrert)}` : `brev ${b.nummer}`;
+  b.omtale ?? (b.nummer === null ? `brevet registrert ${dato(b.registrert)}` : `brev ${b.nummer}`);
+
+/**
+ * Henvisningen med avsenderen: «brev K201-KOE-017-03 av … fra TE». Omtalen av registrert
+ * korrespondanse nevner parten selv (LV-U42), så den står ikke to ganger.
+ */
+export const brevrefFra = (b: Brevref, part: Part) =>
+  b.omtale && b.art === 'registrert' ? b.omtale : `${brevref(b)} fra ${part}`;
 
 /** Henvisningen som begynner en linje: «Brev 3», eller «Brevet registrert …» uten nummer. */
 export const brevrefStor = (b: Brevref) => brevref(b)[0].toUpperCase() + brevref(b).slice(1);
 
-/** Overskriften for brevet: «Brev 3 · tittelen», og bare tittelen for et brev uten nummer. */
-export const brevhode = (b: Pick<Brevet, 'nummer' | 'art' | 'brevtittel'>) =>
-  b.nummer === null ? brevtittel(b) : `Brev ${b.nummer} · ${brevtittel(b)}`;
+/**
+ * Overskriften for brevet: «K201-KOE-017-03 · tittelen» med merkingen (LV-U53), og bare
+ * tittelen for et brev uten merking.
+ */
+export const brevhode = (b: Pick<Brevet, 'merking' | 'art' | 'brevtittel'>) =>
+  b.merking === null ? brevtittel(b) : `${b.merking} · ${brevtittel(b)}`;
 
 const DATO = new Intl.DateTimeFormat('nb-NO', {
   day: 'numeric',
@@ -144,7 +156,11 @@ export const SKJEMA = {
   overskrift: 'Svar på kravet',
   // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
   omSvaret: 'Om svaret',
-  svarerPaa: (b: Brevref) => `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`,
+  // Omtalen har datoen i seg (LV-U53, LV-U42).
+  svarerPaa: (b: Brevref) =>
+    b.omtale
+      ? `Svar på ${brevrefFra(b, 'TE')}`
+      : `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`,
   lesBrevet: 'Les brevet ved siden av',
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevetHer: 'Les brevet',
@@ -161,7 +177,13 @@ export const SKJEMA = {
   klarOver: (d: string, b: Brevref) =>
     `TE oppgir at TE ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   kravSendt: (d: string, b: Brevref) =>
-    `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
+    // Avstanden under regnes til `registrert`, så den datoen står med for registrert
+    // korrespondanse, der omtalen har datoen parten oppgir (LV-U42).
+    b.omtale && b.art === 'registrert'
+      ? `Kravet om vederlagsjustering står i ${b.omtale}, registrert ${dato(d)}.`
+      : b.omtale
+        ? `Kravet om vederlagsjustering ble sendt med ${b.omtale}.`
+        : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
   metodeTittel: 'Beregningsmetode',
   metodeSpoersmaal: (m: unknown) => `TE krever oppgjør etter ${metodenavn(m)}. Godkjenner du det?`,
@@ -220,8 +242,7 @@ export const BREVKONTROLL = {
   fra: 'Fra',
   til: 'Til',
   svarerPaa: 'Svarer på',
-  svarerPaaBrev: (b: Brevref) =>
-    b.nummer === null ? brevrefStor(b) : `Brev ${b.nummer}, ${dato(b.registrert)}`,
+  svarerPaaBrev: (b: Brevref) => brevrefStor(b),
   datoSettes: 'Settes ved sending',
   detteSender: 'Dette sender du',
   akseptOmfatter: 'Godtar TE svaret, omfatter aksepten hele svaret, også at varselet kom for sent.',
@@ -307,7 +328,7 @@ export const SAKEN = {
   spor: 'Krav og svar',
   utkast: 'Utkast',
   ingenBrev: 'Ingen brev',
-  sist: (b: Brevref, part: Part) => `Siste: ${brevref(b)} fra ${part}`,
+  sist: (b: Brevref, part: Part) => `Siste: ${brevrefFra(b, part)}`,
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',

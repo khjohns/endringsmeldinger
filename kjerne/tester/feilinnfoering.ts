@@ -583,7 +583,7 @@ const MUTASJONER: Mutasjon[] = [
         'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall)',
         'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall && a.id === undefined)',
       ],
-      // Strid-kontrollen (MM-U18) fanger det samme; begge må muteres.
+      // Strid-kontrollen (MM-U43 punkt 6) fanger det samme; begge må muteres.
       [
         '  if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
         '  if (false)',
@@ -797,7 +797,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F67',
     feilklasse:
-      'en hendelse som endrer utfallet etter at saken er lukket, leses med virkning (MM-U18, SK-01, KA-U11)',
+      'en hendelse som endrer utfallet etter at saken er lukket, leses med virkning (MM-U43 punkt 6, SK-01, KA-U11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       ["  u.forholdAvvist\n    ? 'TE har godtatt svaret", "  false\n    ? 'TE har godtatt svaret"],
@@ -806,7 +806,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F68',
-    feilklasse: 'en aksept av et frafall leses som enighet (MM-U18, GR-U9)',
+    feilklasse: 'en aksept av et frafall leses som enighet (MM-U43 punkt 6, GR-U9)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -819,7 +819,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F69',
     feilklasse:
-      'leseren kontrollerer ikke at sammenfallet stemmer med standpunktene (MM-U18, #326)',
+      'leseren kontrollerer ikke at sammenfallet stemmer med standpunktene (MM-U43 punkt 8, #326)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['    if (!sammenfallStemmer(s))', '    if (!sammenfallStemmer(s) && !s)']],
     mal: ['et avslag lagret med sammenfall er ikke forstått'],
@@ -827,7 +827,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F70',
     feilklasse:
-      'et registrert brev som strider mot en enighet eller et trekk, gjør saken ikke forstått (MM-U18, OV-U4)',
+      'et registrert brev som strider mot en enighet eller et trekk, gjør saken ikke forstått (MM-U43 punkt 9, OV-U4)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
     mal: ['F-MM-U326l'],
@@ -896,7 +896,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F84',
     feilklasse:
-      'en påberopt passivitet mot en påberopelsesversjon uten virkning stopper saken (MM-U18, VS-U12)',
+      'en påberopt passivitet mot en påberopelsesversjon uten virkning stopper saken (MM-U43 punkt 6, VS-U12)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -916,7 +916,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F92',
-    feilklasse: 'en kravversjon etter trekk leses med virkning (MM-U18, MM-U19, GR-U5)',
+    feilklasse: 'en kravversjon etter trekk leses med virkning (MM-U43 punkt 6, GR-U5)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (u.spor[k.spor].trukket)', '  if (u.spor[k.spor].trukket && !k)']],
     mal: ['F-MM-IK6b'],
@@ -1269,7 +1269,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F135',
     feilklasse:
-      'et svar i et trukket spor, i en rad som ikke er registrert, er ikke en strid (MM-U20)',
+      'et svar i et trukket spor, i en rad som ikke er registrert, er ikke en strid (MM-U43 punkt 6)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (u.spor[s.spor].trukket) return', '  if (false) return']],
     mal: ['F-MM-U20a', 'F-MM-U20c', 'F-MM-U20d'],
@@ -1277,14 +1277,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F136',
     feilklasse:
-      'en aksept av et svar i et trukket spor, i en rad som ikke er registrert, er ikke en strid (MM-U20)',
+      'en aksept av et svar i et trukket spor, i en rad som ikke er registrert, er ikke en strid (MM-U43 punkt 6)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (sporet && u.spor[sporet].trukket)', '  if (sporet && false)']],
     mal: ['F-MM-U20b'],
   },
   {
     id: 'F137',
-    feilklasse: 'aksepten kontrolleres mot et annet spor enn svaret den gjelder (MM-U20)',
+    feilklasse: 'aksepten kontrolleres mot et annet spor enn svaret den gjelder (MM-U43 punkt 6)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -1676,7 +1676,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F200',
     feilklasse:
-      'et tilbud byggherren ikke aksepterer, gir sammenfall når utregningen sier «godkjent» (arbeidsvalget i #479, MM-U18)',
+      'et tilbud byggherren ikke aksepterer, gir sammenfall når utregningen sier «godkjent» (arbeidsvalget i #479, MM-U43 punkt 8)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       ["if (standpunktet(svar, 'metode')?.aksepterer === false) return false;", 'void 0;'],
@@ -1685,7 +1685,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F201',
-    feilklasse: 'en påberopelse etter § 33.6.1 gir sammenfall (arbeidsvalget i #479, MM-U18)',
+    feilklasse:
+      'en påberopelse etter § 33.6.1 gir sammenfall (arbeidsvalget i #479, MM-U43 punkt 8)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning))', 'false']],
     mal: ['sammenfall med en påberopelse etter § 33.6.1', 'F-MM-F-33-6-1-alle-dagene'],
@@ -2152,7 +2153,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F278',
-    feilklasse: 'en aksept av et svar i et trukket spor gir ingen strid (MM-U20, GR-U5, #669)',
+    feilklasse:
+      'en aksept av et svar i et trukket spor gir ingen strid (MM-U43 punkt 6, GR-U5, #669)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (sporet && u.spor[sporet].trukket)', '  if (false)']],
     mal: ['en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)'],
@@ -2160,7 +2162,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F279',
     feilklasse:
-      'et utsagn kan vise til et element uten virkning uten krav til art og part (VS-U1, MM-U18, #669)',
+      'et utsagn kan vise til et element uten virkning uten krav til art og part (VS-U1, MM-U43 punkt 6, #669)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -2180,10 +2182,10 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F280',
-    feilklasse: 'en revisjon av et svar uten virkning gir ingen strid (MM-U18, #669)',
+    feilklasse: 'en revisjon av et svar uten virkning gir ingen strid (MM-U43 punkt 6, #669)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (utenVirkning(s.erstatter))', '  if (false)']],
-    mal: ['en revisjon av et svar uten virkning (MM-U18)'],
+    mal: ['en revisjon av et svar uten virkning (MM-U43 punkt 6)'],
   },
   {
     id: 'F282',

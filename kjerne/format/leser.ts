@@ -424,6 +424,7 @@ function lesDokument(h: Journalrad): Dokument {
     brevtittel?: string;
     brevnummer?: number;
     merking?: string;
+    deres_ref?: string[];
     korrespondansetype?: Korrespondansetype;
     beskrivelse?: string;
     spor?: Spor[];
@@ -518,6 +519,7 @@ function lesDokument(h: Journalrad): Dokument {
     brevtittel: data.brevtittel ?? null,
     brevnummer: data.brevnummer ?? null,
     merking: data.merking ?? null,
+    deresRef: data.deres_ref ?? [],
     korrespondansetype: data.korrespondansetype ?? null,
     beskrivelse: data.beskrivelse ?? null,
     spor: data.spor ?? [],
@@ -572,6 +574,9 @@ function lesDokument(h: Journalrad): Dokument {
     );
     if (avvik) throw new Uforstaatt(avvik);
   }
+  // LV-U27, LV-U23: Deres ref. står i hodet på et brev fra løsningen, som har merkingen.
+  if (data.deres_ref !== undefined && data.merking === undefined)
+    throw new Uforstaatt('Deres ref. står bare i hodet på et brev fra løsningen, med merkingen');
   if (data.brevtekst) {
     // MM-U17: et registrert brev står som det ble sendt og har ingen tekst fra appen.
     if (erRegistrert(dokument.opplysninger))
@@ -617,6 +622,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
     brevtittel: null,
     brevnummer: null,
     merking: null,
+    deresRef: [],
     korrespondansetype: null,
     beskrivelse: null,
     spor: [],

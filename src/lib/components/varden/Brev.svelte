@@ -13,24 +13,27 @@
   let {
     avsender,
     sak,
-    nummer,
+    merking,
+    deresRef = [],
     dato,
     tittel,
     avsnitt,
-    svarerPaa,
     sendt,
     fot,
     innfelt = false,
   }: {
     avsender: Part;
     sak: string;
-    /** Brevnummeret (LV-U44). Et brev uten nummer har ingen «Vår ref.» (LV-U45). */
-    nummer: string | null;
+    /** Vår ref., merkingen kjernen fryser (LV-U53, LV-U27). Uten den står ingen «Vår ref.». */
+    merking: string | null;
+    /**
+     * Deres ref., kodene kjernen fryser, én per linje (LV-U27, LV-U49, U-2 i BF-07). Uten koder
+     * står ingen «Deres ref.» (U-3).
+     */
+    deresRef?: string[];
     dato: string;
     tittel: string;
     avsnitt: { laast: string; utdypning?: string }[];
-    /** Brevet dette svarer på, som «Brev 5», under «Deres ref.». */
-    svarerPaa?: string;
     /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
     sendt?: string;
     fot?: Snippet;
@@ -61,13 +64,15 @@
         <dt>Sak:</dt>
         <dd>{sak}</dd>
       </div>
-      {#if svarerPaa}<div>
+      {#if deresRef.length}<div>
           <dt>Deres ref.:</dt>
-          <dd>{svarerPaa}</dd>
+          <dd data-testid="deres-ref">
+            {#each deresRef as kode, i (i)}{#if i}<br />{/if}{kode}{/each}
+          </dd>
         </div>{/if}
-      {#if nummer !== null}<div>
+      {#if merking !== null}<div>
           <dt>Vår ref.:</dt>
-          <dd>Brev {nummer}</dd>
+          <dd data-testid="vaar-ref">{merking}</dd>
         </div>{/if}
       <div>
         <dt>Dato:</dt>

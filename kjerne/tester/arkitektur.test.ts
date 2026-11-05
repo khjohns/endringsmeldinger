@@ -325,7 +325,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
-  // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U18).
+  // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U43).
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
   ['Element', 'relasjon', 'hendelse part art innsigelse registrertBrev'],
@@ -334,7 +334,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:kontrollerHenvisningene(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:paaberopelser(elementer)', 'relasjon', '*'],
-  // MM-U18: stridene ett dokument har med journalen før det.
+  // MM-U43 punkt 6: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
   [
     'Sporutledning',
@@ -433,7 +433,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
   // OV-U4: kravene i et registrert brev er dokumentasjon (#787).
   ['frosset/standpunkt.ts', 'relasjon', 'kravetErDokumentasjon', ['utledning/utled.ts']],
-  // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
+  // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
     'frosset/standpunkt.ts',
     'frosset',
@@ -932,7 +932,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesDokument',
     'rad',
-    'brevtekst brevtittel brevnummer merking korrespondansetype',
+    'brevtekst brevtittel brevnummer merking deres_ref korrespondansetype',
     ['format/leser.ts'],
   ],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevtekst.ts']],
@@ -985,7 +985,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevtekst.ts',
     'brevtekst',
-    'lagBrevtekst KanIkkeUttrykkes BrevetAvvises',
+    'lagBrevtekst lagDeresRef KanIkkeUttrykkes BrevetAvvises',
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
   // MM-U3, #1536: brevtittelen fryses med teksten, og leseren avviser en tittel skrivingen ikke lager (#1533).
@@ -998,12 +998,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['UTSAGNSTITTEL', 'brevtekst', 'aksept trekk innsigelse', ['frosset/brevtittel.ts']],
   // LV-U44, LV-U45: brevets nummer i saken, det neste etter det høyeste.
   ['Dokument', 'brevtekst', 'brevnummer', ['kommandoer/skriving.ts:nesteBrevnummer']],
+  // LV-U49, U-2 i BF-07: Deres ref. står i rekkefølgen etter brevnummeret.
+  ['Dokument', 'brevtekst', 'brevnummer', ['frosset/brevtekst.ts:lagDeresRef']],
   // LV-U42: registrert korrespondanse omtales med parten, typen og datoen.
   ['Dokument', 'brevtekst', 'korrespondansetype', ['frosset/brevtekst.ts']],
   [
     'kommandoer/skriving.ts:brevtekstFor',
     'brevtekst',
-    'tekst tittel',
+    'tekst tittel deresRef',
     ['kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
@@ -1061,7 +1063,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Journalen',
     'brevtekst',
-    'legg brev brevet dokument dokumentetTil dokumenter element elementer erRegistrert krav svar utdypning versjon',
+    'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav svar utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],
