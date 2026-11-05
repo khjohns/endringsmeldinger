@@ -289,6 +289,22 @@ må ha."""
 felt = ["id", "art", "gjelder"]
 grunnlag = "KA-U34, KA-U35, KA-U18, KA-U24, MM-U12"
 
+[[utsagn]]
+art = "korrigering"
+avsender = "TE"
+beskrivelse = """
+TEs korrigering av datoen pålegget ble mottatt eller TE ble klar over forholdet
+(VS-U26), i et eget brev fra løsningen. `gjelder` er elementet med TEs siste
+opplysning om datoen: grunnlagskravet eller en tidligere korrigering. Datoen står i
+samme felt som i kravet, `paalegg_mottatt` eller `klar_over_forholdet`, og
+korrigeringen har nøyaktig ett av dem. Ikke en kravversjon, avslår ikke byggherrens
+svar og endrer ikke utfallet. Den nye opplysningen gjelder straks som TEs siste
+opplysning, og et svar byggherren alt har gitt, står med virkningen det hadde. Godtas
+også i et spor med enighet, når kravene er avgjort og i en lukket sak. En korrigering
+sendt utenfor løsningen står som dokumentasjon."""
+felt = ["id", "art", "gjelder", "paalegg_mottatt", "klar_over_forholdet"]
+grunnlag = "MM-U41, MM-U51, VS-U26, VS-U9, OV-U4"
+
 # ---------------------------------------------------------------------------
 # Delene i svaret og dokumentet.
 # ---------------------------------------------------------------------------

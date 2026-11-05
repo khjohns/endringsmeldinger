@@ -250,6 +250,15 @@ class Journalen {
     throw new KanIkkeUttrykkes(`${id} er ikke et varsel eller et krav`);
   }
 
+  /** LV-U54: dokumentet med TEs siste korrigering av datoen i feltet før brevet, eller `null`. */
+  sisteKorrigering(felt: OppgittDato): string | null {
+    const foer = this.dokumenter.slice(0, -1);
+    return (
+      foer.filter((d) => d.utsagn.some((u) => u.art === 'korrigering' && u.felt === felt)).at(-1)
+        ?.id ?? null
+    );
+  }
+
   krav(id: string): Krav {
     const e = this.element(id);
     if (e.art !== 'krav') throw new KanIkkeUttrykkes(`${id} er ikke et krav`);
@@ -329,16 +338,21 @@ const DATOEN_I_BREVET: Record<OppgittDato, string> = {
  * Påberopelsen av forholdet: LV-U41 og LV-U43, med partene skrevet fullt ut (LV-U35) og
  * henvisningen med «punkt» (LV-U39). Sakstittelen er navnet på forholdet og står én gang.
  */
-function forholdstekst(k: Krav, { saken }: Tekst, regler: Regelsett): string[] {
+function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[] {
   const navnet = `«${saken.tittel}» i sak ${sakensKode(saken.sakskode)}`;
   const hoved = k.innhold.hovedkategori as string;
   const f = forholdet(k.innhold.underkategori);
-  const dato = (felt: OppgittDato) =>
-    typeof k.innhold[felt] === 'string'
-      ? [
-          `Totalentreprenøren opplyser at ${DATOEN_I_BREVET[felt]} ${norskDato(k.innhold[felt] as string)}.`,
-        ]
-      : [];
+  const dato = (felt: OppgittDato) => {
+    if (typeof k.innhold[felt] !== 'string') return [];
+    const opplyser = `Totalentreprenøren opplyser at ${DATOEN_I_BREVET[felt]} ${norskDato(k.innhold[felt] as string)}`;
+    // LV-U54: etter en korrigering viser den nye versjonen til det siste brevet med en korrigering.
+    const korrigert = j.sisteKorrigering(felt);
+    return [
+      korrigert
+        ? `${opplyser}, slik totalentreprenøren oppga i ${j.brevet(korrigert)}.`
+        : `${opplyser}.`,
+    ];
+  };
   if (hoved === 'endring' && f?.kode === 'endringsordre')
     return [
       `Totalentreprenøren gjør gjeldende krav som følge av en endringsordre fra byggherren for ${navnet} (NS 8407 punkt 31.3).`,
@@ -858,6 +872,20 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       if (e.art !== 'opplysning' || e.opplysning.hva !== 'kan_ikke_uttrykkes')
         throw new KanIkkeUttrykkes(`${u.gjelder} er ikke en merking`);
       return `${part} bekrefter at standpunktene i ${j.brevet(e.opplysning.brev)} om ${liste(e.opplysning.spor.map((s) => SPORNAVN[s]))} gjelder uten forbehold fra og med dette brevet.`;
+    }
+    case 'korrigering': {
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41), med partene skrevet fullt
+      // ut (LV-U35) og henvisningen etter LV-U53.
+      const e = j.element(u.gjelder);
+      const [dokument, tidligere] =
+        e.art === 'krav'
+          ? [e.krav.dokument, e.krav.innhold[u.felt]]
+          : e.art === 'utsagn' && e.utsagn.art === 'korrigering'
+            ? [e.dokument, e.utsagn.dato]
+            : [null, null];
+      if (dokument === null || typeof tidligere !== 'string')
+        throw new KanIkkeUttrykkes(`${u.gjelder} har ingen opplysning om datoen`);
+      return `Totalentreprenøren oppgir nå at ${DATOEN_I_BREVET[u.felt]} ${norskDato(u.dato)}. I ${j.brevet(dokument)} oppga totalentreprenøren ${norskDato(tidligere)}.`;
     }
     case 'begrunnelse': {
       // KA-U34: byggherrens tekst følger som utdypningen.

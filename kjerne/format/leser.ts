@@ -401,6 +401,7 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   foresporselssvar: 'TE',
   protest: null,
   begrunnelse: 'BH',
+  korrigering: 'TE',
 };
 
 /**
@@ -530,9 +531,20 @@ function lesDokument(h: Journalrad): Dokument {
       const e = element(v, UTSAGN, 'art', `$.utsagn[${i}]`);
       const art = e.art as Utsagnsart;
       kreverPart(PART_FOR_UTSAGN[art], `et utsagn med art ${art}`);
-      return art === 'varsel'
-        ? { id: e.id as string, art, hjemmel: e.hjemmel as Varselhjemmel, dokument: id }
-        : (e as unknown as LestUtsagn);
+      if (art === 'varsel')
+        return { id: e.id as string, art, hjemmel: e.hjemmel as Varselhjemmel, dokument: id };
+      if (art === 'korrigering') {
+        // Formatet krever nøyaktig ett av feltene.
+        const felt = e.paalegg_mottatt !== undefined ? 'paalegg_mottatt' : 'klar_over_forholdet';
+        return {
+          id: e.id as string,
+          art,
+          gjelder: e.gjelder as string,
+          felt,
+          dato: e[felt] as string,
+        };
+      }
+      return e as unknown as LestUtsagn;
     }),
   };
   // VS-U23, VS-U27: en forespørsel eller begrunnelse etter § 33.6.2 utenfor appen er
@@ -544,6 +556,9 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt(
       'et registrert brev har en forespørsel etter § 33.6.2 eller svaret på den'
     );
+  // BF-02A: en korrigering sendt utenfor løsningen står som dokumentasjon (OV-U4).
+  if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'korrigering'))
+    throw new Uforstaatt('et registrert brev har en korrigering av datoen');
   if (data.beskrivelse !== undefined) dokumentasjonsbrev(dokument);
   else if (data.spor) throw new Uforstaatt('dokumentet har spor uten beskrivelse (OV-U16)');
   // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.

@@ -12,10 +12,12 @@
 import {
   fristkravErFremmet,
   kanFaaInnsigelse,
+  sisteDatoopplysning,
   trekkAvPaaberopelsenErSperret,
   varseletForNyttSvar,
   type Utledning,
 } from '../utledning/utled.ts';
+import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import type { Avvisning, Kravspor, Part, Spor, Varselhjemmel } from '../typer.ts';
 
 export type Handlingsnoekkel =
@@ -37,6 +39,7 @@ export type Handlingsnoekkel =
         | 'merke'
         | 'avklare'
         | 'begrunne'
+        | 'korrigere'
         | 'svare_paa_foresporsel';
       gjelder: string;
     };
@@ -72,6 +75,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   merke: null,
   avklare: null,
   begrunne: 'BH',
+  korrigere: 'TE',
 };
 
 /**
@@ -109,6 +113,8 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
         return avvis('FORESPORSEL_BESVART', 'Forespørselen er allerede besvart.');
       return fristenErLukket(u);
     }
+    case 'korrigere':
+      return korrigering(h.gjelder, u);
     case 'bestride':
     case 'merke':
     case 'avklare':
@@ -138,6 +144,37 @@ function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjo
         `${hva} på grunnlaget kan ikke sendes ennå, fordi TE har registrert et varsel etter punkt 32.2 sendt utenfor løsningen, og brevet kan ikke vise til det. Brevet kan registreres som dokumentasjon.`
       )
     : null;
+}
+
+/**
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TE korrigerer sin siste
+ * opplysning om datoen kategorien har, med henvisning til brevet med den. Brevet godtas også i et
+ * spor med enighet, når kravene er avgjort og i en sak lukket etter GR-U27, også ved trekk etter
+ * GR-U5 (MM-U51), så ingen av dem sperrer.
+ */
+function korrigering(gjelder: string, u: Utledning): Avvisning | null {
+  const krav = u.spor.forhold.gjeldendeKrav;
+  if (!krav)
+    return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før datoen kan korrigeres.');
+  const felt = oppgittDato(krav.innhold.hovedkategori, krav.innhold.underkategori);
+  // Punkt 10: i underkategorien endringsordre oppgir TE ingen slik dato.
+  if (felt === null)
+    return avvis(
+      'INGEN_DATO_I_KATEGORIEN',
+      'TE oppgir ikke en dato for når pålegget ble mottatt eller TE ble klar over forholdet i underkategorien endringsordre, så det er ingen dato å korrigere.'
+    );
+  const siste = sisteDatoopplysning(u, felt);
+  if (!siste)
+    return avvis(
+      'UGYLDIG_KORRIGERING',
+      `TE har ikke oppgitt datoen ${DATOEN_GJELDER[felt]}, så det er ingen opplysning å korrigere.`
+    );
+  return siste.id === gjelder
+    ? null
+    : avvis(
+        'UGYLDIG_KORRIGERING',
+        `Korrigeringen må vise til brevet med TEs siste opplysning om datoen ${DATOEN_GJELDER[felt]}.`
+      );
 }
 
 const AVSLAGET_GODTATT =

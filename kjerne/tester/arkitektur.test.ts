@@ -742,7 +742,52 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/format.ts',
     'skjema',
     'oppgittDato',
-    ['kommandoer/kommando.ts:datofeil', 'kommandoer/nyttelast.ts:oppgittDatoI'],
+    [
+      'kommandoer/kommando.ts:datofeil',
+      'kommandoer/nyttelast.ts:oppgittDatoI',
+      'kommandoer/nyttelast.ts:datosperre',
+      'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'kommandoer/forutsetninger.ts:korrigering',
+      'utledning/utled.ts:opplysningerOmDatoen',
+    ],
+  ],
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TEs korrigering av datoen
+  // etter VS-U26, og TEs opplysninger om datoen i grunnlagskravet og i korrigeringene. Den
+  // siste er TEs siste opplysning; ingen regel vurderer rettidigheten (punkt 11).
+  ['Utsagn', 'utsagn', 'felt dato'],
+  ['Utledning', 'utsagn', 'datoopplysninger'],
+  ['Datoopplysning', 'relasjon', 'id'],
+  ['Datoopplysning', 'utsagn', 'felt dato'],
+  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:opplysningerOmDatoen']],
+  [
+    'Krav.innhold',
+    'utsagn',
+    'paalegg_mottatt klar_over_forholdet',
+    ['utledning/utled.ts:opplysningerOmDatoen'],
+  ],
+  ['utledning/utled.ts:kontrollerKorrigeringene(elementer)', 'relasjon', '*'],
+  [
+    'utledning/utled.ts',
+    'utsagn',
+    'sisteDatoopplysning',
+    [
+      'kommandoer/forutsetninger.ts:korrigering',
+      'kommandoer/nyttelast.ts:datosperre',
+      'kommandoer/nyttelast.ts:kontrollerKorrigering',
+    ],
+  ],
+  [
+    'Kommando',
+    'kommando',
+    'paalegg_mottatt klar_over_forholdet',
+    ['kommandoer/kommando.ts:korrigertDato'],
+  ],
+  ['kommandoer/kommando.ts:korrigertDato', 'kommando', 'felt dato'],
+  [
+    'kommandoer/kommando.ts',
+    'kommando',
+    'korrigertDato',
+    ['kommandoer/nyttelast.ts', 'kommandoer/skriving.ts:dokument'],
   ],
   [
     'kommandoer/kommando.ts:datofeil(innhold)',
@@ -773,7 +818,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando.innhold',
     'kommando',
     'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
-    ['kommandoer/nyttelast.ts:oppgittDatoI'],
+    ['kommandoer/nyttelast.ts:oppgittDatoI', 'kommandoer/nyttelast.ts:datosperre'],
   ],
   // Datoen parten oppgir, det den gjelder og hvem som oppgir den, som bare kontrollen mot
   // brevets dato leser.
@@ -795,7 +840,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/format.ts',
     'brevtekst',
     'DATOEN_GJELDER',
-    ['kommandoer/kommando.ts', 'kommandoer/nyttelast.ts'],
+    ['kommandoer/kommando.ts', 'kommandoer/nyttelast.ts', 'kommandoer/forutsetninger.ts'],
   ],
   // Brevets dato er serverens tidspunkt i norsk tid (VS-U8).
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
@@ -844,7 +889,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesDokument(e)',
     'rad',
-    'id art spor erstatter gjelder innhold hjemmel',
+    'id art spor erstatter gjelder innhold hjemmel paalegg_mottatt klar_over_forholdet',
     ['format/leser.ts'],
   ],
   ['format/leser.ts:lesDokument(o)', 'rad', 'id hva dato gjelder oppfylt', ['format/leser.ts']],
@@ -1053,7 +1098,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/brevtekst.ts',
     'brevtekst',
     'norskDato',
-    ['kommandoer/nyttelast.ts:oppgittDatoEtterBrevet', 'kommandoer/nyttelast.ts:varseletEtter322'],
+    [
+      'kommandoer/nyttelast.ts:oppgittDatoEtterBrevet',
+      'kommandoer/nyttelast.ts:varseletEtter322',
+      'kommandoer/nyttelast.ts:datosperre',
+      'kommandoer/nyttelast.ts:kontrollerKorrigering',
+    ],
   ],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
   ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],
@@ -1070,7 +1120,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Journalen',
     'brevtekst',
-    'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav svar utdypning versjon',
+    'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav sisteKorrigering svar utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],

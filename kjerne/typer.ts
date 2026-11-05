@@ -196,7 +196,20 @@ export type Utsagn =
    * KA-U34: byggherrens senere begrunnelse av et svar. `gjelder` er svaret, og
    * teksten står i brevteksten. Endrer ingen standpunkter.
    */
-  | { id: string; art: 'begrunnelse'; gjelder: string };
+  | { id: string; art: 'begrunnelse'; gjelder: string }
+  /**
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TE korrigerer sin opplysning
+   * etter VS-U26 i et eget brev. `gjelder` er elementet med TEs siste opplysning, kravet eller
+   * en tidligere korrigering. Ikke en kravversjon, og avslår ikke byggherrens svar.
+   */
+  | { id: string; art: 'korrigering'; gjelder: string; felt: OppgittDatofelt; dato: string };
+
+/**
+ * VS-U26: feltet for datoen varslingsplikten løper fra, som TE oppgir i påberopelsen: datoen
+ * pålegget ble mottatt, eller datoen TE ble klar over forholdet. Kategorien avgjør hvilket
+ * (`OPPGITT_DATO` i `format.ts`).
+ */
+export type OppgittDatofelt = 'paalegg_mottatt' | 'klar_over_forholdet';
 
 /** OV-U7: det formatet tar imot, uten merkingen og avklaringen av den. */
 export type LestOpplysning = Exclude<Opplysning, { hva: 'kan_ikke_uttrykkes' }>;
