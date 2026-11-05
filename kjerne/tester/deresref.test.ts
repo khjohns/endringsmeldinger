@@ -1,6 +1,6 @@
 /**
  * Deres ref. i hodet på brevet løsningen sender (LV-U27, LV-U49, LV-U50, LV-U51), frosset i
- * `dokument_registrert` som `deres_ref` (A-3 A i #1497). Tilfellene er T-1 til T-7 og T-11 i
+ * `dokument_registrert` som `deres_ref` (A-3 A i #1497). Tilfellene er T-1 til T-8, T-11, T-12 og T-14 i
  * bestillingen for BF-07 (`docs/domenetabell/brukerforlop/BF-07.md`), med brevnumrene slik
  * skrivingen setter dem (G-5), i sak KOE-17 i prosjektet K201.
  */
@@ -103,6 +103,26 @@ describe('Deres ref. i brevet løsningen sender (LV-U27, LV-U49, BF-07)', () => 
       },
     ]);
     expect((await sist(k)).data.deres_ref).toEqual([m(3)]);
+  });
+
+  it('T-8: TEs innsigelse mot BHs svar viser til svaret, ikke til eget krav (LV-U49)', async () => {
+    const k = await kjoering([
+      KRAV_FORHOLD,
+      SVAR_FORHOLD,
+      KRAV_VEDERLAG,
+      SVAR_VEDERLAG,
+      { handling: 'innsigelse', part: 'TE', gjelder: 'S-v1', navn: 'I-1' },
+    ]);
+    expect((await sist(k)).data.deres_ref).toEqual([m(4)]);
+  });
+
+  it('T-12: TE trekker kravet, og brevet har ingen Deres ref. (LV-U49)', async () => {
+    const k = await kjoering([KRAV_FORHOLD, SVAR_FORHOLD, KRAV_VEDERLAG, SVAR_VEDERLAG]);
+    const u = await k.send({ handling: 'trekk', spor: 'vederlag' });
+    if (!u?.godtatt) throw new Error(`Forutsetning: trekket ble avvist: ${JSON.stringify(u)}`);
+    const rad = await sist(k);
+    expect(rad.data.merking).toBe(m(5));
+    expect(rad.data).not.toHaveProperty('deres_ref');
   });
 
   it('T-11: en ny kravversjon viser til BHs siste svar på kravversjonen den erstatter (LV-U50, LV-U51)', async () => {

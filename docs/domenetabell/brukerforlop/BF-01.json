@@ -44,6 +44,16 @@
             "gjeldende_krav.vederlag": null,
             "handlinger.TE": { "inneholder": ["krav:vederlag"] }
           }
+        },
+        {
+          "rolle": "mal",
+          "kilde": ["LV-U27", "LV-U49"],
+          "forventet": {
+            "var_ref.K-g1": "01",
+            "deres_ref.K-g1": [],
+            "var_ref.D2": "02",
+            "deres_ref.D2": ["01"]
+          }
         }
       ],
       "forstaaelse": [
@@ -56,7 +66,8 @@
       "beskrivelse": "BH har svart at byggherren har risikoen for forholdet, og BH har mottatt vederlagskravet på 100 000 kr.",
       "kontrollsett": [{ "sett": "bh_har_mottatt_krav", "med": { "spor": "vederlag", "krav": "K-v1" } }],
       "kontroller": [
-        { "rolle": "forutsetning", "kilde": ["GR-U7"], "forventet": { "gjeldende_svar.forhold": "S-g1", "enighet.forhold": "finnes" } }
+        { "rolle": "forutsetning", "kilde": ["GR-U7"], "forventet": { "gjeldende_svar.forhold": "S-g1", "enighet.forhold": "finnes" } },
+        { "rolle": "mal", "kilde": ["LV-U27", "LV-U49"], "forventet": { "var_ref.K-v1": "03", "deres_ref.K-v1": [] } }
       ],
       "forstaaelse": [
         { "tekst": "BH ser at forholdet er besvart, så svaret gjelder bare beløpet og varslingen.", "kilde": ["GR-U7", "LV-U41", "OV-U76"] },
@@ -95,7 +106,8 @@
           "rolle": "mal",
           "kilde": ["VS-U3", "OV-U27"],
           "forventet": { "virkning.S-v1.rettidighet": 1, "virkning.S-v1.beloep": 2 }
-        }
+        },
+        { "rolle": "mal", "kilde": ["LV-U27", "LV-U49"], "forventet": { "var_ref.D4": "04", "deres_ref.D4": ["03"] } }
       ],
       "forstaaelse": [
         {
@@ -116,7 +128,8 @@
       "beskrivelse": "TE har godtatt svaret.",
       "kontrollsett": [{ "sett": "te_har_godtatt_svaret", "med": { "spor": "vederlag", "svar": "S-v1", "beloep": 0 } }],
       "kontroller": [
-        { "rolle": "mal", "kilde": ["KA-U10", "VS-U3"], "forventet": { "enighet.vederlag.virkning.rettidighet": 1 } }
+        { "rolle": "mal", "kilde": ["KA-U10", "VS-U3"], "forventet": { "enighet.vederlag.virkning.rettidighet": 1 } },
+        { "rolle": "mal", "kilde": ["LV-U27", "LV-U49"], "forventet": { "var_ref.D5": "05", "deres_ref.D5": ["04"] } }
       ],
       "forstaaelse": [
         {

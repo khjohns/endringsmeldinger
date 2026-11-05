@@ -376,6 +376,19 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.frafalt;
     case 'endringsordre':
       return u.endringsordre;
+    // LV-U27, LV-U49: Vår ref. og Deres ref. i det frosne hodet til brevet med elementet, med
+    // brevnummeret alene når koden har sakens merking. Saksnummeret er 17 i minnet og det
+    // serveren tildeler i saksruta.
+    case 'var_ref':
+    case 'deres_ref': {
+      const h = u.journal.find((j) => j.id === hendelsenMed(id(hale[0]), u));
+      if (h?.art !== 'dokument') throw new Forutsetning(`${sti}: brevet ${hale[0]} finnes ikke`);
+      const { merking, deresRef } = h.dokument;
+      const sakens = merking?.slice(0, merking.lastIndexOf('-') + 1);
+      const kort = (kode: string) =>
+        sakens && kode.startsWith(sakens) ? kode.slice(sakens.length) : kode;
+      return hode === 'var_ref' ? merking && kort(merking) : deresRef.map(kort);
+    }
     case 'registrert': {
       const h = u.journal.find((j) => j.id === hendelsenMed(id(hale[0]), u));
       return h?.art === 'dokument' ? erRegistrert(h.dokument.opplysninger) : null;
