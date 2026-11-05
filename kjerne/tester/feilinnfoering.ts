@@ -6,9 +6,9 @@
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
- * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), F153–F156
+ * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (opphevet av MM-U43) (#405) og VS-U15 (#411), F153–F156
  * regelversjonen i kommandoen (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
- * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
+ * samspillsreviewet av den og KA-U36 (opphevet av KA-U46) (#468), F178–F202 byggherrens vurderinger
  * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204 påberopelsen etter
  * § 33.4 mot varselet (#309, KK-07), F208–F209 innsigelsen brevet viser til og gir opp
  * (#407, #309, #500), F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511),
@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 punkt 10 og 11, MM-U51, LV-U54, #1308). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, LV-U54, #1308). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -159,7 +159,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F5',
-    feilklasse: 'serveren godtar en aksept forhåndsvist med en annen regelversjon (B-13, KA-U10)',
+    feilklasse:
+      'serveren godtar en aksept forhåndsvist med en annen regelversjon (B-13, KA-U10 (opphevet av MM-U50))',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['if (k.regelversjon !== regler.versjon)', 'if (k.regelversjon === undefined)']],
     mal: ['F-MM-C3d-kontroll'],
@@ -250,7 +251,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F12b',
     feilklasse:
-      'en ny kravversjon i et spor med registrert enighet gjør saken ikke forstått, som før MM-U34 punkt 9 (MM-U18)',
+      'en ny kravversjon i et spor med registrert enighet gjør saken ikke forstått, som før MM-U34 punkt 9 (MM-U18 (opphevet av MM-U43))',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -298,7 +299,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F16',
-    feilklasse: 'enighet ved sammenfall leses ikke fra brevet (GR-U7, GR-U10, KA-U10)',
+    feilklasse:
+      'enighet ved sammenfall leses ikke fra brevet (GR-U7, GR-U10, KA-U10 (opphevet av MM-U50))',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['else if (g.beslutningsgrunnlag.sammenfall)', 'else if (g.standpunkter.length < 0)'],
@@ -649,7 +651,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F53',
     feilklasse:
-      'byggherrens registrerte endringsordre fryses med reglene da den ble sendt, ikke ved registreringen (MM-U17, OV-U6)',
+      'byggherrens registrerte endringsordre fryses med reglene da den ble sendt, ikke ved registreringen (MM-U17 (opphevet av MM-U50), OV-U6)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
@@ -732,7 +734,7 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['svarutkastet blir en endringsordre som brevet det gir'],
   },
-  // Byggedel 1 av #309: #344, #373, #342, MM-U18 (#326), KA-U16/KA-U20, KA-U22, § 5,
+  // Byggedel 1 av #309: #344, #373, #342, MM-U18 (opphevet av MM-U43) (#326), KA-U16/KA-U20, KA-U22, § 5,
   // VS-U11, VS-U12 og «ingen krav».
   {
     id: 'F61',
@@ -924,7 +926,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F93',
     feilklasse:
-      'en kravversjon etter «ingen krav» stopper saken også når den er registrert (MM-U19, KA-U12)',
+      'en kravversjon etter «ingen krav» stopper saken også når den er registrert (MM-U19 (opphevet av MM-U43), KA-U12)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (u.spor[k.spor].ingenKrav)', '  if (u.spor[k.spor].ingenKrav && !k)']],
     mal: ['F-MM-IK5b'],
@@ -1362,7 +1364,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F153',
     feilklasse:
-      'serveren godtar en aksept regnet ut med en høyere regelversjon (B-13, KA-U10, #386)',
+      'serveren godtar en aksept regnet ut med en høyere regelversjon (B-13, KA-U10 (opphevet av MM-U50), #386)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['if (k.regelversjon !== regler.versjon)', 'if (k.regelversjon < regler.versjon)']],
     mal: ['en aksept, med serverens regelversjon én lavere enn kommandoens'],
@@ -1370,7 +1372,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F154',
     feilklasse:
-      'serveren godtar en aksept regnet ut med en lavere regelversjon (B-13, KA-U10, #386)',
+      'serveren godtar en aksept regnet ut med en lavere regelversjon (B-13, KA-U10 (opphevet av MM-U50), #386)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['if (k.regelversjon !== regler.versjon)', 'if (k.regelversjon > regler.versjon)']],
     mal: ['en aksept, med serverens regelversjon én høyere enn kommandoens'],
@@ -1399,14 +1401,15 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F160',
-    feilklasse: 'leseren godtar en begrunnelse som gjelder noe annet enn et svar (KA-U34, MM-U2)',
+    feilklasse:
+      'leseren godtar en begrunnelse som gjelder noe annet enn et svar (KA-U34 (opphevet av KA-U46), MM-U2)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [["return maal.art === 'svar';", "return maal.art !== 'opplysning';"]],
     mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
   },
   {
     id: 'F165',
-    feilklasse: 'leseren godtar en begrunnelse fra TE (KA-U34, MM-U2)',
+    feilklasse: 'leseren godtar en begrunnelse fra TE (KA-U34 (opphevet av KA-U46), MM-U2)',
     fil: `${K}/format/leser.ts`,
     endringer: [["  begrunnelse: 'BH',", '  begrunnelse: null,']],
     mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
@@ -1436,7 +1439,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F170',
-    feilklasse: 'en lest senere begrunnelse kan endre utfallet (KA-U34, OV-U7)',
+    feilklasse:
+      'en lest senere begrunnelse kan endre utfallet (KA-U34 (opphevet av KA-U46), OV-U7)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -2113,7 +2117,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F276',
     feilklasse:
-      'en revisjon av et svar med registrert enighet gjør saken ikke forstått, som før MM-U34 punkt 11 (MM-U18)',
+      'en revisjon av et svar med registrert enighet gjør saken ikke forstått, som før MM-U34 punkt 11 (MM-U18 (opphevet av MM-U43))',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -2162,7 +2166,7 @@ const MUTASJONER: Mutasjon[] = [
       'en aksept av et svar i et trukket spor gir ingen strid (MM-U43 punkt 6, GR-U5, #669)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (sporet && u.spor[sporet].trukket)', '  if (false)']],
-    mal: ['en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)'],
+    mal: ['en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)'],
   },
   {
     id: 'F279',
@@ -2723,7 +2727,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F368',
     feilklasse:
-      'et registrert utsagn som ikke er et varsel, er ikke dokumentasjon (OV-U19, OV-U4, KA-U35, punkt 4 i #1167)',
+      'et registrert utsagn som ikke er et varsel, er ikke dokumentasjon (OV-U19, OV-U4, KA-U35 (opphevet av KA-U46), punkt 4 i #1167)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -2752,7 +2756,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F370',
     feilklasse:
-      'et varsel eller en endringsordre uten virkning teller som brev appen ikke vurderer (OV-U19, MM-U19)',
+      'et varsel eller en endringsordre uten virkning teller som brev appen ikke vurderer (OV-U19, MM-U19 (opphevet av MM-U43))',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
@@ -2760,7 +2764,7 @@ const MUTASJONER: Mutasjon[] = [
         'u.ikkeVurderteBrev.length > 0 || u.utenVirkning.length > 0;',
       ],
     ],
-    mal: ['OV-U19, MM-U19: en endringsordre uten virkning'],
+    mal: ['OV-U19, MM-U19 (opphevet av MM-U43): en endringsordre uten virkning'],
   },
   {
     id: 'F425',
@@ -3500,11 +3504,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F421',
-    feilklasse: 'påberopelsen etter § 33.6.2 tredje ledd krever ingen begrunnelse (KA-U24, VS-U17)',
+    feilklasse:
+      'påberopelsen etter § 33.6.2 tredje ledd krever ingen begrunnelse (KA-U24 (opphevet av KA-U46), VS-U17)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['if (v.foresporsel_svar_ok === false)\n', 'if (false)\n']],
     mal: [
-      'KA-U24: et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent',
+      'KA-U24 (opphevet av KA-U46): et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent',
     ],
   },
   {
@@ -3794,7 +3799,7 @@ const MUTASJONER: Mutasjon[] = [
   },
 
   // #1308: TEs korrigering av datoen etter punkt 10 og 11 i samlevedtaket for retting av sendt
-  // brev (MM-U41), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U54).
+  // brev (MM-U41 (opphevet av MM-U52)), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U54).
   {
     id: 'F456',
     feilklasse:
@@ -3821,7 +3826,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F458',
-    feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U41 punkt 10)',
+    feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U41 (opphevet av MM-U52) punkt 10)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
@@ -3845,7 +3850,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F460',
-    feilklasse: 'korrigeringen viser ikke til brevet med opplysningen (MM-U41 punkt 10, LV-U53)',
+    feilklasse:
+      'korrigeringen viser ikke til brevet med opplysningen (MM-U41 (opphevet av MM-U52) punkt 10, LV-U53)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -3873,7 +3879,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F462',
     feilklasse:
-      'svaret leses som om det gjaldt TEs senere opplysning (MM-U41 designdelen og punkt 11)',
+      'svaret leses som om det gjaldt TEs senere opplysning (MM-U41 (opphevet av MM-U52) designdelen og punkt 11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['versjonen(o.id) < versjonen(b.svar.id)', 'versjonen(o.id) > 0']],
     mal: ['den nye opplysningen gjelder straks', 'F-MM-KORR1', 'F-MM-KORR2'],
@@ -3881,7 +3887,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F463',
     feilklasse:
-      'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U41 punkt 10)',
+      'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U41 (opphevet av MM-U52) punkt 10)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [["      'INGEN_DATO_I_KATEGORIEN',", "      'UGYLDIG_KORRIGERING',"]],
     mal: ['korrigeringen avvises i underkategorien endringsordre', 'F-MM-KORR4'],
@@ -3889,7 +3895,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F464',
     feilklasse:
-      'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U41 punkt 10)',
+      'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U41 (opphevet av MM-U52) punkt 10)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [

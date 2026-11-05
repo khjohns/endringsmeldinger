@@ -3,13 +3,13 @@
  * Forventningene har kilde i vedtakene: LV-U4 (ordlyden, punkt 1–13, og 5.2, 5.5b
  * og 5.6 i svaret), GR-U14 (teksten etter § 31.3 i en godkjenning som er en
  * endringsordre), GR-U15 (TEs varsel etter § 32.2 beskriver pålegget), GR-U16
- * (endringsordrens dato eller nummer), KA-U31–KA-U33 og KA-U24 (begrunnelsen),
+ * (endringsordrens dato eller nummer), KA-U31–KA-U33 og KA-U24 (opphevet av KA-U46) (begrunnelsen),
  * LV-U2 (teksten avsenderen godkjenner, er den som fryses, og et dokument gjengir
  * den tro), LV-U3 (hvert utsagn med virkning står i teksten, ikke appens vurdering),
  * KA-U22 og KA-U25 (de faste tekstene, ordrett), VS-U9 og VS-U11 (svaret gjentar
  * eller gir opp innsigelsen), B-13 05.10 (svaret når forholdet er avslått eller
  * prekludert), B-13 om begrunnelsestekst (den låste delen og utdypningen hver for
- * seg), MM-U17 (et registrert brev får ingen tekst fra appen) og HF-U1 (hvert avsnitt
+ * seg), MM-U17 (opphevet av MM-U50) (et registrert brev får ingen tekst fra appen) og HF-U1 (hvert avsnitt
  * viser til et element i brevet). Arbeidsvalgene A1–A8 står i paragrafmatrisen, og
  * testene som bare følger et arbeidsvalg, sier det. At hvert element i bevis-sakene
  * har et avsnitt, prøves i `forloep.test.ts` og mot testbasen i
@@ -496,7 +496,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
  * VS-U26: datoen varslingsplikten løper fra står i brevteksten som TEs opplysning.
  * At en dato etter brevets dato avvises, er arbeidsvalg 1 i #664, og vurderer ikke
  * rettidigheten. Datoen endres i en korrigering, ikke i en ny kravversjon (punkt 10 i
- * samlevedtaket for retting av sendt brev, MM-U41).
+ * samlevedtaket for retting av sendt brev, MM-U41 (opphevet av MM-U52)).
  */
 describe('datoen varslingsplikten løper fra (VS-U26)', () => {
   it('en dato etter brevets dato avvises; samme dag godtas (arbeidsvalg 1 i #664)', () => {
@@ -600,13 +600,13 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
 });
 
 /**
- * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U41), med partene skrevet fullt
+ * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)), med partene skrevet fullt
  * ut (LV-U35) og henvisningen etter LV-U53. Teksten i en ny grunnlagsversjon etter en
  * korrigering er LV-U54, og korrigeringen i en lukket sak er MM-U51. At korrigeringen avvises
  * når henvisningen er ugyldig, når datoen er uendret og når datoen er etter brevets dato, er
  * arbeidsvalgene i avgrensningen av #1308.
  */
-describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41)', () => {
+describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41 (opphevet av MM-U52))', () => {
   /** Korrigeringen med henvisning til TEs siste opplysning om datoen. */
   const korrigering = (
     s: ReturnType<typeof sak>,
@@ -788,7 +788,7 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
   });
 });
 
-describe('kravet til begrunnelse og beskrivelse (KA-U24, KA-U31–KA-U33, GR-U15)', () => {
+describe('kravet til begrunnelse og beskrivelse (KA-U24 (opphevet av KA-U46), KA-U31–KA-U33, GR-U15)', () => {
   it('TEs varsel etter § 32.2 uten beskrivelse av pålegget avvises (GR-U15)', () => {
     const s = sak();
     const uten = utenFelt(PAABEROPELSE, 'utdypning');
@@ -1211,7 +1211,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('avslag på et krav under 0,50 kr krever en begrunnelse for beløpet, selv om begge rundes til 0 kr (B-13, KA-U24)', () => {
+  it('avslag på et krav under 0,50 kr krever en begrunnelse for beløpet, selv om begge rundes til 0 kr (B-13, KA-U24 (opphevet av KA-U46))', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 0.4 } });
@@ -2462,7 +2462,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     }
   });
 
-  it('en lest protest, påberopt passivitet og senere begrunnelse gjør saken fortsatt forstått og vises ved siden av, uten virkning på sporene (OV-U7, VS-U1, VS-U12, KA-U34)', () => {
+  it('en lest protest, påberopt passivitet og senere begrunnelse gjør saken fortsatt forstått og vises ved siden av, uten virkning på sporene (OV-U7, VS-U1, VS-U12, KA-U34 (opphevet av KA-U46))', () => {
     const { s, innsigelse, svarId } = medSvarPaaInnsigelsen();
     const foer = s.u();
     const utsagn = (art: string, gjelder: string) => ({
@@ -2694,7 +2694,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(visning(u, GJELDENDE_REGLER).status).toBeNull();
   });
 
-  it('når kravene er avgjort, godtas trekk av vederlagskravet, ny kravversjon, byggherrens revisjon og det særskilte varselet fra appen, og datoen for det kan registreres (MM-U34 punkt 9, 11 og 12, OV-U5, OV-U8)', () => {
+  it('når kravene er avgjort, godtas trekk av vederlagskravet, ny kravversjon, byggherrens revisjon og det særskilte varselet fra appen, og datoen for det kan registreres (MM-U34 punkt 9, 11 og 12, OV-U5, OV-U8 (opphevet av OV-U89))', () => {
     const s = utenFrist();
     expect(kraveneErAvgjort(s.u()), 'forutsetning: kravene er avgjort').toBe(true);
     expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBeNull();
@@ -2835,7 +2835,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     utsagn: [{ id, art, gjelder }],
   });
 
-  it('en lest senere begrunnelse etter at kravene er avgjort, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34)', () => {
+  it('en lest senere begrunnelse etter at kravene er avgjort, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34 (opphevet av KA-U46))', () => {
     const { s, foer } = avgjort();
     const svarId = foer.spor.vederlag.gjeldendeSvar?.id;
     expect(svarId, 'forutsetning: svaret på vederlaget').toBeDefined();
@@ -2882,7 +2882,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     return { s, foer };
   };
 
-  it('en lest senere begrunnelse etter at saken er lukket etter GR-U27, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34)', () => {
+  it('en lest senere begrunnelse etter at saken er lukket etter GR-U27, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34 (opphevet av KA-U46))', () => {
     const { s, foer } = lukket();
     const svarId = foer.spor.forhold.gjeldendeSvar!.id;
     const id = randomUUID();
@@ -3218,7 +3218,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
   });
 
-  it('KA-U24: et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent, må begrunnes, også med dagene godkjent subsidiært (VS-U17)', () => {
+  it('KA-U24 (opphevet av KA-U46): et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent, må begrunnes, også med dagene godkjent subsidiært (VS-U17)', () => {
     const { s } = medForesporsel();
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     const vurdert = (vurderinger: Data) => ({
@@ -3771,7 +3771,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     expect(etiketter('svikt')).not.toContain('varsel_kreves_ikke');
   });
 
-  it('et varsel sendt utenfor appen registreres med datoen og brevet, uten tekst fra appen (OV-U5, MM-U17)', () => {
+  it('et varsel sendt utenfor appen registreres med datoen og brevet, uten tekst fra appen (OV-U5, MM-U17 (opphevet av MM-U50))', () => {
     const s = medPaaberopelse('svikt');
     const rad = s.send('TE', {
       type: 'varsel',
@@ -3889,7 +3889,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
     return s;
   };
 
-  it('registreres som varsel i forholdet med datoen og dokumentet, uten tekst fra løsningen (VS-U34, OV-U80, MM-U17)', () => {
+  it('registreres som varsel i forholdet med datoen og dokumentet, uten tekst fra løsningen (VS-U34, OV-U80, MM-U17 (opphevet av MM-U50))', () => {
     const s = medPaaberopelse();
     const rad = s.send('TE', registrering());
     expect(rad.data.brevtekst).toBeUndefined();
@@ -4139,7 +4139,7 @@ describe('vedleggene står i teksten (A4)', () => {
   });
 });
 
-describe('leseren kontrollerer brevteksten (HF-U1, MM-U17)', () => {
+describe('leseren kontrollerer brevteksten (HF-U1, MM-U17 (opphevet av MM-U50))', () => {
   const lest = (rader: Journalrad[]) => lesJournal(rader, KJERNE.leserformat).at(-1)!;
   const medTekst = (endre: (data: Data, rad: Journalrad) => void) => {
     const s = sakMedKrav();
@@ -4314,7 +4314,7 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
  * MM-U34 punkt 6 opphever sperren i HF-U4: etter at byggherren har sagt i et svar fra appen
  * at varselet eller spesifiseringen kom i tide, godtas en senere påberopelse av at det kom
  * for sent, i en revisjon og i svaret på en senere versjon. Løsningen avgjør ikke om
- * byggherren er bundet av det tidligere standpunktet (MM-U12).
+ * byggherren er bundet av det tidligere standpunktet (MM-U12 (opphevet av MM-U50)).
  */
 describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 punkt 6, HF-U4, #498)', () => {
   type Sak = ReturnType<typeof sak>;
@@ -4645,7 +4645,7 @@ describe('en ny påberopelsesversjon beholder hjemmelen (GR-U22)', () => {
 /**
  * MM-U34 punkt 7 opphever sperrene i GR-U17 og GR-U20: etter et frafall etter § 32.3 c fra
  * appen godtas et avslag, i en revisjon og i svaret på en ny påberopelsesversjon. Løsningen
- * avgjør ikke om byggherren er bundet av frafallet (MM-U12). Revisjonen fra frafall til
+ * avgjør ikke om byggherren er bundet av frafallet (MM-U12 (opphevet av MM-U50)). Revisjonen fra frafall til
  * frafall er arbeidsvalget 16.10 i #510.
  */
 describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17, GR-U20, #510)', () => {
@@ -5057,7 +5057,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(grunner(s)).toContain('en aksept av et svar med registrert enighet (GR-U8)');
     });
 
-    it('en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)', () => {
+    it('en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)', () => {
       const s = sakMedKrav();
       s.send('BH', {
         type: 'brev',
@@ -5067,7 +5067,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       s.send('TE', { type: 'trekk', spor: 'vederlag' });
       raaAksept(s, svaret);
       expect(grunner(s)).toEqual([
-        'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',
+        'en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)',
       ]);
     });
 
@@ -5110,7 +5110,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       return { s, id };
     };
 
-    it('OV-U19, MM-U19: en endringsordre uten virkning er vurdert av appen og gir ikke merknaden om brev utenfor appen; et brev registrert som dokumentasjon gir den', () => {
+    it('OV-U19, MM-U19 (opphevet av MM-U43): en endringsordre uten virkning er vurdert av appen og gir ikke merknaden om brev utenfor appen; et brev registrert som dokumentasjon gir den', () => {
       const { s } = endringsordreUtenVirkning();
       const foer = visning(s.u(), GJELDENDE_REGLER);
       expect(foer.merknader).toContain('registrert_brev_uten_virkning');
@@ -5162,7 +5162,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
 /**
  * MM-U34 punkt 4 opphever vernet i HF-U5, og punkt 3 bindingen i HF-U21: byggherren kan
  * sende en revisjon som senker det byggherren har godkjent. Løsningen avgjør ikke om
- * endringen er rettslig virksom (MM-U12). Aksepten av beregningsmåten kan også tas tilbake
+ * endringen er rettslig virksom (MM-U12 (opphevet av MM-U50)). Aksepten av beregningsmåten kan også tas tilbake
  * (MM-U34 punkt 15).
  */
 describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-U5, HF-U21, #502)', () => {
@@ -5719,7 +5719,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
     expect(varsel.data.utsagn).toEqual([{ id, art: 'varsel', hjemmel: '34.1.3' }]);
   });
 
-  it('det særskilte varselet kan sendes etter vederlagskravet, varselet etter § 34.1.2 ikke (OV-U8, VS-U16)', () => {
+  it('det særskilte varselet kan sendes etter vederlagskravet, varselet etter § 34.1.2 ikke (OV-U8 (opphevet av OV-U89), VS-U16)', () => {
     const s = sakMedKrav();
     expect(s.avvist('TE', { ...sendVarsel, hjemmel: '34.1.2' })).toBe('VEDERLAGSKRAV_SENDT');
     expect(s.avvist('TE', sendVarsel)).toBeNull();
@@ -6811,7 +6811,7 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     }
   );
 
-  it('godkjenning som er en endringsordre, revisjon til avslag og TEs aksept av avslaget lukker saken, uten at endringsordren leses som bortfalt, og brevet med godkjenningen sier fortsatt at den er en endringsordre (GR-U27, EO-U12, MM-U12)', () => {
+  it('godkjenning som er en endringsordre, revisjon til avslag og TEs aksept av avslaget lukker saken, uten at endringsordren leses som bortfalt, og brevet med godkjenningen sier fortsatt at den er en endringsordre (GR-U27, EO-U12, MM-U12 (opphevet av MM-U50))', () => {
     const { s, godkjenningen, tekst } = medEndringsordre();
     expect(tekst).toContain(endringsordreIBrevet);
     s.send('BH', revisjon(s, 'forhold', avslag));
@@ -6825,7 +6825,7 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     expect(laast(lagret)[0]).toBe(tekst);
   });
 
-  it('godkjenning som er en endringsordre, revisjon til avslag og en ny påberopelsesversjon fra TE: endringsordren leses ikke som bortfalt, og brevet med godkjenningen står uendret (EO-U12, MM-U12)', () => {
+  it('godkjenning som er en endringsordre, revisjon til avslag og en ny påberopelsesversjon fra TE: endringsordren leses ikke som bortfalt, og brevet med godkjenningen står uendret (EO-U12, MM-U12 (opphevet av MM-U50))', () => {
     const { s, godkjenningen, tekst } = medEndringsordre();
     s.send('BH', revisjon(s, 'forhold', avslag));
     s.send('TE', {

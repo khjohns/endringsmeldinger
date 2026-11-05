@@ -2,7 +2,7 @@
  * Kommandoene `TeFristForm` sender på TS-stien (#909, B-17). Et foreløpig varsel er
  * et eget varsel etter § 33.4 uten dager og uten fritekst (VS-U15). Et varsel sendt
  * utenfor appen registreres med datoen og brevet som vedlegg, uten tekst fra appen
- * (MM-U1, OV-U4, MM-U17). Et spesifisert krav har dagene og begrunnelsen, som er
+ * (MM-U1, OV-U4, MM-U17 (opphevet av MM-U50)). Et spesifisert krav har dagene og begrunnelsen, som er
  * utdypningen og må ha tekst (KA-U33). Har sporet ikke noe varsel, kan kravet oppgi
  * datoen for et varsel TE sendte utenfor appen, med brevet som vedlegg (OV-U5).
  * Begrunnelse utsatt etter § 33.6.2 har ingen kommando, så den avvises her og sendes ikke.

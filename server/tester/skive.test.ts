@@ -329,7 +329,7 @@ describe.skipIf(!TESTBASE_URL)(
       const loepenummer = /^Vår ref\.: K201-KOE-(\d{3})-01\n/m.exec(g)?.[1];
       expect(loepenummer).toBeDefined();
       expect(v).toMatch(new RegExp(`^Vår ref\\.: K201-KOE-${loepenummer}-02\\n`, 'm'));
-      // #1533 punkt 2: tittelen kjernen frøs, står øverst i det som leveres (GR-U31, MM-U3).
+      // #1533 punkt 2: tittelen kjernen frøs, står øverst i det som leveres (GR-U31, MM-U3 (opphevet av MM-U50)).
       expect(g.split('\n')[0]).toBe(
         (innhold[0].brev.dokument as { brevtittel: string }).brevtittel
       );

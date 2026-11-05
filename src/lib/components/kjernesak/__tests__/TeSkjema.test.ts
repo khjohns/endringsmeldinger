@@ -5,9 +5,9 @@
  * VS-U26 (ny grunnlagsversjon med samme hjemmel og dato), KA-U22 (trekk uten
  * fritekst), LV-U2 (den låste teksten) og #881 (feltet ligger i skallet).
  *
- * S-2a.2: aksept (KA-U10), TEs innsigelse etter § 5 tredje ledd (VS-U1, VS-U9, VS-U14,
+ * S-2a.2: aksept (KA-U10 (opphevet av MM-U50)), TEs innsigelse etter § 5 tredje ledd (VS-U1, VS-U9, VS-U14,
  * uten protest og påberopt passivitet etter OV-U7) og registrering av et varsel etter
- * § 33.4 sendt utenfor appen (MM-U1, OV-U4, MM-U17).
+ * § 33.4 sendt utenfor appen (MM-U1, OV-U4, MM-U17 (opphevet av MM-U50)).
  *
  * #1096: varselet etter § 34.1.2 fra appen med teksten i LV-U19, registreringen av et
  * varsel sendt utenfor appen, ingen nytt varsel fra appen etter vederlagskravet (OV-U5,
@@ -374,7 +374,7 @@ describe('aksept og innsigelse (S-2a.2)', () => {
     expect(brevtekst.join('')).toBe(tekst);
   });
 
-  it('uten svar fra byggherren tilbys verken aksept eller innsigelse (KA-U10, VS-U14)', async () => {
+  it('uten svar fra byggherren tilbys verken aksept eller innsigelse (KA-U10 (opphevet av MM-U50), VS-U14)', async () => {
     await vis(medGrunnlag, 'ansvar');
     expect(screen.queryByRole('button', { name: 'Godta svaret' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Gjør innsigelse' })).toBeNull();
@@ -419,7 +419,7 @@ describe('aksept og innsigelse (S-2a.2)', () => {
 describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
   const vedlegg = { vedlegg_id: 'V-1', filnavn: 'varsel.pdf', innhold_sha256: 'a'.repeat(64) };
 
-  it('TE registrerer varselet med datoen og brevet som vedlegg, uten brevkontroll og uten tekst fra appen (MM-U1, OV-U4, MM-U17)', async () => {
+  it('TE registrerer varselet med datoen og brevet som vedlegg, uten brevkontroll og uten tekst fra appen (MM-U1, OV-U4, MM-U17 (opphevet av MM-U50))', async () => {
     const lastOpp = vi.fn().mockResolvedValue({ ...vedlegg, stoerrelse: 10 });
     const { send } = await vis(medGrunnlag, 'frist', undefined, lastOpp);
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
@@ -664,7 +664,7 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
     expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeEnabled();
   });
 
-  it('TE registrerer et varsel sendt utenfor appen med datoen og brevet, uten brevkontroll (MM-U1, MM-U17)', async () => {
+  it('TE registrerer et varsel sendt utenfor appen med datoen og brevet, uten brevkontroll (MM-U1, MM-U17 (opphevet av MM-U50))', async () => {
     const lastOpp = vi.fn().mockResolvedValue({ ...vedlegg, stoerrelse: 10 });
     const { send } = await vis(iSvikt, 'vederlag', undefined, lastOpp);
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
@@ -694,7 +694,7 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
     });
   });
 
-  it('etter vederlagskravet tilbys varselet etter § 34.1.2 bare som registrering, men det særskilte etter § 34.1.3 også fra appen (OV-U5, VS-U16, OV-U8)', async () => {
+  it('etter vederlagskravet tilbys varselet etter § 34.1.2 bare som registrering, men det særskilte etter § 34.1.3 også fra appen (OV-U5, VS-U16, OV-U8 (opphevet av OV-U89))', async () => {
     await vis(medVederlag, 'vederlag');
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
     expect(screen.getByRole('radio', { name: 'Spesifisert krav' })).toBeChecked();
@@ -791,7 +791,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
     expect(screen.getByText('Særskilt varsel om produktivitetstap')).toBeInTheDocument();
   });
 
-  it('etter kravet registrerer TE et særskilt varsel sendt utenfor appen, uten brevkontroll (OV-U8, MM-U17, MM-U50)', async () => {
+  it('etter kravet registrerer TE et særskilt varsel sendt utenfor appen, uten brevkontroll (OV-U8 (opphevet av OV-U89), MM-U17, MM-U50)', async () => {
     const lastOpp = vi.fn().mockResolvedValue({ ...vedlegg, stoerrelse: 10 });
     const { send } = await vis(medPosten, 'vederlag', undefined, lastOpp);
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));

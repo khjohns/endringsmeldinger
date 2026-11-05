@@ -388,7 +388,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     expect(u.utenVirkning).toEqual([]);
   });
 
-  it('en lest begrunnelse av et registrert svar, oppgitt sendt før svaret, er forstått, mens kommandoen avvises i første versjon (OV-U7, KA-U34, KA-U36)', async () => {
+  it('en lest begrunnelse av et registrert svar, oppgitt sendt før svaret, er forstått, mens kommandoen avvises i første versjon (OV-U7; KA-U34 og KA-U36, opphevet av KA-U46)', async () => {
     const svaret = {
       handling: 'rad',
       part: 'BH',

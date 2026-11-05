@@ -2,7 +2,7 @@
  * Nyttelastkontrollen: referansene i kommandoen og serverens utregning (B-13).
  * Kjøres etter forutsetningene. Serveren regner svaret på nytt og avviser en
  * kommando der klientens verdier er andre. En aksept bærer bare svaret og
- * regelversjonen; innholdet står i brevet (KA-U10).
+ * regelversjonen; innholdet står i brevet (KA-U10 (opphevet av MM-U50)).
  */
 
 import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
@@ -41,7 +41,7 @@ export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown
 /**
  * MM-U34 punkt 4, 6 og 7: også en revisjon som senker det byggherren har godkjent, en
  * påberopelse etter et «i tide» og et avslag etter et frafall godtas. Løsningen avgjør
- * ikke om endringen er rettslig virksom (MM-U12).
+ * ikke om endringen er rettslig virksom (MM-U12 (opphevet av MM-U50)).
  */
 function kontrollerSvar(
   s: Svarutkast,
@@ -88,7 +88,7 @@ function kontrollerSvar(
       'ANNET_RESULTAT',
       `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
     );
-  // KA-U24, KA-U31: grunnene til at svaret må ha en begrunnelse.
+  // KA-U24 (opphevet av KA-U46), KA-U31: grunnene til at svaret må ha en begrunnelse.
   const grunner = avgrensninger(s, server, krav);
   if (utdypningKreves && grunner.length && !s.utdypning?.trim())
     return avvis(
@@ -174,7 +174,7 @@ function kravetsUtdypning(
 /**
  * GR-U22: når forholdet er sendt, står hjemmelen, hovedkategorien og underkategorien.
  * En ny versjon med samme hjemmel kan for eksempel rette endringsordrens dato eller
- * nummer (GR-U16). Om det er samme forhold, avgjør ikke appen (MM-U12).
+ * nummer (GR-U16). Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
  */
 function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   const forrige = u.spor.forhold.gjeldendeKrav;
@@ -189,7 +189,7 @@ function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): A
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): en ny grunnlagsversjon kan ikke
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): en ny grunnlagsversjon kan ikke
  * endre datoen etter VS-U26, og gjengir TEs siste opplysning. Datoen endres i en korrigering.
  */
 function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
@@ -204,7 +204,7 @@ function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvis
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): korrigeringen har datoen
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): korrigeringen har datoen
  * kategorien har, og endrer TEs siste opplysning (arbeidsvalget i avgrensningen av #1308).
  * Forutsetningene har kontrollert at den viser til den siste opplysningen.
  */
@@ -229,8 +229,8 @@ function kontrollerKorrigering(
 }
 
 /**
- * KA-U34: en begrunnelse fra appen må ha teksten. Appen kontrollerer at den finnes,
- * ikke hva den sier (KA-U19). En registrert begrunnelse har ingen (KA-U35).
+ * KA-U34 (opphevet av KA-U46): en begrunnelse fra appen må ha teksten. Appen kontrollerer at den finnes,
+ * ikke hva den sier (KA-U19). En registrert begrunnelse har ingen (KA-U35 (opphevet av KA-U46)).
  */
 function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvisning | null {
   return k.sendt === undefined && !k.utdypning?.trim()
@@ -273,7 +273,7 @@ type OppgittDato = { dato: unknown; gjelder: string; av: 'TE' | 'Byggherren' };
  * Datoen parten oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
  * fra i påberopelsen (VS-U26), datoen et varsel etter § 33.4, § 34.1.2 eller § 34.1.3 ble
  * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5), og datoen
- * byggherrens registrerte begrunnelse ble sendt (KA-U35).
+ * byggherrens registrerte begrunnelse ble sendt (KA-U35 (opphevet av KA-U46)).
  */
 function oppgittDatoI(k: Kommando): OppgittDato | null {
   if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'TE' };
@@ -297,7 +297,7 @@ function oppgittDatoI(k: Kommando): OppgittDato | null {
  * Datoen parten oppgir (`oppgittDatoI`), kan ikke være etter brevets dato, som er
  * serverens (VS-U8) i norsk tid. Det er en kontroll av en dato som ikke kan
  * stemme; om varselet kom i tide, vurderes ikke (arbeidsvalg 1 i #664, samme form
- * som KA-U36). `brevetsDato` er en kalenderdag, ÅÅÅÅ-MM-DD, fra `registrertDato`;
+ * som KA-U36 (opphevet av KA-U46)). `brevetsDato` er en kalenderdag, ÅÅÅÅ-MM-DD, fra `registrertDato`;
  * dagene sammenliknes som tekst, så et tidspunkt kaster (#870).
  */
 export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisning | null {
@@ -479,7 +479,7 @@ export function nyttelastkontroll(
       return null;
     }
     case 'begrunnelse': {
-      // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39) bygges ikke.
+      // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39, opphevet av KA-U46) bygges ikke.
       return utdypningKreves ? begrunnelsensTekst(k) : null;
     }
     case 'korrigering':

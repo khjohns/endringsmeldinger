@@ -173,7 +173,7 @@ describe('formatet (7.1.2, 4.4)', () => {
     endring((radMed(r, k, navn).data.krav as Data[])[0]);
 
   it.each<[string, (r: Journalrad[], k: Kjoering) => void]>([
-    // MM-U9, KA-U10: det kjernen leser, må være lagret (DM-06).
+    // MM-U9, KA-U10 (opphevet av MM-U50): det kjernen leser, må være lagret (DM-06).
     ['et svar uten beslutningsgrunnlag', svarIBrevet('S-v2', (s) => delete s.beslutningsgrunnlag)],
     [
       'et beslutningsgrunnlag som mangler en virkning',
@@ -508,7 +508,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
   });
 });
 
-/** § 31.3 i registrert korrespondanse (GR-U13, MM-U12, code-review av #273). */
+/** § 31.3 i registrert korrespondanse (GR-U13, MM-U12 (opphevet av MM-U50), code-review av #273). */
 describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
   const registrert = (opplysninger: Data) => ({
     handling: 'rad',
@@ -621,7 +621,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(harIkkeVurdertBrev(k), 'kontrollsak: et svar som er dokumentasjon (OV-U4)').toBe(true);
   });
 
-  it('OV-U19, OV-U4: en registrert begrunnelse (KA-U35) er dokumentasjon og teller som brev utenfor appen', async () => {
+  it('OV-U19, OV-U4: en registrert begrunnelse (KA-U35 (opphevet av KA-U46)) er dokumentasjon og teller som brev utenfor appen', async () => {
     const eo = registrert({ sendt: '2026-09-30', endringsordre: true });
     const begrunnelse = {
       handling: 'rad',

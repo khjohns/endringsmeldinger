@@ -11,7 +11,7 @@
  * `brevtekst` er teksten kjernen frøs i brevet (LV-U2, LV-U3, #369): avsnittene
  * med den låste delen og utdypningen hver for seg. Dokumentet som leveres, gjengir
  * den tro (`gjengirTro` i `kjerne/frosset/brevtekst.ts`), og lages av oppdraget
- * alene, uten journalen. Et registrert brev har ingen tekst fra appen (MM-U17):
+ * alene, uten journalen. Et registrert brev har ingen tekst fra appen (MM-U17 (opphevet av MM-U50)):
  * `brevtekst` er `null`, og `dokument` er `null`, fordi brevet alt er sendt utenfor
  * appen og ikke blir et eget dokument i Catenda (LV-U11).
  *
@@ -107,7 +107,7 @@ export function lagOppdrag(
 /**
  * Brevet i et lagret oppdrag som ren tekst, av oppdraget alene (LV-U1, B-17):
  * hodet og brevteksten slik den ble frosset. PDF-en gjengir den samme teksten.
- * `null` når brevet er registrert og ikke har tekst fra appen (MM-U17).
+ * `null` når brevet er registrert og ikke har tekst fra appen (MM-U17 (opphevet av MM-U50)).
  */
 export function gjengiOppdrag(innhold: Record<string, unknown>): string | null {
   const brev = innhold.brev as Oppdragsbrev;
@@ -115,7 +115,7 @@ export function gjengiOppdrag(innhold: Record<string, unknown>): string | null {
 }
 
 /**
- * Hodet kjernen frøs med brevet (LV-U23, LV-U27): tittelen (GR-U31, MM-U3), Deres ref. med
+ * Hodet kjernen frøs med brevet (LV-U23, LV-U27): tittelen (GR-U31, MM-U3 (opphevet av MM-U50)), Deres ref. med
  * én kode per linje (LV-U49, U-2 og U-3 i BF-07), Vår ref., avsenderen og datoen. Uten koder
  * står ikke «Deres ref.». Websak-nummeret kommer med #1173.
  */

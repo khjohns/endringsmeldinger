@@ -161,7 +161,7 @@ export type Saksbetegnelse =
   | 'paaberopelsen_trukket'
   | 'kravene_avgjort';
 
-/** Appens lesing av enighetens virkning (GR-U7, MM-U3, KA-U6), som `enighetensVirkning` i kjernen. */
+/** Appens lesing av enighetens virkning (GR-U7, MM-U3 (opphevet av MM-U50), KA-U6), som `enighetensVirkning` i kjernen. */
 export type Enighetsvirkning = 'betinget' | 'virksom' | 'uten_virkning';
 
 /** Betegnelsen per spor fra den faste lista i MM-U30 (`BETEGNELSER` i `kjerne/utledning/visning.ts`). */

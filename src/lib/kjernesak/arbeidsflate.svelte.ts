@@ -120,7 +120,7 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     },
     /**
      * Varslene i vederlagssporet kjernen tilbyr TE som varsel fra appen eller registrering:
-     * varselet etter § 34.1.2 og det særskilte etter § 34.1.3 (OV-U25, OV-U8).
+     * varselet etter § 34.1.2 og det særskilte etter § 34.1.3 (OV-U25, OV-U8 (opphevet av OV-U89)).
      */
     teVarsler(valg: 'varsel' | 'registrert'): Vederlagsvarsel[] {
       const type = valg === 'varsel' ? 'sende_varsel' : 'varsle';

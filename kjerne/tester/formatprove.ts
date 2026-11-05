@@ -32,7 +32,7 @@ export function avvikFraFormatet(rad: Journalrad): string[] {
  * LV-U3: elementene i et brev appen sendte som ikke står i brevteksten. Hvert krav,
  * svar og utsagn og hver opplysning skal ha ett avsnitt med en låst del; datoen for et
  * varsel står i avsnittet for varselet, og vedleggene i et avsnitt for dokumentet
- * (A4). Et registrert brev har ingen brevtekst (MM-U17). Leses av raden alene, ikke
+ * (A4). Et registrert brev har ingen brevtekst (MM-U17 (opphevet av MM-U50)). Leses av raden alene, ikke
  * av kjernen som skrev den.
  */
 export function utenAvsnitt(rad: Journalrad): string[] {

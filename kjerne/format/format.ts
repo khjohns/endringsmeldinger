@@ -391,7 +391,7 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
   protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
   passivitet: objekt({ ...artfelt('passivitet'), gjelder: ID }, ['id', 'art', 'gjelder']),
   begrunnelse: objekt({ ...artfelt('begrunnelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
-  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): datoen står i samme felt som
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): datoen står i samme felt som
   // i kravet, og korrigeringen har nøyaktig én av dem.
   korrigering: objekt(
     {
@@ -417,7 +417,7 @@ export const UTSAGNSARTER = Object.keys(UTSAGN) as Utsagnsart[];
  * et varsel i dokumentet, for eksempel et varsel sendt før kravet det står i
  * (HF-U1, MM-U1). `endringsordre` gjelder registrert korrespondanse med et svar på
  * forholdet: den som registrerer, oppgir om brevet var en endringsordre etter
- * § 31.3 (GR-U13), i brevet selv. En senere avklaring med `gjelder` (MM-U12) er ikke
+ * § 31.3 (GR-U13), i brevet selv. En senere avklaring med `gjelder` (MM-U12 (opphevet av MM-U50)) er ikke
  * med i første versjon: skjemaet godtar feltet, men leseren avviser den (OV-U13).
  * Merkingen etter KA-U20 og avklaringen av den er ikke med i første versjon, så en
  * rad med dem er ikke forstått (OV-U7, HF-U1, B-10).

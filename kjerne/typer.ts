@@ -154,7 +154,7 @@ export type Utsagn =
       id: string;
       art: 'aksept';
       gjelder: string;
-      /** Regelversjonen TE fikk se (B-13, KA-U10). Innholdet står i brevet. */
+      /** Regelversjonen TE fikk se (B-13, KA-U10 (opphevet av MM-U50)). Innholdet står i brevet. */
       regelversjon: number;
     }
   /**
@@ -198,7 +198,7 @@ export type Utsagn =
    */
   | { id: string; art: 'begrunnelse'; gjelder: string }
   /**
-   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TE korrigerer sin opplysning
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TE korrigerer sin opplysning
    * etter VS-U26 i et eget brev. `gjelder` er elementet med TEs siste opplysning, kravet eller
    * en tidligere korrigering. Ikke en kravversjon, og avslår ikke byggherrens svar.
    */
@@ -365,9 +365,9 @@ export interface Standpunktsvirkning {
 }
 
 /**
- * Utledningen frosset da brevet ble sendt (2.2, MM-U9, MM-U11): virkningen hvert
+ * Utledningen frosset da brevet ble sendt (2.2, MM-U9, MM-U11 (opphevet av MM-U50)): virkningen hvert
  * standpunkt hadde, og om svaret godkjenner hele kravet. Det er også innholdet
- * i en enighet om svaret (KA-U10). Utfallet og vilkåret lagres ikke, men
+ * i en enighet om svaret (KA-U10 (opphevet av MM-U50)). Utfallet og vilkåret lagres ikke, men
  * utledes av standpunktene.
  */
 export interface Beslutningsgrunnlag {

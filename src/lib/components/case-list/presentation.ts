@@ -1,7 +1,7 @@
 /**
  * Visningen av linja i sakslisten fra TS (#1023). Saken har ingen samlet status:
  * raden viser saksbetegnelsen i de fire tilfellene i MM-U22, ellers betegnelsen per
- * spor (MM-U30), og tallene som krav, svar og enighet hver for seg (MM-U28).
+ * spor (MM-U30), og tallene som krav, svar og enighet hver for seg (MM-U28 (opphevet av MM-U37)).
  */
 import type { ComponentProps } from 'svelte';
 import type Badge from '$lib/components/primitives/Badge.svelte';

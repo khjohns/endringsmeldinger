@@ -6,7 +6,7 @@
  * Visningen er det eneste stedet dagens regler vurderer et sendt brev på nytt.
  * Gir de et standpunkt en annen virkning enn brevet, vises det som en merknad
  * som oppfordrer byggherren til å revidere svaret (MM-U9), eller som at regelen
- * er endret etter enigheten (MM-U3).
+ * er endret etter enigheten (MM-U3 (opphevet av MM-U50)).
  */
 
 import { erRegistrert } from '../format/leser.ts';
@@ -186,7 +186,7 @@ function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
 /**
  * Byggherrens svar på vederlaget slik visningen viser det (svarene i #1047 24.10): postene
  * og påberopelsene med lagene brevet ga dem (`postlisten`), brevet og parten. Et registrert
- * svar er appens vurdering ved registreringen (MM-U17). `eldreKravversjon` skiller svaret på
+ * svar er appens vurdering ved registreringen (MM-U17 (opphevet av MM-U50)). `eldreKravversjon` skiller svaret på
  * en eldre kravversjon fra kravet som venter på svar (MM-U24, MM-U9).
  */
 export interface Vederlagssvaret {

@@ -34,8 +34,8 @@ export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: stri
   }));
 
 /**
- * Tittelen som ble frosset med brevet, med sakens kode (LV-U27, MM-U3). Et registrert brev har
- * ingen, og får etiketten «Korrespondanse» (MM-U17).
+ * Tittelen som ble frosset med brevet, med sakens kode (LV-U27, MM-U3 (opphevet av MM-U50)). Et registrert brev har
+ * ingen, og får etiketten «Korrespondanse» (MM-U17 (opphevet av MM-U50)).
  */
 export const brevtittel = (b: { art?: Brevet['art']; brevtittel: string | null }) =>
   b.brevtittel ?? (b.art === 'registrert' ? 'Korrespondanse' : 'Brev');
