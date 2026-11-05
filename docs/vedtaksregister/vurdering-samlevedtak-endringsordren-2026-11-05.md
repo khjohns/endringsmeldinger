@@ -665,7 +665,14 @@ samlevedtaket for retting av sendt brev som ingen har bedt om.
 
 ## Svarene
 
-Føres inn når oppdragsgiver har svart.
+Oppdragsgiver 05.11, ordrett ([#1534, 6661044073](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6661044073)):
+
+> 1a, 2a
+
+- **1 A:** samlevedtaket for endringsordren, versjon 2, gjelder med E1–E9, uten rettelser. B er
+  forkastet. Funnene under «Funn som ikke avgjøres her» er ikke tatt inn.
+- **2 A:** punkt 12 viser til korrigeringen etter MM-U52 punkt 24, og regelen står der. B er
+  forkastet.
 
 ## Verifikasjon og grenser
 
