@@ -9,10 +9,11 @@ Tre kontroller:
   3.4 i hovedplanen, er kjent: den er en beslutning, men ennå ikke et vedtak. Det
   samme er en B-ID i listen over avgjorte beslutninger i 3.4, som viser til
   vedtakene som avgjorde den (#1020).
-- En ID til et opphevet vedtak står ikke som eneste grunnlag. Samme henvisning må
-  også vise til et vedtak som gjelder, eller stå i en test og være merket
-  historisk med ordet «historisk». En henvisning er et avsnitt i en kommentar,
-  der en tom kommentarlinje skiller avsnittene, ellers linjen.
+- En ID til et opphevet vedtak står sammen med posten som opphever det, lest av
+  forholdet `opphever` i registeret. Det er ikke nok at samme henvisning viser til
+  et annet vedtak som gjelder (oppdragsgiver 05.11, #1606). Unntaket er en test
+  merket historisk med ordet «historisk». En henvisning er et avsnitt i en
+  kommentar, der en tom kommentarlinje skiller avsnittene, ellers linjen.
 
 ID-formene er `XX-U1` (alle seriene med U) og `B-01`. Funn-ID-er som `RV-07`,
 føringene `AF-01`–`AF-06` i 3.2 og radene `P1`–`P7` i registeret leses ikke:
@@ -30,8 +31,8 @@ skillene og `AGENTS.md`, der designet fra registeret flyttes (svar 5 04.11 i #15
 henvisningen et avsnitt, et punkt i en liste, en tabellrad eller en overskrift, og ID-ene
 kontrolleres som i koden, uten unntaket for en test merket historisk. Unntaket er
 spørsmålsfilene i `HISTORISKE_DOKUMENTER`, som fører spørsmålene ordrett slik de ble stilt: der
-kan en opphevet ID stå alene, som i en test merket historisk (S2 A i vedtaks-PR-en for
-samlevedtaket for endringsordren, #1534).
+kan en opphevet ID stå uten posten som opphever den, som i en test merket historisk (S2 A i
+vedtaks-PR-en for samlevedtaket for endringsordren, #1534).
 
 En post med klassen design er ikke eneste grunnlag i `kjerne/frosset/`, `kjerne/kommandoer/`
 og `kjerne/regler/`, og heller ikke i `kilde` og `kilder` i bevis-sakene. Samme henvisning
@@ -59,7 +60,12 @@ DOKUMENTER = (
     ".claude/skills/**/*.md",
     "AGENTS.md",
 )
-HISTORISKE_DOKUMENTER = frozenset({"docs/domenetabell/brukerforlop/BF-06-sporsmal.md"})
+HISTORISKE_DOKUMENTER = frozenset(
+    {
+        "docs/domenetabell/brukerforlop/BF-05-sporsmal.md",
+        "docs/domenetabell/brukerforlop/BF-06-sporsmal.md",
+    }
+)
 GRUNNLAGSMAPPER = ("kjerne/frosset/", "kjerne/kommandoer/", "kjerne/regler/")
 BEVIS_SAKER = "docs/domenetabell/bevis-saker*.json"
 KILDEFELT = ("kilde", "kilder")
@@ -80,6 +86,8 @@ LUKKES = {"/*": "*/", "<!--": "-->"}
 # tabellrad. En tom linje avslutter et avsnitt.
 NY_I_DOKUMENT = re.compile(r"^\s*(?:#{1,6}\s|[-*+]\s|\d+[.)]\s|\|)")
 AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
+# En opphevet ID uten posten som opphever den, per fil, med antallet og issuet som skriver
+# henvisningene om. Lista skal bare krympe.
 KJENTE_AVVIK = (
     ("kjerne/kommandoer/nyttelast.ts", "KA-U24", 1, "#1433"),
     ("kjerne/kommandoer/nyttelast.ts", "KA-U32", 2, "#1433"),
@@ -117,6 +125,100 @@ KJENTE_AVVIK = (
     ("kjerne/tester/feilinnfoering.ts", "OV-U8", 1, "#1576"),
     ("src/lib/components/kjernesak/__tests__/TeSkjema.test.ts", "OV-U8", 1, "#1576"),
     ("src/lib/components/kontraktsbord/TeVederlagForm.svelte", "OV-U8", 1, "#1576"),
+    # Henvisningene der den opphevede ID-en står sammen med et annet gjeldende vedtak, men uten
+    # posten som opphever den (oppdragsgiver 05.11). Står paret over også, telles radene sammen.
+    ("kjerne/format/format.ts", "MM-U12", 1, "#1606"),
+    ("kjerne/frosset/brevtekst.ts", "KA-U34", 1, "#1606"),
+    ("kjerne/frosset/brevtekst.ts", "MM-U12", 1, "#1606"),
+    ("kjerne/frosset/brevtekst.ts", "MM-U17", 2, "#1606"),
+    ("kjerne/frosset/brevtittel.ts", "MM-U3", 1, "#1606"),
+    ("kjerne/frosset/frysing.ts", "MM-U11", 2, "#1606"),
+    ("kjerne/frosset/standpunkt.ts", "KA-U10", 1, "#1606"),
+    ("kjerne/frosset/standpunkt.ts", "MM-U11", 2, "#1606"),
+    ("kjerne/frosset/standpunkt.ts", "MM-U3", 1, "#1606"),
+    ("kjerne/kommandoer/forutsetninger.ts", "KA-U34", 1, "#1606"),
+    ("kjerne/kommandoer/forutsetninger.ts", "MM-U8", 1, "#1606"),
+    ("kjerne/kommandoer/kommando.ts", "KA-U24", 1, "#1606"),
+    ("kjerne/kommandoer/kommando.ts", "MM-U17", 1, "#1606"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U10", 1, "#1606"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U24", 1, "#1606"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U34", 1, "#1606"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U35", 2, "#1606"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U36", 2, "#1606"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U39", 1, "#1606"),
+    ("kjerne/kommandoer/nyttelast.ts", "MM-U12", 2, "#1606"),
+    ("kjerne/kommandoer/skriving.ts", "MM-U11", 1, "#1606"),
+    ("kjerne/kommandoer/skriving.ts", "MM-U17", 1, "#1606"),
+    ("kjerne/tester/arkitektur.test.ts", "EO-U5", 1, "#1606"),
+    ("kjerne/tester/arkitektur.test.ts", "KA-U34", 1, "#1606"),
+    ("kjerne/tester/arkitektur.test.ts", "KA-U36", 1, "#1606"),
+    ("kjerne/tester/arkitektur.test.ts", "MM-U11", 2, "#1606"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U24", 4, "#1606"),
+    ("kjerne/tester/brevtekst.test.ts", "KA-U34", 3, "#1606"),
+    ("kjerne/tester/brevtekst.test.ts", "MM-U12", 5, "#1606"),
+    ("kjerne/tester/brevtekst.test.ts", "MM-U17", 4, "#1606"),
+    ("kjerne/tester/brevtekst.test.ts", "MM-U19", 1, "#1606"),
+    ("kjerne/tester/brevtekst.test.ts", "MM-U20", 2, "#1606"),
+    ("kjerne/tester/brevtekst.test.ts", "OV-U8", 2, "#1606"),
+    ("kjerne/tester/brukerforloep.test.ts", "OV-U52", 1, "#1606"),
+    ("kjerne/tester/byggedel1.test.ts", "KA-U34", 1, "#1606"),
+    ("kjerne/tester/byggedel1.test.ts", "KA-U36", 1, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U10", 4, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U24", 1, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U34", 3, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U35", 1, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U36", 1, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "MM-U17", 1, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "MM-U18", 3, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "MM-U19", 3, "#1606"),
+    ("kjerne/tester/feilinnfoering.ts", "MM-U20", 2, "#1606"),
+    ("kjerne/tester/formatprove.ts", "MM-U17", 1, "#1606"),
+    ("kjerne/tester/kjerne.test.ts", "KA-U10", 1, "#1606"),
+    ("kjerne/tester/kjerne.test.ts", "KA-U35", 1, "#1606"),
+    ("kjerne/tester/kjerne.test.ts", "MM-U12", 1, "#1606"),
+    ("kjerne/tester/klient.ts", "MM-U12", 1, "#1606"),
+    ("kjerne/tester/regelendring.ts", "MM-U16", 1, "#1606"),
+    ("kjerne/tester/regelendring.ts", "MM-U3", 1, "#1606"),
+    ("kjerne/tester/regelversjon.test.ts", "KA-U10", 2, "#1606"),
+    ("kjerne/typer.ts", "KA-U10", 2, "#1606"),
+    ("kjerne/typer.ts", "MM-U11", 1, "#1606"),
+    ("kjerne/utledning/utled.ts", "EO-U3", 1, "#1606"),
+    ("kjerne/utledning/utled.ts", "KA-U10", 1, "#1606"),
+    ("kjerne/utledning/utled.ts", "MM-U11", 1, "#1606"),
+    ("kjerne/utledning/utled.ts", "MM-U12", 1, "#1606"),
+    ("kjerne/utledning/utled.ts", "MM-U18", 1, "#1606"),
+    ("kjerne/utledning/utled.ts", "MM-U20", 2, "#1606"),
+    ("kjerne/utledning/utled.ts", "MM-U3", 2, "#1606"),
+    ("kjerne/utledning/utled.ts", "MM-U8", 1, "#1606"),
+    ("kjerne/utledning/visning.ts", "MM-U17", 1, "#1606"),
+    ("kjerne/utledning/visning.ts", "MM-U3", 1, "#1606"),
+    ("server/levering.ts", "MM-U17", 2, "#1606"),
+    ("server/levering.ts", "MM-U3", 1, "#1606"),
+    ("server/saksliste.ts", "MM-U28", 1, "#1606"),
+    ("server/saksliste.ts", "MM-U29", 1, "#1606"),
+    ("server/tester/ny_sak.test.ts", "MM-U3", 1, "#1606"),
+    ("server/tester/skive.test.ts", "MM-U3", 1, "#1606"),
+    ("src/lib/components/case-list/presentation.ts", "MM-U28", 1, "#1606"),
+    ("src/lib/components/kjernesak/__tests__/TeSkjema.test.ts", "KA-U10", 2, "#1606"),
+    ("src/lib/components/kjernesak/__tests__/TeSkjema.test.ts", "MM-U17", 3, "#1606"),
+    ("src/lib/components/kjernesak/__tests__/TeSkjema.test.ts", "OV-U8", 2, "#1606"),
+    ("src/lib/components/kontraktsbord/Kontrollrommet.svelte", "KA-U10", 1, "#1606"),
+    ("src/lib/components/kontraktsbord/TeFristForm.svelte", "MM-U17", 1, "#1606"),
+    ("src/lib/components/kontraktsbord/VederlagForm.svelte", "KA-U24", 1, "#1606"),
+    ("src/lib/components/saksoversikt/__tests__/overview.test.ts", "MM-U29", 1, "#1606"),
+    ("src/lib/components/saksoversikt/overview.ts", "MM-U29", 1, "#1606"),
+    ("src/lib/components/varden/__tests__/NySak.test.ts", "MM-U17", 1, "#1606"),
+    ("src/lib/components/varden/tekster.ts", "MM-U17", 1, "#1606"),
+    ("src/lib/components/varden/tekster.ts", "MM-U3", 1, "#1606"),
+    ("src/lib/kjernesak/__tests__/arbeidsflate.test.ts", "KA-U24", 1, "#1606"),
+    ("src/lib/kjernesak/arbeidsflate.svelte.ts", "OV-U8", 1, "#1606"),
+    ("src/lib/kjernesak/fristkrav.ts", "MM-U17", 1, "#1606"),
+    ("src/lib/kjernesak/kontekst.svelte.ts", "MM-U17", 1, "#1606"),
+    ("src/lib/kjernesak/kravkontroll.svelte.ts", "KA-U24", 1, "#1606"),
+    ("src/lib/kjernesak/kravkontroll.svelte.ts", "MM-U17", 1, "#1606"),
+    ("src/lib/kjernesak/vederlagskrav.ts", "MM-U17", 2, "#1606"),
+    ("src/lib/kjernesak/vederlagssvar.ts", "KA-U24", 1, "#1606"),
+    ("src/lib/types/api.ts", "MM-U3", 1, "#1606"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
@@ -140,28 +242,31 @@ def vedtaks_ider(post: dict) -> set[str]:
     return ider
 
 
-def vedtak(register: dict) -> tuple[set[str], set[str]]:
-    """ID-ene til vedtakene i registeret og ID-ene til dem som er opphevet.
+def vedtak(register: dict) -> tuple[set[str], dict[str, set[str]]]:
+    """ID-ene til vedtakene i registeret, og hver opphevet ID med ID-ene til postene som
+    opphever den.
 
     En ID er opphevet når hver post den er vedtaket for, er opphevet. B-13 er vedtaket for
     flere rader, og en opphevet rad gjør ikke B-13 opphevet (svar 14 i PR #1537)."""
     ider = [(p, vedtaks_ider(p)) for p in vr.poster(register)]
     ankrene = {vr.anker(p) for p, _ in ider if vr.anker(p)}
-    opphevede_ankre = set()
-    for p, _ in ider:
+    oppheverne: dict[str, set[str]] = collections.defaultdict(set)
+    for p, i in ider:
         for f in p.get("forhold", []):
             if f["art"] == "opphever":
                 if f["vedtak"].lower() not in ankrene:
                     raise ValueError(
                         f"{f['vedtak']} i et forhold er ikke et anker i registeret"
                     )
-                opphevede_ankre.add(f["vedtak"].lower())
+                oppheverne[f["vedtak"].lower()] |= i
     poster_for = collections.defaultdict(list)
     for p, i in ider:
         for id_ in i:
             poster_for[id_].append(vr.anker(p))
     opphevet = {
-        id_ for id_, ankre in poster_for.items() if all(a in opphevede_ankre for a in ankre)
+        id_: set().union(*(oppheverne[a] for a in ankre))
+        for id_, ankre in poster_for.items()
+        if all(a in oppheverne for a in ankre)
     }
     return set(poster_for), opphevet
 
@@ -280,7 +385,7 @@ def feil_i(
     sti: str,
     tekst: str,
     kjente: set[str],
-    opphevet: set[str],
+    opphevet: dict[str, set[str]],
     aapne: set[str],
     avvik: frozenset[tuple[str, str]] = frozenset(),
     truffet: collections.Counter | None = None,
@@ -288,7 +393,8 @@ def feil_i(
     designavvik: frozenset[tuple[str, str]] = frozenset(),
     designtruffet: collections.Counter | None = None,
 ) -> list[str]:
-    """`avvik` er parene (fil, ID) i `KJENTE_AVVIK`, og `designavvik` dem i
+    """`opphevet` er de opphevede ID-ene med ID-ene til postene som opphever dem. `avvik` er
+    parene (fil, ID) i `KJENTE_AVVIK`, og `designavvik` dem i
     `KJENTE_DESIGNAVVIK`; hvert treff telles i `truffet` og `designtruffet`. `design_` er
     ID-ene til designpostene med vedtakene i `bindende_i`, og leses bare i GRUNNLAGSMAPPER."""
     feil = []
@@ -307,15 +413,32 @@ def feil_i(
                 else:
                     feil += _designfeil(f"{sti}:{nr}", [i], design_)
         historisk = sti in HISTORISKE_DOKUMENTER or (er_test(sti) and HISTORISK.search(henvisning))
-        if not gjeldende and not historisk:
-            for i in dict.fromkeys(ider):
-                if i not in opphevet:
-                    continue
-                if (sti, i) in avvik:
-                    if truffet is not None:
-                        truffet[(sti, i)] += 1
-                    continue
-                feil.append(f"{sti}:{nr}: {i} er opphevet og står som eneste grunnlag")
+        if not historisk:
+            feil += _oppheverfeil(f"{sti}:{nr}", sti, ider, opphevet, avvik, truffet)
+    return feil
+
+
+def _oppheverfeil(
+    sted: str,
+    sti: str,
+    ider: list[str],
+    opphevet: dict[str, set[str]],
+    avvik: frozenset[tuple[str, str]],
+    truffet: collections.Counter | None,
+) -> list[str]:
+    """Feilene for hver opphevet ID i en henvisning der ingen av postene som opphever den, står."""
+    feil = []
+    for i in dict.fromkeys(ider):
+        if i not in opphevet or opphevet[i] & set(ider):
+            continue
+        if (sti, i) in avvik:
+            if truffet is not None:
+                truffet[(sti, i)] += 1
+            continue
+        feil.append(
+            f"{sted}: {i} er opphevet og står uten {' eller '.join(sorted(opphevet[i]))}, "
+            "som opphever den"
+        )
     return feil
 
 
@@ -331,24 +454,40 @@ def gyldig_rad(rad) -> bool:
     )
 
 
-def avviksfeil(rader, truffet: collections.Counter, navn: str = "KJENTE_AVVIK") -> list[str]:
-    """Feilene i en liste over kjente avvik: en rad med feil form, og en rad der antallet treff
-    avviker."""
+OPPHEVERAVVIK = ("står uten posten som opphever den", "posten som opphever den")
+DESIGNAVVIK = ("står som eneste grunnlag", "et vedtak som gjelder")
+
+
+def avviksfeil(
+    rader, truffet: collections.Counter, navn: str = "KJENTE_AVVIK", tekst=OPPHEVERAVVIK
+) -> list[str]:
+    """Feilene i en liste over kjente avvik: en rad med feil form, og et par (fil, ID) der antallet
+    treff avviker fra summen av radene for paret. Et par kan ha én rad per issue."""
     feil = []
+    tillatt: dict[tuple[str, str], int] = collections.Counter()
+    issuer: dict[tuple[str, str], list[str]] = collections.defaultdict(list)
     for rad in rader:
         fil, i, antall, issue = rad
         if not gyldig_rad(rad):
             feil.append(
                 f"{navn}: raden ({fil}, {i}, {antall}, {issue}) må ha én fil, én ID, antallet og issuet"
             )
-        elif (n := truffet[(fil, i)]) > antall:
+        else:
+            tillatt[(fil, i)] += antall
+            issuer[(fil, i)].append(issue)
+    for (fil, i), antall in tillatt.items():
+        n = truffet[(fil, i)]
+        radene = f"raden ({issuer[(fil, i)][0]})" if len(issuer[(fil, i)]) == 1 else (
+            f"radene ({', '.join(issuer[(fil, i)])})"
+        )
+        if n > antall:
             feil.append(
-                f"{navn}: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
-                f"tillater {antall}; en ny henvisning må vise til et vedtak som gjelder"
+                f"{navn}: {i} {tekst[0]} {n} ganger i {fil}, og {radene} "
+                f"tillater {antall}; en ny henvisning må vise til {tekst[1]}"
             )
         elif n < antall:
             feil.append(
-                f"{navn}: {i} står som eneste grunnlag {n} ganger i {fil}, og raden ({issue}) "
+                f"{navn}: {i} {tekst[0]} {n} ganger i {fil}, og {radene} "
                 f"sier {antall}; rett antallet eller fjern raden"
             )
     return feil
@@ -410,7 +549,7 @@ def kildefeil(
     sti: str,
     data,
     kjente: set[str],
-    opphevet: set[str],
+    opphevet: dict[str, set[str]],
     aapne: set[str],
     design_: dict[str, list[str]] | None = None,
     designavvik: frozenset[tuple[str, str]] = frozenset(),
@@ -433,15 +572,7 @@ def kildefeil(
                         designtruffet[(sti, i)] += 1
                 else:
                     feil += _designfeil(f"{sti}: {sted}", [i], design_)
-        if not gjeldende:
-            for i in dict.fromkeys(ider):
-                if i not in opphevet:
-                    continue
-                if (sti, i) in avvik:
-                    if truffet is not None:
-                        truffet[(sti, i)] += 1
-                    continue
-                feil.append(f"{sti}: {sted}: {i} er opphevet og står som eneste grunnlag")
+        feil += _oppheverfeil(f"{sti}: {sted}", sti, ider, opphevet, avvik, truffet)
     return feil
 
 
@@ -484,7 +615,7 @@ def kontroller(
     return (
         feil
         + avviksfeil(rader, truffet)
-        + avviksfeil(designrader, designtruffet, "KJENTE_DESIGNAVVIK")
+        + avviksfeil(designrader, designtruffet, "KJENTE_DESIGNAVVIK", DESIGNAVVIK)
     )
 
 
