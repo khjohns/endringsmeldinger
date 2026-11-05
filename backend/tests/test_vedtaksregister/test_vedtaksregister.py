@@ -1662,6 +1662,24 @@ def test_den_tredje_endringen_av_et_samlevedtak_gir_et_varsel(grunnregister, ant
     assert vr.varsler(endret, endret) == (forventet if varsel else [])
 
 
+@pytest.mark.parametrize("overtatt, varsel", [(True, False), (False, True)])
+def test_en_endring_fra_en_opphevet_post_telles_ikke(grunnregister, overtatt, varsel):
+    """Svar 2 A 05.11 i #1614: en endring telles bare fra en gjeldende post. XX-U4 opphever
+    XX-U3 og overtar endringen fra den, slik et samlevedtak gjør, så den telles én gang."""
+    endret = med(grunnregister, ny_post(forhold=[{"art": "samler", "vedtak": "ka-u1"}]))
+    for i in (2, 3):
+        endret = med(endret, ny_post(id=f"XX-U{i}", forhold=[{"art": "endrer", "vedtak": "xx-u1"}]))
+    forhold = [{"art": "endrer", "vedtak": "xx-u1"}]
+    if overtatt:
+        forhold.append({"art": "opphever", "vedtak": "xx-u3"})
+    endret = med(endret, ny_post(id="XX-U4", forhold=forhold))
+    forventet = [
+        "xx-u1: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+    assert vr.varsler(endret, endret) == (forventet if varsel else [])
+
+
 def test_et_vedtak_som_ikke_er_samlet_telles_ikke(grunnregister):
     """Svar 10 04.11 i #1534: til temaet er samlet, skrives en ny endring som før."""
     endret = grunnregister

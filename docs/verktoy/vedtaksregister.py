@@ -1149,7 +1149,8 @@ def app_utenfor_sitat(tekst: str) -> bool:
 
 def varsler(register: dict, gammel_register: dict | None) -> list[str]:
     """Varslene, som ikke gjør registeret ugyldig: «app» utenfor sitattegn i den valgte teksten
-    i en post som ikke står på main, og et samlet vedtak som har fått tre endringer eller mer."""
+    i en post som ikke står på main, og et samlet vedtak som har fått tre endringer eller mer fra
+    gjeldende poster (svar 2 A i #1614)."""
     ut = []
     if gammel_register is not None:
         paa_main = {p["id"] for p in _nye(gammel_register)}
@@ -1171,6 +1172,7 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
     endringer = collections.Counter(
         f["vedtak"]
         for p in poster(register)
+        if anker(p) not in opphevet
         for f in p.get("forhold", [])
         if f["art"] in ENDRINGER and f["vedtak"] in telles
     )
