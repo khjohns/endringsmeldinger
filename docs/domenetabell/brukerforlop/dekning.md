@@ -8,9 +8,10 @@ Formatet og arbeidsregelen står i [README](README.md).
 | --- | --- | --- | --- | --- | --- | --- |
 | [BF-01](BF-01.json) BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret | BH vurderer varslingen og beløpet i TEs vederlagskrav, kontrollerer brevet og sender svaret. TE leser svaret, forstår at BH prinsipalt mener kravet er tapt og subsidiært godtar 60 000 kr, og godtar svaret. | kjørbar | kjernen i minnet, testbasen, demoruta, saksruta, varden | — | F-MM-V-34-1-2-nei | — |
 | [BF-01V](BF-01V.json) BF-01 i Varden: BH svarer på vederlagskravet, og TE godtar svaret | Samme sak som BF-01, i den nye visningen. BH leser vederlagskravet ved siden av skjemaet, svarer på varslingen og beløpet, ser brevet også før alt er besvart, kontrollerer det og sender det, og ser leveringen for seg. TE leser svaret slik det ble sendt, ser virkningen av aksepten og godtar svaret. | planlagt | — | #1046 | — | [BF-01.md](BF-01.md) |
-| [BF-02A](BF-02A.json) TE korrigerer datoen pålegget ble mottatt | TE har oppgitt feil dato for når pålegget ble mottatt. TE korrigerer datoen i et eget brev som viser til brevet med opplysningen, også når kravet ble sendt utenfor løsningen og lagt til som korrespondanse. Brevet er ikke en ny kravversjon og avslår ikke BHs svar. En korrigering TE sender utenfor løsningen og legger til som korrespondanse, står som dokumentasjon. | planlagt | — | #1308, #1309, #807 | — | — |
+| [BF-02A](BF-02A.json) TE korrigerer datoen pålegget ble mottatt | TE har oppgitt feil dato for når pålegget ble mottatt, og BH har påberopt at varselet kom for sent. TE korrigerer datoen i et eget brev som viser til brevet med opplysningen. Brevet er ikke en ny kravversjon og avslår ikke BHs svar. BH ser brevet, svaret står med virkningen det hadde, og sporet venter ikke på et nytt svar. | kjørbar | kjernen i minnet, testbasen, demoruta | — | — | [BF-02A.md](BF-02A.md) |
 | [BF-02B](BF-02B.json) TE sender en ny kravversjon og sier sitt standpunkt til svaret i begrunnelsen | TE er uenig i BHs svar og sender en ny kravversjon som endrer kravet. Brevet sier at kravet erstatter den tidligere kravversjonen, og at TEs standpunkt til BHs svar i brevet med svaret fremgår av begrunnelsen. Henvisningene bruker merkingen på brevene. Skjemaet minner TE før sending på å presisere om TE aksepterer, avslår eller tar forbehold knyttet til et tilbud i svaret, og sier at svaret ikke kan godtas her når den nye versjonen er sendt. Sender TE kravet utenfor løsningen og legger det til som korrespondanse med kategorien krav, fyller TE ut kravskjemaet, og løsningen lager ingen brevtekst. | planlagt | — | #1379, #1308, #807 | — | — |
-| [BF-02C](BF-02C.json) TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen | TE vil rette datoen pålegget ble mottatt og begynner på en ny versjon av påberopelsen. Datoen kan ikke endres i en ny versjon, som gjengir TEs siste opplysning. Skjemaet anbefaler korrigeringen etter OV-U52, og TE sender den i stedet. Det gjelder også når kravet ble lagt til som korrespondanse. | planlagt | — | #1308, #1309, #807 | — | — |
+| [BF-02C](BF-02C.json) TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen | TE vil rette datoen pålegget ble mottatt og begynner på en ny versjon av grunnlagskravet. Datoen kan ikke endres i en ny versjon, som gjengir TEs siste opplysning. Skjemaet anbefaler korrigeringen, og TE sender den i stedet. En ny versjon etter korrigeringen gjengir den nye datoen med henvisning til brevet med korrigeringen. | kjørbar | kjernen i minnet, testbasen, demoruta | — | — | — |
+| [BF-02D](BF-02D.json) TE korrigerer datoen pålegget ble mottatt i en lukket sak | BH har påberopt at varselet kom for sent og godtatt forholdet subsidiært. TE har godtatt svaret, og saken er lukket. TE korrigerer datoen i et eget brev. Saken står lukket, utfallet endres ikke, og BH kan ta stilling til opplysningen i et innlegg. | kjørbar | kjernen i minnet, testbasen, demoruta | — | F-MM-KORR1 | — |
 | [BF-03](BF-03.json) TE er uenig i svaret og sier i et innlegg at varselet kom i tide | TE har fått BHs svar, der BH prinsipalt gjør gjeldende at varselet kom for sent og subsidiært godkjenner et beløp. TE er uenig, ser hva hver vei videre gjør med svaret, og sier i et innlegg som viser til svaret at varselet kom i tide. Innlegget endrer ikke svaret, og TE kan fortsatt godta det. Etter en aksept kan TE fortsatt sende innlegg. | planlagt | — | #1381, #1377, #1379, #807 | — | [BF-03.md](BF-03.md) |
 | [BF-04](BF-04.json) BH avslår forholdet og påberoper at vederlagsvarselet kom for sent | BH har svart at byggherren ikke har risikoen for forholdet, og svarer på vederlagskravet. BH påberoper at varselet etter punkt 34.1.2 kom for sent og godkjenner subsidiært 60 000 kr. BH ser hvilke innsigelser beløpet bygger på før svaret er ferdig. TE leser svaret og forstår at 60 000 kr bare gjelder hvis verken svaret på forholdet eller påberopelsen av at varselet kom for sent fører fram. | kjørbar | kjernen i minnet, testbasen, demoruta, saksruta, varden | — | — | — |
 | [BF-05](BF-05.json) TE oppretter saken og påberoper forholdet | TE har fått et pålegg som TE mener er en irregulær endring. TE velger «Nytt krav om endringsordre», velger forholdet, skriver tittelen på saken og beskrivelsen av pålegget, oppgir datoen pålegget ble mottatt og kontrollerer brevet før det sendes, så kravet ikke tapes for sent varsel etter punkt 32.2. Før sending ser TE at forholdet står fast. Etter sendingen står saken med påberopelsen sendt og venter på BHs svar. | kjørbar | kjernen i minnet, testbasen, demoruta, saksruta, varden | — | — | [BF-05.md](BF-05.md) |
@@ -68,7 +69,7 @@ på kilden, men har ingen kontroller ennå.
 | [GR-U14](../../plans/vedtak.md#gr-u14) | — | — | BF-06 |
 | [GR-U15](../../plans/vedtak.md#gr-u15) | BF-05 start | BF-05 start | — |
 | [GR-U22](../../plans/vedtak.md#gr-u22) | — | BF-05 start | — |
-| [GR-U27](../../plans/vedtak.md#gr-u27) | — | — | BF-06 |
+| [GR-U27](../../plans/vedtak.md#gr-u27) | BF-02D saken-er-lukket | BF-02A te-har-mottatt-svaret, BF-02D saken-er-lukket | BF-06 |
 | [GR-U31](../../plans/vedtak.md#gr-u31) | — | BF-05 start | — |
 | [GR-U32](../../plans/vedtak.md#gr-u32) | — | — | BF-06 |
 | [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-03, BF-07 |
@@ -115,7 +116,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U28](../../plans/vedtak.md#lv-u28) | — | — | BF-07 |
 | [LV-U31](../../plans/vedtak.md#lv-u31) | — | — | BF-01V |
 | [LV-U32](../../plans/vedtak.md#lv-u32) | — | — | BF-01V |
-| [LV-U35](../../plans/vedtak.md#lv-u35) | — | BF-05 start | — |
+| [LV-U35](../../plans/vedtak.md#lv-u35) | — | BF-02A te-har-mottatt-svaret, BF-05 start | — |
 | [LV-U39](../../plans/vedtak.md#lv-u39) | — | — | BF-01V |
 | [LV-U41](../../plans/vedtak.md#lv-u41) | — | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret, BF-05 start | BF-01V |
 | [LV-U42](../../plans/vedtak.md#lv-u42) | — | — | BF-07 |
@@ -129,23 +130,26 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U50](../../plans/vedtak.md#lv-u50) | — | — | BF-07 |
 | [LV-U51](../../plans/vedtak.md#lv-u51) | — | — | BF-07 |
 | [LV-U52](../../plans/vedtak.md#lv-u52) | — | — | BF-02B, BF-03, BF-07 |
-| [LV-U53](../../plans/vedtak.md#lv-u53) | — | — | BF-02B, BF-03, BF-07 |
+| [LV-U53](../../plans/vedtak.md#lv-u53) | — | BF-02A te-har-mottatt-svaret, BF-02C ny-versjon-etter-korrigeringen | BF-02B, BF-03, BF-07 |
+| [LV-U54](../../plans/vedtak.md#lv-u54) | BF-02C ny-versjon-etter-korrigeringen | BF-02A korrigeringen-er-sendt, BF-02C ny-versjon-etter-korrigeringen | — |
 | [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-07 |
 | [MM-U12](../../plans/vedtak.md#mm-u12) | — | — | BF-01V, BF-03, BF-06 |
-| [MM-U21](../../plans/vedtak.md#mm-u21) | — | BF-05 start | BF-02C, BF-06 |
+| [MM-U21](../../plans/vedtak.md#mm-u21) | — | BF-05 start | BF-06 |
 | [MM-U23](../../plans/vedtak.md#mm-u23) | — | — | BF-01V |
 | [MM-U25](../../plans/vedtak.md#mm-u25) | — | — | BF-01V |
 | [MM-U28](../../plans/vedtak.md#mm-u28) | — | — | BF-01V |
 | [MM-U32](../../plans/vedtak.md#mm-u32) | — | — | BF-01V |
 | [MM-U33](../../plans/vedtak.md#mm-u33) | — | — | BF-01V, BF-03 |
-| [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret | BF-01V, BF-02B, BF-02C, BF-03, BF-06 |
+| [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-02C te-vil-sende-ny-versjon | BF-01V, BF-02B, BF-03, BF-06 |
 | [MM-U35](../../plans/vedtak.md#mm-u35) | — | BF-04 te-har-mottatt-svaret | BF-01V, BF-03, BF-06 |
 | [MM-U36](../../plans/vedtak.md#mm-u36) | — | — | BF-01V, BF-03 |
 | [MM-U37](../../plans/vedtak.md#mm-u37) | — | — | BF-01V, BF-06 |
 | [MM-U38](../../plans/vedtak.md#mm-u38) | — | — | BF-06 |
-| [MM-U41](../../plans/vedtak.md#mm-u41) | — | BF-05 start | BF-02A, BF-02C, BF-06 |
-| [MM-U50](../../plans/vedtak.md#mm-u50) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-godtatt-svaret | BF-01V, BF-03, BF-06, BF-07 |
-| [MM-U52](../../plans/vedtak.md#mm-u52) | — | BF-05 start | BF-02A, BF-02C, BF-06 |
+| [MM-U41](../../plans/vedtak.md#mm-u41) | — | BF-05 start | BF-06 |
+| [MM-U47](../../plans/vedtak.md#mm-u47) | — | BF-02A te-har-mottatt-svaret, BF-02D korrigeringen-er-sendt | — |
+| [MM-U50](../../plans/vedtak.md#mm-u50) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-godtatt-svaret, BF-02A korrigeringen-er-sendt | BF-01V, BF-03, BF-06, BF-07 |
+| [MM-U51](../../plans/vedtak.md#mm-u51) | BF-02D korrigeringen-er-sendt | BF-02A te-har-mottatt-svaret, BF-02D saken-er-lukket, BF-02D korrigeringen-er-sendt | — |
+| [MM-U52](../../plans/vedtak.md#mm-u52) | BF-02A te-har-mottatt-svaret, BF-02A korrigeringen-er-sendt, BF-02C te-vil-sende-ny-versjon, BF-02C ny-versjon-etter-korrigeringen, BF-02D korrigeringen-er-sendt | BF-02A te-har-mottatt-svaret, BF-02A korrigeringen-er-sendt, BF-02C te-vil-sende-ny-versjon, BF-02C ny-versjon-etter-korrigeringen, BF-02D saken-er-lukket, BF-02D korrigeringen-er-sendt, BF-05 start | BF-06 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-01V, BF-07 |
 | [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | — |
@@ -159,8 +163,8 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U32](../../plans/vedtak.md#ov-u32) | BF-04 te-har-mottatt-svaret | BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | — |
 | [OV-U33](../../plans/vedtak.md#ov-u33) | BF-04 te-har-mottatt-svaret | BF-04 bh-har-mottatt-vederlagskravet | — |
 | [OV-U43](../../plans/vedtak.md#ov-u43) | — | — | BF-06 |
-| [OV-U52](../../plans/vedtak.md#ov-u52) | — | BF-05 start | BF-02A, BF-02C |
-| [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-02B, BF-02C, BF-03 |
+| [OV-U52](../../plans/vedtak.md#ov-u52) | — | BF-05 start | — |
+| [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret, BF-02C te-vil-sende-ny-versjon | BF-01 te-har-mottatt-svaret, BF-02C te-vil-sende-ny-versjon | BF-02B, BF-03 |
 | [OV-U55](../../plans/vedtak.md#ov-u55) | — | BF-05 start | — |
 | [OV-U57](../../plans/vedtak.md#ov-u57) | — | BF-05 start | — |
 | [OV-U62](../../plans/vedtak.md#ov-u62) | — | — | BF-01V |
@@ -170,8 +174,8 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U76](../../plans/vedtak.md#ov-u76) | — | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret, BF-05 start | BF-01V |
 | [OV-U77](../../plans/vedtak.md#ov-u77) | — | BF-05 start | — |
 | [OV-U78](../../plans/vedtak.md#ov-u78) | — | BF-05 start | BF-01V |
-| [OV-U79](../../plans/vedtak.md#ov-u79) | — | BF-05 start | BF-01V, BF-02A, BF-02B, BF-02C, BF-03 |
-| [OV-U80](../../plans/vedtak.md#ov-u80) | — | BF-05 start | BF-02A, BF-02B, BF-02C, BF-03, BF-06, BF-07 |
+| [OV-U79](../../plans/vedtak.md#ov-u79) | — | BF-05 start | BF-01V, BF-02B, BF-03 |
+| [OV-U80](../../plans/vedtak.md#ov-u80) | — | BF-05 start | BF-02B, BF-03, BF-06, BF-07 |
 | [OV-U81](../../plans/vedtak.md#ov-u81) | — | — | BF-01V, BF-03 |
 | [OV-U82](../../plans/vedtak.md#ov-u82) | — | BF-05 start | — |
 | [OV-U83](../../plans/vedtak.md#ov-u83) | — | — | BF-01V |
@@ -182,10 +186,11 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U23](../../plans/vedtak.md#vs-u23) | — | — | BF-07 |
 | [VS-U24](../../plans/vedtak.md#vs-u24) | — | — | BF-03 |
 | [VS-U25](../../plans/vedtak.md#vs-u25) | — | BF-05 start | — |
-| [VS-U26](../../plans/vedtak.md#vs-u26) | — | BF-05 start | BF-02A, BF-02C |
+| [VS-U26](../../plans/vedtak.md#vs-u26) | — | BF-05 start | — |
 | [VS-U27](../../plans/vedtak.md#vs-u27) | — | — | BF-07 |
 | [VS-U34](../../plans/vedtak.md#vs-u34) | — | BF-05 start | — |
 | [VS-U35](../../plans/vedtak.md#vs-u35) | — | — | BF-03 |
 | [VS-U38](../../plans/vedtak.md#vs-u38) | — | BF-05 start | — |
 | [VS-U39](../../plans/vedtak.md#vs-u39) | — | BF-05 start | — |
-| [VS-U43](../../plans/vedtak.md#vs-u43) | BF-05 paaberopelsen-er-sendt | — | — |
+| [VS-U43](../../plans/vedtak.md#vs-u43) | BF-02A te-har-mottatt-svaret, BF-05 paaberopelsen-er-sendt | BF-02A te-har-mottatt-svaret | — |
+| [VS-U46](../../plans/vedtak.md#vs-u46) | BF-02A korrigeringen-er-sendt, BF-02D korrigeringen-er-sendt | BF-02A korrigeringen-er-sendt | — |
