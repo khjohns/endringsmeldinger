@@ -70,6 +70,9 @@
   const oversikt = $derived(spor === 'forhold' && lest === null);
   const lestBrev = $derived(lest === null ? undefined : sporbrev.find((b) => b.id === lest));
   const vist = $derived(lestBrev ?? (kanGodta && svarbrevet ? svarbrevet : siste));
+  // På siden for forholdet og i brevet som leses derfra, står handlingene i et kort i høyre
+  // kolonne, på linje med kortet i midten, som i prototypen `grunnlagsoversikt.html`.
+  const iForholdet = $derived(oversikt || lestBrev !== undefined);
 
   async function lesBrevet(id: string) {
     lest = id;
@@ -164,11 +167,10 @@
 <Arbeidsflate>
   {#snippet hoved()}
     {#if oversikt}
-      {#if kanGodta && vist}{@render taStilling()}{/if}
       <Forholdsoversikt {u} onles={lesBrevet} {onspor} />
     {:else if vist}
       {#if lestBrev}
-        <p>
+        <p class="tilbake">
           <Knapp variant="lenke" onclick={tilbakeTilForholdet}>{FORHOLDET.tilbake}</Knapp>
         </p>
       {/if}
@@ -180,7 +182,7 @@
             {dato(vist.sendt ?? vist.registrert)}</span
           >
         </h2>
-        {@render meny()}
+        {#if !iForholdet}{@render meny()}{/if}
       </div>
       {#if kanGodta && !lestBrev}{@render taStilling()}{/if}
       {#if vist.avsnitt}
@@ -206,7 +208,13 @@
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if oversikt}<div class="meny">{@render meny()}</div>{/if}
+    {#if iForholdet}
+      <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
+        <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
+        {#if kanGodta && vist && oversikt}{@render taStilling()}{/if}
+        {@render meny()}
+      </section>
+    {/if}
     {#if stilling && kanGodta && vist}
       <section class="kort" id={`${uid}-stillingspanel`} aria-labelledby={`${uid}-stilling-tittel`}>
         <header class="hode">
@@ -255,9 +263,16 @@
   .linje .dempet {
     font-weight: 400;
   }
-  .meny {
+  /* Lenken står i flukt med overskriften; knappen har luft til siden for treffflaten. */
+  .tilbake {
+    margin-left: calc(-1 * var(--spacing-2));
+  }
+  .handlinger {
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-5);
   }
   .stilling {
     display: flex;

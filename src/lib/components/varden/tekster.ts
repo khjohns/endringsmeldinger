@@ -42,20 +42,20 @@ export const brevtittel = (b: { art?: Brevet['art']; brevtittel: string | null }
   b.brevtittel ?? (b.art === 'registrert' ? 'Korrespondanse' : 'Brev');
 
 /**
- * Henvisningen til et brev i en setning, slik brevteksten omtaler det: «brev K201-KOE-017-03 av
- * 2. oktober 2026», eller «totalentreprenørens e-post av …» for registrert korrespondanse
- * (LV-U53, LV-U42). Har brevet ingen slik omtale, får det ikke en oppdiktet, men nummeret eller
- * datoen det ble registrert.
+ * Henvisningen til et brev i visningen, i kortform: «brev 3», med brevets nummer i saken. Brevet
+ * selv viser til et tidligere brev med merkingen og datoen (LV-U53); visningen er i saken, så
+ * nummeret er nok. Registrert korrespondanse har ikke noe nummer og omtales slik brevteksten gjør
+ * (LV-U42, LV-U45), eller med datoen den ble registrert.
  */
 export const brevref = (b: Brevref) =>
-  b.omtale ?? (b.nummer === null ? `brevet registrert ${dato(b.registrert)}` : `brev ${b.nummer}`);
+  b.nummer !== null ? `brev ${b.nummer}` : (b.omtale ?? `brevet registrert ${dato(b.registrert)}`);
 
 /**
- * Henvisningen med avsenderen: «brev K201-KOE-017-03 av … fra TE». Omtalen av registrert
- * korrespondanse nevner parten selv (LV-U42), så den står ikke to ganger.
+ * Henvisningen med avsenderen: «brev 3 fra TE». Omtalen av registrert korrespondanse nevner
+ * parten selv (LV-U42), så den står ikke to ganger.
  */
 export const brevrefFra = (b: Brevref, part: Part) =>
-  b.omtale && b.art === 'registrert' ? b.omtale : `${brevref(b)} fra ${part}`;
+  b.nummer === null && b.omtale ? b.omtale : `${brevref(b)} fra ${part}`;
 
 /** Henvisningen som begynner en linje: «Brev 3», eller «Brevet registrert …» uten nummer. */
 export const brevrefStor = (b: Brevref) => brevref(b)[0].toUpperCase() + brevref(b).slice(1);
@@ -157,10 +157,10 @@ export const SKJEMA = {
   overskrift: 'Svar på kravet',
   // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
   omSvaret: 'Om svaret',
-  // Omtalen har datoen i seg (LV-U53, LV-U42).
+  // Omtalen av registrert korrespondanse har datoen i seg (LV-U42).
   svarerPaa: (b: Brevref) =>
-    b.omtale
-      ? `Svar på ${brevrefFra(b, 'TE')}`
+    b.nummer === null && b.omtale
+      ? `Svar på ${b.omtale}`
       : `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`,
   lesBrevet: 'Les brevet ved siden av',
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
@@ -182,9 +182,7 @@ export const SKJEMA = {
     // korrespondanse, der omtalen har datoen parten oppgir (LV-U42).
     b.omtale && b.art === 'registrert'
       ? `Kravet om vederlagsjustering står i ${b.omtale}, registrert ${dato(d)}.`
-      : b.omtale
-        ? `Kravet om vederlagsjustering ble sendt med ${b.omtale}.`
-        : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
+      : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
   metodeTittel: 'Beregningsmetode',
   metodeSpoersmaal: (m: unknown) => `TE krever oppgjør etter ${metodenavn(m)}. Godkjenner du det?`,
@@ -342,7 +340,8 @@ const stor = (t: string) => t[0].toUpperCase() + t.slice(1);
 /** Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`, OV-U76–OV-U78). */
 export const FORHOLDET = {
   utenNavn: 'Forholdet',
-  siste: (b: Brevref, part: Part) => `Siste brev: ${brevrefFra(b, part)}.`,
+  siste: (b: Brevref, part: Part) =>
+    `Siste brev: ${brevrefFra(b, part)}${b.nummer === null ? '' : `, ${dato(b.registrert)}`}.`,
   traad: 'Brevene om forholdet',
   tittel: (b: Pick<Brevet, 'nummer' | 'art' | 'brevtittel'>) =>
     b.nummer === null ? brevtittel(b) : `Brev ${b.nummer} · ${brevtittel(b)}`,
@@ -364,6 +363,7 @@ export const FORHOLDET = {
   ingenKrav: 'Ingen krav om vederlagsjustering eller fristforlengelse ennå.',
   aapne: (spor: string) => `Åpne ${spor.toLowerCase()}`,
   trekk: 'Trekk påberopelsen',
+  handlinger: 'Det du kan gjøre nå',
 };
 
 export const SAKEN = {

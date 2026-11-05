@@ -19,7 +19,6 @@ import { kontrollerEtter } from '$kjerne/tester/kjoerer';
 import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
 import Vardensak from '$lib/components/varden/Vardensak.svelte';
 import { ApiError } from '$lib/api/client';
-import { norskDato } from '$kjerne/frosset/brevtekst';
 import { projectStore } from '$lib/stores/project.svelte';
 
 const BF = finn('BF-01');
@@ -34,15 +33,6 @@ const BH_SVARER_I_DAGENS = {
   hovedkrav_varslet_i_tide: false,
   aksepterer_metode: true,
   begrunnelse: `<p>${BEGRUNNELSE}</p>`,
-};
-
-/**
- * Omtalen av brev `n` i forløpet slik brevteksten gir den: «brev K201-KOE-017-02 av <dato>»
- * (LV-U53), med merkingen og datoen som er frosset i startjournalen.
- */
-const omtaleAvBrev = (forloep: string, n: number) => {
-  const rad = finnForloep(forloep)!.journal.find((r) => r.data.brevnummer === n)!;
-  return `brev ${rad.data.merking as string} av ${norskDato(rad.tidsstempel)}`;
 };
 
 const versjonVed = (punkt: string) => START.kontrollpunkter.find((p) => p.id === punkt)!.versjon;
@@ -160,8 +150,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(avsnittene(mottatt)).toEqual(vist);
     await fireEvent.click(screen.getByRole('button', { name: 'Ta stilling til svaret' }));
     const panelet = screen.getByRole('region', {
-      // LV-U53: panelet omtaler svaret med merkingen kjernen frøs i det, ikke versjonen.
-      name: `Ta stilling til svaret i brev ${svaret.data.merking as string} av ${norskDato(svaret.tidsstempel)}`,
+      // Visningen viser til brevet med nummeret i saken, ikke versjonen (oppdragsgiver 05.11 i #1631).
+      name: 'Ta stilling til svaret i brev 4',
     });
     // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den.
     expect(panelet.textContent).toMatch(
@@ -312,9 +302,9 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    // LV-U53: svaret på grunnlaget er brev 2 i saken (versjon 3, etter `sak_opprettet`), omtalt
-    // med merkingen.
-    const AVSLAGET = `avslaget av forholdet i ${omtaleAvBrev('BF-04', 2)} ikke fører frem`;
+    // Svaret på grunnlaget er brev 2 i saken (versjon 3, etter `sak_opprettet`), i kortform
+    // (oppdragsgiver 05.11 i #1631).
+    const AVSLAGET = 'avslaget av forholdet i brev 2 ikke fører frem';
 
     // S1-A: et ubesvart varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende.
     expect(forutsetningene()).toEqual([AVSLAGET]);
@@ -333,7 +323,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       screen.getByRole('region', { name: 'Hovedlinjene i svaret' })
     ).getAllByRole('listitem');
     expect(linjer[0].textContent!.replace(/\s+/g, ' ').trim()).toBe(
-      `prinsipalt Du har avslått forholdet i ${omtaleAvBrev('BF-04', 2)}`
+      'prinsipalt Du har avslått forholdet i brev 2'
     );
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
   });
@@ -356,8 +346,8 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    // LV-U53: merkingen, ikke versjonen i journalen.
-    const AVSLAGET = [`avslaget av forholdet i ${omtaleAvBrev('BF-04', 2)} ikke fører frem`];
+    // Nummeret i saken, ikke versjonen i journalen (oppdragsgiver 05.11 i #1631).
+    const AVSLAGET = ['avslaget av forholdet i brev 2 ikke fører frem'];
     const VARSEL = 'Kom varselet om kravet i tide?';
     const METODE = /Godkjenner du det\?$/;
 

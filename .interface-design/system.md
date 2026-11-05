@@ -175,6 +175,11 @@ vedtaksregisteret (#1534).
   oversiktene over vederlag og frist står det om den gjeldende versjonen av kravet. Hva forholdet
   heter i visningen, står i [U-9 i BF-05](../docs/domenetabell/brukerforlop/BF-05.md#u-9). Posten
   endrer ingen vedtak.
+- **Visningen viser til et brev i saken i kortform**, med brevets nummer i saken: «brev 5»,
+  «Siste: brev 5 fra BH». Merkingen og datoen står i brevhodet og i brevet selv, der brevteksten
+  viser til et tidligere brev etter [LV-U53](../docs/plans/vedtak.md#lv-u53). Registrert
+  korrespondanse uten nummer omtales som i brevteksten, med parten, typen og datoen (LV-U42).
+  Tekstene står i `brevref` i `src/lib/components/varden/tekster.ts` (oppdragsgiver 05.11, #1631).
 
 ## Kravene, sporene og handlingene
 

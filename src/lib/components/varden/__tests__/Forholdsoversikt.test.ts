@@ -94,7 +94,7 @@ describe('Siden for forholdet', () => {
       /^Totalentreprenøren · \d+\. \w+ 2026 · K201-/
     );
     expect(brev[1].textContent).toContain('Svar ikke registrert.');
-    expect(screen.getByText(/^Siste brev: brev .* fra TE\.$/)).toBeTruthy();
+    expect(screen.getByText(/^Siste brev: brev 1 fra TE, \d+\. \w+ 2026\.$/)).toBeTruthy();
   });
 
   it('tråden har begge partenes brev og den registrerte korrespondansen med datoen avsenderen oppgir og infotipset (kriterium 2, OV-U85, OV-U81)', async () => {

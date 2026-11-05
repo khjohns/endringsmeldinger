@@ -115,10 +115,6 @@
     color: var(--ink);
     z-index: 1;
   }
-  .registrert .part {
-    border-radius: var(--r-kort);
-    border-style: dashed;
-  }
   .hode {
     display: grid;
     grid-template-columns: 1fr auto;

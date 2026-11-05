@@ -38,7 +38,9 @@
   <header class="sporhode">
     {#if forholdet}<p class="over">{forholdet.gruppe}</p>{/if}
     <h2 id={`${uid}-tittel`}>{forholdet?.navn ?? FORHOLDET.utenNavn}</h2>
-    {#if siste}<p class="siste">{FORHOLDET.siste(siste, siste.avsender)}</p>{/if}
+    {#if siste && siste !== trekket}<p class="siste">
+        {FORHOLDET.siste(siste, siste.avsender)}
+      </p>{/if}
     {#if trekket !== undefined}
       <p class="trukket" role="note">{FORHOLDET.trukket(trekket)}</p>
     {/if}
@@ -65,6 +67,7 @@
     border-bottom: var(--rule-subtle);
   }
   .over {
+    margin-bottom: var(--spacing-1);
     font-size: 12px;
     color: var(--ink-3);
   }
