@@ -166,7 +166,10 @@ Klassene for postene som fantes 03.11, kommer fra tabellen i
 - **Forholdene** `samler` og `bygger på` (svar 4 og 5 04.11 i #1534) står i Følge som
   `Samler [X](#x).` og `Samlet 12.11 av [Y](#y).`, og `Bygger på [X](#x).` og
   `Lagt til grunn 12.11 av [Y](#y).`. Et samlevedtak opphever ikke det det samler, så
-  en henvisning til den gamle posten gjelder samlevedtaket. Leseren av Følge i en
+  en henvisning til den gamle posten gjelder samlevedtaket. Unntaket er når samlevedtaket
+  sier at innholdet i den gamle posten nå står i samlevedtaket («henvisningene gjelder
+  samlevedtaket»). Da opphever det også den gamle posten ([OV-U92](../plans/vedtak.md#ov-u92)
+  (a)). Leseren av Følge i en
   importert post kjenner bare de fem eldre forholdene. En importert post kan også få
   `samler` og `bygger på`, og da skriver verktøyet dem som i en ny post, uten dato i den
   passive formen (M2 A 04.11 i
