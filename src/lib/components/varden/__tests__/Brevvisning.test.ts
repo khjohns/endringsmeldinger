@@ -9,6 +9,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import Brev from '$lib/components/varden/Brev.svelte';
 import Infotips from '$lib/components/varden/Infotips.svelte';
+import { SKJEMA } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
@@ -86,5 +87,25 @@ describe('Infotipset', () => {
     expect(knapp.getAttribute('aria-expanded')).toBe('true');
     await fireEvent.pointerDown(document.body);
     expect(knapp.getAttribute('aria-expanded')).toBe('false');
+  });
+});
+
+describe('Henvisningen til kravbrevet i svarskjemaet', () => {
+  const kravbrev = {
+    id: 'k1',
+    nummer: 2,
+    registrert: '2026-10-02T08:00:00Z',
+    omtale: 'brev K201-KOE-017-02 av 2. oktober 2026',
+  };
+
+  it('omtaler brevet slik brevteksten gjør, uten parten og datoen en gang til (LV-U53, U-6 i BF-07)', () => {
+    expect(SKJEMA.svarerPaa(kravbrev)).toBe('Svar på brev K201-KOE-017-02 av 2. oktober 2026');
+    expect(SKJEMA.kravSendt(kravbrev.registrert, kravbrev)).toBe(
+      'Kravet om vederlagsjustering ble sendt med brev K201-KOE-017-02 av 2. oktober 2026.'
+    );
+  });
+
+  it('et brev uten omtale får nummeret, parten og datoen', () => {
+    expect(SKJEMA.svarerPaa({ ...kravbrev, omtale: null })).toMatch(/^Svar på brev 2 fra TE · /);
   });
 });
