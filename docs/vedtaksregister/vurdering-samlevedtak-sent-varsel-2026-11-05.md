@@ -493,10 +493,10 @@ et krav det den ikke avgjør for et varsel. *Hva det koster motparten:* mener to
 byggherren er bundet av et «i tide» om et krav, må totalentreprenøren gjøre det gjeldende selv,
 slik som for et varsel etter vedtaket fra 28.10. Med B gjelder ulike regler for varsel og krav, og
 en sperre må bygges. *Hva B koster byggherren selv:* har byggherren sagt «i tide» ved en feil,
-eller er byggherren løst fra utsagnet, kan påberopelsen ikke uttrykkes i løsningen, fordi et
-registrert brev ikke gir noe standpunkt (punkt 12) og et innlegg ikke tolkes (MM-U47 punkt 4), så
-løsningen leser fortsatt «i tide», og det lønner seg aldri å si «i tide» uttrykkelig, fordi
-taushet ikke binder (punkt 4).
+eller er byggherren løst fra utsagnet, kan påberopelsen ikke uttrykkes i løsningen. Et registrert
+brev gir ikke noe standpunkt (punkt 12; MM-U43 punkt 9), og et innlegg tolkes ikke (MM-U47 punkt
+4), så løsningen leser fortsatt «i tide». Taushet gir ikke sperren i løsningen (punkt 4), så med B
+binder et uttrykkelig «i tide» byggherren i løsningen, mens taushet ikke gjør det.
 
 *Hva valget styrer:* punkt 13 i VS-U46, HF-U4 for byggherren, MM-U43 punkt 11, og om løsningen
 skal avvise byggherrens påberopelse etter et «i tide» om et krav eller svar.
@@ -537,9 +537,10 @@ avgjør for den andre. *Hva det koster motparten:* mener byggherren at totalentr
 av et «i tide», må byggherren gjøre det gjeldende selv. Med B gjelder ulike regler for partene, og
 en sperre må bygges når totalentreprenøren kan svare på krav. *Hva B koster totalentreprenøren
 selv:* har totalentreprenøren sagt «i tide» ved en feil, eller er totalentreprenøren løst fra
-utsagnet, kan påberopelsen ikke uttrykkes i løsningen, fordi et registrert brev ikke gir noe
-standpunkt (punkt 12) og et innlegg ikke tolkes (MM-U47 punkt 4), så løsningen leser fortsatt «i tide», og
-det lønner seg aldri å si «i tide» uttrykkelig, fordi taushet ikke binder (punkt 4).
+utsagnet, kan påberopelsen ikke uttrykkes i løsningen. Et registrert brev gir ikke noe standpunkt
+(punkt 12; MM-U43 punkt 9), og et innlegg tolkes ikke (MM-U47 punkt 4), så løsningen leser
+fortsatt «i tide». Taushet gir ikke sperren i løsningen (punkt 4), så med B binder et uttrykkelig
+«i tide» totalentreprenøren i løsningen, mens taushet ikke gjør det.
 
 *Hva valget styrer:* punkt 13 og 19 i VS-U46, HF-U4 for totalentreprenøren, MM-U43 punkt 10, og om
 løsningen skal avvise totalentreprenørens påberopelse etter et «i tide».
