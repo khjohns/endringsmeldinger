@@ -1980,8 +1980,9 @@ Teksten for de forkastede alternativene 2 B og 3 B er tatt ut. Samlevedtaket sam
 [VS-U23](#vs-u23), [VS-U27](#vs-u27), [VS-U29](#vs-u29), [VS-U30](#vs-u30), [VS-U31](#vs-u31),
 [VS-U32](#vs-u32), [VS-U33](#vs-u33) og [VS-U36](#vs-u36), som gjelder som «Samlet i samlevedtaket
 for spesifisering». Delen om punkt 34.3.3 første ledd i VS-U4 står (svar 1 A). Et krav om dager som
-TE har registrert med utfylt kravskjema, stopper forespørselen (svar 2 A). Påberopelsen etter punkt
-33.6.1 i et registrert svar kan stå uten tall (svar 3 A).
+TE har registrert med utfylt kravskjema, stopper forespørselen som et krav fremmet i løsningen (svar 2 A). Sier et registrert svar
+ikke hvor mange dager byggherren mener byggherren måtte forstå at TE hadde krav på, fylles påberopelsen etter punkt
+33.6.1 ut i svarskjemaet uten tall (svar 3 A).
 
 ###### Forslaget
 
