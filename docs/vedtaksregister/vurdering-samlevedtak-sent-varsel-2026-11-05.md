@@ -10,7 +10,7 @@ OV-U7, OV-U65, VS-U1, VS-U9, VS-U11, VS-U14, VS-U20, VS-U24 og VS-U35. MM-U27 st
 
 Formen følger svar 4, 7, 8 og 10 og runde 10 i #1534: kilde for hver setning, lista «Endret
 innhold», «samler» for de gamle ID-ene og en uavhengig kontroll av klassene. Den foreløpige ID-en
-for samlevedtaket er VS-U46. Svarene på spørsmål 2a og 2b føres i samlevedtaket. De kontrolleres mot `main` ved
+for samlevedtaket er VS-U46. Svarene på spørsmål 2a og 2b og oppfølgingsspørsmål 3 og 4 føres i samlevedtaket. De kontrolleres mot `main` ved
 skrivingen.
 
 Sitatene fra NS 8407 er kontrollert mot teksten i `khjohns/kontrakt` og gjengis ikke her (#424).
@@ -555,6 +555,12 @@ etter svarene på spørsmål 1, 2a og 2b. Orkestratoren avgjorde 05.11 at funnet
 teknisk retting. Rettet 05.11 etter prøvingen av spørsmålet (kommentaren «Prøving av
 oppfølgingsspørsmål 3» i PR #1593). Lagret ordrett før det stilles.
 
+Teksten er slik den ble lagt fram for oppdragsgiver 05.11
+([PR #1593, 6653058150](https://github.com/khjohns/endringsmeldinger/pull/1593#issuecomment-6653058150)),
+med de to tekstlige rettingene fra kontrollen: «sperren i punkt 19» for «sperren etter 2b» tre
+steder, og «punkt 19 får en ny andre setning, foran «Påberopelsen i TEs svar …»:» for «punkt 19
+får som andre setning:».
+
 **3. Gir totalentreprenøren opp sin påberopelse av sent varsel ved å si at det kom i tide?**
 Bakgrunn: Punkt 19 i samlevedtaket sier at punkt 10 og 12 gjelder tilsvarende når totalentreprenøren
 påberoper at et varsel, krav eller svar fra byggherren kom for sent. Punkt 10 og 12 sier at
@@ -602,15 +608,15 @@ avvises i første versjon (OV-U1).»
   et uttrykkelig «i tide» gir opp påberopelsen, og andre setning i punkt 6, som er vår slutning i
   E1. Innholdet i VS-U14 er ikke endret.» Totalentreprenørens påberopelse er oppgitt bare når
   totalentreprenøren uttrykkelig gir den opp. TE kan fortsatt si «i tide» i et senere svar (punkt
-  10), og da gjelder sperren etter 2b. Har totalentreprenøren sagt at det kom i tide etter å ha
+  10), og da gjelder sperren i punkt 19. Har totalentreprenøren sagt at det kom i tide etter å ha
   påberopt at det kom for sent, står påberopelsen, og løsningen gjentar den i neste svar (punkt 9).
-  Gjentakelsen er ikke en ny påberopelse, og sperren etter 2b avviser den ikke. Sperren avviser en
+  Gjentakelsen er ikke en ny påberopelse, og sperren i punkt 19 avviser den ikke. Sperren avviser en
   ny påberopelse av det samme. Forhold: tar opp igjen for dette det VS-U14 forkastet, «ulike regler
   for partene».»
 - **Y (anbefalt):** «Et uttrykkelig «i tide» gir opp totalentreprenørens påberopelse etter samme
   bestemmelse. Punkt 19, første setning, lyder: «Det punkt 1, 3–5, 6 første setning, 9, 10 og 12
   sier, gjelder tilsvarende når TE påberoper at et varsel, krav eller svar fra byggherren kom for
-  sent, fordi punkt 5 tredje ledd gjelder «en part».» og punkt 19 får som andre setning: «Har TE i et
+  sent, fordi punkt 5 tredje ledd gjelder «en part».» og punkt 19 får en ny andre setning, foran «Påberopelsen i TEs svar …»: «Har TE i et
   brev sendt fra løsningen uttrykkelig sagt at byggherrens varsel, krav eller svar kom i tide etter
   en bestemmelse, er påberopelsen etter samme bestemmelse oppgitt (punkt 10 og 12).» E9 lyder: «**E9
   Hva som gjelder for TE.** Gammel tekst: VS-U14 s1 «VS-U9 og VS-U11 gjelder tilsvarende når TE
@@ -622,7 +628,7 @@ avvises i første versjon (OV-U1).»
   påberopelsen etter samme bestemmelse, kommer fra VS-U20 tredje setning og er en utvidelse.
   Innholdet er endret. Forholdet: utvider VS-U14 og VS-U20 tredje setning til TE.» Har
   totalentreprenøren sagt at det kom i tide etter å ha påberopt at det kom for sent, er
-  påberopelsen etter samme bestemmelse oppgitt, og sperren etter 2b avviser en ny påberopelse av
+  påberopelsen etter samme bestemmelse oppgitt, og sperren i punkt 19 avviser en ny påberopelse av
   det samme. Forhold: utvider VS-U14 og VS-U20 tredje setning til totalentreprenøren.»
 
 *Belegg:* Vedtaket fra 12.10 (VS-U20, tredje setning): «Appen leser den som oppgitt bare når
@@ -655,15 +661,54 @@ tar opp igjen ulike regler for partene på et punkt til.
 *Hva valget styrer:* punkt 19 og E9 i VS-U46, forholdet til VS-U14 og VS-U20, og hva løsningen leser
 når totalentreprenøren sier «i tide» etter å ha påberopt at noe kom for sent.
 
+## Oppfølgingsspørsmål 4 (sperren for TE)
+
+Skrevet 05.11 av orkestratoren etter svaret «Y» på oppfølgingsspørsmål 3 og spørsmålet fra
+oppdragsgiver om 2b ([#1534, 6653185302](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6653185302)).
+Alternativ A er 2b A ordrett. Lagret ordrett før det ble stilt
+([PR #1593, 6653190488](https://github.com/khjohns/endringsmeldinger/pull/1593#issuecomment-6653190488)).
+
+**4. Skal sperren for totalentreprenøren (svaret på 2b, B) stå?**
+
+Bakgrunn: Ja, 2b B strider mot prinsippet om at løsningen ikke låser. Y gjør det ikke. Y leser bare det totalentreprenøren uttrykkelig har sagt, slik VS-U20 tredje setning gjør for byggherren. Det er 2b B som låser: løsningen avviser en senere påberopelse fra totalentreprenøren etter et «i tide». Det er dette «Hva B koster totalentreprenøren selv» i 2b beskrev. Har totalentreprenøren sagt «i tide» ved en feil, eller er totalentreprenøren løst fra utsagnet, kan påberopelsen ikke uttrykkes i løsningen igjen. For byggherren valgte svaret på 2a det motsatte, i tråd med vedtaket om binding (HF-U6 slik MM-U34 punkt 5 endret den): «Løsningen avgjør ikke om parten er bundet av et tidligere utsagn (MM-U12).»
+
+- **A (anbefalt):** svaret på 2b endres til A, ordrett: «Totalentreprenøren er ikke sperret av et tidligere «i tide». Har totalentreprenøren uttrykkelig sagt at byggherrens varsel, krav eller svar kom i tide etter en bestemmelse, eller uttrykkelig gitt opp påberopelsen mot det, kan totalentreprenøren senere påberope at det samme kom for sent etter samme bestemmelse. Løsningen trekker ikke konklusjonen og avgjør ikke om totalentreprenøren er bundet av det tidligere standpunktet. Punkt 13 i samlevedtaket gjelder da også for totalentreprenøren. Forhold: endrer HF-U4 første, andre og sjuende setning, som ikke lenger gjelder for totalentreprenøren. Er 2a også besvart med A, endrer det MM-U43 punkt 10, som da ikke har noen påberopelse å kontrollere.» B i 2b forkastes. Med Y betyr det: et uttrykkelig «i tide» fra totalentreprenøren gir opp påberopelsen etter samme bestemmelse, men totalentreprenøren kan påberope det samme på nytt, og den nye påberopelsen har sitt eget tidspunkt. Om den er virksom, avgjør partene. Punkt 19 tar da med punkt 13 og hele punkt 6. Setningen i Y om sperren («og sperren i punkt 19 avviser en ny påberopelse av det samme») tas ut, og forholdet «tar opp igjen … «ulike regler for partene»» faller bort.
+- **B:** svaret på 2b står. Sperren for totalentreprenøren er et bevisst unntak fra at løsningen ikke låser. Y står slik den ble valgt.
+
+*Belegg:* HF-U6 slik MM-U34 punkt 5 endret den (sitert over). MM-U34 punkt 6: «Sperren mot at byggherren senere påberoper at et varsel kom for sent etter å ha sagt at varselet kom i tide, oppheves.» VS-U14 forkastet «ulike regler for partene».
+
+*Anbefaling:* A. Partene får samme regel, løsningen låser ikke, og den avgjør ikke om en part er bundet av et tidligere utsagn. Det var også anbefalingen i 2b.
+
+*Hva det koster:* Med A må byggherren selv gjøre gjeldende at totalentreprenøren er bundet av et «i tide» eller en oppgitt påberopelse, slik totalentreprenøren må gjøre overfor byggherren etter 2a. Med B kan totalentreprenøren ikke rette et «i tide» i løsningen.
+
+*Hva valget styrer:* punkt 19 og E9 i VS-U46, forholdene til HF-U4, MM-U43 punkt 10 og VS-U14, og om det skal bygges en sperre for totalentreprenøren.
+
 ## Svarene
 
 Oppdragsgiver svarte 05.11. Spørsmål 1, ordrett: «Samlevedtal: A»
 ([#1534, 6652595006](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6652595006)).
 Spørsmål 2a og 2b, ordrett: «2a A og 2b B»
 ([#1534, 6652447530](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6652447530)).
-Valgt er 1 A, 2a A og 2b B, og 1 B, 2a B og 2b A er forkastet. Ingen punkter er rettet.
+Oppfølgingsspørsmål 3, ordrett: «Y, og hovedregelen som foreslått. Jeg tenker: Y, for TE: Ulempen
+ved å registrere feil gjelder alle felter som kan registreres i appen. Men appen låser som
+hovedregel ikke - det er opp til partene å vurdere rettsvirkninger, herunder muligheten til å kalle
+tilbake noe som er tidligere meddelt. Strider dette mot svaret mitt på 2b, sperren for TE?»
+([#1534, 6653185302](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6653185302)).
+«Hovedregelen» gjelder #1595 og føres ikke her. Oppfølgingsspørsmål 4, ordrett: «4A»
+([#1534, 6653275490](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6653275490)).
 
-VS-U46 var ledig på `main`. Samlevedtaket er ført i `vedtak.toml` i PR #1593, med teksten i 2a A
-i punkt 13 og teksten i 2b B i punkt 19, uten «Forhold:» (orkestratorens arbeidsvalg 05.11,
-[#1534, 6652735878](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6652735878)).
-Punkt 19 og E9 står som i forslaget til oppfølgingsspørsmål 3 er besvart.
+Valgt er 1 A, 2a A, 2b A (etter spørsmål 4), 3 Y og 4 A. Forkastet er 1 B, 2a B, 2b B, 3 X og 4 B.
+Svaret «2b B» og setningen «2b: B er valgt, og A er forkastet. Sperren står for
+totalentreprenøren.» gjelder ikke lenger (4 A). Ingen punkter er rettet.
+
+VS-U46 var ledig på `main`. Samlevedtaket er ført i `vedtak.toml` i PR #1593:
+
+- Punkt 13 har teksten i 2a A ordrett, uten «Forhold:» (orkestratorens arbeidsvalg 05.11,
+  [#1534, 6652735878](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6652735878)).
+  Delen av arbeidsvalget om at punkt 19 får 2b B, gjelder ikke lenger (4 A).
+- Punkt 19 har første setning og den nye andre setningen fra Y, med punkt 13 og hele punkt 6 tatt
+  med etter 4 A, og til slutt teksten i 2b A ordrett, uten «Forhold:». Setningen i Y om sperren er
+  tatt ut (4 A).
+- E9 er teksten i Y, ført etter 4 A som beskrevet i PR #1593.
+- Forholdene er de i 1 A, 2a A, 2b A og Y. Forholdene i 2b B og forholdet «tar opp igjen … «ulike
+  regler for partene»» er falt bort (4 A).
