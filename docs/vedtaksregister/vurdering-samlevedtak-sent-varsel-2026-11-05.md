@@ -709,6 +709,10 @@ VS-U46 var ledig på `main`. Samlevedtaket er ført i `vedtak.toml` i PR #1593:
 - Punkt 19 har første setning og den nye andre setningen fra Y, med punkt 13 og hele punkt 6 tatt
   med etter 4 A, og til slutt teksten i 2b A ordrett, uten «Forhold:». Setningen i Y om sperren er
   tatt ut (4 A).
-- E9 er teksten i Y, ført etter 4 A som beskrevet i PR #1593.
+- E9 er teksten i Y, uten leddet «, og heller ikke andre setning i punkt 6, som er vår slutning i
+  E1», og med «, og punkt 13 (spørsmål 4)» etter «…som også har VS-U20 tredje setning»
+  (orkestratorens arbeidsvalg 05.11,
+  [#1534, 6654067769](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6654067769)).
+  En siste setning sier hva 4 A tar med og tar ut.
 - Forholdene er de i 1 A, 2a A, 2b A og Y. Forholdene i 2b B og forholdet «tar opp igjen … «ulike
   regler for partene»» er falt bort (4 A).

@@ -1623,8 +1623,13 @@ henvisningen til § 1 første ledd. Innholdet er ikke endret.
 **E9 Hva som gjelder for TE.** Gammel tekst: VS-U14 s1 «VS-U9 og VS-U11 gjelder tilsvarende når TE
 mottar et varsel, krav eller svar fra byggherren og påberoper at det kom for sent, fordi § 5
 tredje ledd gjelder «en part».» Samlevedtaket: punkt 19, som nevner punktene i samlevedtaket som
-kommer fra VS-U9 og VS-U11. Punkt 2 og 7 (VS-U24 og VS-U20) gjelder byggherrens svar og er ikke
-tatt med. Innholdet er ikke endret.
+kommer fra VS-U9 og VS-U11, og punkt 10 og 12, som også har VS-U20 tredje setning, og punkt 13
+(spørsmål 4). Punkt 2 og 7 (VS-U24 og VS-U20 første setning) gjelder byggherrens svar og er ikke
+tatt med. At et uttrykkelig «i tide» fra TE gir opp påberopelsen etter samme bestemmelse, kommer
+fra VS-U20 tredje setning og er en utvidelse. Innholdet er endret. Forholdet: utvider VS-U14 og
+VS-U20 tredje setning til TE. Etter svaret 4A på oppfølgingsspørsmål 4 tar punkt 19 med punkt 13
+og hele punkt 6, og setningen om sperren («og sperren i punkt 19 avviser en ny påberopelse av det
+samme») er tatt ut av teksten fra svaret på oppfølgingsspørsmål 3.
 
 **E10 Registrerte svar (OV-U4).** Gammel tekst: VS-U11 s6 «Appen utleder ikke at innsigelsen er
 oppgitt av taushet alene (HF-U1): et registrert svar som ikke sier noe om rettidigheten, leses med
