@@ -1060,7 +1060,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("hf-u12", "presiserer", "eo-u9", "#1534, steg 4"),
         ("hf-u22", "presiserer", "hf-u17", "#1534, steg 4"),
         ("hf-u7", "bygger på", "ka-u26", "#1534, steg 4"),
-        ("hf-u7", "presiserer", "ka-u24", "#1534, steg 4"),
         ("hf-u9", "presiserer", "gr-u2", "#1534, steg 4"),
         ("hf-u9", "presiserer", "ka-u7", "#1534, steg 4"),
         ("hf-u9", "snevrer inn", "eo-u2", "#1534, steg 4"),
@@ -1068,8 +1067,6 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ka-u12", "presiserer", "eo-u5", "#1534, steg 4"),
         ("ka-u13", "snevrer inn", "ka-u7", "#1534, steg 4"),
         ("ka-u20", "presiserer", "ka-u7", "#1534, steg 4"),
-        ("ka-u31", "snevrer inn", "ka-u24", "#1534, steg 4"),
-        ("ka-u41", "presiserer", "ka-u24", "#1534, steg 4"),
         ("lv-u31", "presiserer", "hf-u14", "#1534, steg 4"),
         ("mm-u30", "presiserer", "mm-u29", "#1534, steg 4"),
         ("mm-u34", "endrer", "ka-u26", "#1534, steg 4"),
@@ -1082,15 +1079,12 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("ov-u3", "bygger på", "eo-u2", "#1534, steg 4"),
         ("ov-u3", "bygger på", "eo-u5", "#1534, steg 4"),
         ("ov-u3", "endrer", "ka-u3", "#1534, steg 4"),
-        ("ov-u4", "endrer", "ka-u24", "#1534, steg 4"),
         ("ov-u43", "presiserer", "mm-u28", "#1534, steg 4"),
         ("ov-u43", "utvider", "eo-u5", "#1534, steg 4"),
         ("ov-u43", "utvider", "ka-u7", "#1534, steg 4"),
         ("ov-u55", "snevrer inn", "eo-u5", "#1534, steg 4"),
         ("ov-u6", "bygger på", "eo-u6", "#1534, steg 4"),
         ("ov-u6", "bygger på", "eo-u9", "#1534, steg 4"),
-        ("ov-u80", "bygger på", "ka-u24", "#1534, steg 4"),
-        ("vs-u13", "bygger på", "ka-u24", "#1534, steg 4"),
     }
 )
 _AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
