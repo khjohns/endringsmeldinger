@@ -26,6 +26,7 @@ import {
   SPOR as SPORENE,
   VARSELSPOR,
   type Kravspor,
+  type OppgittDatofelt,
   type Opplysningsslag,
   type Spor,
   type Varselhjemmel,
@@ -159,6 +160,17 @@ export type Kommando = (
       sendt?: string;
       korrespondansetype?: Korrespondansetype;
       dokumentasjon?: string[];
+    }
+  /**
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TE korrigerer sin opplysning
+   * etter VS-U26 i et eget brev. `gjelder` er elementet med TEs siste opplysning, og datoen står
+   * i feltet kravet har for kategorien.
+   */
+  | {
+      type: 'korrigering';
+      gjelder: string;
+      paalegg_mottatt?: string;
+      klar_over_forholdet?: string;
     }
 ) &
   Brevtekst;
@@ -304,7 +316,31 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     },
     ['type', 'gjelder']
   ),
+  korrigering: objekt(
+    {
+      type: { const: 'korrigering' },
+      gjelder: ID,
+      paalegg_mottatt: DATO,
+      klar_over_forholdet: DATO,
+      ...BREVTEKST,
+    },
+    ['type', 'gjelder'],
+    [
+      { required: ['paalegg_mottatt'], properties: { klar_over_forholdet: { enum: [] } } },
+      { required: ['klar_over_forholdet'], properties: { paalegg_mottatt: { enum: [] } } },
+    ]
+  ),
 };
+
+/** Feltet og datoen i korrigeringen. Formen har nøyaktig ett av feltene. */
+export function korrigertDato(k: Extract<Kommando, { type: 'korrigering' }>): {
+  felt: OppgittDatofelt;
+  dato: string;
+} {
+  return k.paalegg_mottatt !== undefined
+    ? { felt: 'paalegg_mottatt', dato: k.paalegg_mottatt }
+    : { felt: 'klar_over_forholdet', dato: k.klar_over_forholdet! };
+}
 
 type Innhold = Record<string, unknown>;
 
@@ -427,6 +463,13 @@ export function formfeil(kommando: unknown): string[] {
     else if ('dokumentasjon' in k)
       // KA-U34: brevet fra appen har bare setningen og teksten.
       feil.push('$.dokumentasjon: bare en registrert begrunnelse har vedlegg');
+  }
+  if (type === 'korrigering' && !feil.length) {
+    const { felt, dato } = korrigertDato(
+      kommando as unknown as Extract<Kommando, { type: 'korrigering' }>
+    );
+    if (!erKalenderdato(dato))
+      feil.push(`$.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
   }
   return feil;
 }

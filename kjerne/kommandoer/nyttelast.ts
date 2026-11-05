@@ -13,7 +13,7 @@ import { norskDato } from '../frosset/brevtekst.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato, tekst } from '../format/skjema.ts';
-import type { Kommando, Svarutkast } from './kommando.ts';
+import { korrigertDato, type Kommando, type Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
@@ -27,6 +27,7 @@ import {
 import {
   datoenKravetBleSendt,
   foresporselForFristsvar,
+  sisteDatoopplysning,
   type Utledning,
 } from '../utledning/utled.ts';
 import type { Avvisning, Krav, Part, Standpunkt } from '../typer.ts';
@@ -188,6 +189,46 @@ function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): A
 }
 
 /**
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): en ny grunnlagsversjon kan ikke
+ * endre datoen etter VS-U26, og gjengir TEs siste opplysning. Datoen endres i en korrigering.
+ */
+function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+  if (k.spor !== 'forhold') return null;
+  const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
+  const siste = felt === null ? null : sisteDatoopplysning(u, felt);
+  if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;
+  return avvis(
+    'DATOEN_KAN_IKKE_ENDRES',
+    `En ny versjon av grunnlaget kan ikke endre datoen ${DATOEN_GJELDER[felt]}. TEs siste opplysning er ${norskDato(siste.dato)}. Datoen korrigeres i et eget brev.`
+  );
+}
+
+/**
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): korrigeringen har datoen
+ * kategorien har, og endrer TEs siste opplysning (arbeidsvalget i avgrensningen av #1308).
+ * Forutsetningene har kontrollert at den viser til den siste opplysningen.
+ */
+function kontrollerKorrigering(
+  k: Extract<Kommando, { type: 'korrigering' }>,
+  u: Utledning
+): Avvisning | null {
+  const { felt, dato } = korrigertDato(k);
+  const krav = u.spor.forhold.gjeldendeKrav!;
+  const kategoriensFelt = oppgittDato(krav.innhold.hovedkategori, krav.innhold.underkategori);
+  if (felt !== kategoriensFelt)
+    return avvis(
+      'UGYLDIG_KORRIGERING',
+      `I kategorien i grunnlaget oppgir TE datoen ${DATOEN_GJELDER[kategoriensFelt!]}, ikke datoen ${DATOEN_GJELDER[felt]}.`
+    );
+  return sisteDatoopplysning(u, felt)?.dato === dato
+    ? avvis(
+        'DATOEN_ER_UENDRET',
+        `TE har alt oppgitt at ${DATOEN_GJELDER[felt]} ${norskDato(dato)}. Korrigeringen må oppgi en annen dato.`
+      )
+    : null;
+}
+
+/**
  * KA-U34: en begrunnelse fra appen må ha teksten. Appen kontrollerer at den finnes,
  * ikke hva den sier (KA-U19). En registrert begrunnelse har ingen (KA-U35).
  */
@@ -240,6 +281,10 @@ function oppgittDatoI(k: Kommando): OppgittDato | null {
     return k.sendt === undefined
       ? null
       : { dato: k.sendt, gjelder: 'brevet med begrunnelsen ble sendt', av: 'Byggherren' };
+  if (k.type === 'korrigering') {
+    const { felt, dato } = korrigertDato(k);
+    return { dato, gjelder: DATOEN_GJELDER[felt], av: 'TE' };
+  }
   if (k.type !== 'krav') return null;
   if (k.spor === 'frist')
     return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null;
@@ -317,7 +362,7 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const sperre = kategorisperre(k, u);
+      const sperre = kategorisperre(k, u) ?? datosperre(k, u);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;
@@ -437,5 +482,7 @@ export function nyttelastkontroll(
       // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39) bygges ikke.
       return utdypningKreves ? begrunnelsensTekst(k) : null;
     }
+    case 'korrigering':
+      return kontrollerKorrigering(k, u);
   }
 }
