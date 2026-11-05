@@ -26,12 +26,13 @@ Sitatene fra NS 8407 er kontrollert mot teksten i `khjohns/kontrakt` og gjengis 
   grunnlaget gjelder GR-U27, så motsigelsen gjelder de andre sakene: grunnlaget er godkjent uten
   at godkjenningen er en endringsordre etter punkt 32.3 første ledd a, og alle krav har registrert
   enighet. Det avgjøres i spørsmål 2.
-- **Fire setninger viser til regler som er endret, uten at innholdet er avgjort på nytt.** HF-U9 har
+- **Flere setninger viser til regler som er endret, uten at innholdet er avgjort på nytt.** HF-U9 har
   igjen «men TE kan gi avkall på sitt eget krav (HF-U10)» etter at MM-U34 punkt 10 strøk
   hovedsetningen (E1). KA-U6 sammenlikner trekket med en ny kravversjon som «opphever» enigheten,
   som MM-U34 punkt 9 har tatt bort (E2). KA-U13 og KA-U14 sier at KA-U7 «står», og KA-U7 er opphevet
   (E4). KA-U22 sperrer for «avtalte rettigheter» til byggedel 3, mens MM-U34 punkt 15 og KA-U49 har
-  gjort sperren til en sperre ved fradrag (E5).
+  gjort sperren til en sperre ved fradrag (E5). KA-U14 krever at et registrert brev avklares før
+  trekket, og OV-U6 og KA-U45 har tatt det bort (E8).
 - **SD-02 og GR-U25 sier ulikt om et spor uten noe sendt.** SD-02 (05.10): «Spor som ikke er sendt,
   regnes som trukket». GR-U25 (22.10): «Et spor uten noe sendt har ingen betegnelse.» GR-U25 er den
   senere og gjelder (E7).
@@ -52,7 +53,7 @@ Sitatene fra NS 8407 er kontrollert mot teksten i `khjohns/kontrakt` og gjengis 
 | MM-U52 (retting av sendt brev) | ingen | ingen regel om trekk; punkt 24 gjelder en lukket sak | nevnes ikke |
 | Kjeden «Kravversjon, ny kravversjon og utdyping» (ikke samlet) | HF-U9, KA-U7, MM-U34 punkt 9, 10 og 24 | – | her bare HF-U9 s6, KA-U7 «TE kan trekke kravet», og punkt 9 som kilde for E2. MM-U34 punkt 24 handler ikke om trekk |
 | Kjeden «Kravene er avgjort, og sperren etter det» (ikke samlet) | KA-U11, OV-U3, MM-U34 punkt 12 | – | her bare sperren mot trekk; predikatet og de andre sperrene hører dit |
-| Kjeden «‹Ingen krav›, avkall og godtatt avslag» (ikke samlet) | HF-U10, KA-U13 s4, KA-U22 | – | HF-U10 står som den allmenne regelen om avkall, og brevtekstene i KA-U22 står |
+| Kjeden «‹Ingen krav›, avkall og godtatt avslag» (ikke samlet) | HF-U10, KA-U13 s4, KA-U14 s8, KA-U22 | – | HF-U10 står som den allmenne regelen om avkall, og brevtekstene i KA-U22 står |
 
 **S-1 A i PR #1618** (besvart 05.11, ikke ført) avgrenser MM-U34 punkt 24 for brevet med
 korrigeringen av datoen. Punkt 24 handler om utdyping, ikke om trekk, så S-1 A berører ikke kjeden.
@@ -67,7 +68,7 @@ Klassene er prøvd uavhengig 05.11 (svar 8); se «Klassene».
 | --- | --- | --- | --- | --- |
 | KA-U6 | vedtak | gjeldende; presisert av MM-U34 punkt 12 | samler; s2 endres | E2 |
 | KA-U13 | vedtak | gjeldende; snevret inn av OV-U6, presisert av EO-U12 | samler s1, s3, s5–s7; s2 (sitatet fra punkt 31.3) står som begrunnelse; s4 hører til kjeden om «ingen krav»; s5 og s7 endres | E4, E6 |
-| KA-U14 | vedtak med designdel | gjeldende; endret av OV-U6 | samler; s10 endres | E4 |
+| KA-U14 | vedtak med designdel | gjeldende; endret av OV-U6 | samler s1–s5, s7, s9–s10 og s14–s15; s6 står i EO-U34 punkt 1; s8 hører til kjeden om «ingen krav»; s9 endres; s11–s13 gjelder ikke | E4, E8 |
 | GR-U5 | vedtak | gjeldende; utvidet av GR-U25, presisert av GR-U27 | samler s1; s2 endres | E3 |
 | GR-U25 | vedtak med designdel og beslutningsdel | gjeldende | samler | E7 |
 | SD-02 | vedtak | gjeldende | samler s1; s1 og s2 endres | E3, E7 |
@@ -85,7 +86,7 @@ Klassene er prøvd uavhengig 05.11 (svar 8); se «Klassene».
 
 ## Forslaget
 
-Samlevedtaket er et *vedtak* med designdel. Kildene står i parentes etter hver setning; «s» er
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Kildene står i parentes etter hver setning; «s» er
 setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 punkt 9 og 10.
 
 ### A. Trekket er avkall på TEs eget krav
@@ -95,10 +96,10 @@ setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 pu
 2. Et trekk innebærer bare avkall på TEs eget, uttrykkelig identifiserte krav. Trekket opphever ikke
    pålegg, endringsordre, utførelsesplikt eller motpartens rettigheter etter en avtale. Brev og
    visning fremstiller ikke et trekk som at pålegget, endringsordren eller utførelsesplikten er
-   bortfalt. (KA-U14 s1–s2 og s16; HF-U10 s5)
+   bortfalt. (KA-U14 s1–s2 og s15; HF-U10 s5)
 3. TE kan trekke et krav også i et spor med registrert enighet, betinget eller virksom. Enigheten
-   får da ingen virkning. Enighet sperrer ikke i seg selv trekket; sperrene står i C. (KA-U6 s1–s2;
-   KA-U14 s3; E2)
+   får da ingen virkning. Enighet sperrer ikke i seg selv trekket; sperrene står i C. Det gjelder også
+   et trekk av vederlag eller frist. (KA-U6 s1–s2; KA-U13 s3; KA-U14 s3; E2)
 
 ### B. Trekket av grunnlaget
 
@@ -111,7 +112,8 @@ setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 pu
    om det, fordi trekket bare gir fra seg TEs eget krav. (KA-U13 s5–s6; E4)
 6. I underkategorien EO står endringsordren etter punkt 31.3 i en egen EO-sak og berøres ikke av
    trekket i KOE-saken, så punkt 3 gjelder også grunnlaget. Omfatter en sendt endringsordre
-   KOE-saken, gjelder punkt 9. (KA-U13 s5; KA-U14 s10; EO-U34 punkt 12; E4)
+   KOE-saken, gjelder punkt 9. Forskjellen fra punkt 7 er begrunnet i hvordan løsningen håndterer trekket, ikke i at
+   endringsordrene har ulik rettslig bindende kraft. (KA-U13 s5; KA-U14 s9–s10; EO-U34 punkt 12; E4)
 
 ### C. Sperrene mot trekk
 
@@ -119,17 +121,16 @@ setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 pu
    punkt 32.3 første ledd a, altså i underkategoriene under ENDRING som punkt 32.2 gjelder for
    (GR-U11), og partene dermed er enige ved sammenfall (GR-U10). (KA-U13 s1) Sperren står som en
    begrensning i løsningen, fordi et trekk ville gitt journalen den videre virkningen at
-   endringsordren leses som bortfalt. (KA-U14 s7; EO-U34 punkt 14) For registrert korrespondanse
-   må det avklares om brevet oppfyller punkt 31.3 før løsningen tillater trekk som kan berøre
-   endringsordren. Manglende opplysning er ikke tilstrekkelig til å konkludere. Er det avklart at
-   brevet ikke er en endringsordre, kan TE trekke grunnlaget etter punkt 3 og 4. (KA-U14 s12–s14)
-   Endringsordren i en registrering som svar følger EO-U34 punkt 48.
+   endringsordren leses som bortfalt. (KA-U14 s7; EO-U34 punkt 14) At endringsordren da er
+   byggherrens svar i grunnlagssporet, står i EO-U34 punkt 1 (KA-U14 s6). Endringsordren i en
+   registrering som svar sperrer ikke trekket (EO-U34 punkt 48; OV-U6; E8).
 8. Et trekk, også av grunnlaget, avvises når det gir byggherren et fradrag, fordi løsningen da ikke
    vet hva byggherren har avtalt. (KA-U49, ordrett; MM-U34 punkt 15; E5) Kan løsningen ellers ikke
    gjennomføre trekket uten å gi det videre virkninger, sperres det. (KA-U14 s4; HF-U10 s6)
-9. Trekket avvises når TE har godtatt avslaget på grunnlaget eller trukket grunnlaget (GR-U27), når
-   byggherren har sendt en endringsordre som omfatter KOE-saken (EO-U34 punkt 12), og mens en
-   forseringssak viser til avslaget (FO-U5). (HF-U10 s7 slik MM-U34 punkt 14 endret den; KA-U13 s7;
+9. I tillegg til sperrene i punkt 7 og 8 avvises trekket når TE har godtatt avslaget på grunnlaget
+   eller trukket grunnlaget (GR-U27), når en sendt endringsordre eller en godkjent registrering
+   omfatter KOE-saken (EO-U34 punkt 12), og mens en forseringssak viser til avslaget på fristkravet
+   (FO-U5). (HF-U10 s7 slik MM-U34 punkt 14 endret den; KA-U13 s7;
    E6)
 10. *Ved spørsmål 2 A:* At kravene er avgjort, eller at det er registrert enighet om alle fremsatte
     krav, sperrer ikke trekket. (MM-U34 punkt 12; MM-U43 punkt 7; E6)
@@ -138,6 +139,13 @@ setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 pu
 
 11. «Et krav TE har trukket, kan ikke tas opp igjen med en oppdatering. Serveren avviser
     oppdateringen; et nytt krav om samme forhold går i en ny sak» (vedtaket 05.10)
+
+### Beslutningsdel
+
+- Sperrene i punkt 7 og 8 og siste setning i punkt 8 er begrensninger i løsningen, ikke en tolkning
+  av kontrakten: løsningen avviser det den ikke kan gjennomføre uten å gi trekket videre virkninger.
+  (KA-U14 s4 og s10; HF-U10 s6; EO-U34 punkt 14; KA-U49) At løsningen avviser oppdateringen etter
+  punkt 11, er gjennomføringen av vedtaket 05.10.
 
 ### Designdel
 
@@ -149,25 +157,38 @@ setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 pu
 
 ## Endret innhold
 
-- **E1.** HF-U9 s6: «men TE kan gi avkall på sitt eget krav (HF-U10)» står igjen uten hovedsetningen
-  som MM-U34 punkt 10 strøk, og gjelder ikke lenger. Regelen står i punkt 1.
-- **E2.** KA-U6 s2: «, på samme måte som en ny kravversjon opphever den (SK-02)» gjelder ikke. Etter
-  MM-U34 punkt 9 opphever en ny kravversjon ikke en registrert enighet. «Så lenge saken ikke er
-  avsluttet» i s1 leses som «lukket», slik MM-U34 punkt 12 sier, og står i punkt 9.
-- **E3.** GR-U5 s2 og SD-02 s1: «Saken blir `LUKKET_TRUKKET`» er et statusnavn. Lukkingen følger
+- **E1.** HF-U9 s6: «Ingen part kan gå fra enigheten alene, men TE kan gi avkall på sitt eget krav
+  (HF-U10).» MM-U34 punkt 10 strøk første ledd. Det som står igjen, gjelder ikke lenger i HF-U9;
+  regelen står i punkt 1.
+- **E2.** KA-U6 s2: «Enigheten får da ingen virkning, på samme måte som en ny kravversjon opphever
+  den (SK-02).» Leddet etter kommaet gjelder ikke: etter MM-U34 punkt 9 opphever en ny kravversjon
+  ikke en registrert enighet. «Saken er avsluttet» i KA-U6 leses som «lukket med endringsordre»
+  (MM-U34 punkt 12), og sperrene står i punkt 9.
+- **E3.** GR-U5 s2: «Saken blir `LUKKET_TRUKKET`» og SD-02 s1: «trekker TE grunnlaget før vederlag
+  eller frist er sendt, er saken `LUKKET_TRUKKET`» gjelder ikke som statusnavn. Lukkingen følger
   GR-U27 (punkt 4), og statusteksten hører til visningen.
-- **E4.** KA-U13 s5 og KA-U14 s10: «står KA-U6 og KA-U7» og «KA-U6 står» viser til punkt 3. KA-U7 er
+- **E4.** KA-U13 s5: «I kategoriene SVIKT, ANDRE og FORCE_MAJEURE, og i underkategorien EO, der
+  endringsordren er utstedt etter § 31.3 og binder TE uavhengig av KOE-saken, står KA-U6 og KA-U7:
+  TE kan trekke grunnlaget også når partene er enige om det, fordi trekket bare gir fra seg TEs eget
+  krav.» KA-U14 s9: «I underkategorien EO står endringsordren i en egen EO-sak og berøres ikke av
+  trekket i KOE-saken, så KA-U6 står.» Henvisningene til KA-U6 og KA-U7 viser til punkt 3; KA-U7 er
   opphevet av MM-U34 punkt 9. For underkategorien EO legges til at punkt 9 gjelder når en sendt
   endringsordre omfatter KOE-saken (EO-U34 punkt 12).
 - **E5.** KA-U22: «Et trekk, også av grunnlaget, avvises når appen ikke kan bevare byggherrens
   avtalte rettigheter, for eksempel et avtalt fradrag (KA-U9), til detaljmodellen er avklart i
   byggedel 3.» gjelder ikke. Sperren ved fradrag står i KA-U49 (punkt 8), etter at MM-U34 punkt 15
   strøk «når en enighet trekket rammer» i KA-U27.
-- **E6.** *Ved spørsmål 2 A:* KA-U13 s7: «eller kravene er avgjort (KA-U11)» gjelder ikke. Sperren
+- **E6.** *Ved spørsmål 2 A:* KA-U13 s7: «Trekket er i alle tilfeller sperret når TE har godtatt et
+  avslag av grunnlaget (SK-01) eller kravene er avgjort (KA-U11).» Leddet «eller kravene er avgjort
+  (KA-U11)» gjelder ikke. Sperren
   står i punkt 9, og punkt 10 sier at avgjorte krav ikke sperrer. *Ved 2 B:* setningen står for
   trekket av grunnlaget, og MM-U34 punkt 12 og MM-U43 punkt 7 endres for det trekket.
 - **E7.** SD-02 s2: «Spor som ikke er sendt, regnes som trukket» gjelder ikke. GR-U25 s2 sier at et
   spor uten noe sendt har ingen betegnelse.
+- **E8.** KA-U14 s11–s13, om at det må avklares om et registrert brev oppfyller punkt 31.3 før
+  trekket tillates, gjelder ikke. OV-U6 endret KA-U14 på dette leddet (endringsordren i en
+  registrering sperrer ikke trekket), og KA-U45 opphevet avklaringen av registrerte brev med
+  sperrene sine.
 
 ## Funn som ikke avgjøres her
 
@@ -181,11 +202,38 @@ setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 pu
 
 ## Klassene
 
-(Fylles etter kontrollen.)
+En subagent klassifiserte postene og forslaget fra teksten før den så klassekolonnen (svar 8). Den
+er enig i klassene over, unntatt disse avvikene fra klassekolonnen i vedtaksfila:
+
+- KA-U14, HF-U10 og KA-U22 har også en beslutningsdel: en begrensning i løsningen («Kan appen ikke
+  gjennomføre …») og det som venter til en senere versjon (KA-U22). Klassekolonnen sier «vedtak»
+  eller «vedtak med designdel».
+- GR-U25 har ingen setning om bygging eller rekkefølge, så beslutningsdelen i klassekolonnen er
+  tvilsom.
+- SD-02 er i innhold erstattet av GR-U27 og GR-U25 (E3, E7), men ikke formelt opphevet. Den
+  samles, så klassen får ikke betydning.
+- Forslaget er vedtak med designdel og beslutningsdel. Beslutningsdelen var først ikke skilt ut; den
+  står nå under «Beslutningsdel».
+
+Klassene til de gamle postene endres ikke her. De samlede postene får forholdet og ikke en ny
+klasse.
 
 ## Prøvingen
 
-(Fylles etter prøvingen.)
+En annen subagent prøvde forslaget én gang mot vedtaksfila og NS 8407 05.11 (vedtaksskillen,
+«Prøv hvert alternativ …»). Rettet etter prøvingen:
+
+- Setningsnumrene i KA-U14 (s9, s15) og sitatene i E1–E4, som nå er hele setninger.
+- Punkt 7 tok inn igjen avklaringen av registrerte brev (KA-U14 s11–s13), som OV-U6 og KA-U45 har
+  tatt bort. Setningene er strøket og står som E8.
+- Punkt 9 og spørsmål 2 A manglet «en godkjent registrering» fra EO-U34 punkt 12, og forseringen
+  gjelder avslaget på fristkravet (FO-U5). Spørsmål 2 A kunne leses som en uttømmende liste og nevner
+  nå sperrene i punkt 7 og 8.
+- Forholdet ved 2 B manglet MM-U34 punkt 14, KA-U11, OV-U3 og innsnevringen av punkt 3 og 5.
+- KA-U14 s6, s8 og s10 og KA-U13 s3 er plassert (punkt 3, 6 og 7, og kjeden om «ingen krav»).
+
+Punktene i NS 8407 (31.3, 32.2 og 32.3 første ledd a) passer med emnet. Ingen motstrid under 1 A og
+2 A mot GR-U27, MM-U43 punkt 7, MM-U50, OV-U94 punkt 16 eller KA-U11.
 
 ## Spørsmålene til oppdragsgiver
 
@@ -199,11 +247,11 @@ registrert enighet og 04.11 om vilkår og forbehold) har endret dem uten å rett
 trukket krav regnes også som trukket i et spor der ingenting er sendt etter ett vedtak, mens et
 senere vedtak sier at sporet ikke har noen betegnelse.
 
-*Belegg:* forslaget over, punkt 1–11 med designdelen, og E1–E7. Punkt 1–9 og 11 er vedtatt innhold
-med henvisningene skrevet om. E1–E5 og E7 tar bort setninger som senere vedtak alt har gjort
+*Belegg:* forslaget over, punkt 1–11 med designdelen, og E1–E8. Punkt 1–9 og 11 er vedtatt innhold
+med henvisningene skrevet om. E1–E5, E7 og E8 tar bort setninger som senere vedtak alt har gjort
 uvirksomme.
 
-- **A (anbefalt):** «Samlevedtaket for trekk gjelder med E1–E7, og med E6 og punkt 10 etter svaret
+- **A (anbefalt):** «Samlevedtaket for trekk gjelder med E1–E8, og med E6 og punkt 10 etter svaret
   på spørsmål 2. Vedtakene om retten til å trekke et krav i et spor med enighet, om sperren mot
   trekk av grunnlaget når godkjenningen er en endringsordre, om hva et trekk gir avkall på, om at
   trekket av grunnlaget trekker alle krav, om betegnelsen «Trukket», om en sak der grunnlaget
@@ -221,7 +269,7 @@ domenetabellen som får samlevedtaket ved siden av.
 *Forholdet:* samler KA-U6, KA-U13, KA-U14, GR-U5, GR-U25, SD-02 og vedtaket 05.10 uten ID; endrer
 HF-U9 (E1) og KA-U22 (E5).
 
-*Klassen:* vedtak med designdel.
+*Klassen:* vedtak med designdel og beslutningsdel.
 
 **2. Om trekket av grunnlaget er sperret når kravene er avgjort.**
 
@@ -240,13 +288,13 @@ ledd a, er trekket sperret uansett (punkt 7).
 enighet og lukking, og heller ikke et trekk, en ny kravversjon eller en revisjon etter at kravene
 er avgjort.»
 
-- **A (anbefalt):** «Et trekk av grunnlaget er sperret når totalentreprenøren har godtatt avslaget
-  på grunnlaget eller trukket grunnlaget, når byggherren har sendt en endringsordre som omfatter
-  saken, og mens en forseringssak viser til avslaget. At partene har registrert enighet om alle
-  fremsatte krav, sperrer ikke trekket.»
-- **B:** «Et trekk av grunnlaget er også sperret når partene har registrert enighet om alle
-  fremsatte krav i saken, før endringsordren er sendt. Trekk av vederlag og frist følger vedtaket
-  28.10.»
+- **A (anbefalt):** «I tillegg til sperren når byggherrens godkjenning av grunnlaget er en
+  endringsordre etter punkt 32.3 første ledd a, og sperren ved fradrag, er et trekk av grunnlaget
+  sperret når totalentreprenøren har godtatt avslaget på grunnlaget eller trukket grunnlaget, når en
+  sendt endringsordre eller en godkjent registrering omfatter saken, og mens en forseringssak viser
+  til avslaget på fristkravet. At kravene er avgjort, sperrer ikke trekket.»
+- **B:** «Et trekk av grunnlaget er også sperret når kravene er avgjort, før endringsordren er
+  sendt. Trekk av vederlag og frist følger vedtaket 28.10.»
 
 *Anbefaling:* A. Vedtaket 28.10 valgte bevisst at registrert enighet ikke låser saken før
 endringsordren, og trekket gir bare fra seg totalentreprenørens eget krav. Byggherrens rettigheter
@@ -256,8 +304,10 @@ B gir en sperre for grunnlaget som ikke gjelder for vederlag og frist i samme sa
 *Hva valget styrer:* punkt 9 og 10 og E6, og predikatet for sperren mot trekk av grunnlaget i
 kjernen.
 
-*Forholdet:* ved A endrer samlevedtaket KA-U13 s7 (E6); ved B endrer det MM-U34 punkt 12 og MM-U43
-punkt 7 for trekket av grunnlaget.
+*Forholdet:* ved A endrer samlevedtaket KA-U13 s7 (E6). Ved B endrer det MM-U34 punkt 12 og 14 og
+MM-U43 punkt 7 for trekket av grunnlaget, tar sperren i KA-U11 og OV-U3 tilbake for det trekket, og
+snevrer inn punkt 3 og 5. «Kravene er avgjort» er da predikatet etter OV-U3, slik MM-U34 punkt 12
+sier.
 
 *Klassen:* vedtak.
 
