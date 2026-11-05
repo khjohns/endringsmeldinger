@@ -40,8 +40,8 @@ i `vedtak.toml` eller `vedtak.md` (oppdraget fra runde 22).
   (JSON), BF-05.md og dekning.md. Ingen i `kjerne/`, `server/` eller `src/`. MM-U42, MM-U51 og
   LV-U54 er ikke nevnt utenfor registeret. Se spørsmål 2.
 - **Verktøyet teller også forhold fra opphevede poster.** `varsler()` i `vedtaksregister.py`
-  filtrerer ikke kildeposten. Oppheves MM-U51, teller dens «utvider EO-U34» fortsatt. Se
-  spørsmål 3.
+  filtrerer ikke kildeposten, så et forhold fra en opphevet post teller fortsatt. MM-U51 og
+  forholdet «utvider EO-U34» telles uansett hva spørsmål 2 avgjør. Se spørsmål 3.
 
 ## Overlapp med andre samlevedtak og kjeder
 
@@ -64,20 +64,19 @@ Kolonnen «Ved spørsmål 2» viser forholdet etter anbefalingen (A).
 | --- | --- | --- | --- | --- |
 | MM-U41 | vedtak med designdel og beslutningsdel | gjeldende; endret av LV-U53, presisert av MM-U51 og LV-U54 | opphever; teksten står i punkt 1–17 med E1–E6 | E1–E6 |
 | MM-U42 | vedtak med designdel | gjeldende | opphever; teksten er punkt 6 | E1 |
-| MM-U51 | vedtak | gjeldende | opphever; teksten er punkt 24 | E7 |
-| LV-U54 | vedtak | gjeldende | opphever; teksten står i punkt 10 | – |
+| MM-U51 | vedtak | gjeldende | samler; teksten er punkt 24 | E7, E8 |
+| LV-U54 | vedtak | gjeldende | samler; teksten står i punkt 10 | E8 |
 | LV-U53 | vedtak | gjeldende | står; ordlyden i punkt 10 er skrevet etter den | E5 |
 | LV-U35 | vedtak med designdel | gjeldende | står; ordlyden i punkt 10 er skrevet etter den | E5 |
 | VS-U34 | vedtak med designdel | gjeldende | presiseres (punkt 18) | E3 |
 | OV-U5 | vedtak med designdel | gjeldende; samlet av VS-U43 og MM-U50 for andre setninger | presiseres for setningen «Datoen oppgis når kravet sendes, og endres ikke senere.» (punkt 18) | E3 |
 | KA-U1 | vedtak | gjeldende | presiseres (punkt 22) | – |
-| GR-U27 | vedtak med designdel | gjeldende | utvides (punkt 24–25) | E7 |
-| EO-U34 | vedtak med designdel og beslutningsdel | gjeldende | utvides i punkt 12 (punkt 24–25), etter svaret på spørsmål 3 | E7 |
+| GR-U27 | vedtak med designdel | gjeldende | utvides av MM-U51 (punkt 24) og, ved spørsmål 3 A eller B, punkt 25 | E7 |
+| EO-U34 | vedtak med designdel og beslutningsdel | gjeldende | utvides i punkt 12 av MM-U51 (punkt 24); punkt 25 etter svaret på spørsmål 3 | E7 |
 
-Forholdene samlevedtaket overtar fra postene det opphever: fra MM-U41 «samler OV-U11 og
+Forholdene samlevedtaket overtar fra postene det opphever (MM-U41 og MM-U42): fra MM-U41 «samler OV-U11 og
 OV-U80», «opphever MM-U21, MM-U26, OV-U52 og OV-U53», «endrer OV-U41, OV-U54, OV-U55 og OV-U56»,
-«snevrer inn GR-U22», «presiserer VS-U26», «utvider OV-U3 og LV-U4» og «presiserer MM-U12»; fra
-MM-U42 «presiserer MM-U34»; fra MM-U51 «utvider GR-U27 og EO-U34»; fra LV-U54 «presiserer VS-U43».
+«snevrer inn GR-U22», «presiserer VS-U26», «utvider OV-U3 og LV-U4» og «presiserer MM-U12»; fra MM-U42 «presiserer MM-U34». MM-U51 og LV-U54 samles og beholder forholdene sine.
 MM-U12 er opphevet av MM-U50, og henvisningene til den gjelder MM-U50 (OV-U92 (a), MM-U50 svar Y), så «presiserer MM-U12» føres ikke videre. VS-U44 og B-03-DOKUMENT har den bindende setningen i MM-U41 (`bindende_i`); feltet må vise til samlevedtaket når MM-U41 oppheves.
 
 ## Forslaget
@@ -173,8 +172,7 @@ andre vedtak og i brukerforløpene gjelder det samme.
     som en dato, et nummer eller en henvisning, uten å endre det totalentreprenøren krever, er
     en korrigering. Korrigeringen er et eget utsagn etter punkt 1–5, ikke en ny kravversjon, og
     lar svaret stå. Totalentreprenøren kan likevel sende en ny kravversjon. (MM-U41 punkt 13)
-    Datoen et krav sendt utenfor løsningen og lagt til med kategorien krav ble sendt, rettes
-    etter punkt 18, ikke som en korrigering. (05.11 2 A, forholdet; E3)
+    Datoen et krav sendt utenfor løsningen og lagt til med kategorien krav ble sendt, rettes etter punkt 18, ikke som en korrigering. (05.11 2 A, forholdet; E3) For datoen totalentreprenøren oppgir i et krav sendt fra løsningen for en tidligere sending av samme krav utenfor løsningen, står setningen i OV-U5 (punkt 18). (05.11 2 A; E3)
 14. Når totalentreprenøren har sendt grunnlaget, står hovedkategorien, underkategorien og, i
     underkategorien endringsordre, hvilken endringsordre kravet bygger på. En ny
     grunnlagsversjon kan ikke endre dem. Vil totalentreprenøren påberope en annen hjemmel eller
@@ -254,7 +252,7 @@ andre vedtak og i brukerforløpene gjelder det samme.
     Byggherren kan ta stilling til opplysningen i et innlegg, og saken står lukket. Løsningen
     avgjør ikke om korrigeringen gir byggherren en plikt etter kontrakten (MM-U50 punkt 6).
     (MM-U51; E6)
-25. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en
+25. *Ved spørsmål 3 A eller B.* I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en
     godkjent registrering av en endringsordre omfatter, godtas totalentreprenørens retting av
     varseldatoen, og den endrer ikke utfallet. Den står som totalentreprenørens utsagn for
     partene å vurdere. Byggherren kan ikke godta en retting til totalentreprenørens fordel i
@@ -467,78 +465,132 @@ Etter testen i vedtaksskillen, prøvd uavhengig 05.11 (svar 8; se «Kontrollen»
 - Ingen fil i `kjerne/`, `server/` eller `src/` viser til MM-U41, MM-U42, MM-U51 eller LV-U54
   (søk med ordgrense 05.11 på `d049d6a`).
 - MM-U41 står i `docs/domenetabell/brukerforlop/`: BF-02A.json, BF-02C.json, BF-05.json,
-  BF-06.json, BF-05.md og dekning.md. Oppheves MM-U41, må hver henvisning få samlevedtaket ved
-  siden av (vakten for opphevede ID-er, #1606) i vedtaks-PR-en. Domenetabellen eies av
+  BF-06.json, BF-05.md og dekning.md. Vakten for opphevede ID-er (#1606) leser de fem første;
+  dekning.md leses ikke av vakten, men henvisningen rettes likevel. Domenetabellen eies av
   review-økta for #1611 til den PR-en er merget.
+- `bindende_i = ["mm-u41"]` står i VS-U44 og B-03-DOKUMENT. Oppheves MM-U41 uten å samles, feiler
+  `bindende_i_opphevet` for begge til feltet viser til samlevedtaket.
+
+## Kontrollen
+
+En subagent kontrollerte 05.11 kilden for hver setning, ordlyden mot svarene 05.11, «Forkastet
+05.11», E-lista, «Postene i kjeden», påstandene om koden og klassene, uavhengig av kartleggingen
+(svar 7 A og 8). Rettet: «Forkastet 05.11» står uten forholdene, og fila sier det nå; omfanget for
+kravdatoen er «punkt 19, 21–23 og 25» både i punkt 8 og 18; kilden for siste setning i punkt 11;
+«Punkt 17 gjelder ikke datoen.» står i punkt 18; flyttingen av setningen om byggingen og «etter
+punkt 18» i punkt 13 står i E3; de forkortede selvhenvisningene og de løste kursivsetningene står
+i E8; klassen for VS-U34, GR-U27 og LV-U35; B-03-DOKUMENT i `bindende_i`; punkt 16 gjelder «18–23»,
+ikke punkt 24 og 25; grunnlaget for at «presiserer MM-U12» ikke føres videre; forholdet i 3.4 B
+står i punkt 23. Klassene: kontrollen er enig i fordelingen under «Klassene».
+
+## Prøvingen
+
+En subagent prøvde 05.11 forslaget mot vedtakene, spørsmål 2 og 3 mot reglene i #1534 og
+verktøyet, og arbeidsflyten med fem forløp.
+
+**Rettet i forslaget.** Punkt 16 (E4) kunne leses slik at punkt 12 i EO-U34 går foran punkt 24 og
+25; nå gjelder punkt 16 bare 18–23. Punkt 13 sa ikke at setningen i OV-U5 står for datoen i et
+krav sendt fra løsningen; tillegget sier det nå (E3). Anbefalingen i spørsmål 2 opphevet også
+MM-U51 og LV-U54, som får uendret innhold; etter svar 4 A samles de. Anbefalingen i spørsmål 3
+lot EO-U34 få en fjerde endring utenfor et samlevedtak for temaet, og begrunnelsen for 2 B var
+feil. Begge er skrevet om. Forholdene stemmer, og ingen motstrid med VS-U46 eller GFK-U13 er
+funnet.
+
+**Forløpene.** (1) TE retter to ganger, begge står åpne, og byggherren godtar én i et svar; et
+senere svar om beløpet lar aksepten stå. I mål. (2) Byggherren godtar feil retting: det kan ikke
+angres i løsningen, bare ved at TE retter til en senere dag (punkt 19, 23; vedtatt). (3) TE oppgir
+feil dato for en tidligere sending i et krav sendt fra løsningen: datoen rettes ikke (punkt 18;
+vedtatt), og punkt 13 sier nå det samme. (4) Retting etter endringsordren: rettingen står som et
+tilbud som ikke kan godtas, og byggherren svarer i et innlegg (punkt 25). (5) Sporet har
+registrert enighet: byggherren må sende et nytt svar for å godta datoen, og TE må godta på nytt.
+Tungvint, men det følger av 1 C.
+
+## Funn som ikke avgjøres her
+
+Disse er ikke sagt av oppdragsgiver og tas ikke inn i forslaget. Vil du ha dem med, gi dem som
+rettelse ved 1 B.
+
+- **Punkt 20 for kravdatoen.** Punkt 20 kommer fra spørsmål 1, som gjaldt varseldatoen, og omfanget
+  «Ved 2 A gjelder punktene også datoen for kravet» gjaldt punktene i spørsmål 3. Etter punkt 18
+  gjelder en tidligere kravdato når byggherren godtar den, men det er ikke sagt hvordan. Vår lesing
+  er at aksepten også da gis i et svar etter punkt 20.
+- **En ny kravversjon og aksepten.** Punkt 20 sier at et nytt svar ikke tar bort aksepten, men ikke
+  hva en ny kravversjon gjør med et svar som har aksepten. Vår lesing: datoen byggherren har
+  godtatt, gjelder etter punkt 19 til en ny retting, og kravversjonen endrer den ikke.
+- **Punkt 9 og punkt 20.** En retting av et feil varsel som gir en tidligere dato (punkt 9), gjelder
+  når motparten godtar den. Om aksepten da gis i et svar etter punkt 20 eller som eget utsagn etter
+  punkt 5, er ikke sagt.
+- **Brevteksten for aksepten i et svar.** Designdelen har ingen. Hjem: brukerforløpet for #1309.
 
 ## Spørsmålene til oppdragsgiver
 
 Spørsmål 1 og 3 er juridiske og stilles i tekst. Spørsmål 2 er teknisk, men står i samme liste,
-fordi det avgjør forholdet i spørsmål 1. Svar for eksempel «1 A, 2 A, 3 A».
+fordi det avgjør forholdet i spørsmål 1. Svar for eksempel «1 A, 2 A, 3 C».
 
 **1. Tilslutning til samlevedtaket for retting av sendt brev, versjon 2.** Forslaget over, punkt
 1–25 med designdelen, beslutningsdelen, «Forkastet 05.11» og E1–E8. Punkt 1–17 er versjon 1 med
-ordlyden slik senere vedtak alt har endret den (E5, E6). Punkt 18–25 og tilleggene i punkt 6, 8,
-13 og beslutningsdelen er svarene dine 05.11 på spørsmålene før bygging av #1309, ordrett, og
-korrigeringen i en lukket sak fra 05.11 (MM-U51). Brevteksten etter en korrigering (LV-U54) står i
-punkt 10. E4 er vår slutning: endringsordren går foran også de nye punktene.
+ordlyden slik senere vedtak alt har endret den (E5, E6, E8). Punkt 18–23 og 25 og tilleggene i
+punkt 6, 8, 13, 23 og beslutningsdelen er svarene dine 05.11 på spørsmålene før bygging av #1309,
+ordrett. Punkt 24 er korrigeringen i en lukket sak fra 05.11 (MM-U51), og brevteksten etter en
+korrigering (LV-U54) står i punkt 10. E4 er vår slutning: endringsordren går foran også punkt
+18–23.
 
 - **A (anbefalt):** «Samlevedtaket for retting av sendt brev, versjon 2, gjelder med E1–E8, med
-  forholdene etter svaret på spørsmål 2 og 3. Forhold: presiserer VS-U34, OV-U5 og KA-U1, og
-  utvider GR-U27.»
-- **B:** Samme som A, med rettingene du gir per punkt eller E-punkt.
+  forholdene etter svaret på spørsmål 2 og 3. Forhold: presiserer VS-U34, OV-U5 og KA-U1.»
+- **B:** Samme som A, med rettingene du gir per punkt eller E-punkt, også funnene under «Funn som
+  ikke avgjøres her».
 
-*Anbefaling:* A. Innholdet er det du alt har svart på; samlevedtaket setter det inn i én tekst
-med kilde for hver setning.
+*Anbefaling:* A. Innholdet er det du alt har svart på; samlevedtaket setter det inn i én tekst med
+kilde for hver setning.
 
 *Hva valget styrer:* hvilken tekst som er regelgrunnlaget for rettingen i #1309 og #1308.
 
 **2. Hva samlevedtaket gjør med MM-U41, MM-U42, MM-U51 og LV-U54 (teknisk).** Svar 4 A i #1534: et
-samlevedtak samler, og opphever bare når det endrer innholdet. Svarene 05.11 endrer innholdet i
-MM-U41 og MM-U42 (E1–E3). Står MM-U41 som samlevedtak ved siden av versjon 2, finnes temaet i to
-tekster, og varselet for MM-U41 står fortsatt.
+samlevedtak samler, og opphever når det endrer innholdet. Svarene 05.11 endrer innholdet i MM-U41
+og MM-U42 (E1–E3). MM-U51 og LV-U54 står med uendret innhold.
 
-- **A (anbefalt):** Versjon 2 opphever MM-U41, MM-U42, MM-U51 og LV-U54, og henvisningene til dem
-  gjelder samlevedtaket (som OV-U92 (a)). Forholdene deres føres videre i versjon 2 («Postene i
-  kjeden»). I vedtaks-PR-en får henvisningene til MM-U41 i de seks brukerforløpsfilene
-  samlevedtaket ved siden av, og `bindende_i` i VS-U44 og B-03-DOKUMENT viser til samlevedtaket.
-- **B:** Versjon 2 samler de fire postene. De står som gjeldende, «Samlet i samlevedtaket for
-  retting av sendt brev», og ingen henvisninger skrives om. Varselet for MM-U41 står, fordi
-  forholdene fra de nye punktene teller som endringer av MM-U41.
+- **A (anbefalt):** Versjon 2 opphever MM-U41 og MM-U42, og henvisningene til dem gjelder
+  samlevedtaket (som OV-U92 (a)). Den samler MM-U51 og LV-U54, som gjelder som «Samlet i
+  samlevedtaket for retting av sendt brev». Forholdene i MM-U41 og MM-U42 føres videre i versjon 2
+  («Postene i kjeden»); forholdene i MM-U51 og LV-U54 står i postene. I vedtaks-PR-en får
+  henvisningene til MM-U41 i de seks brukerforløpsfilene samlevedtaket ved siden av, og
+  `bindende_i` i VS-U44 og B-03-DOKUMENT viser til samlevedtaket.
+- **B:** Versjon 2 samler alle fire. De står som gjeldende, og ingen henvisninger skrives om.
+  Temaet står da i to samlevedtak, versjon 1 og 2, og varselet for MM-U41 står, fordi den alt har
+  tre endringer. B strider mot svar 4 A, fordi E1–E3 endrer innholdet.
 
-*Anbefaling:* A. Samlevedtaket endrer innholdet (E1–E3), og da skal det oppheve (svar 4 A). Det
-koster seks filer med henvisninger i vedtaks-PR-en.
+*Anbefaling:* A. Det følger svar 4 A for alle fire. Det koster seks filer med henvisninger i
+vedtaks-PR-en.
 
 *Hva valget styrer:* forholdene i posten, om brukerforløpene må endres i vedtaks-PR-en, og om
 varselet for MM-U41 står.
 
-**3. Hvordan føres utvidelsen av EO-U34 punkt 12?** Punkt 24 (MM-U51) og punkt 25 (05.11 3.5 B)
-lar to rettinger godtas i en KOE-sak som en endringsordre omfatter. Det utvider punkt 12 i
-samlevedtaket for endringsordren (EO-U34), som har fått tre endringer etter samlingen (HF-U25,
-KA-U50 og MM-U51). Etter svar 6 A skrives den neste endringen «i temaet» som et samlevedtak.
-Verktøyet teller også MM-U51 etter at den er opphevet, så varselet for EO-U34 står ved A og B.
+**3. Hvordan føres utvidelsen av EO-U34 punkt 12 i punkt 25?** Punkt 25 (05.11 3.5 B) lar
+totalentreprenørens retting av varseldatoen godtas i en KOE-sak som en endringsordre omfatter. Det
+utvider punkt 12 i samlevedtaket for endringsordren (EO-U34), som alt har tre endringer etter
+samlingen (HF-U25, KA-U50 og MM-U51). Etter svar 6 A skrives da «den neste endringen i temaet» som
+et samlevedtak. Punkt 24 (MM-U51) er alt en av de tre og endres ikke. Innholdet i punkt 25 er
+vedtatt; spørsmålet gjelder bare hvor det føres.
 
-- **A (anbefalt):** Punkt 24 og 25 står i samlevedtaket for retting av sendt brev, med ett
-  forhold «utvider EO-U34» for begge. EO-U34 samles ikke nå. Når EO-U34 får sin neste endring,
-  tar samlevedtaket for endringsordren punkt 12 med punkt 24 og 25. Begrunnelse: rettingen hører
-  til temaet retting. Utvidelsen skrives i et samlevedtak med samlet tilslutning, slik svar 6 A
-  krever. Den som leser punkt 12 i EO-U34, finner utvidelsen i Følge.
+- **A:** Punkt 25 står i samlevedtaket for retting av sendt brev med forholdet «utvider EO-U34».
+  EO-U34 samles ikke nå. Det er vår lesing at et samlevedtak for retting oppfyller svar 6 A.
+  EO-U34 får da sin fjerde endring, og varselet står.
 - **B:** Som A, og i tillegg en ny samlet tekst for punkt 12 i EO-U34 i samme tilslutning: ‹I en
   KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter, avviser løsningen
   krav, svar, aksept og trekk. Innlegg, dokumentasjon og innsigelser etter punkt 5 tredje ledd
   godtas, og rettingene etter punkt 24 og 25 i samlevedtaket for retting av sendt brev.› Forhold:
-  endrer EO-U34 punkt 12. Punkt 12 leses da i én tekst, men EO-U34 får sin femte endring.
-- **C:** Punkt 25 venter. Samlevedtaket for endringsordren skrives på nytt i en egen kartlegging,
-  med punkt 12, MM-U51 og 3.5 B, og #1309 bygger ikke rettingen i en lukket sak før det er
-  godkjent.
+  endrer EO-U34 punkt 12. Punkt 12 leses i én tekst, men endringen er fortsatt ikke et samlevedtak
+  for endringsordren.
+- **C (anbefalt):** Punkt 25 føres ikke med versjon 2. Det føres i et nytt samlevedtak for
+  endringsordren, som skrives i en egen kartlegging med HF-U25, KA-U50, MM-U51 og 3.5 B. #1309
+  bygger rettingen i en lukket sak når det er godkjent; resten av #1309 venter ikke.
 
-*Anbefaling:* A. B gir én tekst for punkt 12, men endrer EO-U34 utenfor et samlevedtak for temaet
-og gjør tellingen høyere. C forsinker #1309 for en regel du alt har vedtatt. At A oppfyller svar
-6 A, er vår lesing. Svaret sier «Den neste endringen i temaet skrives da som et samlevedtak», og
-det kan også leses som et samlevedtak for endringsordren. Da er C riktig.
+*Anbefaling:* C. Svar 6 A skulle hindre at et samlet vedtak vokser igjen, og ved A og B får
+EO-U34 en fjerde endring utenfor et samlevedtak for temaet. C koster en kartlegging til og
+forsinker bare rettingen i en lukket sak, som er et kanttilfelle i #1309.
 
-*Hva valget styrer:* forholdet til EO-U34, om varselet for EO-U34 står, og om #1309 kan bygge
-punkt 25 når versjon 2 er ført.
+*Hva valget styrer:* om punkt 25 står i versjon 2, forholdet til EO-U34 og GR-U27, og om #1309
+kan bygge rettingen i en lukket sak når versjon 2 er ført.
 
 ## Svarene
 
