@@ -96,13 +96,14 @@ export function brevene(u: Utledning): Brevet[] {
 }
 
 /** Det en tekst trenger for å vise til et brev, med eller uten nummer. */
-export type Brevref = Pick<Brevet, 'id' | 'nummer' | 'registrert' | 'omtale'>;
+export type Brevref = Pick<Brevet, 'id' | 'nummer' | 'registrert' | 'omtale' | 'art'>;
 
-const ref = ({ id, nummer, registrert, omtale }: Brevref): Brevref => ({
+const ref = ({ id, nummer, registrert, omtale, art }: Brevref): Brevref => ({
   id,
   nummer,
   registrert,
   omtale,
+  art,
 });
 
 /** Brevet med dokumentet `id`. */

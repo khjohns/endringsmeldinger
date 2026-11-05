@@ -96,12 +96,29 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
     nummer: 2,
     registrert: '2026-10-02T08:00:00Z',
     omtale: 'brev K201-KOE-017-02 av 2. oktober 2026',
+    art: 'krav' as const,
+  };
+  const epost = {
+    ...kravbrev,
+    nummer: null,
+    registrert: '2026-10-05T08:00:00Z',
+    omtale: 'totalentreprenørens e-post av 1. oktober 2026',
+    art: 'registrert' as const,
   };
 
-  it('omtaler brevet slik brevteksten gjør, uten parten og datoen en gang til (LV-U53, U-6 i BF-07)', () => {
-    expect(SKJEMA.svarerPaa(kravbrev)).toBe('Svar på brev K201-KOE-017-02 av 2. oktober 2026');
+  it('omtaler brevet slik brevteksten gjør, uten datoen en gang til (LV-U53, U-6 i BF-07)', () => {
+    expect(SKJEMA.svarerPaa(kravbrev)).toBe(
+      'Svar på brev K201-KOE-017-02 av 2. oktober 2026 fra TE'
+    );
     expect(SKJEMA.kravSendt(kravbrev.registrert, kravbrev)).toBe(
       'Kravet om vederlagsjustering ble sendt med brev K201-KOE-017-02 av 2. oktober 2026.'
+    );
+  });
+
+  it('registrert korrespondanse nevner parten én gang, og sendingen står med datoen avstanden regnes til (LV-U42)', () => {
+    expect(SKJEMA.svarerPaa(epost)).toBe('Svar på totalentreprenørens e-post av 1. oktober 2026');
+    expect(SKJEMA.kravSendt(epost.registrert, epost)).toBe(
+      'Kravet om vederlagsjustering ble sendt 5. oktober 2026 (totalentreprenørens e-post av 1. oktober 2026).'
     );
   });
 

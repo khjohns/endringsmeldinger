@@ -149,9 +149,13 @@ export const SKJEMA = {
   overskrift: 'Svar på kravet',
   // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
   omSvaret: 'Om svaret',
-  // Omtalen har parten og datoen i seg (LV-U53, LV-U42), så de står ikke en gang til.
+  // Omtalen har datoen i seg, og parten for registrert korrespondanse (LV-U53, LV-U42).
   svarerPaa: (b: Brevref) =>
-    b.omtale ? `Svar på ${b.omtale}` : `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`,
+    !b.omtale
+      ? `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`
+      : b.art === 'registrert'
+        ? `Svar på ${b.omtale}`
+        : `Svar på ${b.omtale} fra TE`,
   lesBrevet: 'Les brevet ved siden av',
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevetHer: 'Les brevet',
@@ -168,7 +172,9 @@ export const SKJEMA = {
   klarOver: (d: string, b: Brevref) =>
     `TE oppgir at TE ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   kravSendt: (d: string, b: Brevref) =>
-    b.omtale
+    // Avstanden regnes til `registrert`. Omtalen av registrert korrespondanse har datoen TE
+    // oppgir, og den står derfor ikke alene her.
+    b.omtale && b.art !== 'registrert'
       ? `Kravet om vederlagsjustering ble sendt med ${b.omtale}.`
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,

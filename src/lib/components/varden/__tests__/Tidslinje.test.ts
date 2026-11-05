@@ -23,7 +23,13 @@ describe('Tidslinje', () => {
       dato: '2026-10-01',
       hva: 'klar_over_forholdet' as const,
       oppgittAv: 'TE' as const,
-      brev: { id: 'brev-1', nummer: 1, registrert: '2026-10-02T10:00:00Z', omtale: null },
+      brev: {
+        id: 'brev-1',
+        nummer: 1,
+        registrert: '2026-10-02T10:00:00Z',
+        omtale: null,
+        art: 'krav' as const,
+      },
       spor: [],
     };
     const { container } = render(Tidslinje, { brev: [], datoer: [d, { ...d }], aapen: true });
