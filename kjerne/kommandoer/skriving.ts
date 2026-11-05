@@ -201,8 +201,20 @@ function dokument(
       const forrige = u.spor[k.spor].gjeldendeKrav;
       const id = nyId();
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      // HF-U1, LV-U18 punkt 3: et krav om dager mens forespørselen etter § 33.6.2 er ubesvart,
+      // er svaret på den og viser til den (avgrensningen i #1567).
+      const foresporsel =
+        k.spor === 'frist' ? u.spor.frist.foresporsler.find((f) => f.svar === null) : undefined;
       const data: Data = {
-        krav: [{ id, spor: k.spor, ...(forrige ? { erstatter: forrige.id } : {}), ...k.innhold }],
+        krav: [
+          {
+            id,
+            spor: k.spor,
+            ...(forrige ? { erstatter: forrige.id } : {}),
+            ...(foresporsel ? { gjelder: foresporsel.foresporsel } : {}),
+            ...k.innhold,
+          },
+        ],
       };
       // MM-U1: et varsel i kravet registreres første gang det kommer.
       // HF-U1: datoen gjelder varselet, ikke kravet, som er sendt i appen.

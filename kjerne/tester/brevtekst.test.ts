@@ -3293,6 +3293,51 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
   });
 
+  it('HF-U1, LV-U18 punkt 3, LV-U49: kravet sendt mens forespørselen er ubesvart, viser til den i `gjelder` og har brevet i Deres ref.', () => {
+    const { s, f } = medForesporsel();
+    const krav = (s.send('TE', utenFelt(FRISTKRAV, 'varsel')).data.krav as Data[])[0];
+    expect(krav.gjelder).toBe(f);
+    expect(s.u().spor.frist.foresporsler).toEqual([
+      { foresporsel: f, svar: krav.id, medKrav: true },
+    ]);
+    expect(s.journal.at(-1)!.data.deres_ref).toEqual(['K201-KOE-017-02']);
+    // VS-U17: etter begrunnelsen er kravet ikke svaret på forespørselen.
+    const { s: medB } = medBegrunnelse();
+    const senere = (medB.send('TE', utenFelt(FRISTKRAV, 'varsel')).data.krav as Data[])[0];
+    expect(senere.gjelder).toBeUndefined();
+  });
+
+  it('HF-U1: en lest rad med et fristkrav uten henvisning til den ubesvarte forespørselen gjør saken ikke forstått', () => {
+    const krav = (gjelder?: string) => ({
+      krav: [{ id: randomUUID(), spor: 'frist', dager: 20, ...(gjelder ? { gjelder } : {}) }],
+    });
+    const { s: kontroll, f } = medForesporsel();
+    kontroll.rad('TE', krav(f));
+    expect(kontroll.u().forstaatt, 'kontrollsak: kravet viser til forespørselen').toBe(true);
+    const { s } = medForesporsel();
+    s.rad('TE', krav());
+    expect(s.u().forstaatt).toBe(false);
+    expect(s.u().begrensninger.map((b) => b.grunn)).toContain(
+      'fristkravet viser ikke til forespørselen etter § 33.6.2 det svarer på'
+    );
+  });
+
+  it('HF-U1: en lest rad med et fristkrav som viser til noe annet enn en ubesvart forespørsel, gjør saken ikke forstått', () => {
+    const krav = (gjelder: string) => ({
+      krav: [{ id: randomUUID(), spor: 'frist', dager: 20, gjelder }],
+    });
+    const { s: annet } = medForesporsel();
+    annet.rad('TE', krav(annet.krav('forhold')));
+    expect(annet.u().begrensninger.map((b) => b.grunn)).toContain(
+      'fristkravet viser ikke til en forespørsel etter § 33.6.2 før kravet'
+    );
+    const { s: besvart, f } = medBegrunnelse();
+    besvart.rad('TE', krav(f));
+    expect(besvart.u().begrensninger.map((b) => b.grunn)).toContain(
+      'fristkravet viser til en forespørsel etter § 33.6.2 som alt er besvart'
+    );
+  });
+
   it('VS-U30: etter TEs begrunnelse avvises en ny forespørsel fra appen', () => {
     const { s } = medForesporsel();
     expect(s.avvist('BH', foresporsel), 'kontrollsak: før begrunnelsen').toBe('FORESPORSEL_SENDT');

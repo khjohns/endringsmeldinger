@@ -505,12 +505,13 @@ function lesDokument(h: Journalrad): Dokument {
     dokumentasjon: data.dokumentasjon ?? [],
     krav: (data.krav ?? []).map((v, i) => {
       const e = element(v, KRAV, 'spor', `$.krav[${i}]`);
-      const { id: kravId, spor, erstatter, ...innhold } = e;
+      const { id: kravId, spor, erstatter, gjelder, ...innhold } = e;
       return {
         id: kravId as string,
         spor: spor as Spor,
         dokument: id,
         erstatter: (erstatter as string | undefined) ?? null,
+        ...(gjelder === undefined ? {} : { gjelder: gjelder as string }),
         innhold,
       };
     }),

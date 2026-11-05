@@ -270,7 +270,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U16: sporene et brev registrert som dokumentasjon hører til. Ingen regel leser dem (OV-U4).
   ['Dokument', 'relasjon', 'spor', ['format/leser.ts:dokumentasjonsbrev']],
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
-  ['Krav', 'relasjon', 'id spor erstatter'],
+  ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
   ['Krav.innhold', 'utsagn', 'hovedkategori underkategori beloep dager'],
   // OV-U23: posten etter § 34.1.3 annet ledd i vederlagskravet.
@@ -333,6 +333,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:kontrollerHenvisningene(elementer)', 'relasjon', '*'],
+  ['utledning/utled.ts:kontrollerSvaretPaaForesporselen(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:paaberopelser(elementer)', 'relasjon', '*'],
   // MM-U43 punkt 6: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
@@ -843,7 +844,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesDokument(e)',
     'rad',
-    'id art spor erstatter innhold hjemmel',
+    'id art spor erstatter gjelder innhold hjemmel',
     ['format/leser.ts'],
   ],
   ['format/leser.ts:lesDokument(o)', 'rad', 'id hva dato gjelder oppfylt', ['format/leser.ts']],

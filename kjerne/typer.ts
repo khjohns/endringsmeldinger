@@ -210,6 +210,11 @@ export interface Krav {
   dokument: string;
   /** Forrige kravversjon i sporet; `null` for den første. */
   erstatter: string | null;
+  /**
+   * Fristkravet: byggherrens forespørsel etter § 33.6.2 kravet svarer på (HF-U1, LV-U18 punkt 3).
+   * Satt når kravet sendes mens forespørselen fra løsningen er ubesvart.
+   */
+  gjelder?: string;
   innhold: Record<string, unknown>;
 }
 

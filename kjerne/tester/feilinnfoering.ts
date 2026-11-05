@@ -490,7 +490,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F34',
     feilklasse: 'skriveren utelater `erstatter` i en ny kravversjon (7.2)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['...(forrige ? { erstatter: forrige.id } : {}), ', '']],
+    endringer: [['...(forrige ? { erstatter: forrige.id } : {}),', '']],
     mal: ['F-MM-E1', 'F-MM-K1'],
   },
   {
@@ -2550,9 +2550,9 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F319',
     feilklasse:
-      'det første fristkravet etter forespørselen leses ikke som svar på den (LV-U18 setning 3)',
+      'fristkravet som viser til forespørselen, leses ikke som svar på den (HF-U1, LV-U18 setning 3)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['    if (krav && !kravetErDokumentasjon(d))', '    if (false)']],
+    endringer: [['      if (f) Object.assign(f, { svar: krav.id, medKrav: true });', '']],
     mal: ['kravet som svarer på forespørselen, sier det'],
   },
   {
@@ -3771,6 +3771,22 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert'],
+  },
+  {
+    id: 'F454',
+    feilklasse:
+      'kravet sendt mens forespørselen etter § 33.6.2 er ubesvart, viser ikke til den (HF-U1, #1567)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['...(foresporsel ? { gjelder: foresporsel.foresporsel } : {}),', '']],
+    mal: ['kravet sendt mens forespørselen er ubesvart, viser til den'],
+  },
+  {
+    id: 'F455',
+    feilklasse:
+      'et lest fristkrav uten henvisning til den ubesvarte forespørselen godtas (HF-U1, #1567)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      k.gjelder === undefined &&', '      false &&']],
+    mal: ['fristkrav uten henvisning til den ubesvarte forespørselen'],
   },
 ];
 
