@@ -199,7 +199,7 @@
         "start": "saken",
         "handlinger": [
           {
-            "staar": "TE opplyser at pålegget ble mottatt 15. september 2026."
+            "staar": "Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026."
           },
           {
             "staar": "påberoper at varselet etter punkt 32.2 kom for sent"
@@ -207,6 +207,9 @@
           {
             "klikk": "Korriger datoen",
             "tilstand": "korrigering"
+          },
+          {
+            "staar": "[ny dato]"
           },
           {
             "staar": "Den er ikke en ny kravversjon og avslår ikke svaret"
@@ -233,7 +236,7 @@
             "staar": "TEs siste opplysning"
           },
           {
-            "staar": "De gjaldt opplysningen 15. september 2026."
+            "staar": "Svaret fra BH står med virkningen det hadde, og påberopelsen står med tidspunktet."
           },
           {
             "staar": "Saken venter ikke på BH."
@@ -248,6 +251,10 @@
         ],
         "start": "korrigering",
         "handlinger": [
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "15.09.2026"
+          },
           {
             "klikk": "Send korrigeringen",
             "tilstand": "uendret"
@@ -286,17 +293,17 @@
         "start": "saken",
         "handlinger": [
           {
-            "klikk": "Send ny versjon av grunnlaget",
+            "klikk": "Send ny versjon av grunnlagskravet",
             "tilstand": "ny-versjon"
           },
           {
             "staar": "TEs siste opplysning: 15. september 2026"
           },
           {
-            "staar": "Datoen kan ikke endres i en ny versjon. Korriger datoen i et eget brev."
+            "staar": "Vil du rette datoen, anbefaler vi å korrigere den i et eget brev. Det lar svaret stå."
           },
           {
-            "staar": "Korrigeringen av datoen lar svaret stå."
+            "staar": "Du kan likevel sende en ny versjon av grunnlagskravet."
           },
           {
             "fyll": "Beskrivelse",
@@ -338,6 +345,9 @@
             "tilstand": "bh"
           },
           {
+            "staar": "TE har oppgitt en ny dato for når pålegget ble mottatt"
+          },
+          {
             "staar": "Korrigering av datoen i sak KOE-17"
           },
           {
@@ -374,6 +384,24 @@
           },
           {
             "staar": "Saken står lukket. Korrigeringen endrer ikke utfallet."
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "20.09.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Saken står lukket, og korrigeringen endrer ikke utfallet. BH kan ta stilling til opplysningen i et innlegg."
+          },
+          {
+            "klikk": "Se saken som BH",
+            "tilstand": "bh"
+          },
+          {
+            "staar": "Du kan ta stilling til opplysningen i et innlegg."
           }
         ]
       }

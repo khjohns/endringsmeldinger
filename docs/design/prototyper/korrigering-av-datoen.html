@@ -6,7 +6,7 @@
 <title>Korrigering av datoen</title>
 <!--
   Klikkbar skisse for BF-02A, BF-02C og BF-02D (docs/domenetabell/brukerforlop/BF-02A.md),
-  versjon 1, 05.11: TEs skjema for korrigering av datoen pålegget ble mottatt, og det låste
+  versjon 2, 05.11: TEs skjema for korrigering av datoen pålegget ble mottatt, og det låste
   datofeltet i en ny grunnlagsversjon. Tilstandene er ankrene (#saken, #korrigering, #uendret,
   #sendt, #bh, #ny-versjon, #ny-versjon-etter, #lukket), og stegtabellen i bestillingen viser
   til dem. ID-ene i data-spor er punktene i bestillingen. Teksten er prototypetekst; brevteksten
@@ -189,6 +189,7 @@ p{margin:0;text-wrap:pretty}
 .ark h3{font-size:18px;font-weight:600;letter-spacing:-.01em}
 .ark .tekst{font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.6}
 .ark .kolofon{font-size:12px;color:var(--ink-3);border-top:1px solid var(--rule-subtle-color);padding-top:10px}
+.plassholder{font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--draft);background:var(--draft-bg);border:1px dashed var(--draft-border);border-radius:var(--r-merke);padding:0 6px}
 .sitat{border-left:2px solid var(--rule-strong-color);padding-left:12px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.6}
 
 /* Sporbarheten */
@@ -247,7 +248,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
   <div class="flate">
     <div class="demolinje">
       <div class="topplinje-inner">
-        <span class="versjon">Skisse · Versjon 1, 05.11</span>
+        <span class="versjon">Skisse · Versjon 2, 05.11</span>
         <nav aria-label="Tilstandene i skissen">
           <ul id="demolenker">
             <li><a href="#saken">1 Saken</a></li>
@@ -290,7 +291,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
                   <dt>Forholdet</dt><dd>Irregulær endring etter punkt 32.1</dd>
                   <dt>Pålegget</dt><dd>Pålegg på byggemøte om å flytte ventilasjonskanalene i 3. etasje</dd>
                   <dt>Mottatt</dt>
-                  <dd><div class="dato-rad" data-spor="U-1"><span>TE opplyser at pålegget ble mottatt 15. september 2026.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div></dd>
+                  <dd><div class="dato-rad" data-spor="U-1"><span>Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div></dd>
                 </dl>
               </div>
             </article>
@@ -307,7 +308,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
               <div class="kort-hode"><h2 id="handl-tittel">Hva vil du gjøre?</h2></div>
               <div class="kort-kropp">
                 <ul class="andre">
-                  <li><a href="#ny-versjon"><span class="h">Send ny versjon av grunnlaget</span><span class="b">En ny kravversjon. Den avslår svaret i brev K201-KOE-017-02.</span></a></li>
+                  <li><a href="#ny-versjon"><span class="h">Send ny versjon av grunnlagskravet</span><span class="b">En ny kravversjon. Den avslår svaret i brev K201-KOE-017-02.</span></a></li>
                 </ul>
                 <p class="stille">Vil du bare rette datoen, bruker du «Korriger datoen» ved datoen. Svaret står da.</p>
               </div>
@@ -330,7 +331,8 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
                   <dt>Du korrigerer</dt><dd><b>15. september 2026</b>, datoen du oppga for når pålegget ble mottatt</dd>
                   <dt>Oppgitt i</dt><dd>Grunnlagskravet, brev <span class="brevkode">K201-KOE-017-01</span> av 1. oktober 2026</dd>
                 </dl>
-                <p class="virkning" data-spor="U-2 · D-1 · D-2">Korrigeringen er et eget brev til BH. <b>Den er ikke en ny kravversjon og avslår ikke svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Svaret og påberopelsen står, og saken venter ikke på BH.</p>
+                <p class="stille" data-spor="D-3">Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.</p>
+                <p class="virkning" data-spor="U-2 · D-1 · D-2">Korrigeringen er et eget brev til BH. <b>Den er ikke en ny kravversjon og avslår ikke svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Svaret fra BH står med virkningen det hadde, og påberopelsen står med tidspunktet. Saken venter ikke på BH.</p>
                 <p class="virkning vis-lukket" hidden data-spor="D-6">Saken står lukket. Korrigeringen endrer ikke utfallet.</p>
                 <div class="feilboks" id="uendret" role="alert" hidden data-spor="U-3 · D-4">
                   <b>Korrigeringen kan ikke sendes</b>
@@ -339,14 +341,13 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
                 <div class="felt">
                   <label for="ny-dato">Ny dato for når pålegget ble mottatt</label>
                   <span class="hjelp" id="ny-dato-hjelp">Skriv datoen som dd.mm.åååå. Den kan ikke være etter dagens dato.</span>
-                  <input type="text" id="ny-dato" inputmode="numeric" autocomplete="off" value="15.09.2026" aria-describedby="ny-dato-hjelp">
+                  <input type="text" id="ny-dato" inputmode="numeric" autocomplete="off" value="" aria-describedby="ny-dato-hjelp">
                 </div>
                 <div class="felt" data-spor="S-1">
                   <label for="forklaring">Forklaring (valgfri)</label>
-                  <span class="hjelp" id="forklaring-hjelp">Står under teksten i brevet. Løsningen tolker den ikke.</span>
+                  <span class="hjelp" id="forklaring-hjelp">Forklaringen står i brevet under teksten om datoen. Den endrer ikke det brevet sier om datoen.</span>
                   <textarea id="forklaring" aria-describedby="forklaring-hjelp"></textarea>
                 </div>
-                <p class="stille" data-spor="D-3">Løsningen avgjør ikke hvilken dato som er riktig, eller om varselet kom i tide.</p>
                 <div class="knapper">
                   <a class="knapp primaer" id="send" href="#sendt">Send korrigeringen</a>
                   <a class="lenke" id="avbryt" href="#saken">Avbryt</a>
@@ -361,7 +362,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
               <div class="ark" data-spor="U-3 · D-1 · S-2">
                 <p class="til">Til byggherren (BH) · viser til brev <span class="brevkode">K201-KOE-017-01</span></p>
                 <h3>Korrigering av datoen i sak KOE-17</h3>
-                <p class="tekst">Totalentreprenøren oppgir nå at pålegget ble mottatt <span id="forh-dato">15. september 2026</span>. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026.</p>
+                <p class="tekst">Totalentreprenøren oppgir nå at pålegget ble mottatt <span id="forh-dato" class="plassholder">[ny dato]</span>. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026.</p>
                 <p class="tekst" id="forh-forklaring" hidden></p>
                 <p class="kolofon">Brevnummeret og datoen settes når brevet sendes.</p>
               </div>
@@ -386,14 +387,16 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
                   <li><span class="hva">TEs siste opplysning</span><span><span class="d ny-dato">20. september 2026</span><span class="k">Brev K201-KOE-017-03 av 5. november 2026</span></span></li>
                   <li class="tidligere"><span class="hva">Tidligere</span><span><span class="d">15. september 2026</span><span class="k">Brev K201-KOE-017-01 av 1. oktober 2026, grunnlagskravet</span></span></li>
                 </ul>
-                <div class="dato-rad" data-spor="U-1"><span>TE opplyser at pålegget ble mottatt <span class="ny-dato">20. september 2026</span>.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div>
+                <p class="stille" data-spor="D-3">Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.</p>
+                <div class="dato-rad" data-spor="U-1"><span>Totalentreprenøren opplyser at pålegget ble mottatt <span class="ny-dato">20. september 2026</span>.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div>
               </div>
             </article>
             <article class="kort" aria-labelledby="sendt-svar">
               <div class="kort-hode"><h2 id="sendt-svar">Svaret fra BH står</h2><span class="kilde">Brev <span class="brevkode">K201-KOE-017-02</span> · 8. oktober 2026</span></div>
               <div class="kort-kropp" data-spor="U-4 · U-5 · D-2 · D-3">
-                <p>Svaret og påberopelsen av at varselet etter punkt 32.2 kom for sent, står. De gjaldt opplysningen 15. september 2026.</p>
-                <p class="virkning">Saken venter ikke på BH. BH kan ta stilling til den nye datoen i et senere svar eller i et nytt svar.</p>
+                <p>Svaret fra BH står med virkningen det hadde, og påberopelsen står med tidspunktet. Svaret og påberopelsen av at varselet etter punkt 32.2 kom for sent, gjaldt opplysningen 15. september 2026.</p>
+                <p class="virkning ikke-lukket">Saken venter ikke på BH. BH kan ta stilling til den nye datoen i et senere svar eller i et nytt svar.</p>
+                <p class="virkning vis-lukket" hidden data-spor="D-6 · U-6">Saken står lukket, og korrigeringen endrer ikke utfallet. BH kan ta stilling til opplysningen i et innlegg. <span class="merke ikke-stoettet">Innlegg: ikke støttet ennå</span></p>
               </div>
             </article>
           </div>
@@ -402,7 +405,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
               <div class="kort-hode"><h2 id="sendt-videre">Videre</h2></div>
               <div class="kort-kropp">
                 <ul class="andre">
-                  <li class="vis-utkast" hidden><a href="#ny-versjon-etter"><span class="h">Fortsett med den nye versjonen</span><span class="b">Utkastet ditt til ny versjon av grunnlaget står.</span></a></li>
+                  <li class="vis-utkast" hidden><a href="#ny-versjon-etter"><span class="h">Fortsett med den nye versjonen</span><span class="b">Utkastet ditt til ny versjon av grunnlagskravet står.</span></a></li>
                   <li><a href="#bh"><span class="h">Se saken som BH</span><span class="b">Slik BH ser korrigeringen.</span></a></li>
                 </ul>
               </div>
@@ -421,7 +424,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
           <div class="hoved">
             <div class="sporhode">
               <p class="over">Grunnlaget · irregulær endring (punkt 32.1)</p>
-              <h1 id="bh-tittel">TE har korrigert datoen pålegget ble mottatt</h1>
+              <h1 id="bh-tittel">TE har oppgitt en ny dato for når pålegget ble mottatt</h1>
             </div>
             <article class="kort" aria-labelledby="bh-brev">
               <div class="kort-hode"><h2 id="bh-brev">Korrigering av datoen i sak KOE-17</h2><span class="kilde">Brev <span class="brevkode">K201-KOE-017-03</span> · TE · 5. november 2026</span></div>
@@ -438,7 +441,8 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
                   <li><span class="hva">TEs siste opplysning</span><span><span class="d ny-dato">20. september 2026</span><span class="k">Brev K201-KOE-017-03 av 5. november 2026</span></span></li>
                   <li class="tidligere"><span class="hva">Tidligere</span><span><span class="d">15. september 2026</span><span class="k">Brev K201-KOE-017-01 av 1. oktober 2026, grunnlagskravet</span></span></li>
                 </ul>
-                <p data-spor="U-5 · D-3">Svaret ditt i brev K201-KOE-017-02 gjaldt opplysningen 15. september 2026. Svaret og påberopelsen etter punkt 32.2 står.</p>
+                <p data-spor="U-5 · D-2">Svaret ditt i brev K201-KOE-017-02 gjaldt opplysningen 15. september 2026. Svaret fra BH står med virkningen det hadde, og påberopelsen står med tidspunktet.</p>
+                <p class="stille" data-spor="D-3">Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.</p>
               </div>
             </article>
           </div>
@@ -447,7 +451,8 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
               <div class="kort-hode"><h2 id="bh-venter">Venter saken på deg?</h2></div>
               <div class="kort-kropp" data-spor="U-6 · D-2">
                 <p class="virkning"><b>Nei.</b> Korrigeringen venter ikke på svar fra BH.</p>
-                <p>Du kan ta stilling til den nye datoen i et senere svar eller i et nytt svar.</p>
+                <p class="ikke-lukket">Du kan ta stilling til den nye datoen i et senere svar eller i et nytt svar.</p>
+                <p class="vis-lukket" hidden data-spor="D-6">Saken står lukket, og korrigeringen endrer ikke utfallet. Du kan ta stilling til opplysningen i et innlegg. <span class="merke ikke-stoettet">Innlegg: ikke støttet ennå</span></p>
                 <a class="lenke" href="#sendt">Se saken som TE</a>
               </div>
             </section>
@@ -466,7 +471,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
             <div class="kort">
               <div class="kort-kropp skjema">
                 <p class="utkastlinje"><span class="utkastmerke">Utkast · ikke sendt</span>Til byggherren (BH)</p>
-                <p class="virkning">En ny versjon er en ny kravversjon og <b>avslår svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Korrigeringen av datoen lar svaret stå.</p>
+                <p class="virkning">En ny versjon er en ny kravversjon og <b>avslår svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Du kan likevel sende en ny versjon av grunnlagskravet.</p>
                 <div class="felt">
                   <label for="beskrivelse-1">Beskrivelse</label>
                   <textarea id="beskrivelse-1" class="beskrivelse"></textarea>
@@ -474,7 +479,8 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
                 <div class="laast" data-spor="U-7 · D-5">
                   <span class="lbl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Datoen pålegget ble mottatt</span>
                   <span class="verdi">TEs siste opplysning: <b>15. september 2026</b></span>
-                  <p>Datoen kan ikke endres i en ny versjon. <a class="lenke" href="#korrigering">Korriger datoen i et eget brev</a>.</p>
+                  <p>Datoen kan ikke endres i en ny versjon. Vil du rette datoen, anbefaler vi å korrigere den i et eget brev. Det lar svaret stå.</p>
+                  <a class="lenke" href="#korrigering">Korriger datoen i et eget brev</a>
                   <p class="stille">Det du har skrevet her, beholdes som utkast mens du korrigerer datoen.</p>
                 </div>
                 <div class="felt">
@@ -501,7 +507,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
             <div class="kort">
               <div class="kort-kropp skjema">
                 <p class="utkastlinje"><span class="utkastmerke">Utkast · ikke sendt</span>Til byggherren (BH)</p>
-                <p class="virkning">En ny versjon er en ny kravversjon og <b>avslår svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Korrigeringen av datoen lar svaret stå.</p>
+                <p class="virkning">En ny versjon er en ny kravversjon og <b>avslår svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Du kan likevel sende en ny versjon av grunnlagskravet.</p>
                 <div class="felt">
                   <label for="beskrivelse-2">Beskrivelse</label>
                   <textarea id="beskrivelse-2" class="beskrivelse"></textarea>
@@ -509,7 +515,8 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
                 <div class="laast" data-spor="U-7 · D-5">
                   <span class="lbl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Datoen pålegget ble mottatt</span>
                   <span class="verdi">TEs siste opplysning: <b class="ny-dato">20. september 2026</b></span>
-                  <p>Datoen kan ikke endres i en ny versjon. <a class="lenke" href="#korrigering">Korriger datoen i et eget brev</a>.</p>
+                  <p>Datoen kan ikke endres i en ny versjon. Vil du rette datoen, anbefaler vi å korrigere den i et eget brev. Det lar svaret stå.</p>
+                  <a class="lenke" href="#korrigering">Korriger datoen i et eget brev</a>
                 </div>
                 <div class="felt">
                   <span class="lbl">Teksten om datoen i den nye versjonen</span>
@@ -536,7 +543,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
             <article class="kort" aria-labelledby="lukket-krav">
               <div class="kort-hode"><h2 id="lukket-krav">Grunnlagskravet</h2><span class="kilde">Brev <span class="brevkode">K201-KOE-017-01</span> · TE · 1. oktober 2026</span></div>
               <div class="kort-kropp">
-                <div class="dato-rad" data-spor="U-1"><span>TE opplyser at pålegget ble mottatt 15. september 2026.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div>
+                <div class="dato-rad" data-spor="U-1"><span>Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div>
                 <p class="virkning" data-spor="D-6">Du kan fortsatt korrigere datoen. Korrigeringen endrer ikke utfallet, og saken står lukket.</p>
                 <p data-spor="U-6 · D-6">BH kan ta stilling til korrigeringen i et innlegg. <span class="merke ikke-stoettet">Innlegg: ikke støttet ennå</span></p>
               </div>
@@ -577,6 +584,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
   }
   function hindring() {
     const d = tolk(felt.value);
+    if (!felt.value.trim()) return 'Datoen mangler. Skriv datoen pålegget ble mottatt.';
     if (!d) return 'Datoen «' + felt.value.trim() + '» kan ikke leses. Skriv den som dd.mm.åååå, for eksempel 20.09.2026.';
     if (d.getTime() === OPPGITT.getTime()) return 'Datoen er den samme som i brev K201-KOE-017-01, 15. september 2026. Skriv datoen pålegget ble mottatt.';
     if (d > DAGENS) return `${tekst(d)} er etter dagens dato, 5. november 2026. Brevet kan ikke oppgi en dato som ikke har kommet ennå.`;
@@ -584,7 +592,9 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
   }
   function forhaandsvis() {
     const d = tolk(felt.value);
-    $('#forh-dato').textContent = d ? tekst(d) : (felt.value.trim() || '…');
+    const fd = $('#forh-dato');
+    fd.textContent = d ? tekst(d) : (felt.value.trim() || '[ny dato]');
+    fd.classList.toggle('plassholder', !d);
     const f = forklaring.value.trim();
     $('#forh-forklaring').textContent = f;
     $('#forh-forklaring').hidden = !f;
@@ -605,12 +615,14 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
     }
     if (h === 'lukket') fraLukket = true;
     if (h === 'saken') fraLukket = false;
+    if (h === 'uendret' && !felt.value.trim()) felt.value = '15.09.2026';
     const seksjon = h === 'uendret' ? 'korrigering' : h;
     for (const s of $$('.tilstand')) s.hidden = s.id !== seksjon;
     visFeil(h === 'uendret');
     feiltekst = null;
     $('#skall').dataset.rolle = h === 'bh' ? 'BH' : 'TE';
     for (const e of $$('.vis-lukket')) e.hidden = !fraLukket;
+    for (const e of $$('.ikke-lukket')) e.hidden = fraLukket;
     for (const e of $$('.vis-utkast')) e.hidden = !fraNyVersjon;
     $('#avbryt').setAttribute('href', fraLukket ? '#lukket' : fraNyVersjon ? '#ny-versjon' : '#saken');
     for (const e of $$('.ny-dato')) e.textContent = tekst(nyDato);
