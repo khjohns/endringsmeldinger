@@ -1,9 +1,10 @@
 <!--
   Sporet med siste brev i sin helhet (Varden, skjerm D). I forholdet står siden for forholdet i
   stedet, og «Les brevet» der viser brevet her (#1449): brevet slik det ble frosset da det ble
-  sendt, ikke en ny gjengivelse av dataene. Er det et svar kjernen tilbyr leseren å godta, står
-  «Ta stilling til svaret» over brevet, og panelet i høyre kolonne viser aksepten og
-  virkningen kjernen regner ut. Brevtypene kjernen tilbyr ellers, står i menyen.
+  sendt, ikke en ny gjengivelse av dataene. Handlingene står i kortet «Det du kan gjøre nå»
+  øverst i høyre kolonne: «Ta stilling til svaret» når kjernen tilbyr leseren å godta svaret, og
+  menyen med brevtypene kjernen tilbyr ellers. Panelet under kortet viser aksepten og virkningen
+  kjernen regner ut.
 -->
 <script lang="ts">
   import { ChevronRight, X } from 'lucide-svelte';
@@ -70,9 +71,8 @@
   const oversikt = $derived(spor === 'forhold' && lest === null);
   const lestBrev = $derived(lest === null ? undefined : sporbrev.find((b) => b.id === lest));
   const vist = $derived(lestBrev ?? (kanGodta && svarbrevet ? svarbrevet : siste));
-  // På siden for forholdet og i brevet som leses derfra, står handlingene i et kort i høyre
-  // kolonne, på linje med kortet i midten, som i prototypen `grunnlagsoversikt.html`.
-  const iForholdet = $derived(oversikt || lestBrev !== undefined);
+  // Handlingene står i et kort øverst i høyre kolonne, på linje med kortet i midten, i alle
+  // tilstandene til sporet, som i prototypen `grunnlagsoversikt.html` (oppdragsgiver 05.11, #1631).
   const menyvalg = $derived(iSporet.filter((n) => n !== `godta:${spor}`));
   const viserStilling = $derived(kanGodta && vist !== null && (oversikt || vist === svarbrevet));
 
@@ -156,7 +156,7 @@
 
 {#snippet taStilling()}
   <div class="stilling">
-    <p class="dempet">{MOTTATT.iSinHelhet(vist!.avsender)}</p>
+    <p class="dempet">{MOTTATT.svaretIBrev(vist!.avsender, vist!)}</p>
     <Knapp
       variant="primaer"
       aria-expanded={stilling}
@@ -186,9 +186,7 @@
             {dato(vist.sendt ?? vist.registrert)}</span
           >
         </h2>
-        {#if !iForholdet}{@render meny()}{/if}
       </div>
-      {#if kanGodta && !lestBrev}{@render taStilling()}{/if}
       {#if vist.avsnitt}
         <Brev
           avsender={vist.avsender}
@@ -204,15 +202,12 @@
         </Brev>
       {/if}
     {:else}
-      <div class="linje tomt">
-        <p>{MOTTATT.ingenBrev}</p>
-        {@render meny()}
-      </div>
+      <p class="tomt">{MOTTATT.ingenBrev}</p>
     {/if}
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if iForholdet && (menyvalg.length || viserStilling)}
+    {#if menyvalg.length || viserStilling}
       <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
         <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
         {#if viserStilling}{@render taStilling()}{/if}
@@ -280,10 +275,9 @@
   }
   .stilling {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-3);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
   }
   .tomt {
     padding: var(--spacing-6);

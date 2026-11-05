@@ -255,7 +255,7 @@ export const BREVKONTROLL = {
 export const MOTTATT = {
   fra: (n: number, part: Part, d: string) =>
     `Brev ${n} · ${part} · mottatt ${dato(d)} kl. ${klokke(d)}`,
-  iSinHelhet: (part: Part) => `Brevet fra ${part} står i sin helhet under.`,
+  svaretIBrev: (part: Part, b: Brevref) => `Svaret fra ${part} står i ${brevref(b)}.`,
   taStilling: 'Ta stilling til svaret',
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
