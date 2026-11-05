@@ -17,9 +17,9 @@ Sitatene fra NS 8407 er kontrollert mot teksten i `khjohns/kontrakt` og gjengis 
 ## Det kartleggingen fant
 
 - **Prinsipp 3 og 4 i OV-U43 forutsetter en sperre som ikke lenger finnes.** OV-U43 (26.10) sier
-  at partene kan endre en avtalt beregningsregel «ved uttrykkelig enighet mellom dem, uten trekk
+  (utdrag) at partene kan endre en avtalt beregningsregel «ved uttrykkelig enighet mellom dem, uten trekk
   og uten avkall» (prinsipp 4), og at det etter at behandlingen er ferdig «godtas fortsatt»
-  overslag, varsler og en slik endring (prinsipp 3). Forholdene sier hvorfor: OV-U43 «endrer OV-U3,
+  overslag, varsler og en slik endring (prinsipp 3). Forholdene sier hvorfor (utdrag av forholdssetningen): OV-U43 «endrer OV-U3,
   slik at en virksom enighet om beregningsregelen gjør vederlagskravet avgjort, med unntak fra
   sperren for overslag, varsler og endring av regelen», og «utvider KA-U7 og HF-U9, slik at en
   enighet om beregningsregelen kan endres ved ny enighet». To dager etter opphevet MM-U34 KA-U7
@@ -30,7 +30,7 @@ Sitatene fra NS 8407 er kontrollert mot teksten i `khjohns/kontrakt` og gjengis 
   ved enighet. Spørsmål 2, E5.
 - **OV-U43 er samlet i biter tre steder.** MM-U45 tok nøkkeltallene, OV-U89 tok posten for rigg
   og drift i prinsipp 1, 3 og 5, og EO-U34 endret prinsipp 5 andre setning (E12 der) og samlet
-  EO-U19 og EO-U21, som endret prinsipp 5. Resten av OV-U43 står uten samlevedtak. OV-U89
+  EO-U21, som endret prinsipp 5. EO-U34 har forholdet «endrer», ikke «samler», til OV-U43, så prinsipp 5 første setning har ikke noe hjem i et samlevedtak. Resten av OV-U43 står uten samlevedtak. OV-U89
   punkt 26 bruker alt «registrert enighet» om beregningsregelen, med MM-U34 punkt 10 som kilde.
   E4.
 - **VS-U28 er endret av OV-U43, men ordlyden står.** VS-U28 sier fortsatt at kravet om
@@ -52,11 +52,11 @@ Meldt til orkestratoren i sluttmeldingen fra økta. Forholdet til hvert samleved
 | --- | --- | --- | --- |
 | MM-U45 (betegnelser, saksliste, nøkkeltall) | OV-U43, OV-U10, OV-U69 | OV-U43 prinsipp 3 tiende setning (nøkkeltallene); OV-U10 og OV-U69 «ingen setning endres» | resten av OV-U43; OV-U10 nevnes bare |
 | OV-U89 (særskilt varsel, rigg og drift) | OV-U43 | prinsipp 1 femte setning, prinsipp 3 andre setning, posten i prinsipp 5 (punkt 17, 26, 27 der) | punkt 4 og 13 viser dit |
-| EO-U34 (endringsordren) | OV-U43, HF-U9 | prinsipp 5 andre setning (E12: gjelder ikke som vilkår); EO-U19 og EO-U21, som utvidet og endret prinsipp 5; punkt 24 og 28 om overslag ved regningsarbeid i en endringsordre | prinsipp 5 samles ikke her; punkt 12 nevner EO-U34 punkt 28 |
+| EO-U34 (endringsordren) | OV-U43, HF-U9 | forholdet er «endrer OV-U43», ikke «samler»: prinsipp 5 andre setning (E12: gjelder ikke som vilkår); EO-U21, som endret prinsipp 5 tredje setning (punkt 21 der); punkt 24 og 28 om overslag ved regningsarbeid i en endringsordre | prinsipp 5 første setning samles her (punkt 18); punkt 12 nevner EO-U34 punkt 24 og 28 |
 | KA-U49 og KA-U50 (vilkår og forbehold) | LV-U32, OV-U69 | LV-U32 s1, s3, s4; hele OV-U69 | LV-U32 s2 og s5; OV-U69 nevnes bare; E6 |
 | HF-U23 (akseptfristen) | LV-U31, OV-U43 | ingen setning; forholdet LV-U31 → HF-U14 har ikke noe å virke på (E6 der) | LV-U31 samles |
 | MM-U50 (sendte brev og regelendring) | HF-U9 | fjerde og femte setning og tillegget fra MM-U34 punkt 10 | HF-U9 nevnes bare |
-| VS-U43 (varslingsdatoen) | OV-U5 (gjennom VS-U28) | OV-U5 | punkt 10 viser dit |
+| VS-U43 (varslingsdatoen) | OV-U5 (gjennom VS-U28) | bare setningen i OV-U5 om varsel etter punkt 33.4; resten av OV-U5 hører til kjeden for brev og varsel utenfor løsningen | punkt 10 viser til OV-U5, som VS-U28 s3 |
 | MM-U43 | OV-U4 (gjennom VS-U28) | OV-U4 i punkt 9 | punkt 13 viser dit |
 | HF-U25, KA-U46 | HF-U7 | ingen setning i HF-U7 | HF-U7 nevnes bare |
 | Kjeden «Trekk og sperrene mot trekk» (senere runde) | HF-U9, KA-U7, MM-U34 | – | se under |
@@ -85,8 +85,8 @@ Klassene er prøvd uavhengig 05.11 (svar 8); se «Prøvingen».
 
 | Post | Klasse | Status nå | Forhold til samlevedtaket | E-punkt |
 | --- | --- | --- | --- | --- |
-| OV-U43 | vedtak med designdel | gjeldende; endret av MM-U34, EO-U21, EO-U34; utvidet av EO-U19; snevret inn av EO-U23; delvis samlet i MM-U45 og OV-U89 | samler prinsipp 1 s1–s4, prinsipp 2, prinsipp 3 s1, s4–s6 og s8–s9, prinsipp 6; endrer prinsipp 3 s3 og s7 og prinsipp 4 (ved spørsmål 2 A); prinsipp 5 står i EO-U34 | E4, E5, E6, E7 |
-| VS-U28 | vedtak med beslutningsdel | gjeldende; endret av OV-U43 | samler, s1, s2 og s6 slik OV-U43 endret dem | E2 |
+| OV-U43 | vedtak med designdel | gjeldende; endret av MM-U34, EO-U21, EO-U34; utvidet av EO-U19; snevret inn av EO-U23; delvis samlet i MM-U45 og OV-U89 | samler prinsipp 1 s1–s4, prinsipp 2, prinsipp 3 s1, s4–s6 og s8–s9, prinsipp 4, prinsipp 5 s1 og prinsipp 6; endrer prinsipp 3 s3 og (ved spørsmål 2 A) s7; prinsipp 5 s2–s3 står i EO-U34 og OV-U89 | E4, E5, E6, E7 |
+| VS-U28 | vedtak med beslutningsdel | gjeldende; endret av OV-U43 | samler s1 og s3–s7, s1 og s6 slik OV-U43 endret dem; endrer s2 (ved spørsmål 1 A) | E2 |
 | OV-U14 | beslutning | gjeldende; presisert av OV-U43 | samler (beslutningsdelen) | – |
 | LV-U30 | vedtak | gjeldende; endret av OV-U43 og LV-U39 | samler, s3 slik OV-U43 endret den | E1, E3 |
 | LV-U31 | vedtak | gjeldende; endret av LV-U39 | samler | E1 |
@@ -114,8 +114,9 @@ prinsippet i OV-U43. «Beregningsregel» er kontraktens enhetspriser (punkt 34.3
    beregningsregler, det vil si kontraktens enhetspriser (punkt 34.3.1) eller regningsarbeid
    (punkt 34.4 og punkt 30). Et krav etter en beregningsregel er ikke et tilbud om fast sum.
    (OV-U43 p1 s1–s2)
-2. TE kan kreve vederlag etter regning (punkt 34.4) fra løsningen. Kravet har ikke et anslått
-   beløp som kravversjon. (VS-U28 s1 slik OV-U43 p2 s2 endret den; E2)
+2. Et krav om regningsarbeid (punkt 34.4) har ikke et anslått beløp som kravversjon. (OV-U43 p2
+   s2; VS-U28 s1 slik OV-U43 endret den; E2) At TE kan kreve vederlag etter regning fra
+   løsningen i første versjon, står i beslutningsdelen. (VS-U28 s1)
 3. Krever TE i tillegg særskilt justering for nedsatt produktivitet eller forstyrrelser, sier
    brevet etter beløpet for justeringen ellers: «TE krever i tillegg særskilt justering av
    vederlaget etter NS 8407 punkt 34.1.3 annet ledd for økte utgifter på grunn av nedsatt
@@ -136,12 +137,12 @@ prinsippet i OV-U43. «Beregningsregel» er kontraktens enhetspriser (punkt 34.3
    kostnader eller noe beløp for det vederlaget. (OV-U43 p1 s3–s4)
 6. Brevteksten når byggherren godkjenner oppgjør som fast sum, står i KA-U49 (LV-U32 s1). Den
    gjelder både når byggherren ikke godkjenner hele tilbudet, og når hele det krevde beløpet er
-   godkjent. (LV-U31 s1; LV-U32 s2) Avviker beløpet eller øvrige vilkår fra TEs tilbud, betegner
-   brevet ikke tilbudet som akseptert (punkt 34.2.2). (LV-U31 s2; KA-U49, LV-U32 s3)
+   godkjent. (LV-U31 s1; LV-U32 s2) At brevet ikke betegner tilbudet som akseptert, står i KA-U49
+   punkt 8 (LV-U32 s3), og gjelder også når beløpet eller øvrige vilkår avviker fra TEs tilbud
+   (punkt 34.2.2). (LV-U31 s2)
 7. Standpunktet om fast sum innebærer ikke i seg selv avkall på kontraktens beregningsregler
    (punkt 34.3 og 34.4) dersom partene ikke blir enige om et avtalt oppgjør for den aktuelle
-   vederlagsjusteringen. (LV-U31 s3) Om partene er enige, følger av HF-U7 og GR-U7 (KA-U49, LV-U32
-   s4).
+   vederlagsjusteringen. (LV-U31 s3) Om partene er enige, følger KA-U49 punkt 8 (LV-U32 s4).
 8. Standpunktet står i det laget innsigelsene i svaret gir det (OV-U32, OV-U33). (LV-U31 s4;
    LV-U32 s5)
 
@@ -155,13 +156,14 @@ prinsippet i OV-U43. «Beregningsregel» er kontraktens enhetspriser (punkt 34.3
    p2 s1 og s3–s6; VS-U28 s6 slik OV-U43 endret den; E2)
 10. Varselet til byggherren før regningsarbeidet settes i gang (punkt 34.4 første ledd) kan sendes
     fra løsningen som et eget utsagn med serverens dato, eller TE kan oppgi datoen for et varsel
-    sendt utenfor løsningen etter VS-U43. (VS-U28 s3; OV-U5 er samlet i VS-U43)
+    sendt utenfor løsningen, som etter OV-U5. (VS-U28 s3)
 11. Byggherren kan gjøre gjeldende i svaret at varselet ikke ble gitt eller kom for sent.
     Løsningen registrerer og viser varselet og standpunktet med bestemmelsen, uten utledet
     virkning, og avgjør ikke hvilken virkning et manglende eller sent varsel har. (VS-U28 s4–s5;
     OV-U43 p6 s1)
 12. Løsningen avgjør ikke virkningene i punkt 30.3.1 tredje ledd og 30.3.2 tredje ledd. (VS-U28
-    s7) I en endringsordre som fastsetter regningsarbeid, gjelder EO-U34 punkt 24 og 28.
+    s7) I en endringsordre som fastsetter regningsarbeid, gjelder EO-U34 punkt 24 og 28. (OV-U43
+    p2, snevret inn av EO-U23, som EO-U34 samlet)
 
 ### D. Enighet om beregningsregelen
 
@@ -173,18 +175,28 @@ prinsippet i OV-U43. «Beregningsregel» er kontraktens enhetspriser (punkt 34.3
     p3 s7, uten «og en endring etter prinsipp 4»; E5)
 15. Et tilbud byggherren ikke har akseptert, regnes ikke lenger som krav når løsningen har
     registrert enighet om en beregningsregel. Det tidligere tilbudet erstattes som gjeldende krav
-    først når partene er enige om beregningsregelen i stedet. (OV-U43 p3 s8–s9; E4)
+    først når løsningen har registrert enighet om beregningsregelen i stedet. (OV-U43 p3 s8–s9;
+    E4)
 16. Partene kan endre en beregningsregel de er enige om, ved uttrykkelig enighet mellom dem, uten
     trekk og uten avkall. (OV-U43 p4) Fram til endringsordren kan TE også sende en ny kravversjon
     og byggherren et nytt svar etter at løsningen har registrert enighet om regelen. Visningen
     viser at det nye avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten
-    står (MM-U12). (MM-U34 punkt 9; E5; spørsmål 2) Etter endringsordren gjelder EO-U34.
+    står (MM-U12). (MM-U34 punkt 9; E5; spørsmål 2) Sender TE en ny kravversjon, venter sporet på
+    nytt svar (HF-U8, samlet i HF-U23), og behandlingen er ikke ferdig etter punkt 13 før løsningen
+    har registrert enighet om den nye kravversjonen. (E5) Etter endringsordren gjelder sperren i
+    EO-U34. (MM-U34 punkt 12)
 
 ### E. Hva løsningen ikke avgjør
 
 17. Løsningen avgjør ikke det kontrakten overlater til partene (MM-U12): hvilken beregningsregel
     som faktisk gjelder når partene er uenige, hvilke kostnader som er nødvendige, eller
-    virkningen av et manglende eller sent varsel. (OV-U43 p6 s1)
+    virkningen av et manglende eller sent varsel. (OV-U43 p6 s1) Utover det punkt 13–16 og 18
+    sier, endrer samlevedtaket ingen bindinger eller sperrer. (OV-U43 p6 s4; E7)
+
+### F. Endringsordren
+
+18. En endringsordre kan angi beregningsregelen uten et samlet beløp. (OV-U43 p5 s1) Resten av
+    prinsipp 5 står i EO-U34 punkt 21 og OV-U89 punkt 27.
 
 ### Designdel
 
@@ -195,6 +207,7 @@ prinsippet i OV-U43. «Beregningsregel» er kontraktens enhetspriser (punkt 34.3
 
 ### Beslutningsdel
 
+- I første versjon kan TE kreve vederlag etter regning (punkt 34.4) fra løsningen. (VS-U28 s1)
 - I første versjon tar løsningen imot krav etter kontraktens enhetspriser etter punkt 34.3.1.
   Justerte enhetspriser etter punkt 34.3.2 og varsel om justering etter punkt 34.3.3 avvises.
   (OV-U14, presisert av OV-U43 p1)
@@ -218,30 +231,32 @@ totalentreprenøren kreve vederlag etter regning (§ 34.4) fra appen, med et ans
 kravversjon.», s2 «Kravet kan oppdateres med en ny kravversjon når kostnadene er kjent.» og s6
 «Kostnadsoverslaget, totalentreprenørens varsel om at det vil bli overskredet, og
 tilbakeholdelsen etter § 30.2, og oppgavene og kontrollen etter § 30.3, sendes utenfor appen og
-registreres etter OV-U4.» OV-U43 endret VS-U28 26.10, «slik at et krav om regningsarbeid ikke har
+registreres etter OV-U4.» OV-U43 endret VS-U28 26.10, i forholdet (utdrag) «slik at et krav om regningsarbeid ikke har
 et anslått beløp som kravversjon, og kostnadsoverslaget og varselet om overskridelse kan føres i
 løsningen». Samlevedtaket: punkt 2 og 9 og beslutningsdelen. S1 og s6 står slik OV-U43 endret dem.
 At s2 ikke står, er vår slutning: uten et anslått beløp er det ikke noe beløp å oppdatere, og
 beløpet avregnes utenfor løsningen (punkt 13). TE kan fortsatt sende en ny kravversjon etter MM-U34
-punkt 9. Ved spørsmål 1 B står s2.
+punkt 9. Ved spørsmål 1 B står s2. «I første versjon» i s1 står i beslutningsdelen, og
+henvisningen «som etter OV-U5» i s3 står i punkt 10.
 
 **E3 Setningen om tilbud.** Gammel tekst: LV-U30 s3 «Brevet avslutter med «Kravet er et tilbud
 etter NS 8407 § 34.2.1.» også når kravet bare har det særskilte kravet.» OV-U43 endret LV-U30 og
-LV-U4 punkt 2 «slik at setningen om tilbud bare står i et tilbud». Samlevedtaket: punkt 4. Innholdet
+LV-U4 punkt 2, i forholdet (utdrag) «slik at setningen om tilbud bare står i et tilbud». Samlevedtaket: punkt 4. Innholdet
 er ikke endret i forhold til OV-U43.
 
 **E4 «Virksom enighet» og «registrert enighet».** Gammel tekst: OV-U43 p3 s1 «En virksom enighet
 om beregningsregelen gjør behandlingen av vederlagskravet ferdig i løsningen, mens beløpet
-avregnes utenfor løsningen.» og s8 «… når partene er enige om en beregningsregel.» MM-U34 punkt 10
+avregnes utenfor løsningen.» og s8 «Et tilbud byggherren ikke har akseptert, regnes ikke lenger
+som krav når partene er enige om en beregningsregel.» MM-U34 punkt 10
 endret HF-U9 til «Løsningen registrerer enighet om et standpunkt når …» og la til «Løsningen
 avgjør ikke om partene rettslig er enige (MM-U12).» OV-U89 punkt 26 bruker alt «registrert
-enighet» om beregningsregelen. Samlevedtaket: punkt 13 og 15. «Virksom» står og viser til GR-U7,
+enighet» om beregningsregelen. Samlevedtaket: punkt 13 og 15, også s9. «Virksom» står og viser til GR-U7,
 som p3 s4 gjør. Innholdet er ikke endret.
 
 **E5 Endring av regelen og sperren (spørsmål 2).** Gammel tekst: OV-U43 p3 s7 «Etter at
 behandlingen er ferdig, godtas fortsatt overslag og varsler etter prinsipp 2 og en endring etter
 prinsipp 4.»; p4 «En beregningsregel partene er enige om, kan endres ved uttrykkelig enighet mellom
-dem, uten trekk og uten avkall.»; i forholdene «endrer OV-U3, slik at en virksom enighet om
+dem, uten trekk og uten avkall.»; i forholdene (utdrag) «endrer OV-U3, slik at en virksom enighet om
 beregningsregelen gjør vederlagskravet avgjort, med unntak fra sperren for overslag, varsler og
 endring av regelen» og «utvider KA-U7 og HF-U9, slik at en enighet om beregningsregelen kan endres
 ved ny enighet, uten at det forkastede alternativet i KA-U7 om ny kravversjon med samtykke
@@ -250,20 +265,27 @@ kravversjon og byggherren et nytt svar også i et spor med registrert enighet. V
 nye avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten står (MM-U12).»
 MM-U34 punkt 12: «Sperren mot trekk, ny kravversjon og revisjon når kravene er avgjort, oppheves, og
 sperren gjelder fra endringsordren er sendt (punkt 19).» Samlevedtaket: punkt 14 og 16. Ved
-spørsmål 2 A står prinsipp 4 som partenes adgang etter kontrakten, men ikke som den eneste veien i
-løsningen. «Og en endring etter prinsipp 4» i p3 s7 faller, fordi det ikke er noen sperre å gjøre
-unntak fra før endringsordren. Unntaket fra sperren i OV-U3 og utvidelsen av KA-U7 og HF-U9 har ikke
-noe å virke på. Innholdet er endret. Forhold: endrer OV-U43 p3 s7 og p4. Ved B står en sperre for
-regelen, og samlevedtaket snevrer inn MM-U34 punkt 9.
+spørsmål 2 A står prinsipp 4 ordrett, som partenes adgang etter kontrakten, og punkt 16 sier at
+den ikke er den eneste veien i løsningen. «Og en endring etter prinsipp 4» i p3 s7 faller, fordi
+det ikke er noen sperre å gjøre unntak fra før endringsordren. At unntaket fra sperren i OV-U3 og
+utvidelsen av KA-U7 og HF-U9 ikke har noe å virke på, står alt i Følge for OV-U43: «Endret 28.10 av
+MM-U34 for forholdene til KA-U7, HF-U9, EO-U5 og OV-U3 (punkt 9, 10, 12 og 20).» At behandlingen
+ikke er ferdig mens en nyere kravversjon venter på svar (punkt 16), er vår slutning av punkt 13 og
+HF-U8. Uten den sier punkt 13 at behandlingen er ferdig mens sporet venter på svar. Innholdet er
+endret. Forhold ved A: endrer OV-U43 p3 s7; presiserer p4. Ved B står en sperre for regelen, og
+samlevedtaket snevrer inn MM-U34 punkt 9 og 12, HF-U9 slik MM-U34 punkt 10 endret den (samlet i
+MM-U50), og MM-U42 for retting som ny kravversjon.
 
 **E6 Vilkår som hindrer at behandlingen er ferdig.** Gammel tekst: OV-U43 p3 s3 «Vilkår som ikke
 er avklart etter svaret 25.10 om vilkår, hindrer at behandlingen er ferdig.» Svaret 25.10 var
 OV-U49, som OV-U69 opphevet 30.10. OV-U69 sier: «Løsningen registrerer enighet ut fra valgene
 (MM-U33 steg 5), og skjemaet sier det før sending.» og «Endringene OV-U49 gjorde i andre vedtak,
 blant annet i GR-U7, GR-U8, KA-U16 og svaret 25.10 på spørsmål 8 om nøkkeltallene, faller bort med
-det.» Samlevedtaket: setningen tas ikke med. Det er vår slutning at den faller bort med OV-U49,
-fordi vilkårene etter OV-U69 skrives i begrunnelsen og ikke tolkes. Innholdet er endret i forhold
-til ordlyden i OV-U43, men ikke i forhold til OV-U69. Forhold: endrer OV-U43 p3 s3.
+det.» Samlevedtaket: setningen tas ikke med. KA-U49 har tatt stilling til innholdet: vilkår og
+forbehold tolkes ikke (punkt 3), et vilkår gjør ikke enigheten betinget i løsningen (punkt 5), og
+registrert enighet avgjør ikke om et vilkår er oppfylt (punkt 6). KA-U49 og KA-U50 nevner ikke
+OV-U43, så forholdet trengs. Innholdet er endret i forhold til ordlyden i OV-U43, men ikke i
+forhold til OV-U69 og KA-U49. Forhold: endrer OV-U43 p3 s3.
 
 **E7 Det OV-U43 lot stå åpent.** Gammel tekst: OV-U43 p6 s2 «Vedtaket avgjør ikke bindingen ved
 nye kravversjoner, akseptfrister, fullmaktskontrollen, revisjonsvernet, sammenfall og aksept i et
@@ -274,15 +296,15 @@ handlingene tas i bruk.» og s4 «Utover det prinsipp 3, 4 og 5 sier, endrer pri
 bindinger eller sperrer.» Samlevedtaket: beslutningsdelen, uten punktene som andre vedtak har
 avgjort siden: bindingen ved nye kravversjoner (MM-U34 punkt 9), akseptfristene (HF-U23),
 revisjonsvernet (HF-U25), kravet om nedsatt produktivitet (OV-U89), varselet etter punkt 34.4
-(VS-U28, punkt 10–11 her) og brevtekstene (punkt 3–8 her). S4 tas ikke med: etter MM-U34 punkt 12
-er det ingen sperre før endringsordren som prinsippene kunne endre. Klassen er beslutning, fordi
-setningene sier hva som venter. Innholdet er ikke endret.
+(VS-U28, punkt 10–11 her) og brevtekstene (punkt 3–8 her). Klassen for s2–s3 er beslutning,
+fordi setningene sier hva som venter. S4 står i punkt 17 med samlevedtakets punkter i stedet for
+prinsippene. Innholdet er ikke endret.
 
 ## Klassene
 
 Etter testen i vedtaksskillen:
 
-- Punkt 1–17 er *vedtak*: de sier hva et tilbud og et krav etter en beregningsregel er etter
+- Punkt 1–18 er *vedtak*: de sier hva et tilbud og et krav etter en beregningsregel er etter
   punkt 34.2–34.4, hva byggherrens standpunkt godkjenner, hva brevet sier at partene har sagt, når
   behandlingen er ferdig, hva som regnes som krav, og hva løsningen ikke avgjør. Brevtekstene i
   punkt 3, 4 og 6 er *vedtak* fordi de sier hvilket standpunkt brevet gir uttrykk for (LV-U30,
@@ -316,30 +338,73 @@ grunnlag for forslaget, bare for belegget i spørsmål 2 og funnene.
 
 ## Prøvingen
 
-<!-- fylles etter den uavhengige prøvingen -->
+En uavhengig subagent prøvde 05.11 på `8a39f35` sitatene, kildene, overlappen, alternativene mot
+vedtaksfila, klassene (svar 8) og tre forløp, etter «Prøv hvert alternativ» og «Prøv
+arbeidsflyten» i vedtaksskillen. Prøvingen kjøres én gang. S-nummereringen og statusene stemte,
+og klassene holdt. Tre påstander om koden ble kontrollert og stemte. Funnene og rettingene:
+
+- **OV-U5 er ikke samlet i VS-U43.** VS-U43 tok bare setningen om varsel etter punkt 33.4. Punkt 10
+  viser nå til OV-U5, som VS-U28 s3, og overlapptabellen er rettet.
+- **OV-U43 prinsipp 5 første setning hadde ikke noe hjem.** EO-U34 har forholdet «endrer», ikke
+  «samler». Setningen står nå i punkt 18, og spørsmål 1 A nevner bare andre og tredje setning som
+  samlet andre steder.
+- **E7 strøk p6 s4 uten forhold.** Setningen står nå i punkt 17 med samlevedtakets punkter, så
+  innholdet er uendret ved både 2 A og 2 B.
+- **Tabellen og spørsmål 1 sa ulikt om VS-U28.** Tabellen sier nå «endrer s2».
+- **Umerkede endringer:** «I første versjon» i VS-U28 s1 står nå i beslutningsdelen. Punkt 6 sa
+  betinget det KA-U49 punkt 8 sier ubetinget, og punkt 7 gjenga KA-U49 uten vilkårene; begge viser
+  nå til KA-U49 punkt 8. E6 har belegg i KA-U49 punkt 3, 5 og 6 i stedet for en slutning. E5 viser
+  til Følge for OV-U43 for forholdene til KA-U7, HF-U9 og OV-U3, og spørsmål 2 A har dem ikke lenger
+  i forholdet. Punkt 15 bruker «registrert enighet» i begge setningene. Punkt 12 og 16 har fått
+  kilder.
+- **Sitatene.** E4 siterer nå hele s8. Sitatene fra forholdene i OV-U43 er utdrag av én lang
+  forholdssetning og er merket som det der de brukes; belegget i spørsmål 1 siterer nå hele
+  setningen i OV-U69.
+- **Spørsmål 1** sier nå at punkt 14 og 16 og E5 følger svaret på spørsmål 2, og B kan stå alene.
+- **Spørsmål 2.** Forholdet til prinsipp 4 ved A er «presiserer», fordi A gjentar prinsipp 4. B
+  snevrer også inn MM-U34 punkt 12, HF-U9 og MM-U42, og står nå med det. B sperret bare TEs nye
+  kravversjon, ikke byggherrens nye svar, og bandt dermed bare TE; B gjelder nå begge parter, og
+  trekk følger fortsatt KA-U6 og MM-U34 punkt 12. Forløpet der TE sender en ny kravversjon etter
+  enighet om regelen, viste at punkt 13 måtte si hva som gjelder mens den nye kravversjonen venter
+  på svar; punkt 16 sier det nå, merket som slutning i E5. Forløpet der TE har sagt ja ved en feil,
+  viste en blindvei ved B: formen på et forslag om å endre regelen er utsatt, så TE har ingen vei i
+  løsningen. Det står nå under «Hva B koster».
+
+Ikke rettet: punkt 16 og 17 viser til MM-U12, som MM-U50 opphevet 05.11. MM-U50 bruker selv
+henvisningen som navn på prinsippet, og vedtaksøkta retter henvisningene samlet.
 
 ## Spørsmålene til oppdragsgiver
 
 Lagret ordrett før de ble sendt.
 
 **1. Tilslutning til samlevedtaket for vederlagsmetoden: fast sum, beregningsregel og
-regningsarbeid.** Forslaget over, punkt 1–17 med designdelen, beslutningsdelen og «Endret
+regningsarbeid.** Forslaget over, punkt 1–18 med designdelen, beslutningsdelen og «Endret
 innhold» E1–E7. E1, E3, E4 og E7 samler ordlyden uten å endre innholdet. E2 skriver
 regningsarbeidet slik vedtaket 26.10 endret det, og har én slutning: at setningen om å oppdatere
 det anslåtte beløpet faller bort. E6 tar ikke med setningen om at vilkår hindrer at behandlingen er
-ferdig, fordi vedtaket den viser til, er opphevet. E5 avgjøres i spørsmål 2.
+ferdig, fordi vedtaket den viser til, er opphevet, og samlevedtaket for vilkår og forbehold (KA-U49)
+har tatt stilling til innholdet. Punkt 14 og 16 og E5 avgjøres i spørsmål 2.
 
 - **A (anbefalt):** «Reglene for vederlagsmetoden – tilbud om fast sum, krav etter kontraktens
-  beregningsregler og regningsarbeid – står i samlevedtaket OV-U94, punkt 1–17 med designdelen,
-  beslutningsdelen og E1–E7. OV-U43 (unntatt det som er samlet i MM-U45 og OV-U89 og prinsipp 5),
+  beregningsregler og regningsarbeid – står i samlevedtaket OV-U94, punkt 1–18 med designdelen,
+  beslutningsdelen og E1–E7, med punkt 14 og 16 og E5 etter svaret på spørsmål 2. OV-U43 (unntatt
+  det som er samlet i MM-U45 og OV-U89, og andre og tredje setning i prinsipp 5), VS-U28, OV-U14,
+  LV-U30, LV-U31 og LV-U32 andre og femte setning gjelder som «Samlet i samlevedtaket for
+  vederlagsmetoden». Forhold: samler de postene; endrer OV-U43 prinsipp 3 tredje setning (E6) og
+  VS-U28 andre setning (E2). Klasse: vedtak med designdel og beslutningsdel.»
+- **B:** «Reglene for vederlagsmetoden – tilbud om fast sum, krav etter kontraktens
+  beregningsregler og regningsarbeid – står i samlevedtaket OV-U94, punkt 1–18 med designdelen,
+  beslutningsdelen og E1–E7, med punkt 14 og 16 og E5 etter svaret på spørsmål 2, men VS-U28 andre
+  setning («Kravet kan oppdateres med en ny kravversjon når kostnadene er kjent.») står i punkt 2.
+  OV-U43 (unntatt det som er samlet i MM-U45 og OV-U89, og andre og tredje setning i prinsipp 5),
   VS-U28, OV-U14, LV-U30, LV-U31 og LV-U32 andre og femte setning gjelder som «Samlet i
   samlevedtaket for vederlagsmetoden». Forhold: samler de postene; endrer OV-U43 prinsipp 3 tredje
-  setning (E6) og VS-U28 andre setning (E2). Klasse: vedtak med designdel og beslutningsdel.»
-- **B:** «Som A, men VS-U28 andre setning står, og forholdet til VS-U28 er bare «samler».»
+  setning (E6). Klasse: vedtak med designdel og beslutningsdel.»
 
-*Belegg:* E-punktene, med postene ordrett. For E2: vedtaket 26.10 endret VS-U28 «slik at et krav om
-regningsarbeid ikke har et anslått beløp som kravversjon». For E6: OV-U69 opphevet OV-U49, og
-«Løsningen registrerer enighet ut fra valgene».
+*Belegg:* E-punktene, med postene ordrett. For E2: forholdet i vedtaket 26.10 endret VS-U28
+(utdrag) «slik at et krav om regningsarbeid ikke har et anslått beløp som kravversjon». For E6:
+OV-U69 opphevet OV-U49, og «Løsningen registrerer enighet ut fra valgene (MM-U33 steg 5), og
+skjemaet sier det før sending.»
 
 *Anbefaling:* A. Da står reglene ett sted, og VS-U28 sier ikke at et beløp som ikke finnes, kan
 oppdateres. Med B står den setningen.
@@ -361,13 +426,16 @@ beregningsregel er ikke bygget ennå. Valget gjelder når det bygges.
   mellom dem, uten trekk og uten avkall. Fram til endringsordren kan TE også sende en ny
   kravversjon og byggherren et nytt svar etter at løsningen har registrert enighet om regelen.
   Visningen viser at det nye avviker fra den registrerte enigheten, og løsningen avgjør ikke om
-  enigheten står. Forhold: endrer OV-U43 prinsipp 3 sjuende setning, der «og en endring etter
-  prinsipp 4» faller, og prinsipp 4, som ikke lenger er den eneste veien i løsningen; unntaket fra
-  sperren i OV-U3 og utvidelsen av KA-U7 og HF-U9 har ikke noe å virke på (E5).»
+  enigheten står. Sender TE en ny kravversjon, venter sporet på nytt svar, og behandlingen av
+  vederlagskravet er ikke ferdig før løsningen har registrert enighet om den nye kravversjonen.
+  Forhold: endrer OV-U43 prinsipp 3 sjuende setning, der «og en endring etter prinsipp 4» faller;
+  presiserer OV-U43 prinsipp 4.»
 - **B:** «En beregningsregel løsningen har registrert enighet om, kan bare endres ved uttrykkelig
-  enighet mellom partene, uten trekk og uten avkall. En ny kravversjon som endrer regelen, avvises
-  fram til partene er enige om en ny regel. Forhold: snevrer inn vedtaket fra 28.10 (MM-U34 punkt 9)
-  for beregningsregelen; samler OV-U43 prinsipp 3 sjuende setning og prinsipp 4.»
+  enighet mellom partene, uten trekk og uten avkall. Fram til partene er enige om en ny regel,
+  avvises en ny kravversjon fra TE og et nytt svar fra byggherren som endrer regelen. TE kan
+  fortsatt trekke kravet (KA-U6). Forhold: snevrer inn vedtaket fra 28.10 (MM-U34 punkt 9 og 12),
+  HF-U9 slik MM-U34 punkt 10 endret den, og MM-U42 for beregningsregelen; samler OV-U43 prinsipp 3
+  sjuende setning og prinsipp 4.»
 
 *Belegg:* OV-U43 prinsipp 4 og prinsipp 3 sjuende setning (sitert i E5). MM-U34 punkt 9 og 12
 (sitert i E5). MM-U34 punkt 10 strøk i HF-U9 «Ingen part kan gå fra enigheten alene». Løsningen
@@ -377,9 +445,11 @@ avviser i dag ikke en ny kravversjon i et spor med registrert enighet («Påstan
 avgjør ikke om en enighet om regelen står, slik den ikke gjør det for annen enighet. *Hva det
 koster motparten:* mener byggherren at TE er bundet av enigheten om regelen, må byggherren gjøre
 det gjeldende selv, og visningen viser at den nye kravversjonen avviker fra den registrerte
-enigheten. *Hva B koster TE:* mener TE at enigheten ikke binder, for eksempel fordi den er ugyldig,
-kan TE ikke uttrykke det med en ny kravversjon i løsningen, og løsningen avgjør da i praksis at
-enigheten står. B gir også én sperre for regelen og ingen for beløp og dager.
+enigheten. *Hva B koster partene:* mener en part at enigheten ikke binder, for eksempel fordi den
+er inngått ved en feil eller er ugyldig, kan parten ikke uttrykke det med en ny kravversjon eller et
+nytt svar i løsningen, og løsningen avgjør da i praksis at enigheten står. Formen på et forslag om å
+endre regelen er ikke avgjort (beslutningsdelen), så med B har partene ingen vei i løsningen til en
+ny regel før den er bygget. B gir også én sperre for regelen og ingen for beløp og dager.
 
-*Hva valget styrer:* punkt 14 og 16 i OV-U94, og om løsningen skal avvise en ny kravversjon som
-endrer en beregningsregel partene har registrert enighet om.
+*Hva valget styrer:* punkt 14 og 16 i OV-U94, og om løsningen skal avvise en ny kravversjon eller
+et nytt svar som endrer en beregningsregel partene har registrert enighet om.
