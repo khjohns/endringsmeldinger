@@ -160,10 +160,31 @@ const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggher
 /** Typen registrert korrespondanse slik brevet nevner den (LV-U42). */
 const KORRESPONDANSEN: Record<Korrespondansetype, string> = { brev: 'brev', e_post: 'e-post' };
 
+/**
+ * Et tidligere brev med merkingen som er frosset på det, og datoen det ble sendt: «brev
+ * K201-KOE-017-03 av 2. oktober 2026» (LV-U53, oppdragsgiver 04.11 i #1570). Registrert
+ * korrespondanse har ingen frosset merking ennå (LV-U45) og omtales med parten, typen og
+ * datoen: «totalentreprenørens e-post av 2. oktober 2026» (LV-U42). `null` for et brev uten
+ * noen av dem. Varden omtaler brevet med den samme teksten.
+ */
+export function omtalen(d: Dokument): string | null {
+  const registrert = erRegistrert(d.opplysninger);
+  const sendt = registrert
+    ? d.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)?.dato
+    : d.registrert;
+  if (sendt === undefined) return null;
+  if (d.merking !== null) return `brev ${d.merking} av ${norskDato(sendt)}`;
+  if (registrert && d.korrespondansetype !== null)
+    return `${PARTENS[d.avsender]} ${KORRESPONDANSEN[d.korrespondansetype]} av ${norskDato(sendt)}`;
+  return null;
+}
+
 /** Oppslagene teksten trenger i journalen før brevet og i brevet selv. */
 class Journalen {
   private readonly brev = new Map<string, { versjon: number; dokument: Dokument }>();
   private readonly elementer = new Map<string, Element>();
+  /** Dokumentet hvert element står i. */
+  private readonly iDokument = new Map<string, Dokument>();
   readonly dokumenter: Dokument[] = [];
 
   constructor(foer: Domenehendelse[], nytt: Dokument) {
@@ -185,6 +206,12 @@ class Journalen {
       this.elementer.set(utsagn.id, { art: 'utsagn', utsagn, dokument: d.id });
     for (const opplysning of d.opplysninger)
       this.elementer.set(opplysning.id, { art: 'opplysning', opplysning });
+    for (const id of this.elementer.keys()) if (!this.iDokument.has(id)) this.iDokument.set(id, d);
+  }
+
+  /** Dokumentet elementet står i, eller dokumentet selv; `undefined` når det ikke finnes. */
+  dokumentMed(id: string): Dokument | undefined {
+    return this.iDokument.get(id);
   }
 
   element(id: string): Element {
@@ -193,26 +220,16 @@ class Journalen {
     return e;
   }
 
-  /**
-   * Et tidligere brev med merkingen som er frosset på det, og datoen det ble sendt: «brev
-   * K201-KOE-017-03 av 2. oktober 2026» (LV-U53, oppdragsgiver 04.11 i #1570). Registrert
-   * korrespondanse har ingen frosset merking ennå (LV-U45) og omtales med parten, typen og
-   * datoen: «totalentreprenørens e-post av 2. oktober 2026» (LV-U42).
-   */
+  /** Et tidligere brev slik `omtalen` gir det. Kaster når brevet ikke kan omtales. */
   brevet(id: string): string {
     const b = this.brev.get(id);
     if (!b || b.versjon === 0) throw new KanIkkeUttrykkes(`${id} er ikke et tidligere brev`);
-    const d = b.dokument;
-    const registrert = erRegistrert(d.opplysninger);
-    const sendt = registrert
-      ? d.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)!.dato
-      : d.registrert;
-    if (d.merking !== null) return `brev ${d.merking} av ${norskDato(sendt)}`;
-    if (registrert && d.korrespondansetype !== null)
-      return `${PARTENS[d.avsender]} ${KORRESPONDANSEN[d.korrespondansetype]} av ${norskDato(sendt)}`;
-    throw new KanIkkeUttrykkes(
-      `${id} har ingen merking, fordi prosjektet hadde ingen kontraktsforkortelse da brevet ble skrevet`
-    );
+    const omtale = omtalen(b.dokument);
+    if (omtale === null)
+      throw new KanIkkeUttrykkes(
+        `${id} har ingen merking, fordi prosjektet hadde ingen kontraktsforkortelse da brevet ble skrevet`
+      );
+    return omtale;
   }
 
   erRegistrert(dokument: string): boolean {
@@ -871,6 +888,52 @@ function opplysningstekst(o: Opplysning, avsender: Part, j: Journalen): string {
       ? `, og som gjelder ${liste(o.spor.map((s) => SPORNAVN[s]))}`
       : '';
   return `${PART[avsender]} opplyser at ${opplysningen(o, j)}${sporene}.`;
+}
+
+// ---------- Brevhodet (LV-U23, LV-U27) ----------
+
+/** Utsagnene som svarer på, godtar eller bestrider det de `gjelder` (LV-U49). */
+const SVARER_GODTAR_BESTRIDER = new Set<Utsagn['art']>([
+  'aksept',
+  'innsigelse',
+  'bestridelse',
+  'protest',
+  'foresporselssvar',
+]);
+
+/**
+ * Deres ref. i hodet på brevet `nytt`: merkingen på hvert av motpartens brev som utsagnene i
+ * brevet svarer på, godtar eller bestrider, slik de uttrykkelig viser til dem (LV-U49, HF-U1),
+ * i rekkefølgen etter brevnummeret (U-2 i BF-07). En ny kravversjon viser til byggherrens siste
+ * svar på kravversjonen den erstatter, slik journalen står når den sendes, lest av `erstatter`
+ * og `gjelder` og ikke av rekkefølgen (LV-U50, LV-U51). Et eget brev står ikke, og heller ikke
+ * motpartens brev uten merking, som registrert korrespondanse (LV-U27: «når de finnes»).
+ */
+export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[]): string[] {
+  const j = new Journalen(foer, nytt);
+  const viserTil: string[] = [
+    ...nytt.svar.map((s) => s.gjelder),
+    ...nytt.utsagn.flatMap((x) =>
+      SVARER_GODTAR_BESTRIDER.has(x.art) && 'gjelder' in x ? [x.gjelder] : []
+    ),
+    ...nytt.krav.flatMap((k) => (k.erstatter ? sisteSvarPaa(k.erstatter, j) : [])),
+  ];
+  const brev = new Map<string, Dokument>();
+  for (const id of viserTil) {
+    const d = j.dokumentMed(id);
+    if (d && d.id !== nytt.id && d.avsender !== nytt.avsender && d.merking !== null)
+      brev.set(d.id, d);
+  }
+  return [...brev.values()]
+    .sort((a, b) => (a.brevnummer ?? 0) - (b.brevnummer ?? 0))
+    .map((d) => d.merking!);
+}
+
+/** LV-U51: svaret på kravversjonen som ingen senere revisjon erstatter, eller ingen. */
+function sisteSvarPaa(krav: string, j: Journalen): string[] {
+  const svar = j.dokumenter.flatMap((d) => d.svar.filter((s) => s.gjelder === krav));
+  const erstattet = new Set(svar.map((s) => s.erstatter));
+  return svar.filter((s) => !erstattet.has(s.id)).map((s) => s.id);
 }
 
 // ---------- Gjengivelsen (LV-U2) ----------

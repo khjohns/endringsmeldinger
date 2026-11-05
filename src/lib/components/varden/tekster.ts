@@ -41,18 +41,23 @@ export const brevtittel = (b: { art?: Brevet['art']; brevtittel: string | null }
   b.brevtittel ?? (b.art === 'registrert' ? 'Korrespondanse' : 'Brev');
 
 /**
- * Henvisningen til et brev i en setning: «brev 3» med brevnummeret (LV-U44). Et registrert
- * brev uten nummer (LV-U45) får ikke et oppdiktet nummer, men datoen det ble registrert.
+ * Henvisningen til et brev i en setning, slik brevteksten omtaler det: «brev K201-KOE-017-03 av
+ * 2. oktober 2026», eller «totalentreprenørens e-post av …» for registrert korrespondanse
+ * (LV-U53, LV-U42). Har brevet ingen slik omtale, får det ikke en oppdiktet, men nummeret eller
+ * datoen det ble registrert.
  */
 export const brevref = (b: Brevref) =>
-  b.nummer === null ? `brevet registrert ${dato(b.registrert)}` : `brev ${b.nummer}`;
+  b.omtale ?? (b.nummer === null ? `brevet registrert ${dato(b.registrert)}` : `brev ${b.nummer}`);
 
 /** Henvisningen som begynner en linje: «Brev 3», eller «Brevet registrert …» uten nummer. */
 export const brevrefStor = (b: Brevref) => brevref(b)[0].toUpperCase() + brevref(b).slice(1);
 
-/** Overskriften for brevet: «Brev 3 · tittelen», og bare tittelen for et brev uten nummer. */
-export const brevhode = (b: Pick<Brevet, 'nummer' | 'art' | 'brevtittel'>) =>
-  b.nummer === null ? brevtittel(b) : `Brev ${b.nummer} · ${brevtittel(b)}`;
+/**
+ * Overskriften for brevet: «K201-KOE-017-03 · tittelen» med merkingen (LV-U53), og bare
+ * tittelen for et brev uten merking.
+ */
+export const brevhode = (b: Pick<Brevet, 'merking' | 'art' | 'brevtittel'>) =>
+  b.merking === null ? brevtittel(b) : `${b.merking} · ${brevtittel(b)}`;
 
 const DATO = new Intl.DateTimeFormat('nb-NO', {
   day: 'numeric',
@@ -220,8 +225,7 @@ export const BREVKONTROLL = {
   fra: 'Fra',
   til: 'Til',
   svarerPaa: 'Svarer på',
-  svarerPaaBrev: (b: Brevref) =>
-    b.nummer === null ? brevrefStor(b) : `Brev ${b.nummer}, ${dato(b.registrert)}`,
+  svarerPaaBrev: (b: Brevref) => brevrefStor(b),
   datoSettes: 'Settes ved sending',
   detteSender: 'Dette sender du',
   akseptOmfatter: 'Godtar TE svaret, omfatter aksepten hele svaret, også at varselet kom for sent.',

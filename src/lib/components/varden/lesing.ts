@@ -5,6 +5,7 @@
  * sier og hva en aksept gir, kommer fra kjernen gjennom `lagKjernesak`.
  */
 
+import { omtalen } from '$kjerne/frosset/brevtekst';
 import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
@@ -23,6 +24,15 @@ export interface Brevet {
   art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'registrert' | 'annet';
   /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
   forhold: string | null;
+  /** Vår ref., merkingen som ble frosset med brevet (LV-U53, LV-U24), eller `null`. */
+  merking: string | null;
+  /** Deres ref. som ble frosset med brevet (LV-U27, LV-U49), tom når det ikke har noen. */
+  deresRef: string[];
+  /**
+   * Omtalen av brevet slik brevteksten gir den: «brev K201-KOE-017-03 av 2. oktober 2026», eller
+   * «totalentreprenørens e-post av …» for registrert korrespondanse (LV-U53, LV-U42).
+   */
+  omtale: string | null;
   /** Tittelen som ble frosset med brevet (MM-U3), eller `null` når brevet ikke har en. */
   brevtittel: string | null;
   /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17). */
@@ -75,6 +85,9 @@ export function brevene(u: Utledning): Brevet[] {
             | null
             | undefined
         ),
+        merking: d.merking,
+        deresRef: d.deresRef,
+        omtale: omtalen(d),
         brevtittel: d.brevtittel,
         avsnitt: d.brevtekst,
       },
@@ -83,9 +96,14 @@ export function brevene(u: Utledning): Brevet[] {
 }
 
 /** Det en tekst trenger for å vise til et brev, med eller uten nummer. */
-export type Brevref = Pick<Brevet, 'id' | 'nummer' | 'registrert'>;
+export type Brevref = Pick<Brevet, 'id' | 'nummer' | 'registrert' | 'omtale'>;
 
-const ref = ({ id, nummer, registrert }: Brevref): Brevref => ({ id, nummer, registrert });
+const ref = ({ id, nummer, registrert, omtale }: Brevref): Brevref => ({
+  id,
+  nummer,
+  registrert,
+  omtale,
+});
 
 /** Brevet med dokumentet `id`. */
 export const brevet = (u: Utledning, id: string) => brevene(u).find((b) => b.id === id) ?? null;

@@ -452,6 +452,7 @@ export const DOKUMENT: Skjema = objekt(
     brevtittel: TEKST,
     brevnummer: { type: 'integer', minimum: 1 },
     merking: TEKST,
+    deres_ref: liste(TEKST),
     korrespondansetype: { enum: [...KORRESPONDANSETYPER] },
     beskrivelse: TEKST,
     spor: liste({ enum: [...SPOR] }),

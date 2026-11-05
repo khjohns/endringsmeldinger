@@ -82,14 +82,15 @@
     onvelg={(n) => {
       if (n === `svare:${spor}`) svarer = true;
     }}
-    onakseptbrev={({ kommando, tekst, brevnummer, tittel }) => {
+    onakseptbrev={({ kommando, tekst, merking, deresRef, tittel }) => {
       const svaret = brev.find((b) => b.id === u.spor[spor].gjeldendeSvar?.dokument);
       kontroll = {
         kommando,
         tekst,
         detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
         virkninger: [],
-        brevnummer,
+        merking,
+        deresRef,
         tittel,
         handling: BREVKONTROLL.sendAksepten,
         sendTekst: BREVKONTROLL.sendAksepten,

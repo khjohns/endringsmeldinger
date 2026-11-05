@@ -16,7 +16,7 @@ const brev = (ekstra: Record<string, unknown> = {}) =>
   render(Brev, {
     avsender: 'BH',
     sak: 'Ny peling',
-    nummer: '6',
+    merking: 'K201-KOE-005-06',
     dato: '20. oktober 2026',
     tittel: 'Svar på krav om vederlagsjustering',
     avsnitt: [{ laast: 'Byggherren svarer.' }],
@@ -25,15 +25,29 @@ const brev = (ekstra: Record<string, unknown> = {}) =>
 
 describe('Brevhodet', () => {
   it('har avsender, mottaker, referansene og datoen, med partene skrevet fullt ut (prototypen, LV-U23, sprak.md «Partene»)', () => {
-    brev({ svarerPaa: 'Brev 5' });
+    brev({ deresRef: ['K201-KOE-005-05'] });
     const hode = screen.getByRole('article').querySelector('header')!;
     const tekst = hode.textContent!.replace(/\s+/g, ' ');
     expect(tekst).toContain('Byggherren');
     expect(tekst).toContain('Totalentreprenøren');
-    expect(tekst).toContain('Deres ref.: Brev 5');
-    expect(tekst).toContain('Vår ref.: Brev 6');
+    expect(tekst).toContain('Deres ref.: K201-KOE-005-05');
+    expect(tekst).toContain('Vår ref.: K201-KOE-005-06');
     expect(tekst).toContain('Dato: 20. oktober 2026');
     expect(tekst).not.toMatch(/\((TE|BH)\)/);
+  });
+
+  it('Deres ref. har én kode per linje, i rekkefølgen kjernen frøs dem (LV-U49, U-2 i BF-07)', () => {
+    brev({ deresRef: ['K201-KOE-005-03', 'K201-KOE-005-07'] });
+    const dd = screen.getByTestId('deres-ref');
+    expect(dd.querySelectorAll('br')).toHaveLength(1);
+    expect(dd.textContent!.replace(/\s+/g, ' ').trim()).toBe('K201-KOE-005-03K201-KOE-005-07');
+  });
+
+  it('uten koder står ikke «Deres ref.» i hodet (U-3 i BF-07)', () => {
+    brev();
+    expect(screen.getByRole('article').querySelector('header')!.textContent).not.toContain(
+      'Deres ref.'
+    );
   });
 
   it('et sendt brev har stempelet «Sendt …», og et utkast har det ikke (system.md, raden Stempel)', () => {
