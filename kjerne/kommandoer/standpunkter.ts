@@ -22,8 +22,9 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
   const v = s.vurderinger;
   const ut: Data[] = [];
   if (s.spor === 'forhold') {
-    // VS-U43 punkt 6 og 10: påberopelsen gjelder det første varselet etter § 32.2 løsningen
-    // kjenner, ikke versjonen svaret gjelder.
+    // VS-U43 punkt 6 og 10: påberopelsen gjelder det registrerte varselet etter § 32.2, ellers
+    // det første grunnlagskravet, ikke versjonen svaret gjelder. Med et registrert varsel
+    // avviser forutsetningene svaret til #1600 er bygget.
     ut.push(...forholdsstandpunkter(v, varseletForNyttSvar(u, '32.2'), nyId));
   } else if (s.spor === 'vederlag') {
     // VS-U20, OV-U5, HF-U1: varselet før svaret, som i fristen.

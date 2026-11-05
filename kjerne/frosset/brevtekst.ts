@@ -615,7 +615,9 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
  * står i (LV-U18 setning 4).
  */
 function varseletMedBrevet(p: Extract<Standpunkt, { art: 'rettidighet' }>, j: Journalen): string {
-  if (p.hjemmel === '32.2' && j.element(p.gjelder).art !== 'krav') uttrykkbar(p.hjemmel);
+  // Forutsetningene avviser svaret før dette (#1600).
+  if (p.hjemmel === '32.2' && j.element(p.gjelder).art !== 'krav')
+    throw new KanIkkeUttrykkes('varselet etter § 32.2 sendt utenfor løsningen har ingen brevtekst');
   const gjelder = p.hjemmel === '33.6.2' ? foresporselenTil(p.gjelder, j) : p.gjelder;
   return `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
 }

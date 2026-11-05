@@ -13,6 +13,7 @@ import {
   fristkravErFremmet,
   kanFaaInnsigelse,
   trekkAvPaaberopelsenErSperret,
+  varseletForNyttSvar,
   type Utledning,
 } from '../utledning/utled.ts';
 import type { Avvisning, Kravspor, Part, Spor, Varselhjemmel } from '../typer.ts';
@@ -122,6 +123,21 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
         'Bestridelse, merking, avklaring, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
       );
   }
+}
+
+/**
+ * VS-U43 punkt 6 og E3: standpunktet om rettidigheten i svaret på grunnlaget gjelder
+ * varselet fra `varseletForNyttSvar`. Er det et registrert varsel etter § 32.2, har det ingen
+ * brevtekst før #1600 er bygget. Sperren gjelder også et svar uten et slikt standpunkt.
+ */
+function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjonen') {
+  const registrert = u.spor.forhold.varsler['32.2'];
+  return registrert && varseletForNyttSvar(u, '32.2') === registrert.id
+    ? avvis(
+        'IKKE_I_FOERSTE_VERSJON',
+        `${hva} på grunnlaget kan ikke sendes ennå, fordi TE har registrert et varsel etter punkt 32.2 sendt utenfor løsningen, og brevet kan ikke vise til det. Brevet kan registreres som dokumentasjon.`
+      )
+    : null;
 }
 
 const AVSLAGET_GODTATT =
@@ -265,11 +281,12 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.gjeldendeSvar)
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
-      return null;
+      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;
     case 'revidere':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
         return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på gjeldende krav å revidere.');
+      if (h.spor === 'forhold') return svaretPaaberoperRegistrertVarsel(u, 'Revisjonen');
       // MM-U34 punkt 11, EO-U12: også et svar TE har godtatt eller som stemmer med kravet.
       return null;
     case 'godta':

@@ -3728,24 +3728,50 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
     );
   });
 
-  // Fastholder dagens atferd til S-1 i #807 er besvart: rettidigheten etter § 32.2 gjelder kravet.
   // VS-U43 punkt 6 og 10 med E3: påberopelsen gjelder det registrerte varselet når det har en
-  // tidligere dato. Brevteksten for det registrerte varselet venter på S-4 i #807, så kjernen
-  // avviser brevet i stedet for å nevne grunnlagskravet (AGENTS.md, «Domenekjernen»).
-  it('byggherrens påberopelse etter § 32.2 når varselet er registrert, avvises til varselet har brevtekst', () => {
+  // tidligere dato. Brevteksten for det registrerte varselet bygges i #1600, så kjernen
+  // avviser svaret med en regelkode i stedet for å nevne grunnlagskravet (AGENTS.md,
+  // «Domenekjernen»), og svaret tilbys ikke.
+  it('byggherrens svar på grunnlaget når varselet etter § 32.2 er registrert, avvises og tilbys ikke til varselet har brevtekst', () => {
     const s = medPaaberopelse();
+    const brev = () => ({
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: false,
+        }),
+      ],
+    });
+    expect(s.avvist('BH', brev()), 'kontrollsak uten registrert varsel').toBeNull();
+    expect(handlinger(s.u(), 'BH'), 'kontrollsak').toContain('svare:forhold');
     s.send('TE', registrering());
-    expect(() =>
-      s.send('BH', {
-        type: 'brev',
-        svar: [
-          svar('forhold', s.krav('forhold'), {
-            resultat: 'godkjent',
-            grunnlag_varslet_i_tide: false,
-          }),
-        ],
-      })
-    ).toThrow('varselet etter § 32.2 sendt utenfor løsningen har ingen brevtekst');
+    expect(s.avvist('BH', brev())).toBe('IKKE_I_FOERSTE_VERSJON');
+    expect(handlinger(s.u(), 'BH')).not.toContain('svare:forhold');
+  });
+
+  it('revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert, avvises til varselet har brevtekst, og svaret på fristen tilbys (VS-U43 punkt 10)', () => {
+    const s = medPaaberopelse();
+    s.send('TE', FRISTKRAV);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      ],
+    });
+    const revisjon = () => ({
+      type: 'revisjon',
+      erstatter: s.u().spor.forhold.gjeldendeSvar!.id,
+      svar: svar('forhold', s.krav('forhold'), {
+        resultat: 'godkjent',
+        grunnlag_varslet_i_tide: false,
+      }),
+    });
+    expect(s.avvist('BH', revisjon()), 'kontrollsak uten registrert varsel').toBeNull();
+    s.send('TE', registrering());
+    expect(s.avvist('BH', revisjon())).toBe('IKKE_I_FOERSTE_VERSJON');
+    expect(handlinger(s.u(), 'BH')).not.toContain('revidere:forhold');
+    expect(handlinger(s.u(), 'BH'), 'kontrollsak i fristen').toContain('svare:frist');
   });
 });
 

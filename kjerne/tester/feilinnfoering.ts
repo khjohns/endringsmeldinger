@@ -3736,11 +3736,41 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        "  if (p.hjemmel === '32.2' && j.element(p.gjelder).art !== 'krav') uttrykkbar(p.hjemmel);",
+        "  if (p.hjemmel === '32.2' && j.element(p.gjelder).art !== 'krav')\n    throw new KanIkkeUttrykkes('varselet etter § 32.2 sendt utenfor løsningen har ingen brevtekst');",
         "  if (p.hjemmel === '32.2') return VARSELET[p.hjemmel];",
       ],
     ],
     mal: ['svaret på versjon 2 påberoper varselet i den første versjonen'],
+  },
+  {
+    id: 'F452',
+    feilklasse:
+      'svaret på grunnlaget tilbys og skrives med et registrert varsel etter § 32.2 som ikke har brevtekst (VS-U43 E3, #1600)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      ["  return registrert && varseletForNyttSvar(u, '32.2') === registrert.id", '  return false'],
+    ],
+    mal: [
+      'byggherrens svar på grunnlaget når varselet etter § 32.2 er registrert',
+      'revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert',
+    ],
+  },
+  {
+    id: 'F453',
+    feilklasse:
+      'sperren for et registrert varsel etter § 32.2 mangler i revisjonen og stopper svaret i de andre sporene (VS-U43 E3, #1600)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "      if (h.spor === 'forhold') return svaretPaaberoperRegistrertVarsel(u, 'Revisjonen');",
+        '      return null;',
+      ],
+      [
+        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;",
+        "      return svaretPaaberoperRegistrertVarsel(u, 'Svaret');",
+      ],
+    ],
+    mal: ['revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert'],
   },
 ];
 

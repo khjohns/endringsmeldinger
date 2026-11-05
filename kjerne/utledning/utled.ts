@@ -789,8 +789,8 @@ function kontrollerStandpunktet(
       );
     return;
   }
-  // VS-U43 punkt 6 og 10: etter § 32.2 er det første varselet løsningen kjenner, det første
-  // grunnlagskravet, og en senere versjon er ikke et nytt varsel.
+  // VS-U43 punkt 6 og 10: etter § 32.2 gjelder påberopelsen det registrerte varselet, ellers
+  // det første grunnlagskravet, og en senere versjon er ikke et nytt varsel.
   if (erVarselhjemmel(p.hjemmel)) {
     const n = VARSELSPOR[p.hjemmel];
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
@@ -1376,10 +1376,11 @@ export const kravSomVarsler = (hjemmel: Varselhjemmel, krav: readonly Krav[]): r
   hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav;
 
 /**
- * VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4, § 34.1.2 eller § 34.1.3
- * gjelder, er varselet etter hjemmelen som var registrert da svaret ble sendt, ellers det
- * første kravet som varsler (`kravSomVarsler`), som er det første varselet appen kjenner
- * (arbeidsvalgene i #309 og #479, OV-U24).
+ * VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse etter § 32.2, § 33.4,
+ * § 34.1.2 eller § 34.1.3 gjelder, er varselet etter hjemmelen som var registrert da svaret
+ * ble sendt, ellers det første kravet som varsler (`kravSomVarsler`), som er det første
+ * varselet appen kjenner (arbeidsvalgene i #309 og #479, OV-U24). Vilkåret i E3 om en
+ * tidligere dato for § 32.2 er ikke bygget (#1600).
  * `foerSvaret` sier om et varsel står før svaret. Skriveren og valideringen leser det
  * herfra (#496).
  */
