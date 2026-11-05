@@ -239,8 +239,8 @@ partens utsagn, slik MM-U34 punkt 15 skrev om OV-U4. KA-U10 s6 gjengir punkt 34.
 og endres ikke. Svar 1 A for VS-U46 er ført (VS-U46 punkt 20 og E8 der).
 
 *Kontroll mot `main` 05.11 (`53f5f5c`):* VS-U46 er merget. Det som gjelder av HF-U6, står i VS-U46
-punkt 20, og punkt 8 viser dit. Innholdet i punkt 8 er det samme. VS-U46 samler bare punkt 6 i
-MM-U34, så henvisningene til MM-U34 punkt 9 og 10 står.
+punkt 20, og punkt 8 viser dit. Innholdet i punkt 8 er det samme. VS-U46 samler punkt 6 i MM-U34
+og setningen MM-U34 punkt 5 la til i HF-U6, ikke punkt 9 og 10, så henvisningene til dem står.
 
 **E4 Registrerte brev etter OV-U4 og OV-U80.** Gammel tekst: MM-U17 s1 «for et brev sendt utenfor
 appen og registrert i den, fryser beslutningsgrunnlaget appens vurdering etter reglene ved

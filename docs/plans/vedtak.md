@@ -2780,8 +2780,9 @@ fordelingen.
 
 Teksten under er samlevedtaket [MM-U50](#mm-u50), vedtatt 05.11 av oppdragsgiver (#1534), ordrett slik
 det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-sendte-brev-2026-11-05.md),
-med «Endret innhold» E1–E10. Svaret på spørsmål 2 står i punkt 7 og 8 og E3. Henvisningen i punkt 8
-og i E3 til HF-U6 viser til VS-U46 punkt 20, som har samlet det som gjaldt av HF-U6.
+med «Endret innhold» E1–E10, med to unntak: henvisningen i punkt 8 til HF-U6 viser nå til VS-U46
+punkt 20, som har samlet det som gjaldt av HF-U6, og siste setning i E3 sier at svar 1 A for VS-U46
+er ført. Svaret på spørsmål 2 står i punkt 7 og 8 og E3.
 
 Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Kildene står i parentes etter hver
 setning; «s» er setningen i posten, talt fra vedtaksteksten etter ID-en, og for en ny post fra det
@@ -2941,10 +2942,6 @@ svarene 05.11. Ved 2A leses også begrunnelsen i MM-U17 s3, «den som sender et 
 hen har meddelt», og prinsippet 10.10 i Følge i MM-U16 som at det parten har meddelt, står som
 partens utsagn, slik MM-U34 punkt 15 skrev om OV-U4. KA-U10 s6 gjengir punkt 34.2.2 i kontrakten
 og endres ikke. Svar 1 A for VS-U46 er ført (VS-U46 punkt 20 og E8 der).
-
-*Kontroll mot `main` 05.11 (`53f5f5c`):* VS-U46 er merget. Det som gjelder av HF-U6, står i VS-U46
-punkt 20, og punkt 8 viser dit. Innholdet i punkt 8 er det samme. VS-U46 samler bare punkt 6 i
-MM-U34, så henvisningene til MM-U34 punkt 9 og 10 står.
 
 **E4 Registrerte brev etter OV-U4 og OV-U80.** Gammel tekst: MM-U17 s1 «for et brev sendt utenfor
 appen og registrert i den, fryser beslutningsgrunnlaget appens vurdering etter reglene ved
