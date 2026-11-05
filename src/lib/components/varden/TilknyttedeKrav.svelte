@@ -94,7 +94,7 @@
     justify-content: space-between;
     gap: var(--spacing-2) var(--spacing-3);
     padding: var(--spacing-3) var(--spacing-5);
-    border-top: var(--rule);
+    border-top: var(--rule-subtle);
   }
   .navn {
     font-size: 16px;

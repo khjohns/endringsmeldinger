@@ -62,7 +62,7 @@
   }
   .sporhode {
     padding-bottom: var(--spacing-4);
-    border-bottom: var(--rule);
+    border-bottom: var(--rule-subtle);
   }
   .over {
     font-size: 12px;
@@ -72,6 +72,7 @@
     font-size: 24px;
     font-weight: 600;
     line-height: 1.25;
+    letter-spacing: -0.015em;
     color: var(--ink);
   }
   .siste {
@@ -83,7 +84,7 @@
     margin-top: var(--spacing-3);
     padding: var(--spacing-2) var(--spacing-3);
     background: var(--surface-inset);
-    border-radius: 6px;
+    border-radius: var(--r-innfelt);
     font-size: 14px;
     color: var(--ink-2);
   }

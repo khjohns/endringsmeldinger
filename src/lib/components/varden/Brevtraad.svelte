@@ -80,10 +80,24 @@
   .innlegg {
     position: relative;
     padding: var(--spacing-4) 0 var(--spacing-4) 48px;
-    border-top: var(--rule);
   }
-  .innlegg:first-child {
-    border-top: 0;
+  .innlegg + .innlegg {
+    border-top: var(--rule-subtle);
+  }
+  .innlegg::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid var(--rule-strong-color);
+  }
+  .innlegg:first-child::before {
+    top: var(--spacing-5);
+  }
+  .innlegg:last-child::before {
+    bottom: auto;
+    height: var(--spacing-5);
   }
   .part {
     position: absolute;
@@ -94,11 +108,12 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--surface-inset);
-    border: var(--rule);
+    background: var(--surface);
+    border: 1.5px solid var(--ink);
     font-size: 12px;
     font-weight: 600;
-    color: var(--ink-2);
+    color: var(--ink);
+    z-index: 1;
   }
   .registrert .part {
     border-radius: var(--r-kort);
@@ -125,9 +140,9 @@
     font-size: 12px;
     font-weight: 600;
     padding: 1px var(--spacing-2);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-    color: var(--ink-2);
+    border: 1px solid var(--rule-strong-color);
+    border-radius: var(--r-merke);
+    color: var(--ink);
   }
   .meta {
     grid-column: 1 / -1;
@@ -136,11 +151,19 @@
   }
   .tom p {
     font-size: 14px;
-    color: var(--ink-2);
+    color: var(--ink-3);
     padding-top: 6px;
   }
   .tom .part {
     border-style: dashed;
-    background: transparent;
+    color: var(--ink-3);
+  }
+  @media (max-width: 560px) {
+    .innlegg {
+      padding-left: 44px;
+    }
+    .hode {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
