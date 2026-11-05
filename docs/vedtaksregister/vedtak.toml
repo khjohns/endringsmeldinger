@@ -654,10 +654,9 @@ forhold = [
   { art = "endrer", vedtak = "ov-u43" },
   { art = "endrer", vedtak = "vs-u28" },
   { art = "presiserer", vedtak = "ov-u43" },
-  { art = "samler", vedtak = "ov-u89" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for vederlagsmetoden](#samlevedtak-vederlagsmetoden). Samler OV-U43 unntatt det som er samlet i MM-U45 og OV-U89, og andre og tredje setning i prinsipp 5, og samler VS-U28, OV-U14, LV-U30, LV-U31 og LV-U32 andre og femte setning (svar 1 A). Endrer OV-U43 prinsipp 3 tredje setning (E6) og VS-U28 andre setning (E2) (svar 1 A). Endrer OV-U43 prinsipp 3 sjuende setning, der «og en endring etter prinsipp 4» faller, og presiserer OV-U43 prinsipp 4 (svar 2 A). Henvisningene til MM-U12 i punkt 16 og 17 viser til MM-U50, som opphever MM-U12. OV-U89 er samlet bare for kilden i punkt 27, «slik EO-U21 endret det og EO-U34 samlet det»: EO-U34 endrer prinsipp 5 i OV-U43 og samler det ikke, og første setning i prinsipp 5 står i punkt 18.'''
+Teksten står under tabellen, i [Samlevedtaket for vederlagsmetoden](#samlevedtak-vederlagsmetoden). Samler OV-U43 unntatt det som er samlet i MM-U45 og OV-U89, og andre og tredje setning i prinsipp 5, og samler VS-U28, OV-U14, LV-U30, LV-U31 og LV-U32 andre og femte setning (svar 1 A). Endrer OV-U43 prinsipp 3 tredje setning (E6) og VS-U28 andre setning (E2) (svar 1 A). Endrer OV-U43 prinsipp 3 sjuende setning, der «og en endring etter prinsipp 4» faller, og presiserer OV-U43 prinsipp 4 (svar 2 A). Henvisningene til MM-U12 i punkt 16 og 17 viser til MM-U50, som opphever MM-U12.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1 A, 2 A"

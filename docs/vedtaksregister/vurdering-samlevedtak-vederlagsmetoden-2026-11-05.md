@@ -467,6 +467,4 @@ Oppdragsgiver 05.11, ordrett ([#1534, 6658193253](https://github.com/khjohns/end
   svar, og løsningen avgjør ikke om enigheten står. B er forkastet.
 
 Samlevedtaket er ført som [OV-U94](../plans/vedtak.md#ov-u94). Henvisningene til MM-U12 i punkt 16
-og 17 viser der til MM-U50, som opphever MM-U12 (#1608). Innholdet er ikke endret. Kilden i OV-U89
-punkt 27, «slik EO-U21 endret det og EO-U34 samlet det», er samlet i punkt 18, fordi EO-U34 endrer
-prinsipp 5 i OV-U43 og ikke samler det.
+og 17 viser der til MM-U50, som opphever MM-U12 (#1608). Innholdet er ikke endret.
