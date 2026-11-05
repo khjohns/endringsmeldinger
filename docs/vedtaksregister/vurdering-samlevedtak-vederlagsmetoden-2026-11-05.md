@@ -453,3 +453,20 @@ ny regel før den er bygget. B gir også én sperre for regelen og ingen for bel
 
 *Hva valget styrer:* punkt 14 og 16 i OV-U94, og om løsningen skal avvise en ny kravversjon eller
 et nytt svar som endrer en beregningsregel partene har registrert enighet om.
+
+## Svarene
+
+Oppdragsgiver 05.11, ordrett ([#1534, 6658193253](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6658193253)):
+
+> V: 1 A, 2 A
+
+- **1 A:** samlevedtaket gjelder med punkt 1–18 og E1–E7. VS-U28 andre setning faller bort (E2),
+  og det samme gjør OV-U43 prinsipp 3 tredje setning (E6). B er forkastet.
+- **2 A:** samme regel for beregningsregelen som for beløp og dager. Partene kan endre den ved
+  uttrykkelig enighet. Fram til endringsordren kan TE sende en ny kravversjon og byggherren et nytt
+  svar, og løsningen avgjør ikke om enigheten står. B er forkastet.
+
+Samlevedtaket er ført som [OV-U94](../plans/vedtak.md#ov-u94). Henvisningene til MM-U12 i punkt 16
+og 17 viser der til MM-U50, som opphever MM-U12 (#1608). Innholdet er ikke endret. Kilden i OV-U89
+punkt 27, «slik EO-U21 endret det og EO-U34 samlet det», er samlet i punkt 18, fordi EO-U34 endrer
+prinsipp 5 i OV-U43 og ikke samler det.
