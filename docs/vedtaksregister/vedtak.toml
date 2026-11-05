@@ -1683,9 +1683,9 @@ beslutningsdel ved spørsmål 3 B.'''
 valgt = "A"
 svar = '''
 Oppdragsgiver 04.11, ordrett: «M ja, S-2 D, R1 A, R2 A, V1 A, V2 A, V3 A, B1 A, B2 A, G1 A, G2 A, G3 A» ([#1534, 6628301789](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6628301789)). Nummereringen i svaret er orkestratorens: «G1 = spørsmål 1, A. G2 = spørsmål 2, A. G3 = spørsmål 3, A.»'''
-forhold = [{ art = "samler", vedtak = "ka-u21" }, { art = "samler", vedtak = "ka-u31" }, { art = "samler", vedtak = "ka-u41" }, { art = "samler", vedtak = "ka-u44" }, { art = "opphever", vedtak = "ka-u34" }, { art = "opphever", vedtak = "ka-u35" }, { art = "opphever", vedtak = "ka-u36" }, { art = "opphever", vedtak = "ka-u38" }, { art = "opphever", vedtak = "ka-u39" }, { art = "endrer", vedtak = "ka-u18" }, { art = "endrer", vedtak = "ka-u37" }, { art = "endrer", vedtak = "ka-u43" }]
+forhold = [{ art = "samler", vedtak = "ka-u21" }, { art = "samler", vedtak = "ka-u31" }, { art = "samler", vedtak = "ka-u41" }, { art = "samler", vedtak = "ka-u44" }, { art = "opphever", vedtak = "ka-u24" }, { art = "opphever", vedtak = "ka-u34" }, { art = "opphever", vedtak = "ka-u35" }, { art = "opphever", vedtak = "ka-u36" }, { art = "opphever", vedtak = "ka-u38" }, { art = "opphever", vedtak = "ka-u39" }, { art = "endrer", vedtak = "ka-u18" }, { art = "endrer", vedtak = "ka-u37" }, { art = "endrer", vedtak = "ka-u43" }]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for byggherrens begrunnelse](#samlevedtak-begrunnelse). Forholdene står i spørsmål 1: «samler, opphever og endrer som i tabellene i «Postene i kjeden»». Spørsmål 1 sier også: «Hvordan KA-U43 endres, avgjøres i spørsmål 2, og om KA-U35–KA-U39 samles eller oppheves, i spørsmål 3.» Svarene på spørsmål 2 og 3 står i [KA-U47](#ka-u47) og [KA-U48](#ka-u48), og forholdene til KA-U43 og KA-U35–KA-U39 følger dem.'''
+Teksten står under tabellen, i [Samlevedtaket for byggherrens begrunnelse](#samlevedtak-begrunnelse). Forholdene står i spørsmål 1: «samler, opphever og endrer som i tabellene i «Postene i kjeden»». Spørsmål 1 sier også: «Hvordan KA-U43 endres, avgjøres i spørsmål 2, og om KA-U35–KA-U39 samles eller oppheves, i spørsmål 3.» Svarene på spørsmål 2 og 3 står i [KA-U47](#ka-u47) og [KA-U48](#ka-u48), og forholdene til KA-U43 og KA-U35–KA-U39 følger dem. Forholdet `opphever` KA-U24 følger av [OV-U92](#ov-u92) (a) og E1 («henvisningene gjelder samlevedtaket»).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -20860,6 +20860,63 @@ navn = "1C"
 tekst = '''
 Siste setning i HF-U7, om avtaleloven § 6 annet ledd, strykes. At løsningen ikke avgjør om partene likevel har inngått avtale, følger av MM-U12 og OV-U59. Endrer HF-U7.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U92"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+klasse = "beslutning"
+sporsmal = '''
+Forslaget til hovedregel ordrett slik det ble lagt fram for oppdragsgiver 05.11 i orkestreringsrunde 18 (#1065), og ført i [#1534, 6653185302](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6653185302), punkt 2. Forslaget gjelder hvordan et forhold fra en gjeldende post til et opphevet vedtak føres når et samlevedtak samler kjeden. Det erstatter spørsmål 1–5 under «Åpne spørsmål» i [vurderingsfila på `50862e9`](https://github.com/khjohns/endringsmeldinger/blob/50862e9/docs/vedtaksregister/vurdering-kjente-avvik-2026-11-05.md#åpne-spørsmål), som spørsmålene i forslaget viser til. Ordene er ført ordrett; punkttegnene foran (a), (b) og (c) er tatt ut, så teksten kan stå i én rad.
+
+Fra samme kommentar, ordrett: «Måte 1 er at samlevedtaket også opphever den gamle posten, så verktøyet leser forholdet som et forhold til samlevedtaket. Måte 2 er at forholdet fjernes, med et punkt i samlevedtaket som kilde.»'''
+valgt = "hovedregelen"
+svar = '''
+Oppdragsgiver 05.11, ordrett: «Y, og hovedregelen som foreslått. Jeg tenker: Y, for TE: Ulempen ved å registrere feil gjelder alle felter som kan registreres i appen. Men appen låser som hovedregel ikke - det er opp til partene å vurdere rettsvirkninger, herunder muligheten til å kalle tilbake noe som er tidligere meddelt. Strider dette mot svaret mitt på 2b, sperren for TE?» ([#1534, 6653185302](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6653185302)). «Y» og resten av svaret gjelder oppfølgingsspørsmål 3 for VS-U46 (#1593). «og hovedregelen som foreslått» gjelder denne posten.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "hovedregelen"
+tekst = '''
+**(a)** Sier samlevedtaket at innholdet i den gamle posten nå står i samlevedtaket («henvisningene gjelder samlevedtaket»), opphever samlevedtaket også den gamle posten (måte 1). Det gir A i spørsmål 2. **(b)** Sier samlevedtaket at forholdet eller setningen ikke gjelder, eller ikke har noe å virke på, fjernes forholdet (måte 2). Det gir B i spørsmål 3 og A i spørsmål 1. **(c)** Sier samlevedtaket ingenting om det, står forholdet. Samlevedtaket for kjeden må da ta det med, også når kjeden alt er samlet. Det tas i neste samlevedtak som rører kjeden, ikke i trinn 3. Det gjelder spørsmål 4 og 5. Regelen gjelder også for kommende samlevedtak: hvert av dem sier i «Endret innhold» om (a) eller (b) gjelder for forholdene til postene det samler.'''
+
+[[gruppe.vedtak]]
+id = "OV-U93"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065", "#1595"]
+klasse = "beslutning"
+sporsmal = '''
+Oppfølgingsspørsmål 1 til hovedregelen for forhold til opphevede poster, ordrett slik det ble stilt 05.11 i orkestreringsrunde 19 (#1065) og lagret i [PR #1595, 6654191865](https://github.com/khjohns/endringsmeldinger/pull/1595#issuecomment-6654191865):
+
+**Bakgrunnen.** Oppdragsgiver har valgt hovedregelen ([6653185302](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6653185302), punkt 2). (b) i den lyder: «Sier samlevedtaket at forholdet eller setningen ikke gjelder, eller ikke har noe å virke på, fjernes forholdet (måte 2).» For fem forhold sier samlevedtaket for endringsordren (EO-U34) noe om setningen eller posten, men med andre ord:
+
+- KA-U12 mot EO-U5: E12 sier «“som oppgjort i EO-U5” faller bort», og punkt 15 gir ny ordlyd.
+- OV-U3 mot EO-U2 og OV-U3 mot EO-U5: E12 siterer merknaden i OV-U3 som gammel tekst, og tabellen «Postene i kjeden» sier at EO-U34 «endrer merknaden om EO-U2 og EO-U5». Det nye innholdet er punkt 5: «enighet er ikke vilkår for at en sak inngår».
+- OV-U55 mot EO-U5: E12 sier at sperren i OV-U55 «tas ikke med», fordi MM-U34 punkt 18 opphevet forslaget sperren gjelder. Tabellen sier «ingen setning samles».
+- GFK-U2 mot EO-U6: E11 sier «GFK-U2 nevner endringsordren bare i de forkastede alternativene og står.» Tabellen sier «ingen setning endres; fullmakten for en endringsordre følger EO-U17».
+
+**Alternativene.** (Står under.)
+
+**Anbefaling: B.** (b) begynner med «Sier samlevedtaket at …», og hovedregelen sier at hvert kommende samlevedtak «sier i “Endret innhold” om (a) eller (b) gjelder». Begge krever at samlevedtaket sier det. A lar oss lese det ut av andre ord, og det var den slutningen funn 1 i den andre kontrollen gjaldt. Ulempen ved B er at fem forhold står lenger, også KA-U12, der «faller bort» ligger nærmest ordene i (b).
+
+**Hva valget styrer.** Ved A fjernes 14 forhold med punktet som kilde i PR-en som fjerner radene. Ved B fjernes 9, og de fem står til neste samlevedtak for kjedene «Kravene er avgjort, og sperren etter det», «Endringsordren som omfatter KOE-sakene», «Retting av sendt brev» og «Fullmakt og godkjenningskjeden».'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 05.11, ordrett: «Ja, B» ([#1534, 6654361760](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6654361760)). Oppdragsgiver spurte først «Hva anbefaler du?», og orkestratoren anbefalte B med begrunnelsen i spørsmålet.'''
+forhold = [{ art = "presiserer", vedtak = "ov-u92" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Skriver et samlevedtak om setningen som bar forholdet, sier det at setningen faller bort eller ikke tas med fordi målet er opphevet, eller sier det at målet bare står i de forkastede alternativene, fjernes forholdet etter (b), med punktet som kilde.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Et forhold fjernes etter (b) bare når punktet sier med ord at forholdet eller setningen ikke gjelder eller ikke har noe å virke på. Ellers står forholdet etter (c).'''
+anbefalt = true
 
 
 [[gruppe]]
