@@ -3909,7 +3909,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F465',
     feilklasse: 'brevet med korrigeringen av datoen får ingen tittel (LV-U55)',
     fil: `${K}/frosset/brevtittel.ts`,
-    endringer: [[" || x.art === 'korrigering')", ')']],
+    endringer: [
+      ["x.art === 'innsigelse' ||\n      x.art === 'korrigering'\n", "x.art === 'innsigelse'\n"],
+    ],
     mal: ['brevet har tittelen «Korrigering av datoen i sak <kode>»'],
   },
   {
