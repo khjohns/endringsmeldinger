@@ -291,7 +291,7 @@ og [vedtaket 05.10](#trukket-krav) om at et trukket krav ikke kan tas opp igjen,
 «Samlet i samlevedtaket for trekk». I [HF-U9](#hf-u9) og [KA-U22](#ka-u22) gjelder de setningene E1 og
 E5 navngir, ikke lenger (svar 1 A). At kravene er avgjort, sperrer ikke trekket av grunnlaget, og
 samlevedtaket endrer KA-U13 s7 (E6) (svar 2 A). Henvisningene til EO-U34 viser til [EO-U38](#eo-u38),
-som opphever EO-U34. Innholdet er ikke endret.
+som opphever EO-U34.
 
 ###### Forslaget
 
@@ -364,7 +364,7 @@ setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 pu
 - Brevtekstene for trekk står i KA-U22, og at kravet ikke kan tas opp igjen, står i veiledningen i
   skjemaet. Ved lukking vises den konkrete avslutningsårsaken (MM-U34 punkt 12).
 
-## Endret innhold
+###### Endret innhold
 
 - **E1.** HF-U9 s6: «Ingen part kan gå fra enigheten alene, men TE kan gi avkall på sitt eget krav
   (HF-U10).» MM-U34 punkt 10 strøk første ledd. Det som står igjen, gjelder ikke lenger i HF-U9;
