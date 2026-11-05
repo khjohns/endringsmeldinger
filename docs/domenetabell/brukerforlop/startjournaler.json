@@ -118,12 +118,13 @@
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak 1975bfcf-0000-4000-8000-000000000001. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak KOE-17. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
-            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren",
-            "brevnummer": 1
+            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
           }
         },
         {
@@ -151,7 +152,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 41,
+                  "regelversjon": 42,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -167,12 +168,13 @@
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000000c",
-                "laast": "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 1. oktober 2026: Byggherren godkjenner grunnlaget.",
+                "laast": "Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 1. oktober 2026: Byggherren godkjenner grunnlaget.",
                 "utdypning": "Byggherren erkjenner at tegningene kom for sent."
               }
             ],
-            "brevtittel": "Svar på forholdet",
-            "brevnummer": 2
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02"
           }
         },
         {
@@ -201,8 +203,9 @@
                 "laast": "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
               }
             ],
-            "brevtittel": "Krav om vederlagsjustering",
-            "brevnummer": 3
+            "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
           }
         },
         {
@@ -250,7 +253,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 41,
+                  "regelversjon": 42,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -273,12 +276,13 @@
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
-                "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
+                "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-03 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
                 "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
             ],
-            "brevtittel": "Svar på krav om vederlagsjustering",
-            "brevnummer": 4
+            "brevtittel": "Svar på krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04"
           }
         },
         {
@@ -298,17 +302,18 @@
                 "id": "1975bfcf-0000-4000-8000-00000000001e",
                 "art": "aksept",
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
-                "regelversjon": 41
+                "regelversjon": 42
               }
             ],
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001e",
-                "laast": "TE godtar byggherrens svar på kravet om justering av vederlaget i brev 5 av 1. oktober 2026."
+                "laast": "TE godtar byggherrens svar på kravet om justering av vederlaget i brev K201-KOE-017-04 av 1. oktober 2026."
               }
             ],
-            "brevtittel": "Aksept av svaret",
-            "brevnummer": 5
+            "brevtittel": "Aksept av svaret i sak KOE-17",
+            "brevnummer": 5,
+            "merking": "K201-KOE-017-05"
           }
         }
       ]
@@ -416,12 +421,13 @@
             "brevtekst": [
               {
                 "gjelder": "1475b7f0-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak 1475b7f0-0000-4000-8000-000000000001. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak KOE-17. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
-            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren",
-            "brevnummer": 1
+            "brevtittel": "Påberopelse av manglende medvirkning eller leveranser fra byggherren i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
           }
         },
         {
@@ -449,7 +455,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 41,
+                  "regelversjon": 42,
                   "linje": "Byggherrens standpunkt: avslått.",
                   "sammenfall": false,
                   "varslingsplikt": false,
@@ -465,12 +471,13 @@
             "brevtekst": [
               {
                 "gjelder": "1475b7f0-0000-4000-8000-00000000000c",
-                "laast": "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 1. oktober 2026: Byggherren avslår grunnlaget.",
+                "laast": "Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 1. oktober 2026: Byggherren avslår grunnlaget.",
                 "utdypning": "Tegningene ble levert til avtalt tid etter den reviderte fremdriftsplanen."
               }
             ],
-            "brevtittel": "Svar på forholdet",
-            "brevnummer": 2
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02"
           }
         },
         {
@@ -499,8 +506,9 @@
                 "laast": "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
               }
             ],
-            "brevtittel": "Krav om vederlagsjustering",
-            "brevnummer": 3
+            "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
           }
         },
         {
@@ -548,7 +556,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 41,
+                  "regelversjon": 42,
                   "linje": "Byggherrens standpunkt: subsidiært varselet etter § 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -571,12 +579,13 @@
             "brevtekst": [
               {
                 "gjelder": "1475b7f0-0000-4000-8000-00000000001a",
-                "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:\n\nPrinsipalt: byggherren har avslått grunnlaget i brev 3 av 1. oktober 2026.\n\nSubsidiært: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.\n\nVidere subsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
+                "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-03 av 1. oktober 2026:\n\nPrinsipalt: byggherren har avslått grunnlaget i brev K201-KOE-017-02 av 1. oktober 2026.\n\nSubsidiært: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent.\n\nVidere subsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
                 "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
             ],
-            "brevtittel": "Svar på krav om vederlagsjustering",
-            "brevnummer": 4
+            "brevtittel": "Svar på krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04"
           }
         }
       ]
@@ -665,12 +674,13 @@
             "brevtekst": [
               {
                 "gjelder": "1575b983-0000-4000-8000-000000000008",
-                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak 1575b983-0000-4000-8000-000000000001 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
               }
             ],
-            "brevtittel": "Påberopelse av irregulær endring",
-            "brevnummer": 1
+            "brevtittel": "Påberopelse av irregulær endring i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
           }
         }
       ]

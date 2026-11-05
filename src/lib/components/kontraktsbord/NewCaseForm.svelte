@@ -20,7 +20,7 @@
   import { projectStore } from '$lib/stores/project.svelte';
   import { formatDateNorwegian } from '$lib/utils/dateFormatters';
   import ClaimLetterView from './ClaimLetterView.svelte';
-  import { nyKommandoId, opprettSak } from '$lib/api/kjerne';
+  import { hentSaksmerkingForNySak, nyKommandoId, opprettSak } from '$lib/api/kjerne';
   import { sendForsoek, usikkertUtfall } from '$lib/kjernesak/forsoek';
   import { avvisningFoerBrevet, lagKjernesak, type Ventende } from '$lib/kjernesak/kontekst.svelte';
   import {
@@ -201,7 +201,14 @@
         // #711, #1271: kravet prøves med `sendes` før saken opprettes, så en avvisning
         // etterlater ingen sak uten krav. Kravet binder ingen vedlegg, så oppslaget er tomt.
         const hindring = avvisningFoerBrevet(
-          kravMotNySak(opprettelse(tittel), kommando, 'TE', KJERNE, new Map())
+          kravMotNySak(
+            opprettelse(tittel),
+            kommando,
+            'TE',
+            await hentSaksmerkingForNySak(prosjektId),
+            KJERNE,
+            new Map()
+          )
         );
         if (hindring) throw hindring;
       }

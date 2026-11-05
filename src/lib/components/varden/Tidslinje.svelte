@@ -7,7 +7,7 @@
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
   import type { Brevet, OppgittDato } from './lesing';
-  import { OPPGITT, TIDSLINJE, brevtittel, dato, klokke } from './tekster';
+  import { OPPGITT, TIDSLINJE, brevhode, dato, klokke } from './tekster';
 
   let {
     brev,
@@ -48,7 +48,7 @@
           noekkel: b.id,
           naar: b.registrert,
           merke: b.art === 'registrert' ? 'registrert' : 'sendt',
-          hva: `Brev ${b.nummer} · ${brevtittel(b)}`,
+          hva: brevhode(b),
           kilde:
             b.art === 'registrert'
               ? TIDSLINJE.registrert(b.avsender)

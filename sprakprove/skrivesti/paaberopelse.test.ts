@@ -19,7 +19,7 @@ import {
   type Oppsett,
 } from '../../server/tester/testbase.ts';
 import { grunnlagskrav, type Grunnlagsvalg } from '../../src/lib/kjernesak/paaberopelse.ts';
-import { brevFor } from '../../src/lib/kjernesak/brevtekst.ts';
+import { brevFor, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
@@ -63,6 +63,21 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
     return svar.kropp as unknown as Kjernesak;
   };
 
+  /** Som skjemaet: koden og kontraktsforkortelsen fra leseinngangen (LV-U46, LV-U53). */
+  const merking = async (sakId: string): Promise<Saksmerking> => {
+    const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/sakskode`, {
+      bruker: o.te,
+      prosjektId: o.prosjekt.id,
+    });
+    expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
+    const { kode, loepenummer, kontraktsforkortelse } = svar.kropp as {
+      kode: 'koe' | 'eo';
+      loepenummer: number;
+      kontraktsforkortelse: string | null;
+    };
+    return { sakskode: { kode, loepenummer }, kontraktsforkortelse };
+  };
+
   /** Som skjemaet: teksten kjernen lager for saken slik den er lastet, og kravet med den. */
   async function send(sakId: string, kommando: Record<string, unknown>) {
     const sak = await hent(sakId);
@@ -73,7 +88,7 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
       aktor_team_id: null,
       refererer_til_event_id: null,
     }));
-    const brev = brevFor(kommando, sakId, 'TE', journal, KJERNE);
+    const brev = brevFor(kommando, sakId, 'TE', await merking(sakId), journal, KJERNE);
     const tekst = 'tekst' in brev ? brev.tekst : null;
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
       bruker: o.te,

@@ -4,15 +4,17 @@
  * falske `hent` og `send`; at serveren avgjør, prøves over HTTP i `server/tester/`.
  */
 
+import { MERKING } from './provejournal';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError, NETTFEIL } from '$lib/api/client';
-import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import type { Journallinje, Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
 import {
   avvisningFoerBrevet,
   brevaarsak,
   brevhindring,
   Feltavvisning,
   lagKjernesak,
+  tekstenKanVaereUtdatert,
   PROGRAMFEIL,
 } from '$lib/kjernesak/kontekst.svelte';
 import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
@@ -55,6 +57,7 @@ const kontekst = {
   teamId: null,
   tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
   nyId: () => crypto.randomUUID(),
+  ...MERKING,
 };
 
 /** Raden kjernen selv skriver for kommandoen, som versjonen etter `journal`. */
@@ -83,12 +86,13 @@ const linje = ({
 });
 
 /** Svaret fra serveren, med en visning kjernen aldri lager, så det synes om konteksten leser den. */
-const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): Kjernesak => ({
+const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): LastetKjernesak => ({
   versjon: journal.at(-1)!.versjon,
   part,
   visning: { status: { kode: 'fra_serveren', tekst: 'Fra serveren' } } as unknown as Visning,
   journal: journal.map(linje),
   leveringsoppdrag: [],
+  merking: MERKING,
 });
 
 describe('sakskonteksten for en TS-sak', () => {
@@ -213,6 +217,33 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.versjon).toBe(2);
     expect(sak.feil).toBe('Brevet ble ikke sendt. Saken er endret. Last den inn på nytt.');
     expect(sak.sender).toBe(false);
+  });
+
+  it('laster saken på nytt når kjernen avviser teksten fordi en annen sak fikk nummeret (LV-U46)', async () => {
+    const hent = vi.fn(async () => svar([opprettet]));
+    // Formen fra `regelavvisning` i server/app.ts: regelen står i `rule`, ikke i `error`.
+    const send = vi.fn(async () => {
+      throw new ApiError(400, 'Teksten er en annen.', {
+        error: 'REGELBRUDD',
+        rule: 'ANNEN_BREVTEKST',
+      });
+    });
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(hent).toHaveBeenCalledTimes(2);
+    expect(
+      tekstenKanVaereUtdatert(
+        new ApiError(400, '', { error: 'REGELBRUDD', rule: 'ANNEN_BREVTEKST' })
+      )
+    ).toBe(true);
+    expect(tekstenKanVaereUtdatert(new ApiError(409, '', { error: 'LOEPENUMMER_TATT' }))).toBe(
+      true
+    );
+    expect(tekstenKanVaereUtdatert(new ApiError(400, '', { error: 'ANNEN_BREVTEKST' }))).toBe(
+      false
+    );
   });
 
   it('laster ikke saken på nytt når serveren avviser kommandoen av en annen grunn', async () => {
@@ -492,8 +523,8 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(avvisningFoerBrevet(brev!)).not.toBeInstanceOf(Feltavvisning);
     expect(avvisningFoerBrevet(brev!)?.message).toBe(`Brevet kan ikke sendes ennå. ${aarsak}`);
     expect(brevaarsak(null)).toBeNull();
-    expect(brevaarsak({ tekst: ['brevet'] })).toBeNull();
-    expect(brevaarsak({ tekst: null })).toBeNull();
+    expect(brevaarsak({ tekst: ['brevet'], brevnummer: 1, brevtittel: 'Brevet' })).toBeNull();
+    expect(brevaarsak({ tekst: null, brevnummer: null, brevtittel: null })).toBeNull();
   });
 
   // Kilde: #865 p1. En programfeil i kjernen blir en melding om feil i appen, ikke en

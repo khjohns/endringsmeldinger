@@ -10,6 +10,8 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { KJERNE } from '$kjerne/versjon';
+  import type { Saksmerking } from '$lib/kjernesak/brevtekst';
+  import { tekstenKanVaereUtdatert } from '$lib/kjernesak/kontekst.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll from './Brevkontroll.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
@@ -37,6 +39,7 @@
   let {
     sakId,
     send,
+    hentMerking,
     vedleggForNySak,
     utkast = null,
     onsendt,
@@ -45,6 +48,8 @@
     /** ID-en saken får (`NySak.sakId`). */
     sakId: string;
     send: SendNySak;
+    /** Koden saken vil få og kontraktsforkortelsen, lest før brevet vises (LV-U46). */
+    hentMerking: () => Promise<Saksmerking>;
     vedleggForNySak: VedleggForNySak;
     /** Skjemaet fra et forsøk med usikkert utfall, så et nytt forsøk sender det samme (#1526). */
     utkast?: Utfylling | null;
@@ -74,7 +79,12 @@
   let feil = $state<Record<string, string>>({});
   let avbryter = $state(false);
   let oppsummering = $state<HTMLElement | null>(null);
-  let kontroll = $state<{ tekst: string[]; kommando: Record<string, unknown> } | null>(null);
+  let kontroll = $state<{
+    tekst: string[];
+    brevnummer: number | null;
+    brevtittel: string | null;
+    kommando: Record<string, unknown>;
+  } | null>(null);
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
@@ -200,15 +210,21 @@
     }
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
-      const brev = brevet(utfylling(), sakId, KJERNE);
-      if ('programfeil' in brev) ny.kjernen = brev.programfeil;
+      const brev = await brevetMedNummer();
+      if (!brev) ny.kjernen = NYSAK.ingenMerking;
+      else if ('programfeil' in brev) ny.kjernen = brev.programfeil;
       else if ('avvisning' in brev) {
         if (brev.avvisning.regel === 'BESKRIVELSE_MANGLER')
           ny.beskrivelse = NYSAK.beskriv(felt.beskrivelse.endsWith('pålegget'));
         else ny.kjernen = brev.avvisning.melding;
       } else if (!Object.keys(ny).length && brev.tekst) {
         feil = {};
-        kontroll = { tekst: brev.tekst, kommando: kommandoene(utfylling(), KJERNE).paaberopelse };
+        kontroll = {
+          tekst: brev.tekst,
+          brevnummer: brev.brevnummer,
+          brevtittel: brev.brevtittel,
+          kommando: kommandoene(utfylling(), KJERNE).paaberopelse,
+        };
         return;
       }
     }
@@ -217,12 +233,23 @@
     oppsummering?.focus();
   }
 
+  const sammeTekst = (a: string[], b: string[]) =>
+    a.length === b.length && a.every((t, i) => t === b[i]);
+
+  /** Brevet med nummeret saken vil få nå (LV-U46), eller `null` når nummeret ikke kan hentes. */
+  async function brevetMedNummer() {
+    try {
+      return brevet(utfylling(), sakId, await hentMerking(), KJERNE);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
   let sender = $state(false);
   let sendefeil = $state<string | null>(null);
   const sending: Brevsending = {
     part: 'TE',
-    // `sak_opprettet` er versjon 1, så påberopelsen blir brev 2 i saken til #1489 (VS-U37).
-    versjon: 1,
     get saksbilde() {
       return { tittel: tittel.trim() };
     },
@@ -242,6 +269,26 @@
         return true;
       } catch (e) {
         sendefeil = e instanceof Error ? e.message : String(e);
+        if (tekstenKanVaereUtdatert(e)) {
+          // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
+          const brev = await brevetMedNummer();
+          // Samme tekst betyr at teksten var annerledes av en annen grunn; da står serverens melding.
+          if (
+            brev &&
+            'tekst' in brev &&
+            brev.tekst &&
+            kontroll &&
+            !sammeTekst(brev.tekst, kontroll.tekst)
+          ) {
+            kontroll = {
+              ...kontroll,
+              tekst: brev.tekst,
+              brevnummer: brev.brevnummer,
+              brevtittel: brev.brevtittel,
+            };
+            sendefeil = NYSAK.nyttNummer;
+          }
+        }
         return false;
       } finally {
         sender = false;
@@ -284,7 +331,8 @@
     kommando={kontroll.kommando}
     tekst={kontroll.tekst}
     utdypning={beskrivelse.trim()}
-    tittel={NYSAK.brevtittel(valgt.navn)}
+    brevnummer={kontroll.brevnummer}
+    tittel={kontroll.brevtittel}
     handling={NYSAK.handling}
     svarerPaa={null}
     detteSender={[

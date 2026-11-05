@@ -29,6 +29,8 @@ import {
   type Opplysningsslag,
   type Spor,
   type Varselhjemmel,
+  KORRESPONDANSETYPER,
+  type Korrespondansetype,
 } from '../typer.ts';
 
 export interface Svarutkast {
@@ -98,7 +100,12 @@ export type Kommando = (
    * (MM-U1, SK-12, OV-U5, VS-U34), med brevet som vedlegg (OV-U4). `dokumentasjon` er
    * ID-ene i mellomlageret (LV-U14). Hjemmelen følger sporet.
    */
-  | ({ type: 'varsel'; sendt: string; dokumentasjon: string[] } & RegistrertVarsel)
+  | ({
+      type: 'varsel';
+      sendt: string;
+      korrespondansetype: Korrespondansetype;
+      dokumentasjon: string[];
+    } & RegistrertVarsel)
   /**
    * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
    * beskrivelsen med egne ord, datoen det ble sendt og brevet som vedlegg. Uten `spor`
@@ -108,6 +115,7 @@ export type Kommando = (
       type: 'registrert_brev';
       spor?: Spor[];
       sendt: string;
+      korrespondansetype: Korrespondansetype;
       beskrivelse: string;
       dokumentasjon: string[];
       retter?: string;
@@ -149,12 +157,15 @@ export type Kommando = (
       gjelder: string;
       utdypning?: string;
       sendt?: string;
+      korrespondansetype?: Korrespondansetype;
       dokumentasjon?: string[];
     }
 ) &
   Brevtekst;
 
 const SPOR = { enum: [...SPORENE] };
+/** LV-U42, D1 A i #1497: påkrevd i hver registrering av korrespondanse sendt utenfor løsningen. */
+const KORRESPONDANSETYPE = { enum: [...KORRESPONDANSETYPER] };
 const SVARUTKAST = objekt(
   {
     spor: SPOR,
@@ -218,20 +229,22 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       type: { const: 'varsel' },
       ...REGISTRERT_VARSEL,
       sendt: DATO,
+      korrespondansetype: KORRESPONDANSETYPE,
       dokumentasjon: liste(ID),
     },
-    ['type', 'spor', 'hjemmel', 'sendt', 'dokumentasjon']
+    ['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype', 'dokumentasjon']
   ),
   registrert_brev: objekt(
     {
       type: { const: 'registrert_brev' },
       spor: liste(SPOR),
       sendt: DATO,
+      korrespondansetype: KORRESPONDANSETYPE,
       beskrivelse: TEKST,
       dokumentasjon: liste(ID),
       retter: ID,
     },
-    ['type', 'sendt', 'beskrivelse', 'dokumentasjon']
+    ['type', 'sendt', 'korrespondansetype', 'beskrivelse', 'dokumentasjon']
   ),
   ikke_i_saken: objekt({ type: { const: 'ikke_i_saken' }, retter: ID }, ['type', 'retter']),
   send_varsel: objekt(
@@ -285,6 +298,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       gjelder: ID,
       utdypning: TEKST,
       sendt: DATO,
+      korrespondansetype: KORRESPONDANSETYPE,
       dokumentasjon: liste(ID),
       ...BREVTEKST,
     },
@@ -404,9 +418,13 @@ export function formfeil(kommando: unknown): string[] {
     if ('sendt' in kommando) {
       // KA-U35: den registrerte begrunnelsen har ingen tekst i appen, og brevet ligger ved.
       if ('utdypning' in k) feil.push('$.utdypning: en registrert begrunnelse har ingen tekst');
+      if (!('korrespondansetype' in kommando))
+        feil.push('$.korrespondansetype: typen mangler for den registrerte begrunnelsen');
       if (!k.dokumentasjon?.length)
         feil.push('$.dokumentasjon: brevet med begrunnelsen må ligge ved');
-    } else if ('dokumentasjon' in k)
+    } else if ('korrespondansetype' in kommando)
+      feil.push('$.korrespondansetype: bare en registrert begrunnelse har typen');
+    else if ('dokumentasjon' in k)
       // KA-U34: brevet fra appen har bare setningen og teksten.
       feil.push('$.dokumentasjon: bare en registrert begrunnelse har vedlegg');
   }

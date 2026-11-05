@@ -84,6 +84,7 @@ const UTEN_SAK = [
 ];
 const NY_SAK = [
   'POST /api/kjerne/saker',
+  'GET /api/kjerne/sakskode',
   'POST /api/kjerne/vedlegg',
   'DELETE /api/kjerne/vedlegg/00000000-0000-4000-8000-000000000000',
 ];
@@ -546,8 +547,11 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
         prosjektId: o.prosjekt.id,
       });
       if (r.tilgang.kontraktsrolle === 'kreves') {
+        // Leserollen har ikke prosjektrollen `member`, så den inngangen avviser før kontraktsrollen.
         expect(svar.status).toBe(403);
-        expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
+        expect(svar.kropp.error).toBe(
+          r.tilgang.prosjektrolle === 'member' ? 'FORBIDDEN' : 'CONTRACT_ROLE_REQUIRED'
+        );
       } else {
         expect(svar.status).toBe(lest(r));
       }
@@ -579,35 +583,39 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       metode: r.metode,
       bruker: null,
       prosjektId: o.prosjekt.id,
-      kropp: {},
+      kropp: kropp(r),
     });
     expect(svar.status).toBe(401);
     expect(svar.kropp.error).toBe('UNAUTHORIZED');
   });
 
-  it.each(nySak)('%s: uten eller med feil CSRF-token gir 403', async (_n, r) => {
-    for (const csrf of [null, 'feil']) {
-      const svar = await kall(server.url, r.eksempel(''), {
-        metode: r.metode,
-        bruker: o.te,
-        prosjektId: o.prosjekt.id,
-        kropp: {},
-        csrf,
-      });
-      expect(svar.status).toBe(403);
-      expect(svar.kropp.error).toBe('CSRF validation failed');
+  it.each(nySak.filter(([, r]) => r.metode !== 'GET'))(
+    '%s: uten eller med feil CSRF-token gir 403',
+    async (_n, r) => {
+      for (const csrf of [null, 'feil']) {
+        const svar = await kall(server.url, r.eksempel(''), {
+          metode: r.metode,
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp: kropp(r),
+          csrf,
+        });
+        expect(svar.status).toBe(403);
+        expect(svar.kropp.error).toBe('CSRF validation failed');
+      }
     }
-  });
+  );
 
   it.each(nySak)(
     '%s: uten prosjekt, i feil prosjekt eller med en sak utenfor i kroppen gir 403',
     async (_n, r) => {
       const forsok = [
-        { bruker: o.te, prosjektId: null, kropp: {} },
-        { bruker: o.utenfor, prosjektId: o.prosjekt.id, kropp: {} },
-        { bruker: o.te, prosjektId: o.annetProsjekt.id, kropp: {} },
-        // En filinngang leser ikke kroppen som JSON, så den har ingen sak eller prosjekt i kroppen.
-        ...(r.fil
+        { bruker: o.te, prosjektId: null, kropp: kropp(r) },
+        { bruker: o.utenfor, prosjektId: o.prosjekt.id, kropp: kropp(r) },
+        { bruker: o.te, prosjektId: o.annetProsjekt.id, kropp: kropp(r) },
+        // En filinngang leser ikke kroppen som JSON, og en lesing har ingen kropp, så de har
+        // ingen sak eller prosjekt i kroppen.
+        ...(r.fil || r.metode === 'GET'
           ? []
           : [
               { bruker: o.te, prosjektId: o.prosjekt.id, kropp: { sak_id: annenSak } },
@@ -636,13 +644,13 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       metode: r.metode,
       bruker: o.utenTeam,
       prosjektId: o.prosjekt.id,
-      kropp: {},
+      kropp: kropp(r),
     });
     expect(svar.status).toBe(403);
     expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
   });
 
-  it.each(nySak.filter(([, r]) => !r.fil))(
+  it.each(nySak.filter(([, r]) => !r.fil && r.metode !== 'GET'))(
     '%s: et medlem uten kontraktsteam med en sak i et annet prosjekt i kroppen gir FORBIDDEN (#1106)',
     async (_n, r) => {
       const svar = await kall(server.url, r.eksempel(''), {
@@ -661,15 +669,17 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       metode: r.metode,
       bruker: o.te,
       prosjektId: o.prosjekt.id,
-      kropp: {},
+      kropp: kropp(r),
     });
     // Opprettelsen avviser den tomme kroppen; vedlegget mangler filnavnet eller finnes ikke.
     const [status, feil] =
       r.eksempel('') === '/api/kjerne/saker'
         ? [400, 'UGYLDIG_FORESPOERSEL']
-        : r.fil
-          ? [400, 'MANGLER_FILNAVN']
-          : [404, 'VEDLEGG_FINNES_IKKE'];
+        : r.metode === 'GET'
+          ? [200, undefined]
+          : r.fil
+            ? [400, 'MANGLER_FILNAVN']
+            : [404, 'VEDLEGG_FINNES_IKKE'];
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(status);
     expect(svar.kropp.error).toBe(feil);
   });

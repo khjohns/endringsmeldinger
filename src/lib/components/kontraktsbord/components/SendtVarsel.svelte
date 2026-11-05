@@ -1,8 +1,11 @@
 <script lang="ts">
   // Varselet TE sendte utenfor appen: datoen og brevet som vedlegg (MM-U1, OV-U4, OV-U5).
+  // Når varselet legges til i saken, oppgir TE også om det var brev eller e-post (LV-U42).
   import type { Kjernevedlegg } from '$lib/api/kjerne';
-  import { dagensDato, varselhindring } from '$lib/kjernesak/skjemadata';
+  import type { Korrespondansetype } from '$kjerne/typer';
+  import { dagensDato, typehindring, varselhindring } from '$lib/kjernesak/skjemadata';
   import FormSection from './FormSection.svelte';
+  import SegmentedControl from './SegmentedControl.svelte';
 
   interface Props {
     id: string;
@@ -12,6 +15,9 @@
     sendt: string;
     vedlegg: Kjernevedlegg[];
     opptatt: boolean;
+    /** Varselet legges til i saken, så typen oppgis (LV-U42). */
+    medKorrespondansetype?: boolean;
+    korrespondansetype?: Korrespondansetype | null;
   }
 
   let {
@@ -22,7 +28,14 @@
     sendt = $bindable(),
     vedlegg = $bindable(),
     opptatt = $bindable(),
+    medKorrespondansetype = false,
+    korrespondansetype = $bindable(null),
   }: Props = $props();
+
+  const TYPENE: { value: Korrespondansetype; label: string }[] = [
+    { value: 'brev', label: 'Brev' },
+    { value: 'e_post', label: 'E-post' },
+  ];
 
   let opplastingsfeil = $state<string | null>(null);
   // Leser dagens dato hver gang feltene endres, ikke én gang når skjemaet åpnes.
@@ -44,6 +57,17 @@
 
 <FormSection title="Varselet som er sendt" {paragrafRef}>
   {#if hjelpetekst}<p class="helptext">{hjelpetekst}</p>{/if}
+  {#if medKorrespondansetype}
+    <SegmentedControl
+      label="Varselet ble sendt som"
+      options={TYPENE}
+      value={korrespondansetype ?? ''}
+      onchange={(v) => (korrespondansetype = v as Korrespondansetype)}
+    />
+    {#if !korrespondansetype && sendt}
+      <p class="helptext" role="status">{typehindring(korrespondansetype)}</p>
+    {/if}
+  {/if}
   <label class="field-label" for="{id}-sendt">Datoen varselet ble sendt</label>
   <input id="{id}-sendt" class="field-input" type="date" max={dagensDato()} bind:value={sendt} />
   {#if sendt && hindring}

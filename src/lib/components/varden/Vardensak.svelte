@@ -17,8 +17,8 @@
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
-  import { brevene } from './lesing';
-  import { BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, brevtittel, dato } from './tekster';
+  import { brevene, type Brevref } from './lesing';
+  import { BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
 
   let {
     kjernesak,
@@ -53,11 +53,12 @@
     utdypning?: string;
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
-    tittel: string;
+    brevnummer: number | null;
+    tittel: string | null;
     handling: string;
     sendTekst: string;
     tilbakeTil: string;
-    svarerPaa: { nummer: number; registrert: string } | null;
+    svarerPaa: Brevref | null;
     tilbake: Arbeid;
     /** Brevet er svarutkastet, som tømmes når det er sendt. */
     erUtkastet: boolean;
@@ -173,9 +174,7 @@
                     >{/if}
                 </span>
                 <span class="under"
-                  >{sisteBrev
-                    ? SAKEN.sist(sisteBrev.nummer, sisteBrev.avsender)
-                    : SAKEN.ingenBrev}</span
+                  >{sisteBrev ? SAKEN.sist(sisteBrev, sisteBrev.avsender) : SAKEN.ingenBrev}</span
                 >
               </button>
             </li>
@@ -234,6 +233,7 @@
           kommando={k.kommando}
           tekst={k.tekst}
           utdypning={k.utdypning}
+          brevnummer={k.brevnummer}
           tittel={k.tittel}
           handling={k.handling}
           svarerPaa={k.svarerPaa}
@@ -256,11 +256,10 @@
             arbeid = {
               art: 'kontroll',
               ...k,
-              tittel: brevtittel({ art: 'svar', spor: ['vederlag'] }),
               handling: BREVKONTROLL.sendSvaret,
               sendTekst: BREVKONTROLL.sendSvaret,
               tilbakeTil: 'utkastet',
-              svarerPaa: krav ? { nummer: krav.nummer, registrert: krav.registrert } : null,
+              svarerPaa: krav ?? null,
               tilbake: { art: 'svar' },
               erUtkastet: true,
             };
@@ -279,21 +278,20 @@
                 arbeid = { art: 'svar' };
               }
             }}
-            onakseptbrev={({ kommando, tekst }) => {
+            onakseptbrev={({ kommando, tekst, brevnummer, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
               arbeid = {
                 art: 'kontroll',
                 kommando,
                 tekst,
-                detteSender: svaret
-                  ? [{ tekst: STILLING.godtarBrev(svaret.nummer), lag: null }]
-                  : [],
+                detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
                 virkninger: [],
-                tittel: brevtittel({ art: 'aksept', spor: [valgt] }),
+                brevnummer,
+                tittel,
                 handling: BREVKONTROLL.sendAksepten,
                 sendTekst: BREVKONTROLL.sendAksepten,
                 tilbakeTil: 'saken',
-                svarerPaa: svaret ? { nummer: svaret.nummer, registrert: svaret.registrert } : null,
+                svarerPaa: svaret ?? null,
                 tilbake: valgt === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' },
                 erUtkastet: false,
               };

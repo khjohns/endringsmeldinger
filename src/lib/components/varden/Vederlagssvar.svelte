@@ -38,6 +38,7 @@
     BREVKONTROLL,
     HOVEDLINJER,
     SKJEMA,
+    brevhode,
     brevtittel,
     dato,
     grunntekst,
@@ -63,6 +64,8 @@
       utdypning?: string;
       detteSender: { tekst: string; lag: string | null }[];
       virkninger: string[];
+      brevnummer: number | null;
+      tittel: string | null;
     }) => void;
     /** BH har bekreftet at utkastet skal forkastes. */
     onforkast: () => void;
@@ -116,7 +119,7 @@
   });
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.forhold.gjeldendeSvar;
-    return g ? brevet(u, g.dokument)!.nummer : null;
+    return g ? brevet(u, g.dokument) : null;
   });
   const nyttSvar = $derived.by(() => {
     const s = etter?.spor.vederlag.gjeldendeSvar;
@@ -152,6 +155,11 @@
   const avvisning = $derived.by(() => {
     const b = kjernesak.brev(kommando, undefined, true);
     return b && 'avvisning' in b ? b.avvisning : null;
+  });
+  // Nummeret og tittelen står i raden kjernen ville skrevet (LV-U44, LV-U27), ikke regnet ut her.
+  const utkastbrev = $derived.by(() => {
+    const b = kjernesak.brev(kommando);
+    return b && 'tekst' in b ? b : null;
   });
   // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
   const delbeloepFeil = $derived(
@@ -223,6 +231,8 @@
       utdypning: kommando.svar[0].utdypning,
       detteSender: linjer,
       virkninger,
+      brevnummer: b.brevnummer,
+      tittel: b.brevtittel,
     });
   }
 
@@ -322,7 +332,7 @@
   <Brev
     avsender={kravbrevet.avsender}
     sak={kjernesak.saksbilde?.tittel ?? ''}
-    nummer={String(kravbrevet.nummer)}
+    nummer={kravbrevet.nummer === null ? null : String(kravbrevet.nummer)}
     dato={dato(kravbrevet.registrert)}
     tittel={brevtittel(kravbrevet)}
     avsnitt={kravbrevet.avsnitt ?? []}
@@ -352,12 +362,13 @@
         <div class="tittelrad">
           <h2 class="tittel" id={`${uid}-tittel`}>
             <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
-            <span
-              >Brev {(kjernesak.versjon ?? 0) + 1} · {brevtittel({
-                art: 'svar',
-                spor: ['vederlag'],
-              })}</span
-            >
+            {#if utkastbrev}<span
+                >{brevhode({
+                  nummer: utkastbrev.brevnummer,
+                  art: 'svar',
+                  brevtittel: utkastbrev.brevtittel,
+                })}</span
+              >{/if}
           </h2>
           <Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />
         </div>
@@ -366,7 +377,7 @@
       </header>
       <div class="svarerpaa">
         <FileText size={16} aria-hidden="true" />
-        <span>{SKJEMA.svarerPaa(kravbrevet.nummer, kravbrevet.registrert)}</span>
+        <span>{SKJEMA.svarerPaa(kravbrevet)}</span>
         <Knapp
           variant="lenke"
           onclick={() => (leser = !leser)}
@@ -411,7 +422,7 @@
           {@render gjelderHvis('itide', grunnene)}
           <div class="datoer">
             {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
-            <p>{SKJEMA.kravSendt(kravbrevet.registrert, kravbrevet.nummer)}</p>
+            <p>{SKJEMA.kravSendt(kravbrevet.registrert, kravbrevet)}</p>
             {#if klarOver}
               <p>
                 <strong
@@ -552,7 +563,7 @@
     {#if leser && !smal}
       <section class="leseramme" id={`${uid}-kravbrev`} aria-labelledby={`${uid}-lesetittel`}>
         <h2 class="lesetittel" id={`${uid}-lesetittel`}>
-          Brev {kravbrevet.nummer} · {brevtittel(kravbrevet)}
+          {brevhode(kravbrevet)}
           <span class="dempet">· {kravbrevet.avsender} · {dato(kravbrevet.registrert)}</span>
         </h2>
         <!-- Rammen ruller for seg selv, så den må kunne nås med tastaturet. -->
@@ -594,9 +605,10 @@
   }
   .tittelrad {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
   }
   .tittel {
+    flex: 1;
     display: flex;
     line-height: 1.4;
     flex-wrap: wrap;

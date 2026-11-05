@@ -18,7 +18,7 @@ import {
   vederlagslag,
   vederlagssvarFraSkjema,
 } from '../vederlagssvar';
-import { SAK, medGrunnlag, opprettet, skrevet } from './provejournal';
+import { MERKING, SAK, medGrunnlag, opprettet, skrevet } from './provejournal';
 
 const state = (o: Partial<VederlagFormState> = {}): VederlagFormState => ({
   hovedkravVarsletITide: true,
@@ -68,7 +68,7 @@ function skjemaOgBrev(journal: Journalrad[], s: VederlagFormState) {
     computed.subsidiaerTriggers
   );
   const kommando = vederlagssvarFraSkjema(data, foer, KJERNE.regler);
-  const etter = utledetMed(kommando, SAK, 'BH', journal, KJERNE);
+  const etter = utledetMed(kommando, SAK, 'BH', MERKING, journal, KJERNE);
   expect(etter, 'kjernen godtar svaret').not.toBeNull();
   const lag = vederlagslag(foer, etter!)!;
   const brev = laastTekst(skrevet(journal, 'BH', kommando).at(-1)!)!.join(' ');

@@ -65,6 +65,7 @@ describe.skipIf(!TESTBASE_URL)('nedlasting av et sendt brev som PDF', () => {
           spor: 'frist',
           hjemmel: '33.4',
           sendt: '2026-10-01',
+          korrespondansetype: 'brev',
           dokumentasjon: [vedleggId],
         },
       },

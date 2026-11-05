@@ -36,6 +36,8 @@ import {
   TESTBASE_URL,
   type KjorendeServer,
   type Oppsett,
+  sakskodeFor,
+  KONTRAKTSFORKORTELSE,
 } from './testbase.ts';
 
 const ENDRINGSORDRE = { hovedkategori: 'endring', underkategori: 'endringsordre' };
@@ -94,6 +96,8 @@ describe.skipIf(!TESTBASE_URL)(
             aktoerId: bruker.id,
             part: bruker === o.bh ? 'BH' : 'TE',
             teamId: null,
+            sakskode: await sakskodeFor(o, sakId, bruker === o.bh ? 'BH' : 'TE'),
+            kontraktsforkortelse: KONTRAKTSFORKORTELSE,
             tidspunkt: () => new Date(),
             nyId: randomUUID,
           },
@@ -326,7 +330,9 @@ describe.skipIf(!TESTBASE_URL)(
       expect(loepenummer).toBeDefined();
       expect(v).toMatch(new RegExp(`^Vår ref\\.: K201-KOE-${loepenummer}-02\\n`));
       // LV-U43: sakstittelen er navnet på forholdet i påberopelsen.
-      expect(g).toContain(`«Skiva» i sak ${sakId}`);
+      // S3 i #1497: saken omtales med koden, ikke med saks-ID-en.
+      expect(g).toContain(`«Skiva» i sak KOE-${Number(loepenummer)}`);
+      expect(g).not.toContain(sakId);
       expect(g).toContain(PAABEROPELSE.utdypning);
       expect(v).toContain('125\u00a0000\u00a0kr');
       // Kontrollsak: gjengivelsen av et annet brev er ikke tro mot dette.

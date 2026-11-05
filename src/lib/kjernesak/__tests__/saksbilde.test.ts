@@ -4,6 +4,7 @@
  * Journalen er skrevet av kjernen selv, så forventningene er kjernens egne.
  */
 
+import { MERKING } from './provejournal';
 import { describe, expect, it } from 'vitest';
 import type { Leveringsoppdrag } from '$lib/api/kjerne';
 import { etikett, lagSaksbilde, leveringstekst } from '$lib/kjernesak/saksbilde';
@@ -57,6 +58,7 @@ function skrevet(kommando: unknown, journal: Journalrad[], part: 'TE' | 'BH' = '
       aktoerId: '',
       part,
       teamId: null,
+      ...MERKING,
       tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
       nyId: () => crypto.randomUUID(),
     },
@@ -180,6 +182,7 @@ describe('saksbildet for en TS-sak', () => {
         spor: 'frist',
         hjemmel: '33.4',
         sendt: '2026-10-02',
+        korrespondansetype: 'brev',
         dokumentasjon: [VEDLEGG],
       },
       [opprettet, g]
@@ -266,6 +269,7 @@ describe('et brev registrert som dokumentasjon i saksbildet (OV-U16, #1045)', ()
     {
       type: 'registrert_brev',
       sendt: '2026-10-15',
+      korrespondansetype: 'e_post',
       beskrivelse: 'Svar på kravet sendt på e-post',
       dokumentasjon: [VEDLEGG],
     },

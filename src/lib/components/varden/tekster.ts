@@ -8,12 +8,11 @@
  * brevnummer). Den finner ikke på virkningen.
  */
 
-import { FORHOLDSGRUPPER as KJERNENS_FORHOLD, paaberopelsenAv } from '$kjerne/frosset/forholdene';
+import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/frosset/forholdene';
 import { kroner } from '$kjerne/frosset/standpunkt';
-import { KRAVTITTEL, SVARTITTEL, UTSAGNSTITTEL } from '$kjerne/frosset/brevtittel';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Part, Spor, Standpunkt } from '$kjerne/typer';
-import type { Brevet, OppgittDato } from './lesing';
+import type { Brevet, Brevref, OppgittDato } from './lesing';
 
 export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
 
@@ -34,32 +33,26 @@ export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: stri
     forhold: g.forhold.map((f): [string, string] => [f.kode, f.navn]),
   }));
 
-const FORHOLDSNAVN = new Map(FORHOLDSGRUPPER.flatMap((g) => g.forhold));
-
-/** Navnet på forholdet med kjernens kode (OV-U78), eller `null` for en ukjent kode. */
-export const forholdsnavn = (kode: unknown) =>
-  (typeof kode === 'string' && FORHOLDSNAVN.get(kode)) || null;
+/**
+ * Tittelen som ble frosset med brevet, med sakens kode (LV-U27, MM-U3). Et registrert brev har
+ * ingen, og får etiketten «Korrespondanse» (MM-U17).
+ */
+export const brevtittel = (b: { art?: Brevet['art']; brevtittel: string | null }) =>
+  b.brevtittel ?? (b.art === 'registrert' ? 'Korrespondanse' : 'Brev');
 
 /**
- * Tittelen på brevet: den som ble frosset med brevet (MM-U3, #1536). Et brev som ennå ikke er
- * sendt, får tittelen kjernen vil fryse, og et registrert brev får etiketten «Korrespondanse»
- * (MM-U17).
+ * Henvisningen til et brev i en setning: «brev 3» med brevnummeret (LV-U44). Et registrert
+ * brev uten nummer (LV-U45) får ikke et oppdiktet nummer, men datoen det ble registrert.
  */
-export function brevtittel(
-  b: Pick<Brevet, 'art' | 'spor'> & { forhold?: string | null; brevtittel?: string | null }
-): string {
-  if (b.brevtittel) return b.brevtittel;
-  const spor = b.spor[0];
-  // Totalentreprenørens brev om forholdet heter «Påberopelse av <forholdet>» (GR-U31).
-  const navn = spor === 'forhold' ? forholdsnavn(b.forhold) : null;
-  if (b.art === 'krav' && navn) return NYSAK.brevtittel(navn);
-  if (b.art === 'krav' && spor) return KRAVTITTEL[spor];
-  if (b.art === 'svar' && spor) return SVARTITTEL[spor];
-  if (b.art === 'aksept' || b.art === 'trekk' || b.art === 'innsigelse')
-    return UTSAGNSTITTEL[b.art];
-  if (b.art === 'registrert') return 'Korrespondanse';
-  return 'Brev';
-}
+export const brevref = (b: Brevref) =>
+  b.nummer === null ? `brevet registrert ${dato(b.registrert)}` : `brev ${b.nummer}`;
+
+/** Henvisningen som begynner en linje: «Brev 3», eller «Brevet registrert …» uten nummer. */
+export const brevrefStor = (b: Brevref) => brevref(b)[0].toUpperCase() + brevref(b).slice(1);
+
+/** Overskriften for brevet: «Brev 3 · tittelen», og bare tittelen for et brev uten nummer. */
+export const brevhode = (b: Pick<Brevet, 'nummer' | 'art' | 'brevtittel'>) =>
+  b.nummer === null ? brevtittel(b) : `Brev ${b.nummer} · ${brevtittel(b)}`;
 
 const DATO = new Intl.DateTimeFormat('nb-NO', {
   day: 'numeric',
@@ -109,11 +102,11 @@ const METODE: Record<string, string> = {
 };
 export const metodenavn = (m: unknown) => METODE[m as string] ?? 'metoden TE oppgir';
 
-/** En grunn fra svaret på grunnlaget i brev `brev`, som utsagn fra byggherren. */
-export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: number) =>
+/** En grunn fra svaret på grunnlaget i brevet `brev`, som utsagn fra byggherren. */
+export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =>
   grunn === 'avslaatt'
-    ? `${du ? 'Du' : 'BH'} har avslått forholdet i brev ${brev}`
-    : `${du ? 'Du' : 'BH'} har gjort gjeldende i brev ${brev} at varselet om forholdet kom for sent (punkt 32.2)`;
+    ? `${du ? 'Du' : 'BH'} har avslått forholdet i ${brevref(brev)}`
+    : `${du ? 'Du' : 'BH'} har gjort gjeldende i ${brevref(brev)} at varselet om forholdet kom for sent (punkt 32.2)`;
 
 /**
  * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
@@ -151,7 +144,7 @@ export const SKJEMA = {
   overskrift: 'Svar på kravet',
   // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
   omSvaret: 'Om svaret',
-  svarerPaa: (n: number, d: string) => `Svar på brev ${n} fra TE · ${kortDato(d)}`,
+  svarerPaa: (b: Brevref) => `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`,
   lesBrevet: 'Les brevet ved siden av',
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevetHer: 'Les brevet',
@@ -165,10 +158,10 @@ export const SKJEMA = {
   datoInfo:
     'Datoene er de partene har oppgitt i brevene. Løsningen regner ut dagene mellom dem, men vurderer ikke om varselet kom i tide.',
   datoInfoNavn: 'Om datoene',
-  klarOver: (d: string, n: number) =>
-    `TE oppgir at TE ble klar over forholdet ${dato(d)} (brev ${n}).`,
-  kravSendt: (d: string, n: number) =>
-    `Kravet om vederlagsjustering ble sendt ${dato(d)} (brev ${n}).`,
+  klarOver: (d: string, b: Brevref) =>
+    `TE oppgir at TE ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
+  kravSendt: (d: string, b: Brevref) =>
+    `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
   metodeTittel: 'Beregningsmetode',
   metodeSpoersmaal: (m: unknown) => `TE krever oppgjør etter ${metodenavn(m)}. Godkjenner du det?`,
@@ -181,10 +174,10 @@ export const SKJEMA = {
   gjelderHvis: 'Gjelder hvis',
   innsigelsenSenVarsling: 'innsigelsen om sen varsling',
   // Grunnene fra svaret på grunnlaget har ikke noe felt i skjemaet; brevet står i teksten.
-  grunnen: (grunn: Subsidiaergrunn, brev: number) =>
+  grunnen: (grunn: Subsidiaergrunn, brev: Brevref) =>
     grunn === 'avslaatt'
-      ? `avslaget av forholdet i brev ${brev}`
-      : `innsigelsen i brev ${brev} om at varselet om forholdet kom for sent (punkt 32.2)`,
+      ? `avslaget av forholdet i ${brevref(brev)}`
+      : `innsigelsen i ${brevref(brev)} om at varselet om forholdet kom for sent (punkt 32.2)`,
   ikkeFoererFrem: 'ikke fører frem',
   hele: 'Hele beløpet',
   deler: 'Deler av beløpet',
@@ -227,6 +220,8 @@ export const BREVKONTROLL = {
   fra: 'Fra',
   til: 'Til',
   svarerPaa: 'Svarer på',
+  svarerPaaBrev: (b: Brevref) =>
+    b.nummer === null ? brevrefStor(b) : `Brev ${b.nummer}, ${dato(b.registrert)}`,
   datoSettes: 'Settes ved sending',
   detteSender: 'Dette sender du',
   akseptOmfatter: 'Godtar TE svaret, omfatter aksepten hele svaret, også at varselet kom for sent.',
@@ -283,25 +278,25 @@ export const BREVMENY = {
 };
 
 export const STILLING = {
-  tittel: (n: number) => `Ta stilling til svaret i brev ${n}`,
+  tittel: (b: Brevref) => `Ta stilling til svaret i ${brevref(b)}`,
   lukk: 'Lukk',
   godta: 'Godta svaret',
-  hele: (n: number) => `Du godtar hele svaret i brev ${n}, med alle standpunktene i det.`,
+  hele: (b: Brevref) => `Du godtar hele svaret i ${brevref(b)}, med alle standpunktene i det.`,
   omfatter: (hjemmel: string) =>
     `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare det subsidiære beløpet.`,
-  beloep: (b: number, n: number) =>
-    `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(b)}, etter brev ${n} slik det ble sendt.`,
+  beloep: (beloep: number, b: Brevref) =>
+    `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
   vilkaar: 'Enigheten får virkning når forholdet er avklart.',
-  kilde: (n: number) => `Virkningen er regnet ut fra brev ${n} slik det ble sendt.`,
+  kilde: (b: Brevref) => `Virkningen er regnet ut fra ${brevref(b)} slik det ble sendt.`,
   seAksepten: 'Se akseptbrevet',
-  godtarBrev: (n: number) => `Du godtar hele svaret i brev ${n}`,
+  godtarBrev: (b: Brevref) => `Du godtar hele svaret i ${brevref(b)}`,
   andre: 'Andre brev du kan sende nå, står under «Andre brev og handlinger».',
 };
 
 export const TIDSLINJE = {
   tittel: 'Tidslinje',
   oppfoeringer: (n: number) => `${n} ${n === 1 ? 'oppføring' : 'oppføringer'}`,
-  oppgitt: (part: Part, n: number) => `Oppgitt av ${part} i brev ${n}`,
+  oppgitt: (part: Part, b: Brevref) => `Oppgitt av ${part} i ${brevref(b)}`,
   sendt: (part: Part) => `Brev sendt av ${part}`,
   registrert: (part: Part) => `Korrespondanse lagt til av ${part}`,
   tom: 'Ingen datoer eller brev ennå.',
@@ -312,7 +307,7 @@ export const SAKEN = {
   spor: 'Krav og svar',
   utkast: 'Utkast',
   ingenBrev: 'Ingen brev',
-  sist: (n: number, part: Part) => `Siste: brev ${n} fra ${part}`,
+  sist: (b: Brevref, part: Part) => `Siste: ${brevref(b)} fra ${part}`,
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',
@@ -406,6 +401,10 @@ export const NYSAK = {
   oppgiVarseldatoen: 'Oppgi datoen varselet ble sendt.',
   beskrivVarselet: 'Beskriv varselet.',
   // Lagringen venter på #807 og #1487, og setningen i brevet på #1488.
+  /** LV-U46: en annen sak fikk nummeret før brevet ble sendt. */
+  nyttNummer:
+    'En annen sak fikk nummeret før brevet ble sendt. Se over brevet med det nye nummeret og send det på nytt.',
+  ingenMerking: 'Sakens nummer kunne ikke hentes, så brevet kan ikke vises.',
   varseletKanIkkeLagres:
     'Varselet kan ikke legges til i saken ennå. Velg nei for å sende påberopelsen uten det.',
   // Panelet til høyre, som i de andre skjemaene i Varden (F-1).
@@ -440,7 +439,6 @@ export const NYSAK = {
   beskriv: (paalegg: boolean) => (paalegg ? 'Beskriv pålegget.' : 'Beskriv forholdet.'),
   oppgiDatoen: 'Oppgi datoen.',
   oppgiEndringsordren: 'Oppgi endringsordren.',
-  brevtittel: paaberopelsenAv,
   handling: 'Send påberopelsen til byggherren',
   detteSender: (forhold: string, punkt: string) =>
     `Påberopelsen av ${forhold.toLowerCase()} etter punkt ${punkt}, som første brev i en ny sak`,

@@ -26,6 +26,8 @@ import {
   type KjorendeServer,
   type Oppsett,
   type Testbruker,
+  sakskodeFor,
+  KONTRAKTSFORKORTELSE,
 } from './testbase.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 
@@ -47,6 +49,7 @@ const varsel = (dokumentasjon: string[]) => ({
   spor: 'frist',
   hjemmel: '33.4',
   sendt: '2026-10-01',
+  korrespondansetype: 'brev',
   dokumentasjon,
 });
 
@@ -113,6 +116,8 @@ describe.skipIf(!TESTBASE_URL)('lesingen av vedleggene i skrivingen', () => {
         aktoerId: o.te.id,
         part: 'TE',
         teamId: null,
+        sakskode: await sakskodeFor(o, sakId),
+        kontraktsforkortelse: KONTRAKTSFORKORTELSE,
         tidspunkt: () => new Date(),
         nyId: randomUUID,
       },

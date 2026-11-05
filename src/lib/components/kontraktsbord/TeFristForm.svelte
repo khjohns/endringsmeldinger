@@ -28,14 +28,16 @@
   const kjernesak = store.erKjernesak ? store : null;
   import { letterText } from '$lib/approval/letter';
   import type { Kjernevedlegg } from '$lib/api/kjerne';
+  import type { Korrespondansetype } from '$kjerne/typer';
   import { fristoppsummering, type Fristskjemadata } from '$lib/kjernesak/fristkrav';
-  import { dagensDato, varselhindring } from '$lib/kjernesak/skjemadata';
+  import { dagensDato, typehindring, varselhindring } from '$lib/kjernesak/skjemadata';
   // Kjernen tilbyr registreringen så lenge sporet ikke har et varsel (VARSEL_REGISTRERT).
   const kanRegistrere = $derived(kjernesak?.tilbyrTe('varsle:frist') ?? false);
   let varselSendt = $state('');
   // Det spesifiserte kravet oppgir varselet TE sendte utenfor appen (OV-U5).
   let oppgirVarsel = $state(false);
   let registrerteVedlegg = $state<Kjernevedlegg[]>([]);
+  let korrespondansetype = $state<Korrespondansetype | null>(null);
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import FormPageHeader from './components/FormPageHeader.svelte';
@@ -119,7 +121,12 @@
   );
   const varselet = $derived({ sendt: varselSendt, vedlegg: registrerteVedlegg });
   // Leser dagens dato hver gang feltene endres, ikke én gang når skjemaet åpnes.
-  const hindring = $derived(visVarselet ? varselhindring(varselet, dagensDato()) : null);
+  const hindring = $derived(
+    visVarselet
+      ? (varselhindring(varselet, dagensDato()) ??
+          (registrerer ? typehindring(korrespondansetype) : null))
+      : null
+  );
   let antallDager = $state<number | undefined>(defaults.antallDager || undefined);
   let begrunnelse = $state(defaults.begrunnelse);
   let charCount = $state(defaults.begrunnelse.replace(/<[^>]*>/g, '').trim().length);
@@ -185,7 +192,11 @@
     antall_dager: varselType === 'spesifisert' ? antallDager : undefined,
     // Varselet fra appen og det registrerte varselet har ingen fritekst (VS-U15, MM-U17).
     begrunnelse: varselType === 'spesifisert' ? begrunnelse : '',
-    ...(registrerer ? { registrert: varselet } : visVarselet ? { tidligereVarsel: varselet } : {}),
+    ...(registrerer
+      ? { registrert: { ...varselet, korrespondansetype } }
+      : visVarselet
+        ? { tidligereVarsel: varselet }
+        : {}),
   });
 
   $effect(() => {
@@ -320,6 +331,8 @@
       bind:sendt={varselSendt}
       bind:vedlegg={registrerteVedlegg}
       bind:opptatt={vedleggOpptatt}
+      medKorrespondansetype={registrerer}
+      bind:korrespondansetype
     />
   {/if}
   {#if visKravet}

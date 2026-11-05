@@ -4,13 +4,15 @@
  * trenger serverens lager og SQL Server.
  */
 
-import type { Journalrad, Part } from '../typer.ts';
+import type { Journalrad, Part, Sakskode } from '../typer.ts';
 import type { Kommando } from '../kommandoer/kommando.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
 
 export interface Bane {
   sakId: string;
   aktor(part: Part): string;
+  /** Koden serveren har gitt saken. Uten den skriver kjøreren som i sak KOE-17. */
+  sakskode?: Sakskode;
   journal(): Promise<Journalrad[]>;
   /** Legg hendelsene til etter `forventet`; versjonskonflikt ellers (`expected_version`). */
   skriv(hendelser: Journalrad[], forventet: number): Promise<void>;

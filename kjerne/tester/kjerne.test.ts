@@ -93,7 +93,13 @@ describe('formen på kravet', () => {
   // Code-review av #273: en tom streng ville gitt en rad kjernen selv ikke forstår.
   // OV-U4: det registrerte varselet har brevet som vedlegg, så uten vedlegg avvises formen.
   it('avviser et registrert varsel uten vedlegg, med tom ID eller med samme vedlegg to ganger', () => {
-    const varsel = { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-09-02' };
+    const varsel = {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-09-02',
+      korrespondansetype: 'brev',
+    };
     expect(formfeil({ ...varsel, dokumentasjon: ['vedlegg-1'] }), 'kontrollsak').toEqual([]);
     expect(formfeil(varsel)).toEqual(['$.dokumentasjon: mangler']);
     expect(formfeil({ ...varsel, dokumentasjon: [''] })).not.toEqual([]);
@@ -265,7 +271,7 @@ describe('lesereglene for referansene (4.2)', () => {
     const k = await bygg(bane, varselOgInnsigelse as Parameters<typeof bygg>[1]);
     const rader = structuredClone(await bane.journal());
     const tittel = radMed(rader, k, 'D5').data.brevtittel;
-    expect(tittel, 'forutsetning').toBe('Innsigelse etter punkt 5');
+    expect(tittel, 'forutsetning').toBe('Innsigelse etter punkt 5 i sak KOE-17');
     tilBestridelse(rader, k);
     radMed(rader, k, 'D5').data.brevtittel = tittel;
     expect(utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(false);
@@ -726,6 +732,7 @@ describe('datoene for et registrert krav og varselet i det', () => {
           { id: randomUUID(), hva: 'sendt', dato: '2026-09-10' },
           { id: randomUUID(), hva: 'sendt', dato, gjelder: varsel },
         ],
+        korrespondansetype: 'brev',
       },
     };
     await bane.skriv([rad], siste.versjon);
@@ -1302,10 +1309,12 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
       laast: string;
     }[];
     const avsnitt = brevtekst.find((a) => a.gjelder === k.navn.id('S-f2'))!;
-    const foerste = radMed(rader, k, 'K-f1').versjon;
-    if (foerste === radMed(rader, k, 'K-f2').versjon)
+    const foerste = radMed(rader, k, 'K-f1').data.brevnummer;
+    if (foerste === radMed(rader, k, 'K-f2').data.brevnummer)
       throw new Error('Forutsetning: kravversjonene står i hvert sitt brev');
-    expect(avsnitt.laast).toContain(`§ 33.4 i brev ${foerste} av`);
+    expect(avsnitt.laast).toContain(
+      `§ 33.4 i brev K201-KOE-017-${String(foerste).padStart(2, '0')} av`
+    );
   });
 
   it('kontrollsak: med registrert varsel gjelder den varselet', async () => {
@@ -1530,6 +1539,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
   const brevet = '00000000-0000-4000-8000-000000001045';
   const registrering = (ekstra: Data = {}): Data => ({
     type: 'registrert_brev',
+    korrespondansetype: 'brev',
     spor: ['frist'],
     sendt: '2026-10-20',
     beskrivelse: 'Forespørsel etter § 33.6.2',
@@ -1541,6 +1551,8 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
     aktoerId: part.toLowerCase(),
     part,
     teamId: null,
+    sakskode: { kode: 'koe' as const, loepenummer: 17 },
+    kontraktsforkortelse: 'K201',
     tidspunkt: () => new Date(`${dag}T10:00:00Z`),
     nyId: randomUUID,
   });
@@ -1587,6 +1599,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
         beskrivelse: 'Forespørsel etter § 33.6.2',
         spor: ['frist'],
         opplysninger: [{ id: expect.any(String), hva: 'sendt', dato: '2026-10-20' }],
+        korrespondansetype: 'brev',
         dokumentasjon: [
           { vedlegg_id: brevet, filnavn: `${brevet}.pdf`, innhold_sha256: '0'.repeat(64) },
         ],
@@ -1687,6 +1700,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     JSON.parse(
       JSON.stringify({
         type: 'registrert_brev',
+        korrespondansetype: 'brev',
         spor: ['forhold'],
         sendt: '2026-10-20',
         beskrivelse: 'Svar på varselet',
@@ -1699,6 +1713,8 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     aktoerId: part.toLowerCase(),
     part,
     teamId: null,
+    sakskode: { kode: 'koe' as const, loepenummer: 17 },
+    kontraktsforkortelse: 'K201',
     tidspunkt: () => new Date('2026-10-21T10:00:00Z'),
     nyId: randomUUID,
   });

@@ -2247,8 +2247,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
       [
-        "['type', 'spor', 'hjemmel', 'sendt', 'dokumentasjon']",
-        "['type', 'spor', 'hjemmel', 'sendt']",
+        "['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype', 'dokumentasjon']",
+        "['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype']",
       ],
     ],
     mal: ['avviser et registrert varsel uten vedlegg'],
@@ -3631,8 +3631,74 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F440',
     feilklasse: 'brevtittelen fryses uten sakens kode (LV-U27, LV-U44)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['? medSakskode(tittel, sakskode) : tittel', '? tittel : tittel']],
+    endringer: [['tittel && medSakskode(tittel, sakskode)', 'tittel']],
     mal: ['tittelen har sakens kode uten utfylling, og leseren forstår den'],
+  },
+  {
+    id: 'F442',
+    feilklasse: 'henvisningen bruker brevnummeret, ikke merkingen frosset på brevet (LV-U53)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['`brev ${d.merking} av', '`brev ${d.brevnummer} av']],
+    mal: ['et brev fra løsningen omtales med merkingen og datoen'],
+  },
+  {
+    id: 'F443',
+    feilklasse: 'registrert korrespondanse omtales med feil type (LV-U42)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["{ brev: 'brev', e_post: 'e-post' }", "{ brev: 'brev', e_post: 'brev' }"]],
+    mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
+  },
+  {
+    id: 'F444',
+    feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        'if (erRegistrert(dokument.opplysninger) !== (data.korrespondansetype !== undefined))',
+        'if (!erRegistrert(dokument.opplysninger) && data.korrespondansetype !== undefined)',
+      ],
+    ],
+    mal: [
+      'registrert korrespondanse uten typen, og typen i et brev fra løsningen, er ikke forstått',
+    ],
+  },
+  {
+    id: 'F445',
+    feilklasse: 'brevteksten omtaler saken med sak-ID-en, ikke koden (S3 i #1497, LV-U44)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ['sak: `sak ${sakensKode(saken.sakskode)} («', 'sak: `sak ${saken.tittel.length} («'],
+    ],
+    mal: ['et brev fra løsningen omtales med merkingen og datoen'],
+  },
+  {
+    id: 'F446',
+    feilklasse: 'merkingen i henvisningen har to sifre i løpenummeret (LV-U53, LV-U48)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [['utfylt(s.loepenummer, 3)', 'utfylt(s.loepenummer, 2)']],
+    mal: ['merkingen i henvisningen har sakens kode og tre sifre i løpenummeret'],
+  },
+  {
+    id: 'F447',
+    feilklasse:
+      'merkingen fryses ikke med forkortelsen prosjektet har når brevet skrives (LV-U53, LV-U24)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        'brevmerking(kontekst.kontraktsforkortelse, kontekst.sakskode, brevnummer)',
+        "brevmerking('K201', kontekst.sakskode, brevnummer)",
+      ],
+    ],
+    mal: ['henvisningen beholder merkingen fra brevet når kontraktsforkortelsen er endret etterpå'],
+  },
+  {
+    id: 'F448',
+    feilklasse: 'leseren godtar en merking som ikke slutter med brevnummeret (LV-U48, MM-U2)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [
+      ["    return 'merkingen slutter ikke med brevnummeret (LV-U48)';", '    return null;'],
+    ],
+    mal: ['en merking som ikke slutter med brevnummeret, eller står uten nummeret'],
   },
 ];
 

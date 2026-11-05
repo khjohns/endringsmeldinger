@@ -26,6 +26,7 @@ import {
   type Standpunkt,
   type Standpunktsart,
   type Utsagnsart,
+  KORRESPONDANSETYPER,
 } from '../typer.ts';
 
 /** Formatversjonen kjernen skriver. Står i kolonnen `format`. */
@@ -450,6 +451,8 @@ export const DOKUMENT: Skjema = objekt(
     brevtekst: BREVTEKST,
     brevtittel: TEKST,
     brevnummer: { type: 'integer', minimum: 1 },
+    merking: TEKST,
+    korrespondansetype: { enum: [...KORRESPONDANSETYPER] },
     beskrivelse: TEKST,
     spor: liste({ enum: [...SPOR] }),
     retter: ID,
