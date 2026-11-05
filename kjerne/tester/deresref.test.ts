@@ -33,6 +33,22 @@ const SVAR_FORHOLD: Handling = {
   svar: [{ spor: 'forhold', navn: 'S-g1', resultat: 'godkjent', varslet_i_tide: true }],
 };
 
+const KRAV_FRIST: Handling = { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' };
+const svarFrist = (vurdering: Record<string, unknown>): Handling => ({
+  handling: 'brev',
+  navn: 'D4',
+  svar: [
+    {
+      spor: 'frist',
+      navn: 'S-f1',
+      dager: 10,
+      spesifisering_i_tide: true,
+      hindring: true,
+      ...vurdering,
+    },
+  ],
+});
+
 const m = (n: number) => `K201-KOE-017-${String(n).padStart(2, '0')}`;
 
 async function kjoering(steg: Handling[]) {
@@ -171,6 +187,23 @@ describe('Deres ref. i brevet løsningen sender (LV-U27, LV-U49, BF-07)', () => 
     const utenMerking = structuredClone(journal);
     delete utenMerking[1].data.merking;
     expect(deresRef(utenMerking)).toEqual([]);
+  });
+
+  it('et standpunkt om rettidighet viser også til brevet med varselet det gjelder, som brevteksten nevner (LV-U49, U-6, arbeidsvalget A i #1497)', async () => {
+    const k = await kjoering([
+      KRAV_FORHOLD,
+      { handling: 'varsel', spor: 'frist', navn: 'V-f1' },
+      KRAV_FRIST,
+      svarFrist({ varsel_i_tide: false }),
+    ]);
+    const rad = await sist(k);
+    expect(JSON.stringify(rad.data.brevtekst)).toContain(`brev ${m(2)}`);
+    expect(rad.data.deres_ref).toEqual([m(2), m(3)]);
+  });
+
+  it('står varselet i brevet med kravet, viser svaret til det brevet én gang (kontrollsak)', async () => {
+    const k = await kjoering([KRAV_FORHOLD, KRAV_FRIST, svarFrist({ varsel_i_tide: false })]);
+    expect((await sist(k)).data.deres_ref).toEqual([m(2)]);
   });
 
   it('Deres ref. leses tilbake som den ble frosset, og et sendt brev beholder den (D-2, MM-U9)', async () => {
