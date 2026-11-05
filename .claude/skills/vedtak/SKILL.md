@@ -108,7 +108,7 @@ oppdragsgiver.
   utløser en opplysning en rettslig handling ingen mente å gjøre, kan en part
   utilsiktet tape en posisjon, og finnes det en blindvei? Tre grenser gjelder
   likevel: appen tolker ikke fritekst (KA-U16), appen avgjør ikke det kontrakten
-  overlater til partene (MM-U12), og en forenkling forklares med hva den koster
+  overlater til partene (MM-U12, opphevet av MM-U50), og en forenkling forklares med hva den koster
   den andre parten. Ren ordlyd og samsvar mellom vedtak trenger ikke denne
   prøvingen. I vurderingen av vedtakene 25.10 (#1282) godkjente prøvingen mot
   vedtaksfila en sendesperre som gjorde det lønnsomt å svare nei. Forløpene fant

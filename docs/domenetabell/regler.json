@@ -955,6 +955,13 @@
       "radetikett": "HF-U8: Byggherrens svar faller bort som tilbud når TE sender en ny kravversjon i sporet"
     },
     {
+      "id": "HF-U9",
+      "type": "vedtak",
+      "dato": "2026-10-15",
+      "ref": "../plans/vedtak.md#hf-u9",
+      "radetikett": "HF-U9: Partene er enige om et standpunkt når TE har godtatt byggherrens svar slik det står i brevet"
+    },
+    {
       "id": "OV-U65",
       "type": "vedtak",
       "dato": "2026-10-27",
@@ -1123,6 +1130,20 @@
       "radetikett": "OV-U59: Løsningen sammenlikner beløpene i krav og svar i hele øre, uten avrunding til hele kroner"
     },
     {
+      "id": "KA-U45",
+      "type": "vedtak",
+      "dato": "2026-11-01",
+      "ref": "../plans/vedtak.md#ka-u45",
+      "radetikett": "KA-U45: Merkingen og avklaringen av registrerte brev oppheves med sperrene sine"
+    },
+    {
+      "id": "KA-U46",
+      "type": "vedtak",
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#ka-u46",
+      "radetikett": "KA-U46: Samlevedtaket for byggherrens begrunnelse gjelder med E1–E7"
+    },
+    {
       "id": "KA-U42",
       "type": "vedtak",
       "dato": "2026-10-26",
@@ -1197,6 +1218,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U7",
+        "MM-U34",
         "GR-U7",
         "KA-U6"
       ],
@@ -1212,6 +1234,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U7",
+        "MM-U34",
         "KA-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -1226,6 +1249,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U7",
+        "MM-U34",
         "KA-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -1283,6 +1307,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U5",
+        "HF-U9",
         "KA-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -1357,6 +1382,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U7",
+        "MM-U34",
         "KA-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -1411,6 +1437,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U3",
+        "HF-U9",
         "KA-U11"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -1520,6 +1547,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U3",
+        "MM-U50",
         "KA-U1",
         "V-SK01"
       ],
@@ -1536,6 +1564,7 @@
       "kilder": [
         "MM-U9",
         "KA-U10",
+        "MM-U50",
         "MM-U3",
         "V-B13-REGELVERSJON",
         "GR-U4",
@@ -1603,6 +1632,7 @@
       "tidsakse": "sendt_mottatt",
       "kilder": [
         "MM-U8",
+        "MM-U50",
         "MM-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -1651,6 +1681,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U17",
+        "MM-U50",
         "MM-U9",
         "MM-U12",
         "GR-U12",
@@ -1692,6 +1723,7 @@
       "kilder": [
         "GR-U22",
         "MM-U18",
+        "MM-U43",
         "GR-U1",
         "V-B13-GRUNNLAG-AVSLATT",
         "NS-31.3-1",
@@ -2029,6 +2061,7 @@
       "kilder": [
         "GR-U22",
         "MM-U18",
+        "MM-U43",
         "GR-U18",
         "V-B13-FRAFALL",
         "NS-32.1",
@@ -2098,8 +2131,10 @@
       "kilder": [
         "GR-U7",
         "MM-U18",
+        "MM-U43",
         "GR-U22",
-        "KA-U5"
+        "KA-U5",
+        "HF-U9"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2119,6 +2154,7 @@
       "kilder": [
         "GR-U7",
         "KA-U5",
+        "HF-U9",
         "GR-U10",
         "KA-U11"
       ],
@@ -2276,6 +2312,7 @@
         "GR-U13",
         "KA-U14",
         "MM-U12",
+        "MM-U50",
         "OV-U6",
         "OV-U4",
         "OV-U13"
@@ -2572,7 +2609,9 @@
         "GR-U17",
         "NS-32.3-1c",
         "MM-U12",
+        "MM-U50",
         "MM-U18",
+        "MM-U43",
         "MM-U19",
         "OV-U4"
       ],
@@ -2597,7 +2636,9 @@
         "GR-U22",
         "HF-U8",
         "MM-U12",
+        "MM-U50",
         "MM-U19",
+        "MM-U43",
         "OV-U4"
       ],
       "tolkningsstatus": "avklart_tolkning",
@@ -2623,6 +2664,7 @@
         "GR-U28",
         "GR-U17",
         "MM-U12",
+        "MM-U50",
         "OV-U4",
         "GR-U1"
       ],
@@ -2707,12 +2749,15 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U26",
+        "KA-U45",
         "KA-U16",
         "KA-U20",
         "KA-U28",
         "MM-U12",
+        "MM-U50",
         "MM-U7",
         "MM-U18",
+        "MM-U43",
         "MM-U19",
         "OV-U6",
         "OV-U7",
@@ -2732,9 +2777,12 @@
       "kilder": [
         "KA-U20",
         "MM-U12",
+        "MM-U50",
         "KA-U28",
+        "KA-U45",
         "KA-U26",
         "MM-U20",
+        "MM-U43",
         "MM-U18",
         "OV-U7"
       ],
@@ -2755,6 +2803,7 @@
         "KA-U22",
         "KA-U27",
         "KA-U30",
+        "KA-U45",
         "KA-U20"
       ],
       "tolkningsstatus": "avklart_tolkning",
@@ -2770,6 +2819,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U18",
+        "MM-U43",
         "MM-U2",
         "GR-U10",
         "GR-U9",
@@ -2793,9 +2843,12 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U18",
+        "MM-U43",
         "GR-U10",
         "KA-U7",
+        "MM-U34",
         "MM-U12",
+        "MM-U50",
         "OV-U4"
       ],
       "tolkningsstatus": "avklart_tolkning",
@@ -2813,8 +2866,10 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U19",
+        "MM-U43",
         "MM-U18",
         "KA-U7",
+        "MM-U34",
         "KA-U12",
         "KA-U11",
         "GR-U9",
@@ -2836,6 +2891,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U18",
+        "MM-U43",
         "OV-U4",
         "VS-U24",
         "VS-U11",
@@ -2858,6 +2914,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U20",
+        "MM-U43",
         "MM-U18",
         "MM-U2",
         "GR-U5",
@@ -2882,6 +2939,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U19",
+        "MM-U43",
         "MM-U20",
         "KA-U14",
         "GR-U9",
@@ -2903,6 +2961,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "MM-U19",
+        "MM-U43",
         "MM-U20",
         "KA-U14",
         "GR-U9",
@@ -3044,6 +3103,7 @@
         "VS-U9",
         "KA-U15",
         "MM-U8",
+        "MM-U50",
         "VS-U16"
       ],
       "tolkningsstatus": "avklart_tolkning",
@@ -3097,6 +3157,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U34",
+        "KA-U46",
         "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
@@ -3112,7 +3173,9 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U35",
+        "KA-U46",
         "MM-U17",
+        "MM-U50",
         "OV-U7",
         "AV-587"
       ],
@@ -3129,6 +3192,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U34",
+        "KA-U46",
         "KA-U11",
         "OV-U7"
       ],
@@ -3145,6 +3209,7 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U36",
+        "KA-U46",
         "KA-U37",
         "KA-U38",
         "KA-U39",
@@ -3185,6 +3250,7 @@
       "kilder": [
         "KA-U4",
         "MM-U12",
+        "MM-U50",
         "GR-U7",
         "GR-U10",
         "AV-479",
@@ -3207,6 +3273,7 @@
         "HF-U1",
         "AV-498",
         "MM-U12",
+        "MM-U50",
         "OV-U4"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -3226,6 +3293,7 @@
         "HF-U21",
         "HF-U8",
         "MM-U12",
+        "MM-U50",
         "OV-U4"
       ],
       "tolkningsstatus": "avklart_tolkning"
