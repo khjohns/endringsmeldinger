@@ -20,7 +20,7 @@ Sitatene fra NS 8407 er kontrollert mot teksten i `khjohns/kontrakt` og gjengis 
 - **«I tide» er løftet for byggherren, men ikke for TE.** HF-U4 s1 sperrer en senere
   påberopelse fra «en part» etter et uttrykkelig «i tide». MM-U34 punkt 6 opphevet sperren bare
   for byggherren: «Sperren mot at byggherren senere påberoper at et varsel kom for sent etter å ha
-  sagt at varselet kom i tide, oppheves.» For TE står HF-U4 s1 etter ordlyden. Samtidig sier
+  sagt at varselet kom i tide, oppheves.» For TE, og for byggherrens «i tide» om et krav, står HF-U4 s1 etter ordlyden. Samtidig sier
   HF-U6, slik MM-U34 punkt 5 endret den, for begge parter: «Løsningen avgjør ikke om parten er
   bundet av et tidligere utsagn (MM-U12).» VS-U14 forkastet «ulike regler for partene». MM-U43
   punkt 10 overlot til denne kjeden hvor langt HF-U4 gjelder. Spørsmål 2 og E6.
@@ -67,61 +67,70 @@ den kjeden og til HF-U25.
 ## Postene i kjeden
 
 «Samler»: regelen står i samlevedtaket med uendret innhold, og den gamle ID-en gjelder som
-«Samlet i samlevedtaket for påberopelse av sent varsel». «Opphever»: samlevedtaket løser en
-motsigelse og endrer innholdet. Klassene er kontrollert uavhengig 05.11 (svar 8); se «Prøvingen».
+«Samlet i samlevedtaket for påberopelse av sent varsel». «Endrer»: samlevedtaket løser en
+motsigelse og endrer innholdet i bestemte setninger, mens resten av posten samles. Svar 4 A sier
+«opphever» når innholdet endres. Her brukes «endrer» når bare noen setninger gjelder ikke lenger,
+og resten av posten står, slik MM-U43 gjorde for MM-U27. Klassene er prøvd uavhengig 05.11
+(svar 8); se «Prøvingen».
 
 | Post | Klasse | Status nå | Forhold til samlevedtaket | E-punkt |
 | --- | --- | --- | --- | --- |
-| HF-U4 | vedtak | gjeldende; endret av MM-U34 punkt 6, utvidet av HF-U5 og HF-U6, snevret inn av VS-U24 og VS-U35 | samler s1–s2 og s4–s8; s1–s2 for TE etter spørsmål 2; s3 står | E1, E6 |
-| HF-U6 | vedtak | gjeldende; endret av MM-U34 punkt 5 og HF-U25 | samler resten; endrer s2 | E8 |
+| HF-U4 | vedtak | gjeldende; endret av MM-U34 punkt 6, utvidet av HF-U5 og HF-U6, snevret inn av VS-U24 og VS-U35 | samler s4–s6 og s8; s1, s2 og s7 etter spørsmål 2; s3 står (kjeden for aksept og enighet, HF-U25) | E1, E6 |
+| HF-U6 | vedtak | gjeldende; endret av MM-U34 punkt 5 og HF-U25 | samler s7–s8 og setningen MM-U34 punkt 5 la til; ved spørsmål 1 A endrer s1–s2 | E8 |
 | HF-U11 | vedtak med designdel | gjeldende | samler | – |
-| MM-U34 punkt 6 | vedtak | gjeldende | samler punkt 6 | E1 |
+| MM-U34 punkt 6 | vedtak | gjeldende | samler | E1 |
 | VS-U1 | vedtak med designdel | gjeldende; protesten endret av MM-U48 | samler s1, s2 og s4 | E3 |
-| VS-U9 | vedtak | gjeldende; endret av MM-U34 og MM-U47 | samler s1–s3 og s5–s7 | E3, E5 |
+| VS-U9 | vedtak | gjeldende; endret av MM-U34 og MM-U47 | samler s1–s3, s5 og s7; endrer s6 | E3, E5 |
 | VS-U11 | vedtak | gjeldende | samler | E3 |
-| VS-U14 | vedtak med beslutningsdel | gjeldende | samler | E3 |
+| VS-U14 | vedtak med beslutningsdel | gjeldende | samler | E3, E9 |
 | VS-U20 | vedtak | gjeldende | samler | E2 |
 | VS-U24 | vedtak | gjeldende | samler | E3, E7 |
-| VS-U35 | beslutning | gjeldende; endret av MM-U48 | samler s1, s3, s4 for innsigelsen og s5 | E3 |
+| VS-U35 | beslutning | gjeldende; endret av MM-U48 | samler s1, s3–s5 for innsigelsen og påberopelsen av passivitet, og s2 for passiviteten | E3 |
 | OV-U7 | beslutning | gjeldende; endret av VS-U35, MM-U47 og MM-U48 | samler setningen om innsigelse etter § 5 tredje ledd | E3 |
 | MM-U33 | vedtak med designdel | gjeldende | presiserer siste setning i steg 3 | E4 |
-| MM-U43 | vedtak | gjeldende | ved spørsmål 2 A endrer punkt 10 | E6 |
-| HF-U5, HF-U8, HF-U10, OV-U5, GR-U7, MM-U27, KA-U29, LV-U4 | – | samlet eller endret andre steder | står; kilder | – |
+| MM-U43 | vedtak | gjeldende | ved spørsmål 2 A endrer punkt 10 og 11 | E6 |
+| MM-U47 | vedtak med designdel og beslutningsdel | gjeldende | står; punkt 7 og 12 og beslutningsdelen er kilder | – |
+| HF-U5, HF-U8, HF-U10, HF-U25, HF-U27, OV-U5, GR-U7, MM-U27, KA-U29, LV-U4 | – | samlet eller endret andre steder | står; kilder | – |
 | OV-U65 | vedtak | opphevet av MM-U34 punkt 13 | står opphevet | – |
 | MP-U6 | vedtak | gjelder metodeprøven (MM-U47 punkt 11) | står | – |
 
 ## Forslaget
 
 Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Setningene står i kontraktens
-begreper. Kildene står i parentes etter hver setning; «s» er setningen i posten.
+begreper. Kildene står i parentes etter hver setning; «s» er setningen i posten. «Påberopelsen»
+er innsigelsen etter punkt 5 tredje ledd i NS 8407 slik den står i et svar, og «den egne
+innsigelsen» er innsigelsen som eget brev.
 
 ### A. Påberopelsen i svaret
 
 1. Påberoper byggherren i et svar at TE har varslet eller svart for sent, er påberopelsen
-   innsigelsen etter punkt 5 tredje ledd i NS 8407. (VS-U9 s1; MM-U47 punkt 7)
-2. Påberopelsen står i svaret, med ett standpunkt for hver bestemmelse, som punkt 32.2, 33.4,
-   33.6.1 og 34.1.2. (VS-U24 s1)
-3. Påberopelsen er et utsagn fra parten. Løsningen registrerer det med sendetid og viser hvilken
-   bestemmelse det gjelder, og utleder virkningen på partens premisser der VS-U3 sier det.
-   (HF-U11 s1–s2)
+   innsigelsen etter punkt 5 tredje ledd i NS 8407. (VS-U9 s1) At den står som standpunkt i
+   svaret, sier også MM-U47 punkt 7.
+2. Påberopelsen står i byggherrens svar, med ett standpunkt for hver bestemmelse, som punkt 32.2,
+   33.4, 33.6.1 og 34.1.2. (VS-U24 s1)
+3. En påberopelse av at motparten har varslet, krevd eller svart for sent etter punkt 5 tredje
+   ledd, eller av virkningen av taushet etter de særlige reglene i kontrakten (blant annet punkt
+   32.3 annet ledd, 33.7 og 34.3.3), er et utsagn fra parten. Løsningen registrerer det med
+   sendetid og utleder virkningen på partens premisser der VS-U3 sier det. (HF-U11 s1–s2)
 4. Løsningen trekker ikke selv slutningen om at en frist er oversittet, at en innsigelse kom i
-   tide, eller at taushet har gitt virkning (MM-U12). Taushet er ikke et uttrykkelig standpunkt.
-   (HF-U11 s3–s4; VS-U1 s4)
-5. At en påberopelse kommer i et senere svar, gjør den ikke rettidig. Den gjenoppliver ikke en
-   tapt innsigelse, og den endrer ikke et tidligere svar eller en registrert enighet. Om den er
-   rettslig virksom mot enigheten, avgjør ikke løsningen (MM-U12). (VS-U9 s5–s6; MM-U47 punkt 12;
-   E5)
-6. Den første påberopelsen og tidspunktet bevares, og en gjentakelse gir ingen ny frist.
-   (VS-U9 s7; VS-U11 s4)
+   tide, eller at taushet har gitt virkning (MM-U12). Taushet er ikke et uttrykkelig standpunkt og
+   binder ikke som et slikt. (HF-U11 s3–s4; VS-U1 s4)
+5. En registrert enighet sperrer ikke påberopelsen (MM-U47 punkt 12). Tidligere brev og en
+   registrert enighet bevares uendret, og løsningen avgjør ikke om påberopelsen er rettslig
+   virksom mot dem (MM-U12). (VS-U9 s6, endret; MM-U33 s4; MM-U47 punkt 12; E5)
+6. Den første påberopelsen og tidspunktet bevares, og en gjentakelse gir ingen ny frist. (VS-U9
+   s7; VS-U11 s4) En ny påberopelse etter at påberopelsen er gitt opp (punkt 13), er et nytt
+   utsagn med sitt eget tidspunkt. (E1)
 
 ### B. Senere svar og senere kravversjoner
 
 7. Har byggherren påberopt at TE varslet for sent etter punkt 33.4, gjelder påberopelsen
    varselet og står mot hver senere kravversjon i samme sak, også når varselet var selve kravet.
-   (VS-U20 s1; E2)
+   (VS-U20 s1) Det gjelder til byggherren uttrykkelig gir den opp eller sier at varselet kom i
+   tide (punkt 10). (VS-U20 s3)
 8. Et uttrykkelig standpunkt om at et varsel kom i tide, står på samme måte mot hver senere
-   kravversjon. Et standpunkt etter punkt 33.4 sier ingenting om punkt 33.6.1, og omvendt. (HF-U4
-   s5–s6; E2)
+   kravversjon, til byggherren senere påberoper at varselet kom for sent (punkt 13). Et
+   standpunkt etter punkt 33.4 sier ingenting om punkt 33.6.1, og omvendt. (HF-U4 s5–s6; E2)
 9. Et senere svar fra løsningen viser til påberopelsen og gjentar den som utgangspunkt. Et
    senere svar som ikke sier noe om varselet, leses med påberopelsen. (VS-U9 s3; VS-U11 s2;
    VS-U20 s2)
@@ -131,100 +140,111 @@ begreper. Kildene står i parentes etter hver setning; «s» er setningen i post
 11. Gjelder påberopelsen TEs varsel etter punkt 32.2, blir godkjenningen en endringsordre når
     vilkårene i GR-U12 og GR-U13 er oppfylt. (VS-U11 s5)
 12. Løsningen leser påberopelsen som oppgitt bare når byggherren uttrykkelig har gitt den opp
-    eller sagt at varselet kom i tide. Et registrert svar som ikke sier noe om rettidigheten,
-    leses med påberopelsen, og et registrert svar som uttrykkelig gir den opp, registreres med det
-    standpunktet. Om et senere brev etter en konkret tolkning innebærer at den er oppgitt, avgjør
-    ikke løsningen. (VS-U20 s3–s4; VS-U11 s6–s8) Kan løsningen ikke uttrykke en motstrid,
-    gjelder KA-U16. (VS-U11 s9)
+    eller sagt at varselet kom i tide. (VS-U20 s3) Et registrert svar som ikke sier noe om
+    rettidigheten, leses med påberopelsen, og et registrert svar som uttrykkelig gir den opp,
+    registreres med det standpunktet. Om et senere brev etter en konkret tolkning innebærer at den
+    er oppgitt, avgjør ikke løsningen. Kan løsningen ikke uttrykke en motstrid, gjelder KA-U16.
+    (VS-U11 s6–s9; VS-U20 s4)
 
 ### C. Påberopelse etter «i tide»
 
 13. Har byggherren uttrykkelig sagt at et varsel kom i tide, eller gitt opp påberopelsen, kan
     byggherren senere påberope at det samme varselet kom for sent etter samme bestemmelse.
     Løsningen trekker ikke konklusjonen og avgjør ikke om byggherren er bundet av det tidligere
-    standpunktet (MM-U12). (MM-U34 punkt 6; HF-U6 slik MM-U34 punkt 5 endret den; HF-U25
-    punkt 11; E1)
-14. Taushet, et registrert brev og en konkret tolkning av et senere brev er ikke et uttrykkelig
-    standpunkt om at et varsel kom i tide. (HF-U4 s7)
-15. Et utsagn gjelder det det viser til (HF-U1). (HF-U4 s4)
+    standpunktet (MM-U12). (MM-U34 punkt 6 og punkt 15, første kulepunkt; HF-U6 slik MM-U34
+    punkt 5 endret den; E1) Hva som gjelder for TE, og for byggherrens standpunkt om et krav,
+    avgjøres i spørsmål 2. (E6)
+14. Et utsagn gjelder det det viser til (HF-U1). (HF-U4 s4)
 
 ### D. Den egne innsigelsen etter punkt 5 tredje ledd
 
-16. En part kan også sende innsigelsen etter punkt 5 tredje ledd som eget brev, før og etter
+15. En part kan også sende innsigelsen etter punkt 5 tredje ledd som eget brev, før og etter
     svaret. Den registreres som ett utsagn med sendetid og kan gjelde ethvert varsel, krav eller
     svar fra motparten, også et svar etter punkt 33.6.2 annet ledd bokstav b. (VS-U1 s1–s2;
     VS-U9 s2)
+16. At den egne innsigelsen kan sendes etter svaret, gjør den ikke rettidig. Den gjenoppliver
+    ikke en tapt innsigelse. (VS-U9 s5–s6)
 17. Den egne innsigelsen er en påberopelse etter en bestemmelse bare når det den gjelder, bare
     kan komme for sent etter én bestemmelse: varselet etter punkt 33.4, TEs varsel etter punkt
-    32.2 og de egne varslene etter punkt 34.1.2 og 34.1.3. Da gjentar et senere svar den eller gir
-    den opp etter punkt 9–12, og punkt 13 gjelder for den. (VS-U24 s2–s3; E7)
-18. En egen innsigelse mot et krav eller et svar registreres og vises med sendetid, det den
-    gjelder, punkt 5 tredje ledd og partens begrunnelse. Den leses ikke som en påberopelse etter
-    noen bestemmelse, og et senere svar gjentar den ikke og gir den ikke opp. Påberopelsen etter
+    32.2, og senere de egne varslene etter punkt 34.1.2 og 34.1.3. Da gjentar et senere svar den
+    eller gir den opp etter punkt 9–12, og punkt 13 gjelder for den. (VS-U24 s2–s3; E7)
+18. En egen innsigelse mot et krav eller et svar registreres med sendetid, det den gjelder,
+    punkt 5 tredje ledd og partens begrunnelse. Den leses ikke som en påberopelse etter noen
+    bestemmelse, og et senere svar gjentar den ikke og gir den ikke opp. Påberopelsen etter
     bestemmelsen står da i svaret. Løsningen avgjør ikke om innsigelsen og svaret til sammen kom
     i tide (MM-U12). (VS-U24 s4–s7)
 
 ### E. Totalentreprenørens påberopelse
 
-19. Punkt 1–18 gjelder tilsvarende når TE påberoper at et varsel, krav eller svar fra byggherren
-    kom for sent, fordi punkt 5 tredje ledd gjelder «en part». Påberopelsen i TEs svar er
-    innsigelsen etter punkt 5 tredje ledd, og TE kan gi den opp uttrykkelig i et senere svar.
-    Punkt 11 har ikke noe motstykke. (VS-U14 s1–s3) Hva som gjelder etter at TE har sagt at noe
-    kom i tide, avgjøres i spørsmål 2. (E6)
+19. Det punkt 1, 3–6, 9, 10 og 12 sier, gjelder tilsvarende når TE påberoper at et varsel, krav
+    eller svar fra byggherren kom for sent, fordi punkt 5 tredje ledd gjelder «en part».
+    Påberopelsen i TEs svar er innsigelsen etter punkt 5 tredje ledd, og TE kan gi den opp
+    uttrykkelig i et senere svar. Punkt 11 har ikke noe motstykke. (VS-U14 s1–s3; E9) En egen
+    innsigelse fra TE mot et varsel, krav eller svar fra byggherren følger punkt 15–18. (VS-U14
+    s5) Hva som gjelder etter at TE har sagt at noe kom i tide, avgjøres i spørsmål 2. (E6)
 
 ### F. Utsagnet og bindingen
 
-20. Varsler, krav, svar og avkall en part sender fra løsningen, står som partens utsagn fra de er
-    kommet fram til motparten (avtaleloven § 7). Løsningen avgjør ikke om parten er bundet av et
-    tidligere utsagn, eller om parten likevel er løst fra det (MM-U12). Gjelder NS 8407 noe annet,
-    går kontrakten foran. (HF-U6 s1–s2, s7–s8; MM-U34 punkt 5 og punkt 15, siste kulepunkt; E8)
+20. Løsningen avgjør ikke om parten er bundet av et tidligere utsagn, eller om parten likevel er
+    løst fra det (MM-U12). Gjelder NS 8407 noe annet, går kontrakten foran. (HF-U6 s7–s8 og
+    setningen MM-U34 punkt 5 la til; E8) At det en part sender fra løsningen, står som partens
+    utsagn, er en beslutning i MM-U47.
 
 ### Designdel
 
-- Visningen viser det tidligere standpunktet om at varselet kom i tide sammen med den senere
-  påberopelsen. (MM-U34 punkt 6; MM-U47, designdelen) Hvilken bestemmelse påberopelsen gjelder,
-  vises etter BF-04. (HF-U11, designdelen)
+- Løsningen viser hvilken bestemmelse påberopelsen gjelder (HF-U11 s2), etter BF-04.
+- Løsningen viser det tidligere standpunktet sammen med den senere påberopelsen. (MM-U34 punkt 6
+  s2) Det gjelder også en oppgitt påberopelse. (E1)
+- En egen innsigelse mot et krav eller et svar vises med det punkt 18 sier. (VS-U24 s4)
 
 ### Beslutningsdel
 
-- Den egne innsigelsen i punkt 16–18, også byggherrens etter svaret og TEs, bygges ikke i første
-  versjon, med brevteksten i LV-U4 punkt 5 og 7. Til den bygges, uttrykker partene den i et
-  innlegg (MM-U47). Reglene står og bygges senere; avgrensningen gjelder rekkefølgen. (VS-U35 s1,
-  s3 og s4; OV-U7, setningen om innsigelsen; E3)
-- Påberopelsen i et svar og oppgivelsen av den i et senere svar, punkt 1–15, bygges. (VS-U35 s5)
+- Den egne innsigelsen i punkt 15–18, også byggherrens etter svaret og TEs, bygges ikke i første
+  versjon, med brevteksten i LV-U4 punkt 5 og 7. Påberopelsen av passivitet etter punkt 32.3
+  annet ledd er fortsatt utsatt. Til de bygges, uttrykker partene dem i et innlegg (MM-U47).
+  Reglene står og bygges senere; avgrensningen gjelder rekkefølgen. (VS-U35 s1–s4, for
+  innsigelsen og passiviteten; OV-U7, setningen om innsigelsen; E3)
+- Påberopelsen i et svar av at et varsel kom for sent etter en bestemmelse, og oppgivelsen av den
+  i et senere svar, står og bygges: punkt 1–4, 6–12 og 13. (VS-U35 s5; MM-U34 punkt 6)
 - TEs påberopelse i et svar og oppgivelsen av den får virkning når TE kan svare på krav fra
-  byggherren i løsningen, først ved punkt 34.3.3, som avvises i første versjon (OV-U1). Formatet
-  forutsetter ikke at bare byggherren kan påberope sen varsling. (VS-U14 s4 og s6) En egen
-  innsigelse fra TE gjelder alt etter punkt 16. (VS-U14 s5)
+  byggherren i løsningen, først ved punkt 34.3.3, som avvises i første versjon (OV-U1).
+  Formatet forutsetter ikke at bare byggherren kan påberope sen varsling. (VS-U14 s4 og s6)
 
 ## Endret innhold
 
-**E1 «I tide» for byggherren.** Gammel tekst: HF-U4 s1 «Har en part i et utsagn sendt fra appen
-uttrykkelig sagt at motpartens varsel, krav eller svar kom i tide etter en bestemmelse, eller
-uttrykkelig gitt opp sin innsigelse etter § 5 tredje ledd mot det, avviser appen en senere
-påberopelse fra samme part av at det samme varselet, kravet eller svaret kom for sent etter samme
-bestemmelse.» og s2 «Det gjelder også i en revisjon av svaret før motparten har godtatt det.»
-Samlevedtaket: punkt 13. Innholdet er MM-U34 punkt 6, ordrett: «Sperren mot at byggherren senere
-påberoper at et varsel kom for sent etter å ha sagt at varselet kom i tide, oppheves. Løsningen
-viser det tidligere standpunktet sammen med påberopelsen, uten å trekke konklusjonen.» «Gitt opp
-påberopelsen» i punkt 13 er vår slutning: MM-U34 punkt 6 nevner bare «i tide», men HF-U4 s1 stiller
-de to likt, og HF-U4 s1 sier ikke noe annet om den oppgitte innsigelsen. Visningen står i
-designdelen.
+**E1 «I tide» og en oppgitt påberopelse for byggherren.** Gammel tekst: HF-U4 s1 «Har en part i et
+utsagn sendt fra appen uttrykkelig sagt at motpartens varsel, krav eller svar kom i tide etter en
+bestemmelse, eller uttrykkelig gitt opp sin innsigelse etter § 5 tredje ledd mot det, avviser
+appen en senere påberopelse fra samme part av at det samme varselet, kravet eller svaret kom for
+sent etter samme bestemmelse.» Samlevedtaket: punkt 13 og designdelen. Innholdet er MM-U34 punkt 6:
+«Sperren mot at byggherren senere påberoper at et varsel kom for sent etter å ha sagt at varselet
+kom i tide, oppheves. Løsningen viser det tidligere standpunktet sammen med påberopelsen, uten å
+trekke konklusjonen.» At det samme gjelder en oppgitt påberopelse, har belegg i MM-U34 punkt 15,
+første kulepunkt, som strøk den parallelle sperren i OV-U51: «‹Har byggherren i et utsagn sendt
+fra løsningen uttrykkelig sagt at varselet kom i tide, eller gitt opp innsigelsen, avvises en
+senere påberopelse …› strykes, som HF-U4 (punkt 6).» HF-U27 har den samme regelen etter et frafall
+etter punkt 32.3 første ledd c. At visningen også viser en oppgitt påberopelse, og at en ny
+påberopelse har sitt eget tidspunkt (punkt 6), er våre slutninger. Uten dem kunne den nye
+påberopelsen se ut som den første, med det første tidspunktet. MM-U34 punkt 6 gjelder «et
+varsel». Om sperren står for byggherrens «i tide» om et krav, avgjøres i spørsmål 2.
 
 **E2 Hva som står mot senere kravversjoner.** Gammel tekst: VS-U20 s1 «Har byggherren påberopt at
 TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere
 kravversjon i samme sak, også når varselet var selve kravet.»; HF-U4 s5 «Et standpunkt om varselet
-står mot hver senere kravversjon (VS-U20).» Samlevedtaket: punkt 7 og 8. Innholdet er ikke endret.
-Punkt 7 gjelder fortsatt bare punkt 33.4. Om en påberopelse etter punkt 32.2, 34.1.2 eller
-34.1.3 står mot senere versjoner, sier ingen post, og samlevedtaket avgjør det ikke.
+står mot hver senere kravversjon (VS-U20).» Samlevedtaket: punkt 7 og 8. Punkt 7 gjelder fortsatt
+bare punkt 33.4. Om en påberopelse etter punkt 32.2, 34.1.2 eller 34.1.3 står mot senere
+versjoner, sier ingen post, og samlevedtaket avgjør det ikke. At et «i tide» står til byggherren
+senere påberoper for sent (punkt 8), er vår slutning av punkt 13. Uten den står begge
+standpunktene mot neste versjon samtidig.
 
 **E3 Den egne innsigelsen er utsatt.** Gammel tekst: OV-U7 «Innsigelse etter § 5 tredje ledd
 bygges for begge parter som utsagn uten utledning, også byggherrens egen innsigelse etter svaret og
 en innsigelse etter at TE har godtatt avslaget på grunnlaget (VS-U1, VS-U9, VS-U14, KA-U29).»
-Samlevedtaket: beslutningsdelen. Innholdet er ikke endret: VS-U35 endret OV-U7 01.11 og «Utsetter
-delene av VS-U1, VS-U9, VS-U11, VS-U14, VS-U24, HF-U4 og LV-U4 punkt 5 som gjelder den egne
-innsigelsen.» En innsigelse etter at TE har godtatt avslaget, er et innlegg etter MM-U47 punkt 10.
-Reglene for den egne innsigelsen står samlet i punkt 16–18, og utsettelsen i beslutningsdelen.
+Samlevedtaket: beslutningsdelen. VS-U35 endret OV-U7 01.11 og sier i Følge: «Utsetter delene av
+VS-U1, VS-U9, VS-U11, VS-U14, VS-U24, HF-U4 og LV-U4 punkt 5 som gjelder den egne innsigelsen.»
+En innsigelse etter at TE har godtatt avslaget, er et innlegg etter MM-U47 punkt 10, så den delen
+av setningen i OV-U7 gjelder ikke lenger. Reglene for den egne innsigelsen står samlet i punkt
+15–18, og utsettelsen i beslutningsdelen. Ellers er innholdet ikke endret.
 
 **E4 MM-U33 steg 3.** Gammel tekst: MM-U33 steg 3, siste setning, «Innsigelsen etter § 5 tredje
 ledd, at motparten har varslet eller svart for sent, er et meldingskrav i kontrakten og sendes
@@ -232,40 +252,48 @@ fortsatt som innsigelse (VS-U9).» Samlevedtaket: punkt 1 og beslutningsdelen. M
 eldre enn VS-U35 (01.11). Setningen leses som påberopelsen i svaret (VS-U9 s1), og den egne
 innsigelsen følger beslutningsdelen. Forholdet: presiserer MM-U33.
 
-**E5 Innsigelsen og enigheten.** Gammel tekst: VS-U9 s6 «Den gjenoppliver ikke en tapt innsigelse
-og endrer ikke et tidligere svar eller en enighet (GR-U10, KA-U7).» Samlevedtaket: punkt 5.
-Henvisningen til KA-U7 faller bort, fordi MM-U34 punkt 9 opphevet KA-U7. Etter MM-U47 punkt 12
-sperrer en registrert enighet ikke innsigelse, og løsningen avgjør ikke om den er virksom mot
-enigheten. Innholdet er ikke endret.
+**E5 Påberopelsen og enigheten.** Gammel tekst: VS-U9 s6 «Den gjenoppliver ikke en tapt
+innsigelse og endrer ikke et tidligere svar eller en enighet (GR-U10, KA-U7).» Samlevedtaket:
+punkt 5 og 16. MM-U34 punkt 9 opphevet KA-U7, og MM-U47 punkt 12 sier: «En registrert enighet
+sperrer ikke innlegg, innsigelse, protest, bestridelse eller påberopt passivitet.» At
+innsigelsen «endrer ikke … en enighet», er en rettslig slutning løsningen ikke lenger trekker.
+Punkt 5 sier i stedet at brevene og enigheten bevares, og at løsningen ikke avgjør om
+påberopelsen er virksom mot dem (MM-U33 s4, MM-U12). Henvisningene til GR-U10 og KA-U7 faller
+bort. Innholdet er endret. Forholdet: endrer VS-U9 s6.
 
-**E6 «I tide» for TE (spørsmål 2).** Gammel tekst: HF-U4 s1–s2 (E1), slik de står for TE etter
-MM-U34 punkt 6; MM-U43 punkt 10 «gjør saken ikke forstått så langt HF-U4 avviser en slik
-påberopelse». Samlevedtaket: punkt 19 og svaret på spørsmål 2. Ved A gjelder punkt 13 også for
-TE, HF-U4 s1–s2 gjelder ikke lenger, og kontrollen i MM-U43 punkt 10 har ingen påberopelse å
-lese. Ved B står sperren for TE, og MM-U43 punkt 10 står.
+**E6 «I tide» for TE og om et krav (spørsmål 2).** Gammel tekst: HF-U4 s1 (E1), s2 «Det gjelder
+også i en revisjon av svaret før motparten har godtatt det.» og s7 «Taushet, et registrert brev og
+en konkret tolkning av et senere brev gir ikke slik virkning (VS-U11, OV-U4).», slik de står etter
+MM-U34 punkt 6; MM-U43 punkt 10 og 11. Samlevedtaket: punkt 13 og 19 og svaret på spørsmål 2.
 
 **E7 «HF-U4 gjelder for den».** Gammel tekst: VS-U24 s3 «Da gjentar svaret den eller gir den opp
 (VS-U9, VS-U11), og HF-U4 gjelder for den.» Samlevedtaket: punkt 17, som viser til punkt 13 i
 stedet for HF-U4. Innholdet følger E1 og spørsmål 2.
 
-**E8 Utsagnet og bindingen.** Gammel tekst: HF-U6 s1 «Appen behandler varsler, krav, svar og avkall
-en part sender, som løfter etter avtaleloven kapittel 1.» og s2 «Et utsagn binder parten fra det er
-kommet fram til motparten (avtaleloven § 1 første ledd og § 7).» Samlevedtaket: punkt 20, med
-«står som partens utsagn» i stedet for «løfter» og «binder parten». Hvorfor: MM-U34 punkt 5 la
-til «Løsningen avgjør ikke om parten er bundet av et tidligere utsagn (MM-U12).», og punkt 15,
-siste kulepunkt, endret OV-U4 og OV-U7 slik: «‹parten er bundet av det parten sender fra appen›
-blir ‹det parten sender fra appen, står som partens utsagn›». Punkt 20 bruker de samme ordene. Det
-er vår slutning at HF-U6 s1–s2 skal leses slik. Forholdet: endrer HF-U6 s1–s2.
+**E8 Utsagnet og bindingen (spørsmål 1).** Gammel tekst: HF-U6 s1 «Appen behandler varsler, krav,
+svar og avkall en part sender, som løfter etter avtaleloven kapittel 1.» og s2 «Et utsagn binder
+parten fra det er kommet fram til motparten (avtaleloven § 1 første ledd og § 7).» Samlevedtaket:
+punkt 20, uten s1–s2. MM-U34 punkt 5 la til «Løsningen avgjør ikke om parten er bundet av et
+tidligere utsagn (MM-U12).», og HF-U25 sier at resten av HF-U6 hører til denne kjeden. Etter
+ordlyden sier HF-U6 da både at utsagnet binder og at løsningen ikke avgjør om det binder. MM-U47
+har i beslutningsdelen allerede at det parten sender, «står som partens utsagn». Ved spørsmål 1 A
+gjelder s1–s2 ikke lenger (endrer HF-U6). Ved B står de.
+
+**E9 Hva som gjelder for TE.** Gammel tekst: VS-U14 s1 «VS-U9 og VS-U11 gjelder tilsvarende når TE
+mottar et varsel, krav eller svar fra byggherren og påberoper at det kom for sent, fordi § 5
+tredje ledd gjelder «en part».» Samlevedtaket: punkt 19, som nevner punktene i samlevedtaket som
+kommer fra VS-U9 og VS-U11. Punkt 2 og 7 (VS-U24 og VS-U20) gjelder byggherrens svar og er ikke
+tatt med. Innholdet er ikke endret.
 
 ## Klassene
 
 Etter testen i vedtaksskillen:
 
 - Punkt 1–20 er *vedtak*: de sier hva påberopelsen er etter punkt 5 tredje ledd, hva den står mot,
-  når den er oppgitt, hva løsningen ikke avgjør, og hva et utsagn er.
-- Visningen av det tidligere standpunktet og bestemmelsen er *design* og står i designdelen.
-- Utsettelsen av den egne innsigelsen og tidspunktet for virkningen av TEs påberopelse er
-  *beslutning* og står i beslutningsdelen.
+  når den er oppgitt, hva løsningen ikke avgjør, og hva en egen innsigelse er.
+- Hva løsningen viser, er *design* og står i designdelen.
+- Utsettelsen av den egne innsigelsen og passiviteten, hva som bygges, og når TEs påberopelse får
+  virkning, er *beslutning* og står i beslutningsdelen.
 
 ## Påstander om koden
 
@@ -296,9 +324,40 @@ grunnlag for forslaget, bare for belegget i spørsmål 2 og funnene.
 
 Kodefunnene er ført i oppfølgingsissuet #1590.
 
+
 ## Prøvingen
 
-<!-- fylles fra prøvingen -->
+En uavhengig subagent prøvde 05.11 på `a229860` sitatene, kildene, alternativene mot vedtaksfila,
+klassene (svar 8) og fire forløp, etter «Prøv hvert alternativ» og «Prøv arbeidsflyten» i
+vedtaksskillen. Prøvingen kjøres én gang. Sitatene i E-punktene var ordrette, og
+s-nummereringen stemte. Funnene og rettingene:
+
+- **Punkt 19 avgjorde spørsmål 2 på forhånd.** «Punkt 1–18 gjelder tilsvarende» tok med punkt 13
+  og reglene i VS-U20 og VS-U24, som bare gjelder byggherrens svar. Punkt 19 nevner nå bare
+  punktene fra VS-U9 og VS-U11 (E9).
+- **Den egne innsigelsen var flyttet inn i det som bygges.** VS-U9 s5 gjelder den egne innsigelsen
+  og står nå i punkt 16. Beslutningsdelen nevner punktene som bygges etter VS-U35 s5.
+- **Punkt 5 sa både at påberopelsen ikke endrer en enighet og at løsningen ikke avgjør det.** Punkt
+  5 viser nå til MM-U47 punkt 12, og E5 sier at innholdet er endret, også at GR-U10 faller bort.
+- **Umerkede endringer:** «registrert brev» i punkt 14 (nå strøket; HF-U4 s7 hører til spørsmål
+  2), taushet etter de særlige reglene og «binder ikke som et slikt» i HF-U11 (nå med), og
+  «senere» i VS-U24 s2 (nå med).
+- **To standpunkter mot neste kravversjon samtidig, og en ny påberopelse med det gamle
+  tidspunktet.** Punkt 7, 8 og 6 sier nå hvor lenge et standpunkt står, og at en ny påberopelse
+  har sitt eget tidspunkt. Begge er merket som slutninger (E1, E2).
+- **Punkt 20 hadde to hjem.** «Står som partens utsagn» står i beslutningsdelen i MM-U47. Punkt 20
+  viser dit og samler bare setningene i HF-U6 som er vedtak.
+- **Forholdene.** «Endrer» er brukt der bare noen setninger faller, med begrunnelsen i «Postene i
+  kjeden». Spørsmål 2 A har nå MM-U43 punkt 11. Spørsmål 2 B sier at det tar opp igjen det VS-U14
+  forkastet, og snevrer ikke lenger inn regelen om binding generelt.
+- **Vilkåret «et varsel».** MM-U34 punkt 6 gjelder et varsel, ikke et krav. Spørsmål 2 tar derfor
+  også med byggherrens «i tide» om et krav.
+- **E1 har belegg i MM-U34 punkt 15** (sperren i OV-U51), og HF-U27 er nevnt.
+- **Formen.** Spørsmål 2 står nå i kontraktens språk, med ID-ene bare i forholdet, og sitatene i
+  spørsmålene er hele setninger. Spørsmål 1 sier hvilke E-punkter som endrer innhold.
+
+Ikke rettet: at punkt 1 og MM-U47 punkt 7 begge sier noe om påberopelsen i svaret. Punkt 1 sier at
+den er innsigelsen etter punkt 5, og MM-U47 punkt 7 at den står som standpunkt. Punkt 1 viser dit.
 
 ## Spørsmålene til oppdragsgiver
 
@@ -306,68 +365,84 @@ Lagret ordrett før de ble sendt.
 
 **1. Tilslutning til samlevedtaket for påberopelse av sent varsel, «i tide» og innsigelsen etter
 punkt 5 i NS 8407.** Forslaget over, punkt 1–20 med designdelen, beslutningsdelen og «Endret
-innhold» E1–E8. E2, E3, E5 og E7 samler ordlyden uten å endre innholdet. E4 leser en eldre
-setning i lys av en nyere beslutning. To punkter er slutninger, ikke ordlyden i et vedtak: E1
-(at også en oppgitt påberopelse kan påberopes på nytt, ikke bare et «i tide») og E8 (at et utsagn
-«står som partens utsagn» i stedet for at det «binder parten»). E6 avgjøres i spørsmål 2.
+innhold» E1–E9. E3, E4, E7 og E9 samler ordlyden uten å endre innholdet. E5 og E8 endrer innhold:
+E5 sier at løsningen ikke avgjør om en påberopelse er virksom mot en enighet, i stedet for at den
+«endrer ikke» enigheten, og E8 stryker at et utsagn «binder parten». E1 og E2 har slutninger, ikke
+ordlyden i et vedtak: at en oppgitt påberopelse kan påberopes på nytt med et nytt tidspunkt, og at
+et «i tide» står mot senere kravversjoner til byggherren påberoper for sent. E6 avgjøres i
+spørsmål 2.
 
-- **A (anbefalt):** «Samlevedtaket for påberopelse av sent varsel, «i tide» og innsigelsen etter
-  punkt 5 (VS-U46) gjelder slik det står i punkt 1–20 med designdelen, beslutningsdelen og E1–E8.
-  HF-U4 (unntatt tredje setning), HF-U11, VS-U1 (unntatt protesten), VS-U9 (unntatt
-  protestregelen), VS-U11, VS-U14, VS-U20, VS-U24, VS-U35 (for innsigelsen og påberopelsen i
-  svaret), setningen om innsigelsen etter § 5 tredje ledd i OV-U7, MM-U34 punkt 6 og HF-U6 (det
-  som står etter MM-U34 punkt 5 og HF-U25) gjelder som «Samlet i samlevedtaket for påberopelse av
-  sent varsel». Forhold: samler de postene; endrer HF-U6 første og andre setning (E8); presiserer
-  MM-U33 steg 3, siste setning (E4). Klasse: vedtak med designdel og beslutningsdel.»
-- **B:** «Som A, men uten punkt 20 og E8. HF-U6 står slik MM-U34 punkt 5 og HF-U25 endret den, og
-  samlevedtaket har ikke noe forhold til HF-U6.»
+- **A (anbefalt):** «Reglene for påberopelse av sent varsel, «i tide» og innsigelsen etter punkt 5
+  tredje ledd i NS 8407 står i samlevedtaket VS-U46, punkt 1–20 med designdelen, beslutningsdelen
+  og E1–E9. Påberopelsen i byggherrens svar er innsigelsen etter punkt 5 tredje ledd. Den står mot
+  senere kravversjoner etter punkt 7, og et senere svar leses med den til byggherren uttrykkelig
+  gir den opp eller sier at varselet kom i tide. Byggherren kan påberope sent varsel etter et «i
+  tide» eller en oppgitt påberopelse, og løsningen trekker ikke konklusjonen. Den egne innsigelsen
+  som eget brev er utsatt. Løsningen avgjør ikke om en part er bundet av et tidligere utsagn.
+  HF-U4 (unntatt første, andre, tredje og sjuende setning), HF-U11, MM-U34 punkt 6, VS-U1 (unntatt
+  protesten), VS-U9 (unntatt protestregelen), VS-U11, VS-U14, VS-U20, VS-U24, VS-U35 (for
+  innsigelsen, passiviteten og påberopelsen i svaret), setningen om innsigelsen etter § 5 tredje
+  ledd i OV-U7 og HF-U6 (det som står etter MM-U34 punkt 5 og HF-U25) gjelder som «Samlet i
+  samlevedtaket for påberopelse av sent varsel». Forhold: samler de postene; endrer VS-U9 sjette
+  setning (E5) og HF-U6 første og andre setning (E8); presiserer MM-U33 steg 3, siste setning
+  (E4). Klasse: vedtak med designdel og beslutningsdel.»
+- **B:** «Som A, men HF-U6 første og andre setning står, og forholdet til HF-U6 er bare «samler».
+  E8 gjelder ikke.»
 
-*Belegg:* E-punktene, med postene ordrett. MM-U34 punkt 15, siste kulepunkt, endret OV-U4 og
-OV-U7 fra «parten er bundet av det parten sender fra appen» til «det parten sender fra appen, står
-som partens utsagn». Punkt 20 bruker de samme ordene for HF-U6.
+*Belegg:* E-punktene, med postene ordrett. For E8: HF-U6 sier i andre setning at et utsagn binder
+parten, og i setningen MM-U34 punkt 5 la til: «Løsningen avgjør ikke om parten er bundet av et
+tidligere utsagn (MM-U12).»
 
-*Anbefaling:* A. Da står reglene for påberopelsen, «i tide» og den egne innsigelsen ett sted, og
-HF-U6 sier ikke både at utsagnet binder og at løsningen ikke avgjør om det binder. Med B står den
-motsigelsen i HF-U6.
+*Anbefaling:* A. Da står reglene ett sted, og HF-U6 sier ikke både at utsagnet binder og at
+løsningen ikke avgjør om det binder. Med B står den motsigelsen.
 
 *Hva valget styrer:* teksten i VS-U46 og forholdene til de samlede postene.
 
-**2. Kan TE påberope at noe kom for sent etter selv å ha sagt at det kom i tide?**
-Bakgrunn: Punkt 5 tredje ledd i NS 8407 gjelder «en part». HF-U4 (15.10) sperret en senere
-påberopelse fra en part som uttrykkelig hadde sagt at motpartens varsel, krav eller svar kom i
-tide, eller gitt opp innsigelsen. MM-U34 punkt 6 (28.10) opphevet sperren for byggherren:
-«Sperren mot at byggherren senere påberoper at et varsel kom for sent etter å ha sagt at varselet
-kom i tide, oppheves.» For TE står sperren etter ordlyden. Samtidig sier HF-U6, slik MM-U34 punkt 5
-endret den: «Løsningen avgjør ikke om parten er bundet av et tidligere utsagn (MM-U12).» VS-U14
-forkastet «ulike regler for partene». Samlevedtaket for saker løsningen ikke forstår (MM-U43
-punkt 10) lar saken være ikke forstått «så langt HF-U4 avviser en slik påberopelse».
+**2. Kan en part påberope at noe kom for sent etter selv å ha sagt at det kom i tide?**
+Bakgrunn: Etter punkt 5 tredje ledd i NS 8407 må en part som vil gjøre gjeldende at motparten har
+varslet eller svart for sent, gjøre det skriftlig uten ugrunnet opphold. Et vedtak fra 15.10 lot
+løsningen avvise en senere påberopelse fra en part som i et brev sendt fra løsningen uttrykkelig
+hadde sagt at motpartens varsel, krav eller svar kom i tide etter samme bestemmelse, eller gitt opp
+innsigelsen. Et vedtak fra 28.10 opphevet sperren for byggherren, men bare for et varsel. Etter
+ordlyden står sperren for totalentreprenøren og for byggherrens standpunkt om at et krav kom i
+tide, for eksempel etter punkt 33.6.1. Samtidig sier et vedtak at løsningen ikke avgjør om en part
+er bundet av et tidligere utsagn, og et vedtak om innsigelsen forkastet ulike regler for partene. I
+første versjon svarer totalentreprenøren ikke på krav fra byggherren, og innsigelsen som eget brev
+sendes som innlegg. For totalentreprenøren får valget derfor virkning først når det bygges. For
+byggherrens standpunkt om et krav gjelder det nå.
 
-- **A (anbefalt):** «Punkt 13 i samlevedtaket gjelder også for TE. Har TE uttrykkelig sagt at et
-  varsel, krav eller svar fra byggherren kom i tide etter en bestemmelse, eller gitt opp
-  påberopelsen, kan TE senere påberope at det samme kom for sent etter samme bestemmelse.
-  Løsningen trekker ikke konklusjonen og avgjør ikke om TE er bundet av det tidligere
-  standpunktet (MM-U12). Forhold: endrer HF-U4 første og andre setning, som ikke lenger gjelder for noen part; endrer
-  MM-U43 punkt 10, som ikke lenger har noen påberopelse å kontrollere.»
-- **B:** «Sperren står for TE. Har TE i et utsagn sendt fra løsningen uttrykkelig sagt at
-  byggherrens varsel, krav eller svar kom i tide etter en bestemmelse, eller uttrykkelig gitt opp
-  innsigelsen etter punkt 5 tredje ledd mot det, avviser løsningen en senere påberopelse fra TE av
-  at det samme kom for sent etter samme bestemmelse, også i en revisjon av svaret før byggherren
-  har godtatt det. MM-U43 punkt 10 står for TE. Forhold: samler HF-U4 første og andre setning for
-  TE; snevrer inn HF-U6, setningen «Løsningen avgjør ikke om parten er bundet av et tidligere
-  utsagn», til byggherren.»
+- **A (anbefalt):** «Ingen part er sperret av et tidligere «i tide». Har en part uttrykkelig sagt
+  at motpartens varsel, krav eller svar kom i tide etter en bestemmelse, eller gitt opp
+  påberopelsen, kan parten senere påberope at det samme kom for sent etter samme bestemmelse.
+  Løsningen trekker ikke konklusjonen og avgjør ikke om parten er bundet av det tidligere
+  standpunktet. Punkt 13 i samlevedtaket gjelder da for begge parter og for varsel, krav og svar.
+  Forhold: endrer HF-U4 første, andre og sjuende setning, som ikke lenger gjelder; endrer MM-U43
+  punkt 10, som ikke lenger har noen påberopelse å kontrollere, og punkt 11, som gjelder begge
+  parter og varsel, krav og svar.»
+- **B:** «Sperren står der den ikke er opphevet. Har totalentreprenøren i et brev sendt fra
+  løsningen uttrykkelig sagt at byggherrens varsel, krav eller svar kom i tide etter en
+  bestemmelse, eller uttrykkelig gitt opp innsigelsen mot det, avviser løsningen en senere
+  påberopelse fra totalentreprenøren av at det samme kom for sent etter samme bestemmelse. Det
+  samme gjelder byggherrens uttrykkelige standpunkt om at totalentreprenørens krav kom i tide.
+  Taushet, et registrert brev og en konkret tolkning av et senere brev gir ikke slik virkning. En
+  hendelse som sperren ville avvist, gjør saken ikke forstått. Punkt 20 i samlevedtaket gjelder
+  ikke for denne sperren. Forhold: samler HF-U4 første og sjuende setning for totalentreprenøren
+  og for byggherrens standpunkt om et krav; endrer HF-U4 andre setning, som ikke lenger gjelder;
+  MM-U43 punkt 10 står; tar opp igjen for denne sperren det VS-U14 forkastet, «ulike regler for
+  partene».»
 
-*Belegg:* MM-U34 punkt 5 og 6 og VS-U14, sitert over. Koden har ingen sperre for noen part
-(«Påstander om koden»). I første versjon svarer TE ikke på krav fra byggherren (VS-U14: «først ved
-§ 34.3.3, som avvises i første versjon»), og den egne innsigelsen er utsatt (VS-U35). Valget får
-derfor virkning først når TE kan svare eller sende egen innsigelse.
+*Belegg:* Vedtaket fra 28.10 (MM-U34 punkt 6): «Sperren mot at byggherren senere påberoper at et
+varsel kom for sent etter å ha sagt at varselet kom i tide, oppheves.» Vedtaket om binding (HF-U6
+slik MM-U34 punkt 5 endret den): «Løsningen avgjør ikke om parten er bundet av et tidligere utsagn
+(MM-U12).» Løsningen har i dag ingen sperre for noen part («Påstander om koden»).
 
-*Anbefaling:* A. Partene får samme regel, som VS-U14 forutsetter, og løsningen avgjør ikke for TE
-det den ikke avgjør for byggherren. *Hva det koster byggherren:* mener byggherren at TE er bundet
-av et «i tide», må byggherren gjøre det gjeldende selv, som TE må etter MM-U34 punkt 6. Med B må en
-sperre bygges for TE, og reglene for partene er ulike.
+*Anbefaling:* A. Partene får samme regel, og løsningen avgjør ikke for den ene parten det den ikke
+avgjør for den andre. *Hva det koster motparten:* mener motparten at parten er bundet av et «i
+tide», må motparten gjøre det gjeldende selv, slik totalentreprenøren må etter vedtaket fra 28.10.
+Med B gjelder ulike regler for partene og for varsel og krav, og en sperre må bygges.
 
-*Hva valget styrer:* punkt 13 og 19 i VS-U46, HF-U4 og MM-U43 punkt 10, og om en sperre bygges
-for TE når TE kan svare eller sende egen innsigelse.
+*Hva valget styrer:* punkt 13 og 19 i VS-U46, HF-U4 og MM-U43 punkt 10 og 11, og om løsningen
+skal avvise en påberopelse etter et «i tide».
 
 Rettelser kan gis per punkt.
 
