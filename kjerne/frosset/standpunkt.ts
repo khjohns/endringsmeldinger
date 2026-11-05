@@ -241,27 +241,30 @@ export interface ForesporselOgSvar {
 }
 
 /**
- * § 33.6.2 (VS-U17, VS-U19, VS-U27): svaret på hver forespørsel, i rekkefølgen i journalen.
- * TEs begrunnelse etter annet ledd b svarer på forespørselen den gjelder. Ellers svarer det
- * første fristkravet etter forespørselen, som da er svar på den (LV-U18 setning 3). Et krav i
- * et registrert brev er dokumentasjon og svarer ikke (OV-U4). Gir forespørselen og elementet
- * som svarte, eller `null`.
+ * § 33.6.2 (VS-U17, VS-U19, VS-U27): svaret på hver forespørsel. TEs begrunnelse etter annet
+ * ledd b og fristkravet svarer på forespørselen de uttrykkelig viser til i `gjelder`, aldri
+ * etter rekkefølgen i journalen (HF-U1, LV-U18 punkt 3). Et krav i et registrert brev er
+ * dokumentasjon og svarer ikke (OV-U4). Gir forespørselen og elementet som svarte, eller `null`.
  */
 export function svarPaaForesporsler(
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>
 ): ForesporselOgSvar[] {
   const ut: ForesporselOgSvar[] = [];
+  const ubesvart = (gjelder: string | undefined) =>
+    ut.find((x) => x.foresporsel === gjelder && x.svar === null);
   for (const d of dokumenter) {
     for (const u of d.utsagn) {
       if (u.art === 'foresporsel') ut.push({ foresporsel: u.id, svar: null, medKrav: false });
       if (u.art === 'foresporselssvar') {
-        const f = ut.find((x) => x.foresporsel === u.gjelder && x.svar === null);
+        const f = ubesvart(u.gjelder);
         if (f) f.svar = u.id;
       }
     }
-    const krav = d.krav.find((k) => k.spor === 'frist');
-    if (krav && !kravetErDokumentasjon(d))
-      for (const f of ut) if (f.svar === null) Object.assign(f, { svar: krav.id, medKrav: true });
+    if (kravetErDokumentasjon(d)) continue;
+    for (const krav of d.krav) {
+      const f = krav.spor === 'frist' ? ubesvart(krav.gjelder) : undefined;
+      if (f) Object.assign(f, { svar: krav.id, medKrav: true });
+    }
   }
   return ut;
 }

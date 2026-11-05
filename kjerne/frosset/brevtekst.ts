@@ -396,11 +396,10 @@ function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
     deler.push(
       `TE krever fristforlengelse på ${dager(k.innhold.dager as number)} (NS 8407 § 33.6.1).`
     );
-    // LV-U18 setning 3: kravet som svarer på forespørselen, sier det.
-    const f = svarPaaForesporsler(j.dokumenter).find((x) => x.svar === k.id);
-    if (f)
+    // LV-U18 setning 3: kravet som viser til forespørselen, sier det (HF-U1).
+    if (k.gjelder)
       deler.push(
-        `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(f.foresporsel))}.`
+        `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
       );
   }
   // LV-U35 for påberopelsen, så brevet ikke blander partsbetegnelsene. Ordlyden i LV-U41 for
@@ -920,6 +919,8 @@ export function lagDeresRef(nytt: Dokument, foer: Domenehendelse[]): string[] {
       SVARER_GODTAR_BESTRIDER.has(x.art) && 'gjelder' in x ? [x.gjelder] : []
     ),
     ...nytt.krav.flatMap((k) => (k.erstatter ? sisteSvarPaa(k.erstatter, j) : [])),
+    // LV-U49: kravet som svarer på forespørselen etter § 33.6.2, svarer på byggherrens brev.
+    ...nytt.krav.flatMap((k) => (k.gjelder ? [k.gjelder] : [])),
   ];
   const brev = new Map<string, Dokument>();
   for (const id of viserTil) {

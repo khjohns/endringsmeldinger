@@ -210,7 +210,13 @@ export const KRAV: Record<Spor, Skjema> = Object.fromEntries(
   SPOR.map((s) => [
     s,
     objekt(
-      { ...sporfelt(s), erstatter: ID, ...KRAVINNHOLD[s].properties },
+      {
+        ...sporfelt(s),
+        erstatter: ID,
+        // HF-U1, LV-U18 punkt 3: forespørselen etter § 33.6.2 fristkravet svarer på.
+        ...(s === 'frist' ? { gjelder: ID } : {}),
+        ...KRAVINNHOLD[s].properties,
+      },
       ['id', 'spor', ...KRAVINNHOLD[s].required],
       KRAVINNHOLD[s].anyOf
     ),
