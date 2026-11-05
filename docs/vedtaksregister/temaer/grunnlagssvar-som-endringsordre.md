@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `9d22e92f6981b1dcb8a4e81f9c78fef411e5ce6b079a5b4145754d0b238ff225`
+Kontrollsum (SHA-256 over utdraget visningen leser): `171e06c905350fac72ebc5f7c633c5156676f5a748c69b21b1b8dc92e2d913d2`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1895,7 +1895,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 05.11, oppdragsgiver (#1615, #1618)
 
-**Følge:** Presiserer [MM-U52](#mm-u52). Snevrer inn [MM-U34](#mm-u34). Forholdene står i alternativ A: «presiserer punkt 10 og avgrenser MM-U34 punkt 24 for korrigeringen». «Avgrenser» er ført som «snevrer inn». Bygges i #1616.
+**Følge:** Presiserer [MM-U52](#mm-u52). Snevrer inn [MM-U34](#mm-u34). Forholdene står i alternativ A: «presiserer punkt 10 og avgrenser MM-U34 punkt 24 for korrigeringen». Spørsmålet sier «avgrenser»; registeret har ikke den arten, så det er ført som «snevrer inn». Bygges i #1616.
 
 **Regelrader:** —
 
