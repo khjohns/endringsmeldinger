@@ -2027,7 +2027,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
 
     /**
      * Skiftet mellom svikt og endring kan ikke sendes fra appen (GR-U22), så det står
-     * som en kravversjon fra en annen skriver, og lesingen av den prøves (MM-U18). Et
+     * som en kravversjon fra en annen skriver, og lesingen av den prøves (MM-U43 punkt 6). Et
      * registrert krav ville vært dokumentasjon uten virkning (OV-U4).
      */
     const skifte = (s: ReturnType<typeof sak>, kommando: { innhold: Data }) => {
@@ -2045,7 +2045,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       });
     };
 
-    it('en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon (VS-U24, GR-U11, MM-U18)', () => {
+    it('en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon (VS-U24, GR-U11, MM-U43 punkt 8)', () => {
       const tekstMed = (iTide: boolean) => {
         const s = sak();
         s.send('TE', svikt);
@@ -2069,7 +2069,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(forSent).not.toContain('jf. innsigelsen');
     });
 
-    it('etter et «i tide» etter § 32.2 godtas en innsigelse mot en versjon der § 32.2 ikke gjelder, og mot versjonen som fikk «i tide» (MM-U34 punkt 6, VS-U24, GR-U11, MM-U18)', () => {
+    it('etter et «i tide» etter § 32.2 godtas en innsigelse mot en versjon der § 32.2 ikke gjelder, og mot versjonen som fikk «i tide» (MM-U34 punkt 6, VS-U24, GR-U11, MM-U43 punkt 8)', () => {
       const s = sak();
       s.send('TE', PAABEROPELSE);
       const foerste = s.krav('forhold');
@@ -2155,7 +2155,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       }
     );
 
-    it('hjemmelen for innsigelsen leses av svaret som sa «i tide», ikke av et nyere regelsett (MM-U18, GR-U12, #776)', () => {
+    it('hjemmelen for innsigelsen leses av svaret som sa «i tide», ikke av et nyere regelsett (MM-U43 punkt 8, GR-U12, #776)', () => {
       const s = sak();
       s.send('TE', {
         ...PAABEROPELSE,
@@ -2197,7 +2197,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
       expect(
         s.avvist('BH', innsigelse, nyere),
-        'en ny innsigelse er heller ingen påberopelse under det nyere regelsettet (MM-U18, #776)'
+        'en ny innsigelse er heller ingen påberopelse under det nyere regelsettet (MM-U43 punkt 8, #776)'
       ).toBeNull();
       const revisjon = {
         type: 'revisjon',
@@ -2594,7 +2594,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(kanInngaaIEo(etter)).toBe(true);
   });
 
-  it('en rad som trekker et krav som var avgjort, gjør saken fortsatt forstått, og kravet er trukket (MM-U34 punkt 12, MM-U18)', () => {
+  it('en rad som trekker et krav som var avgjort, gjør saken fortsatt forstått, og kravet er trukket (MM-U43 punkt 7, MM-U34 punkt 12)', () => {
     const s = utenFrist();
     s.send('TE', FRISTKRAV);
     const vederlagskravId = s.krav('vederlag');
@@ -4196,7 +4196,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
     expect(s.avvist('BH', nyttSvar(s, 'frist', forSent334))).toBeNull();
   });
 
-  it('«for sent» etter § 32.2 på en registrert versjon i svikt avvises av utregningen (#520, GR-U11, MM-U18)', () => {
+  it('«for sent» etter § 32.2 på en registrert versjon i svikt avvises av utregningen (#520, GR-U11, MM-U43 punkt 8)', () => {
     const s = sakMedKrav();
     brev(s, 'forhold', avslaatt);
     s.rad('TE', {
@@ -4547,7 +4547,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
     });
   });
 
-  describe('et avslag etter frafallet som ikke kommer gjennom kommandoene (MM-U19, MM-U18, OV-U4)', () => {
+  describe('et avslag etter frafallet som ikke kommer gjennom kommandoene (MM-U43 punkt 9, OV-U4)', () => {
     it('et registrert avslag av en ny påberopelsesversjon får ingen virkning, og saken er forstått', () => {
       const s = medFrafall();
       versjon(s, {});
@@ -4576,7 +4576,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       ['et avslag', 'avslaatt', true],
       ['en påberopelse etter § 32.2', 'godkjent', false],
     ] as [string, string, boolean][])(
-      '%s i et brev som ikke er registrert og ikke er sendt fra appen, er forstått og avløser frafallet (MM-U34 punkt 6 og 7, GR-U17, MM-U18)',
+      '%s i et brev som ikke er registrert og ikke er sendt fra appen, er forstått og avløser frafallet (MM-U34 punkt 6 og 7, GR-U17, MM-U43 punkt 6)',
       (_n, resultat, iTide) => {
         const s = medFrafall();
         const id = registrertSvar(s, resultat, false, iTide);
@@ -4620,7 +4620,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
 
   /**
    * Arbeidsvalg 3 i #770 (#562). Radene står utenfor kommandoene, som en rad som verken er
-   * registrert eller sendt fra appen (MM-U18). MM-U34 punkt 7 opphever sperren i GR-U17, så
+   * registrert eller sendt fra appen (MM-U43 punkt 6). MM-U34 punkt 7 opphever sperren i GR-U17, så
    * avslaget gjør ikke lenger saken uforstått.
    */
   it('en revisjon av frafallet på versjon 1 til avslag, etter en versjon 2 uten frafall og utenfor kommandoene, er forstått (MM-U34 punkt 7, GR-U17, arbeidsvalg 3 i #770)', () => {
@@ -4663,7 +4663,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
     expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
   });
 
-  describe('hver grunn i kontrollen mot journalen før brevet (MM-U18, #669)', () => {
+  describe('hver grunn i kontrollen mot journalen før brevet (MM-U43 punkt 6, #669)', () => {
     const grunner = (s: Sak) => s.u().begrensninger.map((b) => b.grunn);
     const medEnighet = () => {
       const s = sakMedKrav();
@@ -4765,7 +4765,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(harIkkeVurdertBrev(s.u()), 'kontrollsak').toBe(true);
     });
 
-    it('en revisjon av et svar uten virkning (MM-U18)', () => {
+    it('en revisjon av et svar uten virkning (MM-U43 punkt 6)', () => {
       const { s, id } = endringsordreUtenVirkning();
       const krav = s.u().spor.forhold.krav[0].id;
       s.rad('BH', {
@@ -4783,7 +4783,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(grunner(s)).toContain('svaret viser til et element uten virkning');
     });
 
-    it('en innsigelse mot egen endringsordre uten virkning viser ikke til noe den kan gjelde (VS-U1, MM-U18)', () => {
+    it('en innsigelse mot egen endringsordre uten virkning viser ikke til noe den kan gjelde (VS-U1, MM-U43 punkt 6)', () => {
       const { s, id } = endringsordreUtenVirkning();
       const innsigelse = randomUUID();
       s.rad('BH', { utsagn: [{ id: innsigelse, art: 'innsigelse', gjelder: id }] });

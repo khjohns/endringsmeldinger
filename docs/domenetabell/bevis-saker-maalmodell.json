@@ -323,7 +323,7 @@
     },
     {
       "id": "F-MM-A5b",
-      "forslag": "A, steg 5b. Skiftet fra pålegg til endringsordre kan ikke sendes fra appen (GR-U22), så det står som en kravversjon fra en annen skriver, og lesingen av den prøves (MM-U18)",
+      "forslag": "A, steg 5b. Skiftet fra pålegg til endringsordre kan ikke sendes fra appen (GR-U22), så det står som en kravversjon fra en annen skriver, og lesingen av den prøves (MM-U43 punkt 6)",
       "rader": [
         "GR-21",
         "GR-23",
@@ -358,7 +358,7 @@
           "kilde": [
             "GR-U1",
             "GR-U7",
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "gjeldende_krav.forhold": "K-g2",
@@ -3765,7 +3765,7 @@
         "KA-35"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U18 (#326): en revisjon som åpner et godtatt avslag igjen, gjør saken ikke forstått",
+      "forslag": "MM-U43 punkt 6 og GR-U27 (#326): en revisjon som åpner et godtatt avslag igjen, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3812,8 +3812,8 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "MM-U18",
-            "KA-U7",
+            "MM-U43",
+            "GR-U27",
             "V-SK01"
           ],
           "forventet": {
@@ -3829,7 +3829,7 @@
         "KA-35"
       ],
       "start": "krav_irreg",
-      "forslag": "Kontrollsak til MM-U18: uten aksepten er revisjonen forstått",
+      "forslag": "Kontrollsak til MM-U43 punkt 6: uten aksepten er revisjonen forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3861,7 +3861,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -3876,7 +3876,7 @@
         "KA-35"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U18 og GR-U9 (#326): en aksept av et frafall gjør saken ikke forstått",
+      "forslag": "MM-U43 punkt 6 og GR-U9 (#326): en aksept av et frafall gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3914,7 +3914,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U18",
+            "MM-U43",
             "GR-U9"
           ],
           "forventet": {
@@ -3930,7 +3930,7 @@
         "KA-35"
       ],
       "start": "godkjent_forhold",
-      "forslag": "MM-U18 og MM-U34 punkt 9: en ny kravversjon i et spor med registrert enighet strider ikke mot journalen, og saken er forstått",
+      "forslag": "MM-U43 punkt 7: en ny kravversjon i et spor med registrert enighet strider ikke mot journalen, og saken er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3947,7 +3947,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "MM-U18",
+            "MM-U43",
             "MM-U34"
           ],
           "forventet": {
@@ -3964,7 +3964,7 @@
         "KA-35"
       ],
       "start": "godkjent_forhold",
-      "forslag": "MM-U34 punkt 12 og MM-U18: en revisjon i en rad etter at kravene er avgjort, gjør saken forstått, og revisjonen er det gjeldende svaret",
+      "forslag": "MM-U43 punkt 7: en revisjon i en rad etter at kravene er avgjort, gjør saken forstått, og revisjonen er det gjeldende svaret",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4021,7 +4021,7 @@
           "rolle": "mal",
           "kilde": [
             "MM-U34",
-            "MM-U18",
+            "MM-U43",
             "KA-U11"
           ],
           "forventet": {
@@ -4057,8 +4057,7 @@
           "rolle": "mal",
           "kilde": [
             "OV-U4",
-            "MM-U18",
-            "KA-U7"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -4075,7 +4074,7 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U18, OV-U4 og VS-U24: et registrert fristsvar uten standpunkt om rettidighet etter innsigelsen mot fristkravet er forstått og er dokumentasjon",
+      "forslag": "MM-U43 punkt 9, OV-U4 og VS-U24: et registrert fristsvar uten standpunkt om rettidighet etter innsigelsen mot fristkravet er forstått og er dokumentasjon",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4102,7 +4101,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U18",
+            "MM-U43",
             "OV-U4",
             "VS-U24"
           ],
@@ -4119,7 +4118,7 @@
         "KA-35"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U18 og SK-01: en ny kravversjon etter at TE har godtatt avslaget av grunnlaget, gjør saken ikke forstått, også i et spor uten enighet",
+      "forslag": "MM-U43 punkt 6 og SK-01: en ny kravversjon etter at TE har godtatt avslaget av grunnlaget, gjør saken ikke forstått, også i et spor uten enighet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4170,7 +4169,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "MM-U18",
+            "MM-U43",
             "V-SK01"
           ],
           "forventet": {
@@ -4186,7 +4185,7 @@
         "KA-35"
       ],
       "start": "krav_irreg",
-      "forslag": "Kontrollsak til MM-U18: uten aksepten av avslaget er den nye kravversjonen forstått",
+      "forslag": "Kontrollsak til MM-U43 punkt 6: uten aksepten av avslaget er den nye kravversjonen forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4221,7 +4220,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -4751,7 +4750,7 @@
         "KA-35"
       ],
       "start": "godkjent_forhold",
-      "forslag": "MM-U18 og KA-U12: en kravversjon etter «ingen krav» som ikke er registrert korrespondanse, gjør saken ikke forstått",
+      "forslag": "MM-U43 punkt 6 og KA-U12: en kravversjon etter «ingen krav» som ikke er registrert korrespondanse, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4773,7 +4772,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U18",
+            "MM-U43",
             "KA-U12"
           ],
           "forventet": {
@@ -4830,7 +4829,7 @@
         "KA-35"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U18: en kravversjon etter trekk som ikke er registrert korrespondanse, gjør saken ikke forstått",
+      "forslag": "MM-U43 punkt 6: en kravversjon etter trekk som ikke er registrert korrespondanse, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4852,7 +4851,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": false,
@@ -4884,7 +4883,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -4927,7 +4926,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U18",
+            "MM-U43",
             "V-SK01"
           ],
           "forventet": {
@@ -4987,7 +4986,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -5055,7 +5054,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -6091,7 +6090,7 @@
         "KA-39"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U20: et svar fra byggherren på et trukket krav, i en rad som ikke er registrert, gjør saken ikke forstått",
+      "forslag": "MM-U43 punkt 6: et svar fra byggherren på et trukket krav, i en rad som ikke er registrert, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6127,8 +6126,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U20",
-            "MM-U18",
+            "MM-U43",
             "MM-U2",
             "OV-U4"
           ],
@@ -6147,7 +6145,7 @@
         "KA-39"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U20, kontrollsak: samme rad uten trekket er forstått",
+      "forslag": "MM-U43 punkt 6, kontrollsak: samme rad uten trekket er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6167,7 +6165,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "MM-U20"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -6182,7 +6180,7 @@
         "KA-39"
       ],
       "start": "forlop_a_brev",
-      "forslag": "MM-U20: TEs aksept, etter trekket, av et svar i sporet, i en rad som ikke er registrert, gjør saken ikke forstått",
+      "forslag": "MM-U43 punkt 6: TEs aksept, etter trekket, av et svar i sporet, i en rad som ikke er registrert, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6215,7 +6213,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "MM-U20",
+            "MM-U43",
             "GR-U5"
           ],
           "prov": {
@@ -6232,8 +6230,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U20",
-            "MM-U18",
+            "MM-U43",
             "MM-U2"
           ],
           "forventet": {
@@ -6250,7 +6247,7 @@
         "KA-39"
       ],
       "start": "forlop_a_brev",
-      "forslag": "MM-U20, kontrollsak: samme aksept uten trekket er forstått og gir enighet",
+      "forslag": "MM-U43 punkt 6, kontrollsak: samme aksept uten trekket er forstått og gir enighet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6266,7 +6263,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "MM-U20",
+            "MM-U43",
             "KA-U10"
           ],
           "forventet": {
@@ -6282,7 +6279,7 @@
         "KA-39"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U20 og GR-U5: et svar på grunnlaget eller på vederlaget etter at TE har trukket grunnlaget, i en rad som ikke er registrert, gjør saken ikke forstått",
+      "forslag": "MM-U43 punkt 6 og GR-U5: et svar på grunnlaget eller på vederlaget etter at TE har trukket grunnlaget, i en rad som ikke er registrert, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6317,9 +6314,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U20",
-            "GR-U5",
-            "MM-U18"
+            "MM-U43",
+            "GR-U5"
           ],
           "forventet": {
             "forstaatt": false,
@@ -6335,7 +6331,7 @@
         "KA-39"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U20 og GR-U5: et svar på vederlaget etter at TE har trukket grunnlaget, i en rad som ikke er registrert, gjør saken ikke forstått",
+      "forslag": "MM-U43 punkt 6 og GR-U5: et svar på vederlaget etter at TE har trukket grunnlaget, i en rad som ikke er registrert, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6358,9 +6354,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U20",
-            "GR-U5",
-            "MM-U18"
+            "MM-U43",
+            "GR-U5"
           ],
           "forventet": {
             "forstaatt": false,
@@ -6375,7 +6370,7 @@
         "KA-39"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U20, kontrollsak: samme svar på grunnlaget uten trekket er forstått",
+      "forslag": "MM-U43 punkt 6, kontrollsak: samme svar på grunnlaget uten trekket er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6393,7 +6388,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "MM-U20",
+            "MM-U43",
             "GR-U10"
           ],
           "forventet": {
@@ -6409,7 +6404,7 @@
         "KA-39"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U20, kontrollsak: samme svar på vederlaget uten trekket er forstått",
+      "forslag": "MM-U43 punkt 6, kontrollsak: samme svar på vederlaget uten trekket er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6427,7 +6422,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "MM-U20"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -6631,7 +6626,7 @@
         "KA-40"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U20, MM-U19 og KA-U14: byggherrens registrerte godkjenning av et trukket grunnlag, med sammenfall, bevares uten virkning, og godkjenningen er ikke en endringsordre i saken",
+      "forslag": "MM-U43 punkt 9 og KA-U14: byggherrens registrerte godkjenning av et trukket grunnlag, med sammenfall, bevares uten virkning, og godkjenningen er ikke en endringsordre i saken",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6657,7 +6652,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "MM-U20",
+            "MM-U43",
             "MM-U19",
             "KA-U14"
           ],
@@ -6773,7 +6768,7 @@
         "KA-40"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og MM-U18: TEs registrerte kravversjon i et trukket spor og byggherrens registrerte svar på den er dokumentasjon, og saken er forstått",
+      "forslag": "OV-U4 og MM-U43 punkt 9: TEs registrerte kravversjon i et trukket spor og byggherrens registrerte svar på den er dokumentasjon, og saken er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6818,7 +6813,7 @@
           "rolle": "mal",
           "kilde": [
             "OV-U4",
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
@@ -7829,7 +7824,7 @@
         "GR-02"
       ],
       "start": null,
-      "forslag": "GR-U22: en ny versjon som endrer underkategorien fra IRREG til EO etter et svar som påberoper § 32.2, avvises, og det gjør også en annen underkategori som § 32.2 gjelder for. Kontrollsaken er en ny versjon med samme underkategori (GR-U1). Skiftet står deretter som en kravversjon fra en annen skriver (MM-U18): svaret og § 32.2-vurderingen er ikke lenger gjeldende, vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (GR-U1, som F-MM-G24), og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
+      "forslag": "GR-U22: en ny versjon som endrer underkategorien fra IRREG til EO etter et svar som påberoper § 32.2, avvises, og det gjør også en annen underkategori som § 32.2 gjelder for. Kontrollsaken er en ny versjon med samme underkategori (GR-U1). Skiftet står deretter som en kravversjon fra en annen skriver (MM-U43 punkt 6): svaret og § 32.2-vurderingen er ikke lenger gjeldende, vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (GR-U1, som F-MM-G24), og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -7985,7 +7980,7 @@
           "kilde": [
             "V-215",
             "GR-U1",
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "gjeldende_svar.forhold": null,
@@ -8473,7 +8468,7 @@
         "GR-18"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U22 og V-B13-FRAFALL: en ny versjon som endrer grunnlaget fra pålegg til endringsordre, avvises, og det gjør også en annen underkategori som § 32.2 gjelder for. Frafallet godtas fortsatt. Kontrollsaken er en ny versjon med samme underkategori (GR-U1). Står skiftet som en kravversjon fra en annen skriver (MM-U18), avvises frafallet, for frafall er svar på et pålegg. Kontrollsakene er frafallet før endringen og et godkjent grunnlag etter den, uten vurdering etter § 32.2 som målprøven",
+      "forslag": "GR-U22 og V-B13-FRAFALL: en ny versjon som endrer grunnlaget fra pålegg til endringsordre, avvises, og det gjør også en annen underkategori som § 32.2 gjelder for. Frafallet godtas fortsatt. Kontrollsaken er en ny versjon med samme underkategori (GR-U1). Står skiftet som en kravversjon fra en annen skriver (MM-U43 punkt 6), avvises frafallet, for frafall er svar på et pålegg. Kontrollsakene er frafallet før endringen og et godkjent grunnlag etter den, uten vurdering etter § 32.2 som målprøven",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8585,7 +8580,7 @@
             "V-B13-FRAFALL",
             "NS-32.1",
             "NS-32.3-1c",
-            "MM-U18"
+            "MM-U43"
           ],
           "prov": {
             "handling": "brev",
@@ -9775,7 +9770,7 @@
           "kilde": [
             "GR-U7",
             "GR-U10",
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "avvist": false,
@@ -9833,7 +9828,7 @@
           "kilde": [
             "GR-U7",
             "GR-U10",
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "avvist": false,
@@ -9888,7 +9883,7 @@
           "kilde": [
             "GR-U7",
             "GR-U10",
-            "MM-U18"
+            "MM-U43"
           ],
           "forventet": {
             "avvist": false,
@@ -11090,7 +11085,7 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": [
-            "MM-U18"
+            "MM-U43"
           ],
           "prov": {
             "handling": "brev",
@@ -11111,7 +11106,7 @@
           "rolle": "mal",
           "kilde": [
             "MM-U34",
-            "MM-U18",
+            "MM-U43",
             "GR-U23"
           ],
           "forventet": {
@@ -11408,7 +11403,7 @@
           "rolle": "mal",
           "kilde": [
             "MM-U34",
-            "MM-U18",
+            "MM-U43",
             "GR-U23"
           ],
           "forventet": {

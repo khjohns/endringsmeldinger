@@ -706,6 +706,13 @@
       "radetikett": "MM-U18: en hendelse i journalen som ikke kan forstås i samsvar med resten av journalen og vedtakene om enighet og lukking, gjør saken ikke forstått (MM-U2)"
     },
     {
+      "id": "MM-U43",
+      "type": "vedtak",
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#mm-u43",
+      "radetikett": "MM-U43: Samlevedtaket for saker løsningen ikke forstår gjelder med E1–E3"
+    },
+    {
       "id": "OV-U1",
       "type": "vedtak",
       "dato": "2026-10-10",

@@ -325,7 +325,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
-  // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U18).
+  // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U43).
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
   ['Element', 'relasjon', 'hendelse part art innsigelse registrertBrev'],
@@ -334,7 +334,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:kontrollerHenvisningene(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:paaberopelser(elementer)', 'relasjon', '*'],
-  // MM-U18: stridene ett dokument har med journalen før det.
+  // MM-U43 punkt 6: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
   [
     'Sporutledning',
@@ -433,7 +433,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
   // OV-U4: kravene i et registrert brev er dokumentasjon (#787).
   ['frosset/standpunkt.ts', 'relasjon', 'kravetErDokumentasjon', ['utledning/utled.ts']],
-  // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
+  // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
     'frosset/standpunkt.ts',
     'frosset',
