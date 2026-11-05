@@ -210,3 +210,15 @@ Resten av 1 A står ordrett.
 - «Godkjenningen» står. Det er ikke avgjort om standpunktet «godkjent» i HF-U2 får et nytt
   navn (OV-U83 svar 8 C: «Forhold: endrer HF-U2 for standpunktet»), og det hører ikke til
   her.
+
+**Godkjent 05.11** ([#1534, 6669209777](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6669209777)):
+
+1. 1 A står som rettet: «Svaret er byggherrens nye svar på påberopelsen av forholdet.
+   Byggherrens tidligere svar på påberopelsen er endringsordren i <brevet>.»
+2. 2 A står som rettet: «Vil byggherren gi et annet svar på påberopelsen enn godkjenningen
+   som er registrert».
+3. 3 A, forholdet: «… som ikke lenger gjelder bare svaret på påberopelsen». Dette erstatter
+   «som ikke lenger begrenser svaret til forholdet».
+
+Tilfellet med en endringsordre fra før påberopelsen er ført i #1638 og hører ikke til
+versjon 3.
