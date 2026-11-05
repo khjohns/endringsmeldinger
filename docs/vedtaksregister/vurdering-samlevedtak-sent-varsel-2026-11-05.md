@@ -549,4 +549,11 @@ Rettelser kan gis per punkt.
 
 ## Svarene
 
-Ikke gitt ennå.
+Oppdragsgiver svarte 05.11. Spørsmål 1, ordrett: «Samlevedtal: A»
+([#1534, 6652595006](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6652595006)).
+Spørsmål 2a og 2b, ordrett: «2a A og 2b B»
+([#1534, 6652447530](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6652447530)).
+Valgt er 1 A, 2a A og 2b B, og 1 B, 2a B og 2b A er forkastet. Ingen punkter er rettet.
+
+VS-U46 var ledig på `main`. Samlevedtaket er ført i `vedtak.toml` i PR #1593, med teksten i 2a A
+i punkt 13 og teksten i 2b B i punkt 19.
