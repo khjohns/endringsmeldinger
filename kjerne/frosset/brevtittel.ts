@@ -91,7 +91,7 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
 }
 
 /**
- * MM-U3, MM-U2 (#1533): grunnen til at en lagret tittel ikke kan være laget av skrivingen, eller
+ * MM-U3 (opphevet av MM-U50), MM-U2 (#1533): grunnen til at en lagret tittel ikke kan være laget av skrivingen, eller
  * `null`. Tittelen sammenliknes ikke med `lagBrevtittel`, så et sendt brev beholder tittelen det
  * ble sendt med (MM-U9) når titlene endres.
  */
@@ -100,7 +100,7 @@ export function avvikITittelen(
   d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>
 ): string | null {
   if (lagBrevtittel(d) === null)
-    return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U3)'; // MM-U3 er opphevet av MM-U50, som har regelen.
+    return 'brevet har en tittel, men løsningen gir ikke slike brev en (MM-U50)';
   const f = paaberoptForhold(d);
   const paaberoper = tittel.startsWith(paaberopelsenAv(''));
   const forventet = f && paaberopelsenAv(f.navn);

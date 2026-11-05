@@ -1,5 +1,5 @@
 /**
- * Det et svar fryser når brevet sendes (MM-U9, MM-U11, GR-U12): standpunktene i
+ * Det et svar fryser når brevet sendes (MM-U9, MM-U11 (opphevet av MM-U50), GR-U12): standpunktene i
  * formen de lagres i, og beslutningsgrunnlaget av dem. Skrivingen og predikatet
  * for et svarutkast på forholdet (#351) bruker de samme funksjonene. Modulen
  * når ikke utledningen, så klienten kan bruke predikatet uten skrivestien.
@@ -14,7 +14,7 @@ import type { Krav, Spor } from '../typer.ts';
 type Data = Record<string, unknown>;
 
 /**
- * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11, GR-U12).
+ * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11 (opphevet av MM-U50), GR-U12).
  * `paaberopelse` er kravet et svar på påberopelsen gjelder, ellers gjeldende
  * påberopelse. `forskyvning` er lagene svaret på forholdet opptar foran sporet
  * (`lagFraForholdet`). Kaster `Uforstaatt` når standpunktene ikke kan leses.

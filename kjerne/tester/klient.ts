@@ -314,7 +314,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
     case 'ikke_i_saken':
       return { type: 'ikke_i_saken', retter: navn.id(h.retter as string) };
     case 'korrigering': {
-      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): datoen i feltet kategorien
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): datoen i feltet kategorien
       // har, uten `gjelder` til TEs siste opplysning. `felt` prøver et annet felt.
       const krav = u.spor.forhold.gjeldendeKrav;
       const felt =
@@ -443,7 +443,7 @@ export function radFor(
   let data: Record<string, unknown>;
   let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : navn.nyId();
   if (typeof h.avklarer === 'string') {
-    // MM-U12: en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
+    // MM-U12 (opphevet av MM-U50): en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
     // Leseren avviser den i første versjon (OV-U13).
     eventId = navn.ta(h.navn);
     data = {

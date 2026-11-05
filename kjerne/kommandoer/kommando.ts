@@ -42,7 +42,7 @@ export interface Svarutkast {
   vurderinger: Svarvurdering;
   /** Klientens utregning, som serveren regner på nytt (B-13). */
   resultat: Record<string, unknown>;
-  /** Byggherrens utdypning under den låste teksten, også begrunnelsen (KA-U18, KA-U24). Appen tolker den ikke (KA-U19). */
+  /** Byggherrens utdypning under den låste teksten, også begrunnelsen (KA-U18, KA-U24 (opphevet av KA-U46)). Appen tolker den ikke (KA-U19). */
   utdypning?: string;
 }
 
@@ -50,7 +50,7 @@ export interface Svarutkast {
  * Den låste teksten klienten viste avsenderen, ett avsnitt per element i
  * rekkefølgen i brevet (LV-U2, A1 i paragrafmatrisen). Serveren lager teksten
  * selv og avviser en annen. Påkrevd i hver kommando som gir et brev fra appen;
- * et registrert brev har ingen tekst fra appen (MM-U17).
+ * et registrert brev har ingen tekst fra appen (MM-U17 (opphevet av MM-U50)).
  */
 interface Brevtekst {
   brevtekst?: string[];
@@ -162,7 +162,7 @@ export type Kommando = (
       dokumentasjon?: string[];
     }
   /**
-   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TE korrigerer sin opplysning
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TE korrigerer sin opplysning
    * etter VS-U26 i et eget brev. `gjelder` er elementet med TEs siste opplysning, og datoen står
    * i feltet kravet har for kategorien.
    */

@@ -172,7 +172,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     expect(hendelser[0].tidsstempel).toEqual(hendelser[1].tidsstempel);
     // Tittelen er én verdi i begge radene (LV-U43).
     expect(JSON.parse(hendelser[0].data).sakstittel).toBe(TITTEL);
-    // LV-U43: navnet står én gang, i sakstittelen, og brevet er frosset med tittelen (MM-U3),
+    // LV-U43: navnet står én gang, i sakstittelen, og brevet er frosset med tittelen (MM-U3 (opphevet av MM-U50)),
     // med koden saken fikk da brevet ble sendt (LV-U27, LV-U46).
     expect(JSON.parse(hendelser[1].data).krav[0]).not.toHaveProperty('tittel');
     expect(kode).toEqual([{ kode: 'koe', loepenummer: expect.any(Number) }]);

@@ -4,7 +4,7 @@
  * kommandoen til kjernen, TE ser den låste teksten (LV-U2), og kommandoen sendes med
  * `kjernesak.send`. BHs svar på vederlagskravet sendes på samme måte (#1047). Trekket,
  * aksepten og innsigelsen har ikke noe skjema og går gjennom `trekk`, `aksept` og
- * `innsigelse`. Et registrert varsel har ingen tekst fra appen (MM-U17) og sendes uten
+ * `innsigelse`. Et registrert varsel har ingen tekst fra appen (MM-U17 (opphevet av MM-U50)) og sendes uten
  * brevkontroll. Vedleggene brevet viser til, står i teksten, så kjernen får dem når brevet
  * lages (OV-U5).
  */
@@ -112,7 +112,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     omslag?: Omslag
   ): Kjernebrev {
     // #1254: kjernen vurderer kommandoen som ved sendingen, så et brev serveren vil avvise,
-    // for eksempel et svar uten begrunnelse (KA-U24, KA-U31), ikke vises til kontroll.
+    // for eksempel et svar uten begrunnelse (KA-U24 (opphevet av KA-U46), KA-U31), ikke vises til kontroll.
     const b = kjernesak.brev(kommando, vedlegg, true);
     // #719: uten låst tekst sendes ikke kommandoen, så TE ser aldri et brev uten teksten.
     const tekst = b && 'tekst' in b ? b.tekst : null;

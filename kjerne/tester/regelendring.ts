@@ -4,7 +4,7 @@
  * ikke SAMORD; endringen er en kontrollert endring i prøven, ikke et vedtak.
  *
  * - Frosset innhold står: beslutningsgrunnlaget, enighetsgrunnlaget og de
- *   lagrede radene (MM-U3, V-B13-REGELVERSJON, 2.7 regel 4).
+ *   lagrede radene (MM-U3 (opphevet av MM-U50), V-B13-REGELVERSJON, 2.7 regel 4).
  * - Et sendt brev beholder virkningen det hadde da det ble sendt. Dagens regler
  *   vises bare som en merknad i visningen (MM-U9).
  * - TE kan godta svaret slik brevet uttrykte det, også etter regelendringen;
@@ -108,7 +108,7 @@ export function regelendringen(lagBaner: () => Baner): void {
      * HF-U5: oppfordringen gjelder bare en revisjon i TEs favør. Etter dagens regler kan
      * en regelendring bare ta virkningen fra et standpunkt, ikke gi et standpunkt uten
      * virkning en virkning. Gjør en regelendring det motsatte mulig, feiler testen, og
-     * hva visningen da skal si, avgjøres i vedtaket om den endringen (MM-U16).
+     * hva visningen da skal si, avgjøres i vedtaket om den endringen (MM-U16 (opphevet av MM-U50)).
      */
     it('oppfordrer bare til en revisjon i TEs favør, og den revisjonen godtas (HF-U5, MM-U9)', async () => {
       const s = saker['til revisjon'];

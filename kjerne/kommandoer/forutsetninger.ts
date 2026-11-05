@@ -123,7 +123,7 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
     case 'begrunne':
       // OV-U7: bestridelsen (MM-U7, MM-U14), merkingen etter KA-U20 og avklaringen av
       // den, protesten mot en innsigelse (VS-U1, VS-U9), påberopt passivitet (VS-U12)
-      // og den senere begrunnelsen (KA-U34) bygges ikke i første versjon.
+      // og den senere begrunnelsen (KA-U34 (opphevet av KA-U46)) bygges ikke i første versjon.
       return avvis(
         'IKKE_I_FOERSTE_VERSJON',
         'Bestridelse, merking, avklaring, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
@@ -147,7 +147,7 @@ function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjo
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): TE korrigerer sin siste
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TE korrigerer sin siste
  * opplysning om datoen kategorien har, med henvisning til brevet med den. Brevet godtas også i et
  * spor med enighet, når kravene er avgjort og i en sak lukket etter GR-U27, også ved trekk etter
  * GR-U5 (MM-U51), så ingen av dem sperrer.
@@ -275,7 +275,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // OV-U8: det særskilte varselet etter § 34.1.3 kan sendes også etter vederlagskravet.
       if ('hjemmel' in h) return null;
       // VS-U16, OV-U5: etter kravet i sporet kan varselet fra appen bare få en senere dato
-      // enn kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
+      // enn kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8 (opphevet av MM-U50)).
       if (h.type === 'sende_varsel' && s.krav.length) {
         const sendt =
           'er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.';

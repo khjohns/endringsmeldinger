@@ -240,7 +240,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * (LV-U2). Uten `sett` sendes ingenting kjernen avviser (#695). Er det samme
    * kommandoen mot samme versjon som en ventende, er det samme brukerhandling, og den
    * sendes med samme ID. `vedlegg` er vedleggene et registrert brev viser til, som
-   * kjernen trenger for å godta det uten tekst (MM-U17).
+   * kjernen trenger for å godta det uten tekst (MM-U17 (opphevet av MM-U50)).
    */
   async function sendMedBrev(
     kommando: Record<string, unknown>,

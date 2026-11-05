@@ -150,7 +150,7 @@ function svar(
 }
 
 /**
- * Fryser brevet i hvert svar i dokumentet (MM-U9, MM-U11). Lagene i vederlag og frist
+ * Fryser brevet i hvert svar i dokumentet (MM-U9, MM-U11 (opphevet av MM-U50)). Lagene i vederlag og frist
  * flyttes ned med lagene svaret på forholdet opptar foran dem: svaret i samme dokument,
  * ellers `gjeldende`, som i brevteksten (OV-U32, OV-U33, svaret i #1199).
  */
@@ -305,7 +305,7 @@ function dokument(
       return { utsagn };
     }
     case 'korrigering': {
-      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41): datoen i feltet kravet har.
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): datoen i feltet kravet har.
       const { felt, dato } = korrigertDato(k);
       return { utsagn: [{ id: nyId(), art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
     }
@@ -520,7 +520,7 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
   if (laget === null)
     return vist === undefined
       ? null
-      : avvis('ANNEN_BREVTEKST', 'Et registrert brev har ingen tekst fra appen (MM-U17).'); // MM-U17 er opphevet av MM-U50, som har regelen.
+      : avvis('ANNEN_BREVTEKST', 'Et registrert brev har ingen tekst fra appen (MM-U50).');
   if (vist === undefined)
     return avvis(
       'BREVTEKST_MANGLER',
@@ -537,7 +537,7 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
 
 /**
  * LV-U2, LV-U3: teksten i brevet appen sender, laget av alle partens utsagn i det.
- * Et registrert brev, som et varsel sendt utenfor appen, får ingen (MM-U17).
+ * Et registrert brev, som et varsel sendt utenfor appen, får ingen (MM-U17 (opphevet av MM-U50)).
  * Svaret på påberopelsen og om sporene er subsidiære, leses av utledningen før brevet og
  * kommer som argumenter, så `frosset/` ikke når utledningen (A6).
  */

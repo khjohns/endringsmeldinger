@@ -654,7 +654,7 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     expect(JSON.stringify(demosak.journal().at(-1)!.data)).toContain(vedlegg.vedlegg_id);
   });
 
-  it('LV-U27, MM-U17: brevet viser tittelen som ble frosset, og et registrert brev uten tittel heter «Korrespondanse»', () => {
+  it('LV-U27, MM-U17 (opphevet av MM-U50): brevet viser tittelen som ble frosset, og et registrert brev uten tittel heter «Korrespondanse»', () => {
     const frosset = 'Påberopelse av irregulær endring i sak KOE-17';
     expect(brevtittel({ art: 'krav', brevtittel: frosset })).toBe(frosset);
     expect(brevtittel({ art: 'registrert', brevtittel: null })).toBe('Korrespondanse');

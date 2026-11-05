@@ -138,7 +138,7 @@ function resultatet(
 /**
  * Kommandoen for BHs svar fra dataene `buildEventData` gir. Svaret gjelder kravet kjernen har
  * i sporet. Begrunnelsen BH skriver i skjemaet, blir utdypningen under den låste teksten
- * (KA-U24, KA-U41). Resultatet regnes av kjernen (#1301), ikke av skjemaet.
+ * (KA-U24 (opphevet av KA-U46), KA-U41). Resultatet regnes av kjernen (#1301), ikke av skjemaet.
  */
 export function vederlagssvarFraSkjema(
   data: Record<string, unknown>,
