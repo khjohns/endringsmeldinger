@@ -15651,6 +15651,114 @@ tekst = '''
 Det en part har meddelt skriftlig etter punkt 5 i NS 8407, binder slik det sto da det ble sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Løsningens vurdering av utsagnene binder ingen av partene. Forhold: samler første til tredje setning i HF-U13 uendret. Det endrer setningen MM-U34 punkt 5 la til i HF-U6, «Løsningen avgjør ikke om parten er bundet av et tidligere utsagn (MM-U12).», og strider mot den tilsvarende setningen i samlevedtaket for påberopelse av sent varsel.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "MM-U51"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1308", "#1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 1, ordrett slik det ble stilt 05.11 i orkestreringsrunde 21 (#1065) og lagret i #1308 ([kommentaren 6656631296](https://github.com/khjohns/endringsmeldinger/issues/1308#issuecomment-6656631296)), kontrollert av en subagent mot `main` på `0eec75c`. Anbefalingen ble endret fra B til A etter kontrollen. Alternativene står i posten.
+
+**1. Korrigering av datoen i en lukket sak**
+
+Bakgrunn: Totalentreprenøren kan rette datoen for når pålegget ble mottatt, eller da totalentreprenøren ble klar over forholdet, i et eget brev (samlevedtaket for retting av sendt brev, punkt 10). Punktet sier: «Brevet godtas også i et spor med enighet og når kravene er avgjort, og det endrer ikke utfallet.» Punkt 11 sier: «Byggherren tar stilling til opplysningen i et senere svar der rettidigheten etter den aktuelle bestemmelsen behandles, eller i et nytt svar.»
+
+En sak kan også være lukket, enten etter GR-U27 eller fordi en sendt endringsordre eller en godkjent registrering av en endringsordre omfatter den. EO-U34 punkt 12: «I en KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter, avviser løsningen krav, svar, aksept og trekk. Innlegg, dokumentasjon og innsigelser etter punkt 5 tredje ledd godtas.» GR-U27: «Innlegg og dokumentasjon kan fortsatt legges til.» I første versjon sendes også innsigelsen etter punkt 5 tredje ledd som innlegg (MM-U47, beslutningsdelen), og en part kan bestride en opplysning fra motparten også etter at saken er lukket med endringsordre (MM-U47 punkt 9).
+
+Kontrakten: NS 8407 regulerer ikke spørsmålet.
+Vår tolkning: korrigeringen er verken et innlegg, dokumentasjon eller en innsigelse. Vedtakene sier derfor ikke om den godtas i en lukket sak. «Når kravene er avgjort» i punkt 10 dekker ikke sakene etter GR-U27, fordi MM-U34 punkt 12 sier at GR-U27 gjelder for dem, og KA-U29 s1–s2 gjelder nå som innlegg (MM-U47 punkt 10, E3).
+
+Anbefalt: A. Punkt 10 godtar brevet når kravene er avgjort, fordi det ikke endrer utfallet. Det gjelder også i en lukket sak, så A gir samme regel. Med A viser visningen datoen totalentreprenøren sist meddelte. Byggherren kan ta stilling til den i et innlegg eller bestride den (MM-U47 punkt 9). Innlegget står som byggherrens utsagn («Det en part sender fra løsningen, står som partens utsagn.», MM-U47, beslutningsdelen), og løsningen avgjør ikke om varselet var rettidig (punkt 11). Forløpene fant derfor ingen posisjon en part taper, verken med A eller B. Det A koster: totalentreprenørens opplysning er strukturert, mens byggherrens svar på den bare kan være et innlegg. Det B koster: visningen viser den gamle datoen som totalentreprenørens siste opplysning, mens totalentreprenøren har meddelt en annen. Regelen blir også en annen enn i punkt 10.
+Valget styrer: forutsetningen for kommandoen og én bevis-sak.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 05.11, ordrett ([svarene](https://github.com/khjohns/endringsmeldinger/issues/1308#issuecomment-6656660786)): «1 A, 2 A»'''
+forhold = [
+  { art = "utvider", vedtak = "gr-u27" },
+  { art = "utvider", vedtak = "eo-u34" },
+  { art = "presiserer", vedtak = "mm-u41" },
+]
+folge = '''
+Forholdene står i alternativ A: «utvider det som godtas etter GR-U27 og EO-U34 punkt 12, og presiserer punkt 11 i samlevedtaket for retting av sendt brev for en lukket sak». Bygges i #1308.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en godkjent registrering av en endringsordre omfatter, godtas også korrigeringen av datoen etter punkt 10 i samlevedtaket for retting av sendt brev, og den endrer ikke utfallet. Den nye opplysningen gjelder straks som totalentreprenørens siste opplysning. Et svar byggherren alt har gitt, står med virkningen det hadde, og en påberopelse byggherren alt har fremsatt, bevares med tidspunktet (VS-U9). Byggherren kan ta stilling til opplysningen i et innlegg, og saken står lukket. Løsningen avgjør ikke om korrigeringen gir byggherren en plikt etter kontrakten (MM-U12). Forhold: utvider det som godtas etter GR-U27 og EO-U34 punkt 12, og presiserer punkt 11 i samlevedtaket for retting av sendt brev for en lukket sak.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en godkjent registrering av en endringsordre omfatter, avvises korrigeringen av datoen etter punkt 10 i samlevedtaket for retting av sendt brev. Totalentreprenøren kan oppgi den nye datoen i et innlegg. Datoen totalentreprenøren sist oppga før saken ble lukket, står da som totalentreprenørens siste opplysning, og løsningen tolker ikke innlegget (MM-U47 punkt 4). Forhold: presiserer GR-U27 og EO-U34 punkt 12, og snevrer inn punkt 10 i samlevedtaket for retting av sendt brev.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Brevet godtas også i et spor med enighet og når kravene er avgjort, og det endrer ikke utfallet."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren tar stilling til opplysningen i et senere svar der rettidigheten etter den aktuelle bestemmelsen behandles, eller i et nytt svar."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "I en KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter, avviser løsningen krav, svar, aksept og trekk. Innlegg, dokumentasjon og innsigelser etter punkt 5 tredje ledd godtas."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Innlegg og dokumentasjon kan fortsatt legges til."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det en part sender fra løsningen, står som partens utsagn."
+
+[[gruppe.vedtak]]
+id = "LV-U54"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1308", "#1065"]
+klasse = "vedtak"
+sporsmal = '''
+Spørsmål 2, ordrett slik det ble stilt 05.11 i orkestreringsrunde 21 (#1065) og lagret i #1308 ([kommentaren 6656631296](https://github.com/khjohns/endringsmeldinger/issues/1308#issuecomment-6656631296)), kontrollert av en subagent mot `main` på `0eec75c`. Alternativene står i posten.
+
+**2. Teksten i en ny grunnlagsversjon etter en korrigering**
+
+Bakgrunn: Punkt 10 sier: «En ny grunnlagsversjon kan ikke endre datoen. Den gjengir totalentreprenørens siste opplysning, med henvisning til brevet med korrigeringen, og endrer ikke tidligere brev eller premissene i tidligere svar.» Det er ikke vedtatt hvordan henvisningen skal lyde. Formen på en henvisning er ‹brev <merking> av <dato>› (LV-U53), og partene skrives fullt ut (LV-U35). Setningen i grunnlagskravet står i designdelen i samlevedtaket for varslingsdatoen (VS-U43, som samler VS-U26): «TE opplyser at pålegget ble mottatt <dato>.»
+
+Anbefalt: A. Brevet med korrigeringen sier alt hvilken dato totalentreprenøren oppga først (punkt 10: ‹I brev <n> av <dato> oppga TE <dato>.›), og henvisningen leder dit. Det A koster: den som leser den nye grunnlagsversjonen alene, ser ikke den første datoen.
+Valget styrer: brevteksten og én test av brevteksten ordrett.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 05.11, ordrett ([svarene](https://github.com/khjohns/endringsmeldinger/issues/1308#issuecomment-6656660786)): «1 A, 2 A»'''
+forhold = [
+  { art = "presiserer", vedtak = "mm-u41" },
+  { art = "presiserer", vedtak = "vs-u43" },
+]
+folge = '''
+Forholdene står i alternativ A: «presiserer punkt 10 i samlevedtaket for retting av sendt brev og designdelen i VS-U43». Bygges i #1308.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Etter en korrigering etter punkt 10 i samlevedtaket for retting av sendt brev sier en ny grunnlagsversjon: ‹Totalentreprenøren opplyser at pålegget ble mottatt <dato>, slik totalentreprenøren oppga i brev <merking> av <dato>.› I svikt og andre forhold: ‹Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet <dato>, slik totalentreprenøren oppga i brev <merking> av <dato>.› Brevet det vises til, er det siste brevet med en korrigering. Forhold: presiserer punkt 10 i samlevedtaket for retting av sendt brev og designdelen i VS-U43.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Etter en korrigering etter punkt 10 i samlevedtaket for retting av sendt brev sier en ny grunnlagsversjon: ‹Totalentreprenøren opplyser at pålegget ble mottatt <dato>, slik totalentreprenøren oppga i brev <merking> av <dato>. I brev <merking> av <dato> oppga totalentreprenøren <dato>.› Tilsvarende i svikt og andre forhold, med ‹ble klar over forholdet›. Brevet det vises til i første setning, er det siste brevet med en korrigering, og andre setning nevner brevet med opplysningen som ble korrigert. Forhold: som A.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En ny grunnlagsversjon kan ikke endre datoen. Den gjengir totalentreprenørens siste opplysning, med henvisning til brevet med korrigeringen, og endrer ikke tidligere brev eller premissene i tidligere svar."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "TE opplyser at pålegget ble mottatt <dato>."
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
