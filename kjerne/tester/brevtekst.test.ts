@@ -1158,7 +1158,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const [g, f] = laast(rad);
     expect(g).toBe(
-      'Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent.\n\nSubsidiært: byggherren godkjenner grunnlaget.'
+      'Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner grunnlaget.'
     );
     // A2: fristen er subsidiær fordi forholdet er prekludert i samme brev.
     expect(f).toBe(
@@ -1205,7 +1205,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     expect(laast(rad)[0]).toBe(
-      'Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026: Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren avslår kravet på endringsordre (NS 8407 § 32.3 første ledd b).'
+      'Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026: Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent. Byggherren avslår kravet på endringsordre (NS 8407 § 32.3 første ledd b).'
     );
   });
 
@@ -1273,7 +1273,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     expect(laast(rad)[0]).toBe(
-      `Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026: Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026: «${BESKRIVELSE}».`
+      `Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026: Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent. Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026: «${BESKRIVELSE}».`
     );
   });
 
@@ -1727,7 +1727,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       ],
     });
     expect(laast(rad)[0]).toContain(
-      'Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.'
+      'Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.'
     );
   });
 
@@ -1803,7 +1803,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       ],
     });
     expect(laast(rad)[0]).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent.'
+      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.'
     );
   });
 
@@ -2065,7 +2065,9 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       };
       expect(tekstMed(true)).not.toContain(girOpp);
       const forSent = tekstMed(false);
-      expect(forSent).toContain('TEs varsel etter NS 8407 § 32.2 kom for sent');
+      expect(forSent).toContain(
+        'TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent'
+      );
       expect(forSent).not.toContain('jf. innsigelsen');
     });
 
@@ -3726,11 +3728,13 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
     );
   });
 
-  // Fastholder dagens atferd til S-1 i #807 er besvart: rettidigheten etter § 32.2 gjelder kravet.
-  it('byggherrens påberopelse etter § 32.2 gjelder fortsatt kravet når varselet er registrert', () => {
+  // VS-U43 punkt 6 og 10 med E3: påberopelsen gjelder det registrerte varselet når det har en
+  // tidligere dato. Brevteksten for det registrerte varselet bygges i #1600, så kjernen
+  // avviser svaret med en regelkode i stedet for å nevne grunnlagskravet (AGENTS.md,
+  // «Domenekjernen»), og svaret tilbys ikke.
+  it('byggherrens svar på grunnlaget når varselet etter § 32.2 er registrert, avvises og tilbys ikke til varselet har brevtekst', () => {
     const s = medPaaberopelse();
-    s.send('TE', registrering());
-    const rad = s.send('BH', {
+    const brev = () => ({
       type: 'brev',
       svar: [
         svar('forhold', s.krav('forhold'), {
@@ -3739,11 +3743,130 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
         }),
       ],
     });
-    const standpunkt = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
-      (p) => p.art === 'rettidighet'
+    expect(s.avvist('BH', brev()), 'kontrollsak uten registrert varsel').toBeNull();
+    expect(handlinger(s.u(), 'BH'), 'kontrollsak').toContain('svare:forhold');
+    s.send('TE', registrering());
+    expect(s.avvist('BH', brev())).toBe('IKKE_I_FOERSTE_VERSJON');
+    expect(handlinger(s.u(), 'BH')).not.toContain('svare:forhold');
+  });
+
+  it('revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert, avvises til varselet har brevtekst, og svaret på fristen tilbys (VS-U43 punkt 10)', () => {
+    const s = medPaaberopelse();
+    s.send('TE', FRISTKRAV);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      ],
+    });
+    const revisjon = () => ({
+      type: 'revisjon',
+      erstatter: s.u().spor.forhold.gjeldendeSvar!.id,
+      svar: svar('forhold', s.krav('forhold'), {
+        resultat: 'godkjent',
+        grunnlag_varslet_i_tide: false,
+      }),
+    });
+    expect(s.avvist('BH', revisjon()), 'kontrollsak uten registrert varsel').toBeNull();
+    s.send('TE', registrering());
+    expect(s.avvist('BH', revisjon())).toBe('IKKE_I_FOERSTE_VERSJON');
+    expect(handlinger(s.u(), 'BH')).not.toContain('revidere:forhold');
+    expect(handlinger(s.u(), 'BH'), 'kontrollsak i fristen').toContain('svare:frist');
+  });
+});
+
+describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 og 10, #1489)', () => {
+  // Versjon 1 er brev K201-KOE-017-01 av 2. oktober 2026, og versjon 2 er brev K201-KOE-017-02.
+  const medToVersjoner = () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', PAABEROPELSE);
+    expect(s.u().spor.forhold.krav.length, 'forutsetning: to versjoner').toBe(2);
+    return s;
+  };
+  const svarPaaGjeldende = (s: ReturnType<typeof sak>, iTide: boolean) =>
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), {
+          resultat: 'avslaatt',
+          grunnlag_varslet_i_tide: iTide,
+        }),
+      ],
+    });
+  const rettidigheten = (rad: Journalrad) => {
+    const p = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
+      (x) => x.art === 'rettidighet'
     );
-    expect(standpunkt?.gjelder).toBe(s.krav('forhold'));
+    expect(p, 'forutsetning: svaret har et standpunkt om rettidigheten').toBeDefined();
+    return p!;
+  };
+
+  it('svaret på versjon 2 påberoper varselet i den første versjonen, og brevet nevner det brevet (VS-U43 punkt 6 og 10 med designdelen)', () => {
+    const s = medToVersjoner();
+    const [v1, v2] = s.u().spor.forhold.krav;
+    const rad = svarPaaGjeldende(s, false);
+    expect((rad.data.svar as Data[])[0].gjelder, 'forutsetning: svaret gjelder versjon 2').toBe(
+      v2!.id
+    );
+    expect(rettidigheten(rad).gjelder).toBe(v1!.id);
+    expect(laast(rad)[0]).toContain(
+      'Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.'
+    );
+    // LV-U49: brevet rettidigheten gjelder, står under Deres ref.
+    expect(rad.data.deres_ref).toContain('K201-KOE-017-01');
     expect(s.u().forstaatt).toBe(true);
+  });
+
+  it('en lagret påberopelse etter § 32.2 som viser til versjon 2, gjør saken ikke forstått, og en som viser til versjon 1, forstås (VS-U43 punkt 6)', () => {
+    const lagret = (versjon: 0 | 1) => {
+      const s = medToVersjoner();
+      const krav = s.u().spor.forhold.krav;
+      s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'forhold',
+            gjelder: krav[1]!.id,
+            standpunkter: [
+              {
+                id: randomUUID(),
+                art: 'rettidighet',
+                gjelder: krav[versjon]!.id,
+                hjemmel: '32.2',
+                i_tide: false,
+              },
+              { id: randomUUID(), art: 'forhold', resultat: 'avslaatt' },
+            ],
+          },
+        ],
+      });
+      return s.u();
+    };
+    const kontroll = lagret(0);
+    expect(kontroll.forstaatt, JSON.stringify(kontroll.begrensninger)).toBe(true);
+    expect(lagret(1).forstaatt).toBe(false);
+  });
+
+  it('et varsel etter § 32.2 TE registrerer etter svaret, markerer standpunktet, og svaret står med virkningen det hadde (VS-U43 punkt 10, OV-U5)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    svarPaaGjeldende(s, false);
+    const gjeldende = s.u().spor.forhold.gjeldendeSvar!;
+    const rettidighet = gjeldende.standpunkter.find((p) => p.art === 'rettidighet');
+    expect(rettidighet, 'forutsetning: svaret har et standpunkt om rettidigheten').toBeDefined();
+    s.send('TE', {
+      type: 'varsel',
+      korrespondansetype: 'brev',
+      spor: 'forhold',
+      hjemmel: '32.2',
+      sendt: '2026-09-28',
+      dokumentasjon: [randomUUID()],
+    });
+    const u = s.u();
+    expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    expect(u.svar[gjeldende.id].gjaldtEtAnnetVarsel).toEqual([rettidighet!.id]);
+    expect(u.svar[gjeldende.id].virkninger).toEqual(gjeldende.beslutningsgrunnlag.virkninger);
   });
 });
 
@@ -4153,7 +4276,9 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
     expect(
       u.spor.forhold.gjeldendeSvar!.standpunkter.find((x) => x.art === 'rettidighet')
     ).toMatchObject({ hjemmel: '32.2', iTide: false });
-    expect(laast(rad)[0]).toContain('TEs varsel etter NS 8407 § 32.2 kom for sent');
+    expect(laast(rad)[0]).toContain(
+      'TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent'
+    );
     expect(u.forholdAvklart, 'påberopelsen er virksom, så godkjenningen er subsidiær').toBe(false);
   });
 
@@ -4508,7 +4633,14 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
             spor: 'forhold',
             gjelder: v2,
             standpunkter: [
-              { id: randomUUID(), art: 'rettidighet', gjelder: v2, hjemmel: '32.2', i_tide: true },
+              // VS-U43 punkt 6: rettidigheten gjelder det første grunnlagskravet.
+              {
+                id: randomUUID(),
+                art: 'rettidighet',
+                gjelder: s.u().spor.forhold.krav[0]!.id,
+                hjemmel: '32.2',
+                i_tide: true,
+              },
               { id: randomUUID(), art: 'forhold', resultat: 'godkjent' },
             ],
           },

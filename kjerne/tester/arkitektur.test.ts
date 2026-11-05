@@ -361,8 +361,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
   ['utledning/utled.ts', 'predikat', 'fristkravErFremmet', ['kommandoer/forutsetninger.ts']],
-  // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 i et nytt svar gjelder (#496, #766).
-  ['utledning/utled.ts', 'relasjon', 'varseletForNyttSvar', ['kommandoer/standpunkter.ts']],
+  // VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse i et nytt svar gjelder, og
+  // sperren for svaret på grunnlaget med et registrert varsel etter § 32.2 (#496, #766, #1600).
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'varseletForNyttSvar',
+    ['kommandoer/standpunkter.ts', 'kommandoer/forutsetninger.ts'],
+  ],
   // VS-U38: varselet etter § 32.2 kan ikke være sendt etter påberopelsen.
   [
     'utledning/utled.ts',
