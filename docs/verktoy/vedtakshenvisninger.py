@@ -95,7 +95,7 @@ KJENTE_AVVIK = (
     ("kjerne/tester/arkitektur.test.ts", "KA-U32", 1, "#1433"),
     ("kjerne/tester/brevtekst.test.ts", "KA-U24", 3, "#1433"),
     ("kjerne/tester/brevtekst.test.ts", "KA-U32", 1, "#1433"),
-    ("kjerne/tester/feilinnfoering.ts", "KA-U24", 5, "#1433"),
+    ("kjerne/tester/feilinnfoering.ts", "KA-U24", 4, "#1433"),
     ("kjerne/tester/feilinnfoering.ts", "KA-U32", 1, "#1433"),
     ("src/lib/components/varden/Vederlagssvar.svelte", "KA-U24", 1, "#1433"),
     ("src/lib/components/varden/__tests__/Varden.test.ts", "KA-U24", 1, "#1433"),

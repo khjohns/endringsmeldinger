@@ -487,8 +487,7 @@ function svaretStrider(
   const l = lukket(u);
   if (l) return `et svar etter at ${l}`;
   if (utenVirkning(s.erstatter)) return 'svaret viser til et element uten virkning';
-  if (u.spor[s.spor].trukket)
-    return 'et svar på et krav etter at det er trukket (MM-U20 (opphevet av MM-U43), GR-U5)';
+  if (u.spor[s.spor].trukket) return 'et svar på et krav etter at det er trukket (MM-U43, GR-U5)';
   return null;
 }
 
@@ -509,7 +508,7 @@ function utsagnetStrider(
   if (l) return `${x.art} etter at ${l}`;
   if (utenVirkning(gjelder)) return `${x.art} viser til et element uten virkning`;
   if (sporet && u.spor[sporet].trukket)
-    return 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20 (opphevet av MM-U43), GR-U5)';
+    return 'en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)';
   if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && u.frafalt)
     return 'en aksept av et frafall (GR-U9)';
   if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)

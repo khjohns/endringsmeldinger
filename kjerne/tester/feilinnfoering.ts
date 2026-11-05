@@ -2166,9 +2166,7 @@ const MUTASJONER: Mutasjon[] = [
       'en aksept av et svar i et trukket spor gir ingen strid (MM-U43 punkt 6, GR-U5, #669)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (sporet && u.spor[sporet].trukket)', '  if (false)']],
-    mal: [
-      'en aksept av et svar i et spor etter at kravet er trukket (MM-U20 (opphevet av MM-U43), GR-U5)',
-    ],
+    mal: ['en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)'],
   },
   {
     id: 'F279',
@@ -3511,7 +3509,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['if (v.foresporsel_svar_ok === false)\n', 'if (false)\n']],
     mal: [
-      'KA-U24: et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent',
+      'KA-U24 (opphevet av KA-U46): et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent',
     ],
   },
   {

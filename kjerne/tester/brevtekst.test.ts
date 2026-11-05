@@ -5057,7 +5057,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(grunner(s)).toContain('en aksept av et svar med registrert enighet (GR-U8)');
     });
 
-    it('en aksept av et svar i et spor etter at kravet er trukket (MM-U20 (opphevet av MM-U43), GR-U5)', () => {
+    it('en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)', () => {
       const s = sakMedKrav();
       s.send('BH', {
         type: 'brev',
@@ -5067,7 +5067,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       s.send('TE', { type: 'trekk', spor: 'vederlag' });
       raaAksept(s, svaret);
       expect(grunner(s)).toEqual([
-        'en aksept av et svar i et spor etter at kravet er trukket (MM-U20 (opphevet av MM-U43), GR-U5)',
+        'en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)',
       ]);
     });
 
