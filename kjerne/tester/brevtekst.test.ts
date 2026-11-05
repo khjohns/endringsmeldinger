@@ -2811,7 +2811,7 @@ describe('teksten avsenderen godkjenner, er den som fryses (LV-U2, A1)', () => {
     expect(s.avvist('TE', { ...PAABEROPELSE, brevtekst: t })).toBeNull();
   });
 
-  it('en registrering bærer ingen tekst (MM-U17)', () => {
+  it('en registrering bærer ingen tekst (MM-U17, MM-U50)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const varsel = {
@@ -5031,7 +5031,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       ).toBeNull();
     });
 
-    it('byggherrens ønskede metode kan endres når tilbudet ikke er akseptert (MM-U12)', () => {
+    it('byggherrens ønskede metode kan endres når tilbudet ikke er akseptert (MM-U12, MM-U50)', () => {
       const s = sakMedKrav();
       brev(s, 'vederlag', { ...delvis, aksepterer_metode: false, oensket_metode: 'enhetspriser' });
       expect(
@@ -6043,7 +6043,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
 
     it('en påberopelse uten virkning står som byggherrens utsagn uten lag, og gir ingen post et annet beløp (presiseringen 24.10, HF-U2)', () => {
       // Kommandoene avviser en påberopelse som ikke gjelder kravet, men et registrert svar kan
-      // ha den (MM-U17). Postlisten leser virkningene brevet frøs.
+      // ha den (MM-U17, MM-U50). Postlisten leser virkningene brevet frøs.
       const standpunkter: Standpunkt[] = [
         {
           id: 'r',
@@ -6554,7 +6554,9 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
     s.send('BH', senking);
     const u = s.u();
     expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
-    expect(u.spor.vederlag.svar, 'det godtatte svaret står i sporet (MM-U12)').toHaveLength(2);
+    expect(u.spor.vederlag.svar, 'det godtatte svaret står i sporet (MM-U12, MM-U50)').toHaveLength(
+      2
+    );
   });
 
   const avslag = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };

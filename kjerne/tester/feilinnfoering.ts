@@ -286,7 +286,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F15',
-    feilklasse: 'en regel leser det lagrede utfallet i et svar (MM-U11, #329)',
+    feilklasse: 'en regel leser det lagrede utfallet i et svar (MM-U11, MM-U50, #329)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
@@ -636,7 +636,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F52',
     feilklasse:
-      'visningen merker et svar sendt fra appen, ikke det registrerte, som appens vurdering ved registreringen (MM-U17, #336)',
+      'visningen merker et svar sendt fra appen, ikke det registrerte, som appens vurdering ved registreringen (MM-U17, MM-U50, #336)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
@@ -1039,7 +1039,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F110',
-    feilklasse: 'leseren godtar brevtekst fra appen i et registrert brev (MM-U17)',
+    feilklasse: 'leseren godtar brevtekst fra appen i et registrert brev (MM-U17, MM-U50)',
     fil: `${K}/format/leser.ts`,
     endringer: [
       ['    if (erRegistrert(dokument.opplysninger))\n      throw', '    if (false)\n      throw'],

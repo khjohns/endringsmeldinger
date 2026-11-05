@@ -2757,7 +2757,8 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "MM-U17"
+            "MM-U17",
+            "MM-U50"
           ],
           "forventet": {
             "gjeldende_svar.forhold": "S-g2",

@@ -215,7 +215,7 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
 /**
  * Hva en verdi reglene leser, er. En oppsummering har ingen klasse: et utfall,
  * en status eller en etikett som står for flere utsagn, leses ikke av noen regel
- * («Kontrakten først, aldri status» i AGENTS.md, MM-U11).
+ * («Kontrakten først, aldri status» i AGENTS.md, MM-U11, MM-U50).
  */
 type Klasse =
   /** Det en part har sagt i et dokument: krav, svar, varsel, aksept, trekk, opplysning (2.2). */

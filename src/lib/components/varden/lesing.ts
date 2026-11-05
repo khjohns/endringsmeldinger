@@ -35,7 +35,7 @@ export interface Brevet {
   omtale: string | null;
   /** Tittelen som ble frosset med brevet (MM-U3), eller `null` når brevet ikke har en. */
   brevtittel: string | null;
-  /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17). */
+  /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17, MM-U50). */
   avsnitt: Avsnitt[] | null;
 }
 
@@ -120,7 +120,7 @@ export interface OppgittDato {
 
 /**
  * Datoene partene har oppgitt: når TE ble klar over forholdet (grunnlagskravet) og når et
- * dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer dem ikke (MM-U12).
+ * dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer dem ikke (MM-U12, MM-U50).
  */
 export function oppgitteDatoer(u: Utledning): OppgittDato[] {
   const brev = new Map(brevene(u).map((b) => [b.id, b]));

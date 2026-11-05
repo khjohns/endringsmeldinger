@@ -1593,7 +1593,6 @@ FORHOLD_FJERNET_ETTER_MERGE = {
     ("ov-u80", "utvider", "ov-u48"): "E2, V2 A 04.11, #1534",
     ("ov-u80", "utvider", "ov-u49"): "E2, V2 A 04.11, #1534",
     ("mm-u8", "bygger på", "mm-u4"): "E1 og E9 i MM-U50, svar 1 A 05.11, #1534",
-    ("vs-u7", "utvider", "mm-u8"): "E9 i MM-U50, svar 1 A 05.11, #1534",
 }
 
 

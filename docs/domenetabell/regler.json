@@ -622,6 +622,13 @@
       "radetikett": "MM-U17: for et brev sendt utenfor appen og registrert i den, fryser beslutningsgrunnlaget appens vurdering etter reglene ved registreringen"
     },
     {
+      "id": "MM-U50",
+      "type": "vedtak",
+      "dato": "2026-11-05",
+      "ref": "../plans/vedtak.md#mm-u50",
+      "radetikett": "MM-U50: Spørsmål 1: Reglene for sendte brev og regelendring står i samlevedtaket MM-U50"
+    },
+    {
       "id": "KA-U16",
       "type": "vedtak",
       "dato": "2026-10-10",

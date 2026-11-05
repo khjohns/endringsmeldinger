@@ -503,7 +503,7 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
   if (laget === null)
     return vist === undefined
       ? null
-      : avvis('ANNEN_BREVTEKST', 'Et registrert brev har ingen tekst fra appen (MM-U17).');
+      : avvis('ANNEN_BREVTEKST', 'Et registrert brev har ingen tekst fra appen (MM-U17).'); // MM-U50
   if (vist === undefined)
     return avvis(
       'BREVTEKST_MANGLER',

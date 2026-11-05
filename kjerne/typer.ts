@@ -66,7 +66,7 @@ export type Opplysning =
       hva: 'endringsordre';
       oppfylt: boolean;
       oppgittAv: Part;
-      /** Brevet opplysningen gjelder: dokumentet selv, eller et registrert brev før det (MM-U12). */
+      /** Brevet opplysningen gjelder: dokumentet selv, eller et registrert brev før det (MM-U12, MM-U50). */
       brev: string;
     }
   /**
@@ -118,7 +118,7 @@ export type Standpunkt =
   /**
    * § 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept oppgir byggherren metoden
    * byggherren mener vederlaget skal justeres etter (`oensket`); appen avgjør ikke om
-   * § 34.3 eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12).
+   * § 34.3 eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12, MM-U50).
    */
   | {
       id: string;
@@ -264,7 +264,7 @@ export interface Dokument {
   krav: Krav[];
   svar: Svar[];
   utsagn: LestUtsagn[];
-  /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17). */
+  /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17, MM-U50). */
   brevtekst: Avsnitt[] | null;
   /** Tittelen på et brev løsningen sendte, frosset med teksten (MM-U3, #1536). `null` ellers. */
   brevtittel: string | null;

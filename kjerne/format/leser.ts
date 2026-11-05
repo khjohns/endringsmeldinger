@@ -118,7 +118,7 @@ export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
     ? bestridelse === 'sendt' || bestridelse === 'mottatt'
     : opplysning === bestridelse;
 
-/** En opplysning om brevet som helhet: § 31.3 (MM-U12). */
+/** En opplysning om brevet som helhet: § 31.3 (MM-U12, MM-U50). */
 export const omBrevet = (hva: string): hva is 'endringsordre' => hva === 'endringsordre';
 
 /** Leseren forstår ikke raden (MM-U2). */
@@ -578,7 +578,7 @@ function lesDokument(h: Journalrad): Dokument {
   if (data.deres_ref !== undefined && data.merking === undefined)
     throw new Uforstaatt('Deres ref. står bare i hodet på et brev fra løsningen, med merkingen');
   if (data.brevtekst) {
-    // MM-U17: et registrert brev står som det ble sendt og har ingen tekst fra appen.
+    // MM-U17, MM-U50: et registrert brev står som det ble sendt og har ingen tekst fra appen.
     if (erRegistrert(dokument.opplysninger))
       throw new Uforstaatt('et registrert brev har brevtekst fra appen');
     // HF-U1: hvert avsnitt uttrykker ett element i samme brev, eller vedleggene i det (A4).

@@ -188,7 +188,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
       sender = true;
       try {
         const { kommando, vedlegg, omslag } = kommandoFraSkjema(kjernesak, spor, type, data);
-        // MM-U17: et registrert brev har ingen tekst fra appen, så det er ikke noe brev å kontrollere.
+        // MM-U17, MM-U50: et registrert brev har ingen tekst fra appen, så det er ikke noe brev å kontrollere.
         if (kommando.type === 'varsel') {
           if (!(await kjernesak.send(kommando, undefined, vedlegg)))
             throw new Error(kjernesak.feil ?? 'Varselet ble ikke registrert.');

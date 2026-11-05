@@ -1922,7 +1922,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "design"
-bindende_i = ["mm-u9", "mm-u12"]
+bindende_i = ["mm-u9", "mm-u50"]
 id = "HF-U26"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -3486,7 +3486,7 @@ Saken står åpen for nye strukturerte standpunkter fra begge parter. Vedtakene 
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["mm-u34", "mm-u12"]
+bindende_i = ["mm-u34", "mm-u50"]
 id = "GR-U28"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -4699,8 +4699,8 @@ Presiserer MM-U1. MM-U4, som vedtaksteksten viser til, er opphevet 09.10 av
 Utvidet 10.10 av [VS-U7](#vs-u7) til § 34.1, ikke bygget. Bygget i målmodellen i
 språkprøven (#304), forløp D. Leses etter [OV-U5](#ov-u5), som endret MM-U8 13.10: et svar
 byggherren alt har gitt, står med virkningen det hadde, og TE kan godta det (oppdragsgiver
-23.10, #1047). Forholdet til [MM-U4](#mm-u4), som MM-U8 bygde på, og forholdet til
-[VS-U7](#vs-u7) for § 34.1 er fjernet 05.11 av [MM-U50](#mm-u50) (E1, E9).'''
+23.10, #1047). Forholdet til [MM-U4](#mm-u4), som MM-U8 bygde på, er fjernet 05.11 av
+[MM-U50](#mm-u50) (E1, E9).'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -4742,12 +4742,11 @@ Etterregistreringen gjør preklusjonen uavklart bare når varselet gjelder det
 preklusjonen gjaldt. En enighet står (MM-U8). Er kravene avgjort, gjelder sperren i
 KA-U11. Retting følger B-16'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
-forhold = [{ art = "utvider", vedtak = "mm-u1" }]
+forhold = [{ art = "utvider", vedtak = "mm-u1" }, { art = "utvider", vedtak = "mm-u8" }]
 folge = '''
 Utvider [MM-U1](#mm-u1) og [MM-U8](#mm-u8) til § 34.1. Ikke bygget (#309). Leses etter
 [OV-U5](#ov-u5), som endret VS-U7 13.10: et svar byggherren alt har gitt, står med
-virkningen det hadde, og TE kan godta det (oppdragsgiver 23.10, #1047). Forholdet til
-[MM-U8](#mm-u8) er fjernet 05.11 av [MM-U50](#mm-u50) (E9).'''
+virkningen det hadde, og TE kan godta det (oppdragsgiver 23.10, #1047)'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -8501,7 +8500,7 @@ Endrer [EO-U4](#eo-u4) for dette tilfellet; GR-U7, GR-U10 og KA-U7 står. Ikke b
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["eo-u34", "mm-u12"]
+bindende_i = ["eo-u34", "mm-u50"]
 vedtak = '''
 En endringsordresak kan følge av en KOE-sak, men ikke erstatte den, verken i historikken
 eller som en egen hendelse i KOE-saken'''
@@ -15002,7 +15001,7 @@ tekst = "Byggherren kan likevel gi et nytt svar på grunnlaget i KOE-saken, som 
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "avsnittet «Designdel» i samlevedtaket, punkt 12, og i punkt 10 «Byggherrens svar og enigheten står på siden for saken.»"
-bindende_i = ["eo-u34", "mm-u12", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
+bindende_i = ["eo-u34", "mm-u50", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
 id = "MM-U45"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -15574,10 +15573,10 @@ forhold = [
   { art = "samler", vedtak = "mm-u3" },
   { art = "samler", vedtak = "mm-u8" },
   { art = "samler", vedtak = "mm-u9" },
-  { art = "samler", vedtak = "mm-u11" },
-  { art = "samler", vedtak = "mm-u12" },
-  { art = "samler", vedtak = "mm-u16" },
-  { art = "samler", vedtak = "mm-u17" },
+  { art = "opphever", vedtak = "mm-u11" },
+  { art = "opphever", vedtak = "mm-u12" },
+  { art = "opphever", vedtak = "mm-u16" },
+  { art = "opphever", vedtak = "mm-u17" },
   { art = "samler", vedtak = "ka-u10" },
   { art = "samler", vedtak = "hf-u13" },
   { art = "samler", vedtak = "gr-u12" },
@@ -18927,7 +18926,7 @@ forkastet = true
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "appens vurdering vises ikke som byggherrens"
-bindende_i = ["lv-u4", "mm-u12"]
+bindende_i = ["lv-u4", "mm-u50"]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
@@ -20194,7 +20193,7 @@ utdrag = true
 
 [[gruppe.vedtak]]
 klasse = "design"
-bindende_i = ["mm-u12", "ov-u4", "ov-u80"]
+bindende_i = ["mm-u50", "ov-u4", "ov-u80"]
 id = "OV-U70"
 dato = 2026-10-31
 hvem = "oppdragsgiver"

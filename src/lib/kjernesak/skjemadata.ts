@@ -71,7 +71,7 @@ export function oppgittVarsel(varsel: RegistrertVarsel, idag: string) {
   return { sendt: varsel.sendt, dokumentasjon: varsel.vedlegg.map((v) => v.vedlegg_id) };
 }
 
-/** Registreringen av et varsel sendt utenfor appen, uten tekst fra appen (MM-U17). */
+/** Registreringen av et varsel sendt utenfor appen, uten tekst fra appen (MM-U17, MM-U50). */
 export function registrering<H extends Varselhjemmel>(
   hjemmel: H,
   varsel: RegistrertKorrespondanse,
