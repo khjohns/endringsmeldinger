@@ -91,6 +91,8 @@
     tilbake: Arbeid;
     /** Brevet er svarutkastet, som tømmes når det er sendt. */
     erUtkastet: boolean;
+    /** Datoopplysningen TE kan korrigere fra forhåndsvisningen av en ny versjon (BF-10 U-2). */
+    korrigerbar?: string | null;
   };
   type Arbeid =
     | { art: 'les' }
@@ -226,6 +228,31 @@
   }
 </script>
 
+<!-- I forhåndsvisningen av en ny versjon: datoen og forholdet kan ikke endres her, og veiene
+     til et eget brev og en ny sak kaster ikke utkastet (BF-10 U-2, BF-02A U-7). -->
+{#snippet fastINyVersjon()}
+  {#if arbeid.art === 'kontroll'}
+    {@const gjelder = arbeid.korrigerbar}
+    <p class="fast">{NYVERSJON.datoHjelp}</p>
+    {#if gjelder}
+      <Knapp
+        variant="lenke"
+        onclick={() => {
+          melding = null;
+          arbeid = { art: 'korrigering', gjelder };
+        }}>{NYVERSJON.korriger}</Knapp
+      >
+    {/if}
+    {#if nySakLenke}
+      <p class="fast">
+        {NYVERSJON.nySak}
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+        <a href={nySakLenke} target="_blank" rel="noopener">{NYVERSJON.nySakLenke}</a>
+      </p>
+    {/if}
+  {/if}
+{/snippet}
+
 <Vardenskall
   {sti}
   {bruker}
@@ -330,6 +357,7 @@
           detteSender={k.detteSender}
           virkninger={k.virkninger}
           sendTekst={k.sendTekst}
+          endres={k.tilbake.art === 'nyversjon' ? fastINyVersjon : undefined}
           tilbakeTil={k.tilbakeTil}
           ontilbake={() => (arbeid = k.tilbake)}
           onsendt={sendt}
@@ -369,8 +397,8 @@
           {kjernesak}
           {u}
           bind:tekst={nyVersjonstekst}
-          nySak={nySakLenke}
           onforkast={forkastNyVersjon}
+          onvedsiden={(v) => (vedSiden = v)}
           onkorriger={(gjelder) => {
             melding = null;
             arbeid = { art: 'korrigering', gjelder };
@@ -459,6 +487,16 @@
 </Vardenskall>
 
 <style>
+  .fast {
+    margin: 0;
+  }
+  .fast a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+  .fast a:hover {
+    text-decoration-thickness: 2px;
+  }
   h1 {
     font-size: 24px;
     font-weight: 600;

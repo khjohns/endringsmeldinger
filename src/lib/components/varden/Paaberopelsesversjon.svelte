@@ -1,42 +1,38 @@
 <!--
   TEs nye versjon av påberopelsen (BF-10): «Oppdater påberopelse» etter byggherrens svar og
-  «Send ny versjon» før svaret. Forholdet, hjemmelen, endringsordren og datoen står som låste
-  verdier, med veien til korrigeringen av datoen og til en ny sak (U-2). Teksten står slik den
-  sist ble sendt, i ett felt (S-3). Brevet sendes fra brevkontrollen, som de andre brevene
-  (S-4b). Kjernen lager brevet og avviser det den ikke godtar.
+  «Send ny versjon» før svaret. Skrivevisningen har bare det TE trenger for å skrive: lenken til
+  byggherrens svar, som åpnes ved siden av utkastet, og ett felt med teksten fra versjonen som
+  erstattes (S-3 B). Datoen står ved feltet bare når byggherren sier at varselet kom for sent;
+  ellers står den i forhåndsvisningen med veien til korrigeringen (oppdragsgiver 06.11, PR 1650).
+  Brevet sendes fra brevkontrollen, som de andre brevene (S-4b). Kjernen lager brevet og avviser
+  det den ikke godtar.
 -->
 <script lang="ts">
-  import { FileText } from 'lucide-svelte';
   import { tick } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import { forholdet } from '$kjerne/frosset/forholdene';
-  import { foersteUnderkategori } from '$kjerne/regler/forhold';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
-  import Hovedlinjer from './Hovedlinjer.svelte';
+  import Brev from './Brev.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
-  import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
-  import { brevene, datoerISporet, datoopplysningene, innleggene } from './lesing';
-  import { FORHOLDET, HANDLINGENE, NYVERSJON, SKJEMA, brevhode } from './tekster';
+  import { brevene, datoopplysningene, innleggene } from './lesing';
+  import { FORHOLDET, HANDLINGENE, NYVERSJON, SKJEMA, brevhode, brevtittel, dato } from './tekster';
 
   let {
     kjernesak,
     u,
     tekst = $bindable(null),
-    nySak,
     onkorriger,
     onbrevkontroll,
     onforkast,
+    onvedsiden,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
     /** Teksten TE har skrevet, `null` før TE har åpnet skjemaet. Den står mens TE korrigerer datoen. */
     tekst?: string | null;
-    /** Lenken til skjemaet for ny sak, for en annen hjemmel eller endringsordre (GR-U22, OV-U57). */
-    nySak?: string;
     /** TE velger «Korriger datoen i et eget brev» (BF-02A U-7). */
     onkorriger: (opplysning: string) => void;
     onbrevkontroll: (k: {
@@ -48,8 +44,12 @@
       merking: string | null;
       deresRef: string[];
       tittel: string | null;
+      /** Datoopplysningen TE kan korrigere fra forhåndsvisningen, ellers `null`. */
+      korrigerbar: string | null;
     }) => void;
     onforkast: () => void;
+    /** Svaret leses i en ramme ved siden av utkastet, eller ikke lenger. */
+    onvedsiden?: (vedSiden: boolean) => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
@@ -60,20 +60,15 @@
   const kravbrevet = $derived(finn(kravet.dokument));
   const svarbrevet = $derived(finn(u.spor.forhold.gjeldendeSvar?.dokument));
   const enig = $derived(!!u.spor.forhold.enighet && !!svarbrevet);
-  const forhold = $derived(
-    forholdet(
-      foersteUnderkategori(kravet.innhold.underkategori as string | string[] | null | undefined)
-    )
-  );
-  const endringsordre = $derived(
-    typeof kravet.innhold.endringsordre === 'string' ? kravet.innhold.endringsordre : null
-  );
   // Datoen er TEs siste opplysning (MM-U52 punkt 10), med brevet den ble oppgitt i (U-2).
   const datoen = $derived(datoopplysningene(u).findLast((o) => o.siste) ?? null);
   const kanKorrigere = $derived(
     !!datoen && kjernesak.handlinger.includes(`korrigere:${datoen.id}`)
   );
-  const sporbrev = $derived(brev.filter((b) => b.spor.includes('forhold')));
+  // Byggherren sier i svaret at varselet kom for sent (§ 32.2). Da trenger TE datoen mens TE skriver.
+  const datoenBestrides = $derived(
+    !!u.spor.forhold.gjeldendeSvar?.standpunkter.some((s) => s.art === 'rettidighet' && !s.iTide)
+  );
 
   // Teksten står slik den sist ble sendt (S-3 B i BF-10).
   $effect.pre(() => {
@@ -81,10 +76,6 @@
   });
 
   const kommando = $derived(nyVersjonAvPaaberopelsen(u, tekst ?? ''));
-  const utkastbrev = $derived.by(() => {
-    const b = kjernesak.brev(kommando);
-    return b && 'tekst' in b ? b : null;
-  });
   let hindring = $state<string | null>(null);
 
   const virkning = $derived(HANDLINGENE.virkning.nyVersjon('forhold', kravbrevet, svarbrevet));
@@ -93,7 +84,7 @@
     ...(datoen ? [{ tekst: NYVERSJON.linjeDato(datoen.hva, datoen.dato), lag: null }] : []),
   ]);
 
-  async function seBrevet() {
+  async function tilForhaandsvisningen() {
     hindring = null;
     const b = kjernesak.brev(kommando, undefined, true);
     if (!b || !('tekst' in b) || !b.tekst) {
@@ -111,8 +102,26 @@
       merking: b.merking,
       deresRef: b.deresRef,
       tittel: b.brevtittel,
+      korrigerbar: kanKorrigere ? datoen!.id : null,
     });
   }
+
+  // Svaret leses i en ramme ved siden av utkastet, og på smal skjerm over feltet, der høyre
+  // kolonne står under arbeidet (mønsteret i vederlagssvaret, oppdragsgiver 29.10, #1391).
+  let smal = $state(false);
+  $effect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia('(max-width: 1180px)');
+    const sett = () => (smal = mq.matches);
+    sett();
+    mq.addEventListener('change', sett);
+    return () => mq.removeEventListener('change', sett);
+  });
+  let leser = $state(false);
+  $effect(() => {
+    onvedsiden?.(leser && !smal);
+    return () => onvedsiden?.(false);
+  });
 
   let bekreftForkast = $state(false);
   let forkastSpoersmaal = $state<HTMLElement | null>(null);
@@ -128,91 +137,79 @@
   }
 </script>
 
-{#snippet sendeknapp()}
-  <Knapp
-    variant="primaer"
-    onclick={seBrevet}
-    aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.seBrevet}</Knapp
-  >
-  {#if hindring}
-    <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
+{#snippet svaret(innfelt: boolean)}
+  {#if svarbrevet}
+    <Brev
+      avsender={svarbrevet.avsender}
+      sak={kjernesak.saksbilde?.tittel ?? ''}
+      merking={svarbrevet.merking}
+      deresRef={svarbrevet.deresRef}
+      dato={dato(svarbrevet.registrert)}
+      tittel={brevtittel(svarbrevet)}
+      avsnitt={svarbrevet.avsnitt ?? []}
+      {innfelt}
+    />
   {/if}
 {/snippet}
 
-<Arbeidsflate>
+<Arbeidsflate leser={leser && !smal}>
   {#snippet hoved()}
     <Utkastkort
       id={id('tittel')}
-      tittel={utkastbrev
-        ? brevhode({ merking: utkastbrev.merking, art: 'krav', brevtittel: utkastbrev.brevtittel })
-        : svarbrevet
-          ? FORHOLDET.oppdater
-          : FORHOLDET.nyVersjon}
+      tittel={svarbrevet ? FORHOLDET.oppdater : FORHOLDET.nyVersjon}
       mottaker={SKJEMA.tilBH}
-      onsubmit={seBrevet}
+      onsubmit={tilForhaandsvisningen}
     >
-      <div class="gjelder">
-        <FileText size={16} aria-hidden="true" />
-        <dl>
-          {#if forhold}
-            <div>
-              <dt>{NYVERSJON.forholdet}</dt>
-              <dd>{forhold.navn} ({NYVERSJON.hjemmel(forhold.hjemmel)})</dd>
-            </div>
-          {/if}
-          {#if endringsordre}
-            <div>
-              <dt>{NYVERSJON.endringsordre}</dt>
-              <dd>{endringsordre}</dd>
-            </div>
-          {/if}
-          {#if datoen}
-            <div>
-              <dt>{NYVERSJON.datoen(datoen.hva)}</dt>
-              <dd>
-                {NYVERSJON.sisteOpplysning(datoen.dato, datoen.brev)}
-                <!-- U-2 i BF-10, U-7 i BF-02A: veien til korrigeringen står ved datoen. -->
-                <span class="vei">{NYVERSJON.datoHjelp}</span>
-                {#if kanKorrigere}
-                  <span class="vei">
-                    <Knapp variant="lenke" onclick={() => onkorriger(datoen!.id)}
-                      >{NYVERSJON.korriger}</Knapp
-                    >
-                  </span>
-                  <span class="vei">{NYVERSJON.beholdes}</span>
-                {/if}
-              </dd>
-            </div>
-          {/if}
-        </dl>
-      </div>
-
       <div class="innhold">
-        <div class="virkning">
-          <p>{virkning}</p>
-          {#if enig}<p>{NYVERSJON.enighet(svarbrevet!)}</p>{/if}
-        </div>
+        {#if svarbrevet}
+          <div class="lesing">
+            <Knapp
+              variant="lenke"
+              onclick={() => (leser = !leser)}
+              aria-expanded={leser}
+              aria-controls={id('svaret')}
+            >
+              {leser ? NYVERSJON.lukkSvaret : NYVERSJON.lesSvaret(svarbrevet)}
+            </Knapp>
+            {#if leser && smal}
+              <div class="innebrev" id={id('svaret')}>{@render svaret(false)}</div>
+            {/if}
+          </div>
+        {/if}
+
+        {#if datoenBestrides && datoen}
+          <!-- Datoen ved feltet når byggherren bestrider at varselet kom i tide (U-2, BF-02A U-7). -->
+          <div class="dato">
+            <p>
+              <span class="etikett">{NYVERSJON.datoen(datoen.hva)}:</span>
+              {NYVERSJON.sisteOpplysning(datoen.dato, datoen.brev)}
+            </p>
+            <p class="vei">{NYVERSJON.datoHjelp}</p>
+            {#if kanKorrigere}
+              <Knapp variant="lenke" onclick={() => onkorriger(datoen!.id)}
+                >{NYVERSJON.korriger}</Knapp
+              >
+            {/if}
+          </div>
+        {/if}
 
         <div class="felt">
-          <label for={id('tekst')}>{NYVERSJON.tekst(forhold?.kode === 'irregulaer_endring')}</label>
-          {#if svarbrevet}<p class="hjelp" id={id('tekst-hjelp')}>
-              {NYVERSJON.tekstHjelp(svarbrevet)}
-            </p>{/if}
-          <textarea
-            id={id('tekst')}
-            rows="10"
-            bind:value={tekst}
-            aria-describedby={svarbrevet ? id('tekst-hjelp') : undefined}
-          ></textarea>
+          <label for={id('tekst')}>{NYVERSJON.tekst}</label>
+          <textarea id={id('tekst')} rows="12" bind:value={tekst}></textarea>
         </div>
 
-        {#if nySak}
-          <p class="vei">
-            {NYVERSJON.nySak}
-            <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-            <a href={nySak} target="_blank" rel="noopener">{NYVERSJON.nySakLenke}</a>
-          </p>
-        {/if}
+        <div class="handling">
+          <Knapp
+            variant="primaer"
+            onclick={tilForhaandsvisningen}
+            aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.seBrevet}</Knapp
+          >
+          {#if hindring}
+            <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1"
+              >{hindring}</Melding
+            >
+          {/if}
+        </div>
 
         <div class="skjemafot">
           {#if bekreftForkast}
@@ -235,70 +232,56 @@
     </Utkastkort>
   {/snippet}
 
+  <!-- Høyre kolonne står tom mens TE skriver, og har svaret når TE ber om det. -->
   {#snippet hoeyre()}
-    <div class="feste">
-      <Hovedlinjer tittel={NYVERSJON.panel} {linjer} alternativer={false} handling={sendeknapp} />
-    </div>
-    <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'forhold')} />
+    {#if leser && !smal && svarbrevet}
+      <section class="leseramme" id={id('svaret')} aria-labelledby={id('lesetittel')}>
+        <h2 class="lesetittel" id={id('lesetittel')}>
+          {brevhode(svarbrevet)}
+          <span class="dempet">· {svarbrevet.avsender} · {dato(svarbrevet.registrert)}</span>
+        </h2>
+        <!-- Rammen ruller for seg selv, så den må kunne nås med tastaturet. -->
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <div class="brevrulle" tabindex="0" role="region" aria-labelledby={id('lesetittel')}>
+          {@render svaret(true)}
+        </div>
+      </section>
+    {/if}
   {/snippet}
 </Arbeidsflate>
 
 <style>
-  .gjelder {
-    display: flex;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-6);
-    background: var(--surface-inset);
-    border-top: var(--rule);
-    border-bottom: var(--rule);
-    font-size: 14px;
-  }
-  .gjelder :global(svg) {
-    flex: none;
-    margin-top: 3px;
-  }
-  .gjelder dl {
-    display: grid;
-    gap: var(--spacing-1);
-    margin: 0;
-  }
-  .gjelder dl > div {
-    display: grid;
-    grid-template-columns: 10rem 1fr;
-    gap: var(--spacing-3);
-  }
-  .gjelder dt {
-    color: var(--ink-3);
-  }
-  .gjelder dd {
-    margin: 0;
-    color: var(--ink);
-  }
   .innhold {
     display: grid;
-    gap: var(--spacing-6);
+    gap: var(--spacing-5);
     padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
   }
-  .virkning {
+  .lesing {
     display: grid;
-    gap: var(--spacing-2);
-    color: var(--ink-2);
+    gap: var(--spacing-3);
+    justify-items: start;
   }
-  .vei {
-    display: block;
-    margin-top: var(--spacing-1);
-    color: var(--ink-3);
+  .innebrev {
+    justify-self: stretch;
   }
-  p.vei {
-    margin: 0;
+  .dato {
+    display: grid;
+    gap: var(--spacing-1);
+    justify-items: start;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--surface-inset);
+    border-radius: var(--r-felt);
     font-size: 14px;
   }
-  .vei a {
+  .dato p {
+    margin: 0;
     color: var(--ink);
-    text-underline-offset: 3px;
   }
-  .vei a:hover {
-    text-decoration-thickness: 2px;
+  .etikett {
+    color: var(--ink-3);
+  }
+  .dato p.vei {
+    color: var(--ink-3);
   }
   .felt {
     display: grid;
@@ -307,11 +290,6 @@
   label {
     font-weight: 600;
     color: var(--ink);
-  }
-  .hjelp {
-    margin: 0;
-    color: var(--ink-3);
-    font-size: 14px;
   }
   textarea {
     font: inherit;
@@ -325,6 +303,11 @@
   textarea:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
+  }
+  .handling {
+    display: grid;
+    gap: var(--spacing-3);
+    justify-items: start;
   }
   .skjemafot {
     padding-top: var(--spacing-4);
@@ -340,14 +323,36 @@
     flex-wrap: wrap;
     gap: var(--spacing-3);
   }
-  .feste {
+  /* Lesing ved siden av, som i vederlagssvaret: rammen følger rullingen og er høyst like høy
+     som vinduet under topplinja. Et langt svar ruller i den. */
+  .leseramme {
     position: sticky;
-    top: var(--spacing-6);
+    top: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+    overflow: hidden;
   }
-  @media (max-width: 560px) {
-    .gjelder dl > div {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
+  .lesetittel {
+    padding: var(--spacing-3) var(--spacing-5);
+    border-bottom: var(--rule);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .dempet {
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .brevrulle {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .brevrulle:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: -2px;
   }
 </style>

@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, type Snippet } from 'svelte';
   import type { Part } from '$kjerne/typer';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
@@ -31,6 +31,7 @@
     detteSender,
     virkninger,
     kanIkkeGjoeresOm = false,
+    endres,
     sendTekst,
     tilbakeTil,
     ontilbake,
@@ -62,6 +63,8 @@
      * bare her i brevkontrollen (oppdragsgiver 06.11, #1615).
      */
     kanIkkeGjoeresOm?: boolean;
+    /** Det som ikke kan endres i brevet, med veien til et eget brev, under «Dette sender du». */
+    endres?: Snippet;
     sendTekst: string;
     tilbakeTil: string;
     ontilbake: () => void;
@@ -159,6 +162,7 @@
           <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
         {/each}
       </ul>
+      {#if endres}<div class="endres">{@render endres()}</div>{/if}
       {#if virkninger.length}
         <div class="virkninger" class:endelig={kanIkkeGjoeresOm}>
           {#each virkninger as b, i (i)}<p>{b}</p>{/each}
@@ -256,6 +260,14 @@
     padding-left: var(--spacing-5);
     margin-bottom: var(--spacing-3);
     font-size: 14px;
+  }
+  .endres {
+    display: grid;
+    gap: var(--spacing-2);
+    justify-items: start;
+    margin-bottom: var(--spacing-3);
+    font-size: 14px;
+    color: var(--ink-3);
   }
   .sender p {
     font-size: 14px;

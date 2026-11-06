@@ -349,7 +349,7 @@ export const HANDLINGENE = {
       if (!krav) return 'Byggherren svarer på den nye versjonen.';
       if (!svar)
         return `Erstatter ${hva} i ${brevref(krav)}. Byggherren svarer på den nye versjonen.`;
-      return `Erstatter ${hva} i ${brevref(krav)}. Svaret i ${brevref(svar)} kan da ikke godtas her, og byggherren svarer på nytt.`;
+      return `Erstatter ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på den nye versjonen.`;
     },
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
@@ -561,31 +561,29 @@ export const KORRIGERING = {
  * korrigeringen er fra skissen `korrigering-av-datoen.html#ny-versjon`, versjon 2.
  */
 export const NYVERSJON = {
-  forholdet: 'Forholdet',
-  hjemmel: (h: string) => `punkt ${h}`,
-  endringsordre: 'Endringsordren',
+  /** Lenken over feltet, som åpner svaret ved siden av utkastet (oppdragsgiver 06.11, PR 1650). */
+  lesSvaret: (svar: Brevref) => `Les byggherrens svar i ${brevref(svar)}`,
+  lukkSvaret: 'Lukk svaret',
+  /** Datoen ved feltet når byggherren sier at varselet kom for sent (§ 32.2). */
   datoen: (hva: keyof typeof DATOEN) =>
     hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet',
-  sisteOpplysning: (d: string, b: Brevref) => `${dato(d)}, din siste opplysning (${brevref(b)})`,
+  sisteOpplysning: (d: string, b: Brevref) => `${dato(d)} (${brevref(b)})`,
+  /** MM-U52 punkt 13: en korrigering lar svaret stå. */
   datoHjelp:
-    'Datoen kan ikke endres i en ny versjon. Vil du rette datoen, anbefaler vi å korrigere den i et eget brev. Det lar svaret stå.',
+    'Datoen kan ikke endres i en ny versjon. En korrigering i et eget brev lar svaret stå.',
   korriger: 'Korriger datoen i et eget brev',
-  beholdes: 'Det du har skrevet her, beholdes som utkast mens du korrigerer datoen.',
   /** U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
   nySak: 'Annen hjemmel eller endringsordre:',
   nySakLenke: 'opprett en ny sak (ny fane)',
   /** D-6 og 10d: en registrert enighet står (KA-U52 punkt 5). */
   enighet: (svar: Brevref) =>
     `Du godtok svaret i ${brevref(svar)}. Enigheten står, og den nye versjonen avviker fra den.`,
-  tekst: (paalegg: boolean) => FORHOLDET.beskrivelse(paalegg),
-  /** D-5: TEs standpunkt til svaret. */
-  tekstHjelp: (svar: Brevref) => `Si hva du mener om svaret i ${brevref(svar)}.`,
+  tekst: 'Oppdatert begrunnelse',
   forkastSpoersmaal: 'Forkaste utkastet? Teksten du har skrevet, slettes.',
-  panel: 'Hovedlinjene i den nye versjonen',
   linjeErstatter: (krav: Brevref) => `Ny versjon av påberopelsen i ${brevref(krav)}`,
   linjeDato: (hva: keyof typeof DATOEN, d: string) =>
     `${hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet'} ${dato(d)}, som før`,
-  seBrevet: 'Se brevet før sending',
+  seBrevet: 'Gå til forhåndsvisning',
   sendTekst: 'Send den nye versjonen til byggherren',
   tilbakeTil: 'utkastet',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
