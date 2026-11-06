@@ -12,7 +12,7 @@ import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import type { Spor } from '$kjerne/typer';
 import { KRAVINNHOLD, oppgittDato } from '$kjerne/format/format';
-import { sisteDatoopplysning, type Utledning } from '$kjerne/utledning/utled';
+import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
@@ -155,7 +155,8 @@ export function nyVersjonAvPaaberopelsen(u: Utledning, tekst: string) {
     )
   );
   const felt = oppgittDato(gjeldende.hovedkategori, gjeldende.underkategori);
-  const siste = felt === null ? null : sisteDatoopplysning(u, felt);
+  // TEs siste opplysning i feltet, som `sisteDatoopplysning` i kjernen (lesepunktet er `$lib/kjernesak/`).
+  const siste = felt === null ? null : u.datoopplysninger.findLast((o) => o.felt === felt);
   if (felt !== null && siste) innhold[felt] = siste.dato;
   const utdypning = tekst.trim();
   return {
