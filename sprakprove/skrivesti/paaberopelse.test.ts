@@ -103,7 +103,11 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
   }
 
   it.each([
-    ['endring', valg({ datoer: { paalegg_mottatt: '2026-10-01' } }), 'pålegget ble mottatt'],
+    [
+      'endring',
+      valg({ datoer: { paalegg_mottatt: '2026-10-01' } }),
+      'Pålegget ble mottatt 1. oktober 2026.',
+    ],
     [
       'svikt',
       valg({
@@ -111,7 +115,7 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
         underkategori: 'GRUNN',
         datoer: { klar_over_forholdet: '2026-10-01' },
       }),
-      'totalentreprenøren ble klar over forholdet',
+      'Totalentreprenøren ble klar over forholdet 1. oktober 2026.',
     ],
     [
       'endringsordre',
