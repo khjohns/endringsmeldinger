@@ -16,7 +16,7 @@
 </script>
 
 <script lang="ts">
-  import { BookOpen, FileText, Info, Lock } from 'lucide-svelte';
+  import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { kroner } from '$kjerne/frosset/standpunkt';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -31,6 +31,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
+  import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import { tomtSvar, vederlagssvaret, type Svarvalg } from './kommandoer';
   import { brevene, brevet, datoerISporet, klarOverForholdet, standpunktene } from './lesing';
@@ -360,24 +361,14 @@
 
 <Arbeidsflate leser={leser && !smal}>
   {#snippet hoved()}
-    <form class="utkast" aria-labelledby={`${uid}-tittel`} onsubmit={(e) => e.preventDefault()}>
-      <header class="utkasthode">
-        <div class="tittelrad">
-          <h2 class="tittel" id={`${uid}-tittel`}>
-            <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
-            {#if utkastbrev}<span
-                >{brevhode({
-                  merking: utkastbrev.merking,
-                  art: 'svar',
-                  brevtittel: utkastbrev.brevtittel,
-                })}</span
-              >{/if}
-          </h2>
-          <Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />
-        </div>
-        <p class="dempet">Til totalentreprenøren (TE)</p>
-        <p class="dempet synlig"><Lock size={14} aria-hidden="true" />{SKJEMA.synlig}</p>
-      </header>
+    <Utkastkort
+      id={`${uid}-tittel`}
+      tittel={utkastbrev
+        ? brevhode({ merking: utkastbrev.merking, art: 'svar', brevtittel: utkastbrev.brevtittel })
+        : null}
+      mottaker={SKJEMA.tilTE}
+    >
+      {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
       <div class="svarerpaa">
         <FileText size={16} aria-hidden="true" />
         <span>{SKJEMA.svarerPaa(kravbrevet)}</span>
@@ -559,7 +550,7 @@
           >
         {/if}
       </div>
-    </form>
+    </Utkastkort>
   {/snippet}
 
   {#snippet hoeyre()}
@@ -593,46 +584,6 @@
 {/if}
 
 <style>
-  .utkast {
-    background: var(--surface);
-    border: 1.5px dashed var(--draft-border);
-    border-radius: var(--r-kort);
-  }
-  .utkasthode {
-    background: var(--draft-bg);
-    border-radius: calc(var(--r-kort) - 1.5px) calc(var(--r-kort) - 1.5px) 0 0;
-    padding: var(--spacing-5) var(--spacing-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
-  }
-  .tittelrad {
-    display: flex;
-    align-items: flex-start;
-  }
-  .tittel {
-    flex: 1;
-    display: flex;
-    line-height: 1.4;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-3);
-    font-size: 20px;
-    font-weight: 600;
-  }
-  .merke-utkast {
-    padding: 0 var(--spacing-2);
-    border: 1px dashed var(--draft-border);
-    border-radius: var(--r-merke);
-    background: var(--surface);
-    font-size: 12px;
-    font-weight: 500;
-  }
-  .synlig {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-1);
-  }
   .svarerpaa {
     display: flex;
     flex-wrap: wrap;

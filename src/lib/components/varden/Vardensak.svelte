@@ -15,10 +15,20 @@
   import Sporlesing from './Sporlesing.svelte';
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
-  import { tomtSvar } from './kommandoer';
+  import Korrigering from './Korrigering.svelte';
+  import { tomtSvar, type Korrigeringsvalg } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
-  import { brevene, forholdetISaken, type Brevref } from './lesing';
-  import { BREVKONTROLL, MOTTATT, NYSAK, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
+  import { brevene, datoopplysningene, forholdetISaken, type Brevref } from './lesing';
+  import {
+    BREVKONTROLL,
+    KORRIGERING,
+    MOTTATT,
+    NYSAK,
+    SAKEN,
+    SPORNAVN,
+    STILLING,
+    dato,
+  } from './tekster';
 
   let {
     kjernesak,
@@ -69,11 +79,18 @@
     sendTekst: string;
     tilbakeTil: string;
     svarerPaa: Brevref | null;
+    henvisning?: string;
+    /** Kvitteringen etter sendingen, ellers den generelle. */
+    kvittering?: string;
     tilbake: Arbeid;
     /** Brevet er svarutkastet, som tømmes når det er sendt. */
     erUtkastet: boolean;
   };
-  type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
+  type Arbeid =
+    | { art: 'les' }
+    | { art: 'svar' }
+    | { art: 'korrigering'; gjelder: string }
+    | ({ art: 'kontroll' } & Kontroll);
 
   const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
     { id: 'forholdet', etikett: SAKEN.kontraktsforhold, spor: ['forhold'] },
@@ -83,6 +100,8 @@
   let valgt = $state<Spor>(untrack(() => spor ?? (kvittering ? 'forhold' : 'vederlag')));
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
+  // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
+  let korrigeringsvalg = $state<Korrigeringsvalg>({ dato: '', forklaring: '' });
   // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
   // omtrent like bredt som ellers (oppdragsgiver 30.10, #1391).
   let vedSiden = $state(false);
@@ -136,8 +155,18 @@
       svarvalg = tomtSvar();
       utkastAapent = false;
     }
+    const kvittering = arbeid.art === 'kontroll' ? arbeid.kvittering : undefined;
+    if (kvittering) korrigeringsvalg = { dato: '', forklaring: '' };
     arbeid = { art: 'les' };
-    melding = { tekst: MOTTATT.dittBrev, art: 'sendt' };
+    melding = { tekst: kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
+  }
+
+  async function forkastKorrigeringen() {
+    korrigeringsvalg = { dato: '', forklaring: '' };
+    arbeid = { art: 'les' };
+    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    await tick();
+    meldingen?.focus();
   }
 
   /**
@@ -269,6 +298,7 @@
           tittel={k.tittel}
           handling={k.handling}
           svarerPaa={k.svarerPaa}
+          henvisning={k.henvisning}
           detteSender={k.detteSender}
           virkninger={k.virkninger}
           sendTekst={k.sendTekst}
@@ -276,6 +306,35 @@
           ontilbake={() => (arbeid = k.tilbake)}
           onsendt={sendt}
           onavvist={() => byggPaaNytt(k)}
+        />
+      {:else if arbeid.art === 'korrigering' && kjernesak.handlinger.includes(`korrigere:${arbeid.gjelder}`)}
+        {@const gjelder = arbeid.gjelder}
+        <Korrigering
+          {kjernesak}
+          {u}
+          {gjelder}
+          bind:valg={korrigeringsvalg}
+          onforkast={forkastKorrigeringen}
+          onbrevkontroll={(k) => {
+            const viserTil = datoopplysningene(u).find((o) => o.id === gjelder)?.brev ?? null;
+            arbeid = {
+              art: 'kontroll',
+              ...k,
+              handling: KORRIGERING.handling,
+              sendTekst: KORRIGERING.sendTekst,
+              tilbakeTil: KORRIGERING.tilbakeTil,
+              svarerPaa: viserTil,
+              henvisning: BREVKONTROLL.viserTil,
+              kvittering: KORRIGERING.kvittering(
+                (k.kommando.paalegg_mottatt ?? k.kommando.klar_over_forholdet) as string,
+                k.kommando.paalegg_mottatt ? 'paalegg_mottatt' : 'klar_over_forholdet',
+                u.forholdAvvist,
+                !!u.spor.forhold.gjeldendeSvar
+              ),
+              tilbake: { art: 'korrigering', gjelder },
+              erUtkastet: false,
+            };
+          }}
         />
       {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
         <Vederlagssvar
@@ -306,6 +365,10 @@
             spor={valgt}
             {dagensVisning}
             onspor={velgSpor}
+            onkorriger={(gjelder) => {
+              melding = null;
+              arbeid = { art: 'korrigering', gjelder };
+            }}
             onvelg={(n) => {
               melding = null;
               if (n === 'svare:vederlag') {

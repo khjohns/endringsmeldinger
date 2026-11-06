@@ -31,6 +31,16 @@
       "dato": "2026-11-06",
       "forhold": "#1615, LV-U56, LV-U57",
       "hva": "Brevteksten for en ny grunnlagsversjon etter en korrigering følger LV-U56: den nevner hver tidligere dato med brevet, den opprinnelige først, i stedet for det siste brevet med en korrigering (LV-U54). Setningen om datoen i det første brevet følger LV-U57."
+    },
+    {
+      "dato": "2026-11-06",
+      "forhold": "oppdragsgiver 06.11, tekstene i #1646",
+      "hva": "Forståelsen kaller ikke påberopelsen et krav eller en kravversjon, og sier at påberopelsen og svaret står som de ble sendt, ikke at saken venter eller ikke venter på BH."
+    },
+    {
+      "dato": "2026-11-06",
+      "forhold": "oppdragsgiver 06.11, i #1646",
+      "hva": "Forståelsen sier ikke lenger at partene ser hvilken opplysning svaret gjaldt. Løsningen tolker ikke svaret."
     }
   ],
   "bestilling": "BF-02A.md",
@@ -103,7 +113,7 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "TE finner datoen TE oppga i grunnlagskravet, og ser at den korrigeres i et eget brev som ikke er en ny kravversjon og ikke avslår svaret.",
+          "tekst": "TE finner datoen TE oppga i påberopelsen, og ser at den korrigeres i et eget brev, og at påberopelsen og svaret står som de ble sendt.",
           "kilde": [
             "MM-U52",
             "VS-U43"
@@ -161,13 +171,13 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere, og at svaret og påberopelsen gjaldt opplysningen 15.09.2026.",
+          "tekst": "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere.",
           "kilde": [
             "MM-U52"
           ]
         },
         {
-          "tekst": "BH ser korrigeringen som et nytt brev med henvisning til grunnlagskravet. Svaret står med virkningen det hadde, påberopelsen står med tidspunktet, og sporet venter ikke på et nytt svar.",
+          "tekst": "BH ser korrigeringen som et nytt brev med henvisning til påberopelsen. BH ser at svaret står som det ble sendt, og at BH kan ta stilling til den nye datoen i et senere svar.",
           "kilde": [
             "MM-U52",
             "VS-U46"
@@ -181,7 +191,7 @@
           ]
         },
         {
-          "tekst": "TE ser at en senere ny versjon av grunnlagskravet gjengir den nye datoen og nevner den tidligere datoen med brevet den ble oppgitt i.",
+          "tekst": "TE ser at en senere ny versjon av påberopelsen gjengir den nye datoen og nevner den tidligere datoen med brevet den ble oppgitt i.",
           "kilde": [
             "MM-U52",
             "LV-U56",

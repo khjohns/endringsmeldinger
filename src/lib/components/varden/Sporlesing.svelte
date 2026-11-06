@@ -48,6 +48,7 @@
     spor,
     onvelg,
     onspor,
+    onkorriger,
     onakseptbrev,
     dagensVisning,
   }: {
@@ -60,6 +61,8 @@
     onspor?: (spor: Spor) => void;
     /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
     dagensVisning?: string;
+    /** TE velger «Korriger datoen» ved opplysningen (U-1 i BF-02A). */
+    onkorriger?: (opplysning: string) => void;
     onakseptbrev: (k: {
       kommando: Record<string, unknown>;
       tekst: string[];
@@ -97,8 +100,10 @@
     !kanGodta && spor === 'vederlag' && iSporet.includes('svare:vederlag') ? 'svare:vederlag' : null
   );
   const harPrimaer = $derived(!!(nyVersjon || godta || svare));
-  // Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for BF-02A (#1615).
-  // Til den er bygget, tilbys den ikke her.
+  // Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista (U-1 i BF-02A, #1615).
+  const korrigerbare = $derived(
+    kjernesak.handlinger.filter((n) => n.startsWith('korrigere:')).map((n) => n.slice(10))
+  );
   const menyvalg = $derived(
     iSporet.filter(
       (n) => n !== nyVersjon && n !== godta && n !== svare && !n.startsWith('korrigere:')
@@ -225,6 +230,8 @@
         betegnelser={betegnelsene(kjernesak.saksbilde)}
         onles={lesBrevet}
         {onspor}
+        {korrigerbare}
+        {onkorriger}
       />
     {:else if vist}
       {#if lestBrev}

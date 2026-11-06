@@ -49,6 +49,7 @@
     revisjon: 'reviderer svaret',
     aksept: 'godtar svaret',
     trekk: 'trekker kravet',
+    korrigering: 'korrigerer datoen',
   };
 
   const kontrollpunkt = $derived(forloep.kontrollpunkter.find((p) => p.id === punkt)!);

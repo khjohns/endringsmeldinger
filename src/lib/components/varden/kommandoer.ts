@@ -108,3 +108,34 @@ export const aksepten = (spor: Spor, svar: string, regelversjon: number) => ({
   svar,
   regelversjon,
 });
+
+/** Det TE har skrevet i skjemaet for korrigeringen av datoen. */
+export interface Korrigeringsvalg {
+  /** «2026-09-20», tom før TE har skrevet den. */
+  dato: string;
+  forklaring: string;
+}
+
+/**
+ * TEs korrigering av opplysningen om datoen (MM-U52 punkt 10), i feltet opplysningen har. Den
+ * valgfrie forklaringen er `utdypning` (MM-U53). Kjernen avviser en uendret dato og en dato
+ * etter brevets dato.
+ */
+export function korrigeringen(
+  v: Korrigeringsvalg,
+  opplysning: { id: string; hva: 'paalegg_mottatt' | 'klar_over_forholdet' }
+) {
+  const utdypning = v.forklaring.trim();
+  return {
+    type: 'korrigering' as const,
+    gjelder: opplysning.id,
+    [opplysning.hva]: v.dato,
+    ...(utdypning ? { utdypning } : {}),
+  } as {
+    type: 'korrigering';
+    gjelder: string;
+    paalegg_mottatt?: string;
+    klar_over_forholdet?: string;
+    utdypning?: string;
+  };
+}

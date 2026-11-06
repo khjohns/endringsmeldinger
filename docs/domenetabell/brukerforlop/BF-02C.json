@@ -36,6 +36,11 @@
       "dato": "2026-11-06",
       "forhold": "#1615, LV-U56",
       "hva": "Etter korrigeringen gjengir den nye versjonen datoen og nevner den tidligere datoen med brevet den ble oppgitt i (LV-U56)."
+    },
+    {
+      "dato": "2026-11-06",
+      "forhold": "oppdragsgiver 06.11, tekstene i #1646",
+      "hva": "Forståelsen kaller ikke den nye versjonen en ny kravversjon."
     }
   ],
   "steg": [
@@ -102,7 +107,7 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "TE ser forskjellen før valget: en ny versjon er en ny kravversjon, og svaret kan da ikke godtas i løsningen, mens korrigeringen lar svaret stå.",
+          "tekst": "TE ser forskjellen før valget: etter en ny versjon av påberopelsen kan svaret ikke godtas i løsningen, mens påberopelsen og svaret står som de ble sendt etter korrigeringen.",
           "kilde": [
             "MM-U52",
             "KA-U52"

@@ -27,6 +27,7 @@
     tittel,
     handling,
     svarerPaa,
+    henvisning = BREVKONTROLL.svarerPaa,
     detteSender,
     virkninger,
     sendTekst,
@@ -51,6 +52,8 @@
     /** Det avsenderen gjør, som overskrift i panelet. */
     handling: string;
     svarerPaa: Brevref | null;
+    /** Ordet foran brevet i `svarerPaa`: «Svarer på», eller «Viser til» for en korrigering. */
+    henvisning?: string;
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
     sendTekst: string;
@@ -139,7 +142,7 @@
       <dt>{BREVKONTROLL.til}</dt>
       <dd>{partnavn(mottaker)}</dd>
       {#if svarerPaa}
-        <dt>{BREVKONTROLL.svarerPaa}</dt>
+        <dt>{henvisning}</dt>
         <dd>{BREVKONTROLL.svarerPaaBrev(svarerPaa)}</dd>
       {/if}
     </dl>
