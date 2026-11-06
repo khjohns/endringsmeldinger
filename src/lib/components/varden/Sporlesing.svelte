@@ -89,26 +89,24 @@
   const vist = $derived(lestBrev ?? (kanGodta && svarbrevet ? svarbrevet : siste));
   // Handlingene står i et kort øverst i høyre kolonne, på linje med kortet i midten, i alle
   // tilstandene til sporet, som i prototypen `grunnlagsoversikt.html` (oppdragsgiver 05.11, #1631).
-  // Primærhandlingen etter et svar er den nye versjonen, så byggherren vurderer kravet på nytt
-  // (oppdragsgiver 06.11, #1631). Den åpner dagens visning til den er bygget i Varden; uten den
-  // er aksepten primærhandlingen. Ellers er primærhandlingen å svare på kravet.
-  const nyVersjon = $derived(
-    kanGodta && dagensVisning && iSporet.includes(`krav:${spor}`) ? `krav:${spor}` : null
+  // Primærhandlingen er svaret på motpartens siste brev når kjernen tilbyr det, og etter
+  // byggherrens svar TEs nye versjon. Ellers har kortet ingen (oppdragsgiver 06.11, #1649).
+  const primaer = $derived(
+    iSporet.includes(`svare:${spor}`)
+      ? `svare:${spor}`
+      : kanGodta && iSporet.includes(`krav:${spor}`)
+        ? `krav:${spor}`
+        : null
   );
-  const godta = $derived(kanGodta && !nyVersjon ? `godta:${spor}` : null);
-  const svare = $derived(
-    !kanGodta && spor === 'vederlag' && iSporet.includes('svare:vederlag') ? 'svare:vederlag' : null
-  );
-  const harPrimaer = $derived(!!(nyVersjon || godta || svare));
+  const harPrimaer = $derived(primaer !== null);
+  const bygget = $derived(['godta', ...(spor === 'vederlag' ? ['svare'] : ['krav'])]);
+  const primaerBygget = $derived(!!primaer && bygget.includes(primaer.split(':')[0]));
+  let primaerIkkeBygget = $state(false);
   // Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista (U-1 i BF-02A, #1615).
   const korrigerbare = $derived(
     kjernesak.handlinger.filter((n) => n.startsWith('korrigere:')).map((n) => n.slice(10))
   );
-  const menyvalg = $derived(
-    iSporet.filter(
-      (n) => n !== nyVersjon && n !== godta && n !== svare && !n.startsWith('korrigere:')
-    )
-  );
+  const menyvalg = $derived(iSporet.filter((n) => n !== primaer && !n.startsWith('korrigere:')));
   const avslag = $derived(
     svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
   );
@@ -145,6 +143,8 @@
     if (type === 'varsle' || type === 'sende_varsel') return varselet(type, id);
     if (n === 'trekke:forhold') return FORHOLDET.trekk;
     if (n === `godta:${spor}`) return HANDLINGENE.godta(avslag);
+    if (n === 'svare:forhold')
+      return u.spor.forhold.krav.length > 1 ? FORHOLDET.svarNyVersjon : FORHOLDET.svar;
     if (n === 'krav:forhold') return kanGodta ? FORHOLDET.oppdater : FORHOLDET.nyVersjon;
     if (type === 'krav' && kanGodta) return HANDLINGENE.revidertKrav;
     const e = u.elementer[id];
@@ -214,7 +214,7 @@
   <Brevtyper
     tittel={harPrimaer ? HANDLINGENE.andre : null}
     handlinger={menyvalg}
-    bygget={['godta', ...(spor === 'vederlag' ? ['svare'] : [])]}
+    {bygget}
     tekstFor={innsigelsestekst}
     beskrivelseFor={virkningen}
     {dagensVisning}
@@ -271,33 +271,42 @@
     {#if menyvalg.length || harPrimaer}
       <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
         <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
-        {#if nyVersjon}
-          {@const linje = virkningen(nyVersjon)}
+        {#if primaer}
+          {@const linje = virkningen(primaer)}
+          {@const tekst =
+            innsigelsestekst(primaer) ??
+            BREVTYPER.find((b) => b.type === primaer!.split(':')[0])!.tekst}
           <div class="primaer">
-            <Knapp variant="primaer" href={dagensVisning} aria-describedby={`${uid}-primaer`}
-              >{innsigelsestekst(nyVersjon)}<ChevronRight size={16} aria-hidden="true" /></Knapp
-            >
-            <p class="dempet" id={`${uid}-primaer`}>{linje}</p>
+            {#if primaerBygget}
+              <Knapp
+                variant="primaer"
+                onclick={() => velg(primaer!)}
+                aria-describedby={linje ? `${uid}-primaer` : undefined}
+                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
+              >
+            {:else if dagensVisning}
+              <Knapp
+                variant="primaer"
+                href={dagensVisning}
+                aria-describedby={linje ? `${uid}-primaer` : undefined}
+                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
+              >
+            {:else}
+              <Knapp
+                variant="primaer"
+                onclick={() => (primaerIkkeBygget = true)}
+                aria-describedby={linje ? `${uid}-primaer` : undefined}
+                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
+              >
+            {/if}
+            {#if linje}<p class="dempet" id={`${uid}-primaer`}>{linje}</p>{/if}
+            {#if !primaerBygget && !dagensVisning}
+              <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
+              <p class="dempet" role="status">
+                {primaerIkkeBygget ? HANDLINGENE.ikkeBygget : ''}
+              </p>
+            {/if}
           </div>
-        {:else if godta}
-          <div class="primaer">
-            <Knapp
-              variant="primaer"
-              onclick={() => velg(godta!)}
-              aria-describedby={`${uid}-primaer`}
-              >{HANDLINGENE.godta(avslag)}<ChevronRight size={16} aria-hidden="true" /></Knapp
-            >
-            {#if svarbrevet}<p class="dempet" id={`${uid}-primaer`}>
-                {HANDLINGENE.virkning.godta(svarbrevet)}
-              </p>{/if}
-          </div>
-        {:else if svare}
-          <Knapp variant="primaer" onclick={() => onvelg(svare!)}
-            >{BREVTYPER.find((b) => b.type === 'svare')!.tekst}<ChevronRight
-              size={16}
-              aria-hidden="true"
-            /></Knapp
-          >
         {/if}
         {@render meny()}
         {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}

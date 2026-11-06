@@ -626,11 +626,16 @@ describe('Varden med brukerforløpet BF-01', () => {
       )
         iVarden.push('godta:vederlag');
       if (screen.queryByRole('button', { name: 'Svar på kravet' })) iVarden.push('svare:vederlag');
+      if (
+        screen.queryByRole('button', { name: 'Revider krav' }) ||
+        screen.queryByRole('link', { name: 'Revider krav' })
+      )
+        iVarden.push('krav:vederlag');
       expect(iVarden.sort()).toEqual([...tilbudt].sort());
     }
   );
 
-  it('etter avslaget av forholdet er primærhandlingen for TE «Oppdater påberopelse», og godta og trekk står synlige under (oppdragsgiver 06.11, #1631)', async () => {
+  it('etter avslaget av forholdet er primærhandlingen for TE «Oppdater påberopelse», og godta og trekk står synlige under (oppdragsgiver 06.11, #1631, #1649)', async () => {
     const demosak = lagDemosak(finnForloep('BF-04')!, 'forholdet-er-avslaatt', 'TE');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
@@ -644,8 +649,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     const kortet = within(
       (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
     );
-    const primaer = kortet.getByRole('link', { name: 'Oppdater påberopelse' });
-    expect(primaer.getAttribute('href')).toBe('/demo/sak/kjerne');
+    // «Oppdater påberopelse» er bygget i Varden (BF-10), så den åpner skjemaet, ikke dagens visning.
+    const primaer = kortet.getByRole('button', { name: 'Oppdater påberopelse' });
     // Teksten oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
     expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
       'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'

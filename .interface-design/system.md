@@ -279,9 +279,8 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   den gjør. Primærhandlingen er svaret på motpartens siste brev når det ikke er besvart. Etter
   byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Revider krav»
   ellers). Ellers har kortet ingen primærhandling, også når TE har korrigert datoen (oppdragsgiver
-  06.11, #1649). Regelen er vedtatt; BHs svar i forholdet er ikke bygget som primærhandling ennå,
-  og uten lenke til den gamle visningen er «Godta svaret» primær til «Oppdater påberopelse» er
-  bygget (#1649). «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  06.11, #1649). Demoruta og den ekte saksruta har samme primærhandling. Er den ikke bygget i
+  Varden, åpner den dagens visning, og uten lenke dit sier den at den ikke er bygget. «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
   `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
   ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to
