@@ -86,10 +86,11 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
-  li {
+  /* Radene med en handling Varden kan åpne, har skillelinjer; de andre er en dempet liste. */
+  li:has(button) {
     border-top: var(--rule-subtle);
   }
-  li:last-child {
+  li:has(button):last-child {
     border-bottom: var(--rule-subtle);
   }
   button {
@@ -121,11 +122,15 @@
   }
   .ikke-bygget {
     display: block;
-    padding: var(--spacing-2) 0;
-    color: var(--ink-2);
+    padding: var(--spacing-1) 0;
+    color: var(--ink-3);
+    font-size: 14px;
   }
   .gruppetekst {
     padding: var(--spacing-3) 0 var(--spacing-1);
+  }
+  .gruppetekst:first-child {
+    padding-top: 0;
   }
   .dempet {
     color: var(--ink-3);

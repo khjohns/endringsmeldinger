@@ -288,6 +288,11 @@
     color: var(--ink-2);
     text-decoration: none;
   }
+  .sti a:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+    border-radius: var(--r-felt);
+  }
   .sti a:hover {
     color: var(--ink);
     text-decoration: underline;

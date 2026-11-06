@@ -420,6 +420,7 @@ export const FORHOLDET = {
   blirSubsidiaert: (b: Brevref) =>
     `Et svar blir subsidiært så lenge byggherren står fast på ${brevref(b)}.`,
   trekk: 'Trekk påberopelsen',
+  nyVersjon: 'Send ny versjon av påberopelsen',
   handlinger: 'Det du kan gjøre nå',
   beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,
   begrunnelsen: 'Begrunnelsen',

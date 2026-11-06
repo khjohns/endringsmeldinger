@@ -238,7 +238,7 @@
   }
   .num {
     font-family: var(--font-mono);
-    font-size: 17px;
+    font-size: 16px;
   }
   .lag {
     color: var(--ink-2);

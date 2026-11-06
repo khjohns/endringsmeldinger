@@ -139,6 +139,7 @@
     const [type, id] = n.split(':');
     if (type === 'varsle' || type === 'sende_varsel') return varselet(type, id);
     if (n === 'trekke:forhold') return FORHOLDET.trekk;
+    if (n === 'krav:forhold') return FORHOLDET.nyVersjon;
     const e = u.elementer[id];
     if (type !== 'innsigelse' || !e) return null;
     return innsigelsen(e.art, sporbrev.find((b) => b.id === e.hendelse)?.nummer ?? null);
