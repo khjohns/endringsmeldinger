@@ -76,7 +76,7 @@
     kommando: Record<string, unknown>;
     tekst: string[];
     utdypning?: string;
-    detteSender: { tekst: string; lag: string | null; vei?: string }[];
+    detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
     merking: string | null;
     deresRef: string[];
@@ -226,18 +226,6 @@
   }
 </script>
 
-<!-- I bekreftelsen av en ny versjon står veien til en ny sak under linja om forholdet, for en
-     annen hjemmel eller endringsordre. Den kaster ikke utkastet (BF-10 U-2). -->
-{#snippet veiINyVersjon(hvilken: string)}
-  {#if hvilken === 'forholdet' && nySakLenke}
-    <span class="fast">
-      {NYVERSJON.nySak}
-      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-      <a href={nySakLenke} target="_blank" rel="noopener">{NYVERSJON.nySakLenke}</a>
-    </span>
-  {/if}
-{/snippet}
-
 <Vardenskall
   {sti}
   {bruker}
@@ -342,7 +330,6 @@
           detteSender={k.detteSender}
           virkninger={k.virkninger}
           sendTekst={k.sendTekst}
-          vei={k.tilbake.art === 'nyversjon' ? veiINyVersjon : undefined}
           tilbakeTil={k.tilbakeTil}
           ontilbake={() => (arbeid = k.tilbake)}
           onsendt={sendt}
@@ -428,6 +415,7 @@
             {u}
             spor={valgt}
             {dagensVisning}
+            nySak={kjernesak.handlinger.includes('krav:forhold') ? nySakLenke : undefined}
             onspor={velgSpor}
             onkorriger={(gjelder) => {
               melding = null;
@@ -468,16 +456,6 @@
 </Vardenskall>
 
 <style>
-  .fast {
-    margin: 0;
-  }
-  .fast a {
-    color: var(--ink);
-    text-underline-offset: 3px;
-  }
-  .fast a:hover {
-    text-decoration-thickness: 2px;
-  }
   h1 {
     font-size: 24px;
     font-weight: 600;

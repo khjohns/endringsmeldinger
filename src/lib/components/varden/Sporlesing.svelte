@@ -51,6 +51,7 @@
     onkorriger,
     onakseptbrev,
     dagensVisning,
+    nySak,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -61,6 +62,8 @@
     onspor?: (spor: Spor) => void;
     /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
     dagensVisning?: string;
+    /** Lenken til skjemaet for ny sak, når TE kan sende en ny versjon av påberopelsen (BF-10 U-2). */
+    nySak?: string;
     /** TE velger «Korriger datoen» ved opplysningen (U-1 i BF-02A). */
     onkorriger?: (opplysning: string) => void;
     onakseptbrev: (k: {
@@ -232,6 +235,7 @@
         {onspor}
         {korrigerbare}
         {onkorriger}
+        {nySak}
       />
     {:else if vist}
       {#if lestBrev}

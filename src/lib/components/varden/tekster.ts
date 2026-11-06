@@ -465,6 +465,9 @@ export const FORHOLDET = {
   nyVersjon: 'Send ny versjon av påberopelsen',
   /** Den nye versjonen etter byggherrens svar (oppdragsgiver 06.11, #1631). */
   oppdater: 'Oppdater påberopelse',
+  /** BF-10 U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
+  annen: 'Annen hjemmel eller endringsordre:',
+  annenLenke: 'opprett en ny sak (ny fane)',
   /** BHs primærhandling i forholdet (oppdragsgiver 06.11, #1649). */
   svar: 'Svar på påberopelsen',
   svarNyVersjon: 'Svar på den nye versjonen',
@@ -572,9 +575,6 @@ export const NYVERSJON = {
   lesSvaret: 'Les svaret ved siden av',
   lesSvaretHer: 'Les svaret',
   lukkSvaret: 'Lukk svaret',
-  /** U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
-  nySak: 'Annen hjemmel eller endringsordre:',
-  nySakLenke: 'opprett en ny sak (ny fane)',
   /** D-6 og 10d: en registrert enighet står (KA-U52 punkt 5). */
   enighet: (svar: Brevref) =>
     `Du godtok svaret i ${brevref(svar)}. Enigheten står, og den nye versjonen avviker fra den.`,

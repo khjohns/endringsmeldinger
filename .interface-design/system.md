@@ -273,11 +273,11 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
     metadata, og byggherrens standpunkter med en linje i blekk til venstre som et sitat. Lenken
     åpner hele svaret ved siden av. Primærhandlingen står adskilt i bunnen av kortet, og
     tidslinja under.
-  - Datoen og korrigeringen av den står på oversikten, ikke i arbeidsflaten eller bekreftelsen.
-    Mønsteret er oversikt › arbeidsflate › bekreft, og hvert område har bare det som trengs for
-    formålet sitt: å velge handling, å skrive og å kontrollere brevet før sending.
-  - I brevkontrollen står en vei til et eget brev eller en egen sak innrykket under linja den
-    gjelder i «Dette sender du», og virkningen under en egen overskrift, «Når du sender».
+  - Mønsteret er oversikt › arbeidsflate › bekreft, og hvert område har bare det som trengs for
+    formålet sitt: å velge handling, å skrive og å kontrollere brevet før sending. Det som står
+    fast i en ny versjon, står på oversikten med veien til det som kan endre det: «Korriger
+    datoen» ved datoen i brevtråden, og veien til en ny sak ved forholdet i sporhodet.
+  - I brevkontrollen står virkningen under en egen overskrift, «Når du sender».
 - **En knapp er aldri sperret** ([MM-U32](#mm-u32)). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens

@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
-  import { onMount, tick, type Snippet } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import type { Part } from '$kjerne/typer';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
@@ -31,7 +31,6 @@
     detteSender,
     virkninger,
     kanIkkeGjoeresOm = false,
-    vei,
     sendTekst,
     tilbakeTil,
     ontilbake,
@@ -56,18 +55,13 @@
     svarerPaa: Brevref | null;
     /** Ordet foran brevet i `svarerPaa`: «Svarer på», eller «Viser til» for en korrigering. */
     henvisning?: string;
-    detteSender: { tekst: string; lag: string | null; vei?: string }[];
+    detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
     /**
      * Handlingen kan ikke gjøres om, som trekket av påberopelsen. Virkningen står da i svak rød,
      * bare her i brevkontrollen (oppdragsgiver 06.11, #1615).
      */
     kanIkkeGjoeresOm?: boolean;
-    /**
-     * Veien til et eget brev under linja den gjelder i «Dette sender du», for det som ikke kan
-     * endres i brevet. Kalles med `vei` fra linja.
-     */
-    vei?: Snippet<[string]>;
     sendTekst: string;
     tilbakeTil: string;
     ontilbake: () => void;
@@ -158,17 +152,16 @@
         <dd>{BREVKONTROLL.svarerPaaBrev(svarerPaa)}</dd>
       {/if}
     </dl>
-    <div class="sender">
-      <h3>{BREVKONTROLL.detteSender}</h3>
-      <ul>
-        {#each detteSender as l, i (i)}
-          <li>
-            {l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.
-            {#if l.vei && vei}<div class="vei">{@render vei(l.vei)}</div>{/if}
-          </li>
-        {/each}
-      </ul>
-    </div>
+    {#if detteSender.length}
+      <div class="sender">
+        <h3>{BREVKONTROLL.detteSender}</h3>
+        <ul>
+          {#each detteSender as l, i (i)}
+            <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
     {#if virkninger.length}
       <div class="virkning">
         <h3>{BREVKONTROLL.naarDuSender}</h3>
@@ -266,28 +259,15 @@
     margin-bottom: var(--spacing-2);
   }
   ul {
+    display: grid;
+    gap: var(--spacing-2);
     list-style: disc;
     padding-left: var(--spacing-5);
     margin-bottom: var(--spacing-3);
     font-size: 14px;
   }
-  ul {
-    display: grid;
-    gap: var(--spacing-2);
-  }
   ul:last-child {
     margin-bottom: 0;
-  }
-  /* Veien til et eget brev står under linja den gjelder, innrykket med en tynn linje til
-     venstre, så den leses som en del av den linja og ikke som en ny opplysning. */
-  .vei {
-    display: grid;
-    gap: var(--spacing-1);
-    justify-items: start;
-    margin-top: var(--spacing-1);
-    padding-left: var(--spacing-3);
-    border-left: var(--rule-strong);
-    color: var(--ink-3);
   }
   .virkninger {
     display: grid;

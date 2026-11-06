@@ -20,6 +20,7 @@
     onles,
     onspor,
     onkorriger,
+    nySak,
   }: {
     u: Utledning;
     /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */
@@ -29,6 +30,11 @@
     onles: (id: string) => void;
     onspor?: (spor: Spor) => void;
     onkorriger?: (opplysning: string) => void;
+    /**
+     * Lenken til skjemaet for ny sak. Hjemmelen og endringsordren står i en ny versjon, så en
+     * annen går i en ny sak (GR-U22, OV-U57, BF-10 U-2). Den står ved forholdet, på oversikten.
+     */
+    nySak?: string;
   } = $props();
   const uid = $props.id();
 
@@ -49,6 +55,13 @@
     {#if siste && siste !== trekket}<p class="siste">
         {FORHOLDET.siste(siste, siste.avsender)}
       </p>{/if}
+    {#if nySak}
+      <p class="annen">
+        {FORHOLDET.annen}
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+        <a href={nySak} target="_blank" rel="noopener">{FORHOLDET.annenLenke}</a>
+      </p>
+    {/if}
     {#if trekket !== undefined}
       <p class="trukket" role="note">{FORHOLDET.trukket(trekket)}</p>
     {/if}
@@ -94,6 +107,19 @@
     margin-top: var(--spacing-1);
     font-size: 14px;
     color: var(--ink-2);
+  }
+  .annen {
+    margin-top: var(--spacing-2);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .annen a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .annen a:hover {
+    text-decoration-thickness: 2px;
   }
   .trukket {
     margin-top: var(--spacing-3);

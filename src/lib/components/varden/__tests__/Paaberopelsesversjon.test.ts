@@ -25,7 +25,13 @@ function aapne(forloep: string, punkt: string) {
   return () => demosak!;
 }
 
-async function vis(forloep: string, punkt: string, part: Part, spor: 'forhold' | 'vederlag') {
+async function vis(
+  forloep: string,
+  punkt: string,
+  part: Part,
+  spor: 'forhold' | 'vederlag',
+  nySakLenke?: string
+) {
   const demosak = lagDemosak(finnForloep(forloep)!, punkt, part);
   const kjernesak = lagKjernesak({
     sakId: demosak.sakId,
@@ -35,7 +41,7 @@ async function vis(forloep: string, punkt: string, part: Part, spor: 'forhold' |
     send: demosak.send,
   });
   await kjernesak.last();
-  render(Vardensak, { kjernesak, spor });
+  render(Vardensak, { kjernesak, spor, nySakLenke });
   return within(
     (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
   );
@@ -211,6 +217,30 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(konteksten.getByRole('button', { name: 'Gå til forhåndsvisning' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Les svaret/ })).toBeNull();
     expect(screen.queryByText(/Si hva du mener om svaret/)).toBeNull();
+  });
+});
+
+describe('veien til en ny sak (BF-10 U-2, GR-U22, OV-U57)', () => {
+  it('TE finner veien ved forholdet på oversikten, og den står verken i arbeidsflaten eller bekreftelsen (oppdragsgiver 06.11, PR 1650)', async () => {
+    await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'forhold', '/demo/ny');
+    const forholdet = within(
+      screen.getByRole('region', { name: 'Manglende medvirkning eller leveranser fra byggherren' })
+    );
+    expect(forholdet.getByText(/Annen hjemmel eller endringsordre/)).toBeTruthy();
+    const lenken = forholdet.getByRole('link', { name: 'opprett en ny sak (ny fane)' });
+    expect(lenken.getAttribute('href')).toBe('/demo/ny');
+    expect(lenken.getAttribute('target')).toBe('_blank');
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Oppdater påberopelse' }));
+    expect(screen.queryByRole('link', { name: /ny sak/ })).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Gå til forhåndsvisning' }));
+    await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
+    expect(screen.queryByRole('link', { name: /ny sak/ })).toBeNull();
+  });
+
+  it('BH ser ikke veien, fordi BH ikke kan sende en ny versjon av påberopelsen', async () => {
+    await vis('BF-04', 'forholdet-er-avslaatt', 'BH', 'forhold', '/demo/ny');
+    expect(screen.queryByRole('link', { name: /ny sak/ })).toBeNull();
   });
 });
 

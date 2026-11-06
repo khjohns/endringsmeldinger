@@ -38,7 +38,7 @@
       kommando: Record<string, unknown>;
       tekst: string[];
       utdypning?: string;
-      detteSender: { tekst: string; lag: string | null; vei?: string }[];
+      detteSender: { tekst: string; lag: string | null }[];
       virkninger: string[];
       merking: string | null;
       deresRef: string[];
@@ -71,11 +71,6 @@
   let hindring = $state<string | null>(null);
 
   const virkning = $derived(HANDLINGENE.virkning.nyVersjon('forhold', kravbrevet, svarbrevet));
-  const linjer = $derived([
-    ...(kravbrevet
-      ? [{ tekst: NYVERSJON.linjeErstatter(kravbrevet), lag: null, vei: 'forholdet' }]
-      : []),
-  ]);
 
   async function tilForhaandsvisningen() {
     hindring = null;
@@ -90,7 +85,8 @@
       kommando,
       tekst: b.tekst,
       utdypning: kommando.utdypning,
-      detteSender: linjer,
+      // Virkningen sier hva brevet erstatter, så «Dette sender du» ville gjentatt den.
+      detteSender: [],
       virkninger: [virkning, ...(enig ? [NYVERSJON.enighet(svarbrevet!)] : [])],
       merking: b.merking,
       deresRef: b.deresRef,
