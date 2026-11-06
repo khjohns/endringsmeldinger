@@ -110,21 +110,23 @@
               {/if}
               {#if i.oppgitt}
                 {@const o = i.opplysning}
-                <p class="sitat-dato">
-                  {FORHOLDET.oppgitt(i.oppgitt.hva, i.oppgitt.dato, b.avsender)}
-                  {#if o?.forrige}{FORHOLDET.korrigerer(o.forrige)}{/if}
-                  {#if o?.korrigertI}{FORHOLDET.korrigertI(o.korrigertI)}{/if}
-                </p>
                 <!-- Handlingen står ved datoen, og etter en korrigering ved den siste (U-1). -->
-                {#if o && onkorriger && korrigerbare.includes(o.id)}
-                  <p class="korriger">
+                <div class="datolinje">
+                  <p class="sitat-dato">
+                    {FORHOLDET.oppgitt(i.oppgitt.hva, i.oppgitt.dato, b.avsender)}
+                    {#if o?.forrige}{FORHOLDET.korrigerer(o.forrige)}{/if}
+                    {#if o?.korrigertI}{FORHOLDET.korrigertI(o.korrigertI)}{/if}
+                  </p>
+                  {#if o && onkorriger && korrigerbare.includes(o.id)}
                     <Knapp
                       variant="lenke"
                       aria-label={FORHOLDET.korrigerNavn(o.hva)}
                       onclick={() => onkorriger(o.id)}>{FORHOLDET.korriger}</Knapp
                     >
-                  </p>
-                  {#if lukket}<p class="virkning">{FORHOLDET.korrigerILukket}</p>{/if}
+                  {/if}
+                </div>
+                {#if o && onkorriger && korrigerbare.includes(o.id) && lukket}
+                  <p class="sitat-dato">{FORHOLDET.korrigerILukket}</p>
                 {/if}
               {/if}
             </div>
@@ -271,8 +273,11 @@
   .sitat-dato {
     color: var(--ink-2);
   }
-  .korriger :global(.knapp) {
-    margin-left: calc(-1 * var(--spacing-2));
+  .datolinje {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--spacing-3);
   }
   .virkning {
     color: var(--ink-2);

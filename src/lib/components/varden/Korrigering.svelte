@@ -174,8 +174,10 @@
       </div>
 
       <div class="innhold">
-        <p class="virkning">{KORRIGERING.egetBrev(svarbrevet)}</p>
-        {#if lukket}<p class="virkning">{KORRIGERING.lukket}</p>{/if}
+        <div class="virkning">
+          <p>{KORRIGERING.egetBrev(svarbrevet)}</p>
+          {#if lukket}<p>{KORRIGERING.lukket}</p>{/if}
+        </div>
 
         <div class="felt">
           <label for={id('dato')}>{KORRIGERING.nyDato(opplysningen.hva)}</label>
@@ -275,10 +277,9 @@
     padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
   }
   .virkning {
+    display: grid;
+    gap: var(--spacing-2);
     color: var(--ink-2);
-  }
-  .virkning + .virkning {
-    margin-top: calc(-1 * var(--spacing-4));
   }
   .felt {
     display: grid;
