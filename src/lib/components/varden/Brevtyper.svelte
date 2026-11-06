@@ -1,27 +1,35 @@
 <!--
-  «Skriv brev» og «Andre brev og handlinger» (Varden, skjerm B, D og E): brevtypene
-  kjernen tilbyr i sporet nå, i fast rekkefølge og uten fremheving. Brevtypene som ikke er
-  bygget i Varden, står samlet under én linje, så ingen handling kjernen tilbyr, faller bort.
-  Tilbyr kjernen ingenting, vises ikke menyen (MM-U25).
+  «Andre handlinger» i kortet «Det du kan gjøre nå» (Varden, prototypen `grunnlagsoversikt.html`):
+  brevtypene kjernen tilbyr i sporet nå, i fast rekkefølge og uten fremheving, som en åpen liste
+  med tittel, en linje om virkningen og pil (oppdragsgiver 06.11, #1631). En brevtype som ikke er
+  bygget i Varden, åpner dagens visning, så ingen handling kjernen tilbyr, faller bort. Tilbyr
+  kjernen ingenting, vises ikke lista (MM-U25).
 -->
 <script lang="ts">
-  import { ChevronDown } from 'lucide-svelte';
-  import { BREVTYPER, MOTTATT, ukjentHandling } from './tekster';
+  import { ChevronRight } from 'lucide-svelte';
+  import { BREVTYPER, ukjentHandling } from './tekster';
 
   let {
-    tittel,
+    tittel = null,
     handlinger,
     bygget,
     tekstFor = () => null,
+    beskrivelseFor = () => null,
+    dagensVisning,
     onvelg,
   }: {
-    tittel: string;
+    /** Overskriften over lista, eller ingen når lista er alt kortet har. */
+    tittel?: string | null;
     /** Nøklene kjernen tilbyr, som `krav:vederlag`. */
     handlinger: string[];
     /** Typene Varden kan åpne i denne prøven. */
     bygget: string[];
     /** Teksten for en bestemt nøkkel, som en innsigelse mot et bestemt brev. */
     tekstFor?: (noekkel: string) => string | null;
+    /** Linja under teksten: hva handlingen gjør med saken. */
+    beskrivelseFor?: (noekkel: string) => string | null;
+    /** Lenken til saken i dagens visning, for brevtypene som ikke er bygget. Demoruta har ingen. */
+    dagensVisning?: string;
     onvelg: (noekkel: string) => void;
   } = $props();
 
@@ -37,149 +45,107 @@
         return {
           noekkel: n,
           tekst: tekstFor(n) ?? type?.tekst ?? ukjentHandling(n),
+          virkning: beskrivelseFor(n),
           bygget: bygget.includes(n.split(':')[0]),
         };
       })
   );
-  const byggede = $derived(rader.filter((r) => r.bygget));
-  const ikkeByggede = $derived(rader.filter((r) => !r.bygget));
   const uid = $props.id();
-  let aapen = $state(false);
-  let meny = $state<HTMLDetailsElement | null>(null);
 </script>
 
-<svelte:window
-  onkeydown={(e) => {
-    if (e.key !== 'Escape' || !aapen || !meny?.contains(document.activeElement)) return;
-    aapen = false;
-    meny.querySelector('summary')?.focus();
-  }}
-/>
-
-{#snippet rad(r: (typeof rader)[number])}
-  <li data-handling={r.noekkel}>
-    {#if r.bygget}
-      <button
-        type="button"
-        onclick={() => {
-          aapen = false;
-          onvelg(r.noekkel);
-        }}>{r.tekst}</button
-      >
-    {:else}
-      <span class="ikke-bygget">{r.tekst}</span>
-    {/if}
-  </li>
+{#snippet innhold(r: (typeof rader)[number], pil: boolean)}
+  <span class="h">{r.tekst}</span>
+  {#if r.virkning}<span class="b">{r.virkning}</span>{/if}
+  {#if pil}<ChevronRight size={16} aria-hidden="true" />{/if}
 {/snippet}
 
 {#if rader.length}
-  <details class="meny" bind:open={aapen} bind:this={meny}>
-    <summary>{tittel}<ChevronDown size={16} aria-hidden="true" /></summary>
-    <div class="liste">
-      {#if byggede.length}
-        <ul>
-          {#each byggede as r (r.noekkel)}{@render rad(r)}{/each}
-        </ul>
-      {/if}
-      {#if ikkeByggede.length}
-        <div class="gruppe" class:skilt={byggede.length > 0}>
-          <p class="dempet gruppetekst" id={`${uid}-ikke-bygget`}>{MOTTATT.ikkeIProeven}</p>
-          <ul aria-labelledby={`${uid}-ikke-bygget`}>
-            {#each ikkeByggede as r (r.noekkel)}{@render rad(r)}{/each}
-          </ul>
-        </div>
-      {/if}
-    </div>
-  </details>
+  <div class="andre">
+    {#if tittel}<p class="tittel" id={`${uid}-tittel`}>{tittel}</p>{/if}
+    <ul aria-labelledby={tittel ? `${uid}-tittel` : undefined}>
+      {#each rader as r (r.noekkel)}
+        <li data-handling={r.noekkel}>
+          {#if r.bygget}
+            <button type="button" class="rad" onclick={() => onvelg(r.noekkel)}
+              >{@render innhold(r, true)}</button
+            >
+          {:else if dagensVisning}
+            <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+            <a class="rad" href={dagensVisning}>{@render innhold(r, true)}</a>
+          {:else}
+            <span class="rad ikke-bygget">{@render innhold(r, false)}</span>
+          {/if}
+        </li>
+      {/each}
+    </ul>
+  </div>
 {/if}
 
 <style>
-  /* Står til høyre også når linjen brytes, så lista åpner seg innenfor arbeidet. */
-  .meny {
-    position: relative;
-    margin-left: auto;
-  }
-  summary {
-    display: inline-flex;
-    align-items: center;
+  .andre {
+    display: flex;
+    flex-direction: column;
     gap: var(--spacing-2);
-    min-height: 44px;
-    padding: 0 var(--spacing-5);
-    border: 1.5px solid var(--ink);
-    border-radius: var(--r-knapp);
-    background: var(--surface);
-    color: var(--ink);
-    font-weight: 500;
-    cursor: pointer;
-    list-style: none;
+    width: 100%;
+    margin-top: var(--spacing-3);
   }
-  summary::-webkit-details-marker {
-    display: none;
+  .tittel {
+    color: var(--ink-3);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
-  summary:hover {
-    background: var(--surface-inset);
-  }
-  summary:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .liste {
-    position: absolute;
-    right: 0;
-    z-index: 10;
-    margin-top: var(--spacing-2);
-    width: 340px;
-    padding: var(--spacing-2);
-    background: var(--surface);
-    border: var(--rule-strong);
-    border-radius: var(--r-innfelt);
-    box-shadow: var(--meny-skygge);
+  /* Radene står mellom skillelinjer, med tittelen, virkningen under og pila til høyre, som i
+     prototypen `grunnlagsoversikt.html`. */
+  ul {
+    border-top: var(--rule-subtle);
   }
   li {
-    display: flex;
-    flex-direction: column;
-    padding: var(--spacing-1) 0;
+    border-bottom: var(--rule-subtle);
   }
-  button {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  .rad {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 16px;
+    gap: 2px var(--spacing-2);
     width: 100%;
-    min-height: 44px;
-    justify-content: center;
-    padding: var(--spacing-2) var(--spacing-3);
-    border-radius: var(--r-felt);
-    text-align: left;
-  }
-  button {
+    min-height: 48px;
+    padding: var(--spacing-3) 0;
     background: none;
     border: 0;
     font: inherit;
     color: var(--ink);
+    text-align: left;
+    text-decoration: none;
+  }
+  button.rad,
+  a.rad {
     cursor: pointer;
   }
-  button:hover {
-    background: var(--surface-inset);
+  .h {
+    font-weight: 600;
   }
-  button:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: -2px;
-  }
-  .ikke-bygget {
-    display: block;
-    padding: var(--spacing-1) var(--spacing-3);
+  .b {
+    grid-column: 1;
     color: var(--ink-2);
-  }
-  .gruppe.skilt {
-    margin-top: var(--spacing-2);
-    padding-top: var(--spacing-2);
-    border-top: var(--rule-subtle);
-  }
-  .gruppetekst {
-    padding: var(--spacing-2) var(--spacing-3) var(--spacing-1);
-  }
-  .dempet {
-    color: var(--ink-3);
     font-size: 14px;
+  }
+  .rad :global(svg) {
+    grid-row: 1 / 3;
+    grid-column: 2;
+    align-self: center;
+    color: var(--ink-3);
+  }
+  button.rad:hover .h,
+  a.rad:hover .h {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .rad:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  .ikke-bygget .h {
+    color: var(--ink-2);
   }
 </style>

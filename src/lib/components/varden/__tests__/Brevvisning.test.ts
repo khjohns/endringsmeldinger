@@ -9,7 +9,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import Brev from '$lib/components/varden/Brev.svelte';
 import Infotips from '$lib/components/varden/Infotips.svelte';
-import { SAKEN, SKJEMA } from '$lib/components/varden/tekster';
+import { SKJEMA, brevrefFra } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
@@ -106,12 +106,10 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
     art: 'registrert' as const,
   };
 
-  it('omtaler brevet slik brevteksten gjør, uten datoen en gang til (LV-U53, U-6 i BF-07)', () => {
-    expect(SKJEMA.svarerPaa(kravbrev)).toBe(
-      'Svar på brev K201-KOE-017-02 av 2. oktober 2026 fra TE'
-    );
+  it('viser til brevet i kortform med nummeret i saken, ikke med merkingen brevteksten bruker (oppdragsgiver 05.11 i #1631)', () => {
+    expect(SKJEMA.svarerPaa(kravbrev)).toBe('Svar på brev 2 fra TE · 2. okt.');
     expect(SKJEMA.kravSendt(kravbrev.registrert, kravbrev)).toBe(
-      'Kravet om vederlagsjustering ble sendt med brev K201-KOE-017-02 av 2. oktober 2026.'
+      'Kravet om vederlagsjustering ble sendt 2. oktober 2026 (brev 2).'
     );
   });
 
@@ -120,10 +118,8 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
     expect(SKJEMA.kravSendt(epost.registrert, epost)).toBe(
       'Kravet om vederlagsjustering står i totalentreprenørens e-post av 1. oktober 2026, registrert 5. oktober 2026.'
     );
-    expect(SAKEN.sist(epost, 'TE')).toBe('Siste: totalentreprenørens e-post av 1. oktober 2026');
-    expect(SAKEN.sist(kravbrev, 'TE')).toBe(
-      'Siste: brev K201-KOE-017-02 av 2. oktober 2026 fra TE'
-    );
+    expect(brevrefFra(epost, 'TE')).toBe('totalentreprenørens e-post av 1. oktober 2026');
+    expect(brevrefFra(kravbrev, 'TE')).toBe('brev 2 fra TE');
   });
 
   it('et brev uten omtale får nummeret, parten og datoen', () => {

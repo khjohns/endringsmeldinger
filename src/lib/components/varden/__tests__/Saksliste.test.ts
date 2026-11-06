@@ -508,7 +508,6 @@ describe('Sakslisten i Varden', () => {
     expect(
       screen.getByRole('link', { name: 'Nytt krav om endringsordre' }).getAttribute('href')
     ).toBe('/p1/ny');
-    expect(screen.getByText('Du er totalentreprenør (TE)')).toBeTruthy();
     cleanup();
 
     for (const part of ['BH', null] as const) {

@@ -17,6 +17,7 @@ const side = vi.hoisted(() => ({
   params: { prosjektId: 'p-1', sakId: 'sak-1' },
   url: new URL('http://lokal/p-1/sak-1'),
   state: {},
+  data: { user: null },
 }));
 vi.mock('$app/state', () => ({ page: side }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
@@ -84,6 +85,7 @@ describe('sporet saken åpner i (S5 i #1414)', () => {
 
   it('et sporparameter som er en arvet nøkkel (`constructor`), åpner forholdet', async () => {
     const [valgt] = await aapne('constructor');
-    expect(valgt).toHaveTextContent('Forholdet');
+    // Forholdet heter det TE påberoper i sporlista (OV-U78).
+    expect(valgt).toHaveTextContent(/^Manglende medvirkning eller leveranser fra byggherren/);
   });
 });

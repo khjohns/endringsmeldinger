@@ -13,7 +13,7 @@
   import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
   import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
   import { brevene, oppgitteDatoer } from '$lib/components/varden/lesing';
-  import { BREVMENY, SAKEN, SPORNAVN, brevtittel, dato } from '$lib/components/varden/tekster';
+  import { HANDLINGENE, SAKEN, SPORNAVN, brevtittel, dato } from '$lib/components/varden/tekster';
   import Arbeid from './Arbeid.svelte';
   import { FORLOEPET, TILSTANDER, aapneSak } from './kjernesaker';
 
@@ -173,8 +173,8 @@
     <section id="sporet" aria-labelledby="sporet-tittel">
       <h2 id="sporet-tittel">Sporlesing</h2>
       <p class="forklaring">
-        Sporet med brevet, brevtypene og tidslinja, i <code>Arbeidsflate</code>. «Ta stilling til
-        svaret» åpner aksepten, og «Se brevet» åpner <code>Brevkontroll</code> i kortet.
+        Sporet med brevet, brevtypene og tidslinja, i <code>Arbeidsflate</code>. «Godta svaret»
+        åpner <code>Brevkontroll</code> med aksepten.
       </p>
       {#each sporet as t (t.navn)}
         <h3>{t.navn}</h3>
@@ -265,7 +265,7 @@
         <div class="kort">
           <p class="etikett">Bygget og ikke bygget</p>
           <Brevtyper
-            tittel={BREVMENY.skriv}
+            tittel={HANDLINGENE.andre}
             handlinger={['svare:vederlag', 'krav:vederlag', 'varsle:vederlag', 'trekke:vederlag']}
             bygget={['svare']}
             onvelg={() => {}}

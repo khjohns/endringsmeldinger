@@ -19,7 +19,6 @@ import { kontrollerEtter } from '$kjerne/tester/kjoerer';
 import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
 import Vardensak from '$lib/components/varden/Vardensak.svelte';
 import { ApiError } from '$lib/api/client';
-import { norskDato } from '$kjerne/frosset/brevtekst';
 import { projectStore } from '$lib/stores/project.svelte';
 
 const BF = finn('BF-01');
@@ -34,15 +33,6 @@ const BH_SVARER_I_DAGENS = {
   hovedkrav_varslet_i_tide: false,
   aksepterer_metode: true,
   begrunnelse: `<p>${BEGRUNNELSE}</p>`,
-};
-
-/**
- * Omtalen av brev `n` i forløpet slik brevteksten gir den: «brev K201-KOE-017-02 av <dato>»
- * (LV-U53), med merkingen og datoen som er frosset i startjournalen.
- */
-const omtaleAvBrev = (forloep: string, n: number) => {
-  const rad = finnForloep(forloep)!.journal.find((r) => r.data.brevnummer === n)!;
-  return `brev ${rad.data.merking as string} av ${norskDato(rad.tidsstempel)}`;
 };
 
 const versjonVed = (punkt: string) => START.kontrollpunkter.find((p) => p.id === punkt)!.versjon;
@@ -66,8 +56,7 @@ const demopanel = () =>
 
 /** BH svarer i Varden som i steg 4, og kommer til brevkontrollen. Gir teksten som vises. */
 async function bhSvarerIVarden(): Promise<string[]> {
-  await fireEvent.click(await screen.findByText('Skriv brev'));
-  await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+  await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Godkjenner metoden' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
@@ -158,18 +147,21 @@ describe('Varden med brukerforløpet BF-01', () => {
       name: 'Svar på krav om vederlagsjustering i sak KOE-17',
     });
     expect(avsnittene(mottatt)).toEqual(vist);
-    await fireEvent.click(screen.getByRole('button', { name: 'Ta stilling til svaret' }));
-    const panelet = screen.getByRole('region', {
-      // LV-U53: panelet omtaler svaret med merkingen kjernen frøs i det, ikke versjonen.
-      name: `Ta stilling til svaret i brev ${svaret.data.merking as string} av ${norskDato(svaret.tidsstempel)}`,
-    });
-    // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den.
-    expect(panelet.textContent).toMatch(
+    // Uten dagens visning er aksepten primærhandlingen, med linja om hva den gjør, og resten
+    // står synlig under «Andre handlinger», uten panel (oppdragsgiver 06.11, #1631).
+    const kortet = within(
+      screen.getByRole('heading', { name: 'Det du kan gjøre nå' }).closest('section')!
+    );
+    expect(kortet.getByText(/^Du godtar hele svaret i brev 4\./)).toBeTruthy();
+    expect(kortet.getByText('Andre handlinger')).toBeTruthy();
+    await fireEvent.click(kortet.getByRole('button', { name: /^Godta svaret/ }));
+    // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den. Det
+    // står i brevkontrollen før sendingen.
+    const kontrollen = screen.getByRole('region', { name: 'Sending' });
+    expect(kontrollen.textContent).toMatch(
       /Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt 34\.1\.2 kom for sent/
     );
-    expect(panelet.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
-    const panel = within(panelet);
-    await fireEvent.click(panel.getByRole('button', { name: 'Se akseptbrevet' }));
+    expect(kontrollen.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
     await sendBrevet('Send aksepten til BH');
     await vi.waitFor(() => expect(nyeRader(demosak(), svaret.versjon)).toHaveLength(1));
     const [aksepten] = nyeRader(demosak(), svaret.versjon);
@@ -177,7 +169,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     k.registrer(BF.steg![4], [aksepten]);
     await kontrollerEtter(forloep, 5, k, paastand);
     // Etter aksepten tilbyr kjernen ikke å godta på nytt: enigheten er registrert (GR-U8).
-    expect(screen.queryByRole('button', { name: 'Ta stilling til svaret' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Godta svaret/ })).toBeNull();
   });
 
   it('«Se brevet før sending» er alltid aktiv, og klikket uten svar viser det som mangler ved feltet og øverst, ikke brevet (MM-U32, BF-01 S-3 B)', async () => {
@@ -185,8 +177,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // kontrollerer appen det når parten sender, og sier ved feltet og øverst i skjemaet hva som
     // mangler.» BF-01 S-3: reserven B, fordi kjernen ikke lager tekst for et ufullstendig svar.
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const seBrevet = screen.getByRole('button', { name: 'Se brevet før sending' });
     expect(seBrevet).not.toHaveAttribute('aria-disabled');
     // #1391: før BH har prøvd, står det verken «Ikke besvart» eller en hindring.
@@ -270,8 +261,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
   it('etter «Varslet for sent» står beløpsspørsmålet under «Gjelder hvis» med innsigelsen det bygger på (oppdragsgiver 30.10, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const beloep = () =>
       screen.getByRole('group', { name: 'Hvor mye av vederlagsjusteringen godkjenner du?' });
     expect(beloep().getAttribute('aria-describedby')).toBeNull();
@@ -299,8 +289,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       onpunkt: () => {},
       onstart: () => {},
     });
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const forutsetningene = () => {
       const beloep = screen.getByRole('group', {
         name: 'Hvor mye av vederlagsjusteringen godkjenner du?',
@@ -312,9 +301,9 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    // LV-U53: svaret på grunnlaget er brev 2 i saken (versjon 3, etter `sak_opprettet`), omtalt
-    // med merkingen.
-    const AVSLAGET = `avslaget av forholdet i ${omtaleAvBrev('BF-04', 2)} ikke fører frem`;
+    // Svaret på grunnlaget er brev 2 i saken (versjon 3, etter `sak_opprettet`), i kortform
+    // (oppdragsgiver 05.11 i #1631).
+    const AVSLAGET = 'avslaget av forholdet i brev 2 ikke fører frem';
 
     // S1-A: et ubesvart varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende.
     expect(forutsetningene()).toEqual([AVSLAGET]);
@@ -333,7 +322,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       screen.getByRole('region', { name: 'Hovedlinjene i svaret' })
     ).getAllByRole('listitem');
     expect(linjer[0].textContent!.replace(/\s+/g, ' ').trim()).toBe(
-      `prinsipalt Du har avslått forholdet i ${omtaleAvBrev('BF-04', 2)}`
+      'prinsipalt Du har avslått forholdet i brev 2'
     );
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
   });
@@ -346,8 +335,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       onpunkt: () => {},
       onstart: () => {},
     });
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const forutsetningene = (spoersmaal: string | RegExp) => {
       const id = screen.getByRole('group', { name: spoersmaal }).getAttribute('aria-describedby');
       return id
@@ -356,8 +344,8 @@ describe('Varden med brukerforløpet BF-01', () => {
           )
         : [];
     };
-    // LV-U53: merkingen, ikke versjonen i journalen.
-    const AVSLAGET = [`avslaget av forholdet i ${omtaleAvBrev('BF-04', 2)} ikke fører frem`];
+    // Nummeret i saken, ikke versjonen i journalen (oppdragsgiver 05.11 i #1631).
+    const AVSLAGET = ['avslaget av forholdet i brev 2 ikke fører frem'];
     const VARSEL = 'Kom varselet om kravet i tide?';
     const METODE = /Godkjenner du det\?$/;
 
@@ -382,8 +370,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
   it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
     const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
 
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
@@ -403,23 +390,22 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(document.activeElement).toBe(melding.closest('[role="status"]'));
     expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
     // Et nytt svar begynner tomt.
-    await fireEvent.click(screen.getByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
   });
 
   it('utkastet står når BH velger et annet spor, og merket «Utkast» står i panelet bare mens et annet spor er valgt (BF-01 S-8, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     const panelet = within(screen.getByRole('navigation', { name: 'Saken' }));
     const vederlag = () => panelet.getByRole('button', { name: /^Vederlag/ });
-    // #1391: mens utkastet er åpent, står ingen meny for å skrive brev.
-    expect(screen.queryByText('Skriv brev')).toBeNull();
+    // #1391: mens utkastet er åpent, står ikke kortet med handlingene.
+    expect(screen.queryByRole('heading', { name: 'Det du kan gjøre nå' })).toBeNull();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
 
-    await fireEvent.click(panelet.getByRole('button', { name: /^Forholdet/ }));
+    // Forholdet heter det TE påberoper (OV-U78).
+    await fireEvent.click(panelet.getByRole('button', { name: /^Manglende medvirkning/ }));
     expect(screen.queryByRole('form')).toBeNull();
     expect(vederlag().textContent).toMatch(/Utkast/);
 
@@ -428,10 +414,28 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(vederlag().textContent).not.toMatch(/Utkast/);
   });
 
+  it('panelet til venstre har forholdet under «Kontraktsforhold» og kravene under «Krav», uten linje under navnene, og sakens kode over tittelen (oppdragsgiver 06.11, #1631)', async () => {
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    const panelet = within(await screen.findByRole('navigation', { name: 'Saken' }));
+    const forholdet = panelet.getByRole('list', { name: 'Kontraktsforhold' });
+    const kravene = panelet.getByRole('list', { name: 'Krav' });
+    expect(
+      within(forholdet)
+        .getAllByRole('button')
+        .map((b) => b.textContent?.trim())
+    ).toEqual(['Manglende medvirkning eller leveranser fra byggherren']);
+    expect(
+      within(kravene)
+        .getAllByRole('button')
+        .map((b) => b.textContent?.trim())
+    ).toEqual(['Vederlagsjustering', 'Fristforlengelse']);
+    const tittel = screen.getAllByRole('heading', { level: 1 })[0];
+    expect(tittel.previousElementSibling?.textContent).toMatch(/^KOE-\d+$/);
+  });
+
   it('panelet til venstre felles inn mens brevet leses ved siden av skjemaet, og kommer tilbake når brevet lukkes (oppdragsgiver 30.10, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     expect(screen.getByRole('navigation', { name: 'Saken' })).toBeInTheDocument();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Les brevet ved siden av' }));
@@ -541,8 +545,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     cleanup();
 
     const varden = aapne(punkt, 'varden');
-    await fireEvent.click(await screen.findByRole('button', { name: 'Ta stilling til svaret' }));
-    await fireEvent.click(screen.getByRole('button', { name: 'Se akseptbrevet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: /^Godta svaret/ }));
     const brev = await screen.findByRole('article', { name: 'Aksept av svaret i sak KOE-17' });
     expect(avsnittene(brev)).toEqual(tekstIDagens);
     await sendBrevet('Send aksepten til BH');
@@ -616,11 +619,63 @@ describe('Varden med brukerforløpet BF-01', () => {
       const iVarden = [...document.querySelectorAll('[data-handling]')].map(
         (e) => e.getAttribute('data-handling')!
       );
-      if (screen.queryByRole('button', { name: 'Ta stilling til svaret' }))
+      // Primærhandlingen i kortet står ikke i lista «Andre handlinger».
+      if (
+        screen.queryByRole('button', { name: /^Godta svaret/ }) &&
+        !iVarden.includes('godta:vederlag')
+      )
         iVarden.push('godta:vederlag');
+      if (screen.queryByRole('button', { name: 'Svar på kravet' })) iVarden.push('svare:vederlag');
       expect(iVarden.sort()).toEqual([...tilbudt].sort());
     }
   );
+
+  it('etter avslaget av forholdet er primærhandlingen for TE «Oppdater påberopelse», og godta og trekk står synlige under (oppdragsgiver 06.11, #1631)', async () => {
+    const demosak = lagDemosak(finnForloep('BF-04')!, 'forholdet-er-avslaatt', 'TE');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'TE',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'forhold', dagensVisning: '/demo/sak/kjerne' });
+    const kortet = within(
+      (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
+    );
+    const primaer = kortet.getByRole('link', { name: 'Oppdater påberopelse' });
+    expect(primaer.getAttribute('href')).toBe('/demo/sak/kjerne');
+    // Teksten oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
+    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
+      'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
+    );
+    expect(kortet.getByRole('button', { name: /^Godta avslaget/ })).toBeTruthy();
+    expect(kortet.getByRole('link', { name: /^Trekk påberopelsen/ })).toBeTruthy();
+    expect(kortet.queryByRole('button', { name: /Ta stilling/ })).toBeNull();
+    expect(kortet.queryByText(/dagens visning/)).toBeNull();
+  });
+
+  it('etter svaret på vederlagskravet er primærhandlingen for TE «Revider krav» (oppdragsgiver 06.11, #1631)', async () => {
+    const demosak = lagDemosak(finnForloep('BF-04')!, 'te-har-mottatt-svaret', 'TE');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'TE',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag', dagensVisning: '/demo/sak/kjerne' });
+    const kortet = within(
+      (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
+    );
+    const primaer = kortet.getByRole('link', { name: 'Revider krav' });
+    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
+      'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.'
+    );
+    expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
+  });
 
   it('når lastingen feiler, viser Varden feilen og «Prøv igjen» i stedet for «Laster saken …» (#1373, funn 1)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
@@ -736,16 +791,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     projectStore.set(null);
   });
 
-  it.each([
-    ['kopieres', () => Promise.resolve(), 'Lenken er kopiert.'],
-    [
-      'ikke kan kopieres',
-      () => Promise.reject(new Error('nektet')),
-      'Lenken ble ikke kopiert. Kopier adressen fra adressefeltet.',
-    ],
-  ])('«Kopier lenke» i topplinja sier fra når lenken %s (#1391)', async (_, svar, tekst) => {
-    const writeText = vi.fn(svar);
-    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+  it('topplinja har stien Varden › prosjektet › saken og den innloggede med initialene, ikke rollen (prototypen grunnlagsoversikt.html, oppdragsgiver 06.11)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
@@ -755,12 +801,28 @@ describe('Varden med brukerforløpet BF-01', () => {
       send: demosak.send,
     });
     await kjernesak.last();
-    render(Vardensak, { kjernesak });
+    render(Vardensak, {
+      kjernesak,
+      kontrakt: { prosjekt: 'Skolebygg Nord' },
+      prosjekter: '/',
+      saksliste: '/demo',
+      bruker: { name: 'Kari Nordmann' },
+    });
 
-    await fireEvent.click(await screen.findByRole('button', { name: 'Kopier lenke' }));
-    expect(writeText).toHaveBeenCalledWith(location.href);
-    expect((await screen.findByText(tekst)).getAttribute('role')).toBe('status');
-    vi.unstubAllGlobals();
+    const sti = await screen.findByRole('navigation', { name: 'Du er her' });
+    expect(within(sti).getByRole('link', { name: 'Varden' }).getAttribute('href')).toBe('/');
+    expect(within(sti).getByRole('link', { name: 'Skolebygg Nord' }).getAttribute('href')).toBe(
+      '/demo'
+    );
+    expect(
+      within(sti)
+        .getByText(/^KOE-\d+$/)
+        .getAttribute('aria-current')
+    ).toBe('page');
+    expect(screen.getByText('KN')).toBeTruthy();
+    expect(screen.getByText('Kari Nordmann')).toBeTruthy();
+    expect(screen.queryByText(/^Du er /)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Kopier lenke' })).toBeNull();
   });
 });
 

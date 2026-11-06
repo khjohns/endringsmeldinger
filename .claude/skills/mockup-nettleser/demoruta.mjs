@@ -231,7 +231,6 @@ try {
   await demopanel(false);
   await steg('bh-har-mottatt-kravet');
 
-  await page.getByText('Skriv brev', { exact: true }).click();
   await knapp('Svar på kravet').click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
   await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();
@@ -263,23 +262,23 @@ try {
   await demopanel(true);
   await side('TE');
   await demopanel(false);
-  await knapp('Ta stilling til svaret').click();
+  await knapp(/^Godta svaret/).waitFor();
   await steg('te-har-mottatt-svaret', true);
   if (GODTAR) {
-  await knapp('Se akseptbrevet').click();
+  await knapp(/^Godta svaret/).click();
   console.log(`Aksepten TE kontrollerer:\n${await article('Aksept av svaret').getByTestId('laast-tekst').innerText()}`);
   await steg('te-godtar');
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
   await knapp('Send aksepten til BH').click();
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor({ state: 'detached' });
-  if (await knapp('Ta stilling til svaret').isVisible())
+  if (await knapp(/^Godta svaret/).isVisible())
     throw new Error('TE får fortsatt tilbud om å godta svaret etter aksepten');
   await steg('te-har-godtatt');
   }
 
   await demopanel(true);
   await knapp('Start på nytt').click();
-  await page.getByText('Skriv brev', { exact: true }).waitFor();
+  await knapp('Svar på kravet').waitFor();
   await steg('startet-paa-nytt');
   } else {
   // Fra begynnelsen: saken er opprettet, og TE handler i neste steg.

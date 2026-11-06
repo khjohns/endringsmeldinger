@@ -8,35 +8,44 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
-  import { Link } from 'lucide-svelte';
+  import { sakensKode } from '$kjerne/frosset/brevtittel';
   import Brevkontroll from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
-  import Vardenskall from './Vardenskall.svelte';
+  import Vardenskall, { type Smule } from './Vardenskall.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
-  import { brevene, type Brevref } from './lesing';
-  import { BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
+  import { brevene, forholdetISaken, type Brevref } from './lesing';
+  import { BREVKONTROLL, MOTTATT, NYSAK, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
 
   let {
     kjernesak,
     kontrakt,
     kvittering,
     saksliste,
+    prosjekter,
+    bruker = null,
     nySak,
     spor,
+    dagensVisning,
   }: {
     kjernesak: Kjernesakkontekst;
     /** Sporet saken åpner i. Uten det står saken i vederlaget, eller i forholdet etter opprettelsen. */
     spor?: Spor;
     /** Kvitteringen for brevet som opprettet saken (BF-05 steg 6, F-6). */
     kvittering?: string;
-    /** Lenken til sakslisten, der saken ikke finnes (#1473). */
+    /** Lenken til sakslisten, i stien og der saken ikke finnes (#1473). */
     saksliste?: string;
+    /** Lenken til prosjektene, «Varden» først i stien. */
+    prosjekter?: string;
+    /** Den innloggede, i topplinja. Demoruta har ingen. */
+    bruker?: { name: string } | null;
     /** Skjemaet for ny sak, som står i arbeidsflaten før saken finnes (BF-05, KT-U11). */
     nySak?: Snippet;
+    /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
+    dagensVisning?: string;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
     kontrakt?: Kontrakt;
   } = $props();
@@ -66,7 +75,10 @@
   };
   type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
 
-  const SPORENE: Spor[] = ['forhold', 'vederlag', 'frist'];
+  const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
+    { id: 'forholdet', etikett: SAKEN.kontraktsforhold, spor: ['forhold'] },
+    { id: 'kravene', etikett: SAKEN.krav, spor: ['vederlag', 'frist'] },
+  ];
   // Etter opprettelsen står saken i forholdet, med påberopelsen (BF-05 steg 6).
   let valgt = $state<Spor>(untrack(() => spor ?? (kvittering ? 'forhold' : 'vederlag')));
   let arbeid = $state<Arbeid>({ art: 'les' });
@@ -81,29 +93,31 @@
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
   );
   let meldingen = $state<HTMLElement | null>(null);
-  let lenkestatus = $state('');
   let proever = $state(false);
   let sistForsoekt = $state<string | null>(null);
 
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
+  // Forholdet heter det TE påberoper i sporlista, som i sporhodet (OV-U78).
+  const forholdsnavn = $derived((u && forholdetISaken(u)?.navn) ?? SPORNAVN.forhold);
+  const sakskode = $derived.by(() => {
+    const kode = kjernesak.sak?.merking?.sakskode;
+    return kode ? sakensKode(kode) : null;
+  });
+  // Stien som i prototypen: Varden › prosjektet › saken, med sakens kode (LV-U46).
+  const sti = $derived.by((): Smule[] => {
+    const prosjekt = (kontrakt ?? kontraktFraProsjektet()).prosjekt;
+    return [
+      { tekst: SAKEN.merkenavn, href: prosjekter },
+      ...(prosjekt ? [{ tekst: prosjekt, href: saksliste }] : []),
+      { tekst: nySak ? NYSAK.over : (sakskode ?? SAKEN.nav) },
+    ];
+  });
 
   function velgSpor(s: Spor) {
     valgt = s;
     arbeid = s === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' };
     melding = null;
-  }
-
-  async function kopierLenke() {
-    // Tømmes først, så en lik melding ved neste klikk leses opp igjen.
-    lenkestatus = '';
-    await tick();
-    try {
-      await navigator.clipboard.writeText(location.href);
-      lenkestatus = SAKEN.lenkeKopiert;
-    } catch {
-      lenkestatus = SAKEN.lenkeIkkeKopiert;
-    }
   }
 
   async function proevIgjen() {
@@ -156,7 +170,8 @@
 </script>
 
 <Vardenskall
-  part={kjernesak.part}
+  {sti}
+  {bruker}
   {kontrakt}
   visKontrakten={!!(nySak || (u && kjernesak.saksbilde))}
   innfelt={vedSiden}
@@ -164,7 +179,10 @@
   {#snippet panel()}
     {#if !nySak && u && kjernesak.saksbilde}
       <header class="sakshode">
-        <h1>{kjernesak.saksbilde.tittel}</h1>
+        <div class="tittel">
+          {#if sakskode}<p class="kode">{sakskode}</p>{/if}
+          <h1>{kjernesak.saksbilde.tittel}</h1>
+        </div>
         {#if brev[0]}
           <dl class="meta">
             <div>
@@ -175,40 +193,33 @@
         {/if}
       </header>
 
+      <!-- Forholdet og kravene som bygger på det, i hver sin gruppe (oppdragsgiver 06.11, #1631). -->
       <nav class="sporene" aria-label={SAKEN.nav}>
-        <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
-        <ul class="valgene" aria-labelledby="spor-etikett">
-          {#each SPORENE as s (s)}
-            {@const sisteBrev = brev.filter((b) => b.spor.includes(s)).at(-1)}
-            <li>
-              <button
-                type="button"
-                class="valg"
-                aria-current={valgt === s ? 'page' : undefined}
-                onclick={() => velgSpor(s)}
-              >
-                <span class="navn">
-                  {SPORNAVN[s]}
-                  {#if s === 'vederlag' && utkastAapent && valgt !== s}<span class="merke-utkast"
-                      >{SAKEN.utkast}</span
-                    >{/if}
-                </span>
-                <span class="under"
-                  >{sisteBrev ? SAKEN.sist(sisteBrev, sisteBrev.avsender) : SAKEN.ingenBrev}</span
-                >
-              </button>
-            </li>
-          {/each}
-        </ul>
+        {#each SPORGRUPPENE as gruppe (gruppe.id)}
+          <div class="gruppe">
+            <p class="etikett" id={`spor-${gruppe.id}`}>{gruppe.etikett}</p>
+            <ul class="valgene" aria-labelledby={`spor-${gruppe.id}`}>
+              {#each gruppe.spor as s (s)}
+                <li>
+                  <button
+                    type="button"
+                    class="valg"
+                    aria-current={valgt === s ? 'page' : undefined}
+                    onclick={() => velgSpor(s)}
+                  >
+                    <span class="navn">
+                      {s === 'forhold' ? forholdsnavn : SPORNAVN[s]}
+                      {#if s === 'vederlag' && utkastAapent && valgt !== s}<span
+                          class="merke-utkast">{SAKEN.utkast}</span
+                        >{/if}
+                    </span>
+                  </button>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/each}
       </nav>
-    {/if}
-  {/snippet}
-  {#snippet topplinje()}
-    {#if !nySak}
-      <p class="lenkestatus" role="status">{lenkestatus}</p>
-      <Knapp variant="lenke" onclick={kopierLenke}
-        ><Link size={16} aria-hidden="true" />{SAKEN.kopierLenke}</Knapp
-      >
     {/if}
   {/snippet}
 
@@ -293,6 +304,8 @@
             {kjernesak}
             {u}
             spor={valgt}
+            {dagensVisning}
+            onspor={velgSpor}
             onvelg={(n) => {
               melding = null;
               if (n === 'svare:vederlag') {
@@ -300,14 +313,14 @@
                 arbeid = { art: 'svar' };
               }
             }}
-            onakseptbrev={({ kommando, tekst, merking, deresRef, tittel }) => {
+            onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
               arbeid = {
                 art: 'kontroll',
                 kommando,
                 tekst,
                 detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
-                virkninger: [],
+                virkninger,
                 merking,
                 deresRef,
                 tittel,
@@ -342,6 +355,22 @@
   .sakshode h1 {
     font-size: 20px;
   }
+  .tittel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+  .kode {
+    color: var(--sidebar-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  .sporene {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+  }
   .navn {
     display: flex;
     align-items: center;
@@ -355,10 +384,6 @@
     border: 1px dashed var(--draft-border);
     background: var(--surface);
     color: var(--draft);
-  }
-  .lenkestatus {
-    margin-left: auto;
-    color: var(--ink-3);
   }
   .arbeid {
     min-width: 0;

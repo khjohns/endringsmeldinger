@@ -1,13 +1,14 @@
 <!--
   Tidslinja i sporet (Varden, valget 27.10 i #1331): datoene partene har oppgitt (ring), brev
-  som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. Ingen
+  som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. Brevet står
+  med hva det gjør og nummeret i kilden, som i prototypen `grunnlagsoversikt.html`. Ingen
   dager mellom oppføringene: avstanden mellom to tilfeldige oppføringer kan se ut som et
   varslingsintervall. Står åpen fra starten og kan legges sammen (oppdragsgiver 29.10, #1391).
 -->
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
   import type { Brevet, OppgittDato } from './lesing';
-  import { OPPGITT, TIDSLINJE, brevhode, dato, klokke } from './tekster';
+  import { OPPGITT, TIDSLINJE, dato, klokke } from './tekster';
 
   let {
     brev,
@@ -33,26 +34,36 @@
   const oppfoeringer = $derived<Oppfoering[]>(
     [
       // To parter kan oppgi samme dato i samme brev, så datoene skilles på plassen (#1393).
-      ...datoer.map(
-        (d, i): Oppfoering => ({
-          noekkel: `oppgitt-${i}`,
-          naar: d.dato,
-          merke: 'oppgitt',
-          hva: OPPGITT[d.hva],
-          kilde: TIDSLINJE.oppgitt(d.oppgittAv, d.brev),
-        })
-      ),
+      // Datoen avsenderen oppgir for registrert korrespondanse står én gang, på brevet (OV-U85).
+      ...datoer
+        .filter(
+          (d) =>
+            !(
+              d.hva === 'sendt' &&
+              brev.some((b) => b.id === d.brev.id && b.art === 'registrert' && b.sendt === d.dato)
+            )
+        )
+        .map(
+          (d, i): Oppfoering => ({
+            noekkel: `oppgitt-${i}`,
+            naar: d.dato,
+            merke: 'oppgitt',
+            hva: OPPGITT[d.hva],
+            kilde: TIDSLINJE.oppgitt(d.oppgittAv, d.brev),
+          })
+        ),
       ...utfylt.map((d, i): Oppfoering => ({ noekkel: `utfylt-${i}`, merke: 'oppgitt', ...d })),
       ...brev.map(
         (b): Oppfoering => ({
           noekkel: b.id,
-          naar: b.registrert,
+          // Registrert korrespondanse står på datoen avsenderen oppgir (OV-U85, #1596).
+          naar: b.sendt ?? b.registrert,
           merke: b.art === 'registrert' ? 'registrert' : 'sendt',
-          hva: brevhode(b),
+          hva: TIDSLINJE.hva(b),
           kilde:
             b.art === 'registrert'
-              ? TIDSLINJE.registrert(b.avsender)
-              : `${TIDSLINJE.sendt(b.avsender)} kl. ${klokke(b.registrert)}`,
+              ? TIDSLINJE.registrert(b.avsender, b.registrert)
+              : `${TIDSLINJE.sendt(b.avsender, b)} kl. ${klokke(b.registrert)}`,
         })
       ),
     ].sort((a, b) => a.naar.localeCompare(b.naar))

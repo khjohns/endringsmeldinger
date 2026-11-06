@@ -158,7 +158,6 @@ const iVarden = (punkt, vei) => async (page) => {
   await vei?.(page);
 };
 const bhSvarer = async (page) => {
-  await page.getByText('Skriv brev', { exact: true }).click();
   await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
   await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();
@@ -181,17 +180,10 @@ const VARDEN = [
     }),
   },
   {
-    navn: 'Varden: TE tar stilling til svaret',
-    vei: iVarden('te-har-mottatt-svaret', (page) =>
-      page.getByRole('button', { name: 'Ta stilling til svaret' }).click()
-    ),
-  },
-  {
     navn: 'Varden: akseptbrevet før sending',
-    vei: iVarden('te-har-mottatt-svaret', async (page) => {
-      await page.getByRole('button', { name: 'Ta stilling til svaret' }).click();
-      await page.getByRole('button', { name: 'Se akseptbrevet' }).click();
-    }),
+    vei: iVarden('te-har-mottatt-svaret', (page) =>
+      page.getByRole('button', { name: /^Godta svaret/ }).click()
+    ),
   },
 ];
 

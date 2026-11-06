@@ -39,6 +39,8 @@
     kontrakt,
     sakslenke,
     nyttKrav,
+    prosjekter,
+    bruker = null,
     endringsordrer = {},
     onproevIgjen,
   }: {
@@ -52,6 +54,10 @@
     sakslenke: (sakId: string) => string;
     /** Lenken til skjemaet for ny sak (#1481). */
     nyttKrav: string;
+    /** Lenken til prosjektene, «Varden» først i stien. */
+    prosjekter?: string;
+    /** Den innloggede, i topplinja. */
+    bruker?: { name: string } | null;
     /**
      * Dokumentkoden til den sendte endringsordren som omfatter KOE-saken (EO-U13, EO-U14).
      * Serveren gir den ikke før EO-saken og brevkoden er bygget (#1423, #1174).
@@ -59,6 +65,8 @@
     endringsordrer?: Endringsordrer;
     onproevIgjen?: () => void;
   } = $props();
+
+  const sti = $derived([{ tekst: SAKEN.merkenavn, href: prosjekter }, { tekst: prosjektNavn }]);
 
   const FANENAVN: Record<Fane, string> = { koe: SAKSLISTE.koe, eo: SAKSLISTE.eo };
 
@@ -122,7 +130,7 @@
   </span>
 {/snippet}
 
-<Vardenskall {part} {kontrakt}>
+<Vardenskall {sti} {bruker} {kontrakt}>
   {#snippet panel()}
     <nav aria-labelledby="saker-etikett">
       <p class="etikett" id="saker-etikett">{SAKSLISTE.saker}</p>

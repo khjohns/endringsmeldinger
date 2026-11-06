@@ -175,6 +175,11 @@ vedtaksregisteret (#1534).
   oversiktene over vederlag og frist står det om den gjeldende versjonen av kravet. Hva forholdet
   heter i visningen, står i [U-9 i BF-05](../docs/domenetabell/brukerforlop/BF-05.md#u-9). Posten
   endrer ingen vedtak.
+- **Visningen viser til et brev i saken i kortform**, med brevets nummer i saken: «brev 5»,
+  «Siste: brev 5 fra BH». Merkingen og datoen står i brevhodet og i brevet selv, der brevteksten
+  viser til et tidligere brev etter [LV-U53](../docs/plans/vedtak.md#lv-u53). Registrert
+  korrespondanse uten nummer omtales som i brevteksten, med parten, typen og datoen (LV-U42).
+  Tekstene står i `brevref` i `src/lib/components/varden/tekster.ts` (oppdragsgiver 05.11, #1631).
 
 ## Kravene, sporene og handlingene
 
@@ -289,9 +294,25 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
   lengre brev ruller i den. Kolonnene er da like brede, og panelet til venstre er felt inn.
   På smal skjerm står brevet i skjemaet.
-- **Menyen med brevtypene** (`Brevtyper`) vises bare når kjernen tilbyr en handling
-  ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget, står under
-  én felles linje.
+- **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne. Alle handlingene står synlige,
+  uten panel (oppdragsgiver 06.11, #1631). Det har én primærhandling med en linje om hva den gjør:
+  etter byggherrens svar den nye versjonen («Oppdater påberopelse» i forholdet, «Revider krav»
+  ellers), eller «Svar på kravet» for byggherren. Til den nye versjonen er bygget i Varden, åpner
+  den dagens visning; uten dagens visning er «Godta svaret» primærhandlingen.
+  «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
+  `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
+  ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to
+  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. En brevtype som ikke er bygget, åpner saken
+  i dagens visning. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da ikke kan
+  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for
+  BF-02A (#1615), og tilbys ikke før den er bygget.
+- **Panelet til venstre** har sakens kode over tittelen, og sporene i to grupper:
+  «Kontraktsforhold» med forholdet og «Krav» med vederlagsjusteringen og fristforlengelsen.
+  Navnene står uten linje under; betegnelsen og siste brev står på siden for sporet
+  (oppdragsgiver 06.11, #1631).
+- **Topplinja** har stien «Varden › prosjektet › saken», med sakens kode, og den innloggede
+  med initialene og navnet. Rollen står ikke der (oppdragsgiver 06.11, #1631).
 - **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
   blekk (`--ink`) på `--surface-inset`. Den er ikke gul, fordi gult betyr utkast, og
   ikke rød, fordi den ikke er en feil.
