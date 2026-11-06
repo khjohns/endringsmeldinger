@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
-import { HANDLINGENE, innsigelsen } from '$lib/components/varden/tekster';
+import { HANDLINGENE, innsigelsen, innsigelsensVirkning } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
@@ -55,6 +55,10 @@ describe('Brevtyper', () => {
   it('innsigelsen sier med egne ord hva som kom for sent, uten henvisning til kontrakten (oppdragsgiver 06.11, #1631)', () => {
     expect(innsigelsen('svar', 2)).toBe('Gjør gjeldende at svaret i brev 2 kom for sent');
     expect(innsigelsen('varsel', null)).toBe('Gjør gjeldende at varselet kom for sent');
+    // Fristen i § 5 tredje ledd, med ordene fra dagens visning (`InnsigelseModal.svelte`).
+    expect(innsigelsensVirkning('svar')).toBe(
+      'Sendes uten ugrunnet opphold. Ellers regnes svaret som gitt i tide.'
+    );
   });
 
   it('ny versjon sier hvilket brev den erstatter, og at den avslår svaret (punkt 6 og 10 i samlevedtaket for retting av sendt brev, MM-U52)', () => {

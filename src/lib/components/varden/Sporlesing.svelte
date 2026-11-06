@@ -32,6 +32,7 @@
     brevtittel,
     dato,
     innsigelsen,
+    innsigelsensVirkning,
     varselet,
   } from './tekster';
 
@@ -156,6 +157,10 @@
   function virkningen(n: string): string | null {
     if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
     if (n.startsWith('trekke:')) return HANDLINGENE.virkning.trekkKravet;
+    if (n.startsWith('innsigelse:')) {
+      const e = u.elementer[n.split(':')[1]];
+      return e ? innsigelsensVirkning(e.art) : null;
+    }
     if (n.startsWith('krav:')) {
       const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
       return HANDLINGENE.virkning.nyVersjon(spor, krav, svarbrevet ?? null);

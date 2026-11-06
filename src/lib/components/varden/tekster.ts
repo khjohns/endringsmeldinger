@@ -309,6 +309,9 @@ export const varselet = (type: string, hva: string) =>
 const MAAL: Record<string, string> = { krav: 'kravet', svar: 'svaret', varsel: 'varselet' };
 export const innsigelsen = (art: string, nummer: number | null) =>
   `Gjør gjeldende at ${MAAL[art] ?? 'brevet'}${nummer ? ` i brev ${nummer}` : ''} kom for sent`;
+/** Linja under innsigelsen: fristen i § 5 tredje ledd med egne ord, som i dagens visning. */
+export const innsigelsensVirkning = (art: string) =>
+  `Sendes uten ugrunnet opphold. Ellers regnes ${MAAL[art] ?? 'brevet'} som gitt i tide.`;
 
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
 export const HANDLINGENE = {
