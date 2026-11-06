@@ -1,5 +1,5 @@
 /**
- * Menyen med brevtypene i Varden: den vises bare når kjernen tilbyr en handling (MM-U25), og
+ * «Andre handlinger» i Varden: lista vises bare når kjernen tilbyr en handling (MM-U25), og
  * brevtypene som ikke er bygget i prøven, står samlet under én linje (#1391, kommentaren fra
  * reviewet av #1373).
  */
@@ -11,12 +11,12 @@ import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
 afterEach(cleanup);
 
 const lag = (handlinger: string[], bygget: string[] = []) =>
-  render(Brevtyper, { tittel: 'Skriv brev', handlinger, bygget, onvelg: () => {} });
+  render(Brevtyper, { tittel: 'Andre handlinger', handlinger, bygget, onvelg: () => {} });
 
 describe('Brevtyper', () => {
-  it('menyen vises ikke når kjernen ikke tilbyr noen handling (MM-U25)', () => {
+  it('lista vises ikke når kjernen ikke tilbyr noen handling (MM-U25)', () => {
     lag([]);
-    expect(screen.queryByText('Skriv brev')).toBeNull();
+    expect(screen.queryByText('Andre handlinger')).toBeNull();
   });
 
   it('brevtypene som ikke er bygget, står under én felles linje, og hver handling står én gang (#1391)', () => {

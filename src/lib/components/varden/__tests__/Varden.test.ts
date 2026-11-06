@@ -56,8 +56,7 @@ const demopanel = () =>
 
 /** BH svarer i Varden som i steg 4, og kommer til brevkontrollen. Gir teksten som vises. */
 async function bhSvarerIVarden(): Promise<string[]> {
-  await fireEvent.click(await screen.findByText('Skriv brev'));
-  await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+  await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Godkjenner metoden' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
@@ -148,6 +147,12 @@ describe('Varden med brukerforløpet BF-01', () => {
       name: 'Svar på krav om vederlagsjustering i sak KOE-17',
     });
     expect(avsnittene(mottatt)).toEqual(vist);
+    // Kortet sier valgene kjernen tilbyr ved svaret (prototypen grunnlagsoversikt.html).
+    const kortet = within(
+      screen.getByRole('heading', { name: 'Det du kan gjøre nå' }).closest('section')!
+    );
+    expect(kortet.getByText(/^Du kan godta svaret/)).toBeTruthy();
+    expect(kortet.getByText('Andre handlinger')).toBeTruthy();
     await fireEvent.click(screen.getByRole('button', { name: 'Ta stilling til svaret' }));
     const panelet = screen.getByRole('region', {
       // Visningen viser til brevet med nummeret i saken, ikke versjonen (oppdragsgiver 05.11 i #1631).
@@ -175,8 +180,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // kontrollerer appen det når parten sender, og sier ved feltet og øverst i skjemaet hva som
     // mangler.» BF-01 S-3: reserven B, fordi kjernen ikke lager tekst for et ufullstendig svar.
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const seBrevet = screen.getByRole('button', { name: 'Se brevet før sending' });
     expect(seBrevet).not.toHaveAttribute('aria-disabled');
     // #1391: før BH har prøvd, står det verken «Ikke besvart» eller en hindring.
@@ -260,8 +264,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
   it('etter «Varslet for sent» står beløpsspørsmålet under «Gjelder hvis» med innsigelsen det bygger på (oppdragsgiver 30.10, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const beloep = () =>
       screen.getByRole('group', { name: 'Hvor mye av vederlagsjusteringen godkjenner du?' });
     expect(beloep().getAttribute('aria-describedby')).toBeNull();
@@ -289,8 +292,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       onpunkt: () => {},
       onstart: () => {},
     });
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const forutsetningene = () => {
       const beloep = screen.getByRole('group', {
         name: 'Hvor mye av vederlagsjusteringen godkjenner du?',
@@ -336,8 +338,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       onpunkt: () => {},
       onstart: () => {},
     });
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const forutsetningene = (spoersmaal: string | RegExp) => {
       const id = screen.getByRole('group', { name: spoersmaal }).getAttribute('aria-describedby');
       return id
@@ -372,8 +373,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
   it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
     const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
 
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
@@ -393,20 +393,18 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(document.activeElement).toBe(melding.closest('[role="status"]'));
     expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
     // Et nytt svar begynner tomt.
-    await fireEvent.click(screen.getByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     expect(screen.getByRole('radio', { name: 'Varslet for sent' })).not.toBeChecked();
   });
 
   it('utkastet står når BH velger et annet spor, og merket «Utkast» står i panelet bare mens et annet spor er valgt (BF-01 S-8, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     const panelet = within(screen.getByRole('navigation', { name: 'Saken' }));
     const vederlag = () => panelet.getByRole('button', { name: /^Vederlag/ });
-    // #1391: mens utkastet er åpent, står ingen meny for å skrive brev.
-    expect(screen.queryByText('Skriv brev')).toBeNull();
+    // #1391: mens utkastet er åpent, står ikke kortet med handlingene.
+    expect(screen.queryByRole('heading', { name: 'Det du kan gjøre nå' })).toBeNull();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
 
     // Forholdet heter det TE påberoper (OV-U78).
@@ -421,8 +419,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
   it('panelet til venstre felles inn mens brevet leses ved siden av skjemaet, og kommer tilbake når brevet lukkes (oppdragsgiver 30.10, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
-    await fireEvent.click(await screen.findByText('Skriv brev'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Svar på kravet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     expect(screen.getByRole('navigation', { name: 'Saken' })).toBeInTheDocument();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Les brevet ved siden av' }));
@@ -607,8 +604,10 @@ describe('Varden med brukerforløpet BF-01', () => {
       const iVarden = [...document.querySelectorAll('[data-handling]')].map(
         (e) => e.getAttribute('data-handling')!
       );
+      // Primærhandlingen i kortet står ikke i lista «Andre handlinger».
       if (screen.queryByRole('button', { name: 'Ta stilling til svaret' }))
         iVarden.push('godta:vederlag');
+      if (screen.queryByRole('button', { name: 'Svar på kravet' })) iVarden.push('svare:vederlag');
       expect(iVarden.sort()).toEqual([...tilbudt].sort());
     }
   );

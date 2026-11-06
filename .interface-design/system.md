@@ -294,9 +294,15 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
   lengre brev ruller i den. Kolonnene er da like brede, og panelet til venstre er felt inn.
   På smal skjerm står brevet i skjemaet.
-- **Menyen med brevtypene** (`Brevtyper`) vises bare når kjernen tilbyr en handling
-  ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget, står under
-  én felles linje.
+- **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne. Det har én primærhandling:
+  «Ta stilling til avslaget» eller «… til svaret» når parten kan godta svaret, med en setning om
+  valgene kjernen tilbyr, eller «Svar på kravet» når Varden kan åpne svaret. Resten står under
+  «Andre handlinger» som en åpen liste (`Brevtyper`), ikke en meny, som i prototypen
+  `grunnlagsoversikt.html` (oppdragsgiver 06.11, #1631). Lista vises bare når kjernen tilbyr en
+  handling ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget,
+  står under én felles linje.
+- **Topplinja** har stien «Varden › prosjektet › saken», med sakens kode, og den innloggede
+  med initialene og navnet. Rollen står ikke der (oppdragsgiver 06.11, #1631).
 - **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
   blekk (`--ink`) på `--surface-inset`. Den er ikke gul, fordi gult betyr utkast, og
   ikke rød, fordi den ikke er en feil.

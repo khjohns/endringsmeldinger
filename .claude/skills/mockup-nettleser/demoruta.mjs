@@ -231,7 +231,6 @@ try {
   await demopanel(false);
   await steg('bh-har-mottatt-kravet');
 
-  await page.getByText('Skriv brev', { exact: true }).click();
   await knapp('Svar på kravet').click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
   await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();
@@ -279,7 +278,7 @@ try {
 
   await demopanel(true);
   await knapp('Start på nytt').click();
-  await page.getByText('Skriv brev', { exact: true }).waitFor();
+  await knapp('Svar på kravet').waitFor();
   await steg('startet-paa-nytt');
   } else {
   // Fra begynnelsen: saken er opprettet, og TE handler i neste steg.

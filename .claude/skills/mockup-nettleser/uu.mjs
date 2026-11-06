@@ -158,7 +158,6 @@ const iVarden = (punkt, vei) => async (page) => {
   await vei?.(page);
 };
 const bhSvarer = async (page) => {
-  await page.getByText('Skriv brev', { exact: true }).click();
   await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
   await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();

@@ -23,7 +23,8 @@
   import { aksepten } from './kommandoer';
   import { betegnelsene, brevene, handlingerISporet, datoerISporet } from './lesing';
   import {
-    BREVMENY,
+    BREVTYPER,
+    HANDLINGENE,
     FORHOLDET,
     MOTTATT,
     STILLING,
@@ -73,8 +74,23 @@
   const vist = $derived(lestBrev ?? (kanGodta && svarbrevet ? svarbrevet : siste));
   // Handlingene står i et kort øverst i høyre kolonne, på linje med kortet i midten, i alle
   // tilstandene til sporet, som i prototypen `grunnlagsoversikt.html` (oppdragsgiver 05.11, #1631).
-  const menyvalg = $derived(iSporet.filter((n) => n !== `godta:${spor}`));
   const viserStilling = $derived(kanGodta && vist !== null && (oversikt || vist === svarbrevet));
+  // Én primærhandling: å ta stilling til svaret, eller å svare på kravet når Varden kan det.
+  const svare = $derived(
+    !viserStilling && spor === 'vederlag' && iSporet.includes('svare:vederlag')
+      ? 'svare:vederlag'
+      : null
+  );
+  const menyvalg = $derived(iSporet.filter((n) => n !== `godta:${spor}` && n !== svare));
+  const avslag = $derived(
+    svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
+  );
+  // Valgene ved svaret, med det kjernen tilbyr i sporet (prototypen `grunnlagsoversikt.html`).
+  const valgene = $derived([
+    HANDLINGENE.godta(avslag),
+    ...(iSporet.includes(`krav:${spor}`) ? [HANDLINGENE.nyVersjon(spor)] : []),
+    ...(iSporet.includes(`trekke:${spor}`) ? [HANDLINGENE.trekke(spor)] : []),
+  ]);
 
   async function lesBrevet(id: string) {
     stilling = false;
@@ -146,7 +162,7 @@
 
 {#snippet meny()}
   <Brevtyper
-    tittel={kanGodta ? BREVMENY.andre : BREVMENY.skriv}
+    tittel={viserStilling || svare ? HANDLINGENE.andre : null}
     handlinger={menyvalg}
     bygget={spor === 'vederlag' ? ['svare'] : []}
     tekstFor={innsigelsestekst}
@@ -156,15 +172,15 @@
 
 {#snippet taStilling()}
   <div class="stilling">
-    <p class="dempet">{MOTTATT.svaretIBrev(vist!.avsender, vist!)}</p>
     <Knapp
       variant="primaer"
       aria-expanded={stilling}
       aria-controls={`${uid}-stillingspanel`}
       id={`${uid}-ta-stilling`}
       onclick={aapneStilling}
-      >{MOTTATT.taStilling}<ChevronRight size={16} aria-hidden="true" /></Knapp
+      >{MOTTATT.taStilling(avslag)}<ChevronRight size={16} aria-hidden="true" /></Knapp
     >
+    <p class="dempet">{HANDLINGENE.valgene(valgene)}</p>
   </div>
 {/snippet}
 
@@ -212,10 +228,18 @@
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if menyvalg.length || viserStilling}
+    {#if menyvalg.length || viserStilling || svare}
       <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
         <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
         {#if viserStilling}{@render taStilling()}{/if}
+        {#if svare}
+          <Knapp variant="primaer" onclick={() => onvelg(svare!)}
+            >{BREVTYPER.find((b) => b.type === 'svare')!.tekst}<ChevronRight
+              size={16}
+              aria-hidden="true"
+            /></Knapp
+          >
+        {/if}
         {@render meny()}
       </section>
     {/if}

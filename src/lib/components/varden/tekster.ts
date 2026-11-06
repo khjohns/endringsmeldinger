@@ -268,8 +268,7 @@ export const BREVKONTROLL = {
 export const MOTTATT = {
   fra: (n: number, part: Part, d: string) =>
     `Brev ${n} · ${part} · mottatt ${dato(d)} kl. ${klokke(d)}`,
-  svaretIBrev: (part: Part, b: Brevref) => `Svaret fra ${part} står i ${brevref(b)}.`,
-  taStilling: 'Ta stilling til svaret',
+  taStilling: (avslag: boolean) => `Ta stilling til ${avslag ? 'avslaget' : 'svaret'}`,
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
   sendtMerke: (d: string) => `Sendt ${dato(d)}`,
@@ -305,9 +304,18 @@ const MAAL: Record<string, string> = { krav: 'kravet', svar: 'svaret', varsel: '
 export const innsigelsen = (art: string, nummer: number | null) =>
   `Innsigelse: ${MAAL[art] ?? 'brevet'}${nummer ? ` i brev ${nummer}` : ''} kom for sent (punkt 5 tredje ledd)`;
 
-export const BREVMENY = {
-  skriv: 'Skriv brev',
-  andre: 'Andre brev og handlinger',
+/** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
+export const HANDLINGENE = {
+  andre: 'Andre handlinger',
+  /** Valgene kjernen tilbyr ved svaret, i én setning: «Du kan godta avslaget eller …». */
+  valgene: (valg: string[]) =>
+    valg.length < 2
+      ? `Du kan ${valg[0]}.`
+      : `Du kan ${valg.slice(0, -1).join(', ')} eller ${valg.at(-1)}.`,
+  godta: (avslag: boolean) => `godta ${avslag ? 'avslaget' : 'svaret'}`,
+  nyVersjon: (spor: Spor) =>
+    spor === 'forhold' ? 'sende en ny versjon av påberopelsen' : 'sende en ny versjon av kravet',
+  trekke: (spor: Spor) => (spor === 'forhold' ? 'trekke påberopelsen' : 'trekke kravet'),
 };
 
 export const STILLING = {
@@ -323,7 +331,7 @@ export const STILLING = {
   kilde: (b: Brevref) => `Virkningen er regnet ut fra ${brevref(b)} slik det ble sendt.`,
   seAksepten: 'Se akseptbrevet',
   godtarBrev: (b: Brevref) => `Du godtar hele svaret i ${brevref(b)}`,
-  andre: 'Andre brev du kan sende nå, står under «Andre brev og handlinger».',
+  andre: 'Andre brev du kan sende nå, står under «Andre handlinger».',
 };
 
 export const TIDSLINJE = {
