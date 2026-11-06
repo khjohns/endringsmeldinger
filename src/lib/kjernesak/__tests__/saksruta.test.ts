@@ -17,6 +17,7 @@ const side = vi.hoisted(() => ({
   params: { prosjektId: 'p-1', sakId: 'sak-1' },
   url: new URL('http://lokal/p-1/sak-1'),
   state: {},
+  data: { user: null },
 }));
 vi.mock('$app/state', () => ({ page: side }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));

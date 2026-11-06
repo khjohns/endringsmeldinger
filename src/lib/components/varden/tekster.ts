@@ -23,6 +23,18 @@ export const SPORNAVN: Record<Spor, string> = {
   frist: 'Fristforlengelse',
 };
 
+/** Kravet i bestemt form, slik visningen omtaler det (språkfila, «Kravet, ikke sporet»). */
+const SAKSDELEN: Record<Spor, string> = {
+  forhold: 'forholdet',
+  vederlag: 'vederlagsjusteringen',
+  frist: 'kravet om fristforlengelse',
+};
+const KRAVET: Record<Spor, string> = {
+  forhold: 'forholdet',
+  vederlag: 'vederlagsjustering',
+  frist: 'fristforlengelse',
+};
+
 /**
  * Forholdene med kjernens kode og navnet, i gruppene fra kjernen (OV-U77, OV-U78). Lista har
  * hjemmet sitt i `kjerne/frosset/forholdene.ts`, så brevet og velgeren sier det samme (svaret
@@ -103,6 +115,7 @@ export function kalenderdager(fra: string, til: string): number {
 }
 
 export const OPPGITT: Record<OppgittDato['hva'], string> = {
+  paalegg_mottatt: 'Pålegget mottatt',
   klar_over_forholdet: 'Klar over forholdet',
   sendt: 'Dokumentet sendt',
   mottatt: 'Dokumentet mottatt',
@@ -317,7 +330,21 @@ export const TIDSLINJE = {
   tittel: 'Tidslinje',
   oppfoeringer: (n: number) => `${n} ${n === 1 ? 'oppføring' : 'oppføringer'}`,
   oppgitt: (part: Part, b: Brevref) => `Oppgitt av ${part} i ${brevref(b)}`,
-  sendt: (part: Part) => `Brev sendt av ${part}`,
+  /** Hva brevet gjør, kort, som i prototypen `grunnlagsoversikt.html`: «Krav om fristforlengelse». */
+  hva: (b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel'>) => {
+    const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
+    const om = (navn: Record<Spor, string>) => spor.map((s) => navn[s]).join(' og ');
+    if (b.art === 'registrert') return FORHOLDET.registrertTittel(b.avsender);
+    if (b.art === 'krav' && spor.length)
+      return spor.includes('forhold') ? 'Påberopelse av forholdet' : `Krav om ${om(KRAVET)}`;
+    if (b.art === 'svar' && spor.length) return `Svar på ${om(SAKSDELEN)}`;
+    if (b.art === 'trekk' && spor.length)
+      return spor.includes('forhold') ? 'Trekk av påberopelsen' : `Trekk av ${om(SAKSDELEN)}`;
+    if (b.art === 'aksept' && spor.length) return `Godtar svaret på ${om(SAKSDELEN)}`;
+    if (b.art === 'innsigelse') return 'Innsigelse';
+    return brevtittel(b);
+  },
+  sendt: (part: Part, b: Brevref) => `${brevrefStor(b)} sendt av ${part}`,
   registrert: (part: Part, lagtTil: string) => `Sendt ifølge ${part}, lagt til ${dato(lagtTil)}`,
   tom: 'Ingen datoer eller brev ennå.',
 };

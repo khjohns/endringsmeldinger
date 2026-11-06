@@ -130,30 +130,27 @@ export const brevet = (u: Utledning, id: string) => brevene(u).find((b) => b.id 
 /** En dato en part har oppgitt i et brev, med brevet den står i. */
 export interface OppgittDato {
   dato: string;
-  hva: 'klar_over_forholdet' | 'sendt' | 'mottatt';
+  hva: 'paalegg_mottatt' | 'klar_over_forholdet' | 'sendt' | 'mottatt';
   oppgittAv: Part;
   brev: Brevref;
   spor: Spor[];
 }
 
 /**
- * Datoene partene har oppgitt: når TE ble klar over forholdet (grunnlagskravet) og når et
- * dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer dem ikke (MM-U12, MM-U50).
+ * Datoene partene har oppgitt: når TE mottok pålegget eller ble klar over forholdet
+ * (påberopelsen) og når et dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer
+ * dem ikke (MM-U12, MM-U50).
  */
 export function oppgitteDatoer(u: Utledning): OppgittDato[] {
   const brev = new Map(brevene(u).map((b) => [b.id, b]));
   const ut: OppgittDato[] = [];
   for (const k of u.spor.forhold.krav) {
-    const dato = k.innhold.klar_over_forholdet;
     const b = brev.get(k.dokument);
-    if (typeof dato === 'string' && b)
-      ut.push({
-        dato,
-        hva: 'klar_over_forholdet',
-        oppgittAv: b.avsender,
-        brev: ref(b),
-        spor: ['forhold'],
-      });
+    for (const hva of ['paalegg_mottatt', 'klar_over_forholdet'] as const) {
+      const dato = k.innhold[hva];
+      if (typeof dato === 'string' && b)
+        ut.push({ dato, hva, oppgittAv: b.avsender, brev: ref(b), spor: ['forhold'] });
+    }
   }
   for (const { opplysning: o } of u.opplysninger) {
     const b = brev.get(o.dokument);
