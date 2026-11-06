@@ -180,7 +180,7 @@ export function klarOverForholdet(u: Utledning): OppgittDato | null {
 
 /** TEs opplysning om datoen etter VS-U26, i påberopelsen eller en korrigering (MM-U52 punkt 10). */
 export interface Datoopplysningen {
-  /** Kravet eller korrigeringen med opplysningen, som handlingen `korrigere:<id>` viser til. */
+  /** Påberopelsen eller korrigeringen med opplysningen, som handlingen `korrigere:<id>` viser til. */
   id: string;
   hva: 'paalegg_mottatt' | 'klar_over_forholdet';
   dato: string;

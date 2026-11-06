@@ -31,7 +31,7 @@ BH vil:
 
 - **M-4** se at TE har oppgitt en ny dato, hvilken dato TE oppga før, og hvilken opplysning
   svaret og påberopelsen gjaldt;
-- **M-5** vite at saken ikke venter på et nytt svar fra BH.
+- **M-5** vite at svaret BH har gitt, står.
 
 ## Utgangspunktet
 
@@ -76,7 +76,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - <a id="u-1"></a>**U-1** TE finner handlingen ved datoen i grunnlagskravet, ikke bare i
   handlingsmenyen. Etter en korrigering står handlingen ved den siste opplysningen.
 - <a id="u-2"></a>**U-2** Skjemaet sier hvilken opplysning som korrigeres, med brevet og
-  datoen, og at brevet ikke er en ny kravversjon og ikke avslår svaret.
+  datoen, og at påberopelsen og svaret står som de ble sendt.
 - <a id="u-3"></a>**U-3** TE ser brevteksten ordrett før sending, også henvisningen til
   brevet med opplysningen. En dato som er uendret eller etter dagens dato, stoppes i skjemaet
   med en melding som sier hva som hindrer.
@@ -84,8 +84,8 @@ finner ut at pålegget ble mottatt 20.09.2026.
   svaret og påberopelsen står.
 - <a id="u-5"></a>**U-5** Begge ser den siste og de tidligere opplysningene, og hvilken
   opplysning svaret gjaldt. Ingenting i visningen sier at varselet nå kom i tide.
-- <a id="u-6"></a>**U-6** BH ser at korrigeringen ikke venter på et svar fra BH. BH kan ta
-  stilling til den i et senere svar, i et nytt svar eller, i en lukket sak, i et innlegg.
+- <a id="u-6"></a>**U-6** BH ser at svaret står som det ble sendt. BH kan ta stilling til den
+  nye datoen i et senere svar, i et nytt svar eller, i en lukket sak, i et innlegg.
 - <a id="u-7"></a>**U-7** I skjemaet for en ny grunnlagsversjon står datoen låst, med
   teksten den nye versjonen får, og en vei til korrigeringen som ikke kaster det TE har
   skrevet.
@@ -161,3 +161,4 @@ Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svar
 | 05.11.2026 | #1308, MM-U52, svarene «1 A, 2 A» | Første versjon |
 | 06.11.2026 | #1624, #1615, svaret på S-4b i BF-10 | G-6 og G-8 er bygget. G-7 er presisert. Skissen er versjon 3: en ny versjon avslår ikke svaret, men svaret kan da ikke godtas i løsningen. Korrigeringen går gjennom brevkontrollen, med samme utkastkort som de andre skjemaene (svaret på S-4b i BF-10). Skissen viser fortsatt brevet ved siden av skjemaet |
 | 06.11.2026 | #1615 | G-2 og G-7 er bygget i Varden. U-7 venter på skjemaet for «Oppdater påberopelse» (BF-10) |
+| 06.11.2026 | oppdragsgiver 06.11, tekstene i #1646 | U-2, U-6 og M-5 sier at påberopelsen og svaret står som de ble sendt, ikke at brevet ikke er en ny kravversjon eller at saken ikke venter på BH. Forståelsen i BF-02A og BF-02C er rettet likt |

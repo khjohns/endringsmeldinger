@@ -76,7 +76,7 @@ async function teKorrigerer(dato: string, forklaring?: string): Promise<string[]
 
 async function sendKorrigeringen() {
   await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
-  await fireEvent.click(screen.getByRole('button', { name: 'Send korrigeringen til BH' }));
+  await fireEvent.click(screen.getByRole('button', { name: 'Send korrigeringen til byggherren' }));
 }
 
 beforeEach(() => vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Ingen nettverk.'))));
@@ -101,7 +101,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     );
     const kontrollen = screen.getByRole('region', { name: 'Sending' });
     expect(within(kontrollen).getByText('Viser til')).toBeTruthy();
-    expect(kontrollen.textContent).toMatch(/Saken venter ikke på byggherren/);
+    expect(kontrollen.textContent).toMatch(/Svaret i brev 2 står som det ble sendt\./);
 
     await sendKorrigeringen();
     const foer = versjonVed('BF-02A', punkt.id);
@@ -114,10 +114,10 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     k.registrer(BF.steg![2], [rad]);
     await kontrollerEtter(somForloep(BF), 3, k, paastand);
 
-    // U-4: kvitteringen sier at datoen er TEs siste opplysning, og at svaret og påberopelsen står.
+    // U-4: kvitteringen sier at datoen er TEs siste opplysning, og at påberopelsen og svaret står (oppdragsgiver 06.11).
     await vi.waitFor(() =>
       expect(kvitteringen()).toMatch(
-        /20\. september 2026 er nå din siste opplysning om datoen\. Svaret og påberopelsen fra byggherren står\./
+        /20\. september 2026 er nå din siste opplysning om når pålegget ble mottatt\. Påberopelsen og svaret står som de ble sendt\./
       )
     );
     // U-1: handlingen står ved den siste opplysningen, ikke ved den første.
@@ -137,7 +137,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     ).toBeTruthy();
   });
 
-  it('BF-02A: BH ser den nye og den tidligere datoen, at saken ikke venter på BH, og ingenting om at varselet nå kom i tide (U-5, U-6, MM-U50)', async () => {
+  it('BF-02A: BH ser den nye og den tidligere datoen, at svaret står som det ble sendt, og ingenting om at varselet nå kom i tide (U-5, U-6, MM-U50)', async () => {
     aapne('BF-02A', 'korrigeringen-er-sendt');
     await fireEvent.click(demopanel().getByRole('radio', { name: 'BH' }));
     await tilForholdet();
@@ -147,7 +147,12 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
         /20\. september 2026, ifølge totalentreprenøren\. Korrigerer 15\. september 2026, oppgitt i brev 1\./
       )
     ).toBeTruthy();
-    expect(korrigeringen.getByText(/Saken venter ikke på byggherren/)).toBeTruthy();
+    expect(
+      korrigeringen.getByText(
+        'Svaret i brev 2 står som det ble sendt. Byggherren kan ta stilling til den nye datoen i et senere svar.'
+      )
+    ).toBeTruthy();
+    expect(korrigeringen.queryByText(/venter/)).toBeNull();
     expect(screen.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
     // MM-U50: påberopelsen står, og visningen sier ikke at varselet nå kom i tide.
     expect(
@@ -200,7 +205,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(screen.getByLabelText('Ny dato for når pålegget ble mottatt')).toHaveValue('');
   });
 
-  it('skjemaet har utkastkortet og sier hvilken opplysning som korrigeres, og at brevet ikke er en ny kravversjon og ikke avslår svaret (U-2, svaret på S-4b i BF-10)', async () => {
+  it('skjemaet har utkastkortet og sier hvilken opplysning som korrigeres, og at påberopelsen og svaret står som de ble sendt (U-2, svaret på S-4b i BF-10; oppdragsgiver 06.11)', async () => {
     aapne('BF-02A', 'te-har-mottatt-svaret');
     await tilForholdet();
     await fireEvent.click(
@@ -212,7 +217,11 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(
       skjema.getByText('15. september 2026, datoen du oppga for når pålegget ble mottatt')
     ).toBeTruthy();
-    expect(skjema.getByText(/ikke en ny kravversjon og avslår ikke svaret i brev 2/)).toBeTruthy();
+    expect(
+      skjema.getByText(
+        'Korrigeringen sendes som et eget brev til byggherren. Påberopelsen i brev 1 og svaret i brev 2 står som de ble sendt. Den nye datoen gjelder straks som din siste opplysning.'
+      )
+    ).toBeTruthy();
     // Brevet står ikke ved siden av mens TE skriver (S-4b A).
     expect(screen.queryByRole('article')).toBeNull();
   });
@@ -249,7 +258,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     await tilForholdet();
     expect(
       (await innlegget(/^Brev 1 ·/)).getByText(
-        /Korrigeringen endrer ikke utfallet, og saken står lukket/
+        /Saken står lukket, og korrigeringen endrer ikke utfallet\. Byggherren kan ta stilling til den nye datoen i et innlegg\./
       )
     ).toBeTruthy();
     await teKorrigerer('2026-09-20');

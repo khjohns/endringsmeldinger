@@ -56,6 +56,12 @@
     const s = u.spor.forhold.gjeldendeSvar;
     return s ? (brevene(u).find((b) => b.id === s.dokument) ?? null) : null;
   });
+  // Påberopelsen er den første opplysningen i rekken av korrigeringer.
+  const paaberopelsen = $derived.by(() => {
+    let o = opplysningen;
+    while (o.forrige) o = o.forrige;
+    return o.brev;
+  });
   const lukket = $derived(u.forholdAvvist);
   const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes('forhold')));
 
@@ -113,7 +119,7 @@
       tekst: b.tekst,
       utdypning: kommando.utdypning,
       detteSender: linjer,
-      virkninger: [FORHOLDET.korrigeringenStaar(lukket)],
+      virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)],
       merking: b.merking,
       deresRef: b.deresRef,
       tittel: b.brevtittel,
@@ -175,7 +181,7 @@
 
       <div class="innhold">
         <div class="virkning">
-          <p>{KORRIGERING.egetBrev(svarbrevet)}</p>
+          <p>{KORRIGERING.egetBrev(paaberopelsen, svarbrevet)}</p>
           {#if lukket}<p>{KORRIGERING.lukket}</p>{/if}
         </div>
 

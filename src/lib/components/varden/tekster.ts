@@ -473,15 +473,15 @@ export const FORHOLDET = {
   gjaldt: (o: { hva: 'paalegg_mottatt' | 'klar_over_forholdet'; dato: string; brev: Brevref }) =>
     `Svaret gjaldt opplysningen i ${brevref(o.brev)} om at ${o.hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'totalentreprenøren ble klar over forholdet'} ${dato(o.dato)}.`,
   korrigerILukket:
-    'Du kan fortsatt korrigere datoen. Korrigeringen endrer ikke utfallet, og saken står lukket. Byggherren kan ta stilling til den i et innlegg, som ikke er støttet ennå.',
+    'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.',
   omKorrigeringen: 'Om korrigeringen',
   avgjoerIkke:
     'Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.',
-  /** Hva korrigeringen gjør med saken (D-2, D-6 og U-6 i BF-02A). */
-  korrigeringenStaar: (lukket: boolean) =>
+  /** Hva korrigeringen gjør med saken (D-2, D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646). */
+  korrigeringenStaar: (lukket: boolean, svar: Brevref | null) =>
     lukket
-      ? 'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg, som ikke er støttet ennå.'
-      : 'Svaret fra byggherren står med virkningen det hadde, og en påberopelse står med tidspunktet. Saken venter ikke på byggherren, som kan ta stilling til den nye datoen i et senere svar eller i et nytt svar.',
+      ? 'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.'
+      : `${svar ? `Svaret i ${brevref(svar)}` : 'Svaret'} står som det ble sendt. Byggherren kan ta stilling til den nye datoen i et senere svar.`,
   lagene: 'Standpunktene i svaret',
   /** Byggherrens standpunkt i svaret på forholdet, som setning (språkfila: partene fullt ut). */
   standpunkt: (s: Standpunkt, brev: Brevref | null): string => {
@@ -512,17 +512,18 @@ export const KORRIGERING = {
     `${dato(o.dato)}, datoen du oppga for når ${DATOEN[o.hva]}`,
   oppgittI: 'Oppgitt i',
   brevet: (b: Brevref) => `${brevrefStor(b)} av ${dato(b.registrert)}`,
-  /** U-2: et eget brev, ikke en ny kravversjon og ikke et avslag av svaret (MM-U52 punkt 10–11). */
-  egetBrev: (svar: Brevref | null) =>
-    svar
-      ? `Korrigeringen er et eget brev til byggherren. Den er ikke en ny kravversjon og avslår ikke svaret i ${brevref(svar)}. Svaret står med virkningen det hadde, og påberopelsen står med tidspunktet. Saken venter ikke på byggherren.`
-      : 'Korrigeringen er et eget brev til byggherren. Den er ikke en ny kravversjon.',
+  /** U-2: et eget brev, og påberopelsen og svaret står som de ble sendt (MM-U52 punkt 10–11). */
+  egetBrev: (paaberopelse: Brevref, svar: Brevref | null) =>
+    `Korrigeringen sendes som et eget brev til byggherren. ${
+      svar
+        ? `Påberopelsen i ${brevref(paaberopelse)} og svaret i ${brevref(svar)} står som de ble sendt.`
+        : `Påberopelsen i ${brevref(paaberopelse)} står som den ble sendt.`
+    } Den nye datoen gjelder straks som din siste opplysning.`,
   lukket: 'Saken står lukket. Korrigeringen endrer ikke utfallet.',
   nyDato: (hva: keyof typeof DATOEN) => `Ny dato for når ${DATOEN[hva]}`,
   datoHjelp: 'Datoen kan ikke være etter dagens dato.',
   forklaring: 'Forklaring (valgfri)',
-  forklaringHjelp:
-    'Forklaringen står i brevet under teksten om datoen. Den endrer ikke det brevet sier om datoen.',
+  forklaringHjelp: 'Forklaringen står i brevet under den nye datoen.',
   skrivDatoen: (hva: keyof typeof DATOEN) => `Skriv datoen ${DATOEN[hva]}.`,
   uendret: (o: { hva: keyof typeof DATOEN; dato: string; brev: Brevref }) =>
     `Datoen er den samme som i ${brevref(o.brev)}, ${dato(o.dato)}. Skriv datoen ${DATOEN[o.hva]}.`,
@@ -537,11 +538,11 @@ export const KORRIGERING = {
   linjeForklaring: 'Forklaringen din står under teksten om datoen',
   seBrevet: 'Se brevet før sending',
   handling: 'Send korrigeringen',
-  sendTekst: 'Send korrigeringen til BH',
+  sendTekst: 'Send korrigeringen til byggherren',
   tilbakeTil: 'utkastet',
-  /** U-4: datoen er TEs siste opplysning, og svaret og påberopelsen står. */
-  kvittering: (d: string, lukket: boolean) =>
-    `Korrigeringen er sendt til byggherren. ${dato(d)} er nå din siste opplysning om datoen. ${lukket ? 'Saken står lukket, og utfallet er det samme.' : 'Svaret og påberopelsen fra byggherren står.'}`,
+  /** U-4: datoen er TEs siste opplysning, og påberopelsen og svaret står som de ble sendt. */
+  kvittering: (d: string, hva: keyof typeof DATOEN, lukket: boolean) =>
+    `Korrigeringen er sendt til byggherren. ${dato(d)} er nå din siste opplysning om når ${DATOEN[hva]}. ${lukket ? 'Saken står lukket, og utfallet er det samme.' : 'Påberopelsen og svaret står som de ble sendt.'}`,
 };
 
 export const SAKEN = {

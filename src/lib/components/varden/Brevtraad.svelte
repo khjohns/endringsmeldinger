@@ -39,7 +39,7 @@
 </script>
 
 <ol class="traad" aria-label={FORHOLDET.traad}>
-  {#each brev as b (b.id)}
+  {#each brev as b, n (b.id)}
     {@const registrert = b.art === 'registrert'}
     {@const i = innlegg.get(b.id)}
     <li class="innlegg">
@@ -132,7 +132,12 @@
             </div>
           {/if}
           {#if i.opplysning?.korrigering}
-            <p class="virkning">{FORHOLDET.korrigeringenStaar(lukket)}</p>
+            <p class="virkning">
+              {FORHOLDET.korrigeringenStaar(
+                lukket,
+                brev.slice(0, n).findLast((x) => x.art === 'svar') ?? null
+              )}
+            </p>
           {/if}
           {#if i.gjaldt}
             <p class="virkning">{FORHOLDET.gjaldt(i.gjaldt)}</p>
