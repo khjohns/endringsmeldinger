@@ -260,6 +260,8 @@ export const BREVKONTROLL = {
   svarerPaaBrev: (b: Brevref) => brevrefStor(b),
   datoSettes: 'Settes ved sending',
   detteSender: 'Dette sender du',
+  /** Virkningen av sendingen, adskilt fra innholdet (oppdragsgiver 06.11, PR 1650). */
+  naarDuSender: 'Når du sender',
   akseptOmfatter: 'Godtar TE svaret, omfatter aksepten hele svaret, også at varselet kom for sent.',
   kontrollert: 'Jeg har kontrollert brevet',
   hvorforIkke: 'Kryss av for at du har kontrollert brevet, så kan du sende.',
@@ -561,22 +563,26 @@ export const KORRIGERING = {
  * korrigeringen er fra skissen `korrigering-av-datoen.html#ny-versjon`, versjon 2.
  */
 export const NYVERSJON = {
-  /** Lenken over feltet, som åpner svaret ved siden av utkastet (oppdragsgiver 06.11, PR 1650). */
-  /** Kortet til høyre sier hva TE svarer på, ikke hva brevet sier (oppdragsgiver 06.11, PR 1650). */
-  svaret: (svar: Brevref) => `Byggherrens svar i ${brevref(svar)}`,
-  paaberopelsen: (krav: Brevref) => `Påberopelsen i ${brevref(krav)}`,
-  ikkeSvart: 'Byggherren har ikke svart.',
-  erstatter: (krav: Brevref) => `Den nye versjonen erstatter påberopelsen i ${brevref(krav)}.`,
+  /**
+   * Kortet til høyre er et utdrag av byggherrens svar, med formen fra brevtråden: det TE svarer på,
+   * ikke hva brevet sier (oppdragsgiver 06.11, PR 1650).
+   */
+  svaret: 'Byggherrens svar',
+  svarMeta: (svar: Brevref, d: string) => `${stor(brevref(svar))} · ${dato(d)}`,
+  ikkeSvart: 'Svar ikke registrert',
   lesSvaret: 'Les svaret ved siden av',
   lesSvaretHer: 'Les svaret',
   lukkSvaret: 'Lukk svaret',
   /** Datoen ved feltet når byggherren sier at varselet kom for sent (§ 32.2). */
   datoen: (hva: keyof typeof DATOEN) =>
     hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet',
-  sisteOpplysning: (d: string, b: Brevref) => `${dato(d)} (${brevref(b)})`,
+  oppgittI: (b: Brevref) => `oppgitt i ${brevref(b)}`,
   /** MM-U52 punkt 13: en korrigering lar svaret stå. */
   datoHjelp:
     'Datoen kan ikke endres i en ny versjon. En korrigering i et eget brev lar svaret stå.',
+  /** Hvorfor datoen står ved feltet: byggherren bestrider at varselet kom i tide. */
+  datoBestridt: (svar: Brevref) =>
+    `Byggherren gjør gjeldende i ${brevref(svar)} at varselet kom for sent. Datoen kan ikke endres i en ny versjon. En korrigering i et eget brev lar svaret stå.`,
   korriger: 'Korriger datoen i et eget brev',
   /** U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
   nySak: 'Annen hjemmel eller endringsordre:',

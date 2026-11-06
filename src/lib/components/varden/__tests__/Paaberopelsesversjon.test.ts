@@ -72,10 +72,11 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(teksten().getAttribute('aria-describedby')).toBeNull();
     // Kortet til høyre sier hva TE svarer på, ikke hva brevet sier, og har primærhandlingen.
     // Tidslinja står under (oppdragsgiver 06.11, PR 1650).
-    const kortet = within(screen.getByRole('region', { name: /^Byggherrens svar i brev 2/ }));
+    const kortet = within(screen.getByRole('region', { name: /^Byggherrens svar Brev 2 · / }));
     expect(kortet.getByText('Byggherren godkjenner forholdet.')).toBeTruthy();
     expect(kortet.getByText(/varselet etter punkt 32\.2 kom for sent/)).toBeTruthy();
-    expect(kortet.getByText('Den nye versjonen erstatter påberopelsen i brev 1.')).toBeTruthy();
+    // Hva utkastet er, står i hodet på utkastet, ikke i kortet.
+    expect(skjema.getByText('Ny versjon av påberopelsen i brev 1')).toBeTruthy();
     expect(kortet.getByRole('button', { name: 'Gå til forhåndsvisning' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: /Hovedlinjene/ })).toBeNull();
     expect(screen.getByRole('region', { name: /Tidslinje/ })).toBeTruthy();
@@ -150,7 +151,10 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     await tilForholdet();
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
     const skjema = within(screen.getByRole('form'));
-    expect(skjema.getByText(/15\. september 2026 \(brev 1\)/)).toBeTruthy();
+    expect(skjema.getByText('15. september 2026')).toBeTruthy();
+    expect(skjema.getByText('oppgitt i brev 1')).toBeTruthy();
+    // Datoen står der fordi byggherren bestrider at varselet kom i tide, og det sier boksen.
+    expect(skjema.getByText(/gjør gjeldende i brev 2 at varselet kom for sent/)).toBeTruthy();
     expect(skjema.getByText(/Datoen kan ikke endres i en ny versjon/)).toBeTruthy();
     await fireEvent.input(teksten(), { target: { value: 'Utkastet mitt.' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Korriger datoen i et eget brev' }));
@@ -170,7 +174,9 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
     // U-2: ingen av veiene kaster det TE har skrevet.
     expect((teksten() as HTMLTextAreaElement).value).toBe('Utkastet mitt.');
-    expect(screen.getByText(/20\. september 2026 \(brev 3\)/)).toBeTruthy();
+    const utkastet = within(screen.getByRole('form'));
+    expect(utkastet.getByText('20. september 2026')).toBeTruthy();
+    expect(utkastet.getByText('oppgitt i brev 3')).toBeTruthy();
     await fireEvent.click(screen.getByRole('button', { name: 'Gå til forhåndsvisning' }));
     const vist = await laastTekst(/Påberopelse av irregulær endring/);
     // LV-U56: den korrigerte datoen og den tidligere med brevet.
@@ -196,8 +202,10 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     await fireEvent.click(kortet.getByRole('button', { name: /^Send ny versjon av påberopelsen/ }));
     expect(screen.getByRole('textbox', { name: 'Oppdatert begrunnelse' })).toBeTruthy();
     // Før svaret sier kortet at byggherren ikke har svart, og det er ikke noe svar å lese.
-    const konteksten = within(screen.getByRole('region', { name: /^Påberopelsen i brev 1/ }));
-    expect(konteksten.getByText('Byggherren har ikke svart.')).toBeTruthy();
+    const konteksten = within(
+      screen.getByRole('region', { name: 'Byggherrens svar Svar ikke registrert' })
+    );
+    expect(konteksten.getByRole('button', { name: 'Gå til forhåndsvisning' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Les svaret/ })).toBeNull();
     expect(screen.queryByText(/Si hva du mener om svaret/)).toBeNull();
   });

@@ -41,7 +41,7 @@
       kommando: Record<string, unknown>;
       tekst: string[];
       utdypning?: string;
-      detteSender: { tekst: string; lag: string | null }[];
+      detteSender: { tekst: string; lag: string | null; vei?: string }[];
       virkninger: string[];
       merking: string | null;
       deresRef: string[];
@@ -86,8 +86,12 @@
 
   const virkning = $derived(HANDLINGENE.virkning.nyVersjon('forhold', kravbrevet, svarbrevet));
   const linjer = $derived([
-    ...(kravbrevet ? [{ tekst: NYVERSJON.linjeErstatter(kravbrevet), lag: null }] : []),
-    ...(datoen ? [{ tekst: NYVERSJON.linjeDato(datoen.hva, datoen.dato), lag: null }] : []),
+    ...(kravbrevet
+      ? [{ tekst: NYVERSJON.linjeErstatter(kravbrevet), lag: null, vei: 'forholdet' }]
+      : []),
+    ...(datoen
+      ? [{ tekst: NYVERSJON.linjeDato(datoen.hva, datoen.dato), lag: null, vei: 'datoen' }]
+      : []),
   ]);
 
   async function tilForhaandsvisningen() {
@@ -180,18 +184,20 @@
     <Utkastkort
       id={id('tittel')}
       tittel={svarbrevet ? FORHOLDET.oppdater : FORHOLDET.nyVersjon}
+      undertittel={kravbrevet ? NYVERSJON.linjeErstatter(kravbrevet) : null}
       mottaker={SKJEMA.tilBH}
       onsubmit={tilForhaandsvisningen}
     >
       <div class="innhold">
-        {#if datoenBestrides && datoen}
+        {#if datoenBestrides && datoen && svarbrevet}
           <!-- Datoen ved feltet når byggherren bestrider at varselet kom i tide (U-2, BF-02A U-7). -->
           <div class="dato">
-            <p>
-              <span class="etikett">{NYVERSJON.datoen(datoen.hva)}:</span>
-              {NYVERSJON.sisteOpplysning(datoen.dato, datoen.brev)}
+            <p class="datolinje">
+              <span class="etikett">{NYVERSJON.datoen(datoen.hva)}</span>
+              <strong>{dato(datoen.dato)}</strong>
+              <span class="etikett">{NYVERSJON.oppgittI(datoen.brev)}</span>
             </p>
-            <p class="vei">{NYVERSJON.datoHjelp}</p>
+            <p class="hvorfor">{NYVERSJON.datoBestridt(svarbrevet)}</p>
             {#if kanKorrigere}
               <Knapp variant="lenke" onclick={() => onkorriger(datoen!.id)}
                 >{NYVERSJON.korriger}</Knapp
@@ -246,19 +252,27 @@
         <div class="bunn">{@render handling()}</div>
       </section>
     {:else}
-      <section class="kort feste" aria-labelledby={id('kontekst')}>
-        <h2 class="hode" id={id('kontekst')}>
+      <!-- Et utdrag av svaret TE svarer på, med formen fra brevtråden: fylt ring for BH, stiplet
+           når svaret ikke er registrert, og standpunktene med linje til venstre som et sitat. -->
+      <section class="kort feste" aria-labelledby={`${id('kontekst')} ${id('kontekstmeta')}`}>
+        <div class="svaret">
+          <header class="svarhode">
+            <span class="part" class:bh={!!svarbrevet} aria-hidden="true">BH</span>
+            <div>
+              <h2 id={id('kontekst')}>{NYVERSJON.svaret}</h2>
+              <p class="meta" id={id('kontekstmeta')}>
+                {svarbrevet
+                  ? NYVERSJON.svarMeta(svarbrevet, svarbrevet.registrert)
+                  : NYVERSJON.ikkeSvart}
+              </p>
+            </div>
+          </header>
           {#if svarbrevet}
-            {NYVERSJON.svaret(svarbrevet)}
-            <span class="hodedato">{dato(svarbrevet.registrert)}</span>
-          {:else if kravbrevet}
-            {NYVERSJON.paaberopelsen(kravbrevet)}
-            <span class="hodedato">{dato(kravbrevet.registrert)}</span>
-          {/if}
-        </h2>
-        <div class="kontekst">
-          {#if svarbrevet}
-            {#each standpunktene as s (s.id)}<p>{FORHOLDET.standpunkt(s, null)}</p>{/each}
+            {#if standpunktene.length}
+              <ul class="standpunkter">
+                {#each standpunktene as s (s.id)}<li>{FORHOLDET.standpunkt(s, null)}</li>{/each}
+              </ul>
+            {/if}
             <Knapp
               variant="lenke"
               id={id('les')}
@@ -274,10 +288,7 @@
             {#if leser && smal}
               <div class="innebrev" id={id('svaret')}>{@render svaret(false)}</div>
             {/if}
-          {:else}
-            <p>{NYVERSJON.ikkeSvart}</p>
           {/if}
-          {#if kravbrevet}<p class="dempet">{NYVERSJON.erstatter(kravbrevet)}</p>{/if}
         </div>
         <div class="bunn">{@render handling()}</div>
       </section>
@@ -302,36 +313,56 @@
     top: var(--spacing-4);
     z-index: 1;
   }
-  .hode {
-    padding: var(--spacing-4) var(--spacing-5);
-    border-bottom: var(--rule);
+  .svaret {
+    display: grid;
+    gap: var(--spacing-4);
+    justify-items: start;
+    padding: var(--spacing-5);
+  }
+  .svarhode {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--spacing-3);
+    align-items: center;
+  }
+  .svarhode h2 {
+    margin: 0;
     font-size: 16px;
     font-weight: 600;
+    line-height: 1.3;
   }
-  .hodedato {
-    display: block;
-    font-size: 14px;
-    font-weight: 400;
+  .meta {
+    margin: 0;
     color: var(--ink-3);
+    font-size: 12px;
   }
-  .lesehode > :global(.knapp) {
-    flex: none;
-    white-space: nowrap;
+  /* Ringen fra brevtråden: fylt for et brev fra BH, stiplet når svaret ikke er registrert. */
+  .part {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--ink-3);
+    color: var(--ink-3);
+    font-size: 12px;
+    font-weight: 600;
   }
-  .kontekst {
+  .part.bh {
+    border: 1.5px solid var(--ink);
+    background: var(--ink);
+    color: var(--surface);
+  }
+  /* Byggherrens standpunkter, som et sitat fra brevet. */
+  .standpunkter {
     display: grid;
     gap: var(--spacing-2);
-    justify-items: start;
-    padding: var(--spacing-4) var(--spacing-5);
-    font-size: 14px;
-  }
-  .kontekst p {
     margin: 0;
+    padding: 0 0 0 var(--spacing-3);
+    list-style: none;
+    border-left: 2px solid var(--ink);
+    font-size: 14px;
     color: var(--ink);
-  }
-  .kontekst p.dempet {
-    margin-top: var(--spacing-2);
-    color: var(--ink-3);
   }
   .innebrev {
     justify-self: stretch;
@@ -345,22 +376,30 @@
   }
   .dato {
     display: grid;
-    gap: var(--spacing-1);
+    gap: var(--spacing-2);
     justify-items: start;
-    padding: var(--spacing-3) var(--spacing-4);
+    padding: var(--spacing-4);
     background: var(--surface-inset);
-    border-radius: var(--r-felt);
+    border-radius: var(--r-innfelt);
     font-size: 14px;
   }
-  .dato p {
+  .datolinje {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--spacing-2);
     margin: 0;
     color: var(--ink);
+  }
+  .datolinje strong {
+    font-weight: 600;
   }
   .etikett {
     color: var(--ink-3);
   }
-  .dato p.vei {
-    color: var(--ink-3);
+  .hvorfor {
+    margin: 0;
+    color: var(--ink-2);
   }
   .felt {
     display: grid;
@@ -409,6 +448,10 @@
     border: var(--rule);
     border-radius: var(--r-kort);
     overflow: hidden;
+  }
+  .lesehode > :global(.knapp) {
+    flex: none;
+    white-space: nowrap;
   }
   .lesehode {
     display: flex;

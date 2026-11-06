@@ -264,11 +264,19 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
-- **Unntak: den nye versjonen av påberopelsen.** Kortet over tidslinja sier hva TE svarer på,
-  ikke hva brevet sier: byggherrens standpunkter i svaret, lenken som åpner svaret ved siden av,
-  hvilket brev den nye versjonen erstatter, og «Gå til forhåndsvisning». Før svaret sier det at
-  byggherren ikke har svart. Datoen, veiene og virkningen står i forhåndsvisningen
-  (oppdragsgiver 06.11, PR 1650).
+- **Unntak: den nye versjonen av påberopelsen.** Hver del sier hvorfor den står der
+  (oppdragsgiver 06.11, PR 1650):
+  - Utkastet er det TE sender. Hva brevet er, står i hodet som undertittel
+    («Ny versjon av påberopelsen i brev 1»), ikke i kortet til høyre.
+  - Kortet til høyre er et utdrag av det TE svarer på, med formen fra brevtråden: ringen for BH,
+    fylt for et sendt brev og stiplet når svaret ikke er registrert, brevet og datoen som
+    metadata, og byggherrens standpunkter med en linje i blekk til venstre som et sitat. Lenken
+    åpner hele svaret ved siden av. Primærhandlingen står adskilt i bunnen av kortet, og
+    tidslinja under.
+  - Datoen står ved feltet bare når byggherren bestrider at varselet kom i tide, og boksen sier
+    det som første setning.
+  - I brevkontrollen står veien til et eget brev innrykket under linja den gjelder i «Dette
+    sender du», og virkningen under en egen overskrift, «Når du sender».
 - **En knapp er aldri sperret** ([MM-U32](#mm-u32)). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens

@@ -76,7 +76,7 @@
     kommando: Record<string, unknown>;
     tekst: string[];
     utdypning?: string;
-    detteSender: { tekst: string; lag: string | null }[];
+    detteSender: { tekst: string; lag: string | null; vei?: string }[];
     virkninger: string[];
     merking: string | null;
     deresRef: string[];
@@ -228,13 +228,14 @@
   }
 </script>
 
-<!-- I forhåndsvisningen av en ny versjon: datoen og forholdet kan ikke endres her, og veiene
-     til et eget brev og en ny sak kaster ikke utkastet (BF-10 U-2, BF-02A U-7). -->
-{#snippet fastINyVersjon()}
-  {#if arbeid.art === 'kontroll'}
-    {@const gjelder = arbeid.korrigerbar}
-    <p class="fast">{NYVERSJON.datoHjelp}</p>
-    {#if gjelder}
+<!-- I forhåndsvisningen av en ny versjon står veien til et eget brev under linja den gjelder:
+     korrigeringen ved datoen og den nye saken ved forholdet. Ingen av dem kaster utkastet
+     (BF-10 U-2, BF-02A U-7). -->
+{#snippet veiINyVersjon(hvilken: string)}
+  {#if hvilken === 'datoen'}
+    <span>{NYVERSJON.datoHjelp}</span>
+    {#if arbeid.art === 'kontroll' && arbeid.korrigerbar}
+      {@const gjelder = arbeid.korrigerbar}
       <Knapp
         variant="lenke"
         onclick={() => {
@@ -243,13 +244,12 @@
         }}>{NYVERSJON.korriger}</Knapp
       >
     {/if}
-    {#if nySakLenke}
-      <p class="fast">
-        {NYVERSJON.nySak}
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-        <a href={nySakLenke} target="_blank" rel="noopener">{NYVERSJON.nySakLenke}</a>
-      </p>
-    {/if}
+  {:else if hvilken === 'forholdet' && nySakLenke}
+    <span class="fast">
+      {NYVERSJON.nySak}
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+      <a href={nySakLenke} target="_blank" rel="noopener">{NYVERSJON.nySakLenke}</a>
+    </span>
   {/if}
 {/snippet}
 
@@ -357,7 +357,7 @@
           detteSender={k.detteSender}
           virkninger={k.virkninger}
           sendTekst={k.sendTekst}
-          endres={k.tilbake.art === 'nyversjon' ? fastINyVersjon : undefined}
+          vei={k.tilbake.art === 'nyversjon' ? veiINyVersjon : undefined}
           tilbakeTil={k.tilbakeTil}
           ontilbake={() => (arbeid = k.tilbake)}
           onsendt={sendt}
