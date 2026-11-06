@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Korrigering av datoen</title>
+<!--
+  Klikkbar skisse for BF-02A, BF-02C og BF-02D (docs/domenetabell/brukerforlop/BF-02A.md),
+  versjon 3, 06.11: TEs skjema for korrigering av datoen pålegget ble mottatt, og det låste
+  datofeltet i en ny grunnlagsversjon. Tilstandene er ankrene (#saken, #korrigering, #uendret,
+  #sendt, #bh, #ny-versjon, #ny-versjon-etter, #lukket), og stegtabellen i bestillingen viser
+  til dem. ID-ene i data-spor er punktene i bestillingen. Teksten er prototypetekst; brevteksten
+  er den vedtatte i MM-U52 punkt 10 og LV-U54, med tittelen etter S-2 A. Dagens dato er fast,
+  5. november 2026. Fargene er Blekk (.tema-varden i theme.css), som i grunnlagsoversikt.html.
+  Ingenting sendes, og ingenting lagres.
+-->
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#15181d; --brand-bg:#e6e9ee;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672; --ink-ghost:#8a909a;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --control-focus:#2457d6; --control-focus-ring:0 0 0 3px rgba(36,87,214,.25);
+  --sidebar-bg:#15181d; --sidebar-active:#262b33; --sidebar-hover:#1e2228; --sidebar-text:#f3f4f6; --sidebar-muted:#a9afb9; --sidebar-border:#2e333b;
+  --on-brand:#ffffff;
+  --draft:#5f4a00; --draft-bg:#fff3c4; --draft-border:#9e7f12;
+  --feil:#a4231a; --feil-bg:#fdeceb; --feil-border:#d9534a;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --varden-ark:760px; --varden-stoette:360px;
+  --r-kort:12px; --r-merke:2px; --r-felt:4px; --r-innfelt:6px; --r-knapp:999px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --brand-bg:#2a2f37; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab; --ink-ghost:#6c727c;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20; --sidebar-border:#23272d;
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  --feil:#ffb4ab; --feil-bg:#3a1c1a; --feil-border:#c4544b;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --brand-bg:#2a2f37; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab; --ink-ghost:#6c727c;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --control-focus:#8fb0ff; --control-focus-ring:0 0 0 3px rgba(143,176,255,.3);
+  --sidebar-bg:#0b0d10; --sidebar-active:#1f242b; --sidebar-hover:#171b20; --sidebar-border:#23272d;
+  --draft:#f3d675; --draft-bg:#2f2810; --draft-border:#a88a2a;
+  --feil:#ffb4ab; --feil-bg:#3a1c1a; --feil-border:#c4544b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.num,.brevkode{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.brevkode{font-size:13px}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+[hidden]{display:none !important}
+
+/* Skallet */
+.skall{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh}
+.panel{background:var(--sidebar-bg);color:var(--sidebar-text);padding:20px 20px 24px;display:flex;flex-direction:column;gap:28px}
+.avsender{display:flex;gap:12px;align-items:center}
+.vapen{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--sidebar-text);display:grid;place-items:center;font-size:9px;letter-spacing:.04em;color:var(--sidebar-muted)}
+.avsender b{display:block;font-size:14px;font-weight:600}
+.avsender span{font-size:12px;color:var(--sidebar-muted)}
+.sak h2{font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.01em}
+.sak .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.sak .lukketmerke{display:inline-block;margin-top:10px;font-size:12px;border:1px solid var(--sidebar-muted);border-radius:var(--r-merke);padding:1px 8px;color:var(--sidebar-text)}
+.etikett{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sidebar-muted);margin-bottom:8px}
+.spor{list-style:none;margin:0 -20px;padding:0}
+.spor a{display:block;padding:10px 20px 10px 17px;border-left:3px solid transparent;text-decoration:none}
+.spor a:hover{background:var(--sidebar-hover)}
+.spor a[aria-current]{background:var(--sidebar-active);border-left-color:var(--sidebar-text)}
+.spor .navn{display:block;font-size:16px}
+.spor .sist{font-size:12px;color:var(--sidebar-muted)}
+.kontrakten{margin-top:auto}
+.kontrakten dl{margin:0;display:grid;gap:10px}
+.kontrakten dt{font-size:12px;color:var(--sidebar-muted)}
+.kontrakten dd{margin:0;font-size:14px}
+
+.flate{min-width:0;display:flex;flex-direction:column}
+.topplinje-inner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+.demolinje{background:var(--surface-inset);border-bottom:1px solid var(--rule-color);padding:6px max(24px,env(safe-area-inset-right,0px)) 6px max(24px,env(safe-area-inset-left,0px));font-size:12px;color:var(--ink-3)}
+.demolinje ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px 4px}
+.demolinje ul a{display:inline-flex;align-items:center;min-height:28px;padding:2px 10px;border-radius:var(--r-knapp);color:var(--ink-2);text-decoration:none;border:1px solid transparent}
+.demolinje ul a:hover{border-color:var(--rule-strong-color)}
+.demolinje ul a[aria-current]{background:var(--brand);color:var(--on-brand)}
+.demolinje label{display:inline-flex;gap:6px;align-items:center;min-height:28px;cursor:pointer;color:var(--ink-2)}
+.demolinje .versjon{font-weight:600;color:var(--ink-2)}
+.toppskall{background:var(--surface);border-bottom:1px solid var(--rule-color);padding:10px max(24px,env(safe-area-inset-right,0px)) 10px max(24px,env(safe-area-inset-left,0px))}
+.sti{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px;color:var(--ink-3);min-width:0}
+.sti a{color:var(--ink-2);text-decoration:none}
+.sti .merkenavn{font-weight:600;font-size:16px;color:var(--ink);letter-spacing:-.01em}
+.sti [aria-current]{color:var(--ink);font-weight:500}
+.bruker{display:flex;align-items:center;gap:10px}
+.initialer{width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.bruker .hvem{display:flex;flex-direction:column;line-height:1.25}
+.bruker .hvem b{font-weight:600;font-size:14px}
+.bruker .hvem span{font-size:12px;color:var(--ink-3)}
+.kun-te,.kun-bh{display:contents}
+[data-rolle="TE"] .kun-bh,[data-rolle="BH"] .kun-te{display:none}
+
+.arbeid{flex:1;padding-block:28px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.kolonner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) minmax(0,var(--varden-stoette));gap:24px;align-items:start}
+.hoved,.stoette{display:flex;flex-direction:column;gap:20px;min-width:0}
+.stoette{gap:16px}
+
+/* Hodet */
+.sporhode{display:flex;flex-direction:column;gap:6px}
+.sporhode .over{font-size:12px;color:var(--ink-3)}
+.sporhode h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
+.sporhode .ingress{font-size:16px;color:var(--ink-2)}
+
+/* Kort */
+.kort{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);min-width:0}
+.kort-hode{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;justify-content:space-between;padding:16px 20px 0}
+.kort-hode h2{font-size:16px;font-weight:600}
+.kort-hode .kilde{font-size:12px;color:var(--ink-3)}
+.kort-kropp{padding:16px 20px 20px;display:flex;flex-direction:column;gap:14px}
+.felt-dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 20px;margin:0}
+.felt-dl dt{color:var(--ink-3)}
+.felt-dl dd{margin:0}
+.dato-rad{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline}
+.dato-rad b{font-weight:600}
+.lenke{font:inherit;font-weight:500;color:var(--ink);text-decoration:underline;text-underline-offset:3px;display:inline-flex;align-items:center;min-height:32px}
+.lenke:hover{text-decoration-thickness:2px}
+.virkning{font-size:14px;color:var(--ink-2);padding:12px 14px;background:var(--surface-inset);border-radius:var(--r-innfelt)}
+.virkning b{color:var(--ink)}
+.stille{font-size:12px;color:var(--ink-3)}
+.merke{display:inline-block;font-size:12px;font-weight:600;color:var(--ink);border:1px solid var(--rule-strong-color);border-radius:var(--r-merke);padding:1px 8px;white-space:nowrap}
+.merke.ikke-stoettet{color:var(--draft);background:var(--draft-bg);border:1px dashed var(--draft-border);font-weight:500}
+
+/* Opplysningene: siste og tidligere */
+.opplysninger{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.opplysninger li{display:grid;grid-template-columns:132px minmax(0,1fr);gap:2px 12px;padding-left:12px;border-left:2px solid var(--ink)}
+.opplysninger li.tidligere{border-left-color:var(--rule-strong-color);color:var(--ink-2)}
+.opplysninger .hva{font-size:12px;color:var(--ink-3);padding-top:2px}
+.opplysninger .d{font-weight:600}
+.opplysninger .k{display:block;font-size:12px;color:var(--ink-3)}
+@media (max-width:560px){.opplysninger li{grid-template-columns:1fr}.felt-dl{grid-template-columns:1fr;gap:2px 0}.felt-dl dd{margin-bottom:10px}}
+
+/* Handlingene */
+.knapper{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+.knapp{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:16px;font-weight:600;min-height:48px;padding:0 22px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);cursor:pointer;text-decoration:none;transition:transform .12s cubic-bezier(.23,1,.32,1)}
+.knapp:active{transform:scale(.97)}
+.knapp.primaer{background:var(--brand);color:var(--on-brand)}
+.knapp.primaer:hover{background:var(--ink-2);border-color:var(--ink-2)}
+.knapp.sekundaer{background:transparent;color:var(--brand)}
+.knapp.sekundaer:hover{background:var(--surface-inset)}
+.andre{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-subtle-color)}
+.andre li{border-bottom:1px solid var(--rule-subtle-color)}
+.andre a{display:flex;flex-direction:column;gap:2px;padding:12px 0;min-height:44px;text-decoration:none}
+.andre a:hover .h{text-decoration:underline;text-underline-offset:3px}
+.andre .h{font-weight:500;color:var(--ink)}
+.andre .b{font-size:14px;color:var(--ink-2)}
+
+/* Skjemaet */
+.skjema{display:flex;flex-direction:column;gap:18px}
+.felt{display:flex;flex-direction:column;gap:6px}
+.felt label,.felt .lbl{font-weight:600}
+.felt .hjelp{font-size:14px;color:var(--ink-3)}
+.felt input[type=text],.felt textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);padding:10px 12px}
+.felt input[type=text]{max-width:200px;font-family:var(--font-mono)}
+.felt textarea{min-height:110px;resize:vertical;width:100%}
+.felt input:focus,.felt textarea:focus{outline:none;border-color:var(--control-focus);box-shadow:var(--control-focus-ring)}
+.felt input[aria-invalid="true"]{border-color:var(--feil-border);border-width:2px}
+.feilboks{border:1px solid var(--feil-border);border-left-width:4px;background:var(--feil-bg);color:var(--ink);border-radius:var(--r-innfelt);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.feilboks b{color:var(--feil)}
+.laast{display:flex;flex-direction:column;gap:6px;padding:14px 16px;background:var(--surface-inset);border:1px solid var(--rule-color);border-radius:var(--r-innfelt)}
+.laast .lbl{display:flex;gap:6px;align-items:center;font-weight:600}
+.laast .verdi{font-size:16px}
+.laast .verdi b{font-weight:600}
+.utkastlinje{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:14px;color:var(--draft)}
+.utkastmerke{font-size:12px;font-weight:500;color:var(--draft);background:var(--draft-bg);border:1px dashed var(--draft-border);border-radius:var(--r-merke);padding:1px 8px;white-space:nowrap}
+
+/* Brevet */
+.ark{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);padding:24px;display:flex;flex-direction:column;gap:12px}
+.ark .til{font-size:12px;color:var(--ink-3)}
+.ark h3{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.ark .tekst{font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.6}
+.ark .kolofon{font-size:12px;color:var(--ink-3);border-top:1px solid var(--rule-subtle-color);padding-top:10px}
+.plassholder{font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--draft);background:var(--draft-bg);border:1px dashed var(--draft-border);border-radius:var(--r-merke);padding:0 6px}
+.sitat{border-left:2px solid var(--rule-strong-color);padding-left:12px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.6}
+
+/* Sporbarheten */
+[data-spor]{position:relative}
+body.spor [data-spor]{outline:1px dashed var(--draft-border);outline-offset:2px}
+body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px;right:-4px;font:600 10px/1.6 var(--font-sans);padding:0 5px;border-radius:var(--r-knapp);background:var(--draft-bg);border:1px solid var(--draft-border);color:var(--draft);white-space:nowrap;z-index:2}
+
+@media (max-width:1180px){
+  .kolonner{display:flex;flex-direction:column;gap:20px;align-items:stretch}
+}
+@media (max-width:860px){
+  .skall{grid-template-columns:minmax(0,1fr)}
+  .panel{gap:16px}
+  .kontrakten,.panel .avsender{display:none}
+  .spor{display:flex;overflow-x:auto;margin:0 -20px}
+  .spor li{flex:none}
+  .spor a{border-left:0;border-bottom:3px solid transparent;padding:8px 16px}
+  .spor a[aria-current]{border-bottom-color:var(--sidebar-text)}
+  .spor .navn{font-size:14px}
+}
+@media (max-width:560px){
+  .arbeid,.toppskall,.demolinje{padding-left:16px;padding-right:16px}
+  .ark{padding:16px}
+  .knapp{width:100%}
+}
+@media (prefers-reduced-motion:reduce){.knapp{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="skall" id="skall" data-rolle="TE">
+  <aside class="panel" aria-label="Saken">
+    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak">
+      <p class="id num">KOE-17</p>
+      <h2>Flytting av ventilasjonskanaler etter pålegg på byggemøte</h2>
+      <p class="lukketmerke vis-lukket" hidden>Lukket</p>
+    </div>
+    <nav aria-labelledby="spor-etikett">
+      <p class="etikett" id="spor-etikett">Krav og svar</p>
+      <ul class="spor">
+        <li><a href="#saken" aria-current="page"><span class="navn">Irregulær endring</span><span class="sist">Grunnlaget · brev K201-KOE-017-01</span></a></li>
+      </ul>
+    </nav>
+    <section class="kontrakten" aria-labelledby="kontrakt-etikett">
+      <h2 class="etikett" id="kontrakt-etikett">Kontrakten</h2>
+      <dl>
+        <div><dt>Prosjekt</dt><dd>Skolebygg Nord</dd></div>
+        <div><dt>Kontraktsform</dt><dd>Totalentreprise NS 8407</dd></div>
+        <div><dt>Byggherre</dt><dd>Oslobygg KF</dd></div>
+        <div><dt>Totalentreprenør</dt><dd>Totalentreprenør AS</dd></div>
+      </dl>
+    </section>
+  </aside>
+
+  <div class="flate">
+    <div class="demolinje">
+      <div class="topplinje-inner">
+        <span class="versjon">Skisse · Versjon 3, 06.11</span>
+        <nav aria-label="Tilstandene i skissen">
+          <ul id="demolenker">
+            <li><a href="#saken">1 Saken</a></li>
+            <li><a href="#korrigering">2 Skjemaet</a></li>
+            <li><a href="#uendret">2 Uendret dato</a></li>
+            <li><a href="#sendt">3 Kvitteringen</a></li>
+            <li><a href="#bh">4 BHs side</a></li>
+            <li><a href="#ny-versjon">2C Ny versjon</a></li>
+            <li><a href="#ny-versjon-etter">2C Etter korrigeringen</a></li>
+            <li><a href="#lukket">2D Lukket sak</a></li>
+          </ul>
+        </nav>
+        <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label>
+      </div>
+    </div>
+    <header class="toppskall">
+      <div class="topplinje-inner">
+        <nav class="sti" aria-label="Du er her"><span class="merkenavn">Varden</span><span aria-hidden="true">›</span><span>Skolebygg Nord</span><span aria-hidden="true">›</span><span aria-current="page">KOE-17</span></nav>
+        <div class="bruker">
+          <span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span>
+          <span class="kun-bh"><span class="initialer" aria-hidden="true">KN</span><span class="hvem"><b>Kari Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="arbeid">
+
+      <!-- 1 · Saken etter svaret -->
+      <section class="tilstand" id="saken" aria-labelledby="saken-tittel">
+        <div class="kolonner">
+          <div class="hoved">
+            <div class="sporhode">
+              <p class="over">Grunnlaget · irregulær endring (punkt 32.1)</p>
+              <h1 id="saken-tittel">BH har svart på grunnlagskravet</h1>
+            </div>
+            <article class="kort" aria-labelledby="krav-tittel">
+              <div class="kort-hode"><h2 id="krav-tittel">Grunnlagskravet</h2><span class="kilde">Brev <span class="brevkode">K201-KOE-017-01</span> · TE · 1. oktober 2026</span></div>
+              <div class="kort-kropp">
+                <dl class="felt-dl">
+                  <dt>Forholdet</dt><dd>Irregulær endring etter punkt 32.1</dd>
+                  <dt>Pålegget</dt><dd>Pålegg på byggemøte om å flytte ventilasjonskanalene i 3. etasje</dd>
+                  <dt>Mottatt</dt>
+                  <dd><div class="dato-rad" data-spor="U-1"><span>Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div></dd>
+                </dl>
+              </div>
+            </article>
+            <article class="kort" aria-labelledby="svar-tittel">
+              <div class="kort-hode"><h2 id="svar-tittel">Svaret fra BH</h2><span class="kilde">Brev <span class="brevkode">K201-KOE-017-02</span> · BH · 8. oktober 2026</span></div>
+              <div class="kort-kropp">
+                <p>BH påberoper at varselet etter punkt 32.2 kom for sent. Subsidiært godtar BH at forholdet er en endring.</p>
+                <p class="stille">Svaret gjelder opplysningen at pålegget ble mottatt 15. september 2026.</p>
+              </div>
+            </article>
+          </div>
+          <div class="stoette">
+            <section class="kort" aria-labelledby="handl-tittel">
+              <div class="kort-hode"><h2 id="handl-tittel">Hva vil du gjøre?</h2></div>
+              <div class="kort-kropp">
+                <ul class="andre">
+                  <li><a href="#ny-versjon"><span class="h">Send ny versjon av grunnlagskravet</span><span class="b">En ny kravversjon. Svaret i brev K201-KOE-017-02 kan da ikke godtas her.</span></a></li>
+                </ul>
+                <p class="stille">Vil du bare rette datoen, bruker du «Korriger datoen» ved datoen. Svaret står da.</p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 · Skjemaet for korrigeringen -->
+      <section class="tilstand" id="korrigering" aria-labelledby="korr-tittel" hidden>
+        <div class="kolonner">
+          <div class="hoved">
+            <div class="sporhode">
+              <p class="over">Grunnlaget · irregulær endring (punkt 32.1)</p>
+              <h1 id="korr-tittel">Korriger datoen pålegget ble mottatt</h1>
+            </div>
+            <div class="kort">
+              <div class="kort-kropp skjema">
+                <dl class="felt-dl" data-spor="U-2">
+                  <dt>Du korrigerer</dt><dd><b>15. september 2026</b>, datoen du oppga for når pålegget ble mottatt</dd>
+                  <dt>Oppgitt i</dt><dd>Grunnlagskravet, brev <span class="brevkode">K201-KOE-017-01</span> av 1. oktober 2026</dd>
+                </dl>
+                <p class="stille" data-spor="D-3">Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.</p>
+                <p class="virkning" data-spor="U-2 · D-1 · D-2">Korrigeringen er et eget brev til BH. <b>Den er ikke en ny kravversjon og avslår ikke svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Svaret fra BH står med virkningen det hadde, og påberopelsen står med tidspunktet. Saken venter ikke på BH.</p>
+                <p class="virkning vis-lukket" hidden data-spor="D-6">Saken står lukket. Korrigeringen endrer ikke utfallet.</p>
+                <div class="feilboks" id="uendret" role="alert" hidden data-spor="U-3 · D-4">
+                  <b>Korrigeringen kan ikke sendes</b>
+                  <span id="feiltekst">Datoen er den samme som i brev K201-KOE-017-01, 15. september 2026. Skriv datoen pålegget ble mottatt.</span>
+                </div>
+                <div class="felt">
+                  <label for="ny-dato">Ny dato for når pålegget ble mottatt</label>
+                  <span class="hjelp" id="ny-dato-hjelp">Skriv datoen som dd.mm.åååå. Den kan ikke være etter dagens dato.</span>
+                  <input type="text" id="ny-dato" inputmode="numeric" autocomplete="off" value="" aria-describedby="ny-dato-hjelp">
+                </div>
+                <div class="felt" data-spor="S-1">
+                  <label for="forklaring">Forklaring (valgfri)</label>
+                  <span class="hjelp" id="forklaring-hjelp">Forklaringen står i brevet under teksten om datoen. Den endrer ikke det brevet sier om datoen.</span>
+                  <textarea id="forklaring" aria-describedby="forklaring-hjelp"></textarea>
+                </div>
+                <div class="knapper">
+                  <a class="knapp primaer" id="send" href="#sendt">Send korrigeringen</a>
+                  <a class="lenke" id="avbryt" href="#saken">Avbryt</a>
+                </div>
+                <p class="stille">Ingenting er sendt før du trykker «Send korrigeringen».</p>
+              </div>
+            </div>
+          </div>
+          <div class="stoette">
+            <section aria-labelledby="forh-etikett">
+              <h2 class="stille" id="forh-etikett" style="margin-bottom:8px;font-weight:600">Brevet slik det blir</h2>
+              <div class="ark" data-spor="U-3 · D-1 · S-2">
+                <p class="til">Til byggherren (BH) · viser til brev <span class="brevkode">K201-KOE-017-01</span></p>
+                <h3>Korrigering av datoen i sak KOE-17</h3>
+                <p class="tekst">Totalentreprenøren oppgir nå at pålegget ble mottatt <span id="forh-dato" class="plassholder">[ny dato]</span>. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026.</p>
+                <p class="tekst" id="forh-forklaring" hidden></p>
+                <p class="kolofon">Brevnummeret og datoen settes når brevet sendes.</p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 · Kvitteringen -->
+      <section class="tilstand" id="sendt" aria-labelledby="sendt-tittel" hidden>
+        <div class="kolonner">
+          <div class="hoved">
+            <div class="sporhode">
+              <p class="over">Grunnlaget · irregulær endring (punkt 32.1)</p>
+              <h1 id="sendt-tittel">Korrigeringen er sendt til BH</h1>
+              <p class="ingress">Brev <span class="brevkode">K201-KOE-017-03</span> · Korrigering av datoen i sak KOE-17 · 5. november 2026</p>
+            </div>
+            <article class="kort" aria-labelledby="sendt-oppl">
+              <div class="kort-hode"><h2 id="sendt-oppl">Når pålegget ble mottatt</h2><span class="kilde">TEs opplysninger</span></div>
+              <div class="kort-kropp">
+                <ul class="opplysninger" data-spor="U-4 · U-5 · D-2">
+                  <li><span class="hva">TEs siste opplysning</span><span><span class="d ny-dato">20. september 2026</span><span class="k">Brev K201-KOE-017-03 av 5. november 2026</span></span></li>
+                  <li class="tidligere"><span class="hva">Tidligere</span><span><span class="d">15. september 2026</span><span class="k">Brev K201-KOE-017-01 av 1. oktober 2026, grunnlagskravet</span></span></li>
+                </ul>
+                <p class="stille" data-spor="D-3">Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.</p>
+                <div class="dato-rad" data-spor="U-1"><span>Totalentreprenøren opplyser at pålegget ble mottatt <span class="ny-dato">20. september 2026</span>.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div>
+              </div>
+            </article>
+            <article class="kort" aria-labelledby="sendt-svar">
+              <div class="kort-hode"><h2 id="sendt-svar">Svaret fra BH står</h2><span class="kilde">Brev <span class="brevkode">K201-KOE-017-02</span> · 8. oktober 2026</span></div>
+              <div class="kort-kropp" data-spor="U-4 · U-5 · D-2 · D-3">
+                <p>Svaret fra BH står med virkningen det hadde, og påberopelsen står med tidspunktet. Svaret og påberopelsen av at varselet etter punkt 32.2 kom for sent, gjaldt opplysningen 15. september 2026.</p>
+                <p class="virkning ikke-lukket">Saken venter ikke på BH. BH kan ta stilling til den nye datoen i et senere svar eller i et nytt svar.</p>
+                <p class="virkning vis-lukket" hidden data-spor="D-6 · U-6">Saken står lukket, og korrigeringen endrer ikke utfallet. BH kan ta stilling til opplysningen i et innlegg. <span class="merke ikke-stoettet">Innlegg: ikke støttet ennå</span></p>
+              </div>
+            </article>
+          </div>
+          <div class="stoette">
+            <section class="kort" aria-labelledby="sendt-videre">
+              <div class="kort-hode"><h2 id="sendt-videre">Videre</h2></div>
+              <div class="kort-kropp">
+                <ul class="andre">
+                  <li class="vis-utkast" hidden><a href="#ny-versjon-etter"><span class="h">Fortsett med den nye versjonen</span><span class="b">Utkastet ditt til ny versjon av grunnlagskravet står.</span></a></li>
+                  <li><a href="#bh"><span class="h">Se saken som BH</span><span class="b">Slik BH ser korrigeringen.</span></a></li>
+                </ul>
+              </div>
+            </section>
+            <section class="kort vis-forklaring" aria-labelledby="sendt-forkl" hidden>
+              <div class="kort-hode"><h2 id="sendt-forkl">Forklaringen din</h2></div>
+              <div class="kort-kropp"><p class="forklaring-tekst"></p></div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 · BHs side -->
+      <section class="tilstand" id="bh" aria-labelledby="bh-tittel" hidden>
+        <div class="kolonner">
+          <div class="hoved">
+            <div class="sporhode">
+              <p class="over">Grunnlaget · irregulær endring (punkt 32.1)</p>
+              <h1 id="bh-tittel">TE har oppgitt en ny dato for når pålegget ble mottatt</h1>
+            </div>
+            <article class="kort" aria-labelledby="bh-brev">
+              <div class="kort-hode"><h2 id="bh-brev">Korrigering av datoen i sak KOE-17</h2><span class="kilde">Brev <span class="brevkode">K201-KOE-017-03</span> · TE · 5. november 2026</span></div>
+              <div class="kort-kropp" data-spor="U-5 · D-1">
+                <p class="stille">Viser til grunnlagskravet, brev K201-KOE-017-01 av 1. oktober 2026</p>
+                <p class="sitat">Totalentreprenøren oppgir nå at pålegget ble mottatt <span class="ny-dato">20. september 2026</span>. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026.</p>
+                <p class="sitat forklaring-tekst vis-forklaring" hidden></p>
+              </div>
+            </article>
+            <article class="kort" aria-labelledby="bh-oppl">
+              <div class="kort-hode"><h2 id="bh-oppl">Når pålegget ble mottatt</h2><span class="kilde">TEs opplysninger</span></div>
+              <div class="kort-kropp">
+                <ul class="opplysninger" data-spor="U-5 · D-2">
+                  <li><span class="hva">TEs siste opplysning</span><span><span class="d ny-dato">20. september 2026</span><span class="k">Brev K201-KOE-017-03 av 5. november 2026</span></span></li>
+                  <li class="tidligere"><span class="hva">Tidligere</span><span><span class="d">15. september 2026</span><span class="k">Brev K201-KOE-017-01 av 1. oktober 2026, grunnlagskravet</span></span></li>
+                </ul>
+                <p data-spor="U-5 · D-2">Svaret ditt i brev K201-KOE-017-02 gjaldt opplysningen 15. september 2026. Svaret fra BH står med virkningen det hadde, og påberopelsen står med tidspunktet.</p>
+                <p class="stille" data-spor="D-3">Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.</p>
+              </div>
+            </article>
+          </div>
+          <div class="stoette">
+            <section class="kort" aria-labelledby="bh-venter">
+              <div class="kort-hode"><h2 id="bh-venter">Venter saken på deg?</h2></div>
+              <div class="kort-kropp" data-spor="U-6 · D-2">
+                <p class="virkning"><b>Nei.</b> Korrigeringen venter ikke på svar fra BH.</p>
+                <p class="ikke-lukket">Du kan ta stilling til den nye datoen i et senere svar eller i et nytt svar.</p>
+                <p class="vis-lukket" hidden data-spor="D-6">Saken står lukket, og korrigeringen endrer ikke utfallet. Du kan ta stilling til opplysningen i et innlegg. <span class="merke ikke-stoettet">Innlegg: ikke støttet ennå</span></p>
+                <a class="lenke" href="#sendt">Se saken som TE</a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2C · Ny versjon av grunnlaget, før korrigeringen -->
+      <section class="tilstand" id="ny-versjon" aria-labelledby="nv-tittel" hidden>
+        <div class="kolonner">
+          <div class="hoved">
+            <div class="sporhode">
+              <p class="over">Grunnlaget · irregulær endring (punkt 32.1)</p>
+              <h1 id="nv-tittel">Ny versjon av grunnlagskravet</h1>
+            </div>
+            <div class="kort">
+              <div class="kort-kropp skjema">
+                <p class="utkastlinje"><span class="utkastmerke">Utkast · ikke sendt</span>Til byggherren (BH)</p>
+                <p class="virkning">En ny versjon er en ny kravversjon. Når den er sendt, <b>kan svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span> <b>ikke godtas her</b>. Du kan likevel sende en ny versjon av grunnlagskravet.</p>
+                <div class="felt">
+                  <label for="beskrivelse-1">Beskrivelse</label>
+                  <textarea id="beskrivelse-1" class="beskrivelse"></textarea>
+                </div>
+                <div class="laast" data-spor="U-7 · D-5">
+                  <span class="lbl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Datoen pålegget ble mottatt</span>
+                  <span class="verdi">TEs siste opplysning: <b>15. september 2026</b></span>
+                  <p>Datoen kan ikke endres i en ny versjon. Vil du rette datoen, anbefaler vi å korrigere den i et eget brev. Det lar svaret stå.</p>
+                  <a class="lenke" href="#korrigering">Korriger datoen i et eget brev</a>
+                  <p class="stille">Det du har skrevet her, beholdes som utkast mens du korrigerer datoen.</p>
+                </div>
+                <div class="felt">
+                  <span class="lbl">Teksten om datoen i den nye versjonen</span>
+                  <p class="sitat">Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.</p>
+                </div>
+                <div class="knapper"><a class="lenke" href="#saken">Avbryt</a></div>
+                <p class="stille">Sendingen av den nye versjonen er ikke med i skissen.</p>
+              </div>
+            </div>
+          </div>
+          <div class="stoette"></div>
+        </div>
+      </section>
+
+      <!-- 2C · Ny versjon av grunnlaget, etter korrigeringen -->
+      <section class="tilstand" id="ny-versjon-etter" aria-labelledby="nve-tittel" hidden>
+        <div class="kolonner">
+          <div class="hoved">
+            <div class="sporhode">
+              <p class="over">Grunnlaget · irregulær endring (punkt 32.1)</p>
+              <h1 id="nve-tittel">Ny versjon av grunnlagskravet</h1>
+            </div>
+            <div class="kort">
+              <div class="kort-kropp skjema">
+                <p class="utkastlinje"><span class="utkastmerke">Utkast · ikke sendt</span>Til byggherren (BH)</p>
+                <p class="virkning">En ny versjon er en ny kravversjon. Når den er sendt, <b>kan svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span> <b>ikke godtas her</b>. Du kan likevel sende en ny versjon av grunnlagskravet.</p>
+                <div class="felt">
+                  <label for="beskrivelse-2">Beskrivelse</label>
+                  <textarea id="beskrivelse-2" class="beskrivelse"></textarea>
+                </div>
+                <div class="laast" data-spor="U-7 · D-5">
+                  <span class="lbl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Datoen pålegget ble mottatt</span>
+                  <span class="verdi">TEs siste opplysning: <b class="ny-dato">20. september 2026</b></span>
+                  <p>Datoen kan ikke endres i en ny versjon. Vil du rette datoen, anbefaler vi å korrigere den i et eget brev. Det lar svaret stå.</p>
+                  <a class="lenke" href="#korrigering">Korriger datoen i et eget brev</a>
+                </div>
+                <div class="felt">
+                  <span class="lbl">Teksten om datoen i den nye versjonen</span>
+                  <p class="sitat">Totalentreprenøren opplyser at pålegget ble mottatt <span class="ny-dato">20. september 2026</span>, slik totalentreprenøren oppga i brev K201-KOE-017-03 av 5. november 2026.</p>
+                </div>
+                <div class="knapper"><a class="lenke" href="#sendt">Avbryt</a></div>
+                <p class="stille">Sendingen av den nye versjonen er ikke med i skissen.</p>
+              </div>
+            </div>
+          </div>
+          <div class="stoette"></div>
+        </div>
+      </section>
+
+      <!-- 2D · Saken er lukket -->
+      <section class="tilstand" id="lukket" aria-labelledby="lukket-tittel" hidden>
+        <div class="kolonner">
+          <div class="hoved">
+            <div class="sporhode">
+              <p class="over">Grunnlaget · irregulær endring (punkt 32.1)</p>
+              <h1 id="lukket-tittel">Saken er lukket</h1>
+              <p class="ingress">TE godtok svaret i brev <span class="brevkode">K201-KOE-017-02</span> den 15. oktober 2026.</p>
+            </div>
+            <article class="kort" aria-labelledby="lukket-krav">
+              <div class="kort-hode"><h2 id="lukket-krav">Grunnlagskravet</h2><span class="kilde">Brev <span class="brevkode">K201-KOE-017-01</span> · TE · 1. oktober 2026</span></div>
+              <div class="kort-kropp">
+                <div class="dato-rad" data-spor="U-1"><span>Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.</span><a class="lenke" href="#korrigering">Korriger datoen</a></div>
+                <p class="virkning" data-spor="D-6">Du kan fortsatt korrigere datoen. Korrigeringen endrer ikke utfallet, og saken står lukket.</p>
+                <p data-spor="U-6 · D-6">BH kan ta stilling til korrigeringen i et innlegg. <span class="merke ikke-stoettet">Innlegg: ikke støttet ennå</span></p>
+              </div>
+            </article>
+          </div>
+          <div class="stoette"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  const TILSTANDER = ['saken', 'korrigering', 'uendret', 'sendt', 'bh', 'ny-versjon', 'ny-versjon-etter', 'lukket'];
+  const MND = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
+  const DAGENS = new Date(2026, 10, 5);
+  const OPPGITT = new Date(2026, 8, 15);
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+  const felt = $('#ny-dato');
+  const forklaring = $('#forklaring');
+  const feilboks = $('#uendret');
+  let nyDato = new Date(2026, 8, 20);
+  let sendtForklaring = '';
+  let fraNyVersjon = false;
+  let fraLukket = false;
+  let forrige = null;
+  let feiltekst = null;
+
+  const tekst = (d) => `${d.getDate()}. ${MND[d.getMonth()]} ${d.getFullYear()}`;
+  function tolk(s) {
+    const m = /^\s*(\d{1,2})\.(\d{1,2})\.(\d{4})\s*$/.exec(s);
+    if (!m) return null;
+    const d = new Date(+m[3], +m[2] - 1, +m[1]);
+    return d.getMonth() === +m[2] - 1 && d.getDate() === +m[1] ? d : null;
+  }
+  function hindring() {
+    const d = tolk(felt.value);
+    if (!felt.value.trim()) return 'Datoen mangler. Skriv datoen pålegget ble mottatt.';
+    if (!d) return 'Datoen «' + felt.value.trim() + '» kan ikke leses. Skriv den som dd.mm.åååå, for eksempel 20.09.2026.';
+    if (d.getTime() === OPPGITT.getTime()) return 'Datoen er den samme som i brev K201-KOE-017-01, 15. september 2026. Skriv datoen pålegget ble mottatt.';
+    if (d > DAGENS) return `${tekst(d)} er etter dagens dato, 5. november 2026. Brevet kan ikke oppgi en dato som ikke har kommet ennå.`;
+    return null;
+  }
+  function forhaandsvis() {
+    const d = tolk(felt.value);
+    const fd = $('#forh-dato');
+    fd.textContent = d ? tekst(d) : (felt.value.trim() || '[ny dato]');
+    fd.classList.toggle('plassholder', !d);
+    const f = forklaring.value.trim();
+    $('#forh-forklaring').textContent = f;
+    $('#forh-forklaring').hidden = !f;
+  }
+  function visFeil(paa) {
+    feilboks.hidden = !paa;
+    felt.setAttribute('aria-invalid', paa ? 'true' : 'false');
+    felt.setAttribute('aria-describedby', paa ? 'feiltekst ny-dato-hjelp' : 'ny-dato-hjelp');
+    if (paa) $('#feiltekst').textContent = feiltekst ?? hindring() ?? $('#feiltekst').textContent;
+  }
+  function vis() {
+    let h = location.hash.slice(1);
+    if (!TILSTANDER.includes(h)) h = 'saken';
+    if (h === 'korrigering' || h === 'uendret') {
+      if (forrige === 'ny-versjon' || forrige === 'ny-versjon-etter') { fraNyVersjon = true; fraLukket = false; }
+      else if (forrige === 'lukket') { fraLukket = true; }
+      else if (forrige === 'saken' || forrige === 'sendt') { fraLukket = false; }
+    }
+    if (h === 'lukket') fraLukket = true;
+    if (h === 'saken') fraLukket = false;
+    if (h === 'uendret' && !felt.value.trim()) felt.value = '15.09.2026';
+    const seksjon = h === 'uendret' ? 'korrigering' : h;
+    for (const s of $$('.tilstand')) s.hidden = s.id !== seksjon;
+    visFeil(h === 'uendret');
+    feiltekst = null;
+    $('#skall').dataset.rolle = h === 'bh' ? 'BH' : 'TE';
+    for (const e of $$('.vis-lukket')) e.hidden = !fraLukket;
+    for (const e of $$('.ikke-lukket')) e.hidden = fraLukket;
+    for (const e of $$('.vis-utkast')) e.hidden = !fraNyVersjon;
+    $('#avbryt').setAttribute('href', fraLukket ? '#lukket' : fraNyVersjon ? '#ny-versjon' : '#saken');
+    for (const e of $$('.ny-dato')) e.textContent = tekst(nyDato);
+    for (const e of $$('.forklaring-tekst')) e.textContent = sendtForklaring;
+    for (const e of $$('.vis-forklaring')) e.hidden = !sendtForklaring;
+    for (const a of $$('#demolenker a')) {
+      if (a.getAttribute('href') === '#' + h) a.setAttribute('aria-current', 'step');
+      else a.removeAttribute('aria-current');
+    }
+    forhaandsvis();
+    forrige = h;
+    window.scrollTo(0, 0);
+  }
+
+  $('#send').addEventListener('click', (e) => {
+    const hinder = hindring();
+    if (hinder) {
+      e.preventDefault();
+      feiltekst = hinder;
+      if (location.hash === '#uendret') { visFeil(true); feiltekst = null; }
+      else location.hash = 'uendret';
+      return;
+    }
+    nyDato = tolk(felt.value);
+    sendtForklaring = forklaring.value.trim();
+  });
+  felt.addEventListener('input', forhaandsvis);
+  forklaring.addEventListener('input', forhaandsvis);
+  for (const b of $$('.beskrivelse'))
+    b.addEventListener('input', () => { for (const a of $$('.beskrivelse')) if (a !== b) a.value = b.value; });
+  $('#vis-spor').addEventListener('change', (e) => document.body.classList.toggle('spor', e.target.checked));
+  window.addEventListener('hashchange', vis);
+  vis();
+})();
+</script>
+</body>
+</html>

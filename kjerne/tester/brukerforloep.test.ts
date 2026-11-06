@@ -219,12 +219,12 @@ describe('vakttestene for brukerforløpene', () => {
     );
   });
 
-  // Kilde: #1330, punkt 4. OV-U52 (opphevet av MM-U41 og MM-U52) er ikke bygget (#1308, #1309), og handlingen og
-  // brevteksten etter OV-U54 er ikke kontrollert som bygget (#276).
-  it('korrigeringen (4A) og den avviste rettingen (4C) er planlagt', () => {
+  // Kilde: #1308, del 2. Korrigeringen etter MM-U52 punkt 10, 13 og 24 er bygget i kjernen (#1611).
+  it('korrigeringen (BF-02A, BF-02D) og datosperren (BF-02C) er kjørbare (#1308)', () => {
     const status = Object.fromEntries(BRUKERFORLOEP.map((b) => [b.id, b.status]));
-    expect(status['BF-02A']).toBe('planlagt');
-    expect(status['BF-02C']).toBe('planlagt');
+    expect(status['BF-02A']).toBe('kjørbar');
+    expect(status['BF-02C']).toBe('kjørbar');
+    expect(status['BF-02D']).toBe('kjørbar');
   });
 
   // Listen er fast, så testen ikke blir tom når et forløp blir kjørbart og mister `kilder`

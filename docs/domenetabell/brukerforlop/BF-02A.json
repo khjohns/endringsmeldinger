@@ -1,16 +1,16 @@
 {
   "id": "BF-02A",
   "tittel": "TE korrigerer datoen pålegget ble mottatt",
-  "brukerhistorie": "TE har oppgitt feil dato for når pålegget ble mottatt. TE korrigerer datoen i et eget brev som viser til brevet med opplysningen, også når kravet ble sendt utenfor løsningen og lagt til som korrespondanse. Brevet er ikke en ny kravversjon og avslår ikke BHs svar. En korrigering TE sender utenfor løsningen og legger til som korrespondanse, står som dokumentasjon.",
-  "status": "planlagt",
+  "brukerhistorie": "TE har oppgitt feil dato for når pålegget ble mottatt, og BH har påberopt at varselet kom for sent. TE korrigerer datoen i et eget brev som viser til brevet med opplysningen. Brevet er ikke en ny kravversjon og avslår ikke BHs svar. BH ser brevet, svaret står med virkningen det hadde, og sporet venter ikke på et nytt svar.",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "TE har sendt et krav med en opplysning etter VS-U26 om når pålegget ble mottatt, fra løsningen eller utenfor den og lagt til som korrespondanse med kategorien krav, med de samme påkrevde feltene (OV-U80). BH har svart."
+    "beskrivelse": "En ny sak. TE påberoper en irregulær endring og oppgir at pålegget ble mottatt 15.09.2026. BH svarer at varselet etter punkt 32.2 kom for sent, og godtar subsidiært at forholdet er en endring."
   },
-  "kilder": ["OV-U52", "MM-U41", "MM-U52", "VS-U26", "OV-U79", "OV-U80"],
-  "venter_paa": ["#1308", "#1309", "#807"],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta"
+  ],
   "endringer": [
     {
       "dato": "2026-10-27",
@@ -21,6 +21,390 @@
       "dato": "2026-11-01",
       "forhold": "#1456, OV-U79, OV-U80",
       "hva": "Kravet med opplysningen kan også være lagt til som korrespondanse med kategorien krav, med de samme påkrevde feltene (OV-U80, som presiserer VS-U26). En korrigering sendt utenfor løsningen står som dokumentasjon."
+    },
+    {
+      "dato": "2026-11-05",
+      "forhold": "#1308, MM-U52",
+      "hva": "Forløpet er kjørbart i demoruta, med bestillingen BF-02A.md. Kildene er MM-U52 punkt 10–11 og designdelen, som opphever OV-U52 og MM-U41. Kravet sendt utenfor løsningen og korrigeringen sendt utenfor løsningen er tatt ut og venter på #807."
     }
-  ]
+  ],
+  "bestilling": "BF-02A.md",
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "underkategori": "irregulaer_endring",
+      "navn": "K-g1",
+      "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
+    },
+    {
+      "handling": "brev",
+      "navn": "D2",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-g1",
+          "resultat": "godkjent",
+          "varslet_i_tide": false,
+          "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
+        }
+      ]
+    },
+    {
+      "handling": "korrigering",
+      "navn": "D3",
+      "dato": "2026-09-20"
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "te-har-mottatt-svaret",
+      "etter": 2,
+      "beskrivelse": "BH har påberopt at varselet kom for sent. TE har oppgitt at pålegget ble mottatt 15.09.2026.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "MM-U52",
+            "VS-U43"
+          ],
+          "forventet": {
+            "gjeldende_svar.forhold": "S-g1",
+            "standpunkt.S-g1.rettidighet.iTide": false,
+            "datoopplysninger": [
+              "K-g1:2026-09-15"
+            ],
+            "handlinger.TE": {
+              "inneholder": [
+                "korrigere:K-g1"
+              ]
+            }
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U52"
+          ],
+          "prov": {
+            "handling": "korrigering",
+            "dato": "2026-09-15"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATOEN_ER_UENDRET"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE finner datoen TE oppga i grunnlagskravet, og ser at den korrigeres i et eget brev som ikke er en ny kravversjon og ikke avslår svaret.",
+          "kilde": [
+            "MM-U52",
+            "VS-U43"
+          ]
+        },
+        {
+          "tekst": "TE ser før sending teksten brevet får, med den nye datoen og datoen TE oppga i brevet det viser til.",
+          "kilde": [
+            "MM-U52",
+            "LV-U53",
+            "LV-U35"
+          ]
+        },
+        {
+          "tekst": "TE ser at korrigeringen også kan sendes når saken er lukket, og at BH da kan ta stilling til den i et innlegg.",
+          "kilde": [
+            "MM-U52",
+            "MM-U51",
+            "GR-U27",
+            "MM-U47"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "korrigeringen-er-sendt",
+      "etter": 3,
+      "beskrivelse": "TE har korrigert datoen til 20.09.2026 i et eget brev.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U52",
+            "VS-U46"
+          ],
+          "forventet": {
+            "gjeldende_krav.forhold": "K-g1",
+            "gjeldende_svar.forhold": "S-g1",
+            "standpunkt.S-g1.rettidighet.iTide": false,
+            "datoopplysninger": [
+              "K-g1:2026-09-15",
+              "D3#korrigering:2026-09-20"
+            ],
+            "datoopplysning.S-g1": "K-g1",
+            "handlinger.TE": {
+              "inneholder": [
+                "korrigere:D3#korrigering"
+              ],
+              "mangler": [
+                "korrigere:K-g1"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere, og at svaret og påberopelsen gjaldt opplysningen 15.09.2026.",
+          "kilde": [
+            "MM-U52"
+          ]
+        },
+        {
+          "tekst": "BH ser korrigeringen som et nytt brev med henvisning til grunnlagskravet. Svaret står med virkningen det hadde, påberopelsen står med tidspunktet, og sporet venter ikke på et nytt svar.",
+          "kilde": [
+            "MM-U52",
+            "VS-U46"
+          ]
+        },
+        {
+          "tekst": "Ingen av partene leser av visningen at varselet nå kom i tide. Løsningen avgjør ikke hvilken dato som er riktig, eller om varselet var rettidig.",
+          "kilde": [
+            "MM-U52",
+            "MM-U50"
+          ]
+        },
+        {
+          "tekst": "TE ser at en senere ny versjon av grunnlagskravet gjengir den nye datoen med henvisning til brevet med korrigeringen.",
+          "kilde": [
+            "MM-U52",
+            "LV-U54"
+          ]
+        }
+      ]
+    }
+  ],
+  "prototype": {
+    "fil": "../../design/prototyper/korrigering-av-datoen.html",
+    "klikkstier": [
+      {
+        "id": "korriger",
+        "dekker": [
+          "1",
+          "2",
+          "3",
+          "G-2"
+        ],
+        "start": "saken",
+        "handlinger": [
+          {
+            "staar": "Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026."
+          },
+          {
+            "staar": "påberoper at varselet etter punkt 32.2 kom for sent"
+          },
+          {
+            "klikk": "Korriger datoen",
+            "tilstand": "korrigering"
+          },
+          {
+            "staar": "[ny dato]"
+          },
+          {
+            "staar": "Den er ikke en ny kravversjon og avslår ikke svaret"
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "20.09.2026"
+          },
+          {
+            "fyll": "Forklaring",
+            "tekst": "Pålegget ble gitt muntlig 15. september og bekreftet i referatet 20. september."
+          },
+          {
+            "staar": "Korrigering av datoen i sak KOE-17"
+          },
+          {
+            "staar": "Totalentreprenøren oppgir nå at pålegget ble mottatt 20. september 2026. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026."
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "TEs siste opplysning"
+          },
+          {
+            "staar": "Svaret fra BH står med virkningen det hadde, og påberopelsen står med tidspunktet."
+          },
+          {
+            "staar": "Saken venter ikke på BH."
+          }
+        ]
+      },
+      {
+        "id": "uendret",
+        "dekker": [
+          "2",
+          "3"
+        ],
+        "start": "korrigering",
+        "handlinger": [
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "15.09.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "uendret"
+          },
+          {
+            "staar": "Datoen er den samme som i brev K201-KOE-017-01, 15. september 2026."
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "06.11.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "uendret"
+          },
+          {
+            "staar": "6. november 2026 er etter dagens dato"
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "20.09.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "sendt"
+          }
+        ]
+      },
+      {
+        "id": "ny-versjon",
+        "dekker": [
+          "2C",
+          "2",
+          "G-3"
+        ],
+        "start": "saken",
+        "handlinger": [
+          {
+            "klikk": "Send ny versjon av grunnlagskravet",
+            "tilstand": "ny-versjon"
+          },
+          {
+            "staar": "TEs siste opplysning: 15. september 2026"
+          },
+          {
+            "staar": "Vil du rette datoen, anbefaler vi å korrigere den i et eget brev. Det lar svaret stå."
+          },
+          {
+            "staar": "Du kan likevel sende en ny versjon av grunnlagskravet."
+          },
+          {
+            "fyll": "Beskrivelse",
+            "tekst": "Pålegget gjaldt flytting av ventilasjonskanalene i 3. etasje."
+          },
+          {
+            "klikk": "Korriger datoen i et eget brev",
+            "tilstand": "korrigering"
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "20.09.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "sendt"
+          },
+          {
+            "klikk": "Fortsett med den nye versjonen",
+            "tilstand": "ny-versjon-etter"
+          },
+          {
+            "staar": "TEs siste opplysning: 20. september 2026"
+          },
+          {
+            "staar": "Totalentreprenøren opplyser at pålegget ble mottatt 20. september 2026, slik totalentreprenøren oppga i brev K201-KOE-017-03 av 5. november 2026."
+          }
+        ]
+      },
+      {
+        "id": "bh",
+        "dekker": [
+          "4"
+        ],
+        "start": "sendt",
+        "handlinger": [
+          {
+            "klikk": "Se saken som BH",
+            "tilstand": "bh"
+          },
+          {
+            "staar": "TE har oppgitt en ny dato for når pålegget ble mottatt"
+          },
+          {
+            "staar": "Korrigering av datoen i sak KOE-17"
+          },
+          {
+            "staar": "Viser til grunnlagskravet, brev K201-KOE-017-01 av 1. oktober 2026"
+          },
+          {
+            "staar": "Svaret ditt i brev K201-KOE-017-02 gjaldt opplysningen 15. september 2026."
+          },
+          {
+            "staar": "Korrigeringen venter ikke på svar fra BH."
+          },
+          {
+            "klikk": "Se saken som TE",
+            "tilstand": "sendt"
+          }
+        ]
+      },
+      {
+        "id": "lukket",
+        "dekker": [
+          "2D"
+        ],
+        "start": "lukket",
+        "handlinger": [
+          {
+            "staar": "Korrigeringen endrer ikke utfallet, og saken står lukket."
+          },
+          {
+            "staar": "Innlegg: ikke støttet ennå"
+          },
+          {
+            "klikk": "Korriger datoen",
+            "tilstand": "korrigering"
+          },
+          {
+            "staar": "Saken står lukket. Korrigeringen endrer ikke utfallet."
+          },
+          {
+            "fyll": "Ny dato for når pålegget ble mottatt",
+            "tekst": "20.09.2026"
+          },
+          {
+            "klikk": "Send korrigeringen",
+            "tilstand": "sendt"
+          },
+          {
+            "staar": "Saken står lukket, og korrigeringen endrer ikke utfallet. BH kan ta stilling til opplysningen i et innlegg."
+          },
+          {
+            "klikk": "Se saken som BH",
+            "tilstand": "bh"
+          },
+          {
+            "staar": "Du kan ta stilling til opplysningen i et innlegg."
+          }
+        ]
+      }
+    ]
+  }
 }
