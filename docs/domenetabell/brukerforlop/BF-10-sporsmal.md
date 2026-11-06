@@ -255,6 +255,8 @@ opplysning uten «Totalentreprenøren opplyser at».
 
 Svar 06.11, ordrett, for S-8b og S-8c: «8b A, 8c A - men jeg må igjen lese oppdatert BF-10-brevtekst.md for å bekrefte». Brevteksten venter på bekreftelsen.
 
+Bekreftet 06.11, ordrett, etter at oppdatert BF-10-brevtekst.md var lest: «Jeg tror det er bra.»
+
 **S-8c. Setningen om datoen i det første brevet**
 
 Bakgrunn: Det første brevet sier i dag ‹Totalentreprenøren opplyser at pålegget ble mottatt
@@ -268,3 +270,5 @@ Bakgrunn: Det første brevet sier i dag ‹Totalentreprenøren opplyser at påle
 Anbefalt: A. Samme opplysning står likt i begge brevene.
 
 Svar 06.11, ordrett, for S-8b og S-8c: «8b A, 8c A - men jeg må igjen lese oppdatert BF-10-brevtekst.md for å bekrefte». Brevteksten venter på bekreftelsen.
+
+Bekreftet 06.11, ordrett, etter at oppdatert BF-10-brevtekst.md var lest: «Jeg tror det er bra.»
