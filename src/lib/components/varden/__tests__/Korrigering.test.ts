@@ -131,7 +131,9 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(korrigeringen.getByRole('button', { name: /Korriger datoen/ })).toBeTruthy();
     // U-5: visningen sier ikke hvilken opplysning svaret gjaldt, fordi løsningen ikke tolker
     // svaret (oppdragsgiver 06.11, #1646).
-    expect((await innlegget(/^Brev 2 ·/)).queryByText(/gjaldt/)).toBeNull();
+    expect(
+      (await innlegget(/^Brev 2 ·/)).getByRole('heading').closest('li')!.textContent
+    ).not.toMatch(/opplysning|15\. september 2026|20\. september 2026/);
   });
 
   it('BF-02A: BH ser den nye og den tidligere datoen, at svaret står som det ble sendt, og ingenting om at varselet nå kom i tide (U-5, U-6, MM-U50)', async () => {

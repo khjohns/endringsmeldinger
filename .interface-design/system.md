@@ -66,15 +66,17 @@ Verdiene står i `.tema-varden` i `theme.css`, som Varden og showcasen bruker.
 [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) prøver dem, også utkastfargen og
 feltkanten fra #1258.
 
-- **Flatene skifter bare i lyshet**: `--canvas` under, `--surface` for innhold og
-  `--surface-inset` for felt og innfelte områder. Valgt har `--surface-selected`.
+- **Flatene skifter bare i lyshet**: `--canvas` under, `--surface` for innhold,
+  `--surface-warm` for hover og tabellhoder, og `--surface-inset` for felt og innfelte
+  områder. Valgt har `--surface-selected`.
 - **Fire nivåer blekk.** `--ink` for verdier og overskrifter, `--ink-2` for etiketter
   og støttetekst, `--ink-3` for metadata og `--ink-4` for dempet tekst. Alle fire nivåene
   holder 4,5:1 på flatene, så tekst dempes med et nivå og aldri med `opacity`.
   [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) feiler under kravet for
   flatene den lister i `FLATER`, ikke for andre flater eller lokale overstyringer.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
-  `--rule-strong`. Skygger brukes bare på overlegg, som infotipset.
+  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg, som infotipset og
+  lappen i sakslisten.
 
 ## Typografi
 
@@ -277,7 +279,9 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   den gjør. Primærhandlingen er svaret på motpartens siste brev når det ikke er besvart. Etter
   byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Revider krav»
   ellers). Ellers har kortet ingen primærhandling, også når TE har korrigert datoen (oppdragsgiver
-  06.11, #1649). «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  06.11, #1649). Regelen er vedtatt; BHs svar i forholdet er ikke bygget som primærhandling ennå,
+  og uten lenke til den gamle visningen er «Godta svaret» primær til «Oppdater påberopelse» er
+  bygget (#1649). «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
   `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
   ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to

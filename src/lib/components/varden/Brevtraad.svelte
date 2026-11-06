@@ -289,7 +289,7 @@
     align-items: baseline;
     column-gap: var(--spacing-3);
   }
-  /* Det løsningen sier om saken, i formen for meldinger, ikke som metadata (oppdragsgiver 06.11, #1646). */
+  /* Tråden viser de første tre linjene; hele teksten står i brevet (oppdragsgiver 06.11, #1646). */
   .utdrag {
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -297,6 +297,7 @@
     line-clamp: 3;
     overflow: hidden;
   }
+  /* Det løsningen sier om saken, i formen for meldinger, ikke som metadata (oppdragsgiver 06.11, #1646). */
   .virkning {
     margin-top: var(--spacing-1);
   }
