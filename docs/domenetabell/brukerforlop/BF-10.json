@@ -1,0 +1,43 @@
+{
+  "id": "BF-10",
+  "tittel": "TE oppdaterer påberopelsen med en ny versjon",
+  "brukerhistorie": "TE vil utdype beskrivelsen av forholdet og si sitt standpunkt til byggherrens svar. TE sender en ny versjon av påberopelsen. Forholdet, hjemmelen og datoen står fast, med veien til korrigeringen av datoen og til en ny sak. Brevet sier hvilket brev den nye versjonen erstatter og, når byggherren har svart, at TEs standpunkt til svaret fremgår av begrunnelsen. Sporet venter på nytt svar, og svaret på den tidligere versjonen kan ikke godtas i løsningen.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt en irregulær endring etter punkt 32.1, og BH har svart at forholdet ikke er en endring."
+  },
+  "kilder": [
+    "KA-U52",
+    "MM-U52",
+    "MM-U34",
+    "MM-U47",
+    "HF-U23",
+    "HF-U21",
+    "LV-U41",
+    "LV-U50",
+    "LV-U52",
+    "LV-U53",
+    "LV-U54",
+    "VS-U26",
+    "GR-U22",
+    "GR-U27",
+    "KA-U51",
+    "EO-U38",
+    "OV-U57"
+  ],
+  "venter_paa": [
+    "#1615",
+    "#1379"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-06",
+      "forhold": "#1615",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen i BF-10.md. Brevteksten etter KA-U52 punkt 4 er ikke bygget, og Varden har ikke skjemaet."
+    }
+  ],
+  "bestilling": "BF-10.md"
+}

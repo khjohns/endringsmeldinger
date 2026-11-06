@@ -538,7 +538,7 @@
           "beskrivelse": "TE begynner på en ny versjon av grunnlagskravet for å rette datoen.",
           "versjon": 3,
           "forstaaelse": [
-            "TE ser forskjellen før valget: en ny versjon er en ny kravversjon som avslår svaret, mens korrigeringen lar svaret stå.",
+            "TE ser forskjellen før valget: en ny versjon er en ny kravversjon, og svaret kan da ikke godtas i løsningen, mens korrigeringen lar svaret stå.",
             "TE ser i skjemaet for den nye versjonen at datoen står låst som TEs siste opplysning, og at datoen korrigeres i et eget brev.",
             "TE kommer fra skjemaet til korrigeringen uten å miste det TE har skrevet."
           ],

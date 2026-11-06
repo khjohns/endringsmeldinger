@@ -26,6 +26,11 @@
       "dato": "2026-11-05",
       "forhold": "#1308, MM-U52, LV-U54",
       "hva": "Forløpet er kjørbart i demoruta, med bestillingen BF-02A.md. En ny versjon med en annen dato enn TEs siste opplysning avvises, og etter korrigeringen gjengir den nye versjonen datoen etter LV-U54. Kildene er MM-U52, som opphever OV-U52 og MM-U41."
+    },
+    {
+      "dato": "2026-11-06",
+      "forhold": "#1615, KA-U52",
+      "hva": "Forståelsen sier ikke lenger at en ny versjon avslår svaret, men at svaret da ikke kan godtas i løsningen (KA-U52 punkt 3, E3)."
     }
   ],
   "steg": [
@@ -92,10 +97,10 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "TE ser forskjellen før valget: en ny versjon er en ny kravversjon som avslår svaret, mens korrigeringen lar svaret stå.",
+          "tekst": "TE ser forskjellen før valget: en ny versjon er en ny kravversjon, og svaret kan da ikke godtas i løsningen, mens korrigeringen lar svaret stå.",
           "kilde": [
             "MM-U52",
-            "OV-U54"
+            "KA-U52"
           ]
         },
         {

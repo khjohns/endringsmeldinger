@@ -6,7 +6,7 @@
 <title>Korrigering av datoen</title>
 <!--
   Klikkbar skisse for BF-02A, BF-02C og BF-02D (docs/domenetabell/brukerforlop/BF-02A.md),
-  versjon 2, 05.11: TEs skjema for korrigering av datoen pålegget ble mottatt, og det låste
+  versjon 3, 06.11: TEs skjema for korrigering av datoen pålegget ble mottatt, og det låste
   datofeltet i en ny grunnlagsversjon. Tilstandene er ankrene (#saken, #korrigering, #uendret,
   #sendt, #bh, #ny-versjon, #ny-versjon-etter, #lukket), og stegtabellen i bestillingen viser
   til dem. ID-ene i data-spor er punktene i bestillingen. Teksten er prototypetekst; brevteksten
@@ -248,7 +248,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
   <div class="flate">
     <div class="demolinje">
       <div class="topplinje-inner">
-        <span class="versjon">Skisse · Versjon 2, 05.11</span>
+        <span class="versjon">Skisse · Versjon 3, 06.11</span>
         <nav aria-label="Tilstandene i skissen">
           <ul id="demolenker">
             <li><a href="#saken">1 Saken</a></li>
@@ -308,7 +308,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
               <div class="kort-hode"><h2 id="handl-tittel">Hva vil du gjøre?</h2></div>
               <div class="kort-kropp">
                 <ul class="andre">
-                  <li><a href="#ny-versjon"><span class="h">Send ny versjon av grunnlagskravet</span><span class="b">En ny kravversjon. Den avslår svaret i brev K201-KOE-017-02.</span></a></li>
+                  <li><a href="#ny-versjon"><span class="h">Send ny versjon av grunnlagskravet</span><span class="b">En ny kravversjon. Svaret i brev K201-KOE-017-02 kan da ikke godtas her.</span></a></li>
                 </ul>
                 <p class="stille">Vil du bare rette datoen, bruker du «Korriger datoen» ved datoen. Svaret står da.</p>
               </div>
@@ -471,7 +471,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
             <div class="kort">
               <div class="kort-kropp skjema">
                 <p class="utkastlinje"><span class="utkastmerke">Utkast · ikke sendt</span>Til byggherren (BH)</p>
-                <p class="virkning">En ny versjon er en ny kravversjon og <b>avslår svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Du kan likevel sende en ny versjon av grunnlagskravet.</p>
+                <p class="virkning">En ny versjon er en ny kravversjon. Når den er sendt, <b>kan svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span> <b>ikke godtas her</b>. Du kan likevel sende en ny versjon av grunnlagskravet.</p>
                 <div class="felt">
                   <label for="beskrivelse-1">Beskrivelse</label>
                   <textarea id="beskrivelse-1" class="beskrivelse"></textarea>
@@ -507,7 +507,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
             <div class="kort">
               <div class="kort-kropp skjema">
                 <p class="utkastlinje"><span class="utkastmerke">Utkast · ikke sendt</span>Til byggherren (BH)</p>
-                <p class="virkning">En ny versjon er en ny kravversjon og <b>avslår svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span>. Du kan likevel sende en ny versjon av grunnlagskravet.</p>
+                <p class="virkning">En ny versjon er en ny kravversjon. Når den er sendt, <b>kan svaret</b> i brev <span class="brevkode">K201-KOE-017-02</span> <b>ikke godtas her</b>. Du kan likevel sende en ny versjon av grunnlagskravet.</p>
                 <div class="felt">
                   <label for="beskrivelse-2">Beskrivelse</label>
                   <textarea id="beskrivelse-2" class="beskrivelse"></textarea>

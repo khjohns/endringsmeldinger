@@ -8,9 +8,9 @@ den ekte saksruta.
 
 | | |
 | --- | --- |
-| Status | Utkast 05.11. S-1 og S-2 er besvart 05.11 og venter på vedtaks-PR-en. Arbeidet følges i [#1615](https://github.com/khjohns/endringsmeldinger/issues/1615) |
+| Status | Utkast 06.11. S-1 og S-2 er besvart 05.11 og kjernen er rettet etter svarene i #1624. Arbeidet følges i [#1615](https://github.com/khjohns/endringsmeldinger/issues/1615) |
 | Demoruta | `/demo/BF-02A`, `/demo/BF-02C` og `/demo/BF-02D`, med kjernen i nettleseren |
-| Prototypen | [`korrigering-av-datoen.html`](../../design/prototyper/korrigering-av-datoen.html), for skjemaet for korrigeringen og det låste datofeltet i en ny grunnlagsversjon, som ingen komponent har (G-2). Versjon 2, 05.11 |
+| Prototypen | [`korrigering-av-datoen.html`](../../design/prototyper/korrigering-av-datoen.html), for skjemaet for korrigeringen og det låste datofeltet i en ny grunnlagsversjon, som ingen komponent har (G-2). Versjon 3, 06.11 |
 | Bygger på | [MM-U52](../../plans/vedtak.md#mm-u52) punkt 10, 11, 13 og 24 og designdelen, med svarene «1 A, 2 A» 05.11 ([MM-U51](../../plans/vedtak.md#mm-u51), [LV-U54](../../plans/vedtak.md#lv-u54)) og de lagrede navnene i [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308) |
 
 Hver opplysning under har en ID: **M** for målene, **U** for det brukeren skal finne og
@@ -133,14 +133,14 @@ finner ut at pålegget ble mottatt 20.09.2026.
   (`kjerne/tester/klient.ts`). BF-02C kan derfor ikke vise en godtatt ny versjon med den
   korrigerte datoen, bare avvisningen. Teksten etter LV-U54 er prøvd i
   `kjerne/tester/brevtekst.test.ts`.
-- **G-8** Kommandoen `korrigering` har ingen forklaring i fritekst. S-1 A krever et valgfritt
-  felt (#1616).
-- **G-6** Brevet med korrigeringen har ingen tittel i kjernen (`UTSAGNSTITTEL` i
-  `kjerne/frosset/brevtittel.ts`), og Varden viser det som «Brev» i tidslinjen. Domenegap,
-  meldt i #1616, med forklaringen etter S-1.
-- **G-7** Varden viser ikke datoen TE oppga i grunnlagskravet, og heller ikke den siste og de
-  tidligere opplysningene. Utledningen har dem (`datoopplysninger`), så visningen må bare lese
-  dem.
+- **G-8** Kommandoen `korrigering` har forklaringen i `utdypning` (S-1, #1624).
+- **G-6** Brevet med korrigeringen har tittelen etter S-2 i `UTSAGNSTITTEL` i
+  `kjerne/frosset/brevtittel.ts` (#1624).
+- **G-7** Varden viser datoen TE oppga i hvert grunnlagskrav (`innleggene` i
+  `src/lib/components/varden/lesing.ts`), men leser den fra kravet og ikke fra
+  `datoopplysninger`. Etter en korrigering viser brevtråden, tidslinja og vederlagssvaret
+  derfor den første datoen. Utledningen har den siste og de tidligere opplysningene, så
+  visningen må bare lese dem.
 - **G-5** `demoruta.mjs` er skrevet for BF-01 og BF-04. Forløpene her kjøres med
   kontrollpunktene som `?punkt=`.
 
@@ -161,3 +161,4 @@ Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svar
 | Dato | Grunnlag | Hva |
 | --- | --- | --- |
 | 05.11.2026 | #1308, MM-U52, svarene «1 A, 2 A» | Første versjon |
+| 06.11.2026 | #1624, #1615 | G-6 og G-8 er bygget. G-7 er presisert. Skissen er versjon 3: en ny versjon avslår ikke svaret, men svaret kan da ikke godtas i løsningen |
