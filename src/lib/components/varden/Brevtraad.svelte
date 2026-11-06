@@ -108,7 +108,9 @@
                       ? FORHOLDET.forklaringen
                       : FORHOLDET.beskrivelse(i.gjelderPaalegg)}
                 </p>
-                <p>«{i.utdypning}»</p>
+                <!-- Teksten kan være flere sider, så tråden viser de første tre linjene; hele står i brevet
+                     (oppdragsgiver 06.11, #1646). -->
+                <p class="utdrag">«{i.utdypning}»</p>
               {/if}
               {#if i.oppgitt}
                 {@const o = i.opplysning}
@@ -288,6 +290,13 @@
     column-gap: var(--spacing-3);
   }
   /* Det løsningen sier om saken, i formen for meldinger, ikke som metadata (oppdragsgiver 06.11, #1646). */
+  .utdrag {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
   .virkning {
     margin-top: var(--spacing-1);
   }
