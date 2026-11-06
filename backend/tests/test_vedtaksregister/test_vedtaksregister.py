@@ -1686,3 +1686,60 @@ def test_et_vedtak_som_ikke_er_samlet_telles_ikke(grunnregister):
     for i in range(4):
         endret = med(endret, ny_post(id=f"XX-U{i + 1}", forhold=[{"art": "endrer", "vedtak": "ka-u1"}]))
     assert vr.varsler(endret, endret) == []
+
+
+# --------------------------------------------------------------------------
+# Oppslag: --vis og --kjede, så en økt slår opp poster ordrett uten å lese registeret
+# --------------------------------------------------------------------------
+
+
+def test_oppslaget_finner_posten_paa_id_anker_og_etikett(register):
+    """Etiketten er det en lenke viser, og den eneste nøkkelen en importert post uten anker har."""
+    uten_anker = next(p for p in vr.poster(register) if not vr.anker(p))
+    assert vr.finn(register, "KA-U1") is vr.finn(register, "ka-u1") is _post(register, "ka-u1")
+    assert vr.finn(register, vr.etikett(uten_anker).upper()) is uten_anker
+    assert vr.finn(register, "XX-U999") is None
+
+
+def test_raden_i_oppslaget_er_raden_i_vedtaksfila_ordrett(register):
+    """Vedtaksfila er autoritativ for vedtakene (AGENTS.md, «Hvor hva står»), så hver celle i
+    oppslaget står ordrett i vedtaksfila, med lenkene skrevet om som der, for hver post."""
+    fil = vr.VEDTAKSFIL.read_text(encoding="utf-8")
+    ix = vr.indeks(register)
+    ankre = set(vr.ankre_i(vr.markdown(register, klasse=True)))
+    avvik = [
+        (vr.etikett(p), celle.split(": ", 1)[0])
+        for p in vr.poster(register)
+        for celle in vr.vis(p, register, ix, ankre).splitlines()[1:]
+        if f"{celle.split(': ', 1)[1]} |" not in fil
+    ]
+    assert avvik == []
+    celler = vr.vis(_post(register, "ka-u1"), register, ix, ankre).splitlines()[1:]
+    assert [c.split(": ", 1)[0] for c in celler] == ["Beslutning", "Klasse", "Vedtatt", "Følge"]
+
+
+def test_kjeden_folger_bare_det_som_erstatter_innholdet_videre(grunnregister):
+    """XX-U2 opphever XX-U1 og XX-U4 endrer XX-U2, så kjeden fra XX-U1 ender i XX-U4. At XX-U3
+    presiserer XX-U2, og at KA-U1 har egne forhold, er ikke med: de slås opp for seg."""
+    endret = med(grunnregister, ny_post())
+    endret = med(endret, _opphever("XX-U2", "xx-u1"))
+    endret = med(endret, ny_post(id="XX-U3", forhold=[{"art": "presiserer", "vedtak": "xx-u2"}]))
+    endret = med(
+        endret,
+        ny_post(
+            id="XX-U4",
+            dato=datetime.date(2026, 10, 14),
+            forhold=[{"art": "endrer", "vedtak": "xx-u2"}],
+        ),
+    )
+    forhold = vr.kjede(endret, vr.finn(endret, "xx-u1"))
+    assert [(vr.etikett(p), art, vr.etikett(v)) for p, art, v in forhold] == [
+        ("XX-U1", "presiserer", "KA-U1"),
+        ("XX-U2", "opphever", "XX-U1"),
+        ("XX-U4", "endrer", "XX-U2"),
+    ]
+
+
+def test_oppslaget_avviser_en_id_som_ikke_finnes(register, capsys):
+    assert vr.oppslag(register, ["KA-U1", "XX-U999"], None) == 1
+    assert capsys.readouterr().out == "Finnes ikke i registeret:\n  XX-U999\n"
