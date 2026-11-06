@@ -129,13 +129,9 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     ).toBeTruthy();
     const korrigeringen = await innlegget(/^Brev 3 · Korrigering av datoen/);
     expect(korrigeringen.getByRole('button', { name: /Korriger datoen/ })).toBeTruthy();
-    // U-5: hvilken opplysning svaret gjaldt.
-    const svaret = await innlegget(/^Brev 2 ·/);
-    expect(
-      svaret.getByText(
-        'Svaret gjaldt opplysningen i brev 1 om at pålegget ble mottatt 15. september 2026.'
-      )
-    ).toBeTruthy();
+    // U-5: visningen sier ikke hvilken opplysning svaret gjaldt, fordi løsningen ikke tolker
+    // svaret (oppdragsgiver 06.11, #1646).
+    expect((await innlegget(/^Brev 2 ·/)).queryByText(/gjaldt/)).toBeNull();
   });
 
   it('BF-02A: BH ser den nye og den tidligere datoen, at svaret står som det ble sendt, og ingenting om at varselet nå kom i tide (U-5, U-6, MM-U50)', async () => {

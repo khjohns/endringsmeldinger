@@ -31,6 +31,11 @@
       "dato": "2026-11-06",
       "forhold": "oppdragsgiver 06.11, tekstene i #1646",
       "hva": "Forståelsen kaller ikke påberopelsen et krav eller en kravversjon, og sier at påberopelsen og svaret står som de ble sendt, ikke at saken venter eller ikke venter på BH."
+    },
+    {
+      "dato": "2026-11-06",
+      "forhold": "oppdragsgiver 06.11, i #1646",
+      "hva": "Forståelsen sier ikke lenger at partene ser hvilken opplysning svaret gjaldt. Løsningen tolker ikke svaret."
     }
   ],
   "bestilling": "BF-02A.md",
@@ -161,7 +166,7 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere, og at svaret og påberopelsen gjaldt opplysningen 15.09.2026.",
+          "tekst": "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere.",
           "kilde": [
             "MM-U52"
           ]

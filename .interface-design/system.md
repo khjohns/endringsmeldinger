@@ -309,8 +309,9 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   BF-02A (#1615). En brevtype som ikke er bygget, har samme form og pil i demoruta, og et
   klikk sier under raden at den ikke er bygget i prøven (oppdragsgiver 06.11, #1646).
 - **Brevene om forholdet** står i en tråd. Partene skilles med form, ikke med farge: BH har
-  fylt ring og TE åpen ring. Det løsningen sier om saken under et brev, som at svaret står
-  som det ble sendt, eller hvilken opplysning svaret gjaldt, har formen for en melding om
+  fylt ring og TE åpen ring. Raden for et svar som ikke er registrert, har stiplet ring, fordi
+  den ikke er et brev. Det løsningen sier om saken under et brev, som at svaret står
+  som det ble sendt, har formen for en melding om
   prøven (`Melding`), ikke formen for metadata. Form og tekst prøves før en ny farge
   (oppdragsgiver 06.11, #1646).
 - **Panelet til venstre** har sakens kode over tittelen, og sporene i to grupper:

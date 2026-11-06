@@ -127,12 +127,13 @@
                     >
                   {/if}
                 </div>
-                {#if o && !o.korrigering && onkorriger && korrigerbare.includes(o.id) && lukket}
-                  <div class="virkning">
-                    <Melding art="info" levende={false}>{FORHOLDET.korrigerILukket}</Melding>
-                  </div>
-                {/if}
               {/if}
+            </div>
+          {/if}
+          {#if i.opplysning && !i.opplysning.korrigering && lukket && onkorriger && korrigerbare.includes(i.opplysning.id)}
+            <!-- Under brevet, ikke i det parten skrev (oppdragsgiver 06.11, #1646). -->
+            <div class="virkning">
+              <Melding art="info" levende={false}>{FORHOLDET.korrigerILukket}</Melding>
             </div>
           {/if}
           {#if i.opplysning?.korrigering}
@@ -143,11 +144,6 @@
             {#if staar}<div class="virkning">
                 <Melding art="info" levende={false}>{staar}</Melding>
               </div>{/if}
-          {/if}
-          {#if i.gjaldt}
-            <div class="virkning">
-              <Melding art="info" levende={false}>{FORHOLDET.gjaldt(i.gjaldt)}</Melding>
-            </div>
           {/if}
         </div>
       {/if}

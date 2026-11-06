@@ -75,17 +75,13 @@
             <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
             <a class="rad" href={dagensVisning}>{@render innhold(r)}</a>
           {:else}
-            <button
-              type="button"
-              class="rad"
-              aria-describedby={ikkeBygget === r.noekkel ? `${uid}-ikke-bygget` : undefined}
-              onclick={() => (ikkeBygget = r.noekkel)}>{@render innhold(r)}</button
+            <button type="button" class="rad" onclick={() => (ikkeBygget = r.noekkel)}
+              >{@render innhold(r)}</button
             >
-            {#if ikkeBygget === r.noekkel}
-              <p class="ikke-bygget" id={`${uid}-ikke-bygget`} role="status">
-                {HANDLINGENE.ikkeBygget}
-              </p>
-            {/if}
+            <!-- Den levende regionen står fra start, så teksten leses opp når den kommer. -->
+            <p class="ikke-bygget" class:vist={ikkeBygget === r.noekkel} role="status">
+              {ikkeBygget === r.noekkel ? HANDLINGENE.ikkeBygget : ''}
+            </p>
           {/if}
         </li>
       {/each}
@@ -157,8 +153,10 @@
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
-  .ikke-bygget {
+  .ikke-bygget.vist {
     padding-bottom: var(--spacing-3);
+  }
+  .ikke-bygget {
     color: var(--ink-2);
     font-size: 14px;
   }

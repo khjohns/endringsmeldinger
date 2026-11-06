@@ -476,8 +476,6 @@ export const FORHOLDET = {
   korrigerer: (forrige: { dato: string; brev: Brevref }) =>
     `Korrigerer ${dato(forrige.dato)}, oppgitt i ${brevref(forrige.brev)}.`,
   korrigertI: (b: Brevref) => `Korrigert i ${brevref(b)}.`,
-  gjaldt: (o: { hva: 'paalegg_mottatt' | 'klar_over_forholdet'; dato: string; brev: Brevref }) =>
-    `Svaret gjaldt opplysningen i ${brevref(o.brev)} om at ${o.hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'totalentreprenøren ble klar over forholdet'} ${dato(o.dato)}.`,
   korrigerILukket: KORRIGERT_I_LUKKET,
   omKorrigeringen: 'Om korrigeringen',
   avgjoerIkke:
