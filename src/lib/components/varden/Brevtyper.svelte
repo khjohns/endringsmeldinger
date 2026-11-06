@@ -2,12 +2,12 @@
   «Andre handlinger» i kortet «Det du kan gjøre nå» (Varden, prototypen `grunnlagsoversikt.html`):
   brevtypene kjernen tilbyr i sporet nå, i fast rekkefølge og uten fremheving, som en åpen liste
   med tittel, en linje om virkningen og pil (oppdragsgiver 06.11, #1631). En brevtype som ikke er
-  bygget i Varden, åpner dagens visning, med én linje om det, så ingen handling kjernen tilbyr, faller bort. Tilbyr
+  bygget i Varden, åpner dagens visning, så ingen handling kjernen tilbyr, faller bort. Tilbyr
   kjernen ingenting, vises ikke lista (MM-U25).
 -->
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
-  import { BREVTYPER, MOTTATT, ukjentHandling } from './tekster';
+  import { BREVTYPER, ukjentHandling } from './tekster';
 
   let {
     tittel = null,
@@ -50,17 +50,12 @@
         };
       })
   );
-  // Linja om prøven står én gang under lista når ingen rad er bygget, ellers ved hver rad.
-  const ingenBygget = $derived(rader.every((r) => !r.bygget));
-  const proeven = $derived(dagensVisning ? MOTTATT.iDagensVisning : MOTTATT.ikkeIProeven);
-  const beskrivelse = (r: (typeof rader)[number]) =>
-    [r.virkning, r.bygget || ingenBygget ? null : proeven].filter(Boolean).join(' ') || null;
   const uid = $props.id();
 </script>
 
 {#snippet innhold(r: (typeof rader)[number], pil: boolean)}
   <span class="h">{r.tekst}</span>
-  {#if beskrivelse(r)}<span class="b">{beskrivelse(r)}</span>{/if}
+  {#if r.virkning}<span class="b">{r.virkning}</span>{/if}
   {#if pil}<ChevronRight size={16} aria-hidden="true" />{/if}
 {/snippet}
 
@@ -83,7 +78,6 @@
         </li>
       {/each}
     </ul>
-    {#if ingenBygget}<p class="proeven">{proeven}</p>{/if}
   </div>
 {/if}
 
@@ -150,10 +144,6 @@
   .rad:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
-  }
-  .proeven {
-    color: var(--ink-3);
-    font-size: 14px;
   }
   .ikke-bygget .h {
     color: var(--ink-2);

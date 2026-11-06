@@ -37,19 +37,18 @@ describe('Brevtyper', () => {
     expect(screen.getByRole('button', { name: 'Svar på kravet' })).toBeInTheDocument();
     const trekk = screen.getByRole('link', { name: /^Trekk kravet/ });
     expect(trekk).toHaveAttribute('href', '/p/s/kjerne');
-    // Med en bygget rad i lista står linja om prøven ved hver rad som ikke er bygget.
-    expect(trekk).toHaveTextContent('Kravet kan ikke tas opp igjen. Åpnes i dagens visning.');
+    expect(trekk).toHaveTextContent('Kravet kan ikke tas opp igjen.');
+    expect(trekk).not.toHaveTextContent(/dagens visning/);
     expect(
       [...document.querySelectorAll('[data-handling]')].map((e) => e.getAttribute('data-handling'))
     ).toEqual(['svare:vederlag', 'krav:vederlag', 'varsle:vederlag', 'trekke:vederlag']);
   });
 
-  it('uten dagens visning står en brevtype som ikke er bygget, uten lenke og med linja om prøven én gang under lista', () => {
+  it('uten dagens visning står en brevtype som ikke er bygget, uten lenke og uten pil', () => {
     lag(['trekke:vederlag'], []);
     expect(screen.queryByRole('link')).toBeNull();
     expect(screen.queryByRole('button')).toBeNull();
     expect(screen.getByText('Kravet kan ikke tas opp igjen.')).toBeInTheDocument();
-    expect(screen.getAllByText('Bygges ikke i denne prøven.')).toHaveLength(1);
   });
 
   it('innsigelsen sier med egne ord hva som kom for sent, uten henvisning til kontrakten (oppdragsgiver 06.11, #1631)', () => {

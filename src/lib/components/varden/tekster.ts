@@ -271,8 +271,6 @@ export const MOTTATT = {
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
   sendtMerke: (d: string) => `Sendt ${dato(d)}`,
-  ikkeIProeven: 'Bygges ikke i denne prøven.',
-  iDagensVisning: 'Åpnes i dagens visning.',
   ingenBrev: 'Ingen brev ennå.',
   dittBrev: 'Brevet ditt er sendt.',
   forkastet: 'Utkastet er forkastet.',
@@ -316,19 +314,20 @@ export const innsigelsensVirkning = (art: string) =>
 export const HANDLINGENE = {
   andre: 'Andre handlinger',
   godta: (avslag: boolean) => `Godta ${avslag ? 'avslaget' : 'svaret'}`,
-  /** Den nye kravversjonen etter byggherrens svar i vederlaget og fristen. */
-  revidertKrav: 'Send revidert krav',
+  /** Den nye kravversjonen etter byggherrens svar i vederlaget og fristen (oppdragsgiver 06.11, #1631). */
+  revidertKrav: 'Revider krav',
   /** Linja under handlingen i «Andre handlinger»: hva den gjør med saken. */
   virkning: {
     godta: (svar: Brevref) =>
       `Du godtar hele svaret i ${brevref(svar)}. Du ser brevet før det sendes.`,
     /**
-     * Hjemmelen, kategorien og datoen står (punkt 10 og 14 i samlevedtaket for retting av sendt
-     * brev, MM-U52); beskrivelsen og begrunnelsen kan utdypes. Svaret kan da ikke godtas i
-     * løsningen (MM-U34 punkt 2).
+     * Etter svaret: hjemmelen, kategorien og datoen står (punkt 10 og 14 i samlevedtaket for
+     * retting av sendt brev, MM-U52), så den nye versjonen utdyper begrunnelsen (oppdragsgiver
+     * 06.11, #1631).
      */
-    vurderPaaNytt: (svar: Brevref) =>
-      `Forholdet og datoen står. Du kan utdype beskrivelsen og begrunnelsen. Svaret i ${brevref(svar)} kan da ikke godtas her.`,
+    oppdaterPaaberopelse:
+      'Redegjør nærmere for hvorfor dette er et forhold byggherren bærer risikoen for.',
+    reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
     /**
      * En ny kravversjon erstatter den tidligere, og sporet venter på nytt svar. Svaret på den
      * tidligere versjonen kan da ikke godtas i løsningen, og løsningen sier ikke at det er
@@ -447,8 +446,8 @@ export const FORHOLDET = {
     `Et svar blir subsidiært så lenge byggherren står fast på ${brevref(b)}.`,
   trekk: 'Trekk påberopelsen',
   nyVersjon: 'Send ny versjon av påberopelsen',
-  /** Den nye versjonen etter byggherrens svar: forholdet står, argumentasjonen kan utdypes. */
-  vurderPaaNytt: 'Be byggherren vurdere forholdet på nytt',
+  /** Den nye versjonen etter byggherrens svar (oppdragsgiver 06.11, #1631). */
+  oppdater: 'Oppdater påberopelse',
   handlinger: 'Det du kan gjøre nå',
   beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,
   begrunnelsen: 'Begrunnelsen',

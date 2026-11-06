@@ -134,7 +134,7 @@
     if (type === 'varsle' || type === 'sende_varsel') return varselet(type, id);
     if (n === 'trekke:forhold') return FORHOLDET.trekk;
     if (n === `godta:${spor}`) return HANDLINGENE.godta(avslag);
-    if (n === 'krav:forhold') return kanGodta ? FORHOLDET.vurderPaaNytt : FORHOLDET.nyVersjon;
+    if (n === 'krav:forhold') return kanGodta ? FORHOLDET.oppdater : FORHOLDET.nyVersjon;
     if (type === 'krav' && kanGodta) return HANDLINGENE.revidertKrav;
     const e = u.elementer[id];
     if (type !== 'innsigelse' || !e) return null;
@@ -152,8 +152,10 @@
     }
     if (n.startsWith('krav:')) {
       const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
-      if (spor === 'forhold' && kanGodta && svarbrevet)
-        return HANDLINGENE.virkning.vurderPaaNytt(svarbrevet);
+      if (kanGodta)
+        return spor === 'forhold'
+          ? HANDLINGENE.virkning.oppdaterPaaberopelse
+          : HANDLINGENE.virkning.reviderKrav;
       return HANDLINGENE.virkning.nyVersjon(spor, krav, svarbrevet ?? null);
     }
     return null;
@@ -262,7 +264,7 @@
             <Knapp variant="primaer" href={dagensVisning} aria-describedby={`${uid}-primaer`}
               >{innsigelsestekst(nyVersjon)}<ChevronRight size={16} aria-hidden="true" /></Knapp
             >
-            <p class="dempet" id={`${uid}-primaer`}>{linje} {MOTTATT.iDagensVisning}</p>
+            <p class="dempet" id={`${uid}-primaer`}>{linje}</p>
           </div>
         {:else if godta}
           <div class="primaer">

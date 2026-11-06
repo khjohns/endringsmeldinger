@@ -630,7 +630,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     }
   );
 
-  it('etter avslaget av forholdet er primærhandlingen for TE å be byggherren vurdere forholdet på nytt, og godta og trekk står synlige under (oppdragsgiver 06.11, #1631)', async () => {
+  it('etter avslaget av forholdet er primærhandlingen for TE «Oppdater påberopelse», og godta og trekk står synlige under (oppdragsgiver 06.11, #1631)', async () => {
     const demosak = lagDemosak(finnForloep('BF-04')!, 'forholdet-er-avslaatt', 'TE');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
@@ -644,17 +644,37 @@ describe('Varden med brukerforløpet BF-01', () => {
     const kortet = within(
       (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
     );
-    const primaer = kortet.getByRole('link', { name: 'Be byggherren vurdere forholdet på nytt' });
+    const primaer = kortet.getByRole('link', { name: 'Oppdater påberopelse' });
     expect(primaer.getAttribute('href')).toBe('/demo/sak/kjerne');
-    // Hjemmelen og datoen står (punkt 10 og 14 i samlevedtaket for retting av sendt brev), og
-    // svaret kan da ikke godtas i løsningen (MM-U34 punkt 2).
-    expect(primaer.getAttribute('aria-describedby')).toBeTruthy();
-    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toMatch(
-      /^Forholdet og datoen står\..*Svaret i brev 2 kan da ikke godtas her\./
+    // Teksten oppdragsgiver ga 06.11 i #1631.
+    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
+      'Redegjør nærmere for hvorfor dette er et forhold byggherren bærer risikoen for.'
     );
     expect(kortet.getByRole('button', { name: /^Godta avslaget/ })).toBeTruthy();
     expect(kortet.getByRole('link', { name: /^Trekk påberopelsen/ })).toBeTruthy();
     expect(kortet.queryByRole('button', { name: /Ta stilling/ })).toBeNull();
+    expect(kortet.queryByText(/dagens visning/)).toBeNull();
+  });
+
+  it('etter svaret på vederlagskravet er primærhandlingen for TE «Revider krav» (oppdragsgiver 06.11, #1631)', async () => {
+    const demosak = lagDemosak(finnForloep('BF-04')!, 'te-har-mottatt-svaret', 'TE');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'TE',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag', dagensVisning: '/demo/sak/kjerne' });
+    const kortet = within(
+      (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
+    );
+    const primaer = kortet.getByRole('link', { name: 'Revider krav' });
+    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
+      'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.'
+    );
+    expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
   });
 
   it('når lastingen feiler, viser Varden feilen og «Prøv igjen» i stedet for «Laster saken …» (#1373, funn 1)', async () => {
