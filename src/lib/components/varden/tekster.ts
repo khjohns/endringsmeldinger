@@ -543,7 +543,7 @@ export const KORRIGERING = {
   linjeNy: (hva: keyof typeof DATOEN, d: string) => `Ny dato for når ${DATOEN[hva]}: ${dato(d)}`,
   linjeTidligere: (o: { dato: string; brev: Brevref }) =>
     `Tidligere oppgitt ${dato(o.dato)} i ${brevref(o.brev)}`,
-  linjeForklaring: 'Forklaringen din står under teksten om datoen',
+  linjeForklaring: 'Forklaringen din står under den nye datoen',
   seBrevet: 'Se brevet før sending',
   handling: 'Send korrigeringen',
   sendTekst: 'Send korrigeringen til byggherren',
