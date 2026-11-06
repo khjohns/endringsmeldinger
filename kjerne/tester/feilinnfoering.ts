@@ -3971,20 +3971,26 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    const tidligere = nyVersjon ? j.tidligereDatoer(felt) : [];',
-        '    const tidligere: [string, string][] = [];',
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];',
+        '    const tidligere = opplysninger.slice(0, 0);',
       ],
     ],
     mal: [
       'en ny grunnlagsversjon kan ikke endre datoen',
       'nevner hver tidligere dato, den opprinnelige først',
+      'nevner datoen i en versjon fra en annen skriver',
     ],
   },
   {
     id: 'F472',
     feilklasse: 'de tidligere datoene står ikke med den opprinnelige først (LV-U56)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['    return datoer.slice(0, -1);', '    return datoer.slice(0, -1).reverse();']],
+    endringer: [
+      [
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];',
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1).reverse() : [];',
+      ],
+    ],
     mal: ['nevner hver tidligere dato, den opprinnelige først'],
   },
   {

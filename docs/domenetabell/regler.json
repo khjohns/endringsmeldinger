@@ -1228,11 +1228,11 @@
       "radetikett": "MM-U52: Spørsmål 1: Samlevedtaket for retting av sendt brev, versjon 2, gjelder med E1–E8"
     },
     {
-      "id": "LV-U54",
+      "id": "LV-U56",
       "type": "vedtak",
-      "dato": "2026-11-05",
-      "ref": "../plans/vedtak.md#lv-u54",
-      "radetikett": "LV-U54: Etter en korrigering etter punkt 10 i samlevedtaket for retting av sendt brev sier en ny grunnlagsversjon"
+      "dato": "2026-11-06",
+      "ref": "../plans/vedtak.md#lv-u56",
+      "radetikett": "LV-U56: Den låste delen av brevet med en ny versjon av påberopelsen sier bare hva påberopelsen gjelder, og datoen"
     }
   ],
   "rader": [
@@ -2815,7 +2815,7 @@
     {
       "id": "GR-37",
       "tilfelle": "TE sender en ny grunnlagsversjon etter at TE har oppgitt datoen pålegget ble mottatt eller TE ble klar over forholdet, med eller uten en korrigering av datoen.",
-      "forventet": "En ny grunnlagsversjon med en annen dato enn TEs siste opplysning avvises. Med samme dato godtas den, og etter en korrigering sier den at TE oppga datoen i det siste brevet med en korrigering. Gjengivelsen er ikke en ny opplysning.",
+      "forventet": "En ny grunnlagsversjon med en annen dato enn TEs siste opplysning avvises. Med samme dato godtas den, og etter en korrigering nevner den hver tidligere dato med brevet den ble oppgitt i, den opprinnelige først. Gjengivelsen er ikke en ny opplysning.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Den nye grunnlagsversjonen endrer ikke tidligere brev eller premissene i tidligere svar.",
       "rettidighet": "Ikke vurdert av løsningen.",
@@ -2823,7 +2823,7 @@
       "kilder": [
         "MM-U41",
         "MM-U52",
-        "LV-U54",
+        "LV-U56",
         "VS-U26",
         "LV-U53"
       ],

@@ -552,7 +552,7 @@
           "beskrivelse": "TE har korrigert datoen til 20.09.2026 og begynner igjen på en ny versjon.",
           "versjon": 4,
           "forstaaelse": [
-            "TE ser at den nye versjonen gjengir 20.09.2026 med henvisning til brevet med korrigeringen, og ikke kan sende 15.09.2026."
+            "TE ser at den nye versjonen gjengir 20.09.2026 og nevner at TE tidligere oppga 15.09.2026 i det første brevet, og at TE ikke kan sende 15.09.2026."
           ],
           "neste": null
         }

@@ -67,6 +67,11 @@ export interface Saken {
   sakskode: Sakskode;
   tittel: string;
   svarPaaPaaberopelsen: string | null;
+  /**
+   * TEs opplysninger om datoen før brevet, slik utledningen leser dem, i rekkefølgen i
+   * journalen. Den siste i feltet er den en ny versjon må gjengi (`DATOEN_KAN_IKKE_ENDRES`).
+   */
+  datoopplysninger: { felt: OppgittDato; dato: string; dokument: string }[];
   subsidiaer: Record<Kravspor, Subsidiaergrunn[]>;
   avklartVedFrafall: boolean;
 }
@@ -250,23 +255,6 @@ class Journalen {
     throw new KanIkkeUttrykkes(`${id} er ikke et varsel eller et krav`);
   }
 
-  /**
-   * LV-U56: TEs tidligere opplysninger om datoen i feltet før brevet, med brevet hver ble oppgitt
-   * i, den opprinnelige først. Den siste opplysningen er den brevet gjengir, og står ikke her.
-   * Tom når datoen ikke er korrigert.
-   */
-  tidligereDatoer(felt: OppgittDato): [dato: string, dokument: string][] {
-    const datoer: [string, string][] = [];
-    for (const d of this.dokumenter.slice(0, -1)) {
-      for (const k of d.krav)
-        if (!datoer.length && k.spor === 'forhold' && typeof k.innhold[felt] === 'string')
-          datoer.push([k.innhold[felt] as string, d.id]);
-      for (const u of d.utsagn)
-        if (u.art === 'korrigering' && u.felt === felt) datoer.push([u.dato, d.id]);
-    }
-    return datoer.slice(0, -1);
-  }
-
   krav(id: string): Krav {
     const e = this.element(id);
     if (e.art !== 'krav') throw new KanIkkeUttrykkes(`${id} er ikke et krav`);
@@ -354,13 +342,14 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
   const nyVersjon = k.erstatter !== null;
   const dato = (felt: OppgittDato) => {
     if (typeof k.innhold[felt] !== 'string') return [];
-    const setning = `${DATOEN_I_BREVET[felt]} ${norskDato(k.innhold[felt] as string)}.`;
-    const tidligere = nyVersjon ? j.tidligereDatoer(felt) : [];
+    // LV-U56: hver tidligere opplysning med brevet den ble oppgitt i, den opprinnelige først.
+    const opplysninger = saken.datoopplysninger.filter((o) => o.felt === felt);
+    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];
     return [
-      setning.charAt(0).toUpperCase() + setning.slice(1),
+      stor(`${DATOEN_I_BREVET[felt]} ${norskDato(k.innhold[felt] as string)}.`),
       ...(tidligere.length
         ? [
-            `Totalentreprenøren oppga tidligere ${liste(tidligere.map(([dato, dokument]) => `${norskDato(dato)} i ${j.brevet(dokument)}`))}.`,
+            `Totalentreprenøren oppga tidligere ${liste(tidligere.map((o) => `${norskDato(o.dato)} i ${j.brevet(o.dokument)}`))}.`,
           ]
         : []),
     ];

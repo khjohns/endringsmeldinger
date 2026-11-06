@@ -805,6 +805,35 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     );
   });
 
+  it('en ny grunnlagsversjon nevner datoen i en versjon fra en annen skriver, som utledningen leser (LV-U56, MM-U43 punkt 6)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.rad('TE', {
+      krav: [
+        {
+          id: randomUUID(),
+          spor: 'forhold',
+          erstatter: s.krav('forhold'),
+          hovedkategori: 'endring',
+          underkategori: 'irregulaer_endring',
+          paalegg_mottatt: '2026-09-18',
+        },
+      ],
+    });
+    s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
+    expect(
+      s.u().datoopplysninger.map((o) => o.dato),
+      'forutsetning: utledningen leser datoen i versjonen fra den andre skriveren'
+    ).toEqual(['2026-09-25', '2026-09-18', '2026-09-20']);
+    const ny = s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
+    });
+    expect(laast(ny)[0]).toContain(
+      'Pålegget ble mottatt 20. september 2026. Totalentreprenøren oppga tidligere 25. september 2026 i brev K201-KOE-017-01 av 2. oktober 2026 og 18. september 2026 i brev K201-KOE-017-02 av 3. oktober 2026.'
+    );
+  });
+
   it('korrigeringen avvises når datoen er uendret eller etter brevets dato, og godtas samme dag (arbeidsvalgene i #1308)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
@@ -3636,6 +3665,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tittel: TITTEL,
       svarPaaPaaberopelsen: null,
+      datoopplysninger: [],
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
     };
@@ -3726,6 +3756,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tittel: TITTEL,
       svarPaaPaaberopelsen: null,
+      datoopplysninger: [],
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
     };
@@ -4201,6 +4232,7 @@ describe('vedleggene står i teksten (A4)', () => {
     sakskode: { kode: 'koe' as const, loepenummer: 17 },
     tittel: TITTEL,
     svarPaaPaaberopelsen: null,
+    datoopplysninger: [],
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
   };

@@ -1085,9 +1085,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Saken',
     'brevtekst',
-    'sakskode tittel svarPaaPaaberopelsen subsidiaer avklartVedFrafall',
+    'sakskode tittel svarPaaPaaberopelsen datoopplysninger subsidiaer avklartVedFrafall',
     ['frosset/brevtekst.ts'],
   ],
+  // LV-U56: TEs opplysninger om datoen, fra utledningen (`Datoopplysning`).
+  ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['frosset/brevtekst.ts']],
+  ['Saken.datoopplysninger', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst plass', ['frosset/brevtekst.ts']],
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts']],
@@ -1120,7 +1123,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Journalen',
     'brevtekst',
-    'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav svar tidligereDatoer utdypning versjon',
+    'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav svar utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],
