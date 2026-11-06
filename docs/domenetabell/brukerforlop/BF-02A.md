@@ -121,10 +121,10 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - **G-1** Kjernen har kommandoen, utledningen av den siste og de tidligere opplysningene
   (`datoopplysninger`, `datoopplysning` per svar), datosperren og teksten etter LV-U54.
   Kontrollene i de tre forløpene kjøres i minnet.
-- **G-2** Ingen komponent i `src/lib` viser eller sender en korrigering. Varden viser
-  handlingen `korrigere:*` som en ukjent handling og har ikke noe skjema for en ny
-  grunnlagsversjon. Derfor er skjemaet skissert i prototypen. Demoruta viser saken ved
-  kontrollpunktene, ikke skjemaet.
+- **G-2** Varden viser «Korriger datoen» ved datoen i brevtråden for forholdet, og skjemaet
+  (`Korrigering.svelte`) sender kommandoen gjennom brevkontrollen (#1615). Skjemaet for en ny
+  grunnlagsversjon, med det låste datofeltet (U-7), er ikke bygget i Varden. Det er «Oppdater
+  påberopelse» i BF-10. Skissen viser det.
 - **G-3** Skjemaet for en ny grunnlagsversjon i dagens visning kopierer datoen fra det
   gjeldende kravet (`src/lib/kjernesak/paaberopelse.ts`). Etter en korrigering er det ikke
   TEs siste opplysning, så kjernen avviser versjonen med `DATOEN_KAN_IKKE_ENDRES`. Feilen er
@@ -136,11 +136,9 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - **G-8** Kommandoen `korrigering` har forklaringen i `utdypning` (S-1, #1624).
 - **G-6** Brevet med korrigeringen har tittelen etter S-2 i `UTSAGNSTITTEL` i
   `kjerne/frosset/brevtittel.ts` (#1624).
-- **G-7** Varden viser datoen TE oppga i hvert grunnlagskrav (`innleggene` i
-  `src/lib/components/varden/lesing.ts`), men leser den fra kravet og ikke fra
-  `datoopplysninger`. Etter en korrigering viser brevtråden, tidslinja og vederlagssvaret
-  derfor den første datoen. Utledningen har den siste og de tidligere opplysningene, så
-  visningen må bare lese dem.
+- **G-7** Varden leser datoene i brevtråden, tidslinja og vederlagssvaret fra
+  `datoopplysninger` i utledningen (`datoopplysningene` og `oppgitteDatoer` i
+  `src/lib/components/varden/lesing.ts`, #1615).
 - **G-5** `demoruta.mjs` er skrevet for BF-01 og BF-04. Forløpene her kjøres med
   kontrollpunktene som `?punkt=`.
 
@@ -162,3 +160,4 @@ Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svar
 | --- | --- | --- |
 | 05.11.2026 | #1308, MM-U52, svarene «1 A, 2 A» | Første versjon |
 | 06.11.2026 | #1624, #1615, svaret på S-4b i BF-10 | G-6 og G-8 er bygget. G-7 er presisert. Skissen er versjon 3: en ny versjon avslår ikke svaret, men svaret kan da ikke godtas i løsningen. Korrigeringen går gjennom brevkontrollen, med samme utkastkort som de andre skjemaene (svaret på S-4b i BF-10). Skissen viser fortsatt brevet ved siden av skjemaet |
+| 06.11.2026 | #1615 | G-2 og G-7 er bygget i Varden. U-7 venter på skjemaet for «Oppdater påberopelse» (BF-10) |

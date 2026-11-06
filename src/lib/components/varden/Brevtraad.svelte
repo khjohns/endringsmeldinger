@@ -16,7 +16,10 @@
     innlegg = new Map(),
     dokumentasjon,
     venterPaaSvar,
+    korrigerbare = [],
+    lukket = false,
     onles,
+    onkorriger,
   }: {
     brev: Brevet[];
     /** Innholdet i brevene med krav eller svar om forholdet (`innleggene`). */
@@ -25,7 +28,12 @@
     dokumentasjon: string[];
     /** Sporets betegnelse er «Svar ikke registrert» (MM-U30). */
     venterPaaSvar: boolean;
+    /** Opplysningene om datoen kjernen tilbyr å korrigere (`korrigere:<id>`, MM-U52 punkt 10). */
+    korrigerbare?: string[];
+    /** Saken er lukket etter GR-U27, så korrigeringen endrer ikke utfallet (MM-U51). */
+    lukket?: boolean;
     onles: (id: string) => void;
+    onkorriger?: (opplysning: string) => void;
   } = $props();
   const uid = $props.id();
 </script>
@@ -46,6 +54,9 @@
           {/if}
           {#if registrert}
             <Infotips navn={FORHOLDET.omKorrespondansen} tekst={FORHOLDET.omKorrespondansenTekst} />
+          {/if}
+          {#if i?.opplysning?.korrigering}
+            <Infotips navn={FORHOLDET.omKorrigeringen} tekst={FORHOLDET.avgjoerIkke} />
           {/if}
         </div>
         {#if b.avsnitt}
@@ -91,16 +102,38 @@
                 <p class="sitat-hvem">
                   {b.art === 'svar'
                     ? FORHOLDET.begrunnelsen
-                    : FORHOLDET.beskrivelse(i.gjelderPaalegg)}
+                    : i.opplysning?.korrigering
+                      ? FORHOLDET.forklaringen
+                      : FORHOLDET.beskrivelse(i.gjelderPaalegg)}
                 </p>
                 <p>«{i.utdypning}»</p>
               {/if}
               {#if i.oppgitt}
+                {@const o = i.opplysning}
                 <p class="sitat-dato">
                   {FORHOLDET.oppgitt(i.oppgitt.hva, i.oppgitt.dato, b.avsender)}
+                  {#if o?.forrige}{FORHOLDET.korrigerer(o.forrige)}{/if}
+                  {#if o?.korrigertI}{FORHOLDET.korrigertI(o.korrigertI)}{/if}
                 </p>
+                <!-- Handlingen står ved datoen, og etter en korrigering ved den siste (U-1). -->
+                {#if o && onkorriger && korrigerbare.includes(o.id)}
+                  <p class="korriger">
+                    <Knapp
+                      variant="lenke"
+                      aria-label={FORHOLDET.korrigerNavn(o.hva)}
+                      onclick={() => onkorriger(o.id)}>{FORHOLDET.korriger}</Knapp
+                    >
+                  </p>
+                  {#if lukket}<p class="virkning">{FORHOLDET.korrigerILukket}</p>{/if}
+                {/if}
               {/if}
             </div>
+          {/if}
+          {#if i.opplysning?.korrigering}
+            <p class="virkning">{FORHOLDET.korrigeringenStaar(lukket)}</p>
+          {/if}
+          {#if i.gjaldt}
+            <p class="virkning">{FORHOLDET.gjaldt(i.gjaldt)}</p>
           {/if}
         </div>
       {/if}
@@ -237,6 +270,13 @@
   }
   .sitat-dato {
     color: var(--ink-2);
+  }
+  .korriger :global(.knapp) {
+    margin-left: calc(-1 * var(--spacing-2));
+  }
+  .virkning {
+    color: var(--ink-2);
+    font-size: 14px;
   }
   .tom p {
     font-size: 14px;

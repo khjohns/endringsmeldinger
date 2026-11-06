@@ -16,14 +16,19 @@
   let {
     u,
     betegnelser,
+    korrigerbare = [],
     onles,
     onspor,
+    onkorriger,
   }: {
     u: Utledning;
     /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */
     betegnelser: Record<Spor, Betegnelse | null>;
+    /** Opplysningene om datoen TE kan korrigere (`korrigere:<id>`). */
+    korrigerbare?: string[];
     onles: (id: string) => void;
     onspor?: (spor: Spor) => void;
+    onkorriger?: (opplysning: string) => void;
   } = $props();
   const uid = $props.id();
 
@@ -54,6 +59,9 @@
     dokumentasjon={u.ikkeVurderteBrev}
     venterPaaSvar={merke === 'venter_paa_svar'}
     {onles}
+    {korrigerbare}
+    {onkorriger}
+    lukket={u.forholdAvvist}
   />
 </section>
 
