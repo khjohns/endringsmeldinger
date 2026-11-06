@@ -10,7 +10,7 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import Brevtraad from './Brevtraad.svelte';
   import TilknyttedeKrav from './TilknyttedeKrav.svelte';
-  import { brevene, forholdetISaken } from './lesing';
+  import { brevene, forholdetISaken, innleggene } from './lesing';
   import { FORHOLDET } from './tekster';
 
   let {
@@ -50,6 +50,7 @@
   </header>
   <Brevtraad
     brev={traad}
+    innlegg={innleggene(u)}
     dokumentasjon={u.ikkeVurderteBrev}
     venterPaaSvar={merke === 'venter_paa_svar'}
     {onles}

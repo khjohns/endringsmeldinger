@@ -1,21 +1,26 @@
 <!--
   Brevtråden om forholdet (#1449, prototypen `grunnlagsoversikt.html`): brevene fra begge parter
   i rekkefølgen i journalen, med nummer, part, dato og den frosne tittelen (GR-U31), og de
-  registrerte brevene med datoen avsenderen oppgir (OV-U85). Sendemåten venter på #807.
+  registrerte brevene med datoen avsenderen oppgir (OV-U85). Under hodet står TEs beskrivelse og
+  datoen TE oppgir, eller byggherrens standpunkter med lagene brevet ga dem (OV-U32) og
+  begrunnelsen. Sendemåten og vedleggene venter på #807.
 -->
 <script lang="ts">
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
-  import type { Brevet } from './lesing';
+  import type { Brevet, Innlegget } from './lesing';
   import { FORHOLDET } from './tekster';
 
   let {
     brev,
+    innlegg = new Map(),
     dokumentasjon,
     venterPaaSvar,
     onles,
   }: {
     brev: Brevet[];
+    /** Innholdet i brevene med krav eller svar om forholdet (`innleggene`). */
+    innlegg?: Map<string, Innlegget>;
     /** De registrerte brevene kjernen ikke vurderer innholdet i (OV-U19). */
     dokumentasjon: string[];
     /** Sporets betegnelse er «Svar ikke registrert» (MM-U30). */
@@ -28,6 +33,7 @@
 <ol class="traad" aria-label={FORHOLDET.traad}>
   {#each brev as b (b.id)}
     {@const registrert = b.art === 'registrert'}
+    {@const i = innlegg.get(b.id)}
     <li class="innlegg">
       <span class="part" aria-hidden="true">{b.avsender}</span>
       <div class="hode">
@@ -63,6 +69,41 @@
             .join(' · ')}
         </p>
       </div>
+      {#if i}
+        <div class="innhold">
+          {#if i.standpunkter.some((l) => l.lag)}
+            <ul class="lagene" aria-label={FORHOLDET.lagene}>
+              {#each i.standpunkter as l (l.standpunkt.id)}
+                <li>
+                  {#if l.lag}<b>{l.lag[0].toUpperCase() + l.lag.slice(1)}</b>{/if}
+                  <span>{FORHOLDET.standpunkt(l.standpunkt, l.brev)}</span>
+                </li>
+              {/each}
+            </ul>
+          {:else}
+            {#each i.standpunkter as l (l.standpunkt.id)}
+              <p class="standpunkt">{FORHOLDET.standpunkt(l.standpunkt, l.brev)}</p>
+            {/each}
+          {/if}
+          {#if i.utdypning || i.oppgitt}
+            <div class="sitat">
+              {#if i.utdypning}
+                <p class="sitat-hvem">
+                  {b.art === 'svar'
+                    ? FORHOLDET.begrunnelsen
+                    : FORHOLDET.beskrivelse(i.gjelderPaalegg)}
+                </p>
+                <p>«{i.utdypning}»</p>
+              {/if}
+              {#if i.oppgitt}
+                <p class="sitat-dato">
+                  {FORHOLDET.oppgitt(i.oppgitt.hva, i.oppgitt.dato, b.avsender)}
+                </p>
+              {/if}
+            </div>
+          {/if}
+        </div>
+      {/if}
     </li>
   {/each}
   {#if venterPaaSvar}
@@ -152,6 +193,51 @@
     font-size: 14px;
     color: var(--ink-3);
   }
+  .innhold {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-3);
+  }
+  .standpunkt {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .lagene {
+    display: grid;
+    gap: var(--spacing-2);
+  }
+  .lagene li {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: var(--spacing-1) var(--spacing-3);
+    padding-left: var(--spacing-3);
+    border-left: 2px solid var(--rule-strong-color);
+  }
+  .lagene b {
+    font-weight: 600;
+  }
+  .lagene span {
+    color: var(--ink-2);
+  }
+  .sitat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding-left: var(--spacing-3);
+    border-left: 2px solid var(--rule-strong-color);
+    font-size: 14px;
+  }
+  .sitat-hvem {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .sitat-dato {
+    color: var(--ink-2);
+  }
   .tom p {
     font-size: 14px;
     color: var(--ink-3);
@@ -166,6 +252,9 @@
       padding-left: 44px;
     }
     .hode {
+      grid-template-columns: 1fr;
+    }
+    .lagene li {
       grid-template-columns: 1fr;
     }
     .hode > :global(.knapp) {

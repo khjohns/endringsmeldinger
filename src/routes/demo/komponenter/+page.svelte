@@ -13,7 +13,7 @@
   import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
   import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
   import { brevene, oppgitteDatoer } from '$lib/components/varden/lesing';
-  import { BREVMENY, SAKEN, SPORNAVN, brevtittel, dato } from '$lib/components/varden/tekster';
+  import { HANDLINGENE, SAKEN, SPORNAVN, brevtittel, dato } from '$lib/components/varden/tekster';
   import Arbeid from './Arbeid.svelte';
   import { FORLOEPET, TILSTANDER, aapneSak } from './kjernesaker';
 
@@ -265,7 +265,7 @@
         <div class="kort">
           <p class="etikett">Bygget og ikke bygget</p>
           <Brevtyper
-            tittel={BREVMENY.skriv}
+            tittel={HANDLINGENE.andre}
             handlinger={['svare:vederlag', 'krav:vederlag', 'varsle:vederlag', 'trekke:vederlag']}
             bygget={['svare']}
             onvelg={() => {}}

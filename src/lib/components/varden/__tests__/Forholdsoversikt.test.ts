@@ -127,6 +127,39 @@ describe('Siden for forholdet', () => {
     expect(u.spor.forhold.gjeldendeSvar).not.toBeNull();
   });
 
+  it('påberopelsen viser beskrivelsen av pålegget, som står som utdypningen under kravet, og datoen TE oppgir (prototypen grunnlagsoversikt.html, oppdragsgiver 06.11)', async () => {
+    await vis([PAABEROPELSE]);
+    const brev = traad().getAllByRole('listitem')[0];
+    expect(brev.querySelector('.sitat')?.textContent).toMatch(
+      /Beskrivelse av pålegget\s*«Pålegg om tegl på østfasaden\.»\s*Pålegget mottatt \d+\. \p{L}+ 2026, ifølge totalentreprenøren\./u
+    );
+  });
+
+  it('svaret med en påberopelse av sen varsling viser lagene slik brevet ga dem: prinsipalt varselet, subsidiært avslaget, og begrunnelsen (OV-U32, MM-U13)', async () => {
+    const forSent: Handling = {
+      ...AVSLAG,
+      svar: [{ ...(AVSLAG as { svar: object[] }).svar[0], varslet_i_tide: false }],
+    } as Handling;
+    await vis([PAABEROPELSE, forSent]);
+    const lagene = screen.getByRole('list', { name: 'Standpunktene i svaret' });
+    expect(
+      within(lagene)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent?.replace(/\s+/g, ' ').trim())
+    ).toEqual([
+      'Prinsipalt Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev 1 kom for sent.',
+      'Subsidiært Byggherren avslår forholdet.',
+    ]);
+    expect(screen.getByText('«Ingen endring.»')).toBeTruthy();
+    expect(screen.getByText('Begrunnelsen')).toBeTruthy();
+  });
+
+  it('svaret i ett lag står uten etiketter for lagene (OV-U32)', async () => {
+    await vis([PAABEROPELSE, AVSLAG]);
+    expect(screen.queryByRole('list', { name: 'Standpunktene i svaret' })).toBeNull();
+    expect(screen.getByText('Byggherren avslår forholdet.')).toBeTruthy();
+  });
+
   it('«Les brevet» gir brevet å lese, med brevet som beskrivelse av knappen (#1449)', async () => {
     const { lest, u } = await vis([PAABEROPELSE]);
     await fireEvent.click(traad().getByRole('button', { name: 'Les brevet' }));

@@ -401,6 +401,26 @@ export const FORHOLDET = {
   aapne: (spor: string) => `Åpne ${spor.toLowerCase()}`,
   trekk: 'Trekk påberopelsen',
   handlinger: 'Det du kan gjøre nå',
+  beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,
+  begrunnelsen: 'Begrunnelsen',
+  oppgitt: (hva: 'paalegg_mottatt' | 'klar_over_forholdet', d: string, part: Part) =>
+    `${hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet'} ${dato(d)}, ifølge ${PARTNAVN[part]}.`,
+  lagene: 'Standpunktene i svaret',
+  /** Byggherrens standpunkt i svaret på forholdet, som setning (språkfila: partene fullt ut). */
+  standpunkt: (s: Standpunkt, brev: Brevref | null): string => {
+    const i = brev ? ` i ${brevref(brev)}` : '';
+    if (s.art === 'rettidighet')
+      return s.iTide
+        ? `Byggherren godkjenner at varselet etter punkt ${s.hjemmel}${i} kom i tide.`
+        : `Byggherren gjør gjeldende at varselet etter punkt ${s.hjemmel}${i} kom for sent.`;
+    if (s.art === 'forhold')
+      return {
+        godkjent: 'Byggherren godkjenner forholdet.',
+        avslaatt: 'Byggherren avslår forholdet.',
+        paalegg_frafalt: 'Byggherren frafaller pålegget (punkt 32.3 første ledd c).',
+      }[s.resultat];
+    return `${standpunkttekst(s, false)}.`;
+  },
 };
 
 export const SAKEN = {

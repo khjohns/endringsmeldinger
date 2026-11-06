@@ -266,3 +266,58 @@ export const betegnelsene = (
     (bilde?.spor.find((s) => s.spor === spor)?.betegnelse?.kode ?? null) as Betegnelse | null;
   return { forhold: kode('forhold'), vederlag: kode('vederlag'), frist: kode('frist') };
 };
+
+/**
+ * Innholdet i et brev i tråden om forholdet, som i prototypen `grunnlagsoversikt.html`: TEs
+ * beskrivelse, som står som utdypningen under kravet i brevteksten (`brevtekst.ts`), og datoen
+ * TE oppgir; byggherrens standpunkter med lagene brevet ga dem (OV-U32), og begrunnelsen.
+ */
+export interface Innlegget {
+  /** «Pålegget» for en irregulær endring, ellers «forholdet». */
+  gjelderPaalegg: boolean;
+  utdypning: string | null;
+  oppgitt: { hva: 'paalegg_mottatt' | 'klar_over_forholdet'; dato: string } | null;
+  /** Standpunktene med laget, og brevet med varselet en påberopelse av sen varsling gjelder. */
+  standpunkter: { standpunkt: Standpunkt; lag: string | null; brev: Brevref | null }[];
+}
+
+/** Innholdet i brevene om forholdet, etter brevets ID. Brev uten krav eller svar har ingen. */
+export function innleggene(u: Utledning): Map<string, Innlegget> {
+  const alle = brevene(u);
+  const brev = new Map(alle.map((b) => [b.id, b]));
+  const utdypning = (dokument: string, gjelder: string) =>
+    brev
+      .get(dokument)
+      ?.avsnitt?.find((a) => a.gjelder === gjelder)
+      ?.utdypning?.trim() || null;
+  const kravbrev = new Map(u.spor.forhold.krav.map((k) => [k.id, brev.get(k.dokument)]));
+  const ut = new Map<string, Innlegget>();
+  for (const k of u.spor.forhold.krav) {
+    const kode = foersteUnderkategori(
+      k.innhold.underkategori as string | string[] | null | undefined
+    );
+    const hva = (['paalegg_mottatt', 'klar_over_forholdet'] as const).find(
+      (h) => typeof k.innhold[h] === 'string'
+    );
+    ut.set(k.dokument, {
+      gjelderPaalegg: kode === 'irregulaer_endring',
+      utdypning: utdypning(k.dokument, k.id),
+      oppgitt: hva ? { hva, dato: k.innhold[hva] as string } : null,
+      standpunkter: [],
+    });
+  }
+  for (const s of u.spor.forhold.svar) {
+    ut.set(s.dokument, {
+      gjelderPaalegg: false,
+      utdypning: utdypning(s.dokument, s.id),
+      oppgitt: null,
+      // Svaret på forholdet har ingen grunner fra et annet svar foran seg (OV-U33).
+      standpunkter: standpunktene(s, u).flatMap((l) => {
+        if (!('standpunkt' in l)) return [];
+        const b = 'gjelder' in l.standpunkt ? kravbrev.get(l.standpunkt.gjelder) : undefined;
+        return [{ standpunkt: l.standpunkt, lag: l.lag, brev: b ? ref(b) : null }];
+      }),
+    });
+  }
+  return ut;
+}
