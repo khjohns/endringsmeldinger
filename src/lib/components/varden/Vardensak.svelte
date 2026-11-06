@@ -8,23 +8,34 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
-  import { Link } from 'lucide-svelte';
+  import { sakensKode } from '$kjerne/frosset/brevtittel';
   import Brevkontroll from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
-  import Vardenskall from './Vardenskall.svelte';
+  import Vardenskall, { type Smule } from './Vardenskall.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
   import { betegnelsene, brevForLinja, brevene, forholdetISaken, type Brevref } from './lesing';
-  import { BETEGNELSE, BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
+  import {
+    BETEGNELSE,
+    BREVKONTROLL,
+    MOTTATT,
+    NYSAK,
+    SAKEN,
+    SPORNAVN,
+    STILLING,
+    dato,
+  } from './tekster';
 
   let {
     kjernesak,
     kontrakt,
     kvittering,
     saksliste,
+    prosjekter,
+    bruker = null,
     nySak,
     spor,
   }: {
@@ -33,8 +44,12 @@
     spor?: Spor;
     /** Kvitteringen for brevet som opprettet saken (BF-05 steg 6, F-6). */
     kvittering?: string;
-    /** Lenken til sakslisten, der saken ikke finnes (#1473). */
+    /** Lenken til sakslisten, i stien og der saken ikke finnes (#1473). */
     saksliste?: string;
+    /** Lenken til prosjektene, «Varden» først i stien. */
+    prosjekter?: string;
+    /** Den innloggede, i topplinja. Demoruta har ingen. */
+    bruker?: { name: string } | null;
     /** Skjemaet for ny sak, som står i arbeidsflaten før saken finnes (BF-05, KT-U11). */
     nySak?: Snippet;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
@@ -81,7 +96,6 @@
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
   );
   let meldingen = $state<HTMLElement | null>(null);
-  let lenkestatus = $state('');
   let proever = $state(false);
   let sistForsoekt = $state<string | null>(null);
 
@@ -90,23 +104,21 @@
   // Forholdet heter det TE påberoper i sporlista, som i sporhodet (OV-U78).
   const betegnelser = $derived(betegnelsene(kjernesak.saksbilde));
   const forholdsnavn = $derived((u && forholdetISaken(u)?.navn) ?? SPORNAVN.forhold);
+  // Stien som i prototypen: Varden › prosjektet › saken, med sakens kode (LV-U46).
+  const sti = $derived.by((): Smule[] => {
+    const prosjekt = (kontrakt ?? kontraktFraProsjektet()).prosjekt;
+    const kode = kjernesak.sak?.merking?.sakskode;
+    return [
+      { tekst: SAKEN.merkenavn, href: prosjekter },
+      ...(prosjekt ? [{ tekst: prosjekt, href: saksliste }] : []),
+      { tekst: nySak ? NYSAK.over : kode ? sakensKode(kode) : SAKEN.nav },
+    ];
+  });
 
   function velgSpor(s: Spor) {
     valgt = s;
     arbeid = s === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' };
     melding = null;
-  }
-
-  async function kopierLenke() {
-    // Tømmes først, så en lik melding ved neste klikk leses opp igjen.
-    lenkestatus = '';
-    await tick();
-    try {
-      await navigator.clipboard.writeText(location.href);
-      lenkestatus = SAKEN.lenkeKopiert;
-    } catch {
-      lenkestatus = SAKEN.lenkeIkkeKopiert;
-    }
   }
 
   async function proevIgjen() {
@@ -159,7 +171,8 @@
 </script>
 
 <Vardenskall
-  part={kjernesak.part}
+  {sti}
+  {bruker}
   {kontrakt}
   visKontrakten={!!(nySak || (u && kjernesak.saksbilde))}
   innfelt={vedSiden}
@@ -209,14 +222,6 @@
           {/each}
         </ul>
       </nav>
-    {/if}
-  {/snippet}
-  {#snippet topplinje()}
-    {#if !nySak}
-      <p class="lenkestatus" role="status">{lenkestatus}</p>
-      <Knapp variant="lenke" onclick={kopierLenke}
-        ><Link size={16} aria-hidden="true" />{SAKEN.kopierLenke}</Knapp
-      >
     {/if}
   {/snippet}
 
@@ -364,10 +369,6 @@
     border: 1px dashed var(--draft-border);
     background: var(--surface);
     color: var(--draft);
-  }
-  .lenkestatus {
-    margin-left: auto;
-    color: var(--ink-3);
   }
   .arbeid {
     min-width: 0;

@@ -385,10 +385,8 @@ export const SAKEN = {
   byggherre: 'Byggherre',
   entreprenoer: 'Totalentreprenør',
   opprettet: 'Opprettet',
-  duEr: (part: Part) => `Du er ${part === 'BH' ? 'byggherre (BH)' : 'totalentreprenør (TE)'}`,
-  kopierLenke: 'Kopier lenke',
-  lenkeKopiert: 'Lenken er kopiert.',
-  lenkeIkkeKopiert: 'Lenken ble ikke kopiert. Kopier adressen fra adressefeltet.',
+  merkenavn: 'Varden',
+  stien: 'Du er her',
   laster: 'Laster saken …',
   lastefeil: 'Saken kunne ikke lastes',
   lastefeilBeklager: 'Beklager, saken ble ikke hentet. Prøv igjen om litt.',
@@ -582,3 +580,11 @@ export const SAKSLISTE = {
   tomEo: 'Ingen endringsordrer ennå.',
   tomEoForklaring: 'Endringsordrene vises her når de kan føres i løsningen.',
 };
+
+/** Initialene i navnet: første bokstav i første og siste ord, «PO» for «Per Olsen». */
+export function initialer(navn: string): string {
+  const ord = navn.trim().split(/\s+/).filter(Boolean);
+  if (!ord.length) return '';
+  const forbokstav = (o: string) => [...o][0].toLocaleUpperCase('nb-NO');
+  return ord.length === 1 ? forbokstav(ord[0]) : forbokstav(ord[0]) + forbokstav(ord.at(-1)!);
+}

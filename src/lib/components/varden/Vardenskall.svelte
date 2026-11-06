@@ -2,16 +2,21 @@
   Skallet i Varden: panelet til venstre med avsenderen, innholdet kalleren gir og kontrakten,
   og arbeidsflaten med topplinja. Saken og sakslisten bruker det samme skallet (#1450).
 -->
+<script lang="ts" module>
+  /** Et ledd i stien i topplinja. Det siste leddet er siden brukeren står på. */
+  export type Smule = { tekst: string; href?: string };
+</script>
+
 <script lang="ts">
   import '$lib/components/kontraktsbord/theme.css';
-  import type { Part } from '$kjerne/typer';
   import type { Snippet } from 'svelte';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import { kontraktFraProsjektet, type Kontrakt } from './kontrakt';
-  import { SAKEN } from './tekster';
+  import { SAKEN, initialer } from './tekster';
 
   let {
-    part = null,
+    sti = [],
+    bruker = null,
     kontrakt,
     visKontrakten = true,
     innfelt = false,
@@ -19,8 +24,13 @@
     topplinje,
     children,
   }: {
-    /** Rollen fra serveren (KT-U10), som topplinja viser. */
-    part?: Part | null;
+    /** Stien til siden, fra «Varden» til saken (prototypen `grunnlagsoversikt.html`). */
+    sti?: Smule[];
+    /**
+     * Den innloggede, med navnet fra sesjonen. Firmanavnet venter på at serveren leser teamet i
+     * Catenda: kontraktssiden er ikke organisasjonen (AGENTS.md, «Domenet»).
+     */
+    bruker?: { name: string } | null;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
     kontrakt?: Kontrakt;
     visKontrakten?: boolean;
@@ -71,8 +81,28 @@
 
   <div class="flate">
     <div class="topplinje">
-      {#if part}<p class="rolle">{SAKEN.duEr(part)}</p>{/if}
+      {#if sti.length}
+        <nav class="sti" aria-label={SAKEN.stien}>
+          <ol>
+            {#each sti as smule, i (i)}
+              <li class:merkenavn={i === 0}>
+                {#if i > 0}<span class="skille" aria-hidden="true">›</span>{/if}
+                <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+                {#if smule.href}<a href={smule.href}>{smule.tekst}</a>{:else}<span
+                    aria-current={i === sti.length - 1 ? 'page' : undefined}>{smule.tekst}</span
+                  >{/if}
+              </li>
+            {/each}
+          </ol>
+        </nav>
+      {/if}
       {@render topplinje?.()}
+      {#if bruker?.name}
+        <p class="bruker">
+          <span class="initialer" aria-hidden="true">{initialer(bruker.name)}</span>
+          <span class="navn">{bruker.name}</span>
+        </p>
+      {/if}
     </div>
     {@render children()}
   </div>
@@ -238,8 +268,71 @@
     background: var(--surface);
     font-size: 14px;
   }
-  .rolle {
+  .sti {
+    margin-right: auto;
+    min-width: 0;
+  }
+  .sti ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-1) var(--spacing-2);
+    color: var(--ink-3);
+  }
+  .sti li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+  .sti a {
     color: var(--ink-2);
+    text-decoration: none;
+  }
+  .sti a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .sti [aria-current] {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .sti .merkenavn :is(a, span) {
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .bruker {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-left: auto;
+  }
+  .initialer {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: var(--on-brand);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .bruker .navn {
+    font-weight: 600;
+  }
+  @media (max-width: 560px) {
+    .bruker .navn {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
   }
   @media (max-width: 860px) {
     .varden {

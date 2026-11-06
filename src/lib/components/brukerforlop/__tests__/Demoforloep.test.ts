@@ -120,8 +120,8 @@ describe('demoruta for brukerforløpet BF-01', () => {
     });
     expect(await screen.findByRole('heading', { name: 'Nytt krav om endringsordre' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Kontrakten' })).toBeTruthy();
-    expect(screen.getByText('Du er totalentreprenør (TE)')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Kopier lenke' })).toBeNull();
+    const sti = screen.getByRole('navigation', { name: 'Du er her' });
+    expect(within(sti).getByText('Ny sak').getAttribute('aria-current')).toBe('page');
     expect(screen.queryByRole('radiogroup', { name: 'Du handler som' })).toBeNull();
     expect(screen.queryByText('Du handler som')).toBeNull();
   });

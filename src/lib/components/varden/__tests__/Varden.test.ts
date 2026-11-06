@@ -727,16 +727,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     projectStore.set(null);
   });
 
-  it.each([
-    ['kopieres', () => Promise.resolve(), 'Lenken er kopiert.'],
-    [
-      'ikke kan kopieres',
-      () => Promise.reject(new Error('nektet')),
-      'Lenken ble ikke kopiert. Kopier adressen fra adressefeltet.',
-    ],
-  ])('«Kopier lenke» i topplinja sier fra når lenken %s (#1391)', async (_, svar, tekst) => {
-    const writeText = vi.fn(svar);
-    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+  it('topplinja har stien Varden › prosjektet › saken og den innloggede med initialene, ikke rollen (prototypen grunnlagsoversikt.html, oppdragsgiver 06.11)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
@@ -746,12 +737,28 @@ describe('Varden med brukerforløpet BF-01', () => {
       send: demosak.send,
     });
     await kjernesak.last();
-    render(Vardensak, { kjernesak });
+    render(Vardensak, {
+      kjernesak,
+      kontrakt: { prosjekt: 'Skolebygg Nord' },
+      prosjekter: '/',
+      saksliste: '/demo',
+      bruker: { name: 'Kari Nordmann' },
+    });
 
-    await fireEvent.click(await screen.findByRole('button', { name: 'Kopier lenke' }));
-    expect(writeText).toHaveBeenCalledWith(location.href);
-    expect((await screen.findByText(tekst)).getAttribute('role')).toBe('status');
-    vi.unstubAllGlobals();
+    const sti = await screen.findByRole('navigation', { name: 'Du er her' });
+    expect(within(sti).getByRole('link', { name: 'Varden' }).getAttribute('href')).toBe('/');
+    expect(within(sti).getByRole('link', { name: 'Skolebygg Nord' }).getAttribute('href')).toBe(
+      '/demo'
+    );
+    expect(
+      within(sti)
+        .getByText(/^KOE-\d+$/)
+        .getAttribute('aria-current')
+    ).toBe('page');
+    expect(screen.getByText('KN')).toBeTruthy();
+    expect(screen.getByText('Kari Nordmann')).toBeTruthy();
+    expect(screen.queryByText(/^Du er /)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Kopier lenke' })).toBeNull();
   });
 });
 

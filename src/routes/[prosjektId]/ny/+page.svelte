@@ -49,7 +49,12 @@
 <svelte:head><title>Ny sak — Kontraktsbordet</title></svelte:head>
 
 {#key prosjektId}
-  <Vardensak {kjernesak} saksliste={resolve('/[prosjektId]', { prosjektId })}>
+  <Vardensak
+    {kjernesak}
+    saksliste={resolve('/[prosjektId]', { prosjektId })}
+    prosjekter={resolve('/')}
+    bruker={page.data.user}
+  >
     {#snippet nySak()}
       <NySak
         {sakId}

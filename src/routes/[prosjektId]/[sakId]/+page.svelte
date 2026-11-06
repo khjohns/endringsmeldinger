@@ -42,5 +42,7 @@
     {spor}
     kvittering={page.state.nySakSendt ? NYSAK.kvittering : undefined}
     saksliste={resolve('/[prosjektId]', { prosjektId })}
+    prosjekter={resolve('/')}
+    bruker={page.data.user}
   />
 {/key}
