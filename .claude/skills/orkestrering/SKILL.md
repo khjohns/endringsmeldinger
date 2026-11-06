@@ -452,8 +452,8 @@ altså noe, og en subagent brukes bare når den sparer mer enn den koster (oppdr
   deles på flere subagenter (oppdragsgiver 17.10). Uavhengige subagenter startes i samme
   melding, og de andre tett etter hverandre, så hurtigbufferen holder seg varm. Ingen
   subagent venter på noe utenfor seg selv (oppdragsgiver 05.11, #1065).
-- **Bestillingen** sier hva sluttrapporten skal inneholde, og at den ikke gjengir filer,
-  differ eller testutdata. Trenger økta en tekst ordrett, ber bestillingen om ID og sted,
+- **Bestillingen** sier nøyaktig hva som skal gjøres eller kontrolleres, hva sluttrapporten
+  skal inneholde, og at den ikke gjengir filer, differ eller testutdata. Trenger økta en tekst ordrett, ber bestillingen om ID og sted,
   og økta slår opp teksten selv. Bestillingen har også med setningen «Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.», ordrett og på engelsk, for bedre balanse mellom grundighet og tid (kilde: Claude Code 2.1.299, oppdragsgiver 18.10, #779).
 
 ## 3. Gjennomgang når øktene er ferdige

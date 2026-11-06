@@ -1703,16 +1703,19 @@ def test_oppslaget_finner_posten_paa_id_anker_og_etikett(register):
 
 def test_raden_i_oppslaget_er_raden_i_vedtaksfila_ordrett(register):
     """Vedtaksfila er autoritativ for vedtakene (AGENTS.md, «Hvor hva står»), så hver celle i
-    oppslaget står ordrett i raden der."""
-    rad = next(
-        linje
-        for linje in vr.VEDTAKSFIL.read_text(encoding="utf-8").splitlines()
-        if linje.startswith('| <a id="ka-u1"></a>')
-    )
-    celler = vr.vis(_post(register, "ka-u1"), register).splitlines()[1:]
+    oppslaget står ordrett i vedtaksfila, med lenkene skrevet om som der, for hver post."""
+    fil = vr.VEDTAKSFIL.read_text(encoding="utf-8")
+    ix = vr.indeks(register)
+    ankre = set(vr.ankre_i(vr.markdown(register, klasse=True)))
+    avvik = [
+        (vr.etikett(p), celle.split(": ", 1)[0])
+        for p in vr.poster(register)
+        for celle in vr.vis(p, register, ix, ankre).splitlines()[1:]
+        if f"{celle.split(': ', 1)[1]} |" not in fil
+    ]
+    assert avvik == []
+    celler = vr.vis(_post(register, "ka-u1"), register, ix, ankre).splitlines()[1:]
     assert [c.split(": ", 1)[0] for c in celler] == ["Beslutning", "Klasse", "Vedtatt", "Følge"]
-    for celle in celler:
-        assert f"{celle.split(': ', 1)[1]} |" in rad
 
 
 def test_kjeden_folger_bare_det_som_erstatter_innholdet_videre(grunnregister):

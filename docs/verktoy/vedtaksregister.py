@@ -407,7 +407,12 @@ def vedtaksfil(register: dict) -> str:
     """Vedtaksfila: hodet og 3.1. En lenke til et anker i 3.1 går til ankeret i fila, og en
     lenke til et annet anker i hovedplanen går dit."""
     tekst = markdown(register, klasse=True)
-    ankre = set(ankre_i(tekst))
+    return VEDTAKSHODE + lenker_i_vedtaksfila(tekst, set(ankre_i(tekst)))
+
+
+def lenker_i_vedtaksfila(tekst: str, ankre: set[str]) -> str:
+    """En lenke til et anker i `ankre` går til ankeret i vedtaksfila, og en lenke til et annet
+    anker i hovedplanen går dit."""
 
     def til_planen(m: re.Match) -> str:
         fragment = m.group(2)
@@ -415,7 +420,7 @@ def vedtaksfil(register: dict) -> str:
             return f"{m.group(1)}#{fragment}"
         return f"{m.group(1)}{HOVEDPLAN.name}#{fragment}"
 
-    return VEDTAKSHODE + LENKE_TIL_PLANANKER.sub(til_planen, tekst)
+    return LENKE_TIL_PLANANKER.sub(til_planen, tekst)
 
 
 # --------------------------------------------------------------------------
@@ -1771,17 +1776,24 @@ def kjede(register: dict, post: dict) -> list[tuple[dict, str, dict]]:
         key=lambda k: (_dato_eller_tidlig(k[0].get("dato")), etikett(k[0]), k[1], etikett(k[2])),
     )
 
-def vis(post: dict, register: dict, ix: Indeks | None = None) -> str:
-    """Raden slik vedtaksfila har den, med én celle per linje og uten ankeret."""
+
+def vis(
+    post: dict, register: dict, ix: Indeks | None = None, ankre: set[str] | None = None
+) -> str:
+    """Raden slik vedtaksfila har den, med lenkene skrevet om som der, én celle per linje og
+    uten ankeret. `ankre` er ankrene i vedtaksfila, også dem i teksten mellom tabellene."""
     ix = ix if isinstance(ix, Indeks) else indeks(register)
+    if ankre is None:
+        ankre = set(ankre_i(markdown(register, klasse=True)))
     beslutning = re.sub(r'^<a id="[^"]+"></a>', "", vedtakscelle(post))
-    return (
+    tekst = (
         f"## {etikett(post)}\n"
         f"Beslutning: {beslutning}\n"
         f"Klasse: {klassecelle(post, ix)}\n"
         f"Vedtatt: {vedtattcelle(post)}\n"
         f"Følge: {folgecelle(post, register, ix)}\n"
     )
+    return lenker_i_vedtaksfila(tekst, ankre)
 
 
 def oppslag(register: dict, navn: list[str], kjede_fra: str | None) -> int:
@@ -1808,8 +1820,10 @@ def oppslag(register: dict, navn: list[str], kjede_fra: str | None) -> int:
             print(f"  {navn_med_merke(p)} {art} {navn_med_merke(v)}{dato}")
     if navn:
         ix = indeks(register)
-        print("\n".join(vis(finn(register, n), register, ix) for n in navn), end="")
+        ankre = set(ankre_i(markdown(register, klasse=True)))
+        print("\n".join(vis(finn(register, n), register, ix, ankre) for n in navn), end="")
     return 0
+
 
 def main() -> int:
     tolk = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -1836,6 +1850,8 @@ def main() -> int:
     )
     valg = tolk.parse_args()
 
+    if (valg.vis or valg.kjede) and (valg.sjekk or valg.forhold):
+        tolk.error("--vis og --kjede er oppslag og kan ikke kombineres med --sjekk eller --forhold")
     register = les()
     if valg.vis or valg.kjede:
         return oppslag(register, valg.vis or [], valg.kjede)
