@@ -1,6 +1,6 @@
 ---
 name: diffkontroll
-description: Kontrollerer at en diff bare inneholder det som er bestilt, og siterer avvikene ordrett. Bruk før merge av en PR fra mekanisk-pr, eller når en diff skal sammenlignes med en bestilling. Leser bare.
+description: Kontrollerer at en diff bare inneholder det som er bestilt, og siterer avvikene ordrett. Bruk før merge av en liten PR med dokumentasjon eller mekanisk arbeid, eller når en diff skal sammenlignes med en bestilling. Leser bare.
 model: haiku
 effort: medium
 omitClaudeMd: true
