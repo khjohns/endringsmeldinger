@@ -331,7 +331,7 @@ export const HANDLINGENE = {
         : hovedkategori === 'force_majeure'
           ? 'Redegjør nærmere for hvorfor dette er force majeure.'
           : hovedkategori === 'svikt' || hovedkategori === 'andre_forhold'
-            ? 'Redegjør nærmere for hvorfor dette er et forhold byggherren bærer risikoen for.'
+            ? 'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
             : 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.',
     reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
     /**

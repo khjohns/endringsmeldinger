@@ -646,9 +646,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     );
     const primaer = kortet.getByRole('link', { name: 'Oppdater påberopelse' });
     expect(primaer.getAttribute('href')).toBe('/demo/sak/kjerne');
-    // Teksten oppdragsgiver ga 06.11 i #1631.
+    // Teksten oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
     expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
-      'Redegjør nærmere for hvorfor dette er et forhold byggherren bærer risikoen for.'
+      'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
     );
     expect(kortet.getByRole('button', { name: /^Godta avslaget/ })).toBeTruthy();
     expect(kortet.getByRole('link', { name: /^Trekk påberopelsen/ })).toBeTruthy();

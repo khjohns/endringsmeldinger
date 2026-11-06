@@ -86,13 +86,13 @@ describe('Brevtyper', () => {
 describe('linja under «Oppdater påberopelse»', () => {
   // Det TE gjør gjeldende, følger hovedkategorien: en endring (§ 33.1 a), et forhold byggherren
   // har risikoen for (§ 33.1 b og c) eller force majeure (§ 33.3). Teksten for risikoforholdet
-  // er den oppdragsgiver ga 06.11 i #1631.
+  // er den oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
   it.each([
     ['endring', 'Redegjør nærmere for hvorfor dette er en endring.'],
-    ['svikt', 'Redegjør nærmere for hvorfor dette er et forhold byggherren bærer risikoen for.'],
+    ['svikt', 'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'],
     [
       'andre_forhold',
-      'Redegjør nærmere for hvorfor dette er et forhold byggherren bærer risikoen for.',
+      'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.',
     ],
     ['force_majeure', 'Redegjør nærmere for hvorfor dette er force majeure.'],
     [null, 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.'],
