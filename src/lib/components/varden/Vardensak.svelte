@@ -313,14 +313,14 @@
                 arbeid = { art: 'svar' };
               }
             }}
-            onakseptbrev={({ kommando, tekst, merking, deresRef, tittel }) => {
+            onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
               arbeid = {
                 art: 'kontroll',
                 kommando,
                 tekst,
                 detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
-                virkninger: [],
+                virkninger,
                 merking,
                 deresRef,
                 tittel,

@@ -147,24 +147,21 @@ describe('Varden med brukerforløpet BF-01', () => {
       name: 'Svar på krav om vederlagsjustering i sak KOE-17',
     });
     expect(avsnittene(mottatt)).toEqual(vist);
-    // Kortet sier valgene kjernen tilbyr ved svaret (prototypen grunnlagsoversikt.html).
+    // Uten dagens visning er aksepten primærhandlingen, med linja om hva den gjør, og resten
+    // står synlig under «Andre handlinger», uten panel (oppdragsgiver 06.11, #1631).
     const kortet = within(
       screen.getByRole('heading', { name: 'Det du kan gjøre nå' }).closest('section')!
     );
-    expect(kortet.getByText(/^Du kan godta svaret/)).toBeTruthy();
+    expect(kortet.getByText(/^Du godtar hele svaret i brev 4\./)).toBeTruthy();
     expect(kortet.getByText('Andre handlinger')).toBeTruthy();
-    await fireEvent.click(screen.getByRole('button', { name: 'Ta stilling til svaret' }));
-    const panelet = screen.getByRole('region', {
-      // Visningen viser til brevet med nummeret i saken, ikke versjonen (oppdragsgiver 05.11 i #1631).
-      name: 'Ta stilling til svaret i brev 4',
-    });
-    // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den.
-    expect(panelet.textContent).toMatch(
+    await fireEvent.click(kortet.getByRole('button', { name: /^Godta svaret/ }));
+    // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den. Det
+    // står i brevkontrollen før sendingen.
+    const kontrollen = screen.getByRole('region', { name: 'Sending' });
+    expect(kontrollen.textContent).toMatch(
       /Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt 34\.1\.2 kom for sent/
     );
-    expect(panelet.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
-    const panel = within(panelet);
-    await fireEvent.click(panel.getByRole('button', { name: 'Se akseptbrevet' }));
+    expect(kontrollen.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
     await sendBrevet('Send aksepten til BH');
     await vi.waitFor(() => expect(nyeRader(demosak(), svaret.versjon)).toHaveLength(1));
     const [aksepten] = nyeRader(demosak(), svaret.versjon);
@@ -172,7 +169,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     k.registrer(BF.steg![4], [aksepten]);
     await kontrollerEtter(forloep, 5, k, paastand);
     // Etter aksepten tilbyr kjernen ikke å godta på nytt: enigheten er registrert (GR-U8).
-    expect(screen.queryByRole('button', { name: 'Ta stilling til svaret' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Godta svaret/ })).toBeNull();
   });
 
   it('«Se brevet før sending» er alltid aktiv, og klikket uten svar viser det som mangler ved feltet og øverst, ikke brevet (MM-U32, BF-01 S-3 B)', async () => {
@@ -548,8 +545,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     cleanup();
 
     const varden = aapne(punkt, 'varden');
-    await fireEvent.click(await screen.findByRole('button', { name: 'Ta stilling til svaret' }));
-    await fireEvent.click(screen.getByRole('button', { name: 'Se akseptbrevet' }));
+    await fireEvent.click(await screen.findByRole('button', { name: /^Godta svaret/ }));
     const brev = await screen.findByRole('article', { name: 'Aksept av svaret i sak KOE-17' });
     expect(avsnittene(brev)).toEqual(tekstIDagens);
     await sendBrevet('Send aksepten til BH');
@@ -624,12 +620,42 @@ describe('Varden med brukerforløpet BF-01', () => {
         (e) => e.getAttribute('data-handling')!
       );
       // Primærhandlingen i kortet står ikke i lista «Andre handlinger».
-      if (screen.queryByRole('button', { name: 'Ta stilling til svaret' }))
+      if (
+        screen.queryByRole('button', { name: /^Godta svaret/ }) &&
+        !iVarden.includes('godta:vederlag')
+      )
         iVarden.push('godta:vederlag');
       if (screen.queryByRole('button', { name: 'Svar på kravet' })) iVarden.push('svare:vederlag');
       expect(iVarden.sort()).toEqual([...tilbudt].sort());
     }
   );
+
+  it('etter avslaget av forholdet er primærhandlingen for TE å be byggherren vurdere forholdet på nytt, og godta og trekk står synlige under (oppdragsgiver 06.11, #1631)', async () => {
+    const demosak = lagDemosak(finnForloep('BF-04')!, 'forholdet-er-avslaatt', 'TE');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'TE',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'forhold', dagensVisning: '/demo/sak/kjerne' });
+    const kortet = within(
+      (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
+    );
+    const primaer = kortet.getByRole('link', { name: 'Be byggherren vurdere forholdet på nytt' });
+    expect(primaer.getAttribute('href')).toBe('/demo/sak/kjerne');
+    // Hjemmelen og datoen står (punkt 10 og 14 i samlevedtaket for retting av sendt brev), og
+    // svaret kan da ikke godtas i løsningen (MM-U34 punkt 2).
+    expect(primaer.getAttribute('aria-describedby')).toBeTruthy();
+    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toMatch(
+      /^Forholdet og datoen står\..*Svaret i brev 2 kan da ikke godtas her\./
+    );
+    expect(kortet.getByRole('button', { name: /^Godta avslaget/ })).toBeTruthy();
+    expect(kortet.getByRole('link', { name: /^Trekk påberopelsen/ })).toBeTruthy();
+    expect(kortet.queryByRole('button', { name: /Ta stilling/ })).toBeNull();
+  });
 
   it('når lastingen feiler, viser Varden feilen og «Prøv igjen» i stedet for «Laster saken …» (#1373, funn 1)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');

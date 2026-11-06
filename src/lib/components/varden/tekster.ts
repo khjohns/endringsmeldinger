@@ -268,7 +268,6 @@ export const BREVKONTROLL = {
 export const MOTTATT = {
   fra: (n: number, part: Part, d: string) =>
     `Brev ${n} · ${part} · mottatt ${dato(d)} kl. ${klokke(d)}`,
-  taStilling: (avslag: boolean) => `Ta stilling til ${avslag ? 'avslaget' : 'svaret'}`,
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
   sendtMerke: (d: string) => `Sendt ${dato(d)}`,
@@ -316,17 +315,20 @@ export const innsigelsensVirkning = (art: string) =>
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
 export const HANDLINGENE = {
   andre: 'Andre handlinger',
-  /** Valgene kjernen tilbyr ved svaret, i én setning: «Du kan godta avslaget eller …». */
-  valgene: (valg: string[]) =>
-    valg.length < 2
-      ? `Du kan ${valg[0]}.`
-      : `Du kan ${valg.slice(0, -1).join(', ')} eller ${valg.at(-1)}.`,
-  godta: (avslag: boolean) => `godta ${avslag ? 'avslaget' : 'svaret'}`,
-  nyVersjon: (spor: Spor) =>
-    spor === 'forhold' ? 'sende en ny versjon av påberopelsen' : 'sende en ny versjon av kravet',
-  trekke: (spor: Spor) => (spor === 'forhold' ? 'trekke påberopelsen' : 'trekke kravet'),
+  godta: (avslag: boolean) => `Godta ${avslag ? 'avslaget' : 'svaret'}`,
+  /** Den nye kravversjonen etter byggherrens svar i vederlaget og fristen. */
+  revidertKrav: 'Send revidert krav',
   /** Linja under handlingen i «Andre handlinger»: hva den gjør med saken. */
   virkning: {
+    godta: (svar: Brevref) =>
+      `Du godtar hele svaret i ${brevref(svar)}. Du ser brevet før det sendes.`,
+    /**
+     * Hjemmelen, kategorien og datoen står (punkt 10 og 14 i samlevedtaket for retting av sendt
+     * brev, MM-U52); beskrivelsen og begrunnelsen kan utdypes. Svaret kan da ikke godtas i
+     * løsningen (MM-U34 punkt 2).
+     */
+    vurderPaaNytt: (svar: Brevref) =>
+      `Forholdet og datoen står. Du kan utdype beskrivelsen og begrunnelsen. Svaret i ${brevref(svar)} kan da ikke godtas her.`,
     /**
      * En ny kravversjon erstatter den tidligere, og sporet venter på nytt svar. Svaret på den
      * tidligere versjonen kan da ikke godtas i løsningen, og løsningen sier ikke at det er
@@ -347,19 +349,15 @@ export const HANDLINGENE = {
 };
 
 export const STILLING = {
-  tittel: (b: Brevref) => `Ta stilling til svaret i ${brevref(b)}`,
-  lukk: 'Lukk',
-  godta: 'Godta svaret',
-  hele: (b: Brevref) => `Du godtar hele svaret i ${brevref(b)}, med alle standpunktene i det.`,
+  /** Når kjernen ikke kan lage akseptbrevet og ikke sier hvorfor. */
+  godta: 'Aksepten kan ikke lages nå.',
   omfatter: (hjemmel: string) =>
     `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare det subsidiære beløpet.`,
   beloep: (beloep: number, b: Brevref) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
   vilkaar: 'Enigheten får virkning når forholdet er avklart.',
   kilde: (b: Brevref) => `Virkningen er regnet ut fra ${brevref(b)} slik det ble sendt.`,
-  seAksepten: 'Se akseptbrevet',
   godtarBrev: (b: Brevref) => `Du godtar hele svaret i ${brevref(b)}`,
-  andre: 'Andre brev du kan sende nå, står under «Andre handlinger».',
 };
 
 export const TIDSLINJE = {
@@ -449,6 +447,8 @@ export const FORHOLDET = {
     `Et svar blir subsidiært så lenge byggherren står fast på ${brevref(b)}.`,
   trekk: 'Trekk påberopelsen',
   nyVersjon: 'Send ny versjon av påberopelsen',
+  /** Den nye versjonen etter byggherrens svar: forholdet står, argumentasjonen kan utdypes. */
+  vurderPaaNytt: 'Be byggherren vurdere forholdet på nytt',
   handlinger: 'Det du kan gjøre nå',
   beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,
   begrunnelsen: 'Begrunnelsen',

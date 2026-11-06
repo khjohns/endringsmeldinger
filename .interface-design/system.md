@@ -294,16 +294,19 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
   lengre brev ruller i den. Kolonnene er da like brede, og panelet til venstre er felt inn.
   På smal skjerm står brevet i skjemaet.
-- **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne. Det har én primærhandling:
-  «Ta stilling til avslaget» eller «… til svaret» når parten kan godta svaret, med en setning om
-  valgene kjernen tilbyr, eller «Svar på kravet» når Varden kan åpne svaret. Resten står under
-  «Andre handlinger» som en åpen liste (`Brevtyper`), ikke en meny, som i prototypen
-  `grunnlagsoversikt.html` (oppdragsgiver 06.11, #1631). Lista vises bare når kjernen tilbyr en
-  handling ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet,
-  en linje om hva handlingen gjør med saken, pil og skillelinjer. En brevtype som ikke er bygget,
-  åpner saken i dagens visning. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da
-  ikke kan godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for BF-02A (#1615),
-  og tilbys ikke før den er bygget (oppdragsgiver 06.11, #1631).
+- **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne. Alle handlingene står synlige,
+  uten panel (oppdragsgiver 06.11, #1631). Det har én primærhandling med en linje om hva den gjør:
+  etter byggherrens svar den nye versjonen («Be byggherren vurdere forholdet på nytt» i forholdet,
+  «Send revidert krav» ellers), eller «Svar på kravet» for byggherren. Til den nye versjonen er
+  bygget i Varden, åpner den dagens visning; uten dagens visning er «Godta svaret» primærhandlingen.
+  «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
+  `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
+  ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, en linje
+  om hva handlingen gjør med saken, pil og skillelinjer. En brevtype som ikke er bygget, åpner saken
+  i dagens visning. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da ikke kan
+  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for
+  BF-02A (#1615), og tilbys ikke før den er bygget.
 - **Panelet til venstre** har sakens kode over tittelen, og sporene i to grupper:
   «Kontraktsforhold» med forholdet og «Krav» med vederlagsjusteringen og fristforlengelsen.
   Navnene står uten linje under; betegnelsen og siste brev står på siden for sporet

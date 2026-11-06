@@ -262,16 +262,16 @@ try {
   await demopanel(true);
   await side('TE');
   await demopanel(false);
-  await knapp('Ta stilling til svaret').click();
+  await knapp(/^Godta svaret/).waitFor();
   await steg('te-har-mottatt-svaret', true);
   if (GODTAR) {
-  await knapp('Se akseptbrevet').click();
+  await knapp(/^Godta svaret/).click();
   console.log(`Aksepten TE kontrollerer:\n${await article('Aksept av svaret').getByTestId('laast-tekst').innerText()}`);
   await steg('te-godtar');
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
   await knapp('Send aksepten til BH').click();
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor({ state: 'detached' });
-  if (await knapp('Ta stilling til svaret').isVisible())
+  if (await knapp(/^Godta svaret/).isVisible())
     throw new Error('TE får fortsatt tilbud om å godta svaret etter aksepten');
   await steg('te-har-godtatt');
   }

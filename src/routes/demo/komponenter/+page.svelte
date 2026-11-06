@@ -173,8 +173,8 @@
     <section id="sporet" aria-labelledby="sporet-tittel">
       <h2 id="sporet-tittel">Sporlesing</h2>
       <p class="forklaring">
-        Sporet med brevet, brevtypene og tidslinja, i <code>Arbeidsflate</code>. «Ta stilling til
-        svaret» åpner aksepten, og «Se brevet» åpner <code>Brevkontroll</code> i kortet.
+        Sporet med brevet, brevtypene og tidslinja, i <code>Arbeidsflate</code>. «Godta svaret»
+        åpner <code>Brevkontroll</code> med aksepten.
       </p>
       {#each sporet as t (t.navn)}
         <h3>{t.navn}</h3>

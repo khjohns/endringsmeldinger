@@ -1,6 +1,7 @@
 <!--
   Knappen i Varden: pilleform, minst 44 px høy. En handling parten kan gjøre nå, er alltid
-  aktiv; knappen er `aria-disabled` bare mens en sending pågår (MM-U32).
+  aktiv; knappen er `aria-disabled` bare mens en sending pågår (MM-U32). Med `href` er den en
+  lenke med samme form, for en handling som åpner en annen side.
   `Button` i primitives er 36 px.
 -->
 <script lang="ts">
@@ -10,29 +11,37 @@
     variant = 'sekundaer',
     opptatt = false,
     onclick,
+    href,
     children,
     ...rest
   }: {
     variant?: 'primaer' | 'sekundaer' | 'lenke';
     opptatt?: boolean;
+    /** Kalleren gir lenken løst. */
+    href?: string;
     onclick?: () => void;
     children: Snippet;
     [k: string]: unknown;
   } = $props();
 </script>
 
-<button
-  type="button"
-  class="knapp knapp-{variant}"
-  aria-disabled={opptatt ? 'true' : undefined}
-  aria-busy={opptatt ? 'true' : undefined}
-  onclick={() => {
-    if (!opptatt) onclick?.();
-  }}
-  {...rest}
->
-  {@render children()}
-</button>
+{#if href}
+  <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+  <a class="knapp knapp-{variant}" {href} {...rest}>{@render children()}</a>
+{:else}
+  <button
+    type="button"
+    class="knapp knapp-{variant}"
+    aria-disabled={opptatt ? 'true' : undefined}
+    aria-busy={opptatt ? 'true' : undefined}
+    onclick={() => {
+      if (!opptatt) onclick?.();
+    }}
+    {...rest}
+  >
+    {@render children()}
+  </button>
+{/if}
 
 <style>
   .knapp {
@@ -41,10 +50,11 @@
     justify-content: center;
     gap: var(--spacing-2);
     min-height: 44px;
-    padding: 0 var(--spacing-5);
+    padding: var(--spacing-2) var(--spacing-5);
     border-radius: var(--r-knapp);
     font: inherit;
     font-weight: 500;
+    text-decoration: none;
     cursor: pointer;
     transition: background-color 150ms cubic-bezier(0.23, 1, 0.32, 1);
   }

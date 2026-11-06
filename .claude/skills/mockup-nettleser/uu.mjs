@@ -180,17 +180,10 @@ const VARDEN = [
     }),
   },
   {
-    navn: 'Varden: TE tar stilling til svaret',
-    vei: iVarden('te-har-mottatt-svaret', (page) =>
-      page.getByRole('button', { name: 'Ta stilling til svaret' }).click()
-    ),
-  },
-  {
     navn: 'Varden: akseptbrevet før sending',
-    vei: iVarden('te-har-mottatt-svaret', async (page) => {
-      await page.getByRole('button', { name: 'Ta stilling til svaret' }).click();
-      await page.getByRole('button', { name: 'Se akseptbrevet' }).click();
-    }),
+    vei: iVarden('te-har-mottatt-svaret', (page) =>
+      page.getByRole('button', { name: /^Godta svaret/ }).click()
+    ),
   },
 ];
 
