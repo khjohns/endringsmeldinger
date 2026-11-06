@@ -30,6 +30,7 @@
     henvisning = BREVKONTROLL.svarerPaa,
     detteSender,
     virkninger,
+    kanIkkeGjoeresOm = false,
     sendTekst,
     tilbakeTil,
     ontilbake,
@@ -56,6 +57,11 @@
     henvisning?: string;
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
+    /**
+     * Handlingen kan ikke gjøres om, som trekket av påberopelsen. Virkningen står da i svak rød,
+     * bare her i brevkontrollen (oppdragsgiver 06.11, #1615).
+     */
+    kanIkkeGjoeresOm?: boolean;
     sendTekst: string;
     tilbakeTil: string;
     ontilbake: () => void;
@@ -153,7 +159,11 @@
           <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
         {/each}
       </ul>
-      {#each virkninger as b, i (i)}<p>{b}</p>{/each}
+      {#if virkninger.length}
+        <div class="virkninger" class:endelig={kanIkkeGjoeresOm}>
+          {#each virkninger as b, i (i)}<p>{b}</p>{/each}
+        </div>
+      {/if}
     </div>
     <div class="send">
       <label class="avkryss" class:ugyldig={manglerKontroll && !kontrollert}>
@@ -250,6 +260,13 @@
   .sender p {
     font-size: 14px;
     margin-top: var(--spacing-2);
+  }
+  /* Bare for en handling som ikke kan gjøres om, og teksten sier det selv (system.md). */
+  .virkninger.endelig {
+    margin-top: var(--spacing-3);
+    padding: var(--spacing-1) var(--spacing-3) var(--spacing-3);
+    border-left: 3px solid var(--danger);
+    background: var(--danger-bg);
   }
   .send {
     display: flex;

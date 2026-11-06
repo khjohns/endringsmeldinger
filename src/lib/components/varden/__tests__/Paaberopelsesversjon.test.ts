@@ -77,7 +77,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(
       skjema.getByText(/Erstatter påberopelsen i brev 1\. Svaret i brev 2 kan da ikke godtas her/)
     ).toBeTruthy();
-    expect(skjema.getByText(/Si hva du mener om byggherrens svar i brev 2/)).toBeTruthy();
+    expect(skjema.getByText(/Si hva du mener om svaret i brev 2/)).toBeTruthy();
 
     await fireEvent.input(teksten(), {
       target: { value: 'Vi fastholder at pålegget er en endring.' },
@@ -171,7 +171,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     ).toHaveLength(0);
     await fireEvent.click(kortet.getByRole('button', { name: /^Send ny versjon av påberopelsen/ }));
     expect(screen.getByRole('textbox', { name: /Beskrivelse av/ })).toBeTruthy();
-    expect(screen.queryByText(/Si hva du mener om byggherrens svar/)).toBeNull();
+    expect(screen.queryByText(/Si hva du mener om svaret/)).toBeNull();
   });
 });
 

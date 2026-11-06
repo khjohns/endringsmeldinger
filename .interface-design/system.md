@@ -109,6 +109,10 @@ en ny farge prøves form og tekst (oppdragsgiver 06.11, #1646).
 - **Utkast og interne ting** har `--draft`, `--draft-bg` og `--draft-border`, med
   stiplet kant. Det som ikke er sendt, skal aldri se sendt ut.
 - **Fokus** vises med `--control-focus` og `--control-focus-ring`.
+- **Svak rød i brevkontrollen** (`--danger-bg` med rød kant til venstre) står bare ved virkningen av
+  en handling som ikke kan gjøres om, som «Trekk påberopelsen», og ikke ellers i flaten. Teksten
+  sier selv at handlingen ikke kan gjøres om (`kanIkkeGjoeresOm` i `Brevkontroll`; oppdragsgiver
+  06.11, #1615). Ingen brevkontroll i Varden bruker den ennå, fordi trekket ikke er bygget.
 - **En farge sier aldri det appen ikke kan slutte.** Ingen rødt for «for sent» og
   ingen farge for alvorlighet ved en frist. Vedtakene i [vedtaksfila](../docs/plans/vedtak.md)
   avgjør hva visningen kan si.

@@ -88,15 +88,10 @@
   let hindring = $state<string | null>(null);
 
   const virkning = $derived(HANDLINGENE.virkning.nyVersjon('forhold', kravbrevet, svarbrevet));
-  const linjer = $derived(
-    (tekst ?? '').trim()
-      ? [
-          ...(kravbrevet ? [{ tekst: NYVERSJON.linjeErstatter(kravbrevet), lag: null }] : []),
-          ...(datoen ? [{ tekst: NYVERSJON.linjeDato(datoen.hva, datoen.dato), lag: null }] : []),
-          { tekst: NYVERSJON.linjeTekst, lag: null },
-        ]
-      : []
-  );
+  const linjer = $derived([
+    ...(kravbrevet ? [{ tekst: NYVERSJON.linjeErstatter(kravbrevet), lag: null }] : []),
+    ...(datoen ? [{ tekst: NYVERSJON.linjeDato(datoen.hva, datoen.dato), lag: null }] : []),
+  ]);
 
   async function seBrevet() {
     hindring = null;
@@ -202,24 +197,24 @@
 
         <div class="felt">
           <label for={id('tekst')}>{NYVERSJON.tekst(forhold?.kode === 'irregulaer_endring')}</label>
-          <p class="hjelp" id={id('tekst-hjelp')}>
-            {svarbrevet ? NYVERSJON.tekstHjelpEtterSvar(svarbrevet) : NYVERSJON.tekstHjelp}
-          </p>
+          {#if svarbrevet}<p class="hjelp" id={id('tekst-hjelp')}>
+              {NYVERSJON.tekstHjelp(svarbrevet)}
+            </p>{/if}
           <textarea
             id={id('tekst')}
             rows="10"
             bind:value={tekst}
-            aria-describedby={id('tekst-hjelp')}
+            aria-describedby={svarbrevet ? id('tekst-hjelp') : undefined}
           ></textarea>
         </div>
 
-        <div class="vei">
-          <p>{NYVERSJON.nySak}</p>
-          {#if nySak}
+        {#if nySak}
+          <p class="vei">
+            {NYVERSJON.nySak}
             <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-            <p><a href={nySak} target="_blank" rel="noopener">{NYVERSJON.nySakLenke}</a></p>
-          {/if}
-        </div>
+            <a href={nySak} target="_blank" rel="noopener">{NYVERSJON.nySakLenke}</a>
+          </p>
+        {/if}
 
         <div class="skjemafot">
           {#if bekreftForkast}
@@ -244,13 +239,7 @@
 
   {#snippet hoeyre()}
     <div class="feste">
-      <Hovedlinjer
-        tittel={NYVERSJON.panel}
-        tom={NYVERSJON.panelTom}
-        {linjer}
-        alternativer={false}
-        handling={sendeknapp}
-      />
+      <Hovedlinjer tittel={NYVERSJON.panel} {linjer} alternativer={false} handling={sendeknapp} />
     </div>
     <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'forhold')} />
   {/snippet}
