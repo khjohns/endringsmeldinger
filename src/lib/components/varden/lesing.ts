@@ -145,19 +145,15 @@ export interface OppgittDato {
 
 /**
  * Datoene partene har oppgitt: når TE mottok pålegget eller ble klar over forholdet
- * (påberopelsen) og når et dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer
- * dem ikke (MM-U12, MM-U50).
+ * (påberopelsen og korrigeringene, `datoopplysninger` i utledningen, MM-U52 punkt 10) og når et
+ * dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer dem ikke (MM-U12, MM-U50).
  */
 export function oppgitteDatoer(u: Utledning): OppgittDato[] {
   const brev = new Map(brevene(u).map((b) => [b.id, b]));
   const ut: OppgittDato[] = [];
-  for (const k of u.spor.forhold.krav) {
-    const b = brev.get(k.dokument);
-    for (const hva of ['paalegg_mottatt', 'klar_over_forholdet'] as const) {
-      const dato = k.innhold[hva];
-      if (typeof dato === 'string' && b)
-        ut.push({ dato, hva, oppgittAv: b.avsender, brev: ref(b), spor: ['forhold'] });
-    }
+  for (const o of u.datoopplysninger) {
+    const b = brev.get(o.dokument);
+    if (b) ut.push({ dato: o.dato, hva: o.felt, oppgittAv: 'TE', brev: ref(b), spor: ['forhold'] });
   }
   for (const { opplysning: o } of u.opplysninger) {
     const b = brev.get(o.dokument);
@@ -177,13 +173,51 @@ export const datoerISporet = (u: Utledning, spor: Spor) =>
     (d) => d.spor.includes(spor) || (spor === 'vederlag' && d.spor.includes('forhold'))
   );
 
-/** Datoen TE oppgir i gjeldende grunnlagskrav for når TE ble klar over forholdet. */
+/** TEs siste opplysning om når TE ble klar over forholdet (MM-U52 punkt 10). */
 export function klarOverForholdet(u: Utledning): OppgittDato | null {
-  const krav = u.spor.forhold.gjeldendeKrav;
-  const b = krav && brevet(u, krav.dokument);
-  return (
-    oppgitteDatoer(u).find((d) => d.hva === 'klar_over_forholdet' && d.brev.id === b?.id) ?? null
-  );
+  return oppgitteDatoer(u).findLast((d) => d.hva === 'klar_over_forholdet') ?? null;
+}
+
+/** TEs opplysning om datoen etter VS-U26, i påberopelsen eller en korrigering (MM-U52 punkt 10). */
+export interface Datoopplysningen {
+  /** Påberopelsen eller korrigeringen med opplysningen, som handlingen `korrigere:<id>` viser til. */
+  id: string;
+  hva: 'paalegg_mottatt' | 'klar_over_forholdet';
+  dato: string;
+  brev: Brevref;
+  korrigering: boolean;
+  /** Opplysningen før denne i samme felt, som en korrigering viser til. */
+  forrige: Datoopplysningen | null;
+  /** TEs siste opplysning i feltet. */
+  siste: boolean;
+  /** Brevet med korrigeringen av denne opplysningen, `null` for den siste. */
+  korrigertI: Brevref | null;
+}
+
+/** TEs opplysninger om datoen i rekkefølgen i journalen, med brevene de står i. */
+export function datoopplysningene(u: Utledning): Datoopplysningen[] {
+  const brev = new Map(brevene(u).map((b) => [b.id, b]));
+  const ut: Datoopplysningen[] = [];
+  for (const o of u.datoopplysninger) {
+    const b = brev.get(o.dokument);
+    if (!b) continue;
+    const forrige = ut.findLast((x) => x.hva === o.felt) ?? null;
+    if (forrige) {
+      forrige.siste = false;
+      forrige.korrigertI = ref(b);
+    }
+    ut.push({
+      id: o.id,
+      hva: o.felt,
+      dato: o.dato,
+      brev: ref(b),
+      korrigering: o.korrigering,
+      forrige,
+      siste: true,
+      korrigertI: null,
+    });
+  }
+  return ut;
 }
 
 /**
@@ -287,6 +321,8 @@ export interface Innlegget {
   gjelderPaalegg: boolean;
   utdypning: string | null;
   oppgitt: { hva: 'paalegg_mottatt' | 'klar_over_forholdet'; dato: string } | null;
+  /** TEs opplysning om datoen i brevet, i påberopelsen eller en korrigering (G-7 i BF-02A). */
+  opplysning: Datoopplysningen | null;
   /** Standpunktene med laget, og brevet med varselet en påberopelse av sen varsling gjelder. */
   standpunkter: { standpunkt: Standpunkt; lag: string | null; brev: Brevref | null }[];
 }
@@ -301,26 +337,38 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
       ?.avsnitt?.find((a) => a.gjelder === gjelder)
       ?.utdypning?.trim() || null;
   const kravbrev = new Map(u.spor.forhold.krav.map((k) => [k.id, brev.get(k.dokument)]));
+  const opplysningene = datoopplysningene(u);
+  const iBrevet = (dokument: string) =>
+    opplysningene.findLast((o) => o.brev.id === dokument) ?? null;
+  const oppgitt = (o: Datoopplysningen | null) => (o ? { hva: o.hva, dato: o.dato } : null);
   const ut = new Map<string, Innlegget>();
   for (const k of u.spor.forhold.krav) {
     const kode = foersteUnderkategori(
       k.innhold.underkategori as string | string[] | null | undefined
     );
-    const hva = (['paalegg_mottatt', 'klar_over_forholdet'] as const).find(
-      (h) => typeof k.innhold[h] === 'string'
-    );
+    const o = iBrevet(k.dokument);
     ut.set(k.dokument, {
       gjelderPaalegg: kode === 'irregulaer_endring',
       utdypning: utdypning(k.dokument, k.id),
-      oppgitt: hva ? { hva, dato: k.innhold[hva] as string } : null,
+      oppgitt: oppgitt(o),
+      opplysning: o,
       standpunkter: [],
     });
   }
+  for (const o of opplysningene.filter((x) => x.korrigering))
+    ut.set(o.brev.id, {
+      gjelderPaalegg: o.hva === 'paalegg_mottatt',
+      utdypning: utdypning(o.brev.id, o.id),
+      oppgitt: oppgitt(o),
+      opplysning: o,
+      standpunkter: [],
+    });
   for (const s of u.spor.forhold.svar) {
     ut.set(s.dokument, {
       gjelderPaalegg: false,
       utdypning: utdypning(s.dokument, s.id),
       oppgitt: null,
+      opplysning: null,
       // Svaret på forholdet har ingen grunner fra et annet svar foran seg (OV-U33).
       standpunkter: standpunktene(s, u).flatMap((l) => {
         if (!('standpunkt' in l)) return [];

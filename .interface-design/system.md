@@ -1,6 +1,7 @@
 # Designsystemet
 
-Beslutningene for visningen, og hvorfor de er tatt. Metoden står i
+Beslutningene for Varden, og hvorfor de er tatt. Fila gjelder bare Varden
+(oppdragsgiver 06.11, #1646). Metoden står i
 [interface-design-skillen](../.claude/skills/interface-design/SKILL.md).
 
 **Verdiene står ikke her** (oppdragsgiver 23.10, #1080). Farger, flater, kanter og skrifter er definert i
@@ -22,7 +23,7 @@ noe et vedtak sier, krever nytt vedtak ([vedtaksskillen](../.claude/skills/vedta
 
 ## Retningen
 
-**Varden er visningen** (oppdragsgiver 28.10, #1338, runde 6): «Ja, jeg tenker Varden er visningen, men det er fortsatt elementer fra dagens visning som kan være aktuelle.»
+**Varden er visningen** (oppdragsgiver 28.10, #1338, runde 6).
 
 **Blekk** (oppdragsgiver 29.10, #1391): «Blekk er kanskje et fint utgangspunkt – tvinger
 oss til å jobbe godt med form og struktur. Jeg er ikke fremmed for mer farge senere.
@@ -47,9 +48,9 @@ Beholde inter som font.» Oslo-logoen er fast.
   20 og 24 px, omtrent forholdet 1,2 fra 14 px. 12 px er etiketter og metadata, 14 px er
   brødtekst og hjelpetekst, og 20 px er overskriftene. Vekt og farge gjør resten av
   hierarkiet (oppdragsgiver 30.10, #198).
-- **Skallet er som i dagens visning** (oppdragsgiver 29.10): panelet til venstre er mørkt blekk
+- **Skallet** (oppdragsgiver 29.10): panelet til venstre er mørkt blekk
   (`--sidebar-bg`) over hele høyden, med byvåpenet og «Oslo kommune / Oslobygg KF» øverst,
-  saken, sporene under «Krav og svar», og nederst prosjektet, kontraktsformen og partene under «Kontrakten». Etiketten
+  saken og sporene, og nederst prosjektet, kontraktsformen og partene under «Kontrakten». Etiketten
   står over verdien, som i «Prosjektet i korte trekk», så lange navn får plass. Et navn som
   mangler, står ikke der (oppdragsgiver 30.10, #1398). Topplinja står over arbeidsflaten, med rollen
   og handlingene som gjelder hele saken. Arbeidet i sporet begynner rett under.
@@ -65,24 +66,17 @@ Verdiene står i `.tema-varden` i `theme.css`, som Varden og showcasen bruker.
 [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) prøver dem, også utkastfargen og
 feltkanten fra #1258.
 
-**Dagens visning beholder Sage & Stone** til den fases ut. Det er Oslobyggs grønne profil
-(`--brand`), som erstattet «Dokumentbordet» fra mars 2026 (oppdragsgiver 23.10, #1080).
-Punktene under gjelder dagens visning.
-
-- **Én fargetone.** Flatene er grågrønne og skifter bare i lyshet: `--canvas` under,
-  `--surface` for innhold, `--surface-warm` for hover og `--surface-inset` for felt og
-  innfelte områder. Valgt med `--surface-selected`.
+- **Flatene skifter bare i lyshet**: `--canvas` under, `--surface` for innhold,
+  `--surface-warm` for hover og tabellhoder, og `--surface-inset` for felt og innfelte
+  områder. Valgt har `--surface-selected`.
 - **Fire nivåer blekk.** `--ink` for verdier og overskrifter, `--ink-2` for etiketter
-  og støttetekst, `--ink-3` for metadata og `--ink-4` for dempet tekst. `--ink-ghost`
-  er bare til pynt og bærer aldri mening. Alle fire nivåene holder 4,5:1 på flatene,
-  så tekst dempes med et nivå og aldri med `opacity`.
+  og støttetekst, `--ink-3` for metadata og `--ink-4` for dempet tekst. Alle fire nivåene
+  holder 4,5:1 på flatene, så tekst dempes med et nivå og aldri med `opacity`.
   [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) feiler under kravet for
   flatene den lister i `FLATER`, ikke for andre flater eller lokale overstyringer.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
-  `--rule-strong`. Skygger (`--overlay-shadow-sm`, `--overlay-shadow-lg`) brukes bare
-  på overlegg: dialog, popover og meny, på `--overlay-1`.
-- **Sidepanelet er alltid mørkegrønt** (`--sidebar-bg`), også i lys modus. Det
-  skiller navigasjonen fra saken uten en ny fargetone.
+  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg, som infotipset og
+  lappen i sakslisten.
 
 ## Typografi
 
@@ -96,30 +90,24 @@ Punktene under gjelder dagens visning.
 
 - **4 px-rutenett** (`--spacing-1` til `--spacing-12`). Tett i sporoversikten og
   skjemaene, mer luft rundt brevteksten.
-- **Skallet:** `--mockup-sidebar-width`, `--mockup-drawer-width` og
-  `--mockup-topbar-height`. I Varden legges støttekolonnen under arbeidet under
-  1180 px, og panelet over arbeidet under 860 px, som i prototypene
-  (oppdragsgiver 01.11, #1461).
-- **Radius betyr noe i Varden** (oppdragsgiver 01.11, #1402). Bare knappene er runde,
+- **Smal skjerm:** støttekolonnen legges under arbeidet under 1180 px, og panelet over
+  arbeidet under 860 px, som i prototypene (oppdragsgiver 01.11, #1461).
+- **Radius betyr noe** (oppdragsgiver 01.11, #1402). Bare knappene er runde,
   som piller (`--r-knapp`), så en handling skiller seg fra alt annet. Kort og brev har
   samme radius, 12 px (`--r-kort`): det gir ro på store flater, og brevet ser ikke
   annerledes ut enn kortene ved siden av. Merker og stempler, som «Registrert»,
   «Inngår i EO-012» og «Sendt …», har 2 px (`--r-merke`), så de leses som merker på et
   dokument og ikke som knapper. Felt, valg og vedlegg har 4 px (`--r-felt`), og bokser
-  inne i et kort 6 px (`--r-innfelt`). Tokenene står i `theme.css`, og klassene tar dem i bruk med #1447. Den gamle
-  visningen beholder skalaen i `app.css` (`--radius-sm`, `--radius-md`, `--radius-lg`).
+  inne i et kort 6 px (`--r-innfelt`). Tokenene står i `theme.css`.
 
 ## Farge som betyr noe
 
-Statusfargene (`--danger`, `--warning`, `--success`, `--info`, med `-bg` for flaten)
-brukes bare der en regel her eller et vedtak sier det. Fargen gjentar det teksten
-sier, og står aldri alene.
-
-Tekst på en hel statusflate, som det valgte segmentet med en tone, har `--on-status` (#1235).
+Varden har ingen statusfarger utenom `--danger` for feil. En ny farge brukes bare der en
+regel her eller et vedtak sier det. Den gjentar det teksten sier, og står aldri alene. Før
+en ny farge prøves form og tekst (oppdragsgiver 06.11, #1646).
 
 - **Utkast og interne ting** har `--draft`, `--draft-bg` og `--draft-border`, med
   stiplet kant. Det som ikke er sendt, skal aldri se sendt ut.
-- **Subsidiært standpunkt** har `--green`, `--green-bg` og `--green-border`.
 - **Fokus** vises med `--control-focus` og `--control-focus-ring`.
 - **En farge sier aldri det appen ikke kan slutte.** Ingen rødt for «for sent» og
   ingen farge for alvorlighet ved en frist. Vedtakene i [vedtaksfila](../docs/plans/vedtak.md)
@@ -138,7 +126,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
 - **Rekkefølgen er primær, sekundær, tertiær**, venstrestilt, også i dialoger og
   på smal skjerm. Den visuelle rekkefølgen er den samme som i DOM-en, så tab-rekkefølgen
   følger den. Handlinger av et annet slag, som «Slett utkastet», står ikke i samme
-  gruppe. Dagens handlingslinjer er høyrestilt (#1184).
+  gruppe.
 - **Knappeteksten sier hva som skjer**, med et verb i imperativ og helst høyst tre
   ord: «Send svar», ikke «OK». «Avbryt» betyr at ingenting lagres eller endres.
 - **Feltene står under hverandre**, med label over feltet og hjelpeteksten under
@@ -236,26 +224,18 @@ punktet. Det juridiske står i vedtakene, ikke her.
 
 ## Mønstre
 
-Et mønster står her når det brukes to ganger eller mer. Verdiene står i komponenten
-eller klassen.
+Et mønster står her når det brukes to ganger eller mer. Verdiene står i komponenten.
 
-Tabellen beskriver dagens visning, `/mockup`-komponentene. Mønstrene for Varden føres
-inn fra komponentene i designrundene (#1391), og står under tabellen.
-
-| Mønster | Hvor | Bruk |
+| Mønster | Komponent | Bruk |
 | --- | --- | --- |
-| Knapp | `.btn`, `.btn-primary`, `.btn-secondary` og `.btn-danger` i `theme.css` | Kontraktsbordet bruker klassene. `primitives/Button.svelte` har én bruker. Hvilken som er kanonisk, avgjøres i #1184 |
-| Stempel | `.stamp` med varianter i `theme.css`, `kontraktsbord/Stamp.svelte` | Betegnelsen for et spor eller et brev. Teksten bærer meningen |
-| Utsagnskort | `patterns/StatementCard.svelte` | Ett utsagn fra en part, med part, dato og brev |
-| Standpunktoverskrift | `patterns/StandpointHeading.svelte` | Overskriften over et standpunkt |
-| Subsidiærmerke | `patterns/SubsidiaryBadge.svelte` | Merker et subsidiært standpunkt |
-| Venter på svar | `patterns/PendingResponseCard.svelte` | Et krav som venter på den andre partens svar |
-| Internt utkast | `patterns/InternalDraftCard.svelte` | Teamets utkast, skjermet per team |
-| Begrunnelse | `patterns/ExpandableReasoning.svelte` | Lang begrunnelse som kan foldes ut |
-| Segmentvalg | `primitives/SegmentedControl.svelte` | Valg mellom få gjensidig utelukkende verdier |
-| Seksjonsoverskrift | `primitives/SectionHeading.svelte` | Overskrift for en seksjon i lesevisningen |
-| Handlingslinje | `kontraktsbord/ActionBar.svelte` | Handlingene for parten nå ([MM-U25](#mm-u25)) |
-| Rik tekst | `primitives/RichTextEditor.svelte` | Begrunnelser og brevtekst |
+| Knapp | `varden/Knapp.svelte` | Primærhandlingen, sekundære handlinger og lenkeknapper |
+| Utkastkort | `varden/Utkastkort.svelte` | Hodet på et brev som ikke er sendt, i hvert skjema |
+| Brevkontroll | `varden/Brevkontroll.svelte` | Brevet ordrett før sending, med det parten sender og virkningen |
+| Brevtråd | `varden/Brevtraad.svelte` | Brevene om forholdet, med partene og det løsningen sier under brevet |
+| Handlingene | `varden/Brevtyper.svelte` | Radene i «Det du kan gjøre nå» |
+| Tidslinje | `varden/Tidslinje.svelte` | Datoene i sporet, også dem parten fyller ut før sending |
+| Melding | `varden/Melding.svelte` | Feil fra serveren, kvitteringen og det løsningen sier om saken |
+| Infotips | `varden/Infotips.svelte` | Hvordan løsningen virker, når det trengs ved en tekst |
 
 ### Handlingene i Varden
 
@@ -295,18 +275,27 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   lengre brev ruller i den. Kolonnene er da like brede, og panelet til venstre er felt inn.
   På smal skjerm står brevet i skjemaet.
 - **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne. Alle handlingene står synlige,
-  uten panel (oppdragsgiver 06.11, #1631). Det har én primærhandling med en linje om hva den gjør:
-  etter byggherrens svar den nye versjonen («Oppdater påberopelse» i forholdet, «Revider krav»
-  ellers), eller «Svar på kravet» for byggherren. Til den nye versjonen er bygget i Varden, åpner
-  den dagens visning; uten dagens visning er «Godta svaret» primærhandlingen.
-  «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  uten panel (oppdragsgiver 06.11, #1631). Det har høyst én primærhandling, med en linje om hva
+  den gjør. Primærhandlingen er svaret på motpartens siste brev når det ikke er besvart. Etter
+  byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Revider krav»
+  ellers). Ellers har kortet ingen primærhandling, også når TE har korrigert datoen (oppdragsgiver
+  06.11, #1649). Regelen er vedtatt; BHs svar i forholdet er ikke bygget som primærhandling ennå,
+  og uten lenke til den gamle visningen er «Godta svaret» primær til «Oppdater påberopelse» er
+  bygget (#1649). «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
   `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
   ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to
-  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. En brevtype som ikke er bygget, åpner saken
-  i dagens visning. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da ikke kan
-  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for
-  BF-02A (#1615), og tilbys ikke før den er bygget.
+  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da ikke kan
+  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
+  BF-02A (#1615). En brevtype som ikke er bygget i Varden, har samme form og pil som de andre
+  (oppdragsgiver 06.11, #1646).
+- **Brevene om forholdet** står i en tråd. Partene skilles med form, ikke med farge: BH har
+  fylt ring og TE åpen ring. Beskrivelsen og begrunnelsen kan være flere sider, så tråden viser
+  de første tre linjene, og hele teksten står i brevet bak «Les brevet». Raden for et svar som ikke er registrert, har stiplet ring, fordi
+  den ikke er et brev. Det løsningen sier om saken under et brev, som at svaret står
+  som det ble sendt, har formen for en melding om
+  prøven (`Melding`), ikke formen for metadata. Form og tekst prøves før en ny farge
+  (oppdragsgiver 06.11, #1646).
 - **Panelet til venstre** har sakens kode over tittelen, og sporene i to grupper:
   «Kontraktsforhold» med forholdet og «Krav» med vederlagsjusteringen og fristforlengelsen.
   Navnene står uten linje under; betegnelsen og siste brev står på siden for sporet

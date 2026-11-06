@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
-  import { BREVTYPER, ukjentHandling } from './tekster';
+  import { BREVTYPER, HANDLINGENE, ukjentHandling } from './tekster';
 
   let {
     tittel = null,
@@ -51,12 +51,14 @@
       })
   );
   const uid = $props.id();
+  // Raden ser ut som de andre handlingene, og et klikk sier at den ikke er bygget (#1636).
+  let ikkeBygget = $state<string | null>(null);
 </script>
 
-{#snippet innhold(r: (typeof rader)[number], pil: boolean)}
+{#snippet innhold(r: (typeof rader)[number])}
   <span class="h">{r.tekst}</span>
   {#if r.virkning}<span class="b">{r.virkning}</span>{/if}
-  {#if pil}<ChevronRight size={16} aria-hidden="true" />{/if}
+  <ChevronRight size={16} aria-hidden="true" />
 {/snippet}
 
 {#if rader.length}
@@ -67,13 +69,19 @@
         <li data-handling={r.noekkel}>
           {#if r.bygget}
             <button type="button" class="rad" onclick={() => onvelg(r.noekkel)}
-              >{@render innhold(r, true)}</button
+              >{@render innhold(r)}</button
             >
           {:else if dagensVisning}
             <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-            <a class="rad" href={dagensVisning}>{@render innhold(r, true)}</a>
+            <a class="rad" href={dagensVisning}>{@render innhold(r)}</a>
           {:else}
-            <span class="rad ikke-bygget">{@render innhold(r, false)}</span>
+            <button type="button" class="rad" onclick={() => (ikkeBygget = r.noekkel)}
+              >{@render innhold(r)}</button
+            >
+            <!-- Den levende regionen står fra start, så teksten leses opp når den kommer. -->
+            <p class="ikke-bygget" class:vist={ikkeBygget === r.noekkel} role="status">
+              {ikkeBygget === r.noekkel ? HANDLINGENE.ikkeBygget : ''}
+            </p>
           {/if}
         </li>
       {/each}
@@ -145,7 +153,11 @@
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
-  .ikke-bygget .h {
+  .ikke-bygget.vist {
+    padding-bottom: var(--spacing-3);
+  }
+  .ikke-bygget {
     color: var(--ink-2);
+    font-size: 14px;
   }
 </style>

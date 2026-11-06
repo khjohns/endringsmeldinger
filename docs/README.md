@@ -217,7 +217,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | [endringsordre](endringsordre.md) | EO-flyten i grensesnittet |
 | [Kontraktsbordet](frontend-kontraktsbord.md) | Hovedgrensesnittet |
 | [språket i løsningen](sprak.md) | Klarspråk i visningen, vedtakene og brevene, og betegnelsen for løsningen |
-| [designsystemet](../.interface-design/system.md) | Beslutningene for visningen: dagens tokens og mønstre. Verdiene står i `theme.css`. Vedtakene står i vedtaksfila |
+| [designsystemet](../.interface-design/system.md) | Beslutningene for Varden: tokens og mønstre. Verdiene står i `theme.css`. Vedtakene står i vedtaksfila |
 | [beslutningslogg](adr/README.md) | ADR-er og juridiske drøftelser: [varsling uavhengig av kontraktsforhold](adr/001-varsling-og-kontraktsforhold.md) og [varselet etter § 34.1.2 og det særskilte kravet](adr/002-saerskilt-krav-og-varsel-etter-34-1-2.md) |
 | [tredjepart-api/](tredjepart-api/) | Catendas OpenAPI-spesifikasjoner, uendret kopi |
 

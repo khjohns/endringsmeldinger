@@ -348,7 +348,7 @@
           "beskrivelse": "BH har påberopt at varselet kom for sent. TE har oppgitt at pålegget ble mottatt 15.09.2026.",
           "versjon": 3,
           "forstaaelse": [
-            "TE finner datoen TE oppga i grunnlagskravet, og ser at den korrigeres i et eget brev som ikke er en ny kravversjon og ikke avslår svaret.",
+            "TE finner datoen TE oppga i påberopelsen, og ser at den korrigeres i et eget brev, og at påberopelsen og svaret står som de ble sendt.",
             "TE ser før sending teksten brevet får, med den nye datoen og datoen TE oppga i brevet det viser til.",
             "TE ser at korrigeringen også kan sendes når saken er lukket, og at BH da kan ta stilling til den i et innlegg."
           ],
@@ -362,10 +362,10 @@
           "beskrivelse": "TE har korrigert datoen til 20.09.2026 i et eget brev.",
           "versjon": 4,
           "forstaaelse": [
-            "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere, og at svaret og påberopelsen gjaldt opplysningen 15.09.2026.",
-            "BH ser korrigeringen som et nytt brev med henvisning til grunnlagskravet. Svaret står med virkningen det hadde, påberopelsen står med tidspunktet, og sporet venter ikke på et nytt svar.",
+            "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere.",
+            "BH ser korrigeringen som et nytt brev med henvisning til påberopelsen. BH ser at svaret står som det ble sendt, og at BH kan ta stilling til den nye datoen i et senere svar.",
             "Ingen av partene leser av visningen at varselet nå kom i tide. Løsningen avgjør ikke hvilken dato som er riktig, eller om varselet var rettidig.",
-            "TE ser at en senere ny versjon av grunnlagskravet gjengir den nye datoen med henvisning til brevet med korrigeringen."
+            "TE ser at en senere ny versjon av påberopelsen gjengir den nye datoen med henvisning til brevet med korrigeringen."
           ],
           "neste": null
         }
@@ -538,7 +538,7 @@
           "beskrivelse": "TE begynner på en ny versjon av grunnlagskravet for å rette datoen.",
           "versjon": 3,
           "forstaaelse": [
-            "TE ser forskjellen før valget: en ny versjon er en ny kravversjon, og svaret kan da ikke godtas i løsningen, mens korrigeringen lar svaret stå.",
+            "TE ser forskjellen før valget: etter en ny versjon av påberopelsen kan svaret ikke godtas i løsningen, mens påberopelsen og svaret står som de ble sendt etter korrigeringen.",
             "TE ser i skjemaet for den nye versjonen at datoen står låst som TEs siste opplysning, og at datoen korrigeres i et eget brev.",
             "TE kommer fra skjemaet til korrigeringen uten å miste det TE har skrevet."
           ],

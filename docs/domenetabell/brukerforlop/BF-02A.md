@@ -29,9 +29,8 @@ TE vil:
 
 BH vil:
 
-- **M-4** se at TE har oppgitt en ny dato, hvilken dato TE oppga før, og hvilken opplysning
-  svaret og påberopelsen gjaldt;
-- **M-5** vite at saken ikke venter på et nytt svar fra BH.
+- **M-4** se at TE har oppgitt en ny dato, og hvilken dato TE oppga før;
+- **M-5** vite at svaret BH har gitt, står.
 
 ## Utgangspunktet
 
@@ -76,16 +75,17 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - <a id="u-1"></a>**U-1** TE finner handlingen ved datoen i grunnlagskravet, ikke bare i
   handlingsmenyen. Etter en korrigering står handlingen ved den siste opplysningen.
 - <a id="u-2"></a>**U-2** Skjemaet sier hvilken opplysning som korrigeres, med brevet og
-  datoen, og at brevet ikke er en ny kravversjon og ikke avslår svaret.
+  datoen, og at påberopelsen og svaret står som de ble sendt.
 - <a id="u-3"></a>**U-3** TE ser brevteksten ordrett før sending, også henvisningen til
   brevet med opplysningen. En dato som er uendret eller etter dagens dato, stoppes i skjemaet
   med en melding som sier hva som hindrer.
 - <a id="u-4"></a>**U-4** Etter sending ser TE at datoen nå er TEs siste opplysning, og at
   svaret og påberopelsen står.
-- <a id="u-5"></a>**U-5** Begge ser den siste og de tidligere opplysningene, og hvilken
-  opplysning svaret gjaldt. Ingenting i visningen sier at varselet nå kom i tide.
-- <a id="u-6"></a>**U-6** BH ser at korrigeringen ikke venter på et svar fra BH. BH kan ta
-  stilling til den i et senere svar, i et nytt svar eller, i en lukket sak, i et innlegg.
+- <a id="u-5"></a>**U-5** Begge ser den siste og de tidligere opplysningene. Visningen sier
+  ikke hvilken opplysning svaret gjaldt, fordi løsningen ikke tolker svaret. Ingenting i
+  visningen sier at varselet nå kom i tide.
+- <a id="u-6"></a>**U-6** BH ser at svaret står som det ble sendt. BH kan ta stilling til den
+  nye datoen i et senere svar, i et nytt svar eller, i en lukket sak, i et innlegg.
 - <a id="u-7"></a>**U-7** I skjemaet for en ny grunnlagsversjon står datoen låst, med
   teksten den nye versjonen får, og en vei til korrigeringen som ikke kaster det TE har
   skrevet.
@@ -121,10 +121,10 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - **G-1** Kjernen har kommandoen, utledningen av den siste og de tidligere opplysningene
   (`datoopplysninger`, `datoopplysning` per svar), datosperren og teksten etter LV-U54.
   Kontrollene i de tre forløpene kjøres i minnet.
-- **G-2** Ingen komponent i `src/lib` viser eller sender en korrigering. Varden viser
-  handlingen `korrigere:*` som en ukjent handling og har ikke noe skjema for en ny
-  grunnlagsversjon. Derfor er skjemaet skissert i prototypen. Demoruta viser saken ved
-  kontrollpunktene, ikke skjemaet.
+- **G-2** Varden viser «Korriger datoen» ved datoen i brevtråden for forholdet, og skjemaet
+  (`Korrigering.svelte`) sender kommandoen gjennom brevkontrollen (#1615). Skjemaet for en ny
+  grunnlagsversjon, med det låste datofeltet (U-7), er ikke bygget i Varden. Det er «Oppdater
+  påberopelse» i BF-10. Skissen viser det.
 - **G-3** Skjemaet for en ny grunnlagsversjon i dagens visning kopierer datoen fra det
   gjeldende kravet (`src/lib/kjernesak/paaberopelse.ts`). Etter en korrigering er det ikke
   TEs siste opplysning, så kjernen avviser versjonen med `DATOEN_KAN_IKKE_ENDRES`. Feilen er
@@ -136,11 +136,9 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - **G-8** Kommandoen `korrigering` har forklaringen i `utdypning` (S-1, #1624).
 - **G-6** Brevet med korrigeringen har tittelen etter S-2 i `UTSAGNSTITTEL` i
   `kjerne/frosset/brevtittel.ts` (#1624).
-- **G-7** Varden viser datoen TE oppga i hvert grunnlagskrav (`innleggene` i
-  `src/lib/components/varden/lesing.ts`), men leser den fra kravet og ikke fra
-  `datoopplysninger`. Etter en korrigering viser brevtråden, tidslinja og vederlagssvaret
-  derfor den første datoen. Utledningen har den siste og de tidligere opplysningene, så
-  visningen må bare lese dem.
+- **G-7** Varden leser datoene i brevtråden, tidslinja og vederlagssvaret fra
+  `datoopplysninger` i utledningen (`datoopplysningene` og `oppgitteDatoer` i
+  `src/lib/components/varden/lesing.ts`, #1615).
 - **G-5** `demoruta.mjs` er skrevet for BF-01 og BF-04. Forløpene her kjøres med
   kontrollpunktene som `?punkt=`.
 
@@ -162,3 +160,6 @@ Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svar
 | --- | --- | --- |
 | 05.11.2026 | #1308, MM-U52, svarene «1 A, 2 A» | Første versjon |
 | 06.11.2026 | #1624, #1615, svaret på S-4b i BF-10 | G-6 og G-8 er bygget. G-7 er presisert. Skissen er versjon 3: en ny versjon avslår ikke svaret, men svaret kan da ikke godtas i løsningen. Korrigeringen går gjennom brevkontrollen, med samme utkastkort som de andre skjemaene (svaret på S-4b i BF-10). Skissen viser fortsatt brevet ved siden av skjemaet |
+| 06.11.2026 | #1615 | G-2 og G-7 er bygget i Varden. U-7 venter på skjemaet for «Oppdater påberopelse» (BF-10) |
+| 06.11.2026 | oppdragsgiver 06.11, i #1646 | M-4 og U-5: visningen sier ikke hvilken opplysning svaret gjaldt. Linja «Svaret gjaldt …» så ut som om løsningen tolket svaret |
+| 06.11.2026 | oppdragsgiver 06.11, tekstene i #1646 | U-2, U-6 og M-5 sier at påberopelsen og svaret står som de ble sendt, ikke at brevet ikke er en ny kravversjon eller at saken ikke venter på BH. Forståelsen i BF-02A og BF-02C er rettet likt |

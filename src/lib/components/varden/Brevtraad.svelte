@@ -8,6 +8,7 @@
 <script lang="ts">
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
+  import Melding from './Melding.svelte';
   import type { Brevet, Innlegget } from './lesing';
   import { FORHOLDET } from './tekster';
 
@@ -16,7 +17,10 @@
     innlegg = new Map(),
     dokumentasjon,
     venterPaaSvar,
+    korrigerbare = [],
+    lukket = false,
     onles,
+    onkorriger,
   }: {
     brev: Brevet[];
     /** Innholdet i brevene med krav eller svar om forholdet (`innleggene`). */
@@ -25,17 +29,23 @@
     dokumentasjon: string[];
     /** Sporets betegnelse er «Svar ikke registrert» (MM-U30). */
     venterPaaSvar: boolean;
+    /** Opplysningene om datoen kjernen tilbyr å korrigere (`korrigere:<id>`, MM-U52 punkt 10). */
+    korrigerbare?: string[];
+    /** Saken er lukket etter GR-U27, så korrigeringen endrer ikke utfallet (MM-U51). */
+    lukket?: boolean;
     onles: (id: string) => void;
+    onkorriger?: (opplysning: string) => void;
   } = $props();
   const uid = $props.id();
 </script>
 
 <ol class="traad" aria-label={FORHOLDET.traad}>
-  {#each brev as b (b.id)}
+  {#each brev as b, n (b.id)}
     {@const registrert = b.art === 'registrert'}
     {@const i = innlegg.get(b.id)}
     <li class="innlegg">
-      <span class="part" aria-hidden="true">{b.avsender}</span>
+      <!-- Partene skilles med form: BH har fylt ring, TE åpen (oppdragsgiver 06.11, #1646). -->
+      <span class="part" class:bh={b.avsender === 'BH'} aria-hidden="true">{b.avsender}</span>
       <div class="hode">
         <div class="tittellinje">
           <h3 id={`${uid}-${b.id}`}>
@@ -46,6 +56,9 @@
           {/if}
           {#if registrert}
             <Infotips navn={FORHOLDET.omKorrespondansen} tekst={FORHOLDET.omKorrespondansenTekst} />
+          {/if}
+          {#if i?.opplysning?.korrigering}
+            <Infotips navn={FORHOLDET.omKorrigeringen} tekst={FORHOLDET.avgjoerIkke} />
           {/if}
         </div>
         {#if b.avsnitt}
@@ -91,16 +104,48 @@
                 <p class="sitat-hvem">
                   {b.art === 'svar'
                     ? FORHOLDET.begrunnelsen
-                    : FORHOLDET.beskrivelse(i.gjelderPaalegg)}
+                    : i.opplysning?.korrigering
+                      ? FORHOLDET.forklaringen
+                      : FORHOLDET.beskrivelse(i.gjelderPaalegg)}
                 </p>
-                <p>«{i.utdypning}»</p>
+                <!-- Teksten kan være flere sider, så tråden viser de første tre linjene; hele står i brevet
+                     (oppdragsgiver 06.11, #1646). -->
+                <p class="utdrag">«{i.utdypning}»</p>
               {/if}
               {#if i.oppgitt}
-                <p class="sitat-dato">
-                  {FORHOLDET.oppgitt(i.oppgitt.hva, i.oppgitt.dato, b.avsender)}
-                </p>
+                {@const o = i.opplysning}
+                <!-- Handlingen står ved datoen, og etter en korrigering ved den siste (U-1). -->
+                <div class="datolinje">
+                  <p class="sitat-dato">
+                    {FORHOLDET.oppgitt(i.oppgitt.hva, i.oppgitt.dato, b.avsender)}
+                    {#if o?.forrige}{FORHOLDET.korrigerer(o.forrige)}{/if}
+                    {#if o?.korrigertI}{FORHOLDET.korrigertI(o.korrigertI)}{/if}
+                  </p>
+                  {#if o && onkorriger && korrigerbare.includes(o.id)}
+                    <Knapp
+                      variant="lenke"
+                      aria-label={FORHOLDET.korrigerNavn(o.hva)}
+                      onclick={() => onkorriger(o.id)}>{FORHOLDET.korriger}</Knapp
+                    >
+                  {/if}
+                </div>
               {/if}
             </div>
+          {/if}
+          {#if i.opplysning && !i.opplysning.korrigering && lukket && onkorriger && korrigerbare.includes(i.opplysning.id)}
+            <!-- Under brevet, ikke i det parten skrev (oppdragsgiver 06.11, #1646). -->
+            <div class="virkning">
+              <Melding art="info" levende={false}>{FORHOLDET.korrigerILukket}</Melding>
+            </div>
+          {/if}
+          {#if i.opplysning?.korrigering}
+            {@const staar = FORHOLDET.korrigeringenStaar(
+              lukket,
+              brev.slice(0, n).findLast((x) => x.art === 'svar') ?? null
+            )}
+            {#if staar}<div class="virkning">
+                <Melding art="info" levende={false}>{staar}</Melding>
+              </div>{/if}
           {/if}
         </div>
       {/if}
@@ -237,6 +282,28 @@
   }
   .sitat-dato {
     color: var(--ink-2);
+  }
+  .datolinje {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--spacing-3);
+  }
+  /* Tråden viser de første tre linjene; hele teksten står i brevet (oppdragsgiver 06.11, #1646). */
+  .utdrag {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  /* Det løsningen sier om saken, i formen for meldinger, ikke som metadata (oppdragsgiver 06.11, #1646). */
+  .virkning {
+    margin-top: var(--spacing-1);
+  }
+  .part.bh {
+    background: var(--ink);
+    color: var(--surface);
   }
   .tom p {
     font-size: 14px;
