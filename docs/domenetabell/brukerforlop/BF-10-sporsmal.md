@@ -231,7 +231,7 @@ Stilt oppdragsgiver i økta 06.11, som en nummerert liste i tekst.
 Bakgrunn: Svaret på S-8 sier at språket skal være klart, at henvisningen til svaret står i
 friteksten etter partenes ønske, eller ikke i det hele tatt, og at brevet etter en korrigering
 viser til brevet med den opprinnelige datoen. Hele brevet for hvert tilfelle står i
-[BF-10-brevtekst.md](BF-10-brevtekst.md#forslaget-etter-svaret-på-s-8).
+[BF-10-brevtekst.md](BF-10-brevtekst.md#brevteksten-etter-svarene).
 
 - **A:** «Den låste delen av brevet med en ny versjon av påberopelsen sier bare hva
   påberopelsen gjelder, og datoen. Endring, unntatt endringsordre: ‹Påberopelsen gjelder
@@ -253,7 +253,7 @@ viser til brevet med den opprinnelige datoen. Hele brevet for hvert tilfelle st�
 Anbefalt: A. Brevet er fra totalentreprenøren, så setningen om datoen er totalentreprenørens
 opplysning uten «Totalentreprenøren opplyser at».
 
-Svar:
+Svar 06.11, ordrett, for S-8b og S-8c: «8b A, 8c A - men jeg må igjen lese oppdatert BF-10-brevtekst.md for å bekrefte». Brevteksten venter på bekreftelsen.
 
 **S-8c. Setningen om datoen i det første brevet**
 
@@ -267,4 +267,4 @@ Bakgrunn: Det første brevet sier i dag ‹Totalentreprenøren opplyser at påle
 
 Anbefalt: A. Samme opplysning står likt i begge brevene.
 
-Svar:
+Svar 06.11, ordrett, for S-8b og S-8c: «8b A, 8c A - men jeg må igjen lese oppdatert BF-10-brevtekst.md for å bekrefte». Brevteksten venter på bekreftelsen.
