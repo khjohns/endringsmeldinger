@@ -198,7 +198,7 @@ gir byggherren en ny svarplikt.
 Anbefalt: A. Totalentreprenøren har én vei, og «Oppdater påberopelse» (06.11) står. Vil
 totalentreprenøren godta svaret, er «Godta svaret» en egen handling.
 
-Svar:
+Svar 06.11: «7 A».
 
 **S-8. Brevteksten i en ny versjon av påberopelsen, samlet**
 
@@ -218,4 +218,53 @@ Påminnelsen om å si standpunktet til svaret står som hjelpetekst ved feltet, 
 
 Anbefalt: A, samme tittel, og påminnelsen som hjelpetekst.
 
-Svar:
+Svar 06.11, ordrett: «Punkt 8: Språk må være tydelig, men også forståelig. Klar språk. F.eks. i forslaget "Totalentreprenøren viser til påberopelsen i brev K201-KOE-017-01 av 1. oktober 2026. Påberopelsen gjelder irregulær endring (NS 8407 punkt 32.1) for «Flytting av ventilasjonskanaler etter pålegg på byggemøte» i sak KOE-17. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026". Er det bedre med siste setning "Pålegget ble mottatt 15. september 2026"? Etter avslag: Mest naturlig å vise enten kun til siste svar fra BH - eller rett og slett ingenting. Opp til partene hvordan de ønsker å formulere seg mest naturlig. Brevene legges uansett i saken, så oversikten ligger der. Etter et svar om for sent varsel: Jeg heller også mot fritekst. Da slipper løsningen å tolke om det ble gitt avslag, eller BH mente frist ble fremsatt for sent, eller begge. Etter en korrigering av datoen: Her er det vel best å vise kun til brevet der opprinnelig dato, og evt. opprinnelig, og første korrigerte (hvis dette er korrigering nr. 2),. Øvrige forhold: Du kan vurdere baserrt på prinsippene og mønstrene jeg har vist til ovenfor.»
+
+Forslaget etter svaret er S-8b.
+
+## Oppfølgingen etter S-8
+
+Stilt oppdragsgiver i økta 06.11, som en nummerert liste i tekst.
+
+**S-8b. Brevteksten i en ny versjon av påberopelsen, etter svaret på S-8**
+
+Bakgrunn: Svaret på S-8 sier at språket skal være klart, at henvisningen til svaret står i
+friteksten etter partenes ønske, eller ikke i det hele tatt, og at brevet etter en korrigering
+viser til brevet med den opprinnelige datoen. Hele brevet for hvert tilfelle står i
+[BF-10-brevtekst.md](BF-10-brevtekst.md#brevteksten-etter-svarene).
+
+- **A:** «Den låste delen av brevet med en ny versjon av påberopelsen sier bare hva
+  påberopelsen gjelder, og datoen. Endring, unntatt endringsordre: ‹Påberopelsen gjelder
+  <forholdet> (NS 8407 punkt <hjemmel>) for «<tittel>» i sak <kode>. Pålegget ble mottatt
+  <dato>.› Svikt og andre forhold: ‹Påberopelsen gjelder <forholdet> (NS 8407 punkt <hjemmel>,
+  jf. punkt 33.1 <b/c> og 34.1.2) for «<tittel>» i sak <kode>. Totalentreprenøren ble klar over
+  forholdet <dato>.› Endringsordre: ‹Påberopelsen gjelder endringsordre «<dato eller nummer>»
+  fra byggherren (NS 8407 punkt 31.3) for «<tittel>» i sak <kode>.› Har totalentreprenøren
+  korrigert datoen, legger brevet til: ‹Totalentreprenøren oppga tidligere <dato> i brev
+  <merking> av <dato>.›, med hver tidligere dato og brevet den ble oppgitt i, den opprinnelige
+  først. Brevet viser ikke til tidligere brev ellers, sier ikke at noe erstattes, og gjentar
+  ikke varselet etter punkt 32.2. Henvisningen til byggherrens siste svar står under Deres ref.
+  (LV-U50). Tittelen er den samme som i det første brevet. Friteksten står under. Endret tekst
+  gjelder bare nye brev (MM-U9).» Forhold: endrer KA-U52 punkt 4, LV-U41 og LV-U52 for
+  forholdet, og LV-U54 (samlet i MM-U52 punkt 10).
+- **B:** Som A, men datoen står som i dag: ‹Totalentreprenøren opplyser at pålegget ble mottatt
+  <dato>.›
+
+Anbefalt: A. Brevet er fra totalentreprenøren, så setningen om datoen er totalentreprenørens
+opplysning uten «Totalentreprenøren opplyser at».
+
+Svar 06.11, ordrett, for S-8b og S-8c: «8b A, 8c A - men jeg må igjen lese oppdatert BF-10-brevtekst.md for å bekrefte». Brevteksten venter på bekreftelsen.
+
+**S-8c. Setningen om datoen i det første brevet**
+
+Bakgrunn: Det første brevet sier i dag ‹Totalentreprenøren opplyser at pålegget ble mottatt
+<dato>.› (VS-U26). Med S-8b A får den nye versjonen ‹Pålegget ble mottatt <dato>.›
+
+- **A:** Det første brevet får samme setning som den nye versjonen: ‹Pålegget ble mottatt
+  <dato>.› og ‹Totalentreprenøren ble klar over forholdet <dato>.› Resten av det første brevet
+  står. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer VS-U26 (samlet i VS-U43).
+- **B:** Det første brevet står som i dag.
+
+Anbefalt: A. Samme opplysning står likt i begge brevene.
+
+Svar 06.11, ordrett, for S-8b og S-8c: «8b A, 8c A - men jeg må igjen lese oppdatert BF-10-brevtekst.md for å bekrefte». Brevteksten venter på bekreftelsen.
