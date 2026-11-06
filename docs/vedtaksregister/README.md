@@ -13,6 +13,8 @@ og vakttestene står i
 ```bash
 python3 docs/verktoy/vedtaksregister.py           # kontroller registeret og skriv vedtaksfila
 python3 docs/verktoy/vedtaksregister.py --sjekk   # bare kontroller
+python3 docs/verktoy/vedtaksregister.py --vis KA-U1 MM-U34   # radene ordrett, slik vedtaksfila har dem
+python3 docs/verktoy/vedtaksregister.py --kjede KA-U1        # forholdene, fram til vedtakene som gjelder nå
 python3 docs/verktoy/vedtakshenvisninger.py       # vedtaks-ID-ene i koden, domenetabellen og dokumentene (#452)
 python3 docs/verktoy/byggestatus.py               # byggestatusen, laget av koden og issuene (#1021)
 ```
