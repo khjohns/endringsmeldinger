@@ -21,7 +21,13 @@
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import { aksepten } from './kommandoer';
-  import { betegnelsene, brevene, handlingerISporet, datoerISporet } from './lesing';
+  import {
+    betegnelsene,
+    brevene,
+    handlingerISporet,
+    datoerISporet,
+    hovedkategorien,
+  } from './lesing';
   import {
     BREVTYPER,
     HANDLINGENE,
@@ -154,7 +160,7 @@
       const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
       if (kanGodta)
         return spor === 'forhold'
-          ? HANDLINGENE.virkning.oppdaterPaaberopelse
+          ? HANDLINGENE.virkning.oppdaterPaaberopelse(hovedkategorien(u))
           : HANDLINGENE.virkning.reviderKrav;
       return HANDLINGENE.virkning.nyVersjon(spor, krav, svarbrevet ?? null);
     }

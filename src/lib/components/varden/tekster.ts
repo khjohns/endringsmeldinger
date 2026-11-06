@@ -323,10 +323,16 @@ export const HANDLINGENE = {
     /**
      * Etter svaret: hjemmelen, kategorien og datoen står (punkt 10 og 14 i samlevedtaket for
      * retting av sendt brev, MM-U52), så den nye versjonen utdyper begrunnelsen (oppdragsgiver
-     * 06.11, #1631).
+     * 06.11, #1631). Hva TE gjør gjeldende, følger hovedkategorien i § 33.1 og § 33.3.
      */
-    oppdaterPaaberopelse:
-      'Redegjør nærmere for hvorfor dette er et forhold byggherren bærer risikoen for.',
+    oppdaterPaaberopelse: (hovedkategori: string | null) =>
+      hovedkategori === 'endring'
+        ? 'Redegjør nærmere for hvorfor dette er en endring.'
+        : hovedkategori === 'force_majeure'
+          ? 'Redegjør nærmere for hvorfor dette er force majeure.'
+          : hovedkategori === 'svikt' || hovedkategori === 'andre_forhold'
+            ? 'Redegjør nærmere for hvorfor dette er et forhold byggherren bærer risikoen for.'
+            : 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.',
     reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
     /**
      * En ny kravversjon erstatter den tidligere, og sporet venter på nytt svar. Svaret på den

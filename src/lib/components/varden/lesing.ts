@@ -234,6 +234,12 @@ export const brevForLinja = (brev: Brevet[], spor: Spor, trukket: boolean): Brev
       )
     : undefined) ?? brev.filter((b) => b.spor.includes(spor)).at(-1);
 
+/** Hovedkategorien (§ 33.1 a–c, § 33.3) i gjeldende krav i forholdet, eller `null` uten krav. */
+export function hovedkategorien(u: Utledning): string | null {
+  const k = u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori;
+  return typeof k === 'string' ? k : null;
+}
+
 /**
  * Forholdet TE påberoper i gjeldende krav, med gruppen fra kjernens liste (OV-U77, OV-U78).
  * Uten krav, eller med en kode lista ikke har, er begge `null`.
