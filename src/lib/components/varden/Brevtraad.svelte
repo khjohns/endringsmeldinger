@@ -125,7 +125,7 @@
                     >
                   {/if}
                 </div>
-                {#if o && onkorriger && korrigerbare.includes(o.id) && lukket}
+                {#if o && !o.korrigering && onkorriger && korrigerbare.includes(o.id) && lukket}
                   <p class="sitat-dato">{FORHOLDET.korrigerILukket}</p>
                 {/if}
               {/if}

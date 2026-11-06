@@ -273,5 +273,9 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     await vi.waitFor(() =>
       expect(kvitteringen()).toMatch(/Saken står lukket, og utfallet er det samme\./)
     );
+    // Teksten om den lukkede saken står én gang ved korrigeringen.
+    expect(
+      (await innlegget(/^Brev 4 ·/)).getAllByText(/^Saken står lukket, og korrigeringen/)
+    ).toHaveLength(1);
   });
 });
