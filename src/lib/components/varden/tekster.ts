@@ -292,6 +292,8 @@ export const BREVTYPER: { type: string; tekst: string }[] = [
   { type: 'varsle', tekst: 'Registrer et varsel som er sendt på annen måte' },
   { type: 'innsigelse', tekst: 'Gjør gjeldende at brevet kom for sent' },
   { type: 'trekke', tekst: 'Trekk kravet' },
+  // Står ved datoen, ikke i «Andre handlinger» (skissen i BF-02A, #1615).
+  { type: 'korrigere', tekst: 'Korriger datoen' },
 ];
 export const ukjentHandling = (noekkel: string) => `Handlingen ${noekkel}`;
 
@@ -322,7 +324,17 @@ export const HANDLINGENE = {
   trekke: (spor: Spor) => (spor === 'forhold' ? 'trekke påberopelsen' : 'trekke kravet'),
   /** Linja under handlingen i «Andre handlinger»: hva den gjør med saken. */
   virkning: {
-    nyVersjon: 'Erstatter versjonen som gjelder nå. Byggherren svarer på nytt.',
+    /**
+     * En ny kravversjon venter på byggherrens svar (punkt 6 i samlevedtaket for retting av sendt
+     * brev, MM-U52), og den avslår svaret, som korrigeringen etter punkt 10 ikke gjør.
+     */
+    nyVersjon: (spor: Spor, krav: Brevref | null, svar: Brevref | null) => {
+      const hva = spor === 'forhold' ? 'påberopelsen' : 'kravet';
+      if (!krav) return 'Byggherren svarer på den nye versjonen.';
+      if (!svar)
+        return `Erstatter ${hva} i ${brevref(krav)}. Byggherren svarer på den nye versjonen.`;
+      return `Erstatter ${hva} i ${brevref(krav)} og avslår svaret i ${brevref(svar)}. Byggherren svarer på nytt.`;
+    },
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
     trekkForholdet: 'Trekker også kravene om vederlag og frist. Kan ikke tas opp igjen.',

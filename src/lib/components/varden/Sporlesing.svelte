@@ -84,7 +84,8 @@
       ? 'svare:vederlag'
       : null
   );
-  // Korrigeringen av datoen har ingen skjerm i noen visning ennå (#1615), så den står ikke i lista.
+  // Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for BF-02A (#1615).
+  // Til den er bygget, tilbys den ikke her.
   const menyvalg = $derived(
     iSporet.filter((n) => n !== `godta:${spor}` && n !== svare && !n.startsWith('korrigere:'))
   );
@@ -155,7 +156,10 @@
   function virkningen(n: string): string | null {
     if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
     if (n.startsWith('trekke:')) return HANDLINGENE.virkning.trekkKravet;
-    if (n.startsWith('krav:')) return HANDLINGENE.virkning.nyVersjon;
+    if (n.startsWith('krav:')) {
+      const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
+      return HANDLINGENE.virkning.nyVersjon(spor, krav, svarbrevet ?? null);
+    }
     return null;
   }
 

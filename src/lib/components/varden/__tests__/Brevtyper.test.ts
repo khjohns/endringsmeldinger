@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
-import { innsigelsen } from '$lib/components/varden/tekster';
+import { HANDLINGENE, innsigelsen } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
@@ -55,5 +55,27 @@ describe('Brevtyper', () => {
   it('innsigelsen sier med egne ord hva som kom for sent, uten henvisning til kontrakten (oppdragsgiver 06.11, #1631)', () => {
     expect(innsigelsen('svar', 2)).toBe('Gjør gjeldende at svaret i brev 2 kom for sent');
     expect(innsigelsen('varsel', null)).toBe('Gjør gjeldende at varselet kom for sent');
+  });
+
+  it('ny versjon sier hvilket brev den erstatter, og at den avslår svaret (punkt 6 og 10 i samlevedtaket for retting av sendt brev, MM-U52)', () => {
+    const brev = (nummer: number) => ({
+      id: `b${nummer}`,
+      nummer,
+      registrert: '2026-11-06T10:00:00Z',
+      omtale: null,
+      art: 'krav' as const,
+    });
+    expect(HANDLINGENE.virkning.nyVersjon('forhold', brev(1), brev(2))).toBe(
+      'Erstatter påberopelsen i brev 1 og avslår svaret i brev 2. Byggherren svarer på nytt.'
+    );
+    expect(HANDLINGENE.virkning.nyVersjon('vederlag', brev(3), null)).toBe(
+      'Erstatter kravet i brev 3. Byggherren svarer på den nye versjonen.'
+    );
+  });
+
+  it('korrigeringen av datoen har en tekst, så nøkkelen aldri vises rå (#1615)', () => {
+    lag(['korrigere:abc'], []);
+    expect(screen.getByText('Korriger datoen')).toBeInTheDocument();
+    expect(screen.queryByText(/korrigere:/)).toBeNull();
   });
 });
