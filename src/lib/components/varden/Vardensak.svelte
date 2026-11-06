@@ -91,8 +91,6 @@
     tilbake: Arbeid;
     /** Brevet er svarutkastet, som tømmes når det er sendt. */
     erUtkastet: boolean;
-    /** Datoopplysningen TE kan korrigere fra forhåndsvisningen av en ny versjon (BF-10 U-2). */
-    korrigerbar?: string | null;
   };
   type Arbeid =
     | { art: 'les' }
@@ -228,23 +226,10 @@
   }
 </script>
 
-<!-- I forhåndsvisningen av en ny versjon står veien til et eget brev under linja den gjelder:
-     korrigeringen ved datoen og den nye saken ved forholdet. Ingen av dem kaster utkastet
-     (BF-10 U-2, BF-02A U-7). -->
+<!-- I bekreftelsen av en ny versjon står veien til en ny sak under linja om forholdet, for en
+     annen hjemmel eller endringsordre. Den kaster ikke utkastet (BF-10 U-2). -->
 {#snippet veiINyVersjon(hvilken: string)}
-  {#if hvilken === 'datoen'}
-    <span>{NYVERSJON.datoHjelp}</span>
-    {#if arbeid.art === 'kontroll' && arbeid.korrigerbar}
-      {@const gjelder = arbeid.korrigerbar}
-      <Knapp
-        variant="lenke"
-        onclick={() => {
-          melding = null;
-          arbeid = { art: 'korrigering', gjelder };
-        }}>{NYVERSJON.korriger}</Knapp
-      >
-    {/if}
-  {:else if hvilken === 'forholdet' && nySakLenke}
+  {#if hvilken === 'forholdet' && nySakLenke}
     <span class="fast">
       {NYVERSJON.nySak}
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
@@ -399,10 +384,6 @@
           bind:tekst={nyVersjonstekst}
           onforkast={forkastNyVersjon}
           onvedsiden={(v) => (vedSiden = v)}
-          onkorriger={(gjelder) => {
-            melding = null;
-            arbeid = { art: 'korrigering', gjelder };
-          }}
           onbrevkontroll={(k) => {
             const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
             arbeid = {

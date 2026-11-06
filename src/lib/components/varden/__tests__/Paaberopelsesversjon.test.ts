@@ -103,10 +103,11 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(vist.join(' ')).not.toMatch(/erstatter/);
     const kontrollen = within(screen.getByRole('region', { name: 'Sending' }));
     expect(kontrollen.getByText('Viser til')).toBeTruthy();
-    // U-2, U-3, D-5: mottakeren, datoen med veien til korrigeringen, og hvem som mister hva.
+    // U-3, D-5: mottakeren og hvem som mister hva. Datoen står i brevet, og korrigeringen på
+    // oversikten, ikke i bekreftelsen (oppdragsgiver 06.11, PR 1650).
     expect(kontrollen.getByText('Til').nextElementSibling?.textContent).toMatch(/\(BH\)$/);
-    expect(kontrollen.getByText(/Pålegget mottatt 15\. september 2026, som før/)).toBeTruthy();
-    expect(kontrollen.getByRole('button', { name: 'Korriger datoen i et eget brev' })).toBeTruthy();
+    expect(kontrollen.queryByText(/Pålegget mottatt/)).toBeNull();
+    expect(kontrollen.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
     expect(
       kontrollen.getByText(
         'Erstatter påberopelsen i brev 1. Du kan ikke lenger godta svaret i brev 2 i denne saken. Byggherren svarer på den nye versjonen.'
@@ -146,18 +147,23 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(nyVersjon.textContent).toMatch(/Pålegget mottatt 15\. september 2026/);
   });
 
-  it('BF-02C steg 2C: byggherren sier at varselet kom for sent, så datoen står ved feltet med veien til korrigeringen; teksten står når TE kommer tilbake, og den nye versjonen har den korrigerte datoen (BF-02A U-7, #1617)', async () => {
+  it('BF-02C steg 2C: datoen står ikke i arbeidsflaten; TE korrigerer den fra oversikten, teksten står når TE kommer tilbake, og den nye versjonen har den korrigerte datoen (BF-02A U-7, #1617)', async () => {
     const demosak = aapne('BF-02C', 'te-vil-sende-ny-versjon');
     await tilForholdet();
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
+    // Arbeidsflaten har bare det TE skriver (oppdragsgiver 06.11, PR 1650).
     const skjema = within(screen.getByRole('form'));
-    expect(skjema.getByText('15. september 2026')).toBeTruthy();
-    expect(skjema.getByText('oppgitt i brev 1')).toBeTruthy();
-    // Datoen står der fordi byggherren bestrider at varselet kom i tide, og det sier boksen.
-    expect(skjema.getByText(/gjør gjeldende i brev 2 at varselet kom for sent/)).toBeTruthy();
-    expect(skjema.getByText(/Datoen kan ikke endres i en ny versjon/)).toBeTruthy();
+    expect(skjema.queryByText(/15\. september 2026/)).toBeNull();
+    expect(skjema.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
     await fireEvent.input(teksten(), { target: { value: 'Utkastet mitt.' } });
-    await fireEvent.click(screen.getByRole('button', { name: 'Korriger datoen i et eget brev' }));
+    // TE går tilbake til oversikten og korrigerer datoen ved datoen i brevtråden.
+    await tilForholdet();
+    await fireEvent.click(
+      within(await screen.findByRole('list', { name: 'Brevene om forholdet' })).getByRole(
+        'button',
+        { name: 'Korriger datoen pålegget ble mottatt' }
+      )
+    );
     await fireEvent.input(screen.getByLabelText('Ny dato for når pålegget ble mottatt'), {
       target: { value: '2026-09-20' },
     });
@@ -174,9 +180,6 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
     // U-2: ingen av veiene kaster det TE har skrevet.
     expect((teksten() as HTMLTextAreaElement).value).toBe('Utkastet mitt.');
-    const utkastet = within(screen.getByRole('form'));
-    expect(utkastet.getByText('20. september 2026')).toBeTruthy();
-    expect(utkastet.getByText('oppgitt i brev 3')).toBeTruthy();
     await fireEvent.click(screen.getByRole('button', { name: 'Gå til forhåndsvisning' }));
     const vist = await laastTekst(/Påberopelse av irregulær endring/);
     // LV-U56: den korrigerte datoen og den tidligere med brevet.

@@ -559,8 +559,7 @@ export const KORRIGERING = {
 };
 
 /**
- * Skjemaet for TEs nye versjon av påberopelsen (BF-10). Teksten om datoen og veien til
- * korrigeringen er fra skissen `korrigering-av-datoen.html#ny-versjon`, versjon 2.
+ * Skjemaet for TEs nye versjon av påberopelsen (BF-10).
  */
 export const NYVERSJON = {
   /**
@@ -573,17 +572,6 @@ export const NYVERSJON = {
   lesSvaret: 'Les svaret ved siden av',
   lesSvaretHer: 'Les svaret',
   lukkSvaret: 'Lukk svaret',
-  /** Datoen ved feltet når byggherren sier at varselet kom for sent (§ 32.2). */
-  datoen: (hva: keyof typeof DATOEN) =>
-    hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet',
-  oppgittI: (b: Brevref) => `oppgitt i ${brevref(b)}`,
-  /** MM-U52 punkt 13: en korrigering lar svaret stå. */
-  datoHjelp:
-    'Datoen kan ikke endres i en ny versjon. En korrigering i et eget brev lar svaret stå.',
-  /** Hvorfor datoen står ved feltet: byggherren bestrider at varselet kom i tide. */
-  datoBestridt: (svar: Brevref) =>
-    `Byggherren gjør gjeldende i ${brevref(svar)} at varselet kom for sent. Datoen kan ikke endres i en ny versjon. En korrigering i et eget brev lar svaret stå.`,
-  korriger: 'Korriger datoen i et eget brev',
   /** U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
   nySak: 'Annen hjemmel eller endringsordre:',
   nySakLenke: 'opprett en ny sak (ny fane)',
@@ -593,8 +581,6 @@ export const NYVERSJON = {
   tekst: 'Oppdatert begrunnelse',
   forkastSpoersmaal: 'Forkaste utkastet? Teksten du har skrevet, slettes.',
   linjeErstatter: (krav: Brevref) => `Ny versjon av påberopelsen i ${brevref(krav)}`,
-  linjeDato: (hva: keyof typeof DATOEN, d: string) =>
-    `${hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet'} ${dato(d)}, som før`,
   seBrevet: 'Gå til forhåndsvisning',
   sendTekst: 'Send den nye versjonen til byggherren',
   tilbakeTil: 'utkastet',

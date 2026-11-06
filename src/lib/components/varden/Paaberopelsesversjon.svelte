@@ -3,8 +3,8 @@
   «Send ny versjon» før svaret. Mens TE skriver, står feltet med teksten fra versjonen som
   erstattes (S-3 B), og kortet til høyre sier hva TE svarer på: byggherrens standpunkt i svaret,
   med svaret ved siden av utkastet når TE ber om det, og primærhandlingen. Tidslinja står under.
-  Datoen står ved feltet bare når byggherren sier at varselet kom for sent; ellers står den i
-  forhåndsvisningen med veien til korrigeringen (oppdragsgiver 06.11, PR 1650). Brevet sendes
+  Datoen og korrigeringen av den står på oversikten, ikke her: oversikten, arbeidsflaten og
+  bekreftelsen har hver sitt formål (oppdragsgiver 06.11, PR 1650). Brevet sendes
   fra brevkontrollen, som de andre brevene (S-4b). Kjernen lager brevet og avviser det den ikke
   godtar.
 -->
@@ -19,24 +19,21 @@
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
-  import { brevene, datoerISporet, datoopplysningene, innleggene } from './lesing';
+  import { brevene, datoerISporet, innleggene } from './lesing';
   import { FORHOLDET, HANDLINGENE, NYVERSJON, SKJEMA, brevhode, brevtittel, dato } from './tekster';
 
   let {
     kjernesak,
     u,
     tekst = $bindable(null),
-    onkorriger,
     onbrevkontroll,
     onforkast,
     onvedsiden,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
-    /** Teksten TE har skrevet, `null` før TE har åpnet skjemaet. Den står mens TE korrigerer datoen. */
+    /** Teksten TE har skrevet, `null` før TE har åpnet skjemaet. Den står mens TE er på oversikten. */
     tekst?: string | null;
-    /** TE velger «Korriger datoen i et eget brev» (BF-02A U-7). */
-    onkorriger: (opplysning: string) => void;
     onbrevkontroll: (k: {
       kommando: Record<string, unknown>;
       tekst: string[];
@@ -46,8 +43,6 @@
       merking: string | null;
       deresRef: string[];
       tittel: string | null;
-      /** Datoopplysningen TE kan korrigere fra forhåndsvisningen, ellers `null`. */
-      korrigerbar: string | null;
     }) => void;
     onforkast: () => void;
     /** Svaret leses i en ramme ved siden av utkastet, eller ikke lenger. */
@@ -62,15 +57,6 @@
   const kravbrevet = $derived(finn(kravet.dokument));
   const svarbrevet = $derived(finn(u.spor.forhold.gjeldendeSvar?.dokument));
   const enig = $derived(!!u.spor.forhold.enighet && !!svarbrevet);
-  // Datoen er TEs siste opplysning (MM-U52 punkt 10), med brevet den ble oppgitt i (U-2).
-  const datoen = $derived(datoopplysningene(u).findLast((o) => o.siste) ?? null);
-  const kanKorrigere = $derived(
-    !!datoen && kjernesak.handlinger.includes(`korrigere:${datoen.id}`)
-  );
-  // Byggherren sier i svaret at varselet kom for sent (§ 32.2). Da trenger TE datoen mens TE skriver.
-  const datoenBestrides = $derived(
-    !!u.spor.forhold.gjeldendeSvar?.standpunkter.some((s) => s.art === 'rettidighet' && !s.iTide)
-  );
 
   const sporbrev = $derived(brev.filter((b) => b.spor.includes('forhold')));
   // Byggherrens standpunkter i svaret, med kjernens ord, som i brevtråden.
@@ -88,9 +74,6 @@
   const linjer = $derived([
     ...(kravbrevet
       ? [{ tekst: NYVERSJON.linjeErstatter(kravbrevet), lag: null, vei: 'forholdet' }]
-      : []),
-    ...(datoen
-      ? [{ tekst: NYVERSJON.linjeDato(datoen.hva, datoen.dato), lag: null, vei: 'datoen' }]
       : []),
   ]);
 
@@ -112,7 +95,6 @@
       merking: b.merking,
       deresRef: b.deresRef,
       tittel: b.brevtittel,
-      korrigerbar: kanKorrigere ? datoen!.id : null,
     });
   }
 
@@ -189,23 +171,6 @@
       onsubmit={tilForhaandsvisningen}
     >
       <div class="innhold">
-        {#if datoenBestrides && datoen && svarbrevet}
-          <!-- Datoen ved feltet når byggherren bestrider at varselet kom i tide (U-2, BF-02A U-7). -->
-          <div class="dato">
-            <p class="datolinje">
-              <span class="etikett">{NYVERSJON.datoen(datoen.hva)}</span>
-              <strong>{dato(datoen.dato)}</strong>
-              <span class="etikett">{NYVERSJON.oppgittI(datoen.brev)}</span>
-            </p>
-            <p class="hvorfor">{NYVERSJON.datoBestridt(svarbrevet)}</p>
-            {#if kanKorrigere}
-              <Knapp variant="lenke" onclick={() => onkorriger(datoen!.id)}
-                >{NYVERSJON.korriger}</Knapp
-              >
-            {/if}
-          </div>
-        {/if}
-
         <div class="felt">
           <label for={id('tekst')}>{NYVERSJON.tekst}</label>
           <textarea id={id('tekst')} rows="12" bind:value={tekst}></textarea>
@@ -373,33 +338,6 @@
     gap: var(--spacing-3);
     padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
     border-top: var(--rule);
-  }
-  .dato {
-    display: grid;
-    gap: var(--spacing-2);
-    justify-items: start;
-    padding: var(--spacing-4);
-    background: var(--surface-inset);
-    border-radius: var(--r-innfelt);
-    font-size: 14px;
-  }
-  .datolinje {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--spacing-2);
-    margin: 0;
-    color: var(--ink);
-  }
-  .datolinje strong {
-    font-weight: 600;
-  }
-  .etikett {
-    color: var(--ink-3);
-  }
-  .hvorfor {
-    margin: 0;
-    color: var(--ink-2);
   }
   .felt {
     display: grid;
