@@ -305,8 +305,14 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to
   korte setninger om hva handlingen gjør med saken, pil og skillelinjer. En brevtype som ikke er bygget, åpner saken
   i dagens visning. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da ikke kan
-  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for
-  BF-02A (#1615), og tilbys ikke før den er bygget.
+  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
+  BF-02A (#1615). En brevtype som ikke er bygget, har samme form og pil i demoruta, og et
+  klikk sier under raden at den ikke er bygget i prøven (oppdragsgiver 06.11, #1646).
+- **Brevene om forholdet** står i en tråd. Partene skilles med form, ikke med farge: BH har
+  fylt ring og TE åpen ring. Det løsningen sier om saken under et brev, som at svaret står
+  som det ble sendt, eller hvilken opplysning svaret gjaldt, har formen for en melding om
+  prøven (`Melding`), ikke formen for metadata. Form og tekst prøves før en ny farge
+  (oppdragsgiver 06.11, #1646).
 - **Panelet til venstre** har sakens kode over tittelen, og sporene i to grupper:
   «Kontraktsforhold» med forholdet og «Krav» med vederlagsjusteringen og fristforlengelsen.
   Navnene står uten linje under; betegnelsen og siste brev står på siden for sporet

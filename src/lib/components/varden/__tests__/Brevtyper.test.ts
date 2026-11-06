@@ -5,7 +5,7 @@
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
 import { HANDLINGENE, innsigelsen, innsigelsensVirkning } from '$lib/components/varden/tekster';
 
@@ -44,11 +44,13 @@ describe('Brevtyper', () => {
     ).toEqual(['svare:vederlag', 'krav:vederlag', 'varsle:vederlag', 'trekke:vederlag']);
   });
 
-  it('uten dagens visning står en brevtype som ikke er bygget, uten lenke og uten pil', () => {
+  it('uten dagens visning ser en brevtype som ikke er bygget, ut som de andre handlingene, og et klikk sier at den ikke er bygget (oppdragsgiver 06.11, #1636)', async () => {
     lag(['trekke:vederlag'], []);
     expect(screen.queryByRole('link')).toBeNull();
-    expect(screen.queryByRole('button')).toBeNull();
     expect(screen.getByText('Kravet kan ikke tas opp igjen.')).toBeInTheDocument();
+    expect(screen.queryByText(HANDLINGENE.ikkeBygget)).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: /Kravet kan ikke tas opp igjen/ }));
+    expect(screen.getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
   });
 
   it('innsigelsen sier med egne ord hva som kom for sent, uten henvisning til kontrakten (oppdragsgiver 06.11, #1631)', () => {

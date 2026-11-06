@@ -8,6 +8,7 @@
 <script lang="ts">
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
+  import Melding from './Melding.svelte';
   import type { Brevet, Innlegget } from './lesing';
   import { FORHOLDET } from './tekster';
 
@@ -43,7 +44,8 @@
     {@const registrert = b.art === 'registrert'}
     {@const i = innlegg.get(b.id)}
     <li class="innlegg">
-      <span class="part" aria-hidden="true">{b.avsender}</span>
+      <!-- Partene skilles med form: BH har fylt ring, TE åpen (oppdragsgiver 06.11, #1646). -->
+      <span class="part" class:bh={b.avsender === 'BH'} aria-hidden="true">{b.avsender}</span>
       <div class="hode">
         <div class="tittellinje">
           <h3 id={`${uid}-${b.id}`}>
@@ -126,7 +128,9 @@
                   {/if}
                 </div>
                 {#if o && !o.korrigering && onkorriger && korrigerbare.includes(o.id) && lukket}
-                  <p class="sitat-dato">{FORHOLDET.korrigerILukket}</p>
+                  <div class="virkning">
+                    <Melding art="info" levende={false}>{FORHOLDET.korrigerILukket}</Melding>
+                  </div>
                 {/if}
               {/if}
             </div>
@@ -136,10 +140,14 @@
               lukket,
               brev.slice(0, n).findLast((x) => x.art === 'svar') ?? null
             )}
-            {#if staar}<p class="virkning">{staar}</p>{/if}
+            {#if staar}<div class="virkning">
+                <Melding art="info" levende={false}>{staar}</Melding>
+              </div>{/if}
           {/if}
           {#if i.gjaldt}
-            <p class="virkning">{FORHOLDET.gjaldt(i.gjaldt)}</p>
+            <div class="virkning">
+              <Melding art="info" levende={false}>{FORHOLDET.gjaldt(i.gjaldt)}</Melding>
+            </div>
           {/if}
         </div>
       {/if}
@@ -283,9 +291,13 @@
     align-items: baseline;
     column-gap: var(--spacing-3);
   }
+  /* Det løsningen sier om saken, i formen for meldinger, ikke som metadata (oppdragsgiver 06.11, #1646). */
   .virkning {
-    color: var(--ink-2);
-    font-size: 14px;
+    margin-top: var(--spacing-1);
+  }
+  .part.bh {
+    background: var(--ink);
+    color: var(--surface);
   }
   .tom p {
     font-size: 14px;

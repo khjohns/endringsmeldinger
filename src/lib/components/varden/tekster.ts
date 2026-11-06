@@ -316,6 +316,8 @@ export const innsigelsensVirkning = (art: string) =>
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
 export const HANDLINGENE = {
   andre: 'Andre handlinger',
+  /** En brevtype som ikke er bygget, i demoruta uten dagens visning (#1636). */
+  ikkeBygget: 'Denne handlingen er ikke bygget i prøven ennå.',
   godta: (avslag: boolean) => `Godta ${avslag ? 'avslaget' : 'svaret'}`,
   /** Den nye kravversjonen etter byggherrens svar i vederlaget og fristen (oppdragsgiver 06.11, #1631). */
   revidertKrav: 'Revider krav',
