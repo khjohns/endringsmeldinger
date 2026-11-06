@@ -9,6 +9,7 @@
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { KRAVINNHOLD, oppgittDato, type OppgittDato } from '$kjerne/format/format';
 import { kategoriFraKatalogen, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
+import { sisteDatoopplysning, type Utledning } from '$kjerne/utledning/utled';
 import { letterText } from '$lib/approval/letter';
 import { utenVedlegg } from './skjemadata';
 
@@ -85,19 +86,22 @@ export function grunnlagskrav(valg: Grunnlagsvalg): Grunnlagskrav {
 }
 
 /**
- * En ny versjon av grunnlagskravet med samme hjemmel (GR-U22): kategorien, datoen
- * (VS-U26) og endringsordren står som i gjeldende versjon, og TE endrer beskrivelsen,
- * som er utdypningen (GR-U15).
+ * En ny versjon av grunnlagskravet med samme hjemmel (GR-U22): kategorien og endringsordren står
+ * som i gjeldende versjon, datoen (VS-U26) er TEs siste opplysning, også etter en korrigering
+ * (MM-U52 punkt 10, #1617), og TE endrer beskrivelsen, som er utdypningen (GR-U15).
  */
-export function nyPaaberopelsesversjon(
-  gjeldende: Record<string, unknown>,
-  utdypning: string
-): Grunnlagskrav {
-  const innhold = Object.fromEntries(
+export function nyPaaberopelsesversjon(u: Utledning, utdypning: string): Grunnlagskrav {
+  const gjeldende = u.spor.forhold.gjeldendeKrav?.innhold;
+  if (!gjeldende)
+    throw new Error('Grunnlaget er ikke sendt, så det har ingen versjon å oppdatere.');
+  const innhold: Record<string, unknown> = Object.fromEntries(
     Object.entries(gjeldende).filter(([felt]) =>
       Object.hasOwn(KRAVINNHOLD.forhold.properties, felt)
     )
   );
+  const felt = oppgittDato(gjeldende.hovedkategori, gjeldende.underkategori);
+  const siste = felt === null ? null : sisteDatoopplysning(u, felt);
+  if (felt !== null && siste) innhold[felt] = siste.dato;
   const tekst = utdypning.trim();
   return { type: 'krav', spor: 'forhold', innhold, ...(tekst ? { utdypning: tekst } : {}) };
 }
@@ -107,11 +111,11 @@ export function nyPaaberopelsesversjon(
  * editoren og blir utdypningen som ren tekst. Uten sendt grunnlag er det ingen versjon.
  */
 export function grunnlagsversjonFraSkjema(
-  gjeldende: Record<string, unknown> | undefined,
+  u: Utledning | null | undefined,
   data: { begrunnelse?: string; vedlegg_ids?: string[] }
 ): Grunnlagskrav {
-  if (!gjeldende)
+  if (!u?.spor.forhold.gjeldendeKrav)
     throw new Error('Grunnlaget er ikke sendt, så det har ingen versjon å oppdatere.');
   utenVedlegg(data);
-  return nyPaaberopelsesversjon(gjeldende, letterText(data.begrunnelse ?? ''));
+  return nyPaaberopelsesversjon(u, letterText(data.begrunnelse ?? ''));
 }
