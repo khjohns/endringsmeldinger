@@ -442,6 +442,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | --- | --- | --- |
 | `ALLEREDE_SVART` | — | Kontrollen av kommandoen: et svar på en kravversjon som allerede har et svar, avvises, og svaret revideres i stedet. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `ANNEN_BREVTEKST` | KA-51 | — |
+| `ANNEN_ENDRINGSORDRE` | — | Kontrollen av kommandoen: når grunnlaget er sendt, står endringsordren i underkategorien endringsordre, og en annen endringsordre påberopes i en ny sak (MM-U52 punkt 14). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `ANNEN_HJEMMEL` | GR-02, GR-18 | — |
 | `ANNEN_REGELVERSJON` | KA-23 | — |
 | `ANNET_RESULTAT` | — | Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, og ingen rad sier den; den prøves i `kjerne/tester/kjerne.test.ts`. |

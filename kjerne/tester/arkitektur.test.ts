@@ -582,6 +582,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'hovedkategori underkategori',
     ['kommandoer/nyttelast.ts:kategorisperre'],
   ],
+  // MM-U52 punkt 14: endringsordren i underkategorien endringsordre står.
+  ['Kommando.innhold', 'utsagn', 'endringsordre', ['kommandoer/nyttelast.ts:kategorisperre']],
+  ['Krav.innhold', 'utsagn', 'endringsordre', ['kommandoer/nyttelast.ts:kategorisperre']],
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
   ['Svarutkast', 'kommando', 'resultat', ['kommandoer/nyttelast.ts']],
   ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
@@ -1117,7 +1120,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Journalen',
     'brevtekst',
-    'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav sisteKorrigering svar utdypning versjon',
+    'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav svar tidligereDatoer utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],

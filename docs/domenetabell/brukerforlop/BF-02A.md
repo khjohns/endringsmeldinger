@@ -11,7 +11,7 @@ den ekte saksruta.
 | Status | Utkast 06.11. S-1 og S-2 er besvart 05.11 og kjernen er rettet etter svarene i #1624. Arbeidet følges i [#1615](https://github.com/khjohns/endringsmeldinger/issues/1615) |
 | Demoruta | `/demo/BF-02A`, `/demo/BF-02C` og `/demo/BF-02D`, med kjernen i nettleseren |
 | Prototypen | [`korrigering-av-datoen.html`](../../design/prototyper/korrigering-av-datoen.html), for skjemaet for korrigeringen og det låste datofeltet i en ny grunnlagsversjon, som ingen komponent har (G-2). Versjon 3, 06.11 |
-| Bygger på | [MM-U52](../../plans/vedtak.md#mm-u52) punkt 10, 11, 13 og 24 og designdelen, med svarene «1 A, 2 A» 05.11 ([MM-U51](../../plans/vedtak.md#mm-u51), [LV-U54](../../plans/vedtak.md#lv-u54)) og de lagrede navnene i [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308) |
+| Bygger på | [MM-U52](../../plans/vedtak.md#mm-u52) punkt 10, 11, 13 og 24 og designdelen, med svarene «1 A, 2 A» 05.11 ([MM-U51](../../plans/vedtak.md#mm-u51)), [LV-U56](../../plans/vedtak.md#lv-u56) og de lagrede navnene i [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308) |
 
 Hver opplysning under har en ID: **M** for målene, **U** for det brukeren skal finne og
 forstå, **D** for domeneforventningene, **G** for gjennomføringen, **S** for de åpne
@@ -108,10 +108,9 @@ finner ut at pålegget ble mottatt 20.09.2026.
   underkategorien endringsordre (`INGEN_DATO_I_KATEGORIEN`). Arbeidsvalgene står i
   [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308#issuecomment-6656493872).
 - **D-5** En ny grunnlagsversjon kan ikke endre datoen og avvises med
-  `DATOEN_KAN_IKKE_ENDRES`. Etter en korrigering sier den: ‹Totalentreprenøren opplyser at
-  pålegget ble mottatt <dato>, slik totalentreprenøren oppga i brev <merking> av <dato>.›,
-  med det siste brevet med en korrigering ([LV-U54](../../plans/vedtak.md#lv-u54), samlet i
-  MM-U52 punkt 10).
+  `DATOEN_KAN_IKKE_ENDRES`. Etter en korrigering sier den: ‹Pålegget ble mottatt <dato>.
+  Totalentreprenøren oppga tidligere <dato> i brev <merking> av <dato>.›, med hver tidligere
+  dato og brevet den ble oppgitt i, den opprinnelige først ([LV-U56](../../plans/vedtak.md#lv-u56)).
 - **D-6** I en sak som er lukket etter GR-U27, godtas korrigeringen og endrer ikke utfallet.
   Saken står lukket, og BH kan ta stilling i et innlegg
   ([MM-U51](../../plans/vedtak.md#mm-u51), MM-U52 punkt 24, [MM-U47](../../plans/vedtak.md#mm-u47)).
@@ -119,7 +118,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
 ## Gjennomføringen
 
 - **G-1** Kjernen har kommandoen, utledningen av den siste og de tidligere opplysningene
-  (`datoopplysninger`, `datoopplysning` per svar), datosperren og teksten etter LV-U54.
+  (`datoopplysninger`, `datoopplysning` per svar), datosperren og teksten etter LV-U56.
   Kontrollene i de tre forløpene kjøres i minnet.
 - **G-2** Ingen komponent i `src/lib` viser eller sender en korrigering. Varden viser
   handlingen `korrigere:*` som en ukjent handling og har ikke noe skjema for en ny
@@ -131,7 +130,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
   meldt i #1617 og rettes når skjemaet bygges.
 - **G-4** Testklienten setter alltid datoen 15.09.2026 i grunnlagskravet
   (`kjerne/tester/klient.ts`). BF-02C kan derfor ikke vise en godtatt ny versjon med den
-  korrigerte datoen, bare avvisningen. Teksten etter LV-U54 er prøvd i
+  korrigerte datoen, bare avvisningen. Teksten etter LV-U56 er prøvd i
   `kjerne/tester/brevtekst.test.ts`.
 - **G-8** Kommandoen `korrigering` har forklaringen i `utdypning` (S-1, #1624).
 - **G-6** Brevet med korrigeringen har tittelen etter S-2 i `UTSAGNSTITTEL` i
@@ -162,3 +161,4 @@ Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svar
 | --- | --- | --- |
 | 05.11.2026 | #1308, MM-U52, svarene «1 A, 2 A» | Første versjon |
 | 06.11.2026 | #1624, #1615, svaret på S-4b i BF-10 | G-6 og G-8 er bygget. G-7 er presisert. Skissen er versjon 3: en ny versjon avslår ikke svaret, men svaret kan da ikke godtas i løsningen. Korrigeringen går gjennom brevkontrollen, med samme utkastkort som de andre skjemaene (svaret på S-4b i BF-10). Skissen viser fortsatt brevet ved siden av skjemaet |
+| 06.11.2026 | #1615, LV-U56, LV-U57 | D-5 følger LV-U56: en ny grunnlagsversjon etter en korrigering nevner hver tidligere dato med brevet, den opprinnelige først. Setningen om datoen er ‹Pålegget ble mottatt <dato>.› (LV-U57) |

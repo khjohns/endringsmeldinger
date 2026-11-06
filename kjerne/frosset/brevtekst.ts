@@ -250,13 +250,21 @@ class Journalen {
     throw new KanIkkeUttrykkes(`${id} er ikke et varsel eller et krav`);
   }
 
-  /** LV-U54: dokumentet med TEs siste korrigering av datoen i feltet før brevet, eller `null`. */
-  sisteKorrigering(felt: OppgittDato): string | null {
-    const foer = this.dokumenter.slice(0, -1);
-    return (
-      foer.filter((d) => d.utsagn.some((u) => u.art === 'korrigering' && u.felt === felt)).at(-1)
-        ?.id ?? null
-    );
+  /**
+   * LV-U56: TEs tidligere opplysninger om datoen i feltet før brevet, med brevet hver ble oppgitt
+   * i, den opprinnelige først. Den siste opplysningen er den brevet gjengir, og står ikke her.
+   * Tom når datoen ikke er korrigert.
+   */
+  tidligereDatoer(felt: OppgittDato): [dato: string, dokument: string][] {
+    const datoer: [string, string][] = [];
+    for (const d of this.dokumenter.slice(0, -1)) {
+      for (const k of d.krav)
+        if (!datoer.length && k.spor === 'forhold' && typeof k.innhold[felt] === 'string')
+          datoer.push([k.innhold[felt] as string, d.id]);
+      for (const u of d.utsagn)
+        if (u.art === 'korrigering' && u.felt === felt) datoer.push([u.dato, d.id]);
+    }
+    return datoer.slice(0, -1);
   }
 
   krav(id: string): Krav {
@@ -335,40 +343,53 @@ const DATOEN_I_BREVET: Record<OppgittDato, string> = {
 };
 
 /**
- * Påberopelsen av forholdet: LV-U41 og LV-U43, med partene skrevet fullt ut (LV-U35) og
- * henvisningen med «punkt» (LV-U39). Sakstittelen er navnet på forholdet og står én gang.
+ * Påberopelsen av forholdet: LV-U41 og LV-U43 for det første brevet, LV-U56 for en ny versjon,
+ * med partene skrevet fullt ut (LV-U35) og henvisningen med «punkt» (LV-U39). Sakstittelen er
+ * navnet på forholdet og står én gang. Datoen står som i LV-U57 og LV-U56.
  */
 function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[] {
   const navnet = `«${saken.tittel}» i sak ${sakensKode(saken.sakskode)}`;
   const hoved = k.innhold.hovedkategori as string;
   const f = forholdet(k.innhold.underkategori);
+  const nyVersjon = k.erstatter !== null;
   const dato = (felt: OppgittDato) => {
     if (typeof k.innhold[felt] !== 'string') return [];
-    const opplyser = `Totalentreprenøren opplyser at ${DATOEN_I_BREVET[felt]} ${norskDato(k.innhold[felt] as string)}`;
-    // LV-U54: etter en korrigering viser den nye versjonen til det siste brevet med en korrigering.
-    const korrigert = j.sisteKorrigering(felt);
+    const setning = `${DATOEN_I_BREVET[felt]} ${norskDato(k.innhold[felt] as string)}.`;
+    const tidligere = nyVersjon ? j.tidligereDatoer(felt) : [];
     return [
-      korrigert
-        ? `${opplyser}, slik totalentreprenøren oppga i ${j.brevet(korrigert)}.`
-        : `${opplyser}.`,
+      setning.charAt(0).toUpperCase() + setning.slice(1),
+      ...(tidligere.length
+        ? [
+            `Totalentreprenøren oppga tidligere ${liste(tidligere.map(([dato, dokument]) => `${norskDato(dato)} i ${j.brevet(dokument)}`))}.`,
+          ]
+        : []),
     ];
   };
   if (hoved === 'endring' && f?.kode === 'endringsordre')
-    return [
-      `Totalentreprenøren gjør gjeldende krav som følge av en endringsordre fra byggherren for ${navnet} (NS 8407 punkt 31.3).`,
-      `Totalentreprenøren viser til endringsordren «${k.innhold.endringsordre as string}».`,
-    ];
+    return nyVersjon
+      ? [
+          `Påberopelsen gjelder endringsordre «${k.innhold.endringsordre as string}» fra byggherren (NS 8407 punkt 31.3) for ${navnet}.`,
+        ]
+      : [
+          `Totalentreprenøren gjør gjeldende krav som følge av en endringsordre fra byggherren for ${navnet} (NS 8407 punkt 31.3).`,
+          `Totalentreprenøren viser til endringsordren «${k.innhold.endringsordre as string}».`,
+        ];
   if (hoved === 'endring' && f)
-    return [
-      `Totalentreprenøren krever endringsordre for ${navnet} som ${f.navn.toLowerCase()} (NS 8407 punkt ${f.hjemmel}).`,
-      ...(gjelderVarslingsplikten(k, regler)
-        ? [
-            'Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring.',
-          ]
-        : []),
-      // VS-U26: etter setningen om punkt 32.2. Appen vurderer ikke rettidigheten.
-      ...dato('paalegg_mottatt'),
-    ];
+    return nyVersjon
+      ? [
+          `Påberopelsen gjelder ${f.navn.toLowerCase()} (NS 8407 punkt ${f.hjemmel}) for ${navnet}.`,
+          ...dato('paalegg_mottatt'),
+        ]
+      : [
+          `Totalentreprenøren krever endringsordre for ${navnet} som ${f.navn.toLowerCase()} (NS 8407 punkt ${f.hjemmel}).`,
+          ...(gjelderVarslingsplikten(k, regler)
+            ? [
+                'Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring.',
+              ]
+            : []),
+          // VS-U43: etter setningen om punkt 32.2. Appen vurderer ikke rettidigheten.
+          ...dato('paalegg_mottatt'),
+        ];
   const ledd = LEDD_I_33_1[hoved];
   if (ledd && f) {
     const hjemmel =
@@ -376,8 +397,10 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
         ? `punkt 33.1 ${ledd} og 34.1.2`
         : `punkt ${f.hjemmel}, jf. punkt 33.1 ${ledd} og 34.1.2`;
     return [
-      `Totalentreprenøren påberoper ${f.navn.toLowerCase()} (NS 8407 ${hjemmel}) for ${navnet}.`,
-      // VS-U26: etter kategorisetningen.
+      nyVersjon
+        ? `Påberopelsen gjelder ${f.navn.toLowerCase()} (NS 8407 ${hjemmel}) for ${navnet}.`
+        : `Totalentreprenøren påberoper ${f.navn.toLowerCase()} (NS 8407 ${hjemmel}) for ${navnet}.`,
+      // VS-U43: etter kategorisetningen.
       ...dato('klar_over_forholdet'),
     ];
   }
@@ -416,12 +439,10 @@ function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
         `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
       );
   }
-  // LV-U35 for påberopelsen, så brevet ikke blander partsbetegnelsene. Ordlyden i LV-U41 for
-  // en ny versjon bygges i #1433.
-  if (k.erstatter)
-    deler.push(
-      `Kravet erstatter ${k.spor === 'forhold' ? 'totalentreprenørens' : 'TEs'} krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`
-    );
+  // KA-U52 punkt 4 for vederlag og frist (#1379). En ny versjon av påberopelsen sier ikke at
+  // noe erstattes (LV-U56).
+  if (k.erstatter && k.spor !== 'forhold')
+    deler.push(`Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`);
   return deler.join(' ');
 }
 
