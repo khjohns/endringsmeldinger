@@ -101,6 +101,19 @@ describe('lagene i svaret på vederlaget følger brevet (OV-U32, OV-U33)', () =>
     expect(l.linjer).toEqual(MED_AVSLAGET);
   });
 
+  it('et utkast i forhåndsvisningen etter at forholdet er avslått: lagene frysingen gir det (Vederlagssvar.svelte)', async () => {
+    // `Vederlagssvar.svelte` gir `standpunktene` forhåndsvisningen med utkastet, som her er
+    // saken etter at utkastet er sendt i et eget brev.
+    const l = await linjene([
+      PAABEROPELSE,
+      VEDERLAG,
+      brevet(forholdet('avslaatt')),
+      { handling: 'brev', navn: 'D4', svar: [vederlaget] },
+    ]);
+    expect(l.linje).toBe(`Byggherrens standpunkt: subsidiært godkjent med ${kroner(60000)}.`);
+    expect(l.linjer).toEqual(MED_AVSLAGET);
+  });
+
   it('en ny påberopelsesversjon venter på svar: lagene står som brevet ga dem', async () => {
     const l = await linjene([
       PAABEROPELSE,
