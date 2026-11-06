@@ -128,7 +128,7 @@
   });
   const linjer = $derived(
     nyttSvar
-      ? standpunktene(nyttSvar, u).map((l) => ({
+      ? standpunktene(nyttSvar, etter!).map((l) => ({
           tekst:
             'grunn' in l
               ? grunntekst(l.grunn, true, l.brev)
@@ -145,7 +145,7 @@
   const alternativer = $derived(
     new Set(
       nyttSvar
-        ? standpunktene(nyttSvar, u)
+        ? standpunktene(nyttSvar, etter!)
             .filter((s) => s.lag && 'standpunkt' in s && s.standpunkt.art === 'beloep')
             .map((s) => s.lag)
         : []
