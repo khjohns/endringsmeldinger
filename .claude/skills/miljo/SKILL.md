@@ -210,8 +210,8 @@ Hentingen av bildet kan ta om lag ti minutter, og testene venter bare i tre. Ser
 har svart når `/tmp/koe-sqlserver-14331.container` finnes. Til da viser
 `/tmp/koe-sqlserver.log` hvor langt oppstarten er kommet.
 
-Vaktene kan ikke kjøres for hånd. I en slik økt verner ingenting token-brokeren eller
-de sperrede mappene for subagentene, så hold deg til det oppdraget sier.
+Vaktene kan ikke kjøres for hånd. I en slik økt verner ingenting token-brokeren, og
+`diffkontroll` er ikke begrenset til lesing, så hold deg til det oppdraget sier.
 
 Side for side i repo-listen, uten `search/issues`:
 `gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.

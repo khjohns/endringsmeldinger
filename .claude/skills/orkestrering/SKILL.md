@@ -101,15 +101,11 @@ en subagent etter [«Subagenter»](#subagenter). Arbeid som gir en PR, får egen
 økt, fordi den må følge CI og rettinger over timer. En subagent deler i tillegg
 checkout med orkestratoren.
 
-Unntaket er en liten PR med dokumentasjon eller mekanisk arbeid. Den kan
-leveres av subagenten `mekanisk-pr`, som arbeider på egen branch i eget
-arbeidstre og ikke kan skrive i `kjerne/`, `server/`, `backend/`, `supabase/`
-eller `sprakprove/` (#439). Vernet er hooken `skrivevakt` i
-`.claude/settings.json`, som velger vakt etter agenten kallet kommer fra (#442).
-`mekanisk-pr` lar PR-en stå som utkast. Subagenten
-`diffkontroll` kontrollerer diffen mot bestillingen, og `/code-review` kjøres
-etter regelen i `AGENTS.md`, før PR-en markeres klar. Rettinger sendes til
-`mekanisk-pr` med `SendMessage`.
+En liten PR med dokumentasjon eller mekanisk arbeid leveres av en mekanisk
+arbeidsøkt på Haiku («Modell for mekaniske arbeidsøkter»), som lar PR-en stå
+som utkast. Subagenten `diffkontroll` kontrollerer diffen mot bestillingen før
+merge, og `/code-review` kjøres etter regelen i `AGENTS.md` før PR-en markeres
+klar (oppdragsgiver 06.11, #1639).
 
 **Innsats for orkestratoren.** Orkestratoren skriver ikke kode og kjører på
 innsats `high`, ikke `xhigh` (oppdragsgiver 12.10, #425). Innsatsen settes i
@@ -163,7 +159,7 @@ tabellen gjentar dem ikke (oppdragsgiver 27.10, #1338).
 | Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
 | Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | `AGENTS.md`, «Arbeidsform», og «Review i ny økt» |
 | Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget `AGENTS.md` gir dem. Viser issuet til en bestilling, også `brukerforlop`, for byggeøkta, ryddeøkta og reviewøkta. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | `AGENTS.md`, «Arbeidsform». Med bestilling kjøres `/design-review` også mot den, etter «Sammenligne en bygget visning» i `brukerforlop`, i den rekkefølgen `AGENTS.md`, «Arbeidsform», gir. Avvikstabellen og skjermbildene side om side, i samme bredde, står i PR-en før den meldes klar. `/design-deslop` endrer ikke det bestillingen fastsetter, med mindre endringen føres som bevisst endring i avvikstabellen. En bevisst endring er ikke godkjent før oppdragsgiver har sagt ja (oppdragsgiver 02.11, #1492) |
-| Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | Agenten `mekanisk-pr`, og `github` | `AGENTS.md`, «Arbeidsform», og «Subagent eller økt» |
+| Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | En mekanisk arbeidsøkt på Haiku, med `github` | `diffkontroll` mot bestillingen før merge, `AGENTS.md`, «Arbeidsform», og «Subagent eller økt» |
 | Review i ny økt | Fortsetter en PR fra en byggeøkt | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | `AGENTS.md`, «Arbeidsform» |
 
 En PR som blander typene, følger den strengeste.

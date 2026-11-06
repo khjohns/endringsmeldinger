@@ -74,10 +74,6 @@ subagent gjøre analysen, med denne bestillingen:
   som ble sett nærmere på.
 - Se om nedre grense i [«Subagenter»](../orkestrering/SKILL.md#subagenter) holder:
   subagenter med under om lag fem verktøykall skulle vært gjort i økta.
-- Til #1639 er lukket: tell kallene til `ci-logg`, `diffkontroll` og `mekanisk-pr`
-  i orkestratorøktene i perioden. Hent sidene fra `list_events` med `kinds`
-  `["assistant"]`, lagre dem til fil og tell `subagent_type` i Agent-kallene med et
-  skript. Skriv tallene som kommentar i #1639.
 
 ## 4. Issuet
 
