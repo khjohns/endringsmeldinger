@@ -65,8 +65,8 @@ finner ut at pålegget ble mottatt 20.09.2026.
 | Steg | Hvem | Hva brukeren gjør | Hva brukeren ser |
 | --- | --- | --- | --- |
 | 1 | TE | Åpner saken etter svaret | Datoen TE oppga i grunnlagskravet, med handlingen «Korriger datoen» ved den (U-1). `#saken` |
-| 2 | TE | Velger «Korriger datoen» | Skjemaet: den gjeldende opplysningen og brevet den står i, ett datofelt og brevteksten slik den blir (U-2, U-3). En uendret dato stoppes i skjemaet. `#korrigering`, `#uendret` |
-| 3 | TE | Skriver den nye datoen og sender | Kvittering med brevet og at svaret står (U-4). `#sendt` |
+| 2 | TE | Velger «Korriger datoen» | Utkastet: den gjeldende opplysningen og brevet den står i, ett datofelt og forklaringen (U-2). En uendret dato stoppes når TE går videre. `#korrigering`, `#uendret` |
+| 3 | TE | Skriver den nye datoen, velger «Se brevet før sending» og sender fra brevkontrollen | Brevet ordrett i brevkontrollen, som for de andre brevene (U-3), og deretter kvittering med brevet og at svaret står (U-4). `#sendt` |
 | 4 | BH | Åpner saken | Brevet med korrigeringen ved grunnlagskravet, den nye og den tidligere datoen, og at saken ikke venter på BH (U-5, U-6). `#bh` |
 | 2C | TE | Begynner på en ny versjon av grunnlagskravet | Datoen står låst som TEs siste opplysning, med lenken «Korriger datoen i et eget brev» (U-7). Etter korrigeringen gjengir versjonen datoen med henvisning til brevet. `#ny-versjon`, `#ny-versjon-etter` |
 | 2D | TE | Åpner saken etter at TE har godtatt svaret | «Korriger datoen» står ved datoen, med at korrigeringen ikke endrer utfallet og at BH kan ta stilling i et innlegg (U-1, U-6). Kvitteringen og BHs side sier at saken står lukket og at utfallet ikke endres. `#lukket`, `#korrigering`, `#sendt`, `#bh` |
@@ -161,4 +161,4 @@ Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svar
 | Dato | Grunnlag | Hva |
 | --- | --- | --- |
 | 05.11.2026 | #1308, MM-U52, svarene «1 A, 2 A» | Første versjon |
-| 06.11.2026 | #1624, #1615 | G-6 og G-8 er bygget. G-7 er presisert. Skissen er versjon 3: en ny versjon avslår ikke svaret, men svaret kan da ikke godtas i løsningen |
+| 06.11.2026 | #1624, #1615, svaret på S-4b i BF-10 | G-6 og G-8 er bygget. G-7 er presisert. Skissen er versjon 3: en ny versjon avslår ikke svaret, men svaret kan da ikke godtas i løsningen. Korrigeringen går gjennom brevkontrollen, med samme utkastkort som de andre skjemaene (svaret på S-4b i BF-10). Skissen viser fortsatt brevet ved siden av skjemaet |
