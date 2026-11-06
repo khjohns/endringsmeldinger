@@ -34,6 +34,11 @@
     },
     {
       "dato": "2026-11-06",
+      "forhold": "#1615, LV-U56",
+      "hva": "Etter korrigeringen gjengir den nye versjonen datoen og nevner den tidligere datoen med brevet den ble oppgitt i (LV-U56)."
+    },
+    {
+      "dato": "2026-11-06",
       "forhold": "oppdragsgiver 06.11, tekstene i #1646",
       "hva": "Forståelsen kaller ikke den nye versjonen en ny kravversjon."
     }
@@ -131,8 +136,7 @@
         {
           "rolle": "mal",
           "kilde": [
-            "MM-U52",
-            "LV-U54"
+            "MM-U52"
           ],
           "prov": {
             "handling": "krav",
@@ -160,10 +164,10 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "TE ser at den nye versjonen gjengir 20.09.2026 med henvisning til brevet med korrigeringen, og ikke kan sende 15.09.2026.",
+          "tekst": "TE ser at den nye versjonen gjengir 20.09.2026 og nevner at TE tidligere oppga 15.09.2026 i det første brevet, og at TE ikke kan sende 15.09.2026.",
           "kilde": [
             "MM-U52",
-            "LV-U54",
+            "LV-U56",
             "LV-U53"
           ]
         }

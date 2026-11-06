@@ -29,6 +29,11 @@
     },
     {
       "dato": "2026-11-06",
+      "forhold": "#1615, LV-U56, LV-U57",
+      "hva": "Brevteksten for en ny grunnlagsversjon etter en korrigering følger LV-U56: den nevner hver tidligere dato med brevet, den opprinnelige først, i stedet for det siste brevet med en korrigering (LV-U54). Setningen om datoen i det første brevet følger LV-U57."
+    },
+    {
+      "dato": "2026-11-06",
       "forhold": "oppdragsgiver 06.11, tekstene i #1646",
       "hva": "Forståelsen kaller ikke påberopelsen et krav eller en kravversjon, og sier at påberopelsen og svaret står som de ble sendt, ikke at saken venter eller ikke venter på BH."
     },
@@ -186,10 +191,11 @@
           ]
         },
         {
-          "tekst": "TE ser at en senere ny versjon av påberopelsen gjengir den nye datoen med henvisning til brevet med korrigeringen.",
+          "tekst": "TE ser at en senere ny versjon av påberopelsen gjengir den nye datoen og nevner den tidligere datoen med brevet den ble oppgitt i.",
           "kilde": [
             "MM-U52",
-            "LV-U54"
+            "LV-U56",
+            "LV-U57"
           ]
         }
       ]
@@ -209,7 +215,7 @@
         "start": "saken",
         "handlinger": [
           {
-            "staar": "Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026."
+            "staar": "Pålegget ble mottatt 15. september 2026."
           },
           {
             "staar": "påberoper at varselet etter punkt 32.2 kom for sent"
@@ -339,7 +345,7 @@
             "staar": "TEs siste opplysning: 20. september 2026"
           },
           {
-            "staar": "Totalentreprenøren opplyser at pålegget ble mottatt 20. september 2026, slik totalentreprenøren oppga i brev K201-KOE-017-03 av 5. november 2026."
+            "staar": "Pålegget ble mottatt 20. september 2026. Totalentreprenøren oppga tidligere 15. september 2026 i brev K201-KOE-017-01 av 1. oktober 2026."
           }
         ]
       },

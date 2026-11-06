@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `3726180dc98433f90402e233cc73476136c9588d3a8fa21df90d6382ac3e71c3`
+Kontrollsum (SHA-256 over utdraget visningen leser): `649396dea1f2bc0cc000e42611b4ba51e79f0ace7a4b89da1cf36549992d2c42`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1918,9 +1918,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [MM-U41](#mm-u41). Presiserer [VS-U43](#vs-u43). Samlet 05.11 av [MM-U52](#mm-u52). Forholdene står i alternativ A: «presiserer punkt 10 i samlevedtaket for retting av sendt brev og designdelen i VS-U43». Bygges i #1308.
 
-**Regelrader:** [GR-37](#rad-gr-37)
+**Regelrader:** —
 
-**Bevis-saker som viser til vedtaket:** F-MM-KORR3 (målmodellen)
+**Bevis-saker som viser til vedtaket:** —
 
 ### <a id="mm-u52"></a>MM-U52
 
@@ -2002,7 +2002,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endrer [KA-U52](#ka-u52). Endrer [LV-U41](#lv-u41). Endrer [LV-U52](#lv-u52). Endrer [MM-U52](#mm-u52). Forholdet står i alternativ A: «endrer KA-U52 punkt 4, LV-U41 og LV-U52 for forholdet, og LV-U54 (samlet i MM-U52 punkt 10)». LV-U54 er samlet i MM-U52, og forholdet er ført til MM-U52. S-1 A og S-1 B er ført som forkastet etter svaret på S-1 («"Erstatter" er for rigid»). Alternativene i S-8 er ikke ført: svaret på S-8 valgte ingen av dem og ble fulgt opp med S-8b. Bygges i #1615.
 
-**Regelrader:** —
+**Regelrader:** [GR-37](#rad-gr-37)
 
 **Bevis-saker som viser til vedtaket:** —
 
@@ -2930,7 +2930,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-34"></a>GR-34 | TE sender et varsel etter § 32.2 fra appen uten beskrivelse av pålegget. | [GR-U15](#gr-u15) | F-MM-GR-U15-beskrivelse (målmodellen) |
 | <a id="rad-gr-35"></a>GR-35 | Byggherren godkjenner fra appen et grunnlag som blir en endringsordre etter § 32.3 første ledd a, og TEs krav, sendt fra appen, har ingen beskrivelse av pålegget, for eksempel fordi en annen skriver har lagret det. | [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U12](#gr-u12), [GR-U13](#gr-u13) | F-MM-GR-U14-uten-beskrivelse (målmodellen) |
 | <a id="rad-gr-36"></a>GR-36 | TE korrigerer sin opplysning om datoen pålegget ble mottatt eller TE ble klar over forholdet, i et eget brev fra løsningen med henvisning til brevet med opplysningen. Byggherren har svart og påberopt at varselet kom for sent, og saken kan være avgjort ved enighet eller lukket. | [MM-U41](#mm-u41), [MM-U52](#mm-u52), [MM-U51](#mm-u51), [LV-U53](#lv-u53), [GR-U27](#gr-u27), [MM-U50](#mm-u50) | F-MM-KORR1 (målmodellen), F-MM-KORR2 (målmodellen), F-MM-KORR4 (målmodellen) |
-| <a id="rad-gr-37"></a>GR-37 | TE sender en ny grunnlagsversjon etter at TE har oppgitt datoen pålegget ble mottatt eller TE ble klar over forholdet, med eller uten en korrigering av datoen. | [MM-U41](#mm-u41), [MM-U52](#mm-u52), [LV-U54](#lv-u54), [LV-U53](#lv-u53) | F-MM-KORR3 (målmodellen) |
+| <a id="rad-gr-37"></a>GR-37 | TE sender en ny grunnlagsversjon etter at TE har oppgitt datoen pålegget ble mottatt eller TE ble klar over forholdet, med eller uten en korrigering av datoen. | [MM-U41](#mm-u41), [MM-U52](#mm-u52), [LV-U56](#lv-u56), [LV-U53](#lv-u53) | F-MM-KORR3 (målmodellen) |
 | <a id="rad-ka-32"></a>KA-32 | Et registrert brev er merket med noe appen ikke kan uttrykke, i brevet selv eller senere av en av partene. | [KA-U45](#ka-u45), [MM-U50](#mm-u50), [MM-U43](#mm-u43), [OV-U6](#ov-u6), [OV-U4](#ov-u4) | — |
 | <a id="rad-ka-33"></a>KA-33 | Den som sendte et merket brev, avklarer at standpunktene i det gjelder uten forbehold, eller sier noe nytt i sporet. | [MM-U50](#mm-u50), [KA-U45](#ka-u45), [MM-U43](#mm-u43) | — |
 | <a id="rad-ka-34"></a>KA-34 | TE trekker vederlag, frist eller grunnlaget når en enighet trekket rammer, bygger på et merket brev, og merkingen gjelder sporet enigheten gjelder. | [OV-U4](#ov-u4), [KA-U45](#ka-u45) | — |

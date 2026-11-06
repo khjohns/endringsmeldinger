@@ -12362,7 +12362,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "LV-U54"],
+          "kilde": ["MM-U41", "MM-U52"],
           "prov": { "handling": "krav", "spor": "forhold", "underkategori": "irregulaer_endring" },
           "forventet": { "avvist": true, "regel": "DATOEN_KAN_IKKE_ENDRES" }
         },

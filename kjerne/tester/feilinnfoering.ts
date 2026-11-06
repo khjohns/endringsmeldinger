@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, LV-U54, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U52 punkt 14, #1615). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -1876,7 +1876,10 @@ const MUTASJONER: Mutasjon[] = [
       'en ny påberopelsesversjon med en annen underkategori i samme hovedkategori godtas (GR-U22, #569)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ['    tekst(k.innhold.underkategori) === tekst(forrige.innhold.underkategori)', '    true'],
+      [
+        '    tekst(k.innhold.underkategori) !== tekst(forrige.innhold.underkategori)\n',
+        '    false\n',
+      ],
     ],
     mal: [
       'grunnforhold til medvirkning, i samme hovedkategori',
@@ -2003,7 +2006,10 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F253',
     feilklasse: 'brevet sier ikke datoen pålegget ble mottatt (VS-U26, #664)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["...dato('paalegg_mottatt'),", '']],
+    endringer: [
+      ["          ...dato('paalegg_mottatt'),\n        ]\n", '        ]\n'],
+      ["rettidigheten.\n          ...dato('paalegg_mottatt'),", 'rettidigheten.'],
+    ],
     mal: [
       'en endring der § 32.2 gjelder, med varselet',
       'en ny grunnlagsversjon kan ikke endre datoen',
@@ -3799,7 +3805,7 @@ const MUTASJONER: Mutasjon[] = [
   },
 
   // #1308: TEs korrigering av datoen etter punkt 10 og 11 i samlevedtaket for retting av sendt
-  // brev (MM-U41 (opphevet av MM-U52)), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U54).
+  // brev (MM-U41 (opphevet av MM-U52)), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U56).
   {
     id: 'F456',
     feilklasse:
@@ -3860,21 +3866,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['brevet har teksten i punkt 10', 'i svikt og andre forhold gjelder korrigeringen'],
-  },
-  {
-    id: 'F461',
-    feilklasse: 'en ny grunnlagsversjon etter en korrigering viser ikke til korrigeringen (LV-U54)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        '      korrigert\n        ? `${opplyser}, slik',
-        '      false\n        ? `${opplyser}, slik',
-      ],
-    ],
-    mal: [
-      'en ny grunnlagsversjon kan ikke endre datoen',
-      'en ny korrigering viser til den forrige',
-    ],
   },
   {
     id: 'F462',
@@ -3955,6 +3946,80 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['grunn: (i) => plass(i + 1)', 'grunn: (i) => plass(i)']],
     mal: ['avslag og påberopt preklusjon etter § 32.2 opptar første og andre lag, posten tredje'],
+  },
+
+  // #1615: en ny versjon av påberopelsen (LV-U56) og endringsordren som står (MM-U52 punkt 14).
+  {
+    id: 'F470',
+    feilklasse: 'en ny påberopelsesversjon kan endre endringsordren (MM-U52 punkt 14)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (tekst(k.innhold.endringsordre) !== tekst(forrige.innhold.endringsordre))',
+        '  if (false)',
+      ],
+    ],
+    mal: [
+      'en annen endringsordre med uendret underkategori',
+      'meldingen ved en annen endringsordre',
+    ],
+  },
+  {
+    id: 'F471',
+    feilklasse:
+      'en ny påberopelsesversjon nevner ikke de tidligere datoene etter en korrigering (LV-U56)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];',
+        '    const tidligere = opplysninger.slice(0, 0);',
+      ],
+    ],
+    mal: [
+      'en ny grunnlagsversjon kan ikke endre datoen',
+      'nevner hver tidligere dato, den opprinnelige først',
+      'nevner datoen i en versjon fra en annen skriver',
+    ],
+  },
+  {
+    id: 'F472',
+    feilklasse: 'de tidligere datoene står ikke med den opprinnelige først (LV-U56)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];',
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1).reverse() : [];',
+      ],
+    ],
+    mal: ['nevner hver tidligere dato, den opprinnelige først'],
+  },
+  {
+    id: 'F473',
+    feilklasse:
+      'en ny påberopelsesversjon gjentar teksten i det første brevet, med varselet etter punkt 32.2 (LV-U56)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  const nyVersjon = k.erstatter !== null;', '  const nyVersjon = false;']],
+    mal: [
+      'underkategorien endringsordre har ingen dato',
+      'en ny grunnlagsversjon kan ikke endre datoen',
+    ],
+  },
+  {
+    id: 'F474',
+    feilklasse: 'en ny påberopelsesversjon sier at den erstatter det tidligere kravet (LV-U56)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["  if (k.erstatter && k.spor !== 'forhold')", '  if (k.erstatter)']],
+    mal: ['underkategorien endringsordre har ingen dato'],
+  },
+  {
+    id: 'F475',
+    feilklasse:
+      'en ny versjon av vederlags- eller fristkravet viser ikke til kravet den erstatter (KA-U52 punkt 4)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ["  if (k.erstatter && k.spor !== 'forhold')", "  if (k.erstatter && k.spor === 'forhold')"],
+    ],
+    mal: ['en ny kravversjon viser til den den erstatter'],
   },
 ];
 

@@ -118,7 +118,7 @@
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak KOE-17. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
@@ -152,7 +152,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 49,
+                  "regelversjon": 50,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -256,7 +256,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 49,
+                  "regelversjon": 50,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -308,7 +308,7 @@
                 "id": "1975bfcf-0000-4000-8000-00000000001e",
                 "art": "aksept",
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
-                "regelversjon": 49
+                "regelversjon": 50
               }
             ],
             "brevtekst": [
@@ -365,7 +365,7 @@
             "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere.",
             "BH ser korrigeringen som et nytt brev med henvisning til påberopelsen. BH ser at svaret står som det ble sendt, og at BH kan ta stilling til den nye datoen i et senere svar.",
             "Ingen av partene leser av visningen at varselet nå kom i tide. Løsningen avgjør ikke hvilken dato som er riktig, eller om varselet var rettidig.",
-            "TE ser at en senere ny versjon av påberopelsen gjengir den nye datoen med henvisning til brevet med korrigeringen."
+            "TE ser at en senere ny versjon av påberopelsen gjengir den nye datoen og nevner den tidligere datoen med brevet den ble oppgitt i."
           ],
           "neste": null
         }
@@ -411,7 +411,7 @@
             "brevtekst": [
               {
                 "gjelder": "ca5f0a19-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
               }
             ],
@@ -452,7 +452,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 49,
+                  "regelversjon": 50,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -552,7 +552,7 @@
           "beskrivelse": "TE har korrigert datoen til 20.09.2026 og begynner igjen på en ny versjon.",
           "versjon": 4,
           "forstaaelse": [
-            "TE ser at den nye versjonen gjengir 20.09.2026 med henvisning til brevet med korrigeringen, og ikke kan sende 15.09.2026."
+            "TE ser at den nye versjonen gjengir 20.09.2026 og nevner at TE tidligere oppga 15.09.2026 i det første brevet, og at TE ikke kan sende 15.09.2026."
           ],
           "neste": null
         }
@@ -598,7 +598,7 @@
             "brevtekst": [
               {
                 "gjelder": "c85f06f3-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren krever endringsordre for «TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
               }
             ],
@@ -639,7 +639,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 49,
+                  "regelversjon": 50,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -783,7 +783,7 @@
             "brevtekst": [
               {
                 "gjelder": "cd5f0ed2-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt i en lukket sak» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt i en lukket sak» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
               }
             ],
@@ -824,7 +824,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 49,
+                  "regelversjon": 50,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -873,7 +873,7 @@
                 "id": "cd5f0ed2-0000-4000-8000-000000000012",
                 "art": "aksept",
                 "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
-                "regelversjon": 49
+                "regelversjon": 50
               }
             ],
             "brevtekst": [
@@ -1026,7 +1026,7 @@
             "brevtekst": [
               {
                 "gjelder": "1475b7f0-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak KOE-17. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
@@ -1060,7 +1060,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 49,
+                  "regelversjon": 50,
                   "linje": "Byggherrens standpunkt: avslått.",
                   "sammenfall": false,
                   "varslingsplikt": false,
@@ -1164,7 +1164,7 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 49,
+                  "regelversjon": 50,
                   "linje": "Byggherrens standpunkt: subsidiært varselet etter § 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -1285,7 +1285,7 @@
             "brevtekst": [
               {
                 "gjelder": "1575b983-0000-4000-8000-000000000008",
-                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
               }
             ],

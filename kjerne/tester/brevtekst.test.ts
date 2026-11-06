@@ -233,12 +233,14 @@ const laast = (rad: Journalrad) => tekst(rad).map((a) => a.laast);
 
 const BESKRIVELSE = 'Byggherren har pålagt en annen fundamentering.';
 
-/** VS-U26: datoen varslingsplikten løper fra, som TE oppgir i påberopelsen. */
+/**
+ * VS-U26: datoen varslingsplikten løper fra, som TE oppgir i påberopelsen. Setningen er den samme
+ * i det første brevet og i en ny versjon (LV-U57, LV-U56).
+ */
 const MOTTATT = { paalegg_mottatt: '2026-09-25' };
 const KLAR_OVER = { klar_over_forholdet: '2026-09-25' };
-const MOTTATT_TEKST = 'Totalentreprenøren opplyser at pålegget ble mottatt 25. september 2026.';
-const KLAR_OVER_TEKST =
-  'Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 25. september 2026.';
+const MOTTATT_TEKST = 'Pålegget ble mottatt 25. september 2026.';
+const KLAR_OVER_TEKST = 'Totalentreprenøren ble klar over forholdet 25. september 2026.';
 
 const PAABEROPELSE = {
   type: 'krav',
@@ -482,7 +484,46 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     expect(s.journal.flatMap(utenAvsnitt)).toEqual([]);
   });
 
-  it('en ny kravversjon viser til den den erstatter', () => {
+  // LV-U56 og tilfellene 1, 5 og 6 i BF-10-brevtekst.md: den låste delen sier bare hva
+  // påberopelsen gjelder, og datoen. Den sier ikke at noe erstattes, og gjentar ikke varselet
+  // etter punkt 32.2.
+  describe('en ny versjon av påberopelsen (LV-U56)', () => {
+    const nyVersjon = (innhold: Data) => {
+      const s = sak();
+      s.send('TE', { type: 'krav', spor: 'forhold', innhold, utdypning: BESKRIVELSE });
+      return laast(
+        s.send('TE', { type: 'krav', spor: 'forhold', innhold, utdypning: BESKRIVELSE })
+      );
+    };
+
+    it('en endring der § 32.2 gjelder', () => {
+      expect(nyVersjon(PAABEROPELSE.innhold)).toEqual([
+        `Påberopelsen gjelder irregulær endring (NS 8407 punkt 32.1) for ${NAVNET}. ${MOTTATT_TEKST}`,
+      ]);
+    });
+
+    it('svikt viser til § 33.1 b og § 34.1.2', () => {
+      expect(
+        nyVersjon({ hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER })
+      ).toEqual([
+        `Påberopelsen gjelder uforutsette forhold ved grunnen (NS 8407 punkt 23.1, jf. punkt 33.1 b og 34.1.2) for ${NAVNET}. ${KLAR_OVER_TEKST}`,
+      ]);
+    });
+
+    it('underkategorien endringsordre har ingen dato', () => {
+      expect(
+        nyVersjon({
+          hovedkategori: 'endring',
+          underkategori: 'endringsordre',
+          endringsordre: 'EO 12',
+        })
+      ).toEqual([
+        `Påberopelsen gjelder endringsordre «EO 12» fra byggherren (NS 8407 punkt 31.3) for ${NAVNET}.`,
+      ]);
+    });
+  });
+
+  it('en ny kravversjon viser til den den erstatter (KA-U52 punkt 4, #1379)', () => {
     const s = sakMedKrav();
     const utenVarsel = utenFelt(FRISTKRAV, 'varsel');
     const rad = s.send('TE', { ...utenVarsel, innhold: { dager: 30 } });
@@ -602,7 +643,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
 /**
  * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)), med partene skrevet fullt
  * ut (LV-U35) og henvisningen etter LV-U53. Teksten i en ny grunnlagsversjon etter en
- * korrigering er LV-U54, og korrigeringen i en lukket sak er MM-U51. At korrigeringen avvises
+ * korrigering er LV-U56, og korrigeringen i en lukket sak er MM-U51. At korrigeringen avvises
  * når henvisningen er ugyldig, når datoen er uendret og når datoen er etter brevets dato, er
  * arbeidsvalgene i avgrensningen av #1308.
  */
@@ -714,7 +755,7 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     expect(venterPaaSvar(u, 'forhold'), 'punkt 11: sporet venter ikke på et nytt svar').toBe(false);
   });
 
-  it('en ny grunnlagsversjon kan ikke endre datoen, og gjengir TEs siste opplysning med henvisning til korrigeringen (punkt 10, LV-U54)', () => {
+  it('en ny grunnlagsversjon kan ikke endre datoen, og gjengir TEs siste opplysning med den opprinnelige datoen og brevet (punkt 10, LV-U56)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     expect(
@@ -736,13 +777,13 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
       ...PAABEROPELSE,
       innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
     });
-    expect(laast(ny)[0]).toContain(
-      'Totalentreprenøren opplyser at pålegget ble mottatt 20. september 2026, slik totalentreprenøren oppga i brev K201-KOE-017-03 av 4. oktober 2026.'
-    );
+    expect(laast(ny)).toEqual([
+      `Påberopelsen gjelder irregulær endring (NS 8407 punkt 32.1) for ${NAVNET}. Pålegget ble mottatt 20. september 2026. Totalentreprenøren oppga tidligere 25. september 2026 i brev K201-KOE-017-01 av 2. oktober 2026.`,
+    ]);
     expect(s.u().datoopplysninger, 'gjengivelsen er ikke en ny opplysning').toHaveLength(2);
   });
 
-  it('en ny korrigering viser til den forrige, og en ny grunnlagsversjon til den siste (punkt 10, LV-U54)', () => {
+  it('en ny korrigering viser til den forrige, og en ny grunnlagsversjon nevner hver tidligere dato, den opprinnelige først (punkt 10, LV-U56)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
@@ -760,7 +801,36 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
       innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-22' },
     });
     expect(laast(ny)[0]).toContain(
-      'Totalentreprenøren opplyser at pålegget ble mottatt 22. september 2026, slik totalentreprenøren oppga i brev K201-KOE-017-03 av 4. oktober 2026.'
+      'Pålegget ble mottatt 22. september 2026. Totalentreprenøren oppga tidligere 25. september 2026 i brev K201-KOE-017-01 av 2. oktober 2026 og 20. september 2026 i brev K201-KOE-017-02 av 3. oktober 2026.'
+    );
+  });
+
+  it('en ny grunnlagsversjon nevner datoen i en versjon fra en annen skriver, som utledningen leser (LV-U56, MM-U43 punkt 6)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.rad('TE', {
+      krav: [
+        {
+          id: randomUUID(),
+          spor: 'forhold',
+          erstatter: s.krav('forhold'),
+          hovedkategori: 'endring',
+          underkategori: 'irregulaer_endring',
+          paalegg_mottatt: '2026-09-18',
+        },
+      ],
+    });
+    s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
+    expect(
+      s.u().datoopplysninger.map((o) => o.dato),
+      'forutsetning: utledningen leser datoen i versjonen fra den andre skriveren'
+    ).toEqual(['2026-09-25', '2026-09-18', '2026-09-20']);
+    const ny = s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
+    });
+    expect(laast(ny)[0]).toContain(
+      'Pålegget ble mottatt 20. september 2026. Totalentreprenøren oppga tidligere 25. september 2026 i brev K201-KOE-017-01 av 2. oktober 2026 og 18. september 2026 i brev K201-KOE-017-02 av 3. oktober 2026.'
     );
   });
 
@@ -3595,6 +3665,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tittel: TITTEL,
       svarPaaPaaberopelsen: null,
+      datoopplysninger: [],
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
     };
@@ -3685,6 +3756,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       tittel: TITTEL,
       svarPaaPaaberopelsen: null,
+      datoopplysninger: [],
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
     };
@@ -4160,6 +4232,7 @@ describe('vedleggene står i teksten (A4)', () => {
     sakskode: { kode: 'koe' as const, loepenummer: 17 },
     tittel: TITTEL,
     svarPaaPaaberopelsen: null,
+    datoopplysninger: [],
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
   };
@@ -4658,16 +4731,28 @@ describe('en ny påberopelsesversjon beholder hjemmelen (GR-U22)', () => {
     ],
     ['samme hjemmel i irregulær endring', null, PAABEROPELSE.innhold, null],
     ['samme hjemmel i svikt', svikt, svikt, null],
+    // MM-U52 punkt 14: endringsordren står.
     [
-      'en ny endringsordre med uendret underkategori',
+      'en annen endringsordre med uendret underkategori',
       endringsordre,
       { ...endringsordre, endringsordre: 'EO-2' },
-      null,
+      'ANNEN_ENDRINGSORDRE',
     ],
+    ['samme endringsordre', endringsordre, endringsordre, null],
   ] as [string, Data | null, Data, string | null][])('%s', (_n, foerste, neste, regel) => {
     const s = sak();
     s.send('TE', foerste ? versjon(foerste) : PAABEROPELSE);
     expect(s.avvist('TE', versjon(neste))).toBe(regel);
+  });
+
+  it('meldingen ved en annen endringsordre sier hvilken endringsordre som står (MM-U52 punkt 14)', () => {
+    const s = sak();
+    s.send('TE', versjon(endringsordre));
+    expect(s.avvisning('TE', versjon({ ...endringsordre, endringsordre: 'EO-2' }))).toEqual({
+      regel: 'ANNEN_ENDRINGSORDRE',
+      melding:
+        'Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «EO-1». En annen endringsordre påberopes i en ny sak (MM-U52 punkt 14).',
+    });
   });
 
   it('det første påberopelsen kan ha enhver kategori', () => {
