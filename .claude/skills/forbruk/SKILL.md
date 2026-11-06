@@ -59,6 +59,7 @@ subagent gjøre analysen, med denne bestillingen:
   - andelen av `cache_read` per agent, med antall kall og største kontekst;
   - de største verktøysvarene, gruppert etter verktøy og kommando;
   - grunnkonteksten per agent;
+  - subagentene med under fem verktøykall, med antall og kostnad;
   - hva analysen selv kostet.
 
 ## 3. Kontroller
@@ -71,6 +72,8 @@ subagent gjøre analysen, med denne bestillingen:
   endte over 150 000 tokens og varte klart over en time; en orkestrator over
   300 000 tokens; og subagenter over 150 000 tokens eller 80 kall i de øktene
   som ble sett nærmere på.
+- Se om nedre grense i skillen [`subagenter`](../subagenter/SKILL.md) holder:
+  subagenter med under om lag fem verktøykall skulle vært gjort i økta.
 
 ## 4. Issuet
 
