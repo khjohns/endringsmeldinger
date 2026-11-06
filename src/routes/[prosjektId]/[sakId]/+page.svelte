@@ -43,6 +43,7 @@
     kvittering={page.state.nySakSendt ? NYSAK.kvittering : undefined}
     saksliste={resolve('/[prosjektId]', { prosjektId })}
     prosjekter={resolve('/')}
+    dagensVisning={resolve('/[prosjektId]/[sakId]/kjerne', { prosjektId, sakId })}
     bruker={page.data.user}
   />
 {/key}

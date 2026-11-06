@@ -42,6 +42,7 @@
     onvelg,
     onspor,
     onakseptbrev,
+    dagensVisning,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -50,6 +51,8 @@
     onvelg: (noekkel: string) => void;
     /** Brukeren valgte et annet spor på siden for forholdet. */
     onspor?: (spor: Spor) => void;
+    /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
+    dagensVisning?: string;
     onakseptbrev: (k: {
       kommando: Record<string, unknown>;
       tekst: string[];
@@ -81,7 +84,10 @@
       ? 'svare:vederlag'
       : null
   );
-  const menyvalg = $derived(iSporet.filter((n) => n !== `godta:${spor}` && n !== svare));
+  // Korrigeringen av datoen har ingen skjerm i noen visning ennå (#1615), så den står ikke i lista.
+  const menyvalg = $derived(
+    iSporet.filter((n) => n !== `godta:${spor}` && n !== svare && !n.startsWith('korrigere:'))
+  );
   const avslag = $derived(
     svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
   );
@@ -145,6 +151,14 @@
     return innsigelsen(e.art, sporbrev.find((b) => b.id === e.hendelse)?.nummer ?? null);
   }
 
+  /** Linja under handlingen: hva den gjør med saken. */
+  function virkningen(n: string): string | null {
+    if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
+    if (n.startsWith('trekke:')) return HANDLINGENE.virkning.trekkKravet;
+    if (n.startsWith('krav:')) return HANDLINGENE.virkning.nyVersjon;
+    return null;
+  }
+
   function seAksepten() {
     const b = kjernesak.brev(akseptkommando!, undefined, true);
     if (!b || !('tekst' in b) || !b.tekst) {
@@ -167,6 +181,8 @@
     handlinger={menyvalg}
     bygget={spor === 'vederlag' ? ['svare'] : []}
     tekstFor={innsigelsestekst}
+    beskrivelseFor={virkningen}
+    {dagensVisning}
     {onvelg}
   />
 {/snippet}

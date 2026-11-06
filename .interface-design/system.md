@@ -299,8 +299,14 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   valgene kjernen tilbyr, eller «Svar på kravet» når Varden kan åpne svaret. Resten står under
   «Andre handlinger» som en åpen liste (`Brevtyper`), ikke en meny, som i prototypen
   `grunnlagsoversikt.html` (oppdragsgiver 06.11, #1631). Lista vises bare når kjernen tilbyr en
-  handling ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Brevtypene som ikke er bygget,
-  står under én felles linje.
+  handling ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet,
+  en linje om hva handlingen gjør med saken, pil og skillelinjer. En brevtype som ikke er bygget,
+  åpner saken i dagens visning. En handling som ikke har en skjerm i noen visning ennå, står ikke
+  der (oppdragsgiver 06.11, #1631).
+- **Panelet til venstre** har sakens kode over tittelen, og sporene i to grupper:
+  «Kontraktsforhold» med forholdet og «Krav» med vederlagsjusteringen og fristforlengelsen.
+  Navnene står uten linje under; betegnelsen og siste brev står på siden for sporet
+  (oppdragsgiver 06.11, #1631).
 - **Topplinja** har stien «Varden › prosjektet › saken», med sakens kode, og den innloggede
   med initialene og navnet. Rollen står ikke der (oppdragsgiver 06.11, #1631).
 - **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i

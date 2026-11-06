@@ -226,11 +226,6 @@
     outline: 2px solid var(--sidebar-focus);
     outline-offset: -2px;
   }
-  .panel :global(.valg .under) {
-    color: var(--sidebar-muted);
-    font-size: 12px;
-    font-weight: 400;
-  }
   /* Kontrakten står nederst i panelet, som i dagens oversikt (oppdragsgiver 30.10). */
   .kontrakten,
   .prototype {

@@ -17,17 +17,8 @@
   import Vederlagssvar from './Vederlagssvar.svelte';
   import { tomtSvar } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
-  import { betegnelsene, brevForLinja, brevene, forholdetISaken, type Brevref } from './lesing';
-  import {
-    BETEGNELSE,
-    BREVKONTROLL,
-    MOTTATT,
-    NYSAK,
-    SAKEN,
-    SPORNAVN,
-    STILLING,
-    dato,
-  } from './tekster';
+  import { brevene, forholdetISaken, type Brevref } from './lesing';
+  import { BREVKONTROLL, MOTTATT, NYSAK, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
 
   let {
     kjernesak,
@@ -38,6 +29,7 @@
     bruker = null,
     nySak,
     spor,
+    dagensVisning,
   }: {
     kjernesak: Kjernesakkontekst;
     /** Sporet saken åpner i. Uten det står saken i vederlaget, eller i forholdet etter opprettelsen. */
@@ -52,6 +44,8 @@
     bruker?: { name: string } | null;
     /** Skjemaet for ny sak, som står i arbeidsflaten før saken finnes (BF-05, KT-U11). */
     nySak?: Snippet;
+    /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
+    dagensVisning?: string;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
     kontrakt?: Kontrakt;
   } = $props();
@@ -81,7 +75,10 @@
   };
   type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
 
-  const SPORENE: Spor[] = ['forhold', 'vederlag', 'frist'];
+  const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
+    { id: 'forholdet', etikett: SAKEN.kontraktsforhold, spor: ['forhold'] },
+    { id: 'kravene', etikett: SAKEN.krav, spor: ['vederlag', 'frist'] },
+  ];
   // Etter opprettelsen står saken i forholdet, med påberopelsen (BF-05 steg 6).
   let valgt = $state<Spor>(untrack(() => spor ?? (kvittering ? 'forhold' : 'vederlag')));
   let arbeid = $state<Arbeid>({ art: 'les' });
@@ -102,16 +99,18 @@
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
   // Forholdet heter det TE påberoper i sporlista, som i sporhodet (OV-U78).
-  const betegnelser = $derived(betegnelsene(kjernesak.saksbilde));
   const forholdsnavn = $derived((u && forholdetISaken(u)?.navn) ?? SPORNAVN.forhold);
+  const sakskode = $derived.by(() => {
+    const kode = kjernesak.sak?.merking?.sakskode;
+    return kode ? sakensKode(kode) : null;
+  });
   // Stien som i prototypen: Varden › prosjektet › saken, med sakens kode (LV-U46).
   const sti = $derived.by((): Smule[] => {
     const prosjekt = (kontrakt ?? kontraktFraProsjektet()).prosjekt;
-    const kode = kjernesak.sak?.merking?.sakskode;
     return [
       { tekst: SAKEN.merkenavn, href: prosjekter },
       ...(prosjekt ? [{ tekst: prosjekt, href: saksliste }] : []),
-      { tekst: nySak ? NYSAK.over : kode ? sakensKode(kode) : SAKEN.nav },
+      { tekst: nySak ? NYSAK.over : (sakskode ?? SAKEN.nav) },
     ];
   });
 
@@ -180,7 +179,10 @@
   {#snippet panel()}
     {#if !nySak && u && kjernesak.saksbilde}
       <header class="sakshode">
-        <h1>{kjernesak.saksbilde.tittel}</h1>
+        <div class="tittel">
+          {#if sakskode}<p class="kode">{sakskode}</p>{/if}
+          <h1>{kjernesak.saksbilde.tittel}</h1>
+        </div>
         {#if brev[0]}
           <dl class="meta">
             <div>
@@ -191,36 +193,32 @@
         {/if}
       </header>
 
+      <!-- Forholdet og kravene som bygger på det, i hver sin gruppe (oppdragsgiver 06.11, #1631). -->
       <nav class="sporene" aria-label={SAKEN.nav}>
-        <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
-        <ul class="valgene" aria-labelledby="spor-etikett">
-          {#each SPORENE as s (s)}
-            {@const merke = betegnelser[s]}
-            {@const sisteBrev = brevForLinja(brev, s, merke === 'trukket')}
-            <li>
-              <button
-                type="button"
-                class="valg"
-                aria-current={valgt === s ? 'page' : undefined}
-                onclick={() => velgSpor(s)}
-              >
-                <span class="navn">
-                  {s === 'forhold' ? forholdsnavn : SPORNAVN[s]}
-                  {#if s === 'vederlag' && utkastAapent && valgt !== s}<span class="merke-utkast"
-                      >{SAKEN.utkast}</span
-                    >{/if}
-                </span>
-                <span class="under"
-                  >{sisteBrev
-                    ? merke
-                      ? SAKEN.betegnelse(BETEGNELSE[merke], sisteBrev, sisteBrev.avsender)
-                      : SAKEN.sist(sisteBrev, sisteBrev.avsender)
-                    : SAKEN.ingenBrev}</span
-                >
-              </button>
-            </li>
-          {/each}
-        </ul>
+        {#each SPORGRUPPENE as gruppe (gruppe.id)}
+          <div class="gruppe">
+            <p class="etikett" id={`spor-${gruppe.id}`}>{gruppe.etikett}</p>
+            <ul class="valgene" aria-labelledby={`spor-${gruppe.id}`}>
+              {#each gruppe.spor as s (s)}
+                <li>
+                  <button
+                    type="button"
+                    class="valg"
+                    aria-current={valgt === s ? 'page' : undefined}
+                    onclick={() => velgSpor(s)}
+                  >
+                    <span class="navn">
+                      {s === 'forhold' ? forholdsnavn : SPORNAVN[s]}
+                      {#if s === 'vederlag' && utkastAapent && valgt !== s}<span
+                          class="merke-utkast">{SAKEN.utkast}</span
+                        >{/if}
+                    </span>
+                  </button>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/each}
       </nav>
     {/if}
   {/snippet}
@@ -306,6 +304,7 @@
             {kjernesak}
             {u}
             spor={valgt}
+            {dagensVisning}
             onspor={velgSpor}
             onvelg={(n) => {
               melding = null;
@@ -355,6 +354,22 @@
   }
   .sakshode h1 {
     font-size: 20px;
+  }
+  .tittel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+  .kode {
+    color: var(--sidebar-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  .sporene {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
   }
   .navn {
     display: flex;

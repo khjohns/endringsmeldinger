@@ -417,6 +417,25 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(vederlag().textContent).not.toMatch(/Utkast/);
   });
 
+  it('panelet til venstre har forholdet under «Kontraktsforhold» og kravene under «Krav», uten linje under navnene, og sakens kode over tittelen (oppdragsgiver 06.11, #1631)', async () => {
+    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    const panelet = within(await screen.findByRole('navigation', { name: 'Saken' }));
+    const forholdet = panelet.getByRole('list', { name: 'Kontraktsforhold' });
+    const kravene = panelet.getByRole('list', { name: 'Krav' });
+    expect(
+      within(forholdet)
+        .getAllByRole('button')
+        .map((b) => b.textContent?.trim())
+    ).toEqual(['Manglende medvirkning eller leveranser fra byggherren']);
+    expect(
+      within(kravene)
+        .getAllByRole('button')
+        .map((b) => b.textContent?.trim())
+    ).toEqual(['Vederlagsjustering', 'Fristforlengelse']);
+    const tittel = screen.getAllByRole('heading', { level: 1 })[0];
+    expect(tittel.previousElementSibling?.textContent).toMatch(/^KOE-\d+$/);
+  });
+
   it('panelet til venstre felles inn mens brevet leses ved siden av skjemaet, og kommer tilbake når brevet lukkes (oppdragsgiver 30.10, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet', 'varden');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));

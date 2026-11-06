@@ -272,7 +272,8 @@ export const MOTTATT = {
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
   sendtMerke: (d: string) => `Sendt ${dato(d)}`,
-  ikkeIProeven: 'Bygges ikke i denne prøven. Bruk dagens visning.',
+  ikkeIProeven: 'Bygges ikke i denne prøven.',
+  iDagensVisning: 'Åpnes i dagens visning.',
   ingenBrev: 'Ingen brev ennå.',
   dittBrev: 'Brevet ditt er sendt.',
   forkastet: 'Utkastet er forkastet.',
@@ -289,7 +290,7 @@ export const BREVTYPER: { type: string; tekst: string }[] = [
   { type: 'krav', tekst: 'Send ny versjon av kravet' },
   { type: 'sende_varsel', tekst: 'Send varsel' },
   { type: 'varsle', tekst: 'Registrer et varsel som er sendt på annen måte' },
-  { type: 'innsigelse', tekst: 'Innsigelse: kom for sent (punkt 5 tredje ledd)' },
+  { type: 'innsigelse', tekst: 'Gjør gjeldende at brevet kom for sent' },
   { type: 'trekke', tekst: 'Trekk kravet' },
 ];
 export const ukjentHandling = (noekkel: string) => `Handlingen ${noekkel}`;
@@ -299,10 +300,13 @@ const VARSEL_I_SPORET: Record<string, string> = { vederlag: '34.1.2', frist: '33
 export const varselet = (type: string, hva: string) =>
   `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer et varsel som er sendt på annen måte'} etter punkt ${VARSEL_I_SPORET[hva] ?? hva}`;
 
-/** Innsigelsen etter § 5 tredje ledd med det den gjelder: et krav, et svar eller et varsel. */
+/**
+ * Innsigelsen etter § 5 tredje ledd med det den gjelder: et krav, et svar eller et varsel. Med
+ * egne ord og uten henvisningen, som handlingene ellers (oppdragsgiver 06.11, #1631).
+ */
 const MAAL: Record<string, string> = { krav: 'kravet', svar: 'svaret', varsel: 'varselet' };
 export const innsigelsen = (art: string, nummer: number | null) =>
-  `Innsigelse: ${MAAL[art] ?? 'brevet'}${nummer ? ` i brev ${nummer}` : ''} kom for sent (punkt 5 tredje ledd)`;
+  `Gjør gjeldende at ${MAAL[art] ?? 'brevet'}${nummer ? ` i brev ${nummer}` : ''} kom for sent`;
 
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
 export const HANDLINGENE = {
@@ -316,6 +320,14 @@ export const HANDLINGENE = {
   nyVersjon: (spor: Spor) =>
     spor === 'forhold' ? 'sende en ny versjon av påberopelsen' : 'sende en ny versjon av kravet',
   trekke: (spor: Spor) => (spor === 'forhold' ? 'trekke påberopelsen' : 'trekke kravet'),
+  /** Linja under handlingen i «Andre handlinger»: hva den gjør med saken. */
+  virkning: {
+    nyVersjon: 'Erstatter versjonen som gjelder nå. Byggherren svarer på nytt.',
+    // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
+    // kan ikke tas opp igjen (GR-U5).
+    trekkForholdet: 'Trekker også kravene om vederlag og frist. Kan ikke tas opp igjen.',
+    trekkKravet: 'Kravet kan ikke tas opp igjen.',
+  },
 };
 
 export const STILLING = {
@@ -446,12 +458,9 @@ export const FORHOLDET = {
 
 export const SAKEN = {
   nav: 'Saken',
-  spor: 'Krav og svar',
+  kontraktsforhold: 'Kontraktsforhold',
+  krav: 'Krav',
   utkast: 'Utkast',
-  ingenBrev: 'Ingen brev',
-  sist: (b: Brevref, part: Part) => `Siste: ${brevrefFra(b, part)}`,
-  /** Betegnelsen i MM-U30 med sporets siste brev: «Svar ikke registrert · brev 1 fra TE». */
-  betegnelse: (tekst: string, b: Brevref, part: Part) => `${tekst} · ${brevrefFra(b, part)}`,
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',
