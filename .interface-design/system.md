@@ -264,19 +264,24 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
-- **Unntak: den nye versjonen av påberopelsen.** Hver del sier hvorfor den står der
-  (oppdragsgiver 06.11, PR 1650):
-  - Utkastet er det TE sender. Hva brevet er, står i hodet som undertittel
-    («Ny versjon av påberopelsen i brev 1»), ikke i kortet til høyre.
-  - Kortet til høyre er et utdrag av det TE svarer på, med formen fra brevtråden: ringen for BH,
-    fylt for et sendt brev og stiplet når svaret ikke er registrert, brevet og datoen som
-    metadata, og byggherrens standpunkter med en linje i blekk til venstre som et sitat. Lenken
-    åpner hele svaret ved siden av. Primærhandlingen står adskilt i bunnen av kortet, og
-    tidslinja under.
+- **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (oppdragsgiver
+  06.11, PR 1650):
+  - Brevet TE skriver, står i midten (`Brevutkast`): et lyst gult brevhode med saken og brevtypen
+    i 14 px, emnet i 24 px og «Til byggherren · Gjelder påberopelsen i brev 1» under, med én
+    heltrukket linje mot den hvite flaten. «Utkast» med lås står til høyre, og «Utkastvalg» (tre
+    prikker) har synligheten og «Forkast utkast», som bekreftes i en dialog. Feltet vokser med
+    teksten.
+  - Brevene TE bygger på, står til høyre: «Forhåndsvis brevet» fast øverst, og under, med
+    avstand, «Tidligere brev om forholdet», med ett brev åpent om gangen (svaret fra start) og
+    uten brevhode, siden raden sier nummer, avsender og dato. Kolonnen følger rullingen, og et
+    langt brev ruller i rammen. Tidslinja står lagt sammen under. Sakslisten er felt inn, så
+    «Tilbake til forholdet» står over utkastet.
   - Mønsteret er oversikt › arbeidsflate › bekreft, og hvert område har bare det som trengs for
     formålet sitt: å velge handling, å skrive og å kontrollere brevet før sending. Det som står
     fast i en ny versjon, står på oversikten med veien til det som kan endre det: «Korriger
-    datoen» ved datoen i brevtråden, og veien til en ny sak ved forholdet i sporhodet.
+    datoen» ved datoen i brevtråden, og «Annen hjemmel eller endringsordre? Opprett ny sak →»
+    under kortet «Det du kan gjøre nå», før tidslinja. At forholdet og endringsordren står fast,
+    sier skjemaet for ny sak, der TE velger dem.
   - I brevkontrollen står virkningen under en egen overskrift, «Når du sender».
 - **En knapp er aldri sperret** ([MM-U32](#mm-u32)). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
@@ -284,7 +289,8 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
   mens en sending pågår.
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
-  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog.
+  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog. Unntaket er den nye
+  versjonen av påberopelsen, der valget ligger i «Utkastvalg» og spør i en dialog.
 - **Utkastet sier det selv.** Hodet på utkastkortet og sendepanelet i brevkontrollen
   sier «Utkast · ikke sendt». Merket «Utkast» i panelet til venstre vises bare når et
   annet spor er valgt, så statusen aldri står to steder samtidig.
@@ -299,6 +305,8 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   ellers). Ellers har kortet ingen primærhandling, også når TE har korrigert datoen (oppdragsgiver
   06.11, #1649). Demoruta og den ekte saksruta har samme primærhandling. Er den ikke bygget i
   Varden, åpner den dagens visning, og uten lenke dit sier den at den ikke er bygget. «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  Innsigelsen om at et brev kom for sent står ikke i kortet: den hører hjemme i svaret på
+  brevet eller i et innlegg, som ikke er bygget (oppdragsgiver 06.11, PR 1650).
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
   `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
   ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to

@@ -558,7 +558,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     ['te-har-mottatt-svaret', 'TE'],
     ['te-har-godtatt-svaret', 'TE'],
   ] as const)(
-    'ved %s får %s i Varden alle handlingene kjernen tilbyr i vederlagssporet, og i dagens visning de samme unntatt BHs innsigelse',
+    'ved %s får %s i Varden alle handlingene kjernen tilbyr i vederlagssporet unntatt innsigelsen, og i dagens visning de samme unntatt BHs innsigelse',
     async (punkt, part) => {
       // Knappene i dagens visning (`ActionBar`) og nøklene kjernen tilbyr bak dem. Skjemaet bak
       // kravknappen har varslene som valg (`kravvalg`, `varselvalg` i `arbeidsflate.svelte.ts`).
@@ -631,7 +631,9 @@ describe('Varden med brukerforløpet BF-01', () => {
         screen.queryByRole('link', { name: 'Revider krav' })
       )
         iVarden.push('krav:vederlag');
-      expect(iVarden.sort()).toEqual([...tilbudt].sort());
+      // Innsigelsen om at et brev kom for sent er ikke en handling i Varden (oppdragsgiver 06.11,
+      // PR 1650).
+      expect(iVarden.sort()).toEqual(tilbudt.filter((n) => !n.startsWith('innsigelse:')).sort());
     }
   );
 

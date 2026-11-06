@@ -21,6 +21,7 @@
     sendt,
     fot,
     innfelt = false,
+    hode = true,
   }: {
     avsender: Part;
     sak: string;
@@ -39,6 +40,11 @@
     fot?: Snippet;
     /** Brevet står i en ramme som har kanten, som ved lesing ved siden av. */
     innfelt?: boolean;
+    /**
+     * Partene og referansene øverst. Uten dem står bare tittelen og teksten, der raden over
+     * brevet allerede sier hvem som sendte det og når (lesepanelet i BF-10).
+     */
+    hode?: boolean;
   } = $props();
 
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
@@ -48,38 +54,41 @@
 </script>
 
 <article class="brev" class:innfelt aria-label={tittel}>
-  <header class="hode">
-    <div class="topp">
-      <p class="avsender">
-        <b>{organisasjoner[avsender] ?? stor(PARTNAVN[avsender])}</b>
-        {#if organisasjoner[avsender]}<span>{stor(PARTNAVN[avsender])}</span>{/if}
+  {#if hode}<header class="hode">
+      <div class="topp">
+        <p class="avsender">
+          <b>{organisasjoner[avsender] ?? stor(PARTNAVN[avsender])}</b>
+          {#if organisasjoner[avsender]}<span>{stor(PARTNAVN[avsender])}</span>{/if}
+        </p>
+        {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span
+          >{/if}
+      </div>
+      <p class="mottaker">
+        {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(
+          PARTNAVN[mottaker]
+        )}
       </p>
-      {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span>{/if}
-    </div>
-    <p class="mottaker">
-      {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(PARTNAVN[mottaker])}
-    </p>
-    <dl class="ref">
-      <div>
-        <dt>Sak:</dt>
-        <dd>{sak}</dd>
-      </div>
-      {#if deresRef.length}<div>
-          <dt>Deres ref.:</dt>
-          <dd data-testid="deres-ref">
-            {#each deresRef as kode, i (i)}{#if i}<br />{/if}{kode}{/each}
-          </dd>
-        </div>{/if}
-      {#if merking !== null}<div>
-          <dt>Vår ref.:</dt>
-          <dd data-testid="vaar-ref">{merking}</dd>
-        </div>{/if}
-      <div>
-        <dt>Dato:</dt>
-        <dd>{dato}</dd>
-      </div>
-    </dl>
-  </header>
+      <dl class="ref">
+        <div>
+          <dt>Sak:</dt>
+          <dd>{sak}</dd>
+        </div>
+        {#if deresRef.length}<div>
+            <dt>Deres ref.:</dt>
+            <dd data-testid="deres-ref">
+              {#each deresRef as kode, i (i)}{#if i}<br />{/if}{kode}{/each}
+            </dd>
+          </div>{/if}
+        {#if merking !== null}<div>
+            <dt>Vår ref.:</dt>
+            <dd data-testid="vaar-ref">{merking}</dd>
+          </div>{/if}
+        <div>
+          <dt>Dato:</dt>
+          <dd>{dato}</dd>
+        </div>
+      </dl>
+    </header>{/if}
   <h2>{tittel}</h2>
   <div class="tekst" data-testid="laast-tekst">
     {#each avsnitt as a, i (i)}

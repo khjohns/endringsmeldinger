@@ -26,7 +26,9 @@
     deresRef,
     tittel,
     handling,
+    overlinje = null,
     svarerPaa,
+    relasjoner = [],
     henvisning = BREVKONTROLL.svarerPaa,
     detteSender,
     virkninger,
@@ -50,11 +52,18 @@
     merking: string | null;
     deresRef: string[];
     tittel: string | null;
-    /** Det avsenderen gjør, som overskrift i panelet. */
+    /** Det avsenderen gjør, eller emnet i utkastet, som overskrift i panelet. */
     handling: string;
+    /** Saken og brevtypen over overskriften, som i utkastet («KOE-1 · Oppdatert påberopelse»). */
+    overlinje?: string | null;
     svarerPaa: Brevref | null;
     /** Ordet foran brevet i `svarerPaa`: «Svarer på», eller «Viser til» for en korrigering. */
     henvisning?: string;
+    /**
+     * Brevene dette brevet står i forhold til, som «Erstatter» og «Viser til» for en ny versjon
+     * (oppdragsgiver 06.11, PR 1650). De står i stedet for `svarerPaa`.
+     */
+    relasjoner?: { hva: string; brev: string }[];
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
     /**
@@ -137,7 +146,10 @@
 
   <section class="panel" aria-label="Sending">
     <header class="hode">
-      <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
+      <p class="overrad">
+        <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
+        {#if overlinje}<span class="over">{overlinje}</span>{/if}
+      </p>
       <h2 tabindex="-1" bind:this={tittelen}>
         {handling}<Infotips navn={BREVKONTROLL.omBrevet} tekst={BREVKONTROLL.laast} />
       </h2>
@@ -147,10 +159,15 @@
       <dd>{partnavn(avsender)}</dd>
       <dt>{BREVKONTROLL.til}</dt>
       <dd>{partnavn(mottaker)}</dd>
-      {#if svarerPaa}
-        <dt>{henvisning}</dt>
-        <dd>{BREVKONTROLL.svarerPaaBrev(svarerPaa)}</dd>
-      {/if}
+      {#each relasjoner as r (r.hva)}
+        <dt>{r.hva}</dt>
+        <dd>{r.brev}</dd>
+      {:else}
+        {#if svarerPaa}
+          <dt>{henvisning}</dt>
+          <dd>{BREVKONTROLL.svarerPaaBrev(svarerPaa)}</dd>
+        {/if}
+      {/each}
     </dl>
     {#if detteSender.length}
       <div class="sender">
@@ -229,6 +246,16 @@
   .sender,
   .virkning {
     border-bottom: var(--rule);
+  }
+  .overrad {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+  .over {
+    font-size: 14px;
+    color: var(--ink-2);
   }
   .merke-utkast {
     display: inline-block;

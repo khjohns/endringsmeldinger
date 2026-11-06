@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
-import { HANDLINGENE, innsigelsen, innsigelsensVirkning } from '$lib/components/varden/tekster';
+import { HANDLINGENE } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
@@ -51,15 +51,6 @@ describe('Brevtyper', () => {
     expect(screen.queryByText(HANDLINGENE.ikkeBygget)).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: /Kravet kan ikke tas opp igjen/ }));
     expect(screen.getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
-  });
-
-  it('innsigelsen sier med egne ord hva som kom for sent, uten henvisning til kontrakten (oppdragsgiver 06.11, #1631)', () => {
-    expect(innsigelsen('svar', 2)).toBe('Gjør gjeldende at svaret i brev 2 kom for sent');
-    expect(innsigelsen('varsel', null)).toBe('Gjør gjeldende at varselet kom for sent');
-    // Fristen i § 5 tredje ledd, med ordene fra dagens visning (`InnsigelseModal.svelte`).
-    expect(innsigelsensVirkning('svar')).toBe(
-      'Sendes uten ugrunnet opphold. Ellers regnes svaret som gitt i tide.'
-    );
   });
 
   it('ny versjon sier hvilket brev den erstatter, og at svaret ikke kan godtas, uten å si at det er avslått (MM-U34 punkt 1 og 2)', () => {

@@ -25,6 +25,8 @@ function aapne(forloep: string, punkt: string) {
   return () => demosak!;
 }
 
+afterEach(() => vi.restoreAllMocks());
+
 async function vis(
   forloep: string,
   punkt: string,
@@ -49,7 +51,7 @@ async function vis(
 
 const tilForholdet = async () =>
   fireEvent.click(await screen.findByRole('button', { name: 'Irregulær endring' }));
-const teksten = () => screen.getByRole('textbox', { name: 'Oppdatert begrunnelse' });
+const teksten = () => screen.getByRole('textbox', { name: 'Begrunnelse' });
 const laastTekst = async (tittel: RegExp) =>
   [
     ...within(await screen.findByRole('article', { name: tittel }))
@@ -64,67 +66,70 @@ afterEach(() => {
 });
 
 describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
-  it('etter svaret skriver TE i teksten fra forrige versjon med svaret ved siden av, og forhåndsvisningen viser datoen, veien til korrigeringen og hvem som mister hvilken mulighet (U-1–U-5, D-1, D-3–D-5, D-8)', async () => {
+  it('etter svaret skriver TE i brevet i midten med svaret åpent til høyre, og bekreftelsen viser hva brevet erstatter og viser til (U-1–U-5, D-1, D-3–D-5, D-8)', async () => {
     const demosak = aapne('BF-02C', 'te-vil-sende-ny-versjon');
     await tilForholdet();
     // U-1: primærhandlingen etter svaret (#1649).
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
 
-    // U-6: utkastet ser aldri sendt ut.
+    // Brevhodet: saken og brevtypen, emnet og hva brevet gjelder. U-6: utkastet ser aldri sendt ut
+    // (oppdragsgiver 06.11, PR 1650).
     const skjema = within(screen.getByRole('form'));
-    expect(skjema.getByText('Utkast · ikke sendt')).toBeTruthy();
-    // S-3 B: teksten står slik den sist ble sendt, i ett felt, uten hjelpetekst (oppdragsgiver 06.11, PR 1650).
+    expect(skjema.getByText(/^KOE-\d+ · Oppdatert påberopelse$/)).toBeTruthy();
+    expect(skjema.getByText(/^Utkast/)).toBeTruthy();
+    expect(skjema.getByText(/Bare synlig for teamet ditt til det er sendt/)).toBeTruthy();
+    expect(skjema.getByText(/Til byggherren · Gjelder påberopelsen i/)).toBeTruthy();
+    // S-3 B: teksten står slik den sist ble sendt, i ett felt, uten hjelpetekst.
     expect((teksten() as HTMLTextAreaElement).value).not.toBe('');
     expect(teksten().getAttribute('aria-describedby')).toBeNull();
-    // Kortet til høyre sier hva TE svarer på, ikke hva brevet sier, og har primærhandlingen.
-    // Tidslinja står under (oppdragsgiver 06.11, PR 1650).
-    const kortet = within(screen.getByRole('region', { name: /^Byggherrens svar Brev 2 · / }));
-    expect(kortet.getByText('Byggherren godkjenner forholdet.')).toBeTruthy();
-    expect(kortet.getByText(/varselet etter punkt 32\.2 kom for sent/)).toBeTruthy();
-    // Hva utkastet er, står i hodet på utkastet, ikke i kortet.
-    expect(skjema.getByText('Ny versjon av påberopelsen i brev 1')).toBeTruthy();
-    expect(kortet.getByRole('button', { name: 'Gå til forhåndsvisning' })).toBeTruthy();
+
+    // Til høyre: «Forhåndsvis brevet» øverst, brevene om forholdet med svaret åpent, og tidslinja.
+    expect(screen.getByRole('button', { name: 'Forhåndsvis brevet' })).toBeTruthy();
+    const brevene = within(screen.getByRole('region', { name: 'Tidligere brev om forholdet' }));
+    const svaret = brevene.getByRole('button', { name: /^Brev 2 · Byggherrens svar/ });
+    expect(svaret.getAttribute('aria-current')).toBe('true');
+    expect(
+      within(brevene.getByRole('region', { name: 'Brev 2 · Byggherrens svar' })).getByRole(
+        'article'
+      )
+    ).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Les svaret/ })).toBeNull();
     expect(screen.queryByRole('heading', { name: /Hovedlinjene/ })).toBeNull();
     expect(screen.getByRole('region', { name: /Tidslinje/ })).toBeTruthy();
 
-    // Svaret åpnes ved siden av utkastet i stedet for kortet, så TE kan lese og skrive samtidig.
-    await fireEvent.click(kortet.getByRole('button', { name: 'Les svaret ved siden av' }));
-    const [svaret] = screen.getAllByRole('region', { name: /K201-KOE-017-02/ });
-    expect(within(svaret).getByRole('article')).toBeTruthy();
-    expect(teksten()).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Gå til forhåndsvisning' })).toBeTruthy();
-    await fireEvent.click(screen.getByRole('button', { name: 'Lukk svaret' }));
-    expect(screen.queryAllByRole('region', { name: /K201-KOE-017-02/ })).toHaveLength(0);
-    expect(screen.getByRole('button', { name: 'Les svaret ved siden av' })).toBe(
-      document.activeElement
-    );
+    // «brev 1» i brevhodet åpner påberopelsen på samme plass, og fokus følger med.
+    await fireEvent.click(skjema.getByRole('button', { name: 'brev 1' }));
+    const lest = brevene.getByRole('region', { name: 'Brev 1 · Totalentreprenørens påberopelse' });
+    expect(lest).toBe(document.activeElement);
+    expect(svaret.getAttribute('aria-current')).toBeNull();
 
     await fireEvent.input(teksten(), {
       target: { value: 'Vi fastholder at pålegget er en endring.' },
     });
-    await fireEvent.click(screen.getByRole('button', { name: 'Gå til forhåndsvisning' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Forhåndsvis brevet' }));
     // U-4, D-4 (LV-U56): brevet ordrett, med den låste delen og datoen.
     const vist = await laastTekst(/Påberopelse av irregulær endring/);
     expect(vist.join(' ')).toMatch(/Pålegget ble mottatt 15\. september 2026\./);
     expect(vist.join(' ')).not.toMatch(/erstatter/);
     const kontrollen = within(screen.getByRole('region', { name: 'Sending' }));
-    expect(kontrollen.getByText('Viser til')).toBeTruthy();
-    // U-3, D-5: mottakeren og hvem som mister hva. Datoen står i brevet, og korrigeringen på
+    // Samme linje over emnet som i utkastet, så TE kjenner igjen brevet.
+    expect(kontrollen.getByText(/^KOE-\d+ · Oppdatert påberopelse$/)).toBeTruthy();
+    // U-3, D-5: mottakeren og brevrelasjonene. Datoen står i brevet, og korrigeringen på
     // oversikten, ikke i bekreftelsen (oppdragsgiver 06.11, PR 1650).
     expect(kontrollen.getByText('Til').nextElementSibling?.textContent).toMatch(/\(BH\)$/);
+    expect(kontrollen.getByText('Erstatter').nextElementSibling?.textContent).toBe(
+      'Din tidligere påberopelse i brev 1'
+    );
+    expect(kontrollen.getByText('Viser til').nextElementSibling?.textContent).toBe(
+      'Byggherrens svar i brev 2'
+    );
+    expect(kontrollen.queryByRole('heading', { name: 'Når du sender' })).toBeNull();
     expect(kontrollen.queryByText(/Pålegget mottatt/)).toBeNull();
     expect(kontrollen.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
-    expect(
-      kontrollen.getByText(
-        'Erstatter påberopelsen i brev 1. Du kan ikke lenger godta svaret i brev 2 i denne saken. Byggherren svarer på den nye versjonen.'
-      )
-    ).toBeTruthy();
 
     const foer = demosak().journal().length;
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Send den nye versjonen til byggherren' })
-    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await screen.findByText(/Den nye versjonen er sendt til byggherren/);
     const ny = demosak().journal().slice(foer);
     expect(ny).toHaveLength(1);
@@ -133,17 +138,55 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(JSON.stringify(ny[0])).toMatch(/Vi fastholder at pålegget er en endring\./);
   });
 
+  it('«Forkast utkast» ligger i «Utkastvalg» på utkastet og bekreftes i en dialog før teksten slettes (oppdragsgiver 06.11, PR 1650)', async () => {
+    // jsdom har ikke den modale dialogen.
+    vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (
+      this: HTMLDialogElement
+    ) {
+      this.setAttribute('open', '');
+    });
+    vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(function (
+      this: HTMLDialogElement
+    ) {
+      this.removeAttribute('open');
+      this.dispatchEvent(new Event('close'));
+    });
+    aapne('BF-02C', 'te-vil-sende-ny-versjon');
+    await tilForholdet();
+    await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
+    await fireEvent.input(teksten(), { target: { value: 'Utkastet mitt.' } });
+    const valg = screen.getByRole('button', { name: 'Utkastvalg' });
+    expect(valg.getAttribute('aria-expanded')).toBe('false');
+
+    await fireEvent.click(valg);
+    await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
+    const dialogen = within(screen.getByRole('dialog'));
+    await fireEvent.click(dialogen.getByRole('button', { name: 'Behold utkastet' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect((teksten() as HTMLTextAreaElement).value).toBe('Utkastet mitt.');
+
+    await fireEvent.click(valg);
+    await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
+    await fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Forkast utkastet' })
+    );
+    expect(screen.queryByRole('textbox', { name: 'Begrunnelse' })).toBeNull();
+    // Forhåndsvisningen har ikke valget; TE går tilbake til utkastet.
+    await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Forhåndsvis brevet' }));
+    await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
+    expect(screen.queryByRole('button', { name: 'Utkastvalg' })).toBeNull();
+  });
+
   it('#1647: brevet med den nye versjonen viser datoen i brevtråden, selv om den gjentar TEs siste opplysning (MM-U52 punkt 10)', async () => {
     aapne('BF-02C', 'te-vil-sende-ny-versjon');
     await tilForholdet();
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
-    await fireEvent.click(screen.getByRole('button', { name: 'Gå til forhåndsvisning' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Forhåndsvis brevet' }));
     await fireEvent.click(
       await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' })
     );
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Send den nye versjonen til byggherren' })
-    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await screen.findByText(/Den nye versjonen er sendt til byggherren/);
     const traaden = within(await screen.findByRole('list', { name: 'Brevene om forholdet' }));
     const nyVersjon = traaden
@@ -163,7 +206,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(skjema.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
     await fireEvent.input(teksten(), { target: { value: 'Utkastet mitt.' } });
     // TE går tilbake til oversikten og korrigerer datoen ved datoen i brevtråden.
-    await tilForholdet();
+    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til forholdet' }));
     await fireEvent.click(
       within(await screen.findByRole('list', { name: 'Brevene om forholdet' })).getByRole(
         'button',
@@ -186,16 +229,14 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater påberopelse' }));
     // U-2: ingen av veiene kaster det TE har skrevet.
     expect((teksten() as HTMLTextAreaElement).value).toBe('Utkastet mitt.');
-    await fireEvent.click(screen.getByRole('button', { name: 'Gå til forhåndsvisning' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Forhåndsvis brevet' }));
     const vist = await laastTekst(/Påberopelse av irregulær endring/);
     // LV-U56: den korrigerte datoen og den tidligere med brevet.
     expect(vist.join(' ')).toMatch(/Pålegget ble mottatt 20\. september 2026\./);
     expect(vist.join(' ')).toMatch(/15\. september 2026 i brev K201-KOE-017-01/);
     const foer = demosak().journal().length;
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Send den nye versjonen til byggherren' })
-    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await screen.findByText(/Den nye versjonen er sendt til byggherren/);
     expect(JSON.stringify(demosak().journal().slice(foer))).toMatch(
       /"paalegg_mottatt":"2026-09-20"/
@@ -209,38 +250,56 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
       kortet.queryAllByRole('button').filter((k) => k.className.includes('primaer'))
     ).toHaveLength(0);
     await fireEvent.click(kortet.getByRole('button', { name: /^Send ny versjon av påberopelsen/ }));
-    expect(screen.getByRole('textbox', { name: 'Oppdatert begrunnelse' })).toBeTruthy();
-    // Før svaret sier kortet at byggherren ikke har svart, og det er ikke noe svar å lese.
-    const konteksten = within(
-      screen.getByRole('region', { name: 'Byggherrens svar Svar ikke registrert' })
-    );
-    expect(konteksten.getByRole('button', { name: 'Gå til forhåndsvisning' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /Les svaret/ })).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Begrunnelse' })).toBeTruthy();
+    // Før svaret er påberopelsen det eneste brevet til høyre, og den er åpen.
+    expect(screen.getByText(/^KOE-\d+ · Ny versjon av påberopelsen$/)).toBeTruthy();
+    const brevene = within(screen.getByRole('region', { name: 'Tidligere brev om forholdet' }));
+    expect(
+      brevene.getByRole('button', { name: /^Brev 1 · Totalentreprenørens påberopelse/ })
+    ).toBeTruthy();
+    expect(brevene.queryByRole('button', { name: /Byggherrens svar/ })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Forhåndsvis brevet' })).toBeTruthy();
     expect(screen.queryByText(/Si hva du mener om svaret/)).toBeNull();
   });
 });
 
 describe('veien til en ny sak (BF-10 U-2, GR-U22, OV-U57)', () => {
-  it('TE finner veien ved forholdet på oversikten, og den står verken i arbeidsflaten eller bekreftelsen (oppdragsgiver 06.11, PR 1650)', async () => {
-    await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'forhold', '/demo/ny');
-    const forholdet = within(
-      screen.getByRole('region', { name: 'Manglende medvirkning eller leveranser fra byggherren' })
-    );
-    expect(forholdet.getByText(/Annen hjemmel eller endringsordre/)).toBeTruthy();
-    const lenken = forholdet.getByRole('link', { name: 'opprett en ny sak (ny fane)' });
+  it('TE finner «Opprett ny sak» under kortet med handlingene, og den står verken i arbeidsflaten eller bekreftelsen (oppdragsgiver 06.11, PR 1650)', async () => {
+    const kortet = await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'forhold', '/demo/ny');
+    expect(kortet.queryByRole('link', { name: /Opprett ny sak/ })).toBeNull();
+    const handlingene = screen
+      .getByRole('heading', { name: 'Det du kan gjøre nå' })
+      .closest('section')!;
+    const veien = handlingene.nextElementSibling as HTMLElement;
+    expect(veien.textContent).toMatch(/^Annen hjemmel eller endringsordre\?/);
+    const lenken = within(veien).getByRole('link', { name: /^Opprett ny sak/ });
     expect(lenken.getAttribute('href')).toBe('/demo/ny');
     expect(lenken.getAttribute('target')).toBe('_blank');
+    expect(lenken.textContent).toMatch(/åpnes i ny fane/);
+    expect(
+      within(
+        screen.getByRole('region', {
+          name: 'Manglende medvirkning eller leveranser fra byggherren',
+        })
+      ).queryByRole('link', { name: /ny sak/i })
+    ).toBeNull();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Oppdater påberopelse' }));
-    expect(screen.queryByRole('link', { name: /ny sak/ })).toBeNull();
-    await fireEvent.click(screen.getByRole('button', { name: 'Gå til forhåndsvisning' }));
+    expect(screen.queryByRole('link', { name: /ny sak/i })).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Forhåndsvis brevet' }));
     await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
-    expect(screen.queryByRole('link', { name: /ny sak/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /ny sak/i })).toBeNull();
+  });
+
+  it('innsigelsen om at svaret kom for sent er ikke en handling på oversikten, selv om kjernen tilbyr den (oppdragsgiver 06.11, PR 1650)', async () => {
+    const kortet = await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'forhold');
+    expect(kortet.queryByText(/kom for sent/)).toBeNull();
+    expect(kortet.getByRole('button', { name: /^Godta avslaget/ })).toBeTruthy();
   });
 
   it('BH ser ikke veien, fordi BH ikke kan sende en ny versjon av påberopelsen', async () => {
     await vis('BF-04', 'forholdet-er-avslaatt', 'BH', 'forhold', '/demo/ny');
-    expect(screen.queryByRole('link', { name: /ny sak/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /ny sak/i })).toBeNull();
   });
 });
 

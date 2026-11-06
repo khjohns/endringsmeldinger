@@ -7,7 +7,7 @@
   kjernen regner ut, står før sendingen.
 -->
 <script lang="ts">
-  import { ChevronRight } from 'lucide-svelte';
+  import { ArrowRight, ChevronRight } from 'lucide-svelte';
   import { tick } from 'svelte';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { brevaarsak } from '$lib/kjernesak/kontekst.svelte';
@@ -37,8 +37,6 @@
     brevhode,
     brevtittel,
     dato,
-    innsigelsen,
-    innsigelsensVirkning,
     varselet,
   } from './tekster';
 
@@ -109,7 +107,13 @@
   const korrigerbare = $derived(
     kjernesak.handlinger.filter((n) => n.startsWith('korrigere:')).map((n) => n.slice(10))
   );
-  const menyvalg = $derived(iSporet.filter((n) => n !== primaer && !n.startsWith('korrigere:')));
+  // Innsigelsen om at et brev kom for sent er ikke en handling i Varden. Den hører hjemme i
+  // svaret på brevet eller i et innlegg (oppdragsgiver 06.11, PR 1650).
+  const menyvalg = $derived(
+    iSporet.filter(
+      (n) => n !== primaer && !n.startsWith('korrigere:') && !n.startsWith('innsigelse:')
+    )
+  );
   const avslag = $derived(
     svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
   );
@@ -140,7 +144,7 @@
     svaret?.standpunkter.find((s) => s.art === 'rettidighet' && !s.iTide) ?? null
   );
 
-  /** Teksten for et varsel med hjemmelen, og for innsigelsen mot et bestemt krav eller svar. */
+  /** Teksten for et varsel med hjemmelen, og for handlingene i forholdet og etter svaret. */
   function innsigelsestekst(n: string): string | null {
     const [type, id] = n.split(':');
     if (type === 'varsle' || type === 'sende_varsel') return varselet(type, id);
@@ -150,9 +154,7 @@
       return u.spor.forhold.krav.length > 1 ? FORHOLDET.svarNyVersjon : FORHOLDET.svar;
     if (n === 'krav:forhold') return kanGodta ? FORHOLDET.oppdater : FORHOLDET.nyVersjon;
     if (type === 'krav' && kanGodta) return HANDLINGENE.revidertKrav;
-    const e = u.elementer[id];
-    if (type !== 'innsigelse' || !e) return null;
-    return innsigelsen(e.art, sporbrev.find((b) => b.id === e.hendelse)?.nummer ?? null);
+    return null;
   }
 
   /** Linja under handlingen: hva den gjør med saken. */
@@ -160,10 +162,6 @@
     if (n === `godta:${spor}` && svarbrevet) return HANDLINGENE.virkning.godta(svarbrevet);
     if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
     if (n.startsWith('trekke:')) return HANDLINGENE.virkning.trekkKravet;
-    if (n.startsWith('innsigelse:')) {
-      const e = u.elementer[n.split(':')[1]];
-      return e ? innsigelsensVirkning(e.art) : null;
-    }
     if (n.startsWith('krav:')) {
       const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
       if (kanGodta)
@@ -235,7 +233,6 @@
         {onspor}
         {korrigerbare}
         {onkorriger}
-        {nySak}
       />
     {:else if vist}
       {#if lestBrev}
@@ -316,6 +313,18 @@
         {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}
       </section>
     {/if}
+    {#if nySak}
+      <!-- Under kortet, ikke i det: kortet samler valgene i denne saken, og lenken starter en annen. -->
+      <p class="annen">
+        {FORHOLDET.annen}
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+        <a href={nySak} target="_blank" rel="noopener"
+          >{FORHOLDET.annenLenke}<ArrowRight size={16} aria-hidden="true" /><span
+            class="visually-hidden">{FORHOLDET.nyFane}</span
+          ></a
+        >
+      </p>
+    {/if}
     <Tidslinje brev={sporbrev} datoer={datoerISporet(u, spor)} />
   {/snippet}
 </Arbeidsflate>
@@ -351,6 +360,26 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-2);
+  }
+  .annen {
+    display: grid;
+    justify-items: start;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2) var(--spacing-5) var(--spacing-2);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .annen a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .annen a:hover {
+    text-decoration-thickness: 2px;
   }
   .tomt {
     padding: var(--spacing-6);

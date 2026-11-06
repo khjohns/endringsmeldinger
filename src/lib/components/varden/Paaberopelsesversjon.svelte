@@ -1,37 +1,41 @@
 <!--
   TEs nye versjon av påberopelsen (BF-10): «Oppdater påberopelse» etter byggherrens svar og
-  «Send ny versjon» før svaret. Mens TE skriver, står feltet med teksten fra versjonen som
-  erstattes (S-3 B), og kortet til høyre sier hva TE svarer på: byggherrens standpunkt i svaret,
-  med svaret ved siden av utkastet når TE ber om det, og primærhandlingen. Tidslinja står under.
-  Datoen og korrigeringen av den står på oversikten, ikke her: oversikten, arbeidsflaten og
-  bekreftelsen har hver sitt formål (oppdragsgiver 06.11, PR 1650). Brevet sendes
-  fra brevkontrollen, som de andre brevene (S-4b). Kjernen lager brevet og avviser det den ikke
-  godtar.
+  «Send ny versjon» før svaret. Arbeidsflaten har to roller (oppdragsgiver 06.11, PR 1650):
+  brevet TE skriver står i midten, med brevhodet og teksten fra versjonen som erstattes (S-3 B),
+  og brevene TE bygger på står til høyre, med «Forhåndsvis brevet» fast over dem. Byggherrens
+  svar er åpent fra start, og ett brev om forholdet leses om gangen. Tidslinja står lagt sammen
+  under. Datoen og korrigeringen av den står på oversikten. Brevet sendes fra brevkontrollen,
+  som de andre brevene (S-4b). Kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
+  import { ChevronLeft } from 'lucide-svelte';
   import { tick } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
+  import Brevutkast from './Brevutkast.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
-  import Utkastkort from './Utkastkort.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
-  import { brevene, datoerISporet, innleggene } from './lesing';
-  import { FORHOLDET, HANDLINGENE, NYVERSJON, SKJEMA, brevhode, brevtittel, dato } from './tekster';
+  import { brevene, datoerISporet, innleggene, type Brevet } from './lesing';
+  import { FORHOLDET, NYVERSJON, brevref, brevtittel, dato } from './tekster';
 
   let {
     kjernesak,
     u,
+    sakskode = null,
     tekst = $bindable(null),
     onbrevkontroll,
     onforkast,
+    ontilbake,
     onvedsiden,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
+    /** Sakens kode, som «KOE-1», i linja over emnet. */
+    sakskode?: string | null;
     /** Teksten TE har skrevet, `null` før TE har åpnet skjemaet. Den står mens TE er på oversikten. */
     tekst?: string | null;
     onbrevkontroll: (k: {
@@ -45,7 +49,9 @@
       tittel: string | null;
     }) => void;
     onforkast: () => void;
-    /** Svaret leses i en ramme ved siden av utkastet, eller ikke lenger. */
+    /** Tilbake til oversikten over forholdet. Teksten står til TE kommer tilbake. */
+    ontilbake: () => void;
+    /** Brevene leses ved siden av utkastet, så kolonnene er like brede. */
     onvedsiden?: (vedSiden: boolean) => void;
   } = $props();
   const uid = $props.id();
@@ -59,8 +65,8 @@
   const enig = $derived(!!u.spor.forhold.enighet && !!svarbrevet);
 
   const sporbrev = $derived(brev.filter((b) => b.spor.includes('forhold')));
-  // Byggherrens standpunkter i svaret, med kjernens ord, som i brevtråden.
-  const standpunktene = $derived(u.spor.forhold.gjeldendeSvar?.standpunkter ?? []);
+  // Nyeste først: svaret TE følger opp, står øverst.
+  const tidligere = $derived([...sporbrev].reverse());
 
   // Teksten står slik den sist ble sendt (S-3 B i BF-10).
   $effect.pre(() => {
@@ -69,8 +75,6 @@
 
   const kommando = $derived(nyVersjonAvPaaberopelsen(u, tekst ?? ''));
   let hindring = $state<string | null>(null);
-
-  const virkning = $derived(HANDLINGENE.virkning.nyVersjon('forhold', kravbrevet, svarbrevet));
 
   async function tilForhaandsvisningen() {
     hindring = null;
@@ -85,17 +89,17 @@
       kommando,
       tekst: b.tekst,
       utdypning: kommando.utdypning,
-      // Virkningen sier hva brevet erstatter, så «Dette sender du» ville gjentatt den.
+      // Brevrelasjonene i brevkontrollen sier hva brevet erstatter og viser til.
       detteSender: [],
-      virkninger: [virkning, ...(enig ? [NYVERSJON.enighet(svarbrevet!)] : [])],
+      virkninger: enig ? [NYVERSJON.enighet(svarbrevet!)] : [],
       merking: b.merking,
       deresRef: b.deresRef,
       tittel: b.brevtittel,
     });
   }
 
-  // Svaret leses i en ramme ved siden av utkastet, og på smal skjerm over feltet, der høyre
-  // kolonne står under arbeidet (mønsteret i vederlagssvaret, oppdragsgiver 29.10, #1391).
+  // Brevene står ved siden av utkastet, og på smal skjerm under det, der høyre kolonne står
+  // under arbeidet (mønsteret i vederlagssvaret, oppdragsgiver 29.10, #1391).
   let smal = $state(false);
   $effect(() => {
     if (typeof window.matchMedia !== 'function') return;
@@ -105,311 +109,272 @@
     mq.addEventListener('change', sett);
     return () => mq.removeEventListener('change', sett);
   });
-  let leser = $state(false);
   $effect(() => {
-    onvedsiden?.(leser && !smal);
+    onvedsiden?.(!smal);
     return () => onvedsiden?.(false);
   });
-  // Kortet byttes ut med svaret, så fokus følger med begge veier.
-  async function veksleLesing() {
-    leser = !leser;
+
+  // Ett brev er åpent om gangen: byggherrens svar fra start, ellers det nyeste.
+  let valgtId = $state<string | null>(null);
+  const valgt = $derived(
+    tidligere.find((b) => b.id === valgtId) ?? svarbrevet ?? tidligere[0] ?? null
+  );
+  let rulle = $state<HTMLElement | null>(null);
+  async function vis(b: Brevet, flyttFokus = false) {
+    valgtId = b.id;
     await tick();
-    document.getElementById(id(leser ? 'lukk' : 'les'))?.focus();
+    rulle?.scrollTo?.({ top: 0 });
+    if (flyttFokus) {
+      rulle?.focus();
+      rulle?.scrollIntoView?.({ block: 'nearest' });
+    }
   }
 
-  let bekreftForkast = $state(false);
-  let forkastSpoersmaal = $state<HTMLElement | null>(null);
-  async function spoerOmForkast() {
-    bekreftForkast = true;
-    await tick();
-    forkastSpoersmaal?.focus();
-  }
-  async function behold() {
-    bekreftForkast = false;
-    await tick();
-    document.getElementById(id('forkast'))?.focus();
-  }
+  // Feltet vokser med teksten, så én setning ikke står i en stor tom boks.
+  let felt = $state<HTMLTextAreaElement | null>(null);
+  $effect(() => {
+    void tekst;
+    if (!felt) return;
+    felt.style.height = 'auto';
+    felt.style.height = `${felt.scrollHeight + 2}px`;
+  });
 </script>
 
-{#snippet svaret(innfelt: boolean)}
-  {#if svarbrevet}
-    <Brev
-      avsender={svarbrevet.avsender}
-      sak={kjernesak.saksbilde?.tittel ?? ''}
-      merking={svarbrevet.merking}
-      deresRef={svarbrevet.deresRef}
-      dato={dato(svarbrevet.registrert)}
-      tittel={brevtittel(svarbrevet)}
-      avsnitt={svarbrevet.avsnitt ?? []}
-      {innfelt}
-    />
-  {/if}
-{/snippet}
-
-{#snippet handling()}
-  <Knapp
-    variant="primaer"
-    onclick={tilForhaandsvisningen}
-    aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.seBrevet}</Knapp
-  >
-  {#if hindring}
-    <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
-  {/if}
-{/snippet}
-
-<Arbeidsflate leser={leser && !smal}>
+<Arbeidsflate leser={!smal}>
   {#snippet hoved()}
-    <Utkastkort
-      id={id('tittel')}
-      tittel={svarbrevet ? FORHOLDET.oppdater : FORHOLDET.nyVersjon}
-      undertittel={kravbrevet ? NYVERSJON.linjeErstatter(kravbrevet) : null}
-      mottaker={SKJEMA.tilBH}
+    <!-- Sakslisten er felt inn mens brevene leses ved siden av, så veien tilbake står her, som
+         «Tilbake til utkastet» i brevkontrollen. -->
+    <p class="tilbake">
+      <Knapp variant="lenke" onclick={ontilbake}
+        ><ChevronLeft size={16} aria-hidden="true" />{FORHOLDET.tilbake}</Knapp
+      >
+    </p>
+    <Brevutkast
+      id={id('emne')}
+      overlinje={NYVERSJON.overlinje(sakskode, !!svarbrevet)}
+      emne={kjernesak.saksbilde?.tittel ?? ''}
+      forkastSpoersmaal={NYVERSJON.forkastSpoersmaal}
+      {onforkast}
       onsubmit={tilForhaandsvisningen}
     >
-      <div class="innhold">
-        <div class="felt">
-          <label for={id('tekst')}>{NYVERSJON.tekst}</label>
-          <textarea id={id('tekst')} rows="12" bind:value={tekst}></textarea>
-        </div>
-
-        <div class="skjemafot">
-          {#if bekreftForkast}
-            <div class="bekreft" role="group" aria-labelledby={id('forkast-spoersmaal')}>
-              <p id={id('forkast-spoersmaal')} tabindex="-1" bind:this={forkastSpoersmaal}>
-                {NYVERSJON.forkastSpoersmaal}
-              </p>
-              <div class="knapper">
-                <Knapp onclick={onforkast}>{SKJEMA.forkastJa}</Knapp>
-                <Knapp variant="lenke" onclick={behold}>{SKJEMA.behold}</Knapp>
-              </div>
-            </div>
-          {:else}
-            <Knapp variant="lenke" id={id('forkast')} onclick={spoerOmForkast}
-              >{SKJEMA.forkast}</Knapp
-            >
-          {/if}
-        </div>
+      {#snippet linje()}
+        {NYVERSJON.til}{#if kravbrevet}{` · ${NYVERSJON.gjelder} `}<button
+            type="button"
+            class="brevlenke"
+            aria-controls={id('brevet')}
+            onclick={() => vis(kravbrevet!, true)}>{brevref(kravbrevet)}</button
+          >{/if}
+      {/snippet}
+      <div class="felt">
+        <label for={id('tekst')}>{NYVERSJON.tekst}</label>
+        <textarea id={id('tekst')} rows="3" bind:value={tekst} bind:this={felt}></textarea>
       </div>
-    </Utkastkort>
+    </Brevutkast>
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if leser && !smal && svarbrevet}
-      <section class="leseramme" id={id('svaret')} aria-labelledby={id('lesetittel')}>
-        <div class="lesehode">
-          <h2 class="lesetittel" id={id('lesetittel')}>
-            {brevhode(svarbrevet)}
-            <span class="dempet">· {svarbrevet.avsender} · {dato(svarbrevet.registrert)}</span>
-          </h2>
-          <Knapp variant="lenke" id={id('lukk')} onclick={veksleLesing} aria-expanded="true"
-            >{NYVERSJON.lukkSvaret}</Knapp
+    <div class="stoette">
+      <div class="videre">
+        <Knapp
+          variant="primaer"
+          onclick={tilForhaandsvisningen}
+          aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.forhaandsvis}</Knapp
+        >
+        {#if hindring}
+          <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
+        {/if}
+      </div>
+
+      {#if valgt}
+        <section class="tidligere" aria-labelledby={id('tidligere')}>
+          <h2 id={id('tidligere')}>{NYVERSJON.tidligere}</h2>
+          <ul class="velger">
+            {#each tidligere as b (b.id)}
+              <li>
+                <button
+                  type="button"
+                  class="rad"
+                  aria-current={b.id === valgt.id ? 'true' : undefined}
+                  aria-controls={id('brevet')}
+                  onclick={() => vis(b)}
+                >
+                  <span class="radtittel">{NYVERSJON.brevrad(b)}</span>
+                  <span class="raddato">{dato(b.sendt ?? b.registrert)}</span>
+                </button>
+              </li>
+            {/each}
+          </ul>
+          <!-- Brevet ruller for seg selv, så det må kunne nås med tastaturet. -->
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+          <div
+            class="brevrulle"
+            id={id('brevet')}
+            tabindex="0"
+            role="region"
+            aria-label={NYVERSJON.brevrad(valgt)}
+            bind:this={rulle}
           >
-        </div>
-        <!-- Rammen ruller for seg selv, så den må kunne nås med tastaturet. -->
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-        <div class="brevrulle" tabindex="0" role="region" aria-labelledby={id('lesetittel')}>
-          {@render svaret(true)}
-        </div>
-        <div class="bunn">{@render handling()}</div>
-      </section>
-    {:else}
-      <!-- Et utdrag av svaret TE svarer på, med formen fra brevtråden: fylt ring for BH, stiplet
-           når svaret ikke er registrert, og standpunktene med linje til venstre som et sitat. -->
-      <section class="kort feste" aria-labelledby={`${id('kontekst')} ${id('kontekstmeta')}`}>
-        <div class="svaret">
-          <header class="svarhode">
-            <span class="part" class:bh={!!svarbrevet} aria-hidden="true">BH</span>
-            <div>
-              <h2 id={id('kontekst')}>{NYVERSJON.svaret}</h2>
-              <p class="meta" id={id('kontekstmeta')}>
-                {svarbrevet
-                  ? NYVERSJON.svarMeta(svarbrevet, svarbrevet.registrert)
-                  : NYVERSJON.ikkeSvart}
-              </p>
-            </div>
-          </header>
-          {#if svarbrevet}
-            {#if standpunktene.length}
-              <ul class="standpunkter">
-                {#each standpunktene as s (s.id)}<li>{FORHOLDET.standpunkt(s, null)}</li>{/each}
-              </ul>
+            {#if valgt.avsnitt}
+              <Brev
+                avsender={valgt.avsender}
+                sak={kjernesak.saksbilde?.tittel ?? ''}
+                merking={valgt.merking}
+                deresRef={valgt.deresRef}
+                dato={dato(valgt.registrert)}
+                tittel={brevtittel(valgt)}
+                avsnitt={valgt.avsnitt}
+                innfelt
+                hode={false}
+              />
+            {:else}
+              <p class="utenTekst">{NYVERSJON.utenTekst}</p>
             {/if}
-            <Knapp
-              variant="lenke"
-              id={id('les')}
-              onclick={veksleLesing}
-              aria-expanded={leser}
-              aria-controls={id('svaret')}
-              >{leser
-                ? NYVERSJON.lukkSvaret
-                : smal
-                  ? NYVERSJON.lesSvaretHer
-                  : NYVERSJON.lesSvaret}</Knapp
-            >
-            {#if leser && smal}
-              <div class="innebrev" id={id('svaret')}>{@render svaret(false)}</div>
-            {/if}
-          {/if}
-        </div>
-        <div class="bunn">{@render handling()}</div>
-      </section>
-      <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'forhold')} />
-    {/if}
+          </div>
+        </section>
+      {/if}
+
+      <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'forhold')} aapen={false} />
+    </div>
   {/snippet}
 </Arbeidsflate>
 
 <style>
-  .innhold {
-    display: grid;
-    gap: var(--spacing-5);
-    padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
-  }
-  .kort {
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-  }
-  .feste {
-    position: sticky;
-    top: var(--spacing-4);
-    z-index: 1;
-  }
-  .svaret {
-    display: grid;
-    gap: var(--spacing-4);
-    justify-items: start;
-    padding: var(--spacing-5);
-  }
-  .svarhode {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--spacing-3);
-    align-items: center;
-  }
-  .svarhode h2 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.3;
-  }
-  .meta {
-    margin: 0;
-    color: var(--ink-3);
-    font-size: 12px;
-  }
-  /* Ringen fra brevtråden: fylt for et brev fra BH, stiplet når svaret ikke er registrert. */
-  .part {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 1.5px dashed var(--ink-3);
-    color: var(--ink-3);
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .part.bh {
-    border: 1.5px solid var(--ink);
-    background: var(--ink);
-    color: var(--surface);
-  }
-  /* Byggherrens standpunkter, som et sitat fra brevet. */
-  .standpunkter {
-    display: grid;
-    gap: var(--spacing-2);
-    margin: 0;
-    padding: 0 0 0 var(--spacing-3);
-    list-style: none;
-    border-left: 2px solid var(--ink);
-    font-size: 14px;
-    color: var(--ink);
-  }
-  .innebrev {
-    justify-self: stretch;
-  }
-  .bunn {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
-    border-top: var(--rule);
+  /* Lenken står i flukt med utkastet; knappen har luft til siden for treffflaten. */
+  .tilbake {
+    margin: calc(-1 * var(--spacing-2)) 0 calc(-1 * var(--spacing-2)) calc(-1 * var(--spacing-2));
   }
   .felt {
     display: grid;
     gap: var(--spacing-2);
   }
   label {
+    font-size: 16px;
     font-weight: 600;
     color: var(--ink);
   }
   textarea {
     font: inherit;
+    line-height: 1.6;
+    min-height: 4lh;
     padding: var(--spacing-3);
     border: var(--control-border);
     border-radius: var(--r-felt);
     background: var(--surface);
     color: var(--ink);
-    resize: vertical;
+    resize: none;
+    overflow: hidden;
   }
   textarea:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
-  .skjemafot {
-    padding-top: var(--spacing-4);
-    border-top: var(--rule);
+  .brevlenke {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
   }
-  .bekreft {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
+  .brevlenke:hover {
+    text-decoration-thickness: 2px;
   }
-  .knapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-3);
+  .brevlenke:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
   }
-  /* Lesing ved siden av, som i vederlagssvaret: rammen følger rullingen og er høyst like høy
-     som vinduet under topplinja. Et langt svar ruller i den. */
-  .leseramme {
+  /* Høyre kolonne følger rullingen og er høyst like høy som vinduet under topplinja. Knappen
+     står fast øverst, og et langt brev ruller i rammen under. */
+  .stoette {
     position: sticky;
     top: var(--spacing-4);
     display: flex;
     flex-direction: column;
+    gap: var(--spacing-6);
     max-height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
+  }
+  .videre {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+  }
+  .tidligere {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     background: var(--surface);
     border: var(--rule);
     border-radius: var(--r-kort);
     overflow: hidden;
   }
-  .lesehode > :global(.knapp) {
-    flex: none;
-    white-space: nowrap;
+  .tidligere h2 {
+    padding: var(--spacing-4) var(--spacing-5) var(--spacing-2);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-2);
   }
-  .lesehode {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-3);
-    padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) var(--spacing-5);
+  .velger {
+    margin: 0;
+    padding: 0;
+    list-style: none;
     border-bottom: var(--rule);
   }
-  .lesetittel {
-    font-size: 16px;
+  .rad {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 var(--spacing-3);
+    width: 100%;
+    min-height: 44px;
+    padding: var(--spacing-2) var(--spacing-5);
+    border: 0;
+    border-left: 3px solid transparent;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .rad:hover {
+    background: var(--surface-inset);
+  }
+  .rad[aria-current='true'] {
+    border-left-color: var(--ink);
+    background: var(--surface-inset);
+    color: var(--ink);
     font-weight: 600;
   }
-  .dempet {
+  .rad:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: -2px;
+  }
+  .raddato {
     font-weight: 400;
     color: var(--ink-3);
   }
   .brevrulle {
     flex: 1;
-    min-height: 0;
+    min-height: 12rem;
     overflow-y: auto;
   }
   .brevrulle:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: -2px;
+  }
+  .utenTekst {
+    padding: var(--spacing-5);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  @media (max-width: 1180px) {
+    .stoette {
+      position: static;
+      max-height: none;
+    }
   }
 </style>

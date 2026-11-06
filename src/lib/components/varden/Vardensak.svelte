@@ -82,10 +82,12 @@
     deresRef: string[];
     tittel: string | null;
     handling: string;
+    overlinje?: string | null;
     sendTekst: string;
     tilbakeTil: string;
     svarerPaa: Brevref | null;
     henvisning?: string;
+    relasjoner?: { hva: string; brev: string }[];
     /** Kvitteringen etter sendingen, ellers den generelle. */
     kvittering?: string;
     tilbake: Arbeid;
@@ -325,8 +327,10 @@
           deresRef={k.deresRef}
           tittel={k.tittel}
           handling={k.handling}
+          overlinje={k.overlinje}
           svarerPaa={k.svarerPaa}
           henvisning={k.henvisning}
+          relasjoner={k.relasjoner}
           detteSender={k.detteSender}
           virkninger={k.virkninger}
           sendTekst={k.sendTekst}
@@ -368,19 +372,33 @@
         <Paaberopelsesversjon
           {kjernesak}
           {u}
+          {sakskode}
           bind:tekst={nyVersjonstekst}
           onforkast={forkastNyVersjon}
+          ontilbake={() => velgSpor('forhold')}
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => {
             const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
+            const kravet = brev.find((b) => b.id === u.spor.forhold.gjeldendeKrav?.dokument);
             arbeid = {
               art: 'kontroll',
               ...k,
-              handling: svaret ? FORHOLDET.oppdater : FORHOLDET.nyVersjon,
+              // Samme emne og linje som i utkastet, så TE kjenner igjen brevet (PR 1650).
+              handling:
+                kjernesak.saksbilde?.tittel || (svaret ? FORHOLDET.oppdater : FORHOLDET.nyVersjon),
+              overlinje: NYVERSJON.overlinje(sakskode, !!svaret),
               sendTekst: NYVERSJON.sendTekst,
               tilbakeTil: NYVERSJON.tilbakeTil,
               svarerPaa: svaret ?? null,
               henvisning: BREVKONTROLL.viserTil,
+              relasjoner: [
+                ...(kravet
+                  ? [{ hva: NYVERSJON.erstatter, brev: NYVERSJON.erstatterBrev(kravet) }]
+                  : []),
+                ...(svaret
+                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
+                  : []),
+              ],
               kvittering: NYVERSJON.kvittering,
               tilbake: { art: 'nyversjon' },
               erUtkastet: false,

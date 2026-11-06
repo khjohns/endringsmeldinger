@@ -1,8 +1,8 @@
 <!--
-  Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`): sporhodet med gruppen
-  (OV-U77), forholdet som tittel (OV-U78) og siste brev, trekket (GR-U30), brevtråden med begge
-  partenes brev og «Tilknyttede krav». Siden viser bare. Handlingspanelet, utkastet og telleren
-  venter på designsløyfa for BHs svar (#1380, #1384).
+  Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`): sporhodet har forholdet som
+  tittel (OV-U78) og sier under den hvor saken står (BF-05 U-10, oppdragsgiver 06.11, PR 1650),
+  trekket (GR-U30), brevtråden med begge partenes brev og «Tilknyttede krav». Brevnummer,
+  avsender og dato står på brevraden. Siden viser bare.
 -->
 <script lang="ts">
   import type { Betegnelse } from '$kjerne/utledning/visning';
@@ -20,7 +20,6 @@
     onles,
     onspor,
     onkorriger,
-    nySak,
   }: {
     u: Utledning;
     /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */
@@ -30,11 +29,6 @@
     onles: (id: string) => void;
     onspor?: (spor: Spor) => void;
     onkorriger?: (opplysning: string) => void;
-    /**
-     * Lenken til skjemaet for ny sak. Hjemmelen og endringsordren står i en ny versjon, så en
-     * annen går i en ny sak (GR-U22, OV-U57, BF-10 U-2). Den står ved forholdet, på oversikten.
-     */
-    nySak?: string;
   } = $props();
   const uid = $props.id();
 
@@ -46,22 +40,24 @@
   const trekket = $derived(
     u.spor.forhold.trukket ? (traad.findLast((b) => b.art === 'trekk') ?? null) : undefined
   );
+  // Hvor saken står, i vanlig språk: byggherrens standpunkt når svaret er siste brev, og at svaret
+  // ikke er registrert når påberopelsen er det. Ellers siste brev.
+  const status = $derived.by(() => {
+    if (!siste || siste === trekket) return null;
+    const svar = u.spor.forhold.gjeldendeSvar;
+    const s = svar?.standpunkter.find((x) => x.art === 'forhold');
+    if (svar?.dokument === siste.id && s?.art === 'forhold')
+      return FORHOLDET.utfall(s.resultat, siste.registrert);
+    if (u.spor.forhold.gjeldendeKrav?.dokument === siste.id)
+      return FORHOLDET.venter(siste.registrert);
+    return FORHOLDET.siste(siste, siste.avsender);
+  });
 </script>
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="sporhode">
-    {#if forholdet}<p class="over">{forholdet.gruppe}</p>{/if}
     <h2 id={`${uid}-tittel`}>{forholdet?.navn ?? FORHOLDET.utenNavn}</h2>
-    {#if siste && siste !== trekket}<p class="siste">
-        {FORHOLDET.siste(siste, siste.avsender)}
-      </p>{/if}
-    {#if nySak}
-      <p class="annen">
-        {FORHOLDET.annen}
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-        <a href={nySak} target="_blank" rel="noopener">{FORHOLDET.annenLenke}</a>
-      </p>
-    {/if}
+    {#if status}<p class="status">{status}</p>{/if}
     {#if trekket !== undefined}
       <p class="trukket" role="note">{FORHOLDET.trukket(trekket)}</p>
     {/if}
@@ -88,13 +84,8 @@
     padding: var(--spacing-5);
   }
   .sporhode {
-    padding-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-6);
     border-bottom: var(--rule-subtle);
-  }
-  .over {
-    margin-bottom: var(--spacing-1);
-    font-size: 12px;
-    color: var(--ink-3);
   }
   h2 {
     font-size: 24px;
@@ -103,23 +94,10 @@
     letter-spacing: -0.015em;
     color: var(--ink);
   }
-  .siste {
+  .status {
     margin-top: var(--spacing-1);
-    font-size: 14px;
+    font-size: 16px;
     color: var(--ink-2);
-  }
-  .annen {
-    margin-top: var(--spacing-2);
-    font-size: 14px;
-    color: var(--ink-3);
-  }
-  .annen a {
-    color: var(--ink);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .annen a:hover {
-    text-decoration-thickness: 2px;
   }
   .trukket {
     margin-top: var(--spacing-3);

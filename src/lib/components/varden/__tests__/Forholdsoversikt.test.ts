@@ -81,10 +81,14 @@ async function vis(steg: Handling[], ekstra: Record<string, unknown> = {}) {
 const traad = () => within(screen.getByRole('list', { name: 'Brevene om forholdet' }));
 
 describe('Siden for forholdet', () => {
-  it('gruppen står over tittelen, og tittelen er forholdet selv (OV-U77, OV-U78)', async () => {
-    await vis([PAABEROPELSE]);
+  it('tittelen er forholdet selv, uten gruppen over, og under den står hvor saken står (OV-U78, BF-05 U-10)', async () => {
+    await vis([PAABEROPELSE, AVSLAG]);
     const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
-    expect(tittel.previousElementSibling?.textContent).toBe('Endringer, jf. punkt 31 og 32');
+    expect(tittel.previousElementSibling).toBeNull();
+    expect(screen.queryByText('Endringer, jf. punkt 31 og 32')).toBeNull();
+    expect(tittel.nextElementSibling?.textContent).toMatch(
+      /^Byggherren avslo forholdet \d+\. \w+ 2026\.$/
+    );
   });
 
   it('ingen tekst brukeren ser, sier «grunnlag» (kriterium 1, OV-U76)', async () => {
@@ -108,7 +112,9 @@ describe('Siden for forholdet', () => {
       /^Totalentreprenøren · \d+\. \w+ 2026 · K201-/
     );
     expect(brev[1].textContent).toContain('Svar ikke registrert.');
-    expect(screen.getByText(/^Siste brev: brev 1 fra TE, \d+\. \w+ 2026\.$/)).toBeTruthy();
+    expect(
+      screen.getByText(/^Sendt til byggherren \d+\. \w+ 2026\. Svar ikke registrert\.$/)
+    ).toBeTruthy();
   });
 
   it('tråden har begge partenes brev og den registrerte korrespondansen med datoen avsenderen oppgir og infotipset (kriterium 2, OV-U85, OV-U81)', async () => {
