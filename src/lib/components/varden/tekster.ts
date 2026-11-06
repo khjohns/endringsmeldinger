@@ -407,6 +407,10 @@ export const BETEGNELSE: Record<Betegnelse, string> = {
 const stor = (t: string) => t[0].toUpperCase() + t.slice(1);
 
 /** Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`, OV-U76–OV-U78). */
+/** Korrigeringen i en lukket sak (D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646). */
+const KORRIGERT_I_LUKKET =
+  'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.';
+
 export const FORHOLDET = {
   utenNavn: 'Forholdet',
   siste: (b: Brevref, part: Part) =>
@@ -472,16 +476,20 @@ export const FORHOLDET = {
   korrigertI: (b: Brevref) => `Korrigert i ${brevref(b)}.`,
   gjaldt: (o: { hva: 'paalegg_mottatt' | 'klar_over_forholdet'; dato: string; brev: Brevref }) =>
     `Svaret gjaldt opplysningen i ${brevref(o.brev)} om at ${o.hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'totalentreprenøren ble klar over forholdet'} ${dato(o.dato)}.`,
-  korrigerILukket:
-    'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.',
+  korrigerILukket: KORRIGERT_I_LUKKET,
   omKorrigeringen: 'Om korrigeringen',
   avgjoerIkke:
     'Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.',
-  /** Hva korrigeringen gjør med saken (D-2, D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646). */
-  korrigeringenStaar: (lukket: boolean, svar: Brevref | null) =>
+  /**
+   * Hva korrigeringen gjør med saken (D-2, D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646),
+   * og `null` når byggherren ikke har svart.
+   */
+  korrigeringenStaar: (lukket: boolean, svar: Brevref | null): string | null =>
     lukket
-      ? 'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.'
-      : `${svar ? `Svaret i ${brevref(svar)}` : 'Svaret'} står som det ble sendt. Byggherren kan ta stilling til den nye datoen i et senere svar.`,
+      ? KORRIGERT_I_LUKKET
+      : svar
+        ? `Svaret i ${brevref(svar)} står som det ble sendt. Byggherren kan ta stilling til den nye datoen i et senere svar.`
+        : null,
   lagene: 'Standpunktene i svaret',
   /** Byggherrens standpunkt i svaret på forholdet, som setning (språkfila: partene fullt ut). */
   standpunkt: (s: Standpunkt, brev: Brevref | null): string => {
@@ -541,8 +549,8 @@ export const KORRIGERING = {
   sendTekst: 'Send korrigeringen til byggherren',
   tilbakeTil: 'utkastet',
   /** U-4: datoen er TEs siste opplysning, og påberopelsen og svaret står som de ble sendt. */
-  kvittering: (d: string, hva: keyof typeof DATOEN, lukket: boolean) =>
-    `Korrigeringen er sendt til byggherren. ${dato(d)} er nå din siste opplysning om når ${DATOEN[hva]}. ${lukket ? 'Saken står lukket, og utfallet er det samme.' : 'Påberopelsen og svaret står som de ble sendt.'}`,
+  kvittering: (d: string, hva: keyof typeof DATOEN, lukket: boolean, harSvar: boolean) =>
+    `Korrigeringen er sendt til byggherren. ${dato(d)} er nå din siste opplysning om når ${DATOEN[hva]}. ${lukket ? 'Saken står lukket, og utfallet er det samme.' : harSvar ? 'Påberopelsen og svaret står som de ble sendt.' : 'Påberopelsen står som den ble sendt.'}`,
 };
 
 export const SAKEN = {

@@ -119,7 +119,7 @@
       tekst: b.tekst,
       utdypning: kommando.utdypning,
       detteSender: linjer,
-      virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)],
+      virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)].filter((v) => v !== null),
       merking: b.merking,
       deresRef: b.deresRef,
       tittel: b.brevtittel,

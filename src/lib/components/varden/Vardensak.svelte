@@ -328,7 +328,8 @@
               kvittering: KORRIGERING.kvittering(
                 (k.kommando.paalegg_mottatt ?? k.kommando.klar_over_forholdet) as string,
                 k.kommando.paalegg_mottatt ? 'paalegg_mottatt' : 'klar_over_forholdet',
-                u.forholdAvvist
+                u.forholdAvvist,
+                !!u.spor.forhold.gjeldendeSvar
               ),
               tilbake: { art: 'korrigering', gjelder },
               erUtkastet: false,

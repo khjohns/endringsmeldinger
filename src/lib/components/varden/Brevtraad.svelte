@@ -132,12 +132,11 @@
             </div>
           {/if}
           {#if i.opplysning?.korrigering}
-            <p class="virkning">
-              {FORHOLDET.korrigeringenStaar(
-                lukket,
-                brev.slice(0, n).findLast((x) => x.art === 'svar') ?? null
-              )}
-            </p>
+            {@const staar = FORHOLDET.korrigeringenStaar(
+              lukket,
+              brev.slice(0, n).findLast((x) => x.art === 'svar') ?? null
+            )}
+            {#if staar}<p class="virkning">{staar}</p>{/if}
           {/if}
           {#if i.gjaldt}
             <p class="virkning">{FORHOLDET.gjaldt(i.gjaldt)}</p>

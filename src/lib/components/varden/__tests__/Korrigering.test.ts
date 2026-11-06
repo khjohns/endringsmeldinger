@@ -13,6 +13,7 @@ import type { Journalrad } from '$kjerne/typer';
 import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
 import { kontrollerEtter } from '$kjerne/tester/kjoerer';
 import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
+import { FORHOLDET, KORRIGERING } from '../tekster';
 
 const paastand = (holder: boolean, melding: string) => expect(holder, melding).toBe(true);
 const FORKLARING = 'Pålegget står i referatet fra byggemøtet 20.09.';
@@ -277,5 +278,12 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(
       (await innlegget(/^Brev 4 ·/)).getAllByText(/^Saken står lukket, og korrigeringen/)
     ).toHaveLength(1);
+  });
+
+  it('før byggherren har svart, sier verken tråden, brevkontrollen eller kvitteringen at et svar står (U-2, U-4)', () => {
+    expect(FORHOLDET.korrigeringenStaar(false, null)).toBeNull();
+    expect(KORRIGERING.kvittering('2026-09-20', 'paalegg_mottatt', false, false)).toBe(
+      'Korrigeringen er sendt til byggherren. 20. september 2026 er nå din siste opplysning om når pålegget ble mottatt. Påberopelsen står som den ble sendt.'
+    );
   });
 });
