@@ -72,7 +72,7 @@ subagent gjøre analysen, med denne bestillingen:
   endte over 150 000 tokens og varte klart over en time; en orkestrator over
   300 000 tokens; og subagenter over 150 000 tokens eller 80 kall i de øktene
   som ble sett nærmere på.
-- Se om nedre grense i [«Subagenter»](../orkestrering/SKILL.md#subagenter) holder:
+- Se om nedre grense i skillen [`subagenter`](../subagenter/SKILL.md) holder:
   subagenter med under om lag fem verktøykall skulle vært gjort i økta.
 
 ## 4. Issuet
