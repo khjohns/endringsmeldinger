@@ -643,7 +643,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
 /**
  * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)), med partene skrevet fullt
  * ut (LV-U35) og henvisningen etter LV-U53. Teksten i en ny grunnlagsversjon etter en
- * korrigering er LV-U54, og korrigeringen i en lukket sak er MM-U51. At korrigeringen avvises
+ * korrigering er LV-U56, og korrigeringen i en lukket sak er MM-U51. At korrigeringen avvises
  * når henvisningen er ugyldig, når datoen er uendret og når datoen er etter brevets dato, er
  * arbeidsvalgene i avgrensningen av #1308.
  */
