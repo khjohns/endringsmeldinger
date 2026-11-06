@@ -1,16 +1,16 @@
 {
   "id": "BF-02C",
   "tittel": "TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen",
-  "brukerhistorie": "TE vil rette datoen pålegget ble mottatt og begynner på en ny versjon av påberopelsen. Datoen kan ikke endres i en ny versjon, som gjengir TEs siste opplysning. Skjemaet anbefaler korrigeringen etter OV-U52, og TE sender den i stedet. Det gjelder også når kravet ble lagt til som korrespondanse.",
-  "status": "planlagt",
+  "brukerhistorie": "TE vil rette datoen pålegget ble mottatt og begynner på en ny versjon av grunnlagskravet. Datoen kan ikke endres i en ny versjon, som gjengir TEs siste opplysning. Skjemaet anbefaler korrigeringen, og TE sender den i stedet. En ny versjon etter korrigeringen gjengir den nye datoen med henvisning til brevet med korrigeringen.",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "Som BF-02A: TE har sendt et krav med en opplysning etter VS-U26, fra løsningen eller lagt til som korrespondanse med kategorien krav (OV-U80), og BH har svart."
+    "beskrivelse": "Som BF-02A: TE har oppgitt at pålegget ble mottatt 15.09.2026, og BH har påberopt at varselet kom for sent."
   },
-  "kilder": ["OV-U54", "OV-U52", "MM-U41", "MM-U52", "MM-U34", "MM-U21", "VS-U26", "OV-U79", "OV-U80"],
-  "venter_paa": ["#1308", "#1309", "#807"],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta"
+  ],
   "endringer": [
     {
       "dato": "2026-10-27",
@@ -21,6 +21,143 @@
       "dato": "2026-11-01",
       "forhold": "#1456, MM-U34, OV-U52, OV-U80",
       "hva": "Sperren mot en ny versjon som bare retter en opplysning, er opphevet (MM-U34 punkt 1). Den nye versjonen avvises ikke, men datoen kan ikke endres i den (OV-U52), og skjemaet anbefaler korrigeringen. Kravet kan også være lagt til som korrespondanse (OV-U80)."
+    },
+    {
+      "dato": "2026-11-05",
+      "forhold": "#1308, MM-U52, LV-U54",
+      "hva": "Forløpet er kjørbart i demoruta, med bestillingen BF-02A.md. En ny versjon med en annen dato enn TEs siste opplysning avvises, og etter korrigeringen gjengir den nye versjonen datoen etter LV-U54. Kildene er MM-U52, som opphever OV-U52 og MM-U41."
+    }
+  ],
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "underkategori": "irregulaer_endring",
+      "navn": "K-g1",
+      "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
+    },
+    {
+      "handling": "brev",
+      "navn": "D2",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-g1",
+          "resultat": "godkjent",
+          "varslet_i_tide": false,
+          "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
+        }
+      ]
+    },
+    {
+      "handling": "korrigering",
+      "navn": "D3",
+      "dato": "2026-09-20"
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "te-vil-sende-ny-versjon",
+      "etter": 2,
+      "beskrivelse": "TE begynner på en ny versjon av grunnlagskravet for å rette datoen.",
+      "kontroller": [
+        {
+          "rolle": "kontroll",
+          "kilde": [
+            "MM-U52",
+            "OV-U54"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "underkategori": "irregulaer_endring"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "MM-U52"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "korrigere:K-g1"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser forskjellen før valget: en ny versjon er en ny kravversjon som avslår svaret, mens korrigeringen lar svaret stå.",
+          "kilde": [
+            "MM-U52",
+            "OV-U54"
+          ]
+        },
+        {
+          "tekst": "TE ser i skjemaet for den nye versjonen at datoen står låst som TEs siste opplysning, og at datoen korrigeres i et eget brev.",
+          "kilde": [
+            "MM-U52",
+            "MM-U34"
+          ]
+        },
+        {
+          "tekst": "TE kommer fra skjemaet til korrigeringen uten å miste det TE har skrevet.",
+          "kilde": [
+            "MM-U52"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ny-versjon-etter-korrigeringen",
+      "etter": 3,
+      "beskrivelse": "TE har korrigert datoen til 20.09.2026 og begynner igjen på en ny versjon.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U52",
+            "LV-U54"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "forhold",
+            "underkategori": "irregulaer_endring"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "DATOEN_KAN_IKKE_ENDRES"
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U52"
+          ],
+          "forventet": {
+            "gjeldende_krav.forhold": "K-g1",
+            "datoopplysninger": [
+              "K-g1:2026-09-15",
+              "D3#korrigering:2026-09-20"
+            ]
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at den nye versjonen gjengir 20.09.2026 med henvisning til brevet med korrigeringen, og ikke kan sende 15.09.2026.",
+          "kilde": [
+            "MM-U52",
+            "LV-U54",
+            "LV-U53"
+          ]
+        }
+      ]
     }
   ]
 }
