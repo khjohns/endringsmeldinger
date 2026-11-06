@@ -357,7 +357,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:datoenKravetBleSendt',
       'utledning/utled.ts:foresporselForFristsvar',
       'utledning/utled.ts:fristkravErFremmet',
-      'utledning/utled.ts:forskyvningIBrevet.plass',
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
@@ -428,12 +427,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
-  [
-    'frosset/standpunkt.ts',
-    'predikat',
-    'lagFraForholdet',
-    ['kommandoer/skriving.ts:frysSvarene', 'utledning/utled.ts:forskyvningIBrevet'],
-  ],
+  ['frosset/standpunkt.ts', 'predikat', 'lagFraForholdet', ['kommandoer/skriving.ts:frysSvarene']],
   // GR-U7 med unntaket i MM-U13: utledningen regner `forholdAvklart` og `forholdAvvist` av den.
   ['frosset/standpunkt.ts', 'predikat', 'forholdetErAvklart', ['utledning/utled.ts:forholdet']],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
@@ -459,6 +453,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/nyttelast.ts', 'kommandoer/standpunkter.ts'],
   ],
   ['frosset/standpunkt.ts:vederlagsposter', 'regelsett', 'godkjent saerskilt'],
+  // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
+  // visningen leser.
+  ['frosset/standpunkt.ts:plassene', 'frosset', 'standpunkt', ['frosset/standpunkt.ts:postlisten']],
   // Valg 4 i #1047: postene i det frosne brevet, med beløpet etter en virksom begrensning.
   // Utfallet summerer dem; visningen leser resten av postlisten.
   [

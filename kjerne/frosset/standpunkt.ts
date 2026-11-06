@@ -313,9 +313,33 @@ function begrensningen(svar: Svarinnhold, v: Standpunktsvirkning[]) {
 }
 
 /** Laget i brevet og etiketten for det, eller `null` for et standpunkt uten lag (OV-U32). */
-interface Plass {
+export interface Plass {
   lag: number | null;
   etikett: string | null;
+}
+
+/**
+ * Plassen hvert standpunkt i svaret har i brevet, og plassen til hver grunn fra svaret på
+ * forholdet som står foran sporet (OV-U32, OV-U33). `forskyvning` er lagene de grunnene opptar
+ * (`forskyvningIBrevet`), og 0 for forholdet selv. Etiketten følger brevteksten: bare når
+ * svaret har mer enn ett lag. `grunn(i)` er den i-te grunnen, fra 0.
+ */
+export function plassene(
+  svar: Svarinnhold,
+  v: Standpunktsvirkning[],
+  forskyvning: number
+): { standpunkt: (id: string) => Plass; grunn: (i: number) => Plass } {
+  const lagI = (id: string) => {
+    const virkning = v.find((p) => p.standpunkt === id)?.virkning;
+    const lag = virkning === undefined ? null : laget(virkning);
+    return lag === null ? null : lag + forskyvning;
+  };
+  const ordnet = forskyvning > 1 || svar.standpunkter.some((s) => (lagI(s.id) ?? 0) > 1);
+  const plass = (lag: number | null): Plass => ({
+    lag,
+    etikett: ordnet && lag !== null ? etikett(lag) : null,
+  });
+  return { standpunkt: (id) => plass(lagI(id)), grunn: (i) => plass(i + 1) };
 }
 
 /**
@@ -343,25 +367,14 @@ export interface Paaberopt extends Plass {
 
 /**
  * Postene og påberopelsene i svaret på vederlaget, med lagene brevet ga dem (MM-U23, OV-U28,
- * valg 4 i #1047). `forskyvning` er lagene svaret på forholdet opptok foran sporet
- * (`forskyvningIBrevet`). Etiketten følger brevteksten: bare når svaret har mer enn ett lag.
- * Ingen total per lag.
+ * valg 4 i #1047, `plassene`). Ingen total per lag.
  */
 export function postlisten(
   svar: Svarinnhold,
   v: Standpunktsvirkning[],
   forskyvning: number
 ): { poster: Vederlagspost[]; paaberopt: Paaberopt[] } {
-  const lagI = (id: string) => {
-    const virkning = v.find((p) => p.standpunkt === id)?.virkning;
-    const lag = virkning === undefined ? null : laget(virkning);
-    return lag === null ? null : lag + forskyvning;
-  };
-  const ordnet = forskyvning > 1 || svar.standpunkter.some((s) => (lagI(s.id) ?? 0) > 1);
-  const plass = (id: string): Plass => {
-    const lag = lagI(id);
-    return { lag, etikett: ordnet && lag !== null ? etikett(lag) : null };
-  };
+  const plass = plassene(svar, v, forskyvning).standpunkt;
   const begrenset = begrensningen(svar, v);
   const poster = svar.standpunkter.flatMap((s): Vederlagspost[] =>
     s.art !== 'beloep'

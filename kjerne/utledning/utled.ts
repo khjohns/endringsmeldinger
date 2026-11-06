@@ -34,7 +34,6 @@ import {
   enighetsgrunnlag,
   grunnerFraForholdet,
   forholdetErAvklart,
-  lagFraForholdet,
   foresporselsrelasjon,
   harProduktivitetspost,
   svarPaaForesporsler,
@@ -88,6 +87,14 @@ export interface Svarberegning {
    * `null` i de andre sporene og når TE ikke hadde oppgitt datoen.
    */
   datoopplysning: string | null;
+  /**
+   * Svaret på forholdet hvis grunner brevet satte foran sporet, som frysingen regnet dem:
+   * svaret på forholdet i samme dokument, ellers svaret på påberopelsesversjonen svaret ble
+   * regnet mot som gjaldt før dokumentet (OV-U32, OV-U33, svaret i #1199). Et svar på
+   * påberopelsen revidert etter brevet endrer ikke det brevet sa. `null` for forholdet og når
+   * brevet ikke hadde noe svar på forholdet foran seg.
+   */
+  forholdssvaret: string | null;
 }
 
 /**
@@ -517,28 +524,6 @@ function utsagnetStrider(
 }
 
 /**
- * Lagene svaret på forholdet opptok foran sporet da brevet med `svar` ble sendt, som
- * frysingen regnet dem: svaret på forholdet i samme dokument, ellers svaret på
- * påberopelsesversjonen `svar` ble regnet mot som gjaldt før dokumentet (OV-U32, MM-U11 (opphevet av MM-U50),
- * svaret i #1199). Et svar på påberopelsen revidert etter brevet endrer ikke det brevet sa.
- * 0 for forholdet selv.
- */
-export function forskyvningIBrevet(svar: Svar, u: Utledning): number {
-  if (svar.spor === 'forhold') return 0;
-  const plass = (id: string) => u.journal.findIndex((h) => h.id === u.elementer[id].hendelse);
-  const forhold = u.spor.forhold.svar;
-  const kilde =
-    forhold.find((g) => g.dokument === svar.dokument) ??
-    (svar.paaberopelse === null
-      ? undefined
-      : ikkeErstattet(
-          forhold.filter((g) => plass(g.id) < plass(svar.id)),
-          svar.paaberopelse
-        )[0]);
-  return kilde ? lagFraForholdet(kilde, kilde.beslutningsgrunnlag.virkninger) : 0;
-}
-
-/**
  * Utledningen av journalen. Hvert dokument kontrolleres mot journalen før det
  * (MM-U43 punkt 6 og 9, `strid`): en strid i en hendelse som ikke er et registrert brev, gjør
  * saken ikke forstått, og i et registrert brev får elementet ingen virkning.
@@ -738,6 +723,7 @@ function utledSporene(
   const datoopplysninger = opplysningerOmDatoen(journal, spor.forhold.krav, korrigeringer);
   const svar = svarberegninger(alleSvar, spor);
   settDatoopplysningene(svar, datoopplysninger, (id) => plass.get(id)!.versjon);
+  settForholdssvarene(svar, spor.forhold.svar, (id) => plass.get(id)!.versjon);
   settEnighetene(spor, aksepter, (id) => plass.get(id)!.hendelse);
   settSubsidiaer(spor, svar);
   return {
@@ -1201,6 +1187,7 @@ function svarberegninger(
       virkninger: s.beslutningsgrunnlag.virkninger,
       gjaldtEtAnnetVarsel: s.standpunkter.filter(annetVarsel).map((p) => p.id),
       datoopplysning: null,
+      forholdssvaret: null,
     };
   }
   return svar;
@@ -1219,6 +1206,27 @@ function settDatoopplysningene(
     if (b.svar.spor === 'forhold')
       b.datoopplysning =
         datoopplysninger.filter((o) => versjonen(o.id) < versjonen(b.svar.id)).at(-1)?.id ?? null;
+}
+
+/** `Svarberegning.forholdssvaret` for hvert svar på vederlag og frist. */
+function settForholdssvarene(
+  svar: Record<string, Svarberegning>,
+  forhold: Svar[],
+  versjonen: (id: string) => number
+): void {
+  for (const b of Object.values(svar)) {
+    const s = b.svar;
+    if (s.spor === 'forhold') continue;
+    const kilde =
+      forhold.find((g) => g.dokument === s.dokument) ??
+      (s.paaberopelse === null
+        ? undefined
+        : ikkeErstattet(
+            forhold.filter((g) => versjonen(g.id) < versjonen(s.id)),
+            s.paaberopelse
+          )[0]);
+    b.forholdssvaret = kilde?.id ?? null;
+  }
 }
 
 /** Enigheten i hvert spor: en aksept av gjeldende svar, eller sammenfall i svaret. */

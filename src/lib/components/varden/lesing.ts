@@ -6,7 +6,7 @@
  */
 
 import { omtalen } from '$kjerne/frosset/brevtekst';
-import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt';
+import { grunnerFraForholdet, plassene } from '$kjerne/frosset/standpunkt';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -166,7 +166,8 @@ export function klarOverForholdet(u: Utledning): OppgittDato | null {
 
 /**
  * Én linje i et svar, med etiketten for laget den står i når svaret har flere lag: en grunn
- * fra gjeldende svar på grunnlaget, med brevet det står i, eller et standpunkt i svaret.
+ * fra svaret på forholdet brevet hadde foran seg, med brevet det står i, eller et standpunkt i
+ * svaret.
  */
 export type Standpunktet = { lag: string | null } & (
   | { grunn: Subsidiaergrunn; brev: Brevref }
@@ -174,28 +175,24 @@ export type Standpunktet = { lag: string | null } & (
 );
 
 /**
- * Linjene i svaret `svar` i brevets rekkefølge, med laget kjernen gir dem (OV-U32). Grunnene
- * fra grunnlaget står først, ett lag hver, som i brevet (OV-U33): `foer` er saken før svaret.
+ * Linjene i svaret `svar` i brevets rekkefølge, med laget brevet ga dem (OV-U32). Grunnene
+ * fra svaret på forholdet brevet hadde foran seg står først, ett lag hver (OV-U33,
+ * `Svarberegning.forholdssvaret`). Et svar på forholdet revidert etter brevet endrer ikke det
+ * brevet sa. `u` er saken med svaret, for et utkast forhåndsvisningen.
  */
-export function standpunktene(svar: Svar, foer: Utledning): Standpunktet[] {
-  const g = svar.spor === 'forhold' ? null : foer.spor.forhold.gjeldendeSvar;
+export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
+  const beregning = u.svar[svar.id];
+  if (!beregning) throw new Error(`Svaret ${svar.id} er ikke i saken`);
+  const g = beregning.forholdssvaret === null ? null : u.svar[beregning.forholdssvaret].svar;
   const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
-  const lagene = svar.beslutningsgrunnlag.virkninger.map((v) => {
-    const l = laget(v.virkning);
-    return { id: v.standpunkt, lag: l === null ? null : l + grunner.length };
-  });
-  const flere = lagene.some((l) => l.lag !== null && l.lag > 1);
-  const merket = (l: number | null) => (flere && l !== null ? etikett(l) : null);
+  const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
   return [
     ...grunner.map((grunn, i) => ({
       grunn,
-      brev: ref(brevet(foer, g!.dokument)!),
-      lag: merket(i + 1),
+      brev: ref(brevet(u, g!.dokument)!),
+      lag: plass.grunn(i).etikett,
     })),
-    ...svar.standpunkter.map((s) => ({
-      standpunkt: s,
-      lag: merket(lagene.find((x) => x.id === s.id)?.lag ?? null),
-    })),
+    ...svar.standpunkter.map((s) => ({ standpunkt: s, lag: plass.standpunkt(s.id).etikett })),
   ];
 }
 
