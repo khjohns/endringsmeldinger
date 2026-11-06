@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, LV-U54, #1308). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, LV-U54, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -3904,6 +3904,57 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en ny grunnlagsversjon kan ikke endre datoen'],
+  },
+  {
+    id: 'F465',
+    feilklasse: 'brevet med korrigeringen av datoen får ingen tittel (LV-U55)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [
+      ["x.art === 'innsigelse' ||\n      x.art === 'korrigering'\n", "x.art === 'innsigelse'\n"],
+    ],
+    mal: ['brevet har tittelen «Korrigering av datoen i sak <kode>»'],
+  },
+  {
+    id: 'F466',
+    feilklasse: 'TEs forklaring i korrigeringen av datoen kommer ikke med i brevet (MM-U53)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);\n      return { utsagn: [{ id, art: 'korrigering'",
+        "return { utsagn: [{ id, art: 'korrigering'",
+      ],
+    ],
+    mal: ['TEs forklaring står i fritekst under den vedtatte teksten'],
+  },
+  {
+    id: 'F467',
+    feilklasse:
+      'lagene i et sendt svar følger det siste svaret på forholdet, ikke brevet (OV-U32, OV-U33, #1449)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    b.forholdssvaret = kilde?.id ?? null;',
+        '    b.forholdssvaret = forhold.at(-1)?.id ?? null;',
+      ],
+    ],
+    mal: [
+      'forholdet godkjent og revidert til avslått etter brevet: posten har fortsatt ingen lag',
+      'forholdet avslått og revidert til godkjent etter brevet: posten står fortsatt subsidiært',
+    ],
+  },
+  {
+    id: 'F468',
+    feilklasse: 'svaret på forholdet i samme brev står ikke foran sporet (OV-U32, OV-U33, #1449)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      forhold.find((g) => g.dokument === s.dokument) ??\n', '']],
+    mal: ['forholdet avslått i samme brev: svaret i brevet står foran, og posten subsidiært'],
+  },
+  {
+    id: 'F469',
+    feilklasse: 'grunnene fra forholdet foran sporet får feil lag (OV-U32, LV-U4 punkt 4, #1449)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['grunn: (i) => plass(i + 1)', 'grunn: (i) => plass(i)']],
+    mal: ['avslag og påberopt preklusjon etter § 32.2 opptar første og andre lag, posten tredje'],
   },
 ];
 

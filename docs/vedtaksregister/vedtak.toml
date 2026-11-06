@@ -383,9 +383,122 @@ setningen i posten. «Registrert enighet» er løsningens begrep etter MM-U34 pu
   trekket tillates, gjelder ikke. OV-U6 endret KA-U14 på dette leddet (endringsordren i en
   registrering sperrer ikke trekket), og KA-U45 opphevet avklaringen av registrerte brev med
   sperrene sine.
+
+##### <a id="samlevedtak-kravversjon"></a>Samlevedtaket for kravversjon, ny kravversjon og utdyping (KA-U52)
+
+Teksten under er samlevedtaket [KA-U52](#ka-u52), vedtatt 05.11 av oppdragsgiver (#1534), ordrett slik
+det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-kravversjon-2026-11-05.md),
+med «Endret innhold» E1–E6, og med siste setning i punkt 5 etter svar 2 A (svar 1 A). Samlevedtaket samler
+[vedtaket 05.10](#oppdatert-krav) om at et oppdatert krav åpner sporet igjen, [vedtaket 05.10](#ny-kravversjon)
+om at hver oppdatering er en ny kravversjon, [KA-U40](#ka-u40), [OV-U54](#ov-u54) og [MM-U34](#mm-u34)
+punkt 1, 9, 10 og 12, så langt de gjelder ny kravversjon. De gjelder som «Samlet i samlevedtaket for
+kravversjon». Det opphever [KA-U3](#ka-u3) og [KA-U7](#ka-u7), og henvisningene til dem gjelder
+samlevedtaket, unntatt KA-U13 s5 ([KA-U51](#ka-u51) E4). I postene det samler eller endrer, gjelder
+setningene E1–E6 navngir, ikke lenger (svar 1 A). Punkt 5 presiserer [MM-U52](#mm-u52) punkt 19 og 20 og
+[HF-U23](#hf-u23) punkt 9 (svar 2 A).
+
+###### Forslaget
+
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Kildene står i parentes etter hver
+setning; «s» er setningen i posten. Der en regel har et annet gjeldende hjem, viser punktet dit i
+stedet for å gjengi den.
+
+###### A. Hva en kravversjon er
+
+1. Hvert krav TE sender i et spor, er en kravversjon. Hver oppdatering av kravet er en ny
+   kravversjon, også når verdiene er uendret. Det gjelder grunnlag, vederlag og frist. (rad-002 s1;
+   GR-U1 s1; KA-U2)
+2. Disse brevene er ikke kravversjoner: et frittstående varsel, et trekk og byggherrens innsigelse
+   eller forespørsel (KA-U2); en korrigering av en faktisk opplysning TE har oppgitt i kravet
+   (MM-U52 punkt 13); en retting etter MM-U52 punkt 8, 12 eller 18, og brevet der TE endrer sin
+   opplysning om når pålegget ble mottatt eller TE ble klar over forholdet (MM-U52 punkt 10); og
+   et innlegg, også TEs utdyping av et krav (MM-U34 punkt 24; MM-U52 punkt 15). TE kan likevel
+   sende en ny kravversjon i stedet for en korrigering (MM-U52 punkt 13; MM-U34 punkt 1). I et krav
+   om regningsarbeid gjelder OV-U94 punkt 2 og 9.
+
+###### B. Hva en ny kravversjon gjør
+
+3. Sender TE en ny kravversjon, venter sporet på nytt svar, og byggherrens svar på den tidligere
+   versjonen kan ikke godtas i løsningen. Regelen står i HF-U23 punkt 9. (rad-001 s1–s2; rad-002
+   s2; E1, E6)
+4. Brevet sier: ‹Dette kravet erstatter TEs tidligere kravversjon i brev <n> av <dato>.› Har
+   byggherren svart på den tidligere versjonen, legger brevet til: ‹TEs standpunkt til BHs
+   tidligere svar fremgår av begrunnelsen.› Tidligere brev bevares uendret. Teksten gjelder bare
+   brev som sendes etter vedtaket (MM-U9). (MM-U34 punkt 1; E3)
+5. En registrert enighet bevares. Det gjelder også en aksept TE har gitt av svaret på den
+   tidligere versjonen, fordi aksepten er en registrert enighet. Utenom sperrene i punkt 6 kan TE
+   sende en ny kravversjon og byggherren et nytt svar også i et spor med registrert enighet, og
+   løsningen avgjør ikke om enigheten står. (MM-U34 punkt 9; HF-U9 s1 slik MM-U34 punkt 10 endret
+   den; MM-U50 punkt 13; MM-U43 punkt 7; OV-U94 punkt 16; E1, E5) Sender totalentreprenøren en ny kravversjon etter at byggherren i et svar har godtatt totalentreprenørens retting til en tidligere varseldato, står aksepten av rettingen, og datoen i rettingen gjelder etter punkt 19 i samlevedtaket for retting av sendt brev, til en senere retting begynner å gjelde. Det samme gjelder en godtatt retting av datoen for et krav sendt utenfor løsningen (punkt 18 der). At svaret på den tidligere versjonen ikke kan godtas i løsningen, gjelder standpunktene i svaret og ikke aksepten av rettingen. (Svar 2 A)
+6. At kravene i saken er avgjort, sperrer ikke en ny kravversjon (MM-U34 punkt 12; MM-U43 punkt
+   7). Sperrene står andre steder: for en sak lukket etter GR-U27 i GR-U27 og MM-U34 punkt 12 første setning (og MM-U43 punkt 6), for et
+   krav TE har trukket i KA-U51 punkt 11, og for en KOE-sak som en sendt endringsordre eller en
+   godkjent registrering av en endringsordre omfatter, i EO-U38 punkt 12. (E4, E5)
+7. I et spor der TE ikke har sendt et krav, går TEs første krav i samme sak, unntatt der punkt 6
+   sperrer. (OV-U3; HF-U9 s8; EO-U38 punkt 12)
+8. Hever TE kravet i en ny kravversjon før byggherren har svart, svarer byggherren bare på
+   gjeldende kravversjon, og løsningen avgjør ikke om den tidligere kravversjonen binder TE.
+   (KA-U40)
+
+###### C. Det som står mot en ny kravversjon
+
+9. En innsigelse byggherren har fremsatt, bevares som påberopelse med tidspunktet (VS-U46 punkt
+   6), uten at løsningen avgjør om den er virksom. Om den står mot en ny versjon, avgjøres i
+   VS-U46 (punkt 7 og E2 der). Et frafall står (GR-U20). (OV-U54; E3)
+10. Et uttrykkelig standpunkt om at et varsel kom i tide, står mot hver senere kravversjon etter
+    VS-U46 punkt 8 og 13. En ny grunnlagsversjon kan ikke endre datoen TE har oppgitt etter VS-U26,
+    eller hjemmelen, etter MM-U52 punkt 10 og 14.
+
+###### Beslutningsdel
+
+- At et svar på en tidligere versjon ikke kan godtas (punkt 3), er en begrensning i løsningen, ikke
+  en tolkning av kontrakten (HF-U23 punkt 9; MM-U34 punkt 16). Løsningen og godkjenningsflyten
+  bruker definisjonen i punkt 1 og 2; KA-U2 viser hvilke hendelser i Python-stien det gjelder.
+
+###### Designdel
+
+- Visningen viser at det nye avviker fra den registrerte enigheten (MM-U34 punkt 9).
+- Påminnelsen i skjemaet før en ny kravversjon står i HF-U23 punkt 10, og anbefalingen av
+  korrigeringen i MM-U52.
+- Om skjemaet lar TE velge mellom en utdyping og en ny kravversjon, avgjøres i brukerforløpet.
+
+###### Endret innhold
+
+- **E1.** Rad-001 s2: «Det venter på nytt svar, og en aksept av forrige svar faller.» Leddet «og en
+  aksept av forrige svar faller» gjelder ikke: etter MM-U34 punkt 9 bevares en registrert enighet,
+  og en aksept TE har gitt, er en registrert enighet (HF-U9 slik MM-U34 punkt 10 endret den;
+  MM-U50 punkt 13; KA-U51 E2 leser det likt). At svaret på den tidligere versjonen ikke kan godtas
+  etter en ny versjon, står i punkt 3. Rad-001 s3 gjelder alt ikke etter HF-U25 E2.
+- **E2.** Rad-002: avgrensningen etter KA-U3 («gjelder til saken er `OMFORENT`») og endringen etter
+  KA-U7 («i et spor med enighet avvises oppdateringen») gjelder ikke; de to vedtakene er opphevet,
+  og punkt 5 og 6 gjelder. Innsnevringen etter OV-U54 (en ny kravversjon som bare retter en
+  opplysning, avvises) er opphevet av MM-U34 punkt 1.
+- **E3.** OV-U54: setningene fra «I løsningen er en ny kravversjon TEs avslag …» til «Det gjelder
+  også når TE bare endrer en opplysning.», «Avslaget gjelder tilbudet i svaret i samme spor; en ny
+  grunnlagsversjon avslår ikke svarene på vederlag og frist (HF-U21).» og «Endrer HF-U8 og
+  presiserer HF-U5: bortfallet av et tilbud som fortsatt binder byggherren, følger av avslaget i
+  brevet.» gjelder ikke. MM-U34 punkt 1 ga ny ordlyd (punkt 4), og HF-U23 har tatt akseptfristen.
+  «Skjemaet sier også at et uttrykkelig standpunkt om at et varsel kom i tide, og et avkall, står
+  (HF-U4, HF-U8).» falt alt med MM-U41 E2, som MM-U52 fører videre. Korrigeringen står i MM-U52
+  punkt 13, og «En ny kravversjon som bare retter en slik opplysning, avvises, og TE sender
+  korrigeringen i stedet.» er opphevet av MM-U34 punkt 1. Det som står, er punkt 9, «Den nye teksten
+  gjelder bare nye brev (MM-U9).» (punkt 4) og henvisningen til versjonsmodellen (punkt 3).
+- **E4.** OV-U55: «sperrene etter enighet (KA-U7, OV-U3)» og «En enighet i saken står (KA-U7).»
+  leses etter punkt 5 og 6: enighet og avgjorte krav sperrer ikke en ny grunnlagsversjon, sperrene
+  er de punkt 6 viser til, og en registrert enighet bevares.
+- **E5.** KA-U3 og KA-U7 er opphevet. Samlevedtaket tar det som gjelder om ny kravversjon i et
+  spor med enighet og etter at kravene er avgjort (punkt 5 og 6), og henvisningene til KA-U3 og
+  KA-U7 gjelder samlevedtaket. Unntaket er KA-U13 s5, der KA-U51 E4 viser henvisningen til punkt 3
+  i samlevedtaket for trekk.
+- **E6.** GR-U1 s2: «Svaret på forrige versjon faller i tilstanden og står i journalen, grunnlaget
+  venter på nytt svar, og en aksept av forrige svar avvises (KA-U1).» Leddet «Svaret på forrige
+  versjon faller i tilstanden» gjelder ikke. Etter HF-U23
+  punkt 9 (fra MM-U34 punkt 2) kan svaret ikke godtas i løsningen, og løsningen sier ikke at det
+  har falt bort.
 '''
 
 [[gruppe.vedtak]]
+anker = "oppdatert-krav"
 klasse = "vedtak"
 vedtak = '''
 SK-02 og SK-03: et oppdatert krav fra TE åpner sporet igjen. Det venter på nytt svar, og
@@ -399,6 +512,7 @@ Bygget 09.10 for godkjent og godtatt svar (SK-02, SK-03 i 4.2); ikke bygget på
 vedtaksdatoen. Merknad 04.11: «Et svar TE har godtatt, kan byggherren ikke revidere» gjelder ikke lenger etter E2 i samlevedtaket [HF-U25](#hf-u25).'''
 
 [[gruppe.vedtak]]
+anker = "ny-kravversjon"
 klasse = "vedtak"
 vedtak = '''
 Hver oppdatering fra TE av et vederlags- eller fristkrav er en ny kravversjon, også når
@@ -432,6 +546,7 @@ KA-U2: kravversjonene er de hendelsene projeksjonen og frontenden regner som kra
 `varsel_type` «varsel»), et trekk og byggherrens innsigelse eller forespørsel er ikke
 kravversjoner. Godkjenningsflyten skal bruke samme definisjon'''
 vedtatt = "08.10, oppdragsgiver"
+forhold = [{ art = "presiserer", vedtak = "ny-kravversjon" }]
 folge = '''
 Presiserer vedtaket om ny kravversjon 05.10. Projeksjonen og `submissionRefs` følger
 det; `claims()` i godkjenningsflyten gjør det ikke (DT-02)'''
@@ -912,6 +1027,134 @@ forkastet = true
 navn = "2 B"
 tekst = '''
 Et trekk av grunnlaget er også sperret når kravene er avgjort, før endringsordren er sendt. Trekk av vederlag og frist følger vedtaket 28.10.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "KA-U52"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 05.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/9475f3e/docs/vedtaksregister/vurdering-samlevedtak-kravversjon-2026-11-05.md#spørsmålene-til-oppdragsgiver). Alternativene står i posten.
+
+Spørsmål 1 er en tilslutning til innhold du alt har vedtatt, og stilles i tekst. Spørsmål 2
+gjelder en virkning ingen post sier noe om. Svar for eksempel «1 A, 2 A».
+
+**1. Tilslutning til samlevedtaket for kravversjon.**
+
+*Bakgrunn:* Reglene om kravversjon står i flere vedtak fra 05.10 til 26.10. Vedtaket 28.10 om
+registrert enighet endret dem, men to opphevede vedtak (at en ny kravversjon avvises etter at saken
+er omforent, og at en enighet binder begge parter slik at en ny kravversjon i et spor med enighet
+avvises) bærer fortsatt fem forhold i registeret, og vedtaket 05.10 sier fortsatt at en aksept av
+forrige svar faller når totalentreprenøren sender et oppdatert krav.
+
+*Belegg:* forslaget over, punkt 1–10 med beslutningsdelen og designdelen, og E1–E6. Punktene er
+vedtatt innhold med henvisningene skrevet om. E1–E6 tar bort setninger som senere vedtak alt har
+gjort uvirksomme.
+
+- **A (anbefalt):** «Samlevedtaket for kravversjon gjelder med E1–E6. Det opphever vedtaket om at
+  en ny kravversjon avvises etter at saken er omforent, og vedtaket om at en enighet binder begge
+  parter og at en ny kravversjon i et spor med enighet avvises; henvisningene til dem gjelder
+  samlevedtaket, unntatt der samlevedtaket for trekk viser henvisningen til sitt punkt 3. Vedtakene
+  om at et oppdatert krav åpner sporet igjen, om at hver oppdatering er en ny kravversjon, om en
+  hevet kravversjon før byggherren har svart, og om brevet for en ny kravversjon og innsigelsen som bevares, gjelder som «Samlet i samlevedtaket for kravversjon». Det samme gjelder punkt 1 og 9,
+  strykningen i punkt 10 og sperren mot ny kravversjon i punkt 12 i vedtaket 28.10 om registrert
+  enighet. I postene det samler eller endrer, gjelder setningene E1–E6 navngir, ikke lenger.»
+- **B:** Samme som A, med rettelsene du gir per punkt eller E-punkt.
+
+*Anbefaling:* A. Innholdet er det du alt har vedtatt, og E-punktene følger av senere vedtak.
+
+*Hva valget styrer:* hvilken tekst som er regelgrunnlaget for kravversjon i KOE-sakene, og at
+`KJENTE_FORHOLD_TIL_OPPHEVET` mister de fem radene mot de to opphevede vedtakene. Etter Følge i
+vedtaket 08.10 om aksepten er det bygget at en ny kravversjon opphever en aksept (SK-02); etter E1
+fjernes den virkningen fra koden.
+
+*Forholdet:* samler rad-001 (med E1), rad-002 (med E2), KA-U40, OV-U54 (med E3) og MM-U34 (punkt 1, 9, 10 og 12, så langt de
+gjelder ny kravversjon); opphever KA-U3 og KA-U7 (E5); endrer OV-U55 (E4) og GR-U1 (E6).
+
+*Klassen:* vedtak med designdel og beslutningsdel.
+
+**2. Om en ny kravversjon tar bort byggherrens aksept av en retting av varseldatoen.**
+
+*Bakgrunn:* Samlevedtaket for retting av sendt brev (05.11) lar byggherren godta
+totalentreprenørens retting til en tidligere varseldato i et svar i sporet. Ingen post sier hva som
+skjer med den aksepten når totalentreprenøren deretter sender en ny kravversjon. Etter punkt 3 over
+kan totalentreprenøren da ikke lenger godta svaret aksepten står i. Orkestratoren behandlet det som
+en følge av punkt 19 i samlevedtaket for retting, men det er ikke bekreftet av deg.
+
+*Belegg:* Samlevedtaket for retting av sendt brev, punkt 19: «Datoen som gjelder, er datoen i den
+rettingen som sist begynte å gjelde, enten straks fordi den var til en senere dag, eller da
+byggherren godtok den; uten en slik retting er det datoen totalentreprenøren først oppga.» Punkt 20:
+«Et nytt svar etter punkt 6 tar ikke bort en aksept i svaret det erstatter.» Punkt 8: «Et svar
+byggherren alt har gitt, står med virkningen det hadde, og byggherren kan ta stilling på nytt.»
+Punkt 18: «I punkt 19 og 21–23 gjelder «varseldatoen» også denne datoen.» (datoen for et krav sendt
+utenfor løsningen). Punkt 10 endres ikke av noen av alternativene, og A endrer heller ikke punkt 20.
+
+- **A (anbefalt):** «Sender totalentreprenøren en ny kravversjon etter at byggherren i et svar har
+  godtatt totalentreprenørens retting til en tidligere varseldato, står aksepten av rettingen, og
+  datoen i rettingen gjelder etter punkt 19 i samlevedtaket for retting av sendt brev, til en
+  senere retting begynner å gjelde. Det samme gjelder en godtatt retting av datoen for et krav sendt
+  utenfor løsningen (punkt 18 der). At
+  svaret på den tidligere versjonen ikke kan godtas i løsningen, gjelder standpunktene i svaret og
+  ikke aksepten av rettingen.»
+- **B:** «Sender totalentreprenøren en ny kravversjon, faller byggherrens aksept av rettingen
+  i svaret på den tidligere versjonen, og datoen som gjaldt før aksepten, gjelder igjen til
+  byggherren godtar rettingen i et svar på den nye versjonen, unntatt der et nytt svar avvises
+  (GR-U27; EO-U38 punkt 12). Det samme gjelder datoen for et krav sendt utenfor løsningen.»
+
+*Anbefaling:* A. Aksepten er byggherrens svar på totalentreprenørens tilbud om å rette datoen, ikke
+en del av byggherrens tilbud som den nye versjonen erstatter. Punkt 19 regner datoen fra aksepten,
+punkt 20 lar et nytt svar ikke ta bort aksepten, og etter punkt 8 står et svar byggherren alt har
+gitt, med virkningen det hadde. B lar byggherren komme fra en aksept fordi totalentreprenøren sender
+en ny versjon av et annet standpunkt, og en ny kravversjon gjør ellers ikke at svaret faller
+(HF-U23 punkt 9).
+
+*Hva valget styrer:* punkt 5 i samlevedtaket (setningen i kursiv erstattes av det valgte), og
+hvilken dato kjernen regner som gjeldende etter en ny kravversjon i #1309.
+
+*Forholdet:* A presiserer samlevedtaket for retting av sendt brev, punkt 19 og 20, og samlevedtaket
+for akseptfristen, punkt 9. B endrer punkt 8, 19 og 20 i samlevedtaket for retting og punkt 9 i
+samlevedtaket for akseptfristen for en ny kravversjon.
+
+*Klassen:* vedtak.'''
+valgt = "1 A, 2 A"
+svar = '''
+Oppdragsgiver 05.11, ordrett ([#1534, 6664755862](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6664755862)): «Spes: 1 A, 2 A, 3 A. Krav: 1 A, 2 A». «Krav» gjelder disse spørsmålene. Valgt samlet: 1 A, 2 A.'''
+forhold = [
+  { art = "samler", vedtak = "oppdatert-krav" },
+  { art = "samler", vedtak = "ny-kravversjon" },
+  { art = "samler", vedtak = "ka-u40" },
+  { art = "samler", vedtak = "ov-u54" },
+  { art = "samler", vedtak = "mm-u34" },
+  { art = "opphever", vedtak = "ka-u3" },
+  { art = "opphever", vedtak = "ka-u7" },
+  { art = "endrer", vedtak = "ov-u55" },
+  { art = "endrer", vedtak = "gr-u1" },
+  { art = "presiserer", vedtak = "mm-u52" },
+  { art = "presiserer", vedtak = "hf-u23" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for kravversjon](#samlevedtak-kravversjon). Samler vedtakene 05.10 om at et oppdatert krav åpner sporet igjen og om at hver oppdatering er en ny kravversjon, KA-U40, OV-U54 og MM-U34 punkt 1, 9, 10 og 12, så langt de gjelder ny kravversjon; opphever KA-U3 og KA-U7, og henvisningene til dem gjelder samlevedtaket, unntatt KA-U13 s5 (KA-U51 E4); endrer OV-U55 (E4) og GR-U1 (E6) (svar 1 A). Presiserer MM-U52 punkt 19 og 20 og HF-U23 punkt 9: byggherrens aksept av en retting av varseldatoen står når TE sender en ny kravversjon (svar 2 A).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A"
+tekst = '''
+Spørsmål 1: Samlevedtaket for kravversjon gjelder med E1–E6. Det opphever vedtaket om at en ny kravversjon avvises etter at saken er omforent, og vedtaket om at en enighet binder begge parter og at en ny kravversjon i et spor med enighet avvises; henvisningene til dem gjelder samlevedtaket, unntatt der samlevedtaket for trekk viser henvisningen til sitt punkt 3. Vedtakene om at et oppdatert krav åpner sporet igjen, om at hver oppdatering er en ny kravversjon, om en hevet kravversjon før byggherren har svart, og om brevet for en ny kravversjon og innsigelsen som bevares, gjelder som «Samlet i samlevedtaket for kravversjon». Det samme gjelder punkt 1 og 9, strykningen i punkt 10 og sperren mot ny kravversjon i punkt 12 i vedtaket 28.10 om registrert enighet. I postene det samler eller endrer, gjelder setningene E1–E6 navngir, ikke lenger. Spørsmål 2: Sender totalentreprenøren en ny kravversjon etter at byggherren i et svar har godtatt totalentreprenørens retting til en tidligere varseldato, står aksepten av rettingen, og datoen i rettingen gjelder etter punkt 19 i samlevedtaket for retting av sendt brev, til en senere retting begynner å gjelde. Det samme gjelder en godtatt retting av datoen for et krav sendt utenfor løsningen (punkt 18 der). At svaret på den tidligere versjonen ikke kan godtas i løsningen, gjelder standpunktene i svaret og ikke aksepten av rettingen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+Samme som A, med rettelsene du gir per punkt eller E-punkt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+Sender totalentreprenøren en ny kravversjon, faller byggherrens aksept av rettingen i svaret på den tidligere versjonen, og datoen som gjaldt før aksepten, gjelder igjen til byggherren godtar rettingen i et svar på den nye versjonen, unntatt der et nytt svar avvises (GR-U27; EO-U38 punkt 12). Det samme gjelder datoen for et krav sendt utenfor løsningen.'''
 forkastet = true
 
 [[gruppe]]
@@ -2768,6 +3011,7 @@ dager og subsidiære standpunkter. Aksepten peker på svarets hendelse. Venter s
 svar, eller gjelder svaret en tidligere kravversjon, avvises aksepten. Delvis enighet er
 ikke aksept'''
 vedtatt = "08.10, oppdragsgiver"
+forhold = [{ art = "presiserer", vedtak = "oppdatert-krav" }]
 folge = '''
 Presiserer SK-02 og SK-03 og målformen M2 under B-14. Utføres i kontrakten av
 [KT-U1](#kt-u1) (08.10). Radene står i [domenetabellen](../domenetabell/README.md).
@@ -2887,6 +3131,7 @@ som ikke var kjent, går i en ny sak, som etter KA-U3. En åpenbar skrivefeil h�
 B-16. Forkastet: at TE kan oppheve enigheten med en ny kravversjon, som i dag, og en ny
 kravversjon bare med byggherrens samtykke'''
 vedtatt = "09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35"
+forhold = [{ art = "endrer", vedtak = "oppdatert-krav" }, { art = "endrer", vedtak = "ny-kravversjon" }]
 folge = '''
 Endrer SK-02 og vedtaket om ny kravversjon 05.10 for spor med enighet, og gjør det
 overflødig at KA-U3 avhenger av om andre spor er åpne. Grunnlaget er § 34.2.2 første
@@ -5220,6 +5465,120 @@ standpunktet.» OV-U4 (13.10) endret VS-U11 og sier: «Appen utleder ingenting a
 standpunkt, enighet, sperre eller uavklart utfall, og den fryser ingen vurdering av det.» MM-U43
 punkt 9 samler OV-U4. Samlevedtaket: punkt 12, som skriver VS-U11 s6–s7 slik OV-U4 endret dem, og
 viser til MM-U43 punkt 9 for det registrerte brevet. Innholdet er ikke endret i forhold til OV-U4.
+
+##### <a id="samlevedtak-spesifisering"></a>Samlevedtaket for spesifisering etter punkt 33.6.1 og forespørsel etter punkt 33.6.2 (VS-U47)
+
+Teksten under er samlevedtaket [VS-U47](#vs-u47), vedtatt 05.11 av oppdragsgiver (#1534), ordrett slik
+det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-spesifisering-2026-11-05.md),
+med «Endret innhold» E1–E6, og med punkt 3 og 11 og E4 og E5 etter svar 2 A og 3 A (svar 1 A).
+Teksten for de forkastede alternativene 2 B og 3 B er tatt ut. Samlevedtaket samler [VS-U4](#vs-u4)
+(delen om punkt 33.6.1), [VS-U17](#vs-u17), [VS-U19](#vs-u19), [VS-U21](#vs-u21), [VS-U22](#vs-u22),
+[VS-U23](#vs-u23), [VS-U27](#vs-u27), [VS-U29](#vs-u29), [VS-U30](#vs-u30), [VS-U31](#vs-u31),
+[VS-U32](#vs-u32), [VS-U33](#vs-u33) og [VS-U36](#vs-u36), som gjelder som «Samlet i samlevedtaket
+for spesifisering». Delen om punkt 34.3.3 første ledd i VS-U4 står (svar 1 A). Et krav om dager som
+TE har registrert med utfylt kravskjema, stopper forespørselen som et krav fremmet i løsningen (svar 2 A). Sier et registrert svar
+ikke hvor mange dager byggherren mener byggherren måtte forstå at TE hadde krav på, fylles påberopelsen etter punkt
+33.6.1 ut i svarskjemaet uten tall (svar 3 A).
+
+###### Forslaget
+
+Samlevedtaket er et *vedtak* med beslutningsdel. Kildene står i parentes etter hver setning; «s» er
+setningen i posten.
+
+###### A. Spesifiseringen etter punkt 33.6.1
+
+1. Påberoper byggherren at TE spesifiserte kravet for sent etter punkt 33.6.1, oppgir byggherren
+   prinsipalt det antall dager byggherren mener byggherren måtte forstå at TE hadde krav på, og
+   subsidiært det byggherren godtar hvis spesifiseringen kom i tide. Løsningen regner ikke ut hva
+   noen måtte forstå. Påberopelsen er ikke preklusjon med prinsipalt avslag. (VS-U4 s1–s4 for punkt
+   33.6.1, og det forkastede alternativet; VS-U22 s3 for ordlyden)
+2. Byggherren tar stilling til punkt 33.4 og punkt 33.6.1 hver for seg, også når kravet var
+   varselet. Løsningen avgjør ikke ut fra saken hvilken bestemmelse byggherren påberoper. (VS-U21
+   s1–s3; VS-U22 s2; VS-U46 punkt 8)
+
+###### B. Forespørselen etter punkt 33.6.2
+
+3. Byggherren kan be om spesifisering etter punkt 33.6.2 så lenge TE ikke har fremmet et krav om
+   antall dager i saken. Deretter avviser løsningen en forespørsel fra løsningen. (VS-U19 s1–s2)
+   Et krav om dager som TE har registrert med utfylt kravskjema (OV-U80), stopper
+   forespørselen som et krav fremmet i løsningen. Et registrert brev som står som dokumentasjon,
+   stopper den aldri, hva beskrivelsen enn sier. (VS-U33 s1–s2; OV-U80; E5)
+4. Brevet fra løsningen har formkravene i punkt 33.6.2 første ledd, med brevteksten i LV-U18.
+   Virkningen etter punkt 33.6.2 tredje ledd utledes bare når byggherren uttrykkelig påberoper at
+   TE svarte for sent (VS-U3). Ellers vises den. (VS-U19 s4 og s6; VS-U33 s4)
+5. En forespørsel sendt utenfor løsningen registreres alltid, også etter et krav om dager, og vises
+   med datoen og beskrivelsen den som registrerte, har gitt (OV-U16). Løsningen avgjør ikke om
+   formkravene var oppfylt eller om svaret kom i tide. (VS-U19 s3 og s5; VS-U27 s3)
+
+###### C. Totalentreprenørens svar på forespørselen
+
+6. Svarer TE på en forespørsel byggherren har sendt fra løsningen, med et krav med dager, kan
+   byggherren ikke påberope at fristen i punkt 33.6.1 er oversittet (fjerde ledd), og løsningen
+   vurderer det selv. (VS-U3, setningen «Appen vurderer selv bare der det er vedtatt: …»)
+7. TEs begrunnelse etter punkt 33.6.2 annet ledd bokstav b registreres som TEs svar på
+   forespørselen, og punkt 33.6.1 gjelder for kravet som senere fremmes (femte ledd). (VS-U17 s1)
+
+###### D. Påberopelsen etter punkt 33.6.2 og spesifiseringen etter begrunnelsen
+
+8. Byggherren gjør gjeldende at TEs begrunnelse kom for sent, eller at den ikke er et svar etter
+   annet ledd, i svaret på TEs første krav med dager etter begrunnelsen, med ett standpunkt etter
+   punkt 33.6.2. Et innlegg sendt før svaret står i saken og leses ikke. Løsningen avgjør ikke om
+   påberopelsen kom uten ugrunnet opphold. (VS-U36 s1–s3; VS-U46 punkt 18)
+9. Påberoper byggherren uttrykkelig at begrunnelsen kom for sent, utledes virkningen som etter
+   punkt 33.6.2 tredje ledd. Standpunktet om at begrunnelsen ikke er et svar etter annet ledd,
+   registreres og vises uten utledet virkning, som når TE ikke svarer. Byggherrens svar på et senere
+   fristkrav gjentar påberopelsen eller gir den opp etter VS-U46 punkt 6, 9, 10, 12–14 og 20.
+   (VS-U17 s2–s3; VS-U29 s3–s5; E1)
+10. Mener byggherren at TE allerede hadde grunnlag for å beregne kravet da TE begrunnet, gjør
+    byggherren det gjeldende i svaret på det senere fristkravet, som en påberopelse av sen
+    spesifisering etter punkt 33.6.1 (punkt 1). Byggherrens begrunnelse kan vise til tidspunktet for
+    TEs begrunnelse. (VS-U32 s1–s2; E2)
+11. Sier et svar sendt utenfor løsningen ikke hvor mange dager byggherren mener
+    byggherren måtte forstå at TE hadde krav på, fylles påberopelsen etter punkt 33.6.1 ut i
+    svarskjemaet uten tall. (VS-U21 s4; VS-U22 s3; OV-U80; E4)
+
+###### Beslutningsdel
+
+- Byggherren kan sende høyst én forespørsel etter punkt 33.6.2 fra løsningen i saken, og ingen etter
+  TEs begrunnelse etter bokstav b. En senere forespørsel sendes utenfor løsningen og registreres som
+  dokumentasjon. (VS-U30; VS-U31 s1–s2; E3)
+- I første versjon er en forespørsel sendt utenfor løsningen dokumentasjon, og påberopelsen av at
+  TE svarte for sent på den, sendes utenfor løsningen og registreres. Forespørselen fra løsningen
+  følger punkt 3 og 4. (VS-U23 s1–s3)
+- TE kan sende begrunnelsen etter bokstav b fra løsningen bare som svar på en forespørsel byggherren
+  har sendt fra løsningen. Er forespørselen registrert, svarer TE utenfor løsningen og registrerer
+  svaret som dokumentasjon, eller sender et krav med dager fra løsningen. (VS-U27 s1–s2; VS-U33 s4)
+- Brevtekstene står i LV-U18 og LV-U20.
+
+###### Endret innhold
+
+- **E1.** VS-U29 s1–s2: «Byggherren gjør gjeldende at TEs begrunnelse etter § 33.6.2 annet ledd
+  bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i en egen innsigelse etter
+  § 5 tredje ledd mot begrunnelsen, sendt fra appen. Fordi begrunnelsen bare kan komme for sent etter
+  § 33.6.2, er innsigelsen en påberopelse etter den bestemmelsen.» gjelder ikke; VS-U36 har flyttet
+  påberopelsen til svaret (punkt 8). VS-U29 s5 («Byggherrens svar på et senere fristkrav gjentar
+  påberopelsen eller gir den opp (VS-U9, VS-U11), og HF-U4 gjelder for den.») står for påberopelsen
+  i svaret, med henvisningene til punktene i VS-U46 der VS-U9, VS-U11 og HF-U4 er samlet (punkt 9).
+  VS-U36 sier ikke hva et senere svar gjør; at resten står, følger av mønster 15 i klassifiseringen
+  (svar 03.11 A).
+- **E2.** VS-U32 s3: «Innsigelsen mot begrunnelsen står etter § 33.6.2 som i VS-U29.» gjelder ikke;
+  påberopelsen etter punkt 33.6.2 står i svaret (punkt 8). S1 er skrevet som en hel setning med
+  spørsmålet som subjekt (punkt 10).
+- **E3.** VS-U30 og VS-U31 er slått sammen i beslutningsdelen. Innholdet er det samme: en
+  begrunnelse fra løsningen forutsetter en forespørsel fra løsningen (VS-U27), og VS-U31 tillater
+  høyst én.
+- **E4.** VS-U22 s1: «I første versjon bygges ikke VS-U21: et brev fra byggherren sendt utenfor
+  appen er dokumentasjon etter OV-U4.» gjelder ikke etter OV-U80, som lar byggherren registrere
+  svaret med svarskjemaet. Det VS-U21 s1 sier om hva den som registrerer angir, gjøres da i
+  svarskjemaet (punkt 2). Delen om tall i VS-U22 s3 står i punkt 11, og «brevet
+  kan merkes (KA-U16, KA-U20)» i VS-U21 s4 gjelder ikke, fordi påberopelsen står i skjemaet.
+- **E5.** VS-U33 s1–s2 («Bare et krav om dager som er fremmet i appen, stopper
+  forespørselen. Et registrert brev gjør det aldri, hva beskrivelsen enn sier.») gjelder ikke for et
+  krav TE har registrert med utfylt kravskjema etter OV-U80 (punkt 3).
+- **E6.** Punkt 5 og beslutningsdelen: setningen «Den er dokumentasjon» står i beslutningsdelen med
+  «I første versjon» fra VS-U23 s1, og «registrerer svaret» har «som dokumentasjon» fra VS-U27 s2.
+  Punkt 6 tar fjerde ledd fra VS-U3 med vilkåret at TE svarer på en forespørsel fra løsningen med
+  dager, slik kjernen gjør (`kjerne/regler/frist.ts`, `er_svar_paa_foresporsel`).
 '''
 
 [[gruppe.vedtak]]
@@ -8319,6 +8678,181 @@ forkastet = true
 navn = "4 B"
 tekst = '''
 svaret på 2b står. Sperren for totalentreprenøren er et bevisst unntak fra at løsningen ikke låser. Y står slik den ble valgt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "VS-U47"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1534"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 05.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/578363f/docs/vedtaksregister/vurdering-samlevedtak-spesifisering-2026-11-05.md#spørsmålene-til-oppdragsgiver). Alternativene står i posten.
+
+Spørsmål 1 er en tilslutning til innhold du alt har vedtatt, og stilles i tekst. Spørsmål 2 og 3
+avgjør hvordan et vedtak fra 22.10 og to fra 12.10 og 13.10 står mot vedtaket 01.11 om registrering
+av korrespondanse. Svar for eksempel «1 A, 2 A, 3 A».
+
+**1. Tilslutning til samlevedtaket for spesifisering.**
+
+*Bakgrunn:* Reglene om spesifisering av fristkravet og byggherrens forespørsel står i 13 vedtak fra
+10.10 til 01.11. Vedtaket 01.11 flyttet byggherrens påberopelse av at begrunnelsen etter punkt 33.6.2
+annet ledd bokstav b kom for sent, fra en egen innsigelse til svaret på det neste fristkravet, uten å
+rette det eldre vedtaket. Ett vedtak (22.10) er bare et svaralternativ og kan ikke leses uten
+spørsmålet.
+
+*Belegg:* forslaget over, punkt 1–11 med beslutningsdelen, og E1–E6. Punkt 1–10 er vedtatt innhold
+med henvisningene skrevet om; E6 viser hvor ordlyden er tatt nærmere kilden. E1, E2 og E4 tar bort
+setninger som senere vedtak alt har gjort uvirksomme.
+
+- **A (anbefalt):** «Samlevedtaket for spesifisering gjelder med E1–E6, og med punkt 3 og 11 og de
+  delene av E4 og E5 som avhenger av spørsmål 2 og 3, etter svarene der. Vedtakene om påberopelse av
+  sen spesifisering etter punkt 33.6.1, om byggherrens forespørsel etter punkt 33.6.2 og hvor mange
+  som kan sendes fra løsningen, om totalentreprenørens begrunnelse etter annet ledd bokstav b og
+  svaret på en registrert forespørsel, om påberopelsen av at begrunnelsen kom for sent, og om hvor
+  byggherren gjør gjeldende at totalentreprenøren allerede hadde grunnlag for å beregne kravet,
+  gjelder som «Samlet i samlevedtaket for spesifisering». Delen om punkt 34.3.3 første ledd i
+  vedtaket om påberopelse av sen spesifisering står.»
+- **B:** Samme som A, med rettelsene du gir per punkt eller E-punkt.
+
+*Anbefaling:* A. Innholdet er det du alt har vedtatt, og E-punktene følger av senere vedtak.
+
+*Hva valget styrer:* hvilken tekst som er regelgrunnlaget for forespørselen og spesifiseringen i
+kjernen (`kjerne/regler/frist.ts`, `kjerne/kommandoer/forutsetninger.ts`), og hva #1377 bygger når
+påberopelsen flyttes til svaret.
+
+*Forholdet:* samler VS-U4 (delen om punkt 33.6.1), VS-U17, VS-U19, VS-U21, VS-U22, VS-U23, VS-U27,
+VS-U29, VS-U30, VS-U31, VS-U32, VS-U33 og VS-U36; endrer VS-U29 s1–s2 (E1, slik VS-U36 alt har
+gjort), VS-U32 s3 (E2) og VS-U22 s1 (E4). Endringene i VS-U33 s1–s2, VS-U21 s4 og VS-U22 s3 følger
+spørsmål 2 og 3.
+
+*Klassen:* vedtak med beslutningsdel.
+
+**2. Om et krav om dager registrert etter vedtaket om korrespondanse stopper forespørselen.**
+
+*Bakgrunn:* Etter punkt 33.6.2 første ledd kan byggherren be om spesifisering «så lenge»
+totalentreprenøren ikke har fremmet krav etter punkt 33.6.1. Vedtaket 22.10 sier at bare et krav om
+dager fremmet i løsningen stopper forespørselen, og at et registrert brev aldri gjør det; at
+totalentreprenøren skulle kunne merke et registrert krav, ble forkastet fordi det endret vedtaket
+om registrerte brev. Vedtaket 01.11 lar parten som sendte et krav utenfor løsningen, registrere det
+med kravskjemaet, og da har kravet «samme virkning i løsningen som et krav eller svar sendt derfra».
+Legger byggherren til totalentreprenørens brev, står det som dokumentasjon til totalentreprenøren
+velger hva det er. Vedtaket 01.11 nevner ikke vedtaket 22.10.
+
+*Belegg:* VS-U33 s1–s2 og OV-U80, sitert under «Det kartleggingen fant»; punkt 33.6.2 første ledd.
+
+- **A (anbefalt):** «Et krav om dager som totalentreprenøren har registrert med utfylt kravskjema,
+  stopper forespørselen etter punkt 33.6.2 som et krav fremmet i løsningen. Et registrert brev som
+  står som dokumentasjon, stopper den aldri, hva beskrivelsen enn sier.»
+- **B:** «Bare et krav om dager som er fremmet i løsningen, stopper forespørselen etter punkt 33.6.2.
+  Et krav registrert med utfylt kravskjema har ellers samme virkning som et krav fra løsningen, men
+  stopper ikke forespørselen.»
+
+*Anbefaling:* A. Etter første ledd kan byggherren be om spesifisering bare så lenge kravet ikke er
+fremmet, og kontrakten skiller ikke på hvordan kravet ble sendt. Vedtaket 01.11 gir det registrerte
+kravet samme virkning, og det var endringen vedtaket 22.10 manglet. Ved B kan løsningen sende en
+forespørsel som varsler tap av kravet etter at totalentreprenøren har fremmet det, og løsningen
+utleder virkningen etter tredje ledd hvis byggherren påberoper at svaret kom for sent.
+
+*Hva valget styrer:* punkt 3 og E5, og avvisningen av forespørselen i kjernen
+(`kjerne/kommandoer/forutsetninger.ts`, koden `FRISTKRAV_SENDT`).
+
+*Forholdet:* ved A endrer samlevedtaket VS-U33 s1–s2 og tar opp igjen det VS-U33 forkastet, etter at
+OV-U80 endret OV-U4; det presiserer OV-U80 for forespørselen. Ved B snevrer det inn OV-U80.
+
+*Klassen:* vedtak.
+
+**3. Om byggherren kan registrere en påberopelse av sen spesifisering uten antallet dager.**
+
+*Bakgrunn:* Etter vedtaket 10.10 oppgir byggherren som påberoper sen spesifisering etter punkt
+33.6.1, prinsipalt antallet dager byggherren mener byggherren måtte forstå at totalentreprenøren
+hadde krav på, og subsidiært det byggherren godtar. Vedtakene 12.10 og 13.10 sier at et brev fra
+byggherren sendt utenfor løsningen som ikke sier antallet, registreres med påberopelsen uten tall.
+Da var et slikt brev dokumentasjon i første versjon. Vedtaket 01.11 lar byggherren registrere svaret
+med svarskjemaet og de samme påkrevde feltene som for et svar fra løsningen; er skjemaet ikke fylt
+ut, står hele brevet som dokumentasjon. Punkt 33.6.1 og punkt 5 tredje ledd krever ikke at byggherren
+oppgir et tall.
+
+*Belegg:* VS-U4 s1; VS-U22 s3: «Sier brevet ikke hvor mange dager byggherren mener at byggherren
+måtte forstå at TE hadde krav på, registreres påberopelsen etter § 33.6.1 uten tall.»; OV-U80.
+
+- **A (anbefalt):** «Registrerer byggherren et svar sendt utenfor løsningen, og sier brevet ikke
+  hvor mange dager byggherren mener byggherren måtte forstå at totalentreprenøren hadde krav på,
+  fylles påberopelsen etter punkt 33.6.1 ut i svarskjemaet uten tall. Prinsipalt står da at
+  totalentreprenøren bare har krav på det byggherren måtte forstå, uten antall, og subsidiært det
+  byggherren godtar. Løsningen regner ikke ut hva byggherren måtte forstå.»
+- **B:** «Registrerer byggherren et svar sendt utenfor løsningen, fylles svarskjemaet ut med de
+  samme påkrevde feltene som for et svar fra løsningen, også antallet dager byggherren mener
+  byggherren måtte forstå ved en påberopelse etter punkt 33.6.1. Sier brevet ikke det, står det som
+  dokumentasjon, merket ‹Skjemaet er ikke fylt ut›. Et svar sendt senere fra løsningen er et nytt
+  utsagn med sin egen dato, og løsningen avgjør ikke om påberopelsen i det kom i tide.»
+
+*Anbefaling:* A. Det er det du vedtok 12.10 og 13.10, og kontrakten krever ikke tallet: et brev uten
+tall er en fullstendig påberopelse. Ved B blir hele det registrerte svaret dokumentasjon, også
+standpunktene etter punkt 33.4 og 33.7 i samme brev, og byggherren kan bare rette det med et nytt
+svar med senere dato. A koster totalentreprenøren at det prinsipale standpunktet ikke har et tall å
+regne fra.
+
+*Hva valget styrer:* punkt 11 og E4, og om svaret i kjernen kan ha påberopelsen etter punkt 33.6.1
+uten dager (`kjerne/format/leser.ts`, `kjerne/frosset/standpunkt.ts`; i dag kreves dager).
+
+*Forholdet:* ved A samler samlevedtaket VS-U22 s3, snevrer inn VS-U4 som VS-U21 gjorde, og gjør et
+unntak fra OV-U80 («de samme påkrevde feltene») for tallet; «brevet kan merkes» i VS-U21 s4 gjelder
+ikke (E4). Ved B endrer det VS-U21 s4 og VS-U22 s3 og følger OV-U80.
+
+*Klassen:* vedtak.'''
+valgt = "1 A, 2 A, 3 A"
+svar = '''
+Oppdragsgiver 05.11, ordrett ([#1534, 6664755862](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6664755862)): «Spes: 1 A, 2 A, 3 A». Valgt samlet: 1 A, 2 A, 3 A.'''
+forhold = [
+  { art = "samler", vedtak = "vs-u4" },
+  { art = "samler", vedtak = "vs-u17" },
+  { art = "samler", vedtak = "vs-u19" },
+  { art = "samler", vedtak = "vs-u21" },
+  { art = "samler", vedtak = "vs-u22" },
+  { art = "samler", vedtak = "vs-u23" },
+  { art = "samler", vedtak = "vs-u27" },
+  { art = "samler", vedtak = "vs-u29" },
+  { art = "samler", vedtak = "vs-u30" },
+  { art = "samler", vedtak = "vs-u31" },
+  { art = "samler", vedtak = "vs-u32" },
+  { art = "samler", vedtak = "vs-u33" },
+  { art = "samler", vedtak = "vs-u36" },
+  { art = "endrer", vedtak = "vs-u29" },
+  { art = "endrer", vedtak = "vs-u32" },
+  { art = "endrer", vedtak = "vs-u22" },
+  { art = "endrer", vedtak = "vs-u21" },
+  { art = "endrer", vedtak = "vs-u33" },
+  { art = "presiserer", vedtak = "ov-u80" },
+  { art = "snevrer inn", vedtak = "vs-u4" },
+  { art = "snevrer inn", vedtak = "ov-u80" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for spesifisering etter punkt 33.6.1 og forespørsel etter punkt 33.6.2](#samlevedtak-spesifisering). Samler VS-U4 (delen om punkt 33.6.1), VS-U17, VS-U19, VS-U21, VS-U22, VS-U23, VS-U27, VS-U29, VS-U30, VS-U31, VS-U32, VS-U33 og VS-U36; delen om punkt 34.3.3 første ledd i VS-U4 står. Endrer VS-U29 s1–s2 (E1), VS-U32 s3 (E2) og VS-U22 s1 (E4) (svar 1 A). Endrer VS-U33 s1–s2 (E5), og presiserer OV-U80 for forespørselen (svar 2 A). Samler VS-U22 s3, snevrer inn VS-U4 og gjør et unntak fra OV-U80 («de samme påkrevde feltene») for tallet, som er ført som «snevrer inn» fordi registeret ikke har forholdet «unntak»; «brevet kan merkes» i VS-U21 s4 gjelder ikke (E4) (svar 3 A). Bygges i #1377: flyttingen av påberopelsen fra den egne innsigelsen i VS-U29 til svaret etter VS-U36.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A, 3 A"
+tekst = '''
+Spørsmål 1: Samlevedtaket for spesifisering gjelder med E1–E6, og med punkt 3 og 11 og de delene av E4 og E5 som avhenger av spørsmål 2 og 3, etter svarene der. Vedtakene om påberopelse av sen spesifisering etter punkt 33.6.1, om byggherrens forespørsel etter punkt 33.6.2 og hvor mange som kan sendes fra løsningen, om totalentreprenørens begrunnelse etter annet ledd bokstav b og svaret på en registrert forespørsel, om påberopelsen av at begrunnelsen kom for sent, og om hvor byggherren gjør gjeldende at totalentreprenøren allerede hadde grunnlag for å beregne kravet, gjelder som «Samlet i samlevedtaket for spesifisering». Delen om punkt 34.3.3 første ledd i vedtaket om påberopelse av sen spesifisering står. Spørsmål 2: Et krav om dager som totalentreprenøren har registrert med utfylt kravskjema, stopper forespørselen etter punkt 33.6.2 som et krav fremmet i løsningen. Et registrert brev som står som dokumentasjon, stopper den aldri, hva beskrivelsen enn sier. Spørsmål 3: Registrerer byggherren et svar sendt utenfor løsningen, og sier brevet ikke hvor mange dager byggherren mener byggherren måtte forstå at totalentreprenøren hadde krav på, fylles påberopelsen etter punkt 33.6.1 ut i svarskjemaet uten tall. Prinsipalt står da at totalentreprenøren bare har krav på det byggherren måtte forstå, uten antall, og subsidiært det byggherren godtar. Løsningen regner ikke ut hva byggherren måtte forstå.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+Samme som A, med rettelsene du gir per punkt eller E-punkt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+Bare et krav om dager som er fremmet i løsningen, stopper forespørselen etter punkt 33.6.2. Et krav registrert med utfylt kravskjema har ellers samme virkning som et krav fra løsningen, men stopper ikke forespørselen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+Registrerer byggherren et svar sendt utenfor løsningen, fylles svarskjemaet ut med de samme påkrevde feltene som for et svar fra løsningen, også antallet dager byggherren mener byggherren måtte forstå ved en påberopelse etter punkt 33.6.1. Sier brevet ikke det, står det som dokumentasjon, merket ‹Skjemaet er ikke fylt ut›. Et svar sendt senere fra løsningen er et nytt utsagn med sin egen dato, og løsningen avgjør ikke om påberopelsen i det kom i tide.'''
 forkastet = true
 
 [[gruppe.vedtak]]

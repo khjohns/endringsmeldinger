@@ -13,6 +13,7 @@ import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   hjemmelenGjelder,
+  lagFraForholdet,
   postlisten,
   ulikeVirkninger,
   virkninger,
@@ -21,7 +22,6 @@ import {
 } from '../frosset/standpunkt.ts';
 import {
   enighetensVirkning,
-  forskyvningIBrevet,
   paaberopelseFor,
   kilden,
   kraveneErAvgjort,
@@ -199,6 +199,17 @@ export interface Vederlagssvaret {
   vurdertVedRegistreringen: boolean;
   poster: Vederlagspost[];
   paaberopt: Paaberopt[];
+}
+
+/**
+ * Lagene svaret på forholdet opptok foran sporet da brevet med `svar` ble sendt
+ * (`Svarberegning.forholdssvaret`, OV-U32). 0 for forholdet selv.
+ */
+export function forskyvningIBrevet(svar: Svar, u: Utledning): number {
+  const id = u.svar[svar.id].forholdssvaret;
+  if (id === null) return 0;
+  const kilde = u.svar[id].svar;
+  return lagFraForholdet(kilde, kilde.beslutningsgrunnlag.virkninger);
 }
 
 export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {

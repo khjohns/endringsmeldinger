@@ -96,34 +96,20 @@ før økta startes. Ventes mer enn om lag 800 endrede linjer utenom `docs/`, del
 arbeidet: én økt per bestemmelse eller delområde, i hver sin runde når den ene
 bygger på den andre (oppdragsgiver 14.10, #484).
 
-**Subagent eller økt.** Det som blir ferdig i samme tur, gjøres av en
-subagent: kartlegging, kontroll av en påstand, gjennomlesing av en diff. Bare
-sluttrapporten kommer tilbake, så orkestratorens kontekst holder seg liten.
-Arbeid som gir en PR, får egen økt, fordi den må følge CI og rettinger over
-timer. En subagent deler i tillegg checkout med orkestratoren.
+**Subagent eller økt.** Det som blir ferdig i samme tur, gjøres i økta eller av
+en subagent etter skillen [`subagenter`](../subagenter/SKILL.md). Arbeid som gir en PR, får egen
+økt, fordi den må følge CI og rettinger over timer. En subagent deler i tillegg
+checkout med orkestratoren.
 
-Unntaket er en liten PR med dokumentasjon eller mekanisk arbeid. Den kan
-leveres av subagenten `mekanisk-pr`, som arbeider på egen branch i eget
-arbeidstre og ikke kan skrive i `kjerne/`, `server/`, `backend/`, `supabase/`
-eller `sprakprove/` (#439). Vernet er hooken `skrivevakt` i
-`.claude/settings.json`, som velger vakt etter agenten kallet kommer fra (#442).
-`mekanisk-pr` lar PR-en stå som utkast. Subagenten
-`diffkontroll` kontrollerer diffen mot bestillingen, og `/code-review` kjøres
-etter regelen i `AGENTS.md`, før PR-en markeres klar. Rettinger sendes til
-`mekanisk-pr` med `SendMessage`.
+En liten PR med dokumentasjon eller mekanisk arbeid leveres av en mekanisk
+arbeidsøkt på Haiku («Modell for mekaniske arbeidsøkter»), som lar PR-en stå
+som utkast. Subagenten `diffkontroll` kontrollerer diffen mot bestillingen før
+merge, og `/code-review` kjøres etter regelen i `AGENTS.md` før PR-en markeres
+klar (oppdragsgiver 06.11, #1639).
 
 **Innsats for orkestratoren.** Orkestratoren skriver ikke kode og kjører på
 innsats `high`, ikke `xhigh` (oppdragsgiver 12.10, #425). Innsatsen settes i
-appen. Subagenten som prøver alternativene mot vedtakene, beholder
-standardmodellen.
-
-**Modell for subagenten.** Mekaniske kontroller går på `model: "haiku"` med
-`effort: "medium"`, eller `"high"` når kontrollen har flere steg (oppdragsgiver
-10.10). Det gjelder polling av CI, sammenligning med skript av kolonner, ankre
-og tokens, lenkekontroll, lesing av CI-logger, og kontroll av at en diff bare
-inneholder de bestilte endringene. Oppdraget sier nøyaktig hva som skal
-kontrolleres, og hva rapporten skal inneholde. Kontroll av juss, vedtak og kode
-går på standardmodellen.
+appen.
 
 **Modell for mekaniske arbeidsøkter.** En arbeidsøkt med rent mekanisk
 arbeid, som infrastruktur, CI-bilder og ren flytting, kan gå på Haiku med
@@ -173,7 +159,7 @@ tabellen gjentar dem ikke (oppdragsgiver 27.10, #1338).
 | Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
 | Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | `AGENTS.md`, «Arbeidsform», og «Review i ny økt» |
 | Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget `AGENTS.md` gir dem. Viser issuet til en bestilling, også `brukerforlop`, for byggeøkta, ryddeøkta og reviewøkta. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | `AGENTS.md`, «Arbeidsform». Med bestilling kjøres `/design-review` også mot den, etter «Sammenligne en bygget visning» i `brukerforlop`, i den rekkefølgen `AGENTS.md`, «Arbeidsform», gir. Avvikstabellen og skjermbildene side om side, i samme bredde, står i PR-en før den meldes klar. `/design-deslop` endrer ikke det bestillingen fastsetter, med mindre endringen føres som bevisst endring i avvikstabellen. En bevisst endring er ikke godkjent før oppdragsgiver har sagt ja (oppdragsgiver 02.11, #1492) |
-| Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | Agenten `mekanisk-pr`, og `github` | `AGENTS.md`, «Arbeidsform», og «Subagent eller økt» |
+| Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | En mekanisk arbeidsøkt på Haiku, med `github` | `diffkontroll` mot bestillingen før merge, `AGENTS.md`, «Arbeidsform», og «Subagent eller økt» |
 | Review i ny økt | Fortsetter en PR fra en byggeøkt | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | `AGENTS.md`, «Arbeidsform» |
 
 En PR som blander typene, følger den strengeste.
@@ -226,10 +212,9 @@ issue. Oppdraget skal inneholde:
 - at økta melder fra om egen størrelse etter hvert hovedsteg, setter påminnelsen
   og stopper etter grensen i «Melder fra om egen størrelse» (se «Kontekst i
   arbeidsøktene»);
-- at kartlegging, lesing av store filer og CI-logger gjøres av subagenter, så
-  øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425), og at hver
-  subagent avgrenses etter «Subagenter har samme grense» (se «Kontekst i
-  arbeidsøktene»);
+- at store lesinger, som kartlegging over mange filer og CI-logger, gjøres av
+  subagenter, så øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425),
+  og at små oppslag og subagentene følger skillen [`subagenter`](../subagenter/SKILL.md);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det, med skillen `mockup-nettleser`. Endrer økta visningen, sier oppdraget
   at den følger skillen `interface-design`, og hvem som kjører `/design-deslop` og
@@ -385,15 +370,8 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   Tilstanden skal gjøre det mulig å lese seg inn på nytt: vedtakene i
   hovedplanen, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
   gjenstår (oppdragsgiver 14.10, #484).
-- **Subagenter har samme grense.** En subagent får en bestilling den kan gjøre
-  ferdig på om lag 80 kall og under 150 000 tokens: én fil, én gruppe bevis-saker
-  eller ett spørsmål. Større arbeid deles på flere subagenter etter hverandre,
-  hver med sin avgrensede bestilling. Bestillingen sier hva sluttrapporten skal
-  inneholde, og at den ikke gjengir filer, differ eller testutdata (oppdragsgiver
-  17.10). Bestillingen til subagenten har også med setningen «Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.», ordrett og på engelsk, for bedre balanse mellom grundighet og tid (kilde: Claude Code 2.1.299, oppdragsgiver 18.10, #779).
-- **Hovedtråden leser ikke det subagenten har lest.** Når arbeidet er
-  delegert, holder økta seg til bestillinger, rapporter og beslutninger. Skal en
-  rapport kontrolleres, gjør en ny subagent det (oppdragsgiver 17.10).
+- **Subagenter har samme grense** som øktene, i kall og tokens: se
+  skillen [`subagenter`](../subagenter/SKILL.md).
 - **Små verktøysvar.** Les smalt og tell før du leser: se «Utdata» i
   [miljø-skillen](../miljo/SKILL.md#utdata).
 - **Review i ny økt.** Byggeøkta pusher, skriver tilstanden i PR-en og stopper,

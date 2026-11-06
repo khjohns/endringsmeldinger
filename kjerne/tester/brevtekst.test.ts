@@ -630,6 +630,45 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     expect(rad.data.svar).toBeUndefined();
   });
 
+  it('brevet har tittelen «Korrigering av datoen i sak <kode>», og leseren gir den (LV-U55, LV-U27)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
+    expect(rad.data.brevtittel).toBe('Korrigering av datoen i sak KOE-17');
+    const lest = lesJournal(s.journal, KJERNE.leserformat).at(-1)!;
+    expect(lest.art === 'dokument' && lest.dokument.brevtittel).toBe(
+      'Korrigering av datoen i sak KOE-17'
+    );
+    // MM-U9: et brev sendt før tittelen fantes, står uten tittel og er forstått.
+    const uten = { ...rad, data: { ...rad.data } };
+    delete uten.data.brevtittel;
+    expect(lesJournal([...s.journal.slice(0, -1), uten], KJERNE.leserformat).at(-1)!.art).toBe(
+      'dokument'
+    );
+  });
+
+  it('TEs forklaring står i fritekst under den vedtatte teksten og er valgfri (MM-U53)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const forklaring = 'Datoen i kravet var datoen for byggemøtet, ikke for pålegget.';
+    const med = s.send('TE', {
+      ...korrigering(s, 'paalegg_mottatt', '2026-09-20'),
+      utdypning: forklaring,
+    });
+    expect(tekst(med)).toEqual([
+      {
+        gjelder: (med.data.utsagn as { id: string }[])[0].id,
+        laast:
+          'Totalentreprenøren oppgir nå at pålegget ble mottatt 20. september 2026. I brev K201-KOE-017-01 av 2. oktober 2026 oppga totalentreprenøren 25. september 2026.',
+        utdypning: forklaring,
+      },
+    ]);
+    // Forklaringen endrer ikke opplysningen: løsningen tolker den ikke (MM-U53).
+    expect(s.u().datoopplysninger.at(-1)!.dato).toBe('2026-09-20');
+    const uten = s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-22'));
+    expect(tekst(uten)[0].utdypning).toBeUndefined();
+  });
+
   it('i svikt og andre forhold gjelder korrigeringen datoen TE ble klar over forholdet', () => {
     const s = sak();
     s.send('TE', {

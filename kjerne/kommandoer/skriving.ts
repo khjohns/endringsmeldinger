@@ -307,7 +307,10 @@ function dokument(
     case 'korrigering': {
       // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): datoen i feltet kravet har.
       const { felt, dato } = korrigertDato(k);
-      return { utsagn: [{ id: nyId(), art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
+      const id = nyId();
+      // MM-U53: TEs forklaring følger som utdypningen.
+      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      return { utsagn: [{ id, art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
     }
     case 'bestridelse':
     case 'merking':

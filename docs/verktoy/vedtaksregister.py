@@ -7,6 +7,8 @@ docs/vedtaksregister/README.md.
     python3 docs/verktoy/vedtaksregister.py            # kontroller registeret og skriv vedtaksfila
     python3 docs/verktoy/vedtaksregister.py --sjekk    # bare kontroller, skriv ingenting
     python3 docs/verktoy/vedtaksregister.py --forhold  # list forholdene i de importerte postene (#423)
+    python3 docs/verktoy/vedtaksregister.py --vis KA-U1 MM-U34  # radene ordrett
+    python3 docs/verktoy/vedtaksregister.py --kjede KA-U1       # forholdene, til vedtakene som gjelder nå
 
 Innholdet i vedtaksfila er 3.1 slik den sto i hovedplanen, «3.1» i navnene her. Bare
 lenkene til ankre i hovedplanen er skrevet om, så de går til planen. Kontrollene mot
@@ -405,7 +407,12 @@ def vedtaksfil(register: dict) -> str:
     """Vedtaksfila: hodet og 3.1. En lenke til et anker i 3.1 går til ankeret i fila, og en
     lenke til et annet anker i hovedplanen går dit."""
     tekst = markdown(register, klasse=True)
-    ankre = set(ankre_i(tekst))
+    return VEDTAKSHODE + lenker_i_vedtaksfila(tekst, set(ankre_i(tekst)))
+
+
+def lenker_i_vedtaksfila(tekst: str, ankre: set[str]) -> str:
+    """En lenke til et anker i `ankre` går til ankeret i vedtaksfila, og en lenke til et annet
+    anker i hovedplanen går dit."""
 
     def til_planen(m: re.Match) -> str:
         fragment = m.group(2)
@@ -413,7 +420,7 @@ def vedtaksfil(register: dict) -> str:
             return f"{m.group(1)}#{fragment}"
         return f"{m.group(1)}{HOVEDPLAN.name}#{fragment}"
 
-    return VEDTAKSHODE + LENKE_TIL_PLANANKER.sub(til_planen, tekst)
+    return LENKE_TIL_PLANANKER.sub(til_planen, tekst)
 
 
 # --------------------------------------------------------------------------
@@ -619,6 +626,11 @@ EN_VEI = frozenset(
         ("eo-u5", "presiserer", "eo-u2", "passiv"),
         # Ført 04.11 i steg 3b i #1534: raden 23.09 fikk ankeret, og Følge der sier forholdet (M2 A).
         ("eo-u6", "endrer", "ubegrenset-fullmakt", "passiv"),
+        # Ført 05.11 for KA-U52 i #1534: de to radene 05.10 fikk ankrene, og Følge der sier forholdene.
+        ("ka-u1", "presiserer", "oppdatert-krav", "passiv"),
+        ("ka-u2", "presiserer", "ny-kravversjon", "passiv"),
+        ("ka-u7", "endrer", "ny-kravversjon", "passiv"),
+        ("ka-u7", "endrer", "oppdatert-krav", "passiv"),
         ("gr-u10", "presiserer", "gr-u2", "passiv"),
         ("gr-u10", "presiserer", "gr-u7", "passiv"),
         ("gr-u13", "endrer", "gr-u10", "passiv"),
@@ -1064,18 +1076,13 @@ KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
         ("gr-u22", "endrer", "gr-u2", "#1534, steg 4"),
         ("gr-u7", "presiserer", "ka-u5", "#1534, steg 4"),
         ("hf-u9", "presiserer", "gr-u2", "#1534, steg 4"),
-        ("hf-u9", "presiserer", "ka-u7", "#1534, steg 4"),
-        ("ka-u13", "snevrer inn", "ka-u7", "#1534, steg 4"),
-        ("ka-u20", "presiserer", "ka-u7", "#1534, steg 4"),
         ("mm-u30", "presiserer", "mm-u29", "#1534, steg 4"),
         ("mm-u34", "endrer", "ka-u26", "#1534, steg 4"),
         ("mm-u34", "endrer", "ka-u28", "#1534, steg 4"),
         ("mm-u34", "endrer", "ov-u48", "#1534, steg 4"),
         ("mm-u34", "endrer", "ov-u49", "#1534, steg 4"),
         ("mm-u34", "endrer", "ov-u51", "#1534, steg 4"),
-        ("ov-u3", "endrer", "ka-u3", "#1534, steg 4"),
         ("ov-u43", "presiserer", "mm-u28", "#1534, steg 4"),
-        ("ov-u43", "utvider", "ka-u7", "#1534, steg 4"),
     }
 )
 _AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
@@ -1716,6 +1723,108 @@ def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
     )
 
 
+# --------------------------------------------------------------------------
+# Oppslag: én post eller en kjede ordrett, uten å lese hele registeret
+# --------------------------------------------------------------------------
+
+
+def finn(register: dict, navn: str) -> dict | None:
+    """Posten med ankeret eller etiketten `navn`, uten hensyn til store og små bokstaver."""
+    navn = navn.strip().lower()
+    return next(
+        (
+            p
+            for p in poster(register)
+            if anker(p) == navn or etikett(p).lower() == navn
+        ),
+        None,
+    )
+
+
+# Forholdene som tar innholdet i et vedtak videre til et nyere. Kjeden følger dem til
+# vedtakene som gjelder nå; de andre forholdene tas med ett ledd fra vedtaket som slås opp.
+ERSTATTER = {"endrer", "opphever", "samler"}
+
+
+def kjede(register: dict, post: dict) -> list[tuple[dict, str, dict]]:
+    """Forholdene posten henger sammen med, som (posten med forholdet, arten, vedtaket det
+    gjelder): hvert forhold til eller fra posten, og videre framover bare forholdene i
+    ERSTATTER, så kjeden ender i vedtakene som gjelder nå. Bakover tas bare ett ledd; et eldre
+    vedtak slås opp for seg."""
+    ps = poster(register)
+    alle = {anker(p): p for p in ps if anker(p)}
+    kanter = [
+        (p, f["art"], alle[f["vedtak"]])
+        for p in ps
+        for f in p.get("forhold", [])
+        if f["vedtak"] in alle
+    ]
+    funnet = [k for k in kanter if k[0] is post or k[2] is post]
+    sett, stabel = {id(post)}, [post]
+    while stabel:
+        q = stabel.pop()
+        for k in kanter:
+            if k[2] is not q or k[1] not in ERSTATTER:
+                continue
+            if not any(k is f for f in funnet):
+                funnet.append(k)
+            if id(k[0]) not in sett:
+                sett.add(id(k[0]))
+                stabel.append(k[0])
+    return sorted(
+        funnet,
+        key=lambda k: (_dato_eller_tidlig(k[0].get("dato")), etikett(k[0]), k[1], etikett(k[2])),
+    )
+
+
+def vis(
+    post: dict, register: dict, ix: Indeks | None = None, ankre: set[str] | None = None
+) -> str:
+    """Raden slik vedtaksfila har den, med lenkene skrevet om som der, én celle per linje og
+    uten ankeret. `ankre` er ankrene i vedtaksfila, også dem i teksten mellom tabellene."""
+    ix = ix if isinstance(ix, Indeks) else indeks(register)
+    if ankre is None:
+        ankre = set(ankre_i(markdown(register, klasse=True)))
+    beslutning = re.sub(r'^<a id="[^"]+"></a>', "", vedtakscelle(post))
+    tekst = (
+        f"## {etikett(post)}\n"
+        f"Beslutning: {beslutning}\n"
+        f"Klasse: {klassecelle(post, ix)}\n"
+        f"Vedtatt: {vedtattcelle(post)}\n"
+        f"Følge: {folgecelle(post, register, ix)}\n"
+    )
+    return lenker_i_vedtaksfila(tekst, ankre)
+
+
+def oppslag(register: dict, navn: list[str], kjede_fra: str | None) -> int:
+    """`--vis` skriver radene ordrett. `--kjede` skriver bare forholdene, med merke for et
+    vedtak som er opphevet eller samlet; radene hentes med `--vis`, så svaret holdes lite."""
+    mangler = [n for n in [*navn, *([kjede_fra] if kjede_fra else [])] if not finn(register, n)]
+    if mangler:
+        print("Finnes ikke i registeret:", *mangler, sep="\n  ")
+        return 1
+    if kjede_fra:
+        start = finn(register, kjede_fra)
+        opphevet, samlet = opphevet_og_samlet(register)
+
+        def navn_med_merke(p: dict) -> str:
+            merke = (
+                " (opphevet)" if anker(p) in opphevet else " (samlet)" if anker(p) in samlet else ""
+            )
+            return etikett(p) + merke
+
+        forhold = kjede(register, start)
+        print(f"Kjeden fra {navn_med_merke(start)}: {len(forhold)} forhold")
+        for p, art, v in forhold:
+            dato = f", {_dato(p['dato'])}" if p.get("dato") else ""
+            print(f"  {navn_med_merke(p)} {art} {navn_med_merke(v)}{dato}")
+    if navn:
+        ix = indeks(register)
+        ankre = set(ankre_i(markdown(register, klasse=True)))
+        print("\n".join(vis(finn(register, n), register, ix, ankre) for n in navn), end="")
+    return 0
+
+
 def main() -> int:
     tolk = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     tolk.add_argument(
@@ -1727,10 +1836,26 @@ def main() -> int:
         help="list forholdene i de importerte postene som står bare én vei og det som ikke "
         "leses, og kontroller forholdene",
     )
+    tolk.add_argument(
+        "--vis",
+        nargs="+",
+        metavar="ID",
+        help="skriv radene for vedtakene ordrett, slik vedtaksfila har dem",
+    )
+    tolk.add_argument(
+        "--kjede",
+        metavar="ID",
+        help="list forholdene til og fra vedtaket, og videre framover det som endrer, "
+        "opphever eller samler det, med merke for det som er opphevet eller samlet",
+    )
     valg = tolk.parse_args()
-    plan = HOVEDPLAN.read_text(encoding="utf-8")
 
+    if (valg.vis or valg.kjede) and (valg.sjekk or valg.forhold):
+        tolk.error("--vis og --kjede er oppslag og kan ikke kombineres med --sjekk eller --forhold")
     register = les()
+    if valg.vis or valg.kjede:
+        return oppslag(register, valg.vis or [], valg.kjede)
+    plan = HOVEDPLAN.read_text(encoding="utf-8")
     feil = valider(register)
     if not feil and valg.forhold:
         forhold, avvik, _ = uttrykkelige_forhold(register)
