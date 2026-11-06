@@ -138,7 +138,7 @@ describe('Siden for forholdet', () => {
   it('svaret med en påberopelse av sen varsling viser lagene slik brevet ga dem: prinsipalt varselet, subsidiært avslaget, og begrunnelsen (OV-U32, MM-U13)', async () => {
     const forSent: Handling = {
       ...AVSLAG,
-      svar: [{ ...(AVSLAG as { svar: object[] }).svar[0], varslet_i_tide: false }],
+      svar: [{ ...(AVSLAG as unknown as { svar: object[] }).svar[0], varslet_i_tide: false }],
     } as Handling;
     await vis([PAABEROPELSE, forSent]);
     const lagene = screen.getByRole('list', { name: 'Standpunktene i svaret' });
@@ -166,14 +166,48 @@ describe('Siden for forholdet', () => {
     expect(lest).toEqual([u.spor.forhold.gjeldendeKrav!.dokument]);
   });
 
-  it('tilknyttede krav står med betegnelsen, siste brev og lenken til sporet (kriterium 3, MM-U30)', async () => {
+  it('tilknyttede krav står med betegnelsen, det TE krevde med brevet og lenken «Åpne» til kravet (kriterium 3, MM-U30, oppdragsgiver 06.11)', async () => {
     const { valgt } = await vis([PAABEROPELSE, VEDERLAG]);
     const kortet = within(screen.getByRole('region', { name: 'Tilknyttede krav' }));
-    expect(kortet.getByText('Vederlagsjustering')).toBeTruthy();
-    expect(kortet.getByText(/^Svar ikke registrert · brev .* fra TE$/)).toBeTruthy();
+    const krav = kortet.getByRole('listitem');
+    expect(within(krav).getByRole('heading', { name: 'Vederlagsjustering' })).toBeTruthy();
+    expect(within(krav).getByText('Svar ikke registrert', { selector: '.merke' })).toBeTruthy();
+    expect(krav.textContent?.replace(/\s+/g, ' ')).toMatch(/Krevd 420 000 kr brev 2/);
     expect(kortet.queryByText('Fristforlengelse')).toBeNull();
-    await fireEvent.click(kortet.getByRole('button', { name: /Åpne vederlagsjustering/ }));
+    // Synlig står bare «Åpne»; navnet sier hvor lenken fører (språkfila, WCAG 2.5.3).
+    const aapne = kortet.getByRole('button', { name: 'Åpne vederlagsjusteringen' });
+    expect(aapne.textContent?.trim()).toBe('Åpne');
+    await fireEvent.click(aapne);
     expect(valgt).toEqual(['vederlag']);
+  });
+
+  it('når forholdet er avslått, står forholdet med svaret øverst, og et ubesvart krav sier at et svar blir subsidiært så lenge byggherren står fast på svaret (vedtaket 05.10)', async () => {
+    await vis([PAABEROPELSE, VEDERLAG, AVSLAG]);
+    const kortet = screen.getByRole('region', { name: 'Tilknyttede krav' });
+    expect(kortet.querySelector('.rot')?.textContent).toBe('Irregulær endring · avslått i brev 3');
+    expect(kortet.textContent).toContain(
+      'Et svar blir subsidiært så lenge byggherren står fast på brev 3.'
+    );
+  });
+
+  it('byggherrens svar på kravet står med beløpet, laget og brevet, og vilkåret når forholdet er avslått (OV-U33, vedtaket 05.10)', async () => {
+    await vis([
+      PAABEROPELSE,
+      VEDERLAG,
+      AVSLAG,
+      {
+        handling: 'brev',
+        navn: 'D4',
+        svar: [{ spor: 'vederlag', navn: 'S-v1', vurdering: 'delvis', godkjent_belop: 310000 }],
+      } as Handling,
+    ]);
+    const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
+      'listitem'
+    );
+    const tekst = krav.textContent?.replace(/\s+/g, ' ');
+    expect(tekst).toMatch(/Krevd 420 000 kr brev 2/);
+    expect(tekst).toMatch(/Byggherren 310 000 kr subsidiært brev 4/);
+    expect(tekst).toContain('Gjelder hvis forholdet gir grunnlag for kravet.');
   });
 
   it('uten krav om vederlag eller frist sier kortet det', async () => {
@@ -187,11 +221,13 @@ describe('Siden for forholdet', () => {
     const { u } = await vis([PAABEROPELSE, VEDERLAG, { handling: 'trekk', spor: 'forhold' }]);
     expect(screen.getByRole('note').textContent).toMatch(/^Påberopelsen er trukket i brev /);
     const kortet = within(screen.getByRole('region', { name: 'Tilknyttede krav' }));
-    // Linja viser til trekket, ikke til siste brev i vederlaget (funnet i saksruta).
+    // Kravet viser til trekket, ikke til siste brev i vederlaget (funnet i saksruta).
     const trekket = u.journal.findLast((h) => h.art === 'dokument')!;
-    const linja = kortet.getByText(/^Trukket · /).textContent!;
     expect(trekket.art === 'dokument' && trekket.dokument.brevnummer).toBe(3);
-    expect(linja).toMatch(/brev (3|\S+-03 av [^·]*) fra TE$/);
+    expect(kortet.getByText('Trukket', { selector: '.merke' })).toBeTruthy();
+    expect(kortet.getByText('brev 3 fra TE')).toBeTruthy();
+    // Et trukket krav har ikke noe vilkår.
+    expect(kortet.queryByText(/^Gjelder hvis|^Et svar blir subsidiært/)).toBeNull();
     expect(traad().queryByText('Svar ikke registrert.')).toBeNull();
   });
 

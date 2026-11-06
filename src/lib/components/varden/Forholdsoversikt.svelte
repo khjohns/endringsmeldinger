@@ -57,7 +57,7 @@
   />
 </section>
 
-<TilknyttedeKrav {betegnelser} brev={alle} {onspor} />
+<TilknyttedeKrav {u} {betegnelser} brev={alle} {onspor} />
 
 <style>
   .kort {

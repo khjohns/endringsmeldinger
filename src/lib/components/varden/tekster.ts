@@ -398,7 +398,27 @@ export const FORHOLDET = {
   tilknyttede: 'Tilknyttede krav',
   tilknyttedeKilde: 'Kravene som bygger på forholdet',
   ingenKrav: 'Ingen krav om vederlagsjustering eller fristforlengelse ennå.',
-  aapne: (spor: string) => `Åpne ${spor.toLowerCase()}`,
+  aapne: 'Åpne',
+  /** Navnet på lenken for skjermleseren sier hvor den fører (språkfila), og begynner med «Åpne». */
+  aapneNavn: (spor: Spor) => `Åpne ${SAKSDELEN[spor]}`,
+  krevd: 'Krevd',
+  byggherren: 'Byggherren',
+  ikkeSvart: 'Svar ikke registrert',
+  forholdsrot: (navn: string, svar: { resultat: string; brev: Brevref } | null) =>
+    svar ? `${navn} · ${svar.resultat} i ${brevref(svar.brev)}` : navn,
+  resultat: {
+    godkjent: 'godkjent',
+    avslaatt: 'avslått',
+    paalegg_frafalt: 'pålegget frafalt',
+  } as Record<string, string>,
+  /** Hvorfor svaret er subsidiært til forholdet (vedtaket 05.10), som vilkår. */
+  gjelderHvis: (grunner: Subsidiaergrunn[]) =>
+    `Gjelder hvis ${[
+      ...(grunner.includes('prekludert') ? ['varselet om forholdet kom i tide'] : []),
+      ...(grunner.includes('avslaatt') ? ['forholdet gir grunnlag for kravet'] : []),
+    ].join(' og ')}.`,
+  blirSubsidiaert: (b: Brevref) =>
+    `Et svar blir subsidiært så lenge byggherren står fast på ${brevref(b)}.`,
   trekk: 'Trekk påberopelsen',
   handlinger: 'Det du kan gjøre nå',
   beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,

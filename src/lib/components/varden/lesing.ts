@@ -7,7 +7,15 @@
 
 import { omtalen } from '$kjerne/frosset/brevtekst';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
-import { etikett, grunnerFraForholdet, laget } from '$kjerne/frosset/standpunkt';
+import {
+  etikett,
+  grunnerFraForholdet,
+  harHovedbeloep,
+  krevdSamlet,
+  krevdProduktivitet,
+  laget,
+} from '$kjerne/frosset/standpunkt';
+import { tilTall } from '$kjerne/regler/beloep';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -320,4 +328,52 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
     });
   }
   return ut;
+}
+
+/**
+ * Et krav om vederlagsjustering eller fristforlengelse i «Tilknyttede krav», som i prototypen
+ * `grunnlagsoversikt.html`: det TE krevde i gjeldende kravversjon, beløpene eller dagene i
+ * byggherrens gjeldende svar med lagene (`standpunktene`), og hvorfor svaret er subsidiært til
+ * forholdet (`subsidiaer`, vedtaket 05.10).
+ */
+export interface TilknyttetKrav {
+  spor: 'vederlag' | 'frist';
+  /** Beløpet i kroner eller dagene, eller `null` når kravet ikke har et tall (metoden). */
+  krevd: { tall: number | null; metode: unknown; brev: Brevref } | null;
+  svaret: { poster: { tall: number; lag: string | null }[]; brev: Brevref } | null;
+  grunner: Subsidiaergrunn[];
+}
+
+export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): TilknyttetKrav {
+  const s = u.spor[spor];
+  const krav = s.gjeldendeKrav;
+  const kravbrev = krav && brevet(u, krav.dokument);
+  const svar = s.gjeldendeSvar;
+  const svarbrev = svar && brevet(u, svar.dokument);
+  const tall = (): number | null => {
+    if (!krav) return null;
+    if (spor === 'frist') return typeof krav.innhold.dager === 'number' ? krav.innhold.dager : null;
+    return harHovedbeloep(krav) || krevdProduktivitet(krav) !== null
+      ? tilTall(krevdSamlet(krav))
+      : null;
+  };
+  return {
+    spor,
+    krevd:
+      krav && kravbrev ? { tall: tall(), metode: krav.innhold.metode, brev: ref(kravbrev) } : null,
+    svaret:
+      svar && svarbrev
+        ? {
+            poster: standpunktene(svar, u).flatMap((l) =>
+              'standpunkt' in l && l.standpunkt.art === 'beloep'
+                ? [{ tall: l.standpunkt.godkjent, lag: l.lag }]
+                : 'standpunkt' in l && l.standpunkt.art === 'dager'
+                  ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
+                  : []
+            ),
+            brev: ref(svarbrev),
+          }
+        : null,
+    grunner: s.subsidiaer,
+  };
 }
