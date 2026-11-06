@@ -169,7 +169,19 @@
           {#if datoen}
             <div>
               <dt>{NYVERSJON.datoen(datoen.hva)}</dt>
-              <dd>{NYVERSJON.sisteOpplysning(datoen.dato, datoen.brev)}</dd>
+              <dd>
+                {NYVERSJON.sisteOpplysning(datoen.dato, datoen.brev)}
+                <!-- U-2 i BF-10, U-7 i BF-02A: veien til korrigeringen står ved datoen. -->
+                <span class="vei">{NYVERSJON.datoHjelp}</span>
+                {#if kanKorrigere}
+                  <span class="vei">
+                    <Knapp variant="lenke" onclick={() => onkorriger(datoen!.id)}
+                      >{NYVERSJON.korriger}</Knapp
+                    >
+                  </span>
+                  <span class="vei">{NYVERSJON.beholdes}</span>
+                {/if}
+              </dd>
             </div>
           {/if}
         </dl>
@@ -180,20 +192,6 @@
           <p>{virkning}</p>
           {#if enig}<p>{NYVERSJON.enighet(svarbrevet!)}</p>{/if}
         </div>
-
-        {#if datoen}
-          <div class="vei">
-            <p>{NYVERSJON.datoHjelp}</p>
-            {#if kanKorrigere}
-              <p>
-                <Knapp variant="lenke" onclick={() => onkorriger(datoen!.id)}
-                  >{NYVERSJON.korriger}</Knapp
-                >
-              </p>
-              <p class="hjelp">{NYVERSJON.beholdes}</p>
-            {/if}
-          </div>
-        {/if}
 
         <div class="felt">
           <label for={id('tekst')}>{NYVERSJON.tekst(forhold?.kode === 'irregulaer_endring')}</label>
@@ -266,7 +264,7 @@
   }
   .gjelder dl > div {
     display: grid;
-    grid-template-columns: 12rem 1fr;
+    grid-template-columns: 10rem 1fr;
     gap: var(--spacing-3);
   }
   .gjelder dt {
@@ -287,14 +285,20 @@
     color: var(--ink-2);
   }
   .vei {
-    display: grid;
-    gap: var(--spacing-1);
-    color: var(--ink-2);
+    display: block;
+    margin-top: var(--spacing-1);
+    color: var(--ink-3);
+  }
+  p.vei {
+    margin: 0;
     font-size: 14px;
   }
   .vei a {
     color: var(--ink);
     text-underline-offset: 3px;
+  }
+  .vei a:hover {
+    text-decoration-thickness: 2px;
   }
   .felt {
     display: grid;
