@@ -266,16 +266,18 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
 - **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (oppdragsgiver
   06.11, PR 1650):
-  - Brevet TE skriver, står i midten (`Brevutkast`): et lyst gult brevhode med saken og brevtypen
-    i 14 px, emnet i 24 px og «Til byggherren · Gjelder påberopelsen i brev 1» under, med én
-    heltrukket linje mot den hvite flaten. «Utkast» med lås står til høyre, og «Utkastvalg» (tre
-    prikker) har synligheten og «Forkast utkast», som bekreftes i en dialog. Feltet vokser med
-    teksten.
-  - Brevene TE bygger på, står til høyre: «Forhåndsvis brevet» fast øverst, og under, med
-    avstand, «Tidligere brev om forholdet», med ett brev åpent om gangen (svaret fra start) og
-    uten brevhode, siden raden sier nummer, avsender og dato. Kolonnen følger rullingen, og et
-    langt brev ruller i rammen. Tidslinja står lagt sammen under. Sakslisten er felt inn, så
-    «Tilbake til forholdet» står over utkastet.
+  - En arbeidsrad over begge kolonnene følger rullingen (`Utkastrad`): saken og brevtypen,
+    «Utkast» med lås og «Utkastvalg» (tre prikker) til venstre, og «Forhåndsvis brevet» ytterst
+    til høyre, så handlingen står ved brevet den gjelder. Menyen åpner på linja, med synligheten
+    og «Forkast utkast», som bekreftes i en dialog. «Tilbake til forholdet» står over raden,
+    siden sakslisten er felt inn.
+  - Brevet TE skriver, står til venstre (`Brevutkast`, om lag 60 prosent): et grunt, lyst gult
+    brevhode med emnet i 20 px og «Til byggherren · Gjelder brev 1» under, én heltrukket linje mot
+    den hvite flaten, og samme venstrekant for emnet og begrunnelsen. Feltet vokser med teksten.
+  - Brevene TE bygger på, står til høyre (om lag 40 prosent) og begynner på samme høyde som
+    brevhodet: «Tidligere brev om forholdet» som kompakt brevvalg med ett brev åpent om gangen
+    (svaret fra start), uten brevhode og med tittelen ett hakk ned, siden raden navngir brevet.
+    Et langt brev ruller i rammen, og tidslinja står lagt sammen under.
   - Mønsteret er oversikt › arbeidsflate › bekreft, og hvert område har bare det som trengs for
     formålet sitt: å velge handling, å skrive og å kontrollere brevet før sending. Det som står
     fast i en ny versjon, står på oversikten med veien til det som kan endre det: «Korriger

@@ -564,7 +564,7 @@ export const NYVERSJON = {
       .filter(Boolean)
       .join(' · '),
   til: 'Til byggherren',
-  gjelder: 'Gjelder påberopelsen i',
+  gjelder: 'Gjelder',
   tekst: 'Begrunnelse',
   forhaandsvis: 'Forhåndsvis brevet',
   /** Brevene TE bygger på, til høyre for utkastet. Ett er åpent om gangen. */

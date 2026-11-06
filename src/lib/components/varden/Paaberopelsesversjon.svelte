@@ -18,6 +18,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
+  import Utkastrad from './Utkastrad.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
   import { brevene, datoerISporet, innleggene, type Brevet } from './lesing';
   import { FORHOLDET, NYVERSJON, brevref, brevtittel, dato } from './tekster';
@@ -140,8 +141,8 @@
   });
 </script>
 
-<Arbeidsflate leser={!smal}>
-  {#snippet hoved()}
+<Arbeidsflate leser={!smal} deling="utkast">
+  {#snippet tilbake()}
     <!-- Sakslisten er felt inn mens brevene leses ved siden av, så veien tilbake står her, som
          «Tilbake til utkastet» i brevkontrollen. -->
     <p class="tilbake">
@@ -149,12 +150,31 @@
         ><ChevronLeft size={16} aria-hidden="true" />{FORHOLDET.tilbake}</Knapp
       >
     </p>
-    <Brevutkast
-      id={id('emne')}
+  {/snippet}
+
+  {#snippet rad()}
+    <Utkastrad
       overlinje={NYVERSJON.overlinje(sakskode, !!svarbrevet)}
-      emne={kjernesak.saksbilde?.tittel ?? ''}
       forkastSpoersmaal={NYVERSJON.forkastSpoersmaal}
       {onforkast}
+    >
+      {#snippet handling()}
+        <Knapp
+          variant="primaer"
+          onclick={tilForhaandsvisningen}
+          aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.forhaandsvis}</Knapp
+        >
+        {#if hindring}
+          <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
+        {/if}
+      {/snippet}
+    </Utkastrad>
+  {/snippet}
+
+  {#snippet hoved()}
+    <Brevutkast
+      id={id('emne')}
+      emne={kjernesak.saksbilde?.tittel ?? ''}
       onsubmit={tilForhaandsvisningen}
     >
       {#snippet linje()}
@@ -174,17 +194,6 @@
 
   {#snippet hoeyre()}
     <div class="stoette">
-      <div class="videre">
-        <Knapp
-          variant="primaer"
-          onclick={tilForhaandsvisningen}
-          aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.forhaandsvis}</Knapp
-        >
-        {#if hindring}
-          <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
-        {/if}
-      </div>
-
       {#if valgt}
         <section class="tidligere" aria-labelledby={id('tidligere')}>
           <h2 id={id('tidligere')}>{NYVERSJON.tidligere}</h2>
@@ -225,6 +234,7 @@
                 avsnitt={valgt.avsnitt}
                 innfelt
                 hode={false}
+                dempet
               />
             {:else}
               <p class="utenTekst">{NYVERSJON.utenTekst}</p>
@@ -241,7 +251,7 @@
 <style>
   /* Lenken står i flukt med utkastet; knappen har luft til siden for treffflaten. */
   .tilbake {
-    margin: calc(-1 * var(--spacing-2)) 0 calc(-1 * var(--spacing-2)) calc(-1 * var(--spacing-2));
+    margin-left: calc(-1 * var(--spacing-2));
   }
   .felt {
     display: grid;
@@ -287,19 +297,14 @@
   }
   /* Høyre kolonne følger rullingen og er høyst like høy som vinduet under topplinja. Knappen
      står fast øverst, og et langt brev ruller i rammen under. */
+  /* Under arbeidsraden, som også følger rullingen. */
   .stoette {
     position: sticky;
-    top: var(--spacing-4);
+    top: calc(var(--spacing-3) * 2 + 48px + var(--spacing-4));
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-6);
-    max-height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
-  }
-  .videre {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-3);
+    gap: var(--spacing-4);
+    max-height: calc(100dvh - var(--spacing-3) * 2 - 48px - var(--spacing-10));
   }
   .tidligere {
     flex: 1;
@@ -312,10 +317,12 @@
     overflow: hidden;
   }
   .tidligere h2 {
-    padding: var(--spacing-4) var(--spacing-5) var(--spacing-2);
-    font-size: 14px;
+    padding: var(--spacing-3) var(--spacing-5) var(--spacing-1);
+    font-size: 12px;
     font-weight: 600;
-    color: var(--ink-2);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
   }
   .velger {
     margin: 0;
@@ -329,8 +336,9 @@
     justify-content: space-between;
     gap: 0 var(--spacing-3);
     width: 100%;
-    min-height: 44px;
-    padding: var(--spacing-2) var(--spacing-5);
+    min-height: 40px;
+    align-items: center;
+    padding: var(--spacing-1) var(--spacing-5);
     border: 0;
     border-left: 3px solid transparent;
     background: none;

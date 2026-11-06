@@ -22,6 +22,7 @@
     fot,
     innfelt = false,
     hode = true,
+    dempet = false,
   }: {
     avsender: Part;
     sak: string;
@@ -45,6 +46,8 @@
      * brevet allerede sier hvem som sendte det og når (lesepanelet i BF-10).
      */
     hode?: boolean;
+    /** Tittelen ett hakk ned, når brevet leses ved siden av et utkast og raden over navngir det. */
+    dempet?: boolean;
   } = $props();
 
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
@@ -53,7 +56,7 @@
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 </script>
 
-<article class="brev" class:innfelt aria-label={tittel}>
+<article class="brev" class:innfelt class:dempet aria-label={tittel}>
   {#if hode}<header class="hode">
       <div class="topp">
         <p class="avsender">
@@ -167,6 +170,10 @@
     font-size: 20px;
     font-weight: 600;
     margin-bottom: var(--spacing-4);
+  }
+  .dempet h2 {
+    font-size: 16px;
+    margin-bottom: var(--spacing-3);
   }
   .tekst p {
     white-space: pre-line;

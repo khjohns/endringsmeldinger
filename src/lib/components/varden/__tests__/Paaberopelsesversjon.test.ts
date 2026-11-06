@@ -74,11 +74,12 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
 
     // Brevhodet: saken og brevtypen, emnet og hva brevet gjelder. U-6: utkastet ser aldri sendt ut
     // (oppdragsgiver 06.11, PR 1650).
+    // Arbeidsraden over utkastet har saken og brevtypen, utkaststatusen og «Forhåndsvis brevet».
     const skjema = within(screen.getByRole('form'));
-    expect(skjema.getByText(/^KOE-\d+ · Oppdatert påberopelse$/)).toBeTruthy();
-    expect(skjema.getByText(/^Utkast/)).toBeTruthy();
-    expect(skjema.getByText(/Bare synlig for teamet ditt til det er sendt/)).toBeTruthy();
-    expect(skjema.getByText(/Til byggherren · Gjelder påberopelsen i/)).toBeTruthy();
+    expect(screen.getByText(/^KOE-\d+ · Oppdatert påberopelse$/)).toBeTruthy();
+    expect(screen.getByText(/^Utkast/).textContent).toMatch(/bare synlig for teamet ditt/);
+    expect(skjema.queryByRole('button', { name: 'Forhåndsvis brevet' })).toBeNull();
+    expect(skjema.getByText(/Til byggherren · Gjelder/)).toBeTruthy();
     // S-3 B: teksten står slik den sist ble sendt, i ett felt, uten hjelpetekst.
     expect((teksten() as HTMLTextAreaElement).value).not.toBe('');
     expect(teksten().getAttribute('aria-describedby')).toBeNull();
