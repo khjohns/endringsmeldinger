@@ -190,7 +190,7 @@ skriver ikke der.
   vedtakene, og funnene rettes én gang. Kartleggingsøkta sender spørsmålene før om lag
   150 000 tokens. Klarer den ikke det, skriver den tilstanden og stopper. Postene og
   kjedene slås opp med `vedtaksregister.py --vis` og `--kjede`, og subagentene følger
-  [«Subagenter»](../orkestrering/SKILL.md#subagenter) i orkestreringsskillen.
+  skillen [`subagenter`](../subagenter/SKILL.md).
 - Før vedtaks-PR-en merges, kontrollerer en subagent én gang `folge` i de nye
   postene, hver endret `folge` i en importert post og hver ny eller endret
   tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,

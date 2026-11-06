@@ -284,6 +284,7 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
 | Beslutningene for visningen: retning, tokens i bruk, mønstre og vedtakene som styrer farge og ord. Metoden for frontendarbeid | [`.interface-design/system.md`](.interface-design/system.md). Verdiene står i `theme.css`. Metoden står i [interface-design-skillen](.claude/skills/interface-design/SKILL.md) |
 | Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |
+| Når en subagent brukes, og modellen, størrelsen og bestillingen for den | [Subagent-skillen](.claude/skills/subagenter/SKILL.md). Regelen om å følge den står i «Arbeidsform» |
 | Episodene bak resonneringsreglene | [Resonnering-skillen](.claude/skills/resonnering/SKILL.md). Reglene står i «Resonneringsregler» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `hendelser.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttester feiler når et register mangler en tabell, en type, en fremmednøkkel eller et kall, eller avviker fra koden eller migrasjonene |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
@@ -414,6 +415,10 @@ rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, e
 [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#kontekst-i-arbeidsøktene)
 gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert
 (oppdragsgiver 12.10, #425).
+
+**Før en subagent startes, følg [skillen `subagenter`](.claude/skills/subagenter/SKILL.md)**,
+i alle økter. Den sier når en subagent sparer mer enn den koster, og hvordan den bestilles
+(oppdragsgiver 06.11).
 
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med alternativer og
