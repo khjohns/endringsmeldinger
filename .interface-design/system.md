@@ -301,8 +301,8 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   `grunnlagsoversikt.html` (oppdragsgiver 06.11, #1631). Lista vises bare når kjernen tilbyr en
   handling ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet,
   en linje om hva handlingen gjør med saken, pil og skillelinjer. En brevtype som ikke er bygget,
-  åpner saken i dagens visning. «Send ny versjon» sier hvilket brev den erstatter og hvilket svar den
-  avslår. Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for BF-02A (#1615),
+  åpner saken i dagens visning. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da
+  ikke kan godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen, ikke i lista, som i skissen for BF-02A (#1615),
   og tilbys ikke før den er bygget (oppdragsgiver 06.11, #1631).
 - **Panelet til venstre** har sakens kode over tittelen, og sporene i to grupper:
   «Kontraktsforhold» med forholdet og «Krav» med vederlagsjusteringen og fristforlengelsen.

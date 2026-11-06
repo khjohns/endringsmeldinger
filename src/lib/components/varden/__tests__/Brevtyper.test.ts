@@ -61,7 +61,7 @@ describe('Brevtyper', () => {
     );
   });
 
-  it('ny versjon sier hvilket brev den erstatter, og at den avslår svaret (punkt 6 og 10 i samlevedtaket for retting av sendt brev, MM-U52)', () => {
+  it('ny versjon sier hvilket brev den erstatter, og at svaret ikke kan godtas, uten å si at det er avslått (MM-U34 punkt 1 og 2)', () => {
     const brev = (nummer: number) => ({
       id: `b${nummer}`,
       nummer,
@@ -70,7 +70,7 @@ describe('Brevtyper', () => {
       art: 'krav' as const,
     });
     expect(HANDLINGENE.virkning.nyVersjon('forhold', brev(1), brev(2))).toBe(
-      'Erstatter påberopelsen i brev 1 og avslår svaret i brev 2. Byggherren svarer på nytt.'
+      'Erstatter påberopelsen i brev 1. Svaret i brev 2 kan da ikke godtas her, og byggherren svarer på nytt.'
     );
     expect(HANDLINGENE.virkning.nyVersjon('vederlag', brev(3), null)).toBe(
       'Erstatter kravet i brev 3. Byggherren svarer på den nye versjonen.'

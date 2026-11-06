@@ -328,15 +328,16 @@ export const HANDLINGENE = {
   /** Linja under handlingen i «Andre handlinger»: hva den gjør med saken. */
   virkning: {
     /**
-     * En ny kravversjon venter på byggherrens svar (punkt 6 i samlevedtaket for retting av sendt
-     * brev, MM-U52), og den avslår svaret, som korrigeringen etter punkt 10 ikke gjør.
+     * En ny kravversjon erstatter den tidligere, og sporet venter på nytt svar. Svaret på den
+     * tidligere versjonen kan da ikke godtas i løsningen, og løsningen sier ikke at det er
+     * avslått (MM-U34 punkt 1 og 2).
      */
     nyVersjon: (spor: Spor, krav: Brevref | null, svar: Brevref | null) => {
       const hva = spor === 'forhold' ? 'påberopelsen' : 'kravet';
       if (!krav) return 'Byggherren svarer på den nye versjonen.';
       if (!svar)
         return `Erstatter ${hva} i ${brevref(krav)}. Byggherren svarer på den nye versjonen.`;
-      return `Erstatter ${hva} i ${brevref(krav)} og avslår svaret i ${brevref(svar)}. Byggherren svarer på nytt.`;
+      return `Erstatter ${hva} i ${brevref(krav)}. Svaret i ${brevref(svar)} kan da ikke godtas her, og byggherren svarer på nytt.`;
     },
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
