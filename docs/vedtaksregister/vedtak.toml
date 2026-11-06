@@ -18118,6 +18118,185 @@ tekst = '''
 Punkt 12 tar inn hele regelen om korrigeringen for en KOE-sak som endringsordren omfatter, og punkt 24 i samlevedtaket for retting av sendt brev gjelder bare en sak som er lukket ved aksept av avslaget eller trekk.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "MM-U54"
+dato = 2026-11-06
+hvem = "oppdragsgiver"
+kilde = ["#1615"]
+klasse = "vedtak"
+sporsmal = '''
+S-7, ordrett slik det ble stilt 06.11 i designsløyfa for BF-10 (#1615) og lagret i `docs/domenetabell/brukerforlop/BF-10-sporsmal.md`.
+
+**S-7. Innlegget i forholdet**
+
+Bakgrunn: Når påberopelsen er sendt, står forholdet, hjemmelen, endringsordren og datoen (MM-U52 punkt 10 og 14). En ny versjon av påberopelsen kan derfor bare endre friteksten, og et innlegg er også fritekst (MM-U34 punkt 24, MM-U47). Forskjellen er virkningen i løsningen: etter en ny versjon venter forholdet på nytt svar, og byggherrens svar på den tidligere versjonen kan ikke godtas i løsningen (KA-U52 punkt 3). Et innlegg lar svaret stå, og det kan godtas. Innlegget er ikke bygget (#1377).
+
+NS 8407 kjenner ikke «ny versjon» eller «innlegg». Varselet etter punkt 32.2 gis én gang, og senere brev om samme forhold er utdyping og argumentasjon. Løsningen avgjør ikke om et nytt brev gir byggherren en ny svarplikt.
+
+- **A:** «I forholdet sender totalentreprenøren en ny versjon av påberopelsen, ikke et innlegg. Innlegget gjelder vederlag og frist, og byggherrens senere begrunnelse.» Forhold: snevrer inn MM-U34 punkt 24 og MM-U47 for totalentreprenøren i forholdet; i tråd med KA-U52 punkt 2.
+- **B:** «I forholdet sender totalentreprenøren et innlegg. Ny versjon av påberopelsen tilbys ikke, fordi den ikke kan endre noe som står fast.» Forhold: snevrer inn KA-U52 punkt 1 for forholdet. Primærhandlingen etter svaret blir innlegget.
+- **C:** Begge beholdes, som i dag.
+
+Anbefalt: A. Totalentreprenøren har én vei, og «Oppdater påberopelse» (06.11) står. Vil totalentreprenøren godta svaret, er «Godta svaret» en egen handling.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 06.11, ordrett: «7 A»'''
+forhold = [
+  { art = "snevrer inn", vedtak = "mm-u34" },
+  { art = "snevrer inn", vedtak = "mm-u47" },
+]
+folge = '''
+Forholdet står i alternativ A: «snevrer inn MM-U34 punkt 24 og MM-U47 for totalentreprenøren i forholdet; i tråd med KA-U52 punkt 2». «I tråd med» er ikke en art i registeret og er ikke ført som forhold. Bygges i #1615.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+I forholdet sender totalentreprenøren en ny versjon av påberopelsen, ikke et innlegg. Innlegget gjelder vederlag og frist, og byggherrens senere begrunnelse.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+I forholdet sender totalentreprenøren et innlegg. Ny versjon av påberopelsen tilbys ikke, fordi den ikke kan endre noe som står fast.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+forkastet = true
+tekst = '''
+Begge beholdes, som i dag.'''
+
+[[gruppe.vedtak]]
+id = "LV-U56"
+dato = 2026-11-06
+hvem = "oppdragsgiver"
+kilde = ["#1615"]
+klasse = "vedtak"
+designdel = "at tittelen er den samme som i det første brevet, og at friteksten står under"
+sporsmal = '''
+S-1, S-8 og S-8b, ordrett slik det ble stilt 06.11 i designsløyfa for BF-10 (#1615) og lagret i `docs/domenetabell/brukerforlop/BF-10-sporsmal.md`. Svaret på S-1 og S-8 står under hvert av dem, og S-8b ble stilt etter svaret på S-8.
+
+**S-1. Brevteksten i en ny versjon av påberopelsen**
+
+Bakgrunn: Når totalentreprenøren sender en ny versjon av påberopelsen, sier brevet hvilket brev den erstatter. Fire vedtak har ordlyd for det:
+
+- KA-U52 punkt 4 (05.11, samlevedtaket for kravversjon): ‹Dette kravet erstatter TEs tidligere kravversjon i brev <n> av <dato>.› Har byggherren svart, i tillegg: ‹TEs standpunkt til BHs tidligere svar fremgår av begrunnelsen.›
+- LV-U41 (01.11), for forholdet: ‹Brevet erstatter totalentreprenørens <påberopelsen> i brev <n> av <dato>.›
+- LV-U52 (04.11) endret den andre setningen: ‹TEs standpunkt til BHs svar i brev <n> i sak KOE-17 av <dato> fremgår av begrunnelsen.›
+- LV-U53 (04.11): henvisningen er ‹brev <merking> av <dato>›. Etter LV-U35 og språkfila skrives partene fullt ut i brevet.
+
+KA-U52 sier at det samler MM-U34 punkt 1, men gjengir ordlyden fra før LV-U41 og LV-U52, og nevner dem ikke. Kjernen skriver i dag ‹Kravet erstatter totalentreprenørens krav i brev …› og har ikke setningen om standpunktet.
+
+Kontrakten: NS 8407 regulerer ikke ordlyden.
+
+- **A:** «Brevet med en ny versjon av påberopelsen sier: ‹Brevet erstatter totalentreprenørens påberopelse i brev <merking> av <dato>.› Har byggherren svart på versjonen som erstattes, legger brevet til: ‹Totalentreprenørens standpunkt til byggherrens svar i brev <merking> av <dato> fremgår av begrunnelsen.› Svaret er det siste byggherren har gitt på versjonen som erstattes (LV-U51), og står svarene i flere brev, nevnes hvert av dem (LV-U52). Endret tekst gjelder bare nye brev (MM-U9).» Forhold: presiserer KA-U52 punkt 4 for forholdet, i tråd med LV-U41, LV-U52, LV-U53 og LV-U35.
+- **B:** «Brevet med en ny versjon av påberopelsen sier: ‹Dette kravet erstatter totalentreprenørens tidligere kravversjon i brev <merking> av <dato>.› Har byggherren svart på versjonen som erstattes, legger brevet til: ‹Totalentreprenørens standpunkt til byggherrens svar i brev <merking> av <dato> fremgår av begrunnelsen.› Resten som i A.» Forhold: KA-U52 punkt 4 med LV-U52, LV-U53 og LV-U35; endrer LV-U41 for en ny versjon.
+
+Anbefalt: A. Forholdet heter påberopelse i brevene (GR-U31), og LV-U41 og LV-U52 er de siste vedtakene om akkurat disse setningene. Ny versjon av vederlags- og fristkravet (BF-02B, #1379) berøres ikke.
+
+Valget styrer brevteksten i kjernen (`kjerne/frosset/brevtekst.ts`) og D-4 i bestillingen.
+
+Svar 06.11, ordrett: «"Erstatter" er for rigid. I praksis vil TE/BH ofte vise til tidligere brev, og evt. utdybe, revidere, justere, osv. Det kommer helt an på situasjonen. Jeg tror vi må beslutte brevtekst ved å se hele brevteksten samlet, for ulike scenarioer. De tidligere vedtakene er da til inspirasjon - ikke en fasit.»
+
+**S-8. Brevteksten i en ny versjon av påberopelsen, samlet**
+
+Bakgrunn: Brevet for seks tilfeller i tre former står i [BF-10-brevtekst.md](BF-10-brevtekst.md).
+
+- **A:** Første setning viser til påberopelsen og eventuelt svaret: ‹Totalentreprenøren viser til påberopelsen i brev <merking> av <dato>[ og byggherrens svar i brev <merking> av <dato>].› Deretter står hva påberopelsen gjelder, med hjemmelen og datoen, i nåtid og uten å varsle på nytt. Brevet sier ikke at noe erstattes, og friteksten sier resten.
+- **B:** Bare hva påberopelsen gjelder, med hjemmelen og datoen. Henvisningen står i brevhodet og i friteksten.
+- **C:** Som i dag: hele teksten fra det første brevet og ‹Kravet erstatter …›.
+
+Tittelen: samme som det første brevet, eller med «revisjon <n>».
+
+Påminnelsen om å si standpunktet til svaret står som hjelpetekst ved feltet, ikke i brevet.
+
+Anbefalt: A, samme tittel, og påminnelsen som hjelpetekst.
+
+Svar 06.11, ordrett: «Punkt 8: Språk må være tydelig, men også forståelig. Klar språk. F.eks. i forslaget "Totalentreprenøren viser til påberopelsen i brev K201-KOE-017-01 av 1. oktober 2026. Påberopelsen gjelder irregulær endring (NS 8407 punkt 32.1) for «Flytting av ventilasjonskanaler etter pålegg på byggemøte» i sak KOE-17. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026". Er det bedre med siste setning "Pålegget ble mottatt 15. september 2026"? Etter avslag: Mest naturlig å vise enten kun til siste svar fra BH - eller rett og slett ingenting. Opp til partene hvordan de ønsker å formulere seg mest naturlig. Brevene legges uansett i saken, så oversikten ligger der. Etter et svar om for sent varsel: Jeg heller også mot fritekst. Da slipper løsningen å tolke om det ble gitt avslag, eller BH mente frist ble fremsatt for sent, eller begge. Etter en korrigering av datoen: Her er det vel best å vise kun til brevet der opprinnelig dato, og evt. opprinnelig, og første korrigerte (hvis dette er korrigering nr. 2),. Øvrige forhold: Du kan vurdere baserrt på prinsippene og mønstrene jeg har vist til ovenfor.»
+
+**S-8b. Brevteksten i en ny versjon av påberopelsen, etter svaret på S-8**
+
+Bakgrunn: Svaret på S-8 sier at språket skal være klart, at henvisningen til svaret står i friteksten etter partenes ønske, eller ikke i det hele tatt, og at brevet etter en korrigering viser til brevet med den opprinnelige datoen. Hele brevet for hvert tilfelle står i [BF-10-brevtekst.md](BF-10-brevtekst.md#brevteksten-etter-svarene).
+
+- **A:** «Den låste delen av brevet med en ny versjon av påberopelsen sier bare hva påberopelsen gjelder, og datoen. Endring, unntatt endringsordre: ‹Påberopelsen gjelder <forholdet> (NS 8407 punkt <hjemmel>) for «<tittel>» i sak <kode>. Pålegget ble mottatt <dato>.› Svikt og andre forhold: ‹Påberopelsen gjelder <forholdet> (NS 8407 punkt <hjemmel>, jf. punkt 33.1 <b/c> og 34.1.2) for «<tittel>» i sak <kode>. Totalentreprenøren ble klar over forholdet <dato>.› Endringsordre: ‹Påberopelsen gjelder endringsordre «<dato eller nummer>» fra byggherren (NS 8407 punkt 31.3) for «<tittel>» i sak <kode>.› Har totalentreprenøren korrigert datoen, legger brevet til: ‹Totalentreprenøren oppga tidligere <dato> i brev <merking> av <dato>.›, med hver tidligere dato og brevet den ble oppgitt i, den opprinnelige først. Brevet viser ikke til tidligere brev ellers, sier ikke at noe erstattes, og gjentar ikke varselet etter punkt 32.2. Henvisningen til byggherrens siste svar står under Deres ref. (LV-U50). Tittelen er den samme som i det første brevet. Friteksten står under. Endret tekst gjelder bare nye brev (MM-U9).» Forhold: endrer KA-U52 punkt 4, LV-U41 og LV-U52 for forholdet, og LV-U54 (samlet i MM-U52 punkt 10).
+- **B:** Som A, men datoen står som i dag: ‹Totalentreprenøren opplyser at pålegget ble mottatt <dato>.›
+
+Anbefalt: A. Brevet er fra totalentreprenøren, så setningen om datoen er totalentreprenørens opplysning uten «Totalentreprenøren opplyser at».'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 06.11, ordrett, for S-8b og S-8c: «8b A, 8c A - men jeg må igjen lese oppdatert BF-10-brevtekst.md for å bekrefte». Bekreftet 06.11, ordrett, etter at oppdatert BF-10-brevtekst.md var lest: «Jeg tror det er bra.»'''
+forhold = [
+  { art = "endrer", vedtak = "ka-u52" },
+  { art = "endrer", vedtak = "lv-u41" },
+  { art = "endrer", vedtak = "lv-u52" },
+  { art = "endrer", vedtak = "mm-u52" },
+]
+folge = '''
+Forholdet står i alternativ A: «endrer KA-U52 punkt 4, LV-U41 og LV-U52 for forholdet, og LV-U54 (samlet i MM-U52 punkt 10)». LV-U54 er samlet i MM-U52, og forholdet er ført til MM-U52. S-1 A og S-1 B er ført som forkastet etter svaret på S-1 («"Erstatter" er for rigid»). Alternativene i S-8 er ikke ført: svaret på S-8 valgte ingen av dem og ble fulgt opp med S-8b. Bygges i #1615.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Den låste delen av brevet med en ny versjon av påberopelsen sier bare hva påberopelsen gjelder, og datoen. Endring, unntatt endringsordre: ‹Påberopelsen gjelder <forholdet> (NS 8407 punkt <hjemmel>) for «<tittel>» i sak <kode>. Pålegget ble mottatt <dato>.› Svikt og andre forhold: ‹Påberopelsen gjelder <forholdet> (NS 8407 punkt <hjemmel>, jf. punkt 33.1 <b/c> og 34.1.2) for «<tittel>» i sak <kode>. Totalentreprenøren ble klar over forholdet <dato>.› Endringsordre: ‹Påberopelsen gjelder endringsordre «<dato eller nummer>» fra byggherren (NS 8407 punkt 31.3) for «<tittel>» i sak <kode>.› Har totalentreprenøren korrigert datoen, legger brevet til: ‹Totalentreprenøren oppga tidligere <dato> i brev <merking> av <dato>.›, med hver tidligere dato og brevet den ble oppgitt i, den opprinnelige først. Brevet viser ikke til tidligere brev ellers, sier ikke at noe erstattes, og gjentar ikke varselet etter punkt 32.2. Henvisningen til byggherrens siste svar står under Deres ref. (LV-U50). Tittelen er den samme som i det første brevet. Friteksten står under. Endret tekst gjelder bare nye brev (MM-U9).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Som A, men datoen står som i dag: ‹Totalentreprenøren opplyser at pålegget ble mottatt <dato>.›'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "S-1 A"
+forkastet = true
+tekst = '''
+Brevet med en ny versjon av påberopelsen sier: ‹Brevet erstatter totalentreprenørens påberopelse i brev <merking> av <dato>.› Har byggherren svart på versjonen som erstattes, legger brevet til: ‹Totalentreprenørens standpunkt til byggherrens svar i brev <merking> av <dato> fremgår av begrunnelsen.› Svaret er det siste byggherren har gitt på versjonen som erstattes (LV-U51), og står svarene i flere brev, nevnes hvert av dem (LV-U52). Endret tekst gjelder bare nye brev (MM-U9).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "S-1 B"
+forkastet = true
+tekst = '''
+Brevet med en ny versjon av påberopelsen sier: ‹Dette kravet erstatter totalentreprenørens tidligere kravversjon i brev <merking> av <dato>.› Har byggherren svart på versjonen som erstattes, legger brevet til: ‹Totalentreprenørens standpunkt til byggherrens svar i brev <merking> av <dato> fremgår av begrunnelsen.› Resten som i A.'''
+
+[[gruppe.vedtak]]
+id = "LV-U57"
+dato = 2026-11-06
+hvem = "oppdragsgiver"
+kilde = ["#1615"]
+klasse = "design"
+bindende_i = ["vs-u43"]
+sporsmal = '''
+S-8c, ordrett slik det ble stilt 06.11 i designsløyfa for BF-10 (#1615) og lagret i `docs/domenetabell/brukerforlop/BF-10-sporsmal.md`. Det ble stilt sammen med S-8b (LV-U56).
+
+**S-8c. Setningen om datoen i det første brevet**
+
+Bakgrunn: Det første brevet sier i dag ‹Totalentreprenøren opplyser at pålegget ble mottatt <dato>.› (VS-U26). Med S-8b A får den nye versjonen ‹Pålegget ble mottatt <dato>.›
+
+- **A:** Det første brevet får samme setning som den nye versjonen: ‹Pålegget ble mottatt <dato>.› og ‹Totalentreprenøren ble klar over forholdet <dato>.› Resten av det første brevet står. Endret tekst gjelder bare nye brev (MM-U9). Forhold: endrer VS-U26 (samlet i VS-U43).
+- **B:** Det første brevet står som i dag.
+
+Anbefalt: A. Samme opplysning står likt i begge brevene.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 06.11, ordrett, for S-8b og S-8c: «8b A, 8c A - men jeg må igjen lese oppdatert BF-10-brevtekst.md for å bekrefte». Bekreftet 06.11, ordrett, etter at oppdatert BF-10-brevtekst.md var lest: «Jeg tror det er bra.»'''
+forhold = [
+  { art = "endrer", vedtak = "vs-u43" },
+]
+folge = '''
+Forholdet står i alternativ A: «endrer VS-U26 (samlet i VS-U43)». Setningen fra VS-U26 står i designdelen i VS-U43, og forholdet er ført til VS-U43. Bygges i #1615.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Det første brevet får samme setning som den nye versjonen: ‹Pålegget ble mottatt <dato>.› og ‹Totalentreprenøren ble klar over forholdet <dato>.› Resten av det første brevet står. Endret tekst gjelder bare nye brev (MM-U9).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Det første brevet står som i dag.'''
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
