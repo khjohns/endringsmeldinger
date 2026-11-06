@@ -192,3 +192,63 @@ og viser til den. Det er ingen dato.
 3. Om skjemaet skal minne totalentreprenøren på å si sitt standpunkt til svaret, når byggherren
    har svart (påminnelsen i HF-U23 punkt 10). Anbefalt: ja, som hjelpetekst ved feltet, ikke i
    brevet.
+
+## Forslaget etter svaret på S-8
+
+Svaret 06.11 står ordrett i [BF-10-sporsmal.md](BF-10-sporsmal.md). Forslaget er S-8b A og
+S-8c A. Den låste delen sier bare hva påberopelsen gjelder, og datoen. Henvisningen til
+byggherrens svar står under Deres ref., og resten i friteksten. Tittelen er den samme som i det
+første brevet.
+
+**1. Før svaret.** Deres ref.: tom.
+
+> **Påberopelse av irregulær endring**
+>
+> Påberopelsen gjelder irregulær endring (NS 8407 punkt 32.1) for «Flytting av
+> ventilasjonskanaler etter pålegg på byggemøte» i sak KOE-17. Pålegget ble mottatt
+> 15. september 2026.
+>
+> *Vi har gått gjennom referatet fra byggemøtet …*
+
+**2. Etter et avslag** og **3. etter et svar om for sent varsel.** Deres ref.: K201-KOE-017-02.
+Den låste delen er den samme som i tilfelle 1. Friteksten sier hva totalentreprenøren mener om
+svaret.
+
+> *Vi viser til byggherrens svar i brev K201-KOE-017-02. Pålegget ble gitt muntlig på
+> byggemøtet 15. september og bekreftet skriftlig først 22. september …*
+
+**4. Etter en korrigering av datoen.** Totalentreprenøren oppga 15. september 2026 i brev
+K201-KOE-017-01 og korrigerte til 20. september 2026 i brev K201-KOE-017-03.
+
+> **Påberopelse av irregulær endring**
+>
+> Påberopelsen gjelder irregulær endring (NS 8407 punkt 32.1) for «…» i sak KOE-17. Pålegget
+> ble mottatt 20. september 2026. Totalentreprenøren oppga tidligere 15. september 2026 i brev
+> K201-KOE-017-01 av 1. oktober 2026.
+
+Etter en ny korrigering, til 18. september 2026 i brev K201-KOE-017-05:
+
+> … Pålegget ble mottatt 18. september 2026. Totalentreprenøren oppga tidligere 15. september
+> 2026 i brev K201-KOE-017-01 av 1. oktober 2026 og 20. september 2026 i brev K201-KOE-017-03
+> av 12. oktober 2026.
+
+**5. Svikt i byggherrens prosjektering.**
+
+> **Påberopelse av svikt i byggherrens prosjektering**
+>
+> Påberopelsen gjelder svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b
+> og 34.1.2) for «…» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september
+> 2026.
+
+**6. Endringsordre.**
+
+> **Påberopelse av endringsordre**
+>
+> Påberopelsen gjelder endringsordre «EO-04» fra byggherren (NS 8407 punkt 31.3) for «…» i sak
+> KOE-17.
+
+**Det første brevet med S-8c A.** Bare setningen om datoen endres:
+
+> Totalentreprenøren krever endringsordre for «…» i sak KOE-17 som irregulær endring (NS 8407
+> punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren
+> påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.
