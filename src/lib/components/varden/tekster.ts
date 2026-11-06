@@ -562,7 +562,13 @@ export const KORRIGERING = {
  */
 export const NYVERSJON = {
   /** Lenken over feltet, som åpner svaret ved siden av utkastet (oppdragsgiver 06.11, PR 1650). */
-  lesSvaret: (svar: Brevref) => `Les byggherrens svar i ${brevref(svar)}`,
+  /** Kortet til høyre sier hva TE svarer på, ikke hva brevet sier (oppdragsgiver 06.11, PR 1650). */
+  svaret: (svar: Brevref) => `Byggherrens svar i ${brevref(svar)}`,
+  paaberopelsen: (krav: Brevref) => `Påberopelsen i ${brevref(krav)}`,
+  ikkeSvart: 'Byggherren har ikke svart.',
+  erstatter: (krav: Brevref) => `Den nye versjonen erstatter påberopelsen i ${brevref(krav)}.`,
+  lesSvaret: 'Les svaret ved siden av',
+  lesSvaretHer: 'Les svaret',
   lukkSvaret: 'Lukk svaret',
   /** Datoen ved feltet når byggherren sier at varselet kom for sent (§ 32.2). */
   datoen: (hva: keyof typeof DATOEN) =>

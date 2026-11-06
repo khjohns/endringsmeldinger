@@ -264,10 +264,11 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
-- **Unntak: den nye versjonen av påberopelsen.** Mens TE skriver, står bare lenken til
-  byggherrens svar og feltet med teksten fra forrige versjon. Høyre kolonne står tom til TE
-  åpner svaret ved siden av. «Gå til forhåndsvisning» står under feltet, og datoen, veiene og
-  virkningen står i forhåndsvisningen (oppdragsgiver 06.11, PR 1650).
+- **Unntak: den nye versjonen av påberopelsen.** Kortet over tidslinja sier hva TE svarer på,
+  ikke hva brevet sier: byggherrens standpunkter i svaret, lenken som åpner svaret ved siden av,
+  hvilket brev den nye versjonen erstatter, og «Gå til forhåndsvisning». Før svaret sier det at
+  byggherren ikke har svart. Datoen, veiene og virkningen står i forhåndsvisningen
+  (oppdragsgiver 06.11, PR 1650).
 - **En knapp er aldri sperret** ([MM-U32](#mm-u32)). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens

@@ -70,20 +70,27 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     // S-3 B: teksten står slik den sist ble sendt, i ett felt, uten hjelpetekst (oppdragsgiver 06.11, PR 1650).
     expect((teksten() as HTMLTextAreaElement).value).not.toBe('');
     expect(teksten().getAttribute('aria-describedby')).toBeNull();
-    // Mens TE skriver, står verken hovedlinjene, tidslinja eller virkningen (oppdragsgiver 06.11).
+    // Kortet til høyre sier hva TE svarer på, ikke hva brevet sier, og har primærhandlingen.
+    // Tidslinja står under (oppdragsgiver 06.11, PR 1650).
+    const kortet = within(screen.getByRole('region', { name: /^Byggherrens svar i brev 2/ }));
+    expect(kortet.getByText('Byggherren godkjenner forholdet.')).toBeTruthy();
+    expect(kortet.getByText(/varselet etter punkt 32\.2 kom for sent/)).toBeTruthy();
+    expect(kortet.getByText('Den nye versjonen erstatter påberopelsen i brev 1.')).toBeTruthy();
+    expect(kortet.getByRole('button', { name: 'Gå til forhåndsvisning' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: /Hovedlinjene/ })).toBeNull();
-    expect(screen.queryByRole('heading', { name: 'Tidslinje' })).toBeNull();
-    expect(screen.queryByText(/Erstatter påberopelsen/)).toBeNull();
+    expect(screen.getByRole('region', { name: /Tidslinje/ })).toBeTruthy();
 
-    // Svaret åpnes ved siden av utkastet, så TE kan lese og skrive samtidig.
-    const les = skjema.getByRole('button', { name: 'Les byggherrens svar i brev 2' });
-    await fireEvent.click(les);
-    expect(les.getAttribute('aria-expanded')).toBe('true');
+    // Svaret åpnes ved siden av utkastet i stedet for kortet, så TE kan lese og skrive samtidig.
+    await fireEvent.click(kortet.getByRole('button', { name: 'Les svaret ved siden av' }));
     const [svaret] = screen.getAllByRole('region', { name: /K201-KOE-017-02/ });
     expect(within(svaret).getByRole('article')).toBeTruthy();
     expect(teksten()).toBeTruthy();
-    await fireEvent.click(skjema.getByRole('button', { name: 'Lukk svaret' }));
+    expect(screen.getByRole('button', { name: 'Gå til forhåndsvisning' })).toBeTruthy();
+    await fireEvent.click(screen.getByRole('button', { name: 'Lukk svaret' }));
     expect(screen.queryAllByRole('region', { name: /K201-KOE-017-02/ })).toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'Les svaret ved siden av' })).toBe(
+      document.activeElement
+    );
 
     await fireEvent.input(teksten(), {
       target: { value: 'Vi fastholder at pålegget er en endring.' },
@@ -188,8 +195,10 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     ).toHaveLength(0);
     await fireEvent.click(kortet.getByRole('button', { name: /^Send ny versjon av påberopelsen/ }));
     expect(screen.getByRole('textbox', { name: 'Oppdatert begrunnelse' })).toBeTruthy();
-    // Før svaret er det ikke noe svar å lese.
-    expect(screen.queryByRole('button', { name: /Les byggherrens svar/ })).toBeNull();
+    // Før svaret sier kortet at byggherren ikke har svart, og det er ikke noe svar å lese.
+    const konteksten = within(screen.getByRole('region', { name: /^Påberopelsen i brev 1/ }));
+    expect(konteksten.getByText('Byggherren har ikke svart.')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Les svaret/ })).toBeNull();
     expect(screen.queryByText(/Si hva du mener om svaret/)).toBeNull();
   });
 });

@@ -1,11 +1,12 @@
 <!--
   TEs nye versjon av påberopelsen (BF-10): «Oppdater påberopelse» etter byggherrens svar og
-  «Send ny versjon» før svaret. Skrivevisningen har bare det TE trenger for å skrive: lenken til
-  byggherrens svar, som åpnes ved siden av utkastet, og ett felt med teksten fra versjonen som
-  erstattes (S-3 B). Datoen står ved feltet bare når byggherren sier at varselet kom for sent;
-  ellers står den i forhåndsvisningen med veien til korrigeringen (oppdragsgiver 06.11, PR 1650).
-  Brevet sendes fra brevkontrollen, som de andre brevene (S-4b). Kjernen lager brevet og avviser
-  det den ikke godtar.
+  «Send ny versjon» før svaret. Mens TE skriver, står feltet med teksten fra versjonen som
+  erstattes (S-3 B), og kortet til høyre sier hva TE svarer på: byggherrens standpunkt i svaret,
+  med svaret ved siden av utkastet når TE ber om det, og primærhandlingen. Tidslinja står under.
+  Datoen står ved feltet bare når byggherren sier at varselet kom for sent; ellers står den i
+  forhåndsvisningen med veien til korrigeringen (oppdragsgiver 06.11, PR 1650). Brevet sendes
+  fra brevkontrollen, som de andre brevene (S-4b). Kjernen lager brevet og avviser det den ikke
+  godtar.
 -->
 <script lang="ts">
   import { tick } from 'svelte';
@@ -15,9 +16,10 @@
   import Brev from './Brev.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
+  import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
-  import { brevene, datoopplysningene, innleggene } from './lesing';
+  import { brevene, datoerISporet, datoopplysningene, innleggene } from './lesing';
   import { FORHOLDET, HANDLINGENE, NYVERSJON, SKJEMA, brevhode, brevtittel, dato } from './tekster';
 
   let {
@@ -69,6 +71,10 @@
   const datoenBestrides = $derived(
     !!u.spor.forhold.gjeldendeSvar?.standpunkter.some((s) => s.art === 'rettidighet' && !s.iTide)
   );
+
+  const sporbrev = $derived(brev.filter((b) => b.spor.includes('forhold')));
+  // Byggherrens standpunkter i svaret, med kjernens ord, som i brevtråden.
+  const standpunktene = $derived(u.spor.forhold.gjeldendeSvar?.standpunkter ?? []);
 
   // Teksten står slik den sist ble sendt (S-3 B i BF-10).
   $effect.pre(() => {
@@ -122,6 +128,12 @@
     onvedsiden?.(leser && !smal);
     return () => onvedsiden?.(false);
   });
+  // Kortet byttes ut med svaret, så fokus følger med begge veier.
+  async function veksleLesing() {
+    leser = !leser;
+    await tick();
+    document.getElementById(id(leser ? 'lukk' : 'les'))?.focus();
+  }
 
   let bekreftForkast = $state(false);
   let forkastSpoersmaal = $state<HTMLElement | null>(null);
@@ -152,6 +164,17 @@
   {/if}
 {/snippet}
 
+{#snippet handling()}
+  <Knapp
+    variant="primaer"
+    onclick={tilForhaandsvisningen}
+    aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.seBrevet}</Knapp
+  >
+  {#if hindring}
+    <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
+  {/if}
+{/snippet}
+
 <Arbeidsflate leser={leser && !smal}>
   {#snippet hoved()}
     <Utkastkort
@@ -161,22 +184,6 @@
       onsubmit={tilForhaandsvisningen}
     >
       <div class="innhold">
-        {#if svarbrevet}
-          <div class="lesing">
-            <Knapp
-              variant="lenke"
-              onclick={() => (leser = !leser)}
-              aria-expanded={leser}
-              aria-controls={id('svaret')}
-            >
-              {leser ? NYVERSJON.lukkSvaret : NYVERSJON.lesSvaret(svarbrevet)}
-            </Knapp>
-            {#if leser && smal}
-              <div class="innebrev" id={id('svaret')}>{@render svaret(false)}</div>
-            {/if}
-          </div>
-        {/if}
-
         {#if datoenBestrides && datoen}
           <!-- Datoen ved feltet når byggherren bestrider at varselet kom i tide (U-2, BF-02A U-7). -->
           <div class="dato">
@@ -196,19 +203,6 @@
         <div class="felt">
           <label for={id('tekst')}>{NYVERSJON.tekst}</label>
           <textarea id={id('tekst')} rows="12" bind:value={tekst}></textarea>
-        </div>
-
-        <div class="handling">
-          <Knapp
-            variant="primaer"
-            onclick={tilForhaandsvisningen}
-            aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.seBrevet}</Knapp
-          >
-          {#if hindring}
-            <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1"
-              >{hindring}</Melding
-            >
-          {/if}
         </div>
 
         <div class="skjemafot">
@@ -232,20 +226,62 @@
     </Utkastkort>
   {/snippet}
 
-  <!-- Høyre kolonne står tom mens TE skriver, og har svaret når TE ber om det. -->
   {#snippet hoeyre()}
     {#if leser && !smal && svarbrevet}
       <section class="leseramme" id={id('svaret')} aria-labelledby={id('lesetittel')}>
-        <h2 class="lesetittel" id={id('lesetittel')}>
-          {brevhode(svarbrevet)}
-          <span class="dempet">· {svarbrevet.avsender} · {dato(svarbrevet.registrert)}</span>
-        </h2>
+        <div class="lesehode">
+          <h2 class="lesetittel" id={id('lesetittel')}>
+            {brevhode(svarbrevet)}
+            <span class="dempet">· {svarbrevet.avsender} · {dato(svarbrevet.registrert)}</span>
+          </h2>
+          <Knapp variant="lenke" id={id('lukk')} onclick={veksleLesing} aria-expanded="true"
+            >{NYVERSJON.lukkSvaret}</Knapp
+          >
+        </div>
         <!-- Rammen ruller for seg selv, så den må kunne nås med tastaturet. -->
         <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
         <div class="brevrulle" tabindex="0" role="region" aria-labelledby={id('lesetittel')}>
           {@render svaret(true)}
         </div>
+        <div class="bunn">{@render handling()}</div>
       </section>
+    {:else}
+      <section class="kort feste" aria-labelledby={id('kontekst')}>
+        <h2 class="hode" id={id('kontekst')}>
+          {#if svarbrevet}
+            {NYVERSJON.svaret(svarbrevet)}
+            <span class="hodedato">{dato(svarbrevet.registrert)}</span>
+          {:else if kravbrevet}
+            {NYVERSJON.paaberopelsen(kravbrevet)}
+            <span class="hodedato">{dato(kravbrevet.registrert)}</span>
+          {/if}
+        </h2>
+        <div class="kontekst">
+          {#if svarbrevet}
+            {#each standpunktene as s (s.id)}<p>{FORHOLDET.standpunkt(s, null)}</p>{/each}
+            <Knapp
+              variant="lenke"
+              id={id('les')}
+              onclick={veksleLesing}
+              aria-expanded={leser}
+              aria-controls={id('svaret')}
+              >{leser
+                ? NYVERSJON.lukkSvaret
+                : smal
+                  ? NYVERSJON.lesSvaretHer
+                  : NYVERSJON.lesSvaret}</Knapp
+            >
+            {#if leser && smal}
+              <div class="innebrev" id={id('svaret')}>{@render svaret(false)}</div>
+            {/if}
+          {:else}
+            <p>{NYVERSJON.ikkeSvart}</p>
+          {/if}
+          {#if kravbrevet}<p class="dempet">{NYVERSJON.erstatter(kravbrevet)}</p>{/if}
+        </div>
+        <div class="bunn">{@render handling()}</div>
+      </section>
+      <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'forhold')} />
     {/if}
   {/snippet}
 </Arbeidsflate>
@@ -256,13 +292,56 @@
     gap: var(--spacing-5);
     padding: var(--spacing-5) var(--spacing-6) var(--spacing-6);
   }
-  .lesing {
+  .kort {
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+  }
+  .feste {
+    position: sticky;
+    top: var(--spacing-4);
+    z-index: 1;
+  }
+  .hode {
+    padding: var(--spacing-4) var(--spacing-5);
+    border-bottom: var(--rule);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .hodedato {
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .lesehode > :global(.knapp) {
+    flex: none;
+    white-space: nowrap;
+  }
+  .kontekst {
     display: grid;
-    gap: var(--spacing-3);
+    gap: var(--spacing-2);
     justify-items: start;
+    padding: var(--spacing-4) var(--spacing-5);
+    font-size: 14px;
+  }
+  .kontekst p {
+    margin: 0;
+    color: var(--ink);
+  }
+  .kontekst p.dempet {
+    margin-top: var(--spacing-2);
+    color: var(--ink-3);
   }
   .innebrev {
     justify-self: stretch;
+  }
+  .bunn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
+    border-top: var(--rule);
   }
   .dato {
     display: grid;
@@ -304,11 +383,6 @@
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
-  .handling {
-    display: grid;
-    gap: var(--spacing-3);
-    justify-items: start;
-  }
   .skjemafot {
     padding-top: var(--spacing-4);
     border-top: var(--rule);
@@ -336,9 +410,15 @@
     border-radius: var(--r-kort);
     overflow: hidden;
   }
-  .lesetittel {
-    padding: var(--spacing-3) var(--spacing-5);
+  .lesehode {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) var(--spacing-5);
     border-bottom: var(--rule);
+  }
+  .lesetittel {
     font-size: 16px;
     font-weight: 600;
   }
