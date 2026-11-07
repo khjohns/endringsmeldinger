@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `19f0b29730abb1ee4463567b6a7d5cb96289fabf4c2e507bc70acba799a56211`
+Kontrollsum (SHA-256 over utdraget visningen leser): `22451911ee640ab740b4eca8075c009b187a2379f1904bdb576547cdee084571`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -520,7 +520,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 07.11, oppdragsgiver (#1663)
 
-**Følge:** Presiserer [OV-U95](#ov-u95). Presiserer [KA-U68](#ka-u68). Presiserer samlevedtaket for vederlagsmetoden punkt 10 og 11, og KA-U68. Svar 3 A og 5 A føres ikke som egne vedtak. Begrunnelsen som ble lagt fram, videresendt av orkestratoren 07.11: Et skriftlig krav om justering oppfyller varslingen (NS 8407 punkt 34.3.3 første ledd og 34.4, og Del II til punkt 5). Byggherren må kunne oppfylle svarplikten etter punkt 34.3.3 annet ledd på et varsel som står alene. Avgrensningen gjelder ikke varslene etter punkt 34.1.2 ([OV-U89](#ov-u89) punkt 3), punkt 30.2 (OV-U95 punkt 9) og punkt 34.2.2 annet ledd. Et krav som varsel vil ofte være for sent etter punkt 34.4, som krever varsel før regningsarbeidet settes i gang; løsningen vurderer ikke det. Samme prinsipp som OV-U89 punkt 4. Berører D-16 i BF-14.
+**Følge:** Presiserer [OV-U95](#ov-u95). Presiserer [KA-U68](#ka-u68). Presiserer samlevedtaket for vederlagsmetoden punkt 10 og 11, og KA-U68. Svar 3 A og 5 A føres ikke som egne vedtak. Begrunnelsen som ble lagt fram, videresendt av orkestratoren 07.11: Et skriftlig krav om justering oppfyller varslingen (NS 8407 punkt 34.3.3 første ledd og 34.4, og Del II til punkt 5). Byggherren må kunne oppfylle svarplikten etter punkt 34.3.3 annet ledd på et varsel som står alene. Avgrensningen gjelder ikke varslene etter punkt 34.1.2 ([OV-U89](#ov-u89) punkt 3), punkt 30.2 (OV-U95 punkt 9) og punkt 34.2.2 annet ledd. Et krav som varsel vil ofte være for sent etter punkt 34.4, som krever varsel før regningsarbeidet settes i gang; løsningen vurderer ikke det. Samme prinsipp som OV-U89 punkt 4. Arbeidsvalg som følger av prinsippet (orkestratoren 07.11, #1674): et varsel etter punkt 34.3.3 eller 34.4 som sendes eller registreres før kravet, når det ennå ikke finnes noen kravpost, gjelder alle kravpostene med den beregningsregelen i neste kravversjon, det vil si justerte enhetspriser for punkt 34.3.3 og regningsarbeid for punkt 34.4. Løsningen kan ikke se hvilket arbeid varselet gjaldt ([KA-U16](../../plans/vedtak.md#ka-u16)). Berører D-16 i BF-14.
 
 **Regelrader:** —
 
