@@ -288,7 +288,7 @@ describe('TS-saken i Kontrollrommet', () => {
 
   // Krav G i #718: knappene og skjemaene for en TS-sak følger bare `kjernesak.handlinger`.
   // Med alle kandidatene tilbys TE det som er bygget (#909): trekket, varselet etter
-  // § 33.4 og kravet eller en ny versjon av det i hvert spor. BH tilbys svaret på
+  // § 33.4 og kravet eller en ny versjon av det i grunnlaget og fristsporet. BH tilbys svaret på
   // vederlagskravet (#1047). Uten handlinger tilbys ingenting.
   it.each(
     (['TE', 'BH'] as const).flatMap((part) =>
@@ -316,10 +316,8 @@ describe('TS-saken i Kontrollrommet', () => {
         part === 'BH' && tabell === 'full' && track === 'vederlag' && harVederlagskrav;
       const KNAPPER = {
         ansvar: ['Trekk', 'Send ny versjon av grunnlaget'],
-        vederlag: [
-          'Trekk',
-          harVederlagskrav ? 'Send ny versjon av kravet' : 'Send varsel eller krav',
-        ],
+        // Vederlagssporet tilbyr bare varselet, ikke kravet (arbeidsvalg til økt 3 i #1663).
+        vederlag: ['Trekk', 'Send varsel'],
         frist: ['Trekk', 'Send varsel eller krav'],
       };
 
@@ -332,6 +330,9 @@ describe('TS-saken i Kontrollrommet', () => {
         expect(knapper).toEqual(
           tilbys ? KNAPPER[track] : bhSvarer(track) ? ['Svar på kravet'] : []
         );
+        if (track === 'vederlag')
+          for (const krav of ['Send varsel eller krav', 'Send ny versjon av kravet'])
+            expect(knapper).not.toContain(krav);
         cleanup();
 
         await vis(journal, part, track, 'form', handlinger);

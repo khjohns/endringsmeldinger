@@ -172,7 +172,8 @@
       <GrunnlagOverview onform={() => onform(sel)} />
     {:else if sel === 'vederlag'}
       <SendteVarsler varsler={store.sak.vederlag.varsler} />
-      {#if !store.sak.vederlag.metode}
+      <!-- Et krav med bare posten etter § 34.1.3 annet ledd har ingen oppgjørsform (OV-U23). -->
+      {#if !store.sak.vederlag.metode && !store.sak.vederlag.saerskilt_krav}
         <p>
           {store.sak.vederlag.varsler?.length
             ? 'Varslet – ikke spesifisert'
