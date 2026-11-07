@@ -15387,6 +15387,61 @@ tekst = '''
 Mottatt-datoen gjelder i avstanden i dager, fordi svarfristen regnes fra mottak, mens omtalen bruker sendt-datoen.'''
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u23"]
+id = "LV-U64"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+Spørsmål 3 (teknisk). Hvor fryses navnene?
+Bakgrunn: LV-U25 og LV-U27 sier at navnene og stillingene fryses med brevet. Invarianten i `AGENTS.md` sier at journalen aldri bærer personnavn. Leveringsoppdraget skrives i samme transaksjon som brevet, og basen hindrer endringer i det (`leveringsoppdrag_uforanderlig`). Saken som Varden henter, har alt med leveringsoppdragene.'''
+valgt = "B"
+svar = '''
+Spørsmål 3 (hvor fryses navnene): B. «Hele hodet fryses i journalen, og invarianten får et unntak for brevhodet.»'''
+folge = '''
+Spørsmålet ble stilt med spørsmålsverktøyet med alternativtekstene ordrett fra kartleggingen på #1173 (kommentaren 6707023086). Svaret står ordrett på #1173 (kommentaren 6710695205). Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Journalen fryser prosjektnavn, kontrakt, Websak-nummer, emne og organisasjonene. Navnene og stillingene til avsender, saksbehandler, mottaker og kopimottakere fryses i leveringsoppdraget. Varden leser dem derfra.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hele hodet fryses i journalen, og invarianten får et unntak for brevhodet.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "mangler stillingen, står bare navnet"
+id = "LV-U65"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+Spørsmål 5 (teknisk). Hvor kommer avsenderens stilling fra?
+LV-U25 krever at stillingen fryses med brevet. For BH kan stillingen hentes fra HR-synkroniseringen (`jobTitle` hentes allerede, men lagres ikke). For TE finnes ingen kilde.'''
+valgt = "A"
+svar = '''
+Spørsmål 5 (avsenderens stilling): A. «For BH hentes stillingen fra HR-dataene. For TE oppgir hver bruker sin stilling selv. Mangler stillingen, står bare navnet.»'''
+folge = '''
+Spørsmålet ble stilt med spørsmålsverktøyet med alternativtekstene ordrett fra kartleggingen på #1173 (kommentaren 6707023086). Svaret står ordrett på #1173 (kommentaren 6710695205). Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+For BH hentes stillingen fra HR-dataene. For TE oppgir hver bruker sin stilling selv. Mangler stillingen, står bare navnet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Drift fører stillingen for begge sider.'''
+
+[[gruppe.vedtak]]
 klasse = "vedtak"
 id = "LV-U27"
 dato = 2026-10-22
