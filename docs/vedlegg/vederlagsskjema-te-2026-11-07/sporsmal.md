@@ -87,3 +87,5 @@ Bakgrunn: Totalentreprenøren krever per post (svar 1). Endringsordren kan samle
 - B: Byggherren kan svare med ett beløp for flere poster i samme sak.
 - Anbefalt: A.
 - Styrer: om lagene og godkjenningen kan regnes per post.
+
+Oppdragsgiver 07.11, ordrett: «9A, 10A»
