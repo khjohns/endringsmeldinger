@@ -430,7 +430,9 @@
             {u}
             spor={valgt}
             {dagensVisning}
-            nySak={kjernesak.handlinger.includes('krav:forhold') ? nySakLenke : undefined}
+            nySak={valgt === 'forhold' && kjernesak.handlinger.includes('krav:forhold')
+              ? nySakLenke
+              : undefined}
             onspor={velgSpor}
             onkorriger={(gjelder) => {
               melding = null;

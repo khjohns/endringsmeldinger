@@ -31,8 +31,9 @@ async function vis(
   forloep: string,
   punkt: string,
   part: Part,
-  spor: 'forhold' | 'vederlag',
-  nySakLenke?: string
+  spor: 'forhold' | 'vederlag' | 'frist',
+  nySakLenke?: string,
+  dagensVisning?: string
 ) {
   const demosak = lagDemosak(finnForloep(forloep)!, punkt, part);
   const kjernesak = lagKjernesak({
@@ -43,7 +44,7 @@ async function vis(
     send: demosak.send,
   });
   await kjernesak.last();
-  render(Vardensak, { kjernesak, spor, nySakLenke });
+  render(Vardensak, { kjernesak, spor, nySakLenke, dagensVisning });
   return within(
     (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
   );
@@ -318,6 +319,11 @@ describe('veien til en ny sak (BF-10 U-2, GR-U22, OV-U57)', () => {
     expect(kortet.getByRole('button', { name: /^Godta avslaget/ })).toBeTruthy();
   });
 
+  it('veien står bare i forholdssporet, ikke i vederlagssporet, selv om TE kan sende en ny versjon av påberopelsen (U-2)', async () => {
+    await vis('BF-04', 'te-har-mottatt-svaret', 'TE', 'vederlag', '/demo/ny');
+    expect(screen.queryByRole('link', { name: /ny sak/i })).toBeNull();
+  });
+
   it('BH ser ikke veien, fordi BH ikke kan sende en ny versjon av påberopelsen', async () => {
     await vis('BF-04', 'forholdet-er-avslaatt', 'BH', 'forhold', '/demo/ny');
     expect(screen.queryByRole('link', { name: /ny sak/i })).toBeNull();
@@ -336,6 +342,22 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     expect(
       kortet.queryAllByRole('button').filter((k) => k.className.includes('primaer'))
     ).toHaveLength(0);
+  });
+
+  it('i fristsporet åpner kravet dagens visning, fordi bare den nye versjonen av påberopelsen er bygget i Varden (BF-10, BF-02B)', async () => {
+    const kortet = await vis(
+      'BF-04',
+      'forholdet-er-avslaatt',
+      'TE',
+      'frist',
+      undefined,
+      '/demo/sak/kjerne'
+    );
+    const raden = kortet.getByText(
+      (_, e) => e?.getAttribute('data-handling') === 'krav:frist'
+    ) as HTMLElement;
+    expect(within(raden).getByRole('link').getAttribute('href')).toBe('/demo/sak/kjerne');
+    expect(within(raden).queryByRole('button')).toBeNull();
   });
 
   it('i demoruta er «Revider krav» primær etter svaret også når den ikke er bygget, og et klikk sier det (#1636)', async () => {

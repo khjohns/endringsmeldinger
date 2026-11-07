@@ -28,7 +28,15 @@
   } = $props();
 
   // Høyden på arbeidsraden, så høyre kolonne kan følge rullingen rett under den.
+  let radEl = $state<HTMLElement | null>(null);
   let radhoeyde = $state(0);
+  $effect(() => {
+    if (!radEl || typeof ResizeObserver !== 'function') return;
+    const el = radEl;
+    const maal = new ResizeObserver(() => (radhoeyde = el.offsetHeight));
+    maal.observe(el);
+    return () => maal.disconnect();
+  });
 </script>
 
 <div
@@ -37,7 +45,7 @@
   class:utkast={deling === 'utkast'}
   style:--radhoeyde={rad ? `${radhoeyde}px` : undefined}
 >
-  {#if rad}<div class="rad" bind:offsetHeight={radhoeyde}>{@render rad()}</div>{/if}
+  {#if rad}<div class="rad" bind:this={radEl}>{@render rad()}</div>{/if}
   <div class="hoved">{@render hoved()}</div>
   {#if hoeyre}
     <div class="hoeyre">{@render hoeyre()}</div>

@@ -100,7 +100,12 @@
         : null
   );
   const harPrimaer = $derived(primaer !== null);
-  const bygget = $derived(['godta', ...(spor === 'vederlag' ? ['svare'] : ['krav'])]);
+  // Skjemaene Varden har: svaret på vederlagskravet og den nye versjonen av påberopelsen (BF-10).
+  // Ny versjon av vederlags- og fristkravet åpner dagens visning (BF-02B).
+  const bygget = $derived([
+    'godta',
+    ...(spor === 'vederlag' ? ['svare'] : spor === 'forhold' ? ['krav'] : []),
+  ]);
   const primaerBygget = $derived(!!primaer && bygget.includes(primaer.split(':')[0]));
   let primaerIkkeBygget = $state(false);
   // Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista (U-1 i BF-02A, #1615).
