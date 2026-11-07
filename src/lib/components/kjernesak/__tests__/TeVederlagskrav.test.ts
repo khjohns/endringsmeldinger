@@ -432,8 +432,10 @@ describe('vederlagskravet fra Kontrollrommet', () => {
   });
 });
 
-describe('kontrollen før en TS-sak sender kravet', () => {
-  const data = {
+// Det gamle skjemaet sender bare varselet til skjemaet etter BF-14 er bygget (økt 3 i #1663),
+// så kontrollen prøves med varselet etter § 34.1.2.
+describe('kontrollen før en TS-sak sender brevet om vederlag', () => {
+  const kravdata = {
     grunnlag_event_id: 'e-2',
     metode: 'FASTPRIS_TILBUD' as const,
     belop_direkte: 1000,
@@ -444,8 +446,9 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     saerskilt_krav: null,
     vedlegg_ids: [],
   };
+  const data = { ...kravdata, begrunnelse: '', varsel_type: 'varsel' };
 
-  it('uten låst tekst sendes ikke kravet, og TE får vite hvorfor (#719)', async () => {
+  it('uten låst tekst sendes ikke varselet, og TE får vite hvorfor (#719)', async () => {
     const send = vi.fn();
     const kjernesak = { brev: () => null, send } as unknown as Kjernesakkontekst;
     const kontroll = lagKravkontroll(kjernesak);
@@ -465,7 +468,7 @@ describe('kontrollen før en TS-sak sender kravet', () => {
       'Brevet kan ikke sendes ennå. Kravet er allerede sendt.',
     ],
     ['en programfeil sier at feilen er i appen', { programfeil: PROGRAMFEIL }, PROGRAMFEIL],
-  ])('%s, og kravet sendes ikke', async (_navn, brev, melding) => {
+  ])('%s, og varselet sendes ikke', async (_navn, brev, melding) => {
     const send = vi.fn();
     const kjernesak = { brev: () => brev, send } as unknown as Kjernesakkontekst;
     const kontroll = lagKravkontroll(kjernesak);
@@ -495,7 +498,7 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     expect(send.mock.calls[0][3]).toMatchObject({ brevtekst: ['brevet TE så'] });
   });
 
-  it('kontrollen sender kravet med teksten TE bekreftet', async () => {
+  it('kontrollen sender varselet med teksten TE bekreftet', async () => {
     const send = vi.fn().mockResolvedValue(true);
     const kjernesak = {
       brev: () => ({ tekst: ['brevet TE ser'] }),
@@ -506,16 +509,24 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
     kontroll.confirm();
     await sending;
-    expect(send).toHaveBeenCalledWith(expect.objectContaining({ type: 'krav' }), ['brevet TE ser']);
+    expect(send).toHaveBeenCalledWith(expect.objectContaining({ type: 'send_varsel' }), [
+      'brevet TE ser',
+    ]);
   });
 
   it.each([
+    [
+      'vederlagskravet fra det gamle skjemaet (økt 3 i #1663)',
+      'vederlag',
+      'vederlag_krav_sendt',
+      kravdata,
+    ],
     ['et annet spor', 'frist', 'vederlag_krav_sendt', data],
     [
       'særskilte krav',
       'vederlag',
       'vederlag_krav_sendt',
-      { ...data, saerskilt_krav: { rigg_drift: { belop: 1 } } },
+      { ...kravdata, saerskilt_krav: { rigg_drift: { belop: 1 } } },
     ],
     ['vedlegg', 'vederlag', 'vederlag_krav_sendt', { ...data, vedlegg_ids: ['v-1'] }],
   ] as const)('%s avvises før brevet vises (OV-U1)', async (_navn, spor, type, d) => {
