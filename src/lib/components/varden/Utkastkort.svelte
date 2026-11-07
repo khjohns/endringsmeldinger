@@ -90,6 +90,9 @@
     font-size: 20px;
     font-weight: 600;
   }
+  .tittel > span:not(.merke-utkast) {
+    letter-spacing: var(--sperring-20);
+  }
   .merke-utkast {
     padding: 0 var(--spacing-2);
     border: 1px dashed var(--draft-border);

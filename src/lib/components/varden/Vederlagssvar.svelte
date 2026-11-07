@@ -682,7 +682,7 @@
     padding: 0 var(--spacing-3);
     border: 0;
     text-align: right;
-    font: 16px var(--font-mono);
+    font: 16px var(--font-sans);
     font-variant-numeric: tabular-nums;
     color: var(--ink);
     background: var(--surface);
@@ -778,7 +778,6 @@
     font-size: 14px;
   }
   .num {
-    font-family: var(--font-mono);
     font-weight: 500;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

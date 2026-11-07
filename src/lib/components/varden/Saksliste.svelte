@@ -351,7 +351,7 @@
     font-size: 24px;
     font-weight: 600;
     line-height: 1.25;
-    letter-spacing: -0.015em;
+    letter-spacing: var(--sperring-24);
   }
   /* Primærknappen i Varden (`Knapp.svelte`), som lenke fordi den åpner skjemaet. */
   .ny {
@@ -449,7 +449,6 @@
   }
   .krevd.tall .verdi {
     color: var(--ink);
-    font-family: var(--font-mono);
     font-size: 14px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -566,11 +565,10 @@
   }
   .hv {
     color: var(--ink);
-    font-family: var(--font-mono);
     font-size: 20px;
     font-variant-numeric: tabular-nums;
     font-weight: 500;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--sperring-20);
   }
   .hv small {
     color: var(--ink-3);
