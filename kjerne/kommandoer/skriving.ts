@@ -190,7 +190,7 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
 /** Innholdet i dokumentet kommandoen gir. */
 /**
  * Kravpostene slik de lagres: en ny kravpost får `id` fra serveren og neste betegnelse i
- * sporet, og en kravpost fra forrige versjon beholder sin (KA-U53, svar 6 A i #1673).
+ * sporet, og en kravpost fra forrige versjon beholder sin (KA-U53, arbeidsvalget 07.11 i domenetabellen).
  */
 function medKravposter(
   innhold: Record<string, unknown>,

@@ -1,8 +1,8 @@
 /**
  * Versjonsreglene for kravpostene i vederlagskravet. En ny kravversjon tar med hver kravpost
  * fra forrige versjon som ikke trekkes, og en trukket kravpost tas ikke opp igjen
- * (KA-U56; KA-U51 punkt 11 utvidet til kravposter i svar 4 A, spørsmålene 07.11, #1673).
- * Betegnelsen følger posten og brukes ikke igjen (KA-U53, svar 4 A).
+ * (KA-U56; KA-U51 punkt 11 utvidet til kravposter i KA-U70).
+ * Betegnelsen følger posten og brukes ikke igjen (KA-U53, KA-U70).
  *
  * Kommandoen og lesingen av journalen bruker samme regel: kommandoen før serveren har satt
  * `id` og betegnelse på de nye postene, journalen etter.
@@ -14,7 +14,7 @@ import type { Krav } from '../typer.ts';
 type Postinndata = { id?: unknown; betegnelse?: unknown };
 type Vederlagsinnhold = { kravposter?: Postinndata[]; trekker?: unknown[] };
 
-/** Betegnelsene brukt i sporet, også av kravposter som er trukket (svar 4 A). */
+/** Betegnelsene brukt i sporet, også av kravposter som er trukket (KA-U70). */
 export function brukteBetegnelser(tidligere: readonly Pick<Krav, 'innhold'>[]): Set<string> {
   return new Set(tidligere.flatMap((k) => kravposterI(k).map((p) => p.betegnelse)));
 }
@@ -55,7 +55,7 @@ export function kravposteneStrider(
     if (id !== undefined && trekker.includes(id))
       return `både tar med og trekker kravposten ${forrige.get(id)!.betegnelse}`;
     if (kjent && !forrige.has(id!))
-      return `tar opp igjen kravposten ${kjent.betegnelse}, som er trukket (KA-U51 punkt 11, svar 4 A)`;
+      return `tar opp igjen kravposten ${kjent.betegnelse}, som er trukket (KA-U51 punkt 11, KA-U70)`;
     if (id !== undefined && !kjent && !lagret)
       return `har kravposten ${id}, som ikke er med i forrige kravversjon`;
     if (!lagret) continue;
@@ -65,7 +65,7 @@ export function kravposteneStrider(
     if (kjent && kjent.betegnelse !== betegnelse)
       return `gir kravposten ${kjent.betegnelse} betegnelsen ${betegnelse}`;
     if (!kjent && brukte.has(betegnelse))
-      return `gir en ny kravpost betegnelsen ${betegnelse}, som er brukt før i sporet (svar 4 A)`;
+      return `gir en ny kravpost betegnelsen ${betegnelse}, som er brukt før i sporet (KA-U70)`;
   }
   const mangler = [...forrige.values()].filter((p) => !sett.has(p.id) && !trekker.includes(p.id));
   return mangler.length

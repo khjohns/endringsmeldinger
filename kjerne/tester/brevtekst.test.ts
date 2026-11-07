@@ -126,7 +126,7 @@ function sak(sakstittel = TITTEL, sakskode?: Sakskode, forkortelse: string | nul
   };
   /**
    * Som skjemaet i klienten: en kravpost med betegnelsen til en kravpost i den gjeldende
-   * kravversjonen får dens `id`, og ellers er den ny og sendes uten betegnelse (svar 6 A, #1673).
+   * kravversjonen får dens `id`, og ellers er den ny og sendes uten betegnelse (arbeidsvalget 07.11 i domenetabellen).
    */
   const medIder = (kommando: Data): Data => {
     const innhold = kommando.innhold as Data | undefined;
@@ -7570,10 +7570,9 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
 /**
  * Kravpostene i vederlagskravet (#1663). Kildene: OV-U95 punkt 19–22, KA-U53 (betegnelsen),
  * KA-U56 (en ny versjon tar med eller trekker hver kravpost), KA-U61 og KA-U66 (tilbud og
- * beregningsregel) og svarene 07.11 i spørsmålene til byggingen av BF-14 (#1673): 3 A og 5 A
- * (kravposten er varselet etter punkt 34.3.3 eller 34.4 når et slikt varsel ikke er sendt før),
- * 4 A (en trukket kravpost tas ikke opp igjen, og betegnelsen brukes ikke igjen) og 6 A
- * (formatet). Brev 3 i `sakMedKrav` har P1 med fast sum 125 000 kr.
+ * beregningsregel), VS-U48 (kravposten er varselet etter punkt 34.3.3 eller 34.4 når et slikt
+ * varsel ikke er sendt før), KA-U70 (en trukket kravpost tas ikke opp igjen, og betegnelsen
+ * brukes ikke igjen) og arbeidsvalget 07.11 i domenetabellen (formatet). Brev 3 i `sakMedKrav` har P1 med fast sum 125 000 kr.
  */
 describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #1663)', () => {
   const krav = (kravposter: Data[], rest: Data = {}) => ({
@@ -7606,7 +7605,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(s.avvist('TE', krav([regning], { trekker: [p1I(s)] })), 'kontrollsak').toBeNull();
   });
 
-  it('en trukket kravpost tas ikke opp igjen, og betegnelsen brukes ikke igjen (svar 4 A)', () => {
+  it('en trukket kravpost tas ikke opp igjen, og betegnelsen brukes ikke igjen (KA-U70)', () => {
     const s = sakMedKrav();
     const p1 = p1I(s);
     s.send('TE', krav([regning], { trekker: [p1] }));
@@ -7656,7 +7655,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(s.avvist('BH', brev)).toBe('SAK_IKKE_FORSTAATT');
   });
 
-  it('kravposten med regningsarbeid eller justerte enhetspriser er varselet i den første versjonen den står i, ikke i den neste (svar 3 A og 5 A)', () => {
+  it('kravposten med regningsarbeid eller justerte enhetspriser er varselet i den første versjonen den står i, ikke i den neste (VS-U48)', () => {
     const s = sakMedKrav();
     const foerste = laast(s.send('TE', krav([{ ...P1, beloep: 125000 }, regning, justert]))).join(
       ' '

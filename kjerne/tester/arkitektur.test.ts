@@ -273,7 +273,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
   ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager'],
-  // OV-U95 punkt 19–22 og svar 6 A (#1673): kravpostene i vederlagskravet, og kravpostene
+  // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene i vederlagskravet, og kravpostene
   // fra forrige versjon TE trekker (KA-U56).
   ['Krav.innhold', 'utsagn', 'kravposter', ['frosset/standpunkt.ts:kravposterI']],
   ['Krav.innhold', 'utsagn', 'trekker', ['frosset/brevtekst.ts']],
@@ -839,9 +839,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/kommando.ts:oerefeil'],
   ],
   ['kommandoer/kommando.ts:oerefeil', 'kommando', 'beloep', ['kommandoer/kommando.ts:oerefeil']],
-  // OV-U95 punkt 19–22, svar 6 A (#1673): skjemaet for vederlagskravet i kommandoen.
+  // OV-U95 punkt 19–22, arbeidsvalget 07.11 i domenetabellen: skjemaet for vederlagskravet i kommandoen.
   ['format/format.ts', 'skjema', 'vederlagsinnhold', ['kommandoer/kommando.ts:formfeil']],
-  // KA-U53, KA-U56, svar 4 A: kravpostene en ny versjon får id og betegnelse for, og
+  // KA-U53, KA-U56, KA-U70: kravpostene en ny versjon får id og betegnelse for, og
   // versjonsreglene kommandoen og lesingen av journalen bruker.
   [
     'kommandoer/skriving.ts:medKravposter(innhold)',

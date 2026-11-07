@@ -194,7 +194,7 @@ const INNHOLD = {
       ...(dato ? { [dato]: '2026-09-15' } : {}),
     };
   },
-  // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, svar 6 A).
+  // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, arbeidsvalget 07.11 i domenetabellen).
   vederlag: (h: Handling, u?: Utledning, nyId?: () => string) => {
     const forrige = u?.spor.vederlag.gjeldendeKrav;
     const p1 = forrige ? kravposterI(forrige)[0] : undefined;

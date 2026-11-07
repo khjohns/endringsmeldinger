@@ -261,7 +261,7 @@ export const KRAVINNHOLD: Record<
     required: ['hovedkategori', 'underkategori'],
     anyOf: KATEGORIPAR,
   },
-  // OV-U95 punkt 19–22 og svar 6 A (#1673): kravpostene, postene utenfor dem og trekket. Et krav
+  // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene, postene utenfor dem og trekket. Et krav
   // kan ha bare postene utenfor kravpostene (OV-U89 punkt 6).
   vederlag: vederlagsinnhold(true),
   frist: { properties: { dager: { type: 'integer', minimum: 1 } }, required: ['dager'] },

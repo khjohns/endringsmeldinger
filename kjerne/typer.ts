@@ -229,8 +229,8 @@ export const OPPGJOERSFORMER: readonly Oppgjoersform[] = [
 ];
 
 /**
- * En kravpost i vederlagskravet, slik den er lagret (OV-U95 punkt 19–22; svar 6 A i
- * spørsmålene 07.11, #1673). `id` settes av serveren og `betegnelse` av kommandoen, og
+ * En kravpost i vederlagskravet, slik den er lagret (OV-U95 punkt 19–22; arbeidsvalget 07.11 i
+ * domenetabellen, #1663). `id` settes av serveren og `betegnelse` av kommandoen, og
  * begge følger posten gjennom kravversjonene. Anslaget, kostnadsoverslaget og PNS er
  * opplysninger som ingen regel leser (KA-U55, KA-U66).
  */

@@ -185,7 +185,7 @@ function kravetsUtdypning(
  * i underkategorien endringsordre, endringsordren. En annen hjemmel eller en annen endringsordre
  * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
  */
-/** KA-U56, KA-U51 punkt 11 og svar 4 A (#1673): kravpostene mot forrige kravversjon. */
+/** KA-U56, KA-U51 punkt 11 og KA-U70: kravpostene mot forrige kravversjon. */
 function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
   const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);

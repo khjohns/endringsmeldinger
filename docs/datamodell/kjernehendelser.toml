@@ -90,7 +90,7 @@ kostnadsoverslag). `saerskilt` er postene utenfor: kravet etter punkt 34.1.3 ann
 står. `trekker` er kravpostene fra forrige versjon TE trekker; hver kravpost i forrige versjon
 er med eller trekkes."""
 felt = ["id", "spor", "erstatter", "kravposter", "saerskilt", "trekker"]
-grunnlag = "KA-U2, KA-U8, KA-U53, KA-U56, KA-U66, OV-U89 punkt 6 og 17, OV-U95 punkt 19–22, svar 4 A og 6 A i #1673"
+grunnlag = "KA-U2, KA-U8, KA-U53, KA-U56, KA-U66, OV-U89 punkt 6 og 17, OV-U95 punkt 19–22, KA-U70 og arbeidsvalget 07.11 i domenetabellen (#1663)"
 
 [[krav]]
 spor = "frist"

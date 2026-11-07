@@ -4041,14 +4041,14 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F477',
-    feilklasse: 'en trukket kravpost kan tas opp igjen (svar 4 A, #1673)',
+    feilklasse: 'en trukket kravpost kan tas opp igjen (KA-U70)',
     fil: `${K}/utledning/kravposter.ts`,
     endringer: [['    if (kjent && !forrige.has(id!))\n', '    if (false)\n']],
     mal: ['en trukket kravpost tas ikke opp igjen'],
   },
   {
     id: 'F478',
-    feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, svar 4 A)',
+    feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, KA-U70)',
     fil: `${K}/utledning/kravposter.ts`,
     endringer: [
       [
@@ -4060,8 +4060,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F479',
-    feilklasse:
-      'kravposten er varselet etter punkt 34.4 også i en senere versjon (svar 5 A, #1673)',
+    feilklasse: 'kravposten er varselet etter punkt 34.4 også i en senere versjon (VS-U48)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['    if (varslerI(p, foer))\n', '    if (true)\n']],
     mal: ['er varselet i den første versjonen den står i'],

@@ -503,7 +503,7 @@ function tidligere(k: Krav, j: Journalen): Krav[] {
 
 /**
  * Kravposten er varselet etter § 34.3.3 eller § 34.4 når ingen tidligere kravversjon har
- * posten med justerte enhetspriser eller regningsarbeid (svar 3 A og 5 A, #1673). Et varsel
+ * posten med justerte enhetspriser eller regningsarbeid (VS-U48). Et varsel
  * sendt eller registrert for seg er ikke bygget, så det kan ikke ha kommet før.
  */
 const varslerI = (p: Kravpost, foer: readonly Krav[]): boolean =>
