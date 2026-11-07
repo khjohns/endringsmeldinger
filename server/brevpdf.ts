@@ -49,7 +49,12 @@ export type Avsender = 'TE' | 'BH';
 type Skrift = {
   /** Filnavnet, uten mappen. */
   fil: string;
+  /** sha256 av fila, for brevprofilen. */
+  sum: string;
+  /** Skriftprogrammet som bygges inn: TrueType eller OpenType, ikke woff. */
   bytes: Uint8Array;
+  /** Om skriften bygges inn som delmengde. */
+  delmengde: boolean;
   tegnsett: ReturnType<typeof fontkit.create>;
   /**
    * Kodepunktene skriften setter i et brev med tegnene `brukte`; resten går videre til neste
@@ -68,11 +73,18 @@ const lokal = (fil: string) => new URL(`./skrift/${fil}`, import.meta.url);
  * (`.interface-design/system.md`, «Typografi»). Oslo Sans hentes fra
  * `@oslokommune/punkt-assets`, med fast versjon, og brukes bare i byggherrens brev, på
  * grunn av lisensen (LV-U26). Source Serif 4 i 16 px er 12 pt.
+ *
+ * Oslo Sans bygges inn hel, fra woff: delmengden fontkit lager av en CFF-skrift, kan ikke
+ * leses av poppler, og woff2 bygges inn som den er (#1670). `fsType` 8 tillater innbygging.
  */
 const SKRIFTER = {
-  osloSans: { fil: () => fraPakken('fonts/OsloSans-Regular.woff2'), stoerrelse: 11 },
-  sourceSerif4: { fil: () => lokal('SourceSerif4-Regular.ttf'), stoerrelse: 12 },
-} satisfies Record<string, { fil: () => URL; stoerrelse: number }>;
+  osloSans: {
+    fil: () => fraPakken('fonts/OsloSans-Regular.woff'),
+    stoerrelse: 11,
+    delmengde: false,
+  },
+  sourceSerif4: { fil: () => lokal('SourceSerif4-Regular.ttf'), stoerrelse: 12, delmengde: true },
+} satisfies Record<string, { fil: () => URL; stoerrelse: number; delmengde: boolean }>;
 
 /** Navnet på en skrift i `SKRIFTER`. */
 export type Skriftnavn = keyof typeof SKRIFTER;
@@ -93,7 +105,7 @@ const LOGOBREDDE = 85;
 
 type Logo = {
   fil: string;
-  bytes: Uint8Array;
+  sum: string;
   breddeISvg: number;
   hoeydeISvg: number;
   stier: string[];
@@ -143,7 +155,7 @@ function logo(): Logo {
   const kanal = (i: number) => parseInt(hex.slice(1 + 2 * i, 3 + 2 * i), 16) / 255;
   return (lestLogo = {
     fil: filnavnI(url),
-    bytes,
+    sum: sha256(bytes),
     breddeISvg: Number(viewBox[1]),
     hoeydeISvg: Number(viewBox[2]),
     stier,
@@ -184,15 +196,58 @@ const RESERVEFILER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'] as con
 
 const filnavnI = (fil: URL) => fil.pathname.split('/').at(-1)!;
 
-const les = (fil: URL) => {
-  const bytes = readFileSync(fil);
-  return { fil: filnavnI(fil), bytes, tegnsett: fontkit.create(bytes) };
+const sha256 = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
+
+/**
+ * Skriftprogrammet i en woff-fil (WOFF 1.0): tabellene pakket ut med zlib og satt sammen
+ * igjen med tabellkatalogen. Kaster for en fil som ikke har den formen.
+ */
+export function fraWoff(woff: Uint8Array): Uint8Array {
+  const v = new DataView(woff.buffer, woff.byteOffset, woff.byteLength);
+  if (v.getUint32(0) !== 0x774f4646) throw new Error('skriftfila er ikke woff');
+  const antall = v.getUint16(12);
+  const tabeller = Array.from({ length: antall }, (_, i) => {
+    const p = 44 + 20 * i;
+    const [fra, lengde, utpakket] = [v.getUint32(p + 4), v.getUint32(p + 8), v.getUint32(p + 12)];
+    const pakket = woff.subarray(fra, fra + lengde);
+    const data = lengde < utpakket ? new Uint8Array(inflateSync(pakket)) : pakket;
+    if (data.length !== utpakket) throw new Error('en tabell i woff-fila har feil lengde');
+    return { merke: v.getUint32(p), sjekksum: v.getUint32(p + 16), data };
+  });
+  const katalog = 12 + 16 * antall;
+  const ut = new Uint8Array(
+    katalog + tabeller.reduce((sum, t) => sum + Math.ceil(t.data.length / 4) * 4, 0)
+  );
+  const u = new DataView(ut.buffer);
+  const potens = 2 ** Math.floor(Math.log2(antall));
+  u.setUint32(0, v.getUint32(4));
+  u.setUint16(4, antall);
+  u.setUint16(6, potens * 16);
+  u.setUint16(8, Math.log2(potens));
+  u.setUint16(10, antall * 16 - potens * 16);
+  let fra = katalog;
+  tabeller.forEach((t, i) => {
+    u.setUint32(12 + 16 * i, t.merke);
+    u.setUint32(16 + 16 * i, t.sjekksum);
+    u.setUint32(20 + 16 * i, fra);
+    u.setUint32(24 + 16 * i, t.data.length);
+    ut.set(t.data, fra);
+    fra += Math.ceil(t.data.length / 4) * 4;
+  });
+  return ut;
+}
+
+const les = (fil: URL, delmengde: boolean) => {
+  const filbytes = readFileSync(fil);
+  const navn = filnavnI(fil);
+  const bytes = navn.endsWith('.woff') ? fraWoff(filbytes) : filbytes;
+  return { fil: navn, sum: sha256(filbytes), bytes, delmengde, tegnsett: fontkit.create(bytes) };
 };
 
 let lesteReserver: Skrift[] | undefined;
 function reserver(): Skrift[] {
   return (lesteReserver ??= RESERVEFILER.map((fil) => {
-    const s = les(lokal(fil));
+    const s = les(lokal(fil), true);
     return { ...s, setter: (kode: number) => s.tegnsett.hasGlyphForCodePoint(kode) };
   }));
 }
@@ -207,7 +262,7 @@ function reserver(): Skrift[] {
  * mellomrommene gjelder det laveste kodepunktet i skriften.
  */
 function brevskrift(navn: Skriftnavn): Skrift {
-  const s = les(SKRIFTER[navn].fil());
+  const s = les(SKRIFTER[navn].fil(), SKRIFTER[navn].delmengde);
   const tillatt = skriftenesKodepunkter();
   const medGlyf = new Map<number, number[]>();
   for (const kode of [...s.tegnsett.characterSet].sort((a, b) => a - b)) {
@@ -305,9 +360,7 @@ export function kontrollerSkrifter(): void {
     for (const navn of skriftnavn)
       for (const s of skrifter(navn)) fontkitMedBindestrek.create(s.bytes);
   } catch (feil) {
-    throw new Error(
-      `Skriftene eller logoen til brev-PDF-en kan ikke brukes: ${(feil as Error).message}`
-    );
+    throw new Error(`Skriftene til brev-PDF-en kan ikke brukes: ${(feil as Error).message}`);
   }
 }
 
@@ -445,9 +498,7 @@ export function brevprofil(avsender: Avsender): Brevprofil {
     const filer = [...skrifter(skrift), ...(MED_LOGO[avsender] ? [logo()] : [])];
     profil = {
       skrift,
-      filer: Object.fromEntries(
-        filer.map((f) => [f.fil, createHash('sha256').update(f.bytes).digest('hex')])
-      ),
+      filer: Object.fromEntries(filer.map((f) => [f.fil, f.sum])),
     };
     profiler.set(avsender, profil);
   }
@@ -484,7 +535,9 @@ export async function settBrevPdf(
   // En skrift som ikke brukes, bygges ikke inn, så brev uten reservetegn er uendret.
   const innbygd = await Promise.all(
     skrifter(brevskrift).map((s, i) =>
-      brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true, features: UTEN_SUBSTITUSJON }) : null
+      brukt.has(i)
+        ? pdf.embedFont(s.bytes, { subset: s.delmengde, features: UTEN_SUBSTITUSJON })
+        : null
     )
   );
   const settes = (t: string) =>

@@ -341,6 +341,9 @@ FEILINNFOERINGER = [
     ("S90", "oppdraget fryser ikke brevprofilen (#1177, LV-U26)", "server/levering.ts",
      "brevprofil: merket ? brevprofil(rad.aktor_rolle) : null,", "brevprofil: null,",
      "et brev med brevtekst får dokumentet med merkingen"),
+    ("S91", "Oslo Sans bygges inn som delmengde, som poppler ikke kan lese (#1670)", "server/brevpdf.ts",
+     "    delmengde: false,", "    delmengde: true,",
+     "byggherrens brev har Oslo Sans som OpenType med like mange glyfer"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

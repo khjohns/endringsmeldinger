@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
+import fontkit from '@pdf-lib/fontkit';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
 import { createHash } from 'node:crypto';
@@ -491,7 +492,7 @@ describe('brevprofilen fryser skriften og logoen med brevet (#1177, LV-U26)', ()
     expect(brevprofil('BH')).toEqual({
       skrift: 'osloSans',
       filer: {
-        'OsloSans-Regular.woff2': sum(`${PAKKE}fonts/OsloSans-Regular.woff2`),
+        'OsloSans-Regular.woff': sum(`${PAKKE}fonts/OsloSans-Regular.woff`),
         'NotoSans-Regular.ttf': sum('../skrift/NotoSans-Regular.ttf'),
         'NotoSansMath-Regular.ttf': sum('../skrift/NotoSansMath-Regular.ttf'),
         'oslologo.svg': sum(`${PAKKE}logos/oslologo.svg`),
@@ -533,5 +534,28 @@ describe('brevprofilen fryser skriften og logoen med brevet (#1177, LV-U26)', ()
     await expect(
       brevdokument({ ...o, brev: { ...o.brev, brevprofil: undefined } }, 'n')
     ).rejects.toThrow('ingen brevprofil');
+  });
+});
+
+describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
+  // Kilde: #1670. Delmengden fontkit lager av CFF-skriften, kan ikke leses av poppler, så
+  // byggherrens brev skal ha hele skriftprogrammet fra pakken, med alle glyfene.
+  it('byggherrens brev har Oslo Sans som OpenType med like mange glyfer som skriften i pakken', async () => {
+    const pdf = (await brevdokument(oppdrag([{ gjelder: 'a', laast: 'Æ, ø og å.' }], 'BH'), 'n'))
+      .innhold;
+    const programmer = [...latin1(pdf).matchAll(/\/FlateDecode[^]*?stream\r?\n([^]*?)endstream/g)]
+      .map((m) => inflateSync(Buffer.from(m[1], 'latin1')))
+      .filter((b) => b.subarray(0, 4).toString('latin1') === 'OTTO');
+    expect(programmer, 'ett skriftprogram i OpenType med CFF').toHaveLength(1);
+    const program = programmer[0];
+    const iPakken = fontkit.create(
+      readFileSync(
+        new URL(
+          '../../node_modules/@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff2',
+          import.meta.url
+        )
+      )
+    );
+    expect(fontkit.create(program).numGlyphs).toBe(iPakken.numGlyphs);
   });
 });
