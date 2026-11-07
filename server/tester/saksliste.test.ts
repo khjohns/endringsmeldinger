@@ -30,7 +30,7 @@ const UTDYPNING = 'Kravet gjelder den endrede fundamenteringen.';
 const KRAV_VEDERLAG = {
   type: 'krav',
   spor: 'vederlag',
-  innhold: { metode: 'tilbud', beloep: 100000 },
+  innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }] },
   utdypning: UTDYPNING,
 };
 const KRAV_FRIST = { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING };
@@ -86,7 +86,11 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
       underkategori: 'irregulaer_endring',
       forstaatt: true,
       saksbetegnelse: null,
-      vederlag: { krav: { beloep: 100000, metode: 'tilbud' }, svar: null, venter_paa_svar: true },
+      vederlag: {
+        krav: { beloep: 100000, oppgjoersformer: ['tilbud'] },
+        svar: null,
+        venter_paa_svar: true,
+      },
       frist: { krav: { dager: 20 }, svar: null, venter_paa_svar: true },
     });
     expect(Date.parse(linje.siste_hendelse)).toBeGreaterThanOrEqual(Date.parse(linje.opprettet));

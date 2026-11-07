@@ -36,7 +36,7 @@ const OPPRETT = { type: 'opprett_sak', sakstittel: 'Endret fundamentering' };
 const VEDERLAGSKRAV = {
   type: 'krav',
   spor: 'vederlag',
-  innhold: { metode: 'tilbud', beloep: 1000 },
+  innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 1000 }] },
 };
 
 describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => {
