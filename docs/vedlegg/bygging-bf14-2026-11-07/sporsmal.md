@@ -106,4 +106,32 @@ NS 8407 punkt 30 og 34, Del II nr. 39 og samlevedtaket for vederlagsmetoden. Ret
 - **Spørsmål 6.** Tre oppgjørsformer og et eget felt for justerte enhetspriser, `hjemmel` og
   `gjelder` i standpunktene, og et eget felt for trekket.
 
+## Svar fra oppdragsgiver 07.11
+
+Videresendt av orkestratoren, ordrett. Om innspillene fra orkestratoren: «Enig i din vurdering. Men: 3. Løsning vet selv om varselet er sendt i løsningen, og hvis ikke blir varsel dato når TE sender varsel og evt krav i løsning, eller iht oppgitt dato i registrert brev.» Deretter: «3: ja, det er jo klart at å sende krav også må regnes som varsel, hvis dette ikke tidligere er sendt.  Sammenfall: prinsipielt enig med deg. Men løsningen tolker ikke rettsvirkninger. BH eller TE kan ha gitt uttrykkelig forbehold, noe løsningen ikke vet. Appen kan da ikke stenge for handlinger. Partene er selv ansvarlig for å sine rettigheter og plikter»
+
+- **1:** Svaret passer ikke rett på A eller B. Oppfølgingsspørsmål 7 og 8 under.
+- **2:** A, foreløpig. «Enig i din vurdering» gjelder innspillet fra orkestratoren, som tilsvarer A. Bekreftes mot teksten i fila.
+- **3:** A.
+- **4:** Ikke besvart.
+- **5:** A, foreløpig, som 2.
+- **6:** Ikke besvart.
+
+## Oppfølgingsspørsmål etter svaret om sammenfall
+
+**7. Hva registrert enighet om en kravpost gjør, når løsningen ikke stenger handlinger.**
+Bakgrunn: Oppdragsgiver er prinsipielt enig i enighet per kravpost, men skriver: «løsningen tolker ikke rettsvirkninger. BH eller TE kan ha gitt uttrykkelig forbehold, noe løsningen ikke vet. Appen kan da ikke stenge for handlinger.» Samlevedtaket for vederlagsmetoden punkt 16 sier alt for beregningsregelen: «Fram til endringsordren kan TE også sende en ny kravversjon og byggherren et nytt svar etter at løsningen har registrert enighet om regelen. Visningen viser at det nye avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten står (MM-U50).»
+- A: Løsningen registrerer enighet om en kravpost uten TEs aksept etter alternativ B i spørsmål 1, men enigheten stenger ingen handlinger for posten. TE kan ta posten med, også endret, i en ny kravversjon, og byggherren kan svare på nytt på den. Visningen viser at det nye avviker fra den registrerte enigheten, og løsningen avgjør ikke om enigheten står (MM-U50). Forhold: presiserer HF-U9 og GR-U7 (sammenfall per kravpost), og utvider samlevedtaket for vederlagsmetoden punkt 16 fra beregningsregelen til beløpet i en kravpost med fast sum.
+- B: Løsningen registrerer enighet uten TEs aksept bare når hele vederlagskravet faller sammen (alternativ A i spørsmål 1), og enigheten stenger ingen handlinger, som i A. Forhold: snevrer inn HF-U9 og KA-U63, som alternativ A i spørsmål 1.
+- C: Løsningen registrerer ikke enighet om vederlagskravet uten TEs aksept. Når byggherrens standpunkt for en kravpost stemmer med kravet, viser løsningen det, men enigheten registreres først når TE godtar svaret. Forhold: endrer GR-U7 og HF-U9 for vederlagssporet, og KA-U63 (behandlingen blir ferdig bare etter en aksept).
+- Anbefalt: A. Den følger «prinsipielt enig» og «Appen kan da ikke stenge for handlinger», og den bruker regelen som alt står i punkt 16. C tar også bort sammenfallet for hele kravet, som GR-U7 har i dag, og det har oppdragsgiver ikke sagt.
+- Styrer: når en kravpost vises som avtalt, og at kjernen ikke avviser en ny kravversjon eller et nytt svar for posten.
+
+**8. Om «Appen kan da ikke stenge for handlinger» gjelder sperrene ellers.**
+Bakgrunn: Svaret gjaldt sammenfall i spørsmål 1. Flere gjeldende vedtak stenger i dag en handling når løsningen har registrert enighet eller sammenfall. Listen står under «Sperrene som bygger på registrert enighet».
+- A: Prinsippet gjelder enigheten om kravpostene i vederlagssporet (spørsmål 7). De andre sperrene står til de tas opp hver for seg. Forhold: ingen.
+- B: Prinsippet gjelder alle handlinger: løsningen stenger ingen handling fordi den har registrert enighet eller sammenfall, og sperrene i listen oppheves. Forhold: endrer eller opphever vedtakene i listen.
+- Anbefalt: A. Spørsmålet gjelder sammenfall per kravpost, og B endrer vedtak oppdragsgiver ikke har tatt stilling til i dette svaret. B bør stilles som eget spørsmål om oppdragsgiver vil det.
+- Styrer: om sperrene i listen bygges videre i kjernen.
+
 ## Svar
