@@ -15442,6 +15442,122 @@ tekst = '''
 Drift fører stillingen for begge sider.'''
 
 [[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["lv-u15", "lv-u23"]
+id = "LV-U66"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+1. Hvem skriver under for TE?'''
+valgt = "A"
+svar = '''
+«A,A,A».'''
+forhold = [{ art = "utvider", vedtak = "lv-u25" }]
+folge = '''
+Svaret gjelder spørsmål 1, 2 og 3 om underskriften på #1173 (kommentaren 6711261001), i den rekkefølgen. Spørsmålene og alternativene står ordrett der. De følger opp tillegget fra oppdragsgiver på #1173 (kommentaren 6710825836). Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+én eller flere, slik TE selv velger.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+alltid én.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+forkastet = true
+tekst = '''
+to, som hos BH.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u15", "lv-u23"]
+id = "LV-U67"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+2. Hvor kommer underskriverne hos BH fra?'''
+valgt = "A"
+svar = '''
+«A,A,A».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u15" }]
+folge = '''
+Svaret gjelder spørsmål 1, 2 og 3 om underskriften på #1173 (kommentaren 6711261001), i den rekkefølgen. Spørsmålene og alternativene står ordrett der. Tillegget fra oppdragsgiver til svaret som ble LV-U64, står ordrett på #1173 (kommentaren 6710825836): «Ett unntal til: i hvert fall BH har som hovedregel underskrift at to personer - typisk prosjektleder med navn og fullmaktshaver med navn». Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+fra godkjenningsflyten. Saksbehandleren og den som godkjenner skriver under med navn og stilling, slik godkjenningen faktisk ble gjort.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+brukeren velger dem fritt i skjemaet.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u15", "lv-u23"]
+id = "LV-U68"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+3. Hva betyr «hovedregel»?'''
+valgt = "A"
+svar = '''
+«A,A,A».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u15" }]
+folge = '''
+Svaret gjelder spørsmål 1, 2 og 3 om underskriften på #1173 (kommentaren 6711261001), i den rekkefølgen. Spørsmålene og alternativene står ordrett der. «Hovedregel» er ordet i tillegget fra oppdragsgiver på #1173 (kommentaren 6710825836). Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+brevet kan ha én eller to underskrivere. To er det vanlige for BH, men ikke et krav som stopper sendingen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+BHs brev kan ikke sendes med færre enn to underskrivere.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u23"]
+id = "LV-U69"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+LV-U64: hele brevhodet fryses i journalen, og invarianten om aktor_id får et unntak for brevhodet. LV-U23: signaturene er en del av hodet. Skal navnene til underskriverne (TE: én eller flere; BH: fra godkjenningsflyten, LV-U66–68) også fryses i journalen sammen med hodet, og dekkes av det samme unntaket i AGENTS.md (#1667)?'''
+valgt = "Ja, fryses med hodet"
+svar = '''
+«Ja, fryses med hodet».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u64" }]
+folge = '''
+Spørsmålet ble stilt med spørsmålsverktøyet etter kontrollen av #1669. Spørsmålet, alternativene og svaret står ordrett på #1173 (kommentaren 6711459770). Alternativet «Nei, slås opp ved visning» er ikke ført som forkastet, fordi teksten har et kodenavn som orkestratoren skrev inn, og som vedtaksfila ikke tar. Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, fryses med hodet"
+tekst = '''
+Navnene i underskriften lagres i journalen som en del av hodet. Unntaket i AGENTS.md viser til LV-U64 og LV-U67. Brevet viser da det samme som da det ble sendt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, slås opp ved visning"
+tekst = '''
+Journalen har bare aktor_id for underskriverne, og navnene slås opp når brevet vises. Unntaket gjelder bare hodet uten underskriften.'''
+
+[[gruppe.vedtak]]
 klasse = "vedtak"
 id = "LV-U27"
 dato = 2026-10-22
