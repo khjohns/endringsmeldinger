@@ -588,5 +588,21 @@ describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
     let sum = 0;
     for (let i = 0; i < program.length; i += 4) sum = (sum + program.readUInt32BE(i)) >>> 0;
     expect(sum.toString(16)).toBe('b1b0afba');
+    // Bare checkSumAdjustment, bytene 8–11 i head, skal skille seg fra head-tabellen i woff-fila.
+    const tabell = (b: Buffer, katalog: number, post: number, antall: number, merke: string) => {
+      for (let i = 0; i < antall; i++)
+        if (b.toString('latin1', katalog + post * i, katalog + post * i + 4) === merke) return i;
+      throw new Error(`ingen ${merke}`);
+    };
+    const iProgram = tabell(program, 12, 16, program.readUInt16BE(4), 'head');
+    const fraProgram = program.readUInt32BE(12 + 16 * iProgram + 8);
+    const headIProgram = program.subarray(fraProgram, fraProgram + 54);
+    const iWoff = tabell(woff, 44, 20, woff.readUInt16BE(12), 'head');
+    const [fra, lengde, utpakket] = [4, 8, 12].map((d) => woff.readUInt32BE(44 + 20 * iWoff + d));
+    const pakket = woff.subarray(fra, fra + lengde);
+    const headIWoff = lengde < utpakket ? inflateSync(pakket) : pakket;
+    expect(headIProgram.subarray(0, 8)).toEqual(headIWoff.subarray(0, 8));
+    expect(headIProgram.subarray(12, 54)).toEqual(headIWoff.subarray(12, 54));
+    expect(headIProgram.readUInt32BE(8)).not.toBe(headIWoff.readUInt32BE(8));
   });
 });

@@ -237,7 +237,8 @@ export function fraWoff(woff: Uint8Array): Uint8Array {
   });
   // Katalogen har nye posisjoner, så summen for hele skriften i `head` regnes på nytt.
   const head = tabeller.findIndex((t) => t.merke === 0x68656164);
-  if (head < 0) throw new Error('skriftfila har ingen head-tabell');
+  if (head < 0 || tabeller[head].data.length < 54)
+    throw new Error('skriftfila har ingen hel head-tabell');
   const justering = u.getUint32(20 + 16 * head) + 8;
   u.setUint32(justering, 0);
   let sum = 0;
