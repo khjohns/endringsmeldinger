@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
-import fontkit from '@pdf-lib/fontkit';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
 import {
@@ -402,20 +401,13 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
   });
 
   it('gjengir hvert tegn med delt glyf i Source Serif 4 tro når brevet ikke har et lavere tegn med glyfen (#1661)', async () => {
-    const skrift = fontkit.create(
-      readFileSync(new URL('../skrift/SourceSerif4-Regular.ttf', import.meta.url))
-    );
-    const perGlyf = new Map<number, number[]>();
-    for (const kode of [...skrift.characterSet].sort((a, b) => a - b)) {
-      if (tegnSomIkkeKanVises(String.fromCodePoint(kode), 'x') !== null) continue;
-      const glyf = skrift.glyphForCodePoint(kode).id;
-      perGlyf.set(glyf, [...(perGlyf.get(glyf) ?? []), kode]);
-    }
-    const delte = [...perGlyf.values()].filter((k) => k.length > 1);
-    expect(delte, 'forutsetningen: apostrofen deler glyf med U+02BC').toContainEqual([
-      0x2bc, 0x2019,
-    ]);
-    for (const kode of delte.flatMap((k) => k.slice(1))) {
+    // De høyere kodepunktene i gruppene med delt glyf i Source Serif 4: U+0020/U+00A0,
+    // U+002D/U+00AD/U+2010/U+2011, U+00B5/U+03BC, U+02BB/U+2018, U+02BC/U+2019,
+    // U+0394/U+2206, U+03A9/U+2126, U+2009/U+202F og U+2044/U+2215.
+    const delte = [
+      0xa0, 0xad, 0x2010, 0x2011, 0x3bc, 0x2018, 0x2019, 0x2206, 0x2126, 0x202f, 0x2215,
+    ];
+    for (const kode of delte) {
       const tekst = `a${String.fromCodePoint(kode)}b`;
       const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
       expect(lesBrevPdf(pdf), `U+${kode.toString(16)}`).toBe(tekst);
@@ -426,6 +418,9 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
     const tekst = 'TE\u2019s og \u02bcokina\u02bc, \u2018a\u2019 og \u02bbb.';
     const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
     expect(lesBrevPdf(pdf)).toBe(tekst);
+    expect(latin1(pdf), 'forutsetningen: Source Serif 4 deler glyfen').toMatch(
+      /\/BaseFont \/NotoSans-Regular-/
+    );
   });
 
   it('avviser en avsender uten brevskrift', async () => {
