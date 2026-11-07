@@ -109,7 +109,6 @@
     background: var(--surface);
     border: var(--rule);
     border-radius: var(--r-kort);
-    --hodeskrift: var(--font-sans);
     font-family: var(--font-brev);
     font-size: 16px;
     color: var(--ink);
@@ -117,7 +116,6 @@
   }
   /* Oslo Sans i 11 pt har samme x-høyde som Source Serif 4 i 16 px (system.md, «Typografi»). */
   .brev.bh {
-    --hodeskrift: var(--font-brev-bh);
     font-family: var(--font-brev-bh);
     font-size: 11pt;
   }
@@ -135,7 +133,6 @@
     border-bottom: var(--rule);
   }
   .topp {
-    font-family: var(--hodeskrift);
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -155,6 +152,7 @@
     font-size: 12px;
   }
   .stempel {
+    font-family: var(--font-sans);
     padding: 2px var(--spacing-2);
     border: 1px solid var(--ink);
     border-radius: var(--r-merke);
@@ -168,8 +166,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(7rem, auto));
     gap: 2px 20px;
-    font-family: var(--hodeskrift);
     font-size: 12px;
+    font-variant-numeric: tabular-nums;
   }
   .ref dt {
     color: var(--ink-3);

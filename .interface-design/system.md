@@ -85,15 +85,20 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
 - `--font-sans` (Inter) for grensesnittet, 14 px med linjehøyde 1,5 som grunnlag. Inter
   lastes med optisk størrelse, så overskriftene strammes av seg selv. Overskriftene på 20 og
   24 px har i tillegg `--sperring-20` og `--sperring-24`, og vekten 600.
-- **Tall i Inter med `tabular-nums`**: beløp, dager, datoer og ID-er står under hverandre
-  og flytter seg ikke. Varden bruker ikke en egen tallskrift.
-- **Brevskriften følger avsenderen**, så partenes brev skiller seg fra appen og fra hverandre:
-  - Byggherrens brev står i Oslo Sans (`--font-brev-bh`), hodet også, i 11 pt. Det er
+- **Tall i Inter med `tabular-nums`**: beløp, dager, datoer og ID-er i grensesnittet står
+  under hverandre og flytter seg ikke. I brevet står de i brevskriften, også med
+  `tabular-nums`. Varden bruker ikke en egen tallskrift.
+- **Brevskriften følger avsenderen**, så partenes brev skiller seg fra appen og fra hverandre.
+  Hele brevet står i avsenderens skrift: avsender, mottaker, referanser, tittel og tekst, med
+  samme oppsett og vekter for begge parter. Stempelet «Sendt …» og linja under brevet er appens
+  og står i Inter (oppdragsgiver 07.11).
+  - Byggherrens brev står i Oslo Sans (`--font-brev-bh`) i 11 pt. Det er
     Oslo kommunes skrift, og lisensen gjelder bare Oslo kommunes egen kommunikasjon. Den
     brukes derfor aldri i totalentreprenørens brev. Filene hentes fra
     `@oslokommune/punkt-assets` og sjekkes ikke inn.
-  - Totalentreprenørens brev står i Source Serif 4 (`--font-brev`) i 16 px, med hodet i
-    Inter.
+  - Totalentreprenørens brev står i Source Serif 4 (`--font-brev`) i 16 px.
+  - Tegn brevskriften mangler, står i Noto Sans og Noto Sans Math
+    ([LV-U26](../docs/plans/vedtak.md#lv-u26)).
   - Begge har linjehøyde 1,6. Oslo Sans i 11 pt, Source Serif 4 i 16 px og Inter i 14 px
     har nesten samme x-høyde (7,6–7,8 px), så brevene og grensesnittet ser like store ut.
   - PDF-en som sendes, skal ha samme skrift og størrelse som forhåndsvisningen (#1652).
