@@ -179,7 +179,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U15](../../plans/vedtak.md#ov-u15) | — | — | BF-14 |
 | [OV-U18](../../plans/vedtak.md#ov-u18) | — | — | BF-01V |
 | [OV-U20](../../plans/vedtak.md#ov-u20) | — | — | BF-01V |
-| [OV-U27](../../plans/vedtak.md#ov-u27) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — |
+| [OV-U27](../../plans/vedtak.md#ov-u27) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | BF-14 |
 | [OV-U28](../../plans/vedtak.md#ov-u28) | — | — | BF-01V |
 | [OV-U30](../../plans/vedtak.md#ov-u30) | — | — | BF-14 |
 | [OV-U31](../../plans/vedtak.md#ov-u31) | — | — | BF-14 |
