@@ -400,7 +400,7 @@ a.knapp,a.liten-knapp{text-decoration:none}
             <p><b>Byggherren har svart på kravet i brev 5</b> (brev 6, 27. oktober 2026). Byggherren godkjenner P1 med 190 000 kr og P3 med 120 000 kr, og godtar regningsarbeid for P2.</p>
             <ul>
               <li>Etter at den nye versjonen er sendt, kan svaret i brev 6 ikke godtas her. Brev 5 og 6 står som de ble sendt.</li>
-              <li data-spor="U-4 · D-4 · D-19">En kravpost du tar ut, trekkes uttrykkelig. Brevet sier det.</li>
+              <li data-spor="U-4 · D-4 · D-18">En kravpost du tar ut, trekkes uttrykkelig. Brevet sier det.</li>
             </ul>
             <div class="begr" data-begr="0" style="border-top:0;padding-top:0">
               <div class="begr-hode"><b>Ditt standpunkt til svaret i brev 6</b><span class="krav">Valgfritt</span></div>
@@ -515,7 +515,7 @@ a.knapp,a.liten-knapp{text-decoration:none}
               <fieldset class="oppgj kun-saerskilt" data-spor="D-13"><legend class="spm">Varselet om særskilt vederlagsjustering (punkt 34.1.3). Gjelder bare den særskilte posten.</legend><div class="valg kompakt"><label><input type="radio" name="bv2" value="tide" checked> Kom i tide</label><label><input type="radio" name="bv2" value="sent"> Kom for sent</label></div></fieldset>
               <p class="virkning" id="varselinfo" hidden></p>
             </section>
-            <div class="snarveier" data-spor="U-9 · D-18">
+            <div class="snarveier" data-spor="U-9 · D-17">
               <button class="liten-knapp" type="button" data-snarvei="form">Godta oppgjørsformen for alle postene</button>
               <button class="liten-knapp" type="button" data-snarvei="beloep">Godkjenn alle poster med fast sum som krevd</button>
             </div>
@@ -597,11 +597,11 @@ function postHtml(p, saerskilt) {
   const fast = `<div class="beloepfelt"><label for="b-${id}">Beløpet du krever</label><span class="hjelp">Eks. mva. Beløpet er et tilbud etter punkt 34.2.1, som byggherren kan akseptere.</span><span class="inndata"><input id="b-${id}" inputmode="decimal" data-felt="beloep" value="${p.beloep ? kr(p.beloep).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
   const ep = `<div class="underpunkt">
       <fieldset class="oppgj"><legend class="spm">Hvilke enhetspriser?</legend><div class="valg kompakt">${radio('ep-' + id, 'kontrakt', p.ep, 'Kontraktens enhetspriser (punkt 34.3.1)')}${radio('ep-' + id, 'justert', p.ep, 'Justerte enhetspriser (punkt 34.3.2)')}</div></fieldset>
-      ${p.ep === 'justert' ? `<fieldset class="oppgj"><legend class="spm">Varselet om justering av enhetsprisene (punkt 34.3.3)</legend><p class="oppgitt" data-spor="D-16">Kravet er også varselet om justering, datert den dagen du sender det, om du ikke har varslet før. Du kan også sende varselet for seg, før eller etter kravet.</p><span class="hjelp">Varsler du for sent, har du bare krav på den justeringen byggherren måtte forstå. Byggherren skal svare uten ugrunnet opphold.</span></fieldset>` : ''}
+      ${p.ep === 'justert' ? `<fieldset class="oppgj"><legend class="spm">Varselet om justering av enhetsprisene (punkt 34.3.3)</legend><p class="oppgitt" data-spor="D-16">Er varselet om justering ikke registrert i løsningen før, er kravet også varselet. Du kan også sende varselet alene, uten krav, eller registrere et brev sendt utenfor løsningen.</p><span class="hjelp">Varsler du for sent, har du bare krav på den justeringen byggherren måtte forstå. Byggherren skal svare uten ugrunnet opphold.</span></fieldset>` : ''}
       <div class="beloepfelt"><label for="a-${id}">Anslag (valgfritt)</label><span class="hjelp">Mengde × enhetspris. En opplysning, ikke et tilbud.</span><span class="inndata"><input id="a-${id}" inputmode="decimal" data-felt="anslag" value="${p.anslag ? kr(p.anslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>
       <p class="hjelp">Posten har ikke et krevd beløp. Oppgjøret skjer etter utførte mengder. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp</span></p></div>`;
   const reg = `<div class="underpunkt">
-      <div class="oppgj" data-spor="D-17"><p class="spm">Varsel før regningsarbeidet settes i gang (punkt 34.4)</p><p class="oppgitt">Har du ikke varslet fra løsningen før, er kravet varselet, datert den dagen du sender det. Du kan også sende varselet alene, uten krav.</p></div>
+      <div class="oppgj" data-spor="D-16"><p class="spm">Varsel før regningsarbeidet settes i gang (punkt 34.4)</p><p class="oppgitt">Er varselet ikke registrert i løsningen før, er kravet også varselet. Du kan også sende varselet alene, uten krav, eller registrere et brev sendt utenfor løsningen.</p></div>
       <div class="beloepfelt"><label for="o-${id}">Kostnadsoverslag (punkt 30.2) <span class="aapent" data-spor="S-2">Åpent: om det er påkrevd</span></label><span class="hjelp">En opplysning, ikke et tilbud. Ser det ut til å bli overskredet, skal du varsle byggherren.</span><span class="inndata"><input id="o-${id}" inputmode="decimal" data-felt="overslag" value="${p.overslag ? kr(p.overslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>
       <p class="hjelp">Posten har ikke et krevd beløp. Kostnadene og påslaget dekkes etter punkt 30.1. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp når arbeidet er utført</span></p></div>`;
   const fjern = tilstand === 'ny' && p.forrige
@@ -611,7 +611,7 @@ function postHtml(p, saerskilt) {
     <div class="post-hode"><span class="pid">${saerskilt ? 'Særskilt' : id}</span><input class="post-navn" data-felt="navn" aria-label="Beskrivelse av ${saerskilt ? 'den særskilte posten' : id}" value="${esc(p.navn)}" placeholder="Beskriv posten">${endret(p)}</div>
     <div class="felter" style="align-items:flex-end">
       <div class="beloepfelt" data-spor="U-3"><label for="pns-${id}">PNS (valgfri)</label><span class="inndata tekst" style="width:140px"><input id="pns-${id}" list="pns-liste" data-felt="pns" value="${esc(p.pns)}"></span></div>
-      <fieldset class="oppgj" data-spor="U-2 · D-2 · D-16"><legend>Oppgjørsform</legend><div class="valg kompakt">${radio('f-' + id, 'fast', p.form, 'Fast sum')}${radio('f-' + id, 'ep', p.form, 'Enhetspriser')}${radio('f-' + id, 'regning', p.form, 'Regningsarbeid')}</div></fieldset>
+      <fieldset class="oppgj" data-spor="U-2 · D-2"><legend>Oppgjørsform</legend><div class="valg kompakt">${radio('f-' + id, 'fast', p.form, 'Fast sum')}${radio('f-' + id, 'ep', p.form, 'Enhetspriser')}${radio('f-' + id, 'regning', p.form, 'Regningsarbeid')}</div></fieldset>
     </div>
     ${p.form === 'fast' ? fast : p.form === 'ep' ? ep : reg}
     <div class="begr" data-begr="${id}" data-post-begr>

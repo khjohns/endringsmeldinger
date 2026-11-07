@@ -117,3 +117,13 @@ Videresendt av orkestratoren, ordrett. Om innspillene fra orkestratoren: «Enig 
 - **4:** A. Oppdragsgiver 07.11, ordrett, videresendt av orkestratoren: «4A, 6A».
 - **5:** A. Svaret ordrett: «Enig i din vurdering». Orkestratoren vurderte at kravposten er varselet etter punkt 34.3.3, som er A. Bekreftet som for 2.
 - **6:** A. Ordrett som for 4: «4A, 6A».
+
+### Avklaringen om varslene i spørsmål 3 og 5
+
+Oppdragsgiver 07.11, ordrett, videresendt av orkestratoren: «Altså jeg blir litt forvirret i detaljene her. Prinsippet er enkelt: TE velger i skjema om han 1) kun varsler eller 2) sender krav og dermed også samtidig varsler vis varsel ikke tidligere er registrert i løsning. TE gis også mulighet til å oppgi dato ved å registrere brev sendt utenfor løsningen. Jeg ser ikke hvorfor vi trenger egne vedtak knyttet til hver beregningmetode?»
+
+Svar 3 og 5 føres derfor som ett prinsippvedtak. Orkestratoren skrev ordlyden i kontraktens begreper, og oppdragsgiver svarte 07.11, ordrett: «Ja, godtar ordlyden din». Ordlyden oppdragsgiver godtok:
+
+«Varselet etter punkt 34.3.3 første ledd og punkt 34.4: TE velger i skjemaet om TE bare varsler eller sender kravet. Sender TE kravet, regnes det også som varselet hvis et slikt varsel ikke er registrert i løsningen før. TE kan registrere et brev sendt utenfor løsningen med datoen for varselet. Byggherren kan svare på et varsel etter punkt 34.3.3 som står alene. Løsningen avgjør ikke om varselet kom i tide eller hvilken virkning et manglende eller sent varsel har.»
+
+Teksten for 3 A med tillegget og teksten for 5 A brukes ikke som vedtakstekst. Om spørsmål 2 svarte oppdragsgiver også, ordrett: «2A ok».

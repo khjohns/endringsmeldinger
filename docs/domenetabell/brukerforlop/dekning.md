@@ -234,4 +234,4 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U43](../../plans/vedtak.md#vs-u43) | BF-02A te-har-mottatt-svaret, BF-05 paaberopelsen-er-sendt | BF-02A te-har-mottatt-svaret | — |
 | [VS-U46](../../plans/vedtak.md#vs-u46) | BF-02A korrigeringen-er-sendt, BF-02D korrigeringen-er-sendt | BF-02A korrigeringen-er-sendt | — |
 | [VS-U47](../../plans/vedtak.md#vs-u47) | — | — | BF-14 |
-| [VS-U49](../../plans/vedtak.md#vs-u49) | — | — | BF-14 |
+| [VS-U48](../../plans/vedtak.md#vs-u48) | — | — | BF-14 |

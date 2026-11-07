@@ -118,7 +118,7 @@
     "HF-U28",
     "KA-U69",
     "KA-U70",
-    "VS-U49"
+    "VS-U48"
   ],
   "venter_paa": [
     "#1663",
@@ -144,7 +144,7 @@
     {
       "dato": "2026-11-07",
       "forhold": "#1663",
-      "hva": "Svarene før byggingen er ført inn: D-15 (KA-U69), D-16 (VS-U49), D-17 (svar 3 A), D-18 (HF-U28) og D-19 (KA-U70), «Ugyldig valg» etter svar 3 A, og prototypen uten «Mener fast sum» for en kravpost etter en beregningsregel og med krav om tilbud."
+      "hva": "Svarene før byggingen er ført inn: D-15 (KA-U69), D-16 (VS-U48), D-17 (HF-U28) og D-18 (KA-U70), «Ugyldig valg» etter VS-U48, og prototypen uten «Mener fast sum» for en kravpost etter en beregningsregel og med krav om tilbud."
     }
   ]
 }
