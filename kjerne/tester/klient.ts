@@ -11,6 +11,7 @@ import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
 import {
+  kanBesvaresMedEttBeloep,
   kravposterI,
   regnUtSvar,
   vederlagsposter,
@@ -155,7 +156,8 @@ function svarutkast(
   const v = vurderinger(spor, h, krav);
   let resultat: Record<string, unknown> = {};
   try {
-    if (krav)
+    // Et krav med flere kravposter kan ikke regnes ut med ett beløp; serveren avviser (KA-U59).
+    if (krav && (spor !== 'vederlag' || kanBesvaresMedEttBeloep(krav)))
       resultat = regnUtSvar(spor, v, { krav, paaberopelse: u.spor.forhold.gjeldendeKrav }, regler);
   } catch (feil) {
     // Klienten sender likevel, så serveren avviser med sin begrunnelse.
@@ -195,7 +197,23 @@ const INNHOLD = {
     };
   },
   // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, arbeidsvalget 07.11 i domenetabellen).
+  // `kravposter` og `trekker` i handlingen gir kravpostene selv; `post` er betegnelsen til
+  // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U70).
   vederlag: (h: Handling, u?: Utledning, nyId?: () => string) => {
+    if (Array.isArray(h.kravposter)) {
+      const tidligere = (u?.spor.vederlag.krav ?? []).flatMap((k) => kravposterI(k));
+      const idFor = (betegnelse: unknown) =>
+        tidligere.find((p) => p.betegnelse === betegnelse)?.id ?? 'ukjent-kravpost';
+      return {
+        kravposter: (h.kravposter as Record<string, unknown>[]).map((p) => ({
+          ...(typeof p.post === 'string' ? { id: idFor(p.post) } : {}),
+          beskrivelse: 'Kravposten i bevis-saken',
+          oppgjoersform: p.oppgjoersform ?? 'tilbud',
+          ...(p.belop === undefined ? {} : { beloep: p.belop }),
+        })),
+        ...(Array.isArray(h.trekker) ? { trekker: h.trekker.map(idFor) } : {}),
+      };
+    }
     const forrige = u?.spor.vederlag.gjeldendeKrav;
     const p1 = forrige ? kravposterI(forrige)[0] : undefined;
     const id = p1?.id ?? nyId?.();

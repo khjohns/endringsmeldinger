@@ -429,6 +429,8 @@ issuenummeret til et vedtak i 3.1.
 | KA-52 | Byggherren har registrert et brev sendt utenfor appen som dokumentasjon, med feil dato, mens grunnlagskravet venter på svar. Byggherren registrerer brevet på nytt med henvisning til den feil registreringen. TE forsøker å rette byggherrens registrering. | Rettingen lagres som en ny registrering, uten godkjenning, og den feil registreringen står i historikken som rettet ([OV-U17](../plans/vedtak.md#ov-u17)). Ved kravet vises bare den nye registreringen ([OV-U20](../plans/vedtak.md#ov-u20)). TE kan ikke rette byggherrens registrering, og en registrering som er rettet, rettes ikke igjen. | — | Appen vurderer ikke innholdet i brevet (OV-U4). | — | registrering | [OV-U17](../plans/vedtak.md#ov-u17), [OV-U4](../plans/vedtak.md#ov-u4), [OV-U20](../plans/vedtak.md#ov-u20) | avklart tolkning | F-MM-OV-U17-retting (målmodellen) | — |
 | KA-53 | Byggherren har registrert et brev i feil sak, mens grunnlagskravet venter på svar. Byggherren registrerer en retting som sier at brevet ikke hører til saken. | Før rettingen vises brevet ved kravet ([OV-U20](../plans/vedtak.md#ov-u20)), og saken har merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.» ([OV-U19](../plans/vedtak.md#ov-u19)). Etter rettingen vises brevet ikke ved kravet, merknaden er borte, og registreringen står i historikken som rettet ([OV-U18](../plans/vedtak.md#ov-u18)). | — | Appen vurderer ikke innholdet i brevet (OV-U4). | — | registrering | [OV-U18](../plans/vedtak.md#ov-u18), [OV-U19](../plans/vedtak.md#ov-u19), [OV-U20](../plans/vedtak.md#ov-u20), [OV-U4](../plans/vedtak.md#ov-u4) | avklart tolkning | F-MM-OV-U18-feil-sak (målmodellen) | — |
 | KA-54 | Byggherren vurderer en post i et positivt tilleggskrav som «delvis», men godkjenner hele det krevde beløpet eller 0 kr, prinsipalt eller subsidiært etter en påberopt preklusjon etter § 34.1.2. | Svaret avvises, fordi vurderingen motsier beløpet ([KA-U42](../plans/vedtak.md#ka-u42)). «Delvis» er mer enn 0 kr og mindre enn det krevde, sammenliknet i hele øre ([OV-U59](../plans/vedtak.md#ov-u59)), så 1 øre under det krevde godtas. Nullutfallet kjernen utleder av preklusjonen, kontrolleres ikke: «delvis» med et beløp i området godtas, og prinsipalt er utfallet 0 kr. | Beløpsvurderingen av posten, prinsipalt eller subsidiært. | Presiserer [KA-U9](../plans/vedtak.md#ka-u9). Avgjør ikke hva partene har avtalt. | — | registrering | [KA-U42](../plans/vedtak.md#ka-u42), [KA-U9](../plans/vedtak.md#ka-u9), [OV-U59](../plans/vedtak.md#ov-u59), [KA-U4](../plans/vedtak.md#ka-u4) | avklart tolkning | F-MM-KA-U42 (målmodellen) | — |
+| KA-55 | TE har sendt et vederlagskrav med kravposten P1. TE sender en ny kravversjon som verken tar med eller trekker P1, en som tar med P1, og en som trekker P1. Etter trekket sender TE en ny kravversjon som tar opp igjen P1. | En ny kravversjon tar med eller trekker uttrykkelig hver kravpost i forrige versjon ([KA-U56](../plans/vedtak.md#ka-u56)). Versjonen som verken tar med eller trekker P1, avvises; versjonen som tar med P1, og versjonen som trekker P1, godtas. En trukket kravpost kan ikke tas opp igjen i en ny kravversjon, og betegnelsen brukes ikke igjen ([KA-U70](../plans/vedtak.md#ka-u70), som utvider [KA-U51](../plans/vedtak.md#ka-u51) punkt 11). En ny kravpost tas imot med ny betegnelse. | — | Trekket er avkall på kravet i kravposten (KA-U56). Løsningen avgjør ikke om en ny kravpost gjelder det samme som den trukne (KA-U70). | — | registrering | [KA-U56](../plans/vedtak.md#ka-u56), [KA-U70](../plans/vedtak.md#ka-u70), [KA-U51](../plans/vedtak.md#ka-u51), [OV-U95](../plans/vedtak.md#ov-u95) | avklart tolkning | F-MM-KA-U56 (målmodellen), F-MM-KA-U70 (målmodellen) | — |
+| KA-56 | TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter. | Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. Til svaret per kravpost er bygget (#1663), avvises også et svar med ett beløp når den eneste kravposten gjøres opp etter en beregningsregel eller er rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket. | Beløpsvurderingen av vederlagskravet. | Avgjør ikke hva partene har avtalt. Samling av poster på tvers hører til endringsordren (KA-U59). | — | registrering | [KA-U59](../plans/vedtak.md#ka-u59), [OV-U95](../plans/vedtak.md#ov-u95) | avklart tolkning | F-MM-KA-U59 (målmodellen) | — |
 <!-- domenetabell:slutt -->
 
 ## Sporbarhet
@@ -477,6 +479,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `INGEN_KRAV` | — | Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `INGEN_KRAV_I_SPORET` | KA-31, VS-06 | — |
 | `INGEN_SVAR` | — | Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
+| `KRAVPOSTENE` | KA-55 | — |
 | `KRAV_I_SPORET` | KA-31 | — |
 | `KRAV_TRUKKET` | GR-09, GR-10, GR-11, GR-12, KA-39 | — |
 | `PAABEROPELSE_IKKE_SENDT` | KA-31, VS-06 | — |
@@ -484,6 +487,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `REGISTRERINGEN_ER_RETTET` | KA-52 | — |
 | `RETTER_IKKE_EN_REGISTRERING` | KA-52 | — |
 | `SAK_IKKE_FORSTAATT` | KA-24 | — |
+| `SVAR_PER_KRAVPOST` | KA-56 | — |
 | `TEKST_KAN_IKKE_LAGRES` | — | Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet. |
 | `UGYLDIG_FORM` | KA-28 | — |
 | `UGYLDIG_INNSIGELSE` | VS-01 | — |
@@ -552,6 +556,8 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | VS-07 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`nyttelastkontroll`](../../kjerne/kommandoer/nyttelast.ts) |
 | KA-50 | [`dokumentasjonIBrevet`](../../kjerne/utledning/utled.ts) |
 | KA-51 | [`tekstavvik`](../../kjerne/kommandoer/skriving.ts) |
+| KA-55 | [`kravposteneStrider`](../../kjerne/utledning/kravposter.ts) |
+| KA-56 | [`kanBesvaresMedEttBeloep`](../../kjerne/frosset/standpunkt.ts) |
 <!-- sporbarhet:slutt -->
 
 ## Formatet
