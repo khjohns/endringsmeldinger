@@ -303,7 +303,7 @@ FEILINNFOERINGER = [
      "binder det til påberopelsen og skriver varselet som versjon 3"),
     ("S79", "brevskriften setter et tegn med delt glyf, så myk bindestrek leses som bindestrek (#1658)",
      "server/brevpdf.ts",
-     "return (brukte ? alle.find((k) => k === kode || brukte.has(k)) : alle[0]) === kode;", "return true;",
+     "return (perBrev ? alle.find((k) => k === kode || brukte.has(k)) : alle[0]) === kode;", "return true;",
      "gjengir myk bindestrek, bindestrek, hardt mellomrom og → ≥ ≤ № tro med brevskriften sourceSerif4"),
     ("S80", "prøven av myk bindestrek setter glyfen i instansen PDF-en bruker (#1658)", "server/brevpdf.ts",
      "return medBindestrek(data);", "return proeve;",
@@ -316,7 +316,7 @@ FEILINNFOERINGER = [
      "setter byggherrens brev i Oslo Sans i 11 pt med linjehøyde 1,6"),
     ("S83", "brevskriften velger tegnet med delt glyf uten å se på brevet, så apostrofen settes med Noto Sans (#1661)",
      "server/brevpdf.ts",
-     "return (brukte ? alle.find((k) => k === kode || brukte.has(k)) : alle[0]) === kode;",
+     "return (perBrev ? alle.find((k) => k === kode || brukte.has(k)) : alle[0]) === kode;",
      "return alle[0] === kode;",
      "setter apostrofen og enkle anførselstegn med Source Serif 4"),
 ]

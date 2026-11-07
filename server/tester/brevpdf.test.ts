@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
+import fontkit from '@pdf-lib/fontkit';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
 import {
@@ -398,6 +399,27 @@ describe('brevskriften følger avsenderen (#1658)', () => {
     const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
     expect(lesBrevPdf(pdf)).toBe(tekst);
     expect(latin1(pdf)).not.toMatch(/\/BaseFont \/NotoSans/);
+  });
+
+  it('gjengir hvert tegn med delt glyf i Source Serif 4 tro når brevet ikke har et lavere tegn med glyfen (#1661)', async () => {
+    const skrift = fontkit.create(
+      readFileSync(new URL('../skrift/SourceSerif4-Regular.ttf', import.meta.url))
+    );
+    const perGlyf = new Map<number, number[]>();
+    for (const kode of [...skrift.characterSet].sort((a, b) => a - b)) {
+      if (tegnSomIkkeKanVises(String.fromCodePoint(kode), 'x') !== null) continue;
+      const glyf = skrift.glyphForCodePoint(kode).id;
+      perGlyf.set(glyf, [...(perGlyf.get(glyf) ?? []), kode]);
+    }
+    const delte = [...perGlyf.values()].filter((k) => k.length > 1);
+    expect(delte, 'forutsetningen: apostrofen deler glyf med U+02BC').toContainEqual([
+      0x2bc, 0x2019,
+    ]);
+    for (const kode of delte.flatMap((k) => k.slice(1))) {
+      const tekst = `a${String.fromCodePoint(kode)}b`;
+      const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+      expect(lesBrevPdf(pdf), `U+${kode.toString(16)}`).toBe(tekst);
+    }
   });
 
   it('gjengir apostrofen tro når brevet også har tegnet som deler glyfen (#1661)', async () => {

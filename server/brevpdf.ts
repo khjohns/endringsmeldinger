@@ -104,7 +104,9 @@ function reserver(): Skrift[] {
  * kodepunktet med glyfen blant tegnene brevet bruker. PDF-en gir en delt glyf tilbake som
  * det første tegnet brevet bruker den for (#801), så myk bindestrek med glyfen til
  * bindestrek ville blitt lest som bindestrek. Source Serif 4 deler også glyf mellom
- * U+02BC og apostrofen U+2019, så valget gjøres per brev (#1661).
+ * U+02BC og apostrofen U+2019, så valget gjøres per brev (#1661). Hardt mellomrom deler
+ * glyf med mellomrom og leses tilbake som mellomrom når brevskriften setter det, så for
+ * mellomrommene gjelder det laveste kodepunktet i skriften.
  */
 function brevskrift(navn: Skriftnavn): Skrift {
   const s = les(SKRIFTER[navn].fil());
@@ -120,7 +122,8 @@ function brevskrift(navn: Skriftnavn): Skrift {
     setter: (kode, brukte) => {
       if (!tillatt.has(kode) || !s.tegnsett.hasGlyphForCodePoint(kode)) return false;
       const alle = medGlyf.get(s.tegnsett.glyphForCodePoint(kode).id)!;
-      return (brukte ? alle.find((k) => k === kode || brukte.has(k)) : alle[0]) === kode;
+      const perBrev = brukte && !/\s/u.test(String.fromCodePoint(kode));
+      return (perBrev ? alle.find((k) => k === kode || brukte.has(k)) : alle[0]) === kode;
     },
   };
 }
@@ -144,7 +147,8 @@ export function skriftenesKodepunkter(): Set<number> {
 /**
  * Kodepunktene som deler glyf med et lavere kodepunkt i reserveskriften som setter dem. PDF-en
  * gir glyfen tilbake som det første av dem brevet bruker, så bare det laveste beholdes (#801).
- * Brevskriften setter bare det laveste kodepunktet med en glyf (`brevskrift`).
+ * Brevskriften setter bare det laveste kodepunktet med en glyf blant tegnene brevet bruker
+ * (`brevskrift`); de andre går til reserveskriftene.
  */
 export function kodepunkterMedDeltGlyf(): Set<number> {
   const perGlyf = new Map<string, number[]>();
