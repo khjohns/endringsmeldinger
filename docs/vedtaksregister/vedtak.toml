@@ -1182,7 +1182,7 @@ forhold = [
   { art = "bygger på", vedtak = "ka-u51" },
 ]
 folge = '''
-Utvider OV-U89 punkt 7 og OV-U73 til kravpostene, og bygger på KA-U51 punkt 2, fordi den faste betegnelsen gjør kravposten uttrykkelig identifisert. Hva beløpet i en kravpost etter en beregningsregel er, står i oppfølgingsspørsmål 14 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Utvider OV-U89 punkt 7 og OV-U73 til kravpostene, og bygger på KA-U51 punkt 2, fordi den faste betegnelsen gjør kravposten uttrykkelig identifisert. Hva beløpet i en kravpost etter en beregningsregel er, er stilt som oppfølgingsspørsmål 14 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1218,7 +1218,7 @@ forhold = [
   { art = "endrer", vedtak = "ov-u89" },
 ]
 folge = '''
-Endrer OV-U94 punkt 4, 13, 15 og 16 og OV-U89 punkt 26 og 27, som har én beregningsregel for hele kravet, til å gjelde per kravpost. MM-U33 har ingen setning om én beregningsregel. Hvordan punkt 13 og 15 gjelder når postene har ulik oppgjørsform, står i oppfølgingsspørsmål 11 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Endrer OV-U94 punkt 4, 13, 15 og 16 og OV-U89 punkt 26 og 27, som har én beregningsregel for hele kravet, til å gjelde per kravpost. MM-U33 har ingen setning om én beregningsregel. Hvordan punkt 13 og 15 gjelder når postene har ulik oppgjørsform, er stilt som oppfølgingsspørsmål 11 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1252,7 +1252,7 @@ valgt = "A"
 svar = '''
 Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Enig i alle anbefalinger unntatt at vi inkluderer alle beregningsmetoder nå. Det er nødvendig for å vurdere kompleksiteten og UX og design tilstrekkelig. Men kanskje en rask prototype før vi bygger varden komponentene ? Gjør det som er «billigst» og enkelt å iterere på.» Valgt i spørsmål 3: A.'''
 folge = '''
-Ingen vedtak omtaler PNS. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 fant ingen vedtak som omtaler PNS (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1332,7 +1332,7 @@ forhold = [
   { art = "presiserer", vedtak = "ov-u73" },
 ]
 folge = '''
-(a) bygger på OV-U89 punkt 11 og (b) på punkt 9. (d) utvider OV-U94 punkt 5 og 8. (e) presiserer OV-U73. Lagene for varselet etter punkt 34.3.3 og 34.4 står i oppfølgingsspørsmål 12 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+(a) bygger på OV-U89 punkt 11 og (b) på punkt 9. (d) utvider OV-U94 punkt 5 og 8. (e) presiserer OV-U73. Lagene for varselet etter punkt 34.3.3 og 34.4 er stilt som oppfølgingsspørsmål 12 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1406,7 +1406,7 @@ forhold = [
   { art = "presiserer", vedtak = "mm-u33" },
 ]
 folge = '''
-Bygger på EO-U38 punkt 23 og presiserer MM-U33 punkt 5: om svaret stemmer med kravet, vurderes per kravpost. Hva «post» i EO-U38 punkt 23 betyr med kravposter, står i oppfølgingsspørsmål 15 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Bygger på EO-U38 punkt 23 og presiserer MM-U33 punkt 5: om svaret stemmer med kravet, vurderes per kravpost. Hva «post» i EO-U38 punkt 23 betyr med kravposter, er stilt som oppfølgingsspørsmål 15 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1435,7 +1435,7 @@ forhold = [
   { art = "endrer", vedtak = "ov-u89" },
 ]
 folge = '''
-Endrer OV-U94 punkt 8 og OV-U89 punkt 12: standpunktet til oppgjørsformen får et eget lag foran beløpet. Svarer delvis på #1290 punkt 6. Varslene etter punkt 34.3.3 og 34.4 står i oppfølgingsspørsmål 12 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Endrer OV-U94 punkt 8 og OV-U89 punkt 12: standpunktet til oppgjørsformen får et eget lag foran beløpet. Svarer delvis på #1290 punkt 6. Varslene etter punkt 34.3.3 og 34.4 er stilt som oppfølgingsspørsmål 12 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1458,7 +1458,7 @@ forhold = [
   { art = "endrer", vedtak = "ov-u94" },
 ]
 folge = '''
-Endrer OV-U94 punkt 4: den vedtatte ordlyden for hele kravet erstattes av prinsippet, og ordlyden står i bestillingen for BF-14 (#1663). Endret tekst gjelder bare nye brev (MM-U9). Om den særskilte vederlagsjusteringen og rigg og drift nevnes, står i oppfølgingsspørsmål 13 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Endrer OV-U94 punkt 4: den vedtatte ordlyden erstattes av prinsippet, og ordlyden er design. Endret tekst gjelder bare nye brev (MM-U9), slik punkt 4 sier. Om den særskilte vederlagsjusteringen og rigg og drift nevnes, er stilt som oppfølgingsspørsmål 13 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1481,11 +1481,8 @@ Spørsmål 8 ordrett slik det ble stilt 07.11 i [spørsmålsfila](../vedlegg/ved
 valgt = "C"
 svar = '''
 Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Enig i alle anbefalinger unntatt at vi inkluderer alle beregningsmetoder nå. Det er nødvendig for å vurdere kompleksiteten og UX og design tilstrekkelig. Men kanskje en rask prototype før vi bygger varden komponentene ? Gjør det som er «billigst» og enkelt å iterere på.» Svaret er med egne ord og ført som alternativ C.'''
-forhold = [
-  { art = "endrer", vedtak = "ov-u94" },
-]
 folge = '''
-Endrer beslutningsdelen i OV-U94, der justering etter punkt 34.3.2 og 34.3.3 venter til en senere versjon. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Tar alle beregningsmetodene med i forløpet og prototypen, også justerte enhetspriser etter punkt 34.3.2 og varsel etter punkt 34.3.3, som beslutningsdelen i OV-U94 avviser i første versjon. Svaret sier ikke om løsningen skal ta imot dem i første versjon (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
