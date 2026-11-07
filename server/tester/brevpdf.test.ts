@@ -9,7 +9,10 @@ import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
+import { createHash } from 'node:crypto';
 import {
+  brevprofil,
+  fraWoff,
   lesBrevPdf,
   settBrevPdf,
   skriftFor,
@@ -28,6 +31,7 @@ const oppdrag = (brevtekst: Avsnitt[] | null, part: 'TE' | 'BH' = 'TE') => ({
     avsender: { part },
     brevtekst,
     merking: brevtekst ? 'K201-KOE-005-03' : null,
+    brevprofil: brevtekst ? brevprofil(part) : null,
   },
   dokument: brevtekst ? { noekkel: 'noekkel-1', filnavn: 'K201-KOE-005-03.pdf' } : null,
 });
@@ -280,7 +284,7 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
         expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
       const tekst = linjer.join('\n');
       const tilbake = lesBrevPdf(
-        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift)
+        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift, false)
       ).split('\n');
       expect(tilbake.length, 'like mange linjer tilbake').toBe(linjer.length);
       expect(tilbake.filter((l, i) => l !== linjer[i])).toEqual([]);
@@ -313,7 +317,7 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
       for (const linje of linjer) expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
       const tekst = linjer.join('\n');
       const tilbake = lesBrevPdf(
-        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift)
+        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift, false)
       ).split('\n');
       expect(tilbake).toEqual(linjer);
     }
@@ -387,7 +391,7 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
   it.each(skriftnavn)(
     'gjengir myk bindestrek, bindestrek, hardt mellomrom og → ≥ ≤ № tro med brevskriften %s',
     async (brevskrift) => {
-      const pdf = await settBrevPdf(linje, 'x', new Date(TIDSSTEMPEL), brevskrift);
+      const pdf = await settBrevPdf(linje, 'x', new Date(TIDSSTEMPEL), brevskrift, false);
       expect(lesBrevPdf(pdf)).toBe(linje);
     }
   );
@@ -395,7 +399,7 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
   it('setter apostrofen og enkle anførselstegn med Source Serif 4 når brevet ikke har tegnet som deler glyfen (#1661)', async () => {
     // Source Serif 4 har samme glyf for U+2019 og U+02BC, og for U+2018 og U+02BB.
     const tekst = 'TE\u2019s krav om \u2018tillegg\u2019.';
-    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4', false);
     expect(lesBrevPdf(pdf)).toBe(tekst);
     expect(latin1(pdf)).not.toMatch(/\/BaseFont \/NotoSans/);
   });
@@ -409,14 +413,14 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
     ];
     for (const kode of delte) {
       const tekst = `a${String.fromCodePoint(kode)}b`;
-      const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+      const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4', false);
       expect(lesBrevPdf(pdf), `U+${kode.toString(16)}`).toBe(tekst);
     }
   });
 
   it('gjengir apostrofen tro når brevet også har tegnet som deler glyfen (#1661)', async () => {
     const tekst = 'TE\u2019s og \u02bcokina\u02bc, \u2018a\u2019 og \u02bbb.';
-    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4', false);
     expect(lesBrevPdf(pdf)).toBe(tekst);
     expect(latin1(pdf), 'forutsetningen: Source Serif 4 deler glyfen').toMatch(
       /\/BaseFont \/NotoSans-Regular-/
@@ -427,5 +431,177 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
     await expect(
       skrivBrevPdf('Tekst.', 'x', new Date(TIDSSTEMPEL), 'EO' as unknown as 'TE')
     ).rejects.toThrow('avsenderen EO');
+  });
+});
+
+describe('logoen følger avsenderen (#1177, LV-U25, LV-U26)', () => {
+  const tekst: Avsnitt[] = [{ gjelder: 'a', laast: 'Første linje.' }];
+  const sideinnhold = (pdf: Uint8Array) =>
+    [...latin1(pdf).matchAll(/\/FlateDecode[^]*?stream\r?\n([^]*?)endstream/g)]
+      .map((m) => {
+        try {
+          return inflateSync(Buffer.from(m[1], 'latin1')).toString('latin1');
+        } catch {
+          return '';
+        }
+      })
+      .join('\n');
+  /** Elementene i SVG-en i pakken som fylles: stiene og rektangelet. */
+  const svg = readFileSync(
+    new URL(
+      '../../node_modules/@oslokommune/punkt-assets/dist/logos/oslologo.svg',
+      import.meta.url
+    ),
+    'utf8'
+  );
+  const elementer = (svg.match(/<(path|rect)\b/g) ?? []).length;
+
+  it('setter Oslo kommunes logo fra pakken i byggherrens brev, i fargen fra SVG-en, over teksten', async () => {
+    const pdf = (await brevdokument(oppdrag(tekst, 'BH'), 'n')).innhold;
+    const innhold = sideinnhold(pdf);
+    expect(elementer, 'forutsetningen: SVG-en har stier').toBeGreaterThan(1);
+    expect((innhold.match(/^f\*$/gm) ?? []).length).toBe(elementer);
+    const [r, g, b] = /([\d.]+) ([\d.]+) ([\d.]+) rg/.exec(innhold)!.slice(1).map(Number);
+    expect([r * 255, g * 255, b * 255].map(Math.round)).toEqual([0x2a, 0x28, 0x59]);
+    const foersteLinje = Number(/(-?[\d.]+) Tm/.exec(innhold)![1]);
+    const logoensTopp = Number(/^1 0 0 1 [\d.]+ ([\d.]+) cm$/m.exec(innhold)![1]);
+    const skala = Number(/^([\d.]+) 0 0 -[\d.]+ 0 0 cm$/m.exec(innhold)![1]);
+    const hoeydeISvg = Number(/viewBox="0 0 [\d.]+ ([\d.]+)"/.exec(svg)![1]);
+    expect(foersteLinje).toBeLessThan(logoensTopp - skala * hoeydeISvg);
+    expect(gjengirTro(lesBrevPdf(pdf), tekst)).toBe(true);
+  });
+
+  it('setter ingen logo i totalentreprenørens brev', async () => {
+    const pdf = (await brevdokument(oppdrag(tekst, 'TE'), 'n')).innhold;
+    expect(sideinnhold(pdf)).not.toMatch(/^f\*?$/m);
+  });
+});
+
+describe('brevprofilen fryser skriften og logoen med brevet (#1177, LV-U26)', () => {
+  // Kilde: LV-U26, «skriften og logoen … fryses med brevet, så den nedlastede PDF-en blir
+  // lik den leverte», og oppdragsgiver 07.11 i #1177: navn og sha256 for hver fil, og
+  // fail-closed ved avvik eller når profilen mangler.
+  const tekst: Avsnitt[] = [{ gjelder: 'a', laast: 'Første linje.' }];
+  const sum = (sti: string) =>
+    createHash('sha256')
+      .update(readFileSync(new URL(sti, import.meta.url)))
+      .digest('hex');
+  const PAKKE = '../../node_modules/@oslokommune/punkt-assets/dist/';
+
+  it('byggherrens profil har Oslo Sans, reserveskriftene og logoen fra pakken, med summen av filene', () => {
+    expect(brevprofil('BH')).toEqual({
+      skrift: 'osloSans',
+      filer: {
+        'OsloSans-Regular.woff': sum(`${PAKKE}fonts/OsloSans-Regular.woff`),
+        'NotoSans-Regular.ttf': sum('../skrift/NotoSans-Regular.ttf'),
+        'NotoSansMath-Regular.ttf': sum('../skrift/NotoSansMath-Regular.ttf'),
+        'oslologo.svg': sum(`${PAKKE}logos/oslologo.svg`),
+      },
+    });
+  });
+
+  it('totalentreprenørens profil har Source Serif 4 og reserveskriftene, uten logo', () => {
+    expect(brevprofil('TE')).toEqual({
+      skrift: 'sourceSerif4',
+      filer: {
+        'SourceSerif4-Regular.ttf': sum('../skrift/SourceSerif4-Regular.ttf'),
+        'NotoSans-Regular.ttf': sum('../skrift/NotoSans-Regular.ttf'),
+        'NotoSansMath-Regular.ttf': sum('../skrift/NotoSansMath-Regular.ttf'),
+      },
+    });
+  });
+
+  it('lager ikke PDF-en når en fil har en annen sum enn den brevet ble sendt med', async () => {
+    const o = oppdrag(tekst, 'BH');
+    const profil = brevprofil('BH');
+    const endret = { ...profil, filer: { ...profil.filer, 'oslologo.svg': '0'.repeat(64) } };
+    const feil = await brevdokument({ ...o, brev: { ...o.brev, brevprofil: endret } }, 'n').catch(
+      (f: unknown) => f
+    );
+    expect(feil).toBeInstanceOf(UgjengivbartBrev);
+    expect((feil as Error).message).toContain('endret siden brevet ble sendt');
+  });
+
+  it('lager ikke PDF-en når brevet ble sendt med en annen brevskrift', async () => {
+    const o = oppdrag(tekst, 'BH');
+    await expect(
+      brevdokument({ ...o, brev: { ...o.brev, brevprofil: brevprofil('TE') } }, 'n')
+    ).rejects.toBeInstanceOf(UgjengivbartBrev);
+  });
+
+  it('lager ikke PDF-en av et oppdrag uten brevprofil', async () => {
+    const o = oppdrag(tekst, 'BH');
+    await expect(
+      brevdokument({ ...o, brev: { ...o.brev, brevprofil: undefined } }, 'n')
+    ).rejects.toThrow('ingen brevprofil');
+  });
+});
+
+describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
+  /** `numGlyphs` i `maxp`, fra tabellkatalogen i et skriftprogram (OpenType). */
+  const glyferISfnt = (b: Buffer) => {
+    for (let i = 0; i < b.readUInt16BE(4); i++)
+      if (b.toString('latin1', 12 + 16 * i, 16 + 16 * i) === 'maxp')
+        return b.readUInt16BE(b.readUInt32BE(20 + 16 * i) + 4);
+    throw new Error('skriftprogrammet har ingen maxp');
+  };
+  /** `numGlyphs` i `maxp`, fra tabellkatalogen i en woff-fil (WOFF 1.0). */
+  const glyferIWoff = (b: Buffer) => {
+    for (let i = 0; i < b.readUInt16BE(12); i++)
+      if (b.toString('latin1', 44 + 20 * i, 48 + 20 * i) === 'maxp') {
+        const [fra, lengde, utpakket] = [4, 8, 12].map((d) => b.readUInt32BE(44 + 20 * i + d));
+        const tabell = b.subarray(fra, fra + lengde);
+        return (lengde < utpakket ? inflateSync(tabell) : tabell).readUInt16BE(4);
+      }
+    throw new Error('woff-fila har ingen maxp');
+  };
+  // Kilde: #1670. Delmengden fontkit lager av CFF-skriften, kan ikke leses av poppler, så
+  // byggherrens brev skal ha hele skriftprogrammet fra pakken, med alle glyfene.
+  it('byggherrens brev har Oslo Sans som OpenType med like mange glyfer som skriften i pakken', async () => {
+    const pdf = (await brevdokument(oppdrag([{ gjelder: 'a', laast: 'Æ, ø og å.' }], 'BH'), 'n'))
+      .innhold;
+    const programmer = [...latin1(pdf).matchAll(/\/FlateDecode[^]*?stream\r?\n([^]*?)endstream/g)]
+      .map((m) => inflateSync(Buffer.from(m[1], 'latin1')))
+      .filter((b) => b.subarray(0, 4).toString('latin1') === 'OTTO');
+    expect(programmer, 'ett skriftprogram i OpenType med CFF').toHaveLength(1);
+    const program = programmer[0];
+    const woff = readFileSync(
+      new URL(
+        '../../node_modules/@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff',
+        import.meta.url
+      )
+    );
+    expect(glyferISfnt(program)).toBe(glyferIWoff(woff));
+    expect(glyferIWoff(woff), 'forutsetningen: skriften har glyfer').toBeGreaterThan(100);
+  });
+
+  // Kilde: OpenType-spesifikasjonen, `head`: summen av hele skriftprogrammet, regnet som
+  // uint32, er 0xB1B0AFBA når `checkSumAdjustment` er riktig.
+  it('skriftprogrammet fra woff-fila har riktig sum for hele skriften', () => {
+    const woff = readFileSync(
+      new URL(
+        '../../node_modules/@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff',
+        import.meta.url
+      )
+    );
+    const program = Buffer.from(fraWoff(woff));
+    let sum = 0;
+    for (let i = 0; i < program.length; i += 4) sum = (sum + program.readUInt32BE(i)) >>> 0;
+    expect(sum.toString(16)).toBe('b1b0afba');
+    // Bare checkSumAdjustment, bytene 8–11 i head, skal skille seg fra head-tabellen i woff-fila.
+    const tabell = (b: Buffer, katalog: number, post: number, antall: number, merke: string) => {
+      for (let i = 0; i < antall; i++)
+        if (b.toString('latin1', katalog + post * i, katalog + post * i + 4) === merke) return i;
+      throw new Error(`ingen ${merke}`);
+    };
+    const iProgram = tabell(program, 12, 16, program.readUInt16BE(4), 'head');
+    const fraProgram = program.readUInt32BE(12 + 16 * iProgram + 8);
+    const headIProgram = program.subarray(fraProgram, fraProgram + 54);
+    const iWoff = tabell(woff, 44, 20, woff.readUInt16BE(12), 'head');
+    const [fra, lengde, utpakket] = [4, 8, 12].map((d) => woff.readUInt32BE(44 + 20 * iWoff + d));
+    const pakket = woff.subarray(fra, fra + lengde);
+    const headIWoff = lengde < utpakket ? inflateSync(pakket) : pakket;
+    expect(headIProgram.subarray(0, 8)).toEqual(headIWoff.subarray(0, 8));
+    expect(headIProgram.subarray(12, 54)).toEqual(headIWoff.subarray(12, 54));
   });
 });
