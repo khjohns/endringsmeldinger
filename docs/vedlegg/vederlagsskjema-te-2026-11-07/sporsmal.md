@@ -111,10 +111,11 @@ Bakgrunn: Du har vedtatt rekkefølgen varselinnsigelsene, oppgjørsformen, belø
 - Styrer: trappen per post og antall lag i tabellen.
 
 **13. Tilbudssetningen og postene utenfor kravpostene.**
-Bakgrunn: Du har vedtatt at brevet sier hvilke poster som er tilbud etter punkt 34.2.1. Samlevedtaket for vederlagsmetoden punkt 4 sier at setningen står også når tilbudet bare har den særskilte vederlagsjusteringen, og rigg og drift har et beløp etter formelen i kontraktsgrunnlaget (OV-U89).
-- A: Den særskilte vederlagsjusteringen med fast sum, og rigg og drift, er tilbud etter punkt 34.2.1 og nevnes i setningen som de andre postene med fast sum.
-- B: Bare kravpostene i vederlagsjusteringen nevnes. Den særskilte vederlagsjusteringen og rigg og drift står uten setningen.
-- Anbefalt: A. Det følger punkt 4 i dag for den særskilte vederlagsjusteringen.
+Bakgrunn: Du har vedtatt at brevet sier hvilke poster som er tilbud etter punkt 34.2.1. Samlevedtaket for vederlagsmetoden punkt 4 sier at setningen står også når tilbudet bare har den særskilte vederlagsjusteringen, og viser posten for rigg og drift videre til samlevedtaket for særskilt varsel og rigg og drift punkt 17. Der er beløpet for rigg og drift det totalentreprenøren mener følger av den avtalte regelen (formelen i Del II punkt 39), ikke et tilbud.
+- A: Den særskilte vederlagsjusteringen med fast sum nevnes i setningen som de andre postene med fast sum, som i punkt 4 i dag. Rigg og drift følger punkt 17 i samlevedtaket for særskilt varsel og rigg og drift og kalles ikke tilbud.
+- B: Både den særskilte vederlagsjusteringen med fast sum og rigg og drift nevnes i setningen som tilbud. Forhold: endrer OV-U89 punkt 17.
+- C: Bare kravpostene i vederlagsjusteringen nevnes. Den særskilte vederlagsjusteringen og rigg og drift står uten setningen. Forhold: endrer OV-U94 punkt 4.
+- Anbefalt: A. Det følger punkt 4 og punkt 17 slik de står.
 - Styrer: brevet og hva byggherren kan akseptere.
 
 **14. Beløpet i en kravpost etter en beregningsregel.**
