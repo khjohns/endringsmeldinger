@@ -76,6 +76,25 @@
             "staar": "Ett svar per kravpost."
           }
         ]
+      },
+      {
+        "id": "bare-varsle",
+        "dekker": [
+          "6"
+        ],
+        "start": "nytt-krav",
+        "handlinger": [
+          {
+            "klikk": "Bare varsle etter punkt 34.3.3 eller 34.4, uten krav",
+            "tilstand": "varsel"
+          },
+          {
+            "staar": "Regningsarbeid, før arbeidet settes i gang (punkt 34.4)"
+          },
+          {
+            "staar": "Registrer et brev sendt utenfor løsningen"
+          }
+        ]
       }
     ]
   },
@@ -114,7 +133,11 @@
     "VS-U47",
     "VS-U3",
     "VS-U2",
-    "HF-U22"
+    "HF-U22",
+    "HF-U28",
+    "KA-U69",
+    "KA-U70",
+    "VS-U48"
   ],
   "venter_paa": [
     "#1663",
@@ -136,6 +159,16 @@
       "dato": "2026-11-07",
       "forhold": "#1665",
       "hva": "D-9 har vilkåret om kravpost med fast sum og D-2 vilkåret om virksom enighet (GR-U7). D-13 (OV-U89 punkt 8 og 14) og D-14 (VS-U4 om punkt 34.3.3 første ledd) er nye, og prototypen har innsigelsen mot varselet etter punkt 34.3.3."
+    },
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1663",
+      "hva": "Svarene før byggingen er ført inn: D-15 (KA-U69), D-16 (VS-U48), D-17 (HF-U28) og D-18 (KA-U70), «Ugyldig valg» etter VS-U48, og prototypen uten «Mener fast sum» for en kravpost etter en beregningsregel og med krav om tilbud."
+    },
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1663",
+      "hva": "Etter kontrollen mot VS-U48: steg 6 og klikkstien for varselet alene (tilstanden #varsel), F-7, U-11, G-8 og G-9, og brevet sier bare at kravet er varselet når det ikke er varslet før."
     }
   ]
 }
