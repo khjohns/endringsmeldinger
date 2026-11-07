@@ -51,6 +51,7 @@
     font-size: 20px;
     font-weight: 600;
     line-height: 1.3;
+    letter-spacing: var(--sperring-20);
     color: var(--ink);
   }
   .bunn {

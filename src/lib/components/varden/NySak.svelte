@@ -883,7 +883,7 @@
   }
   .oppsummering h2 {
     margin: 0 0 var(--spacing-2);
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 600;
   }
   .oppsummering ul {
