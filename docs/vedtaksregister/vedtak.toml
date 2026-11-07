@@ -512,9 +512,8 @@ Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Setningene står i
 begreper. Kildene står i parentes etter hver setning; «s» er setningen i posten, og «p» er
 prinsippet i OV-U43. «Beregningsregel» er kontraktens enhetspriser (punkt 34.3) eller regningsarbeid
 (punkt 34.4 og punkt 30). «Fast sum» er løsningens begrep for et akseptert tilbud etter punkt 34.2.1
-(LV-U31, Følge). «Kravpost» er en del av vederlagsjusteringen med fast betegnelse (punkt 19).
-Punkt 1–18 er versjon 1 med E8–E16, og punkt 19–24 er nye. Kilden «(OV-U94 punkt n)» viser til
-versjon 1.
+(LV-U31, Følge). Punkt 1–18, designdelen og beslutningsdelen er versjon 1 med E8–E16. Punkt 19–24
+er nye (E15).
 
 ###### A. Tilbud om fast sum og krav etter en beregningsregel
 
@@ -545,8 +544,8 @@ versjon 1.
 ###### B. Byggherrens svar om metoden
 
 5. Byggherrens standpunkt til hvilken beregningsregel som gjelder for en kravpost, står i svaret på
-   vederlagskravet uten beløp for vederlaget etter regelen. (OV-U43 p1 s3; KA-U54; KA-U57 (d); E9)
-   Det godkjenner ikke mengder, priser, kostnader eller noe beløp for det vederlaget. (OV-U43 p1 s4)
+   vederlagskravet uten beløp for vederlaget etter regelen. (OV-U94 punkt 5; KA-U54; KA-U57 (d); E9)
+   Det godkjenner ikke mengder, priser, kostnader eller noe beløp for det vederlaget. (OV-U94 punkt 5)
    Beløpet subsidiært står i punkt 24. (KA-U58, Følge)
 6. Brevteksten når byggherren godkjenner oppgjør som fast sum, står i KA-U49 (LV-U32 s1). Den
    gjelder både når byggherren ikke godkjenner hele tilbudet, og når hele det krevde beløpet er
@@ -555,7 +554,7 @@ versjon 1.
    (punkt 34.2.2). (LV-U31 s2) Punktet gjelder per kravpost. (KA-U59; KA-U57 (c); E9)
 7. Standpunktet om fast sum innebærer ikke i seg selv avkall på kontraktens beregningsregler (punkt
    34.3 og 34.4) dersom partene ikke blir enige om et avtalt oppgjør for den aktuelle kravposten.
-   (LV-U31 s3; KA-U54; E9) Om partene er enige, følger KA-U49 punkt 8 (LV-U32 s4). Tar byggherren
+   (OV-U94 punkt 7; E9) Om partene er enige, følger KA-U49 punkt 8 (LV-U32 s4). Tar byggherren
    stilling til beløpet subsidiært, gjelder punkt 24. (KA-U58, Følge; KA-U59)
 8. Lagene i byggherrens svar står i rekkefølgen varselinnsigelsene etter punkt 34.1.2 og 34.1.3
    først, deretter standpunktet til oppgjørsformen, så beløpet. (KA-U60; KA-U64; E10) Standpunktet
@@ -586,18 +585,16 @@ versjon 1.
 
 13. Behandlingen av vederlagskravet er ferdig i løsningen når løsningen har registrert enighet om
     oppgjørsformen for hver kravpost som gjøres opp etter en beregningsregel, og om beløpet for hver
-    kravpost med fast sum, for den særskilte vederlagsjusteringen og for rigg og drift (OV-U89 punkt
-    26), og enigheten er virksom etter grunnlaget (GR-U7). (OV-U43 p3 s1 og s4; MM-U34 punkt 10; E4;
-    KA-U63; E11) Beløpet etter en beregningsregel avregnes utenfor løsningen. (OV-U43 p3 s1; E11)
+    kravpost med fast sum, for den særskilte vederlagsjusteringen og for rigg og drift, og enigheten er virksom etter grunnlaget (GR-U7). (KA-U63; OV-U94 punkt 13; E11) Beløpet etter en beregningsregel avregnes utenfor løsningen. (OV-U94 punkt 13; E11)
 14. Etter at behandlingen er ferdig, godtas fortsatt overslag og varsler etter punkt 9. (OV-U43
     p3 s7, uten «og en endring etter prinsipp 4»; E5)
 15. Et tilbud byggherren ikke har akseptert for en kravpost, regnes ikke lenger som krav når
     løsningen har registrert enighet om en beregningsregel for den kravposten. Det tidligere
     tilbudet for kravposten erstattes som gjeldende krav først når løsningen har registrert enighet
     om beregningsregelen for den kravposten i stedet. Enighet om beregningsregelen for én post tar
-    ikke bort tilbudet for en annen. (OV-U43 p3 s8–s9; E4; KA-U63; E11)
+    ikke bort tilbudet for en annen. (KA-U63; OV-U94 punkt 15; E11)
 16. Partene kan endre en beregningsregel de er enige om for en kravpost, ved uttrykkelig enighet
-    mellom dem, uten trekk og uten avkall. (OV-U43 p4; KA-U54, Følge; E12) Fram til endringsordren
+    mellom dem, uten trekk og uten avkall. (OV-U94 punkt 16; KA-U54, Følge; E12) Fram til endringsordren
     kan TE også sende en ny kravversjon og byggherren et nytt svar etter at løsningen har registrert
     enighet om regelen. Visningen viser at det nye avviker fra den registrerte enigheten, og
     løsningen avgjør ikke om enigheten står (MM-U50). (MM-U34 punkt 9; E5; spørsmål 2) Sender TE en
@@ -610,7 +607,7 @@ versjon 1.
 17. Løsningen avgjør ikke det kontrakten overlater til partene (MM-U50): hvilken beregningsregel som
     faktisk gjelder når partene er uenige, hvilke kostnader som er nødvendige, eller virkningen av
     et manglende eller sent varsel. (OV-U43 p6 s1) Utover det punkt 13–16, 18 og 21 sier, endrer
-    samlevedtaket ingen bindinger eller sperrer. (OV-U43 p6 s4; E7; KA-U56; E13)
+    samlevedtaket ingen bindinger eller sperrer. (OV-U94 punkt 17; KA-U56; E13)
 
 ###### F. Endringsordren
 
@@ -648,7 +645,8 @@ versjon 1.
   i OV-U43) Statusteksten for saken ellers står i OV-U10 og kjeden for statusteksten.
 - Nøkkeltallene følger MM-U45. (OV-U43 p3 s10, samlet i MM-U45)
 - Betegnelsen P1, P2 … for kravpostene (KA-U53), veiledningen om 300 000-regelen i skjemaet
-  (KA-U55), at skjemaet tar med alle kravposter som ikke er trukket (KA-U56), og tabellen i svaret
+  (KA-U55), at skjemaet tar med alle kravposter som ikke er trukket, med
+  eksempelet «P2 trekkes» (KA-U56), og tabellen i svaret
   med én rad per kravpost og én kolonne per lag (KA-U57 (e)). (E15)
 - Ordlyden i tilbudssetningen er design og står i bestillingen for brukerforløpet. (KA-U61; E8)
 
@@ -657,7 +655,7 @@ versjon 1.
 - I første versjon kan TE kreve vederlag etter regning (punkt 34.4) fra løsningen. (VS-U28 s1)
 - I første versjon tar løsningen imot krav etter kontraktens enhetspriser etter punkt 34.3.1,
   krav om justerte enhetspriser etter punkt 34.3.2 og varsel om justering etter punkt 34.3.3. De
-  tas også med i forløpet. (OV-U14, presisert av OV-U43 p1; KA-U68; E14)
+  tas også med i forløpet. (OV-U14; KA-U68; E14)
 - Tilbakeholdelsen etter punkt 30.2, og oppgavene og kontrollen etter punkt 30.3, sendes utenfor
   løsningen i første versjon og registreres etter MM-U43 punkt 9. (VS-U28 s6 slik OV-U43 endret
   den, og beslutningsdelen i VS-U28; OV-U4 er samlet i MM-U43)
