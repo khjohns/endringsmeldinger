@@ -45,13 +45,13 @@ type Skrift = {
 const lokal = (fil: string) => new URL(`./skrift/${fil}`, import.meta.url);
 
 /**
- * Brevskriften følger avsenderen, i samme størrelse og med linjehøyde 1,6 som
- * forhåndsvisningen i `Brev.svelte` (oppdragsgiver 07.11, #1658). Oslo Sans hentes fra
- * `@oslokommune/punkt-assets` og brukes bare i byggherrens brev, på grunn av lisensen.
- * Source Serif 4 i 16 px er 12 pt.
+ * Skriftene et brev kan settes i, med størrelsen i forhåndsvisningen i `Brev.svelte`
+ * (`.interface-design/system.md`, «Typografi»). Oslo Sans hentes fra
+ * `@oslokommune/punkt-assets`, med fast versjon, og brukes bare i byggherrens brev, på
+ * grunn av lisensen (LV-U26). Source Serif 4 i 16 px er 12 pt.
  */
-const BREVSKRIFT: Record<Avsender, { fil: () => URL; stoerrelse: number }> = {
-  BH: {
+const SKRIFTER = {
+  osloSans: {
     fil: () =>
       pathToFileURL(
         createRequire(import.meta.url).resolve(
@@ -60,8 +60,19 @@ const BREVSKRIFT: Record<Avsender, { fil: () => URL; stoerrelse: number }> = {
       ),
     stoerrelse: 11,
   },
-  TE: { fil: () => lokal('SourceSerif4-Regular.ttf'), stoerrelse: 12 },
-};
+  notoSans: { fil: () => lokal('NotoSans-Regular.ttf'), stoerrelse: 11 },
+  sourceSerif4: { fil: () => lokal('SourceSerif4-Regular.ttf'), stoerrelse: 12 },
+} satisfies Record<string, { fil: () => URL; stoerrelse: number }>;
+
+/** Navnet på en skrift i `SKRIFTER`. */
+export type Skriftnavn = keyof typeof SKRIFTER;
+
+/**
+ * Brevskriften følger avsenderen (LV-U26). Totalentreprenørens brev står i Noto Sans etter
+ * LV-U26 til oppdragsgiver har valgt mellom den og Source Serif 4 fra valget 07.11 (#1658).
+ */
+const BREVSKRIFT: Record<Avsender, Skriftnavn> = { BH: 'osloSans', TE: 'notoSans' };
+
 const LINJEHOEYDE = 1.6;
 
 /**
@@ -91,8 +102,8 @@ function reserver(): Skrift[] {
  * bruker den for (#801), så myk bindestrek med glyfen til bindestrek ville blitt lest
  * som bindestrek.
  */
-function brevskrift(avsender: Avsender): Skrift {
-  const s = les(BREVSKRIFT[avsender].fil());
+function brevskrift(navn: Skriftnavn): Skrift {
+  const s = les(SKRIFTER[navn].fil());
   const tillatt = skriftenesKodepunkter();
   const foersteMedGlyf = new Map<number, number>();
   for (const kode of [...s.tegnsett.characterSet].sort((a, b) => a - b)) {
@@ -108,12 +119,12 @@ function brevskrift(avsender: Avsender): Skrift {
   };
 }
 
-const lesteSkrifter = new Map<Avsender, Skrift[]>();
+const lesteSkrifter = new Map<Skriftnavn, Skrift[]>();
 
-/** Skriftene for avsenderen, brevskriften først; et tegn settes med den første som setter det. */
-function skrifter(avsender: Avsender): Skrift[] {
-  let s = lesteSkrifter.get(avsender);
-  if (!s) lesteSkrifter.set(avsender, (s = [brevskrift(avsender), ...reserver()]));
+/** Brevskriften og reserveskriftene; et tegn settes med den første som setter det. */
+function skrifter(navn: Skriftnavn): Skrift[] {
+  let s = lesteSkrifter.get(navn);
+  if (!s) lesteSkrifter.set(navn, (s = [brevskrift(navn), ...reserver()]));
   return s;
 }
 
@@ -179,25 +190,29 @@ export function kontrollerSkrifter(): void {
   try {
     if (!reserver()[0].setter(MYKT_BINDESTREK))
       throw new Error('den første reserveskriften har ikke myk bindestrek');
-    for (const avsender of ['TE', 'BH'] as const)
-      for (const s of skrifter(avsender)) fontkitMedBindestrek.create(s.bytes);
+    for (const navn of skriftnavn)
+      for (const s of skrifter(navn)) fontkitMedBindestrek.create(s.bytes);
   } catch (feil) {
     throw new Error(`Skriftene til brev-PDF-en kan ikke brukes: ${(feil as Error).message}`);
   }
 }
 
-const skriftPerKode = { TE: new Map<number, number>(), BH: new Map<number, number>() };
+/** Skriftene i `SKRIFTER`. Tegntabellen og oppstarten prøver alle, også de som venter på et valg. */
+export const skriftnavn = Object.keys(SKRIFTER) as Skriftnavn[];
+
+const skriftPerKode = new Map<Skriftnavn, Map<number, number>>();
 
 /**
- * Skriften for tegnet, som indeks i `skrifter(avsender)`. Kjernen avviser tegnet før brevet skrives
+ * Skriften for tegnet, som indeks i `skrifter(navn)`. Kjernen avviser tegnet før brevet skrives
  * (`SETTBARE_TEGN` i `kjerne/format/tegnsett.ts`, #801), så dette er en sikring.
  */
-export function skriftFor(tegn: string, avsender: Avsender): number {
+export function skriftFor(tegn: string, brevskrift: Skriftnavn): number {
   const kode = tegn.codePointAt(0)!;
-  const kjent = skriftPerKode[avsender].get(kode);
+  if (!skriftPerKode.has(brevskrift)) skriftPerKode.set(brevskrift, new Map());
+  const kjent = skriftPerKode.get(brevskrift)!.get(kode);
   if (kjent !== undefined) return kjent;
   const navn = () => `U+${kode.toString(16).toUpperCase().padStart(4, '0')}`;
-  const i = skrifter(avsender).findIndex((s) => s.setter(kode));
+  const i = skrifter(brevskrift).findIndex((s) => s.setter(kode));
   if (i < 0)
     throw new TegnUtenforSkriften(
       `Brevteksten har tegnet ${navn()}, som skriftene i PDF-en ikke har`
@@ -207,15 +222,15 @@ export function skriftFor(tegn: string, avsender: Avsender): number {
     throw new TegnUtenforSkriften(
       `Brevteksten har det usynlige tegnet ${navn()}, som PDF-en ikke kan sette tro`
     );
-  skriftPerKode[avsender].set(kode, i);
+  skriftPerKode.get(brevskrift)!.set(kode, i);
   return i;
 }
 
 /** Teksten delt i løp med samme skrift. */
-function loep(tekst: string, avsender: Avsender): { tekst: string; skrift: number }[] {
+function loep(tekst: string, brevskrift: Skriftnavn): { tekst: string; skrift: number }[] {
   const ut: { tekst: string; skrift: number }[] = [];
   for (const tegn of tekst) {
-    const skrift = skriftFor(tegn, avsender);
+    const skrift = skriftFor(tegn, brevskrift);
     if (ut.at(-1)?.skrift === skrift) ut.at(-1)!.tekst += tegn;
     else ut.push({ tekst: tegn, skrift });
   }
@@ -281,7 +296,17 @@ export async function skrivBrevPdf(
 ): Promise<Uint8Array> {
   if (!Object.hasOwn(BREVSKRIFT, avsender))
     throw new Error(`Brevet har avsenderen ${String(avsender)}, som ikke har noen brevskrift`);
-  const { stoerrelse } = BREVSKRIFT[avsender];
+  return settBrevPdf(tekst, tittel, tidspunkt, BREVSKRIFT[avsender]);
+}
+
+/** Brevet som PDF i skriften `brevskrift`, som `skrivBrevPdf`. Tegntabellen prøver hver skrift. */
+export async function settBrevPdf(
+  tekst: string,
+  tittel: string,
+  tidspunkt: Date,
+  brevskrift: Skriftnavn
+): Promise<Uint8Array> {
+  const { stoerrelse } = SKRIFTER[brevskrift];
   const pdf = await PDFDocument.create();
   pdf.setTitle(tittel);
   pdf.setProducer('Endringsmeldinger');
@@ -290,15 +315,15 @@ export async function skrivBrevPdf(
   pdf.setModificationDate(tidspunkt);
   pdf.registerFontkit(fontkitMedBindestrek);
   const normalisert = tekst.replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
-  const brukt = new Set(loep(normalisert.replace(/\n/g, ''), avsender).map((l) => l.skrift));
+  const brukt = new Set(loep(normalisert.replace(/\n/g, ''), brevskrift).map((l) => l.skrift));
   // En skrift som ikke brukes, bygges ikke inn, så brev uten reservetegn er uendret.
   const innbygd = await Promise.all(
-    skrifter(avsender).map((s, i) =>
+    skrifter(brevskrift).map((s, i) =>
       brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true, features: UTEN_SUBSTITUSJON }) : null
     )
   );
   const settes = (t: string) =>
-    loep(t, avsender).map((l) => {
+    loep(t, brevskrift).map((l) => {
       const skrift = innbygd[l.skrift]!;
       return { ...l, skrift, bredde: skrift.widthOfTextAtSize(l.tekst, stoerrelse) };
     });

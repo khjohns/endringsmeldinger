@@ -9,7 +9,14 @@ import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
-import { lesBrevPdf, skriftFor, skrivBrevPdf, TegnUtenforSkriften } from '../brevpdf.ts';
+import {
+  lesBrevPdf,
+  settBrevPdf,
+  skriftFor,
+  skriftnavn,
+  skrivBrevPdf,
+  TegnUtenforSkriften,
+} from '../brevpdf.ts';
 import { TEGNSETTFIL, tegnsettfil, utelatteTegn } from '../tegnsett.ts';
 import { brevdokument, gjengiOppdrag, UgjengivbartBrev } from '../levering.ts';
 
@@ -228,11 +235,11 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
     );
   }, 120000);
 
-  it('kjernen og `skriftFor` for begge avsenderne er enige om hvert kodepunkt, utenom tegnene PDF-en ikke gjengir tro', async () => {
+  it('kjernen og `skriftFor` for hver brevskrift er enige om hvert kodepunkt, utenom tegnene PDF-en ikke gjengir tro', async () => {
     const utelatt = await utelatteTegn();
     const settes = (tegn: string) => {
       try {
-        return skriftFor(tegn, 'TE') >= 0 && skriftFor(tegn, 'BH') >= 0;
+        return skriftnavn.every((navn) => skriftFor(tegn, navn) >= 0);
       } catch (feil) {
         if (feil instanceof TegnUtenforSkriften) return false;
         throw feil;
@@ -253,9 +260,9 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
     expect(godtatt, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
   }, 120000);
 
-  it.each(['TE', 'BH'] as const)(
-    'hvert tegn kjernen godtar, kommer tilbake fra PDF-en som det ble skrevet, også sammen med de andre, i brevet fra %s',
-    async (avsender) => {
+  it.each(skriftnavn)(
+    'hvert tegn kjernen godtar, kommer tilbake fra PDF-en som det ble skrevet, også sammen med de andre, med brevskriften %s',
+    async (brevskrift) => {
       // Kilden er LV-U2: PDF-en skal gjengi brevteksten tro. Ett brev med alle tegnene, så et
       // tegn som deler glyf med et annet eller endres av en substitusjon, også blir funnet.
       const linjer = ['ﬁ og fi', 'i\u0301 og ı', 'Thị, ọ og ẹ', 'a\u0328 og ą', 'ö og o\u0308'];
@@ -273,7 +280,7 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
         expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
       const tekst = linjer.join('\n');
       const tilbake = lesBrevPdf(
-        await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), avsender)
+        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift)
       ).split('\n');
       expect(tilbake.length, 'like mange linjer tilbake').toBe(linjer.length);
       expect(tilbake.filter((l, i) => l !== linjer[i])).toEqual([]);
@@ -282,9 +289,9 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
     120000
   );
 
-  it.each(['TE', 'BH'] as const)(
-    'svake og nøytrale tegn fra høyre-mot-venstre-skrift ved siden av hverandre og av tall kommer tilbake i samme rekkefølge, i brevet fra %s (#1138 punkt 4)',
-    async (avsender) => {
+  it.each(skriftnavn)(
+    'svake og nøytrale tegn fra høyre-mot-venstre-skrift ved siden av hverandre og av tall kommer tilbake i samme rekkefølge, med brevskriften %s (#1138 punkt 4)',
+    async (brevskrift) => {
       // Kilden er LV-U2: PDF-en skal gjengi brevteksten tro. Arabisk komma (U+060C) er et
       // skilletegn i tall etter Unicode-bidi, og en leser som ordner om etter bidi, kunne
       // flytte det. De andre tegnene med arabisk skrift kjernen godtar, er U+204F og U+2E41.
@@ -306,7 +313,7 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
       for (const linje of linjer) expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
       const tekst = linjer.join('\n');
       const tilbake = lesBrevPdf(
-        await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), avsender)
+        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift)
       ).split('\n');
       expect(tilbake).toEqual(linjer);
     }
@@ -323,10 +330,11 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
   });
 });
 
-// Kilde: oppdragsgiver 07.11 (#1658, kravene i #1652) og `.interface-design/system.md`,
-// «Typografi»: byggherrens brev i Oslo Sans i 11 pt, totalentreprenørens i Source Serif 4 i
-// 16 px (12 pt), begge med linjehøyde 1,6. Oslo Sans brukes aldri i totalentreprenørens brev.
-describe('brevskriften følger avsenderen (#1658)', () => {
+// Kilde: LV-U26 og valget 07.11 (#1658, kravene i #1652), `.interface-design/system.md`,
+// «Typografi»: byggherrens brev i Oslo Sans i 11 pt med linjehøyde 1,6, og Oslo Sans aldri i
+// totalentreprenørens brev. Totalentreprenørens brev står i Noto Sans etter LV-U26 til
+// oppdragsgiver har valgt mellom den og Source Serif 4 i 16 px (12 pt).
+describe('brevskriften følger avsenderen (#1658, LV-U26)', () => {
   const tekst: Avsnitt[] = [
     { gjelder: 'a', laast: 'Første linje.', utdypning: 'Andre linje.\nTredje linje.' },
   ];
@@ -351,29 +359,47 @@ describe('brevskriften følger avsenderen (#1658)', () => {
     expect(latin1(pdf)).toMatch(/\/BaseFont \/OsloSans-Regular-/);
     expect(sideinnhold(pdf)).toMatch(/ 11 Tf/);
     expect(linjeavstand(pdf)).toBe(17.6);
-    expect(latin1(pdf)).not.toContain('SourceSerif');
     expect(gjengirTro(lesBrevPdf(pdf), tekst)).toBe(true);
   });
 
-  it('setter totalentreprenørens brev i Source Serif 4 i 12 pt med linjehøyde 1,6, uten Oslo Sans', async () => {
+  it('setter totalentreprenørens brev i Noto Sans i 11 pt med linjehøyde 1,6, uten Oslo Sans', async () => {
     const pdf = (await brevdokument(oppdrag(tekst, 'TE'), 'n')).innhold;
-    expect(latin1(pdf)).toMatch(/\/BaseFont \/SourceSerif4-Regular-/);
-    expect(sideinnhold(pdf)).toMatch(/ 12 Tf/);
-    expect(linjeavstand(pdf)).toBe(19.2);
+    expect(latin1(pdf)).toMatch(/\/BaseFont \/NotoSans-Regular-/);
+    expect(sideinnhold(pdf)).toMatch(/ 11 Tf/);
+    expect(linjeavstand(pdf)).toBe(17.6);
     expect(latin1(pdf)).not.toContain('OsloSans');
     expect(gjengirTro(lesBrevPdf(pdf), tekst)).toBe(true);
   });
 
+  it('kan sette brevet i Source Serif 4 i 12 pt med linjehøyde 1,6, som venter på valget', async () => {
+    const pdf = await settBrevPdf(
+      'Første linje.\nAndre linje.',
+      'x',
+      new Date(TIDSSTEMPEL),
+      'sourceSerif4'
+    );
+    expect(latin1(pdf)).toMatch(/\/BaseFont \/SourceSerif4-Regular-/);
+    expect(sideinnhold(pdf)).toMatch(/ 12 Tf/);
+    expect(linjeavstand(pdf)).toBe(19.2);
+  });
+
+  const linje = 'Myk\u00adbindestrek, 2-3, 2\u20113, §\u00a033.8, 3 → 4, a ≥ b ≤ c, № 5.';
+
   it.each(['TE', 'BH'] as const)(
     'gjengir myk bindestrek, bindestrek, hardt mellomrom og → ≥ ≤ № tro i brevet fra %s',
     async (part) => {
-      const linje = 'Myk\u00adbindestrek, 2-3, 2\u20113, §\u00a033.8, 3 → 4, a ≥ b ≤ c, № 5.';
       const pdf = (await brevdokument(oppdrag([{ gjelder: 'a', laast: linje }], part), 'n'))
         .innhold;
       expect(lesBrevPdf(pdf)).toContain(linje);
-      expect(latin1(pdf), 'myk bindestrek med reserveskriften').toMatch(
-        /\/BaseFont \/NotoSans-Regular-/
-      );
+      expect(latin1(pdf), 'myk bindestrek med Noto Sans').toMatch(/\/BaseFont \/NotoSans-Regular-/);
+    }
+  );
+
+  it.each(skriftnavn)(
+    'gjengir myk bindestrek, bindestrek, hardt mellomrom og → ≥ ≤ № tro med brevskriften %s',
+    async (brevskrift) => {
+      const pdf = await settBrevPdf(linje, 'x', new Date(TIDSSTEMPEL), brevskrift);
+      expect(lesBrevPdf(pdf)).toBe(linje);
     }
   );
 
