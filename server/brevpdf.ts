@@ -200,7 +200,8 @@ const sha256 = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest(
 
 /**
  * Skriftprogrammet i en woff-fil (WOFF 1.0): tabellene pakket ut med zlib og satt sammen
- * igjen med tabellkatalogen. Kaster for en fil som ikke har den formen.
+ * igjen med tabellkatalogen og summen for hele skriften (`checkSumAdjustment`). Kaster for en
+ * fil som ikke har den formen.
  */
 export function fraWoff(woff: Uint8Array): Uint8Array {
   const v = new DataView(woff.buffer, woff.byteOffset, woff.byteLength);
@@ -234,6 +235,14 @@ export function fraWoff(woff: Uint8Array): Uint8Array {
     ut.set(t.data, fra);
     fra += Math.ceil(t.data.length / 4) * 4;
   });
+  // Katalogen har nye posisjoner, så summen for hele skriften i `head` regnes på nytt.
+  const head = tabeller.findIndex((t) => t.merke === 0x68656164);
+  if (head < 0) throw new Error('skriftfila har ingen head-tabell');
+  const justering = u.getUint32(20 + 16 * head) + 8;
+  u.setUint32(justering, 0);
+  let sum = 0;
+  for (let i = 0; i < ut.length; i += 4) sum = (sum + u.getUint32(i)) >>> 0;
+  u.setUint32(justering, (0xb1b0afba - sum) >>> 0);
   return ut;
 }
 

@@ -12,6 +12,7 @@ import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
 import { createHash } from 'node:crypto';
 import {
   brevprofil,
+  fraWoff,
   lesBrevPdf,
   settBrevPdf,
   skriftFor,
@@ -572,5 +573,20 @@ describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
     );
     expect(glyferISfnt(program)).toBe(glyferIWoff(woff));
     expect(glyferIWoff(woff), 'forutsetningen: skriften har glyfer').toBeGreaterThan(100);
+  });
+
+  // Kilde: OpenType-spesifikasjonen, `head`: summen av hele skriftprogrammet, regnet som
+  // uint32, er 0xB1B0AFBA når `checkSumAdjustment` er riktig.
+  it('skriftprogrammet fra woff-fila har riktig sum for hele skriften', () => {
+    const woff = readFileSync(
+      new URL(
+        '../../node_modules/@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff',
+        import.meta.url
+      )
+    );
+    const program = Buffer.from(fraWoff(woff));
+    let sum = 0;
+    for (let i = 0; i < program.length; i += 4) sum = (sum + program.readUInt32BE(i)) >>> 0;
+    expect(sum.toString(16)).toBe('b1b0afba');
   });
 });
