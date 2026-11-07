@@ -17,11 +17,11 @@ import {
 } from './skjemadata';
 
 /**
- * Katalogens metode kan sendes til kjernen fra dette skjemaet. Ingen kan det: vederlagskravet
+ * Ingen av katalogens metoder kan sendes til kjernen fra dette skjemaet: vederlagskravet
  * har kravposter (OV-U95 punkt 19), og skjemaet for dem kommer med BF-14 (økt 3 i #1663).
  * Varselet og registreringen sendes fortsatt herfra.
  */
-export const metodeKanSendesTilKjernen = (_metode: string) => false;
+export const metodeKanSendesTilKjernen = () => false;
 
 /** Det `TeVederlagForm` sender på TS-stien. Begrunnelsen er HTML fra editoren. */
 export interface Vederlagsskjemadata {

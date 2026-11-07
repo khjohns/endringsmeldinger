@@ -7580,7 +7580,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     spor: 'vederlag',
     innhold: { kravposter, ...rest },
   });
-  const P1 = { betegnelse: 'P1', beskrivelse: 'Ny fundamentering', oppgjoersform: 'tilbud' };
+  const post1 = { betegnelse: 'P1', beskrivelse: 'Ny fundamentering', oppgjoersform: 'tilbud' };
   const regning = { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' };
   const justert = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
   const poster = (s: ReturnType<typeof sakMedKrav>) =>
@@ -7589,7 +7589,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
   it('en ny kravpost får neste betegnelse, og en kravpost fra forrige versjon beholder id og betegnelse (KA-U53)', () => {
     const s = sakMedKrav();
     const [[, p1]] = poster(s);
-    s.send('TE', krav([{ ...P1, beloep: 130000 }, regning]));
+    s.send('TE', krav([{ ...post1, beloep: 130000 }, regning]));
     expect(poster(s)).toEqual([
       ['P1', p1],
       ['P2', expect.any(String)],
@@ -7612,14 +7612,14 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(poster(s).map(([b]) => b)).toEqual(['P2']);
     const igjen = krav([
       { ...regning, betegnelse: 'P2' },
-      { ...P1, id: p1, beloep: 1000 },
+      { ...post1, id: p1, beloep: 1000 },
     ]);
     expect(s.avvist('TE', igjen)).toBe('KRAVPOSTENE');
     s.send(
       'TE',
       krav([
         { ...regning, betegnelse: 'P2' },
-        { ...P1, beloep: 1000 },
+        { ...post1, beloep: 1000 },
       ])
     );
     expect(poster(s).map(([b]) => b)).toEqual(['P2', 'P3']);
@@ -7633,15 +7633,15 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
   it('et trekk må gjelde en kravpost i forrige versjon, og en kravpost kan ikke både tas med og trekkes (KA-U56)', () => {
     const s = sakMedKrav();
     const p1 = p1I(s);
-    expect(s.avvist('TE', krav([{ ...P1, beloep: 1 }], { trekker: [randomUUID()] }))).toBe(
+    expect(s.avvist('TE', krav([{ ...post1, beloep: 1 }], { trekker: [randomUUID()] }))).toBe(
       'KRAVPOSTENE'
     );
-    expect(s.avvist('TE', krav([{ ...P1, beloep: 1 }], { trekker: [p1] }))).toBe('KRAVPOSTENE');
+    expect(s.avvist('TE', krav([{ ...post1, beloep: 1 }], { trekker: [p1] }))).toBe('KRAVPOSTENE');
   });
 
   it('en lagret kravversjon som gir P1 en annen betegnelse, gjør saken ikke forstått (MM-U2)', () => {
     const s = sakMedKrav();
-    s.send('TE', krav([{ ...P1, beloep: 130000 }]));
+    s.send('TE', krav([{ ...post1, beloep: 130000 }]));
     const lagret = s.journal
       .flatMap((r) => ((r.data as { krav?: Data[] }).krav ?? []) as Data[])
       .find((k) => k.id === s.krav('vederlag'))!;
@@ -7657,9 +7657,9 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
 
   it('kravposten med regningsarbeid eller justerte enhetspriser er varselet i den første versjonen den står i, ikke i den neste (VS-U48)', () => {
     const s = sakMedKrav();
-    const foerste = laast(s.send('TE', krav([{ ...P1, beloep: 125000 }, regning, justert]))).join(
-      ' '
-    );
+    const foerste = laast(
+      s.send('TE', krav([{ ...post1, beloep: 125000 }, regning, justert]))
+    ).join(' ');
     expect(foerste).toContain(
       'TE krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).'
     );
@@ -7674,7 +7674,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       s.send(
         'TE',
         krav([
-          { ...P1, beloep: 125000 },
+          { ...post1, beloep: 125000 },
           { ...regning, betegnelse: 'P2', kostnadsoverslag: 20000 },
           { ...justert, betegnelse: 'P3' },
         ])
@@ -7692,7 +7692,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       s.send(
         'TE',
         krav([
-          { ...P1, beloep: 125000 },
+          { ...post1, beloep: 125000 },
           { ...justert, justert: false },
         ])
       )
@@ -7722,8 +7722,8 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     s.send(
       'TE',
       krav([
-        { ...P1, beloep: 125000 },
-        { ...P1, betegnelse: 'P2', beloep: 5000 },
+        { ...post1, beloep: 125000 },
+        { ...post1, betegnelse: 'P2', beloep: 5000 },
       ])
     );
     expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');

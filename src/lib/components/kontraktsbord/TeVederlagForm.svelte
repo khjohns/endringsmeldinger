@@ -188,7 +188,7 @@
             (registrerer &&
               varselhindring(varselet, dagensDato()) === null &&
               typehindring(korrespondansetype) === null) ||
-            (mode === 'spesifisert' && metodeKanSendesTilKjernen(metode) && (kravSum ?? 0) > 0))
+            (mode === 'spesifisert' && metodeKanSendesTilKjernen() && (kravSum ?? 0) > 0))
         : mode === 'varsel'
           ? Object.keys(noticeData).length > 0
           : mappedState !== null && beregnCanSubmit(mappedState) && charCount >= 10)
@@ -268,7 +268,7 @@
         value: o.value as VederlagsMetode,
         label: getVederlagsmetodeShortLabel(o.value),
       }))
-      .filter((o) => !kjernesak || metodeKanSendesTilKjernen(o.value));
+      .filter(() => !kjernesak || metodeKanSendesTilKjernen());
 </script>
 
 <div class="form-content">

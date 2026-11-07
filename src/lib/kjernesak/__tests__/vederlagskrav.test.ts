@@ -12,10 +12,7 @@ import {
 import { formfeil } from '$kjerne/kommandoer/kommando';
 
 describe('vederlagskravet fra det gamle skjemaet', () => {
-  it.each(['FASTPRIS_TILBUD', 'REGNINGSARBEID', 'ENHETSPRISER', ''])(
-    'metoden %s tilbys ikke',
-    (metode) => expect(metodeKanSendesTilKjernen(metode)).toBe(false)
-  );
+  it('ingen metode tilbys', () => expect(metodeKanSendesTilKjernen()).toBe(false));
 
   it('kravet avvises her og sendes ikke', () => {
     expect(() =>

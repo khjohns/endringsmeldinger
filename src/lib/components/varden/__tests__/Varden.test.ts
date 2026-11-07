@@ -606,7 +606,11 @@ describe('Varden med brukerforløpet BF-01', () => {
       );
       const iDagens = tilbudt.filter((n) => knapper.some((navn) => KNAPPER[navn](n)));
       // #909 bygde innsigelsen bare for TE (`innsigelser` i `arbeidsflate.svelte.ts`).
-      const ikkeIDagens = part === 'BH' ? tilbudt.filter((n) => n.startsWith('innsigelse:')) : [];
+      // Det gamle skjemaet tilbyr ikke vederlagskravet (arbeidsvalg til økt 3 i #1663).
+      const ikkeIDagens = [
+        ...(part === 'BH' ? tilbudt.filter((n) => n.startsWith('innsigelse:')) : []),
+        'krav:vederlag',
+      ];
       expect(iDagens.sort()).toEqual(tilbudt.filter((n) => !ikkeIDagens.includes(n)).sort());
       cleanup();
 
