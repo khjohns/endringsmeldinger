@@ -15195,6 +15195,62 @@ Alle brev beholder Noto Sans. Byggherrens brev får logoen fra pakken. Presisere
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "skriften i totalentreprenørens brev"
+id = "LV-U58"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1658", "#1660"]
+sporsmal = '''
+Beslutningen LV-U26 (22.10) sier at totalentreprenørens brev bruker Noto Sans. Du valgte Source Serif 4 i dag. Hvilken skal gjelde? Begge setter tegn de mangler, med Noto Sans og Noto Sans Math.'''
+valgt = "Source Serif 4"
+svar = '''
+«Source Serif 4 (Anbefalt)».'''
+forhold = [{ art = "endrer", vedtak = "lv-u26" }]
+folge = '''
+«Det du valgte i dag» er Source Serif 4, valgt av oppdragsgiver 07.11 etter en sammenligning av fire brevskrifter. Valget står i systemfila under «Typografi» (PR #1660). Spørsmålet ble stilt med spørsmålsverktøyet 07.11 i orkestreringsøkta session_01Lm99Mcwcd6tfySEzquF5sv. Bygges i #1658.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Source Serif 4"
+anbefalt = true
+tekst = '''
+Det du valgte i dag etter sammenligningen. Skiller totalentreprenørens brev tydelig fra appen og fra byggherrens. Krever en ny beslutning som endrer LV-U26 på dette punktet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Noto Sans, som i LV-U26"
+forkastet = true
+tekst = '''
+Ingen ny beslutning. Dekker flest tegn og er den PDF-en bruker i dag. Brevet ligner appen mer, og #1660 må rettes.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "skriften i brevhodet"
+id = "LV-U59"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1658", "#1660"]
+sporsmal = '''
+Skal brevhodet stå i samme skrift som resten av brevet? Det gjelder avsender, mottaker og referanser. I dag står hodet i byggherrens brev i Oslo Sans, mens hodet i totalentreprenørens brev står i Inter, med mottakeren i brevskriften.'''
+valgt = "Hele brevet i avsenderens skrift"
+svar = '''
+«Hele brevet i avsenderens skrift (Anbefalt)».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u26" }, { art = "presiserer", vedtak = "lv-u25" }]
+folge = '''
+M1 er LV-U25. Spørsmålet ble stilt med spørsmålsverktøyet 07.11 i orkestreringsøkta session_01Lm99Mcwcd6tfySEzquF5sv, sammen med spørsmålet bak LV-U58. Bygges i #1658 og #1660.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hele brevet i avsenderens skrift"
+anbefalt = true
+tekst = '''
+Hodet har samme oppsett og vekter for begge parter, men står i brevets skrift. Stemmer med LV-U26 og M1, "samme oppsett, avsenderens profil".'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hodet i Inter for begge"
+forkastet = true
+tekst = '''
+Hodet ser helt likt ut for begge parter. Bare tittelen og teksten følger avsenderen. Byggherrens brev står da ikke helt i Oslo Sans.'''
+
+[[gruppe.vedtak]]
 klasse = "vedtak"
 id = "LV-U27"
 dato = 2026-10-22
