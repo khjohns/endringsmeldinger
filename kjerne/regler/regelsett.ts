@@ -11,7 +11,7 @@ import { gjelderVarslingspliktenForVederlag } from './vederlag.ts';
  * Versjonen av regelsettet. Økes ved enhver endring i `kjerne/regler/`
  * (B-13); regelversjonsvakten i CI krever det.
  */
-export const REGELVERSJON = 50;
+export const REGELVERSJON = 51;
 
 export interface Regelsett {
   versjon: number;

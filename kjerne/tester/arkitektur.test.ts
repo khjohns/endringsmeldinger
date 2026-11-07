@@ -272,7 +272,26 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
-  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori beloep dager'],
+  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager'],
+  // OV-U95 punkt 19–22 og svar 6 A (#1673): kravpostene i vederlagskravet, og kravpostene
+  // fra forrige versjon TE trekker (KA-U56).
+  ['Krav.innhold', 'utsagn', 'kravposter', ['frosset/standpunkt.ts:kravposterI']],
+  ['Krav.innhold', 'utsagn', 'trekker', ['frosset/brevtekst.ts']],
+  ['Kravpost', 'relasjon', 'id betegnelse'],
+  ['Kravpost', 'utsagn', 'oppgjoersform beloep', ['frosset/standpunkt.ts', 'frosset/brevtekst.ts']],
+  [
+    'Kravpost',
+    'utsagn',
+    'beskrivelse pns justert anslag kostnadsoverslag',
+    ['frosset/brevtekst.ts'],
+  ],
+  // OV-U89 punkt 17: rigg og drift i forlenget byggetid, utenfor kravpostene.
+  [
+    'frosset/standpunkt.ts:krevdRigg',
+    'utsagn',
+    'rigg_og_drift rigg_og_drift.beloep',
+    ['frosset/standpunkt.ts:krevdRigg'],
+  ],
   // OV-U23: posten etter § 34.1.3 annet ledd i vederlagskravet.
   ['Krav.innhold', 'utsagn', 'saerskilt', ['frosset/standpunkt.ts']],
   ['frosset/standpunkt.ts:harProduktivitetspost', 'utsagn', 'produktivitet'],
@@ -445,6 +464,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/standpunkt.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
   ['frosset/standpunkt.ts', 'regelsett', 'krevdBeloep', ['frosset/brevtekst.ts']],
+  // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser.
+  [
+    'frosset/standpunkt.ts',
+    'utsagn',
+    'kravposterI',
+    ['frosset/brevtekst.ts', 'kommandoer/skriving.ts', 'utledning/kravposter.ts'],
+  ],
+  ['frosset/standpunkt.ts', 'regelsett', 'krevdIKravposten krevdRigg', ['frosset/brevtekst.ts']],
+  // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
+  // med ett beløp (#1663).
+  ['frosset/standpunkt.ts', 'predikat', 'kanBesvaresMedEttBeloep', ['kommandoer/nyttelast.ts']],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   [
     'frosset/standpunkt.ts',
@@ -470,7 +500,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/standpunkt.ts',
     'regelsett',
-    'harHovedbeloep krevdProduktivitet harProduktivitetspost',
+    'krevdProduktivitet harProduktivitetspost',
     ['frosset/brevtekst.ts', 'utledning/utled.ts'],
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
@@ -799,20 +829,50 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'kommandoer/kommando.ts:oerefeil(innhold)',
     'kommando',
-    'beloep saerskilt',
+    'kravposter saerskilt saerskilt.produktivitet saerskilt.rigg_og_drift',
     ['kommandoer/kommando.ts:oerefeil'],
   ],
   [
-    'kommandoer/kommando.ts:oerefeil',
+    'kommandoer/kommando.ts:oerefeil(p)',
     'kommando',
-    'produktivitet',
+    'beloep anslag kostnadsoverslag',
     ['kommandoer/kommando.ts:oerefeil'],
   ],
+  ['kommandoer/kommando.ts:oerefeil', 'kommando', 'beloep', ['kommandoer/kommando.ts:oerefeil']],
+  // OV-U95 punkt 19–22, svar 6 A (#1673): skjemaet for vederlagskravet i kommandoen.
+  ['format/format.ts', 'skjema', 'vederlagsinnhold', ['kommandoer/kommando.ts:formfeil']],
+  // KA-U53, KA-U56, svar 4 A: kravpostene en ny versjon får id og betegnelse for, og
+  // versjonsreglene kommandoen og lesingen av journalen bruker.
   [
-    'kommandoer/kommando.ts:oerefeil.produktivitet',
+    'kommandoer/skriving.ts:medKravposter(innhold)',
     'kommando',
-    'beloep',
-    ['kommandoer/kommando.ts:oerefeil'],
+    'kravposter',
+    ['kommandoer/skriving.ts:medKravposter'],
+  ],
+  [
+    'kommandoer/skriving.ts:medKravposter(p)',
+    'kommando',
+    'id',
+    ['kommandoer/skriving.ts:medKravposter'],
+  ],
+  [
+    'Vederlagsinnhold',
+    'kommando',
+    'kravposter trekker',
+    ['utledning/kravposter.ts:kravposteneStrider'],
+  ],
+  ['Postinndata', 'kommando', 'id betegnelse', ['utledning/kravposter.ts:kravposteneStrider']],
+  [
+    'utledning/kravposter.ts',
+    'predikat',
+    'kravposteneStrider',
+    ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
+  ],
+  [
+    'utledning/kravposter.ts',
+    'relasjon',
+    'brukteBetegnelser nesteBetegnelse',
+    ['kommandoer/skriving.ts:medKravposter'],
   ],
   [
     'Kommando.innhold',

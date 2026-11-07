@@ -336,9 +336,10 @@ describe('et registrert svar leses ikke med en innsigelse (VS-U24, OV-U4)', () =
 describe('formatet har ingen negative beløp ennå (KA-U22, KA-U9)', () => {
   it('et krav og en utregning med negativt beløp avvises', () => {
     const { properties, required } = KRAVINNHOLD.vederlag;
-    expect(feilI({ metode: 'tilbud', beloep: -100000 }, objekt(properties, required))).not.toEqual(
-      []
-    );
+    const post = { id: 'p1', betegnelse: 'P1', beskrivelse: 'P1', oppgjoersform: 'tilbud' };
+    expect(
+      feilI({ kravposter: [{ ...post, beloep: -100000 }] }, objekt(properties, required))
+    ).not.toEqual([]);
     expect(
       feilI({ resultat: 'godkjent', godkjent_beloep: -100000 }, UTREGNING.vederlag!)
     ).not.toEqual([]);
