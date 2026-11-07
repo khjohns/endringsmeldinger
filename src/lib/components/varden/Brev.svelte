@@ -1,7 +1,8 @@
 <!--
   Brevet som lesespalte (Varden, skjerm C og D). Hodet følger `godkjenning-vederlagssvar.html:276-283`
   og LV-U23 så langt løsningen har opplysningene: avsender med organisasjon og part, mottakeren,
-  referansene og datoen. Et sendt brev har stempelet «Sendt …». Teksten kommer fra kjernen,
+  referansene og datoen. Referansene står på faste plasser som i Oslo kommunes brevmal
+  (system.md, «Typografi»), ikke i rekkefølgen i prototypen. Et sendt brev har stempelet «Sendt …». Teksten kommer fra kjernen,
   som frosset tekst i et sendt brev eller som låst tekst før sending. Visningen endrer den ikke.
 -->
 <script lang="ts">
@@ -21,6 +22,8 @@
     sendt,
     fot,
     innfelt = false,
+    hode = true,
+    dempet = false,
   }: {
     avsender: Part;
     sak: string;
@@ -39,6 +42,13 @@
     fot?: Snippet;
     /** Brevet står i en ramme som har kanten, som ved lesing ved siden av. */
     innfelt?: boolean;
+    /**
+     * Partene og referansene øverst. Uten dem står bare tittelen og teksten, der raden over
+     * brevet allerede sier hvem som sendte det og når (lesepanelet i BF-10).
+     */
+    hode?: boolean;
+    /** Tittelen ett hakk ned, når brevet leses ved siden av et utkast og raden over navngir det. */
+    dempet?: boolean;
   } = $props();
 
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
@@ -47,39 +57,42 @@
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 </script>
 
-<article class="brev" class:innfelt class:bh={avsender === 'BH'} aria-label={tittel}>
-  <header class="hode">
-    <div class="topp">
-      <p class="avsender">
-        <b>{organisasjoner[avsender] ?? stor(PARTNAVN[avsender])}</b>
-        {#if organisasjoner[avsender]}<span>{stor(PARTNAVN[avsender])}</span>{/if}
+<article class="brev" class:innfelt class:dempet class:bh={avsender === 'BH'} aria-label={tittel}>
+  {#if hode}<header class="hode">
+      <div class="topp">
+        <p class="avsender">
+          <b>{organisasjoner[avsender] ?? stor(PARTNAVN[avsender])}</b>
+          {#if organisasjoner[avsender]}<span>{stor(PARTNAVN[avsender])}</span>{/if}
+        </p>
+        {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span
+          >{/if}
+      </div>
+      <p class="mottaker">
+        {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(
+          PARTNAVN[mottaker]
+        )}
       </p>
-      {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span>{/if}
-    </div>
-    <p class="mottaker">
-      {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(PARTNAVN[mottaker])}
-    </p>
-    <dl class="ref">
-      <div>
-        <dt>Sak:</dt>
-        <dd>{sak}</dd>
-      </div>
-      {#if deresRef.length}<div>
-          <dt>Deres ref.:</dt>
-          <dd data-testid="deres-ref">
-            {#each deresRef as kode, i (i)}{#if i}<br />{/if}{kode}{/each}
-          </dd>
-        </div>{/if}
-      {#if merking !== null}<div>
-          <dt>Vår ref.:</dt>
-          <dd data-testid="vaar-ref">{merking}</dd>
-        </div>{/if}
-      <div>
-        <dt>Dato:</dt>
-        <dd>{dato}</dd>
-      </div>
-    </dl>
-  </header>
+      <dl class="ref">
+        <div class="sak">
+          <dt>Sak:</dt>
+          <dd>{sak}</dd>
+        </div>
+        {#if deresRef.length}<div class="deres">
+            <dt>Deres ref.:</dt>
+            <dd data-testid="deres-ref">
+              {#each deresRef as kode, i (i)}{#if i}<br />{/if}{kode}{/each}
+            </dd>
+          </div>{/if}
+        {#if merking !== null}<div class="vaar">
+            <dt>Vår ref.:</dt>
+            <dd data-testid="vaar-ref">{merking}</dd>
+          </div>{/if}
+        <div class="dato">
+          <dt>Dato:</dt>
+          <dd>{dato}</dd>
+        </div>
+      </dl>
+    </header>{/if}
   <h2>{tittel}</h2>
   <div class="tekst" data-testid="laast-tekst">
     {#each avsnitt as a, i (i)}
@@ -97,7 +110,6 @@
     background: var(--surface);
     border: var(--rule);
     border-radius: var(--r-kort);
-    --hodeskrift: var(--font-sans);
     font-family: var(--font-brev);
     font-size: 16px;
     color: var(--ink);
@@ -105,7 +117,6 @@
   }
   /* Oslo Sans i 11 pt har samme x-høyde som Source Serif 4 i 16 px (system.md, «Typografi»). */
   .brev.bh {
-    --hodeskrift: var(--font-brev-bh);
     font-family: var(--font-brev-bh);
     font-size: 11pt;
   }
@@ -123,7 +134,6 @@
     border-bottom: var(--rule);
   }
   .topp {
-    font-family: var(--hodeskrift);
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -143,6 +153,7 @@
     font-size: 12px;
   }
   .stempel {
+    font-family: var(--font-sans);
     padding: 2px var(--spacing-2);
     border: 1px solid var(--ink);
     border-radius: var(--r-merke);
@@ -152,12 +163,31 @@
     letter-spacing: 0.02em;
     white-space: nowrap;
   }
+  /* Faste plasser (system.md, «Typografi»). Et felt som mangler, står tomt. */
   .ref {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(7rem, auto));
-    gap: 2px 20px;
-    font-family: var(--hodeskrift);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'sak deres'
+      'vaar dato';
+    gap: var(--spacing-3) var(--spacing-5);
     font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .ref .sak {
+    grid-area: sak;
+  }
+  .ref .deres {
+    grid-area: deres;
+  }
+  .ref .vaar {
+    grid-area: vaar;
+  }
+  .ref .dato {
+    grid-area: dato;
+  }
+  .ref dd {
+    overflow-wrap: anywhere;
   }
   .ref dt {
     color: var(--ink-3);
@@ -167,6 +197,10 @@
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: var(--spacing-4);
+  }
+  .dempet h2 {
+    font-size: 16px;
+    margin-bottom: var(--spacing-3);
   }
   .tekst p {
     white-space: pre-line;

@@ -85,18 +85,28 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
 - `--font-sans` (Inter) for grensesnittet, 14 px med linjehøyde 1,5 som grunnlag. Inter
   lastes med optisk størrelse, så overskriftene strammes av seg selv. Overskriftene på 20 og
   24 px har i tillegg `--sperring-20` og `--sperring-24`, og vekten 600.
-- **Tall i Inter med `tabular-nums`**: beløp, dager, datoer og ID-er står under hverandre
-  og flytter seg ikke. Varden bruker ikke en egen tallskrift.
-- **Brevskriften følger avsenderen**, så partenes brev skiller seg fra appen og fra hverandre:
-  - Byggherrens brev står i Oslo Sans (`--font-brev-bh`), hodet også, i 11 pt. Det er
+- **Tall i Inter med `tabular-nums`**: beløp, dager, datoer og ID-er i grensesnittet står
+  under hverandre og flytter seg ikke. I brevet står de i brevskriften, også med
+  `tabular-nums`. Varden bruker ikke en egen tallskrift.
+- **Brevskriften følger avsenderen**, så partenes brev skiller seg fra appen og fra hverandre.
+  Hele brevet står i avsenderens skrift: avsender, mottaker, referanser, tittel og tekst, med
+  samme oppsett og vekter for begge parter. Stempelet «Sendt …» og linja under brevet er appens
+  og står i Inter (oppdragsgiver 07.11, [LV-U26](../docs/plans/vedtak.md#lv-u26), [LV-U58](../docs/plans/vedtak.md#lv-u58) og
+  [LV-U59](../docs/plans/vedtak.md#lv-u59)).
+  - Byggherrens brev står i Oslo Sans (`--font-brev-bh`) i 11 pt. Det er
     Oslo kommunes skrift, og lisensen gjelder bare Oslo kommunes egen kommunikasjon. Den
     brukes derfor aldri i totalentreprenørens brev. Filene hentes fra
     `@oslokommune/punkt-assets` og sjekkes ikke inn.
-  - Totalentreprenørens brev står i Source Serif 4 (`--font-brev`) i 16 px, med hodet i
-    Inter.
+  - Totalentreprenørens brev står i Source Serif 4 (`--font-brev`) i 16 px ([LV-U58](../docs/plans/vedtak.md#lv-u58)).
+  - Tegn brevskriften mangler, står i Noto Sans og Noto Sans Math
+    ([LV-U26](../docs/plans/vedtak.md#lv-u26)).
   - Begge har linjehøyde 1,6. Oslo Sans i 11 pt, Source Serif 4 i 16 px og Inter i 14 px
     har nesten samme x-høyde (7,6–7,8 px), så brevene og grensesnittet ser like store ut.
   - PDF-en som sendes, skal ha samme skrift og størrelse som forhåndsvisningen (#1652).
+- **Referansene i brevhodet står på faste plasser**, som i Oslo kommunes brevmal: to kolonner,
+  også på smal skjerm, med Sak og Vår ref. under til venstre og Deres ref. og Dato under til
+  høyre. Mangler et felt, står plassen tom, så Dato alltid står nederst til høyre
+  (oppdragsgiver 07.11). Det fulle hodet er #1173.
 - Hierarkiet bygges med vekt og blekknivå før størrelse.
 
 ## Avstand, mål og radius
@@ -122,6 +132,13 @@ en ny farge prøves form og tekst (oppdragsgiver 06.11, #1646).
 - **Utkast og interne ting** har `--draft`, `--draft-bg` og `--draft-border`, med
   stiplet kant. Det som ikke er sendt, skal aldri se sendt ut.
 - **Fokus** vises med `--control-focus` og `--control-focus-ring`.
+- **Svak rød i brevkontrollen** (`--danger-bg` med rød kant til venstre) står bare ved virkningen av
+  en handling som ikke kan gjøres om, som «Trekk påberopelsen», og ikke ellers i flaten. Teksten
+  sier selv at handlingen ikke kan gjøres om (`kanIkkeGjoeresOm` i `Brevkontroll`; oppdragsgiver
+  06.11, #1615). Ingen brevkontroll i Varden bruker den ennå, fordi trekket ikke er bygget.
+- **Rød knapp** (`variant="fare"`) står bare i dialogen som bekrefter en handling som ikke kan
+  gjøres om, som «Forkast utkast» i den nye versjonen av påberopelsen (oppdragsgiver 07.11,
+  PR 1650).
 - **En farge sier aldri det appen ikke kan slutte.** Ingen rødt for «for sent» og
   ingen farge for alvorlighet ved en frist. Vedtakene i [vedtaksfila](../docs/plans/vedtak.md)
   avgjør hva visningen kan si.
@@ -273,13 +290,40 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
+- **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (oppdragsgiver
+  06.11, PR 1650):
+  - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen, unntatt på 640 px
+    og smalere, der den ligger fast (oppdragsgiver 07.11, PR 1650) (`Utkastrad`):
+    «Tilbake til forholdet», skilt fra resten med en linje, siden sakslisten er felt inn, «Utkast»
+    med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
+    «Forhåndsvis brevet» ytterst til høyre, så handlingen står ved brevet den gjelder. Det gule er
+    raden, ikke utkastet. Raden står øverst, der «Tilbake til utkastet» står i brevkontrollen.
+  - Utkastet står til venstre (`Brevutkast`, om lag 60 prosent): et hvitt kort med emnet,
+    «Begrunnelse», som kreves og vokser med teksten, og «Forkast utkast» nederst under en linje
+    (`Forkastutkast`). Mangler begrunnelsen, står beskjeden rett under feltet, uten lista øverst,
+    siden feltet er alene (oppdragsgiver 07.11, PR 1650).
+  - Brevene TE bygger på, står til høyre (om lag 40 prosent) og begynner på samme høyde som
+    utkastet: «Tidligere brev om forholdet» som kompakt brevvalg med parten i en ring og ett brev
+    åpent om gangen (svaret fra start), med brevhodet og tittelen ett hakk ned. Et langt brev
+    ruller i rammen, og tidslinja står lagt sammen under.
+  - Brevkontrollen heter «Kontroller og send» og har bare mottakeren, siden avsenderen er TE selv.
+  - Mønsteret er oversikt › arbeidsflate › bekreft, og hvert område har bare det som trengs for
+    formålet sitt: å velge handling, å skrive og å kontrollere brevet før sending. Det som står
+    fast i en ny versjon, står på oversikten med veien til det som kan endre det: «Korriger
+    datoen» ved datoen i brevtråden, og «Annen hjemmel eller endringsordre? Opprett ny sak →»
+    under kortet «Det du kan gjøre nå», før tidslinja. At forholdet og endringsordren står fast,
+    sier skjemaet for ny sak, der TE velger dem.
+  - I brevkontrollen står virkningen under en egen overskrift, «Når du sender», når det er en.
 - **En knapp er aldri sperret** ([MM-U32](#mm-u32)). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens
   avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
   mens en sending pågår.
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
-  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog.
+  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog. Unntaket er den nye
+  versjonen av påberopelsen, der den spør i en dialog med «Behold utkastet» og en rød «Forkast
+  utkast» (`Knapp` med `variant="fare"`). Rødt på en knapp står bare der handlingen ikke kan
+  gjøres om, og teksten sier det (oppdragsgiver 07.11, PR 1650).
 - **Utkastet sier det selv.** Hodet på utkastkortet og sendepanelet i brevkontrollen
   sier «Utkast · ikke sendt». Merket «Utkast» i panelet til venstre vises bare når et
   annet spor er valgt, så statusen aldri står to steder samtidig.
@@ -292,14 +336,15 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   den gjør. Primærhandlingen er svaret på motpartens siste brev når det ikke er besvart. Etter
   byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Revider krav»
   ellers). Ellers har kortet ingen primærhandling, også når TE har korrigert datoen (oppdragsgiver
-  06.11, #1649). Regelen er vedtatt; BHs svar i forholdet er ikke bygget som primærhandling ennå,
-  og uten lenke til den gamle visningen er «Godta svaret» primær til «Oppdater påberopelse» er
-  bygget (#1649). «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  06.11, #1649). Demoruta og den ekte saksruta har samme primærhandling. Er den ikke bygget i
+  Varden, åpner den dagens visning, og uten lenke dit sier den at den ikke er bygget. «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  Innsigelsen om at et brev kom for sent står ikke i kortet: den hører hjemme i svaret på
+  brevet eller i et innlegg, som ikke er bygget (oppdragsgiver 06.11, PR 1650).
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
   `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
   ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to
-  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da ikke kan
-  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
+  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. En ny versjon av kravet sier hvilket brev den følger opp, og at svaret
+  da ikke kan godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
   BF-02A (#1615). En brevtype som ikke er bygget i Varden, har samme form og pil som de andre
   (oppdragsgiver 06.11, #1646).
 - **Brevene om forholdet** står i en tråd. Partene skilles med form, ikke med farge: BH har

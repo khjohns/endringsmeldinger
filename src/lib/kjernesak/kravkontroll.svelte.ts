@@ -90,10 +90,7 @@ function kommandoFraSkjema(
   }
   if (spor === 'grunnlag' && type === 'grunnlag_oppdatert')
     return {
-      kommando: grunnlagsversjonFraSkjema(
-        kjernesak.utledning?.spor.forhold.gjeldendeKrav?.innhold,
-        data
-      ),
+      kommando: grunnlagsversjonFraSkjema(kjernesak.utledning, data),
     };
   throw new Error('Dette skjemaet kan ikke sendes for denne saken ennå.');
 }

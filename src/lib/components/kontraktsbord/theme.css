@@ -30,9 +30,10 @@
   --font-legal: 'IBM Plex Sans', 'Inter', sans-serif;
 
   /* Brevene i Varden (oppdragsgiver 07.11): byggherrens i Oslo Sans, totalentreprenørens i
-     Source Serif 4. Sperringen strammer overskriftene i Inter, som har optisk størrelse. */
-  --font-brev: 'Source Serif 4', Georgia, serif;
-  --font-brev-bh: 'Oslo Sans', 'Inter', sans-serif;
+     Source Serif 4. Tegn skriften mangler, står i Noto Sans og Noto Sans Math (LV-U26).
+     Sperringen strammer overskriftene i Inter, som har optisk størrelse. */
+  --font-brev: 'Source Serif 4', 'Noto Sans', 'Noto Sans Math', serif;
+  --font-brev-bh: 'Oslo Sans', 'Noto Sans', 'Noto Sans Math', sans-serif;
   --sperring-20: -0.01em;
   --sperring-24: -0.015em;
 

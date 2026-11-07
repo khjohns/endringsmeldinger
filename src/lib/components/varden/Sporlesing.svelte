@@ -7,7 +7,7 @@
   kjernen regner ut, står før sendingen.
 -->
 <script lang="ts">
-  import { ChevronRight } from 'lucide-svelte';
+  import { ArrowRight, ChevronRight } from 'lucide-svelte';
   import { tick } from 'svelte';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { brevaarsak } from '$lib/kjernesak/kontekst.svelte';
@@ -37,8 +37,6 @@
     brevhode,
     brevtittel,
     dato,
-    innsigelsen,
-    innsigelsensVirkning,
     varselet,
   } from './tekster';
 
@@ -51,6 +49,7 @@
     onkorriger,
     onakseptbrev,
     dagensVisning,
+    nySak,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -61,6 +60,8 @@
     onspor?: (spor: Spor) => void;
     /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
     dagensVisning?: string;
+    /** Lenken til skjemaet for ny sak, når TE kan sende en ny versjon av påberopelsen (BF-10 U-2). */
+    nySak?: string;
     /** TE velger «Korriger datoen» ved opplysningen (U-1 i BF-02A). */
     onkorriger?: (opplysning: string) => void;
     onakseptbrev: (k: {
@@ -89,24 +90,33 @@
   const vist = $derived(lestBrev ?? (kanGodta && svarbrevet ? svarbrevet : siste));
   // Handlingene står i et kort øverst i høyre kolonne, på linje med kortet i midten, i alle
   // tilstandene til sporet, som i prototypen `grunnlagsoversikt.html` (oppdragsgiver 05.11, #1631).
-  // Primærhandlingen etter et svar er den nye versjonen, så byggherren vurderer kravet på nytt
-  // (oppdragsgiver 06.11, #1631). Den åpner dagens visning til den er bygget i Varden; uten den
-  // er aksepten primærhandlingen. Ellers er primærhandlingen å svare på kravet.
-  const nyVersjon = $derived(
-    kanGodta && dagensVisning && iSporet.includes(`krav:${spor}`) ? `krav:${spor}` : null
+  // Primærhandlingen er svaret på motpartens siste brev når kjernen tilbyr det, og etter
+  // byggherrens svar TEs nye versjon. Ellers har kortet ingen (oppdragsgiver 06.11, #1649).
+  const primaer = $derived(
+    iSporet.includes(`svare:${spor}`)
+      ? `svare:${spor}`
+      : kanGodta && iSporet.includes(`krav:${spor}`)
+        ? `krav:${spor}`
+        : null
   );
-  const godta = $derived(kanGodta && !nyVersjon ? `godta:${spor}` : null);
-  const svare = $derived(
-    !kanGodta && spor === 'vederlag' && iSporet.includes('svare:vederlag') ? 'svare:vederlag' : null
-  );
-  const harPrimaer = $derived(!!(nyVersjon || godta || svare));
+  const harPrimaer = $derived(primaer !== null);
+  // Skjemaene Varden har: svaret på vederlagskravet og den nye versjonen av påberopelsen (BF-10).
+  // Ny versjon av vederlags- og fristkravet åpner dagens visning (BF-02B).
+  const bygget = $derived([
+    'godta',
+    ...(spor === 'vederlag' ? ['svare'] : spor === 'forhold' ? ['krav'] : []),
+  ]);
+  const primaerBygget = $derived(!!primaer && bygget.includes(primaer.split(':')[0]));
+  let primaerIkkeBygget = $state(false);
   // Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista (U-1 i BF-02A, #1615).
   const korrigerbare = $derived(
     kjernesak.handlinger.filter((n) => n.startsWith('korrigere:')).map((n) => n.slice(10))
   );
+  // Innsigelsen om at et brev kom for sent er ikke en handling i Varden. Den hører hjemme i
+  // svaret på brevet eller i et innlegg (oppdragsgiver 06.11, PR 1650).
   const menyvalg = $derived(
     iSporet.filter(
-      (n) => n !== nyVersjon && n !== godta && n !== svare && !n.startsWith('korrigere:')
+      (n) => n !== primaer && !n.startsWith('korrigere:') && !n.startsWith('innsigelse:')
     )
   );
   const avslag = $derived(
@@ -139,17 +149,17 @@
     svaret?.standpunkter.find((s) => s.art === 'rettidighet' && !s.iTide) ?? null
   );
 
-  /** Teksten for et varsel med hjemmelen, og for innsigelsen mot et bestemt krav eller svar. */
+  /** Teksten for et varsel med hjemmelen, og for handlingene i forholdet og etter svaret. */
   function innsigelsestekst(n: string): string | null {
     const [type, id] = n.split(':');
     if (type === 'varsle' || type === 'sende_varsel') return varselet(type, id);
     if (n === 'trekke:forhold') return FORHOLDET.trekk;
     if (n === `godta:${spor}`) return HANDLINGENE.godta(avslag);
-    if (n === 'krav:forhold') return kanGodta ? FORHOLDET.oppdater : FORHOLDET.nyVersjon;
+    if (n === 'svare:forhold')
+      return u.spor.forhold.krav.length > 1 ? FORHOLDET.svarNyVersjon : FORHOLDET.svar;
+    if (n === 'krav:forhold') return FORHOLDET.oppdater;
     if (type === 'krav' && kanGodta) return HANDLINGENE.revidertKrav;
-    const e = u.elementer[id];
-    if (type !== 'innsigelse' || !e) return null;
-    return innsigelsen(e.art, sporbrev.find((b) => b.id === e.hendelse)?.nummer ?? null);
+    return null;
   }
 
   /** Linja under handlingen: hva den gjør med saken. */
@@ -157,10 +167,6 @@
     if (n === `godta:${spor}` && svarbrevet) return HANDLINGENE.virkning.godta(svarbrevet);
     if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
     if (n.startsWith('trekke:')) return HANDLINGENE.virkning.trekkKravet;
-    if (n.startsWith('innsigelse:')) {
-      const e = u.elementer[n.split(':')[1]];
-      return e ? innsigelsensVirkning(e.art) : null;
-    }
     if (n.startsWith('krav:')) {
       const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
       if (kanGodta)
@@ -214,7 +220,7 @@
   <Brevtyper
     tittel={harPrimaer ? HANDLINGENE.andre : null}
     handlinger={menyvalg}
-    bygget={['godta', ...(spor === 'vederlag' ? ['svare'] : [])]}
+    {bygget}
     tekstFor={innsigelsestekst}
     beskrivelseFor={virkningen}
     {dagensVisning}
@@ -271,37 +277,58 @@
     {#if menyvalg.length || harPrimaer}
       <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
         <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
-        {#if nyVersjon}
-          {@const linje = virkningen(nyVersjon)}
+        {#if primaer}
+          {@const linje = virkningen(primaer)}
+          {@const tekst =
+            innsigelsestekst(primaer) ??
+            BREVTYPER.find((b) => b.type === primaer!.split(':')[0])!.tekst}
           <div class="primaer">
-            <Knapp variant="primaer" href={dagensVisning} aria-describedby={`${uid}-primaer`}
-              >{innsigelsestekst(nyVersjon)}<ChevronRight size={16} aria-hidden="true" /></Knapp
-            >
-            <p class="dempet" id={`${uid}-primaer`}>{linje}</p>
+            {#if primaerBygget}
+              <Knapp
+                variant="primaer"
+                onclick={() => velg(primaer!)}
+                aria-describedby={linje ? `${uid}-primaer` : undefined}
+                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
+              >
+            {:else if dagensVisning}
+              <Knapp
+                variant="primaer"
+                href={dagensVisning}
+                aria-describedby={linje ? `${uid}-primaer` : undefined}
+                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
+              >
+            {:else}
+              <Knapp
+                variant="primaer"
+                onclick={() => (primaerIkkeBygget = true)}
+                aria-describedby={linje ? `${uid}-primaer` : undefined}
+                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
+              >
+            {/if}
+            {#if linje}<p class="dempet" id={`${uid}-primaer`}>{linje}</p>{/if}
+            {#if !primaerBygget && !dagensVisning}
+              <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
+              <p class="dempet" role="status">
+                {primaerIkkeBygget ? HANDLINGENE.ikkeBygget : ''}
+              </p>
+            {/if}
           </div>
-        {:else if godta}
-          <div class="primaer">
-            <Knapp
-              variant="primaer"
-              onclick={() => velg(godta!)}
-              aria-describedby={`${uid}-primaer`}
-              >{HANDLINGENE.godta(avslag)}<ChevronRight size={16} aria-hidden="true" /></Knapp
-            >
-            {#if svarbrevet}<p class="dempet" id={`${uid}-primaer`}>
-                {HANDLINGENE.virkning.godta(svarbrevet)}
-              </p>{/if}
-          </div>
-        {:else if svare}
-          <Knapp variant="primaer" onclick={() => onvelg(svare!)}
-            >{BREVTYPER.find((b) => b.type === 'svare')!.tekst}<ChevronRight
-              size={16}
-              aria-hidden="true"
-            /></Knapp
-          >
         {/if}
         {@render meny()}
         {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}
       </section>
+    {/if}
+    {#if nySak}
+      <!-- Under kortet, ikke i det: kortet samler valgene i denne saken, og lenken starter en annen. -->
+      <p class="annen">
+        {FORHOLDET.annen}
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+        <a href={nySak} target="_blank" rel="noopener"
+          >{FORHOLDET.annenLenke}<ArrowRight size={16} aria-hidden="true" /><span
+            class="visually-hidden">{FORHOLDET.nyFane}</span
+          ></a
+        >
+      </p>
     {/if}
     <Tidslinje brev={sporbrev} datoer={datoerISporet(u, spor)} />
   {/snippet}
@@ -338,6 +365,26 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-2);
+  }
+  .annen {
+    display: grid;
+    justify-items: start;
+    gap: var(--spacing-1);
+    padding: var(--spacing-2) var(--spacing-5) var(--spacing-2);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .annen a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .annen a:hover {
+    text-decoration-thickness: 2px;
   }
   .tomt {
     padding: var(--spacing-6);

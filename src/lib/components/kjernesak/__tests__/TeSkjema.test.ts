@@ -207,7 +207,6 @@ describe('fristsporet fra TE-skjemaet', () => {
 describe('ny versjon av kravet', () => {
   it('en ny grunnlagsversjon har kategorien og datoen fra gjeldende versjon, og kjernen godtar den (GR-U22, VS-U26)', async () => {
     const u = utledJournal(medGrunnlag, KJERNE);
-    const gjeldende = u.spor.forhold.gjeldendeKrav!;
     const send = vi.fn().mockResolvedValue(true);
     const brev = vi.fn().mockReturnValue({ tekst: ['brevet TE ser'] });
     const kontroll = lagKravkontroll({
@@ -232,8 +231,20 @@ describe('ny versjon av kravet', () => {
       },
       utdypning: 'BH påla ny peling i akse 3.',
     });
-    expect(nyPaaberopelsesversjon(gjeldende.innhold, ' ')).not.toHaveProperty('utdypning');
+    expect(nyPaaberopelsesversjon(u, ' ')).not.toHaveProperty('utdypning');
     expect(() => skrevet(medGrunnlag, 'TE', kommando)).not.toThrow();
+  });
+
+  it('#1617: etter en korrigering har den nye grunnlagsversjonen den korrigerte datoen, og kjernen godtar den (MM-U52 punkt 10)', () => {
+    const krav = utledJournal(medGrunnlag, KJERNE).spor.forhold.gjeldendeKrav!;
+    const korrigert = skrevet(medGrunnlag, 'TE', {
+      type: 'korrigering',
+      gjelder: krav.id,
+      paalegg_mottatt: '2026-09-20',
+    });
+    const kommando = nyPaaberopelsesversjon(utledJournal(korrigert, KJERNE), 'Utdypet.');
+    expect(kommando.innhold).toMatchObject({ paalegg_mottatt: '2026-09-20' });
+    expect(() => skrevet(korrigert, 'TE', kommando)).not.toThrow();
   });
 
   it('en ny versjon av fristkravet sendes som krav (#909)', async () => {

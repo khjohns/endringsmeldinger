@@ -11,7 +11,6 @@
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
   import Brev from './Brev.svelte';
-  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
@@ -26,10 +25,13 @@
     deresRef,
     tittel,
     handling,
+    bareMottaker = false,
     svarerPaa,
+    relasjoner = [],
     henvisning = BREVKONTROLL.svarerPaa,
     detteSender,
     virkninger,
+    kanIkkeGjoeresOm = false,
     sendTekst,
     tilbakeTil,
     ontilbake,
@@ -49,13 +51,27 @@
     merking: string | null;
     deresRef: string[];
     tittel: string | null;
-    /** Det avsenderen gjør, som overskrift i panelet. */
+    /** Det avsenderen gjør, eller emnet i utkastet, som overskrift i panelet. */
     handling: string;
+    /**
+     * Bare mottakeren i faktaene, uten avsenderen, som er TE selv (oppdragsgiver 07.11, PR 1650).
+     */
+    bareMottaker?: boolean;
     svarerPaa: Brevref | null;
     /** Ordet foran brevet i `svarerPaa`: «Svarer på», eller «Viser til» for en korrigering. */
     henvisning?: string;
+    /**
+     * Brevene dette brevet står i forhold til, som «Erstatter» og «Viser til» for en ny versjon
+     * (oppdragsgiver 06.11, PR 1650). De står i stedet for `svarerPaa`.
+     */
+    relasjoner?: { hva: string; brev: string }[];
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
+    /**
+     * Handlingen kan ikke gjøres om, som trekket av påberopelsen. Virkningen står da i svak rød,
+     * bare her i brevkontrollen (oppdragsgiver 06.11, #1615).
+     */
+    kanIkkeGjoeresOm?: boolean;
     sendTekst: string;
     tilbakeTil: string;
     ontilbake: () => void;
@@ -111,10 +127,13 @@
 </script>
 
 <div class="kontroll">
-  <div class="venstre">
+  <!-- Lenken står over begge kolonnene, så brevet og sendepanelet begynner på samme høyde. -->
+  <p class="tilbake">
     <Knapp variant="lenke" onclick={tilbake}
       ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
     >
+  </p>
+  <div class="venstre">
     <Brev
       {avsender}
       sak={kjernesak.saksbilde?.tittel ?? ''}
@@ -132,29 +151,46 @@
   <section class="panel" aria-label="Sending">
     <header class="hode">
       <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
-      <h2 tabindex="-1" bind:this={tittelen}>
-        {handling}<Infotips navn={BREVKONTROLL.omBrevet} tekst={BREVKONTROLL.laast} />
-      </h2>
+      <h2 tabindex="-1" bind:this={tittelen}>{handling}</h2>
     </header>
     <dl class="fakta">
-      <dt>{BREVKONTROLL.fra}</dt>
-      <dd>{partnavn(avsender)}</dd>
-      <dt>{BREVKONTROLL.til}</dt>
-      <dd>{partnavn(mottaker)}</dd>
-      {#if svarerPaa}
-        <dt>{henvisning}</dt>
-        <dd>{BREVKONTROLL.svarerPaaBrev(svarerPaa)}</dd>
+      {#if bareMottaker}
+        <dt>{BREVKONTROLL.mottaker}</dt>
+        <dd>{partnavn(mottaker)}</dd>
+      {:else}
+        <dt>{BREVKONTROLL.fra}</dt>
+        <dd>{partnavn(avsender)}</dd>
+        <dt>{BREVKONTROLL.til}</dt>
+        <dd>{partnavn(mottaker)}</dd>
       {/if}
+      {#each relasjoner as r (r.hva)}
+        <dt>{r.hva}</dt>
+        <dd>{r.brev}</dd>
+      {:else}
+        {#if svarerPaa}
+          <dt>{henvisning}</dt>
+          <dd>{BREVKONTROLL.svarerPaaBrev(svarerPaa)}</dd>
+        {/if}
+      {/each}
     </dl>
-    <div class="sender">
-      <h3>{BREVKONTROLL.detteSender}</h3>
-      <ul>
-        {#each detteSender as l, i (i)}
-          <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
-        {/each}
-      </ul>
-      {#each virkninger as b, i (i)}<p>{b}</p>{/each}
-    </div>
+    {#if detteSender.length}
+      <div class="sender">
+        <h3>{BREVKONTROLL.detteSender}</h3>
+        <ul>
+          {#each detteSender as l, i (i)}
+            <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
+    {#if virkninger.length}
+      <div class="virkning">
+        <h3>{BREVKONTROLL.naarDuSender}</h3>
+        <div class="virkninger" class:endelig={kanIkkeGjoeresOm}>
+          {#each virkninger as b, i (i)}<p>{b}</p>{/each}
+        </div>
+      </div>
+    {/if}
     <div class="send">
       <label class="avkryss" class:ugyldig={manglerKontroll && !kontrollert}>
         <input
@@ -187,8 +223,11 @@
     display: grid;
     grid-template-columns: minmax(0, var(--varden-ark)) var(--varden-stoette);
     justify-content: center;
-    gap: var(--spacing-6);
+    gap: var(--spacing-3) var(--spacing-6);
     align-items: start;
+  }
+  .tilbake {
+    grid-column: 1 / -1;
   }
   .venstre {
     display: flex;
@@ -205,12 +244,14 @@
   .hode,
   .fakta,
   .sender,
+  .virkning,
   .send {
     padding: var(--spacing-5);
   }
   .hode,
   .fakta,
-  .sender {
+  .sender,
+  .virkning {
     border-bottom: var(--rule);
   }
   .merke-utkast {
@@ -230,8 +271,8 @@
   }
   .fakta {
     display: grid;
-    grid-template-columns: 96px 1fr;
-    row-gap: var(--spacing-2);
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: var(--spacing-2) var(--spacing-5);
     font-size: 14px;
   }
   .fakta dt {
@@ -243,14 +284,27 @@
     margin-bottom: var(--spacing-2);
   }
   ul {
+    display: grid;
+    gap: var(--spacing-2);
     list-style: disc;
     padding-left: var(--spacing-5);
     margin-bottom: var(--spacing-3);
     font-size: 14px;
   }
-  .sender p {
+  ul:last-child {
+    margin-bottom: 0;
+  }
+  .virkninger {
+    display: grid;
+    gap: var(--spacing-2);
     font-size: 14px;
-    margin-top: var(--spacing-2);
+  }
+  /* Bare for en handling som ikke kan gjøres om, og teksten sier det selv (system.md). */
+  .virkninger.endelig {
+    margin-top: var(--spacing-3);
+    padding: var(--spacing-1) var(--spacing-3) var(--spacing-3);
+    border-left: 3px solid var(--danger);
+    background: var(--danger-bg);
   }
   .send {
     display: flex;
