@@ -188,3 +188,16 @@ henvisninger til OV-U94 gjaldt `kjerne/`, `server/`, `src/`, `docs/domenetabell/
 og alternativene mot vedtakene. Den fant ingen motstrid med et gjeldende vedtak. Funnene er rettet
 her, og funnet om punkt 3 er spørsmål 2. Ikke rettet: henvisningene til EO-U34 i punkt 12, 16 og 18
 står, fordi de gjelder versjon 2 (EO-U38). NS 8407 og teksten i OV-U89 er ikke lest for denne fila.
+
+## Svarene
+
+Oppdragsgiver 07.11, ordrett:
+
+> A, A
+
+- **1 A:** samlevedtaket for vederlagsmetoden, versjon 2, gjelder med E8–E16, uten rettelser. B er
+  forkastet.
+- **2 A:** brevet bruker teksten med «i tillegg» når vederlagsjusteringen har minst én kravpost, og
+  teksten uten «i tillegg» når kravet bare har den særskilte vederlagsjusteringen. B er forkastet.
+
+Ført som [OV-U95](../plans/vedtak.md#ov-u95).
