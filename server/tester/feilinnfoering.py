@@ -195,7 +195,7 @@ FEILINNFOERINGER = [
      "if (HOEYRE_MOT_VENSTRE.test(tegn) || SKILLETEGN.test(tegn))", "if (SKILLETEGN.test(tegn))",
      "tabellen i kjernen er den `node server/tegnsett.ts` lager"),
     ("S50", "PDF-en setter ligaturer og oppdelinger fra GSUB, som ikke leses tilbake tro (#801)", "server/brevpdf.ts",
-     "{ subset: true, features: UTEN_SUBSTITUSJON }", "{ subset: true }",
+     "{ subset: s.delmengde, features: UTEN_SUBSTITUSJON }", "{ subset: s.delmengde }",
      "hvert tegn kjernen godtar, kommer tilbake fra PDF-en"),
     ("S51", "tegntabellen tar med kodepunkter som deler glyf med et annet (#801)", "server/tegnsett.ts",
      "const ut = kodepunkterMedDeltGlyf();", "const ut = new Set<number>();",
