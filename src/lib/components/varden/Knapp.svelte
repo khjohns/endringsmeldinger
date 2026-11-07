@@ -15,7 +15,8 @@
     children,
     ...rest
   }: {
-    variant?: 'primaer' | 'sekundaer' | 'lenke';
+    /** `fare` bare for å bekrefte en handling som ikke kan gjøres om (system.md). */
+    variant?: 'primaer' | 'sekundaer' | 'lenke' | 'fare';
     opptatt?: boolean;
     /** Kalleren gir lenken løst. */
     href?: string;
@@ -75,6 +76,14 @@
   }
   .knapp-sekundaer:hover {
     background: var(--surface-inset);
+  }
+  .knapp-fare {
+    background: var(--danger);
+    color: #fff;
+    border: 1px solid var(--danger);
+  }
+  .knapp-fare:hover {
+    background: color-mix(in srgb, var(--danger) 85%, black);
   }
   .knapp-lenke {
     min-height: 44px;

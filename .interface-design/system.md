@@ -113,6 +113,9 @@ en ny farge prøves form og tekst (oppdragsgiver 06.11, #1646).
   en handling som ikke kan gjøres om, som «Trekk påberopelsen», og ikke ellers i flaten. Teksten
   sier selv at handlingen ikke kan gjøres om (`kanIkkeGjoeresOm` i `Brevkontroll`; oppdragsgiver
   06.11, #1615). Ingen brevkontroll i Varden bruker den ennå, fordi trekket ikke er bygget.
+- **Rød knapp** (`variant="fare"`) står bare i dialogen som bekrefter en handling som ikke kan
+  gjøres om, som «Forkast utkast» i den nye versjonen av påberopelsen (oppdragsgiver 07.11,
+  PR 1650).
 - **En farge sier aldri det appen ikke kan slutte.** Ingen rødt for «for sent» og
   ingen farge for alvorlighet ved en frist. Vedtakene i [vedtaksfila](../docs/plans/vedtak.md)
   avgjør hva visningen kan si.
@@ -266,25 +269,25 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
 - **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (oppdragsgiver
   06.11, PR 1650):
-  - En arbeidsrad over begge kolonnene følger rullingen (`Utkastrad`): saken og brevtypen,
-    «Utkast» med lås og «Utkastvalg» (tre prikker) til venstre, og «Forhåndsvis brevet» ytterst
-    til høyre, så handlingen står ved brevet den gjelder. Menyen åpner på linja, med synligheten
-    og «Forkast utkast», som bekreftes i en dialog. «Tilbake til forholdet» står over raden,
-    siden sakslisten er felt inn.
-  - Brevet TE skriver, står til venstre (`Brevutkast`, om lag 60 prosent): et grunt, lyst gult
-    brevhode med emnet i 20 px og «Til byggherren · Gjelder brev 1» under, én heltrukket linje mot
-    den hvite flaten, og samme venstrekant for emnet og begrunnelsen. Feltet vokser med teksten.
+  - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen (`Utkastrad`):
+    «Utkast» med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under,
+    og «Forhåndsvis brevet» ytterst til høyre, så handlingen står ved brevet den gjelder. Det gule
+    er raden, ikke utkastet. «Tilbake til forholdet» står over raden, siden sakslisten er felt inn.
+  - Utkastet står til venstre (`Brevutkast`, om lag 60 prosent): et hvitt kort med emnet,
+    «Begrunnelse», som kreves og vokser med teksten, og «Forkast utkast» nederst under en linje
+    (`Forkastutkast`).
   - Brevene TE bygger på, står til høyre (om lag 40 prosent) og begynner på samme høyde som
-    brevhodet: «Tidligere brev om forholdet» som kompakt brevvalg med ett brev åpent om gangen
-    (svaret fra start), uten brevhode og med tittelen ett hakk ned, siden raden navngir brevet.
-    Et langt brev ruller i rammen, og tidslinja står lagt sammen under.
+    utkastet: «Tidligere brev om forholdet» som kompakt brevvalg med parten i en ring og ett brev
+    åpent om gangen (svaret fra start), med brevhodet og tittelen ett hakk ned. Et langt brev
+    ruller i rammen, og tidslinja står lagt sammen under.
+  - Brevkontrollen heter «Kontroller og send» og har bare mottakeren, siden avsenderen er TE selv.
   - Mønsteret er oversikt › arbeidsflate › bekreft, og hvert område har bare det som trengs for
     formålet sitt: å velge handling, å skrive og å kontrollere brevet før sending. Det som står
     fast i en ny versjon, står på oversikten med veien til det som kan endre det: «Korriger
     datoen» ved datoen i brevtråden, og «Annen hjemmel eller endringsordre? Opprett ny sak →»
     under kortet «Det du kan gjøre nå», før tidslinja. At forholdet og endringsordren står fast,
     sier skjemaet for ny sak, der TE velger dem.
-  - I brevkontrollen står virkningen under en egen overskrift, «Når du sender».
+  - I brevkontrollen står virkningen under en egen overskrift, «Når du sender», når det er en.
 - **En knapp er aldri sperret** ([MM-U32](#mm-u32)). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens
@@ -292,7 +295,9 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   mens en sending pågår.
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
   Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog. Unntaket er den nye
-  versjonen av påberopelsen, der valget ligger i «Utkastvalg» og spør i en dialog.
+  versjonen av påberopelsen, der den spør i en dialog med «Behold utkastet» og en rød «Forkast
+  utkast» (`Knapp` med `variant="fare"`). Rødt på en knapp står bare der handlingen ikke kan
+  gjøres om, og teksten sier det (oppdragsgiver 07.11, PR 1650).
 - **Utkastet sier det selv.** Hodet på utkastkortet og sendepanelet i brevkontrollen
   sier «Utkast · ikke sendt». Merket «Utkast» i panelet til venstre vises bare når et
   annet spor er valgt, så statusen aldri står to steder samtidig.

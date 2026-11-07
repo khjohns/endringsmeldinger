@@ -26,7 +26,7 @@
     deresRef,
     tittel,
     handling,
-    overlinje = null,
+    bareMottaker = false,
     svarerPaa,
     relasjoner = [],
     henvisning = BREVKONTROLL.svarerPaa,
@@ -54,8 +54,10 @@
     tittel: string | null;
     /** Det avsenderen gjør, eller emnet i utkastet, som overskrift i panelet. */
     handling: string;
-    /** Saken og brevtypen over overskriften, som i utkastet («KOE-1 · Oppdatert påberopelse»). */
-    overlinje?: string | null;
+    /**
+     * Bare mottakeren i faktaene, uten avsenderen, som er TE selv (oppdragsgiver 07.11, PR 1650).
+     */
+    bareMottaker?: boolean;
     svarerPaa: Brevref | null;
     /** Ordet foran brevet i `svarerPaa`: «Svarer på», eller «Viser til» for en korrigering. */
     henvisning?: string;
@@ -146,19 +148,21 @@
 
   <section class="panel" aria-label="Sending">
     <header class="hode">
-      <p class="overrad">
-        <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
-        {#if overlinje}<span class="over">{overlinje}</span>{/if}
-      </p>
+      <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
       <h2 tabindex="-1" bind:this={tittelen}>
         {handling}<Infotips navn={BREVKONTROLL.omBrevet} tekst={BREVKONTROLL.laast} />
       </h2>
     </header>
     <dl class="fakta">
-      <dt>{BREVKONTROLL.fra}</dt>
-      <dd>{partnavn(avsender)}</dd>
-      <dt>{BREVKONTROLL.til}</dt>
-      <dd>{partnavn(mottaker)}</dd>
+      {#if bareMottaker}
+        <dt>{BREVKONTROLL.mottaker}</dt>
+        <dd>{partnavn(mottaker)}</dd>
+      {:else}
+        <dt>{BREVKONTROLL.fra}</dt>
+        <dd>{partnavn(avsender)}</dd>
+        <dt>{BREVKONTROLL.til}</dt>
+        <dd>{partnavn(mottaker)}</dd>
+      {/if}
       {#each relasjoner as r (r.hva)}
         <dt>{r.hva}</dt>
         <dd>{r.brev}</dd>
@@ -246,16 +250,6 @@
   .sender,
   .virkning {
     border-bottom: var(--rule);
-  }
-  .overrad {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-2);
-  }
-  .over {
-    font-size: 14px;
-    color: var(--ink-2);
   }
   .merke-utkast {
     display: inline-block;

@@ -22,7 +22,6 @@
   import { brevene, datoopplysningene, forholdetISaken, type Brevref } from './lesing';
   import {
     BREVKONTROLL,
-    FORHOLDET,
     KORRIGERING,
     MOTTATT,
     NYVERSJON,
@@ -82,7 +81,8 @@
     deresRef: string[];
     tittel: string | null;
     handling: string;
-    overlinje?: string | null;
+    /** Bare mottakeren i faktaene, for den nye versjonen (oppdragsgiver 07.11, PR 1650). */
+    bareMottaker?: boolean;
     sendTekst: string;
     tilbakeTil: string;
     svarerPaa: Brevref | null;
@@ -327,7 +327,7 @@
           deresRef={k.deresRef}
           tittel={k.tittel}
           handling={k.handling}
-          overlinje={k.overlinje}
+          bareMottaker={k.bareMottaker}
           svarerPaa={k.svarerPaa}
           henvisning={k.henvisning}
           relasjoner={k.relasjoner}
@@ -372,7 +372,6 @@
         <Paaberopelsesversjon
           {kjernesak}
           {u}
-          {sakskode}
           bind:tekst={nyVersjonstekst}
           onforkast={forkastNyVersjon}
           ontilbake={() => velgSpor('forhold')}
@@ -383,10 +382,8 @@
             arbeid = {
               art: 'kontroll',
               ...k,
-              // Samme emne og linje som i utkastet, så TE kjenner igjen brevet (PR 1650).
-              handling:
-                kjernesak.saksbilde?.tittel || (svaret ? FORHOLDET.oppdater : FORHOLDET.nyVersjon),
-              overlinje: NYVERSJON.overlinje(sakskode, !!svaret),
+              handling: NYVERSJON.kontroller,
+              bareMottaker: true,
               sendTekst: NYVERSJON.sendTekst,
               tilbakeTil: NYVERSJON.tilbakeTil,
               svarerPaa: svaret ?? null,
