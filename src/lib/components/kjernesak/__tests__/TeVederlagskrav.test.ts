@@ -153,7 +153,9 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     expect(kommando).toEqual({
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 250000 },
+      innhold: {
+        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250000 }],
+      },
       brevtekst: expect.any(Array),
     });
     expect((kommando.brevtekst as string[]).join('')).toBe(laast);
@@ -184,7 +186,9 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
     expect(send.mock.calls[0][3]).toMatchObject({
-      innhold: { metode: 'tilbud', beloep: 100000.4 },
+      innhold: {
+        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000.4 }],
+      },
     });
   });
 
@@ -235,7 +239,9 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     const etterSending = medKrav(journal, {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 1000 },
+      innhold: {
+        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 1000 }],
+      },
     });
     const send = vi
       .fn()
@@ -286,7 +292,9 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     const rader = medKrav(journal, {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 1000 },
+      innhold: {
+        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 1000 }],
+      },
     });
     const kjernesak = lagKjernesak({
       sakId: SAK,
@@ -466,7 +474,11 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  const kommando = { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 1000 } };
+  const kommando = {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 1000 }] },
+  };
 
   it('kravet sendes med teksten TE kontrollerte, ikke en tekst laget på nytt ved sendingen (LV-U2)', async () => {
     const send = vi

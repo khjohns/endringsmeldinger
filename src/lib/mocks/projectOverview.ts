@@ -89,7 +89,7 @@ function demolinje(sak: SakState): Sakslinje {
       ingen_krav: false,
       krav:
         harKrav(vederlag) && vederlag.krevd_belop != null
-          ? { beloep: vederlag.krevd_belop, metode: 'tilbud' }
+          ? { beloep: vederlag.krevd_belop, oppgjoersformer: ['tilbud'] }
           : null,
       svar: vederlagSvar
         ? {

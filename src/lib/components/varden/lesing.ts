@@ -21,6 +21,7 @@ import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/ty
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+import { fellesOppgjoersform } from '$kjerne/frosset/standpunkt';
 
 /**
  * Ett brev i saken. `nummer` er brevets nummer i saken, som brevteksten kaller «brev 5»
@@ -417,7 +418,9 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
   return {
     spor,
     krevd:
-      krav && kravbrev ? { tall: tall(), metode: krav.innhold.metode, brev: ref(kravbrev) } : null,
+      krav && kravbrev
+        ? { tall: tall(), metode: fellesOppgjoersform(krav), brev: ref(kravbrev) }
+        : null,
     svaret:
       svar && svarbrev
         ? {

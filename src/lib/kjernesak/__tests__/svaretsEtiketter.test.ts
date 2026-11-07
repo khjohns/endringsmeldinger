@@ -48,7 +48,9 @@ describe('etikettene ved svaret', () => {
   const krav = skrevet(avslaatt, 'TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep: 250_000 },
+    innhold: {
+      kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250_000 }],
+    },
     utdypning: 'Tilbudet.',
   });
 

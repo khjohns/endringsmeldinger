@@ -14,6 +14,7 @@ import type { Spor } from '$kjerne/typer';
 import { KRAVINNHOLD, oppgittDato } from '$kjerne/format/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
+import { fastSumIKroner } from '$kjerne/frosset/standpunkt';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -74,7 +75,7 @@ export function vederlagssvaret(
 ): { type: 'brev'; svar: Svarutkast[] } | null {
   const krav = u.spor.vederlag.gjeldendeKrav;
   if (!krav) return null;
-  const vurderinger = vurderingene(v, krav.innhold.beloep as number);
+  const vurderinger = vurderingene(v, fastSumIKroner(krav) as number);
   let resultat: Record<string, unknown> = {};
   try {
     resultat = regnUtSvar(

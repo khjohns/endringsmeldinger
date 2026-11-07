@@ -1,15 +1,12 @@
 /**
- * Vederlagskravet TE sender på TS-stien (#667, #718, B-17). I prøven gjelder bare
- * tilbud (fast beløp): formatet har ingen annen metode ennå, så regningsarbeid og
- * enhetspriser avvises og tilbys ikke (OV-U1). Kravet kan ha posten for produktivitetstap
- * etter § 34.1.3 annet ledd, med eller uten hovedbeløp (OV-U23). Rigg og drift er ikke i
- * formatet og avvises (#1171). TEs begrunnelse er utdypningen under kravet og er valgfri
- * (oppdragsgiver 17.10, #667). Varselet etter § 34.1.2 og det særskilte varselet etter
- * § 34.1.3 sendes fra appen uten beløp og uten fritekst, eller registreres med datoen og
- * brevet som vedlegg når det er sendt utenfor appen (OV-U5, OV-U25, MM-U17 (opphevet av MM-U50)).
+ * Varselet om vederlag TE sender fra det gamle skjemaet på TS-stien (#667, #718, B-17).
+ * Vederlagskravet har kravposter (OV-U95 punkt 19), og skjemaet for dem kommer med BF-14
+ * (økt 3 i #1663), så kravet avvises her og sendes ikke. Varselet etter § 34.1.2 og det
+ * særskilte varselet etter § 34.1.3 sendes fra appen uten beløp og uten fritekst, eller
+ * registreres med datoen og brevet som vedlegg når det er sendt utenfor appen (OV-U5, OV-U25,
+ * MM-U17 (opphevet av MM-U50)).
  */
 
-import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
 import { letterText } from '$lib/approval/letter';
 import {
   dagensDato,
@@ -19,52 +16,12 @@ import {
   type RegistrertKorrespondanse,
 } from './skjemadata';
 
-export interface Vederlagsvalg {
-  /** Katalogens kode, som `FASTPRIS_TILBUD`. */
-  metode: string;
-  /** Hovedbeløpet. Uten: kravet gjelder bare posten. */
-  beloep?: number;
-  /** Posten for produktivitetstap etter § 34.1.3 annet ledd. */
-  produktivitet?: number;
-  /** TEs begrunnelse som ren tekst. */
-  utdypning: string;
-}
-
-export type Vederlagskrav = {
-  type: 'krav';
-  spor: 'vederlag';
-  innhold: {
-    metode: 'tilbud';
-    beloep?: number;
-    saerskilt?: { produktivitet: { beloep: number } };
-  };
-  utdypning?: string;
-};
-
-/** Katalogens metode kan sendes til kjernen. Bare tilbud kan det i prøven. */
-export const metodeKanSendesTilKjernen = (metode: string) =>
-  METODE_FRA_KATALOGEN[metode] === 'tilbud';
-
-/** Vederlagskravet. En metode kjernen ikke kan ta imot, avvises her og sendes ikke. */
-export function vederlagskrav(valg: Vederlagsvalg): Vederlagskrav {
-  if (!metodeKanSendesTilKjernen(valg.metode))
-    throw new Error(
-      `Metoden ${valg.metode || 'som er valgt'} kan ikke sendes for denne saken ennå. Velg tilbud.`
-    );
-  const utdypning = valg.utdypning.trim();
-  return {
-    type: 'krav',
-    spor: 'vederlag',
-    innhold: {
-      metode: 'tilbud',
-      ...(valg.beloep !== undefined ? { beloep: valg.beloep } : {}),
-      ...(valg.produktivitet !== undefined
-        ? { saerskilt: { produktivitet: { beloep: valg.produktivitet } } }
-        : {}),
-    },
-    ...(utdypning ? { utdypning } : {}),
-  };
-}
+/**
+ * Katalogens metode kan sendes til kjernen fra dette skjemaet. Ingen kan det: vederlagskravet
+ * har kravposter (OV-U95 punkt 19), og skjemaet for dem kommer med BF-14 (økt 3 i #1663).
+ * Varselet og registreringen sendes fortsatt herfra.
+ */
+export const metodeKanSendesTilKjernen = (_metode: string) => false;
 
 /** Det `TeVederlagForm` sender på TS-stien. Begrunnelsen er HTML fra editoren. */
 export interface Vederlagsskjemadata {
@@ -90,7 +47,6 @@ export interface Vederlagsskjemadata {
 export type Vederlagsvarsel = '34.1.2' | '34.1.3';
 
 export type Vederlagskommando =
-  | Vederlagskrav
   | { type: 'send_varsel'; spor: 'vederlag'; hjemmel: Vederlagsvarsel }
   | ReturnType<typeof registrering<Vederlagsvarsel>>;
 
@@ -111,13 +67,7 @@ export function vederlagskommandoFraSkjema(
   const hjemmel = data.hjemmel ?? '34.1.2';
   if (data.registrert) return registrering(hjemmel, data.registrert, utdypning, idag);
   if (data.varsel_type === 'varsel') return varselFraAppen(hjemmel, utdypning);
-  const produktivitet = data.saerskilt_krav?.produktivitet?.belop;
-  // OV-U23: hovedbeløpet kan mangle når kravet har posten. Uten noen av dem sendes 0, som
-  // kjernen avviser.
-  return vederlagskrav({
-    metode: data.metode ?? '',
-    beloep: data.belop_direkte ?? (produktivitet === undefined ? 0 : undefined),
-    produktivitet,
-    utdypning,
-  });
+  throw new Error(
+    'Vederlagskravet har kravposter og kan ikke sendes fra dette skjemaet ennå. Send varselet, eller registrer et brev sendt utenfor løsningen.'
+  );
 }

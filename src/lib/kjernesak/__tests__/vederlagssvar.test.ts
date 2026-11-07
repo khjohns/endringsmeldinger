@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import { laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
+import { kravposterI } from '$kjerne/frosset/standpunkt';
 import type { Journalrad } from '$kjerne/typer';
 import {
   beregnAlt,
@@ -38,7 +39,13 @@ const medKrav = (innhold: Record<string, unknown>) =>
   skrevet(grunnforhold, 'TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', ...innhold },
+    // Hovedbeløpet er kravposten P1 med fast sum (OV-U95 punkt 19).
+    innhold: (({ beloep, ...rest }) => ({
+      ...(beloep === undefined
+        ? {}
+        : { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep }] }),
+      ...rest,
+    }))(innhold),
     utdypning: 'Tilbudet gjelder ekstra masseutskifting.',
   });
 
@@ -145,7 +152,9 @@ describe('configen fra kjernen', () => {
     const vederlag = {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 250_000 },
+      innhold: {
+        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250_000 }],
+      },
       utdypning: 'Tilbudet gjelder pelingen.',
     };
     const medKravet = skrevet(prekludert, 'TE', vederlag);
@@ -166,7 +175,10 @@ describe('configen fra kjernen', () => {
       },
       utdypning: 'BH påla ny peling, med tegningene vedlagt.',
     });
-    const u = utledJournal(skrevet(versjon2, 'TE', vederlag), KJERNE);
+    // Den nye versjonen tar med P1 fra forrige versjon (KA-U56).
+    const [p1] = kravposterI(utledJournal(versjon2, KJERNE).spor.vederlag.gjeldendeKrav!);
+    const nyVersjon = { ...vederlag, innhold: { kravposter: [{ ...p1, betegnelse: undefined }] } };
+    const u = utledJournal(skrevet(versjon2, 'TE', JSON.parse(JSON.stringify(nyVersjon))), KJERNE);
     expect(u.spor.forhold.gjeldendeSvar).toBeNull();
     const c = vederlagConfigFraKjernen(u)!;
     expect(c.grunnlagVarsletForSent).toBe(false);

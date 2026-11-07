@@ -26,6 +26,7 @@ import {
   standpunktet,
   type Svarvurdering,
 } from '$kjerne/frosset/standpunkt';
+import { fastSumIKroner, fellesOppgjoersform } from '$kjerne/frosset/standpunkt';
 import { UgyldigBeloep } from '$kjerne/regler/beloep';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
@@ -59,9 +60,9 @@ export function vederlagConfigFraKjernen(u: Utledning): VederlagDomainConfig | n
   const produktivitet = produktivitetsbeloep(krav);
   const harHovedkrav = harHovedbeloep(krav);
   return {
-    metode: tilKatalogen(METODE_FRA_KATALOGEN, krav.innhold.metode) as VederlagsMetode,
+    metode: tilKatalogen(METODE_FRA_KATALOGEN, fellesOppgjoersform(krav)) as VederlagsMetode,
     harHovedkrav,
-    hovedkravBelop: harHovedkrav ? (krav.innhold.beloep as number) : 0,
+    hovedkravBelop: fastSumIKroner(krav) ?? 0,
     produktivitetBelop: produktivitet,
     harRiggKrav: false,
     harProduktivitetKrav: produktivitet !== undefined,
@@ -189,7 +190,7 @@ export function forrigeVederlagssvar(svar: Svar, krav: Krav): VederlagLastRespon
       forrige.produktivitetVurdering = vurderingAv(produktivitetsbeloep(krav) ?? 0, s.godkjent);
       forrige.produktivitetGodkjentBelop = s.godkjent;
     } else if (s.art === 'beloep') {
-      forrige.hovedkravVurdering = vurderingAv(krav.innhold.beloep as number, s.godkjent);
+      forrige.hovedkravVurdering = vurderingAv(fastSumIKroner(krav) as number, s.godkjent);
       forrige.hovedkravGodkjentBelop = s.godkjent;
     }
   }

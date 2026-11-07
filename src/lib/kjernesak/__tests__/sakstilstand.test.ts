@@ -121,8 +121,13 @@ describe('TS-saken som Kontrollrommet leser den', () => {
         type: 'krav',
         spor: 'vederlag',
         innhold: {
-          metode: 'tilbud',
-          ...('beloep' in krav ? { beloep: krav.beloep } : {}),
+          ...('beloep' in krav
+            ? {
+                kravposter: [
+                  { beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: krav.beloep },
+                ],
+              }
+            : {}),
           saerskilt: { produktivitet: { beloep: krav.produktivitet } },
         },
       });

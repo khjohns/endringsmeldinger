@@ -609,7 +609,9 @@ describe('TE-skjemaene leser kjernen (#1062)', () => {
     const kommando = {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 180000 },
+      innhold: {
+        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 180000 }],
+      },
     } as const;
     expect(sendt(send)).toEqual({ ...kommando, brevtekst: expect.any(Array) });
     expect(() => skrevet(medGrunnlag, 'TE', kommando)).not.toThrow();
@@ -772,7 +774,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
   const medPosten = skrevet(medGrunnlag, 'TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', saerskilt: { produktivitet: { beloep: 40000 } } },
+    innhold: { saerskilt: { produktivitet: { beloep: 40000 } } },
   });
 
   it('TE sender det særskilte varselet fra appen uten beløp og fritekst, og merknaden om § 34.1.2 vises ikke (OV-U25, OV-U5)', async () => {
@@ -844,7 +846,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
     const kommando = {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', saerskilt: { produktivitet: { beloep: 40000 } } },
+      innhold: { saerskilt: { produktivitet: { beloep: 40000 } } },
     } as const;
     expect(sendt(send)).toEqual({ ...kommando, brevtekst: expect.any(Array) });
     expect(() => skrevet(medGrunnlag, 'TE', kommando)).not.toThrow();

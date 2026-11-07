@@ -26,6 +26,7 @@ import { HJEMMEL, METODER } from '../format/format.ts';
 import type {
   Beslutningsgrunnlag,
   Kravpost,
+  Oppgjoersform,
   Dokument,
   Enighetsgrunnlag,
   Hjemmel,
@@ -810,6 +811,26 @@ export function krevdBeloep(krav: Krav): Oere {
   const krevd = lesKrevd(krav, poster[0].beloep);
   if (krevd === null) throw new Error(`Det krevde beløpet mangler i kravet ${krav.id}.`);
   return krevd;
+}
+
+/**
+ * Oppgjørsformen når alle kravpostene har samme, ellers `null`. Visningen leser den til
+ * svaret per kravpost er bygget (økt 2 i #1663); ingen regel leser den.
+ */
+export function fellesOppgjoersform(krav: Pick<Krav, 'innhold'>): Oppgjoersform | null {
+  const former = new Set(kravposterI(krav).map((p) => p.oppgjoersform));
+  return former.size === 1 ? [...former][0]! : null;
+}
+
+/**
+ * Beløpet i kroner når kravet har nøyaktig én kravpost, med fast sum, ellers `undefined`.
+ * Visningen leser det til svaret per kravpost er bygget (økt 2 i #1663); ingen regel leser det.
+ */
+export function fastSumIKroner(krav: Pick<Krav, 'innhold'>): number | undefined {
+  const poster = kravposterI(krav);
+  return poster.length === 1 && poster[0]!.oppgjoersform === 'tilbud'
+    ? poster[0]!.beloep
+    : undefined;
 }
 
 /** Det krevde beløpet i en kravpost med fast sum, i øre, eller `null` etter en beregningsregel. */

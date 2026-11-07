@@ -191,7 +191,11 @@ export interface Vederlagslinje extends Foreligger {
   kravet_staar: boolean;
   har_varsel: boolean;
   ingen_krav: boolean;
-  krav: { beloep: number; metode: string } | null;
+  /** `beloep` er summen av de faste beløpene, og `oppgjoersformer` er formene i kravpostene (#1663). */
+  krav: {
+    beloep: number;
+    oppgjoersformer: ('tilbud' | 'enhetspriser' | 'regningsarbeid')[];
+  } | null;
   svar: {
     resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt' | 'tilbakeholdelse';
     beloep: number;

@@ -18,12 +18,8 @@ import {
   tilKatalogen,
 } from '$kjerne/format/koder';
 import type { Utledning } from '$kjerne/utledning/utled';
-import {
-  harHovedbeloep,
-  krevdBeloep,
-  krevdProduktivitet,
-  krevdSamlet,
-} from '$kjerne/frosset/standpunkt';
+import { krevdProduktivitet, krevdSamlet } from '$kjerne/frosset/standpunkt';
+import { fastSumIKroner, fellesOppgjoersform } from '$kjerne/frosset/standpunkt';
 import { tilTall, type Oere } from '$kjerne/regler/beloep';
 import type { Avsnitt, Journalrad, Krav, Spor } from '$kjerne/typer';
 import { betegnelse, type Visning } from '$kjerne/utledning/visning';
@@ -104,7 +100,7 @@ export function tilSakState(
   const f = u.spor.frist.gjeldendeKrav;
   const kroner = (oere: Oere | null | undefined) => (oere == null ? undefined : tilTall(oere));
   const produktivitet = kroner(v && krevdProduktivitet(v));
-  const metode = tekst(tilKatalogen(METODE_FRA_KATALOGEN, v?.innhold.metode)) as
+  const metode = tekst(tilKatalogen(METODE_FRA_KATALOGEN, v && fellesOppgjoersform(v))) as
     | VederlagsMetode
     | undefined;
   const sist = (spor: Spor) => ({ siste_oppdatert: sisteOppdatert(journal, u, spor) });
@@ -126,10 +122,9 @@ export function tilSakState(
         {
           ...sist('vederlag'),
           metode,
-          // Kjernen tar bare imot tilbud (OV-U1), så hovedbeløpet er det faste beløpet, som
-          // skjemaet sender (#872). Posten etter § 34.1.3 annet ledd står for seg, og det
-          // krevde er summen (OV-U23).
-          belop_direkte: kroner(v && harHovedbeloep(v) ? krevdBeloep(v) : null),
+          // Hovedbeløpet er den ene kravposten med fast sum (#872, OV-U95 punkt 19). Posten
+          // etter § 34.1.3 annet ledd står for seg (OV-U23).
+          belop_direkte: v ? fastSumIKroner(v) : undefined,
           ...(produktivitet !== undefined
             ? { saerskilt_krav: { produktivitet: { belop: produktivitet } } }
             : {}),

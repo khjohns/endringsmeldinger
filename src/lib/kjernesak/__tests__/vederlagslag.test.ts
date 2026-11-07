@@ -51,7 +51,13 @@ const medVederlagskrav = (journal: Journalrad[], innhold: Record<string, unknown
   skrevet(journal, 'TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', ...innhold },
+    // Hovedbeløpet er kravposten P1 med fast sum (OV-U95 punkt 19).
+    innhold: (({ beloep, ...rest }) => ({
+      ...(beloep === undefined
+        ? {}
+        : { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep }] }),
+      ...rest,
+    }))(innhold),
     utdypning: 'Tilbudet gjelder pelingen.',
   });
 

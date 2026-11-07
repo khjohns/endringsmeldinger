@@ -30,7 +30,7 @@ const svart = lagSakslinje({
     ...ingenting,
     svar_ikke_godtatt: true,
     kravet_staar: true,
-    krav: { beloep: 100, metode: 'tilbud' },
+    krav: { beloep: 100, oppgjoersformer: ['tilbud'] },
     svar: { resultat: 'avslaatt', beloep: 0, subsidiaert: false },
     enighet: null,
   },

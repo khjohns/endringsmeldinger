@@ -46,7 +46,7 @@ describe('CaseListRow', () => {
           ...ingenting,
           betegnelse: 'svar_ikke_godtatt',
           kravet_staar: true,
-          krav: { beloep: 1_000_000, metode: 'tilbud' },
+          krav: { beloep: 1_000_000, oppgjoersformer: ['tilbud'] },
           svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
           enighet: null,
         },
@@ -82,7 +82,7 @@ describe('CaseListRow', () => {
       lagSakslinje({
         vederlag: {
           ...ingenting,
-          krav: { beloep: 1_000_000, metode: 'tilbud' },
+          krav: { beloep: 1_000_000, oppgjoersformer: ['tilbud'] },
           svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
           enighet: null,
         },
@@ -105,7 +105,7 @@ describe('CaseListRow', () => {
       lagSakslinje({
         vederlag: {
           ...ingenting,
-          krav: { beloep: 1_000_000, metode: 'tilbud' },
+          krav: { beloep: 1_000_000, oppgjoersformer: ['tilbud'] },
           svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
           enighet: { beloep: 600_000, virkning: 'betinget' },
         },

@@ -1,48 +1,31 @@
 /**
- * Vederlagskravet saksbildet bygger på TS-stien (#667). Kilden til forventningene
- * er formatet i kjernen (bare tilbud i prøven, OV-U1), katalogens koder (#335) og
- * avgjørelsen om utdypningen (oppdragsgiver 17.10, «B: Utdypning, valgfri», #667).
- * At kjernen godtar formen, prøves med kjernens egen formkontroll.
+ * Det gamle vederlagsskjemaet på TS-stien (#667). Vederlagskravet har kravposter (OV-U95
+ * punkt 19), og skjemaet for dem kommer med BF-14 (økt 3 i #1663). Til da avvises kravet fra
+ * det gamle skjemaet, og varselet sendes fortsatt (arbeidsvalget i #1674).
  */
 
 import { describe, expect, it } from 'vitest';
-import { metodeKanSendesTilKjernen, vederlagskrav } from '$lib/kjernesak/vederlagskrav';
+import {
+  metodeKanSendesTilKjernen,
+  vederlagskommandoFraSkjema,
+} from '$lib/kjernesak/vederlagskrav';
 import { formfeil } from '$kjerne/kommandoer/kommando';
 
-describe('vederlagskravet fra saksbildet', () => {
-  it('tilbud med begrunnelse blir krav med metoden tilbud, beløpet og utdypningen', () => {
-    const kommando = vederlagskrav({
-      metode: 'FASTPRIS_TILBUD',
-      beloep: 250000,
-      utdypning: '  Tilbudet gjelder ny fundamentering.  ',
-    });
-    expect(kommando).toEqual({
-      type: 'krav',
-      spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 250000 },
-      utdypning: 'Tilbudet gjelder ny fundamentering.',
-    });
-    expect(formfeil(kommando)).toEqual([]);
-  });
-
-  it('uten begrunnelse sendes kravet uten utdypning (oppdragsgiver 17.10)', () => {
-    const kommando = vederlagskrav({ metode: 'FASTPRIS_TILBUD', beloep: 1000, utdypning: ' ' });
-    expect(kommando).not.toHaveProperty('utdypning');
-    expect(formfeil(kommando)).toEqual([]);
-  });
-
-  it.each(['REGNINGSARBEID', 'ENHETSPRISER', ''])(
-    'metoden %s avvises og tilbys ikke (OV-U1)',
-    (metode) => {
-      expect(metodeKanSendesTilKjernen(metode)).toBe(false);
-      expect(() => vederlagskrav({ metode, beloep: 1000, utdypning: '' })).toThrow(
-        'kan ikke sendes for denne saken'
-      );
-    }
+describe('vederlagskravet fra det gamle skjemaet', () => {
+  it.each(['FASTPRIS_TILBUD', 'REGNINGSARBEID', 'ENHETSPRISER', ''])(
+    'metoden %s tilbys ikke',
+    (metode) => expect(metodeKanSendesTilKjernen(metode)).toBe(false)
   );
 
-  it('kjernen avviser et beløp som ikke er over null', () => {
-    const kommando = vederlagskrav({ metode: 'FASTPRIS_TILBUD', beloep: 0, utdypning: '' });
-    expect(formfeil(kommando)).not.toEqual([]);
+  it('kravet avvises her og sendes ikke', () => {
+    expect(() =>
+      vederlagskommandoFraSkjema({ metode: 'FASTPRIS_TILBUD', belop_direkte: 250000 })
+    ).toThrow('kan ikke sendes fra dette skjemaet ennå');
+  });
+
+  it('varselet etter § 34.1.2 sendes fortsatt, og kjernen godtar formen (OV-U5)', () => {
+    const kommando = vederlagskommandoFraSkjema({ varsel_type: 'varsel' });
+    expect(kommando).toEqual({ type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    expect(formfeil(kommando)).toEqual([]);
   });
 });
