@@ -19,7 +19,16 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { inflateSync } from 'node:zlib';
 import fontkit from '@pdf-lib/fontkit';
-import { beginMarkedContent, endMarkedContent, PDFDocument } from 'pdf-lib';
+import {
+  beginMarkedContent,
+  drawSvgPath,
+  endMarkedContent,
+  PDFDocument,
+  PDFOperator,
+  PDFOperatorNames,
+  type PDFPage,
+  rgb,
+} from 'pdf-lib';
 
 const A4 = [595.28, 841.89] as const;
 const MARG = 56;
@@ -45,6 +54,9 @@ type Skrift = {
   setter: (kode: number, brukte?: ReadonlySet<number>) => boolean;
 };
 
+const fraPakken = (fil: string) =>
+  pathToFileURL(createRequire(import.meta.url).resolve(`@oslokommune/punkt-assets/dist/${fil}`));
+
 const lokal = (fil: string) => new URL(`./skrift/${fil}`, import.meta.url);
 
 /**
@@ -54,15 +66,7 @@ const lokal = (fil: string) => new URL(`./skrift/${fil}`, import.meta.url);
  * grunn av lisensen (LV-U26). Source Serif 4 i 16 px er 12 pt.
  */
 const SKRIFTER = {
-  osloSans: {
-    fil: () =>
-      pathToFileURL(
-        createRequire(import.meta.url).resolve(
-          '@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff2'
-        )
-      ),
-    stoerrelse: 11,
-  },
+  osloSans: { fil: () => fraPakken('fonts/OsloSans-Regular.woff2'), stoerrelse: 11 },
   sourceSerif4: { fil: () => lokal('SourceSerif4-Regular.ttf'), stoerrelse: 12 },
 } satisfies Record<string, { fil: () => URL; stoerrelse: number }>;
 
@@ -76,6 +80,89 @@ export type Skriftnavn = keyof typeof SKRIFTER;
 const BREVSKRIFT: Record<Avsender, Skriftnavn> = { BH: 'osloSans', TE: 'sourceSerif4' };
 
 const LINJEHOEYDE = 1.6;
+
+/** Byggherrens brev får Oslo kommunes logo, totalentreprenørens ikke (LV-U25, LV-U26). */
+const MED_LOGO: Record<Avsender, boolean> = { BH: true, TE: false };
+
+/** Bredden logoen settes i, omtrent 30 mm, øverst til venstre på første side. */
+const LOGOBREDDE = 85;
+
+type Logo = {
+  breddeISvg: number;
+  hoeydeISvg: number;
+  stier: string[];
+  farge: [number, number, number];
+};
+
+let lestLogo: Logo | undefined;
+
+/**
+ * Logoen fra `@oslokommune/punkt-assets` (LV-U26), lest fra SVG-en i pakken. Lesingen kjenner
+ * bare formen pakken har: stier med `fill-rule="evenodd"` og rektangler, uten transformasjon,
+ * i én farge. Alt annet kaster, så en ny versjon av pakken med en annen form stopper
+ * oppstarten i stedet for å gi en logo som ser annerledes ut.
+ */
+function logo(): Logo {
+  if (lestLogo) return lestLogo;
+  const svg = readFileSync(fraPakken('logos/oslologo.svg'), 'utf8');
+  const viewBox = /<svg\b[^>]*\bviewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(svg);
+  if (!viewBox) throw new Error('logoen har ikke en viewBox som begynner i 0 0');
+  const stier: string[] = [];
+  const farger = new Set<string>();
+  for (const [, navn, attr] of svg.matchAll(/<(\w+)\b([^>]*)>/g)) {
+    if (navn === 'svg') continue;
+    if (/\btransform=/.test(attr)) throw new Error(`logoen har en transformasjon i <${navn}>`);
+    const farge = /\bfill="var\(--fg-color, (#[0-9A-Fa-f]{6})\)"/.exec(attr)?.[1];
+    if (!farge) throw new Error(`logoen har en fyllfarge i <${navn}> som ikke kan leses`);
+    farger.add(farge.toLowerCase());
+    const tall = (a: string) => {
+      const v = new RegExp(`\\b${a}="([\\d.]+)"`).exec(attr)?.[1];
+      if (v === undefined) throw new Error(`logoen mangler ${a} i <${navn}>`);
+      return v;
+    };
+    if (navn === 'path') {
+      if (!/\bfill-rule="evenodd"/.test(attr)) throw new Error('logoen har en sti uten evenodd');
+      stier.push(/\bd="([^"]+)"/.exec(attr)?.[1] ?? '');
+    } else if (navn === 'rect') {
+      stier.push(
+        `M${tall('x')} ${tall('y')}h${tall('width')}v${tall('height')}h-${tall('width')}Z`
+      );
+    } else throw new Error(`logoen har elementet <${navn}>, som lesingen ikke kjenner`);
+  }
+  if (farger.size !== 1 || !stier.length || stier.includes(''))
+    throw new Error('logoen er ikke stier i én farge');
+  const hex = [...farger][0];
+  const kanal = (i: number) => parseInt(hex.slice(1 + 2 * i, 3 + 2 * i), 16) / 255;
+  return (lestLogo = {
+    breddeISvg: Number(viewBox[1]),
+    hoeydeISvg: Number(viewBox[2]),
+    stier,
+    farge: [kanal(0), kanal(1), kanal(2)],
+  });
+}
+
+/** Høyden logoen tar øverst på første side. */
+const logohoeyde = () => (LOGOBREDDE * logo().hoeydeISvg) / logo().breddeISvg;
+
+/** Logoen øverst til venstre, fylt med evenodd som i SVG-en. */
+function tegnLogo(side: PDFPage): void {
+  const { breddeISvg, stier, farge } = logo();
+  for (const sti of stier)
+    side.pushOperators(
+      ...drawSvgPath(sti, {
+        x: MARG,
+        y: A4[1] - MARG,
+        scale: LOGOBREDDE / breddeISvg,
+        color: rgb(...farge),
+        borderColor: undefined,
+        borderWidth: 0,
+      }).map((op) =>
+        op.toString() === PDFOperatorNames.FillNonZero
+          ? PDFOperator.of(PDFOperatorNames.FillEvenOdd)
+          : op
+      )
+    );
+}
 
 /**
  * Reserveskriftene, i rekkefølge, for tegnene brevskriften ikke setter: myk bindestrek,
@@ -194,15 +281,21 @@ const fontkitMedBindestrek: Parameters<PDFDocument['registerFontkit']>[0] = {
   },
 };
 
-/** Kalles av `start.ts` før serveren lytter, så en skrift som ikke kan brukes, stopper oppstarten. */
+/**
+ * Kalles av `start.ts` før serveren lytter, så en skrift eller en logo som ikke kan brukes,
+ * stopper oppstarten.
+ */
 export function kontrollerSkrifter(): void {
   try {
+    logo();
     if (!reserver()[0].setter(MYKT_BINDESTREK))
       throw new Error('den første reserveskriften har ikke myk bindestrek');
     for (const navn of skriftnavn)
       for (const s of skrifter(navn)) fontkitMedBindestrek.create(s.bytes);
   } catch (feil) {
-    throw new Error(`Skriftene til brev-PDF-en kan ikke brukes: ${(feil as Error).message}`);
+    throw new Error(
+      `Skriftene eller logoen til brev-PDF-en kan ikke brukes: ${(feil as Error).message}`
+    );
   }
 }
 
@@ -314,15 +407,19 @@ export async function skrivBrevPdf(
 ): Promise<Uint8Array> {
   if (!Object.hasOwn(BREVSKRIFT, avsender))
     throw new Error(`Brevet har avsenderen ${String(avsender)}, som ikke har noen brevskrift`);
-  return settBrevPdf(tekst, tittel, tidspunkt, BREVSKRIFT[avsender]);
+  return settBrevPdf(tekst, tittel, tidspunkt, BREVSKRIFT[avsender], MED_LOGO[avsender]);
 }
 
-/** Brevet som PDF i skriften `brevskrift`, som `skrivBrevPdf`. Tegntabellen prøver hver skrift. */
+/**
+ * Brevet som PDF i skriften `brevskrift`, med eller uten logoen, som `skrivBrevPdf`.
+ * Tegntabellen prøver hver skrift.
+ */
 export async function settBrevPdf(
   tekst: string,
   tittel: string,
   tidspunkt: Date,
-  brevskrift: Skriftnavn
+  brevskrift: Skriftnavn,
+  medLogo: boolean
 ): Promise<Uint8Array> {
   const { stoerrelse } = SKRIFTER[brevskrift];
   const pdf = await PDFDocument.create();
@@ -357,6 +454,10 @@ export async function settBrevPdf(
 
   let side = pdf.addPage([...A4]);
   let y = A4[1] - MARG;
+  if (medLogo) {
+    tegnLogo(side);
+    y -= logohoeyde() + stoerrelse * LINJEHOEYDE * 2;
+  }
   for (const avsnitt of normalisert.split('\n')) {
     for (const linje of linjer(avsnitt, bredde, maal)) {
       if (linje.tekst) {

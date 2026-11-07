@@ -64,6 +64,10 @@ export function merkingI(rad: Pick<Journalrad, 'data'>): string {
 export const filnavn = (innhold: Record<string, unknown>): string | null =>
   (innhold.dokument as { filnavn?: string } | undefined)?.filnavn ?? null;
 
+/**
+ * @throws UgjengivbartBrev når raden har en brevtekst uten formen i formatet, så brevet ikke
+ *   leveres uten dokument (#926)
+ */
 export function lagOppdrag(
   rad: Journalrad,
   maal: Leveringsmaal,
@@ -72,6 +76,8 @@ export function lagOppdrag(
   nyId: () => string
 ): Oppdragsrad {
   const brevtekst = brevtekstI(rad);
+  if (brevtekst === null && rad.data.brevtekst !== undefined)
+    throw new UgjengivbartBrev('Brevteksten i hendelsen har ikke formen i formatet');
   const merket = brevtekst ? merkingI(rad) : null;
   const innhold = {
     oppdragsformat: OPPDRAGSFORMAT,

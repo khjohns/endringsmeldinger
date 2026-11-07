@@ -319,6 +319,18 @@ FEILINNFOERINGER = [
      "return (perBrev ? alle.find((k) => k === kode || brukte.has(k)) : alle[0]) === kode;",
      "return alle[0] === kode;",
      "setter apostrofen og enkle anførselstegn med Source Serif 4"),
+    ("S84", "byggherrens brev får ikke Oslo kommunes logo (#1177, LV-U25, LV-U26)", "server/brevpdf.ts",
+     "{ BH: true, TE: false }", "{ BH: false, TE: false }",
+     "setter Oslo kommunes logo fra pakken i byggherrens brev"),
+    ("S85", "totalentreprenørens brev får Oslo kommunes logo (#1177, LV-U25)", "server/brevpdf.ts",
+     "{ BH: true, TE: false }", "{ BH: true, TE: true }",
+     "setter ingen logo i totalentreprenørens brev"),
+    ("S86", "logoen fylles med nonzero, ikke evenodd som i SVG-en (#1177)", "server/brevpdf.ts",
+     "? PDFOperator.of(PDFOperatorNames.FillEvenOdd)", "? op",
+     "setter Oslo kommunes logo fra pakken i byggherrens brev"),
+    ("S87", "en brevtekst uten formen i formatet gir et brev uten dokument (#926)", "server/levering.ts",
+     "if (brevtekst === null && rad.data.brevtekst !== undefined)", "if (false)",
+     "en brevtekst uten formen i formatet avvises"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

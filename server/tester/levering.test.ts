@@ -26,7 +26,16 @@ import { lesSaken } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { lesBrevPdf } from '../brevpdf.ts';
-import { KontraktsforkortelseMangler, merkingI, pdfsum, vedleggsnavn } from '../levering.ts';
+import {
+  KontraktsforkortelseMangler,
+  lagOppdrag,
+  merkingI,
+  pdfsum,
+  UgjengivbartBrev,
+  vedleggsnavn,
+} from '../levering.ts';
+import { KJERNE } from '../../kjerne/versjon.ts';
+import type { Journalrad } from '../../kjerne/typer.ts';
 import { brevmerking } from '../../kjerne/frosset/brevtittel.ts';
 import { sql } from './sqlserver.ts';
 import { avvisning } from './sqlserver_migrert.ts';
@@ -1414,5 +1423,42 @@ describe('merkingen av brevet (LV-U44, LV-U48)', () => {
 
   it('et brev kjernen ikke merket, fordi prosjektet manglet forkortelsen, merkes ikke (S2 A i #1497)', () => {
     expect(() => merkingI({ data: { brevnummer: 3 } })).toThrow(KontraktsforkortelseMangler);
+  });
+});
+
+describe('oppdraget og brevteksten i hendelsen (#926)', () => {
+  // Kilde: LV-U2 og LV-U11. Et brev med tekst fra appen leveres som dokument; bare et
+  // registrert brev, uten brevtekst, leveres uten.
+  const rad = (data: Record<string, unknown>): Journalrad => ({
+    event_id: 'e1',
+    sak_id: 's1',
+    event_type: 'brev',
+    versjon: 1,
+    tidsstempel: '2026-10-01T10:00:00.000Z',
+    aktor_id: 'a1',
+    aktor_rolle: 'BH',
+    aktor_team_id: 't1',
+    refererer_til_event_id: null,
+    format: KJERNE.format,
+    data,
+  });
+  const maal = {} as Parameters<typeof lagOppdrag>[1];
+  const lag = (data: Record<string, unknown>) =>
+    lagOppdrag(rad(data), maal, 'sendt' as never, KJERNE, () => 'o1');
+
+  it('et brev med brevtekst får dokumentet med merkingen', () => {
+    const brevtekst = [{ gjelder: 'a', laast: 'Tekst.' }];
+    const { innhold } = lag({ brevtekst, merking: 'K201-KOE-005-03' });
+    expect(innhold.dokument).toEqual({ noekkel: 'e1', filnavn: 'K201-KOE-005-03.pdf' });
+  });
+
+  it('et brev uten brevtekst, som et registrert brev, får ikke noe dokument (LV-U11)', () => {
+    expect(lag({}).innhold.dokument).toBeNull();
+  });
+
+  it('en brevtekst uten formen i formatet avvises, i stedet for å gi et brev uten dokument', () => {
+    expect(() => lag({ brevtekst: [{ gjelder: 'a' }], merking: 'K201-KOE-005-03' })).toThrow(
+      UgjengivbartBrev
+    );
   });
 });

@@ -280,7 +280,7 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
         expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
       const tekst = linjer.join('\n');
       const tilbake = lesBrevPdf(
-        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift)
+        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift, false)
       ).split('\n');
       expect(tilbake.length, 'like mange linjer tilbake').toBe(linjer.length);
       expect(tilbake.filter((l, i) => l !== linjer[i])).toEqual([]);
@@ -313,7 +313,7 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
       for (const linje of linjer) expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
       const tekst = linjer.join('\n');
       const tilbake = lesBrevPdf(
-        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift)
+        await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), brevskrift, false)
       ).split('\n');
       expect(tilbake).toEqual(linjer);
     }
@@ -387,7 +387,7 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
   it.each(skriftnavn)(
     'gjengir myk bindestrek, bindestrek, hardt mellomrom og → ≥ ≤ № tro med brevskriften %s',
     async (brevskrift) => {
-      const pdf = await settBrevPdf(linje, 'x', new Date(TIDSSTEMPEL), brevskrift);
+      const pdf = await settBrevPdf(linje, 'x', new Date(TIDSSTEMPEL), brevskrift, false);
       expect(lesBrevPdf(pdf)).toBe(linje);
     }
   );
@@ -395,7 +395,7 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
   it('setter apostrofen og enkle anførselstegn med Source Serif 4 når brevet ikke har tegnet som deler glyfen (#1661)', async () => {
     // Source Serif 4 har samme glyf for U+2019 og U+02BC, og for U+2018 og U+02BB.
     const tekst = 'TE\u2019s krav om \u2018tillegg\u2019.';
-    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4', false);
     expect(lesBrevPdf(pdf)).toBe(tekst);
     expect(latin1(pdf)).not.toMatch(/\/BaseFont \/NotoSans/);
   });
@@ -409,14 +409,14 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
     ];
     for (const kode of delte) {
       const tekst = `a${String.fromCodePoint(kode)}b`;
-      const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+      const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4', false);
       expect(lesBrevPdf(pdf), `U+${kode.toString(16)}`).toBe(tekst);
     }
   });
 
   it('gjengir apostrofen tro når brevet også har tegnet som deler glyfen (#1661)', async () => {
     const tekst = 'TE\u2019s og \u02bcokina\u02bc, \u2018a\u2019 og \u02bbb.';
-    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4', false);
     expect(lesBrevPdf(pdf)).toBe(tekst);
     expect(latin1(pdf), 'forutsetningen: Source Serif 4 deler glyfen').toMatch(
       /\/BaseFont \/NotoSans-Regular-/
@@ -427,5 +427,48 @@ describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
     await expect(
       skrivBrevPdf('Tekst.', 'x', new Date(TIDSSTEMPEL), 'EO' as unknown as 'TE')
     ).rejects.toThrow('avsenderen EO');
+  });
+});
+
+describe('logoen følger avsenderen (#1177, LV-U25, LV-U26)', () => {
+  const tekst: Avsnitt[] = [{ gjelder: 'a', laast: 'Første linje.' }];
+  const sideinnhold = (pdf: Uint8Array) =>
+    [...latin1(pdf).matchAll(/\/FlateDecode[^]*?stream\r?\n([^]*?)endstream/g)]
+      .map((m) => {
+        try {
+          return inflateSync(Buffer.from(m[1], 'latin1')).toString('latin1');
+        } catch {
+          return '';
+        }
+      })
+      .join('\n');
+  /** Elementene i SVG-en i pakken som fylles: stiene og rektangelet. */
+  const svg = readFileSync(
+    new URL(
+      '../../node_modules/@oslokommune/punkt-assets/dist/logos/oslologo.svg',
+      import.meta.url
+    ),
+    'utf8'
+  );
+  const elementer = (svg.match(/<(path|rect)\b/g) ?? []).length;
+
+  it('setter Oslo kommunes logo fra pakken i byggherrens brev, i fargen fra SVG-en, over teksten', async () => {
+    const pdf = (await brevdokument(oppdrag(tekst, 'BH'), 'n')).innhold;
+    const innhold = sideinnhold(pdf);
+    expect(elementer, 'forutsetningen: SVG-en har stier').toBeGreaterThan(1);
+    expect((innhold.match(/^f\*$/gm) ?? []).length).toBe(elementer);
+    const [r, g, b] = /([\d.]+) ([\d.]+) ([\d.]+) rg/.exec(innhold)!.slice(1).map(Number);
+    expect([r * 255, g * 255, b * 255].map(Math.round)).toEqual([0x2a, 0x28, 0x59]);
+    const foersteLinje = Number(/(-?[\d.]+) Tm/.exec(innhold)![1]);
+    const logoensTopp = Number(/^1 0 0 1 [\d.]+ ([\d.]+) cm$/m.exec(innhold)![1]);
+    const skala = Number(/^([\d.]+) 0 0 -[\d.]+ 0 0 cm$/m.exec(innhold)![1]);
+    const hoeydeISvg = Number(/viewBox="0 0 [\d.]+ ([\d.]+)"/.exec(svg)![1]);
+    expect(foersteLinje).toBeLessThan(logoensTopp - skala * hoeydeISvg);
+    expect(gjengirTro(lesBrevPdf(pdf), tekst)).toBe(true);
+  });
+
+  it('setter ingen logo i totalentreprenørens brev', async () => {
+    const pdf = (await brevdokument(oppdrag(tekst, 'TE'), 'n')).innhold;
+    expect(sideinnhold(pdf)).not.toMatch(/^f\*?$/m);
   });
 });

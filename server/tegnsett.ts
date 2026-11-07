@@ -37,7 +37,7 @@ async function ikkeTro(koder: number[]): Promise<number[]> {
   try {
     let tro = true;
     for (const navn of skriftnavn)
-      tro &&= lesBrevPdf(await settBrevPdf(tekst, 'tegnsett', new Date(0), navn)) === tekst;
+      tro &&= lesBrevPdf(await settBrevPdf(tekst, 'tegnsett', new Date(0), navn, false)) === tekst;
     if (tro) return [];
   } catch {
     // `lesBrevPdf` kaster for en glyf uten `ToUnicode`; tegnet finnes ved delingen under.
