@@ -11,7 +11,6 @@
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
   import Brev from './Brev.svelte';
-  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
@@ -152,9 +151,7 @@
   <section class="panel" aria-label="Sending">
     <header class="hode">
       <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
-      <h2 tabindex="-1" bind:this={tittelen}>
-        {handling}<Infotips navn={BREVKONTROLL.omBrevet} tekst={BREVKONTROLL.laast} />
-      </h2>
+      <h2 tabindex="-1" bind:this={tittelen}>{handling}</h2>
     </header>
     <dl class="fakta">
       {#if bareMottaker}

@@ -249,9 +249,6 @@ export const HOVEDLINJER = {
 
 export const BREVKONTROLL = {
   utkast: 'Utkast · ikke sendt',
-  omBrevet: 'Om brevet',
-  laast:
-    'Teksten lages fra valgene og kan ikke endres her. Brevnummer, dato og klokkeslett settes når brevet sendes. Et sendt brev kan ikke endres, bare følges av et nytt brev.',
   tilbake: (hva: string) => `Tilbake til ${hva}`,
   fra: 'Fra',
   til: 'Til',

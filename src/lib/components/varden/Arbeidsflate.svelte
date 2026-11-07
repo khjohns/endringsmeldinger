@@ -13,7 +13,6 @@
   let {
     leser = false,
     deling = 'lik',
-    tilbake,
     rad,
     hoved,
     hoeyre,
@@ -22,8 +21,6 @@
     leser?: boolean;
     /** Mens et brev leses: like brede kolonner, eller utkastet bredest (60/40). */
     deling?: 'lik' | 'utkast';
-    /** Veien tilbake, over arbeidsraden. Den følger ikke rullingen. */
-    tilbake?: Snippet;
     /** Arbeidsraden over begge kolonnene, med status og primærhandling. */
     rad?: Snippet;
     hoved: Snippet;
@@ -32,7 +29,6 @@
 </script>
 
 <div class="flate" class:leser class:utkast={deling === 'utkast'}>
-  {#if tilbake}<div class="tilbake">{@render tilbake()}</div>{/if}
   {#if rad}<div class="rad">{@render rad()}</div>{/if}
   <div class="hoved">{@render hoved()}</div>
   {#if hoeyre}
@@ -53,10 +49,6 @@
   }
   .flate.leser.utkast {
     grid-template-columns: minmax(0, var(--varden-ark)) minmax(0, calc(var(--varden-ark) * 2 / 3));
-  }
-  .tilbake {
-    grid-column: 1 / -1;
-    margin-bottom: calc(-1 * var(--spacing-5));
   }
   /* Raden står over begge kolonnene og følger rullingen, med flaten bak seg. */
   .rad {

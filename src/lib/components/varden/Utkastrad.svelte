@@ -1,6 +1,6 @@
 <!--
   Arbeidsraden over utkastet (oppdragsgiver 06.11 og 07.11, PR 1650): et gult, stiplet kort med
-  «Utkast» med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
+  veien tilbake, «Utkast» med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
   primærhandlingen ytterst til høyre. Raden følger rullingen, så handlingen står ved brevet den
   gjelder.
 -->
@@ -12,12 +12,15 @@
   let {
     tittel,
     linje,
+    tilbake,
     handling,
   }: {
     /** Brevet som skrives, som «Brev 3 · Oppdatert påberopelse». */
     tittel: string;
     /** Mottakeren, under tittelen. */
     linje: string;
+    /** Veien tilbake, først i kortet. Den følger rullingen med raden. */
+    tilbake?: Snippet;
     /** Primærhandlingen, ytterst til høyre. */
     handling: Snippet;
   } = $props();
@@ -25,6 +28,7 @@
 
 <div class="utkastrad">
   <div class="status">
+    {#if tilbake}<div class="tilbake">{@render tilbake()}</div>{/if}
     <span class="merke"
       ><Lock size={12} aria-hidden="true" />{BREVUTKAST.utkast}<span class="visually-hidden"
         >, {SKJEMA.synlig.toLowerCase()}</span
@@ -55,6 +59,13 @@
     align-items: center;
     gap: var(--spacing-4);
     min-width: 0;
+  }
+  /* Lenken er skilt fra brevet med en linje, så den ikke leses som en del av tittelen. */
+  .tilbake {
+    flex-shrink: 0;
+    margin-left: calc(-1 * var(--spacing-2));
+    padding-right: var(--spacing-4);
+    border-right: 1px solid var(--draft-border);
   }
   .merke {
     display: inline-flex;

@@ -147,18 +147,15 @@
 </script>
 
 <Arbeidsflate leser={!smal} deling="utkast">
-  {#snippet tilbake()}
-    <!-- Sakslisten er felt inn mens brevene leses ved siden av, så veien tilbake står her, som
-         «Tilbake til utkastet» i brevkontrollen. -->
-    <p class="tilbake">
-      <Knapp variant="lenke" onclick={ontilbake}
-        ><ChevronLeft size={16} aria-hidden="true" />{FORHOLDET.tilbake}</Knapp
-      >
-    </p>
-  {/snippet}
-
   {#snippet rad()}
     <Utkastrad tittel={NYVERSJON.radtittel(nummer, !!svarbrevet)} linje={NYVERSJON.til}>
+      {#snippet tilbake()}
+        <!-- Sakslisten er felt inn mens brevene leses ved siden av, så veien tilbake står i raden,
+             og brevet begynner på samme høyde som i brevkontrollen. -->
+        <Knapp variant="lenke" onclick={ontilbake}
+          ><ChevronLeft size={16} aria-hidden="true" />{FORHOLDET.tilbake}</Knapp
+        >
+      {/snippet}
       {#snippet handling()}
         <Knapp
           variant="primaer"
@@ -259,10 +256,6 @@
 </Arbeidsflate>
 
 <style>
-  /* Lenken står i flukt med utkastet; knappen har luft til siden for treffflaten. */
-  .tilbake {
-    margin-left: calc(-1 * var(--spacing-2));
-  }
   .felt {
     display: grid;
     gap: var(--spacing-2);

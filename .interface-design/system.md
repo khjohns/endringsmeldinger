@@ -270,9 +270,10 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
 - **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (oppdragsgiver
   06.11, PR 1650):
   - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen (`Utkastrad`):
-    «Utkast» med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under,
-    og «Forhåndsvis brevet» ytterst til høyre, så handlingen står ved brevet den gjelder. Det gule
-    er raden, ikke utkastet. «Tilbake til forholdet» står over raden, siden sakslisten er felt inn.
+    «Tilbake til forholdet», skilt fra resten med en linje, siden sakslisten er felt inn, «Utkast»
+    med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
+    «Forhåndsvis brevet» ytterst til høyre, så handlingen står ved brevet den gjelder. Det gule er
+    raden, ikke utkastet. Raden står øverst, der «Tilbake til utkastet» står i brevkontrollen.
   - Utkastet står til venstre (`Brevutkast`, om lag 60 prosent): et hvitt kort med emnet,
     «Begrunnelse», som kreves og vokser med teksten, og «Forkast utkast» nederst under en linje
     (`Forkastutkast`).

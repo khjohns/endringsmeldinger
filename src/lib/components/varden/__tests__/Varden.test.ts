@@ -123,11 +123,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(vist.join(' ')).toMatch(/Prinsipalt: byggherren gjør gjeldende at varselet/);
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
     // OV-U81 og #1443: hvordan løsningen virker, står på siden «Om Varden», ikke ved feltene.
-    // KA-U19: brevkontrollen sier i infotipset at teksten lages fra valgene (OV-U81, #1466).
-    // Setningen i skjemaet prøves i testen for #1466 og #1467.
-    expect(
-      [...document.querySelectorAll('[role="note"]')].map((e) => e.textContent).join(' ')
-    ).toMatch(/Teksten lages fra valgene/);
+    // KA-U19: skjemaet sier at virkningen regnes ut fra valgene, i infotipset «Om svaret». Det
+    // prøves i testen for #1466 og #1467. Brevkontrollen har ikke infotipset «Om brevet»
+    // (oppdragsgiver 07.11, PR 1650).
     expect(document.body.textContent).not.toMatch(/tolkes ikke|vurderes ikke/);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
     expect(document.body.textContent).not.toMatch(/\bKA-U\d/);
@@ -497,9 +495,8 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     await bhSvarerIVarden();
     kontroller();
-    expect(infotips()).toContain('Teksten lages fra valgene og kan ikke endres her');
-    expect(infotips()).toContain('Et sendt brev kan ikke endres');
-    expect(screen.getByRole('button', { name: 'Om brevet' })).toBeTruthy();
+    // Brevkontrollen har ingen infotips (oppdragsgiver 07.11, PR 1650).
+    expect(screen.queryByRole('button', { name: 'Om brevet' })).toBeNull();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
     kontroller();
