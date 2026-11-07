@@ -301,6 +301,20 @@ FEILINNFOERINGER = [
     ("S78", "varselet i en ny sak kan ikke ha korrespondansetypen (LV-U42, D1 A i #1497)", "server/nysak.ts",
      "new Set(['sendt', 'korrespondansetype', 'dokumentasjon'])", "new Set(['sendt', 'dokumentasjon'])",
      "binder det til påberopelsen og skriver varselet som versjon 3"),
+    ("S79", "brevskriften setter et tegn med delt glyf, så myk bindestrek leses som bindestrek (#1658)",
+     "server/brevpdf.ts",
+     "foersteMedGlyf.get(s.tegnsett.glyphForCodePoint(kode).id) === kode", "true",
+     "gjengir myk bindestrek, bindestrek, hardt mellomrom og → ≥ ≤ № tro i brevet fra TE"),
+    ("S80", "prøven av myk bindestrek setter glyfen i instansen PDF-en bruker (#1658)", "server/brevpdf.ts",
+     "return medBindestrek(data);", "return proeve;",
+     "gjengir myk bindestrek, bindestrek, hardt mellomrom og → ≥ ≤ № tro i brevet fra TE"),
+    ("S81", "totalentreprenørens brev settes i Oslo Sans (#1658)", "server/brevpdf.ts",
+     "TE: { fil: () => lokal('SourceSerif4-Regular.ttf'), stoerrelse: 12 }",
+     "TE: { fil: () => BREVSKRIFT.BH.fil(), stoerrelse: 12 }",
+     "setter totalentreprenørens brev i Source Serif 4"),
+    ("S82", "brevet har en annen linjehøyde enn forhåndsvisningen (#1658)", "server/brevpdf.ts",
+     "const LINJEHOEYDE = 1.6;", "const LINJEHOEYDE = 1.4;",
+     "setter byggherrens brev i Oslo Sans i 11 pt med linjehøyde 1,6"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

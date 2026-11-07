@@ -34,7 +34,10 @@ async function ikkeTro(koder: number[]): Promise<number[]> {
   if (!koder.length) return [];
   const tekst = proeve(koder);
   try {
-    if (lesBrevPdf(await skrivBrevPdf(tekst, 'tegnsett', new Date(0))) === tekst) return [];
+    let tro = true;
+    for (const avsender of ['TE', 'BH'] as const)
+      tro &&= lesBrevPdf(await skrivBrevPdf(tekst, 'tegnsett', new Date(0), avsender)) === tekst;
+    if (tro) return [];
   } catch {
     // `lesBrevPdf` kaster for en glyf uten `ToUnicode`; tegnet finnes ved delingen under.
   }
@@ -48,7 +51,8 @@ let utelatte: Promise<Set<number>> | undefined;
 /**
  * Tegnene skriftene har, men som PDF-en ikke gjengir tro, så brevet ikke kan leveres (#801):
  * skrift fra høyre mot venstre, U+2028 og U+2029, kodepunkter som deler glyf, og tegnene som
- * ikke kommer tilbake fra `lesBrevPdf` som de ble skrevet med `skrivBrevPdf`.
+ * ikke kommer tilbake fra `lesBrevPdf` som de ble skrevet med `skrivBrevPdf`, for en av
+ * avsenderne.
  */
 export function utelatteTegn(): Promise<Set<number>> {
   return (utelatte ??= (async () => {

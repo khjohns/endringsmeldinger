@@ -1,11 +1,12 @@
 /**
  * PDF-en av brevet (L-1c1, #371 del 2): teksten fra `gjengiOppdrag` satt på A4-sider
- * med Noto Sans, og teksten lest ut igjen av PDF-en, så leveringen kan kontrollere at
- * den gjengir den frosne brevteksten tro (LV-U2, merknaden 12.10 i #371).
+ * i brevskriften til avsenderen (`BREVSKRIFT`), og teksten lest ut igjen av PDF-en, så
+ * leveringen kan kontrollere at den gjengir den frosne brevteksten tro (LV-U2, merknaden
+ * 12.10 i #371).
  *
- * Skriften er bygd inn som delmengde med Identity-H (oppdragsgiver 18.10, #764 og #799).
- * Et tegn Noto Sans mangler, som →, settes med Noto Sans Math (arbeidsvalget i #799).
- * Lisensene står ved skriftene i `skrift/`.
+ * Skriftene er bygd inn som delmengde med Identity-H (oppdragsgiver 18.10, #764 og #799).
+ * Et tegn brevskriften ikke setter, settes med Noto Sans og deretter Noto Sans Math
+ * (arbeidsvalget i #799). Lisensene står ved skriftene i `skrift/`.
  *
  * Lesingen følger sidetreet og leser tekstoperatorene i sideinnholdet, slik en leser
  * viser dem, og gjør glyfene om til tekst med `ToUnicode` for skriften i `Tf`. Løp med
@@ -14,14 +15,14 @@
  */
 
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import { inflateSync } from 'node:zlib';
 import fontkit from '@pdf-lib/fontkit';
 import { beginMarkedContent, endMarkedContent, PDFDocument } from 'pdf-lib';
 
 const A4 = [595.28, 841.89] as const;
 const MARG = 56;
-const SKRIFTSTOERRELSE = 11;
-const LINJEAVSTAND = 15;
 const DELT = 'Delt';
 /** Brevteksten har et tegn PDF-en ikke kan sette tro: emoji, eller et usynlig tegn som U+200B. */
 export class TegnUtenforSkriften extends Error {}
@@ -31,40 +32,108 @@ const MYKT_BINDESTREK = 0xad;
 /** Et usynlig tegn som settes med glyfen skriften har for det, og ikke som mellomrom. */
 export const settesMedGlyfen = (kode: number): boolean => kode === MYKT_BINDESTREK;
 
-type Skrift = { bytes: Uint8Array; tegnsett: ReturnType<typeof fontkit.create> };
-let lesteSkrifter: Skrift[] | undefined;
+/** Parten som sender brevet. Den avgjør brevskriften (`.interface-design/system.md`, «Typografi»). */
+export type Avsender = 'TE' | 'BH';
 
-/** Hovedskriften først; et tegn settes med den første som har det. */
-const SKRIFTFILER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'] as const;
+type Skrift = {
+  bytes: Uint8Array;
+  tegnsett: ReturnType<typeof fontkit.create>;
+  /** Kodepunktene skriften setter; resten går videre til neste skrift. */
+  setter: (kode: number) => boolean;
+};
 
-/** Skriftene i `SKRIFTFILER`, lest når den første PDF-en lages. */
-function skrifter(): Skrift[] {
-  return (lesteSkrifter ??= SKRIFTFILER.map((fil) => {
-    const bytes = readFileSync(new URL(`./skrift/${fil}`, import.meta.url));
-    return { bytes, tegnsett: fontkit.create(bytes) };
+const lokal = (fil: string) => new URL(`./skrift/${fil}`, import.meta.url);
+
+/**
+ * Brevskriften følger avsenderen, i samme størrelse og med linjehøyde 1,6 som
+ * forhåndsvisningen i `Brev.svelte` (oppdragsgiver 07.11, #1658). Oslo Sans hentes fra
+ * `@oslokommune/punkt-assets` og brukes bare i byggherrens brev, på grunn av lisensen.
+ * Source Serif 4 i 16 px er 12 pt.
+ */
+const BREVSKRIFT: Record<Avsender, { fil: () => URL; stoerrelse: number }> = {
+  BH: {
+    fil: () =>
+      pathToFileURL(
+        createRequire(import.meta.url).resolve(
+          '@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff2'
+        )
+      ),
+    stoerrelse: 11,
+  },
+  TE: { fil: () => lokal('SourceSerif4-Regular.ttf'), stoerrelse: 12 },
+};
+const LINJEHOEYDE = 1.6;
+
+/**
+ * Reserveskriftene, i rekkefølge, for tegnene brevskriften ikke setter: myk bindestrek,
+ * som Oslo Sans mangler og Source Serif 4 deler glyf med bindestrek for, og → ≥ ≤ №.
+ * De avgjør alene hvilke tegn brevet kan ha (`tegnsett.ts`), så tabellen i kjernen er den
+ * samme for begge avsenderne (#801).
+ */
+const RESERVEFILER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'] as const;
+
+const les = (fil: URL) => {
+  const bytes = readFileSync(fil);
+  return { bytes, tegnsett: fontkit.create(bytes) };
+};
+
+let lesteReserver: Skrift[] | undefined;
+function reserver(): Skrift[] {
+  return (lesteReserver ??= RESERVEFILER.map((fil) => {
+    const s = les(lokal(fil));
+    return { ...s, setter: (kode: number) => s.tegnsett.hasGlyphForCodePoint(kode) };
   }));
 }
 
-/** Kodepunktene skriftene har, for tabellen i kjernen (`tegnsett.ts`, #801). */
+/**
+ * Brevskriften setter et tegn reserveskriftene har, bare når tegnet er det laveste
+ * kodepunktet med glyfen. PDF-en gir en delt glyf tilbake som det første tegnet brevet
+ * bruker den for (#801), så myk bindestrek med glyfen til bindestrek ville blitt lest
+ * som bindestrek.
+ */
+function brevskrift(avsender: Avsender): Skrift {
+  const s = les(BREVSKRIFT[avsender].fil());
+  const tillatt = skriftenesKodepunkter();
+  const foersteMedGlyf = new Map<number, number>();
+  for (const kode of [...s.tegnsett.characterSet].sort((a, b) => a - b)) {
+    const glyf = s.tegnsett.glyphForCodePoint(kode).id;
+    if (!foersteMedGlyf.has(glyf)) foersteMedGlyf.set(glyf, kode);
+  }
+  return {
+    ...s,
+    setter: (kode) =>
+      tillatt.has(kode) &&
+      s.tegnsett.hasGlyphForCodePoint(kode) &&
+      foersteMedGlyf.get(s.tegnsett.glyphForCodePoint(kode).id) === kode,
+  };
+}
+
+const lesteSkrifter = new Map<Avsender, Skrift[]>();
+
+/** Skriftene for avsenderen, brevskriften først; et tegn settes med den første som setter det. */
+function skrifter(avsender: Avsender): Skrift[] {
+  let s = lesteSkrifter.get(avsender);
+  if (!s) lesteSkrifter.set(avsender, (s = [brevskrift(avsender), ...reserver()]));
+  return s;
+}
+
+let kodepunkter: Set<number> | undefined;
+
+/** Kodepunktene reserveskriftene har, for tabellen i kjernen (`tegnsett.ts`, #801). */
 export function skriftenesKodepunkter(): Set<number> {
-  return new Set(skrifter().flatMap((s) => s.tegnsett.characterSet));
+  return (kodepunkter ??= new Set(reserver().flatMap((s) => s.tegnsett.characterSet)));
 }
 
 /**
- * Kodepunktene som deler glyf med et lavere kodepunkt i skriften `skriftFor` velger. PDF-en
+ * Kodepunktene som deler glyf med et lavere kodepunkt i reserveskriften som setter dem. PDF-en
  * gir glyfen tilbake som det første av dem brevet bruker, så bare det laveste beholdes (#801).
+ * Brevskriften setter bare det laveste kodepunktet med en glyf (`brevskrift`).
  */
 export function kodepunkterMedDeltGlyf(): Set<number> {
   const perGlyf = new Map<string, number[]>();
   for (const kode of [...skriftenesKodepunkter()].sort((a, b) => a - b)) {
-    let skrift: number;
-    try {
-      skrift = skriftFor(String.fromCodePoint(kode));
-    } catch (feil) {
-      if (feil instanceof TegnUtenforSkriften) continue;
-      throw feil;
-    }
-    const glyf = `${skrift}:${skrifter()[skrift].tegnsett.glyphForCodePoint(kode).id}`;
+    const skrift = reserver().findIndex((s) => s.setter(kode));
+    const glyf = `${skrift}:${reserver()[skrift].tegnsett.glyphForCodePoint(kode).id}`;
     perGlyf.set(glyf, [...(perGlyf.get(glyf) ?? []), kode]);
   }
   return new Set([...perGlyf.values()].flatMap((k) => k.slice(1)));
@@ -76,45 +145,59 @@ export function kodepunkterMedDeltGlyf(): Set<number> {
  */
 const UTEN_SUBSTITUSJON = { ccmp: false, liga: false, clig: false, calt: false, rlig: false };
 
+/** fontkit der mykt bindestrek settes med glyfen skriften har for det. */
+function medBindestrek(data: Uint8Array) {
+  const font = fontkit.create(data);
+  const motor = (font as unknown as { _layoutEngine: { isDefaultIgnorable(k: number): boolean } })
+    ._layoutEngine;
+  const usynlig = motor.isDefaultIgnorable.bind(motor);
+  motor.isDefaultIgnorable = (k) => !settesMedGlyfen(k) && usynlig(k);
+  return font;
+}
+
 /**
  * fontkit der mykt bindestrek settes med glyfen skriften har for det, så `ToUnicode` gir
  * U+00AD tilbake (orkestratoren 18.10, #802). fontkit selv setter det som mellomrom.
  * Endringen går gjennom en privat del av fontkit, så `create` kaster hvis den ikke virker.
+ * Prøven settes med en egen instans: fontkit husker glyfen med tegnet den først ble satt
+ * for, og Source Serif 4 har samme glyf for bindestrek og myk bindestrek (#1658).
  */
 const fontkitMedBindestrek: Parameters<PDFDocument['registerFontkit']>[0] = {
   create(data) {
-    const font = fontkit.create(data);
-    const motor = (font as unknown as { _layoutEngine: { isDefaultIgnorable(k: number): boolean } })
-      ._layoutEngine;
-    const usynlig = motor.isDefaultIgnorable.bind(motor);
-    motor.isDefaultIgnorable = (k) => !settesMedGlyfen(k) && usynlig(k);
-    if (font.layout('\u00ad').glyphs[0]?.codePoints[0] !== MYKT_BINDESTREK)
+    const proeve = medBindestrek(data);
+    if (
+      proeve.hasGlyphForCodePoint(MYKT_BINDESTREK) &&
+      proeve.layout('\u00ad').glyphs[0]?.codePoints[0] !== MYKT_BINDESTREK
+    )
       throw new Error('fontkit setter ikke mykt bindestrek med glyfen i skriften');
-    return font;
+    return medBindestrek(data);
   },
 };
 
 /** Kalles av `start.ts` før serveren lytter, så en skrift som ikke kan brukes, stopper oppstarten. */
 export function kontrollerSkrifter(): void {
   try {
-    for (const s of skrifter()) fontkitMedBindestrek.create(s.bytes);
+    if (!reserver()[0].setter(MYKT_BINDESTREK))
+      throw new Error('den første reserveskriften har ikke myk bindestrek');
+    for (const avsender of ['TE', 'BH'] as const)
+      for (const s of skrifter(avsender)) fontkitMedBindestrek.create(s.bytes);
   } catch (feil) {
     throw new Error(`Skriftene til brev-PDF-en kan ikke brukes: ${(feil as Error).message}`);
   }
 }
 
-const skriftPerKode = new Map<number, number>();
+const skriftPerKode = { TE: new Map<number, number>(), BH: new Map<number, number>() };
 
 /**
- * Skriften for tegnet, som indeks i `skrifter()`. Kjernen avviser tegnet før brevet skrives
+ * Skriften for tegnet, som indeks i `skrifter(avsender)`. Kjernen avviser tegnet før brevet skrives
  * (`SETTBARE_TEGN` i `kjerne/format/tegnsett.ts`, #801), så dette er en sikring.
  */
-export function skriftFor(tegn: string): number {
+export function skriftFor(tegn: string, avsender: Avsender): number {
   const kode = tegn.codePointAt(0)!;
-  const kjent = skriftPerKode.get(kode);
+  const kjent = skriftPerKode[avsender].get(kode);
   if (kjent !== undefined) return kjent;
   const navn = () => `U+${kode.toString(16).toUpperCase().padStart(4, '0')}`;
-  const i = skrifter().findIndex((s) => s.tegnsett.hasGlyphForCodePoint(kode));
+  const i = skrifter(avsender).findIndex((s) => s.setter(kode));
   if (i < 0)
     throw new TegnUtenforSkriften(
       `Brevteksten har tegnet ${navn()}, som skriftene i PDF-en ikke har`
@@ -124,15 +207,15 @@ export function skriftFor(tegn: string): number {
     throw new TegnUtenforSkriften(
       `Brevteksten har det usynlige tegnet ${navn()}, som PDF-en ikke kan sette tro`
     );
-  skriftPerKode.set(kode, i);
+  skriftPerKode[avsender].set(kode, i);
   return i;
 }
 
 /** Teksten delt i løp med samme skrift. */
-function loep(tekst: string): { tekst: string; skrift: number }[] {
+function loep(tekst: string, avsender: Avsender): { tekst: string; skrift: number }[] {
   const ut: { tekst: string; skrift: number }[] = [];
   for (const tegn of tekst) {
-    const skrift = skriftFor(tegn);
+    const skrift = skriftFor(tegn, avsender);
     if (ut.at(-1)?.skrift === skrift) ut.at(-1)!.tekst += tegn;
     else ut.push({ tekst: tegn, skrift });
   }
@@ -193,8 +276,12 @@ function linjer(
 export async function skrivBrevPdf(
   tekst: string,
   tittel: string,
-  tidspunkt: Date
+  tidspunkt: Date,
+  avsender: Avsender
 ): Promise<Uint8Array> {
+  if (!Object.hasOwn(BREVSKRIFT, avsender))
+    throw new Error(`Brevet har avsenderen ${String(avsender)}, som ikke har noen brevskrift`);
+  const { stoerrelse } = BREVSKRIFT[avsender];
   const pdf = await PDFDocument.create();
   pdf.setTitle(tittel);
   pdf.setProducer('Endringsmeldinger');
@@ -203,17 +290,17 @@ export async function skrivBrevPdf(
   pdf.setModificationDate(tidspunkt);
   pdf.registerFontkit(fontkitMedBindestrek);
   const normalisert = tekst.replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
-  const brukt = new Set(loep(normalisert.replace(/\n/g, '')).map((l) => l.skrift));
+  const brukt = new Set(loep(normalisert.replace(/\n/g, ''), avsender).map((l) => l.skrift));
   // En skrift som ikke brukes, bygges ikke inn, så brev uten reservetegn er uendret.
   const innbygd = await Promise.all(
-    skrifter().map((s, i) =>
+    skrifter(avsender).map((s, i) =>
       brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true, features: UTEN_SUBSTITUSJON }) : null
     )
   );
   const settes = (t: string) =>
-    loep(t).map((l) => {
+    loep(t, avsender).map((l) => {
       const skrift = innbygd[l.skrift]!;
-      return { ...l, skrift, bredde: skrift.widthOfTextAtSize(l.tekst, SKRIFTSTOERRELSE) };
+      return { ...l, skrift, bredde: skrift.widthOfTextAtSize(l.tekst, stoerrelse) };
     });
   const bredder = new Map<string, number>();
   const maal = (t: string) => {
@@ -235,12 +322,12 @@ export async function skrivBrevPdf(
         if (linje.delt) side.pushOperators(beginMarkedContent(DELT));
         let x = MARG;
         for (const l of settes(linje.tekst)) {
-          side.drawText(l.tekst, { x, y, size: SKRIFTSTOERRELSE, font: l.skrift });
+          side.drawText(l.tekst, { x, y, size: stoerrelse, font: l.skrift });
           x += l.bredde;
         }
         if (linje.delt) side.pushOperators(endMarkedContent());
       }
-      y -= LINJEAVSTAND;
+      y -= stoerrelse * LINJEHOEYDE;
     }
   }
   return pdf.save({ useObjectStreams: false });
