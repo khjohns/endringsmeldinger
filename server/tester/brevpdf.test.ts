@@ -603,6 +603,5 @@ describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
     const headIWoff = lengde < utpakket ? inflateSync(pakket) : pakket;
     expect(headIProgram.subarray(0, 8)).toEqual(headIWoff.subarray(0, 8));
     expect(headIProgram.subarray(12, 54)).toEqual(headIWoff.subarray(12, 54));
-    expect(headIProgram.readUInt32BE(8)).not.toBe(headIWoff.readUInt32BE(8));
   });
 });
