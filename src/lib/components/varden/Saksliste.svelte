@@ -389,8 +389,9 @@
   }
   .tilstand h2 {
     color: var(--ink);
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
+    letter-spacing: var(--sperring-20);
   }
   .tilstand .detaljer {
     color: var(--ink-3);

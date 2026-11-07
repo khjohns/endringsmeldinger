@@ -100,6 +100,10 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
   - Totalentreprenørens brev står i Source Serif 4 (`--font-brev`) i 16 px ([LV-U58](../docs/plans/vedtak.md#lv-u58)).
   - Tegn brevskriften mangler, står i Noto Sans og Noto Sans Math
     ([LV-U26](../docs/plans/vedtak.md#lv-u26)).
+  - Tittelen i brevet er 20 px for begge parter. Den dempede tittelen, når brevet leses ved
+    siden av et utkast, har brødtekstens størrelse og vekt 600 (oppdragsgiver 07.11, #1659).
+  - Et sitat fra et brev utenfor brevet, som utdraget i tråden, står i avsenderens brevskrift
+    og størrelse (oppdragsgiver 07.11, #1659).
   - Begge har linjehøyde 1,6. Oslo Sans i 11 pt, Source Serif 4 i 16 px og Inter i 14 px
     har nesten samme x-høyde (7,6–7,8 px), så brevene og grensesnittet ser like store ut.
   - PDF-en som sendes, skal ha samme skrift og størrelse som forhåndsvisningen (#1652).
