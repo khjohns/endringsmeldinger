@@ -92,6 +92,10 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
   Hele brevet står i avsenderens skrift: avsender, mottaker, referanser, tittel og tekst, med
   samme oppsett og vekter for begge parter. Stempelet «Sendt …» og linja under brevet er appens
   og står i Inter (oppdragsgiver 07.11).
+- **Referansene i brevhodet står på faste plasser**, som i Oslo kommunes brevmal: to kolonner,
+  også på smal skjerm, med Sak og Vår ref. under til venstre og Deres ref. og Dato under til
+  høyre. Mangler et felt, står plassen tom, så Dato alltid står nederst til høyre
+  (oppdragsgiver 07.11). Det fulle hodet er #1173.
   - Byggherrens brev står i Oslo Sans (`--font-brev-bh`) i 11 pt. Det er
     Oslo kommunes skrift, og lisensen gjelder bare Oslo kommunes egen kommunikasjon. Den
     brukes derfor aldri i totalentreprenørens brev. Filene hentes fra

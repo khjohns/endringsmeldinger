@@ -1,7 +1,8 @@
 <!--
   Brevet som lesespalte (Varden, skjerm C og D). Hodet følger `godkjenning-vederlagssvar.html:276-283`
   og LV-U23 så langt løsningen har opplysningene: avsender med organisasjon og part, mottakeren,
-  referansene og datoen. Et sendt brev har stempelet «Sendt …». Teksten kommer fra kjernen,
+  referansene og datoen. Referansene står på faste plasser som i Oslo kommunes brevmal
+  (system.md, «Typografi»), ikke i rekkefølgen i prototypen. Et sendt brev har stempelet «Sendt …». Teksten kommer fra kjernen,
   som frosset tekst i et sendt brev eller som låst tekst før sending. Visningen endrer den ikke.
 -->
 <script lang="ts">
@@ -72,21 +73,21 @@
         )}
       </p>
       <dl class="ref">
-        <div>
+        <div class="sak">
           <dt>Sak:</dt>
           <dd>{sak}</dd>
         </div>
-        {#if deresRef.length}<div>
+        {#if deresRef.length}<div class="deres">
             <dt>Deres ref.:</dt>
             <dd data-testid="deres-ref">
               {#each deresRef as kode, i (i)}{#if i}<br />{/if}{kode}{/each}
             </dd>
           </div>{/if}
-        {#if merking !== null}<div>
+        {#if merking !== null}<div class="vaar">
             <dt>Vår ref.:</dt>
             <dd data-testid="vaar-ref">{merking}</dd>
           </div>{/if}
-        <div>
+        <div class="dato">
           <dt>Dato:</dt>
           <dd>{dato}</dd>
         </div>
@@ -162,12 +163,31 @@
     letter-spacing: 0.02em;
     white-space: nowrap;
   }
+  /* Faste plasser (system.md, «Typografi»). Et felt som mangler, står tomt. */
   .ref {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(7rem, auto));
-    gap: 2px 20px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'sak deres'
+      'vaar dato';
+    gap: var(--spacing-3) var(--spacing-5);
     font-size: 12px;
     font-variant-numeric: tabular-nums;
+  }
+  .ref .sak {
+    grid-area: sak;
+  }
+  .ref .deres {
+    grid-area: deres;
+  }
+  .ref .vaar {
+    grid-area: vaar;
+  }
+  .ref .dato {
+    grid-area: dato;
+  }
+  .ref dd {
+    overflow-wrap: anywhere;
   }
   .ref dt {
     color: var(--ink-3);
