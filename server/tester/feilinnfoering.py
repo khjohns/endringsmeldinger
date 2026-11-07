@@ -331,6 +331,16 @@ FEILINNFOERINGER = [
     ("S87", "en brevtekst uten formen i formatet gir et brev uten dokument (#926)", "server/levering.ts",
      "if (brevtekst === null && rad.data.brevtekst !== undefined)", "if (false)",
      "en brevtekst uten formen i formatet avvises"),
+    ("S88", "PDF-en lages selv om skriften eller logoen er endret siden brevet ble sendt (#1177, LV-U26)",
+     "server/levering.ts",
+     "if (!sammeBrevprofil(brev.brevprofil, brev.avsender.part))", "if (!brev.brevprofil)",
+     "lager ikke PDF-en når en fil har en annen sum enn den brevet ble sendt med"),
+    ("S89", "brevprofilen fryser ikke logoen (#1177, LV-U26)", "server/brevpdf.ts",
+     "...(MED_LOGO[avsender] ? [logo()] : [])", "...([] as Logo[])",
+     "byggherrens profil har Oslo Sans, reserveskriftene og logoen fra pakken"),
+    ("S90", "oppdraget fryser ikke brevprofilen (#1177, LV-U26)", "server/levering.ts",
+     "brevprofil: merket ? brevprofil(rad.aktor_rolle) : null,", "brevprofil: null,",
+     "et brev med brevtekst får dokumentet med merkingen"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

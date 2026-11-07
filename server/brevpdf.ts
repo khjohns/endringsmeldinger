@@ -14,8 +14,10 @@
  * for annet.
  */
 
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { isDeepStrictEqual } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import { inflateSync } from 'node:zlib';
 import fontkit from '@pdf-lib/fontkit';
@@ -45,6 +47,8 @@ export const settesMedGlyfen = (kode: number): boolean => kode === MYKT_BINDESTR
 export type Avsender = 'TE' | 'BH';
 
 type Skrift = {
+  /** Filnavnet, uten mappen. */
+  fil: string;
   bytes: Uint8Array;
   tegnsett: ReturnType<typeof fontkit.create>;
   /**
@@ -88,6 +92,8 @@ const MED_LOGO: Record<Avsender, boolean> = { BH: true, TE: false };
 const LOGOBREDDE = 85;
 
 type Logo = {
+  fil: string;
+  bytes: Uint8Array;
   breddeISvg: number;
   hoeydeISvg: number;
   stier: string[];
@@ -104,7 +110,9 @@ let lestLogo: Logo | undefined;
  */
 function logo(): Logo {
   if (lestLogo) return lestLogo;
-  const svg = readFileSync(fraPakken('logos/oslologo.svg'), 'utf8');
+  const url = fraPakken('logos/oslologo.svg');
+  const bytes = readFileSync(url);
+  const svg = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   const viewBox = /<svg\b[^>]*\bviewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(svg);
   if (!viewBox) throw new Error('logoen har ikke en viewBox som begynner i 0 0');
   const stier: string[] = [];
@@ -134,6 +142,8 @@ function logo(): Logo {
   const hex = [...farger][0];
   const kanal = (i: number) => parseInt(hex.slice(1 + 2 * i, 3 + 2 * i), 16) / 255;
   return (lestLogo = {
+    fil: filnavnI(url),
+    bytes,
     breddeISvg: Number(viewBox[1]),
     hoeydeISvg: Number(viewBox[2]),
     stier,
@@ -172,9 +182,11 @@ function tegnLogo(side: PDFPage): void {
  */
 const RESERVEFILER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'] as const;
 
+const filnavnI = (fil: URL) => fil.pathname.split('/').at(-1)!;
+
 const les = (fil: URL) => {
   const bytes = readFileSync(fil);
-  return { bytes, tegnsett: fontkit.create(bytes) };
+  return { fil: filnavnI(fil), bytes, tegnsett: fontkit.create(bytes) };
 };
 
 let lesteReserver: Skrift[] | undefined;
@@ -409,6 +421,42 @@ export async function skrivBrevPdf(
     throw new Error(`Brevet har avsenderen ${String(avsender)}, som ikke har noen brevskrift`);
   return settBrevPdf(tekst, tittel, tidspunkt, BREVSKRIFT[avsender], MED_LOGO[avsender]);
 }
+
+/**
+ * Skriften og filene et brev fra avsenderen settes med: brevskriften, reserveskriftene og,
+ * for byggherren, logoen, hver med sha256 av bytene PDF-en lages av. Oppdraget fryser den
+ * (`brevprofil` i `lagOppdrag`), og `brevdokument` lager ikke PDF-en når den ikke er lik, så
+ * den nedlastede PDF-en blir lik den leverte (LV-U26, oppdragsgiver 07.11 i #1177).
+ */
+export interface Brevprofil {
+  skrift: Skriftnavn;
+  /** Filnavn til sha256 i heksadesimal. */
+  filer: Record<string, string>;
+}
+
+const profiler = new Map<Avsender, Brevprofil>();
+
+export function brevprofil(avsender: Avsender): Brevprofil {
+  if (!Object.hasOwn(BREVSKRIFT, avsender))
+    throw new Error(`Brevet har avsenderen ${String(avsender)}, som ikke har noen brevskrift`);
+  let profil = profiler.get(avsender);
+  if (!profil) {
+    const skrift = BREVSKRIFT[avsender];
+    const filer = [...skrifter(skrift), ...(MED_LOGO[avsender] ? [logo()] : [])];
+    profil = {
+      skrift,
+      filer: Object.fromEntries(
+        filer.map((f) => [f.fil, createHash('sha256').update(f.bytes).digest('hex')])
+      ),
+    };
+    profiler.set(avsender, profil);
+  }
+  return profil;
+}
+
+/** Sann når profilen er den brev fra avsenderen settes med nå. */
+export const sammeBrevprofil = (profil: unknown, avsender: Avsender): boolean =>
+  isDeepStrictEqual(profil, brevprofil(avsender));
 
 /**
  * Brevet som PDF i skriften `brevskrift`, med eller uten logoen, som `skrivBrevPdf`.

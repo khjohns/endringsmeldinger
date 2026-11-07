@@ -22,6 +22,11 @@
  * kontraktsforkortelsen lages ingen merking, og sendingen avvises
  * (`KontraktsforkortelseMangler`, arbeidsvalget S2 A i #1497).
  *
+ * `brevprofil` er skriften og summene av skrift- og logofilene brevet settes med
+ * (`brevprofil` i `brevpdf.ts`). PDF-en lages bare når serveren har de samme filene, så den
+ * nedlastede PDF-en blir lik den leverte (LV-U26, oppdragsgiver 07.11 i #1177). Et brev
+ * uten dokument har ingen profil.
+ *
  * Vedleggene brevet binder, står bare i brevet, i `dokumentasjon` med ID-en, filnavnet
  * og summen (LV-U14), og leveringen leser dem der (#827 punkt 6). Et oppdrag med
  * vedlegg får leveringsjobben også uten dokument (LV-U11, triggeren
@@ -32,7 +37,14 @@ import { createHash } from 'node:crypto';
 import type { Brevdokument } from './catenda.ts';
 import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
 import { brevtekstI } from '../kjerne/format/leser.ts';
-import { lesBrevPdf, skrivBrevPdf, TegnUtenforSkriften } from './brevpdf.ts';
+import {
+  brevprofil,
+  type Brevprofil,
+  lesBrevPdf,
+  sammeBrevprofil,
+  skrivBrevPdf,
+  TegnUtenforSkriften,
+} from './brevpdf.ts';
 import { sjekksum } from './sjekksum.ts';
 import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
@@ -40,7 +52,7 @@ import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
-export const OPPDRAGSFORMAT = 8;
+export const OPPDRAGSFORMAT = 9;
 
 /** Prosjektet har ingen kontraktsforkortelse, så brevet kan ikke merkes (S2 A i #1497). */
 export class KontraktsforkortelseMangler extends Error {}
@@ -91,6 +103,7 @@ export function lagOppdrag(
       dokument: rad.data,
       brevtekst,
       merking: merket,
+      brevprofil: merket ? brevprofil(rad.aktor_rolle) : null,
     },
     dokument: merket ? { noekkel: rad.event_id, filnavn: `${merket}.pdf` } : null,
     maal,
@@ -146,6 +159,7 @@ interface Oppdragsbrev {
   merking: string | null;
   avsender: { part: 'TE' | 'BH' };
   brevtekst: Avsnitt[] | null;
+  brevprofil?: Brevprofil | null;
   /** Dokumentet slik kjernen frøs det, med tittelen og Deres ref. */
   dokument?: { brevtittel?: string; deres_ref?: string[] };
 }
@@ -182,6 +196,12 @@ export async function brevdokument(
   const navn = dokumentnavn(innhold, dokumentnoekkel);
   const brev = innhold.brev as Oppdragsbrev;
   if (!brev.brevtekst) throw new UgjengivbartBrev('Oppdraget har et dokument, men ingen brevtekst');
+  if (!sammeBrevprofil(brev.brevprofil, brev.avsender.part))
+    throw new UgjengivbartBrev(
+      brev.brevprofil
+        ? 'Skriften eller logoen er endret siden brevet ble sendt'
+        : 'Oppdraget har ingen brevprofil med skriften og logoen brevet ble sendt med'
+    );
   const tittel = `${grunnnavn(innhold)}.pdf`;
   let pdf: Uint8Array;
   try {

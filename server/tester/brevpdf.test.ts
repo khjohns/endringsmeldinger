@@ -9,7 +9,9 @@ import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
+import { createHash } from 'node:crypto';
 import {
+  brevprofil,
   lesBrevPdf,
   settBrevPdf,
   skriftFor,
@@ -28,6 +30,7 @@ const oppdrag = (brevtekst: Avsnitt[] | null, part: 'TE' | 'BH' = 'TE') => ({
     avsender: { part },
     brevtekst,
     merking: brevtekst ? 'K201-KOE-005-03' : null,
+    brevprofil: brevtekst ? brevprofil(part) : null,
   },
   dokument: brevtekst ? { noekkel: 'noekkel-1', filnavn: 'K201-KOE-005-03.pdf' } : null,
 });
@@ -470,5 +473,65 @@ describe('logoen følger avsenderen (#1177, LV-U25, LV-U26)', () => {
   it('setter ingen logo i totalentreprenørens brev', async () => {
     const pdf = (await brevdokument(oppdrag(tekst, 'TE'), 'n')).innhold;
     expect(sideinnhold(pdf)).not.toMatch(/^f\*?$/m);
+  });
+});
+
+describe('brevprofilen fryser skriften og logoen med brevet (#1177, LV-U26)', () => {
+  // Kilde: LV-U26, «skriften og logoen … fryses med brevet, så den nedlastede PDF-en blir
+  // lik den leverte», og oppdragsgiver 07.11 i #1177: navn og sha256 for hver fil, og
+  // fail-closed ved avvik eller når profilen mangler.
+  const tekst: Avsnitt[] = [{ gjelder: 'a', laast: 'Første linje.' }];
+  const sum = (sti: string) =>
+    createHash('sha256')
+      .update(readFileSync(new URL(sti, import.meta.url)))
+      .digest('hex');
+  const PAKKE = '../../node_modules/@oslokommune/punkt-assets/dist/';
+
+  it('byggherrens profil har Oslo Sans, reserveskriftene og logoen fra pakken, med summen av filene', () => {
+    expect(brevprofil('BH')).toEqual({
+      skrift: 'osloSans',
+      filer: {
+        'OsloSans-Regular.woff2': sum(`${PAKKE}fonts/OsloSans-Regular.woff2`),
+        'NotoSans-Regular.ttf': sum('../skrift/NotoSans-Regular.ttf'),
+        'NotoSansMath-Regular.ttf': sum('../skrift/NotoSansMath-Regular.ttf'),
+        'oslologo.svg': sum(`${PAKKE}logos/oslologo.svg`),
+      },
+    });
+  });
+
+  it('totalentreprenørens profil har Source Serif 4 og reserveskriftene, uten logo', () => {
+    expect(brevprofil('TE')).toEqual({
+      skrift: 'sourceSerif4',
+      filer: {
+        'SourceSerif4-Regular.ttf': sum('../skrift/SourceSerif4-Regular.ttf'),
+        'NotoSans-Regular.ttf': sum('../skrift/NotoSans-Regular.ttf'),
+        'NotoSansMath-Regular.ttf': sum('../skrift/NotoSansMath-Regular.ttf'),
+      },
+    });
+  });
+
+  it('lager ikke PDF-en når en fil har en annen sum enn den brevet ble sendt med', async () => {
+    const o = oppdrag(tekst, 'BH');
+    const profil = brevprofil('BH');
+    const endret = { ...profil, filer: { ...profil.filer, 'oslologo.svg': '0'.repeat(64) } };
+    const feil = await brevdokument({ ...o, brev: { ...o.brev, brevprofil: endret } }, 'n').catch(
+      (f: unknown) => f
+    );
+    expect(feil).toBeInstanceOf(UgjengivbartBrev);
+    expect((feil as Error).message).toContain('endret siden brevet ble sendt');
+  });
+
+  it('lager ikke PDF-en når brevet ble sendt med en annen brevskrift', async () => {
+    const o = oppdrag(tekst, 'BH');
+    await expect(
+      brevdokument({ ...o, brev: { ...o.brev, brevprofil: brevprofil('TE') } }, 'n')
+    ).rejects.toBeInstanceOf(UgjengivbartBrev);
+  });
+
+  it('lager ikke PDF-en av et oppdrag uten brevprofil', async () => {
+    const o = oppdrag(tekst, 'BH');
+    await expect(
+      brevdokument({ ...o, brev: { ...o.brev, brevprofil: undefined } }, 'n')
+    ).rejects.toThrow('ingen brevprofil');
   });
 });

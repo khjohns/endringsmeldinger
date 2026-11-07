@@ -25,7 +25,7 @@ import { kjoerEnJobb, LEASETID_S } from '../jobber.ts';
 import { lesSaken } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
-import { lesBrevPdf } from '../brevpdf.ts';
+import { brevprofil, lesBrevPdf } from '../brevpdf.ts';
 import {
   KontraktsforkortelseMangler,
   lagOppdrag,
@@ -1426,7 +1426,7 @@ describe('merkingen av brevet (LV-U44, LV-U48)', () => {
   });
 });
 
-describe('oppdraget og brevteksten i hendelsen (#926)', () => {
+describe('oppdraget, brevteksten og brevprofilen (#926, #1177)', () => {
   // Kilde: LV-U2 og LV-U11. Et brev med tekst fra appen leveres som dokument; bare et
   // registrert brev, uten brevtekst, leveres uten.
   const rad = (data: Record<string, unknown>): Journalrad => ({
@@ -1450,10 +1450,16 @@ describe('oppdraget og brevteksten i hendelsen (#926)', () => {
     const brevtekst = [{ gjelder: 'a', laast: 'Tekst.' }];
     const { innhold } = lag({ brevtekst, merking: 'K201-KOE-005-03' });
     expect(innhold.dokument).toEqual({ noekkel: 'e1', filnavn: 'K201-KOE-005-03.pdf' });
+    expect(innhold.oppdragsformat).toBe(9);
+    expect((innhold.brev as { brevprofil: unknown }).brevprofil, 'LV-U26, #1177').toEqual(
+      brevprofil('BH')
+    );
   });
 
   it('et brev uten brevtekst, som et registrert brev, får ikke noe dokument (LV-U11)', () => {
-    expect(lag({}).innhold.dokument).toBeNull();
+    const { innhold } = lag({});
+    expect(innhold.dokument).toBeNull();
+    expect((innhold.brev as { brevprofil: unknown }).brevprofil).toBeNull();
   });
 
   it('en brevtekst uten formen i formatet avvises, i stedet for å gi et brev uten dokument', () => {
