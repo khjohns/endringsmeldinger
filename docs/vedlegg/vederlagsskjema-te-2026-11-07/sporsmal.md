@@ -89,3 +89,45 @@ Bakgrunn: Totalentreprenøren krever per post (svar 1). Endringsordren kan samle
 - Styrer: om lagene og godkjenningen kan regnes per post.
 
 Oppdragsgiver 07.11, ordrett: «9A, 10A»
+
+## Oppfølgingsspørsmål etter prøvingen mot vedtakene, stilt 07.11
+
+Prøvingen av de valgte alternativene mot vedtakene ble gjort da svarene ble ført (#1663). Den
+fant fem steder der vedtakene forutsetter én oppgjørsform for hele kravet, eller der svarene
+ikke sier nok. Stilt i tekst (rettsregler).
+
+**11. Når behandlingen av vederlagskravet er ferdig, når postene har ulik oppgjørsform.**
+Bakgrunn: Samlevedtaket for vederlagsmetoden sier at behandlingen er ferdig når partene er enige om beregningsregelen (punkt 13), og at et tilbud som ikke er akseptert, ikke lenger regnes som krav når partene er enige om en beregningsregel (punkt 15). Begge forutsetter én regel for hele kravet. For rigg og drift kreves i tillegg enighet om beløpet (punkt 13 siste setning).
+- A: Punkt 13 og 15 gjelder per kravpost. Behandlingen av vederlagskravet er ferdig når partene er enige om oppgjørsformen for hver kravpost som gjøres opp etter en beregningsregel, og om beløpet for hver kravpost med fast sum, for den særskilte vederlagsjusteringen og for rigg og drift. Enighet om beregningsregelen for én post tar ikke bort tilbudet for en annen. Forhold: endrer OV-U94 punkt 13 og 15.
+- B: Behandlingen er ferdig først når partene er enige om alle postene, men enighet om en beregningsregel for én post erstatter tilbudene i alle postene, som i punkt 15 i dag.
+- Anbefalt: A. B lar enighet om én post ta bort et tilbud TE ikke har trukket.
+- Styrer: når sporet er ferdig i kjernen, og hva byggherren kan akseptere etter en enighet om én post.
+
+**12. Varslene som hører til en oppgjørsform, i rekkefølgen på lagene.**
+Bakgrunn: Du har vedtatt rekkefølgen varselinnsigelsene, oppgjørsformen, beløpet. Varselet om justering av enhetsprisene (punkt 34.3.3) og varselet før regningsarbeidet (punkt 34.4) hører til en oppgjørsform, og de har bare betydning hvis den oppgjørsformen legges til grunn. Samlevedtaket for vederlagsmetoden punkt 11 sier at standpunktet til varselet etter punkt 34.4 registreres og vises «uten utledet virkning».
+- A: «Varselinnsigelsene først» gjelder innsigelsene etter punkt 34.1.2 og 34.1.3. Standpunktet til varselet etter punkt 34.3.3 og punkt 34.4 står i laget for oppgjørsformen til posten det gjelder, og punkt 11 i samlevedtaket står: løsningen utleder ingen virkning av standpunktet til varselet etter punkt 34.4. Forhold: presiserer vedtaket om rekkefølgen og OV-U94 punkt 11.
+- B: Alle varselinnsigelsene står først, også etter punkt 34.3.3 og 34.4, og innsigelsen etter punkt 34.4 gir et eget lag. Forhold: endrer OV-U94 punkt 11.
+- Anbefalt: A.
+- Styrer: trappen per post og antall lag i tabellen.
+
+**13. Tilbudssetningen og postene utenfor kravpostene.**
+Bakgrunn: Du har vedtatt at brevet sier hvilke poster som er tilbud etter punkt 34.2.1. Samlevedtaket for vederlagsmetoden punkt 4 sier at setningen står også når tilbudet bare har den særskilte vederlagsjusteringen, og rigg og drift har et beløp etter formelen i kontraktsgrunnlaget (OV-U89).
+- A: Den særskilte vederlagsjusteringen med fast sum, og rigg og drift, er tilbud etter punkt 34.2.1 og nevnes i setningen som de andre postene med fast sum.
+- B: Bare kravpostene i vederlagsjusteringen nevnes. Den særskilte vederlagsjusteringen og rigg og drift står uten setningen.
+- Anbefalt: A. Det følger punkt 4 i dag for den særskilte vederlagsjusteringen.
+- Styrer: brevet og hva byggherren kan akseptere.
+
+**14. Beløpet i en kravpost etter en beregningsregel.**
+Bakgrunn: Svar 1 sier at hver kravpost har beskrivelse og beløp. Samlevedtaket for vederlagsmetoden punkt 2 sier at et krav om regningsarbeid ikke har et anslått beløp som kravversjon.
+- A: Beløpet i svar 1 gjelder kravposter med fast sum. En kravpost etter kontraktens enhetspriser kan ha et anslag, og en kravpost med regningsarbeid kan ha et kostnadsoverslag. Begge er opplysninger og ikke krav. Punkt 2 står. Forhold: presiserer vedtaket om kravposter.
+- B: Hver kravpost har et krevd beløp, også ved enhetspriser og regningsarbeid. Forhold: endrer OV-U94 punkt 2.
+- Anbefalt: A.
+- Styrer: formatet for kravposten og summen i støttekolonnen.
+
+**15. «Post» i endringsordren.**
+Bakgrunn: Samlevedtaket for endringsordren punkt 23 sier: «Et utsagn gjelder ett spor eller én post i én sak eller i en gruppe saker, og svarer på kravversjonene i sakene det gjelder. Byggherren kan gi ett utsagn for flere saker. Et samlet utsagn har én oppgjørsform, og vederlaget samles per post.» Vedtaket det samler, ramset opp postene som vederlagsjustering, særskilt vederlagsjustering og rigg og drift. Kravpostene har betegnelser innenfor én sak.
+- A: Et utsagn i endringsordren kan gjelde én eller flere kravposter med samme oppgjørsform, i én eller flere saker, og vederlaget samles per post av de tre: vederlagsjustering, særskilt vederlagsjustering og rigg og drift. Utsagnet viser til hver kravpost det gjelder. Forhold: presiserer EO-U38 punkt 23.
+- B: «Post» i punkt 23 er bare de tre postene. Et utsagn gjelder hele vederlagsjusteringen i en sak, med alle kravpostene.
+- C: Avgjøres med forløpet for endringsordren.
+- Anbefalt: A. B lar ikke endringsordren vise til kravposten, slik svar 1 forutsetter.
+- Styrer: endringsordren (BF-06) og om en kravpost kan gjøres opp for seg.
