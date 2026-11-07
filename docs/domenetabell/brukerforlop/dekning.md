@@ -212,6 +212,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U84](../../plans/vedtak.md#ov-u84) | — | BF-05 start | BF-07 |
 | [OV-U89](../../plans/vedtak.md#ov-u89) | — | — | BF-14 |
 | [OV-U94](../../plans/vedtak.md#ov-u94) | — | — | BF-14 |
+| [OV-U95](../../plans/vedtak.md#ov-u95) | — | — | BF-14 |
 | [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — |
 | [VS-U9](../../plans/vedtak.md#vs-u9) | — | — | BF-03 |
 | [VS-U11](../../plans/vedtak.md#vs-u11) | — | — | BF-01V |
