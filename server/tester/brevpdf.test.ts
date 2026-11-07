@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
-import fontkit from '@pdf-lib/fontkit';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
 import { createHash } from 'node:crypto';
@@ -538,6 +537,23 @@ describe('brevprofilen fryser skriften og logoen med brevet (#1177, LV-U26)', ()
 });
 
 describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
+  /** `numGlyphs` i `maxp`, fra tabellkatalogen i et skriftprogram (OpenType). */
+  const glyferISfnt = (b: Buffer) => {
+    for (let i = 0; i < b.readUInt16BE(4); i++)
+      if (b.toString('latin1', 12 + 16 * i, 16 + 16 * i) === 'maxp')
+        return b.readUInt16BE(b.readUInt32BE(20 + 16 * i) + 4);
+    throw new Error('skriftprogrammet har ingen maxp');
+  };
+  /** `numGlyphs` i `maxp`, fra tabellkatalogen i en woff-fil (WOFF 1.0). */
+  const glyferIWoff = (b: Buffer) => {
+    for (let i = 0; i < b.readUInt16BE(12); i++)
+      if (b.toString('latin1', 44 + 20 * i, 48 + 20 * i) === 'maxp') {
+        const [fra, lengde, utpakket] = [4, 8, 12].map((d) => b.readUInt32BE(44 + 20 * i + d));
+        const tabell = b.subarray(fra, fra + lengde);
+        return (lengde < utpakket ? inflateSync(tabell) : tabell).readUInt16BE(4);
+      }
+    throw new Error('woff-fila har ingen maxp');
+  };
   // Kilde: #1670. Delmengden fontkit lager av CFF-skriften, kan ikke leses av poppler, så
   // byggherrens brev skal ha hele skriftprogrammet fra pakken, med alle glyfene.
   it('byggherrens brev har Oslo Sans som OpenType med like mange glyfer som skriften i pakken', async () => {
@@ -548,14 +564,13 @@ describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
       .filter((b) => b.subarray(0, 4).toString('latin1') === 'OTTO');
     expect(programmer, 'ett skriftprogram i OpenType med CFF').toHaveLength(1);
     const program = programmer[0];
-    const iPakken = fontkit.create(
-      readFileSync(
-        new URL(
-          '../../node_modules/@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff2',
-          import.meta.url
-        )
+    const woff = readFileSync(
+      new URL(
+        '../../node_modules/@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff',
+        import.meta.url
       )
     );
-    expect(fontkit.create(program).numGlyphs).toBe(iPakken.numGlyphs);
+    expect(glyferISfnt(program)).toBe(glyferIWoff(woff));
+    expect(glyferIWoff(woff), 'forutsetningen: skriften har glyfer').toBeGreaterThan(100);
   });
 });
