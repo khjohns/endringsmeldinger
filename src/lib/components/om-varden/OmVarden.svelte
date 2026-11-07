@@ -107,7 +107,7 @@
   h1 {
     font-size: 24px;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--sperring-24);
   }
   .ingress {
     font-size: 16px;
@@ -122,6 +122,7 @@
   h2 {
     font-size: 20px;
     font-weight: 600;
+    letter-spacing: var(--sperring-20);
   }
   p {
     font-size: 14px;

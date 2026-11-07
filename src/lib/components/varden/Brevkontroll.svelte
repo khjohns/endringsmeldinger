@@ -267,6 +267,7 @@
     margin-top: var(--spacing-2);
     font-size: 20px;
     font-weight: 600;
+    letter-spacing: var(--sperring-20);
   }
   .fakta {
     display: grid;
