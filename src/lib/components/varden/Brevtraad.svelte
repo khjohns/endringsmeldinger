@@ -110,7 +110,7 @@
                 </p>
                 <!-- Teksten kan være flere sider, så tråden viser de første tre linjene; hele står i brevet
                      (oppdragsgiver 06.11, #1646). -->
-                <p class="utdrag">«{i.utdypning}»</p>
+                <p class="utdrag" class:bh={b.avsender === 'BH'}>«{i.utdypning}»</p>
               {/if}
               {#if i.oppgitt}
                 {@const o = i.opplysning}
@@ -291,11 +291,19 @@
   }
   /* Tråden viser de første tre linjene; hele teksten står i brevet (oppdragsgiver 06.11, #1646). */
   .utdrag {
+    /* Partens ord står i avsenderens brevskrift (system.md, «Typografi»; oppdragsgiver 07.11, #1659). */
+    font-family: var(--font-brev);
+    font-size: 16px;
+    line-height: 1.6;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     line-clamp: 3;
     overflow: hidden;
+  }
+  .utdrag.bh {
+    font-family: var(--font-brev-bh);
+    font-size: 11pt;
   }
   /* Det løsningen sier om saken, i formen for meldinger, ikke som metadata (oppdragsgiver 06.11, #1646). */
   .virkning {

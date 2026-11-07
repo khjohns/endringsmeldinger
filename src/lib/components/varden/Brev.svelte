@@ -198,8 +198,9 @@
     line-height: 1.3;
     margin-bottom: var(--spacing-4);
   }
+  /* Samme størrelse som brødteksten hos begge parter; vekten bærer tittelen (oppdragsgiver 07.11, #1659). */
   .dempet h2 {
-    font-size: 16px;
+    font-size: 1em;
     margin-bottom: var(--spacing-3);
   }
   .tekst p {

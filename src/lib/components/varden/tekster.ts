@@ -277,6 +277,8 @@ export const MOTTATT = {
   ingenBrev: 'Ingen brev ennå.',
   dittBrev: 'Brevet ditt er sendt.',
   forkastet: 'Utkastet er forkastet.',
+  sakenEndret:
+    'Brevet ble ikke sendt, fordi saken er endret siden du åpnet brevkontrollen. Se over saken og brevet på nytt før du sender.',
 };
 
 /**

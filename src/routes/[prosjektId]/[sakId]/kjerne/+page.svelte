@@ -68,7 +68,9 @@
     color: var(--color-ink);
   }
   .case-message h1 {
-    font-size: 22px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: var(--sperring-20);
     margin-bottom: 12px;
   }
   .case-message p {
