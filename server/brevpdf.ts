@@ -38,8 +38,11 @@ export type Avsender = 'TE' | 'BH';
 type Skrift = {
   bytes: Uint8Array;
   tegnsett: ReturnType<typeof fontkit.create>;
-  /** Kodepunktene skriften setter; resten går videre til neste skrift. */
-  setter: (kode: number) => boolean;
+  /**
+   * Kodepunktene skriften setter i et brev med tegnene `brukte`; resten går videre til neste
+   * skrift. Uten `brukte` gjelder svaret et brev med alle tegnene.
+   */
+  setter: (kode: number, brukte?: ReadonlySet<number>) => boolean;
 };
 
 const lokal = (fil: string) => new URL(`./skrift/${fil}`, import.meta.url);
@@ -68,8 +71,8 @@ export type Skriftnavn = keyof typeof SKRIFTER;
 
 /**
  * Hele brevet, også hodet, står i avsenderens skrift: Oslo Sans for byggherren (LV-U26) og
- * Source Serif 4 for totalentreprenøren (oppdragsgiver 07.11, #1658, som endrer LV-U26 på
- * det punktet).
+ * Source Serif 4 for totalentreprenøren (oppdragsgiver 07.11 i #1658, som endrer LV-U26 på
+ * det punktet, og at hodet følger med, i vedtaks-PR-en #1662).
  */
 const BREVSKRIFT: Record<Avsender, Skriftnavn> = { BH: 'osloSans', TE: 'sourceSerif4' };
 
@@ -98,24 +101,27 @@ function reserver(): Skrift[] {
 
 /**
  * Brevskriften setter et tegn reserveskriftene har, bare når tegnet er det laveste
- * kodepunktet med glyfen. PDF-en gir en delt glyf tilbake som det første tegnet brevet
- * bruker den for (#801), så myk bindestrek med glyfen til bindestrek ville blitt lest
- * som bindestrek.
+ * kodepunktet med glyfen blant tegnene brevet bruker. PDF-en gir en delt glyf tilbake som
+ * det første tegnet brevet bruker den for (#801), så myk bindestrek med glyfen til
+ * bindestrek ville blitt lest som bindestrek. Source Serif 4 deler også glyf mellom
+ * U+02BC og apostrofen U+2019, så valget gjøres per brev (#1661).
  */
 function brevskrift(navn: Skriftnavn): Skrift {
   const s = les(SKRIFTER[navn].fil());
   const tillatt = skriftenesKodepunkter();
-  const foersteMedGlyf = new Map<number, number>();
+  const medGlyf = new Map<number, number[]>();
   for (const kode of [...s.tegnsett.characterSet].sort((a, b) => a - b)) {
+    if (!tillatt.has(kode)) continue;
     const glyf = s.tegnsett.glyphForCodePoint(kode).id;
-    if (!foersteMedGlyf.has(glyf)) foersteMedGlyf.set(glyf, kode);
+    medGlyf.set(glyf, [...(medGlyf.get(glyf) ?? []), kode]);
   }
   return {
     ...s,
-    setter: (kode) =>
-      tillatt.has(kode) &&
-      s.tegnsett.hasGlyphForCodePoint(kode) &&
-      foersteMedGlyf.get(s.tegnsett.glyphForCodePoint(kode).id) === kode,
+    setter: (kode, brukte) => {
+      if (!tillatt.has(kode) || !s.tegnsett.hasGlyphForCodePoint(kode)) return false;
+      const alle = medGlyf.get(s.tegnsett.glyphForCodePoint(kode).id)!;
+      return (brukte ? alle.find((k) => k === kode || brukte.has(k)) : alle[0]) === kode;
+    },
   };
 }
 
@@ -203,16 +209,21 @@ export const skriftnavn = Object.keys(SKRIFTER) as Skriftnavn[];
 const skriftPerKode = new Map<Skriftnavn, Map<number, number>>();
 
 /**
- * Skriften for tegnet, som indeks i `skrifter(navn)`. Kjernen avviser tegnet før brevet skrives
- * (`SETTBARE_TEGN` i `kjerne/format/tegnsett.ts`, #801), så dette er en sikring.
+ * Skriften for tegnet, som indeks i `skrifter(navn)`, i et brev med tegnene `brukte`. Kjernen
+ * avviser tegnet før brevet skrives (`SETTBARE_TEGN` i `kjerne/format/tegnsett.ts`, #801), så
+ * dette er en sikring.
  */
-export function skriftFor(tegn: string, brevskrift: Skriftnavn): number {
+export function skriftFor(
+  tegn: string,
+  brevskrift: Skriftnavn,
+  brukte?: ReadonlySet<number>
+): number {
   const kode = tegn.codePointAt(0)!;
   if (!skriftPerKode.has(brevskrift)) skriftPerKode.set(brevskrift, new Map());
-  const kjent = skriftPerKode.get(brevskrift)!.get(kode);
+  const kjent = brukte ? undefined : skriftPerKode.get(brevskrift)!.get(kode);
   if (kjent !== undefined) return kjent;
   const navn = () => `U+${kode.toString(16).toUpperCase().padStart(4, '0')}`;
-  const i = skrifter(brevskrift).findIndex((s) => s.setter(kode));
+  const i = skrifter(brevskrift).findIndex((s) => s.setter(kode, brukte));
   if (i < 0)
     throw new TegnUtenforSkriften(
       `Brevteksten har tegnet ${navn()}, som skriftene i PDF-en ikke har`
@@ -222,15 +233,19 @@ export function skriftFor(tegn: string, brevskrift: Skriftnavn): number {
     throw new TegnUtenforSkriften(
       `Brevteksten har det usynlige tegnet ${navn()}, som PDF-en ikke kan sette tro`
     );
-  skriftPerKode.get(brevskrift)!.set(kode, i);
+  if (!brukte) skriftPerKode.get(brevskrift)!.set(kode, i);
   return i;
 }
 
 /** Teksten delt i løp med samme skrift. */
-function loep(tekst: string, brevskrift: Skriftnavn): { tekst: string; skrift: number }[] {
+function loep(
+  tekst: string,
+  brevskrift: Skriftnavn,
+  brukte: ReadonlySet<number>
+): { tekst: string; skrift: number }[] {
   const ut: { tekst: string; skrift: number }[] = [];
   for (const tegn of tekst) {
-    const skrift = skriftFor(tegn, brevskrift);
+    const skrift = skriftFor(tegn, brevskrift, brukte);
     if (ut.at(-1)?.skrift === skrift) ut.at(-1)!.tekst += tegn;
     else ut.push({ tekst: tegn, skrift });
   }
@@ -315,7 +330,9 @@ export async function settBrevPdf(
   pdf.setModificationDate(tidspunkt);
   pdf.registerFontkit(fontkitMedBindestrek);
   const normalisert = tekst.replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
-  const brukt = new Set(loep(normalisert.replace(/\n/g, ''), brevskrift).map((l) => l.skrift));
+  const tegn = normalisert.replace(/\n/g, '');
+  const brukte = new Set([...tegn].map((t) => t.codePointAt(0)!));
+  const brukt = new Set(loep(tegn, brevskrift, brukte).map((l) => l.skrift));
   // En skrift som ikke brukes, bygges ikke inn, så brev uten reservetegn er uendret.
   const innbygd = await Promise.all(
     skrifter(brevskrift).map((s, i) =>
@@ -323,7 +340,7 @@ export async function settBrevPdf(
     )
   );
   const settes = (t: string) =>
-    loep(t, brevskrift).map((l) => {
+    loep(t, brevskrift, brukte).map((l) => {
       const skrift = innbygd[l.skrift]!;
       return { ...l, skrift, bredde: skrift.widthOfTextAtSize(l.tekst, stoerrelse) };
     });

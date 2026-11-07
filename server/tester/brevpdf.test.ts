@@ -330,11 +330,12 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
   });
 });
 
-// Kilde: LV-U26, oppdragsgiver 07.11 (#1658, kravene i #1652) og `.interface-design/system.md`,
+// Kilde: LV-U26 for byggherrens skrift, svarene fra oppdragsgiver 07.11 for totalentreprenørens
+// skrift og hodet (#1658, kravene i #1652, vedtaks-PR-en #1662) og `.interface-design/system.md`,
 // «Typografi»: hele brevet står i avsenderens skrift, byggherrens i Oslo Sans i 11 pt og
 // totalentreprenørens i Source Serif 4 i 16 px (12 pt), begge med linjehøyde 1,6. Oslo Sans
 // brukes aldri i totalentreprenørens brev.
-describe('brevskriften følger avsenderen (#1658, LV-U26)', () => {
+describe('brevskriften følger avsenderen (#1658)', () => {
   const tekst: Avsnitt[] = [
     { gjelder: 'a', laast: 'Første linje.', utdypning: 'Andre linje.\nTredje linje.' },
   ];
@@ -390,6 +391,20 @@ describe('brevskriften følger avsenderen (#1658, LV-U26)', () => {
       expect(lesBrevPdf(pdf)).toBe(linje);
     }
   );
+
+  it('setter apostrofen og enkle anførselstegn med Source Serif 4 når brevet ikke har tegnet som deler glyfen (#1661)', async () => {
+    // Source Serif 4 har samme glyf for U+2019 og U+02BC, og for U+2018 og U+02BB.
+    const tekst = 'TE\u2019s krav om \u2018tillegg\u2019.';
+    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+    expect(lesBrevPdf(pdf)).toBe(tekst);
+    expect(latin1(pdf)).not.toMatch(/\/BaseFont \/NotoSans/);
+  });
+
+  it('gjengir apostrofen tro når brevet også har tegnet som deler glyfen (#1661)', async () => {
+    const tekst = 'TE\u2019s og \u02bcokina\u02bc, \u2018a\u2019 og \u02bbb.';
+    const pdf = await settBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'sourceSerif4');
+    expect(lesBrevPdf(pdf)).toBe(tekst);
+  });
 
   it('avviser en avsender uten brevskrift', async () => {
     await expect(
