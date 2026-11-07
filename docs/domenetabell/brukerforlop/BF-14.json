@@ -1,0 +1,141 @@
+{
+  "id": "BF-14",
+  "tittel": "TE krever vederlag med kravposter, oppgjørsform og PNS per post, og BH svarer per post",
+  "brukerhistorie": "TE deler vederlagsjusteringen i kravposter med hver sin oppgjørsform og eventuelt PNS, og ser før sending hvilke poster som er tilbud etter punkt 34.2.1. I en ny versjon står alle postene som ikke er trukket, og en post TE tar ut, trekkes uttrykkelig. BH svarer per kravpost, med varselinnsigelsene, oppgjørsformen og beløpet i den rekkefølgen, og ser trappen per post og lagene samlet før svaret sendes.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet byggherrens valg av løsninger og prosjektering (punkt 24.1) og sender krav om justering av vederlaget med tre kravposter, en særskilt vederlagsjustering og rigg og drift i forlenget byggetid (BF-05)."
+  },
+  "bestilling": "BF-14.md",
+  "prototype": {
+    "fil": "../../design/prototyper/vederlagskrav-te-v2.html",
+    "klikkstier": [
+      {
+        "id": "nytt-krav-og-brev",
+        "dekker": [
+          "1",
+          "2",
+          "3"
+        ],
+        "start": "nytt-krav",
+        "handlinger": [
+          {
+            "staar": "Varselet gjelder hele vederlagskravet, med alle kravpostene."
+          },
+          {
+            "staar": "Fordeling på PNS"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "er et tilbud etter NS 8407 punkt 34.2.1."
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "nytt-krav"
+          }
+        ]
+      },
+      {
+        "id": "ny-versjon-med-trekk",
+        "dekker": [
+          "4"
+        ],
+        "start": "ny-versjon",
+        "handlinger": [
+          {
+            "staar": "En kravpost du tar ut, trekkes uttrykkelig. Brevet sier det."
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "ny-versjon"
+          }
+        ]
+      },
+      {
+        "id": "svar-per-post",
+        "dekker": [
+          "5"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "staar": "Godta oppgjørsformen for alle postene"
+          },
+          {
+            "staar": "Lagene samlet"
+          },
+          {
+            "staar": "Ett svar per kravpost."
+          }
+        ]
+      }
+    ]
+  },
+  "kilder": [
+    "KA-U53",
+    "KA-U54",
+    "KA-U55",
+    "KA-U56",
+    "KA-U57",
+    "KA-U58",
+    "KA-U59",
+    "KA-U60",
+    "KA-U61",
+    "KA-U62",
+    "KA-U63",
+    "KA-U64",
+    "KA-U65",
+    "KA-U66",
+    "KA-U67",
+    "KA-U68",
+    "OV-U95",
+    "OV-U94",
+    "OV-U89",
+    "OV-U73",
+    "OV-U30",
+    "OV-U31",
+    "OV-U15",
+    "KA-U51",
+    "KA-U52",
+    "MM-U33",
+    "EO-U38",
+    "B-17",
+    "OV-U27",
+    "GR-U7",
+    "VS-U4",
+    "VS-U47",
+    "VS-U3",
+    "VS-U2",
+    "HF-U22"
+  ],
+  "venter_paa": [
+    "#1663",
+    "#1299",
+    "#1294",
+    "#1292",
+    "#1434",
+    "#1290"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1663",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen etter svarene 07.11 og prototypen v2 (commit 00ca33b), og oppfølgingsspørsmålene 11–16."
+    },
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1665",
+      "hva": "D-9 har vilkåret om kravpost med fast sum og D-2 vilkåret om virksom enighet (GR-U7). D-13 (OV-U89 punkt 8 og 14) og D-14 (VS-U4 om punkt 34.3.3 første ledd) er nye, og prototypen har innsigelsen mot varselet etter punkt 34.3.3."
+    }
+  ]
+}
