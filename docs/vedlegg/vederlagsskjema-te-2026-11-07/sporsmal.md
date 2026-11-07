@@ -64,3 +64,26 @@ Oppdragsgiver 07.11, ordrett: «Enig i alle anbefalinger unntatt at vi inkludere
 
 - 1–7: A.
 - 8: ikke A. Alle beregningsmetodene tas med i forløpet nå, først i en rask prototype før Varden-komponentene bygges.
+
+## Svar etter prototypen, 07.11
+
+Oppdragsgiver 07.11, ordrett: «Lagdeling: hva er beste tilnærming? En tabell per post? Varsel først i laget. Setningen: mener prinsipp og budskap vedtektsfestes. Nøyaktig ordlyd er til design. Så lurer jeg på hvordan BH kan svare ut på en god måte innenfor skjemaets rammer»
+
+- Rekkefølgen på lagene: varselinnsigelsene først, deretter standpunktet til oppgjørsformen, så beløpet (delvis svar på #1290 punkt 6).
+- Tilbudssetningen: prinsippet og budskapet vedtas (brevet sier hvilke poster som er tilbud etter punkt 34.2.1, og at en post etter en beregningsregel ikke er et tilbud). Ordlyden er design og står i bestillingen.
+
+## Spørsmål om byggherrens svar, stilt 07.11
+
+**9. Byggherrens beløp når byggherren mener en annen oppgjørsform.**
+Bakgrunn: Byggherren skal ta stilling til et tilbud innen rimelig tid (punkt 34.2.1). Avviser byggherren oppgjørsformen, har byggherren tatt stilling. Kontrakten krever ikke at byggherren også tar stilling til beløpet.
+- A: Byggherren kan ta stilling til beløpet subsidiært, «hvis totalentreprenørens oppgjørsform legges til grunn». Det er valgfritt. Tar byggherren ikke stilling, sier brevet at beløpet ikke er besvart i det laget.
+- B: Byggherren må ta stilling til beløpet subsidiært når posten har fast sum.
+- Anbefalt: A.
+- Styrer: om skjemaet stopper svaret, og hva som står i laget for beløpet.
+
+**10. Svar på flere kravposter samlet.**
+Bakgrunn: Totalentreprenøren krever per post (svar 1). Endringsordren kan samle poster (EO-U38 punkt 23).
+- A: Byggherren svarer per kravpost. Samling av poster på tvers hører til endringsordren.
+- B: Byggherren kan svare med ett beløp for flere poster i samme sak.
+- Anbefalt: A.
+- Styrer: om lagene og godkjenningen kan regnes per post.
