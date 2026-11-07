@@ -298,14 +298,15 @@
     outline-offset: 2px;
   }
   /* Høyre kolonne følger rullingen under arbeidsraden og er høyst like høy som vinduet under
-     den. Et langt brev ruller i rammen. */
+     den, med samme avstand til raden som før rullingen. `--radhoeyde` er den målte høyden på
+     raden med flaten bak den (`Arbeidsflate`). Et langt brev ruller i rammen. */
   .stoette {
     position: sticky;
-    top: calc(var(--spacing-3) * 4 + 68px + var(--spacing-4));
+    top: calc(var(--radhoeyde, 0px) - var(--spacing-3) + var(--spacing-6));
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
-    max-height: calc(100dvh - var(--spacing-3) * 4 - 68px - var(--spacing-10));
+    max-height: calc(100dvh - var(--radhoeyde, 0px) - var(--spacing-10));
   }
   .tidligere {
     flex: 1;

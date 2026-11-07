@@ -26,10 +26,18 @@
     hoved: Snippet;
     hoeyre?: Snippet;
   } = $props();
+
+  // Høyden på arbeidsraden, så høyre kolonne kan følge rullingen rett under den.
+  let radhoeyde = $state(0);
 </script>
 
-<div class="flate" class:leser class:utkast={deling === 'utkast'}>
-  {#if rad}<div class="rad">{@render rad()}</div>{/if}
+<div
+  class="flate"
+  class:leser
+  class:utkast={deling === 'utkast'}
+  style:--radhoeyde={rad ? `${radhoeyde}px` : undefined}
+>
+  {#if rad}<div class="rad" bind:offsetHeight={radhoeyde}>{@render rad()}</div>{/if}
   <div class="hoved">{@render hoved()}</div>
   {#if hoeyre}
     <div class="hoeyre">{@render hoeyre()}</div>

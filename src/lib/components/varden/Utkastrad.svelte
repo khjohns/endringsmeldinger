@@ -56,8 +56,9 @@
   }
   .status {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--spacing-4);
+    gap: var(--spacing-2) var(--spacing-4);
     min-width: 0;
   }
   /* Lenken er skilt fra brevet med en linje, så den ikke leses som en del av tittelen. */
@@ -92,6 +93,14 @@
   .linje {
     font-size: 14px;
     color: var(--ink-2);
+  }
+  /* På smal skjerm står veien tilbake på en egen linje over brevet. */
+  @media (max-width: 640px) {
+    .tilbake {
+      flex-basis: 100%;
+      padding-right: 0;
+      border-right: 0;
+    }
   }
   .handling {
     display: flex;
