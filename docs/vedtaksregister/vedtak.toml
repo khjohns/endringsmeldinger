@@ -15252,6 +15252,197 @@ Hodet ser helt likt ut for begge parter. Bare tittelen og teksten følger avsend
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+beslutningsdel = "representantene står i prosjektinnstillingene, og drift fører opplysningene etter skriftlig melding fra parten"
+id = "LV-U60"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+Spørsmål 1. Hvem står som mottaker?
+Bakgrunn: Pkt. D.1.2 krever motpartens representant som mottaker (LV-U23). NS 8407 punkt 5 sier at varsler og krav skal fremsettes skriftlig til partenes representanter etter punkt 9 eller til avtalte adresser. Løsningen vet i dag ikke hvem representanten er. Kontraktsrollen finnes bare per team. DL-U14 sier at ett prosjekt gjelder én kontrakt.
+Hva valget styrer: A trenger bare kolonner i `kontraktsparter`, og representanten trenger ikke å være bruker av løsningen. B trenger en ny tabell og en rolle. Med C kan et formelt varsel adresseres til en person som ikke er representant, og det kan svekke posisjonen til avsenderen.'''
+valgt = "A"
+svar = '''
+«A, A, A/A».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u23" }]
+folge = '''
+Svaret gjelder spørsmål 1, 2 og 4 med delspørsmålet i kartleggingen på #1173 (kommentaren 6707023086), i den rekkefølgen. Den første A-en gjelder dette spørsmålet. Spørsmålet og alternativene står ordrett der. Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Hver parts representant etter punkt 9 står i prosjektinnstillingene med navn og stilling. Drift fører opplysningene etter skriftlig melding fra parten, slik fullmaktene føres (GFK-U1). Brevet har motpartens representant som mottaker. Mottakeren fryses med brevet når det sendes (LV-U1, LV-U2). Bytter en part representant, gjelder endringen nye brev. Presiserer LV-U23.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Representanten er en bruker i løsningen med rollen representant i prosjektet, satt av drift. Brevet har den brukeren som mottaker, og navnet fryses med brevet. Presiserer LV-U23.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+forkastet = true
+tekst = '''
+Avsenderen velger mottaker blant motpartens brukere i prosjektet for hvert brev, og valget fryses med brevet. Presiserer LV-U23.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "brevet viser listen for avsenderens side"
+bindende_i = ["lv-u23"]
+id = "LV-U61"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+Spørsmål 2. Hvor står kopimottakerne?
+Bakgrunn: Pkt. D.1.2 krever at det står hvor kopi er sendt (LV-U23). Brevmalen har kopi nederst (LV-U25). I dag finnes ingen kilde.
+Hva valget styrer: A er minst arbeid før første ekte sak. B og C gir et nytt felt i skrivingen og i brevkontrollen. Ingen av alternativene sender kopien. Brevet sier bare hvor den er sendt.'''
+valgt = "A"
+svar = '''
+«A, A, A/A».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u23" }]
+folge = '''
+Svaret gjelder spørsmål 1, 2 og 4 med delspørsmålet i kartleggingen på #1173 (kommentaren 6707023086), i den rekkefølgen. Den andre A-en gjelder dette spørsmålet. Spørsmålet og alternativene står ordrett der. Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Prosjektinnstillingene har en fast kopiliste med navn og organisasjon for hver side, som drift fører. Brevet viser listen for avsenderens side. Listen fryses med brevet. Presiserer LV-U23.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Avsenderen oppgir kopimottakerne for hvert brev, og de fryses med brevet. Presiserer LV-U23.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+forkastet = true
+tekst = '''
+Den faste listen i prosjektinnstillingene fylles inn, og avsenderen kan legge til eller fjerne kopimottakere i brevet før det sendes. Listen fryses med brevet. Presiserer LV-U23.'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "visningen sier at det er registreringsdatoen"
+id = "LV-U62"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173", "#1596"]
+sporsmal = '''
+Spørsmål 4. Hvilken dato gjelder for korrespondanse som er sendt utenfor løsningen og registrert i den?
+Bakgrunn: LV-U42 sier at brevet omtaler slik korrespondanse med datoen: «totalentreprenørens e-post av <dato>». Omtalen bruker datoen parten oppgir. Visningen regner avstanden i dager, datoen i brevhodet og overskriften fra tidspunktet korrespondansen ble registrert i løsningen. De to datoene kan være forskjellige.'''
+valgt = "A"
+svar = '''
+«A, A, A/A».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u42" }]
+folge = '''
+Svaret gjelder spørsmål 1, 2 og 4 med delspørsmålet i kartleggingen på #1173 (kommentaren 6707023086), i den rekkefølgen. A-en foran skråstreken gjelder dette spørsmålet, og A-en etter gjelder delspørsmålet ([LV-U63](#lv-u63)). Spørsmålet og alternativene står ordrett der. Svaret gjelder også punkt 3 i #1596. Bygges i #1173 og #1596.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+For korrespondanse som er sendt utenfor løsningen, gjelder datoen parten har oppgitt for når den ble sendt, i brevet, i hodet og i avstanden i dager. Registreringstidspunktet brukes bare når ingen dato er oppgitt, og visningen sier da at det er registreringsdatoen. Presiserer LV-U42.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Visningen bruker tidspunktet korrespondansen ble registrert i løsningen, fordi det er det løsningen selv vet. Datoen parten har oppgitt, vises ved siden av, og omtalen i brevet følger LV-U42. Presiserer LV-U42.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "totalentreprenørens e-post av <dato>"
+utdrag = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "LV-U63"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173", "#1596"]
+sporsmal = '''
+Spørsmål 4. Hvilken dato gjelder for korrespondanse som er sendt utenfor løsningen og registrert i den?
+Delspørsmål, når både sendt- og mottatt-dato er oppgitt:
+I dag skriver ingen inngang en mottatt-dato.'''
+valgt = "A"
+svar = '''
+«A, A, A/A».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u62" }]
+folge = '''
+Svaret gjelder spørsmål 1, 2 og 4 med delspørsmålet i kartleggingen på #1173 (kommentaren 6707023086), i den rekkefølgen. A-en etter skråstreken gjelder dette delspørsmålet. Spørsmålet og alternativene står ordrett der. Bygges i #1173 og #1596.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Sendt-datoen gjelder, som i omtalen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Mottatt-datoen gjelder i avstanden i dager, fordi svarfristen regnes fra mottak, mens omtalen bruker sendt-datoen.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u23"]
+id = "LV-U64"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+Spørsmål 3 (teknisk). Hvor fryses navnene?
+Bakgrunn: LV-U25 og LV-U27 sier at navnene og stillingene fryses med brevet. Invarianten i `AGENTS.md` sier at journalen aldri bærer personnavn. Leveringsoppdraget skrives i samme transaksjon som brevet, og basen hindrer endringer i det (`leveringsoppdrag_uforanderlig`). Saken som Varden henter, har alt med leveringsoppdragene.'''
+valgt = "B"
+svar = '''
+Spørsmål 3 (hvor fryses navnene): B. «Hele hodet fryses i journalen, og invarianten får et unntak for brevhodet.»'''
+folge = '''
+Spørsmålet ble stilt med spørsmålsverktøyet med alternativtekstene ordrett fra kartleggingen på #1173 (kommentaren 6707023086). Svaret står ordrett på #1173 (kommentaren 6710695205). Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Journalen fryser prosjektnavn, kontrakt, Websak-nummer, emne og organisasjonene. Navnene og stillingene til avsender, saksbehandler, mottaker og kopimottakere fryses i leveringsoppdraget. Varden leser dem derfra.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hele hodet fryses i journalen, og invarianten får et unntak for brevhodet.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = "mangler stillingen, står bare navnet"
+id = "LV-U65"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+Spørsmål 5 (teknisk). Hvor kommer avsenderens stilling fra?
+LV-U25 krever at stillingen fryses med brevet. For BH kan stillingen hentes fra HR-synkroniseringen (`jobTitle` hentes allerede, men lagres ikke). For TE finnes ingen kilde.'''
+valgt = "A"
+svar = '''
+Spørsmål 5 (avsenderens stilling): A. «For BH hentes stillingen fra HR-dataene. For TE oppgir hver bruker sin stilling selv. Mangler stillingen, står bare navnet.»'''
+folge = '''
+Spørsmålet ble stilt med spørsmålsverktøyet med alternativtekstene ordrett fra kartleggingen på #1173 (kommentaren 6707023086). Svaret står ordrett på #1173 (kommentaren 6710695205). Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+For BH hentes stillingen fra HR-dataene. For TE oppgir hver bruker sin stilling selv. Mangler stillingen, står bare navnet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Drift fører stillingen for begge sider.'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
 id = "LV-U27"
 dato = 2026-10-22
 hvem = "oppdragsgiver"
