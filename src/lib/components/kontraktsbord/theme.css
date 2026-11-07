@@ -2,11 +2,40 @@
    Kontraktsbordet — Sage & Stone (Oslobygg-profil)
    ══════════════════════════════════════════════════════════════ */
 
+/* ── Oslo Sans, fra Punkt. Lisensen gjelder bare Oslo kommune, så skriften brukes bare i
+   byggherrens brev (oppdragsgiver 07.11). Filene sjekkes ikke inn i det offentlige repoet. ── */
+@font-face {
+  font-family: 'Oslo Sans';
+  src: url('@oslokommune/punkt-assets/dist/fonts/OsloSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Oslo Sans';
+  src: url('@oslokommune/punkt-assets/dist/fonts/OsloSans-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Oslo Sans';
+  src: url('@oslokommune/punkt-assets/dist/fonts/OsloSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
 /* ── Fallback stack ── */
 :root {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
   --font-legal: 'IBM Plex Sans', 'Inter', sans-serif;
+
+  /* Brevene i Varden (oppdragsgiver 07.11): byggherrens i Oslo Sans, totalentreprenørens i
+     Source Serif 4. Tegn skriften mangler, står i Noto Sans og Noto Sans Math (LV-U26).
+     Sperringen strammer overskriftene i Inter, som har optisk størrelse. */
+  --font-brev: 'Source Serif 4', 'Noto Sans', 'Noto Sans Math', serif;
+  --font-brev-bh: 'Oslo Sans', 'Noto Sans', 'Noto Sans Math', sans-serif;
+  --sperring-20: -0.01em;
+  --sperring-24: -0.015em;
 
   /* The three measurements shared by the desktop shell. */
   --mockup-sidebar-width: 320px;
@@ -130,8 +159,6 @@
    ══════════════════════════════════════════════════ */
 .tema-varden {
   color-scheme: light;
-
-  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --brand: #15181d;
   --brand-bg: #e6e9ee;

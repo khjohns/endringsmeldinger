@@ -477,7 +477,7 @@
     font-size: 24px;
     font-weight: 600;
     line-height: 1.25;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--sperring-24);
     text-wrap: balance;
   }
   .sakshode {
@@ -487,6 +487,7 @@
   }
   .sakshode h1 {
     font-size: 20px;
+    letter-spacing: var(--sperring-20);
   }
   .tittel {
     display: flex;
@@ -495,8 +496,8 @@
   }
   .kode {
     color: var(--sidebar-muted);
-    font-family: var(--font-mono);
     font-size: 12px;
+    font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
   }
   .sporene {
