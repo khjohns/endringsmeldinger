@@ -202,7 +202,7 @@
     margin-left: auto;
   }
   .navn {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
   }
   .merke {

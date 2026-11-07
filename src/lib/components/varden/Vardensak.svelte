@@ -93,6 +93,8 @@
     tilbake: Arbeid;
     /** Brevet er svarutkastet, som tømmes når det er sendt. */
     erUtkastet: boolean;
+    /** Sakens versjon da brevkontrollen ble åpnet. */
+    versjon: number | null;
   };
   type Arbeid =
     | { art: 'les' }
@@ -119,7 +121,7 @@
   // Utkastet til svaret står til det er sendt eller forkastet, også når BH velger et annet
   // spor (BF-01 S-8). Merket i panelet vises bare når et annet spor er valgt (#1391).
   let utkastAapent = $state(false);
-  let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' } | null>(
+  let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' | 'endret' } | null>(
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
   );
   let meldingen = $state<HTMLElement | null>(null);
@@ -183,15 +185,26 @@
   }
 
   /**
-   * Etter en avvist sending kan saken være lastet på nytt, med et nytt brev fra motparten eller
-   * et nytt nummer. Brevet lages da igjen av den samme kommandoen, så teksten og hodet avsenderen
-   * godkjenner, er det som sendes (LV-U2, LV-U51, D-5 i BF-07). Avviser kjernen kommandoen nå,
-   * står brevet og meldingen fra sendingen.
+   * Etter en avvist sending kan saken være lastet på nytt. Har den fått en ny versjon, kan
+   * «Svarer på», «Dette sender du» og virkningene være endret, og de regnes i skjemaet. Avsenderen
+   * går da tilbake dit med valgene i behold, og brevkontrollen bygges på nytt derfra (oppdragsgiver
+   * 07.11, punkt 2 i #1596). Er versjonen uendret, kan en annen sak ha fått nummeret. Brevet lages
+   * da igjen av den samme kommandoen, så teksten og hodet avsenderen godkjenner, er det som sendes
+   * (LV-U2, LV-U51, D-5 i BF-07). Avviser kjernen kommandoen nå, står brevet og meldingen fra
+   * sendingen.
    */
-  function byggPaaNytt(k: Kontroll) {
+  async function byggPaaNytt(k: Kontroll) {
+    if (arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
+    if (kjernesak.versjon !== k.versjon) {
+      kjernesak.fjernFeil();
+      arbeid = k.tilbake;
+      melding = { tekst: MOTTATT.sakenEndret, art: 'endret' };
+      await tick();
+      meldingen?.focus();
+      return;
+    }
     const b = kjernesak.brev(k.kommando, undefined, true);
     if (!b || !('tekst' in b) || !b.tekst) return;
-    if (arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
     arbeid = {
       ...arbeid,
       tekst: b.tekst,
@@ -314,7 +327,9 @@
   {:else}
     <main class="arbeid">
       <div class="melding" class:tom={!melding} role="status" tabindex="-1" bind:this={meldingen}>
-        {#if melding}<Melding art="kvittering" levende={false}>{melding.tekst}</Melding>{/if}
+        {#if melding}<Melding art={melding.art === 'endret' ? 'info' : 'kvittering'} levende={false}
+            >{melding.tekst}</Melding
+          >{/if}
       </div>
       {#if arbeid.art === 'kontroll'}
         {@const k = arbeid}
@@ -349,8 +364,10 @@
           onforkast={forkastKorrigeringen}
           onbrevkontroll={(k) => {
             const viserTil = datoopplysningene(u).find((o) => o.id === gjelder)?.brev ?? null;
+            melding = null;
             arbeid = {
               art: 'kontroll',
+              versjon: kjernesak.versjon,
               ...k,
               handling: KORRIGERING.handling,
               sendTekst: KORRIGERING.sendTekst,
@@ -379,8 +396,10 @@
           onbrevkontroll={(k) => {
             const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
             const kravet = brev.find((b) => b.id === u.spor.forhold.gjeldendeKrav?.dokument);
+            melding = null;
             arbeid = {
               art: 'kontroll',
+              versjon: kjernesak.versjon,
               ...k,
               handling: NYVERSJON.kontroller,
               bareMottaker: true,
@@ -411,8 +430,10 @@
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => {
             const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
+            melding = null;
             arbeid = {
               art: 'kontroll',
+              versjon: kjernesak.versjon,
               ...k,
               handling: BREVKONTROLL.sendSvaret,
               sendTekst: BREVKONTROLL.sendSvaret,
@@ -448,8 +469,10 @@
             }}
             onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
+              melding = null;
               arbeid = {
                 art: 'kontroll',
+                versjon: kjernesak.versjon,
                 kommando,
                 tekst,
                 detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
