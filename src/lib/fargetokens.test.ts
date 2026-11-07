@@ -292,9 +292,17 @@ describe('Varden-tokenene i theme.css mot prototypene (#1465)', () => {
     }
   });
 
-  it('--font-mono er IBM Plex Mono først i Varden, og den gamle visningen beholder JetBrains Mono', () => {
-    expect(verdier.varden['--font-mono']).toMatch(/^'IBM Plex Mono',/);
-    expect(verdier['varden-mørk']['--font-mono']).toMatch(/^'IBM Plex Mono',/);
+  it('Varden setter tallene i Inter med tabulære tall og leser ikke --font-mono (oppdragsgiver 07.11)', () => {
+    const mapper = ['varden', 'om-varden'].map((m) => join(SRC, 'lib', 'components', m));
+    const brukere = mapper.flatMap((m) =>
+      readdirSync(m)
+        .filter(
+          (f) =>
+            f.endsWith('.svelte') && readFileSync(join(m, f), 'utf8').includes('var(--font-mono)')
+        )
+        .map((f) => f)
+    );
+    expect(brukere).toEqual([]);
     expect(verdier.lys['--font-mono']).toMatch(/^'JetBrains Mono',/);
   });
 });

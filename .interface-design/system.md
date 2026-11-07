@@ -47,7 +47,7 @@ Beholde inter som font.» Oslo-logoen er fast.
 - **Skriften er Inter** (`--font-sans`), som før. Varden bruker fem størrelser: 12, 14, 16,
   20 og 24 px, omtrent forholdet 1,2 fra 14 px. 12 px er etiketter og metadata, 14 px er
   brødtekst og hjelpetekst, og 20 px er overskriftene. Vekt og farge gjør resten av
-  hierarkiet (oppdragsgiver 30.10, #198).
+  hierarkiet (oppdragsgiver 30.10, #198). Brevene har egne skrifter, under «Typografi».
 - **Skallet** (oppdragsgiver 29.10): panelet til venstre er mørkt blekk
   (`--sidebar-bg`) over hele høyden, med byvåpenet og «Oslo kommune / Oslobygg KF» øverst,
   saken og sporene, og nederst prosjektet, kontraktsformen og partene under «Kontrakten». Etiketten
@@ -80,10 +80,23 @@ feltkanten fra #1258.
 
 ## Typografi
 
-- `--font-sans` for grensesnittet, 14 px med linjehøyde 1,5 som grunnlag.
-- `--font-legal` for kontraktstekst og brev, så partenes tekst skiller seg fra appens.
-- `--font-mono` med `tabular-nums` for beløp, dager, datoer og ID-er, så tall står
-  under hverandre og ikke flytter seg.
+Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevskrifter.
+
+- `--font-sans` (Inter) for grensesnittet, 14 px med linjehøyde 1,5 som grunnlag. Inter
+  lastes med optisk størrelse, så overskriftene strammes av seg selv. Overskriftene på 20 og
+  24 px har i tillegg `--sperring-20` og `--sperring-24`, og vekten 600.
+- **Tall i Inter med `tabular-nums`**: beløp, dager, datoer og ID-er står under hverandre
+  og flytter seg ikke. Varden bruker ikke en egen tallskrift.
+- **Brevskriften følger avsenderen**, så partenes brev skiller seg fra appen og fra hverandre:
+  - Byggherrens brev står i Oslo Sans (`--font-brev-bh`), hodet også, i 11 pt. Det er
+    Oslo kommunes skrift, og lisensen gjelder bare Oslo kommunes egen kommunikasjon. Den
+    brukes derfor aldri i totalentreprenørens brev. Filene hentes fra
+    `@oslokommune/punkt-assets` og sjekkes ikke inn.
+  - Totalentreprenørens brev står i Source Serif 4 (`--font-brev`) i 16 px, med hodet i
+    Inter.
+  - Begge har linjehøyde 1,6. Oslo Sans i 11 pt, Source Serif 4 i 16 px og Inter i 14 px
+    har nesten samme x-høyde (7,6–7,8 px), så brevene og grensesnittet ser like store ut.
+  - PDF-en som sendes, skal ha samme skrift og størrelse som forhåndsvisningen (#1652).
 - Hierarkiet bygges med vekt og blekknivå før størrelse.
 
 ## Avstand, mål og radius

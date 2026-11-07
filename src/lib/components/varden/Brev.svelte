@@ -47,7 +47,7 @@
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 </script>
 
-<article class="brev" class:innfelt aria-label={tittel}>
+<article class="brev" class:innfelt class:bh={avsender === 'BH'} aria-label={tittel}>
   <header class="hode">
     <div class="topp">
       <p class="avsender">
@@ -97,9 +97,17 @@
     background: var(--surface);
     border: var(--rule);
     border-radius: var(--r-kort);
-    font-family: var(--font-legal);
+    --hodeskrift: var(--font-sans);
+    font-family: var(--font-brev);
+    font-size: 16px;
     color: var(--ink);
     line-height: 1.6;
+  }
+  /* Oslo Sans i 11 pt har samme x-høyde som Source Serif 4 i 16 px (system.md, «Typografi»). */
+  .brev.bh {
+    --hodeskrift: var(--font-brev-bh);
+    font-family: var(--font-brev-bh);
+    font-size: 11pt;
   }
   .brev.innfelt {
     padding: var(--spacing-6);
@@ -115,7 +123,7 @@
     border-bottom: var(--rule);
   }
   .topp {
-    font-family: var(--font-sans);
+    font-family: var(--hodeskrift);
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -148,7 +156,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(7rem, auto));
     gap: 2px 20px;
-    font-family: var(--font-sans);
+    font-family: var(--hodeskrift);
     font-size: 12px;
   }
   .ref dt {
@@ -157,6 +165,7 @@
   h2 {
     font-size: 20px;
     font-weight: 600;
+    line-height: 1.3;
     margin-bottom: var(--spacing-4);
   }
   .tekst p {
