@@ -138,3 +138,10 @@ Bakgrunn: Svar 8 sier at alle beregningsmetodene tas med nå. OV-U94 avviser i d
 - A: Justerte enhetspriser og varselet etter punkt 34.3.3 tas med i forløpet og i første versjon. Forhold: endrer beslutningsdelen i OV-U94.
 - B: Første versjon har bare kontraktens enhetspriser (punkt 34.3.1). Justerte enhetspriser kommer senere.
 - Anbefalt: A. Det følger svar 8, og prototypen viser det alt.
+
+
+## Svar på oppfølgingsspørsmålene 11–16
+
+Oppdragsgiver 07.11, ordrett: «Som anbefalt»
+
+- 11 A, 12 A, 13 A, 14 A, 15 A, 16 A.
