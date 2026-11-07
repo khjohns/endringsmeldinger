@@ -87,7 +87,7 @@
     font-size: 24px;
     font-weight: 600;
     line-height: 1.25;
-    letter-spacing: -0.015em;
+    letter-spacing: var(--sperring-24);
     color: var(--ink);
   }
   .siste {

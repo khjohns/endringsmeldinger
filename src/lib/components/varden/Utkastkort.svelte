@@ -85,6 +85,7 @@
     margin: 0;
     font-size: 20px;
     font-weight: 600;
+    letter-spacing: var(--sperring-20);
   }
   .merke-utkast {
     padding: 0 var(--spacing-2);

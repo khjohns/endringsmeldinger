@@ -292,16 +292,10 @@ describe('Varden-tokenene i theme.css mot prototypene (#1465)', () => {
     }
   });
 
-  it('Varden setter tallene i Inter med tabulære tall og leser ikke --font-mono (oppdragsgiver 07.11)', () => {
-    const mapper = ['varden', 'om-varden'].map((m) => join(SRC, 'lib', 'components', m));
-    const brukere = mapper.flatMap((m) =>
-      readdirSync(m)
-        .filter(
-          (f) =>
-            f.endsWith('.svelte') && readFileSync(join(m, f), 'utf8').includes('var(--font-mono)')
-        )
-        .map((f) => f)
-    );
+  it('ingen fil i varden/ eller om-varden/ nevner font-mono, så tallene står i Inter (oppdragsgiver 07.11, system.md «Typografi»)', () => {
+    const brukere = ['varden', 'om-varden']
+      .flatMap((m) => kildefiler(join(SRC, 'lib', 'components', m)))
+      .filter((f) => readFileSync(f, 'utf8').includes('font-mono'));
     expect(brukere).toEqual([]);
     expect(verdier.lys['--font-mono']).toMatch(/^'JetBrains Mono',/);
   });
