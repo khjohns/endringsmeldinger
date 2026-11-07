@@ -1182,7 +1182,7 @@ forhold = [
   { art = "bygger på", vedtak = "ka-u51" },
 ]
 folge = '''
-Utvider OV-U89 punkt 7 og OV-U73 til kravpostene, og bygger på KA-U51 punkt 2, fordi den faste betegnelsen gjør kravposten uttrykkelig identifisert. Hva beløpet i en kravpost etter en beregningsregel er, er stilt som oppfølgingsspørsmål 14 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Utvider OV-U89 punkt 7 og OV-U73 til kravpostene, og bygger på KA-U51 punkt 2, fordi den faste betegnelsen gjør kravposten uttrykkelig identifisert. Hva beløpet i en kravpost etter en beregningsregel er, er stilt som oppfølgingsspørsmål 14 i spørsmålsfila og besvart i KA-U66. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1218,7 +1218,7 @@ forhold = [
   { art = "endrer", vedtak = "ov-u89" },
 ]
 folge = '''
-Endrer OV-U94 punkt 4, 13, 15 og 16 og OV-U89 punkt 26 og 27, som har én beregningsregel for hele kravet, til å gjelde per kravpost. MM-U33 har ingen setning om én beregningsregel. Hvordan punkt 13 og 15 gjelder når postene har ulik oppgjørsform, er stilt som oppfølgingsspørsmål 11 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Endrer OV-U94 punkt 4, 13, 15 og 16 og OV-U89 punkt 26 og 27, som har én beregningsregel for hele kravet, til å gjelde per kravpost. MM-U33 har ingen setning om én beregningsregel. Hvordan punkt 13 og 15 gjelder når postene har ulik oppgjørsform, er stilt som oppfølgingsspørsmål 11 i spørsmålsfila og besvart i KA-U63. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1332,7 +1332,7 @@ forhold = [
   { art = "presiserer", vedtak = "ov-u73" },
 ]
 folge = '''
-(a) bygger på OV-U89 punkt 11, der påberopelsen etter punkt 34.1.2 gjelder hele vederlagskravet, også den særskilte vederlagsjusteringen og rigg og drift; (a) snevrer det ikke inn. (b) bygger på punkt 9. Vilkåret i (d) er oppfylt, fordi svaret på spørsmål 2 var A (KA-U54). (d) utvider OV-U94 punkt 5 og 8. (e) presiserer OV-U73. Lagene for varselet etter punkt 34.3.3 og 34.4 er stilt som oppfølgingsspørsmål 12 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+(a) bygger på OV-U89 punkt 11, der påberopelsen etter punkt 34.1.2 gjelder hele vederlagskravet, også den særskilte vederlagsjusteringen og rigg og drift; (a) snevrer det ikke inn. (b) bygger på punkt 9. Vilkåret i (d) er oppfylt, fordi svaret på spørsmål 2 var A (KA-U54). (d) utvider OV-U94 punkt 5 og 8. (e) presiserer OV-U73. Lagene for varselet etter punkt 34.3.3 og 34.4 er stilt som oppfølgingsspørsmål 12 i spørsmålsfila og besvart i KA-U64. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1406,7 +1406,7 @@ forhold = [
   { art = "presiserer", vedtak = "mm-u33" },
 ]
 folge = '''
-Bygger på EO-U38 punkt 23 og presiserer MM-U33 punkt 5: om svaret stemmer med kravet, vurderes per kravpost. Hva «post» i EO-U38 punkt 23 betyr med kravposter, er stilt som oppfølgingsspørsmål 15 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Bygger på EO-U38 punkt 23 og presiserer MM-U33 punkt 5: om svaret stemmer med kravet, vurderes per kravpost. Hva «post» i EO-U38 punkt 23 betyr med kravposter, er stilt som oppfølgingsspørsmål 15 i spørsmålsfila og besvart i KA-U67. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1435,7 +1435,7 @@ forhold = [
   { art = "endrer", vedtak = "ov-u89" },
 ]
 folge = '''
-Endrer OV-U94 punkt 8 og OV-U89 punkt 12: standpunktet til oppgjørsformen får et eget lag foran beløpet. Svarer delvis på #1290 punkt 6. Varslene etter punkt 34.3.3 og 34.4 er stilt som oppfølgingsspørsmål 12 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Endrer OV-U94 punkt 8 og OV-U89 punkt 12: standpunktet til oppgjørsformen får et eget lag foran beløpet. Svarer delvis på #1290 punkt 6. Varslene etter punkt 34.3.3 og 34.4 er stilt som oppfølgingsspørsmål 12 i spørsmålsfila og besvart i KA-U64. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1459,7 +1459,7 @@ forhold = [
   { art = "endrer", vedtak = "ka-u54" },
 ]
 folge = '''
-Endrer OV-U94 punkt 4 og den siterte setningen i KA-U54: den vedtatte ordlyden erstattes av prinsippet, og ordlyden er design. Endret tekst gjelder bare nye brev (MM-U9), slik punkt 4 sier. Om den særskilte vederlagsjusteringen og rigg og drift nevnes, er stilt som oppfølgingsspørsmål 13 i spørsmålsfila. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+Endrer OV-U94 punkt 4 og den siterte setningen i KA-U54: den vedtatte ordlyden erstattes av prinsippet, og ordlyden er design. Endret tekst gjelder bare nye brev (MM-U9), slik punkt 4 sier. Om den særskilte vederlagsjusteringen og rigg og drift nevnes, er stilt som oppfølgingsspørsmål 13 i spørsmålsfila og besvart i KA-U65. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1483,7 +1483,7 @@ valgt = "C"
 svar = '''
 Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Enig i alle anbefalinger unntatt at vi inkluderer alle beregningsmetoder nå. Det er nødvendig for å vurdere kompleksiteten og UX og design tilstrekkelig. Men kanskje en rask prototype før vi bygger varden komponentene ? Gjør det som er «billigst» og enkelt å iterere på.» Svaret er med egne ord og ført som alternativ C.'''
 folge = '''
-Tar alle beregningsmetodene med i forløpet og prototypen, også justerte enhetspriser etter punkt 34.3.2 og varsel etter punkt 34.3.3, som beslutningsdelen i OV-U94 avviser i første versjon. Svaret sier ikke om løsningen skal ta imot dem i første versjon (#1663).'''
+Tar alle beregningsmetodene med i forløpet og prototypen, også justerte enhetspriser etter punkt 34.3.2 og varsel etter punkt 34.3.3, som beslutningsdelen i OV-U94 avviser i første versjon. Svaret sier ikke om løsningen skal ta imot dem i første versjon (#1663). Det er stilt som oppfølgingsspørsmål 16 i spørsmålsfila og besvart i KA-U68.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1500,6 +1500,231 @@ Alle oppgjørsformene bygges nå.'''
 navn = "C"
 tekst = '''
 Alle beregningsmetodene tas med i forløpet nå, først i en rask prototype før Varden-komponentene bygges.'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U63"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Oppfølgingsspørsmål 11 ordrett slik det ble stilt 07.11 i [spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md):
+
+**11. Når behandlingen av vederlagskravet er ferdig, når postene har ulik oppgjørsform.**
+Bakgrunn: Samlevedtaket for vederlagsmetoden sier at behandlingen er ferdig når partene er enige om beregningsregelen (punkt 13), og at et tilbud som ikke er akseptert, ikke lenger regnes som krav når partene er enige om en beregningsregel (punkt 15). Begge forutsetter én regel for hele kravet. For rigg og drift kreves i tillegg enighet om beløpet (punkt 13 siste setning).
+- A: Punkt 13 og 15 gjelder per kravpost. Behandlingen av vederlagskravet er ferdig når partene er enige om oppgjørsformen for hver kravpost som gjøres opp etter en beregningsregel, og om beløpet for hver kravpost med fast sum, for den særskilte vederlagsjusteringen og for rigg og drift. Enighet om beregningsregelen for én post tar ikke bort tilbudet for en annen. Forhold: endrer OV-U94 punkt 13 og 15.
+- B: Behandlingen er ferdig først når partene er enige om alle postene, men enighet om en beregningsregel for én post erstatter tilbudene i alle postene, som i punkt 15 i dag.
+- Anbefalt: A. B lar enighet om én post ta bort et tilbud TE ikke har trukket.
+- Styrer: når sporet er ferdig i kjernen, og hva byggherren kan akseptere etter en enighet om én post.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Som anbefalt» Valgt i spørsmål 11: A.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u94" },
+  { art = "presiserer", vedtak = "ka-u54" },
+]
+folge = '''
+Endrer OV-U94 punkt 13 og 15, slik alternativet sier. Presiserer KA-U54, som ikke sa hvordan punkt 13 og 15 gjelder når postene har ulik oppgjørsform.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Punkt 13 og 15 gjelder per kravpost. Behandlingen av vederlagskravet er ferdig når partene er enige om oppgjørsformen for hver kravpost som gjøres opp etter en beregningsregel, og om beløpet for hver kravpost med fast sum, for den særskilte vederlagsjusteringen og for rigg og drift. Enighet om beregningsregelen for én post tar ikke bort tilbudet for en annen. Forhold: endrer OV-U94 punkt 13 og 15.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Behandlingen er ferdig først når partene er enige om alle postene, men enighet om en beregningsregel for én post erstatter tilbudene i alle postene, som i punkt 15 i dag.'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U64"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Oppfølgingsspørsmål 12 ordrett slik det ble stilt 07.11 i [spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md):
+
+**12. Varslene som hører til en oppgjørsform, i rekkefølgen på lagene.**
+Bakgrunn: Du har vedtatt rekkefølgen varselinnsigelsene, oppgjørsformen, beløpet. Varselet om justering av enhetsprisene (punkt 34.3.3) og varselet før regningsarbeidet (punkt 34.4) hører til en oppgjørsform, og de har bare betydning hvis den oppgjørsformen legges til grunn. Samlevedtaket for vederlagsmetoden punkt 11 sier at standpunktet til varselet etter punkt 34.4 registreres og vises «uten utledet virkning».
+- A: «Varselinnsigelsene først» gjelder innsigelsene etter punkt 34.1.2 og 34.1.3. Standpunktet til varselet etter punkt 34.3.3 og punkt 34.4 står i laget for oppgjørsformen til posten det gjelder, og punkt 11 i samlevedtaket står: løsningen utleder ingen virkning av standpunktet til varselet etter punkt 34.4. Forhold: presiserer vedtaket om rekkefølgen og OV-U94 punkt 11.
+- B: Alle varselinnsigelsene står først, også etter punkt 34.3.3 og 34.4, og innsigelsen etter punkt 34.4 gir et eget lag. Forhold: endrer OV-U94 punkt 11.
+- Anbefalt: A.
+- Styrer: trappen per post og antall lag i tabellen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Som anbefalt» Valgt i spørsmål 12: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "ka-u60" },
+  { art = "presiserer", vedtak = "ov-u94" },
+]
+folge = '''
+Vedtaket om rekkefølgen er KA-U60. Presiserer KA-U60 og OV-U94 punkt 11, slik alternativet sier. Punkt 11 står uendret.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+«Varselinnsigelsene først» gjelder innsigelsene etter punkt 34.1.2 og 34.1.3. Standpunktet til varselet etter punkt 34.3.3 og punkt 34.4 står i laget for oppgjørsformen til posten det gjelder, og punkt 11 i samlevedtaket står: løsningen utleder ingen virkning av standpunktet til varselet etter punkt 34.4. Forhold: presiserer vedtaket om rekkefølgen og OV-U94 punkt 11.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Alle varselinnsigelsene står først, også etter punkt 34.3.3 og 34.4, og innsigelsen etter punkt 34.4 gir et eget lag. Forhold: endrer OV-U94 punkt 11.'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U65"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Oppfølgingsspørsmål 13 ordrett slik det ble stilt 07.11 i [spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md):
+
+**13. Tilbudssetningen og postene utenfor kravpostene.**
+Bakgrunn: Du har vedtatt at brevet sier hvilke poster som er tilbud etter punkt 34.2.1. Samlevedtaket for vederlagsmetoden punkt 4 sier at setningen står også når tilbudet bare har den særskilte vederlagsjusteringen, og viser posten for rigg og drift videre til samlevedtaket for særskilt varsel og rigg og drift punkt 17. Der er beløpet for rigg og drift det totalentreprenøren mener følger av den avtalte regelen (formelen i Del II punkt 39), ikke et tilbud.
+- A: Den særskilte vederlagsjusteringen med fast sum nevnes i setningen som de andre postene med fast sum, som i punkt 4 i dag. Rigg og drift følger punkt 17 i samlevedtaket for særskilt varsel og rigg og drift og kalles ikke tilbud.
+- B: Både den særskilte vederlagsjusteringen med fast sum og rigg og drift nevnes i setningen som tilbud. Forhold: endrer OV-U89 punkt 17.
+- C: Bare kravpostene i vederlagsjusteringen nevnes. Den særskilte vederlagsjusteringen og rigg og drift står uten setningen. Forhold: endrer OV-U94 punkt 4.
+- Anbefalt: A. Det følger punkt 4 og punkt 17 slik de står.
+- Styrer: brevet og hva byggherren kan akseptere.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Som anbefalt» Valgt i spørsmål 13: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "ka-u61" },
+  { art = "bygger på", vedtak = "ov-u89" },
+]
+folge = '''
+Presiserer KA-U61, som ikke sa om den særskilte vederlagsjusteringen og rigg og drift nevnes i setningen. Bygger på OV-U89 punkt 17 og følger OV-U94 punkt 4 slik de står (anbefalingen i spørsmål 13).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Den særskilte vederlagsjusteringen med fast sum nevnes i setningen som de andre postene med fast sum, som i punkt 4 i dag. Rigg og drift følger punkt 17 i samlevedtaket for særskilt varsel og rigg og drift og kalles ikke tilbud.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Både den særskilte vederlagsjusteringen med fast sum og rigg og drift nevnes i setningen som tilbud. Forhold: endrer OV-U89 punkt 17.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Bare kravpostene i vederlagsjusteringen nevnes. Den særskilte vederlagsjusteringen og rigg og drift står uten setningen. Forhold: endrer OV-U94 punkt 4.'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U66"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Oppfølgingsspørsmål 14 ordrett slik det ble stilt 07.11 i [spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md):
+
+**14. Beløpet i en kravpost etter en beregningsregel.**
+Bakgrunn: Svar 1 sier at hver kravpost har beskrivelse og beløp. Samlevedtaket for vederlagsmetoden punkt 2 sier at et krav om regningsarbeid ikke har et anslått beløp som kravversjon.
+- A: Beløpet i svar 1 gjelder kravposter med fast sum. En kravpost etter kontraktens enhetspriser kan ha et anslag, og en kravpost med regningsarbeid kan ha et kostnadsoverslag. Begge er opplysninger og ikke krav. Punkt 2 står. Forhold: presiserer vedtaket om kravposter.
+- B: Hver kravpost har et krevd beløp, også ved enhetspriser og regningsarbeid. Forhold: endrer OV-U94 punkt 2.
+- Anbefalt: A.
+- Styrer: formatet for kravposten og summen i støttekolonnen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Som anbefalt» Valgt i spørsmål 14: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "ka-u53" },
+]
+folge = '''
+Vedtaket om kravposter er KA-U53. Presiserer KA-U53, slik alternativet sier. OV-U94 punkt 2 står uendret.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Beløpet i svar 1 gjelder kravposter med fast sum. En kravpost etter kontraktens enhetspriser kan ha et anslag, og en kravpost med regningsarbeid kan ha et kostnadsoverslag. Begge er opplysninger og ikke krav. Punkt 2 står. Forhold: presiserer vedtaket om kravposter.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hver kravpost har et krevd beløp, også ved enhetspriser og regningsarbeid. Forhold: endrer OV-U94 punkt 2.'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U67"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Oppfølgingsspørsmål 15 ordrett slik det ble stilt 07.11 i [spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md):
+
+**15. «Post» i endringsordren.**
+Bakgrunn: Samlevedtaket for endringsordren punkt 23 sier: «Et utsagn gjelder ett spor eller én post i én sak eller i en gruppe saker, og svarer på kravversjonene i sakene det gjelder. Byggherren kan gi ett utsagn for flere saker. Et samlet utsagn har én oppgjørsform, og vederlaget samles per post.» Vedtaket det samler, ramset opp postene som vederlagsjustering, særskilt vederlagsjustering og rigg og drift. Kravpostene har betegnelser innenfor én sak.
+- A: Et utsagn i endringsordren kan gjelde én eller flere kravposter med samme oppgjørsform, i én eller flere saker, og vederlaget samles per post av de tre: vederlagsjustering, særskilt vederlagsjustering og rigg og drift. Utsagnet viser til hver kravpost det gjelder. Forhold: presiserer EO-U38 punkt 23.
+- B: «Post» i punkt 23 er bare de tre postene. Et utsagn gjelder hele vederlagsjusteringen i en sak, med alle kravpostene.
+- C: Avgjøres med forløpet for endringsordren.
+- Anbefalt: A. B lar ikke endringsordren vise til kravposten, slik svar 1 forutsetter.
+- Styrer: endringsordren (BF-06) og om en kravpost kan gjøres opp for seg.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Som anbefalt» Valgt i spørsmål 15: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "eo-u38" },
+]
+folge = '''
+Presiserer EO-U38 punkt 23, slik alternativet sier. Berører endringsordren i BF-06.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et utsagn i endringsordren kan gjelde én eller flere kravposter med samme oppgjørsform, i én eller flere saker, og vederlaget samles per post av de tre: vederlagsjustering, særskilt vederlagsjustering og rigg og drift. Utsagnet viser til hver kravpost det gjelder. Forhold: presiserer EO-U38 punkt 23.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+«Post» i punkt 23 er bare de tre postene. Et utsagn gjelder hele vederlagsjusteringen i en sak, med alle kravpostene.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Avgjøres med forløpet for endringsordren.'''
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+id = "KA-U68"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Oppfølgingsspørsmål 16 ordrett slik det ble stilt 07.11 i [spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md):
+
+**16. Justerte enhetspriser i første versjon.**
+Bakgrunn: Svar 8 sier at alle beregningsmetodene tas med nå. OV-U94 avviser i dag krav om justerte enhetspriser (punkt 34.3.2) og varsel etter punkt 34.3.3 i første versjon.
+- A: Justerte enhetspriser og varselet etter punkt 34.3.3 tas med i forløpet og i første versjon. Forhold: endrer beslutningsdelen i OV-U94.
+- B: Første versjon har bare kontraktens enhetspriser (punkt 34.3.1). Justerte enhetspriser kommer senere.
+- Anbefalt: A. Det følger svar 8, og prototypen viser det alt.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 07.11, ordrett ([spørsmålsfila](../vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md)): «Som anbefalt» Valgt i spørsmål 16: A.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u94" },
+  { art = "presiserer", vedtak = "ka-u62" },
+]
+folge = '''
+Endrer beslutningsdelen i OV-U94, slik alternativet sier. Presiserer KA-U62, som ikke sa om løsningen skal ta imot justerte enhetspriser og varsel etter punkt 34.3.3 i første versjon.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Justerte enhetspriser og varselet etter punkt 34.3.3 tas med i forløpet og i første versjon. Forhold: endrer beslutningsdelen i OV-U94.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Første versjon har bare kontraktens enhetspriser (punkt 34.3.1). Justerte enhetspriser kommer senere.'''
 
 [[gruppe]]
 tittel = "Svar og standpunkt"
