@@ -18,6 +18,7 @@ Formatet og arbeidsregelen står i [README](README.md).
 | [BF-06](BF-06.json) BH gjør opp én eller flere KOE-saker med en endringsordre, og TE tar stilling til den | BH godkjenner grunnlaget i en KOE-sak, og svaret er en endringsordre etter kontrakten. BH velger om endringsordren i EO-saken sendes samtidig, eller senere sammen med andre KOE-saker. I endringsordren gir BH vederlag og frist per sak, eller samlet for saker som henger sammen. Før sending ser BH hvilke saker endringsordren lukker, hvilke spor som ikke har registrert enighet, og hvilken verdi godkjenningen regnes av. TE ser hvert utsagn og sakene det gjelder, godtar eller bestrider det, og fører det som ikke er avklart, videre i en ny KOE. | planlagt | — | #1525, #1519 | — | [BF-06.md](BF-06.md) |
 | [BF-07](BF-07.json) Brevhodet viser under Deres ref. hvilke av motpartens brev brevet tar stilling til | Samme sak som BF-01. Hver part leser et brev fra motparten og ser under Deres ref. hvilke av sine egne brev det svarer på, godtar, bestrider eller ellers gjelder, med merkingen fra hvert av dem. Før sending ser avsenderen i brevkontrollen den samme Deres ref. som fryses med brevet. Et brev som ikke tar stilling til noe brev fra motparten, har ingen koder under Deres ref. | planlagt | — | #1497 | — | [BF-07.md](BF-07.md) |
 | [BF-10](BF-10.json) TE oppdaterer påberopelsen med en ny versjon | TE vil utdype beskrivelsen av forholdet og si sitt standpunkt til byggherrens svar. TE sender en ny versjon av påberopelsen. Forholdet, hjemmelen og datoen står fast, med veien til korrigeringen av datoen og til en ny sak. Brevet sier hvilket brev den nye versjonen erstatter og, når byggherren har svart, at TEs standpunkt til svaret fremgår av begrunnelsen. Sporet venter på nytt svar, og svaret på den tidligere versjonen kan ikke godtas i løsningen. | planlagt | — | #1615, #1379 | — | [BF-10.md](BF-10.md) |
+| [BF-14](BF-14.json) TE krever vederlag med kravposter, oppgjørsform og PNS per post, og BH svarer per post | TE deler vederlagsjusteringen i kravposter med hver sin oppgjørsform og eventuelt PNS, og ser før sending hvilke poster som er tilbud etter punkt 34.2.1. I en ny versjon står alle postene som ikke er trukket, og en post TE tar ut, trekkes uttrykkelig. BH svarer per kravpost, med varselinnsigelsene, oppgjørsformen og beløpet i den rekkefølgen, og ser trappen per post og lagene samlet før svaret sendes. | planlagt | — | #1663, #1299, #1294, #1292, #1434, #1290 | — | [BF-14.md](BF-14.md) |
 
 ## Kildene
 
@@ -28,7 +29,7 @@ på kilden, men har ingen kontroller ennå.
 | Kilde | Kontroller | Forståelse | Planlagt |
 | --- | --- | --- | --- |
 | [B-15](../../plans/vedtak.md#b-15) | — | — | BF-01V |
-| [B-17](../../plans/vedtak.md#b-17) | — | — | BF-06 |
+| [B-17](../../plans/vedtak.md#b-17) | — | — | BF-06, BF-14 |
 | [DL-U2](../../plans/vedtak.md#dl-u2) | — | — | BF-06, BF-07 |
 | [DL-U6](../../plans/vedtak.md#dl-u6) | — | — | BF-06 |
 | [EO-U3](../../plans/vedtak.md#eo-u3) | — | — | BF-03, BF-06 |
@@ -61,7 +62,7 @@ på kilden, men har ingen kontroller ennå.
 | [EO-U35](../../plans/vedtak.md#eo-u35) | — | — | BF-06 |
 | [EO-U36](../../plans/vedtak.md#eo-u36) | — | — | BF-06 |
 | [EO-U37](../../plans/vedtak.md#eo-u37) | — | — | BF-06 |
-| [EO-U38](../../plans/vedtak.md#eo-u38) | — | — | BF-03, BF-06, BF-10 |
+| [EO-U38](../../plans/vedtak.md#eo-u38) | — | — | BF-03, BF-06, BF-10, BF-14 |
 | [FO-U1](../../plans/vedtak.md#fo-u1) | — | — | BF-06 |
 | [FO-U8](../../plans/vedtak.md#fo-u8) | — | — | BF-06 |
 | [GFK-U7](../../plans/vedtak.md#gfk-u7) | — | — | BF-06 |
@@ -99,8 +100,18 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U45](../../plans/vedtak.md#ka-u45) | — | — | BF-03, BF-06 |
 | [KA-U46](../../plans/vedtak.md#ka-u46) | — | — | BF-01V |
 | [KA-U47](../../plans/vedtak.md#ka-u47) | — | — | BF-01V |
-| [KA-U51](../../plans/vedtak.md#ka-u51) | — | — | BF-10 |
-| [KA-U52](../../plans/vedtak.md#ka-u52) | — | BF-02C te-vil-sende-ny-versjon | BF-10 |
+| [KA-U51](../../plans/vedtak.md#ka-u51) | — | — | BF-10, BF-14 |
+| [KA-U52](../../plans/vedtak.md#ka-u52) | — | BF-02C te-vil-sende-ny-versjon | BF-10, BF-14 |
+| [KA-U53](../../plans/vedtak.md#ka-u53) | — | — | BF-14 |
+| [KA-U54](../../plans/vedtak.md#ka-u54) | — | — | BF-14 |
+| [KA-U55](../../plans/vedtak.md#ka-u55) | — | — | BF-14 |
+| [KA-U56](../../plans/vedtak.md#ka-u56) | — | — | BF-14 |
+| [KA-U57](../../plans/vedtak.md#ka-u57) | — | — | BF-14 |
+| [KA-U58](../../plans/vedtak.md#ka-u58) | — | — | BF-14 |
+| [KA-U59](../../plans/vedtak.md#ka-u59) | — | — | BF-14 |
+| [KA-U60](../../plans/vedtak.md#ka-u60) | — | — | BF-14 |
+| [KA-U61](../../plans/vedtak.md#ka-u61) | — | — | BF-14 |
+| [KA-U62](../../plans/vedtak.md#ka-u62) | — | — | BF-14 |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U7](../../plans/vedtak.md#kt-u7) | — | BF-05 start | — |
@@ -147,7 +158,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U25](../../plans/vedtak.md#mm-u25) | — | — | BF-01V |
 | [MM-U28](../../plans/vedtak.md#mm-u28) | — | — | BF-01V |
 | [MM-U32](../../plans/vedtak.md#mm-u32) | — | — | BF-01V |
-| [MM-U33](../../plans/vedtak.md#mm-u33) | — | — | BF-01V, BF-03 |
+| [MM-U33](../../plans/vedtak.md#mm-u33) | — | — | BF-01V, BF-03, BF-14 |
 | [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-02C te-vil-sende-ny-versjon | BF-01V, BF-02B, BF-03, BF-06, BF-10 |
 | [MM-U35](../../plans/vedtak.md#mm-u35) | — | BF-04 te-har-mottatt-svaret | BF-01V, BF-03, BF-06 |
 | [MM-U36](../../plans/vedtak.md#mm-u36) | — | — | BF-01V, BF-03 |
@@ -165,10 +176,13 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U6](../../plans/vedtak.md#ov-u6) | — | — | BF-06 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
 | [OV-U11](../../plans/vedtak.md#ov-u11) | — | BF-05 start | — |
+| [OV-U15](../../plans/vedtak.md#ov-u15) | — | — | BF-14 |
 | [OV-U18](../../plans/vedtak.md#ov-u18) | — | — | BF-01V |
 | [OV-U20](../../plans/vedtak.md#ov-u20) | — | — | BF-01V |
 | [OV-U27](../../plans/vedtak.md#ov-u27) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — |
 | [OV-U28](../../plans/vedtak.md#ov-u28) | — | — | BF-01V |
+| [OV-U30](../../plans/vedtak.md#ov-u30) | — | — | BF-14 |
+| [OV-U31](../../plans/vedtak.md#ov-u31) | — | — | BF-14 |
 | [OV-U32](../../plans/vedtak.md#ov-u32) | BF-04 te-har-mottatt-svaret | BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | — |
 | [OV-U33](../../plans/vedtak.md#ov-u33) | BF-04 te-har-mottatt-svaret | BF-04 bh-har-mottatt-vederlagskravet | — |
 | [OV-U43](../../plans/vedtak.md#ov-u43) | — | — | BF-06 |
@@ -179,6 +193,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U62](../../plans/vedtak.md#ov-u62) | — | — | BF-01V |
 | [OV-U69](../../plans/vedtak.md#ov-u69) | — | — | BF-06 |
 | [OV-U70](../../plans/vedtak.md#ov-u70) | — | — | BF-01V |
+| [OV-U73](../../plans/vedtak.md#ov-u73) | — | — | BF-14 |
 | [OV-U75](../../plans/vedtak.md#ov-u75) | — | BF-01 bh-har-mottatt-vederlagskravet, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01V |
 | [OV-U76](../../plans/vedtak.md#ov-u76) | — | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret, BF-05 start | BF-01V |
 | [OV-U77](../../plans/vedtak.md#ov-u77) | — | BF-05 start | — |
@@ -189,6 +204,8 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U82](../../plans/vedtak.md#ov-u82) | — | BF-05 start | — |
 | [OV-U83](../../plans/vedtak.md#ov-u83) | — | — | BF-01V |
 | [OV-U84](../../plans/vedtak.md#ov-u84) | — | BF-05 start | BF-07 |
+| [OV-U89](../../plans/vedtak.md#ov-u89) | — | — | BF-14 |
+| [OV-U94](../../plans/vedtak.md#ov-u94) | — | — | BF-14 |
 | [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — |
 | [VS-U9](../../plans/vedtak.md#vs-u9) | — | — | BF-03 |
 | [VS-U11](../../plans/vedtak.md#vs-u11) | — | — | BF-01V |

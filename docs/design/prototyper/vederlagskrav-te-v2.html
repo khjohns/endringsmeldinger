@@ -215,6 +215,7 @@ button{font:inherit;color:inherit}
 .virkning b{color:var(--ink)}
 .knapp{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:0 22px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);background:var(--brand);color:var(--on-brand);font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s cubic-bezier(.23,1,.32,1)}
 .knapp:active{transform:scale(.97)}
+a.knapp,a.liten-knapp{text-decoration:none}
 .godkj{font-size:12px;color:var(--ink-3)}
 .lagret{font-size:12px;color:var(--ink-3);text-align:center}
 
@@ -353,6 +354,7 @@ button{font:inherit;color:inherit}
 </style>
 </head>
 <body>
+<span hidden id="svar"></span>
 <div class="skall" data-visning="kort" data-tilstand="nytt" data-saerskilt="ja" data-rigg="nei" data-side="skjema">
   <aside class="panel" aria-label="Saken">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
@@ -360,9 +362,9 @@ button{font:inherit;color:inherit}
     <nav aria-labelledby="spor-etikett">
       <p class="etikett" id="spor-etikett">Krav og svar</p>
       <ul class="spor">
-        <li><a href="#"><span class="navn">Byggherrens valg av løsninger og prosjektering</span><span class="sist">Ikke besvart · brev 2 fra TE</span></a></li>
-        <li><a href="#" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist"><span class="kun-nytt">Ingen brev</span><span class="kun-ny">Siste: brev 6 fra BH</span></span></a></li>
-        <li><a href="#"><span class="navn">Fristforlengelse</span><span class="sist">Siste: brev 4 fra TE</span></a></li>
+        <li><a href="#nytt-krav"><span class="navn">Byggherrens valg av løsninger og prosjektering</span><span class="sist">Ikke besvart · brev 2 fra TE</span></a></li>
+        <li><a href="#nytt-krav" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="sist"><span class="kun-nytt">Ingen brev</span><span class="kun-ny">Siste: brev 6 fra BH</span></span></a></li>
+        <li><a href="#nytt-krav"><span class="navn">Fristforlengelse</span><span class="sist">Siste: brev 4 fra TE</span></a></li>
       </ul>
     </nav>
   </aside>
@@ -378,14 +380,14 @@ button{font:inherit;color:inherit}
             <button type="button" data-anker="brev" aria-pressed="false">Brevet</button>
             <button type="button" data-anker="svar" aria-pressed="false">Byggherrens svar</button>
           </span>
-          <button type="button" class="liten-knapp" id="spor-knapp" aria-pressed="false">Vis sporbarhet</button></span>
+          <label class="liten-knapp"><input type="checkbox" id="spor-knapp"> Vis sporbarhet</label></span>
       </div>
     </div>
     <main class="arbeid">
       <div class="kolonner" id="te-kolonner">
         <form class="utkast" id="skjema" aria-labelledby="tittel" novalidate>
           <div class="utkast-hode">
-            <div class="linje"><span class="utkastmerke">Utkast · ikke sendt</span><h1 id="tittel"><span class="kun-nytt">Brev 5 · Krav om justering av vederlaget</span><span class="kun-ny">Brev 7 · Krav om justering av vederlaget, ny versjon</span></h1></div>
+            <div class="linje"><span class="utkastmerke">Utkast · ikke sendt</span><h1 id="tittel"><span class="kun-nytt" id="nytt-krav">Brev 5 · Krav om justering av vederlaget</span><span class="kun-ny" id="ny-versjon">Brev 7 · Krav om justering av vederlaget, ny versjon</span></h1></div>
             <p>Til byggherren (BH)</p>
             <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bare synlig for teamet ditt til det er sendt</p>
           </div>
@@ -398,7 +400,7 @@ button{font:inherit;color:inherit}
             <p><b>Byggherren har svart på kravet i brev 5</b> (brev 6, 27. oktober 2026). Byggherren godkjenner P1 med 190 000 kr og P3 med 120 000 kr, og godtar regningsarbeid for P2.</p>
             <ul>
               <li>Etter at den nye versjonen er sendt, kan svaret i brev 6 ikke godtas her. Brev 5 og 6 står som de ble sendt.</li>
-              <li>En kravpost du tar ut, trekkes uttrykkelig. Brevet sier det.</li>
+              <li data-spor="U-4 · D-4">En kravpost du tar ut, trekkes uttrykkelig. Brevet sier det.</li>
             </ul>
             <div class="begr" data-begr="0" style="border-top:0;padding-top:0">
               <div class="begr-hode"><b>Ditt standpunkt til svaret i brev 6</b><span class="krav">Valgfritt</span></div>
@@ -415,7 +417,7 @@ button{font:inherit;color:inherit}
             </span>
           </div>
 
-          <section class="punkt nummerert" aria-labelledby="p1">
+          <section class="punkt nummerert" aria-labelledby="p1" data-spor="U-7 · D-6">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p1">Varselet om vederlagsjustering</h2><span class="hjemmel">punkt 34.1.2</span></div>
             <p class="oppgitt">Forholdet er byggherrens valg av løsninger og prosjektering. Da skal du varsle uten ugrunnet opphold når du blir eller burde ha blitt klar over forholdet. Varselet gjelder hele vederlagskravet, med alle kravpostene.</p>
             <div class="felter"><div class="beloepfelt"><label for="klar">Når ble du klar over forholdet?</label><span class="hjelp">Oppgitt i varselet, brev 2</span><span class="datofelt"><input id="klar" value="12.09.2026" readonly></span></div></div>
@@ -426,28 +428,28 @@ button{font:inherit;color:inherit}
             <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p><p class="dempet">Om varselet kom i tide, avgjør partene.</p></div>
           </section>
 
-          <section class="punkt nummerert kun-saerskilt" aria-labelledby="p2">
+          <section class="punkt nummerert kun-saerskilt" aria-labelledby="p2" data-spor="U-7">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p2">Varselet om særskilt vederlagsjustering</h2><span class="hjemmel">punkt 34.1.3 tredje ledd</span></div>
             <p class="oppgitt">Gjelder bare den særskilte vederlagsjusteringen for nedsatt produktivitet eller forstyrrelser. Rigg og drift krever ikke særskilt varsel etter kontraktsgrunnlaget.</p>
             <div class="felter"><div class="beloepfelt"><label for="klar2">Når ble du klar over at utgiftene ville påløpe?</label><span class="datofelt"><input id="klar2" value="16.09.2026"></span></div></div>
             <div class="datoboks"><p>Sendes varselet med kravet i dag, er det <b>20 kalenderdager</b> etter.</p><p class="dempet">Om varselet kom i tide, avgjør partene.</p></div>
           </section>
 
-          <section class="punkt nummerert" aria-labelledby="p3" data-spor="Svar 1, 2 og 3">
+          <section class="punkt nummerert" aria-labelledby="p3" data-spor="U-1 · D-1">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p3">Vederlagsjustering</h2><span class="hjemmel">punkt 34.1.1 / 34.1.2</span></div>
             <p class="oppgitt">Del kravet i kravposter. Hver post har sin oppgjørsform og kan få en PNS-kode. Betegnelsen (P1, P2 …) følger posten i nye versjoner og i endringsordren.</p>
             <div id="poster"></div>
             <button class="liten-knapp" type="button" data-handling="ny-post" style="align-self:flex-start">Legg til kravpost</button>
           </section>
 
-          <section class="punkt nummerert kun-saerskilt" aria-labelledby="p5">
+          <section class="punkt nummerert kun-saerskilt" aria-labelledby="p5" data-spor="D-12">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p5">Særskilt vederlagsjustering</h2><span class="hjemmel">punkt 34.1.3 annet ledd</span></div>
-            <p class="oppgitt">Økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid. <span class="aapent" data-spor="#1294">Åpent: om posten kan ha annen oppgjørsform enn fast sum</span></p>
+            <p class="oppgitt">Økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid. <span class="aapent" data-spor="S-1">Åpent: om posten kan ha annen oppgjørsform enn fast sum</span></p>
             <div id="saerskilt"></div>
             <button class="lenke liten fjern-post" type="button" data-post="saerskilt" data-verdi="nei">Fjern den særskilte vederlagsjusteringen</button>
           </section>
 
-          <section class="punkt nummerert kun-rigg" aria-labelledby="p6">
+          <section class="punkt nummerert kun-rigg" aria-labelledby="p6" data-spor="D-11">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p6">Rigg og drift i forlenget byggetid</h2><span class="hjemmel">punkt 34.1.3 første ledd</span></div>
             <p class="oppgitt">Regnes etter formelen i kontraktsgrunnlaget. Kompensasjon i uendret byggetid kreves utenfor saken.</p>
             <div class="felter">
@@ -455,7 +457,7 @@ button{font:inherit;color:inherit}
               <div class="beloepfelt"><label for="r-opp">Opprinnelig byggetid, hverdager</label><span class="inndata" style="width:140px"><input id="r-opp" inputmode="numeric" value="420"><span aria-hidden="true">d</span></span></div>
               <div class="beloepfelt"><label for="r-kap">Rigg- og driftskapitlet</label><span class="inndata"><input id="r-kap" inputmode="decimal" value="4 200 000"><span aria-hidden="true">kr</span></span></div>
               <div class="beloepfelt"><label for="r-andel">Andel av kapitlet</label><span class="inndata" style="width:140px"><input id="r-andel" inputmode="decimal" value="40"><span aria-hidden="true">%</span></span></div>
-              <div class="beloepfelt" data-spor="Svar 3"><label for="r-pns">PNS (valgfri)</label><span class="inndata tekst" style="width:140px"><input id="r-pns" list="pns-liste" value="11"></span></div>
+              <div class="beloepfelt" data-spor="U-3"><label for="r-pns">PNS (valgfri)</label><span class="inndata tekst" style="width:140px"><input id="r-pns" list="pns-liste" value="11"></span></div>
             </div>
             <div class="regnestykke" aria-live="polite"><span class="merke">Beregnet ut fra TEs opplysninger: 0,7 × A × andel × Z / Y</span><span class="res" id="r-res"></span></div>
             <button class="lenke liten fjern-post" type="button" data-post="rigg" data-verdi="nei">Fjern posten for rigg og drift</button>
@@ -490,16 +492,16 @@ button{font:inherit;color:inherit}
           <section class="kort">
             <div class="kort-hode"><h2>Det du krever</h2><p>Eks. mva. Oppdateres mens du skriver.</p></div>
             <div class="blokk rulle"><table class="tabell" id="oversikt"></table></div>
-            <div class="blokk" data-spor="Svar 3"><p class="blokktittel">Fordeling på PNS</p><table class="tabell" id="pns-tabell"></table><p class="hjelp" id="pns-hjelp"></p></div>
-            <div class="blokk" id="virkning"></div>
-            <div class="blokk"><button class="knapp" type="button" data-anker="brev">Se brevet før sending</button><p class="godkj">Brevet sendes til byggherren. Lagret kl. 14.08.</p></div>
+            <div class="blokk" data-spor="U-3 · D-3"><p class="blokktittel">Fordeling på PNS</p><table class="tabell" id="pns-tabell"></table><p class="hjelp" id="pns-hjelp"></p></div>
+            <div class="blokk" id="virkning" data-spor="U-5"></div>
+            <div class="blokk"><a class="knapp" href="#brev">Se brevet før sending</a><p class="godkj">Brevet sendes til byggherren. Lagret kl. 14.08.</p></div>
           </section>
         </aside>
       </div>
 
-      <article id="brevark" class="ark" aria-label="Brevet"></article>
+      <div id="brev"><article id="brevark" class="ark" aria-label="Brevet" data-spor="U-6 · D-5"></article></div>
 
-      <div id="svarvisning" data-spor="Svar 5, 9 og 10">
+      <div id="svarvisning" data-spor="D-10">
         <div class="kolonner">
           <form class="utkast" id="svarskjema" aria-labelledby="svartittel" novalidate>
             <div class="utkast-hode">
@@ -513,11 +515,11 @@ button{font:inherit;color:inherit}
               <fieldset class="oppgj kun-saerskilt"><legend class="spm">Varselet om særskilt vederlagsjustering (punkt 34.1.3). Gjelder bare den særskilte posten.</legend><div class="valg kompakt"><label><input type="radio" name="bv2" value="tide" checked> Kom i tide</label><label><input type="radio" name="bv2" value="sent"> Kom for sent</label></div></fieldset>
               <p class="virkning" id="varselinfo" hidden></p>
             </section>
-            <div class="snarveier">
+            <div class="snarveier" data-spor="U-9">
               <button class="liten-knapp" type="button" data-snarvei="form">Godta oppgjørsformen for alle postene</button>
               <button class="liten-knapp" type="button" data-snarvei="beloep">Godkjenn alle poster med fast sum som krevd</button>
             </div>
-            <section class="punkt nummerert" aria-labelledby="bp3">
+            <section class="punkt nummerert" aria-labelledby="bp3" data-spor="U-8 · D-7 · D-9">
               <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp3">Vederlagsjustering</h2><span class="hjemmel">punkt 34.1.1 / 34.1.2</span></div>
               <p class="oppgitt">Ett svar per kravpost. Samling av poster hører til endringsordren (svar 10).</p>
               <div id="bh-poster"></div>
@@ -527,7 +529,7 @@ button{font:inherit;color:inherit}
               <div id="bh-saerskilt"></div>
             </section>
           </form>
-          <aside class="stoette" aria-label="Lagene samlet">
+          <aside class="stoette" aria-label="Lagene samlet" data-spor="U-10 · D-8">
             <section class="kort">
               <div class="kort-hode"><h2>Lagene samlet</h2><p>Kroner eks. mva. Dempet: samme som laget til venstre.</p></div>
               <div class="blokk rulle"><table class="tabell smal" id="lagtabell"></table></div>
@@ -588,7 +590,7 @@ function endret(p) {
 
 function postHtml(p, saerskilt) {
   const id = p.id;
-  if (p.trukket) return `<article class="post trukket" data-id="${id}" data-spor="Svar 4">
+  if (p.trukket) return `<article class="post trukket" data-id="${id}" data-spor="U-4 · D-4">
     <div class="post-hode"><span class="pid">${saerskilt ? 'Særskilt' : id}</span><b>${esc(p.navn)}</b><span class="merke-trukket">Trekkes</span></div>
     <p class="oppgitt">Kravet i ${saerskilt ? 'den særskilte vederlagsjusteringen' : id} trekkes i denne versjonen. Brevet sier det uttrykkelig, og trekket er et avkall på kravet i posten.</p>
     <button class="lenke liten" type="button" data-handling="angre" style="align-self:flex-start">Angre trekket</button></article>`;
@@ -597,20 +599,20 @@ function postHtml(p, saerskilt) {
       <fieldset class="oppgj"><legend class="spm">Hvilke enhetspriser?</legend><div class="valg kompakt">${radio('ep-' + id, 'kontrakt', p.ep, 'Kontraktens enhetspriser (punkt 34.3.1)')}${radio('ep-' + id, 'justert', p.ep, 'Justerte enhetspriser (punkt 34.3.2)')}</div></fieldset>
       ${p.ep === 'justert' ? `<fieldset class="oppgj"><legend class="spm">Varselet om justering av enhetsprisene (punkt 34.3.3)</legend><div class="valg kompakt">${radio('epv-' + id, 'med', p.epVarsel, 'Sendes med kravet')}${radio('epv-' + id, 'annen', p.epVarsel, 'Sendt på annen måte')}</div><span class="hjelp">Varsler du for sent, har du bare krav på den justeringen byggherren måtte forstå. Byggherren skal svare uten ugrunnet opphold.</span></fieldset>` : ''}
       <div class="beloepfelt"><label for="a-${id}">Anslag (valgfritt)</label><span class="hjelp">Mengde × enhetspris. En opplysning, ikke et tilbud.</span><span class="inndata"><input id="a-${id}" inputmode="decimal" data-felt="anslag" value="${p.anslag ? kr(p.anslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>
-      <p class="hjelp">Posten har ikke et krevd beløp. Oppgjøret skjer etter utførte mengder. <span class="aapent" data-spor="#1434">Åpent: krav om påløpt beløp</span></p></div>`;
+      <p class="hjelp">Posten har ikke et krevd beløp. Oppgjøret skjer etter utførte mengder. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp</span></p></div>`;
   const reg = `<div class="underpunkt">
       <fieldset class="oppgj"><legend class="spm">Varsel før regningsarbeidet settes i gang (punkt 34.4)</legend><div class="valg kompakt">${radio('rv-' + id, 'med', p.regVarsel, 'Sendes med kravet')}${radio('rv-' + id, 'annen', p.regVarsel, 'Sendt på annen måte')}</div>
       ${p.regVarsel === 'annen' ? `<div class="beloepfelt"><label for="rd-${id}">Dato varselet ble sendt</label><span class="datofelt"><input id="rd-${id}" data-felt="regDato" placeholder="dd.mm.åååå" value="${esc(p.regDato)}"></span><span class="hjelp">Du legger varselet til som korrespondanse. Datoen settes én gang.</span></div>` : ''}</fieldset>
-      <div class="beloepfelt"><label for="o-${id}">Kostnadsoverslag (punkt 30.2) <span class="aapent" data-spor="#1292">Åpent: om det er påkrevd</span></label><span class="hjelp">En opplysning, ikke et tilbud. Ser det ut til å bli overskredet, skal du varsle byggherren.</span><span class="inndata"><input id="o-${id}" inputmode="decimal" data-felt="overslag" value="${p.overslag ? kr(p.overslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>
-      <p class="hjelp">Posten har ikke et krevd beløp. Kostnadene og påslaget dekkes etter punkt 30.1. <span class="aapent" data-spor="#1434">Åpent: krav om påløpt beløp når arbeidet er utført</span></p></div>`;
+      <div class="beloepfelt"><label for="o-${id}">Kostnadsoverslag (punkt 30.2) <span class="aapent" data-spor="S-2">Åpent: om det er påkrevd</span></label><span class="hjelp">En opplysning, ikke et tilbud. Ser det ut til å bli overskredet, skal du varsle byggherren.</span><span class="inndata"><input id="o-${id}" inputmode="decimal" data-felt="overslag" value="${p.overslag ? kr(p.overslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>
+      <p class="hjelp">Posten har ikke et krevd beløp. Kostnadene og påslaget dekkes etter punkt 30.1. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp når arbeidet er utført</span></p></div>`;
   const fjern = tilstand === 'ny' && p.forrige
     ? `<button class="lenke liten" type="button" data-handling="trekk">${saerskilt ? 'Trekk den særskilte vederlagsjusteringen' : 'Trekk ' + id}</button>`
     : (saerskilt ? '' : `<button class="lenke liten" type="button" data-handling="fjern">Fjern ${id}</button>`);
   return `<article class="post" data-id="${id}">
     <div class="post-hode"><span class="pid">${saerskilt ? 'Særskilt' : id}</span><input class="post-navn" data-felt="navn" aria-label="Beskrivelse av ${saerskilt ? 'den særskilte posten' : id}" value="${esc(p.navn)}" placeholder="Beskriv posten">${endret(p)}</div>
     <div class="felter" style="align-items:flex-end">
-      <div class="beloepfelt" data-spor="Svar 3"><label for="pns-${id}">PNS (valgfri)</label><span class="inndata tekst" style="width:140px"><input id="pns-${id}" list="pns-liste" data-felt="pns" value="${esc(p.pns)}"></span></div>
-      <fieldset class="oppgj" data-spor="Svar 2"><legend>Oppgjørsform</legend><div class="valg kompakt">${radio('f-' + id, 'fast', p.form, 'Fast sum')}${radio('f-' + id, 'ep', p.form, 'Enhetspriser')}${radio('f-' + id, 'regning', p.form, 'Regningsarbeid')}</div></fieldset>
+      <div class="beloepfelt" data-spor="U-3"><label for="pns-${id}">PNS (valgfri)</label><span class="inndata tekst" style="width:140px"><input id="pns-${id}" list="pns-liste" data-felt="pns" value="${esc(p.pns)}"></span></div>
+      <fieldset class="oppgj" data-spor="U-2 · D-2"><legend>Oppgjørsform</legend><div class="valg kompakt">${radio('f-' + id, 'fast', p.form, 'Fast sum')}${radio('f-' + id, 'ep', p.form, 'Enhetspriser')}${radio('f-' + id, 'regning', p.form, 'Regningsarbeid')}</div></fieldset>
     </div>
     ${p.form === 'fast' ? fast : p.form === 'ep' ? ep : reg}
     <div class="begr" data-begr="${id}" data-post-begr>
@@ -708,9 +710,9 @@ function brev() {
     ${skall.dataset.saerskilt === 'ja' ? `<h2>${n++}. Særskilt vederlagsjustering</h2><p>TE krever i tillegg særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid med ${fmt(kr(s.beloep))} eks. mva.</p>` : ''}
     ${skall.dataset.rigg === 'ja' ? `<h2>${n++}. Rigg og drift i forlenget byggetid</h2><p>Totalentreprenøren krever ${fmt(rigg())} eks. mva. etter formelen i kontraktsgrunnlaget.</p>` : ''}
     <h2>${n++}. Forbehold</h2><p>Totalentreprenøren tar forbehold om å justere kravet når omfanget av gravingen er kjent.</p>
-    ${fastId.length ? `<p class="ny" data-spor="Svar 2">Kravet for ${liste(fastId)} er et tilbud etter NS 8407 punkt 34.2.1.</p>` : ''}
+    ${fastId.length ? `<p class="ny" data-spor="U-6 · D-5">Kravet for ${liste(fastId)} er et tilbud etter NS 8407 punkt 34.2.1.</p>` : ''}
     <p class="hjelp">Gult: ny setning. OV-U94 punkt 4 har «Kravet er et tilbud etter NS 8407 punkt 34.2.1.» for hele kravet. Med oppgjørsform per post må setningen si hvilke poster den gjelder, og den trenger et nytt vedtak.</p>
-    <button class="liten-knapp" type="button" data-anker="${tilstand === 'ny' ? 'ny-versjon' : 'nytt-krav'}" style="align-self:flex-start">Tilbake til skjemaet</button>`;
+    <a class="liten-knapp" href="#${tilstand === 'ny' ? 'ny-versjon' : 'nytt-krav'}" style="align-self:flex-start">Tilbake til skjemaet</a>`;
 }
 
 // Byggherrens svar. Lagene i rekkefølgen varsel, oppgjørsform, beløp (svar 07.11). Lagene regnes ut av
@@ -857,7 +859,7 @@ const kortK = document.getElementById('vis-kort'), altK = document.getElementByI
 kortK.onclick = () => { skall.dataset.visning = 'kort'; kortK.setAttribute('aria-pressed', 'true'); altK.setAttribute('aria-pressed', 'false'); };
 altK.onclick = () => { skall.dataset.visning = 'alt'; kortK.setAttribute('aria-pressed', 'false'); altK.setAttribute('aria-pressed', 'true'); };
 const sporK = document.getElementById('spor-knapp');
-sporK.onclick = () => { const p = document.body.classList.toggle('vis-spor'); sporK.setAttribute('aria-pressed', String(p)); };
+sporK.onchange = () => { document.body.classList.toggle('vis-spor', sporK.checked); };
 
 // Tilstandene er ankrene #nytt-krav, #ny-versjon, #brev og #svar. #lag viser også svaret.
 function lesAnker() {
