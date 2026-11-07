@@ -511,13 +511,14 @@
           {#if felt.endringsordre}
             <div class="felt">
               <label for={id('endringsordre')}>{NYSAK.endringsordre}</label>
+              <p class="hjelp" id={id('endringsordre-hjelp')}>{NYSAK.endringsordreHjelp}</p>
               <input
                 id={id('endringsordre')}
                 class="kort-felt"
                 bind:value={endringsordre}
                 aria-required="true"
                 aria-invalid={!!feil.endringsordre}
-                aria-describedby={feil.endringsordre ? id('endringsordre-feil') : undefined}
+                aria-describedby={`${id('endringsordre-hjelp')}${feil.endringsordre ? ` ${id('endringsordre-feil')}` : ''}`}
                 oninput={() => delete feil.endringsordre}
               />
               {#if feil.endringsordre}<p class="feil" id={id('endringsordre-feil')}>

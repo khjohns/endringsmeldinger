@@ -91,7 +91,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U13](../../plans/vedtak.md#ka-u13) | — | — | BF-06 |
 | [KA-U14](../../plans/vedtak.md#ka-u14) | — | — | BF-06 |
 | [KA-U16](../../plans/vedtak.md#ka-u16) | — | — | BF-01V |
-| [KA-U19](../../plans/vedtak.md#ka-u19) | — | — | BF-01V |
+| [KA-U19](../../plans/vedtak.md#ka-u19) | — | — | BF-01V, BF-10 |
 | [KA-U24](../../plans/vedtak.md#ka-u24) | — | — | BF-01V |
 | [KA-U31](../../plans/vedtak.md#ka-u31) | — | — | BF-01V |
 | [KA-U41](../../plans/vedtak.md#ka-u41) | — | — | BF-01V |

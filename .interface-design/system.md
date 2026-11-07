@@ -109,6 +109,13 @@ en ny farge prøves form og tekst (oppdragsgiver 06.11, #1646).
 - **Utkast og interne ting** har `--draft`, `--draft-bg` og `--draft-border`, med
   stiplet kant. Det som ikke er sendt, skal aldri se sendt ut.
 - **Fokus** vises med `--control-focus` og `--control-focus-ring`.
+- **Svak rød i brevkontrollen** (`--danger-bg` med rød kant til venstre) står bare ved virkningen av
+  en handling som ikke kan gjøres om, som «Trekk påberopelsen», og ikke ellers i flaten. Teksten
+  sier selv at handlingen ikke kan gjøres om (`kanIkkeGjoeresOm` i `Brevkontroll`; oppdragsgiver
+  06.11, #1615). Ingen brevkontroll i Varden bruker den ennå, fordi trekket ikke er bygget.
+- **Rød knapp** (`variant="fare"`) står bare i dialogen som bekrefter en handling som ikke kan
+  gjøres om, som «Forkast utkast» i den nye versjonen av påberopelsen (oppdragsgiver 07.11,
+  PR 1650).
 - **En farge sier aldri det appen ikke kan slutte.** Ingen rødt for «for sent» og
   ingen farge for alvorlighet ved en frist. Vedtakene i [vedtaksfila](../docs/plans/vedtak.md)
   avgjør hva visningen kan si.
@@ -260,13 +267,40 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
+- **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (oppdragsgiver
+  06.11, PR 1650):
+  - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen, unntatt på 640 px
+    og smalere, der den ligger fast (oppdragsgiver 07.11, PR 1650) (`Utkastrad`):
+    «Tilbake til forholdet», skilt fra resten med en linje, siden sakslisten er felt inn, «Utkast»
+    med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
+    «Forhåndsvis brevet» ytterst til høyre, så handlingen står ved brevet den gjelder. Det gule er
+    raden, ikke utkastet. Raden står øverst, der «Tilbake til utkastet» står i brevkontrollen.
+  - Utkastet står til venstre (`Brevutkast`, om lag 60 prosent): et hvitt kort med emnet,
+    «Begrunnelse», som kreves og vokser med teksten, og «Forkast utkast» nederst under en linje
+    (`Forkastutkast`). Mangler begrunnelsen, står beskjeden rett under feltet, uten lista øverst,
+    siden feltet er alene (oppdragsgiver 07.11, PR 1650).
+  - Brevene TE bygger på, står til høyre (om lag 40 prosent) og begynner på samme høyde som
+    utkastet: «Tidligere brev om forholdet» som kompakt brevvalg med parten i en ring og ett brev
+    åpent om gangen (svaret fra start), med brevhodet og tittelen ett hakk ned. Et langt brev
+    ruller i rammen, og tidslinja står lagt sammen under.
+  - Brevkontrollen heter «Kontroller og send» og har bare mottakeren, siden avsenderen er TE selv.
+  - Mønsteret er oversikt › arbeidsflate › bekreft, og hvert område har bare det som trengs for
+    formålet sitt: å velge handling, å skrive og å kontrollere brevet før sending. Det som står
+    fast i en ny versjon, står på oversikten med veien til det som kan endre det: «Korriger
+    datoen» ved datoen i brevtråden, og «Annen hjemmel eller endringsordre? Opprett ny sak →»
+    under kortet «Det du kan gjøre nå», før tidslinja. At forholdet og endringsordren står fast,
+    sier skjemaet for ny sak, der TE velger dem.
+  - I brevkontrollen står virkningen under en egen overskrift, «Når du sender», når det er en.
 - **En knapp er aldri sperret** ([MM-U32](#mm-u32)). Mangler noe, står det rett under feltet og i en
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens
   avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
   mens en sending pågår.
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
-  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog.
+  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog. Unntaket er den nye
+  versjonen av påberopelsen, der den spør i en dialog med «Behold utkastet» og en rød «Forkast
+  utkast» (`Knapp` med `variant="fare"`). Rødt på en knapp står bare der handlingen ikke kan
+  gjøres om, og teksten sier det (oppdragsgiver 07.11, PR 1650).
 - **Utkastet sier det selv.** Hodet på utkastkortet og sendepanelet i brevkontrollen
   sier «Utkast · ikke sendt». Merket «Utkast» i panelet til venstre vises bare når et
   annet spor er valgt, så statusen aldri står to steder samtidig.
@@ -279,14 +313,15 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   den gjør. Primærhandlingen er svaret på motpartens siste brev når det ikke er besvart. Etter
   byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Revider krav»
   ellers). Ellers har kortet ingen primærhandling, også når TE har korrigert datoen (oppdragsgiver
-  06.11, #1649). Regelen er vedtatt; BHs svar i forholdet er ikke bygget som primærhandling ennå,
-  og uten lenke til den gamle visningen er «Godta svaret» primær til «Oppdater påberopelse» er
-  bygget (#1649). «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  06.11, #1649). Demoruta og den ekte saksruta har samme primærhandling. Er den ikke bygget i
+  Varden, åpner den dagens visning, og uten lenke dit sier den at den ikke er bygget. «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  Innsigelsen om at et brev kom for sent står ikke i kortet: den hører hjemme i svaret på
+  brevet eller i et innlegg, som ikke er bygget (oppdragsgiver 06.11, PR 1650).
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
   `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
   ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to
-  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da ikke kan
-  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
+  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. En ny versjon av kravet sier hvilket brev den følger opp, og at svaret
+  da ikke kan godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
   BF-02A (#1615). En brevtype som ikke er bygget i Varden, har samme form og pil som de andre
   (oppdragsgiver 06.11, #1646).
 - **Brevene om forholdet** står i en tråd. Partene skilles med form, ikke med farge: BH har

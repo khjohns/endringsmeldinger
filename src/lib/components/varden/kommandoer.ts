@@ -11,6 +11,7 @@ import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import type { Spor } from '$kjerne/typer';
+import { KRAVINNHOLD, oppgittDato } from '$kjerne/format/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
 
@@ -137,5 +138,31 @@ export function korrigeringen(
     paalegg_mottatt?: string;
     klar_over_forholdet?: string;
     utdypning?: string;
+  };
+}
+
+/**
+ * TEs nye versjon av påberopelsen (BF-10, KA-U52): kategoriene og endringsordren står som i
+ * gjeldende versjon (MM-U52 punkt 14), datoen er TEs siste opplysning, også etter en korrigering
+ * (MM-U52 punkt 10, #1617), og teksten er utdypningen (S-3 i BF-10). Kjernen avviser en annen
+ * dato og en annen kategori.
+ */
+export function nyVersjonAvPaaberopelsen(u: Utledning, tekst: string) {
+  const gjeldende = u.spor.forhold.gjeldendeKrav?.innhold ?? {};
+  const innhold: Record<string, unknown> = Object.fromEntries(
+    Object.entries(gjeldende).filter(([felt]) =>
+      Object.hasOwn(KRAVINNHOLD.forhold.properties, felt)
+    )
+  );
+  const felt = oppgittDato(gjeldende.hovedkategori, gjeldende.underkategori);
+  // TEs siste opplysning i feltet, som `sisteDatoopplysning` i kjernen (lesepunktet er `$lib/kjernesak/`).
+  const siste = felt === null ? null : u.datoopplysninger.findLast((o) => o.felt === felt);
+  if (felt !== null && siste) innhold[felt] = siste.dato;
+  const utdypning = tekst.trim();
+  return {
+    type: 'krav' as const,
+    spor: 'forhold' as const,
+    innhold,
+    ...(utdypning ? { utdypning } : {}),
   };
 }

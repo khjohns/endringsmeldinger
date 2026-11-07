@@ -6,6 +6,7 @@
  */
 
 import { omtalen } from '$kjerne/frosset/brevtekst';
+import { oppgittDato } from '$kjerne/format/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import {
   grunnerFraForholdet,
@@ -347,10 +348,16 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
       k.innhold.underkategori as string | string[] | null | undefined
     );
     const o = iBrevet(k.dokument);
+    // En ny versjon som gjengir TEs siste opplysning, er ingen ny opplysning i utledningen, men
+    // brevet sier datoen (MM-U52 punkt 10, #1647).
+    const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
+    const gjentatt = felt === null ? undefined : k.innhold[felt];
     ut.set(k.dokument, {
       gjelderPaalegg: kode === 'irregulaer_endring',
       utdypning: utdypning(k.dokument, k.id),
-      oppgitt: oppgitt(o),
+      oppgitt:
+        oppgitt(o) ??
+        (felt !== null && typeof gjentatt === 'string' ? { hva: felt, dato: gjentatt } : null),
       opplysning: o,
       standpunkter: [],
     });

@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
-import { HANDLINGENE, innsigelsen, innsigelsensVirkning } from '$lib/components/varden/tekster';
+import { HANDLINGENE } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
@@ -53,15 +53,6 @@ describe('Brevtyper', () => {
     expect(screen.getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
   });
 
-  it('innsigelsen sier med egne ord hva som kom for sent, uten henvisning til kontrakten (oppdragsgiver 06.11, #1631)', () => {
-    expect(innsigelsen('svar', 2)).toBe('Gjør gjeldende at svaret i brev 2 kom for sent');
-    expect(innsigelsen('varsel', null)).toBe('Gjør gjeldende at varselet kom for sent');
-    // Fristen i § 5 tredje ledd, med ordene fra dagens visning (`InnsigelseModal.svelte`).
-    expect(innsigelsensVirkning('svar')).toBe(
-      'Sendes uten ugrunnet opphold. Ellers regnes svaret som gitt i tide.'
-    );
-  });
-
   it('ny versjon sier hvilket brev den erstatter, og at svaret ikke kan godtas, uten å si at det er avslått (MM-U34 punkt 1 og 2)', () => {
     const brev = (nummer: number) => ({
       id: `b${nummer}`,
@@ -71,10 +62,10 @@ describe('Brevtyper', () => {
       art: 'krav' as const,
     });
     expect(HANDLINGENE.virkning.nyVersjon('forhold', brev(1), brev(2))).toBe(
-      'Erstatter påberopelsen i brev 1. Svaret i brev 2 kan da ikke godtas her, og byggherren svarer på nytt.'
+      'Følger opp påberopelsen i brev 1. Du kan ikke lenger godta svaret i brev 2 i denne saken. Byggherren svarer på det nye brevet.'
     );
     expect(HANDLINGENE.virkning.nyVersjon('vederlag', brev(3), null)).toBe(
-      'Erstatter kravet i brev 3. Byggherren svarer på den nye versjonen.'
+      'Følger opp kravet i brev 3. Byggherren svarer på det nye brevet.'
     );
   });
 

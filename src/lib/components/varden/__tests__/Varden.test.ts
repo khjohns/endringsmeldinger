@@ -123,11 +123,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(vist.join(' ')).toMatch(/Prinsipalt: byggherren gjør gjeldende at varselet/);
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
     // OV-U81 og #1443: hvordan løsningen virker, står på siden «Om Varden», ikke ved feltene.
-    // KA-U19: brevkontrollen sier i infotipset at teksten lages fra valgene (OV-U81, #1466).
-    // Setningen i skjemaet prøves i testen for #1466 og #1467.
-    expect(
-      [...document.querySelectorAll('[role="note"]')].map((e) => e.textContent).join(' ')
-    ).toMatch(/Teksten lages fra valgene/);
+    // KA-U19: skjemaet sier at virkningen regnes ut fra valgene, i infotipset «Om svaret». Det
+    // prøves i testen for #1466 og #1467. Brevkontrollen har ikke infotipset «Om brevet»
+    // (oppdragsgiver 07.11, PR 1650).
     expect(document.body.textContent).not.toMatch(/tolkes ikke|vurderes ikke/);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
     expect(document.body.textContent).not.toMatch(/\bKA-U\d/);
@@ -497,9 +495,8 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     await bhSvarerIVarden();
     kontroller();
-    expect(infotips()).toContain('Teksten lages fra valgene og kan ikke endres her');
-    expect(infotips()).toContain('Et sendt brev kan ikke endres');
-    expect(screen.getByRole('button', { name: 'Om brevet' })).toBeTruthy();
+    // Brevkontrollen har ingen infotips (oppdragsgiver 07.11, PR 1650).
+    expect(screen.queryByRole('button', { name: 'Om brevet' })).toBeNull();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
     kontroller();
@@ -558,7 +555,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     ['te-har-mottatt-svaret', 'TE'],
     ['te-har-godtatt-svaret', 'TE'],
   ] as const)(
-    'ved %s får %s i Varden alle handlingene kjernen tilbyr i vederlagssporet, og i dagens visning de samme unntatt BHs innsigelse',
+    'ved %s får %s i Varden alle handlingene kjernen tilbyr i vederlagssporet unntatt innsigelsen, og i dagens visning de samme unntatt BHs innsigelse',
     async (punkt, part) => {
       // Knappene i dagens visning (`ActionBar`) og nøklene kjernen tilbyr bak dem. Skjemaet bak
       // kravknappen har varslene som valg (`kravvalg`, `varselvalg` i `arbeidsflate.svelte.ts`).
@@ -626,11 +623,18 @@ describe('Varden med brukerforløpet BF-01', () => {
       )
         iVarden.push('godta:vederlag');
       if (screen.queryByRole('button', { name: 'Svar på kravet' })) iVarden.push('svare:vederlag');
-      expect(iVarden.sort()).toEqual([...tilbudt].sort());
+      if (
+        screen.queryByRole('button', { name: 'Revider krav' }) ||
+        screen.queryByRole('link', { name: 'Revider krav' })
+      )
+        iVarden.push('krav:vederlag');
+      // Innsigelsen om at et brev kom for sent er ikke en handling i Varden (oppdragsgiver 06.11,
+      // PR 1650).
+      expect(iVarden.sort()).toEqual(tilbudt.filter((n) => !n.startsWith('innsigelse:')).sort());
     }
   );
 
-  it('etter avslaget av forholdet er primærhandlingen for TE «Oppdater påberopelse», og godta og trekk står synlige under (oppdragsgiver 06.11, #1631)', async () => {
+  it('etter avslaget av forholdet er primærhandlingen for TE «Oppdater påberopelse», og godta og trekk står synlige under (oppdragsgiver 06.11, #1631, #1649)', async () => {
     const demosak = lagDemosak(finnForloep('BF-04')!, 'forholdet-er-avslaatt', 'TE');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
@@ -644,8 +648,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     const kortet = within(
       (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
     );
-    const primaer = kortet.getByRole('link', { name: 'Oppdater påberopelse' });
-    expect(primaer.getAttribute('href')).toBe('/demo/sak/kjerne');
+    // «Oppdater påberopelse» er bygget i Varden (BF-10), så den åpner skjemaet, ikke dagens visning.
+    const primaer = kortet.getByRole('button', { name: 'Oppdater påberopelse' });
     // Teksten oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
     expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
       'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
