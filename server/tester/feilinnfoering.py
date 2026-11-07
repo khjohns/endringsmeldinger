@@ -308,7 +308,7 @@ FEILINNFOERINGER = [
     ("S80", "prøven av myk bindestrek setter glyfen i instansen PDF-en bruker (#1658)", "server/brevpdf.ts",
      "return medBindestrek(data);", "return proeve;",
      "gjengir myk bindestrek, bindestrek, hardt mellomrom og → ≥ ≤ № tro med brevskriften sourceSerif4"),
-    ("S81", "totalentreprenørens brev settes i Oslo Sans (#1658)", "server/brevpdf.ts",
+    ("S81", "totalentreprenørens brev settes i Oslo Sans (#1658, LV-U58)", "server/brevpdf.ts",
      "{ BH: 'osloSans', TE: 'sourceSerif4' }", "{ BH: 'osloSans', TE: 'osloSans' }",
      "setter totalentreprenørens brev i Source Serif 4"),
     ("S82", "brevet har en annen linjehøyde enn forhåndsvisningen (#1658)", "server/brevpdf.ts",

@@ -331,12 +331,12 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
   });
 });
 
-// Kilde: LV-U26 for byggherrens skrift, svarene fra oppdragsgiver 07.11 for totalentreprenørens
-// skrift og hodet (#1658, kravene i #1652, vedtaks-PR-en #1662) og `.interface-design/system.md`,
+// Kilde: LV-U26 for byggherrens skrift, LV-U58 for totalentreprenørens, LV-U59 for hodet
+// (#1658, kravene i #1652) og `.interface-design/system.md`,
 // «Typografi»: hele brevet står i avsenderens skrift, byggherrens i Oslo Sans i 11 pt og
 // totalentreprenørens i Source Serif 4 i 16 px (12 pt), begge med linjehøyde 1,6. Oslo Sans
 // brukes aldri i totalentreprenørens brev.
-describe('brevskriften følger avsenderen (#1658)', () => {
+describe('brevskriften følger avsenderen (#1658, LV-U58, LV-U59)', () => {
   const tekst: Avsnitt[] = [
     { gjelder: 'a', laast: 'Første linje.', utdypning: 'Andre linje.\nTredje linje.' },
   ];

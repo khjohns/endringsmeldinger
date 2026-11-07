@@ -71,8 +71,7 @@ export type Skriftnavn = keyof typeof SKRIFTER;
 
 /**
  * Hele brevet, også hodet, står i avsenderens skrift: Oslo Sans for byggherren (LV-U26) og
- * Source Serif 4 for totalentreprenøren (oppdragsgiver 07.11 i #1658, som endrer LV-U26 på
- * det punktet, og at hodet følger med, i vedtaks-PR-en #1662).
+ * Source Serif 4 for totalentreprenøren (LV-U58). Hodet følger brevets skrift (LV-U59).
  */
 const BREVSKRIFT: Record<Avsender, Skriftnavn> = { BH: 'osloSans', TE: 'sourceSerif4' };
 
