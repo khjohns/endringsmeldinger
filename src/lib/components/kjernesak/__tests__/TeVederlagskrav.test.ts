@@ -1,14 +1,12 @@
 /**
- * Vederlagskravet fra `TeVederlagForm` i Kontrollrommet på TS-stien (#667, #718).
- * Konteksten er den ekte, med falske `hent` og `send`; at serveren lagrer kravet,
- * prøves i `sprakprove/skrivesti/vederlagskrav.test.ts`. Kildene er formatet i kjernen
- * (bare tilbud, OV-U1), avgjørelsene 17.10 i #718 (valgfri utdypning, utkast av,
- * det kjernen ikke kan, skjules), LV-U2 og leserens side fra serveren (#705).
+ * Vederlagsskjemaet `TeVederlagForm` i Kontrollrommet på TS-stien (#667, #718). Konteksten er
+ * den ekte, med falske `hent` og `send`. Skjemaet sender varselet og registreringen, men ikke
+ * vederlagskravet, til skjemaet etter BF-14 er bygget (arbeidsvalg til økt 3 i #1663). Kildene er
+ * avgjørelsene 17.10 i #718, LV-U2 og leserens side fra serveren (#705).
  */
 
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
-import { userEvent } from '@testing-library/user-event';
 import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { Journallinje, Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
 import { ApiError } from '$lib/api/client';
@@ -112,103 +110,46 @@ const leseflate = () => document.querySelector('.read-content');
 const TE_SKJEMAKNAPP =
   /^(Send varsel eller krav|Send krav om vederlagsjustering|Send varsel|Registrer varsel)$/;
 
-describe('vederlagskravet fra Kontrollrommet', () => {
-  it('TE sender tilbudet med den låste teksten og uten utdypning når begrunnelsen er tom', async () => {
-    const { send } = await vis('TE');
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+// Det gamle skjemaet tilbyr ikke vederlagskravet til skjemaet etter BF-14 er bygget
+// (arbeidsvalg til økt 3 i #1663), så flyten prøves med varselet etter § 34.1.2.
+describe('varselet om vederlag fra Kontrollrommet', () => {
+  const kravposter = [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 1000 }];
 
-    // Bare tilbud kan sendes; de andre metodene, rigg og drift, vedleggene og utkastet vises
-    // ikke (OV-U1, oppdragsgiver 17.10, #1171). Posten for produktivitetstap er et eget felt
-    // (OV-U23), og varslene er egne valg (#1096, OV-U25).
-    const skjema = within(document.querySelector('.form-content') as HTMLElement);
-    expect(skjema.getByRole('radio', { name: 'Fast sum' })).toHaveAttribute('aria-checked', 'true');
-    expect(skjema.getByLabelText('Produktivitetstap')).toBeInTheDocument();
-    for (const ikke of [/Regningsarbeid/, /Enhetspris/, /Rigg og drift/])
-      expect(skjema.queryByText(ikke)).toBeNull();
-    expect(skjema.queryByText(/vedlegg/i)).toBeNull();
-    expect(skjema.queryByText(/kladd|utkast|autolagret/i)).toBeNull();
-    expect(leseflate()).toBeNull();
-
-    const knapp = screen.getByRole('button', { name: 'Se brev og send' });
-    expect(knapp).toBeDisabled();
-    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '250000' } });
-    await fireEvent.click(knapp);
-
-    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    expect(kontroll.getByRole('heading', { name: 'Vederlag – Ny peling' })).toBeInTheDocument();
-    const laast = kontroll.getByTestId('laast-tekst').textContent ?? '';
-    expect(laast).not.toBe('');
-    expect(kontroll.queryByTestId('utdypning')).toBeNull();
-    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
-    await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
-
-    await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
-    // Etter sendingen er skjemaet lukket, og sporet vises igjen.
-    await waitFor(() => expect(leseflate()).not.toBeNull());
-    expect(document.querySelector('.form-content')).toBeNull();
-    const [sakId, versjon, kommandoId, kommando] = send.mock.calls[0];
-    expect(sakId).toBe(SAK);
-    expect(versjon).toBe(2);
-    expect(kommandoId).toMatch(/^[0-9a-f-]{36}$/);
-    expect(kommando).toEqual({
-      type: 'krav',
-      spor: 'vederlag',
-      innhold: {
-        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250000 }],
-      },
-      brevtekst: expect.any(Array),
-    });
-    expect((kommando.brevtekst as string[]).join('')).toBe(laast);
-  });
-
-  it('desimalkommaet bevares: 100 000,40 sendes som 100 000 kroner og 40 øre (OV-U58, #1285)', async () => {
-    const { send } = await vis('TE');
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    const felt = screen.getByLabelText('Fast sum');
-    const knapp = screen.getByRole('button', { name: 'Se brev og send' });
-
-    // Brøkdeler av øre avvises med en feil ved feltet, og teksten står som TE skrev den.
-    await fireEvent.input(felt, { target: { value: '100 000,405' } });
-    await fireEvent.blur(felt);
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Beløpet kan ha høyst to sifre etter kommaet (øre).'
-    );
-    expect(felt).toHaveValue('100 000,405');
-    expect(felt).toHaveAttribute('aria-invalid', 'true');
-    expect(knapp).toBeDisabled();
-
-    await fireEvent.input(felt, { target: { value: '100 000,40' } });
-    expect(screen.queryByRole('alert')).toBeNull();
-    await fireEvent.click(knapp);
-    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    expect(kontroll.getByTestId('laast-tekst')).toHaveTextContent(/100\s000,40 kr/);
-    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
-    await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
-    await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
-    expect(send.mock.calls[0][3]).toMatchObject({
-      innhold: {
-        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000.4 }],
-      },
-    });
-  });
-
-  it('TEs begrunnelse følger kravet som utdypning (oppdragsgiver 17.10)', async () => {
-    const user = userEvent.setup();
-    const { send } = await vis('TE');
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
-    (document.querySelector('.tiptap') as HTMLElement).focus();
-    await user.keyboard('Tilbudet gjelder ny peling');
+  async function tilBrevet() {
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    expect(kontroll.getByTestId('utdypning')).toHaveTextContent('Tilbudet gjelder ny peling');
     await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
-    await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
-    await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
-    expect(send.mock.calls[0][3]).toMatchObject({ utdypning: 'Tilbudet gjelder ny peling' });
+    return kontroll;
+  }
+
+  it('skjemaet tilbyr varselet og registreringen, men ikke kravet (arbeidsvalg til økt 3 i #1663)', async () => {
+    await vis('TE');
+    expect(screen.queryByRole('button', { name: 'Send varsel eller krav' })).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel' }));
+    const skjema = within(document.querySelector('.form-content') as HTMLElement);
+    expect(skjema.getByRole('radio', { name: 'Varsel' })).toBeChecked();
+    expect(skjema.getByRole('radio', { name: 'Varsel sendt utenfor appen' })).toBeInTheDocument();
+    expect(skjema.queryByRole('radio', { name: 'Spesifisert krav' })).toBeNull();
+    expect(skjema.queryByText('Fast sum')).toBeNull();
+    expect(skjema.queryByLabelText('Produktivitetstap')).toBeNull();
   });
 
-  it('når saken ikke kan lastes på nytt etter sendingen, sier Kontrollrommet at kravet er lagret, og hvorfor saken ikke er oppdatert', async () => {
+  it('når sporet har et vederlagskrav, tilbys ikke en ny versjon fra skjemaet (arbeidsvalg til økt 3 i #1663)', async () => {
+    const rader = medKrav(journal, { type: 'krav', spor: 'vederlag', innhold: { kravposter } });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar('TE', rader),
+    });
+    await kjernesak.last();
+    expect(kjernesak.handlinger).toContain('krav:vederlag');
+    visRom(kjernesak);
+    expect(screen.queryByRole('button', { name: 'Send ny versjon av kravet' })).toBeNull();
+    expect(screen.queryByRole('button', { name: TE_SKJEMAKNAPP })).not.toBeNull();
+  });
+
+  it('når saken ikke kan lastes på nytt etter sendingen, sier Kontrollrommet at brevet er lagret, og hvorfor saken ikke er oppdatert', async () => {
     const send = vi
       .fn()
       .mockResolvedValue({ event_id: 'e-3', leveringsoppdrag: 'l-1', versjon: 3 });
@@ -219,15 +160,12 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     const kjernesak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', hent, send });
     await kjernesak.last();
     visRom(kjernesak);
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
-    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
-    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    const kontroll = await tilBrevet();
     await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
 
     await waitFor(() => expect(leseflate()).not.toBeNull());
     expect(send).toHaveBeenCalledTimes(1);
+    expect(send.mock.calls[0][3]).toMatchObject({ type: 'send_varsel', spor: 'vederlag' });
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Brevet er lagret, men saken kunne ikke lastes på nytt. Catenda svarte ikke.'
     );
@@ -235,13 +173,11 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     expect(screen.getByRole('alert').closest('.mobile-hidden')).toBeNull();
   });
 
-  it('skjemaet står til sendingen er fullført, selv om kjernen ikke lenger tilbyr det første kravet (#737 p4)', async () => {
+  it('skjemaet står til sendingen er fullført, selv om kjernen ikke lenger tilbyr varselet (#737 p4)', async () => {
     const etterSending = medKrav(journal, {
-      type: 'krav',
+      type: 'send_varsel',
       spor: 'vederlag',
-      innhold: {
-        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 1000 }],
-      },
+      hjemmel: '34.1.2',
     });
     const send = vi
       .fn()
@@ -258,20 +194,17 @@ describe('vederlagskravet fra Kontrollrommet', () => {
       if (document.body.textContent?.includes('Dette skjemaet finnes ikke')) uten.push('vist');
     });
     vakt.observe(document.body, { childList: true, subtree: true, characterData: true });
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
-    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
-    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    const kontroll = await tilBrevet();
     await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
 
     await waitFor(() => expect(leseflate()).not.toBeNull());
     vakt.disconnect();
     expect(hent).toHaveBeenCalledTimes(2);
+    expect(kjernesak.handlinger).not.toContain('sende_varsel:vederlag');
     expect(uten).toEqual([]);
   });
 
-  it('skjemaet for vederlagskravet lukkes når visningen bytter til et annet spor i skjemamodus (#737 p4)', async () => {
+  it('skjemaet for vederlag lukkes når visningen bytter til et annet spor i skjemamodus (#737 p4)', async () => {
     const kjernesak = lagKjernesak({
       sakId: SAK,
       prosjektId: 'p-1',
@@ -280,36 +213,16 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     });
     await kjernesak.last();
     const { rerender } = visRom(kjernesak);
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    expect(screen.getByLabelText('Fast sum')).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel' }));
+    const tittel = { name: 'Krav om vederlagsjustering' };
+    expect(screen.getByRole('heading', tittel)).toBeInTheDocument();
 
     await rerender({ view: { track: 'frist', mode: 'form', role: 'TE' } });
-    expect(screen.queryByLabelText('Fast sum')).toBeNull();
-  });
-
-  // Kilde: oppdraget S-2a.1 i #909: en ny versjon sendes som `krav` når kjernen tilbyr `krav:vederlag`.
-  it('når sporet har et vederlagskrav, tilbys en ny versjon i stedet for det første kravet (#909)', async () => {
-    const rader = medKrav(journal, {
-      type: 'krav',
-      spor: 'vederlag',
-      innhold: {
-        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 1000 }],
-      },
-    });
-    const kjernesak = lagKjernesak({
-      sakId: SAK,
-      prosjektId: 'p-1',
-      hent: async () => svar('TE', rader),
-    });
-    await kjernesak.last();
-    expect(kjernesak.handlinger).toContain('krav:vederlag');
-    visRom(kjernesak);
-    expect(screen.queryByRole('button', { name: TE_SKJEMAKNAPP })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Send ny versjon av kravet' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', tittel)).toBeNull();
   });
 
   it.each([['BH'], [null]] as const)(
-    'en leser med siden %s fra serveren får ikke tilbud om vederlagskravet (#705)',
+    'en leser med siden %s fra serveren får ikke tilbud om vederlagsskjemaet (#705)',
     async (part) => {
       await vis(part);
       expect(screen.queryByRole('button', { name: TE_SKJEMAKNAPP })).toBeNull();
@@ -331,28 +244,6 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     expect(screen.queryByText('Entreprenør TE')).toBeNull();
   });
 
-  it('når serveren avviser kravet, står skjemaet med serverens begrunnelse', async () => {
-    const send = vi.fn().mockRejectedValue(new ApiError(400, 'Beløpet er ikke gyldig.'));
-    const kjernesak = lagKjernesak({
-      sakId: SAK,
-      prosjektId: 'p-1',
-      hent: async () => svar('TE'),
-      send,
-    });
-    await kjernesak.last();
-    visRom(kjernesak);
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
-    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
-    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
-    await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
-    expect(document.querySelector('.form-content')).not.toBeNull();
-    expect(leseflate()).toBeNull();
-  });
-
   async function sendMedAvvisning(feil: Error) {
     const kjernesak = lagKjernesak({
       sakId: SAK,
@@ -362,21 +253,26 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     });
     await kjernesak.last();
     const rom = visRom(kjernesak);
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
-    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
-    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    const kontroll = await tilBrevet();
     return { rom, kjernesak, send: kontroll.getByRole('button', { name: 'Send til byggherren' }) };
   }
+
+  it('når serveren avviser varselet, står skjemaet med serverens begrunnelse', async () => {
+    const { send } = await sendMedAvvisning(new ApiError(400, 'Varselet er ikke gyldig.'));
+    await fireEvent.click(send);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Varselet er ikke gyldig.');
+    expect(document.querySelector('.form-content')).not.toBeNull();
+    expect(leseflate()).toBeNull();
+  });
 
   // Kilde: #719 p9. Avbryt fjerner feilen; den står ikke i saksbildet etterpå.
   it('etter Avbryt står ikke feilen fra en avvist sending (#719 p9)', async () => {
     const { send, kjernesak } = await sendMedAvvisning(
-      new ApiError(400, 'Beløpet er ikke gyldig.')
+      new ApiError(400, 'Varselet er ikke gyldig.')
     );
     await fireEvent.click(send);
-    expect(await screen.findByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Varselet er ikke gyldig.');
 
     await fireEvent.click(screen.getByRole('button', { name: 'Avbryt' }));
     expect(leseflate()).not.toBeNull();
@@ -399,26 +295,22 @@ describe('vederlagskravet fra Kontrollrommet', () => {
 
   // Kilde: #872 p4. Skjemaet avmonteres ikke før sendingen er ferdig, og feilen vises.
   it('bytter visningen spor mens brevet kontrolleres, står skjemaet til sendingen er ferdig (#872 p4)', async () => {
-    const { rom, send } = await sendMedAvvisning(new ApiError(400, 'Beløpet er ikke gyldig.'));
+    const { rom, send } = await sendMedAvvisning(new ApiError(400, 'Varselet er ikke gyldig.'));
     await rom.rerender({ view: { track: 'frist', mode: 'read', role: 'TE' } });
     expect(document.querySelector('.form-content')).not.toBeNull();
 
     await fireEvent.click(send);
-    expect(await screen.findByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Varselet er ikke gyldig.');
     await waitFor(() => expect(document.querySelector('.form-content')).toBeNull());
-    expect(screen.getByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Varselet er ikke gyldig.');
   });
 
   it('tilbake fra brevkontrollen går til skjemaet uten å sende, og avkrysningen gjelder ikke neste brev (#729)', async () => {
     const { send } = await vis('TE');
-    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
-    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
-    let kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    let kontroll = await tilBrevet();
     await fireEvent.click(kontroll.getByRole('button', { name: 'Tilbake til skjemaet' }));
     expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
-    expect(screen.getByLabelText('Fast sum')).toHaveValue('1000');
+    expect(screen.getByRole('radio', { name: 'Varsel' })).toBeChecked();
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeEnabled()
     );

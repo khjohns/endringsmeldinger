@@ -1,11 +1,9 @@
 /**
- * Påberopelsen og vederlagskravet fra skjemaene mot dagens TS-server (#667).
- * Kommandoene bygges av `grunnlagskrav` og `vederlagskrav` i klienten, og den
- * låste teksten er den `brevFor` gir, slik skjemaene gjør. Vederlagskravet fra
- * `TeVederlagForm` bygges av `buildEventData` og `vederlagskommandoFraSkjema` (#718). Saken er en prøvesak fra
- * testverktøyet. Kildene til forventningene er formatet i kjernen (bare tilbud i
- * prøven, OV-U1), avgjørelsen om valgfri utdypning (oppdragsgiver 17.10, #667)
- * og LV-U2.
+ * Vederlagskravet med kravposter gjennom skrivestien til TS-serveren (#667, #1663). Kravet
+ * bygges direkte i kjernens format (OV-U95 punkt 19), ikke av det gamle skjemaet, og den
+ * låste teksten er den `brevFor` gir. Saken er en prøvesak fra testverktøyet. Kildene til
+ * forventningene er formatet i kjernen, avgjørelsen om valgfri utdypning (oppdragsgiver
+ * 17.10, #667) og LV-U2.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -21,13 +19,8 @@ import {
   type Oppsett,
 } from '../../server/tester/testbase.ts';
 import { grunnlagskrav } from '../../src/lib/kjernesak/paaberopelse.ts';
-import {
-  vederlagskrav,
-  vederlagskommandoFraSkjema,
-} from '../../src/lib/kjernesak/vederlagskrav.ts';
 import { brevFor, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
 import { somJournal } from '../../src/lib/kjernesak/journal.ts';
-import { buildEventData, getDefaults } from '../../src/lib/domain/vederlagSubmissionDomain.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 
@@ -39,7 +32,17 @@ const PAABEROPELSE = grunnlagskrav({
   utdypning: 'Byggherren har pålagt en annen fundamentering.',
 });
 
-describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren', () => {
+/** Kravet med én kravpost med tilbud, i formatet i kjernen (OV-U95 punkt 19). */
+const vederlagskrav = (beloep: number, utdypning = '') => ({
+  type: 'krav',
+  spor: 'vederlag',
+  innhold: {
+    kravposter: [{ beskrivelse: 'Ny fundamentering', oppgjoersform: 'tilbud', beloep }],
+  },
+  ...(utdypning ? { utdypning } : {}),
+});
+
+describe.skipIf(!TESTBASE_URL)('vederlagskravet med kravposter mot TS-serveren', () => {
   let o: Oppsett;
   let server: KjorendeServer;
 
@@ -112,7 +115,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
     ['uten begrunnelse', ''],
   ])('%s: serveren lagrer tilbudet med teksten TE så (LV-U2)', async (_navn, utdypning) => {
     const sakId = await medPaaberopelse();
-    const kommando = vederlagskrav({ metode: 'FASTPRIS_TILBUD', beloep: 250000, utdypning });
+    const kommando = vederlagskrav(250000, utdypning);
     const { svar, tekst } = await send(sakId, kommando);
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
     expect(svar.kropp.versjon).toBe(3);
@@ -125,56 +128,11 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
     else expect(avsnitt.every((a) => a.utdypning === undefined)).toBe(true);
   });
 
-  it('et beløp som ikke er over null, avvises med UGYLDIG_FORM og ingen brevkontroll', async () => {
+  it('en kravpost med beløp som ikke er over null, avvises med UGYLDIG_FORM og ingen brevkontroll', async () => {
     const sakId = await medPaaberopelse();
-    const { svar, tekst } = await send(
-      sakId,
-      vederlagskrav({ metode: 'FASTPRIS_TILBUD', beloep: 0, utdypning: '' })
-    );
+    const { svar, tekst } = await send(sakId, vederlagskrav(0));
     expect(tekst).toBeNull();
     expect(svar.status).toBe(400);
     expect(svar.kropp.error).toBe('UGYLDIG_FORM');
-  });
-
-  it('regningsarbeid sendt utenom skjemaet avvises med UGYLDIG_FORM (OV-U1)', async () => {
-    const sakId = await medPaaberopelse();
-    const { svar } = await send(sakId, {
-      type: 'krav',
-      spor: 'vederlag',
-      innhold: { metode: 'regningsarbeid', beloep: 250000 },
-    });
-    expect(svar.status).toBe(400);
-    expect(svar.kropp.error).toBe('UGYLDIG_FORM');
-  });
-
-  it('kravet TeVederlagForm lager, lagres med teksten TE så og begrunnelsen som utdypning', async () => {
-    const sakId = await medPaaberopelse();
-    // Dataene skjemaet bygger for en TS-sak: bare tilbud, uten særskilte krav og vedlegg.
-    const data = {
-      ...buildEventData(
-        {
-          ...getDefaults({ scenario: 'new' }),
-          metode: 'FASTPRIS_TILBUD',
-          belopDirekte: 250000,
-          begrunnelse: '<p>Tilbudet gjelder <strong>ny</strong> fundamentering.</p>',
-        },
-        { scenario: 'new', grunnlagEventId: 'fra-tidslinjen' }
-      ),
-      vedlegg_ids: [],
-    };
-    const kommando = vederlagskommandoFraSkjema(data);
-    expect(kommando).toEqual({
-      type: 'krav',
-      spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 250000 },
-      utdypning: 'Tilbudet gjelder ny fundamentering.',
-    });
-
-    const { svar, tekst } = await send(sakId, kommando);
-    expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
-    const lagret = (await hent(sakId)).journal.at(-1)!;
-    const avsnitt = lagret.data.brevtekst as { laast: string; utdypning?: string }[];
-    expect(avsnitt.map((a) => a.laast)).toEqual(tekst);
-    expect(avsnitt[0].utdypning).toBe('Tilbudet gjelder ny fundamentering.');
   });
 });

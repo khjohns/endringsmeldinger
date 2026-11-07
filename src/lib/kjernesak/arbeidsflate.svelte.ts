@@ -11,7 +11,7 @@ import type { TrackDisplay } from '$lib/components/kontraktsbord/derive';
 import type { SakState, TimelineEvent } from '$lib/types/timeline';
 import { getPartsNavn } from '$lib/utils/partsNavn';
 import type { Utledning } from '$kjerne/utledning/utled';
-import type { Kravspor } from '$kjerne/typer';
+import type { Kravspor, Spor } from '$kjerne/typer';
 import type { Kjernesakkontekst } from './kontekst.svelte';
 import {
   SPOR_FOR,
@@ -52,6 +52,9 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
   // varselet i sporet (OV-U25).
   const tilbyrVarsel = (type: 'sende_varsel' | 'varsle', spor: Kravspor) =>
     tilbyrTe(`${type}:${spor}`) || (spor === 'vederlag' && tilbyrTe(`${type}:34.1.3`));
+  // Vederlagskravet har kravposter (OV-U95 punkt 19), og det gamle skjemaet tilbyr ikke kravet
+  // før skjemaet etter BF-14 er bygget (arbeidsvalg til økt 3 i #1663).
+  const kravFraSkjema = (spor: Spor) => spor !== 'vederlag' && tilbyrTe(`krav:${spor}`);
   const bhNavn = getPartsNavn('BH');
   // Etter en ny lasting som feiler, står saken slik den sist ble lest.
   let forrige: Projeksjon | null = null;
@@ -114,7 +117,7 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     teValg(spor: Kravspor): Kravvalg[] {
       return [
         ...(tilbyrVarsel('sende_varsel', spor) ? (['varsel'] as const) : []),
-        ...(tilbyrTe(`krav:${spor}`) ? (['spesifisert'] as const) : []),
+        ...(kravFraSkjema(spor) ? (['spesifisert'] as const) : []),
         ...(tilbyrVarsel('varsle', spor) ? (['registrert'] as const) : []),
       ];
     },
@@ -135,7 +138,7 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
      */
     teSkjema(nokkel: SporKey): string | null {
       const spor = SPOR_FOR[nokkel];
-      const krav = tilbyrTe(`krav:${spor}`);
+      const krav = kravFraSkjema(spor);
       const varsel =
         spor !== 'forhold' && (tilbyrVarsel('sende_varsel', spor) || tilbyrVarsel('varsle', spor));
       if (!krav && !varsel) return null;
