@@ -196,9 +196,10 @@ ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
   slås opp ved visning, og et oppslag som feiler, skal falle tilbake til
   identiteten og aldri velte tidslinjen eller brevet. En hendelse er
   append-only, så en andre verdiform kan aldri rettes igjen.
-  Unntatt er navnene i hodet og underskriften til et brev, som fryses med
-  brevet i journalen ([LV-U64](docs/plans/vedtak.md#lv-u64)). Aktørfeltet på
-  hendelsen er fortsatt `aktor_id`, og resten av invarianten står.
+  Unntatt er navnene i brevhodet, som fryses med brevet i journalen
+  ([LV-U64](docs/plans/vedtak.md#lv-u64)). Navnene i underskriften får et eget
+  vedtak. `aktor_id` er fortsatt den eneste formen for aktørens identitet på
+  hendelsen, og resten av invarianten står.
 - **Interne notater og utkast er fail-closed.** Uten entydig team finnes det ikke noe
   å lese eller skrive. Et notat uten `aktor_team_id` vises til ingen, heller ikke
   forfatteren. Notatet ligger i `notat`, ikke i journalen (MS-05): det er ikke
