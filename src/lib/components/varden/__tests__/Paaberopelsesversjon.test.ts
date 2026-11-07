@@ -193,6 +193,8 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(teksten()).toBe(document.activeElement);
     expect(teksten().getAttribute('aria-invalid')).toBe('true');
     expect(teksten()).toHaveAccessibleDescription('Skriv en begrunnelse for å gå videre.');
+    // Beskjeden står rett under feltet (oppdragsgiver 07.11, PR 1650).
+    expect(teksten().nextElementSibling?.textContent).toBe('Skriv en begrunnelse for å gå videre.');
 
     await fireEvent.input(teksten(), { target: { value: 'Vi fastholder kravet.' } });
     expect(teksten().getAttribute('aria-invalid')).toBeNull();

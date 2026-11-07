@@ -269,14 +269,16 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   vinduet. Ellers ruller den under panelet (oppdragsgiver 02.11, #1492).
 - **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (oppdragsgiver
   06.11, PR 1650):
-  - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen (`Utkastrad`):
+  - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen, unntatt på 640 px
+    og smalere, der den ligger fast (oppdragsgiver 07.11, PR 1650) (`Utkastrad`):
     «Tilbake til forholdet», skilt fra resten med en linje, siden sakslisten er felt inn, «Utkast»
     med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
     «Forhåndsvis brevet» ytterst til høyre, så handlingen står ved brevet den gjelder. Det gule er
     raden, ikke utkastet. Raden står øverst, der «Tilbake til utkastet» står i brevkontrollen.
   - Utkastet står til venstre (`Brevutkast`, om lag 60 prosent): et hvitt kort med emnet,
     «Begrunnelse», som kreves og vokser med teksten, og «Forkast utkast» nederst under en linje
-    (`Forkastutkast`).
+    (`Forkastutkast`). Mangler begrunnelsen, står beskjeden rett under feltet, uten lista øverst,
+    siden feltet er alene (oppdragsgiver 07.11, PR 1650).
   - Brevene TE bygger på, står til høyre (om lag 40 prosent) og begynner på samme høyde som
     utkastet: «Tidligere brev om forholdet» som kompakt brevvalg med parten i en ring og ett brev
     åpent om gangen (svaret fra start), med brevhodet og tittelen ett hakk ned. Et langt brev

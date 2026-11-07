@@ -4,8 +4,8 @@
   egen overskrift over arbeidet (oppdragsgiver 29.10, #1391). Hovedkolonnen er høyst like
   bred som brevet, og kolonnene står midtstilt (oppdragsgiver 30.10). Mens et brev leses ved
   siden av, er kolonnene like brede, eller 60/40 når utkastet er arbeidet og brevene i høyre
-  kolonne støtter det (BF-10). En arbeidsrad over begge kolonnene følger rullingen. På 1180 px og
-  smalere legger høyre kolonne seg under arbeidet.
+  kolonne støtter det (BF-10). En arbeidsrad over begge kolonnene følger rullingen, unntatt på 640 px og
+  smalere. På 1180 px og smalere legger høyre kolonne seg under arbeidet.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -91,6 +91,13 @@
     flex-direction: column;
     gap: var(--spacing-4);
     min-width: 0;
+  }
+  /* På smal skjerm ville raden dekket nesten en tredjedel av skjermen, så den ligger fast
+     (oppdragsgiver 07.11, PR 1650). */
+  @media (max-width: 640px) {
+    .rad {
+      position: static;
+    }
   }
   @media (max-width: 1180px) {
     .flate,

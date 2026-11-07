@@ -76,7 +76,7 @@
   const kommando = $derived(nyVersjonAvPaaberopelsen(u, tekst ?? ''));
   let hindring = $state<string | null>(null);
 
-  // Begrunnelsen kreves; beskjeden står ved feltet etter et forsøk (oppdragsgiver 07.11, MM-U32).
+  // Begrunnelsen kreves; beskjeden står under feltet etter et forsøk (oppdragsgiver 07.11, MM-U32).
   let provd = $state(false);
   const mangler = $derived(provd && !(tekst ?? '').trim());
 
@@ -179,10 +179,7 @@
         <Forkastutkast tekst={NYVERSJON.forkastTekst} {onforkast} />
       {/snippet}
       <div class="felt">
-        <div class="etikett">
-          <label for={id('tekst')}>{NYVERSJON.tekst}</label>
-          {#if mangler}<p class="mangler" id={id('mangler')}>{NYVERSJON.manglerTekst}</p>{/if}
-        </div>
+        <label for={id('tekst')}>{NYVERSJON.tekst}</label>
         <textarea
           id={id('tekst')}
           rows="3"
@@ -192,6 +189,7 @@
           bind:value={tekst}
           bind:this={felt}
         ></textarea>
+        {#if mangler}<p class="mangler" id={id('mangler')}>{NYVERSJON.manglerTekst}</p>{/if}
       </div>
     </Brevutkast>
   {/snippet}
@@ -259,13 +257,6 @@
   .felt {
     display: grid;
     gap: var(--spacing-2);
-  }
-  .etikett {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0 var(--spacing-3);
   }
   .mangler {
     font-size: 14px;
