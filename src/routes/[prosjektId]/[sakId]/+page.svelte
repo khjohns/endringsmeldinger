@@ -44,6 +44,7 @@
     saksliste={resolve('/[prosjektId]', { prosjektId })}
     prosjekter={resolve('/')}
     dagensVisning={resolve('/[prosjektId]/[sakId]/kjerne', { prosjektId, sakId })}
+    nySakLenke={resolve('/[prosjektId]/ny', { prosjektId })}
     bruker={page.data.user}
   />
 {/key}

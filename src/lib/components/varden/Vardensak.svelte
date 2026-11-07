@@ -16,6 +16,7 @@
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import Korrigering from './Korrigering.svelte';
+  import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
   import { tomtSvar, type Korrigeringsvalg } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
   import { brevene, datoopplysningene, forholdetISaken, type Brevref } from './lesing';
@@ -23,6 +24,7 @@
     BREVKONTROLL,
     KORRIGERING,
     MOTTATT,
+    NYVERSJON,
     NYSAK,
     SAKEN,
     SPORNAVN,
@@ -40,6 +42,7 @@
     nySak,
     spor,
     dagensVisning,
+    nySakLenke,
   }: {
     kjernesak: Kjernesakkontekst;
     /** Sporet saken åpner i. Uten det står saken i vederlaget, eller i forholdet etter opprettelsen. */
@@ -56,6 +59,8 @@
     nySak?: Snippet;
     /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
     dagensVisning?: string;
+    /** Lenken til skjemaet for ny sak, for en annen hjemmel eller endringsordre (BF-10 U-2). */
+    nySakLenke?: string;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
     kontrakt?: Kontrakt;
   } = $props();
@@ -76,10 +81,13 @@
     deresRef: string[];
     tittel: string | null;
     handling: string;
+    /** Bare mottakeren i faktaene, for den nye versjonen (oppdragsgiver 07.11, PR 1650). */
+    bareMottaker?: boolean;
     sendTekst: string;
     tilbakeTil: string;
     svarerPaa: Brevref | null;
     henvisning?: string;
+    relasjoner?: { hva: string; brev: string }[];
     /** Kvitteringen etter sendingen, ellers den generelle. */
     kvittering?: string;
     tilbake: Arbeid;
@@ -90,6 +98,7 @@
     | { art: 'les' }
     | { art: 'svar' }
     | { art: 'korrigering'; gjelder: string }
+    | { art: 'nyversjon' }
     | ({ art: 'kontroll' } & Kontroll);
 
   const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
@@ -102,6 +111,8 @@
   let svarvalg = $state(tomtSvar());
   // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
   let korrigeringsvalg = $state<Korrigeringsvalg>({ dato: '', forklaring: '' });
+  // Teksten i den nye versjonen står mens TE korrigerer datoen (U-2 i BF-10).
+  let nyVersjonstekst = $state<string | null>(null);
   // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
   // omtrent like bredt som ellers (oppdragsgiver 30.10, #1391).
   let vedSiden = $state(false);
@@ -156,7 +167,9 @@
       utkastAapent = false;
     }
     const kvittering = arbeid.art === 'kontroll' ? arbeid.kvittering : undefined;
-    if (kvittering) korrigeringsvalg = { dato: '', forklaring: '' };
+    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'korrigering')
+      korrigeringsvalg = { dato: '', forklaring: '' };
+    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'nyversjon') nyVersjonstekst = null;
     arbeid = { art: 'les' };
     melding = { tekst: kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
   }
@@ -186,6 +199,23 @@
       deresRef: b.deresRef,
       tittel: b.brevtittel,
     };
+  }
+
+  /**
+   * Skjemaet for korrigeringen vises når kjernen tilbyr den og opplysningen står i et brev i saken
+   * (#1647).
+   */
+  const kanKorrigere = (gjelder: string) =>
+    kjernesak.handlinger.includes(`korrigere:${gjelder}`) &&
+    !!u &&
+    datoopplysningene(u).some((o) => o.id === gjelder);
+
+  async function forkastNyVersjon() {
+    nyVersjonstekst = null;
+    arbeid = { art: 'les' };
+    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    await tick();
+    meldingen?.focus();
   }
 
   async function forkast() {
@@ -297,8 +327,10 @@
           deresRef={k.deresRef}
           tittel={k.tittel}
           handling={k.handling}
+          bareMottaker={k.bareMottaker}
           svarerPaa={k.svarerPaa}
           henvisning={k.henvisning}
+          relasjoner={k.relasjoner}
           detteSender={k.detteSender}
           virkninger={k.virkninger}
           sendTekst={k.sendTekst}
@@ -307,7 +339,7 @@
           onsendt={sendt}
           onavvist={() => byggPaaNytt(k)}
         />
-      {:else if arbeid.art === 'korrigering' && kjernesak.handlinger.includes(`korrigere:${arbeid.gjelder}`)}
+      {:else if arbeid.art === 'korrigering' && kanKorrigere(arbeid.gjelder)}
         {@const gjelder = arbeid.gjelder}
         <Korrigering
           {kjernesak}
@@ -332,6 +364,40 @@
                 !!u.spor.forhold.gjeldendeSvar
               ),
               tilbake: { art: 'korrigering', gjelder },
+              erUtkastet: false,
+            };
+          }}
+        />
+      {:else if arbeid.art === 'nyversjon' && valgt === 'forhold' && kjernesak.handlinger.includes('krav:forhold') && u.spor.forhold.gjeldendeKrav}
+        <Paaberopelsesversjon
+          {kjernesak}
+          {u}
+          bind:tekst={nyVersjonstekst}
+          onforkast={forkastNyVersjon}
+          ontilbake={() => velgSpor('forhold')}
+          onvedsiden={(v) => (vedSiden = v)}
+          onbrevkontroll={(k) => {
+            const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
+            const kravet = brev.find((b) => b.id === u.spor.forhold.gjeldendeKrav?.dokument);
+            arbeid = {
+              art: 'kontroll',
+              ...k,
+              handling: NYVERSJON.kontroller,
+              bareMottaker: true,
+              sendTekst: NYVERSJON.sendTekst,
+              tilbakeTil: NYVERSJON.tilbakeTil,
+              svarerPaa: svaret ?? null,
+              henvisning: BREVKONTROLL.viserTil,
+              relasjoner: [
+                ...(kravet
+                  ? [{ hva: NYVERSJON.forrigeBrev, brev: NYVERSJON.forrigeBrevet(kravet) }]
+                  : []),
+                ...(svaret
+                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
+                  : []),
+              ],
+              kvittering: NYVERSJON.kvittering,
+              tilbake: { art: 'nyversjon' },
               erUtkastet: false,
             };
           }}
@@ -364,6 +430,9 @@
             {u}
             spor={valgt}
             {dagensVisning}
+            nySak={valgt === 'forhold' && kjernesak.handlinger.includes('krav:forhold')
+              ? nySakLenke
+              : undefined}
             onspor={velgSpor}
             onkorriger={(gjelder) => {
               melding = null;
@@ -375,6 +444,7 @@
                 utkastAapent = true;
                 arbeid = { art: 'svar' };
               }
+              if (n === 'krav:forhold') arbeid = { art: 'nyversjon' };
             }}
             onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);

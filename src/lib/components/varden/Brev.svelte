@@ -21,6 +21,8 @@
     sendt,
     fot,
     innfelt = false,
+    hode = true,
+    dempet = false,
   }: {
     avsender: Part;
     sak: string;
@@ -39,6 +41,13 @@
     fot?: Snippet;
     /** Brevet står i en ramme som har kanten, som ved lesing ved siden av. */
     innfelt?: boolean;
+    /**
+     * Partene og referansene øverst. Uten dem står bare tittelen og teksten, der raden over
+     * brevet allerede sier hvem som sendte det og når (lesepanelet i BF-10).
+     */
+    hode?: boolean;
+    /** Tittelen ett hakk ned, når brevet leses ved siden av et utkast og raden over navngir det. */
+    dempet?: boolean;
   } = $props();
 
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
@@ -47,39 +56,42 @@
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 </script>
 
-<article class="brev" class:innfelt class:bh={avsender === 'BH'} aria-label={tittel}>
-  <header class="hode">
-    <div class="topp">
-      <p class="avsender">
-        <b>{organisasjoner[avsender] ?? stor(PARTNAVN[avsender])}</b>
-        {#if organisasjoner[avsender]}<span>{stor(PARTNAVN[avsender])}</span>{/if}
+<article class="brev" class:innfelt class:dempet class:bh={avsender === 'BH'} aria-label={tittel}>
+  {#if hode}<header class="hode">
+      <div class="topp">
+        <p class="avsender">
+          <b>{organisasjoner[avsender] ?? stor(PARTNAVN[avsender])}</b>
+          {#if organisasjoner[avsender]}<span>{stor(PARTNAVN[avsender])}</span>{/if}
+        </p>
+        {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span
+          >{/if}
+      </div>
+      <p class="mottaker">
+        {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(
+          PARTNAVN[mottaker]
+        )}
       </p>
-      {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span>{/if}
-    </div>
-    <p class="mottaker">
-      {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(PARTNAVN[mottaker])}
-    </p>
-    <dl class="ref">
-      <div>
-        <dt>Sak:</dt>
-        <dd>{sak}</dd>
-      </div>
-      {#if deresRef.length}<div>
-          <dt>Deres ref.:</dt>
-          <dd data-testid="deres-ref">
-            {#each deresRef as kode, i (i)}{#if i}<br />{/if}{kode}{/each}
-          </dd>
-        </div>{/if}
-      {#if merking !== null}<div>
-          <dt>Vår ref.:</dt>
-          <dd data-testid="vaar-ref">{merking}</dd>
-        </div>{/if}
-      <div>
-        <dt>Dato:</dt>
-        <dd>{dato}</dd>
-      </div>
-    </dl>
-  </header>
+      <dl class="ref">
+        <div>
+          <dt>Sak:</dt>
+          <dd>{sak}</dd>
+        </div>
+        {#if deresRef.length}<div>
+            <dt>Deres ref.:</dt>
+            <dd data-testid="deres-ref">
+              {#each deresRef as kode, i (i)}{#if i}<br />{/if}{kode}{/each}
+            </dd>
+          </div>{/if}
+        {#if merking !== null}<div>
+            <dt>Vår ref.:</dt>
+            <dd data-testid="vaar-ref">{merking}</dd>
+          </div>{/if}
+        <div>
+          <dt>Dato:</dt>
+          <dd>{dato}</dd>
+        </div>
+      </dl>
+    </header>{/if}
   <h2>{tittel}</h2>
   <div class="tekst" data-testid="laast-tekst">
     {#each avsnitt as a, i (i)}
@@ -167,6 +179,10 @@
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: var(--spacing-4);
+  }
+  .dempet h2 {
+    font-size: 16px;
+    margin-bottom: var(--spacing-3);
   }
   .tekst p {
     white-space: pre-line;

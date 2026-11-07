@@ -12,6 +12,7 @@
   let {
     id,
     tittel = null,
+    undertittel = null,
     mottaker,
     nivaa = 2,
     novalidate = false,
@@ -23,6 +24,8 @@
     id: string;
     /** Brevhodet eller skjemaets navn etter merket, `null` før kjernen har laget brevet. */
     tittel?: string | null;
+    /** Hva brevet er, når tittelen er handlingen, som «Ny versjon av påberopelsen i brev 1». */
+    undertittel?: string | null;
     /** «Til byggherren (BH)» eller «Til totalentreprenøren (TE)». */
     mottaker: string;
     /** Overskriftsnivået: 1 når skjemaet er det eneste på siden. */
@@ -51,6 +54,7 @@
       </svelte:element>
       {@render infotips?.()}
     </div>
+    {#if undertittel}<p class="undertittel">{undertittel}</p>{/if}
     <p class="dempet">{mottaker}</p>
     <p class="dempet synlig"><Lock size={14} aria-hidden="true" />{SKJEMA.synlig}</p>
   </header>
@@ -94,6 +98,11 @@
     background: var(--surface);
     font-size: 12px;
     font-weight: 500;
+  }
+  .undertittel {
+    margin-bottom: var(--spacing-1);
+    color: var(--ink);
+    font-size: 16px;
   }
   .synlig {
     display: flex;

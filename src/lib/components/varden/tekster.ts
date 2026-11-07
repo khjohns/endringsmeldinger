@@ -249,17 +249,17 @@ export const HOVEDLINJER = {
 
 export const BREVKONTROLL = {
   utkast: 'Utkast · ikke sendt',
-  omBrevet: 'Om brevet',
-  laast:
-    'Teksten lages fra valgene og kan ikke endres her. Brevnummer, dato og klokkeslett settes når brevet sendes. Et sendt brev kan ikke endres, bare følges av et nytt brev.',
   tilbake: (hva: string) => `Tilbake til ${hva}`,
   fra: 'Fra',
   til: 'Til',
+  mottaker: 'Mottaker',
   svarerPaa: 'Svarer på',
   viserTil: 'Viser til',
   svarerPaaBrev: (b: Brevref) => brevrefStor(b),
   datoSettes: 'Settes ved sending',
   detteSender: 'Dette sender du',
+  /** Virkningen av sendingen, adskilt fra innholdet (oppdragsgiver 06.11, PR 1650). */
+  naarDuSender: 'Når du sender',
   akseptOmfatter: 'Godtar TE svaret, omfatter aksepten hele svaret, også at varselet kom for sent.',
   kontrollert: 'Jeg har kontrollert brevet',
   hvorforIkke: 'Kryss av for at du har kontrollert brevet, så kan du sende.',
@@ -290,7 +290,6 @@ export const BREVTYPER: { type: string; tekst: string }[] = [
   { type: 'krav', tekst: 'Send ny versjon av kravet' },
   { type: 'sende_varsel', tekst: 'Send varsel' },
   { type: 'varsle', tekst: 'Registrer et varsel som er sendt på annen måte' },
-  { type: 'innsigelse', tekst: 'Gjør gjeldende at brevet kom for sent' },
   { type: 'trekke', tekst: 'Trekk kravet' },
   // Står ved datoen, ikke i «Andre handlinger» (skissen i BF-02A, #1615).
   { type: 'korrigere', tekst: 'Korriger datoen' },
@@ -301,17 +300,6 @@ export const ukjentHandling = (noekkel: string) => `Handlingen ${noekkel}`;
 const VARSEL_I_SPORET: Record<string, string> = { vederlag: '34.1.2', frist: '33.4' };
 export const varselet = (type: string, hva: string) =>
   `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer et varsel som er sendt på annen måte'} etter punkt ${VARSEL_I_SPORET[hva] ?? hva}`;
-
-/**
- * Innsigelsen etter § 5 tredje ledd med det den gjelder: et krav, et svar eller et varsel. Med
- * egne ord og uten henvisningen, som handlingene ellers (oppdragsgiver 06.11, #1631).
- */
-const MAAL: Record<string, string> = { krav: 'kravet', svar: 'svaret', varsel: 'varselet' };
-export const innsigelsen = (art: string, nummer: number | null) =>
-  `Gjør gjeldende at ${MAAL[art] ?? 'brevet'}${nummer ? ` i brev ${nummer}` : ''} kom for sent`;
-/** Linja under innsigelsen: fristen i § 5 tredje ledd med egne ord, som i dagens visning. */
-export const innsigelsensVirkning = (art: string) =>
-  `Sendes uten ugrunnet opphold. Ellers regnes ${MAAL[art] ?? 'brevet'} som gitt i tide.`;
 
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
 export const HANDLINGENE = {
@@ -340,16 +328,18 @@ export const HANDLINGENE = {
             : 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.',
     reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
     /**
-     * En ny kravversjon erstatter den tidligere, og sporet venter på nytt svar. Svaret på den
+     * En ny kravversjon er den byggherren svarer på, og sporet venter på nytt svar. Teksten sier
+     * hvilket brev det nye følger opp, ikke hva brevene sier i forhold til hverandre, og «brev»,
+     * ikke «versjon» (språkfila, «Brev, ikke versjon»). Svaret på den
      * tidligere versjonen kan da ikke godtas i løsningen, og løsningen sier ikke at det er
      * avslått (MM-U34 punkt 1 og 2).
      */
     nyVersjon: (spor: Spor, krav: Brevref | null, svar: Brevref | null) => {
       const hva = spor === 'forhold' ? 'påberopelsen' : 'kravet';
-      if (!krav) return 'Byggherren svarer på den nye versjonen.';
+      if (!krav) return 'Byggherren svarer på det nye brevet.';
       if (!svar)
-        return `Erstatter ${hva} i ${brevref(krav)}. Byggherren svarer på den nye versjonen.`;
-      return `Erstatter ${hva} i ${brevref(krav)}. Svaret i ${brevref(svar)} kan da ikke godtas her, og byggherren svarer på nytt.`;
+        return `Følger opp ${hva} i ${brevref(krav)}. Byggherren svarer på det nye brevet.`;
+      return `Følger opp ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på det nye brevet.`;
     },
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
@@ -460,9 +450,22 @@ export const FORHOLDET = {
   blirSubsidiaert: (b: Brevref) =>
     `Et svar blir subsidiært så lenge byggherren står fast på ${brevref(b)}.`,
   trekk: 'Trekk påberopelsen',
-  nyVersjon: 'Send ny versjon av påberopelsen',
-  /** Den nye versjonen etter byggherrens svar (oppdragsgiver 06.11, #1631). */
+  /**
+   * Den nye versjonen av påberopelsen, før og etter byggherrens svar (oppdragsgiver 06.11, #1631,
+   * og 07.11, PR 1650).
+   */
   oppdater: 'Oppdater påberopelse',
+  /** Hvor saken står, under tittelen på oversikten (oppdragsgiver 06.11, PR 1650). */
+  utfall: (resultat: string, d: string) =>
+    `Byggherren ${{ godkjent: 'godtok forholdet', avslaatt: 'avslo forholdet', paalegg_frafalt: 'frafalt pålegget' }[resultat] ?? 'svarte'} ${dato(d)}.`,
+  venter: (d: string) => `Sendt til byggherren ${dato(d)}. Svar ikke registrert.`,
+  /** BF-10 U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
+  annen: 'Annen hjemmel eller endringsordre?',
+  annenLenke: 'Opprett ny sak',
+  nyFane: '(åpnes i ny fane)',
+  /** BHs primærhandling i forholdet (oppdragsgiver 06.11, #1649). */
+  svar: 'Svar på påberopelsen',
+  svarNyVersjon: 'Svar på det nye brevet',
   handlinger: 'Det du kan gjøre nå',
   beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,
   begrunnelsen: 'Begrunnelsen',
@@ -553,6 +556,56 @@ export const KORRIGERING = {
     `Korrigeringen er sendt til byggherren. ${dato(d)} er nå din siste opplysning om når ${DATOEN[hva]}. ${lukket ? 'Saken står lukket, og utfallet er det samme.' : harSvar ? 'Påberopelsen og svaret står som de ble sendt.' : 'Påberopelsen står som den ble sendt.'}`,
 };
 
+/**
+ * Skjemaet for TEs nye versjon av påberopelsen (BF-10).
+ */
+export const NYVERSJON = {
+  /**
+   * Brevet som skrives, i arbeidsraden (oppdragsgiver 07.11, PR 1650). Nummeret er det neste i
+   * saken; forhåndsvisningen viser det brevet får.
+   */
+  radtittel: (nummer: number) => `Brev ${nummer} · Oppdatert påberopelse`,
+  til: 'Til byggherren (BH)',
+  tekst: 'Begrunnelse',
+  /** Begrunnelsen kreves (oppdragsgiver 07.11, PR 1650). Knappen er aktiv (MM-U32). */
+  manglerTekst: 'Skriv en begrunnelse for å gå videre.',
+  forhaandsvis: 'Forhåndsvis brevet',
+  /** Brevene TE bygger på, til høyre for utkastet. Ett er åpent om gangen. */
+  tidligere: 'Tidligere brev om forholdet',
+  brevrad: (b: Brevref & { avsender: Part }) =>
+    `${brevrefStor(b)} · ${
+      b.art === 'svar'
+        ? `${stor(PARTNAVN[b.avsender])}s svar`
+        : b.art === 'krav'
+          ? `${stor(PARTNAVN[b.avsender])}s påberopelse`
+          : stor(brevref(b))
+    }`,
+  utenTekst: 'Teksten i dette brevet står ikke her. Åpne det fra oversikten.',
+  /**
+   * Brevrelasjonene i brevkontrollen: rekkefølgen og henvisningen, ikke hva brevene sier i forhold
+   * til hverandre, og uten eier på TEs eget brev (oppdragsgiver 07.11, PR 1650; språkfila).
+   */
+  forrigeBrev: 'Forrige brev',
+  forrigeBrevet: (krav: Brevref) => `Påberopelsen i ${brevref(krav)}`,
+  viserTilBrev: (svar: Brevref) => `Byggherrens svar i ${brevref(svar)}`,
+  /** D-6 og 10d: en registrert enighet står (KA-U52 punkt 5). */
+  enighet: (svar: Brevref) =>
+    `Du godtok svaret i ${brevref(svar)}. Enigheten står, og det nye brevet avviker fra den.`,
+  forkastTekst: 'Begrunnelsen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
+  /** Overskriften i sendepanelet (oppdragsgiver 07.11, PR 1650). */
+  kontroller: 'Kontroller og send',
+  sendTekst: 'Send til byggherren',
+  tilbakeTil: 'utkastet',
+  kanIkkeLages: 'Brevet kan ikke lages ennå.',
+  kvittering: 'Brevet er sendt til byggherren.',
+};
+
+/** Utkastet som brev under arbeid (`Brevutkast.svelte`). */
+export const BREVUTKAST = {
+  utkast: 'Utkast',
+  forkastSpoersmaal: 'Forkaste utkastet?',
+};
+
 export const SAKEN = {
   nav: 'Saken',
   kontraktsforhold: 'Kontraktsforhold',
@@ -604,6 +657,8 @@ export const NYSAK = {
   sakstittelHjelp: 'Står i sakslisten og i brevet.',
   beskrivelseHjelp: 'Hva som skjedde, når og hvordan, og hvorfor du mener det er en endring.',
   endringsordre: 'Endringsordrens nummer eller dato',
+  /** MM-U52 punkt 14: endringsordren står fast, som forholdet. */
+  endringsordreHjelp: 'Står fast når brevet er sendt.',
   vedlegg: 'Vedlegg (valgfritt)',
   vedleggHjelp:
     'For eksempel pålegget selv, en tegning eller et referat. Hver fil kan være opptil 15 MB.',
