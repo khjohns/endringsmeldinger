@@ -10,7 +10,12 @@ import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
-import { regnUtSvar, vederlagsposter, type Svarvurdering } from '../frosset/standpunkt.ts';
+import {
+  kravposterI,
+  regnUtSvar,
+  vederlagsposter,
+  type Svarvurdering,
+} from '../frosset/standpunkt.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
@@ -189,7 +194,23 @@ const INNHOLD = {
       ...(dato ? { [dato]: '2026-09-15' } : {}),
     };
   },
-  vederlag: (h: Handling) => ({ metode: 'tilbud', beloep: h.belop }),
+  // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, svar 6 A).
+  vederlag: (h: Handling, u?: Utledning, nyId?: () => string) => {
+    const forrige = u?.spor.vederlag.gjeldendeKrav;
+    const p1 = forrige ? kravposterI(forrige)[0] : undefined;
+    const id = p1?.id ?? nyId?.();
+    return {
+      kravposter: [
+        {
+          ...(id ? { id } : {}),
+          ...(nyId ? { betegnelse: p1?.betegnelse ?? 'P1' } : {}),
+          beskrivelse: 'Kravposten i bevis-saken',
+          oppgjoersform: 'tilbud',
+          beloep: h.belop,
+        },
+      ],
+    };
+  },
   frist: (h: Handling) => ({ dager: h.dager }),
 };
 
@@ -214,7 +235,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       return {
         type: 'krav',
         spor,
-        innhold: INNHOLD[spor](h),
+        innhold: INNHOLD[spor](h, u),
         ...(typeof h.varsel_sendt === 'string' ? { varsel: varselIKravet(h.varsel_sendt, u) } : {}),
         ...(spor === 'vederlag' ? {} : utdypning(h)),
       };
@@ -371,7 +392,20 @@ export function radFor(
       spor,
       dokument: gjelder,
       erstatter: null,
-      innhold: spor === 'vederlag' ? { beloep: 100000 } : { dager: 20 },
+      innhold:
+        spor === 'vederlag'
+          ? {
+              kravposter: [
+                {
+                  id: 'p1',
+                  betegnelse: 'P1',
+                  beskrivelse: 'P1',
+                  oppgjoersform: 'tilbud',
+                  beloep: 100000,
+                },
+              ],
+            }
+          : { dager: 20 },
     };
     const v = vurderinger(spor, s, krav);
     const standpunkter: Record<string, unknown>[] = [];
@@ -432,7 +466,7 @@ export function radFor(
       id: navn.ta(k.navn),
       spor,
       ...(forrige ? { erstatter: forrige.id } : {}),
-      ...INNHOLD[spor](k),
+      ...INNHOLD[spor](k, u, () => navn.nyId()),
     };
   };
   // #449: avklaringen og utsagnet har dokumentets etikett i `navn`.

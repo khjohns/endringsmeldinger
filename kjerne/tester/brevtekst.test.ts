@@ -27,7 +27,13 @@ import {
   norskDato,
 } from '../frosset/brevtekst.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
-import { kroner, lagFraForholdet, postlisten, regnUtSvar } from '../frosset/standpunkt.ts';
+import {
+  kravposterI,
+  kroner,
+  lagFraForholdet,
+  postlisten,
+  regnUtSvar,
+} from '../frosset/standpunkt.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';
@@ -117,8 +123,25 @@ function sak(sakstittel = TITTEL, sakskode?: Sakskode, forkortelse: string | nul
       nyId: randomUUID,
     };
   };
+  /**
+   * Som skjemaet i klienten: en kravpost med betegnelsen til en kravpost i den gjeldende
+   * kravversjonen får dens `id`, og ellers er den ny og sendes uten betegnelse (svar 6 A, #1673).
+   */
+  const medIder = (kommando: Data): Data => {
+    const innhold = kommando.innhold as Data | undefined;
+    if (kommando.type !== 'krav' || kommando.spor !== 'vederlag' || !innhold?.kravposter)
+      return structuredClone(kommando);
+    const forrige = utledJournal(journal, KJERNE).spor.vederlag.gjeldendeKrav;
+    const ider = new Map(forrige ? kravposterI(forrige).map((p) => [p.betegnelse, p.id]) : []);
+    const kravposter = (innhold.kravposter as Data[]).map(({ betegnelse, ...p }) =>
+      p.id === undefined && ider.has(betegnelse as string)
+        ? { id: ider.get(betegnelse as string), ...p }
+        : p
+    );
+    return structuredClone({ ...kommando, innhold: { ...innhold, kravposter } });
+  };
   const prov = (part: Part, kommando: Data, kjerne = KJERNE): Utfall => {
-    const k = structuredClone(kommando);
+    const k = medIder(kommando);
     try {
       if (!('brevtekst' in k)) {
         const vist = forhaandsvis(
@@ -150,7 +173,7 @@ function sak(sakstittel = TITTEL, sakskode?: Sakskode, forkortelse: string | nul
   const vis = (part: Part, kommando: Data, kjerne = KJERNE): string[] | null => {
     try {
       const vist = forhaandsvis(
-        structuredClone(kommando),
+        medIder(kommando),
         kontekst(part),
         journal,
         kjerne,
@@ -233,6 +256,18 @@ const laast = (rad: Journalrad) => tekst(rad).map((a) => a.laast);
 
 const BESKRIVELSE = 'Byggherren har pålagt en annen fundamentering.';
 
+/** Vederlagskravet med én kravpost med fast sum, P1 (OV-U95 punkt 19), og eventuelt postene utenfor. */
+const tilbud = (beloep?: number, rest: Data = {}): Data => ({
+  ...(beloep === undefined
+    ? {}
+    : {
+        kravposter: [
+          { betegnelse: 'P1', beskrivelse: 'Ny fundamentering', oppgjoersform: 'tilbud', beloep },
+        ],
+      }),
+  ...rest,
+});
+
 /**
  * VS-U26: datoen varslingsplikten løper fra, som TE oppgir i påberopelsen. Setningen er den samme
  * i det første brevet og i en ny versjon (LV-U57, LV-U56).
@@ -268,7 +303,7 @@ const FRISTKRAV = {
 function sakMedKrav() {
   const s = sak();
   s.send('TE', PAABEROPELSE);
-  s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
+  s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
   s.send('TE', FRISTKRAV);
   return s;
 }
@@ -322,7 +357,7 @@ describe('de faste tekstene står ordrett (KA-U22, KA-U25, LV-U4 punkt 13)', () 
 
   it('trekk av vederlaget identifiserer den gjeldende kravversjonen', () => {
     const s = sakMedKrav();
-    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 150000 } });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(150000) });
     const rad = s.send('TE', { type: 'trekk', spor: 'vederlag' });
     // Den gjeldende kravversjonen er den i brev 4 i saken, ikke den første i brev 2.
     expect(tekst(rad)).toEqual([
@@ -952,7 +987,7 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24 (opphevet av KA-U46), KA
   it('vederlagskravet trenger ingen utdypning, men kan ha en (A7)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    const vederlag = { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 1 } };
+    const vederlag = { type: 'krav', spor: 'vederlag', innhold: tilbud(1) };
     expect(s.avvist('TE', vederlag)).toBeNull();
     const rad = s.send('TE', { ...vederlag, utdypning: 'Kalkylen er vedlagt.' });
     expect(tekst(rad)[0].utdypning).toBe('Kalkylen er vedlagt.');
@@ -1078,7 +1113,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
         ...KLAR_OVER,
       },
     });
-    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
     return s;
   };
   const vederlagssvar = (iTide: boolean) => {
@@ -1323,7 +1358,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
   it('avslag på et krav under 0,50 kr krever en begrunnelse for beløpet, selv om begge rundes til 0 kr (B-13, KA-U24 (opphevet av KA-U46))', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 0.4 } });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(0.4) });
     const brevet = {
       type: 'brev',
       svar: [
@@ -1813,7 +1848,7 @@ describe('forbeholdet når forholdet ikke er besvart (GR-U26)', () => {
     // Brev 5: forholdet avslått og vederlaget delvis godkjent.
     s.send('BH', { type: 'brev', svar: [forhold(s, 'avslaatt'), vederlag(s)] });
     s.send('TE', PAABEROPELSE); // Brev 6: forholdet i versjon 2.
-    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
     expect(s.u().spor.forhold.gjeldendeSvar, 'forutsetning: versjon 2 er ikke besvart').toBeNull();
     const rad = s.send('BH', { type: 'brev', svar: [vederlag(s)] });
     expect(laast(rad)).toEqual([
@@ -2729,7 +2764,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
   const utenFrist = () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
     s.send('BH', {
       type: 'brev',
       svar: [
@@ -2743,7 +2778,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
   const vederlagskrav = {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep: 90000 },
+    innhold: tilbud(90000),
   };
   const revisjonAvVederlaget = (s: ReturnType<typeof sak>) => ({
     type: 'revisjon',
@@ -3817,7 +3852,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
   const vederlagskrav = {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep: 125000 },
+    innhold: tilbud(125000),
   };
   /** Forholdet i brev 2; `hovedkategori` avgjør om § 34.1.2 gjelder (§ 34.1.1, KA-46). */
   const medPaaberopelse = (hovedkategori: 'svikt' | 'endring') => {
@@ -4489,7 +4524,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
     s.send('TE', {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 125000 },
+      innhold: tilbud(125000),
     });
     return s;
   };
@@ -5405,7 +5440,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       s.send('TE', {
         type: 'krav',
         spor: 'vederlag',
-        innhold: { metode: 'tilbud', beloep: 125000 },
+        innhold: tilbud(125000),
       });
       brev(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false });
       godtas(s, revisjon(s, 'vederlag', { ...beloep(80000), hovedkrav_varslet_i_tide: true }));
@@ -5510,7 +5545,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       s.send('TE', {
         type: 'krav',
         spor: 'vederlag',
-        innhold: { metode: 'tilbud', beloep: 120000 },
+        innhold: tilbud(120000),
       });
       expect(s.avvist('BH', nyttSvar(s, 'vederlag', beloep(50000)))).toBeNull();
     });
@@ -5872,14 +5907,14 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
 
   it('vederlagskravet kan ha bare posten, uten hovedbeløp, men ikke ingen av dem (OV-U23)', () => {
     const s = sakMedKrav();
-    expect(s.avvist('TE', vederlagskrav({ metode: 'tilbud' }))).toBe('UGYLDIG_FORM');
+    expect(s.avvist('TE', vederlagskrav({}))).toBe('UGYLDIG_FORM');
     expect(
       s.avvist(
         'TE',
-        vederlagskrav({ metode: 'tilbud', saerskilt: { produktivitet: { beloep: 0 } } })
+        vederlagskrav(tilbud(undefined, { saerskilt: { produktivitet: { beloep: 0 } } }))
       )
     ).toBe('UGYLDIG_FORM');
-    const rad = s.send('TE', vederlagskrav({ metode: 'tilbud', saerskilt: post }));
+    const rad = s.send('TE', vederlagskrav(tilbud(undefined, { saerskilt: post })));
     // Ordlyden er LV-U30: hele kravet er et tilbud, også når det bare har posten.
     expect(
       tekst(rad)
@@ -5892,7 +5927,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
 
   it('posten står etter hovedbeløpet i kravteksten, og trekket viser begge beløpene (OV-U23, KA-U22)', () => {
     const s = sakMedKrav();
-    const krav = s.send('TE', vederlagskrav({ metode: 'tilbud', beloep: 150000, saerskilt: post }));
+    const krav = s.send('TE', vederlagskrav(tilbud(150000, { saerskilt: post })));
     const laast = tekst(krav)
       .map((a) => a.laast)
       .join(' ');
@@ -5909,9 +5944,9 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
   it('uten registrert varsel er det første kjente varselet den første kravversjonen med posten (OV-U24)', () => {
     const s = sakMedKrav();
     const uten = s.krav('vederlag');
-    s.send('TE', vederlagskrav({ metode: 'tilbud', beloep: 150000, saerskilt: post }));
+    s.send('TE', vederlagskrav(tilbud(150000, { saerskilt: post })));
     const medPost = s.krav('vederlag');
-    s.send('TE', vederlagskrav({ metode: 'tilbud', beloep: 160000, saerskilt: post }));
+    s.send('TE', vederlagskrav(tilbud(160000, { saerskilt: post })));
     expect(medPost).not.toBe(uten);
     expect(varseletForNyttSvar(s.u(), '34.1.3')).toBe(medPost);
     // Etter § 34.1.2 er det fortsatt det første vederlagskravet (OV-U5).
@@ -5937,10 +5972,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
   const saerskiltVarsel =
     'varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 § 34.1.3 tredje ledd';
   /** Saken med vederlagskravet med posten i brev 5. `svikt` gir varslingsplikt etter § 34.1.2. */
-  const sakMedPost = (
-    innhold: Data = { metode: 'tilbud', beloep: 150000, saerskilt: post },
-    svikt = false
-  ) => {
+  const sakMedPost = (innhold: Data = tilbud(150000, { saerskilt: post }), svikt = false) => {
     const s = sak();
     s.send(
       'TE',
@@ -5952,7 +5984,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
           }
         : PAABEROPELSE
     );
-    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
     s.send('TE', FRISTKRAV);
     s.send('TE', { type: 'krav', spor: 'vederlag', innhold });
     return s;
@@ -6127,7 +6159,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
   });
 
   it('et krav med bare posten besvares uten justeringen ellers, og en vurdering av den avvises (OV-U23)', () => {
-    const s = sakMedPost({ metode: 'tilbud', saerskilt: post });
+    const s = sakMedPost(tilbud(undefined, { saerskilt: post }));
     const uten = {
       produktivitet_vurdering: 'godkjent',
       produktivitet_varslet_i_tide: true,
@@ -6450,7 +6482,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       s.send('TE', {
         type: 'krav',
         spor: 'vederlag',
-        innhold: { metode: 'tilbud', beloep: 160000, saerskilt: post },
+        innhold: tilbud(160000, { saerskilt: post }),
       });
       const v = svaret(s);
       expect(v.eldreKravversjon).toBe(true);
@@ -6473,11 +6505,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
     s.send('TE', {
       type: 'krav',
       spor: 'vederlag',
-      innhold: {
-        metode: 'tilbud',
-        beloep: 150000,
-        saerskilt: { produktivitet: { beloep: 40000 } },
-      },
+      innhold: tilbud(150000, { saerskilt: { produktivitet: { beloep: 40000 } } }),
     });
     return s;
   };
@@ -6661,12 +6689,12 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
     const krav = (innhold: Data) => ({
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', ...innhold },
+      innhold,
     });
-    expect(s.avvisning('TE', krav({ beloep: 100000.405 }))).toEqual({
+    expect(s.avvisning('TE', krav(tilbud(100000.405)))).toEqual({
       regel: 'UGYLDIG_FORM',
       melding:
-        '$.innhold.beloep: 100000.405 har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)',
+        '$.innhold.kravposter[0].beloep: 100000.405 har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)',
     });
     expect(s.avvist('TE', krav({ saerskilt: { produktivitet: { beloep: 40000.001 } } }))).toBe(
       'UGYLDIG_FORM'
@@ -7025,10 +7053,7 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
   };
   /** Forholdet, BHs svar på det og vederlagskravet. `svikt` gir varslingsplikt etter § 34.1.2. */
-  const saken = (
-    forhold: Data,
-    { svikt = true, vederlag = { metode: 'tilbud', beloep: 100000 } as Data } = {}
-  ) => {
+  const saken = (forhold: Data, { svikt = true, vederlag = tilbud(100000) as Data } = {}) => {
     const s = sak();
     s.send('TE', svikt ? sviktkrav : PAABEROPELSE);
     s.send('BH', { type: 'brev', svar: [svar('forhold', s.krav('forhold'), forhold)] });
@@ -7122,11 +7147,7 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
   it('§ 34.1.3 rammer bare posten etter annet ledd, og justeringen ellers er upåvirket eller har bare avslaget foran (OV-U22, OV-U27, OV-U33)', () => {
     const krav = {
       svikt: false,
-      vederlag: {
-        metode: 'tilbud',
-        beloep: 150000,
-        saerskilt: { produktivitet: { beloep: 40000 } },
-      },
+      vederlag: tilbud(150000, { saerskilt: { produktivitet: { beloep: 40000 } } }),
     };
     const avslaatt = saken({ resultat: 'avslaatt', grunnlag_varslet_i_tide: true }, krav);
     expect(
@@ -7170,11 +7191,7 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     const s = saken(
       { resultat: 'godkjent' },
       {
-        vederlag: {
-          metode: 'tilbud',
-          beloep: 150000,
-          saerskilt: { produktivitet: { beloep: 40000 } },
-        },
+        vederlag: tilbud(150000, { saerskilt: { produktivitet: { beloep: 40000 } } }),
       }
     );
     const l = lagene(s, { hovedkrav_varslet_i_tide: false, produktivitet_varslet_i_tide: false });
@@ -7235,7 +7252,7 @@ describe('brevtittelen fryses med brevet (MM-U3, MM-U50, svaret 03.11 i #1488)',
     const krav = s.send('TE', {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 1000 },
+      innhold: tilbud(1000),
     });
     expect(krav.data.brevtittel).toBe('Krav om vederlagsjustering i sak KOE-17');
     const svaret = s.send('BH', {
@@ -7353,7 +7370,7 @@ describe('brevets nummer i saken (LV-U44, LV-U45, N3 i #1497)', () => {
     const neste = s.send('TE', {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 1000 },
+      innhold: tilbud(1000),
     });
     expect(neste.data.brevnummer).toBe(2);
     const lest = lesJournal(s.journal, KJERNE.leserformat).at(-1)!;
@@ -7368,7 +7385,7 @@ describe('brevets nummer i saken (LV-U44, LV-U45, N3 i #1497)', () => {
     const neste = s.send('TE', {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 1000 },
+      innhold: tilbud(1000),
     });
     expect(neste.data.brevnummer).toBe(6);
     Object.assign(s.journal.at(-1)!.data, { brevnummer: 5, merking: 'K201-KOE-017-05' });
@@ -7404,7 +7421,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     const krav = s.send('TE', {
       type: 'krav',
       spor: 'vederlag',
-      innhold: { metode: 'tilbud', beloep: 1000 },
+      innhold: tilbud(1000),
     });
     expect(krav.versjon, 'forutsetning: versjonen er ikke nummeret').toBe(4);
     expect(krav.data.brevnummer).toBe(2);

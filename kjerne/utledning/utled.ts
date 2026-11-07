@@ -27,6 +27,7 @@ import {
   sammeSlag,
 } from '../format/leser.ts';
 import { oppgittDato } from '../format/format.ts';
+import { kravposteneStrider } from './kravposter.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
@@ -482,7 +483,9 @@ function kravetStrider(k: Krav, u: Utledning): string | null {
   if (l) return `en kravversjon etter at ${l}`;
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
   if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';
-  return null;
+  if (k.spor !== 'vederlag') return null;
+  const poster = kravposteneStrider(k.innhold, u.spor.vederlag.krav, true);
+  return poster ? `en kravversjon som ${poster}` : null;
 }
 
 /** Hvorfor svaret strider mot journalen før det, eller `null`. */

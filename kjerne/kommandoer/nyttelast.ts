@@ -5,6 +5,7 @@
  * regelversjonen; innholdet står i brevet (KA-U10 (opphevet av MM-U50)).
  */
 
+import { kravposteneStrider } from '../utledning/kravposter.ts';
 import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
@@ -18,6 +19,7 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
   hjemmelenGjelder,
+  kanBesvaresMedEttBeloep,
   krevdSamlet,
   likeResultatfelt,
   regnUtSvar,
@@ -53,6 +55,13 @@ function kontrollerSvar(
   const krav = u.spor[s.spor].gjeldendeKrav!;
   if (s.gjelder !== krav.id)
     return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde den gjeldende versjonen av kravet.');
+  // KA-U59: byggherren svarer per kravpost. Til svaret per kravpost er bygget (#1663), tas
+  // svaret imot bare når kravet har høyst én kravpost, med fast sum, og ikke rigg og drift.
+  if (s.spor === 'vederlag' && !kanBesvaresMedEttBeloep(krav))
+    return avvis(
+      'SVAR_PER_KRAVPOST',
+      'Kravet har flere kravposter, en kravpost etter en beregningsregel eller rigg og drift. Svaret per kravpost er ikke bygget ennå.'
+    );
   if (s.regelversjon !== regler.versjon)
     return avvis(
       'ANNEN_REGELVERSJON',
@@ -176,6 +185,13 @@ function kravetsUtdypning(
  * i underkategorien endringsordre, endringsordren. En annen hjemmel eller en annen endringsordre
  * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
  */
+/** KA-U56, KA-U51 punkt 11 og svar 4 A (#1673): kravpostene mot forrige kravversjon. */
+function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+  if (k.spor !== 'vederlag') return null;
+  const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);
+  return strid ? avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`) : null;
+}
+
 function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   const forrige = u.spor.forhold.gjeldendeKrav;
   if (k.spor !== 'forhold' || !forrige) return null;
@@ -369,7 +385,7 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const sperre = kategorisperre(k, u) ?? datosperre(k, u);
+      const sperre = kategorisperre(k, u) ?? datosperre(k, u) ?? kravpostsperre(k, u);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;

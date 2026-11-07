@@ -12,6 +12,7 @@ import {
   DATOEN_GJELDER,
   ID,
   KRAVINNHOLD,
+  vederlagsinnhold,
   liste,
   objekt,
   oppgittDato,
@@ -380,15 +381,21 @@ function datofeil(innhold: Innhold): string[] {
     : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
 }
 
-/** OV-U58: beløpene TE krever, i hele øre. Formatet har allerede kontrollert at de er tall. */
+/** OV-U58: beløpene i kravet, også anslag og overslag, i hele øre. Formatet har allerede kontrollert at de er tall. */
 function oerefeil(innhold: Innhold): string[] {
+  const saerskilt = (innhold.saerskilt ?? {}) as Record<string, { beloep?: unknown }>;
+  const poster = (innhold.kravposter ?? []) as Record<string, unknown>[];
   const beloepene: [string, unknown][] = [
-    ['$.innhold.beloep', innhold.beloep],
-    [
-      '$.innhold.saerskilt.produktivitet.beloep',
-      (innhold.saerskilt as { produktivitet?: { beloep?: unknown } } | undefined)?.produktivitet
-        ?.beloep,
-    ],
+    ...poster.flatMap((p, i) =>
+      (['beloep', 'anslag', 'kostnadsoverslag'] as const).map((f): [string, unknown] => [
+        `$.innhold.kravposter[${i}].${f}`,
+        p[f],
+      ])
+    ),
+    ...(['produktivitet', 'rigg_og_drift'] as const).map((f): [string, unknown] => [
+      `$.innhold.saerskilt.${f}.beloep`,
+      saerskilt[f]?.beloep,
+    ]),
   ];
   return beloepene.flatMap(([sti, verdi]) => {
     if (typeof verdi !== 'number') return [];
@@ -413,7 +420,8 @@ export function formfeil(kommando: unknown): string[] {
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown };
-    const { properties, required, anyOf } = KRAVINNHOLD[k.spor];
+    const { properties, required, anyOf } =
+      k.spor === 'vederlag' ? vederlagsinnhold(false) : KRAVINNHOLD[k.spor];
     feil.push(...feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'));
     if (k.spor === 'forhold' && !feil.length) feil.push(...datofeil(k.innhold as Innhold));
     if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));

@@ -6,10 +6,11 @@
  * ID, og relasjonene står som `gjelder` og `erstatter` (4.2).
  */
 
+import { brukteBetegnelser, nesteBetegnelse } from '../utledning/kravposter.ts';
 import { avvisning } from './avvisning.ts';
 import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
-import { lagFraForholdet } from '../frosset/standpunkt.ts';
+import { kravposterI, lagFraForholdet } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
 import {
   BrevetAvvises,
@@ -187,6 +188,30 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
 }
 
 /** Innholdet i dokumentet kommandoen gir. */
+/**
+ * Kravpostene slik de lagres: en ny kravpost får `id` fra serveren og neste betegnelse i
+ * sporet, og en kravpost fra forrige versjon beholder sin (KA-U53, svar 6 A i #1673).
+ */
+function medKravposter(
+  innhold: Record<string, unknown>,
+  u: Utledning,
+  nyId: () => string
+): Record<string, unknown> {
+  if (!innhold.kravposter) return innhold;
+  const tidligere = u.spor.vederlag.krav;
+  const forrige = new Map(
+    (tidligere.length ? kravposterI(tidligere.at(-1)!) : []).map((p) => [p.id, p.betegnelse])
+  );
+  const brukte = brukteBetegnelser(tidligere);
+  const kravposter = (innhold.kravposter as Record<string, unknown>[]).map((p) => {
+    if (typeof p.id === 'string') return { ...p, betegnelse: forrige.get(p.id)! };
+    const betegnelse = nesteBetegnelse(brukte);
+    brukte.add(betegnelse);
+    return { id: nyId(), betegnelse, ...p };
+  });
+  return { ...innhold, kravposter };
+}
+
 function dokument(
   k: Kommando,
   u: Utledning,
@@ -212,7 +237,7 @@ function dokument(
             spor: k.spor,
             ...(forrige ? { erstatter: forrige.id } : {}),
             ...(foresporsel ? { gjelder: foresporsel.foresporsel } : {}),
-            ...k.innhold,
+            ...(k.spor === 'vederlag' ? medKravposter(k.innhold, u, nyId) : k.innhold),
           },
         ],
       };

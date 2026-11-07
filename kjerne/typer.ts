@@ -217,6 +217,37 @@ export type LestUtsagn = Exclude<Utsagn, { art: 'avklaring' }>;
 export type Opplysningsslag = LestOpplysning['hva'];
 export type Utsagnsart = LestUtsagn['art'];
 
+/**
+ * Oppgjørsformen for en kravpost (OV-U95 punkt 19–20). `tilbud` er fast sum etter § 34.2.1;
+ * `enhetspriser` og `regningsarbeid` er kontraktens beregningsregler (§ 34.3, § 34.4).
+ */
+export type Oppgjoersform = 'tilbud' | 'enhetspriser' | 'regningsarbeid';
+export const OPPGJOERSFORMER: readonly Oppgjoersform[] = [
+  'tilbud',
+  'enhetspriser',
+  'regningsarbeid',
+];
+
+/**
+ * En kravpost i vederlagskravet, slik den er lagret (OV-U95 punkt 19–22; svar 6 A i
+ * spørsmålene 07.11, #1673). `id` settes av serveren og `betegnelse` av kommandoen, og
+ * begge følger posten gjennom kravversjonene. Anslaget, kostnadsoverslaget og PNS er
+ * opplysninger som ingen regel leser (KA-U55, KA-U66).
+ */
+export interface Kravpost {
+  id: string;
+  betegnelse: string;
+  beskrivelse: string;
+  oppgjoersform: Oppgjoersform;
+  pns?: string;
+  /** Det krevde beløpet i en kravpost med fast sum. */
+  beloep?: number;
+  /** Justerte enhetspriser etter § 34.3.2 (KA-U68). */
+  justert?: boolean;
+  anslag?: number;
+  kostnadsoverslag?: number;
+}
+
 export interface Krav {
   id: string;
   spor: Spor;
