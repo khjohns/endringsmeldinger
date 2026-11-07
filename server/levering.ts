@@ -179,7 +179,12 @@ export async function brevdokument(
   const tittel = `${grunnnavn(innhold)}.pdf`;
   let pdf: Uint8Array;
   try {
-    pdf = await skrivBrevPdf(gjengiBrev(brev, brev.brevtekst), tittel, new Date(brev.tidsstempel));
+    pdf = await skrivBrevPdf(
+      gjengiBrev(brev, brev.brevtekst),
+      tittel,
+      new Date(brev.tidsstempel),
+      brev.avsender.part
+    );
   } catch (feil) {
     if (feil instanceof TegnUtenforSkriften)
       throw new UgjengivbartBrev(feil.message, { cause: feil });

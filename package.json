@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"type": "module",
 	"engines": {
-		"node": "^22.18.0"
+		"node": "^22.19.0"
 	},
 	"scripts": {
 		"dev": "vite dev",
@@ -50,6 +50,7 @@
 		"vitest": "^5.0.5"
 	},
 	"dependencies": {
+		"@oslokommune/punkt-assets": "19.14.2",
 		"@pdf-lib/fontkit": "1.1.1",
 		"@tanstack/svelte-query": "^6.1.0",
 		"@tiptap/core": "^2.27.2",

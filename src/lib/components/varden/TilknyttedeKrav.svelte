@@ -237,8 +237,8 @@
     align-items: baseline;
   }
   .num {
-    font-family: var(--font-mono);
     font-size: 16px;
+    font-variant-numeric: tabular-nums;
   }
   .lag {
     color: var(--ink-2);
