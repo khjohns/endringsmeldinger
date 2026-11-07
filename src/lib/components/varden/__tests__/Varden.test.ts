@@ -878,7 +878,7 @@ describe('brevhodet og en avvist sending (A2b i #1497)', () => {
     expect(send).toHaveBeenCalledTimes(1);
   });
 
-  it('har saken fått en ny versjon når sendingen avvises, går BH tilbake fra brevkontrollen med en melding, så panelet regnes på nytt (oppdragsgiver 07.11, punkt 2 i #1596)', async () => {
+  it('har saken fått en ny versjon når sendingen avvises, lukkes brevkontrollen med en melding, og brevet sendes ikke på nytt (oppdragsgiver 07.11, punkt 2 i #1596)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     // En annen i byggherrens team sender det samme svaret først, så saken får en ny versjon.
     const send = vi
