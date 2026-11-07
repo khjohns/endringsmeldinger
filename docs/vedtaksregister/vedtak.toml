@@ -15531,6 +15531,31 @@ forkastet = true
 tekst = '''
 BHs brev kan ikke sendes med færre enn to underskrivere.'''
 
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["lv-u23"]
+id = "LV-U69"
+dato = 2026-11-07
+hvem = "oppdragsgiver"
+kilde = ["#1173"]
+sporsmal = '''
+LV-U64: hele brevhodet fryses i journalen, og invarianten om aktor_id får et unntak for brevhodet. LV-U23: signaturene er en del av hodet. Skal navnene til underskriverne (TE: én eller flere; BH: fra godkjenningsflyten, LV-U66–68) også fryses i journalen sammen med hodet, og dekkes av det samme unntaket i AGENTS.md (#1667)?'''
+valgt = "Ja, fryses med hodet"
+svar = '''
+«Ja, fryses med hodet».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u64" }]
+folge = '''
+Spørsmålet ble stilt med spørsmålsverktøyet etter kontrollen av #1669. Spørsmålet, alternativene og svaret står ordrett på #1173 (kommentaren 6711459770). Alternativet «Nei, slås opp ved visning» er ikke ført som forkastet, fordi teksten har et kodenavn som orkestratoren skrev inn, og som vedtaksfila ikke tar. Bygges i #1173.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, fryses med hodet"
+tekst = '''
+Navnene i underskriften lagres i journalen som en del av hodet. Unntaket i AGENTS.md viser til LV-U64 og LV-U67. Brevet viser da det samme som da det ble sendt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, slås opp ved visning"
+tekst = '''
+Journalen har bare aktor_id for underskriverne, og navnene slås opp når brevet vises. Unntaket gjelder bare hodet uten underskriften.'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
