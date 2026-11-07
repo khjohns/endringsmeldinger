@@ -121,9 +121,9 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(kontrollen.queryByText('Fra')).toBeNull();
     expect(kontrollen.getByText('Mottaker').nextElementSibling?.textContent).toMatch(/\(BH\)$/);
     // Rekkefølgen, ikke hva brevene sier i forhold til hverandre, og uten eier på TEs eget brev
-    // (oppdragsgiver 07.11, PR 1650; språkfila, «Forrige versjon»).
+    // (oppdragsgiver 07.11, PR 1650; språkfila, «Brev, ikke versjon»).
     expect(kontrollen.queryByText('Erstatter')).toBeNull();
-    expect(kontrollen.getByText('Forrige versjon').nextElementSibling?.textContent).toBe(
+    expect(kontrollen.getByText('Forrige brev').nextElementSibling?.textContent).toBe(
       'Påberopelsen i brev 1'
     );
     expect(kontrollen.getByText('Viser til').nextElementSibling?.textContent).toBe(
@@ -136,7 +136,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     const foer = demosak().journal().length;
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
-    await screen.findByText(/Den nye versjonen er sendt til byggherren/);
+    await screen.findByText(/Brevet er sendt til byggherren/);
     const ny = demosak().journal().slice(foer);
     expect(ny).toHaveLength(1);
     // D-1, D-3: en ny kravversjon med samme dato og kategori.
@@ -206,7 +206,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
       await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' })
     );
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
-    await screen.findByText(/Den nye versjonen er sendt til byggherren/);
+    await screen.findByText(/Brevet er sendt til byggherren/);
     const traaden = within(await screen.findByRole('list', { name: 'Brevene om forholdet' }));
     const nyVersjon = traaden
       .getAllByRole('heading', { name: /^Brev \d+ · Påberopelse/ })
@@ -256,23 +256,23 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     const foer = demosak().journal().length;
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
-    await screen.findByText(/Den nye versjonen er sendt til byggherren/);
+    await screen.findByText(/Brevet er sendt til byggherren/);
     expect(JSON.stringify(demosak().journal().slice(foer))).toMatch(
       /"paalegg_mottatt":"2026-09-20"/
     );
   });
 
-  it('før svaret heter handlingen «Send ny versjon av påberopelsen» og står under «Andre handlinger», uten primærhandling (U-1, #1649)', async () => {
+  it('før svaret heter handlingen også «Oppdater påberopelse» og står under «Andre handlinger», uten primærhandling (U-1, #1649, oppdragsgiver 07.11)', async () => {
     const kortet = await vis('BF-05', 'paaberopelsen-er-sendt', 'TE', 'forhold');
     expect(kortet.queryByRole('button', { name: 'Oppdater påberopelse' })).toBeNull();
     expect(
       kortet.queryAllByRole('button').filter((k) => k.className.includes('primaer'))
     ).toHaveLength(0);
-    await fireEvent.click(kortet.getByRole('button', { name: /^Send ny versjon av påberopelsen/ }));
+    await fireEvent.click(kortet.getByRole('button', { name: /^Oppdater påberopelse/ }));
     expect(screen.getByRole('textbox', { name: 'Begrunnelse' })).toBeTruthy();
     // Før svaret er påberopelsen det eneste brevet til høyre, og den er åpen.
     expect(
-      screen.getByRole('heading', { name: /^Brev \d+ · Ny versjon av påberopelsen$/ })
+      screen.getByRole('heading', { name: /^Brev \d+ · Oppdatert påberopelse$/ })
     ).toBeTruthy();
     const brevene = within(screen.getByRole('region', { name: 'Tidligere brev om forholdet' }));
     expect(

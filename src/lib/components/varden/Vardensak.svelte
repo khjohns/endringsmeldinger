@@ -390,7 +390,7 @@
               henvisning: BREVKONTROLL.viserTil,
               relasjoner: [
                 ...(kravet
-                  ? [{ hva: NYVERSJON.forrigeVersjon, brev: NYVERSJON.forrigeVersjonBrev(kravet) }]
+                  ? [{ hva: NYVERSJON.forrigeBrev, brev: NYVERSJON.forrigeBrevet(kravet) }]
                   : []),
                 ...(svaret
                   ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]

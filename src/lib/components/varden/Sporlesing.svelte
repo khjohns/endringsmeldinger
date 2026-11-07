@@ -152,7 +152,7 @@
     if (n === `godta:${spor}`) return HANDLINGENE.godta(avslag);
     if (n === 'svare:forhold')
       return u.spor.forhold.krav.length > 1 ? FORHOLDET.svarNyVersjon : FORHOLDET.svar;
-    if (n === 'krav:forhold') return kanGodta ? FORHOLDET.oppdater : FORHOLDET.nyVersjon;
+    if (n === 'krav:forhold') return FORHOLDET.oppdater;
     if (type === 'krav' && kanGodta) return HANDLINGENE.revidertKrav;
     return null;
   }

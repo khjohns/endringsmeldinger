@@ -329,16 +329,17 @@ export const HANDLINGENE = {
     reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
     /**
      * En ny kravversjon er den byggherren svarer på, og sporet venter på nytt svar. Teksten sier
-     * rekkefølgen, ikke hva versjonene sier i forhold til hverandre (språkfila, «Forrige versjon»). Svaret på den
+     * hvilket brev det nye følger opp, ikke hva brevene sier i forhold til hverandre, og «brev»,
+     * ikke «versjon» (språkfila, «Brev, ikke versjon»). Svaret på den
      * tidligere versjonen kan da ikke godtas i løsningen, og løsningen sier ikke at det er
      * avslått (MM-U34 punkt 1 og 2).
      */
     nyVersjon: (spor: Spor, krav: Brevref | null, svar: Brevref | null) => {
       const hva = spor === 'forhold' ? 'påberopelsen' : 'kravet';
-      if (!krav) return 'Byggherren svarer på den nye versjonen.';
+      if (!krav) return 'Byggherren svarer på det nye brevet.';
       if (!svar)
-        return `Ny versjon av ${hva} i ${brevref(krav)}. Byggherren svarer på den nye versjonen.`;
-      return `Ny versjon av ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på den nye versjonen.`;
+        return `Følger opp ${hva} i ${brevref(krav)}. Byggherren svarer på det nye brevet.`;
+      return `Følger opp ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på det nye brevet.`;
     },
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
@@ -449,8 +450,10 @@ export const FORHOLDET = {
   blirSubsidiaert: (b: Brevref) =>
     `Et svar blir subsidiært så lenge byggherren står fast på ${brevref(b)}.`,
   trekk: 'Trekk påberopelsen',
-  nyVersjon: 'Send ny versjon av påberopelsen',
-  /** Den nye versjonen etter byggherrens svar (oppdragsgiver 06.11, #1631). */
+  /**
+   * Den nye versjonen av påberopelsen, før og etter byggherrens svar (oppdragsgiver 06.11, #1631,
+   * og 07.11, PR 1650).
+   */
   oppdater: 'Oppdater påberopelse',
   /** Hvor saken står, under tittelen på oversikten (oppdragsgiver 06.11, PR 1650). */
   utfall: (resultat: string, d: string) =>
@@ -462,7 +465,7 @@ export const FORHOLDET = {
   nyFane: '(åpnes i ny fane)',
   /** BHs primærhandling i forholdet (oppdragsgiver 06.11, #1649). */
   svar: 'Svar på påberopelsen',
-  svarNyVersjon: 'Svar på den nye versjonen',
+  svarNyVersjon: 'Svar på det nye brevet',
   handlinger: 'Det du kan gjøre nå',
   beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,
   begrunnelsen: 'Begrunnelsen',
@@ -561,8 +564,7 @@ export const NYVERSJON = {
    * Brevet som skrives, i arbeidsraden (oppdragsgiver 07.11, PR 1650). Nummeret er det neste i
    * saken; forhåndsvisningen viser det brevet får.
    */
-  radtittel: (nummer: number, etterSvar: boolean) =>
-    `Brev ${nummer} · ${etterSvar ? 'Oppdatert påberopelse' : 'Ny versjon av påberopelsen'}`,
+  radtittel: (nummer: number) => `Brev ${nummer} · Oppdatert påberopelse`,
   til: 'Til byggherren (BH)',
   tekst: 'Begrunnelse',
   /** Begrunnelsen kreves (oppdragsgiver 07.11, PR 1650). Knappen er aktiv (MM-U32). */
@@ -583,19 +585,19 @@ export const NYVERSJON = {
    * Brevrelasjonene i brevkontrollen: rekkefølgen og henvisningen, ikke hva brevene sier i forhold
    * til hverandre, og uten eier på TEs eget brev (oppdragsgiver 07.11, PR 1650; språkfila).
    */
-  forrigeVersjon: 'Forrige versjon',
-  forrigeVersjonBrev: (krav: Brevref) => `Påberopelsen i ${brevref(krav)}`,
+  forrigeBrev: 'Forrige brev',
+  forrigeBrevet: (krav: Brevref) => `Påberopelsen i ${brevref(krav)}`,
   viserTilBrev: (svar: Brevref) => `Byggherrens svar i ${brevref(svar)}`,
   /** D-6 og 10d: en registrert enighet står (KA-U52 punkt 5). */
   enighet: (svar: Brevref) =>
-    `Du godtok svaret i ${brevref(svar)}. Enigheten står, og den nye versjonen avviker fra den.`,
+    `Du godtok svaret i ${brevref(svar)}. Enigheten står, og det nye brevet avviker fra den.`,
   forkastTekst: 'Begrunnelsen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
   /** Overskriften i sendepanelet (oppdragsgiver 07.11, PR 1650). */
   kontroller: 'Kontroller og send',
   sendTekst: 'Send til byggherren',
   tilbakeTil: 'utkastet',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
-  kvittering: 'Den nye versjonen er sendt til byggherren.',
+  kvittering: 'Brevet er sendt til byggherren.',
 };
 
 /** Utkastet som brev under arbeid (`Brevutkast.svelte`). */

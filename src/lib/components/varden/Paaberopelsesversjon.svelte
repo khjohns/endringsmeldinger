@@ -1,6 +1,6 @@
 <!--
-  TEs nye versjon av påberopelsen (BF-10): «Oppdater påberopelse» etter byggherrens svar og
-  «Send ny versjon» før svaret. Arbeidsflaten har to roller (oppdragsgiver 06.11, PR 1650):
+  TEs nye versjon av påberopelsen (BF-10): «Oppdater påberopelse», før og etter byggherrens svar.
+  Arbeidsflaten har to roller (oppdragsgiver 06.11, PR 1650):
   brevet TE skriver står til venstre, med teksten fra versjonen som erstattes (S-3 B), og
   brevene TE bygger på står til høyre. Arbeidsraden over begge sier hvilket brev som skrives, og
   har «Forhåndsvis brevet». Byggherrens svar er åpent fra start, og ett brev om forholdet leses om
@@ -148,7 +148,7 @@
 
 <Arbeidsflate leser={!smal} deling="utkast">
   {#snippet rad()}
-    <Utkastrad tittel={NYVERSJON.radtittel(nummer, !!svarbrevet)} linje={NYVERSJON.til}>
+    <Utkastrad tittel={NYVERSJON.radtittel(nummer)} linje={NYVERSJON.til}>
       {#snippet tilbake()}
         <!-- Sakslisten er felt inn mens brevene leses ved siden av, så veien tilbake står i raden,
              og brevet begynner på samme høyde som i brevkontrollen. -->

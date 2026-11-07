@@ -318,8 +318,8 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen
   `grunnlagsoversikt.html`. Lista vises bare når kjernen tilbyr en handling
   ([MM-U25](#mm-u25)), og ikke mens et utkast er åpent. Hver rad har tittelen i halvfet, høyst to
-  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. «Send ny versjon» sier hvilket brev den erstatter, og at svaret da ikke kan
-  godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
+  korte setninger om hva handlingen gjør med saken, pil og skillelinjer. En ny versjon av kravet sier hvilket brev den følger opp, og at svaret
+  da ikke kan godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
   BF-02A (#1615). En brevtype som ikke er bygget i Varden, har samme form og pil som de andre
   (oppdragsgiver 06.11, #1646).
 - **Brevene om forholdet** står i en tråd. Partene skilles med form, ikke med farge: BH har
