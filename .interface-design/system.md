@@ -91,21 +91,22 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
 - **Brevskriften følger avsenderen**, så partenes brev skiller seg fra appen og fra hverandre.
   Hele brevet står i avsenderens skrift: avsender, mottaker, referanser, tittel og tekst, med
   samme oppsett og vekter for begge parter. Stempelet «Sendt …» og linja under brevet er appens
-  og står i Inter (oppdragsgiver 07.11).
-- **Referansene i brevhodet står på faste plasser**, som i Oslo kommunes brevmal: to kolonner,
-  også på smal skjerm, med Sak og Vår ref. under til venstre og Deres ref. og Dato under til
-  høyre. Mangler et felt, står plassen tom, så Dato alltid står nederst til høyre
-  (oppdragsgiver 07.11). Det fulle hodet er #1173.
+  og står i Inter (oppdragsgiver 07.11, [LV-U26](../docs/plans/vedtak.md#lv-u26), [LV-U58](../docs/plans/vedtak.md#lv-u58) og
+  [LV-U59](../docs/plans/vedtak.md#lv-u59)).
   - Byggherrens brev står i Oslo Sans (`--font-brev-bh`) i 11 pt. Det er
     Oslo kommunes skrift, og lisensen gjelder bare Oslo kommunes egen kommunikasjon. Den
     brukes derfor aldri i totalentreprenørens brev. Filene hentes fra
     `@oslokommune/punkt-assets` og sjekkes ikke inn.
-  - Totalentreprenørens brev står i Source Serif 4 (`--font-brev`) i 16 px.
+  - Totalentreprenørens brev står i Source Serif 4 (`--font-brev`) i 16 px ([LV-U58](../docs/plans/vedtak.md#lv-u58)).
   - Tegn brevskriften mangler, står i Noto Sans og Noto Sans Math
     ([LV-U26](../docs/plans/vedtak.md#lv-u26)).
   - Begge har linjehøyde 1,6. Oslo Sans i 11 pt, Source Serif 4 i 16 px og Inter i 14 px
     har nesten samme x-høyde (7,6–7,8 px), så brevene og grensesnittet ser like store ut.
   - PDF-en som sendes, skal ha samme skrift og størrelse som forhåndsvisningen (#1652).
+- **Referansene i brevhodet står på faste plasser**, som i Oslo kommunes brevmal: to kolonner,
+  også på smal skjerm, med Sak og Vår ref. under til venstre og Deres ref. og Dato under til
+  høyre. Mangler et felt, står plassen tom, så Dato alltid står nederst til høyre
+  (oppdragsgiver 07.11). Det fulle hodet er #1173.
 - Hierarkiet bygges med vekt og blekknivå før størrelse.
 
 ## Avstand, mål og radius
