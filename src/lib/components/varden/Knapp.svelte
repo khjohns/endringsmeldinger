@@ -77,13 +77,17 @@
   .knapp-sekundaer:hover {
     background: var(--surface-inset);
   }
+  /* Teksten følger primærknappen, som snur med temaet; rødt er lyst i mørk modus. */
   .knapp-fare {
     background: var(--danger);
-    color: #fff;
+    color: var(--on-brand);
     border: 1px solid var(--danger);
   }
   .knapp-fare:hover {
-    background: color-mix(in srgb, var(--danger) 85%, black);
+    background: color-mix(in srgb, var(--danger) 88%, var(--ink));
+  }
+  .knapp-fare:active {
+    background: color-mix(in srgb, var(--danger) 76%, var(--ink));
   }
   .knapp-lenke {
     min-height: 44px;

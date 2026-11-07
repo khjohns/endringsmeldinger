@@ -48,7 +48,7 @@
     border-radius: var(--r-kort);
   }
   .emne {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
     line-height: 1.3;
     color: var(--ink);

@@ -361,12 +361,12 @@
     display: inline-grid;
     place-items: center;
     flex-shrink: 0;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border: 1px solid var(--rule-strong-color);
     border-radius: 50%;
     background: var(--surface);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--ink);
   }

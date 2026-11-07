@@ -10,13 +10,12 @@
   let { tekst, onforkast }: { tekst: string; onforkast: () => void } = $props();
   const uid = $props.id();
 
-  let knapp = $state<HTMLButtonElement | null>(null);
   let dialog = $state<HTMLDialogElement | null>(null);
   let forkastet = false;
 </script>
 
-<button type="button" class="forkast" bind:this={knapp} onclick={() => dialog?.showModal()}
-  >{SKJEMA.forkast}</button
+<Knapp variant="lenke" id={`${uid}-forkast`} onclick={() => dialog?.showModal()}
+  >{SKJEMA.forkast}</Knapp
 >
 
 <dialog
@@ -25,7 +24,7 @@
   aria-labelledby={`${uid}-tittel`}
   aria-describedby={`${uid}-tekst`}
   onclose={() => {
-    if (!forkastet) knapp?.focus();
+    if (!forkastet) document.getElementById(`${uid}-forkast`)?.focus();
   }}
 >
   <h2 id={`${uid}-tittel`}>{BREVUTKAST.forkastSpoersmaal}</h2>
@@ -44,26 +43,6 @@
 </dialog>
 
 <style>
-  .forkast {
-    min-height: 44px;
-    padding: 0;
-    border: 0;
-    background: none;
-    font: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--ink);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
-  }
-  .forkast:hover {
-    text-decoration-thickness: 2px;
-  }
-  .forkast:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
   /* Den globale nullstillingen tar bort marginen som midtstiller dialogen. */
   .bekreft {
     margin: auto;
