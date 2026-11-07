@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `00ceed9b99570b5e154158f25df920ee876fc8faa4bbe616e4603856f59a3725`
+Kontrollsum (SHA-256 over utdraget visningen leser): `12d141115f190a07884afb565d2c8a251a4ebeb8dbf97f39a1a88967f2072502`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -123,7 +123,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [LV-U62](#lv-u62) | Presiserer [LV-U42](#lv-u42) | Presisert av [LV-U63](#lv-u63) |
 | [LV-U63](#lv-u63) | Presiserer [LV-U62](#lv-u62) | — |
 | [LV-U66](#lv-u66) | Utvider [LV-U25](#lv-u25) | — |
-| [LV-U67](#lv-u67) | Presiserer [LV-U15](#lv-u15); Bygger på [LV-U64](../../plans/vedtak.md#lv-u64) | — |
+| [LV-U67](#lv-u67) | Presiserer [LV-U15](#lv-u15) | — |
 | [LV-U68](#lv-u68) | Presiserer [LV-U15](#lv-u15) | — |
 | [LV-U29](#lv-u29) | Presiserer [OV-U5](#ov-u5) | Snevret inn av [VS-U34](#vs-u34); Endret av [LV-U39](#lv-u39) |
 | [LV-U31](#lv-u31) | Presiserer [LV-U4](../../plans/vedtak.md#lv-u4); Presiserer [HF-U7](../../plans/vedtak.md#hf-u7); Presiserer [OV-U32](#ov-u32); Presiserer [OV-U33](#ov-u33) | Samlet av [OV-U94](#ov-u94); Utvidet av [LV-U32](#lv-u32); Endret av [LV-U39](#lv-u39) |
@@ -1613,7 +1613,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 07.11, oppdragsgiver (#1173)
 
-**Følge:** Presiserer [LV-U15](#lv-u15). Bygger på [LV-U64](../../plans/vedtak.md#lv-u64). Svaret gjelder spørsmål 1, 2 og 3 om underskriften på #1173 (kommentaren 6711261001), i den rekkefølgen. Spørsmålene og alternativene står ordrett der. Tillegget fra oppdragsgiver til svaret som ble LV-U64, står ordrett på #1173 (kommentaren 6710825836): «Ett unntal til: i hvert fall BH har som hovedregel underskrift at to personer - typisk prosjektleder med navn og fullmaktshaver med navn». Signaturene er en del av hodet etter LV-U23, så navnene i underskriften fryses i journalen med hodet etter LV-U64. Bygges i #1173.
+**Følge:** Presiserer [LV-U15](#lv-u15). Svaret gjelder spørsmål 1, 2 og 3 om underskriften på #1173 (kommentaren 6711261001), i den rekkefølgen. Spørsmålene og alternativene står ordrett der. Tillegget fra oppdragsgiver til svaret som ble LV-U64, står ordrett på #1173 (kommentaren 6710825836): «Ett unntal til: i hvert fall BH har som hovedregel underskrift at to personer - typisk prosjektleder med navn og fullmaktshaver med navn». Bygges i #1173.
 
 **Regelrader:** —
 

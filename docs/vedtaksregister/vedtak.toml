@@ -15442,7 +15442,7 @@ tekst = '''
 Drift fører stillingen for begge sider.'''
 
 [[gruppe.vedtak]]
-klasse = "beslutning"
+klasse = "design"
 bindende_i = ["lv-u15", "lv-u23"]
 id = "LV-U66"
 dato = 2026-11-07
@@ -15487,9 +15487,9 @@ sporsmal = '''
 valgt = "A"
 svar = '''
 «A,A,A».'''
-forhold = [{ art = "presiserer", vedtak = "lv-u15" }, { art = "bygger på", vedtak = "lv-u64" }]
+forhold = [{ art = "presiserer", vedtak = "lv-u15" }]
 folge = '''
-Svaret gjelder spørsmål 1, 2 og 3 om underskriften på #1173 (kommentaren 6711261001), i den rekkefølgen. Spørsmålene og alternativene står ordrett der. Tillegget fra oppdragsgiver til svaret som ble LV-U64, står ordrett på #1173 (kommentaren 6710825836): «Ett unntal til: i hvert fall BH har som hovedregel underskrift at to personer - typisk prosjektleder med navn og fullmaktshaver med navn». Signaturene er en del av hodet etter LV-U23, så navnene i underskriften fryses i journalen med hodet etter LV-U64. Bygges i #1173.'''
+Svaret gjelder spørsmål 1, 2 og 3 om underskriften på #1173 (kommentaren 6711261001), i den rekkefølgen. Spørsmålene og alternativene står ordrett der. Tillegget fra oppdragsgiver til svaret som ble LV-U64, står ordrett på #1173 (kommentaren 6710825836): «Ett unntal til: i hvert fall BH har som hovedregel underskrift at to personer - typisk prosjektleder med navn og fullmaktshaver med navn». Bygges i #1173.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -15530,6 +15530,7 @@ navn = "B"
 forkastet = true
 tekst = '''
 BHs brev kan ikke sendes med færre enn to underskrivere.'''
+
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
