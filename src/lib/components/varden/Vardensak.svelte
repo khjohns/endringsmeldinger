@@ -364,6 +364,7 @@
           onforkast={forkastKorrigeringen}
           onbrevkontroll={(k) => {
             const viserTil = datoopplysningene(u).find((o) => o.id === gjelder)?.brev ?? null;
+            melding = null;
             arbeid = {
               art: 'kontroll',
               versjon: kjernesak.versjon,
@@ -395,6 +396,7 @@
           onbrevkontroll={(k) => {
             const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
             const kravet = brev.find((b) => b.id === u.spor.forhold.gjeldendeKrav?.dokument);
+            melding = null;
             arbeid = {
               art: 'kontroll',
               versjon: kjernesak.versjon,
@@ -428,6 +430,7 @@
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => {
             const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
+            melding = null;
             arbeid = {
               art: 'kontroll',
               versjon: kjernesak.versjon,
@@ -466,6 +469,7 @@
             }}
             onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
+              melding = null;
               arbeid = {
                 art: 'kontroll',
                 versjon: kjernesak.versjon,
