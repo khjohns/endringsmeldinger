@@ -1523,7 +1523,7 @@ forhold = [
   { art = "presiserer", vedtak = "ov-u73" },
 ]
 folge = '''
-(a) bygger på OV-U89 punkt 11, der påberopelsen etter punkt 34.1.2 gjelder hele vederlagskravet, også den særskilte vederlagsjusteringen og rigg og drift; (a) snevrer det ikke inn. (b) bygger på punkt 9. Vilkåret i (d) er oppfylt, fordi svaret på spørsmål 2 var A (KA-U54). (d) utvider OV-U94 punkt 5 og 8. (e) presiserer OV-U73. Lagene for varselet etter punkt 34.3.3 og 34.4 er stilt som oppfølgingsspørsmål 12 i spørsmålsfila og besvart i KA-U64. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
+(a) bygger på OV-U89 punkt 11, der påberopelsen etter punkt 34.1.2 gjelder hele vederlagskravet, også den særskilte vederlagsjusteringen og rigg og drift; (a) snevrer det ikke inn. «Alle kravpostene» i (a) leses med OV-U89 punkt 11 og 13: påberopelsen rammer også den særskilte vederlagsjusteringen og posten for rigg og drift (OV-U27), og den gjelder ikke når saken gjelder en endring, der punkt 34.1.2 ikke krever varsel (OV-U15). Det samme gjelder OV-U95 punkt 23, som tar (a) inn. (b) bygger på punkt 9. Vilkåret i (d) er oppfylt, fordi svaret på spørsmål 2 var A (KA-U54). (d) utvider OV-U94 punkt 5 og 8. (e) presiserer OV-U73. Lagene for varselet etter punkt 34.3.3 og 34.4 er stilt som oppfølgingsspørsmål 12 i spørsmålsfila og besvart i KA-U64. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1965,7 +1965,7 @@ særskilte kravet. Med B leses et krav med regningsarbeid som om TE ikke krevde 
 *Styrer:* brevteksten i punkt 3. *Forholdet:* presiserer punkt 3. *Klassen:* vedtak.'''
 valgt = "1 A, 2 A"
 svar = '''
-Oppdragsgiver 07.11, ordrett: «A, A». Valgt samlet: 1 A, 2 A.'''
+Oppdragsgiver 07.11, ordrett ([#1663, 6709923683](https://github.com/khjohns/endringsmeldinger/issues/1663#issuecomment-6709923683)): «A, A». Valgt samlet: 1 A, 2 A.'''
 forhold = [
   { art = "opphever", vedtak = "ov-u94" },
   { art = "samler", vedtak = "ka-u53" },
@@ -1993,7 +1993,7 @@ forhold = [
   { art = "presiserer", vedtak = "ov-u43" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for vederlagsmetoden, versjon 2](#samlevedtak-vederlagsmetoden-2). Opphever OV-U94, og henvisningene til det gjelder versjon 2; samler KA-U53–KA-U61, KA-U63–KA-U66 og KA-U68 (svar 1 A). Punkt 3 får siste setning etter svar 2 A. Forholdene til OV-U43, VS-U28, OV-U14, LV-U30, LV-U31 og LV-U32 er overtatt fra OV-U94. Forholdene de samlede postene har til andre vedtak enn OV-U94, står i postene, som samles og ikke oppheves (svar 1 A). KA-U62 og KA-U67 er ikke samlet: KA-U62 er en beslutning om forløpet, og KA-U67 presiserer EO-U38 punkt 23.'''
+Teksten står under tabellen, i [Samlevedtaket for vederlagsmetoden, versjon 2](#samlevedtak-vederlagsmetoden-2). Opphever OV-U94, og henvisningene til det gjelder versjon 2; samler KA-U53–KA-U61, KA-U63–KA-U66 og KA-U68 (svar 1 A). Punkt 3 får siste setning etter svar 2 A. Forholdene til OV-U43, VS-U28, OV-U14, LV-U30, LV-U31 og LV-U32 er overtatt fra OV-U94. Forholdene de samlede postene har til andre vedtak enn OV-U94, står i postene, som samles og ikke oppheves (svar 1 A). KA-U62 og KA-U67 er ikke samlet: KA-U62 er en beslutning om forløpet, og KA-U67 presiserer EO-U38 punkt 23. Punkt 23 om varselinnsigelsen etter punkt 34.1.2 leses med OV-U89 punkt 11 og 13, slik Følge i KA-U57 sier.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "1 A, 2 A"
