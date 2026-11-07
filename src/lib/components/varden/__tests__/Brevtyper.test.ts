@@ -62,10 +62,10 @@ describe('Brevtyper', () => {
       art: 'krav' as const,
     });
     expect(HANDLINGENE.virkning.nyVersjon('forhold', brev(1), brev(2))).toBe(
-      'Erstatter påberopelsen i brev 1. Du kan ikke lenger godta svaret i brev 2 i denne saken. Byggherren svarer på den nye versjonen.'
+      'Ny versjon av påberopelsen i brev 1. Du kan ikke lenger godta svaret i brev 2 i denne saken. Byggherren svarer på den nye versjonen.'
     );
     expect(HANDLINGENE.virkning.nyVersjon('vederlag', brev(3), null)).toBe(
-      'Erstatter kravet i brev 3. Byggherren svarer på den nye versjonen.'
+      'Ny versjon av kravet i brev 3. Byggherren svarer på den nye versjonen.'
     );
   });
 

@@ -128,10 +128,13 @@
 </script>
 
 <div class="kontroll">
-  <div class="venstre">
+  <!-- Lenken står over begge kolonnene, så brevet og sendepanelet begynner på samme høyde. -->
+  <p class="tilbake">
     <Knapp variant="lenke" onclick={tilbake}
       ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
     >
+  </p>
+  <div class="venstre">
     <Brev
       {avsender}
       sak={kjernesak.saksbilde?.tittel ?? ''}
@@ -223,8 +226,11 @@
     display: grid;
     grid-template-columns: minmax(0, var(--varden-ark)) var(--varden-stoette);
     justify-content: center;
-    gap: var(--spacing-6);
+    gap: var(--spacing-3) var(--spacing-6);
     align-items: start;
+  }
+  .tilbake {
+    grid-column: 1 / -1;
   }
   .venstre {
     display: flex;
@@ -267,8 +273,8 @@
   }
   .fakta {
     display: grid;
-    grid-template-columns: 96px 1fr;
-    row-gap: var(--spacing-2);
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: var(--spacing-2) var(--spacing-5);
     font-size: 14px;
   }
   .fakta dt {

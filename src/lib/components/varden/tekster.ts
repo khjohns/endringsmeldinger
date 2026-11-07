@@ -331,7 +331,8 @@ export const HANDLINGENE = {
             : 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.',
     reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
     /**
-     * En ny kravversjon erstatter den tidligere, og sporet venter på nytt svar. Svaret på den
+     * En ny kravversjon er den byggherren svarer på, og sporet venter på nytt svar. Teksten sier
+     * rekkefølgen, ikke hva versjonene sier i forhold til hverandre (språkfila, «Forrige versjon»). Svaret på den
      * tidligere versjonen kan da ikke godtas i løsningen, og løsningen sier ikke at det er
      * avslått (MM-U34 punkt 1 og 2).
      */
@@ -339,8 +340,8 @@ export const HANDLINGENE = {
       const hva = spor === 'forhold' ? 'påberopelsen' : 'kravet';
       if (!krav) return 'Byggherren svarer på den nye versjonen.';
       if (!svar)
-        return `Erstatter ${hva} i ${brevref(krav)}. Byggherren svarer på den nye versjonen.`;
-      return `Erstatter ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på den nye versjonen.`;
+        return `Ny versjon av ${hva} i ${brevref(krav)}. Byggherren svarer på den nye versjonen.`;
+      return `Ny versjon av ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på den nye versjonen.`;
     },
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
@@ -581,9 +582,12 @@ export const NYVERSJON = {
           : stor(brevref(b))
     }`,
   utenTekst: 'Teksten i dette brevet står ikke her. Åpne det fra oversikten.',
-  /** Brevrelasjonene i brevkontrollen (oppdragsgiver 06.11, PR 1650). */
-  erstatter: 'Erstatter',
-  erstatterBrev: (krav: Brevref) => `Din tidligere påberopelse i ${brevref(krav)}`,
+  /**
+   * Brevrelasjonene i brevkontrollen: rekkefølgen og henvisningen, ikke hva brevene sier i forhold
+   * til hverandre, og uten eier på TEs eget brev (oppdragsgiver 07.11, PR 1650; språkfila).
+   */
+  forrigeVersjon: 'Forrige versjon',
+  forrigeVersjonBrev: (krav: Brevref) => `Påberopelsen i ${brevref(krav)}`,
   viserTilBrev: (svar: Brevref) => `Byggherrens svar i ${brevref(svar)}`,
   /** D-6 og 10d: en registrert enighet står (KA-U52 punkt 5). */
   enighet: (svar: Brevref) =>

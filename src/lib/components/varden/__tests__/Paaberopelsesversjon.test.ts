@@ -120,8 +120,11 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     // oversikten, ikke i bekreftelsen (oppdragsgiver 06.11 og 07.11, PR 1650).
     expect(kontrollen.queryByText('Fra')).toBeNull();
     expect(kontrollen.getByText('Mottaker').nextElementSibling?.textContent).toMatch(/\(BH\)$/);
-    expect(kontrollen.getByText('Erstatter').nextElementSibling?.textContent).toBe(
-      'Din tidligere påberopelse i brev 1'
+    // Rekkefølgen, ikke hva brevene sier i forhold til hverandre, og uten eier på TEs eget brev
+    // (oppdragsgiver 07.11, PR 1650; språkfila, «Forrige versjon»).
+    expect(kontrollen.queryByText('Erstatter')).toBeNull();
+    expect(kontrollen.getByText('Forrige versjon').nextElementSibling?.textContent).toBe(
+      'Påberopelsen i brev 1'
     );
     expect(kontrollen.getByText('Viser til').nextElementSibling?.textContent).toBe(
       'Byggherrens svar i brev 2'
