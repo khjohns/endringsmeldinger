@@ -330,10 +330,10 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
   });
 });
 
-// Kilde: LV-U26 og valget 07.11 (#1658, kravene i #1652), `.interface-design/system.md`,
-// «Typografi»: byggherrens brev i Oslo Sans i 11 pt med linjehøyde 1,6, og Oslo Sans aldri i
-// totalentreprenørens brev. Totalentreprenørens brev står i Noto Sans etter LV-U26 til
-// oppdragsgiver har valgt mellom den og Source Serif 4 i 16 px (12 pt).
+// Kilde: LV-U26, oppdragsgiver 07.11 (#1658, kravene i #1652) og `.interface-design/system.md`,
+// «Typografi»: hele brevet står i avsenderens skrift, byggherrens i Oslo Sans i 11 pt og
+// totalentreprenørens i Source Serif 4 i 16 px (12 pt), begge med linjehøyde 1,6. Oslo Sans
+// brukes aldri i totalentreprenørens brev.
 describe('brevskriften følger avsenderen (#1658, LV-U26)', () => {
   const tekst: Avsnitt[] = [
     { gjelder: 'a', laast: 'Første linje.', utdypning: 'Andre linje.\nTredje linje.' },
@@ -362,25 +362,13 @@ describe('brevskriften følger avsenderen (#1658, LV-U26)', () => {
     expect(gjengirTro(lesBrevPdf(pdf), tekst)).toBe(true);
   });
 
-  it('setter totalentreprenørens brev i Noto Sans i 11 pt med linjehøyde 1,6, uten Oslo Sans', async () => {
+  it('setter totalentreprenørens brev i Source Serif 4 i 12 pt med linjehøyde 1,6, uten Oslo Sans', async () => {
     const pdf = (await brevdokument(oppdrag(tekst, 'TE'), 'n')).innhold;
-    expect(latin1(pdf)).toMatch(/\/BaseFont \/NotoSans-Regular-/);
-    expect(sideinnhold(pdf)).toMatch(/ 11 Tf/);
-    expect(linjeavstand(pdf)).toBe(17.6);
-    expect(latin1(pdf)).not.toContain('OsloSans');
-    expect(gjengirTro(lesBrevPdf(pdf), tekst)).toBe(true);
-  });
-
-  it('kan sette brevet i Source Serif 4 i 12 pt med linjehøyde 1,6, som venter på valget', async () => {
-    const pdf = await settBrevPdf(
-      'Første linje.\nAndre linje.',
-      'x',
-      new Date(TIDSSTEMPEL),
-      'sourceSerif4'
-    );
     expect(latin1(pdf)).toMatch(/\/BaseFont \/SourceSerif4-Regular-/);
     expect(sideinnhold(pdf)).toMatch(/ 12 Tf/);
     expect(linjeavstand(pdf)).toBe(19.2);
+    expect(latin1(pdf)).not.toContain('OsloSans');
+    expect(gjengirTro(lesBrevPdf(pdf), tekst)).toBe(true);
   });
 
   const linje = 'Myk\u00adbindestrek, 2-3, 2\u20113, §\u00a033.8, 3 → 4, a ≥ b ≤ c, № 5.';

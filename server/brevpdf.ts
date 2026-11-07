@@ -60,7 +60,6 @@ const SKRIFTER = {
       ),
     stoerrelse: 11,
   },
-  notoSans: { fil: () => lokal('NotoSans-Regular.ttf'), stoerrelse: 11 },
   sourceSerif4: { fil: () => lokal('SourceSerif4-Regular.ttf'), stoerrelse: 12 },
 } satisfies Record<string, { fil: () => URL; stoerrelse: number }>;
 
@@ -68,10 +67,11 @@ const SKRIFTER = {
 export type Skriftnavn = keyof typeof SKRIFTER;
 
 /**
- * Brevskriften følger avsenderen (LV-U26). Totalentreprenørens brev står i Noto Sans etter
- * LV-U26 til oppdragsgiver har valgt mellom den og Source Serif 4 fra valget 07.11 (#1658).
+ * Hele brevet, også hodet, står i avsenderens skrift: Oslo Sans for byggherren (LV-U26) og
+ * Source Serif 4 for totalentreprenøren (oppdragsgiver 07.11, #1658, som endrer LV-U26 på
+ * det punktet).
  */
-const BREVSKRIFT: Record<Avsender, Skriftnavn> = { BH: 'osloSans', TE: 'notoSans' };
+const BREVSKRIFT: Record<Avsender, Skriftnavn> = { BH: 'osloSans', TE: 'sourceSerif4' };
 
 const LINJEHOEYDE = 1.6;
 
