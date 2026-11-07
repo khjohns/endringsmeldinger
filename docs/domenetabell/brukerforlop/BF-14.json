@@ -108,7 +108,13 @@
     "MM-U33",
     "EO-U38",
     "B-17",
-    "OV-U27"
+    "OV-U27",
+    "GR-U7",
+    "VS-U4",
+    "VS-U47",
+    "VS-U3",
+    "VS-U2",
+    "HF-U22"
   ],
   "venter_paa": [
     "#1663",
@@ -124,7 +130,12 @@
     {
       "dato": "2026-11-07",
       "forhold": "#1663",
-      "hva": "Forløpet er registrert som planlagt, med bestillingen etter svarene 07.11 og prototypen v2 (commit 00ca33b), og oppfølgingsspørsmålene 11–15."
+      "hva": "Forløpet er registrert som planlagt, med bestillingen etter svarene 07.11 og prototypen v2 (commit 00ca33b), og oppfølgingsspørsmålene 11–16."
+    },
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1665",
+      "hva": "D-9 har vilkåret om kravpost med fast sum og D-2 vilkåret om virksom enighet (GR-U7). D-13 (OV-U89 punkt 8 og 14) og D-14 (VS-U4 om punkt 34.3.3 første ledd) er nye, og prototypen har innsigelsen mot varselet etter punkt 34.3.3."
     }
   ]
 }
