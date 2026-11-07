@@ -133,15 +133,8 @@ Bakgrunn: Samlevedtaket for endringsordren punkt 23 sier: «Et utsagn gjelder et
 - Anbefalt: A. B lar ikke endringsordren vise til kravposten, slik svar 1 forutsetter.
 - Styrer: endringsordren (BF-06) og om en kravpost kan gjøres opp for seg.
 
-## Kontrollen fra kartleggingsøkta, 07.11
-
-Kontrollen av spørsmål 13 fant at rigg og drift ikke uten videre er et tilbud etter punkt 34.2.1. Etter OV-U89 punkt 17 er beløpet det totalentreprenøren mener følger av den avtalte regelen (formelen i Del II punkt 39), og OV-U94 punkt 4 viser posten til OV-U89 punkt 17. Alternativ C legges derfor til og anbefales i stedet for A:
-
-- C: Den særskilte vederlagsjusteringen med fast sum nevnes i setningen, som i OV-U94 punkt 4 i dag. Rigg og drift følger OV-U89 punkt 17 og kalles ikke tilbud.
-- Anbefalt: C.
-
 **16. Justerte enhetspriser i første versjon.**
 Bakgrunn: Svar 8 sier at alle beregningsmetodene tas med nå. OV-U94 avviser i dag krav om justerte enhetspriser (punkt 34.3.2) og varsel etter punkt 34.3.3 i første versjon.
-- A: Justerte enhetspriser og varselet etter punkt 34.3.3 tas med i forløpet og i første versjon. Det endrer OV-U94 på dette punktet.
+- A: Justerte enhetspriser og varselet etter punkt 34.3.3 tas med i forløpet og i første versjon. Forhold: endrer beslutningsdelen i OV-U94.
 - B: Første versjon har bare kontraktens enhetspriser (punkt 34.3.1). Justerte enhetspriser kommer senere.
 - Anbefalt: A. Det følger svar 8, og prototypen viser det alt.
