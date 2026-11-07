@@ -344,7 +344,7 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     ).toHaveLength(0);
   });
 
-  it('i fristsporet åpner kravet dagens visning, fordi bare den nye versjonen av påberopelsen er bygget i Varden (BF-10, BF-02B)', async () => {
+  it('i fristsporet åpner kravet i «Andre handlinger» dagens visning, fordi bare den nye versjonen av påberopelsen er bygget i Varden (BF-10, BF-02B)', async () => {
     const kortet = await vis(
       'BF-04',
       'forholdet-er-avslaatt',

@@ -31,8 +31,10 @@
   let radEl = $state<HTMLElement | null>(null);
   let radhoeyde = $state(0);
   $effect(() => {
-    if (!radEl || typeof ResizeObserver !== 'function') return;
+    if (!radEl) return;
     const el = radEl;
+    radhoeyde = el.offsetHeight;
+    if (typeof ResizeObserver !== 'function') return;
     const maal = new ResizeObserver(() => (radhoeyde = el.offsetHeight));
     maal.observe(el);
     return () => maal.disconnect();
