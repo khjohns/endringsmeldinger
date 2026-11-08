@@ -344,6 +344,9 @@ FEILINNFOERINGER = [
     ("S91", "Oslo Sans bygges inn som delmengde, som poppler ikke kan lese (#1670)", "server/brevpdf.ts",
      "    delmengde: false,", "    delmengde: true,",
      "byggherrens brev har Oslo Sans som OpenType med like mange glyfer"),
+    ("S92", "delmengden av en TrueType-skrift fyller ikke en glyf med odde lengde (#1672)",
+     "server/brevpdf.ts", "      if (glyf.length % 2) {", "      if (false) {",
+     "tar med hver glyf fra en TrueType-delmengde"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
