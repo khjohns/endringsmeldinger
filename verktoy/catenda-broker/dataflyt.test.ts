@@ -51,25 +51,7 @@ const PLASSHOLDERE: Record<string, string> = {
  * Stegene i `dataflyt.toml` med kall brokeren bevisst ikke slipper gjennom, som flyt-ID og
  * endepunktet slik det står. `avvist` og `tillatt` er alle kallene i steget.
  */
-const UNNTAK: Record<string, { grunn: string; avvist: string[]; tillatt?: string[] }> = {
-  'C03 POST /oauth2/token': {
-    grunn: 'Tokenkallet svarer brokeren på selv, med brokernøkkelen.',
-    avvist: ['POST /oauth2/token'],
-  },
-  'C03 GET /v2/projects (sidevis)': {
-    grunn: 'Prosjektlisten ved innloggingen i Python. Brokeren er avgrenset til ett prosjekt.',
-    avvist: ['GET /v2/projects (sidevis)'],
-  },
-  'C17 GET /v2/projects': {
-    grunn: 'Prosjektlisten i Python. Brokeren er avgrenset til ett prosjekt.',
-    avvist: ['GET /v2/projects'],
-  },
-  'C16 GET /v2/projects/{catenda_project_id}/ifc/products, POST samme sti ved søk, og GET …/ifc/products/ifctypes': {
-    grunn: 'IFC-søket i BIM-rutene i Python, som integrasjonen fra skyøkta ikke bruker. `ifctypes` er tillatt.',
-    avvist: ['GET /v2/projects/{catenda_project_id}/ifc/products', 'POST /v2/projects/{catenda_project_id}/ifc/products'],
-    tillatt: ['GET /v2/projects/{catenda_project_id}/ifc/products/ifctypes'],
-  },
-};
+const UNNTAK: Record<string, { grunn: string; avvist: string[]; tillatt?: string[] }> = {};
 
 type Steg = { flyt: string; endepunkt: string; kode: string[] };
 
