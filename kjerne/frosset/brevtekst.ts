@@ -30,14 +30,16 @@ import {
   grunnerFraForholdet,
   innsigelsenErOppgitt,
   innsigelsenPaaberoper,
+  svarPaaForesporsler,
+} from './standpunkt.ts';
+import {
   krevdBeloep,
   harProduktivitetspost,
   krevdIKravposten,
   krevdProduktivitet,
   krevdRigg,
   kravposterI,
-  svarPaaForesporsler,
-} from './standpunkt.ts';
+} from './kravinnhold.ts';
 import { dager, kroner } from './tekst.ts';
 import type {
   Avsnitt,

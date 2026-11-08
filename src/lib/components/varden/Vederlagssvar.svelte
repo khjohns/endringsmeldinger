@@ -18,7 +18,7 @@
 <script lang="ts">
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { fastSumIKroner, fellesOppgjoersform } from '$kjerne/frosset/standpunkt';
+  import { fastSumIKroner, fellesOppgjoersform } from '$kjerne/frosset/kravinnhold';
   import { kroner } from '$kjerne/frosset/tekst';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';

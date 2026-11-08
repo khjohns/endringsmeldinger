@@ -14,7 +14,7 @@ import type { Spor } from '$kjerne/typer';
 import { KRAVINNHOLD, oppgittDato } from '$kjerne/format/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
-import { fastSumIKroner } from '$kjerne/frosset/standpunkt';
+import { fastSumIKroner } from '$kjerne/frosset/kravinnhold';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 

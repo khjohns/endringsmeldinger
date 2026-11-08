@@ -19,12 +19,12 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
   hjemmelenGjelder,
-  krevdSamlet,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/standpunkt.ts';
+import { krevdSamlet } from '../frosset/kravinnhold.ts';
 import {
   datoenKravetBleSendt,
   foresporselForFristsvar,

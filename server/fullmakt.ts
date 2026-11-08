@@ -4,7 +4,8 @@
  * er kjernens utregning (B-13). Dagmulktssatsen leses, og kjeden avledes av hierarkiet
  * (GFK-U8), i `server/godkjenning.ts`.
  */
-import { krevdSamlet, regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
+import { regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
+import { krevdSamlet } from '../kjerne/frosset/kravinnhold.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';

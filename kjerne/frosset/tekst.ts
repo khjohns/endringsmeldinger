@@ -5,14 +5,8 @@
 
 import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
-import {
-  begrensningen,
-  etikett,
-  kategori,
-  laget,
-  standpunktet,
-  type Svarinnhold,
-} from './standpunkt.ts';
+import { begrensningen, etikett, laget, standpunktet, type Svarinnhold } from './standpunkt.ts';
+import { kategori } from './kravinnhold.ts';
 import type { Hjemmel, Krav, Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
