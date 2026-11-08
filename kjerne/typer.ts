@@ -45,6 +45,12 @@ export type Varselhjemmel = '32.2' | '33.4' | '34.1.2' | '34.1.3' | Kravpostvars
  * arbeid de gjelder (arbeidsvalget i D-16 i BF-14).
  */
 export type Kravpostvarselhjemmel = '34.3.3' | '34.4';
+/**
+ * Varselet etter § 34.3.3 eller § 34.4 for en kravpost i en ny kravversjon: kravet er varselet
+ * (`kravet`), eller varselet ble gitt før det første kravet (`varsel` er utsagnet). Utledes i
+ * `utledning/kravposter.ts` (VS-U49, VS-U55).
+ */
+export type Kravpostvarselet = { art: 'kravet' } | { art: 'gitt'; varsel: string };
 export const erKravpostvarselhjemmel = (hjemmel: Varselhjemmel): hjemmel is Kravpostvarselhjemmel =>
   hjemmel === '34.3.3' || hjemmel === '34.4';
 /** Varslene TE kan sende fra løsningen. Fra løsningen er påberopelsen varselet etter § 32.2 (GR-U31). */

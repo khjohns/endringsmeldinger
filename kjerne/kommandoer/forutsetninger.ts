@@ -23,7 +23,7 @@ import { hindrerSvarMedEttBeloep } from '../frosset/standpunkt.ts';
 import type {
   Avvisning,
   Krav,
-  Kravpostvarselhjemmel,
+  Kravvarselhjemmel,
   Kravspor,
   Part,
   Spor,
@@ -37,7 +37,11 @@ export type Handlingsnoekkel =
    * Det særskilte varselet etter § 34.1.3 tredje ledd, ved siden av varselet i sporet (OV-U25),
    * og varslene etter § 34.3.3 første ledd og § 34.4 (VS-U48, VS-U52).
    */
-  | { type: 'varsle' | 'sende_varsel'; spor: 'vederlag'; hjemmel: '34.1.3' | Kravpostvarselhjemmel }
+  | {
+      type: 'varsle' | 'sende_varsel';
+      spor: 'vederlag';
+      hjemmel: Exclude<Kravvarselhjemmel, (typeof VARSEL_I_SPORET)[Kravspor]>;
+    }
   /** VS-U34, VS-U38: varselet etter § 32.2 sendt utenfor løsningen, registrert etter påberopelsen. */
   | { type: 'varsle'; spor: 'forhold'; hjemmel: '32.2' }
   | { type: 'sende_foresporsel'; spor: 'frist' }
@@ -67,7 +71,10 @@ export const noekkel = (h: Handlingsnoekkel): string =>
         : h.type;
 
 /** Varselet i sporet, som handlingsnøkkelen uten hjemmel gjelder (OV-U5). */
-const VARSEL_I_SPORET: Record<Kravspor, Varselhjemmel> = { frist: '33.4', vederlag: '34.1.2' };
+const VARSEL_I_SPORET = { frist: '33.4', vederlag: '34.1.2' } as const satisfies Record<
+  Kravspor,
+  Varselhjemmel
+>;
 
 const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   krav: 'TE',

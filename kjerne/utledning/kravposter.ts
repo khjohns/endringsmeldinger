@@ -9,7 +9,7 @@
  */
 
 import { kravposterI } from '../frosset/standpunkt.ts';
-import type { Krav } from '../typer.ts';
+import type { Krav, Kravpostvarselet, Kravpostvarselhjemmel } from '../typer.ts';
 
 type Postinndata = { id?: unknown; betegnelse?: unknown };
 type Vederlagsinnhold = { kravposter?: Postinndata[]; trekker?: unknown[] };
@@ -75,4 +75,43 @@ export function kravposteneStrider(
   return mangler.length
     ? `mangler ${mangler.map((p) => p.betegnelse).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (KA-U56)`
     : null;
+}
+
+/** Varselet en kravpost med den oppgjørsformen trenger, eller `null`. */
+const varselhjemmel = (p: ReturnType<typeof kravposterI>[number]): Kravpostvarselhjemmel | null =>
+  p.oppgjoersform === 'regningsarbeid'
+    ? '34.4'
+    : p.oppgjoersform === 'enhetspriser' && p.justert === true
+      ? '34.3.3'
+      : null;
+
+/**
+ * Varselet for hver kravpost i `krav` som trenger et, etter kravpostens `id`.
+ * - VS-U48, VS-U49: kravet er varselet når ingen tidligere versjon har posten med samme
+ *   oppgjørsform, justert for enhetspriser.
+ * - D-16 i BF-14 (arbeidsvalget i Følge hos VS-U48) og VS-U55: et varsel etter samme bestemmelse
+ *   sendt eller registrert før det første kravet gjelder posten. Kravet viser da til det første
+ *   av dem og er ikke varselet selv.
+ * - Et varsel etter det første kravet gjelder ikke en ny post uten valget i VS-U50, som ikke
+ *   er bygget.
+ * `tidligere` er versjonene før `krav` i sporet, og `varsler` varslene etter § 34.3.3 og
+ * § 34.4 før `krav`, i rekkefølgen i journalen.
+ */
+export function kravpostvarslene(
+  krav: Pick<Krav, 'innhold'>,
+  tidligere: readonly Pick<Krav, 'innhold'>[],
+  varsler: readonly { id: string; hjemmel: string }[]
+): Record<string, Kravpostvarselet> {
+  const ut: Record<string, Kravpostvarselet> = {};
+  for (const p of kravposterI(krav)) {
+    const hjemmel = varselhjemmel(p);
+    if (hjemmel === null) continue;
+    const hattFoer = tidligere.some((k) =>
+      kravposterI(k).some((q) => q.id === p.id && varselhjemmel(q) === hjemmel)
+    );
+    if (hattFoer) continue;
+    const gitt = tidligere.length ? undefined : varsler.find((v) => v.hjemmel === hjemmel);
+    ut[p.id] = gitt ? { art: 'gitt', varsel: gitt.id } : { art: 'kravet' };
+  }
+  return ut;
 }

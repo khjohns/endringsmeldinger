@@ -3711,6 +3711,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       datoopplysninger: [],
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
+      kravpostvarsler: {},
     };
     const tekst = (gjelder: string) =>
       lagBrevtekst(protest(gjelder), s.u().journal, saken, KJERNE.regler)[0].laast;
@@ -3802,6 +3803,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       datoopplysninger: [],
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
+      kravpostvarsler: {},
     };
     expect(() => lagBrevtekst(dokument, [], saken, KJERNE.regler)).toThrow(
       'et varsel i et brev fra appen har datoen det ble sendt'
@@ -4278,6 +4280,7 @@ describe('vedleggene står i teksten (A4)', () => {
     datoopplysninger: [],
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
+    kravpostvarsler: {},
   };
 
   it('et brev med vedlegg får et avsnitt som lister filnavnene og gjelder dokumentet (arbeidsvalg 10 i #790)', () => {
@@ -7810,7 +7813,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
   });
 });
 
-describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, D-16 i BF-14, #1663)', () => {
+describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, VS-U55, D-16 i BF-14, #1663)', () => {
   const vederlagskrav = (kravposter: Data[]) => ({
     type: 'krav',
     spor: 'vederlag',
@@ -7884,7 +7887,7 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, D
     expect(s.avvist('TE', { ...sendVarsel('34.4'), spor: 'frist' })).not.toBeNull();
   });
 
-  it('et varsel sendt før det første kravet gjelder kravpostene med den beregningsregelen, og kravet sier ikke at det er varselet for dem (D-16)', () => {
+  it('et varsel sendt før det første kravet gjelder kravpostene med den beregningsregelen, og kravet viser til det i stedet for å være varselet (D-16, VS-U55)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
     const tekst = laast(
@@ -7894,15 +7897,21 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, D
       'TE krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.'
     );
     expect(tekst).not.toContain(varselRegning);
+    expect(tekst).toContain(
+      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i brev K201-KOE-017-02 av 3. oktober 2026.'
+    );
     // Varselet etter punkt 34.4 gjelder ikke justeringen av enhetsprisene.
     expect(tekst).toContain(varselEnhetspriser);
   });
 
-  it('et varsel registrert før det første kravet gjelder på samme måte (D-16, VS-U52)', () => {
+  it('et varsel registrert før det første kravet gjelder på samme måte, og kravet viser til korrespondansen (D-16, VS-U52, VS-U55)', () => {
     const s = paaberopt();
     s.send('TE', registrertVarsel('34.3.3'));
     const tekst = laast(s.send('TE', vederlagskrav([regning, justert]))).join(' ');
     expect(tekst).not.toContain(varselEnhetspriser);
+    expect(tekst).toContain(
+      'Varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3 ble gitt i totalentreprenørens e-post av 28. september 2026.'
+    );
     expect(tekst).toContain(varselRegning);
   });
 

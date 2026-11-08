@@ -95,7 +95,7 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     }
   );
 
-  it('varslene etter punkt 34.3.3 og 34.4, sendt og registrert, lagres og leses igjen, og et varsel før det første kravet gjelder kravpostene (VS-U48, VS-U52, D-16 i BF-14)', async () => {
+  it('varslene etter punkt 34.3.3 og 34.4, sendt og registrert, lagres og leses igjen, og et varsel før det første kravet gjelder kravpostene (VS-U48, VS-U52, VS-U55, D-16 i BF-14)', async () => {
     const bane = await basebane(o);
     await bygg(bane, [
       { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
@@ -116,6 +116,10 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
       'gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.'
     );
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).not.toContain('Kravet er varsel');
+    // VS-U55: kravet viser til det første varselet, sendt fra løsningen.
+    expect(kravet.brevtekst.map((a) => a.laast).join(' ')).toContain(
+      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i brev'
+    );
   });
 
   it('en referanse til et svar i en annen sak gir en sak som ikke er forstått (7.1.4)', async () => {
