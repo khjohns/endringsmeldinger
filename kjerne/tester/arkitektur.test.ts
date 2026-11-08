@@ -419,11 +419,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:utledSporene.registrer', 'relasjon', 'id'],
 
   // Standpunktene og det brevet fryser (standpunkt.ts).
-  [
-    'frosset/standpunkt.ts',
-    'regelsett',
-    `regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`,
-  ],
+  ['frosset/utregning.ts', 'regelsett', `regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`],
   ['frosset/standpunkt.ts', 'frosset', 'prinsipalt'],
   // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
   // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
@@ -469,14 +465,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'sammenfallStemmer',
     ['utledning/utled.ts:kontrollerSvarene'],
   ],
-  ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav paaberopelse'],
-  ['frosset/standpunkt.ts:regnUtSvar', 'relasjon', 'foresporsel'],
+  ['frosset/utregning.ts:regnUtSvar', 'utsagn', 'krav paaberopelse'],
+  ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
   [
     'frosset/kravinnhold.ts',
     'regelsett',
     'krevdBeloep',
-    ['frosset/brevtekst.ts', 'frosset/standpunkt.ts'],
+    ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
   ],
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser.
   [
@@ -495,9 +491,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/forutsetninger.ts'],
   ],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
-  ['frosset/standpunkt.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
+  ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
   ['frosset/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
-  ['frosset/standpunkt.ts:vederlagsposter', 'regelsett', 'godkjent saerskilt'],
+  ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent saerskilt'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
   // visningen leser.
   ['frosset/standpunkt.ts:plassene', 'frosset', 'standpunkt', ['frosset/standpunkt.ts:postlisten']],
@@ -516,13 +512,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/kravinnhold.ts',
     'regelsett',
     'krevdProduktivitet harProduktivitetspost',
-    ['frosset/brevtekst.ts', 'utledning/utled.ts', 'frosset/standpunkt.ts'],
+    ['frosset/brevtekst.ts', 'utledning/utled.ts', 'frosset/utregning.ts'],
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
   ['frosset/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
-  ['frosset/kravinnhold.ts', 'regelsett', 'harHovedbeloep', ['frosset/standpunkt.ts']],
+  ['frosset/kravinnhold.ts', 'regelsett', 'harHovedbeloep', ['frosset/utregning.ts']],
   [
     'Svarvurdering',
     'utsagn',
@@ -532,7 +528,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep`,
   ],
   [
-    'frosset/standpunkt.ts:utenforOmfanget(v)',
+    'frosset/utregning.ts:utenforOmfanget(v)',
     'utsagn',
     `hold_tilbake rigg_vurdering rigg_varslet_i_tide`,
   ],
@@ -571,7 +567,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'beregnVederlag gjelderVarslingspliktenForVederlag erBeloepetGodkjentFullt',
   ],
-  ['regler/vederlag.ts', 'regelsett', 'beregnGodkjentBeloep', ['frosset/standpunkt.ts']],
+  ['regler/vederlag.ts', 'regelsett', 'beregnGodkjentBeloep', ['frosset/utregning.ts']],
   [
     'Fristkrav',
     'regelsett',
@@ -722,7 +718,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/kravinnhold.ts',
     'utsagn',
     'kategori',
-    ['frosset/tekst.ts:beslutningslinje', 'frosset/standpunkt.ts'],
+    ['frosset/tekst.ts:beslutningslinje', 'frosset/standpunkt.ts', 'frosset/utregning.ts'],
   ],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
@@ -800,7 +796,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
-  ['format/format.ts', 'skjema', 'METODER', ['frosset/standpunkt.ts']],
+  ['format/format.ts', 'skjema', 'METODER', ['frosset/utregning.ts']],
   [
     'format/format.ts',
     'skjema',

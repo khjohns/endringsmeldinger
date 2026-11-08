@@ -14,8 +14,8 @@ import {
   godkjennerHeleKravet,
   virkninger,
   type Svarinnhold,
-  type Svarvurdering,
 } from './standpunkt.ts';
+import { type Svarvurdering } from './utregning.ts';
 import { beslutningslinje } from './tekst.ts';
 import type { Beslutningsgrunnlag, Krav, Spor } from '../typer.ts';
 

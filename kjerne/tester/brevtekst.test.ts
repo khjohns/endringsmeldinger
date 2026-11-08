@@ -27,7 +27,8 @@ import {
   norskDato,
 } from '../frosset/brevtekst.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
-import { lagFraForholdet, postlisten, regnUtSvar } from '../frosset/standpunkt.ts';
+import { lagFraForholdet, postlisten } from '../frosset/standpunkt.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
 import { kravposterI } from '../frosset/kravinnhold.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';

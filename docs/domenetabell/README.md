@@ -519,8 +519,8 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | GR-14 | [`kanInngaaIEo`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`forholdetErAvklart`](../../kjerne/frosset/standpunkt.ts) |
 | GR-15 | [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
 | GR-16 | [`forholdetErAvklart`](../../kjerne/frosset/standpunkt.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
-| GR-17 | [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts) |
-| GR-18 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`gyldigeResultater`](../../kjerne/regler/forhold.ts), [`erByggherrensPaalegg`](../../kjerne/regler/forhold.ts) |
+| GR-17 | [`regnUtSvar`](../../kjerne/frosset/utregning.ts), [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts) |
+| GR-18 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`regnUtSvar`](../../kjerne/frosset/utregning.ts), [`gyldigeResultater`](../../kjerne/regler/forhold.ts), [`erByggherrensPaalegg`](../../kjerne/regler/forhold.ts) |
 | GR-19 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
 | GR-20 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-21 | [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`forholdetErAvklart`](../../kjerne/frosset/standpunkt.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
@@ -550,14 +550,14 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | KA-41 | [`strid`](../../kjerne/utledning/utled.ts) |
 | VS-01 | [`kanFaaInnsigelse`](../../kjerne/utledning/utled.ts), [`kanFaaProtest`](../../kjerne/utledning/utled.ts), [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts) |
 | VS-02 | [`innsigelsenPaaberoper`](../../kjerne/frosset/standpunkt.ts), [`innsigelsenErOppgitt`](../../kjerne/frosset/standpunkt.ts), [`nyttelastkontroll`](../../kjerne/kommandoer/nyttelast.ts) |
-| VS-03 | [`kontroller`](../../kjerne/regler/frist.ts), [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts) |
+| VS-03 | [`kontroller`](../../kjerne/regler/frist.ts), [`regnUtSvar`](../../kjerne/frosset/utregning.ts), [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts) |
 | VS-05 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts) |
 | VS-06 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`nyttelastkontroll`](../../kjerne/kommandoer/nyttelast.ts) |
 | VS-07 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`nyttelastkontroll`](../../kjerne/kommandoer/nyttelast.ts) |
 | KA-50 | [`dokumentasjonIBrevet`](../../kjerne/utledning/utled.ts) |
 | KA-51 | [`tekstavvik`](../../kjerne/kommandoer/skriving.ts) |
 | KA-55 | [`kravposteneStrider`](../../kjerne/utledning/kravposter.ts) |
-| KA-56 | [`hindrerSvarMedEttBeloep`](../../kjerne/frosset/standpunkt.ts) |
+| KA-56 | [`hindrerSvarMedEttBeloep`](../../kjerne/frosset/kravinnhold.ts) |
 <!-- sporbarhet:slutt -->
 
 ## Formatet

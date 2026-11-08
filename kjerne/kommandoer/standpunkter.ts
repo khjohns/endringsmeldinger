@@ -5,7 +5,7 @@
 
 import { HJEMMEL } from '../format/format.ts';
 import { forholdsstandpunkter } from '../frosset/frysing.ts';
-import { vederlagsposter } from '../frosset/standpunkt.ts';
+import { vederlagsposter } from '../frosset/utregning.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Svarutkast } from './kommando.ts';
 import {

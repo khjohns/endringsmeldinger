@@ -9,7 +9,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { forhaandsvis, laastTekst, utledJournal, vurder } from '../kommandoer/skriving.ts';
-import { regnUtSvar, type Svarvurdering } from '../frosset/standpunkt.ts';
+import { regnUtSvar, type Svarvurdering } from '../frosset/utregning.ts';
 import { enighetensVirkning } from '../utledning/utled.ts';
 import { BETEGNELSER, betegnelse, visning } from '../utledning/visning.ts';
 import { SPOR, type Journalrad, type Part, type Spor } from '../typer.ts';

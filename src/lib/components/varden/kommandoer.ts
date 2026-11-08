@@ -5,7 +5,7 @@
  * avviser kommandoen med sin egen melding før brevet vises.
  */
 
-import { regnUtSvar, type Svarvurdering } from '$kjerne/frosset/standpunkt';
+import { regnUtSvar, type Svarvurdering } from '$kjerne/frosset/utregning';
 import { UgyldigBeloep } from '$kjerne/regler/beloep';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';

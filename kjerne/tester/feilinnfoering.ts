@@ -1491,7 +1491,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F181',
     feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/utregning.ts`,
     endringer: [['v.hovedkrav_varslet_i_tide != null &&', 'false &&']],
     mal: ['F-MM-V-34-1-2-endring'],
   },
@@ -1510,11 +1510,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F183',
     feilklasse: 'det subsidiære beløpet ved preklusjon etter § 34.1.2 lagres ikke (VS-U3, B-13)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/utregning.ts`,
     endringer: [
       [
-        'if (r.subsidiaer_resultat !== null) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
-        'if (false) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
+        'if (r.subsidiaer_resultat !== null) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
+        'if (false) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
       ],
     ],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
@@ -1567,7 +1567,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F188',
     feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/utregning.ts`,
     endringer: [
       [
         'if (v.aksepterer_metode === false && !METODER.includes(',
@@ -1622,14 +1622,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F193',
     feilklasse:
       'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/utregning.ts`,
     endringer: [['ut.godkjent_dager = maatteForstaa;', 'ut.godkjent_dager = r.godkjent_dager;']],
     mal: ['serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt'],
   },
   {
     id: 'F194',
     feilklasse: 'de prinsipale dagene etter § 33.6.1 kan være flere enn de vurderte',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/utregning.ts`,
     endringer: [['if (d > (v.dager as number))', 'if (false)']],
     mal: ['F-MM-F-33-6-1-flere-enn-vurdert'],
   },
