@@ -154,6 +154,9 @@ const MSSQL_METODER = new Set([
   'begin',
 ]);
 
+let kompilatorvalg: ts.CompilerOptions | undefined;
+const kildefiler = new Map<string, ts.SourceFile | undefined>();
+
 /**
  * Stedene i filene i `sjekk` som lager en pool, en transaksjon, en forberedt
  * spørring eller en forespørsel fra `mssql`, også gjennom en subklasse, eller viser
@@ -164,17 +167,27 @@ const MSSQL_METODER = new Set([
  * `kilder` erstatter teksten i filene det gjelder.
  */
 export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): string[] {
-  const valg = ts.parseJsonConfigFileContent(
+  const valg = (kompilatorvalg ??= ts.parseJsonConfigFileContent(
     ts.readConfigFile(join(SERVER, 'tsconfig.json'), ts.sys.readFile).config,
     ts.sys,
     SERVER
-  ).options;
+  ).options);
   const vert = ts.createCompilerHost(valg);
   const les = vert.getSourceFile.bind(vert);
-  vert.getSourceFile = (navn, ...resten) =>
-    kilder.has(navn)
-      ? ts.createSourceFile(navn, kilder.get(navn)!, ts.ScriptTarget.Latest, true)
-      : les(navn, ...resten);
+  // Typedeklarasjonene i `node_modules` leses én gang per testfil, ikke én gang per
+  // program (#1714). Filene i repoet leses på nytt hver gang.
+  vert.getSourceFile = (navn, spraakversjon, ...resten) => {
+    if (kilder.has(navn))
+      return ts.createSourceFile(navn, kilder.get(navn)!, ts.ScriptTarget.Latest, true);
+    if (!navn.includes('/node_modules/')) return les(navn, spraakversjon, ...resten);
+    const { languageVersion, impliedNodeFormat } =
+      typeof spraakversjon === 'object'
+        ? spraakversjon
+        : { languageVersion: spraakversjon, impliedNodeFormat: undefined };
+    const noekkel = `${navn}\0${languageVersion}\0${impliedNodeFormat}`;
+    if (!kildefiler.has(noekkel)) kildefiler.set(noekkel, les(navn, spraakversjon, ...resten));
+    return kildefiler.get(noekkel);
+  };
   const program = ts.createProgram(sjekk, valg, vert);
   const kontroll = program.getTypeChecker();
   const iMssql = (d: ts.Node) => d.getSourceFile().fileName.includes('/mssql/');

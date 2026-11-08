@@ -76,9 +76,11 @@
   const part = $derived(kjernesak.part as Part);
   const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes(spor)));
   const siste = $derived(sporbrev.at(-1) ?? null);
-  const iSporet = $derived(handlingerISporet(u, kjernesak.handlinger, spor));
+  const iSporet = $derived(handlingerISporet(kjernesak.tilbudte, spor));
+  const noekler = $derived(iSporet.map((h) => h.noekkel));
+  const handlingen = (n: string) => iSporet.find((h) => h.noekkel === n);
   const svaret = $derived(u.spor[spor].gjeldendeSvar);
-  const kanGodta = $derived(svaret !== null && iSporet.includes(`godta:${spor}`));
+  const kanGodta = $derived(svaret !== null && noekler.includes(`godta:${spor}`));
   const svarbrevet = $derived(svaret ? sporbrev.find((b) => b.id === svaret.dokument) : undefined);
   // Brevet brukeren valgte å lese på siden for forholdet, og `null` på selve siden.
   let lest = $state<string | null>(null);
@@ -90,9 +92,9 @@
   // Primærhandlingen er svaret på motpartens siste brev når kjernen tilbyr det, og etter
   // byggherrens svar TEs nye versjon. Ellers har kortet ingen (oppdragsgiver 06.11, #1649).
   const primaer = $derived(
-    iSporet.includes(`svare:${spor}`)
+    noekler.includes(`svare:${spor}`)
       ? `svare:${spor}`
-      : kanGodta && iSporet.includes(`krav:${spor}`)
+      : kanGodta && noekler.includes(`krav:${spor}`)
         ? `krav:${spor}`
         : null
   );
@@ -102,18 +104,18 @@
     'godta',
     ...(spor === 'vederlag' ? ['svare'] : spor === 'forhold' ? ['krav'] : []),
   ]);
-  const primaerBygget = $derived(!!primaer && bygget.includes(primaer.split(':')[0]));
+  const primaerBygget = $derived(!!primaer && bygget.includes(handlingen(primaer)!.type));
   let primaerIkkeBygget = $state(false);
   // Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista (U-1 i BF-02A, #1615).
   const korrigerbare = $derived(
-    kjernesak.handlinger.filter((n) => n.startsWith('korrigere:')).map((n) => n.slice(10))
+    kjernesak.tilbudte.flatMap((h) => (h.type === 'korrigere' && h.gjelder ? [h.gjelder] : []))
   );
   // Innsigelsen om at et brev kom for sent er ikke en handling i Varden. Den hører hjemme i
   // svaret på brevet eller i et innlegg (oppdragsgiver 06.11, PR 1650).
   const menyvalg = $derived(
-    iSporet.filter(
-      (n) => n !== primaer && !n.startsWith('korrigere:') && !n.startsWith('innsigelse:')
-    )
+    iSporet
+      .filter((h) => h.noekkel !== primaer && h.type !== 'korrigere' && h.type !== 'innsigelse')
+      .map((h) => h.noekkel)
   );
   const avslag = $derived(
     svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
@@ -147,14 +149,14 @@
 
   /** Teksten for et varsel med hjemmelen, og for handlingene i forholdet og etter svaret. */
   function innsigelsestekst(n: string): string | null {
-    const [type, id] = n.split(':');
-    if (type === 'varsle' || type === 'sende_varsel') return varselet(type, id);
+    const h = handlingen(n);
+    if (h?.hjemmel) return varselet(h.type, h.hjemmel);
     if (n === 'trekke:forhold') return FORHOLDET.trekk;
     if (n === `godta:${spor}`) return HANDLINGENE.godta(avslag);
     if (n === 'svare:forhold')
       return u.spor.forhold.krav.length > 1 ? FORHOLDET.svarNyVersjon : FORHOLDET.svar;
     if (n === 'krav:forhold') return FORHOLDET.oppdater;
-    if (type === 'krav' && kanGodta) return HANDLINGENE.revidertKrav;
+    if (h?.type === 'krav' && kanGodta) return HANDLINGENE.revidertKrav;
     return null;
   }
 
@@ -276,7 +278,7 @@
           {@const linje = virkningen(primaer)}
           {@const tekst =
             innsigelsestekst(primaer) ??
-            BREVTYPER.find((b) => b.type === primaer!.split(':')[0])!.tekst}
+            BREVTYPER.find((b) => b.type === handlingen(primaer!)!.type)!.tekst}
           <div class="primaer">
             {#if primaerBygget}
               <Knapp

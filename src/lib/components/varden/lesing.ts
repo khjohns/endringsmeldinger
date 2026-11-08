@@ -18,7 +18,8 @@ import {
 } from '$kjerne/frosset/kravinnhold';
 import { tilTall } from '$kjerne/regler/beloep';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
-import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';
+import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
+import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar, Varselhjemmel } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -286,20 +287,17 @@ export function forholdetISaken(u: Utledning): { navn: string; gruppe: string } 
   return f && g ? { navn: f.navn, gruppe: g.navn } : null;
 }
 
+/** Varslene Varden har tekst for. Varslene etter § 34.3.3 og § 34.4 kommer i økt 3 (G-8 i BF-14). */
+const VARSLENE_I_VARDEN: readonly Varselhjemmel[] = ['33.4', '34.1.2', '34.1.3'];
+
 /**
- * Handlingene kjernen tilbyr som gjelder sporet: de med sporet i nøkkelen, varselet etter
- * § 34.1.3 i vederlaget, og de som gjelder et krav eller svar i sporet. Saken som helhet
+ * Handlingene kjernen tilbyr i sporet, med sporet kjernen gir hver av dem. Saken som helhet
  * (`registrere_brev`) hører ikke til et spor.
  */
-export function handlingerISporet(u: Utledning, tilbudt: string[], spor: Spor): string[] {
-  const iSporet = sporFor(u);
-  return tilbudt.filter((n) => {
-    const [, hva] = n.split(':');
-    if (hva === undefined) return false;
-    if (hva === spor) return true;
-    if (hva === '34.1.3') return spor === 'vederlag';
-    return iSporet.get(hva) === spor;
-  });
+export function handlingerISporet(tilbudt: TilbudtHandling[], spor: Spor): TilbudtHandling[] {
+  return tilbudt.filter(
+    (h) => h.spor === spor && (h.hjemmel === null || VARSLENE_I_VARDEN.includes(h.hjemmel))
+  );
 }
 
 /**

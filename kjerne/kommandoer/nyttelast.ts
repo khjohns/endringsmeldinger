@@ -23,7 +23,7 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/utregning.ts';
-import { krevdSamlet } from '../frosset/kravinnhold.ts';
+import { innholdIForholdet, kategori, krevdSamlet } from '../frosset/kravinnhold.ts';
 import {
   datoenKravetBleSendt,
   foresporselForFristsvar,
@@ -184,20 +184,20 @@ function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): A
  * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
  */
 function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
-  const forrige = u.spor.forhold.gjeldendeKrav;
-  if (k.spor !== 'forhold' || !forrige) return null;
+  if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav) return null;
+  const forrige = innholdIForholdet(u.spor.forhold.gjeldendeKrav);
   if (
-    tekst(k.innhold.hovedkategori) !== tekst(forrige.innhold.hovedkategori) ||
-    tekst(k.innhold.underkategori) !== tekst(forrige.innhold.underkategori)
+    tekst(k.innhold.hovedkategori) !== forrige.hovedkategori ||
+    tekst(k.innhold.underkategori) !== forrige.underkategori
   )
     return avvis(
       'ANNEN_HJEMMEL',
       'Grunnlaget er sendt, og en ny versjon kan ikke endre hovedkategorien eller underkategorien (GR-U22).'
     );
-  if (tekst(k.innhold.endringsordre) !== tekst(forrige.innhold.endringsordre))
+  if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)
     return avvis(
       'ANNEN_ENDRINGSORDRE',
-      `Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «${tekst(forrige.innhold.endringsordre)}». En annen endringsordre påberopes i en ny sak (MM-U52 punkt 14).`
+      `Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak (MM-U52 punkt 14).`
     );
   return null;
 }
@@ -227,8 +227,8 @@ function kontrollerKorrigering(
   u: Utledning
 ): Avvisning | null {
   const { felt, dato } = korrigertDato(k);
-  const krav = u.spor.forhold.gjeldendeKrav!;
-  const kategoriensFelt = oppgittDato(krav.innhold.hovedkategori, krav.innhold.underkategori);
+  const { hovedkategori, underkategori } = kategori(u.spor.forhold.gjeldendeKrav);
+  const kategoriensFelt = oppgittDato(hovedkategori, underkategori);
   if (felt !== kategoriensFelt)
     return avvis(
       'UGYLDIG_KORRIGERING',
