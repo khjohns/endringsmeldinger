@@ -339,7 +339,7 @@ def scan_codebase(root: Path) -> list[SecurityFinding]:
     all_findings = []
 
     extensions = {'.ts', '.tsx', '.js', '.jsx', '.py', '.env', '.yaml', '.yml'}
-    scan_dirs = [root / 'src', root / 'backend', root / 'e2e']
+    scan_dirs = [root / 'src', root / 'e2e']
 
     for scan_dir in scan_dirs:
         if not scan_dir.exists():

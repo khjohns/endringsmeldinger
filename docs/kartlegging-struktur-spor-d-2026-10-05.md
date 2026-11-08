@@ -66,7 +66,7 @@ som hendelser gjennom `BusinessRuleValidator.validate` og
 `TimelineService.compute_state`, slik `/api/events` gjør, men uten HTTP og
 uten lagring. Svarene bærer verdiene regelmodulen regner ut, så de passerer
 `COMPUTED_RESULT`. Reproduksjonene står i
-[`test_strukturkartlegging_spor_d.py`](../backend/tests/test_services/test_strukturkartlegging_spor_d.py)
+[`test_strukturkartlegging_spor_d.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_services/test_strukturkartlegging_spor_d.py)
 (åtte strenge `xfail`) og
 [`strukturkartlegging_spor_d.test.ts`](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts)
 (fire `it.fails`). Hver er kjørt med `--runxfail` og som vanlig `it` for å se

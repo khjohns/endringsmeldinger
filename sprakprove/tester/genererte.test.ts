@@ -6,7 +6,7 @@ import { offentligTilstand } from '../kjerne/offentlig.ts';
 import { fraRad, tilRad } from '../kjerne/rad.ts';
 import { gjeldendeSvar, projiser } from '../kjerne/sak.ts';
 import type { Spor } from '../kjerne/typer.ts';
-import { KORPUS, minnebane } from './korpus.ts';
+import { minnebane, PREFIKSER } from './bane.ts';
 
 type Handling = Record<string, unknown> & { handling: string };
 
@@ -39,7 +39,8 @@ describe('genererte forløp mot TS-kjernen', () => {
 
   it.each(forlopene().map((s, i) => [i, s] as const))('forløp %i', (i, steg) => {
     const bane = minnebane();
-    for (const h of KORPUS.prefikser[oppsett.start]) expect(bane.send(h).godtatt).toBe(true);
+    for (const h of PREFIKSER[oppsett.start as keyof typeof PREFIKSER])
+      expect(bane.send(h).godtatt).toBe(true);
     steg.forEach((h, n) => {
       const hvor = `seed ${oppsett.seed}, forløp ${i}, steg ${n + 1} (${h.handling})`;
       const for_ = bane.sak();

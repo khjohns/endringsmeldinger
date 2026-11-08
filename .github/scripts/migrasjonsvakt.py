@@ -27,9 +27,8 @@ from datetime import datetime
 
 import tilleggsregel
 
-MAPPER = ("database/migrasjoner", "supabase/migrations")
+MAPPER = ("database/migrasjoner",)
 FILNAVN = re.compile(r"^(\d{14})_[a-z0-9_]+\.sql$")
-SQLSERVER = "database/migrasjoner"
 # Den siste versjonen i database/migrasjoner/ før første ekte sak. None til den
 # er satt; da kontrolleres bare filene som er markert …_tillegg.sql (#1091).
 FOERSTE_EKTE_SAK: str | None = None
@@ -58,8 +57,6 @@ def gyldig_tidspunkt(versjon: str) -> bool:
 
 def to_trinn(mappe: str, navn: str, versjon: str) -> list[str]:
     """Det i den nye fila `navn` som bryter regelen om to trinn (DL-U16)."""
-    if mappe != SQLSERVER:
-        return []
     if navn.endswith("_tillegg.sql"):
         tekst = subprocess.run(
             ["git", "show", f"HEAD:{mappe}/{navn}"], check=True, capture_output=True, text=True,

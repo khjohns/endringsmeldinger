@@ -169,7 +169,7 @@ rettigheter og samspill mellom kommandoer og mutable data.
 
 **Sted:** `02_b02_lag.sql`, `runtime_skriv` på `notat`; `fk_notat_sak` og
 `notat_pkey` i
-[notatmigrasjonen](../supabase/migrations/20260921153900_notat_tabell.sql).
+[notatmigrasjonen](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/supabase/migrations/20260921153900_notat_tabell.sql).
 
 **K, som avgrenset `koe_runtime`:** et notat med A som prosjekt og korrekte
 aktør-/teamfelt kunne referere til en eksisterende sak i B. Samme operasjon
@@ -187,10 +187,10 @@ feil før svar. Direkte DML krever en tilsvarende begrunnet kontrakt.
 
 **Hvem kan nå dette?** Forsøkene går direkte til prototypens database.
 I dagens app genererer serveren notat-ID, og
-[`require_project_access`](../backend/lib/auth/project_access.py) kontrollerer
+[`require_project_access`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/auth/project_access.py) kontrollerer
 sakene før
-[`submit_event`](../backend/routes/event_routes.py) når notatlageret.
-[`parse_event_from_request`](../backend/models/events.py) avviser klientens
+[`submit_event`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/event_routes.py) når notatlageret.
+[`parse_event_from_request`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/models/events.py) avviser klientens
 `event_id`. Dette er L, ikke en kjørt HTTP-reproduksjon. Det er derfor ikke
 påvist en sidekanal for en vanlig bruker i dagens app. En overtatt runtime
 kan nå databaseforsøkene; konfidensialitet der er godtatt restrisiko.
@@ -235,7 +235,7 @@ ha den beskrevne betydningen. Definer hvordan teamtilhørigheten attesteres.
 
 **Sted:** `02_b02_lag.sql`, eierskiftet til `koe_identitet`; katalogens
 `koe_resolve_identity` og `koe_reconcile_memberships`;
-[`AuthService`](../backend/services/auth_service.py).
+[`AuthService`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/auth_service.py).
 
 **D:** begge funksjonene er fortsatt INVOKER i prosjektet, med tom `search_path`
 og EXECUTE bare for `postgres`/`service_role`. Prototypens DEFINER-konvertering

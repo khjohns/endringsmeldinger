@@ -79,7 +79,7 @@ over EO-verdiene i `EventType`. Det er den svakeste kilden i katalogen.
 ### DM-05 — skjemaet for ny sak kan ikke opprette saken *(middels)*
 
 **Sted:** `require_project_access` i
-[`project_access.py`](../backend/lib/auth/project_access.py), og
+[`project_access.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/auth/project_access.py), og
 `NewCaseForm.svelte`, som sender gjennom `submitEvent` i `src/lib/api/events.ts`.
 
 - **Lest ut av koden (L 29.09):**

@@ -118,11 +118,11 @@ En ren telling av ID-er eller ordtreff er ikke tilstrekkelig innholdskontroll.
 
 **Sted:** Geminis kildegrunnlag, matriseraden AUT-03, linje 85.
 **Symboler:** `submit_batch` i
-[`backend/routes/event_routes.py`](../backend/routes/event_routes.py),
+[`backend/routes/event_routes.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/event_routes.py),
 `test_batchruta_avviser_internt_notat` i
-[`test_notat_lagring.py`](../backend/tests/test_routes/test_notat_lagring.py) og
+[`test_notat_lagring.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_routes/test_notat_lagring.py) og
 `test_batch_innsending_lekker_internt_notat_i_last_event_at` i
-[`test_autorisasjon_audit_20260918.py`](../backend/tests/test_security/test_autorisasjon_audit_20260918.py).
+[`test_autorisasjon_audit_20260918.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_security/test_autorisasjon_audit_20260918.py).
 
 Gemini fører AUT-03 som åpen og verifisert ved kodelesing: batchruta skal fortsatt
 oppdatere det offentlige tidsstempelet for interne notater. Dagens rute avviser

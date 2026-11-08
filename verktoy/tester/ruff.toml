@@ -1,4 +1,4 @@
-# Samme regler som testene i backend/ hadde da vaktene ble flyttet hit (#49).
+# Reglene testene i Python-appen hadde da vaktene ble flyttet hit (#49).
 target-version = "py311"
 line-length = 88
 

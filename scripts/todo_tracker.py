@@ -161,7 +161,7 @@ def scan_codebase(root: Path) -> list[TodoItem]:
     all_todos = []
 
     extensions = {'.ts', '.tsx', '.js', '.jsx', '.py', '.md', '.yaml', '.yml', '.json'}
-    scan_dirs = [root / 'src', root / 'backend', root / 'e2e', root / 'docs']
+    scan_dirs = [root / 'src', root / 'e2e', root / 'docs']
 
     for scan_dir in scan_dirs:
         if not scan_dir.exists():

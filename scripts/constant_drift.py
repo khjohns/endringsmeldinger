@@ -3,7 +3,7 @@
 Hardcoded Constants Detector
 
 Finner dupliserte hardkodede verdier som bør sentraliseres.
-Sjekker både frontend (TypeScript) og backend (Python) for:
+Sjekker frontenden (TypeScript) for:
 - Tall som gjentas 3+ ganger
 - URL-strenger
 - Magic strings/constants
@@ -161,8 +161,8 @@ def scan_codebase(root: Path) -> dict[str, dict[str, list[Location]]]:
     # Filer å skanne
     extensions = {'.ts', '.tsx', '.js', '.jsx', '.py'}
 
-    # Skann src/ og backend/
-    scan_dirs = [root / 'src', root / 'backend', root / 'e2e', root / '__mocks__']
+    # Skann src/
+    scan_dirs = [root / 'src', root / 'e2e', root / '__mocks__']
 
     for scan_dir in scan_dirs:
         if not scan_dir.exists():

@@ -39,8 +39,7 @@ og forteller orkestratoren oppgavetypen (oppdragsgiver 27.10).
 milepæl eller en sporetikett. Runder settes sammen etter hvilke filer øktene rører
 ([orkestreringsskillen, punkt 1](../orkestrering/SKILL.md#1-kartlegg-før-du-fordeler)),
 og lagetiketten er det første utvalget. Avgjør laget ut fra mappene arbeidet rører, ikke
-ut fra ordet «TS»: etter byttet i #310 er hele appen TS. Et issue som bare dokumenterer
-et avvik i Python-stien etter DL-U2, er ikke et byggeissue og får ingen lagetikett.
+ut fra ordet «TS»: etter byttet i #310 er hele appen TS.
 
 Heller ikke disse får en lagetikett (oppdragsgiver 26.10):
 

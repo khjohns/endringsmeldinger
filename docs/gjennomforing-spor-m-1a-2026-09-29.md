@@ -117,7 +117,7 @@ plattformen.
 ### DM-04 — vakta for ruteregisteret ser ikke alle ruter *(middels)*
 
 **Sted:** `_uautentiserte_ruter` og `AUTH_DECORATORS` i
-[`test_public_route_registry.py`](../backend/tests/test_security/test_public_route_registry.py).
+[`test_public_route_registry.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_security/test_public_route_registry.py).
 
 `AGENTS.md` sier at testen håndhever sikkerhetsinvarianten om `require_auth`
 og `require_project_access`. Den gjør mindre enn det, på tre måter:

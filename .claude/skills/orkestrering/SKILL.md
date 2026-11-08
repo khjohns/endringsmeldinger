@@ -466,8 +466,8 @@ oppdragsgiver som før (oppdragsgiver 17.10). Avslutningen (punkt 5) sier hvilke
 PR-er som er merget på forhånd.
 
 Bruk `expectedHeadSha`, slik at en push som kom etter gjennomgangen, stopper
-mergen. Regelsettet på `main` krever de fire CI-jobbene (Backend, Database,
-Frontend, Lint) fra repoet ble offentlig 11.10.
+mergen. Hvilke CI-jobber regelsettet på `main` krever, står i regelsettet:
+`gh api repos/khjohns/endringsmeldinger/rules/branches/main`.
 
 Integrasjonen i skyøkta kan ikke starte en Actions-kjøring på nytt (403). En ny
 kjøring kommer med en oppdatering mot `main` når grenen er bak, ellers må

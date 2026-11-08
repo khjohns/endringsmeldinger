@@ -375,7 +375,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   majeure kan derfor ikke uttrykkes
   ([#367](https://github.com/khjohns/endringsmeldinger/issues/367)). Ingen regel
   i kjernen skiller ut force majeure. Python har `er_force_majeure` i
-  [`backend/constants/grunnlag_categories.py`](../backend/constants/grunnlag_categories.py),
+  [`backend/constants/grunnlag_categories.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/constants/grunnlag_categories.py),
   men ingen kaller den.
 
 ### § 33.4 — varsel om fristforlengelse
@@ -479,7 +479,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   `foresporsel_svar_ok` i [`regler/frist.ts`](../kjerne/regler/frist.ts), men
   kjernen setter dem alltid usann, og usann `foresporsel_svar_ok` avvises.
   Python avviser påberopelsen etter fjerde ledd (`kontroller` i
-  [`backend/regler/frist.py`](../backend/regler/frist.py)).
+  [`backend/regler/frist.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/frist.py)).
   Ingen utsagnsart. Feltene fra DRF-02 og SD-04 (#64, #76) og `begrunnelse_utsatt`
   uten dager (#237) hører hit.
 

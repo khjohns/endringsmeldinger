@@ -1,5 +1,0 @@
-.coverage
-htmlcov/
-.pytest_cache/
-*.backup
-local.settings.json

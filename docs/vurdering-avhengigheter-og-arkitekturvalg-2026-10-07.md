@@ -40,8 +40,8 @@ pakken og oppgitte forutsetninger; appens konsekvens krever egen reproduksjon.
 
 ## AV-01: Lås kjent miljø før oppgraderingsgruppene
 
-**Fil og symbol:** [kravfilene](../backend/requirements.txt),
-[utviklingskrav](../backend/requirements-dev.txt) og
+**Fil og symbol:** [kravfilene](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/requirements.txt),
+[utviklingskrav](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/requirements-dev.txt) og
 [CI-installasjonene](../.github/workflows/ci.yml).
 Oppfølging av installasjonslås og transportvedlikehold er sporet i
 [#269](https://github.com/khjohns/endringsmeldinger/issues/269).
@@ -67,8 +67,8 @@ etterprøvbar; advisorykontroll er en separat oppgave.
 
 **Fil og symbol:** [RichTextEditor](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/primitives/RichTextEditor.svelte),
 [LockedValueNode.renderHTML](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/editor/LockedValueNode.ts),
-[CatendaClientBase._create_session](../backend/integrations/catenda/base.py)
-og [CatendaOAuth._request](../backend/lib/auth/catenda_oauth.py).
+[CatendaClientBase._create_session](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/integrations/catenda/base.py)
+og [CatendaOAuth._request](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/auth/catenda_oauth.py).
 Versjonene nedenfor er kontrollert **07.10.2026**, og er kandidater til prøving,
 ikke installerte eller ferdig testede mål.
 
@@ -110,8 +110,8 @@ versjonsoppdatering gir ikke en felles flerarbeidergrense.
 ## AV-03: Fjern begrunnet overflate og verifiser bygg
 
 **Fil og symbol:** [package.json](../package.json),
-[CI](../.github/workflows/ci.yml), [krav](../backend/requirements.txt),
-[validation_drift.py.parse_frontend_schemas](../scripts/validation_drift.py).
+[CI](../.github/workflows/ci.yml), [krav](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/requirements.txt),
+[validation_drift.py.parse_frontend_schemas](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/scripts/validation_drift.py).
 Formsnap, Superforms og Zod mangler faktisk appbruk i det undersøkte treet.
 Fjern skjemapakkene som samlet ubrukt stakk; behold bare Zod dersom samme arbeid gir
 pakken en konkret runtimegrense. Driftkontrollen leter etter gamle React-filer
@@ -133,11 +133,11 @@ låste installasjon har dem, så dette er ingen observert oppstartsfeil.
 
 ## AV-04: Modellverktøyene kan støtte M3/M5 allerede
 
-**Fil og symbol:** [AnyEvent og parse_event](../backend/models/events.py),
-[validate_event_data](../backend/api/validators.py),
-[public_state](../backend/lib/auth/event_visibility.py),
+**Fil og symbol:** [AnyEvent og parse_event](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/models/events.py),
+[validate_event_data](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/api/validators.py),
+[public_state](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/auth/event_visibility.py),
 [apiFetch](../src/lib/api/client.ts) og
-[get_event_json_schema](../backend/lib/cloudevents/schemas.py).
+[get_event_json_schema](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/cloudevents/schemas.py).
 Pydantic v2 tilbyr `TypeAdapter`, taggede unioner og særskilte validerings-/serialiseringsskjema.
 Disse trenger ingen majoroppgradering. Dagens parsing velger allerede modell
 etter `event_type` og responsdata etter `spor`; problemet er flere kart og
@@ -161,9 +161,9 @@ og ukjente felt uten automatisk typekonvertering eller feltfjerning.
 
 ## AV-05: TS-prototypen skal måle vedlikehold og bevise semantikk
 
-**Fil og symbol:** [backend/regler](../backend/regler/__init__.py),
+**Fil og symbol:** [backend/regler](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/__init__.py),
 [vederlagDomain](https://github.com/khjohns/endringsmeldinger/blob/ad17e225a15d18fd04978f622305119ccc48c891/src/lib/domain/vederlagDomain.ts) og
-[kontroller_svar](../backend/regler/sammenlikning.py).
+[kontroller_svar](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/sammenlikning.py).
 Prøv den representative flyten fra [arkitekturforslaget](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#7-ma-07-en-tidsbegrenset-beslutningsprøve):
 vederlag med grunnlagsavhengighet, supplert med et fristscenario, i ordinære
 `.ts`-moduler. Kjernen tar domenedata og returnerer domenesvar uten IO,
@@ -218,9 +218,9 @@ TanStack Query fjernes; cache, load og workspace må bevare versjonsmonotoni og
 
 ## AV-07 og AV-08: Behold adaptere til erstatningen har en gevinst
 
-**Fil og symbol:** [approval_letter.pdf_bytes](../backend/services/approval_letter.py),
-[LetterPdfGenerator](../backend/services/letter_pdf_generator.py) og
-[Database.transaksjon](../backend/lib/db/database.py).
+**Fil og symbol:** [approval_letter.pdf_bytes](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_letter.py),
+[LetterPdfGenerator](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/letter_pdf_generator.py) og
+[Database.transaksjon](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/database.py).
 ReportLab 5.0.1 krever separat majorprøve mot kjent 4.4.10, med syntetiske brev,
 visuell rendering, norske tegn, lange tekster og ressursgrenser. To PDF-genereringer
 med samme input ga ulike bytes og hash i underlaget. F2 må derfor levere samme

@@ -2,8 +2,7 @@
 
 En fil er uendret når koden uten kommentarer er lik før og etter. TypeScript og
 JavaScript skrives ut av TypeScript-printeren uten kommentarer og JSDoc
-(`uten_kommentarer.mjs`), Python sammenlignes som syntakstre, der en docstring er
-en streng og teller. Formateringen ses det dermed også bort fra. Kan en av
+(`uten_kommentarer.mjs`). Formateringen ses det dermed også bort fra. Kan en av
 versjonene ikke leses eller parses, eller er språket ukjent, er fila endret.
 
 Leser `git diff --name-status --no-renames FRA HEAD` på stdin og skriver stien
@@ -13,7 +12,6 @@ Bruk: git -c core.quotePath=false diff --name-status --no-renames FRA HEAD \\
   -- <stier> | python3 kommentarer.py FRA
 """
 
-import ast
 import subprocess
 import sys
 from pathlib import Path
@@ -23,11 +21,6 @@ SKRIVER = Path(__file__).with_name("uten_kommentarer.mjs")
 
 def uten_kommentarer(innhold: str, sti: str) -> str | None:
     """Koden i `sti` uten kommentarer, eller None når den ikke kan leses."""
-    if sti.endswith(".py"):
-        try:
-            return ast.dump(ast.parse(innhold))
-        except (SyntaxError, ValueError):
-            return None
     if not sti.endswith((".ts", ".mts", ".cts", ".js", ".mjs", ".cjs")):
         return None
     try:
