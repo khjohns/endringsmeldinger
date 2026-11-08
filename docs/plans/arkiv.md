@@ -89,12 +89,14 @@ Statusordene og kildene står i [funnregisteret i hovedplanen](2026-09-16-godkje
 | OBS-03 | Lukket | Latent: `ce_time` kuttet offset. **Merknad 2026-09-23:** reprodusert på enhetsnivå med `+02:00` og `-05:00` (den siste ga den ugyldige strengen `…-05:00Z`); ingen kjørested gir i dag annet enn UTC. Rettet med `astimezone(UTC)`, naiv tid regnes fortsatt som UTC. Aktuelt i F0b, der `timestamptz` kommer tilbake i øktens tidssone | K 23.09 | — |
 | OBS-04 | Lukket | `ce_source` skriver `unknown` (20.09) | H | — |
 | TST-02 | Lukket | Samtidig opprettelse i `JsonFileEventRepository`, rettet 22.09: saksfilen skrives til en unik midlertidig fil og publiseres med `os.link`, som feiler når filen finnes. To samtidige opprettelser gir én sak og én `ConcurrencyError`, også når begge har passert eksistenssjekken eller skrevet ferdig. Gjelder bare JSON-lageret; Supabase-lageret er ikke kjørt. Samme sak som KR-15 | K 22.09, L | — |
+| CFG-05, CFG-06, CFG-07 | Bortfalt | Supabase-nøkler utenfor `Settings`; død `CORS_ORIGINS`; relativ `env_file`. **Merknad 2026-11-08:** `Settings` i `backend/core/config.py` er slettet med Python-stien (PR #1719) | H | — |
 
 ### 4.3 Arkitektur og database: AR, DA, MS
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
 | AR-05 | Lukket | CI med PostgreSQL 17-jobb (PR #33). Regelsettet `main` krever de fire jobbene, har ingen bypass og krever oppdatert gren (lest med GitHub-API-et 22.09) | K 22.09 | — |
+| AR-08 | Bortfalt | Seks av ni driftdetektorer feilet. **Merknad 2026-11-08:** driftdetektorene er slettet med PR #1719 | H | — |
 | DA-01, DA-02, DA-05, DA-06 | Lukket | 20.09 | D 20.09 | — |
 | DA-03 | Lukket | Migrasjonsmappa er eneste kilde. Historikken avstemt 22.09: 23 rader, samme versjoner som filene; `db push --dry-run` er tom. Originalteksten til de slettede radene er arkivert | K 22.09 | — |
 | DA-07 | Korreksjon | `app_identities` er i bruk | D 20.09 | — |

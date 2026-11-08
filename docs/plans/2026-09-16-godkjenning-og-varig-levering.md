@@ -687,7 +687,6 @@ er beholdt.
 | CFG-02 | Åpen | `CSRF_SECRET` brukes ikke. Testinventaret førte som CFG-03 | Streng `xfail` (statisk) | H |
 | CFG-03 | Duplikat | → RV-13. Testinventaret førte som CFG-04 | Streng `xfail`, K 22.09 | H |
 | CFG-04 | Åpen | Usatt `APP_ENV` gir ulik tolkning. Testinventaret førte som CFG-02 | Streng `xfail`, K 22.09 | H |
-| CFG-05, CFG-06, CFG-07 | Åpen | Supabase-nøkler utenfor `Settings`; død `CORS_ORIGINS`; relativ `env_file` | Streng `xfail` | H |
 | TS2-01 | Åpen, middels | Usatt `EVENT_STORE_BACKEND` gir JSON-lageret på lokal disk uten advarsel; metadata tilsvarende CSV. Banneret viser «csv». Ført inn 22.09 fra [TST-02-notatet](../gjennomforing-tst02-2026-09-22.md#ts2-01--json-lageret-er-standardverdien) | L 22.09 | H |
 | OBS-01, OBS-02 | Åpen, høy | Ett funn (19.09): ingen forretningshendelse revisjonslogges, og 403-avvisninger når ikke feilhåndtereren | Streng `xfail`, K 22.09 | F1 |
 | OBS-05 | Åpen | Hendelser mangler korrelasjons-ID. Testinventaret førte som OBS-04 | Streng `xfail` (statisk) | F1 |
@@ -716,7 +715,6 @@ DM ([1a](../gjennomforing-spor-m-1a-2026-09-29.md#2-funn),
 | AR-04 | Åpen | Domenemodellen finnes i Python og TypeScript | H | F4 |
 | AR-06 | Duplikat | → AP-04 | — | F2 |
 | AR-07 | Åpen, lav | Inert e-postpolicy på `project_memberships`. Fjernes med tabellen | D 20.09 | F1 |
-| AR-08 | Åpen, lav | Seks av ni driftdetektorer feiler | H | H |
 | DA-04 | Lukket i repo | Fila har basens versjon. Historikken inngår i DA-03 | D 20.09 | F0 |
 | DA-08, DA-09 | Åpen | `user_groups` og `magic_links` fjernes. → MS-15 | D 20.09 | F1 |
 | DA-10 | Åpen | `project_memberships` fjernes etter at `viewer` finnes i `app_project_memberships` | D 20.09 | F1 |
@@ -859,6 +857,8 @@ Merknadene til F0b om det som er levert eller ordnet fram til 24.10, står i [ar
 > Python over PostgreSQL, er historikk (under), og teksten før er i Git (se
 > toppteksten). F0b kommer før eller sammen med #310 (FK), og F1 kommer etter
 > F0b som før.
+
+> **Merknad 2026-11-08 til F0b:** levert: punkt 4, TS2-02. Python-stien, reservelagrene og PostgreSQL-migrasjonene er slettet, og CI kjører vaktene for verktøyene i en egen jobb ([PR #1716](https://github.com/khjohns/endringsmeldinger/pull/1716), merge 5ff4eb4; [PR #1717](https://github.com/khjohns/endringsmeldinger/pull/1717), merge ce87a30; [PR #1719](https://github.com/khjohns/endringsmeldinger/pull/1719), merge e3f31de; lukker [#49](https://github.com/khjohns/endringsmeldinger/issues/49)). AR-08 og CFG-05, CFG-06 og CFG-07 er flyttet til arkivet: gjenstanden for dem er slettet.
 
 **Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
 alternativ C prøves tidlig i T-SQL ([B-12, databasen](vedtak.md#b-12-databasen), #395). Lagringsformen er avgjort med
