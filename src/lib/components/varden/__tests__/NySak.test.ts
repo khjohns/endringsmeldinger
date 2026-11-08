@@ -9,13 +9,12 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/sve
 import NySak from '$lib/components/varden/NySak.svelte';
 import { DEMOMERKING, finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import {
+  fjernAndresVentende,
   fjernVentende,
   lagreVentende,
   lesVentende,
-  type SendNySak,
-  type Utfylling,
-  type VedleggForNySak,
-} from '$lib/components/varden/nysak';
+} from '$lib/components/varden/ventende';
+import { type SendNySak, type Utfylling, type VedleggForNySak } from '$lib/components/varden/nysak';
 import type { Kjernevedlegg } from '$lib/api/kjerne';
 import { kravMotNySak, type Saksmerking } from '$lib/kjernesak/brevtekst';
 import { ApiError } from '$lib/api/client';
@@ -712,11 +711,23 @@ describe('den ventende opprettelsen (#1526 punkt 1)', () => {
       },
     };
     lagreVentende('bruker-a', 'p1', ventende);
-    expect(lesVentende('bruker-b', 'p1')).toBeNull();
-    expect(lesVentende('bruker-a', 'p1')).toEqual(ventende);
     fjernVentende('bruker-b', 'p1');
     expect(lesVentende('bruker-a', 'p1')).toEqual(ventende);
+    expect(lesVentende('bruker-b', 'p1')).toBeNull();
     fjernVentende('bruker-a', 'p1');
+  });
+
+  it('når neste brukers sesjon er hentet, fjernes forrige brukers utkast fra fanen (#1678)', () => {
+    const ventende = { sakId: 'sak-1', kommandoId: 'kommando-1', utkast: null };
+    lagreVentende('bruker-a', 'p1', ventende);
+    lagreVentende('bruker-a', 'p2', ventende);
+    lagreVentende('bruker-b', 'p3', ventende);
+    sessionStorage.setItem('annet', 'beholdes');
+    fjernAndresVentende('bruker-b');
+    expect(sessionStorage.getItem('nysak:ventende:bruker-a:p1')).toBeNull();
+    expect(sessionStorage.getItem('nysak:ventende:bruker-a:p2')).toBeNull();
+    expect(lesVentende('bruker-b', 'p3')).toEqual(ventende);
+    expect(sessionStorage.getItem('annet')).toBe('beholdes');
   });
 
   it('uten en innlogget bruker lagres og leses ingenting (#1678)', () => {

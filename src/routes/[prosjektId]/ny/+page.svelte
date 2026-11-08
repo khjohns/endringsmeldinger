@@ -9,13 +9,8 @@
   import { resolve } from '$app/paths';
   import NySak from '$lib/components/varden/NySak.svelte';
   import Vardensak from '$lib/components/varden/Vardensak.svelte';
-  import {
-    fjernVentende,
-    lagreVentende,
-    lesVentende,
-    type SendNySak,
-    type VedleggForNySak,
-  } from '$lib/components/varden/nysak';
+  import { type SendNySak, type VedleggForNySak } from '$lib/components/varden/nysak';
+  import { fjernVentende, lagreVentende, lesVentende } from '$lib/components/varden/ventende';
   import {
     hentSaksmerkingForNySak,
     lastOppVedleggForNySak,
