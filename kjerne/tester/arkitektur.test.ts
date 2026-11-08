@@ -272,8 +272,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
-  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager'],
-  // #1707: kravinnholdet leses gjennom den typede tilgangen per spor i `frosset/kravinnhold.ts`.
+  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor i `frosset/kravinnhold.ts`.
+  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager', ['frosset/kravinnhold.ts']],
   [
     'Krav.innhold',
     'utsagn',
@@ -281,7 +281,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/kravinnhold.ts:innholdIForholdet'],
   ],
   ['Forholdsinnhold', 'utsagn', 'hovedkategori underkategori'],
-  ['Forholdsinnhold', 'utsagn', 'endringsordre', ['frosset/brevtekst.ts']],
+  [
+    'Forholdsinnhold',
+    'utsagn',
+    'endringsordre',
+    ['frosset/brevtekst.ts', 'kommandoer/nyttelast.ts:kategorisperre'],
+  ],
   ['Fristinnhold', 'utsagn', 'dager'],
   // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene i vederlagskravet, og kravpostene
   // fra forrige versjon TE trekker (KA-U56).
@@ -672,7 +677,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // MM-U52 punkt 14: endringsordren i underkategorien endringsordre står.
   ['Kommando.innhold', 'utsagn', 'endringsordre', ['kommandoer/nyttelast.ts:kategorisperre']],
-  ['Krav.innhold', 'utsagn', 'endringsordre', ['kommandoer/nyttelast.ts:kategorisperre']],
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
   ['Svarutkast', 'kommando', 'resultat', ['kommandoer/nyttelast.ts']],
   ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
@@ -777,13 +781,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/standpunkt.ts',
       'frosset/utregning.ts',
       'kommandoer/forutsetninger.ts:korrigering',
+      'kommandoer/nyttelast.ts:kontrollerKorrigering',
     ],
   ],
   [
     'frosset/kravinnhold.ts',
     'utsagn',
     'innholdIForholdet',
-    ['frosset/brevtekst.ts', 'frosset/brevtittel.ts', 'utledning/utled.ts:opplysningerOmDatoen'],
+    [
+      'frosset/brevtekst.ts',
+      'frosset/brevtittel.ts',
+      'utledning/utled.ts:opplysningerOmDatoen',
+      'kommandoer/nyttelast.ts:kategorisperre',
+    ],
   ],
   [
     'frosset/kravinnhold.ts',
