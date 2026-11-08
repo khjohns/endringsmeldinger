@@ -4,7 +4,7 @@
  * D-2, GR-U15), ledetekstene som følger forholdet (F-5, VS-U26), og at saken først finnes når
  * påberopelsen er godtatt (KT-U11).
  */
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import NySak from '$lib/components/varden/NySak.svelte';
 import { DEMOMERKING, finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
@@ -687,12 +687,41 @@ describe('programfeil i brevkontrollen for ny sak (#898)', () => {
 });
 
 describe('den ventende opprettelsen (#1526 punkt 1)', () => {
+  beforeEach(() => sessionStorage.clear());
+
   it('ID-ene og utkastet leses tilbake etter ny innlasting, per prosjekt, til de fjernes', () => {
     const ventende = { sakId: 'sak-1', kommandoId: 'kommando-1', utkast: null };
-    lagreVentende('p1', ventende);
-    expect(lesVentende('p1')).toEqual(ventende);
-    expect(lesVentende('p2')).toBeNull();
-    fjernVentende('p1');
-    expect(lesVentende('p1')).toBeNull();
+    lagreVentende('bruker-a', 'p1', ventende);
+    expect(lesVentende('bruker-a', 'p1')).toEqual(ventende);
+    expect(lesVentende('bruker-a', 'p2')).toBeNull();
+    fjernVentende('bruker-a', 'p1');
+    expect(lesVentende('bruker-a', 'p1')).toBeNull();
+  });
+
+  it('en annen bruker i samme fane får ikke utkastet, ID-ene eller vedleggene, også uten utlogging (#1678)', () => {
+    const ventende = {
+      sakId: 'sak-1',
+      kommandoId: 'kommando-1',
+      utkast: {
+        forhold: { gruppe: 'ENDRING', kode: 'IRREG' },
+        tittel: 'Annen fundamentering',
+        beskrivelse: 'Teksten til bruker A.',
+        dato: '2026-10-01',
+        endringsordre: '',
+        vedlegg: [{ vedlegg_id: 'v-1', filnavn: 'a.pdf', innhold_sha256: 'abc', stoerrelse: 3 }],
+      },
+    };
+    lagreVentende('bruker-a', 'p1', ventende);
+    expect(lesVentende('bruker-b', 'p1')).toBeNull();
+    expect(lesVentende('bruker-a', 'p1')).toEqual(ventende);
+    fjernVentende('bruker-b', 'p1');
+    expect(lesVentende('bruker-a', 'p1')).toEqual(ventende);
+    fjernVentende('bruker-a', 'p1');
+  });
+
+  it('uten en innlogget bruker lagres og leses ingenting (#1678)', () => {
+    lagreVentende(undefined, 'p1', { sakId: 'sak-1', kommandoId: 'kommando-1', utkast: null });
+    expect(sessionStorage.length).toBe(0);
+    expect(lesVentende(undefined, 'p1')).toBeNull();
   });
 });

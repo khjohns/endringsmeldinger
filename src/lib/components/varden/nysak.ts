@@ -226,6 +226,11 @@ export interface Brevsending {
  * ID-ene med det samme skjemaet. Har serveren lagret det første forsøket, får TE saken fra
  * kvitteringen, og det blir ikke to saker. Den fjernes når saken er opprettet, eller når TE
  * avbryter. Lagringen er per fane, og skjemaet virker uten den.
+ *
+ * Den er lagret per bruker, så en annen bruker som logger inn i samme fane, ikke får forrige
+ * brukers tekst, vedlegg eller ID-er, også når den første sesjonen utløp uten utlogging.
+ * Uten en innlogget bruker lagres og leses ingenting. Utloggingen tømmer fanens lagring
+ * (`logout` i `$lib/api/auth`, #1678).
  */
 export interface VentendeOpprettelse {
   sakId: string;
@@ -233,28 +238,39 @@ export interface VentendeOpprettelse {
   utkast: Utfylling | null;
 }
 
-const ventendeNoekkel = (prosjektId: string) => `nysak:ventende:${prosjektId}`;
+const ventendeNoekkel = (brukerId: string, prosjektId: string) =>
+  `nysak:ventende:${brukerId}:${prosjektId}`;
 
-export function lesVentende(prosjektId: string): VentendeOpprettelse | null {
+export function lesVentende(
+  brukerId: string | undefined,
+  prosjektId: string
+): VentendeOpprettelse | null {
+  if (!brukerId) return null;
   try {
-    const lagret = sessionStorage.getItem(ventendeNoekkel(prosjektId));
+    const lagret = sessionStorage.getItem(ventendeNoekkel(brukerId, prosjektId));
     return lagret ? (JSON.parse(lagret) as VentendeOpprettelse) : null;
   } catch {
     return null;
   }
 }
 
-export function lagreVentende(prosjektId: string, ventende: VentendeOpprettelse) {
+export function lagreVentende(
+  brukerId: string | undefined,
+  prosjektId: string,
+  ventende: VentendeOpprettelse
+) {
+  if (!brukerId) return;
   try {
-    sessionStorage.setItem(ventendeNoekkel(prosjektId), JSON.stringify(ventende));
+    sessionStorage.setItem(ventendeNoekkel(brukerId, prosjektId), JSON.stringify(ventende));
   } catch {
     // Uten lagringen sender et nytt forsøk i samme visning fortsatt samme ID-er.
   }
 }
 
-export function fjernVentende(prosjektId: string) {
+export function fjernVentende(brukerId: string | undefined, prosjektId: string) {
+  if (!brukerId) return;
   try {
-    sessionStorage.removeItem(ventendeNoekkel(prosjektId));
+    sessionStorage.removeItem(ventendeNoekkel(brukerId, prosjektId));
   } catch {
     // Som over.
   }
