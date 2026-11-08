@@ -11,12 +11,13 @@ import uuid
 
 import pytest
 from pydantic import ValidationError as PydanticValidationError
+from test_domenetabell import kontrakt
 
 from lib.cloudevents.schemas import EVENT_TYPE_TO_DATA_MODEL
 from models.events import parse_event, parse_event_from_request
 from models.sak_state import FristTilstand, GrunnlagTilstand, SakState, VederlagTilstand
 from services.timeline_service import TimelineService
-from tests.test_domenetabell import kontrakt, korpus
+from tests.test_domenetabell import korpus
 from tests.test_domenetabell.test_kravversjon_og_aksept import Domenebane
 
 SPORMODELLER = {"grunnlag": GrunnlagTilstand, "vederlag": VederlagTilstand, "frist": FristTilstand}
@@ -30,26 +31,6 @@ def _felt(modell) -> set[str]:
 
 
 # ---------- skjemaet ----------
-
-
-def test_skjemaet_bruker_bare_noekkelordene_validatoren_kan():
-    assert kontrakt.ukjente_nokkelord() == []
-
-
-def test_validatoren_finner_avvik():
-    """Validatoren er testens eget verktøy, så den prøves mot kjente avvik."""
-    skjema = {
-        "type": "object",
-        "properties": {"a": {"type": ["string", "null"]}, "b": {"enum": [1, 2]}},
-        "required": ["a"],
-        "additionalProperties": False,
-    }
-    assert kontrakt.feil_i({"a": None, "b": 2}, skjema) == []
-    assert kontrakt.feil_i({"b": 2}, skjema) == ["$.a: mangler"]
-    assert kontrakt.feil_i({"a": 1}, skjema) == ["$.a: 1 er ikke string/null"]
-    assert kontrakt.feil_i({"a": "x", "c": 1}, skjema) == ["$.c: ukjent felt"]
-    assert kontrakt.feil_i({"a": "x", "b": 3}, skjema) == ["$.b: 3 er ikke en av [1, 2]"]
-    assert kontrakt.ukjente_nokkelord({"pattern": "x"}) == ["#: pattern"]
 
 
 def test_enumene_i_skjemaet_er_modellens():

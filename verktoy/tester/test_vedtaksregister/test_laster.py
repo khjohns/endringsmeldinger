@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from tests.verktoy import MAPPE, last
+from verktoymoduler import MAPPE, last
 
 
 def test_dataflyt_kan_lastes_alene_uten_at_relasjoner_er_lastet_foerst():
@@ -90,7 +90,7 @@ def test_et_skript_kjoerer_uten_mappa_i_sys_path(flagg):
 
 def test_en_modul_lastet_paa_sti_av_en_annen_kaller_bruker_verktoy_laster(tmp_path):
     """#958: en kaller som laster modulen med `spec_from_file_location`, uten
-    tests.verktoy.last og uten mappa i `sys.path`."""
+    verktoymoduler.last og uten mappa i `sys.path`."""
     skript = (
         "import importlib.util as u, sys; "
         "s = u.spec_from_file_location('vh', sys.argv[1]); m = u.module_from_spec(s); "
@@ -109,13 +109,13 @@ def test_en_annen_modul_som_heter_laster_kolliderer_ikke(tmp_path):
     (tmp_path / "laster.py").write_text("FREMMED = True\n")
     skript = (
         "import sys; sys.path.insert(0, sys.argv[1]); import laster; "
-        "sys.path.insert(0, sys.argv[2]); from tests.verktoy import last; "
+        "sys.path.insert(0, sys.argv[2]); from verktoymoduler import last; "
         "vh = last('vedtakshenvisninger'); "
         "assert vh.last is sys.modules['verktoy.laster'].last; "
         "assert sys.modules['laster'].FREMMED"
     )
     resultat = subprocess.run(
-        [sys.executable, "-c", skript, str(tmp_path), str(MAPPE.parents[1] / "backend")],
+        [sys.executable, "-c", skript, str(tmp_path), str(MAPPE.parents[1] / "verktoy" / "tester")],
         capture_output=True, text=True, cwd=tmp_path,
     )
     assert resultat.returncode == 0, resultat.stderr

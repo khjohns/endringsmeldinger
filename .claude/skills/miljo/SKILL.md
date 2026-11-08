@@ -15,13 +15,14 @@ står i [«Nettleseren» i den skillen](../mockup-nettleser/SKILL.md#nettleseren
 
 ```bash
 cd backend && /tmp/venv/bin/python -m pytest -q
+cd verktoy/tester && /tmp/venv/bin/python -m pytest -q  # vaktene for verktøyene og registrene (#49)
 npm test && npm run check:error      # skal gi 0 errors
 npx tsc -p kjerne/tsconfig.json      # svelte-check ser ikke kjerne/
 npx tsc -p sprakprove/tsconfig.json  # eller sprakprove/
 npx tsc -p sprakprove/skrivesti/tsconfig.json  # skrivestien, som CI også kjører (#1469)
 npx tsc -p server/tsconfig.json      # eller server/
 python3 server/tester/feilinnfoering.py --ankre  # ankrene for serveren, som CI kjører (#1469)
-ruff check backend/                  # porten, skal være 0
+ruff check backend/ verktoy/tester/  # porten, skal være 0
 ```
 
 Lenkekontrollen og vakttesten for brukerforløpene kjører i CI. For hånd, når en

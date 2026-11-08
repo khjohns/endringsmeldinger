@@ -1,0 +1,3 @@
+# Vaktene i verktoy/tester/ (#49).
+pytest>=7.0.0
+ruff==0.16.8                      # Pinnet som i backend/requirements-dev.txt: gater i CI

@@ -19,7 +19,7 @@ Ansvarlig: khjohns. Avhengigheter: git og en innlogget `gh` med `--slurp`
 En gren er kandidat når SHA-en er en forfar til hovedgrenen, eller når den er
 head i en flettet PR fra samme repo med uendret SHA og merge-commiten finnes i
 hovedgrenen (squash og rebase). Testene i
-backend/tests/test_scripts/test_rydd_grener.py prøver klassifiseringen og
+verktoy/tester/test_skript/test_rydd_grener.py prøver klassifiseringen og
 slettesteget uten nett; bare en kjøring mot GitHub prøver git og gh.
 """
 

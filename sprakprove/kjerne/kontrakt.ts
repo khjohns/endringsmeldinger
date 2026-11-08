@@ -1,7 +1,7 @@
 /**
  * Kontrakten i `docs/domenetabell/kontrakt.json`, validert ved kjøretid.
  * Validatoren kan bare nøkkelordene skjemaet bruker, som validatoren i
- * `backend/tests/test_domenetabell/kontrakt.py`. Skjemaet er den eneste kilden;
+ * `verktoy/tester/test_domenetabell/kontrakt.py`. Skjemaet er den eneste kilden;
  * typene i kjernen holdes mot det av kontrakttesten.
  *
  * Forskjell fra Python: JSON skiller ikke 5 fra 5.0 i JavaScript, så `integer`

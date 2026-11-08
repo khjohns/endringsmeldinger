@@ -14,9 +14,9 @@ import re
 import sys
 
 import pytest
+from verktoymoduler import last
 
 from tests.test_security.test_database_arkitektur_20260920 import TABELLER_I_BASEN
-from tests.verktoy import last
 
 ROT = pathlib.Path(__file__).resolve().parents[3]
 BACKEND = ROT / "backend"

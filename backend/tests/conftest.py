@@ -13,6 +13,9 @@ import sys
 import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Lasteren for docs/verktoy og validatoren for kontrakt.json står i verktoy/tester/
+# og brukes også herfra til testene her er slettet (#49).
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "verktoy", "tester")))
 
 # Miljøet går foran backend/.env, også for skriptene testene starter som egne
 # prosesser. Et uttrykkelig `TS_SKRIVESTI=true pytest` står seg for dem; i

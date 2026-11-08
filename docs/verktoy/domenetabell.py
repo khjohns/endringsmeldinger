@@ -14,8 +14,8 @@ med grunnen. En rad for et vedtak som bygges senere, har vedtaket som utsetter d
     python3 docs/verktoy/domenetabell.py          # kontroller; 1 ved feil eller utdatert tabell
     python3 docs/verktoy/domenetabell.py --skriv  # skriv tabellen på nytt
 
-`backend/tests/test_domenetabell/` kjører kontrollen i CI og bevis-sakene mot
-Python-projeksjonen. Kontrollen viser at referansene henger sammen, ikke at
+`verktoy/tester/test_domenetabell/` kjører kontrollen i CI, og
+`backend/tests/test_domenetabell/` kjører bevis-sakene mot Python-projeksjonen. Kontrollen viser at referansene henger sammen, ikke at
 forventningene er riktige.
 """
 

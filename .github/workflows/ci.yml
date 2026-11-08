@@ -38,6 +38,7 @@ jobs:
           cache-dependency-path: |
             backend/requirements.txt
             backend/requirements-dev.txt
+            verktoy/tester/requirements.txt
 
       # Testene av regelversjonsvakten fjerner kommentarene med typescript (#1549).
       - uses: actions/setup-node@v4
@@ -50,15 +51,22 @@ jobs:
       - name: Installer avhengigheter
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+          pip install -r backend/requirements.txt -r backend/requirements-dev.txt -r verktoy/tester/requirements.txt
 
       # Live-testene mot Supabase er opt-in med RUN_LIVE_SUPABASE=1 (RV-16).
       - name: Kjør testene
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider
 
+      # Vaktene for verktøyene og registrene (#49) står i den påkrevde jobben til
+      # backend/ er slettet.
+      - name: Kjør vaktene for verktøyene
+        if: ${{ !cancelled() }}
+        working-directory: verktoy/tester
+        run: python -m pytest -q
+
       - name: Lint
-        run: ruff check backend/
+        run: ruff check backend/ verktoy/tester/
 
   # Bygger migrasjonene i supabase/migrations/ fra tom mot PostgreSQL 17. Ingen
   # test i TS eller Python bruker basen lenger (#931, #935); jobben står til
@@ -226,4 +234,4 @@ jobs:
         continue-on-error: true
         run: |
           python -m pip install --quiet pip-audit==2.9.0
-          pip-audit --requirement backend/requirements.txt --requirement backend/requirements-dev.txt --progress-spinner off
+          pip-audit --requirement backend/requirements.txt --requirement backend/requirements-dev.txt --requirement verktoy/tester/requirements.txt --progress-spinner off

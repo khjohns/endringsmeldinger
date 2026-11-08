@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.verktoy import MAPPE
+from verktoymoduler import MAPPE
 
 SKRIPT = MAPPE / "lenkekontroll.py"
 

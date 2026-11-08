@@ -165,7 +165,7 @@ Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
   [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i
   vedtaksfila er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd. CI har ikke
   NS 8407-teksten. Kjør derfor `python docs/verktoy/vedtaksregister.py --sjekk`
-  og `pytest tests/test_vedtaksregister` fra `backend/` med klonen av
+  og `pytest test_vedtaksregister` fra `verktoy/tester/` med klonen av
   `khjohns/kontrakt` på plass ([kildene](../../../docs/vedtaksregister/README.md#vakttestene)),
   og før resultatet i PR-en. Meldingen «Sitatene fra NS 8407 er hoppet over»
   betyr at kontrollen ikke er kjørt.
