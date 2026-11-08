@@ -802,13 +802,16 @@ export function hindrerSvarMedEttBeloep(krav: Krav): string | null {
 /**
  * Det krevde beløpet i kravposten, i øre, slik utregningen, kontrollen av begrunnelsen og
  * brevet leser det (#508). Har kravet ikke nøyaktig én kravpost med fast sum, kaster den
- * `Error`; et krav med bare postene utenfor leses med `harHovedbeloep` først (OV-U23), og
- * svaret tilbys ikke for et krav `hindrerSvarMedEttBeloep` gir et hinder for.
+ * `UgyldigVurdering`, så et svar med ett beløp avvises og ikke gir en feil på serveren. Et
+ * krav med bare postene utenfor leses med `harHovedbeloep` først (OV-U23), og svaret tilbys
+ * ikke for et krav `hindrerSvarMedEttBeloep` gir et hinder for.
  */
 export function krevdBeloep(krav: Krav): Oere {
   const poster = kravposterI(krav);
   if (poster.length !== 1 || poster[0].oppgjoersform !== 'tilbud')
-    throw new Error(`Kravet ${krav.id} har ikke nøyaktig én kravpost med fast sum.`);
+    throw new UgyldigVurdering({
+      hovedkrav_vurdering: `kravet ${krav.id} har ikke nøyaktig én kravpost med fast sum`,
+    });
   const krevd = lesKrevd(krav, poster[0].beloep);
   if (krevd === null) throw new Error(`Det krevde beløpet mangler i kravet ${krav.id}.`);
   return krevd;

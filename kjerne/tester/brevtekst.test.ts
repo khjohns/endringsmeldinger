@@ -7795,9 +7795,9 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
         { ...post1, betegnelse: 'P2', beloep: 5000 },
       ])
     );
-    expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');
     // Svaret tilbys ikke, så visningen åpner ikke et skjema kjernen ikke kan regne ut.
     expect(handlinger(s.u(), 'BH')).not.toContain('svare:vederlag');
+    expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');
     // Én kravpost etter en beregningsregel.
     s.send(
       'TE',
@@ -7805,6 +7805,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
         trekker: poster(s).map(([, id]) => id),
       })
     );
+    expect(handlinger(s.u(), 'BH')).not.toContain('svare:vederlag');
     expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');
   });
 });

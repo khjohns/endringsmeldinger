@@ -556,9 +556,13 @@ function vederlagstekst(k: Krav, { j }: Tekst): string {
   const deler = poster.map((p) => punktum(kravposttekst(p, foer)));
   const forrige = foer.at(-1);
   for (const id of (k.innhold.trekker as string[] | undefined) ?? []) {
-    const p = kravposterI(forrige!).find((q) => q.id === id)!;
+    const p = forrige && kravposterI(forrige).find((q) => q.id === id);
+    if (!p)
+      throw new KanIkkeUttrykkes(
+        `trekket gjelder kravposten ${id}, som ikke står i forrige kravversjon`
+      );
     deler.push(
-      `TE trekker kravet i ${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}, fremsatt i ${j.brevet(forrige!.dokument)}. Trekket er avkall på kravet i kravposten, også det byggherren har godkjent.`
+      `TE trekker kravet i ${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}, fremsatt i ${j.brevet(forrige.dokument)}. Trekket er avkall på kravet i kravposten, også det byggherren har godkjent.`
     );
   }
   // OV-U95 punkt 3: «i tillegg» når vederlagsjusteringen har minst én kravpost.
