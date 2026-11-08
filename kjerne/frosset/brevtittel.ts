@@ -4,6 +4,7 @@
  */
 
 import { forholdet, paaberopelsenAv } from './forholdene.ts';
+import { innholdIForholdet } from './kravinnhold.ts';
 import type { Dokument, Sakskode, Spor } from '../typer.ts';
 
 /** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */
@@ -74,7 +75,7 @@ export const UTSAGNSTITTEL = {
 /** Forholdet brevet påberoper (GR-U31): et krav i forholdssporet i et brev uten svar. */
 function paaberoptForhold(d: Pick<Dokument, 'krav' | 'svar'>) {
   if (d.svar.length) return null;
-  return forholdet(d.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori);
+  return forholdet(innholdIForholdet(d.krav.find((k) => k.spor === 'forhold')).underkategori);
 }
 
 /**

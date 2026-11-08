@@ -35,6 +35,9 @@ import {
 import {
   krevdBeloep,
   harProduktivitetspost,
+  innholdIForholdet,
+  innholdIFristen,
+  innholdIVederlaget,
   krevdIKravposten,
   krevdProduktivitet,
   krevdRigg,
@@ -344,16 +347,18 @@ const DATOEN_I_BREVET: Record<OppgittDato, string> = {
  */
 function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[] {
   const navnet = `«${saken.tittel}» i sak ${sakensKode(saken.sakskode)}`;
-  const hoved = k.innhold.hovedkategori as string;
-  const f = forholdet(k.innhold.underkategori);
+  const innhold = innholdIForholdet(k);
+  const hoved = innhold.hovedkategori;
+  const f = forholdet(innhold.underkategori);
   const nyVersjon = k.erstatter !== null;
   const dato = (felt: OppgittDato) => {
-    if (typeof k.innhold[felt] !== 'string') return [];
+    const oppgitt = innhold.datoer[felt];
+    if (oppgitt === null) return [];
     // LV-U56: hver tidligere opplysning med brevet den ble oppgitt i, den opprinnelige først.
     const opplysninger = saken.datoopplysninger.filter((o) => o.felt === felt);
     const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];
     return [
-      stor(`${DATOEN_I_BREVET[felt]} ${norskDato(k.innhold[felt] as string)}.`),
+      stor(`${DATOEN_I_BREVET[felt]} ${norskDato(oppgitt)}.`),
       ...(tidligere.length
         ? [
             `Totalentreprenøren oppga tidligere ${liste(tidligere.map((o) => `${norskDato(o.dato)} i ${j.brevet(o.dokument)}`))}.`,
@@ -364,11 +369,11 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
   if (hoved === 'endring' && f?.kode === 'endringsordre')
     return nyVersjon
       ? [
-          `Påberopelsen gjelder endringsordre «${k.innhold.endringsordre as string}» fra byggherren (NS 8407 punkt 31.3) for ${navnet}.`,
+          `Påberopelsen gjelder endringsordre «${innhold.endringsordre}» fra byggherren (NS 8407 punkt 31.3) for ${navnet}.`,
         ]
       : [
           `Totalentreprenøren gjør gjeldende krav som følge av en endringsordre fra byggherren for ${navnet} (NS 8407 punkt 31.3).`,
-          `Totalentreprenøren viser til endringsordren «${k.innhold.endringsordre as string}».`,
+          `Totalentreprenøren viser til endringsordren «${innhold.endringsordre}».`,
         ];
   if (hoved === 'endring' && f)
     return nyVersjon
@@ -386,7 +391,7 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
           // VS-U43: etter setningen om punkt 32.2. Appen vurderer ikke rettidigheten.
           ...dato('paalegg_mottatt'),
         ];
-  const ledd = LEDD_I_33_1[hoved];
+  const ledd = hoved === null ? undefined : LEDD_I_33_1[hoved];
   if (ledd && f) {
     const hjemmel =
       f.hjemmel === `33.1 ${ledd}`
@@ -401,9 +406,7 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
     ];
   }
   // Force majeure kan ikke uttrykkes i formatet ennå (#367).
-  throw new KanIkkeUttrykkes(
-    `kategorien ${hoved}/${String(k.innhold.underkategori)} har ingen brevtekst`
-  );
+  throw new KanIkkeUttrykkes(`kategorien ${hoved}/${innhold.underkategori} har ingen brevtekst`);
 }
 
 /** LV-U4 punkt 2–3 og GR-U16. Forholdet står i `forholdstekst`. */
@@ -416,7 +419,7 @@ function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
     deler.push(vederlagstekst(k, t));
   } else {
     deler.push(
-      `TE krever fristforlengelse på ${dager(k.innhold.dager as number)} (NS 8407 § 33.6.1).`
+      `TE krever fristforlengelse på ${dager(innholdIFristen(k).dager)} (NS 8407 § 33.6.1).`
     );
     // LV-U18 setning 3: kravet som viser til forespørselen, sier det (HF-U1).
     if (k.gjelder)
@@ -558,7 +561,7 @@ function vederlagstekst(k: Krav, { j, saken }: Tekst): string {
   const poster = kravposterI(k);
   const deler = poster.map((p) => punktum(kravposttekst(p, saken.kravpostvarsler[p.id], j)));
   const forrige = foer.at(-1);
-  for (const id of (k.innhold.trekker as string[] | undefined) ?? []) {
+  for (const id of innholdIVederlaget(k).trekker) {
     const p = forrige && kravposterI(forrige).find((q) => q.id === id);
     if (!p)
       throw new KanIkkeUttrykkes(
@@ -784,7 +787,8 @@ function standpunkttekst(
           : 'byggherren avslår grunnlaget.';
       return 'byggherren frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (NS 8407 § 32.3 første ledd c).';
     case 'hindring': {
-      const hjemmel = paaberopelse?.innhold.hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
+      const hjemmel =
+        innholdIForholdet(paaberopelse).hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
     case 'metode':
@@ -816,7 +820,7 @@ function standpunkttekst(
       return verdi(resultat, eksMva(p.godkjent), eksMva(tilTall(krevd)), post);
     }
     case 'dager':
-      return verdi(p.resultat, dager(p.vurdert), dager(krav.innhold.dager as number));
+      return verdi(p.resultat, dager(p.vurdert), dager(innholdIFristen(krav).dager));
   }
 }
 
@@ -949,7 +953,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       if (krav.spor === 'forhold')
         return `TE trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
       const verdi =
-        krav.spor === 'vederlag' ? kravetsBeloep(krav) : dager(krav.innhold.dager as number);
+        krav.spor === 'vederlag' ? kravetsBeloep(krav) : dager(innholdIFristen(krav).dager);
       return `TE trekker kravet om ${KRAVET_OM[krav.spor]} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }
     case 'ingen_krav':
@@ -992,7 +996,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       const e = j.element(u.gjelder);
       const [dokument, tidligere] =
         e.art === 'krav'
-          ? [e.krav.dokument, e.krav.innhold[u.felt]]
+          ? [e.krav.dokument, innholdIForholdet(e.krav).datoer[u.felt]]
           : e.art === 'utsagn' && e.utsagn.art === 'korrigering'
             ? [e.dokument, e.utsagn.dato]
             : [null, null];

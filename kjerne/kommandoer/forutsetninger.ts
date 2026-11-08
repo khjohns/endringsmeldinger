@@ -19,7 +19,7 @@ import {
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
-import { hindrerSvarMedEttBeloep } from '../frosset/kravinnhold.ts';
+import { hindrerSvarMedEttBeloep, kategori } from '../frosset/kravinnhold.ts';
 import type {
   Avvisning,
   Krav,
@@ -185,7 +185,8 @@ function korrigering(gjelder: string, u: Utledning): Avvisning | null {
   const krav = u.spor.forhold.gjeldendeKrav;
   if (!krav)
     return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før datoen kan korrigeres.');
-  const felt = oppgittDato(krav.innhold.hovedkategori, krav.innhold.underkategori);
+  const { hovedkategori, underkategori } = kategori(krav);
+  const felt = oppgittDato(hovedkategori, underkategori);
   // Punkt 10: i underkategorien endringsordre oppgir TE ingen slik dato.
   if (felt === null)
     return avvis(
