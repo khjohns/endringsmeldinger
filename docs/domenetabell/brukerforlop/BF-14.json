@@ -104,7 +104,7 @@
         "start": "ny-versjon",
         "handlinger": [
           {
-            "staar": "Kravet er varselet etter punkt 34.3.3 for P4."
+            "staar": "Varsel etter punkt 34.3.3 og 34.4"
           },
           {
             "velg": "Varselet for P4 er alt gitt"
@@ -211,6 +211,11 @@
       "dato": "2026-11-08",
       "forhold": "#1663",
       "hva": "Designsløyfa for VS-U49 og VS-U50: steg 7 og klikkstien for et varsel som alt er gitt, F-8, U-12–U-14, D-19, G-10, S-12 og S-13. Prototypen har valget per kravpost, blokken i støttekolonnen og ordlyden i U-14; budskapet er spørsmålet i S-12."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Etter vurderingen mot system.md: synlige alternativer for typen og sendemåten, innrykk med linje under «alt gitt», forklaringen i et infotips, og panelet med en tabell med bare det brevet sier (U-12, U-13)."
     }
   ]
 }
