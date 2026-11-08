@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `1b858a799ac97b96870e04e41d48a5ba78b4dfa74cb899fb33e5ea4e053bb113`
+Kontrollsum (SHA-256 over utdraget visningen leser): `2a3f5800eca2685def7f38ea58b8fbd090940dde057614b6d515da1674482fc4`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -567,7 +567,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 08.11, oppdragsgiver (#1663, #1674)
 
-**Følge:** Presiserer [VS-U49](#vs-u49). Utvider [VS-U48](#vs-u48). Presisert 08.11 av [VS-U51](#vs-u51). Presisert 08.11 av [VS-U53](#vs-u53). Ordlyden i brevet for et varsel som alt er gitt, vedtas når skjemaet og brevet bygges i økt 3, med VS-U38 som mønster, slik spørsmålet sa. Oppdragsgiver presiserte 08.11, ordrett: «Angående brevtekst: konkret ordlyd mener jeg er design. Prinsipielle budskapet kan godt være vedtak». Budskapet står derfor i VS-U51, og ordlyden er design (U-14 i BF-14). Berører BF-14.
+**Følge:** Presiserer [VS-U49](#vs-u49). Utvider [VS-U48](#vs-u48). Presisert 08.11 av [VS-U51](#vs-u51). Presisert 08.11 av [VS-U53](#vs-u53). Spørsmålet sa at ordlyden i brevet for et varsel som alt er gitt, skulle vedtas når skjemaet og brevet bygges, med VS-U38 som mønster. Oppdragsgiver presiserte 08.11, ordrett: «Angående brevtekst: konkret ordlyd mener jeg er design. Prinsipielle budskapet kan godt være vedtak». Budskapet står derfor i VS-U51, og ordlyden er design (U-14 i BF-14). Berører BF-14.
 
 **Regelrader:** —
 

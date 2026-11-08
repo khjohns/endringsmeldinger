@@ -2256,7 +2256,7 @@ forhold = [
   { art = "utvider", vedtak = "vs-u48" },
 ]
 folge = '''
-Ordlyden i brevet for et varsel som alt er gitt, vedtas når skjemaet og brevet bygges i økt 3, med VS-U38 som mønster, slik spørsmålet sa. Oppdragsgiver presiserte 08.11, ordrett: «Angående brevtekst: konkret ordlyd mener jeg er design. Prinsipielle budskapet kan godt være vedtak». Budskapet står derfor i VS-U51, og ordlyden er design (U-14 i BF-14). Berører BF-14.'''
+Spørsmålet sa at ordlyden i brevet for et varsel som alt er gitt, skulle vedtas når skjemaet og brevet bygges, med VS-U38 som mønster. Oppdragsgiver presiserte 08.11, ordrett: «Angående brevtekst: konkret ordlyd mener jeg er design. Prinsipielle budskapet kan godt være vedtak». Budskapet står derfor i VS-U51, og ordlyden er design (U-14 i BF-14). Berører BF-14.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
