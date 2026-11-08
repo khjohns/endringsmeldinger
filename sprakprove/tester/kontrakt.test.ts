@@ -1,8 +1,6 @@
 /**
- * Kontrakten for flyten (KT-U1, KT-U2) mot TS-kjernen: skjemaet, enumene,
- * radene og tilstanden i korpuset, den strenge aksepten, de tolerante
- * kommandoene og serverfeltene. Samme forventninger som
- * `test_kontrakt.py` og `test_kontrakt_aksept.py` i Python.
+ * Kontrakten for flyten (KT-U1, KT-U2) mot TS-kjernen i språkprøven: skjemaet,
+ * enumene, den strenge aksepten, de tolerante kommandoene og serverfeltene.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -14,9 +12,9 @@ import {
   UTLOESER_FRA_KATALOGEN,
 } from '../../kjerne/format/koder.ts';
 import { vurderKommando } from '../kjerne/kommando.ts';
-import { ukjenteNokkelord, valider } from '../kjerne/kontrakt.ts';
+import { ukjenteNokkelord } from '../kjerne/kontrakt.ts';
 import { offentligTilstand } from '../kjerne/offentlig.ts';
-import { fraRad, tilRad } from '../kjerne/rad.ts';
+import { tilRad } from '../kjerne/rad.ts';
 import { projiser } from '../kjerne/sak.ts';
 import {
   BELOPSVURDERINGER,
@@ -29,7 +27,7 @@ import {
   type Kontekst,
   type Rolle,
 } from '../kjerne/typer.ts';
-import { FLYTEN, KORPUS, kjor, kommando, minnebane, type Bane, type Minnebane } from './korpus.ts';
+import { kommando, minnebane, PREFIKSER, type Bane, type Minnebane } from './bane.ts';
 
 const defs = (skjema as { $defs: Record<string, { enum?: unknown[] }> }).$defs;
 
@@ -44,9 +42,12 @@ function kontekst(bane: Bane, rolle: Rolle): Kontekst {
   };
 }
 
-function medPrefiks(navn: string, ekstra: Record<string, unknown>[] = []): Minnebane {
+function medPrefiks(
+  navn: keyof typeof PREFIKSER,
+  ekstra: Record<string, unknown>[] = []
+): Minnebane {
   const bane = minnebane();
-  for (const h of [...KORPUS.prefikser[navn], ...ekstra]) {
+  for (const h of [...PREFIKSER[navn], ...ekstra]) {
     const u = bane.send(h as never);
     if (!u.godtatt) throw new Error(`Forutsetning: ${u.avvisning.melding}`);
   }
@@ -83,26 +84,6 @@ describe('skjemaet', () => {
     ['subsidiaer_utloser', UTLOESER_FRA_KATALOGEN],
   ])('oversettelsen kjenner hver verdi i enumen %s', (navn, tabell) => {
     expect(Object.keys(tabell).sort()).toEqual([...(defs[navn].enum as string[])].sort());
-  });
-});
-
-describe('korpuset holder kontrakten', () => {
-  it.each(FLYTEN.map((f) => [f.id, f] as const))('%s: rader og tilstand', async (_id, forlop) => {
-    const bane = minnebane();
-    await kjor(forlop, bane, { pastand: (holder, melding) => expect(holder, melding).toBe(true) });
-    for (const h of bane.journal) {
-      const rad = tilRad(h, 'p-sprakprove');
-      expect(valider(rad, 'rad')).toEqual([]);
-      if (defs[`hendelse.${h.event_type}`])
-        expect(valider(rad, `hendelse.${h.event_type}`)).toEqual([]);
-    }
-    const tilstand = offentligTilstand(bane.sak());
-    expect(valider(tilstand, 'tilstand')).toEqual([]);
-    // Tilstanden er den samme etter serialisering av journalen (invarianten om gjenlesing, i minnet).
-    const gjenlest = JSON.parse(
-      JSON.stringify(bane.journal.map((h) => tilRad(h, 'p-sprakprove')))
-    ).map(fraRad);
-    expect(offentligTilstand(projiser(bane.sakId, gjenlest))).toEqual(tilstand);
   });
 });
 

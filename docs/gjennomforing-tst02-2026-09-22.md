@@ -26,7 +26,7 @@ Riktig utfall er én sak og én `ConcurrencyError`, som ruta gjør til 409.
 
 ## 2. Rettingen
 
-[`repositories/event_repository.py`](../backend/repositories/event_repository.py),
+[`repositories/event_repository.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/event_repository.py),
 opprettelsesgrenen i `append_batch`:
 
 - Saksfilen skrives til en unik midlertidig fil i samme katalog
@@ -44,7 +44,7 @@ uendret, og den er beskyttet av `flock`.
 
 ## 3. Testene
 
-I [`test_testsuite_blindsoner_audit_20260918.py`](../backend/tests/test_security/test_testsuite_blindsoner_audit_20260918.py):
+I [`test_testsuite_blindsoner_audit_20260918.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_security/test_testsuite_blindsoner_audit_20260918.py):
 
 - `test_tst_02_samtidig_opprettelse_etter_eksistenssjekken_gir_concurrency_error`
   er T-4-reproduksjonen. Den ble `XPASS(strict)` med rettingen og er gjort om
@@ -77,7 +77,7 @@ den nye publiseringen, ikke en reproduksjon av den gamle `FileNotFoundError`.
 ### TS2-01 — JSON-lageret er standardverdien
 
 **Sted:** `create_event_repository` i
-[`repositories/supabase_event_repository.py`](../backend/repositories/supabase_event_repository.py):
+[`repositories/supabase_event_repository.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/supabase_event_repository.py):
 `os.environ.get("EVENT_STORE_BACKEND", "json")`. Metadatalageret gjør det
 samme med `"csv"` (`supabase_sak_metadata_repository.py`).
 

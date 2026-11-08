@@ -91,11 +91,11 @@ i `catenda_admin.py`). De øvrige 82 er i utviklerskript, som står under
 ### DM-08 — personreferanser uten identitet *(foreløpig)*
 
 **Sted:** `vedlegg.lastet_opp_av` (`last_opp_vedlegg` i
-[`vedlegg_routes.py`](../backend/routes/vedlegg_routes.py)),
+[`vedlegg_routes.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/vedlegg_routes.py)),
 `utkast.oppdatert_av` (`lagre_utkast` i
-[`utkast_routes.py`](../backend/routes/utkast_routes.py)),
+[`utkast_routes.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/utkast_routes.py)),
 `sak_bim_links.linked_by` (`create_bim_link` i
-[`bim_link_routes.py`](../backend/routes/bim_link_routes.py)),
+[`bim_link_routes.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/bim_link_routes.py)),
 `projects.created_by` (`koe_register_project` og `POST /api/projects`) og
 `project_memberships.invited_by`.
 

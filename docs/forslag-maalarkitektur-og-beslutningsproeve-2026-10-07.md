@@ -79,7 +79,7 @@ er en ny kravversjon, kan ikke antas bare fordi vederlag og frist har denne
 regelen; uavklart atferd avgjøres før den aktuelle implementeringen.
 
 Definisjonen av gjeldende krav skal brukes også i
-[claims i approval_service.py](../backend/services/approval_service.py), som i dag
+[claims i approval_service.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_service.py), som i dag
 klassifiserer hendelser etter navn. En lokal ombygging av projeksjonen alene
 er ikke tilstrekkelig. Reaktiv EO og andre særforløp må omfattes av tabellen
 der de påvirker sporene; de skal ikke skjult overstyre den nye utledningen.
@@ -87,7 +87,7 @@ der de påvirker sporene; de skal ikke skjult overstyre den nye utledningen.
 M1 bør samle `standpunkt(grunnlag, spor)` med hovedgrunn, subsidiær karakter
 og årsaker. Flere resultatfelt innføres når en konkret forbruker trenger dem.
 Grunnlaget må kunne komme fra en ennå ikke publisert godkjenningspakke, slik
-[ApprovalService.validate_items](../backend/services/approval_service.py)
+[ApprovalService.validate_items](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_service.py)
 allerede evaluerer pakkens svar i domenerekkefølge.
 
 Den delte kjernen skal være vanlige TypeScript-moduler uten HTTP, database,
@@ -127,9 +127,9 @@ i kartleggingens avsnitt 7.7; språkvalget fritar ikke fra den.
 
 ## 4. MA-03: sannhetskilder og offentlig tilstand
 
-[TimelineService.compute_state](../backend/services/timeline_service.py)
+[TimelineService.compute_state](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/timeline_service.py)
 bygger sakstilstanden fra hendelsene i lagerets rekkefølge.
-[submit_event](../backend/routes/event_routes.py) oppdaterer `cached_status`
+[submit_event](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/event_routes.py) oppdaterer `cached_status`
 og `cached_sum_godkjent` fra den beregnede tilstanden. Kartleggingens avsnitt
 7.1 har allerede undersøkt dette. Den neste nyttige kontrollen er derfor en
 gjenoppbyggingstest gjennom lagring og gjenlesing, ikke en ny bred hypotese om
@@ -166,7 +166,7 @@ mellom «lagret» og «oppdateringen av visningen feilet» må bevares.
 
 ## 5. MA-04: autoritativ server og kontraktsgrenser
 
-[kontroller_svar](../backend/regler/sammenlikning.py) kontrollerer både
+[kontroller_svar](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/sammenlikning.py) kontrollerer både
 regelversjon og klientens resultat mot serverens beregning. `RESULT_MISMATCH`
 fanger mer enn forskjeller mellom programmeringsspråk: også feil kontekst,
 feil nyttelast og manipulert resultat. Behold denne B-13-kontrakten under

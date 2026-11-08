@@ -60,7 +60,7 @@ delt base. F0b er ikke ferdig med dette reviewet.
 
 ## RK-01 — første oppslag er ikke trådsikkert
 
-**Fil og symbol:** [`core/container.py`](../backend/core/container.py),
+**Fil og symbol:** [`core/container.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/core/container.py),
 `Container.database` og `Container.reset`.
 
 Begge tråder kan passere `if self._database is None`. En barriere inne i en
@@ -80,11 +80,11 @@ Reviewets reproduksjon fastslår dagens feil, ikke ønsket atferd.
 
 ## RK-02 — innkoblingen er fortsatt felles arbeid
 
-**Fil og symbol:** [`core/container.py`](../backend/core/container.py),
+**Fil og symbol:** [`core/container.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/core/container.py),
 `event_repository`, `metadata_repository`, `project_repository`,
 `membership_repository` og `bim_link_repository`; fabrikkene
-[`create_event_repository`](../backend/repositories/supabase_event_repository.py)
-og [`create_metadata_repository`](../backend/repositories/supabase_sak_metadata_repository.py).
+[`create_event_repository`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/supabase_event_repository.py)
+og [`create_metadata_repository`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/supabase_sak_metadata_repository.py).
 
 Oppdraget krever at hver tråd bare legger til eget repositorium og tester.
 Containeren har fått en pool-property, men de eksisterende propertyene sender
@@ -107,7 +107,7 @@ repositorietester allerede. `container_mot_testbasen` beviser i dag bare at
 
 ## RK-03 — resettestens to feil skjuler hverandre
 
-**Fil og symbol:** [`lib/db/database.py`](../backend/lib/db/database.py),
+**Fil og symbol:** [`lib/db/database.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/database.py),
 `_er_ren`; [`test_kjerne.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py),
 `test_kontekst_satt_paa_sesjonsniva_kastes_med_forbindelsen`.
 
@@ -126,7 +126,7 @@ felt, som i vedlegget. Det krever ingen produksjonsendring.
 
 ## RK-04 — sluttkontrollen kjenner bare transaksjonsstatusen
 
-**Fil og symbol:** [`lib/db/database.py`](../backend/lib/db/database.py),
+**Fil og symbol:** [`lib/db/database.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/database.py),
 `Database._kjor`; `test_transaksjon_som_er_avsluttet_i_blokken_avvises` i
 [`test_kjerne.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py).
 
@@ -153,7 +153,7 @@ garantien. Ingen klient- eller F1-rettigheter er endret eller godkjent her.
 
 ## RK-05 — to tidsgrenser er ikke én transaksjonsfrist
 
-**Fil og symbol:** [`lib/db/database.py`](../backend/lib/db/database.py),
+**Fil og symbol:** [`lib/db/database.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/database.py),
 `opprett_database` og `Database._kjor`; tidskontrakten i
 [B-02 v2, avsnitt 7](design-b02-tilgangsmekanisme-v2-2026-09-23.md#7-rb2-07--tidskontrakten).
 
@@ -313,7 +313,7 @@ kontrakten som repositorietrådene skal slippe å endre (L).
 
 ### RK-01: reproduksjon og positiv kontroll
 
-**Fil/symbol:** [`Container.database` og `reset`](../backend/core/container.py).
+**Fil/symbol:** [`Container.database` og `reset`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/core/container.py).
 Den opprinnelige reproduksjonen ble kjørt uendret. Den stopper nå med
 `BrokenBarrierError`: barrieren lå **inne i** poolfabrikken, som den nye låsen
 bare slipper én tråd inn i. Dette er ikke alene bevis for rettingen (K/L).
@@ -329,10 +329,10 @@ ikke singleton-livssyklusen på tvers av prosesser eller flere containere.
 
 ### RK-02: det som virker, og det som gjenstår
 
-**Fil/symbol:** [`POSTGRES_LAGRE` og tjenestefabrikkene](../backend/core/container.py),
-[`_get_relation_repository`](../backend/services/endringsordre_service.py),
-[tilsvarende hjelper i forsering](../backend/services/forsering_service.py) og
-[`build_project_resolver`](../backend/services/catenda_project_resolver_factory.py).
+**Fil/symbol:** [`POSTGRES_LAGRE` og tjenestefabrikkene](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/core/container.py),
+[`_get_relation_repository`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/endringsordre_service.py),
+[tilsvarende hjelper i forsering](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/forsering_service.py) og
+[`build_project_resolver`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/catenda_project_resolver_factory.py).
 
 Ni midlertidige modulimplementasjoner tok imot databasen. Hver property i
 `POSTGRES_LAGRE` ga samme ekte `Database` fra `container_mot_testbasen`, og SQL
@@ -372,7 +372,7 @@ containertestene faktisk beviser.
 
 ### RK-03: RM01 og RM02 blir nå røde
 
-**Fil/symbol:** [`_er_ren`](../backend/lib/db/database.py),
+**Fil/symbol:** [`_er_ren`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/database.py),
 [`test_hver_sesjonsrest_alene_kastes_med_forbindelsen`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py)
 og den opprinnelige
 [`test_reset_kontrollerer_hvert_felt_alene`](vedlegg/review-f0b-kjernen-2026-09-23/test_review.py).
@@ -403,7 +403,7 @@ til `55ad006` og skal ikke brukes uendret som grønn port for `754c07e` (L).
 
 **Fil/symbol:**
 [`test_raa_commit_og_begin_i_blokken_etterlater_ingenting`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py)
-og [`Database._kjor`](../backend/lib/db/database.py).
+og [`Database._kjor`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/database.py).
 
 Den strenge xfail-testen feiler på riktig assertion: uavhengig lesing finner
 `[(1,)]` der testen krever `[(0,)]`. `--runxfail` gir én ordinær assertion-feil,

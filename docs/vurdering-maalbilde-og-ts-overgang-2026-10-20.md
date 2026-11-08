@@ -111,7 +111,7 @@ står fortsatt i 3.4.
 **Belegg: L, G.** `Dockerfile` bygger bare SPA-en og serverer den med nginx.
 [`nginx.conf`](../nginx.conf) har ingen `proxy_pass`, og
 [`deploy.sh`](../deploy.sh) kjører `gcloud run deploy` i `europe-north1`. Det finnes
-ikke noe containerbilde for [`server/`](../server/) eller [`backend/`](../backend/), og ingen
+ikke noe containerbilde for [`server/`](../server/) eller [`backend/`](https://github.com/khjohns/endringsmeldinger/tree/ce87a30889200fdabff389e33c246a2b54e8a555/backend), og ingen
 utrullingsworkflow. Rutingen til TS-serveren finnes bare i Vite-proxyen
 ([`server/ruting.ts`](../server/ruting.ts), `tilTsServeren`).
 

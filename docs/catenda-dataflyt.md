@@ -183,8 +183,8 @@ aliaser for dem, men strukturvalidatoren avviser dem før dispatch.
 Den lokale OpenAPI-filen dokumenterer opprettelse og administrasjon av
 abonnementer, men ikke JSON-kontrakten Catenda sender til callback-URL-en.
 Kontrakten ble derfor fanget i en reell, manuell test 2. september 2026 og
-lagret som en [anonymisert fixture](../backend/tests/fixtures/catenda_issue_created_anonymized.json)
-med et tilhørende [kontraktnotat](../backend/tests/fixtures/catenda_issue_created_contract.md).
+lagret som en [anonymisert fixture](../server/tester/fixturer/catenda_issue_created_anonymized.json)
+med et tilhørende [kontraktnotat](../server/tester/fixturer/catenda_issue_created_contract.md).
 
 Den observerte `issue.created`-payloaden har disse toppnivåfeltene og ID-ene:
 

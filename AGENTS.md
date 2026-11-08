@@ -32,14 +32,13 @@ språkretting. Begrunnelsen og eksemplene står i
 Egne funksjoner, klasser, variabler og regel- og feilkoder har norske navn:
 `hent_saker`, ikke `fetch_cases`; `SAK_AVSLUTTET`, ikke `CASE_CLOSED`. Engelsk
 brukes bare for navn utenfra (biblioteker, protokollfelt, eksterne API-er) og
-etablerte tekniske begreper som `Request`, `retry` og `commit`. Python bruker
-`snake_case`. TypeScript bruker `camelCase`, `PascalCase` for typer og
+etablerte tekniske begreper som `Request`, `retry` og `commit`. Python i
+verktøyene bruker `snake_case`. TypeScript bruker `camelCase`, `PascalCase` for typer og
 Svelte-komponenter, `STORE_BOKSTAVER` bare for koder og faste konstanter på
 modulnivå, og union av strenger i stedet for `enum`. Data over grensen
 (hendelsestyper, felt og verdier i journal, API og database) er `snake_case` med
 små bokstaver. I kjernen skrives æ, ø og å som ae, oe og aa (`kanInngaaIEo`);
-ellers følger du modulens skrivemåte uten å blande, og Python-koden omskrives
-ikke. Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
+ellers følger du modulens skrivemåte uten å blande. Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
 
 **Eksisterende navn er utgangspunkt, ikke fasit.** Forbedre upresise navn innenfor
 oppgaven, og før gamle og nye navn i domenetabellen eller oppgavens
@@ -119,8 +118,7 @@ endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke fo
 flytting som bare endrer importstiene, og heller ikke når bare kommentarene er endret
 (#1549). Lagringstestene mot
 testbasen i SQL Server står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
-en mal. Python-koden for de tre sakstypene er overgangskode, og feil i Python rettes
-etter [DL-U2](docs/plans/vedtak.md#dl-u2).
+en mal. Python-stien er slettet (#49).
 
 ## Miljø
 
@@ -135,10 +133,7 @@ oppstartshooken eller vaktene kjører (#1319). Trengs `khjohns/kontrakt`, legges
 underveis med `add_repo` (oppdragsgiver 26.10).
 Oppstartshooken starter SQL Server-testbasen i bakgrunnen. Katalogen i den er kilden for TS-stien
 ([`database.md`](.claude/rules/database.md)), og `docs/verktoy/katalog.py` leser
-den. PostgreSQL starter den ikke (#931). Katalogen for Python-stien trenger en
-PostgreSQL-base bygget fra `supabase/migrations/`. Den bygger du selv fra tom med
-kommandoene i miljø-skillen før første bruk i økta og etter hver endring i
-migrasjonene, også etter bytte av branch, så en eldre base ikke svarer.
+den.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.
@@ -148,8 +143,7 @@ I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi
 
 Testene er raske. Kjør dem ofte.
 Med `KOE_SQLSERVER_TILKOBLING` kjører `npm test` også testene mot SQL Server i
-`server/` og kjernens lagringstester i `sprakprove/kjernelagring/`. Ingen test
-bruker PostgreSQL (#931).
+`server/` og kjernens lagringstester i `sprakprove/kjernelagring/`.
 Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge. Hva den kjører,
 står i miljø-skillen.
 
@@ -161,21 +155,19 @@ navnereglene i eslint for `kjerne/`, og `npm run format` skriver prettier.
 Utenfor er JSON som et verktøy skriver (som `regler.json`), tsconfig-filene og
 `docs/`: der ville prettier og verktøyet skrevet om hverandres form.
 
-**`ruff format` er ikke en port.** Repoet er aldri formatert med den, og den ville
-skrevet om en stor del av treet. Kjør den ikke på hele treet.
+**`ruff format` er ikke en port.** Repoet er aldri formatert med den. Kjør den
+ikke på hele treet.
 
 **Kjøretidstilstanden i basen avgjøres av katalogen, ikke av migrasjonsfilene,
 og skjemaet endres bare gjennom en migrasjonsfil — aldri med DDL rett mot en
 base eller et verktøy som stempler sin egen versjon.** Reglene står i
 [`.claude/rules/database.md`](.claude/rules/database.md), som lastes for
-`supabase/`, lagrene og TS-serveren; les den før du endrer en base.
+migrasjonene og TS-serveren; les den før du endrer en base.
 
 ## Sikkerhetsinvarianter
 
 Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut.
-De gjelder hver serverinngang, i Python og i TS. Et brudd som finnes i Python-stien,
-meldes som issue; om det rettes, avgjør [DL-U2](docs/plans/vedtak.md#dl-u2). Mekanismene, og det TS-stien
-ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
+De gjelder hver serverinngang. Mekanismene, og det TS-stien ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
 
 - **Hver serverinngang krever innlogget sesjon og tilgang til prosjektet, og
   eventuelt kontraktsrolle.** En inngang uten sesjon eller uten prosjekt står i
@@ -190,9 +182,8 @@ ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
   aldri på en rolle eller en identitet klienten oppgir.
 - **Journalen bærer `aktor_id`, aldri et personnavn — og bare én form.**
   Verdien er `app_users.id`, punktum, også for en Catenda-forfatter. Hver vei
-  inn, også webhooken, løser identiteten gjennom `koe_resolve_identity` i
-  Python-stien og `koe.resolve_identity` i TS-stien, som innloggingen og
-  medlemssynkroniseringen, med samme issuer og samme normaliserte
+  inn, også webhooken, løser identiteten gjennom `koe.resolve_identity`, som
+  innloggingen og medlemssynkroniseringen, med samme issuer og samme normaliserte
   subjekt; ellers får samme person to brukerrader. Lar identiteten seg ikke
   avgjøre, skrives ingen hendelse — fail-closed, som for kontraktssiden. Navnet
   slås opp ved visning, og et oppslag som feiler, skal falle tilbake til
@@ -214,9 +205,8 @@ ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
   ganger; se RV-07 og AUT-01/02 i hovedplanens funnregister.
 - **Det finnes ikke noe defaultprosjekt.** Mangler `X-Project-ID`, er prosjektet
   *ukjent* — ikke `oslobygg` — og kallere skal behandle det som «ingen
-  tilgang». `prosjekt_id` er `NOT NULL` uten default på `hendelse` og
-  `sak_relations` i Python-stien, og på `koe.hendelse` og `koe.sak_metadata` i
-  TS-stien. Skrivestiene stempler det fra autorisert kontekst. Gjeninnfører du en
+  tilgang». `prosjekt_id` er `NOT NULL` uten default på `koe.hendelse` og
+  `koe.sak_metadata`. Skrivestiene stempler det fra autorisert kontekst. Gjeninnfører du en
   fallback — også som et uskyldig
   `prosjekt_id or "oslobygg"` i én sammenlikning, eller som et tomt filter som
   «betyr alle» — blir attribusjonen uetterprøvbar igjen, og det lar seg ikke rette
@@ -242,19 +232,16 @@ leser en avkuttet del av det.
 **Et skjermbilde som finnes, beviser ikke at flyten virker.** Følg kallet fra
 frontenden, med rute, metode og nyttelast, gjennom tilgangskontrollen til lageret,
 og kjør det med ekte innlogging. For TS-stien er det `saksrute.ts` (skillen
-`mockup-nettleser`). `DISABLE_AUTH` leses bare av Python-stien i `backend/`.
+`mockup-nettleser`).
 
 **Og ett av lagene er databasen.** TS-stien har prosedyrer, funksjoner og triggere i
 `koe`, `koe_api`, `koe_drift` og `koe_sikkerhet` i `database/migrasjoner/`. De er en
-del av applikasjonen, og et søk i Python- og TS-koden finner kallene, men ikke det
+del av applikasjonen, og et søk i TS-koden finner kallene, men ikke det
 prosedyrene og triggerne gjør. Senere filer kan definere
 dem på nytt med `CREATE OR ALTER` eller `ALTER`, så spør katalogen i en testbase
 bygget fra migrasjonene før du skriver at noe ikke er i bruk
 ([`database.md`](.claude/rules/database.md)). En trigger kan også være den egentlige
-skriveren. Python-stien har funksjoner og triggere i `public`, bygget fra
-`supabase/migrations/`, for eksempel `koe_resolve_identity`,
-`koe_reconcile_memberships` og `auto_create_project_membership`. Katalogen der er
-`pg_proc`, `pg_trigger` og `pg_policy`.
+skriveren.
 
 **Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.**
 
@@ -287,7 +274,7 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Avsluttede funn og leveransemerknadene fram til 24.10 | Arkivet, flyttet ordrett fra hovedplanen (#1020). Åpnes et funn igjen, flyttes raden tilbake |
 | Invarianter og regler som står seg | Denne fila |
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
-| Regler som bare gjelder én del av treet: databasen, testene, tilgangen, kjernen, Python-domenet, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
+| Regler som bare gjelder én del av treet: databasen, testene, tilgangen, kjernen, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
 | Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
 | Beslutningene for visningen: retning, tokens i bruk, mønstre og vedtakene som styrer farge og ord. Metoden for frontendarbeid | [`.interface-design/system.md`](.interface-design/system.md). Verdiene står i `theme.css`. Metoden står i [interface-design-skillen](.claude/skills/interface-design/SKILL.md) |
 | Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |

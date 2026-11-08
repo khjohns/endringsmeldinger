@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Regelversjonsvakten. Tre kontroller, som hver kan feile:
 #
-# 1. B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/
-#    eller backend/regler/, må REGELVERSJON økes i begge speilene. En fil der
+# 1. B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/,
+#    må REGELVERSJON i src/lib/domain/regelversjon.ts økes. En fil der
 #    bare kommentarene er endret, regnes ikke som endret (#1549). En slettet fil
 #    i src/lib/domain/ regnes heller ikke som endret: skjemaene som brukte den,
 #    er fjernet, og ingen regel som kjører, endres av det (#1516).
@@ -44,40 +44,24 @@ okt() {
   [ -n "$etter" ] && [ "$etter" -gt "${for:-0}" ]
 }
 
-# --- 1. Speilene i frontenden og Python ---
+# --- 1. Reglene i frontenden ---
 ts=src/lib/domain/regelversjon.ts
-py=backend/regler/__init__.py
-fixtur=backend/tests/fixtures/skjemaenes_nyttelast.json
 # En fil der bare kommentarene er endret, regnes ikke som endret (#1549).
 # .github/scripts/kommentarer.py avgjør det.
 fra=$(git merge-base "$BASE" HEAD) || exit 2
-endret=$(set -o pipefail; {
-  git -c core.quotePath=false diff --name-status --no-renames "$fra" HEAD -- backend/regler
+endret=$(set -o pipefail
   git -c core.quotePath=false diff --name-status --no-renames --diff-filter=d "$fra" HEAD \
-    -- src/lib/domain ":(exclude)src/lib/domain/__tests__"
-} | python3 "$(dirname "$0")/kommentarer.py" "$fra") || exit 2
+    -- src/lib/domain ":(exclude)src/lib/domain/__tests__" \
+    | python3 "$(dirname "$0")/kommentarer.py" "$fra") || exit 2
 if [ -z "$endret" ]; then
-  echo "Ingen endring i src/lib/domain/ eller backend/regler/ utenom testene og kommentarene."
+  echo "Ingen endring i src/lib/domain/ utenom testene og kommentarene."
 else
   echo "Endret:"; echo "$endret"
   les_ts() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
-  les_py() { sed -n 's/^REGELVERSJON = \([0-9][0-9]*\)$/\1/p'; }
-  speilfeil=0
-  for par in "$ts les_ts" "$py les_py"; do
-    set -- $par
-    if ! okt "$1" "$2"; then
-      echo "::error file=$1::Reglene er endret. Øk REGELVERSJON i $ts og $py, og oppdater regelversjon i $fixtur."
-      speilfeil=1
-    fi
-  done
-  if [ "$speilfeil" -eq 0 ]; then
-    echo "::notice file=$fixtur::REGELVERSJON er økt. Oppdater regelversjon i $fixtur for hånd."
+  if ! okt "$ts" les_ts; then
+    echo "::error file=$ts::Reglene er endret. Øk REGELVERSJON i $ts."
+    feil=1
   fi
-  echo
-  echo "Når REGELVERSJON er økt, må regelversjon i fixturen $fixtur oppdateres for hånd."
-  echo "Skjemaene som laget den, er fjernet (#1516). Backend-testene leser den:"
-  echo "  cd backend && /tmp/venv/bin/python -m pytest -q"
-  feil=$speilfeil
 fi
 
 # --- 2. Kjernen ---
