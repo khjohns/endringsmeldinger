@@ -2471,6 +2471,229 @@ tekst = '''
 Dokumentet totalentreprenøren legger til i kravskjemaet som varselet for en kravpost, får et nummer i saken som et brev sendt fra løsningen, også når totalentreprenøren ikke har merket det. Kravet viser til det med nummeret og legger det ved. Forhold: presiserer VS-U50. Endrer LV-U45 for et varsel som legges til i kravskjemaet.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["vs-u50"]
+id = "VS-U54"
+dato = 2026-11-08
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Stilt 08.11 av orkestratoren før kjerneøkta for varselet per kravpost (BF-14), ordrett fra docs/vedlegg/varsel-kjerne-2026-11-08/sporsmal.md:
+
+## Spørsmål 1: hvordan kravposten og varselet knyttes sammen
+
+**Bakgrunn.** Svar 6 A 07.11 ([spørsmålsfila](../bygging-bf14-2026-11-07/sporsmal.md)) ga
+navnene i lagringsformatet: et varsel etter punkt 34.3.3 eller 34.4 lagres som et eget utsagn
+som viser til kravposten (`gjelder` lik kravpostens ID). Det var før VS-U50. Etter VS-U50 kan TE
+i kravskjemaet oppgi at varselet for en kravpost alt er gitt, med et varsel som står i saken fra
+før. Et varsel som står i saken, kan ikke få en henvisning til kravposten i ettertid, fordi
+hendelsene bare legges til.
+
+**Belegg.** VS-U50, VS-U53, G-10 i BF-14, raden for varslene etter § 34.3.3 og § 34.4 i
+domenetabellen («Navn i lagringsformatet»).
+
+**Alternativene.**
+- **A (anbefalt):** Kravposten viser til varselet. Kravposten får et valgfritt felt med varselet
+  som gjelder for posten, både når TE velger et varsel i saken og når TE legger til et dokument i
+  kravskjemaet. Varselet viser ikke til kravposten. Raden i domenetabellen rettes.
+- **B:** Svar 6 A står. Et dokument TE legger til i kravskjemaet, viser til kravposten og skrives
+  etter kravet. Et varsel som står i saken fra før, knyttes med et felt på kravposten. Koblingen
+  finnes da i to former.
+
+**Hva valget styrer.** Det lagrede formatet for kravposten og varselet før første ekte hendelse
+(B-17), og hvordan kjernen finner varselet for en kravpost.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 08.11, ordrett: «1 Ja.», bekreftet «a,b» etter orkestratorens spørsmål om hvilket spørsmål svaret gjaldt (spørsmålsfila). Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u50" },
+]
+folge = '''
+Presiserer VS-U50 for hvordan løsningen lagrer koblingen. Følger VS-U53. Endrer arbeidsvalget etter svar 6 A 07.11 i domenetabellen for varslene etter § 34.3.3 og § 34.4. Klassen er beslutning: posten sier hvordan løsningen lagrer, og det bindende står i VS-U50. Berører BF-14 (G-10).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Kravposten viser til varselet for posten etter punkt 34.3.3 eller 34.4 med et valgfritt felt, både når TE velger et varsel som står i saken, og når TE legger til et dokument i kravskjemaet. Varselet viser ikke til kravposten. Raden for varslene etter § 34.3.3 og § 34.4 i domenetabellen («Navn i lagringsformatet») rettes. Forhold: endrer arbeidsvalget etter svar 6 A 07.11. Følger VS-U50 og VS-U53.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Svar 6 A står. Et dokument TE legger til i kravskjemaet, viser til kravposten og skrives etter kravet. Et varsel som står i saken fra før, knyttes med et felt på kravposten. Koblingen finnes da i to former.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = '''
+Ordlyden er design.'''
+id = "VS-U55"
+dato = 2026-11-08
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Stilt 08.11 av orkestratoren før kjerneøkta for varselet per kravpost (BF-14), ordrett fra docs/vedlegg/varsel-kjerne-2026-11-08/sporsmal.md:
+
+## Spørsmål 2: hva kravet sier om en post der varselet ble gitt før det første kravet
+
+**Bakgrunn.** D-16 i BF-14 sier at et varsel etter punkt 34.3.3 eller 34.4 som er sendt eller
+registrert før kravet, gjelder kravpostene med den beregningsregelen i neste kravversjon, og at
+kravet da ikke sier at kravet er varselet. Det sier ikke om kravet nevner varselet. VS-U51 sier:
+«Er varselet sendt eller registrert i løsningen før kravet, viser kravet bare til det.» Den
+setningen står i sammenheng med valget TE gjør i kravskjemaet etter VS-U50. Prototypen viser ikke
+tilfellet.
+
+**Belegg.** VS-U48, VS-U51, D-16 og D-19 i BF-14.
+
+**Alternativene.**
+- **A (anbefalt):** Kravet viser til varselet i avsnittet for kravposten, med datoen, slik VS-U51
+  sier for et varsel i løsningen. Ordlyden er design.
+- **B:** Kravet sier ingenting om varselet for posten, slik kjernen gjør etter #1674.
+
+**Hva valget styrer.** Teksten i kravet for en kravpost der varselet kom før kravet.
+
+## Spørsmål 3 og 4: fra den kognitive gjennomgangen av BF-14
+
+Stilt av orkestratoren 08.11 i samtalen, etter rapporten i #1694. Ordrett:
+
+> 1. Skal byggherren kunne påberope varselet etter punkt 34.3.3 og bestride justeringen subsidiært når byggherren mener regningsarbeid?
+> 2. Skal brev 7 gjenta setningene om varslene etter punkt 34.1.2 og 34.1.3, eller vise til varselet i brev 5?
+
+Oppdragsgiver svarte «1 Ja. Justeringen er i så fall ifølge byggherren «har han bare krav på slik
+justering av enhetsprisen som den andre parten måtte forstå at forholdet ville føre til». 2. antar
+det er best å vise til, eller kanskje ikke gjenta i det hele tatt? Partene kan jo og forventes å
+huske tidligere brev.» Orkestratoren spurte om svaret gjaldt spørsmål 1 her eller spørsmål 3, og
+slo sammen spørsmål 2 og 4, ordrett:
+
+> **Svar 1.** «Ja» kan gjelde mitt spørsmål 1: at kravposten viser til varselet. Setningen om justeringen («har han bare krav på slik justering av enhetsprisen som den andre parten måtte forstå …») svarer derimot på spørsmål 1 fra gjennomgangen: om byggherren skal kunne påberope varselet etter punkt 34.3.3 subsidiært når byggherren mener regningsarbeid. Jeg leser svaret slik:
+> - **a)** Mitt spørsmål 1: **A**. Kravposten viser til varselet.
+> - **b)** Gjennomgangens spørsmål 1: **ja**. Byggherren kan påberope det sene varselet i det subsidiære laget. Etter byggherrens syn har TE da bare krav på den justeringen byggherren måtte forstå (punkt 34.3.3 annet ledd).
+>
+> Stemmer begge?
+>
+> **Svar 2.** Her er det to tilfeller, og jeg foreslår samme regel for begge:
+> - **c)** En kravpost der varselet etter punkt 34.3.3 eller 34.4 ble gitt før det første kravet.
+> - **d)** Brev 7, der varslene etter punkt 34.1.2 og 34.1.3 alt ble gitt i brev 5.
+>
+> Alternativene:
+> - **A (anbefalt):** kravet viser kort til varselet, for eksempel «varslet i brev 5» eller «varslet i e-post av 28. oktober». Setningen om varselet gjentas ikke. VS-U51 sier alt «viser kravet bare til det» for et varsel i løsningen, og en kort henvisning viser byggherren hvilket varsel posten bygger på, så byggherren kan bestride datoen.
+> - **B:** kravet sier ingenting om et varsel som er gitt før, fordi partene kjenner de tidligere brevene.
+
+### Eksemplene orkestratoren la fram 08.11, ordrett
+
+> Her er de to alternativene som utdrag av brev 7. Brev 7 er en ny kravversjon. Varslene etter punkt 34.1.2 og 34.1.3 sto i brev 5. Varselet etter punkt 34.4 for P4 ble gitt i en e-post 28. oktober, før det første kravet, og er registrert i saken som brev 6.
+>
+> **A: kort henvisning**
+>
+> > **Krav om justering av vederlaget**
+> >
+> > Totalentreprenøren viser til varselet om krav om justering av vederlaget etter NS 8407 punkt 34.1.2 og det særskilte varselet etter punkt 34.1.3 tredje ledd, begge i brev 5. Kravet erstatter kravet i brev 5.
+> >
+> > **P4 Omlegging av overvannsledning**
+> >
+> > Totalentreprenøren krever at P4 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Varselet før arbeidet ble satt i gang, ble gitt i totalentreprenørens e-post av 28. oktober 2026 (brev 6). Kostnadsoverslaget er 180 000 kr eks. mva. Overslaget er en opplysning og ikke et tilbud.
+>
+> **B: ingen henvisning**
+>
+> > **Krav om justering av vederlaget**
+> >
+> > Kravet erstatter kravet i brev 5.
+> >
+> > **P4 Omlegging av overvannsledning**
+> >
+> > Totalentreprenøren krever at P4 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kostnadsoverslaget er 180 000 kr eks. mva. Overslaget er en opplysning og ikke et tilbud.
+>
+> **Hva som taler for hvert alternativ:**
+> - **For A:** VS-U50 er vedtatt. Når TE selv velger «Varselet for P4 er alt gitt» i skjemaet, sier brevet alt «ble gitt i …». Med B ville brevet nevne varselet når TE har valgt det, men ikke når løsningen har knyttet det selv (varselet kom før det første kravet). Da ser to like situasjoner ulike ut i brevet. A gir også byggherren et konkret brev og en dato å bestride.
+> - **For B:** brevet blir kortere. Brev 7 er en ny versjon av kravet, og partene har brev 5 og 6 i saken.
+>
+> Jeg anbefaler fortsatt **A for kravposten (c)**, fordi den er i tråd med VS-U50. **For varslene etter punkt 34.1.2 og 34.1.3 (d)** betyr valget mindre. Der kan B være godt nok, fordi det er samme krav i en ny versjon. Svar for eksempel «c A, d B», eller A eller B for begge.
+>
+> Formuleringene over er eksempler. Bare hovedbudskapet blir vedtak, og ordlyden er design.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 08.11, ordrett: «A for begge. Den konkrete ordlyden er design; prinsippet er vedtak». Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u51" },
+  { art = "presiserer", vedtak = "vs-u48" },
+  { art = "presiserer", vedtak = "vs-u34" },
+  { art = "presiserer", vedtak = "lv-u29" },
+]
+folge = '''
+Presiserer VS-U51, som sier at kravet bare viser til et varsel i løsningen, og arbeidsvalget i Følge til VS-U48 om et varsel før kravet. For varslene etter punkt 34.1.2 og 34.1.3 presiserer posten VS-U34 og LV-U29 for en ny kravversjon, og den stemmer med OV-U29 («En senere kravversjon flytter ikke varselet»). Spørsmål 2 og spørsmål 4 i spørsmålsfila ble slått sammen og besvart samlet. Ordlyden er design (oppdragsgiver 08.11). Berører BF-14 (D-16, D-19).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Er et varsel gitt før kravet, viser kravet kort til det, med brevet eller dokumentet det står i, og gjentar ikke varselet. Det gjelder et varsel etter punkt 34.3.3 eller 34.4 som er sendt eller registrert før det første kravet med kravposten (D-16 i BF-14), og varslene etter punkt 34.1.2 og 34.1.3 i en ny kravversjon når varselet ble gitt i et tidligere brev. Ordlyden er design. Forhold: presiserer VS-U51, arbeidsvalget i Følge til VS-U48, VS-U34 og LV-U29.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Kravet sier ingenting om et varsel som er gitt før kravet, fordi partene kjenner de tidligere brevene.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "VS-U56"
+dato = 2026-11-08
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Stilt 08.11 av orkestratoren før kjerneøkta for varselet per kravpost (BF-14), ordrett fra docs/vedlegg/varsel-kjerne-2026-11-08/sporsmal.md:
+
+## Spørsmål 3 og 4: fra den kognitive gjennomgangen av BF-14
+
+Stilt av orkestratoren 08.11 i samtalen, etter rapporten i #1694. Ordrett:
+
+> 1. Skal byggherren kunne påberope varselet etter punkt 34.3.3 og bestride justeringen subsidiært når byggherren mener regningsarbeid?
+> 2. Skal brev 7 gjenta setningene om varslene etter punkt 34.1.2 og 34.1.3, eller vise til varselet i brev 5?
+
+Oppdragsgiver svarte «1 Ja. Justeringen er i så fall ifølge byggherren «har han bare krav på slik
+justering av enhetsprisen som den andre parten måtte forstå at forholdet ville føre til». 2. antar
+det er best å vise til, eller kanskje ikke gjenta i det hele tatt? Partene kan jo og forventes å
+huske tidligere brev.» Orkestratoren spurte om svaret gjaldt spørsmål 1 her eller spørsmål 3, og
+slo sammen spørsmål 2 og 4, ordrett:
+
+> **Svar 1.** «Ja» kan gjelde mitt spørsmål 1: at kravposten viser til varselet. Setningen om justeringen («har han bare krav på slik justering av enhetsprisen som den andre parten måtte forstå …») svarer derimot på spørsmål 1 fra gjennomgangen: om byggherren skal kunne påberope varselet etter punkt 34.3.3 subsidiært når byggherren mener regningsarbeid. Jeg leser svaret slik:
+> - **a)** Mitt spørsmål 1: **A**. Kravposten viser til varselet.
+> - **b)** Gjennomgangens spørsmål 1: **ja**. Byggherren kan påberope det sene varselet i det subsidiære laget. Etter byggherrens syn har TE da bare krav på den justeringen byggherren måtte forstå (punkt 34.3.3 annet ledd).
+>
+> Stemmer begge?
+>
+> **Svar 2.** Her er det to tilfeller, og jeg foreslår samme regel for begge:
+> - **c)** En kravpost der varselet etter punkt 34.3.3 eller 34.4 ble gitt før det første kravet.
+> - **d)** Brev 7, der varslene etter punkt 34.1.2 og 34.1.3 alt ble gitt i brev 5.
+>
+> Alternativene:
+> - **A (anbefalt):** kravet viser kort til varselet, for eksempel «varslet i brev 5» eller «varslet i e-post av 28. oktober». Setningen om varselet gjentas ikke. VS-U51 sier alt «viser kravet bare til det» for et varsel i løsningen, og en kort henvisning viser byggherren hvilket varsel posten bygger på, så byggherren kan bestride datoen.
+> - **B:** kravet sier ingenting om et varsel som er gitt før, fordi partene kjenner de tidligere brevene.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 08.11, ordrett: «1 Ja. Justeringen er i så fall ifølge byggherren «har han bare krav på slik justering av enhetsprisen som den andre parten måtte forstå at forholdet ville føre til».», bekreftet «a,b» etter orkestratorens spørsmål om hvilket spørsmål svaret gjaldt. Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "ka-u57" },
+  { art = "utvider", vedtak = "ka-u58" },
+  { art = "presiserer", vedtak = "ka-u64" },
+  { art = "bygger på", vedtak = "vs-u4" },
+]
+folge = '''
+Presiserer KA-U57 (d) og KA-U64, og utvider KA-U58, som gjelder en kravpost med fast sum, til en kravpost med justerte enhetspriser og varselinnsigelsen. Bygger på VS-U4: byggherren oppgir standpunktene der. KA-U57, KA-U58 og KA-U64 er samlet i samlevedtaket for vederlagsmetoden, versjon 2 (OV-U95), punkt 8, 23 og 24. Spørsmålet gjaldt bare regningsarbeid, og posten er avgrenset til det. Spørsmålet kom fra den kognitive gjennomgangen av BF-14 (#1694) og ble stilt som et ja/nei-spørsmål. Alternativene A (ja) og B (nei) er skrevet i vedtaksform etter svaret. Berører BF-14 (D-14) og økt 2 i #1663.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Mener byggherren at en kravpost der totalentreprenøren krever justerte enhetspriser, skal gjøres opp som regningsarbeid, kan byggherren likevel, subsidiært for det tilfellet at totalentreprenørens oppgjørsform legges til grunn, gjøre gjeldende at varselet etter punkt 34.3.3 første ledd kom for sent, med standpunktene etter VS-U4. Etter byggherrens syn har totalentreprenøren da bare krav på slik justering av enhetsprisen som byggherren måtte forstå at forholdet ville føre til (punkt 34.3.3 annet ledd). Løsningen avgjør ikke om varselet kom i tide (VS-U48). Forhold: presiserer KA-U57 (d) og KA-U64, utvider KA-U58, bygger på VS-U4.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren kan ikke gjøre gjeldende at varselet kom for sent eller bestride justeringen når byggherren mener at posten skal gjøres opp som regningsarbeid.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
