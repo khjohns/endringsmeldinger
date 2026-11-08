@@ -80,9 +80,17 @@ grunnlag = "KA-U2, GR-U16, VS-U26, designnotatet 4.2. Navnet på forholdet er sa
 
 [[krav]]
 spor = "vederlag"
-beskrivelse = "En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1). `beloep` er justeringen ellers, og `saerskilt.produktivitet.beloep` er det særskilte kravet etter § 34.1.3 annet ledd. Minst ett av dem står."
-felt = ["id", "spor", "erstatter", "metode", "beloep", "saerskilt"]
-grunnlag = "KA-U2, KA-U8, OV-U23"
+beskrivelse = """
+En kravversjon av vederlaget, i kroner over 0. `kravposter` er justeringen ellers, én post per
+del av arbeidet, hver med `id`, betegnelsen P1, P2 … fra serveren, beskrivelse og
+oppgjørsform (`tilbud` etter punkt 34.2.1 med beløp, `enhetspriser` etter punkt 34.3 med
+eventuelt justerte enhetspriser og anslag, `regningsarbeid` etter punkt 34.4 med eventuelt
+kostnadsoverslag). `saerskilt` er postene utenfor: kravet etter punkt 34.1.3 annet ledd
+(`produktivitet`) og rigg og drift (`rigg_og_drift`). Minst én kravpost eller én post utenfor
+står. `trekker` er kravpostene fra forrige versjon TE trekker; hver kravpost i forrige versjon
+er med eller trekkes."""
+felt = ["id", "spor", "erstatter", "kravposter", "saerskilt", "trekker"]
+grunnlag = "KA-U2, KA-U8, KA-U53, KA-U56, KA-U66, OV-U89 punkt 6 og 17, OV-U95 punkt 19–22, KA-U70 og arbeidsvalget 07.11 i domenetabellen (#1663)"
 
 [[krav]]
 spor = "frist"

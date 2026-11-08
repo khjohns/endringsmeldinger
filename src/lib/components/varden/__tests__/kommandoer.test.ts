@@ -26,7 +26,7 @@ const medKrav = (beloep: number) =>
   skrevet(grunnforhold, 'TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep },
+    innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep }] },
     utdypning: 'Tilbudet gjelder ekstra masseutskifting.',
   });
 

@@ -67,7 +67,10 @@ describe('formen på kravet', () => {
   const krav = (innhold: Data, ekstra: Data = {}) => ({
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep: 1000, ...innhold },
+    innhold: {
+      kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 1000 }],
+      ...innhold,
+    },
     ...ekstra,
   });
 
@@ -502,9 +505,10 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
       data: { krav: [{ id: randomUUID(), spor, ...innhold }] },
     });
     expect(forstaatt([...journal, en, krav('frist', { dager: 20 })])).toBe(true);
-    expect(forstaatt([...journal, en, krav('vederlag', { metode: 'tilbud', beloep: 1000 })])).toBe(
-      false
-    );
+    const p1 = { id: 'p1', betegnelse: 'P1', beskrivelse: 'P1', oppgjoersform: 'tilbud' };
+    expect(
+      forstaatt([...journal, en, krav('vederlag', { kravposter: [{ ...p1, beloep: 1 }] })])
+    ).toBe(false);
   });
 });
 
@@ -1361,7 +1365,13 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
   const paaberopelse = {
     innhold: { hovedkategori: 'endring', underkategori: 'eo' },
   } as unknown as Krav;
-  const krav = { innhold: { metode: 'tilbud', beloep: 100000 } } as unknown as Krav;
+  const krav = {
+    innhold: {
+      kravposter: [
+        { id: 'p1', betegnelse: 'P1', beskrivelse: 'P1', oppgjoersform: 'tilbud', beloep: 100000 },
+      ],
+    },
+  } as unknown as Krav;
   const vurderinger = {
     hovedkrav_vurdering: 'godkjent',
     hovedkrav_godkjent_beloep: 100000,

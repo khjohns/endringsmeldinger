@@ -1233,6 +1233,41 @@
       "dato": "2026-11-06",
       "ref": "../plans/vedtak.md#lv-u56",
       "radetikett": "LV-U56: Den låste delen av brevet med en ny versjon av påberopelsen sier bare hva påberopelsen gjelder, og datoen"
+    },
+    {
+      "id": "KA-U51",
+      "type": "vedtak",
+      "dato": "2026-11-05",
+      "ref": "../plans/vedtak.md#ka-u51",
+      "radetikett": "KA-U51: Spørsmål 1: Samlevedtaket for trekk gjelder med E1–E8"
+    },
+    {
+      "id": "KA-U56",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u56",
+      "radetikett": "KA-U56: Skal en kravpost ut, trekker TE den uttrykkelig i den nye kravversjonen"
+    },
+    {
+      "id": "KA-U59",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u59",
+      "radetikett": "KA-U59: Byggherren svarer per kravpost"
+    },
+    {
+      "id": "KA-U70",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u70",
+      "radetikett": "KA-U70: Punkt 11 gjelder også en trukket kravpost"
+    },
+    {
+      "id": "OV-U95",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ov-u95",
+      "radetikett": "OV-U95: Spørsmål 1: Samlevedtaket for vederlagsmetoden, versjon 2, gjelder med E8–E16"
     }
   ],
   "rader": [
@@ -3508,6 +3543,48 @@
         "KA-U4"
       ],
       "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-55",
+      "tilfelle": "TE har sendt et vederlagskrav med kravposten P1. TE sender en ny kravversjon som verken tar med eller trekker P1, en som tar med P1, og en som trekker P1. Etter trekket sender TE en ny kravversjon som tar opp igjen P1.",
+      "forventet": "En ny kravversjon tar med eller trekker uttrykkelig hver kravpost i forrige versjon ([KA-U56](../plans/vedtak.md#ka-u56)). Versjonen som verken tar med eller trekker P1, avvises; versjonen som tar med P1, og versjonen som trekker P1, godtas. En trukket kravpost kan ikke tas opp igjen i en ny kravversjon, og betegnelsen brukes ikke igjen ([KA-U70](../plans/vedtak.md#ka-u70), som utvider [KA-U51](../plans/vedtak.md#ka-u51) punkt 11). En ny kravpost tas imot med ny betegnelse.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Trekket er avkall på kravet i kravposten (KA-U56). Løsningen avgjør ikke om en ny kravpost gjelder det samme som den trukne (KA-U70).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U56",
+        "KA-U70",
+        "KA-U51",
+        "OV-U95"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/kravposter.ts#kravposteneStrider"
+      ],
+      "regelkoder": [
+        "KRAVPOSTENE"
+      ]
+    },
+    {
+      "id": "KA-56",
+      "tilfelle": "TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter.",
+      "forventet": "Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. Til svaret per kravpost er bygget (#1663), avvises også et svar med ett beløp når den eneste kravposten gjøres opp etter en beregningsregel, og når kravet har rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket.",
+      "bh_standpunkt": "Beløpsvurderingen av vederlagskravet.",
+      "rettslig_virkning": "Avgjør ikke hva partene har avtalt. Samling av poster på tvers hører til endringsordren (KA-U59).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U59",
+        "OV-U95"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/frosset/standpunkt.ts#hindrerSvarMedEttBeloep"
+      ],
+      "regelkoder": [
+        "SVAR_PER_KRAVPOST"
+      ]
     }
   ],
   "koder_uten_rad": {

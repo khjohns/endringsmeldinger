@@ -777,6 +777,7 @@ export const SAKSLISTE = {
     string,
     string
   >,
+  flereOppgjoersformer: 'Flere oppgjørsformer',
   utenTittel: 'Uten tittel',
   inngaarIEo: (kode: string) => `Inngår i ${kode}`,
   paaberopelsenTrukket: 'Påberopelsen trukket',

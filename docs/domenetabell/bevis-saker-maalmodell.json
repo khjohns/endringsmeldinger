@@ -12402,6 +12402,123 @@
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U56",
+      "forslag": "KA-U56: en ny kravversjon tar med eller trekker hver kravpost i forrige versjon",
+      "rader": ["KA-55"],
+      "start": "krav_irreg",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["KA-U56"],
+          "prov": { "handling": "krav", "spor": "vederlag", "kravposter": [{ "oppgjoersform": "regningsarbeid" }] },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U56"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 120000 }, { "oppgjoersform": "regningsarbeid" }]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U56"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "oppgjoersform": "regningsarbeid" }],
+            "trekker": ["P1"]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U70",
+      "forslag": "KA-U70: en trukket kravpost tas ikke opp igjen i en ny kravversjon",
+      "rader": ["KA-55"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "oppgjoersform": "regningsarbeid" }],
+          "trekker": ["P1"],
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U70", "KA-U51"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P2", "oppgjoersform": "regningsarbeid" }, { "post": "P1", "belop": 1000 }]
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U70"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P2", "oppgjoersform": "regningsarbeid" }, { "belop": 1000 }]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U59",
+      "forslag": "KA-U59: byggherren svarer per kravpost, så ett beløp på et krav med flere kravposter avvises",
+      "rader": ["KA-56"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 100000 }, { "belop": 5000 }],
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U59"],
+          "prov": {
+            "handling": "brev",
+            "svar": [{ "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 60000 }]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U59"],
+          "prov": {
+            "handling": "brev",
+            "svar": [{ "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 60000 }]
+          },
+          "forventet": { "avvist": true, "regel": "SVAR_PER_KRAVPOST" }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "genererte": {

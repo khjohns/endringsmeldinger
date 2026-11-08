@@ -5,6 +5,7 @@
  * regelversjonen; innholdet står i brevet (KA-U10 (opphevet av MM-U50)).
  */
 
+import { kravposteneStrider } from '../utledning/kravposter.ts';
 import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
@@ -169,6 +170,13 @@ function kravetsUtdypning(
       'Varselet etter NS 8407 § 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på (GR-U15).'
     );
   return null;
+}
+
+/** KA-U56, KA-U51 punkt 11 og KA-U70: kravpostene mot forrige kravversjon. */
+function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+  if (k.spor !== 'vederlag') return null;
+  const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);
+  return strid ? avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`) : null;
 }
 
 /**
@@ -369,7 +377,7 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const sperre = kategorisperre(k, u) ?? datosperre(k, u);
+      const sperre = kategorisperre(k, u) ?? datosperre(k, u) ?? kravpostsperre(k, u);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;

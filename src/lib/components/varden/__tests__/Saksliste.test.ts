@@ -142,7 +142,7 @@ describe('Sakslisten i Varden', () => {
         kravet_staar: true,
         har_varsel: false,
         ingen_krav: false,
-        krav: { beloep: 420000, metode: 'tilbud' },
+        krav: { beloep: 420000, oppgjoersformer: ['tilbud'] },
         svar: { resultat: 'delvis_godkjent', beloep: 310000, subsidiaert: true },
         enighet: null,
       },
@@ -177,10 +177,7 @@ describe('Sakslisten i Varden', () => {
   });
 
   it('cellen sier «Varslet», beregningsregelen eller «Ikke krevd» når det ikke er noe beløp eller dager (MM-U37, OV-U43)', () => {
-    const vederlag = (
-      krav: { beloep: number; metode: string } | null,
-      betegnelse: 'varslet' | null
-    ) => ({
+    const vederlag = (krav: Sakslinje['vederlag']['krav'], betegnelse: 'varslet' | null) => ({
       ...ingenting,
       betegnelse,
       kravet_staar: krav !== null,
@@ -195,12 +192,12 @@ describe('Sakslisten i Varden', () => {
         lagSakslinje({
           sak_id: 'A',
           sakstittel: 'Regning',
-          vederlag: vederlag({ beloep: 85000, metode: 'regningsarbeid' }, null),
+          vederlag: vederlag({ beloep: 85000, oppgjoersformer: ['regningsarbeid'] }, null),
         }),
         lagSakslinje({
           sak_id: 'B',
           sakstittel: 'Enhet',
-          vederlag: vederlag({ beloep: 150000, metode: 'enhetspriser' }, null),
+          vederlag: vederlag({ beloep: 150000, oppgjoersformer: ['enhetspriser'] }, null),
         }),
         lagSakslinje({
           sak_id: 'C',
@@ -236,7 +233,7 @@ describe('Sakslisten i Varden', () => {
       kravet_staar,
       har_varsel: false,
       ingen_krav: false,
-      krav: { beloep: 100000, metode: 'tilbud' },
+      krav: { beloep: 100000, oppgjoersformer: ['tilbud' as const] },
       svar: null,
       enighet: null,
     });
@@ -300,12 +297,16 @@ describe('Sakslisten i Varden', () => {
   });
 
   it('nøkkeltallene summerer kravene med beløp utenfor endringsordrene, teller varsler og krav uten beløp for seg og summerer ikke dagene (MM-U38)', () => {
-    const v = (beloep: number, metode = 'tilbud', kravet_staar = true) => ({
+    const v = (
+      beloep: number,
+      metode: 'tilbud' | 'enhetspriser' | 'regningsarbeid' = 'tilbud',
+      kravet_staar = true
+    ) => ({
       ...ingenting,
       kravet_staar,
       har_varsel: false,
       ingen_krav: false,
-      krav: { beloep, metode },
+      krav: { beloep, oppgjoersformer: [metode] },
       svar: null,
       enighet: null,
     });
@@ -476,7 +477,7 @@ describe('Sakslisten i Varden', () => {
             kravet_staar: true,
             har_varsel: false,
             ingen_krav: false,
-            krav: { beloep: 1000, metode: 'tilbud' },
+            krav: { beloep: 1000, oppgjoersformer: ['tilbud'] },
             svar: null,
             enighet: null,
           },

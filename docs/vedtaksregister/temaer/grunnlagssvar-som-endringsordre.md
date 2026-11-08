@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `963cc0c169e8fa88a0144532023fa9a9253f7d283f6c5c318ee0613a6415b1aa`
+Kontrollsum (SHA-256 over utdraget visningen leser): `8c4fdc2b0bf20febb0750d783253e22705b31e2d7f98f1fa375d1fc9a165cbab`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -282,9 +282,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Samler [KA-U6](../../plans/vedtak.md#ka-u6). Samler [KA-U13](../../plans/vedtak.md#ka-u13). Samler [KA-U14](../../plans/vedtak.md#ka-u14). Samler [GR-U5](../../plans/vedtak.md#gr-u5). Samler [GR-U25](../../plans/vedtak.md#gr-u25). Samler [SD-02](../../plans/vedtak.md#sd-02). Samler [Et krav TE har trukket, kan ikke tas opp igjen med en oppdatering. Serveren avviser oppdateringen; et nytt krav om samme forhold går i en ny sak](../../plans/vedtak.md#trukket-krav). Endrer [HF-U9](#hf-u9). Endrer [KA-U22](../../plans/vedtak.md#ka-u22). Endrer [KA-U13](../../plans/vedtak.md#ka-u13). Lagt til grunn 07.11 av [KA-U53](#ka-u53). Utvidet 07.11 av [KA-U56](#ka-u56). Utvidet 07.11 av [KA-U70](#ka-u70). Teksten står under tabellen, i [Samlevedtaket for trekk](../../plans/vedtak.md#samlevedtak-trekk). Samler KA-U6, KA-U13, KA-U14, GR-U5, GR-U25, SD-02 og vedtaket 05.10 om at et trukket krav ikke kan tas opp igjen; endrer HF-U9 (E1) og KA-U22 (E5) (svar 1 A). Endrer KA-U13 s7 (E6): at kravene er avgjort, sperrer ikke trekket av grunnlaget (svar 2 A).
 
-**Regelrader:** —
+**Regelrader:** [KA-55](#rad-ka-55)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U70 (målmodellen)
 
 ### <a id="ka-u52"></a>KA-U52
 
@@ -332,9 +332,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Utvider [KA-U51](#ka-u51). Presiserer [KA-U52](#ka-u52). Samlet 07.11 av [OV-U95](#ov-u95). Utvider KA-U51 punkt 1–2 til trekk av én kravpost, og presiserer KA-U52 punkt 2: trekket står i samme brev som den nye kravversjonen. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).
 
-**Regelrader:** —
+**Regelrader:** [KA-55](#rad-ka-55)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U56 (målmodellen)
 
 ### <a id="ka-u57"></a>KA-U57
 
@@ -368,9 +368,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Bygger på [EO-U38](#eo-u38). Presiserer [MM-U33](../../plans/vedtak.md#mm-u33). Samlet 07.11 av [OV-U95](#ov-u95). Bygger på EO-U38 punkt 23 og presiserer MM-U33 punkt 5: om svaret stemmer med kravet, vurderes per kravpost. Hva «post» i EO-U38 punkt 23 betyr med kravposter, er stilt som oppfølgingsspørsmål 15 i spørsmålsfila og besvart i KA-U67. Forholdene kommer fra prøvingen av alternativet mot vedtakene da svaret ble ført 07.11 (#1663).
 
-**Regelrader:** —
+**Regelrader:** [KA-56](#rad-ka-56)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U59 (målmodellen)
 
 ### <a id="ka-u60"></a>KA-U60
 
@@ -490,7 +490,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Opphever [OV-U94](#ov-u94). Samler [KA-U53](#ka-u53). Samler [KA-U54](#ka-u54). Samler [KA-U55](../../plans/vedtak.md#ka-u55). Samler [KA-U56](#ka-u56). Samler [KA-U57](#ka-u57). Samler [KA-U58](#ka-u58). Samler [KA-U59](#ka-u59). Samler [KA-U60](#ka-u60). Samler [KA-U61](#ka-u61). Samler [KA-U63](#ka-u63). Samler [KA-U64](#ka-u64). Samler [KA-U65](#ka-u65). Samler [KA-U66](#ka-u66). Samler [KA-U68](#ka-u68). Samler [OV-U43](#ov-u43). Samler [VS-U28](#vs-u28). Samler [OV-U14](../../plans/vedtak.md#ov-u14). Samler [LV-U30](../../plans/vedtak.md#lv-u30). Samler [LV-U31](#lv-u31). Samler [LV-U32](#lv-u32). Endrer [OV-U43](#ov-u43). Endrer [VS-U28](#vs-u28). Presiserer [OV-U43](#ov-u43). Presisert 07.11 av [VS-U48](#vs-u48). Utvidet 07.11 av [KA-U69](#ka-u69). Teksten står under tabellen, i [Samlevedtaket for vederlagsmetoden, versjon 2](../../plans/vedtak.md#samlevedtak-vederlagsmetoden-2). Opphever OV-U94, og henvisningene til det gjelder versjon 2; samler KA-U53–KA-U61, KA-U63–KA-U66 og KA-U68 (svar 1 A). Punkt 3 får siste setning etter svar 2 A. Forholdene til OV-U43, VS-U28, OV-U14, LV-U30, LV-U31 og LV-U32 er overtatt fra OV-U94. Forholdene de samlede postene har til andre vedtak enn OV-U94, står i postene, som samles og ikke oppheves (svar 1 A). KA-U62 og KA-U67 er ikke samlet: KA-U62 er en beslutning om forløpet, og KA-U67 presiserer EO-U38 punkt 23. Punkt 23 om varselinnsigelsen etter punkt 34.1.2 leses med OV-U89 punkt 11 og 13, slik Følge i KA-U57 sier.
 
-**Regelrader:** —
+**Regelrader:** [KA-55](#rad-ka-55), [KA-56](#rad-ka-56)
 
 **Bevis-saker som viser til vedtaket:** —
 
@@ -544,9 +544,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Utvider [KA-U51](#ka-u51). Utvider KA-U51 punkt 11, slik alternativet sier. Berører trekket av en kravpost i BF-14.
 
-**Regelrader:** —
+**Regelrader:** [KA-55](#rad-ka-55)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U70 (målmodellen)
 
 ### <a id="vs-u49"></a>VS-U49
 
@@ -3490,3 +3490,5 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-ka-50"></a>KA-50 | En part registrerer et brev sendt utenfor appen med et krav, et svar, en aksept eller et trekk. | [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [GR-U22](#gr-u22), [GR-U10](#gr-u10) | F-MM-G44 (målmodellen), F-MM-G44-kontroll (målmodellen), F-MM-G46 (målmodellen) |
 | <a id="rad-ka-52"></a>KA-52 | Byggherren har registrert et brev sendt utenfor appen som dokumentasjon, med feil dato, mens grunnlagskravet venter på svar. Byggherren registrerer brevet på nytt med henvisning til den feil registreringen. TE forsøker å rette byggherrens registrering. | [OV-U4](#ov-u4), [OV-U20](#ov-u20) | F-MM-OV-U17-retting (målmodellen) |
 | <a id="rad-ka-53"></a>KA-53 | Byggherren har registrert et brev i feil sak, mens grunnlagskravet venter på svar. Byggherren registrerer en retting som sier at brevet ikke hører til saken. | [OV-U19](#ov-u19), [OV-U20](#ov-u20), [OV-U4](#ov-u4) | F-MM-OV-U18-feil-sak (målmodellen) |
+| <a id="rad-ka-55"></a>KA-55 | TE har sendt et vederlagskrav med kravposten P1. TE sender en ny kravversjon som verken tar med eller trekker P1, en som tar med P1, og en som trekker P1. Etter trekket sender TE en ny kravversjon som tar opp igjen P1. | [KA-U56](#ka-u56), [KA-U70](#ka-u70), [KA-U51](#ka-u51), [OV-U95](#ov-u95) | F-MM-KA-U56 (målmodellen), F-MM-KA-U70 (målmodellen) |
+| <a id="rad-ka-56"></a>KA-56 | TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter. | [KA-U59](#ka-u59), [OV-U95](#ov-u95) | F-MM-KA-U59 (målmodellen) |

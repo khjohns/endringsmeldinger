@@ -99,7 +99,9 @@ const vederlagskrav: Steg = (sak) =>
   sak.send('TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep: 100000 },
+    innhold: {
+      kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }],
+    },
     utdypning: UTDYPNING,
   });
 const fristkrav: Steg = (sak) =>

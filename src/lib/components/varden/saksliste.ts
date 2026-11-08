@@ -88,9 +88,16 @@ export function krevd(
   const trukket = l.betegnelse === 'trukket';
   const merknad = trukket && !avsluttetAvTe(linje) ? SAKSLISTE.trukket : null;
   if (spor === 'vederlag' && linje.vederlag.krav) {
-    const { beloep, metode } = linje.vederlag.krav;
-    if (metode !== 'tilbud')
-      return { tekst: SAKSLISTE.metode[metode] ?? metode, tall: false, dempet: true, merknad };
+    const { beloep, oppgjoersformer } = linje.vederlag.krav;
+    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61).
+    const regel = oppgjoersformer.filter((f) => f !== 'tilbud');
+    if (regel.length) {
+      const tekst =
+        oppgjoersformer.length === 1
+          ? (SAKSLISTE.metode[regel[0]!] ?? regel[0]!)
+          : SAKSLISTE.flereOppgjoersformer;
+      return { tekst, tall: false, dempet: true, merknad };
+    }
     return { tekst: kroner(beloep), tall: true, dempet, merknad };
   }
   if (spor === 'frist' && linje.frist.krav)
@@ -145,7 +152,7 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
   for (const l of linjer) {
     if (!l.forstaatt || eo[l.sak_id] || avsluttetAvTe(l)) continue;
     const v = l.vederlag;
-    if (v.krav && v.kravet_staar && v.krav.metode === 'tilbud') {
+    if (v.krav && v.kravet_staar && v.krav.oppgjoersformer.every((f) => f === 'tilbud')) {
       n.vederlag.krav += 1;
       n.vederlag.sum += v.krav.beloep;
     } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;

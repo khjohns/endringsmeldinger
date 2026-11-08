@@ -166,6 +166,79 @@ const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.flatMap((h) => {
   return par;
 });
 
+const POSITIVT_BELOEP: Skjema = { type: 'number', exclusiveMinimum: 0 };
+const BELOEPSPOST = objekt({ beloep: POSITIVT_BELOEP }, ['beloep']);
+
+/** Betegnelsen kommandoen tildeler en kravpost: P1, P2 … (KA-U53). */
+export const BETEGNELSE = '^P[1-9][0-9]*$';
+
+/**
+ * En kravpost med feltene oppgjørsformen har (OV-U95 punkt 19, KA-U66). I kommandoen har en
+ * ny kravpost ingen `id`, og ingen kravpost har `betegnelse`: serveren setter dem
+ * (`kommandoer/skriving.ts`). En kravpost fra forrige versjon har sin `id`.
+ */
+function kravpost(lagret: boolean): Skjema {
+  const felles = {
+    id: ID,
+    ...(lagret ? { betegnelse: { type: 'string', pattern: BETEGNELSE } } : {}),
+    beskrivelse: TEKST,
+    pns: TEKST,
+  };
+  const paakrevd = lagret
+    ? ['id', 'betegnelse', 'beskrivelse', 'oppgjoersform']
+    : ['beskrivelse', 'oppgjoersform'];
+  return {
+    anyOf: [
+      objekt({ ...felles, oppgjoersform: { const: 'tilbud' }, beloep: POSITIVT_BELOEP }, [
+        ...paakrevd,
+        'beloep',
+      ]),
+      objekt(
+        {
+          ...felles,
+          oppgjoersform: { const: 'enhetspriser' },
+          justert: { type: 'boolean' },
+          anslag: POSITIVT_BELOEP,
+        },
+        paakrevd
+      ),
+      objekt(
+        {
+          ...felles,
+          oppgjoersform: { const: 'regningsarbeid' },
+          kostnadsoverslag: POSITIVT_BELOEP,
+        },
+        paakrevd
+      ),
+    ],
+  };
+}
+
+/**
+ * Innholdet i vederlagskravet, lagret eller i kommandoen. `saerskilt` er postene utenfor
+ * kravpostene: kravet etter § 34.1.3 annet ledd og rigg og drift i forlenget byggetid
+ * (OV-U89 punkt 6 og 17). `trekker` er kravpostene fra forrige versjon TE trekker (KA-U56).
+ */
+export function vederlagsinnhold(lagret: boolean): {
+  properties: Skjema;
+  required: string[];
+  anyOf: Skjema[];
+} {
+  return {
+    properties: {
+      kravposter: liste(kravpost(lagret)),
+      saerskilt: objekt(
+        { produktivitet: BELOEPSPOST, rigg_og_drift: BELOEPSPOST },
+        [],
+        [{ required: ['produktivitet'] }, { required: ['rigg_og_drift'] }]
+      ),
+      trekker: liste(ID),
+    },
+    required: [],
+    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],
+  };
+}
+
 /**
  * Innholdet i en kravversjon per spor, uten `id`, `spor` og `erstatter`.
  * Kommandoen bruker det samme. Et krav på 0 kr eller 0 dager er ikke et krav om
@@ -188,20 +261,9 @@ export const KRAVINNHOLD: Record<
     required: ['hovedkategori', 'underkategori'],
     anyOf: KATEGORIPAR,
   },
-  // OV-U23: hovedbeløpet kan mangle når kravet har posten etter § 34.1.3 annet ledd.
-  // Rigg og drift etter første ledd er ikke i formatet (#1171).
-  vederlag: {
-    properties: {
-      metode: { const: 'tilbud' },
-      beloep: { type: 'number', exclusiveMinimum: 0 },
-      saerskilt: objekt(
-        { produktivitet: objekt({ beloep: { type: 'number', exclusiveMinimum: 0 } }, ['beloep']) },
-        ['produktivitet']
-      ),
-    },
-    required: ['metode'],
-    anyOf: [{ required: ['beloep'] }, { required: ['saerskilt'] }],
-  },
+  // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene, postene utenfor dem og trekket. Et krav
+  // kan ha bare postene utenfor kravpostene (OV-U89 punkt 6).
+  vederlag: vederlagsinnhold(true),
   frist: { properties: { dager: { type: 'integer', minimum: 1 } }, required: ['dager'] },
 };
 

@@ -7,11 +7,11 @@
  */
 
 import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
-import type { Dokument, Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
+import type { Dokument, Journalrad, Kravspor, Oppgjoersform, Part, Spor } from '../kjerne/typer.ts';
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { krevdSamlet } from '../kjerne/frosset/standpunkt.ts';
+import { kravposterI, krevdSamlet } from '../kjerne/frosset/standpunkt.ts';
 import { foersteUnderkategori } from '../kjerne/regler/forhold.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
@@ -137,7 +137,12 @@ interface Staaende {
 }
 
 export interface Vederlagslinje extends Foreligger, Staaende {
-  krav: { beloep: number; metode: string } | null;
+  /**
+   * `beloep` er summen av de faste beløpene (OV-U73), og `oppgjoersformer` er oppgjørsformene i
+   * kravpostene, uten gjentakelser (OV-U95 punkt 19). Et krav med bare postene utenfor
+   * kravpostene har ingen oppgjørsform.
+   */
+  krav: { beloep: number; oppgjoersformer: Oppgjoersform[] } | null;
   svar: { resultat: Vederlagsresultat; beloep: number; subsidiaert: boolean } | null;
   enighet: { beloep: number | null; virkning: Virkning } | null;
 }
@@ -240,11 +245,10 @@ function vederlag(u: Utledning): Vederlagslinje {
     kravet_staar: kravetStaar(u, 'vederlag'),
     har_varsel: harVarsel(u, 'vederlag'),
     ingen_krav: s.ingenKrav,
-    // OV-U23: kravet er justeringen ellers og posten etter § 34.1.3 annet ledd.
     krav: s.gjeldendeKrav
       ? {
           beloep: tilTall(krevdSamlet(s.gjeldendeKrav)),
-          metode: tekst(s.gjeldendeKrav.innhold.metode)!,
+          oppgjoersformer: [...new Set(kravposterI(s.gjeldendeKrav).map((p) => p.oppgjoersform))],
         }
       : null,
     svar: vederlagssvaret(u),
