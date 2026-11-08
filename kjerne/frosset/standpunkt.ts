@@ -1,6 +1,6 @@
 /**
- * Virkningen av standpunktene i ett svar. Beslutningsgrunnlaget som fryses når
- * brevet sendes, settes sammen av den i `frysing.ts`. Klienten og serveren regner med de
+ * Virkningen av standpunktene i ett svar. `frysing.ts` setter sammen
+ * beslutningsgrunnlaget av virkningene når brevet sendes. Klienten og serveren regner med de
  * samme funksjonene; serveren sammenlikner (B-13, 2.5 i modellforslaget).
  *
  * Reglene regner virkningene bare når brevet skrives. Etter det leses de fra
