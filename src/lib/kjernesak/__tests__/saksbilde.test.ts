@@ -1,14 +1,13 @@
 /**
- * Saksbildet for en TS-sak (#665): kravene per spor fra utledningen, status og
- * etiketter fra `visning`, og brevene med den låste teksten og leveringsoppdragene.
- * Journalen er skrevet av kjernen selv, så forventningene er kjernens egne.
+ * Saksbildet for en TS-sak (#665, #1701): tittelen fra journalen og betegnelsen per spor fra
+ * `visning`, med teksten i MM-U30. Journalen er skrevet av kjernen selv, så forventningene er
+ * kjernens egne.
  */
 
 import { MERKING } from './provejournal';
 import { describe, expect, it } from 'vitest';
-import type { Leveringsoppdrag } from '$lib/api/kjerne';
-import { etikett, lagSaksbilde, leveringstekst } from '$lib/kjernesak/saksbilde';
-import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
+import { lagSaksbilde } from '$lib/kjernesak/saksbilde';
+import { forhaandsvis, utledJournal } from '$kjerne/kommandoer/skriving';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad } from '$kjerne/typer';
@@ -70,20 +69,10 @@ function skrevet(kommando: unknown, journal: Journalrad[], part: 'TE' | 'BH' = '
   return { ...utfall.hendelser[0], versjon: journal.length + 1 };
 }
 
-const oppdrag = (event_id: string): Leveringsoppdrag => ({
-  id: `l-${event_id}`,
-  event_id,
-  dokumentnoekkel: `brev-${event_id}`,
-  filnavn: `${event_id}.pdf`,
-  innhold_sha256: '0'.repeat(64),
-  opprettet: '2026-10-16T09:00:01.000Z',
-  levert: null,
-});
-
-function bildeAv(journal: Journalrad[], lev: Leveringsoppdrag[] = []) {
+function bildeAv(journal: Journalrad[]) {
   const u = utledJournal(journal, KJERNE);
   const vist = visning(u, KJERNE.regler);
-  return { bilde: lagSaksbilde(journal, lev, u, vist), u, vist };
+  return { bilde: lagSaksbilde(journal, vist), u, vist };
 }
 
 describe('saksbildet for en TS-sak', () => {
@@ -91,40 +80,8 @@ describe('saksbildet for en TS-sak', () => {
   const v = skrevet(vederlagskrav, [opprettet, g]);
   const journal = [opprettet, g, v];
 
-  it('viser kravet i sporet det står i, med brevet fra journalen', () => {
-    const { bilde, u } = bildeAv(journal);
-    const grunnlag = bilde.spor.find((s) => s.spor === 'forhold')!;
-    const vederlag = bilde.spor.find((s) => s.spor === 'vederlag')!;
-    const frist = bilde.spor.find((s) => s.spor === 'frist')!;
-
-    expect(grunnlag.poster).toEqual([
-      expect.objectContaining({
-        art: 'krav',
-        id: u.spor.forhold.gjeldendeKrav!.id,
-        brev: 2,
-        gjeldende: true,
-        revidert: false,
-      }),
-    ]);
-    expect(vederlag.poster).toEqual([
-      expect.objectContaining({ art: 'krav', brev: 3, gjeldende: true }),
-    ]);
-    expect(frist.poster).toEqual([]);
-  });
-
-  it('tar status og etiketter fra visningen, med tekst for kodene', () => {
-    const { bilde, vist } = bildeAv(journal);
-    // MM-U22: saken har ingen samlet status mens kravene venter på svar.
-    expect(bilde.status).toBeNull();
-    expect(bilde.status).toEqual(vist.status);
-    expect(bilde.versjon).toBe(3);
-    expect(bilde.tittel).toBe('Ny peling');
-    for (const s of bilde.spor)
-      expect(s.etiketter.map((e) => e.kode)).toEqual(vist.spor[s.spor].etiketter);
-    expect(bilde.spor[0].etiketter).toContainEqual({
-      kode: 'venter_paa_svar',
-      tekst: 'Venter på svar',
-    });
+  it('har tittelen fra opprettelsen av saken', () => {
+    expect(bildeAv(journal).bilde.tittel).toBe('Ny peling');
   });
 
   it('tar betegnelsen per spor fra visningen, med teksten i MM-U30', () => {
@@ -136,203 +93,5 @@ describe('saksbildet for en TS-sak', () => {
       { kode: 'venter_paa_svar', tekst: 'Kravet venter på byggherrens svar' },
       null,
     ]);
-  });
-
-  it('viser den frosne teksten i hvert brev, med utdypningen, og leveringsoppdragene koblet på hendelsen', () => {
-    const { bilde } = bildeAv(journal, [oppdrag(v.event_id), oppdrag(g.event_id)]);
-    const [rad1, rad2, rad3] = bilde.journal;
-
-    expect(rad1).toMatchObject({ versjon: 1, tekst: null, oppdrag: [], tolket: true });
-    expect(rad2.tekst?.map((a) => a.laast)).toEqual(laastTekst(g));
-    expect(rad2.tekst?.length).toBeGreaterThan(0);
-    expect(rad2.tekst?.map((a) => a.utdypning).filter(Boolean)).toEqual([
-      'BH påla ny peling i akse C.',
-    ]);
-    expect(rad2.oppdrag.map((o) => o.id)).toEqual([`l-${g.event_id}`]);
-    expect(rad3.tekst?.map((a) => a.laast)).toEqual(laastTekst(v));
-    expect(rad3.oppdrag.map((o) => o.id)).toEqual([`l-${v.event_id}`]);
-    expect(rad2.tittel).toBe('Brev fra TE');
-  });
-
-  it('merker en hendelse kjernen ikke forstår, og sier at saken ikke kan utledes (MM-U2)', () => {
-    const ukjent: Journalrad = {
-      ...opprettet,
-      event_id: 'e-x',
-      event_type: 'ukjent_type',
-      versjon: 2,
-      data: {},
-    };
-    const { bilde } = bildeAv([opprettet, ukjent]);
-    expect(bilde.status?.kode).toBe('kan_ikke_utledes');
-    // Tittel og kode for en rad som ikke er tolket: oppdragsgiver 19.10 (#764, svar 4).
-    expect(bilde.journal[1]).toMatchObject({
-      tolket: false,
-      tittel: 'Hendelse appen ikke forstår, fra TE',
-      hendelseskode: 'ukjent_type',
-    });
-    expect(bilde.journal[0].hendelseskode).toBeNull();
-    expect(bilde.merknader.map((m) => m.kode)).toEqual(['varsel_med_frist_utenfor_appen']);
-  });
-
-  // #712: etikettene `visning` lager for opplysningene, med datoen TE oppga.
-  it('viser opplysningene i brevet med etikettene fra visningen og datoen som er oppgitt', () => {
-    const varsel = skrevet(
-      {
-        type: 'varsel',
-        spor: 'frist',
-        hjemmel: '33.4',
-        sendt: '2026-10-02',
-        korrespondansetype: 'brev',
-        dokumentasjon: [VEDLEGG],
-      },
-      [opprettet, g]
-    );
-    const { bilde, vist, u } = bildeAv([opprettet, g, varsel]);
-    const id = u.opplysninger[0].opplysning.id;
-    expect(vist.opplysninger[id]).toEqual(['sendt_ifolge_TE', 'mottaksdato_mangler']);
-    expect(bilde.journal[2].opplysninger).toEqual([
-      {
-        id,
-        dato: '2026-10-02',
-        etiketter: [
-          { kode: 'sendt_ifolge_TE', tekst: 'Sendt ifølge TE' },
-          { kode: 'mottaksdato_mangler', tekst: 'Mottaksdatoen mangler' },
-        ],
-        tekst: 'Sendt ifølge TE 2. oktober 2026. Mottaksdatoen mangler',
-      },
-    ]);
-    expect(bilde.journal.slice(0, 2).map((j) => j.opplysninger)).toEqual([[], []]);
-  });
-
-  it('har tekst for hver etikett visningen kan gi en opplysning', () => {
-    const koder = ['sendt', 'mottatt', 'endringsordre', 'ikke_endringsordre'].flatMap((hva) =>
-      ['TE', 'BH'].map((part) => `${hva}_ifolge_${part}`)
-    );
-    koder.push(
-      'mottaksdato_mangler',
-      'sending_bestridt',
-      'mottak_bestridt',
-      'endringsordre_bestridt'
-    );
-    expect(koder.filter((k) => etikett(k).tekst === k)).toEqual([]);
-  });
-
-  // MM-U2: en rad kjernen ikke har tolket, velter ikke saksbildet.
-  it('viser en ikke tolket rad uten tekst, også når brevteksten har en annen form', () => {
-    for (const brevtekst of [{ avsnitt: ['Tekst'] }, ['Tekst'], [{ laast: 1 }], 'Tekst']) {
-      const nyere: Journalrad = {
-        ...opprettet,
-        event_id: 'e-x',
-        event_type: 'dokument_registrert',
-        versjon: 2,
-        format: 99,
-        data: { brevtekst },
-      };
-      const { bilde } = bildeAv([opprettet, nyere]);
-      expect(bilde.journal[1]).toMatchObject({
-        tolket: false,
-        tekst: null,
-        tittel: 'Hendelse appen ikke forstår, fra TE',
-        hendelseskode: 'dokument_registrert',
-      });
-    }
-  });
-
-  // Oppdragsgiver 19.10 (#764, svar 4): tittelen gjelder hver rad som ikke er tolket.
-  it('gir en ikke tolket sak_opprettet tittelen for en hendelse appen ikke forstår', () => {
-    const { bilde } = bildeAv([{ ...opprettet, format: 99 }]);
-    expect(bilde.journal[0]).toMatchObject({
-      tolket: false,
-      tittel: 'Hendelse appen ikke forstår, fra TE',
-      hendelseskode: 'sak_opprettet',
-    });
-  });
-
-  it('merket «varsel_kreves_ikke» sier at det gjelder § 34.1.2, fordi det særskilte varselet etter § 34.1.3 kreves likevel (OV-U15, OV-U25, MM-U23)', () => {
-    expect(etikett('varsel_kreves_ikke').tekst).toBe('Varsel etter § 34.1.2 kreves ikke');
-  });
-
-  it('viser en kode uten tekst som koden selv', () => {
-    expect(etikett('ny_etikett_fra_kjernen')).toEqual({
-      kode: 'ny_etikett_fra_kjernen',
-      tekst: 'ny_etikett_fra_kjernen',
-    });
-  });
-});
-
-// Kilde: oppdragsgiver 18.10 (#764): «levert» er tidspunktet i kvitteringen for
-// dokumentreferansen, ellers «ikke levert ennå»; et registrert brev er sendt utenfor
-// appen (LV-U11).
-describe('et brev registrert som dokumentasjon i saksbildet (OV-U16, #1045)', () => {
-  const g = skrevet(grunnlagskrav, [opprettet]);
-  const brev = skrevet(
-    {
-      type: 'registrert_brev',
-      sendt: '2026-10-15',
-      korrespondansetype: 'e_post',
-      beskrivelse: 'Svar på kravet sendt på e-post',
-      dokumentasjon: [VEDLEGG],
-    },
-    [opprettet, g],
-    'BH'
-  );
-  const journal = [opprettet, g, brev];
-
-  it('viser beskrivelsen, sporene, datoen og merknaden ved brevet (OV-U16)', () => {
-    const { bilde } = bildeAv(journal);
-    expect(bilde.journal[2].registrertBrev).toEqual([
-      'Svar på kravet sendt på e-post',
-      'Hele saken. Sendt 15. oktober 2026 ifølge BH.',
-      'Appen vurderer ikke innholdet.',
-    ]);
-    expect(bilde.journal[1].registrertBrev).toBeNull();
-  });
-
-  it('viser merknaden for saken når den har et brev sendt utenfor appen (svar 1 22.10)', () => {
-    const { bilde } = bildeAv(journal);
-    expect(bilde.merknader.map((m) => m.tekst)).toEqual([
-      'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.',
-    ]);
-  });
-
-  it('viser datoen også når saken ikke er forstått (OV-U4, MM-U2)', () => {
-    const ukjent: Journalrad = {
-      ...opprettet,
-      event_id: 'e-x',
-      event_type: 'ukjent_type',
-      versjon: 4,
-      data: {},
-    };
-    const { bilde } = bildeAv([...journal, ukjent]);
-    expect(bilde.status?.kode).toBe('kan_ikke_utledes');
-    expect(bilde.journal[2].registrertBrev?.[1]).toBe(
-      'Hele saken. Sendt 15. oktober 2026 ifølge BH.'
-    );
-  });
-
-  it('viser rettingen om feil sak med tittelen, og brevet som rettet (OV-U18)', () => {
-    const retting = skrevet({ type: 'ikke_i_saken', retter: brev.event_id }, journal, 'BH');
-    const { bilde } = bildeAv([...journal, retting]);
-    expect(bilde.journal[3].tittel).toBe('Retting fra BH: brevet hører ikke til saken');
-    expect(bilde.journal[2].registrertBrev?.at(-1)).toBe('Rettet i hendelse 4.');
-    expect(bilde.merknader).toEqual([]);
-  });
-});
-
-describe('leveringen av et oppdrag', () => {
-  it('er ikke levert ennå uten kvittering for dokumentreferansen', () => {
-    expect(leveringstekst(oppdrag('e-2'))).toMatch(/^e-2\.pdf: frosset .*, ikke levert ennå$/);
-  });
-
-  it('er levert med tidspunktet i kvitteringen', () => {
-    const tekst = leveringstekst({ ...oppdrag('e-2'), levert: '2026-10-16T10:15:00.000Z' });
-    expect(tekst).toMatch(/, levert \S/);
-    expect(tekst).not.toMatch(/ikke levert/);
-  });
-
-  it('er sendt utenfor appen for et registrert brev, som ikke har noe dokument', () => {
-    expect(leveringstekst({ ...oppdrag('e-2'), filnavn: null })).toMatch(
-      /^brev-e-2: frosset .*, sendt utenfor appen$/
-    );
   });
 });

@@ -148,9 +148,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   const utledning = $derived(sak ? utledJournal(journal, kjerne) : null);
   const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
   const tilbudt = $derived(utledning && part ? handlinger(utledning, part) : []);
-  const bilde = $derived(
-    sak && utledning && vist ? lagSaksbilde(journal, sak.leveringsoppdrag, utledning, vist) : null
-  );
+  const bilde = $derived(sak && vist ? lagSaksbilde(journal, vist) : null);
 
   let lastinger = 0;
   let gjeldende: Promise<boolean> = Promise.resolve(false);
