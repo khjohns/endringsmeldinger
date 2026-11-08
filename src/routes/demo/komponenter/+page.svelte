@@ -22,8 +22,7 @@
   // Hele visningen i rammer, så bredden er skjermens og ikke kolonnens.
   let tilstand = $state(TILSTANDER[2].id);
   let side = $state<Part>('BH');
-  const ramme = (visning: 'varden' | 'dagens') =>
-    `${resolve('/demo/komponenter/ramme')}?visning=${visning}&tilstand=${tilstand}&side=${side}`;
+  const ramme = () => `${resolve('/demo/komponenter/ramme')}?tilstand=${tilstand}&side=${side}`;
   const tilstandsnavn = $derived(TILSTANDER.find((t) => t.id === tilstand)!.navn);
 
   const SPORET = [
@@ -111,10 +110,10 @@
     </header>
 
     <section id="hele" aria-labelledby="hele-tittel">
-      <h2 id="hele-tittel">Hele visningen: Varden og dagens visning</h2>
+      <h2 id="hele-tittel">Hele visningen</h2>
       <p class="forklaring">
-        <code>Vardensak</code> og <code>Kjernesakrom</code> med samme sak. Rammene har egen bredde, så
-        visningen bruker utformingen for den skjermen.
+        <code>Vardensak</code> med saken i tilstanden. Rammene har egen bredde, så visningen bruker utformingen
+        for den skjermen.
       </p>
       <div class="velgere">
         <label>
@@ -138,15 +137,7 @@
             <iframe
               class="smal"
               title={`Varden, smal skjerm: ${tilstandsnavn}, ${side}`}
-              src={ramme('varden')}
-            ></iframe>
-          </figure>
-          <figure>
-            <figcaption>Dagens visning</figcaption>
-            <iframe
-              class="smal"
-              title={`Dagens visning, smal skjerm: ${tilstandsnavn}, ${side}`}
-              src={ramme('dagens')}
+              src={ramme()}
             ></iframe>
           </figure>
         </div>
@@ -156,15 +147,7 @@
           <iframe
             class="bred"
             title={`Varden, bred skjerm: ${tilstandsnavn}, ${side}`}
-            src={ramme('varden')}
-          ></iframe>
-        </figure>
-        <figure>
-          <figcaption>Dagens visning</figcaption>
-          <iframe
-            class="bred"
-            title={`Dagens visning, bred skjerm: ${tilstandsnavn}, ${side}`}
-            src={ramme('dagens')}
+            src={ramme()}
           ></iframe>
         </figure>
       {/key}

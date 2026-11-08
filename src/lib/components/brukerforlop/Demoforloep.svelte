@@ -1,13 +1,11 @@
 <script lang="ts">
   /**
-   * Et brukerforløp i saksvisningen (#1330): `Kjernesakrom` med en journal i minnet fra
-   * kontrollpunktet. Panelet velger kontrollpunkt og side, og starter forløpet på nytt.
-   * Visningen lages på nytt når siden byttes, som når en annen bruker åpner saken.
-   * `visning` er dagens saksvisning eller Varden (#1331), med samme sak. Med `panel` lik
-   * `false` vises saken uten panelet, til en brukertest.
+   * Et brukerforløp i Varden (#1330, #1331), med en journal i minnet fra kontrollpunktet.
+   * Panelet velger kontrollpunkt og side, og starter forløpet på nytt. Visningen lages på
+   * nytt når siden byttes, som når en annen bruker åpner saken. Med `panel` lik `false`
+   * vises saken uten panelet, til en brukertest.
    */
   import { ChevronRight } from 'lucide-svelte';
-  import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
   import NySak from '$lib/components/varden/NySak.svelte';
   import Vardensak from '$lib/components/varden/Vardensak.svelte';
   import { NYSAK } from '$lib/components/varden/tekster';
@@ -21,24 +19,19 @@
     type Startjournal,
   } from '$lib/kjernesak/demosak';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-  import type { WorkspaceView } from '$lib/kontraktsbord/viewState';
   import type { Part } from '$kjerne/typer';
 
   let {
     forloep,
     punkt,
-    visning = 'dagens',
     panel = true,
     onpunkt,
-    onvisning,
     onstart,
   }: {
     forloep: Startjournal;
     punkt: string;
-    visning?: Visning;
     panel?: boolean;
     onpunkt: (punkt: string) => void;
-    onvisning?: (visning: Visning) => void;
     /** Kalles med saken hver gang forløpet starter, så en test kan lese journalen. */
     onstart?: (demosak: Demosak, kjernesak: Kjernesak) => void;
   } = $props();
@@ -58,7 +51,6 @@
   const startside = (): Part => neste?.part ?? 'TE';
 
   type Kjernesak = ReturnType<typeof lagKjernesak>;
-  type Visning = 'dagens' | 'varden';
 
   function kjernesakFor(demosak: Demosak): Kjernesak {
     const kjernesak = lagKjernesak({
@@ -90,7 +82,6 @@
   // Neste steg og forståelsen gjelder bare saken slik den er ved kontrollpunktet.
   const versjon = $derived(utenSak ? 0 : aapen.kjernesak.versjon);
   const vedPunktet = $derived(versjon === kontrollpunkt.versjon);
-  let view = $state<WorkspaceView>({ track: 'ansvar', mode: 'read', role: startside() });
   let omstarter = $state(0);
 
   function byttSide(part: Part) {
@@ -98,7 +89,6 @@
     aapen.demosak.part = part;
     kvittering = undefined;
     aapen = { demosak: aapen.demosak, kjernesak: kjernesakFor(aapen.demosak) };
-    view = { ...view, mode: 'read', role: part };
   }
 
   function opprettet() {
@@ -114,7 +104,6 @@
 
   function startPaaNytt() {
     aapen = aapne();
-    view = { ...view, mode: 'read', role: aapen.demosak.part };
     omstarter++;
   }
 </script>
@@ -122,7 +111,7 @@
 <svelte:head><title>{forloep.id} — demo av brukerforløpet</title></svelte:head>
 
 {#key omstarter + ':' + aapen.demosak.part}
-  {#if utenSak && visning === 'varden'}
+  {#if utenSak}
     <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} {kvittering}>
       {#snippet nySak()}
         <NySak
@@ -135,25 +124,13 @@
         />
       {/snippet}
     </Vardensak>
-  {:else if utenSak}
-    <p class="laster">Skjemaet for ny sak er bare laget i Varden.</p>
-  {:else if visning === 'varden'}
-    <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} {kvittering} saksliste="/demo" />
-  {:else if aapen.kjernesak.saksbilde}
-    <Kjernesakrom
-      kjernesak={aapen.kjernesak}
-      projectId={DEMOPROSJEKT}
-      {view}
-      onviewchange={(neste) => (view = neste)}
-      onnewcase={() => {}}
-    />
   {:else}
-    <p class="laster" role="status">Laster forløpet …</p>
+    <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} {kvittering} saksliste="/demo" />
   {/if}
 {/key}
 
 {#if panel}
-  <aside class="demopanel" class:varden={visning === 'varden'} aria-label="Demo av brukerforløpet">
+  <aside class="demopanel" aria-label="Demo av brukerforløpet">
     <details>
       <summary><ChevronRight size={16} aria-hidden="true" />Demo · {forloep.id}</summary>
       <div class="innhold">
@@ -168,21 +145,6 @@
             {/each}
           </select>
         </label>
-
-        {#if onvisning}
-          <div class="felt">
-            <span class="etikett">Visning</span>
-            <SegmentedControl
-              value={visning}
-              label="Visning"
-              options={[
-                { id: 'dagens', label: 'Dagens' },
-                { id: 'varden', label: 'Varden' },
-              ]}
-              onchange={(v) => onvisning(v as Visning)}
-            />
-          </div>
-        {/if}
 
         <!-- Skjemaet for ny sak sendes av TE (BF-05), så siden byttes først når saken finnes. -->
         {#if !utenSak}
@@ -229,10 +191,6 @@
 {/if}
 
 <style>
-  .laster {
-    padding: var(--spacing-10);
-    color: var(--ink-2);
-  }
   /* Lukket som standard, nederst til venstre, der det dekker minst av saken. */
   .demopanel {
     position: fixed;
@@ -251,7 +209,7 @@
   }
   /* I Varden fyller den lukkede knappen bunnen av venstrepanelet (300 px) og dekker merket der helt. */
   @media (min-width: 1024px) {
-    .demopanel.varden {
+    .demopanel {
       width: calc(300px - 2 * var(--spacing-4));
     }
   }

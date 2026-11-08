@@ -2,17 +2,13 @@
  * Varden i demoruta (#1331), med brukerforløpet BF-01 og kjernen i minnet. BH fyller ut svaret
  * i Varden, kontrollerer brevet og sender det, og TE tar stilling og godtar det. Kontrollene
  * ved kontrollpunktene er forløpets, med kilde (`kontrollerEtter`).
- *
- * Sammenligningen med dagens visning: samme kontrollpunkt og samme valg gir samme journal,
- * med samme brevtekst, og de samme handlingene i sporet. Dagens visning sender BHs svar
- * gjennom `lagKravkontroll` med dataene skjemaet gir, som i testen av demoruta.
+ * Handlingene i sporet er de kjernen tilbyr.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import type { Journalrad } from '$kjerne/typer';
 import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
 import { kontrollerEtter } from '$kjerne/tester/kjoerer';
@@ -26,25 +22,15 @@ const START = finnForloep('BF-01')!;
 const paastand = (holder: boolean, melding: string) => expect(holder, melding).toBe(true);
 const BEGRUNNELSE = 'Varselet kom for sent. Subsidiært godtas 60 000 kr.';
 
-/** Svaret i forløpets steg 4 i dagens skjema (`vederlagssvarFraSkjema`). */
-const BH_SVARER_I_DAGENS = {
-  hovedkrav_vurdering: 'delvis',
-  hovedkrav_godkjent_belop: 60000,
-  hovedkrav_varslet_i_tide: false,
-  aksepterer_metode: true,
-  begrunnelse: `<p>${BEGRUNNELSE}</p>`,
-};
-
 const versjonVed = (punkt: string) => START.kontrollpunkter.find((p) => p.id === punkt)!.versjon;
 const nyeRader = (demosak: Demosak, etter: number): Journalrad[] =>
   demosak.journal().filter((r) => r.versjon > etter);
 
-function aapne(punkt: string, visning: 'dagens' | 'varden') {
+function aapne(punkt: string) {
   let demosak: Demosak | null = null;
   render(Demoforloep, {
     forloep: START,
     punkt,
-    visning,
     onpunkt: () => {},
     onstart: (d: Demosak) => (demosak = d),
   });
@@ -83,26 +69,6 @@ async function sendBrevet(knapp: string) {
   await fireEvent.click(screen.getByRole('button', { name: knapp }));
 }
 
-/** BH sender steg 4 gjennom dagens brevkontroll. Gir teksten BH kontrollerte. */
-async function bhSenderIDagens(demosak: Demosak) {
-  demosak.part = 'BH';
-  const kjernesak = lagKjernesak({
-    sakId: demosak.sakId,
-    prosjektId: 'demo',
-    part: 'BH',
-    hent: demosak.hent,
-    send: demosak.send,
-  });
-  await kjernesak.last();
-  const kontroll = lagKravkontroll(kjernesak);
-  const sending = kontroll.submit('vederlag', 'respons_vederlag', BH_SVARER_I_DAGENS);
-  await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
-  const vist = kontroll.letter!;
-  kontroll.confirm();
-  await sending;
-  return [...vist.tekst, vist.utdypning];
-}
-
 beforeEach(() => vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Ingen nettverk.'))));
 afterEach(() => {
   cleanup();
@@ -114,7 +80,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     const forloep = somForloep(BF);
     const punkt = kontrollpunkt(BF, 'bh-har-mottatt-vederlagskravet');
     const { k, bane } = await kjoerBrukerforloep(BF, { til: punkt.id, paastand });
-    const demosak = aapne(punkt.id, 'varden');
+    const demosak = aapne(punkt.id);
     expect(await screen.findByRole('heading', { name: BF.tittel, level: 1 })).toBeInTheDocument();
     bane.journal = async () => demosak().journal();
 
@@ -145,7 +111,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       name: 'Svar på krav om vederlagsjustering i sak KOE-17',
     });
     expect(avsnittene(mottatt)).toEqual(vist);
-    // Uten dagens visning er aksepten primærhandlingen, med linja om hva den gjør, og resten
+    // Aksepten er primærhandlingen, med linja om hva den gjør, og resten
     // står synlig under «Andre handlinger», uten panel (oppdragsgiver 06.11, #1631).
     const kortet = within(
       screen.getByRole('heading', { name: 'Det du kan gjøre nå' }).closest('section')!
@@ -174,7 +140,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // MM-U32: «En handling parten kan gjøre nå, er alltid aktiv. Mangler noe i skjemaet,
     // kontrollerer appen det når parten sender, og sier ved feltet og øverst i skjemaet hva som
     // mangler.» BF-01 S-3: reserven B, fordi kjernen ikke lager tekst for et ufullstendig svar.
-    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const seBrevet = screen.getByRole('button', { name: 'Se brevet før sending' });
     expect(seBrevet).not.toHaveAttribute('aria-disabled');
@@ -258,7 +224,7 @@ describe('Varden med brukerforløpet BF-01', () => {
   });
 
   it('etter «Varslet for sent» står beløpsspørsmålet under «Gjelder hvis» med innsigelsen det bygger på (oppdragsgiver 30.10, #1391)', async () => {
-    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const beloep = () =>
       screen.getByRole('group', { name: 'Hvor mye av vederlagsjusteringen godkjenner du?' });
@@ -283,7 +249,6 @@ describe('Varden med brukerforløpet BF-01', () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
-      visning: 'varden',
       onpunkt: () => {},
       onstart: () => {},
     });
@@ -329,7 +294,6 @@ describe('Varden med brukerforløpet BF-01', () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
-      visning: 'varden',
       onpunkt: () => {},
       onstart: () => {},
     });
@@ -367,7 +331,7 @@ describe('Varden med brukerforløpet BF-01', () => {
   });
 
   it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
-    const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    const demosak = aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
 
@@ -393,7 +357,7 @@ describe('Varden med brukerforløpet BF-01', () => {
   });
 
   it('utkastet står når BH velger et annet spor, og merket «Utkast» står i panelet bare mens et annet spor er valgt (BF-01 S-8, #1391)', async () => {
-    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     const panelet = within(screen.getByRole('navigation', { name: 'Saken' }));
@@ -413,7 +377,7 @@ describe('Varden med brukerforløpet BF-01', () => {
   });
 
   it('panelet til venstre har forholdet under «Kontraktsforhold» og kravene under «Krav», uten linje under navnene, og sakens kode over tittelen (oppdragsgiver 06.11, #1631)', async () => {
-    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    aapne('bh-har-mottatt-vederlagskravet');
     const panelet = within(await screen.findByRole('navigation', { name: 'Saken' }));
     const forholdet = panelet.getByRole('list', { name: 'Kontraktsforhold' });
     const kravene = panelet.getByRole('list', { name: 'Krav' });
@@ -432,7 +396,7 @@ describe('Varden med brukerforløpet BF-01', () => {
   });
 
   it('panelet til venstre felles inn mens brevet leses ved siden av skjemaet, og kommer tilbake når brevet lukkes (oppdragsgiver 30.10, #1391)', async () => {
-    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     expect(screen.getByRole('navigation', { name: 'Saken' })).toBeInTheDocument();
 
@@ -444,7 +408,7 @@ describe('Varden med brukerforløpet BF-01', () => {
   });
 
   it('«Send svaret til TE» er aktiv uten avkrysning, og klikket sender ikke, men sier fra ved avkrysningen (MM-U32)', async () => {
-    const demosak = aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    const demosak = aapne('bh-har-mottatt-vederlagskravet');
     await bhSvarerIVarden();
     const send = screen.getByRole('button', { name: 'Send svaret til TE' });
     expect(send).not.toHaveAttribute('aria-disabled');
@@ -465,7 +429,7 @@ describe('Varden med brukerforløpet BF-01', () => {
   });
 
   it('#1466 og #1467: skjemaet og brevkontrollen bruker ordene i sprak.md og OV-U75, og forklaringene av løsningen står bare i infotipsene (OV-U81)', async () => {
-    aapne('bh-har-mottatt-vederlagskravet', 'varden');
+    aapne('bh-har-mottatt-vederlagskravet');
     // Teksten i brevet kommer fra kjernen og hører til #1433; infotipsene prøves for seg.
     const synlig = () => {
       const kopi = document.body.cloneNode(true) as HTMLElement;
@@ -507,90 +471,23 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(infotips()).toContain('Virkningen av svaret regnes ut fra valgene over.');
   });
 
-  it('samme valg gir samme journal og brevtekst i Varden og i dagens visning', async () => {
-    const punkt = 'bh-har-mottatt-vederlagskravet';
-    const dagens = lagDemosak(START, punkt, 'BH');
-    const vistIDagens = await bhSenderIDagens(dagens);
-
-    const varden = aapne(punkt, 'varden');
-    await screen.findByRole('heading', { name: BF.tittel, level: 1 });
-    const vistIVarden = await bhSvarerIVarden();
-    await sendBrevet('Send svaret til TE');
-    await vi.waitFor(() => expect(nyeRader(varden(), versjonVed(punkt))).toHaveLength(1));
-
-    expect(vistIVarden).toEqual(vistIDagens);
-    // Faste ID-er og testklokken: samme kommando og samme tekst gir samme rad.
-    expect(varden().journal()).toEqual(dagens.journal());
-  });
-
-  it('aksepten gir samme brevtekst og samme rad i Varden og i dagens visning', async () => {
-    const punkt = 'te-har-mottatt-svaret';
-    const dagens = aapne(punkt, 'dagens');
-    await screen.findByRole('heading', { name: BF.tittel });
-    await fireEvent.click(
-      within(await screen.findByRole('navigation', { name: 'Sakens spor' })).getByRole('button', {
-        name: /Vederlag/,
-      })
-    );
-    await fireEvent.click(await screen.findByRole('button', { name: 'Godta svaret' }));
-    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    const tekstIDagens = avsnittene(screen.getByRole('region', { name: 'Brevkontroll' }));
-    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
-    await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
-    await vi.waitFor(() => expect(nyeRader(dagens(), versjonVed(punkt))).toHaveLength(1));
-    const journalIDagens = dagens().journal();
-    cleanup();
-
-    const varden = aapne(punkt, 'varden');
-    await fireEvent.click(await screen.findByRole('button', { name: /^Godta svaret/ }));
-    const brev = await screen.findByRole('article', { name: 'Aksept av svaret i sak KOE-17' });
-    expect(avsnittene(brev)).toEqual(tekstIDagens);
-    await sendBrevet('Send aksepten til BH');
-    await vi.waitFor(() => expect(nyeRader(varden(), versjonVed(punkt))).toHaveLength(1));
-    expect(varden().journal()).toEqual(journalIDagens);
-  });
-
   it.each([
     ['bh-har-mottatt-vederlagskravet', 'BH'],
     ['te-har-mottatt-svaret', 'TE'],
     ['te-har-godtatt-svaret', 'TE'],
   ] as const)(
-    'ved %s får %s i Varden alle handlingene kjernen tilbyr i vederlagssporet unntatt innsigelsen, og i dagens visning de samme unntatt BHs innsigelse',
+    'ved %s får %s i Varden alle handlingene kjernen tilbyr i vederlagssporet unntatt innsigelsen',
     async (punkt, part) => {
-      // Knappene i dagens visning (`ActionBar`) og nøklene kjernen tilbyr bak dem. Skjemaet bak
-      // kravknappen har varslene som valg (`kravvalg`, `varselvalg` i `arbeidsflate.svelte.ts`).
-      const varsel = (n: string) => /^(varsle|sende_varsel):/.test(n);
-      const KNAPPER: Record<string, (n: string) => boolean> = {
-        'Svar på kravet': (n) => n === 'svare:vederlag',
-        'Godta svaret': (n) => n === 'godta:vederlag',
-        Trekk: (n) => n === 'trekke:vederlag',
-        'Gjør innsigelse': (n) => n.startsWith('innsigelse:'),
-        'Send ny versjon av kravet': (n) => n === 'krav:vederlag' || varsel(n),
-        'Send varsel eller krav': (n) => n === 'krav:vederlag' || varsel(n),
-        'Send varsel': varsel,
-        'Registrer varsel': varsel,
-      };
       let kjernesak: ReturnType<typeof lagKjernesak> | null = null;
-      const vis = (visning: 'dagens' | 'varden') =>
-        render(Demoforloep, {
-          forloep: START,
-          punkt,
-          visning,
-          onpunkt: () => {},
-          onstart: (_d: Demosak, k: ReturnType<typeof lagKjernesak>) => (kjernesak = k),
-        });
-      const somPart = async () => {
-        const radio = demopanel().getByRole('radio', { name: part });
-        if (radio.getAttribute('aria-checked') !== 'true') await fireEvent.click(radio);
-      };
-
-      vis('dagens');
-      await somPart();
-      await fireEvent.click(
-        within(await screen.findByRole('navigation', { name: 'Sakens spor' })).getByRole('button', {
-          name: /Vederlag/,
-        })
-      );
+      render(Demoforloep, {
+        forloep: START,
+        punkt,
+        onpunkt: () => {},
+        onstart: (_d: Demosak, k: ReturnType<typeof lagKjernesak>) => (kjernesak = k),
+      });
+      const radio = demopanel().getByRole('radio', { name: part });
+      if (radio.getAttribute('aria-checked') !== 'true') await fireEvent.click(radio);
+      await screen.findByRole('heading', { name: BF.tittel, level: 1 });
       // Handlingene i vederlagssporet: nøkkelen har sporet eller § 34.1.3, eller den gjelder et
       // krav eller svar i sporet (`handlinger` i `kjerne/kommandoer/handlinger.ts`).
       const u = kjernesak!.utledning!;
@@ -601,18 +498,6 @@ describe('Varden med brukerforløpet BF-01', () => {
           hva === 'vederlag' || hva === '34.1.3' || (type === 'innsigelse' && iSporet.has(hva))
         );
       });
-      const knapper = Object.keys(KNAPPER).filter(
-        (navn) => screen.queryByRole('button', { name: new RegExp(`^${navn}$`) }) !== null
-      );
-      const iDagens = tilbudt.filter((n) => knapper.some((navn) => KNAPPER[navn](n)));
-      // #909 bygde innsigelsen bare for TE (`innsigelser` i `arbeidsflate.svelte.ts`).
-      const ikkeIDagens = part === 'BH' ? tilbudt.filter((n) => n.startsWith('innsigelse:')) : [];
-      expect(iDagens.sort()).toEqual(tilbudt.filter((n) => !ikkeIDagens.includes(n)).sort());
-      cleanup();
-
-      vis('varden');
-      await somPart();
-      await screen.findByRole('heading', { name: BF.tittel, level: 1 });
       const iVarden = [...document.querySelectorAll('[data-handling]')].map(
         (e) => e.getAttribute('data-handling')!
       );
@@ -623,11 +508,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       )
         iVarden.push('godta:vederlag');
       if (screen.queryByRole('button', { name: 'Svar på kravet' })) iVarden.push('svare:vederlag');
-      if (
-        screen.queryByRole('button', { name: 'Revider krav' }) ||
-        screen.queryByRole('link', { name: 'Revider krav' })
-      )
-        iVarden.push('krav:vederlag');
+      if (screen.queryByRole('button', { name: 'Revider krav' })) iVarden.push('krav:vederlag');
       // Innsigelsen om at et brev kom for sent er ikke en handling i Varden (oppdragsgiver 06.11,
       // PR 1650).
       expect(iVarden.sort()).toEqual(tilbudt.filter((n) => !n.startsWith('innsigelse:')).sort());
@@ -644,20 +525,19 @@ describe('Varden med brukerforløpet BF-01', () => {
       send: demosak.send,
     });
     await kjernesak.last();
-    render(Vardensak, { kjernesak, spor: 'forhold', dagensVisning: '/demo/sak/kjerne' });
+    render(Vardensak, { kjernesak, spor: 'forhold' });
     const kortet = within(
       (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
     );
-    // «Oppdater påberopelse» er bygget i Varden (BF-10), så den åpner skjemaet, ikke dagens visning.
+    // «Oppdater påberopelse» er bygget i Varden (BF-10), så den åpner skjemaet.
     const primaer = kortet.getByRole('button', { name: 'Oppdater påberopelse' });
     // Teksten oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
     expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
       'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
     );
     expect(kortet.getByRole('button', { name: /^Godta avslaget/ })).toBeTruthy();
-    expect(kortet.getByRole('link', { name: /^Trekk påberopelsen/ })).toBeTruthy();
+    expect(kortet.getByRole('button', { name: /^Trekk påberopelsen/ })).toBeTruthy();
     expect(kortet.queryByRole('button', { name: /Ta stilling/ })).toBeNull();
-    expect(kortet.queryByText(/dagens visning/)).toBeNull();
   });
 
   it('etter svaret på vederlagskravet er primærhandlingen for TE «Revider krav» (oppdragsgiver 06.11, #1631)', async () => {
@@ -670,11 +550,11 @@ describe('Varden med brukerforløpet BF-01', () => {
       send: demosak.send,
     });
     await kjernesak.last();
-    render(Vardensak, { kjernesak, spor: 'vederlag', dagensVisning: '/demo/sak/kjerne' });
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
     const kortet = within(
       (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
     );
-    const primaer = kortet.getByRole('link', { name: 'Revider krav' });
+    const primaer = kortet.getByRole('button', { name: 'Revider krav' });
     expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
       'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.'
     );

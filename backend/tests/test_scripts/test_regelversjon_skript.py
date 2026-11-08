@@ -63,7 +63,7 @@ def test_regelendring_uten_okt_versjon_feiler_og_nevner_fixturen(repo):
     svar = _kjor(sti, base)
     assert svar.returncode == 1, svar.stdout + svar.stderr
     assert "backend/tests/fixtures/skjemaenes_nyttelast.json" in svar.stdout
-    assert "npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts" in svar.stdout
+    assert "oppdater" in svar.stdout.lower()
 
 
 def test_versjon_okt_bare_i_ett_speil_feiler(repo):
@@ -78,7 +78,7 @@ def test_regelendring_med_okt_versjon_i_begge_passerer_og_minner_om_fixturen(rep
     svar = _kjor(sti, base)
     assert svar.returncode == 0, svar.stdout + svar.stderr
     assert "::notice file=backend/tests/fixtures/skjemaenes_nyttelast.json::" in svar.stdout
-    assert "npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts" in svar.stdout
+    assert "oppdater" in svar.stdout.lower()
 
 
 def test_endring_bare_i_domenetestene_passerer_uten_fixturhint(repo):
@@ -87,6 +87,30 @@ def test_endring_bare_i_domenetestene_passerer_uten_fixturhint(repo):
     svar = _kjor(sti, base)
     assert svar.returncode == 0
     assert "skjemaenes_nyttelast" not in svar.stdout
+
+
+def _slett(repo: Path, sti: str) -> None:
+    _git(repo, "rm", "-q", sti)
+    _git(repo, "commit", "-qm", "sletting")
+
+
+def test_slettet_fil_i_frontendspeilet_krever_ingen_ny_versjon(repo):
+    """Skjemaene som brukte speilet, er fjernet, og en sletting endrer ingen regel som kjører (#1516)."""
+    sti, base = repo
+    _slett(sti, "src/lib/domain/regel.ts")
+    svar = _kjor(sti, base)
+    assert svar.returncode == 0, svar.stdout + svar.stderr
+    assert "Ingen endring i src/lib/domain/" in svar.stdout
+
+
+def test_slettet_fil_i_pythonreglene_krever_ny_versjon(repo):
+    sti, base = repo
+    _skriv(sti, {"backend/regler/regel.py": "a\n", **_versjoner(4, 4)})
+    base = _git(sti, "rev-parse", "HEAD")
+    _slett(sti, "backend/regler/regel.py")
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert "backend/regler/regel.py" in svar.stdout
 
 
 def test_mangler_base_gir_bruksmelding(repo):

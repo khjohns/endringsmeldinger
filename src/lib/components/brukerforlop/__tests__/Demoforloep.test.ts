@@ -4,15 +4,16 @@
  * gjennom brevkontrollen, og TE godtar det i visningen. Etter hvert steg kontrolleres
  * forløpets kontroller med kilde mot journalen demoruta skrev (`kontrollerEtter`).
  *
- * BHs skjema for vederlagssvaret fylles ut i nettleseren (`mockup-nettleser`); her går
- * svaret gjennom `lagKravkontroll`, som skjemaet sender med, med dataene skjemaet gir.
+ * BHs skjema for vederlagssvaret i Varden prøves i Varden-testen; her lages svaret med
+ * `vederlagssvarFraSkjema` av dataene skjemaet gir, og kjernesaken sender det med den låste
+ * teksten BH ser.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
+import { vederlagssvarFraSkjema } from '$lib/kjernesak/vederlagssvar';
 import type { Journalrad } from '$kjerne/typer';
 import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
 import { kontrollerEtter } from '$kjerne/tester/kjoerer';
@@ -52,12 +53,12 @@ async function bhSenderSvaret(demosak: Demosak) {
     send: demosak.send,
   });
   await kjernesak.last();
-  const kontroll = lagKravkontroll(kjernesak);
-  const sending = kontroll.submit('vederlag', 'respons_vederlag', BH_SVARER);
-  await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
-  const vist = kontroll.letter!.tekst;
-  kontroll.confirm();
-  await sending;
+  const kommando = vederlagssvarFraSkjema(BH_SVARER, kjernesak.utledning!, kjernesak.regler);
+  const brevet = kjernesak.brev(kommando, undefined, true);
+  if (!brevet || !('tekst' in brevet) || !brevet.tekst)
+    throw new Error('Kjernen ga ikke noe brev for svaret.');
+  const vist = brevet.tekst;
+  expect(await kjernesak.send(kommando, vist)).toBe(true);
   return vist;
 }
 
@@ -116,7 +117,6 @@ describe('demoruta for brukerforløpet BF-01', () => {
     render(Demoforloep, {
       forloep: bf05,
       punkt: bf05.kontrollpunkter[0].id,
-      visning: 'varden',
       onpunkt: () => {},
     });
     const overskrift = await screen.findByRole('heading', {
@@ -131,7 +131,7 @@ describe('demoruta for brukerforløpet BF-01', () => {
     expect(screen.queryByText('Du handler som')).toBeNull();
   });
 
-  it('BH sender svaret, TE ser akkurat det svaret og godtar det, og kontrollene ved kontrollpunktene holder', async () => {
+  it('BH sender svaret i demoruta, kontrollene ved kontrollpunktet holder, og når TE åpner saken, sier panelet at den er endret', async () => {
     const forloep = somForloep(BF);
     const punkt = kontrollpunkt(BF, 'bh-har-mottatt-vederlagskravet');
     const { k, lesFra } = await kjoeringTil(punkt.id);
@@ -162,33 +162,12 @@ describe('demoruta for brukerforløpet BF-01', () => {
     expect(svaret.event_id).not.toBe(forhaandslaget.event_id);
     expect(svaret.event_id.startsWith(START.idhode)).toBe(true);
 
-    // Steg 5: TE åpner saken og ser svaret BH skrev, med samme event_id.
+    // TE åpner saken. Godtakelsen i Varden prøves i Varden-testen for BF-01.
     await fireEvent.click(screen.getByRole('radio', { name: 'TE' }));
     // Panelet sier ikke lenger at BH skal svare, når svaret er sendt.
     const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
     expect(await panel.findByText(/Saken er endret etter kontrollpunktet/)).toBeInTheDocument();
     expect(panel.queryByText(/Neste steg i forløpet/)).toBeNull();
-    await fireEvent.click(
-      within(await screen.findByRole('navigation', { name: 'Sakens spor' })).getByRole('button', {
-        name: /Vederlag/,
-      })
-    );
-    await fireEvent.click(await screen.findByRole('button', { name: 'Godta svaret' }));
-    const brevkontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    await fireEvent.click(
-      brevkontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' })
-    );
-    await fireEvent.click(brevkontroll.getByRole('button', { name: 'Send til byggherren' }));
-    await vi.waitFor(() => expect(nyeRader(demosak!, svaret.versjon)).toHaveLength(1));
-    const [aksepten] = nyeRader(demosak!, svaret.versjon);
-    expect(aksepten.aktor_rolle).toBe('TE');
-    const godtatt = (aksepten.data.utsagn as { art: string; gjelder: string }[]).find(
-      (u) => u.art === 'aksept'
-    );
-    const svarId = (svaret.data.svar as { id: string }[])[0].id;
-    expect(godtatt?.gjelder).toBe(svarId);
-    k.registrer(BF.steg![4], [aksepten]);
-    await kontrollerEtter(forloep, 5, k, paastand);
   });
 
   it('et vedlegg i demoruta lastes ikke opp til serveren', async () => {

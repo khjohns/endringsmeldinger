@@ -1,44 +1,18 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som sender stegene i et brukerforløp og framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder. Brukerforløpene i demoruta kjøres med demoruta.mjs. Et forløp i demoruta forprøves mekanisk med demoruta.mjs, og en HTML-skisse av et nytt mønster med prototype.mjs.
+description: Kjører den ekte saksruta og demoruta i Chromium i skyøkta. saksrute.ts sender stegene i et brukerforløp mot TS-serveren og testbasen i SQL Server, med innlogging og skjermbilder. demoruta.mjs driver brukerforløpene i Varden mot en journal i minnet. prototype.mjs forprøver en HTML-skisse av et nytt mønster. skjermbilder.sh legger skjermbildene i en PR. uu.mjs kjører axe for WCAG 2.1 A og AA. Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR og prøve universell utforming.
 ---
 
-# /mockup i nettleseren
-
-```bash
-node .claude/skills/mockup-nettleser/godkjenning.mjs [--utdata <mappe>] [--url http://localhost:5173] [--scenario scenario1] \
-  [--varsel i-tide|for-sent] [--hindring ja|nei] [--dager <n>] [--tekst]
-```
-
-Skriptet starter `vite dev` hvis ingen svarer på `--url`, og stopper den igjen
-etterpå. Skjermbildene havner i `--utdata` (standard `/tmp/mockup-skjermbilder`):
-vurderingen, brevet og det sendte svaret. Det feiler ved JavaScript-feil i siden.
-`/mockup` bruker demolageret og trenger verken backend eller innlogging.
-
-Svarene velges med flagg. Uten flagg svarer skriptet «Ja, i tide», «Ja, hindring»
-og 30 dager.
-
-- `--varsel i-tide|for-sent`: «Ja, i tide», eller «Nei, for sent» (og «Nei,
-  prekludert» på svar til forespørsel) i alle varselspørsmål.
-- `--hindring ja|nei`: «Ja, hindring», eller «Nei, ingen hindring» (§ 33.1).
-- `--dager <n>`: godkjent fristforlengelse i kalenderdager, et helt tall fra 0 til
-  de krevde dagene i saken (45 i `scenario1`). Feltet klipper til kravet, så
-  skriptet sjekker verdien etter utfyllingen og avbryter med exit 1 hvis den er
-  større.
-- `--tekst`: skriver ut brevteksten og sporstatusene («Navn: status» for hver rad
-  i venstrekolonnen) etter at svaret er sendt.
-
-Ugyldig verdi gir en melding om hva som er feil, og exit 1 før nettleseren startes.
+# Saksruta og demoruta i nettleseren
 
 ## Den ekte saksruta
 
-`/mockup` har demodata og en egen statusregel. Den ekte saksruta `/{prosjekt}/{sak}`
+Den ekte saksruta `/{prosjekt}/{sak}` mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/vedtak.md#dl-u1)) kreves
 mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/vedtak.md#dl-u1)) kreves
-for en diff i saksvisningen, etter `AGENTS.md`, «Arbeidsform». Den kjøres med:
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \
-  [--forlop <ID> [--til <kontrollpunkt>]] [--feil] [--behold]
+  [--forlop <ID> [--til <kontrollpunkt>]] [--behold]
 ```
 
 Skriptet trenger `KOE_SQLSERVER_TILKOBLING`, som oppstartshooken setter, og port 5173
@@ -86,17 +60,6 @@ ikke er det forventede:
    feltene TE fylte ut. Til slutt avbryter TE et nytt skjema og kommer til sakslisten
    (`ny-sak-avbrutt.png`).
 7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta.
-8. Med `--feil` (krever et kontrollpunkt med grunnlagskrav og uten vederlagskrav, som
-   `--forlop BF-01 --til forholdet-er-godkjent`) framkaller skriptet
-   feiltilstandene i skjemaet (#1215) i den gamle visningen på `/{prosjekt}/{sak}/kjerne`, til
-   Varden har skjemaene (#1516). TE fyller ut vederlagskravet, går til brevet og
-   krysser av, og `page.route` på `**/api/kjerne/saker/{sak}/kommandoer` svarer på
-   `POST` i stedet for serveren: 409 `VERSJONSKONFLIKT`, 403 `FORBIDDEN`, 500
-   `INTERNAL_ERROR`, og et avbrudd (`route.abort`), som er et usikkert utfall. Kroppene
-   har formen serveren gir. `GET` går til serveren, så en ny innlasting etter 409 er ekte.
-   Skriptet skriver teksten i `role="alert"` og tar `feil-409.png`, `feil-403.png`,
-   `feil-500.png` og `feil-avbrutt.png`. Det stopper med exit 1 hvis skjemaet ikke sender,
-   eller ikke viser den forventede meldingen i `role="alert"`.
 
 Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
 med et eget Playwright-skript. Send aldri rett i tabellene. Slik drives skjemaene videre:
@@ -121,7 +84,6 @@ Det skriptet ikke dekker:
   Catenda står i [miljø-skillen](../miljo/SKILL.md).
 - Webhooken, levering av brev og vedlegg til Catenda, og Entra-innloggingen.
 - Leserollen, godkjennere og en bruker uten team.
-- Den gamle frontenden for samme flyt.
 
 ## Demoruta for brukerforløpene
 
@@ -143,18 +105,14 @@ kontrollpunktet `te-har-mottatt-svaret` og det subsidiære beløpet, når TE for
 JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 `src/lib/components/brukerforlop/__tests__/Demoforloep.test.ts`, ikke her.
 
-Med `--visning varden` går de samme stegene gjennom Varden, den eksperimentelle
-visningen (#1331), og skjermbildene har de samme navnene, så de to visningene kan
-sammenlignes ved hvert kontrollpunkt. I Varden skriver skriptet også listen «Gjelder hvis»
+Skriptet kjører alltid Varden, den eneste saksvisningen. `--visning varden` godtas og er
+standard. Skjermbildene får samme navn ved hvert kontrollpunkt. I Varden skriver skriptet også listen «Gjelder hvis»
 over beløpet og stopper når den ikke har ett punkt per lag foran beløpet: avslaget av
 forholdet når forløpet har kontrollpunktet `forholdet-er-avslaatt`, og innsigelsen om sen
-varsling. I BF-04 er det to (#1400, #1410). Demopanelet starter lukket i begge visningene, og
+varsling. I BF-04 er det to (#1400, #1410). Demopanelet starter lukket, og
 skriptet åpner det bare for å bytte side og starte på nytt, fordi det står over saken når det
-er åpent. Med `?brukertest` i
-adressen vises saken uten panelet. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
-kjører axe mot Varden, bred og smal.
-Med `--sti <sti>`, som kan gjentas, kjører den axe mot stiene på samme måte som `--varden`, også i mørk modus. Showcasen `/demo/komponenter` er en av dem (#1371, #1471).
-axe går ikke inn i en iframe, så rammene i showcasen kjøres som egne stier (`/demo/komponenter/ramme?…`).
+er åpent. Med `?brukertest` i adressen vises saken uten panelet. `/demo/komponenter` viser
+bare Varden (#1371, #1471).
 Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Varden.test.ts`.
 
 ## Prototypen for et brukerforløp
@@ -227,7 +185,7 @@ globale mappa, fordi `import` ikke leser `NODE_PATH`, og stopper med en tydelig
 melding hvis revisjonen ikke finnes.
 
 Skal du skrive et eget skript, kopier `globalPlaywright()` fra
-`godkjenning.mjs`.
+`uu.mjs`.
 
 **Lokalt** (#1410) trengs den globale pakken og en nettleser. `demoruta.mjs` og `uu.mjs`
 viser hit når en av dem mangler.
@@ -243,66 +201,22 @@ viser hit når en av dem mangler.
 
 De andre skriptene i skillen krever fortsatt `PLAYWRIGHT_BROWSERS_PATH`.
 
-## Godkjenningsflyten
-
-Rekkefølgen skriptet følger, og som trengs om du driver flyten selv:
-
-1. «Byggherre BH» → et spor i venstrekolonnen → «Svar på kravet».
-2. Svaralternativene er `role="radio"`, ikke knapper:
-   `getByRole('radio', { name: 'Ja, i tide' })`.
-3. «Ferdigstill vurdering» blir aktiv når alle spørsmål er besvart.
-4. I brevet: kryss av «Jeg har kontrollert brevet og vedleggene.» i
-   `.approval-panel`, så «Send til godkjenning» (over fullmakt) eller
-   «Send svar» (innenfor).
-5. Bytt godkjenner med `getByLabel('Demo · vis som').selectOption(id)`, ikke
-   ved å klikke på teksten. Hver godkjenner krysser av «Jeg har kontrollert
-   brevet.» før «Godkjenn» eller «Godkjenn og send» blir aktiv.
-6. Ferdig når panelet viser «Svaret er sendt».
-
-## Editoren
-
-```bash
-node .claude/skills/mockup-nettleser/editor.mjs [--utdata <mappe>] [--url http://localhost:5173]
-```
-
-Kontrollerer `RichTextEditor` (Tiptap): skriving, fet, innliming av HTML med
-skriptkode, angre og gjør om, låste verdier og at tilleggsteksten står når den
-genererte teksten endres. Det skriver `OK` eller `AVVIK` per kontroll og gir
-exit 1 ved avvik. Kjør det når Tiptap, ProseMirror eller Svelte oppgraderes
-(#268).
-
-Det er nyttig å vite når du driver editoren selv:
-
-- I BH-ens fristsvar står editoren i vurderingssteget, under den genererte
-  teksten (`.generated-reasoning .reasoning-text`), ikke i brevet.
-  `.reasoning-text` alene treffer også TE-ens kravtekst.
-- Låste verdier (`LockedValueNode`) finnes bare i grunnlagsskjemaene. Har
-  grunnlaget et utkast, heter knappen «Fortsett til utfylling», ikke «Svar på
-  kravet».
-- Innliming prøves med en `ClipboardEvent('paste')` med `DataTransfer` mot
-  `.ProseMirror`. Utklippstavlen i den hodeløse nettleseren trengs ikke.
-- ProseMirror slår sammen endringer innen 500 ms til ett angre-steg. Vent før
-  innlimingen hvis angre skal gi teksten fra før.
-
 ## Universell utforming med axe
 
 ```bash
-node .claude/skills/mockup-nettleser/uu.mjs [--url http://localhost:5173] [--scenario scenario1] [--vis 5]
+node .claude/skills/mockup-nettleser/uu.mjs [--url http://localhost:5173] [--sti <sti>] [--vis 5]
 ```
 
-Legger `axe.min.js` fra devDependency-en `axe-core` inn i `/mockup` og kjører
-reglene for WCAG 2.1 A og AA i to oppsett: lys modus (`colorScheme`, som
-`app.html` leser), på 1440 og 390 px. Mørk modus vurderes ikke nå (oppdragsgiver 29.10).
-I hvert oppsett skannes saken som TE og som BH
-(handlingslinja og betegnelsene i sporoversikten for BH). På bred skjerm kjøres også
-BHs svarskjema for fristen og for vederlaget; vederlaget i `scenario1prod`, uansett
-`--scenario` (#1213). Det skriver reglene som er brutt, med inntil `--vis` steder hver og
-forholdstallet for kontrast, og det axe ikke kan avgjøre («kontroller»). Et brudd
-gir exit 1. Kjøringen tar om lag to minutter.
+Legger `axe.min.js` fra devDependency-en `axe-core` inn i Varden i demoruta
+(`/demo/BF-01…`) og kjører reglene for WCAG 2.1 A og AA i fire oppsett: lys og mørk
+modus (`colorScheme`, som `app.html` leser), på 1440 og 390 px. `--varden` godtas og er
+standard. Med `--sti <sti>`, som kan gjentas, kjører den stiene i stedet, på samme måte,
+for eksempel showcasen `/demo/komponenter`. axe går ikke inn i en iframe, så rammene i
+showcasen kjøres som egne stier (`/demo/komponenter/ramme?…`). Det skriver reglene som er
+brutt, med inntil `--vis` steder hver og forholdstallet for kontrast, og det axe ikke kan
+avgjøre («kontroller»). Et brudd gir exit 1.
 
-`uu.mjs` kjører bare mot `/mockup`, så den ekte saksruta, med feiltilstandene fra
-`saksrute.ts --feil`, kontrolleres for hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md).
-
+Den ekte saksruta, med innlogging, kontrolleres for hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md).
 axe finner bare en del av feilene. Resten kontrolleres for hånd etter skillen
 [`uu-sjekk`](../uu-sjekk/SKILL.md). Det er ingen CI-jobb for skriptet (#1187).
 
@@ -311,25 +225,3 @@ axe finner bare en del av feilene. Resten kontrolleres for hånd etter skillen
 `npm run build` og `npx vite preview --port <port>` viser SPA-fallbacken: en dyp
 rute som `/P001/SAK-1` skal svare med appen. En sti uten rute gir 404 i
 `vite preview`. I produksjon står fallbacken i `try_files` i `nginx.conf`.
-
-## Andre nettleserskript i repoet
-
-`scripts/test_brev_godkjenning.mjs` og `scripts/test_endringsordre.mjs` bruker
-installert Chrome som standard. I skyøkta, med vite kjørende:
-
-```bash
-PLAYWRIGHT_MODULE="$(npm root -g)/playwright/index.mjs" \
-CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium \
-TEST_BASE_URL=http://localhost:5173 node scripts/test_brev_godkjenning.mjs
-```
-
-`test_endringsordre.mjs` kjøres på samme måte.
-
-`scripts/test_kjernesak_vederlag.ts` driver vederlagskravet fra Kontrollrommet for en
-TS-sak og tar skjermbilder. Skriptet svarer selv for API-et, med journalen skrevet
-av kjernen, så det trenger bare vite:
-
-```bash
-npx vite dev --port 5174 --strictPort
-node scripts/test_kjernesak_vederlag.ts --utdata /tmp/kjernesak-skjermbilder
-```

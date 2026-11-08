@@ -18,7 +18,7 @@ import {
   type KjorendeServer,
   type Oppsett,
 } from '../../server/tester/testbase.ts';
-import { grunnlagskrav, type Grunnlagsvalg } from '../../src/lib/kjernesak/paaberopelse.ts';
+import { grunnlagskrav, type Grunnlagsvalg } from './grunnlagskrav.ts';
 import { brevFor, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';

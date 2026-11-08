@@ -1,7 +1,7 @@
 /**
  * «Andre handlinger» i Varden: lista vises bare når kjernen tilbyr en handling (MM-U25). Hver
- * rad har tittelen, virkningen og pila, og en brevtype som ikke er bygget i prøven, åpner dagens
- * visning (#1391, oppdragsgiver 06.11 i #1631).
+ * rad har tittelen, virkningen og pila, og en brevtype som ikke er bygget i Varden, sier ved et
+ * klikk at den ikke er bygget (#1636, oppdragsgiver 06.11 i #1631).
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
@@ -11,12 +11,11 @@ import { HANDLINGENE } from '$lib/components/varden/tekster';
 
 afterEach(cleanup);
 
-const lag = (handlinger: string[], bygget: string[] = [], dagensVisning?: string) =>
+const lag = (handlinger: string[], bygget: string[] = []) =>
   render(Brevtyper, {
     tittel: 'Andre handlinger',
     handlinger,
     bygget,
-    dagensVisning,
     beskrivelseFor: (n: string) =>
       n === 'trekke:vederlag' ? 'Kravet kan ikke tas opp igjen.' : null,
     onvelg: () => {},
@@ -28,23 +27,18 @@ describe('Brevtyper', () => {
     expect(screen.queryByText('Andre handlinger')).toBeNull();
   });
 
-  it('en brevtype som ikke er bygget, er en lenke til dagens visning, og hver handling står én gang i fast rekkefølge', () => {
-    lag(
-      ['svare:vederlag', 'krav:vederlag', 'trekke:vederlag', 'varsle:vederlag'],
-      ['svare'],
-      '/p/s/kjerne'
-    );
+  it('hver handling står én gang i fast rekkefølge, og en brevtype som ikke er bygget, er en knapp med virkningen', () => {
+    lag(['svare:vederlag', 'krav:vederlag', 'trekke:vederlag', 'varsle:vederlag'], ['svare']);
     expect(screen.getByRole('button', { name: 'Svar på kravet' })).toBeInTheDocument();
-    const trekk = screen.getByRole('link', { name: /^Trekk kravet/ });
-    expect(trekk).toHaveAttribute('href', '/p/s/kjerne');
+    expect(screen.queryByRole('link')).toBeNull();
+    const trekk = screen.getByRole('button', { name: /^Trekk kravet/ });
     expect(trekk).toHaveTextContent('Kravet kan ikke tas opp igjen.');
-    expect(trekk).not.toHaveTextContent(/dagens visning/);
     expect(
       [...document.querySelectorAll('[data-handling]')].map((e) => e.getAttribute('data-handling'))
     ).toEqual(['svare:vederlag', 'krav:vederlag', 'varsle:vederlag', 'trekke:vederlag']);
   });
 
-  it('uten dagens visning ser en brevtype som ikke er bygget, ut som de andre handlingene, og et klikk sier at den ikke er bygget (oppdragsgiver 06.11, #1636)', async () => {
+  it('en brevtype som ikke er bygget, ser ut som de andre handlingene, og et klikk sier at den ikke er bygget (oppdragsgiver 06.11, #1636)', async () => {
     lag(['trekke:vederlag'], []);
     expect(screen.queryByRole('link')).toBeNull();
     expect(screen.getByText('Kravet kan ikke tas opp igjen.')).toBeInTheDocument();

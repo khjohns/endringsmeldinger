@@ -317,7 +317,7 @@ def _som_skjemaet_ser_saken(sak, sak_id):  # noqa: F811
 
 @pytest.mark.parametrize("navn", sorted(NYTTELAST["svar"]))
 def test_skjemaets_svar_lagres_med_regelversjonen_i_journalen(sak, navn):  # noqa: F811
-    """Fixturen lages av `buildEventData` i `src/lib/kontraktsbord/skjemanyttelast.test.ts`."""
+    """Fixturen er frosset: skjemaene som laget den med `buildEventData`, er fjernet (#1516)."""
     sak_id = f"S-skjema-{navn}"
     krav = _opprett_sak(sak.lager, sak_id)
     assert _som_skjemaet_ser_saken(sak, sak_id) == NYTTELAST["sak"]

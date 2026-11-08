@@ -48,7 +48,6 @@
     onspor,
     onkorriger,
     onakseptbrev,
-    dagensVisning,
     nySak,
   }: {
     kjernesak: Kjernesakkontekst;
@@ -58,8 +57,6 @@
     onvelg: (noekkel: string) => void;
     /** Brukeren valgte et annet spor på siden for forholdet. */
     onspor?: (spor: Spor) => void;
-    /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
-    dagensVisning?: string;
     /** Lenken til skjemaet for ny sak, når TE kan sende en ny versjon av påberopelsen (BF-10 U-2). */
     nySak?: string;
     /** TE velger «Korriger datoen» ved opplysningen (U-1 i BF-02A). */
@@ -101,7 +98,6 @@
   );
   const harPrimaer = $derived(primaer !== null);
   // Skjemaene Varden har: svaret på vederlagskravet og den nye versjonen av påberopelsen (BF-10).
-  // Ny versjon av vederlags- og fristkravet åpner dagens visning (BF-02B).
   const bygget = $derived([
     'godta',
     ...(spor === 'vederlag' ? ['svare'] : spor === 'forhold' ? ['krav'] : []),
@@ -223,7 +219,6 @@
     {bygget}
     tekstFor={innsigelsestekst}
     beskrivelseFor={virkningen}
-    {dagensVisning}
     onvelg={velg}
   />
 {/snippet}
@@ -290,13 +285,6 @@
                 aria-describedby={linje ? `${uid}-primaer` : undefined}
                 >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
               >
-            {:else if dagensVisning}
-              <Knapp
-                variant="primaer"
-                href={dagensVisning}
-                aria-describedby={linje ? `${uid}-primaer` : undefined}
-                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
-              >
             {:else}
               <Knapp
                 variant="primaer"
@@ -306,7 +294,7 @@
               >
             {/if}
             {#if linje}<p class="dempet" id={`${uid}-primaer`}>{linje}</p>{/if}
-            {#if !primaerBygget && !dagensVisning}
+            {#if !primaerBygget}
               <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
               <p class="dempet" role="status">
                 {primaerIkkeBygget ? HANDLINGENE.ikkeBygget : ''}

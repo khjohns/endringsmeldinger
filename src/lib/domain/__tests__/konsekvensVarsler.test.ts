@@ -1,29 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildKonsekvensVarsler, type VarselValg } from '../konsekvensVarsler';
-import { buildLetterContent } from '$lib/components/kontraktsbord/letterContentBuilder';
-import type { SakState, TimelineEvent } from '$lib/types/timeline';
 
 describe('notices submitted with basis', () => {
-  it('includes the exact selected declarations in the event letter', () => {
-    const varsler = buildKonsekvensVarsler(
-      { frist: { valgt: true, forklaring: 'Arbeidet må vente.' } },
-      'SVIKT',
-      'Tegninger'
-    );
-    const event = {
-      id: 'basis',
-      type: 'no.oslo.koe.grunnlag_opprettet',
-      actorrole: 'TE',
-      time: '2026-09-06T12:00:00Z',
-      spor: 'grunnlag',
-      data: { beskrivelse: 'Tegninger mangler.', varsler },
-    } as TimelineEvent & { spor: 'grunnlag' };
-    const sak = { sak_id: 'case', grunnlag: { tittel: 'Tegninger' } } as SakState;
-    const text = buildLetterContent(event, sak).seksjoner.begrunnelse.originalTekst;
-    expect(text).toContain('Tegninger mangler.');
-    expect(text).toContain(varsler.frist);
-    expect(text).not.toContain('vederlagsjustering');
-  });
   it('sends nothing by default and never treats unchecked options as waiver', () => {
     expect(buildKonsekvensVarsler({}, 'SVIKT', 'Tegninger')).toEqual({});
     expect(

@@ -210,7 +210,7 @@
   --sidebar-focus: #8fb0ff;
 }
 
-/* Mørk modus følger <html>-klassen som resten av appen (src/lib/utils/theme.ts), som
+/* Mørk modus følger <html>-klassen som resten av appen, som
    skriptet i app.html setter fra lagret valg eller prefers-color-scheme. Verdiene er
    prototypenes [data-theme="dark"]. --danger* og skyggene har prototypene ikke (#1465). */
 :root.dark .tema-varden {
