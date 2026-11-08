@@ -161,6 +161,9 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U54](../../plans/vedtak.md#lv-u54) | — | — | BF-10 |
 | [LV-U56](../../plans/vedtak.md#lv-u56) | — | BF-02A korrigeringen-er-sendt, BF-02C ny-versjon-etter-korrigeringen | BF-10 |
 | [LV-U57](../../plans/vedtak.md#lv-u57) | — | BF-02A korrigeringen-er-sendt, BF-05 start | BF-10 |
+| [LV-U66](../../plans/vedtak.md#lv-u66) | — | — | BF-01V |
+| [LV-U67](../../plans/vedtak.md#lv-u67) | — | — | BF-01V, BF-06 |
+| [LV-U68](../../plans/vedtak.md#lv-u68) | — | — | BF-01V, BF-06 |
 | [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-07 |
 | [MM-U12](../../plans/vedtak.md#mm-u12) | — | — | BF-01V, BF-03, BF-06 |
 | [MM-U21](../../plans/vedtak.md#mm-u21) | — | BF-05 start | BF-06 |
