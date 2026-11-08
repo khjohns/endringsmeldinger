@@ -174,12 +174,17 @@ export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): 
   ).options);
   const vert = ts.createCompilerHost(valg);
   const les = vert.getSourceFile.bind(vert);
-  // Typedeklarasjonene for Node og mssql leses én gang per testfil, ikke én gang per
-  // program (#1714). En fil i `kilder` lages alltid på nytt.
+  // Typedeklarasjonene i `node_modules` leses én gang per testfil, ikke én gang per
+  // program (#1714). Filene i repoet leses på nytt hver gang.
   vert.getSourceFile = (navn, spraakversjon, ...resten) => {
     if (kilder.has(navn))
       return ts.createSourceFile(navn, kilder.get(navn)!, ts.ScriptTarget.Latest, true);
-    const noekkel = `${navn}\0${JSON.stringify(spraakversjon)}`;
+    if (!navn.includes('/node_modules/')) return les(navn, spraakversjon, ...resten);
+    const { languageVersion, impliedNodeFormat } =
+      typeof spraakversjon === 'object'
+        ? spraakversjon
+        : { languageVersion: spraakversjon, impliedNodeFormat: undefined };
+    const noekkel = `${navn}\0${languageVersion}\0${impliedNodeFormat}`;
     if (!kildefiler.has(noekkel)) kildefiler.set(noekkel, les(navn, spraakversjon, ...resten));
     return kildefiler.get(noekkel);
   };
