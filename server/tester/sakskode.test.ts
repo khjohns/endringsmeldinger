@@ -125,7 +125,9 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
       kommando: {
         type: 'krav',
         spor: 'vederlag',
-        innhold: { metode: 'tilbud', beloep: 100000 },
+        innhold: {
+          kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }],
+        },
       },
     });
     expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);

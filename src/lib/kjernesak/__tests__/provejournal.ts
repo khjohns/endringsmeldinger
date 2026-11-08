@@ -66,7 +66,7 @@ export const medGrunnlag = skrevet([opprettet], 'TE', {
 export const medVederlag = skrevet(medGrunnlag, 'TE', {
   type: 'krav',
   spor: 'vederlag',
-  innhold: { metode: 'tilbud', beloep: 250000 },
+  innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250000 }] },
   utdypning: 'Tilbudet gjelder pelingen.',
 });
 

@@ -33,7 +33,7 @@ const KRAV_PAABEROPELSE = {
 const KRAV_VEDERLAG = {
   type: 'krav',
   spor: 'vederlag',
-  innhold: { metode: 'tilbud', beloep: 100000 },
+  innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }] },
 };
 const KRAV_FRIST = { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING };
 const FORHOLD_GODKJENT = { spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true };
@@ -135,7 +135,10 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
     // OV-U58: kravet har høyst to desimaler. Som flyttall er 0,1 + 0,2 ikke 0,3.
     const krav = {
       ...KRAV_VEDERLAG,
-      innhold: { metode: 'tilbud', beloep: 0.1, saerskilt: { produktivitet: { beloep: 0.2 } } },
+      innhold: {
+        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 0.1 }],
+        saerskilt: { produktivitet: { beloep: 0.2 } },
+      },
     };
     // Fristkravet er ikke sendt, så bare gulvet er verdsatt.
     expect((await verdi([KRAV_PAABEROPELSE, krav], [FORHOLD_GODKJENT], SATS)).gulv).toBe(0.3);
@@ -235,9 +238,14 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
 
 // Det særskilte kravet etter § 34.1.3 annet ledd (OV-U23, #1047 B2b).
 describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', () => {
-  const medPost = (innhold: object) => ({
+  const medPost = ({ beloep, ...innhold }: { beloep?: number; saerskilt?: object }) => ({
     ...KRAV_VEDERLAG,
-    innhold: { metode: 'tilbud', ...innhold },
+    innhold: {
+      ...(beloep === undefined
+        ? {}
+        : { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep }] }),
+      ...innhold,
+    },
   });
   const post = { saerskilt: { produktivitet: { beloep: 40000 } } };
 

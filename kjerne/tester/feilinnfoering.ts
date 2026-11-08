@@ -3088,16 +3088,27 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F374',
-    feilklasse: 'vederlagskravet krever hovedbeløpet, også med posten etter § 34.1.3 (OV-U23)',
+    feilklasse:
+      'vederlagskravet krever kravposter, også med posten etter § 34.1.3 (OV-U89 punkt 6)',
     fil: `${K}/format/format.ts`,
-    endringer: [["    required: ['metode'],\n", "    required: ['metode', 'beloep'],\n"]],
+    endringer: [
+      [
+        "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
+        "    anyOf: [{ required: ['kravposter'] }],\n",
+      ],
+    ],
     mal: ['vederlagskravet kan ha bare posten'],
   },
   {
     id: 'F375',
-    feilklasse: 'kravet uten hovedbeløp og uten posten godtas (OV-U23)',
+    feilklasse: 'kravet uten kravposter og uten postene utenfor godtas (OV-U89 punkt 6)',
     fil: `${K}/format/format.ts`,
-    endringer: [["    anyOf: [{ required: ['beloep'] }, { required: ['saerskilt'] }],\n", '']],
+    endringer: [
+      [
+        "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
+        '    anyOf: [],\n',
+      ],
+    ],
     mal: ['vederlagskravet kan ha bare posten'],
   },
   {
@@ -4020,6 +4031,54 @@ const MUTASJONER: Mutasjon[] = [
       ["  if (k.erstatter && k.spor !== 'forhold')", "  if (k.erstatter && k.spor === 'forhold')"],
     ],
     mal: ['en ny kravversjon viser til den den erstatter'],
+  },
+  {
+    id: 'F476',
+    feilklasse: 'en ny kravversjon kan utelate en kravpost uten å trekke den (KA-U56)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [['  return mangler.length\n', '  return mangler.length && false\n']],
+    mal: ['verken tar med eller trekker P1'],
+  },
+  {
+    id: 'F477',
+    feilklasse: 'en trukket kravpost kan tas opp igjen (KA-U70)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [['    if (kjent && !forrige.has(id!))\n', '    if (false)\n']],
+    mal: ['en trukket kravpost tas ikke opp igjen'],
+  },
+  {
+    id: 'F478',
+    feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, KA-U70)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [
+      [
+        '  return new Set(tidligere.flatMap((k) => kravposterI(k).map((p) => p.betegnelse)));',
+        '  return new Set(kravposterI(tidligere.at(-1) ?? { innhold: {} }).map((p) => p.betegnelse));',
+      ],
+    ],
+    mal: ['en trukket kravpost tas ikke opp igjen'],
+  },
+  {
+    id: 'F479',
+    feilklasse: 'kravposten er varselet etter punkt 34.4 også i en senere versjon (VS-U48)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    if (varslerI(p, foer))\n', '    if (true)\n']],
+    mal: ['er varselet i den første versjonen den står i'],
+  },
+  {
+    id: 'F480',
+    feilklasse: 'byggherren kan svare med ett beløp på et krav med flere kravposter (KA-U59)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['  if (poster.length > 1) return', '  if (poster.length > 99) return']],
+    mal: ['før svaret per kravpost er bygget'],
+  },
+  {
+    id: 'F481',
+    feilklasse:
+      'byggherren kan svare med ett beløp på en kravpost etter en beregningsregel (KA-U59, KA-U61)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["  if (poster.some((p) => p.oppgjoersform !== 'tilbud'))\n", '  if (false)\n']],
+    mal: ['før svaret per kravpost er bygget'],
   },
 ];
 

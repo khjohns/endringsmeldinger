@@ -132,7 +132,9 @@ const krav: Steg = (sak) => {
   sak.send('TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep: 100000 },
+    innhold: {
+      kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }],
+    },
     utdypning: UTDYPNING,
   });
   sak.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING });
@@ -204,7 +206,7 @@ describe('linja i sakslisten (#1022)', () => {
       underkategori: 'irregulaer_endring',
       forhold: { svar: null, venter_paa_svar: true, svar_ikke_godtatt: false },
       vederlag: {
-        krav: { beloep: 100000, metode: 'tilbud' },
+        krav: { beloep: 100000, oppgjoersformer: ['tilbud'] },
         svar: null,
         enighet: null,
         venter_paa_svar: true,
@@ -276,7 +278,7 @@ describe('linja i sakslisten (#1022)', () => {
     const paaberopelsenTrukket = linje(krav, trekk('forhold'));
     const avslagGodtatt = linje(forloepA, aksept('forhold'));
     for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
-      expect(l.vederlag.krav).toEqual({ beloep: 100000, metode: 'tilbud' });
+      expect(l.vederlag.krav).toEqual({ beloep: 100000, oppgjoersformer: ['tilbud'] });
     expect(vederlagTrukket.vederlag.betegnelse).toBe('trukket');
     expect(staar.vederlag.kravet_staar).toBe(true);
     for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
@@ -317,8 +319,7 @@ describe('linja i sakslisten (#1022)', () => {
         type: 'krav',
         spor: 'vederlag',
         innhold: {
-          metode: 'tilbud',
-          beloep: 100000,
+          kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }],
           saerskilt: { produktivitet: { beloep: 40000 } },
         },
         utdypning: UTDYPNING,
@@ -340,7 +341,7 @@ describe('linja i sakslisten (#1022)', () => {
       });
     };
     const l = linje(medPost);
-    expect(l.vederlag.krav).toEqual({ beloep: 140000, metode: 'tilbud' });
+    expect(l.vederlag.krav).toEqual({ beloep: 140000, oppgjoersformer: ['tilbud'] });
     expect(l.vederlag.svar).toEqual({
       resultat: 'delvis_godkjent',
       beloep: 130000,

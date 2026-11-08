@@ -18,7 +18,7 @@
 <script lang="ts">
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { kroner } from '$kjerne/frosset/standpunkt';
+  import { fastSumIKroner, fellesOppgjoersform, kroner } from '$kjerne/frosset/standpunkt';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
@@ -77,7 +77,7 @@
   const uid = $props.id();
 
   const krav = $derived(u.spor.vederlag.gjeldendeKrav!);
-  const krevd = $derived(krav.innhold.beloep as number);
+  const krevd = $derived(fastSumIKroner(krav) as number);
   const alleBrev = $derived(brevene(u));
   const kravbrevet = $derived(alleBrev.find((b) => b.id === krav.dokument)!);
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('vederlag')));
@@ -447,7 +447,7 @@
           {@render gjelderHvis('metode', metodeforutsetninger)}
           <Valg
             navn={`${uid}-metode`}
-            spoersmaal={SKJEMA.metodeSpoersmaal(krav.innhold.metode)}
+            spoersmaal={SKJEMA.metodeSpoersmaal(fellesOppgjoersform(krav) ?? 'tilbud')}
             beskrevetAv={metodeforutsetninger.length ? `${uid}-metode-forutsetninger` : undefined}
             valg={[
               { verdi: true, tekst: SKJEMA.godtarMetode },

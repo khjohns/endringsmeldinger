@@ -42,7 +42,7 @@ const grunnlagskrav = {
 const vederlagskrav = {
   type: 'krav',
   spor: 'vederlag',
-  innhold: { metode: 'tilbud', beloep: 250000 },
+  innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250000 }] },
 };
 
 const VEDLEGG = '00000000-0000-4000-8000-000000000001';

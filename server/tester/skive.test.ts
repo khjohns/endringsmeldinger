@@ -55,7 +55,7 @@ const PAABEROPELSE = {
 const VEDERLAGSKRAV = {
   type: 'krav',
   spor: 'vederlag',
-  innhold: { metode: 'tilbud', beloep: 125000 },
+  innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 125000 }] },
 };
 
 interface Oppdragsrad {

@@ -140,17 +140,26 @@ describe('kategorien i påberopelsen er et par fra den lukkede listen (#335, HF-
   });
 });
 
-describe('metoden i vederlagskravet (#335, § 34.2.1)', () => {
-  const vederlagskrav = (metode: string) => ({
+describe('oppgjørsformen i kravposten (OV-U95 punkt 19, § 34.2.1, § 34.3, § 34.4)', () => {
+  const vederlagskrav = (oppgjoersform: string) => ({
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode, beloep: 1000 },
+    innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform }] },
   });
 
-  it('godtar tilbud', () => expect(formfeil(vederlagskrav('tilbud'))).toEqual([]));
+  it.each(['enhetspriser', 'regningsarbeid'])('godtar %s uten beløp', (oppgjoersform) =>
+    expect(formfeil(vederlagskrav(oppgjoersform))).toEqual([])
+  );
 
-  it.each(['FASTPRIS_TILBUD', 'regningsarbeid'])('avviser %s', (metode) => {
-    expect(formfeil(vederlagskrav(metode))).not.toEqual([]);
+  it('godtar tilbud med beløp, og avviser tilbud uten beløp (KA-U66)', () => {
+    const tilbud = vederlagskrav('tilbud');
+    expect(formfeil(tilbud)).not.toEqual([]);
+    tilbud.innhold.kravposter[0] = { ...tilbud.innhold.kravposter[0]!, beloep: 1000 } as never;
+    expect(formfeil(tilbud)).toEqual([]);
+  });
+
+  it.each(['FASTPRIS_TILBUD', 'metode'])('avviser %s', (oppgjoersform) => {
+    expect(formfeil(vederlagskrav(oppgjoersform))).not.toEqual([]);
   });
 });
 

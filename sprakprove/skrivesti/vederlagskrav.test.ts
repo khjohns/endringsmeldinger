@@ -1,10 +1,10 @@
 /**
- * Påberopelsen og vederlagskravet mot dagens TS-server (#667). Påberopelsen er den Varden
- * sender, bygget av `kommandoene` i `src/lib/components/varden/nysak.ts` (#1678),
- * vederlagskravet står i kjernens format, og den låste teksten er den `brevFor` gir. Saken
- * er en prøvesak fra testverktøyet. Kildene til forventningene er formatet i kjernen (bare
- * tilbud i prøven, OV-U1), avgjørelsen om valgfri utdypning (oppdragsgiver 17.10, #667)
- * og LV-U2.
+ * Påberopelsen og vederlagskravet med kravposter mot dagens TS-server (#667, #1663).
+ * Påberopelsen er den Varden sender, bygget av `kommandoene` i
+ * `src/lib/components/varden/nysak.ts` (#1678). Vederlagskravet bygges direkte i kjernens
+ * format (OV-U95 punkt 19), og den låste teksten er den `brevFor` gir. Saken er en prøvesak
+ * fra testverktøyet. Kildene til forventningene er formatet i kjernen, avgjørelsen om
+ * valgfri utdypning (oppdragsgiver 17.10, #667) og LV-U2.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -25,14 +25,6 @@ import { somJournal } from '../../src/lib/kjernesak/journal.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 
-/** Tilbudet i formatet kjernen leser (bare tilbud i prøven, OV-U1). */
-const vederlagskrav = (beloep: number, utdypning: string) => ({
-  type: 'krav' as const,
-  spor: 'vederlag' as const,
-  innhold: { metode: 'tilbud', beloep },
-  ...(utdypning ? { utdypning } : {}),
-});
-
 const { paaberopelse: PAABEROPELSE } = kommandoene(
   {
     forhold: { gruppe: 'ENDRING', kode: 'IRREG' },
@@ -45,7 +37,17 @@ const { paaberopelse: PAABEROPELSE } = kommandoene(
   KJERNE
 );
 
-describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren', () => {
+/** Kravet med én kravpost med tilbud, i formatet i kjernen (OV-U95 punkt 19). */
+const vederlagskrav = (beloep: number, utdypning = '') => ({
+  type: 'krav',
+  spor: 'vederlag',
+  innhold: {
+    kravposter: [{ beskrivelse: 'Ny fundamentering', oppgjoersform: 'tilbud', beloep }],
+  },
+  ...(utdypning ? { utdypning } : {}),
+});
+
+describe.skipIf(!TESTBASE_URL)('vederlagskravet med kravposter mot TS-serveren', () => {
   let o: Oppsett;
   let server: KjorendeServer;
 
@@ -131,21 +133,10 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
     else expect(avsnitt.every((a) => a.utdypning === undefined)).toBe(true);
   });
 
-  it('et beløp som ikke er over null, avvises med UGYLDIG_FORM og ingen brevkontroll', async () => {
+  it('en kravpost med beløp som ikke er over null, avvises med UGYLDIG_FORM og ingen brevkontroll', async () => {
     const sakId = await medPaaberopelse();
-    const { svar, tekst } = await send(sakId, vederlagskrav(0, ''));
+    const { svar, tekst } = await send(sakId, vederlagskrav(0));
     expect(tekst).toBeNull();
-    expect(svar.status).toBe(400);
-    expect(svar.kropp.error).toBe('UGYLDIG_FORM');
-  });
-
-  it('regningsarbeid sendt utenom skjemaet avvises med UGYLDIG_FORM (OV-U1)', async () => {
-    const sakId = await medPaaberopelse();
-    const { svar } = await send(sakId, {
-      type: 'krav',
-      spor: 'vederlag',
-      innhold: { metode: 'regningsarbeid', beloep: 250000 },
-    });
     expect(svar.status).toBe(400);
     expect(svar.kropp.error).toBe('UGYLDIG_FORM');
   });
