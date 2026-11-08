@@ -1,6 +1,6 @@
 """Regelmodulen for byggherrens svar på ansvarsgrunnlaget (BR-01, B-13, #63).
 
-Oversatt fra `src/lib/domain/__tests__/grunnlagDomain.test.ts`, som er
+Oversatt fra TS-testen for grunnlaget (fjernet i #1678), som er
 spesifikasjonen (B-13, hovedplanen 3.1). Hver test viser til testen i TS-fila
 med `describe › it` og til bestemmelsen i NS 8407.
 
@@ -36,7 +36,7 @@ IDAG = date(2026, 10, 4)
 
 
 class TestErEndringMed322:
-    """grunnlagDomain.test.ts › erEndringMed32_2. NS 8407 § 32.1 og § 32.2: varslingsplikten
+    """TS-test fjernet i #1678 › erEndringMed32_2. NS 8407 § 32.1 og § 32.2: varslingsplikten
     gjelder pålegg som ikke er gitt som endringsordre etter § 31.3."""
 
     @pytest.mark.parametrize(
@@ -54,7 +54,7 @@ class TestErEndringMed322:
 
 
 class TestErPaalegg:
-    """grunnlagDomain.test.ts › erPaalegg. NS 8407 § 32.3 første ledd bokstav c."""
+    """TS-test fjernet i #1678 › erPaalegg. NS 8407 § 32.3 første ledd bokstav c."""
 
     @pytest.mark.parametrize(
         ("underkategori", "forventet"),
@@ -70,7 +70,7 @@ class TestErPaalegg:
 
 
 class TestErPrekludert:
-    """grunnlagDomain.test.ts › erPrekludert. NS 8407 § 32.2 første ledd annet punktum."""
+    """TS-test fjernet i #1678 › erPrekludert. NS 8407 § 32.2 første ledd annet punktum."""
 
     def test_endring_varslet_for_sent(self):
         # 'returns true for ENDRING when varsletITide is false'
@@ -90,7 +90,7 @@ class TestErPrekludert:
 
 
 class TestBeregnPassivitet:
-    """grunnlagDomain.test.ts › beregnPassivitet. NS 8407 § 32.3 annet ledd.
+    """TS-test fjernet i #1678 › beregnPassivitet. NS 8407 § 32.3 annet ledd.
 
     Vedtaket (B-13, 3.1, 24.09): passivitet varsles, systemet trekker ingen
     konklusjon, og de faste 10 dagene er bare veiledning. `bor_varsles` er
@@ -108,7 +108,7 @@ class TestBeregnPassivitet:
         assert p.bor_varsles is False
 
     def test_grensen_er_over_10(self):
-        # Ingen TS-test. Fastholder dagens regel, `dagerSidenVarsel > 10` i grunnlagDomain.ts.
+        # Ingen TS-test. Fastholder dagens regel, `dagerSidenVarsel > 10` i den fjernede TS-koden (#1678).
         assert beregn_passivitet("ENDRING", "ANNEN", IDAG - timedelta(days=10), IDAG).bor_varsles is False
         assert beregn_passivitet("ENDRING", "ANNEN", IDAG - timedelta(days=11), IDAG).bor_varsles is True
 
@@ -125,7 +125,7 @@ class TestBeregnPassivitet:
 
 
 class TestGyldigeResultater:
-    """grunnlagDomain.test.ts › getVerdictOptions (bare verdiene, ikke etiketter og ikoner).
+    """TS-test fjernet i #1678 › getVerdictOptions (bare verdiene, ikke etiketter og ikoner).
     NS 8407 § 32.3 første ledd bokstav c."""
 
     def test_vanlig_endring(self):
@@ -147,7 +147,7 @@ class TestGyldigeResultater:
 
 
 class TestKontrollerGrunnlagssvar:
-    """grunnlagDomain.test.ts › buildEventData, om `grunnlag_varslet_i_tide`, og
+    """TS-test fjernet i #1678 › buildEventData, om `grunnlag_varslet_i_tide`, og
     vedtakene om `grunnlag_varslet_i_tide` og «frafalt» (B-13, 3.1, 24.09)."""
 
     def test_varslet_i_tide_ved_endring(self):
