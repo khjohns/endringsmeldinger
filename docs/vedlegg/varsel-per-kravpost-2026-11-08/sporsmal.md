@@ -142,3 +142,8 @@ fikk, og kan gi to brev med samme nummer i saken.
 **Hva valget styrer.** Hvordan dokumentet står i brevene om saken og om det får et nummer. At det legges
 ved kravet, er avgjort av svaret på spørsmål 1.
 
+Svaret 08.11, ordrett: «A».
+
+- **3:** A.
+
+Svarene er ført som [VS-U51](../../plans/vedtak.md#vs-u51) (spørsmål 1), [VS-U52](../../plans/vedtak.md#vs-u52) (spørsmål 2) og [VS-U53](../../plans/vedtak.md#vs-u53) (spørsmål 3).

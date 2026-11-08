@@ -240,3 +240,6 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U48](../../plans/vedtak.md#vs-u48) | — | — | BF-14 |
 | [VS-U49](../../plans/vedtak.md#vs-u49) | — | — | BF-14 |
 | [VS-U50](../../plans/vedtak.md#vs-u50) | — | — | BF-14 |
+| [VS-U51](../../plans/vedtak.md#vs-u51) | — | — | BF-14 |
+| [VS-U52](../../plans/vedtak.md#vs-u52) | — | — | BF-14 |
+| [VS-U53](../../plans/vedtak.md#vs-u53) | — | — | BF-14 |

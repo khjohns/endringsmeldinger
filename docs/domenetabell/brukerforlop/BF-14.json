@@ -174,7 +174,10 @@
     "LV-U42",
     "LV-U45",
     "VS-U34",
-    "OV-U80"
+    "OV-U80",
+    "VS-U51",
+    "VS-U52",
+    "VS-U53"
   ],
   "venter_paa": [
     "#1663",
@@ -221,6 +224,11 @@
       "dato": "2026-11-08",
       "forhold": "#1663",
       "hva": "«Punktene» i panelet som i svarskjemaet (U-15), primærhandlingen fast nederst i panelet (U-16), datoene i tidslinja (U-17), merkingen og de gule merkene (U-18), og setningene om hva partene avgjør, er tatt ut. S-13 er besvart med A."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Svarene på spørsmål 1–3 er ført som VS-U51–VS-U53, og D-19, S-12 og S-13 viser til dem."
     }
   ]
 }
