@@ -1,20 +1,19 @@
 """Relasjonene og dataflyten mot Catenda i docs/datamodell/ (spor M, 1c).
 
-Relasjonsregisteret sammenliknes med katalog.json, øyeblikksbildet av basene
-bygget fra migrasjonene. Dataflyten sammenliknes med kallene til Catenda-klienten, funnet
-med AST i backend. Testene viser at registrene beskriver koden og skjemaet, ikke
-at koden gjør det riktige.
+Relasjonsregisteret sammenliknes med katalog.json, øyeblikksbildet av basen i SQL
+Server bygget fra migrasjonene. Hver kodereferanse i dataflyten må være deklarert i
+TS-fila den viser til. Testene viser at registrene beskriver koden og skjemaet, ikke
+at koden gjør det riktige, og ingen av dem finner et kall til Catenda som mangler en pil.
 """
 
-import ast
 import copy
 
 import pytest
 
-from tests.test_datamodell.test_tabellregister import dm, sqlite_tabeller_i_koden
-from tests.test_security.test_database_arkitektur_20260920 import TABELLER_I_BASEN
+from verktoymoduler import last
 
-rel, df, kat = dm.rel, dm.df, dm.kat
+dm = last("datamodell")
+rel, df = dm.rel, dm.df
 
 
 @pytest.fixture(scope="module")
@@ -37,17 +36,8 @@ def _uten(liste: list[dict], **felt) -> list[dict]:
 
 
 def test_katalogen_har_de_samme_tabellene_som_registeret(kilder, tabellregister):
-    skjema = kilder["katalog"]
-    assert sorted(skjema["postgresql"]["tabeller"]) == sorted(TABELLER_I_BASEN)
-    assert sorted(skjema["sqlite"]["tabeller"]) == sorted(sqlite_tabeller_i_koden())
-    assert dm.katalogavvik(tabellregister, skjema) == []
-
-
-def test_sqlite_delen_er_skjemaet_koden_oppretter(kilder):
-    assert kat.les_sqlite() == kilder["katalog"]["sqlite"], (
-        "katalog.json er utdatert. Kjør KOE_TESTBASE_URL=... KOE_SQLSERVER_TILKOBLING=... "
-        "/tmp/venv/bin/python docs/verktoy/katalog.py fra repo-roten."
-    )
+    assert list(kilder["katalog"]) == ["sqlserver"], "katalog.json har bare SQL Server (#49)"
+    assert dm.katalogavvik(tabellregister, kilder["katalog"]) == []
 
 
 # ---------------------------------------------------------------------------
@@ -85,10 +75,7 @@ def test_vakta_melder_sammensatt_fremmednokkel_fort_per_kolonne(kilder):
 
 def test_vakta_melder_logisk_kobling_paa_en_kolonne_i_sammensatt_fremmednokkel(kilder):
     """#590: en kolonne i en sammensatt fremmednøkkel håndheves av databasen, så den er ikke logisk."""
-    endret = copy.deepcopy(kilder["relasjoner"])
-    sammensatt = next(r for r in endret["relasjon"] if r["fra"] == ["koe.notat.sak_id", "koe.notat.prosjekt_id"])
-    endret["relasjon"].append({**sammensatt, "fra": "koe.notat.sak_id", "til": "koe.sak_metadata.sak_id", "art": "logisk"})
-    feil = rel.valider(endret, kilder["katalog"])
+    feil = rel.valider(_logisk_fra_notat_sak_id(kilder), kilder["katalog"])
     assert (
         "koe.notat.sak_id → koe.sak_metadata.sak_id: står som logisk, men katalogen har fremmednøkkelen "
         "koe.notat.(sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id), som dekker den"
@@ -127,20 +114,9 @@ def test_er_diagrammet_merker_logisk_kobling_fra_kolonne_i_annen_fremmednokkel(k
     sammensatt = next(r for r in endret["relasjon"] if r["fra"] == ["koe.notat.sak_id", "koe.notat.prosjekt_id"])
     endret["relasjon"].append({**sammensatt, "fra": "koe.notat.sak_id", "til": "koe.app_users.id", "art": "logisk"})
     assert not any("står som logisk" in f for f in rel.valider(endret, kilder["katalog"]))
-    diagram = rel.er_diagram(endret, kilder["katalog"], "SQL Server")
+    diagram = rel.er_diagram(endret, kilder["katalog"])
     notat = diagram.split("    koe_notat {\n", 1)[1].split("    }", 1)[0]
     assert '        nvarchar_36 sak_id FK "uten fremmednøkkel"' in notat.splitlines(), notat
-
-
-def test_er_diagrammet_for_sqlite_tegner_tabell_utenfor_katalogen_som_ekstern(kilder):
-    """#635: en kobling fra SQLite til en tabell katalogen ikke har, gir en ekstern entitet."""
-    endret = copy.deepcopy(kilder["relasjoner"])
-    endret["relasjon"].append(
-        {**endret["relasjon"][0], "fra": "utkast.case_id", "til": "ekstern.sak.id", "art": "logisk", "antall": "mange til én"}
-    )
-    diagram = rel.er_diagram(endret, kilder["katalog"], "SQLite")
-    assert "    ekstern_sak {\n        TEXT id PK\n    }" in diagram
-    assert '    ekstern_sak |o..o{ utkast : "case_id"' in diagram
 
 
 def test_vakta_melder_sammensatt_nokkel_med_ulike_ender(kilder):
@@ -152,36 +128,36 @@ def test_vakta_melder_sammensatt_nokkel_med_ulike_ender(kilder):
 
 
 def test_vakta_melder_fremmednokkel_uten_oppforing(kilder):
-    endret = {**kilder["relasjoner"], "relasjon": _uten(kilder["relasjoner"]["relasjon"], fra="notat.sak_id")}
+    endret = {**kilder["relasjoner"], "relasjon": _uten(kilder["relasjoner"]["relasjon"], fra="koe.app_identities.user_id")}
     feil = rel.valider(endret, kilder["katalog"])
-    assert any("notat.sak_id → sak_metadata.sak_id i katalogen mangler" in f for f in feil), feil
+    assert "fremmednøkkelen koe.app_identities.user_id → koe.app_users.id i katalogen mangler oppføring" in feil, feil
 
 
 def test_vakta_melder_logisk_kobling_ført_som_fremmednokkel(kilder):
     endret = copy.deepcopy(kilder["relasjoner"])
-    next(r for r in endret["relasjon"] if r["fra"] == "sak_relations.source_sak_id")["art"] = "fremmednøkkel"
+    next(r for r in endret["relasjon"] if r["fra"] == "koe.kvittering.aktor_id")["art"] = "fremmednøkkel"
     feil = rel.valider(endret, kilder["katalog"])
-    assert any("katalogen har ingen slik" in f for f in feil), feil
+    assert any(f.startswith("koe.kvittering.aktor_id → koe.app_users.id: står som fremmednøkkel, men katalogen har ingen slik") for f in feil), feil
 
 
 def test_vakta_melder_nokkelkolonne_uten_relasjon_eller_begrunnelse(kilder):
     skjema = copy.deepcopy(kilder["katalog"])
-    skjema["postgresql"]["tabeller"]["hendelse"]["kolonner"].append(["godkjent_av", "text", "NULL"])
+    skjema["sqlserver"]["tabeller"]["koe.hendelse"]["kolonner"].append(["godkjent_av", "nvarchar(36)", "NULL"])
     feil = rel.valider(kilder["relasjoner"], skjema)
-    assert any(f.startswith("hendelse.godkjent_av:") for f in feil), feil
+    assert any(f.startswith("koe.hendelse.godkjent_av:") for f in feil), feil
 
     endret = {
         **kilder["relasjoner"],
-        "uten_relasjon": _uten(kilder["relasjoner"]["uten_relasjon"], kolonne="vedlegg.lastet_opp_av"),
+        "uten_relasjon": _uten(kilder["relasjoner"]["uten_relasjon"], kolonne="koe.app_users.email"),
     }
-    assert any(f.startswith("vedlegg.lastet_opp_av:") for f in rel.valider(endret, kilder["katalog"]))
+    assert any(f.startswith("koe.app_users.email:") for f in rel.valider(endret, kilder["katalog"]))
 
 
 def test_vakta_melder_kolonne_som_ikke_finnes(kilder):
     endret = copy.deepcopy(kilder["relasjoner"])
-    next(r for r in endret["relasjon"] if r["fra"] == "hendelse.actorid")["fra"] = "hendelse.aktor_id"
+    next(r for r in endret["relasjon"] if r["fra"] == "koe.kvittering.aktor_id")["fra"] = "koe.kvittering.aktor"
     feil = rel.valider(endret, kilder["katalog"])
-    assert any("hendelse.aktor_id finnes ikke" in f for f in feil), feil
+    assert any("kolonnen koe.kvittering.aktor finnes ikke" in f for f in feil), feil
 
 
 # ---------------------------------------------------------------------------
@@ -193,36 +169,30 @@ def test_dataflyten_er_gyldig(kilder, tabellregister):
     assert df.valider(kilder["dataflyt"], kilder["katalog"], tabellregister, dm.funnregisteret()) == []
 
 
-def test_klientlaget_gir_metodene_som_kaller_catenda():
-    """Forutsetningen for vakta under: søket finner kjente kall og ingen konstruktører."""
-    metoder = df.catenda_metoder()
-    assert {"create_comment", "upload_document", "update_topic_status", "members", "team_members"} <= metoder
-    assert not {m for m in metoder if m.startswith("__")}
+def test_dataflyten_viser_bare_til_ts_serveren(kilder):
+    """#49: kallene fra backend/ er tatt ut med Python-stien."""
+    koder = {k for f in kilder["dataflyt"]["flyt"] for s in f["steg"] for k in s["kode"]}
+    assert koder, "Fant ingen kodereferanser; har lesingen sluttet å virke?"
+    assert {k for k in koder if not k.startswith("server/")} == set()
 
 
-def test_hvert_kall_til_catenda_har_en_pil(kilder):
-    steder = df.kallsteder(frozenset(kilder["dataflyt"]["autentisering"]))
-    assert "backend/routes/event_routes.py:_post_catenda_comment" in steder, "Søket har sluttet å virke"
-    assert "backend/services/auth_service.py:AuthService.sync" in steder
-    assert df.udekkede_kallsteder(kilder["dataflyt"], steder) == []
-
-
-def test_vakta_melder_kall_uten_pil(kilder):
-    endret = {**kilder["dataflyt"], "flyt": _uten(kilder["dataflyt"]["flyt"], id="C09")}
-    steder = df.kallsteder(frozenset(kilder["dataflyt"]["autentisering"]))
-    udekket = df.udekkede_kallsteder(endret, steder)
-    assert udekket == ["backend/routes/vedlegg_routes.py:last_ned_vedlegg kaller download_document"]
-
-
-def test_vakta_melder_kode_som_ikke_finnes(kilder, tabellregister):
+def test_vakta_melder_kode_i_python_og_en_seksjon_den_ikke_kjenner(kilder, tabellregister):
+    """#49: en henvisning til backend/ og seksjonene `uten_flyt` og `autentisering` fra
+    Python-stien avvises."""
     endret = copy.deepcopy(kilder["dataflyt"])
-    endret["flyt"][0]["steg"][0]["kode"] = [
-        "backend/routes/catenda_webhook_routes.py:finnes_ikke",
-        "databasefunksjon:koe_finnes_ikke",
-    ]
+    endret["flyt"][0]["steg"][0]["kode"] = ["backend/routes/catenda_webhook_routes.py:webhook"]
+    endret["uten_flyt"] = [{"fil": "backend/scripts/catenda_admin.py", "begrunnelse": "x"}]
+    endret["autentisering"] = ["authenticate"]
     feil = df.valider(endret, kilder["katalog"], tabellregister)
-    assert any("finnes_ikke er ikke definert" in f for f in feil), feil
-    assert any("koe_finnes_ikke finnes ikke i katalogen" in f for f in feil), feil
+    assert any("er ikke på formen server/…/fil.ts:symbol" in f for f in feil), feil
+    assert "autentisering: ukjent seksjon" in feil
+    assert "uten_flyt: ukjent seksjon" in feil
+
+
+def test_vakta_melder_ts_symbol_som_ikke_er_deklarert(kilder, tabellregister):
+    endret = _med_kode(kilder, "server/innlogging.ts:finnesIkke")
+    feil = df.valider(endret, kilder["katalog"], tabellregister)
+    assert any("finnesIkke er ikke definert i server/innlogging.ts" in f for f in feil), feil
 
 
 def _med_kode(kilder, kode: str) -> dict:
@@ -241,12 +211,6 @@ def test_vakta_melder_ts_fil_som_ikke_finnes(kilder, tabellregister):
     endret = _med_kode(kilder, "server/finnes_ikke.ts:catendaIdentitet")
     feil = df.valider(endret, kilder["katalog"], tabellregister)
     assert any("fila server/finnes_ikke.ts finnes ikke" in f for f in feil), feil
-
-
-def test_vakta_melder_ts_symbol_som_ikke_er_deklarert(kilder, tabellregister):
-    endret = _med_kode(kilder, "server/innlogging.ts:finnesIkke")
-    feil = df.valider(endret, kilder["katalog"], tabellregister)
-    assert any("finnesIkke er ikke definert i server/innlogging.ts" in f for f in feil), feil
 
 
 def test_ts_symbol_som_bare_brukes_i_fila_er_ikke_deklarert():
@@ -286,9 +250,42 @@ def test_dataflyt_bruker_samme_relasjonsmodul_som_datamodell():
 
 def test_vakta_melder_pil_som_ikke_berorer_catenda(kilder, tabellregister):
     endret = copy.deepcopy(kilder["dataflyt"])
-    endret["flyt"][0]["steg"][0] = {**endret["flyt"][0]["steg"][0], "fra": "hendelse", "til": ["notat"]}
+    endret["flyt"][0]["steg"][0] = {**endret["flyt"][0]["steg"][0], "fra": "koe.hendelse", "til": ["koe.notat"]}
     feil = df.valider(endret, kilder["katalog"], tabellregister)
     assert any("må gå fra eller til Catenda" in f for f in feil), feil
+
+
+def test_vakta_melder_pil_til_en_tabell_som_ikke_finnes(kilder, tabellregister):
+    """#49: en pil til en tabell i PostgreSQL er ikke lenger en kjent node."""
+    endret = copy.deepcopy(kilder["dataflyt"])
+    endret["flyt"][0]["steg"][0] = {**endret["flyt"][0]["steg"][0], "til": ["hendelse"]}
+    feil = df.valider(endret, kilder["katalog"], tabellregister)
+    assert any("'hendelse' er verken en tabell" in f for f in feil), feil
+
+
+def test_kvittering_er_ikke_data_fra_catenda():
+    """En pil fra «svar på kallene» er hvordan kallet gikk, ikke data fra Catenda."""
+    register = {
+        "flyt": [
+            {
+                "id": "C99",
+                "steg": [
+                    {"fra": "catenda:svar", "til": ["koe.leveringskvittering"]},
+                    {"fra": "catenda:topic", "til": ["koe.sak_catenda_topic"]},
+                ],
+            }
+        ]
+    }
+    per_tabell = df.flyter_per_tabell(register)
+    assert per_tabell["koe.leveringskvittering"] == {"fra": [], "til": [], "kvittering": ["C99"]}
+    assert per_tabell["koe.sak_catenda_topic"]["fra"] == ["C99"]
+
+
+def test_vakta_melder_nei_i_kolonne_6_som_dataflyten_motsier(kilder, tabellregister):
+    endret = copy.deepcopy(tabellregister)
+    next(t for t in endret["tabell"] if t["navn"] == "koe.innkommende_hendelse")["fra_catenda"] = "Nei."
+    feil = dm.kontroller_relasjoner(endret, kilder)
+    assert any(f.startswith("koe.innkommende_hendelse: fra_catenda sier «Nei»") for f in feil), feil
 
 
 # ---------------------------------------------------------------------------
@@ -312,12 +309,23 @@ def test_excel_har_arkene_relasjoner_og_dataflyt(kilder):
     assert all(rad[7] for rad in ark["Dataflyt"][1:]), "En pil uten kode"
 
 
-def test_kolonne_7_lages_fra_relasjonsregisteret():
-    """Fastholder formen kolonne 7 fikk i 1c; teksten er ikke lenger skrevet for hånd."""
+def test_excel_har_ikke_lenger_arkene_om_pythons_hendelser():
+    """#49: «Hendelsestyper» og «Hendelsesfelt» kom fra Pythons modeller."""
+    assert list(dm.excel_verdier(dm.EXCEL)) == [
+        "Tabeller",
+        "Relasjoner",
+        "Dataflyt",
+        "Utenfor databasene",
+        "Kjernehendelser",
+        "Om registeret",
+    ]
+
+
+def test_kolonne_6_og_7_lages_fra_dataflyten_og_relasjonsregisteret():
+    """Fastholder formen kolonne 6 og 7 fikk i 1c; teksten er ikke lenger skrevet for hånd."""
     rader = {rad[0]: rad for rad in dm.excel_verdier(dm.EXCEL)["Tabeller"][1:]}
-    assert "sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE)" in rader["hendelse"][6]
-    assert "Ingen relasjoner til andre tabeller." in rader["app_oauth_attempts"][6]
-    assert "Dataflyt: fra Catenda i C01" in rader["sak_metadata"][5]
+    assert "aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION)" in rader["koe.hendelse"][6]
+    assert "Dataflyt: fra Catenda i C21" in rader["koe.innkommende_hendelse"][5]
 
 
 def test_driftsflytene_tegnes_bare_i_driftsdiagrammet(kilder, tabellregister):
@@ -331,17 +339,7 @@ def test_driftsflytene_tegnes_bare_i_driftsdiagrammet(kilder, tabellregister):
     for fid in drift:
         assert f'"{fid}.' in tegnet["drift"]
         assert f'"{fid}.' not in tegnet["inn"] + tegnet["ut"]
-    assert '"C04.' in tegnet["inn"] and '"C04.' not in tegnet["drift"]
-
-
-def test_katalogen_har_unike_indekser_og_nullbarheten_sqlite_faktisk_har(kilder):
-    """Code-review 29.09: en unik indeks er også en nøkkel, og SQLite godtar NULL i en
-    PRIMARY KEY-kolonne uten NOT NULL."""
-    pg = kilder["katalog"]["postgresql"]["tabeller"]
-    assert pg["sak_bim_links"]["unike_indekser"], "Den unike indeksen på sak_bim_links mangler"
-    assert "unik indeks" in rel.tabelltekst(kilder["relasjoner"], kilder["katalog"], "sak_bim_links")
-    approvals = {k[0]: k[2] for k in kilder["katalog"]["sqlite"]["tabeller"]["approvals"]["kolonner"]}
-    assert approvals["project"] == "NULL"
+    assert '"C22.' in tegnet["inn"] and '"C22.' not in tegnet["drift"]
 
 
 def test_kolonneetiketten_har_ikke_tabellnavnet_i_sql_server(kilder):
@@ -356,39 +354,6 @@ def test_kolonneetiketten_har_ikke_tabellnavnet_i_sql_server(kilder):
 
 def test_sammensatt_fremmednokkel_er_en_kant_i_er_diagrammet(kilder):
     """#590: kanten mellom brevet og saken er én, med begge kolonnene i etiketten."""
-    diagram = rel.er_diagram(kilder["relasjoner"], kilder["katalog"], "SQL Server")
+    diagram = rel.er_diagram(kilder["relasjoner"], kilder["katalog"])
     kanter = [linje for linje in diagram.splitlines() if linje.startswith("    koe_sak_metadata ") and "koe_hendelse" in linje]
     assert kanter == ['    koe_sak_metadata ||--o{ koe_hendelse : "(sak_id, prosjekt_id)"']
-
-
-def _kallsteder_i(kilde: str) -> set[tuple[str, str]]:
-    tre = ast.parse(kilde)
-    besøk = df._Kallsteder(df.catenda_metoder(), df._importert_fra_klientlaget(tre))
-    besøk.visit(tre)
-    return besøk.funnet
-
-
-def test_vakta_ser_kall_ved_bart_navn_importert_fra_klientlaget():
-    funnet = _kallsteder_i(
-        "from integrations.catenda.auth import get_user_projects as prosjekter\n"
-        "from lib.auth.project_access import require_project_access\n"
-        "def hent(token):\n"
-        "    return prosjekter(token)\n"
-        "@require_project_access()\n"
-        "def rute():\n"
-        "    pass\n"
-    )
-    assert funnet == {("hent", "get_user_projects")}
-
-
-def test_kvittering_er_ikke_data_fra_catenda(kilder):
-    per_tabell = df.flyter_per_tabell(kilder["dataflyt"])
-    assert per_tabell["catenda_delivery_status"]["fra"] == []
-    assert per_tabell["catenda_delivery_status"]["kvittering"] == ["C06"]
-
-
-def test_vakta_melder_nei_i_kolonne_6_som_dataflyten_motsier(kilder, tabellregister):
-    endret = copy.deepcopy(tabellregister)
-    next(t for t in endret["tabell"] if t["navn"] == "app_users")["fra_catenda"] = "Nei."
-    feil = dm.kontroller_relasjoner(endret, kilder)
-    assert any(f.startswith("app_users: fra_catenda sier «Nei»") for f in feil), feil

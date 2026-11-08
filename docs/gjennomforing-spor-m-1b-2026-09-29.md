@@ -14,21 +14,21 @@ Arbeidet følges i [#81](https://github.com/khjohns/endringsmeldinger/issues/81)
 
 ## 1. Hva som er levert
 
-- [`datamodell/hendelser.toml`](datamodell/hendelser.toml): én oppføring per
+- [`datamodell/hendelser.toml`](https://github.com/khjohns/endringsmeldinger/blob/5ff4eb4/docs/datamodell/hendelser.toml): én oppføring per
   verdi i `EventType`, 32 i alt. Hver oppføring har hvem som sender, spor,
   sakstype, bestemmelse i NS 8407 med kilde, modell, innsendingsveier,
   virkning på status, funn og belegg. Konvolutten, feltene som ligger i egne
   kolonner, står én gang.
-- [`verktoy/hendelseskatalog.py`](verktoy/hendelseskatalog.py) henter fra
+- [`verktoy/hendelseskatalog.py`](https://github.com/khjohns/endringsmeldinger/blob/5ff4eb4/docs/verktoy/hendelseskatalog.py) henter fra
   koden det koden kan svare på:
   - feltene i `data`, fra Pydantic-modellene, med delmodeller og verdilister
   - forretningsreglene per type, fra `BusinessRuleValidator`
   - felt i modellen som ikke lagres (DM-06)
 - [`verktoy/datamodell.py`](verktoy/datamodell.py) skriver
-  [`datamodell/hendelser.md`](datamodell/hendelser.md) og to nye ark i
+  [`datamodell/hendelser.md`](https://github.com/khjohns/endringsmeldinger/blob/5ff4eb4/docs/datamodell/hendelser.md) og to nye ark i
   Excel-fila.
 - Testene i
-  [`test_hendelseskatalog.py`](../backend/tests/test_datamodell/test_hendelseskatalog.py)
+  [`test_hendelseskatalog.py`](https://github.com/khjohns/endringsmeldinger/blob/5ff4eb4/backend/tests/test_datamodell/test_hendelseskatalog.py)
   feiler når:
   - en hendelsestype mangler oppføring, eller en oppføring mangler type
   - avsenderen ikke er den rollekontrollen (`ROLE_CHECK`) slipper gjennom

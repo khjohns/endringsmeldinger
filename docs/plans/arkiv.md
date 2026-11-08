@@ -352,7 +352,7 @@ Statusordene og kildene står i [funnregisteret i hovedplanen](2026-09-16-godkje
 ### Merknader: Spor M — datamodell og funksjonskart
 
 > **Merknad 2026-09-29:** fase 1b er levert:
-> [hendelseskatalogen](../datamodell/hendelser.md) med vakttest og to nye ark
+> [hendelseskatalogen](https://github.com/khjohns/endringsmeldinger/blob/5ff4eb4/docs/datamodell/hendelser.md) med vakttest og to nye ark
 > i Excel-fila. DM-05–DM-07 er funnet under kartleggingen; se
 > [gjennomføringsnotatet for 1b](../gjennomforing-spor-m-1b-2026-09-29.md).
 

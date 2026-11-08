@@ -207,9 +207,9 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | Dokument | Emne |
 | --- | --- |
 | [arkitekturdiagrammer](arkitektur-diagrammer.md) | Systemoversikt. Azure-skissen viser Azure SQL; foreløpig mål er Azure PostgreSQL (merknad 23.09), men en SQL Database er aktuell igjen (merknad 29.09) |
-| [tabellregisteret](datamodell/tabeller.md) | Hver tabell i PostgreSQL og SQLite, og data utenfor databasene. Generert fra [`tabeller.toml`](datamodell/tabeller.toml); rett der. Spor M, første runde 29.09 |
+| [tabellregisteret](datamodell/tabeller.md) | Hver tabell i SQL Server, og data utenfor databasen. Generert fra [`tabeller.toml`](datamodell/tabeller.toml); rett der. Spor M, første runde 29.09 |
 | [relasjoner og dataflyt](datamodell/relasjoner.md) | ER-diagrammer, hver kobling mellom tabellene med og uten fremmednøkkel, og hver pil mellom en tabell og Catenda med endepunkt og kode. Generert fra [`relasjoner.toml`](datamodell/relasjoner.toml), [`dataflyt.toml`](datamodell/dataflyt.toml) og [`katalog.json`](datamodell/katalog.json); rett i registrene. Spor M, 1c 29.09 |
-| [hendelseskatalogen](datamodell/hendelser.md) | Hver hendelsestype: hvem som sender, spor, NS 8407 med kilde, feltene i `data` og virkning på status. Generert fra [`hendelser.toml`](datamodell/hendelser.toml) og modellene; rett der. Spor M, 1b 29.09 |
+| [hendelsene TS-kjernen skriver](datamodell/kjernehendelser.md) | Hver hendelsestype, krav, svar, standpunkt, utsagn og del i formatet, med feltene og grunnlaget. Generert fra [`kjernehendelser.toml`](datamodell/kjernehendelser.toml); rett der. Pythons hendelseskatalog er tatt ut (#49) |
 | [Catenda: dataflyt](catenda-dataflyt.md) | Hva som utveksles, og hvordan prosjekt og bibliotek rutes |
 | [Catenda: innlogging](catenda-innlogging.md) | OAuth-flyten og prosjekttilgang |
 | [migrasjoner og testbase](migrasjoner-og-testbase.md) | Hvordan migrasjonene verifiseres mot prosjektet uten å røre basen: testbasen i PostgreSQL 17, stubben av Supabase, katalogsummene og historikken. Flyttet fra `AGENTS.md` 29.09 |

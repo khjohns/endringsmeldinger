@@ -2,7 +2,7 @@
 
 _Generert fra docs/datamodell/kjernehendelser.toml av docs/verktoy/datamodell.py. Rett i registeret, ikke her._
 
-Format 1. Formen er skjemaene i [`kjerne/format/format.ts`](../../kjerne/format/format.ts), og designet står i [designnotatet](../design-hendelsesformat-2026-10-09.md). Pythons hendelsestyper står i [hendelser.md](hendelser.md).
+Format 1. Formen er skjemaene i [`kjerne/format/format.ts`](../../kjerne/format/format.ts), og designet står i [designnotatet](../design-hendelsesformat-2026-10-09.md).
 
 Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og ingen tom streng, og et ukjent felt eller en ukjent art gjør saken ikke forstått (MM-U2). Hvert element har en `id` satt av serveren, og relasjonene står som `gjelder` og `erstatter`.
 

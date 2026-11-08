@@ -22,7 +22,7 @@ def test_moduler_lastet_i_samme_kall_deler_avhengighetene():
 def test_to_kall_utenfra_deler_ikke_moduler_eller_cache():
     foerste, andre = last("datamodell"), last("datamodell")
     assert foerste.df is not andre.df
-    assert foerste.df.catenda_metoder is not andre.df.catenda_metoder
+    assert foerste.df.definisjoner is not andre.df.definisjoner
 
 
 LASTEKALL = {"spec_from_file_location", "module_from_spec", "exec_module", "SourceFileLoader"}

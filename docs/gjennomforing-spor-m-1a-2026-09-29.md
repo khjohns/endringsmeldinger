@@ -18,7 +18,7 @@ Arbeidet følges i [#80](https://github.com/khjohns/endringsmeldinger/issues/80)
 - [`verktoy/datamodell.py`](verktoy/datamodell.py) lager
   [`datamodell/tabeller.md`](datamodell/tabeller.md) og Excel-fila.
 - Testene i
-  [`test_tabellregister.py`](../backend/tests/test_datamodell/test_tabellregister.py)
+  [`test_tabellregister.py`](https://github.com/khjohns/endringsmeldinger/blob/5ff4eb4/backend/tests/test_datamodell/test_tabellregister.py)
   feiler når:
   - en tabell mangler oppføring
   - en oppføring mangler tabell

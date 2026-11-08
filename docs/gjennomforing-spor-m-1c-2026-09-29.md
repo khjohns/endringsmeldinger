@@ -46,7 +46,7 @@ Med dette er datamodellen i fase 1 komplett, og regnearket kan sendes til IKT
   innholdet står i relasjonsregisteret eller følger av katalogen.
 
 Testene i
-[`test_relasjoner_og_dataflyt.py`](../backend/tests/test_datamodell/test_relasjoner_og_dataflyt.py)
+[`test_relasjoner_og_dataflyt.py`](https://github.com/khjohns/endringsmeldinger/blob/5ff4eb4/backend/tests/test_datamodell/test_relasjoner_og_dataflyt.py)
 feiler når:
 - en fremmednøkkel i katalogen mangler oppføring, eller en oppføring med art
   «fremmednøkkel» ikke finnes i katalogen

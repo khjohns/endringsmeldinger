@@ -134,11 +134,11 @@ starter over klonene og leser ikke hookene i `.claude/settings.json`, så verken
 oppstartshooken eller vaktene kjører (#1319). Trengs `khjohns/kontrakt`, legges det til
 underveis med `add_repo` (oppdragsgiver 26.10).
 Oppstartshooken starter SQL Server-testbasen i bakgrunnen. Katalogen i den er kilden for TS-stien
-([`database.md`](.claude/rules/database.md)). PostgreSQL starter den ikke (#931).
-`docs/verktoy/katalog.py` og katalogen for Python-stien trenger en PostgreSQL-base
-bygget fra `supabase/migrations/`. Den bygger du selv fra tom med kommandoene i
-miljø-skillen før første bruk i økta og etter hver endring i migrasjonene, også
-etter bytte av branch, så en eldre base ikke svarer.
+([`database.md`](.claude/rules/database.md)), og `docs/verktoy/katalog.py` leser
+den. PostgreSQL starter den ikke (#931). Katalogen for Python-stien trenger en
+PostgreSQL-base bygget fra `supabase/migrations/`. Den bygger du selv fra tom med
+kommandoene i miljø-skillen før første bruk i økta og etter hver endring i
+migrasjonene, også etter bytte av branch, så en eldre base ikke svarer.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.
@@ -293,7 +293,7 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |
 | Når en subagent brukes, og modellen, størrelsen og bestillingen for den | [Subagent-skillen](.claude/skills/subagenter/SKILL.md). Regelen om å følge den står i «Arbeidsform» |
 | Episodene bak resonneringsreglene | [Resonnering-skillen](.claude/skills/resonnering/SKILL.md). Reglene står i «Resonneringsregler» |
-| Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `hendelser.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttester feiler når et register mangler en tabell, en type, en fremmednøkkel eller et kall, eller avviker fra koden eller migrasjonene |
+| Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i SQL Server i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttestene i `verktoy/tester/test_datamodell/` feiler når et register mangler en tabell eller en fremmednøkkel, eller avviker fra koden eller migrasjonene. Ingen vakt finner et kall til Catenda som mangler en pil i dataflyten |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 | Etikettene og milepælene, og formen på issues og PR-er | [GitHub-skillen](.claude/skills/github/SKILL.md). Reglene står her under «Hvor hva står» |
 
