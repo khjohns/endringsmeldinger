@@ -25,7 +25,8 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
     ut.push({ type: 'ingen_krav', spor });
   }
   for (const type of ['varsle', 'sende_varsel'] as const)
-    ut.push({ type, spor: 'vederlag', hjemmel: '34.1.3' });
+    for (const hjemmel of ['34.1.3', '34.3.3', '34.4'] as const)
+      ut.push({ type, spor: 'vederlag', hjemmel });
   for (const [id, e] of Object.entries(u.elementer)) {
     if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
     if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });

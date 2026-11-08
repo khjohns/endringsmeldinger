@@ -21,7 +21,7 @@ import {
   utledJournal,
   vurder,
 } from '../../kjerne/kommandoer/skriving.ts';
-import { regnUtSvar, type Svarvurdering } from '../../kjerne/frosset/standpunkt.ts';
+import { regnUtSvar, type Svarvurdering } from '../../kjerne/frosset/utregning.ts';
 import type { Journalrad, Part, Spor } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { noekkeltall, sakslinje, type Sakslinje } from '../saksliste.ts';
@@ -555,6 +555,15 @@ describe('linja i sakslisten (#1022)', () => {
     const l = sak.linje();
     expect(l.forstaatt, 'forutsetning').toBe(false);
     expect(l.brev_utenfor_appen).toBe(true);
+  });
+
+  it('varselet etter punkt 34.4 som står alene, gir har_varsel i vederlaget (VS-U48)', () => {
+    const l = linje((sak) => {
+      sak.send('TE', PAABEROPELSE);
+      sak.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.4' });
+    });
+    expect(l.vederlag).toMatchObject({ har_varsel: true, krav: null });
+    expect(l.frist.har_varsel, 'kontrollsak: sporet uten varsel').toBe(false);
   });
 
   it('har_varsel og ingen_krav følger utsagnene når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2 og når sporet er trukket (MM-U37, MM-U30, KA-U12)', () => {

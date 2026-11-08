@@ -20,7 +20,7 @@
 
 import { validateHeaderName, validateHeaderValue, type IncomingMessage } from 'node:http';
 
-import type { Avhengigheter, Innlogget, Rute, Svar } from './app.ts';
+import type { Avhengigheter, Innlogget, Rute, Svar } from './rutetyper.ts';
 import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';

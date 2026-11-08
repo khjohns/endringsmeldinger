@@ -10,13 +10,8 @@ import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
-import {
-  hindrerSvarMedEttBeloep,
-  kravposterI,
-  regnUtSvar,
-  vederlagsposter,
-  type Svarvurdering,
-} from '../frosset/standpunkt.ts';
+import { regnUtSvar, vederlagsposter, type Svarvurdering } from '../frosset/utregning.ts';
+import { hindrerSvarMedEttBeloep, kravposterI } from '../frosset/kravinnhold.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
@@ -282,10 +277,14 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
     case 'trekk':
       return { type: 'trekk', spor };
     case 'varsel': {
-      // OV-U5: varselet etter § 33.4 i fristen, etter § 34.1.2 i vederlaget.
+      // OV-U5: varselet etter § 33.4 i fristen, etter § 34.1.2 i vederlaget. `hjemmel` velger
+      // et annet varsel i vederlaget (OV-U25, VS-U48, VS-U52).
       const varselet =
         spor === 'vederlag'
-          ? ({ spor, hjemmel: '34.1.2' } as const)
+          ? ({
+              spor,
+              hjemmel: (h.hjemmel as '34.1.3' | '34.3.3' | '34.4' | undefined) ?? '34.1.2',
+            } as const)
           : ({ spor: 'frist', hjemmel: '33.4' } as const);
       // VS-U15: uten en dato sender appen varselet.
       if (typeof h.sendt !== 'string') return { type: 'send_varsel', ...varselet };

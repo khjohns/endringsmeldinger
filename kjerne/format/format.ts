@@ -412,8 +412,12 @@ export const OPPLYSNINGSSLAG = [
 
 export const UTSAGN: Record<Utsagnsart, Skjema> = {
   // VS-U34: varselet etter § 32.2 sendt utenfor løsningen registreres som de andre.
+  // VS-U48, VS-U52: varslene etter § 34.3.3 første ledd og § 34.4, sendt eller registrert.
   varsel: objekt(
-    { ...artfelt('varsel'), hjemmel: { enum: ['32.2', '33.4', '34.1.2', '34.1.3'] } },
+    {
+      ...artfelt('varsel'),
+      hjemmel: { enum: ['32.2', '33.4', '34.1.2', '34.1.3', '34.3.3', '34.4'] },
+    },
     ['id', 'art', 'hjemmel']
   ),
   trekk: objekt({ ...artfelt('trekk'), gjelder: ID }, ['id', 'art', 'gjelder']),

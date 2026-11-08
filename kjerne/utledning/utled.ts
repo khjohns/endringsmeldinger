@@ -36,7 +36,6 @@ import {
   grunnerFraForholdet,
   forholdetErAvklart,
   foresporselsrelasjon,
-  harProduktivitetspost,
   svarPaaForesporsler,
   type Foresporselsrelasjon,
   type ForesporselOgSvar,
@@ -45,10 +44,12 @@ import {
   sammenfallStemmer,
   standpunktet,
 } from '../frosset/standpunkt.ts';
+import { harProduktivitetspost } from '../frosset/kravinnhold.ts';
 import {
   KRAVSPOR,
   SPOR,
   VARSELSPOR,
+  erKravpostvarselhjemmel,
   erVarselhjemmel,
   type Dokument,
   type Domenehendelse,
@@ -65,12 +66,15 @@ import {
   type Standpunkt,
   type Standpunktsvirkning,
   type Svar,
+  type Kravpostvarselhjemmel,
   type Varselhjemmel,
   type Vedlegg,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
 
 type LestVarsel = Extract<LestUtsagn, { art: 'varsel' }>;
+/** Hjemlene saken har høyst ett varsel etter (SK-12). */
+export type Enkeltvarselhjemmel = Exclude<Varselhjemmel, Kravpostvarselhjemmel>;
 
 export interface Svarberegning {
   svar: Svar;
@@ -134,7 +138,12 @@ export interface Sporutledning {
    * De registrerte varslene i sporet, ett per hjemmel (SK-12): § 32.2 i forholdet (VS-U34),
    * § 33.4 i fristen, § 34.1.2 og § 34.1.3 i vederlaget (OV-U5, OV-U25).
    */
-  varsler: Partial<Record<Varselhjemmel, LestVarsel>>;
+  varsler: Partial<Record<Enkeltvarselhjemmel, LestVarsel>>;
+  /**
+   * Varslene etter § 34.3.3 første ledd og § 34.4, sendt eller registrert, i rekkefølgen i
+   * journalen. Saken kan ha flere (VS-U48, VS-U52); bare vederlaget har dem.
+   */
+  kravpostvarsler: LestVarsel[];
   /** § 33.6.2: forespørslene og det som svarte på dem; bare fristen. */
   foresporsler: ForesporselOgSvar[];
   /** Hvorfor hele svaret i sporet er subsidiært til forholdet; tomt for forholdet. */
@@ -287,6 +296,7 @@ const tomtSpor = (): Sporutledning => ({
   trukket: false,
   ingenKrav: false,
   varsler: {},
+  kravpostvarsler: [],
   foresporsler: [],
   subsidiaer: [],
 });
@@ -1139,8 +1149,10 @@ function kontrollerIngenKrav(
       );
 }
 
+/** SK-12: høyst ett varsel per hjemmel, utenom § 34.3.3 og § 34.4 (VS-U48, VS-U52). */
 function kontrollerVarslene(varsler: readonly LestVarsel[], ugyldig: Ugyldig): void {
   for (const hjemmel of Object.keys(VARSELSPOR) as Varselhjemmel[]) {
+    if (erKravpostvarselhjemmel(hjemmel)) continue;
     const andre = varsler.filter((v) => v.hjemmel === hjemmel)[1];
     if (andre) ugyldig(andre.id, `saken har to varsler etter § ${hjemmel} (SK-12)`);
   }
@@ -1155,7 +1167,9 @@ function fyllSporene(
   ingenKrav: readonly Utsagn<'ingen_krav'>[],
   alleKrav: Map<string, Krav>
 ): void {
-  for (const v of varsler) spor[VARSELSPOR[v.hjemmel]].varsler[v.hjemmel] = v;
+  for (const v of varsler)
+    if (erKravpostvarselhjemmel(v.hjemmel)) spor.vederlag.kravpostvarsler.push(v);
+    else spor[VARSELSPOR[v.hjemmel]].varsler[v.hjemmel] = v;
   spor.frist.foresporsler = besvart;
   for (const n of SPOR) {
     const sp = spor[n];
@@ -1543,8 +1557,10 @@ export function standpunktetErSubsidiaert(
  * OV-U5, OV-U24: kravversjonene som kan være det første varselet appen kjenner etter
  * hjemmelen. Etter § 34.1.3 er det bare versjonene som krever posten etter annet ledd.
  */
-export const kravSomVarsler = (hjemmel: Varselhjemmel, krav: readonly Krav[]): readonly Krav[] =>
-  hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav;
+export const kravSomVarsler = (
+  hjemmel: Enkeltvarselhjemmel,
+  krav: readonly Krav[]
+): readonly Krav[] => (hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav);
 
 /**
  * VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse etter § 32.2, § 33.4,
@@ -1566,7 +1582,10 @@ export const varseletFoerSvaret = (
  * står før svaret, og saken har høyst ett per hjemmel (SK-12). Skriveren leser det herfra,
  * så regelen står ett sted (#766).
  */
-export function varseletForNyttSvar(u: Pick<Utledning, 'spor'>, hjemmel: Varselhjemmel): string {
+export function varseletForNyttSvar(
+  u: Pick<Utledning, 'spor'>,
+  hjemmel: Enkeltvarselhjemmel
+): string {
   const s = u.spor[VARSELSPOR[hjemmel]];
   const registrert = s.varsler[hjemmel];
   const krav = kravSomVarsler(hjemmel, s.krav);

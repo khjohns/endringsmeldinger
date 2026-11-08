@@ -9,7 +9,7 @@
   import type { Part } from '$kjerne/typer';
   import type { Sakslinje } from '$lib/types/api';
   import { Plus } from 'lucide-svelte';
-  import { kroner } from '$kjerne/frosset/standpunkt';
+  import { kroner } from '$kjerne/frosset/tekst';
   import Knapp from './Knapp.svelte';
   import Vardenskall from './Vardenskall.svelte';
   import type { Kontrakt } from './kontrakt';

@@ -683,7 +683,7 @@ try {
   if (values.feil) {
     // Feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar på vederlagskravet i
     // brevkontrollen, og `page.route` svarer på kommandoruta i stedet for serveren. Kroppene har
-    // formen serveren gir (`server/app.ts`, `server/inngang.ts`); avbruddet er et svar som aldri
+    // formen serveren gir (`server/saker.ts`, `server/inngang.ts`); avbruddet er et svar som aldri
     // kom. `GET` går til serveren, så innlastingen etter 409 er ekte.
     const FEILTILSTANDER: { navn: string; svar: { status: number; kropp: unknown } | null; melding: RegExp }[] = [
       {

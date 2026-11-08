@@ -8,7 +8,7 @@
   import type { Betegnelse } from '$kjerne/utledning/visning';
   import type { Spor } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import { dager, kroner } from '$kjerne/frosset/standpunkt';
+  import { dager, kroner } from '$kjerne/frosset/tekst';
   import { ChevronRight } from 'lucide-svelte';
   import Knapp from './Knapp.svelte';
   import { brevForLinja, brevet, forholdetISaken, tilknyttetKrav, type Brevet } from './lesing';

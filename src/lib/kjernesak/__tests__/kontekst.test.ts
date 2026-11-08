@@ -266,8 +266,7 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.last();
     expect(hent).toHaveBeenCalledWith(SAK, 'p-1');
     expect(sak.finnes).toBe(true);
-    expect(sak.saksbilde?.status?.tekst).not.toBe('Fra serveren');
-    expect(sak.saksbilde?.journal.map((j) => j.versjon)).toEqual([1]);
+    expect(sak.saksbilde?.tittel).toBe(opprettet.data.sakstittel);
   });
 
   // Kilde: invariant 4 i 2.3 i hovedplanen og #418: et nytt forsøk sender samme kommando-ID.

@@ -18,14 +18,30 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
-import { hindrerSvarMedEttBeloep } from '../frosset/standpunkt.ts';
-import type { Avvisning, Krav, Kravspor, Part, Spor, Varselhjemmel } from '../typer.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
+import { hindrerSvarMedEttBeloep } from '../frosset/kravinnhold.ts';
+import type {
+  Avvisning,
+  Krav,
+  Kravvarselhjemmel,
+  Kravspor,
+  Part,
+  Spor,
+  Varselhjemmel,
+} from '../typer.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
   | { type: 'varsle' | 'sende_varsel'; spor: Kravspor }
-  /** Det særskilte varselet etter § 34.1.3 tredje ledd, ved siden av varselet i sporet (OV-U25). */
-  | { type: 'varsle' | 'sende_varsel'; spor: 'vederlag'; hjemmel: '34.1.3' }
+  /**
+   * Det særskilte varselet etter § 34.1.3 tredje ledd, ved siden av varselet i sporet (OV-U25),
+   * og varslene etter § 34.3.3 første ledd og § 34.4 (VS-U48, VS-U52).
+   */
+  | {
+      type: 'varsle' | 'sende_varsel';
+      spor: 'vederlag';
+      hjemmel: Exclude<Kravvarselhjemmel, (typeof VARSEL_I_SPORET)[Kravspor]>;
+    }
   /** VS-U34, VS-U38: varselet etter § 32.2 sendt utenfor løsningen, registrert etter påberopelsen. */
   | { type: 'varsle'; spor: 'forhold'; hjemmel: '32.2' }
   | { type: 'sende_foresporsel'; spor: 'frist' }
@@ -55,7 +71,10 @@ export const noekkel = (h: Handlingsnoekkel): string =>
         : h.type;
 
 /** Varselet i sporet, som handlingsnøkkelen uten hjemmel gjelder (OV-U5). */
-const VARSEL_I_SPORET: Record<Kravspor, Varselhjemmel> = { frist: '33.4', vederlag: '34.1.2' };
+const VARSEL_I_SPORET = { frist: '33.4', vederlag: '34.1.2' } as const satisfies Record<
+  Kravspor,
+  Varselhjemmel
+>;
 
 const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   krav: 'TE',
@@ -79,6 +98,9 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   korrigere: 'TE',
 };
 
+const kravpostvarsel = (u: Utledning, id: string) =>
+  u.spor.vederlag.kravpostvarsler.some((v) => v.id === id);
+
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
  * etter § 5 godtas også når saken er lukket etter GR-U27 (KA-U29), og mot det en
@@ -94,6 +116,12 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
         return avvis(
           'IKKE_I_FOERSTE_VERSJON',
           'Innsigelsen mot det registrerte varselet etter punkt 32.2 kan ikke sendes ennå. Brevet kan registreres som dokumentasjon.'
+        );
+      // Byggherrens svar på et varsel etter § 34.3.3 eller § 34.4 bygges i økt 2 i #1663 (G-9 i BF-14).
+      if (kanFaaInnsigelse(maal, part) && kravpostvarsel(u, h.gjelder))
+        return avvis(
+          'IKKE_I_FOERSTE_VERSJON',
+          'Innsigelsen mot varselet etter punkt 34.3.3 eller 34.4 kan ikke sendes ennå.'
         );
       // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
       return kanFaaInnsigelse(maal, part)
@@ -275,14 +303,17 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         );
       return null;
     case 'varsle':
-    case 'sende_varsel':
+    case 'sende_varsel': {
       if (!paaberopelseSendt)
         return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (h.spor !== 'forhold' && s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
+      const hjemmel = 'hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor];
+      // VS-U48, VS-U52: saken kan ha flere varsler etter § 34.3.3 og § 34.4, før og etter kravet.
+      if (erKravpostvarselhjemmel(hjemmel)) return null;
       // SK-12 og MM-U1: et registrert varsel kan ikke flyttes. Et utledet varsel er ikke registrert.
-      if (s.varsler['hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor]])
+      if (s.varsler[hjemmel])
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
       // OV-U8: det særskilte varselet etter § 34.1.3 kan sendes også etter vederlagskravet.
       if ('hjemmel' in h) return null;
@@ -296,6 +327,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           : avvis('FRISTKRAV_SENDT', `Fristkravet ${sendt}`);
       }
       return null;
+    }
     case 'sende_foresporsel':
       if (!paaberopelseSendt)
         return avvis(

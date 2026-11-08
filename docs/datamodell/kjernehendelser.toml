@@ -23,7 +23,7 @@ format = 1
 navn = "sak_opprettet"
 beskrivelse = """
 Saken er opprettet. Første rad i saken, i versjon 1, før grunnlagskravet.
-`POST /api/kjerne/saker` i `server/app.ts` kaller opprettelsen i kjernen
+`POST /api/kjerne/saker` i `server/saker.ts` kaller opprettelsen i kjernen
 (`opprettelse` i `kjerne/kommandoer/opprettelse.ts`), som godtar bare TE og gir
 `format` og `data`, og så `opprettSak` i `server/kommandoer.ts`, som skriver
 raden og også avviser en annen side enn TE (#370, #696)."""
@@ -201,9 +201,9 @@ grunnlag = "B-13, designnotatet 4.3"
 [[utsagn]]
 art = "varsel"
 avsender = "TE"
-beskrivelse = "Varsel etter § 33.4 i fristen, § 34.1.2 eller § 34.1.3 tredje ledd i vederlaget, eller § 32.2 i grunnlaget. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. Varselet etter § 32.2 er alltid registrert: fra appen er påberopelsen varselet."
+beskrivelse = "Varsel etter § 33.4 i fristen, § 34.1.2, § 34.1.3 tredje ledd, § 34.3.3 første ledd eller § 34.4 i vederlaget, eller § 32.2 i grunnlaget. Saken har høyst ett varsel per hjemmel, utenom § 34.3.3 og § 34.4, som gjelder kravpostene. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. Varselet etter § 32.2 er alltid registrert: fra appen er påberopelsen varselet."
 felt = ["id", "art", "hjemmel"]
-grunnlag = "MM-U1, SK-12, VS-U15, OV-U25, VS-U34, VS-U38"
+grunnlag = "MM-U1, SK-12, VS-U15, OV-U25, VS-U34, VS-U38, VS-U48, VS-U52"
 
 [[utsagn]]
 art = "trekk"

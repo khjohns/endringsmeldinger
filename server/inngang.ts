@@ -6,7 +6,7 @@
  */
 
 import type { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
-import type { Svar } from './app.ts';
+import type { Svar } from './rutetyper.ts';
 import { feilnummer } from './datalag.ts';
 
 /** Feilsvaret i samme form fra hver inngang, også de åpne (#942). */

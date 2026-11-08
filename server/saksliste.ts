@@ -11,7 +11,7 @@ import type { Dokument, Journalrad, Kravspor, Oppgjoersform, Part, Spor } from '
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { kravposterI, krevdSamlet } from '../kjerne/frosset/standpunkt.ts';
+import { kravposterI, krevdSamlet } from '../kjerne/frosset/kravinnhold.ts';
 import { foersteUnderkategori } from '../kjerne/regler/forhold.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
@@ -235,7 +235,7 @@ const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttet(u);
 
 const harVarsel = (u: Utledning, spor: Kravspor): boolean =>
-  Object.keys(u.spor[spor].varsler).length > 0;
+  Object.keys(u.spor[spor].varsler).length > 0 || u.spor[spor].kravpostvarsler.length > 0;
 
 function vederlag(u: Utledning): Vederlagslinje {
   const s = u.spor.vederlag;
