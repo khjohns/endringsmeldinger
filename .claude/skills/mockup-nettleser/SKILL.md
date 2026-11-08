@@ -8,11 +8,11 @@ description: Kjører den ekte saksruta og demoruta i Chromium i skyøkta. saksru
 ## Den ekte saksruta
 
 Den ekte saksruta `/{prosjekt}/{sak}` mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/vedtak.md#dl-u1)) kreves
-mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/vedtak.md#dl-u1)) kreves
+for en diff i saksvisningen, etter `AGENTS.md`, «Arbeidsform». Den kjøres med:
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \
-  [--forlop <ID> [--til <kontrollpunkt>]] [--behold]
+  [--forlop <ID> [--til <kontrollpunkt>]] [--feil] [--behold]
 ```
 
 Skriptet trenger `KOE_SQLSERVER_TILKOBLING`, som oppstartshooken setter, og port 5173
@@ -60,6 +60,18 @@ ikke er det forventede:
    feltene TE fylte ut. Til slutt avbryter TE et nytt skjema og kommer til sakslisten
    (`ny-sak-avbrutt.png`).
 7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta.
+8. Med `--feil` (krever et kontrollpunkt der TE kan godta BHs svar på vederlagskravet, som
+   `--forlop BF-01 --til te-har-mottatt-svaret`) framkaller skriptet feiltilstandene ved
+   sendingen i Varden (#1215, #1676). TE åpner vederlagssporet, velger «Godta svaret» og
+   krysser av i brevkontrollen, og `page.route` på `**/api/kjerne/saker/{sak}/kommandoer`
+   svarer på `POST` i stedet for serveren: 409 `VERSJONSKONFLIKT`, 403 `FORBIDDEN`, 500
+   `INTERNAL_ERROR`, og et avbrudd (`route.abort`), som er et usikkert utfall. Kroppene har
+   formen serveren gir. `GET` går til serveren, så en ny innlasting etter 409 er ekte.
+   Aksepten er valgt fordi den sendes gjennom brevkontrollen, som alle brevene i Varden
+   bruker, uten et skjema med felt foran. Skriptet skriver teksten i `role="alert"` og tar
+   `feil-409.png`, `feil-403.png`, `feil-500.png` og `feil-avbrutt.png`, med meldingen rullet
+   inn i bildet. Det stopper med exit 1 hvis skjemaet ikke sender, eller ikke viser den
+   forventede meldingen i `role="alert"`.
 
 Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
 med et eget Playwright-skript. Send aldri rett i tabellene. Slik drives skjemaene videre:
@@ -216,7 +228,8 @@ showcasen kjøres som egne stier (`/demo/komponenter/ramme?…`). Det skriver re
 brutt, med inntil `--vis` steder hver og forholdstallet for kontrast, og det axe ikke kan
 avgjøre («kontroller»). Et brudd gir exit 1.
 
-Den ekte saksruta, med innlogging, kontrolleres for hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md).
+Den ekte saksruta, med innlogging og feiltilstandene fra `saksrute.ts --feil`, kontrolleres for
+hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md).
 axe finner bare en del av feilene. Resten kontrolleres for hånd etter skillen
 [`uu-sjekk`](../uu-sjekk/SKILL.md). Det er ingen CI-jobb for skriptet (#1187).
 
