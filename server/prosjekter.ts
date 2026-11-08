@@ -18,7 +18,7 @@
  * Server, så `id` i svaret og i stien er brukeren.
  */
 
-import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './app.ts';
+import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 import { ferskeProsjekter } from './autorisasjon.ts';
 import { sql, utenKontekst, UUID, type Pool } from './datalag.ts';
 import { fast, lagret, loggFeil } from './inngang.ts';
