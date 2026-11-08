@@ -64,7 +64,8 @@ export interface Brevet {
 function sporFor(u: Utledning): Map<string, Spor> {
   const ut = new Map<string, Spor>();
   for (const [spor, s] of Object.entries(u.spor) as [Spor, Utledning['spor'][Spor]][]) {
-    for (const e of [...s.krav, ...s.svar, ...Object.values(s.varsler)]) if (e) ut.set(e.id, spor);
+    for (const e of [...s.krav, ...s.svar, ...Object.values(s.varsler), ...s.kravpostvarsler])
+      if (e) ut.set(e.id, spor);
     for (const f of s.foresporsler) {
       ut.set(f.foresporsel, spor);
       if (f.svar) ut.set(f.svar, spor);

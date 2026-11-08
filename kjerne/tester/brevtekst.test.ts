@@ -7809,3 +7809,122 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');
   });
 });
+
+describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, D-16 i BF-14, #1663)', () => {
+  const vederlagskrav = (kravposter: Data[]) => ({
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: { kravposter },
+  });
+  const tilbudspost = { betegnelse: 'P1', beskrivelse: 'Graving', oppgjoersform: 'tilbud' };
+  const regning = { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' };
+  const justert = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
+  const sendVarsel = (hjemmel: '34.3.3' | '34.4') => ({
+    type: 'send_varsel',
+    spor: 'vederlag',
+    hjemmel,
+  });
+  const registrertVarsel = (hjemmel: string) => ({
+    type: 'varsel',
+    korrespondansetype: 'e_post',
+    spor: 'vederlag',
+    hjemmel,
+    sendt: '2026-09-28',
+    dokumentasjon: [randomUUID()],
+  });
+  const VARSEL_REGNING = 'Kravet er varsel før regningsarbeidet settes i gang';
+  const VARSEL_ENHETSPRISER = 'Kravet er varsel om justering av enhetsprisene';
+  const paaberopt = () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    return s;
+  };
+
+  // Ordlyden er design etter VS-U48 (#1663); at varselet kan sendes alene, er VS-U48.
+  it('TE sender varselet etter punkt 34.4 og etter punkt 34.3.3 fra løsningen uten krav (VS-U48)', () => {
+    const s = paaberopt();
+    expect(laast(s.send('TE', sendVarsel('34.4')))).toEqual([
+      `TE varsler etter NS 8407 punkt 34.4 at TE vil kreve oppgjør som regningsarbeid som følge av forholdet ${I_SAKEN}.`,
+    ]);
+    expect(laast(s.send('TE', sendVarsel('34.3.3')))).toEqual([
+      `TE varsler etter NS 8407 punkt 34.3.3 første ledd at TE vil kreve justering av enhetsprisene som følge av forholdet ${I_SAKEN}.`,
+    ]);
+    expect(s.u().spor.vederlag.kravpostvarsler.map((v) => v.hjemmel)).toEqual(['34.4', '34.3.3']);
+    expect(s.u().spor.vederlag.varsler, 'ikke et varsel etter SK-12').toEqual({});
+  });
+
+  it('saken kan ha flere varsler etter punkt 34.3.3 og 34.4, sendt og registrert, før og etter kravet, men fortsatt bare ett etter punkt 34.1.3 (VS-U48, VS-U52, SK-12)', () => {
+    const s = paaberopt();
+    s.send('TE', sendVarsel('34.4'));
+    s.send('TE', registrertVarsel('34.4'));
+    s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }]));
+    expect(handlinger(s.u(), 'TE')).toEqual(
+      expect.arrayContaining([
+        'varsle:34.3.3',
+        'varsle:34.4',
+        'sende_varsel:34.3.3',
+        'sende_varsel:34.4',
+      ])
+    );
+    s.send('TE', sendVarsel('34.4'));
+    s.send('TE', registrertVarsel('34.3.3'));
+    expect(s.u().spor.vederlag.kravpostvarsler.map((v) => v.hjemmel)).toEqual([
+      '34.4',
+      '34.4',
+      '34.4',
+      '34.3.3',
+    ]);
+    // Kontrollsak: SK-12 gjelder fortsatt varselet etter punkt 34.1.3.
+    s.send('TE', registrertVarsel('34.1.3'));
+    expect(s.avvist('TE', registrertVarsel('34.1.3'))).toBe('VARSEL_REGISTRERT');
+  });
+
+  it('et varsel etter punkt 34.4 står ikke i fristen (OV-U5)', () => {
+    const s = paaberopt();
+    expect(s.avvist('TE', { ...sendVarsel('34.4'), spor: 'frist' })).not.toBeNull();
+  });
+
+  it('et varsel sendt før det første kravet gjelder kravpostene med den beregningsregelen, og kravet sier ikke at det er varselet for dem (D-16)', () => {
+    const s = paaberopt();
+    s.send('TE', sendVarsel('34.4'));
+    const tekst = laast(
+      s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }, regning, justert]))
+    ).join(' ');
+    expect(tekst).toContain(
+      'TE krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.'
+    );
+    expect(tekst).not.toContain(VARSEL_REGNING);
+    // Varselet etter punkt 34.4 gjelder ikke justeringen av enhetsprisene.
+    expect(tekst).toContain(VARSEL_ENHETSPRISER);
+  });
+
+  it('et varsel registrert før det første kravet gjelder på samme måte (D-16, VS-U52)', () => {
+    const s = paaberopt();
+    s.send('TE', registrertVarsel('34.3.3'));
+    const tekst = laast(s.send('TE', vederlagskrav([regning, justert]))).join(' ');
+    expect(tekst).not.toContain(VARSEL_ENHETSPRISER);
+    expect(tekst).toContain(VARSEL_REGNING);
+  });
+
+  it('et varsel etter det første kravet gjelder ikke en ny kravpost uten valget i VS-U50, så kravet er varselet for den (VS-U49, D-19)', () => {
+    const s = paaberopt();
+    s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }]));
+    s.send('TE', sendVarsel('34.4'));
+    const tekst = laast(
+      s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }, regning]))
+    ).join(' ');
+    expect(tekst).toContain(VARSEL_REGNING);
+  });
+
+  it('byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter på økt 2, mens innsigelsen mot varselet etter punkt 34.1.3 godtas (G-9 i BF-14)', () => {
+    const s = paaberopt();
+    s.send('TE', sendVarsel('34.3.3'));
+    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' });
+    const u = s.u();
+    const varsel = u.spor.vederlag.kravpostvarsler[0]!.id;
+    expect(handlinger(u, 'BH')).not.toContain(`innsigelse:${varsel}`);
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: varsel })).toBe('IKKE_I_FOERSTE_VERSJON');
+    const kontroll = u.spor.vederlag.varsler['34.1.3']!.id;
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: kontroll }), 'kontrollsak').toBeNull();
+  });
+});

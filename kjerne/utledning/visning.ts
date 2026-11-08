@@ -111,7 +111,7 @@ export const BETEGNELSER = [
 export type Betegnelse = (typeof BETEGNELSER)[number];
 
 const harVarsel = (u: Utledning, spor: Spor): boolean =>
-  Object.keys(u.spor[spor].varsler).length > 0;
+  Object.keys(u.spor[spor].varsler).length > 0 || u.spor[spor].kravpostvarsler.length > 0;
 
 const sendt = (u: Utledning, spor: Spor): boolean =>
   u.spor[spor].krav.length > 0 || u.spor[spor].ingenKrav || harVarsel(u, spor);
@@ -254,6 +254,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     s.gjeldendeKrav?.id,
     s.gjeldendeSvar?.id,
     ...Object.values(s.varsler).map((v) => v.id),
+    ...s.kravpostvarsler.map((v) => v.id),
   ];
   for (const i of u.innsigelser)
     if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))

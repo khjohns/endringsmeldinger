@@ -488,6 +488,8 @@ const VARSLET_ETTER: Record<Kravvarselhjemmel, string> = {
   '33.4': 'NS 8407 § 33.4',
   '34.1.2': 'NS 8407 § 34.1.2',
   '34.1.3': 'NS 8407 § 34.1.3 tredje ledd',
+  '34.3.3': 'NS 8407 punkt 34.3.3 første ledd',
+  '34.4': 'NS 8407 punkt 34.4',
 };
 
 /** Betegnelsene i rekkefølge, med «og» før den siste. */
@@ -503,10 +505,14 @@ function tidligere(k: Krav, j: Journalen): Krav[] {
 
 /**
  * Kravposten er varselet etter § 34.3.3 eller § 34.4 når ingen tidligere kravversjon har
- * posten med justerte enhetspriser eller regningsarbeid (VS-U48). Et varsel
- * sendt eller registrert for seg er ikke bygget, så det kan ikke ha kommet før.
+ * posten med justerte enhetspriser eller regningsarbeid (VS-U48, VS-U49), og kravet ikke er
+ * det første etter et varsel etter samme bestemmelse. Et varsel sendt eller registrert før
+ * det første kravet gjelder kravpostene med den beregningsregelen i det kravet, og brevet sier
+ * ikke at kravet er varselet (D-16 i BF-14, arbeidsvalget i Følge hos VS-U48). Et varsel etter
+ * det første kravet gjelder ikke en ny post uten valget i VS-U50, som ikke er bygget.
  */
-const varslerI = (p: Kravpost, foer: readonly Krav[]): boolean =>
+const varslerI = (p: Kravpost, foer: readonly Krav[], varsletFoer: Set<Varselhjemmel>): boolean =>
+  !varsletFoer.has(p.oppgjoersform === 'regningsarbeid' ? '34.4' : '34.3.3') &&
   !foer.some((k) =>
     kravposterI(k).some(
       (q) =>
@@ -516,8 +522,23 @@ const varslerI = (p: Kravpost, foer: readonly Krav[]): boolean =>
     )
   );
 
+/** Hjemlene for varslene i dokumentene før det første kravet `k` i sporet; tom etter det første. */
+function varsletFoerKravet(k: Krav, foer: readonly Krav[], j: Journalen): Set<Varselhjemmel> {
+  const ut = new Set<Varselhjemmel>();
+  if (foer.length) return ut;
+  for (const d of j.dokumenter) {
+    if (d.id === k.dokument) break;
+    for (const u of d.utsagn) if (u.art === 'varsel') ut.add(u.hjemmel);
+  }
+  return ut;
+}
+
 /** Setningen for én kravpost. Ordlyden er design (U-6 i BF-14); budskapet står i KA-U61 og KA-U66. */
-function kravposttekst(p: Kravpost, foer: readonly Krav[]): string {
+function kravposttekst(
+  p: Kravpost,
+  foer: readonly Krav[],
+  varsletFoer: Set<Varselhjemmel>
+): string {
   const hode = `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}${p.pns ? ` (PNS ${p.pns})` : ''}:`;
   if (p.oppgjoersform === 'tilbud') return `${hode} TE krever ${eksMva(p.beloep!)}`;
   const deler = [hode];
@@ -527,7 +548,7 @@ function kravposttekst(p: Kravpost, foer: readonly Krav[]): string {
         ? `TE krever at ${p.betegnelse} gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2.`
         : `TE krever at ${p.betegnelse} gjøres opp etter kontraktens enhetspriser etter NS 8407 punkt 34.3.1.`
     );
-    if (p.justert && varslerI(p, foer))
+    if (p.justert && varslerI(p, foer, varsletFoer))
       deler.push('Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.');
     if (p.anslag !== undefined)
       deler.push(`Anslaget er ${eksMva(p.anslag)} Anslaget er en opplysning og ikke et tilbud.`);
@@ -535,7 +556,7 @@ function kravposttekst(p: Kravpost, foer: readonly Krav[]): string {
     deler.push(
       `TE krever at ${p.betegnelse} gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.`
     );
-    if (varslerI(p, foer))
+    if (varslerI(p, foer, varsletFoer))
       deler.push('Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).');
     if (p.kostnadsoverslag !== undefined)
       deler.push(
@@ -553,7 +574,8 @@ function kravposttekst(p: Kravpost, foer: readonly Krav[]): string {
 function vederlagstekst(k: Krav, { j }: Tekst): string {
   const foer = tidligere(k, j);
   const poster = kravposterI(k);
-  const deler = poster.map((p) => punktum(kravposttekst(p, foer)));
+  const varsletFoer = varsletFoerKravet(k, foer, j);
+  const deler = poster.map((p) => punktum(kravposttekst(p, foer, varsletFoer)));
   const forrige = foer.at(-1);
   for (const id of (k.innhold.trekker as string[] | undefined) ?? []) {
     const p = forrige && kravposterI(forrige).find((q) => q.id === id);
@@ -606,6 +628,9 @@ const VARSEL_OM: Record<Kravvarselhjemmel, string> = {
   '33.4': `om fristforlengelse etter ${VARSLET_ETTER['33.4']}`,
   '34.1.2': `om vederlagsjustering etter ${VARSLET_ETTER['34.1.2']}`,
   '34.1.3': `om særskilt justering for nedsatt produktivitet eller forstyrrelser etter ${VARSLET_ETTER['34.1.3']}`,
+  // Ordlyden for varslene etter § 34.3.3 og § 34.4 er design etter VS-U48 (#1663).
+  '34.3.3': `om justering av enhetsprisene etter ${VARSLET_ETTER['34.3.3']}`,
+  '34.4': `om regningsarbeid etter ${VARSLET_ETTER['34.4']}`,
 };
 
 /** Varselet et standpunkt om rettidighet gjelder (LV-U4 punkt 5, LV-U5). */
@@ -904,6 +929,8 @@ const VIL_KREVE: Record<Kravvarselhjemmel, string> = {
   '33.4': 'fristforlengelse',
   '34.1.2': 'justering av vederlaget',
   '34.1.3': `særskilt justering av vederlaget etter annet ledd for ${PRODUKTIVITET}`,
+  '34.3.3': 'justering av enhetsprisene',
+  '34.4': 'oppgjør som regningsarbeid',
 };
 
 /** Hjemmelen for varselet en datoopplysning gjelder (HF-U1). */
