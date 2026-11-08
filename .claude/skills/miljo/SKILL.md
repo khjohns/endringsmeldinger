@@ -90,6 +90,25 @@ Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 
 Timeouten for en hel vitest-kjøring står i «Miljø» i `AGENTS.md`.
 
+### Rask kjøring under arbeidet
+
+Hele samlingen med `KOE_SQLSERVER_TILKOBLING` tar om lag 5 minutter i skyøkta, og
+testene mot SQL Server står for nesten all tiden (#1714). Under arbeidet med kjernen
+eller `src/` kjøres prosjektene uten SQL Server:
+
+```bash
+env -u KOE_SQLSERVER_TILKOBLING npx vitest run --project node --project frontend --reporter=agent
+```
+
+Det tar om lag 16 s og dekker `kjerne/`, `sprakprove/` utenom lagringstestene,
+`verktoy/`, hookene og `src/` utenom komponentene. Er en komponent i
+`src/lib/components/` endret, legg til `--project frontend-komponenter` (om lag 50 s
+til sammen). Filtrer med prosjekt, ikke med sti: `npx vitest run kjerne` treffer også
+`sprakprove/kjernelagring/` og kjører den mot SQL Server.
+
+Den raske kjøringen erstatter ikke hele samlingen. Hele `npm test` med
+`KOE_SQLSERVER_TILKOBLING` kjøres før push og i reviewøkta.
+
 ## Utdata
 
 Hvert verktøysvar blir værende i konteksten og leses på nytt i hvert kall etter
