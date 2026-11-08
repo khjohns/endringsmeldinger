@@ -417,7 +417,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/standpunkt.ts',
     'regelsett',
-    `beslutningsgrunnlag regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`,
+    `regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`,
   ],
   ['frosset/standpunkt.ts', 'frosset', 'prinsipalt'],
   // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
@@ -426,7 +426,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'regelsett',
     'gjelderVarslingsplikten hjemmelenGjelder',
-    ['kommandoer/nyttelast.ts'],
+    ['kommandoer/nyttelast.ts', 'frosset/frysing.ts:beslutningsgrunnlag'],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
   [
@@ -689,9 +689,28 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel'],
   // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
-  ['frosset/standpunkt.ts', 'frosset', 'laget', ['frosset/brevtekst.ts', 'kommandoer/lag.ts']],
+  [
+    'frosset/standpunkt.ts',
+    'frosset',
+    'laget',
+    ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/tekst.ts'],
+  ],
   // OV-U32, OV-U33: lagene i et svarutkast regnes som brevet regner dem (S1-A i #1400).
-  ['frosset/standpunkt.ts', 'predikat', 'virkninger', ['kommandoer/lag.ts:lagForUtkastet']],
+  [
+    'frosset/standpunkt.ts',
+    'predikat',
+    'virkninger',
+    ['kommandoer/lag.ts:lagForUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
+  ],
+  // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
+  [
+    'frosset/standpunkt.ts',
+    'frosset',
+    'godkjennerHeleKravet',
+    ['frosset/frysing.ts:beslutningsgrunnlag'],
+  ],
+  ['frosset/standpunkt.ts', 'frosset', 'begrensningen', ['frosset/tekst.ts:beslutningslinje']],
+  ['frosset/standpunkt.ts', 'utsagn', 'kategori', ['frosset/tekst.ts:beslutningslinje']],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
@@ -1144,15 +1163,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  ['frosset/standpunkt.ts', 'brevtekst', 'kroner dager', ['frosset/brevtekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'kroner dager', ['frosset/brevtekst.ts']],
   // OV-U32: etiketten brevet bruker for laget.
-  ['frosset/standpunkt.ts', 'brevtekst', 'etikett', ['frosset/brevtekst.ts', 'kommandoer/lag.ts']],
   [
-    'frosset/standpunkt.ts:beslutningslinje',
+    'frosset/standpunkt.ts',
     'brevtekst',
-    'tekst virkning',
-    ['frosset/standpunkt.ts'],
+    'etikett',
+    ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/tekst.ts'],
   ],
+  ['frosset/tekst.ts:beslutningslinje', 'brevtekst', 'tekst virkning', ['frosset/tekst.ts']],
+  // MM-U9: linjen i beslutningsgrunnlaget, frosset når brevet sendes.
+  ['frosset/tekst.ts', 'brevtekst', 'beslutningslinje', ['frosset/frysing.ts:beslutningsgrunnlag']],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: svaret på påberopelsen og om sporene er subsidiære, lest av

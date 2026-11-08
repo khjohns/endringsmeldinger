@@ -8,10 +8,41 @@
 import { HJEMMEL } from '../format/format.ts';
 import { standpunkterISvaret, Uforstaatt } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { beslutningsgrunnlag, blirEndringsordre, type Svarvurdering } from './standpunkt.ts';
-import type { Krav, Spor } from '../typer.ts';
+import {
+  blirEndringsordre,
+  gjelderVarslingsplikten,
+  godkjennerHeleKravet,
+  virkninger,
+  type Svarinnhold,
+  type Svarvurdering,
+} from './standpunkt.ts';
+import { beslutningslinje } from './tekst.ts';
+import type { Beslutningsgrunnlag, Krav, Spor } from '../typer.ts';
 
 type Data = Record<string, unknown>;
+
+/**
+ * Brevet frosset når det sendes (MM-U9, MM-U11 (opphevet av MM-U50)). For forholdet fryses også om
+ * § 32.2 gjaldt kategorien i kravversjonen (GR-U12). `forskyvning` er `lagFraForholdet`
+ * for svaret på forholdet brevteksten setter foran sporet, og 0 for forholdet selv.
+ */
+export function beslutningsgrunnlag(
+  svar: Svarinnhold,
+  paaberopelse: Krav | null | undefined,
+  regler: Regelsett,
+  forskyvning: number
+): Beslutningsgrunnlag {
+  const v = virkninger(svar, paaberopelse, regler, forskyvning);
+  return {
+    regelversjon: regler.versjon,
+    virkninger: v,
+    linje: beslutningslinje(svar, v, paaberopelse, forskyvning),
+    sammenfall: godkjennerHeleKravet(svar, v),
+    ...(svar.spor === 'forhold'
+      ? { varslingsplikt: gjelderVarslingsplikten(paaberopelse, regler) }
+      : {}),
+  };
+}
 
 /**
  * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11 (opphevet av MM-U50), GR-U12).

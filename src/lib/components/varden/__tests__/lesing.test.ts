@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { minnebane } from '$kjerne/tester/bane';
 import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
 import type { Handling } from '$kjerne/tester/klient';
-import { kroner } from '$kjerne/frosset/standpunkt';
+import { kroner } from '$kjerne/frosset/tekst';
 import { standpunktene } from '$lib/components/varden/lesing';
 
 async function utledning(steg: Handling[]) {

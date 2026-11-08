@@ -24,7 +24,6 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
   blirEndringsordre,
-  dager,
   etikett,
   laget,
   gjelderVarslingsplikten,
@@ -37,9 +36,9 @@ import {
   krevdProduktivitet,
   krevdRigg,
   kravposterI,
-  kroner,
   svarPaaForesporsler,
 } from './standpunkt.ts';
+import { dager, kroner } from './tekst.ts';
 import type {
   Avsnitt,
   Dokument,

@@ -2841,7 +2841,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F327',
     feilklasse: 'beslutningslinjen viser bare den første preklusjonen i fristsvaret',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/tekst.ts`,
     endringer: [
       [
         "rettidighet: `${sene.join(' og ')} kom for sent`",
@@ -3150,7 +3150,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F382',
     feilklasse: 'linjen etiketterer uten forskyvningen fra forholdet (OV-U32, OV-U33, #1199)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
         'linje: beslutningslinje(svar, v, paaberopelse, forskyvning),',
@@ -3296,7 +3296,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F400',
     feilklasse: 'linjen gjentar etiketten for hvert standpunkt i samme lag (OV-U32)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/tekst.ts`,
     endringer: [
       [
         'if (!ordnet || lag === null || merket.has(lag)) return l.tekst;',
@@ -3311,7 +3311,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F401',
     feilklasse: 'linjen setter etikett når svaret har ett lag og ingen påberopelse (OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/tekst.ts`,
     endringer: [
       ['const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);', 'const ordnet = ledd.length > 1;'],
     ],
