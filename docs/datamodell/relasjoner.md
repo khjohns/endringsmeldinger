@@ -465,15 +465,16 @@ flowchart LR
     end
     t_appen(["Appen, lagres ikke"])
     c_webhook -->|"C21.1 mottaHendelse"| t_koe_innkommende_hendelse
-    c_bruker -->|"C22.1 CatendaOAuth"| t_appen
-    c_topic -->|"C22.2 CatendaOAuth"| t_appen
-    c_medlemmer -->|"C22.3 CatendaOAuth"| t_appen
-    c_team -->|"C22.4 CatendaOAuth"| t_appen
-    c_webhook -->|"C22.5 opprettSak"| t_koe_sak_metadata
-    c_webhook -->|"C22.5 opprettSak"| t_koe_hendelse
-    c_webhook -->|"C22.5 opprettSak"| t_koe_sak_catenda_topic
-    c_webhook -->|"C22.6 registrerBehandling"| t_koe_innkommende_behandling
-    c_webhook -->|"C22.7 registrerForsoek"| t_koe_innkommende_forsoek
+    c_token -->|"C22.1 Integrasjonsnokkel"| t_appen
+    c_bruker -->|"C22.2 CatendaOAuth"| t_appen
+    c_topic -->|"C22.3 CatendaOAuth"| t_appen
+    c_medlemmer -->|"C22.4 CatendaOAuth"| t_appen
+    c_team -->|"C22.5 CatendaOAuth"| t_appen
+    c_webhook -->|"C22.6 opprettSak"| t_koe_sak_metadata
+    c_webhook -->|"C22.6 opprettSak"| t_koe_hendelse
+    c_webhook -->|"C22.6 opprettSak"| t_koe_sak_catenda_topic
+    c_webhook -->|"C22.7 registrerBehandling"| t_koe_innkommende_behandling
+    c_webhook -->|"C22.8 registrerForsoek"| t_koe_innkommende_forsoek
     c_bruker -->|"C23.1 CatendaOAuth"| t_appen
     c_kommentar -->|"C23.2 CatendaOAuth"| t_appen
     c_kommentar -->|"C23.4 kvitterKommentar"| t_koe_topic_kommentar
@@ -635,15 +636,16 @@ Bare en ny topic gir en sak, og en endret topic når en tidligere hendelse for t
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
-| C22.1 | Catenda: innlogget bruker | Appen, lagres ikke | GET /v2/user | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Integrasjonens egen Catenda-ID (`egenId`), som skiller topics integrasjonen laget. Lagres ikke. |
-| C22.2 | Catenda: topics | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid} | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Topicens tittel, type og forfatter (`bimsync_creation_author.user.ref`), med integrasjonens token. Kroppen fra webhooken leses ikke for dem. 404 gir utfallet `ugyldig_hendelse` uten sak. |
-| C22.3 | Catenda: prosjektmedlemmer | Appen, lagres ikke | GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis) | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Om forfatteren er medlem av prosjektet, og navnet og e-posten som sendes til `koe_api.catenda_identitet`. Uten medlemskap løses ingen identitet. |
-| C22.4 | Catenda: team og teammedlemmer | Appen, lagres ikke | GET /v2/projects/{catenda_project_id}/teams/{team_id}/members (sidevis), for hvert kontraktsteam | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`kontraktssideUtenSesjon`](../../server/autorisasjon.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Forfatterens side og team. Blir `aktor_rolle` og `aktor_team_id` i `sak_opprettet`. |
-| C22.5 | Catenda: webhook-varsel | koe.sak_metadata, koe.hendelse, koe.sak_catenda_topic | Hendelsen i innboksen | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`opprettSak`](../../server/kommandoer.ts) | Topicens tittel blir sakstittelen i `sak_opprettet`, og topicen og boardet blir koblingen i `koe.sak_catenda_topic`, skrevet av `koe_api.koble_topic` fra `koe_api.opprett_sak`. Kvitteringen i `koe.kvittering` har en kommando-ID avledet av hendelsen i innboksen. Forfatteren løses til en brukerrad med navnet og e-posten fra medlemslisten, som ved medlemssynkroniseringen, og bare for et medlem. |
-| C22.6 | Catenda: webhook-varsel | koe.innkommende_behandling | Hendelsen i innboksen | [`behandleEnHendelse`](../../server/jobber.ts) → [`registrerBehandling`](../../server/hendelser.ts) | Utfallet, med prosjektet, saken, topicen og boardet når de er kjent. |
-| C22.7 | Catenda: webhook-varsel | koe.innkommende_forsoek | Hendelsen i innboksen | [`behandleEnHendelse`](../../server/jobber.ts) → [`registrerForsoek`](../../server/hendelser.ts) | Steget `behandling` og feilklassen med meldingen, når Catenda eller basen ikke svarte. |
+| C22.1 | Catenda: tilgangstoken | Appen, lagres ikke | POST /oauth2/token | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`Integrasjonsnokkel`](../../server/catenda.ts) | Integrasjonens token (`grant_type=client_credentials`), hentet på nytt før det går ut og forkastet når Catenda ikke godtar det. Det samme tokenet brukes i C23, C24 og C25. Lagres ikke. |
+| C22.2 | Catenda: innlogget bruker | Appen, lagres ikke | GET /v2/user | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Integrasjonens egen Catenda-ID (`egenId`), som skiller topics integrasjonen laget. Lagres ikke. |
+| C22.3 | Catenda: topics | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid} | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Topicens tittel, type og forfatter (`bimsync_creation_author.user.ref`), med integrasjonens token. Kroppen fra webhooken leses ikke for dem. 404 gir utfallet `ugyldig_hendelse` uten sak. |
+| C22.4 | Catenda: prosjektmedlemmer | Appen, lagres ikke | GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis) | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Om forfatteren er medlem av prosjektet, og navnet og e-posten som sendes til `koe_api.catenda_identitet`. Uten medlemskap løses ingen identitet. |
+| C22.5 | Catenda: team og teammedlemmer | Appen, lagres ikke | GET /v2/projects/{catenda_project_id}/teams/{team_id}/members (sidevis), for hvert kontraktsteam | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`kontraktssideUtenSesjon`](../../server/autorisasjon.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Forfatterens side og team. Blir `aktor_rolle` og `aktor_team_id` i `sak_opprettet`. |
+| C22.6 | Catenda: webhook-varsel | koe.sak_metadata, koe.hendelse, koe.sak_catenda_topic | Hendelsen i innboksen | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`opprettSak`](../../server/kommandoer.ts) | Topicens tittel blir sakstittelen i `sak_opprettet`, og topicen og boardet blir koblingen i `koe.sak_catenda_topic`, skrevet av `koe_api.koble_topic` fra `koe_api.opprett_sak`. Kvitteringen i `koe.kvittering` har en kommando-ID avledet av hendelsen i innboksen. Forfatteren løses til en brukerrad med navnet og e-posten fra medlemslisten, som ved medlemssynkroniseringen, og bare for et medlem. |
+| C22.7 | Catenda: webhook-varsel | koe.innkommende_behandling | Hendelsen i innboksen | [`behandleEnHendelse`](../../server/jobber.ts) → [`registrerBehandling`](../../server/hendelser.ts) | Utfallet, med prosjektet, saken, topicen og boardet når de er kjent. |
+| C22.8 | Catenda: webhook-varsel | koe.innkommende_forsoek | Hendelsen i innboksen | [`behandleEnHendelse`](../../server/jobber.ts) → [`registrerForsoek`](../../server/hendelser.ts) | Steget `behandling` og feilklassen med meldingen, når Catenda eller basen ikke svarte. |
 
-**Funn:** —. **Belegg:** L 19.10: `server/hendelser.ts`, `server/jobber.ts`, `database/migrasjoner/20261020130000_innkommende_behandling.sql` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. L 22.10: `database/migrasjoner/20261022180000_tittel_kan_ikke_vises.sql`.
+**Funn:** —. **Belegg:** L 19.10: `server/hendelser.ts`, `server/jobber.ts`, `database/migrasjoner/20261020130000_innkommende_behandling.sql` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. L 22.10: `database/migrasjoner/20261022180000_tittel_kan_ikke_vises.sql`. L 08.11: `medToken` og `Integrasjonsnokkel` i `server/catenda.ts`.
 
 ### C23 Kommentaren tilbake til topicen fra innboksen i TS-serveren
 

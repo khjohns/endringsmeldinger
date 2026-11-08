@@ -181,7 +181,22 @@ topicen ble slått opp på. Svarer ikke Catenda eller basen, lagres forsøket i
 `koe.innkommende_forsoek`, og hendelsen venter før neste forsøk, lenger for hvert
 forsøk (#963). Kommentaren tilbake til topicen er C23."""
 funn = []
-belegg = "L 19.10: `server/hendelser.ts`, `server/jobber.ts`, `database/migrasjoner/20261020130000_innkommende_behandling.sql` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. L 22.10: `database/migrasjoner/20261022180000_tittel_kan_ikke_vises.sql`."
+belegg = "L 19.10: `server/hendelser.ts`, `server/jobber.ts`, `database/migrasjoner/20261020130000_innkommende_behandling.sql` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. L 22.10: `database/migrasjoner/20261022180000_tittel_kan_ikke_vises.sql`. L 08.11: `medToken` og `Integrasjonsnokkel` i `server/catenda.ts`."
+
+[[flyt.steg]]
+fra = "catenda:token"
+til = ["appen"]
+endepunkt = "POST /oauth2/token"
+kode = [
+    "server/jobber.ts:behandleEnHendelse",
+    "server/hendelser.ts:behandle",
+    "server/catenda.ts:innboksintegrasjon",
+    "server/catenda.ts:Integrasjonsnokkel",
+]
+data = """
+Integrasjonens token (`grant_type=client_credentials`), hentet på nytt før det går ut
+og forkastet når Catenda ikke godtar det. Det samme tokenet brukes i C23, C24 og C25.
+Lagres ikke."""
 
 [[flyt.steg]]
 fra = "catenda:bruker"

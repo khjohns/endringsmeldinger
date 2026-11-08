@@ -331,11 +331,77 @@ def test_vakta_melder_en_sti_den_ikke_kan_avgjoere(kilder):
     assert feil == ["server/catenda.ts:noe: stien 'stiFraMiljoe()' kan ikke avgjøres (stiFraMiljoe())"], feil
 
 
-def test_vakta_melder_fetch_utenfor_klienten(kilder):
-    filer = _serverfiler(ny__ts="export async function hent() {\n  return fetch('https://api.catenda.com/v2/user');\n}\n")
-    assert df.kall_uten_pil(kilder["dataflyt"], filer) == [
+@pytest.mark.parametrize(
+    "kilde",
+    [
+        "export async function hent() {\n  return fetch('https://api.catenda.com/v2/user');\n}\n",
+        "export async function hent() {\n  return globalThis.fetch('https://api.catenda.com/v2/user');\n}\n",
+        "const hent = fetch;\n",
+    ],
+    ids=["fetch", "globalThis.fetch", "alias"],
+)
+def test_vakta_melder_fetch_utenfor_klienten(kilder, kilde):
+    """Code-review av #1718: `globalThis.fetch` og et alias gikk forbi."""
+    assert df.kall_uten_pil(kilder["dataflyt"], _serverfiler(ny__ts=kilde)) == [
         "server/ny.ts: fetch utenfor forespoersel i server/catenda.ts og utenfor ANDRE_TJENESTER"
     ]
+
+
+@pytest.mark.parametrize(
+    ("metode", "grunn"),
+    [
+        (
+            "  async to(a: boolean, token: string): Promise<void> {\n"
+            "    if (a) {\n      const sti = '/v2/user';\n      await forespoersel(this.#oppsett, 'GET', sti, { token });\n"
+            "    } else {\n      const sti = '/v2/hemmelig';\n      await forespoersel(this.#oppsett, 'GET', sti, { token });\n    }\n  }",
+            "stien 'sti' kan ikke avgjøres (sti)",
+        ),
+        (
+            "  async pil(sti: string, token: string): Promise<void> {\n"
+            "    const hent = (sti: string) => forespoersel(this.#oppsett, 'GET', sti, { token });\n"
+            "    await hent(`${sti}/ifc`);\n  }",
+            "stien 'sti' kan ikke avgjøres (sti bindes flere steder i pil)",
+        ),
+        (
+            "  async endret(sti: string, token: string): Promise<void> {\n"
+            "    sti += '/ifc';\n    await forespoersel(this.#oppsett, 'GET', sti, { token });\n  }",
+            "stien 'sti' kan ikke avgjøres (sti bindes flere steder i endret)",
+        ),
+    ],
+    ids=["const-i-to-blokker", "pilfunksjon", "tilordning"],
+)
+def test_vakta_melder_en_sti_med_flere_bindinger(kilder, metode, grunn):
+    """Code-review av #1718: den første bindingen ble lest, og kallet gikk forbi."""
+    feil = df.kall_uten_pil(kilder["dataflyt"], _serverfiler(catenda__ts=_catenda_med(metode)))
+    assert any(f.endswith(grunn) for f in feil), feil
+    assert all("har ingen pil" not in f for f in feil), feil
+
+
+def test_vakta_foelger_en_funksjon_paa_toppnivaa_til_kallerne_i_andre_filer(kilder):
+    """Code-review av #1718: kallerne utenfor klienten ble ikke lest."""
+    filer = _serverfiler(
+        catenda__ts=CATENDA_TS + (
+            "\nexport async function raa(o: CatendaOppsett, sti: string): Promise<unknown> {\n"
+            "  return forespoersel(o, 'GET', sti, {});\n}\n"
+        ),
+        z__ts="export const x = () => raa(oppsett, '/v2/hemmelig');\n",
+    )
+    assert df.kall_uten_pil(kilder["dataflyt"], filer) == [
+        "server/catenda.ts:raa: GET /v2/hemmelig har ingen pil i dataflyt.toml"
+    ]
+
+
+def test_vakta_melder_en_funksjon_som_brukes_uten_aa_kalles(kilder):
+    filer = _serverfiler(z__ts="export function hent(o: CatendaOAuth) {\n  return o.samling;\n}\n")
+    feil = df.kall_uten_pil(kilder["dataflyt"], filer)
+    assert "server/z.ts: samling brukes uten å kalles" in " ".join(feil), feil
+
+
+def test_hver_pil_med_et_kall_har_et_kall_i_serveren(kilder):
+    """Code-review av #1718: en pil uten kall kan dekke et nytt kall til samme sti."""
+    assert df.piler_uten_kall(kilder["dataflyt"]) == []
+    filer = _serverfiler(catenda__ts=CATENDA_TS.replace("this.samling('/v2/projects', token)", "this.samling('/v2/mine', token)"))
+    assert df.piler_uten_kall(kilder["dataflyt"], filer) == ["GET /v2/projects"]
 
 
 def test_vakta_melder_pil_som_ikke_berorer_catenda(kilder, tabellregister):

@@ -52,6 +52,12 @@ const PLASSHOLDERE: Record<string, string> = {
  * endepunktet slik det står. `avvist` og `tillatt` er alle kallene i steget.
  */
 const UNNTAK: Record<string, { grunn: string; avvist: string[]; tillatt?: string[] }> = {
+  'C22 POST /oauth2/token': {
+    grunn:
+      'Brokeren svarer selv på tokenkallet til integrasjonen (client_credentials) med brokernøkkelen ' +
+      '(`tokenkall` i broker.ts), og sender det ikke videre til Catenda.',
+    avvist: ['POST /oauth2/token'],
+  },
   'C26 POST /oauth2/token': {
     grunn:
       'Innloggingen i TS-serveren bytter koden med authorization_code mot Catenda, ikke gjennom brokeren (#715). ' +

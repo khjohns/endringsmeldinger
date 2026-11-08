@@ -191,19 +191,16 @@ def flyter_per_tabell(register: dict) -> dict[str, dict[str, list[str]]]:
 # ---------------------------------------------------------------------------
 
 CATENDAKLIENT = "server/catenda.ts"
-KALL = re.compile(r"(?<![\w$.#])forespoersel\s*\(")
+KLIENTKALL = re.compile(r"(?<![\w$.#])forespoersel\b")
 FUNKSJON = re.compile(
     r"^[ \t]*(?:export\s+)?(?:static\s+)?(?:async\s+)?(?:function\s*\*?\s*)?(#?[A-Za-z_$][\w$]*)\s*\(",
     re.MULTILINE,
 )
 IKKE_FUNKSJON = {"if", "for", "while", "switch", "catch", "return", "await", "throw", "new", "typeof"}
 PIL_ENDEPUNKT = re.compile(r"^([A-Z]+(?: og [A-Z]+)*) (/[^\s?]+)")
-FETCH = re.compile(r"(?<![\w$.#])fetch\s*\(")
-# Filene i server/ som kaller en annen tjeneste enn Catenda med `fetch`.
-ANDRE_TJENESTER = {
-    "server/entra.ts": "Entra ID",
-    "server/hrdata.ts": "HR-dataene",
-}
+FETCH = re.compile(r"(?<![\w$])fetch\b")
+# Filene i server/ som bruker `fetch` mot en annen tjeneste enn Catenda: Entra ID og HR-dataene.
+ANDRE_TJENESTER = frozenset({"server/entra.ts", "server/hrdata.ts"})
 
 
 class UkjentSti(ValueError):
@@ -305,10 +302,15 @@ class _Kallgraf:
                 raise UkjentSti(u)
             return self._returnerer(fil, hjelper, dybde)
         if re.fullmatch(r"[A-Za-z_$][\w$]*", u) and rundt:
-            if verdi := self._konstant(fil, u, rundt):
-                return self.stier(fil, verdi, rundt, dybde + 1)
-            if u in rundt["parametre"]:
+            # Navnet må ha én binding i funksjonen, så en annen blokk eller en pilfunksjon
+            # ikke kan gi det en annen verdi.
+            b = _bindinger(fil.kode[rundt["start"] : rundt["slutt"]], u)
+            if b["annen"] or b["pil"] or b["tilordning"]:
+                raise UkjentSti(f"{u} bindes flere steder i {rundt['navn']}")
+            if u in rundt["parametre"] and not b["const"]:
                 return self._fra_kallerne(fil, rundt, rundt["parametre"].index(u), dybde)
+            if b["const"] == 1 and u not in rundt["parametre"]:
+                return self.stier(fil, self._konstant(fil, u, rundt), rundt, dybde + 1)
         raise UkjentSti(u)
 
     def _mal(self, fil: _Fil, mal: str, rundt: dict | None, dybde: int) -> set[str]:
@@ -367,22 +369,46 @@ class _Kallgraf:
     def _fra_kallerne(self, fil: _Fil, funksjon: dict, nr: int, dybde: int) -> set[str]:
         """Stiene i argument nr. `nr` hos hver kaller av funksjonen, i hele server/."""
         navn = re.escape(funksjon["navn"])
-        moenster = re.compile(rf"\.{navn}\s*\(" if funksjon["metode"] else rf"(?<![\w$.#]){navn}\s*\(")
+        moenster = re.compile(rf"\.{navn}\b" if funksjon["metode"] else rf"(?<![\w$.#]){navn}\b")
         resultat: set[str] = set()
         for annen in self.filer.values():
-            if not funksjon["metode"] and annen is not fil:
-                continue
             for m in moenster.finditer(annen.kode):
                 kaller = annen.rundt(m.start())
-                if kaller is funksjon or re.search(r"function\s*$", annen.kode[: m.start()]):
+                if _er_definisjon(annen.kode, m.start()) or re.match(r"(?:import|export)\s*(?:type\s*)?\{", annen.kode[annen.kode.rfind("\n", 0, m.start()) + 1 :]):
                     continue
-                argumenter = _argumenter(annen.kode, annen.raa, m.end() - 1)
+                if not re.compile(r"\s*\(").match(annen.kode, m.end()):
+                    # Funksjonen brukes som verdi, så kallerne kan ikke finnes.
+                    raise UkjentSti(f"{annen.navn}: {funksjon['navn']} brukes uten å kalles")
+                if kaller is funksjon:
+                    continue
+                argumenter = _argumenter(annen.kode, annen.raa, annen.kode.index("(", m.end()))
                 if nr >= len(argumenter):
                     raise UkjentSti(f"{annen.navn}: kallet til {funksjon['navn']} mangler argument {nr + 1}")
                 resultat |= self.stier(annen, argumenter[nr], kaller, dybde + 1)
         if not resultat:
             raise UkjentSti(f"ingen kaller av {funksjon['navn']}")
         return resultat
+
+
+def _er_definisjon(kode: str, pos: int) -> bool:
+    return re.search(r"function\s*\*?\s*$", kode[max(0, pos - 40) : pos]) is not None
+
+
+def _bindinger(kode: str, navn: str) -> dict[str, int]:
+    """Hvor mange ganger `navn` bindes i `kode`: med const, med let eller var, som parameter
+    i en pilfunksjon og ved tilordning."""
+    n = re.escape(navn)
+    pilparametre = [
+        m[1] if m[1] is not None else m[2]
+        for m in re.finditer(r"\(([^()]*)\)\s*(?::[^=;]*?)?=>|(?<![\w$.])([A-Za-z_$][\w$]*)\s*=>", kode)
+    ]
+    return {
+        "const": len(re.findall(rf"\bconst\s+{n}\b", kode)),
+        "annen": len(re.findall(rf"\b(?:let|var)\s+{n}\b|\b(?:const|let|var)\s*[{{\[][^=;]*\b{n}\b", kode)),
+        "pil": sum(bool(re.search(rf"(?<![\w$.]){n}\b", p)) for p in pilparametre),
+        "tilordning": len(re.findall(rf"(?<![\w$.]){n}\s*(?:[-+*/?|&]{{0,2}})=(?![=>])", kode))
+        - len(re.findall(rf"\b(?:const|let|var)\s+{n}\s*(?::[^=;]*)?=", kode)),
+    }
 
 
 def _normalisert(sti: str) -> str:
@@ -405,18 +431,27 @@ def catendakall(filer: dict[str, str] | None = None) -> tuple[set[tuple[str, str
     for navn, fil in graf.filer.items():
         for m in FETCH.finditer(fil.kode):
             rundt = fil.rundt(m.start())
-            if navn in ANDRE_TJENESTER or (navn == CATENDAKLIENT and rundt and rundt["navn"] == "forespoersel"):
+            if navn in ANDRE_TJENESTER or (
+                navn == CATENDAKLIENT and rundt and rundt["navn"] == "forespoersel" and fil.kode[m.end()] == "("
+            ):
                 continue
             feil.append(f"{navn}: fetch utenfor forespoersel i {CATENDAKLIENT} og utenfor ANDRE_TJENESTER")
-        for m in KALL.finditer(fil.kode):
-            if re.search(r"function\s*$", fil.kode[: m.start()]):
+        for m in KLIENTKALL.finditer(fil.kode):
+            if _er_definisjon(fil.kode, m.start()):
                 continue
             rundt = fil.rundt(m.start())
             hvor = f"{navn}:{rundt['navn'] if rundt else '?'}"
+            parentes = re.compile(r"\s*\(").match(fil.kode, m.end())
             if navn != CATENDAKLIENT:
-                feil.append(f"{hvor}: forespoersel utenfor {CATENDAKLIENT}")
+                # Klienten eksporterer ikke funksjonen, så navnet er et annet her, men et
+                # kall med samme navn kan være en kopi av den.
+                if parentes:
+                    feil.append(f"{hvor}: forespoersel utenfor {CATENDAKLIENT}")
                 continue
-            argumenter = _argumenter(fil.kode, fil.raa, m.end() - 1)
+            if not parentes:
+                feil.append(f"{hvor}: forespoersel brukes uten å kalles")
+                continue
+            argumenter = _argumenter(fil.kode, fil.raa, parentes.end() - 1)
             metode = re.fullmatch(r"'([A-Z]+)'", argumenter[1]) if len(argumenter) > 2 else None
             if not metode:
                 feil.append(f"{hvor}: metoden i kallet kan ikke avgjøres")
@@ -438,6 +473,12 @@ def pilkall(register: dict) -> set[tuple[str, str]]:
             if m := PIL_ENDEPUNKT.match(tekst(steg["endepunkt"])):
                 resultat |= {(metode, _normalisert(m[2])) for metode in m[1].split(" og ")}
     return resultat
+
+
+def piler_uten_kall(register: dict, filer: dict[str, str] | None = None) -> list[str]:
+    """Hver pil med et kall som endepunkt, uten et kall med samme metode og sti i server/."""
+    kall = {(metode, sti) for metode, sti, _ in catendakall(filer)[0]}
+    return sorted(f"{metode} {sti}" for metode, sti in pilkall(register) - kall)
 
 
 def kall_uten_pil(register: dict, filer: dict[str, str] | None = None) -> list[str]:
