@@ -1,55 +1,96 @@
-# Spørsmål om brevteksten for et varsel som alt er gitt, stilt 08.11
+# Spørsmål om kravet for et varsel som alt er gitt, stilt 08.11
 
-Spørsmålet fra designsløyfa for [VS-U49](../../plans/vedtak.md#vs-u49) og
-[VS-U50](../../plans/vedtak.md#vs-u50) i [BF-14](../../domenetabell/brukerforlop/BF-14.md) (S-12), før
-byggeøkt 3 i #1663. VS-U50 sier at ordlyden i brevet vedtas når skjemaet og brevet bygges, med
-[VS-U38](../../plans/vedtak.md#vs-u38) som mønster. Spørsmålet gjelder brevteksten og stilles i tekst.
-Prototypen viser alternativ A, merket gult
+Spørsmålene fra designsløyfa for [VS-U49](../../plans/vedtak.md#vs-u49) og
+[VS-U50](../../plans/vedtak.md#vs-u50) i [BF-14](../../domenetabell/brukerforlop/BF-14.md) (S-12 og
+S-13), før byggeøkt 3 i #1663. VS-U50 sier at ordlyden i brevet vedtas når skjemaet og brevet bygges,
+med [VS-U38](../../plans/vedtak.md#vs-u38) som mønster. Oppdragsgiver 08.11, ordrett: «Angående
+brevtekst: konkret ordlyd mener jeg er design. Prinsipielle budskapet kan godt være vedtak». Spørsmål 1
+gjelder derfor budskapet. Ordlyden i prototypen er U-14 i BF-14
 ([vederlagskrav-te-v2.html](../../design/prototyper/vederlagskrav-te-v2.html), tilstandene `#ny-versjon`
-og `#brev`).
+og `#brev`). Begge spørsmålene gjelder rettsregler og stilles i tekst.
 
-## Spørsmål 1. Hva kravet sier når varselet for en kravpost alt er gitt
+Alternativene er prøvd én gang mot vedtakene av en subagent 08.11. Funnene er rettet: mønsteret i
+VS-U34 for samme kravskjema er tatt med som alternativ B, henvisningen følger både LV-U42 og LV-U45,
+sitatet fra VS-U38 er en hel setning, bakgrunnen skiller det vedtatte fra det kjernen gjør, og lista
+over varsler i OV-U80 er spørsmål 2.
 
-**Bakgrunn.** En kravpost med regningsarbeid eller justerte enhetspriser er varsel for seg når den ikke
-hadde den oppgjørsformen før og det ikke er registrert et varsel for posten. Da sier avsnittet for posten
-i kravet «Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).» eller «Kravet er
-varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.», som kjernen skriver i #1674. Etter
-VS-U50 kan TE i stedet oppgi at varselet for posten alt er gitt: i et varsel som er sendt eller registrert
-i løsningen, eller i et dokument TE legger til som korrespondanse i samme skjema. Spørsmålet er hva
-avsnittet for posten da sier.
+## Spørsmål 1. Hva kravet sier om et varsel TE legger til i kravskjemaet
+
+**Bakgrunn.** Etter VS-U49 er en kravpost med regningsarbeid eller justerte enhetspriser varsel for seg
+når den ikke hadde den oppgjørsformen før og det ikke er registrert et varsel for posten. Kjernen i #1674
+skriver da «Kravet er varsel …» i avsnittet for posten. Den ser bare på tidligere kravversjoner, fordi et
+varsel som er sendt eller registrert for seg, ikke er bygget. Etter VS-U50 kan TE i stedet oppgi at
+varselet for posten alt er gitt, i et varsel som er sendt eller registrert i løsningen før kravet, eller i
+et dokument sendt utenfor løsningen som TE legger til som korrespondanse i samme skjema. Kravet sier da
+hvor og når varselet ble gitt. VS-U50 avgjør ikke om kravet behandler et dokument som legges til i samme
+skjema annerledes: om kravet sier at opplysningen er totalentreprenørens, og om dokumentet legges ved.
+
+Kravskjemaet har allerede en regel for et varsel sendt på annen måte, for varslene etter punkt 34.1.2 og
+34.1.3 (VS-U34). Der sier kravet at TE opplyser at varselet ble sendt, med datoen, og dokumentet legges
+ikke ved. Skjemaet for ny sak legger dokumentet ved (VS-U38).
 
 **Belegg.**
 
 - VS-U50: «Brevet sier da ikke at kravet er varselet for posten, men at varselet for posten ble gitt i
   det brevet, med datoen. Løsningen kontrollerer ikke at brevet er et varsel for posten, og byggherren kan
   bestride datoen.»
-- VS-U38 (mønsteret): «Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 ble sendt i
-  totalentreprenørens <type> av <dato>, som er vedlagt.» og «Dokumentet legges ved påberopelsen.»
-- [LV-U42](../../plans/vedtak.md#lv-u42): «Viser et brev fra løsningen til registrert korrespondanse,
-  nevner brevet parten, typen og datoen: ‹totalentreprenørens e-post av <dato>›.»
+- [VS-U34](../../plans/vedtak.md#vs-u34): «Velger totalentreprenøren i kravskjemaet at varselet er sendt
+  på annen måte, legges varselet til som korrespondanse med kategorien varsel i samme forløp. Kravet sier
+  da det LV-U4 punkt 3 og LV-U29 sier om opplysningen.»
+- [LV-U29](../../plans/vedtak.md#lv-u29): «Opplysningen om et varsel sendt utenfor appen: «TE opplyser at
+  varsel om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 § 34.1.3
+  tredje ledd ble sendt <dato>.»»
+- VS-U38: «Setningen om at totalentreprenøren varsler etter punkt 32.2, står (GR-U31), og påberopelsen
+  sier i tillegg: ‹Totalentreprenøren opplyser at varsel etter NS 8407 punkt 32.2 ble sendt i
+  totalentreprenørens <type> av <dato>, som er vedlagt.›» og «Dokumentet legges ved påberopelsen.»
+- [LV-U42](../../plans/vedtak.md#lv-u42) og [LV-U45](../../plans/vedtak.md#lv-u45) sier hvordan et brev
+  fra løsningen viser til registrert korrespondanse.
 
-**A (anbefalt).** «Oppgir totalentreprenøren i kravskjemaet at varselet etter punkt 34.3.3 eller 34.4 for
-en kravpost alt er gitt, står det i avsnittet for kravposten i stedet for at kravet er varselet. Er
-varselet sendt eller registrert i løsningen før kravet, sier avsnittet ‹Varsel <om justering av
-enhetsprisene etter NS 8407 punkt 34.3.3 | før regningsarbeidet settes i gang etter NS 8407 punkt 34.4>
-ble gitt i <brevet>.›, der <brevet> viser til brevet eller korrespondansen slik brevene ellers gjør.
-Legger totalentreprenøren varselet til som korrespondanse i samme skjema, sier avsnittet
-‹Totalentreprenøren opplyser at varsel <om justering av enhetsprisene etter NS 8407 punkt 34.3.3 | før
-regningsarbeidet settes i gang etter NS 8407 punkt 34.4> ble gitt i totalentreprenørens <type> av <dato>,
-som er vedlagt.›, og dokumentet legges ved kravet. Forhold: presiserer VS-U50. Følger VS-U38 og LV-U42.»
+**A (anbefalt).** «Legger totalentreprenøren i kravskjemaet til et dokument sendt utenfor løsningen som
+varselet etter punkt 34.3.3 eller 34.4 for en kravpost, sier kravet at det er totalentreprenøren som
+opplyser at varselet ble gitt i dokumentet, og dokumentet legges ved kravet. Er varselet sendt eller
+registrert i løsningen før kravet, viser kravet bare til det. Kravet viser til dokumentet slik brevene
+ellers viser til korrespondanse. Ordlyden er design. Forhold: presiserer VS-U50. Følger VS-U38, LV-U42 og
+LV-U45. VS-U34 gjelder fortsatt for varslene etter punkt 34.1.2 og 34.1.3.»
 
-**B.** «Oppgir totalentreprenøren i kravskjemaet at varselet etter punkt 34.3.3 eller 34.4 for en
-kravpost alt er gitt, står det i avsnittet for kravposten i stedet for at kravet er varselet: ‹Varsel <om
-justering av enhetsprisene etter NS 8407 punkt 34.3.3 | før regningsarbeidet settes i gang etter NS 8407
-punkt 34.4> ble gitt i <brevet>.›, der <brevet> viser til brevet eller korrespondansen slik brevene ellers
-gjør. Det gjelder også et varsel totalentreprenøren legger til som korrespondanse i samme skjema.
-Dokumentet står i saken og legges ikke ved kravet. Forhold: presiserer VS-U50. Følger LV-U42. Avviker fra
-VS-U38 for et dokument som legges til i samme skjema.»
+**B.** «Legger totalentreprenøren i kravskjemaet til et dokument sendt utenfor løsningen som varselet
+etter punkt 34.3.3 eller 34.4 for en kravpost, sier kravet at det er totalentreprenøren som opplyser at
+varselet ble gitt i dokumentet, som for varslene etter punkt 34.1.2 og 34.1.3. Dokumentet står i saken
+som korrespondanse og legges ikke ved kravet. Er varselet sendt eller registrert i løsningen før kravet,
+viser kravet bare til det. Kravet viser til dokumentet slik brevene ellers viser til korrespondanse.
+Ordlyden er design. Forhold: presiserer VS-U50. Følger VS-U34, LV-U42 og LV-U45, og ikke VS-U38, som
+VS-U50 viser til som mønster.»
 
-**Anbefalingen.** A. Et dokument som legges til i samme skjema, har byggherren ikke sett før. Da følger A
-mønsteret i VS-U38: kravet sier at opplysningen er totalentreprenørens, og dokumentet ligger ved. Et
-varsel som allerede er i løsningen, har byggherren fått eller kan se i saken, og kravet viser bare til
-det. B gir én setning, men byggherren må finne dokumentet i saken selv.
+**Anbefalingen.** A. VS-U50 viser til VS-U38 som mønster. Et dokument som legges til i samme skjema,
+kommer til byggherren først med kravet. Et varsel registrert før kravet har stått i saken siden det ble
+lagt til. Med A har byggherren dokumentet ved kravet og må ikke lete i saken. Ulempen er at samme krav
+kan legge ved et varsel etter punkt 34.4, men ikke et varsel etter punkt 34.1.2 som er sendt på samme
+måte. B gir én regel for kravskjemaet. At byggherren har nytte av vedlegget, er en antakelse, ikke prøvd.
 
-**Hva valget styrer.** Brevteksten for kravposten i kjernen og om dokumentet legges ved kravet, i
-byggeøkt 3. Hvilke poster kravet er varsel for, og når, er avgjort av VS-U49 og VS-U50 og endres ikke.
+**Hva valget styrer.** Om kravet skiller de to tilfellene, og om dokumentet legges ved kravet, i byggeøkt
+3. Hvilke poster kravet er varsel for, og når, er avgjort av VS-U49 og VS-U50 og endres ikke.
+
+## Spørsmål 2. Varsel etter punkt 34.3.3 og 34.4 som korrespondanse
+
+**Bakgrunn.** VS-U48 og VS-U50 sier at TE kan legge til et brev sendt utenfor løsningen som varsel etter
+punkt 34.3.3 og 34.4. Lista over varsler TE kan velge for korrespondanse i
+[OV-U80](../../plans/vedtak.md#ov-u80) har ikke disse, og ingen post utvider den uttrykkelig.
+
+**Belegg.** OV-U80: «Varsel: totalentreprenøren velger ett eller flere varsler: etter punkt 32.2, punkt
+33.4, punkt 34.1.2, eller etter punkt 34.1.3 for rigg og drift eller for produktivitet hver for seg.»
+
+**A (anbefalt).** «Totalentreprenøren kan også velge varsel etter punkt 34.3.3 første ledd og etter
+punkt 34.4 når korrespondanse legges til som varsel. Løsningen kan ikke se hvilket arbeid varselet
+gjelder. Det gjelder kravpostene etter VS-U48 og VS-U50. Forhold: utvider OV-U80. Følger av VS-U48 og
+VS-U50.»
+
+**B.** «Lista i OV-U80 står. Et varsel etter punkt 34.3.3 eller 34.4 sendt utenfor løsningen kan bare
+legges til i kravskjemaet for en kravpost, etter VS-U50, og ikke som korrespondanse for seg. Forhold:
+snevrer inn VS-U48 for et varsel som registreres før kravet.»
+
+**Anbefalingen.** A. VS-U48 sier at TE kan registrere et brev sendt utenfor løsningen med datoen for
+varselet, også før kravet. Det krever at varselet kan velges når korrespondansen legges til. B ville
+stenge den veien.
+
+**Hva valget styrer.** Valgene når TE legger til korrespondanse, og om et varsel kan registreres før
+kravet (tilstanden `#varsel` i prototypen).

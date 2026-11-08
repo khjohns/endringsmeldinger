@@ -14,7 +14,7 @@
   svarene og de åpne issuene på elementene.
   Rettet 08.11 for VS-U49 og VS-U50 (#1663): hver kravpost med regningsarbeid eller justerte enhetspriser
   som er varsel for seg, har valget «Kravet er varselet» eller «Varselet er alt gitt», støttekolonnen viser
-  hvilke poster kravet er varsel for, og brevet har forslaget til setningen i S-12 i BF-14.
+  hvilke poster kravet er varsel for, og brevet har ordlyden i U-14 i BF-14.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -760,16 +760,16 @@ function oppsummer() {
 }
 
 // Varselsetningen i avsnittet for posten. «Kravet er varsel …» er setningen i kjernen (VS-U49, #1674).
-// Setningene for et varsel som alt er gitt, er forslaget i S-12 (VS-U50, med VS-U38 og LV-U42 som mønster).
+// Ordlyden for et varsel som alt er gitt, er design (U-14); budskapet for et dokument lagt til i skjemaet er S-12.
 function varselsetning(p) {
   if (!erVarselpost(p)) return '';
   const h = hjemmel(p);
   if (p.varsel === 'krav') return h === '34.4' ? ' Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).' : ' Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.';
   const k = kildeTil(p);
-  if (k) return ` <span class="ny" data-spor="S-12">Varsel ${VARSEL_OM[h]} ble gitt i ${k.brevet}.</span>`;
+  if (k) return ` <span class="ny" data-spor="U-14">Varsel ${VARSEL_OM[h]} ble gitt i ${k.brevet}.</span>`;
   const dato = (() => { const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(p.uDato.trim()); return m ? `${Number(m[1])}. ${['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'][m[2] - 1]} ${m[3]}` : esc(p.uDato); })();
   const type = { 'Brev': 'brev', 'E-post': 'e-post', 'Møtereferat': 'møtereferat', 'Notat og annet dokument': 'dokument' }[p.uType] ?? 'brev';
-  return ` <span class="ny" data-spor="S-12">Totalentreprenøren opplyser at varsel ${VARSEL_OM[h]} ble gitt i totalentreprenørens ${type} av ${dato || '‹dato›'}, som er vedlagt.</span>`;
+  return ` <span class="ny" data-spor="U-14 · S-12">Totalentreprenøren opplyser at varsel ${VARSEL_OM[h]} ble gitt i totalentreprenørens ${type} av ${dato || '‹dato›'}, som er vedlagt.</span>`;
 }
 
 // Brevet. Teksten er prototypetekst, unntatt setningene med en vedtaks-ID i kommentaren over.
@@ -800,7 +800,7 @@ function brev() {
     ${skall.dataset.rigg === 'ja' ? `<h2>${n++}. Rigg og drift i forlenget byggetid</h2><p>Totalentreprenøren krever ${fmt(rigg())} eks. mva. etter formelen i kontraktsgrunnlaget.</p>` : ''}
     <h2>${n++}. Forbehold</h2><p>Totalentreprenøren tar forbehold om å justere kravet når omfanget av gravingen er kjent.</p>
     ${fastId.length ? `<p class="ny" data-spor="U-6 · D-5">Kravet for ${liste(fastId)} er et tilbud etter NS 8407 punkt 34.2.1.</p>` : ''}
-    <p class="hjelp">Gult: setning som ikke er vedtatt ordrett. Tilbudssetningen er design innenfor KA-U61 (U-6). Setningene for et varsel som alt er gitt, er forslaget til vedtak i S-12.</p>
+    <p class="hjelp">Gult: setning som ikke er vedtatt ordrett. Tilbudssetningen er design innenfor KA-U61 (U-6). Ordlyden for et varsel som alt er gitt, er design (U-14), og budskapet for et dokument lagt til i skjemaet er spørsmålet i S-12.</p>
     <a class="liten-knapp" href="#${tilstand === 'ny' ? 'ny-versjon' : 'nytt-krav'}" style="align-self:flex-start">Tilbake til skjemaet</a>`;
 }
 

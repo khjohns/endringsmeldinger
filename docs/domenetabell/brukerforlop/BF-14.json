@@ -171,7 +171,10 @@
     "VS-U50",
     "OV-U79",
     "VS-U38",
-    "LV-U42"
+    "LV-U42",
+    "LV-U45",
+    "VS-U34",
+    "OV-U80"
   ],
   "venter_paa": [
     "#1663",
@@ -207,7 +210,7 @@
     {
       "dato": "2026-11-08",
       "forhold": "#1663",
-      "hva": "Designsløyfa for VS-U49 og VS-U50: steg 7 og klikkstien for et varsel som alt er gitt, F-8, U-12, U-13, D-19, G-10 og S-12. Prototypen har valget per kravpost, blokken i støttekolonnen og forslaget til brevsetningen i S-12."
+      "hva": "Designsløyfa for VS-U49 og VS-U50: steg 7 og klikkstien for et varsel som alt er gitt, F-8, U-12–U-14, D-19, G-10, S-12 og S-13. Prototypen har valget per kravpost, blokken i støttekolonnen og ordlyden i U-14; budskapet er spørsmålet i S-12."
     }
   ]
 }
