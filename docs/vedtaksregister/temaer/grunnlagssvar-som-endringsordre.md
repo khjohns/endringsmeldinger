@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `0e4e9b829c7a83a43fdcd49ae2ef7e6f97f11d92e67423693e597901eb76425d`
+Kontrollsum (SHA-256 over utdraget visningen leser): `4b587451a18a71a393c23e425c6c75b9f31bedb0f6b8640af3e2344786299bec`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -564,7 +564,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 08.11, oppdragsgiver (#1663, #1674)
 
-**Følge:** Presiserer [VS-U49](#vs-u49). Utvider [VS-U48](#vs-u48). Ordlyden i brevet for et varsel som alt er gitt, vedtas når skjemaet og brevet bygges i økt 3 i BF-14, med VS-U38 som mønster, slik spørsmålet sa. Berører BF-14.
+**Følge:** Presiserer [VS-U49](#vs-u49). Utvider [VS-U48](#vs-u48). Ordlyden i brevet for et varsel som alt er gitt, vedtas når skjemaet og brevet bygges i økt 3, med VS-U38 som mønster, slik spørsmålet sa. Berører BF-14.
 
 **Regelrader:** —
 

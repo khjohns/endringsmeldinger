@@ -2256,7 +2256,7 @@ forhold = [
   { art = "utvider", vedtak = "vs-u48" },
 ]
 folge = '''
-Ordlyden i brevet for et varsel som alt er gitt, vedtas når skjemaet og brevet bygges i økt 3 i BF-14, med VS-U38 som mønster, slik spørsmålet sa. Berører BF-14.'''
+Ordlyden i brevet for et varsel som alt er gitt, vedtas når skjemaet og brevet bygges i økt 3, med VS-U38 som mønster, slik spørsmålet sa. Berører BF-14.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
