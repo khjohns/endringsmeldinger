@@ -674,9 +674,9 @@ spørsmålet ikke gjelder (KA-18a, DT-03), prøves av korpuset med forespørsele
 
 Skjemaet bruker et lite utvalg av JSON Schema 2020-12. Validatoren i
 [`kontrakt.py`](../../verktoy/tester/test_domenetabell/kontrakt.py) kan akkurat
-det utvalget, og et annet nøkkelord gir rød test
-([`test_kontrakt.py`](../../verktoy/tester/test_domenetabell/test_kontrakt.py)). Testene i
-[`test_kontrakt.py`](../../backend/tests/test_domenetabell/test_kontrakt.py)
+det utvalget, og et annet nøkkelord gir rød test. Egentesten av validatoren står i
+[`verktoy/tester/test_domenetabell/test_kontrakt.py`](../../verktoy/tester/test_domenetabell/test_kontrakt.py), og
+[`backend/tests/test_domenetabell/test_kontrakt.py`](../../backend/tests/test_domenetabell/test_kontrakt.py)
 prøver resten (skjemaet mot modellene, korpusets kommandoer, data og tilstand i minnet).
 Grensene gjennom rutene og testbasen prøves ikke etter #931.
 
