@@ -93,7 +93,7 @@ describe('grensen for Varden', () => {
         ts_,
         [
           `import { lagSaksbilde } from '../../kjernesak/saksbilde';`,
-          `export * from '$lib/domain/grunnlagDomain';`,
+          `export * from '$lib/domain/regelversjon';`,
           `const d = await import('$lib/kjernesak/forsoek');`,
           `import { kjoer } from '$kjerne/tester/kjoerer';`,
           `import { handlinger } from '$kjerne/kommandoer/handlinger';`,
@@ -106,7 +106,7 @@ describe('grensen for Varden', () => {
     expect(forbudte(kilder)).toEqual([
       'src/lib/components/varden/Eksempel.svelte → src/lib/kjernesak/journal',
       'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/saksbilde',
-      'src/lib/components/varden/eksempel.ts → src/lib/domain/grunnlagDomain',
+      'src/lib/components/varden/eksempel.ts → src/lib/domain/regelversjon',
       'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/forsoek',
       'src/lib/components/varden/eksempel.ts → kjerne/tester/kjoerer',
       'src/lib/components/varden/eksempel.ts → bits-ui',
