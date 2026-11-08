@@ -957,7 +957,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:medKravposter'],
   ],
   [
-    'Vederlagsinnhold',
+    'Kravversjonsinndata',
     'kommando',
     'kravposter trekker',
     ['utledning/kravposter.ts:kravposteneStrider'],
