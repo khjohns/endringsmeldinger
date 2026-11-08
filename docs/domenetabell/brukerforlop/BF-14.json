@@ -229,6 +229,11 @@
       "dato": "2026-11-08",
       "forhold": "#1663",
       "hva": "Svarene på spørsmål 1–3 er ført som VS-U51–VS-U53, og D-19, S-12 og S-13 viser til dem."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Prototypen er godkjent som commit 98966af, og forløpet er klart til bygging. Brukerprøven tas etter byggingen (oppdragsgiver 08.11)."
     }
   ]
 }
