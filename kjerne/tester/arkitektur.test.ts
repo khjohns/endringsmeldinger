@@ -418,7 +418,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:utledSporene.plasser', 'relasjon', 'id versjon'],
   ['utledning/utled.ts:utledSporene.registrer', 'relasjon', 'id'],
 
-  // Standpunktene og det brevet fryser (standpunkt.ts).
+  // Utregningen av svaret (utregning.ts) og standpunktene (standpunkt.ts).
   ['frosset/utregning.ts', 'regelsett', `regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`],
   ['frosset/standpunkt.ts', 'frosset', 'prinsipalt'],
   // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot

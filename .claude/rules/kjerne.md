@@ -34,6 +34,6 @@ har det som gjelder modulene i `kjerne/` og flyttinger mellom dem (#1695).
 - Referansene `fil#funksjon` i `docs/domenetabell/regler.json` oppdateres, og README
   skrives med `docs/verktoy/domenetabell.py --skriv`. Søk også i den levende
   dokumentasjonen, ikke i daterte vurderinger og auditer.
-- Regelversjonsvakten godtar bare en fil som er lik byte for byte utenfor importene. En
-  deling er ikke det, så `REGELVERSJON` og `PROJEKSJONSVERSJON` økes, og startjournalene
-  skrives på nytt med `node kjerne/tester/brukerforloep.ts --skriv`.
+- Regelversjonsvakten godtar bare en fil som er lik byte for byte utenfor importene og
+  kommentarene (#1549). En deling er ikke det, så `REGELVERSJON` og `PROJEKSJONSVERSJON`
+  økes, og startjournalene skrives på nytt med `node kjerne/tester/brukerforloep.ts --skriv`.
