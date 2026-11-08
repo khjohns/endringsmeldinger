@@ -2412,9 +2412,8 @@ Lista i OV-U80 står. Et varsel etter punkt 34.3.3 eller 34.4 sendt utenfor løs
 forkastet = true
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
-designdel = '''
-At brevet står blant brevene om saken og i tidslinja, er design.'''
+klasse = "design"
+bindende_i = ["vs-u50", "vs-u51", "lv-u45"]
 id = "VS-U53"
 dato = 2026-11-08
 hvem = "oppdragsgiver"
@@ -2458,7 +2457,7 @@ forhold = [
   { art = "presiserer", vedtak = "vs-u51" },
 ]
 folge = '''
-Følger VS-U38 og LV-U45. Berører BF-14 (U-12).'''
+Følger VS-U38 og LV-U45. Spørsmålet var tillegget i svaret på spørsmål 1, og A gjentar at dokumentet legges ved, så posten presiserer også VS-U51. Klassen er design: at dokumentet står i saken som korrespondanse med kategorien varsel, at det legges ved, og nummeret, står i VS-U50, VS-U51 og LV-U45, og det nye er at brevet står blant brevene om saken og i tidslinja (kontrollert av en subagent 08.11). Berører BF-14 (U-12).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

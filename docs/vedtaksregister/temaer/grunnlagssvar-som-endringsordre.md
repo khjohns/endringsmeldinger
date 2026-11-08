@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `4f0f4549ca532ed274184148b5224a4e9fdeddb32c14202905bb6eedc1746e25`
+Kontrollsum (SHA-256 over utdraget visningen leser): `1771773ca66dea3d2d81bdd5201dc5db052a21660018f9f43c025fc83f2e52e1`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -609,7 +609,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 08.11, oppdragsgiver (#1663)
 
-**Følge:** Presiserer [VS-U50](#vs-u50). Presiserer [VS-U51](#vs-u51). Følger VS-U38 og LV-U45. Berører BF-14 (U-12).
+**Følge:** Presiserer [VS-U50](#vs-u50). Presiserer [VS-U51](#vs-u51). Følger VS-U38 og LV-U45. Spørsmålet var tillegget i svaret på spørsmål 1, og A gjentar at dokumentet legges ved, så posten presiserer også VS-U51. Klassen er design: at dokumentet står i saken som korrespondanse med kategorien varsel, at det legges ved, og nummeret, står i VS-U50, VS-U51 og LV-U45, og det nye er at brevet står blant brevene om saken og i tidslinja (kontrollert av en subagent 08.11). Berører BF-14 (U-12).
 
 **Regelrader:** —
 
