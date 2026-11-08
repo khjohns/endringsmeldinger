@@ -16,8 +16,8 @@ import { KRAVSPOR, SPOR, type Part, type Spor, type Varselhjemmel } from '../typ
 
 /**
  * En tilbudt handling med nøkkelen og det den gjelder, så visningen ikke deler nøkkelen
- * (#1703). `spor` er `null` for en handling som gjelder saken som helhet (OV-U16), og for
- * en handling som viser til et element uten spor.
+ * (#1703). `spor` er `null` for en handling som gjelder saken som helhet (OV-U16, bindende i
+ * OV-U80 og OV-U85), og for en handling som viser til et element uten spor.
  */
 export interface TilbudtHandling {
   noekkel: string;
