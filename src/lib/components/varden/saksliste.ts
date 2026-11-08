@@ -9,7 +9,7 @@ import {
   tilKatalogen,
   UNDERKATEGORI_FRA_KATALOGEN,
 } from '$kjerne/format/koder';
-import { dager, kroner } from '$kjerne/frosset/standpunkt';
+import { dager, kroner } from '$kjerne/frosset/tekst';
 import { kalenderdag } from '$kjerne/format/leser';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
 import { FORHOLDENE } from './nysak';

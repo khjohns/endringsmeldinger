@@ -27,13 +27,10 @@ import {
   norskDato,
 } from '../frosset/brevtekst.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
-import {
-  kravposterI,
-  kroner,
-  lagFraForholdet,
-  postlisten,
-  regnUtSvar,
-} from '../frosset/standpunkt.ts';
+import { lagFraForholdet, postlisten } from '../frosset/standpunkt.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
+import { kravposterI } from '../frosset/kravinnhold.ts';
+import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';

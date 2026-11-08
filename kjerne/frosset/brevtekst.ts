@@ -24,22 +24,23 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
   blirEndringsordre,
-  dager,
   etikett,
   laget,
   gjelderVarslingsplikten,
   grunnerFraForholdet,
   innsigelsenErOppgitt,
   innsigelsenPaaberoper,
+  svarPaaForesporsler,
+} from './standpunkt.ts';
+import {
   krevdBeloep,
   harProduktivitetspost,
   krevdIKravposten,
   krevdProduktivitet,
   krevdRigg,
   kravposterI,
-  kroner,
-  svarPaaForesporsler,
-} from './standpunkt.ts';
+} from './kravinnhold.ts';
+import { dager, kroner } from './tekst.ts';
 import type {
   Avsnitt,
   Dokument,

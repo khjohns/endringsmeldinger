@@ -9,7 +9,7 @@
  */
 
 import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/frosset/forholdene';
-import { kroner } from '$kjerne/frosset/standpunkt';
+import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Part, Spor, Standpunkt } from '$kjerne/typer';

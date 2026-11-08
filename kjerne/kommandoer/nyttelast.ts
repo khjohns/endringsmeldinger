@@ -16,15 +16,14 @@ import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato, tekst } from '../format/skjema.ts';
 import { korrigertDato, type Kommando, type Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
+import { gjelderVarslingsplikten, hjemmelenGjelder } from '../frosset/standpunkt.ts';
 import {
-  gjelderVarslingsplikten,
-  hjemmelenGjelder,
-  krevdSamlet,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
   utenforOmfanget,
-} from '../frosset/standpunkt.ts';
+} from '../frosset/utregning.ts';
+import { krevdSamlet } from '../frosset/kravinnhold.ts';
 import {
   datoenKravetBleSendt,
   foresporselForFristsvar,

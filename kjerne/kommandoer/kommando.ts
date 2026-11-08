@@ -21,7 +21,7 @@ import {
 } from '../format/format.ts';
 import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
 import { BroekdelAvOere, heleOere } from '../regler/beloep.ts';
-import type { Svarvurdering } from '../frosset/standpunkt.ts';
+import type { Svarvurdering } from '../frosset/utregning.ts';
 import {
   KRAVSPOR,
   SPOR as SPORENE,

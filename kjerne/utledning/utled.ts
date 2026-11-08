@@ -36,7 +36,6 @@ import {
   grunnerFraForholdet,
   forholdetErAvklart,
   foresporselsrelasjon,
-  harProduktivitetspost,
   svarPaaForesporsler,
   type Foresporselsrelasjon,
   type ForesporselOgSvar,
@@ -45,6 +44,7 @@ import {
   sammenfallStemmer,
   standpunktet,
 } from '../frosset/standpunkt.ts';
+import { harProduktivitetspost } from '../frosset/kravinnhold.ts';
 import {
   KRAVSPOR,
   SPOR,
