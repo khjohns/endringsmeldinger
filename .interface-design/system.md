@@ -285,7 +285,10 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   fordi løsningen ikke vet det (oppdragsgiver 31.10, #1402).
 - **Hvordan løsningen virker, forklares ikke ved feltene.** Setninger som «Teksten tolkes
   ikke» og «Innholdet vurderes ikke» står ikke i flaten. Slike forklaringer hører på en
-  egen side om løsningen eller i et infotips (oppdragsgiver 01.11, #1402).
+  egen side om løsningen eller i et infotips (oppdragsgiver 01.11, #1402). Setninger om hva
+  løsningen ikke avgjør, som «Om varselet kom i tide, avgjør partene», står ikke i appen i det
+  hele tatt, heller ikke i et infotips (oppdragsgiver 08.11, #1663: «slik informasjon kan
+  fjernes. Høres generelt ikke hjemme i appen»).
 - **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
   «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
   lesingen. Linjen nederst i vinduet vises bare når panelet er ute av syne.

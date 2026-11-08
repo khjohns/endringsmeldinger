@@ -329,9 +329,47 @@ export function kodepunkterMedDeltGlyf(): Set<number> {
  */
 const UTEN_SUBSTITUSJON = { ccmp: false, liga: false, clig: false, calt: false, rlig: false };
 
-/** fontkit der mykt bindestrek settes med glyfen skriften har for det. */
+type Delmengde = { glyf: Uint8Array[]; offset: number; _addGlyph(gid: number): number };
+
+/**
+ * Delmengden av en TrueType-skrift med hver glyf fylt til partall lengde. fontkit 1.1.1
+ * skriver `loca` i delmengden med halverte forskyvninger, men fyller ikke en glyf med odde
+ * lengde. Da mister glyfen den siste byten, glyfene etter den får feil start, og poppler
+ * tegner dem ikke (#1672). Noto Sans og Noto Sans Math har lang `loca` og mange glyfer med
+ * odde lengde. En TrueType-glyf kan ha fyllbytes etter seg. Endringen går gjennom en privat
+ * del av fontkit, så delmengden kaster hvis den ikke finnes.
+ */
+function medPartallsglyfer(font: fontkit.Font) {
+  if (!('glyf' in (font as unknown as { directory: { tables: object } }).directory.tables)) return;
+  const lag = font.createSubset.bind(font);
+  font.createSubset = () => {
+    const delmengde = lag() as unknown as Delmengde;
+    const leggTil = delmengde._addGlyph?.bind(delmengde);
+    if (typeof leggTil !== 'function')
+      throw new Error('delmengden fra fontkit har ikke lenger _addGlyph');
+    delmengde._addGlyph = (gid) => {
+      const ny = leggTil(gid);
+      const glyf = delmengde.glyf[ny];
+      if (glyf.length % 2) {
+        // fontkit skriver bare bufferne fra sin egen Buffer-klasse.
+        const fylt = (glyf.constructor as typeof Buffer).alloc(glyf.length + 1);
+        fylt.set(glyf);
+        delmengde.glyf[ny] = fylt;
+        delmengde.offset += 1;
+      }
+      return ny;
+    };
+    return delmengde as unknown as ReturnType<typeof lag>;
+  };
+}
+
+/**
+ * fontkit der mykt bindestrek settes med glyfen skriften har for det, og der delmengden av en
+ * TrueType-skrift har glyfer med partall lengde.
+ */
 function medBindestrek(data: Uint8Array) {
   const font = fontkit.create(data);
+  medPartallsglyfer(font);
   const motor = (font as unknown as { _layoutEngine: { isDefaultIgnorable(k: number): boolean } })
     ._layoutEngine;
   const usynlig = motor.isDefaultIgnorable.bind(motor);
