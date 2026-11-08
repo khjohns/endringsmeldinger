@@ -93,7 +93,7 @@
 /* ── Mørkt tema ──
  * theme.css bytter selv tokenene på :root.dark, så bindingene over gjelder
  * begge modi. Bare `vekt-dim` trenger en egen verdi: i mørk modus er --brand
- * den dempede tonen og --accent den lyse (motsatt av lys modus).
+ * den dempede tonen og --brand-contrast den lyse (motsatt av lys modus).
  */
 .dark {
   --koe-vekt-dim: var(--brand);

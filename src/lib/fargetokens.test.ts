@@ -12,12 +12,12 @@
  * **Kontrast.** Fargeparene leses fra `theme.css` i lys og mørk modus og prøves mot
  * WCAG 2.1 AA (1.4.3 og 1.4.11): 4,5:1 for tekst og 3:1 for fokusmarkeringen. En farge
  * med alfa legges over flaten den står på. Parene er blekknivåene på flatene og
- * statusfargene på sin egen bakgrunn. `--warning`, `--gold`, `--draft` og
- * `--control-border` holder ikke kravet ennå og står i #1258.
+ * statusfargene på sin egen bakgrunn. `--warning`, `--draft` og `--control-border`
+ * holder ikke kravet ennå og står i #1258.
  *
  * Varden har egne tokens i `.tema-varden` (Blekk, #1391), lagt over lys modus, og i
- * `:root.dark .tema-varden` for mørk modus (#1465). Der prøves også utkastfargen på sin
- * bakgrunn, feltkanten på flatene, teksten på primærknappen og teksten og
+ * `:root.dark .tema-varden` for mørk modus (#1465). Der prøves også blekket og
+ * fokusmarkeringen på overleggsflaten, utkastfargen på sin bakgrunn, feltkanten på flatene, teksten på primærknappen og teksten og
  * fokusmarkeringen i det mørke panelet.
  */
 
@@ -77,7 +77,7 @@ export function tokenverdier(css: string): Record<Modus, Record<string, string>>
     return verdier;
   };
   const lys = les(/(?<=^|\})\s*:root\s*\{([^}]*)\}/g);
-  const mørk = { ...lys, ...les(/:root\.dark\s*,\s*\.mockup\.dark\s*\{([^}]*)\}/g) };
+  const mørk = { ...lys, ...les(/:root\.dark\s*\{([^}]*)\}/g) };
   const varden = les(/(?<=^|\})\s*\.tema-varden\s*\{([^}]*)\}/g);
   return {
     lys,
@@ -133,15 +133,8 @@ export function kontrast(a: Rgba, b: Rgba): number {
 }
 
 const BLEKK = ['--ink', '--ink-2', '--ink-3', '--ink-4'];
-const FLATER = [
-  '--canvas',
-  '--surface',
-  '--surface-warm',
-  '--surface-inset',
-  '--surface-selected',
-  '--overlay-1',
-];
-const STATUS = ['--danger', '--success', '--info', '--green'];
+const FLATER = ['--canvas', '--surface', '--surface-warm', '--surface-inset', '--surface-selected'];
+const STATUS = ['--danger', '--success'];
 
 /** Parene under kravet, som «modus: forgrunn på bakgrunn (forholdstall)». */
 export function brudd(verdier: Record<Modus, Record<string, string>>): string[] {
@@ -159,6 +152,8 @@ export function brudd(verdier: Record<Modus, Record<string, string>>): string[] 
     for (const s of STATUS) prov(modus, s, `${s}-bg`, 4.5, '--surface');
   }
   for (const modus of ['varden', 'varden-mørk'] as const) {
+    for (const fg of BLEKK) prov(modus, fg, '--overlay-1', 4.5);
+    prov(modus, '--control-focus', '--overlay-1', 3);
     prov(modus, '--draft', '--draft-bg', 4.5);
     prov(modus, '--danger', '--danger-bg', 4.5);
     prov(modus, '--on-brand', '--brand', 4.5);
@@ -338,9 +333,10 @@ describe('kontrollene i vaktene', () => {
         ':root {\n  --ink: #000000; --ink-2: #000000; --ink-3: #000000; --ink-4: #777777;',
         '  --control-focus: var(--ink);',
         ...FLATER.map((f) => `  ${f}: #ffffff;`),
+        '  --overlay-1: #ffffff;',
         ...STATUS.map((s) => `  ${s}: #000000; ${s}-bg: rgba(0, 0, 0, 0.1);`),
         '}',
-        ':root.dark,\n.mockup.dark {\n  --ink-4: #ffffff;\n  --canvas: #000000;\n}',
+        ':root.dark {\n  --ink-4: #ffffff;\n  --canvas: #000000;\n}',
         '.tema-varden {\n  --draft: #999999; --draft-bg: #ffffff; --control-border-color: #eeeeee;',
         '  --sidebar-bg: #000000; --sidebar-active: #000000; --sidebar-text: #ffffff;',
         '  --sidebar-muted: #444444; --sidebar-focus: #ffffff;',
