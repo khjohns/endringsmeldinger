@@ -79,4 +79,14 @@ describe('postene i svaret', () => {
   it('svaret har ingen felt for rigg og drift, som ikke er i kjernens format (#1171)', () => {
     expect(JSON.stringify(svar(medKrav(125_000), { beloep: 'hele' }))).not.toMatch(/rigg_/);
   });
+
+  it('utdypningen er bare teksten BH skrev: tom begrunnelse gir ingen utdypning (KA-U41, bindende i KA-U43)', () => {
+    const journal = medKrav(125_000);
+    expect(svar(journal, { beloep: 'hele', begrunnelse: '   ' }).svar[0]).not.toHaveProperty(
+      'utdypning'
+    );
+    expect(
+      svar(journal, { beloep: 'hele', begrunnelse: '  Godtatt etter befaring. ' }).svar[0].utdypning
+    ).toBe('Godtatt etter befaring.');
+  });
 });
