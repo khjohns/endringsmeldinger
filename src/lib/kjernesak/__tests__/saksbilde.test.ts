@@ -1,7 +1,7 @@
 /**
  * Saksbildet for en TS-sak (#665, #1701): tittelen fra journalen og betegnelsen per spor fra
- * `visning`, med teksten i MM-U30. Journalen er skrevet av kjernen selv, så forventningene er
- * kjernens egne.
+ * `visning`. Journalen er skrevet av kjernen selv, og betegnelsen er den kjernen utleder for et
+ * fremsatt krav uten svar (MM-U30).
  */
 
 import { MERKING } from './provejournal';
@@ -84,13 +84,13 @@ describe('saksbildet for en TS-sak', () => {
     expect(bildeAv(journal).bilde.tittel).toBe('Ny peling');
   });
 
-  it('tar betegnelsen per spor fra visningen, med teksten i MM-U30', () => {
+  it('tar betegnelsen per spor fra visningen', () => {
     const { bilde, vist } = bildeAv(journal);
     for (const s of bilde.spor)
       expect(s.betegnelse?.kode ?? null).toBe(vist.spor[s.spor].betegnelse);
     expect(bilde.spor.map((s) => s.betegnelse)).toEqual([
-      { kode: 'venter_paa_svar', tekst: 'Kravet venter på byggherrens svar' },
-      { kode: 'venter_paa_svar', tekst: 'Kravet venter på byggherrens svar' },
+      { kode: 'venter_paa_svar' },
+      { kode: 'venter_paa_svar' },
       null,
     ]);
   });
