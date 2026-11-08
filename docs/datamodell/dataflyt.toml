@@ -377,7 +377,7 @@ endepunkt = "Svaret fra Catenda"
 kode = [
     "server/jobber.ts:kjoerEnJobb",
 ]
-data = "ID-en til topicen (`guid`), med bindestreker."
+data = "ID-en til topicen (`guid`), i samme form som topicene fra webhooken, med `koe_api.kvitter_topic`."
 
 [[flyt]]
 id = "C25"
@@ -409,6 +409,18 @@ kode = [
 data = "Dokumentene med navnet i mappen eller roten av biblioteket, før og etter opplastingen. Lagres ikke."
 
 [[flyt.steg]]
+fra = "koe.leveringsoppdrag"
+til = ["catenda:dokument"]
+endepunkt = "POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items"
+kode = [
+    "server/jobber.ts:kjoerEnJobb",
+    "server/jobber.ts:lever",
+    "server/catenda.ts:dokumentleverandoer",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = "Målet (prosjekt, bibliotek og mappe) og navnene på dokumentene, fra oppdraget. Første forsøk lager PDF-en av brevet fra oppdraget."
+
+[[flyt.steg]]
 fra = "koe.brevdokument"
 til = ["catenda:dokument"]
 endepunkt = "POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items"
@@ -435,7 +447,7 @@ data = "Innholdet i hvert vedlegg brevet binder, med navnet og `failOnDocumentEx
 [[flyt.steg]]
 fra = "catenda:dokumentreferanse"
 til = ["appen"]
-endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references"
+endepunkt = "GET /opencde/bcf/3.0/projects/{catenda_board_id}/topics/{catenda_topic_id}/document_references"
 kode = [
     "server/jobber.ts:kjoerEnJobb",
     "server/jobber.ts:lever",
@@ -445,33 +457,53 @@ kode = [
 data = "Dokumentene topicen viser til (`document_guid`), så en referanse ikke lages to ganger. Lagres ikke."
 
 [[flyt.steg]]
-fra = "koe.jobb"
+fra = "koe.sak_catenda_topic"
 til = ["catenda:dokumentreferanse"]
-endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references"
+endepunkt = "POST /opencde/bcf/3.0/projects/{catenda_board_id}/topics/{catenda_topic_id}/document_references"
 kode = [
     "server/jobber.ts:kjoerEnJobb",
     "server/jobber.ts:lever",
     "server/catenda.ts:dokumentleverandoer",
     "server/catenda.ts:CatendaOAuth",
 ]
-data = "Dokument-ID-en fra biblioteket (`document_guid`), på topicen og boardet i jobben."
+data = "Dokument-ID-en fra biblioteket (`document_guid`), kvittert i `koe.leveringskvittering` eller `koe.vedleggskvittering`, på topicen og boardet saken er koblet til."
 
 [[flyt.steg]]
 fra = "catenda:dokument"
-til = ["koe.vedleggskvittering", "koe.leveringskvittering"]
+til = ["koe.vedleggskvittering"]
 endepunkt = "Svaret fra Catenda"
 kode = [
     "server/jobber.ts:kjoerEnJobb",
     "server/jobber.ts:lever",
 ]
-data = "ID-en til dokumentet, funnet eller lastet opp."
+data = "ID-en til dokumentet for et vedlegg, funnet eller lastet opp, med `koe_api.kvitter_vedlegg` og operasjonen `dokument`. Prosedyren sletter da innholdet i `koe.vedlegg` (LV-U12)."
 
 [[flyt.steg]]
 fra = "catenda:dokumentreferanse"
-til = ["koe.vedleggskvittering", "koe.leveringskvittering"]
+til = ["koe.vedleggskvittering"]
 endepunkt = "Svaret fra Catenda"
 kode = [
     "server/jobber.ts:kjoerEnJobb",
     "server/jobber.ts:lever",
 ]
-data = "ID-en til referansen på topicen, funnet eller laget."
+data = "ID-en til referansen for et vedlegg, funnet eller laget, med `koe_api.kvitter_vedlegg` og operasjonen `dokumentreferanse`."
+
+[[flyt.steg]]
+fra = "catenda:dokument"
+til = ["koe.leveringskvittering"]
+endepunkt = "Svaret fra Catenda"
+kode = [
+    "server/jobber.ts:kjoerEnJobb",
+    "server/jobber.ts:lever",
+]
+data = "ID-en til dokumentet for brevet, funnet eller lastet opp, med `koe_api.kvitter_dokument`."
+
+[[flyt.steg]]
+fra = "catenda:dokumentreferanse"
+til = ["koe.leveringskvittering"]
+endepunkt = "Svaret fra Catenda"
+kode = [
+    "server/jobber.ts:kjoerEnJobb",
+    "server/jobber.ts:lever",
+]
+data = "ID-en til referansen for brevet, funnet eller laget, med `koe_api.kvitter_levering`, som avslutter leveringen."

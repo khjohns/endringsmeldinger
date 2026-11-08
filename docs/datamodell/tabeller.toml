@@ -1,7 +1,7 @@
 # Tabellregisteret (spor M, fase 1a). Kilden for tabellbeskrivelsen til IKT.
 #
 # Rett her, ikke i Excel-fila eller tabeller.md. Begge lages av
-#   /tmp/venv/bin/python docs/verktoy/datamodell.py
+#   python3 docs/verktoy/datamodell.py
 # og testene i verktoy/tester/test_datamodell/ feiler når de er utdaterte, når
 # en tabell mangler oppføring, eller når en oppføring mangler tabell.
 #

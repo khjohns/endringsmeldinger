@@ -333,7 +333,7 @@ Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En 
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` og triggeren `koe.leveringsoppdrag_levering`, og endres av `koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.kvitter_levering`, `koe_api.registrer_jobbfeil` og driftsverktøyet `koe_api.start_jobb_paa_nytt`. |
-| Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: til Catenda i C24, C25 (arket Dataflyt). |
+| Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: til Catenda i C24 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Sakstittelen kan inneholde personopplysninger. |
@@ -367,7 +367,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661). |
-| Data fra Catenda | Nei, men oppdraget gjelder en levering til Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Data fra Catenda | Nei, men oppdraget gjelder en levering til Catenda. Dataflyt: til Catenda i C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id); unik (id, prosjekt_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.(leveringsoppdrag_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.(leveringsoppdrag_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.(leveringsoppdrag_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.vedleggskvittering.(leveringsoppdrag_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
@@ -571,7 +571,7 @@ Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til: t
 | Type | grunndata |
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | `koe_api.kvitter_topic`, kalt av jobbkjøreren i `server/jobber.ts` etter at topicen er laget i Catenda (#741), og `koe_api.koble_topic`, kalt bare fra `koe_api.opprett_sak` når saken opprettes fra en topic i innboksen (W-1b.1, #819). |
-| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: fra Catenda i C22, C24 (arket Dataflyt). |
+| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: fra Catenda i C22, C24; til Catenda i C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (sak_id); unik (catenda_topic_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.sak_catenda_topic_sak_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |
