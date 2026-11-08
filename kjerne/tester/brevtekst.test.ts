@@ -7693,6 +7693,69 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     );
   });
 
+  it('en kravpost som skifter til regningsarbeid eller justerte enhetspriser, er varselet i versjonen hun skifter i, men ikke når hun har hatt oppgjørsformen før (VS-U48)', () => {
+    // Arbeidsvalget for VS-U48 (oppdragsgiver 08.11, PR #1674): posten er varsel for seg når
+    // hun ikke hadde oppgjørsformen i en tidligere versjon, enten hun er ny eller har skiftet.
+    const s = sakMedKrav();
+    const varselP1 =
+      'P1 Ny fundamentering: TE krever at P1 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang';
+    const varselP2 =
+      'TE krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang';
+    // P1 hadde fast sum i første versjon og skifter til regningsarbeid; P2 er ny.
+    const andre = laast(
+      s.send(
+        'TE',
+        krav([{ ...regning, betegnelse: 'P1', beskrivelse: 'Ny fundamentering' }, regning])
+      )
+    ).join(' ');
+    expect(andre).toContain(varselP1);
+    expect(andre).toContain(varselP2);
+    // P1 skifter tilbake til fast sum og så til regningsarbeid igjen: hun har hatt
+    // oppgjørsformen før, så varselet dobles ikke.
+    s.send(
+      'TE',
+      krav([
+        { ...post1, beloep: 125000 },
+        { ...regning, betegnelse: 'P2' },
+      ])
+    );
+    const fjerde = laast(
+      s.send(
+        'TE',
+        krav([
+          { ...regning, betegnelse: 'P1', beskrivelse: 'Ny fundamentering' },
+          { ...regning, betegnelse: 'P2' },
+        ])
+      )
+    ).join(' ');
+    expect(fjerde).toContain('P1 Ny fundamentering: TE krever at P1 gjøres opp som regningsarbeid');
+    expect(fjerde).not.toContain('Kravet er varsel');
+    // Enhetspriser uten justering i én versjon og med justering i den neste: varselet etter
+    // punkt 34.3.3 står i versjonen der justeringen kreves.
+    s.send(
+      'TE',
+      krav([
+        { ...post1, beloep: 125000 },
+        { ...regning, betegnelse: 'P2' },
+        { ...justert, justert: false },
+      ])
+    );
+    const sjette = laast(
+      s.send(
+        'TE',
+        krav([
+          { ...post1, beloep: 125000 },
+          { ...regning, betegnelse: 'P2' },
+          { ...justert, betegnelse: 'P3' },
+        ])
+      )
+    ).join(' ');
+    expect(sjette).toContain(
+      'TE krever at P3 gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2. Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.'
+    );
+    expect(sjette).not.toContain('Kravet er varsel før regningsarbeidet');
+  });
+
   it('enhetspriser uten justering er ikke et varsel etter punkt 34.3.3', () => {
     const s = sakMedKrav();
     const tekst = laast(
