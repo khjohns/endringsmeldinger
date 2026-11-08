@@ -2,11 +2,13 @@
 
 Relasjonsregisteret sammenliknes med katalog.json, øyeblikksbildet av basen i SQL
 Server bygget fra migrasjonene. Hver kodereferanse i dataflyten må være deklarert i
-TS-fila den viser til. Testene viser at registrene beskriver koden og skjemaet, ikke
-at koden gjør det riktige, og ingen av dem finner et kall til Catenda som mangler en pil.
+TS-fila den viser til, og hvert kall til Catenda i server/ må ha en pil med samme
+metode og sti (#1718). Testene viser at registrene beskriver koden og skjemaet, ikke
+at koden gjør det riktige.
 """
 
 import copy
+import re
 
 import pytest
 
@@ -246,6 +248,94 @@ def test_ts_deklarasjonene_leses_utenom_kommentarer_og_malstrenger():
 def test_dataflyt_bruker_samme_relasjonsmodul_som_datamodell():
     """#635, #861: lasteren gir samme relasjonsmodul i samme omfang."""
     assert df.rel is dm.rel
+
+
+# ---------------------------------------------------------------------------
+# Kallene til Catenda uten pil (#1718)
+# ---------------------------------------------------------------------------
+
+CATENDA_TS = (df.ROT / df.CATENDAKLIENT).read_text(encoding="utf-8")
+
+
+def _serverfiler(**endret: str) -> dict[str, str]:
+    filer = df._serverfiler()
+    filer.update({f"server/{navn.replace('__', '.')}": tekst for navn, tekst in endret.items()})
+    return filer
+
+
+def _catenda_med(metode: str) -> str:
+    """catenda.ts med `metode` lagt til nederst i CatendaOAuth."""
+    slutt = CATENDA_TS.index("\n}\n", CATENDA_TS.index("export class CatendaOAuth"))
+    return CATENDA_TS[:slutt] + "\n" + metode + CATENDA_TS[slutt:]
+
+
+def test_hvert_kall_til_catenda_i_serveren_har_en_pil(kilder):
+    assert df.kall_uten_pil(kilder["dataflyt"]) == []
+
+
+def test_vakta_finner_kallene_bak_hvert_forespoersel_i_klienten():
+    """Hvert `forespoersel(` i klienten gir minst ett kall, også når stien er en parameter
+    som følges til kallerne, i fila og i server/registrering.ts."""
+    kall, feil = df.catendakall()
+    assert feil == []
+    steder = {hvor for _, _, hvor in kall}
+    assert len(steder) == len(re.findall(r"(?<!function )forespoersel\(", CATENDA_TS)) == 12
+    stier = {(metode, sti) for metode, sti, _ in kall}
+    assert {
+        ("POST", "/oauth2/token"),
+        ("GET", "/v2/projects"),
+        ("GET", "/v2/projects/{}/teams"),
+        ("GET", "/opencde/bcf/3.0/projects/{}"),
+        ("GET", "/opencde/bcf/3.0/projects/{}/topics/{}"),
+        ("POST", "/v2/projects/{}/libraries/{}/items"),
+    } <= stier
+
+
+def test_vakta_melder_et_nytt_kall_uten_pil(kilder):
+    filer = _serverfiler(catenda__ts=_catenda_med(
+        "  async slettTopic(boardId: string, topicId: string, token: string): Promise<void> {\n"
+        "    await forespoersel(this.#oppsett, 'POST', `${topicsti(boardId, topicId)}/slett`, { token });\n"
+        "  }"
+    ))
+    assert df.kall_uten_pil(kilder["dataflyt"], filer) == [
+        "server/catenda.ts:slettTopic: POST /opencde/bcf/3.0/projects/{}/topics/{}/slett har ingen pil i dataflyt.toml"
+    ]
+
+
+def test_vakta_melder_en_ny_kaller_av_samling_i_en_annen_fil(kilder):
+    """Stien i `samling` er en parameter, så kallet avgjøres hos kalleren."""
+    filer = _serverfiler(ny__ts=(
+        "export async function modeller(oauth: CatendaOAuth, token: string, p: string) {\n"
+        "  return oauth.samling(`/v2/projects/${p}/ifc`, token);\n"
+        "}\n"
+    ))
+    assert df.kall_uten_pil(kilder["dataflyt"], filer) == [
+        "server/catenda.ts:samling: GET /v2/projects/{}/ifc har ingen pil i dataflyt.toml"
+    ]
+
+
+def test_vakta_melder_et_kall_naar_pilen_tas_ut(kilder):
+    endret = copy.deepcopy(kilder["dataflyt"])
+    c26 = next(f for f in endret["flyt"] if f["id"] == "C26")
+    c26["steg"] = [s for s in c26["steg"] if s["endepunkt"] != "GET /v2/projects (sidevis)"]
+    assert df.kall_uten_pil(endret) == ["server/catenda.ts:samling: GET /v2/projects har ingen pil i dataflyt.toml"]
+
+
+def test_vakta_melder_en_sti_den_ikke_kan_avgjoere(kilder):
+    filer = _serverfiler(catenda__ts=_catenda_med(
+        "  async noe(token: string): Promise<unknown> {\n"
+        "    return forespoersel(this.#oppsett, 'GET', stiFraMiljoe(), { token });\n"
+        "  }"
+    ))
+    feil = df.kall_uten_pil(kilder["dataflyt"], filer)
+    assert feil == ["server/catenda.ts:noe: stien 'stiFraMiljoe()' kan ikke avgjøres (stiFraMiljoe())"], feil
+
+
+def test_vakta_melder_fetch_utenfor_klienten(kilder):
+    filer = _serverfiler(ny__ts="export async function hent() {\n  return fetch('https://api.catenda.com/v2/user');\n}\n")
+    assert df.kall_uten_pil(kilder["dataflyt"], filer) == [
+        "server/ny.ts: fetch utenfor forespoersel i server/catenda.ts og utenfor ANDRE_TJENESTER"
+    ]
 
 
 def test_vakta_melder_pil_som_ikke_berorer_catenda(kilder, tabellregister):

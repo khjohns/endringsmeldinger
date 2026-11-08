@@ -6,7 +6,9 @@
 # feiler når
 #   - en kodereferanse ikke er deklarert i fila
 #   - en pil går til noe som verken er en tabell, en Catenda-ressurs eller «appen»
-# Ingen test finner et kall til Catenda i TS-serveren som mangler en pil.
+#   - et kall til Catenda i server/ ikke har en pil med samme metode og sti
+#     (`kall_uten_pil` i docs/verktoy/dataflyt.py). Vakta ser metoden og stien,
+#     ikke hvilken flyt kallet hører til.
 #
 # Én flyt er én handling. Hvert steg er en pil fra `fra` til hvert mål i `til`.
 # `kode` er én kallkjede, fra der handlingen starter til klienten, på formen
@@ -27,8 +29,16 @@ id = "webhook"
 navn = "webhook-varsel"
 
 [[catenda]]
+id = "token"
+navn = "tilgangstoken"
+
+[[catenda]]
 id = "bruker"
 navn = "innlogget bruker"
+
+[[catenda]]
+id = "prosjekt"
+navn = "brukerens prosjekter"
 
 [[catenda]]
 id = "medlemmer"
@@ -507,3 +517,92 @@ kode = [
     "server/jobber.ts:lever",
 ]
 data = "ID-en til referansen for brevet, funnet eller laget, med `koe_api.kvitter_levering`, som avslutter leveringen."
+
+# ---------------------------------------------------------------------------
+# Innloggingen i TS-serveren
+# ---------------------------------------------------------------------------
+
+[[flyt]]
+id = "C26"
+navn = "Innloggingen med Catenda i TS-serveren"
+retning = "inn"
+utloses_av = """
+Tilbakekallet fra Catenda til `GET /api/auth/catenda/callback` i TS-serveren, med koden og
+`state` fra innloggingsforsøket (F0b-5a, #659)."""
+beskrivelse = """
+Koden byttes mot brukerens token (`authorization_code`), og med det tokenet leses
+brukeren, prosjektene brukeren er med i, og medlemslisten for hvert av dem som er
+koblet til et prosjekt i appen (F0b-5b, #638). Identiteten løses med
+`koe_api.catenda_identitet` før medlemskapet, og medlemskapet blir inaktivt i de
+koblede prosjektene som ikke står i prosjektlisten (DL-U8, DL-U9). Tidspunktet for
+listene er basens klokke før hentingen (B-04 punkt 1). Feiler et ledd, opprettes
+ingen sesjon. Kallene går med brukerens token, ikke integrasjonens, og ikke gjennom
+brokeren (#715)."""
+funn = []
+belegg = "L 08.11: `tilbakekall`, `CATENDA`, `medlemskapVedInnlogging` og `catendaIdentitet` i `server/innlogging.ts`, `byttKode`, `bruker`, `prosjekter` og `medlemmer` i `server/catenda.ts` og `synkroniserProsjekt`, `synkroniserMedlemskap` og `deaktiverVedInnlogging` i `server/medlemskap.ts`. K 08.11: tabellene prosedyrene skriver, i `sys.dm_sql_referenced_entities` i en testbase bygget fra migrasjonene."
+
+[[flyt.steg]]
+fra = "catenda:token"
+til = ["appen"]
+endepunkt = "POST /oauth2/token"
+kode = [
+    "server/innlogging.ts:tilbakekall",
+    "server/innlogging.ts:CATENDA",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = "Brukerens token, byttet mot koden fra tilbakekallet (`grant_type=authorization_code`). Brukes til de tre kallene under og lagres ikke."
+
+[[flyt.steg]]
+fra = "catenda:bruker"
+til = ["koe.app_users", "koe.app_identities"]
+endepunkt = "GET /v2/user"
+kode = [
+    "server/innlogging.ts:tilbakekall",
+    "server/innlogging.ts:CATENDA",
+    "server/innlogging.ts:medlemskapVedInnlogging",
+    "server/innlogging.ts:catendaIdentitet",
+]
+data = """
+Subjektet i `catendaId()`-formen, e-posten og navnet, til `koe_api.catenda_identitet`,
+som løser identiteten med `koe.resolve_identity`. Brukerraden får navnet og
+e-posten."""
+
+[[flyt.steg]]
+fra = "catenda:prosjekt"
+til = ["koe.app_project_memberships", "koe.app_membership_absences"]
+endepunkt = "GET /v2/projects (sidevis)"
+kode = [
+    "server/innlogging.ts:tilbakekall",
+    "server/innlogging.ts:CATENDA",
+    "server/innlogging.ts:medlemskapVedInnlogging",
+    "server/medlemskap.ts:deaktiverVedInnlogging",
+]
+data = """
+ID-ene til prosjektene brukeren er med i. `koe_api.koblede_prosjekter` finner de
+koblede prosjektene blant dem, og `koe_api.deaktiver_ved_innlogging` gjør
+medlemskapet inaktivt og fører fraværet i de koblede prosjektene som ikke står i
+listen."""
+
+[[flyt.steg]]
+fra = "catenda:medlemmer"
+til = [
+    "koe.app_project_memberships",
+    "koe.app_membership_sync",
+    "koe.app_membership_absences",
+    "koe.app_users",
+    "koe.app_identities",
+]
+endepunkt = "GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis), for hvert koblet prosjekt"
+kode = [
+    "server/innlogging.ts:tilbakekall",
+    "server/innlogging.ts:CATENDA",
+    "server/innlogging.ts:medlemskapVedInnlogging",
+    "server/medlemskap.ts:synkroniserProsjekt",
+    "server/medlemskap.ts:synkroniserKobling",
+    "server/medlemskap.ts:synkroniserMedlemskap",
+]
+data = """
+Hele medlemslisten med subjekt, e-post, navn og rolle, til
+`koe_api.synkroniser_medlemskap`. Prosedyren løser identiteten for hvert medlem med
+`koe.resolve_identity`, skriver medlemskapet og tidspunktet for listen, og gjør
+medlemmene som ikke står der, inaktive."""

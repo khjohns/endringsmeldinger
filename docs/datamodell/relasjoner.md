@@ -437,7 +437,9 @@ Hver pil er nummerert med flyten og steget, og viser siste ledd i kallkjeden: ko
 flowchart LR
     subgraph g0["Catenda"]
         c_webhook["webhook-varsel"]
+        c_token["tilgangstoken"]
         c_bruker["innlogget bruker"]
+        c_prosjekt["brukerens prosjekter"]
         c_medlemmer["prosjektmedlemmer"]
         c_team["team og teammedlemmer"]
         c_topic["topics"]
@@ -446,6 +448,11 @@ flowchart LR
         c_dokumentreferanse["dokumentreferanser på topicen"]
     end
     subgraph g1["SQL Server"]
+        t_koe_app_identities["koe.app_identities"]
+        t_koe_app_membership_absences["koe.app_membership_absences"]
+        t_koe_app_membership_sync["koe.app_membership_sync"]
+        t_koe_app_project_memberships["koe.app_project_memberships"]
+        t_koe_app_users["koe.app_users"]
         t_koe_hendelse["koe.hendelse"]
         t_koe_innkommende_behandling["koe.innkommende_behandling"]
         t_koe_innkommende_forsoek["koe.innkommende_forsoek"]
@@ -478,6 +485,16 @@ flowchart LR
     c_dokumentreferanse -->|"C25.8 lever"| t_koe_vedleggskvittering
     c_dokument -->|"C25.9 lever"| t_koe_leveringskvittering
     c_dokumentreferanse -->|"C25.10 lever"| t_koe_leveringskvittering
+    c_token -->|"C26.1 CatendaOAuth"| t_appen
+    c_bruker -->|"C26.2 catendaIdentitet"| t_koe_app_users
+    c_bruker -->|"C26.2 catendaIdentitet"| t_koe_app_identities
+    c_prosjekt -->|"C26.3 deaktiverVedInnlogging"| t_koe_app_project_memberships
+    c_prosjekt -->|"C26.3 deaktiverVedInnlogging"| t_koe_app_membership_absences
+    c_medlemmer -->|"C26.4 synkroniserMedlemskap"| t_koe_app_project_memberships
+    c_medlemmer -->|"C26.4 synkroniserMedlemskap"| t_koe_app_membership_sync
+    c_medlemmer -->|"C26.4 synkroniserMedlemskap"| t_koe_app_membership_absences
+    c_medlemmer -->|"C26.4 synkroniserMedlemskap"| t_koe_app_users
+    c_medlemmer -->|"C26.4 synkroniserMedlemskap"| t_koe_app_identities
 ```
 
 ### Ut til Catenda
@@ -529,18 +546,18 @@ flowchart LR
 
 | Tabell | Får data fra Catenda i | Sender data til Catenda i | Kvittering for kall i |
 | --- | --- | --- | --- |
-| `koe.app_users` | — | — | — |
-| `koe.app_identities` | — | — | — |
+| `koe.app_users` | C26 | — | — |
+| `koe.app_identities` | C26 | — | — |
 | `koe.entra_tenant` | — | — | — |
 | `koe.rolle` | — | — | — |
 | `koe.stillingstittel` | — | — | — |
 | `koe.hr_kopi` | — | — | — |
 | `koe.projects` | — | — | — |
-| `koe.app_project_memberships` | — | — | — |
+| `koe.app_project_memberships` | C26 | — | — |
 | `koe.catenda_contract_teams` | C18, C19 | — | — |
 | `koe.catenda_project_configs` | — | — | — |
-| `koe.app_membership_absences` | — | — | — |
-| `koe.app_membership_sync` | — | — | — |
+| `koe.app_membership_absences` | C26 | — | — |
+| `koe.app_membership_sync` | C26 | — | — |
 | `koe.sak_metadata` | C22 | — | — |
 | `koe.sak_kode` | — | — | — |
 | `koe.hendelse` | C22 | — | — |
@@ -677,4 +694,19 @@ Integrasjonen lager topicen på boardet med sakens tittel og en lenke til saken,
 | C25.10 | Catenda: dokumentreferanser på topicen | koe.leveringskvittering | Svaret fra Catenda | [`kjoerEnJobb`](../../server/jobber.ts) → [`lever`](../../server/jobber.ts) | ID-en til referansen for brevet, funnet eller laget, med `koe_api.kvitter_levering`, som avslutter leveringen. |
 
 **Funn:** —. **Belegg:** L 08.11: `kjoerEnJobb` og `lever` i `server/jobber.ts`, `dokumentleverandoer`, `finnDokument`, `lastOppDokument`, `dokumentreferanser` og `opprettDokumentreferanse` i `server/catenda.ts`, og `koe_api.kvitter_vedlegg`, `koe_api.kvitter_dokument` og `koe_api.kvitter_levering` i `database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql`.
+
+### C26 Innloggingen med Catenda i TS-serveren
+
+**Retning:** inn. **Utløses av:** Tilbakekallet fra Catenda til `GET /api/auth/catenda/callback` i TS-serveren, med koden og `state` fra innloggingsforsøket (F0b-5a, #659).
+
+Koden byttes mot brukerens token (`authorization_code`), og med det tokenet leses brukeren, prosjektene brukeren er med i, og medlemslisten for hvert av dem som er koblet til et prosjekt i appen (F0b-5b, #638). Identiteten løses med `koe_api.catenda_identitet` før medlemskapet, og medlemskapet blir inaktivt i de koblede prosjektene som ikke står i prosjektlisten (DL-U8, DL-U9). Tidspunktet for listene er basens klokke før hentingen (B-04 punkt 1). Feiler et ledd, opprettes ingen sesjon. Kallene går med brukerens token, ikke integrasjonens, og ikke gjennom brokeren (#715).
+
+| Pil | Fra | Til | Endepunkt | Kode | Data |
+| --- | --- | --- | --- | --- | --- |
+| C26.1 | Catenda: tilgangstoken | Appen, lagres ikke | POST /oauth2/token | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Brukerens token, byttet mot koden fra tilbakekallet (`grant_type=authorization_code`). Brukes til de tre kallene under og lagres ikke. |
+| C26.2 | Catenda: innlogget bruker | koe.app_users, koe.app_identities | GET /v2/user | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`medlemskapVedInnlogging`](../../server/innlogging.ts) → [`catendaIdentitet`](../../server/innlogging.ts) | Subjektet i `catendaId()`-formen, e-posten og navnet, til `koe_api.catenda_identitet`, som løser identiteten med `koe.resolve_identity`. Brukerraden får navnet og e-posten. |
+| C26.3 | Catenda: brukerens prosjekter | koe.app_project_memberships, koe.app_membership_absences | GET /v2/projects (sidevis) | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`medlemskapVedInnlogging`](../../server/innlogging.ts) → [`deaktiverVedInnlogging`](../../server/medlemskap.ts) | ID-ene til prosjektene brukeren er med i. `koe_api.koblede_prosjekter` finner de koblede prosjektene blant dem, og `koe_api.deaktiver_ved_innlogging` gjør medlemskapet inaktivt og fører fraværet i de koblede prosjektene som ikke står i listen. |
+| C26.4 | Catenda: prosjektmedlemmer | koe.app_project_memberships, koe.app_membership_sync, koe.app_membership_absences, koe.app_users, koe.app_identities | GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis), for hvert koblet prosjekt | [`tilbakekall`](../../server/innlogging.ts) → [`CATENDA`](../../server/innlogging.ts) → [`medlemskapVedInnlogging`](../../server/innlogging.ts) → [`synkroniserProsjekt`](../../server/medlemskap.ts) → [`synkroniserKobling`](../../server/medlemskap.ts) → [`synkroniserMedlemskap`](../../server/medlemskap.ts) | Hele medlemslisten med subjekt, e-post, navn og rolle, til `koe_api.synkroniser_medlemskap`. Prosedyren løser identiteten for hvert medlem med `koe.resolve_identity`, skriver medlemskapet og tidspunktet for listen, og gjør medlemmene som ikke står der, inaktive. |
+
+**Funn:** —. **Belegg:** L 08.11: `tilbakekall`, `CATENDA`, `medlemskapVedInnlogging` og `catendaIdentitet` i `server/innlogging.ts`, `byttKode`, `bruker`, `prosjekter` og `medlemmer` i `server/catenda.ts` og `synkroniserProsjekt`, `synkroniserMedlemskap` og `deaktiverVedInnlogging` i `server/medlemskap.ts`. K 08.11: tabellene prosedyrene skriver, i `sys.dm_sql_referenced_entities` i en testbase bygget fra migrasjonene.
 
