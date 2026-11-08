@@ -1438,6 +1438,21 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F488',
+    feilklasse:
+      'den tilbudte handlingen får sporet fra nøkkelen, ikke fra elementet den gjelder (#1703)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [["  for (const o of u.datoopplysninger) sporet.set(o.id, 'forhold');\n", '']],
+    mal: ['hver handling unntatt registreringen av et brev hører til et spor'],
+  },
+  {
+    id: 'F489',
+    feilklasse: 'varselet i sporet får ikke hjemmelen i den tilbudte handlingen (OV-U5, #1703)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [['        ? VARSEL_I_SPORET[h.spor]\n', '        ? null\n']],
+    mal: ['et varsel får hjemmelen og sporet etter OV-U5'],
+  },
+  {
     id: 'F170',
     feilklasse:
       'en lest senere begrunnelse kan endre utfallet (KA-U34 (opphevet av KA-U46), OV-U7)',
@@ -1864,8 +1879,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "  if (k.spor !== 'forhold' || !forrige) return null;",
-        "  if (k.spor !== 'forhold' || !forrige || u) return null;",
+        "  if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav) return null;",
+        "  if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav || u) return null;",
       ],
     ],
     mal: ['irregulær endring til svikt', 'svikt til andre forhold', 'F-MM-G39'],
@@ -1875,12 +1890,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en ny påberopelsesversjon med en annen underkategori i samme hovedkategori godtas (GR-U22, #569)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        '    tekst(k.innhold.underkategori) !== tekst(forrige.innhold.underkategori)\n',
-        '    false\n',
-      ],
-    ],
+    endringer: [['    tekst(k.innhold.underkategori) !== forrige.underkategori\n', '    false\n']],
     mal: [
       'grunnforhold til medvirkning, i samme hovedkategori',
       'irregulær endring til lovendring, der § 32.2 gjelder i begge',
@@ -3960,10 +3970,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en ny påberopelsesversjon kan endre endringsordren (MM-U52 punkt 14)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      [
-        '  if (tekst(k.innhold.endringsordre) !== tekst(forrige.innhold.endringsordre))',
-        '  if (false)',
-      ],
+      ['  if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)', '  if (false)'],
     ],
     mal: [
       'en annen endringsordre med uendret underkategori',

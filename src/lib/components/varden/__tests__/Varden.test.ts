@@ -488,16 +488,11 @@ describe('Varden med brukerforløpet BF-01', () => {
       const radio = demopanel().getByRole('radio', { name: part });
       if (radio.getAttribute('aria-checked') !== 'true') await fireEvent.click(radio);
       await screen.findByRole('heading', { name: BF.tittel, level: 1 });
-      // Handlingene i vederlagssporet: nøkkelen har sporet eller § 34.1.3, eller den gjelder et
-      // krav eller svar i sporet (`handlinger` i `kjerne/kommandoer/handlinger.ts`).
-      const u = kjernesak!.utledning!;
-      const iSporet = new Set([...u.spor.vederlag.krav, ...u.spor.vederlag.svar].map((e) => e.id));
-      const tilbudt = kjernesak!.handlinger.filter((n) => {
-        const [type, hva] = n.split(':');
-        return (
-          hva === 'vederlag' || hva === '34.1.3' || (type === 'innsigelse' && iSporet.has(hva))
-        );
-      });
+      // Handlingene kjernen gir vederlagssporet (`tilbudte` i `kjerne/kommandoer/handlinger.ts`),
+      // uten varslene etter § 34.3.3 og § 34.4, som får skjema i økt 3 (G-8 i BF-14, #1703).
+      const tilbudt = kjernesak!.tilbudte
+        .filter((h) => h.spor === 'vederlag' && !['34.3.3', '34.4'].includes(h.hjemmel ?? ''))
+        .map((h) => h.noekkel);
       const iVarden = [...document.querySelectorAll('[data-handling]')].map(
         (e) => e.getAttribute('data-handling')!
       );

@@ -71,7 +71,7 @@ export const noekkel = (h: Handlingsnoekkel): string =>
         : h.type;
 
 /** Varselet i sporet, som handlingsnøkkelen uten hjemmel gjelder (OV-U5). */
-const VARSEL_I_SPORET = { frist: '33.4', vederlag: '34.1.2' } as const satisfies Record<
+export const VARSEL_I_SPORET = { frist: '33.4', vederlag: '34.1.2' } as const satisfies Record<
   Kravspor,
   Varselhjemmel
 >;
