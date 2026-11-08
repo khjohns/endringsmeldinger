@@ -51,7 +51,26 @@ const PLASSHOLDERE: Record<string, string> = {
  * Stegene i `dataflyt.toml` med kall brokeren bevisst ikke slipper gjennom, som flyt-ID og
  * endepunktet slik det står. `avvist` og `tillatt` er alle kallene i steget.
  */
-const UNNTAK: Record<string, { grunn: string; avvist: string[]; tillatt?: string[] }> = {};
+const UNNTAK: Record<string, { grunn: string; avvist: string[]; tillatt?: string[] }> = {
+  'C22 POST /oauth2/token': {
+    grunn:
+      'Brokeren svarer selv på tokenkallet til integrasjonen (client_credentials) med brokernøkkelen ' +
+      '(`tokenkall` i broker.ts), og sender det ikke videre til Catenda.',
+    avvist: ['POST /oauth2/token'],
+  },
+  'C26 POST /oauth2/token': {
+    grunn:
+      'Innloggingen i TS-serveren bytter koden med authorization_code mot Catenda, ikke gjennom brokeren (#715). ' +
+      'Brokeren svarer selv på tokenkallet, bare med client_credentials, og slipper det ikke gjennom.',
+    avvist: ['POST /oauth2/token'],
+  },
+  'C26 GET /v2/projects (sidevis)': {
+    grunn:
+      'Prosjektlisten hentes med brukerens token ved innloggingen i TS-serveren, som ikke går gjennom brokeren (#715). ' +
+      'Brokeren er avgrenset til ett Catenda-prosjekt.',
+    avvist: ['GET /v2/projects (sidevis)'],
+  },
+};
 
 type Steg = { flyt: string; endepunkt: string; kode: string[] };
 
