@@ -1,8 +1,9 @@
 /**
- * Påberopelsen og vederlagskravet mot dagens TS-server (#667). Påberopelsen bygges av
- * `grunnlagskrav` ved siden av, vederlagskravet står i kjernens format, og den låste
- * teksten er den `brevFor` gir. Saken er en prøvesak fra testverktøyet. Kildene til forventningene er formatet i kjernen (bare tilbud i
- * prøven, OV-U1), avgjørelsen om valgfri utdypning (oppdragsgiver 17.10, #667)
+ * Påberopelsen og vederlagskravet mot dagens TS-server (#667). Påberopelsen er den Varden
+ * sender, bygget av `kommandoene` i `src/lib/components/varden/nysak.ts` (#1678),
+ * vederlagskravet står i kjernens format, og den låste teksten er den `brevFor` gir. Saken
+ * er en prøvesak fra testverktøyet. Kildene til forventningene er formatet i kjernen (bare
+ * tilbud i prøven, OV-U1), avgjørelsen om valgfri utdypning (oppdragsgiver 17.10, #667)
  * og LV-U2.
  */
 
@@ -18,7 +19,7 @@ import {
   type KjorendeServer,
   type Oppsett,
 } from '../../server/tester/testbase.ts';
-import { grunnlagskrav } from './grunnlagskrav.ts';
+import { kommandoene } from '$lib/components/varden/nysak';
 import { brevFor, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
 import { somJournal } from '../../src/lib/kjernesak/journal.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
@@ -32,13 +33,17 @@ const vederlagskrav = (beloep: number, utdypning: string) => ({
   ...(utdypning ? { utdypning } : {}),
 });
 
-const PAABEROPELSE = grunnlagskrav({
-  hovedkategori: 'ENDRING',
-  underkategori: 'IRREG',
-  datoer: { paalegg_mottatt: '2026-10-01' },
-  endringsordre: '',
-  utdypning: 'Byggherren har pålagt en annen fundamentering.',
-});
+const { paaberopelse: PAABEROPELSE } = kommandoene(
+  {
+    forhold: { gruppe: 'ENDRING', kode: 'IRREG' },
+    tittel: 'Annen fundamentering',
+    beskrivelse: 'Byggherren har pålagt en annen fundamentering.',
+    dato: '2026-10-01',
+    endringsordre: '',
+    vedlegg: [],
+  },
+  KJERNE
+);
 
 describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren', () => {
   let o: Oppsett;
