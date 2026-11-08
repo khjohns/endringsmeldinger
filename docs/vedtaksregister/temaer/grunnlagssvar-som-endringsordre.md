@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `33606b866ae265a8e12ab369daed72f1a1c1b6fa0f31f889900e5ade47b66c71`
+Kontrollsum (SHA-256 over utdraget visningen leser): `152aa43819410b6d9e2522d178babe5b834d84efd8d474b88a83bdad55d17d7a`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -549,7 +549,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 08.11, oppdragsgiver (#1663, #1674)
 
-**Følge:** Presiserer [VS-U48](#vs-u48). Gjelder en kravversjon etter den første. Alternativ A, som var anbefalt, står i spørsmålet og er ikke forkastet; ordlyden i svaret utvider det til en kravpost som skifter oppgjørsform. Berører BF-14.
+**Følge:** Presiserer [VS-U48](#vs-u48). Spørsmålet gjaldt en kravversjon etter den første. Alternativ A, som var anbefalt, står i spørsmålet og er ikke forkastet; svaret presiserer det for en kravpost som skifter oppgjørsform. Berører BF-14.
 
 **Regelrader:** —
 
