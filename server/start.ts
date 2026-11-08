@@ -17,7 +17,7 @@
  *   Navnet er et annet enn `KOE_SQLSERVER_TILKOBLING`, som hooken og testene
  *   bruker: den strengen er `sa` mot serveren, og testene lager baser og
  *   kjøretidsinnlogginger med den (`opprettKjoeretid` i `tester/sqlserver.ts`).
- * - `APP_ENV` må være den Python har. Med `development` heter sesjonskapselen
+ * - Med `APP_ENV=development` heter sesjonskapselen
  *   `koe_session`, ellers `__Host-koe_session`, som krever HTTPS (B18-01).
  *   Vite-proxyen sender innloggingen, `/api/csrf-token`, prosjektene og
  *   `/api/kjerne` til port 8090.
