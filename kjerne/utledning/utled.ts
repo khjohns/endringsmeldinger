@@ -44,7 +44,11 @@ import {
   sammenfallStemmer,
   standpunktet,
 } from '../frosset/standpunkt.ts';
-import { harProduktivitetspost } from '../frosset/kravinnhold.ts';
+import {
+  harProduktivitetspost,
+  innholdIForholdet,
+  innholdIVederlaget,
+} from '../frosset/kravinnhold.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -494,7 +498,7 @@ function kravetStrider(k: Krav, u: Utledning): string | null {
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
   if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';
   if (k.spor !== 'vederlag') return null;
-  const poster = kravposteneStrider(k.innhold, u.spor.vederlag.krav, true);
+  const poster = kravposteneStrider(innholdIVederlaget(k), u.spor.vederlag.krav, true);
   return poster ? `en kravversjon som ${poster}` : null;
 }
 
@@ -1029,8 +1033,9 @@ function opplysningerOmDatoen(
     if (h.art !== 'dokument') continue;
     for (const k of h.dokument.krav) {
       if (!krav.has(k.id)) continue;
-      const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
-      const dato = felt === null ? undefined : k.innhold[felt];
+      const innhold = innholdIForholdet(k);
+      const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
+      const dato = felt === null ? null : innhold.datoer[felt];
       if (felt === null || typeof dato !== 'string' || sisteOm(felt)?.dato === dato) continue;
       ut.push({ id: k.id, dokument: h.dokument.id, felt, dato, korrigering: false });
     }

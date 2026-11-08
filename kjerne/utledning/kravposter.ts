@@ -12,7 +12,7 @@ import { kravposterI } from '../frosset/kravinnhold.ts';
 import type { Krav, Kravpostvarselet, Kravpostvarselhjemmel } from '../typer.ts';
 
 type Postinndata = { id?: unknown; betegnelse?: unknown };
-type Vederlagsinnhold = { kravposter?: Postinndata[]; trekker?: unknown[] };
+type Vederlagsinnhold = { kravposter?: readonly Postinndata[]; trekker?: readonly unknown[] };
 
 /** Betegnelsene brukt i sporet, også av kravposter som er trukket (KA-U70). */
 export function brukteBetegnelser(tidligere: readonly Pick<Krav, 'innhold'>[]): Set<string> {

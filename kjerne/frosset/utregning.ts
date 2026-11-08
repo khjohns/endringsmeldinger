@@ -15,7 +15,13 @@ import {
   kontrollerSpesifiseringen,
   kontrollerVarseletForVederlag,
 } from '../regler/svarkontroll.ts';
-import { harHovedbeloep, kategori, krevdBeloep, krevdProduktivitet } from './kravinnhold.ts';
+import {
+  harHovedbeloep,
+  innholdIFristen,
+  kategori,
+  krevdBeloep,
+  krevdProduktivitet,
+} from './kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import type { Krav, Spor } from '../typer.ts';
 
@@ -149,7 +155,7 @@ function regnUtFrist(
   foresporsel: Foresporselsrelasjon | null
 ): Record<string, unknown> {
   const fkrav: Fristkrav = {
-    krevd_dager: (krav.innhold.dager as number | undefined) ?? 0,
+    krevd_dager: innholdIFristen(krav).dager,
     varsel_type: 'spesifisert',
     er_svar_paa_foresporsel: foresporsel?.art === 'svar',
     har_begrunnelse_etter_b: foresporsel?.art === 'begrunnelse',

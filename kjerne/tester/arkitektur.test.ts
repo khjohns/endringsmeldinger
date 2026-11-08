@@ -273,10 +273,30 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
   ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager'],
+  // #1707: kravinnholdet leses gjennom den typede tilgangen per spor i `frosset/kravinnhold.ts`.
+  [
+    'Krav.innhold',
+    'utsagn',
+    'endringsordre paalegg_mottatt klar_over_forholdet',
+    ['frosset/kravinnhold.ts:innholdIForholdet'],
+  ],
+  ['Forholdsinnhold', 'utsagn', 'hovedkategori underkategori'],
+  ['Forholdsinnhold', 'utsagn', 'endringsordre', ['frosset/brevtekst.ts']],
+  ['Fristinnhold', 'utsagn', 'dager'],
   // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene i vederlagskravet, og kravpostene
   // fra forrige versjon TE trekker (KA-U56).
-  ['Krav.innhold', 'utsagn', 'kravposter', ['frosset/kravinnhold.ts:kravposterI']],
-  ['Krav.innhold', 'utsagn', 'trekker', ['frosset/brevtekst.ts']],
+  [
+    'Vederlagsinnhold',
+    'utsagn',
+    'kravposter',
+    ['frosset/kravinnhold.ts:innholdIVederlaget', 'frosset/kravinnhold.ts:kravposterI'],
+  ],
+  [
+    'Vederlagsinnhold',
+    'utsagn',
+    'trekker',
+    ['frosset/kravinnhold.ts:innholdIVederlaget', 'frosset/brevtekst.ts'],
+  ],
   ['Kravpost', 'relasjon', 'id betegnelse'],
   [
     'Kravpost',
@@ -294,15 +314,25 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U89 punkt 17: rigg og drift i forlenget byggetid, utenfor kravpostene.
   [
-    'frosset/kravinnhold.ts:krevdRigg',
+    'Vederlagsinnhold.saerskilt',
     'utsagn',
     'rigg_og_drift rigg_og_drift.beloep',
     ['frosset/kravinnhold.ts:krevdRigg'],
   ],
   // OV-U23: posten etter § 34.1.3 annet ledd i vederlagskravet.
-  ['Krav.innhold', 'utsagn', 'saerskilt', ['frosset/kravinnhold.ts']],
-  ['frosset/kravinnhold.ts:harProduktivitetspost', 'utsagn', 'produktivitet'],
-  ['frosset/kravinnhold.ts:krevdProduktivitet', 'utsagn', 'produktivitet produktivitet.beloep'],
+  ['Vederlagsinnhold', 'utsagn', 'saerskilt', ['frosset/kravinnhold.ts']],
+  [
+    'Vederlagsinnhold.saerskilt',
+    'utsagn',
+    'produktivitet',
+    ['frosset/kravinnhold.ts:harProduktivitetspost', 'frosset/kravinnhold.ts:krevdProduktivitet'],
+  ],
+  [
+    'Vederlagsinnhold.saerskilt',
+    'utsagn',
+    'produktivitet.beloep',
+    ['frosset/kravinnhold.ts:krevdProduktivitet'],
+  ],
   ['Svar', 'relasjon', 'id spor gjelder erstatter dokument paaberopelse'],
   ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
@@ -733,7 +763,30 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/kravinnhold.ts',
     'utsagn',
     'kategori',
-    ['frosset/tekst.ts:beslutningslinje', 'frosset/standpunkt.ts', 'frosset/utregning.ts'],
+    [
+      'frosset/tekst.ts:beslutningslinje',
+      'frosset/standpunkt.ts',
+      'frosset/utregning.ts',
+      'kommandoer/forutsetninger.ts:korrigering',
+    ],
+  ],
+  [
+    'frosset/kravinnhold.ts',
+    'utsagn',
+    'innholdIForholdet',
+    ['frosset/brevtekst.ts', 'frosset/brevtittel.ts', 'utledning/utled.ts:opplysningerOmDatoen'],
+  ],
+  [
+    'frosset/kravinnhold.ts',
+    'utsagn',
+    'innholdIVederlaget',
+    ['frosset/brevtekst.ts', 'utledning/utled.ts:kravetStrider'],
+  ],
+  [
+    'frosset/kravinnhold.ts',
+    'utsagn',
+    'innholdIFristen',
+    ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
   ],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
@@ -842,12 +895,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Datoopplysning', 'relasjon', 'id'],
   ['Datoopplysning', 'utsagn', 'felt dato'],
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:opplysningerOmDatoen']],
-  [
-    'Krav.innhold',
-    'utsagn',
-    'paalegg_mottatt klar_over_forholdet',
-    ['utledning/utled.ts:opplysningerOmDatoen'],
-  ],
+  ['Forholdsinnhold', 'utsagn', 'datoer', ['utledning/utled.ts:opplysningerOmDatoen']],
   ['utledning/utled.ts:kontrollerKorrigeringene(elementer)', 'relasjon', '*'],
   [
     'utledning/utled.ts',
@@ -1249,8 +1297,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'brevtekst', 'brevtekst', ['frosset/brevtekst.ts']],
   ['Krav', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
   ['Krav', 'relasjon', 'dokument', ['utledning/utled.ts:datoenKravetBleSendt']],
-  ['Krav.innhold', 'utsagn', 'endringsordre', ['frosset/brevtekst.ts']],
-  ['Krav.innhold', 'utsagn', 'paalegg_mottatt klar_over_forholdet', ['frosset/brevtekst.ts']],
+  ['Forholdsinnhold', 'utsagn', 'datoer', ['frosset/brevtekst.ts']],
   [
     'Journalen',
     'brevtekst',
