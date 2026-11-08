@@ -1,7 +1,7 @@
 """Internt notat skal kun være synlig for forfatterens egen organisasjon.
 
 Hendelsestypen er dokumentert som «kun synlig for egen organisasjon»
-(models/events.py, src/lib/types/timeline.ts). Skillet går på Catenda-team, ikke
+(models/events.py). Skillet går på Catenda-team, ikke
 på kontraktsside: en side kan ha flere team, og byggherren og en ekstern
 rådgiver er ulike organisasjoner selv om begge er BH. Testene her holder
 lesesiden opp mot den regelen: andre skal verken se notatteksten eller at

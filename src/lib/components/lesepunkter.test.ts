@@ -43,10 +43,8 @@ export function statuslesing(kilde: string): string[] {
     );
 }
 
-/** Modulene som kan lese statusene, med grunnen. */
-const TILLATT: Record<string, string> = {
-  'src/lib/types/timeline.ts': 'typene fra Python',
-};
+/** Modulene som kan lese statusene, med grunnen. Ingen er i dag. */
+const TILLATT: Record<string, string> = {};
 
 const filer = readdirSync(SRC, { recursive: true, encoding: 'utf8' })
   .map((f) => join(SRC, f))
