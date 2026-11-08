@@ -6,7 +6,7 @@
 
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import { utledJournal, vurder } from '../kjerne/kommandoer/skriving.ts';
-import type { Journalrad, Sakskode as Kjernesakskode } from '../kjerne/typer.ts';
+import type { Avvisning, Journalrad, Sakskode as Kjernesakskode } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { visning } from '../kjerne/utledning/visning.ts';
 import {
@@ -15,30 +15,32 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import { UUID } from './datalag.ts';
+import { UsikkertUtfall, UUID } from './datalag.ts';
 import { fast, lagret, loggFeil, ugyldig, feilsvar } from './inngang.ts';
 import { lesSaken, type Leveringsmaal } from './lager.ts';
 import {
   IngenTopicBoard,
+  KommandoIdBrukt,
   kommandosum,
+  KvittertBrevMangler,
+  LaasIkkeGitt,
   lesNesteSakskode,
+  LoepenummerTatt,
   opprettSak,
   opprettSakMedPaaberopelse,
   SakFinnesIkke,
   SakIdBrukt,
+  SkrivingAvvist,
   skrivHendelse,
+  UgyldigKommando,
   Versjonskonflikt,
   type Sakskode,
 } from './kommandoer.ts';
-import { filnavn, lagOppdrag } from './levering.ts';
+import { filnavn, KontraktsforkortelseMangler, lagOppdrag } from './levering.ts';
 import { feilINySak, vedleggIder } from './nysak.ts';
 import {
   finnesIkke,
   medSide,
-  regelavvisning,
-  skriveavvisning,
-  usikkert,
-  utfallUsikkert,
   type Avhengigheter,
   type Forespoersel,
   type Opprettelsesforespoersel,
@@ -46,6 +48,68 @@ import {
   type Saksrute,
   type Svar,
 } from './rutetyper.ts';
+
+/** Kjernens avvisning av kommandoen, i samme form fra hver inngang (#743). */
+const regelavvisning = ({ feil, avvisning }: { feil: string; avvisning: Avvisning }): Svar => [
+  400,
+  { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
+];
+
+/**
+ * Kommandoen kan være lagret. Klienten sender på nytt med samme kommando-ID og får
+ * kvitteringen hvis den er det (#418). En annen feil enn `UsikkertUtfall` og
+ * `LaasIkkeGitt` logges.
+ */
+function usikkert(feil: unknown): Svar {
+  if (!(feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt))
+    loggFeil('Kommandoen feilet etter at skrivingen kan ha begynt', feil);
+  return utfallUsikkert();
+}
+
+const utfallUsikkert = () =>
+  feilsvar(
+    503,
+    'UTFALL_USIKKERT',
+    'Det er usikkert om kommandoen ble lagret. Send den på nytt med samme kommando-ID.'
+  );
+
+/**
+ * Svaret på en feil fra skrivelaget, felles for inngangene (#743). Skrivingen går i
+ * én `transaksjon()`, som ruller tilbake når arbeidet kaster eller COMMIT ikke
+ * sendes. Bare `UsikkertUtfall` (COMMIT uten svar) og `LaasIkkeGitt` (et annet
+ * forsøk med samme ID kan committe) lar utfallet være uvisst. Hver annen feil er
+ * kjent, med ingenting lagret, og gir 500 med en feilkode, ikke «Prøv igjen»
+ * (oppdragsgiver 19.10, svar 3 i #764; #877 #893-1 og #893-2).
+ */
+function skriveavvisning(feil: unknown): Svar {
+  if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+  if (feil instanceof KontraktsforkortelseMangler)
+    return feilsvar(
+      409,
+      'KONTRAKTSFORKORTELSE_MANGLER',
+      'Prosjektet mangler kontraktsforkortelsen, så brevet kan ikke merkes. Brevet er ikke sendt.'
+    );
+  if (feil instanceof LoepenummerTatt)
+    return feilsvar(
+      409,
+      'LOEPENUMMER_TATT',
+      'En annen sak har fått nummeret i brevet. Brevet er ikke sendt. Se over brevet med det nye nummeret, og godkjenn det på nytt.'
+    );
+  if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
+  if (feil instanceof KommandoIdBrukt)
+    return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
+  if (feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt) return utfallUsikkert();
+  if (feil instanceof KvittertBrevMangler) {
+    loggFeil('Brevet i kvitteringen ble ikke lest tilbake', feil);
+    return feilsvar(
+      500,
+      'KVITTERT_BREV_MANGLER',
+      'Kommandoen er kvittert som lagret, men brevet kunne ikke leses tilbake.'
+    );
+  }
+  loggFeil('Kommandoen ble ikke lagret', feil);
+  return feilsvar(500, 'INTERNAL_ERROR', 'Kommandoen ble ikke lagret på grunn av en feil.');
+}
 
 /** Kommando-ID-en fra kroppen når den er en UUID med små bokstaver, som basen krever (51422). */
 const kommandoId = (kropp: Record<string, unknown>): string | null =>
