@@ -1438,6 +1438,21 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F488',
+    feilklasse:
+      'den tilbudte handlingen får sporet fra nøkkelen, ikke fra elementet den gjelder (#1703)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [["  for (const o of u.datoopplysninger) sporet.set(o.id, 'forhold');\n", '']],
+    mal: ['hver handling unntatt registreringen av et brev hører til et spor'],
+  },
+  {
+    id: 'F489',
+    feilklasse: 'varselet i sporet får ikke hjemmelen i den tilbudte handlingen (OV-U5, #1703)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [['        ? VARSEL_I_SPORET[h.spor]\n', '        ? null\n']],
+    mal: ['et varsel får hjemmelen og sporet etter OV-U5'],
+  },
+  {
     id: 'F170',
     feilklasse:
       'en lest senere begrunnelse kan endre utfallet (KA-U34 (opphevet av KA-U46), OV-U7)',

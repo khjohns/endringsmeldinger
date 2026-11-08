@@ -298,10 +298,9 @@ export const BREVTYPER: { type: string; tekst: string }[] = [
 ];
 export const ukjentHandling = (noekkel: string) => `Handlingen ${noekkel}`;
 
-/** Varselet med hjemmelen: § 34.1.3 når nøkkelen har den, ellers varselet i sporet (OV-U5). */
-const VARSEL_I_SPORET: Record<string, string> = { vederlag: '34.1.2', frist: '33.4' };
-export const varselet = (type: string, hva: string) =>
-  `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer et varsel som er sendt på annen måte'} etter punkt ${VARSEL_I_SPORET[hva] ?? hva}`;
+/** Varselet med hjemmelen kjernen gir handlingen (OV-U5, #1703). */
+export const varselet = (type: string, hjemmel: string) =>
+  `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer et varsel som er sendt på annen måte'} etter punkt ${hjemmel}`;
 
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
 export const HANDLINGENE = {

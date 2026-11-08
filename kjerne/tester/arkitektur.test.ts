@@ -678,6 +678,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
   ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
+  // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
+  ['TilbudtHandling', 'kommando', 'noekkel'],
   // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
   ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
   [
@@ -729,7 +731,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // og varslene etter § 34.3.3 og § 34.4 (VS-U48, VS-U52).
   ['Hjemmelsvarsel', 'kommando', 'spor hjemmel'],
   // OV-U5: varselet i sporet, som handlingsnøkkelen uten hjemmel gjelder.
-  ['VARSEL_I_SPORET', 'relasjon', 'frist vederlag', ['kommandoer/forutsetninger.ts']],
+  // #1703: også hjemmelen i den tilbudte handlingen, så visningen ikke utleder den.
+  [
+    'VARSEL_I_SPORET',
+    'relasjon',
+    'frist vederlag',
+    ['kommandoer/forutsetninger.ts', 'kommandoer/handlinger.ts:handling'],
+  ],
+  ['kommandoer/forutsetninger.ts', 'relasjon', 'VARSEL_I_SPORET', ['kommandoer/handlinger.ts']],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   // KA-U1, HF-U8: meldingen når aksepten ikke gjelder det gjeldende svaret, lik i
   // forutsetningene og nyttelastkontrollen.

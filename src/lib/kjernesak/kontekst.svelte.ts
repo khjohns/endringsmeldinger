@@ -19,7 +19,7 @@ import {
   type LastetKjernesak,
 } from '$lib/api/kjerne';
 import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
-import { handlinger } from '$kjerne/kommandoer/handlinger';
+import { tilbudte } from '$kjerne/kommandoer/handlinger';
 import { lagForUtkastet } from '$kjerne/kommandoer/lag';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import { visning } from '$kjerne/utledning/visning';
@@ -147,7 +147,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
   const utledning = $derived(sak ? utledJournal(journal, kjerne) : null);
   const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
-  const tilbudt = $derived(utledning && part ? handlinger(utledning, part) : []);
+  const tilbudt = $derived(utledning && part ? tilbudte(utledning, part) : []);
+  const noeklene = $derived(tilbudt.map((h) => h.noekkel));
   const bilde = $derived(sak && vist ? lagSaksbilde(journal, vist) : null);
 
   let lastinger = 0;
@@ -343,6 +344,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       return vist;
     },
     get handlinger() {
+      return noeklene;
+    },
+    /** Handlingene med sporet og det hver gjelder, så visningen ikke deler nøkkelen (#1703). */
+    get tilbudte() {
       return tilbudt;
     },
     /** Regelversjonen brevet forhåndsvises med, som aksepten bærer (KA-U10, MM-U50). */
