@@ -296,7 +296,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         );
       return null;
     case 'varsle':
-    case 'sende_varsel':
+    case 'sende_varsel': {
       if (!paaberopelseSendt)
         return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
@@ -320,6 +320,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           : avvis('FRISTKRAV_SENDT', `Fristkravet ${sendt}`);
       }
       return null;
+    }
     case 'sende_foresporsel':
       if (!paaberopelseSendt)
         return avvis(

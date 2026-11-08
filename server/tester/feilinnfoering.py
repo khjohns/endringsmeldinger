@@ -347,6 +347,10 @@ FEILINNFOERINGER = [
     ("S92", "delmengden av en TrueType-skrift fyller ikke en glyf med odde lengde (#1672)",
      "server/brevpdf.ts", "      if (glyf.length % 2) {", "      if (false) {",
      "tar med hver glyf fra en TrueType-delmengde"),
+    ("S93", "sakslisten ser ikke varselet etter punkt 34.4 som står alene (VS-U48, #1663)",
+     "server/saksliste.ts",
+     " || u.spor[spor].kravpostvarsler.length > 0;", ";",
+     "varselet etter punkt 34.4 som står alene"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

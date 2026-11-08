@@ -7832,8 +7832,8 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, D
     sendt: '2026-09-28',
     dokumentasjon: [randomUUID()],
   });
-  const VARSEL_REGNING = 'Kravet er varsel før regningsarbeidet settes i gang';
-  const VARSEL_ENHETSPRISER = 'Kravet er varsel om justering av enhetsprisene';
+  const varselRegning = 'Kravet er varsel før regningsarbeidet settes i gang';
+  const varselEnhetspriser = 'Kravet er varsel om justering av enhetsprisene';
   const paaberopt = () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
@@ -7893,17 +7893,17 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, D
     expect(tekst).toContain(
       'TE krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.'
     );
-    expect(tekst).not.toContain(VARSEL_REGNING);
+    expect(tekst).not.toContain(varselRegning);
     // Varselet etter punkt 34.4 gjelder ikke justeringen av enhetsprisene.
-    expect(tekst).toContain(VARSEL_ENHETSPRISER);
+    expect(tekst).toContain(varselEnhetspriser);
   });
 
   it('et varsel registrert før det første kravet gjelder på samme måte (D-16, VS-U52)', () => {
     const s = paaberopt();
     s.send('TE', registrertVarsel('34.3.3'));
     const tekst = laast(s.send('TE', vederlagskrav([regning, justert]))).join(' ');
-    expect(tekst).not.toContain(VARSEL_ENHETSPRISER);
-    expect(tekst).toContain(VARSEL_REGNING);
+    expect(tekst).not.toContain(varselEnhetspriser);
+    expect(tekst).toContain(varselRegning);
   });
 
   it('et varsel etter det første kravet gjelder ikke en ny kravpost uten valget i VS-U50, så kravet er varselet for den (VS-U49, D-19)', () => {
@@ -7913,7 +7913,7 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, D
     const tekst = laast(
       s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }, regning]))
     ).join(' ');
-    expect(tekst).toContain(VARSEL_REGNING);
+    expect(tekst).toContain(varselRegning);
   });
 
   it('byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter på økt 2, mens innsigelsen mot varselet etter punkt 34.1.3 godtas (G-9 i BF-14)', () => {

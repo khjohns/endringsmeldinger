@@ -282,10 +282,14 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
     case 'trekk':
       return { type: 'trekk', spor };
     case 'varsel': {
-      // OV-U5: varselet etter § 33.4 i fristen, etter § 34.1.2 i vederlaget.
+      // OV-U5: varselet etter § 33.4 i fristen, etter § 34.1.2 i vederlaget. `hjemmel` velger
+      // et annet varsel i vederlaget (OV-U25, VS-U48, VS-U52).
       const varselet =
         spor === 'vederlag'
-          ? ({ spor, hjemmel: '34.1.2' } as const)
+          ? ({
+              spor,
+              hjemmel: (h.hjemmel as '34.1.3' | '34.3.3' | '34.4' | undefined) ?? '34.1.2',
+            } as const)
           : ({ spor: 'frist', hjemmel: '33.4' } as const);
       // VS-U15: uten en dato sender appen varselet.
       if (typeof h.sendt !== 'string') return { type: 'send_varsel', ...varselet };

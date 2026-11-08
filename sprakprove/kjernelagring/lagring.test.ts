@@ -95,6 +95,29 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     }
   );
 
+  it('varslene etter punkt 34.3.3 og 34.4, sendt og registrert, lagres og leses igjen, og et varsel før det første kravet gjelder kravpostene (VS-U48, VS-U52, D-16 i BF-14)', async () => {
+    const bane = await basebane(o);
+    await bygg(bane, [
+      { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4' },
+      { handling: 'varsel', spor: 'vederlag', hjemmel: '34.4', sendt: '2026-09-10' },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        kravposter: [{ oppgjoersform: 'regningsarbeid' }],
+      },
+    ]);
+    const lest = await journalen(o, bane.sakId);
+    const u = utledJournal(lest, KJERNE);
+    expect(u.forstaatt).toBe(true);
+    expect(u.spor.vederlag.kravpostvarsler.map((v) => v.hjemmel)).toEqual(['34.4', '34.4']);
+    const kravet = lest.at(-1)!.data as { brevtekst: { laast: string }[] };
+    expect(kravet.brevtekst.map((a) => a.laast).join(' ')).toContain(
+      'gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.'
+    );
+    expect(kravet.brevtekst.map((a) => a.laast).join(' ')).not.toContain('Kravet er varsel');
+  });
+
   it('en referanse til et svar i en annen sak gir en sak som ikke er forstått (7.1.4)', async () => {
     const a = await bygg(await basebane(o), ['forlop_a']);
     const baneB = await basebane(o);
