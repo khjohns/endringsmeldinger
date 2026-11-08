@@ -79,3 +79,41 @@ slo sammen spørsmål 2 og 4, ordrett:
 - Spørsmål 1: A.
 - Spørsmål 3: ja, med presiseringen i svaret over.
 - Spørsmål 2 og 4: ikke avgjort. Orkestratoren har lagt fram eksempler.
+
+### Eksemplene orkestratoren la fram 08.11, ordrett
+
+> Her er de to alternativene som utdrag av brev 7. Brev 7 er en ny kravversjon. Varslene etter punkt 34.1.2 og 34.1.3 sto i brev 5. Varselet etter punkt 34.4 for P4 ble gitt i en e-post 28. oktober, før det første kravet, og er registrert i saken som brev 6.
+>
+> **A: kort henvisning**
+>
+> > **Krav om justering av vederlaget**
+> >
+> > Totalentreprenøren viser til varselet om krav om justering av vederlaget etter NS 8407 punkt 34.1.2 og det særskilte varselet etter punkt 34.1.3 tredje ledd, begge i brev 5. Kravet erstatter kravet i brev 5.
+> >
+> > **P4 Omlegging av overvannsledning**
+> >
+> > Totalentreprenøren krever at P4 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Varselet før arbeidet ble satt i gang, ble gitt i totalentreprenørens e-post av 28. oktober 2026 (brev 6). Kostnadsoverslaget er 180 000 kr eks. mva. Overslaget er en opplysning og ikke et tilbud.
+>
+> **B: ingen henvisning**
+>
+> > **Krav om justering av vederlaget**
+> >
+> > Kravet erstatter kravet i brev 5.
+> >
+> > **P4 Omlegging av overvannsledning**
+> >
+> > Totalentreprenøren krever at P4 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kostnadsoverslaget er 180 000 kr eks. mva. Overslaget er en opplysning og ikke et tilbud.
+>
+> **Hva som taler for hvert alternativ:**
+> - **For A:** VS-U50 er vedtatt. Når TE selv velger «Varselet for P4 er alt gitt» i skjemaet, sier brevet alt «ble gitt i …». Med B ville brevet nevne varselet når TE har valgt det, men ikke når løsningen har knyttet det selv (varselet kom før det første kravet). Da ser to like situasjoner ulike ut i brevet. A gir også byggherren et konkret brev og en dato å bestride.
+> - **For B:** brevet blir kortere. Brev 7 er en ny versjon av kravet, og partene har brev 5 og 6 i saken.
+>
+> Jeg anbefaler fortsatt **A for kravposten (c)**, fordi den er i tråd med VS-U50. **For varslene etter punkt 34.1.2 og 34.1.3 (d)** betyr valget mindre. Der kan B være godt nok, fordi det er samme krav i en ny versjon. Svar for eksempel «c A, d B», eller A eller B for begge.
+>
+> Formuleringene over er eksempler. Bare hovedbudskapet blir vedtak, og ordlyden er design.
+
+08.11, ordrett: «A for begge. Den konkrete ordlyden er design; prinsippet er vedtak»
+
+- Spørsmål 2 og 4: A for begge tilfellene (c og d). Ordlyden er design.
+
+Svarene er ført som VS-U54 (spørsmål 1), VS-U55 (spørsmål 2 og 4) og VS-U56 (spørsmål 3).
