@@ -1,7 +1,7 @@
 /**
  * Påberopelsen fra skjemaet for ny sak mot dagens TS-server (#666). Kommandoen
- * bygges av `grunnlagskrav` i klienten, og den låste teksten er den `brevFor` gir,
- * slik skjemaet gjør. Saken er en prøvesak fra testverktøyet; inngangen for
+ * bygges av `grunnlagskrav.ts` ved siden av, ikke av `kommandoene` i Varden
+ * (`src/lib/components/varden/nysak.ts`), og den låste teksten er den `brevFor` gir. Saken er en prøvesak fra testverktøyet; inngangen for
  * opprettelsen bygges i #370 (FK-7). Kilden til forventningene er VS-U26 (datoen
  * etter kategorien, og at den ikke kan være etter brevets dato), GR-U16 og LV-U2.
  */

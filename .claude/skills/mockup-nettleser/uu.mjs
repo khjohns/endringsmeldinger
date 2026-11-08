@@ -103,7 +103,7 @@ async function startVite(url) {
 // Varden i demoruta med BF-01: hver tilstand starter ved kontrollpunktet sitt. Demopanelet
 // legges sammen først, så det ikke står over det som prøves.
 const iVarden = (punkt, vei) => async (page) => {
-  await page.goto(`${arg.url}/demo/BF-01?punkt=${punkt}&visning=varden`, {
+  await page.goto(`${arg.url}/demo/BF-01?punkt=${punkt}`, {
     waitUntil: 'networkidle',
   });
   await page.getByRole('heading', { level: 1 }).waitFor();

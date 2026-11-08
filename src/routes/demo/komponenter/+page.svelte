@@ -2,7 +2,6 @@
   /**
    * Showcase for Varden (#1371): komponentene i `src/lib/components/varden/` i tilstandene de
    * kan ha, med saken fra startjournalen for BF-01 og `lagKjernesak`, som i `Varden.test.ts`.
-   * Dagens visning står ved siden av i rammene for hele visningen.
    */
   import '$lib/components/kontraktsbord/theme.css';
   import { resolve } from '$app/paths';
@@ -88,13 +87,8 @@
       <p class="ingress">
         Komponentene i <code>src/lib/components/varden/</code>, importert. Saken er startjournalen
         for {FORLOEPET.id}
-        ved kontrollpunktene, i minnet i nettleseren. Ingenting sendes. Dagens visning står ved siden
-        av i rammene for hele visningen. Forløpet kjøres i
-        <!-- href er ruta fra resolve() med visningen i query. -->
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-        <a href={`${resolve('/demo/[forlop]', { forlop: FORLOEPET.id })}?visning=varden`}
-          >demoruta</a
-        >.
+        ved kontrollpunktene, i minnet i nettleseren. Ingenting sendes. Forløpet kjøres i
+        <a href={resolve('/demo/[forlop]', { forlop: FORLOEPET.id })}>demoruta</a>.
       </p>
       <nav aria-label="Komponentene">
         <ul>

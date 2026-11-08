@@ -120,8 +120,7 @@
     text-align: left;
     text-decoration: none;
   }
-  button.rad,
-  a.rad {
+  button.rad {
     cursor: pointer;
   }
   .h {
@@ -138,8 +137,7 @@
     align-self: center;
     color: var(--ink-3);
   }
-  button.rad:hover .h,
-  a.rad:hover .h {
+  button.rad:hover .h {
     text-decoration: underline;
     text-underline-offset: 3px;
   }

@@ -5,15 +5,15 @@
  * forløpets kontroller med kilde mot journalen demoruta skrev (`kontrollerEtter`).
  *
  * BHs skjema for vederlagssvaret i Varden prøves i Varden-testen; her lages svaret med
- * `vederlagssvarFraSkjema` av dataene skjemaet gir, og kjernesaken sender det med den låste
- * teksten BH ser.
+ * `vederlagssvaret`, som skjemaet bruker, av valgene skjemaet gir, og kjernesaken sender det
+ * med den låste teksten BH ser.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { vederlagssvarFraSkjema } from '$lib/kjernesak/vederlagssvar';
+import { vederlagssvaret, type Svarvalg } from '$lib/components/varden/kommandoer';
 import type { Journalrad } from '$kjerne/typer';
 import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
 import { kontrollerEtter } from '$kjerne/tester/kjoerer';
@@ -23,13 +23,14 @@ const BF = finn('BF-01');
 const START = finnForloep('BF-01')!;
 const paastand = (holder: boolean, melding: string) => expect(holder, melding).toBe(true);
 
-/** Svaret i forløpets steg 4, med feltene BHs skjema gir (`vederlagssvarFraSkjema`). */
-const BH_SVARER = {
-  hovedkrav_vurdering: 'delvis',
-  hovedkrav_godkjent_belop: 60000,
-  hovedkrav_varslet_i_tide: false,
-  aksepterer_metode: true,
-  begrunnelse: '<p>Varselet kom for sent. Subsidiært godtas 60 000 kr.</p>',
+/** Svaret i forløpets steg 4, med valgene BHs skjema i Varden gir (`Vederlagssvar.svelte`). */
+const BH_SVARER: Svarvalg = {
+  iTide: false,
+  metode: true,
+  oensket: null,
+  beloep: 'deler',
+  delbeloep: '60 000',
+  begrunnelse: 'Varselet kom for sent. Subsidiært godtas 60 000 kr.',
 };
 
 /** Kjøreren til kontrollpunktet, med journalen den skrev, og banen som leser demosaken. */
@@ -53,7 +54,7 @@ async function bhSenderSvaret(demosak: Demosak) {
     send: demosak.send,
   });
   await kjernesak.last();
-  const kommando = vederlagssvarFraSkjema(BH_SVARER, kjernesak.utledning!, kjernesak.regler);
+  const kommando = vederlagssvaret(BH_SVARER, kjernesak.utledning!, kjernesak.regler)!;
   const brevet = kjernesak.brev(kommando, undefined, true);
   if (!brevet || !('tekst' in brevet) || !brevet.tekst)
     throw new Error('Kjernen ga ikke noe brev for svaret.');
