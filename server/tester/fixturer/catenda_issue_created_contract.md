@@ -1,16 +1,17 @@
-# Captured `issue.created` contract
+# Opptatt `issue.created` fra Catenda
 
-Captured from a manual `TEST-20260902-WEBHOOK-01` topic on 2026-09-02 and
-anonymised before storage. The payload fixture contains no production IDs,
-personal data, tokens, secrets, or magic links.
+Opptatt fra et manuelt testemne, `TEST-20260902-WEBHOOK-01`, 02.09.2026, og
+anonymisert før lagring. Fixturen har ingen produksjons-ID-er, personopplysninger,
+tokener, hemmeligheter eller magiske lenker.
 
-| Contract field           | Observed location | Current webhook handling                                                                                 |
-| ------------------------ | ----------------- | -------------------------------------------------------------------------------------------------------- |
-| Event ID                 | `event.id`        | Used by `get_webhook_event_id()` for idempotency.                                                        |
-| Event type               | `event.type`      | `issue.created`; accepted by the structure validator and dispatched.                                     |
-| Topic ID                 | `issue.id`        | Read by `handle_new_topic_created()`, then normalised to dashed GUID.                                    |
-| Topic board              | `issue.boardId`   | Read as fallback when top-level `project_id` is absent.                                                  |
-| Physical Catenda project | `project.id`      | Present in payload, but not read directly; the service derives it from the board's `bimsync_project_id`. |
+| Felt i kallet           | Hvor det står   |
+| ----------------------- | --------------- |
+| Hendelses-ID            | `event.id`      |
+| Hendelsestype           | `event.type`    |
+| Emne-ID                 | `issue.id`      |
+| Emnetavle               | `issue.boardId` |
+| Fysisk Catenda-prosjekt | `project.id`    |
 
-The observed top-level keys are `createdBy`, `event`, `issue`, and `project`.
-The payload does not include the code's preferred top-level `project_id` field.
+Nøklene på øverste nivå er `createdBy`, `event`, `issue` og `project`. Kallet har
+ikke feltet `project_id` på øverste nivå. Hvordan mottakeren leser feltene, står i
+[`server/webhook.ts`](../../webhook.ts) og [`webhook.test.ts`](../webhook.test.ts).

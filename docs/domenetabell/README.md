@@ -37,11 +37,11 @@ vedtakene. Hva som gjenstår med dem, står i #309.
 | Fil | Innhold |
 | --- | --- |
 | [regler.json](regler.json) | Kilder, tolkningsstatuser og radene i tabellen |
-| [bevis-saker.json](bevis-saker.json) | Forløp med handlinger, kontroller, kjente avvik og invarianter |
+| [bevis-saker.json](bevis-saker.json) | Forløp med handlinger, kontroller, kjente avvik og invarianter. Frosset arkiv: ingen test kjører forløpene mot en implementasjon etter #49 |
 | [bevis-saker-maalmodell.json](bevis-saker-maalmodell.json) | Forløp A–E fra [modellforslaget](../forslag-maalmodell-2026-10-09.md) med kilde per kontroll. Kjøres bare mot TS-kjernen i [`kjerne/`](../../kjerne/) (#304, #308), merket «(målmodellen)» i tabellen |
 | [brukerforlop/](brukerforlop/README.md) | Brukerforløpene: hele saker fra én part til den andre, med navngitte kontrollpunkter og samme stegformat og kjører som bevis-sakene. Kjøres i minnet, mot testbasen, i demoruta og i saksruta (#1330). [Dekningsoversikten](brukerforlop/dekning.md) genereres fra forløpsfilene |
 | [`domenetabell.py`](../verktoy/domenetabell.py) | Kontrollerer referansene og skriver tabellen under. Vakttestene står i [`verktoy/tester/test_domenetabell/`](../../verktoy/tester/test_domenetabell/) |
-| [`test_domenetabell/`](https://github.com/khjohns/endringsmeldinger/tree/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_domenetabell) | Kjører bevis-sakene mot Python-projeksjonen i minnet |
+| [`test_domenetabell/`](https://github.com/khjohns/endringsmeldinger/tree/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_domenetabell) | Kjørte bevis-sakene mot Python-projeksjonen i minnet. Slettet med Python-stien (#49) |
 | [kontrakt.json](kontrakt.json) | Kommando, lagret hendelse og offentlig tilstand for flyten i språkprøven (#272), som JSON Schema; se [Kontrakten for flyten](#kontrakten-for-flyten) |
 
 ## Begreper
@@ -631,7 +631,7 @@ tidligere kravversjon. Om det er gjeldende svar, avgjør serveren (KA-U1).
 
 | Bane | Hva den prøver | Kjøres |
 | --- | --- | --- |
-| Domenet | Validering av data, parsing, forretningsreglene og projeksjonen i minnet, i samme rekkefølge som `/api/events`. Hendelsen journalen ville fått, er `to_cloudevent()` i minnet | `backend/tests/test_domenetabell/`, i CI |
+| Domenet | Validering av data, parsing, forretningsreglene og projeksjonen i minnet, i samme rekkefølge som `/api/events`. Hendelsen journalen ville fått, er `to_cloudevent()` i minnet | Ingen etter #49. Til da `backend/tests/test_domenetabell/`, i CI |
 | Godkjenningsflyten | Bare invarianten om gjeldende krav mot `claims()` | Domenebanen |
 | Flere saker | Hver sak er en egen bane av samme slag. En avvisning skal la journalen i alle sakene stå uendret | Domenebanen |
 
@@ -677,7 +677,7 @@ Skjemaet bruker et lite utvalg av JSON Schema 2020-12. Validatoren i
 det utvalget, og et annet nøkkelord gir rød test. Egentesten av validatoren står i
 [`verktoy/tester/test_domenetabell/test_kontrakt.py`](../../verktoy/tester/test_domenetabell/test_kontrakt.py), og
 [`backend/tests/test_domenetabell/test_kontrakt.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_domenetabell/test_kontrakt.py)
-prøver resten (skjemaet mot modellene, korpusets kommandoer, data og tilstand i minnet).
+prøvde resten (skjemaet mot modellene, korpusets kommandoer, data og tilstand i minnet) til Python-stien ble slettet (#49).
 Grensene gjennom rutene og testbasen prøves ikke etter #931.
 
 Ikke i kontrakten: grensen for godkjenningspakker, kommandoene utenfor flyten,
