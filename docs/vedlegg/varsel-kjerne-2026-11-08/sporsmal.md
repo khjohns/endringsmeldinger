@@ -45,6 +45,37 @@ tilfellet.
 
 **Hva valget styrer.** Teksten i kravet for en kravpost der varselet kom før kravet.
 
+## Spørsmål 3 og 4: fra den kognitive gjennomgangen av BF-14
+
+Stilt av orkestratoren 08.11 i samtalen, etter rapporten i #1694. Ordrett:
+
+> 1. Skal byggherren kunne påberope varselet etter punkt 34.3.3 og bestride justeringen subsidiært når byggherren mener regningsarbeid?
+> 2. Skal brev 7 gjenta setningene om varslene etter punkt 34.1.2 og 34.1.3, eller vise til varselet i brev 5?
+
+Oppdragsgiver svarte «1 Ja. Justeringen er i så fall ifølge byggherren «har han bare krav på slik
+justering av enhetsprisen som den andre parten måtte forstå at forholdet ville føre til». 2. antar
+det er best å vise til, eller kanskje ikke gjenta i det hele tatt? Partene kan jo og forventes å
+huske tidligere brev.» Orkestratoren spurte om svaret gjaldt spørsmål 1 her eller spørsmål 3, og
+slo sammen spørsmål 2 og 4, ordrett:
+
+> **Svar 1.** «Ja» kan gjelde mitt spørsmål 1: at kravposten viser til varselet. Setningen om justeringen («har han bare krav på slik justering av enhetsprisen som den andre parten måtte forstå …») svarer derimot på spørsmål 1 fra gjennomgangen: om byggherren skal kunne påberope varselet etter punkt 34.3.3 subsidiært når byggherren mener regningsarbeid. Jeg leser svaret slik:
+> - **a)** Mitt spørsmål 1: **A**. Kravposten viser til varselet.
+> - **b)** Gjennomgangens spørsmål 1: **ja**. Byggherren kan påberope det sene varselet i det subsidiære laget. Etter byggherrens syn har TE da bare krav på den justeringen byggherren måtte forstå (punkt 34.3.3 annet ledd).
+>
+> Stemmer begge?
+>
+> **Svar 2.** Her er det to tilfeller, og jeg foreslår samme regel for begge:
+> - **c)** En kravpost der varselet etter punkt 34.3.3 eller 34.4 ble gitt før det første kravet.
+> - **d)** Brev 7, der varslene etter punkt 34.1.2 og 34.1.3 alt ble gitt i brev 5.
+>
+> Alternativene:
+> - **A (anbefalt):** kravet viser kort til varselet, for eksempel «varslet i brev 5» eller «varslet i e-post av 28. oktober». Setningen om varselet gjentas ikke. VS-U51 sier alt «viser kravet bare til det» for et varsel i løsningen, og en kort henvisning viser byggherren hvilket varsel posten bygger på, så byggherren kan bestride datoen.
+> - **B:** kravet sier ingenting om et varsel som er gitt før, fordi partene kjenner de tidligere brevene.
+
 ## Svar fra oppdragsgiver
 
-Ikke kommet.
+08.11, ordrett: «a,b. A eller B: usikker. Hvis gjerne et komplett avsnitt eller to som eksempel»
+
+- Spørsmål 1: A.
+- Spørsmål 3: ja, med presiseringen i svaret over.
+- Spørsmål 2 og 4: ikke avgjort. Orkestratoren har lagt fram eksempler.
