@@ -4,6 +4,7 @@ export const prerender = false;
 import { redirect, error } from '@sveltejs/kit';
 import { getSession } from '$lib/api/auth';
 import { ApiError } from '$lib/api/client';
+import { fjernAndresVentende } from '$lib/components/varden/ventende';
 import { OM_VARDEN_STI } from '$lib/components/om-varden/sti';
 import type { LayoutLoad } from './$types';
 
@@ -15,7 +16,10 @@ export const load: LayoutLoad = async ({ url }) => {
     return { user: null };
   }
   try {
-    return { user: await getSession() };
+    const user = await getSession();
+    // Forrige brukers utkast for ny sak skal ikke ligge igjen i fanen (#1678).
+    if (user) fjernAndresVentende(user.id);
+    return { user };
   } catch (err) {
     if (err instanceof ApiError && err.status === 401) {
       redirect(303, `/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);
