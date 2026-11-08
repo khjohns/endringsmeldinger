@@ -7693,9 +7693,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     );
   });
 
-  it('en kravpost som skifter til regningsarbeid eller justerte enhetspriser, er varselet i versjonen hun skifter i, men ikke når hun har hatt oppgjørsformen før (VS-U48)', () => {
-    // Arbeidsvalget for VS-U48 (oppdragsgiver 08.11, PR #1674): posten er varsel for seg når
-    // hun ikke hadde oppgjørsformen i en tidligere versjon, enten hun er ny eller har skiftet.
+  it('en kravpost som skifter til regningsarbeid eller justerte enhetspriser, er varselet i versjonen hun skifter i, men ikke når hun har hatt oppgjørsformen før (VS-U49)', () => {
     const s = sakMedKrav();
     const varselP1 =
       'P1 Ny fundamentering: TE krever at P1 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang';
