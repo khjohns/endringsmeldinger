@@ -11,12 +11,13 @@ import uuid
 
 import pytest
 from pydantic import ValidationError as PydanticValidationError
+from test_domenetabell import kontrakt
 
 from lib.cloudevents.schemas import EVENT_TYPE_TO_DATA_MODEL
 from models.events import parse_event, parse_event_from_request
 from models.sak_state import FristTilstand, GrunnlagTilstand, SakState, VederlagTilstand
 from services.timeline_service import TimelineService
-from tests.test_domenetabell import kontrakt, korpus
+from tests.test_domenetabell import korpus
 from tests.test_domenetabell.test_kravversjon_og_aksept import Domenebane
 
 SPORMODELLER = {"grunnlag": GrunnlagTilstand, "vederlag": VederlagTilstand, "frist": FristTilstand}
