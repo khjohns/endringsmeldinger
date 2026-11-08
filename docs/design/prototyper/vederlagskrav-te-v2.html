@@ -658,7 +658,7 @@ function varselblokk(p, hjelp) {
       ${p.uType === 'Brev' ? `<fieldset class="oppgj"><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg liste">${SENDT.map(t => radio('us-' + id, t, p.uSendt, t)).join('')}</div></fieldset>` : ''}
       <div class="beloepfelt"><label for="ud-${id}">Datoen det ble sendt</label><span class="datofelt"><input id="ud-${id}" data-felt="uDato" aria-required="true" value="${esc(p.uDato)}"></span></div>
       <div class="beloepfelt"><label for="ub-${id}">Kort beskrivelse</label><input id="ub-${id}" class="tekstfelt" data-felt="uBeskr" aria-required="true" value="${esc(p.uBeskr)}"></div>
-      <div class="beloepfelt"><span class="spm" id="uf-${id}">Dokumentet</span><span class="hjelp">PDF. Det legges til i saken som korrespondanse med kategorien varsel når kravet sendes, og legges ved brevet.</span><button class="liten-knapp" type="button" aria-describedby="uf-${id}" style="align-self:flex-start">Legg ved dokumentet</button></div>
+      <div class="beloepfelt"><span class="spm" id="uf-${id}">Dokumentet</span><span class="hjelp">PDF. Det står i saken som et eget brev med kategorien varsel når kravet sendes, og legges ved kravet.</span><button class="liten-knapp" type="button" aria-describedby="uf-${id}" style="align-self:flex-start">Legg ved dokumentet</button></div>
     </div>`;
   const hvor = liste.length
     ? `<fieldset class="oppgj"><legend class="spm">Hvor ble varselet for ${id} gitt?</legend><div class="valg liste">

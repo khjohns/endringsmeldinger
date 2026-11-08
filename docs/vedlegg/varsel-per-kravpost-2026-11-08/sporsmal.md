@@ -101,3 +101,44 @@ Ordrett: «2A. Litt forvirret over spørsmål 1. kunne du tegnet en flyt i chatt
 
 - **1:** ikke besvart. Oppdragsgiver ba om en nærmere forklaring.
 - **2:** A.
+
+Oppdragsgiver ba om en forklaring av spørsmål 1. Den ble gitt 08.11 i økta med en flyt over de tre
+tilfellene: kravet er varselet (VS-U49), varselet står i saken fra før, og varselet er sendt utenfor
+løsningen og legges til i skjemaet nå. Spørsmålet gjelder bare det siste. Forklaringen viste også de to
+reglene løsningen har: skjemaet for ny sak legger dokumentet ved (VS-U38, A), og kravskjemaet for
+varselet etter punkt 34.1.2 gjør det ikke (VS-U34, B).
+
+Svaret 08.11, ordrett: «Ny sak er riktig mønster. Legger ved. Men bør vel også regnes som eget brev, ikke
+bare vedlegg.»
+
+- **1:** A. Tillegget om «eget brev» kan leses på to måter, og er oppfølgingsspørsmål 3.
+
+## Spørsmål 3. Dokumentet som eget brev i saken
+
+**Bakgrunn.** Svaret på spørsmål 1 er A, med tillegget «bør vel også regnes som eget brev, ikke bare
+vedlegg». Etter VS-U50 legges dokumentet til i saken som korrespondanse med kategorien varsel. Det står da
+i saken for seg, med totalentreprenøren som avsender og datoen det ble sendt, og datoen er datoen for
+varselet. LV-U45 sier at løsningen ikke gir korrespondanse sendt utenfor løsningen noe nummer i saken,
+med mindre avsenderen har merket den selv etter pkt. D.1.2.5.
+
+**Belegg.** [LV-U45](../../plans/vedtak.md#lv-u45): «Løsningen gir ikke korrespondanse sendt utenfor
+løsningen noe nummer.» og «Har avsenderen merket den selv etter pkt. D.1.2.5 med sakens kode og et nummer
+i saken, oppgir avsenderen merkingen når korrespondansen legges til, eller senere etter OV-U84.»
+
+**A (anbefalt).** «Dokumentet totalentreprenøren legger til i kravskjemaet som varselet for en kravpost,
+står i saken som et eget brev: registrert korrespondanse med kategorien varsel, med totalentreprenøren som
+avsender og datoen det ble sendt, blant brevene om saken og i tidslinja. Kravet viser til det og legger
+det ved. Nummeret i saken følger LV-U45. Forhold: presiserer VS-U50. Følger VS-U38 og LV-U45.»
+
+**B.** «Dokumentet totalentreprenøren legger til i kravskjemaet som varselet for en kravpost, får et
+nummer i saken som et brev sendt fra løsningen, også når totalentreprenøren ikke har merket det. Kravet
+viser til det med nummeret og legger det ved. Forhold: presiserer VS-U50. Endrer LV-U45 for et varsel som
+legges til i kravskjemaet.»
+
+**Anbefalingen.** A. Det gir dokumentet en egen plass i saken, som et brev, uten å endre nummereringen.
+LV-U45 lar nummeret stå på dokumentet selv. Et nummer løsningen gir senere, står ikke på brevet byggherren
+fikk, og kan gi to brev med samme nummer i saken.
+
+**Hva valget styrer.** Hvordan dokumentet står i brevene om saken og om det får et nummer. At det legges
+ved kravet, er avgjort av svaret på spørsmål 1.
+
