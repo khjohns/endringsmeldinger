@@ -235,7 +235,6 @@ utgangspunkt som er passert.
 | [handoff 15.09](handoff-2026-09-15.md) | Avløst av handoffen fra 19.09 |
 | [handoff om Catenda-kallfrekvens](handoff-gpt-astra-2026-09-15.md) | Åpent spørsmål om kallfrekvens; målingen er fortsatt ikke gjort |
 | [prompt: svakhetsgjennomgang](prompt-svakhetsgjennomgang-2026-09-17.md) | Utgangspunktet for runden 17.09. Etterprøvingen korrigerte flere av premissene — les den sammen med [audit-sikkerhetsarkitektur](audit-sikkerhetsarkitektur-2026-09-17.md) |
-| [superpowers/](superpowers/) | Implementasjonsplaner og designspecer fra mars–september, en annen arbeidsflyt |
 | [design/](design/) | Designressurser for godkjenningspanelet |
 | [design/konsept-varden/](design/konsept-varden/) | Eksperimentelt UX-konsept for saksvisningen, med HTML-skisser. Prøves i #1331. Ikke vedtatt design |
 

@@ -1,6 +1,6 @@
 # Brev og intern godkjenning
 
-Implementert 11. september 2026. Bygger på [domenespesifikasjonen](superpowers/specs/2026-09-05-intern-godkjenningsflyt-design.md).
+Implementert 11. september 2026. Bygger på [domenespesifikasjonen](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/docs/superpowers/specs/2026-09-05-intern-godkjenningsflyt-design.md).
 
 ## Prøve flyten
 
