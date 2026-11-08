@@ -1,8 +1,8 @@
 /**
- * Påberopelsen fra skjemaet for ny sak mot dagens TS-server (#666). Kommandoen
- * bygges av `grunnlagskrav` i klienten, og den låste teksten er den `brevFor` gir,
- * slik skjemaet gjør. Saken er en prøvesak fra testverktøyet; inngangen for
- * opprettelsen bygges i #370 (FK-7). Kilden til forventningene er VS-U26 (datoen
+ * Påberopelsen når en ny sak opprettes, mot dagens TS-server (#666). Kommandoen er den
+ * Varden sender, bygget av `kommandoene` i `src/lib/components/varden/nysak.ts` (#1678),
+ * og den låste teksten er den `brevFor` gir. Saken er en prøvesak fra testverktøyet;
+ * inngangen for opprettelsen bygges i #370 (FK-7). Kilden til forventningene er VS-U26 (datoen
  * etter kategorien, og at den ikke kan være etter brevets dato), GR-U16 og LV-U2.
  */
 
@@ -18,20 +18,25 @@ import {
   type KjorendeServer,
   type Oppsett,
 } from '../../server/tester/testbase.ts';
-import { grunnlagskrav, type Grunnlagsvalg } from '../../src/lib/kjernesak/paaberopelse.ts';
+import { kommandoene, type Utfylling } from '$lib/components/varden/nysak';
 import { brevFor, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
 
-const valg = (endring: Partial<Grunnlagsvalg>): Grunnlagsvalg => ({
-  hovedkategori: 'ENDRING',
-  underkategori: 'IRREG',
-  datoer: {},
+/** Skjemaet slik TE fyller det ut i Varden, med katalogens koder for forholdet. */
+const utfylling = (endring: Partial<Utfylling>): Utfylling => ({
+  forhold: { gruppe: 'ENDRING', kode: 'IRREG' },
+  tittel: 'Annen fundamentering',
+  beskrivelse: 'Byggherren har pålagt en annen fundamentering.',
+  dato: '',
   endringsordre: '',
-  utdypning: 'Byggherren har pålagt en annen fundamentering.',
+  vedlegg: [],
   ...endring,
 });
+
+/** Påberopelsen Varden sender med opprettelsen. */
+const paaberopelse = (u: Utfylling) => kommandoene(u, KJERNE).paaberopelse;
 
 /** Datoen `dager` etter i dag i norsk tid, på formen ÅÅÅÅ-MM-DD. */
 function osloDato(dager: number): string {
@@ -41,7 +46,7 @@ function osloDato(dager: number): string {
   return dato.toISOString().slice(0, 10);
 }
 
-describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', () => {
+describe.skipIf(!TESTBASE_URL)('påberopelsen fra skjemaet i Varden mot TS-serveren', () => {
   let o: Oppsett;
   let server: KjorendeServer;
 
@@ -103,28 +108,20 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
   }
 
   it.each([
-    [
-      'endring',
-      valg({ datoer: { paalegg_mottatt: '2026-10-01' } }),
-      'Pålegget ble mottatt 1. oktober 2026.',
-    ],
+    ['endring', utfylling({ dato: '2026-10-01' }), 'Pålegget ble mottatt 1. oktober 2026.'],
     [
       'svikt',
-      valg({
-        hovedkategori: 'SVIKT',
-        underkategori: 'GRUNN',
-        datoer: { klar_over_forholdet: '2026-10-01' },
-      }),
+      utfylling({ forhold: { gruppe: 'SVIKT', kode: 'GRUNN' }, dato: '2026-10-01' }),
       'Totalentreprenøren ble klar over forholdet 1. oktober 2026.',
     ],
     [
       'endringsordre',
-      valg({ underkategori: 'EO', endringsordre: 'EO-12' }),
+      utfylling({ forhold: { gruppe: 'ENDRING', kode: 'EO' }, endringsordre: 'EO-12' }),
       'endringsordren «EO-12»',
     ],
-  ])('%s: serveren lagrer kravet med teksten TE så (LV-U2)', async (_navn, v, iTeksten) => {
+  ])('%s: serveren lagrer kravet med teksten TE så (LV-U2)', async (_navn, u, iTeksten) => {
     const sakId = await opprettKjernesak(o);
-    const { svar, tekst } = await send(sakId, grunnlagskrav(v));
+    const { svar, tekst } = await send(sakId, paaberopelse(u));
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
     expect(svar.kropp.versjon).toBe(2);
     expect(tekst?.join(' ')).toContain(iTeksten);
@@ -137,10 +134,7 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
   it('en dato etter brevets dato i norsk tid avvises med DATO_ETTER_BREVET (VS-U26)', async () => {
     const sakId = await opprettKjernesak(o);
     const etter = osloDato(2);
-    const { svar, tekst } = await send(
-      sakId,
-      grunnlagskrav(valg({ datoer: { paalegg_mottatt: etter } }))
-    );
+    const { svar, tekst } = await send(sakId, paaberopelse(utfylling({ dato: etter })));
     // Kjernen lager ingen tekst for kravet, så skjemaet viser ingen brevkontroll.
     expect(tekst).toBeNull();
     expect(svar.status).toBe(400);
@@ -151,16 +145,13 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
 
   it('samme dag som brevet godtas (VS-U26)', async () => {
     const sakId = await opprettKjernesak(o);
-    const { svar } = await send(
-      sakId,
-      grunnlagskrav(valg({ datoer: { paalegg_mottatt: osloDato(0) } }))
-    );
+    const { svar } = await send(sakId, paaberopelse(utfylling({ dato: osloDato(0) })));
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
   });
 
   it('uten datoen kategorien har, avvises kravet med UGYLDIG_FORM (VS-U26)', async () => {
     const sakId = await opprettKjernesak(o);
-    const { svar } = await send(sakId, grunnlagskrav(valg({})));
+    const { svar } = await send(sakId, paaberopelse(utfylling({})));
     expect(svar.status).toBe(400);
     expect(svar.kropp.error).toBe('UGYLDIG_FORM');
     expect(svar.kropp.message).toContain('TE må oppgi datoen pålegget ble mottatt');

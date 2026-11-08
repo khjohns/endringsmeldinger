@@ -78,7 +78,7 @@ describe('sporet saken åpner i (S5 i #1414)', () => {
     return (await screen.findAllByRole('button')).filter((b) => b.hasAttribute('aria-current'));
   }
 
-  it('`?spor=frist` fra omdirigeringene åpner fristen', async () => {
+  it('`?spor=frist` åpner fristen', async () => {
     const [valgt] = await aapne('frist');
     expect(valgt).toHaveTextContent('Fristforlengelse');
   });

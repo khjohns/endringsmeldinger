@@ -12,13 +12,13 @@ import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import type { Part } from '$kjerne/typer';
 import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
 import Vardensak from '../Vardensak.svelte';
+import { HANDLINGENE } from '../tekster';
 
 function aapne(forloep: string, punkt: string) {
   let demosak: Demosak | null = null;
   render(Demoforloep, {
     forloep: finnForloep(forloep)!,
     punkt,
-    visning: 'varden',
     onpunkt: () => {},
     onstart: (d: Demosak) => (demosak = d),
   });
@@ -32,8 +32,7 @@ async function vis(
   punkt: string,
   part: Part,
   spor: 'forhold' | 'vederlag' | 'frist',
-  nySakLenke?: string,
-  dagensVisning?: string
+  nySakLenke?: string
 ) {
   const demosak = lagDemosak(finnForloep(forloep)!, punkt, part);
   const kjernesak = lagKjernesak({
@@ -44,7 +43,7 @@ async function vis(
     send: demosak.send,
   });
   await kjernesak.last();
-  render(Vardensak, { kjernesak, spor, nySakLenke, dagensVisning });
+  render(Vardensak, { kjernesak, spor, nySakLenke });
   return within(
     (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
   );
@@ -346,20 +345,14 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     ).toHaveLength(0);
   });
 
-  it('i fristsporet åpner kravet i «Andre handlinger» dagens visning, fordi bare den nye versjonen av påberopelsen er bygget i Varden (BF-10, BF-02B)', async () => {
-    const kortet = await vis(
-      'BF-04',
-      'forholdet-er-avslaatt',
-      'TE',
-      'frist',
-      undefined,
-      '/demo/sak/kjerne'
-    );
+  it('i fristsporet er kravet i «Andre handlinger» ikke bygget, fordi bare den nye versjonen av påberopelsen er bygget i Varden, og et klikk sier det (BF-10, BF-02B, #1636)', async () => {
+    const kortet = await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'frist');
     const raden = kortet.getByText(
       (_, e) => e?.getAttribute('data-handling') === 'krav:frist'
     ) as HTMLElement;
-    expect(within(raden).getByRole('link').getAttribute('href')).toBe('/demo/sak/kjerne');
-    expect(within(raden).queryByRole('button')).toBeNull();
+    expect(within(raden).queryByRole('link')).toBeNull();
+    await fireEvent.click(within(raden).getByRole('button'));
+    expect(within(raden).getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
   });
 
   it('i demoruta er «Revider krav» primær etter svaret også når den ikke er bygget, og et klikk sier det (#1636)', async () => {

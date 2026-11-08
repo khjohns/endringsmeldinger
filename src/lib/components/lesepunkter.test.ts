@@ -45,13 +45,7 @@ export function statuslesing(kilde: string): string[] {
 
 /** Modulene som kan lese statusene, med grunnen. */
 const TILLATT: Record<string, string> = {
-  'src/lib/components/kontraktsbord/derive.ts': 'lesepunktet for saksvisningen',
-  'src/lib/constants/statusLabels.ts': 'etikettene lesepunktene bruker',
-  'src/lib/constants/statusStyles.ts': 'stilene lesepunktene bruker',
   'src/lib/types/timeline.ts': 'typene fra Python',
-  'src/lib/types/index.ts': 'typene fra Python',
-  'src/lib/approval/authority.ts': 'fullmakten, som speiler `krav_fra_tilstand` i Python',
-  'src/lib/mockup/store.svelte.ts': 'demolageret, som har sin egen statusregel',
 };
 
 const filer = readdirSync(SRC, { recursive: true, encoding: 'utf8' })

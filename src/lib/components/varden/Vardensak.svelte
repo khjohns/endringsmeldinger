@@ -41,7 +41,6 @@
     bruker = null,
     nySak,
     spor,
-    dagensVisning,
     nySakLenke,
   }: {
     kjernesak: Kjernesakkontekst;
@@ -57,8 +56,6 @@
     bruker?: { name: string } | null;
     /** Skjemaet for ny sak, som står i arbeidsflaten før saken finnes (BF-05, KT-U11). */
     nySak?: Snippet;
-    /** Lenken til saken i dagens visning, for brevtypene Varden ikke kan åpne. */
-    dagensVisning?: string;
     /** Lenken til skjemaet for ny sak, for en annen hjemmel eller endringsordre (BF-10 U-2). */
     nySakLenke?: string;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
@@ -450,7 +447,6 @@
             {kjernesak}
             {u}
             spor={valgt}
-            {dagensVisning}
             nySak={valgt === 'forhold' && kjernesak.handlinger.includes('krav:forhold')
               ? nySakLenke
               : undefined}

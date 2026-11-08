@@ -288,11 +288,8 @@ describe('et brev registrert som dokumentasjon i saksbildet (OV-U16, #1045)', ()
     expect(bilde.journal[1].registrertBrev).toBeNull();
   });
 
-  it('viser motpartens brev ved kravet som venter på svar (svar 2 22.10), og merknaden for saken (svar 1)', () => {
+  it('viser merknaden for saken når den har et brev sendt utenfor appen (svar 1 22.10)', () => {
     const { bilde } = bildeAv(journal);
-    expect(bilde.spor.find((s) => s.spor === 'forhold')!.registrerteBrev).toEqual([
-      'Registrert brev fra BH, sendt 15. oktober 2026: Svar på kravet sendt på e-post',
-    ]);
     expect(bilde.merknader.map((m) => m.tekst)).toEqual([
       'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.',
     ]);
@@ -318,7 +315,6 @@ describe('et brev registrert som dokumentasjon i saksbildet (OV-U16, #1045)', ()
     const { bilde } = bildeAv([...journal, retting]);
     expect(bilde.journal[3].tittel).toBe('Retting fra BH: brevet hører ikke til saken');
     expect(bilde.journal[2].registrertBrev?.at(-1)).toBe('Rettet i hendelse 4.');
-    expect(bilde.spor.find((s) => s.spor === 'forhold')!.registrerteBrev).toEqual([]);
     expect(bilde.merknader).toEqual([]);
   });
 });

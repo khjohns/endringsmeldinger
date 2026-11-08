@@ -96,11 +96,11 @@ bygger på referanseteksten og er ikke en erklæring om juridisk kvalitetssikrin
 
 ## Implementering og kontroll
 
-- [Varseltekst og valg](../../src/lib/domain/konsekvensVarsler.ts)
-- [Felles varselkomponent](../../src/lib/components/kontraktsbord/KonsekvensVarsler.svelte)
+- [Varseltekst og valg](https://github.com/khjohns/endringsmeldinger/blob/ad17e225a15d18fd04978f622305119ccc48c891/src/lib/domain/konsekvensVarsler.ts)
+- [Felles varselkomponent](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/KonsekvensVarsler.svelte)
 - [Backend-regler](../../backend/services/business_rules.py)
 - [Projisering og historikk](../../backend/services/timeline_service.py)
-- [Tekst- og kategoritester](../../src/lib/domain/__tests__/konsekvensVarsler.test.ts)
+- [Tekst- og kategoritester](https://github.com/khjohns/endringsmeldinger/blob/ad17e225a15d18fd04978f622305119ccc48c891/src/lib/domain/__tests__/konsekvensVarsler.test.ts)
 - [Backendtester](../../backend/tests/test_services/test_konsekvensvarsler.py)
 
 Regresjonskontrollen skal dekke at kategoribytte beholder valgte varsler og

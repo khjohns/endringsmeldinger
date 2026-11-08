@@ -23,7 +23,6 @@ function aapne(forloep: string, punkt: string) {
   render(Demoforloep, {
     forloep: finnForloep(forloep)!,
     punkt,
-    visning: 'varden',
     onpunkt: () => {},
     onstart: (d: Demosak) => (demosak = d),
   });

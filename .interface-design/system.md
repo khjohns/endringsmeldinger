@@ -341,7 +341,7 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Revider krav»
   ellers). Ellers har kortet ingen primærhandling, også når TE har korrigert datoen (oppdragsgiver
   06.11, #1649). Demoruta og den ekte saksruta har samme primærhandling. Er den ikke bygget i
-  Varden, åpner den dagens visning, og uten lenke dit sier den at den ikke er bygget. «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
+  Varden, sier den at den ikke er bygget (#1636). «Trekk påberopelsen» står sist. «Godta svaret» går rett til brevkontrollen, der virkningen av aksepten står før sendingen.
   Innsigelsen om at et brev kom for sent står ikke i kortet: den hører hjemme i svaret på
   brevet eller i et innlegg, som ikke er bygget (oppdragsgiver 06.11, PR 1650).
   Resten står under «Andre handlinger» som en åpen liste (`Brevtyper`), som i prototypen

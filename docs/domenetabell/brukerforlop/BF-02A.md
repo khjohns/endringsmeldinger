@@ -124,10 +124,11 @@ finner ut at pålegget ble mottatt 20.09.2026.
   (`Korrigering.svelte`) sender kommandoen gjennom brevkontrollen (#1615). Skjemaet for en ny
   grunnlagsversjon, med det låste datofeltet (U-7), er ikke bygget i Varden. Det er «Oppdater
   påberopelse» i BF-10. Skissen viser det.
-- **G-3** Skjemaet for en ny grunnlagsversjon i dagens visning kopierer datoen fra det
-  gjeldende kravet (`src/lib/kjernesak/paaberopelse.ts`). Etter en korrigering er det ikke
-  TEs siste opplysning, så kjernen avviser versjonen med `DATOEN_KAN_IKKE_ENDRES`. Feilen er
-  meldt i #1617 og rettes når skjemaet bygges.
+- **G-3** Skjemaet for en ny grunnlagsversjon i Varden (`Paaberopelsesversjon.svelte`) tar
+  datoen fra TEs siste opplysning i `datoopplysninger`, ikke fra det gjeldende kravet
+  (`nyVersjonAvPaaberopelsen` i `varden/kommandoer.ts`, #1617). Ellers ville kjernen avvist
+  versjonen etter en korrigering med `DATOEN_KAN_IKKE_ENDRES`. Den gamle visningen er fjernet
+  (#1516).
 - **G-4** Testklienten setter alltid datoen 15.09.2026 i grunnlagskravet
   (`kjerne/tester/klient.ts`). BF-02C kan derfor ikke vise en godtatt ny versjon med den
   korrigerte datoen, bare avvisningen. Teksten etter LV-U56 er prøvd i

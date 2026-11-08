@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getSession, loginUrl } from './auth';
+import { getSession, loginUrl, logout } from './auth';
 import { apiFetch, clearCsrfToken } from './client';
 
 afterEach(() => {
@@ -39,6 +39,26 @@ describe('cookie authentication', () => {
       'csrf-for-session'
     );
     expect(new Headers(fetch.mock.calls[1][1].headers).has('Authorization')).toBe(false);
+  });
+
+  it('utloggingen tømmer fanens lagring, så neste bruker ikke får skjemaet for ny sak (#1678)', async () => {
+    const lagret = new Map<string, string>();
+    vi.stubGlobal('sessionStorage', {
+      setItem: (k: string, v: string) => lagret.set(k, v),
+      clear: () => lagret.clear(),
+    });
+    vi.stubGlobal('window', { location: { replace: vi.fn() } });
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValueOnce(new Response(JSON.stringify({ csrfToken: 'csrf' })))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ success: true })))
+    );
+    sessionStorage.setItem('nysak:ventende:bruker-a:p1', '{"sakId":"sak-1"}');
+    await logout();
+    expect(lagret.size).toBe(0);
+    expect(window.location.replace).toHaveBeenCalledWith('/login');
   });
 
   it('delegates OAuth state and callback construction to the backend', () => {

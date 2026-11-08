@@ -164,7 +164,7 @@ som `float`; hendelses- og tilstandsmodeller bruker også `float`.
 Frontendens `tilOre` bruker `number`, `toPrecision(15)` og egen halv-opprunding.
 [`Backend`](../../../backend/regler/__init__.py),
 [`sammenlikning`](../../../backend/regler/sammenlikning.py),
-[`frontend`](../../../src/lib/domain/vederlagDomain.ts).
+[`frontend`](https://github.com/khjohns/endringsmeldinger/blob/ad17e225a15d18fd04978f622305119ccc48c891/src/lib/domain/vederlagDomain.ts).
 
 **Anbefaling prototype:** prøv to konkrete representasjoner: heltallsøre med
 avgrenset verdiområde, og en liten desimalpakke med eksplisitt presisjon og

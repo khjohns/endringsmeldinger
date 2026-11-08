@@ -233,7 +233,7 @@ export const SKJEMA = {
   forkastJa: 'Forkast',
   behold: 'Behold utkastet',
   ikkeStoettet:
-    'Kravet har en post for særskilt vederlagsjustering (punkt 34.1.3). Den kan ikke besvares i denne prøven av Varden. Bruk dagens visning for dette svaret.',
+    'Kravet har en post for særskilt vederlagsjustering (punkt 34.1.3). Den kan ikke besvares i denne prøven av Varden ennå.',
 };
 
 export const HOVEDLINJER = {
@@ -306,7 +306,7 @@ export const varselet = (type: string, hva: string) =>
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
 export const HANDLINGENE = {
   andre: 'Andre handlinger',
-  /** En brevtype som ikke er bygget, i demoruta uten dagens visning (#1636). */
+  /** En brevtype som ikke er bygget i Varden (#1636). */
   ikkeBygget: 'Denne handlingen er ikke bygget i prøven ennå.',
   godta: (avslag: boolean) => `Godta ${avslag ? 'avslaget' : 'svaret'}`,
   /** Den nye kravversjonen etter byggherrens svar i vederlaget og fristen (oppdragsgiver 06.11, #1631). */
@@ -635,7 +635,7 @@ export const SAKEN = {
   finnesIkkeForklaring:
     'Saken ble ikke funnet. Kontroller lenken, eller gå tilbake til sakslisten.',
   tilSakslisten: 'Til sakslisten',
-  ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden. Bruk dagens visning.',
+  ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
 };
 
 /** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */

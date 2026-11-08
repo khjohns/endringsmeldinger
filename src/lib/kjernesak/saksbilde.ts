@@ -35,8 +35,6 @@ export interface Sporbilde {
   betegnelse: Etikett | null;
   etiketter: Etikett[];
   poster: Sporpost[];
-  /** Motpartens registrerte brev, vist ved kravet som venter på svar (OV-U20). */
-  registrerteBrev: string[];
 }
 
 /** En opplysning i brevet, med etikettene fra `visning`: hvem som oppgir den, og bestridelsene. */
@@ -223,10 +221,6 @@ export function lagSaksbilde(
     status: vist.status,
     merknader: vist.merknader.map(etikett),
     spor: SPOR.map((spor) => {
-      // Dagens visning viser bare byggherrens brev; begge partenes vises i Varden (OV-U62, #1414).
-      const ved = vist.spor[spor].registrerteBrev
-        .filter((b) => b.avsender === 'BH')
-        .map((b) => b.dokument);
       const s = u.spor[spor];
       return {
         spor,
@@ -253,12 +247,6 @@ export function lagSaksbilde(
         ]
           .sort((a, b) => (a.brev ?? 0) - (b.brev ?? 0))
           .map((p) => ({ ...p, tekst: postTekst(p) })),
-        registrerteBrev: vist.registrerteBrev
-          .filter((b) => ved.includes(b.dokument))
-          .map(
-            (b) =>
-              `Registrert brev fra ${b.avsender}, sendt ${formatDateNorwegian(b.sendt)}: ${b.beskrivelse}`
-          ),
       };
     }),
     journal: journal.map((r) => {

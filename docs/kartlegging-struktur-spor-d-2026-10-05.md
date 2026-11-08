@@ -68,7 +68,7 @@ uten lagring. Svarene bærer verdiene regelmodulen regner ut, så de passerer
 `COMPUTED_RESULT`. Reproduksjonene står i
 [`test_strukturkartlegging_spor_d.py`](../backend/tests/test_services/test_strukturkartlegging_spor_d.py)
 (åtte strenge `xfail`) og
-[`strukturkartlegging_spor_d.test.ts`](../src/lib/components/kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts)
+[`strukturkartlegging_spor_d.test.ts`](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts)
 (fire `it.fails`). Hver er kjørt med `--runxfail` og som vanlig `it` for å se
 at den feiler på målassertionen. Eierskapstabellen i avsnitt 2 er laget med et
 AST-skript over `timeline_service.py` og rettet for hånd.

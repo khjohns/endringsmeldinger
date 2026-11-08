@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import Saksliste from '$lib/components/varden/Saksliste.svelte';
 import Vardensak from '$lib/components/varden/Vardensak.svelte';
-import { lagSakslinje } from '$lib/mocks/sakslinje';
+import { lagSakslinje } from './sakslinje';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { ApiError } from '$lib/api/client';

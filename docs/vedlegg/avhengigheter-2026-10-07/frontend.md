@@ -88,7 +88,7 @@ Kjørt og observert: `npm ls` bekrefter `@tiptap/core@2.27.2 →
 angir berørt `<1.42.3`, rettet `1.42.3`, alvorlighet høy, med forutsetningen at
 brukeren limer angriperstyrt HTML inn i en ProseMirror-editor.
 
-Lest ut av koden: [RichTextEditor](../../../src/lib/components/primitives/RichTextEditor.svelte)
+Lest ut av koden: [RichTextEditor](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/primitives/RichTextEditor.svelte)
 oppretter `Editor` med StarterKit og standard innliming. Ingen
 `transformPastedHTML`, `handlePaste` eller egen `clipboardParser` er konfigurert.
 I den installerte `prosemirror-view/src/input.ts` går `editHandlers.paste` fra
@@ -99,7 +99,7 @@ gjennom en editortransaksjon og `view.dispatch`. Dette er bibliotekbanen varsele
 gjelder. Ingen exploit er kjørt i appen; konsekvensen er en begrunnet kandidat,
 ikke observert kjøring av JavaScript.
 
-[sanitizeRichText](../../../src/lib/utils/sanitizeRichText.ts) saniterer HTML-strenger
+[sanitizeRichText](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/utils/sanitizeRichText.ts) saniterer HTML-strenger
 ved visning i GrunnlagOverview og ExpandableReasoning. Den kjører ikke i
 clipboardbanen. Den senere visningssaniteringen beviser derfor ikke at
 editorinnlimingen er beskyttet. Serverens datatilgang kan heller ikke stoppe
@@ -120,7 +120,7 @@ uautorisert attributtobjekt med egen `__proto__`-nøkkel inn i `mergeAttributes`
 og etterfølgende DOM-serialisering som tar med arvede attributter. Standard faste
 skjemaer gjør ikke vilkårlig Tiptap-JSON automatisk utnyttbart.
 
-[LockedValueNode.renderHTML](../../../src/lib/editor/LockedValueNode.ts) bruker
+[LockedValueNode.renderHTML](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/editor/LockedValueNode.ts) bruker
 `mergeAttributes`, men noden deklarerer faste felter `type`, `value`, `display`
 og leser dem fra HTML. RichTextEditor tar `body`/`content` som HTML-strenger;
 en API-/CMS-/plugin-objektbane med egen `__proto__` er ikke påvist. Hold dette

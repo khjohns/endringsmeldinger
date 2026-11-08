@@ -1,9 +1,10 @@
 /**
- * Vederlagskravet med kravposter gjennom skrivestien til TS-serveren (#667, #1663). Kravet
- * bygges direkte i kjernens format (OV-U95 punkt 19), ikke av det gamle skjemaet, og den
- * låste teksten er den `brevFor` gir. Saken er en prøvesak fra testverktøyet. Kildene til
- * forventningene er formatet i kjernen, avgjørelsen om valgfri utdypning (oppdragsgiver
- * 17.10, #667) og LV-U2.
+ * Påberopelsen og vederlagskravet med kravposter mot dagens TS-server (#667, #1663).
+ * Påberopelsen er den Varden sender, bygget av `kommandoene` i
+ * `src/lib/components/varden/nysak.ts` (#1678). Vederlagskravet bygges direkte i kjernens
+ * format (OV-U95 punkt 19), og den låste teksten er den `brevFor` gir. Saken er en prøvesak
+ * fra testverktøyet. Kildene til forventningene er formatet i kjernen, avgjørelsen om
+ * valgfri utdypning (oppdragsgiver 17.10, #667) og LV-U2.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -18,19 +19,23 @@ import {
   type KjorendeServer,
   type Oppsett,
 } from '../../server/tester/testbase.ts';
-import { grunnlagskrav } from '../../src/lib/kjernesak/paaberopelse.ts';
+import { kommandoene } from '$lib/components/varden/nysak';
 import { brevFor, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
 import { somJournal } from '../../src/lib/kjernesak/journal.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 
-const PAABEROPELSE = grunnlagskrav({
-  hovedkategori: 'ENDRING',
-  underkategori: 'IRREG',
-  datoer: { paalegg_mottatt: '2026-10-01' },
-  endringsordre: '',
-  utdypning: 'Byggherren har pålagt en annen fundamentering.',
-});
+const { paaberopelse: PAABEROPELSE } = kommandoene(
+  {
+    forhold: { gruppe: 'ENDRING', kode: 'IRREG' },
+    tittel: 'Annen fundamentering',
+    beskrivelse: 'Byggherren har pålagt en annen fundamentering.',
+    dato: '2026-10-01',
+    endringsordre: '',
+    vedlegg: [],
+  },
+  KJERNE
+);
 
 /** Kravet med én kravpost med tilbud, i formatet i kjernen (OV-U95 punkt 19). */
 const vederlagskrav = (beloep: number, utdypning = '') => ({

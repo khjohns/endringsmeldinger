@@ -113,18 +113,8 @@ KJENTE_AVVIK = (
     ("server/saksliste.ts", "MM-U29", 2, "#1545"),
     ("server/tester/sakslinje.test.ts", "MM-U28", 2, "#1545"),
     ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1545"),
-    ("src/lib/components/case-list/__tests__/CaseListRow.test.ts", "MM-U28", 2, "#1545"),
-    ("src/lib/components/case-list/presentation.ts", "MM-U28", 1, "#1545"),
-    ("src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts", "MM-U29", 1, "#1545"),
-    ("src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts", "OV-U61", 3, "#1450"),
-    ("src/lib/components/saksoversikt/__tests__/WorkQueue.test.ts", "MM-U29", 3, "#1545"),
-    ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1545"),
-    ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1545"),
-    ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1545"),
     ("kjerne/kommandoer/forutsetninger.ts", "OV-U8", 1, "#1576"),
     ("kjerne/tester/feilinnfoering.ts", "OV-U8", 1, "#1576"),
-    ("src/lib/components/kjernesak/__tests__/TeSkjema.test.ts", "OV-U8", 1, "#1576"),
-    ("src/lib/components/kontraktsbord/TeVederlagForm.svelte", "OV-U8", 1, "#1576"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare

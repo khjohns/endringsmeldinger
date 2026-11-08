@@ -215,7 +215,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | [migrasjoner og testbase](migrasjoner-og-testbase.md) | Hvordan migrasjonene verifiseres mot prosjektet uten å røre basen: testbasen i PostgreSQL 17, stubben av Supabase, katalogsummene og historikken. Flyttet fra `AGENTS.md` 29.09 |
 | [brev og intern godkjenning](brev-og-godkjenning.md) | Godkjenningskjede, fullmakt, brevgenerering |
 | [endringsordre](endringsordre.md) | EO-flyten i grensesnittet |
-| [Kontraktsbordet](frontend-kontraktsbord.md) | Hovedgrensesnittet |
+| [Kontraktsbordet](frontend-kontraktsbord.md) | Historisk: saksvisningen før Varden, fjernet i #1516 |
 | [språket i løsningen](sprak.md) | Klarspråk i visningen, vedtakene og brevene, og betegnelsen for løsningen |
 | [designsystemet](../.interface-design/system.md) | Beslutningene for Varden: tokens og mønstre. Verdiene står i `theme.css`. Vedtakene står i vedtaksfila |
 | [beslutningslogg](adr/README.md) | ADR-er og juridiske drøftelser: [varsling uavhengig av kontraktsforhold](adr/001-varsling-og-kontraktsforhold.md) og [varselet etter § 34.1.2 og det særskilte kravet](adr/002-saerskilt-krav-og-varsel-etter-34-1-2.md) |

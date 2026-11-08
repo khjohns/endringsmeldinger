@@ -113,7 +113,7 @@ data = "GrunnlagData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: skjemaet for ny sak (NewCaseForm)",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. Skjemaet for ny sak (NewCaseForm) er fjernet (#1516)",
 ]
 tilstand = """
 Grunnlaget blir `sendt`, versjon 1. Vederlag og frist går fra `ikke_relevant`
@@ -139,7 +139,7 @@ data = "GrunnlagData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: TeGrunnlagForm, eventuelt gjennom TEs interne kontroll (claimReview)",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. TeGrunnlagForm og TEs interne kontroll (claimReview) er fjernet (#1516)",
 ]
 tilstand = """
 Versjonen øker. Et `avslatt` grunnlag går tilbake til `sendt`; andre statuser
@@ -162,7 +162,7 @@ data = "WithdrawalData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: Kontrollrommet",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. Kontrollrommet er fjernet (#1516)",
 ]
 tilstand = """
 Grunnlaget blir `trukket`. Vederlag og frist som er aktive, det vil si ikke
@@ -197,7 +197,7 @@ data = "VederlagData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: TeVederlagForm, eventuelt gjennom TEs interne kontroll (claimReview)",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. TeVederlagForm og TEs interne kontroll (claimReview) er fjernet (#1516)",
 ]
 tilstand = """
 Et rent varsel fører bare varslene inn på sporet, og sporet blir `sendt` om
@@ -222,7 +222,7 @@ data = "VederlagData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: TeVederlagForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. TeVederlagForm er fjernet (#1516)",
 ]
 tilstand = """
 Som et spesifisert krav, men versjonen øker. Et spor som er `avslatt`,
@@ -244,7 +244,7 @@ data = "WithdrawalData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: Kontrollrommet",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. Kontrollrommet er fjernet (#1516)",
 ]
 tilstand = """
 Vederlag blir `trukket`. Er frist også `ikke_relevant`, `utkast` eller
@@ -276,7 +276,7 @@ data = "FristData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: TeFristForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. TeFristForm er fjernet (#1516)",
 ]
 tilstand = """
 Setter varseltype, varsel- og spesifiseringsdato, krevde dager og begrunnelse.
@@ -299,7 +299,7 @@ data = "FristData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: TeFristForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. TeFristForm er fjernet (#1516)",
 ]
 tilstand = """
 Versjonen øker, og kravet settes på nytt. Et spor som er `avslatt`,
@@ -325,7 +325,7 @@ data = "FristData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: TeFristForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. TeFristForm er fjernet (#1516)",
 ]
 tilstand = "Samme behandling som `frist_krav_oppdatert`: versjonen øker, og krevde dager settes."
 behandler = "_handle_frist"
@@ -348,7 +348,7 @@ data = "FristInnsigelseData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy",
-    "Frontend: FristVarselForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. FristVarselForm er fjernet (#1516)",
 ]
 tilstand = """
 `frist_varsel_ok` blir `false` og `begrunnelse_varsel` settes. Status,
@@ -376,7 +376,7 @@ data = "FristForesporselData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy",
-    "Frontend: FristVarselForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. FristVarselForm er fjernet (#1516)",
 ]
 tilstand = """
 `har_bh_foresporsel` blir `true`, `dato_bh_foresporsel` og
@@ -399,7 +399,7 @@ data = "WithdrawalData"
 lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch",
-    "Frontend: Kontrollrommet",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. Kontrollrommet er fjernet (#1516)",
 ]
 tilstand = """
 Frist blir `trukket`. Er vederlag også `ikke_relevant`, `utkast` eller
@@ -431,7 +431,7 @@ lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
     "BHs godkjenningspakke (POST /api/cases/<sak>/approvals, action publish)",
-    "Frontend: GrunnlagForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. GrunnlagForm er fjernet (#1516)",
 ]
 tilstand = """
 `godkjent` gir `laast` når grunnlaget ikke er merket for sent varslet;
@@ -457,7 +457,7 @@ lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
     "BHs godkjenningspakke",
-    "Frontend: GrunnlagForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. GrunnlagForm er fjernet (#1516)",
 ]
 tilstand = """
 Samme behandling som `respons_grunnlag`. Krever et tidligere svar på
@@ -484,7 +484,7 @@ lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
     "BHs godkjenningspakke",
-    "Frontend: VederlagForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. VederlagForm er fjernet (#1516)",
 ]
 tilstand = """
 Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller
@@ -512,7 +512,7 @@ lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
     "BHs godkjenningspakke",
-    "Frontend: VederlagForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. VederlagForm er fjernet (#1516)",
 ]
 tilstand = """
 Samme behandling som `respons_vederlag`, også kravet om hele svaret (B-13)."""
@@ -539,7 +539,7 @@ lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
     "BHs godkjenningspakke",
-    "Frontend: FristForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. FristForm er fjernet (#1516)",
 ]
 tilstand = """
 Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller
@@ -572,7 +572,7 @@ lagres_i = "hendelse"
 innsending = [
     "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
     "BHs godkjenningspakke",
-    "Frontend: FristForm",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. FristForm er fjernet (#1516)",
 ]
 tilstand = """
 Samme behandling som `respons_frist`, også sperren mot et krav uten dager,
@@ -778,7 +778,7 @@ innsending = [
     "POST /api/events/batch med forventet versjon 0",
     "Catenda-webhook for ny topic, med forfatterens side (catenda_webhook_service)",
     "POST /api/endringsordre/opprett og utstedelse fra EO-godkjenningen (endringsordre_service)",
-    "Frontend: skjemaet for ny sak sender den til POST /api/events, som avviser en ukjent sak (DM-05)",
+    "Frontend: sendes ikke fra noe skjermbilde i dag. Skjemaet for ny sak (NewCaseForm) er fjernet (#1516); POST /api/events avviser en ukjent sak (DM-05)",
 ]
 tilstand = """
 Setter tittel, Catenda-topic, prosjekt- og partsnavn og sakstype. En

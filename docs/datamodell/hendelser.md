@@ -86,7 +86,7 @@ TE varsler forholdet og sitt syn på ansvaret: kategori, beskrivelse og når for
 | Kilde for bestemmelsen | kode: backend/constants/grunnlag_categories.py; vedtak: ADR-001, beslutning 4 |
 | Modell | `GrunnlagEvent`, data `GrunnlagData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: skjemaet for ny sak (NewCaseForm) |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. Skjemaet for ny sak (NewCaseForm) er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE |
 | Virkning på status | Grunnlaget blir `sendt`, versjon 1. Vederlag og frist går fra `ikke_relevant` til `utkast`. Hvert varsel i `varsler` føres inn på vederlags- eller fristsporet med innsendingsdatoen, og et spor som var `ikke_relevant` eller `utkast`, blir `sendt`. Sakstittelen settes om den mangler. |
 | Behandler | `TimelineService._handle_grunnlag` |
@@ -122,7 +122,7 @@ TE reviderer grunnlaget: ny tittel, kategori, beskrivelse eller dato. Hele grunn
 | Kilde for bestemmelsen | kode: backend/constants/grunnlag_categories.py |
 | Modell | `GrunnlagEvent`, data `GrunnlagData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: TeGrunnlagForm, eventuelt gjennom TEs interne kontroll (claimReview) |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. TeGrunnlagForm og TEs interne kontroll (claimReview) er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, NOT_LOCKED |
 | Virkning på status | Versjonen øker. Et `avslatt` grunnlag går tilbake til `sendt`; andre statuser står. Nye varsler avvises: de sendes fra vederlags- eller fristsporet (NOTICE_TRACK, som `validate` sjekker før reglene). |
 | Behandler | `TimelineService._handle_grunnlag` |
@@ -158,7 +158,7 @@ TE trekker grunnlaget, og med det kravene i saken.
 | Kilde for bestemmelsen | oppdragsgiver, 29.09 |
 | Modell | `WithdrawalEvent`, data `WithdrawalData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: Kontrollrommet |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. Kontrollrommet er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_ACTIVE |
 | Virkning på status | Grunnlaget blir `trukket`. Vederlag og frist som er aktive, det vil si ikke `ikke_relevant`, `utkast` eller `trukket`, blir også `trukket` (kaskade). Avvises når grunnlaget er låst, godkjent, ikke sendt, allerede trukket eller oppgjort ved godtatt avslag. |
 | Behandler | `TimelineService._handle_grunnlag_trukket` |
@@ -184,7 +184,7 @@ TE varsler eller spesifiserer et vederlagskrav. Med `varsel_type = varsel` er de
 | Kilde for bestemmelsen | kode: backend/models/events.py (VederlagData, VederlagsMetode, VederlagKompensasjon); vedtak: ADR-001, DRF-03 i 3.1 (29.09) |
 | Modell | `VederlagEvent`, data `VederlagData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: TeVederlagForm, eventuelt gjennom TEs interne kontroll (claimReview) |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. TeVederlagForm og TEs interne kontroll (claimReview) er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, GRUNNLAG_REQUIRED |
 | Virkning på status | Et rent varsel fører bare varslene inn på sporet, og sporet blir `sendt` om det var `ikke_relevant` eller `utkast`. Et spesifisert krav setter metode, beløp, begrunnelse og særskilte krav, og sporet blir `sendt`, versjon 1. Sendedatoen for varselet om justerte enhetspriser settes av serveren (DRF-03). |
 | Behandler | `TimelineService._handle_vederlag` |
@@ -229,7 +229,7 @@ TE reviderer vederlagskravet. Hele kravet sendes på nytt.
 | Kilde for bestemmelsen | kode: backend/models/events.py (VederlagData) |
 | Modell | `VederlagEvent`, data `VederlagData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: TeVederlagForm |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. TeVederlagForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, GRUNNLAG_REQUIRED, ACTIVE_CLAIM_EXISTS |
 | Virkning på status | Som et spesifisert krav, men versjonen øker. Et spor som er `avslatt`, `under_forhandling` eller `delvis_godkjent`, går tilbake til `sendt`. |
 | Behandler | `TimelineService._handle_vederlag` |
@@ -274,7 +274,7 @@ TE trekker vederlagskravet.
 | Kilde for bestemmelsen | oppdragsgiver, 29.09 |
 | Modell | `WithdrawalEvent`, data `WithdrawalData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: Kontrollrommet |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. Kontrollrommet er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_ACTIVE |
 | Virkning på status | Vederlag blir `trukket`. Er frist også `ikke_relevant`, `utkast` eller `trukket`, blir grunnlaget `trukket` (omvendt kaskade). Avvises når kravet er oppgjort; et krav som bare er godkjent subsidiært, kan trekkes (TFR-03). |
 | Behandler | `TimelineService._handle_vederlag_trukket` |
@@ -300,7 +300,7 @@ TE varsler om fristforlengelse eller sender et spesifisert krav. `varsel_type` s
 | Kilde for bestemmelsen | kode: backend/models/events.py (FristVarselType, FristData); vedtak: ADR-001 |
 | Modell | `FristEvent`, data `FristData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: TeFristForm |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. TeFristForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, GRUNNLAG_REQUIRED |
 | Virkning på status | Setter varseltype, varsel- og spesifiseringsdato, krevde dager og begrunnelse. Sporet blir `sendt`, versjon 1. Et spesifisert krav uten tidligere varsel regnes også som varsel. |
 | Behandler | `TimelineService._handle_frist` |
@@ -336,7 +336,7 @@ TE reviderer fristkravet.
 | Kilde for bestemmelsen | kode: backend/models/events.py (FristData) |
 | Modell | `FristEvent`, data `FristData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: TeFristForm |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. TeFristForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, GRUNNLAG_REQUIRED, ACTIVE_CLAIM_EXISTS |
 | Virkning på status | Versjonen øker, og kravet settes på nytt. Et spor som er `avslatt`, `under_forhandling` eller `delvis_godkjent`, går tilbake til `sendt`. Har kravet dager og venter en forespørsel på svar, merkes kravet som svaret på den (`foresporsel_besvart_krav_id`, § 33.6.2 fjerde ledd). |
 | Behandler | `TimelineService._handle_frist` |
@@ -372,7 +372,7 @@ TE spesifiserer antall dager etter et varsel om fristforlengelse, eventuelt som 
 | Kilde for bestemmelsen | kode: kommentaren ved EventType.FRIST_KRAV_SPESIFISERT |
 | Modell | `FristEvent`, data `FristData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: TeFristForm |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. TeFristForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, GRUNNLAG_REQUIRED, ACTIVE_CLAIM_EXISTS |
 | Virkning på status | Samme behandling som `frist_krav_oppdatert`: versjonen øker, og krevde dager settes. |
 | Behandler | `TimelineService._handle_frist` |
@@ -408,7 +408,7 @@ BH gjør gjeldende at varselet om fristforlengelse kom for sent, før TE har spe
 | Kilde for bestemmelsen | vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04 |
 | Modell | `FristInnsigelseEvent`, data `FristInnsigelseData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy; Frontend: FristVarselForm |
+| Sendes fra | POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy; Frontend: sendes ikke fra noe skjermbilde i dag. FristVarselForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, CLAIM_UNSPECIFIED, CLAIM_REFERENCE, NOT_ALREADY_OBJECTED |
 | Virkning på status | `frist_varsel_ok` blir `false` og `begrunnelse_varsel` settes. Status, `bh_resultat` og `respons_event_id` står urørt. |
 | Behandler | `TimelineService._handle_frist_innsigelse` |
@@ -437,7 +437,7 @@ BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager el
 | Kilde for bestemmelsen | vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04 og 2026-10-05 |
 | Modell | `FristForesporselEvent`, data `FristForesporselData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy; Frontend: FristVarselForm |
+| Sendes fra | POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy; Frontend: sendes ikke fra noe skjermbilde i dag. FristVarselForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, CLAIM_UNSPECIFIED, CLAIM_REFERENCE, REQUEST_PENDING |
 | Virkning på status | `har_bh_foresporsel` blir `true`, `dato_bh_foresporsel` og `foresporsel_krav_id` settes, og `frist_for_spesifisering` får svarfristen. Status, `bh_resultat` og `respons_event_id` står urørt. |
 | Behandler | `TimelineService._handle_frist_foresporsel` |
@@ -467,7 +467,7 @@ TE trekker fristkravet.
 | Kilde for bestemmelsen | oppdragsgiver, 29.09 |
 | Modell | `WithdrawalEvent`, data `WithdrawalData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch; Frontend: Kontrollrommet |
+| Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag. Kontrollrommet er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_ACTIVE |
 | Virkning på status | Frist blir `trukket`. Er vederlag også `ikke_relevant`, `utkast` eller `trukket`, blir grunnlaget `trukket` (omvendt kaskade). |
 | Behandler | `TimelineService._handle_frist_trukket` |
@@ -493,7 +493,7 @@ BH svarer på grunnlaget: godkjent, avslått eller frafalt pålegg, og om grunnl
 | Kilde for bestemmelsen | kode: backend/models/events.py (GrunnlagResponsData, GrunnlagResponsResultat); vedtak: B-13 i 3.1 (24.09) |
 | Modell | `ResponsEvent`, data `GrunnlagResponsData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke (POST /api/cases/<sak>/approvals, action publish); Frontend: GrunnlagForm |
+| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke (POST /api/cases/<sak>/approvals, action publish); Frontend: sendes ikke fra noe skjermbilde i dag. GrunnlagForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_LOCKED, NOT_ALREADY_RESPONDED, COMPUTED_RESULT |
 | Virkning på status | `godkjent` gir `laast` når grunnlaget ikke er merket for sent varslet; merket for sent varslet gir `under_forhandling`. `avslatt` gir `avslatt`, og `frafalt` gir `trukket`. Svaret knyttes til gjeldende versjon av grunnlaget. Serveren avviser et svar med en annen `regelversjon` enn sin egen, `grunnlag_varslet_i_tide` utenfor § 32.2 og `frafalt` utenfor pålegg (B-13). |
 | Behandler | `TimelineService._handle_respons_grunnlag` |
@@ -529,7 +529,7 @@ BH endrer sitt svar på grunnlaget («snuoperasjon»).
 | Kilde for bestemmelsen | kode: samme datamodell som respons_grunnlag |
 | Modell | `ResponsEvent`, data `GrunnlagResponsData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: GrunnlagForm |
+| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: sendes ikke fra noe skjermbilde i dag. GrunnlagForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_LOCKED, PREVIOUS_RESPONSE, RESPONSE_ACCEPTED, COMPUTED_RESULT |
 | Virkning på status | Samme behandling som `respons_grunnlag`. Krever et tidligere svar på gjeldende versjon (PREVIOUS_RESPONSE). |
 | Behandler | `TimelineService._handle_respons_grunnlag` |
@@ -565,7 +565,7 @@ BH svarer på vederlagskravet: varsler i tide, metode, beløp per post, samlet r
 | Kilde for bestemmelsen | kode: backend/models/events.py (VederlagResponsData, SubsidiaerTrigger); vedtak: B-13 i 3.1 (24.09) |
 | Modell | `ResponsEvent`, data `VederlagResponsData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: VederlagForm |
+| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: sendes ikke fra noe skjermbilde i dag. VederlagForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_ALREADY_RESPONDED, COMPUTED_RESULT |
 | Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`; `hold_tilbake` gir `under_behandling`. Godkjent beløp, metode, varselvurderinger og subsidiært standpunkt settes. Serveren regner ut resultat, beløp og subsidiært standpunkt av vurderingene og kravet, og avviser et svar der klientens verdier, eller `regelversjon`, ikke er like serverens (B-13, BR-01). Hele svaret kreves. Serverens verdier, avrundet til øre, lagres. |
 | Behandler | `TimelineService._handle_respons_vederlag` |
@@ -623,7 +623,7 @@ BH endrer sitt svar på vederlagskravet, for eksempel ved å oppheve en tilbakeh
 | Kilde for bestemmelsen | kode: kommentaren ved EventType.RESPONS_VEDERLAG_OPPDATERT |
 | Modell | `ResponsEvent`, data `VederlagResponsData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: VederlagForm |
+| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: sendes ikke fra noe skjermbilde i dag. VederlagForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, PREVIOUS_RESPONSE, RESPONSE_ACCEPTED, COMPUTED_RESULT |
 | Virkning på status | Samme behandling som `respons_vederlag`, også kravet om hele svaret (B-13). |
 | Behandler | `TimelineService._handle_respons_vederlag` |
@@ -681,7 +681,7 @@ BH svarer på fristkravet: varsler i tide, om forholdet har hindret fremdriften,
 | Kilde for bestemmelsen | kode: backend/models/events.py (FristResponsData, SubsidiaerTrigger); vedtak: ADR-001, nøytralt fristvarsel i 3.1 (23.09), B-13 i 3.1 (24.09) |
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
+| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: sendes ikke fra noe skjermbilde i dag. FristForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, NOT_ALREADY_RESPONDED, COMPUTED_RESULT |
 | Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7, TFR-06); før det sendes `frist_innsigelse_sendt` eller `frist_foresporsel_sendt`. Serveren regner ut resultat, dager og subsidiært standpunkt av vurderingene og kravet, og avviser et svar der klientens verdier, eller `regelversjon`, ikke er like serverens (B-13, BR-01). Hele svaret kreves: et varselspørsmål som stilles, må besvares, også `spesifisert_krav_ok`, som modellen ellers ville satt til `true`. På kravet som besvarte forespørselen med dager, avvises `spesifisert_krav_ok=false` (§ 33.6.2 fjerde ledd, #172). En senere revisjon av kravet kan møtes med § 33.6.1 (oppdragsgiver 04.10). |
 | Behandler | `TimelineService._handle_respons_frist` |
@@ -727,7 +727,7 @@ BH endrer sitt svar på fristkravet.
 | Kilde for bestemmelsen | kode: samme datamodell som respons_frist |
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
+| Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: sendes ikke fra noe skjermbilde i dag. FristForm er fjernet (#1516) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, PREVIOUS_RESPONSE, RESPONSE_ACCEPTED, COMPUTED_RESULT |
 | Virkning på status | Samme behandling som `respons_frist`, også sperren mot et krav uten dager, mot § 33.6.1 på kravet som besvarte forespørselen, og kravet om hele svaret (B-13). |
 | Behandler | `TimelineService._handle_respons_frist` |
@@ -984,7 +984,7 @@ Første hendelse i en sak: tittel, sakstype og kobling til Catenda. Feltene ligg
 | Kilde for bestemmelsen | oppdragsgiver, 29.09 |
 | Modell | `SakOpprettetEvent`, feltene på toppnivå |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/events/batch med forventet versjon 0; Catenda-webhook for ny topic, med forfatterens side (catenda_webhook_service); POST /api/endringsordre/opprett og utstedelse fra EO-godkjenningen (endringsordre_service); Frontend: skjemaet for ny sak sender den til POST /api/events, som avviser en ukjent sak (DM-05) |
+| Sendes fra | POST /api/events/batch med forventet versjon 0; Catenda-webhook for ny topic, med forfatterens side (catenda_webhook_service); POST /api/endringsordre/opprett og utstedelse fra EO-godkjenningen (endringsordre_service); Frontend: sendes ikke fra noe skjermbilde i dag. Skjemaet for ny sak (NewCaseForm) er fjernet (#1516); POST /api/events avviser en ukjent sak (DM-05) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE |
 | Virkning på status | Setter tittel, Catenda-topic, prosjekt- og partsnavn og sakstype. En standardsak får grunnlaget i `utkast`; en forseringssak får forseringsdata fra `forsering_data`. En ukjent sakstype blir `standard`. Forretningsreglene kjøres ikke på første hendelse i en ny sak, bare rollekontrollen i ruta. |
 | Behandler | `TimelineService._handle_sak_opprettet` |

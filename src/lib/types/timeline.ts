@@ -1,4 +1,4 @@
-import type { SendtKonsekvensVarsel, KonsekvensVarsler } from '$lib/domain/konsekvensVarsler';
+import type { SendtKonsekvensVarsel, KonsekvensVarsler } from './konsekvensvarsler';
 /**
  * Unified Timeline Types
  *
