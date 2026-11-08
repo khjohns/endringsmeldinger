@@ -8,7 +8,7 @@
  * (LV-U2). Et registrert brev er sendt utenfor appen og har ingen PDF herfra (LV-U11).
  */
 
-import type { Avhengigheter, Forespoersel, Saksrute, Svar } from './app.ts';
+import type { Avhengigheter, Forespoersel, Saksrute, Svar } from './rutetyper.ts';
 import { lesekontekst } from './autorisasjon.ts';
 import { feilsvar } from './inngang.ts';
 import { lesSaken, SakFinnesIkke } from './lager.ts';

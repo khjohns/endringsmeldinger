@@ -22,7 +22,7 @@ import type {
   Opprettelsesrute,
   Saksrute,
   Svar,
-} from './app.ts';
+} from './rutetyper.ts';
 import { Nektet, type Kontraktstilgang } from './autorisasjon.ts';
 import { lagret, lesInntil } from './inngang.ts';
 import {

@@ -23,7 +23,7 @@ format = 1
 navn = "sak_opprettet"
 beskrivelse = """
 Saken er opprettet. Første rad i saken, i versjon 1, før grunnlagskravet.
-`POST /api/kjerne/saker` i `server/app.ts` kaller opprettelsen i kjernen
+`POST /api/kjerne/saker` i `server/saker.ts` kaller opprettelsen i kjernen
 (`opprettelse` i `kjerne/kommandoer/opprettelse.ts`), som godtar bare TE og gir
 `format` og `data`, og så `opprettSak` i `server/kommandoer.ts`, som skriver
 raden og også avviser en annen side enn TE (#370, #696)."""

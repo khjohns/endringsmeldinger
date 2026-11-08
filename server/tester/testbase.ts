@@ -9,7 +9,8 @@
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { lagServer, type Avhengigheter } from '../app.ts';
+import { lagServer } from '../app.ts';
+import type { Avhengigheter } from '../rutetyper.ts';
 import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
 import { forkast, reservasjon, sql, type Utlaan } from '../datalag.ts';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';

@@ -35,10 +35,10 @@ import {
   erSaksrute,
   erUtenProsjekt,
   erUtenSak,
-  RUTER,
   type Rute,
   type Saksrute,
-} from '../app.ts';
+} from '../rutetyper.ts';
+import { RUTER } from '../app.ts';
 import { BREVRUTER } from '../brev.ts';
 import { catendaId, sha256 } from '../autorisasjon.ts';
 import { entraIdentitet, entraIssuer } from '../entra.ts';
