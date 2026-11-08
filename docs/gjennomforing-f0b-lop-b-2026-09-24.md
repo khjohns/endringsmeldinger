@@ -15,9 +15,9 @@ sin merknad samlet når alle fire løp er inne (#49).
 
 | Fil | Innhold |
 | --- | --- |
-| [`backend/repositories/postgres/sak_metadata.py`](../backend/repositories/postgres/sak_metadata.py) | `PostgresSakMetadataRepository`, erstatter `SupabaseSakMetadataRepository` |
-| [`backend/repositories/postgres/relasjon.py`](../backend/repositories/postgres/relasjon.py) | `PostgresRelationRepository`, erstatter `RelationRepository` |
-| [`backend/repositories/postgres/bim.py`](../backend/repositories/postgres/bim.py) | `PostgresBimLinkRepository`, erstatter `BimLinkRepository` |
+| [`backend/repositories/postgres/sak_metadata.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/postgres/sak_metadata.py) | `PostgresSakMetadataRepository`, erstatter `SupabaseSakMetadataRepository` |
+| [`backend/repositories/postgres/relasjon.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/postgres/relasjon.py) | `PostgresRelationRepository`, erstatter `RelationRepository` |
+| [`backend/repositories/postgres/bim.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/postgres/bim.py) | `PostgresBimLinkRepository`, erstatter `BimLinkRepository` |
 | [`backend/tests/test_database/test_sak_relasjon_bim.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_sak_relasjon_bim.py) | 37 tester mot testbasen, merket `database` |
 
 Containeren velger klassene med `DATALAG=postgres` gjennom `POSTGRES_LAGRE`,

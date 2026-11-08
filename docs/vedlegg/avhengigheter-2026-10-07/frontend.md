@@ -185,7 +185,7 @@ optional Zod 4. Formsnap 2 vil dermed ikke tillate en enkel oppgradering til
 Superforms 3. Dette er en sammenhengende ubrukt stakk, ikke tre uavhengige
 fjerningsbeslutninger.
 
-[validation_drift.py.parse_frontend_schemas](../../../scripts/validation_drift.py)
+[validation_drift.py.parse_frontend_schemas](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/scripts/validation_drift.py)
 søker etter gamle React-filer under `src/components/actions/*.tsx`, som ikke
 finnes i dagens Svelte-tree. Skriptet leser tekst; det importerer eller kjører
 ikke Zod. Det kalles av `check_drift.py`, men CI har eksplisitt utelatt

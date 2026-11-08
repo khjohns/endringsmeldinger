@@ -37,7 +37,7 @@ Disse forholdene avgjør ikke valget, men de avgrenser det.
 
 | ID | Forhold | Belegg |
 | --- | --- | --- |
-| B18-01 | **Én vertsadresse.** Python setter sesjonskapselen med prefikset `__Host-` (`sesjonsnavn` i [`autorisasjon.ts`](../server/autorisasjon.ts), `set_cookie` i [`auth_routes.py`](../backend/routes/auth_routes.py)). Kapselen er bundet til verten. TS og Python må derfor stå bak samme vert, med ruting etter sti. Det gjelder alternativ 1 og 2 likt, så lenge innloggingen blir i Python | L 10.10 |
+| B18-01 | **Én vertsadresse.** Python setter sesjonskapselen med prefikset `__Host-` (`sesjonsnavn` i [`autorisasjon.ts`](../server/autorisasjon.ts), `set_cookie` i [`auth_routes.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/auth_routes.py)). Kapselen er bundet til verten. TS og Python må derfor stå bak samme vert, med ruting etter sti. Det gjelder alternativ 1 og 2 likt, så lenge innloggingen blir i Python | L 10.10 |
 | B18-02 | **Frontenden er statisk i dag.** `adapter-static` i [`svelte.config.js`](../svelte.config.js), og [`Dockerfile`](../Dockerfile) bygger bare frontenden og serverer den med nginx. Det finnes ikke noe produksjonsbilde for en Node-server eller for Flask | L 10.10 |
 | B18-03 | **Transaksjonene er like.** Både en SvelteKit-server og en egen Node-prosess når PostgreSQL med `pg` og kan åpne én transaksjon per kommando. Valget mellom 1 og 2 endrer ikke hva en transaksjon kan omfatte | L 10.10 |
 | B18-04 | **Workeren er en egen prosess uansett.** Levering etter commit trenger en drivmekanisme som virker uten en forespørsel (invariant 7 i 2.3, B-07). Ingen av alternativene gjør serverlaget til worker | L 10.10 (transaksjonsplanen, «Worker og Catenda») |
@@ -78,7 +78,7 @@ som KOE-saken (merknaden 09.10 til B-17).
 | --- | --- | --- |
 | `expected_version` og samtidighet | `leggTil` i [`lager.ts`](https://github.com/khjohns/endringsmeldinger/blob/fc19484/sprakprove/server/lager.ts) kontrollerer versjonen i transaksjonen. Unik-skranken stopper to samtidige skrivinger, og taperen får 409 (K 10.10, `server.test.ts`) | Ingenting prinsipielt |
 | Én sak per transaksjon | `leggTil` avviser hendelser i flere saker: «Alle hendelsene må gjelde samme sak» (L 10.10) | En EO-kommando skriver i EO-saken og leser og reserverer KOE-sakene. Det krever en lås per saksstrøm, tatt i sortert rekkefølge, og en reservasjon for KOE-tilknytningen (transaksjonsplanen, «Autoritativ utstedelseskommando», punkt 2 og 4; B-01 (c)). Ikke prøvd (—) |
-| Brev, beslutningsgrunnlag og leveringsintensjon | Prøven har ingen outbox og ikke noe brev (L 10.10) | Outboxen finnes ikke i noen migrasjon (L 10.10). Leveringsintensjonen i dag er `approval_outbox` i SQLite (`ApprovalService.deliver` i [`approval_service.py`](../backend/services/approval_service.py)), utenfor transaksjonen i PostgreSQL |
+| Brev, beslutningsgrunnlag og leveringsintensjon | Prøven har ingen outbox og ikke noe brev (L 10.10) | Outboxen finnes ikke i noen migrasjon (L 10.10). Leveringsintensjonen i dag er `approval_outbox` i SQLite (`ApprovalService.deliver` i [`approval_service.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_service.py)), utenfor transaksjonen i PostgreSQL |
 | Transaksjonskontrakten fra F0b | Prøven bruker eierforbindelsen mot testbasen, uten transaksjonslokal rolle (L 10.10) | Rolle og kontekst per transaksjon, tilbakestilling av gjenbrukt forbindelse og retry av hele transaksjonen (#310) |
 
 **Vurdering:** ingen forskjell mellom 1 og 2. Transaksjonen er ren SQL mot
@@ -94,12 +94,12 @@ leser i dag for å levere (L 10.10):
 
 | Sted i Python | Leser i dag | Etter B-17 |
 | --- | --- | --- |
-| `_post_to_catenda` og `_sync_topic_status` i [`event_routes.py`](../backend/routes/event_routes.py) | `overordnet_status` fra `compute_state` på hele journalen, og det frosne brevet i `event.data.brev` | Statusetiketten for Catenda regnes av TS og fryses i leveringsoppdraget |
-| `CatendaCommentGenerator` i [`catenda_comment_generator.py`](../backend/services/catenda_comment_generator.py) | `overordnet_status`, `vederlag`, `frist`, `grunnlag`, `neste_handling`, `forsering_data`, `endringsordre_data` | Kommentarteksten, eller dataene den bygges av, fryses av TS |
-| `snapshot` og `pdf_bytes` i [`approval_letter.py`](../backend/services/approval_letter.py) | Bare det frosne brevet. Ikke tilstanden | Kan bli i Python uendret, som gjengiver. `decision_summary` og `_subsidiaert_ved_avslatt_grunnlag` setter sammen beslutningslinjen og hører til TS (H 09.10, arkitekturforslaget, P2-4) |
-| `ApprovalService` (`krav_fra_tilstand`, `basis`, `validate_items`, `publish`) i [`approval_service.py`](../backend/services/approval_service.py) | Kravet og grunnlaget fra tilstanden, og skriver hendelser i `publish` | Til TS i sin helhet (#310, DT-02) |
-| Kandidatsøkene `_is_agreed_koe` og `hent_kandidat_koe_saker` i [`endringsordre_service.py`](../backend/services/endringsordre_service.py) og [`forsering_service.py`](../backend/services/forsering_service.py) | Status og resultater per spor | Til TS, med EO- og forseringssakene |
-| `CatendaSyncService` i [`catenda_sync_service.py`](../backend/services/catenda_sync_service.py) | `overordnet_status` for forsering | Som statussynken over |
+| `_post_to_catenda` og `_sync_topic_status` i [`event_routes.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/event_routes.py) | `overordnet_status` fra `compute_state` på hele journalen, og det frosne brevet i `event.data.brev` | Statusetiketten for Catenda regnes av TS og fryses i leveringsoppdraget |
+| `CatendaCommentGenerator` i [`catenda_comment_generator.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/catenda_comment_generator.py) | `overordnet_status`, `vederlag`, `frist`, `grunnlag`, `neste_handling`, `forsering_data`, `endringsordre_data` | Kommentarteksten, eller dataene den bygges av, fryses av TS |
+| `snapshot` og `pdf_bytes` i [`approval_letter.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_letter.py) | Bare det frosne brevet. Ikke tilstanden | Kan bli i Python uendret, som gjengiver. `decision_summary` og `_subsidiaert_ved_avslatt_grunnlag` setter sammen beslutningslinjen og hører til TS (H 09.10, arkitekturforslaget, P2-4) |
+| `ApprovalService` (`krav_fra_tilstand`, `basis`, `validate_items`, `publish`) i [`approval_service.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_service.py) | Kravet og grunnlaget fra tilstanden, og skriver hendelser i `publish` | Til TS i sin helhet (#310, DT-02) |
+| Kandidatsøkene `_is_agreed_koe` og `hent_kandidat_koe_saker` i [`endringsordre_service.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/endringsordre_service.py) og [`forsering_service.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/forsering_service.py) | Status og resultater per spor | Til TS, med EO- og forseringssakene |
+| `CatendaSyncService` i [`catenda_sync_service.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/catenda_sync_service.py) | `overordnet_status` for forsering | Som statussynken over |
 
 Grensen som følger: **TS fryser alt Python trenger i leveringsoppdraget, i
 samme transaksjon som hendelsen.** Oppdraget har brevets grunnlag, mål og
@@ -129,7 +129,7 @@ uttrykkelig kontrakt. Tre former er mulige:
 | (c) En projeksjonstabell TS skriver | Sakens metadata, som `sak_metadata` i dag | Riktig for oversikter og søk, og allerede planlagt som én skriver i hendelsens transaksjon (MS-06, MS-07). Python skal ikke bruke den til å avgjøre hva partene kan gjøre |
 
 Webhooken fra Catenda er en skrivesti. `handle_new_topic_created` i
-[`catenda_webhook_service.py`](../backend/services/catenda_webhook_service.py)
+[`catenda_webhook_service.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/catenda_webhook_service.py)
 oppretter en KOE-sak gjennom `create_sak` (L 10.10). Etter B-17 må
 opprettelsen gå gjennom TS. Python kan motta og kontrollere webhooken, løse
 identiteten gjennom `koe_resolve_identity` og legge meldingen i en varig inbox

@@ -1,5 +1,5 @@
 {
-  "omfang": "Grensetilfeller for beløp, dager og fravær i flyten (#274, P1-4). Tabellen kjøres mot backend/regler/ (pytest), og gruppene for beløp, krone og frist også mot sprakprove/kjerne/ (Vitest). Vederlaget har egne forventninger for TS-kjernen i sprakprove/tester/grensetilfeller.test.ts (OV-U58, OV-U59, KA-U42, #1317). Kilden står per gruppe. Karakterisering betyr at forventningen fastholder Pythons Decimal-semantikk, som en port skal bevare (arkitekturforslaget, avsnitt 7); den er ikke en rettslig forventning. Negative beløp prøves bare aritmetisk; om et negativt krav er lovlig, er #189.",
+  "omfang": "Grensetilfeller for beløp, dager og fravær i flyten (#274, P1-4). Gruppene for beløp, krone og frist kjøres mot sprakprove/kjerne/ (Vitest). Python-reglene tabellen også ble kjørt mot, er slettet (#49). Vederlaget har egne forventninger for TS-kjernen i sprakprove/tester/grensetilfeller.test.ts (OV-U58, OV-U59, KA-U42, #1317). Kilden står per gruppe. Karakterisering betyr at forventningen fastholder Pythons Decimal-semantikk, som en port skal bevare (arkitekturforslaget, avsnitt 7); den er ikke en rettslig forventning. Negative beløp prøves bare aritmetisk; om et negativt krav er lovlig, er #189.",
   "belop": {
     "kilde": "karakterisering: regler.belop, Decimal(str(verdi)).quantize(0.01, ROUND_HALF_UP)",
     "tilfeller": [

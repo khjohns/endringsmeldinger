@@ -98,7 +98,7 @@ Interne notater må holdes utenfor speilingen eller skjermes der; se
 
 - Backend når basen bare gjennom `supabase-py`, altså PostgREST på `/rest/v1`,
   med `SUPABASE_SECRET_KEY` (`service_role`). Én delt klient per prosess
-  ([`lib/supabase/client.py`](../backend/lib/supabase/client.py)). `auth(token)`
+  ([`lib/supabase/client.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/supabase/client.py)). `auth(token)`
   endrer hele klienten (TM-04).
 - Ni repositorier bruker `.table()`. `auth_repository.py` kaller fire funksjoner
   som RPC: `koe_resolve_identity`, `koe_reconcile_memberships`,
@@ -122,7 +122,7 @@ Interne notater må holdes utenfor speilingen eller skjermes der; se
 - `pgaudit` er forhåndslastet, ikke opprettet.
 
 **Om migrasjonene:** de forutsetter plattformrollene og skjemaet `auth`
-([`scripts/testbase/plattformstubb.sql`](../scripts/testbase/plattformstubb.sql)).
+([`scripts/testbase/plattformstubb.sql`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/scripts/testbase/plattformstubb.sql)).
 Én migrasjon har egen `BEGIN`/`COMMIT` og kan ikke kjøres med
 `--single-transaction`. Alle 23 bygger som `postgres` uten superbruker (K 23.09,
 prototype v2).

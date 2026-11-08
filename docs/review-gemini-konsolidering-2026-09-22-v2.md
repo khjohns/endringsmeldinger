@@ -62,7 +62,7 @@ hendelser eller nye feil påvist i produksjonskoden.
 
 **Sted:** Masterplan v2, avsnitt 2.2 punkt 5–6 (linje 202–214), fase 2
 linje 478–489 og akseptkriteriet linje 509. **Symbol:**
-[`CommentsMixin.create_comment`](../backend/integrations/catenda/mixins/comments.py).
+[`CommentsMixin.create_comment`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/integrations/catenda/mixins/comments.py).
 
 V2 forutsetter at worker alltid kan gjøre GET med en deterministisk Catenda-GUID
 før ny POST. De lokale API-spesifikasjonene gir et mer konkret og nyttig grunnlag:
@@ -145,8 +145,8 @@ moteksempler til komplett dekning, ikke en erstatning for avstemmingen.
 
 **Sted:** Masterplan v2 linje 421–451, 490–503 og tabellutviklingen linje 616–628;
 kildegrunnlagets MS-12-rad. **Symboler:**
-[`VedleggRegistry.__init__`](../backend/services/vedlegg_registry.py),
-[`CatendaDeliveryStatus`](../backend/services/catenda_delivery_status.py).
+[`VedleggRegistry.__init__`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/vedlegg_registry.py),
+[`CatendaDeliveryStatus`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/catenda_delivery_status.py).
 
 Fase 1 flytter utkast og godkjenningspakker, men krever at SQLite er **fullstendig**
 fjernet fra kjøretiden. Vedleggsregisteret flyttes først i fase 2. Dagens kode har

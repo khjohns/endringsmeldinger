@@ -30,8 +30,8 @@ if [ ! -x /tmp/venv/bin/python ]; then
   python3 -m venv /tmp/venv >> "$logg" 2>&1 || echo "ADVARSEL: python3 -m venv /tmp/venv feilet; se $logg."
 fi
 if ! /tmp/venv/bin/pip install --quiet --disable-pip-version-check \
-  -r "$rot/backend/requirements.txt" -r "$rot/backend/requirements-dev.txt" >> "$logg" 2>&1; then
-  echo "ADVARSEL: pip install for backend feilet, så pytest kan mangle pakker; se $logg."
+  -r "$rot/verktoy/tester/requirements.txt" >> "$logg" 2>&1; then
+  echo "ADVARSEL: pip install for vaktene i verktoy/tester feilet, så pytest kan mangle pakker; se $logg."
 fi
 
 # npm ci når låsefila er endret siden forrige installasjon, ellers npm install.

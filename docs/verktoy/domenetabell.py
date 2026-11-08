@@ -14,9 +14,9 @@ med grunnen. En rad for et vedtak som bygges senere, har vedtaket som utsetter d
     python3 docs/verktoy/domenetabell.py          # kontroller; 1 ved feil eller utdatert tabell
     python3 docs/verktoy/domenetabell.py --skriv  # skriv tabellen på nytt
 
-`verktoy/tester/test_domenetabell/` kjører kontrollen i CI, og
-`backend/tests/test_domenetabell/` kjører bevis-sakene mot Python-projeksjonen. Kontrollen viser at referansene henger sammen, ikke at
-forventningene er riktige.
+`verktoy/tester/test_domenetabell/` kjører kontrollen i CI. `bevis-saker.json` er et
+frosset arkiv som ingen test kjører mot en implementasjon (#49). Kontrollen viser at
+referansene henger sammen, ikke at forventningene er riktige.
 """
 
 import json
@@ -318,7 +318,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
             return avvik["funn"] == f"#{avvik.get('issue')}" and f"| {avvik['funn']}:" in vedtak
         if re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE):
             return True
-        # Et vedtak i 3.1 er også et funn mot Python-stien, som rettes etter DL-U2 (#611).
+        # Et kjent avvik kan også ha en vedtaks-ID som funn, med issuet i `issue` (#611).
         return (
             f"</a>{avvik['funn']}:" in vedtak
             and isinstance(avvik.get("issue"), int)

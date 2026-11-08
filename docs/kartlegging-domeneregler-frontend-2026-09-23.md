@@ -5,7 +5,7 @@
 B-13 i avsnitt 3.4 og BR-01 i funnregisteret.
 [Oppdraget](prompt-spor-d-br01-2026-09-23.md), del 1.
 **Reproduksjonene:**
-[`test_beregningsresultat_br01_20260923.py`](../backend/tests/test_security/test_beregningsresultat_br01_20260923.py).
+[`test_beregningsresultat_br01_20260923.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_security/test_beregningsresultat_br01_20260923.py).
 
 Appen er ikke i produksjon og har ingen reelle data. Alvorlighet angir mulig
 konsekvens under beskrevne forutsetninger, ikke observert hendelse.

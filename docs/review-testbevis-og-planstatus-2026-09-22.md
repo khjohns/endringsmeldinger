@@ -64,7 +64,7 @@ kan ikke brukes som antall bekreftede åpne feil. Minst GFK-04 er feilklassifise
 
 ### RTB-02 — testen styrer ikke det avgjørende kappløpet
 
-**Sted:** [test_tst02_deterministisk.py](../backend/tests/test_audit_testbevis_20260922/test_tst02_deterministisk.py),
+**Sted:** [test_tst02_deterministisk.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_audit_testbevis_20260922/test_tst02_deterministisk.py),
 `test_tst02_samtidig_opprettelse_kolliderer_paa_felles_tmp_fil`.
 
 Barrieren ligger før `append_batch`. Den sikrer ikke at begge skrivere har
@@ -110,8 +110,8 @@ samtidighet og feilpunkter. Ikke flytt dette bak generell adapteropprydding.
 [Catenda-dataflyten, avsnitt 10–11](catenda-dataflyt.md) dokumenterer tidligere
 levende tester av statusbevaring, samme dokumentnavn som ny revisjon, unikt navn
 som nytt item, dokumentreferanser, GUID-normalisering og relasjoner. Testene
-finnes også i [kontraktskriptet](../backend/scripts/test_catenda_api_contracts_live.py)
-og [mock-kontraktene](../backend/tests/test_integrations/test_catenda_mutation_contracts.py).
+finnes også i [kontraktskriptet](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/scripts/test_catenda_api_contracts_live.py)
+og [mock-kontraktene](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_integrations/test_catenda_mutation_contracts.py).
 Dette er tidligere rapportert verifikasjon, ikke nye levende kjøringer i dag.
 
 Det er ikke grunnlag for å gjenta hele denne API-gjennomgangen nå. Tilleggene er:

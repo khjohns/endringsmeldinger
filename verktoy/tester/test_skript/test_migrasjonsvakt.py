@@ -16,7 +16,6 @@ import pytest
 
 SKRIPT = Path(__file__).resolve().parents[3] / ".github/scripts/migrasjonsvakt.py"
 MSSQL = "database/migrasjoner"
-PG = "supabase/migrations"
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -43,7 +42,6 @@ def repo(tmp_path: Path) -> tuple[Path, str]:
     _skriv(tmp_path, {
         f"{MSSQL}/20261020100000_a.sql": "CREATE TABLE a (x int);\n",
         f"{MSSQL}/20261020110000_b.sql": "-- kommentar\nCREATE TABLE b (x int);\n",
-        f"{PG}/20261011090000_c.sql": "create table c (x int);\n",
     })
     return tmp_path, _git(tmp_path, "rev-parse", "HEAD")
 
@@ -63,10 +61,7 @@ def _feiler_med(svar: subprocess.CompletedProcess, tekst: str) -> None:
 
 def test_ny_migrasjon_etter_de_mergede_passerer(repo):
     sti, base = repo
-    _skriv(sti, {
-        f"{MSSQL}/20261020120000_d.sql": "CREATE TABLE d (x int);\n",
-        f"{PG}/20261012090000_e.sql": "create table e (x int);\n",
-    })
+    _skriv(sti, {f"{MSSQL}/20261020120000_d.sql": "CREATE TABLE d (x int);\n"})
     svar = _kjor(sti, base)
     assert svar.returncode == 0, svar.stdout + svar.stderr
 
@@ -86,13 +81,7 @@ def test_endret_kommentar_i_merget_migrasjon_feiler(repo):
 def test_endret_merget_migrasjon_feiler_ogsaa_kjoert_fra_en_undermappe(repo):
     sti, base = repo
     _skriv(sti, {f"{MSSQL}/20261020110000_b.sql": "-- kommentar rettet\nCREATE TABLE b (x int);\n"})
-    _feiler_med(_kjor(sti, base, PG), f"{MSSQL}/20261020110000_b.sql er merget, men er endret")
-
-
-def test_endret_merget_migrasjon_i_supabase_feiler(repo):
-    sti, base = repo
-    _skriv(sti, {f"{PG}/20261011090000_c.sql": "create table c (x bigint);\n"})
-    _feiler_med(_kjor(sti, base), f"{PG}/20261011090000_c.sql er merget, men er endret")
+    _feiler_med(_kjor(sti, base, MSSQL), f"{MSSQL}/20261020110000_b.sql er merget, men er endret")
 
 
 def test_fjernet_merget_migrasjon_feiler(repo):
@@ -141,13 +130,6 @@ def test_ny_fil_med_feil_form_feiler(repo):
     sti, base = repo
     _skriv(sti, {f"{MSSQL}/20261020120000-D.sql": "SELECT 1;\n"})
     _feiler_med(_kjor(sti, base), "har ikke formen ÅÅÅÅMMDDTTMMSS_navn.sql")
-
-
-def test_mappene_vurderes_hver_for_seg(repo):
-    """En ny fil i supabase/ sammenliknes bare med de mergede filene der."""
-    sti, base = repo
-    _skriv(sti, {f"{PG}/20261012090000_e.sql": "select 1;\n"})
-    assert _kjor(sti, base).returncode == 0
 
 
 def test_ny_tilleggsmigrasjon_som_bare_legger_til_passerer(repo):

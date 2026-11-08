@@ -183,8 +183,8 @@ Premiss 5 sa at et spor som ikke er sendt, ikke hindrer at saken blir omforent, 
 Python-rollup». Det stemmer ikke (L):
 
 - Når grunnlaget sendes, setter Python vederlag og frist til `UTKAST` (`_handle_grunnlag` i
-  [`timeline_service.py`](../backend/services/timeline_service.py)).
-- `overordnet_status` i [`sak_state.py`](../backend/models/sak_state.py) godtar bare
+  [`timeline_service.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/timeline_service.py)).
+- `overordnet_status` i [`sak_state.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/models/sak_state.py) godtar bare
   `IKKE_RELEVANT` som ferdig. Et spor i `UTKAST` gir `UNDER_BEHANDLING`. Testen
   `test_not_omforent_with_utkast_tracks` fastholder det.
 - Bare `kan_utstede_eo` ser bort fra spor som ikke er sendt.

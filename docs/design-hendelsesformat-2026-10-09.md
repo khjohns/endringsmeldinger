@@ -115,7 +115,7 @@ i `data`
   målmodellen.
 
 Tabellen `hendelse`
-([migrasjonen](../supabase/migrations/20260920193558_hendelse_tabell.sql)):
+([migrasjonen](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/supabase/migrations/20260920193558_hendelse_tabell.sql)):
 `data` er `JSONB NOT NULL`. `event_type` har ingen `CHECK`. Det er én
 `referstoid` (UUID uten fremmednøkkel), og `UNIQUE (sak_id, versjon)` gir
 versjonskonflikten.

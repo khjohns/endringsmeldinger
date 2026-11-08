@@ -1284,9 +1284,9 @@ står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
 Tidligere levende tester er **historiske resultater** fra 3. september 2026,
 dokumentert i [Catenda-dataflyten, avsnitt 10](../catenda-dataflyt.md#10-tester-før-produksjonsimplementasjon).
 Kontraktskriptet er
-[`test_catenda_api_contracts_live.py`](../../backend/scripts/test_catenda_api_contracts_live.py);
+[`test_catenda_api_contracts_live.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/scripts/test_catenda_api_contracts_live.py);
 mock-kontraktene ligger i
-[`test_catenda_mutation_contracts.py`](../../backend/tests/test_integrations/test_catenda_mutation_contracts.py).
+[`test_catenda_mutation_contracts.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_integrations/test_catenda_mutation_contracts.py).
 Ingen levende test er kjørt i denne redigeringen. Den lokale OpenAPI i
 `docs/tredjepart-api/` er et snapshot, ikke en garanti for tjenesten.
 

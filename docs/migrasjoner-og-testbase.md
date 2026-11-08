@@ -22,7 +22,7 @@ finnes fra 17, og 18 gir andre katalogsummer (under). På macOS gir
 `scripts/testbase/lokal_testbase.sh` en base med Homebrews 17. Uten 17
 installert gir `scripts/testbase/docker_testbase.sh` en base i det offisielle
 bildet `postgres:17`. Som CI henter den bildet fra kildene i
-[`scripts/ci/postgres_kilder.sh`](../scripts/ci/postgres_kilder.sh), i den
+[`scripts/ci/postgres_kilder.sh`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/scripts/ci/postgres_kilder.sh), i den
 rekkefølgen som står der (#327, #401). `bygg_testbase.sh`
 sjekker ikke versjonen selv. Den stubber
 Supabase-plattformen (rollene `anon`, `authenticated`, `service_role`,
