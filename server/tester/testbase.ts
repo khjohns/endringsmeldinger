@@ -428,14 +428,31 @@ export async function sendKommando(
     kommandoId = randomUUID(),
   }: { versjon: number; kommando?: Record<string, unknown>; kommandoId?: string }
 ): Promise<Svar> {
+  return sendMedTekst(url, o, sakId, {
+    versjon,
+    kommando: await medLaastTekst(o, sakId, kommando),
+    kommandoId,
+  });
+}
+
+/**
+ * Sender TEs kommando slik den er, med teksten fra `medLaastTekst` lest på forhånd. Da
+ * kan to tekster leses før noen av dem sendes, som to brevkontroller åpne samtidig (#1609).
+ */
+export function sendMedTekst(
+  url: string,
+  o: Oppsett,
+  sakId: string,
+  {
+    versjon,
+    kommando,
+    kommandoId = randomUUID(),
+  }: { versjon: number; kommando: Record<string, unknown>; kommandoId?: string }
+): Promise<Svar> {
   return kall(url, `/api/kjerne/saker/${sakId}/kommandoer`, {
     bruker: o.te,
     prosjektId: o.prosjekt.id,
-    kropp: {
-      expected_version: versjon,
-      kommando_id: kommandoId,
-      kommando: await medLaastTekst(o, sakId, kommando),
-    },
+    kropp: { expected_version: versjon, kommando_id: kommandoId, kommando },
   });
 }
 
