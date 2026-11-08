@@ -48,4 +48,40 @@ describe('grunnlaget foran svaret på vederlaget', () => {
     });
     expect(grunnlaget(journal)).toEqual({ grunner: [], forbehold: false });
   });
+
+  it('GR-U23: etter et frafall venter en ny versjon av grunnlaget på svar, og det gir ikke forbeholdet', () => {
+    const frafall = grunnlagssvar(medGrunnlag, {
+      resultat: 'paalegg_frafalt',
+      grunnlag_varslet_i_tide: true,
+    });
+    const journal = skrevet(frafall, 'TE', {
+      type: 'krav',
+      spor: 'forhold',
+      innhold: {
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        paalegg_mottatt: '2026-10-01',
+      },
+      utdypning: 'Påberopelsen i versjon 2.',
+    });
+    const u = utledJournal(journal, KJERNE);
+    expect(u.spor.forhold.gjeldendeSvar, 'forutsetning: versjon 2 er ikke besvart').toBeNull();
+    expect(grunnlagetForSvaret(u)).toEqual({ grunner: [], forbehold: false });
+  });
+
+  it('OV-U32: preklusjon etter § 32.2 gir preklusjonen som grunn', () => {
+    const journal = grunnlagssvar(medGrunnlag, {
+      resultat: 'godkjent',
+      grunnlag_varslet_i_tide: false,
+    });
+    expect(grunnlaget(journal)).toEqual({ grunner: ['prekludert'], forbehold: false });
+  });
+
+  it('OV-U32: preklusjon etter § 32.2 og avslag gir to grunner, preklusjonen først', () => {
+    const journal = grunnlagssvar(medGrunnlag, {
+      resultat: 'avslaatt',
+      grunnlag_varslet_i_tide: false,
+    });
+    expect(grunnlaget(journal).grunner).toEqual(['prekludert', 'avslaatt']);
+  });
 });
