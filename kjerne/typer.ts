@@ -25,6 +25,10 @@ export const SPOR: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
 
+/**
+ * Hjemlene byggherren kan påberope i et standpunkt om rettidighet. Varslene etter § 34.3.3 og
+ * § 34.4 er ikke med: byggherrens svar på dem bygges i økt 2 i #1663 (G-9 i BF-14).
+ */
 export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3';
 
 /**
@@ -32,8 +36,23 @@ export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3';
  * (OV-U5), og det særskilte varselet etter § 34.1.3 tredje ledd for kravet etter annet ledd,
  * som etter OV-U25 er det eneste særskilte varselet. Varselet etter § 32.2 i forholdet er
  * påberopelsen, eller et varsel sendt utenfor løsningen og registrert (VS-U34, VS-U38).
+ * Varslene etter § 34.3.3 første ledd og § 34.4 gjelder kravpostene (`Kravpostvarselhjemmel`).
  */
-export type Varselhjemmel = '32.2' | '33.4' | '34.1.2' | '34.1.3';
+export type Varselhjemmel = '32.2' | '33.4' | '34.1.2' | '34.1.3' | Kravpostvarselhjemmel;
+/**
+ * VS-U48, VS-U52: varselet om justering av enhetsprisene etter § 34.3.3 første ledd og varselet
+ * før regningsarbeid etter § 34.4. Saken kan ha flere av dem, og løsningen ser ikke hvilket
+ * arbeid de gjelder (arbeidsvalget i D-16 i BF-14).
+ */
+export type Kravpostvarselhjemmel = '34.3.3' | '34.4';
+/**
+ * Varselet etter § 34.3.3 eller § 34.4 for en kravpost i en ny kravversjon: kravet er varselet
+ * (`kravet`), eller varselet ble gitt før det første kravet (`varsel` er utsagnet). Utledes i
+ * `utledning/kravposter.ts` (VS-U49, VS-U55).
+ */
+export type Kravpostvarselet = { art: 'kravet' } | { art: 'gitt'; varsel: string };
+export const erKravpostvarselhjemmel = (hjemmel: Varselhjemmel): hjemmel is Kravpostvarselhjemmel =>
+  hjemmel === '34.3.3' || hjemmel === '34.4';
 /** Varslene TE kan sende fra løsningen. Fra løsningen er påberopelsen varselet etter § 32.2 (GR-U31). */
 export type Kravvarselhjemmel = Exclude<Varselhjemmel, '32.2'>;
 export const VARSELSPOR = {
@@ -41,8 +60,10 @@ export const VARSELSPOR = {
   '33.4': 'frist',
   '34.1.2': 'vederlag',
   '34.1.3': 'vederlag',
+  '34.3.3': 'vederlag',
+  '34.4': 'vederlag',
 } as const satisfies Record<Varselhjemmel, Spor>;
-export const erVarselhjemmel = (hjemmel: Hjemmel): hjemmel is Varselhjemmel =>
+export const erVarselhjemmel = (hjemmel: Hjemmel | Varselhjemmel): hjemmel is Varselhjemmel =>
   hjemmel in VARSELSPOR;
 
 /**

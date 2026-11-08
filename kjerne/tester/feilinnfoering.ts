@@ -3069,12 +3069,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'sporet har ett registrert varsel, så det særskilte varselet sperrer varselet etter § 34.1.2 (SK-12)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        "s.varsler['hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor]]",
-        'Object.keys(s.varsler).length',
-      ],
-    ],
+    endringer: [['if (s.varsler[hjemmel])', 'if (Object.keys(s.varsler).length)']],
     mal: ['saken har ett registrert varsel per hjemmel'],
   },
   {
@@ -4061,8 +4056,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F479',
     feilklasse: 'kravposten er varselet etter punkt 34.4 også i en senere versjon (VS-U48)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['    if (varslerI(p, foer))\n', '    if (true)\n']],
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [['    if (hattFoer) continue;\n', '']],
     mal: ['er varselet i den første versjonen den står i'],
   },
   {
@@ -4079,6 +4074,62 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [["  if (poster.some((p) => p.oppgjoersform !== 'tilbud'))\n", '  if (false)\n']],
     mal: ['før svaret per kravpost er bygget'],
+  },
+  {
+    id: 'F482',
+    feilklasse: 'et varsel før det første kravet gjelder ikke kravpostene i det kravet (D-16)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [
+      [
+        '    const gitt = tidligere.length ? undefined : varsler.find(',
+        '    const gitt = undefined && varsler.find(',
+      ],
+    ],
+    mal: [
+      'et varsel sendt før det første kravet gjelder',
+      'et varsel registrert før det første kravet',
+    ],
+  },
+  {
+    id: 'F483',
+    feilklasse: 'et varsel etter punkt 34.4 gjelder kravpostene med justerte enhetspriser (D-16)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [["    ? '34.4'\n", "    ? '34.3.3'\n"]],
+    mal: ['et varsel registrert før det første kravet'],
+  },
+  {
+    id: 'F484',
+    feilklasse: 'et varsel etter det første kravet gjelder en ny kravpost uten valg (D-16, D-19)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [['    const gitt = tidligere.length ? undefined : ', '    const gitt = ']],
+    mal: ['et varsel etter det første kravet gjelder ikke en ny kravpost'],
+  },
+  {
+    id: 'F485',
+    feilklasse: 'saken kan bare ha ett varsel etter punkt 34.3.3 og 34.4 (VS-U48, VS-U52)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    if (erKravpostvarselhjemmel(hjemmel)) continue;\n', '']],
+    mal: ['saken kan ha flere varsler etter punkt 34.3.3 og 34.4'],
+  },
+  {
+    id: 'F486',
+    feilklasse: 'byggherren kan sende innsigelse mot varselet etter punkt 34.3.3 før økt 2 (G-9)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['kanFaaInnsigelse(maal, part) && kravpostvarsel(u, h.gjelder)', 'false']],
+    mal: ['byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter'],
+  },
+  {
+    id: 'F487',
+    feilklasse:
+      'kravet viser ikke til varselet etter punkt 34.4 gitt før det første kravet (VS-U55)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '`Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i ${gittI(varselet, j)}.`',
+        "''",
+      ],
+    ],
+    mal: ['et varsel sendt før det første kravet gjelder'],
   },
 ];
 

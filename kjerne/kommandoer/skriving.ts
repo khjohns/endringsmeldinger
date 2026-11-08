@@ -6,7 +6,7 @@
  * ID, og relasjonene står som `gjelder` og `erstatter` (4.2).
  */
 
-import { brukteBetegnelser, nesteBetegnelse } from '../utledning/kravposter.ts';
+import { brukteBetegnelser, kravpostvarslene, nesteBetegnelse } from '../utledning/kravposter.ts';
 import { avvisning } from './avvisning.ts';
 import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
@@ -597,6 +597,15 @@ function brevtekstFor(
         datoopplysninger: u.datoopplysninger,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
         avklartVedFrafall: u.frafalt,
+        kravpostvarsler: Object.fromEntries(
+          ny.dokument.krav
+            .filter((k) => k.spor === 'vederlag')
+            .flatMap((k) =>
+              Object.entries(
+                kravpostvarslene(k, u.spor.vederlag.krav, u.spor.vederlag.kravpostvarsler)
+              )
+            )
+        ),
       },
       kjerne.regler,
       utdypninger

@@ -279,6 +279,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Krav.innhold', 'utsagn', 'trekker', ['frosset/brevtekst.ts']],
   ['Kravpost', 'relasjon', 'id betegnelse'],
   ['Kravpost', 'utsagn', 'oppgjoersform beloep', ['frosset/standpunkt.ts', 'frosset/brevtekst.ts']],
+  // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
+  ['Kravpost', 'utsagn', 'oppgjoersform justert', ['utledning/kravposter.ts:varselhjemmel']],
   [
     'Kravpost',
     'utsagn',
@@ -364,6 +366,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // § 33.6.2 (VS-U17, VS-U19, VS-U27): hver forespørsel og kravet eller begrunnelsen som
   // svarte, utledet av rekkefølgen i journalen, og hvordan fristkravene står til den.
   ['Sporutledning', 'relasjon', 'foresporsler'],
+  // VS-U48, VS-U52: varslene etter § 34.3.3 og § 34.4, utledet av utsagnene i journalen.
+  ['Sporutledning', 'relasjon', 'kravpostvarsler'],
   ['ForesporselOgSvar', 'relasjon', 'foresporsel svar medKrav'],
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
   ['frosset/standpunkt.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon'],
@@ -672,22 +676,23 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #984: datoen og vedleggene i kommandoen, med stien feilmeldingene viser til.
   ['kommandoer/kommando.ts:brevfelt', 'kommando', 'sti sendt dokumentasjon'],
-  // OV-U5: sporet og bestemmelsen i TEs varsel.
-  ['Varselet', 'kommando', 'spor hjemmel'],
-  // VS-U34: varselet etter § 32.2 registreres, og sendes ikke fra appen.
-  ['RegistrertVarsel', 'kommando', 'spor hjemmel', ['kommandoer/avvisning.ts']],
+  // OV-U5: sporet og bestemmelsen i TEs varsel, også det registrerte etter § 32.2 (VS-U34),
+  // og varslene etter § 34.3.3 og § 34.4 (VS-U48, VS-U52).
+  ['Hjemmelsvarsel', 'kommando', 'spor hjemmel'],
+  // OV-U5: varselet i sporet, som handlingsnøkkelen uten hjemmel gjelder.
+  ['VARSEL_I_SPORET', 'relasjon', 'frist vederlag', ['kommandoer/forutsetninger.ts']],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   // KA-U1, HF-U8: meldingen når aksepten ikke gjelder det gjeldende svaret, lik i
   // forutsetningene og nyttelastkontrollen.
   ['kommandoer/forutsetninger.ts', 'brevtekst', 'ELDRE_SVAR', ['kommandoer/nyttelast.ts']],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
-  ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel'],
+  ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel'],
   // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
   ['frosset/standpunkt.ts', 'frosset', 'laget', ['frosset/brevtekst.ts', 'kommandoer/lag.ts']],
   // OV-U32, OV-U33: lagene i et svarutkast regnes som brevet regner dem (S1-A i #1400).
   ['frosset/standpunkt.ts', 'predikat', 'virkninger', ['kommandoer/lag.ts:lagForUtkastet']],
-  ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3'],
+  ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
   [
@@ -878,6 +883,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'relasjon',
     'brukteBetegnelser nesteBetegnelse',
     ['kommandoer/skriving.ts:medKravposter'],
+  ],
+  // VS-U49, D-16, VS-U55: varselet for hver kravpost, lest av skriveren for brevteksten (A6).
+  [
+    'utledning/kravposter.ts',
+    'relasjon',
+    'kravpostvarslene',
+    ['kommandoer/skriving.ts:brevtekstFor'],
+  ],
+  [
+    'utledning/kravposter.ts:kravpostvarslene',
+    'utsagn',
+    'hjemmel id',
+    ['utledning/kravposter.ts:kravpostvarslene'],
   ],
   [
     'Kommando.innhold',
@@ -1153,6 +1171,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'sakskode tittel svarPaaPaaberopelsen datoopplysninger subsidiaer avklartVedFrafall',
     ['frosset/brevtekst.ts'],
   ],
+  // VS-U49, VS-U55: varselet for hver kravpost, utledet før brevet (`kravpostvarslene`, A6).
+  ['Saken', 'relasjon', 'kravpostvarsler kravpostvarsler.*', ['frosset/brevtekst.ts']],
+  ['Kravpostvarselet', 'relasjon', 'art varsel', ['frosset/brevtekst.ts']],
   // LV-U56: TEs opplysninger om datoen, fra utledningen (`Datoopplysning`).
   ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['frosset/brevtekst.ts']],
   ['Saken.datoopplysninger', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],

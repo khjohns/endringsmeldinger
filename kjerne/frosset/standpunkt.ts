@@ -30,6 +30,7 @@ import type {
   Dokument,
   Enighetsgrunnlag,
   Hjemmel,
+  Kravpostvarselhjemmel,
   Krav,
   Spor,
   Standpunkt,
@@ -190,7 +191,7 @@ export function innsigelsenPaaberoper(
   gjelder: string,
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,
   varslingsplikt: (krav: Krav) => boolean
-): Hjemmel | null {
+): Hjemmel | Kravpostvarselhjemmel | null {
   for (const d of dokumenter) {
     const utsagn = d.utsagn.find((x) => x.id === gjelder);
     // VS-U29: begrunnelsen etter § 33.6.2 annet ledd b kan bare komme for sent etter § 33.6.2.

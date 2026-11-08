@@ -1268,6 +1268,20 @@
       "dato": "2026-11-07",
       "ref": "../plans/vedtak.md#ov-u95",
       "radetikett": "OV-U95: Spørsmål 1: Samlevedtaket for vederlagsmetoden, versjon 2, gjelder med E8–E16"
+    },
+    {
+      "id": "VS-U48",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#vs-u48",
+      "radetikett": "VS-U48: Varselet etter punkt 34.3.3 første ledd og punkt 34.4"
+    },
+    {
+      "id": "VS-U52",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u52",
+      "radetikett": "VS-U52: Totalentreprenøren kan også velge varsel etter punkt 34.3.3 første ledd og etter punkt 34.4 når korrespondanse legges til som varsel"
     }
   ],
   "rader": [

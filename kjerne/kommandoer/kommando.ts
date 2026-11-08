@@ -30,6 +30,7 @@ import {
   type OppgittDatofelt,
   type Opplysningsslag,
   type Spor,
+  type Kravvarselhjemmel,
   type Varselhjemmel,
   KORRESPONDANSETYPER,
   type Korrespondansetype,
@@ -57,14 +58,22 @@ interface Brevtekst {
   brevtekst?: string[];
 }
 
-/** Varselet TE sender fra løsningen (VS-U15). Påberopelsen er varselet etter § 32.2 (GR-U31). */
-type Varselet =
-  | { spor: 'frist'; hjemmel: '33.4' }
-  | { spor: 'vederlag'; hjemmel: '34.1.2' }
-  | { spor: 'vederlag'; hjemmel: '34.1.3' };
+/**
+ * Varselet TE sender fra løsningen (VS-U15), også varselet etter § 34.3.3 første ledd eller
+ * § 34.4 som står alene (VS-U48). Påberopelsen er varselet etter § 32.2 (GR-U31).
+ */
+type Varselet = Hjemmelsvarsel<Kravvarselhjemmel>;
 
-/** Varselet TE har sendt utenfor løsningen og registrerer, også etter § 32.2 (VS-U34, VS-U38). */
-export type RegistrertVarsel = Varselet | { spor: 'forhold'; hjemmel: '32.2' };
+/** Varselet etter hver hjemmel i `H`, med sporet hjemmelen står i (`VARSELSPOR`, OV-U5). */
+type Hjemmelsvarsel<H extends Varselhjemmel> = {
+  [K in H]: { spor: (typeof VARSELSPOR)[K]; hjemmel: K };
+}[H];
+
+/**
+ * Varselet TE har sendt utenfor løsningen og registrerer, også etter § 32.2 (VS-U34, VS-U38) og
+ * etter § 34.3.3 første ledd eller § 34.4 (VS-U52).
+ */
+export type RegistrertVarsel = Hjemmelsvarsel<Varselhjemmel>;
 
 export type Kommando = (
   | {
@@ -98,8 +107,8 @@ export type Kommando = (
     }
   | { type: 'trekk'; spor: Spor }
   /**
-   * Registrerer et varsel etter § 32.2, § 33.4, § 34.1.2 eller § 34.1.3 sendt utenfor appen
-   * (MM-U1, SK-12, OV-U5, VS-U34), med brevet som vedlegg (OV-U4). `dokumentasjon` er
+   * Registrerer et varsel etter § 32.2, § 33.4, § 34.1.2, § 34.1.3, § 34.3.3 eller § 34.4
+   * sendt utenfor appen (MM-U1, SK-12, OV-U5, VS-U34, VS-U52), med brevet som vedlegg (OV-U4). `dokumentasjon` er
    * ID-ene i mellomlageret (LV-U14). Hjemmelen følger sporet.
    */
   | ({

@@ -235,7 +235,7 @@ const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttet(u);
 
 const harVarsel = (u: Utledning, spor: Kravspor): boolean =>
-  Object.keys(u.spor[spor].varsler).length > 0;
+  Object.keys(u.spor[spor].varsler).length > 0 || u.spor[spor].kravpostvarsler.length > 0;
 
 function vederlag(u: Utledning): Vederlagslinje {
   const s = u.spor.vederlag;
