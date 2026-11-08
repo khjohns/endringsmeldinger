@@ -2,7 +2,7 @@
  * Vakta for registeret over hendelsene kjernen skriver (#320):
  * `docs/datamodell/kjernehendelser.toml` skal ha de samme typene, sporene,
  * artene og feltene som skjemaene i `format.ts`. Formen på registeret prøves i
- * `backend/tests/test_datamodell/test_kjernehendelser.py`.
+ * `verktoy/tester/test_datamodell/test_kjernehendelser.py`.
  *
  * Registeret leses med en liten leser for den delen av TOML det bruker:
  * `[[seksjon]]`, `nøkkel = "tekst"`, `nøkkel = """…"""`, `nøkkel = [ … ]` på

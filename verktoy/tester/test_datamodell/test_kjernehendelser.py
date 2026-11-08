@@ -9,7 +9,9 @@ import copy
 
 import pytest
 
-from tests.test_datamodell.test_tabellregister import dm
+from verktoymoduler import last
+
+dm = last("datamodell")
 
 kh = dm.kh
 
@@ -44,3 +46,14 @@ def test_markdown_er_generert_fra_registeret(register):
     assert kh.MARKDOWN.read_text(encoding="utf-8") == kh.markdown(register), (
         "kjernehendelser.md er utdatert. Kjør /tmp/venv/bin/python docs/verktoy/datamodell.py fra repo-roten."
     )
+
+
+def test_excel_har_arket_kjernehendelser_med_en_rad_per_oppforing(register):
+    """#49: arket erstatter arkene om Pythons hendelser (oppdragsgiver 08.11, «god
+    dokumentasjon for mennesker»)."""
+    ark = dm.excel_verdier(dm.EXCEL)["Kjernehendelser"]
+    assert ark[0] == ["Seksjon", "Navn", "Innhold", "Felt", "Grunnlag"]
+    antall = sum(len(register[seksjon]) for seksjon in kh.SEKSJONER)
+    assert len(ark) == antall + 1
+    assert ark[1][:2] == ["hendelse", "sak_opprettet"]
+    assert ["del", "utregning (frist)"] in [rad[:2] for rad in ark]

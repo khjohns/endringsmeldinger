@@ -31,5 +31,4 @@ datamodell, lagrer `to_cloudevent` bare `data`. Et felt ved siden av `data`
 forsvinner ved lagring, men projeksjonen kan lese det i minnet, så svaret og
 cachen viser noe journalen ikke har. Har den ingen datamodell, som
 `sak_opprettet`, lagres en `data` fra klienten slik den kom, fordi `SakEvent`
-godtar ukjente felt (DM-06). `docs/datamodell/hendelser.md` lister
-toppnivåfeltene som ikke lagres.
+godtar ukjente felt (DM-06).

@@ -40,15 +40,22 @@ som `tilTsServeren()` i `server/ruting.ts` velger (#1026); ingenting går til Py
 
 I skyøktene lager `.claude/hooks/session-start.sh` venv-en og starter Docker og testbasen i SQL Server.
 
-PostgreSQL-basen for katalogen og `docs/verktoy/katalog.py` (se «Miljø» i
-`AGENTS.md`) bygges fra tom med `stopp` og `start`. Henting av bildet og
-migrasjonene kan ta mer enn 120 s, så gi kallet `timeout` på 600000. Variabelen
-gjelder bare i Bash-kallet den settes i, så hent URL-en i hvert kall som bruker
-basen:
+PostgreSQL-basen for katalogen i Python-stien (se «Miljø» i `AGENTS.md`) bygges
+fra tom med `stopp` og `start`. Henting av bildet og migrasjonene kan ta mer enn
+120 s, så gi kallet `timeout` på 600000. Variabelen gjelder bare i Bash-kallet den
+settes i, så hent URL-en i hvert kall som bruker basen:
 
 ```bash
 scripts/testbase/docker_testbase.sh stopp && scripts/testbase/docker_testbase.sh start >&2
-KOE_TESTBASE_URL="$(scripts/testbase/docker_testbase.sh url)" /tmp/venv/bin/python docs/verktoy/katalog.py
+psql "$(scripts/testbase/docker_testbase.sh url)" -c '\dt public.*'
+```
+
+`docs/verktoy/katalog.py` tar øyeblikksbildet `docs/datamodell/katalog.json` fra en
+base i SQL Server bygget fra migrasjonene, og trenger bare `KOE_SQLSERVER_TILKOBLING`.
+Kjør `datamodell.py` etterpå:
+
+```bash
+python3 docs/verktoy/katalog.py && /tmp/venv/bin/python docs/verktoy/datamodell.py
 ```
 
 SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med

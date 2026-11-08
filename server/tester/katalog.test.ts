@@ -1,10 +1,9 @@
 /**
  * `docs/datamodell/katalog.json` mot en base i SQL Server bygget fra
- * `database/migrasjoner/` (#558). PostgreSQL-delen kontrolleres ikke mot en base
- * (#931).
+ * `database/migrasjoner/` (#558).
  *
  * Registrene i `docs/datamodell/` kontrolleres mot øyeblikksbildet. Denne testen
- * holder SQL Server-delen av det lik katalogen, så en ny migrasjon som endrer
+ * holder det lik katalogen, så en ny migrasjon som endrer
  * en tabell, en kolonne eller en nøkkel, gjør testen rød til bildet er tatt på
  * nytt med `docs/verktoy/katalog.py`.
  */
@@ -31,7 +30,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('katalog.json mot SQL Server', () => {
     const lagret = JSON.parse(readFileSync(KATALOG, 'utf-8')).sqlserver;
     expect(
       await lesSqlServer(base.pool),
-      'katalog.json er utdatert. Kjør docs/verktoy/katalog.py med KOE_TESTBASE_URL og KOE_SQLSERVER_TILKOBLING, og så datamodell.py.'
+      'katalog.json er utdatert. Kjør docs/verktoy/katalog.py med KOE_SQLSERVER_TILKOBLING, og så datamodell.py.'
     ).toEqual(lagret);
   });
 });

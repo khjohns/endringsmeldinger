@@ -5,8 +5,7 @@
 # Bruk: KOE_TESTBASE_URL=postgresql://postgres@localhost:5432/koe_test \
 #         scripts/testbase/bygg_testbase.sh
 #
-# CI-jobben `database` og docs/verktoy/katalog.py bruker basen. Ingen test gjør
-# det lenger (#931).
+# CI-jobben `database` bruker basen. Ingen test gjør det lenger (#931).
 set -euo pipefail
 export LC_ALL=C
 export PGOPTIONS="${PGOPTIONS:-} -c client_min_messages=warning"
