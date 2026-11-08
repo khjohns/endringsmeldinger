@@ -95,6 +95,35 @@
             "staar": "Registrer et brev sendt utenfor løsningen"
           }
         ]
+      },
+      {
+        "id": "varsel-alt-gitt",
+        "dekker": [
+          "7"
+        ],
+        "start": "ny-versjon",
+        "handlinger": [
+          {
+            "staar": "Kravet er varselet etter punkt 34.3.3 for P4."
+          },
+          {
+            "velg": "Varselet for P4 er alt gitt"
+          },
+          {
+            "staar": "Hvor ble varselet for P4 gitt?"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "ble gitt i totalentreprenørens e-post av 28. oktober 2026."
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "ny-versjon"
+          }
+        ]
       }
     ]
   },
@@ -137,7 +166,12 @@
     "HF-U28",
     "KA-U69",
     "KA-U70",
-    "VS-U48"
+    "VS-U48",
+    "VS-U49",
+    "VS-U50",
+    "OV-U79",
+    "VS-U38",
+    "LV-U42"
   ],
   "venter_paa": [
     "#1663",
@@ -169,6 +203,11 @@
       "dato": "2026-11-07",
       "forhold": "#1663",
       "hva": "Etter kontrollen mot VS-U48: steg 6 og klikkstien for varselet alene (tilstanden #varsel), F-7, U-11, G-8 og G-9, og brevet sier bare at kravet er varselet når det ikke er varslet før."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Designsløyfa for VS-U49 og VS-U50: steg 7 og klikkstien for et varsel som alt er gitt, F-8, U-12, U-13, D-19, G-10 og S-12. Prototypen har valget per kravpost, blokken i støttekolonnen og forslaget til brevsetningen i S-12."
     }
   ]
 }
