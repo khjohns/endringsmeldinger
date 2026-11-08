@@ -1,5 +1,3 @@
-# Driftskriptene i scripts/ er bevisst utelatt.
-# Se AR-08 i hovedplanen.
 name: CI
 
 # #390: ikke ved push til main, der en PR alt er oppdatert mot main og grønn
