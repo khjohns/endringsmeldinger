@@ -1021,7 +1021,7 @@ class SakState(BaseModel):
     # 2. Vise kombinert status: "Avslått pga. ansvar (Subsidiært enighet om X kr/dager)"
     # 3. Ikke legge til logikk i Vederlag/Frist-komponenter som refererer til Grunnlag
     # 4. La SakState være "sannheten" for visningen. Skjemaet regner samme regel
-    #    med speilet `erGrunnlagetSubsidiaert` (grunnlagDomain.ts)
+    #    med speilet `erGrunnlagetSubsidiaert` (fjernet i #1678)
 
     @computed_field
     @property
@@ -1105,7 +1105,7 @@ class SakState(BaseModel):
         men erkjenner at beløpet ville vært riktig hvis BH hadde tatt feil."
 
         FRONTEND: Bruk dette for å vise subsidiær status. Skjemaet har speilet
-        `erGrunnlagetSubsidiaert` i `grunnlagDomain.ts`.
+        `erGrunnlagetSubsidiaert`, fjernet i #1678.
         """
         # Frafall håndteres separat
         if self.er_frafalt:
@@ -1137,7 +1137,7 @@ class SakState(BaseModel):
         men erkjenner at dagene ville vært riktige hvis BH hadde tatt feil."
 
         FRONTEND: Bruk dette for å vise subsidiær status. Skjemaet har speilet
-        `erGrunnlagetSubsidiaert` i `grunnlagDomain.ts`.
+        `erGrunnlagetSubsidiaert`, fjernet i #1678.
         """
         grunnlag_er_subsidiaer = self._subsidiaer_grunn(self.frist) is not None
 
