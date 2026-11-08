@@ -318,7 +318,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
             return avvik["funn"] == f"#{avvik.get('issue')}" and f"| {avvik['funn']}:" in vedtak
         if re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE):
             return True
-        # Et vedtak i vedtaksfila kan også være funnet et forløp viser avviket mot (#611).
+        # Et kjent avvik kan også ha en vedtaks-ID som funn, med issuet i `issue` (#611).
         return (
             f"</a>{avvik['funn']}:" in vedtak
             and isinstance(avvik.get("issue"), int)

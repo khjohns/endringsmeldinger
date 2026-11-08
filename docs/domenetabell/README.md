@@ -629,13 +629,16 @@ tidligere kravversjon. Om det er gjeldende svar, avgjør serveren (KA-U1).
 
 ## Baner
 
+Banene var kjøreren for `bevis-saker.json` mot Python-stien. Kjøreren er slettet med
+Python-stien (#49), så ingen av banene kjøres lenger.
+
 | Bane | Hva den prøver | Kjøres |
 | --- | --- | --- |
 | Domenet | Validering av data, parsing, forretningsreglene og projeksjonen i minnet, i samme rekkefølge som `/api/events`. Hendelsen journalen ville fått, er `to_cloudevent()` i minnet | Ingen etter #49. Til da `backend/tests/test_domenetabell/`, i CI |
-| Godkjenningsflyten | Bare invarianten om gjeldende krav mot `claims()` | Domenebanen |
-| Flere saker | Hver sak er en egen bane av samme slag. En avvisning skal la journalen i alle sakene stå uendret | Domenebanen |
+| Godkjenningsflyten | Bare invarianten om gjeldende krav mot `claims()` | Domenebanen, til #49 |
+| Flere saker | Hver sak er en egen bane av samme slag. En avvisning skal la journalen i alle sakene stå uendret | Domenebanen, til #49 |
 
-Ikke kjørt: `/api/events`, `/api/events/batch` og lagringen mot en base. Banene
+Heller ikke før #49 kjørt: `/api/events`, `/api/events/batch` og lagringen mot en base. Banene
 gjennom ruta og testbasen er fjernet med databasetestene for Python (#931). Heller
 ikke hele godkjenningsflyten med pakker og publisering, Catenda, frontendens
 skjemaer og en TypeScript-kjører.
