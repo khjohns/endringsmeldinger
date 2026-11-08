@@ -1491,7 +1491,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F181',
     feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/regler/svarkontroll.ts`,
     endringer: [['v.hovedkrav_varslet_i_tide != null &&', 'false &&']],
     mal: ['F-MM-V-34-1-2-endring'],
   },
@@ -1567,7 +1567,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F188',
     feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/regler/svarkontroll.ts`,
     endringer: [
       [
         'if (v.aksepterer_metode === false && !METODER.includes(',
@@ -1629,7 +1629,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F194',
     feilklasse: 'de prinsipale dagene etter § 33.6.1 kan være flere enn de vurderte',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/regler/svarkontroll.ts`,
     endringer: [['if (d > (v.dager as number))', 'if (false)']],
     mal: ['F-MM-F-33-6-1-flere-enn-vurdert'],
   },

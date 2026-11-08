@@ -527,6 +527,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      dager hovedkrav_vurdering hovedkrav_godkjent_beloep produktivitet_vurdering
      produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep`,
   ],
+  // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
+  [
+    'regler/svarkontroll.ts',
+    'regelsett',
+    'kontrollerForholdet kontrollerVarseletForVederlag kontrollerMetoden kontrollerSpesifiseringen',
+    ['frosset/utregning.ts'],
+  ],
+  ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
+  ['regler/svarkontroll.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
+  ['regler/svarkontroll.ts:kontrollerMetoden', 'utsagn', 'aksepterer_metode oensket_metode'],
+  [
+    'regler/svarkontroll.ts:kontrollerSpesifiseringen',
+    'utsagn',
+    'spesifisert_krav_ok dager_maatte_forstaa dager',
+  ],
   [
     'frosset/utregning.ts:utenforOmfanget(v)',
     'utsagn',
@@ -796,7 +811,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
-  ['format/format.ts', 'skjema', 'METODER', ['frosset/utregning.ts']],
+  ['format/format.ts', 'skjema', 'METODER', ['regler/svarkontroll.ts:kontrollerMetoden']],
   [
     'format/format.ts',
     'skjema',

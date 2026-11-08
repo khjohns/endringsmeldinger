@@ -9,7 +9,12 @@ import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Beloepsvurdering } from '../regler/typer.ts';
 import { beregnGodkjentBeloep, beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
-import { METODER } from '../format/format.ts';
+import {
+  kontrollerForholdet,
+  kontrollerMetoden,
+  kontrollerSpesifiseringen,
+  kontrollerVarseletForVederlag,
+} from '../regler/svarkontroll.ts';
 import { harHovedbeloep, kategori, krevdBeloep, krevdProduktivitet } from './kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import type { Krav, Spor } from '../typer.ts';
@@ -79,21 +84,7 @@ export function regnUtSvar(
 /** Forholdet har ingen utregning, bare kontrollen av vurderingene (§ 32.2 og § 32.3). */
 function regnUtForhold(v: Svarvurdering, krav: Krav, regler: Regelsett): Record<string, unknown> {
   const { hovedkategori, underkategori } = kategori(krav);
-  const feil: Record<string, string> = {};
-  const resultat = v.resultat as never;
-  if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat))
-    feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (§ 32.3 c)`;
-  const iTide = v.grunnlag_varslet_i_tide;
-  if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
-    if (typeof iTide !== 'boolean') feil.grunnlag_varslet_i_tide = 'mangler (§ 32.2)';
-    // #235: frafall skjer mot endringsordre og kan ikke kombineres med preklusjon.
-    else if (v.resultat === 'paalegg_frafalt' && !iTide)
-      feil.grunnlag_varslet_i_tide =
-        'frafall kan ikke kombineres med at grunnlaget er varslet for sent';
-  } else if (iTide !== undefined) {
-    feil.grunnlag_varslet_i_tide = 'gjelder bare § 32.2';
-  }
-  if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
+  kontrollerForholdet(v, hovedkategori, underkategori, regler);
   return {};
 }
 
@@ -135,22 +126,8 @@ function regnUtVederlag(
     grunnlag_varslet_i_tide: null,
     grunnlag_resultat: null,
   };
-  if (
-    v.hovedkrav_varslet_i_tide != null &&
-    !regler.gjelderVarslingspliktenForVederlag(hovedkategori)
-  )
-    throw new UgyldigVurdering({
-      hovedkrav_varslet_i_tide: 'gjelder bare svikt og andre forhold (§ 34.1.2)',
-    });
-  // Arbeidsvalget i #479: uten aksept av tilbudet oppgir byggherren metoden, ellers ikke.
-  if (v.aksepterer_metode === false && !METODER.includes(v.oensket_metode as never))
-    throw new UgyldigVurdering({
-      oensket_metode: 'mangler når tilbudet ikke aksepteres (§ 34.2.2)',
-    });
-  if (v.aksepterer_metode !== false && v.oensket_metode != null)
-    throw new UgyldigVurdering({
-      oensket_metode: 'gjelder bare når tilbudet ikke aksepteres (§ 34.2.2)',
-    });
+  kontrollerVarseletForVederlag(v, hovedkategori, regler);
+  kontrollerMetoden(v);
   const r = beregnVederlag(vkrav, v as never, regler);
   const ut: Record<string, unknown> = {
     resultat: r.beregnings_resultat,
@@ -207,29 +184,6 @@ function regnUtFrist(
     ut.subsidiaert_godkjent_dager = r.godkjent_dager;
   }
   return ut;
-}
-
-/**
- * VS-U4: når spesifiseringen kom for sent, oppgir byggherren dagene byggherren måtte forstå at
- * TE hadde krav på, høyst de vurderte og de krevde (arbeidsvalget i #479). Gir dagene, eller `null`.
- */
-function kontrollerSpesifiseringen(v: Svarvurdering): number | null {
-  const d = v.dager_maatte_forstaa;
-  if (v.spesifisert_krav_ok !== false) {
-    if (d != null)
-      throw new UgyldigVurdering({
-        dager_maatte_forstaa: 'gjelder bare når kravet er spesifisert for sent (§ 33.6.1)',
-      });
-    return null;
-  }
-  const feil = (grunn: string) => new UgyldigVurdering({ dager_maatte_forstaa: grunn });
-  if (d === undefined || d === null) throw feil('mangler (§ 33.6.1)');
-  if (typeof d !== 'number' || !Number.isInteger(d) || d < 0)
-    throw feil('er ikke et helt antall dager');
-  // `beregnFrist` har kontrollert at de vurderte dagene er høyst de krevde.
-  if (d > (v.dager as number))
-    throw feil('er flere enn dagene byggherren godtar om kravet kom i tide');
-  return d;
 }
 
 /**
