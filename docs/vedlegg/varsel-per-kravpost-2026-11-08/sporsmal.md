@@ -94,3 +94,10 @@ stenge den veien.
 
 **Hva valget styrer.** Valgene når TE legger til korrespondanse, og om et varsel kan registreres før
 kravet (tilstanden `#varsel` i prototypen).
+
+## Svar fra oppdragsgiver 08.11
+
+Ordrett: «2A. Litt forvirret over spørsmål 1. kunne du tegnet en flyt i chatten eller forklart nærmere?»
+
+- **1:** ikke besvart. Oppdragsgiver ba om en nærmere forklaring.
+- **2:** A.

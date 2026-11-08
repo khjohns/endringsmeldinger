@@ -298,6 +298,25 @@ a.knapp,a.liten-knapp{text-decoration:none}
 .forgreining{display:flex;flex-direction:column;gap:12px;border-left:2px solid var(--rule-strong-color);padding-left:14px;margin-top:4px}
 .valg.liste{display:grid;gap:8px}
 .varselvalg{display:flex;flex-direction:column;gap:8px}
+/* Punktlisten, som i vederlagssvar.html */
+.punktliste{list-style:none;margin:0;padding:6px 8px}
+.punktliste a{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:0 10px;padding:7px 12px 7px 9px;border-left:3px solid transparent;border-radius:4px;text-decoration:none;color:inherit}
+.punktliste a:hover{background:var(--surface-warm)}
+.punktliste a[aria-current]{background:var(--surface-selected);border-left-color:var(--ink)}
+.punktliste a[aria-current] .pt{font-weight:600}
+.pnr{grid-row:1/3;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-size:11px;font-weight:600;margin-top:1px}
+.pnr.v{background:transparent;color:var(--ink-3);border:1.5px solid var(--ink-3)}
+.punktliste .pt{font-weight:500;line-height:1.35;grid-column:2}
+.punktliste .ps{font-size:12px;color:var(--ink-3);grid-column:2}
+.underpunkter{list-style:none;margin:0 0 4px;padding:0 0 0 34px}
+.underpunkter a{grid-template-columns:28px minmax(0,1fr) auto;padding:4px 12px 4px 9px;align-items:baseline}
+.underpunkter .pid-liten{font:500 12px var(--font-mono);color:var(--ink-3)}
+.underpunkter .pt{font-weight:400;font-size:14px;grid-column:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.underpunkter .ps{grid-column:3;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.underpunkter a.trukket .pt{text-decoration:line-through;color:var(--ink-3)}
+#summer li:first-child{font-weight:600;color:var(--ink)}
+.stoette .kort .blokk.send{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--rule-color);z-index:1}
+@media (max-width:1180px){.stoette .kort .blokk.send{position:static}}
 /* v2: kravposter, oppgjørsform per post, PNS, trekk av post, brevet og lagene */
 .post{border:1px solid var(--rule-strong-color);border-radius:var(--r-innfelt);padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;background:var(--surface)}
 .post+.post{margin-top:12px}
@@ -412,7 +431,6 @@ a.knapp,a.liten-knapp{text-decoration:none}
             <div class="beloepfelt"><label for="vtekst">Arbeidet varselet gjelder</label><span class="hjelp">Varselet gjelder kravpostene med den beregningsregelen i neste krav.</span><input id="vtekst" class="tekstfelt" value="Ekstra graving i grøften ved kum 4"></div>
             <fieldset class="oppgj"><legend class="spm">Hvordan varsler du?</legend><div class="valg kompakt"><label><input type="radio" name="vhvor" value="her" checked> Send varselet fra løsningen nå</label><label><input type="radio" name="vhvor" value="utenfor"> Registrer et brev sendt utenfor løsningen</label></div></fieldset>
             <div class="beloepfelt kun-utenfor" hidden><label for="vdato">Datoen for varselet</label><span class="datofelt"><input id="vdato" placeholder="dd.mm.åååå"></span><span class="hjelp">Legg ved brevet. Datoen settes én gang.</span><button class="liten-knapp" type="button" style="align-self:flex-start">Legg ved brevet</button></div>
-            <p class="dempet">Om varselet kom i tide, avgjør partene.</p>
             <button class="knapp" type="button" style="align-self:flex-start">Send varselet</button>
           </section>
           <div class="svarpaa">
@@ -449,14 +467,14 @@ a.knapp,a.liten-knapp{text-decoration:none}
               <legend class="spm" style="padding:0;margin-bottom:10px">Hvordan varsler du?</legend>
               <div class="valg"><label><input type="radio" name="v1" value="her" checked> Varselet sendes med kravet</label><label><input type="radio" name="v1" value="annen"> Sendt på annen måte</label></div>
             </fieldset>
-            <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p><p class="dempet">Om varselet kom i tide, avgjør partene.</p></div>
+            <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p></div>
           </section>
 
           <section class="punkt nummerert kun-saerskilt" aria-labelledby="p2" data-spor="U-7">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p2">Varselet om særskilt vederlagsjustering</h2><span class="hjemmel">punkt 34.1.3 tredje ledd</span></div>
             <p class="oppgitt">Gjelder bare den særskilte vederlagsjusteringen for nedsatt produktivitet eller forstyrrelser. Rigg og drift krever ikke særskilt varsel etter kontraktsgrunnlaget.</p>
             <div class="felter"><div class="beloepfelt"><label for="klar2">Når ble du klar over at utgiftene ville påløpe?</label><span class="datofelt"><input id="klar2" value="16.09.2026"></span></div></div>
-            <div class="datoboks"><p>Sendes varselet med kravet i dag, er det <b>20 kalenderdager</b> etter.</p><p class="dempet">Om varselet kom i tide, avgjør partene.</p></div>
+            <div class="datoboks"><p>Sendes varselet med kravet i dag, er det <b>20 kalenderdager</b> etter.</p></div>
           </section>
 
           <section class="punkt nummerert" aria-labelledby="p3" data-spor="U-1 · D-1">
@@ -514,12 +532,13 @@ a.knapp,a.liten-knapp{text-decoration:none}
 
         <aside class="stoette" aria-label="Kravet samlet">
           <section class="kort">
-            <div class="kort-hode"><h2>Det du krever</h2><p>Eks. mva. Oppdateres mens du skriver.</p></div>
-            <div class="blokk rulle"><table class="tabell" id="oversikt"></table></div>
+            <div class="kort-hode"><h2>Punktene</h2><p>Beløp eks. mva. Oppdateres mens du skriver.</p></div>
+            <nav aria-label="Punktene i kravet" data-spor="U-15"><ol class="punktliste" id="punktliste"></ol></nav>
+            <div class="blokk"><ul class="summer" id="summer"></ul></div>
             <div class="blokk" data-spor="U-3 · D-3"><p class="blokktittel">Fordeling på PNS</p><table class="tabell" id="pns-tabell"></table><p class="hjelp" id="pns-hjelp"></p></div>
             <div class="blokk" id="varselliste" data-spor="U-13 · D-19"></div>
             <div class="blokk" id="virkning" data-spor="U-5"></div>
-            <div class="blokk"><a class="knapp" href="#brev">Se brevet før sending</a><p class="godkj">Brevet sendes til byggherren. Lagret kl. 14.08.</p></div>
+            <div class="blokk send" data-spor="U-16"><a class="knapp" href="#brev">Se brevet før sending</a><p class="godkj">Brevet sendes til byggherren. Lagret kl. 14.08.</p></div>
           </section>
         </aside>
       </div>
@@ -658,7 +677,7 @@ function varselblokk(p, hjelp) {
 
 function postHtml(p, saerskilt) {
   const id = p.id;
-  if (p.trukket) return `<article class="post trukket" data-id="${id}" data-spor="U-4 · D-4">
+  if (p.trukket) return `<article class="post trukket" data-id="${id}" id="post-${id}" data-spor="U-4 · D-4">
     <div class="post-hode"><span class="pid">${saerskilt ? 'Særskilt' : id}</span><b>${esc(p.navn)}</b><span class="merke-trukket">Trekkes</span></div>
     <p class="oppgitt">Kravet i ${saerskilt ? 'den særskilte vederlagsjusteringen' : id} trekkes i denne versjonen. Brevet sier det uttrykkelig, og trekket er et avkall på kravet i posten.</p>
     <button class="lenke liten" type="button" data-handling="angre" style="align-self:flex-start">Angre trekket</button></article>`;
@@ -675,7 +694,7 @@ function postHtml(p, saerskilt) {
   const fjern = tilstand === 'ny' && p.forrige
     ? `<button class="lenke liten" type="button" data-handling="trekk">${saerskilt ? 'Trekk den særskilte vederlagsjusteringen' : 'Trekk ' + id}</button>`
     : (saerskilt ? '' : `<button class="lenke liten" type="button" data-handling="fjern">Fjern ${id}</button>`);
-  return `<article class="post" data-id="${id}">
+  return `<article class="post" data-id="${id}" id="post-${id}">
     <div class="post-hode"><span class="pid">${saerskilt ? 'Særskilt' : id}</span><input class="post-navn" data-felt="navn" aria-label="Beskrivelse av ${saerskilt ? 'den særskilte posten' : id}" value="${esc(p.navn)}" placeholder="Beskriv posten">${endret(p)}</div>
     <div class="felter" style="align-items:flex-end">
       <div class="beloepfelt" data-spor="U-3"><label for="pns-${id}">PNS (valgfri)</label><span class="inndata tekst" style="width:140px"><input id="pns-${id}" list="pns-liste" data-felt="pns" value="${esc(p.pns)}"></span></div>
@@ -729,8 +748,22 @@ function oppsummer() {
   let rader = d.poster.map(p => rad(p, `${p.id} ${esc(p.navn)}`)).join('');
   if (skall.dataset.saerskilt === 'ja') rader += rad(d.saerskilt, 'Særskilt vederlagsjustering');
   if (r) { fast += r; const k = document.getElementById('r-pns').value || 'uten PNS'; pns[k] = pns[k] || { fast: 0, oppl: 0 }; pns[k].fast += r; rader += `<tr><td>Rigg og drift<span class="dempet blokklinje">Formel</span></td><td class="num">${fmt(r)}</td></tr>`; }
-  document.getElementById('oversikt').innerHTML = `<thead><tr><th>Post</th><th class="num">Krevd</th></tr></thead><tbody>${rader}</tbody>
-    <tfoot><tr><td>Faste beløp</td><td class="num">${fmt(fast)}</td></tr>${opplysning ? `<tr><td class="dempet" style="font-weight:400">Anslag og overslag, ikke krevd</td><td class="num dempet" style="font-weight:400">${fmt(opplysning)}</td></tr>` : ''}</tfoot>`;
+  // Innholdsfortegnelsen, som «Punktene» i svarskjemaet: ett punkt per avsnitt i brevet, med kravpostene under.
+  const sk = skall.dataset.saerskilt === 'ja', ny = tilstand === 'ny';
+  const status = p => p.trukket ? 'Trekkes' : p.form === 'fast' ? fmt(kr(p.beloep)) : FORM[p.form];
+  const punkt = (til, nr, tittel, st, under = '') => `<li><a href="#${til}" data-til="${til}"><span class="pnr${nr === 'V' ? ' v' : ''}">${nr}</span><span class="pt">${tittel}</span><span class="ps">${st}</span></a>${under}</li>`;
+  let nr = 1; const pl = [];
+  pl.push(punkt('p1', nr++, 'Varselet om vederlagsjustering', ny ? 'Sendt med kravet i brev 5' : 'Sendes med kravet'));
+  if (sk) pl.push(punkt('p2', nr++, 'Varselet om særskilt justering', ny ? 'Sendt med kravet i brev 5' : 'Sendes med kravet'));
+  const aktiveP = d.poster.filter(p => !p.trukket);
+  pl.push(punkt('p3', nr++, 'Vederlagsjustering', `${aktiveP.length} kravposter`, `<ol class="underpunkter">${d.poster.map(p => `<li><a href="#post-${p.id}" class="${p.trukket ? 'trukket' : ''}"><span class="pid-liten">${p.id}</span><span class="pt">${esc(p.navn) || 'Uten beskrivelse'}</span><span class="ps num">${status(p)}</span></a></li>`).join('')}</ol>`));
+  if (sk) pl.push(punkt('p5', nr++, 'Særskilt vederlagsjustering', fmt(kr(d.saerskilt.beloep))));
+  if (r) pl.push(punkt('p6', nr++, 'Rigg og drift', fmt(r)));
+  pl.push(punkt('p7', nr++, 'Forbehold', 'Skrevet'));
+  pl.push(punkt('pv', 'V', 'Vedlegg', '2 filer'));
+  document.getElementById('punktliste').innerHTML = pl.join('');
+  document.getElementById('summer').innerHTML = `<li><span>Faste beløp</span><span class="num">${fmt(fast)}</span></li>${opplysning ? `<li class="dempet"><span>Anslag og overslag, ikke krevd</span><span class="num">${fmt(opplysning)}</span></li>` : ''}`;
+  markerPunkt();
   const pk = Object.keys(pns).sort();
   document.getElementById('pns-tabell').innerHTML = `<tbody>${pk.map(k => `<tr><td>${esc(k)}</td><td class="num">${fmt(pns[k].fast)}${pns[k].oppl ? ` <span class="dempet">+ ${fmt(pns[k].oppl)} anslått</span>` : ''}</td></tr>`).join('')}</tbody>`;
   const over = pk.filter(k => pns[k].fast + pns[k].oppl > 300000);
@@ -958,6 +991,27 @@ kortK.onclick = () => { skall.dataset.visning = 'kort'; kortK.setAttribute('aria
 altK.onclick = () => { skall.dataset.visning = 'alt'; kortK.setAttribute('aria-pressed', 'false'); altK.setAttribute('aria-pressed', 'true'); };
 const sporK = document.getElementById('spor-knapp');
 sporK.onchange = () => { document.body.classList.toggle('vis-spor', sporK.checked); };
+
+// Lenkene i punktlisten ruller til punktet uten å endre ankeret, som er tilstanden i prototypen.
+document.getElementById('punktliste').addEventListener('click', e => {
+  const a = e.target.closest('a'); if (!a) return;
+  e.preventDefault();
+  const mål = document.getElementById(a.getAttribute('href').slice(1));
+  mål.scrollIntoView({ block: 'start' });
+  const fokus = mål.matches('article') ? mål.querySelector('input,button') : mål;
+  if (fokus) { if (!fokus.matches('input,button')) fokus.setAttribute('tabindex', '-1'); fokus.focus({ preventScroll: true }); }
+});
+// Punktet du står i, markeres i punktlisten (som i vederlagssvar.html).
+const synligePunkt = new Map();
+function markerPunkt() {
+  const forst = [...synligePunkt.entries()].filter(([, v]) => v !== null).sort((a, b) => a[1] - b[1])[0];
+  document.querySelectorAll('#punktliste > li > a').forEach(a => forst && a.dataset.til === forst[0] ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current'));
+}
+const punktObs = new IntersectionObserver(oppf => {
+  oppf.forEach(o => synligePunkt.set(o.target.querySelector('h2').id, o.isIntersecting ? o.boundingClientRect.top : null));
+  markerPunkt();
+}, { rootMargin: '-20% 0px -60% 0px' });
+document.querySelectorAll('#skjema section.punkt.nummerert, #skjema section.punkt[aria-labelledby="pv"]').forEach(x => punktObs.observe(x));
 
 // Tilstandene er ankrene #nytt-krav, #varsel, #ny-versjon, #brev og #svar. #lag viser også svaret.
 function lesAnker() {
