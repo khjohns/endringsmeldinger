@@ -11,7 +11,7 @@ import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
 import {
-  kanBesvaresMedEttBeloep,
+  hindrerSvarMedEttBeloep,
   kravposterI,
   regnUtSvar,
   vederlagsposter,
@@ -157,7 +157,7 @@ function svarutkast(
   let resultat: Record<string, unknown> = {};
   try {
     // Et krav med flere kravposter kan ikke regnes ut med ett beløp; serveren avviser (KA-U59).
-    if (krav && (spor !== 'vederlag' || kanBesvaresMedEttBeloep(krav)))
+    if (krav && (spor !== 'vederlag' || hindrerSvarMedEttBeloep(krav) === null))
       resultat = regnUtSvar(spor, v, { krav, paaberopelse: u.spor.forhold.gjeldendeKrav }, regler);
   } catch (feil) {
     // Klienten sender likevel, så serveren avviser med sin begrunnelse.

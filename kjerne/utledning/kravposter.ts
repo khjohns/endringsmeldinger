@@ -41,10 +41,11 @@ export function kravposteneStrider(
   const foer = new Map(tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p]));
   const brukte = brukteBetegnelser(tidligere);
   const trekker = (ny.trekker ?? []) as string[];
-  for (const [i, id] of trekker.entries()) {
+  const trukne = new Set<string>();
+  for (const id of trekker) {
     if (!forrige.has(id)) return `trekker kravposten ${id}, som ikke er med i forrige kravversjon`;
-    if (trekker.indexOf(id) !== i)
-      return `trekker kravposten ${forrige.get(id)!.betegnelse} to ganger`;
+    if (trukne.has(id)) return `trekker kravposten ${forrige.get(id)!.betegnelse} to ganger`;
+    trukne.add(id);
   }
   const sett = new Set<string>();
   const betegnelser = new Set<string>();

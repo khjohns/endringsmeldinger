@@ -557,7 +557,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | KA-50 | [`dokumentasjonIBrevet`](../../kjerne/utledning/utled.ts) |
 | KA-51 | [`tekstavvik`](../../kjerne/kommandoer/skriving.ts) |
 | KA-55 | [`kravposteneStrider`](../../kjerne/utledning/kravposter.ts) |
-| KA-56 | [`kanBesvaresMedEttBeloep`](../../kjerne/frosset/standpunkt.ts) |
+| KA-56 | [`hindrerSvarMedEttBeloep`](../../kjerne/frosset/standpunkt.ts) |
 <!-- sporbarhet:slutt -->
 
 ## Formatet

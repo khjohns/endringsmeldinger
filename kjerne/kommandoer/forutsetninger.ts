@@ -19,7 +19,7 @@ import {
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { hindrerSvarMedEttBeloep } from '../frosset/standpunkt.ts';
-import type { Avvisning, Kravspor, Part, Spor, Varselhjemmel } from '../typer.ts';
+import type { Avvisning, Krav, Kravspor, Part, Spor, Varselhjemmel } from '../typer.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
@@ -196,6 +196,17 @@ export const avvis = (regel: string, melding: string): Avvisning => ({ regel, me
 export const ELDRE_SVAR =
   'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
 
+/**
+ * KA-U59: byggherren svarer per kravpost. Til svaret per kravpost er bygget (#1663), tilbys
+ * svaret og revisjonen av det bare når de kan gis med ett beløp.
+ */
+function svarPerKravpost(krav: Krav): Avvisning | null {
+  const hinder = hindrerSvarMedEttBeloep(krav);
+  return hinder
+    ? avvis('SVAR_PER_KRAVPOST', `${hinder}. Svaret per kravpost er ikke bygget ennå.`)
+    : null;
+}
+
 /** Kravet i hvert spor, med navnene i visningen (konseptet for Varden, versjon 14). */
 const KRAVET: Record<Spor, string> = {
   forhold: 'grunnlaget for kravet',
@@ -319,19 +330,14 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.gjeldendeSvar)
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
-      // KA-U59: byggherren svarer per kravpost. Til svaret per kravpost er bygget (#1663),
-      // tilbys svaret bare når det kan gis med ett beløp.
-      if (h.spor === 'vederlag') {
-        const hinder = hindrerSvarMedEttBeloep(s.gjeldendeKrav);
-        if (hinder)
-          return avvis('SVAR_PER_KRAVPOST', `${hinder}. Svaret per kravpost er ikke bygget ennå.`);
-      }
+      if (h.spor === 'vederlag') return svarPerKravpost(s.gjeldendeKrav);
       return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;
     case 'revidere':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
         return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på gjeldende krav å revidere.');
       // MM-U34 punkt 11, EO-U12: også et svar TE har godtatt eller som stemmer med kravet.
+      if (h.spor === 'vederlag') return svarPerKravpost(s.gjeldendeKrav!);
       return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;
     case 'godta':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');

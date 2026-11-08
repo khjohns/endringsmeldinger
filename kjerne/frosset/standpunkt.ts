@@ -799,14 +799,11 @@ export function hindrerSvarMedEttBeloep(krav: Krav): string | null {
   return null;
 }
 
-export const kanBesvaresMedEttBeloep = (krav: Krav): boolean =>
-  hindrerSvarMedEttBeloep(krav) === null;
-
 /**
  * Det krevde beløpet i kravposten, i øre, slik utregningen, kontrollen av begrunnelsen og
  * brevet leser det (#508). Har kravet ikke nøyaktig én kravpost med fast sum, kaster den
  * `Error`; et krav med bare postene utenfor leses med `harHovedbeloep` først (OV-U23), og
- * svaret avviser et krav `kanBesvaresMedEttBeloep` ikke godtar.
+ * svaret tilbys ikke for et krav `hindrerSvarMedEttBeloep` gir et hinder for.
  */
 export function krevdBeloep(krav: Krav): Oere {
   const poster = kravposterI(krav);

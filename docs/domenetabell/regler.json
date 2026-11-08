@@ -3580,7 +3580,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#kanBesvaresMedEttBeloep"
+        "kjerne/frosset/standpunkt.ts#hindrerSvarMedEttBeloep"
       ],
       "regelkoder": [
         "SVAR_PER_KRAVPOST"
