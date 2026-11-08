@@ -95,6 +95,35 @@
             "staar": "Registrer et brev sendt utenfor løsningen"
           }
         ]
+      },
+      {
+        "id": "varsel-alt-gitt",
+        "dekker": [
+          "7"
+        ],
+        "start": "ny-versjon",
+        "handlinger": [
+          {
+            "staar": "Varsel etter punkt 34.3.3 og 34.4"
+          },
+          {
+            "velg": "Varselet for P4 er alt gitt"
+          },
+          {
+            "staar": "Hvor ble varselet for P4 gitt?"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "ble gitt i totalentreprenørens e-post av 28. oktober 2026."
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "ny-versjon"
+          }
+        ]
       }
     ]
   },
@@ -137,7 +166,18 @@
     "HF-U28",
     "KA-U69",
     "KA-U70",
-    "VS-U48"
+    "VS-U48",
+    "VS-U49",
+    "VS-U50",
+    "OV-U79",
+    "VS-U38",
+    "LV-U42",
+    "LV-U45",
+    "VS-U34",
+    "OV-U80",
+    "VS-U51",
+    "VS-U52",
+    "VS-U53"
   ],
   "venter_paa": [
     "#1663",
@@ -169,6 +209,26 @@
       "dato": "2026-11-07",
       "forhold": "#1663",
       "hva": "Etter kontrollen mot VS-U48: steg 6 og klikkstien for varselet alene (tilstanden #varsel), F-7, U-11, G-8 og G-9, og brevet sier bare at kravet er varselet når det ikke er varslet før."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Designsløyfa for VS-U49 og VS-U50: steg 7 og klikkstien for et varsel som alt er gitt, F-8, U-12–U-14, D-19, G-10, S-12 og S-13. Prototypen har valget per kravpost, blokken i støttekolonnen og ordlyden i U-14; budskapet er spørsmålet i S-12."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Etter vurderingen mot system.md: synlige alternativer for typen og sendemåten, innrykk med linje under «alt gitt», forklaringen i et infotips, og panelet med en tabell med bare det brevet sier (U-12, U-13)."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "«Punktene» i panelet som i svarskjemaet (U-15), primærhandlingen fast nederst i panelet (U-16), datoene i tidslinja (U-17), merkingen og de gule merkene (U-18), og setningene om hva partene avgjør, er tatt ut. S-13 er besvart med A."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Svarene på spørsmål 1–3 er ført som VS-U51–VS-U53, og D-19, S-12 og S-13 viser til dem."
     }
   ]
 }
