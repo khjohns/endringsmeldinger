@@ -198,7 +198,7 @@ FUNKSJON = re.compile(
 )
 IKKE_FUNKSJON = {"if", "for", "while", "switch", "catch", "return", "await", "throw", "new", "typeof"}
 PIL_ENDEPUNKT = re.compile(r"^([A-Z]+(?: og [A-Z]+)*) (/[^\s?]+)")
-FETCH = re.compile(r"(?<![\w$])fetch\b")
+FETCH = re.compile(r"(?<![\w$])fetch\b(?!\s*\??:)")
 # Filene i server/ som bruker `fetch` mot en annen tjeneste enn Catenda: Entra ID og HR-dataene.
 ANDRE_TJENESTER = frozenset({"server/entra.ts", "server/hrdata.ts"})
 
@@ -250,6 +250,10 @@ class _Fil:
     def __init__(self, navn: str, raa: str):
         self.navn, self.raa, self.kode = navn, raa, _ts_kode(raa)
         self.funksjoner: list[dict] = []
+        # `{ … }` i import og eksport, også over flere linjer.
+        self.navnelister = [
+            m.span(1) for m in re.finditer(r"\b(?:import|export)\s*(?:type\s*)?(\{[^{}]*\})", self.kode)
+        ]
         for m in FUNKSJON.finditer(self.kode):
             if m[1] in IKKE_FUNKSJON:
                 continue
@@ -309,8 +313,8 @@ class _Kallgraf:
                 raise UkjentSti(f"{u} bindes flere steder i {rundt['navn']}")
             if u in rundt["parametre"] and not b["const"]:
                 return self._fra_kallerne(fil, rundt, rundt["parametre"].index(u), dybde)
-            if b["const"] == 1 and u not in rundt["parametre"]:
-                return self.stier(fil, self._konstant(fil, u, rundt), rundt, dybde + 1)
+            if b["const"] == 1 and u not in rundt["parametre"] and (verdi := self._konstant(fil, u, rundt)):
+                return self.stier(fil, verdi, rundt, dybde + 1)
         raise UkjentSti(u)
 
     def _mal(self, fil: _Fil, mal: str, rundt: dict | None, dybde: int) -> set[str]:
@@ -374,7 +378,11 @@ class _Kallgraf:
         for annen in self.filer.values():
             for m in moenster.finditer(annen.kode):
                 kaller = annen.rundt(m.start())
-                if _er_definisjon(annen.kode, m.start()) or re.match(r"(?:import|export)\s*(?:type\s*)?\{", annen.kode[annen.kode.rfind("\n", 0, m.start()) + 1 :]):
+                if _er_definisjon(annen.kode, m.start()):
+                    continue
+                if any(fra < m.start() < til for fra, til in annen.navnelister):
+                    if re.compile(r"\s+as\b").match(annen.kode, m.end()):
+                        raise UkjentSti(f"{annen.navn}: {funksjon['navn']} importeres med et annet navn")
                     continue
                 if not re.compile(r"\s*\(").match(annen.kode, m.end()):
                     # Funksjonen brukes som verdi, så kallerne kan ikke finnes.
@@ -422,7 +430,12 @@ def catendakall(filer: dict[str, str] | None = None) -> tuple[set[tuple[str, str
     En sti som er en parameter, følges til hver kaller i server/, også utenfor fila. Hver
     verdi koden setter inn i stien, blir `{}`. `fetch` i en annen fil enn dem i
     `ANDRE_TJENESTER`, et kall til `forespoersel` utenfor klienten og en sti som ikke kan
-    avgjøres, gir en feil.
+    avgjøres, gir en feil. Det gjør også et navn i stien som bindes mer enn én gang i
+    funksjonen, en funksjon med stien som brukes uten å kalles, og en import med `as`.
+
+    Lesingen er tekstlig. Den ser ikke et kall gjennom en navnerommsimport (`c.raa(`), en
+    metode kalt med hakeparentes eller fra en destrukturering, en parameter som får ny verdi
+    ved destrukturerende tilordning eller i `catch`, og andre HTTP-klienter enn `fetch`.
     """
     filer = _serverfiler() if filer is None else filer
     graf = _Kallgraf(filer)
@@ -432,7 +445,7 @@ def catendakall(filer: dict[str, str] | None = None) -> tuple[set[tuple[str, str
         for m in FETCH.finditer(fil.kode):
             rundt = fil.rundt(m.start())
             if navn in ANDRE_TJENESTER or (
-                navn == CATENDAKLIENT and rundt and rundt["navn"] == "forespoersel" and fil.kode[m.end()] == "("
+                navn == CATENDAKLIENT and rundt and rundt["navn"] == "forespoersel" and re.compile(r"\s*\(").match(fil.kode, m.end())
             ):
                 continue
             feil.append(f"{navn}: fetch utenfor forespoersel i {CATENDAKLIENT} og utenfor ANDRE_TJENESTER")

@@ -337,8 +337,9 @@ def test_vakta_melder_en_sti_den_ikke_kan_avgjoere(kilder):
         "export async function hent() {\n  return fetch('https://api.catenda.com/v2/user');\n}\n",
         "export async function hent() {\n  return globalThis.fetch('https://api.catenda.com/v2/user');\n}\n",
         "const hent = fetch;\n",
+        "export async function hent() {\n  return fetch ('https://api.catenda.com/v2/user');\n}\n",
     ],
-    ids=["fetch", "globalThis.fetch", "alias"],
+    ids=["fetch", "globalThis.fetch", "alias", "mellomrom"],
 )
 def test_vakta_melder_fetch_utenfor_klienten(kilder, kilde):
     """Code-review av #1718: `globalThis.fetch` og et alias gikk forbi."""
@@ -377,17 +378,48 @@ def test_vakta_melder_en_sti_med_flere_bindinger(kilder, metode, grunn):
     assert all("har ingen pil" not in f for f in feil), feil
 
 
+RAA = (
+    "\nexport async function raa(o: CatendaOppsett, sti: string): Promise<unknown> {\n"
+    "  return forespoersel(o, 'GET', sti, {});\n}\n"
+)
+
+
 def test_vakta_foelger_en_funksjon_paa_toppnivaa_til_kallerne_i_andre_filer(kilder):
     """Code-review av #1718: kallerne utenfor klienten ble ikke lest."""
     filer = _serverfiler(
-        catenda__ts=CATENDA_TS + (
-            "\nexport async function raa(o: CatendaOppsett, sti: string): Promise<unknown> {\n"
-            "  return forespoersel(o, 'GET', sti, {});\n}\n"
-        ),
+        catenda__ts=CATENDA_TS + RAA,
         z__ts="export const x = () => raa(oppsett, '/v2/hemmelig');\n",
     )
     assert df.kall_uten_pil(kilder["dataflyt"], filer) == [
         "server/catenda.ts:raa: GET /v2/hemmelig har ingen pil i dataflyt.toml"
+    ]
+
+
+def test_vakta_godtar_en_import_over_flere_linjer(kilder):
+    filer = _serverfiler(
+        catenda__ts=CATENDA_TS + RAA,
+        z__ts="import {\n  raa,\n} from './catenda.ts';\nexport const x = () => raa(oppsett, '/v2/user');\n",
+    )
+    assert df.kall_uten_pil(kilder["dataflyt"], filer) == []
+
+
+def test_vakta_melder_en_import_med_et_annet_navn(kilder):
+    filer = _serverfiler(
+        catenda__ts=CATENDA_TS + RAA,
+        z__ts="import { raa as r } from './catenda.ts';\nexport const x = () => r(oppsett, '/v2/hemmelig');\n",
+    )
+    feil = df.kall_uten_pil(kilder["dataflyt"], filer)
+    assert any(f.endswith("(server/z.ts: raa importeres med et annet navn)") for f in feil), feil
+
+
+def test_vakta_melder_en_const_uten_tilordning(kilder):
+    """Code-review av #1718: `for (const sti of …)` velte vakta."""
+    filer = _serverfiler(catenda__ts=_catenda_med(
+        "  async alle(token: string): Promise<void> {\n"
+        "    for (const sti of ['/v2/hemmelig']) await forespoersel(this.#oppsett, 'GET', sti, { token });\n  }"
+    ))
+    assert df.kall_uten_pil(kilder["dataflyt"], filer) == [
+        "server/catenda.ts:alle: stien 'sti' kan ikke avgjøres (sti)"
     ]
 
 
