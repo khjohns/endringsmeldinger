@@ -5,13 +5,8 @@
  * S1-A og S2-A i #1400, 30.10).
  */
 
-import {
-  etikett,
-  grunnerFraForholdet,
-  laget,
-  virkninger,
-  type Svarvurdering,
-} from '../frosset/standpunkt.ts';
+import { etikett, grunnerFraForholdet, laget, virkninger } from '../frosset/standpunkt.ts';
+import { type Svarvurdering } from '../frosset/utregning.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { standpunkterISvaret } from '../format/leser.ts';

@@ -10,7 +10,8 @@ import { brukteBetegnelser, kravpostvarslene, nesteBetegnelse } from '../utledni
 import { avvisning } from './avvisning.ts';
 import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
-import { kravposterI, lagFraForholdet } from '../frosset/standpunkt.ts';
+import { lagFraForholdet } from '../frosset/standpunkt.ts';
+import { kravposterI } from '../frosset/kravinnhold.ts';
 import { standpunkter } from './standpunkter.ts';
 import {
   BrevetAvvises,

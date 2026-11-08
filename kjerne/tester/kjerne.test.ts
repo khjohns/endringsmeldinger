@@ -25,12 +25,8 @@ import {
 } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { beregnVederlag } from '../regler/vederlag.ts';
-import {
-  regnUtSvar,
-  sammenfallStemmer,
-  ulikeVirkninger,
-  virkninger,
-} from '../frosset/standpunkt.ts';
+import { sammenfallStemmer, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';

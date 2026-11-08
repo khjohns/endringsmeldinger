@@ -1491,7 +1491,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F181',
     feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/regler/svarkontroll.ts`,
     endringer: [['v.hovedkrav_varslet_i_tide != null &&', 'false &&']],
     mal: ['F-MM-V-34-1-2-endring'],
   },
@@ -1510,11 +1510,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F183',
     feilklasse: 'det subsidiære beløpet ved preklusjon etter § 34.1.2 lagres ikke (VS-U3, B-13)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/utregning.ts`,
     endringer: [
       [
-        'if (r.subsidiaer_resultat !== null) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
-        'if (false) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
+        'if (r.subsidiaer_resultat !== null) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
+        'if (false) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
       ],
     ],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
@@ -1567,7 +1567,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F188',
     feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/regler/svarkontroll.ts`,
     endringer: [
       [
         'if (v.aksepterer_metode === false && !METODER.includes(',
@@ -1622,14 +1622,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F193',
     feilklasse:
       'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/utregning.ts`,
     endringer: [['ut.godkjent_dager = maatteForstaa;', 'ut.godkjent_dager = r.godkjent_dager;']],
     mal: ['serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt'],
   },
   {
     id: 'F194',
     feilklasse: 'de prinsipale dagene etter § 33.6.1 kan være flere enn de vurderte',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/regler/svarkontroll.ts`,
     endringer: [['if (d > (v.dager as number))', 'if (false)']],
     mal: ['F-MM-F-33-6-1-flere-enn-vurdert'],
   },
@@ -2841,7 +2841,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F327',
     feilklasse: 'beslutningslinjen viser bare den første preklusjonen i fristsvaret',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/tekst.ts`,
     endringer: [
       [
         "rettidighet: `${sene.join(' og ')} kom for sent`",
@@ -3150,7 +3150,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F382',
     feilklasse: 'linjen etiketterer uten forskyvningen fra forholdet (OV-U32, OV-U33, #1199)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
         'linje: beslutningslinje(svar, v, paaberopelse, forskyvning),',
@@ -3296,7 +3296,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F400',
     feilklasse: 'linjen gjentar etiketten for hvert standpunkt i samme lag (OV-U32)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/tekst.ts`,
     endringer: [
       [
         'if (!ordnet || lag === null || merket.has(lag)) return l.tekst;',
@@ -3311,7 +3311,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F401',
     feilklasse: 'linjen setter etikett når svaret har ett lag og ingen påberopelse (OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/tekst.ts`,
     endringer: [
       ['const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);', 'const ordnet = ledd.length > 1;'],
     ],
@@ -4063,7 +4063,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F480',
     feilklasse: 'byggherren kan svare med ett beløp på et krav med flere kravposter (KA-U59)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/kravinnhold.ts`,
     endringer: [['  if (poster.length > 1) return', '  if (poster.length > 99) return']],
     mal: ['før svaret per kravpost er bygget'],
   },
@@ -4071,7 +4071,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F481',
     feilklasse:
       'byggherren kan svare med ett beløp på en kravpost etter en beregningsregel (KA-U59, KA-U61)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/kravinnhold.ts`,
     endringer: [["  if (poster.some((p) => p.oppgjoersform !== 'tilbud'))\n", '  if (false)\n']],
     mal: ['før svaret per kravpost er bygget'],
   },

@@ -8,15 +8,14 @@
 import { omtalen } from '$kjerne/frosset/brevtekst';
 import { oppgittDato } from '$kjerne/format/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
+import { grunnerFraForholdet, plassene } from '$kjerne/frosset/standpunkt';
 import {
   fellesOppgjoersform,
-  grunnerFraForholdet,
   harHovedbeloep,
   kravposterI,
   krevdSamlet,
   krevdProduktivitet,
-  plassene,
-} from '$kjerne/frosset/standpunkt';
+} from '$kjerne/frosset/kravinnhold';
 import { tilTall } from '$kjerne/regler/beloep';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/typer';

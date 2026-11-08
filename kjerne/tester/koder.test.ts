@@ -21,7 +21,7 @@ import {
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
 import { oppgittDato } from '../format/format.ts';
-import { regnUtSvar } from '../frosset/standpunkt.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erByggherrensPaalegg, gyldigeResultater } from '../regler/forhold.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';

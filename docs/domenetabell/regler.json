@@ -2149,7 +2149,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/frosset/utregning.ts#regnUtSvar",
         "kjerne/kommandoer/nyttelast.ts#kontrollerSvar"
       ],
       "regelkoder": [
@@ -2176,7 +2176,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/nyttelast.ts#kategorisperre",
-        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/frosset/utregning.ts#regnUtSvar",
         "kjerne/regler/forhold.ts#gyldigeResultater",
         "kjerne/regler/forhold.ts#erByggherrensPaalegg"
       ],
@@ -3209,7 +3209,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/regler/frist.ts#kontroller",
-        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/frosset/utregning.ts#regnUtSvar",
         "kjerne/kommandoer/nyttelast.ts#kontrollerSvar"
       ],
       "regelkoder": [
@@ -3594,7 +3594,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#hindrerSvarMedEttBeloep"
+        "kjerne/frosset/kravinnhold.ts#hindrerSvarMedEttBeloep"
       ],
       "regelkoder": [
         "SVAR_PER_KRAVPOST"

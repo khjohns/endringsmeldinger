@@ -5,7 +5,7 @@
  * avviser kommandoen med sin egen melding før brevet vises.
  */
 
-import { regnUtSvar, type Svarvurdering } from '$kjerne/frosset/standpunkt';
+import { regnUtSvar, type Svarvurdering } from '$kjerne/frosset/utregning';
 import { UgyldigBeloep } from '$kjerne/regler/beloep';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
@@ -14,7 +14,7 @@ import type { Spor } from '$kjerne/typer';
 import { KRAVINNHOLD, oppgittDato } from '$kjerne/format/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
-import { fastSumIKroner } from '$kjerne/frosset/standpunkt';
+import { fastSumIKroner } from '$kjerne/frosset/kravinnhold';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
