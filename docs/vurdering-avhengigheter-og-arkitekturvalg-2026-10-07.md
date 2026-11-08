@@ -162,7 +162,7 @@ og ukjente felt uten automatisk typekonvertering eller feltfjerning.
 ## AV-05: TS-prototypen skal måle vedlikehold og bevise semantikk
 
 **Fil og symbol:** [backend/regler](../backend/regler/__init__.py),
-[vederlagDomain](../src/lib/domain/vederlagDomain.ts) og
+[vederlagDomain](https://github.com/khjohns/endringsmeldinger/blob/ad17e225a15d18fd04978f622305119ccc48c891/src/lib/domain/vederlagDomain.ts) og
 [kontroller_svar](../backend/regler/sammenlikning.py).
 Prøv den representative flyten fra [arkitekturforslaget](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#7-ma-07-en-tidsbegrenset-beslutningsprøve):
 vederlag med grunnlagsavhengighet, supplert med et fristscenario, i ordinære

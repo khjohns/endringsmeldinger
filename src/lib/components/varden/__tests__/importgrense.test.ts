@@ -1,7 +1,7 @@
 /**
  * Grensen for Varden (#1331): komponentene importerer ingen regler eller utledning utenom
  * kjernen og `lagKjernesak`. Det de kan importere, står i en hviteliste. Alt annet, som
- * oversetterne og projeksjonene i `$lib/kjernesak/`, `$lib/domain/` og dagens saksvisning,
+ * oversetterne og projeksjonene i `$lib/kjernesak/` og `$lib/domain/`,
  * gir rød test. Importene leses med TypeScript-parseren og løses til absolutte stier, så
  * alias, relative stier, `export … from`, `import()` og `require()` teller likt.
  */
@@ -22,15 +22,15 @@ const PAKKER = new Set(['svelte', 'lucide-svelte']);
 const MODULER = new Set(
   [
     'kjernesak/kontekst.svelte',
-    // Teksten om svarets virkning i arbeidsvalget 26.10, som dagens skjema også viser. Ingen regel.
+    // Teksten om svarets virkning i arbeidsvalget 26.10. Ingen regel.
     'kjernesak/svarvirkning',
-    // Lesingen av beløpsfeltet (OV-U58), som dagens skjema også bruker. Ingen regel.
+    // Lesingen av beløpsfeltet (OV-U58). Ingen regel.
     'utils/belop',
     // Prosjektet frontenden alt henter, med partsnavnene (#1398). Ingen regel.
     'stores/project.svelte',
     'components/kontraktsbord/theme.css',
-    // Katalogen over kontraktens forhold og regelteksten ved det valgte forholdet, som
-    // dagens skjema viser (arbeidsvalg 02.11 i #1481). Ingen regel.
+    // Katalogen over kontraktens forhold og regelteksten ved det valgte forholdet
+    // (arbeidsvalg 02.11 i #1481). Ingen regel.
     'constants/categories',
     'constants/kontraktsregler',
     // Brevet kjernen lager for påberopelsen mot en ny sak (#1271). Kaller bare kjernen.
@@ -39,7 +39,7 @@ const MODULER = new Set(
     'types/api',
   ].map((m) => join(LIB, m))
 );
-// Logoen i panelet, som dagens visning bruker. Ingen regel.
+// Logoen i panelet. Ingen regel.
 const RESSURSER = new Set([join(ROT, 'public', 'logos', 'Oslo-logo-hvit-RGB.png?inline')]);
 
 const under = (sti: string, mappe: string) => sti === mappe || sti.startsWith(mappe + sep);
@@ -87,14 +87,14 @@ describe('grensen for Varden', () => {
     const kilder = new Map([
       [
         fil,
-        `<script lang="ts">\n  import { vederlagslag } from '$lib/kjernesak/vederlagssvar';\n  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';\n</script>`,
+        `<script lang="ts">\n  import { lesJournal } from '$lib/kjernesak/journal';\n  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';\n</script>`,
       ],
       [
         ts_,
         [
           `import { lagSaksbilde } from '../../kjernesak/saksbilde';`,
-          `export * from '$lib/domain/vederlagDomain';`,
-          `const d = await import('$lib/components/kontraktsbord/derive');`,
+          `export * from '$lib/domain/grunnlagDomain';`,
+          `const d = await import('$lib/kjernesak/forsoek');`,
           `import { kjoer } from '$kjerne/tester/kjoerer';`,
           `import { handlinger } from '$kjerne/kommandoer/handlinger';`,
           `import x from 'bits-ui';`,
@@ -104,10 +104,10 @@ describe('grensen for Varden', () => {
       ],
     ]);
     expect(forbudte(kilder)).toEqual([
-      'src/lib/components/varden/Eksempel.svelte → src/lib/kjernesak/vederlagssvar',
+      'src/lib/components/varden/Eksempel.svelte → src/lib/kjernesak/journal',
       'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/saksbilde',
-      'src/lib/components/varden/eksempel.ts → src/lib/domain/vederlagDomain',
-      'src/lib/components/varden/eksempel.ts → src/lib/components/kontraktsbord/derive',
+      'src/lib/components/varden/eksempel.ts → src/lib/domain/grunnlagDomain',
+      'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/forsoek',
       'src/lib/components/varden/eksempel.ts → kjerne/tester/kjoerer',
       'src/lib/components/varden/eksempel.ts → bits-ui',
       'src/lib/components/varden/eksempel.ts → src/lib/components/varden/__tests__/hjelp',
