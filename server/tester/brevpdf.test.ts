@@ -169,6 +169,109 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     expect(latin1(pdf)).toContain('/BaseFont /NotoSansMath-Regular');
   });
 
+  // Kilde: #1672. → ≥ ≤ og № fra Noto-skriftene var blanke i poppler, selv om tekstlesingen
+  // gav dem tilbake: i delmengden mistet en glyf med odde lengde den siste byten, og glyfene
+  // etter den fikk feil start. Hver glyf skal stå hel i delmengden, med delene den er satt
+  // sammen av.
+  it.each([
+    ['BH', ['', 'NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf']],
+    ['TE', ['SourceSerif4-Regular.ttf', 'NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf']],
+  ] as const)(
+    'tar med hver glyf fra en TrueType-delmengde i brevet fra %s hel (#1672)',
+    async (part, filer) => {
+      /** Tabellen med merket i et TrueType-program. */
+      const tabell = (b: Buffer, merke: string) => {
+        for (let i = 0; i < b.readUInt16BE(4); i++)
+          if (b.toString('latin1', 12 + 16 * i, 16 + 16 * i) === merke) {
+            const fra = b.readUInt32BE(20 + 16 * i);
+            return b.subarray(fra, fra + b.readUInt32BE(24 + 16 * i));
+          }
+        throw new Error(`skriftprogrammet har ingen ${merke}`);
+      };
+      /** Glyfene i et TrueType-program, avgrenset av `loca`. */
+      const glyfer = (b: Buffer) => {
+        const lang = tabell(b, 'head').readInt16BE(50) === 1;
+        const [loca, glyf] = [tabell(b, 'loca'), tabell(b, 'glyf')];
+        const fra = (i: number) => (lang ? loca.readUInt32BE(4 * i) : 2 * loca.readUInt16BE(2 * i));
+        return Array.from({ length: loca.length / (lang ? 4 : 2) - 1 }, (_, i) =>
+          glyf.subarray(fra(i), fra(i + 1))
+        );
+      };
+      /** Glyf-ID-en for et tegn i planet BMP, fra delen i `cmap` med format 4 for Unicode. */
+      const glyfIdFor = (b: Buffer, kode: number) => {
+        const cmap = tabell(b, 'cmap');
+        for (let i = 0; i < cmap.readUInt16BE(2); i++) {
+          const [plattform, koding] = [cmap.readUInt16BE(4 + 8 * i), cmap.readUInt16BE(6 + 8 * i)];
+          const t = cmap.subarray(cmap.readUInt32BE(8 + 8 * i));
+          if (!(plattform === 3 && koding === 1) || t.readUInt16BE(0) !== 4) continue;
+          const n = t.readUInt16BE(6) / 2;
+          const felt = (start: number, j: number) => start + 2 * j;
+          for (let j = 0; j < n; j++) {
+            const slutt = t.readUInt16BE(felt(14, j));
+            if (slutt < kode) continue;
+            const start = t.readUInt16BE(felt(16 + 2 * n, j));
+            if (start > kode) return 0;
+            const delta = t.readInt16BE(felt(16 + 4 * n, j));
+            const rangePlass = felt(16 + 6 * n, j);
+            const range = t.readUInt16BE(rangePlass);
+            if (range === 0) return (kode + delta) & 0xffff;
+            const id = t.readUInt16BE(rangePlass + range + 2 * (kode - start));
+            return id === 0 ? 0 : (id + delta) & 0xffff;
+          }
+        }
+        throw new Error('skriftprogrammet har ingen cmap med format 4 for Unicode');
+      };
+      /** Glyf-ID-ene til delene i en sammensatt glyf, med plassen de står på. */
+      const deler = (g: Buffer) => {
+        const ut: { plass: number; id: number }[] = [];
+        if (g.length === 0 || g.readInt16BE(0) >= 0) return ut;
+        for (let p = 10, flagg = 0x20; flagg & 0x20; ) {
+          flagg = g.readUInt16BE(p);
+          ut.push({ plass: p + 2, id: g.readUInt16BE(p + 2) });
+          p += 4 + (flagg & 1 ? 4 : 2) + (flagg & 8 ? 2 : flagg & 0x40 ? 4 : flagg & 0x80 ? 8 : 0);
+        }
+        return ut;
+      };
+      /** Glyfen med ID-ene til delene satt til 0, så en glyf fra delmengden kan sammenlignes. */
+      const utenIder = (g: Buffer) => {
+        const kopi = Buffer.from(g);
+        for (const { plass } of deler(g)) kopi.writeUInt16BE(0, plass);
+        return kopi;
+      };
+      const tegn = ['→', '≥', '≤', '№', '⇒', 'α', 'Ω', String.fromCodePoint(0xad), 'Æ', 'g'];
+      const tekst = `Krav ${tegn.join(' ')} slutt.`;
+      const pdf = (await brevdokument(oppdrag([{ gjelder: 'a', laast: tekst }], part), 'n'))
+        .innhold;
+      const iBrevet = [...latin1(pdf).matchAll(/\/FlateDecode[^]*?stream\r?\n([^]*?)endstream/g)]
+        .map((m) => inflateSync(Buffer.from(m[1], 'latin1')))
+        .filter((b) => ['true', '\0\x01\0\0'].includes(b.subarray(0, 4).toString('latin1')))
+        .flatMap(glyfer)
+        .map(utenIder);
+      expect(iBrevet.length, 'forutsetningen: brevet har en TrueType-delmengde').toBeGreaterThan(0);
+      const brevskrift = part === 'BH' ? 'osloSans' : 'sourceSerif4';
+      let proevd = 0;
+      for (const t of tegn) {
+        const fil = filer[skriftFor(t, brevskrift)];
+        if (!fil) continue;
+        const skrift = readFileSync(new URL(`../skrift/${fil}`, import.meta.url));
+        const iFila = glyfer(skrift);
+        const kontroller = (id: number, hva: string) => {
+          const glyf = iFila[id];
+          expect(glyf.length, `forutsetningen: ${hva} har omriss i ${fil}`).toBeGreaterThan(0);
+          const ventet = utenIder(glyf);
+          expect(
+            iBrevet.some((g) => g.subarray(0, ventet.length).equals(ventet)),
+            `${hva} fra ${fil} står hel i delmengden`
+          ).toBe(true);
+          for (const del of deler(glyf)) kontroller(del.id, `en del av ${hva}`);
+        };
+        kontroller(glyfIdFor(skrift, t.codePointAt(0)!), t);
+        proevd++;
+      }
+      expect(proevd, 'forutsetningen: tegn fra reserveskriftene er prøvd').toBeGreaterThan(3);
+    }
+  );
+
   it('bygger ikke inn reserveskriften når brevet ikke trenger den', async () => {
     const pdf = (await brevdokument(oppdrag([{ gjelder: 'a', laast: 'Tekst.' }]), 'n')).innhold;
     expect(latin1(pdf)).not.toContain('NotoSansMath');
