@@ -57,6 +57,8 @@ begrensning eller et overraskende valg kort, eller vis til en funn-ID i
 hovedplanen (RV-07). Bruk docstring når kalleren trenger en kontrakt som
 signaturen ikke uttrykker. Unngå kommentarer som gjentar koden, og aldri
 endringshistorikk («her sto tidligere …») — den står i Git og PR-en.
+Gjengi ikke et vedtak, en bestilling eller en kontrakt med egne ord i en kommentar.
+Skriv ID-en, så står teksten ett sted.
 
 **Skriv etter hva teksten gjør.** Samme regel for kommentarer, testnavn,
 forventninger og feilmeldinger:
