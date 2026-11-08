@@ -389,7 +389,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U43).
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
-  ['Element', 'relasjon', 'hendelse part art innsigelse registrertBrev'],
+  ['utledning/utled.ts:Element', 'relasjon', 'hendelse part art innsigelse registrertBrev'],
   // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
@@ -1016,7 +1016,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Datoen parten oppgir, det den gjelder og hvem som oppgir den, som bare kontrollen mot
   // brevets dato leser.
   [
-    'OppgittDato',
+    'kommandoer/nyttelast.ts:OppgittDato',
     'kommando',
     'dato gjelder av',
     ['kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
@@ -1323,7 +1323,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav svar utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
-  ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],
+  // #1711: brevtekstens egen `Element`, ikke elementet i utledningen.
+  [
+    'frosset/brevtekst.ts:Element',
+    'brevtekst',
+    'art dokument krav opplysning svar utsagn',
+    ['frosset/brevtekst.ts'],
+  ],
   // Forholdene med navnet og hjemmelen (svaret på Q3 i #1488, LV-U43).
   ['frosset/forholdene.ts', 'brevtekst', 'forholdet', ['frosset/brevtekst.ts']],
   ['frosset/forholdene.ts', 'brevtekst', 'forholdet paaberopelsenAv', ['frosset/brevtittel.ts']],
@@ -1435,12 +1441,34 @@ const toppnivaa = (d: ts.Node) =>
     ?.kind === ts.SyntaxKind.SourceFile;
 
 /**
+ * Typene som er deklarert på toppnivå i mer enn én modul i kjernen. Utenfor `typer.ts` slås de
+ * opp med modulen foran navnet, som `regler/forhold.ts:Standpunkt`, så to typer med samme navn
+ * ikke deler radene i `LESBART` (#1711). Typen i `typer.ts` beholder navnet.
+ */
+function kolliderendeTyper(p: ts.Program): Set<string> {
+  const moduler = new Map<string, Set<string>>();
+  for (const sf of p.getSourceFiles()) {
+    if (!iKjernen(sf.fileName)) continue;
+    for (const s of sf.statements)
+      if (
+        (ts.isInterfaceDeclaration(s) ||
+          ts.isTypeAliasDeclaration(s) ||
+          ts.isClassDeclaration(s)) &&
+        s.name
+      )
+        moduler.set(s.name.text, (moduler.get(s.name.text) ?? new Set()).add(sf.fileName));
+  }
+  return new Set([...moduler].filter(([, m]) => m.size > 1).map(([navn]) => navn));
+}
+
+/**
  * Eieren til deklarasjonen `d`: typen eller konstanten, med stien gjennom
  * nestede typer, modulen for en funksjon eller konstant på toppnivå, eller
  * funksjonen for en type eller et objekt som står i en funksjon. `null` når `d`
- * er et felt i et objekt som bygges i funksjonen det leses i.
+ * er et felt i et objekt som bygges i funksjonen det leses i. En type utenfor `typer.ts` med
+ * samme navn som en type i en annen modul får modulen foran navnet (`kolliderende`).
  */
-function eier(d: ts.Declaration, lesested: ts.Node): string | null {
+function eier(d: ts.Declaration, lesested: ts.Node, kolliderende: Set<string>): string | null {
   if (
     (ts.isFunctionDeclaration(d) || ts.isVariableDeclaration(d) || ts.isClassDeclaration(d)) &&
     toppnivaa(d)
@@ -1456,9 +1484,12 @@ function eier(d: ts.Declaration, lesested: ts.Node): string | null {
       ts.isInterfaceDeclaration(n) ||
       ts.isTypeAliasDeclaration(n) ||
       ts.isClassDeclaration(n)
-    )
-      return [n.name?.text ?? '?', ...sti].join('.');
-    else if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && toppnivaa(n))
+    ) {
+      const navn = n.name?.text ?? '?';
+      const modul = modulnavn(n.getSourceFile().fileName);
+      const type = kolliderende.has(navn) && modul !== 'typer.ts' ? `${modul}:${navn}` : navn;
+      return [type, ...sti].join('.');
+    } else if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && toppnivaa(n))
       return [n.name.text, ...sti].join('.');
     else if (ts.isFunctionLike(n))
       return bygget && iFunksjonen(lesested, n) ? null : [funksjon(n), ...sti].join('.');
@@ -1471,6 +1502,7 @@ const utenType = (t: ts.Type) => (t.flags & (ts.TypeFlags.Unknown | ts.TypeFlags
 /** Lesingene i `moduler`, med nøkkelen hver slås opp med i `LESBART`. */
 export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
   const tc = p.getTypeChecker();
+  const kolliderende = kolliderendeTyper(p);
   const ut: Lesing[] = [];
   for (const fil of moduler) {
     const sf = p.getSourceFile(fil);
@@ -1546,7 +1578,7 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
       const deklarasjoner = symbol?.declarations ?? [];
       const d = deklarasjoner.find((x) => iKjernen(x.getSourceFile().fileName));
       if (d) {
-        const e = eier(d, n);
+        const e = eier(d, n, kolliderende);
         return e === null ? null : `${e}.${navn}`;
       }
       // Et felt utenfor kjernen, som `length`, eller en av de faste nøklene i en
@@ -1688,6 +1720,13 @@ const alleLesinger = lesinger(kjerneprogram, regler);
 describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   it.each(regler.map((m) => [modulnavn(m)] as const))('%s', (navn) => {
     expect(vis(ikkeTillatt(alleLesinger.filter((l) => l.modul === navn)))).toEqual([]);
+  });
+
+  it('to typer med samme navn i ulike moduler slås opp hver for seg (#1711)', () => {
+    const eiere = new Set(alleLesinger.map((l) => l.noekkel.replace(/\.[^.]+$/, '')));
+    expect(eiere).toContain('utledning/utled.ts:Element');
+    expect(eiere).toContain('frosset/brevtekst.ts:Element');
+    expect(eiere).not.toContain('Element');
   });
 
   it('LESBART har ingen felt som ikke leses', () => {
