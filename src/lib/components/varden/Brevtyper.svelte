@@ -2,8 +2,8 @@
   «Andre handlinger» i kortet «Det du kan gjøre nå» (Varden, prototypen `grunnlagsoversikt.html`):
   brevtypene kjernen tilbyr i sporet nå, i fast rekkefølge og uten fremheving, som en åpen liste
   med tittel, en linje om virkningen og pil (oppdragsgiver 06.11, #1631). En brevtype som ikke er
-  bygget i Varden, åpner dagens visning, så ingen handling kjernen tilbyr, faller bort. Tilbyr
-  kjernen ingenting, vises ikke lista (MM-U25).
+  bygget i Varden, står i lista og sier at den ikke er bygget (#1636), så ingen handling kjernen
+  tilbyr, faller bort. Tilbyr kjernen ingenting, vises ikke lista (MM-U25).
 -->
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
@@ -15,7 +15,6 @@
     bygget,
     tekstFor = () => null,
     beskrivelseFor = () => null,
-    dagensVisning,
     onvelg,
   }: {
     /** Overskriften over lista, eller ingen når lista er alt kortet har. */
@@ -28,8 +27,6 @@
     tekstFor?: (noekkel: string) => string | null;
     /** Linja under teksten: hva handlingen gjør med saken. */
     beskrivelseFor?: (noekkel: string) => string | null;
-    /** Lenken til saken i dagens visning, for brevtypene som ikke er bygget. Demoruta har ingen. */
-    dagensVisning?: string;
     onvelg: (noekkel: string) => void;
   } = $props();
 
@@ -71,9 +68,6 @@
             <button type="button" class="rad" onclick={() => onvelg(r.noekkel)}
               >{@render innhold(r)}</button
             >
-          {:else if dagensVisning}
-            <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-            <a class="rad" href={dagensVisning}>{@render innhold(r)}</a>
           {:else}
             <button type="button" class="rad" onclick={() => (ikkeBygget = r.noekkel)}
               >{@render innhold(r)}</button
@@ -126,8 +120,7 @@
     text-align: left;
     text-decoration: none;
   }
-  button.rad,
-  a.rad {
+  button.rad {
     cursor: pointer;
   }
   .h {
@@ -144,8 +137,7 @@
     align-self: center;
     color: var(--ink-3);
   }
-  button.rad:hover .h,
-  a.rad:hover .h {
+  button.rad:hover .h {
     text-decoration: underline;
     text-underline-offset: 3px;
   }

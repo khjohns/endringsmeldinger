@@ -158,7 +158,7 @@ stanser skrivestien; historikkinnsyn kan bestå med en uttrykkelig begrensning.
 Dette prøves i F2 og kontrolleres i produksjonsporten F5.
 
 `/api/events` returnerer allerede `public_state` og ny saksversjon. Klientens
-[refresh](../src/lib/kontraktsbord/context.svelte.ts) henter også tidslinje,
+[refresh](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/kontraktsbord/context.svelte.ts) henter også tidslinje,
 historikk og Catenda-status. En ekstra GET kan fjernes først når
 kommandosvaret leverer den nødvendige sammenhengende sakskonteksten, eller
 klienten har en bevist måte å oppdatere den på. Versjonsmonotoni og skillet

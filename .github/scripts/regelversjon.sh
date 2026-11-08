@@ -3,7 +3,9 @@
 #
 # 1. B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/
 #    eller backend/regler/, må REGELVERSJON økes i begge speilene. En fil der
-#    bare kommentarene er endret, regnes ikke som endret (#1549).
+#    bare kommentarene er endret, regnes ikke som endret (#1549). En slettet fil
+#    i src/lib/domain/ regnes heller ikke som endret: skjemaene som brukte den,
+#    er fjernet, og ingen regel som kjører, endres av det (#1516).
 # 2. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
 #    REGELVERSJON i kjerne/regler/regelsett.ts økes. Det samme gjelder
 #    kjerne/frosset/, som bestemmer hva beslutningsgrunnlaget fryser
@@ -49,9 +51,11 @@ fixtur=backend/tests/fixtures/skjemaenes_nyttelast.json
 # En fil der bare kommentarene er endret, regnes ikke som endret (#1549).
 # .github/scripts/kommentarer.py avgjør det.
 fra=$(git merge-base "$BASE" HEAD) || exit 2
-endret=$(set -o pipefail; git -c core.quotePath=false diff --name-status --no-renames "$fra" HEAD \
-  -- src/lib/domain backend/regler ":(exclude)src/lib/domain/__tests__" \
-  | python3 "$(dirname "$0")/kommentarer.py" "$fra") || exit 2
+endret=$(set -o pipefail; {
+  git -c core.quotePath=false diff --name-status --no-renames "$fra" HEAD -- backend/regler
+  git -c core.quotePath=false diff --name-status --no-renames --diff-filter=d "$fra" HEAD \
+    -- src/lib/domain ":(exclude)src/lib/domain/__tests__"
+} | python3 "$(dirname "$0")/kommentarer.py" "$fra") || exit 2
 if [ -z "$endret" ]; then
   echo "Ingen endring i src/lib/domain/ eller backend/regler/ utenom testene og kommentarene."
 else
@@ -62,17 +66,16 @@ else
   for par in "$ts les_ts" "$py les_py"; do
     set -- $par
     if ! okt "$1" "$2"; then
-      echo "::error file=$1::Reglene er endret. Øk REGELVERSJON i $ts og $py, og regenerer $fixtur."
+      echo "::error file=$1::Reglene er endret. Øk REGELVERSJON i $ts og $py, og oppdater regelversjon i $fixtur."
       speilfeil=1
     fi
   done
   if [ "$speilfeil" -eq 0 ]; then
-    echo "::notice file=$fixtur::REGELVERSJON er økt. Regenerer $fixtur med npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts."
+    echo "::notice file=$fixtur::REGELVERSJON er økt. Oppdater regelversjon i $fixtur for hånd."
   fi
   echo
-  echo "Når REGELVERSJON er økt, må fixturen $fixtur regenereres,"
-  echo "ellers feiler npm test. Backend-testene leser samme fixture:"
-  echo "  npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts"
+  echo "Når REGELVERSJON er økt, må regelversjon i fixturen $fixtur oppdateres for hånd."
+  echo "Skjemaene som laget den, er fjernet (#1516). Backend-testene leser den:"
   echo "  cd backend && /tmp/venv/bin/python -m pytest -q"
   feil=$speilfeil
 fi

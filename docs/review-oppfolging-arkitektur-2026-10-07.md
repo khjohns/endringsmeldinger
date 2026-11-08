@@ -61,7 +61,7 @@ ansvaret for å samle lesepunktene; #272 eier kontrakten før generatorarbeidet.
 **Fil og symbol:** `submit_event` i
 [event_routes.py](../backend/routes/event_routes.py), `compute_state` i
 [timeline_service.py](../backend/services/timeline_service.py), og
-`replace` i [sakskonteksten](../src/lib/kontraktsbord/context.svelte.ts).
+`replace` i [sakskonteksten](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/kontraktsbord/context.svelte.ts).
 
 Ny regel kan gi nytt avledet standpunkt uten ny hendelse. Saksversjon alene
 beskriver derfor ikke hvilken beregning en lagret oversikt bygger på.
@@ -88,7 +88,7 @@ godkjenning, sikkerhetsbevis, integrasjoner, lagring og drift.
 ## RO-05: prøv invarianten bak feilene
 
 **Fil og symbol:** [backend-reproduksjonene fra #266](../backend/tests/test_services/test_strukturkartlegging_spor_d.py)
-og [frontend-reproduksjonene](../src/lib/components/kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts),
+og [frontend-reproduksjonene](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts),
 med vanlig innsending, batch og `validate_items` som separate innganger.
 
 De kjente feilforløpene beholdes, med skille mellom observert feil og vedtatt

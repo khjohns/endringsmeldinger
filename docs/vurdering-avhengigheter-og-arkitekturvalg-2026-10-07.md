@@ -65,8 +65,8 @@ etterprøvbar; advisorykontroll er en separat oppgave.
 
 ## AV-02: Oppdater etter kjørebaner og kompatible pakkegrupper
 
-**Fil og symbol:** [RichTextEditor](../src/lib/components/primitives/RichTextEditor.svelte),
-[LockedValueNode.renderHTML](../src/lib/editor/LockedValueNode.ts),
+**Fil og symbol:** [RichTextEditor](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/primitives/RichTextEditor.svelte),
+[LockedValueNode.renderHTML](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/editor/LockedValueNode.ts),
 [CatendaClientBase._create_session](../backend/integrations/catenda/base.py)
 og [CatendaOAuth._request](../backend/lib/auth/catenda_oauth.py).
 Versjonene nedenfor er kontrollert **07.10.2026**, og er kandidater til prøving,

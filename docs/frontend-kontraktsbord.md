@@ -1,5 +1,9 @@
 # Kontraktsbordet som hovedgrensesnitt
 
+> Historisk. Visningen dette dokumentet beskriver, og `/mockup`, er fjernet (#1516). Varden er
+> saksvisningen på `/[prosjektId]/[sakId]`. Lenkene til koden går til siste commit før
+> slettingen.
+
 Den tidligere `/mockup`-visningen er nå saksgrensesnittet på
 `/[prosjektId]/[sakId]`. Ansvarsgrunnlag, vederlag, frist og skjemaene deres vises
 i samme kontrollrom. De har ikke egne sideimplementasjoner.
@@ -82,12 +86,12 @@ ved kodegjennomgangen 5. september 2026:
 
 Relevante kodepunkter:
 
-- [ActionBar.svelte](../src/lib/components/kontraktsbord/ActionBar.svelte): TE-aksept.
-- [RightSidebar.svelte](../src/lib/components/kontraktsbord/RightSidebar.svelte): vedlegg og notater.
-- [submission.svelte.ts](../src/lib/kontraktsbord/submission.svelte.ts) og
-  [context.svelte.ts](../src/lib/kontraktsbord/context.svelte.ts): lokal kladdlagring og separat oversiktstilstand.
-- [LetterPreviewModal.svelte](../src/lib/components/kontraktsbord/LetterPreviewModal.svelte): PDF-nedlasting og lokal brevredigering.
-- [NewCaseForm.svelte](../src/lib/components/kontraktsbord/NewCaseForm.svelte): saksopprettelse i to kall.
+- [ActionBar.svelte](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/ActionBar.svelte): TE-aksept.
+- [RightSidebar.svelte](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/RightSidebar.svelte): vedlegg og notater.
+- [submission.svelte.ts](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/kontraktsbord/submission.svelte.ts) og
+  [context.svelte.ts](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/kontraktsbord/context.svelte.ts): lokal kladdlagring og separat oversiktstilstand.
+- [LetterPreviewModal.svelte](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/LetterPreviewModal.svelte): PDF-nedlasting og lokal brevredigering.
+- [NewCaseForm.svelte](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/NewCaseForm.svelte): saksopprettelse i to kall.
 
 ### Saksopprettelse og nettverksbrudd
 

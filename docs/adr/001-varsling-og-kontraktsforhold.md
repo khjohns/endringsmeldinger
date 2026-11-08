@@ -97,7 +97,7 @@ bygger på referanseteksten og er ikke en erklæring om juridisk kvalitetssikrin
 ## Implementering og kontroll
 
 - [Varseltekst og valg](../../src/lib/domain/konsekvensVarsler.ts)
-- [Felles varselkomponent](../../src/lib/components/kontraktsbord/KonsekvensVarsler.svelte)
+- [Felles varselkomponent](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/KonsekvensVarsler.svelte)
 - [Backend-regler](../../backend/services/business_rules.py)
 - [Projisering og historikk](../../backend/services/timeline_service.py)
 - [Tekst- og kategoritester](../../src/lib/domain/__tests__/konsekvensVarsler.test.ts)

@@ -151,7 +151,7 @@ bruker PostgreSQL (#931).
 Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge. Hva den kjører,
 står i miljø-skillen.
 
-**Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Kjør
+**Nettleserkontroll av den ekte saksruta og demoruta går gjennom skillen `mockup-nettleser`.** Kjør
 aldri `npm i playwright` eller `playwright install`; skillen sier hvorfor.
 
 **`npm run lint` håndhever prettier** for omfanget i `.prettierignore` og

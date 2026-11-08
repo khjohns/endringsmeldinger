@@ -2,7 +2,6 @@
   /**
    * Showcase for Varden (#1371): komponentene i `src/lib/components/varden/` i tilstandene de
    * kan ha, med saken fra startjournalen for BF-01 og `lagKjernesak`, som i `Varden.test.ts`.
-   * Dagens visning står ved siden av i rammene for hele visningen.
    */
   import '$lib/components/kontraktsbord/theme.css';
   import { resolve } from '$app/paths';
@@ -22,8 +21,7 @@
   // Hele visningen i rammer, så bredden er skjermens og ikke kolonnens.
   let tilstand = $state(TILSTANDER[2].id);
   let side = $state<Part>('BH');
-  const ramme = (visning: 'varden' | 'dagens') =>
-    `${resolve('/demo/komponenter/ramme')}?visning=${visning}&tilstand=${tilstand}&side=${side}`;
+  const ramme = () => `${resolve('/demo/komponenter/ramme')}?tilstand=${tilstand}&side=${side}`;
   const tilstandsnavn = $derived(TILSTANDER.find((t) => t.id === tilstand)!.navn);
 
   const SPORET = [
@@ -89,13 +87,8 @@
       <p class="ingress">
         Komponentene i <code>src/lib/components/varden/</code>, importert. Saken er startjournalen
         for {FORLOEPET.id}
-        ved kontrollpunktene, i minnet i nettleseren. Ingenting sendes. Dagens visning står ved siden
-        av i rammene for hele visningen. Forløpet kjøres i
-        <!-- href er ruta fra resolve() med visningen i query. -->
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-        <a href={`${resolve('/demo/[forlop]', { forlop: FORLOEPET.id })}?visning=varden`}
-          >demoruta</a
-        >.
+        ved kontrollpunktene, i minnet i nettleseren. Ingenting sendes. Forløpet kjøres i
+        <a href={resolve('/demo/[forlop]', { forlop: FORLOEPET.id })}>demoruta</a>.
       </p>
       <nav aria-label="Komponentene">
         <ul>
@@ -111,10 +104,10 @@
     </header>
 
     <section id="hele" aria-labelledby="hele-tittel">
-      <h2 id="hele-tittel">Hele visningen: Varden og dagens visning</h2>
+      <h2 id="hele-tittel">Hele visningen</h2>
       <p class="forklaring">
-        <code>Vardensak</code> og <code>Kjernesakrom</code> med samme sak. Rammene har egen bredde, så
-        visningen bruker utformingen for den skjermen.
+        <code>Vardensak</code> med saken i tilstanden. Rammene har egen bredde, så visningen bruker utformingen
+        for den skjermen.
       </p>
       <div class="velgere">
         <label>
@@ -138,15 +131,7 @@
             <iframe
               class="smal"
               title={`Varden, smal skjerm: ${tilstandsnavn}, ${side}`}
-              src={ramme('varden')}
-            ></iframe>
-          </figure>
-          <figure>
-            <figcaption>Dagens visning</figcaption>
-            <iframe
-              class="smal"
-              title={`Dagens visning, smal skjerm: ${tilstandsnavn}, ${side}`}
-              src={ramme('dagens')}
+              src={ramme()}
             ></iframe>
           </figure>
         </div>
@@ -156,15 +141,7 @@
           <iframe
             class="bred"
             title={`Varden, bred skjerm: ${tilstandsnavn}, ${side}`}
-            src={ramme('varden')}
-          ></iframe>
-        </figure>
-        <figure>
-          <figcaption>Dagens visning</figcaption>
-          <iframe
-            class="bred"
-            title={`Dagens visning, bred skjerm: ${tilstandsnavn}, ${side}`}
-            src={ramme('dagens')}
+            src={ramme()}
           ></iframe>
         </figure>
       {/key}

@@ -1,7 +1,7 @@
 /**
  * Den ekte saksruta i Chromium, mot TS-serveren og testbasen i SQL Server (#1145).
  *
- *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--feil] [--behold]
+ *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--behold]
  *
  * Trenger `KOE_SQLSERVER_TILKOBLING` (sa), som oppstartshooken setter. Skriptet
  *
@@ -37,10 +37,8 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { kopierMigrertTestbase, settInn } from '../../../server/tester/sqlserver_migrert.ts';
 import { opprettKjoeretid, slettAlle } from '../../../server/tester/sqlserver.ts';
-import { utledJournal } from '../../../kjerne/kommandoer/skriving.ts';
 import { opprettelse } from '../../../kjerne/kommandoer/opprettelse.ts';
 import type { Journalrad, Part, Sakskode } from '../../../kjerne/typer.ts';
-import { KJERNE } from '../../../kjerne/versjon.ts';
 import type { Bane } from '../../../kjerne/tester/bane.ts';
 import { finn, kontrollpunkt, somForloep } from '../../../kjerne/tester/brukerforloep.ts';
 import { kjoer } from '../../../kjerne/tester/kjoerer.ts';
@@ -52,7 +50,6 @@ const { values } = parseArgs({
     behold: { type: 'boolean', default: false },
     forlop: { type: 'string' },
     til: { type: 'string' },
-    feil: { type: 'boolean', default: false },
   },
 });
 const UT = values.utdata!;
@@ -71,10 +68,6 @@ try {
   if (FORLOEP) somForloep(FORLOEP);
 } catch (feil) {
   console.error((feil as Error).message);
-  process.exit(1);
-}
-if (values.feil && !FORLOEP) {
-  console.error('--feil sender vederlagskravet i skjemaet og trenger --forlop med --til.');
   process.exit(1);
 }
 mkdirSync(UT, { recursive: true });
@@ -680,89 +673,6 @@ try {
     await side.getByText(tittel).first().waitFor({ timeout: 30_000 });
     await side.waitForTimeout(500);
     await side.screenshot({ path: join(UT, `saksrute-${navn}.png`), fullPage: true });
-  }
-  if (values.feil) {
-    const u = utledJournal(await lesJournal(sak), KJERNE);
-    if (!u.spor.forhold.gjeldendeKrav || u.spor.vederlag.gjeldendeKrav)
-      throw new Error('--feil trenger et kontrollpunkt med grunnlagskrav og uten vederlagskrav (--til)');
-    // Feiltilstandene i skjemaet (#1215): TE sender vederlagskravet, og `page.route` svarer
-    // på kommandoruta i stedet for serveren. Kroppene har formen serveren gir
-    // (`server/app.ts`, `server/inngang.ts`); avbruddet er et svar som aldri kom.
-    const FEILTILSTANDER: {
-      navn: string;
-      svar: { status: number; kropp: unknown } | null;
-      melding: RegExp;
-    }[] = [
-      {
-        navn: '409',
-        svar: {
-          status: 409,
-          kropp: {
-            success: false,
-            error: 'VERSJONSKONFLIKT',
-            expected_version: 1,
-            current_version: 2,
-            message: 'Saken er endret. Last den inn på nytt.',
-          },
-        },
-        melding: /Saken er endret/,
-      },
-      {
-        navn: '403',
-        svar: { status: 403, kropp: { success: false, error: 'FORBIDDEN', message: 'Du har ikke tilgang.' } },
-        melding: /Du har ikke tilgang/,
-      },
-      {
-        navn: '500',
-        svar: {
-          status: 500,
-          kropp: {
-            success: false,
-            error: 'INTERNAL_ERROR',
-            message: 'Kommandoen ble ikke lagret på grunn av en feil.',
-          },
-        },
-        melding: /ikke lagret på grunn av en feil/,
-      },
-      { navn: 'avbrutt', svar: null, melding: /usikkert om brevet ble lagret/ },
-    ];
-    const kommandoruta = `**/api/kjerne/saker/${sak}/kommandoer`;
-    const sporene = te.getByRole('navigation', { name: 'Sakens spor' });
-    for (const tilstand of FEILTILSTANDER) {
-      await te.goto(`${FRONTEND}${saksrute}/kjerne`);
-      await sporene.getByRole('button', { name: /Vederlag/ }).click();
-      await te.getByRole('button', { name: /^Send (varsel eller krav|krav om vederlagsjustering)$/ }).click();
-      await te.getByLabel('Fast sum').fill('125000');
-      await te.locator('.tiptap').click();
-      await te.keyboard.type('Tilbudet omfatter peling, rigging og nedrigging av pelemaskin.');
-      await te.getByRole('button', { name: 'Se brev og send' }).click();
-      await te.getByRole('region', { name: 'Brevkontroll' }).waitFor();
-      await te.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }).check();
-      let traff = 0;
-      await te.route(kommandoruta, (rute) => {
-        if (rute.request().method() !== 'POST') return rute.continue();
-        traff++;
-        const { svar } = tilstand;
-        return svar
-          ? rute.fulfill({ status: svar.status, contentType: 'application/json', body: JSON.stringify(svar.kropp) })
-          : rute.abort('failed');
-      });
-      await te.getByRole('button', { name: 'Send til byggherren' }).click();
-      for (let i = 0; !traff && i < 50; i++) await te.waitForTimeout(200);
-      if (!traff) throw new Error(`Feiltilstand ${tilstand.navn}: skjemaet sendte ikke til ${kommandoruta}`);
-      const varsel = te.getByRole('alert').filter({ hasText: tilstand.melding }).first();
-      await varsel.waitFor({ timeout: 10_000 }).catch((feil: unknown) => {
-        throw new Error(`Feiltilstand ${tilstand.navn}: ingen role="alert" med ${tilstand.melding}`, {
-          cause: feil,
-        });
-      });
-      await te.waitForLoadState('networkidle');
-      await te.waitForTimeout(500);
-      const varsler = await te.getByRole('alert').allInnerTexts();
-      console.log(`TE  feiltilstand ${tilstand.navn}: ${varsler.filter(Boolean).join(' | ')}`);
-      await te.screenshot({ path: join(UT, `feil-${tilstand.navn}.png`), fullPage: true });
-      await te.unroute(kommandoruta);
-    }
   }
   if (OPPRETTES) {
     // S2 i #1414: «Avbryt» fører til sakslisten uten melding, og ingen sak opprettes.

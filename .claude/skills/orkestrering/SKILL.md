@@ -218,8 +218,8 @@ issue. Oppdraget skal inneholde:
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det, med skillen `mockup-nettleser`. Endrer økta visningen, sier oppdraget
   at den følger skillen `interface-design`, og hvem som kjører `/design-deslop` og
-  `/design-review` etter regelen i `AGENTS.md`, «Arbeidsform». `/mockup` har demodata og en egen
-  statusregel, så den viser ikke at den ekte saksruta virker; den ekte ruta
+  `/design-review` etter regelen i `AGENTS.md`, «Arbeidsform». Demoruta har en journal i minnet,
+  så den viser ikke at den ekte saksruta virker; den ekte ruta
   kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
 - at byggeøkta ikke kjører `/code-review`, og at reviewet og rettingene gjøres i
