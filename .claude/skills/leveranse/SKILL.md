@@ -67,7 +67,8 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 
 - Én sammenhengende endring per PR. Skill atferdsendring fra mekanisk flytting
   der det gjør reviewet lettere å etterprøve. Ingen uvedkommende opprydding.
-- Legg regelen der den er avtalt å eies. Ingen ny juridisk slutning i visning,
+- Legg regelen der den er avtalt å eies, og bare der: én regel har ett hjem i koden,
+  ikke en kopi eller en annen form i et annet lag. Ingen ny juridisk slutning i visning,
   brevtekst eller adapter. Felles kode erstatter ikke servervalidering eller
   tilgangskontroll. Nye pakker og abstraksjoner krever et konkret behov i
   oppgaven, ikke hypotetiske framtidige brukere.
@@ -91,6 +92,29 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   og skriv i PR-en hvilke søk du gjorde og hva som ble fjernet. Synlig tekst og
   rester utenfor oppdraget føres i issuet som eier dem. Python-stien ryddes etter
   DL-U2 (oppdragsgiver 28.10, #1338).
+
+- Data uten type leses gjennom én typet tilgang, ikke med en typekonvertering hos hver
+  kaller. En type eller en union utledes av én kilde, ikke skrevet på nytt ved siden av.
+
+## Refaktorering
+
+Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
+
+- Ren flytting i egen PR, adskilt fra ny logikk. Delingen gjøres først, så diffen for den
+  nye logikken bare viser logikken.
+- Del flyttingen i commits som er grønne hver for seg, med de samme sjekkene som for
+  PR-en. En typeendring eller annen omskriving kommer i en egen commit etter flyttingen,
+  eller i en egen PR når den er mer enn en typeendring.
+- Bevis uendret atferd: testene er grønne uten endrede forventninger, og de
+  representative feilinnføringene for koden som er flyttet, oppdager fortsatt feilen.
+  Snapshots og genererte filer som endres, endres bare der versjonen står.
+- Oppdater importene hos kallerne i stedet for å eksportere på nytt fra den gamle
+  modulen. Gir delingen en sirkel i importene, flyttes funksjonen til den eneste
+  kalleren, eller blir der den brukes.
+- En funksjon med mange grener deles etter art (sporet, kommandotypen) bak samme
+  signatur. Rekkefølgen på kontroller som kan kaste, beholdes, fordi feltet i feilen kan
+  være synlig for brukeren.
+- Skriv i PR-en hvor hver flyttet funksjon står nå, og avvikene fra planen i issuet.
 
 ## Vedlikeholds- og driftsverktøy
 
