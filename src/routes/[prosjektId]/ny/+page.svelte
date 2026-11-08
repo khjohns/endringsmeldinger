@@ -9,13 +9,8 @@
   import { resolve } from '$app/paths';
   import NySak from '$lib/components/varden/NySak.svelte';
   import Vardensak from '$lib/components/varden/Vardensak.svelte';
-  import {
-    fjernVentende,
-    lagreVentende,
-    lesVentende,
-    type SendNySak,
-    type VedleggForNySak,
-  } from '$lib/components/varden/nysak';
+  import { type SendNySak, type VedleggForNySak } from '$lib/components/varden/nysak';
+  import { fjernVentende, lagreVentende, lesVentende } from '$lib/components/varden/ventende';
   import {
     hentSaksmerkingForNySak,
     lastOppVedleggForNySak,
@@ -26,16 +21,18 @@
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
+  // Det ventende utkastet følger den innloggede (#1678).
+  const brukerId = $derived(page.data.user?.id);
   // Brevteksten har saksnummeret (LV-U4), så ID-en er bestemt før sendingen. Saks-ID-en og
   // kommando-ID-en gjelder handlingen, også etter ny innlasting når utfallet var usikkert
   // (#418, #1526 punkt 1).
-  const ventende = $derived(lesVentende(prosjektId));
+  const ventende = $derived(lesVentende(brukerId, prosjektId));
   const sakId = $derived(ventende?.sakId ?? crypto.randomUUID());
   const kommandoId = $derived(ventende?.kommandoId ?? nyKommandoId());
   const send: SendNySak = $derived(async (nySak) => {
-    lagreVentende(prosjektId, { sakId, kommandoId, utkast: nySak.utkast });
+    lagreVentende(brukerId, prosjektId, { sakId, kommandoId, utkast: nySak.utkast });
     const svar = await sendNySak(prosjektId, kommandoId)(nySak);
-    fjernVentende(prosjektId);
+    fjernVentende(brukerId, prosjektId);
     return svar;
   });
   const vedleggForNySak: VedleggForNySak = $derived({
@@ -67,7 +64,7 @@
             state: { nySakSendt: true },
           })}
         onavbrutt={() => {
-          fjernVentende(prosjektId);
+          fjernVentende(brukerId, prosjektId);
           goto(resolve('/[prosjektId]', { prosjektId }));
         }}
       />

@@ -19,5 +19,12 @@ export function loginUrl(returnTo = '/'): string {
 export async function logout(): Promise<void> {
   await apiFetch('/api/auth/logout', { method: 'POST' });
   clearCsrfToken();
+  // Fanens lagring har skjemaet for ny sak som ikke er sendt (`lagreVentende` i
+  // `varden/ventende.ts`). Neste bruker i samme fane skal ikke få det (#1678).
+  try {
+    sessionStorage.clear();
+  } catch {
+    // Uten tilgang til lagringen er ingenting lagret der.
+  }
   window.location.replace('/login');
 }
