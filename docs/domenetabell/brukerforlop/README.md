@@ -57,9 +57,8 @@ og tidspunktene er faste per forløp, så en omstart gir samme journal. Ingentin
 Demoruta beviser ikke tilgang, CSRF eller aktørstempling; det gjør bare saksruta mot
 TS-serveren, som kjører de samme stegene med `saksrute.ts --forlop <ID>`.
 
-Med `&visning=varden` vises den samme saken i Varden, den eksperimentelle visningen fra
-[konseptet](../../design/konsept-varden/README.md) (#1331). Bryteren i demopanelet bytter
-visning og starter forløpet på nytt fra kontrollpunktet.
+Saksvisningen er Varden, fra [konseptet](../../design/konsept-varden/README.md) (#1331).
+Den gamle visningen og bryteren i demopanelet er fjernet (#1516).
 
 ## Arbeidsregelen
 

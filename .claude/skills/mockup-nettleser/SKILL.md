@@ -106,7 +106,7 @@ JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 `src/lib/components/brukerforlop/__tests__/Demoforloep.test.ts`, ikke her.
 
 Skriptet kjører alltid Varden, den eneste saksvisningen. `--visning varden` godtas og er
-standard. Skjermbildene får samme navn ved hvert kontrollpunkt. I Varden skriver skriptet også listen «Gjelder hvis»
+standard, og en annen verdi avvises. Skjermbildene får samme navn ved hvert kontrollpunkt. I Varden skriver skriptet også listen «Gjelder hvis»
 over beløpet og stopper når den ikke har ett punkt per lag foran beløpet: avslaget av
 forholdet når forløpet har kontrollpunktet `forholdet-er-avslaatt`, og innsigelsen om sen
 varsling. I BF-04 er det to (#1400, #1410). Demopanelet starter lukket, og

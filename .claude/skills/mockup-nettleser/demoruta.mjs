@@ -4,7 +4,8 @@
 // svaret, og godtar det når forløpet har kontrollpunktet `te-har-godtatt-svaret`. Til slutt
 // startes forløpet på nytt. Demoruta sender ingenting, så skriptet trenger bare vite.
 // Stegene går gjennom Varden (#1331). Listen «Gjelder hvis» over beløpet kontrolleres også: den
-// har ett punkt per lag foran beløpet (#1400, #1410). `--visning varden` godtas og er standard.
+// har ett punkt per lag foran beløpet (#1400, #1410). `--visning varden` godtas og er standard,
+// og en annen verdi avvises.
 //
 //   node .claude/skills/mockup-nettleser/demoruta.mjs [--forlop BF-04] [--url http://localhost:5173] [--utdata <mappe>]
 //
@@ -25,6 +26,9 @@ const { values: arg } = parseArgs({
     forlop: { type: 'string', default: 'BF-01' },
   },
 });
+if (arg.visning !== 'varden') {
+  throw new Error(`Demoruta har bare Varden (#1516), ikke visningen «${arg.visning}».`);
+}
 
 // Oppsettet lokalt står i skillen; uten PLAYWRIGHT_BROWSERS_PATH startes installert Google
 // Chrome (#1410).
