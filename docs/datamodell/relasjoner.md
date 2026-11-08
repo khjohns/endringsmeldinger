@@ -442,15 +442,19 @@ flowchart LR
         c_team["team og teammedlemmer"]
         c_topic["topics"]
         c_kommentar["kommentarer"]
+        c_dokument["dokumenter i biblioteket"]
+        c_dokumentreferanse["dokumentreferanser på topicen"]
     end
     subgraph g1["SQL Server"]
         t_koe_hendelse["koe.hendelse"]
         t_koe_innkommende_behandling["koe.innkommende_behandling"]
         t_koe_innkommende_forsoek["koe.innkommende_forsoek"]
         t_koe_innkommende_hendelse["koe.innkommende_hendelse"]
+        t_koe_leveringskvittering["koe.leveringskvittering"]
         t_koe_sak_catenda_topic["koe.sak_catenda_topic"]
         t_koe_sak_metadata["koe.sak_metadata"]
         t_koe_topic_kommentar["koe.topic_kommentar"]
+        t_koe_vedleggskvittering["koe.vedleggskvittering"]
     end
     t_appen(["Appen, lagres ikke"])
     c_webhook -->|"C21.1 mottaHendelse"| t_koe_innkommende_hendelse
@@ -467,6 +471,13 @@ flowchart LR
     c_kommentar -->|"C23.2 CatendaOAuth"| t_appen
     c_kommentar -->|"C23.4 kvitterKommentar"| t_koe_topic_kommentar
     c_kommentar -->|"C23.5 registrerForsoek"| t_koe_innkommende_forsoek
+    c_topic -->|"C24.2 kjoerEnJobb"| t_koe_sak_catenda_topic
+    c_dokument -->|"C25.1 CatendaOAuth"| t_appen
+    c_dokumentreferanse -->|"C25.4 CatendaOAuth"| t_appen
+    c_dokument -->|"C25.6 lever"| t_koe_vedleggskvittering
+    c_dokument -->|"C25.6 lever"| t_koe_leveringskvittering
+    c_dokumentreferanse -->|"C25.7 lever"| t_koe_vedleggskvittering
+    c_dokumentreferanse -->|"C25.7 lever"| t_koe_leveringskvittering
 ```
 
 ### Ut til Catenda
@@ -474,12 +485,22 @@ flowchart LR
 ```mermaid
 flowchart LR
     subgraph g0["Catenda"]
+        c_topic["topics"]
         c_kommentar["kommentarer"]
+        c_dokument["dokumenter i biblioteket"]
+        c_dokumentreferanse["dokumentreferanser på topicen"]
     end
     subgraph g1["SQL Server"]
+        t_koe_brevdokument["koe.brevdokument"]
         t_koe_innkommende_behandling["koe.innkommende_behandling"]
+        t_koe_jobb["koe.jobb"]
+        t_koe_vedlegg["koe.vedlegg"]
     end
     t_koe_innkommende_behandling -->|"C23.3 CatendaOAuth"| c_kommentar
+    t_koe_jobb -->|"C24.1 CatendaOAuth"| c_topic
+    t_koe_brevdokument -->|"C25.2 CatendaOAuth"| c_dokument
+    t_koe_vedlegg -->|"C25.3 CatendaOAuth"| c_dokument
+    t_koe_jobb -->|"C25.5 CatendaOAuth"| c_dokumentreferanse
 ```
 
 ### Drift
@@ -521,21 +542,21 @@ flowchart LR
 | `koe.sak_kode` | — | — | — |
 | `koe.hendelse` | C22 | — | — |
 | `koe.notat` | — | — | — |
-| `koe.jobb` | — | — | — |
+| `koe.jobb` | — | C24, C25 | — |
 | `koe.jobbforsoek` | — | — | — |
 | `koe.leveringsoppdrag` | — | — | — |
 | `koe.kvittering` | — | — | — |
-| `koe.brevdokument` | — | — | — |
-| `koe.vedlegg` | — | — | — |
+| `koe.brevdokument` | — | C25 | — |
+| `koe.vedlegg` | — | C25 | — |
 | `koe.vedlegg_uten_sak` | — | — | — |
 | `koe.dagmulktssats` | — | — | — |
 | `koe.kontraktsparter` | — | — | — |
 | `koe.godkjenningspakke` | — | — | — |
 | `koe.godkjenningssteg` | — | — | — |
 | `koe.godkjenningshandling` | — | — | — |
-| `koe.leveringskvittering` | — | — | — |
-| `koe.vedleggskvittering` | — | — | — |
-| `koe.sak_catenda_topic` | C22 | — | — |
+| `koe.leveringskvittering` | C25 | — | — |
+| `koe.vedleggskvittering` | C25 | — | — |
+| `koe.sak_catenda_topic` | C22, C24 | — | — |
 | `koe.innkommende_hendelse` | C21 | — | — |
 | `koe.innkommende_behandling` | C22 | C23 | — |
 | `koe.innkommende_forsoek` | C22, C23 | — | — |
@@ -619,4 +640,35 @@ Utfallet `sak_opprettet` gir en kommentar med lenke til saken og saksnummeret (K
 | C23.5 | Catenda: kommentarer | koe.innkommende_forsoek | Svaret fra Catenda, eller at det mangler | [`skrivEnKommentar`](../../server/jobber.ts) → [`registrerForsoek`](../../server/hendelser.ts) | Steget `kommentar` og feilklassen med meldingen, når Catenda eller basen ikke svarte. |
 
 **Funn:** —. **Belegg:** L 19.10: `server/jobber.ts`, `server/hendelser.ts`, `server/catenda.ts` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. L 22.10: `database/migrasjoner/20261022180000_tittel_kan_ikke_vises.sql`.
+
+### C24 Topicen for en sak fra appen, fra jobbkjøreren i TS-serveren
+
+**Retning:** inn og ut. **Utløses av:** Løkka i jobbkjøreren: `kjoerEnJobb` i `server/jobber.ts` henter en jobb av typen `catenda_topic` med `koe_api.hent_jobb`.
+
+Integrasjonen lager topicen på boardet med sakens tittel og en lenke til saken, med sitt eget token. ID-en i svaret kvitteres med `koe_api.kvitter_topic` i `koe.sak_catenda_topic`, i samme form som topicene fra webhooken (#819). En topic avstemmes ikke ved et nytt forsøk.
+
+| Pil | Fra | Til | Endepunkt | Kode | Data |
+| --- | --- | --- | --- | --- | --- |
+| C24.1 | koe.jobb | Catenda: topics | POST /opencde/bcf/3.0/projects/{catenda_board_id}/topics | [`kjoerEnJobb`](../../server/jobber.ts) → [`topicoppretter`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Tittelen (`title`), lenken til saken (`description`) og topictypen (`topic_type`). |
+| C24.2 | Catenda: topics | koe.sak_catenda_topic | Svaret fra Catenda | [`kjoerEnJobb`](../../server/jobber.ts) | ID-en til topicen (`guid`), med bindestreker. |
+
+**Funn:** —. **Belegg:** L 08.11: `kjoerEnJobb` i `server/jobber.ts`, `topicoppretter` og `opprettTopic` i `server/catenda.ts` og `koe_api.kvitter_topic` i `database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql`.
+
+### C25 Leveringen av brevet og vedleggene, fra jobbkjøreren i TS-serveren
+
+**Retning:** inn og ut. **Utløses av:** Løkka i jobbkjøreren: `kjoerEnJobb` i `server/jobber.ts` henter en jobb av typen `levering` med `koe_api.hent_jobb`.
+
+`lever` i `server/jobber.ts` leverer vedleggene først og så brevet, hvert som et dokument i biblioteket med en referanse på topicen (B-03, #371, V-3, #790). Hvert steg avstemmes først, mot navnet i biblioteket og mot referansene på topicen, så et nytt forsøk ikke lager et dokument eller en referanse til. Hver operasjon kvitteres for seg, vedleggene i `koe.vedleggskvittering` og brevet i `koe.leveringskvittering`. Et registrert brev har ikke noe dokument, bare vedlegg (LV-U11).
+
+| Pil | Fra | Til | Endepunkt | Kode | Data |
+| --- | --- | --- | --- | --- | --- |
+| C25.1 | Catenda: dokumenter i biblioteket | Appen, lagres ikke | GET /v2/projects/{catenda_project_id}/libraries/{library_id}/items?scope=all&parentId=…&search=… (sidevis) | [`kjoerEnJobb`](../../server/jobber.ts) → [`lever`](../../server/jobber.ts) → [`dokumentleverandoer`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Dokumentene med navnet i mappen eller roten av biblioteket, før og etter opplastingen. Lagres ikke. |
+| C25.2 | koe.brevdokument | Catenda: dokumenter i biblioteket | POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items | [`kjoerEnJobb`](../../server/jobber.ts) → [`lever`](../../server/jobber.ts) → [`dokumentleverandoer`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | PDF-en av brevet, lagret før opplastingen, med navnet og `failOnDocumentExists`. |
+| C25.3 | koe.vedlegg | Catenda: dokumenter i biblioteket | POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items | [`kjoerEnJobb`](../../server/jobber.ts) → [`lever`](../../server/jobber.ts) → [`dokumentleverandoer`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Innholdet i hvert vedlegg brevet binder, med navnet og `failOnDocumentExists`. |
+| C25.4 | Catenda: dokumentreferanser på topicen | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references | [`kjoerEnJobb`](../../server/jobber.ts) → [`lever`](../../server/jobber.ts) → [`dokumentleverandoer`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Dokumentene topicen viser til (`document_guid`), så en referanse ikke lages to ganger. Lagres ikke. |
+| C25.5 | koe.jobb | Catenda: dokumentreferanser på topicen | POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references | [`kjoerEnJobb`](../../server/jobber.ts) → [`lever`](../../server/jobber.ts) → [`dokumentleverandoer`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Dokument-ID-en fra biblioteket (`document_guid`), på topicen og boardet i jobben. |
+| C25.6 | Catenda: dokumenter i biblioteket | koe.vedleggskvittering, koe.leveringskvittering | Svaret fra Catenda | [`kjoerEnJobb`](../../server/jobber.ts) → [`lever`](../../server/jobber.ts) | ID-en til dokumentet, funnet eller lastet opp. |
+| C25.7 | Catenda: dokumentreferanser på topicen | koe.vedleggskvittering, koe.leveringskvittering | Svaret fra Catenda | [`kjoerEnJobb`](../../server/jobber.ts) → [`lever`](../../server/jobber.ts) | ID-en til referansen på topicen, funnet eller laget. |
+
+**Funn:** —. **Belegg:** L 08.11: `kjoerEnJobb` og `lever` i `server/jobber.ts`, `dokumentleverandoer`, `finnDokument`, `lastOppDokument`, `dokumentreferanser` og `opprettDokumentreferanse` i `server/catenda.ts`, og `koe_api.kvitter_vedlegg`, `koe_api.kvitter_dokument` og `koe_api.kvitter_levering` i `database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql`.
 

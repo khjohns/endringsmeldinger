@@ -333,7 +333,7 @@ Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En 
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` og triggeren `koe.leveringsoppdrag_levering`, og endres av `koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.kvitter_levering`, `koe_api.registrer_jobbfeil` og driftsverktøyet `koe_api.start_jobb_paa_nytt`. |
-| Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: til Catenda i C24, C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Sakstittelen kan inneholde personopplysninger. |
@@ -401,7 +401,7 @@ PDF-en av brevet i et leveringsoppdrag (#371 del 2, merknaden 12.10): bytene og 
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts` med PDF-en når samme prosedyre uten PDF ikke gir noen lagret for oppdraget (#795 punkt 4, #805 punkt 5). |
-| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Data fra Catenda | Nei. Dataflyt: til Catenda i C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id). Viser til: (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.brevdokument_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Det er PDF-en som ble levert. |
 | Personopplysninger | Brevteksten kan ha navn på personer i prosjektet. |
@@ -418,7 +418,7 @@ Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og S
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`, `koe_api.flytt_vedlegg_til_sak` og `koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`, og `koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`. |
-| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Data fra Catenda | Nei. Dataflyt: til Catenda i C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (vedlegg_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_av → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); (bundet_av_event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_team → koe.catenda_contract_teams.team_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedleggskvittering.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Før levering finnes filen bare her. |
 | Personopplysninger | Filen og filnavnet kan ha navn på personer i prosjektet. |
@@ -537,7 +537,7 @@ Kvitteringen for hver obligatoriske operasjon i leveringen av et brev (#371 del 
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt av jobbkjøreren i `server/jobber.ts`. |
-| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: fra Catenda i C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id, operasjon). Viser til: (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, forutsetning) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.(leveringskvittering_oppdrag_id, leveringskvittering_operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |
@@ -554,7 +554,7 @@ Kvitteringen for hver operasjon i leveringen av et vedlegg (V-3, del av #790, in
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`. |
-| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: fra Catenda i C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (vedlegg_id, operasjon). Viser til: vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedlegg_id, forutsetning) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.(vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |
@@ -571,7 +571,7 @@ Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til: t
 | Type | grunndata |
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | `koe_api.kvitter_topic`, kalt av jobbkjøreren i `server/jobber.ts` etter at topicen er laget i Catenda (#741), og `koe_api.koble_topic`, kalt bare fra `koe_api.opprett_sak` når saken opprettes fra en topic i innboksen (W-1b.1, #819). |
-| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: fra Catenda i C22 (arket Dataflyt). |
+| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: fra Catenda i C22, C24 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (sak_id); unik (catenda_topic_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.sak_catenda_topic_sak_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |
