@@ -785,18 +785,22 @@ export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
 export const harHovedbeloep = (krav: Krav): boolean => kravposterI(krav).length > 0;
 
 /**
- * Byggherrens svar kan gis på kravet med standpunktene i dag: høyst én kravpost, med fast
- * sum, og ikke rigg og drift. Svaret per kravpost (KA-U59, OV-U95 punkt 23) er ikke bygget
- * (#1663), og et svar med ett beløp for flere poster ville bryte det.
+ * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis:
+ * høyst én kravpost, med fast sum, og ikke rigg og drift. Svaret per kravpost (KA-U59,
+ * OV-U95 punkt 23) er ikke bygget (#1663), og et svar med ett beløp for flere poster ville
+ * bryte det.
  */
-export const kanBesvaresMedEttBeloep = (krav: Krav): boolean => {
+export function hindrerSvarMedEttBeloep(krav: Krav): string | null {
   const poster = kravposterI(krav);
-  return (
-    poster.length <= 1 &&
-    poster.every((p) => p.oppgjoersform === 'tilbud') &&
-    krevdRigg(krav) === null
-  );
-};
+  if (poster.length > 1) return `Kravet har ${poster.length} kravposter`;
+  if (poster.some((p) => p.oppgjoersform !== 'tilbud'))
+    return `Kravposten ${poster[0]!.betegnelse} følger en beregningsregel`;
+  if (krevdRigg(krav) !== null) return 'Kravet har rigg og drift i forlenget byggetid';
+  return null;
+}
+
+export const kanBesvaresMedEttBeloep = (krav: Krav): boolean =>
+  hindrerSvarMedEttBeloep(krav) === null;
 
 /**
  * Det krevde beløpet i kravposten, i øre, slik utregningen, kontrollen av begrunnelsen og

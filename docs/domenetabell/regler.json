@@ -3569,7 +3569,7 @@
     {
       "id": "KA-56",
       "tilfelle": "TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter.",
-      "forventet": "Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. Til svaret per kravpost er bygget (#1663), avvises også et svar med ett beløp når den eneste kravposten gjøres opp etter en beregningsregel eller er rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket.",
+      "forventet": "Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. Til svaret per kravpost er bygget (#1663), avvises også et svar med ett beløp når den eneste kravposten gjøres opp etter en beregningsregel, og når kravet har rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket.",
       "bh_standpunkt": "Beløpsvurderingen av vederlagskravet.",
       "rettslig_virkning": "Avgjør ikke hva partene har avtalt. Samling av poster på tvers hører til endringsordren (KA-U59).",
       "rettidighet": "—",

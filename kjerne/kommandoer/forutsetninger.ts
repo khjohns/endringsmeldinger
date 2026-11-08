@@ -18,6 +18,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
+import { hindrerSvarMedEttBeloep } from '../frosset/standpunkt.ts';
 import type { Avvisning, Kravspor, Part, Spor, Varselhjemmel } from '../typer.ts';
 
 export type Handlingsnoekkel =
@@ -318,6 +319,13 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.gjeldendeSvar)
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
+      // KA-U59: byggherren svarer per kravpost. Til svaret per kravpost er bygget (#1663),
+      // tilbys svaret bare når det kan gis med ett beløp.
+      if (h.spor === 'vederlag') {
+        const hinder = hindrerSvarMedEttBeloep(s.gjeldendeKrav);
+        if (hinder)
+          return avvis('SVAR_PER_KRAVPOST', `${hinder}. Svaret per kravpost er ikke bygget ennå.`);
+      }
       return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;
     case 'revidere':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');

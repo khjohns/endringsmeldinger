@@ -19,7 +19,6 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
   hjemmelenGjelder,
-  kanBesvaresMedEttBeloep,
   krevdSamlet,
   likeResultatfelt,
   regnUtSvar,
@@ -55,13 +54,6 @@ function kontrollerSvar(
   const krav = u.spor[s.spor].gjeldendeKrav!;
   if (s.gjelder !== krav.id)
     return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde den gjeldende versjonen av kravet.');
-  // KA-U59: byggherren svarer per kravpost. Til svaret per kravpost er bygget (#1663), tas
-  // svaret imot bare når kravet har høyst én kravpost, med fast sum, og ikke rigg og drift.
-  if (s.spor === 'vederlag' && !kanBesvaresMedEttBeloep(krav))
-    return avvis(
-      'SVAR_PER_KRAVPOST',
-      'Kravet har flere kravposter, en kravpost etter en beregningsregel eller rigg og drift. Svaret per kravpost er ikke bygget ennå.'
-    );
   if (s.regelversjon !== regler.versjon)
     return avvis(
       'ANNEN_REGELVERSJON',
@@ -180,11 +172,6 @@ function kravetsUtdypning(
   return null;
 }
 
-/**
- * GR-U22 og MM-U52 punkt 14: når forholdet er sendt, står hovedkategorien, underkategorien og,
- * i underkategorien endringsordre, endringsordren. En annen hjemmel eller en annen endringsordre
- * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
- */
 /** KA-U56, KA-U51 punkt 11 og KA-U70: kravpostene mot forrige kravversjon. */
 function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
@@ -192,6 +179,11 @@ function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): A
   return strid ? avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`) : null;
 }
 
+/**
+ * GR-U22 og MM-U52 punkt 14: når forholdet er sendt, står hovedkategorien, underkategorien og,
+ * i underkategorien endringsordre, endringsordren. En annen hjemmel eller en annen endringsordre
+ * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
+ */
 function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   const forrige = u.spor.forhold.gjeldendeKrav;
   if (k.spor !== 'forhold' || !forrige) return null;

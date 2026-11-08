@@ -9,8 +9,10 @@ import { omtalen } from '$kjerne/frosset/brevtekst';
 import { oppgittDato } from '$kjerne/format/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import {
+  fellesOppgjoersform,
   grunnerFraForholdet,
   harHovedbeloep,
+  kravposterI,
   krevdSamlet,
   krevdProduktivitet,
   plassene,
@@ -21,7 +23,6 @@ import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar } from '$kjerne/ty
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-import { fellesOppgjoersform } from '$kjerne/frosset/standpunkt';
 
 /**
  * Ett brev i saken. `nummer` er brevets nummer i saken, som brevteksten kaller «brev 5»
@@ -411,6 +412,9 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
   const tall = (): number | null => {
     if (!krav) return null;
     if (spor === 'frist') return typeof krav.innhold.dager === 'number' ? krav.innhold.dager : null;
+    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61), så summen av de
+    // faste beløpene er ikke kravet.
+    if (kravposterI(krav).some((p) => p.oppgjoersform !== 'tilbud')) return null;
     return harHovedbeloep(krav) || krevdProduktivitet(krav) !== null
       ? tilTall(krevdSamlet(krav))
       : null;

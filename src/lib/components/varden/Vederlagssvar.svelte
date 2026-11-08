@@ -18,10 +18,9 @@
 <script lang="ts">
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { kroner } from '$kjerne/frosset/standpunkt';
+  import { fastSumIKroner, fellesOppgjoersform, kroner } from '$kjerne/frosset/standpunkt';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
-  import { fastSumIKroner, fellesOppgjoersform } from '$kjerne/frosset/standpunkt';
   import { lesKroner } from '$lib/utils/belop';
   import type { Forutsetning } from '$kjerne/kommandoer/lag';
   import type { Utledning } from '$kjerne/utledning/utled';
@@ -448,7 +447,7 @@
           {@render gjelderHvis('metode', metodeforutsetninger)}
           <Valg
             navn={`${uid}-metode`}
-            spoersmaal={SKJEMA.metodeSpoersmaal(fellesOppgjoersform(krav))}
+            spoersmaal={SKJEMA.metodeSpoersmaal(fellesOppgjoersform(krav) ?? 'tilbud')}
             beskrevetAv={metodeforutsetninger.length ? `${uid}-metode-forutsetninger` : undefined}
             valg={[
               { verdi: true, tekst: SKJEMA.godtarMetode },

@@ -474,7 +474,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/standpunkt.ts', 'regelsett', 'krevdIKravposten krevdRigg', ['frosset/brevtekst.ts']],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
   // med ett beløp (#1663).
-  ['frosset/standpunkt.ts', 'predikat', 'kanBesvaresMedEttBeloep', ['kommandoer/nyttelast.ts']],
+  [
+    'frosset/standpunkt.ts',
+    'predikat',
+    'hindrerSvarMedEttBeloep',
+    ['kommandoer/forutsetninger.ts'],
+  ],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   [
     'frosset/standpunkt.ts',

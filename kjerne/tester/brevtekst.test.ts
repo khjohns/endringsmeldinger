@@ -7639,6 +7639,13 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(s.avvist('TE', krav([{ ...post1, beloep: 1 }], { trekker: [p1] }))).toBe('KRAVPOSTENE');
   });
 
+  it('samme kravpost kan ikke trekkes to ganger i én kravversjon (KA-U56)', () => {
+    const s = sakMedKrav();
+    const p1 = p1I(s);
+    expect(s.avvist('TE', krav([regning], { trekker: [p1] })), 'kontrollsak').toBeNull();
+    expect(s.avvist('TE', krav([regning], { trekker: [p1, p1] }))).toBe('KRAVPOSTENE');
+  });
+
   it('en lagret kravversjon som gir P1 en annen betegnelse, gjør saken ikke forstått (MM-U2)', () => {
     const s = sakMedKrav();
     s.send('TE', krav([{ ...post1, beloep: 130000 }]));
@@ -7718,6 +7725,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       svar: [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
     });
     expect(s.avvist('BH', svaret()), 'kontrollsak: bare P1 med fast sum').toBeNull();
+    expect(handlinger(s.u(), 'BH'), 'kontrollsak').toContain('svare:vederlag');
     // To kravposter med fast sum: byggherren svarer per kravpost (KA-U59).
     s.send(
       'TE',
@@ -7727,6 +7735,8 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       ])
     );
     expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');
+    // Svaret tilbys ikke, så visningen åpner ikke et skjema kjernen ikke kan regne ut.
+    expect(handlinger(s.u(), 'BH')).not.toContain('svare:vederlag');
     // Én kravpost etter en beregningsregel.
     s.send(
       'TE',

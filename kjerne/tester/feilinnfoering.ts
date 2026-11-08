@@ -4069,7 +4069,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F480',
     feilklasse: 'byggherren kan svare med ett beløp på et krav med flere kravposter (KA-U59)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['    poster.length <= 1 &&\n', '    true &&\n']],
+    endringer: [['  if (poster.length > 1) return', '  if (poster.length > 99) return']],
     mal: ['før svaret per kravpost er bygget'],
   },
   {
@@ -4077,7 +4077,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'byggherren kan svare med ett beløp på en kravpost etter en beregningsregel (KA-U59, KA-U61)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["    poster.every((p) => p.oppgjoersform === 'tilbud') &&\n", '    true &&\n']],
+    endringer: [["  if (poster.some((p) => p.oppgjoersform !== 'tilbud'))\n", '  if (false)\n']],
     mal: ['før svaret per kravpost er bygget'],
   },
 ];
