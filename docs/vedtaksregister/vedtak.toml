@@ -2227,6 +2227,49 @@ tekst = '''
 Varselet gjelder oppgjørsformen i sporet. Har en tidligere versjon en post med samme oppgjørsform, sier brevet ikke at den nye posten er varsel.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "VS-U50"
+dato = 2026-11-08
+hvem = "oppdragsgiver"
+kilde = ["#1663", "#1674"]
+sporsmal = '''
+Oppdragsgiver spurte 08.11, ordrett: «I slike tilfeller kan det være at TE har varslet tidligere. UI må altså informere TE om at løsningen regner det som nytt varsel i situasjonen ovenfor. bør TE gis anledning til å registrere tidligere gitt varsel eller er det ikke nødvendig?» Spørsmål 2 ordrett slik orkestratoren stilte det 08.11 etter kartleggingen:
+
+**2. Et varsel TE har gitt tidligere for en kravpost**
+Bakgrunn: Etter VS-U49 sier brevet at kravet er varselet for en post som er ny eller har skiftet til regningsarbeid eller justerte enhetspriser. Det gjelder «når det ikke er registrert et varsel for posten før». TE kan ha varslet tidligere, utenfor løsningen eller i et varsel som står alene. Skjemaet må uansett vise TE før sending hvilke poster kravet regnes som varsel for.
+Belegg:
+- Kontrakten: punkt 34.4 første ledd krever varsel før regningsarbeidet settes i gang. Punkt 34.3.3 første ledd krever varsel uten ugrunnet opphold. Ingen av dem sier at et senere varsel fortrenger et tidligere.
+- Hva setningen betyr: «Kravet er varselet» er TEs eget skriftlige utsagn og kan leses som at varselet først kom nå. Byggherren svarer ut fra det. Et varsel som registreres etter byggherrens svar, endrer ikke svaret. VS-U43 punkt 10 har samme mønster, men for andre varsler.
+- Registrering i dag: VS-U48 og samlevedtaket for vederlagsmetoden (OV-U95) punkt 10 lar TE registrere et brev sendt utenfor løsningen, med datoen. Arbeidsvalget under VS-U48 knytter et slikt varsel til postene i neste versjon bare når det ennå ikke finnes noen kravpost.
+- Mønsteret for andre varsler: VS-U34 og VS-U38 har det i kravskjemaet. TE velger at varselet er sendt på annen måte, og brevet legges ved som korrespondanse med kategorien varsel. Kravbrevet sier da at varselet ble sendt i TEs brev av en gitt dato, som er vedlagt. Byggherren kan bestride datoen (VS-U8).
+- Kjernen i dag: kjernen avgjør dette bare ut fra tidligere kravversjoner. Den kan ennå ikke registrere et varsel etter punkt 34.3.3 eller 34.4, og den kan ikke knytte noe til en bestemt kravpost. Det samme gjelder skjemaet: BF-14 har registreringen bare i skjemaet for et varsel som står alene, ikke per post i kravskjemaet.
+- A (anbefalt): For hver kravpost som etter VS-U49 ville vært varsel, kan TE i kravskjemaet oppgi at varselet for posten etter punkt 34.3.3 eller 34.4 alt er gitt. TE velger et varsel som er sendt eller registrert i løsningen. Alternativt legger TE til et brev sendt utenfor løsningen som korrespondanse med kategorien varsel, med datoen. Brevet sier da ikke at kravet er varselet for posten, men at varselet for posten ble gitt i det brevet, med datoen. Løsningen kontrollerer ikke at brevet er et varsel for posten, og byggherren kan bestride datoen. Velger TE ikke dette, viser skjemaet før sending hvilke poster kravet regnes som varsel for. Forhold: presiserer VS-U49, og utvider VS-U48 etter mønsteret i VS-U34 og VS-U38.
+- B: TE oppgir ikke noe per post. Skjemaet viser før sending hvilke poster kravet regnes som varsel for, og at et tidligere varsel må registreres etter VS-U48 før kravet sendes. Forhold: presiserer VS-U49.
+- Hva valget styrer: A krever et valg per post i kravskjemaet, som bygges i økt 3, og en ny setning i brevet. Kjernen må også kunne knytte et varsel etter punkt 34.3.3 eller 34.4 til en kravpost, og det gir ny regel- og projeksjonsversjon. B krever bare en melding i skjemaet. Men et varsel som registreres før kravet, dekker ikke en ny post i en senere versjon, så brevet sier likevel «kravet er varselet».
+- Anbefaling: A. Kontrakten krever ikke at TE gjentar varselet. Et varsel som registreres etter byggherrens svar, retter ikke opp svaret, så opplysningen bør kunne gis i samme brev som kravet. Det er TE som knytter varselet til posten, så løsningen tolker ingen fritekst (KA-U16). For TE koster det ett valgfritt felt per ny eller endret post. Ordlyden i brevet vedtas når skjemaet og brevet bygges i økt 3, med VS-U38 som mønster.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 08.11, ordrett: «2A». Valgt: A.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u49" },
+  { art = "utvider", vedtak = "vs-u48" },
+]
+folge = '''
+Ordlyden i brevet for et varsel som alt er gitt, vedtas når skjemaet og brevet bygges i økt 3 i BF-14, med VS-U38 som mønster, slik spørsmålet sa. Berører BF-14.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+For hver kravpost som etter VS-U49 ville vært varsel, kan TE i kravskjemaet oppgi at varselet for posten etter punkt 34.3.3 eller 34.4 alt er gitt. TE velger et varsel som er sendt eller registrert i løsningen. Alternativt legger TE til et brev sendt utenfor løsningen som korrespondanse med kategorien varsel, med datoen. Brevet sier da ikke at kravet er varselet for posten, men at varselet for posten ble gitt i det brevet, med datoen. Løsningen kontrollerer ikke at brevet er et varsel for posten, og byggherren kan bestride datoen. Velger TE ikke dette, viser skjemaet før sending hvilke poster kravet regnes som varsel for. Forhold: presiserer VS-U49, og utvider VS-U48 etter mønsteret i VS-U34 og VS-U38.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+TE oppgir ikke noe per post. Skjemaet viser før sending hvilke poster kravet regnes som varsel for, og at et tidligere varsel må registreres etter VS-U48 før kravet sendes. Forhold: presiserer VS-U49.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
