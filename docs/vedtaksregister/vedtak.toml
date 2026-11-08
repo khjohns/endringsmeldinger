@@ -2,7 +2,7 @@
 #
 # Rett her, ikke i 3.1, og kjør python3 docs/verktoy/vedtaksregister.py.
 # Hovedplanen er autoritativ for vedtakene; se README.md i denne mappa.
-# Testene i backend/tests/test_vedtaksregister/ feiler når 3.1 ikke er lik det
+# Testene i verktoy/tester/test_vedtaksregister/ feiler når 3.1 ikke er lik det
 # verktøyet lager, når et vedtak, et anker eller en vedtaksdato er endret,
 # og når en ny post bryter reglene i README.md.
 #

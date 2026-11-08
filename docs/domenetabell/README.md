@@ -40,7 +40,7 @@ vedtakene. Hva som gjenstår med dem, står i #309.
 | [bevis-saker.json](bevis-saker.json) | Forløp med handlinger, kontroller, kjente avvik og invarianter |
 | [bevis-saker-maalmodell.json](bevis-saker-maalmodell.json) | Forløp A–E fra [modellforslaget](../forslag-maalmodell-2026-10-09.md) med kilde per kontroll. Kjøres bare mot TS-kjernen i [`kjerne/`](../../kjerne/) (#304, #308), merket «(målmodellen)» i tabellen |
 | [brukerforlop/](brukerforlop/README.md) | Brukerforløpene: hele saker fra én part til den andre, med navngitte kontrollpunkter og samme stegformat og kjører som bevis-sakene. Kjøres i minnet, mot testbasen, i demoruta og i saksruta (#1330). [Dekningsoversikten](brukerforlop/dekning.md) genereres fra forløpsfilene |
-| [`domenetabell.py`](../verktoy/domenetabell.py) | Kontrollerer referansene og skriver tabellen under |
+| [`domenetabell.py`](../verktoy/domenetabell.py) | Kontrollerer referansene og skriver tabellen under. Vakttestene står i [`verktoy/tester/test_domenetabell/`](../../verktoy/tester/test_domenetabell/) |
 | [`test_domenetabell/`](../../backend/tests/test_domenetabell/) | Kjører bevis-sakene mot Python-projeksjonen i minnet |
 | [kontrakt.json](kontrakt.json) | Kommando, lagret hendelse og offentlig tilstand for flyten i språkprøven (#272), som JSON Schema; se [Kontrakten for flyten](#kontrakten-for-flyten) |
 
@@ -673,10 +673,11 @@ vurdere spesifiseringen etter § 33.6.1. Vurderingen som er utelatt og `null`, e
 spørsmålet ikke gjelder (KA-18a, DT-03), prøves av korpuset med forespørselen.
 
 Skjemaet bruker et lite utvalg av JSON Schema 2020-12. Validatoren i
-[`kontrakt.py`](../../backend/tests/test_domenetabell/kontrakt.py) kan akkurat
-det utvalget, og et annet nøkkelord gir rød test. Testene står i
+[`kontrakt.py`](../../verktoy/tester/test_domenetabell/kontrakt.py) kan akkurat
+det utvalget, og et annet nøkkelord gir rød test
+([`test_kontrakt.py`](../../verktoy/tester/test_domenetabell/test_kontrakt.py)). Testene i
 [`test_kontrakt.py`](../../backend/tests/test_domenetabell/test_kontrakt.py)
-(skjemaet mot modellene, korpusets kommandoer, data og tilstand i minnet).
+prøver resten (skjemaet mot modellene, korpusets kommandoer, data og tilstand i minnet).
 Grensene gjennom rutene og testbasen prøves ikke etter #931.
 
 Ikke i kontrakten: grensen for godkjenningspakker, kommandoene utenfor flyten,

@@ -8,7 +8,7 @@ import copy
 
 import pytest
 
-from tests.test_domenetabell import korpus
+from test_domenetabell import korpus
 
 v = korpus.verktoy
 

@@ -60,6 +60,39 @@ jobs:
       - name: Lint
         run: ruff check backend/
 
+  verktoy:
+    name: Verktøy (pytest + ruff)
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      # Vedtaksregisteret (#413) sammenlikner vedtakene med main, som er forelderen
+      # til flettecommiten.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: |
+            verktoy/tester/requirements.txt
+            backend/requirements.txt
+
+      # backend/requirements.txt trengs bare fordi docs/verktoy/datamodell.py leser
+      # modellene i backend/ og test_laster.py laster den. Fjernes i PR B i #49.
+      - name: Installer avhengigheter
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r verktoy/tester/requirements.txt -r backend/requirements.txt
+
+      - name: Kjør testene
+        working-directory: verktoy/tester
+        run: python -m pytest -q
+
+      - name: Lint
+        run: ruff check verktoy/tester/
+
   # Bygger migrasjonene i supabase/migrations/ fra tom mot PostgreSQL 17. Ingen
   # test i TS eller Python bruker basen lenger (#931, #935); jobben står til
   # migrasjonene går ut, og navnet er påkrevd i regelsettet på main.
@@ -226,4 +259,4 @@ jobs:
         continue-on-error: true
         run: |
           python -m pip install --quiet pip-audit==2.9.0
-          pip-audit --requirement backend/requirements.txt --requirement backend/requirements-dev.txt --progress-spinner off
+          pip-audit --requirement backend/requirements.txt --requirement backend/requirements-dev.txt --requirement verktoy/tester/requirements.txt --progress-spinner off

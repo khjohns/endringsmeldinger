@@ -15,7 +15,7 @@ import re
 
 import pytest
 
-from tests.verktoy import last
+from verktoymoduler import last
 
 ROT = pathlib.Path(__file__).resolve().parents[3]
 

@@ -10,7 +10,7 @@ import datetime
 
 import pytest
 
-from tests.verktoy import last
+from verktoymoduler import last
 
 bs = last("byggestatus")
 vr = bs.vr
