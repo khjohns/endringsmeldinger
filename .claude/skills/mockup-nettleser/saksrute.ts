@@ -1,7 +1,7 @@
 /**
  * Den ekte saksruta i Chromium, mot TS-serveren og testbasen i SQL Server (#1145).
  *
- *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--behold]
+ *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--feil] [--behold]
  *
  * Trenger `KOE_SQLSERVER_TILKOBLING` (sa), som oppstartshooken setter. Skriptet
  *
@@ -21,6 +21,9 @@
  * skjemaet på `/{prosjekt}/ny` i nettleseren, og saken og påberopelsen lagres i én handling.
  * Kontrollene før sendingen prøves mot opprettelsen alene, som i minnet, og kontrollene etter
  * den mot journalen serveren gir. Til slutt avbryter TE et nytt skjema og kommer til sakslisten.
+ *
+ * Med `--feil` framkalles feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar,
+ * og `page.route` svarer på kommandoruta med 409, 403, 500 og et avbrudd.
  *
  * Med `--behold` står alt og kjører til Ctrl+C, med innlogging per side i nettleseren:
  * `http://localhost:5173/api/auth/catenda/login?return_to=/<prosjekt>/<sak>` med cookien
@@ -50,6 +53,7 @@ const { values } = parseArgs({
     behold: { type: 'boolean', default: false },
     forlop: { type: 'string' },
     til: { type: 'string' },
+    feil: { type: 'boolean', default: false },
   },
 });
 const UT = values.utdata!;
@@ -66,6 +70,8 @@ try {
   if (values.til && !FORLOEP) throw new Error('--til trenger --forlop');
   if (FORLOEP && values.til) kontrollpunkt(FORLOEP, values.til);
   if (FORLOEP) somForloep(FORLOEP);
+  if (values.feil && !(FORLOEP && values.til))
+    throw new Error('--feil sender aksepten av BHs svar og trenger --forlop med --til, for eksempel BF-01 til te-har-mottatt-svaret.');
 } catch (feil) {
   console.error((feil as Error).message);
   process.exit(1);
@@ -673,6 +679,77 @@ try {
     await side.getByText(tittel).first().waitFor({ timeout: 30_000 });
     await side.waitForTimeout(500);
     await side.screenshot({ path: join(UT, `saksrute-${navn}.png`), fullPage: true });
+  }
+  if (values.feil) {
+    // Feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar på vederlagskravet i
+    // brevkontrollen, og `page.route` svarer på kommandoruta i stedet for serveren. Kroppene har
+    // formen serveren gir (`server/app.ts`, `server/inngang.ts`); avbruddet er et svar som aldri
+    // kom. `GET` går til serveren, så innlastingen etter 409 er ekte.
+    const FEILTILSTANDER: { navn: string; svar: { status: number; kropp: unknown } | null; melding: RegExp }[] = [
+      {
+        navn: '409',
+        svar: {
+          status: 409,
+          kropp: {
+            success: false,
+            error: 'VERSJONSKONFLIKT',
+            expected_version: 1,
+            current_version: 2,
+            message: 'Saken er endret. Last den inn på nytt.',
+          },
+        },
+        melding: /Saken er endret/,
+      },
+      {
+        navn: '403',
+        svar: { status: 403, kropp: { success: false, error: 'FORBIDDEN', message: 'Du har ikke tilgang.' } },
+        melding: /Du har ikke tilgang/,
+      },
+      {
+        navn: '500',
+        svar: {
+          status: 500,
+          kropp: { success: false, error: 'INTERNAL_ERROR', message: 'Kommandoen ble ikke lagret på grunn av en feil.' },
+        },
+        melding: /ikke lagret på grunn av en feil/,
+      },
+      { navn: 'avbrutt', svar: null, melding: /usikkert om brevet ble lagret/ },
+    ];
+    const kommandoruta = `**/api/kjerne/saker/${sak}/kommandoer`;
+    const godta = te.getByRole('button', { name: /^Godta svaret/ });
+    for (const tilstand of FEILTILSTANDER) {
+      await te.goto(`${FRONTEND}${saksrute}`);
+      await te.getByText('Vederlagsjustering', { exact: true }).first().click({ timeout: 30_000 });
+      await godta.first().waitFor({ timeout: 30_000 }).catch((feil: unknown) => {
+        throw new Error('--feil trenger et kontrollpunkt der TE kan godta BHs svar (--til)', { cause: feil });
+      });
+      await godta.first().click();
+      await te.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
+      let traff = 0;
+      await te.route(kommandoruta, (rute) => {
+        if (rute.request().method() !== 'POST') return rute.continue();
+        traff++;
+        const { svar } = tilstand;
+        return svar
+          ? rute.fulfill({ status: svar.status, contentType: 'application/json', body: JSON.stringify(svar.kropp) })
+          : rute.abort('failed');
+      });
+      await te.getByRole('button', { name: 'Send aksepten til BH', exact: true }).click();
+      for (let i = 0; !traff && i < 50; i++) await te.waitForTimeout(200);
+      if (!traff) throw new Error(`Feiltilstand ${tilstand.navn}: skjemaet sendte ikke til ${kommandoruta}`);
+      const varsel = te.getByRole('alert').filter({ hasText: tilstand.melding }).first();
+      await varsel.waitFor({ timeout: 10_000 }).catch((feil: unknown) => {
+        throw new Error(`Feiltilstand ${tilstand.navn}: ingen role="alert" med ${tilstand.melding}`, { cause: feil });
+      });
+      await te.waitForLoadState('networkidle');
+      await te.waitForTimeout(500);
+      // Varden ruller i en egen beholder, så `fullPage` når ikke meldingen under sendeknappen.
+      await varsel.scrollIntoViewIfNeeded();
+      const varsler = await te.getByRole('alert').allInnerTexts();
+      console.log(`TE  feiltilstand ${tilstand.navn}: ${varsler.filter(Boolean).join(' | ')}`);
+      await te.screenshot({ path: join(UT, `feil-${tilstand.navn}.png`), fullPage: true });
+      await te.unroute(kommandoruta);
+    }
   }
   if (OPPRETTES) {
     // S2 i #1414: «Avbryt» fører til sakslisten uten melding, og ingen sak opprettes.
