@@ -685,8 +685,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   [KA-U14](plans/vedtak.md#ka-u14): kan
   snevre inn KA-U6 der enigheten gir BH en rettighet, for eksempel et fradrag.
 - **Kjernen i dag:** ikke bygget. Formatet krever beløp over 0, og
-  `hold_tilbake` avvises. `kanHoldeTilbake` finnes i
-  [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts).
+  `hold_tilbake` avvises i
+  [`frosset/utregning.ts`](../kjerne/frosset/utregning.ts) (`utenforOmfanget`).
 
 ---
 

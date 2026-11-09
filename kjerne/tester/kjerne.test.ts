@@ -24,7 +24,13 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
-import { beregnVederlag } from '../regler/vederlag.ts';
+import {
+  beregnVederlag,
+  postnoekkel,
+  type Kravpostsvar,
+  type Produktivitetssvar,
+  type Vederlagssvar,
+} from '../regler/vederlag.ts';
 import { sammenfallStemmer, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
@@ -343,6 +349,36 @@ describe('lesereglene for referansene (4.2)', () => {
         tilBestridelse(r, k);
         radMed(r, k, 'D5').aktor_rolle = 'TE';
       },
+    ],
+    [
+      'beløpet viser til en kravpost som ikke står i kravet (OV-U23, KA-U57 (c))',
+      ['forlop_a'],
+      (r, k) => {
+        // Oppgjørsformen og beløpet viser til samme kravpost, så rekkefølgen i leseren holder.
+        for (const p of svaret(radMed(r, k, 'S-v1'), k, 'S-v1').standpunkter as Data[])
+          if (p.gjelder && (p.art === 'beloep' || p.art === 'oppgjoersform'))
+            p.gjelder = 'finnes-ikke';
+      },
+    ],
+    [
+      'beløpet for kravposten er ført som posten etter § 34.1.3 annet ledd (OV-U23)',
+      ['forlop_a'],
+      (r, k) => {
+        const svar = svaret(radMed(r, k, 'S-v1'), k, 'S-v1');
+        const form = (svar.standpunkter as Data[]).find((p) => p.art === 'oppgjoersform')!;
+        const grunnlag = svar.beslutningsgrunnlag as { virkninger: Data[] };
+        svar.standpunkter = (svar.standpunkter as Data[]).filter((p) => p !== form);
+        grunnlag.virkninger = grunnlag.virkninger.filter((v) => v.standpunkt !== form.id);
+        const p = (svar.standpunkter as Data[]).find((s) => s.art === 'beloep' && s.gjelder)!;
+        delete p.gjelder;
+        p.saerskilt = 'produktivitet';
+      },
+    ],
+    [
+      'resultatet «tilbakeholdelse» i utregningen, som ingen regel gir (MM-U2)',
+      ['forlop_a'],
+      (r, k) =>
+        ((svaret(radMed(r, k, 'S-v1'), k, 'S-v1').utregning as Data).resultat = 'tilbakeholdelse'),
     ],
     [
       'to standpunkter med samme ID',
@@ -1002,10 +1038,14 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
       'S-v1',
     ],
     [
-      'tilbudet er ikke akseptert, men metoden mangler',
+      'tilbudet er ikke akseptert, men oppgjørsformen mangler',
       async () => {
         const { k, rader } = await vederlagssak();
-        return { k, rader, endring: (s: Data) => delete standpunkt(s, 'metode').oensket_metode };
+        return {
+          k,
+          rader,
+          endring: (s: Data) => delete standpunkt(s, 'oppgjoersform').oensket_oppgjoersform,
+        };
       },
       'S-v1',
     ],
@@ -2189,7 +2229,7 @@ describe('forskyvningen fra forholdet i linjen (OV-U32, OV-U33, #1199)', () => {
       spor: 'vederlag',
       gjelder: k.navn.id('K-v1'),
       paaberopelse: k.navn.id('K-g1'),
-      standpunkter: [{ id: randomUUID(), art: 'beloep', beloep: 60000 }],
+      standpunkter: [{ id: randomUUID(), art: 'beloep', beloep: 60000, gjelder: 'kravpost' }],
       utregning: { resultat: 'delvis_godkjent', godkjent_beloep: 60000 },
     };
     frysBrev({ ...siste, event_id: randomUUID(), data: { svar: [svar] } }, journal, KJERNE);
@@ -2306,85 +2346,75 @@ describe('upåvirket hos leserne (OV-U33)', () => {
 
 // Det særskilte kravet etter § 34.1.3 annet ledd i regelsettet og leseren (#1047 B2b).
 describe('regelsettet for det særskilte kravet (VS-U5, OV-U27)', () => {
-  const krav = {
-    hovedkrav_beloep: 150000,
-    metode: 'tilbud' as const,
-    rigg_beloep: null,
-    produktivitet_beloep: 40000,
-    krever_justert_ep: false,
-    kostnads_overslag: null,
-    hovedkategori: 'svikt',
-    underkategori: 'grunnforhold',
-    grunnlag_varslet_i_tide: null,
-    grunnlag_resultat: null,
+  const kravpost: Kravpostsvar = {
+    gjelder: 'k1',
+    krevd: 150000,
+    vurdering: 'godkjent',
+    aksepterer: true,
   };
-  const vurdering = {
-    hovedkrav_vurdering: 'godkjent' as const,
-    produktivitet_vurdering: 'delvis' as const,
-    produktivitet_godkjent_beloep: 30000,
-    hovedkrav_varslet_i_tide: true,
-    produktivitet_varslet_i_tide: false,
-    produktivitet_begrenset_beloep: 10000,
-    aksepterer_metode: true,
+  const produktivitet: Produktivitetssvar = {
+    saerskilt: 'produktivitet',
+    krevd: 40000,
+    vurdering: 'delvis',
+    godkjent_beloep: 30000,
+    varslet_i_tide: false,
+    begrenset_beloep: 10000,
+  };
+  const svar: Vederlagssvar = {
+    hovedkategori: 'svikt',
+    varslet_i_tide: true,
+    poster: [kravpost, produktivitet],
   };
 
   it('begrensningen etter § 34.1.3 setter posten til beløpet etter begrensningen, ikke kravet til 0 (VS-U5)', () => {
-    const r = beregnVederlag(krav, vurdering, GJELDENDE_REGLER);
+    const r = beregnVederlag(svar, GJELDENDE_REGLER);
     expect([r.total_godkjent_beloep, r.subsidiaer_godkjent_beloep]).toEqual([16000000n, 18000000n]);
-    expect(r.produktivitet_begrenset_beloep).toBe(1000000n);
+    expect(r.poster.map((p) => [p.godkjent, p.prinsipalt])).toEqual([
+      [15000000n, 15000000n],
+      [3000000n, 1000000n],
+    ]);
   });
 
   it('preklusjonen etter § 34.1.2 gjelder hele kravet, også posten (OV-U27)', () => {
-    const r = beregnVederlag(
-      krav,
-      { ...vurdering, hovedkrav_varslet_i_tide: false },
-      GJELDENDE_REGLER
-    );
+    const r = beregnVederlag({ ...svar, varslet_i_tide: false }, GJELDENDE_REGLER);
     expect([r.total_godkjent_beloep, r.subsidiaer_godkjent_beloep]).toEqual([0n, 18000000n]);
   });
 
-  it('et krav uten hovedbeløp regnes av posten alene (OV-U23)', () => {
-    const r = beregnVederlag(
-      { ...krav, hovedkrav_beloep: null },
-      { ...vurdering, hovedkrav_vurdering: undefined },
-      GJELDENDE_REGLER
-    );
+  it('et krav uten kravpost regnes av posten alene (OV-U23)', () => {
+    const r = beregnVederlag({ ...svar, poster: [produktivitet] }, GJELDENDE_REGLER);
     expect([r.total_godkjent_beloep, r.total_krevd_beloep]).toEqual([1000000n, 4000000n]);
-    expect(r.hovedkrav_godkjent_beloep).toBeNull();
+    expect(r.poster.map((p) => postnoekkel(p.post))).toEqual(['produktivitet']);
+  });
+
+  it('aksepten etter § 34.2.2 gjelder kravposten og mangler for den (KA-U57 (d))', () => {
+    expect(() =>
+      beregnVederlag(
+        { ...svar, poster: [{ ...kravpost, aksepterer: undefined }, produktivitet] },
+        GJELDENDE_REGLER
+      )
+    ).toThrow('k1.aksepterer: mangler (§ 34.2.2)');
   });
 });
 
 // #1301: rigg og drift er ikke i formatet (#1171), så motstriden prøves i regelsettet.
 describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', () => {
-  const krav = {
-    hovedkrav_beloep: null,
-    metode: 'tilbud' as const,
-    rigg_beloep: 20000,
-    produktivitet_beloep: null,
-    krever_justert_ep: false,
-    kostnads_overslag: null,
-    hovedkategori: 'endring',
-    underkategori: null,
-    grunnlag_varslet_i_tide: null,
-    grunnlag_resultat: null,
-  };
   const rigg = (vurdering: 'godkjent' | 'avslaatt', godkjent?: number) =>
     beregnVederlag(
-      krav,
       {
-        rigg_vurdering: vurdering,
-        rigg_godkjent_beloep: godkjent,
-        aksepterer_metode: true,
+        hovedkategori: 'endring',
+        poster: [
+          { saerskilt: 'rigg_og_drift', krevd: 20000, vurdering, godkjent_beloep: godkjent },
+        ],
       },
       GJELDENDE_REGLER
     );
 
   it('«godkjent» med et annet beløp og «avslått» med et beløp avvises', () => {
     expect(() => rigg('godkjent', 15000)).toThrow(
-      'rigg_godkjent_beloep: er 15000, men vurderingen «godkjent» gjelder hele det krevde beløpet, 20000'
+      'rigg_og_drift.godkjent_beloep: er 15000, men vurderingen «godkjent» gjelder hele det krevde beløpet, 20000'
     );
     expect(() => rigg('avslaatt', 15000)).toThrow(
-      'rigg_godkjent_beloep: er 15000, men vurderingen «avslått» godkjenner 0'
+      'rigg_og_drift.godkjent_beloep: er 15000, men vurderingen «avslått» godkjenner 0'
     );
   });
 
@@ -2393,55 +2423,48 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
   it('rigg og drift uten spørsmål om særskilt varsel står med beløpet byggherren godtar', () => {
     const r = rigg('godkjent');
     expect(r.preklusjon).toEqual({ hovedkrav: false, produktivitet: false });
-    expect(r.subsidiaer_triggers).toEqual([]);
+    expect(r.subsidiaer_resultat).toBeNull();
     expect(r.total_godkjent_beloep).toBe(2000000n);
   });
 
   it('kontrollsaker: «godkjent» uten beløp og med det krevde, «avslått» med 0', () => {
-    expect(rigg('godkjent').rigg_godkjent_beloep).toBe(2000000n);
-    expect(rigg('godkjent', 20000).rigg_godkjent_beloep).toBe(2000000n);
-    expect(rigg('avslaatt', 0).rigg_godkjent_beloep).toBe(0n);
+    expect(rigg('godkjent').poster[0].godkjent).toBe(2000000n);
+    expect(rigg('godkjent', 20000).poster[0].godkjent).toBe(2000000n);
+    expect(rigg('avslaatt', 0).poster[0].godkjent).toBe(0n);
   });
 });
 
 // KA-U42: for et positivt tilleggskrav er «delvis» mer enn 0 og mindre enn det krevde, i hele øre,
 // prinsipalt og subsidiært. Nullutfallet kjernen utleder av preklusjonen, kontrolleres ikke.
 describe('KA-U42: «delvis» er mer enn 0 kr og mindre enn det krevde, prinsipalt og subsidiært', () => {
-  const krav = {
-    hovedkrav_beloep: 150000,
-    metode: 'tilbud' as const,
-    rigg_beloep: 20000,
-    produktivitet_beloep: null,
-    krever_justert_ep: false,
-    kostnads_overslag: null,
-    hovedkategori: 'svikt',
-    underkategori: null,
-    grunnlag_varslet_i_tide: null,
-    grunnlag_resultat: null,
-  };
   const regn = (hovedkrav: number, rigg: number, hovedkravIVarslet = true) =>
     beregnVederlag(
-      krav,
       {
-        hovedkrav_vurdering: 'delvis',
-        hovedkrav_godkjent_beloep: hovedkrav,
-        hovedkrav_varslet_i_tide: hovedkravIVarslet,
-        rigg_vurdering: 'delvis',
-        rigg_godkjent_beloep: rigg,
-        aksepterer_metode: true,
+        hovedkategori: 'svikt',
+        varslet_i_tide: hovedkravIVarslet,
+        poster: [
+          {
+            gjelder: 'hovedkrav',
+            krevd: 150000,
+            vurdering: 'delvis',
+            godkjent_beloep: hovedkrav,
+            aksepterer: true,
+          },
+          { saerskilt: 'rigg_og_drift', krevd: 20000, vurdering: 'delvis', godkjent_beloep: rigg },
+        ],
       },
       GJELDENDE_REGLER
     );
   const melding = (post: string, beloep: number, krevd: number) =>
-    `${post}_godkjent_beloep: er ${beloep}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet, ${krevd}`;
+    `${post}.godkjent_beloep: er ${beloep}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet, ${krevd}`;
 
   it.each([true, false])(
     '«delvis» med det krevde eller 0 kr avvises for hver post (hovedkravet varslet i tide: %s)',
     (iTide) => {
       expect(() => regn(150000, 10000, iTide)).toThrow(melding('hovedkrav', 150000, 150000));
       expect(() => regn(0, 10000, iTide)).toThrow(melding('hovedkrav', 0, 150000));
-      expect(() => regn(100000, 20000, iTide)).toThrow(melding('rigg', 20000, 20000));
-      expect(() => regn(100000, 0, iTide)).toThrow(melding('rigg', 0, 20000));
+      expect(() => regn(100000, 20000, iTide)).toThrow(melding('rigg_og_drift', 20000, 20000));
+      expect(() => regn(100000, 0, iTide)).toThrow(melding('rigg_og_drift', 0, 20000));
     }
   );
 
@@ -2469,8 +2492,15 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
     i_tide: false,
     beloep: 10000,
   };
-  const justering = { id: 'j', art: 'beloep', beloep: 100000 };
+  const justering = { id: 'j', art: 'beloep', beloep: 100000, gjelder: 'kravpost' };
   const posten = { id: 'p', art: 'beloep', beloep: 30000, saerskilt: 'produktivitet' };
+  const oppgjoersform = (gjelder = 'kravpost') => ({
+    id: `o-${gjelder}`,
+    art: 'oppgjoersform',
+    gjelder,
+    hjemmel: '34.2.2',
+    aksepterer: true,
+  });
   const les =
     (standpunkter: object[], u: object = utregning) =>
     () =>
@@ -2497,8 +2527,43 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
       [justering, { ...rettidighet, i_tide: true }, posten],
     ],
     ['to poster etter annet ledd', [justering, rettidighet, posten, { ...posten, id: 'p2' }]],
+    [
+      'oppgjørsformen etter beløpet for kravposten',
+      [justering, oppgjoersform(), rettidighet, posten],
+    ],
+    [
+      'oppgjørsformen for en annen kravpost foran beløpet',
+      [oppgjoersform('k2'), justering, rettidighet, posten],
+    ],
+    [
+      'to beløp for samme kravpost',
+      [justering, { ...justering, id: 'j2', beloep: 0 }, rettidighet, posten],
+    ],
+    [
+      'et beløp med både kravpost og særskilt post',
+      [{ ...justering, saerskilt: 'produktivitet' }, rettidighet, posten],
+    ],
+    [
+      'rigg og drift, som kjernen ikke regner ennå (#1663)',
+      [
+        justering,
+        rettidighet,
+        posten,
+        { id: 'rd', art: 'beloep', beloep: 0, saerskilt: 'rigg_og_drift' },
+      ],
+    ],
   ])('%s er ikke forstått', (_, standpunkter) => {
     expect(les(standpunkter)).toThrow(Uforstaatt);
+  });
+
+  // KA-U57 (c) og (d): oppgjørsformen og beløpet står for hver kravpost.
+  it('kontrollsak: oppgjørsformen og beløpet for to kravposter leses', () => {
+    const andre = { ...justering, id: 'j2', gjelder: 'k2', beloep: 0 };
+    expect(
+      les([oppgjoersform(), justering, oppgjoersform('k2'), andre, rettidighet, posten])().map(
+        (s) => s.art
+      )
+    ).toEqual(['oppgjoersform', 'beloep', 'oppgjoersform', 'beloep', 'rettidighet', 'beloep']);
   });
 
   it('poster som ikke summerer til det subsidiære beløpet, er ikke forstått (OV-U31)', () => {
@@ -2513,8 +2578,10 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
   });
 
   it('et svar uten beløpsstandpunkt sier at standpunktet mangler, ikke at postene ikke summerer (AGENTS.md: feilmeldingen sier hva som hindrer)', () => {
-    expect(les([{ id: 'm', art: 'metode', hjemmel: '34.2.2', aksepterer: true }])).toThrow(
-      /mangler standpunktet beloep/
-    );
+    expect(
+      les([
+        { id: 'm', art: 'oppgjoersform', gjelder: 'kravpost', hjemmel: '34.2.2', aksepterer: true },
+      ])
+    ).toThrow(/mangler standpunktet beloep/);
   });
 });

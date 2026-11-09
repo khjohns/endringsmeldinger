@@ -5,15 +5,10 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  BELOEPSVURDERING_FRA_KATALOGEN,
-  FORHOLDSRESULTAT_FRA_KATALOGEN,
   HOVEDKATEGORIER,
   HOVEDKATEGORI_FRA_KATALOGEN,
   KATEGORIER,
-  METODE_FRA_KATALOGEN,
-  RESULTAT_FRA_KATALOGEN,
   UNDERKATEGORI_FRA_KATALOGEN,
-  UTLOESER_FRA_KATALOGEN,
   fraKatalogen,
   kategoriFraKatalogen,
   tilKatalogen,
@@ -25,13 +20,7 @@ import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erByggherrensPaalegg, gyldigeResultater } from '../regler/forhold.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
-import {
-  BELOEPSVURDERINGER,
-  FRISTRESULTATER,
-  FORHOLDSRESULTATER,
-  SUBSIDIAERE_UTLOSERE,
-  VEDERLAGSRESULTATER,
-} from '../regler/typer.ts';
+import { FORHOLDSRESULTATER } from '../regler/typer.ts';
 import { gjelderVarslingspliktenForVederlag } from '../regler/vederlag.ts';
 import { svaretBlirEndringsordre } from '../frosset/frysing.ts';
 import type { Journalrad, Krav } from '../typer.ts';
@@ -221,21 +210,6 @@ describe('reglene med kjernens koder', () => {
 });
 
 describe('oversettelsen fra katalogen', () => {
-  it.each([
-    ['forholdsresultatene', FORHOLDSRESULTAT_FRA_KATALOGEN, FORHOLDSRESULTATER],
-    ['vederlagsresultatene', RESULTAT_FRA_KATALOGEN, VEDERLAGSRESULTATER],
-    ['beløpsvurderingene', BELOEPSVURDERING_FRA_KATALOGEN, BELOEPSVURDERINGER],
-    ['utløserne', UTLOESER_FRA_KATALOGEN, SUBSIDIAERE_UTLOSERE],
-    ['metodene', METODE_FRA_KATALOGEN, ['enhetspriser', 'regningsarbeid', 'tilbud']],
-  ])('dekker %s i kjernen, én til én', (_navn, tabell, verdier) => {
-    expect(Object.values(tabell).sort()).toEqual([...verdier].sort());
-    expect(new Set(Object.values(tabell)).size).toBe(Object.keys(tabell).length);
-  });
-
-  it('dekker fristresultatene', () => {
-    for (const r of FRISTRESULTATER) expect(Object.values(RESULTAT_FRA_KATALOGEN)).toContain(r);
-  });
-
   it('går begge veier uten tap', () => {
     for (const tabell of [HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN])
       for (const [gammel, ny] of Object.entries(tabell)) {

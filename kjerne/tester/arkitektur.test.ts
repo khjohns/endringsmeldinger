@@ -472,6 +472,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts', 'frosset/frysing.ts'],
   ],
   ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
+  // Standpunktene til oppgjørsformen etter § 34.2.2, ett per kravpost (KA-U57 (d)).
+  ['frosset/standpunkt.ts', 'utsagn', 'tilbudetIkkeAkseptert'],
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // Vedtaket 05.10: hvorfor svaret i sporet er subsidiært til forholdet. Brevteksten sier
   // det samme (A2).
@@ -509,12 +511,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'krevdBeloep',
     ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
   ],
-  // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser.
+  // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
+  // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
     'frosset/kravinnhold.ts',
     'utsagn',
     'kravposterI',
-    ['frosset/brevtekst.ts', 'kommandoer/skriving.ts', 'utledning/kravposter.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'kommandoer/skriving.ts',
+      'utledning/kravposter.ts',
+      'utledning/utled.ts',
+    ],
   ],
   ['frosset/kravinnhold.ts', 'regelsett', 'krevdIKravposten krevdRigg', ['frosset/brevtekst.ts']],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
@@ -528,7 +536,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
   ['frosset/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
-  ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent saerskilt'],
+  ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
   // visningen leser.
   ['frosset/standpunkt.ts:plassene', 'frosset', 'standpunkt', ['frosset/standpunkt.ts:postlisten']],
@@ -553,15 +561,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
   ['frosset/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
-  ['frosset/kravinnhold.ts', 'regelsett', 'harHovedbeloep', ['frosset/utregning.ts']],
+  ['frosset/kravinnhold.ts', 'regelsett', 'harHovedbeloep kravposterI', ['frosset/utregning.ts']],
   [
     'Svarvurdering',
     'utsagn',
     `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide aksepterer_metode oensket_metode
      frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok dager_maatte_forstaa vilkar_oppfylt
      dager hovedkrav_vurdering hovedkrav_godkjent_beloep produktivitet_vurdering
-     produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep`,
+     produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep
+     rigg_vurdering rigg_varslet_i_tide hold_tilbake`,
   ],
+  // #1663, 2a-1b: kommandoens felt oversatt til postene i regelen, og feilene tilbake.
+  ['frosset/utregning.ts:vederlagssvaret', 'regelsett', 'svar felt'],
+  ['UgyldigVurdering', 'regelsett', 'feil', ['frosset/utregning.ts']],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
   [
     'regler/svarkontroll.ts',
@@ -605,7 +617,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/forhold.ts',
     'regelsett',
-    'erEndringMedVarslingsplikt erForholdSubsidiaert foersteUnderkategori gyldigeResultater',
+    'erEndringMedVarslingsplikt foersteUnderkategori gyldigeResultater',
   ],
   ['regler/frist.ts', 'regelsett', 'beregnFrist resultatAvDager'],
   [
@@ -635,20 +647,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok',
   ],
-  [
-    'Vederlagskrav',
-    'regelsett',
-    `hovedkrav_beloep metode rigg_beloep produktivitet_beloep krever_justert_ep kostnads_overslag
-     hovedkategori underkategori`,
-  ],
-  [
-    'Vederlagsvurdering',
-    'utsagn',
-    `hovedkrav_vurdering hovedkrav_godkjent_beloep hovedkrav_varslet_i_tide aksepterer_metode
-     hold_tilbake varsel_justert_ep_ok rigg_vurdering rigg_godkjent_beloep rigg_varslet_i_tide
-     produktivitet_vurdering produktivitet_godkjent_beloep produktivitet_varslet_i_tide
-     produktivitet_begrenset_beloep`,
-  ],
+  // Svaret per post (#1663, 2a-1b): kravposten med `gjelder`, de særskilte med `saerskilt`.
+  ['Vederlagssvar', 'regelsett', 'hovedkategori poster'],
+  ['Vederlagssvar', 'utsagn', 'varslet_i_tide'],
+  ['Postbeloep', 'regelsett', 'krevd'],
+  ['Postbeloep', 'utsagn', 'vurdering godkjent_beloep'],
+  ['Kravpostsvar', 'relasjon', 'gjelder'],
+  ['Kravpostsvar', 'utsagn', 'aksepterer'],
+  ['Produktivitetssvar', 'regelsett', 'saerskilt'],
+  ['Produktivitetssvar', 'utsagn', 'varslet_i_tide begrenset_beloep'],
+  ['RiggOgDriftsvar', 'utsagn', 'varslet_i_tide'],
+  ['Postresultat', 'regelsett', 'krevd godkjent prinsipalt'],
   ['Preklusjon', 'regelsett', 'hovedkrav produktivitet'],
   [
     'Vederlagsberegning',
@@ -1053,7 +1062,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/typer.ts',
     'regelsett',
-    'FRISTRESULTATER FORHOLDSRESULTATER VEDERLAGSRESULTATER',
+    'FRISTRESULTATER FORHOLDSRESULTATER VEDERLAGSRESULTATER SAERSKILTE',
     ['format/format.ts'],
   ],
 
@@ -1092,7 +1101,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_metode dager beloep saerskilt',
+    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep saerskilt',
     ['format/leser.ts'],
   ],
   // OV-U31: postene summerer til det byggherren godtar om ingen påberopelse fører fram.
@@ -1357,8 +1366,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
  *   og `utledning/utled.ts` utleder den av de frosne standpunktene.
  */
 const KJENTE_AVVIK: [sted: string, noekkel: string, begrunnelse: string][] = [
-  ['regler/vederlag.ts:beregnVederlag', 'Vederlagskrav.grunnlag_resultat', '#309'],
-  ['regler/vederlag.ts:beregnVederlag', 'Vederlagskrav.grunnlag_varslet_i_tide', '#309'],
   ['regler/frist.ts:beregnFrist', 'Fristkrav.er_grunnlag_subsidiaert', '#309'],
   ['regler/frist.ts:beregnFrist', 'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag', '#309'],
   ['regler/forhold.ts:standpunkt', 'ForholdForStandpunkt.hovedkategori', '#309'],
@@ -1767,8 +1774,6 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   // Lista under er låsen: et nytt avvik må føres begge steder, og det er meningen.
   it('de kjente avvikene er bare forholdsfeltene i regelsettet (#309)', () => {
     const lukket = new Set([
-      'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_resultat',
-      'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_varslet_i_tide',
       'regler/frist.ts:beregnFrist Fristkrav.er_grunnlag_subsidiaert',
       'regler/frist.ts:beregnFrist Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
       'regler/forhold.ts:standpunkt ForholdForStandpunkt.hovedkategori',
@@ -2008,14 +2013,14 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     ],
     [
       'et paaberopelsesfelt i en annen del av regelsettet enn de kjente avvikene',
-      join(KJERNE, 'regler', 'frist.ts'),
+      join(KJERNE, 'regler', 'vederlag.ts'),
       [
         [
-          join(KJERNE, 'regler', 'frist.ts'),
-          "import type { Vederlagskrav } from './vederlag.ts';\nexport const proeve = (k: Vederlagskrav) => k.grunnlag_resultat;",
+          join(KJERNE, 'regler', 'vederlag.ts'),
+          "import type { Fristkrav } from './frist.ts';\nexport const proeve = (k: Fristkrav) => k.er_grunnlag_subsidiaert;",
         ],
       ],
-      'Vederlagskrav.grunnlag_resultat',
+      'Fristkrav.er_grunnlag_subsidiaert',
     ],
     [
       'utfallet i en annen regel enn de kjente avvikene',

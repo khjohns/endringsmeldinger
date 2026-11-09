@@ -48,6 +48,7 @@ import {
   harProduktivitetspost,
   innholdIForholdet,
   innholdIVederlaget,
+  kravposterI,
 } from '../frosset/kravinnhold.ts';
 import {
   KRAVSPOR,
@@ -815,7 +816,33 @@ function kontrollerSvarene(
       );
     for (const p of s.standpunkter)
       kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, ugyldig);
+    const krav = alleKrav.get(s.gjelder);
+    if (s.spor === 'vederlag' && krav?.spor === 'vederlag') kontrollerPostene(s, krav, ugyldig);
   }
+}
+
+/**
+ * OV-U23, KA-U57 (c): svaret på vederlaget har ett beløp for hver post i kravet og ingen
+ * andre. Oppgjørsformen står rett foran beløpet for samme kravpost (leseren), så den følger med.
+ */
+function kontrollerPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
+  const noekler = (poster: [string, string][]) =>
+    poster
+      .map((p) => JSON.stringify(p))
+      .sort()
+      .join();
+  const iSvaret = noekler(
+    s.standpunkter.flatMap((p): [string, string][] =>
+      p.art !== 'beloep'
+        ? []
+        : [p.gjelder !== undefined ? ['kravpost', p.gjelder] : ['saerskilt', String(p.saerskilt)]]
+    )
+  );
+  const iKravet = noekler([
+    ...kravposterI(krav).map((p): [string, string] => ['kravpost', p.id]),
+    ...(harProduktivitetspost(krav) ? [['saerskilt', 'produktivitet'] as [string, string]] : []),
+  ]);
+  if (iSvaret !== iKravet) ugyldig(s.id, 'beløpene i svaret er ikke de samme postene som i kravet');
 }
 
 /** Spesifiseringen og rettidigheten i svaret `s` viser til det de kan gjelde. */

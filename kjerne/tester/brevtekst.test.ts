@@ -4453,6 +4453,12 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
       { ...VEDERLAG_DELVIS[0], hold_tilbake: true },
       VEDERLAG_DELVIS[1],
     ],
+    [
+      'vederlag',
+      'tilbakeholdelse etter § 30.2 med en verdi som ikke er boolsk',
+      { ...VEDERLAG_DELVIS[0], hold_tilbake: 'ja' },
+      VEDERLAG_DELVIS[1],
+    ],
   ] as [string, string, Data, Data][])('%s: %s', (spor, _n, vurderinger, resultat) => {
     const s = sakMedKrav();
     expect(s.avvist('BH', brev(svar(spor, s.krav(spor as 'frist'), vurderinger, resultat)))).toBe(
@@ -6078,9 +6084,11 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
     );
     const sv = lagret(rad);
+    // KA-U57 (c) og (d): oppgjørsformen og beløpet gjelder kravposten.
+    const kravpost = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as Data[])[0].id;
     expect((sv.standpunkter as Data[]).map((p) => utenFelt(p, 'id'))).toEqual([
-      { art: 'metode', hjemmel: '34.2.2', aksepterer: true },
-      { art: 'beloep', beloep: 100000 },
+      { art: 'oppgjoersform', gjelder: kravpost, hjemmel: '34.2.2', aksepterer: true },
+      { art: 'beloep', beloep: 100000, gjelder: kravpost },
       {
         art: 'rettidighet',
         gjelder: s.krav('vederlag'),
@@ -6108,7 +6116,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
     );
     expect(virkningene(s)).toEqual([
-      ['metode', 'upaavirket'],
+      ['oppgjoersform', 'upaavirket'],
       ['beloep', 'upaavirket'],
       ['rettidighet', 1],
       ['beloep', 2],
@@ -6154,7 +6162,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     });
     expect(virkningene(s)).toEqual([
       ['rettidighet', 1],
-      ['metode', 2],
+      ['oppgjoersform', 2],
       ['beloep', 2],
       ['rettidighet', 2],
       ['beloep', 3],
@@ -6208,7 +6216,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       ],
     });
     expect(virkningene(s)).toEqual([
-      ['metode', 1],
+      ['oppgjoersform', 1],
       ['beloep', 1],
       ['rettidighet', 1],
       ['beloep', 2],
@@ -6224,24 +6232,25 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     const uten = {
       produktivitet_vurdering: 'godkjent',
       produktivitet_varslet_i_tide: true,
-      aksepterer_metode: true,
     };
-    expect(
-      s.avvist('BH', {
-        type: 'brev',
-        svar: [
-          svar(
-            'vederlag',
-            s.krav('vederlag'),
-            { ...uten, hovedkrav_vurdering: 'godkjent' },
-            {
-              resultat: 'godkjent',
-              godkjent_beloep: 40000,
-            }
-          ),
-        ],
-      })
-    ).toBe('UGYLDIG_VURDERING');
+    // KA-U57 (d): standpunktet til oppgjørsformen gjelder en kravpost, og kravet har ingen.
+    for (const kravpost of [{ hovedkrav_vurdering: 'godkjent' }, { aksepterer_metode: true }])
+      expect(
+        s.avvist('BH', {
+          type: 'brev',
+          svar: [
+            svar(
+              'vederlag',
+              s.krav('vederlag'),
+              { ...uten, ...kravpost },
+              {
+                resultat: 'godkjent',
+                godkjent_beloep: 40000,
+              }
+            ),
+          ],
+        })
+      ).toBe('UGYLDIG_VURDERING');
     const rad = brevet(s, uten, { resultat: 'godkjent', godkjent_beloep: 40000 });
     expect(laast(rad).join(' ')).toContain(
       `Byggherren godkjenner ${KR('40 000')} for ${saerskiltPost}.`
@@ -7143,7 +7152,7 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     const s = saken({ resultat: 'avslaatt' });
     expect(lagene(s, { aksepterer_metode: true })).toEqual([
       {
-        standpunkt: 'metode',
+        standpunkt: 'oppgjoersform',
         besvart: true,
         virkning: 2,
         etikett: 'subsidiært',

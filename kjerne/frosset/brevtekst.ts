@@ -484,7 +484,10 @@ function aapneInnsigelser(
 const METODEN = {
   enhetspriser: 'etter enhetspriser (NS 8407 § 34.3)',
   regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)',
-} as const satisfies Record<NonNullable<Extract<Standpunkt, { art: 'metode' }>['oensket']>, string>;
+} as const satisfies Record<
+  NonNullable<Extract<Standpunkt, { art: 'oppgjoersform' }>['oensket']>,
+  string
+>;
 
 /** Det særskilte kravet etter § 34.1.3 annet ledd, med ordene i bestemmelsen. */
 const PRODUKTIVITET =
@@ -791,8 +794,8 @@ function standpunkttekst(
         innholdIForholdet(paaberopelse).hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
-    case 'metode':
-      // Arbeidsvalget i #479: metoden er byggherrens standpunkt, ikke appens avgjørelse. LV-U31 og
+    case 'oppgjoersform':
+      // Arbeidsvalget i #479: oppgjørsformen er byggherrens standpunkt, ikke appens avgjørelse. LV-U31 og
       // LV-U32: godkjenningen betegner ikke tilbudet som akseptert, heller ikke ved fullt beløp.
       return p.aksepterer
         ? 'byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.'

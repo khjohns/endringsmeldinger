@@ -443,7 +443,7 @@ export function radFor(
           id: navn.nyId(),
           art: 'beloep',
           beloep: post.godkjent,
-          ...(post.saerskilt ? { saerskilt: post.saerskilt } : {}),
+          ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
         });
     const svar: Record<string, unknown> = {
       id: navn.ta(s.navn),
