@@ -46,6 +46,22 @@ nærmer seg grensene for orkestratoren i «Kontekst i arbeidsøktene». Da gjør
 5. Sier til oppdragsgiver hva som er merget, og gir lenken til overleveringen
    og ID-en til den nye økta.
 
+**Én økt i runden.** Går det bare én arbeidsøkt i neste runde, vurderer
+orkestratoren om den trengs. Trengs den ikke, starter den ikke en ny orkestrator.
+Arbeidsøkta eier sporet videre og overleverer selv. Byggeøkta starter reviewøkta
+med `create_session` og en avgrenset bestilling, som «Review i ny økt» sier.
+Reviewøkta legger PR-en fram for oppdragsgiver og merger etter punkt 4 når
+oppdragsgiver har godkjent det. Etter mergen skriver den overleveringen i
+bølgeissuet, som i punkt 2 over. Den starter neste byggeøkt når neste runde bare
+har én økt, og ellers en ny orkestrator. Overleveringen sier hvilken økt som eier
+sporet (oppdragsgiver 09.11).
+En økt på dybde 8 får ikke satt påminnelsen med `send_later` («lineage depth 8»,
+#1031). Dybden står i `lineage.depth` når økta kaller `get_session` uten
+`session_id`. Er økta selv på dybde 7 eller dypere, eller avvises
+`create_session`, starter den ikke neste økt selv. Den sier fra til oppdragsgiver at
+neste økt må startes for hånd, og legger ved en kort prompt. Prompten viser til
+`AGENTS.md`, denne skillen og overleveringen, slik punkt 4 over sier (oppdragsgiver 09.11).
+
 En orkestrator starter ingen ny runde når sporet er tomt, når det som
 gjenstår, venter på oppdragsgiver, eller når oppdragsgiver har sagt stopp.
 Venter det på oppdragsgiver, stiller den spørsmålene etter «Spørsmål og vedtak»
