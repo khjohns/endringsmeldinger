@@ -53,10 +53,10 @@
             "staar": "Fristene i kontrakten"
           },
           {
-            "trykk": "Forleng også fristene 8 og 10 med 20 dager, som F1"
+            "trykk": "Krev også 20 dager for frist 8"
           },
           {
-            "staar": "Frist 10 i punkt E.1"
+            "staar": "8 og 10 (punkt 33.6.1)"
           },
           {
             "klikk": "Se brevet før sending",
@@ -86,7 +86,13 @@
             "tilstand": "varsel"
           },
           {
-            "staar": "Registrer et brev sendt utenfor løsningen"
+            "staar": "TE vil kreve fristforlengelse som følge av forholdet i sak E-017"
+          },
+          {
+            "velg": "Registrer et brev sendt utenfor løsningen"
+          },
+          {
+            "staar": "Registrer varselet"
           }
         ]
       },
@@ -181,6 +187,7 @@
     "VS-U2",
     "VS-U10",
     "VS-U20",
+    "KA-U4",
     "VS-U4",
     "VS-U3",
     "OV-U32",
@@ -204,6 +211,11 @@
       "dato": "2026-11-09",
       "forhold": "#1745",
       "hva": "S-2 er avgjort av NS 8407 punkt 1.2: dagene er kalenderdager."
+    },
+    {
+      "dato": "2026-11-09",
+      "forhold": "#1745",
+      "hva": "Funnene fra den kognitive gjennomgangen er rettet i prototypen og bestillingen. D-5 viser til KA-U4, og S-6 og S-7 er nye."
     }
   ]
 }
