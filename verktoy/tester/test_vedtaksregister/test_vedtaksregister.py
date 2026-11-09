@@ -1696,7 +1696,7 @@ def test_to_endringer_uten_kjede_gir_ikke_varsel(grunnregister):
 @pytest.mark.parametrize("dybde", [1, 2])
 def test_en_endring_gjennom_kjeden_telles_med(grunnregister, dybde):
     """#1726: en endring av en post som endrer samlevedtaket, telles, gjennom hele kjeden.
-    Med dybde 2 endrer XX-U5 posten XX-U4, som endrer XX-U2."""
+    Med dybde 2 endrer XX-U5 posten XX-U4, som presiserer XX-U2."""
     endret = med(
         _samlet_med_to_endringer(grunnregister),
         ny_post(id="XX-U4", forhold=[{"art": "presiserer", "vedtak": "xx-u2"}]),
@@ -1708,6 +1708,45 @@ def test_en_endring_gjennom_kjeden_telles_med(grunnregister, dybde):
     assert vr.varsler(endret, endret) == [
         f"xx-u1: har fått {2 + dybde} endringer etter at temaet er samlet (gjennom kjeden: "
         f"{kjede}); den neste endringen skrives som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+
+
+def test_en_post_med_to_endringer_i_kjeden_telles_en_gang(grunnregister):
+    """#1726: tellingen er postene regelen står i («regelen for temaet står da i fem poster»).
+    XX-U4 presiserer både XX-U1 og XX-U2 og er én post."""
+    endret = med(
+        _samlet_med_to_endringer(grunnregister),
+        ny_post(
+            id="XX-U4",
+            forhold=[
+                {"art": "presiserer", "vedtak": "xx-u1"},
+                {"art": "presiserer", "vedtak": "xx-u2"},
+            ],
+        ),
+    )
+    assert vr.varsler(endret, endret) == [
+        "xx-u1: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+
+
+def test_kjeden_gaar_ikke_videre_gjennom_et_annet_samlevedtak(grunnregister):
+    """#1726: endringene av et nyere samlevedtak varsles for det, ikke også for det eldre.
+    XX-U4 samler KA-U2 og presiserer XX-U2, og har tre endringer selv."""
+    endret = med(
+        _samlet_med_to_endringer(grunnregister),
+        ny_post(
+            id="XX-U4",
+            forhold=[{"art": "samler", "vedtak": "ka-u2"}, {"art": "presiserer", "vedtak": "xx-u2"}],
+        ),
+    )
+    for i in (5, 6, 7):
+        endret = med(endret, ny_post(id=f"XX-U{i}", forhold=[{"art": "endrer", "vedtak": "xx-u4"}]))
+    assert vr.varsler(endret, endret) == [
+        "xx-u1: har fått 3 endringer etter at temaet er samlet (gjennom kjeden: xx-u4 presiserer "
+        "xx-u2); den neste endringen skrives som et samlevedtak (svar 6 og 10 04.11 i #1534)",
+        "xx-u4: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)",
     ]
 
 

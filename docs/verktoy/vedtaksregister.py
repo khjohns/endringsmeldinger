@@ -1158,7 +1158,8 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
     """Varslene, som ikke gjør registeret ugyldig: «app» utenfor sitattegn i den valgte teksten
     i en post som ikke står på main, og et samlet vedtak som har fått tre endringer eller mer fra
     gjeldende poster (svar 2 A i #1614). En endring av en post som endrer samlevedtaket, telles
-    også, gjennom hele kjeden (#1726). Hver post telles én gang."""
+    også, gjennom hele kjeden, men ikke videre gjennom et annet samlevedtak. Hver post telles
+    én gang, som i eksemplet i #1726."""
     ut = []
     if gammel_register is not None:
         paa_main = {p["id"] for p in _nye(gammel_register)}
@@ -1168,31 +1169,29 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
             if p["id"] not in paa_main and app_utenfor_sitat(_valgt(p)["tekst"])
         ]
     opphevet, _ = opphevet_og_samlet(register)
-    telles = {
+    samlevedtak = samlevedtakene(register, opphevet)
+    gjeldende = [p for p in poster(register) if (anker(p) or etikett(p)) not in opphevet]
+    telles = samlevedtak | {
         anker(p)
-        for p in poster(register)
-        if anker(p) not in opphevet
-        and (
-            any(f["art"] == "samler" for f in p.get("forhold", []))
-            or (STEG_4_AVSLUTTET and er_ny(p) and p["dato"] > STEG_4_AVSLUTTET)
-        )
+        for p in gjeldende
+        if STEG_4_AVSLUTTET and er_ny(p) and p["dato"] > STEG_4_AVSLUTTET
     }
     endrer = collections.defaultdict(list)
-    for p in poster(register):
-        if anker(p) not in opphevet:
-            for f in p.get("forhold", []):
-                if f["art"] in ENDRINGER:
-                    endrer[f["vedtak"]].append((anker(p) or etikett(p), f["art"]))
-    for a in sorted(t for t in telles if t):
-        direkte = {post for post, _ in endrer[a]}
-        kjede, aapne, sett = [], sorted(direkte), set(direkte) | {a}
+    for p in gjeldende:
+        for f in p.get("forhold", []):
+            if f["art"] in ENDRINGER:
+                endrer[f["vedtak"]].append((anker(p) or etikett(p), f["art"], f["vedtak"]))
+    for a in sorted(telles):
+        sett = {a} | {post for post, _, _ in endrer[a]}
+        kjede, aapne = [], sorted(sett - {a} - telles)
         while aapne:
             mal = aapne.pop(0)
-            for post, art in endrer[mal]:
-                kjede.append(f"{post} {art} {mal}")
+            for post, art, vedtak in endrer[mal]:
                 if post not in sett:
+                    kjede.append(f"{post} {art} {vedtak}")
                     sett.add(post)
-                    aapne.append(post)
+                    if post not in telles:
+                        aapne.append(post)
         n = len(sett) - 1
         if n < 3:
             continue
