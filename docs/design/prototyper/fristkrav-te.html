@@ -22,7 +22,7 @@
   er vedtatt ordrett) og bygges ikke. «Vis sporbarhet» viser vedtakene på elementene.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <style>
 :root{
   --brand:#15181d; --on-brand:#ffffff;
@@ -474,7 +474,13 @@ select.tekstfelt{max-width:520px;appearance:auto}
 .begr .tekst.tom{color:var(--ink-3)}
 .punkt ul.veiledning{margin:0;padding-left:18px;color:var(--ink-2)}
 .tabell td .mulkt{margin-left:0;margin-top:2px}
-.lagnotat{font-size:12px;color:var(--ink-3)}
+.valg.lett label:has(input:disabled){color:var(--ink-4);cursor:default}
+.varsel .felt{align-self:stretch}
+.beloepfelt > .gjelder{margin-bottom:8px}
+/* Totalentreprenørens brev står i Source Serif 4, 16 px (system.md, «Typografi») */
+.ark{font-family:'Source Serif 4',Georgia,serif;font-size:16px;line-height:1.6;font-variant-numeric:tabular-nums}
+.ark .hjelp,.ark .liten-knapp,.ark > p.dempet:first-child{font-family:var(--font-sans);font-size:12px}
+.ark .liten-knapp{font-size:14px}
 @media (max-width:860px){
   .frt{grid-template-columns:max-content minmax(0,1fr) 48px}
   .frt .c-gj,.frt .c-dager,.frt .c-ny{grid-column:2;text-align:left;font-size:12px;color:var(--ink-3)}
@@ -610,7 +616,6 @@ select.tekstfelt{max-width:520px;appearance:auto}
           <section class="kort">
             <div class="kort-hode"><h2>Punktene</h2><p>Oppdateres mens du skriver.</p></div>
             <nav aria-label="Punktene i brevet"><ol class="punktliste" id="punktliste"></ol></nav>
-            <div class="blokk kun-a" data-spor="VS-U18"><p class="blokktittel">Fristene etter kravet</p><table class="tabell" id="frist-tabell"></table></div>
             <div class="blokk" id="virkning"></div>
             <div class="blokk send"><a class="knapp" href="#brev">Se brevet før sending</a><p class="godkj"><span class="utkastmerke">Utkast</span><span>Ikke sendt. Lagret kl. 14.08.</span></p></div>
           </section>
@@ -725,16 +730,16 @@ function endretKort(f) {
 
 // Tekstboksene: begrunnelsen (KA-U33), svaret etter bokstav b, forbeholdet og standpunktet til forrige svar.
 const BOKSER = {
-  begr: { id: 'boks-begr', tittel: 'Begrunnelse for kravet', krav: 'Påkrevd. Står under dagene i brevet', tom: 'Ikke skrevet. Kravet kan ikke sendes uten begrunnelse.' },
-  b: { id: 'boks-b', tittel: 'Begrunnelse etter bokstav b', krav: 'Påkrevd', tom: 'Ikke skrevet. Svaret kan ikke sendes uten begrunnelse.' },
-  forbehold: { id: 'boks-forbehold', tittel: 'Forbehold for hele kravet', krav: 'Valgfritt. Står sist i brevet', tom: 'Ingen forbehold.' },
-  standpunkt: { id: 'boks-standpunkt', tittel: 'Ditt standpunkt til svaret i brev 6', krav: 'Valgfritt', tom: 'Ikke skrevet.' },
+  begr: { id: 'boks-begr', tittel: 'Begrunnelse for kravet', krav: 'Står under dagene i brevet', tom: 'Ikke skrevet.', paakrevd: true },
+  b: { id: 'boks-b', tittel: 'Begrunnelse etter bokstav b', krav: '', tom: 'Ikke skrevet.', paakrevd: true },
+  forbehold: { id: 'boks-forbehold', tittel: 'Forbehold for hele kravet (valgfritt)', krav: 'Står sist i brevet', tom: 'Ingen forbehold.' },
+  standpunkt: { id: 'boks-standpunkt', tittel: 'Ditt standpunkt til svaret i brev 6 (valgfritt)', krav: '', tom: 'Ikke skrevet.' },
 };
 function tegnBokser() {
   Object.entries(BOKSER).forEach(([k, b]) => {
     const t = d.tekst[k];
-    document.getElementById(b.id).innerHTML = `<div class="begr-hode"><b>${b.tittel}</b><span class="krav">${b.krav}</span></div>` + (redigerer === k
-      ? `<div class="editor"><textarea aria-label="${b.tittel}" data-tekst="${k}">${esc(t)}</textarea><div class="verktoy"><button class="liten-knapp sterk" type="button" data-ferdig="${k}">Ferdig</button></div></div>`
+    document.getElementById(b.id).innerHTML = `<div class="begr-hode"><b>${b.tittel}</b>${b.krav ? `<span class="krav">${b.krav}</span>` : ''}</div>` + (redigerer === k
+      ? `<div class="editor"><textarea aria-label="${b.tittel}" data-tekst="${k}"${b.paakrevd ? ' aria-required="true"' : ''}>${esc(t)}</textarea><div class="verktoy"><button class="liten-knapp sterk" type="button" data-ferdig="${k}">Ferdig</button></div></div>`
       : `<p class="tekst${t ? '' : ' tom'}">${t ? esc(t) : b.tom}</p><button class="lenke liten" type="button" data-rediger="${k}" style="align-self:flex-start">${t ? 'Rediger' : 'Skriv'}</button>`);
   });
 }
@@ -753,23 +758,27 @@ function fristRad(f) {
     ${f.merk ? `<span class="c-begr">${esc(f.merk)}</span>` : ''}${e ? `<span class="c-merk">${e}</span>` : ''}</div>`;
 }
 function nyDatoTekst(f) {
-  if (!f.dager) return 'Et krav på 0 dager er ikke et krav. Fjern fristen i stedet.';
+  if (!f.dager) return '';
   return `Ny frist: ${lang(nyFrist(f))}${FRISTER[f.frist].mulkt ? '. Fristen er dagmulktbelagt.' : '.'}`;
 }
 function fristSkjema(f) {
   const id = f.id, F = FRISTER[f.frist];
   const brukt = d.linjer.filter(x => x !== f && !x.trukket).map(x => x.frist);
-  const valg = Object.entries(FRISTER).map(([nr, x]) => `<option value="${nr}"${Number(nr) === f.frist ? ' selected' : ''}${brukt.includes(Number(nr)) ? ' disabled' : ''}>Frist ${nr} · ${x.navn} · ${kort(dato(x.dato))}${x.mulkt ? ' · dagmulkt' : ''}</option>`).join('');
+  const valg = Object.entries(FRISTER).map(([nr, x]) => `<label><input type="radio" name="fr-${id}" value="${nr}"${Number(nr) === f.frist ? ' checked' : ''}${brukt.includes(Number(nr)) ? ' disabled' : ''}> Frist ${nr} · ${x.navn} · ${kort(dato(x.dato))}${x.mulkt ? ' · dagmulkt' : ''}</label>`).join('');
+  // Normalsvaret er en setning, unntaket en lenke (system.md).
+  const del = f.del === 'deler'
+    ? `<div class="varsel"><p class="oppgitt"><b>Forlengelsen gjelder deler av arbeidene.</b> Da reduseres rigg og drift forholdsmessig i formelen i kontraktsgrunnlaget (Del II, tillegget til punkt 34.1.3).</p>
+        <div class="felt"><label for="dt-${id}">Hvilke deler?</label><input id="dt-${id}" class="tekstfelt bred" data-felt="delTekst" value="${esc(f.delTekst)}" aria-required="true"></div>
+        <button class="lenke liten" type="button" data-handling="del-hele">Forlengelsen gjelder hele kontraktsarbeidet</button></div>`
+    : `<div class="varsel"><p class="oppgitt">Forlengelsen gjelder hele kontraktsarbeidet.</p><button class="lenke liten" type="button" data-handling="del-deler">Forlengelsen gjelder bare deler av arbeidene</button></div>`;
   const fjern = ny() && f.forrige
     ? `<button class="lenke liten" type="button" data-handling="trekk">Trekk ${id}</button>`
     : `<button class="lenke liten" type="button" data-handling="fjern">Fjern ${id}</button>`;
   return `<article class="postskjema" data-id="${id}" id="frist-${id}" aria-label="${id}">
     <div class="hode"><b>${id} · ${F.navn}</b>${endretKort(f) ? `<span class="endret">${endretKort(f)}</span>` : ''}</div>
-    <div class="felt"><label for="fr-${id}">Fristen</label><span class="hjelp">Fristene i kontrakten, Del II punkt E.1.</span><select id="fr-${id}" class="tekstfelt" data-felt="frist">${valg}</select><span class="hjelp">Gjeldende frist: ${lang(dato(F.dato))}. Ingen forlengelse er avtalt i andre saker.</span></div>
-    <div class="felt" data-spor="KA-U8"><label for="d-${id}">Dagene du krever</label><span class="hjelp">Løsningen avgjør ikke hvor mange dager forholdet gir rett til. <span class="aapent">Åpent: kalenderdager eller hverdager</span></span><span class="inndata" style="width:140px"><input id="d-${id}" inputmode="numeric" data-felt="dager" value="${f.dager || ''}" aria-describedby="nyd-${id}"><span aria-hidden="true">d</span></span><span class="hjelp" id="nyd-${id}" aria-live="polite">${nyDatoTekst(f)}</span></div>
-    <fieldset class="oppgj"><legend>Hindringen gjelder</legend><div class="valg lett">${radio('del-' + id, 'hele', f.del, 'Hele kontraktsarbeidet')}${radio('del-' + id, 'deler', f.del, 'Deler av arbeidene')}</div>
-      <span class="hjelp">Gjelder fristforlengelsen bare deler av arbeidene, reduseres rigg og drift i formelen i kontraktsgrunnlaget forholdsmessig (Del II, tillegget til punkt 34.1.3).</span>
-      ${f.del === 'deler' ? `<div class="felt"><label for="dt-${id}">Hvilke deler?</label><input id="dt-${id}" class="tekstfelt bred" data-felt="delTekst" value="${esc(f.delTekst)}" aria-required="true"></div>` : ''}</fieldset>
+    <fieldset class="oppgj"><legend>Fristen</legend><span class="hjelp">Fristene i kontrakten, Del II punkt E.1. Ingen av dem er forlenget i andre saker.</span><div class="valg lett liste">${valg}</div></fieldset>
+    <div class="felt" data-spor="KA-U8"><label for="d-${id}">Dagene du krever</label><span class="hjelp"><span class="aapent">Åpent: kalenderdager eller hverdager</span></span><span class="inndata" style="width:140px"><input id="d-${id}" inputmode="numeric" data-felt="dager" value="${f.dager || ''}" aria-required="true" aria-describedby="nyd-${id}"><span aria-hidden="true">d</span></span><span class="hjelp" id="nyd-${id}" aria-live="polite">${nyDatoTekst(f)}</span></div>
+    ${del}
     <div class="felt"><label for="m-${id}">Kort om denne fristen (valgfritt)</label><span class="hjelp">Står ved fristen i brevet. Begrunnelsen for hele kravet står i punktet Begrunnelse.</span><textarea id="m-${id}" class="tekstfelt" data-felt="merk">${esc(f.merk)}</textarea></div>
     <div class="fot">${fjern}<button class="liten-knapp sterk" type="button" data-handling="lukk">Ferdig</button></div>
   </article>`;
@@ -806,10 +815,6 @@ function oppsummer() {
     : tilstand === 'foresp' ? 'Sendt i brev 3, 18. september 2026, 6 kalenderdager etter at du ble klar over forholdet.'
     : v1 === 'annen' ? 'Varslet før, utenfor løsningen, 18. september 2026. Brevet legges ved.' : 'Sendes med kravet, 24 kalenderdager etter at du ble klar over forholdet 12. september 2026.';
 
-  // Fristene etter kravet: gjeldende og ny frist side om side. Ingen sum, fordi dagene ikke legges sammen.
-  document.getElementById('frist-tabell').innerHTML = `<thead><tr><th>Frist</th><th class="num">Gjeldende</th><th class="num">Etter kravet</th></tr></thead><tbody>${d.linjer.map(f => f.trukket
-    ? `<tr class="trukket"><td>${f.id} ${fristNavn(f)}<span class="blokklinje">Trekkes</span></td><td class="num">${kort(dato(FRISTER[f.frist].dato))}</td><td class="num"></td></tr>`
-    : `<tr><td>${f.id} ${fristNavn(f)}${FRISTER[f.frist].mulkt ? '<span class="dempet blokklinje">Dagmulkt</span>' : ''}</td><td class="num">${kort(dato(FRISTER[f.frist].dato))}</td><td class="num"><b>${nyFrist(f) ? kort(nyFrist(f)) : '–'}</b><span class="dempet blokklinje">${f.dager ? '+ ' + f.dager + ' d' : 'mangler dager'}</span></td></tr>`).join('')}</tbody>`;
 
   const v = [];
   if (b) v.push('<p class="virkning" data-spor="VS-U17">Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. Byggherren kan be om dagene igjen bare etter reglene i punkt 33.6.1.</p>');
@@ -818,8 +823,6 @@ function oppsummer() {
     if (ids.length) v.push(`<p class="virkning">Kravet angir og begrunner antall dager for ${tilListe(ids)} (punkt 33.6.1). Byggherren skal svare uten ugrunnet opphold (punkt 33.7).</p>`);
     const ot = a.find(f => f.frist === OVERTAKELSE && f.dager);
     if (ot) v.push(`<p class="virkning">Forlengelsen av overtakelsen er Z i formelen for rigg og drift i forlenget byggetid når den er avtalt (Del II, tillegget til punkt 34.1.3). Rigg og drift kreves i vederlagskravet. <a href="vederlagskrav-te-v3.html#nytt-krav">Gå til vederlagskravet</a></p>`);
-    if (a.some(f => !f.dager)) v.push('<p class="virkning" style="background:transparent;border:1px solid var(--ink)">En frist mangler dager. Et krav på 0 dager er ikke et krav; fjern fristen i stedet.</p>');
-    if (!d.tekst.begr) v.push('<p class="virkning" style="background:transparent;border:1px solid var(--ink)">Kravet mangler begrunnelse.</p>');
     const tr = d.linjer.filter(f => f.trukket).map(f => f.id);
     if (tr.length) v.push(`<p class="virkning" style="background:transparent;border:1px solid var(--rule-strong-color)">${tilListe(tr)} trekkes. Svaret i brev 6 kan ikke godtas etter at denne versjonen er sendt.</p>`);
   }
@@ -915,13 +918,16 @@ function bhKort(f, k) {
     <span class="c-id">${id}</span><span class="c-navn">${F.navn}<span class="u">${krever}</span></span>
     <span class="c-svar">${leselinje(f, k)}</span>
     <span class="c-handling"><button class="lenke liten" type="button" data-bh-handling="aapne" aria-label="Endre svaret på ${id}">Endre</button></span></div>`;
-  const sub = k.length > 1;
-  const maatte = bhv.spes ? `<div class="beloepfelt"><label for="bm-${id}">${bhv.v334 ? 'Subsidiært' : 'Prinsipalt'}: dagene du måtte forstå at TE hadde krav på</label><span class="hjelp">Er kravet spesifisert for sent, har TE bare krav på det du måtte forstå (punkt 33.6.1).</span><span class="inndata" style="width:140px"><input id="bm-${id}" inputmode="numeric" data-bh-felt="maatte" value="${b.maatte}"><span aria-hidden="true">d</span></span></div>` : '';
+  // Subsidiært skilles med «Gjelder hvis» og én linje per innsigelse (system.md, «Retningen»).
+  const gjelder = vilkaar => vilkaar.length ? `<div class="gjelder"><b>Gjelder hvis</b><ul>${vilkaar.map(v => `<li>${v}</li>`).join('')}</ul></div>` : '';
+  const vilkaar = k.filter(c => c.hvis).map(c => c.hvis);
+  const maatte = bhv.spes ? `<div class="beloepfelt">${gjelder(bhv.v334 ? [k.find(c => c.v).hvis] : [])}<label for="bm-${id}">Dagene du måtte forstå at TE hadde krav på</label><span class="hjelp">Er kravet spesifisert for sent, har TE bare krav på det du måtte forstå (punkt 33.6.1).</span><span class="inndata" style="width:140px"><input id="bm-${id}" inputmode="numeric" data-bh-felt="maatte" value="${b.maatte}"><span aria-hidden="true">d</span></span></div>` : '';
   return `<article class="postskjema" data-bh-id="${id}" aria-label="${id}">
-    <div class="hode"><b>${id} · ${F.navn}</b>${sub ? '<span class="endret">Subsidiært for dagene</span>' : ''}</div>
+    <div class="hode"><b>${id} · ${F.navn}</b></div>
     <p class="hjelp" style="margin-top:-10px">${krever} · gjeldende frist ${kort(dato(F.dato))}</p>
     ${maatte}
-    <fieldset class="oppgj"><legend class="spm">${sub ? 'Subsidiært: d' : 'D'}agene</legend><div class="valg lett">${radio('bd-' + id, 'krevd', b.dager, `Som krevd, ${dg(f.dager)}`)}${radio('bd-' + id, 'delvis', b.dager, 'Delvis')}${radio('bd-' + id, 'avslaatt', b.dager, 'Avslått')}</div>
+    ${gjelder(vilkaar)}
+    <fieldset class="oppgj"><legend class="spm">Dagene</legend><div class="valg lett">${radio('bd-' + id, 'krevd', b.dager, `Som krevd, ${dg(f.dager)}`)}${radio('bd-' + id, 'delvis', b.dager, 'Delvis')}${radio('bd-' + id, 'avslaatt', b.dager, 'Avslått')}</div>
       ${b.dager === 'delvis' ? `<div class="beloepfelt"><label for="bdv-${id}">Godkjente dager</label><span class="inndata" style="width:140px"><input id="bdv-${id}" inputmode="numeric" data-bh-felt="delvis" value="${b.delvis}"><span aria-hidden="true">d</span></span></div>` : ''}</fieldset>
     <div class="trapp"><p class="blokktittel">Slik står det i brevet</p><ol>${trapp(f, k)}</ol></div>
     <div class="fot"><span></span><button class="liten-knapp sterk" type="button" data-bh-handling="lukk">Ferdig</button></div>
@@ -983,8 +989,7 @@ skjema.addEventListener('change', e => {
   if (t.name === 'bokstav') { skall.dataset.bokstav = t.value; oppsummer(); return; }
   const art = t.closest('.postskjema'); if (!art) return;
   const x = finn(art.dataset.id);
-  if (t.dataset.felt === 'frist') x.frist = Number(t.value);
-  else if (t.name.startsWith('del-')) x.del = t.value;
+  if (t.name.startsWith('fr-')) x.frist = Number(t.value);
   else return;
   tegn();
   (t.name ? document.querySelector(`[name="${t.name}"][value="${t.value}"]`) : document.getElementById(t.id))?.focus();
@@ -1001,8 +1006,9 @@ skjema.addEventListener('click', e => {
     const nr = Math.max(0, ...d.linjer.map(f => Number(f.id.slice(1)))) + 1;
     const ledig = Object.keys(FRISTER).map(Number).find(x => !d.linjer.some(f => !f.trukket && f.frist === x)) ?? 7;
     d.linjer.push({ id: 'F' + nr, frist: ledig, dager: 0, del: 'hele', delTekst: '', merk: '' });
-    aapen = 'F' + nr; tegn(); document.getElementById(`fr-F${nr}`).focus();
+    aapen = 'F' + nr; tegn(); document.querySelector(`[name="fr-F${nr}"]:checked`)?.focus();
   }
+  if (a === 'del-hele' || a === 'del-deler') { const x = finn(art.dataset.id); x.del = a === 'del-hele' ? 'hele' : 'deler'; tegn(); document.querySelector(`#frist-${x.id} ${x.del === 'deler' ? '#dt-' + x.id : '[data-handling="del-deler"]'}`)?.focus(); }
   if (a === 'aapne') { aapen = art.dataset.id; tegn(); document.getElementById(`d-${aapen}`)?.focus(); }
   if (a === 'lukk') { const id = art.dataset.id; aapen = null; tegn(); document.querySelector(`#frist-${id} [data-handling="aapne"]`)?.focus(); }
   if (a === 'fjern') { d.linjer = d.linjer.filter(f => f.id !== art.dataset.id); aapen = null; tegn(); }
