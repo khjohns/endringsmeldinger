@@ -247,7 +247,12 @@
     {
       "dato": "2026-11-09",
       "forhold": "#1663",
-      "hva": "Prototypen v3, commit 23fb4eb, er grunnlaget for byggingen (oppdragsgiver 09.11). Klikkstien for et varsel som alt er gitt, åpner P4 og følger lenken «Varselet for P4 er gitt før»."
+      "hva": "Prototypen v3 er grunnlaget for byggingen (oppdragsgiver 09.11). Klikkstien for et varsel som alt er gitt, åpner P4 og følger lenken «Varselet for P4 er gitt før»."
+    },
+    {
+      "dato": "2026-11-09",
+      "forhold": "#1663",
+      "hva": "Etter den kognitive gjennomgangen av v3: leselinja i svaret sier lagets navn som brevet, et varsel uten kravpost står i leselinja og panelet (U-12, oppdragsgiver 09.11), og avvikene i «Klar til bygging» gjelder v3, commit e42380c."
     }
   ]
 }
