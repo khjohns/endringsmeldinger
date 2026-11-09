@@ -11,12 +11,17 @@
   E-024). Tilstandene er ankrene #<svar>-<part>: svaret er ubesvart, avslatt eller eo, og parten te
   eller bh. Det som er annerledes enn v1 (vurderingen 09.11, og gjennomgangen mot interface-design):
   1. Saken har én tråd, nyest først. Brevene fra begge parter står i én rekkefølge, og det siste
-     står øverst, rett under bretten. Brevene om forholdet har full rad; brevene om et annet spor er
-     én kompakt linje. Kravene om vederlag og frist er to leselinjer under tittelen, ikke et tre.
-     Tidslinja er borte: tråden er tidslinja, og datoen parten oppgir, står ved brevet.
+     står øverst, rett under bretten. Brevene om forholdet har full rad med leselinja etter regelen
+     i system.md: det første laget først, lagene under dempet med vilkåret. Brevene om et annet spor
+     er en kort rad uten leselinje; stillingen for kravet står i kravlinja øverst, og detaljen på
+     sporets side. Kravene om vederlag og frist er to leselinjer under tittelen, ikke et tre.
+     Tidslinja er borte: tråden er tidslinja, og datoen parten oppgir, står ved brevet. Har saken
+     mer enn åtte rader, legges de eldre sammen bak «Vis N eldre brev». Påberopelsen legges aldri
+     sammen. «Lang sak» i mockup-linja legger til åtte registrerte e-poster for å vise det.
   2. Handlingen står der den hører hjemme. Byggherrens svar er primærhandlingen i den tomme raden
      etter påberopelsen, øverst i tråden. Totalentreprenørens svar på avslaget står under brev 5.
-     Resten står under «Andre handlinger» nederst, med trekket sist. Ikke noe handlingskort.
+     «Legg til korrespondanse» står i tråd-hodet, der nye brev kommer inn. Resten står under
+     «Andre handlinger» nederst, med trekket sist. Ikke noe handlingskort.
   3. Brevet leses ved siden av tråden. Høyre kolonne viser det siste brevet om forholdet fra start,
      slik det ble frosset, og «Les brevet» på en rad bytter det ut. Rammen følger rullingen og er
      høyst like høy som vinduet (system.md, «Lesing ved siden av»). Under 1180 px folder brevet seg
@@ -163,8 +168,9 @@ a{color:inherit}
 @media (prefers-reduced-motion:reduce){.knapp{transition:none}}
 
 /* Tråden: saken har én, nyest først */
-.traad-hode{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;justify-content:space-between}
-.traad-hode .antall{font-size:12px;color:var(--ink-3)}
+.traad-hode{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;justify-content:space-between}
+.traad-hode .hoeyre{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;font-size:12px;color:var(--ink-3)}
+.traad-hode .lenke{font-size:12px}
 .traad{position:relative;margin:0 -24px}
 .innlegg{position:relative;padding:16px 24px 16px 72px;display:flex;flex-direction:column;gap:10px}
 .innlegg + .innlegg{border-top:1px solid var(--rule-subtle-color)}
@@ -180,10 +186,10 @@ a{color:inherit}
 .innlegg-meta{color:var(--ink-3)}
 .merke-reg{display:inline-block;margin-left:6px;font-size:12px;font-weight:600;border:1px solid var(--rule-strong-color);border-radius:var(--r-merke);padding:0 8px;vertical-align:2px}
 .leselinje{font-size:16px;font-weight:500}
-.lagene{display:grid;gap:8px}
-.lagene li{display:grid;grid-template-columns:7rem minmax(0,1fr);gap:4px 12px;padding-left:12px;border-left:2px solid var(--rule-strong-color)}
-.lagene b{font-weight:600}
-.lagene span{color:var(--ink-2)}
+.lag{color:var(--ink-2);margin-top:-4px}
+.eldre{padding:4px 24px 4px 72px;position:relative}
+.eldre::before{content:"";position:absolute;left:39px;top:0;bottom:0;border-left:1px dashed var(--rule-strong-color)}
+#traad .innlegg.skjult,#skall[data-lengde="kort"] #traad li.lang{display:none}
 .datolinje{display:flex;flex-wrap:wrap;align-items:center;gap:0 12px;color:var(--ink-2)}
 .filer{display:flex;flex-wrap:wrap;gap:8px}
 .fil{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:4px 10px;border:1px solid var(--rule-color);border-radius:var(--r-felt);font-size:12px;text-decoration:none}
@@ -197,7 +203,6 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .innlegg.kompakt{padding-top:10px;padding-bottom:10px;gap:4px}
 .innlegg.kompakt .part{top:9px;width:24px;height:24px;left:28px;font-size:10px}
 .innlegg.kompakt .innlegg-hode h3{font-size:14px;font-weight:500}
-.innlegg.kompakt .innlegg-hode h3 .lese{font-weight:400;color:var(--ink-2)}
 .innlegg.kompakt .innlegg-meta{font-size:12px}
 .innlegg.kompakt .lenke{font-size:12px}
 
@@ -281,7 +286,7 @@ li.kun-te,li.kun-bh{display:revert}
 </head>
 <body>
 
-<div class="skall" id="skall" data-rolle="TE" data-t="avslatt" data-krav="med">
+<div class="skall" id="skall" data-rolle="TE" data-t="avslatt" data-krav="med" data-lengde="kort">
   <aside class="panel" aria-label="Saken">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
     <div class="sak">
@@ -329,6 +334,10 @@ li.kun-te,li.kun-bh{display:revert}
         <button type="button" data-krav="med">Med krav</button>
         <button type="button" data-krav="uten">Uten krav</button>
       </span>
+      <span class="vis-som lengdevalg" role="group" aria-label="Lengden på saken">
+        <button type="button" data-lengde="kort">Kort sak</button>
+        <button type="button" data-lengde="lang">Lang sak</button>
+      </span>
       <span class="vis-som" role="group" aria-label="Vis som part">
         <button type="button" id="vis-te" aria-pressed="true">TE</button>
         <button type="button" id="vis-bh" aria-pressed="false">BH</button>
@@ -370,7 +379,7 @@ li.kun-te,li.kun-bh{display:revert}
         </section>
 
         <section class="traad-del" aria-labelledby="traad-tittel">
-          <div class="traad-hode"><h2 id="traad-tittel">Brevene i saken, nyeste først</h2><span class="antall"><span class="ts t-ubesvart">4 brev</span><span class="ts t-avslatt t-eo">5 brev</span> · 1 registrert</span></div>
+          <div class="traad-hode"><h2 id="traad-tittel">Brevene i saken, nyeste først</h2><span class="hoeyre"><span id="antall"></span><button class="lenke" type="button">Legg til korrespondanse</button></span></div>
           <ol class="traad" id="traad">
 
             <li class="innlegg tom ts t-ubesvart">
@@ -400,11 +409,8 @@ li.kun-te,li.kun-bh{display:revert}
                 <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-5">Les brevet</button>
                 <p class="innlegg-meta">Byggherren · 28. oktober 2026 · gjelder forholdet</p>
               </div>
-              <p class="leselinje ts t-avslatt">Avslår kravet på endringsordre (punkt 32.3 første ledd b).</p>
-              <ul class="lagene ts t-avslatt" aria-label="Lagene i svaret">
-                <li><b>Prinsipalt</b><span>Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev 1 kom for sent.</span></li>
-                <li><b>Subsidiært</b><span>Hvis innsigelsen ikke fører frem, avslår byggherren likevel kravet på endringsordre.</span></li>
-              </ul>
+              <p class="leselinje ts t-avslatt">Varselet etter punkt 32.2 i brev 1 kom for sent.</p>
+              <p class="lag ts t-avslatt">Subsidiært, hvis innsigelsen ikke fører frem: avslår kravet på endringsordre (punkt 32.3 første ledd b).</p>
               <p class="leselinje ts t-eo">Utsteder endringsordre (punkt 32.3 første ledd a), uten innsigelse om varselet.</p>
               <div class="brevplass">
               <article class="brev bh" id="brev-5" hidden aria-label="Brev 5 slik det ble sendt">
@@ -440,7 +446,7 @@ li.kun-te,li.kun-bh{display:revert}
             <li class="innlegg kompakt" data-brev="brev-4">
               <span class="part bh" aria-hidden="true">BH</span>
               <div class="innlegg-hode">
-                <h3>Brev 4 · Svar på kravet om vederlagsjustering <span class="lese">· godkjenner <span class="num">310 000 kr</span> under forutsetning av at forholdet gir grunnlag for kravet</span></h3>
+                <h3>Brev 4 · Svar på kravet om vederlagsjustering</h3>
                 <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-4">Les brevet</button>
                 <p class="innlegg-meta">Byggherren · 26. oktober 2026 · gjelder vederlagsjusteringen</p>
               </div>
@@ -468,7 +474,7 @@ li.kun-te,li.kun-bh{display:revert}
             <li class="innlegg kompakt" data-brev="brev-3">
               <span class="part" aria-hidden="true">TE</span>
               <div class="innlegg-hode">
-                <h3>Brev 3 · Krav om fristforlengelse <span class="lese">· krever <span class="num">15 dager</span> (punkt 33.1), varslet etter punkt 33.4</span></h3>
+                <h3>Brev 3 · Krav om fristforlengelse</h3>
                 <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-3">Les brevet</button>
                 <p class="innlegg-meta">Totalentreprenøren · 19. oktober 2026 · gjelder fristforlengelsen</p>
               </div>
@@ -495,7 +501,7 @@ li.kun-te,li.kun-bh{display:revert}
             <li class="innlegg kompakt" data-brev="brev-2">
               <span class="part" aria-hidden="true">TE</span>
               <div class="innlegg-hode">
-                <h3>Brev 2 · Krav om vederlagsjustering <span class="lese">· krever <span class="num">420 000 kr</span> etter enhetsprisene (punkt 34.3), varslet etter punkt 34.1.2</span></h3>
+                <h3>Brev 2 · Krav om vederlagsjustering</h3>
                 <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-2">Les brevet</button>
                 <p class="innlegg-meta">Totalentreprenøren · 16. oktober 2026 · gjelder vederlagsjusteringen</p>
               </div>
@@ -519,7 +525,7 @@ li.kun-te,li.kun-bh{display:revert}
               </div>
             </li>
 
-            <li class="innlegg">
+            <li class="innlegg registrert">
               <span class="part bh" aria-hidden="true">BH</span>
               <div class="innlegg-hode">
                 <h3>Brev fra byggherren <span class="merke-reg">Dokumentasjon</span></h3>
@@ -529,7 +535,7 @@ li.kun-te,li.kun-bh{display:revert}
               <span class="filer"><a class="fil" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Foreløpig tilbakemelding om pålegget.pdf</span><span class="fm">PDF · 210 kB</span></a></span>
             </li>
 
-            <li class="innlegg" data-brev="brev-1">
+            <li class="innlegg rot" data-brev="brev-1">
               <span class="part" aria-hidden="true">TE</span>
               <div class="innlegg-hode">
                 <h3>Brev 1 · Påberopelse av irregulær endring</h3>
@@ -567,7 +573,6 @@ li.kun-te,li.kun-bh{display:revert}
         <section class="andre" aria-labelledby="andre-tittel">
           <h2 id="andre-tittel">Andre handlinger</h2>
           <ul>
-            <li><button type="button"><span class="h">Legg til korrespondanse</span><span class="b">Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
             <li class="kun-te ts t-ubesvart"><button type="button"><span class="h">Send ny versjon av påberopelsen</span><span class="b">Samme forhold, for eksempel med en utfylt beskrivelse av pålegget. Erstatter påberopelsen i brev 1.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
             <li class="kun-te ts t-avslatt"><button type="button"><span class="h">Påberop et annet forhold i en ny sak</span><span class="b">Den nye saken viser til denne.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
             <li class="kun-bh ts t-eo"><button type="button"><span class="h">Svar på kravet om fristforlengelse</span><span class="b">Kravet i brev 3 er ikke besvart.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
@@ -589,13 +594,53 @@ li.kun-te,li.kun-bh{display:revert}
 
 <script>
   const skall = document.getElementById('skall');
+  const raden = (id) => document.querySelector(`[data-brev="${id}"]`);
+  const synlig = (el) => el.getClientRects().length > 0;
   const te = document.getElementById('vis-te'), bh = document.getElementById('vis-bh');
   const tKnapper = [...document.querySelectorAll('.tilstandsvalg button')];
   const kKnapper = [...document.querySelectorAll('.kravvalg button')];
+  const lKnapper = [...document.querySelectorAll('.lengdevalg button')];
   const pane = document.getElementById('brevpane'), paneplass = document.getElementById('brevpane-plass'), panehvilket = document.getElementById('brevpane-hvilket');
+  const traad = document.getElementById('traad');
+
+  // «Lang sak»: åtte registrerte e-poster om vederlaget mellom brev 4 og brev 3, for å vise sammenleggingen.
+  const EPOSTER = [
+    ['TE', 'E-post fra totalentreprenøren', '25. oktober 2026', 'Mengdeoppstilling for underkonstruksjonen'],
+    ['BH', 'E-post fra byggherren', '24. oktober 2026', 'Spørsmål om enhetsprisene i kravet'],
+    ['TE', 'E-post fra totalentreprenøren', '23. oktober 2026', 'Svar om enhetsprisene'],
+    ['BH', 'Møtereferat', '22. oktober 2026', 'Byggemøte 16, punkt 16.4 om fasaden'],
+    ['TE', 'E-post fra totalentreprenøren', '22. oktober 2026', 'Leveringstid for tegl'],
+    ['BH', 'E-post fra byggherren', '21. oktober 2026', 'Arkitektens merknad til underkonstruksjonen'],
+    ['TE', 'E-post fra totalentreprenøren', '20. oktober 2026', 'Revidert kalkyle, utkast'],
+    ['BH', 'E-post fra byggherren', '20. oktober 2026', 'Bekreftelse på mottatt krav'],
+  ];
+  const foerBrev3 = raden('brev-3');
+  EPOSTER.forEach(([part, tittel, dato, hva]) => {
+    const li = document.createElement('li');
+    li.className = 'innlegg kompakt registrert lang';
+    li.innerHTML = `<span class="part${part === 'BH' ? ' bh' : ''}" aria-hidden="true">${part}</span><div class="innlegg-hode"><h3>${tittel} <span class="merke-reg">Dokumentasjon</span></h3><a class="lenke" href="#">Åpne</a><p class="innlegg-meta">${hva} · sendt ${dato}, ifølge ${part === 'BH' ? 'byggherren' : 'totalentreprenøren'} · gjelder vederlagsjusteringen</p></div>`;
+    traad.insertBefore(li, foerBrev3);
+  });
+
+  // Mer enn åtte rader: de eldre legges sammen, unntatt påberopelsen. Én knapp folder dem ut.
+  let utvidet = false;
+  function leggSammen(){
+    traad.querySelectorAll('.eldre').forEach((e) => e.remove());
+    traad.querySelectorAll('.skjult').forEach((e) => e.classList.remove('skjult'));
+    const rader = [...traad.querySelectorAll('li.innlegg')].filter(synlig);
+    const brev = rader.filter((r) => r.dataset.brev || r.querySelector('h3')?.textContent.startsWith('Endringsordre')).length;
+    const reg = rader.filter((r) => r.classList.contains('registrert')).length;
+    document.getElementById('antall').textContent = `${brev} brev · ${reg} registrert`;
+    if (utvidet || rader.length <= 8) return;
+    const eldre = rader.slice(6).filter((r) => !r.classList.contains('rot'));
+    eldre.forEach((r) => r.classList.add('skjult'));
+    const li = document.createElement('li');
+    li.className = 'eldre';
+    li.innerHTML = `<button class="lenke liten" type="button">Vis ${eldre.length} eldre brev</button>`;
+    li.querySelector('button').addEventListener('click', () => { utvidet = true; leggSammen(); });
+    traad.insertBefore(li, eldre[0]);
+  }
   const bred = matchMedia('(min-width: 1181px)');
-  const raden = (id) => document.querySelector(`[data-brev="${id}"]`);
-  const synlig = (el) => el.getClientRects().length > 0;
   let vist = null;
 
   // Brevet står ved siden av tråden på bred skjerm, og i raden på smal.
@@ -636,10 +681,12 @@ li.kun-te,li.kun-bh{display:revert}
     bh.setAttribute('aria-pressed', String(d.rolle === 'BH'));
     tKnapper.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.t === d.t)));
     kKnapper.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.krav === d.krav)));
+    lKnapper.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lengde === d.lengde)));
     document.getElementById('kravliste').hidden = d.krav === 'uten';
     document.getElementById('kravtomt').hidden = d.krav !== 'uten';
     const a = '#' + d.t + '-' + d.rolle.toLowerCase();
     if (location.hash !== a) history.replaceState(null, '', a);
+    leggSammen();
     // Det siste brevet om forholdet står i ruta til høyre fra start.
     if (bred.matches) {
       const siste = sisteOmForholdet();
@@ -650,6 +697,7 @@ li.kun-te,li.kun-bh{display:revert}
   bh.addEventListener('click', () => { skall.dataset.rolle = 'BH'; oppdater(); });
   tKnapper.forEach(b => b.addEventListener('click', () => { skall.dataset.t = b.dataset.t; oppdater(); }));
   kKnapper.forEach(b => b.addEventListener('click', () => { skall.dataset.krav = b.dataset.krav; oppdater(); }));
+  lKnapper.forEach(b => b.addEventListener('click', () => { skall.dataset.lengde = b.dataset.lengde; utvidet = false; oppdater(); }));
   document.querySelectorAll('.les').forEach(k => k.addEventListener('click', () => visBrev(k.getAttribute('aria-controls'))));
   bred.addEventListener('change', () => {
     if (vist) { const id = vist; vist = null; const b = document.getElementById(id); b.hidden = true; raden(id).querySelector('.brevplass').appendChild(b); raden(id).classList.remove('valgt'); const k = raden(id).querySelector('.les'); k.removeAttribute('aria-pressed'); k.setAttribute('aria-expanded', 'false'); k.textContent = 'Les brevet'; }
