@@ -18,7 +18,8 @@
     i bunnen. «Legg til kravpost» åpner den nye posten. En trukket post er én linje med «Angre».
   - Varslene etter punkt 34.3.3 og 34.4 stilles som unntaket: skjemaet sier at kravet er varselet for
     posten, og TE oppgir bare et tidligere varsel med lenken «Varselet for P2 er gitt før».
-  - De besvarte varselpunktene (1 og 2) er én linje med svaret og «Endre».
+  - Varselpunktene (1 og 2) står åpne til de er besvart med «Ferdig», og er deretter én linje med
+    svaret og «Endre». I en ny versjon er de besvart fra før.
   - Valgene inne i et åpent element er radio og tekst, der det valgte svaret får flaten. Pillene
     står igjen for spørsmålene på seksjonsnivå.
   - Byggherrens svar har samme tabell. Leselinja er standpunktet i postens første lag uten etikett,
@@ -1155,6 +1156,8 @@ function lesAnker() {
   skall.dataset.hva = a === 'varsel' ? 'varsel' : 'krav';
   document.querySelectorAll('.hva-valg a').forEach(l => { if (l.dataset.hva === skall.dataset.hva) l.setAttribute('aria-current', 'page'); else l.removeAttribute('aria-current'); });
   if (side === 'skjema') { const t = a === 'ny-versjon' ? 'ny' : 'nytt'; if (t !== tilstand) { tilstand = t; d = data(t); Object.keys(bh).forEach(k => delete bh[k]); aapenPost = null; aapenSvar = null; } skall.dataset.tilstand = t; }
+  // Et ubesvart punkt står åpent til det er besvart: i et nytt krav er varslene ikke bekreftet ennå.
+  document.querySelectorAll('[data-vis-punkt]').forEach(b => { const s = b.closest('.punkt'), aapen = tilstand !== 'ny'; s.dataset.aapen = aapen ? 'ja' : 'nei'; b.textContent = aapen ? 'Ferdig' : 'Endre'; b.setAttribute('aria-expanded', String(aapen)); });
   skall.dataset.side = side;
   document.querySelectorAll('.segment [data-anker]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.anker === a)));
   tegn();
