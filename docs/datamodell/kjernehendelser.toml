@@ -358,7 +358,7 @@ grunnlag = "LV-U14, LV-U1, OV-U4, KT-U5, arbeidsvalg 3, 4 og 10 i #790"
 [[del]]
 navn = "utregning"
 spor = "vederlag"
-beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet, og det subsidiære standpunktet ved preklusjon etter § 34.1.2."
+beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent` eller `avslaatt`) og det godkjente beløpet, og det subsidiære standpunktet ved preklusjon etter § 34.1.2."
 felt = ["resultat", "godkjent_beloep", "subsidiaert_resultat", "subsidiaert_godkjent_beloep"]
 grunnlag = "B-13, VS-U3"
 

@@ -822,23 +822,27 @@ function kontrollerSvarene(
 }
 
 /**
- * OV-U23, KA-U57 (c) og (d): svaret på vederlaget har ett beløp for hver post i kravet og
- * ingen andre, og oppgjørsformen gjelder en kravpost i kravet.
+ * OV-U23, KA-U57 (c): svaret på vederlaget har ett beløp for hver post i kravet og ingen
+ * andre. Oppgjørsformen står rett foran beløpet for samme kravpost (leseren), så den følger med.
  */
 function kontrollerPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
-  const kravposter = new Set(kravposterI(krav).map((p) => p.id));
-  const beloep = new Set<string>();
-  for (const p of s.standpunkter) {
-    if (p.art === 'oppgjoersform' && !kravposter.has(p.gjelder))
-      ugyldig(s.id, 'oppgjørsformen viser til en kravpost som ikke står i kravet');
-    if (p.art === 'beloep') beloep.add(p.gjelder ?? `saerskilt:${p.saerskilt}`);
-  }
-  const forventet = new Set([
-    ...kravposter,
-    ...(harProduktivitetspost(krav) ? ['saerskilt:produktivitet'] : []),
+  const noekler = (poster: [string, string][]) =>
+    poster
+      .map((p) => JSON.stringify(p))
+      .sort()
+      .join();
+  const iSvaret = noekler(
+    s.standpunkter.flatMap((p): [string, string][] =>
+      p.art !== 'beloep'
+        ? []
+        : [p.gjelder !== undefined ? ['kravpost', p.gjelder] : ['saerskilt', String(p.saerskilt)]]
+    )
+  );
+  const iKravet = noekler([
+    ...kravposterI(krav).map((p): [string, string] => ['kravpost', p.id]),
+    ...(harProduktivitetspost(krav) ? [['saerskilt', 'produktivitet'] as [string, string]] : []),
   ]);
-  if (beloep.size !== forventet.size || [...beloep].some((b) => !forventet.has(b)))
-    ugyldig(s.id, 'beløpene i svaret er ikke de samme postene som i kravet');
+  if (iSvaret !== iKravet) ugyldig(s.id, 'beløpene i svaret er ikke de samme postene som i kravet');
 }
 
 /** Spesifiseringen og rettidigheten i svaret `s` viser til det de kan gjelde. */

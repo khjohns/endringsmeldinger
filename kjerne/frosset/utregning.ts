@@ -40,9 +40,9 @@ import type { Krav, Spor } from '../typer.ts';
  */
 export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
   if (spor === 'vederlag') {
-    // Bare `false` og et tomt felt betyr ingen tilbakeholdelse; en annen verdi forenkles ikke (MM-U2).
-    if ((v.hold_tilbake ?? false) !== false)
-      return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
+    if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
+    // MM-U2: en annen verdi enn et tomt felt eller `false` forenkles ikke til «ingen tilbakeholdelse».
+    if ((v.hold_tilbake ?? false) !== false) return 'hold_tilbake er verken true eller false';
     // Rigg og drift etter § 34.1.3 første ledd er ikke i kjernens svar ennå (#1663).
     if ((v.rigg_vurdering ?? null) !== null)
       return 'kravet om rigg og drift (§ 34.1.3 første ledd) er ikke i kjernen ennå';

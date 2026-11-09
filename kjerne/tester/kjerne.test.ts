@@ -375,6 +375,12 @@ describe('lesereglene for referansene (4.2)', () => {
       },
     ],
     [
+      'resultatet «tilbakeholdelse» i utregningen, som ingen regel gir (MM-U2)',
+      ['forlop_a'],
+      (r, k) =>
+        ((svaret(radMed(r, k, 'S-v1'), k, 'S-v1').utregning as Data).resultat = 'tilbakeholdelse'),
+    ],
+    [
       'to standpunkter med samme ID',
       ['forlop_a'],
       (r, k) => {

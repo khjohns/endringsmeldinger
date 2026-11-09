@@ -3377,7 +3377,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F410',
-    feilklasse: 'metoden får ikke etiketten for laget sitt (OV-U33)',
+    feilklasse: 'oppgjørsformen får ikke etiketten for laget sitt (OV-U33)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -4170,6 +4170,18 @@ const MUTASJONER: Mutasjon[] = [
       'beløpet viser til en kravpost som ikke står i kravet',
       'beløpet for kravposten er ført som posten etter § 34.1.3 annet ledd',
     ],
+  },
+  {
+    id: 'F493',
+    feilklasse: 'en tilbakeholdelse som ikke er boolsk, godtas som ingen tilbakeholdelse (MM-U2)',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [
+      [
+        "    if ((v.hold_tilbake ?? false) !== false) return 'hold_tilbake er verken true eller false';",
+        '    void 0;',
+      ],
+    ],
+    mal: ['tilbakeholdelse etter § 30.2 med en verdi som ikke er boolsk'],
   },
 ];
 

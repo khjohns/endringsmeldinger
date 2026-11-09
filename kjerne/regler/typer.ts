@@ -6,12 +6,7 @@
 
 export const FORHOLDSRESULTATER = ['godkjent', 'avslaatt', 'paalegg_frafalt'] as const;
 export type Forholdsresultat = (typeof FORHOLDSRESULTATER)[number];
-export const VEDERLAGSRESULTATER = [
-  'godkjent',
-  'delvis_godkjent',
-  'avslaatt',
-  'tilbakeholdelse',
-] as const;
+export const VEDERLAGSRESULTATER = ['godkjent', 'delvis_godkjent', 'avslaatt'] as const;
 export type Vederlagsresultat = (typeof VEDERLAGSRESULTATER)[number];
 export const FRISTRESULTATER = ['godkjent', 'delvis_godkjent', 'avslaatt'] as const;
 export type Fristresultat = (typeof FRISTRESULTATER)[number];
