@@ -55,6 +55,10 @@ oppdragsgiver har godkjent det. Etter mergen skriver den overleveringen i
 bølgeissuet, som i punkt 2 over. Den starter neste byggeøkt når neste runde bare
 har én økt, og ellers en ny orkestrator. Overleveringen sier hvilken økt som eier
 sporet (oppdragsgiver 09.11).
+Avvises `create_session` eller `send_later` fordi kjeden er for dyp («lineage depth
+8», #1031), starter økta ikke neste økt selv. Den sier fra til oppdragsgiver at
+neste økt må startes for hånd, og legger ved en kort prompt. Prompten viser til
+`AGENTS.md`, denne skillen og overleveringen, slik punkt 4 over sier (oppdragsgiver 09.11).
 
 En orkestrator starter ingen ny runde når sporet er tomt, når det som
 gjenstår, venter på oppdragsgiver, eller når oppdragsgiver har sagt stopp.
