@@ -338,7 +338,7 @@ med kontrollert commit.
   - en ny kravversjon åpner sporet;
   - GR-U1, SK-01 og SK-03;
   - standpunktet per spor i tilstanden.
-- **TS-kjernen** i [`sprakprove/kjerne/`](../sprakprove/kjerne/) er bygget i
+- **TS-kjernen** i [`sprakprove/kjerne/`](https://github.com/khjohns/endringsmeldinger/tree/3b9cdd7/sprakprove/kjerne) er bygget i
   samme målform fra start, med beløp i hele øre og kommandoer validert mot
   `kontrakt.json`. Node 22 kjører den uten byggesteg.
 - **Flyten** er 31 rader og 30 forløp i [domenetabellen](domenetabell/README.md),
@@ -349,8 +349,8 @@ med kontrollert commit.
 | --- | --- | --- | --- |
 | Felles forventninger | 30 av 30 forløp, i domenebanen, `/api/events` og batch mot testbasen. 9 av dem er kjente avvik på `main` | 30 av 30, i minnet | Domenetabellen, `sprakprove/tester/korpus.test.ts` |
 | Kontrakt | Pydantic-modellene og `test_kontrakt*` | Skjemaet validert ved kjøretid. Aksepten er streng, og serverfeltene avvises eller overskrives | `sprakprove/tester/kontrakt.test.ts` |
-| Tall, dager, fravær | 50 tilfeller grønne | 51 tilfeller grønne | [`sprakprove/grensetilfeller.json`](../sprakprove/grensetilfeller.json) |
-| Genererte forløp | 300 forløp på 8 steg, fire invarianter holder | Samme 300, samme utfall | [`sprakprove/genererte-forlop.json`](../sprakprove/genererte-forlop.json), seed 274 |
+| Tall, dager, fravær | 50 tilfeller grønne | 51 tilfeller grønne | [`sprakprove/grensetilfeller.json`](https://github.com/khjohns/endringsmeldinger/blob/3b9cdd7/sprakprove/grensetilfeller.json) |
+| Genererte forløp | 300 forløp på 8 steg, fire invarianter holder | Samme 300, samme utfall | [`sprakprove/genererte-forlop.json`](https://github.com/khjohns/endringsmeldinger/blob/3b9cdd7/sprakprove/genererte-forlop.json), seed 274 |
 | Feilinnføring M1–M8 | Alle oppdaget, på målassertionen | Alle oppdaget, på målassertionen | [`sprakprove/feilinnforing.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/sprakprove/feilinnforing.py) |
 | Regelendringen (enighet) | 3 produksjonsfiler (+74/−78). I tillegg fikk 2 testfiler nytt oppsett (+56/−10), og én xfail ble ordinær | 3 filer (+50/−22) | Commitene `4cdd012` og `28e5c2c` |
 
@@ -435,7 +435,7 @@ i hovedplanen under B-14 (3.1).
 - **Lageret** skriver `hendelse` i én transaksjon, med `expected_version` og
   unik-skranken.
 - **Godkjenningspakken** vurderes i kjernen
-  ([`godkjenning.ts`](../sprakprove/kjerne/godkjenning.ts)), med samme grense
+  ([`godkjenning.ts`](https://github.com/khjohns/endringsmeldinger/blob/3b9cdd7/sprakprove/kjerne/godkjenning.ts)), med samme grense
   som `validate_items`. Den publiseres ikke.
 
 | Kriterium | Bevis | Resultat |
