@@ -10,11 +10,11 @@ import { UgyldigBeloep } from '$kjerne/regler/beloep';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
-import type { Spor } from '$kjerne/typer';
+import type { Krav, Spor } from '$kjerne/typer';
 import { KRAVINNHOLD, oppgittDato } from '$kjerne/format/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
-import { fastSumIKroner } from '$kjerne/frosset/kravinnhold';
+import { kravposterI } from '$kjerne/frosset/kravinnhold';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -49,22 +49,34 @@ const kroner = (tekst: string) => {
   return 'verdi' in lest ? lest.verdi : undefined;
 };
 
-function vurderingene(v: Svarvalg, krevd: number): Svarvurdering {
-  const felt: Svarvurdering = {
-    hovedkrav_vurdering: v.beloep ? VURDERING[v.beloep] : undefined,
-    hovedkrav_godkjent_beloep:
-      v.beloep === 'hele'
-        ? krevd
-        : v.beloep === 'ingenting'
-          ? 0
-          : v.beloep === 'deler'
-            ? kroner(v.delbeloep)
-            : undefined,
+const definert = <T extends object>(felt: T): T =>
+  Object.fromEntries(Object.entries(felt).filter(([, x]) => x !== undefined)) as T;
+
+/** Skjemaet svarer på kravets eneste kravpost; forutsetningene hindrer svaret på flere (#1663). */
+function vurderingene(v: Svarvalg, krav: Krav): Svarvurdering {
+  const post = kravposterI(krav)[0];
+  const krevd = post?.beloep;
+  return definert({
     hovedkrav_varslet_i_tide: v.iTide ?? undefined,
-    aksepterer_metode: v.metode ?? undefined,
-    oensket_metode: v.metode === false ? (v.oensket ?? undefined) : undefined,
-  };
-  return Object.fromEntries(Object.entries(felt).filter(([, x]) => x !== undefined));
+    kravposter: post
+      ? [
+          definert({
+            gjelder: post.id,
+            vurdering: v.beloep ? VURDERING[v.beloep] : undefined,
+            godkjent_beloep:
+              v.beloep === 'hele'
+                ? krevd
+                : v.beloep === 'ingenting'
+                  ? 0
+                  : v.beloep === 'deler'
+                    ? kroner(v.delbeloep)
+                    : undefined,
+            aksepterer: v.metode ?? undefined,
+            oensket_oppgjoersform: v.metode === false ? (v.oensket ?? undefined) : undefined,
+          }),
+        ]
+      : undefined,
+  });
 }
 
 /** BHs svar på gjeldende vederlagskrav, eller `null` når saken ikke har et krav. */
@@ -75,7 +87,7 @@ export function vederlagssvaret(
 ): { type: 'brev'; svar: Svarutkast[] } | null {
   const krav = u.spor.vederlag.gjeldendeKrav;
   if (!krav) return null;
-  const vurderinger = vurderingene(v, fastSumIKroner(krav) as number);
+  const vurderinger = vurderingene(v, krav);
   let resultat: Record<string, unknown> = {};
   try {
     resultat = regnUtSvar(

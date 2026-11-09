@@ -22,6 +22,7 @@ import {
   vurder,
 } from '../../kjerne/kommandoer/skriving.ts';
 import { regnUtSvar, type Svarvurdering } from '../../kjerne/frosset/utregning.ts';
+import { kravposterI } from '../../kjerne/frosset/kravinnhold.ts';
 import type { Journalrad, Part, Spor } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { noekkeltall, sakslinje, type Sakslinje } from '../saksliste.ts';
@@ -73,7 +74,17 @@ class Sak {
   svar(spor: Spor, vurderinger: Record<string, unknown>) {
     const u = utledJournal(this.journal, KJERNE);
     const krav = u.spor[spor].gjeldendeKrav!;
-    const v = vurderinger as unknown as Svarvurdering;
+    // Testene skriver kravpostens betegnelse i `gjelder`; kommandoen har kravpostens `id`.
+    const kravposter = vurderinger.kravposter as { gjelder: string }[] | undefined;
+    const v = {
+      ...vurderinger,
+      ...(kravposter && {
+        kravposter: kravposter.map((p) => ({
+          ...p,
+          gjelder: kravposterI(krav).find((k) => k.betegnelse === p.gjelder)?.id ?? p.gjelder,
+        })),
+      }),
+    } as Svarvurdering;
     return {
       spor,
       gjelder: krav.id,
@@ -153,9 +164,9 @@ const forloepA: Steg = (sak) => {
     svar: [
       sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
-        hovedkrav_vurdering: 'delvis',
-        hovedkrav_godkjent_beloep: 60000,
-        aksepterer_metode: true,
+        kravposter: [
+          { gjelder: 'P1', vurdering: 'delvis', godkjent_beloep: 60000, aksepterer: true },
+        ],
       }),
       sak.svar('frist', FRIST_I_ORDEN),
     ],
@@ -168,9 +179,9 @@ const fullGodkjenning: Steg = (sak) => {
     svar: [
       sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
-        hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_beloep: 100000,
-        aksepterer_metode: true,
+        kravposter: [
+          { gjelder: 'P1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
+        ],
       }),
       sak.svar('frist', FRIST_I_ORDEN),
     ],
@@ -329,13 +340,13 @@ describe('linja i sakslisten (#1022)', () => {
         svar: [
           sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
           sak.svar('vederlag', {
-            hovedkrav_vurdering: 'godkjent',
-            hovedkrav_godkjent_beloep: 100000,
+            kravposter: [
+              { gjelder: 'P1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
+            ],
             produktivitet_vurdering: 'delvis',
             produktivitet_godkjent_beloep: 30000,
             produktivitet_varslet_i_tide: false,
             produktivitet_begrenset_beloep: 10000,
-            aksepterer_metode: true,
           }),
         ],
       });

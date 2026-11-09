@@ -1585,10 +1585,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
     fil: `${K}/regler/svarkontroll.ts`,
     endringer: [
-      [
-        'if (v.aksepterer_metode === false && !METODER.includes(',
-        'if (false && !METODER.includes(',
-      ],
+      ['if (p.aksepterer === false && !METODER.includes(', 'if (false && !METODER.includes('],
     ],
     mal: ['F-MM-V-34-2-2-nei'],
   },
@@ -1598,8 +1595,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
       [
-        "if ('gjelder' in post && typeof v.aksepterer_metode === 'boolean')",
-        "if ('gjelder' in post && typeof v.aksepterer_metode === 'string')",
+        "if ('gjelder' in post && typeof post.svar.aksepterer === 'boolean')",
+        "if ('gjelder' in post && typeof post.svar.aksepterer === 'string')",
       ],
     ],
     mal: ['F-MM-V-34-2-2-nei', 'F-MM-V-34-2-2-ja'],
@@ -1935,7 +1932,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n",
-        "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n      if (forrige?.standpunkter.some((p) => p.art === 'oppgjoersform' && p.aksepterer) && (k.svar.vurderinger as Record<string, unknown>).aksepterer_metode === false)\n        return avvis('SENKER_INNROEMMELSE', 'Aksepten av fast sum tas tilbake.');\n",
+        "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n      if (forrige?.standpunkter.some((p) => p.art === 'oppgjoersform' && p.aksepterer) && ((k.svar.vurderinger as { kravposter?: { aksepterer?: unknown }[] }).kravposter ?? []).some((p) => p.aksepterer === false))\n        return avvis('SENKER_INNROEMMELSE', 'Aksepten av fast sum tas tilbake.');\n",
       ],
     ],
     mal: ['en revisjon som tar tilbake aksepten av fast sum, godtas'],
@@ -3478,7 +3475,7 @@ const MUTASJONER: Mutasjon[] = [
       ["    if (vurd === 'godkjent' && g !== k)", "    if (vurd === 'godkjent' && false)"],
     ],
     mal: [
-      '«hovedkrav» vurdert «godkjent»',
+      '«kravposten» vurdert «godkjent»',
       '«produktivitet» vurdert «godkjent»',
       'meldingen sier posten, vurderingen og beløpene',
       '«godkjent» med et annet beløp og «avslått» med et beløp avvises',
@@ -3495,7 +3492,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      '«hovedkrav» vurdert «avslaatt»',
+      '«kravposten» vurdert «avslaatt»',
       '«produktivitet» vurdert «avslaatt»',
       '«godkjent» med et annet beløp og «avslått» med et beløp avvises',
     ],
@@ -3534,7 +3531,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [['(g === k || g === NULL_OERE)', '(false || g === NULL_OERE)']],
     mal: [
-      '«hovedkrav» vurdert «delvis» med 150000 kr avvises',
+      '«kravposten» vurdert «delvis» med 150000 kr avvises',
       '«produktivitet» vurdert «delvis» med 40000 kr avvises',
       '«delvis» med det krevde eller 0 kr avvises for hver post',
       'F-MM-KA-U42',
@@ -3546,7 +3543,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [['(g === k || g === NULL_OERE)', '(g === k || false)']],
     mal: [
-      '«hovedkrav» vurdert «delvis» med 0 kr avvises',
+      '«kravposten» vurdert «delvis» med 0 kr avvises',
       '«produktivitet» vurdert «delvis» med 0 kr avvises',
       '«delvis» med det krevde eller 0 kr avvises for hver post',
       'F-MM-KA-U42',
@@ -4182,6 +4179,32 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/utregning.ts`,
     endringer: [['  if (ukjente.length)', '  if (false)']],
     mal: ['et ukjent felt i vurderingene i svaret på vederlaget avvises'],
+  },
+  {
+    id: 'F502',
+    feilklasse: 'et svar på en kravpost kravet ikke har, godtas uten virkning (OV-U23)',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [
+      [
+        "    if (!post) throw new UgyldigVurdering({ kravposter: 'kravet har ikke denne posten (OV-U23)' });\n",
+        '    if (!post) continue;\n',
+      ],
+    ],
+    mal: ['en kravpost kravet ikke har avvises med UGYLDIG_VURDERING'],
+  },
+  {
+    id: 'F503',
+    feilklasse: 'det siste svaret på en kravpost som er besvart to ganger, gjelder (KA-U57 (d))',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [['    if (svarene.has(post.id))\n', '    if (false)\n']],
+    mal: ['samme kravpost to ganger avvises med UGYLDIG_VURDERING'],
+  },
+  {
+    id: 'F504',
+    feilklasse: 'et ukjent felt i svaret på en kravpost godtas uten virkning (MM-U2)',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [['    if (ukjent)\n', '    if (false)\n']],
+    mal: ['et felt kjernen ikke leser i svaret på kravposten avvises med UGYLDIG_VURDERING'],
   },
   {
     id: 'F492',

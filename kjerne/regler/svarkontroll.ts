@@ -47,19 +47,21 @@ export function kontrollerVarseletForVederlag(
     });
 }
 
-/** § 34.2.2: metoden byggherren ønsker, når tilbudet ikke aksepteres. */
-export function kontrollerMetoden(v: {
-  aksepterer_metode?: unknown;
-  oensket_metode?: unknown;
-}): void {
-  // Arbeidsvalget i #479: uten aksept av tilbudet oppgir byggherren metoden, ellers ikke.
-  if (v.aksepterer_metode === false && !METODER.includes(v.oensket_metode as never))
+/**
+ * § 34.2.2: oppgjørsformen byggherren ønsker for kravposten `navn`, når tilbudet ikke aksepteres
+ * (KA-U57 (d)). Feilen står på `<navn>.oensket_oppgjoersform`.
+ */
+export function kontrollerOppgjoersformen(
+  navn: string,
+  p: { aksepterer?: unknown; oensket_oppgjoersform?: unknown }
+): void {
+  const felt = `${navn}.oensket_oppgjoersform`;
+  // Arbeidsvalget i #479: uten aksept av tilbudet oppgir byggherren oppgjørsformen, ellers ikke.
+  if (p.aksepterer === false && !METODER.includes(p.oensket_oppgjoersform as never))
+    throw new UgyldigVurdering({ [felt]: 'mangler når tilbudet ikke aksepteres (§ 34.2.2)' });
+  if (p.aksepterer !== false && p.oensket_oppgjoersform != null)
     throw new UgyldigVurdering({
-      oensket_metode: 'mangler når tilbudet ikke aksepteres (§ 34.2.2)',
-    });
-  if (v.aksepterer_metode !== false && v.oensket_metode != null)
-    throw new UgyldigVurdering({
-      oensket_metode: 'gjelder bare når tilbudet ikke aksepteres (§ 34.2.2)',
+      [felt]: 'gjelder bare når tilbudet ikke aksepteres (§ 34.2.2)',
     });
 }
 

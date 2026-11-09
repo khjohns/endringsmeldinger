@@ -503,8 +503,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['frosset/utregning.ts:regnUtSvar', 'utsagn', 'krav paaberopelse'],
   ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
-  // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
-  ['frosset/kravinnhold.ts', 'regelsett', 'krevdBeloep', ['frosset/utregning.ts']],
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
@@ -518,7 +516,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts',
     ],
   ],
-  ['frosset/kravinnhold.ts', 'regelsett', 'krevdIKravposten krevdRigg', ['frosset/brevtekst.ts']],
+  ['frosset/kravinnhold.ts', 'regelsett', 'krevdRigg', ['frosset/brevtekst.ts']],
+  [
+    'frosset/kravinnhold.ts',
+    'regelsett',
+    'krevdIKravposten',
+    ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
+  ],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
   // med ett beløp (#1663).
   [
@@ -530,7 +534,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
   ['frosset/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
-  ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt'],
+  ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
+  // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.
+  [
+    'frosset/utregning.ts',
+    'regelsett',
+    'kravpostvurderinger',
+    ['kommandoer/lag.ts', 'kommandoer/nyttelast.ts'],
+  ],
+  ['frosset/utregning.ts:kravpostvurderinger', 'regelsett', 'post svar'],
+  [
+    'Kravpostvurdering',
+    'utsagn',
+    'gjelder vurdering godkjent_beloep aksepterer oensket_oppgjoersform',
+  ],
+  ['kommandoer/lag.ts:besvart', 'utsagn', 'saerskilt gjelder'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
   // visningen leser.
   ['frosset/standpunkt.ts:plassene', 'frosset', 'standpunkt', ['frosset/standpunkt.ts:postlisten']],
@@ -562,13 +580,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
   ['frosset/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
-  ['frosset/kravinnhold.ts', 'regelsett', 'harHovedbeloep kravposterI', ['frosset/utregning.ts']],
+  ['frosset/kravinnhold.ts', 'regelsett', 'kravposterI', ['frosset/utregning.ts']],
   [
     'Svarvurdering',
     'utsagn',
-    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide aksepterer_metode oensket_metode
+    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide kravposter
      frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok dager_maatte_forstaa vilkar_oppfylt
-     dager hovedkrav_vurdering hovedkrav_godkjent_beloep produktivitet_vurdering
+     dager produktivitet_vurdering
      produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep
      rigg_vurdering rigg_varslet_i_tide hold_tilbake`,
   ],
@@ -579,12 +597,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/svarkontroll.ts',
     'regelsett',
-    'kontrollerForholdet kontrollerVarseletForVederlag kontrollerMetoden kontrollerSpesifiseringen',
+    'kontrollerForholdet kontrollerVarseletForVederlag kontrollerOppgjoersformen kontrollerSpesifiseringen',
     ['frosset/utregning.ts'],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
   ['regler/svarkontroll.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
-  ['regler/svarkontroll.ts:kontrollerMetoden', 'utsagn', 'aksepterer_metode oensket_metode'],
+  [
+    'regler/svarkontroll.ts:kontrollerOppgjoersformen',
+    'utsagn',
+    'aksepterer oensket_oppgjoersform',
+  ],
   [
     'regler/svarkontroll.ts:kontrollerSpesifiseringen',
     'utsagn',
@@ -892,7 +914,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
-  ['format/format.ts', 'skjema', 'METODER', ['regler/svarkontroll.ts:kontrollerMetoden']],
+  ['format/format.ts', 'skjema', 'METODER', ['regler/svarkontroll.ts:kontrollerOppgjoersformen']],
   [
     'format/format.ts',
     'skjema',

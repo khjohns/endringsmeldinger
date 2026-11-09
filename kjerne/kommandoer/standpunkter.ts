@@ -40,14 +40,16 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
     // § 34.1.3 og posten etter annet ledd, hver for seg. Beløpet etter begrensningen er det
     // byggherren oppgir (VS-U5).
     for (const post of vederlagsposter(v, krav)) {
-      if ('gjelder' in post && typeof v.aksepterer_metode === 'boolean')
+      if ('gjelder' in post && typeof post.svar.aksepterer === 'boolean')
         ut.push({
           id: nyId(),
           art: 'oppgjoersform',
           gjelder: post.gjelder,
           hjemmel: '34.2.2',
-          aksepterer: v.aksepterer_metode,
-          ...(v.aksepterer_metode ? {} : { oensket_oppgjoersform: v.oensket_metode }),
+          aksepterer: post.svar.aksepterer,
+          ...(post.svar.aksepterer
+            ? {}
+            : { oensket_oppgjoersform: post.svar.oensket_oppgjoersform }),
         });
       if ('saerskilt' in post && typeof v.produktivitet_varslet_i_tide === 'boolean')
         ut.push({
