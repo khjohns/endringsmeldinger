@@ -153,7 +153,10 @@ export function kravpostvurderinger(
   const svarene = new Map<unknown, Kravpostvurdering>();
   for (const p of v.kravposter as Kravpostvurdering[]) {
     const post = poster.find((k) => k.id === p.gjelder);
-    if (!post) throw new UgyldigVurdering({ kravposter: 'kravet har ikke denne posten (OV-U23)' });
+    if (!post)
+      throw new UgyldigVurdering({
+        kravposter: `kravet har ikke kravposten «${String(p.gjelder)}» (OV-U23)`,
+      });
     if (svarene.has(post.id))
       throw new UgyldigVurdering({ [post.betegnelse]: 'er besvart mer enn én gang' });
     const ukjent = Object.keys(p).find((felt) => !KRAVPOSTVURDERINGER.has(felt));
@@ -164,6 +167,19 @@ export function kravpostvurderinger(
     svarene.set(post.id, p);
   }
   return poster.map((post) => ({ post, svar: svarene.get(post.id) ?? {} }));
+}
+
+/**
+ * Det krevde beløpet i kravposten byggherren svarer på. Svaret på en kravpost etter en
+ * beregningsregel er ikke bygget (#1663), så det avvises og gir ikke en feil på serveren.
+ */
+function krevdISvaret(krav: Krav, post: Kravpost): Oere {
+  const krevd = krevdIKravposten(krav, post);
+  if (krevd === null)
+    throw new UgyldigVurdering({
+      [post.betegnelse]: 'kravposten følger en beregningsregel, og svaret på den er ikke bygget',
+    });
+  return krevd;
 }
 
 /** Feltene i kommandoen for posten etter § 34.1.3 annet ledd; feilene fra regelen føres tilbake til dem. */
@@ -188,11 +204,9 @@ function vederlagssvaret(
   for (const { post, svar } of kravpostvurderinger(v, krav)) {
     for (const f of ['vurdering', 'godkjent_beloep', 'aksepterer'])
       felt.set(`${post.id}.${f}`, `${post.betegnelse}.${f}`);
-    const krevd = krevdIKravposten(krav, post);
-    if (krevd === null) throw new Error(`Kravposten ${post.betegnelse} har ikke et krevd beløp.`);
     poster.push({
       gjelder: post.id,
-      krevd: tilTall(krevd),
+      krevd: tilTall(krevdISvaret(krav, post)),
       vurdering: svar.vurdering as Beloepsvurdering | undefined,
       godkjent_beloep: svar.godkjent_beloep as number | undefined,
       aksepterer: svar.aksepterer as boolean | undefined,
@@ -363,7 +377,7 @@ export function vederlagsposter(
   const produktivitet = krevdProduktivitet(krav);
   return [
     ...kravpostvurderinger(v, krav).map(({ post: k, svar }) => ({
-      godkjent: post(svar.vurdering, krevdIKravposten(krav, k)!, svar.godkjent_beloep),
+      godkjent: post(svar.vurdering, krevdISvaret(krav, k), svar.godkjent_beloep),
       gjelder: k.id,
       svar,
     })),

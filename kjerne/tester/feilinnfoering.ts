@@ -4186,8 +4186,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/utregning.ts`,
     endringer: [
       [
-        "    if (!post) throw new UgyldigVurdering({ kravposter: 'kravet har ikke denne posten (OV-U23)' });\n",
-        '    if (!post) continue;\n',
+        '    if (!post)\n      throw new UgyldigVurdering({\n',
+        '    if (!post) continue;\n    if (false)\n      throw new UgyldigVurdering({\n',
       ],
     ],
     mal: ['en kravpost kravet ikke har avvises med UGYLDIG_VURDERING'],
@@ -4205,6 +4205,21 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/utregning.ts`,
     endringer: [['    if (ukjent)\n', '    if (false)\n']],
     mal: ['et felt kjernen ikke leser i svaret på kravposten avvises med UGYLDIG_VURDERING'],
+  },
+  {
+    id: 'F505',
+    feilklasse:
+      'et svar på en kravpost etter en beregningsregel regnes uten krevd beløp i stedet for å avvises (#1663)',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [
+      [
+        '  if (krevd === null)\n    throw new UgyldigVurdering({\n',
+        '  if (false)\n    throw new UgyldigVurdering({\n',
+      ],
+    ],
+    mal: [
+      'byggherren kan ikke svare med ett beløp på et krav med flere kravposter før svaret per kravpost er bygget (KA-U59)',
+    ],
   },
   {
     id: 'F492',
