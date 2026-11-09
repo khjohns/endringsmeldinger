@@ -3233,12 +3233,19 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'leseren godtar upåvirket uten en påberopelse i sporet (OV-U33)',
     fil: `${K}/format/leser.ts`,
     endringer: [
-      [
-        "!virkninger.some((p) => PAABEROPELSER.has(p.art) && typeof p.virkning === 'number')",
-        'false',
-      ],
+      ["(spor === 'forhold' || !virkninger.some(paaberoper))", "(spor === 'forhold' || false)"],
     ],
     mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
+  },
+  {
+    id: 'F500',
+    feilklasse:
+      'leseren regner ikke et tilbud som ikke er akseptert som en påberopelse, og avviser et upåvirket standpunkt ved siden av det (KA-U60, OV-U33)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['(PAABEROPELSER.has(p.art) || ikkeAkseptert.has(p.standpunkt))', 'PAABEROPELSER.has(p.art)'],
+    ],
+    mal: ['posten er upåvirket, og brevet leses'],
   },
   {
     id: 'F391',

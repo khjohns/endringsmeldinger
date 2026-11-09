@@ -413,11 +413,15 @@ function lesBeslutningsgrunnlag(
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
   // OV-U32, OV-U33: upåvirket gjelder vederlag og frist, og bare ved siden av en påberopelse
-  // i sporet.
+  // i sporet. Et tilbud som ikke er akseptert, er en innsigelse mot kravposten (KA-U60).
+  const ikkeAkseptert = new Set(
+    standpunkter.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : []))
+  );
+  const paaberoper = (p: Standpunktsvirkning) =>
+    typeof p.virkning === 'number' && (PAABEROPELSER.has(p.art) || ikkeAkseptert.has(p.standpunkt));
   if (
     virkninger.some((p) => p.virkning === 'upaavirket') &&
-    (spor === 'forhold' ||
-      !virkninger.some((p) => PAABEROPELSER.has(p.art) && typeof p.virkning === 'number'))
+    (spor === 'forhold' || !virkninger.some(paaberoper))
   )
     throw new Uforstaatt(
       `${sti}: et standpunkt er upåvirket uten en påberopelse i vederlag eller frist (OV-U33)`

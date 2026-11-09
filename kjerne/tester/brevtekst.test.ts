@@ -6261,6 +6261,29 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     );
   });
 
+  // Arbeidsvalg 1.2 i spørsmålsfila 09.11 for #1663: tilbudet som ikke er akseptert, er en
+  // innsigelse som rammer bare kravposten, så den særskilte posten er upåvirket (OV-U33), og
+  // leseren forstår brevet kjernen skriver.
+  it('tilbudet ikke akseptert og posten etter § 34.1.3 annet ledd i tide: posten er upåvirket, og brevet leses (KA-U60, OV-U33)', () => {
+    const s = sakMedPost();
+    brevet(
+      s,
+      {
+        ...postene,
+        produktivitet_varslet_i_tide: true,
+        aksepterer_metode: false,
+        oensket_metode: 'regningsarbeid',
+      },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 30000 }
+    );
+    expect(virkningene(s)).toEqual([
+      ['oppgjoersform', 1],
+      ['beloep', 2],
+      ['rettidighet', 'uten_virkning'],
+      ['beloep', 'upaavirket'],
+    ]);
+  });
+
   it('begge påberopt: § 34.1.2 prinsipalt, justeringen ellers og begrensningen subsidiært, posten videre subsidiært (OV-U27, OV-U28)', () => {
     const s = sakMedPost(undefined, true);
     const rad = brevet(
