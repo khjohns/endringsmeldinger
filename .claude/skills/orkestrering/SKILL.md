@@ -56,8 +56,8 @@ bølgeissuet, som i punkt 2 over. Den starter neste byggeøkt når neste runde b
 har én økt, og ellers en ny orkestrator. Overleveringen sier hvilken økt som eier
 sporet (oppdragsgiver 09.11).
 En økt på dybde 8 får ikke satt påminnelsen med `send_later` («lineage depth 8»,
-#1031). Dybden telles med `get_session` langs `parent_session_id` til en økt uten
-forelder, som har dybde 1. Er økta selv på dybde 7 eller dypere, eller avvises
+#1031). Dybden står i `lineage.depth` når økta kaller `get_session` uten
+`session_id`. Er økta selv på dybde 7 eller dypere, eller avvises
 `create_session`, starter den ikke neste økt selv. Den sier fra til oppdragsgiver at
 neste økt må startes for hånd, og legger ved en kort prompt. Prompten viser til
 `AGENTS.md`, denne skillen og overleveringen, slik punkt 4 over sier (oppdragsgiver 09.11).
