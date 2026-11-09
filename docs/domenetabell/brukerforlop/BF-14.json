@@ -9,7 +9,7 @@
   },
   "bestilling": "BF-14.md",
   "prototype": {
-    "fil": "../../design/prototyper/vederlagskrav-te-v2.html",
+    "fil": "../../design/prototyper/vederlagskrav-te-v3.html",
     "klikkstier": [
       {
         "id": "nytt-krav-og-brev",
@@ -104,13 +104,19 @@
         "start": "ny-versjon",
         "handlinger": [
           {
-            "staar": "Varsel etter punkt 34.3.3 og 34.4"
+            "trykk": "Endre P4"
           },
           {
-            "velg": "Varselet for P4 er alt gitt"
+            "staar": "Dette kravet er varselet for P4."
+          },
+          {
+            "trykk": "Varselet for P4 er gitt før"
           },
           {
             "staar": "Hvor ble varselet for P4 gitt?"
+          },
+          {
+            "velg": "E-post 28. oktober 2026, registrert som varsel etter punkt 34.3.3"
           },
           {
             "klikk": "Se brevet før sending",
@@ -237,6 +243,11 @@
       "dato": "2026-11-08",
       "forhold": "#1663",
       "hva": "Prototypen er godkjent som commit 98966af, og forløpet er klart til bygging. Brukerprøven tas etter byggingen (oppdragsgiver 08.11)."
+    },
+    {
+      "dato": "2026-11-09",
+      "forhold": "#1663",
+      "hva": "Prototypen v3, commit 23fb4eb, er grunnlaget for byggingen (oppdragsgiver 09.11). Klikkstien for et varsel som alt er gitt, åpner P4 og følger lenken «Varselet for P4 er gitt før»."
     }
   ]
 }
