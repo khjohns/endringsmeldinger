@@ -247,3 +247,49 @@ lagringsformatet»), uten et eget spørsmål.
 Raden for varslene etter § 34.3.3 og § 34.4 i domenetabellen sier fortsatt at varslene har
 `gjelder` lik kravpostens `id`. [VS-U54](../../plans/vedtak.md#vs-u54) sier at raden rettes; det
 hører til økt 3 (G-10).
+
+## Tillegg 09.11: rigg og drift og fristkravet
+
+Oppdragsgiver spurte 09.11, ordrett: «Dagene i fristkravet - skal de også for alle fristkrav
+regnes i hverdager? Jeg lurer på om forlengelsen bør knyttes til et tidligere krav om
+fristforlengelse».
+
+**Avklaring, ikke spørsmål.** NS 8407 punkt 1.2 definerer «dag» som kalenderdag. Fristkravet
+etter punkt 33.6.1 angir derfor dager i kalenderdager, og kjernen lagrer `dager` uten enhet.
+Kontraktsgrunnlaget (Del II pkt. B.2.16) regner hverdager bare for byggetiden og forlengelsen i
+formelen for rigg og drift. Forlengelsen der regnes av datoene (faktisk igangsetting til avtalt ny
+overtakelsesdato) og er ikke dagene i ett fristkrav. Fristkravet regnes fortsatt i kalenderdager.
+
+### Spørsmål 2: kobles posten for rigg og drift til kravet om fristforlengelse?
+
+**Bakgrunn.** Samlevedtaket for særskilt varsel og rigg og drift punkt 17–19 og 25 gjør
+forlengelsen til TEs opplysning. Løsningen krever ikke enighet om fristen, og avgjør ikke om TE har
+krav på fristforlengelse. Alternativet som krevde enighet om fristkravet før posten kunne sendes,
+ble forkastet i OV-U37 24.10. Beslutningsdelen sier at løsningen ikke kontrollerer overlapp mellom
+saker og ikke sammenlikner datoene mellom saker. Ingen vedtak sier om posten viser til fristkravet
+den bygger på. Fristforlengelsen kan komme fra flere krav, også i andre saker (punkt 33.5,
+den samlede virkningen).
+
+**Alternativene.**
+
+- **A:** Posten for rigg og drift viser ikke til et krav om fristforlengelse. TE sier i
+  begrunnelsen hvilken forlengelse posten bygger på (punkt 25).
+- **B (anbefalt):** TE kan i posten for rigg og drift vise til ett eller flere krav om
+  fristforlengelse i saken eller i andre saker i samme prosjekt som forlengelsen bygger på.
+  Henvisningen er TEs opplysning. Løsningen viser kravene og svarene på dem ved posten, men regner
+  ikke forlengelsen ut av dem, kontrollerer ikke at forlengelsen stemmer med dem, og krever ikke
+  henvisningen eller enighet om fristen før posten sendes eller besvares. Byggherren kan i svaret
+  vise til andre krav om fristforlengelse.
+- **C:** Posten for rigg og drift kan bare sendes når TE viser til minst ett krav om
+  fristforlengelse som er sendt i løsningen. Løsningen krever ikke enighet om fristen. Snevrer inn
+  punkt 17.
+
+**Anbefalt: B.** Den gir byggherren sporbarhet for punkt 18 (forlengelsen kan alt være kompensert
+i en annen sak) uten at løsningen avgjør det kontrakten overlater til partene. C stenger ute en
+fristforlengelse som er avtalt utenfor løsningen. Kostnaden med B: en henvisning til en annen sak
+må håndheve prosjektgrensen ved hvert lesepunkt, og den lagres som en relasjon (B-17).
+
+**Hva valget styrer.** Feltene i posten for rigg og drift, visningen ved posten og i byggherrens
+svar, og relasjonen mellom sakene.
+
+**Svar:**
