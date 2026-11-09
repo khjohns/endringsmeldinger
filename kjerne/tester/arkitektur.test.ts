@@ -473,7 +473,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
   // Standpunktene til oppgjørsformen etter § 34.2.2, ett per kravpost (KA-U57 (d)).
-  ['frosset/standpunkt.ts', 'utsagn', 'tilbudetIkkeAkseptert'],
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // Vedtaket 05.10: hvorfor svaret i sporet er subsidiært til forholdet. Brevteksten sier
   // det samme (A2).
@@ -505,12 +504,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/utregning.ts:regnUtSvar', 'utsagn', 'krav paaberopelse'],
   ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
-  [
-    'frosset/kravinnhold.ts',
-    'regelsett',
-    'krevdBeloep',
-    ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
-  ],
+  ['frosset/kravinnhold.ts', 'regelsett', 'krevdBeloep', ['frosset/utregning.ts']],
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
@@ -548,7 +542,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'poster',
     ['frosset/standpunkt.ts:prinsipaltBeloep'],
   ],
-  ['Vederlagspost', 'utsagn', 'godkjent begrensning', ['frosset/standpunkt.ts:prinsipaltBeloep']],
+  [
+    'Vederlagspost',
+    'utsagn',
+    'godkjent begrensning saerskilt',
+    ['frosset/standpunkt.ts:prinsipaltBeloep'],
+  ],
+  // KA-U58, OV-U73: en kravpost med beløpet i et senere lag regnes ikke med i det prinsipale.
+  ['Plass', 'frosset', 'lag', ['frosset/standpunkt.ts:prinsipaltBeloep']],
   ['Vederlagspost.begrensning', 'utsagn', 'beloep', ['frosset/standpunkt.ts:prinsipaltBeloep']],
   // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
   [
@@ -657,12 +658,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Produktivitetssvar', 'regelsett', 'saerskilt'],
   ['Produktivitetssvar', 'utsagn', 'varslet_i_tide begrenset_beloep'],
   ['RiggOgDriftsvar', 'utsagn', 'varslet_i_tide'],
-  ['Postresultat', 'regelsett', 'krevd godkjent prinsipalt'],
+  ['Postresultat', 'regelsett', 'post krevd lag'],
+  // Arbeidsvalg 1 i spørsmålsfila 09.11 for #1663: lagene i sporet og beløpet i hvert.
+  ['Postlag', 'regelsett', 'lag beloep'],
+  ['regler/vederlag.ts:lagene', 'regelsett', 'foerste antall'],
   ['Preklusjon', 'regelsett', 'hovedkrav produktivitet'],
   [
     'Vederlagsberegning',
     'regelsett',
-    'beregnings_resultat total_godkjent_beloep subsidiaer_resultat subsidiaer_godkjent_beloep',
+    'beregnings_resultat total_godkjent_beloep subsidiaer_resultat subsidiaer_godkjent_beloep poster',
   ],
 
   // Kommandoene og kontrollen av dem.
@@ -1104,6 +1108,27 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep saerskilt',
     ['format/leser.ts'],
   ],
+  // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
+  [
+    'format/leser.ts:kontrollerUtregningenPerPost(utregning)',
+    'rad',
+    'poster godkjent_beloep subsidiaert_godkjent_beloep',
+    ['format/leser.ts'],
+  ],
+  [
+    'format/leser.ts:kontrollerUtregningenPerPost',
+    'rad',
+    'gjelder saerskilt lag',
+    ['format/leser.ts'],
+  ],
+  ['format/leser.ts:kontrollerUtregningenPerPost(l)', 'rad', 'lag', ['format/leser.ts']],
+  [
+    'format/leser.ts:kontrollerUtregningenPerPost(r.lag.at(-1))',
+    'rad',
+    'beloep',
+    ['format/leser.ts'],
+  ],
+  ['format/leser.ts:kontrollerUtregningenPerPost.summen(l)', 'rad', 'beloep', ['format/leser.ts']],
   // OV-U31: postene summerer til det byggherren godtar om ingen påberopelse fører fram.
   [
     'format/leser.ts:kontrollerVederlagsstandpunktene(utregning)',
@@ -1267,7 +1292,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'etikett',
     ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/tekst.ts'],
   ],
-  ['frosset/tekst.ts:beslutningslinje', 'brevtekst', 'tekst virkning', ['frosset/tekst.ts']],
+  ['frosset/tekst.ts:beslutningslinje', 'brevtekst', 'tekst', ['frosset/tekst.ts']],
+  ['frosset/tekst.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/tekst.ts']],
+  // OV-U32: leddene i samme lag under én etikett, i linjen og brevteksten.
+  ['frosset/tekst.ts:iLagene', 'brevtekst', 'k l', ['frosset/tekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'iLagene', ['frosset/brevtekst.ts']],
   // MM-U9: linjen i beslutningsgrunnlaget, frosset når brevet sendes.
   ['frosset/tekst.ts', 'brevtekst', 'beslutningslinje', ['frosset/frysing.ts:beslutningsgrunnlag']],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.

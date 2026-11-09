@@ -52,14 +52,25 @@ export interface Vederlagssvar {
 /** Feltene i en feil: `<post>.<felt>`, der posten er `gjelder` eller `saerskilt`. */
 export const postnoekkel = (p: Postsvar): string => ('gjelder' in p ? p.gjelder : p.saerskilt);
 
+/**
+ * Det byggherren godtar for posten i ett lag i sporet, fra 1 (OV-U32). `beloep` er `null` når
+ * posten ikke har et fast beløp i laget, fordi byggherren mener en annen oppgjørsform (KA-U58,
+ * KA-U60).
+ */
+export interface Postlag {
+  lag: number;
+  beloep: Oere | null;
+}
+
 /** Det byggherren godtar for én post, i øre. */
 export interface Postresultat {
   post: Postsvar;
   krevd: Oere;
-  /** Det byggherren godtar uten begrensningen etter § 34.1.3 (OV-U26). */
-  godkjent: Oere;
-  /** Det byggherren godtar prinsipalt. */
-  prinsipalt: Oere;
+  /**
+   * Ett element per lag i sporet, i rekkefølge. Det siste er det byggherren godtar uten
+   * begrensningen etter § 34.1.3 (OV-U26). Arbeidsvalg 1 i spørsmålsfila 09.11 for #1663.
+   */
+  lag: Postlag[];
 }
 
 export interface Vederlagsberegning {
@@ -118,22 +129,44 @@ export function erKravlinjeGyldig(
   return !(vurdering === 'delvis' && (godkjent === null || godkjent === undefined));
 }
 
+/** Byggherren aksepterer ikke tilbudet for kravposten (§ 34.2.2, KA-U57 (d)). */
+const ikkeAkseptert = (p: Postsvar): boolean => 'gjelder' in p && p.aksepterer === false;
+
 /**
- * Postene med det byggherren godtar prinsipalt. VS-U5, OV-U22: en påberopelse etter § 34.1.3
- * avviser aldri hele kravet, bare utgiftsgrunnlaget for posten, som da står med beløpet etter
- * begrensningen. OV-U27: påberopelsen etter § 34.1.2 gjelder hele kravet, også de særskilte.
- * Rigg og drift har ingen særskilt varslingsplikt (OV-U25, OV-U35), og står med det
- * byggherren godtar, så sant påberopelsen etter § 34.1.2 ikke fører fram.
+ * Lagene i sporet: § 34.1.2 først, så oppgjørsformen og begrensningen etter § 34.1.3, så
+ * beløpet (KA-U60, KA-U64). Gir antallet lag og det første laget etter § 34.1.2.
+ */
+function lagene(svar: Vederlagssvar, p: Preklusjon): { foerste: number; antall: number } {
+  const foerste = p.hovedkrav ? 2 : 1;
+  const etter = p.produktivitet || svar.poster.some(ikkeAkseptert);
+  return { foerste, antall: foerste + Number(etter) };
+}
+
+/**
+ * Postene med det byggherren godtar i hvert lag. OV-U27: påberopelsen etter § 34.1.2 gjelder
+ * hele kravet, også de særskilte, og står i det første laget. VS-U5, OV-U22: en påberopelse
+ * etter § 34.1.3 avviser aldri hele kravet; den særskilte posten står med beløpet etter
+ * begrensningen i laget for begrensningen. KA-U58, KA-U60: uten aksept av tilbudet har
+ * kravposten ikke et fast beløp i laget for oppgjørsformen, og beløpet står i laget etter.
+ * Arbeidsvalg 1.1: en post som ingen innsigelse i laget rammer, har samme verdi som i laget før.
+ * Rigg og drift har ingen særskilt varslingsplikt (OV-U25, OV-U35).
  */
 function postresultater(svar: Vederlagssvar, p: Preklusjon): Postresultat[] {
+  const { foerste, antall } = lagene(svar, p);
   return svar.poster.map((post) => {
     const krevd = beloep(post.krevd)!;
     const godkjent = beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
-    const begrenset =
+    const iFoerste =
       erProduktivitet(post) && p.produktivitet
         ? (beloep(post.begrenset_beloep) ?? NULL_OERE)
-        : null;
-    return { post, krevd, godkjent, prinsipalt: p.hovedkrav ? NULL_OERE : (begrenset ?? godkjent) };
+        : ikkeAkseptert(post)
+          ? null
+          : godkjent;
+    const lag: Postlag[] = Array.from({ length: antall }, (_, i) => ({
+      lag: i + 1,
+      beloep: i + 1 < foerste ? NULL_OERE : i + 1 === foerste ? iFoerste : godkjent,
+    }));
+    return { post, krevd, lag };
   });
 }
 
@@ -147,9 +180,18 @@ export function erBeloepetGodkjentFullt(krevd: Oere, godkjent: Oere): boolean {
   return godkjent >= krevd;
 }
 
-/** B-13, HF-U5: «godkjent» bare når hele beløpet er godkjent og tilbudet akseptert (§ 34.2.2). */
-function resultatAvBeloep(krevd: Oere, godkjent: Oere, metodeendring: boolean): Vederlagsresultat {
-  if (godkjent === NULL_OERE) return 'avslaatt';
+/**
+ * B-13, HF-U5: «godkjent» bare når hele beløpet er godkjent og tilbudet akseptert (§ 34.2.2).
+ * Et lag der en kravpost ikke har et fast beløp, avslår ikke kravet, også når summen er 0
+ * (KA-U58).
+ */
+function resultatAvBeloep(
+  krevd: Oere,
+  godkjent: Oere,
+  metodeendring: boolean,
+  utenFastBeloep = false
+): Vederlagsresultat {
+  if (godkjent === NULL_OERE && !utenFastBeloep) return 'avslaatt';
   if (erBeloepetGodkjentFullt(krevd, godkjent) && !metodeendring) return 'godkjent';
   return 'delvis_godkjent';
 }
@@ -248,12 +290,20 @@ export function beregnVederlag(svar: Vederlagssvar, regler: Varslingsplikt): Ved
   const p = beregnPreklusjon(svar, regler);
   const alle = postresultater(svar, p);
   const krevd = sum(alle.map((r) => r.krevd));
-  const totalGodkjent = sum(alle.map((r) => r.prinsipalt));
-  const uten = sum(alle.map((r) => r.godkjent));
-  const metodeendring = svar.poster.some((post) => 'gjelder' in post && post.aksepterer === false);
-  const visSubsidiaert = p.hovedkrav || p.produktivitet;
+  // OV-U31, OV-U73: det første og det siste laget; en post uten fast beløp regnes ikke med.
+  const iLaget = (i: number) => alle.map((r) => r.lag.at(i)!.beloep);
+  const [foerste, siste] = [iLaget(0), iLaget(-1)];
+  const totalGodkjent = sum(foerste.map((b) => b ?? NULL_OERE));
+  const metodeendring = svar.poster.some(ikkeAkseptert);
+  const visSubsidiaert = lagene(svar, p).antall > 1;
+  const uten = sum(siste.map((b) => b ?? NULL_OERE));
   return {
-    beregnings_resultat: resultatAvBeloep(krevd, totalGodkjent, metodeendring),
+    beregnings_resultat: resultatAvBeloep(
+      krevd,
+      totalGodkjent,
+      metodeendring,
+      foerste.includes(null)
+    ),
     total_godkjent_beloep: totalGodkjent,
     total_krevd_beloep: krevd,
     poster: alle,

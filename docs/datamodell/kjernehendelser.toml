@@ -358,9 +358,9 @@ grunnlag = "LV-U14, LV-U1, OV-U4, KT-U5, arbeidsvalg 3, 4 og 10 i #790"
 [[del]]
 navn = "utregning"
 spor = "vederlag"
-beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent` eller `avslaatt`) og det godkjente beløpet, og det subsidiære standpunktet ved preklusjon etter § 34.1.2."
-felt = ["resultat", "godkjent_beloep", "subsidiaert_resultat", "subsidiaert_godkjent_beloep"]
-grunnlag = "B-13, VS-U3"
+beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent` eller `avslaatt`) og det godkjente beløpet prinsipalt, det subsidiære standpunktet når svaret har mer enn ett lag, og `poster`: én rad per post med `gjelder` eller `saerskilt` og beløpet i hvert lag (`lag` og `beloep`). `beloep` mangler når posten ikke har et fast beløp i laget. Totalene er summen av det første og det siste laget."
+felt = ["resultat", "godkjent_beloep", "subsidiaert_resultat", "subsidiaert_godkjent_beloep", "poster"]
+grunnlag = "B-13, VS-U3, OV-U31, KA-U57 (e), KA-U58, KA-U60"
 
 [[del]]
 navn = "utregning"

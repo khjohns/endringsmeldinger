@@ -330,6 +330,51 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
     );
 }
 
+/**
+ * OV-U31, KA-U57 (e): utregningen har én rad per beløp i standpunktene, i samme rekkefølge og med
+ * samme post, og like mange lag i hver rad. Beløpet i det siste laget er det byggherren godtar
+ * for posten. Et lag uten beløp står bare for en kravpost der tilbudet ikke er akseptert
+ * (KA-U58). Det byggherren godtar prinsipalt og subsidiært, er summen av det første og det
+ * siste laget, og det subsidiære står bare med mer enn ett lag.
+ */
+function kontrollerUtregningenPerPost(ut: Standpunkt[], utregning: Data, sti: string): void {
+  const rader = utregning.poster as { gjelder?: string; saerskilt?: string; lag: Data[] }[];
+  const beloepene = ut.filter((s) => s.art === 'beloep');
+  const utenAksept = new Set(
+    ut.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []))
+  );
+  const antall = rader[0]?.lag.length ?? 0;
+  const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.poster: ${hva}`);
+  if (rader.length !== beloepene.length) throw feil('radene er ikke én per post i standpunktene');
+  rader.forEach((r, i) => {
+    const b = beloepene[i];
+    if (
+      'gjelder' in r === 'saerskilt' in r ||
+      r.gjelder !== b.gjelder ||
+      r.saerskilt !== b.saerskilt
+    )
+      throw feil(`rad ${i + 1} gjelder ikke samme post som beløpet i standpunktene`);
+    if (r.lag.length !== antall || r.lag.some((l, n) => l.lag !== n + 1))
+      throw feil(`rad ${i + 1} har ikke lagene 1 til ${antall}`);
+    if (beloep(r.lag.at(-1)!.beloep as number | undefined) !== beloep(b.godkjent))
+      throw feil(`rad ${i + 1} har ikke beløpet byggherren godtar i det siste laget`);
+    if (r.lag.some((l) => !('beloep' in l)) && !utenAksept.has(r.gjelder!))
+      throw feil(
+        `rad ${i + 1} mangler beløpet i et lag, men byggherren aksepterer tilbudet for posten (KA-U58)`
+      );
+  });
+  const summen = (n: number) =>
+    rader
+      .map((r) => r.lag.at(n)!)
+      .reduce((a, l) => a + (beloep(l.beloep as number | undefined) ?? 0n), 0n);
+  if (summen(0) !== beloep(utregning.godkjent_beloep as number))
+    throw feil('det første laget summerer ikke til det byggherren godtar prinsipalt');
+  if (antall > 1 !== 'subsidiaert_godkjent_beloep' in utregning)
+    throw feil('det subsidiære beløpet står ikke nøyaktig når svaret har mer enn ett lag');
+  if (antall > 1 && summen(-1) !== beloep(utregning.subsidiaert_godkjent_beloep as number))
+    throw feil('det siste laget summerer ikke til det byggherren godtar subsidiært');
+}
+
 /** Standpunktene som er byggherrens påberopelser i sporet. */
 const PAABEROPELSER = new Set<Standpunktsart>(['rettidighet', 'hindring', 'spesifisering']);
 
@@ -390,6 +435,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
   const e = element(v, SVAR, 'spor', sti);
   const spor = e.spor as Spor;
   const standpunkter = standpunkterISvaret(spor, e, sti);
+  if (spor === 'vederlag') kontrollerUtregningenPerPost(standpunkter, e.utregning as Data, sti);
   return {
     id: e.id as string,
     spor,
