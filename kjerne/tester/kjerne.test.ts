@@ -1418,9 +1418,9 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
     },
   } as unknown as Krav;
   const vurderinger = {
-    hovedkrav_vurdering: 'godkjent',
-    hovedkrav_godkjent_beloep: 100000,
-    aksepterer_metode: true,
+    kravposter: [
+      { gjelder: 'p1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
+    ],
     hovedkrav_varslet_i_tide: false,
   };
 

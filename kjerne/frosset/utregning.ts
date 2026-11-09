@@ -17,20 +17,19 @@ import {
 } from '../regler/vederlag.ts';
 import {
   kontrollerForholdet,
-  kontrollerMetoden,
+  kontrollerOppgjoersformen,
   kontrollerSpesifiseringen,
   kontrollerVarseletForVederlag,
 } from '../regler/svarkontroll.ts';
 import {
-  harHovedbeloep,
   innholdIFristen,
   kategori,
-  krevdBeloep,
+  krevdIKravposten,
   krevdProduktivitet,
   kravposterI,
 } from './kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
-import type { Krav, Spor } from '../typer.ts';
+import type { Krav, Kravpost, Spor } from '../typer.ts';
 
 /**
  * En vurdering i svaret som kjernen ennå ikke har et standpunkt for. Den kan ikke
@@ -55,9 +54,9 @@ export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string 
 export interface Svarvurdering {
   resultat?: unknown;
   grunnlag_varslet_i_tide?: unknown;
-  hovedkrav_vurdering?: unknown;
-  hovedkrav_godkjent_beloep?: unknown;
   hovedkrav_varslet_i_tide?: unknown;
+  /** Svaret på hver kravpost, som en liste med `Kravpostvurdering` (KA-U57 (c) og (d), KA-U59). */
+  kravposter?: unknown;
   produktivitet_vurdering?: unknown;
   produktivitet_godkjent_beloep?: unknown;
   produktivitet_varslet_i_tide?: unknown;
@@ -65,8 +64,6 @@ export interface Svarvurdering {
   rigg_vurdering?: unknown;
   rigg_varslet_i_tide?: unknown;
   hold_tilbake?: unknown;
-  aksepterer_metode?: unknown;
-  oensket_metode?: unknown;
   frist_varsel_ok?: unknown;
   spesifisert_krav_ok?: unknown;
   foresporsel_svar_ok?: unknown;
@@ -79,8 +76,7 @@ export interface Svarvurdering {
  * Serverens utregning av svaret, med navnene i formatet (`UTREGNING` i
  * `format.ts`). Forholdet har ingen utregning, bare kontrollen av
  * vurderingene. Kaster `UgyldigVurdering`, og `UgyldigBeloep` for et beløp i
- * vurderingene som ikke er et tall. Et krevd beløp som ikke kan leses, kaster
- * `Error` (`krevdBeloep`).
+ * vurderingene som ikke er et tall. Et krevd beløp som ikke kan leses, kaster `Error`.
  */
 export function regnUtSvar(
   spor: Spor,
@@ -109,30 +105,68 @@ function regnUtForhold(v: Svarvurdering, krav: Krav, regler: Regelsett): Record<
  * uten virkning, så det avvises (MM-U2; kravet i #1663).
  */
 const VEDERLAGSVURDERINGER = new Set<string>([
-  'hovedkrav_vurdering',
-  'hovedkrav_godkjent_beloep',
   'hovedkrav_varslet_i_tide',
+  'kravposter',
   'produktivitet_vurdering',
   'produktivitet_godkjent_beloep',
   'produktivitet_varslet_i_tide',
   'produktivitet_begrenset_beloep',
-  'aksepterer_metode',
-  'oensket_metode',
   // Avvises med egne meldinger: `utenforOmfanget` og OV-U89 punkt 9 i `regler/vederlag.ts`.
   'hold_tilbake',
   'rigg_vurdering',
   'rigg_varslet_i_tide',
 ]);
 
+/** Byggherrens svar på én kravpost i kommandoen. `gjelder` er kravpostens `id`. */
+export interface Kravpostvurdering {
+  gjelder?: unknown;
+  vurdering?: unknown;
+  godkjent_beloep?: unknown;
+  /** Standpunktet etter § 34.2.2 (KA-U57 (d)). */
+  aksepterer?: unknown;
+  oensket_oppgjoersform?: unknown;
+}
+
+const KRAVPOSTVURDERINGER = new Set<string>([
+  'gjelder',
+  'vurdering',
+  'godkjent_beloep',
+  'aksepterer',
+  'oensket_oppgjoersform',
+]);
+
 /**
- * Feltene i kommandoen for hver post i regelen. Klienten sender i dag én kravpost og posten
- * etter § 34.1.3 annet ledd med disse navnene (#1663); feilene fra regelen føres tilbake til dem.
+ * Svaret på hver kravpost i kravet, i kravets rekkefølge. En kravpost uten svar får en tom
+ * vurdering, så regelen sier hva som mangler. Feilene står på `kravposter`, eller på
+ * `<betegnelse>.<felt>` for kravposten. Kaster `UgyldigVurdering` for et svar på en kravpost
+ * kravet ikke har (OV-U23), et svar på samme kravpost to ganger og et felt kjernen ikke leser
+ * (MM-U2).
  */
-const KRAVPOSTFELT = {
-  vurdering: 'hovedkrav_vurdering',
-  godkjent_beloep: 'hovedkrav_godkjent_beloep',
-  aksepterer: 'aksepterer_metode',
-} as const;
+export function kravpostvurderinger(
+  v: Svarvurdering,
+  krav: Krav
+): { post: Kravpost; svar: Kravpostvurdering }[] {
+  const poster = kravposterI(krav);
+  if (v.kravposter == null) return poster.map((post) => ({ post, svar: {} }));
+  if (!Array.isArray(v.kravposter) || v.kravposter.some((p) => typeof p !== 'object' || !p))
+    throw new UgyldigVurdering({ kravposter: 'er ikke en liste med svar på kravpostene' });
+  const svarene = new Map<unknown, Kravpostvurdering>();
+  for (const p of v.kravposter as Kravpostvurdering[]) {
+    const post = poster.find((k) => k.id === p.gjelder);
+    if (!post) throw new UgyldigVurdering({ kravposter: 'kravet har ikke denne posten (OV-U23)' });
+    if (svarene.has(post.id))
+      throw new UgyldigVurdering({ [post.betegnelse]: 'er besvart mer enn én gang' });
+    const ukjent = Object.keys(p).find((felt) => !KRAVPOSTVURDERINGER.has(felt));
+    if (ukjent)
+      throw new UgyldigVurdering({
+        [`${post.betegnelse}.${ukjent}`]: 'kjernen leser ikke feltet i svaret på kravposten',
+      });
+    svarene.set(post.id, p);
+  }
+  return poster.map((post) => ({ post, svar: svarene.get(post.id) ?? {} }));
+}
+
+/** Feltene i kommandoen for posten etter § 34.1.3 annet ledd; feilene fra regelen føres tilbake til dem. */
 const PRODUKTIVITETSFELT = {
   vurdering: 'produktivitet_vurdering',
   godkjent_beloep: 'produktivitet_godkjent_beloep',
@@ -151,15 +185,17 @@ function vederlagssvaret(
   const knytt = (navn: string, felter: Record<string, string>) => {
     for (const [i, ut] of Object.entries(felter)) felt.set(`${navn}.${i}`, ut);
   };
-  const kravpost = kravposterI(krav)[0];
-  if (kravpost) {
-    knytt(kravpost.id, KRAVPOSTFELT);
+  for (const { post, svar } of kravpostvurderinger(v, krav)) {
+    for (const f of ['vurdering', 'godkjent_beloep', 'aksepterer'])
+      felt.set(`${post.id}.${f}`, `${post.betegnelse}.${f}`);
+    const krevd = krevdIKravposten(krav, post);
+    if (krevd === null) throw new Error(`Kravposten ${post.betegnelse} har ikke et krevd beløp.`);
     poster.push({
-      gjelder: kravpost.id,
-      krevd: tilTall(krevdBeloep(krav)),
-      vurdering: v.hovedkrav_vurdering as Beloepsvurdering | undefined,
-      godkjent_beloep: v.hovedkrav_godkjent_beloep as number | undefined,
-      aksepterer: v.aksepterer_metode as boolean | undefined,
+      gjelder: post.id,
+      krevd: tilTall(krevd),
+      vurdering: svar.vurdering as Beloepsvurdering | undefined,
+      godkjent_beloep: svar.godkjent_beloep as number | undefined,
+      aksepterer: svar.aksepterer as boolean | undefined,
     });
   }
   const produktivitet = krevdProduktivitet(krav);
@@ -213,29 +249,21 @@ function regnUtVederlag(
   const tilbakeholdelse = utenforOmfanget('vederlag', { hold_tilbake: v.hold_tilbake });
   if (tilbakeholdelse) throw new UgyldigVurdering({ hold_tilbake: tilbakeholdelse });
   // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520), og
-  // til oppgjørsformen bare for en kravpost (KA-U57 (d)).
-  const utenPost: [boolean, (keyof Svarvurdering)[]][] = [
-    [
-      harHovedbeloep(krav),
-      ['hovedkrav_vurdering', 'hovedkrav_godkjent_beloep', 'aksepterer_metode', 'oensket_metode'],
-    ],
-    [
-      krevdProduktivitet(krav) !== null,
-      [
-        'produktivitet_vurdering',
-        'produktivitet_godkjent_beloep',
-        'produktivitet_varslet_i_tide',
-        'produktivitet_begrenset_beloep',
-      ],
-    ],
+  // til oppgjørsformen bare for en kravpost (KA-U57 (d)), i `kravpostvurderinger`.
+  const produktivitet: (keyof Svarvurdering)[] = [
+    'produktivitet_vurdering',
+    'produktivitet_godkjent_beloep',
+    'produktivitet_varslet_i_tide',
+    'produktivitet_begrenset_beloep',
   ];
-  for (const [harPosten, felter] of utenPost)
-    for (const felt of felter)
-      if (!harPosten && v[felt] != null)
+  if (krevdProduktivitet(krav) === null)
+    for (const felt of produktivitet)
+      if (v[felt] != null)
         throw new UgyldigVurdering({ [felt]: 'kravet har ikke denne posten (OV-U23)' });
   const { hovedkategori } = kategori(paaberopelse);
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
-  kontrollerMetoden(v);
+  for (const { post, svar } of kravpostvurderinger(v, krav))
+    kontrollerOppgjoersformen(post.betegnelse, svar);
   const { svar, felt } = vederlagssvaret(v, krav, hovedkategori);
   let r: Vederlagsberegning;
   try {
@@ -314,13 +342,16 @@ function regnUtFrist(
 
 /**
  * OV-U26, OV-U31: beløpet byggherren godtar for hver post i vederlagskravet uten
- * begrensningen etter § 34.1.3, i rekkefølgen brevet lagrer dem: kravposten (`gjelder`) og
- * posten etter annet ledd (`saerskilt`). Regnet med regelsettet som utregningen.
+ * begrensningen etter § 34.1.3, i rekkefølgen brevet lagrer dem: kravpostene (`gjelder`), med
+ * svaret på hver, og posten etter annet ledd (`saerskilt`). Regnet med regelsettet som utregningen.
  */
 export function vederlagsposter(
   v: Svarvurdering,
   krav: Krav
-): ({ godkjent: number; gjelder: string } | { godkjent: number; saerskilt: 'produktivitet' })[] {
+): (
+  | { godkjent: number; gjelder: string; svar: Kravpostvurdering }
+  | { godkjent: number; saerskilt: 'produktivitet' }
+)[] {
   const post = (vurdering: unknown, krevd: Oere, delvis: unknown) =>
     tilTall(
       beregnGodkjentBeloep(
@@ -331,14 +362,11 @@ export function vederlagsposter(
     );
   const produktivitet = krevdProduktivitet(krav);
   return [
-    ...(harHovedbeloep(krav)
-      ? [
-          {
-            godkjent: post(v.hovedkrav_vurdering, krevdBeloep(krav), v.hovedkrav_godkjent_beloep),
-            gjelder: kravposterI(krav)[0].id,
-          },
-        ]
-      : []),
+    ...kravpostvurderinger(v, krav).map(({ post: k, svar }) => ({
+      godkjent: post(svar.vurdering, krevdIKravposten(krav, k)!, svar.godkjent_beloep),
+      gjelder: k.id,
+      svar,
+    })),
     ...(produktivitet === null
       ? []
       : [

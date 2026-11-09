@@ -23,6 +23,7 @@
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
+  import type { Kravpostvurdering } from '$kjerne/frosset/utregning';
   import type { Forutsetning } from '$kjerne/kommandoer/lag';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -90,14 +91,22 @@
 
   const kommando = $derived(vederlagssvaret(valg, u, kjernesak.regler)!);
   const etter = $derived(kjernesak.forhaandsvist(kommando));
+  const utenOppgjoersform = (poster: unknown) =>
+    (poster as Kravpostvurdering[]).map((p) => ({
+      gjelder: p.gjelder,
+      vurdering: p.vurdering,
+      godkjent_beloep: p.godkjent_beloep,
+    }));
   // Innsigelsene beløpet bygger på, regnet av kjernen fra det som er besvart (#1400, S1-A og
   // S2-A). En avslått metode uten ønsket metode forstår ikke kjernen, så metoden er ute av
   // utkastet til den er valgt; den står i laget til justeringen uansett svaret (OV-U33).
   const forutsetninger = $derived.by(() => {
     if (harPost) return [];
     const s = kommando.svar[0];
-    const utenMetode = { ...s.vurderinger };
-    delete utenMetode.aksepterer_metode;
+    const utenMetode = {
+      ...s.vurderinger,
+      kravposter: utenOppgjoersform(s.vurderinger.kravposter),
+    };
     const utkast =
       valg.metode === false && valg.oensket === null ? { ...s, vurderinger: utenMetode } : s;
     return (
@@ -113,8 +122,13 @@
   const metodeforutsetninger = $derived.by(() => {
     if (harPost) return [];
     const s = kommando.svar[0];
-    const vurderinger = { ...s.vurderinger, aksepterer_metode: true };
-    delete vurderinger.oensket_metode;
+    const vurderinger = {
+      ...s.vurderinger,
+      kravposter: utenOppgjoersform(s.vurderinger.kravposter).map((p) => ({
+        ...p,
+        aksepterer: true,
+      })),
+    };
     return (
       kjernesak
         .lagForUtkastet({ ...s, vurderinger })

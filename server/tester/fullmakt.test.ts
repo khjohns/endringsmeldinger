@@ -8,6 +8,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { Svarutkast } from '../../kjerne/kommandoer/kommando.ts';
+import { kravposterI } from '../../kjerne/frosset/kravinnhold.ts';
 import {
   forhaandsvis,
   laastTekst,
@@ -94,9 +95,14 @@ function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
       ? { resultat: h.resultat, grunnlag_varslet_i_tide: h.varslet_i_tide }
       : spor === 'vederlag'
         ? {
-            hovedkrav_vurdering: h.vurdering,
-            hovedkrav_godkjent_beloep: h.godkjent_belop,
-            aksepterer_metode: true,
+            kravposter: [
+              {
+                gjelder: kravposterI(u.spor.vederlag.gjeldendeKrav!)[0]!.id,
+                vurdering: h.vurdering,
+                godkjent_beloep: h.godkjent_belop,
+                aksepterer: true,
+              },
+            ],
           }
         : {
             frist_varsel_ok: h.varsel_i_tide,
@@ -271,12 +277,17 @@ describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', ()
       gjelder: u.spor.vederlag.gjeldendeKrav!.id,
       regelversjon: regler.versjon,
       vurderinger: {
-        hovedkrav_vurdering: 'godkjent',
+        kravposter: [
+          {
+            gjelder: kravposterI(u.spor.vederlag.gjeldendeKrav!)[0]!.id,
+            vurdering: 'godkjent',
+            aksepterer: true,
+          },
+        ],
         produktivitet_vurdering: 'delvis',
         produktivitet_godkjent_beloep: 30000,
         produktivitet_varslet_i_tide: false,
         produktivitet_begrenset_beloep: 10000,
-        aksepterer_metode: true,
       },
       resultat: {},
     };

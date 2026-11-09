@@ -39,7 +39,7 @@ const oere = (kr: number) => tilTall(beloep(kr)!);
  *
  * Svarene må være kontrollert av kjernen først. Kaster det kjernens utregning
  * kaster (`regnUtSvar`): `UgyldigVurdering` og `UgyldigBeloep`, og `Error` for et krevd
- * beløp som ikke kan leses (`krevdBeloep`).
+ * beløp som ikke kan leses.
  */
 export function brevverdi(
   svar: readonly Svarutkast[],

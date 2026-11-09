@@ -124,12 +124,16 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
   if (spor === 'forhold')
     return { resultat: h.resultat, grunnlag_varslet_i_tide: h.varslet_i_tide };
   if (spor === 'vederlag')
+    // Forløpene beskriver svaret på kravets eneste kravpost.
     return {
-      hovedkrav_vurdering: h.vurdering,
-      hovedkrav_godkjent_beloep: h.godkjent_belop,
       hovedkrav_varslet_i_tide: h.varslet_i_tide,
-      aksepterer_metode: h.metode_akseptert ?? true,
-      oensket_metode: h.oensket_metode,
+      kravposter: (krav ? kravposterI(krav) : []).slice(0, 1).map((p) => ({
+        gjelder: p.id,
+        vurdering: h.vurdering,
+        godkjent_beloep: h.godkjent_belop,
+        aksepterer: h.metode_akseptert ?? true,
+        oensket_oppgjoersform: h.oensket_metode,
+      })),
     };
   return {
     frist_varsel_ok: h.varsel_i_tide,
@@ -565,4 +569,39 @@ export function mellomlager(kommando: unknown): Vedleggsoppslag {
       { vedlegg_id: id.toLowerCase(), filnavn: `${id}.pdf`, innhold_sha256: '0'.repeat(64) },
     ])
   );
+}
+
+/**
+ * Testene skriver kravpostens betegnelse (`P1`) i `gjelder` i svaret på en kravpost, fordi
+ * serveren gir kravposten `id`. Gir vurderingene med kravpostens `id` i kravet `krav`.
+ */
+export function medKravpostIder<T>(vurderinger: T, krav: Krav | null | undefined): T {
+  const v = vurderinger as { kravposter?: unknown };
+  if (!krav || !Array.isArray(v?.kravposter)) return vurderinger;
+  const ider = new Map(kravposterI(krav).map((p) => [p.betegnelse, p.id]));
+  return {
+    ...v,
+    kravposter: v.kravposter.map((p: { gjelder?: unknown }) =>
+      typeof p?.gjelder === 'string' && ider.has(p.gjelder)
+        ? { ...p, gjelder: ider.get(p.gjelder) }
+        : p
+    ),
+  } as T;
+}
+
+type Vurderinger = Record<string, unknown>;
+
+/** Svaret på kravposten P1 med feltene i `svar`, som i kommandoen (`gjelder` er betegnelsen). */
+export const P1 = (svar: Vurderinger): Vurderinger => ({
+  kravposter: [{ gjelder: 'P1', ...svar }],
+});
+
+/** `vurderinger` med feltene i `svar` lagt til svaret på kravposten P1. */
+export function medP1(vurderinger: Vurderinger, svar: Vurderinger): Vurderinger {
+  const poster = (vurderinger.kravposter as Vurderinger[] | undefined) ?? [];
+  const p1 = poster.find((p) => p.gjelder === 'P1') ?? { gjelder: 'P1' };
+  return {
+    ...vurderinger,
+    kravposter: [{ ...p1, ...svar }, ...poster.filter((p) => p !== p1)],
+  };
 }

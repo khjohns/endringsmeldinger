@@ -3,6 +3,7 @@
 import type { Saksmerking } from '$lib/kjernesak/brevtekst';
 import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
+import { kravposterI } from '$kjerne/frosset/kravinnhold';
 import type { Journalrad, Part } from '$kjerne/typer';
 
 export const SAK = 'sak-1';
@@ -72,6 +73,9 @@ export const medVederlag = skrevet(medGrunnlag, 'TE', {
 
 const kravId = (journal: Journalrad[], spor: string) =>
   utledJournal(journal, KJERNE).spor[spor as 'forhold'].gjeldendeKrav!.id;
+/** `id` til den første kravposten i vederlagskravet, som svaret på kravposten viser til. */
+const kravpostId = (journal: Journalrad[]) =>
+  kravposterI(utledJournal(journal, KJERNE).spor.vederlag.gjeldendeKrav!)[0]!.id;
 
 export const medSvar = skrevet(medVederlag, 'BH', {
   type: 'brev',
@@ -95,9 +99,14 @@ export const medVederlagssvar = skrevet(medVederlag, 'BH', {
       gjelder: kravId(medVederlag, 'vederlag'),
       regelversjon: KJERNE.regler.versjon,
       vurderinger: {
-        hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_beloep: 250000,
-        aksepterer_metode: true,
+        kravposter: [
+          {
+            gjelder: kravpostId(medVederlag),
+            vurdering: 'godkjent',
+            godkjent_beloep: 250000,
+            aksepterer: true,
+          },
+        ],
       },
       resultat: { resultat: 'godkjent', godkjent_beloep: 250000 },
       utdypning: 'Tilbudet godtas.',

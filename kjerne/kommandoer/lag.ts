@@ -6,7 +6,7 @@
  */
 
 import { etikett, grunnerFraForholdet, laget, virkninger } from '../frosset/standpunkt.ts';
-import { type Svarvurdering } from '../frosset/utregning.ts';
+import { kravpostvurderinger, type Svarvurdering } from '../frosset/utregning.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { standpunkterISvaret } from '../format/leser.ts';
@@ -47,8 +47,11 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
   const v = utkast.vurderinger;
   const utenBeloep: Svarvurdering = {
     ...v,
-    hovedkrav_vurdering: undefined,
-    hovedkrav_godkjent_beloep: undefined,
+    kravposter: kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!).map(({ post, svar }) => ({
+      gjelder: post.id,
+      aksepterer: svar.aksepterer,
+      oensket_oppgjoersform: svar.oensket_oppgjoersform,
+    })),
     produktivitet_vurdering: undefined,
     produktivitet_godkjent_beloep: undefined,
     produktivitet_begrenset_beloep: v.produktivitet_varslet_i_tide === false ? 0 : undefined,
@@ -96,7 +99,7 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
         art: s.art,
         ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
         ...(s.art === 'beloep' && s.saerskilt ? { saerskilt: s.saerskilt } : {}),
-        besvart: s.art !== 'beloep' || besvart(v, s.saerskilt),
+        besvart: s.art !== 'beloep' || besvart(v, u, s),
         virkning: forskjoevet(virket[i].virkning),
         etikett: l !== null && flereLag ? etikett(l) : null,
         forutsetninger: rammer,
@@ -105,5 +108,13 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
   };
 }
 
-const besvart = (v: Svarvurdering, saerskilt: 'produktivitet' | undefined) =>
-  typeof (saerskilt ? v.produktivitet_vurdering : v.hovedkrav_vurdering) === 'string';
+const besvart = (
+  v: Svarvurdering,
+  u: Utledning,
+  s: { saerskilt?: 'produktivitet' | 'rigg_og_drift'; gjelder?: string }
+) =>
+  typeof (s.saerskilt
+    ? v.produktivitet_vurdering
+    : kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!).find(
+        ({ post }) => post.id === s.gjelder
+      )?.svar.vurdering) === 'string';

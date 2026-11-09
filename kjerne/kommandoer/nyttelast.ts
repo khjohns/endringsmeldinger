@@ -18,6 +18,7 @@ import { korrigertDato, type Kommando, type Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { gjelderVarslingsplikten, hjemmelenGjelder } from '../frosset/standpunkt.ts';
 import {
+  kravpostvurderinger,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
@@ -122,7 +123,8 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
     // VS-U5: begrensningen etter § 34.1.3.
     if (v.produktivitet_varslet_i_tide === false)
       ut.push('gjør gjeldende at varselet etter § 34.1.3 kom for sent');
-    if (v.aksepterer_metode === false) ut.push('ikke aksepterer tilbudet (§ 34.2.2)');
+    if (kravpostvurderinger(v, krav).some(({ svar }) => svar.aksepterer === false))
+      ut.push('ikke aksepterer tilbudet (§ 34.2.2)');
     // B-13: beløpet alene, også uten aksept av tilbudet; da gjelder grunnen over i tillegg.
     const godkjent = beloep(
       (server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep) as number | undefined

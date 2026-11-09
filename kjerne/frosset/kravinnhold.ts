@@ -5,7 +5,6 @@
  */
 
 import { beloep, UgyldigBeloep, type Oere } from '../regler/beloep.ts';
-import { UgyldigVurdering } from '../regler/feil.ts';
 import { foersteUnderkategori } from '../regler/forhold.ts';
 import { tekst } from '../format/skjema.ts';
 import type { Krav, Kravpost, OppgittDatofelt, Oppgjoersform } from '../typer.ts';
@@ -107,24 +106,6 @@ export function hindrerSvarMedEttBeloep(krav: Krav): string | null {
     return `Kravposten ${poster[0]!.betegnelse} følger en beregningsregel`;
   if (krevdRigg(krav) !== null) return 'Kravet har rigg og drift i forlenget byggetid';
   return null;
-}
-
-/**
- * Det krevde beløpet i kravposten, i øre, slik utregningen, kontrollen av begrunnelsen og
- * brevet leser det (#508). Har kravet ikke nøyaktig én kravpost med fast sum, kaster den
- * `UgyldigVurdering`, så et svar med ett beløp avvises og ikke gir en feil på serveren. Et
- * krav med bare postene utenfor leses med `harHovedbeloep` først (OV-U23), og svaret tilbys
- * ikke for et krav `hindrerSvarMedEttBeloep` gir et hinder for.
- */
-export function krevdBeloep(krav: Krav): Oere {
-  const poster = kravposterI(krav);
-  if (poster.length !== 1 || poster[0].oppgjoersform !== 'tilbud')
-    throw new UgyldigVurdering({
-      hovedkrav_vurdering: `kravet ${krav.id} har ikke nøyaktig én kravpost med fast sum`,
-    });
-  const krevd = lesKrevd(krav, poster[0].beloep);
-  if (krevd === null) throw new Error(`Det krevde beløpet mangler i kravet ${krav.id}.`);
-  return krevd;
 }
 
 /**
