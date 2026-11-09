@@ -68,7 +68,7 @@ subagent gjøre analysen, med denne bestillingen:
   `python3 -c "print('x' * 15000)"`. Kommer svaret inline og ikke som fil med
   forhåndsvisning, virker ikke innstillingen fra prosjektoppsettet. Det er et funn.
 - Se om grensene i «Kontekst i arbeidsøktene» holder, som tegn som skal ses
-  nærmere på: en arbeidsøkt som endte over om lag 300 000 tokens, eller en som
+  nærmere på: en arbeidsøkt som endte over om lag 500 000 tokens, eller en som
   endte over 150 000 tokens og varte klart over en time; en orkestrator over
   300 000 tokens; og subagenter over 150 000 tokens eller 80 kall i de øktene
   som ble sett nærmere på.

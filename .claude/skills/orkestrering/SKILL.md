@@ -223,7 +223,8 @@ issue. Oppdraget skal inneholde:
   kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
 - at byggeøkta ikke kjører `/code-review`, og at reviewet og rettingene gjøres i
-  en ny økt (se «Kontekst i arbeidsøktene»);
+  en ny økt, unntatt for en liten diff etter «Review i ny økt» (se «Kontekst i
+  arbeidsøktene»);
 - at reviewet følger stoppregelen for funn i `AGENTS.md`, og kontrollen av
   rettingsdiffen på samme nivå som `AGENTS.md` krever for PR-en. `/simplify`
   kjøres bare når oppdragsgiver har bestilt eller godkjent den (se
@@ -348,9 +349,11 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   kjørt, og skriver anslaget i PR-en. Har økta passert om lag 150 000 tokens, stopper
   den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk. Det
   gjelder ikke når økta har pågått under en time: da fortsetter den forbi 150 000
-  til oppgaven er ferdig, men stopper ved om lag 300 000 tokens eller før en
-  komprimering. Etter en time, eller etter en pause over en time, gjelder 150 000
-  som før (oppdragsgiver 18.10, #777). En økt som har passert 150 000 når
+  til oppgaven er ferdig, begynner å forberede overleveringen ved om lag 400 000
+  tokens og stopper ved om lag 500 000 tokens. Grensen forutsetter at økta blir
+  ferdig innen timen, mens hurtigbufferen er varm (oppdragsgiver 09.11). Etter en
+  time, eller etter en pause over en time, gjelder 150 000 som før (oppdragsgiver
+  18.10, #777). En økt som har passert 150 000 når
   timen er gått, tar ikke nye steg, men kan pushe og skrive tilstanden, slik
   «Arbeid i timer» sier. Økta setter en påminnelse med `send_later` om 45
   minutter når den starter, og skriver `trigger_id` i tilstanden i PR-en (eller i
@@ -375,7 +378,12 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 - **Små verktøysvar.** Les smalt og tell før du leser: se «Utdata» i
   [miljø-skillen](../miljo/SKILL.md#utdata).
 - **Review i ny økt.** Byggeøkta pusher, skriver tilstanden i PR-en og stopper,
-  uten å kjøre `/code-review`, og lar PR-en stå som utkast. En ny, liten økt tar
+  uten å kjøre `/code-review`, og lar PR-en stå som utkast. Unntaket er en liten
+  diff, om lag 300 endrede linjer utenom tester og `docs/`: er byggeøkta under om
+  lag 400 000 tokens og innenfor timen, kjører den `/code-review` og rettingene
+  selv, og en ny reviewøkt trengs ikke. Den samme økta kan ikke kjøre
+  `/design-review` eller reviewet av samspillet mellom reglene, som krever ny
+  kontekst (oppdragsgiver 09.11). En ny, liten økt tar
   reviewet og rettingene fra PR-en etter `AGENTS.md`, og markerer PR-en klar når
   reviewet er gjort og de lokale sjekkene er grønne. Den får en avgrenset
   bestilling: PR-nummeret, reviewbestillingen og tilstanden i PR-en, ikke hele
@@ -386,7 +394,7 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 - **Passerer en økt grensen sin uten å stoppe, eller blir den komprimert,**
   sender orkestratoren én samlet sjekkliste over det som gjenstår, med kildene
   som skal leses på nytt. Orkestratoren ser ikke pauser, så den regner grensen
-  slik: om lag 300 000 tokens, eller om lag 150 000 tokens når mer enn en time er
+  slik: om lag 500 000 tokens, eller om lag 150 000 tokens når mer enn en time er
   gått siden økta ble opprettet. Gjenstår mer enn rettinger og CI, overtar en
   ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Er
   økta fortsatt over grensen ved neste sjekk, avbryter orkestratoren den med
