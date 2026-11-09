@@ -23,6 +23,8 @@ export interface Utkastlag {
     art: Standpunktsart;
     hjemmel?: Hjemmel;
     saerskilt?: 'produktivitet';
+    /** Kravposten beløpet eller oppgjørsformen gjelder (KA-U57 (c) og (d)). */
+    gjelder?: string;
     /** Beløpsspørsmålet for posten er besvart. Andre standpunkter finnes bare når de er besvart (KA-U4). */
     besvart: boolean;
     /** Laget etter lagene fra forholdet, `upaavirket` eller `uten_virkning`. */
@@ -100,6 +102,9 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
         art: s.art,
         ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
         ...(s.art === 'beloep' && s.saerskilt ? { saerskilt: s.saerskilt } : {}),
+        ...((s.art === 'beloep' || s.art === 'oppgjoersform') && s.gjelder !== undefined
+          ? { gjelder: s.gjelder }
+          : {}),
         besvart: s.art !== 'beloep' || besvart(v, u, s),
         virkning: forskjoevet(virket[i].virkning),
         etikett: l !== null && flereLag ? etikett(l) : null,

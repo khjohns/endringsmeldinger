@@ -18,7 +18,7 @@
 <script lang="ts">
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { fastSumIKroner, fellesOppgjoersform } from '$kjerne/frosset/kravinnhold';
+  import { hindrerSvarPaaKravet, kravposterI } from '$kjerne/frosset/kravinnhold';
   import { kroner } from '$kjerne/frosset/tekst';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
@@ -26,6 +26,7 @@
   import type { Kravpostvurdering } from '$kjerne/frosset/utregning';
   import type { Forutsetning } from '$kjerne/kommandoer/lag';
   import type { Utledning } from '$kjerne/utledning/utled';
+  import type { Kravpost, Standpunkt } from '$kjerne/typer';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
@@ -35,7 +36,14 @@
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
-  import { tomtSvar, vederlagssvaret, type Svarvalg } from './kommandoer';
+  import {
+    postvalget,
+    tomPost,
+    tomtSvar,
+    vederlagssvaret,
+    type Postvalg,
+    type Svarvalg,
+  } from './kommandoer';
   import { brevene, brevet, datoerISporet, klarOverForholdet, standpunktene } from './lesing';
   import {
     BREVKONTROLL,
@@ -79,7 +87,14 @@
   const uid = $props.id();
 
   const krav = $derived(u.spor.vederlag.gjeldendeKrav!);
-  const krevd = $derived(fastSumIKroner(krav) as number);
+  const poster = $derived(kravposterI(krav));
+  const flere = $derived(poster.length > 1);
+  const navnet = (p: Kravpost) => (flere ? p.betegnelse : undefined);
+  const krevdI = (p: Kravpost) => p.beloep ?? 0;
+  // I øre, så summen ikke får avrundingsfeil.
+  const krevdTotalt = $derived(
+    poster.reduce((sum, p) => sum + Math.round(krevdI(p) * 100), 0) / 100
+  );
   const alleBrev = $derived(brevene(u));
   const kravbrevet = $derived(alleBrev.find((b) => b.id === krav.dokument)!);
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('vederlag')));
@@ -88,39 +103,73 @@
   const harPost = $derived(
     (krav.innhold.saerskilt as { produktivitet?: unknown } | undefined)?.produktivitet !== undefined
   );
+  // Kjernen sier hva svaret ennå ikke kan gjelde: en beregningsregel eller rigg og drift.
+  const hinder = $derived(harPost ? null : hindrerSvarPaaKravet(krav));
+  const stoppet = $derived(harPost || hinder !== null);
+
+  // Én kravpost er åpen om gangen; de andre står som en leselinje (#1739, system.md).
+  // `null` er den første kravposten, og en tom streng er ingen.
+  let valgtPost = $state<string | null>(null);
+  const aapen = $derived(flere ? (valgtPost ?? poster[0]?.betegnelse) : poster[0]?.betegnelse);
+  $effect(() => {
+    for (const p of poster) if (!valg.poster[p.betegnelse]) valg.poster[p.betegnelse] = tomPost();
+  });
+  const valgFor = (betegnelse: string): Postvalg => (valg.poster[betegnelse] ??= tomPost());
+  async function aapne(betegnelse: string, fokus?: string) {
+    valgtPost = betegnelse;
+    await tick();
+    document.getElementById(fokus ?? `${uid}-form-${betegnelse}`)?.focus();
+  }
+  async function lukk(betegnelse: string) {
+    valgtPost = '';
+    await tick();
+    document.getElementById(`${uid}-endre-${betegnelse}`)?.focus();
+  }
+  function godkjennAlleFormer() {
+    for (const p of poster) valgFor(p.betegnelse).form = 'tilbud';
+  }
+  function godkjennAlle() {
+    for (const p of poster) valgFor(p.betegnelse).beloep = 'hele';
+  }
 
   const kommando = $derived(vederlagssvaret(valg, u, kjernesak.regler)!);
   const etter = $derived(kjernesak.forhaandsvist(kommando));
-  const utenOppgjoersform = (poster: unknown) =>
-    ((poster ?? []) as Kravpostvurdering[]).map((p) => ({
+  const utenOppgjoersform = (vurderte: unknown) =>
+    ((vurderte ?? []) as Kravpostvurdering[]).map((p) => ({
       gjelder: p.gjelder,
       vurdering: p.vurdering,
       godkjent_beloep: p.godkjent_beloep,
     }));
   // Innsigelsene beløpet bygger på, regnet av kjernen fra det som er besvart (#1400, S1-A og
-  // S2-A). En avslått metode uten ønsket metode forstår ikke kjernen, så metoden er ute av
-  // utkastet til den er valgt; den står i laget til justeringen uansett svaret (OV-U33).
-  const forutsetninger = $derived.by(() => {
-    if (harPost) return [];
+  // S2-A), for hver kravpost. En avslått metode uten ønsket metode forstår ikke kjernen, så
+  // oppgjørsformen er ute av utkastet til den er valgt; den står i laget sitt uansett svaret
+  // (OV-U33).
+  const beloepslagene = $derived.by(() => {
+    if (stoppet) return null;
     const s = kommando.svar[0];
-    const utenMetode = {
-      ...s.vurderinger,
-      kravposter: utenOppgjoersform(s.vurderinger.kravposter),
-    };
-    const utkast =
-      valg.metode === false && valg.oensket === null ? { ...s, vurderinger: utenMetode } : s;
-    return (
-      kjernesak.lagForUtkastet(utkast)?.standpunkter.find((x) => x.art === 'beloep' && !x.saerskilt)
-        ?.forutsetninger ?? []
-    );
+    const ubesvart = poster.some((p) => postvalget(valg, p.betegnelse).form === null);
+    const utkast = ubesvart
+      ? {
+          ...s,
+          vurderinger: {
+            ...s.vurderinger,
+            kravposter: utenOppgjoersform(s.vurderinger.kravposter),
+          },
+        }
+      : s;
+    return kjernesak.lagForUtkastet(utkast);
   });
+  const forutsetninger = (p: Kravpost): Forutsetning[] =>
+    beloepslagene?.standpunkter.find(
+      (x) => x.art === 'beloep' && !x.saerskilt && x.gjelder === p.id
+    )?.forutsetninger ?? [];
   // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet
   // (oppdragsgiver 30.10, 1A i #1411).
-  const grunnene = $derived(forutsetninger.filter((f) => 'grunn' in f));
-  // Metoden står i laget sitt uansett svaret (OV-U33, LV-U31), så kjernen spørres med metoden
-  // godtatt, også før den er besvart (oppdragsgiver 30.10 i #1411, S2-A i #1400).
-  const metodeforutsetninger = $derived.by(() => {
-    if (harPost) return [];
+  const grunnene = $derived(poster[0] ? forutsetninger(poster[0]).filter((f) => 'grunn' in f) : []);
+  // Oppgjørsformen står i laget sitt uansett svaret (OV-U33, LV-U31), så kjernen spørres med
+  // formen godtatt, også før den er besvart (oppdragsgiver 30.10 i #1411, S2-A i #1400).
+  const formlagene = $derived.by(() => {
+    if (stoppet) return null;
     const s = kommando.svar[0];
     const vurderinger = {
       ...s.vurderinger,
@@ -129,12 +178,11 @@
         aksepterer: true,
       })),
     };
-    return (
-      kjernesak
-        .lagForUtkastet({ ...s, vurderinger })
-        ?.standpunkter.find((x) => x.art === 'oppgjoersform')?.forutsetninger ?? []
-    );
+    return kjernesak.lagForUtkastet({ ...s, vurderinger });
   });
+  const formforutsetninger = (p: Kravpost): Forutsetning[] =>
+    formlagene?.standpunkter.find((x) => x.art === 'oppgjoersform' && x.gjelder === p.id)
+      ?.forutsetninger ?? [];
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument) : null;
@@ -143,21 +191,49 @@
     const s = etter?.spor.vederlag.gjeldendeSvar;
     return s && !u.spor.vederlag.svar.some((x) => x.id === s.id) ? s : null;
   });
+  const postenFor = (s: Standpunkt) =>
+    'gjelder' in s && s.gjelder !== undefined ? poster.find((p) => p.id === s.gjelder) : undefined;
   const linjer = $derived(
     nyttSvar
-      ? standpunktene(nyttSvar, etter!).map((l) => ({
-          tekst:
-            'grunn' in l
-              ? grunntekst(l.grunn, true, l.brev)
-              : standpunkttekst(
-                  l.standpunkt,
-                  true,
-                  l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt ? krevd : undefined
-                ),
-          lag: l.lag,
-        }))
+      ? standpunktene(nyttSvar, etter!).map((l) => {
+          const post = 'standpunkt' in l ? postenFor(l.standpunkt) : undefined;
+          return {
+            tekst:
+              'grunn' in l
+                ? grunntekst(l.grunn, true, l.brev)
+                : standpunkttekst(
+                    l.standpunkt,
+                    true,
+                    l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt && post
+                      ? krevdI(post)
+                      : undefined,
+                    post && flere ? post.betegnelse : undefined
+                  ),
+            lag: l.lag,
+            gjelder: post?.betegnelse,
+          };
+        })
       : []
   );
+  // Leselinjen for en lukket kravpost: standpunktene slik kjernen skriver dem, eller valgene
+  // til svaret er fullstendig.
+  const leselinje = (p: Kravpost): string[] => {
+    const fra = linjer.filter((l) => l.gjelder === p.betegnelse).map((l) => l.tekst);
+    if (fra.length) return fra;
+    const v = postvalget(valg, p.betegnelse);
+    return [
+      v.form === null
+        ? null
+        : v.form === 'tilbud'
+          ? SKJEMA.godkjennerForm
+          : SKJEMA.menerForm(v.form),
+      v.beloep === null
+        ? null
+        : v.beloep === 'deler'
+          ? `${SKJEMA.deler}: ${v.delbeloep || '–'} kr`
+          : SKJEMA[v.beloep],
+    ].filter((x): x is string => x !== null);
+  };
   // Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B).
   const alternativer = $derived(
     new Set(
@@ -168,7 +244,6 @@
         : []
     ).size > 1
   );
-  const delbeloep = $derived(lesKroner(valg.delbeloep));
   // Med `sendes` avviser kjernen også et svar uten begrunnelse der kontrakten krever den.
   const avvisning = $derived.by(() => {
     const b = kjernesak.brev(kommando, undefined, true);
@@ -180,37 +255,50 @@
     return b && 'tekst' in b ? b : null;
   });
   // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
-  const delbeloepFeil = $derived(
-    valg.beloep !== 'deler'
-      ? null
-      : 'feil' in delbeloep
-        ? delbeloep.feil
-        : delbeloep.verdi === undefined
-          ? SKJEMA.manglerDelbeloep
-          : delbeloep.verdi <= 0 || delbeloep.verdi >= krevd
-            ? HOVEDLINJER.beloepUtenfor(krevd)
-            : null
-  );
+  const delbeloepFeil = (p: Kravpost): string | null => {
+    const v = postvalget(valg, p.betegnelse);
+    if (v.beloep !== 'deler') return null;
+    const lest = lesKroner(v.delbeloep);
+    if ('feil' in lest) return lest.feil;
+    if (lest.verdi === undefined) return SKJEMA.manglerDelbeloep;
+    return lest.verdi <= 0 || lest.verdi >= krevdI(p) ? HOVEDLINJER.beloepUtenfor(krevdI(p)) : null;
+  };
   const mangler = $derived(
     [
-      { felt: `${uid}-itide`, tekst: valg.iTide === null ? SKJEMA.manglerITide : null },
-      { felt: `${uid}-metode`, tekst: valg.metode === null ? SKJEMA.manglerMetode : null },
-      {
-        felt: `${uid}-oensket`,
-        tekst: valg.metode === false && valg.oensket === null ? SKJEMA.manglerOensket : null,
-      },
-      { felt: `${uid}-beloep`, tekst: valg.beloep === null ? SKJEMA.manglerBeloep : null },
-      { felt: `${uid}-delbeloep`, tekst: delbeloepFeil },
+      { felt: `${uid}-itide`, post: null, tekst: valg.iTide === null ? SKJEMA.manglerITide : null },
+      ...poster.flatMap((p) => {
+        const v = postvalget(valg, p.betegnelse);
+        const i = (tekst: string | null) =>
+          tekst ? SKJEMA.iPosten(navnet(p) ?? null, tekst) : null;
+        return [
+          {
+            felt: `${uid}-form-${p.betegnelse}`,
+            post: p.betegnelse,
+            tekst: i(v.form === null ? SKJEMA.manglerForm : null),
+          },
+          {
+            felt: `${uid}-beloep-${p.betegnelse}`,
+            post: p.betegnelse,
+            tekst: i(v.beloep === null ? SKJEMA.manglerBeloep : null),
+          },
+          {
+            felt: `${uid}-delbeloep-${p.betegnelse}`,
+            post: p.betegnelse,
+            tekst: i(delbeloepFeil(p)),
+          },
+        ];
+      }),
       // KA-U24: kjernen sier når svaret må ha en begrunnelse, og hvorfor.
       {
         felt: `${uid}-begrunnelse`,
+        post: null,
         tekst: avvisning?.regel === 'BEGRUNNELSE_MANGLER' ? avvisning.melding : null,
       },
-    ].filter((m): m is { felt: string; tekst: string } => m.tekst !== null)
+    ].filter((m): m is { felt: string; post: string | null; tekst: string } => m.tekst !== null)
   );
   // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
   let forsoekt = $state(false);
-  const feil = (felt: string) =>
+  const feil = (felt: string): string | null =>
     forsoekt ? (mangler.find((m) => m.felt === `${uid}-${felt}`)?.tekst ?? null) : null;
   const begrunnelseFeil = $derived(feil('begrunnelse'));
   let oppsummering = $state<HTMLElement | null>(null);
@@ -228,6 +316,8 @@
     sendehindring = null;
     if (mangler.length) {
       forsoekt = true;
+      const foerste = mangler.find((m) => m.post !== null);
+      if (foerste) valgtPost = foerste.post;
       await tick();
       oppsummering?.focus();
       return;
@@ -312,7 +402,7 @@
     };
   });
 
-  const vilVise = $derived(!harPost && !faarPlass && !iSyne && !(leser && !smal));
+  const vilVise = $derived(!stoppet && !faarPlass && !iSyne && !(leser && !smal));
   $effect(() => {
     if (!vilVise) return;
     untrack(() => vilHaLinja.push(uid));
@@ -401,10 +491,10 @@
         <div class="innebrev" id={`${uid}-kravbrev`}>{@render kravbrev(false)}</div>
       {/if}
 
-      {#if harPost}
+      {#if stoppet}
         <div class="ikke-stoettet" role="note">
           <Info size={18} aria-hidden="true" />
-          <p>{SKJEMA.ikkeStoettet}</p>
+          <p>{hinder ? SKJEMA.ikkeStoettetHinder(hinder) : SKJEMA.ikkeStoettet}</p>
         </div>
       {:else}
         {#if forsoekt && mangler.length}
@@ -418,7 +508,16 @@
             <p id={`${uid}-mangler`}>{SKJEMA.mangler}</p>
             <ul>
               {#each mangler as m (m.felt)}
-                <li><a href={`#${m.felt}`}>{m.tekst}</a></li>
+                <li>
+                  <a
+                    href={`#${m.felt}`}
+                    onclick={(e) => {
+                      if (m.post === null || m.post === aapen) return;
+                      e.preventDefault();
+                      aapne(m.post, m.felt);
+                    }}>{m.tekst}</a
+                  >
+                </li>
               {/each}
             </ul>
           </div>
@@ -455,77 +554,120 @@
           />
         </section>
 
-        <section class="spoersmaal" aria-labelledby={`${uid}-sp-metode`}>
-          <div class="sp-hode">
-            <h3 id={`${uid}-sp-metode`}>{SKJEMA.metodeTittel}</h3>
-            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.2</span>
-          </div>
-          {@render gjelderHvis('metode', metodeforutsetninger)}
-          <Valg
-            navn={`${uid}-metode`}
-            spoersmaal={SKJEMA.metodeSpoersmaal(fellesOppgjoersform(krav) ?? 'tilbud')}
-            beskrevetAv={metodeforutsetninger.length ? `${uid}-metode-forutsetninger` : undefined}
-            valg={[
-              { verdi: true, tekst: SKJEMA.godtarMetode },
-              { verdi: false, tekst: SKJEMA.godtarIkkeMetode },
-            ]}
-            bind:verdi={valg.metode}
-            feil={feil('metode')}
-          />
-          {#if valg.metode === false}
-            <Valg
-              navn={`${uid}-oensket`}
-              spoersmaal={SKJEMA.oensketSpoersmaal}
-              valg={[
-                { verdi: 'enhetspriser', tekst: 'Enhetspriser (punkt 34.3)' },
-                { verdi: 'regningsarbeid', tekst: 'Regningsarbeid (punkt 34.4)' },
-              ]}
-              bind:verdi={valg.oensket}
-              feil={feil('oensket')}
-            />
-          {/if}
-        </section>
-
         <section class="spoersmaal" aria-labelledby={`${uid}-sp-beloep`}>
           <div class="sp-hode">
             <h3 id={`${uid}-sp-beloep`}>
-              {SKJEMA.beloepTittel} · <span class="num">{kroner(krevd)}</span>
+              {SKJEMA.beloepTittel} · <span class="num">{kroner(krevdTotalt)}</span>
             </h3>
-            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.1</span>
+            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.1 og 34.2</span>
           </div>
-          {@render gjelderHvis('beloep', forutsetninger)}
-          <Valg
-            navn={`${uid}-beloep`}
-            spoersmaal={SKJEMA.beloepSpoersmaal}
-            beskrevetAv={forutsetninger.length ? `${uid}-beloep-forutsetninger` : undefined}
-            valg={[
-              { verdi: 'hele', tekst: SKJEMA.hele },
-              { verdi: 'deler', tekst: SKJEMA.deler },
-              { verdi: 'ingenting', tekst: SKJEMA.ingenting },
-            ]}
-            bind:verdi={valg.beloep}
-            feil={feil('beloep')}
-          />
-          {#if valg.beloep === 'deler'}
-            {@const beloepFeil = feil('delbeloep')}
-            <div class="beloepfelt">
-              <label for={`${uid}-delbeloep`}>{SKJEMA.belopEtikett}</label>
-              <span id={`${uid}-beloep-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevd)}</span>
-              <span class="inndata" class:ugyldig={beloepFeil}>
-                <input
-                  id={`${uid}-delbeloep`}
-                  inputmode="decimal"
-                  bind:value={valg.delbeloep}
-                  aria-describedby={beloepFeil
-                    ? `${uid}-beloep-hjelp ${uid}-beloep-feil`
-                    : `${uid}-beloep-hjelp`}
-                  aria-invalid={beloepFeil ? 'true' : undefined}
-                />
-                <span class="kr" aria-hidden="true">kr</span>
-              </span>
-              {#if beloepFeil}<p class="feilmelding" id={`${uid}-beloep-feil`}>{beloepFeil}</p>{/if}
+          {#if flere}
+            <p class="dempet">{SKJEMA.ettSvarPerPost}</p>
+            <div class="snarveier">
+              <Knapp onclick={godkjennAlleFormer}>{SKJEMA.godkjennAlleFormer}</Knapp>
+              <Knapp onclick={godkjennAlle}>{SKJEMA.godkjennAlle}</Knapp>
             </div>
           {/if}
+          <ul class="poster" class:flere>
+            {#each poster as p (p.id)}
+              {@const v = valg.poster[p.betegnelse]}
+              <li class="post" class:aapen={aapen === p.betegnelse}>
+                {#if aapen === p.betegnelse && v}
+                  {@const beloepFeil = feil(`delbeloep-${p.betegnelse}`)}
+                  {@const forms = formforutsetninger(p)}
+                  {@const beloeps = forutsetninger(p)}
+                  <div class="posthode">
+                    <h4>
+                      {#if flere}<span class="betegnelse">{p.betegnelse}</span>{/if}
+                      {p.beskrivelse}
+                    </h4>
+                    <p class="dempet">{SKJEMA.teKrever(krevdI(p), p.pns)}</p>
+                  </div>
+                  {@render gjelderHvis(`form-${p.betegnelse}`, forms)}
+                  <Valg
+                    navn={`${uid}-form-${p.betegnelse}`}
+                    spoersmaal={SKJEMA.formSpoersmaal}
+                    beskrevetAv={forms.length
+                      ? `${uid}-form-${p.betegnelse}-forutsetninger`
+                      : undefined}
+                    valg={[
+                      { verdi: 'tilbud', tekst: SKJEMA.godkjennerForm },
+                      { verdi: 'enhetspriser', tekst: SKJEMA.menerForm('enhetspriser') },
+                      { verdi: 'regningsarbeid', tekst: SKJEMA.menerForm('regningsarbeid') },
+                    ]}
+                    bind:verdi={v.form}
+                    feil={feil(`form-${p.betegnelse}`)}
+                  />
+                  {@render gjelderHvis(`beloep-${p.betegnelse}`, beloeps)}
+                  <Valg
+                    navn={`${uid}-beloep-${p.betegnelse}`}
+                    spoersmaal={SKJEMA.beloepSpoersmaal}
+                    beskrevetAv={beloeps.length
+                      ? `${uid}-beloep-${p.betegnelse}-forutsetninger`
+                      : undefined}
+                    valg={[
+                      { verdi: 'hele', tekst: SKJEMA.hele },
+                      { verdi: 'deler', tekst: SKJEMA.deler },
+                      { verdi: 'ingenting', tekst: SKJEMA.ingenting },
+                    ]}
+                    bind:verdi={v.beloep}
+                    feil={feil(`beloep-${p.betegnelse}`)}
+                  />
+                  {#if v.beloep === 'deler'}
+                    {@const id = `${uid}-delbeloep-${p.betegnelse}`}
+                    <div class="beloepfelt">
+                      <label for={id}>{SKJEMA.belopEtikett}</label>
+                      <span id={`${id}-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevdI(p))}</span>
+                      <span class="inndata" class:ugyldig={beloepFeil}>
+                        <input
+                          {id}
+                          inputmode="decimal"
+                          bind:value={v.delbeloep}
+                          aria-describedby={beloepFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
+                          aria-invalid={beloepFeil ? 'true' : undefined}
+                        />
+                        <span class="kr" aria-hidden="true">kr</span>
+                      </span>
+                      {#if beloepFeil}<p class="feilmelding" id={`${id}-feil`}>{beloepFeil}</p>{/if}
+                    </div>
+                  {/if}
+                  {#if flere}
+                    <div class="postfot">
+                      <Knapp onclick={() => lukk(p.betegnelse)}>{SKJEMA.ferdig}</Knapp>
+                    </div>
+                  {/if}
+                {:else}
+                  {@const lest = leselinje(p)}
+                  <div class="postlinje">
+                    <h4>
+                      <span class="betegnelse">{p.betegnelse}</span>
+                      {p.beskrivelse}
+                    </h4>
+                    <p class="krever dempet">{SKJEMA.teKrever(krevdI(p), p.pns)}</p>
+                    <div class="lest">
+                      <span class="visually-hidden">{SKJEMA.svaretKolonne}:</span>
+                      {#if lest.length}
+                        <ul>
+                          {#each lest as l, i (i)}<li>{l}</li>{/each}
+                        </ul>
+                      {:else}
+                        <span class="dempet">{SKJEMA.ikkeBesvart}</span>
+                      {/if}
+                    </div>
+                    <Knapp
+                      variant="lenke"
+                      id={`${uid}-endre-${p.betegnelse}`}
+                      aria-label={lest.length
+                        ? SKJEMA.endrePost(p.betegnelse)
+                        : SKJEMA.svarPaaPost(p.betegnelse)}
+                      onclick={() => aapne(p.betegnelse)}
+                      >{lest.length ? SKJEMA.endre : SKJEMA.svarPaa}</Knapp
+                    >
+                  </div>
+                {/if}
+              </li>
+            {/each}
+          </ul>
         </section>
 
         <section class="spoersmaal">
@@ -581,11 +723,11 @@
         <div class="brevrulle" tabindex="0" role="region" aria-labelledby={`${uid}-lesetittel`}>
           {@render kravbrev(true)}
         </div>
-        {#if !harPost}<div class="lesebunn">{@render sendeknapp()}</div>{/if}
+        {#if !stoppet}<div class="lesebunn">{@render sendeknapp()}</div>{/if}
       </section>
     {:else}
       <div class="feste" class:fast={faarPlass} bind:this={panel}>
-        <Hovedlinjer {linjer} {alternativer} handling={harPost ? undefined : sendeknapp} />
+        <Hovedlinjer {linjer} {alternativer} handling={stoppet ? undefined : sendeknapp} />
       </div>
       <Tidslinje brev={sporbrev} {datoer} />
     {/if}
@@ -861,5 +1003,93 @@
     padding: var(--spacing-3) var(--spacing-6);
     background: var(--surface);
     border-top: var(--rule-strong);
+  }
+  .snarveier {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+  .poster {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .poster.flere {
+    border-top: var(--rule-strong);
+  }
+  .poster.flere > .post {
+    border-bottom: var(--rule);
+  }
+  .post {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  .poster.flere > .post.aapen {
+    padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);
+    border-left: 3px solid var(--ink);
+  }
+  h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .betegnelse {
+    margin-right: var(--spacing-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .posthode {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+  /* Den lukkede kravposten: post og krav til venstre, svaret slik det står i brevet i midten. */
+  .postlinje {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) auto;
+    column-gap: var(--spacing-4);
+    row-gap: var(--spacing-1);
+    align-items: baseline;
+    padding: var(--spacing-3) 0;
+  }
+  .postlinje h4 {
+    grid-column: 1;
+  }
+  .postlinje .krever {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .lest {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .lest ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .postlinje :global(button) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .postfot {
+    display: flex;
+    justify-content: flex-end;
+  }
+  @media (max-width: 640px) {
+    .postlinje {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .lest {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .postlinje :global(button) {
+      grid-column: 2;
+    }
   }
 </style>

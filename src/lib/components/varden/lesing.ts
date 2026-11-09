@@ -10,7 +10,6 @@ import { oppgittDato } from '$kjerne/format/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import { grunnerFraForholdet, plassene } from '$kjerne/frosset/standpunkt';
 import {
-  fellesOppgjoersform,
   harHovedbeloep,
   kravposterI,
   krevdSamlet,
@@ -19,7 +18,17 @@ import {
 import { tilTall } from '$kjerne/regler/beloep';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
-import type { Avsnitt, Dokument, Part, Spor, Standpunkt, Svar, Varselhjemmel } from '$kjerne/typer';
+import type {
+  Avsnitt,
+  Dokument,
+  Krav,
+  Oppgjoersform,
+  Part,
+  Spor,
+  Standpunkt,
+  Svar,
+  Varselhjemmel,
+} from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -400,6 +409,12 @@ export interface TilknyttetKrav {
   krevd: { tall: number | null; metode: unknown; brev: Brevref } | null;
   svaret: { poster: { tall: number; lag: string | null }[]; brev: Brevref } | null;
   grunner: Subsidiaergrunn[];
+}
+
+/** Oppgjørsformen når alle kravpostene har samme, ellers `null`: visningen navngir den. */
+function fellesOppgjoersform(krav: Krav): Oppgjoersform | null {
+  const former = new Set(kravposterI(krav).map((p) => p.oppgjoersform));
+  return former.size === 1 ? [...former][0]! : null;
 }
 
 export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): TilknyttetKrav {

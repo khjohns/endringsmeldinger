@@ -138,7 +138,9 @@ export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =
  * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
  * «BH» ellers. `krevd` er det TE krevde for posten.
  */
-export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number): string {
+/** `post` er betegnelsen på kravposten standpunktet gjelder, når kravet har flere (KA-U57). */
+export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post?: string): string {
+  const forPosten = post ? ` for ${post}` : '';
   const hvem = du ? 'Du' : 'BH';
   const hvemLiten = du ? 'du' : 'BH';
   switch (s.art) {
@@ -151,13 +153,13 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number): str
               : '');
     case 'oppgjoersform':
       return s.aksepterer
-        ? `${hvem} godkjenner beregningsmetoden TE krever`
-        : `${hvem} godkjenner ikke beregningsmetoden TE krever` +
+        ? `${hvem} godkjenner beregningsmetoden TE krever${forPosten}`
+        : `${hvem} godkjenner ikke beregningsmetoden TE krever${forPosten}` +
             (s.oensket ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}` : '');
     case 'beloep': {
-      const post = s.saerskilt ? 'Særskilt vederlagsjustering' : 'Vederlagsjustering';
+      const hva = s.saerskilt ? 'Særskilt vederlagsjustering' : `Vederlagsjustering${forPosten}`;
       const av = krevd !== undefined ? ` av ${kroner(krevd)}` : '';
-      return `${post}: ${hvemLiten} godkjenner ${kroner(s.godkjent)}${av}`;
+      return `${hva}: ${hvemLiten} godkjenner ${kroner(s.godkjent)}${av}`;
     }
     case 'forhold':
       return `${hvem} svarer på forholdet: ${s.resultat}`;
@@ -199,14 +201,26 @@ export const SKJEMA = {
       ? `Kravet om vederlagsjustering står i ${b.omtale}, registrert ${dato(d)}.`
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
-  metodeTittel: 'Beregningsmetode',
-  metodeSpoersmaal: (m: unknown) => `TE krever oppgjør etter ${metodenavn(m)}. Godkjenner du det?`,
-  godtarMetode: 'Godkjenner metoden',
-  godtarIkkeMetode: 'Godkjenner ikke metoden',
-  oensketSpoersmaal: 'Hvilken metode mener du vederlaget skal justeres etter?',
+  formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
+  godkjennerForm: 'Godkjenner fast sum (punkt 34.2.1)',
+  menerForm: (m: 'enhetspriser' | 'regningsarbeid') => `Mener ${metodenavn(m)}`,
   // Beløpet står etter tittelen i komponenten, med mono (#1467).
   beloepTittel: 'Vederlagsjustering',
-  beloepSpoersmaal: 'Hvor mye av vederlagsjusteringen godkjenner du?',
+  beloepSpoersmaal: 'Hvor mye av beløpet godkjenner du?',
+  ettSvarPerPost: 'Ett svar per kravpost. Åpne en kravpost for å svare på den.',
+  godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
+  godkjennAlle: 'Godkjenn alle kravpostene som krevd',
+  postKolonne: 'Kravpost',
+  kravetKolonne: 'Kravet',
+  svaretKolonne: 'Svaret',
+  teKrever: (beloep: number, pns?: string) =>
+    `TE krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,
+  ikkeBesvart: 'Ikke besvart',
+  endre: 'Endre',
+  svarPaa: 'Svar',
+  endrePost: (post: string) => `Endre svaret på ${post}`,
+  svarPaaPost: (post: string) => `Svar på ${post}`,
+  ferdig: 'Ferdig',
   gjelderHvis: 'Gjelder hvis',
   innsigelsenSenVarsling: 'innsigelsen om sen varsling',
   // Grunnene fra svaret på grunnlaget har ikke noe felt i skjemaet; brevet står i teksten.
@@ -224,16 +238,20 @@ export const SKJEMA = {
   begrunnelseHjelp: 'Kommer i brevet under standpunktene.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
-  manglerMetode: 'Velg om du godkjenner beregningsmetoden.',
-  manglerOensket: 'Velg metoden du mener vederlaget skal justeres etter.',
-  manglerBeloep: 'Velg hvor mye av vederlagsjusteringen du godkjenner.',
+  manglerForm: 'Velg om du godkjenner fast sum.',
+  manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
   manglerDelbeloep: 'Skriv beløpet du godkjenner.',
+  /** Med flere kravposter sier meldingen hvilken den gjelder. */
+  iPosten: (post: string | null, tekst: string) => (post ? `${post}: ${tekst}` : tekst),
   forkast: 'Forkast utkast',
   forkastSpoersmaal: 'Forkaste utkastet? Valgene og begrunnelsen slettes.',
   forkastJa: 'Forkast',
   behold: 'Behold utkastet',
   ikkeStoettet:
     'Kravet har en post for særskilt vederlagsjustering (punkt 34.1.3). Den kan ikke besvares i denne prøven av Varden ennå.',
+  /** Hinderet kjernen gir for kravet (`hindrerSvarPaaKravet`). */
+  ikkeStoettetHinder: (hinder: string) =>
+    `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,
 };
 
 export const HOVEDLINJER = {
@@ -356,6 +374,17 @@ export const STILLING = {
     `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare det subsidiære beløpet.`,
   beloep: (beloep: number, b: Brevref) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
+  /**
+   * Kravpostene uten fast beløp prinsipalt, som beløpet ikke regner med (OV-U73, svar 6 A i
+   * #1663). Uten noe beløp står bare kravpostene, ikke 0 kr.
+   */
+  utenFastBeloep: (poster: string[], medBeloep: boolean) => {
+    const liste =
+      poster.length > 1 ? `${poster.slice(0, -1).join(', ')} og ${poster.at(-1)}` : poster[0];
+    return medBeloep
+      ? `${liste} har ikke et fast beløp prinsipalt og er ikke regnet med i beløpet.`
+      : `Godtar du, har ${liste} ikke et fast beløp prinsipalt, og dere er ikke enige om et beløp for ${poster.length > 1 ? 'dem' : 'den'}.`;
+  },
   vilkaar: 'Enigheten får virkning når forholdet er avklart.',
   kilde: (b: Brevref) => `Virkningen er regnet ut fra ${brevref(b)} slik det ble sendt.`,
   godtarBrev: (b: Brevref) => `Du godtar hele svaret i ${brevref(b)}`,

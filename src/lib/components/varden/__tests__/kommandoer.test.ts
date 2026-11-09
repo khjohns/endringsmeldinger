@@ -9,7 +9,8 @@ import { laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad } from '$kjerne/typer';
 import { opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
-import { tomtSvar, vederlagssvaret, type Svarvalg } from '../kommandoer';
+import { kravposterI } from '$kjerne/frosset/kravinnhold';
+import { tomPost, tomtSvar, vederlagssvaret, type Postvalg } from '../kommandoer';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
   type: 'krav',
@@ -30,9 +31,17 @@ const medKrav = (beloep: number) =>
     utdypning: 'Tilbudet gjelder ekstra masseutskifting.',
   });
 
-const svar = (journal: Journalrad[], valg: Partial<Svarvalg>) =>
+const svar = (
+  journal: Journalrad[],
+  { begrunnelse = '', ...post }: Partial<Postvalg> & { begrunnelse?: string }
+) =>
   vederlagssvaret(
-    { ...tomtSvar(), iTide: true, metode: true, ...valg },
+    {
+      ...tomtSvar(),
+      iTide: true,
+      poster: { P1: { ...tomPost(), form: 'tilbud', ...post } },
+      begrunnelse,
+    },
     utledJournal(journal, KJERNE),
     KJERNE.regler
   )!;
@@ -93,5 +102,62 @@ describe('postene i svaret', () => {
     expect(
       svar(journal, { beloep: 'hele', begrunnelse: '  Godtatt etter befaring. ' }).svar[0].utdypning
     ).toBe('Godtatt etter befaring.');
+  });
+});
+
+describe('svaret per kravpost (KA-U57, #1663)', () => {
+  const toPoster = skrevet(grunnforhold, 'TE', {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: {
+      kravposter: [
+        { beskrivelse: 'Graving', oppgjoersform: 'tilbud', beloep: 100_000 },
+        { beskrivelse: 'Rør', oppgjoersform: 'tilbud', beloep: 40_000 },
+      ],
+    },
+    utdypning: 'To kravposter med fast sum.',
+  });
+
+  it('hver kravpost får vurderingen BH valgte under betegnelsen, med kravpostens id i `gjelder`', () => {
+    const u = utledJournal(toPoster, KJERNE);
+    const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const kommando = vederlagssvaret(
+      {
+        iTide: true,
+        poster: {
+          P1: { form: 'tilbud', beloep: 'hele', delbeloep: '' },
+          P2: { form: 'regningsarbeid', beloep: 'deler', delbeloep: '30 000' },
+        },
+        begrunnelse: '',
+      },
+      u,
+      KJERNE.regler
+    )!;
+    expect(kommando.svar[0].vurderinger.kravposter).toEqual([
+      { gjelder: p1!.id, vurdering: 'godkjent', godkjent_beloep: 100_000, aksepterer: true },
+      {
+        gjelder: p2!.id,
+        vurdering: 'delvis',
+        godkjent_beloep: 30_000,
+        aksepterer: false,
+        oensket_oppgjoersform: 'regningsarbeid',
+      },
+    ]);
+  });
+
+  it('en kravpost uten valg står uten vurdering, så kjernen avviser svaret', () => {
+    const u = utledJournal(toPoster, KJERNE);
+    const kommando = vederlagssvaret(
+      {
+        iTide: true,
+        poster: { P1: { form: 'tilbud', beloep: 'hele', delbeloep: '' } },
+        begrunnelse: '',
+      },
+      u,
+      KJERNE.regler
+    )!;
+    expect((kommando.svar[0].vurderinger.kravposter as unknown[])[1]).toEqual({
+      gjelder: kravposterI(u.spor.vederlag.gjeldendeKrav!)[1]!.id,
+    });
   });
 });

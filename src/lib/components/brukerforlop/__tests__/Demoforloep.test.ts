@@ -26,10 +26,7 @@ const paastand = (holder: boolean, melding: string) => expect(holder, melding).t
 /** Svaret i forløpets steg 4, med valgene BHs skjema i Varden gir (`Vederlagssvar.svelte`). */
 const BH_SVARER: Svarvalg = {
   iTide: false,
-  metode: true,
-  oensket: null,
-  beloep: 'deler',
-  delbeloep: '60 000',
+  poster: { P1: { form: 'tilbud', beloep: 'deler', delbeloep: '60 000' } },
   begrunnelse: 'Varselet kom for sent. Subsidiært godtas 60 000 kr.',
 };
 
