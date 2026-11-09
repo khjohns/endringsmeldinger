@@ -1502,7 +1502,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['beloep: prekludert ? 0 : prinsipaltBeloep(svar, v)', 'beloep: prinsipaltBeloep(svar, v)'],
     ],
-    mal: ['F-MM-V-34-1-2-nei'],
+    mal: ['en aksept av svaret med § 34.1.2 og § 34.1.3 påberopt gir 0'],
   },
   {
     id: 'F181',
@@ -1574,8 +1574,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
-        "if (s.art === 'oppgjoersform' && s.aksepterer) return 'uten_virkning';\n      if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
+        "if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;",
+        "if (s.art === 'oppgjoersform' && s.aksepterer) return 'uten_virkning';\n      if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;",
       ],
     ],
     mal: ['F-MM-V-34-2-2-ja', 'justeringen ellers er upåvirket'],
@@ -1724,7 +1724,7 @@ const MUTASJONER: Mutasjon[] = [
         "const resultat = p.resultat === 'godkjent'",
       ],
     ],
-    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent: brevet'],
+    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent: tilbudet ikke akseptert prinsipalt'],
   },
   {
     id: 'F203',
@@ -3142,7 +3142,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F380',
     feilklasse: 'formatet tar lag 0 (OV-U32)',
     fil: `${K}/format/format.ts`,
-    endringer: [["lag: { type: 'integer', minimum: 1 }", "lag: { type: 'integer' }"]],
+    endringer: [
+      [
+        "standpunkt: ID, lag: { type: 'integer', minimum: 1 }",
+        "standpunkt: ID, lag: { type: 'integer' }",
+      ],
+    ],
     mal: ['formatet lagrer laget som et heltall fra 1'],
   },
   {
@@ -3228,12 +3233,29 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'leseren godtar upåvirket uten en påberopelse i sporet (OV-U33)',
     fil: `${K}/format/leser.ts`,
     endringer: [
-      [
-        "!virkninger.some((p) => PAABEROPELSER.has(p.art) && typeof p.virkning === 'number')",
-        'false',
-      ],
+      ["(spor === 'forhold' || !virkninger.some(paaberoper))", "(spor === 'forhold' || false)"],
     ],
     mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
+  },
+  {
+    id: 'F501',
+    feilklasse:
+      'et standpunkt uten lag står under etiketten for et senere lag (spørsmål 8 i spørsmålsfila for #1663, OV-U32)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [
+      ['.map((l) => ({ l, k: plass(l) ?? foerste }))', '.map((l) => ({ l, k: plass(l) ?? 99 }))'],
+    ],
+    mal: ['posten er upåvirket, og brevet leses'],
+  },
+  {
+    id: 'F500',
+    feilklasse:
+      'leseren regner ikke et tilbud som ikke er akseptert som en påberopelse, og avviser et upåvirket standpunkt ved siden av det (KA-U60, OV-U33)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['(PAABEROPELSER.has(p.art) || ikkeAkseptert.has(p.standpunkt))', 'PAABEROPELSER.has(p.art)'],
+    ],
+    mal: ['posten er upåvirket, og brevet leses'],
   },
   {
     id: 'F391',
@@ -3251,14 +3273,19 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F392',
     feilklasse: 'justeringen ellers er upåvirket også når forholdet er avslått (OV-U33)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['posten && !hele && forskyvning === 0', 'posten && !hele']],
+    endringer: [['rammet && !hele && forskyvning === 0', 'rammet && !hele']],
     mal: ['med avslått forhold er justeringen ellers i sporets første lag og ikke upåvirket'],
   },
   {
     id: 'F393',
     feilklasse: 'preklusjonen etter § 34.1.2 rammer ikke posten etter § 34.1.3 annet ledd (OV-U27)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['p.hovedkrav ? NULL_OERE : (begrenset ?? godkjent)', '(begrenset ?? godkjent)']],
+    endringer: [
+      [
+        'beloep: i + 1 < foerste ? NULL_OERE',
+        'beloep: i + 1 < foerste && !erProduktivitet(post) ? NULL_OERE',
+      ],
+    ],
     mal: ['preklusjonen etter § 34.1.2 gjelder hele kravet, også posten'],
   },
   {
@@ -4183,6 +4210,61 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['tilbakeholdelse etter § 30.2 med en verdi som ikke er boolsk'],
+  },
+  {
+    id: 'F494',
+    feilklasse:
+      'beløpet for en kravpost der tilbudet ikke er akseptert, står i laget for oppgjørsformen (KA-U60)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "if (s.art === 'beloep' && ikkeAkseptert.has(s.gjelder!)) return foerste + 1;",
+        "if (s.art === 'beloep' && ikkeAkseptert.has(s.gjelder!)) return foerste;",
+      ],
+    ],
+    mal: ['F-MM-V-34-2-2-nei', 'tilbudet ikke akseptert og § 34.1.3 påberopt'],
+  },
+  {
+    id: 'F495',
+    feilklasse:
+      'en kravpost der tilbudet ikke er akseptert, har et fast beløp prinsipalt i utregningen (KA-U58, OV-U73)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [': ikkeAkseptert(post)\n          ? null', ': ikkeAkseptert(post)\n          ? godkjent'],
+    ],
+    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent: tilbudet ikke akseptert prinsipalt'],
+  },
+  {
+    id: 'F496',
+    feilklasse:
+      'utfallet regner med en kravpost uten fast beløp i det første laget (KA-U58, OV-U73)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['!p.saerskilt && (p.lag ?? 1) > 1 ? []', 'false ? []']],
+    mal: ['F-MM-V-34-2-2-nei'],
+  },
+  {
+    id: 'F497',
+    feilklasse:
+      'leseren godtar en utregning der det prinsipale beløpet ikke er summen av det første laget (OV-U31)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['if (summen(0) !== beloep(', 'if (false && summen(0) !== beloep(']],
+    mal: ['totalen er ikke summen av det første laget'],
+  },
+  {
+    id: 'F498',
+    feilklasse:
+      'leseren godtar et lag uten beløp for en kravpost der tilbudet er akseptert (KA-U58)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [["!('beloep' in l)) && !utenAksept.has(r.gjelder!)", "!('beloep' in l)) && false"]],
+    mal: ['et lag mangler beløpet når tilbudet er akseptert'],
+  },
+  {
+    id: 'F499',
+    feilklasse:
+      'leddene i samme lag står ikke under én etikett når standpunktene ikke står i lagenes rekkefølge (OV-U32)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [['.sort((a, b) => a.k - b.k)', '.sort(() => 0)']],
+    mal: ['tilbudet ikke akseptert og § 34.1.3 påberopt'],
   },
 ];
 

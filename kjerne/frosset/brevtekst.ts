@@ -18,7 +18,7 @@ import { HJEMMEL, type OppgittDato } from '../format/format.ts';
 import { forholdet } from './forholdene.ts';
 import { sakensKode } from './brevtittel.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
-import { beloep, tilTall } from '../regler/beloep.ts';
+import { beloep, tilTall, type Oere } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
@@ -33,7 +33,6 @@ import {
   svarPaaForesporsler,
 } from './standpunkt.ts';
 import {
-  krevdBeloep,
   harProduktivitetspost,
   innholdIForholdet,
   innholdIFristen,
@@ -43,7 +42,7 @@ import {
   krevdRigg,
   kravposterI,
 } from './kravinnhold.ts';
-import { dager, kroner } from './tekst.ts';
+import { dager, iLagene, kroner } from './tekst.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -692,21 +691,25 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   // OV-U32: et avslått eller prekludert forhold står først, med lagene fra svaret på
   // forholdet, og lagene i sporet flyttes ned med antallet lag de opptar (B-13, A2). Hvert
   // ledd fra forholdet er ett lag der: preklusjonen etter § 32.2 er det første, og avslaget
-  // står i laget etter. Et standpunkt uten lag, også et upåvirket, får ingen etikett. Metoden
-  // står i laget til justeringen ellers (OV-U33, LV-U31). Standpunktene i samme lag står under
-  // én etikett.
+  // står i laget etter. Et standpunkt uten lag, også et upåvirket, får ingen etikett. Et
+  // akseptert tilbud står med kravposten (OV-U33, LV-U31), og et tilbud som ikke er akseptert,
+  // i laget foran beløpet (KA-U60). Standpunktene i samme lag står under én etikett (`iLagene`).
   const forholdet = forholdetsStandpunkter(s, t);
   const forskyvning = forholdet.length;
-  const ledd = [
-    ...forholdet.map((tekst, i) => ({ tekst, plass: (i + 1) as number | null })),
-    ...s.standpunkter.map((p) => {
-      const lag = laget(virkning.get(p.id)!);
-      return {
-        tekst: standpunkttekst(p, s, krav, j, innsigelser),
-        plass: lag !== null ? lag + forskyvning : null,
-      };
-    }),
-  ];
+  const ledd = iLagene(
+    [
+      ...forholdet.map((tekst, i) => ({ tekst, plass: (i + 1) as number | null })),
+      ...s.standpunkter.map((p) => {
+        const lag = laget(virkning.get(p.id)!);
+        return {
+          tekst: standpunkttekst(p, s, krav, j, innsigelser),
+          plass: lag !== null ? lag + forskyvning : null,
+        };
+      }),
+    ],
+    (l) => l.plass,
+    forskyvning + 1
+  );
   // #1267 punkt 4: med mer enn ett lag står innledningen for seg, og hver etikett begynner et
   // nytt avsnitt. Standpunktene uten etikett står i avsnittet før, som metoden sammen med
   // beløpet, eller i et eget avsnitt foran den første etiketten.
@@ -808,7 +811,7 @@ function standpunkttekst(
       // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
       // kan være det, i hele øre (B-13, OV-U59). OV-U28: med posten etter § 34.1.3 annet
       // ledd sier brevet beløpet for hver post for seg.
-      const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdBeloep(krav);
+      const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdIPosten(krav, p.gjelder!);
       const godkjent = beloep(p.godkjent)!;
       const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
         ? 'godkjent'
@@ -846,6 +849,21 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
       'Godkjenningen er en endringsordre (§ 32.3 første ledd a), men TEs krav beskriver ikke pålegget, så brevet kan ikke si hva endringen går ut på (§ 31.3, GR-U14). Svaret må sendes utenfor appen.'
     );
   return `${innledning} ${kravet}: «${beskrivelse}».`;
+}
+
+/**
+ * Det krevde beløpet i kravposten beløpet gjelder (KA-U57 (c)). Brevteksten for flere
+ * kravposter og for en beregningsregel er ikke bygget (2a-2 i #1663), så brevet avvises.
+ */
+function krevdIPosten(krav: Krav, gjelder: string): Oere {
+  const poster = kravposterI(krav);
+  const post = poster.find((k) => k.id === gjelder);
+  const krevd = post && poster.length === 1 ? krevdIKravposten(krav, post) : null;
+  if (krevd === null)
+    throw new KanIkkeUttrykkes(
+      'brevteksten har bare ord for svaret på én kravpost med fast sum (#1663)'
+    );
+  return krevd;
 }
 
 /** OV-U28: posten etter § 34.1.3 annet ledd i setningen om beløpet. */

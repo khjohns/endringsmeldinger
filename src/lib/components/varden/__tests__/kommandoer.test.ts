@@ -54,7 +54,12 @@ describe('resultatet Varden sender, regnes av kjernen (#1301, B-13)', () => {
 
   it('godkjent hele beløpet gir kjernens resultat for vurderingene', () => {
     const kommando = svar(medKrav(150_000), { beloep: 'hele' });
-    expect(kommando.svar[0].resultat).toEqual({ resultat: 'godkjent', godkjent_beloep: 150_000 });
+    expect(kommando.svar[0].resultat).toEqual({
+      resultat: 'godkjent',
+      godkjent_beloep: 150_000,
+      // OV-U31, KA-U57 (e): beløpet for posten i hvert lag; svaret har ett lag.
+      poster: [{ gjelder: expect.any(String), lag: [{ lag: 1, beloep: 150_000 }] }],
+    });
   });
 
   it('vurderinger kjernen ikke kan regne ut, gir ikke noe resultat, og kjernen avviser svaret (KA-U42)', () => {

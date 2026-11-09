@@ -1034,7 +1034,7 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24 (opphevet av KA-U46), KA
         aksepterer_metode: false,
         oensket_metode: 'regningsarbeid',
       },
-      { resultat: 'delvis_godkjent', godkjent_beloep: 125000 },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 0 },
     ],
     [
       'påberopt spesifisering for sent etter § 33.6.1',
@@ -1144,7 +1144,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('§ 34.2.2 «nei» sammen med preklusjon etter § 34.1.2 er ikke en egen subsidiær grunn, og står ved siden av beløpet (arbeidsvalget i #479)', () => {
+  it('§ 34.2.2 «nei» sammen med preklusjon etter § 34.1.2: oppgjørsformen står subsidiært og beløpet videre subsidiært (KA-U60, arbeidsvalget i #479)', () => {
     const s = sviktMedVederlag();
     const rad = s.send('BH', {
       type: 'brev',
@@ -1165,11 +1165,11 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     // HF-U1: teksten viser til brevet varselet etter § 34.1.2 står i (oppdragsgiver 17.10, #497).
     expect(laast(rad)[1]).toBe(
-      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-02 av 3. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.\n\nSubsidiært: byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (NS 8407 § 34.4). Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-02 av 3. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.\n\nSubsidiært: byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (NS 8407 § 34.4).\n\nVidere subsidiært: byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
     );
   });
 
-  it('§ 34.2.2 «nei» med hele beløpet godkjent: brevet sier at beløpet er godkjent, og linjen at tilbudet ikke er akseptert (arbeidsvalget i #479)', () => {
+  it('§ 34.2.2 «nei» med hele beløpet godkjent: tilbudet ikke akseptert prinsipalt, og beløpet godkjent subsidiært (KA-U60, arbeidsvalget i #479)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
       type: 'brev',
@@ -1183,17 +1183,17 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
             aksepterer_metode: false,
             oensket_metode: 'enhetspriser',
           },
-          { resultat: 'delvis_godkjent', godkjent_beloep: 125000 }
+          { resultat: 'delvis_godkjent', godkjent_beloep: 0 }
         ),
       ],
     });
     expect(laast(rad)).toEqual([
-      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-02 av 3. oktober 2026: ${FORBEHOLD_BREV_2} Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('125 000')}`,
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-02 av 3. oktober 2026: ${FORBEHOLD_BREV_2}\n\nPrinsipalt: byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3).\n\nSubsidiært: byggherren godkjenner ${KR('125 000')}`,
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.sammenfall).toBe(false);
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr, tilbudet ikke akseptert (§ 34.2.2).'
+      'Byggherrens standpunkt: prinsipalt tilbudet ikke akseptert (§ 34.2.2), subsidiært godkjent med 125\u00a0000\u00a0kr.'
     );
   });
 
@@ -1211,12 +1211,12 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
             aksepterer_metode: false,
             oensket_metode: 'enhetspriser',
           },
-          { resultat: 'delvis_godkjent', godkjent_beloep: 124999.6 }
+          { resultat: 'delvis_godkjent', godkjent_beloep: 0 }
         ),
       ],
     });
     expect(laast(rad)).toEqual([
-      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-02 av 3. oktober 2026: ${FORBEHOLD_BREV_2} Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('124 999,60')} av de krevde ${KR('125 000')}`,
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-02 av 3. oktober 2026: ${FORBEHOLD_BREV_2}\n\nPrinsipalt: byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3).\n\nSubsidiært: byggherren godkjenner ${KR('124 999,60')} av de krevde ${KR('125 000')}`,
     ]);
   });
 
@@ -1258,7 +1258,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(s.avvist('BH', brev)).toBe('SAK_IKKE_FORSTAATT');
   });
 
-  it('§ 34.2.2 «nei»: byggherren aksepterer ikke tilbudet og oppgir metoden, som standpunkt og ikke som appens avgjørelse (arbeidsvalget i #479)', () => {
+  it('§ 34.2.2 «nei»: byggherren aksepterer ikke tilbudet og oppgir metoden prinsipalt, som standpunkt og ikke som appens avgjørelse, og beløpet subsidiært (KA-U60, arbeidsvalget i #479)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
       type: 'brev',
@@ -1267,12 +1267,12 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
           'vederlag',
           s.krav('vederlag'),
           { ...VEDERLAG_DELVIS[0], aksepterer_metode: false, oensket_metode: 'enhetspriser' },
-          VEDERLAG_DELVIS[1]
+          { resultat: 'delvis_godkjent', godkjent_beloep: 0 }
         ),
       ],
     });
     expect(laast(rad)).toEqual([
-      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-02 av 3. oktober 2026: ${FORBEHOLD_BREV_2} Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`,
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-02 av 3. oktober 2026: ${FORBEHOLD_BREV_2}\n\nPrinsipalt: byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3).\n\nSubsidiært: byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`,
     ]);
   });
 
@@ -1334,26 +1334,27 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
 
   it('§ 34.2.2 «nei» med hele beløpet godkjent krever en begrunnelse for tilbudet, og 40 øre under det krevde også for beløpet (OV-U59, arbeidsvalget 15.10 i #490)', () => {
     const s = sakMedKrav();
-    const brevet = (vurdering: Record<string, unknown>, godkjent: number) => ({
+    const brevet = (vurdering: Record<string, unknown>) => ({
       type: 'brev',
       svar: [
         svar(
           'vederlag',
           s.krav('vederlag'),
           { ...vurdering, aksepterer_metode: false, oensket_metode: 'enhetspriser' },
-          { resultat: 'delvis_godkjent', godkjent_beloep: godkjent },
+          // KA-U58, KA-U60: uten aksept har kravposten ikke et fast beløp prinsipalt.
+          { resultat: 'delvis_godkjent', godkjent_beloep: 0 },
           null
         ),
       ],
     });
-    expect(s.avvisning('BH', brevet({ hovedkrav_vurdering: 'godkjent' }, 125000))?.melding).toBe(
+    expect(s.avvisning('BH', brevet({ hovedkrav_vurdering: 'godkjent' }))?.melding).toBe(
       'Svaret må ha en begrunnelse, fordi du ikke aksepterer tilbudet (§ 34.2.2).'
     );
     // OV-U59: et beløp som blir likt det krevde når det rundes til hele kroner, er ikke godkjent fullt.
     expect(
       s.avvisning(
         'BH',
-        brevet({ hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_beloep: 124999.6 }, 124999.6)
+        brevet({ hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_beloep: 124999.6 })
       )?.melding
     ).toBe(
       'Svaret må ha en begrunnelse, fordi du ikke aksepterer tilbudet (§ 34.2.2) og ikke godkjenner hele beløpet.'
@@ -1430,12 +1431,13 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
     const tekst = laast(rad)[0];
     expect(tekst).toContain(
-      'Prinsipalt: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.\n\nSubsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1).'
+      `Prinsipalt: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent. ${SPESIFISERING_JA}\n\nSubsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1).`
     );
     expect(tekst).toMatch(
       /\n\nVidere subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager\.$/
     );
-    // Én etikett per lag: standpunktet uten virkning (§ 33.6.1 i tide) står uten etikett.
+    // Én etikett per lag: standpunktet uten virkning (§ 33.6.1 i tide) står uten etikett, med
+    // sporets første lag (spørsmål 8 i spørsmålsfila for #1663, 09.11).
     expect(tekst.match(/(Prinsipalt|Subsidiært|Videre subsidiært):/g)).toEqual([
       'Prinsipalt:',
       'Subsidiært:',
@@ -1486,9 +1488,10 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(g).toBe(
       'Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner grunnlaget.'
     );
-    // A2: fristen er subsidiær fordi forholdet er prekludert i samme brev.
+    // A2: fristen er subsidiær fordi forholdet er prekludert i samme brev. Standpunktet uten
+    // virkning står med sporets første lag, ikke med forholdets (OV-U33, spørsmål 8 for #1663).
     expect(f).toBe(
-      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev K201-KOE-017-03 av 4. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget).\n\nSubsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.\n\nVidere subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA}\n\nVidere subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.`
+      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev K201-KOE-017-03 av 4. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget).\n\nSubsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent. ${SPESIFISERING_JA}\n\nVidere subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1).\n\nVidere subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.`
     );
   });
 
@@ -5623,9 +5626,11 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       endre(svar);
       return svar;
     };
-    /** Beløpet i posten og i utregningen, som har hvert sitt hjem (OV-U31). */
+    /** Beløpet i posten, i raden for posten og i totalen i utregningen (OV-U31). Svaret har ett lag. */
     const beloepet = (kr: number) => (v: Data) => {
-      (v.utregning as Data).godkjent_beloep = kr;
+      const u = v.utregning as Data;
+      u.godkjent_beloep = kr;
+      u.poster = [{ ...(u.poster as Data[])[0], lag: [{ lag: 1, beloep: kr }] }];
       (v.standpunkter as Data[]).find((p) => p.art === 'beloep')!.beloep = kr;
     };
 
@@ -5637,6 +5642,77 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       const u = s.u();
       expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
       expect(u.spor.vederlag.gjeldendeSvar?.id).toBe(revisjonen.id);
+    });
+
+    // OV-U31, KA-U57 (e), KA-U58: radene per post i utregningen stemmer med standpunktene og
+    // totalene, og et lag står uten beløp bare når tilbudet for kravposten ikke er akseptert.
+    describe('utregningen per post og lag i et lagret svar (OV-U31, KA-U57 (e), KA-U58)', () => {
+      type Utregning = { poster: { gjelder?: string; lag: Data[] }[] } & Data;
+      const uten = { ...delvis, aksepterer_metode: false, oensket_metode: 'regningsarbeid' };
+
+      it('kontrollsaker: en uendret kopi er forstått, også med et lag uten beløp når tilbudet ikke er akseptert', () => {
+        for (const v of [delvis, uten]) {
+          const s = sakMedKrav();
+          brev(s, 'vederlag', v);
+          s.rad('BH', { svar: [kopi(s, () => {})] });
+          const u = s.u();
+          expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+        }
+        const s = sakMedKrav();
+        brev(s, 'vederlag', uten);
+        const ut = (s.journal.at(-1)!.data.svar as Data[])[0].utregning as Utregning;
+        expect(ut.poster[0].lag).toEqual([{ lag: 1 }, { lag: 2, beloep: 100000 }]);
+        expect([ut.godkjent_beloep, ut.subsidiaert_godkjent_beloep]).toEqual([0, 100000]);
+      });
+
+      it.each<[string, Data, (u: Utregning) => void, string]>([
+        [
+          'totalen er ikke summen av det første laget',
+          uten,
+          (u) => (u.godkjent_beloep = 90000),
+          'det første laget summerer ikke',
+        ],
+        [
+          'raden gjelder en annen post enn beløpet',
+          delvis,
+          (u) => (u.poster[0].gjelder = 'en-annen-post'),
+          'gjelder ikke samme post',
+        ],
+        [
+          'det siste laget har et annet beløp enn standpunktet',
+          uten,
+          (u) => (u.poster[0].lag[1].beloep = 90000),
+          'det siste laget',
+        ],
+        [
+          'et lag mangler beløpet når tilbudet er akseptert',
+          delvis,
+          (u) => {
+            u.godkjent_beloep = 0;
+            u.subsidiaert_resultat = 'delvis_godkjent';
+            u.subsidiaert_godkjent_beloep = 100000;
+            u.poster[0].lag = [{ lag: 1 }, { lag: 2, beloep: 100000 }];
+          },
+          'aksepterer tilbudet for posten (KA-U58)',
+        ],
+        [
+          'svaret har ett lag, men et subsidiært beløp',
+          delvis,
+          (u) => {
+            u.subsidiaert_resultat = 'delvis_godkjent';
+            u.subsidiaert_godkjent_beloep = 100000;
+          },
+          'det subsidiære beløpet står ikke nøyaktig',
+        ],
+      ])('%s: saken er ikke forstått', (_n, v, endre, grunn) => {
+        const s = sakMedKrav();
+        brev(s, 'vederlag', v);
+        const raden = { svar: [kopi(s, (svar) => endre(svar.utregning as Utregning))] };
+        expect(() => s.rad('BH', raden), 'raden fryses, og lesingen avgjør').not.toThrow();
+        const u = s.u();
+        expect(u.forstaatt).toBe(false);
+        expect(u.begrensninger.map((b) => b.grunn).join(' ')).toContain(grunn);
+      });
     });
 
     it.each([
@@ -6076,7 +6152,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       .u()
       .spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.virkninger.map((v) => [v.art, v.virkning]);
 
-  it('beløpet for hver post og beløpet etter begrensningen står på standpunktene, og utregningen har bare totalene (OV-U26, OV-U31, valg e)', () => {
+  it('beløpet for hver post og beløpet etter begrensningen står på standpunktene, og utregningen har totalene og beløpet for hver post i hvert lag (OV-U26, OV-U31, KA-U57 (e))', () => {
     const s = sakMedPost();
     const rad = brevet(
       s,
@@ -6099,12 +6175,29 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       { art: 'beloep', beloep: 30000, saerskilt: 'produktivitet' },
     ]);
     // VS-U5: begrensningen avviser ikke hele kravet; prinsipalt er justeringen ellers og
-    // beløpet etter begrensningen, subsidiært begge postene.
+    // beløpet etter begrensningen, subsidiært begge postene. Arbeidsvalg 1.1 og 1.3 i
+    // spørsmålsfila 09.11 for #1663: kravposten har samme beløp i begge lag.
     expect(sv.utregning).toEqual({
       resultat: 'delvis_godkjent',
       godkjent_beloep: 110000,
       subsidiaert_resultat: 'delvis_godkjent',
       subsidiaert_godkjent_beloep: 130000,
+      poster: [
+        {
+          gjelder: kravpost,
+          lag: [
+            { lag: 1, beloep: 100000 },
+            { lag: 2, beloep: 100000 },
+          ],
+        },
+        {
+          saerskilt: 'produktivitet',
+          lag: [
+            { lag: 1, beloep: 10000 },
+            { lag: 2, beloep: 30000 },
+          ],
+        },
+      ],
     });
   });
 
@@ -6147,6 +6240,77 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     expect(s.u().spor.vederlag.enighet?.grunnlag.utfall).toEqual({ beloep: 110000 });
   });
 
+  it('en aksept av svaret med § 34.1.2 og § 34.1.3 påberopt gir 0, ikke beløpet etter begrensningen (VS-U3, OV-U27)', () => {
+    const s = sakMedPost(undefined, true);
+    brevet(
+      s,
+      { ...postene, ...begrenset, hovedkrav_varslet_i_tide: false },
+      { resultat: 'avslaatt', godkjent_beloep: 0 }
+    );
+    s.send('TE', {
+      type: 'aksept',
+      spor: 'vederlag',
+      svar: s.u().spor.vederlag.gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    expect(s.u().spor.vederlag.enighet?.grunnlag.utfall).toEqual({ beloep: 0 });
+  });
+
+  // KA-U60 og arbeidsvalg 1.2 og 1.3 i spørsmålsfila 09.11 for #1663: oppgjørsformen og
+  // begrensningen står i samme lag, og hver rammer bare sin post. Standpunktene står ikke i
+  // lagenes rekkefølge, så teksten ordner leddene etter laget (OV-U32).
+  it('tilbudet ikke akseptert og § 34.1.3 påberopt: oppgjørsformen og begrensningen prinsipalt, begge beløpene subsidiært (KA-U60, OV-U32)', () => {
+    const s = sakMedPost();
+    const rad = brevet(
+      s,
+      { ...postene, ...begrenset, aksepterer_metode: false, oensket_metode: 'regningsarbeid' },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 10000 }
+    );
+    expect(virkningene(s)).toEqual([
+      ['oppgjoersform', 1],
+      ['beloep', 2],
+      ['rettidighet', 1],
+      ['beloep', 2],
+    ]);
+    expect(laast(rad).join(' ')).toMatch(
+      /\n\nPrinsipalt: byggherren aksepterer ikke TEs tilbud .* Byggherren gjør gjeldende at .* for dette kravet\.\n\nSubsidiært: byggherren godkjenner 100\u00a0000\u00a0kr eks\. mva\. av de krevde 150\u00a0000\u00a0kr eks\. mva\. for justeringen ellers\. Byggherren godkjenner 30\u00a0000/
+    );
+    expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
+      `Byggherrens standpunkt: prinsipalt tilbudet ikke akseptert (§ 34.2.2), begrenset etter § 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(100000)} for justeringen ellers, godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+    );
+  });
+
+  // Arbeidsvalg 1.2 i spørsmålsfila 09.11 for #1663: tilbudet som ikke er akseptert, er en
+  // innsigelse som rammer bare kravposten, så den særskilte posten er upåvirket (OV-U33), og
+  // leseren forstår brevet kjernen skriver.
+  it('tilbudet ikke akseptert og posten etter § 34.1.3 annet ledd i tide: posten er upåvirket, og brevet leses (KA-U60, OV-U33)', () => {
+    const s = sakMedPost();
+    const rad = brevet(
+      s,
+      {
+        ...postene,
+        produktivitet_varslet_i_tide: true,
+        aksepterer_metode: false,
+        oensket_metode: 'regningsarbeid',
+      },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 30000 }
+    );
+    expect(virkningene(s)).toEqual([
+      ['oppgjoersform', 1],
+      ['beloep', 2],
+      ['rettidighet', 'uten_virkning'],
+      ['beloep', 'upaavirket'],
+    ]);
+    // Spørsmål 8 i spørsmålsfila, 09.11: et standpunkt uten lag står med det første laget og
+    // aldri under en senere etikett.
+    expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
+      `Byggherrens standpunkt: prinsipalt tilbudet ikke akseptert (§ 34.2.2), godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd), subsidiært godkjent med ${kroner(100000)} for justeringen ellers.`
+    );
+    expect(laast(rad).join(' ')).toMatch(
+      /\n\nSubsidiært: byggherren godkjenner 100\u00a0000[^\n]*$/
+    );
+  });
+
   it('begge påberopt: § 34.1.2 prinsipalt, justeringen ellers og begrensningen subsidiært, posten videre subsidiært (OV-U27, OV-U28)', () => {
     const s = sakMedPost(undefined, true);
     const rad = brevet(
@@ -6154,11 +6318,31 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       { ...postene, ...begrenset, hovedkrav_varslet_i_tide: false },
       { resultat: 'avslaatt', godkjent_beloep: 0 }
     );
+    // OV-U31: mellomlaget står bare i radene, ikke som total.
+    const kravpost = (s.u().spor.vederlag.gjeldendeKrav!.innhold.kravposter as Data[])[0].id;
     expect(lagret(rad).utregning).toEqual({
       resultat: 'avslaatt',
       godkjent_beloep: 0,
       subsidiaert_resultat: 'delvis_godkjent',
       subsidiaert_godkjent_beloep: 130000,
+      poster: [
+        {
+          gjelder: kravpost,
+          lag: [
+            { lag: 1, beloep: 0 },
+            { lag: 2, beloep: 100000 },
+            { lag: 3, beloep: 100000 },
+          ],
+        },
+        {
+          saerskilt: 'produktivitet',
+          lag: [
+            { lag: 1, beloep: 0 },
+            { lag: 2, beloep: 10000 },
+            { lag: 3, beloep: 30000 },
+          ],
+        },
+      ],
     });
     expect(virkningene(s)).toEqual([
       ['rettidighet', 1],

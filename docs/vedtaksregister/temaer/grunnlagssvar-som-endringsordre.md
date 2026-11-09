@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `cfd8e3849f68a5aac23be9a5848059dc2c03215cae4876aae41171ca1b5f7cb5`
+Kontrollsum (SHA-256 over utdraget visningen leser): `945d5fb647db3b9b410e206b82cfde2e91e39f6594c5b2828c0204ba80217e84`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -360,7 +360,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** —
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-V-34-2-2-nei (målmodellen)
 
 ### <a id="ka-u59"></a>KA-U59
 
@@ -384,7 +384,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** —
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-V-34-2-2-nei (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen)
 
 ### <a id="ka-u61"></a>KA-U61
 
@@ -3350,7 +3350,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** —
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-V-34-2-2-nei (målmodellen)
 
 ### <a id="ov-u74"></a>OV-U74
 

@@ -357,8 +357,25 @@ export const UTREGNING: Record<Spor, Skjema | null> = {
       godkjent_beloep: { type: 'number', minimum: 0 },
       subsidiaert_resultat: { enum: [...VEDERLAGSRESULTATER] },
       subsidiaert_godkjent_beloep: { type: 'number', minimum: 0 },
+      // OV-U31, KA-U57 (e): én rad per post med ett element per lag. `leser.ts` kontrollerer
+      // radene mot standpunktene og totalene.
+      poster: liste(
+        objekt(
+          {
+            gjelder: ID,
+            saerskilt: { enum: ['produktivitet'] },
+            lag: liste(
+              objekt(
+                { lag: { type: 'integer', minimum: 1 }, beloep: { type: 'number', minimum: 0 } },
+                ['lag']
+              )
+            ),
+          },
+          ['lag']
+        )
+      ),
     },
-    ['resultat', 'godkjent_beloep']
+    ['resultat', 'godkjent_beloep', 'poster']
   ),
   frist: objekt(
     {

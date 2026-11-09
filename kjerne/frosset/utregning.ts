@@ -249,9 +249,18 @@ function regnUtVederlag(
   const ut: Record<string, unknown> = {
     resultat: r.beregnings_resultat,
     godkjent_beloep: tilTall(r.total_godkjent_beloep),
+    // OV-U31, KA-U57 (e): beløpet for hver post i hvert lag, uten beløp når posten ikke har et
+    // fast beløp i laget (KA-U58). Totalene over er summen av det første og det siste laget.
+    poster: r.poster.map(({ post, lag }) => ({
+      ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
+      lag: lag.map((l) => ({
+        lag: l.lag,
+        ...(l.beloep === null ? {} : { beloep: tilTall(l.beloep) }),
+      })),
+    })),
   };
-  // VS-U3, B-13: ved preklusjon etter § 34.1.2 og ved begrensningen etter § 34.1.3 står det
-  // vurderte beløpet subsidiært (VS-U5).
+  // VS-U3, B-13: ved preklusjon etter § 34.1.2, ved begrensningen etter § 34.1.3 (VS-U5) og
+  // når tilbudet ikke er akseptert (KA-U60), står det vurderte beløpet subsidiært.
   if (r.subsidiaer_resultat !== null) {
     ut.subsidiaert_resultat = r.subsidiaer_resultat;
     ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_beloep!);

@@ -29,8 +29,10 @@ import {
   postnoekkel,
   type Kravpostsvar,
   type Produktivitetssvar,
+  type Vederlagsberegning,
   type Vederlagssvar,
 } from '../regler/vederlag.ts';
+import { kravposterI } from '../frosset/kravinnhold.ts';
 import { sammenfallStemmer, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
@@ -354,10 +356,14 @@ describe('lesereglene for referansene (4.2)', () => {
       'beløpet viser til en kravpost som ikke står i kravet (OV-U23, KA-U57 (c))',
       ['forlop_a'],
       (r, k) => {
-        // Oppgjørsformen og beløpet viser til samme kravpost, så rekkefølgen i leseren holder.
-        for (const p of svaret(radMed(r, k, 'S-v1'), k, 'S-v1').standpunkter as Data[])
+        // Oppgjørsformen, beløpet og raden i utregningen viser til samme kravpost, så bare
+        // kontrollen mot kravet skiller saken fra kontrollsaken.
+        const svar = svaret(radMed(r, k, 'S-v1'), k, 'S-v1');
+        for (const p of svar.standpunkter as Data[])
           if (p.gjelder && (p.art === 'beloep' || p.art === 'oppgjoersform'))
             p.gjelder = 'finnes-ikke';
+        for (const p of (svar.utregning as { poster: Data[] }).poster)
+          if (p.gjelder) p.gjelder = 'finnes-ikke';
       },
     ],
     [
@@ -372,6 +378,9 @@ describe('lesereglene for referansene (4.2)', () => {
         const p = (svar.standpunkter as Data[]).find((s) => s.art === 'beloep' && s.gjelder)!;
         delete p.gjelder;
         p.saerskilt = 'produktivitet';
+        const rad = (svar.utregning as { poster: Data[] }).poster.find((x) => x.gjelder)!;
+        delete rad.gjelder;
+        rad.saerskilt = 'produktivitet';
       },
     ],
     [
@@ -1422,6 +1431,15 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
       godkjent_beloep: 0,
       subsidiaert_resultat: 'godkjent',
       subsidiaert_godkjent_beloep: 100000,
+      poster: [
+        {
+          gjelder: kravposterI(krav)[0].id,
+          lag: [
+            { lag: 1, beloep: 0 },
+            { lag: 2, beloep: 100000 },
+          ],
+        },
+      ],
     });
     const svar = {
       spor: 'vederlag' as const,
@@ -2369,9 +2387,10 @@ describe('regelsettet for det særskilte kravet (VS-U5, OV-U27)', () => {
   it('begrensningen etter § 34.1.3 setter posten til beløpet etter begrensningen, ikke kravet til 0 (VS-U5)', () => {
     const r = beregnVederlag(svar, GJELDENDE_REGLER);
     expect([r.total_godkjent_beloep, r.subsidiaer_godkjent_beloep]).toEqual([16000000n, 18000000n]);
-    expect(r.poster.map((p) => [p.godkjent, p.prinsipalt])).toEqual([
+    // Arbeidsvalg 1.1 og 1.3: begrensningen rammer bare posten; kravposten står likt i begge lag.
+    expect(r.poster.map((p) => p.lag.map((l) => l.beloep))).toEqual([
       [15000000n, 15000000n],
-      [3000000n, 1000000n],
+      [1000000n, 3000000n],
     ]);
   });
 
@@ -2428,9 +2447,10 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
   });
 
   it('kontrollsaker: «godkjent» uten beløp og med det krevde, «avslått» med 0', () => {
-    expect(rigg('godkjent').poster[0].godkjent).toBe(2000000n);
-    expect(rigg('godkjent', 20000).poster[0].godkjent).toBe(2000000n);
-    expect(rigg('avslaatt', 0).poster[0].godkjent).toBe(0n);
+    const godkjent = (r: Vederlagsberegning) => r.poster[0].lag.at(-1)!.beloep;
+    expect(godkjent(rigg('godkjent'))).toBe(2000000n);
+    expect(godkjent(rigg('godkjent', 20000))).toBe(2000000n);
+    expect(godkjent(rigg('avslaatt', 0))).toBe(0n);
   });
 });
 
