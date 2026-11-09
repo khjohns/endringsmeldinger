@@ -567,12 +567,17 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p1">Varselet om fristforlengelse</h2><span class="hjemmel">punkt 33.4</span><button class="lenke liten" type="button" data-vis-punkt aria-controls="p1">Ferdig</button><span class="kortsvar" id="ks1"></span></div>
             <p class="oppgitt">Varselet skal gis uten ugrunnet opphold etter at du ble eller burde ha blitt klar over forholdet, også før du kan angi dagene. Varsles det for sent, tapes kravet. Varselet gjelder hele kravet, med alle fristene.</p>
             <div class="felter"><div class="beloepfelt"><label for="klar">Når ble du klar over forholdet?</label><span class="hjelp kun-nytt">Oppgitt i varselet om forholdet, brev 2</span><span class="hjelp ikke-nytt">Oppgitt i varselet</span><span class="datofelt"><input id="klar" value="12.09.2026" readonly></span></div></div>
-            <fieldset class="kun-nytt" style="border:0;margin:0;padding:0" data-spor="MM-U1">
-              <legend class="spm" style="padding:0;margin-bottom:10px">Hvordan varsler du?</legend>
-              <div class="valg"><label><input type="radio" name="v1" value="her" checked> Varselet sendes med kravet</label><label><input type="radio" name="v1" value="annen"> Varslet før, utenfor løsningen</label></div>
-            </fieldset>
-            <div class="beloepfelt kun-nytt kun-v1-annen" hidden><label for="v1dato">Datoen for varselet</label><span class="datofelt"><input id="v1dato" value="18.09.2026"></span><span class="hjelp">Legg ved brevet. Datoen settes én gang.</span><button class="liten-knapp" type="button" style="align-self:flex-start">Legg ved brevet</button></div>
-            <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt" id="v1-tekst">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p><p class="kun-foresp">Varselet ble sendt i brev 3, 18. september 2026, <b>6 kalenderdager</b> etter.</p></div>
+            <div class="varsel kun-nytt kun-v1-her" data-spor="MM-U1">
+              <p class="oppgitt">Dette kravet er varselet.</p>
+              <button class="lenke liten" type="button" data-varsel="annen">Varselet er gitt før, utenfor løsningen</button>
+            </div>
+            <div class="varsel kun-nytt kun-v1-annen" data-spor="MM-U1" hidden>
+              <p class="oppgitt"><b>Varselet er gitt før, utenfor løsningen.</b> Brevet sier når, og brevet du varslet i, legges ved.</p>
+              <div class="beloepfelt"><label for="v1dato">Datoen for varselet</label><span class="hjelp">Datoen settes én gang.</span><span class="datofelt"><input id="v1dato" value="18.09.2026" aria-required="true"></span></div>
+              <button class="liten-knapp" type="button">Legg ved brevet</button>
+              <button class="lenke liten" type="button" data-varsel="her">Dette kravet er varselet likevel</button>
+            </div>
+            <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt kun-v1-her">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-nytt kun-v1-annen" hidden>Varselet ble gitt 18. september 2026, <b>6 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p><p class="kun-foresp">Varselet ble sendt i brev 3, 18. september 2026, <b>6 kalenderdager</b> etter.</p></div>
           </section>
 
           <section class="punkt nummerert kun-a" aria-labelledby="p2" data-spor="KA-U8 · VS-U18">
@@ -711,6 +716,7 @@ function data(t) {
 }
 let tilstand = 'nytt', d = data('nytt');
 let aapen = 'F2'; // fristen som er åpen for redigering; bare én om gangen
+let varselMaate = 'her'; // normalsvaret: kravet er varselet etter punkt 33.4
 let redigerer = null; // tekstboksen som er åpen: begr, b, forbehold eller standpunkt
 const bh = {};
 
@@ -800,7 +806,7 @@ function oppsummer() {
   let nr = 1; const pl = [];
   if (b) pl.push(punkt('pb', nr++, 'Hvorfor du ennå ikke kan beregne dagene', d.tekst.b ? 'Skrevet' : 'Mangler', '', !d.tekst.b));
   else {
-    const v1 = skjema.querySelector('[name="v1"]:checked')?.value;
+    const v1 = varselMaate;
     pl.push(punkt('p1', nr++, 'Varselet om fristforlengelse', ny() ? 'Sendt med kravet i brev 5' : tilstand === 'foresp' ? 'Sendt i brev 3' : v1 === 'annen' ? 'Varslet før' : 'Sendes med kravet'));
     const under = `<ol class="underpunkter">${d.linjer.map(f => `<li><a href="#frist-${f.id}" class="${f.trukket ? 'trukket' : ''}"><span class="pid-liten">${f.id}</span><span class="pt">${fristNavn(f)}</span><span class="ps num">${f.trukket ? 'Trekkes' : f.dager ? f.dager + ' d' : 'Mangler'}</span></a></li>`).join('')}</ol>`;
     pl.push(punkt('p2', nr++, 'Fristforlengelse', a.length === 1 ? '1 frist' : `${a.length} frister`, under, a.some(f => !f.dager)));
@@ -810,7 +816,7 @@ function oppsummer() {
   pl.push(punkt('pv', 'V', 'Vedlegg', b ? '1 fil' : '2 filer'));
   document.getElementById('punktliste').innerHTML = pl.join('');
   document.getElementById('vedlegg-antall').textContent = b ? '1 fil' : '2 filer';
-  const v1 = skjema.querySelector('[name="v1"]:checked')?.value;
+  const v1 = varselMaate;
   document.getElementById('ks1').textContent = ny() ? 'Sendt med kravet i brev 5. Du ble klar over forholdet 12. september 2026.'
     : tilstand === 'foresp' ? 'Sendt i brev 3, 18. september 2026, 6 kalenderdager etter at du ble klar over forholdet.'
     : v1 === 'annen' ? 'Varslet før, utenfor løsningen, 18. september 2026. Brevet legges ved.' : 'Sendes med kravet, 24 kalenderdager etter at du ble klar over forholdet 12. september 2026.';
@@ -843,7 +849,7 @@ function brev() {
       <p>${esc(d.tekst.b) || '‹begrunnelse›'}</p>
       <p class="ny">Totalentreprenøren vil angi og begrunne antall dager uten ugrunnet opphold når grunnlaget foreligger (NS 8407 punkt 33.6.1).</p>`;
   } else {
-    const v1 = skjema.querySelector('[name="v1"]:checked')?.value;
+    const v1 = varselMaate;
     const varsel = ny() ? 'Varsel etter NS 8407 punkt 33.4 ble gitt med kravet i brev 5.'
       : tilstand === 'foresp' ? 'Varsel etter NS 8407 punkt 33.4 ble gitt i brev 3 av 18. september 2026.'
       : v1 === 'annen' ? `<span class="ny">Varsel om fristforlengelse etter NS 8407 punkt 33.4 ble gitt i totalentreprenørens brev av ${esc(document.getElementById('v1dato').value) || '‹dato›'}, som er vedlagt.</span>`
@@ -985,7 +991,6 @@ skjema.addEventListener('input', e => {
 skjema.addEventListener('change', e => {
   const t = e.target;
   if (t.name === 'vhvor') { document.querySelector('.kun-utenfor').hidden = t.value !== 'utenfor'; return; }
-  if (t.name === 'v1') { document.querySelector('.kun-v1-annen').hidden = t.value !== 'annen'; document.getElementById('v1-tekst').hidden = t.value === 'annen'; oppsummer(); return; }
   if (t.name === 'bokstav') { skall.dataset.bokstav = t.value; oppsummer(); return; }
   const art = t.closest('.postskjema'); if (!art) return;
   const x = finn(art.dataset.id);
@@ -995,6 +1000,8 @@ skjema.addEventListener('change', e => {
   (t.name ? document.querySelector(`[name="${t.name}"][value="${t.value}"]`) : document.getElementById(t.id))?.focus();
 });
 skjema.addEventListener('click', e => {
+  const vm = e.target.closest('[data-varsel]');
+  if (vm) { varselMaate = vm.dataset.varsel; document.querySelectorAll('.kun-v1-her').forEach(x => x.hidden = varselMaate !== 'her'); document.querySelectorAll('.kun-v1-annen').forEach(x => x.hidden = varselMaate !== 'annen'); oppsummer(); (varselMaate === 'annen' ? document.getElementById('v1dato') : document.querySelector('[data-varsel="annen"]')).focus(); return; }
   const vis = e.target.closest('[data-vis-punkt]');
   if (vis) { const s = vis.closest('.punkt'); const ap = s.dataset.aapen !== 'ja'; s.dataset.aapen = ap ? 'ja' : 'nei'; vis.textContent = ap ? 'Ferdig' : 'Endre'; vis.setAttribute('aria-expanded', String(ap)); if (ap) s.querySelector('input,button:not([data-vis-punkt])')?.focus(); return; }
   const r = e.target.closest('[data-rediger]'), fe = e.target.closest('[data-ferdig]');
