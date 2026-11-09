@@ -1157,7 +1157,8 @@ def app_utenfor_sitat(tekst: str) -> bool:
 def varsler(register: dict, gammel_register: dict | None) -> list[str]:
     """Varslene, som ikke gjør registeret ugyldig: «app» utenfor sitattegn i den valgte teksten
     i en post som ikke står på main, og et samlet vedtak som har fått tre endringer eller mer fra
-    gjeldende poster (svar 2 A i #1614)."""
+    gjeldende poster (svar 2 A i #1614). En endring av en post som endrer samlevedtaket, telles
+    også, gjennom hele kjeden (#1726). Hver post telles én gang."""
     ut = []
     if gammel_register is not None:
         paa_main = {p["id"] for p in _nye(gammel_register)}
@@ -1176,19 +1177,30 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
             or (STEG_4_AVSLUTTET and er_ny(p) and p["dato"] > STEG_4_AVSLUTTET)
         )
     }
-    endringer = collections.Counter(
-        f["vedtak"]
-        for p in poster(register)
-        if anker(p) not in opphevet
-        for f in p.get("forhold", [])
-        if f["art"] in ENDRINGER and f["vedtak"] in telles
-    )
-    ut += [
-        f"{a}: har fått {n} endringer etter at temaet er samlet; den neste endringen skrives "
-        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
-        for a, n in sorted(endringer.items())
-        if n >= 3
-    ]
+    endrer = collections.defaultdict(list)
+    for p in poster(register):
+        if anker(p) not in opphevet:
+            for f in p.get("forhold", []):
+                if f["art"] in ENDRINGER:
+                    endrer[f["vedtak"]].append((anker(p) or etikett(p), f["art"]))
+    for a in sorted(t for t in telles if t):
+        direkte = {post for post, _ in endrer[a]}
+        kjede, aapne, sett = [], sorted(direkte), set(direkte) | {a}
+        while aapne:
+            mal = aapne.pop(0)
+            for post, art in endrer[mal]:
+                kjede.append(f"{post} {art} {mal}")
+                if post not in sett:
+                    sett.add(post)
+                    aapne.append(post)
+        n = len(sett) - 1
+        if n < 3:
+            continue
+        gjennom = f" (gjennom kjeden: {', '.join(kjede)})" if kjede else ""
+        ut.append(
+            f"{a}: har fått {n} endringer etter at temaet er samlet{gjennom}; den neste endringen "
+            "skrives som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+        )
     return ut
 
 
