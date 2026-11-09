@@ -1,7 +1,7 @@
 /**
  * Genererte forløp mot målmodellen i minnet (#304). Handlingene står i
- * `genererte` i bevis-sakene for målmodellen, og velges med samme LCG som
- * `sprakprove/genererte-forlop.json`, uansett tilstand. Etter hvert steg prøves:
+ * `genererte` i bevis-sakene for målmodellen, og velges med en LCG, uansett
+ * tilstand. Etter hvert steg prøves:
  *
  * - INV-AVVIST-UENDRET: en avvist kommando endrer ikke journalen;
  * - INV-MM-5: en regelendring endrer ikke beslutningsgrunnlag eller enighetsgrunnlag;
