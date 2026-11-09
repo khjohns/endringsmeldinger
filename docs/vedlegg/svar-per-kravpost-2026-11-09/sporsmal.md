@@ -379,7 +379,7 @@ vederlagsjusteringen, og flytter ikke lagene for kravpostene eller posten for ri
 
 ### Avklaring av arbeidsvalg 1 punkt 4
 
-Byggherren må ikke ta stilling til varselet etter punkt 34.4. Samlevedtaket for
+Byggherren trenger ikke ta stilling til varselet etter punkt 34.4. Samlevedtaket for
 vederlagsmetoden punkt 11: «Byggherren kan gjøre gjeldende i svaret at varselet ikke ble gitt
 eller kom for sent. Løsningen registrerer og viser varselet og standpunktet med bestemmelsen, uten
 utledet virkning, og avgjør ikke hvilken virkning et manglende eller sent varsel har.» KA-U64

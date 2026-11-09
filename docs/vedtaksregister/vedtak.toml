@@ -2772,14 +2772,13 @@ som gjelder et varsel, når løsningen slutter å vise fristen etter punkt 34.3.
 svaret på kravposten viser fra svaret på varselet.'''
 valgt = "B"
 svar = '''
-Oppdragsgiver 09.11: «B». Valgt i spørsmål 1: B. ([spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md))'''
+B (oppdragsgiver 09.11). Valgt i spørsmål 1: B. ([spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md))'''
 forhold = [
   { art = "presiserer", vedtak = "vs-u48" },
   { art = "bygger på", vedtak = "vs-u4" },
-  { art = "bygger på", vedtak = "ov-u95" },
 ]
 folge = '''
-Presiserer VS-U48, bygger på VS-U4 og følger samlevedtaket for vederlagsmetoden (OV-U95) punkt 5, slik alternativet sier. Berører BF-14 (G-9) og økt 2 i #1663.'''
+Presiserer VS-U48, bygger på VS-U4 og følger samlevedtaket for vederlagsmetoden (OV-U95) punkt 5, slik alternativet sier. Berører BF-14 (G-9). Bygges i #1663.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -2831,7 +2830,7 @@ forhold = [
   { art = "presiserer", vedtak = "ka-u69" },
 ]
 folge = '''
-Presiserer KA-U69, slik alternativet sier. Spørsmålet erstatter arbeidsvalg 3 i spørsmålsfila. Berører BF-14 (D-15) og økt 2 i #1663.'''
+Presiserer KA-U69, slik alternativet sier. Spørsmålet erstatter arbeidsvalg 3 i spørsmålsfila. Berører BF-14 (D-15). Bygges i #1663.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
