@@ -208,7 +208,7 @@ for et varsel som står alene, og det står i alternativet.
 som gjelder et varsel, når løsningen slutter å vise fristen etter punkt 34.3.3 annet ledd, og hva
 svaret på kravposten viser fra svaret på varselet.
 
-**Svar:**
+**Svar:** B (oppdragsgiver 09.11).
 
 ## Det tekniske avsnittet: navnene i lagringsformatet (B-17)
 
@@ -292,7 +292,7 @@ må håndheve prosjektgrensen ved hvert lesepunkt, og den lagres som en relasjon
 **Hva valget styrer.** Feltene i posten for rigg og drift, visningen ved posten og i byggherrens
 svar, og relasjonen mellom sakene.
 
-**Svar:**
+**Svar:** Oppdragsgiver 09.11, ordrett: «B - i utgangspunktet. men her må det vurderes kompleksitet og brukergrensesnitt før noe vedtaksføres. eget brukerforløp, tenker jeg.» Ikke ført som vedtak.
 
 ### Spørsmål 3: regner løsningen hverdagene og forlengelsen av datoene?
 
@@ -338,5 +338,75 @@ faktisk igangsetting og den nye overtakelsesdatoen, og regnestykket.
 **Anbefalt: B.** Regningen er sikker når datoene og definisjonen av hverdag er gitt. C ser ut som
 regning, men forutsetter at dagene i fristkravene legges sammen og flytter sluttfristen, og det
 avgjør partene. Definisjonen av hverdag bør bekreftes uttrykkelig.
+
+**Svar:** Oppdragsgiver 09.11, ordrett: «Definisjon av hverdag: Det er tolkning, og jeg har ikke svaret nå. Da tenker jeg alt. A på nåværende tidspunkt er riktig løsning. Dette kan evt. bli mer automatiset senere.»
+
+## Svarene 09.11 på arbeidsvalgene og navnene
+
+Oppdragsgiver 09.11, ordrett:
+
+> Arbeidsvalg 1:
+> 1 og 2 høres riktig ut. 3. Vet ikke om jeg forstår - "ikke foran oppgjørsform". Det betyr at oppgjørsform er i laget foran? Eller er oppgjørsform allerede "bestemt" etter kontrakten for særskilte justeringer (en fast sum?). 4. En ting er å ta standpunkt til 34.3.3 men skal BH også ta standpunkt til 34.4? Vi må passe på å ikke modellere mer enn nødvendig. Noen ting vil appen bare opplyse om, og partene vil selv beslutte videre virkninger seg i mellom.
+>
+> Arbeidsvalg 2:
+> Det er riktig.
+>
+> Arbeidsvalg 3:
+> Litt usikker på denne. Hva menes med tilbud? Er det fast sum (fastpris)? Du kan ikke være enig i regningsarbeid og samtidig få et fastpris tilbud.
+>
+> Arbeidsvalg 4: OK.
+>
+> Arbeidsvalg 5:
+> OK
+>
+> Rigg og drift:
+> Dager: Virker da som 8407 pkt. 33.6.1 (kalenderdag) og kontraktsgrunnlaget for byggetid (hverdag) regner "dag" ulikt.
+>
+> Navnene i lagrinsformatet: i utgangspunktet ingen innvendinger; dette beslutter Claude basert på utfallet av arbeidsvalg og rettslige spørsmål.
+
+Arbeidsvalg 1 punkt 1 og 2, arbeidsvalg 2, 4 og 5 står. Arbeidsvalg 1 punkt 3 og 4 og arbeidsvalg 3 er
+besvart med spørsmål og avklares under.
+
+### Avklaring av arbeidsvalg 1 punkt 3
+
+Den særskilte vederlagsjusteringen har i første versjon bare et beløp og ingen oppgjørsform.
+Kjernen lagrer den som en beløpspost, og om den kan ha en annen oppgjørsform enn fast sum, er åpent
+i #1294 og merket i prototypen. Punktet betyr at innsigelsen etter punkt 34.1.3 bare gir lag for
+den særskilte posten: prinsipalt beløpet etter begrensningen, subsidiært beløpet uten den
+(OV-U89 punkt 8). Den flytter ikke lagene for kravpostene eller posten for rigg og drift.
+Ny ordlyd: **Innsigelsen etter punkt 34.1.3 rammer bare beløpet for den særskilte
+vederlagsjusteringen, og flytter ikke lagene for kravpostene eller posten for rigg og drift.**
+
+### Avklaring av arbeidsvalg 1 punkt 4
+
+Byggherren må ikke ta stilling til varselet etter punkt 34.4. Samlevedtaket for
+vederlagsmetoden punkt 11: «Byggherren kan gjøre gjeldende i svaret at varselet ikke ble gitt
+eller kom for sent. Løsningen registrerer og viser varselet og standpunktet med bestemmelsen, uten
+utledet virkning, og avgjør ikke hvilken virkning et manglende eller sent varsel har.» KA-U64
+plasserer det i laget for oppgjørsformen. Det er en opplysning, slik oppdragsgiver beskriver, og
+punktet legger ikke noe til.
+
+### Spørsmål 4: kravet om tilbud og enigheten om beregningsregelen (erstatter arbeidsvalg 3)
+
+**Bakgrunn.** «Tilbud» er det spesifiserte tilbudet etter punkt 34.2.1 første ledd: TE tilbyr en
+justering av vederlaget, i praksis en fast sum. Aksepterer byggherren det, er vederlaget avtalt,
+og beregningsreglene i punkt 34.3 og 34.4 gjelder ikke (punkt 34.2.2). KA-U69 lar byggherren kreve
+tilbud «sammen med standpunktet til beregningsregelen for posten», men sier ikke om standpunktet
+kan være at byggherren godtar regelen. Oppdragsgiver 09.11: «Du kan ikke være enig i
+regningsarbeid og samtidig få et fastpris tilbud.»
+
+**Alternativene.**
+
+- **A (anbefalt):** Krever byggherren tilbud for en kravpost etter en beregningsregel, kan svaret
+  ikke samtidig godta beregningsregelen for posten, og løsningen registrerer ikke enighet om
+  oppgjørsformen for den. Løsningen registrerer og viser kravet om tilbud og utleder ingen frist av
+  det. Forhold: presiserer KA-U69.
+- **B:** Byggherren kan godta beregningsregelen og kreve tilbud i samme svar. Løsningen
+  registrerer enighet om oppgjørsformen, og et tilbud TE sender senere, vises som avvik fra den
+  (samlevedtaket for vederlagsmetoden punkt 16). Forhold: ingen.
+
+**Anbefalt: A.** Svaret kan da ikke si to ting som utelukker hverandre, og A tolker ingen
+rettsvirkning av kravet om tilbud. Kostnaden er at byggherren som vil ha beregningsregelen som
+reserve hvis tilbudet ikke kommer, må si det i begrunnelsen.
 
 **Svar:**
