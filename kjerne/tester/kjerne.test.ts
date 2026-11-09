@@ -351,6 +351,30 @@ describe('lesereglene for referansene (4.2)', () => {
       },
     ],
     [
+      'beløpet viser til en kravpost som ikke står i kravet (OV-U23, KA-U57 (c))',
+      ['forlop_a'],
+      (r, k) => {
+        // Oppgjørsformen og beløpet viser til samme kravpost, så rekkefølgen i leseren holder.
+        for (const p of svaret(radMed(r, k, 'S-v1'), k, 'S-v1').standpunkter as Data[])
+          if (p.gjelder && (p.art === 'beloep' || p.art === 'oppgjoersform'))
+            p.gjelder = 'finnes-ikke';
+      },
+    ],
+    [
+      'beløpet for kravposten er ført som posten etter § 34.1.3 annet ledd (OV-U23)',
+      ['forlop_a'],
+      (r, k) => {
+        const svar = svaret(radMed(r, k, 'S-v1'), k, 'S-v1');
+        const form = (svar.standpunkter as Data[]).find((p) => p.art === 'oppgjoersform')!;
+        const grunnlag = svar.beslutningsgrunnlag as { virkninger: Data[] };
+        svar.standpunkter = (svar.standpunkter as Data[]).filter((p) => p !== form);
+        grunnlag.virkninger = grunnlag.virkninger.filter((v) => v.standpunkt !== form.id);
+        const p = (svar.standpunkter as Data[]).find((s) => s.art === 'beloep' && s.gjelder)!;
+        delete p.gjelder;
+        p.saerskilt = 'produktivitet';
+      },
+    ],
+    [
       'to standpunkter med samme ID',
       ['forlop_a'],
       (r, k) => {

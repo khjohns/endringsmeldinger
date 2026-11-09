@@ -40,7 +40,9 @@ import type { Krav, Spor } from '../typer.ts';
  */
 export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
   if (spor === 'vederlag') {
-    if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
+    // Bare `false` og et tomt felt betyr ingen tilbakeholdelse; en annen verdi forenkles ikke (MM-U2).
+    if ((v.hold_tilbake ?? false) !== false)
+      return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
     // Rigg og drift etter § 34.1.3 første ledd er ikke i kjernens svar ennå (#1663).
     if ((v.rigg_vurdering ?? null) !== null)
       return 'kravet om rigg og drift (§ 34.1.3 første ledd) er ikke i kjernen ennå';
@@ -208,10 +210,8 @@ function regnUtVederlag(
         ukjente.map((felt) => [felt, 'kjernen leser ikke feltet i svaret på vederlaget'])
       )
     );
-  if (v.hold_tilbake === true)
-    throw new UgyldigVurdering({
-      hold_tilbake: utenforOmfanget('vederlag', { hold_tilbake: true })!,
-    });
+  const tilbakeholdelse = utenforOmfanget('vederlag', { hold_tilbake: v.hold_tilbake });
+  if (tilbakeholdelse) throw new UgyldigVurdering({ hold_tilbake: tilbakeholdelse });
   // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520), og
   // til oppgjørsformen bare for en kravpost (KA-U57 (d)).
   const utenPost: [boolean, (keyof Svarvurdering)[]][] = [

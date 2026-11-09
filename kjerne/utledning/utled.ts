@@ -48,6 +48,7 @@ import {
   harProduktivitetspost,
   innholdIForholdet,
   innholdIVederlaget,
+  kravposterI,
 } from '../frosset/kravinnhold.ts';
 import {
   KRAVSPOR,
@@ -815,7 +816,29 @@ function kontrollerSvarene(
       );
     for (const p of s.standpunkter)
       kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, ugyldig);
+    const krav = alleKrav.get(s.gjelder);
+    if (s.spor === 'vederlag' && krav?.spor === 'vederlag') kontrollerPostene(s, krav, ugyldig);
   }
+}
+
+/**
+ * OV-U23, KA-U57 (c) og (d): svaret på vederlaget har ett beløp for hver post i kravet og
+ * ingen andre, og oppgjørsformen gjelder en kravpost i kravet.
+ */
+function kontrollerPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
+  const kravposter = new Set(kravposterI(krav).map((p) => p.id));
+  const beloep = new Set<string>();
+  for (const p of s.standpunkter) {
+    if (p.art === 'oppgjoersform' && !kravposter.has(p.gjelder))
+      ugyldig(s.id, 'oppgjørsformen viser til en kravpost som ikke står i kravet');
+    if (p.art === 'beloep') beloep.add(p.gjelder ?? `saerskilt:${p.saerskilt}`);
+  }
+  const forventet = new Set([
+    ...kravposter,
+    ...(harProduktivitetspost(krav) ? ['saerskilt:produktivitet'] : []),
+  ]);
+  if (beloep.size !== forventet.size || [...beloep].some((b) => !forventet.has(b)))
+    ugyldig(s.id, 'beløpene i svaret er ikke de samme postene som i kravet');
 }
 
 /** Spesifiseringen og rettidigheten i svaret `s` viser til det de kan gjelde. */

@@ -4453,6 +4453,12 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
       { ...VEDERLAG_DELVIS[0], hold_tilbake: true },
       VEDERLAG_DELVIS[1],
     ],
+    [
+      'vederlag',
+      'tilbakeholdelse etter § 30.2 med en verdi som ikke er boolsk',
+      { ...VEDERLAG_DELVIS[0], hold_tilbake: 'ja' },
+      VEDERLAG_DELVIS[1],
+    ],
   ] as [string, string, Data, Data][])('%s: %s', (spor, _n, vurderinger, resultat) => {
     const s = sakMedKrav();
     expect(s.avvist('BH', brev(svar(spor, s.krav(spor as 'frist'), vurderinger, resultat)))).toBe(

@@ -3382,7 +3382,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         'plass: lag !== null ? lag + forskyvning : null,',
-        "plass: lag !== null && p.art !== 'metode' ? lag + forskyvning : null,",
+        "plass: lag !== null && p.art !== 'oppgjoersform' ? lag + forskyvning : null,",
       ],
     ],
     mal: [
@@ -4154,6 +4154,22 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/utregning.ts`,
     endringer: [['  if (ukjente.length)', '  if (false)']],
     mal: ['et ukjent felt i vurderingene i svaret på vederlaget avvises'],
+  },
+  {
+    id: 'F492',
+    feilklasse:
+      'et svar på vederlaget med beløp for andre poster enn dem kravet har, er forstått (OV-U23)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    if (s.spor === 'vederlag' && krav?.spor === 'vederlag') kontrollerPostene(s, krav, ugyldig);",
+        '    void krav;',
+      ],
+    ],
+    mal: [
+      'beløpet viser til en kravpost som ikke står i kravet',
+      'beløpet for kravposten er ført som posten etter § 34.1.3 annet ledd',
+    ],
   },
 ];
 

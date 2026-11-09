@@ -511,12 +511,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'krevdBeloep',
     ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
   ],
-  // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser.
+  // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
+  // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
     'frosset/kravinnhold.ts',
     'utsagn',
     'kravposterI',
-    ['frosset/brevtekst.ts', 'kommandoer/skriving.ts', 'utledning/kravposter.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'kommandoer/skriving.ts',
+      'utledning/kravposter.ts',
+      'utledning/utled.ts',
+    ],
   ],
   ['frosset/kravinnhold.ts', 'regelsett', 'krevdIKravposten krevdRigg', ['frosset/brevtekst.ts']],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis

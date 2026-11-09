@@ -88,7 +88,7 @@ type Varslingsplikt = Pick<Regelsett, 'gjelderVarslingspliktenForVederlag'>;
 const erProduktivitet = (p: Postsvar): p is Produktivitetssvar =>
   'saerskilt' in p && p.saerskilt === 'produktivitet';
 
-const produktivitetIn = (svar: Vederlagssvar): Produktivitetssvar | undefined =>
+const produktivitetsposten = (svar: Vederlagssvar): Produktivitetssvar | undefined =>
   svar.poster.find(erProduktivitet);
 
 export function beregnPreklusjon(svar: Vederlagssvar, regler: Varslingsplikt): Preklusjon {
@@ -96,7 +96,7 @@ export function beregnPreklusjon(svar: Vederlagssvar, regler: Varslingsplikt): P
     hovedkrav:
       regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) &&
       svar.varslet_i_tide === false,
-    produktivitet: produktivitetIn(svar)?.varslet_i_tide === false,
+    produktivitet: produktivitetsposten(svar)?.varslet_i_tide === false,
   };
 }
 
