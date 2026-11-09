@@ -564,8 +564,9 @@
           {#if flere}
             <p class="dempet">{SKJEMA.ettSvarPerPost}</p>
             <div class="snarveier">
-              <Knapp onclick={godkjennAlleFormer}>{SKJEMA.godkjennAlleFormer}</Knapp>
-              <Knapp onclick={godkjennAlle}>{SKJEMA.godkjennAlle}</Knapp>
+              <Knapp variant="lenke" onclick={godkjennAlleFormer}>{SKJEMA.godkjennAlleFormer}</Knapp
+              >
+              <Knapp variant="lenke" onclick={godkjennAlle}>{SKJEMA.godkjennAlle}</Knapp>
             </div>
           {/if}
           <ul class="poster" class:flere>
@@ -639,11 +640,13 @@
                 {:else}
                   {@const lest = leselinje(p)}
                   <div class="postlinje">
-                    <h4>
-                      <span class="betegnelse">{p.betegnelse}</span>
-                      {p.beskrivelse}
-                    </h4>
-                    <p class="krever dempet">{SKJEMA.teKrever(krevdI(p), p.pns)}</p>
+                    <div class="postnavn">
+                      <h4>
+                        <span class="betegnelse">{p.betegnelse}</span>
+                        {p.beskrivelse}
+                      </h4>
+                      <p class="dempet">{SKJEMA.teKrever(krevdI(p), p.pns)}</p>
+                    </div>
                     <div class="lest">
                       <span class="visually-hidden">{SKJEMA.svaretKolonne}:</span>
                       {#if lest.length}
@@ -1007,7 +1010,7 @@
   .snarveier {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-2);
+    gap: var(--spacing-2) var(--spacing-5);
   }
   .poster {
     display: flex;
@@ -1050,20 +1053,16 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) auto;
     column-gap: var(--spacing-4);
-    row-gap: var(--spacing-1);
-    align-items: baseline;
+    row-gap: var(--spacing-2);
+    align-items: start;
     padding: var(--spacing-3) 0;
   }
-  .postlinje h4 {
-    grid-column: 1;
-  }
-  .postlinje .krever {
-    grid-column: 1;
-    grid-row: 2;
+  .postnavn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
   }
   .lest {
-    grid-column: 2;
-    grid-row: 1 / span 2;
     font-size: 14px;
     color: var(--ink-2);
   }
@@ -1071,10 +1070,6 @@
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-  .postlinje :global(button) {
-    grid-column: 3;
-    grid-row: 1;
   }
   .postfot {
     display: flex;
@@ -1086,10 +1081,11 @@
     }
     .lest {
       grid-column: 1;
-      grid-row: 3;
+      grid-row: 2;
     }
     .postlinje :global(button) {
       grid-column: 2;
+      grid-row: 1;
     }
   }
 </style>

@@ -7404,10 +7404,56 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
       ) as never,
       s.u(),
       KJERNE.regler
-    ).standpunkter.map(({ art, hjemmel, saerskilt, ...rest }) => ({
-      standpunkt: [art, hjemmel ?? saerskilt].filter(Boolean).join(' '),
-      ...rest,
-    }));
+    ).standpunkter.map(({ art, hjemmel, saerskilt, ...rest }) => {
+      // Kravposten står i sin egen test under; her er det lagene som prøves.
+      delete rest.gjelder;
+      return { standpunkt: [art, hjemmel ?? saerskilt].filter(Boolean).join(' '), ...rest };
+    });
+
+  it('med to kravposter sier hvert lag for beløpet og oppgjørsformen hvilken kravpost det gjelder (KA-U57 (c) og (d))', () => {
+    const s = saken(
+      { resultat: 'godkjent' },
+      {
+        vederlag: {
+          kravposter: [
+            { beskrivelse: 'Graving', oppgjoersform: 'tilbud', beloep: 100000 },
+            { beskrivelse: 'Rør', oppgjoersform: 'tilbud', beloep: 40000 },
+          ],
+        },
+      }
+    );
+    const [p1, p2] = kravposterI(s.u().spor.vederlag.gjeldendeKrav!);
+    const lag = lagForUtkastet(
+      svar(
+        'vederlag',
+        s.krav('vederlag'),
+        medKravpostIder(
+          {
+            hovedkrav_varslet_i_tide: true,
+            kravposter: [
+              { gjelder: 'P1', aksepterer: true },
+              { gjelder: 'P2', aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' },
+            ],
+          },
+          s.u().spor.vederlag.gjeldendeKrav
+        )
+      ) as never,
+      s.u(),
+      KJERNE.regler
+    );
+    expect(
+      lag.standpunkter
+        .filter((x) => x.art === 'beloep' || x.art === 'oppgjoersform')
+        .map((x) => [x.art, x.gjelder])
+    ).toEqual(
+      expect.arrayContaining([
+        ['oppgjoersform', p1!.id],
+        ['oppgjoersform', p2!.id],
+        ['beloep', p1!.id],
+        ['beloep', p2!.id],
+      ])
+    );
+  });
 
   it('kontrollsak: med godkjent forhold og ingenting besvart står beløpet uten lag og uten forutsetninger', () => {
     const s = saken({ resultat: 'godkjent' });
