@@ -92,9 +92,9 @@ sin runde når den ene bygger på den andre. Hver ny oppgave i en lang økt send
 hele den voksende konteksten på nytt, og det koster fort mer enn rettingen.
 
 **Størrelse per økt.** Orkestratoren anslår diffen ut fra avgrensningen i issuet,
-før økta startes. Ventes mer enn om lag 800 endrede linjer utenom `docs/`, deles
+før økta startes. Ventes mer enn om lag 1200 endrede linjer utenom `docs/`, deles
 arbeidet: én økt per bestemmelse eller delområde, i hver sin runde når den ene
-bygger på den andre (oppdragsgiver 14.10, #484).
+bygger på den andre (oppdragsgiver 14.10, #484, og 09.11).
 
 **Subagent eller økt.** Det som blir ferdig i samme tur, gjøres i økta eller av
 en subagent etter skillen [`subagenter`](../subagenter/SKILL.md). Arbeid som gir en PR, får egen
@@ -132,7 +132,7 @@ innsatsen settes i appen.
 - **Review-oppfølging i hver runde.** Når filene er fordelt, slår
   orkestratoren opp de åpne punktene i issuene med `review-oppfølging` som
   gjelder filene hver økt likevel endrer. Punktene tas med i bestillingen, med
-  issuenummer og punkt, innenfor grensen på om lag 800 linjer. Byggeøkta legger
+  issuenummer og punkt, innenfor grensen på om lag 1200 linjer. Byggeøkta legger
   ikke til punkter selv. Punkter i filer runden ikke rører, venter. Regelen
   gjelder også i FK og F0b før #310 (oppdragsgiver 17.10, merknaden 17.10 til
   AF-06 i hovedplanen).
