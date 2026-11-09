@@ -7,29 +7,34 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
   Prototype v2 av siden for forholdet i Varden. Designforslag over grunnlagsoversikt.html (v1), ikke
-  vedtatt; v1 er grunnlaget #1449 viser til. Samme sak og eksempeldata som v1 (irregulær endring,
-  E-024). Tilstandene er ankrene #<svar>-<part>: svaret er ubesvart, avslatt eller eo, og parten te
-  eller bh. Det som er annerledes enn v1 (vurderingen 09.11, og gjennomgangen mot interface-design):
-  1. Saken har én tråd, nyest først. Brevene fra begge parter står i én rekkefølge, og det siste
-     står øverst, rett under bretten. Brevene om forholdet har full rad med leselinja etter regelen
-     i system.md: det første laget først, lagene under dempet med vilkåret. Brevene om et annet spor
-     er en kort rad uten leselinje; stillingen for kravet står i kravlinja øverst, og detaljen på
-     sporets side. Kravene om vederlag og frist er to leselinjer under tittelen, ikke et tre.
-     Tidslinja er borte: tråden er tidslinja, og datoen parten oppgir, står ved brevet. Har saken
-     mer enn åtte rader, legges de eldre sammen bak «Vis N eldre brev». Påberopelsen legges aldri
-     sammen. «Lang sak» i mockup-linja legger til åtte registrerte e-poster for å vise det.
+  vedtatt; v1 er grunnlaget #1449 viser til. Samme sak som v1 (irregulær endring, E-024), med en
+  erstattet versjon av vederlagskravet lagt til. Tilstandene er ankrene #<svar>-<part>: svaret er
+  ubesvart, avslatt eller eo, og parten te eller bh. Det som er annerledes enn v1 (vurderingen
+  09.11, gjennomgangen mot interface-design og oppdragsgivers merknader samme dag):
+  1. Saken har én tråd, nyest først. Hver rad er en leselinje med faste kolonner: parten i ringen,
+     datoen, hva brevet er, sporet det gjelder og brevnummeret sist, dempet. Ingen metalinje.
+     Tre vekter, alle noe løsningen vet: gjeldende krav, svar og påberopelser har full rad;
+     en erstattet versjon står dempet med «erstattet av brev 4»; registrert korrespondanse har
+     kort rad med mindre ring, partens egen beskrivelse som tittel og typen (brev, e-post,
+     møtereferat) der v1 hadde «Dokumentasjon». Datoen for registrert korrespondanse er partens
+     opplysning (OV-U85), så den har «ifølge TE». Bare brevene om forholdet har en leselinje
+     under raden, etter regelen i system.md: det første laget først, lagene under dempet med
+     vilkåret. Kravene om vederlag og frist er to leselinjer under tittelen, ikke et tre.
+     Tidslinja er borte: datokolonnen er tidslinja. Har saken mer enn åtte rader, legges de
+     eldre sammen bak «Vis N eldre brev», aldri påberopelsen. «Lang sak» viser det.
   2. Handlingen står der den hører hjemme. Byggherrens svar er primærhandlingen i den tomme raden
-     etter påberopelsen, øverst i tråden. Totalentreprenørens svar på avslaget står under brev 5.
+     etter påberopelsen, øverst i tråden. Totalentreprenørens svar på avslaget står under brev 6.
      «Legg til korrespondanse» står i tråd-hodet, der nye brev kommer inn. Resten står under
      «Andre handlinger» nederst, med trekket sist. Ikke noe handlingskort.
-  3. Brevet leses ved siden av tråden. Høyre kolonne viser det siste brevet om forholdet fra start,
-     slik det ble frosset, og «Les brevet» på en rad bytter det ut. Rammen følger rullingen og er
-     høyst like høy som vinduet (system.md, «Lesing ved siden av»). Under 1180 px folder brevet seg
-     ut i raden i stedet.
-  Flatene: arket er seksjonen, radene har hårlinje, og brevet er den tredje flaten. Strukturen
-  mellom hodet, kravene og tråden tegnes med rom, ikke med linjer. Ingen kort i kort.
+  3. Brevet leses ved siden av tråden. Tittelen i raden er knappen. Høyre kolonne viser det siste
+     brevet om forholdet fra start, slik det ble frosset, og en annen rad bytter det ut. Rammen
+     følger rullingen og er høyst like høy som vinduet (system.md, «Lesing ved siden av»). Under
+     1180 px folder brevet seg ut i raden i stedet.
+  Ingen ny farge: vektene prøves med blekknivå og form først (system.md, «Farge som betyr noe»).
+  Flatene: arket er seksjonen, radene har hårlinje, og brevet er den tredje flaten.
   Teksten er prototypetekst. Fargene er Blekk (.tema-varden i src/lib/components/kontraktsbord/theme.css).
-  Vedlegg og registrert korrespondanse er vist slik #807 ser dem for seg, ikke slik de er bygget.
+  Registrert korrespondanse er vist slik #807 ser den for seg, ikke slik den er bygget.
+  Bildene lages med lag-bilder.mjs i samme mappe.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -133,7 +138,6 @@ a{color:inherit}
 .brevpane-hode h2{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 .brevpane .brev{margin:0;background:none;border-radius:0;padding:16px 28px 24px}
 .brevpane .brev[hidden]{display:none}
-.brevpane-tom{padding:16px 24px 24px;color:var(--ink-3)}
 
 /* Hodet: tittelen er forholdet, nyheten står under */
 .sakshode{display:flex;flex-direction:column;gap:6px}
@@ -158,7 +162,6 @@ a{color:inherit}
 .lenke{font:inherit;font-weight:500;color:var(--ink);background:none;border:0;padding:8px 0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
 .lenke:hover{text-decoration-thickness:2px}
 .lenke.liten{font-size:12px}
-.lenke[aria-pressed="true"]{text-decoration:none;color:var(--ink-3);cursor:default}
 
 /* Knappen */
 .knapp{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:16px;font-weight:600;min-height:48px;padding:0 22px;border-radius:var(--r-knapp);border:1.5px solid var(--brand);cursor:pointer;transition:transform .12s cubic-bezier(.23,1,.32,1)}
@@ -167,48 +170,63 @@ a{color:inherit}
 .knapp.primaer:hover{background:var(--ink-2);border-color:var(--ink-2)}
 @media (prefers-reduced-motion:reduce){.knapp{transition:none}}
 
-/* Tråden: saken har én, nyest først */
+/* Tråden: saken har én, nyest først. Hver rad er en leselinje med faste kolonner. */
 .traad-hode{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;justify-content:space-between}
 .traad-hode .hoeyre{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;font-size:12px;color:var(--ink-3)}
 .traad-hode .lenke{font-size:12px}
 .traad{position:relative;margin:0 -24px}
-.innlegg{position:relative;padding:16px 24px 16px 72px;display:flex;flex-direction:column;gap:10px}
+.innlegg{position:relative;padding:12px 24px 12px 72px;display:flex;flex-direction:column;gap:8px}
 .innlegg + .innlegg{border-top:1px solid var(--rule-subtle-color)}
 .innlegg::before{content:"";position:absolute;left:39px;top:0;bottom:0;border-left:1px solid var(--rule-strong-color)}
 .innlegg:first-child::before{top:20px}
 .innlegg:last-child::before{bottom:auto;height:20px}
 .innlegg.valgt{background:var(--surface-selected)}
-.part{position:absolute;left:24px;top:14px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);display:grid;place-items:center;font-size:12px;font-weight:600;letter-spacing:.02em;z-index:1}
+.part{position:absolute;left:24px;top:12px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);display:grid;place-items:center;font-size:12px;font-weight:600;letter-spacing:.02em;z-index:1}
 .part.bh{background:var(--ink);color:var(--surface)}
-.innlegg-hode{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;align-items:baseline}
-.innlegg-hode h3{font-size:16px;font-weight:600}
-.innlegg-hode .lenke{grid-row:1/3;grid-column:2;align-self:start;align-items:flex-start;padding:0;min-height:40px;line-height:24px}
-.innlegg-meta{color:var(--ink-3)}
-.merke-reg{display:inline-block;margin-left:6px;font-size:12px;font-weight:600;border:1px solid var(--rule-strong-color);border-radius:var(--r-merke);padding:0 8px;vertical-align:2px}
+.rad{display:grid;grid-template-columns:6rem minmax(0,1fr) auto;gap:2px 16px;align-items:start;min-height:32px}
+.rad .dato{color:var(--ink-2);white-space:nowrap;line-height:24px}
+.rad .dato small{display:block;font-size:12px;color:var(--ink-3)}
+.rad h3{font-size:16px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.rad .meta{display:flex;flex-direction:column;align-items:flex-end;font-size:12px;line-height:1.4;color:var(--ink-3);white-space:nowrap;padding-top:3px}
+.rad .tittel,.rad h3 a{all:unset;cursor:pointer;display:inline-block;padding:8px 0;margin:-8px 0;line-height:24px}
+.rad h3 a{text-decoration:none}
+.rad .tittel:hover{text-decoration:underline;text-underline-offset:3px}
+.rad .tittel:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.rad .tittel[aria-pressed="true"]{cursor:default}
+.rad .tittel[aria-pressed="true"]:hover{text-decoration:none}
+.rad .erstattet{font-weight:400;color:var(--ink-3)}
+.rad .sporet{color:var(--ink-2)}
+.innhold{padding-left:calc(6rem + 16px);display:flex;flex-direction:column;gap:8px}
 .leselinje{font-size:16px;font-weight:500}
-.lag{color:var(--ink-2);margin-top:-4px}
-.eldre{padding:4px 24px 4px 72px;position:relative}
-.eldre::before{content:"";position:absolute;left:39px;top:0;bottom:0;border-left:1px dashed var(--rule-strong-color)}
-#traad .innlegg.skjult,#skall[data-lengde="kort"] #traad li.lang{display:none}
+.lag{color:var(--ink-2)}
 .datolinje{display:flex;flex-wrap:wrap;align-items:center;gap:0 12px;color:var(--ink-2)}
 .filer{display:flex;flex-wrap:wrap;gap:8px}
 .fil{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:4px 10px;border:1px solid var(--rule-color);border-radius:var(--r-felt);font-size:12px;text-decoration:none}
 .fil .fm{color:var(--ink-3)}
 .fil svg{color:var(--ink-3)}
 a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color)}
-.innlegg.tom p{color:var(--ink-3);padding-top:6px}
+.innlegg.tom .tomtekst{color:var(--ink-3);padding-top:6px}
 .innlegg.tom .part{border-style:dashed;background:var(--surface);color:var(--ink-3)}
 
-/* Den andre vekten: brev om et annet spor er én linje */
-.innlegg.kompakt{padding-top:10px;padding-bottom:10px;gap:4px}
+/* Den andre vekten: en erstattet versjon står dempet */
+.innlegg.erstattet-rad .rad h3,.innlegg.erstattet-rad .rad .dato{color:var(--ink-3);font-weight:500}
+/* Den tredje vekten: registrert korrespondanse har kort rad og mindre ring */
+.innlegg.kompakt{padding-top:8px;padding-bottom:8px}
 .innlegg.kompakt .part{top:9px;width:24px;height:24px;left:28px;font-size:10px}
-.innlegg.kompakt .innlegg-hode h3{font-size:14px;font-weight:500}
-.innlegg.kompakt .innlegg-meta{font-size:12px}
-.innlegg.kompakt .lenke{font-size:12px}
+.innlegg.kompakt .rad{min-height:24px}
+.innlegg.kompakt .rad h3{font-size:14px;font-weight:500;color:var(--ink-2)}
+.innlegg.kompakt .rad .dato{font-size:14px;color:var(--ink-3);line-height:21px}
+.innlegg.kompakt .rad .meta{padding-top:2px}
+.innlegg.kompakt .rad h3 a{padding:10px 0;margin:-10px 0;line-height:21px}
+.innlegg.kompakt .rad a:hover{text-decoration:underline;text-underline-offset:3px}
+
+.eldre{padding:4px 24px 4px 72px;position:relative}
+.eldre::before{content:"";position:absolute;left:39px;top:0;bottom:0;border-left:1px dashed var(--rule-strong-color)}
+#traad .innlegg.skjult,#skall[data-lengde="kort"] #traad li.lang{display:none}
 
 /* Handlingen der den hører hjemme */
-.handling{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding-top:6px}
-.handling .rad{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.handling{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding-top:4px}
+.handling .knapper{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
 .handling p{color:var(--ink-2)}
 
 /* Brevet slik det ble frosset */
@@ -248,7 +266,6 @@ li.ts,p.ts,section.ts{display:revert}
 [data-t="ubesvart"] li.ts:not(.t-ubesvart),[data-t="avslatt"] li.ts:not(.t-avslatt),[data-t="eo"] li.ts:not(.t-eo),
 [data-t="ubesvart"] p.ts:not(.t-ubesvart),[data-t="avslatt"] p.ts:not(.t-avslatt),[data-t="eo"] p.ts:not(.t-eo){display:none}
 li.innlegg.ts{display:flex}
-ul.lagene.ts{display:grid}
 .handling.kun-te,.handling.kun-bh{display:flex}
 li.kun-te,li.kun-bh{display:revert}
 #skall[data-rolle="TE"] li.kun-bh,#skall[data-rolle="BH"] li.kun-te{display:none}
@@ -267,18 +284,22 @@ li.kun-te,li.kun-bh{display:revert}
   .spor a[aria-current]{border-bottom-color:var(--sidebar-text)}
   .gruppe + .gruppe{margin-top:0}
 }
+@media (max-width:720px){
+  .rad{grid-template-columns:minmax(0,1fr) auto;gap:0 12px}
+  .rad .dato{grid-column:1/3;font-size:12px;color:var(--ink-3)}
+  .innhold{padding-left:0}
+}
 @media (max-width:560px){
   .ark{padding-inline:16px}
   .traad{margin-inline:-16px}
   .innlegg{padding-left:60px;padding-inline-end:16px}
   .part{left:16px}
   .innlegg.kompakt .part{left:20px}
-  .innlegg::before{left:31px}
-  .innlegg-hode{grid-template-columns:1fr}
-  .innlegg-hode .lenke{grid-row:auto;grid-column:1;justify-self:start;min-height:40px}
+  .innlegg::before,.eldre::before{left:31px}
+  .eldre{padding-left:60px}
   .krav li{grid-template-columns:1fr}
   .krav .lenke{grid-row:auto;grid-column:1;justify-self:start}
-  .lagene li,.referanser{grid-template-columns:1fr}
+  .referanser{grid-template-columns:1fr}
   .innlegg .brev{padding:16px}
   .bruker .hvem{display:none}
 }
@@ -356,18 +377,18 @@ li.kun-te,li.kun-bh{display:revert}
         <header class="sakshode">
           <h1 id="forhold-tittel">Irregulær endring</h1>
           <p class="staar ts t-ubesvart">Sendt til byggherren 9. oktober 2026. Svar ikke registrert.</p>
-          <p class="staar ts t-avslatt">Byggherren avslo forholdet i brev 5, 28. oktober 2026.</p>
-          <p class="staar ts t-eo">Byggherren utstedte endringsordre i brev 5, 28. oktober 2026.</p>
+          <p class="staar ts t-avslatt">Byggherren avslo forholdet i brev 6, 28. oktober 2026.</p>
+          <p class="staar ts t-eo">Byggherren utstedte endringsordre i brev 6, 28. oktober 2026.</p>
         </header>
 
         <section class="krav" aria-labelledby="krav-tittel">
           <h2 id="krav-tittel">Kravene som bygger på forholdet</h2>
           <ul id="kravliste">
             <li>
-              <div class="linje"><span class="navn">Vederlagsjustering</span><span class="tall">Krevd <span class="num">420 000 kr</span> <span class="kilde">brev 2</span></span><span class="tall">Byggherren <span class="num">310 000 kr</span> <span class="ts t-ubesvart">under forbehold</span><span class="ts t-avslatt">subsidiært</span> <span class="kilde">brev 4</span></span></div>
+              <div class="linje"><span class="navn">Vederlagsjustering</span><span class="tall">Krevd <span class="num">420 000 kr</span> <span class="kilde">brev 4</span></span><span class="tall">Byggherren <span class="num">310 000 kr</span> <span class="ts t-ubesvart">under forbehold</span><span class="ts t-avslatt">subsidiært</span> <span class="kilde">brev 5</span></span></div>
               <p class="vilkaar ts t-ubesvart">Gitt før svaret på påberopelsen, under forutsetning av at forholdet gir grunnlag for kravet.</p>
               <p class="vilkaar ts t-avslatt">Gjelder hvis forholdet gir grunnlag for kravet.</p>
-              <p class="vilkaar ts t-eo">Brev 4 står som det ble sendt, med forbeholdet om forholdet.</p>
+              <p class="vilkaar ts t-eo">Brev 5 står som det ble sendt, med forbeholdet om forholdet.</p>
               <a class="lenke" href="vederlagsoversikt-v2.html">Åpne<span class="visually-hidden"> vederlagsjusteringen</span></a>
             </li>
             <li>
@@ -384,7 +405,7 @@ li.kun-te,li.kun-bh{display:revert}
 
             <li class="innlegg tom ts t-ubesvart">
               <span class="part" aria-hidden="true">BH</span>
-              <p>Svar fra byggherren på påberopelsen er ikke registrert.</p>
+              <p class="tomtekst">Svar fra byggherren på påberopelsen er ikke registrert.</p>
               <!-- Byggherrens svar er primærhandlingen, i raden svaret skal fylle. -->
               <div class="handling kun-bh">
                 <button class="knapp primaer" type="button">Svar på påberopelsen</button>
@@ -394,176 +415,208 @@ li.kun-te,li.kun-bh{display:revert}
 
             <li class="innlegg ts t-eo">
               <span class="part bh" aria-hidden="true">BH</span>
-              <div class="innlegg-hode">
-                <h3>Endringsordre EO-012</h3>
-                <a class="lenke" href="#">Åpne EO-012</a>
-                <p class="innlegg-meta">Byggherren · 30. oktober 2026 · i en egen sak</p>
+              <div class="rad">
+                <span class="dato num">30. okt. 2026</span>
+                <h3><a class="tittel" href="#">Endringsordre EO-012</a></h3>
+                <span class="meta"><span class="sporet">Forholdet</span><span class="nr num">egen sak</span></span>
               </div>
-              <p class="leselinje">Endringsordren omfatter denne saken.</p>
+              <div class="innhold"><p class="leselinje">Endringsordren omfatter denne saken.</p></div>
             </li>
 
-            <li class="innlegg ts t-avslatt t-eo" data-brev="brev-5">
+            <li class="innlegg ts t-avslatt t-eo" data-brev="brev-6" data-navn="Brev 6 · Svar på påberopelsen">
               <span class="part bh" aria-hidden="true">BH</span>
-              <div class="innlegg-hode">
-                <h3>Brev 5 · Svar på påberopelsen</h3>
-                <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-5">Les brevet</button>
-                <p class="innlegg-meta">Byggherren · 28. oktober 2026 · gjelder forholdet</p>
+              <div class="rad">
+                <span class="dato num">28. okt. 2026</span>
+                <h3><button class="tittel les" type="button" aria-controls="brev-6">Svar på påberopelsen</button></h3>
+                <span class="meta"><span class="sporet">Forholdet</span><span class="nr num">brev 6</span></span>
               </div>
-              <p class="leselinje ts t-avslatt">Varselet etter punkt 32.2 i brev 1 kom for sent.</p>
-              <p class="lag ts t-avslatt">Subsidiært, hvis innsigelsen ikke fører frem: avslår kravet på endringsordre (punkt 32.3 første ledd b).</p>
-              <p class="leselinje ts t-eo">Utsteder endringsordre (punkt 32.3 første ledd a), uten innsigelse om varselet.</p>
-              <div class="brevplass">
-              <article class="brev bh" id="brev-5" hidden aria-label="Brev 5 slik det ble sendt">
-                <div class="brevhode">
-                  <p class="fra"><b>Oslobygg KF</b><span>Byggherren</span></p>
-                  <span class="stempel">Sendt 28. oktober 2026</span>
-                  <p class="til"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
+              <div class="innhold">
+                <p class="leselinje ts t-avslatt">Varselet etter punkt 32.2 i brev 1 kom for sent.</p>
+                <p class="lag ts t-avslatt">Subsidiært, hvis innsigelsen ikke fører frem: avslår kravet på endringsordre (punkt 32.3 første ledd b).</p>
+                <p class="leselinje ts t-eo">Utsteder endringsordre (punkt 32.3 første ledd a), uten innsigelse om varselet.</p>
+                <div class="brevplass">
+                <article class="brev bh" id="brev-6" hidden aria-label="Brev 6 slik det ble sendt">
+                  <div class="brevhode">
+                    <p class="fra"><b>Oslobygg KF</b><span>Byggherren</span></p>
+                    <span class="stempel">Sendt 28. oktober 2026</span>
+                    <p class="til"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
+                  </div>
+                  <dl class="referanser">
+                    <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
+                    <div><dt>Deres ref.</dt><dd class="num">K201-E-024-01</dd></div>
+                    <div><dt>Vår ref.</dt><dd class="num">K201-E-024-06</dd></div>
+                    <div><dt>Dato</dt><dd>28. oktober 2026</dd></div>
+                  </dl>
+                  <h4>Svar på påberopelsen</h4>
+                  <p class="ts t-avslatt">Prinsipalt: Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev K201-E-024-01 kom for sent.</p>
+                  <p class="ts t-avslatt">Subsidiært: Byggherren avslår kravet på endringsordre, jf. punkt 32.3 første ledd b. Bytte til tegl følger av fasadebeskrivelsen i kontrakten, punkt 4.2, som krever at kommunens estetikkveileder følges. Pålegget innebærer derfor ikke en endring.</p>
+                  <p class="ts t-eo">Byggherren utsteder endringsordre for pålegget beskrevet i brev K201-E-024-01, jf. punkt 32.3 første ledd a og punkt 31.3. Byggherren krever at endringen utføres slik pålegget er beskrevet.</p>
+                  <p class="brevfot">Sendt herfra 28. oktober 2026 kl. 11.40. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
+                </article>
                 </div>
-                <dl class="referanser">
-                  <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
-                  <div><dt>Deres ref.</dt><dd class="num">K201-E-024-01</dd></div>
-                  <div><dt>Vår ref.</dt><dd class="num">K201-E-024-05</dd></div>
-                  <div><dt>Dato</dt><dd>28. oktober 2026</dd></div>
-                </dl>
-                <h4>Svar på påberopelsen</h4>
-                <p class="ts t-avslatt">Prinsipalt: Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev K201-E-024-01 kom for sent.</p>
-                <p class="ts t-avslatt">Subsidiært: Byggherren avslår kravet på endringsordre, jf. punkt 32.3 første ledd b. Bytte til tegl følger av fasadebeskrivelsen i kontrakten, punkt 4.2, som krever at kommunens estetikkveileder følges. Pålegget innebærer derfor ikke en endring.</p>
-                <p class="ts t-eo">Byggherren utsteder endringsordre for pålegget beskrevet i brev K201-E-024-01, jf. punkt 32.3 første ledd a og punkt 31.3. Byggherren krever at endringen utføres slik pålegget er beskrevet.</p>
-                <p class="brevfot">Sendt herfra 28. oktober 2026 kl. 11.40. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
-              </article>
-              </div>
-              <!-- Totalentreprenørens svar på avslaget står ved brevet det svarer på. -->
-              <div class="handling kun-te ts t-avslatt">
-                <div class="rad"><button class="knapp primaer" type="button">Send ny versjon av påberopelsen</button><button class="lenke" type="button">Godta avslaget</button></div>
-                <p>En ny versjon utdyper beskrivelsen og begrunnelsen. Godtar du avslaget, godtar du hele brev 5, også at varselet kom for sent.</p>
-              </div>
-              <div class="handling kun-bh ts t-avslatt">
-                <div class="rad"><button class="lenke" type="button">Send nytt svar</button></div>
-                <p>Erstatter svaret i brev 5. Brev 5 står som det ble sendt.</p>
+                <!-- Totalentreprenørens svar på avslaget står ved brevet det svarer på. -->
+                <div class="handling kun-te ts t-avslatt">
+                  <div class="knapper"><button class="knapp primaer" type="button">Send ny versjon av påberopelsen</button><button class="lenke" type="button">Godta avslaget</button></div>
+                  <p>En ny versjon utdyper beskrivelsen og begrunnelsen. Godtar du avslaget, godtar du hele brev 6, også at varselet kom for sent.</p>
+                </div>
+                <div class="handling kun-bh ts t-avslatt">
+                  <div class="knapper"><button class="lenke" type="button">Send nytt svar</button></div>
+                  <p>Erstatter svaret i brev 6. Brev 6 står som det ble sendt.</p>
+                </div>
               </div>
             </li>
 
-            <li class="innlegg kompakt" data-brev="brev-4">
+            <li class="innlegg" data-brev="brev-5" data-navn="Brev 5 · Svar på kravet om vederlagsjustering">
               <span class="part bh" aria-hidden="true">BH</span>
-              <div class="innlegg-hode">
-                <h3>Brev 4 · Svar på kravet om vederlagsjustering</h3>
-                <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-4">Les brevet</button>
-                <p class="innlegg-meta">Byggherren · 26. oktober 2026 · gjelder vederlagsjusteringen</p>
+              <div class="rad">
+                <span class="dato num">26. okt. 2026</span>
+                <h3><button class="tittel les" type="button" aria-controls="brev-5">Svar på kravet om vederlagsjustering</button></h3>
+                <span class="meta"><span class="sporet">Vederlag</span><span class="nr num">brev 5</span></span>
               </div>
-              <div class="brevplass">
-              <article class="brev bh" id="brev-4" hidden aria-label="Brev 4 slik det ble sendt">
-                <div class="brevhode">
-                  <p class="fra"><b>Oslobygg KF</b><span>Byggherren</span></p>
-                  <span class="stempel">Sendt 26. oktober 2026</span>
-                  <p class="til"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
-                </div>
-                <dl class="referanser">
-                  <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
-                  <div><dt>Deres ref.</dt><dd class="num">K201-E-024-02</dd></div>
-                  <div><dt>Vår ref.</dt><dd class="num">K201-E-024-04</dd></div>
-                  <div><dt>Dato</dt><dd>26. oktober 2026</dd></div>
-                </dl>
-                <h4>Svar på kravet om vederlagsjustering</h4>
-                <p>Byggherren har ikke svart på påberopelsen i brev K201-E-024-01. Svaret gis under forutsetning av at forholdet gir grunnlag for kravet.</p>
-                <p>Byggherren godkjenner <span class="num">310 000 kr</span> ekskl. mva. Underkonstruksjonen er priset to ganger i kravet, og byggherren legger enhetsprisene i kontrakten til grunn.</p>
-                <p class="brevfot">Sendt herfra 26. oktober 2026 kl. 13.15. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
-              </article>
+              <div class="innhold brevplass">
+                <article class="brev bh" id="brev-5" hidden aria-label="Brev 5 slik det ble sendt">
+                  <div class="brevhode">
+                    <p class="fra"><b>Oslobygg KF</b><span>Byggherren</span></p>
+                    <span class="stempel">Sendt 26. oktober 2026</span>
+                    <p class="til"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
+                  </div>
+                  <dl class="referanser">
+                    <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
+                    <div><dt>Deres ref.</dt><dd class="num">K201-E-024-04</dd></div>
+                    <div><dt>Vår ref.</dt><dd class="num">K201-E-024-05</dd></div>
+                    <div><dt>Dato</dt><dd>26. oktober 2026</dd></div>
+                  </dl>
+                  <h4>Svar på kravet om vederlagsjustering</h4>
+                  <p>Byggherren har ikke svart på påberopelsen i brev K201-E-024-01. Svaret gis under forutsetning av at forholdet gir grunnlag for kravet.</p>
+                  <p>Byggherren godkjenner <span class="num">310 000 kr</span> ekskl. mva. av kravet i brev K201-E-024-04. Underkonstruksjonen er priset to ganger i kravet, og byggherren legger enhetsprisene i kontrakten til grunn.</p>
+                  <p class="brevfot">Sendt herfra 26. oktober 2026 kl. 13.15. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
+                </article>
               </div>
             </li>
 
-            <li class="innlegg kompakt" data-brev="brev-3">
+            <li class="innlegg" data-brev="brev-4" data-navn="Brev 4 · Krav om vederlagsjustering, ny versjon">
               <span class="part" aria-hidden="true">TE</span>
-              <div class="innlegg-hode">
-                <h3>Brev 3 · Krav om fristforlengelse</h3>
-                <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-3">Les brevet</button>
-                <p class="innlegg-meta">Totalentreprenøren · 19. oktober 2026 · gjelder fristforlengelsen</p>
+              <div class="rad">
+                <span class="dato num">20. okt. 2026</span>
+                <h3><button class="tittel les" type="button" aria-controls="brev-4">Krav om vederlagsjustering, ny versjon</button></h3>
+                <span class="meta"><span class="sporet">Vederlag</span><span class="nr num">brev 4</span></span>
               </div>
-              <div class="brevplass">
-              <article class="brev" id="brev-3" hidden aria-label="Brev 3 slik det ble sendt">
-                <div class="brevhode">
-                  <p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
-                  <span class="stempel">Sendt 19. oktober 2026</span>
-                  <p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p>
-                </div>
-                <dl class="referanser">
-                  <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
-                  <div><dt>Deres ref.</dt><dd></dd></div>
-                  <div><dt>Vår ref.</dt><dd class="num">K201-E-024-03</dd></div>
-                  <div><dt>Dato</dt><dd>19. oktober 2026</dd></div>
-                </dl>
-                <h4>Krav om fristforlengelse</h4>
-                <p>Totalentreprenøren krever fristforlengelse med 15 kalenderdager for forholdet påberopt i brev K201-E-024-01, jf. punkt 33.1. Dette brevet er varselet etter punkt 33.4.</p>
-                <p class="brevfot">Sendt herfra 19. oktober 2026 kl. 08.50. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
-              </article>
+              <div class="innhold brevplass">
+                <article class="brev" id="brev-4" hidden aria-label="Brev 4 slik det ble sendt">
+                  <div class="brevhode">
+                    <p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
+                    <span class="stempel">Sendt 20. oktober 2026</span>
+                    <p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p>
+                  </div>
+                  <dl class="referanser">
+                    <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
+                    <div><dt>Deres ref.</dt><dd></dd></div>
+                    <div><dt>Vår ref.</dt><dd class="num">K201-E-024-04</dd></div>
+                    <div><dt>Dato</dt><dd>20. oktober 2026</dd></div>
+                  </dl>
+                  <h4>Krav om vederlagsjustering, ny versjon</h4>
+                  <p>Dette brevet erstatter kravet i brev K201-E-024-02. Totalentreprenøren krever vederlagsjustering for forholdet påberopt i brev K201-E-024-01, med <span class="num">420 000 kr</span> ekskl. mva. etter kontraktens enhetspriser, jf. punkt 34.3. Mengdeoppstillingen for underkonstruksjonen er vedlagt. Varselet etter punkt 34.1.2 er gitt i brev K201-E-024-02.</p>
+                  <p class="brevfot">Sendt herfra 20. oktober 2026 kl. 09.10. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
+                </article>
               </div>
             </li>
 
-            <li class="innlegg kompakt" data-brev="brev-2">
+            <li class="innlegg" data-brev="brev-3" data-navn="Brev 3 · Krav om fristforlengelse">
               <span class="part" aria-hidden="true">TE</span>
-              <div class="innlegg-hode">
-                <h3>Brev 2 · Krav om vederlagsjustering</h3>
-                <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-2">Les brevet</button>
-                <p class="innlegg-meta">Totalentreprenøren · 16. oktober 2026 · gjelder vederlagsjusteringen</p>
+              <div class="rad">
+                <span class="dato num">19. okt. 2026</span>
+                <h3><button class="tittel les" type="button" aria-controls="brev-3">Krav om fristforlengelse</button></h3>
+                <span class="meta"><span class="sporet">Frist</span><span class="nr num">brev 3</span></span>
               </div>
-              <div class="brevplass">
-              <article class="brev" id="brev-2" hidden aria-label="Brev 2 slik det ble sendt">
-                <div class="brevhode">
-                  <p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
-                  <span class="stempel">Sendt 16. oktober 2026</span>
-                  <p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p>
-                </div>
-                <dl class="referanser">
-                  <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
-                  <div><dt>Deres ref.</dt><dd></dd></div>
-                  <div><dt>Vår ref.</dt><dd class="num">K201-E-024-02</dd></div>
-                  <div><dt>Dato</dt><dd>16. oktober 2026</dd></div>
-                </dl>
-                <h4>Krav om vederlagsjustering</h4>
-                <p>Totalentreprenøren krever vederlagsjustering for forholdet påberopt i brev K201-E-024-01, med <span class="num">420 000 kr</span> ekskl. mva. etter kontraktens enhetspriser, jf. punkt 34.3. Dette brevet er varselet etter punkt 34.1.2.</p>
-                <p class="brevfot">Sendt herfra 16. oktober 2026 kl. 14.30. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
-              </article>
+              <div class="innhold brevplass">
+                <article class="brev" id="brev-3" hidden aria-label="Brev 3 slik det ble sendt">
+                  <div class="brevhode">
+                    <p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
+                    <span class="stempel">Sendt 19. oktober 2026</span>
+                    <p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p>
+                  </div>
+                  <dl class="referanser">
+                    <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
+                    <div><dt>Deres ref.</dt><dd></dd></div>
+                    <div><dt>Vår ref.</dt><dd class="num">K201-E-024-03</dd></div>
+                    <div><dt>Dato</dt><dd>19. oktober 2026</dd></div>
+                  </dl>
+                  <h4>Krav om fristforlengelse</h4>
+                  <p>Totalentreprenøren krever fristforlengelse med 15 kalenderdager for forholdet påberopt i brev K201-E-024-01, jf. punkt 33.1. Dette brevet er varselet etter punkt 33.4.</p>
+                  <p class="brevfot">Sendt herfra 19. oktober 2026 kl. 08.50. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
+                </article>
               </div>
             </li>
 
-            <li class="innlegg registrert">
+            <!-- Den andre vekten: en erstattet versjon. At brev 4 erstatter brev 2, er et faktum i kjernen. -->
+            <li class="innlegg erstattet-rad" data-brev="brev-2" data-navn="Brev 2 · Krav om vederlagsjustering">
+              <span class="part" aria-hidden="true">TE</span>
+              <div class="rad">
+                <span class="dato num">16. okt. 2026</span>
+                <h3><button class="tittel les" type="button" aria-controls="brev-2">Krav om vederlagsjustering</button> <span class="erstattet">· erstattet av brev 4</span></h3>
+                <span class="meta"><span class="sporet">Vederlag</span><span class="nr num">brev 2</span></span>
+              </div>
+              <div class="innhold brevplass">
+                <article class="brev" id="brev-2" hidden aria-label="Brev 2 slik det ble sendt">
+                  <div class="brevhode">
+                    <p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
+                    <span class="stempel">Sendt 16. oktober 2026</span>
+                    <p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p>
+                  </div>
+                  <dl class="referanser">
+                    <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
+                    <div><dt>Deres ref.</dt><dd></dd></div>
+                    <div><dt>Vår ref.</dt><dd class="num">K201-E-024-02</dd></div>
+                    <div><dt>Dato</dt><dd>16. oktober 2026</dd></div>
+                  </dl>
+                  <h4>Krav om vederlagsjustering</h4>
+                  <p>Totalentreprenøren krever vederlagsjustering for forholdet påberopt i brev K201-E-024-01, med <span class="num">380 000 kr</span> ekskl. mva. etter kontraktens enhetspriser, jf. punkt 34.3. Dette brevet er varselet etter punkt 34.1.2.</p>
+                  <p class="brevfot">Sendt herfra 16. oktober 2026 kl. 14.30. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
+                </article>
+              </div>
+            </li>
+
+            <!-- Den tredje vekten: registrert korrespondanse, med partens beskrivelse som tittel og typen der v1 hadde «Dokumentasjon». -->
+            <li class="innlegg kompakt registrert">
               <span class="part bh" aria-hidden="true">BH</span>
-              <div class="innlegg-hode">
-                <h3>Brev fra byggherren <span class="merke-reg">Dokumentasjon</span></h3>
-                <a class="lenke" href="#">Åpne brevet</a>
-                <p class="innlegg-meta">Sendt 14. oktober 2026 som PDF i e-post, ifølge byggherren · lagt til av Ola Nordmann 15. oktober · gjelder forholdet</p>
+              <div class="rad">
+                <span class="dato num">14. okt. 2026</span>
+                <h3><a href="#">Foreløpig tilbakemelding om pålegget</a></h3>
+                <span class="meta"><span class="sporet">Forholdet</span><span class="type">Brev · ifølge BH</span></span>
               </div>
-              <span class="filer"><a class="fil" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Foreløpig tilbakemelding om pålegget.pdf</span><span class="fm">PDF · 210 kB</span></a></span>
             </li>
 
-            <li class="innlegg rot" data-brev="brev-1">
+            <li class="innlegg rot" data-brev="brev-1" data-navn="Brev 1 · Påberopelse av irregulær endring">
               <span class="part" aria-hidden="true">TE</span>
-              <div class="innlegg-hode">
-                <h3>Brev 1 · Påberopelse av irregulær endring</h3>
-                <button class="lenke les" type="button" aria-expanded="false" aria-controls="brev-1">Les brevet</button>
-                <p class="innlegg-meta">Totalentreprenøren · 9. oktober 2026 · gjelder forholdet</p>
+              <div class="rad">
+                <span class="dato num">9. okt. 2026</span>
+                <h3><button class="tittel les" type="button" aria-controls="brev-1">Påberopelse av irregulær endring</button></h3>
+                <span class="meta"><span class="sporet">Forholdet</span><span class="nr num">brev 1</span></span>
               </div>
-              <p class="leselinje">Pålegget innebærer en endring (punkt 32.1). Varslet etter punkt 32.2.</p>
-              <div class="datolinje"><span>Pålegg mottatt 2. oktober 2026, ifølge totalentreprenøren.</span><span class="kun-te"><button class="lenke liten" type="button">Korriger datoen</button></span></div>
-              <span class="filer" aria-label="Vedlegg til brev 1"><a class="fil" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Referat byggemøte 14.pdf</span><span class="fm">PDF · 380 kB</span></a></span>
-              <div class="brevplass">
-              <article class="brev" id="brev-1" hidden aria-label="Brev 1 slik det ble sendt">
-                <div class="brevhode">
-                  <p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
-                  <span class="stempel">Sendt 9. oktober 2026</span>
-                  <p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p>
+              <div class="innhold">
+                <p class="leselinje">Pålegget innebærer en endring (punkt 32.1). Varslet etter punkt 32.2.</p>
+                <div class="datolinje"><span>Pålegg mottatt 2. oktober 2026, ifølge totalentreprenøren.</span><span class="kun-te"><button class="lenke liten" type="button">Korriger datoen</button></span></div>
+                <span class="filer" aria-label="Vedlegg til brev 1"><a class="fil" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Referat byggemøte 14.pdf</span><span class="fm">PDF · 380 kB</span></a></span>
+                <div class="brevplass">
+                <article class="brev" id="brev-1" hidden aria-label="Brev 1 slik det ble sendt">
+                  <div class="brevhode">
+                    <p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p>
+                    <span class="stempel">Sendt 9. oktober 2026</span>
+                    <p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p>
+                  </div>
+                  <dl class="referanser">
+                    <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
+                    <div><dt>Deres ref.</dt><dd>Byggemøte 14, punkt 14.3</dd></div>
+                    <div><dt>Vår ref.</dt><dd class="num">K201-E-024-01</dd></div>
+                    <div><dt>Dato</dt><dd>9. oktober 2026</dd></div>
+                  </dl>
+                  <h4>Påberopelse av irregulær endring</h4>
+                  <p>Totalentreprenøren påberoper seg at pålegget gitt i byggemøte 14 den 2. oktober 2026 innebærer en endring etter punkt 32.1, og varsler etter punkt 32.2.</p>
+                  <p>I byggemøtet ble det bestemt at fasadeplatene på østfasaden skal erstattes med tegl, med ny underkonstruksjon. Prosjektlederen ga pålegget muntlig. Det er referert i punkt 14.3 i byggemøtereferatet.</p>
+                  <p>Totalentreprenøren ber om at byggherren svarer etter punkt 32.3.</p>
+                  <p class="brevfot">Sendt herfra 9. oktober 2026 kl. 10.05. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
+                </article>
                 </div>
-                <dl class="referanser">
-                  <div><dt>Sak</dt><dd>Endret fasadeplate etter pålegg på byggemøte</dd></div>
-                  <div><dt>Deres ref.</dt><dd>Byggemøte 14, punkt 14.3</dd></div>
-                  <div><dt>Vår ref.</dt><dd class="num">K201-E-024-01</dd></div>
-                  <div><dt>Dato</dt><dd>9. oktober 2026</dd></div>
-                </dl>
-                <h4>Påberopelse av irregulær endring</h4>
-                <p>Totalentreprenøren påberoper seg at pålegget gitt i byggemøte 14 den 2. oktober 2026 innebærer en endring etter punkt 32.1, og varsler etter punkt 32.2.</p>
-                <p>I byggemøtet ble det bestemt at fasadeplatene på østfasaden skal erstattes med tegl, med ny underkonstruksjon. Prosjektlederen ga pålegget muntlig. Det er referert i punkt 14.3 i byggemøtereferatet.</p>
-                <p>Totalentreprenøren ber om at byggherren svarer etter punkt 32.3.</p>
-                <p class="brevfot">Sendt herfra 9. oktober 2026 kl. 10.05. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
-              </article>
               </div>
             </li>
 
@@ -600,26 +653,28 @@ li.kun-te,li.kun-bh{display:revert}
   const tKnapper = [...document.querySelectorAll('.tilstandsvalg button')];
   const kKnapper = [...document.querySelectorAll('.kravvalg button')];
   const lKnapper = [...document.querySelectorAll('.lengdevalg button')];
-  const pane = document.getElementById('brevpane'), paneplass = document.getElementById('brevpane-plass'), panehvilket = document.getElementById('brevpane-hvilket');
+  const paneplass = document.getElementById('brevpane-plass'), panehvilket = document.getElementById('brevpane-hvilket');
   const traad = document.getElementById('traad');
+  const bred = matchMedia('(min-width: 1181px)');
+  let vist = null;
 
-  // «Lang sak»: åtte registrerte e-poster om vederlaget mellom brev 4 og brev 3, for å vise sammenleggingen.
+  // «Lang sak»: åtte registrerte e-poster om vederlaget mellom brev 5 og brev 4, for å vise sammenleggingen.
   const EPOSTER = [
-    ['TE', 'E-post fra totalentreprenøren', '25. oktober 2026', 'Mengdeoppstilling for underkonstruksjonen'],
-    ['BH', 'E-post fra byggherren', '24. oktober 2026', 'Spørsmål om enhetsprisene i kravet'],
-    ['TE', 'E-post fra totalentreprenøren', '23. oktober 2026', 'Svar om enhetsprisene'],
-    ['BH', 'Møtereferat', '22. oktober 2026', 'Byggemøte 16, punkt 16.4 om fasaden'],
-    ['TE', 'E-post fra totalentreprenøren', '22. oktober 2026', 'Leveringstid for tegl'],
-    ['BH', 'E-post fra byggherren', '21. oktober 2026', 'Arkitektens merknad til underkonstruksjonen'],
-    ['TE', 'E-post fra totalentreprenøren', '20. oktober 2026', 'Revidert kalkyle, utkast'],
-    ['BH', 'E-post fra byggherren', '20. oktober 2026', 'Bekreftelse på mottatt krav'],
+    ['TE', 'E-post', '25. okt. 2026', 'Mengdeoppstilling for underkonstruksjonen'],
+    ['BH', 'E-post', '24. okt. 2026', 'Spørsmål om enhetsprisene i kravet'],
+    ['TE', 'E-post', '23. okt. 2026', 'Svar om enhetsprisene'],
+    ['BH', 'Møtereferat', '22. okt. 2026', 'Byggemøte 16'],
+    ['TE', 'E-post', '22. okt. 2026', 'Leveringstid for tegl'],
+    ['BH', 'E-post', '21. okt. 2026', 'Arkitektens merknad til underkonstruksjonen'],
+    ['TE', 'E-post', '21. okt. 2026', 'Revidert kalkyle, utkast'],
+    ['BH', 'E-post', '20. okt. 2026', 'Bekreftelse på mottatt krav'],
   ];
-  const foerBrev3 = raden('brev-3');
-  EPOSTER.forEach(([part, tittel, dato, hva]) => {
+  const foerBrev4 = raden('brev-4');
+  EPOSTER.forEach(([part, type, dato, hva]) => {
     const li = document.createElement('li');
     li.className = 'innlegg kompakt registrert lang';
-    li.innerHTML = `<span class="part${part === 'BH' ? ' bh' : ''}" aria-hidden="true">${part}</span><div class="innlegg-hode"><h3>${tittel} <span class="merke-reg">Dokumentasjon</span></h3><a class="lenke" href="#">Åpne</a><p class="innlegg-meta">${hva} · sendt ${dato}, ifølge ${part === 'BH' ? 'byggherren' : 'totalentreprenøren'} · gjelder vederlagsjusteringen</p></div>`;
-    traad.insertBefore(li, foerBrev3);
+    li.innerHTML = `<span class="part${part === 'BH' ? ' bh' : ''}" aria-hidden="true">${part}</span><div class="rad"><span class="dato num">${dato}</span><h3><a href="#">${hva}</a></h3><span class="meta"><span class="sporet">Vederlag</span><span class="type">${type} · ifølge ${part}</span></span></div>`;
+    traad.insertBefore(li, foerBrev4);
   });
 
   // Mer enn åtte rader: de eldre legges sammen, unntatt påberopelsen. Én knapp folder dem ut.
@@ -628,7 +683,7 @@ li.kun-te,li.kun-bh{display:revert}
     traad.querySelectorAll('.eldre').forEach((e) => e.remove());
     traad.querySelectorAll('.skjult').forEach((e) => e.classList.remove('skjult'));
     const rader = [...traad.querySelectorAll('li.innlegg')].filter(synlig);
-    const brev = rader.filter((r) => r.dataset.brev || r.querySelector('h3')?.textContent.startsWith('Endringsordre')).length;
+    const brev = rader.filter((r) => r.dataset.brev).length;
     const reg = rader.filter((r) => r.classList.contains('registrert')).length;
     document.getElementById('antall').textContent = `${brev} brev · ${reg} registrert`;
     if (utvidet || rader.length <= 8) return;
@@ -640,40 +695,36 @@ li.kun-te,li.kun-bh{display:revert}
     li.querySelector('button').addEventListener('click', () => { utvidet = true; leggSammen(); });
     traad.insertBefore(li, eldre[0]);
   }
-  const bred = matchMedia('(min-width: 1181px)');
-  let vist = null;
 
-  // Brevet står ved siden av tråden på bred skjerm, og i raden på smal.
+  // Brevet står ved siden av tråden på bred skjerm, og i raden på smal. Tittelen i raden er knappen.
+  function nullstill(id){
+    const b = document.getElementById(id), r = raden(id), k = r.querySelector('.les');
+    r.querySelector('.brevplass').appendChild(b);
+    b.hidden = true;
+    r.classList.remove('valgt');
+    k.removeAttribute('aria-pressed');
+    k.removeAttribute('aria-expanded');
+  }
   function visBrev(id){
-    const forrige = vist && document.getElementById(vist);
-    if (forrige && forrige.id !== id) {
-      raden(forrige.id).querySelector('.brevplass').appendChild(forrige);
-      forrige.hidden = true;
-      raden(forrige.id).classList.remove('valgt');
-      raden(forrige.id).querySelector('.les').setAttribute('aria-expanded', 'false');
-      raden(forrige.id).querySelector('.les').textContent = 'Les brevet';
-      raden(forrige.id).querySelector('.les').removeAttribute('aria-pressed');
-    }
+    if (vist && vist !== id) nullstill(vist);
     const brev = document.getElementById(id), rad = raden(id), knapp = rad.querySelector('.les');
     if (bred.matches) {
       paneplass.appendChild(brev);
       brev.hidden = false;
       rad.classList.add('valgt');
       knapp.setAttribute('aria-pressed', 'true');
-      knapp.textContent = 'Vises til høyre';
-      panehvilket.textContent = rad.querySelector('h3').firstChild.textContent.trim().replace(/\s*·\s*$/, '');
+      panehvilket.textContent = rad.dataset.navn;
       vist = id;
     } else {
       const aapent = brev.hidden;
       rad.querySelector('.brevplass').appendChild(brev);
       brev.hidden = !aapent;
       knapp.setAttribute('aria-expanded', String(aapent));
-      knapp.textContent = aapent ? 'Lukk brevet' : 'Les brevet';
       vist = aapent ? id : null;
     }
   }
   function sisteOmForholdet(){
-    return [...document.querySelectorAll('#traad [data-brev]')].find((r) => synlig(r) && !r.classList.contains('kompakt'))?.dataset.brev ?? null;
+    return [...traad.querySelectorAll('[data-brev]')].find((r) => synlig(r) && r.querySelector('.sporet')?.textContent === 'Forholdet')?.dataset.brev ?? null;
   }
   function oppdater(){
     const d = skall.dataset;
@@ -699,10 +750,7 @@ li.kun-te,li.kun-bh{display:revert}
   kKnapper.forEach(b => b.addEventListener('click', () => { skall.dataset.krav = b.dataset.krav; oppdater(); }));
   lKnapper.forEach(b => b.addEventListener('click', () => { skall.dataset.lengde = b.dataset.lengde; utvidet = false; oppdater(); }));
   document.querySelectorAll('.les').forEach(k => k.addEventListener('click', () => visBrev(k.getAttribute('aria-controls'))));
-  bred.addEventListener('change', () => {
-    if (vist) { const id = vist; vist = null; const b = document.getElementById(id); b.hidden = true; raden(id).querySelector('.brevplass').appendChild(b); raden(id).classList.remove('valgt'); const k = raden(id).querySelector('.les'); k.removeAttribute('aria-pressed'); k.setAttribute('aria-expanded', 'false'); k.textContent = 'Les brevet'; }
-    oppdater();
-  });
+  bred.addEventListener('change', () => { if (vist) { nullstill(vist); vist = null; } oppdater(); });
   // Tilstandene er ankrene #<svar>-<part>, for eksempel #avslatt-te eller #ubesvart-bh.
   function lesAnker(){
     const m = /^#(ubesvart|avslatt|eo)-(te|bh)$/.exec(location.hash);
