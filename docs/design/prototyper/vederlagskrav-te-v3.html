@@ -19,6 +19,10 @@
   åpnes med «Endre». Én post er åpen om gangen, som et skjema med etikett over felt, oppgjørsformen
   som en liste med én forklaring per alternativ, og «Ferdig» og «Fjern» i bunnen. Byggherrens svar
   følger samme mønster, med «Slik står det i brevet» som leselinje.
+  Samme dag: varslene etter punkt 34.3.3 og 34.4 er snudd til unntaket. Skjemaet sier at kravet er
+  varselet for posten, og TE oppgir bare et tidligere varsel når det finnes. Leselinja i svaret viser
+  standpunktet i postens første lag uten etikett, lagene under som dempede linjer som begynner med
+  vilkåret, og gjentar ikke en innsigelse som rammer hele kravet.
   v2 under:
   Prototype v2 av totalentreprenørens krav om vederlagsjustering i Varden, etter svarene 07.11 i
   docs/vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md: kravposter med fast betegnelse, oppgjørsform
@@ -481,6 +485,11 @@ a.liten-knapp{color:inherit}
 .svt .c-svar ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
 .svt .c-svar .u{display:block;font-size:12px;color:var(--ink-3)}
 .postskjema .trapp{margin:0}
+.varsel{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.varsel .oppgitt b{color:var(--ink)}
+.postskjema .forgreining .spm{font-size:14px}
+.svt .c-svar .hoved{display:block;color:var(--ink)}
+.svt .c-svar .u{font-size:12px;color:var(--ink-3);display:block;margin-top:2px}
 @media (max-width:860px){
   .krt{grid-template-columns:max-content minmax(0,1fr) 48px}
   .krt .c-form,.krt .c-pns{grid-column:2;font-size:12px;color:var(--ink-3)}
@@ -762,16 +771,17 @@ const erVarselpost = p => !p.trukket && !!hjemmel(p) && !hadde(p);
 const kildeTil = p => saksvarsler().find(v => v.id === p.kilde);
 const tilListe = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' og ' + a.at(-1) : a[0];
 
-function varselblokk(p, hjelp) {
+function varselblokk(p) {
   const id = p.id, h = hjemmel(p);
-  const navn = h === '34.4' ? 'Varsel før regningsarbeidet settes i gang (punkt 34.4)' : 'Varselet om justering av enhetsprisene (punkt 34.3.3)';
-  if (hadde(p)) return `<p class="oppgitt" data-spor="U-12 · D-19"><b>${navn}:</b> gitt med kravet i brev 5.</p>`;
+  const navn = h === '34.4' ? 'Varsel om regningsarbeid (punkt 34.4)' : 'Varsel om justering av enhetsprisene (punkt 34.3.3)';
+  const regel = h === '34.4' ? 'Byggherren skal varsles før regningsarbeidet settes i gang.' : 'Varsles det ikke uten ugrunnet opphold, har du bare krav på den justeringen byggherren måtte forstå.';
+  if (hadde(p)) return `<p class="oppgitt" data-spor="U-12 · D-19"><b>${navn}.</b> Gitt med kravet i brev 5.</p>`;
   const liste = saksvarsler().filter(v => v.hjemmel === h);
   const TYPER = ['Brev', 'E-post', 'Møtereferat', 'Notat og annet dokument'];
   const SENDT = ['Per post', 'Som PDF i e-post', 'I prosjekthotellet', 'På annen måte'];
   const utenfor = `<div class="forgreining" data-spor="U-12 · D-19 · S-12">
-      <fieldset class="oppgj"><legend class="spm">Hva slags dokument?</legend><div class="valg lett">${TYPER.map(t => radio('ut-' + id, t, p.uType, t)).join('')}</div></fieldset>
-      ${p.uType === 'Brev' ? `<fieldset class="oppgj"><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg lett liste">${SENDT.map(t => radio('us-' + id, t, p.uSendt, t)).join('')}</div></fieldset>` : ''}
+      <fieldset class="oppgj"><legend class="spm">Hva slags dokument?</legend><div class="valg lett">${TYPER.map(x => radio('ut-' + id, x, p.uType, x)).join('')}</div></fieldset>
+      ${p.uType === 'Brev' ? `<fieldset class="oppgj"><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg lett liste">${SENDT.map(x => radio('us-' + id, x, p.uSendt, x)).join('')}</div></fieldset>` : ''}
       <div class="beloepfelt"><label for="ud-${id}">Datoen det ble sendt</label><span class="datofelt"><input id="ud-${id}" data-felt="uDato" aria-required="true" value="${esc(p.uDato)}"></span></div>
       <div class="beloepfelt"><label for="ub-${id}">Kort beskrivelse</label><input id="ub-${id}" class="tekstfelt" data-felt="uBeskr" aria-required="true" value="${esc(p.uBeskr)}"></div>
       <div class="beloepfelt"><span class="spm" id="uf-${id}">Dokumentet</span><span class="hjelp">PDF. Det står i saken som et eget brev med kategorien varsel når kravet sendes, og legges ved kravet.</span><button class="liten-knapp" type="button" aria-describedby="uf-${id}" style="align-self:flex-start">Legg ved dokumentet</button></div>
@@ -782,13 +792,13 @@ function varselblokk(p, hjelp) {
         ${radio('vk-' + id, 'utenfor', p.kilde, 'I et dokument sendt utenfor løsningen, som ikke er lagt til i saken')}
       </div></fieldset>`
     : `<p class="hjelp">Saken har ikke noe varsel etter punkt ${h}${tilstand === 'ny' ? ' fra etter brev 5' : ''}. Legg til dokumentet varselet ble gitt i.</p>`;
-  const gitt = `<div class="forgreining">${hvor}${p.kilde === 'utenfor' ? utenfor : ''}</div>`;
-  const merknad = liste.length ? `Saken har et varsel etter punkt ${h} som ikke er knyttet til noen kravpost. ` : '';
-  return `<fieldset class="oppgj varselvalg" data-spor="U-12 · D-19"><legend class="spm">${navn}</legend>
-    ${merknad || hjelp ? `<span class="hjelp">${merknad}${hjelp}</span>` : ''}
-    <div class="valg lett">${radio('vv-' + id, 'krav', p.varsel, `Kravet er varselet for ${id}`)}${radio('vv-' + id, 'gitt', p.varsel, `Varselet for ${id} er alt gitt`)}</div>
-    ${p.varsel === 'gitt' ? gitt : ''}
-  </fieldset>`;
+  if (p.varsel === 'krav') return `<div class="varsel" data-spor="U-12 · D-19">
+    <p class="oppgitt"><b>${navn}.</b> ${regel} Dette kravet er varselet for ${id}.${liste.length ? ` Saken har et varsel etter punkt ${h} som ikke er knyttet til noen kravpost.` : ''}</p>
+    <button class="lenke liten" type="button" data-handling="varsel-gitt">Varselet for ${id} er gitt før</button></div>`;
+  return `<div class="varsel" data-spor="U-12 · D-19">
+    <p class="oppgitt"><b>${navn}.</b> ${regel} Varselet for ${id} er gitt før, og brevet sier hvor.</p>
+    <div class="forgreining">${hvor}${p.kilde === 'utenfor' ? utenfor : ''}</div>
+    <button class="lenke liten" type="button" data-handling="varsel-krav">Dette kravet er varselet for ${id} likevel</button></div>`;
 }
 
 let aapenPost = 'P2'; // posten som er åpen for redigering; bare én om gangen
@@ -803,7 +813,7 @@ function formKort(p) {
   const u = [];
   if (p.form === 'ep') u.push(p.ep === 'justert' ? 'justerte' : 'kontraktens');
   if (o) u.push(`${p.form === 'ep' ? 'anslag' : 'overslag'} ${fmt(o)}`);
-  if (erVarselpost(p)) u.push(p.varsel === 'krav' ? 'kravet er varselet' : 'varselet er gitt før');
+  if (erVarselpost(p)) u.push(`varsel etter punkt ${hjemmel(p)} ${p.varsel === 'krav' ? 'gis med kravet' : 'gitt før'}`);
   return `${FORM[p.form]}${u.length ? `<span class="u">${u.join(' · ')}</span>` : ''}`;
 }
 function endretKort(p) {
@@ -831,9 +841,9 @@ function postSkjema(p, saerskilt) {
   const id = p.id, navnId = saerskilt ? 'Særskilt' : id;
   const fast = `<div class="felt"><label for="b-${id}">Beløpet du krever</label><span class="inndata"><input id="b-${id}" inputmode="decimal" data-felt="beloep" value="${p.beloep ? kr(p.beloep).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
   const ep = `<fieldset class="oppgj"><legend class="spm">Hvilke enhetspriser?</legend><div class="valg lett">${radio('ep-' + id, 'kontrakt', p.ep, 'Kontraktens enhetspriser (punkt 34.3.1)')}${radio('ep-' + id, 'justert', p.ep, 'Justerte enhetspriser (punkt 34.3.2)')}</div></fieldset>
-    ${p.ep === 'justert' ? varselblokk(p, 'Varsler du for sent, har du bare krav på den justeringen byggherren måtte forstå. Byggherren skal svare uten ugrunnet opphold.') : ''}
+    ${p.ep === 'justert' ? varselblokk(p) : ''}
     <div class="felt"><label for="a-${id}">Anslag (valgfritt)</label><span class="hjelp">Mengde × enhetspris. En opplysning, ikke et tilbud. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp</span></span><span class="inndata"><input id="a-${id}" inputmode="decimal" data-felt="anslag" value="${p.anslag ? kr(p.anslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
-  const reg = `${varselblokk(p, '')}
+  const reg = `${varselblokk(p)}
     <div class="felt"><label for="o-${id}">Kostnadsoverslag (punkt 30.2) <span class="aapent" data-spor="S-2">Åpent: om det er påkrevd</span></label><span class="hjelp">En opplysning, ikke et tilbud. Ser det ut til å bli overskredet, skal du varsle byggherren. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp når arbeidet er utført</span></span><span class="inndata"><input id="o-${id}" inputmode="decimal" data-felt="overslag" value="${p.overslag ? kr(p.overslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
   const fjern = tilstand === 'ny' && p.forrige
     ? `<button class="lenke liten" type="button" data-handling="trekk">${saerskilt ? 'Trekk den særskilte vederlagsjusteringen' : 'Trekk ' + id}</button>`
@@ -928,7 +938,7 @@ function oppsummer() {
   document.getElementById('virkning').innerHTML = v.join('');
   // VS-U50: skjemaet viser før sending hvilke poster kravet regnes som varsel for. Panelet sier hva brevet sier.
   const vp = d.poster.filter(erVarselpost);
-  const rad2 = p => `<tr><td>${p.id}<span class="dempet blokklinje">pkt. ${hjemmel(p)}</span></td><td>${p.varsel === 'krav' ? 'Kravet er varselet' : kildeTil(p) ? 'Gitt i ' + kildeTil(p).brevet : 'Gitt i et vedlagt dokument' + (p.uDato ? ' av ' + esc(p.uDato) : '')}</td></tr>`;
+  const rad2 = p => `<tr><td>${p.id}<span class="dempet blokklinje">pkt. ${hjemmel(p)}</span></td><td>${p.varsel === 'krav' ? 'Gis med dette kravet' : kildeTil(p) ? 'Gitt i ' + kildeTil(p).brevet : 'Gitt i et vedlagt dokument' + (p.uDato ? ' av ' + esc(p.uDato) : '')}</td></tr>`;
   const blokk = document.getElementById('varselliste');
   blokk.hidden = !vp.length;
   blokk.innerHTML = vp.length ? `<p class="blokktittel">Varsel etter punkt 34.3.3 og 34.4</p><table class="tabell"><tbody>${vp.map(rad2).join('')}</tbody></table>` : '';
@@ -1023,6 +1033,18 @@ function trapp(p, k) {
   if (grupper.length === 1) return `<li>${tekst(grupper[0].x)}</li>`;
   return grupper.map(g => `<li><b>${k[g.i].navn}${k[g.i].hvis ? `, hvis ${k[g.i].hvis}` : ''}:</b> ${tekst(g.x)}</li>`).join('');
 }
+const HELE_KRAVET = 'varselet etter punkt 34.1.2 kom for sent';
+// Leselinja i tabellen: standpunktet i postens første lag uten etikett, lagene under som dempede linjer
+// som begynner med vilkåret. En innsigelse som rammer hele kravet, står én gang over tabellen.
+function leselinje(p, k) {
+  const c = k.map((_, i) => celle(p, i, k));
+  const grupper = [];
+  c.forEach((x, i) => { const g = grupper.at(-1); if (g && g.x.t === x.t && g.x.why === x.why) return; grupper.push({ i, x }); });
+  const egne = grupper.filter(g => g.x.why !== HELE_KRAVET);
+  const tekst = x => x.v !== null ? `${x.t}, ${x.why}.` : `${stor(x.why)}.`;
+  const [forste, ...resten] = egne;
+  return `<span class="hoved">${tekst(forste.x)}</span>` + resten.map((g, n) => `<span class="u">${n ? 'Videre subsidiært' : 'Subsidiært'}, hvis ${k[g.i].hvis}: ${tekst(g.x)}</span>`).join('');
+}
 function bhKort(p, k) {
   const b = bhP(p), id = p.id, s = p.id === 'S';
   const krav = p.form === 'fast' ? fmt(kr(p.beloep)) : (p.form === 'ep' ? (p.ep === 'justert' ? 'justerte enhetspriser' : 'kontraktens enhetspriser') : 'regningsarbeid') + (kr(p.form === 'ep' ? p.anslag : p.overslag) ? `, ${p.form === 'ep' ? 'anslag' : 'overslag'} ${fmt(kr(p.form === 'ep' ? p.anslag : p.overslag))}` : '');
@@ -1041,7 +1063,7 @@ function bhKort(p, k) {
   const krever = `TE krever: ${p.form === 'fast' ? 'fast sum, ' : ''}${krav}${p.pns ? ' · PNS ' + esc(p.pns) : ''}`;
   if (aapenSvar !== id) return `<div class="krt svt" data-bh-id="${id}">
     <span class="c-id">${s ? 'Særskilt' : id}</span><span class="c-navn">${esc(p.navn)}<span class="u">${krever}</span></span>
-    <span class="c-svar"><ol>${brevet}</ol>${rammes ? '<span class="u">Subsidiært, hvis varselet kom i tide</span>' : ''}</span>
+    <span class="c-svar">${leselinje(p, k)}${b.tilbud ? `<span class="u">Byggherren krever et spesifisert tilbud for ${s ? 'posten' : id} (punkt 34.2.1).</span>` : ''}</span>
     <span class="c-handling"><button class="lenke liten" type="button" data-bh-handling="aapne" aria-label="Endre svaret på ${s ? 'den særskilte posten' : id}">Endre</button></span></div>`;
   return `<article class="postskjema" data-bh-id="${id}" aria-label="${s ? 'Særskilt' : id}">
     <div class="hode"><b>${s ? 'Særskilt' : id} · ${esc(p.navn)}</b>${rammes ? '<span class="endret">Subsidiært, hvis varselet kom i tide</span>' : ''}</div>
@@ -1120,6 +1142,7 @@ skjema.addEventListener('click', e => {
     const a = h.dataset.handling;
     if (a === 'ny-post') { const nr = Math.max(0, ...d.poster.map(p => Number(p.id.slice(1)))) + 1; d.poster.push({ id: 'P' + nr, navn: '', pns: '', form: 'fast', beloep: 0, ep: 'kontrakt', anslag: '', overslag: '', begr: '', varsel: 'krav', kilde: '', uType: 'Brev', uSendt: 'Som PDF i e-post', uDato: '', uBeskr: '' }); aapenPost = 'P' + nr; tegn(); document.getElementById(`n-P${nr}`).focus(); }
     if (a === 'aapne') { aapenPost = art.dataset.id; tegn(); document.getElementById(`n-${aapenPost}`)?.focus(); }
+    if (a === 'varsel-gitt' || a === 'varsel-krav') { const p = finnPost(art.dataset.id); p.varsel = a === 'varsel-gitt' ? 'gitt' : 'krav'; if (p.varsel === 'gitt' && !p.kilde) p.kilde = saksvarsler().find(s => s.hjemmel === hjemmel(p))?.id ?? 'utenfor'; tegn(); document.querySelector(`#post-${p.id} .varsel input, #post-${p.id} .varsel button`)?.focus(); }
     if (a === 'lukk') { const id = art.dataset.id; aapenPost = null; tegn(); document.querySelector(`#post-${id} [data-handling="aapne"]`)?.focus(); }
     if (a === 'fjern') { d.poster = d.poster.filter(p => p.id !== art.dataset.id); aapenPost = null; tegn(); }
     if (a === 'trekk') { finnPost(art.dataset.id).trukket = true; aapenPost = null; tegn(); }
