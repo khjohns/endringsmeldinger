@@ -7,8 +7,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
   Prototype v1 av totalentreprenørens krav om fristforlengelse i Varden, og byggherrens svar på det.
-  Samme mønster, stilark og eksempelsak som vederlagskrav-te-v3.html (#1663). Designforslag, ikke vedtatt,
-  og ingen bestilling viser til den ennå.
+  Samme mønster, stilark og eksempelsak som vederlagskrav-te-v3.html (#1663). Designforslag, ikke vedtatt. Bestillingen er
+  docs/domenetabell/brukerforlop/BF-20.md.
   - Kravet angir dagene per frist i kontrakten (Del II punkt E.1), ikke ett tall for saken. Fristene står
     i en tabell som kravpostene i v3: frist, gjeldende frist, dager og ny frist, med «Endre» for én om gangen.
     Dagene legges ikke sammen, så tabellen har ingen sumrad.
@@ -24,7 +24,7 @@
     #foresporsel (svar på byggherrens forespørsel etter punkt 33.6.2, bokstav a eller b, VS-U17),
     #brev og #svar. Svaret har lagene i fristsvar.html: punkt 33.4, punkt 33.6.1, hindringen og dagene.
   Teksten er prototypetekst. Gult utenom utkastet er merker i prototypen («Åpent», setninger som ikke
-  er vedtatt ordrett) og bygges ikke. «Vis sporbarhet» viser vedtakene på elementene.
+  er vedtatt ordrett) og bygges ikke. «Vis sporbarhet» viser punktene i bestillingen på elementene.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
@@ -518,6 +518,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
 </style>
 </head>
 <body>
+<span hidden id="svar"></span>
 <div class="skall" data-hva="krav" data-tilstand="nytt" data-bokstav="a" data-side="skjema">
   <aside class="panel" aria-label="Saken">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
@@ -555,11 +556,11 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <p>Til byggherren (BH)</p>
             <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bare synlig for teamet ditt til det er sendt</p>
           </div>
-          <nav class="punkt hva-valg kun-nytt" aria-labelledby="hva-tittel" data-spor="VS-U15"><p class="spm" id="hva-tittel">Hva sender du?</p>
+          <nav class="punkt hva-valg kun-nytt" aria-labelledby="hva-tittel" data-spor="U-13 · D-3"><p class="spm" id="hva-tittel">Hva sender du?</p>
             <div class="valg"><a class="liten-knapp" href="#nytt-krav" data-hva="krav" aria-current="page">Send kravet med dagene</a><a class="liten-knapp" href="#varsel" data-hva="varsel">Bare varsle etter punkt 33.4, uten dager</a></div>
             <p class="hjelp">Du skal varsle uten ugrunnet opphold, også før du kan angi dagene (punkt 33.4). Sender du kravet, er det også varselet.</p>
           </nav>
-          <section class="punkt kun-varsel" aria-labelledby="pvarsel" data-spor="VS-U15 · MM-U1">
+          <section class="punkt kun-varsel" aria-labelledby="pvarsel" data-spor="U-13 · D-3">
             <div class="punkt-hode"><h2 id="pvarsel">Varselet</h2><span class="hjemmel">punkt 33.4</span></div>
             <p class="oppgitt">Varsles det for sent, tapes kravet på fristforlengelse. Når du har grunnlag for å beregne omfanget, skal du uten ugrunnet opphold angi og begrunne antall dager (punkt 33.6.1).</p>
             <div class="beloepfelt"><label for="vklar">Når ble du klar over forholdet?</label><span class="datofelt"><input id="vklar" value="12.09.2026"></span></div>
@@ -573,18 +574,18 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <button class="lenke" type="button"><span class="kun-nytt">Les varselet ved siden av</span><span class="kun-ny">Les brev 5 og svaret i brev 6</span><span class="kun-foresp">Les forespørselen ved siden av</span></button>
           </div>
 
-          <div class="tidligere-svar kun-ny" role="note">
+          <div class="tidligere-svar kun-ny" role="note" data-spor="U-10 · D-6">
             <p><b>Byggherren har svart på kravet i brev 5</b> (brev 6, 27. oktober 2026). Byggherren godkjenner 10 dager for F1 Overtakelse og avslår F2 Mekanisk ferdigstillelse.</p>
             <ul>
               <li>Etter at den nye versjonen er sendt, kan svaret i brev 6 ikke godtas her. Brev 5 og 6 står som de ble sendt.</li>
-              <li>En frist du tar ut, trekkes uttrykkelig. Brevet sier det.</li>
+              <li data-spor="U-10 · S-4">En frist du tar ut, trekkes uttrykkelig. Brevet sier det.</li>
             </ul>
             <div class="begr" id="boks-standpunkt" style="border-top:0;padding-top:0"></div>
           </div>
 
-          <div class="tidligere-svar kun-foresp" role="note" data-spor="VS-U19 · VS-U10">
+          <div class="tidligere-svar kun-foresp" role="note" data-spor="U-11 · D-4">
             <p><b>Byggherren ber deg angi og begrunne antall dager</b> (brev 4, 2. oktober 2026, mottatt for 4 dager siden). Svarer du ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).</p>
-            <fieldset class="oppgj" data-spor="VS-U17"><legend class="spm">Hvordan svarer du?</legend>
+            <fieldset class="oppgj" data-spor="D-4"><legend class="spm">Hvordan svarer du?</legend>
               <div class="valg kompakt"><label><input type="radio" name="bokstav" value="a" checked> Angi og begrunne dagene (bokstav a)</label><label><input type="radio" name="bokstav" value="b"> Begrunne hvorfor du ennå ikke kan beregne dagene (bokstav b)</label></div>
             </fieldset>
           </div>
@@ -593,11 +594,11 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p1">Varselet om fristforlengelse</h2><span class="hjemmel">punkt 33.4</span><button class="lenke liten" type="button" data-vis-punkt aria-controls="p1">Ferdig</button><span class="kortsvar" id="ks1"></span></div>
             <p class="oppgitt">Varselet skal gis uten ugrunnet opphold etter at du ble eller burde ha blitt klar over forholdet, også før du kan angi dagene. Varsles det for sent, tapes kravet. Varselet gjelder hele kravet, med alle fristene.</p>
             <div class="felter"><div class="beloepfelt"><label for="klar">Når ble du klar over forholdet?</label><span class="hjelp kun-nytt">Oppgitt i varselet om forholdet, brev 2</span><span class="hjelp ikke-nytt">Oppgitt i varselet</span><span class="datofelt"><input id="klar" value="12.09.2026" readonly></span></div></div>
-            <div class="varsel kun-nytt kun-v1-her" data-spor="MM-U1">
+            <div class="varsel kun-nytt kun-v1-her" data-spor="U-6 · D-3">
               <p class="oppgitt">Dette kravet er varselet.</p>
               <button class="lenke liten" type="button" data-varsel="annen">Varselet er gitt før, utenfor løsningen</button>
             </div>
-            <div class="varsel kun-nytt kun-v1-annen" data-spor="MM-U1" hidden>
+            <div class="varsel kun-nytt kun-v1-annen" data-spor="U-6 · D-3" hidden>
               <p class="oppgitt"><b>Varselet er gitt før, utenfor løsningen.</b> Brevet sier når, og brevet du varslet i, legges ved.</p>
               <div class="beloepfelt"><label for="v1dato">Datoen for varselet</label><span class="hjelp">Datoen settes én gang.</span><span class="datofelt"><input id="v1dato" value="18.09.2026" aria-required="true"></span></div>
               <button class="liten-knapp" type="button">Legg ved brevet</button>
@@ -606,15 +607,15 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt kun-v1-her">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-nytt kun-v1-annen" hidden>Varselet ble gitt 18. september 2026, <b>6 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p><p class="kun-foresp">Varselet ble sendt i brev 3, 18. september 2026, <b>6 kalenderdager</b> etter.</p></div>
           </section>
 
-          <section class="punkt nummerert kun-a" aria-labelledby="p2" data-spor="KA-U8 · VS-U18">
+          <section class="punkt nummerert kun-a" aria-labelledby="p2" data-spor="U-1 · D-1 · S-1 · S-2">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p2">Fristforlengelse</h2><span class="hjemmel">punkt 33.1 b og 33.6.1</span></div>
             <p class="oppgitt">Angi dagene for hver frist kravet gjelder. Fristene står i kontrakten (Del II punkt E.1). Dagene gjelder hver frist for seg og legges ikke sammen. <span class="aapent">Åpent: kalenderdager eller hverdager</span></p>
             <div id="frister" class="postliste"></div>
-            <div id="snarvei-frister"></div>
+            <div id="snarvei-frister" data-spor="U-4"></div>
             <button class="liten-knapp" type="button" data-handling="ny-frist" style="align-self:flex-start">Legg til frist</button>
           </section>
 
-          <section class="punkt nummerert kun-a" aria-labelledby="p3" data-spor="KA-U33 · VS-U18">
+          <section class="punkt nummerert kun-a" aria-labelledby="p3" data-spor="U-7 · D-1 · D-2">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p3">Begrunnelse</h2><span class="hjemmel">punkt 33.5 og 33.6.1</span></div>
             <p class="oppgitt">Kravet skal begrunnes. Fristforlengelsen skal svare til virkningen forholdet har hatt på fremdriften. Det tas blant annet hensyn til</p>
             <ul class="veiledning"><li>nødvendig avbrudd</li><li>forskyvning av arbeidet til en ugunstigere eller gunstigere årstid</li><li>den samlede virkningen av tidligere varslede forhold.</li></ul>
@@ -622,7 +623,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <div class="begr" id="boks-begr" style="border-top:0;padding-top:0"></div>
           </section>
 
-          <section class="punkt nummerert kun-foresp kun-b" aria-labelledby="pb" data-spor="VS-U17">
+          <section class="punkt nummerert kun-foresp kun-b" aria-labelledby="pb" data-spor="D-4">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="pb">Hvorfor du ennå ikke kan beregne dagene</h2><span class="hjemmel">punkt 33.6.2 annet ledd b</span></div>
             <div class="begr" id="boks-b" style="border-top:0;padding-top:0"></div>
             <p class="virkning">Når du kan beregne dagene, skal du uten ugrunnet opphold angi og begrunne dem. Da gjelder punkt 33.6.1 for kravet (punkt 33.6.2 femte ledd).</p>
@@ -647,11 +648,11 @@ select.tekstfelt{max-width:520px;appearance:auto}
         <aside class="stoette" aria-label="Kravet samlet">
           <section class="kort">
             <div class="kort-hode"><h2>Punktene</h2><p>Oppdateres mens du skriver.</p></div>
-            <nav aria-label="Punktene i brevet"><ol class="punktliste" id="punktliste"></ol></nav>
+            <nav aria-label="Punktene i brevet" data-spor="U-8"><ol class="punktliste" id="punktliste"></ol></nav>
             <div class="blokk" id="virkning"></div>
             <div class="blokk send"><a class="knapp" href="#brev">Se brevet før sending</a><p class="godkj"><span class="utkastmerke">Utkast</span><span>Ikke sendt. Lagret kl. 14.08.</span></p></div>
           </section>
-          <section class="kort kun-a" aria-labelledby="tl-tittel">
+          <section class="kort kun-a" aria-labelledby="tl-tittel" data-spor="U-5">
             <div class="kort-hode"><h2 id="tl-tittel">Datoene</h2><p>Fristene står slik de blir med kravet. Stiplet: ikke sendt ennå.</p></div>
             <ol class="tidslinje" id="tidslinje"></ol>
           </section>
@@ -659,7 +660,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
       </div>
 
       <div id="brev"><article id="brevark" class="ark" aria-label="Brevet"></article>
-        <section class="naar" aria-labelledby="naar-tittel">
+        <section class="naar" aria-labelledby="naar-tittel" data-spor="U-9">
           <h2 id="naar-tittel">Når du sender</h2>
           <ul id="naar-liste"></ul>
           <div class="knapper"><button class="knapp" type="button" id="send-knapp">Send kravet</button><a class="lenke" id="tilbake" href="#nytt-krav">Tilbake til skjemaet</a></div>
@@ -675,7 +676,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
               <p>Til totalentreprenøren (TE) · du er byggherre (BH)</p>
               <p class="dempet" style="color:var(--draft)">Illustrasjon av svaret per frist. Begrunnelse per punkt, forbehold og godkjenningen er som i fristsvar.html og er ikke med her.</p>
             </div>
-            <section class="punkt nummerert" aria-labelledby="bp1" data-spor="VS-U20 · VS-U4">
+            <section class="punkt nummerert" aria-labelledby="bp1" data-spor="D-5">
               <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp1">Varselet og spesifiseringen</h2><span class="hjemmel">punkt 33.4 og 33.6.1</span></div>
               <fieldset class="oppgj"><legend class="spm">Varselet om fristforlengelse (punkt 33.4). Gjelder hele kravet.</legend><div class="valg kompakt"><label><input type="radio" name="bv334" value="tide" checked> Kom i tide</label><label><input type="radio" name="bv334" value="sent"> Kom for sent</label></div></fieldset>
               <fieldset class="oppgj"><legend class="spm">Spesifiseringen av kravet (punkt 33.6.1). Gjelder hele kravet.</legend><div class="valg kompakt"><label><input type="radio" name="bspes" value="tide" checked> Kom i tide</label><label><input type="radio" name="bspes" value="sent"> Kom for sent</label></div></fieldset>
@@ -684,7 +685,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
               <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp2">Hindringen</h2><span class="hjemmel">punkt 33.1</span></div>
               <fieldset class="oppgj"><legend class="spm">Legger du til grunn at fremdriften hindres som følge av forholdet?</legend><div class="valg kompakt"><label><input type="radio" name="bhind" value="ja" checked> Ja</label><label><input type="radio" name="bhind" value="nei"> Nei</label></div></fieldset>
             </section>
-            <section class="punkt nummerert" aria-labelledby="bp3" data-spor="VS-U18">
+            <section class="punkt nummerert" aria-labelledby="bp3" data-spor="U-12 · D-2 · D-5">
               <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp3">Fristforlengelse</h2><span class="hjemmel">punkt 33.5 og 33.7</span></div>
               <p class="virkning" id="varselinfo" hidden></p>
               <p class="oppgitt">Ett svar per frist.</p>
@@ -692,7 +693,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
               <div id="bh-frister" class="postliste"></div>
             </section>
           </form>
-          <aside class="stoette" aria-label="Lagene samlet">
+          <aside class="stoette" aria-label="Lagene samlet" data-spor="U-12">
             <section class="kort">
               <div class="kort-hode"><h2>Lagene samlet</h2><p>Dager. Dempet: samme som laget til venstre.</p></div>
               <div class="blokk rulle"><table class="tabell smal" id="lagtabell"></table></div>
@@ -815,18 +816,18 @@ function fristSkjema(f) {
   const valg = Object.entries(FRISTER).map(([nr, x]) => `<label><input type="radio" name="fr-${id}" value="${nr}"${Number(nr) === f.frist ? ' checked' : ''}${brukt.includes(Number(nr)) ? ' disabled' : ''}> Frist ${nr} · ${x.navn} · ${kort(dato(x.dato))}${x.mulkt ? ' · dagmulkt' : ''}</label>`).join('');
   // Normalsvaret er en setning, unntaket en lenke (system.md).
   const del = f.del === 'deler'
-    ? `<div class="varsel"><p class="oppgitt"><b>Forlengelsen gjelder deler av arbeidene.</b> Da reduseres rigg og drift forholdsmessig i formelen i kontraktsgrunnlaget (Del II, tillegget til punkt 34.1.3).</p>
+    ? `<div class="varsel" data-spor="U-3 · S-5"><p class="oppgitt"><b>Forlengelsen gjelder deler av arbeidene.</b> Da reduseres rigg og drift forholdsmessig i formelen i kontraktsgrunnlaget (Del II, tillegget til punkt 34.1.3).</p>
         <div class="felt"><label for="dt-${id}">Hvilke deler?</label><input id="dt-${id}" class="tekstfelt bred" data-felt="delTekst" value="${esc(f.delTekst)}" aria-required="true"></div>
         <button class="lenke liten" type="button" data-handling="del-hele">Forlengelsen gjelder hele kontraktsarbeidet</button></div>`
-    : `<div class="varsel"><p class="oppgitt">Forlengelsen gjelder hele kontraktsarbeidet.</p><button class="lenke liten" type="button" data-handling="del-deler">Forlengelsen gjelder bare deler av arbeidene</button></div>`;
+    : `<div class="varsel" data-spor="U-3 · S-5"><p class="oppgitt">Forlengelsen gjelder hele kontraktsarbeidet.</p><button class="lenke liten" type="button" data-handling="del-deler">Forlengelsen gjelder bare deler av arbeidene</button></div>`;
   const fjern = ny() && f.forrige
     ? `<button class="lenke liten" type="button" data-handling="trekk">Trekk ${id}</button>`
     : `<button class="lenke liten" type="button" data-handling="fjern">Fjern ${id}</button>`;
   return `<article class="postskjema" data-id="${id}" id="frist-${id}" aria-label="${id}">
     <div class="hode"><b>${id} · ${F.navn}</b>${endretKort(f) ? `<span class="endret">${endretKort(f)}</span>` : ''}</div>
-    <fieldset class="oppgj"><legend>Fristen</legend><span class="hjelp">Fristene i kontrakten, Del II punkt E.1, med datoen som gjelder nå.</span><div class="valg lett liste">${valg}</div>
+    <fieldset class="oppgj" data-spor="U-2 · S-3"><legend>Fristen</legend><span class="hjelp">Fristene i kontrakten, Del II punkt E.1, med datoen som gjelder nå.</span><div class="valg lett liste">${valg}</div>
       <p class="oppgitt">Gjeldende frist: <b>${lang(dato(F.dato))}</b>${F.tidligere ? ` (${forlenget(F)}, ${F.tidligere.naar}). <span class="aapent">Åpent: om dagene regnes fra den avtalte eller den gjeldende fristen</span>` : ', som avtalt.'}</p></fieldset>
-    <div class="felt" data-spor="KA-U8"><label for="d-${id}">Dagene du krever</label><span class="hjelp"><span class="aapent">Åpent: kalenderdager eller hverdager</span></span><span class="inndata" style="width:140px"><input id="d-${id}" inputmode="numeric" data-felt="dager" value="${f.dager || ''}" aria-required="true" aria-describedby="nyd-${id}"><span aria-hidden="true">d</span></span><span class="hjelp" id="nyd-${id}" aria-live="polite">${nyDatoTekst(f)}</span></div>
+    <div class="felt" data-spor="D-1"><label for="d-${id}">Dagene du krever</label><span class="hjelp"><span class="aapent">Åpent: kalenderdager eller hverdager</span></span><span class="inndata" style="width:140px"><input id="d-${id}" inputmode="numeric" data-felt="dager" value="${f.dager || ''}" aria-required="true" aria-describedby="nyd-${id}"><span aria-hidden="true">d</span></span><span class="hjelp" id="nyd-${id}" aria-live="polite">${nyDatoTekst(f)}</span></div>
     ${del}
     <div class="felt"><label for="m-${id}">Kort om denne fristen (valgfritt)</label><span class="hjelp">Står ved fristen i brevet. Begrunnelsen for hele kravet står i punktet Begrunnelse.</span><textarea id="m-${id}" class="tekstfelt" data-felt="merk">${esc(f.merk)}</textarea></div>
     <div class="fot">${fjern}<button class="liten-knapp sterk" type="button" data-handling="lukk">Ferdig</button></div>
@@ -900,7 +901,7 @@ function oppsummer() {
 
 
   const v = [];
-  if (b) v.push('<p class="virkning" data-spor="VS-U17">Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. Byggherren kan be om dagene igjen bare etter reglene i punkt 33.6.1.</p>');
+  if (b) v.push('<p class="virkning">Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. Byggherren kan be om dagene igjen bare etter reglene i punkt 33.6.1.</p>');
   else {
     const ids = a.filter(f => f.dager).map(f => f.id);
     if (ids.length) v.push(`<p class="virkning">Kravet angir og begrunner antall dager for ${tilListe(ids)} (punkt 33.6.1).</p>`);
