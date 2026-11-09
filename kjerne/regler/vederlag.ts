@@ -85,10 +85,11 @@ export function gjelderVarslingspliktenForVederlag(hovedkategori: string | null)
 /** Predikatet for § 34.1.2 leses av regelsettet, som i standpunktene (#490). */
 type Varslingsplikt = Pick<Regelsett, 'gjelderVarslingspliktenForVederlag'>;
 
+const erProduktivitet = (p: Postsvar): p is Produktivitetssvar =>
+  'saerskilt' in p && p.saerskilt === 'produktivitet';
+
 const produktivitetIn = (svar: Vederlagssvar): Produktivitetssvar | undefined =>
-  svar.poster.find(
-    (p): p is Produktivitetssvar => 'saerskilt' in p && p.saerskilt === 'produktivitet'
-  );
+  svar.poster.find(erProduktivitet);
 
 export function beregnPreklusjon(svar: Vederlagssvar, regler: Varslingsplikt): Preklusjon {
   return {
@@ -129,7 +130,7 @@ function postresultater(svar: Vederlagssvar, p: Preklusjon): Postresultat[] {
     const krevd = beloep(post.krevd)!;
     const godkjent = beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
     const begrenset =
-      'saerskilt' in post && post.saerskilt === 'produktivitet' && p.produktivitet
+      erProduktivitet(post) && p.produktivitet
         ? (beloep(post.begrenset_beloep) ?? NULL_OERE)
         : null;
     return { post, krevd, godkjent, prinsipalt: p.hovedkrav ? NULL_OERE : (begrenset ?? godkjent) };

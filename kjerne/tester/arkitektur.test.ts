@@ -472,6 +472,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts', 'frosset/frysing.ts'],
   ],
   ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
+  // Standpunktene til oppgjørsformen etter § 34.2.2, ett per kravpost (KA-U57 (d)).
+  ['frosset/standpunkt.ts', 'utsagn', 'tilbudetIkkeAkseptert'],
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // Vedtaket 05.10: hvorfor svaret i sporet er subsidiært til forholdet. Brevteksten sier
   // det samme (A2).

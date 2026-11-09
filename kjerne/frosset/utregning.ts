@@ -142,7 +142,7 @@ const PRODUKTIVITETSFELT = {
 function vederlagssvaret(
   v: Svarvurdering,
   krav: Krav,
-  paaberopelse: Krav | null
+  hovedkategori: string | null
 ): { svar: Vederlagssvar; felt: Map<string, string> } {
   const felt = new Map<string, string>([['varslet_i_tide', 'hovedkrav_varslet_i_tide']]);
   const poster: Postsvar[] = [];
@@ -186,7 +186,7 @@ function vederlagssvaret(
   }
   return {
     svar: {
-      hovedkategori: kategori(paaberopelse).hovedkategori,
+      hovedkategori,
       varslet_i_tide: v.hovedkrav_varslet_i_tide as boolean | undefined,
       poster,
     },
@@ -236,7 +236,7 @@ function regnUtVederlag(
   const { hovedkategori } = kategori(paaberopelse);
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
   kontrollerMetoden(v);
-  const { svar, felt } = vederlagssvaret(v, krav, paaberopelse);
+  const { svar, felt } = vederlagssvaret(v, krav, hovedkategori);
   let r: Vederlagsberegning;
   try {
     r = beregnVederlag(svar, regler);

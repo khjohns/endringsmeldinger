@@ -5,7 +5,14 @@
 
 import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
-import { begrensningen, etikett, laget, standpunktet, type Svarinnhold } from './standpunkt.ts';
+import {
+  begrensningen,
+  etikett,
+  laget,
+  standpunktet,
+  tilbudetIkkeAkseptert,
+  type Svarinnhold,
+} from './standpunkt.ts';
 import { kategori } from './kravinnhold.ts';
 import type { Hjemmel, Krav, Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
 
@@ -81,9 +88,7 @@ export function beslutningslinje(
       (s): s is Extract<Standpunkt, { art: 'beloep' }> => s.art === 'beloep'
     );
     const delt = poster.some((b) => b.saerskilt);
-    const ikkeAkseptert = svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer)
-      ? ', tilbudet ikke akseptert (§ 34.2.2)'
-      : '';
+    const ikkeAkseptert = tilbudetIkkeAkseptert(svar) ? ', tilbudet ikke akseptert (§ 34.2.2)' : '';
     poster.forEach((b, i) => {
       const hva = !delt
         ? ''

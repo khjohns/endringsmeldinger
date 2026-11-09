@@ -408,6 +408,10 @@ export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art
   return svar.standpunkter.find((s): s is Extract<Standpunkt, { art: A }> => s.art === art);
 }
 
+/** Byggherren aksepterer ikke tilbudet for minst én kravpost (§ 34.2.2, KA-U57 (d)). */
+export const tilbudetIkkeAkseptert = (svar: Svarinnhold): boolean =>
+  svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer);
+
 /**
  * Hvorfor svarene på vederlag og frist er subsidiære til svaret på påberopelsen, etter
  * standpunktene i brevet om forholdet (vedtaket 05.10, MM-U9). Utledningen og
@@ -467,7 +471,7 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   if (svar.spor === 'forhold') return standpunktet(svar, 'forhold')?.resultat === 'godkjent';
   // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
   // påberopelse etter § 33.6.1 i et lag, gir aldri sammenfall. Leses av standpunktene.
-  if (svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer)) return false;
+  if (tilbudetIkkeAkseptert(svar)) return false;
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;
