@@ -528,7 +528,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
   ['frosset/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
-  ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent saerskilt'],
+  ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
   // visningen leser.
   ['frosset/standpunkt.ts:plassene', 'frosset', 'standpunkt', ['frosset/standpunkt.ts:postlisten']],
@@ -1054,7 +1054,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/typer.ts',
     'regelsett',
-    'FRISTRESULTATER FORHOLDSRESULTATER VEDERLAGSRESULTATER',
+    'FRISTRESULTATER FORHOLDSRESULTATER VEDERLAGSRESULTATER SAERSKILTE',
     ['format/format.ts'],
   ],
 
@@ -1093,7 +1093,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_metode dager beloep saerskilt',
+    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep saerskilt',
     ['format/leser.ts'],
   ],
   // OV-U31: postene summerer til det byggherren godtar om ingen påberopelse fører fram.

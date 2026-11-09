@@ -246,14 +246,16 @@
                   },
                   {
                     "id": "1975bfcf-0000-4000-8000-000000000019",
-                    "art": "metode",
+                    "art": "oppgjoersform",
+                    "gjelder": "1975bfcf-0000-4000-8000-000000000012",
                     "hjemmel": "34.2.2",
                     "aksepterer": true
                   },
                   {
                     "id": "1975bfcf-0000-4000-8000-00000000001a",
                     "art": "beloep",
-                    "beloep": 60000
+                    "beloep": 60000,
+                    "gjelder": "1975bfcf-0000-4000-8000-000000000012"
                   }
                 ],
                 "utregning": {
@@ -1161,14 +1163,16 @@
                   },
                   {
                     "id": "1475b7f0-0000-4000-8000-000000000019",
-                    "art": "metode",
+                    "art": "oppgjoersform",
+                    "gjelder": "1475b7f0-0000-4000-8000-000000000012",
                     "hjemmel": "34.2.2",
                     "aksepterer": true
                   },
                   {
                     "id": "1475b7f0-0000-4000-8000-00000000001a",
                     "art": "beloep",
-                    "beloep": 60000
+                    "beloep": 60000,
+                    "gjelder": "1475b7f0-0000-4000-8000-000000000012"
                   }
                 ],
                 "utregning": {

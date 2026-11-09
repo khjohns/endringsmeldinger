@@ -10,9 +10,6 @@ import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
 
-/** Postene utenfor kravpostene: § 34.1.3 annet ledd og rigg og drift (OV-U89 punkt 6 og 17). */
-export type Saerskilt = 'produktivitet' | 'rigg_og_drift';
-
 /** Byggherrens vurdering av beløpet i én post, og det krevde beløpet (KA-U57 (c)). */
 interface Postbeloep {
   krevd: Tall;

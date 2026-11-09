@@ -90,7 +90,7 @@ export function virkninger(
       const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, paaberopelse, regler);
       if (virker) lag = 2;
       ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 1 : 'uten_virkning' });
-    } else if (s.art === 'metode' && s.aksepterer) {
+    } else if (s.art === 'oppgjoersform' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {
       // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
@@ -467,7 +467,7 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   if (svar.spor === 'forhold') return standpunktet(svar, 'forhold')?.resultat === 'godkjent';
   // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
   // påberopelse etter § 33.6.1 i et lag, gir aldri sammenfall. Leses av standpunktene.
-  if (standpunktet(svar, 'metode')?.aksepterer === false) return false;
+  if (svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer)) return false;
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;

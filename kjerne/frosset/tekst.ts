@@ -81,10 +81,9 @@ export function beslutningslinje(
       (s): s is Extract<Standpunkt, { art: 'beloep' }> => s.art === 'beloep'
     );
     const delt = poster.some((b) => b.saerskilt);
-    const ikkeAkseptert =
-      standpunktet(svar, 'metode')?.aksepterer === false
-        ? ', tilbudet ikke akseptert (§ 34.2.2)'
-        : '';
+    const ikkeAkseptert = svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer)
+      ? ', tilbudet ikke akseptert (§ 34.2.2)'
+      : '';
     poster.forEach((b, i) => {
       const hva = !delt
         ? ''

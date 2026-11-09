@@ -1528,8 +1528,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/utregning.ts`,
     endringer: [
       [
-        'if (r.subsidiaer_resultat !== null) {\n    ut.subsidiaert_resultat = resultat(r.subsidiaer_resultat);',
-        'if (false) {\n    ut.subsidiaert_resultat = resultat(r.subsidiaer_resultat);',
+        'if (r.subsidiaer_resultat !== null) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
+        'if (false) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
       ],
     ],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
@@ -1574,7 +1574,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         "if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
-        "if (s.art === 'metode' && s.aksepterer) return 'uten_virkning';\n      if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
+        "if (s.art === 'oppgjoersform' && s.aksepterer) return 'uten_virkning';\n      if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
       ],
     ],
     mal: ['F-MM-V-34-2-2-ja', 'justeringen ellers er upåvirket'],
@@ -1597,8 +1597,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
       [
-        "if (typeof v.aksepterer_metode === 'boolean')",
-        "if (typeof v.aksepterer_metode === 'string')",
+        "if ('gjelder' in post && typeof v.aksepterer_metode === 'boolean')",
+        "if ('gjelder' in post && typeof v.aksepterer_metode === 'string')",
       ],
     ],
     mal: ['F-MM-V-34-2-2-nei', 'F-MM-V-34-2-2-ja'],
@@ -1684,8 +1684,10 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F198',
     feilklasse: 'en lagret avslått metode uten byggherrens metode forstås',
     fil: `${K}/format/leser.ts`,
-    endringer: [["if (e.aksepterer === 'oensket_metode' in e)", 'if (e.aksepterer === undefined)']],
-    mal: ['tilbudet er ikke akseptert, men metoden mangler'],
+    endringer: [
+      ["if (e.aksepterer === 'oensket_oppgjoersform' in e)", 'if (e.aksepterer === undefined)'],
+    ],
+    mal: ['tilbudet er ikke akseptert, men oppgjørsformen mangler'],
   },
   {
     id: 'F199',
@@ -1700,7 +1702,10 @@ const MUTASJONER: Mutasjon[] = [
       'et tilbud byggherren ikke aksepterer, gir sammenfall når utregningen sier «godkjent» (arbeidsvalget i #479, MM-U43 punkt 8)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
-      ["if (standpunktet(svar, 'metode')?.aksepterer === false) return false;", 'void 0;'],
+      [
+        "if (svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer)) return false;",
+        'void 0;',
+      ],
     ],
     mal: ['sammenfall med et tilbud byggherren ikke aksepterer'],
   },
@@ -1934,7 +1939,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n",
-        "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n      if (forrige?.standpunkter.some((p) => p.art === 'metode' && p.aksepterer) && (k.svar.vurderinger as Record<string, unknown>).aksepterer_metode === false)\n        return avvis('SENKER_INNROEMMELSE', 'Aksepten av fast sum tas tilbake.');\n",
+        "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n      if (forrige?.standpunkter.some((p) => p.art === 'oppgjoersform' && p.aksepterer) && (k.svar.vurderinger as Record<string, unknown>).aksepterer_metode === false)\n        return avvis('SENKER_INNROEMMELSE', 'Aksepten av fast sum tas tilbake.');\n",
       ],
     ],
     mal: ['en revisjon som tar tilbake aksepten av fast sum, godtas'],

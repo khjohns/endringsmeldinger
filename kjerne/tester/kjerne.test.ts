@@ -1008,10 +1008,14 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
       'S-v1',
     ],
     [
-      'tilbudet er ikke akseptert, men metoden mangler',
+      'tilbudet er ikke akseptert, men oppgjørsformen mangler',
       async () => {
         const { k, rader } = await vederlagssak();
-        return { k, rader, endring: (s: Data) => delete standpunkt(s, 'metode').oensket_metode };
+        return {
+          k,
+          rader,
+          endring: (s: Data) => delete standpunkt(s, 'oppgjoersform').oensket_oppgjoersform,
+        };
       },
       'S-v1',
     ],
@@ -2195,7 +2199,7 @@ describe('forskyvningen fra forholdet i linjen (OV-U32, OV-U33, #1199)', () => {
       spor: 'vederlag',
       gjelder: k.navn.id('K-v1'),
       paaberopelse: k.navn.id('K-g1'),
-      standpunkter: [{ id: randomUUID(), art: 'beloep', beloep: 60000 }],
+      standpunkter: [{ id: randomUUID(), art: 'beloep', beloep: 60000, gjelder: 'kravpost' }],
       utregning: { resultat: 'delvis_godkjent', godkjent_beloep: 60000 },
     };
     frysBrev({ ...siste, event_id: randomUUID(), data: { svar: [svar] } }, journal, KJERNE);
@@ -2458,8 +2462,15 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
     i_tide: false,
     beloep: 10000,
   };
-  const justering = { id: 'j', art: 'beloep', beloep: 100000 };
+  const justering = { id: 'j', art: 'beloep', beloep: 100000, gjelder: 'kravpost' };
   const posten = { id: 'p', art: 'beloep', beloep: 30000, saerskilt: 'produktivitet' };
+  const oppgjoersform = (gjelder = 'kravpost') => ({
+    id: `o-${gjelder}`,
+    art: 'oppgjoersform',
+    gjelder,
+    hjemmel: '34.2.2',
+    aksepterer: true,
+  });
   const les =
     (standpunkter: object[], u: object = utregning) =>
     () =>
@@ -2486,8 +2497,43 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
       [justering, { ...rettidighet, i_tide: true }, posten],
     ],
     ['to poster etter annet ledd', [justering, rettidighet, posten, { ...posten, id: 'p2' }]],
+    [
+      'oppgjørsformen etter beløpet for kravposten',
+      [justering, oppgjoersform(), rettidighet, posten],
+    ],
+    [
+      'oppgjørsformen for en annen kravpost foran beløpet',
+      [oppgjoersform('k2'), justering, rettidighet, posten],
+    ],
+    [
+      'to beløp for samme kravpost',
+      [justering, { ...justering, id: 'j2', beloep: 0 }, rettidighet, posten],
+    ],
+    [
+      'et beløp med både kravpost og særskilt post',
+      [{ ...justering, saerskilt: 'produktivitet' }, rettidighet, posten],
+    ],
+    [
+      'rigg og drift, som kjernen ikke regner ennå (#1663)',
+      [
+        justering,
+        rettidighet,
+        posten,
+        { id: 'rd', art: 'beloep', beloep: 0, saerskilt: 'rigg_og_drift' },
+      ],
+    ],
   ])('%s er ikke forstått', (_, standpunkter) => {
     expect(les(standpunkter)).toThrow(Uforstaatt);
+  });
+
+  // KA-U57 (c) og (d): oppgjørsformen og beløpet står for hver kravpost.
+  it('kontrollsak: oppgjørsformen og beløpet for to kravposter leses', () => {
+    const andre = { ...justering, id: 'j2', gjelder: 'k2', beloep: 0 };
+    expect(
+      les([oppgjoersform(), justering, oppgjoersform('k2'), andre, rettidighet, posten])().map(
+        (s) => s.art
+      )
+    ).toEqual(['oppgjoersform', 'beloep', 'oppgjoersform', 'beloep', 'rettidighet', 'beloep']);
   });
 
   it('poster som ikke summerer til det subsidiære beløpet, er ikke forstått (OV-U31)', () => {
@@ -2502,8 +2548,10 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
   });
 
   it('et svar uten beløpsstandpunkt sier at standpunktet mangler, ikke at postene ikke summerer (AGENTS.md: feilmeldingen sier hva som hindrer)', () => {
-    expect(les([{ id: 'm', art: 'metode', hjemmel: '34.2.2', aksepterer: true }])).toThrow(
-      /mangler standpunktet beloep/
-    );
+    expect(
+      les([
+        { id: 'm', art: 'oppgjoersform', gjelder: 'kravpost', hjemmel: '34.2.2', aksepterer: true },
+      ])
+    ).toThrow(/mangler standpunktet beloep/);
   });
 });

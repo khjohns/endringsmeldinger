@@ -7,7 +7,7 @@ import { beloep, tilTall, type Oere } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import type { Beloepsvurdering, Vederlagsresultat } from '../regler/typer.ts';
+import type { Beloepsvurdering } from '../regler/typer.ts';
 import {
   beregnGodkjentBeloep,
   beregnVederlag,
@@ -212,9 +212,13 @@ function regnUtVederlag(
     throw new UgyldigVurdering({
       hold_tilbake: utenforOmfanget('vederlag', { hold_tilbake: true })!,
     });
-  // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520).
+  // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520), og
+  // til oppgjørsformen bare for en kravpost (KA-U57 (d)).
   const utenPost: [boolean, (keyof Svarvurdering)[]][] = [
-    [harHovedbeloep(krav), ['hovedkrav_vurdering', 'hovedkrav_godkjent_beloep']],
+    [
+      harHovedbeloep(krav),
+      ['hovedkrav_vurdering', 'hovedkrav_godkjent_beloep', 'aksepterer_metode', 'oensket_metode'],
+    ],
     [
       krevdProduktivitet(krav) !== null,
       [
@@ -233,11 +237,6 @@ function regnUtVederlag(
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
   kontrollerMetoden(v);
   const { svar, felt } = vederlagssvaret(v, krav, paaberopelse);
-  // Uten kravpost regner regelen ingen aksept etter § 34.2.2, men kommandoen krever den og
-  // leser den som før (spørsmålet i PR-en for #1663, 2a-1b).
-  const utenKravpost = !harHovedbeloep(krav);
-  const aksept: Record<string, string> =
-    utenKravpost && v.aksepterer_metode == null ? { aksepterer_metode: 'mangler (§ 34.2.2)' } : {};
   let r: Vederlagsberegning;
   try {
     r = beregnVederlag(svar, regler);
@@ -245,20 +244,16 @@ function regnUtVederlag(
     if (!(e instanceof UgyldigVurdering)) throw e;
     throw new UgyldigVurdering({
       ...Object.fromEntries(Object.entries(e.feil).map(([k, grunn]) => [felt.get(k) ?? k, grunn])),
-      ...aksept,
     });
   }
-  if (Object.keys(aksept).length) throw new UgyldigVurdering(aksept);
-  const resultat = (x: Vederlagsresultat) =>
-    utenKravpost && v.aksepterer_metode === false && x === 'godkjent' ? 'delvis_godkjent' : x;
   const ut: Record<string, unknown> = {
-    resultat: resultat(r.beregnings_resultat),
+    resultat: r.beregnings_resultat,
     godkjent_beloep: tilTall(r.total_godkjent_beloep),
   };
   // VS-U3, B-13: ved preklusjon etter § 34.1.2 og ved begrensningen etter § 34.1.3 står det
   // vurderte beløpet subsidiært (VS-U5).
   if (r.subsidiaer_resultat !== null) {
-    ut.subsidiaert_resultat = resultat(r.subsidiaer_resultat);
+    ut.subsidiaert_resultat = r.subsidiaer_resultat;
     ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_beloep!);
   }
   return ut;
@@ -310,13 +305,13 @@ function regnUtFrist(
 
 /**
  * OV-U26, OV-U31: beløpet byggherren godtar for hver post i vederlagskravet uten
- * begrensningen etter § 34.1.3, i rekkefølgen brevet lagrer dem: justeringen ellers og
+ * begrensningen etter § 34.1.3, i rekkefølgen brevet lagrer dem: kravposten (`gjelder`) og
  * posten etter annet ledd (`saerskilt`). Regnet med regelsettet som utregningen.
  */
 export function vederlagsposter(
   v: Svarvurdering,
   krav: Krav
-): { godkjent: number; saerskilt?: 'produktivitet' }[] {
+): ({ godkjent: number; gjelder: string } | { godkjent: number; saerskilt: 'produktivitet' })[] {
   const post = (vurdering: unknown, krevd: Oere, delvis: unknown) =>
     tilTall(
       beregnGodkjentBeloep(
@@ -328,7 +323,12 @@ export function vederlagsposter(
   const produktivitet = krevdProduktivitet(krav);
   return [
     ...(harHovedbeloep(krav)
-      ? [{ godkjent: post(v.hovedkrav_vurdering, krevdBeloep(krav), v.hovedkrav_godkjent_beloep) }]
+      ? [
+          {
+            godkjent: post(v.hovedkrav_vurdering, krevdBeloep(krav), v.hovedkrav_godkjent_beloep),
+            gjelder: kravposterI(krav)[0].id,
+          },
+        ]
       : []),
     ...(produktivitet === null
       ? []
