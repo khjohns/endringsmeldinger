@@ -724,6 +724,9 @@ const VARSEL_OM = { '34.4': 'før regningsarbeidet settes i gang etter NS 8407 p
 const hadde = p => !!p.forrige && p.forrige.form === p.form && (p.form === 'regning' || p.forrige.ep === 'justert');
 const erVarselpost = p => !p.trukket && !!hjemmel(p) && !hadde(p);
 const kildeTil = p => saksvarsler().find(v => v.id === p.kilde);
+// Et varsel i saken med samme hjemmel som ingen kravpost viser til. Leselinja og panelet sier fra om det.
+const ledigVarsel = p => erVarselpost(p) && p.varsel === 'krav' && saksvarsler().some(v => v.hjemmel === hjemmel(p) && !d.poster.some(q => q.kilde === v.id));
+const LEDIG = h => `Saken har et varsel etter punkt ${h} som ikke er knyttet til noen kravpost.`;
 const tilListe = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' og ' + a.at(-1) : a[0];
 
 function varselblokk(p) {
@@ -748,7 +751,7 @@ function varselblokk(p) {
       </div></fieldset>`
     : `<p class="hjelp">Saken har ikke noe varsel etter punkt ${h}${tilstand === 'ny' ? ' fra etter brev 5' : ''}. Legg til dokumentet varselet ble gitt i.</p>`;
   if (p.varsel === 'krav') return `<div class="varsel" data-spor="U-12 · D-19">
-    <p class="oppgitt"><b>${navn}.</b> ${regel} Dette kravet er varselet for ${id}.${liste.length ? ` Saken har et varsel etter punkt ${h} som ikke er knyttet til noen kravpost.` : ''}</p>
+    <p class="oppgitt"><b>${navn}.</b> ${regel} Dette kravet er varselet for ${id}.${ledigVarsel(p) ? ' ' + LEDIG(h) : ''}</p>
     <button class="lenke liten" type="button" data-handling="varsel-gitt">Varselet for ${id} er gitt før</button></div>`;
   return `<div class="varsel" data-spor="U-12 · D-19">
     <p class="oppgitt"><b>${navn}.</b> ${regel} Varselet for ${id} er gitt før, og brevet sier hvor.</p>
@@ -790,7 +793,7 @@ function postRad(p, saerskilt) {
   return `<div class="krt" data-id="${id}" id="post-${id}">
     <span class="c-id">${navnId}</span><span class="c-navn">${esc(p.navn) || '<span class="dempet" style="font-weight:400">Uten beskrivelse</span>'}</span><span class="c-form">${formKort(p)}</span><span class="c-pns">${esc(p.pns)}</span><span class="c-bel${p.form === 'fast' ? '' : ' dempet'}">${p.form === 'fast' ? fmt(kr(p.beloep)) : 'Uten beløp'}</span>
     <span class="c-handling"><button class="lenke liten" type="button" data-handling="aapne" aria-label="Endre ${navnId}">Endre</button></span>
-    ${p.begr ? `<span class="c-begr">${esc(p.begr)}</span>` : ''}${e ? `<span class="c-merk">${e}</span>` : ''}</div>`;
+    ${p.begr ? `<span class="c-begr">${esc(p.begr)}</span>` : ''}${e ? `<span class="c-merk">${e}</span>` : ''}${ledigVarsel(p) ? `<span class="c-merk" data-spor="U-12 · D-19">${LEDIG(hjemmel(p))} <button class="lenke liten" type="button" data-handling="aapne">Se på varselet for ${id}</button></span>` : ''}</div>`;
 }
 function postSkjema(p, saerskilt) {
   const id = p.id, navnId = saerskilt ? 'Særskilt' : id;
@@ -893,7 +896,7 @@ function oppsummer() {
   document.getElementById('virkning').innerHTML = v.join('');
   // VS-U50: skjemaet viser før sending hvilke poster kravet regnes som varsel for. Panelet sier hva brevet sier.
   const vp = d.poster.filter(erVarselpost);
-  const rad2 = p => `<tr><td>${p.id}<span class="dempet blokklinje">pkt. ${hjemmel(p)}</span></td><td>${p.varsel === 'krav' ? 'Gis med dette kravet' : kildeTil(p) ? 'Gitt i ' + kildeTil(p).brevet : 'Gitt i et vedlagt dokument' + (p.uDato ? ' av ' + esc(p.uDato) : '')}</td></tr>`;
+  const rad2 = p => `<tr><td>${p.id}<span class="dempet blokklinje">pkt. ${hjemmel(p)}</span></td><td>${p.varsel === 'krav' ? 'Gis med dette kravet' + (ledigVarsel(p) ? `<span class="dempet blokklinje">${LEDIG(hjemmel(p))}</span>` : '') : kildeTil(p) ? 'Gitt i ' + kildeTil(p).brevet : 'Gitt i et vedlagt dokument' + (p.uDato ? ' av ' + esc(p.uDato) : '')}</td></tr>`;
   const blokk = document.getElementById('varselliste');
   blokk.hidden = !vp.length;
   blokk.innerHTML = vp.length ? `<p class="blokktittel">Varsel etter punkt 34.3.3 og 34.4</p><table class="tabell"><tbody>${vp.map(rad2).join('')}</tbody></table>` : '';
@@ -998,7 +1001,7 @@ function leselinje(p, k) {
   const egne = grupper.filter(g => g.x.why !== HELE_KRAVET);
   const tekst = x => x.v !== null ? `${x.t}, ${x.why}.` : `${stor(x.why)}.`;
   const [forste, ...resten] = egne;
-  return `<span class="hoved">${tekst(forste.x)}</span>` + resten.map((g, n) => `<span class="u">${n ? 'Videre subsidiært' : 'Subsidiært'}, hvis ${k[g.i].hvis}: ${tekst(g.x)}</span>`).join('');
+  return `<span class="hoved">${tekst(forste.x)}</span>` + resten.map(g => `<span class="u">${k[g.i].navn}, hvis ${k[g.i].hvis}: ${tekst(g.x)}</span>`).join('');
 }
 function bhKort(p, k) {
   const b = bhP(p), id = p.id, s = p.id === 'S';
