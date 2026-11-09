@@ -1,7 +1,7 @@
 /**
  * Genererte forløp mot målmodellen i minnet (#304). Handlingene står i
- * `genererte` i bevis-sakene for målmodellen, og velges med samme LCG som
- * `sprakprove/genererte-forlop.json`, uansett tilstand. Etter hvert steg prøves:
+ * `genererte` i bevis-sakene for målmodellen, og velges med en LCG, uansett
+ * tilstand. Etter hvert steg prøves:
  *
  * - INV-AVVIST-UENDRET: en avvist kommando endrer ikke journalen;
  * - INV-MM-5: en regelendring endrer ikke beslutningsgrunnlag eller enighetsgrunnlag;
@@ -19,7 +19,7 @@ import { MAALMODELL } from './kjoerer.ts';
 
 const G = MAALMODELL.genererte;
 
-/** x = (1103515245·x + 12345) mod 2^31, som `genererte_forlop` i Python og TS. */
+/** LCG-en `omfang` i bevis-sakene beskriver. */
 function* lcg(seed: number): Generator<number> {
   let x = BigInt(seed);
   for (;;) {

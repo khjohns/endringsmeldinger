@@ -92,6 +92,26 @@ function regnUtForhold(v: Svarvurdering, krav: Krav, regler: Regelsett): Record<
   return {};
 }
 
+/**
+ * Feltene kjernen leser i vurderingene i svaret på vederlaget. Et annet felt ville blitt godtatt
+ * uten virkning, så det avvises (MM-U2; kravet i #1663).
+ */
+const VEDERLAGSVURDERINGER = new Set<string>([
+  'hovedkrav_vurdering',
+  'hovedkrav_godkjent_beloep',
+  'hovedkrav_varslet_i_tide',
+  'produktivitet_vurdering',
+  'produktivitet_godkjent_beloep',
+  'produktivitet_varslet_i_tide',
+  'produktivitet_begrenset_beloep',
+  'aksepterer_metode',
+  'oensket_metode',
+  // Avvises med egne meldinger: `utenforOmfanget` og OV-U89 punkt 9 i `regler/vederlag.ts`.
+  'hold_tilbake',
+  'rigg_vurdering',
+  'rigg_varslet_i_tide',
+]);
+
 /** Utregningen av vederlaget av postene i kravet (§ 34). */
 function regnUtVederlag(
   v: Svarvurdering,
@@ -99,6 +119,13 @@ function regnUtVederlag(
   paaberopelse: Krav | null,
   regler: Regelsett
 ): Record<string, unknown> {
+  const ukjente = Object.keys(v).filter((felt) => !VEDERLAGSVURDERINGER.has(felt));
+  if (ukjente.length)
+    throw new UgyldigVurdering(
+      Object.fromEntries(
+        ukjente.map((felt) => [felt, 'kjernen leser ikke feltet i svaret på vederlaget'])
+      )
+    );
   const { hovedkategori, underkategori } = kategori(paaberopelse);
   const post = krevdProduktivitet(krav);
   // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520).

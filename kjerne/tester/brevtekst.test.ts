@@ -4485,6 +4485,28 @@ describe('en påberopelse etter § 34.1.3 mot rigg og drift avvises (OV-U89 punk
 });
 
 /**
+ * MM-U2 (kravet i #1663): et felt i vurderingene som kjernen ikke leser, avvises og godtas ikke
+ * uten virkning. Kontrollsaken er samme svar uten feltet.
+ */
+describe('et ukjent felt i vurderingene i svaret på vederlaget avvises (MM-U2)', () => {
+  it.each([
+    ['rigg_godkjent_beloep', 100],
+    ['hovedkrav_varslet_i_tid', true],
+    ['varsel_justert_ep_ok', false],
+  ])('%s', (felt, verdi) => {
+    const s = sakMedKrav();
+    const brev = (v: Data) => ({
+      type: 'brev',
+      svar: [svar('vederlag', s.krav('vederlag'), v, VEDERLAG_DELVIS[1])],
+    });
+    expect(s.avvist('BH', brev({ ...VEDERLAG_DELVIS[0], [felt]: verdi }))).toBe(
+      'UGYLDIG_VURDERING'
+    );
+    expect(s.avvist('BH', brev(VEDERLAG_DELVIS[0]))).toBeNull();
+  });
+});
+
+/**
  * MM-U34 punkt 6 opphever sperren i HF-U4: etter at byggherren har sagt i et svar fra appen
  * at varselet eller spesifiseringen kom i tide, godtas en senere påberopelse av at det kom
  * for sent, i en revisjon og i svaret på en senere versjon. Løsningen avgjør ikke om

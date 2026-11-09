@@ -81,7 +81,6 @@ export const UTLOESER_FRA_KATALOGEN: Record<string, SubsidiaerUtloser> = {
   grunnlag_prekludert_32_2: 'grunnlag_prekludert_32_2',
   forseringsrett_avslatt: 'forseringsrett_avslaatt',
   preklusjon_hovedkrav: 'preklusjon_hovedkrav',
-  preklusjon_rigg: 'preklusjon_rigg',
   preklusjon_produktivitet: 'preklusjon_produktivitet',
   reduksjon_ep_justering: 'reduksjon_ep_justering',
   preklusjon_varsel: 'preklusjon_varsel',
