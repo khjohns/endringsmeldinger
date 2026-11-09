@@ -1502,7 +1502,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['beloep: prekludert ? 0 : prinsipaltBeloep(svar, v)', 'beloep: prinsipaltBeloep(svar, v)'],
     ],
-    mal: ['F-MM-V-34-1-2-nei'],
+    mal: ['en aksept av svaret med § 34.1.2 og § 34.1.3 påberopt gir 0'],
   },
   {
     id: 'F181',

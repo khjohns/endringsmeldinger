@@ -356,10 +356,14 @@ describe('lesereglene for referansene (4.2)', () => {
       'beløpet viser til en kravpost som ikke står i kravet (OV-U23, KA-U57 (c))',
       ['forlop_a'],
       (r, k) => {
-        // Oppgjørsformen og beløpet viser til samme kravpost, så rekkefølgen i leseren holder.
-        for (const p of svaret(radMed(r, k, 'S-v1'), k, 'S-v1').standpunkter as Data[])
+        // Oppgjørsformen, beløpet og raden i utregningen viser til samme kravpost, så bare
+        // kontrollen mot kravet skiller saken fra kontrollsaken.
+        const svar = svaret(radMed(r, k, 'S-v1'), k, 'S-v1');
+        for (const p of svar.standpunkter as Data[])
           if (p.gjelder && (p.art === 'beloep' || p.art === 'oppgjoersform'))
             p.gjelder = 'finnes-ikke';
+        for (const p of (svar.utregning as { poster: Data[] }).poster)
+          if (p.gjelder) p.gjelder = 'finnes-ikke';
       },
     ],
     [
@@ -374,6 +378,9 @@ describe('lesereglene for referansene (4.2)', () => {
         const p = (svar.standpunkter as Data[]).find((s) => s.art === 'beloep' && s.gjelder)!;
         delete p.gjelder;
         p.saerskilt = 'produktivitet';
+        const rad = (svar.utregning as { poster: Data[] }).poster.find((x) => x.gjelder)!;
+        delete rad.gjelder;
+        rad.saerskilt = 'produktivitet';
       },
     ],
     [

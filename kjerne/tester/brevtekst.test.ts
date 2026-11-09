@@ -5707,7 +5707,8 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       ])('%s: saken er ikke forstått', (_n, v, endre, grunn) => {
         const s = sakMedKrav();
         brev(s, 'vederlag', v);
-        s.rad('BH', { svar: [kopi(s, (svar) => endre(svar.utregning as Utregning))] });
+        const raden = { svar: [kopi(s, (svar) => endre(svar.utregning as Utregning))] };
+        expect(() => s.rad('BH', raden), 'raden fryses, og lesingen avgjør').not.toThrow();
         const u = s.u();
         expect(u.forstaatt).toBe(false);
         expect(u.begrensninger.map((b) => b.grunn).join(' ')).toContain(grunn);
@@ -6237,6 +6238,22 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       regelversjon: KJERNE.regler.versjon,
     });
     expect(s.u().spor.vederlag.enighet?.grunnlag.utfall).toEqual({ beloep: 110000 });
+  });
+
+  it('en aksept av svaret med § 34.1.2 og § 34.1.3 påberopt gir 0, ikke beløpet etter begrensningen (VS-U3, OV-U27)', () => {
+    const s = sakMedPost(undefined, true);
+    brevet(
+      s,
+      { ...postene, ...begrenset, hovedkrav_varslet_i_tide: false },
+      { resultat: 'avslaatt', godkjent_beloep: 0 }
+    );
+    s.send('TE', {
+      type: 'aksept',
+      spor: 'vederlag',
+      svar: s.u().spor.vederlag.gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    expect(s.u().spor.vederlag.enighet?.grunnlag.utfall).toEqual({ beloep: 0 });
   });
 
   // KA-U60 og arbeidsvalg 1.2 og 1.3 i spørsmålsfila 09.11 for #1663: oppgjørsformen og
