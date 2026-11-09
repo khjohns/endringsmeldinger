@@ -6,33 +6,29 @@
 <title>Kravskjemaet for vederlag med kravposter, v3</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v3 (09.11, #1663): designforslag over v2, ikke vedtatt. Skiller seg fra v2 slik:
-  tre nivåer av flater (seksjon, post, felt) i stedet for kort i kort; kravpostene er rader med
-  betegnelse, oppgjørsform, PNS og beløp på to linjer, og detaljene under; valgene inne i en post er
-  lette (radio og tekst, valgt svar får flaten) og oppgjørsformen er en segmentkontroll; de besvarte
-  varselpunktene er sammenfattet til én linje med «Endre»; tall står i Inter med tabular-nums;
-  utkastmerket står også i panelet ved knappen; bryteren «Begrunnelser kort / Hele teksten» er tatt ut,
-  og hjelpeteksten om tilbud står én gang i seksjonen. Svaret har de samme radene, snarveiene inne i
-  seksjonen og en primærhandling i panelet. Punktlisten, summene og lagene er som i v2.
-  Omarbeidet samme dag etter oppdragsgivers merknad om at radene var rotete: hver kravpost er én
-  leselinje i en tabell med faste kolonner (post, beskrivelse, oppgjørsform, PNS, beløp) til den
-  åpnes med «Endre». Én post er åpen om gangen, som et skjema med etikett over felt, oppgjørsformen
-  som en liste med én forklaring per alternativ, og «Ferdig» og «Fjern» i bunnen. Byggherrens svar
-  følger samme mønster, med «Slik står det i brevet» som leselinje.
-  Samme dag: varslene etter punkt 34.3.3 og 34.4 er snudd til unntaket. Skjemaet sier at kravet er
-  varselet for posten, og TE oppgir bare et tidligere varsel når det finnes. Leselinja i svaret viser
-  standpunktet i postens første lag uten etikett, lagene under som dempede linjer som begynner med
-  vilkåret, og gjentar ikke en innsigelse som rammer hele kravet.
-  v2 under:
-  Prototype v2 av totalentreprenørens krav om vederlagsjustering i Varden, etter svarene 07.11 i
-  docs/vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md: kravposter med fast betegnelse, oppgjørsform
-  og PNS per post, uttrykkelig trekk av en post, og byggherrens lag per post. Alle oppgjørsformene er
-  med (svar 8). Stilarket er v1 (vederlagskrav-te.html) med tilleggene under «v2». Tilstandene er
-  ankrene #nytt-krav, #ny-versjon, #brev og #svar (byggherrens svar med trappen per post og lagene samlet). Teksten er prototypetekst. «Vis sporbarhet» viser
-  svarene og de åpne issuene på elementene.
-  Rettet 08.11 for VS-U49 og VS-U50 (#1663): hver kravpost med regningsarbeid eller justerte enhetspriser
-  som er varsel for seg, har valget «Kravet er varselet» eller «Varselet er alt gitt», støttekolonnen viser
-  hvilke poster kravet er varsel for, og brevet har ordlyden i U-14 i BF-14.
+  Prototype v3 (#1663) av totalentreprenørens krav om vederlagsjustering i Varden og byggherrens svar.
+  Designforslag over v2 (vederlagskrav-te-v2.html), ikke vedtatt; v2 er grunnlaget BF-14 viser til.
+  Samme eksempeldata, tilstander (#nytt-krav, #ny-versjon, #brev, #svar, #varsel), punktliste, summer,
+  lag og brevtekst som v2. Det som er annerledes:
+  - Tre nivåer av flater: seksjon (nummer og overskrift uten ramme, hjemmelen som dempet tekst),
+    element (rad med hårlinje) og felt. Ingen kort i kort.
+  - Kravpostene er en tabell med kolonnene post, beskrivelse, oppgjørsform, PNS og beløp, med
+    begrunnelsen under raden og en sumrad. «Endre» åpner én post om gangen som et skjema med etikett
+    over felt, oppgjørsformen som en liste med én forklaring per alternativ, og «Ferdig» og «Fjern»
+    i bunnen. «Legg til kravpost» åpner den nye posten. En trukket post er én linje med «Angre».
+  - Varslene etter punkt 34.3.3 og 34.4 stilles som unntaket: skjemaet sier at kravet er varselet for
+    posten, og TE oppgir bare et tidligere varsel med lenken «Varselet for P2 er gitt før».
+  - De besvarte varselpunktene (1 og 2) er én linje med svaret og «Endre».
+  - Valgene inne i et åpent element er radio og tekst, der det valgte svaret får flaten. Pillene
+    står igjen for spørsmålene på seksjonsnivå.
+  - Byggherrens svar har samme tabell. Leselinja er standpunktet i postens første lag uten etikett,
+    lagene under som dempede linjer som begynner med vilkåret, og en innsigelse som rammer hele
+    kravet står én gang over tabellen. Snarveiene står i seksjonen, og panelet har primærhandlingen.
+  - Tall står i Inter med tabular-nums. Utkastmerket står i brevhodet og i panelet ved knappen.
+  - Bryteren «Begrunnelser kort / Hele teksten» finnes ikke, og hjelpeteksten om tilbud, varsel og
+    overslag står én gang, i den åpne posten.
+  Teksten er prototypetekst. Gult utenom utkastet er merker i prototypen («Åpent», setninger som ikke
+  er vedtatt ordrett) og bygges ikke. «Vis sporbarhet» viser punktene i bestillingen på elementene.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -399,7 +395,7 @@ a.knapp,a.liten-knapp{text-decoration:none}
 .vis-spor [data-spor]{outline:1px dashed #a3266b;outline-offset:2px;position:relative}
 .vis-spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;right:-2px;font:500 10px/1.4 var(--font-mono);background:#a3266b;color:#fff;padding:0 4px;border-radius:2px;z-index:2;white-space:nowrap}
 @media (max-width:860px){.ark{padding:20px 16px}.post{padding:12px}}
-/* v3 (09.11): tre nivåer av flater, kravpostene som rader, lette valg i postene, Inter for tall */
+/* v3: tre nivåer av flater, lette valg i det åpne elementet, Inter for tall, sammenfattede punkter */
 .num,.inndata input,.pid,.linjer .sum,.regnestykke .linje,.regnestykke .res,.endret b,.underpunkter .pid-liten,.tabell td.lagcelle b,.tabell input,.sak .id{font-family:var(--font-sans);font-variant-numeric:tabular-nums}
 a.liten-knapp{color:inherit}
 .hjemmel{border:0;padding:0;color:var(--ink-3);white-space:normal}
@@ -415,42 +411,8 @@ a.liten-knapp{color:inherit}
 .valg.lett label{border:0;background:none;min-height:36px;padding:0 10px 0 8px;font-size:14px;border-radius:var(--r-knapp)}
 .valg.lett label:has(input:checked){border:0;background:var(--surface-selected);font-weight:600;padding:0 10px 0 8px}
 .valg.lett.liste{grid-template-columns:1fr;justify-items:start}
-/* Segmentkontrollen for oppgjørsformen */
-.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:2px;background:var(--surface)}
-.seg label{position:relative;display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:var(--r-knapp);font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer}
-.seg label:hover{background:var(--surface-warm)}
-.seg label:has(input:checked){background:var(--brand);color:var(--on-brand)}
-.seg label:has(input:focus-visible){box-shadow:var(--control-focus-ring)}
-.seg input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
-/* Kravpostene som rader */
-.kolonnehode{display:grid;grid-template-columns:64px minmax(0,1fr) 150px;gap:0 12px;font-size:12px;color:var(--ink-3);padding:0 0 6px;border-bottom:1px solid var(--rule-strong-color)}
-.kolonnehode span:last-child{text-align:right}
 .postliste{display:flex;flex-direction:column}
-.postrad{display:flex;flex-direction:column;gap:10px;padding:14px 0 16px;border-bottom:1px solid var(--rule-color)}
-.postliste .postrad:last-child{border-bottom:0}
-.rad-hode{display:grid;grid-template-columns:64px minmax(0,1fr) 150px;gap:0 12px;align-items:center}
-.svarpost .rad-hode{grid-template-columns:64px minmax(0,1fr) auto;align-items:baseline}
-.rad-id{font-weight:600;font-variant-numeric:tabular-nums}
-.rad-hode .post-navn{min-width:0}
-.rad-navn b{font-weight:600;font-size:16px}
-.rad-beloep{justify-self:end}
-.rad-beloep .inndata{width:150px}
-.rad-uten{text-align:right;font-size:14px;color:var(--ink-3);display:flex;flex-direction:column;line-height:1.3;font-variant-numeric:tabular-nums}
-.rad-egenskaper{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding-left:76px}
-.pnsfelt{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
-.pnsfelt .inndata.tekst{width:80px}
-.pnsfelt .inndata.tekst input{font-size:14px;padding:5px 10px}
-.rad-egenskaper .endret{align-self:center}
-.rad-detalj{margin-left:76px;padding-left:14px;border-left:2px solid var(--rule-strong-color);display:flex;flex-direction:column;gap:12px}
-.rad-detalj .oppgj legend{font-size:14px}
-.rad-begr{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;padding-left:76px}
-.rad-begr.begr{border-top:0;padding-top:0;flex-direction:row}
-.rad-begr .merke{font-size:12px;color:var(--ink-3)}
-.rad-begr .forhaand{flex:1 1 280px;margin:0}
-.rad-begr .fot{margin-left:auto}
-.rad-begr .editor{flex-basis:100%}
-.postrad.trukket .rad-navn b{text-decoration:line-through;text-decoration-thickness:1px;color:var(--ink-3)}
-/* Kravpostene som tabell: én leselinje per post, og én post åpen om gangen */
+/* v3: kravpostene som tabell, én leselinje per post og én post åpen om gangen */
 .krt{display:grid;grid-template-columns:max-content minmax(0,1fr) 140px 40px 110px 48px;gap:2px 14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--rule-color)}
 .krt.hode{font-size:12px;color:var(--ink-3);padding:0 0 6px;border-bottom:1px solid var(--rule-strong-color)}
 .krt .c-id{font-weight:600;font-variant-numeric:tabular-nums}
@@ -505,14 +467,6 @@ a.liten-knapp{color:inherit}
 .punkt .snarveier{padding:0;border:0}
 .punkt .snarveier .liten-knapp{min-height:32px;font-size:13px}
 .blokk.send .godkj{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
-@media (max-width:860px){
-  .kolonnehode{grid-template-columns:44px minmax(0,1fr)}
-  .kolonnehode span:last-child{display:none}
-  .rad-hode{grid-template-columns:44px minmax(0,1fr);gap:6px 12px}
-  .rad-beloep,.rad-uten{grid-column:1/-1;justify-self:end;flex-direction:row;gap:0 6px;flex-wrap:wrap;justify-content:flex-end}
-  .rad-egenskaper,.rad-begr{padding-left:0}
-  .rad-detalj,.trapp.rad-trapp{margin-left:0}
-}
 </style>
 </head>
 <body>
@@ -623,7 +577,7 @@ a.liten-knapp{color:inherit}
               <div class="beloepfelt"><label for="r-opp">Opprinnelig byggetid, hverdager</label><span class="inndata" style="width:140px"><input id="r-opp" inputmode="numeric" value="420"><span aria-hidden="true">d</span></span></div>
               <div class="beloepfelt"><label for="r-kap">Rigg- og driftskapitlet</label><span class="inndata"><input id="r-kap" inputmode="decimal" value="4 200 000"><span aria-hidden="true">kr</span></span></div>
               <div class="beloepfelt"><label for="r-andel">Andel av kapitlet</label><span class="inndata" style="width:140px"><input id="r-andel" inputmode="decimal" value="40"><span aria-hidden="true">%</span></span></div>
-              <div class="beloepfelt" data-spor="U-3"><label for="r-pns">PNS (valgfri)</label><span class="inndata tekst" style="width:140px"><input id="r-pns" list="pns-liste" value="11"></span></div>
+              <div class="beloepfelt" data-spor="U-3"><label for="r-pns">PNS (valgfritt)</label><span class="inndata tekst" style="width:140px"><input id="r-pns" list="pns-liste" value="11"></span></div>
             </div>
             <div class="regnestykke" aria-live="polite"><span class="merke">Beregnet ut fra TEs opplysninger: 0,7 × A × andel × Z / Y</span><span class="res" id="r-res"></span></div>
             <button class="lenke liten fjern-post" type="button" data-post="rigg" data-verdi="nei">Fjern posten for rigg og drift</button>
@@ -853,8 +807,8 @@ function postSkjema(p, saerskilt) {
     <div class="felt"><label for="n-${id}">Beskrivelse av posten</label><span class="hjelp">Står i brevet og i endringsordren.</span><input id="n-${id}" class="tekstfelt bred" data-felt="navn" value="${esc(p.navn)}" aria-required="true"></div>
     <fieldset class="oppgj" data-spor="U-2 · D-2"><legend>Oppgjørsform</legend><div class="metodevalg">${['fast', 'ep', 'regning'].map(f => `<label><input type="radio" name="f-${id}" value="${f}"${f === p.form ? ' checked' : ''}><b>${FORM[f]}</b><span>${FORKLARING[f]}</span></label>`).join('')}</div></fieldset>
     ${p.form === 'fast' ? fast : p.form === 'ep' ? ep : reg}
-    <div class="felt" data-spor="U-3"><label for="pns-${id}">PNS (valgfri)</label><span class="hjelp">Binder ikke. Byggherren kan sette en annen i endringsordren.</span><span class="inndata tekst" style="width:140px"><input id="pns-${id}" list="pns-liste" data-felt="pns" value="${esc(p.pns)}"></span></div>
-    <div class="felt"><label for="g-${id}">Begrunnelse (valgfri)</label><textarea id="g-${id}" class="tekstfelt" data-felt="begr">${esc(p.begr)}</textarea></div>
+    <div class="felt" data-spor="U-3"><label for="pns-${id}">PNS (valgfritt)</label><span class="hjelp">Binder ikke. Byggherren kan sette en annen i endringsordren.</span><span class="inndata tekst" style="width:140px"><input id="pns-${id}" list="pns-liste" data-felt="pns" value="${esc(p.pns)}"></span></div>
+    <div class="felt"><label for="g-${id}">Begrunnelse (valgfritt)</label><textarea id="g-${id}" class="tekstfelt" data-felt="begr">${esc(p.begr)}</textarea></div>
     <div class="fot">${fjern}<button class="liten-knapp sterk" type="button" data-handling="lukk">Ferdig</button></div>
   </article>`;
 }
