@@ -231,7 +231,7 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | Finnes ikke | Utsagnet `begrunnelse` med `gjelder` lik svaret | KA-U34, KA-U35: en senere begrunnelse er et eget utsagn og endrer ingen standpunkter. Teksten står som `utdypning` i `brevtekst`, ikke på utsagnet |
 | `metode` i vederlagskravet (bare `tilbud`) og ett `beloep` for justeringen ellers | Listen `kravposter` i kravversjonen. Hver kravpost har `id` (UUID satt av serveren), `betegnelse` (P1, P2 …, tildelt av kommandoen), `beskrivelse`, `oppgjoersform` med verdiene `tilbud`, `enhetspriser` og `regningsarbeid`, og valgfri `pns`. Etter oppgjørsformen har posten `beloep` (tilbud), `justert` og valgfritt `anslag` (enhetspriser), eller valgfritt `kostnadsoverslag` (regningsarbeid). `metode` og `beloep` for justeringen ellers utgår fra kravet | «Kravpost», «betegnelse» og «oppgjørsform» er ordene i samlevedtaket for vederlagsmetoden ([OV-U95](../plans/vedtak.md#ov-u95) punkt 19–22). `justert` er sann ved justerte enhetspriser etter § 34.3.2, som må skilles ut ([KA-U68](../plans/vedtak.md#ka-u68)). [svar 6 A](../vedlegg/bygging-bf14-2026-11-07/sporsmal.md#svar-fra-oppdragsgiver-0711) 07.11, arbeidsvalg etter B-17 (#1663) |
 | `saerskilt.produktivitet.beloep` | `saerskilt.produktivitet` og `saerskilt.rigg_og_drift`, hver med `beloep` | Postene utenfor kravpostene. [svar 6 A](../vedlegg/bygging-bf14-2026-11-07/sporsmal.md#svar-fra-oppdragsgiver-0711) 07.11, arbeidsvalg etter B-17 (#1663) |
-| Finnes ikke | Varslene etter § 34.3.3 og § 34.4 som egne utsagn med `gjelder` lik kravpostens `id`, med datoen som opplysning. `gjelder` er valgfri for et varsel som kommer før kravet | [VS-U48](../plans/vedtak.md#vs-u48). Et varsel før kravet gjelder alle kravpostene med den beregningsregelen i neste kravversjon (arbeidsvalget i Følge hos VS-U48, #1674). [svar 6 A](../vedlegg/bygging-bf14-2026-11-07/sporsmal.md#svar-fra-oppdragsgiver-0711) 07.11, arbeidsvalg etter B-17 (#1663) |
+| Finnes ikke | Varslene etter § 34.3.3 og § 34.4 som egne utsagn, med datoen som opplysning. Kravposten viser til varselet for posten med et valgfritt felt, og varselet viser ikke til kravposten | [VS-U54](../plans/vedtak.md#vs-u54) endrer arbeidsvalget etter svar 6 A for raden. [VS-U48](../plans/vedtak.md#vs-u48). Et varsel før kravet gjelder alle kravpostene med den beregningsregelen i neste kravversjon (arbeidsvalget i Følge hos VS-U48, #1674). [svar 6 A](../vedlegg/bygging-bf14-2026-11-07/sporsmal.md#svar-fra-oppdragsgiver-0711) 07.11, arbeidsvalg etter B-17 (#1663) |
 | Utsagnet `trekk` med `gjelder` lik kravversjonen | Feltet `trekker` i den nye kravversjonen, med ID-ene til kravpostene som trekkes. `trekk` beholder betydningen trekk av kravet | Trekket av en kravpost ([KA-U56](../plans/vedtak.md#ka-u56), [KA-U70](../plans/vedtak.md#ka-u70)), og `trekk.gjelder` får ikke to betydninger. [svar 6 A](../vedlegg/bygging-bf14-2026-11-07/sporsmal.md#svar-fra-oppdragsgiver-0711) 07.11, arbeidsvalg etter B-17 (#1663) |
 | Standpunktet `metode` (`hjemmel` 34.2.2, `aksepterer`, `oensket_metode`) | Standpunktet `oppgjoersform` med `gjelder` lik kravpostens `id`, `hjemmel` etter oppgjørsformen (34.2.2, 34.3 eller 34.4), `aksepterer` og `oensket_oppgjoersform` | Samme begrep får ett navn i kravet og svaret. [svar 6 A](../vedlegg/bygging-bf14-2026-11-07/sporsmal.md#svar-fra-oppdragsgiver-0711) 07.11, arbeidsvalg etter B-17 (#1663) |
 | Beløpsstandpunktet og innsigelsene etter § 34.3.3 og § 34.4 uten kravpost | Med `gjelder` lik kravpostens `id` | [svar 6 A](../vedlegg/bygging-bf14-2026-11-07/sporsmal.md#svar-fra-oppdragsgiver-0711) 07.11, arbeidsvalg etter B-17 (#1663) |
@@ -300,6 +300,25 @@ tabellen i spørsmålet til OV-U78, ikke kontrollert mot katalogen. Force majeur
 | | 38.1 | Urettmessig brukstakelse | |
 | | 29.2 | Stans ved betalingsmislighold | |
 | | 33.1 c, 34.1.2 | Annet forhold byggherren har risikoen for | |
+
+### Byggherrens svar per kravpost
+
+Arbeidsvalgene under følger av vedtakene og står til review (vedtaksskillen, «Prinsipp før
+enkeltvedtak»). Teksten i fet skrift står ordrett i [spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md) fra kartleggingen før
+økt 2 i BF-14, med belegget. Oppdragsgiver sluttet seg til dem 09.11
+([svarene](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md#svarene-0911-på-arbeidsvalgene-og-navnene), #1663). Arbeidsvalg 3 er erstattet
+av [KA-U71](../plans/vedtak.md#ka-u71).
+
+| Arbeidsvalg | Følger av |
+| --- | --- |
+| 1. **Lagene gjelder hele svaret i sporet, og et standpunkt står i laget innsigelsene som rammer det, gir det.** | [OV-U32](../plans/vedtak.md#ov-u32), [KA-U57](../plans/vedtak.md#ka-u57) (e), [OV-U73](../plans/vedtak.md#ov-u73), samlevedtaket for vederlagsmetoden ([OV-U95](../plans/vedtak.md#ov-u95)) punkt 8 |
+| 1.1 **En post som ingen innsigelse i et lag rammer, har samme verdi i det laget som i laget før.** | OV-U32, OV-U73 |
+| 1.2 **Standpunktet til oppgjørsformen er en innsigelse som rammer bare posten det gjelder.** | KA-U57 (d), [KA-U58](../plans/vedtak.md#ka-u58), [KA-U60](../plans/vedtak.md#ka-u60), [OV-U33](../plans/vedtak.md#ov-u33) |
+| 1.3 **Innsigelsen etter punkt 34.1.3 rammer bare beløpet for den særskilte vederlagsjusteringen, og flytter ikke lagene for kravpostene eller posten for rigg og drift.** Ordlyden er fra [avklaringen](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md#avklaring-av-arbeidsvalg-1-punkt-3) 09.11 | KA-U57 (b), OV-U32, [OV-U89](../plans/vedtak.md#ov-u89) punkt 8 |
+| 1.4 **Standpunktet til varselet etter punkt 34.4 åpner ikke et nytt lag.** En opplysning: byggherren må ikke ta stilling til varselet ([avklaringen](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md#avklaring-av-arbeidsvalg-1-punkt-4) 09.11) | [KA-U64](../plans/vedtak.md#ka-u64), OV-U95 punkt 11 |
+| 2. **Bestrider byggherren justeringen for en kravpost med justerte enhetspriser, stemmer svaret ikke med kravet for posten, og løsningen registrerer ikke enighet uten TEs aksept.** | [GR-U7](../plans/vedtak.md#gr-u7), [HF-U9](../plans/vedtak.md#hf-u9), [HF-U28](../plans/vedtak.md#hf-u28), [KA-U68](../plans/vedtak.md#ka-u68) |
+| 4. **Byggherren har ikke et eget strukturert svar på et varsel etter punkt 34.4 som står alene.** | [VS-U48](../plans/vedtak.md#vs-u48), OV-U95 punkt 11, KA-U64 |
+| 5. **Byggherren tar stilling per kravpost i svaret på kravet, også når byggherren har svart på varselet før.** | KA-U57 (d), HF-U28, [MM-U50](../plans/vedtak.md#mm-u50), [HF-U25](../plans/vedtak.md#hf-u25) punkt 8 |
 
 ## Tabellen
 
