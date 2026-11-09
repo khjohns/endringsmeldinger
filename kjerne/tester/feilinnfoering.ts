@@ -4148,6 +4148,13 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en påberopelse etter § 34.1.3 mot rigg og drift avvises'],
   },
+  {
+    id: 'F491',
+    feilklasse: 'et ukjent felt i vurderingene i svaret på vederlaget godtas uten virkning (MM-U2)',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [['  if (ukjente.length)', '  if (false)']],
+    mal: ['et ukjent felt i vurderingene i svaret på vederlaget avvises'],
+  },
 ];
 
 interface Testresultat {
