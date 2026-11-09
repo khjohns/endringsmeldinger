@@ -116,8 +116,9 @@
     const vurderinger = { ...s.vurderinger, aksepterer_metode: true };
     delete vurderinger.oensket_metode;
     return (
-      kjernesak.lagForUtkastet({ ...s, vurderinger })?.standpunkter.find((x) => x.art === 'metode')
-        ?.forutsetninger ?? []
+      kjernesak
+        .lagForUtkastet({ ...s, vurderinger })
+        ?.standpunkter.find((x) => x.art === 'oppgjoersform')?.forutsetninger ?? []
     );
   });
   const grunnlagsbrev = $derived.by(() => {

@@ -47,19 +47,6 @@ export function erPrekludert(
   return erEndringMedVarslingsplikt(hovedkategori, underkategori) && varsletITide === false;
 }
 
-/** Hele vederlaget og hele fristen er subsidiære: forholdet er avslått eller prekludert etter § 32.2. */
-export function erForholdSubsidiaert(
-  resultat: Forholdsresultat | null,
-  hovedkategori: string | null,
-  underkategori: string | string[] | null,
-  varsletITide: boolean | null
-): boolean {
-  return (
-    resultat === 'avslaatt' ||
-    erPrekludert(hovedkategori, foersteUnderkategori(underkategori), varsletITide)
-  );
-}
-
 export function gyldigeResultater(
   hovedkategori: string | null,
   underkategori: string | null

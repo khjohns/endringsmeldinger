@@ -62,11 +62,11 @@ async function linjene(steg: Handling[]) {
 
 const MED_AVSLAGET = [
   ['avslaatt', 'prinsipalt'],
-  ['metode', 'subsidiært'],
+  ['oppgjoersform', 'subsidiært'],
   ['beloep', 'subsidiært'],
 ];
 const UTEN_LAG = [
-  ['metode', null],
+  ['oppgjoersform', null],
   ['beloep', null],
 ];
 

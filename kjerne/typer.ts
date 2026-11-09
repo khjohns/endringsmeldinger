@@ -126,24 +126,27 @@ export type Standpunkt =
   | { id: string; art: 'forhold'; resultat: Forholdsresultat }
   /**
    * OV-U26: `godkjent` er beløpet byggherren godtar for posten uten begrensningen etter
-   * § 34.1.3. `saerskilt` er posten etter § 34.1.3 annet ledd; uten den gjelder standpunktet
-   * justeringen ellers. `resultat` er svarets, som utregningen gir det.
+   * § 34.1.3. Standpunktet har enten `gjelder`, kravpostens `id`, eller `saerskilt`
+   * (KA-U57 (c); spørsmålsfila 09.11 for #1663, det tekniske avsnittet punkt 4). `resultat` er
+   * svarets, som utregningen gir det.
    */
   | {
       id: string;
       art: 'beloep';
       resultat: Vederlagsresultat;
       godkjent: number;
+      gjelder?: string;
       saerskilt?: 'produktivitet';
     }
   /**
-   * § 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept oppgir byggherren metoden
-   * byggherren mener vederlaget skal justeres etter (`oensket`); appen avgjør ikke om
+   * § 34.2.2: om byggherren aksepterer TEs tilbud for kravposten `gjelder` (KA-U57 (d)). Uten
+   * aksept oppgir byggherren oppgjørsformen byggherren mener (`oensket`); appen avgjør ikke om
    * § 34.3 eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12, MM-U50).
    */
   | {
       id: string;
-      art: 'metode';
+      art: 'oppgjoersform';
+      gjelder: string;
       hjemmel: '34.2.2';
       aksepterer: boolean;
       oensket?: 'enhetspriser' | 'regningsarbeid';

@@ -81,11 +81,7 @@ export function beslutningslinje(
       (s): s is Extract<Standpunkt, { art: 'beloep' }> => s.art === 'beloep'
     );
     const delt = poster.some((b) => b.saerskilt);
-    const ikkeAkseptert =
-      standpunktet(svar, 'metode')?.aksepterer === false
-        ? ', tilbudet ikke akseptert (§ 34.2.2)'
-        : '';
-    poster.forEach((b, i) => {
+    poster.forEach((b) => {
       const hva = !delt
         ? ''
         : b.saerskilt
@@ -96,9 +92,15 @@ export function beslutningslinje(
           tekst: `begrenset etter § 34.1.3 til ${kroner(begrenset.begrenset!)}`,
           virkning: virkning(begrenset.id),
         });
+      // KA-U57 (d), KA-U60: standpunktet etter § 34.2.2 gjelder kravposten og står i sitt lag.
+      const form = svar.standpunkter.find(
+        (s) => s.art === 'oppgjoersform' && !s.aksepterer && s.gjelder === b.gjelder
+      );
+      if (form && !b.saerskilt)
+        sine.push({ tekst: 'tilbudet ikke akseptert (§ 34.2.2)', virkning: virkning(form.id) });
       const tekst =
         beloep(b.godkjent) === 0n ? `avslått${hva}` : `godkjent med ${kroner(b.godkjent)}${hva}`;
-      sine.push({ tekst: tekst + (i === 0 ? ikkeAkseptert : ''), virkning: virkning(b.id) });
+      sine.push({ tekst, virkning: virkning(b.id) });
     });
   } else {
     const d = standpunktet(svar, 'dager')!;
@@ -107,16 +109,17 @@ export function beslutningslinje(
       virkning: virkning(d.id),
     });
   }
-  const ledd = [
-    ...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })),
-    ...sine,
-  ];
   // OV-U32, OV-U33: etiketten følger det fryste laget, én gang for hvert lag og bare når svaret
   // har mer enn ett lag. Et upåvirket standpunkt står uten etikett. Som i brevteksten.
-  const plass = ({ virkning }: (typeof ledd)[number]) => {
+  const plass = ({ virkning }: { virkning: Virkning }) => {
     const lag = laget(virkning);
     return lag === null ? null : lag + forskyvning;
   };
+  const ledd = iLagene(
+    [...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })), ...sine],
+    plass,
+    forskyvning + 1
+  );
   const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);
   const merket = new Set<number>();
   const etikettert = (l: (typeof ledd)[number]) => {
@@ -139,3 +142,15 @@ const SENT_I_LINJEN: Record<Hjemmel, string> = {
 
 /** Posten etter § 34.1.3 annet ledd i linjen. */
 const SAERSKILT_I_LINJEN = 'særskilt justering (§ 34.1.3 annet ledd)';
+
+/**
+ * Leddene ordnet etter laget, så standpunktene i samme lag står under én etikett (OV-U32). Et
+ * ledd uten lag står med sporets første lag, `foerste`, og aldri under en senere etikett
+ * (OV-U33; spørsmål 8 i spørsmålsfila for #1663, 09.11). Ellers beholdes rekkefølgen.
+ */
+export function iLagene<T>(ledd: T[], plass: (l: T) => number | null, foerste: number): T[] {
+  return ledd
+    .map((l) => ({ l, k: plass(l) ?? foerste }))
+    .sort((a, b) => a.k - b.k)
+    .map(({ l }) => l);
+}

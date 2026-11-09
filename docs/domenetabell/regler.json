@@ -872,6 +872,27 @@
       "radetikett": "OV-U5: TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen"
     },
     {
+      "id": "KA-U58",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u58",
+      "radetikett": "KA-U58: Byggherren kan ta stilling til beløpet subsidiært, «hvis totalentreprenørens oppgjørsform legges til grunn»"
+    },
+    {
+      "id": "KA-U60",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u60",
+      "radetikett": "KA-U60: Lagene i byggherrens svar står i rekkefølgen varselinnsigelsene først, deretter standpunktet til oppgjørsformen, så beløpet"
+    },
+    {
+      "id": "OV-U73",
+      "type": "vedtak",
+      "dato": "2026-10-31",
+      "ref": "../plans/vedtak.md#ov-u73",
+      "radetikett": "OV-U73: Byggherrens svar på et krav om vederlagsjustering har en oversiktstabell når svaret har minst to poster med beløp og minst to lag"
+    },
+    {
       "id": "OV-U15",
       "type": "vedtak",
       "dato": "2026-10-20",

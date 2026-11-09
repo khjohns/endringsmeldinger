@@ -152,7 +152,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 57,
+                  "regelversjon": 59,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -246,24 +246,41 @@
                   },
                   {
                     "id": "1975bfcf-0000-4000-8000-000000000019",
-                    "art": "metode",
+                    "art": "oppgjoersform",
+                    "gjelder": "1975bfcf-0000-4000-8000-000000000012",
                     "hjemmel": "34.2.2",
                     "aksepterer": true
                   },
                   {
                     "id": "1975bfcf-0000-4000-8000-00000000001a",
                     "art": "beloep",
-                    "beloep": 60000
+                    "beloep": 60000,
+                    "gjelder": "1975bfcf-0000-4000-8000-000000000012"
                   }
                 ],
                 "utregning": {
                   "resultat": "avslaatt",
                   "godkjent_beloep": 0,
+                  "poster": [
+                    {
+                      "gjelder": "1975bfcf-0000-4000-8000-000000000012",
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "beloep": 0
+                        },
+                        {
+                          "lag": 2,
+                          "beloep": 60000
+                        }
+                      ]
+                    }
+                  ],
                   "subsidiaert_resultat": "delvis_godkjent",
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 57,
+                  "regelversjon": 59,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
@@ -315,7 +332,7 @@
                 "id": "1975bfcf-0000-4000-8000-000000000020",
                 "art": "aksept",
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
-                "regelversjon": 57
+                "regelversjon": 59
               }
             ],
             "brevtekst": [
@@ -459,7 +476,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 57,
+                  "regelversjon": 59,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -646,7 +663,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 57,
+                  "regelversjon": 59,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -831,7 +848,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 57,
+                  "regelversjon": 59,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -880,7 +897,7 @@
                 "id": "cd5f0ed2-0000-4000-8000-000000000012",
                 "art": "aksept",
                 "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
-                "regelversjon": 57
+                "regelversjon": 59
               }
             ],
             "brevtekst": [
@@ -1067,7 +1084,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 57,
+                  "regelversjon": 59,
                   "linje": "Byggherrens standpunkt: avslått.",
                   "sammenfall": false,
                   "varslingsplikt": false,
@@ -1161,24 +1178,41 @@
                   },
                   {
                     "id": "1475b7f0-0000-4000-8000-000000000019",
-                    "art": "metode",
+                    "art": "oppgjoersform",
+                    "gjelder": "1475b7f0-0000-4000-8000-000000000012",
                     "hjemmel": "34.2.2",
                     "aksepterer": true
                   },
                   {
                     "id": "1475b7f0-0000-4000-8000-00000000001a",
                     "art": "beloep",
-                    "beloep": 60000
+                    "beloep": 60000,
+                    "gjelder": "1475b7f0-0000-4000-8000-000000000012"
                   }
                 ],
                 "utregning": {
                   "resultat": "avslaatt",
                   "godkjent_beloep": 0,
+                  "poster": [
+                    {
+                      "gjelder": "1475b7f0-0000-4000-8000-000000000012",
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "beloep": 0
+                        },
+                        {
+                          "lag": 2,
+                          "beloep": 60000
+                        }
+                      ]
+                    }
+                  ],
                   "subsidiaert_resultat": "delvis_godkjent",
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 57,
+                  "regelversjon": 59,
                   "linje": "Byggherrens standpunkt: subsidiært varselet etter § 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [

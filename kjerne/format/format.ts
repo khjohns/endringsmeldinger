@@ -15,7 +15,12 @@
  */
 
 import { HOVEDKATEGORIER, KATEGORIER, UNDERKATEGORIER, type Hovedkategori } from './koder.ts';
-import { FRISTRESULTATER, FORHOLDSRESULTATER, VEDERLAGSRESULTATER } from '../regler/typer.ts';
+import {
+  FRISTRESULTATER,
+  FORHOLDSRESULTATER,
+  SAERSKILTE,
+  VEDERLAGSRESULTATER,
+} from '../regler/typer.ts';
 import type { Skjema } from './skjema.ts';
 import {
   KRAVSPOR,
@@ -59,14 +64,12 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
     { art: 'rettidighet', paakrevd: false },
     { art: 'forhold', paakrevd: true },
   ],
-  // § 34.1.2, metoden, justeringen ellers, § 34.1.3 og posten etter annet ledd (OV-U27,
-  // OV-U28). Hjemlene og postene står i rekkefølge (`leser.ts`).
+  // § 34.1.2, oppgjørsformen og beløpet for hver kravpost, § 34.1.3 og de særskilte postene
+  // (OV-U27, OV-U28, KA-U57). Rekkefølgen kontrolleres i `leser.ts`, fordi kravpostene gjentar seg.
   vederlag: [
     { art: 'rettidighet', paakrevd: false },
-    { art: 'metode', paakrevd: false },
+    { art: 'oppgjoersform', paakrevd: false },
     { art: 'beloep', paakrevd: true },
-    { art: 'rettidighet', paakrevd: false },
-    { art: 'beloep', paakrevd: false },
   ],
   frist: [
     // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`leser.ts`).
@@ -78,9 +81,9 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
   ],
 };
 
-/** Metodene byggherren kan mene vederlaget skal justeres etter, når tilbudet ikke er akseptert (§ 34.2.2). */
+/** Oppgjørsformene byggherren kan mene for kravposten, når tilbudet ikke er akseptert (§ 34.2.2). */
 export const METODER = ['enhetspriser', 'regningsarbeid'] as const satisfies readonly NonNullable<
-  Extract<Standpunkt, { art: 'metode' }>['oensket']
+  Extract<Standpunkt, { art: 'oppgjoersform' }>['oensket']
 >[];
 
 export const ID: Skjema = { type: 'string', minLength: 1 };
@@ -305,23 +308,27 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     'resultat',
   ]),
   // OV-U26, OV-U31: beløpet byggherren godtar for posten uten begrensningen etter § 34.1.3.
-  // `saerskilt` er posten etter § 34.1.3 annet ledd; uten feltet gjelder det justeringen ellers.
+  // Posten er kravposten `gjelder` eller den særskilte `saerskilt`, ikke begge (`leser.ts`).
   beloep: objekt(
     {
       ...artfelt('beloep'),
       beloep: { type: 'number', minimum: 0 },
-      saerskilt: { const: 'produktivitet' },
+      gjelder: ID,
+      saerskilt: { enum: [...SAERSKILTE] },
     },
-    ['id', 'art', 'beloep']
+    ['id', 'art', 'beloep'],
+    [{ required: ['gjelder'] }, { required: ['saerskilt'] }]
   ),
-  metode: objekt(
+  // § 34.2.2, KA-U57 (d): standpunktet til oppgjørsformen for kravposten `gjelder`.
+  oppgjoersform: objekt(
     {
-      ...artfelt('metode'),
+      ...artfelt('oppgjoersform'),
+      gjelder: ID,
       hjemmel: { const: '34.2.2' },
       aksepterer: { type: 'boolean' },
-      oensket_metode: { enum: [...METODER] },
+      oensket_oppgjoersform: { enum: [...METODER] },
     },
-    ['id', 'art', 'hjemmel', 'aksepterer']
+    ['id', 'art', 'gjelder', 'hjemmel', 'aksepterer']
   ),
   hindring: objekt({ ...artfelt('hindring'), oppfylt: { type: 'boolean' } }, [
     'id',
@@ -350,8 +357,25 @@ export const UTREGNING: Record<Spor, Skjema | null> = {
       godkjent_beloep: { type: 'number', minimum: 0 },
       subsidiaert_resultat: { enum: [...VEDERLAGSRESULTATER] },
       subsidiaert_godkjent_beloep: { type: 'number', minimum: 0 },
+      // OV-U31, KA-U57 (e): én rad per post med ett element per lag. `leser.ts` kontrollerer
+      // radene mot standpunktene og totalene.
+      poster: liste(
+        objekt(
+          {
+            gjelder: ID,
+            saerskilt: { enum: ['produktivitet'] },
+            lag: liste(
+              objekt(
+                { lag: { type: 'integer', minimum: 1 }, beloep: { type: 'number', minimum: 0 } },
+                ['lag']
+              )
+            ),
+          },
+          ['lag']
+        )
+      ),
     },
-    ['resultat', 'godkjent_beloep']
+    ['resultat', 'godkjent_beloep', 'poster']
   ),
   frist: objekt(
     {

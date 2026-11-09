@@ -140,14 +140,14 @@ felt = ["id", "art", "gjelder", "hjemmel", "i_tide", "beloep"]
 grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3, VS-U5, OV-U22"
 
 [[standpunkt]]
-art = "metode"
+art = "oppgjoersform"
 spor = ["vederlag"]
 beskrivelse = """
-§ 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept står metoden
-byggherren mener vederlaget skal justeres etter (`oensket_metode`). Appen
+§ 34.2.2: om byggherren aksepterer TEs tilbud for kravposten `gjelder`. Uten
+aksept står oppgjørsformen byggherren mener (`oensket_oppgjoersform`). Appen
 avgjør ikke om § 34.3 eller § 34.4 gjelder."""
-felt = ["id", "art", "hjemmel", "aksepterer", "oensket_metode"]
-grunnlag = "VS-U3, KA-U4, arbeidsvalget i #479"
+felt = ["id", "art", "gjelder", "hjemmel", "aksepterer", "oensket_oppgjoersform"]
+grunnlag = "VS-U3, KA-U4, KA-U57, arbeidsvalget i #479, navnene 09.11 i #1663"
 
 [[standpunkt]]
 art = "spesifisering"
@@ -174,11 +174,12 @@ art = "beloep"
 spor = ["vederlag"]
 beskrivelse = """
 Beløpet byggherren godtar for én post uten begrensningen etter § 34.1.3, ett
-standpunkt for hver post. `saerskilt` er `produktivitet` for posten etter
-§ 34.1.3 annet ledd; uten feltet gjelder det justeringen ellers. Resultatet og
+standpunkt for hver post. Posten er kravposten `gjelder` eller den særskilte
+`saerskilt` (`produktivitet` eller `rigg_og_drift`). Rigg og drift er ikke i
+kjernens svar ennå, og leseren forstår ikke et slikt standpunkt. Resultatet og
 totalene står i svarets utregning."""
-felt = ["id", "art", "beloep", "saerskilt"]
-grunnlag = "B-13, OV-U26, OV-U31, arbeidsvalget i #1047 (6362745637)"
+felt = ["id", "art", "beloep", "gjelder", "saerskilt"]
+grunnlag = "B-13, OV-U26, OV-U31, KA-U57, arbeidsvalget i #1047 (6362745637), navnene 09.11 i #1663"
 
 [[standpunkt]]
 art = "hindring"
@@ -357,9 +358,9 @@ grunnlag = "LV-U14, LV-U1, OV-U4, KT-U5, arbeidsvalg 3, 4 og 10 i #790"
 [[del]]
 navn = "utregning"
 spor = "vederlag"
-beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet, og det subsidiære standpunktet ved preklusjon etter § 34.1.2."
-felt = ["resultat", "godkjent_beloep", "subsidiaert_resultat", "subsidiaert_godkjent_beloep"]
-grunnlag = "B-13, VS-U3"
+beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent` eller `avslaatt`) og det godkjente beløpet prinsipalt, det subsidiære standpunktet når svaret har mer enn ett lag, og `poster`: én rad per post med `gjelder` eller `saerskilt` og beløpet i hvert lag (`lag` og `beloep`). `beloep` mangler når posten ikke har et fast beløp i laget. Totalene er summen av det første og det siste laget."
+felt = ["resultat", "godkjent_beloep", "subsidiaert_resultat", "subsidiaert_godkjent_beloep", "poster"]
+grunnlag = "B-13, VS-U3, OV-U31, KA-U57 (e), KA-U58, KA-U60"
 
 [[del]]
 navn = "utregning"

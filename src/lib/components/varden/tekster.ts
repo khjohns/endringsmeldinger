@@ -149,7 +149,7 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number): str
             (s.begrenset !== undefined
               ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
               : '');
-    case 'metode':
+    case 'oppgjoersform':
       return s.aksepterer
         ? `${hvem} godkjenner beregningsmetoden TE krever`
         : `${hvem} godkjenner ikke beregningsmetoden TE krever` +

@@ -90,7 +90,7 @@ export function virkninger(
       const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, paaberopelse, regler);
       if (virker) lag = 2;
       ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 1 : 'uten_virkning' });
-    } else if (s.art === 'metode' && s.aksepterer) {
+    } else if (s.art === 'oppgjoersform' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {
       // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
@@ -110,12 +110,13 @@ export function virkninger(
 }
 
 /**
- * OV-U27, OV-U33: lagene i vederlaget. Påberopelsen etter § 34.1.2 gjelder hele kravet og
- * står i det første laget. Begrensningen etter § 34.1.3 rammer bare posten etter annet ledd
- * (OV-U22, VS-U5): den står i laget etter § 34.1.2 sammen med justeringen ellers og
- * metoden, og posten i laget etter den. Rammer ingen påberopelse justeringen ellers, er den
- * upåvirket, så sant forholdet verken er avslått eller prekludert (OV-U33). Metoden står i
- * laget til justeringen ellers, også når byggherren godkjenner oppgjør som fast sum (LV-U31, LV-U32).
+ * OV-U27, OV-U33, KA-U60, KA-U64: lagene i vederlaget. Påberopelsen etter § 34.1.2 gjelder hele
+ * kravet og står i det første laget. I laget etter står standpunktet til oppgjørsformen når
+ * tilbudet ikke er akseptert, og begrensningen etter § 34.1.3, og hver av dem rammer bare sin
+ * post: beløpet for kravposten `gjelder` og den særskilte posten står i laget etter
+ * (arbeidsvalg 1.2 og 1.3 i spørsmålsfila 09.11 for #1663). En post som ingen av dem rammer, er
+ * upåvirket, så sant forholdet verken er avslått eller prekludert (OV-U33), og ellers i laget
+ * etter § 34.1.2 (arbeidsvalg 1.1). Et akseptert tilbud står som posten.
  */
 function vederlagsvirkninger(
   svar: Svarinnhold,
@@ -132,8 +133,14 @@ function vederlagsvirkninger(
         hjemmelenGjelder(hjemmel, paaberopelse, regler)
     );
   const [hele, posten] = [sent('34.1.2'), sent('34.1.3')];
+  const ikkeAkseptert = new Set(
+    svar.standpunkter.flatMap((s) =>
+      s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []
+    )
+  );
   const foerste = hele ? 2 : 1;
-  const ellers: Virkning = posten && !hele && forskyvning === 0 ? 'upaavirket' : foerste;
+  const rammet = posten || ikkeAkseptert.size > 0;
+  const ellers: Virkning = rammet && !hele && forskyvning === 0 ? 'upaavirket' : foerste;
   return svar.standpunkter.map((s): Standpunktsvirkning => {
     const virkning = (): Virkning => {
       if (s.art === 'rettidighet')
@@ -144,7 +151,9 @@ function vederlagsvirkninger(
           : posten
             ? foerste
             : 'uten_virkning';
-      if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);
+      if (s.art === 'oppgjoersform' && !s.aksepterer) return foerste;
+      if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;
+      if (s.art === 'beloep' && ikkeAkseptert.has(s.gjelder!)) return foerste + 1;
       return ellers;
     };
     return { standpunkt: s.id, art: s.art, virkning: virkning() };
@@ -396,17 +405,25 @@ export function postlisten(
 }
 
 /**
- * Det byggherren godtar prinsipalt i vederlaget, av postene og begrensningen i brevet
- * (OV-U26, OV-U27): posten etter § 34.1.3 annet ledd med beløpet etter en virksom begrensning.
+ * Det byggherren godtar prinsipalt i vederlaget, av postene og lagene i brevet (OV-U26,
+ * OV-U27): posten etter § 34.1.3 annet ledd med beløpet etter en virksom begrensning. En
+ * kravpost med beløpet i et senere lag har ikke et fast beløp i det første og regnes ikke med
+ * (KA-U58, OV-U73).
  */
 function prinsipaltBeloep(svar: Svarinnhold, v: Standpunktsvirkning[]): number {
-  const poster = postlisten(svar, v, 0).poster.map((p) => p.begrensning?.beloep ?? p.godkjent);
+  const poster = postlisten(svar, v, 0).poster.flatMap((p) =>
+    p.begrensning ? [p.begrensning.beloep] : !p.saerskilt && (p.lag ?? 1) > 1 ? [] : [p.godkjent]
+  );
   return tilTall(poster.reduce((a, b) => a + beloep(b)!, 0n));
 }
 
 export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art: A) {
   return svar.standpunkter.find((s): s is Extract<Standpunkt, { art: A }> => s.art === art);
 }
+
+/** Byggherren aksepterer ikke tilbudet for minst én kravpost (§ 34.2.2, KA-U57 (d)). */
+export const tilbudetIkkeAkseptert = (svar: Svarinnhold): boolean =>
+  svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer);
 
 /**
  * Hvorfor svarene på vederlag og frist er subsidiære til svaret på påberopelsen, etter
@@ -467,7 +484,7 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   if (svar.spor === 'forhold') return standpunktet(svar, 'forhold')?.resultat === 'godkjent';
   // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
   // påberopelse etter § 33.6.1 i et lag, gir aldri sammenfall. Leses av standpunktene.
-  if (standpunktet(svar, 'metode')?.aksepterer === false) return false;
+  if (tilbudetIkkeAkseptert(svar)) return false;
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;

@@ -36,18 +36,20 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
         hjemmel: HJEMMEL.vederlag,
         i_tide: v.hovedkrav_varslet_i_tide,
       });
-    if (typeof v.aksepterer_metode === 'boolean')
-      ut.push({
-        id: nyId(),
-        art: 'metode',
-        hjemmel: '34.2.2',
-        aksepterer: v.aksepterer_metode,
-        ...(v.aksepterer_metode ? {} : { oensket_metode: v.oensket_metode }),
-      });
-    // OV-U26, OV-U28: justeringen ellers, begrensningen etter § 34.1.3 og posten etter annet
-    // ledd, hver for seg. Beløpet etter begrensningen er det byggherren oppgir (VS-U5).
+    // OV-U26, OV-U28, KA-U57: oppgjørsformen og beløpet for kravposten, begrensningen etter
+    // § 34.1.3 og posten etter annet ledd, hver for seg. Beløpet etter begrensningen er det
+    // byggherren oppgir (VS-U5).
     for (const post of vederlagsposter(v, krav)) {
-      if (post.saerskilt && typeof v.produktivitet_varslet_i_tide === 'boolean')
+      if ('gjelder' in post && typeof v.aksepterer_metode === 'boolean')
+        ut.push({
+          id: nyId(),
+          art: 'oppgjoersform',
+          gjelder: post.gjelder,
+          hjemmel: '34.2.2',
+          aksepterer: v.aksepterer_metode,
+          ...(v.aksepterer_metode ? {} : { oensket_oppgjoersform: v.oensket_metode }),
+        });
+      if ('saerskilt' in post && typeof v.produktivitet_varslet_i_tide === 'boolean')
         ut.push({
           id: nyId(),
           art: 'rettidighet',
@@ -62,7 +64,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
         id: nyId(),
         art: 'beloep',
         beloep: post.godkjent,
-        ...(post.saerskilt ? { saerskilt: post.saerskilt } : {}),
+        ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
       });
     }
   } else {

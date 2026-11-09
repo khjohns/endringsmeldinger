@@ -161,7 +161,12 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
   const ut = liste.map((v, i): Standpunkt => {
     const e = element(v, STANDPUNKT, 'art', `${sti}.standpunkter[${i}]`);
     const art = e.art as Standpunktsart;
-    const plass = tillatt.findIndex((t, j) => j >= neste && t.art === art);
+    // Vederlaget gjentar oppgjørsformen og beløpet per kravpost; rekkefølgen kontrolleres i
+    // `kontrollerVederlagsstandpunktene`.
+    const plass =
+      spor === 'vederlag'
+        ? tillatt.findIndex((t) => t.art === art)
+        : tillatt.findIndex((t, j) => j >= neste && t.art === art);
     if (plass < 0)
       throw new Uforstaatt(
         `${sti}: standpunktet ${art} hører ikke til ${spor} eller står i feil rekkefølge`
@@ -193,18 +198,19 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         };
       case 'forhold':
         return { id, art, resultat: e.resultat as never };
-      case 'metode':
-        // Arbeidsvalget i #479: metoden byggherren ønsker, står bare når tilbudet ikke er akseptert.
-        if (e.aksepterer === 'oensket_metode' in e)
+      case 'oppgjoersform':
+        // Arbeidsvalget i #479: oppgjørsformen byggherren mener, står bare når tilbudet ikke er akseptert.
+        if (e.aksepterer === 'oensket_oppgjoersform' in e)
           throw new Uforstaatt(
-            `${sti}: metoden i standpunktet etter § 34.2.2 stemmer ikke med aksepten`
+            `${sti}: oppgjørsformen i standpunktet etter § 34.2.2 stemmer ikke med aksepten`
           );
         return {
           id,
           art,
+          gjelder: e.gjelder as string,
           hjemmel: '34.2.2',
           aksepterer: e.aksepterer as boolean,
-          ...(e.aksepterer ? {} : { oensket: e.oensket_metode as 'enhetspriser' }),
+          ...(e.aksepterer ? {} : { oensket: e.oensket_oppgjoersform as 'enhetspriser' }),
         };
       case 'hindring':
         return { id, art, oppfylt: e.oppfylt as boolean };
@@ -223,12 +229,19 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           ...(e.i_tide ? {} : { dager: e.dager as number }),
         };
       case 'beloep':
+        if ('gjelder' in e === 'saerskilt' in e)
+          throw new Uforstaatt(`${sti}: beløpet gjelder ikke nøyaktig én post`);
+        // Rigg og drift er ikke i kjernens svar ennå (#1663), så standpunktet er ikke forstått (MM-U2).
+        if (e.saerskilt === 'rigg_og_drift')
+          throw new Uforstaatt(`${sti}: rigg og drift er ikke i kjernens svar ennå`);
         return {
           id,
           art,
           resultat: (utregning.subsidiaert_resultat ?? utregning.resultat) as never,
           godkjent: e.beloep as number,
-          ...(e.saerskilt ? { saerskilt: 'produktivitet' as const } : {}),
+          ...('gjelder' in e
+            ? { gjelder: e.gjelder as string }
+            : { saerskilt: 'produktivitet' as const }),
         };
       case 'dager':
         return {
@@ -257,9 +270,11 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
 }
 
 /**
- * OV-U27, OV-U28: i vederlaget står § 34.1.2, metoden, justeringen ellers, § 34.1.3 og
- * posten etter § 34.1.3 annet ledd i den rekkefølgen, hver høyst én gang. OV-U31: postene
- * summerer til det byggherren godtar om ingen påberopelse fører fram.
+ * OV-U27, OV-U28, KA-U57: i vederlaget står § 34.1.2, oppgjørsformen og beløpet for hver kravpost,
+ * § 34.1.3 og posten etter § 34.1.3 annet ledd i den rekkefølgen. § 34.1.2, § 34.1.3 og posten
+ * står høyst én gang, og hver kravpost har høyst ett standpunkt til oppgjørsformen, rett foran
+ * beløpet, og ett beløp. OV-U31: postene summerer til det byggherren godtar om ingen påberopelse
+ * fører fram.
  */
 function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti: string): void {
   const plass = (s: Standpunkt) =>
@@ -267,17 +282,27 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
       ? s.hjemmel === '34.1.2'
         ? 0
         : 3
-      : s.art === 'metode'
+      : s.art === 'oppgjoersform' || (s.art === 'beloep' && !s.saerskilt)
         ? 1
         : s.art === 'beloep'
-          ? s.saerskilt
-            ? 4
-            : 2
+          ? 4
           : -1;
   const plasser = ut.map(plass);
-  if (plasser.some((p, i) => i > 0 && p <= plasser[i - 1]))
+  const sett = new Set<string>();
+  const kravposten = (s: Standpunkt, i: number) => {
+    if (s.art !== 'oppgjoersform' && s.art !== 'beloep') return true;
+    const g = s.gjelder!;
+    if (sett.has(g)) return false;
+    if (s.art === 'beloep') return sett.add(g);
+    const neste = ut[i + 1];
+    return neste?.art === 'beloep' && neste.gjelder === g;
+  };
+  if (
+    plasser.some((p, i) => i > 0 && (p < plasser[i - 1] || (p === plasser[i - 1] && p !== 1))) ||
+    !ut.every((s, i) => plasser[i] !== 1 || kravposten(s, i))
+  )
     throw new Uforstaatt(
-      `${sti}: standpunktene i vederlaget står ikke i rekkefølgen § 34.1.2, metode, justeringen ellers, § 34.1.3 og posten etter annet ledd`
+      `${sti}: standpunktene i vederlaget står ikke i rekkefølgen § 34.1.2, oppgjørsformen og beløpet for hver kravpost, § 34.1.3 og posten etter annet ledd`
     );
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
   if (plasser.includes(3) && !plasser.includes(4))
@@ -303,6 +328,51 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
     throw new Uforstaatt(
       `${sti}: postene summerer ikke til det byggherren godtar om ingen påberopelse fører fram`
     );
+}
+
+/**
+ * OV-U31, KA-U57 (e): utregningen har én rad per beløp i standpunktene, i samme rekkefølge og med
+ * samme post, og like mange lag i hver rad. Beløpet i det siste laget er det byggherren godtar
+ * for posten. Et lag uten beløp står bare for en kravpost der tilbudet ikke er akseptert
+ * (KA-U58). Det byggherren godtar prinsipalt og subsidiært, er summen av det første og det
+ * siste laget, og det subsidiære står bare med mer enn ett lag.
+ */
+function kontrollerUtregningenPerPost(ut: Standpunkt[], utregning: Data, sti: string): void {
+  const rader = utregning.poster as { gjelder?: string; saerskilt?: string; lag: Data[] }[];
+  const beloepene = ut.filter((s) => s.art === 'beloep');
+  const utenAksept = new Set(
+    ut.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []))
+  );
+  const antall = rader[0]?.lag.length ?? 0;
+  const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.poster: ${hva}`);
+  if (rader.length !== beloepene.length) throw feil('radene er ikke én per post i standpunktene');
+  rader.forEach((r, i) => {
+    const b = beloepene[i];
+    if (
+      'gjelder' in r === 'saerskilt' in r ||
+      r.gjelder !== b.gjelder ||
+      r.saerskilt !== b.saerskilt
+    )
+      throw feil(`rad ${i + 1} gjelder ikke samme post som beløpet i standpunktene`);
+    if (r.lag.length !== antall || r.lag.some((l, n) => l.lag !== n + 1))
+      throw feil(`rad ${i + 1} har ikke lagene 1 til ${antall}`);
+    if (beloep(r.lag.at(-1)!.beloep as number | undefined) !== beloep(b.godkjent))
+      throw feil(`rad ${i + 1} har ikke beløpet byggherren godtar i det siste laget`);
+    if (r.lag.some((l) => !('beloep' in l)) && !utenAksept.has(r.gjelder!))
+      throw feil(
+        `rad ${i + 1} mangler beløpet i et lag, men byggherren aksepterer tilbudet for posten (KA-U58)`
+      );
+  });
+  const summen = (n: number) =>
+    rader
+      .map((r) => r.lag.at(n)!)
+      .reduce((a, l) => a + (beloep(l.beloep as number | undefined) ?? 0n), 0n);
+  if (summen(0) !== beloep(utregning.godkjent_beloep as number))
+    throw feil('det første laget summerer ikke til det byggherren godtar prinsipalt');
+  if (antall > 1 !== 'subsidiaert_godkjent_beloep' in utregning)
+    throw feil('det subsidiære beløpet står ikke nøyaktig når svaret har mer enn ett lag');
+  if (antall > 1 && summen(-1) !== beloep(utregning.subsidiaert_godkjent_beloep as number))
+    throw feil('det siste laget summerer ikke til det byggherren godtar subsidiært');
 }
 
 /** Standpunktene som er byggherrens påberopelser i sporet. */
@@ -343,11 +413,15 @@ function lesBeslutningsgrunnlag(
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
   // OV-U32, OV-U33: upåvirket gjelder vederlag og frist, og bare ved siden av en påberopelse
-  // i sporet.
+  // i sporet. Et tilbud som ikke er akseptert, er en innsigelse mot kravposten (KA-U60).
+  const ikkeAkseptert = new Set(
+    standpunkter.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : []))
+  );
+  const paaberoper = (p: Standpunktsvirkning) =>
+    typeof p.virkning === 'number' && (PAABEROPELSER.has(p.art) || ikkeAkseptert.has(p.standpunkt));
   if (
     virkninger.some((p) => p.virkning === 'upaavirket') &&
-    (spor === 'forhold' ||
-      !virkninger.some((p) => PAABEROPELSER.has(p.art) && typeof p.virkning === 'number'))
+    (spor === 'forhold' || !virkninger.some(paaberoper))
   )
     throw new Uforstaatt(
       `${sti}: et standpunkt er upåvirket uten en påberopelse i vederlag eller frist (OV-U33)`
@@ -365,6 +439,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
   const e = element(v, SVAR, 'spor', sti);
   const spor = e.spor as Spor;
   const standpunkter = standpunkterISvaret(spor, e, sti);
+  if (spor === 'vederlag') kontrollerUtregningenPerPost(standpunkter, e.utregning as Data, sti);
   return {
     id: e.id as string,
     spor,

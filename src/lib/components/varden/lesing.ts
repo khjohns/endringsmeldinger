@@ -379,7 +379,8 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
       // Svaret på forholdet har ingen grunner fra et annet svar foran seg (OV-U33).
       standpunkter: standpunktene(s, u).flatMap((l) => {
         if (!('standpunkt' in l)) return [];
-        const b = 'gjelder' in l.standpunkt ? kravbrev.get(l.standpunkt.gjelder) : undefined;
+        const g = 'gjelder' in l.standpunkt ? l.standpunkt.gjelder : undefined;
+        const b = g ? kravbrev.get(g) : undefined;
         return [{ standpunkt: l.standpunkt, lag: l.lag, brev: b ? ref(b) : null }];
       }),
     });

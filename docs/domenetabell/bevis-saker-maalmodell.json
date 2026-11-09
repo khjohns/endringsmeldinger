@@ -9238,9 +9238,9 @@
           ],
           "forventet": {
             "avvist": false,
-            "standpunkt.S-v1.metode.hjemmel": "34.2.2",
-            "standpunkt.S-v1.metode.aksepterer": false,
-            "standpunkt.S-v1.metode.oensket": "regningsarbeid"
+            "standpunkt.S-v1.oppgjoersform.hjemmel": "34.2.2",
+            "standpunkt.S-v1.oppgjoersform.aksepterer": false,
+            "standpunkt.S-v1.oppgjoersform.oensket": "regningsarbeid"
           }
         },
         {
@@ -9248,10 +9248,12 @@
           "rolle": "mal",
           "kilde": [
             "AV-479",
-            "GR-U7"
+            "GR-U7",
+            "KA-U60"
           ],
           "forventet": {
-            "virkning.S-v1.beloep": 1,
+            "virkning.S-v1.oppgjoersform": 1,
+            "virkning.S-v1.beloep": 2,
             "beslutningsgrunnlag.S-v1.sammenfall": false,
             "enighet.vederlag": null
           }
@@ -9262,11 +9264,13 @@
           "kilde": [
             "AV-479",
             "KA-U10",
-            "MM-U50"
+            "MM-U50",
+            "KA-U58",
+            "OV-U73"
           ],
           "forventet": {
             "avvist": false,
-            "enighet.vederlag.utfall.beloep": 100000
+            "enighet.vederlag.utfall.beloep": 0
           }
         }
       ],
@@ -9335,8 +9339,8 @@
           ],
           "forventet": {
             "avvist": false,
-            "standpunkt.S-v1.metode.aksepterer": true,
-            "virkning.S-v1.metode": 1,
+            "standpunkt.S-v1.oppgjoersform.aksepterer": true,
+            "virkning.S-v1.oppgjoersform": 1,
             "beslutningsgrunnlag.S-v1.sammenfall": true,
             "enighet.vederlag.utfall.beloep": 100000
           }
@@ -9724,14 +9728,16 @@
           "kilde": [
             "VS-U3",
             "V-B13",
-            "AV-479"
+            "AV-479",
+            "KA-U60"
           ],
           "forventet": {
             "avvist": false,
             "virkning.S-v1.rettidighet": 1,
-            "virkning.S-v1.beloep": 2,
+            "virkning.S-v1.oppgjoersform": 2,
+            "virkning.S-v1.beloep": 3,
             "standpunkt.S-v1.beloep.godkjent": 100000,
-            "standpunkt.S-v1.metode.aksepterer": false,
+            "standpunkt.S-v1.oppgjoersform.aksepterer": false,
             "beslutningsgrunnlag.S-v1.sammenfall": false
           }
         },

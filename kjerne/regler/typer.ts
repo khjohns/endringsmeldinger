@@ -6,18 +6,14 @@
 
 export const FORHOLDSRESULTATER = ['godkjent', 'avslaatt', 'paalegg_frafalt'] as const;
 export type Forholdsresultat = (typeof FORHOLDSRESULTATER)[number];
-export const VEDERLAGSRESULTATER = [
-  'godkjent',
-  'delvis_godkjent',
-  'avslaatt',
-  'tilbakeholdelse',
-] as const;
+export const VEDERLAGSRESULTATER = ['godkjent', 'delvis_godkjent', 'avslaatt'] as const;
 export type Vederlagsresultat = (typeof VEDERLAGSRESULTATER)[number];
 export const FRISTRESULTATER = ['godkjent', 'delvis_godkjent', 'avslaatt'] as const;
 export type Fristresultat = (typeof FRISTRESULTATER)[number];
 export const BELOEPSVURDERINGER = ['godkjent', 'delvis', 'avslaatt'] as const;
 export type Beloepsvurdering = (typeof BELOEPSVURDERINGER)[number];
-export type Vederlagsmetode = 'enhetspriser' | 'regningsarbeid' | 'tilbud';
+/** Postene utenfor kravpostene: § 34.1.3 annet ledd og rigg og drift (OV-U89 punkt 6 og 17). */
+export const SAERSKILTE = ['produktivitet', 'rigg_og_drift'] as const;
 export type Fristvarseltype = 'varsel' | 'spesifisert' | 'begrunnelse_utsatt';
 
 export const SUBSIDIAERE_UTLOSERE = [
