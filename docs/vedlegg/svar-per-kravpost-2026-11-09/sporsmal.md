@@ -293,3 +293,50 @@ må håndheve prosjektgrensen ved hvert lesepunkt, og den lagres som en relasjon
 svar, og relasjonen mellom sakene.
 
 **Svar:**
+
+### Spørsmål 3: regner løsningen hverdagene og forlengelsen av datoene?
+
+Oppdragsgiver 09.11, ordrett: «Til 2B: løsningen kan vel ta de rent matematiske utregningene? Eller
+er noe skjønnsmessig eller usikkert her?»
+
+**Bakgrunn.** Løsningen regner alt regnestykket ut fra verdiene partene oppgir («Beregnet ut fra
+TEs opplysninger»). Beslutningsdelen i samlevedtaket for særskilt varsel og rigg og drift sier at
+løsningen ikke teller hverdagene i perioden, og ikke viser forlengelsen som kontrollert mot perioden
+eller datoene. Et ja her endrer den setningen.
+
+**Det som er ren regning når datoene er gitt:** hverdagene mellom to datoer, den opprinnelige
+byggetiden (Y) av datoene i punkt E.1 i kontraktsgrunnlaget, forlengelsen (Z) av datoen for
+faktisk igangsetting og den nye overtakelsesdatoen, og regnestykket.
+
+**Det som ikke er ren regning:**
+
+- Hva en hverdag er i punkt B.2.16. NS 8407 definerer hverdager bare for dagmulkten (punkt 40.3):
+  alle dager unntatt helligdager og høytidsdager, altså også lørdager. Kontraktsgrunnlaget
+  definerer ikke ordet. Det er en tolkning.
+- Hvilke fristforlengelser som flytter overtakelsesdatoen: en forlengelse av en delfrist gjør det
+  ikke, og flere forlengelser kan overlappe (punkt 33.5, den samlede virkningen). Krevde,
+  godkjente og subsidiære dager er ulike tall.
+- Datoen for faktisk igangsetting er TEs opplysning, og den nye overtakelsesdatoen er avtalt eller
+  bare TEs premiss.
+- Andelen ved forlengelse for deler av arbeidene.
+- Reguleringen etter punkt 26.2: indeksen (SSB «Boligblokk, i alt» med mindre annet er avtalt)
+  finnes ikke i løsningen, og tyngdepunktet for produksjonen er et anslag.
+
+**Alternativene.**
+
+- **A:** Som i dag. Partene oppgir forlengelsen og byggetiden i hverdager, og løsningen regner
+  bare regnestykket.
+- **B (anbefalt):** Løsningen regner hverdagene, den opprinnelige byggetiden og forlengelsen av
+  datoene partene oppgir, med hverdager som i punkt 40.3, og viser resultatet som «Beregnet ut fra
+  TEs opplysninger» eller byggherrens. Datoene i punkt E.1 og rigg- og driftskapitlet oppgis én gang
+  per prosjekt. Løsningen avleder ikke datoene av fristkravene, avgjør ikke hvilke
+  fristforlengelser som flytter overtakelsen, og regner ikke reguleringen. Endrer beslutningsdelen
+  i samlevedtaket for særskilt varsel og rigg og drift.
+- **C:** Som B, og i tillegg foreslår løsningen en ny overtakelsesdato av den opprinnelige og
+  dagene i fristkravene TE viser til (spørsmål 2). Parten kan endre forslaget.
+
+**Anbefalt: B.** Regningen er sikker når datoene og definisjonen av hverdag er gitt. C ser ut som
+regning, men forutsetter at dagene i fristkravene legges sammen og flytter sluttfristen, og det
+avgjør partene. Definisjonen av hverdag bør bekreftes uttrykkelig.
+
+**Svar:**
