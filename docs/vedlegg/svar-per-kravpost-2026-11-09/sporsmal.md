@@ -421,3 +421,70 @@ R1 var: BF-14 og prototypen mangler opplysningene i posten for rigg og drift ett
 for særskilt varsel og rigg og drift punkt 20, 21, 23 og 25 (datoene, reguleringen, TEs eget
 krevde beløp og byggherrens egne verdier), og kjernen har posten bare som et beløp. R1 og
 spørsmål 2 går i en ny bestilling. I 2a og 2b er posten for rigg og drift et beløp, som i dag.
+
+## Spørsmålene fra reviewet av PR #1738 (09.11)
+
+Lagt fram for oppdragsgiver av reviewøkta for #1738 i tekst, ikke med spørsmålsverktøyet.
+Punkt 1–3 er «Åpne spørsmål» 1–3 i PR-en. Punkt 4 kommer fra reviewet av samspillet mellom
+reglene.
+
+### Spørsmål 5: totalene og postene i det lagrede svaret
+
+**Bakgrunn.** Det lagrede svaret på vederlagskravet har i dag totalene «godkjent beløp»
+(prinsipalt) og «subsidiært godkjent beløp». PR-en legger til beløpet for hver kravpost i hvert
+lag. Fullmakten og nyttelasten leser totalene. OV-U31: «Lagret utregning har prinsipalt godkjent
+beløp som sum av første lag og subsidiært godkjent beløp som sum av siste lag.» Det tekniske
+avsnittet over (punkt 5) skisserte at postene skulle erstatte totalene.
+
+- **A (anbefalt, bygget i PR-en):** Totalene beholdes etter OV-U31, og beløpet per kravpost og
+  lag legges til. Totalene skal være summen av det første og det siste laget. Forhold: følger
+  OV-U31.
+- **B:** Beløpet per kravpost og lag erstatter totalene. Forhold: endrer OV-U31, og fullmakten
+  og nyttelasten må regne summen selv.
+
+**Anbefalt: A.** Totalene er det fullmakten regnes av, og OV-U31 står uendret.
+
+### Spørsmål 6: det prinsipale utfallet når tilbudet ikke er akseptert
+
+**Bakgrunn.** Mener byggherren regningsarbeid for den eneste kravposten, har posten ikke noe
+fast beløp prinsipalt. OV-U73: en post uten fast beløp regnes ikke med i summen. Det
+prinsipale beløpet blir da 0 kr, og saksbildet og sakslisten viser 0 kr. Det kan leses som at
+kravet er avslått, selv om byggherren bare har bestridt oppgjørsformen.
+
+- **A (anbefalt):** Utfallet sier i tillegg at en kravpost ikke har fast beløp, og visningen
+  viser det i stedet for 0 kr (bygges i 2a-2). Forhold: følger OV-U73, uten nytt vedtak.
+- **B:** Utfallet er 0 kr, og visningen forklarer hvorfor. Forhold: følger OV-U73.
+
+**Anbefalt: A.** Visningen sier da hva byggherren faktisk har sagt.
+
+### Spørsmål 7: ordene for beløpet i laget etter oppgjørsformen
+
+**Bakgrunn.** KA-U58 sier at beløpet står subsidiært «hvis totalentreprenørens oppgjørsform
+legges til grunn». Brevet setter i dag beløpet under «Subsidiært:» etter standpunktet til
+oppgjørsformen, men gjentar ikke vilkåret.
+
+- **A (anbefalt):** Ordene avgjøres sammen med brevteksten for flere kravposter og lagslinjen
+  «Subsidiært, hvis …» (LV-U34) i 2a-2. Brevet er uendret til da. Forhold: ingen.
+- **B:** Brevet får vilkåret nå, i PR-en. Forhold: presiserer KA-U58.
+
+**Anbefalt: A.** Med én kravpost står vilkåret rett foran beløpet i brevet.
+
+### Spørsmål 8: hvor et upåvirket standpunkt står når svaret har et senere lag
+
+**Bakgrunn.** OV-U32: «et upåvirket standpunkt står uten etikett». Brevet setter et standpunkt
+uten etikett i avsnittet foran (#1267 punkt 4). Når tilbudet ikke er akseptert, står beløpet
+for kravposten nå under «Subsidiært:». Har kravet også posten etter punkt 34.1.3 annet ledd, og
+varselet kom i tide, er posten upåvirket og havner etter «Subsidiært:». Linjen blir da:
+«prinsipalt tilbudet ikke akseptert (§ 34.2.2), subsidiært godkjent med 100 000 kr for
+justeringen ellers, godkjent med 30 000 kr for særskilt justering». Det kan leses som at også
+de 30 000 kr bare gjelder subsidiært, selv om byggherren godtar dem uansett.
+
+- **A (anbefalt):** Et standpunkt uten lag, det vil si et upåvirket standpunkt eller en
+  innsigelse byggherren ikke gjør gjeldende, står i brevet og linjen sammen med det første laget
+  og aldri under en senere etikett. Forhold: presiserer OV-U32 og
+  OV-U33. Rettes i PR-en før merge.
+- **B:** Som i dag: standpunktet står etter det standpunktet det kommer etter. Ordene for flere
+  kravposter i 2a-2 tar det. Forhold: ingen.
+
+**Anbefalt: A.** Kombinasjonen er ny med PR-en, og et ubetinget standpunkt bør ikke stå under en
+etikett for et vilkår.
