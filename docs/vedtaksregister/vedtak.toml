@@ -2694,6 +2694,156 @@ tekst = '''
 Byggherren kan ikke gjøre gjeldende at varselet kom for sent eller bestride justeringen når byggherren mener at posten skal gjøres opp som regningsarbeid.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "VS-U57"
+dato = 2026-11-09
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det ble stilt 09.11 i [spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md):
+
+### Spørsmål 1: hva byggherrens svar på et varsel etter punkt 34.3.3 som står alene, inneholder
+
+**Bakgrunn.** TE kan varsle justering av enhetsprisene etter punkt 34.3.3 første ledd før kravet,
+og byggherren kan svare på varselet (VS-U48). Punkt 34.3.3 annet ledd gir mottakeren en svarplikt,
+og den som ikke svarer i tide, mister innsigelsene mot kravet. Begrunnelsen for VS-U48 var:
+«Byggherren må kunne oppfylle svarplikten etter punkt 34.3.3 annet ledd på et varsel som står
+alene.» Ingen vedtak sier hva svaret inneholder. I prototypen finnes svaret bare inne i en
+kravpost (G-9 i BF-14). At standpunktet til justeringen i svaret på en kravpost heter «godtar»
+eller «bestrider», er design (S-11).
+
+**Belegg.**
+
+- [VS-U48](#vs-u48): «Byggherren kan svare på et varsel etter punkt 34.3.3
+  som står alene. Løsningen avgjør ikke om varselet kom i tide eller hvilken virkning et manglende
+  eller sent varsel har.»
+- [VS-U4](#vs-u4), delen om punkt 34.3.3 første ledd, som står etter VS-U47:
+  «påberoper parten som mottar kravet eller varselet, at kravet ble spesifisert for sent etter
+  § 33.6.1, eller at justering av enhetsprisene ble varslet for sent etter § 34.3.3 første ledd,
+  oppgir hen prinsipalt det hen måtte forstå, og subsidiært det hen godtar hvis spesifiseringen
+  eller varselet kom i tide.» «Appen regner ikke ut hva noen måtte forstå.»
+- [VS-U3](#vs-u3): løsningen utleder virkningen av standpunktet etter punkt
+  34.3.3 første ledd, og registrerer og viser punkt 34.3.3 annet ledd med frist og bestemmelse.
+  [VS-U2](#vs-u2) og D-14 i BF-14: svarer byggherren ikke, viser løsningen
+  bestemmelsen og fristen uten å trekke konklusjonen.
+- Samlevedtaket for vederlagsmetoden punkt 5: «Det godkjenner ikke mengder, priser, kostnader
+  eller noe beløp for det vederlaget.»
+- Kartleggingen viste også til samlevedtaket for vederlagsmetoden punkt 11. Det punktet gjelder
+  varselet etter punkt 34.4 (punkt 10), ikke punkt 34.3.3.
+
+**Alternativene.**
+
+- **A:** Byggherrens svar på et varsel etter punkt 34.3.3 første ledd som står alene, kan bare
+  gjøre gjeldende at varselet kom for sent. Gjør byggherren det, står prinsipalt at
+  totalentreprenøren bare har krav på slik justering av enhetsprisen som byggherren måtte forstå
+  at forholdet ville føre til, og løsningen regner ikke ut hva byggherren måtte forstå. Byggherren
+  tar stilling til selve justeringen i svaret på kravposten, og det svaret viser til svaret på
+  varselet. Ellers står byggherrens syn i begrunnelsen, som løsningen ikke tolker (KA-U16).
+  Løsningen avgjør ikke om varselet kom i tide, eller om svaret oppfyller svarplikten etter punkt
+  34.3.3 annet ledd. Forhold: presiserer VS-U48, snevrer inn VS-U4 for et varsel som står alene
+  (det subsidiære standpunktet venter til svaret på kravposten).
+- **B (anbefalt):** Byggherrens svar på et varsel etter punkt 34.3.3 første ledd som står alene,
+  har byggherrens standpunkt til om enhetsprisene skal justeres: byggherren godtar eller bestrider
+  justeringen. Standpunktet godkjenner ikke priser, mengder eller beløp. Byggherren kan i samme
+  svar gjøre gjeldende at varselet kom for sent. Da står prinsipalt at totalentreprenøren bare har
+  krav på slik justering av enhetsprisen som byggherren måtte forstå at forholdet ville føre til,
+  og subsidiært standpunktet til justeringen hvis varselet kom i tide (VS-U4). Løsningen regner
+  ikke ut hva byggherren måtte forstå, og avgjør ikke om varselet kom i tide eller om svaret
+  oppfyller svarplikten etter punkt 34.3.3 annet ledd. Byggherren tar stilling per kravpost i
+  svaret på kravet. Forhold: presiserer VS-U48, bygger på VS-U4, følger samlevedtaket for
+  vederlagsmetoden punkt 5.
+
+**Anbefalt: B.** Svarplikten i punkt 34.3.3 annet ledd gjelder innsigelsene mot kravet, og VS-U4
+gir alt mottakeren av «kravet eller varselet» et prinsipalt og et subsidiært standpunkt. Med A kan
+byggherren bare få en innsigelse mot justeringen registrert i fritekst, som løsningen ikke tolker,
+og et svar som bare godtar justeringen kan ikke uttrykkes. Kostnaden med B: byggherren tar stilling
+til justeringen to ganger, på varselet og på kravposten. Avviker det siste fra det første, viser
+løsningen begge (arbeidsvalg 5).
+
+**Prøvingen mot vedtakene.** B strider ikke mot VS-U48, VS-U4, KA-U64, KA-U57 (d) eller
+samlevedtaket for vederlagsmetoden punkt 5: varselet har ingen kravpost, og standpunktene per
+kravpost kommer i svaret på kravet. B gjør standpunktet til justeringen til et vedtatt innhold i
+svaret på varselet. For svaret på kravposten er ordene fortsatt design (S-11). A snevrer inn VS-U4
+for et varsel som står alene, og det står i alternativet.
+
+**Hva valget styrer.** Svarskjemaet for varselet etter punkt 34.3.3 (G-9), standpunktene i et svar
+som gjelder et varsel, når løsningen slutter å vise fristen etter punkt 34.3.3 annet ledd, og hva
+svaret på kravposten viser fra svaret på varselet.'''
+valgt = "B"
+svar = '''
+B (oppdragsgiver 09.11). Valgt i spørsmål 1: B. ([spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md))'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u48" },
+  { art = "bygger på", vedtak = "vs-u4" },
+]
+folge = '''
+Presiserer VS-U48, bygger på VS-U4 og følger samlevedtaket for vederlagsmetoden (OV-U95) punkt 5, slik alternativet sier. Berører BF-14 (G-9). Bygges i #1663.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherrens svar på et varsel etter punkt 34.3.3 første ledd som står alene, kan bare gjøre gjeldende at varselet kom for sent. Gjør byggherren det, står prinsipalt at totalentreprenøren bare har krav på slik justering av enhetsprisen som byggherren måtte forstå at forholdet ville føre til, og løsningen regner ikke ut hva byggherren måtte forstå. Byggherren tar stilling til selve justeringen i svaret på kravposten, og det svaret viser til svaret på varselet. Ellers står byggherrens syn i begrunnelsen, som løsningen ikke tolker (KA-U16). Løsningen avgjør ikke om varselet kom i tide, eller om svaret oppfyller svarplikten etter punkt 34.3.3 annet ledd. Forhold: presiserer VS-U48, snevrer inn VS-U4 for et varsel som står alene (det subsidiære standpunktet venter til svaret på kravposten).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherrens svar på et varsel etter punkt 34.3.3 første ledd som står alene, har byggherrens standpunkt til om enhetsprisene skal justeres: byggherren godtar eller bestrider justeringen. Standpunktet godkjenner ikke priser, mengder eller beløp. Byggherren kan i samme svar gjøre gjeldende at varselet kom for sent. Da står prinsipalt at totalentreprenøren bare har krav på slik justering av enhetsprisen som byggherren måtte forstå at forholdet ville føre til, og subsidiært standpunktet til justeringen hvis varselet kom i tide (VS-U4). Løsningen regner ikke ut hva byggherren måtte forstå, og avgjør ikke om varselet kom i tide eller om svaret oppfyller svarplikten etter punkt 34.3.3 annet ledd. Byggherren tar stilling per kravpost i svaret på kravet. Forhold: presiserer VS-U48, bygger på VS-U4, følger samlevedtaket for vederlagsmetoden punkt 5.'''
+anbefalt = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U71"
+dato = 2026-11-09
+hvem = "oppdragsgiver"
+kilde = ["#1663"]
+sporsmal = '''
+Spørsmål 4 ordrett slik det ble stilt 09.11 i [spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md):
+
+### Spørsmål 4: kravet om tilbud og enigheten om beregningsregelen (erstatter arbeidsvalg 3)
+
+**Bakgrunn.** «Tilbud» er det spesifiserte tilbudet etter punkt 34.2.1 første ledd: TE tilbyr en
+justering av vederlaget, i praksis en fast sum. Aksepterer byggherren det, er vederlaget avtalt,
+og beregningsreglene i punkt 34.3 og 34.4 gjelder ikke (punkt 34.2.2). KA-U69 lar byggherren kreve
+tilbud «sammen med standpunktet til beregningsregelen for posten», men sier ikke om standpunktet
+kan være at byggherren godtar regelen. Oppdragsgiver 09.11: «Du kan ikke være enig i
+regningsarbeid og samtidig få et fastpris tilbud.»
+
+**Alternativene.**
+
+- **A (anbefalt):** Krever byggherren tilbud for en kravpost etter en beregningsregel, kan svaret
+  ikke samtidig godta beregningsregelen for posten, og løsningen registrerer ikke enighet om
+  oppgjørsformen for den. Løsningen registrerer og viser kravet om tilbud og utleder ingen frist av
+  det. Forhold: presiserer KA-U69.
+- **B:** Byggherren kan godta beregningsregelen og kreve tilbud i samme svar. Løsningen
+  registrerer enighet om oppgjørsformen, og et tilbud TE sender senere, vises som avvik fra den
+  (samlevedtaket for vederlagsmetoden punkt 16). Forhold: ingen.
+
+**Anbefalt: A.** Svaret kan da ikke si to ting som utelukker hverandre, og A tolker ingen
+rettsvirkning av kravet om tilbud. Kostnaden er at byggherren som vil ha beregningsregelen som
+reserve hvis tilbudet ikke kommer, må si det i begrunnelsen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 09.11, ordrett: «4A». Valgt i spørsmål 4: A. ([spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md))'''
+forhold = [
+  { art = "presiserer", vedtak = "ka-u69" },
+]
+folge = '''
+Presiserer KA-U69, slik alternativet sier. Spørsmålet erstatter arbeidsvalg 3 i spørsmålsfila. Berører BF-14 (D-15). Bygges i #1663.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Krever byggherren tilbud for en kravpost etter en beregningsregel, kan svaret ikke samtidig godta beregningsregelen for posten, og løsningen registrerer ikke enighet om oppgjørsformen for den. Løsningen registrerer og viser kravet om tilbud og utleder ingen frist av det. Forhold: presiserer KA-U69.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren kan godta beregningsregelen og kreve tilbud i samme svar. Løsningen registrerer enighet om oppgjørsformen, og et tilbud TE sender senere, vises som avvik fra den (samlevedtaket for vederlagsmetoden punkt 16). Forhold: ingen.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
