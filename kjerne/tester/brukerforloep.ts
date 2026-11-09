@@ -83,12 +83,15 @@ export type Prototype = { fil: string; klikkstier: Klikksti[] };
 export type Klikksti = { id: string; dekker: string[]; start: string; handlinger: Klikk[] };
 
 /**
- * `klikk` er navnet på en synlig lenke, og `tilstand` ankeret den skal føre til. `kryss` og
- * `fyll` er etiketten på et skjemafelt. `staar` er en tekst som skal være synlig der veien er.
+ * `klikk` er navnet på en synlig lenke, og `tilstand` ankeret den skal føre til. `trykk` er
+ * navnet på en knapp som ikke bytter tilstand. `kryss`, `velg` og `fyll` er etiketten på et
+ * skjemafelt. `staar` er en tekst som skal være synlig der veien er.
  */
 export type Klikk =
   | { klikk: string; tilstand: string }
+  | { trykk: string }
   | { kryss: string }
+  | { velg: string }
   | { fyll: string; tekst: string }
   | { staar: string };
 
