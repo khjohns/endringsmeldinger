@@ -1680,6 +1680,87 @@ def test_en_endring_fra_en_opphevet_post_telles_ikke(grunnregister, overtatt, va
     assert vr.varsler(endret, endret) == (forventet if varsel else [])
 
 
+def _samlet_med_to_endringer(grunnregister) -> dict:
+    """XX-U1 samler KA-U1. XX-U2 presiserer og XX-U3 utvider XX-U1, som VS-U48 og KA-U69 gjør
+    med OV-U95 i eksemplet i #1726."""
+    endret = med(grunnregister, ny_post(forhold=[{"art": "samler", "vedtak": "ka-u1"}]))
+    endret = med(endret, ny_post(id="XX-U2", forhold=[{"art": "presiserer", "vedtak": "xx-u1"}]))
+    return med(endret, ny_post(id="XX-U3", forhold=[{"art": "utvider", "vedtak": "xx-u1"}]))
+
+
+def test_to_endringer_uten_kjede_gir_ikke_varsel(grunnregister):
+    """Kontrollsaken for #1726: grensen på tre står (svar 6 og 10 04.11 i #1534)."""
+    assert vr.varsler(*[_samlet_med_to_endringer(grunnregister)] * 2) == []
+
+
+@pytest.mark.parametrize("dybde", [1, 2])
+def test_en_endring_gjennom_kjeden_telles_med(grunnregister, dybde):
+    """#1726: en endring av en post som endrer samlevedtaket, telles, gjennom hele kjeden.
+    Med dybde 2 endrer XX-U5 posten XX-U4, som presiserer XX-U2."""
+    endret = med(
+        _samlet_med_to_endringer(grunnregister),
+        ny_post(id="XX-U4", forhold=[{"art": "presiserer", "vedtak": "xx-u2"}]),
+    )
+    kjede = "xx-u4 presiserer xx-u2"
+    if dybde == 2:
+        endret = med(endret, ny_post(id="XX-U5", forhold=[{"art": "endrer", "vedtak": "xx-u4"}]))
+        kjede += ", xx-u5 endrer xx-u4"
+    assert vr.varsler(endret, endret) == [
+        f"xx-u1: har fått {2 + dybde} endringer etter at temaet er samlet (gjennom kjeden: "
+        f"{kjede}); den neste endringen skrives som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+
+
+def test_en_post_med_to_endringer_i_kjeden_telles_en_gang(grunnregister):
+    """#1726: tellingen er postene regelen står i («regelen for temaet står da i fem poster»).
+    XX-U4 presiserer både XX-U1 og XX-U2 og er én post."""
+    endret = med(
+        _samlet_med_to_endringer(grunnregister),
+        ny_post(
+            id="XX-U4",
+            forhold=[
+                {"art": "presiserer", "vedtak": "xx-u1"},
+                {"art": "presiserer", "vedtak": "xx-u2"},
+            ],
+        ),
+    )
+    assert vr.varsler(endret, endret) == [
+        "xx-u1: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+
+
+def test_kjeden_gaar_ikke_videre_gjennom_et_annet_samlevedtak(grunnregister):
+    """#1726: endringene av et nyere samlevedtak varsles for det, ikke også for det eldre.
+    XX-U4 samler KA-U2 og presiserer XX-U2, og har tre endringer selv."""
+    endret = med(
+        _samlet_med_to_endringer(grunnregister),
+        ny_post(
+            id="XX-U4",
+            forhold=[{"art": "samler", "vedtak": "ka-u2"}, {"art": "presiserer", "vedtak": "xx-u2"}],
+        ),
+    )
+    for i in (5, 6, 7):
+        endret = med(endret, ny_post(id=f"XX-U{i}", forhold=[{"art": "endrer", "vedtak": "xx-u4"}]))
+    assert vr.varsler(endret, endret) == [
+        "xx-u1: har fått 3 endringer etter at temaet er samlet (gjennom kjeden: xx-u4 presiserer "
+        "xx-u2); den neste endringen skrives som et samlevedtak (svar 6 og 10 04.11 i #1534)",
+        "xx-u4: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)",
+    ]
+
+
+def test_en_endring_av_en_opphevet_post_i_kjeden_telles_ikke(grunnregister):
+    """#1726 og svar 2 A 05.11 i #1614: kjeden går bare gjennom gjeldende poster. XX-U5
+    opphever XX-U2, så XX-U2 og XX-U4, som presiserer den, telles ikke."""
+    endret = med(
+        _samlet_med_to_endringer(grunnregister),
+        ny_post(id="XX-U4", forhold=[{"art": "presiserer", "vedtak": "xx-u2"}]),
+    )
+    endret = med(endret, ny_post(id="XX-U5", forhold=[{"art": "opphever", "vedtak": "xx-u2"}]))
+    assert vr.varsler(endret, endret) == []
+
+
 def test_et_vedtak_som_ikke_er_samlet_telles_ikke(grunnregister):
     """Svar 10 04.11 i #1534: til temaet er samlet, skrives en ny endring som før."""
     endret = grunnregister
