@@ -14,6 +14,7 @@ import {
   brevprofil,
   fraWoff,
   lesBrevPdf,
+  objekter,
   settBrevPdf,
   skriftFor,
   skriftnavn,
@@ -710,24 +711,6 @@ describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
 });
 
 describe('skriftobjektene har typen skriftprogrammet har (#1689)', () => {
-  /** Objektene i PDF-en etter nummer, med ordboken og strømmen pakket ut. */
-  const objekter = (pdf: Uint8Array) =>
-    new Map(
-      [...latin1(pdf).matchAll(/(\d+) 0 obj\s*([^]*?)endobj/g)].map((m) => {
-        const [ordbok, stroem] = m[2].split(/stream\r?\n/);
-        const data = stroem?.replace(/\r?\nendstream\s*$/, '');
-        return [
-          Number(m[1]),
-          {
-            ordbok,
-            program:
-              data && ordbok.includes('/FlateDecode')
-                ? inflateSync(Buffer.from(data, 'latin1')).subarray(0, 4).toString('hex')
-                : undefined,
-          },
-        ];
-      })
-    );
   /** Hver CID-skrift med typen, `CIDToGIDMap`, nøkkelen for programmet og programmets merke. */
   const cidSkrifter = (pdf: Uint8Array) => {
     const alle = objekter(pdf);
@@ -743,7 +726,7 @@ describe('skriftobjektene har typen skriftprogrammet har (#1689)', () => {
           cidTilGid: o.ordbok.includes('/CIDToGIDMap'),
           nokkel,
           programtype: /\/Subtype \/(\w+)/.exec(program.ordbok)?.[1],
-          merke: program.program,
+          merke: program.stroem && Buffer.from(program.stroem.subarray(0, 4)).toString('hex'),
         };
       })
       .sort((a, b) => a.navn.localeCompare(b.navn));

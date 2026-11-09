@@ -352,7 +352,7 @@ FEILINNFOERINGER = [
      " || u.spor[spor].kravpostvarsler.length > 0;", ";",
      "varselet etter punkt 34.4 som står alene"),
     ("S94", "Oslo Sans bygges inn i formen for TrueType (#1689)", "server/brevpdf.ts",
-     "    if (innbygd[i] && erOpenTypeMedCff(s.bytes)) somOpenTypeMedCff(pdf, innbygd[i]);",
+     "    if (innbygd[i] && !s.delmengde && erOpenTypeMedCff(s.bytes)) somOpenTypeMedCff(pdf, innbygd[i]);",
      "    void s;",
      "byggherrens brev har Oslo Sans som CIDFontType0 med OpenType i FontFile3"),
     ("S95", "CIDFontType0 beholder CIDToGIDMap (#1689)", "server/brevpdf.ts",
@@ -362,7 +362,7 @@ FEILINNFOERINGER = [
      "  pdf.context.lookup(program, PDFStream).dict.set(navn('Subtype'), navn('OpenType'));", "",
      "byggherrens brev har Oslo Sans som CIDFontType0 med OpenType i FontFile3"),
     ("S97", "TrueType-skriftene skrives også om til OpenType (#1689)", "server/brevpdf.ts",
-     "    if (innbygd[i] && erOpenTypeMedCff(s.bytes))", "    if (innbygd[i])",
+     "innbygd[i] && !s.delmengde && erOpenTypeMedCff(s.bytes)", "innbygd[i]",
      "totalentreprenørens brev har bare TrueType-skrifter"),
 ]
 
