@@ -4480,6 +4480,7 @@ describe('en påberopelse etter § 34.1.3 mot rigg og drift avvises (OV-U89 punk
       'UGYLDIG_VURDERING'
     );
     expect(s.avvist('BH', brev(VEDERLAG_DELVIS[0]))).toBeNull();
+    expect(s.avvist('BH', brev({ ...VEDERLAG_DELVIS[0], rigg_varslet_i_tide: null }))).toBeNull();
   });
 });
 
