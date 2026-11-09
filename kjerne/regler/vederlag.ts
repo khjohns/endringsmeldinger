@@ -43,8 +43,9 @@ export interface Vederlagsvurdering {
   produktivitet_vurdering?: Beloepsvurdering | null;
   produktivitet_godkjent_beloep?: Tall | null;
   hovedkrav_varslet_i_tide?: boolean | null;
-  rigg_varslet_i_tide?: boolean | null;
   produktivitet_varslet_i_tide?: boolean | null;
+  /** OV-U89 punkt 9: avvises, se `kontroller`. */
+  rigg_varslet_i_tide?: unknown;
   /** VS-U5, OV-U22: beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3. */
   produktivitet_begrenset_beloep?: Tall | null;
   aksepterer_metode?: boolean | null;
@@ -54,7 +55,6 @@ export interface Vederlagsvurdering {
 
 export interface Preklusjon {
   hovedkrav: boolean;
-  rigg: boolean;
   produktivitet: boolean;
 }
 
@@ -97,7 +97,6 @@ export function beregnPreklusjon(
     hovedkrav:
       regler.gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&
       v.hovedkrav_varslet_i_tide === false,
-    rigg: harRigg(krav) && v.rigg_varslet_i_tide === false,
     produktivitet: harProduktivitet(krav) && v.produktivitet_varslet_i_tide === false,
   };
 }
@@ -129,7 +128,8 @@ type Post = [krevd: Oere, godkjent: Oere, prinsipalt: Oere];
  * Postene med det byggherren godtar prinsipalt. VS-U5, OV-U22: en påberopelse etter § 34.1.3
  * avviser aldri hele kravet, bare utgiftsgrunnlaget for posten, som da står med beløpet etter
  * begrensningen. OV-U27: påberopelsen etter § 34.1.2 gjelder hele kravet, også de særskilte.
- * Rigg og drift (#1171) har ingen begrensning og settes til 0 ved preklusjon.
+ * Rigg og drift har ingen særskilt varslingsplikt (OV-U25, OV-U35), og står med det
+ * byggherren godtar, så sant påberopelsen etter § 34.1.2 ikke fører fram.
  */
 function poster(v: Vederlagsvurdering, krav: Vederlagskrav, p: Preklusjon): Post[] {
   const rader: [Oere, Beloepsvurdering | null | undefined, Oere | null, Oere | null][] = [];
@@ -141,12 +141,7 @@ function poster(v: Vederlagsvurdering, krav: Vederlagskrav, p: Preklusjon): Post
       null,
     ]);
   if (harRigg(krav))
-    rader.push([
-      beloep(krav.rigg_beloep)!,
-      v.rigg_vurdering,
-      beloep(v.rigg_godkjent_beloep),
-      p.rigg ? NULL_OERE : null,
-    ]);
+    rader.push([beloep(krav.rigg_beloep)!, v.rigg_vurdering, beloep(v.rigg_godkjent_beloep), null]);
   if (harProduktivitet(krav)) {
     rader.push([
       beloep(krav.produktivitet_beloep)!,
@@ -185,7 +180,6 @@ export function subsidiaerTriggers(
 ): SubsidiaerUtloser[] {
   const kandidater: [boolean, SubsidiaerUtloser][] = [
     [p.hovedkrav, 'preklusjon_hovedkrav'],
-    [p.rigg, 'preklusjon_rigg'],
     [p.produktivitet, 'preklusjon_produktivitet'],
     [krav.krever_justert_ep && v.varsel_justert_ep_ok === false, 'reduksjon_ep_justering'],
     [v.aksepterer_metode === false, 'metode_avslaatt'],
@@ -259,7 +253,6 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
       'hovedkrav_varslet_i_tide',
       '§ 34.1.2',
     ],
-    [harRigg(krav), 'rigg_varslet_i_tide', '§ 34.1.3'],
     [harProduktivitet(krav), 'produktivitet_varslet_i_tide', '§ 34.1.3'],
     [true, 'aksepterer_metode', '§ 34.2.2'],
   ];
@@ -288,6 +281,10 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
         feil.produktivitet_begrenset_beloep = 'er høyere enn det byggherren godtar for posten';
     }
   }
+  // OV-U89 punkt 9: påberopelsen etter § 34.1.3 gjelder bare kravet etter annet ledd.
+  if (v.rigg_varslet_i_tide !== null && v.rigg_varslet_i_tide !== undefined)
+    feil.rigg_varslet_i_tide =
+      'påberopelsen etter § 34.1.3 gjelder bare kravet om nedsatt produktivitet og forstyrrelser';
   if (v.hold_tilbake && !kanHoldeTilbake(krav)) {
     feil.hold_tilbake = 'bare ved regningsarbeid uten kostnadsoverslag (§ 30.2)';
   }
@@ -308,7 +305,7 @@ export function beregnVederlag(
   const totalGodkjentInklPrekludert = sum(alle.map(([, g]) => g));
   const metodeendring = v.aksepterer_metode === false;
   const perPost = alle.map(([, g]) => g);
-  const visSubsidiaert = p.hovedkrav || p.rigg || p.produktivitet;
+  const visSubsidiaert = p.hovedkrav || p.produktivitet;
   return {
     beregnings_resultat: v.hold_tilbake
       ? 'tilbakeholdelse'

@@ -4138,6 +4138,16 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['et varsel sendt før det første kravet gjelder'],
   },
+  {
+    id: 'F490',
+    feilklasse:
+      'en påberopelse etter § 34.1.3 mot rigg og drift godtas og forsvinner (OV-U89 punkt 9)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      ['if (v.rigg_varslet_i_tide !== null && v.rigg_varslet_i_tide !== undefined)', 'if (false)'],
+    ],
+    mal: ['en påberopelse etter § 34.1.3 mot rigg og drift avvises'],
+  },
 ];
 
 interface Testresultat {

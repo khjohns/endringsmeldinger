@@ -34,9 +34,7 @@ import type { Krav, Spor } from '../typer.ts';
 export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
   if (spor === 'vederlag') {
     if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
-    // Rigg og drift etter § 34.1.3 første ledd er ikke i kjernen (#1171).
-    if (v.rigg_varslet_i_tide === false)
-      return 'preklusjon etter § 34.1 (rigg_varslet_i_tide) er ikke i kjernen ennå';
+    // Rigg og drift etter § 34.1.3 første ledd er ikke i kjernens svar ennå (#1663).
     if ((v.rigg_vurdering ?? null) !== null)
       return 'kravet om rigg og drift (§ 34.1.3 første ledd) er ikke i kjernen ennå';
   }

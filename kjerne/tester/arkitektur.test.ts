@@ -577,11 +577,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'spesifisert_krav_ok dager_maatte_forstaa dager',
   ],
-  [
-    'frosset/utregning.ts:utenforOmfanget(v)',
-    'utsagn',
-    `hold_tilbake rigg_vurdering rigg_varslet_i_tide`,
-  ],
+  ['frosset/utregning.ts:utenforOmfanget(v)', 'utsagn', `hold_tilbake rigg_vurdering`],
 
   // Regelsettet (regler/).
   [
@@ -653,7 +649,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      produktivitet_vurdering produktivitet_godkjent_beloep produktivitet_varslet_i_tide
      produktivitet_begrenset_beloep`,
   ],
-  ['Preklusjon', 'regelsett', 'hovedkrav rigg produktivitet'],
+  ['Preklusjon', 'regelsett', 'hovedkrav produktivitet'],
   [
     'Vederlagsberegning',
     'regelsett',
