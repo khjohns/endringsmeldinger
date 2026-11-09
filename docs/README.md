@@ -24,11 +24,11 @@ Denne indeksen og hovedplanen fører ikke arbeidsstatus; regelen står i
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Løpende kilde til rekkefølge og funnstatus: invarianter, føringer, åpne beslutninger, funnregister, arbeidspakker og beslutningene som blokkerer. Toppteksten peker til tidligere versjoner i Git |
 | [vedtaksfila](plans/vedtak.md) | Vedtakene, autoritativ for dem. Generert fra vedtaksregisteret. Var avsnitt 3.1 i hovedplanen til #1020 |
 | [arkivet](plans/arkiv.md) | De avsluttede funnene og leveransemerknadene til arbeidspakkene, flyttet ordrett fra hovedplanen 24.10 (#1020) |
-| [domenetabellen](domenetabell/README.md) | Forventet atferd per rad med kilde og tolkningsstatus, begrepene krav, kravversjon, svar, standpunkt, aksept og enighet, og språkuavhengige bevis-saker som kjøres mot Python-projeksjonen og mot målmodellen. Vedtakene står i vedtaksfila |
+| [domenetabellen](domenetabell/README.md) | Forventet atferd per rad med kilde og tolkningsstatus, begrepene krav, kravversjon, svar, standpunkt, aksept og enighet, og språkuavhengige bevis-saker. `bevis-saker.json` er et frosset arkiv fra Python-stien (#49); bevis-sakene for målmodellen kjøres mot kjernen. Vedtakene står i vedtaksfila |
 | [vedtaksregisteret](vedtaksregister/README.md) | Kilden vedtaksfila lages av, med spørsmålet, alternativene og svaret ordrett for hvert nytt vedtak, og vakttestene. Vedtaksfila er autoritativ |
 | [temavisningene](vedtaksregister/temaer/) | Regelgrunnlaget per tema, generert fra registeret: vedtakene ordrett med forholdene, regelradene og bevis-sakene. Vedtaksfila er autoritativ |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
-| [`.claude/rules/`](../.claude/rules/): [database](../.claude/rules/database.md) · [tester](../.claude/rules/tester.md) · [dokumentasjon](../.claude/rules/dokumentasjon.md) · `tilgang.md` · `python-domene.md` | Regler som lastes når en økt arbeider i den delen av treet. `tilgang.md` har mekanismene bak sikkerhetsinvariantene, og `python-domene.md` overgangsreglene for Python-koden i KOE-, EO- og forseringssakene, som gjelder til #310 |
+| [`.claude/rules/`](../.claude/rules/): [database](../.claude/rules/database.md) · [tester](../.claude/rules/tester.md) · [dokumentasjon](../.claude/rules/dokumentasjon.md) · `tilgang.md` · `kjerne.md` | Regler som lastes når en økt arbeider i den delen av treet. `tilgang.md` har mekanismene bak sikkerhetsinvariantene |
 
 Handoffene står under [historikk](#historikk--bevart-ikke-gjeldende).
 
@@ -212,7 +212,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | [hendelsene TS-kjernen skriver](datamodell/kjernehendelser.md) | Hver hendelsestype, krav, svar, standpunkt, utsagn og del i formatet, med feltene og grunnlaget. Generert fra [`kjernehendelser.toml`](datamodell/kjernehendelser.toml); rett der. Pythons hendelseskatalog er tatt ut (#49) |
 | [Catenda: dataflyt](catenda-dataflyt.md) | Hva som utveksles, og hvordan prosjekt og bibliotek rutes |
 | [Catenda: innlogging](catenda-innlogging.md) | OAuth-flyten og prosjekttilgang |
-| [migrasjoner og testbase](migrasjoner-og-testbase.md) | Hvordan migrasjonene verifiseres mot prosjektet uten å røre basen: testbasen i PostgreSQL 17, stubben av Supabase, katalogsummene og historikken. Flyttet fra `AGENTS.md` 29.09 |
+| [migrasjoner og testbase](migrasjoner-og-testbase.md) | Historisk: hvordan migrasjonene for PostgreSQL ble verifisert uten å røre basen, med testbasen i PostgreSQL 17, stubben av Supabase og katalogsummene. Migrasjonene og skriptene er slettet (#49). Flyttet fra `AGENTS.md` 29.09 |
 | [brev og intern godkjenning](brev-og-godkjenning.md) | Godkjenningskjede, fullmakt, brevgenerering |
 | [endringsordre](endringsordre.md) | EO-flyten i grensesnittet |
 | [Kontraktsbordet](frontend-kontraktsbord.md) | Historisk: saksvisningen før Varden, fjernet i #1516 |
@@ -235,7 +235,6 @@ utgangspunkt som er passert.
 | [handoff 15.09](handoff-2026-09-15.md) | Avløst av handoffen fra 19.09 |
 | [handoff om Catenda-kallfrekvens](handoff-gpt-astra-2026-09-15.md) | Åpent spørsmål om kallfrekvens; målingen er fortsatt ikke gjort |
 | [prompt: svakhetsgjennomgang](prompt-svakhetsgjennomgang-2026-09-17.md) | Utgangspunktet for runden 17.09. Etterprøvingen korrigerte flere av premissene — les den sammen med [audit-sikkerhetsarkitektur](audit-sikkerhetsarkitektur-2026-09-17.md) |
-| [superpowers/](superpowers/) | Implementasjonsplaner og designspecer fra mars–september, en annen arbeidsflyt |
 | [design/](design/) | Designressurser for godkjenningspanelet |
 | [design/konsept-varden/](design/konsept-varden/) | Eksperimentelt UX-konsept for saksvisningen, med HTML-skisser. Prøves i #1331. Ikke vedtatt design |
 

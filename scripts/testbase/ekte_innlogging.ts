@@ -5,7 +5,7 @@
  *   node scripts/testbase/ekte_innlogging.ts [--bh <team> …] [--te <team> …] [--board <id>]
  *
  * Skriptet lager en migrert testbase, registrerer prosjektet `lokal-prove` mot det ekte
- * Catenda-prosjektet i `backend/.env` (`CATENDA_PROJECT_ID`, `CATENDA_LIBRARY_ID`), lager en
+ * Catenda-prosjektet i `server/.env` (`CATENDA_PROJECT_ID`, `CATENDA_LIBRARY_ID`), lager en
  * kjøretidsinnlogging og starter TS-serveren på 8090 og `vite dev` på 5173 med
  * `APP_ENV=development`. Innloggingen gjøres i din egen nettleser. Alt står til Ctrl+C,
  * som sletter basen og innloggingen.
@@ -16,7 +16,7 @@
  * (DL-U14) kontrolleres ikke. Uten `--board` har prosjektet ikke noe board, så jobbkjøreren lager
  * ingen topic i det ekte prosjektet når en sak opprettes.
  *
- * Bare variablene for Catenda-applikasjonen og innloggingen leses fra `backend/.env`, og en
+ * Bare variablene for Catenda-applikasjonen og innloggingen leses fra `server/.env`, og en
  * variabel med samme navn i skallet går foran, som `CATENDA_CLIENT_SECRET`;
  * `CATENDA_ACCESS_TOKEN` brukes ikke, så integrasjonen henter sitt eget token. Ingen verdi
  * fra oppsettet skrives ut.
@@ -62,10 +62,11 @@ const NOEDVENDIG = [
   'CATENDA_LIBRARY_ID',
 ] as const;
 // En variabel i skallet går foran fila, så hemmeligheten ikke trenger å stå på disk.
-const fil = lesEnv('backend/.env');
+const ENVFIL = 'server/.env';
+const fil = lesEnv(ENVFIL);
 for (const k of NOEDVENDIG) if (process.env[k]) fil[k] = process.env[k]!;
 const mangler = NOEDVENDIG.filter((k) => !fil[k]);
-if (mangler.length) throw new Error(`backend/.env mangler ${mangler.join(', ')}`);
+if (mangler.length) throw new Error(`${ENVFIL} mangler ${mangler.join(', ')}`);
 
 const catendaMiljoe = {
   APP_ENV: 'development',

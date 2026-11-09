@@ -80,8 +80,8 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
   i `docs/`; `plans/`, `adr/` og `datamodell/` har egne formål. Ingen bred flytting
   av historikken bare for å få en ryddigere mappe.
 - Lenk til fil og symbol heller enn skiftende linjenummer. Løs lenker fra
-  dokumentets mappe: fra `docs/` til kode er det `../backend/`, fra `docs/plans/`
-  er det `../../backend/`. Kjør `python3 docs/verktoy/lenkekontroll.py` med berørte
+  dokumentets mappe: fra `docs/` til kode er det `../server/`, fra `docs/plans/`
+  er det `../../server/`. Kjør `python3 docs/verktoy/lenkekontroll.py` med berørte
   Markdown-filer som argumenter; kontroller også nye kodehenvisninger selv.
 
 **En funn-ID i et avledet dokument er en påstand.** Slå ID-en opp i testens

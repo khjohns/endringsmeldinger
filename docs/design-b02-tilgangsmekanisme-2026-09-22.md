@@ -112,7 +112,7 @@ direkte (K).
 
 `app_project_memberships` har prosjekt, bruker, Catenda-subjekt, rolle,
 `viewer_override` og `active`, men ikke team (D 22.09).
-[`contract_membership`](../backend/services/auth_service.py) henter brukerens
+[`contract_membership`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/auth_service.py) henter brukerens
 team fra Catenda ved hver skriving, uten mellomlager. Ingen tabell kobler bruker
 til team (L).
 
@@ -125,7 +125,7 @@ tabell. Det er en medlemskapscache, og da gjelder B-04 og F3.
 
 ### TM-04 — tokenet kan ikke settes på den delte klienten
 
-[`get_shared_client`](../backend/lib/supabase/client.py) er én klient per prosess
+[`get_shared_client`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/supabase/client.py) er én klient per prosess
 (`lru_cache`). I `postgrest` 2.28.0 setter `auth(token)` `self.headers["Authorization"]`
 på klienten (L, `postgrest/base_client.py`). Kaller to tråder `auth()` på samme
 klient, kan den ene tråden sende den andres kontekst. Dette er gjenbruksproblemet
@@ -204,7 +204,7 @@ Katalogen i `gwdxadexwktegkklyobv`, spurt 22.09 (D):
 
 Koden (L): backend bruker én delt `supabase-py`-klient med
 `SUPABASE_SECRET_KEY` (TM-04). Fire funksjoner kalles som RPC fra
-[`auth_repository.py`](../backend/repositories/auth_repository.py). Resten går
+[`auth_repository.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/auth_repository.py). Resten går
 til tabellendepunktene. Team hentes fra Catenda (TM-03).
 
 ## 3. Alternativene

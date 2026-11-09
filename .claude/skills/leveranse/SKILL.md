@@ -90,8 +90,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   vedtakshenvisninger finner bare en ID til et opphevet vedtak, ikke kode uten ID
   og ikke et vedtak som er endret. Søk derfor etter atferden, koden og tekstene,
   og skriv i PR-en hvilke søk du gjorde og hva som ble fjernet. Synlig tekst og
-  rester utenfor oppdraget føres i issuet som eier dem. Python-stien ryddes etter
-  DL-U2 (oppdragsgiver 28.10, #1338).
+  rester utenfor oppdraget føres i issuet som eier dem.
 
 - Data uten type leses gjennom én typet tilgang, ikke med en typekonvertering hos hver
   kaller. En type eller en union utledes av én kilde, ikke skrevet på nytt ved siden av.

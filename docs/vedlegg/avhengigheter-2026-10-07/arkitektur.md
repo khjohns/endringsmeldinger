@@ -15,8 +15,8 @@ En TypeScript-kjerne kan fjerne semantisk duplisering uten å erstatte Python,
 databasen, autentiseringen eller PDF-motoren i første prototype. Det må måles
 om denne avgrensede gevinsten er stor nok før resten av applikasjonen portes.
 Dette er en arkitekturslutning fra skillet mellom de rene funksjonene i
-[`backend/regler/`](../../../backend/regler/__init__.py) og adapterne i
-[`core/container.py`](../../../backend/core/container.py).
+[`backend/regler/`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/__init__.py) og adapterne i
+[`core/container.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/core/container.py).
 
 Tre arbeidsomfang bør holdes adskilt:
 
@@ -52,7 +52,7 @@ sikkerhetsfunn eller statuser i hovedplanen.
 
 ### AVH-A-01 — lås installasjonen før en bred oppgraderingsrunde
 
-**Lest ut av koden.** [`backend/requirements.txt`](../../../backend/requirements.txt)
+**Lest ut av koden.** [`backend/requirements.txt`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/requirements.txt)
 bruker i hovedsak `>=`, mens psycopg og poolen har eksakte versjoner. CI
 installerer kravfilene på nytt med pip. Frontenden har `package-lock.json`
 og bruker `npm ci`; [`Dockerfile`](../../../Dockerfile) bruker de bevegelige
@@ -80,7 +80,7 @@ Node-hovedversjon byttes i en egen endring.
 ### AVH-A-02 — psycopg løser allerede den valgte oppgaven
 
 **Lest ut av koden.** [`Database.transaksjon`, `Database.utfor` og
-`opprett_database`](../../../backend/lib/db/database.py) eier transaksjonen,
+`opprett_database`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/database.py) eier transaksjonen,
 setter rolle og krav transaksjonslokalt, kontrollerer tilbakelevering til poolen
 og skiller serialiseringsretry fra ukjent commit-utfall.
 
@@ -162,8 +162,8 @@ Ingen påstand er gjort om eksterne utrullingsfiler som ikke ligger i repoet.
 med `ROUND_HALF_UP`. `sammenlikning._kontroller` sender beregnede beløp videre
 som `float`; hendelses- og tilstandsmodeller bruker også `float`.
 Frontendens `tilOre` bruker `number`, `toPrecision(15)` og egen halv-opprunding.
-[`Backend`](../../../backend/regler/__init__.py),
-[`sammenlikning`](../../../backend/regler/sammenlikning.py),
+[`Backend`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/__init__.py),
+[`sammenlikning`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/sammenlikning.py),
 [`frontend`](https://github.com/khjohns/endringsmeldinger/blob/ad17e225a15d18fd04978f622305119ccc48c891/src/lib/domain/vederlagDomain.ts).
 
 **Anbefaling prototype:** prøv to konkrete representasjoner: heltallsøre med
@@ -191,9 +191,9 @@ gjennom et pakkevalg. API-representasjonen må få sin egen kompatibilitetsprøv
 til `BrevInnhold`; `LetterPdfGenerator.generate_letter_pdf` bygger PDF-en med
 ReportLab. `markdown_to_reportlab` har et bevisst lite markupsett, med egne
 tester for ressurslasting. Dette er en brukbar adaptergrense.
-[`Mapping`](../../../backend/services/approval_letter.py),
-[`generator`](../../../backend/services/letter_pdf_generator.py),
-[`markup`](../../../backend/lib/pdf_markdown.py).
+[`Mapping`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_letter.py),
+[`generator`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/letter_pdf_generator.py),
+[`markup`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/pdf_markdown.py).
 
 **Kjørt og observert:** to genereringer av samme syntetiske `BrevInnhold`, med
 1,1 sekund mellom, ga forskjellig byteinnhold og SHA-256. Begge var 2057 byte.
@@ -223,7 +223,7 @@ allerede [#143](https://github.com/khjohns/endringsmeldinger/issues/143).
 
 **Lest ut av koden.** `get_event_json_schema` bruker Pydantics
 `model_json_schema(mode="serialization")`, mens CloudEvent-konvolutten merkes
-draft-07. [Skjemaeksporten](../../../backend/lib/cloudevents/schemas.py).
+draft-07. [Skjemaeksporten](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/cloudevents/schemas.py).
 Pydantic genererer skjema etter draft 2020-12 og skiller validering fra
 serialisering. Ajv krever forskjellig klasse for 2020-12 og eldre utkast kan
 ikke blandes med den i én instans.
@@ -250,7 +250,7 @@ særskilt; et generert serialiseringsskjema alene beviser ikke replay.
 **Lest ut av koden.** `REGELVERSJON` er 4 i backend og frontend. CI-vakten
 kontrollerer endringer i begge domenemappene, og `kontroller_svar` avviser
 en annen versjon. [Vakten](../../../.github/scripts/regelversjon.sh),
-[servergrensen](../../../backend/regler/sammenlikning.py).
+[servergrensen](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/sammenlikning.py).
 
 **Anbefaling nå og i prototype:** behold denne grensen selv om implementasjonen
 blir delt. Én kilde kan bygges til flere klientutgivelser; en allerede åpnet

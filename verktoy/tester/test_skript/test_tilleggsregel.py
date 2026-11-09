@@ -143,7 +143,6 @@ def test_etter_foerste_ekte_sak_er_en_ny_sqlserver_migrasjon_markert(monkeypatch
     vakt = _vakt(monkeypatch, "20261115000000")
     funn = vakt.to_trinn("database/migrasjoner", navn, navn[:14])
     assert bool(funn) is feiler, funn
-    assert vakt.to_trinn("supabase/migrations", navn, navn[:14]) == []
 
 
 def test_uten_foerste_ekte_sak_kreves_ingen_markering(monkeypatch):

@@ -14,7 +14,6 @@ står i [«Nettleseren» i den skillen](../mockup-nettleser/SKILL.md#nettleseren
 ## Sjekker
 
 ```bash
-cd backend && /tmp/venv/bin/python -m pytest -q
 cd verktoy/tester && /tmp/venv/bin/python -m pytest -q  # vaktene for verktøyene og registrene (#49)
 npm test && npm run check:error      # skal gi 0 errors
 npx tsc -p kjerne/tsconfig.json      # svelte-check ser ikke kjerne/
@@ -22,7 +21,7 @@ npx tsc -p sprakprove/tsconfig.json  # eller sprakprove/
 npx tsc -p sprakprove/skrivesti/tsconfig.json  # skrivestien, som CI også kjører (#1469)
 npx tsc -p server/tsconfig.json      # eller server/
 python3 server/tester/feilinnfoering.py --ankre  # ankrene for serveren, som CI kjører (#1469)
-ruff check backend/ verktoy/tester/  # porten, skal være 0
+ruff check verktoy/tester/           # porten, skal være 0
 ```
 
 Lenkekontrollen og vakttesten for brukerforløpene kjører i CI. For hånd, når en
@@ -36,19 +35,9 @@ npx vitest run kjerne/tester/brukerforloep.test.ts
 
 `npm run server` starter TS-serveren i `server/` (B-18), med miljøvariablene i
 headeren til `server/start.ts`. Vite-proxyen sender hele `/api` og webhooken dit,
-som `tilTsServeren()` i `server/ruting.ts` velger (#1026); ingenting går til Python.
+som `tilTsServeren()` i `server/ruting.ts` velger (#1026).
 
 I skyøktene lager `.claude/hooks/session-start.sh` venv-en og starter Docker og testbasen i SQL Server.
-
-PostgreSQL-basen for katalogen i Python-stien (se «Miljø» i `AGENTS.md`) bygges
-fra tom med `stopp` og `start`. Henting av bildet og migrasjonene kan ta mer enn
-120 s, så gi kallet `timeout` på 600000. Variabelen gjelder bare i Bash-kallet den
-settes i, så hent URL-en i hvert kall som bruker basen:
-
-```bash
-scripts/testbase/docker_testbase.sh stopp && scripts/testbase/docker_testbase.sh start >&2
-psql "$(scripts/testbase/docker_testbase.sh url)" -c '\dt public.*'
-```
 
 `docs/verktoy/katalog.py` tar øyeblikksbildet `docs/datamodell/katalog.json` fra en
 base i SQL Server bygget fra migrasjonene, og trenger bare `KOE_SQLSERVER_TILKOBLING`.
@@ -93,8 +82,8 @@ TS-serveren og `vite dev` mot det ekte prosjektet; bruken står i headeren:
 node scripts/testbase/ekte_innlogging.ts [--bh <team> …] [--te <team> …]
 ```
 
-Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
-`backend/requirements*.txt` (systempython mangler pytest).
+Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r
+verktoy/tester/requirements.txt` (systempython mangler pytest).
 
 Timeouten for en hel vitest-kjøring står i «Miljø» i `AGENTS.md`.
 

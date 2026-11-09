@@ -2,7 +2,7 @@
  * Mottaket for webhooken fra Catenda mot SQL Server-testbasen (W-1a, #819): den
  * hemmelige stien (INT-01), lagringen før svaret 200 og én rad per `event.id`
  * (INT-02). Kroppen er det lagrede, anonymiserte kallet fra Catenda
- * (`backend/tests/fixtures/catenda_issue_created_contract.md`), med en ny `event.id`
+ * (`fixturer/catenda_issue_created_contract.md`), med en ny `event.id`
  * per test, så testene ikke deler rad.
  */
 
@@ -24,7 +24,7 @@ import {
 } from './sqlserver.ts';
 
 const KALLET = readFileSync(
-  new URL('../../backend/tests/fixtures/catenda_issue_created_anonymized.json', import.meta.url),
+  new URL('./fixturer/catenda_issue_created_anonymized.json', import.meta.url),
   'utf8'
 );
 const KALLETS_ID = (JSON.parse(KALLET) as { event: { id: string } }).event.id;

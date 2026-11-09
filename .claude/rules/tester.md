@@ -1,6 +1,6 @@
 ---
 paths:
-  - "backend/tests/**"
+  - "verktoy/tester/**"
   - "src/**/__tests__/**"
   - "src/**/*.test.ts"
   - "kjerne/**"

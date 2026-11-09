@@ -47,17 +47,17 @@ transporten og kontrakten som trådene i F0b punkt 2 skal bygge på.
 
 | Fil | Innhold |
 | --- | --- |
-| [`backend/lib/db/database.py`](../backend/lib/db/database.py) | `Kontekst`, `Database.transaksjon(kontekst)`, `Database.utfor(kontekst, arbeid)`, `opprett_database(innstillinger)` og poolens reset |
-| [`backend/lib/db/feil.py`](../backend/lib/db/feil.py) | Feilhierarkiet, felles for Supabase-lagrene og direkte tilkobling, og `klassifiser()` for driverens feil |
-| [`backend/lib/supabase/exceptions.py`](../backend/lib/supabase/exceptions.py) | Klassene er nå importert fra `lib/db/feil.py`. `classify_error` for supabase-py er uendret |
-| [`backend/repositories/event_repository.py`](../backend/repositories/event_repository.py) | `ConcurrencyError` er flyttet til `lib/db/feil.py` og importeres herfra, så eksisterende importer virker |
-| [`backend/core/config.py`](../backend/core/config.py) | `database_url` (`SecretStr`, ingen standardverdi), poolstørrelse, tidsgrenser og retry |
-| [`backend/core/container.py`](../backend/core/container.py) | `container.database`, opprettet ved første bruk. `reset()` lukker poolen |
-| [`backend/requirements.txt`](../backend/requirements.txt) | `psycopg[binary]==3.3.6` flyttet hit fra dev, og `psycopg-pool==3.3.3` |
+| [`backend/lib/db/database.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/database.py) | `Kontekst`, `Database.transaksjon(kontekst)`, `Database.utfor(kontekst, arbeid)`, `opprett_database(innstillinger)` og poolens reset |
+| [`backend/lib/db/feil.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/db/feil.py) | Feilhierarkiet, felles for Supabase-lagrene og direkte tilkobling, og `klassifiser()` for driverens feil |
+| [`backend/lib/supabase/exceptions.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/supabase/exceptions.py) | Klassene er nå importert fra `lib/db/feil.py`. `classify_error` for supabase-py er uendret |
+| [`backend/repositories/event_repository.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/repositories/event_repository.py) | `ConcurrencyError` er flyttet til `lib/db/feil.py` og importeres herfra, så eksisterende importer virker |
+| [`backend/core/config.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/core/config.py) | `database_url` (`SecretStr`, ingen standardverdi), poolstørrelse, tidsgrenser og retry |
+| [`backend/core/container.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/core/container.py) | `container.database`, opprettet ved første bruk. `reset()` lukker poolen |
+| [`backend/requirements.txt`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/requirements.txt) | `psycopg[binary]==3.3.6` flyttet hit fra dev, og `psycopg-pool==3.3.3` |
 | [`backend/tests/test_database/conftest.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/conftest.py) | Den lesende fixturen `testbase` er uendret. Nye: `testbase_url`, `skrivbar_base`, `container_mot_testbasen` og `testinnstillinger()` |
 | [`backend/tests/test_database/test_kjerne.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py) · [`test_skrivbar_fixture.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_skrivbar_fixture.py) | Testene i avsnitt 6 |
-| [`scripts/testbase/lokal_testbase.sh`](../scripts/testbase/lokal_testbase.sh) | Lokal oppstart: en kastbar PostgreSQL 17 med testbasen bygget |
-| [`scripts/testbase/bygg_testbase.sh`](../scripts/testbase/bygg_testbase.sh) | Setter til slutt merket `koe-kastbar-testbase` som kommentar på basen |
+| [`scripts/testbase/lokal_testbase.sh`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/scripts/testbase/lokal_testbase.sh) | Lokal oppstart: en kastbar PostgreSQL 17 med testbasen bygget |
+| [`scripts/testbase/bygg_testbase.sh`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/scripts/testbase/bygg_testbase.sh) | Setter til slutt merket `koe-kastbar-testbase` som kommentar på basen |
 | [`vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py`](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py) | 27 mutasjoner med oppskrift |
 
 ## 2. Kontrakten slik den ble
@@ -261,7 +261,7 @@ En tråd som konverterer et lager, legger til
 
 **Bryteren.** `DATALAG=postgres` (`Settings.datalag`) får containeren til å lage
 hvert lager fra tabellen `POSTGRES_LAGRE` i
-[`core/container.py`](../backend/core/container.py), med `container.database` som
+[`core/container.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/core/container.py), med `container.database` som
 eneste argument. Uten bryteren er alt som før: `EVENT_STORE_BACKEND` og de andre
 bryterne velger dagens lagre. Et lager som ikke er konvertert ennå, gir
 `LagerIkkeKonvertert` når det brukes med bryteren på, ikke et stille bytte til
@@ -312,7 +312,7 @@ PostgreSQL-feil blir ikke svelget.
    `skrivbar_base` for lageret direkte eller `container_mot_testbasen` for
    tjenester og ruter. Den siste setter `DATALAG=postgres`.
 4. Kallerens ansvar i avsnitt 7 gjelder. Tekstvakten
-   [`test_postgres_transaksjonsgrense.py`](../backend/tests/test_security/test_postgres_transaksjonsgrense.py)
+   [`test_postgres_transaksjonsgrense.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_security/test_postgres_transaksjonsgrense.py)
    avviser `BEGIN`, `COMMIT`, `ROLLBACK`, `SET ROLE` (og `SET LOCAL/SESSION ROLE`)
    samt `set_config` i statisk SQL under `repositories/postgres/`.
 
@@ -372,7 +372,7 @@ opprettes av fixturen og slettes etterpå.
 | 5. Retry | `test_40001_kjorer_hele_transaksjonen_paa_nytt`, `test_serialiseringsfeil_gir_opp_etter_siste_forsok`, `test_versjonskonflikt_kjores_ikke_paa_nytt`, `test_ukjent_utfall_kjores_ikke_paa_nytt`, `test_forbigaaende_feil_utenom_serialisering_kjores_ikke_paa_nytt` | M11, M13, M14, M16 |
 | 6. Ingen `DATABASE_URL` | `test_uten_database_url_finnes_ingen_standardverdi`, `test_uten_database_url_ingen_tilkobling` (ingen, tom og blank; `PG*`-miljøet peker på testbasen, og `psycopg.Connection.connect` registrerer kall), `test_manglende_database_url_proves_ikke_paa_nytt`, `test_uleselig_database_url_lekker_ikke_passordet`, `test_base_som_ikke_svarer_gir_forbigaaende_feil_uten_passord` | M22–M24, M27 |
 | Fixturen | `test_base_uten_merket_avvises`, `test_ryddingen_tommer_nye_rader_og_gjenoppretter_frodata`, `test_containeren_bruker_testbasen` | M25, M26 |
-| Oppfølgingen (avsnitt 7) | `test_hver_sesjonsrest_alene_kastes_med_forbindelsen` (rolle, krav), og i [`tests/test_core/test_container_postgres.py`](../backend/tests/test_core/test_container_postgres.py): `test_samtidig_forste_oppslag_lager_en_pool`, `test_postgres_lagre_faar_containerens_database` (ett tilfelle per lager), `test_auth_service_henter_lageret_fra_containeren`, `test_relasjonslageret_hentes_fra_containeren`, `test_catenda_registeret_hentes_fra_containeren`, `test_manglende_relasjonslager_er_hoyt_naar_postgres_er_valgt` | M28–M33 |
+| Oppfølgingen (avsnitt 7) | `test_hver_sesjonsrest_alene_kastes_med_forbindelsen` (rolle, krav), og i [`tests/test_core/test_container_postgres.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_core/test_container_postgres.py): `test_samtidig_forste_oppslag_lager_en_pool`, `test_postgres_lagre_faar_containerens_database` (ett tilfelle per lager), `test_auth_service_henter_lageret_fra_containeren`, `test_relasjonslageret_hentes_fra_containeren`, `test_catenda_registeret_hentes_fra_containeren`, `test_manglende_relasjonslager_er_hoyt_naar_postgres_er_valgt` | M28–M33 |
 
 Hver mutasjon er en tekstutskifting i én fil og står med navn i
 [`mutasjoner.py`](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py). Skriptet
@@ -476,7 +476,7 @@ python -m pytest -q tests/test_security/test_postgres_transaksjonsgrense.py \
 ```
 
 Fjern prøvefila og kjør igjen. De to lagerkoblingene prøves i
-[`test_container_postgres.py`](../backend/tests/test_core/test_container_postgres.py).
+[`test_container_postgres.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_core/test_container_postgres.py).
 Ingen lagre, Database-metoder, migrasjoner eller xfail-reproduksjoner er endret.
 
 ## Verifikasjon og grenser

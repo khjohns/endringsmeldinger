@@ -28,8 +28,8 @@ Kontroller:
 - at hver endrede fil er nevnt i bestillingen eller følger av den;
 - at hver endring i diffen er bestilt. Gå gjennom hunk for hunk;
 - at alt som er bestilt, er med;
-- at ingen fil i `kjerne/`, `server/`, `backend/`, `supabase/` eller
-  `sprakprove/` er endret, med mindre bestillingen sier det.
+- at ingen fil i `kjerne/`, `server/`, `database/` eller `sprakprove/` er
+  endret, med mindre bestillingen sier det.
 
 Rapporter kort, på norsk bokmål:
 

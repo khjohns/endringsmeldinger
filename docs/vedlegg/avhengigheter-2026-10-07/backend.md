@@ -85,9 +85,9 @@ uavhengig i backend- og databasejobben. Pip-cache gjør ikke dette til et låst
 miljø. Pyproject er verktøykonfigurasjon og minimums-Python, uten prosjektets
 avhengigheter. Dockerfile bygger og serverer frontend, og beviser ingen
 backend-runtime. [CI](../../../.github/workflows/ci.yml),
-[krav](../../../backend/requirements.txt),
-[dev-krav](../../../backend/requirements-dev.txt),
-[pyproject](../../../backend/pyproject.toml), [Dockerfile](../../../Dockerfile).
+[krav](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/requirements.txt),
+[dev-krav](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/requirements-dev.txt),
+[pyproject](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/pyproject.toml), [Dockerfile](../../../Dockerfile).
 
 Azure Functions 2.3.0 kan ikke installeres på dagens Python3.11; pip vil velge
 en kompatibel eldre utgivelse. PyPI viser 1.25.0 (05.08.2026, Python ≥3.10)

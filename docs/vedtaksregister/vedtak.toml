@@ -26192,7 +26192,7 @@ Svaret på det første spørsmålet: «Riktig, men vi retter kun feil i python s
 
 Svaret på oppfølgingsspørsmålet: «Heller ikke sikkerhet (Anbefalt)»'''
 folge = '''
-Unntaket for sikkerhet i [merknaden 09.10 i 4.2](#python-feil-koe) gjelder ikke lenger.'''
+Unntaket for sikkerhet i [merknaden 09.10 i 4.2](#python-feil-koe) gjelder ikke lenger. Merknad 08.11: Python-koden er slettet (#49, oppdragsgiver 08.11), så vedtaket har ingen kode å gjelde for.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Heller ikke sikkerhet"
