@@ -115,7 +115,8 @@ const MUTASJONER: Mutasjon[] = [
         '    (s as { gjelder: string }).gjelder = spor[s.spor].krav.filter((k) => bakover(s.id, k.id)).at(-1)?.id ?? s.gjelder;\n    if (alleKrav.get(s.gjelder)?.spor !== s.spor || !bakover(s.id, s.gjelder))',
       ],
     ],
-    mal: ['F-MM-E1', 'F-MM-E3'],
+    // F-MM-E3 er ikke mål: et svar flyttet til et annet krav stopper også på postene (OV-U23).
+    mal: ['F-MM-E1'],
   },
   {
     id: 'F3',
