@@ -92,7 +92,7 @@
   const kommando = $derived(vederlagssvaret(valg, u, kjernesak.regler)!);
   const etter = $derived(kjernesak.forhaandsvist(kommando));
   const utenOppgjoersform = (poster: unknown) =>
-    (poster as Kravpostvurdering[]).map((p) => ({
+    ((poster ?? []) as Kravpostvurdering[]).map((p) => ({
       gjelder: p.gjelder,
       vurdering: p.vurdering,
       godkjent_beloep: p.godkjent_beloep,

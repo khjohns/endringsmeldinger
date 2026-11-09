@@ -38,8 +38,9 @@ export interface Utkastlag {
  * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart. Et ubesvart
  * varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende, så laget kan endre
  * seg når det besvares (S1-A). Lagene fra forholdet leses av gjeldende svar på forholdet,
- * som frysingen gjør når brevet ikke selv har et svar på forholdet. Kaster ingen
- * `UgyldigVurdering`: beløpene påvirker ikke lagene og tas ut før standpunktene bygges.
+ * som frysingen gjør når brevet ikke selv har et svar på forholdet. Beløpene påvirker ikke
+ * lagene og tas ut før standpunktene bygges. Kaster `UgyldigVurdering` bare for svar på
+ * kravpostene som `kravpostvurderinger` avviser.
  */
 export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelsett): Utkastlag {
   if (utkast.spor !== 'vederlag')

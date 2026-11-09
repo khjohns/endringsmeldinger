@@ -503,7 +503,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['frosset/utregning.ts:regnUtSvar', 'utsagn', 'krav paaberopelse'],
   ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
-  // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
