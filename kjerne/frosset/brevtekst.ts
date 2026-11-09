@@ -707,7 +707,8 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
         };
       }),
     ],
-    (l) => l.plass
+    (l) => l.plass,
+    forskyvning + 1
   );
   // #1267 punkt 4: med mer enn ett lag står innledningen for seg, og hver etikett begynner et
   // nytt avsnitt. Standpunktene uten etikett står i avsnittet før, som metoden sammen med

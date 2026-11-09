@@ -488,3 +488,14 @@ de 30 000 kr bare gjelder subsidiært, selv om byggherren godtar dem uansett.
 
 **Anbefalt: A.** Kombinasjonen er ny med PR-en, og et ubetinget standpunkt bør ikke stå under en
 etikett for et vilkår.
+
+### Svarene 09.11 på spørsmål 5–8
+
+Oppdragsgiver 09.11, ordrett: «Som anbefalt på alle»
+
+Det betyr 5 A, 6 A, 7 A og 8 A. Alle følger vedtakene og føres som arbeidsvalg, ikke som nye
+vedtak: 5 A følger OV-U31, 6 A følger OV-U73 og bygges i 2a-2, 7 A endrer ingenting før 2a-2, og
+8 A følger OV-U32 («et upåvirket standpunkt står uten etikett») og OV-U33 («står ellers i
+sporets første lag»). 8 A er bygget i #1738: et ledd uten lag står i brevet og linjen med
+sporets første lag, etter lagene fra grunnlaget. Det flytter også et standpunkt uten virkning,
+som «gjør ikke gjeldende … § 33.6.1», fra et senere lag til sporets første lag.

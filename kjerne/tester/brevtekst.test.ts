@@ -1431,12 +1431,13 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
     const tekst = laast(rad)[0];
     expect(tekst).toContain(
-      'Prinsipalt: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.\n\nSubsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1).'
+      `Prinsipalt: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent. ${SPESIFISERING_JA}\n\nSubsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1).`
     );
     expect(tekst).toMatch(
       /\n\nVidere subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager\.$/
     );
-    // Én etikett per lag: standpunktet uten virkning (§ 33.6.1 i tide) står uten etikett.
+    // Én etikett per lag: standpunktet uten virkning (§ 33.6.1 i tide) står uten etikett, med
+    // sporets første lag (spørsmål 8 i spørsmålsfila for #1663, 09.11).
     expect(tekst.match(/(Prinsipalt|Subsidiært|Videre subsidiært):/g)).toEqual([
       'Prinsipalt:',
       'Subsidiært:',
@@ -1487,9 +1488,10 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(g).toBe(
       'Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 2. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner grunnlaget.'
     );
-    // A2: fristen er subsidiær fordi forholdet er prekludert i samme brev.
+    // A2: fristen er subsidiær fordi forholdet er prekludert i samme brev. Standpunktet uten
+    // virkning står med sporets første lag, ikke med forholdets (OV-U33, spørsmål 8 for #1663).
     expect(f).toBe(
-      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev K201-KOE-017-03 av 4. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget).\n\nSubsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.\n\nVidere subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA}\n\nVidere subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.`
+      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev K201-KOE-017-03 av 4. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget).\n\nSubsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent. ${SPESIFISERING_JA}\n\nVidere subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1).\n\nVidere subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.`
     );
   });
 
@@ -6266,7 +6268,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
   // leseren forstår brevet kjernen skriver.
   it('tilbudet ikke akseptert og posten etter § 34.1.3 annet ledd i tide: posten er upåvirket, og brevet leses (KA-U60, OV-U33)', () => {
     const s = sakMedPost();
-    brevet(
+    const rad = brevet(
       s,
       {
         ...postene,
@@ -6282,6 +6284,14 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       ['rettidighet', 'uten_virkning'],
       ['beloep', 'upaavirket'],
     ]);
+    // Spørsmål 8 i spørsmålsfila, 09.11: et standpunkt uten lag står med det første laget og
+    // aldri under en senere etikett.
+    expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
+      `Byggherrens standpunkt: prinsipalt tilbudet ikke akseptert (§ 34.2.2), godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd), subsidiært godkjent med ${kroner(100000)} for justeringen ellers.`
+    );
+    expect(laast(rad).join(' ')).toMatch(
+      /\n\nSubsidiært: byggherren godkjenner 100\u00a0000[^\n]*$/
+    );
   });
 
   it('begge påberopt: § 34.1.2 prinsipalt, justeringen ellers og begrensningen subsidiært, posten videre subsidiært (OV-U27, OV-U28)', () => {

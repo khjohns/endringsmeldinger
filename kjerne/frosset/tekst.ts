@@ -117,7 +117,8 @@ export function beslutningslinje(
   };
   const ledd = iLagene(
     [...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })), ...sine],
-    plass
+    plass,
+    forskyvning + 1
   );
   const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);
   const merket = new Set<number>();
@@ -144,13 +145,12 @@ const SAERSKILT_I_LINJEN = 'særskilt justering (§ 34.1.3 annet ledd)';
 
 /**
  * Leddene ordnet etter laget, så standpunktene i samme lag står under én etikett (OV-U32). Et
- * ledd uten lag blir stående etter leddet foran. Ellers beholdes rekkefølgen.
+ * ledd uten lag står med sporets første lag, `foerste`, og aldri under en senere etikett
+ * (OV-U33; spørsmål 8 i spørsmålsfila for #1663, 09.11). Ellers beholdes rekkefølgen.
  */
-export function iLagene<T>(ledd: T[], plass: (l: T) => number | null): T[] {
-  let forrige = 0;
-  const noekkel = ledd.map((l) => (forrige = plass(l) ?? forrige));
+export function iLagene<T>(ledd: T[], plass: (l: T) => number | null, foerste: number): T[] {
   return ledd
-    .map((l, i) => ({ l, k: noekkel[i] }))
+    .map((l) => ({ l, k: plass(l) ?? foerste }))
     .sort((a, b) => a.k - b.k)
     .map(({ l }) => l);
 }

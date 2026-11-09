@@ -3238,6 +3238,16 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
   },
   {
+    id: 'F501',
+    feilklasse:
+      'et standpunkt uten lag står under etiketten for et senere lag (spørsmål 8 i spørsmålsfila for #1663, OV-U32)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [
+      ['.map((l) => ({ l, k: plass(l) ?? foerste }))', '.map((l) => ({ l, k: plass(l) ?? 99 }))'],
+    ],
+    mal: ['posten er upåvirket, og brevet leses'],
+  },
+  {
     id: 'F500',
     feilklasse:
       'leseren regner ikke et tilbud som ikke er akseptert som en påberopelse, og avviser et upåvirket standpunkt ved siden av det (KA-U60, OV-U33)',
