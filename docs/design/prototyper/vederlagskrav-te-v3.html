@@ -14,6 +14,11 @@
   utkastmerket står også i panelet ved knappen; bryteren «Begrunnelser kort / Hele teksten» er tatt ut,
   og hjelpeteksten om tilbud står én gang i seksjonen. Svaret har de samme radene, snarveiene inne i
   seksjonen og en primærhandling i panelet. Punktlisten, summene og lagene er som i v2.
+  Omarbeidet samme dag etter oppdragsgivers merknad om at radene var rotete: hver kravpost er én
+  leselinje i en tabell med faste kolonner (post, beskrivelse, oppgjørsform, PNS, beløp) til den
+  åpnes med «Endre». Én post er åpen om gangen, som et skjema med etikett over felt, oppgjørsformen
+  som en liste med én forklaring per alternativ, og «Ferdig» og «Fjern» i bunnen. Byggherrens svar
+  følger samme mønster, med «Slik står det i brevet» som leselinje.
   v2 under:
   Prototype v2 av totalentreprenørens krav om vederlagsjustering i Varden, etter svarene 07.11 i
   docs/vedlegg/vederlagsskjema-te-2026-11-07/sporsmal.md: kravposter med fast betegnelse, oppgjørsform
@@ -441,6 +446,52 @@ a.liten-knapp{color:inherit}
 .rad-begr .fot{margin-left:auto}
 .rad-begr .editor{flex-basis:100%}
 .postrad.trukket .rad-navn b{text-decoration:line-through;text-decoration-thickness:1px;color:var(--ink-3)}
+/* Kravpostene som tabell: én leselinje per post, og én post åpen om gangen */
+.krt{display:grid;grid-template-columns:max-content minmax(0,1fr) 140px 40px 110px 48px;gap:2px 14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--rule-color)}
+.krt.hode{font-size:12px;color:var(--ink-3);padding:0 0 6px;border-bottom:1px solid var(--rule-strong-color)}
+.krt .c-id{font-weight:600;font-variant-numeric:tabular-nums}
+.krt .c-navn{font-weight:600}
+.krt .c-form .u,.krt .c-navn .u{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
+.krt .c-pns,.krt .c-bel{font-variant-numeric:tabular-nums}
+.krt .c-bel{text-align:right;white-space:nowrap}
+.krt .c-bel.dempet{color:var(--ink-3)}
+.krt .c-handling{justify-self:end}
+.krt .c-handling .lenke.liten{min-height:0;padding:0}
+.krt .c-begr{grid-column:2/-1;color:var(--ink-2);font-size:14px}
+.krt .c-merk{grid-column:2/-1;font-size:12px;color:var(--ink-3)}
+.krt.sum{border-bottom:0;padding-top:8px}
+.krt.sum .c-sum{grid-column:1/5;color:var(--ink-2)}
+.krt.sum .c-bel{font-weight:600}
+.krt.trukket .c-navn{text-decoration:line-through;text-decoration-thickness:1px;color:var(--ink-3)}
+.krt.trukket .c-form,.krt.trukket .c-pns{color:var(--ink-3)}
+.postskjema{border-left:3px solid var(--ink);padding:14px 0 16px 20px;margin:6px 0 10px;display:flex;flex-direction:column;gap:18px;border-bottom:1px solid var(--rule-color)}
+.postskjema .hode{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.postskjema .hode b{font-size:16px;font-weight:600}
+.postskjema .felt{display:flex;flex-direction:column;gap:4px}
+.postskjema .felt > label,.postskjema .oppgj > legend{font-weight:500}
+.postskjema .tekstfelt.bred{max-width:520px}
+.postskjema textarea.tekstfelt{min-height:84px;resize:vertical;font:14px/1.55 var(--font-sans)}
+.postskjema .fot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px}
+.metodevalg label{padding:10px 14px}
+.metodevalg label:has(input:checked){padding:9px 13px}
+.metodevalg b{font-size:14px}
+.postskjema .rad-detalj{margin-left:0}
+.svt{grid-template-columns:max-content minmax(0,1fr) minmax(0,1.1fr) 48px}
+.svt .c-svar{font-size:14px;color:var(--ink-2)}
+.svt .c-svar ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
+.svt .c-svar .u{display:block;font-size:12px;color:var(--ink-3)}
+.postskjema .trapp{margin:0}
+@media (max-width:860px){
+  .krt{grid-template-columns:max-content minmax(0,1fr) 48px}
+  .krt .c-form,.krt .c-pns{grid-column:2;font-size:12px;color:var(--ink-3)}
+  .krt .c-pns:not(:empty)::before{content:"PNS "}
+  .krt .c-bel{grid-column:2;text-align:left}
+  .krt.hode .c-form,.krt.hode .c-pns,.krt.hode .c-bel{display:none}
+  .krt.sum .c-sum{grid-column:1/3}
+  .svt{grid-template-columns:max-content minmax(0,1fr) 48px}
+  .svt .c-svar{grid-column:2}
+  .postskjema{padding-left:14px}
+}
 .trapp.rad-trapp{margin-left:76px}
 .punkt .snarveier{padding:0;border:0}
 .punkt .snarveier .liten-knapp{min-height:32px;font-size:13px}
@@ -543,8 +594,7 @@ a.liten-knapp{color:inherit}
 
           <section class="punkt nummerert" aria-labelledby="p3" data-spor="U-1 · D-1">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p3">Vederlagsjustering</h2><span class="hjemmel">punkt 34.1.1 / 34.1.2</span></div>
-            <p class="oppgitt">Del kravet i kravposter. Hver post har sin oppgjørsform og kan få en PNS-kode. Betegnelsen (P1, P2 …) følger posten i nye versjoner og i endringsordren. Beløpene er eks. mva. Et beløp for fast sum er et tilbud etter punkt 34.2.1, som byggherren kan akseptere.</p>
-            <div class="kolonnehode" aria-hidden="true"><span>Post</span><span>Beskrivelse, oppgjørsform og PNS</span><span>Beløp</span></div>
+            <p class="oppgitt">Del kravet i kravposter. Betegnelsen (P1, P2 …) følger posten i nye versjoner og i endringsordren. Beløpene er eks. mva.</p>
             <div id="poster" class="postliste"></div>
             <button class="liten-knapp" type="button" data-handling="ny-post" style="align-self:flex-start">Legg til kravpost</button>
           </section>
@@ -741,41 +791,71 @@ function varselblokk(p, hjelp) {
   </fieldset>`;
 }
 
-function postHtml(p, saerskilt) {
-  const id = p.id, navnId = saerskilt ? 'Særskilt' : id;
-  if (p.trukket) return `<article class="postrad trukket" data-id="${id}" id="post-${id}" data-spor="U-4 · D-4">
-    <div class="rad-hode"><span class="rad-id">${navnId}</span><span class="rad-navn"><b>${esc(p.navn)}</b></span><span class="rad-uten"><span class="merke-trukket" style="align-self:flex-end">Trekkes</span></span></div>
-    <div class="rad-begr"><p class="forhaand">Kravet i ${saerskilt ? 'den særskilte vederlagsjusteringen' : id} trekkes i denne versjonen. Brevet sier det uttrykkelig, og trekket er et avkall på kravet i posten.</p><button class="lenke liten fot" type="button" data-handling="angre">Angre trekket</button></div></article>`;
+let aapenPost = 'P2'; // posten som er åpen for redigering; bare én om gangen
+const FORKLARING = {
+  fast: 'Beløpet du krever er et tilbud etter punkt 34.2.1, som byggherren kan akseptere.',
+  ep: 'Oppgjør etter utførte mengder med kontraktens eller justerte enhetspriser (punkt 34.3). Posten har ikke et krevd beløp.',
+  regning: 'Kostnader og påslag etter punkt 30. Skal varsles før arbeidet settes i gang (punkt 34.4). Posten har ikke et krevd beløp.',
+};
+function formKort(p) {
+  if (p.form === 'fast') return FORM.fast;
   const o = kr(p.form === 'ep' ? p.anslag : p.overslag);
-  const beloepKol = p.form === 'fast'
-    ? `<span class="rad-beloep"><span class="inndata"><input id="b-${id}" aria-label="Beløpet du krever for ${navnId}, eks. mva." inputmode="decimal" data-felt="beloep" value="${p.beloep ? kr(p.beloep).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></span>`
-    : `<span class="rad-uten"><span>Uten beløp</span>${o ? `<span>${p.form === 'ep' ? 'anslag' : 'overslag'} ${fmt(o)}</span>` : ''}</span>`;
-  const seg = `<fieldset class="oppgj" data-spor="U-2 · D-2"><legend class="vh">Oppgjørsform for ${navnId}</legend><span class="seg">${['fast', 'ep', 'regning'].map(f => `<label><input type="radio" name="f-${id}" value="${f}"${f === p.form ? ' checked' : ''}>${FORM[f]}</label>`).join('')}</span></fieldset>`;
-  const pns = `<span class="pnsfelt" data-spor="U-3"><label for="pns-${id}">PNS (valgfri)</label><span class="inndata tekst"><input id="pns-${id}" list="pns-liste" data-felt="pns" value="${esc(p.pns)}"></span></span>`;
+  const u = [];
+  if (p.form === 'ep') u.push(p.ep === 'justert' ? 'justerte' : 'kontraktens');
+  if (o) u.push(`${p.form === 'ep' ? 'anslag' : 'overslag'} ${fmt(o)}`);
+  if (erVarselpost(p)) u.push(p.varsel === 'krav' ? 'kravet er varselet' : 'varselet er gitt før');
+  return `${FORM[p.form]}${u.length ? `<span class="u">${u.join(' · ')}</span>` : ''}`;
+}
+function endretKort(p) {
+  if (tilstand !== 'ny') return '';
+  const f = p.forrige;
+  if (!f) return 'Ny post i denne versjonen';
+  if (f.form !== p.form) return `Endret fra brev 5: ${FORM[f.form]} → ${FORM[p.form]}`;
+  if (p.form === 'fast' && f.beloep !== kr(p.beloep)) return `Endret fra brev 5: ${fmt(f.beloep)} → ${fmt(kr(p.beloep))}`;
+  if (p.form === 'regning' && f.overslag !== kr(p.overslag)) return `Overslaget endret fra brev 5: ${fmt(f.overslag)} → ${fmt(kr(p.overslag))}`;
+  return '';
+}
+function postRad(p, saerskilt) {
+  const id = p.id, navnId = saerskilt ? 'Særskilt' : id;
+  if (p.trukket) return `<div class="krt trukket" data-id="${id}" id="post-${id}" data-spor="U-4 · D-4">
+    <span class="c-id">${navnId}</span><span class="c-navn">${esc(p.navn)}</span><span class="c-form">${FORM[p.form]}</span><span class="c-pns">${esc(p.pns)}</span><span class="c-bel dempet">Trekkes</span>
+    <span class="c-handling"><button class="lenke liten" type="button" data-handling="angre">Angre</button></span>
+    <span class="c-merk">Kravet i ${saerskilt ? 'den særskilte vederlagsjusteringen' : id} trekkes i denne versjonen. Brevet sier det uttrykkelig, og trekket er et avkall på kravet i posten.</span></div>`;
+  const e = endretKort(p);
+  return `<div class="krt" data-id="${id}" id="post-${id}">
+    <span class="c-id">${navnId}</span><span class="c-navn">${esc(p.navn) || '<span class="dempet" style="font-weight:400">Uten beskrivelse</span>'}</span><span class="c-form">${formKort(p)}</span><span class="c-pns">${esc(p.pns)}</span><span class="c-bel${p.form === 'fast' ? '' : ' dempet'}">${p.form === 'fast' ? fmt(kr(p.beloep)) : 'Uten beløp'}</span>
+    <span class="c-handling"><button class="lenke liten" type="button" data-handling="aapne" aria-label="Endre ${navnId}">Endre</button></span>
+    ${p.begr ? `<span class="c-begr">${esc(p.begr)}</span>` : ''}${e ? `<span class="c-merk">${e}</span>` : ''}</div>`;
+}
+function postSkjema(p, saerskilt) {
+  const id = p.id, navnId = saerskilt ? 'Særskilt' : id;
+  const fast = `<div class="felt"><label for="b-${id}">Beløpet du krever</label><span class="inndata"><input id="b-${id}" inputmode="decimal" data-felt="beloep" value="${p.beloep ? kr(p.beloep).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
   const ep = `<fieldset class="oppgj"><legend class="spm">Hvilke enhetspriser?</legend><div class="valg lett">${radio('ep-' + id, 'kontrakt', p.ep, 'Kontraktens enhetspriser (punkt 34.3.1)')}${radio('ep-' + id, 'justert', p.ep, 'Justerte enhetspriser (punkt 34.3.2)')}</div></fieldset>
-      ${p.ep === 'justert' ? varselblokk(p, 'Varsler du for sent, har du bare krav på den justeringen byggherren måtte forstå. Byggherren skal svare uten ugrunnet opphold.') : ''}
-      <div class="beloepfelt"><label for="a-${id}">Anslag (valgfritt)</label><span class="hjelp">Mengde × enhetspris. En opplysning, ikke et tilbud. Posten har ikke et krevd beløp, og oppgjøret skjer etter utførte mengder. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp</span></span><span class="inndata"><input id="a-${id}" inputmode="decimal" data-felt="anslag" value="${p.anslag ? kr(p.anslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
+    ${p.ep === 'justert' ? varselblokk(p, 'Varsler du for sent, har du bare krav på den justeringen byggherren måtte forstå. Byggherren skal svare uten ugrunnet opphold.') : ''}
+    <div class="felt"><label for="a-${id}">Anslag (valgfritt)</label><span class="hjelp">Mengde × enhetspris. En opplysning, ikke et tilbud. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp</span></span><span class="inndata"><input id="a-${id}" inputmode="decimal" data-felt="anslag" value="${p.anslag ? kr(p.anslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
   const reg = `${varselblokk(p, '')}
-      <div class="beloepfelt"><label for="o-${id}">Kostnadsoverslag (punkt 30.2) <span class="aapent" data-spor="S-2">Åpent: om det er påkrevd</span></label><span class="hjelp">En opplysning, ikke et tilbud. Ser det ut til å bli overskredet, skal du varsle byggherren. Posten har ikke et krevd beløp; kostnadene og påslaget dekkes etter punkt 30.1. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp når arbeidet er utført</span></span><span class="inndata"><input id="o-${id}" inputmode="decimal" data-felt="overslag" value="${p.overslag ? kr(p.overslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
-  const detalj = p.form === 'fast' ? '' : `<div class="rad-detalj">${p.form === 'ep' ? ep : reg}</div>`;
+    <div class="felt"><label for="o-${id}">Kostnadsoverslag (punkt 30.2) <span class="aapent" data-spor="S-2">Åpent: om det er påkrevd</span></label><span class="hjelp">En opplysning, ikke et tilbud. Ser det ut til å bli overskredet, skal du varsle byggherren. <span class="aapent" data-spor="S-3">Åpent: krav om påløpt beløp når arbeidet er utført</span></span><span class="inndata"><input id="o-${id}" inputmode="decimal" data-felt="overslag" value="${p.overslag ? kr(p.overslag).toLocaleString('nb-NO') : ''}"><span aria-hidden="true">kr</span></span></div>`;
   const fjern = tilstand === 'ny' && p.forrige
     ? `<button class="lenke liten" type="button" data-handling="trekk">${saerskilt ? 'Trekk den særskilte vederlagsjusteringen' : 'Trekk ' + id}</button>`
-    : (saerskilt ? '' : `<button class="lenke liten" type="button" data-handling="fjern">Fjern ${id}</button>`);
-  return `<article class="postrad" data-id="${id}" id="post-${id}">
-    <div class="rad-hode"><span class="rad-id">${navnId}</span><input class="post-navn" data-felt="navn" aria-label="Beskrivelse av ${saerskilt ? 'den særskilte posten' : id}" value="${esc(p.navn)}" placeholder="Beskriv posten">${beloepKol}</div>
-    <div class="rad-egenskaper">${seg}${pns}${endret(p)}</div>
-    ${detalj}
-    <div class="rad-begr begr" data-begr="${id}" data-post-begr>
-      <span class="merke">Begrunnelse${saerskilt ? '' : ' for ' + id} · valgfri</span>
-      ${p.begr ? `<p class="forhaand">${esc(p.begr)}</p><button class="lenke liten" type="button" data-rediger>Rediger</button>` : '<button class="lenke liten" type="button" data-rediger>Legg til begrunnelse</button>'}
-      ${fjern ? `<span class="fot">${fjern}</span>` : ''}
-    </div>
+    : (saerskilt ? '<span></span>' : `<button class="lenke liten" type="button" data-handling="fjern">Fjern ${id}</button>`);
+  return `<article class="postskjema" data-id="${id}" id="post-${id}" aria-label="${navnId}">
+    <div class="hode"><b>${navnId}${p.navn ? ' · ' + esc(p.navn) : ''}</b>${endret(p)}</div>
+    <div class="felt"><label for="n-${id}">Beskrivelse av posten</label><span class="hjelp">Står i brevet og i endringsordren.</span><input id="n-${id}" class="tekstfelt bred" data-felt="navn" value="${esc(p.navn)}" aria-required="true"></div>
+    <fieldset class="oppgj" data-spor="U-2 · D-2"><legend>Oppgjørsform</legend><div class="metodevalg">${['fast', 'ep', 'regning'].map(f => `<label><input type="radio" name="f-${id}" value="${f}"${f === p.form ? ' checked' : ''}><b>${FORM[f]}</b><span>${FORKLARING[f]}</span></label>`).join('')}</div></fieldset>
+    ${p.form === 'fast' ? fast : p.form === 'ep' ? ep : reg}
+    <div class="felt" data-spor="U-3"><label for="pns-${id}">PNS (valgfri)</label><span class="hjelp">Binder ikke. Byggherren kan sette en annen i endringsordren.</span><span class="inndata tekst" style="width:140px"><input id="pns-${id}" list="pns-liste" data-felt="pns" value="${esc(p.pns)}"></span></div>
+    <div class="felt"><label for="g-${id}">Begrunnelse (valgfri)</label><textarea id="g-${id}" class="tekstfelt" data-felt="begr">${esc(p.begr)}</textarea></div>
+    <div class="fot">${fjern}<button class="liten-knapp sterk" type="button" data-handling="lukk">Ferdig</button></div>
   </article>`;
 }
+function postHtml(p, saerskilt) { return p.id === aapenPost && !p.trukket ? postSkjema(p, saerskilt) : postRad(p, saerskilt); }
 
 function finnPost(id) { return id === 'S' ? d.saerskilt : d.poster.find(p => p.id === id); }
 function tegn() {
-  document.getElementById('poster').innerHTML = d.poster.map(p => postHtml(p, false)).join('');
+  const sum = d.poster.filter(p => !p.trukket && p.form === 'fast').reduce((s, p) => s + kr(p.beloep), 0);
+  document.getElementById('poster').innerHTML = `<div class="krt hode" aria-hidden="true"><span>Post</span><span>Beskrivelse</span><span>Oppgjørsform</span><span>PNS</span><span class="c-bel">Beløp</span><span></span></div>`
+    + d.poster.map(p => postHtml(p, false)).join('')
+    + `<div class="krt sum"><span class="c-sum">Sum faste beløp i kravpostene</span><span class="c-bel">${fmt(sum)}</span><span></span></div>`;
   document.getElementById('saerskilt').innerHTML = postHtml(d.saerskilt, true);
   oppsummer();
 }
@@ -904,6 +984,7 @@ function brev() {
 // Byggherrens svar. Lagene i rekkefølgen varsel, oppgjørsform, beløp (svar 07.11). Lagene regnes ut av
 // standpunktene per post; byggherren fyller dem ikke ut.
 const bhv = { v3412: false, v3413: false };
+let aapenSvar = 'P4'; // posten byggherren svarer på nå; bare én om gangen
 const bhP = p => (bh[p.id] = bh[p.id] || { form: 'godtar', beloep: 'krevd', delvis: Math.round(kr(p.beloep) * 0.85), just: 'godtar', vEp: 'tide', etterVarsel: 0 });
 const varselPaa = () => bhv.v3412 || (bhv.v3413 && skall.dataset.saerskilt === 'ja');
 // Innsigelsen mot varselet etter punkt 34.3.3 står i laget for oppgjørsformen til posten (KA-U64, VS-U4).
@@ -956,16 +1037,24 @@ function bhKort(p, k) {
   const beloep = p.form === 'fast' ? `<fieldset class="oppgj"><legend class="spm">${sub ? 'Hvis fast sum legges til grunn: beløpet (valgfritt)' : (rammes ? 'Subsidiært: beløpet' : 'Beløpet')}</legend><div class="valg lett">${radio('bb-' + id, 'krevd', b.beloep, `Som krevd, ${fmt(kr(p.beloep))}`)}${radio('bb-' + id, 'delvis', b.beloep, 'Delvis')}${radio('bb-' + id, 'avslaatt', b.beloep, 'Avslått')}${sub ? radio('bb-' + id, 'ingen', b.beloep, 'Tar ikke stilling') : ''}</div>
       ${b.beloep === 'delvis' ? `<div class="beloepfelt"><label for="bd-${id}">Godkjent beløp</label><span class="inndata"><input id="bd-${id}" inputmode="decimal" data-bh-felt="delvis" value="${b.delvis.toLocaleString('nb-NO')}"><span aria-hidden="true">kr</span></span></div>` : ''}</fieldset>` : '';
   const etter = s && bhv.v3413 ? `<div class="beloepfelt"><label for="be-${id}">Prinsipalt: godkjent for utgifter etter varselet</label><span class="hjelp">Utgifter som påløp før varselet, kan ikke kreves (punkt 34.1.3 tredje ledd).</span><span class="inndata"><input id="be-${id}" inputmode="decimal" data-bh-felt="etterVarsel" value="${b.etterVarsel.toLocaleString('nb-NO')}"><span aria-hidden="true">kr</span></span></div>` : '';
-  return `<article class="postrad svarpost" data-bh-id="${id}">
-    <div class="rad-hode"><span class="rad-id">${s ? 'Særskilt' : id}</span><span class="rad-navn"><b>${esc(p.navn)}</b><span class="hjelp blokklinje">TE krever: ${p.form === 'fast' ? 'fast sum, ' : ''}${krav}${p.pns ? ' · PNS ' + esc(p.pns) : ''}</span></span>${rammes ? '<span class="endret">Subsidiært, hvis varselet kom i tide</span>' : '<span></span>'}</div>
-    <div class="rad-detalj">${etter}${formValg}${tilbud}${epVarsel}${just}${beloep}</div>
-    <div class="trapp rad-trapp"><p class="blokktittel">Slik står det i brevet</p><ol>${trapp(p, k)}${b.tilbud ? `<li>Byggherren krever at TE gir et spesifisert tilbud for ${s ? 'posten' : id} etter punkt 34.2.1.</li>` : ''}</ol></div>
+  const brevet = `${trapp(p, k)}${b.tilbud ? `<li>Byggherren krever at TE gir et spesifisert tilbud for ${s ? 'posten' : id} etter punkt 34.2.1.</li>` : ''}`;
+  const krever = `TE krever: ${p.form === 'fast' ? 'fast sum, ' : ''}${krav}${p.pns ? ' · PNS ' + esc(p.pns) : ''}`;
+  if (aapenSvar !== id) return `<div class="krt svt" data-bh-id="${id}">
+    <span class="c-id">${s ? 'Særskilt' : id}</span><span class="c-navn">${esc(p.navn)}<span class="u">${krever}</span></span>
+    <span class="c-svar"><ol>${brevet}</ol>${rammes ? '<span class="u">Subsidiært, hvis varselet kom i tide</span>' : ''}</span>
+    <span class="c-handling"><button class="lenke liten" type="button" data-bh-handling="aapne" aria-label="Endre svaret på ${s ? 'den særskilte posten' : id}">Endre</button></span></div>`;
+  return `<article class="postskjema" data-bh-id="${id}" aria-label="${s ? 'Særskilt' : id}">
+    <div class="hode"><b>${s ? 'Særskilt' : id} · ${esc(p.navn)}</b>${rammes ? '<span class="endret">Subsidiært, hvis varselet kom i tide</span>' : ''}</div>
+    <p class="hjelp" style="margin-top:-10px">${krever}</p>
+    ${etter}${formValg}${tilbud}${epVarsel}${just}${beloep}
+    <div class="trapp"><p class="blokktittel">Slik står det i brevet</p><ol>${brevet}</ol></div>
+    <div class="fot"><span></span><button class="liten-knapp sterk" type="button" data-bh-handling="lukk">Ferdig</button></div>
   </article>`;
 }
 function tegnSvar() {
   const poster = aktive().filter(p => !p.trukket), k = lagene(poster);
   document.getElementById('svartittel').textContent = `Brev ${tilstand === 'ny' ? 8 : 6} · Svar på kravet om justering av vederlaget i brev ${tilstand === 'ny' ? 7 : 5}`;
-  document.getElementById('bh-poster').innerHTML = poster.filter(p => p.id !== 'S').map(p => bhKort(p, k)).join('');
+  document.getElementById('bh-poster').innerHTML = `<div class="krt svt hode" aria-hidden="true"><span>Post</span><span>Kravet</span><span>Svaret, slik det står i brevet</span><span></span></div>` + poster.filter(p => p.id !== 'S').map(p => bhKort(p, k)).join('');
   document.getElementById('bh-saerskilt').innerHTML = skall.dataset.saerskilt === 'ja' ? bhKort(d.saerskilt, k) : '';
   const vi = document.getElementById('varselinfo');
   vi.hidden = !varselPaa();
@@ -1000,6 +1089,8 @@ svarvisning.addEventListener('input', e => {
   const ny = document.querySelector(`#svarvisning [data-bh-id="${id}"] [data-bh-felt="${f}"]`); ny.focus(); try { ny.setSelectionRange(pos, pos); } catch {}
 });
 svarvisning.addEventListener('click', e => {
+  const h = e.target.closest('[data-bh-handling]');
+  if (h) { const id = h.closest('[data-bh-id]').dataset.bhId; aapenSvar = h.dataset.bhHandling === 'aapne' ? id : null; tegnSvar(); (aapenSvar ? document.querySelector(`[data-bh-id="${id}"] input`) : document.querySelector(`[data-bh-id="${id}"] [data-bh-handling]`))?.focus(); return; }
   const s = e.target.closest('[data-snarvei]'); if (!s) return;
   aktive().filter(p => !p.trukket).forEach(p => { const b = bhP(p); if (s.dataset.snarvei === 'form') { b.form = 'godtar'; if (b.beloep === 'ingen') b.beloep = 'krevd'; } else if (p.form === 'fast') b.beloep = 'krevd'; });
   tegnSvar();
@@ -1007,12 +1098,12 @@ svarvisning.addEventListener('click', e => {
 
 // Hendelsene
 skjema.addEventListener('input', e => {
-  const art = e.target.closest('.postrad'); const f = e.target.dataset.felt;
+  const art = e.target.closest('.postskjema'); const f = e.target.dataset.felt;
   if (art && f) { const p = finnPost(art.dataset.id); p[f] = e.target.value; const ch = art.querySelector('.endret'); if (ch) ch.outerHTML = endret(p); }
   oppsummer();
 });
 skjema.addEventListener('change', e => {
-  const art = e.target.closest('.postrad');
+  const art = e.target.closest('.postskjema');
   if (!art || e.target.type !== 'radio') return;
   const p = finnPost(art.dataset.id); const n = e.target.name.split('-')[0];
   const v = e.target.value;
@@ -1022,14 +1113,16 @@ skjema.addEventListener('change', e => {
   document.querySelector(`[name="${e.target.name}"][value="${e.target.value}"]`)?.focus();
 });
 skjema.addEventListener('click', e => {
-  const h = e.target.closest('[data-handling]'), art = e.target.closest('.postrad');
+  const h = e.target.closest('[data-handling]'), art = e.target.closest('.krt,.postskjema');
   const vis = e.target.closest('[data-vis-punkt]');
   if (vis) { const s = vis.closest('.punkt'); const aapen = s.dataset.aapen !== 'ja'; s.dataset.aapen = aapen ? 'ja' : 'nei'; vis.textContent = aapen ? 'Ferdig' : 'Endre'; vis.setAttribute('aria-expanded', String(aapen)); if (aapen) s.querySelector('input,button:not([data-vis-punkt])')?.focus(); return; }
   if (h) {
     const a = h.dataset.handling;
-    if (a === 'ny-post') { const nr = Math.max(0, ...d.poster.map(p => Number(p.id.slice(1)))) + 1; d.poster.push({ id: 'P' + nr, navn: '', pns: '', form: 'fast', beloep: 0, ep: 'kontrakt', anslag: '', overslag: '', begr: '', varsel: 'krav', kilde: '', uType: 'Brev', uSendt: 'Som PDF i e-post', uDato: '', uBeskr: '' }); tegn(); document.querySelector(`.postrad[data-id="P${nr}"] .post-navn`).focus(); }
-    if (a === 'fjern') { d.poster = d.poster.filter(p => p.id !== art.dataset.id); tegn(); }
-    if (a === 'trekk') { finnPost(art.dataset.id).trukket = true; tegn(); }
+    if (a === 'ny-post') { const nr = Math.max(0, ...d.poster.map(p => Number(p.id.slice(1)))) + 1; d.poster.push({ id: 'P' + nr, navn: '', pns: '', form: 'fast', beloep: 0, ep: 'kontrakt', anslag: '', overslag: '', begr: '', varsel: 'krav', kilde: '', uType: 'Brev', uSendt: 'Som PDF i e-post', uDato: '', uBeskr: '' }); aapenPost = 'P' + nr; tegn(); document.getElementById(`n-P${nr}`).focus(); }
+    if (a === 'aapne') { aapenPost = art.dataset.id; tegn(); document.getElementById(`n-${aapenPost}`)?.focus(); }
+    if (a === 'lukk') { const id = art.dataset.id; aapenPost = null; tegn(); document.querySelector(`#post-${id} [data-handling="aapne"]`)?.focus(); }
+    if (a === 'fjern') { d.poster = d.poster.filter(p => p.id !== art.dataset.id); aapenPost = null; tegn(); }
+    if (a === 'trekk') { finnPost(art.dataset.id).trukket = true; aapenPost = null; tegn(); }
     if (a === 'angre') { finnPost(art.dataset.id).trukket = false; tegn(); }
     return;
   }
@@ -1084,7 +1177,7 @@ function lesAnker() {
   const side = a === 'brev' ? 'brev' : a === 'svar' || a === 'lag' ? 'svar' : 'skjema';
   skall.dataset.hva = a === 'varsel' ? 'varsel' : 'krav';
   document.querySelectorAll('.hva-valg a').forEach(l => { if (l.dataset.hva === skall.dataset.hva) l.setAttribute('aria-current', 'page'); else l.removeAttribute('aria-current'); });
-  if (side === 'skjema') { const t = a === 'ny-versjon' ? 'ny' : 'nytt'; if (t !== tilstand) { tilstand = t; d = data(t); Object.keys(bh).forEach(k => delete bh[k]); } skall.dataset.tilstand = t; }
+  if (side === 'skjema') { const t = a === 'ny-versjon' ? 'ny' : 'nytt'; if (t !== tilstand) { tilstand = t; d = data(t); Object.keys(bh).forEach(k => delete bh[k]); aapenPost = null; aapenSvar = null; } skall.dataset.tilstand = t; }
   skall.dataset.side = side;
   document.querySelectorAll('.segment [data-anker]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.anker === a)));
   tegn();
