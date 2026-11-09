@@ -609,7 +609,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
 
           <section class="punkt nummerert kun-a" aria-labelledby="p2" data-spor="U-1 · D-1 · S-1 · S-2">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p2">Fristforlengelse</h2><span class="hjemmel">punkt 33.1 b og 33.6.1</span></div>
-            <p class="oppgitt">Angi dagene for hver frist kravet gjelder. Fristene står i kontrakten (Del II punkt E.1). Dagene gjelder hver frist for seg og legges ikke sammen. <span class="aapent">Åpent: kalenderdager eller hverdager</span></p>
+            <p class="oppgitt">Angi dagene for hver frist kravet gjelder. Fristene står i kontrakten (Del II punkt E.1). Dagene gjelder hver frist for seg og legges ikke sammen. Dagene er kalenderdager (punkt 1.2).</p>
             <div id="frister" class="postliste"></div>
             <div id="snarvei-frister" data-spor="U-4"></div>
             <button class="liten-knapp" type="button" data-handling="ny-frist" style="align-self:flex-start">Legg til frist</button>
@@ -714,7 +714,7 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const heltall = s => Number(String(s ?? '').replace(/[^0-9]/g, '')) || 0;
 const MND = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
 const dato = iso => new Date(iso + 'T00:00:00Z');
-// Ny frist regnes i kalenderdager i prototypen. Om dagene er kalenderdager eller hverdager, er åpent.
+// Ny frist regnes i kalenderdager (NS 8407 punkt 1.2: «dag» er kalenderdag).
 const pluss = (iso, n) => { const x = dato(iso); x.setUTCDate(x.getUTCDate() + n); return x; };
 const lang = x => `${x.getUTCDate()}. ${MND[x.getUTCMonth()]} ${x.getUTCFullYear()}`;
 const kort = x => `${String(x.getUTCDate()).padStart(2, '0')}.${String(x.getUTCMonth() + 1).padStart(2, '0')}.${x.getUTCFullYear()}`;
@@ -827,7 +827,7 @@ function fristSkjema(f) {
     <div class="hode"><b>${id} · ${F.navn}</b>${endretKort(f) ? `<span class="endret">${endretKort(f)}</span>` : ''}</div>
     <fieldset class="oppgj" data-spor="U-2 · S-3"><legend>Fristen</legend><span class="hjelp">Fristene i kontrakten, Del II punkt E.1, med datoen som gjelder nå.</span><div class="valg lett liste">${valg}</div>
       <p class="oppgitt">Gjeldende frist: <b>${lang(dato(F.dato))}</b>${F.tidligere ? ` (${forlenget(F)}, ${F.tidligere.naar}). <span class="aapent">Åpent: om dagene regnes fra den avtalte eller den gjeldende fristen</span>` : ', som avtalt.'}</p></fieldset>
-    <div class="felt" data-spor="D-1"><label for="d-${id}">Dagene du krever</label><span class="hjelp"><span class="aapent">Åpent: kalenderdager eller hverdager</span></span><span class="inndata" style="width:140px"><input id="d-${id}" inputmode="numeric" data-felt="dager" value="${f.dager || ''}" aria-required="true" aria-describedby="nyd-${id}"><span aria-hidden="true">d</span></span><span class="hjelp" id="nyd-${id}" aria-live="polite">${nyDatoTekst(f)}</span></div>
+    <div class="felt" data-spor="D-1"><label for="d-${id}">Dagene du krever</label><span class="hjelp">Kalenderdager.</span><span class="inndata" style="width:140px"><input id="d-${id}" inputmode="numeric" data-felt="dager" value="${f.dager || ''}" aria-required="true" aria-describedby="nyd-${id}"><span aria-hidden="true">d</span></span><span class="hjelp" id="nyd-${id}" aria-live="polite">${nyDatoTekst(f)}</span></div>
     ${del}
     <div class="felt"><label for="m-${id}">Kort om denne fristen (valgfritt)</label><span class="hjelp">Står ved fristen i brevet. Begrunnelsen for hele kravet står i punktet Begrunnelse.</span><textarea id="m-${id}" class="tekstfelt" data-felt="merk">${esc(f.merk)}</textarea></div>
     <div class="fot">${fjern}<button class="liten-knapp sterk" type="button" data-handling="lukk">Ferdig</button></div>
@@ -952,7 +952,7 @@ function brev() {
       <h2>${n++}. Begrunnelse</h2><p>${esc(d.tekst.begr) || '‹begrunnelse›'}</p>
       ${d.tekst.forbehold ? `<h2>${n++}. Forbehold</h2><p>${esc(d.tekst.forbehold)}</p>` : ''}`;
   }
-  h += `<p class="hjelp">Gult: setning som ikke er vedtatt ordrett. Ny dato er regnet i kalenderdager; om dagene er kalenderdager eller hverdager, er åpent.</p>`;
+  h += `<p class="hjelp">Gult: setning som ikke er vedtatt ordrett. Ny dato er regnet i kalenderdager (NS 8407 punkt 1.2).</p>`;
   document.getElementById('brevark').innerHTML = h;
   // Når du sender: virkningen av brevet, med bestemmelsen den følger av.
   const naar = [];
