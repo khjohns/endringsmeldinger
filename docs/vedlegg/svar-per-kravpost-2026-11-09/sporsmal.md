@@ -409,4 +409,15 @@ regningsarbeid og samtidig få et fastpris tilbud.»
 rettsvirkning av kravet om tilbud. Kostnaden er at byggherren som vil ha beregningsregelen som
 reserve hvis tilbudet ikke kommer, må si det i begrunnelsen.
 
-**Svar:**
+**Svar:** A (oppdragsgiver 09.11: «4A»).
+
+## Rigg og drift: eget brukerforløp
+
+Oppdragsgiver 09.11, ordrett, på spørsmålet «Er det greit at R1 og spørsmål 2 går i et eget
+brukerforløp (ny bestilling), og at #1171 lukkes som besvart av OV-U89, med restene flyttet
+dit?»: «2. Ja.»
+
+R1 var: BF-14 og prototypen mangler opplysningene i posten for rigg og drift etter samlevedtaket
+for særskilt varsel og rigg og drift punkt 20, 21, 23 og 25 (datoene, reguleringen, TEs eget
+krevde beløp og byggherrens egne verdier), og kjernen har posten bare som et beløp. R1 og
+spørsmål 2 går i en ny bestilling. I 2a og 2b er posten for rigg og drift et beløp, som i dag.
