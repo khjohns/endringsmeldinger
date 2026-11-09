@@ -126,6 +126,10 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
   «Inngår i EO-012» og «Sendt …», har 2 px (`--r-merke`), så de leses som merker på et
   dokument og ikke som knapper. Felt, valg og vedlegg har 4 px (`--r-felt`), og bokser
   inne i et kort 6 px (`--r-innfelt`). Tokenene står i `theme.css`.
+- **Høyst tre nivåer av flater** (oppdragsgiver 09.11, #1663): seksjonen har nummer og
+  overskrift uten ramme, elementet er en rad med hårlinje, og feltet har bare sin egen kant.
+  Ingen kort i kort. Hjemmelen står som dempet tekst etter overskriften, ikke som et merke.
+  Blekket går til innholdet, ikke til beholderne.
 
 ## Farge som betyr noe
 
@@ -178,6 +182,29 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   en liste (oppdragsgiver 02.11, #1492).
 - **Valgfrie felt merkes «(valgfritt)»**, og obligatoriske felt har
   `aria-required="true"` uten synlig merke. Appen bruker bare denne ene merkingen.
+- **Én leselinje til du åpner** (oppdragsgiver 09.11, #1663). En liste med redigerbare
+  elementer, som kravpostene, svarene per post og de besvarte punktene i et skjema, vises som
+  leselinjer med faste kolonner, og én leselinje viser det brevet kommer til å si om elementet.
+  Ett element er åpent om gangen, som et skjema med etikett over felt og «Ferdig» i bunnen, og
+  et ubesvart element står åpent til det er besvart. Lesing og redigering får hver sin form, og
+  den rolige tilstanden er den som vises mest. Prototypen er
+  [vederlagskrav-te-v3.html](../docs/design/prototyper/vederlagskrav-te-v3.html).
+- **To vekter på et valg** (oppdragsgiver 09.11, #1663). Pillen med ramme står for et
+  standpunkt på seksjonsnivå, som «Kom i tide» og «Kom for sent». Inne i et åpent element er
+  valget radio og tekst, og bare det valgte svaret får flaten `--surface-selected`. Et valg med
+  én forklaring per alternativ, som oppgjørsformen, står som kort under hverandre.
+- **Normalsvaret er en setning, unntaket en lenke** (oppdragsgiver 09.11, #1663). Et spørsmål
+  med et klart normalsvar stilles ikke som en radiogruppe. Setningen sier normalsvaret med
+  hjemmelen, og en lenke åpner unntaket. Det første tilfellet er varslene etter punkt 34.3.3 og
+  34.4 for en kravpost: «Dette kravet er varselet for P2», med lenken «Varselet for P2 er gitt
+  før» ([VS-U49](../docs/plans/vedtak.md#vs-u49) og [VS-U50](../docs/plans/vedtak.md#vs-u50)
+  sier hva TE kan oppgi, ikke hvordan spørsmålet stilles).
+- **Leselinja for et svar med lag** (oppdragsgiver 09.11, #1663) viser standpunktet i det første
+  laget som gjelder elementet, uten etiketten «Prinsipalt». Lagene under står som dempede linjer
+  som begynner med vilkåret, med brevets ord: «Subsidiært, hvis fast sum legges til grunn:
+  190 000 kr, godkjent delvis.» En innsigelse som rammer hele kravet, står én gang over
+  tabellen og gjentas ikke per element. Summene per lag hører til panelet. Tabellen i brevet og
+  panelet følger [OV-U73](../docs/plans/vedtak.md#ov-u73); leselinja er skjemaets.
 - **Feilmeldingen står rett under feltet** og sier hva som hindrer (`AGENTS.md`,
   «Skriv etter hva teksten gjør»), med forslag til retting der appen kan gi det. Den
   forsvinner når feltet er rettet. Når kontrollen skjer, og hva som vises øverst i
@@ -331,8 +358,10 @@ Avgjort i designrunde 1 (oppdragsgiver 29.10, #1391). Komponentene står i
   versjonen av påberopelsen, der den spør i en dialog med «Behold utkastet» og en rød «Forkast
   utkast» (`Knapp` med `variant="fare"`). Rødt på en knapp står bare der handlingen ikke kan
   gjøres om, og teksten sier det (oppdragsgiver 07.11, PR 1650).
-- **Utkastet sier det selv.** Hodet på utkastkortet og sendepanelet i brevkontrollen
-  sier «Utkast · ikke sendt». Merket «Utkast» i panelet til venstre vises bare når et
+- **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast», og låselinja under sier at
+  brevet bare er synlig for teamet til det er sendt. Sendepanelet i brevkontrollen, og panelet
+  med punktene i et langt skjema, sier «Utkast» og «Ikke sendt» ved knappen, så statusen står i
+  bildet også når hodet er rullet ut av det (oppdragsgiver 09.11, #1663). Merket «Utkast» i panelet til venstre vises bare når et
   annet spor er valgt, så statusen aldri står to steder samtidig.
 - **Lesing ved siden av** er én lenkeknapp som veksler mellom «Les brevet ved siden av»
   og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
