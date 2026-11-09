@@ -25,8 +25,13 @@ import {
   beginMarkedContent,
   drawSvgPath,
   endMarkedContent,
+  PDFArray,
+  PDFDict,
   PDFDocument,
+  type PDFFont,
+  PDFName,
   PDFOperator,
+  PDFStream,
   PDFOperatorNames,
   type PDFPage,
   rgb,
@@ -625,7 +630,36 @@ export async function settBrevPdf(
       y -= stoerrelse * LINJEHOEYDE;
     }
   }
+  await pdf.flush();
+  skrifter(brevskrift).forEach((s, i) => {
+    if (innbygd[i] && erOpenTypeMedCff(s.bytes)) somOpenTypeMedCff(pdf, innbygd[i]);
+  });
   return pdf.save({ useObjectStreams: false });
+}
+
+const erOpenTypeMedCff = (bytes: Uint8Array) =>
+  bytes[0] === 0x4f && bytes[1] === 0x54 && bytes[2] === 0x54 && bytes[3] === 0x4f;
+
+/**
+ * Skriver om en innbygd OpenType-skrift med CFF til formen PDF-spesifikasjonen krever for den
+ * (ISO 32000-1, 9.7.4 og tabell 126): `CIDFontType0` uten `CIDToGIDMap`, og programmet i
+ * `FontFile3` med `/Subtype /OpenType`. pdf-lib 1.17.1 kjenner ikke CFF-en igjen fra fontkit
+ * og skriver formen for TrueType, `CIDFontType2` og `FontFile2` (#1689). Med Identity-H er
+ * CID-en glyfnummeret, som før.
+ */
+function somOpenTypeMedCff(pdf: PDFDocument, skrift: PDFFont) {
+  const navn = PDFName.of;
+  const type0 = pdf.context.lookup(skrift.ref, PDFDict);
+  const cid = type0.lookup(navn('DescendantFonts'), PDFArray).lookup(0, PDFDict);
+  const beskrivelse = cid.lookup(navn('FontDescriptor'), PDFDict);
+  const program = beskrivelse.get(navn('FontFile2'));
+  if (cid.get(navn('Subtype')) !== navn('CIDFontType2') || !program)
+    throw new Error('pdf-lib bygger ikke lenger inn OpenType med CFF som TrueType');
+  cid.set(navn('Subtype'), navn('CIDFontType0'));
+  cid.delete(navn('CIDToGIDMap'));
+  beskrivelse.delete(navn('FontFile2'));
+  beskrivelse.set(navn('FontFile3'), program);
+  pdf.context.lookup(program, PDFStream).dict.set(navn('Subtype'), navn('OpenType'));
 }
 
 const latin1 = new TextDecoder('latin1');
