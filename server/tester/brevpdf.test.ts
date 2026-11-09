@@ -14,6 +14,7 @@ import {
   brevprofil,
   fraWoff,
   lesBrevPdf,
+  objekter,
   settBrevPdf,
   skriftFor,
   skriftnavn,
@@ -706,5 +707,73 @@ describe('Oslo Sans bygges inn hel, ikke som delmengde (#1670)', () => {
     const headIWoff = lengde < utpakket ? inflateSync(pakket) : pakket;
     expect(headIProgram.subarray(0, 8)).toEqual(headIWoff.subarray(0, 8));
     expect(headIProgram.subarray(12, 54)).toEqual(headIWoff.subarray(12, 54));
+  });
+});
+
+describe('skriftobjektene har typen skriftprogrammet har (#1689)', () => {
+  /** Hver CID-skrift med typen, `CIDToGIDMap`, nøkkelen for programmet og programmets merke. */
+  const cidSkrifter = (pdf: Uint8Array) => {
+    const alle = objekter(pdf);
+    return [...alle.values()]
+      .filter((o) => /\/Subtype \/CIDFontType/.test(o.ordbok))
+      .map((o) => {
+        const beskrivelse = alle.get(Number(/\/FontDescriptor (\d+) 0 R/.exec(o.ordbok)![1]))!;
+        const [, nokkel, nr] = /\/(FontFile\d?) (\d+) 0 R/.exec(beskrivelse.ordbok)!;
+        const program = alle.get(Number(nr))!;
+        return {
+          navn: /\/BaseFont \/([A-Za-z0-9]+)-/.exec(o.ordbok)![1],
+          type: /\/Subtype \/(CIDFontType\d)/.exec(o.ordbok)![1],
+          cidTilGid: o.ordbok.includes('/CIDToGIDMap'),
+          nokkel,
+          programtype: /\/Subtype \/(\w+)/.exec(program.ordbok)?.[1],
+          merke: program.stroem && Buffer.from(program.stroem.subarray(0, 4)).toString('hex'),
+        };
+      })
+      .sort((a, b) => a.navn.localeCompare(b.navn));
+  };
+  const TRUETYPE = expect.stringMatching(/^(00010000|74727565)$/);
+  const MED_RESERVETEGN: Avsnitt[] = [
+    { gjelder: 'a', laast: 'Fundamentering\u00adsarbeidet tar 3 uker → 21 dager.' },
+  ];
+
+  // Kilde: ISO 32000-1, 9.7.4 og tabell 126. Et OpenType-program med CFF står i `FontFile3`
+  // med `/Subtype /OpenType` under en `CIDFontType0`, og `CIDToGIDMap` hører bare til
+  // `CIDFontType2`. Et TrueType-program står i `FontFile2` under en `CIDFontType2`; merket er
+  // 0x00010000, eller `true`, som fontkit skriver i delmengden. `OTTO` er 0x4f54544f.
+  it('byggherrens brev har Oslo Sans som CIDFontType0 med OpenType i FontFile3, og Noto som TrueType', async () => {
+    const pdf = (await brevdokument(oppdrag(MED_RESERVETEGN, 'BH'), 'n')).innhold;
+    const trueType = {
+      type: 'CIDFontType2',
+      cidTilGid: true,
+      nokkel: 'FontFile2',
+      programtype: undefined,
+      merke: TRUETYPE,
+    };
+    expect(cidSkrifter(pdf)).toEqual([
+      { navn: 'NotoSans', ...trueType },
+      { navn: 'NotoSansMath', ...trueType },
+      {
+        navn: 'OsloSans',
+        type: 'CIDFontType0',
+        cidTilGid: false,
+        nokkel: 'FontFile3',
+        programtype: 'OpenType',
+        merke: '4f54544f',
+      },
+    ]);
+  });
+
+  it('totalentreprenørens brev har bare TrueType-skrifter, i FontFile2 under CIDFontType2', async () => {
+    const pdf = (await brevdokument(oppdrag(MED_RESERVETEGN, 'TE'), 'n')).innhold;
+    const skrifter = cidSkrifter(pdf);
+    expect(skrifter.map((s) => s.navn)).toContain('SourceSerif4');
+    expect(skrifter.length, 'forutsetningen: brevet har en reserveskrift').toBeGreaterThan(1);
+    for (const s of skrifter)
+      expect(s).toMatchObject({
+        type: 'CIDFontType2',
+        cidTilGid: true,
+        nokkel: 'FontFile2',
+        merke: TRUETYPE,
+      });
   });
 });

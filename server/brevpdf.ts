@@ -25,8 +25,13 @@ import {
   beginMarkedContent,
   drawSvgPath,
   endMarkedContent,
+  PDFArray,
+  PDFDict,
   PDFDocument,
+  type PDFFont,
+  PDFName,
   PDFOperator,
+  PDFStream,
   PDFOperatorNames,
   type PDFPage,
   rgb,
@@ -625,13 +630,42 @@ export async function settBrevPdf(
       y -= stoerrelse * LINJEHOEYDE;
     }
   }
+  await pdf.flush();
+  skrifter(brevskrift).forEach((s, i) => {
+    if (innbygd[i] && !s.delmengde && erOpenTypeMedCff(s.bytes)) somOpenTypeMedCff(pdf, innbygd[i]);
+  });
   return pdf.save({ useObjectStreams: false });
+}
+
+const erOpenTypeMedCff = (bytes: Uint8Array) =>
+  bytes[0] === 0x4f && bytes[1] === 0x54 && bytes[2] === 0x54 && bytes[3] === 0x4f;
+
+/**
+ * Gir en hel innbygd OpenType-skrift med CFF formen i ISO 32000-1, 9.7.4 og tabell 126.
+ * pdf-lib 1.17.1 kjenner ikke CFF-en igjen fra fontkit og skriver formen for TrueType (#1689).
+ * En delmengde er et rent CFF-program og har en annen form.
+ */
+function somOpenTypeMedCff(pdf: PDFDocument, skrift: PDFFont) {
+  const navn = PDFName.of;
+  const type0 = pdf.context.lookup(skrift.ref, PDFDict);
+  const cid = type0.lookup(navn('DescendantFonts'), PDFArray).lookup(0, PDFDict);
+  const beskrivelse = cid.lookup(navn('FontDescriptor'), PDFDict);
+  const program = beskrivelse.get(navn('FontFile2'));
+  if (cid.get(navn('Subtype')) !== navn('CIDFontType2') || !program)
+    throw new Error('pdf-lib bygger ikke lenger inn OpenType med CFF som TrueType');
+  cid.set(navn('Subtype'), navn('CIDFontType0'));
+  cid.delete(navn('CIDToGIDMap'));
+  beskrivelse.delete(navn('FontFile2'));
+  beskrivelse.set(navn('FontFile3'), program);
+  pdf.context.lookup(program, PDFStream).dict.set(navn('Subtype'), navn('OpenType'));
 }
 
 const latin1 = new TextDecoder('latin1');
 
 /** Objektene i en PDF uten objektstrømmer: nummer til ordbok og eventuell strøm. */
-function objekter(pdf: Uint8Array): Map<number, { ordbok: string; stroem: Uint8Array | null }> {
+export function objekter(
+  pdf: Uint8Array
+): Map<number, { ordbok: string; stroem: Uint8Array | null }> {
   const tekst = latin1.decode(pdf);
   const ut = new Map<number, { ordbok: string; stroem: Uint8Array | null }>();
   for (const treff of tekst.matchAll(/(\d+) 0 obj\s*([\s\S]*?)endobj/g)) {
