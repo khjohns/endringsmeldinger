@@ -44,6 +44,8 @@ export interface Vederlagsvurdering {
   produktivitet_godkjent_beloep?: Tall | null;
   hovedkrav_varslet_i_tide?: boolean | null;
   produktivitet_varslet_i_tide?: boolean | null;
+  /** OV-U89 punkt 9: avvises, se `kontroller`. */
+  rigg_varslet_i_tide?: unknown;
   /** VS-U5, OV-U22: beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3. */
   produktivitet_begrenset_beloep?: Tall | null;
   aksepterer_metode?: boolean | null;
@@ -279,6 +281,10 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
         feil.produktivitet_begrenset_beloep = 'er høyere enn det byggherren godtar for posten';
     }
   }
+  // OV-U89 punkt 9: påberopelsen etter § 34.1.3 gjelder bare kravet etter annet ledd.
+  if (v.rigg_varslet_i_tide !== null && v.rigg_varslet_i_tide !== undefined)
+    feil.rigg_varslet_i_tide =
+      'påberopelsen etter § 34.1.3 gjelder bare kravet om nedsatt produktivitet og forstyrrelser';
   if (v.hold_tilbake && !kanHoldeTilbake(krav)) {
     feil.hold_tilbake = 'bare ved regningsarbeid uten kostnadsoverslag (§ 30.2)';
   }

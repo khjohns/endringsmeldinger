@@ -645,7 +645,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vederlagsvurdering',
     'utsagn',
     `hovedkrav_vurdering hovedkrav_godkjent_beloep hovedkrav_varslet_i_tide aksepterer_metode
-     hold_tilbake varsel_justert_ep_ok rigg_vurdering rigg_godkjent_beloep
+     hold_tilbake varsel_justert_ep_ok rigg_vurdering rigg_godkjent_beloep rigg_varslet_i_tide
      produktivitet_vurdering produktivitet_godkjent_beloep produktivitet_varslet_i_tide
      produktivitet_begrenset_beloep`,
   ],

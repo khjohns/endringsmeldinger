@@ -4466,6 +4466,24 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
 });
 
 /**
+ * OV-U89 punkt 9: en påberopelse etter § 34.1.3 mot rigg og drift avvises, og forsvinner ikke
+ * (MM-U2). Kontrollsaken er samme svar uten påberopelsen.
+ */
+describe('en påberopelse etter § 34.1.3 mot rigg og drift avvises (OV-U89 punkt 9)', () => {
+  it.each([true, false])('rigg_varslet_i_tide: %s', (iTide) => {
+    const s = sakMedKrav();
+    const brev = (v: Data) => ({
+      type: 'brev',
+      svar: [svar('vederlag', s.krav('vederlag'), v, VEDERLAG_DELVIS[1])],
+    });
+    expect(s.avvist('BH', brev({ ...VEDERLAG_DELVIS[0], rigg_varslet_i_tide: iTide }))).toBe(
+      'UGYLDIG_VURDERING'
+    );
+    expect(s.avvist('BH', brev(VEDERLAG_DELVIS[0]))).toBeNull();
+  });
+});
+
+/**
  * MM-U34 punkt 6 opphever sperren i HF-U4: etter at byggherren har sagt i et svar fra appen
  * at varselet eller spesifiseringen kom i tide, godtas en senere påberopelse av at det kom
  * for sent, i en revisjon og i svaret på en senere versjon. Løsningen avgjør ikke om
