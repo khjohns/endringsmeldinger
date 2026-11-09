@@ -24,8 +24,10 @@ import {
   lagOppsett,
   opprettKjernesak,
   type Oppsett,
+  medLaastTekst,
   rydd,
   sendKommando,
+  sendMedTekst,
   startServer,
   TESTBASE_URL,
 } from './testbase.ts';
@@ -224,9 +226,15 @@ describe.skipIf(!TESTBASE_URL)('sakens kode og løpenummer (#1497)', () => {
   it('første brev i to saker samtidig med samme nummer i teksten: det ene sendes, det andre sendes først med det nye nummeret, uten hull og uten dobbelt nummer (LV-U46)', async () => {
     const saker = [await opprettKjernesak(o), await opprettKjernesak(o)];
     const neste = await nesteFor('koe');
-    // Begge tekstene har nummeret brevkontrollen viste før noen av dem var sendt.
+    // Begge tekstene leses før noen av dem sendes, så begge har nummeret brevkontrollen
+    // viste før noen av dem var sendt. Leses de i hver sin kjede, kan det første brevet
+    // være sendt før det andre leser, og da får begge 201 (#1609).
+    const kommandoer = await Promise.all(saker.map((sak) => medLaastTekst(o, sak)));
+    for (const k of kommandoer) expect(JSON.stringify(k.brevtekst)).toContain(`KOE-${neste}`);
     const svar = await Promise.all(
-      saker.map((sak) => sendKommando(server.url, o, sak, { versjon: 1 }))
+      saker.map((sak, i) =>
+        sendMedTekst(server.url, o, sak, { versjon: 1, kommando: kommandoer[i] })
+      )
     );
     expect(svar.map((s) => s.status).sort()).toEqual([201, 400]);
     const taperen = saker[svar.findIndex((s) => s.status === 400)];
