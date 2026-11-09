@@ -19,7 +19,7 @@ import { MAALMODELL } from './kjoerer.ts';
 
 const G = MAALMODELL.genererte;
 
-/** x = (1103515245·x + 12345) mod 2^31, som `omfang` i bevis-sakene sier. */
+/** LCG-en `omfang` i bevis-sakene beskriver. */
 function* lcg(seed: number): Generator<number> {
   let x = BigInt(seed);
   for (;;) {
