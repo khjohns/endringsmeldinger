@@ -12522,7 +12522,7 @@
     }
   ],
   "genererte": {
-    "omfang": "Genererte forløp for målmodellen. Samme LCG som sprakprove/genererte-forlop.json, x = (1103515245·x + 12345) mod 2^31, og handling nummer (x >> 16) mod antall handlinger, uansett tilstand. En handling som ikke passer, skal avvises uten at journalen endres. Regelendringen bytter regelsettet til n+1 for resten av forløpet.",
+    "omfang": "Genererte forløp for målmodellen. LCG-en er x = (1103515245·x + 12345) mod 2^31, og handling nummer (x >> 16) mod antall handlinger, uansett tilstand. En handling som ikke passer, skal avvises uten at journalen endres. Regelendringen bytter regelsettet til n+1 for resten av forløpet.",
     "seed": 304,
     "antall": 200,
     "lengde": 10,

@@ -25,7 +25,6 @@ export const SUBSIDIAERE_UTLOSERE = [
   'grunnlag_prekludert_32_2',
   'forseringsrett_avslaatt',
   'preklusjon_hovedkrav',
-  'preklusjon_rigg',
   'preklusjon_produktivitet',
   'reduksjon_ep_justering',
   'preklusjon_varsel',
