@@ -1701,12 +1701,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et tilbud byggherren ikke aksepterer, gir sammenfall når utregningen sier «godkjent» (arbeidsvalget i #479, MM-U43 punkt 8)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        "if (svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer)) return false;",
-        'void 0;',
-      ],
-    ],
+    endringer: [['if (tilbudetIkkeAkseptert(svar)) return false;', 'void 0;']],
     mal: ['sammenfall med et tilbud byggherren ikke aksepterer'],
   },
   {
