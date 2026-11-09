@@ -441,6 +441,8 @@ export interface Beslutningsgrunnlag {
 
 export interface Utfall {
   beloep?: number;
+  /** Kravpostene uten fast beløp i det første laget, som `beloep` ikke regner med (OV-U73). */
+  uten_fast_beloep?: string[];
   dager?: number;
 }
 

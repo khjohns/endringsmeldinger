@@ -24,19 +24,21 @@ type Data = Record<string, unknown>;
 /**
  * Brevet frosset når det sendes (MM-U9, MM-U11 (opphevet av MM-U50)). For forholdet fryses også om
  * § 32.2 gjaldt kategorien i kravversjonen (GR-U12). `forskyvning` er `lagFraForholdet`
- * for svaret på forholdet brevteksten setter foran sporet, og 0 for forholdet selv.
+ * for svaret på forholdet brevteksten setter foran sporet, og 0 for forholdet selv. `kravet` er
+ * kravet svaret gjelder, som linjen navngir kravpostene i.
  */
 export function beslutningsgrunnlag(
   svar: Svarinnhold,
   paaberopelse: Krav | null | undefined,
   regler: Regelsett,
-  forskyvning: number
+  forskyvning: number,
+  kravet?: Krav | null
 ): Beslutningsgrunnlag {
   const v = virkninger(svar, paaberopelse, regler, forskyvning);
   return {
     regelversjon: regler.versjon,
     virkninger: v,
-    linje: beslutningslinje(svar, v, paaberopelse, forskyvning),
+    linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet),
     sammenfall: godkjennerHeleKravet(svar, v),
     ...(svar.spor === 'forhold'
       ? { varslingsplikt: gjelderVarslingsplikten(paaberopelse, regler) }
@@ -48,13 +50,15 @@ export function beslutningsgrunnlag(
  * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11 (opphevet av MM-U50), GR-U12).
  * `paaberopelse` er kravet et svar på påberopelsen gjelder, ellers gjeldende
  * påberopelse. `forskyvning` er lagene svaret på forholdet opptar foran sporet
- * (`lagFraForholdet`). Kaster `Uforstaatt` når standpunktene ikke kan leses.
+ * (`lagFraForholdet`), og `kravet` kravet svaret gjelder. Kaster `Uforstaatt` når
+ * standpunktene ikke kan leses.
  */
 export function frys(
   svar: Data,
   paaberopelse: Krav | null | undefined,
   regler: Regelsett,
-  forskyvning: number
+  forskyvning: number,
+  kravet?: Krav | null
 ) {
   const spor = svar.spor as Spor;
   const innhold = {
@@ -62,7 +66,7 @@ export function frys(
     standpunkter: standpunkterISvaret(spor, svar),
     utregning: (svar.utregning ?? {}) as Data,
   };
-  return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning);
+  return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning, kravet);
 }
 
 /**

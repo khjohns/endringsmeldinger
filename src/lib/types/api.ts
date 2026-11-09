@@ -56,7 +56,12 @@ export interface Vederlagslinje extends Foreligger {
     beloep: number;
     subsidiaert: boolean;
   } | null;
-  enighet: { beloep: number | null; virkning: Enighetsvirkning } | null;
+  /** `uten_fast_beloep`: kravpostene uten fast beløp prinsipalt, som `beloep` ikke regner med (OV-U73). */
+  enighet: {
+    beloep: number | null;
+    uten_fast_beloep: string[];
+    virkning: Enighetsvirkning;
+  } | null;
 }
 
 export interface Fristlinje extends Foreligger {

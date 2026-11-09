@@ -208,6 +208,47 @@ function linje(...steg: Steg[]): Sakslinje {
 }
 
 describe('linja i sakslisten (#1022)', () => {
+  it('svaret og enigheten på et krav med to kravposter: summen av kravpostene, og enigheten sier hvilken kravpost som ikke har fast beløp (KA-U57 (c), OV-U73, svar 6 A i #1663)', () => {
+    const l = linje((sak) => {
+      sak.send('TE', PAABEROPELSE);
+      sak.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [
+            { beskrivelse: 'Fundamentering', oppgjoersform: 'tilbud', beloep: 100000 },
+            { beskrivelse: 'Pumping', oppgjoersform: 'tilbud', beloep: 40000 },
+          ],
+        },
+        utdypning: UTDYPNING,
+      });
+      sak.send('BH', {
+        type: 'brev',
+        svar: [
+          sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+          sak.svar('vederlag', {
+            kravposter: [
+              { gjelder: 'P1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
+              {
+                gjelder: 'P2',
+                vurdering: 'delvis',
+                godkjent_beloep: 30000,
+                aksepterer: false,
+                oensket_oppgjoersform: 'regningsarbeid',
+              },
+            ],
+          }),
+        ],
+      });
+    }, aksept('vederlag'));
+    expect(l.vederlag.svar).toEqual({
+      resultat: 'delvis_godkjent',
+      beloep: 130000,
+      subsidiaert: true,
+    });
+    expect(l.vederlag.enighet).toMatchObject({ beloep: 100000, uten_fast_beloep: ['P2'] });
+  });
+
   it('krav uten svar venter på byggherrens svar i alle tre sporene (MM-U29)', () => {
     const l = linje(krav);
     expect(l).toMatchObject({
@@ -266,7 +307,11 @@ describe('linja i sakslisten (#1022)', () => {
       expect(l[spor].svar_ikke_godtatt, spor).toBe(false);
       expect(l[spor].venter_paa_svar, spor).toBe(false);
     }
-    expect(l.vederlag.enighet).toEqual({ beloep: 100000, virkning: 'virksom' });
+    expect(l.vederlag.enighet).toEqual({
+      beloep: 100000,
+      uten_fast_beloep: [],
+      virkning: 'virksom',
+    });
     expect(l.frist.enighet).toEqual({ dager: 20, virkning: 'virksom' });
     expect(l.saksbetegnelse).toBe('kravene_avgjort');
     expect(noekkeltall([l]).vederlag).toMatchObject({
@@ -409,14 +454,24 @@ describe('linja i sakslisten (#1022)', () => {
 
   it('en enighet uten virkning telles ikke, heller ikke uten beløp (svar 3 fra oppdragsgiver 20.10 i #1029)', () => {
     const l = linje(forloepA, aksept('vederlag'), trekk('forhold'));
-    expect(l.vederlag.enighet).toEqual({ beloep: 60000, virkning: 'uten_virkning' });
+    expect(l.vederlag.enighet).toEqual({
+      beloep: 60000,
+      uten_fast_beloep: [],
+      virkning: 'uten_virkning',
+    });
     const utenBeloep: Sakslinje = {
       ...l,
-      vederlag: { ...l.vederlag, enighet: { beloep: null, virkning: 'uten_virkning' } },
+      vederlag: {
+        ...l.vederlag,
+        enighet: { beloep: null, uten_fast_beloep: [], virkning: 'uten_virkning' },
+      },
     };
     const betingetUtenBeloep: Sakslinje = {
       ...l,
-      vederlag: { ...l.vederlag, enighet: { beloep: null, virkning: 'betinget' } },
+      vederlag: {
+        ...l.vederlag,
+        enighet: { beloep: null, uten_fast_beloep: [], virkning: 'betinget' },
+      },
     };
     expect(noekkeltall([l, utenBeloep]).vederlag).toMatchObject({
       enighet_uten_beloep: 0,

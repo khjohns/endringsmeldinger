@@ -11,7 +11,7 @@ import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar, vederlagsposter, type Svarvurdering } from '../frosset/utregning.ts';
-import { hindrerSvarMedEttBeloep, kravposterI } from '../frosset/kravinnhold.ts';
+import { hindrerSvarPaaKravet, kravposterI } from '../frosset/kravinnhold.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
@@ -123,18 +123,27 @@ export const PART: Record<string, Part> = {
 function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null): Svarvurdering {
   if (spor === 'forhold')
     return { resultat: h.resultat, grunnlag_varslet_i_tide: h.varslet_i_tide };
-  if (spor === 'vederlag')
-    // Forløpene beskriver svaret på kravets eneste kravpost.
+  if (spor === 'vederlag') {
+    // `kravposter` i handlingen gir svaret per kravpost, med betegnelsen i `post` (KA-U59).
+    // Ellers beskriver forløpet svaret på kravets første kravpost.
+    const poster = krav ? kravposterI(krav) : [];
+    const svarene = Array.isArray(h.kravposter)
+      ? (h.kravposter as Record<string, unknown>[]).map((s) => ({
+          gjelder: poster.find((p) => p.betegnelse === s.post)?.id ?? s.post,
+          s,
+        }))
+      : poster.slice(0, 1).map((p) => ({ gjelder: p.id, s: h }));
     return {
       hovedkrav_varslet_i_tide: h.varslet_i_tide,
-      kravposter: (krav ? kravposterI(krav) : []).slice(0, 1).map((p) => ({
-        gjelder: p.id,
-        vurdering: h.vurdering,
-        godkjent_beloep: h.godkjent_belop,
-        aksepterer: h.metode_akseptert ?? true,
-        oensket_oppgjoersform: h.oensket_metode,
+      kravposter: svarene.map(({ gjelder, s }) => ({
+        gjelder,
+        vurdering: s.vurdering,
+        godkjent_beloep: s.godkjent_belop,
+        aksepterer: s.metode_akseptert ?? true,
+        oensket_oppgjoersform: s.oensket_metode,
       })),
     };
+  }
   return {
     frist_varsel_ok: h.varsel_i_tide,
     spesifisert_krav_ok: h.spesifisering_i_tide,
@@ -156,7 +165,7 @@ function svarutkast(
   let resultat: Record<string, unknown> = {};
   try {
     // Et krav med flere kravposter kan ikke regnes ut med ett beløp; serveren avviser (KA-U59).
-    if (krav && (spor !== 'vederlag' || hindrerSvarMedEttBeloep(krav) === null))
+    if (krav && (spor !== 'vederlag' || hindrerSvarPaaKravet(krav) === null))
       resultat = regnUtSvar(spor, v, { krav, paaberopelse: u.spor.forhold.gjeldendeKrav }, regler);
   } catch (feil) {
     // Klienten sender likevel, så serveren avviser med sin begrunnelse.

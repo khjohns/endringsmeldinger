@@ -19,7 +19,7 @@ import {
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
-import { hindrerSvarMedEttBeloep, kategori } from '../frosset/kravinnhold.ts';
+import { hindrerSvarPaaKravet, kategori } from '../frosset/kravinnhold.ts';
 import type {
   Avvisning,
   Krav,
@@ -226,13 +226,13 @@ export const ELDRE_SVAR =
   'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
 
 /**
- * KA-U59: byggherren svarer per kravpost. Til svaret per kravpost er bygget (#1663), tilbys
- * svaret og revisjonen av det bare når de kan gis med ett beløp.
+ * KA-U59: byggherren svarer per kravpost. Til svaret på en kravpost etter en beregningsregel og
+ * på rigg og drift er bygget (2b i #1663), tilbys svaret og revisjonen av det ikke for et slikt krav.
  */
 function svarPerKravpost(krav: Krav): Avvisning | null {
-  const hinder = hindrerSvarMedEttBeloep(krav);
+  const hinder = hindrerSvarPaaKravet(krav);
   return hinder
-    ? avvis('SVAR_PER_KRAVPOST', `${hinder}. Svaret per kravpost er ikke bygget ennå.`)
+    ? avvis('SVAR_PER_KRAVPOST', `${hinder}, og svaret på den er ikke bygget ennå.`)
     : null;
 }
 

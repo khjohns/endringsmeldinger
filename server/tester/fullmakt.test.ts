@@ -295,3 +295,58 @@ describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', ()
     expect(brevverdi([svar], u, SATS, regler)).toEqual({ beloep: 130000, gulv: 130000 });
   });
 });
+
+describe('verdien av et vederlagskrav med flere kravposter (KA-U57 (c), OV-U31)', () => {
+  const toPoster = {
+    ...KRAV_VEDERLAG,
+    innhold: {
+      kravposter: [
+        { beskrivelse: 'Fundamentering', oppgjoersform: 'tilbud', beloep: 100000 },
+        { beskrivelse: 'Pumping', oppgjoersform: 'tilbud', beloep: 40000 },
+      ],
+    },
+  };
+
+  it('et ubesvart krav har summen av kravpostene', async () => {
+    expect((await verdi([KRAV_PAABEROPELSE, toPoster], [FORHOLD_GODKJENT], SATS)).gulv).toBe(
+      140000
+    );
+  });
+
+  it('svaret per kravpost har summen av postene, og det subsidiære laget når tilbudet for én kravpost ikke er akseptert (KA-U58, OV-U73)', async () => {
+    const u = utledning([KRAV_PAABEROPELSE, toPoster]);
+    const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const svar = (p2svar: Record<string, unknown>): Svarutkast => ({
+      spor: 'vederlag',
+      gjelder: u.spor.vederlag.gjeldendeKrav!.id,
+      regelversjon: regler.versjon,
+      vurderinger: {
+        kravposter: [
+          { gjelder: p1!.id, vurdering: 'delvis', godkjent_beloep: 80000, aksepterer: true },
+          { gjelder: p2!.id, ...p2svar },
+        ],
+      },
+      resultat: {},
+    });
+    expect(brevverdi([svar({ vurdering: 'godkjent', aksepterer: true })], u, SATS, regler)).toEqual(
+      { beloep: 120000, gulv: 120000 }
+    );
+    // P2 har ikke fast beløp prinsipalt, så prinsipalt er 80 000 kr og subsidiært 120 000 kr.
+    // Hvordan fullmakten skal regnes når byggherren mener en beregningsregel for en kravpost
+    // med fast sum, er ikke avgjort (FK, #1663). Forventningen fastholder dagens atferd.
+    expect(
+      brevverdi(
+        [
+          svar({
+            vurdering: 'godkjent',
+            aksepterer: false,
+            oensket_oppgjoersform: 'regningsarbeid',
+          }),
+        ],
+        u,
+        SATS,
+        regler
+      )
+    ).toEqual({ beloep: 120000, gulv: 120000 });
+  });
+});
