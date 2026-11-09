@@ -7,8 +7,14 @@ import { beloep, tilTall, type Oere } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import type { Beloepsvurdering } from '../regler/typer.ts';
-import { beregnGodkjentBeloep, beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
+import type { Beloepsvurdering, Vederlagsresultat } from '../regler/typer.ts';
+import {
+  beregnGodkjentBeloep,
+  beregnVederlag,
+  type Vederlagsberegning,
+  type Postsvar,
+  type Vederlagssvar,
+} from '../regler/vederlag.ts';
 import {
   kontrollerForholdet,
   kontrollerMetoden,
@@ -21,6 +27,7 @@ import {
   kategori,
   krevdBeloep,
   krevdProduktivitet,
+  kravposterI,
 } from './kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import type { Krav, Spor } from '../typer.ts';
@@ -53,6 +60,9 @@ export interface Svarvurdering {
   produktivitet_godkjent_beloep?: unknown;
   produktivitet_varslet_i_tide?: unknown;
   produktivitet_begrenset_beloep?: unknown;
+  rigg_vurdering?: unknown;
+  rigg_varslet_i_tide?: unknown;
+  hold_tilbake?: unknown;
   aksepterer_metode?: unknown;
   oensket_metode?: unknown;
   frist_varsel_ok?: unknown;
@@ -112,6 +122,78 @@ const VEDERLAGSVURDERINGER = new Set<string>([
   'rigg_varslet_i_tide',
 ]);
 
+/**
+ * Feltene i kommandoen for hver post i regelen. Klienten sender i dag én kravpost og posten
+ * etter § 34.1.3 annet ledd med disse navnene (#1663); feilene fra regelen føres tilbake til dem.
+ */
+const KRAVPOSTFELT = {
+  vurdering: 'hovedkrav_vurdering',
+  godkjent_beloep: 'hovedkrav_godkjent_beloep',
+  aksepterer: 'aksepterer_metode',
+} as const;
+const PRODUKTIVITETSFELT = {
+  vurdering: 'produktivitet_vurdering',
+  godkjent_beloep: 'produktivitet_godkjent_beloep',
+  varslet_i_tide: 'produktivitet_varslet_i_tide',
+  begrenset_beloep: 'produktivitet_begrenset_beloep',
+} as const;
+
+/** Svaret i kommandoen som postene regelen regner over, og feltet i kommandoen for hver feil. */
+function vederlagssvaret(
+  v: Svarvurdering,
+  krav: Krav,
+  paaberopelse: Krav | null
+): { svar: Vederlagssvar; felt: Map<string, string> } {
+  const felt = new Map<string, string>([['varslet_i_tide', 'hovedkrav_varslet_i_tide']]);
+  const poster: Postsvar[] = [];
+  const knytt = (navn: string, felter: Record<string, string>) => {
+    for (const [i, ut] of Object.entries(felter)) felt.set(`${navn}.${i}`, ut);
+  };
+  const kravpost = kravposterI(krav)[0];
+  if (kravpost) {
+    knytt(kravpost.id, KRAVPOSTFELT);
+    poster.push({
+      gjelder: kravpost.id,
+      krevd: tilTall(krevdBeloep(krav)),
+      vurdering: v.hovedkrav_vurdering as Beloepsvurdering | undefined,
+      godkjent_beloep: v.hovedkrav_godkjent_beloep as number | undefined,
+      aksepterer: v.aksepterer_metode as boolean | undefined,
+    });
+  }
+  const produktivitet = krevdProduktivitet(krav);
+  if (produktivitet !== null) {
+    knytt('produktivitet', PRODUKTIVITETSFELT);
+    poster.push({
+      saerskilt: 'produktivitet',
+      krevd: tilTall(produktivitet),
+      vurdering: v.produktivitet_vurdering as Beloepsvurdering | undefined,
+      godkjent_beloep: v.produktivitet_godkjent_beloep as number | undefined,
+      varslet_i_tide: v.produktivitet_varslet_i_tide as boolean | undefined,
+      begrenset_beloep: v.produktivitet_begrenset_beloep as number | undefined,
+    });
+  }
+  // OV-U89 punkt 9: rigg og drift er ikke i kjernens svar (`utenforOmfanget`), men en
+  // påberopelse etter § 34.1.3 mot den avvises i regelen. Regelen kaster alltid for posten,
+  // så beløpet og vurderingen her når aldri utregningen.
+  if (v.rigg_varslet_i_tide != null) {
+    knytt('rigg_og_drift', { varslet_i_tide: 'rigg_varslet_i_tide' });
+    poster.push({
+      saerskilt: 'rigg_og_drift',
+      krevd: 0,
+      vurdering: 'avslaatt',
+      varslet_i_tide: v.rigg_varslet_i_tide,
+    });
+  }
+  return {
+    svar: {
+      hovedkategori: kategori(paaberopelse).hovedkategori,
+      varslet_i_tide: v.hovedkrav_varslet_i_tide as boolean | undefined,
+      poster,
+    },
+    felt,
+  };
+}
+
 /** Utregningen av vederlaget av postene i kravet (§ 34). */
 function regnUtVederlag(
   v: Svarvurdering,
@@ -126,13 +208,15 @@ function regnUtVederlag(
         ukjente.map((felt) => [felt, 'kjernen leser ikke feltet i svaret på vederlaget'])
       )
     );
-  const { hovedkategori, underkategori } = kategori(paaberopelse);
-  const post = krevdProduktivitet(krav);
+  if (v.hold_tilbake === true)
+    throw new UgyldigVurdering({
+      hold_tilbake: utenforOmfanget('vederlag', { hold_tilbake: true })!,
+    });
   // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520).
   const utenPost: [boolean, (keyof Svarvurdering)[]][] = [
     [harHovedbeloep(krav), ['hovedkrav_vurdering', 'hovedkrav_godkjent_beloep']],
     [
-      post !== null,
+      krevdProduktivitet(krav) !== null,
       [
         'produktivitet_vurdering',
         'produktivitet_godkjent_beloep',
@@ -145,29 +229,36 @@ function regnUtVederlag(
     for (const felt of felter)
       if (!harPosten && v[felt] != null)
         throw new UgyldigVurdering({ [felt]: 'kravet har ikke denne posten (OV-U23)' });
-  const vkrav: Vederlagskrav = {
-    hovedkrav_beloep: harHovedbeloep(krav) ? tilTall(krevdBeloep(krav)) : null,
-    metode: 'tilbud',
-    rigg_beloep: null,
-    produktivitet_beloep: post === null ? null : tilTall(post),
-    krever_justert_ep: false,
-    kostnads_overslag: null,
-    hovedkategori,
-    underkategori,
-    grunnlag_varslet_i_tide: null,
-    grunnlag_resultat: null,
-  };
+  const { hovedkategori } = kategori(paaberopelse);
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
   kontrollerMetoden(v);
-  const r = beregnVederlag(vkrav, v as never, regler);
+  const { svar, felt } = vederlagssvaret(v, krav, paaberopelse);
+  // Uten kravpost regner regelen ingen aksept etter § 34.2.2, men kommandoen krever den og
+  // leser den som før (spørsmålet i PR-en for #1663, 2a-1b).
+  const utenKravpost = !harHovedbeloep(krav);
+  const aksept: Record<string, string> =
+    utenKravpost && v.aksepterer_metode == null ? { aksepterer_metode: 'mangler (§ 34.2.2)' } : {};
+  let r: Vederlagsberegning;
+  try {
+    r = beregnVederlag(svar, regler);
+  } catch (e) {
+    if (!(e instanceof UgyldigVurdering)) throw e;
+    throw new UgyldigVurdering({
+      ...Object.fromEntries(Object.entries(e.feil).map(([k, grunn]) => [felt.get(k) ?? k, grunn])),
+      ...aksept,
+    });
+  }
+  if (Object.keys(aksept).length) throw new UgyldigVurdering(aksept);
+  const resultat = (x: Vederlagsresultat) =>
+    utenKravpost && v.aksepterer_metode === false && x === 'godkjent' ? 'delvis_godkjent' : x;
   const ut: Record<string, unknown> = {
-    resultat: r.beregnings_resultat,
+    resultat: resultat(r.beregnings_resultat),
     godkjent_beloep: tilTall(r.total_godkjent_beloep),
   };
   // VS-U3, B-13: ved preklusjon etter § 34.1.2 og ved begrensningen etter § 34.1.3 står det
   // vurderte beløpet subsidiært (VS-U5).
   if (r.subsidiaer_resultat !== null) {
-    ut.subsidiaert_resultat = r.subsidiaer_resultat;
+    ut.subsidiaert_resultat = resultat(r.subsidiaer_resultat);
     ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_beloep!);
   }
   return ut;

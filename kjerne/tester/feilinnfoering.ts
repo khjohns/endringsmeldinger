@@ -1528,8 +1528,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/utregning.ts`,
     endringer: [
       [
-        'if (r.subsidiaer_resultat !== null) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
-        'if (false) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
+        'if (r.subsidiaer_resultat !== null) {\n    ut.subsidiaert_resultat = resultat(r.subsidiaer_resultat);',
+        'if (false) {\n    ut.subsidiaert_resultat = resultat(r.subsidiaer_resultat);',
       ],
     ],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
@@ -1789,8 +1789,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
-        '      regler.gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&',
-        '      gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&',
+        '      regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) &&\n      svar.varslet_i_tide === false',
+        '      gjelderVarslingspliktenForVederlag(svar.hovedkategori) &&\n      svar.varslet_i_tide === false',
       ],
     ],
     mal: ['et regelsett der § 34.1.2 gjelder en endring'],
@@ -3265,7 +3265,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'beløpet etter begrensningen kan være høyere enn det byggherren godtar for posten (valg 2 i #1047)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['else if (b > godkjent)', 'else if (b > beloep(krav.produktivitet_beloep)!)']],
+    endringer: [['else if (b > godkjent)', 'else if (b > krevd)']],
     mal: ['beløpet etter begrensningen er høyere enn det byggherren godtar for posten'],
   },
   {
@@ -4144,7 +4144,7 @@ const MUTASJONER: Mutasjon[] = [
       'en påberopelse etter § 34.1.3 mot rigg og drift godtas og forsvinner (OV-U89 punkt 9)',
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
-      ['if (v.rigg_varslet_i_tide !== null && v.rigg_varslet_i_tide !== undefined)', 'if (false)'],
+      ['else if (p.varslet_i_tide !== null && p.varslet_i_tide !== undefined)', 'else if (false)'],
     ],
     mal: ['en påberopelse etter § 34.1.3 mot rigg og drift avvises'],
   },
