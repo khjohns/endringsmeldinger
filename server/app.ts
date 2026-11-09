@@ -53,9 +53,6 @@ import {
   type Tilgang,
 } from './rutetyper.ts';
 
-// Midlertidig for `saksliste.ts`, som eies av #1695: fjernes når importen der er flyttet til `rutetyper.ts`.
-export type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
-
 const STORSTE_KROPP = 1_000_000;
 
 async function lesKropp(

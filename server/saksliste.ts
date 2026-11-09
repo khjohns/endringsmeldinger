@@ -28,7 +28,7 @@ import {
   venterPaaSvar,
   type Utledning,
 } from '../kjerne/utledning/utled.ts';
-import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './app.ts';
+import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 import { lesekontekst } from './autorisasjon.ts';
 import { transaksjon, type Kontekst, type Pool } from './datalag.ts';
 import { skrevetAvKjernen } from './lager.ts';
@@ -226,10 +226,9 @@ function vederlagssvaret(u: Utledning) {
   };
 }
 
-const avsluttet = (u: Utledning): boolean => {
-  const b = saksbetegnelse(u);
-  return b === 'avslaget_paa_forholdet_godtatt' || b === 'paaberopelsen_trukket';
-};
+/** Avslaget på forholdet er godtatt, eller påberopelsen er trukket. Leses av predikatene, ikke av betegnelsen (MM-U22). */
+const avsluttet = (u: Utledning): boolean =>
+  u.forstaatt && (u.forholdAvvist || u.spor.forhold.trukket);
 
 const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttet(u);

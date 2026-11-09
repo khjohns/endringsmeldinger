@@ -2374,7 +2374,6 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
       {
         rigg_vurdering: vurdering,
         rigg_godkjent_beloep: godkjent,
-        rigg_varslet_i_tide: true,
         aksepterer_metode: true,
       },
       GJELDENDE_REGLER
@@ -2387,6 +2386,15 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
     expect(() => rigg('avslaatt', 15000)).toThrow(
       'rigg_godkjent_beloep: er 15000, men vurderingen «avslått» godkjenner 0'
     );
+  });
+
+  // OV-U25, OV-U35: kravet om rigg og drift etter § 34.1.3 første ledd har ingen særskilt
+  // varslingsplikt, så svaret spør ikke om varselet, og posten prekluderes ikke (#1576).
+  it('rigg og drift uten spørsmål om særskilt varsel står med beløpet byggherren godtar', () => {
+    const r = rigg('godkjent');
+    expect(r.preklusjon).toEqual({ hovedkrav: false, produktivitet: false });
+    expect(r.subsidiaer_triggers).toEqual([]);
+    expect(r.total_godkjent_beloep).toBe(2000000n);
   });
 
   it('kontrollsaker: «godkjent» uten beløp og med det krevde, «avslått» med 0', () => {
@@ -2420,7 +2428,6 @@ describe('KA-U42: «delvis» er mer enn 0 kr og mindre enn det krevde, prinsipal
         hovedkrav_varslet_i_tide: hovedkravIVarslet,
         rigg_vurdering: 'delvis',
         rigg_godkjent_beloep: rigg,
-        rigg_varslet_i_tide: true,
         aksepterer_metode: true,
       },
       GJELDENDE_REGLER
