@@ -240,7 +240,7 @@ rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, e
   [brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md), utvides de i
   samme arbeid. Endres et forventet resultat i et forløp, får forløpet en linje i
   `endringer` med dato og vedtak eller issue.
-- Svekk ikke assertions, og legg ikke til skip/xfail eller nye lint-unntak for å
+- Svekk ikke assertions, og legg ikke til `skip`, `it.fails` eller nye lint-unntak for å
   få grønt. Nye reproduksjoner av kjente feil følger testreglene.
 - Fyll ut [PR-malen](../../../.github/pull_request_template.md) med kjørt
   kommando, resultat og kontrollert commit eller diff. Skill egne kjøringer fra
