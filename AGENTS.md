@@ -112,7 +112,7 @@ Begrepene står i [domenetabellen](docs/domenetabell/README.md) og i
 er vedtatt i sin helhet.
 
 **Kjernen ligger i `kjerne/` (B-14) og er ren kode.** Den importerer ingenting utenfor
-mappa, ingen `pg` og ingen server, og ingen regel når visningen eller bufferen.
+mappa, ingen databasedriver og ingen server, og ingen regel når visningen eller bufferen.
 Arkitekturtesten i `kjerne/tester/` håndhever det, og hva reglene leser.
 Regelversjonsvakten i CI krever nye versjoner når kjernen endres. Hvitelisten `LESBART`
 og versjonene står i [`.claude/rules/kjerne.md`](.claude/rules/kjerne.md), som lastes når
@@ -213,8 +213,7 @@ De gjelder hver serverinngang. Mekanismene, og det TS-stien ennå mangler, står
 
 ## Resonneringsregler
 
-Reglene gjelder all lesing av koden, uansett språk. Episodene bak dem står i
-[resonnering-skillen](.claude/skills/resonnering/SKILL.md).
+Reglene gjelder all lesing av koden, uansett språk.
 
 **Les [testinstruksjonene](.claude/rules/tester.md) før du skriver
 domeneforventninger, bevis-saker eller metodeprøver**, også i `docs/`.
@@ -278,7 +277,6 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |
 | Tid, kontekstgrenser og tilstand i en skyøkt, og de faste reglene for en orkestrert arbeidsøkt | [Arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Regelen om at den gjelder alle skyøkter, står i «Arbeidsform» |
 | Når en subagent brukes, og modellen, størrelsen og bestillingen for den | [Subagent-skillen](.claude/skills/subagenter/SKILL.md). Regelen om å følge den står i «Arbeidsform» |
-| Episodene bak resonneringsreglene | [Resonnering-skillen](.claude/skills/resonnering/SKILL.md). Reglene står i «Resonneringsregler» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i SQL Server i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttestene i `verktoy/tester/test_datamodell/` feiler når et register mangler en tabell eller en fremmednøkkel, eller avviker fra koden eller migrasjonene, og når et kall til Catenda i `server/` mangler en pil i dataflyten |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 | Etikettene og milepælene, og formen på issues og PR-er | [GitHub-skillen](.claude/skills/github/SKILL.md). Reglene står i skillen |

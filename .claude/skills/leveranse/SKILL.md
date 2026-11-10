@@ -15,7 +15,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 
 - **Feilinnføring** (se `.claude/rules/tester.md`) kreves når endringen gir en
   endret tilgangsavgjørelse, statusovergang, beregningsregel, serialisering
-  eller transaksjonsgaranti. Typiske steder, i begge språk, er tilgangslaget,
+  eller transaksjonsgaranti. Typiske steder er tilgangslaget,
   serverinngangene, reglene og utledningen i kjernen, hendelsesmodellene og
   lagrene. En
   kommentarendring eller ren flytting der utfallet er det samme, utløser det ikke.
@@ -79,8 +79,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   issue og omtales som uprøvd, ikke som håndhevet.
 - En migrering har én autoritativ skrivesti per kommando. Fjern erstattet kode,
   utdaterte tester og konfigurasjon når de ikke trengs lenger, men behold
-  domenebevis og nødvendig bakoverkompatibilitet med historikken (for sakene TS
-  tar over, ikke med Python-radene; B-17). Midlertidig
+  domenebevis og nødvendig bakoverkompatibilitet med historikken (unntaket står i B-17). Midlertidig
   dobbeltkode eller adapter får et koblet issue med ansvarlig, berørte filer og et
   observerbart fjerningskriterium. «Ryddes senere» holder ikke.
 - Oppheves, endres eller snevres et vedtak inn, fjernes koden som bare fantes for
