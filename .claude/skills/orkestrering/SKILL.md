@@ -398,6 +398,5 @@ oppdragsgiver får, og samtalen viser bare det som er endret.
 
 ## Milepæler og etiketter
 
-Reglene står i `AGENTS.md` under «Hvor hva står», og etikettene i
-[GitHub-skillen](../github/SKILL.md). Unntak fra rekkefølgen i AF-06 står i
+Reglene og etikettene står i [GitHub-skillen](../github/SKILL.md). Unntak fra rekkefølgen i AF-06 står i
 hovedplanen, ikke i issuet.

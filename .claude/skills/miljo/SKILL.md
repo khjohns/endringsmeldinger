@@ -194,7 +194,7 @@ Kjør deretter bare de ID-ene som feilet, med `FEILINNFOERING_UTVALG=1`, i bakgr
 
 ## Skyøkta
 
-Reglene for skyøkta står i «Miljø» og «Hvor hva står» i `AGENTS.md`. Her står kommandoene.
+Reglene for skyøkta står i «Miljø» i `AGENTS.md`. Her står kommandoene.
 
 `khjohns/kontrakt` legges til underveis:
 
@@ -226,6 +226,10 @@ har svart når `/tmp/koe-sqlserver-14331.container` finnes. Til da viser
 
 Vaktene kan ikke kjøres for hånd. I en slik økt verner ingenting token-brokeren, og
 `diffkontroll` er ikke begrenset til lesing, så hold deg til det oppdraget sier.
+
+`gh issue`, `gh pr` og `gh label` går over GraphQL, som gir 403 i skyøktene; bruk
+REST-formen med `gh api`. `gh api search/issues` og `--paginate` gir også 403 i
+skyøkta, så sidene hentes med `page=N`.
 
 Side for side i repo-listen, uten `search/issues`:
 `gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.

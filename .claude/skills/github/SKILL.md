@@ -9,6 +9,19 @@ Reglene for hvor arbeidet står, er i `AGENTS.md`, «Hvor hva står». Skillen s
 hvordan de følges på GitHub. Kommandoene for `gh api` og omveiene i skyøkta står i
 [miljø-skillen](../miljo/SKILL.md).
 
+## Reglene
+
+- **Hvert issue har en milepæl eller en sporetikett, og et byggeissue har en
+  lagetikett for hvert lag det rører.** Milepælen er arbeidspakken i hovedplanen;
+  de parallelle sporene har `spor-d`, `spor-h`, `spor-m`, `papercut` eller
+  `bestilling` i stedet. Beskrivelsen av etiketten på GitHub sier hva den dekker. Etikettene,
+  statusetikettene og når en ny lages, står under.
+- **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
+  som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
+  symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene
+  først, og kommenter et som finnes framfor å lage et nytt. `papercut` teller som
+  sporetikett.
+
 ## Etikettene
 
 Hva en etikett dekker, står i beskrivelsen på GitHub, og bare der. Les beskrivelsene
@@ -83,7 +96,8 @@ Etikettene på et issue settes samlet med
 ## Milepælene
 
 Én milepæl per arbeidspakke i hovedplanen. Beskrivelsen sier hva pakken dekker. Det som
-gjenstår i en pakke, er de åpne issuene i milepælen
+gjenstår i en pakke, er de åpne issuene i milepælen, med GitHub-MCP eller
+`gh api "repos/khjohns/endringsmeldinger/issues?milestone=<nummer>&state=open"`
 (`gh api "repos/khjohns/endringsmeldinger/milestones?state=open"` gir nummerne).
 Et oppfølgingsissue fra review får samme milepæl eller sporetikett som PR-en det kom fra
 (leveranseskillen, «Review og funn»). En PR har sjelden egen milepæl eller sporetikett. Da hentes

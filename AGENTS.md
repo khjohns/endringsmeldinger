@@ -103,20 +103,10 @@ som ikke er vedtatt i sin helhet, og i [domenetabellen](docs/domenetabell/README
 **TS eier KOE, endringsordre og forsering (B-17).** Kjernen ligger i `kjerne/`
 (B-14) og er ren kode: den importerer ingenting utenfor mappa, ingen `pg` og
 ingen server, og ingen regel når visningen eller bufferen. Arkitekturtesten i
-`kjerne/tester/` håndhever det. Den håndhever også hva reglene leser: hvert felt
-og hver importert verdi som er deklarert i kjernen, står i hvitelisten `LESBART`
-med en klasse, som utsagn, relasjon, frosset eller predikat, og eventuelt de
-modulene eller funksjonene som får lese det. En oppsummering har ingen klasse, så
-et nytt felt eller en ny import med en oppsummering gir rød test til den er
-klassifisert. Testen ser ikke alt, for eksempel ikke en status som en funksjon i
-samme modul regner ut og returnerer; grensene står i modulheaderen i testen. Et
-nytt felt reglene leser, klassifiseres der. Kjente avvik står i en lukket
-liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres det, økes
-`REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
-`kjerne/versjon.ts`. `kjerne/frosset/` bestemmer hva beslutningsgrunnlaget fryser, så
-endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke for en
-flytting som bare endrer importstiene, og heller ikke når bare kommentarene er endret
-(#1549). Lagringstestene mot
+`kjerne/tester/` håndhever det. Den håndhever også hva
+reglene leser, og regelversjonsvakten i CI krever nye versjoner når kjernen endres.
+Hvitelisten `LESBART` og versjonene står i
+[`.claude/rules/kjerne.md`](.claude/rules/kjerne.md), som lastes når du arbeider i `kjerne/`. Lagringstestene mot
 testbasen i SQL Server står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-stien er slettet (#49).
 
@@ -283,7 +273,7 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Episodene bak resonneringsreglene | [Resonnering-skillen](.claude/skills/resonnering/SKILL.md). Reglene står i «Resonneringsregler» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i SQL Server i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttestene i `verktoy/tester/test_datamodell/` feiler når et register mangler en tabell eller en fremmednøkkel, eller avviker fra koden eller migrasjonene, og når et kall til Catenda i `server/` mangler en pil i dataflyten |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
-| Etikettene og milepælene, og formen på issues og PR-er | [GitHub-skillen](.claude/skills/github/SKILL.md). Reglene står her under «Hvor hva står» |
+| Etikettene og milepælene, og formen på issues og PR-er | [GitHub-skillen](.claude/skills/github/SKILL.md). Reglene står i skillen |
 
 - **Hovedplanen er autoritativ for funnstatus, sammen med arkivet for de avsluttede
   funnene, og vedtaksfila for vedtakene.** Sier et annet dokument noe annet,
@@ -305,24 +295,11 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
   en slik feil på en B-ID, får den `venter-på-beslutning`. Å nevne den i
   PR-beskrivelsen er ikke nok. Tilskriver du en feil testmiljøet, er det en
   påstand. Kontroller den, eller meld den.
-- **Hvert issue har en milepæl eller en sporetikett, og et byggeissue har en
-  lagetikett for hvert lag det rører.** Milepælen er arbeidspakken i hovedplanen;
-  de parallelle sporene har `spor-d`, `spor-h`, `spor-m`, `papercut` eller
-  `bestilling` i stedet. Beskrivelsen av etiketten på GitHub sier hva den dekker. Etikettene,
-  statusetikettene og når en ny lages, står i
+- **Hvert issue har en milepæl eller en sporetikett, og det som sinker arbeidet, blir
+  et issue med etiketten `papercut`.** Reglene for etikettene og milepælene står i
   [GitHub-skillen](.claude/skills/github/SKILL.md).
-- **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
-  som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
-  symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene
-  først, og kommenter et som finnes framfor å lage et nytt. `papercut` teller som
-  sporetikett.
 - **Issues er like offentlige som repoet.** Ingen saksdata, kontraktsinnhold,
   personnavn fra prosjekter, nøkler eller tilgangsopplysninger.
-- Det som gjenstår i en pakke, er de åpne issuene i milepælen — med GitHub-MCP
-  eller `gh api "repos/khjohns/endringsmeldinger/issues?milestone=<nummer>&state=open"`.
-  `gh issue`, `gh pr` og `gh label` går over GraphQL, som gir 403 i skyøktene;
-  bruk REST-formen med `gh api`. `gh api search/issues` og `--paginate` gir også 403
-  i skyøkta, så sidene hentes med `page=N`.
 
 ## Arbeidsform
 

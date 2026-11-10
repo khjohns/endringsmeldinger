@@ -196,10 +196,9 @@ rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, e
   kilde, etter `.claude/rules/tester.md`. Der dagens atferd er en kjent feil, er
   likhet mellom gammel og ny kode ikke fasit. Utløser endringen feilinnføring:
   vis at de representative testene oppdager relevante feil. For kjernen er beviset
-  CI-kjøringen med etiketten `feilinnfoering`; en skyøkt kjører ikke hele samlingen
-  lokalt. For serveren er beviset den målrettede lokale
-  kjøringen med ID-ene etter stien, mot en kopi av arbeidstreet; CI kjører bare
-  `--ankre` der.
+  CI-kjøringen med etiketten `feilinnfoering`. For serveren er beviset den målrettede
+  lokale kjøringen; CI kjører bare `--ankre` der. Hva en skyøkt kjører lokalt, og
+  hvordan, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
 - Ved endret domeneregel eller kontrakt: prøv de berørte inngangene, også vanlig
   innsending, batch og godkjenning der de bruker regelen. Ved endret
   hendelsesdata eller serialisering: prøv faktisk lagring og gjenlesing. Vurder
