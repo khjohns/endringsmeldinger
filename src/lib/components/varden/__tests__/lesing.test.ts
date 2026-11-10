@@ -215,3 +215,22 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
     expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt 34.4)']);
   });
 });
+
+describe('sporene et brev hører til, fra kjernen (#1663)', () => {
+  it('et brev med en korrigering hører til forholdet, også når det korrigerer en korrigering (MM-U52)', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'korrigering', navn: 'D2', dato: '2026-09-20' },
+      { handling: 'korrigering', navn: 'D3', dato: '2026-09-19' },
+    ]);
+    const korrigeringene = u.journal.flatMap((h) =>
+      h.art === 'dokument' && h.dokument.utsagn.some((x) => x.art === 'korrigering')
+        ? [h.dokument.id]
+        : []
+    );
+    expect(korrigeringene, 'forutsetning: to brev med en korrigering').toHaveLength(2);
+    const brev = brevene(u);
+    for (const id of korrigeringene)
+      expect(brev.find((b) => b.id === id)!.spor, id).toEqual(['forhold']);
+  });
+});

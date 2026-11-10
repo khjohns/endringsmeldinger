@@ -22,7 +22,10 @@ const side = vi.hoisted(() => ({
 vi.mock('$app/state', () => ({ page: side }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/paths', () => ({ resolve: () => '/p-1' }));
-vi.mock('$lib/kjernesak/kontekst.svelte', () => ({ lagKjernesak: () => t.kontekst }));
+vi.mock('$lib/kjernesak/kontekst.svelte', async (original) => ({
+  ...(await original<typeof import('$lib/kjernesak/kontekst.svelte')>()),
+  lagKjernesak: () => t.kontekst,
+}));
 
 const Saksruta = (await import('../../../routes/[prosjektId]/[sakId]/+page.svelte')).default;
 

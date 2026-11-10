@@ -1559,33 +1559,49 @@ const toppnivaa = (d: ts.Node) =>
   (ts.isFunctionDeclaration(d) || ts.isClassDeclaration(d) ? d.parent : d.parent?.parent?.parent)
     ?.kind === ts.SyntaxKind.SourceFile;
 
+/** Navnene på typene og konstantene som er deklarert på toppnivå i modulen. */
+function toppnivaanavn(sf: ts.SourceFile): string[] {
+  return sf.statements.flatMap((s) => {
+    if (
+      (ts.isInterfaceDeclaration(s) || ts.isTypeAliasDeclaration(s) || ts.isClassDeclaration(s)) &&
+      s.name
+    )
+      return [s.name.text];
+    if (ts.isVariableStatement(s))
+      return s.declarationList.declarations.flatMap((d) =>
+        ts.isIdentifier(d.name) ? [d.name.text] : []
+      );
+    return [];
+  });
+}
+
 /**
- * Typene som er deklarert på toppnivå i mer enn én modul i kjernen. Utenfor `typer.ts` slås de
- * opp med modulen foran navnet, som `regler/forhold.ts:Standpunkt`, så to typer med samme navn
- * ikke deler radene i `LESBART` (#1711). Typen i `typer.ts` beholder navnet.
+ * Typene og konstantene som er deklarert på toppnivå i mer enn én modul i kjernen. Utenfor
+ * `typer.ts` slås de opp med modulen foran navnet, som `regler/forhold.ts:Standpunkt`, så to
+ * med samme navn ikke deler radene i `LESBART` (#1711, #1713). Navnet i `typer.ts` beholdes.
  */
-function kolliderendeTyper(p: ts.Program): Set<string> {
+function kolliderendeNavn(p: ts.Program): Set<string> {
   const moduler = new Map<string, Set<string>>();
   for (const sf of p.getSourceFiles()) {
     if (!iKjernen(sf.fileName)) continue;
-    for (const s of sf.statements)
-      if (
-        (ts.isInterfaceDeclaration(s) ||
-          ts.isTypeAliasDeclaration(s) ||
-          ts.isClassDeclaration(s)) &&
-        s.name
-      )
-        moduler.set(s.name.text, (moduler.get(s.name.text) ?? new Set()).add(sf.fileName));
+    for (const navn of toppnivaanavn(sf))
+      moduler.set(navn, (moduler.get(navn) ?? new Set()).add(sf.fileName));
   }
   return new Set([...moduler].filter(([, m]) => m.size > 1).map(([navn]) => navn));
+}
+
+/** Navnet på typen eller konstanten `n`, med modulen foran når navnet kolliderer. */
+function kvalifisert(n: ts.Node, navn: string, kolliderende: Set<string>): string {
+  const modul = modulnavn(n.getSourceFile().fileName);
+  return kolliderende.has(navn) && modul !== 'typer.ts' ? `${modul}:${navn}` : navn;
 }
 
 /**
  * Eieren til deklarasjonen `d`: typen eller konstanten, med stien gjennom
  * nestede typer, modulen for en funksjon eller konstant på toppnivå, eller
  * funksjonen for en type eller et objekt som står i en funksjon. `null` når `d`
- * er et felt i et objekt som bygges i funksjonen det leses i. En type utenfor `typer.ts` med
- * samme navn som en type i en annen modul får modulen foran navnet (`kolliderende`).
+ * er et felt i et objekt som bygges i funksjonen det leses i. En type eller konstant utenfor
+ * `typer.ts` med samme navn som en i en annen modul får modulen foran navnet (`kolliderende`).
  */
 function eier(d: ts.Declaration, lesested: ts.Node, kolliderende: Set<string>): string | null {
   if (
@@ -1604,12 +1620,9 @@ function eier(d: ts.Declaration, lesested: ts.Node, kolliderende: Set<string>): 
       ts.isTypeAliasDeclaration(n) ||
       ts.isClassDeclaration(n)
     ) {
-      const navn = n.name?.text ?? '?';
-      const modul = modulnavn(n.getSourceFile().fileName);
-      const type = kolliderende.has(navn) && modul !== 'typer.ts' ? `${modul}:${navn}` : navn;
-      return [type, ...sti].join('.');
+      return [kvalifisert(n, n.name?.text ?? '?', kolliderende), ...sti].join('.');
     } else if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && toppnivaa(n))
-      return [n.name.text, ...sti].join('.');
+      return [kvalifisert(n, n.name.text, kolliderende), ...sti].join('.');
     else if (ts.isFunctionLike(n))
       return bygget && iFunksjonen(lesested, n) ? null : [funksjon(n), ...sti].join('.');
   }
@@ -1621,7 +1634,7 @@ const utenType = (t: ts.Type) => (t.flags & (ts.TypeFlags.Unknown | ts.TypeFlags
 /** Lesingene i `moduler`, med nøkkelen hver slås opp med i `LESBART`. */
 export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
   const tc = p.getTypeChecker();
-  const kolliderende = kolliderendeTyper(p);
+  const kolliderende = kolliderendeNavn(p);
   const ut: Lesing[] = [];
   for (const fil of moduler) {
     const sf = p.getSourceFile(fil);
@@ -2211,5 +2224,17 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     ],
   ])('oppdager %s', (_navn, modul, tillegg, noekkel) => {
     expect(medTillegg(modul, tillegg).map((f) => f.split(' ')[1])).toContain(noekkel);
+  });
+
+  it('to konstanter med samme navn i ulike moduler slås opp hver for seg (#1713)', () => {
+    const tabell = 'export const PROEVETABELL = { a: { felt: 1 } };';
+    const funnet = medTillegg(forutsetninger, [
+      [leser, tabell],
+      [standpunkt, tabell],
+      [forutsetninger, "import { PROEVETABELL } from '../format/leser.ts';"],
+      regel('return PROEVETABELL.a.felt;'),
+    ]).map((f) => f.split(' ')[1]);
+    expect(funnet).toContain('format/leser.ts:PROEVETABELL.a.felt');
+    expect(funnet).not.toContain('PROEVETABELL.a.felt');
   });
 });
