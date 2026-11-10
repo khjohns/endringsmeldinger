@@ -4339,7 +4339,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F510',
     feilklasse: 'svaret godtar en vurdering av beløpet når tilbudet ikke er akseptert (KA-U72)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['    if (ikkeAkseptert(p)) {\n', '    if (false) {\n']],
+    endringer: [
+      [
+        '    if (ikkeAkseptert(p)) {\n',
+        '    if (ikkeAkseptert(p) && vurd == null && godkjent == null) {\n',
+      ],
+    ],
     mal: ['§ 34.2.2 «nei» med et beløp avvises'],
   },
   {
