@@ -117,7 +117,7 @@ const iVarden = (punkt, vei) => async (page) => {
 const bhSvarer = async (page) => {
   await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
-  await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();
+  await page.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)', exact: true }).check();
   await page.getByRole('radio', { name: 'Deler av beløpet' }).check();
   await page.getByRole('textbox', { name: 'Beløpet du godkjenner' }).fill('60000');
 };

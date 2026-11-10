@@ -346,6 +346,8 @@ export function plassene(
  */
 export interface Vederlagspost extends Plass {
   standpunkt: string;
+  /** Kravposten beløpet gjelder (KA-U57 (c)); ikke for posten etter § 34.1.3 annet ledd. */
+  gjelder?: string;
   saerskilt?: 'produktivitet';
   godkjent: number;
   begrensning: (Plass & { standpunkt: string; beloep: number }) | null;
@@ -379,6 +381,7 @@ export function postlisten(
       : [
           {
             standpunkt: s.id,
+            ...(s.gjelder !== undefined ? { gjelder: s.gjelder } : {}),
             ...(s.saerskilt ? { saerskilt: s.saerskilt } : {}),
             godkjent: s.godkjent,
             ...plass(s.id),
@@ -408,13 +411,18 @@ export function postlisten(
  * Det byggherren godtar prinsipalt i vederlaget, av postene og lagene i brevet (OV-U26,
  * OV-U27): posten etter § 34.1.3 annet ledd med beløpet etter en virksom begrensning. En
  * kravpost med beløpet i et senere lag har ikke et fast beløp i det første og regnes ikke med
- * (KA-U58, OV-U73).
+ * (KA-U58, OV-U73). `uten_fast_beloep` er de kravpostene, så beløpet ikke leses som et avslag
+ * (svar 6 A i #1663).
  */
-function prinsipaltBeloep(svar: Svarinnhold, v: Standpunktsvirkning[]): number {
-  const poster = postlisten(svar, v, 0).poster.flatMap((p) =>
-    p.begrensning ? [p.begrensning.beloep] : !p.saerskilt && (p.lag ?? 1) > 1 ? [] : [p.godkjent]
-  );
-  return tilTall(poster.reduce((a, b) => a + beloep(b)!, 0n));
+function prinsipaltIVederlaget(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
+  let beloepet = 0n;
+  const uten: string[] = [];
+  for (const p of postlisten(svar, v, 0).poster) {
+    if (p.begrensning) beloepet += beloep(p.begrensning.beloep)!;
+    else if (!p.saerskilt && (p.lag ?? 1) > 1) uten.push(p.gjelder!);
+    else beloepet += beloep(p.godkjent)!;
+  }
+  return { beloep: tilTall(beloepet), ...(uten.length ? { uten_fast_beloep: uten } : {}) };
 }
 
 export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art: A) {
@@ -465,7 +473,7 @@ function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boole
 function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   const prekludert = avvisesPrinsipalt(svar, v);
   if (svar.spor === 'forhold') return {};
-  if (svar.spor === 'vederlag') return { beloep: prekludert ? 0 : prinsipaltBeloep(svar, v) };
+  if (svar.spor === 'vederlag') return prekludert ? { beloep: 0 } : prinsipaltIVederlaget(svar, v);
   if (prekludert) return { dager: 0 };
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id)

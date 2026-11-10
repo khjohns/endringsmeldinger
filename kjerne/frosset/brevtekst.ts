@@ -797,12 +797,16 @@ function standpunkttekst(
         innholdIForholdet(paaberopelse).hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
-    case 'oppgjoersform':
+    case 'oppgjoersform': {
       // Arbeidsvalget i #479: oppgjørsformen er byggherrens standpunkt, ikke appens avgjørelse. LV-U31 og
       // LV-U32: godkjenningen betegner ikke tilbudet som akseptert, heller ikke ved fullt beløp.
+      // KA-U57 (d): med flere kravposter sier standpunktet hvilken kravpost det gjelder.
+      const post =
+        kravposterI(krav).length > 1 ? krevdeKravpost(krav, p.gjelder)[0].betegnelse : null;
       return p.aksepterer
-        ? 'byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.'
-        : `byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres ${METODEN[p.oensket!]}.`;
+        ? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`
+        : `byggherren aksepterer ikke TEs tilbud${post ? ` for ${post}` : ''} (NS 8407 § 34.2.2 første ledd), og mener vederlaget${post ? ' for kravposten' : ''} skal justeres ${METODEN[p.oensket!]}.`;
+    }
     case 'spesifisering':
       return p.iTide
         ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).'
@@ -811,18 +815,20 @@ function standpunkttekst(
       // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
       // kan være det, i hele øre (B-13, OV-U59). OV-U28: med posten etter § 34.1.3 annet
       // ledd sier brevet beløpet for hver post for seg.
-      const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdIPosten(krav, p.gjelder!);
+      const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdeKravpost(krav, p.gjelder!)[1];
       const godkjent = beloep(p.godkjent)!;
       const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
         ? 'godkjent'
         : godkjent === 0n
           ? 'avslaatt'
           : 'delvis_godkjent';
-      const post = !harProduktivitetspost(krav)
-        ? null
-        : p.saerskilt
-          ? SAERSKILT
-          : 'justeringen ellers';
+      const post = p.saerskilt
+        ? SAERSKILT
+        : kravposterI(krav).length > 1
+          ? krevdeKravpost(krav, p.gjelder!)[0].betegnelse
+          : harProduktivitetspost(krav)
+            ? 'justeringen ellers'
+            : null;
       return verdi(resultat, eksMva(p.godkjent), eksMva(tilTall(krevd)), post);
     }
     case 'dager':
@@ -852,18 +858,17 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
 }
 
 /**
- * Det krevde beløpet i kravposten beløpet gjelder (KA-U57 (c)). Brevteksten for flere
- * kravposter og for en beregningsregel er ikke bygget (2a-2 i #1663), så brevet avvises.
+ * Kravposten standpunktet gjelder (KA-U57 (c) og (d)). Brevteksten for en kravpost etter en
+ * beregningsregel er ikke bygget (2b i #1663), så brevet avvises.
  */
-function krevdIPosten(krav: Krav, gjelder: string): Oere {
-  const poster = kravposterI(krav);
-  const post = poster.find((k) => k.id === gjelder);
-  const krevd = post && poster.length === 1 ? krevdIKravposten(krav, post) : null;
-  if (krevd === null)
+function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {
+  const post = kravposterI(krav).find((k) => k.id === gjelder);
+  const krevd = post ? krevdIKravposten(krav, post) : null;
+  if (!post || krevd === null)
     throw new KanIkkeUttrykkes(
-      'brevteksten har bare ord for svaret på én kravpost med fast sum (#1663)'
+      'brevteksten har bare ord for svaret på en kravpost med fast sum (#1663)'
     );
-  return krevd;
+  return [post, krevd];
 }
 
 /** OV-U28: posten etter § 34.1.3 annet ledd i setningen om beløpet. */

@@ -511,6 +511,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kravposterI',
     [
       'frosset/brevtekst.ts',
+      // KA-U57 (c) og (d): linjen navngir kravposten når kravet har flere.
+      'frosset/tekst.ts',
       'kommandoer/skriving.ts',
       'utledning/kravposter.ts',
       'utledning/utled.ts',
@@ -525,12 +527,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
   // med ett beløp (#1663).
-  [
-    'frosset/kravinnhold.ts',
-    'predikat',
-    'hindrerSvarMedEttBeloep',
-    ['kommandoer/forutsetninger.ts'],
-  ],
+  ['frosset/kravinnhold.ts', 'predikat', 'hindrerSvarPaaKravet', ['kommandoer/forutsetninger.ts']],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
   ['frosset/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
@@ -558,17 +555,22 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts:postlisten',
     'frosset',
     'poster',
-    ['frosset/standpunkt.ts:prinsipaltBeloep'],
+    ['frosset/standpunkt.ts:prinsipaltIVederlaget'],
   ],
   [
     'Vederlagspost',
     'utsagn',
-    'godkjent begrensning saerskilt',
-    ['frosset/standpunkt.ts:prinsipaltBeloep'],
+    'godkjent begrensning saerskilt gjelder',
+    ['frosset/standpunkt.ts:prinsipaltIVederlaget'],
   ],
   // KA-U58, OV-U73: en kravpost med beløpet i et senere lag regnes ikke med i det prinsipale.
-  ['Plass', 'frosset', 'lag', ['frosset/standpunkt.ts:prinsipaltBeloep']],
-  ['Vederlagspost.begrensning', 'utsagn', 'beloep', ['frosset/standpunkt.ts:prinsipaltBeloep']],
+  ['Plass', 'frosset', 'lag', ['frosset/standpunkt.ts:prinsipaltIVederlaget']],
+  [
+    'Vederlagspost.begrensning',
+    'utsagn',
+    'beloep',
+    ['frosset/standpunkt.ts:prinsipaltIVederlaget'],
+  ],
   // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
   [
     'frosset/kravinnhold.ts',

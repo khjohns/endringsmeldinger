@@ -7,7 +7,7 @@
 import { beloep, UgyldigBeloep, type Oere } from '../regler/beloep.ts';
 import { foersteUnderkategori } from '../regler/forhold.ts';
 import { tekst } from '../format/skjema.ts';
-import type { Krav, Kravpost, OppgittDatofelt, Oppgjoersform } from '../typer.ts';
+import type { Krav, Kravpost, OppgittDatofelt } from '../typer.ts';
 
 /**
  * Påberopelsen av forholdet, etter `KRAVINNHOLD.forhold`. Kategorien er tekst og ikke
@@ -95,37 +95,14 @@ export const harHovedbeloep = (krav: Krav): boolean => kravposterI(krav).length 
 
 /**
  * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis:
- * høyst én kravpost, med fast sum, og ikke rigg og drift. Svaret per kravpost (KA-U59,
- * OV-U95 punkt 23) er ikke bygget (#1663), og et svar med ett beløp for flere poster ville
- * bryte det.
+ * kravpostene har fast sum, og kravet har ikke rigg og drift. Svaret på en kravpost etter en
+ * beregningsregel og på rigg og drift er ikke bygget (2b i #1663).
  */
-export function hindrerSvarMedEttBeloep(krav: Krav): string | null {
-  const poster = kravposterI(krav);
-  if (poster.length > 1) return `Kravet har ${poster.length} kravposter`;
-  if (poster.some((p) => p.oppgjoersform !== 'tilbud'))
-    return `Kravposten ${poster[0]!.betegnelse} følger en beregningsregel`;
+export function hindrerSvarPaaKravet(krav: Krav): string | null {
+  const regel = kravposterI(krav).find((p) => p.oppgjoersform !== 'tilbud');
+  if (regel) return `Kravposten ${regel.betegnelse} følger en beregningsregel`;
   if (krevdRigg(krav) !== null) return 'Kravet har rigg og drift i forlenget byggetid';
   return null;
-}
-
-/**
- * Oppgjørsformen når alle kravpostene har samme, ellers `null`. Visningen leser den til
- * svaret per kravpost er bygget (økt 2 i #1663); ingen regel leser den.
- */
-export function fellesOppgjoersform(krav: Pick<Krav, 'innhold'>): Oppgjoersform | null {
-  const former = new Set(kravposterI(krav).map((p) => p.oppgjoersform));
-  return former.size === 1 ? [...former][0]! : null;
-}
-
-/**
- * Beløpet i kroner når kravet har nøyaktig én kravpost, med fast sum, ellers `undefined`.
- * Visningen leser det til svaret per kravpost er bygget (økt 2 i #1663); ingen regel leser det.
- */
-export function fastSumIKroner(krav: Pick<Krav, 'innhold'>): number | undefined {
-  const poster = kravposterI(krav);
-  return poster.length === 1 && poster[0]!.oppgjoersform === 'tilbud'
-    ? poster[0]!.beloep
-    : undefined;
 }
 
 /** Det krevde beløpet i en kravpost med fast sum, i øre, eller `null` etter en beregningsregel. */

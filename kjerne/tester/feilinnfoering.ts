@@ -358,8 +358,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning);',
-        'return beslutningsgrunnlag(innhold, undefined, regler, forskyvning);',
+        'return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning, kravet);',
+        'return beslutningsgrunnlag(innhold, undefined, regler, forskyvning, kravet);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -660,8 +660,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        's.paaberopelse)),\n    kjerne\n',
-        's.paaberopelse)),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
+        'kravene.find((k) => k.id === s.gjelder),\n    kjerne\n',
+        'kravene.find((k) => k.id === s.gjelder),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
       ],
     ],
     mal: ['F-MM-G45-regel'],
@@ -1500,7 +1500,10 @@ const MUTASJONER: Mutasjon[] = [
       'aksept av et svar med preklusjon etter § 34.1.2 gir det subsidiære beløpet (VS-U3)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
-      ['beloep: prekludert ? 0 : prinsipaltBeloep(svar, v)', 'beloep: prinsipaltBeloep(svar, v)'],
+      [
+        'prekludert ? { beloep: 0 } : prinsipaltIVederlaget(svar, v)',
+        'prinsipaltIVederlaget(svar, v)',
+      ],
     ],
     mal: ['en aksept av svaret med § 34.1.2 og § 34.1.3 påberopt gir 0'],
   },
@@ -3166,8 +3169,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'linje: beslutningslinje(svar, v, paaberopelse, forskyvning),',
-        'linje: beslutningslinje(svar, v, paaberopelse, 0),',
+        'linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet),',
+        'linje: beslutningslinje(svar, v, paaberopelse, 0, kravet),',
       ],
     ],
     mal: [
@@ -3394,8 +3397,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        "'byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.'",
-        "'byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).'",
+        "? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`",
+        "? 'byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).'",
       ],
     ],
     mal: ['LV-U31 med lavere beløp', 'LV-U32 med hele beløpet'],
@@ -4093,19 +4096,12 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['er varselet i den første versjonen den står i'],
   },
   {
-    id: 'F480',
-    feilklasse: 'byggherren kan svare med ett beløp på et krav med flere kravposter (KA-U59)',
-    fil: `${K}/frosset/kravinnhold.ts`,
-    endringer: [['  if (poster.length > 1) return', '  if (poster.length > 99) return']],
-    mal: ['før svaret per kravpost er bygget'],
-  },
-  {
     id: 'F481',
     feilklasse:
       'byggherren kan svare med ett beløp på en kravpost etter en beregningsregel (KA-U59, KA-U61)',
     fil: `${K}/frosset/kravinnhold.ts`,
-    endringer: [["  if (poster.some((p) => p.oppgjoersform !== 'tilbud'))\n", '  if (false)\n']],
-    mal: ['før svaret per kravpost er bygget'],
+    endringer: [['  if (regel) return', '  if (false) return']],
+    mal: ['svaret på en kravpost etter en beregningsregel er ikke bygget'],
   },
   {
     id: 'F482',
@@ -4217,8 +4213,50 @@ const MUTASJONER: Mutasjon[] = [
         '  if (false)\n    throw new UgyldigVurdering({\n',
       ],
     ],
+    mal: ['svaret på en kravpost etter en beregningsregel er ikke bygget (KA-U59)'],
+  },
+  {
+    id: 'F506',
+    feilklasse:
+      'brevet sier ikke hvilken kravpost beløpet gjelder når kravet har flere (KA-U57 (c))',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '        : kravposterI(krav).length > 1\n          ? krevdeKravpost',
+        '        : false\n          ? krevdeKravpost',
+      ],
+    ],
+    mal: ['svaret på to kravposter med fast sum navngir kravposten'],
+  },
+  {
+    id: 'F507',
+    feilklasse:
+      'utfallet sier ikke at en kravpost ikke har fast beløp prinsipalt (OV-U73, svar 6 A i #1663)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['...(uten.length ? { uten_fast_beloep: uten } : {})', '...{}']],
+    mal: ['svaret på to kravposter med fast sum navngir kravposten'],
+  },
+  {
+    id: 'F508',
+    feilklasse:
+      'linjen sier ikke hvilken kravpost standpunktet gjelder når kravet har flere (KA-U57 (c) og (d))',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [['      kravposter.length > 1 ? kravposter.find', '      false ? kravposter.find']],
+    mal: ['svaret på to kravposter med fast sum navngir kravposten'],
+  },
+  {
+    id: 'F509',
+    feilklasse:
+      'lagene skjemaet får fra kjernen, sier ikke hvilken kravpost de gjelder (KA-U57 (c) og (d))',
+    fil: `${K}/kommandoer/lag.ts`,
+    endringer: [
+      [
+        "        ...((s.art === 'beloep' || s.art === 'oppgjoersform') && s.gjelder !== undefined",
+        '        ...(false && s.gjelder !== undefined',
+      ],
+    ],
     mal: [
-      'byggherren kan ikke svare med ett beløp på et krav med flere kravposter før svaret per kravpost er bygget (KA-U59)',
+      'med to kravposter sier hvert lag for beløpet og oppgjørsformen hvilken kravpost det gjelder',
     ],
   },
   {
@@ -4277,7 +4315,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'utfallet regner med en kravpost uten fast beløp i det første laget (KA-U58, OV-U73)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['!p.saerskilt && (p.lag ?? 1) > 1 ? []', 'false ? []']],
+    endringer: [['    else if (!p.saerskilt && (p.lag ?? 1) > 1)', '    else if (false)']],
     mal: ['F-MM-V-34-2-2-nei'],
   },
   {

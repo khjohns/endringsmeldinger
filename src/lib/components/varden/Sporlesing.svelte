@@ -27,6 +27,7 @@
     handlingerISporet,
     datoerISporet,
     hovedkategorien,
+    kravposterUtenFastBeloep,
   } from './lesing';
   import {
     BREVTYPER,
@@ -182,7 +183,11 @@
     return [
       ...(paaberopt?.art === 'rettidighet' ? [STILLING.omfatter(paaberopt.hjemmel)] : []),
       ...(enighet?.grunnlag.utfall.beloep !== undefined
-        ? [STILLING.beloep(enighet.grunnlag.utfall.beloep, svarbrevet)]
+        ? STILLING.beloepet(
+            enighet.grunnlag.utfall.beloep,
+            kravposterUtenFastBeloep(enighet.grunnlag.utfall, u.spor[spor].krav),
+            svarbrevet
+          )
         : []),
       ...(enighet?.grunnlag.vilkaar === 'forhold_avklart' && !u.forholdAvklart
         ? [STILLING.vilkaar]

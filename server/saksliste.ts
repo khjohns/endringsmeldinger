@@ -144,7 +144,11 @@ export interface Vederlagslinje extends Foreligger, Staaende {
    */
   krav: { beloep: number; oppgjoersformer: Oppgjoersform[] } | null;
   svar: { resultat: Vederlagsresultat; beloep: number; subsidiaert: boolean } | null;
-  enighet: { beloep: number | null; virkning: Virkning } | null;
+  /**
+   * `uten_fast_beloep` er betegnelsene på kravpostene uten fast beløp i det første laget, som
+   * `beloep` ikke regner med (OV-U73, svar 6 A i #1663).
+   */
+  enighet: { beloep: number | null; uten_fast_beloep: string[]; virkning: Virkning } | null;
 }
 
 export interface Fristlinje extends Foreligger, Staaende {
@@ -252,7 +256,16 @@ function vederlag(u: Utledning): Vederlagslinje {
       : null,
     svar: vederlagssvaret(u),
     enighet:
-      s.enighet && virkning ? { beloep: s.enighet.grunnlag.utfall.beloep ?? null, virkning } : null,
+      s.enighet && virkning
+        ? {
+            beloep: s.enighet.grunnlag.utfall.beloep ?? null,
+            uten_fast_beloep: (s.enighet.grunnlag.utfall.uten_fast_beloep ?? []).map(
+              (id) =>
+                s.krav.flatMap((k) => kravposterI(k)).find((p) => p.id === id)?.betegnelse ?? id
+            ),
+            virkning,
+          }
+        : null,
   };
 }
 

@@ -12491,7 +12491,7 @@
     },
     {
       "id": "F-MM-KA-U59",
-      "forslag": "KA-U59: byggherren svarer per kravpost, så ett beløp på et krav med flere kravposter avvises",
+      "forslag": "KA-U59: byggherren svarer per kravpost, så ett beløp på et krav med flere kravposter avvises, og et svar på hver kravpost godtas",
       "rader": ["KA-56"],
       "start": "krav_irreg",
       "steg": [
@@ -12500,6 +12500,12 @@
           "spor": "vederlag",
           "kravposter": [{ "post": "P1", "belop": 100000 }, { "belop": 5000 }],
           "navn": "K-v2"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 100000 }, { "post": "P2", "oppgjoersform": "regningsarbeid" }],
+          "navn": "K-v3"
         }
       ],
       "kontroller": [
@@ -12520,6 +12526,42 @@
           "prov": {
             "handling": "brev",
             "svar": [{ "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 60000 }]
+          },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_VURDERING" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U59"],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "kravposter": [
+                  { "post": "P1", "vurdering": "delvis", "godkjent_belop": 60000 },
+                  { "post": "P2", "vurdering": "godkjent" }
+                ]
+              }
+            ]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["KA-U59"],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "kravposter": [
+                  { "post": "P1", "vurdering": "godkjent" },
+                  { "post": "P2", "vurdering": "godkjent" }
+                ]
+              }
+            ]
           },
           "forventet": { "avvist": true, "regel": "SVAR_PER_KRAVPOST" }
         }

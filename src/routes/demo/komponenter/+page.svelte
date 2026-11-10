@@ -40,9 +40,7 @@
   const utfylt = (begrunnelse = BEGRUNNELSE): Svarvalg => ({
     ...tomtSvar(),
     iTide: false,
-    metode: true,
-    beloep: 'deler',
-    delbeloep: '60 000',
+    poster: { P1: { form: 'tilbud', beloep: 'deler', delbeloep: '60 000' } },
     begrunnelse,
   });
   const UBESVART = 'bh-har-mottatt-vederlagskravet';

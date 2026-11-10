@@ -12,8 +12,8 @@ import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/frosset/forholdene'
 import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
-import type { Part, Spor, Standpunkt } from '$kjerne/typer';
-import type { Brevet, Brevref, OppgittDato } from './lesing';
+import type { Kravpost, Part, Spor, Standpunkt } from '$kjerne/typer';
+import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
 
 export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
 
@@ -135,10 +135,50 @@ export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =
     : `${du ? 'Du' : 'BH'} har gjort gjeldende i ${brevref(brev)} at varselet om forholdet kom for sent (punkt 32.2)`;
 
 /**
- * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
- * «BH» ellers. `krevd` er det TE krevde for posten.
+ * Standpunktet i den lukkede kravposten, kort og uten kravposten, som raden navngir (prototype v3,
+ * `leselinje`). Bare oppgjørsformen og beløpet gjelder én kravpost; ellers `null`.
  */
-export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number): string {
+function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
+  switch (s.art) {
+    case 'oppgjoersform':
+      return s.aksepterer
+        ? 'Godkjenner fast sum'
+        : s.oensket
+          ? `Mener ${metodenavn(s.oensket)}`
+          : 'Godkjenner ikke fast sum';
+    case 'beloep':
+      if (krevd === undefined) return `${kroner(s.godkjent)} godkjent`;
+      if (s.godkjent === krevd) return `${kroner(s.godkjent)}, godkjent som krevd`;
+      return `${kroner(s.godkjent)} av ${kroner(krevd)} godkjent`;
+    default:
+      return null;
+  }
+}
+
+/** Leselinjene for kravposten `post` av linjene i svaret, med etiketten for laget foran. */
+export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
+  return linjer.flatMap((l) => {
+    if (!('standpunkt' in l)) return [];
+    const s = l.standpunkt;
+    if (!('gjelder' in s) || s.gjelder !== post.id) return [];
+    const t = kortStandpunkt(
+      s,
+      s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined
+    );
+    if (!t) return [];
+    return [
+      l.lag ? `${l.lag[0].toUpperCase()}${l.lag.slice(1)}: ${t[0].toLowerCase()}${t.slice(1)}` : t,
+    ];
+  });
+}
+
+/**
+ * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
+ * «BH» ellers. `krevd` er det TE krevde for posten. `post` er betegnelsen på kravposten
+ * standpunktet gjelder, når kravet har flere (KA-U57).
+ */
+export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post?: string): string {
+  const forPosten = post ? ` for ${post}` : '';
   const hvem = du ? 'Du' : 'BH';
   const hvemLiten = du ? 'du' : 'BH';
   switch (s.art) {
@@ -151,13 +191,13 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number): str
               : '');
     case 'oppgjoersform':
       return s.aksepterer
-        ? `${hvem} godkjenner beregningsmetoden TE krever`
-        : `${hvem} godkjenner ikke beregningsmetoden TE krever` +
+        ? `${hvem} godkjenner oppgjørsformen TE krever${forPosten}`
+        : `${hvem} godkjenner ikke oppgjørsformen TE krever${forPosten}` +
             (s.oensket ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}` : '');
     case 'beloep': {
-      const post = s.saerskilt ? 'Særskilt vederlagsjustering' : 'Vederlagsjustering';
+      const hva = s.saerskilt ? 'Særskilt vederlagsjustering' : `Vederlagsjustering${forPosten}`;
       const av = krevd !== undefined ? ` av ${kroner(krevd)}` : '';
-      return `${post}: ${hvemLiten} godkjenner ${kroner(s.godkjent)}${av}`;
+      return `${hva}: ${hvemLiten} godkjenner ${kroner(s.godkjent)}${av}`;
     }
     case 'forhold':
       return `${hvem} svarer på forholdet: ${s.resultat}`;
@@ -199,14 +239,24 @@ export const SKJEMA = {
       ? `Kravet om vederlagsjustering står i ${b.omtale}, registrert ${dato(d)}.`
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
-  metodeTittel: 'Beregningsmetode',
-  metodeSpoersmaal: (m: unknown) => `TE krever oppgjør etter ${metodenavn(m)}. Godkjenner du det?`,
-  godtarMetode: 'Godkjenner metoden',
-  godtarIkkeMetode: 'Godkjenner ikke metoden',
-  oensketSpoersmaal: 'Hvilken metode mener du vederlaget skal justeres etter?',
+  formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
+  godkjennerForm: 'Godkjenner fast sum (punkt 34.2.1)',
+  menerForm: (m: 'enhetspriser' | 'regningsarbeid') => `Mener ${metodenavn(m)}`,
   // Beløpet står etter tittelen i komponenten, med mono (#1467).
   beloepTittel: 'Vederlagsjustering',
-  beloepSpoersmaal: 'Hvor mye av vederlagsjusteringen godkjenner du?',
+  beloepSpoersmaal: 'Hvor mye av beløpet godkjenner du?',
+  ettSvarPerPost: 'Ett svar per kravpost. Åpne en kravpost for å svare på den.',
+  godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
+  godkjennAlle: 'Godkjenn alle kravpostene som krevd',
+  svaretKolonne: 'Svaret',
+  teKrever: (beloep: number, pns?: string) =>
+    `TE krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,
+  ikkeBesvart: 'Ikke besvart',
+  endre: 'Endre',
+  svarPaa: 'Svar',
+  endrePost: (post: string) => `Endre svaret på ${post}`,
+  svarPaaPost: (post: string) => `Svar på ${post}`,
+  ferdig: 'Ferdig',
   gjelderHvis: 'Gjelder hvis',
   innsigelsenSenVarsling: 'innsigelsen om sen varsling',
   // Grunnene fra svaret på grunnlaget har ikke noe felt i skjemaet; brevet står i teksten.
@@ -224,16 +274,20 @@ export const SKJEMA = {
   begrunnelseHjelp: 'Kommer i brevet under standpunktene.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
-  manglerMetode: 'Velg om du godkjenner beregningsmetoden.',
-  manglerOensket: 'Velg metoden du mener vederlaget skal justeres etter.',
-  manglerBeloep: 'Velg hvor mye av vederlagsjusteringen du godkjenner.',
+  manglerForm: 'Velg om du godkjenner fast sum.',
+  manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
   manglerDelbeloep: 'Skriv beløpet du godkjenner.',
+  /** Med flere kravposter sier meldingen hvilken den gjelder. */
+  iPosten: (post: string | null, tekst: string) => (post ? `${post}: ${tekst}` : tekst),
   forkast: 'Forkast utkast',
   forkastSpoersmaal: 'Forkaste utkastet? Valgene og begrunnelsen slettes.',
   forkastJa: 'Forkast',
   behold: 'Behold utkastet',
   ikkeStoettet:
     'Kravet har en post for særskilt vederlagsjustering (punkt 34.1.3). Den kan ikke besvares i denne prøven av Varden ennå.',
+  /** Hinderet kjernen gir for kravet (`hindrerSvarPaaKravet`). */
+  ikkeStoettetHinder: (hinder: string) =>
+    `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,
 };
 
 export const HOVEDLINJER = {
@@ -356,6 +410,22 @@ export const STILLING = {
     `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare det subsidiære beløpet.`,
   beloep: (beloep: number, b: Brevref) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
+  /**
+   * Beløpet i enigheten, og kravpostene uten fast beløp prinsipalt, som beløpet ikke regner med
+   * (OV-U73, svar 6 A i #1663). Uten noe fast beløp står bare kravpostene, ikke 0 kr.
+   */
+  beloepet: (beloep: number, uten: string[], b: Brevref): string[] => {
+    if (!uten.length) return [STILLING.beloep(beloep, b)];
+    const liste = uten.length > 1 ? `${uten.slice(0, -1).join(', ')} og ${uten.at(-1)}` : uten[0];
+    return beloep === 0
+      ? [
+          `Godtar du, har ${liste} ikke et fast beløp prinsipalt, og dere er ikke enige om et beløp for ${uten.length > 1 ? 'dem' : 'den'}.`,
+        ]
+      : [
+          STILLING.beloep(beloep, b),
+          `${liste} har ikke et fast beløp prinsipalt og er ikke regnet med i beløpet.`,
+        ];
+  },
   vilkaar: 'Enigheten får virkning når forholdet er avklart.',
   kilde: (b: Brevref) => `Virkningen er regnet ut fra ${brevref(b)} slik det ble sendt.`,
   godtarBrev: (b: Brevref) => `Du godtar hele svaret i ${brevref(b)}`,

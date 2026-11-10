@@ -6,7 +6,7 @@
 import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
 import { begrensningen, etikett, laget, standpunktet, type Svarinnhold } from './standpunkt.ts';
-import { kategori } from './kravinnhold.ts';
+import { kategori, kravposterI } from './kravinnhold.ts';
 import type { Hjemmel, Krav, Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
@@ -32,13 +32,15 @@ export const SVARET_PAA_PAABEROPELSEN: Record<Forholdsresultat, string> = {
  * Linjen i brevet for svaret: byggherrens standpunkt, med den prinsipale grunnen først
  * (vedtaket 05.10 om avslag sammen med § 32.2). Leddene ordnes og etiketteres som i
  * brevteksten (HF-U2, VS-U3), med lagene i sporet flyttet ned med `forskyvning`, lagene
- * svaret på forholdet opptar foran sporet (OV-U32, OV-U33, svaret i #1199).
+ * svaret på forholdet opptar foran sporet (OV-U32, OV-U33, svaret i #1199). `kravet` er
+ * kravet svaret gjelder; med flere kravposter navngir linjen kravposten (KA-U57 (c) og (d)).
  */
 export function beslutningslinje(
   svar: Svarinnhold,
   v: Standpunktsvirkning[],
   paaberopelse: Krav | null | undefined,
-  forskyvning: number
+  forskyvning: number,
+  kravet?: Krav | null
 ): string {
   const spesifisert = standpunktet(svar, 'spesifisering');
   // Fristsvaret kan prekludere etter både § 33.4 og § 33.6.2 tredje ledd (VS-U17). Begge er
@@ -81,12 +83,20 @@ export function beslutningslinje(
       (s): s is Extract<Standpunkt, { art: 'beloep' }> => s.art === 'beloep'
     );
     const delt = poster.some((b) => b.saerskilt);
+    const kravposter = kravet ? kravposterI(kravet) : [];
+    const betegnelse = (gjelder: string | undefined) =>
+      kravposter.length > 1 ? kravposter.find((k) => k.id === gjelder)?.betegnelse : undefined;
     poster.forEach((b) => {
-      const hva = !delt
-        ? ''
-        : b.saerskilt
+      const post = betegnelse(b.gjelder);
+      const hva = b.saerskilt
+        ? delt
           ? ` for ${SAERSKILT_I_LINJEN}`
-          : ' for justeringen ellers';
+          : ''
+        : post
+          ? ` for ${post}`
+          : delt
+            ? ' for justeringen ellers'
+            : '';
       if (b.saerskilt && begrenset)
         sine.push({
           tekst: `begrenset etter § 34.1.3 til ${kroner(begrenset.begrenset!)}`,
@@ -97,7 +107,10 @@ export function beslutningslinje(
         (s) => s.art === 'oppgjoersform' && !s.aksepterer && s.gjelder === b.gjelder
       );
       if (form && !b.saerskilt)
-        sine.push({ tekst: 'tilbudet ikke akseptert (§ 34.2.2)', virkning: virkning(form.id) });
+        sine.push({
+          tekst: `tilbudet${post ? ` for ${post}` : ''} ikke akseptert (§ 34.2.2)`,
+          virkning: virkning(form.id),
+        });
       const tekst =
         beloep(b.godkjent) === 0n ? `avslått${hva}` : `godkjent med ${kroner(b.godkjent)}${hva}`;
       sine.push({ tekst, virkning: virkning(b.id) });

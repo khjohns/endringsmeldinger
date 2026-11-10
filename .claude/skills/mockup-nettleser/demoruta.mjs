@@ -232,13 +232,13 @@ try {
 
   await knapp('Svar på kravet').click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
-  await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();
+  await page.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)', exact: true }).check();
   await page.getByRole('radio', { name: 'Deler av beløpet' }).check();
   await page.getByRole('textbox', { name: 'Beløpet du godkjenner' }).fill('60000');
   await page
     .getByRole('textbox', { name: 'Begrunnelse' })
     .fill('Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr.');
-  const gjelderHvis = await page.locator('[id$="-beloep-forutsetninger"] li').allInnerTexts();
+  const gjelderHvis = await page.locator('[id*="-beloep-"][id$="-forutsetninger"] li').allInnerTexts();
   console.log(`Beløpet gjelder hvis:\n${gjelderHvis.map((t) => `- ${t}`).join('\n')}`);
   if (
     gjelderHvis.length !== FORUTSETNINGER.length ||

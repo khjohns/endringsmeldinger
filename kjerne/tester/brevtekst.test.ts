@@ -6699,6 +6699,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       expect(v.poster).toEqual([
         {
           standpunkt: expect.any(String),
+          gjelder: expect.any(String),
           godkjent: 100000,
           lag: null,
           etikett: null,
@@ -7403,10 +7404,56 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
       ) as never,
       s.u(),
       KJERNE.regler
-    ).standpunkter.map(({ art, hjemmel, saerskilt, ...rest }) => ({
-      standpunkt: [art, hjemmel ?? saerskilt].filter(Boolean).join(' '),
-      ...rest,
-    }));
+    ).standpunkter.map(({ art, hjemmel, saerskilt, ...rest }) => {
+      // Kravposten står i sin egen test under; her er det lagene som prøves.
+      delete rest.gjelder;
+      return { standpunkt: [art, hjemmel ?? saerskilt].filter(Boolean).join(' '), ...rest };
+    });
+
+  it('med to kravposter sier hvert lag for beløpet og oppgjørsformen hvilken kravpost det gjelder (KA-U57 (c) og (d))', () => {
+    const s = saken(
+      { resultat: 'godkjent' },
+      {
+        vederlag: {
+          kravposter: [
+            { beskrivelse: 'Graving', oppgjoersform: 'tilbud', beloep: 100000 },
+            { beskrivelse: 'Rør', oppgjoersform: 'tilbud', beloep: 40000 },
+          ],
+        },
+      }
+    );
+    const [p1, p2] = kravposterI(s.u().spor.vederlag.gjeldendeKrav!);
+    const lag = lagForUtkastet(
+      svar(
+        'vederlag',
+        s.krav('vederlag'),
+        medKravpostIder(
+          {
+            hovedkrav_varslet_i_tide: true,
+            kravposter: [
+              { gjelder: 'P1', aksepterer: true },
+              { gjelder: 'P2', aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' },
+            ],
+          },
+          s.u().spor.vederlag.gjeldendeKrav
+        )
+      ) as never,
+      s.u(),
+      KJERNE.regler
+    );
+    expect(
+      lag.standpunkter
+        .filter((x) => x.art === 'beloep' || x.art === 'oppgjoersform')
+        .map((x) => [x.art, x.gjelder])
+    ).toEqual(
+      expect.arrayContaining([
+        ['oppgjoersform', p1!.id],
+        ['oppgjoersform', p2!.id],
+        ['beloep', p1!.id],
+        ['beloep', p2!.id],
+      ])
+    );
+  });
 
   it('kontrollsak: med godkjent forhold og ingenting besvart står beløpet uten lag og uten forutsetninger', () => {
     const s = saken({ resultat: 'godkjent' });
@@ -8096,7 +8143,68 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     );
   });
 
-  it('byggherren kan ikke svare med ett beløp på et krav med flere kravposter før svaret per kravpost er bygget (KA-U59)', () => {
+  it('svaret på to kravposter med fast sum navngir kravposten i brevet og linjen, og utfallet sier hvilken kravpost som ikke har fast beløp prinsipalt (KA-U57 (c) og (d), KA-U60, OV-U73, svar 6 A)', () => {
+    const s = sakMedKrav();
+    s.send(
+      'TE',
+      krav([
+        { ...post1, beloep: 125000 },
+        { ...post1, betegnelse: 'P2', beskrivelse: 'Pumping', beloep: 40000 },
+      ])
+    );
+    const [[, p1], [, p2]] = poster(s);
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          {
+            kravposter: [
+              { gjelder: p1, vurdering: 'delvis', godkjent_beloep: 100000, aksepterer: true },
+              {
+                gjelder: p2,
+                vurdering: 'godkjent',
+                godkjent_beloep: 40000,
+                aksepterer: false,
+                oensket_oppgjoersform: 'regningsarbeid',
+              },
+            ],
+          },
+          { resultat: 'delvis_godkjent', godkjent_beloep: 100000 }
+        ),
+      ],
+    });
+    // KA-U60: tilbudet for P2 ikke akseptert i laget foran beløpet for P2. P1 er upåvirket og
+    // står uten etikett foran den første etiketten (OV-U32, OV-U33, #1267 punkt 4).
+    expect(laast(rad)).toEqual([
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-04 av 5. oktober 2026: ${FORBEHOLD_BREV_2}\n\nByggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')} for P1.\n\nPrinsipalt: byggherren aksepterer ikke TEs tilbud for P2 (NS 8407 § 34.2.2 første ledd), og mener vederlaget for kravposten skal justeres som regningsarbeid (NS 8407 § 34.4).\n\nSubsidiært: byggherren godkjenner ${KR('40 000')} for P2.`,
+    ]);
+    const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    expect(b.linje).toBe(
+      'Byggherrens standpunkt: godkjent med 100\u00a0000\u00a0kr for P1, prinsipalt tilbudet for P2 ikke akseptert (§ 34.2.2), subsidiært godkjent med 40\u00a0000\u00a0kr for P2.'
+    );
+    // OV-U31: totalene er summen av det første og det siste laget; P2 har ikke fast beløp i det
+    // første (OV-U73).
+    expect((rad.data.svar as Data[])[0].utregning).toMatchObject({
+      godkjent_beloep: 100000,
+      subsidiaert_godkjent_beloep: 140000,
+    });
+    s.send('TE', {
+      type: 'aksept',
+      spor: 'vederlag',
+      svar: s.u().spor.vederlag.gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    // Svar 6 A (#1663): utfallet sier at P2 ikke har fast beløp, så 100 000 kr ikke leses som
+    // at P2 er avslått.
+    expect(s.u().spor.vederlag.enighet?.grunnlag.utfall).toEqual({
+      beloep: 100000,
+      uten_fast_beloep: [p2],
+    });
+  });
+
+  it('byggherren kan ikke svare med ett beløp på et krav med flere kravposter, og svaret på en kravpost etter en beregningsregel er ikke bygget (KA-U59)', () => {
     const s = sakMedKrav();
     const svaret = () => ({
       type: 'brev',
@@ -8112,10 +8220,12 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
         { ...post1, betegnelse: 'P2', beloep: 5000 },
       ])
     );
-    // Svaret tilbys ikke, så visningen åpner ikke et skjema kjernen ikke kan regne ut.
-    expect(handlinger(s.u(), 'BH')).not.toContain('svare:vederlag');
-    expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');
-    // Én kravpost etter en beregningsregel.
+    // Svaret tilbys, og svaret uten P2 avvises på P2.
+    expect(handlinger(s.u(), 'BH')).toContain('svare:vederlag');
+    expect(s.avvist('BH', svaret())).toBe('UGYLDIG_VURDERING');
+    expect(s.avvisning('BH', svaret())?.melding).toContain('P2.vurdering');
+    // Én kravpost etter en beregningsregel: svaret tilbys ikke, så visningen åpner ikke et
+    // skjema kjernen ikke kan regne ut (2b i #1663).
     s.send(
       'TE',
       krav([{ ...regning, oppgjoersform: 'regningsarbeid' }], {

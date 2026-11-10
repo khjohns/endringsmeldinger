@@ -9,7 +9,15 @@ import { laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad } from '$kjerne/typer';
 import { opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
-import { tomtSvar, vederlagssvaret, type Svarvalg } from '../kommandoer';
+import { kravposterI } from '$kjerne/frosset/kravinnhold';
+import {
+  tomPost,
+  tomtSvar,
+  utkastForBeloepet,
+  vederlagssvaret,
+  type Postvalg,
+} from '../kommandoer';
+import { lagForUtkastet } from '$kjerne/kommandoer/lag';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
   type: 'krav',
@@ -30,9 +38,17 @@ const medKrav = (beloep: number) =>
     utdypning: 'Tilbudet gjelder ekstra masseutskifting.',
   });
 
-const svar = (journal: Journalrad[], valg: Partial<Svarvalg>) =>
+const svar = (
+  journal: Journalrad[],
+  { begrunnelse = '', ...post }: Partial<Postvalg> & { begrunnelse?: string }
+) =>
   vederlagssvaret(
-    { ...tomtSvar(), iTide: true, metode: true, ...valg },
+    {
+      ...tomtSvar(),
+      iTide: true,
+      poster: { P1: { ...tomPost(), form: 'tilbud', ...post } },
+      begrunnelse,
+    },
     utledJournal(journal, KJERNE),
     KJERNE.regler
   )!;
@@ -93,5 +109,88 @@ describe('postene i svaret', () => {
     expect(
       svar(journal, { beloep: 'hele', begrunnelse: '  Godtatt etter befaring. ' }).svar[0].utdypning
     ).toBe('Godtatt etter befaring.');
+  });
+});
+
+describe('svaret per kravpost (KA-U57, #1663)', () => {
+  const toPoster = skrevet(grunnforhold, 'TE', {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: {
+      kravposter: [
+        { beskrivelse: 'Graving', oppgjoersform: 'tilbud', beloep: 100_000 },
+        { beskrivelse: 'Rør', oppgjoersform: 'tilbud', beloep: 40_000 },
+      ],
+    },
+    utdypning: 'To kravposter med fast sum.',
+  });
+
+  it('hver kravpost får vurderingen BH valgte under betegnelsen, med kravpostens id i `gjelder`', () => {
+    const u = utledJournal(toPoster, KJERNE);
+    const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const kommando = vederlagssvaret(
+      {
+        iTide: true,
+        poster: {
+          P1: { form: 'tilbud', beloep: 'hele', delbeloep: '' },
+          P2: { form: 'regningsarbeid', beloep: 'deler', delbeloep: '30 000' },
+        },
+        begrunnelse: '',
+      },
+      u,
+      KJERNE.regler
+    )!;
+    expect(kommando.svar[0].vurderinger.kravposter).toEqual([
+      { gjelder: p1!.id, vurdering: 'godkjent', godkjent_beloep: 100_000, aksepterer: true },
+      {
+        gjelder: p2!.id,
+        vurdering: 'delvis',
+        godkjent_beloep: 30_000,
+        aksepterer: false,
+        oensket_oppgjoersform: 'regningsarbeid',
+      },
+    ]);
+  });
+
+  it('lagene for beløpet i en kravpost med svar på oppgjørsformen har laget for den, også når en annen kravpost mangler svaret (KA-U57, OV-U33)', () => {
+    const u = utledJournal(toPoster, KJERNE);
+    const krav = u.spor.vederlag.gjeldendeKrav!;
+    const [p1, p2] = kravposterI(krav);
+    const valg = {
+      iTide: true,
+      poster: {
+        P1: { form: 'regningsarbeid', beloep: 'hele', delbeloep: '' },
+        P2: { form: null, beloep: 'hele', delbeloep: '' },
+      },
+      begrunnelse: '',
+    } satisfies Parameters<typeof vederlagssvaret>[0];
+    const utkast = utkastForBeloepet(vederlagssvaret(valg, u, KJERNE.regler)!.svar[0], valg, krav);
+    const [v1, v2] = utkast.vurderinger.kravposter as Record<string, unknown>[];
+    expect(v1).toMatchObject({ gjelder: p1!.id, aksepterer: false });
+    expect(v2, 'P2 uten valgt form står uten den').not.toHaveProperty('aksepterer');
+    const lag = lagForUtkastet(utkast, u, KJERNE.regler);
+    expect(
+      lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p1!.id),
+      'laget for oppgjørsformen i P1'
+    ).toBe(true);
+    expect(lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p2!.id)).toBe(
+      false
+    );
+  });
+
+  it('en kravpost uten valg står uten vurdering, så kjernen avviser svaret', () => {
+    const u = utledJournal(toPoster, KJERNE);
+    const kommando = vederlagssvaret(
+      {
+        iTide: true,
+        poster: { P1: { form: 'tilbud', beloep: 'hele', delbeloep: '' } },
+        begrunnelse: '',
+      },
+      u,
+      KJERNE.regler
+    )!;
+    expect((kommando.svar[0].vurderinger.kravposter as unknown[])[1]).toEqual({
+      gjelder: kravposterI(u.spor.vederlag.gjeldendeKrav!)[1]!.id,
+    });
   });
 });

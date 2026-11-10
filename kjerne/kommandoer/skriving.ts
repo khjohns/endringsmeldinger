@@ -154,12 +154,14 @@ function svar(
 /**
  * Fryser brevet i hvert svar i dokumentet (MM-U9, MM-U11 (opphevet av MM-U50)). Lagene i vederlag og frist
  * flyttes ned med lagene svaret på forholdet opptar foran dem: svaret i samme dokument,
- * ellers `gjeldende`, som i brevteksten (OV-U32, OV-U33, svaret i #1199).
+ * ellers `gjeldende`, som i brevteksten (OV-U32, OV-U33, svaret i #1199). `kravet` gir kravet
+ * svaret gjelder.
  */
 function frysSvarene(
   svarene: Data[],
   gjeldende: Svar | null,
   paaberopelse: (s: Data) => Krav | null | undefined,
+  kravet: (s: Data) => Krav | undefined,
   kjerne: Kjerne
 ): void {
   const g = svarene.find((s) => s.spor === 'forhold');
@@ -174,7 +176,9 @@ function frysSvarene(
   }
   for (const s of svarene)
     if (s !== g)
-      s.beslutningsgrunnlag = lagret(frys(s, paaberopelse(s), kjerne.regler, forskyvning));
+      s.beslutningsgrunnlag = lagret(
+        frys(s, paaberopelse(s), kjerne.regler, forskyvning, kravet(s))
+      );
 }
 
 /** Svarene i et brev eller en revisjon, med brevet frosset i hvert. */
@@ -183,6 +187,7 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
     svarene,
     u.spor.forhold.gjeldendeSvar,
     (s) => paaberopelseFor({ spor: s.spor as Spor, gjelder: s.gjelder as string }, u),
+    (s) => u.spor[s.spor as Spor].krav.find((k) => k.id === s.gjelder),
     kjerne
   );
   return svarene;
@@ -632,15 +637,16 @@ function brevtekstFor(
  * Kaster `Uforstaatt` når et svar ikke kan leses.
  */
 export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
-  const paaberopelse: Krav[] = [];
+  const kravene: Krav[] = [];
   for (const h of lesJournal(foer, kjerne.leserformat))
-    if (h.art === 'dokument')
-      paaberopelse.push(...h.dokument.krav.filter((k) => k.spor === 'forhold'));
+    if (h.art === 'dokument') kravene.push(...h.dokument.krav);
+  const paaberopelse = kravene.filter((k) => k.spor === 'forhold');
   // Kategorien i påberopelsen: § 32.2 i forholdet (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
   frysSvarene(
     (rad.data.svar ?? []) as Data[],
     utledJournal(foer, kjerne).spor.forhold.gjeldendeSvar,
     (s) => paaberopelse.find((k) => k.id === (s.spor === 'forhold' ? s.gjelder : s.paaberopelse)),
+    (s) => kravene.find((k) => k.id === s.gjelder),
     kjerne
   );
 }
