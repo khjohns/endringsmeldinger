@@ -1,6 +1,6 @@
 ---
 name: leveranse
-description: Leveranseprosedyren for implementering og refaktorering. Brukes når en kodeoppgave starter, før akseptkriteriene skrives, og igjen før en PR meldes klar. Rene dokumentendringer bruker bare de relevante kontrollene.
+description: Leveranseprosedyren for implementering og refaktorering, med reglene for review og stoppregelen for funn. Brukes når en kodeoppgave starter, før akseptkriteriene skrives, og igjen før en PR meldes klar. Rene dokumentendringer bruker bare de relevante kontrollene.
 ---
 
 # Leveranse og vedlikehold
@@ -17,7 +17,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   endret tilgangsavgjørelse, statusovergang, beregningsregel, serialisering
   eller transaksjonsgaranti. Typiske steder, i begge språk, er tilgangslaget,
   serverinngangene, reglene og utledningen i kjernen, hendelsesmodellene og
-  lagrene; i Python også `services/business_rules.py` og `SporStatus`. En
+  lagrene. En
   kommentarendring eller ren flytting der utfallet er det samme, utløser det ikke.
 - **Beslutningsansvar** kreves når tiltenkt atferd, en tolkning av NS 8407 eller
   godtatt restrisiko endres. En omstrukturering som beholder atferden, utløser
@@ -53,7 +53,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   vedtakene og bevis-sakene, ikke mot den gamle koden.
 - Endrer oppgaven visningen, følg [interface-design-skillen](../interface-design/SKILL.md) og
   [systemfila](../../../.interface-design/system.md). Ryddingen og reviewet av visningen
-  står i `AGENTS.md`, «Arbeidsform».
+  står i «Review og funn» under.
 - Avklar bare uavklart tiltenkt atferd med oppdragsgiver. Tekniske valg innenfor
   oppgaven avgjør du selv. En uløst domenebeslutning blokkerer bare den
   implementeringen den gjelder.
@@ -132,6 +132,69 @@ Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
   konsumenter før sletting. Et verktøy for død kode gir kandidater, ikke bevis
   for at noe kan slettes.
 
+## Review og funn
+
+**Uavhengig review før en PR meldes klar er `/code-review` på egen diff** (`AGENTS.md`), på
+nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
+eller migrasjonene, uansett språk, ellers `medium`. For en diff som bare rører
+`docs/`, skillene og `AGENTS.md`, avgjør orkestratoren om `/code-review` er verdt
+det, og begrunner valget i én linje i PR-en (oppdragsgiver 27.10, #1338). Endrer diffen utledningen eller reglene i domenet, kommer i
+tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
+bevis-sakene samlet, én gang per PR. Reviewet og rettingene kjøres i en ny økt,
+ikke i byggeøkta, når vilkårene i
+[arbeidsøkt-skillen, «Review i ny økt»](../arbeidsokt/SKILL.md#tid-og-kontekst), er
+oppfylt.
+`/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
+forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
+**Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
+byggeøkta egen diff med kommandoen `/design-deslop` og lar PR-en stå som utkast.
+Etter `/design-deslop` legger byggeøkta (eller rettingsøkta) skjermbildene i PR-en og stopper.
+`/design-review` kjøres i en ny økt, før `/code-review`, først når oppdragsgiver har sett over
+skjermbildene og sagt fra. Det gjelder også under om lag 200 endrede linjer i `.svelte`- og
+CSS-filer, der byggeøkta ellers kunne kjørt den selv. Alvorligheten settes av
+`/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under
+(oppdragsgiver 23.10, #1080, og 29.10; oppdragsgiver 02.11, #1492).
+
+En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
+ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
+i PR-en fra grenen `skjermbilder`, slik
+[mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier
+(oppdragsgiver 23.10, #1222).
+
+**Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
+som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
+
+- Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
+  kan gi feil resultat senere eller er et krav til noe som skal bygges.
+- Er det et krav til en inngang eller del som ikke finnes ennå, føres kravet som
+  kommentar i issuet for den inngangen eller delen.
+- Resten samles i ett oppfølgingsissue per PR, med etiketten `review-oppfølging`
+  og en sjekkliste. Ett issue per funn lages ikke.
+
+(oppdragsgiver 16.10, #649)
+
+**Hva som føres i oppfølgingsissuet** (oppdragsgiver 20.10, etter en gjennomgang
+der 60 % av de åpne punktene var pirk):
+
+- **Testkode, verktøy, hooks og dokumentasjon.** Et funn her føres bare når det
+  kan gjøre en test grønn for feil atferd i produktkoden, eller skjule en feil der.
+  Ellers avvises det med én linje.
+- **Feil ved en senere endring.** Et funn regnes som «kan gi feil resultat
+  senere» bare når endringen er planlagt i et issue eller et vedtak.
+- **Avvises alltid:** duplisering, docstringer og ytelse uten måling.
+- **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står
+  punktet der alt, skriver du en kommentar der i stedet for et nytt punkt.
+
+Oppfølgingsissuet får samme milepæl
+eller sporetikett som PR-en det kommer fra. En PR som løser punkter, skriver
+«Del av #n». Orkestratoren krysser av punktene når PR-en er merget, og lukker
+issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
+`Closes` for et oppfølgingsissue.
+
+Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
+rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
+`medium` (oppdragsgiver 14.10, #484 og #490).
+
 ## Før en PR meldes klar
 
 - Prøv akseptkriteriene mot forventninger fra et vedtak eller en annen uttrykkelig
@@ -172,10 +235,10 @@ Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
   kontrollrundene av vedtaksteksten. Det som krever skjønn, og kontrollen av
   `folge` og merknadene mot svarene, står i
   [vedtaksskillen](../vedtak/SKILL.md).
-- Gjennomfør uavhengig review etter `AGENTS.md`, med akseptkriteriene som
+- Gjennomfør uavhengig review etter «Review og funn», med akseptkriteriene som
   grunnlag. Se særlig etter ny duplisering, om regelen ligger der den skal eies,
-  og om utfasingen er planlagt. Funn om dette følger stoppregelen for funn i
-  `AGENTS.md`. Leveransen skal kunne forklares og etterprøves
+  og om utfasingen er planlagt. Funn om dette følger stoppregelen for funn.
+  Leveransen skal kunne forklares og etterprøves
   fra kode, tester og varige referanser uten den opprinnelige chatten. At
   agenter er enige, er ikke testbevis og erstatter ikke det menneskelige
   beslutningsansvaret.
@@ -190,5 +253,5 @@ Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
   kommando, resultat og kontrollert commit eller diff. Skill egne kjøringer fra
   historiske resultater. Kontroller som ikke er gjennomført eller ikke var
   tilgjengelige, oppgis uttrykkelig. Mangler en påkrevd sjekk eller review, er
-  PR-en fortsatt utkast. Restanser får issues etter `AGENTS.md`. Et issue gjør
+  PR-en fortsatt utkast. Restanser får issues etter `AGENTS.md`, «Hvor hva står». Et issue gjør
   ikke et uoppfylt akseptkriterium oppfylt.

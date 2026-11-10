@@ -33,7 +33,7 @@ brukerforløp i designsløyfa, før byggingen ([brukerforlop](../brukerforlop/SK
 og forteller orkestratoren oppgavetypen (oppdragsgiver 27.10).
 
 `feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`AGENTS.md`,
-«Miljø», og orkestreringsskillen, punkt 2).
+«Miljø», og arbeidsøkt-skillen, «I en orkestrert økt»).
 
 **Lag.** Et byggeissue får lagetiketten for hvert lag det rører, enten det har en
 milepæl eller en sporetikett. Runder settes sammen etter hvilke filer øktene rører
@@ -86,7 +86,7 @@ Etikettene på et issue settes samlet med
 gjenstår i en pakke, er de åpne issuene i milepælen
 (`gh api "repos/khjohns/endringsmeldinger/milestones?state=open"` gir nummerne).
 Et oppfølgingsissue fra review får samme milepæl eller sporetikett som PR-en det kom fra
-(`AGENTS.md`, «Arbeidsform»). En PR har sjelden egen milepæl eller sporetikett. Da hentes
+(leveranseskillen, «Review og funn»). En PR har sjelden egen milepæl eller sporetikett. Da hentes
 de fra issuet PR-en lukker eller er del av.
 
 ## Innholdet i et issue
@@ -108,6 +108,6 @@ de fra issuet PR-en lukker eller er del av.
 
 - Bruk [PR-malen](../../../.github/pull_request_template.md), også gjennom API-et.
 - `Closes #n` når PR-en fullfører issuet, «Del av #n» når den leverer en del. Et
-  oppfølgingsissue fra review lukkes aldri med `Closes` (`AGENTS.md`, «Arbeidsform»).
+  oppfølgingsissue fra review lukkes aldri med `Closes` (leveranseskillen, «Review og funn»).
 - PR-en får ikke lag- og temaetikettene fra issuet. Den får bare etiketter som styrer
   CI, som `feilinnfoering`. Milepælen og sporet står i issuet PR-en viser til.

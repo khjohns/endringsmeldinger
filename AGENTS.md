@@ -275,9 +275,10 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Invarianter og regler som står seg | Denne fila |
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
 | Regler som bare gjelder én del av treet: databasen, testene, tilgangen, kjernen, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
-| Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
+| Leveranseprosedyren: akseptkriterier, eierskap, utfasing, review, stoppregelen for funn og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
 | Beslutningene for visningen: retning, tokens i bruk, mønstre og vedtakene som styrer farge og ord. Metoden for frontendarbeid | [`.interface-design/system.md`](.interface-design/system.md). Verdiene står i `theme.css`. Metoden står i [interface-design-skillen](.claude/skills/interface-design/SKILL.md) |
 | Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |
+| Tid, kontekstgrenser og tilstand i en skyøkt, og de faste reglene for en orkestrert arbeidsøkt | [Arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Regelen om at den gjelder alle skyøkter, står i «Arbeidsform» |
 | Når en subagent brukes, og modellen, størrelsen og bestillingen for den | [Subagent-skillen](.claude/skills/subagenter/SKILL.md). Regelen om å følge den står i «Arbeidsform» |
 | Episodene bak resonneringsreglene | [Resonnering-skillen](.claude/skills/resonnering/SKILL.md). Reglene står i «Resonneringsregler» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i SQL Server i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttestene i `verktoy/tester/test_datamodell/` feiler når et register mangler en tabell eller en fremmednøkkel, eller avviker fra koden eller migrasjonene, og når et kall til Catenda i `server/` mangler en pil i dataflyten |
@@ -299,7 +300,7 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 - **Skriv ikke arbeidsstatus i hovedplanen eller `docs/README.md`**: «neste
   oppgave», «pågår», «venter på», «merges etter #45». Det hører til i issuet.
 - **Oppfølging som ikke løses i samme PR, føres i et issue.** Funn fra review og
-  code-review følger «Stoppregelen for funn» under «Arbeidsform». Feil du oppdager
+  code-review følger stoppregelen for funn i leveranseskillen. Feil du oppdager
   underveis utenfor oppdraget, og som ikke er reviewfunn, blir egne issues. Venter
   en slik feil på en B-ID, får den `venter-på-beslutning`. Å nevne den i
   PR-beskrivelsen er ikke nok. Tilskriver du en feil testmiljøet, er det en
@@ -343,70 +344,16 @@ issues suppleres i stedet for å dupliseres.
 **Oppgavetypene, og skillene og kontrollene hver av dem bruker, står i
 [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#oppgavetypene).** Designsløyfa,
 der brukerforløp og prototyper avklares før byggingen, følger skillen `brukerforlop`.
-En iterasjon som bare rører `docs/`, har kontrollene i tabellen, ikke reviewet under.
+En iterasjon som bare rører `docs/`, har kontrollene i tabellen, ikke reviewet i leveranseskillen.
 
-**Uavhengig review før en PR meldes klar er `/code-review` på egen diff**, på
-nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
-eller migrasjonene, uansett språk, ellers `medium`. For en diff som bare rører
-`docs/`, skillene og `AGENTS.md`, avgjør orkestratoren om `/code-review` er verdt
-det, og begrunner valget i én linje i PR-en (oppdragsgiver 27.10, #1338). Endrer diffen utledningen eller reglene i domenet, kommer i
-tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
-bevis-sakene samlet, én gang per PR. Reviewet og rettingene kjøres i en ny økt,
-ikke i byggeøkta, når vilkårene i orkestreringsskillen, «Review i ny økt», er
-oppfylt.
-`/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
-forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
-**Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
-byggeøkta egen diff med kommandoen `/design-deslop` og lar PR-en stå som utkast.
-Etter `/design-deslop` legger byggeøkta (eller rettingsøkta) skjermbildene i PR-en og stopper.
-`/design-review` kjøres i en ny økt, før `/code-review`, først når oppdragsgiver har sett over
-skjermbildene og sagt fra. Det gjelder også under om lag 200 endrede linjer i `.svelte`- og
-CSS-filer, der byggeøkta ellers kunne kjørt den selv. Alvorligheten settes av
-`/design-review`; hva som rettes i PR-en, følger stoppregelen for funn
-(oppdragsgiver 23.10, #1080, og 29.10; oppdragsgiver 02.11, #1492).
+**Uavhengig review før en PR meldes klar er `/code-review` på egen diff.** Nivået,
+reviewet av samspillet mellom reglene, `/simplify`, ryddingen og reviewet av visningen,
+kjøringen av den ekte saksruta og stoppregelen for funn står i
+[leveranseskillen, «Review og funn»](.claude/skills/leveranse/SKILL.md#review-og-funn).
+Endrer diffen visningen, står PR-en som utkast til oppdragsgiver har sett skjermbildene.
 
-En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
-ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
-i PR-en fra grenen `skjermbilder`, slik
-[mockup-nettleser](.claude/skills/mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier
-(oppdragsgiver 23.10, #1222).
-
-**Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
-som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
-
-- Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
-  kan gi feil resultat senere eller er et krav til noe som skal bygges.
-- Er det et krav til en inngang eller del som ikke finnes ennå, føres kravet som
-  kommentar i issuet for den inngangen eller delen.
-- Resten samles i ett oppfølgingsissue per PR, med etiketten `review-oppfølging`
-  og en sjekkliste. Ett issue per funn lages ikke.
-
-(oppdragsgiver 16.10, #649)
-
-**Hva som føres i oppfølgingsissuet** (oppdragsgiver 20.10, etter en gjennomgang
-der 60 % av de åpne punktene var pirk):
-
-- **Testkode, verktøy, hooks og dokumentasjon.** Et funn her føres bare når det
-  kan gjøre en test grønn for feil atferd i produktkoden, eller skjule en feil der.
-  Ellers avvises det med én linje.
-- **Feil ved en senere endring.** Et funn regnes som «kan gi feil resultat
-  senere» bare når endringen er planlagt i et issue eller et vedtak.
-- **Avvises alltid:** duplisering, docstringer og ytelse uten måling.
-- **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står
-  punktet der alt, skriver du en kommentar der i stedet for et nytt punkt.
-
-Oppfølgingsissuet får samme milepæl
-eller sporetikett som PR-en det kommer fra. En PR som løser punkter, skriver
-«Del av #n». Orkestratoren krysser av punktene når PR-en er merget, og lukker
-issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
-`Closes` for et oppfølgingsissue.
-
-Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
-rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
-`medium` (oppdragsgiver 14.10, #484 og #490).
-
-**Grensene for kontekst i
-[orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#kontekst-i-arbeidsøktene)
+**Reglene for tid, kontekst og tilstand i
+[arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md)
 gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert
 (oppdragsgiver 12.10, #425).
 

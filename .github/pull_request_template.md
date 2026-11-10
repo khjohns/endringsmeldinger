@@ -48,5 +48,5 @@ bare for å fylle dette punktet. -->
 
 ## Åpne spørsmål
 
-<!-- Uløste beslutninger, avviste reviewfunn etter stoppregelen for funn i `AGENTS.md`
+<!-- Uløste beslutninger, avviste reviewfunn etter stoppregelen for funn i leveranseskillen
 og koblede oppfølgingsissues. Slett seksjonen hvis det ikke er noen. -->

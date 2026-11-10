@@ -8,7 +8,7 @@ description: Kjører den ekte saksruta og demoruta i Chromium i skyøkta. saksru
 ## Den ekte saksruta
 
 Den ekte saksruta `/{prosjekt}/{sak}` mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/vedtak.md#dl-u1)) kreves
-for en diff i saksvisningen, etter `AGENTS.md`, «Arbeidsform». Den kjøres med:
+for en diff i saksvisningen, etter leveranseskillen, «Review og funn». Den kjøres med:
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \

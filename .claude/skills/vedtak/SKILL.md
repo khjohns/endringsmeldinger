@@ -5,6 +5,8 @@ description: Spørsmålene til oppdragsgiver om domenet og vedtakene som føres 
 
 # Spørsmål og vedtak
 
+Episodene bak reglene står i [episodefila](episoder.md).
+
 Domenespørsmålene fra øktene går gjennom orkestratoren, ikke rett til
 oppdragsgiver.
 
@@ -45,8 +47,7 @@ oppdragsgiver.
   sendt brev binder. Detaljene venter til retningen er avgjort: for
   kjerne-oppgaver stilles de i kartleggingen (punkt 1 i
   [orkestreringsskillen](../orkestrering/SKILL.md#1-kartlegg-før-du-fordeler)), ellers i byggeøkta for
-  bestemmelsen. I FK runde 3 trengte spørsmålene fem kontrollrunder, fordi
-  alternativene ble detaljerte før retningen var valgt.
+  bestemmelsen.
 - **Den som stilte spørsmålet, retter det.** Finner kontrollen feil, sender
   orkestratoren funnene til økta som stilte spørsmålet. Orkestratoren skriver
   ikke spørsmålet om selv. Skriver orkestratoren likevel, går teksten gjennom
@@ -79,9 +80,7 @@ oppdragsgiver.
 - **Lagre spørsmålene ordrett før du stiller dem.** Skriv hvert spørsmål med
   alle alternativene, etikett og beskrivelse slik de vises i verktøyet eller
   står i listen, til en fil før spørsmålet stilles. Før svarene inn i samme fil. Vedtaket føres fra den fila,
-  også de forkastede alternativene, av orkestratoren eller en subagent. I FK
-  runde 4 ga fila bare etikettene for de forkastede alternativene, og
-  vedtaks-PR-en fikk tekster fra et utkast oppdragsgiver ikke hadde sett.
+  også de forkastede alternativene, av orkestratoren eller en subagent.
 - **Prinsipp før enkeltvedtak.** Følger svaret av et vedtatt prinsipp, trengs
   ikke et eget vedtak. Valget føres da som arbeidsvalg i paragrafmatrisen,
   domenetabellen eller issuet, med henvisning til prinsippet, og står til
@@ -89,17 +88,13 @@ oppdragsgiver.
   vedtak eller blir en kontrakt. Et valg om skjemaet, visningen eller arbeidsflyten føres i
   brukerforløpet og ikke som en post i registeret. Er spørsmålene mange og detaljerte, gå rett til én
   samlet tilslutning: ett helhetlig forslag, eventuelt prøvd i juridisk
-  sparring, som oppdragsgiver kan svare «ja» på med rettelser per punkt. I FK
-  runde 4 tok spørsmålene for byggedel 1 tre versjoner før oppdragsgiver
-  sluttet seg til en samlet vurdering.
+  sparring, som oppdragsgiver kan svare «ja» på med rettelser per punkt.
 - **Juridisk sparring.** Vil oppdragsgiver drøfte spørsmålene med en annen
   modell eller en rådgiver, lag en selvstendig prompt med bakgrunnen,
   prinsippene og spørsmålene, uten saksdata. Et svar fra sparringen gjelder
   først når oppdragsgiver slutter seg til det, og det prøves mot vedtakene som
   andre svar. Lagre svaret ordrett i en fil og la en subagent prøve det mot
-  vedtakene og koden før spørsmålene stilles. I FK runde 6 fant prøvingen at en
-  anbefaling sparringen kalte teknisk, snudde planen for leveringen, og at et
-  sitat fra et vedtak var halvt.
+  vedtakene og koden før spørsmålene stilles.
 - **Prøv arbeidsflyten før vedtaksteksten skrives.** Når et spørsmål endrer hva
   en bruker gjør i appen, prøver en subagent retningen med tre til fem konkrete
   forløp, også forløp der brukeren angrer eller har gjort en feil. Utgangspunktet
@@ -110,11 +105,7 @@ oppdragsgiver.
   likevel: appen tolker ikke fritekst (KA-U16), appen avgjør ikke det kontrakten
   overlater til partene (MM-U12, opphevet av MM-U50), og en forenkling forklares med hva den koster
   den andre parten. Ren ordlyd og samsvar mellom vedtak trenger ikke denne
-  prøvingen. I vurderingen av vedtakene 25.10 (#1282) godkjente prøvingen mot
-  vedtaksfila en sendesperre som gjorde det lønnsomt å svare nei. Forløpene fant
-  blindveiene, og rettingene som bare skulle gi samsvar, la til nye: en ny adgang
-  til å svekke et svar, et trekk av et avtalt krav og et fritt tilbakekall av et
-  bindende forslag (oppdragsgiver 25.10).
+  prøvingen (oppdragsgiver 25.10, #1282).
 - **Skriv alternativene i vedtaksform.** Det valgte alternativet blir
   vedtaksteksten ordrett, og et alternativ oppdragsgiver forkaster, blir
   «Forkastet» ordrett ([vedtaksregisteret](../../../docs/vedtaksregister/README.md)).
@@ -132,12 +123,10 @@ oppdragsgiver.
 - **Ett spørsmål, én beslutning.** Alternativene svarer på samme spørsmål. Blander et
   spørsmål det som følger av et vedtak med et nytt produktvalg, deles det: det som følger
   av vedtaket, skrives som avgrensning med vedtaket som belegg, og det nye valget blir et
-  eget spørsmål, gjerne utenfor oppgaven. I BF-03 blandet ett spørsmål hva TEs protest gjør
-  med tilbudet i svaret, og om TE skal kunne foreslå å avtale beløpet for seg (#1336).
+  eget spørsmål, gjerne utenfor oppgaven (#1336).
 - **En virkning gjengis med alle vilkårene.** Sier et alternativ, en anbefaling eller en
   tekst i en skisse hvor lenge noe binder eller gjelder, tas hvert vilkår i vedtaket med,
-  også de som ikke virker aktuelle i saken. I BF-03 manglet akseptfristen i HF-U5, og
-  prototypen lovet at tilbudet sto til TE handlet (#1336).
+  også de som ikke virker aktuelle i saken (#1336).
 - **Skill belegg fra antakelse i anbefalingen.** Bygger en anbefaling på hva brukere
   gjør eller trenger, som «den vanligste veien», sier den at det er en antakelse, eller
   viser til prøven som fant det (#1336).

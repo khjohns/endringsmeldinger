@@ -113,7 +113,8 @@ det, så svarene holdes små:
   Reporteren skriver bare oppsummeringen når alt er grønt, og ellers de
   feilende testene med diff og sted. Den skjuler også advarslene fra
   vite-plugin-svelte. Et `tail` kan kutte bort den første feilen. Pytest kjøres
-  med `-q` som i blokken over, med `| tail -30`. Skal hele utdataene leses, gjør
+  med `-q` som i blokken over, med `| tail -30`: pytest skriver feilene og
+  oppsummeringen sist. Skal hele utdataene leses, gjør
   en subagent det og rapporterer bare feilene.
 - Tell før du leser: `grep -c` eller `grep -l` først, deretter `grep -n` på
   de filene som gjelder. Et søk med mange alternativer over hele treet gir

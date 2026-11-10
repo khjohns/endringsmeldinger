@@ -19,7 +19,8 @@ altså noe, og en subagent brukes bare når den sparer mer enn den koster (oppdr
      bestillingen (`diffkontroll`), sikkerhetsinvariantene før merge («3. Gjennomgang» i
      [orkestreringsskillen](../orkestrering/SKILL.md#3-gjennomgang-når-øktene-er-ferdige)),
      og kontrollene i [vedtaksskillen](../vedtak/SKILL.md). Episodene der kontrollen
-     endret utfallet, står der.
+     endret utfallet, står i episodefilene for [orkestreringen](../orkestrering/episoder.md)
+     og [vedtakene](../vedtak/episoder.md).
   3. **Parallelt arbeid.** Flere uavhengige spørsmål som kan gå samtidig.
 - **Ellers gjør økta det selv.** Et oppslag som krever under om lag fem verktøykall og gir
   et lite svar, gjør økta selv. Det gjelder én post eller kjede i vedtaksregisteret
@@ -33,11 +34,13 @@ altså noe, og en subagent brukes bare når den sparer mer enn den koster (oppdr
   rapport kontrolleres, gjør en ny subagent det (oppdragsgiver 17.10 og 05.11, #1065).
 - **Modell.** Mekaniske kontroller går på `model: "haiku"` med `effort: "medium"`, eller
   `"high"` når kontrollen har flere steg (oppdragsgiver 10.10). Det gjelder polling av CI,
-  lesing av CI-logger, sammenligning med skript av kolonner, ankre og tokens, lenkekontroll
+  sammenligning med skript av kolonner, ankre og tokens, lenkekontroll
   og kontroll av at en diff bare inneholder de bestilte endringene. Kontroll av juss, vedtak og kode og det som krever skjønn går på
   standardmodellen: prøving av alternativene mot vedtakene, forslaget og spørsmålene.
+  En agent i `.claude/agents/`, som `ci-logg` og `diffkontroll`, har modellen og
+  innsatsen i sin egen definisjon.
 - **Størrelse.** En subagent får en bestilling den kan gjøre ferdig på om lag 80 kall og
-  under 150 000 tokens: én fil, én gruppe bevis-saker eller ett spørsmål. Større arbeid
+  under 150 000 tokens, uavhengig av grensen for økta: én fil, én gruppe bevis-saker eller ett spørsmål. Større arbeid
   deles på flere subagenter (oppdragsgiver 17.10). Uavhengige subagenter startes i samme
   melding, og de andre tett etter hverandre, så hurtigbufferen holder seg varm. Ingen
   subagent venter på noe utenfor seg selv (oppdragsgiver 05.11, #1065).
