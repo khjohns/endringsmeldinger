@@ -3245,7 +3245,9 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['.map((l) => ({ l, k: plass(l) ?? foerste }))', '.map((l) => ({ l, k: plass(l) ?? 99 }))'],
     ],
-    mal: ['tilbudet ikke akseptert og § 34.1.3 påberopt'],
+    mal: [
+      'en kravpost som verken beregningsregelen byggherren ikke godtar eller innsigelsene for den rammer, er upåvirket',
+    ],
   },
   {
     id: 'F391',
@@ -4280,8 +4282,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "      if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;\n      return ellers;",
-        "      if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;\n      if (s.art === 'beloep' && s.godkjent === undefined) return foerste + 1;\n      return ellers;",
+        "      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;",
+        "      if (s.art === 'beloep' && s.godkjent === undefined) return foerste + 1;\n      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;",
       ],
     ],
     mal: ['F-MM-V-34-2-2-nei', 'tilbudet ikke akseptert og § 34.1.3 påberopt'],
