@@ -48,3 +48,5 @@ sendt et eget varsel. A tar ikke stilling til når pliktene begynner å løpe.
 **Valget styrer** hvilke varsler kontrollen av en endring etter VS-U59 regner med.
 
 ## Svar
+
+Oppdragsgiver 10.11, ordrett: «A». Valgt: 1 A. Ført som VS-U60.

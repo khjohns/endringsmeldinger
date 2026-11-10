@@ -885,21 +885,25 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
   });
 
   it('korrigeringen avvises når datoen er uendret eller etter brevets dato, og godtas samme dag (arbeidsvalgene i #1308)', () => {
+    // I svikt er påberopelsen ikke et varsel etter § 32.2, så VS-U60 avviser ikke en dato etter den.
     const s = sak();
-    s.send('TE', PAABEROPELSE);
-    expect(s.avvisning('TE', korrigering(s, 'paalegg_mottatt', '2026-09-25'))).toEqual({
+    s.send('TE', {
+      ...PAABEROPELSE,
+      innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
+    });
+    expect(s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-09-25'))).toEqual({
       regel: 'DATOEN_ER_UENDRET',
       melding:
-        'TE har alt oppgitt at pålegget ble mottatt 25. september 2026. Korrigeringen må oppgi en annen dato.',
+        'TE har alt oppgitt at TE ble klar over forholdet 25. september 2026. Korrigeringen må oppgi en annen dato.',
     });
     // Brevet med korrigeringen er datert 3. oktober 2026.
-    expect(s.avvisning('TE', korrigering(s, 'paalegg_mottatt', '2026-10-04'))).toEqual({
+    expect(s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-10-04'))).toEqual({
       regel: 'DATO_ETTER_BREVET',
       melding:
-        'TE har oppgitt at pålegget ble mottatt 4. oktober 2026, etter brevets dato 3. oktober 2026.',
+        'TE har oppgitt at TE ble klar over forholdet 4. oktober 2026, etter brevets dato 3. oktober 2026.',
     });
     expect(
-      s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-10-03')),
+      s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03')),
       'kontrollsak'
     ).toBeNull();
   });
@@ -4218,6 +4222,41 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
     );
     expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-09-30'))).toBeNull();
   });
+
+  it('uten eget varsel avvises en korrigering til en dato etter påberopelsen, som er varselet etter § 32.2 (VS-U60)', () => {
+    const s = medForhold();
+    expect(s.avvisning('TE', korrigering(s, 'paalegg_mottatt', '2026-10-03'))).toMatchObject({
+      regel: 'VARSEL_FOER_GRUNNLAGSDATOEN',
+      melding: expect.stringMatching(/3\. oktober 2026.*punkt 32\.2.*2\. oktober 2026/),
+    });
+    expect(s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-10-02'))).toBeNull();
+  });
+
+  it('i svikt er påberopelsen ikke et varsel etter § 32.2, og en korrigering til en dato etter den godtas (VS-U60, VS-U43 punkt 6)', () => {
+    const s = medForhold(svikt);
+    expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
+  });
+
+  it.each([
+    ['det første fristkravet', '33.4', { type: 'krav', spor: 'frist', innhold: { dager: 20 } }],
+    [
+      'den første kravversjonen i vederlaget',
+      '34.1.2',
+      { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) },
+    ],
+  ])(
+    'uten eget varsel avvises en korrigering til en dato etter %s, som er varselet etter § %s (VS-U60)',
+    (_, hjemmel, krav) => {
+      // Påberopelsen er sendt 2. oktober og kravet 3. oktober; korrigeringen sendes 4. oktober.
+      const s = medForhold(svikt);
+      s.send('TE', { ...krav, utdypning: BESKRIVELSE });
+      expect(s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-10-04'))).toMatchObject({
+        regel: 'VARSEL_FOER_GRUNNLAGSDATOEN',
+        melding: expect.stringContaining(`punkt ${hjemmel} ble sendt 3. oktober 2026`),
+      });
+      expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
+    }
+  );
 });
 
 describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 og 10, #1489)', () => {

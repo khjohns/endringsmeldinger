@@ -3013,6 +3013,62 @@ tekst = '''
 Endringen godtas som i dag. Kontrollen gjøres bare når et varsel kommer inn, og rekkefølgen kan bli snudd av en senere endring.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "VS-U60"
+dato = 2026-11-10
+hvem = "oppdragsgiver"
+kilde = ["#1730", "#1753"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det ble stilt 10.11 i [spørsmålsfila fra reviewet](../vedlegg/varsel-foer-plikten-2026-11-10/sporsmal-review.md):
+
+### Spørsmål 1: om VS-U59 også gjelder varselet løsningen kjenner gjennom et krav
+
+**Bakgrunn.** VS-U58 nevner et varsel registrert som sendt utenfor løsningen og varselet som
+er oppgitt i et fristkrav. VS-U59 gjelder varslene VS-U58 gjelder, og sier i tillegg: «Er
+varselet sendt fra løsningen, står datoen for det fast». Om et krav som er det første kjente
+varselet, er med, sier ingen av dem uttrykkelig.
+
+**Belegg.** VS-U58, VS-U59, VS-U43 punkt 6–8, GR-U31 (påberopelsen sier at TE varsler etter
+punkt 32.2), MM-U52 punkt 10.
+
+**Alternativene.**
+- **A (anbefalt):** En endring av datoen i grunnlagskravet avvises også når den nye datoen er
+  senere enn datoen for et krav som etter samlevedtaket for varslingsdatoen (VS-U43 punkt
+  6–8) er det første varselet løsningen kjenner etter punkt 32.2, 33.4, 34.1.2 eller 34.1.3:
+  påberopelsen, det første fristkravet eller den første kravversjonen i vederlaget. Meldingen
+  nevner begge datoene. Forhold: presiserer VS-U59.
+- **B:** VS-U59 gjelder bare et eget varsel, registrert, oppgitt i et fristkrav eller sendt
+  fra løsningen. En endring kan sette datoen i grunnlagskravet etter påberopelsen eller det
+  første kravet som varsler.
+
+**Anbefaling: A.** Kravet er sendt fra løsningen, og datoen for det står fast. Med B kan saken
+få den motsetningen VS-U59 skal hindre, og det i det vanligste forløpet, der TE ikke har
+sendt et eget varsel. A tar ikke stilling til når pliktene begynner å løpe.
+
+**Valget styrer** hvilke varsler kontrollen av en endring etter VS-U59 regner med.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 10.11, ordrett: «A». ([spørsmålsfila fra reviewet](../vedlegg/varsel-foer-plikten-2026-11-10/sporsmal-review.md))'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u59" },
+  { art = "bygger på", vedtak = "vs-u43" },
+]
+folge = '''
+Funnet i reviewet av #1753. Bygges i #1753.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En endring av datoen i grunnlagskravet avvises også når den nye datoen er senere enn datoen for et krav som etter samlevedtaket for varslingsdatoen (VS-U43 punkt 6–8) er det første varselet løsningen kjenner etter punkt 32.2, 33.4, 34.1.2 eller 34.1.3: påberopelsen, det første fristkravet eller den første kravversjonen i vederlaget. Meldingen nevner begge datoene. Forhold: presiserer VS-U59.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+VS-U59 gjelder bare et eget varsel, registrert, oppgitt i et fristkrav eller sendt fra løsningen. En endring kan sette datoen i grunnlagskravet etter påberopelsen eller det første kravet som varsler.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
