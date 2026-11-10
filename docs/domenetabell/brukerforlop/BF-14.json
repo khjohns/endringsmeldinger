@@ -188,7 +188,13 @@
     "KA-U71",
     "KA-U72",
     "VS-U1",
-    "VS-U14"
+    "VS-U14",
+    "OV-U5",
+    "VS-U61",
+    "VS-U62",
+    "VS-U63",
+    "VS-U64",
+    "VS-U65"
   ],
   "venter_paa": [
     "#1663",
@@ -262,6 +268,11 @@
       "dato": "2026-11-10",
       "forhold": "#1755",
       "hva": "Designforslaget i prototype v4 er ført inn i bestillingen, og S-14–S-18 er nye (#1758). Prototypen for forløpet er fortsatt v3."
+    },
+    {
+      "dato": "2026-11-10",
+      "forhold": "#1758",
+      "hva": "S-14–S-18 er besvart og ført som VS-U61–VS-U65. D-20 er ny, og tre punkter i v4 skal tegnes om."
     }
   ]
 }

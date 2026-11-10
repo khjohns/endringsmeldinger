@@ -190,7 +190,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U54](../../plans/vedtak.md#mm-u54) | — | — | BF-10 |
 | [OV-U1](../../plans/vedtak.md#ov-u1) | — | — | BF-06 |
 | [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-01V, BF-07 |
-| [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | — |
+| [OV-U5](../../plans/vedtak.md#ov-u5) | — | BF-05 start | BF-14 |
 | [OV-U6](../../plans/vedtak.md#ov-u6) | — | — | BF-06 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
 | [OV-U11](../../plans/vedtak.md#ov-u11) | — | BF-05 start | — |
@@ -260,3 +260,8 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U53](../../plans/vedtak.md#vs-u53) | — | — | BF-14 |
 | [VS-U54](../../plans/vedtak.md#vs-u54) | — | — | BF-14 |
 | [VS-U57](../../plans/vedtak.md#vs-u57) | — | — | BF-14 |
+| [VS-U61](../../plans/vedtak.md#vs-u61) | — | — | BF-14 |
+| [VS-U62](../../plans/vedtak.md#vs-u62) | — | — | BF-14 |
+| [VS-U63](../../plans/vedtak.md#vs-u63) | — | — | BF-14 |
+| [VS-U64](../../plans/vedtak.md#vs-u64) | — | — | BF-14 |
+| [VS-U65](../../plans/vedtak.md#vs-u65) | — | — | BF-14 |

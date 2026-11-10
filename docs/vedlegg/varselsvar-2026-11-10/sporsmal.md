@@ -246,4 +246,52 @@ prøvd i en brukerprøve.
 
 ## Svar
 
-Ikke besvart ennå.
+Oppdragsgiver 10.11, videresendt ordrett av orkestratoren: svaret er «1D, 2A, 3A, 4B, 5A». Spørsmål 5
+avviker fra anbefalingen. Oppdragsgiver la ved begrunnelsen under og skrev «Jeg støtter meg til dette:».
+Valgt: 1 D, 2 A, 3 A, 4 B og 5 A.
+
+Begrunnelsen, ordrett:
+
+> Jeg ville svart **1D, 2A, 3A, 4B og 5A**. Jeg er enig med spørsmålsfila i de fire første, men ikke i spørsmål 5. Jeg har kontrollert HF-U25 punkt 1–3 og VS-U46 punkt 1–10 mot vedtaksfila, og de er gjengitt riktig. Kontraktsteksten har jeg ikke lest selv.
+>
+> ## Spørsmål 1: D
+>
+> D er prinsippet ditt ført ut: én vei for begge varslene, i samme skjema som svaret på kravet. Den gir det du ville ha med «1B i utgangspunktet», nemlig en strukturert påberopelse mot punkt 34.4 uten å vente på kravet. B og C bygger i tillegg den egne innsigelsen, som VS-U46 har utsatt, og det mener jeg er en tredje dør uten god grunn.
+>
+> Kostnaden er reell, men liten: et svar på et varsel uten svarplikt kan se påkrevd ut. Skjemaet møter det ved å si at varselet ikke krever svar.
+>
+> ## Spørsmål 2: A
+>
+> A gir ett sted for standpunktet til enhver tid: først svaret på varselet, så kravposten. Det stemmer med kommentaren din om at kravskjemaet selv varsler når det ikke er varslet før. B tar bort svaret på et varsel som legges til mellom to krav. C gir to steder samtidig.
+>
+> Tillegget om at en påberopelse bevares når et nytt svar «erstatter» det forrige, er viktig og bør med.
+>
+> ## Spørsmål 3: A
+>
+> Løsningen utleder ingen virkning av standpunktet til varselet etter punkt 34.4. Da gir et uttrykkelig «i tide» lite, og byggherren slipper å ta et valg om et varsel uten svarplikt. Oppgivelsen står uttrykkelig i brevet, så TE ser at innsigelsen er borte.
+>
+> En ting å følge opp i designet: A sier at byggherren i svaret på kravposten kan gjøre gjeldende at varselet «ikke ble gitt eller kom for sent». v4 har bare «Varselet kom for sent». «Ikke gitt» må tegnes inn.
+>
+> ## Spørsmål 4: B
+>
+> Her er grunnen sterkest. Varselet etter punkt 34.1.2 er preklusivt, og byggherren må påberope sent varsel uten ugrunnet opphold. Med A har byggherren bare et innlegg, som løsningen ikke leser som en påberopelse. Da ville det viktigste varselet hatt den svakeste støtten.
+>
+> Kostnaden du bør være klar over: påberopelsen koster byggherren lite, så TE kan få flere påberopelser «for sikkerhets skyld». Det følger av kontrakten og ikke av løsningen, men løsningen gjør det lettere.
+>
+> ## Spørsmål 5: A, ikke B
+>
+> Her ville jeg gått mot anbefalingen, av tre grunner:
+>
+> - **Byggherren får ett brev også med A.** Etter forslaget i v4 står «Varslene» øverst i ethvert svar. Byggherren som vil endre kravpostene, velger «nytt svar på kravet» etter HF-U25, og det ubesvarte varselet står der. B gir altså ikke noe A mangler, bare en ekstra vei til det samme.
+> - **Risikoen er skjev.** Et nytt svar på kravversjonen erstatter det forrige, også når TE har godtatt det eller enighet er registrert. Det bør ikke kunne skje fra et brev som heter svar på varselet, selv med et uttrykkelig valg.
+> - **Behovet er en antakelse.** Spørsmålsfila sier selv at det ikke er prøvd på brukere.
+>
+> Velger du A, endrer jeg v4 så kravpostene i «Varsel mellom to krav» vises uten «Endre», med en lenke til nytt svar på kravet. Velger du B, står v4 som den er, men må få det uttrykkelige valget.
+>
+> Svarer du som over, er det «1D, 2A, 3A, 4B, 5A».
+
+Orkestratoren 10.11: designpunktene i begrunnelsen er design og føres i BF-14, ikke som vedtak. Det gjelder
+«ikke gitt» i svaret på kravposten (spørsmål 3) og kravpostene uten «Endre» i «Varsel mellom to krav»
+(spørsmål 5 A). Prototypen endres ikke i vedtaks-PR-en.
+
+Ført som VS-U61–VS-U65.
