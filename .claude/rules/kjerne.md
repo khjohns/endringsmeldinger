@@ -19,7 +19,7 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
 ## Hvor koden hører hjemme
 
 - **En domeneregel ligger i `regler/` eller `utledning/`, ikke i `frosset/`.** En kontroll
-  av en vurdering etter en bestemmelse, for eksempel § 34.1.2 eller § 34.2.2, er en regel
+  av en vurdering etter en bestemmelse, for eksempel punkt 34.1.2 eller punkt 34.2.2, er en regel
   og står i `regler/`. `frosset/` leser kravet, regner ut og fryser svaret og skriver
   teksten. Kontrollen etter OV-U23 står i utregningen fordi den er en del av lesingen av
   postene i kravet.

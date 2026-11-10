@@ -43,16 +43,12 @@ modulnivå, og union av strenger i stedet for `enum`. Data over grensen
 små bokstaver. I kjernen skrives æ, ø og å som ae, oe og aa (`kanInngaaIEo`);
 ellers følger du modulens skrivemåte uten å blande. Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
 
-**Eksisterende navn er utgangspunkt, ikke fasit.** Forbedre upresise navn innenfor
-oppgaven, og før gamle og nye navn i domenetabellen eller oppgavens
-begrepsavklaring, ikke i en parallell ordliste. Skill navneendring fra endret
-atferd, og oppdater kallere, tester og referanser samlet. Lagrede hendelsesnavn,
-enumverdier, databasefelt og API-felt er kontrakter: vurder kompatibilitet og
-migrering uttrykkelig. For KOE-, EO- og forseringssakene er det ingen
-kompatibilitet å ta vare på (B-17): til TS skriver den første reelle hendelsen,
-velges hendelsestyper, felt og verdier fra kontraktens begreper («svar», ikke
-«respons»), med gamle og nye navn i [domenetabellen](docs/domenetabell/README.md).
-Deretter er de kontrakter igjen.
+**Lagrede navn er kontrakter.** Hendelsestyper, felt og verdier i journalen, API-et og
+databasen endres bare med en uttrykkelig vurdering av kompatibilitet og migrering.
+Unntaket er KOE-, EO- og forseringssakene fram til den første reelle hendelsen er
+skrevet (B-17): til da velges navnene fra kontraktens begreper («svar», ikke «respons»).
+Skill navneendring fra endret atferd, og før gamle og nye navn i
+[domenetabellen](docs/domenetabell/README.md), ikke i en parallell ordliste.
 
 **Koden skal være klar av seg selv — skriv få kommentarer.** Forklar en lokal
 begrensning eller et overraskende valg kort, eller vis til en funn-ID i
@@ -78,13 +74,17 @@ og mellom kontraktens ordlyd, vår tolkning og appens atferd.
 
 | Begrep | Betydning |
 | --- | --- |
-| **TE** / **BH** | Totalentreprenør / byggherre. Kontraktens to sider |
+| **TE** / **BH** | Totalentreprenøren / byggherren. Kontraktens to sider |
 | **sak** | Én endringssak, med en egen hendelsesstrøm |
-| **spor** | `grunnlag` (ansvar), `vederlag` (penger), `frist` (tid). Går parallelt |
+| **spor** | `grunnlag` (forholdet TE påberoper), `vederlag` (penger), `frist` (tid). Går parallelt. «Spor» er et ord i koden og vedtakene, ikke i visningen |
+| **krav** / **svar** | TEs krav i ett spor, og BHs svar på én versjon av kravet |
 | **varsel** | Formell melding med frist. For sent varsel kan prekludere kravet |
-| **forsering** | § 33.8. TE fremskynder arbeid etter avslått fristforlengelse |
-| **endringsordre (EO)** | § 31.3. BH pålegger formelt en endring |
+| **forsering** | Punkt 33.8. TE fremskynder arbeid etter avslått fristforlengelse |
+| **endringsordre (EO)** | Punkt 31.3. BH pålegger formelt en endring |
 | **internt notat** | Kun synlig for forfatterens eget team |
+
+Begrepene i full bredde står i [domenetabellen](docs/domenetabell/README.md#begreper),
+og ordene i visningen og brevene i [språkfila](docs/sprak.md#ordene-i-brevene-og-skjemaene).
 
 **Kontraktsside (TE/BH) er ikke det samme som organisasjon.** Én side kan ha flere
 Catenda-team — byggherren og en ekstern rådgiver er ulike organisasjoner på samme
@@ -92,26 +92,32 @@ side. Skjerming av interne notater og utkast går på **team**, ikke på side.
 
 ## Domenekjernen
 
-**Kontrakten først, aldri status.** En regel i kjernen begrunnes i bestemmelsen i
-NS 8407, vedtaket eller beslutningen, utsagnet den gjelder (hvem sier hva om hva) og predikatet
-som leses av utsagnene og relasjonene. Ingen regel leser status, «låst»,
-«oppgjort» eller en annen oppsummering; status er en etikett i visningen. Et sendt
-brev og en inngått enighet betyr det de sa da (MM-U3 (opphevet av MM-U50), MM-U9). Det kjernen leser,
-må være lagret (DM-06). En hendelse den ikke forstår, gjør saken ikke forstått
-(MM-U2). Det den ennå ikke kan, avvises og forenkles ikke. Appen avgjør ikke det
-kontrakten overlater til partene, en oppmann eller domstolene. Begrepene står i
-[modellforslaget, 2.2](docs/forslag-maalmodell-2026-10-09.md#22-byggeklossene),
-som ikke er vedtatt i sin helhet, og i [domenetabellen](docs/domenetabell/README.md).
+**Kontrakten først, aldri status.**
 
-**TS eier KOE, endringsordre og forsering (B-17).** Kjernen ligger i `kjerne/`
-(B-14) og er ren kode: den importerer ingenting utenfor mappa, ingen `pg` og
-ingen server, og ingen regel når visningen eller bufferen. Arkitekturtesten i
-`kjerne/tester/` håndhever det. Den håndhever også hva
-reglene leser, og regelversjonsvakten i CI krever nye versjoner når kjernen endres.
-Hvitelisten `LESBART` og versjonene står i
-[`.claude/rules/kjerne.md`](.claude/rules/kjerne.md), som lastes når du arbeider i `kjerne/`. Lagringstestene mot
-testbasen i SQL Server står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
-en mal. Python-stien er slettet (#49).
+- **En regel har en kilde.** Den begrunnes i bestemmelsen i NS 8407, vedtaket eller
+  beslutningen, i utsagnet den gjelder (hvem sier hva om hva) og i predikatet som leses
+  av utsagnene og relasjonene.
+- **Ingen regel leser en oppsummering**: status, «låst», «oppgjort» og lignende. Status er
+  en etikett i visningen.
+- **Et sendt brev og en inngått enighet betyr det de sa da** (MM-U50). Nye regler gjelder
+  nye brev.
+- **Det kjernen leser, må være lagret** (DM-06).
+- **En hendelse kjernen ikke forstår, gjør saken ikke forstått** (MM-U2). Det kjernen ennå
+  ikke kan, avvises og forenkles ikke.
+- **Løsningen avgjør ikke det kontrakten overlater til partene**, en oppmann eller
+  domstolene.
+
+Begrepene står i [domenetabellen](docs/domenetabell/README.md) og i
+[modellforslaget, 2.2](docs/forslag-maalmodell-2026-10-09.md#22-byggeklossene), som ikke
+er vedtatt i sin helhet.
+
+**Kjernen ligger i `kjerne/` (B-14) og er ren kode.** Den importerer ingenting utenfor
+mappa, ingen `pg` og ingen server, og ingen regel når visningen eller bufferen.
+Arkitekturtesten i `kjerne/tester/` håndhever det, og hva reglene leser.
+Regelversjonsvakten i CI krever nye versjoner når kjernen endres. Hvitelisten `LESBART`
+og versjonene står i [`.claude/rules/kjerne.md`](.claude/rules/kjerne.md), som lastes når
+du arbeider i `kjerne/`. Lagringstestene mot testbasen i SQL Server står i
+`sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke en mal.
 
 ## Miljø
 
@@ -201,14 +207,14 @@ De gjelder hver serverinngang. Mekanismene, og det TS-stien ennå mangler, står
   tilgang». `prosjekt_id` er `NOT NULL` uten default på `koe.hendelse` og
   `koe.sak_metadata`. Skrivestiene stempler det fra autorisert kontekst. Gjeninnfører du en
   fallback — også som et uskyldig
-  `prosjekt_id or "oslobygg"` i én sammenlikning, eller som et tomt filter som
+  `prosjektId ?? "oslobygg"` i én sammenlikning, eller som et tomt filter som
   «betyr alle» — blir attribusjonen uetterprøvbar igjen, og det lar seg ikke rette
   i ettertid når ekte saker først finnes.
 
 ## Resonneringsregler
 
-Disse er årsaken til de fleste feilklassifiserte funnene i auditserien. Episodene
-bak reglene står i [resonnering-skillen](.claude/skills/resonnering/SKILL.md).
+Reglene gjelder all lesing av koden, uansett språk. Episodene bak dem står i
+[resonnering-skillen](.claude/skills/resonnering/SKILL.md).
 
 **Les [testinstruksjonene](.claude/rules/tester.md) før du skriver
 domeneforventninger, bevis-saker eller metodeprøver**, også i `docs/`.
@@ -240,11 +246,10 @@ skriveren.
 
 **Har du funnet ett tilfelle, har du ikke funnet alle.** Søket formes av det du
 allerede fant, så tellingen vokser i runder — og hver runde melder seg ferdig.
-En defaultverdi gjemmer seg i flere former. I Python: `x or "verdi"`,
-`getattr(obj, "x", "verdi")`, `d.get("x", "verdi")`,
-`request.headers.get("X", "verdi")` og et defaultargument. I TypeScript: `x ?? "verdi"`,
+En defaultverdi gjemmer seg i flere former. I TypeScript: `x ?? "verdi"`,
 `x || "verdi"`, en default ved destrukturering (`{ x = "verdi" }`),
-`headers.get("X") ?? "verdi"` og et defaultargument. I databasen: en `DEFAULT`.
+`headers.get("X") ?? "verdi"` og et defaultargument. I databasen: en `DEFAULT`. I
+Python-verktøyene: `x or "verdi"` og `d.get("x", "verdi")`.
 Søk etter alle formene før du skriver
 «alle er fjernet» — og skriv heller hvilke former du søkte etter.
 
