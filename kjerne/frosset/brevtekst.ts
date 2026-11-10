@@ -43,6 +43,7 @@ import {
   kravposterI,
 } from './kravinnhold.ts';
 import { dager, iLagene, kroner } from './tekst.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -626,6 +627,8 @@ const VARSELET: Record<Hjemmel, string> = {
   '33.6.2': 'TEs svar på forespørselen etter NS 8407 § 33.6.2',
   '34.1.2': `varselet ${VARSEL_OM['34.1.2']}`,
   '34.1.3': `varselet ${VARSEL_OM['34.1.3']}`,
+  '34.3.3': `varselet ${VARSEL_OM['34.3.3']}`,
+  '34.4': `varselet ${VARSEL_OM['34.4']}`,
 };
 
 const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;
@@ -772,12 +775,21 @@ function standpunkttekst(
     case 'rettidighet': {
       // VS-U29, VS-U31: saken har én forespørsel, så standpunktet etter § 33.6.2 gjelder begrunnelsen.
       const aapne = innsigelser.filter((i) => i.hjemmel === p.hjemmel);
-      const varselet = varseletMedBrevet(p, j);
+      const varselet = erKravpostvarselhjemmel(p.hjemmel) ? '' : varseletMedBrevet(p, j);
       // Et «for sent» gjentar de åpne innsigelsene, og et «i tide» gir dem opp (VS-U11, VS-U24).
       // Saken har ett varsel etter § 33.4 (oppdragsgiver 15.10, #498).
       const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
       const henvisning = aapne.length > 1 ? 'innsigelsene' : 'innsigelsen';
       const jf = aapne.length ? `, jf. ${henvisning} i ${brevene}` : '';
+      // KA-U64: varselet etter § 34.3.3 eller § 34.4 for kravposten. VS-U4: for § 34.3.3 står
+      // prinsipalt det byggherren måtte forstå; løsningen regner det ikke ut.
+      if (erKravpostvarselhjemmel(p.hjemmel)) {
+        const om = `${VARSELET[p.hjemmel]} for ${kravpostenI(krav, p.gjelder).betegnelse}`;
+        if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
+        return p.hjemmel === '34.3.3'
+          ? `byggherren gjør gjeldende at ${om} kom for sent, og at TE bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
+          : `byggherren gjør gjeldende at ${om} ikke ble gitt eller kom for sent.`;
+      }
       // OV-U28: begrensningen etter § 34.1.3 med beløpet byggherren godkjenner for kravet.
       if (!p.iTide && p.hjemmel === '34.1.3')
         return `byggherren gjør gjeldende at ${varselet} kom for sent${jf}, og at TE har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner ${eksMva(p.begrenset!)} for dette kravet.`;
@@ -805,11 +817,18 @@ function standpunkttekst(
       // Arbeidsvalget i #479: oppgjørsformen er byggherrens standpunkt, ikke appens avgjørelse. LV-U31 og
       // LV-U32: godkjenningen betegner ikke tilbudet som akseptert, heller ikke ved fullt beløp.
       // KA-U57 (d): med flere kravposter sier standpunktet hvilken kravpost det gjelder.
-      const post =
-        kravposterI(krav).length > 1 ? krevdeKravpost(krav, p.gjelder)[0].betegnelse : null;
+      const post = kravposterI(krav).length > 1 ? kravpostenI(krav, p.gjelder).betegnelse : null;
+      if (p.hjemmel !== '34.2.2') return beregningsregeltekst(p, post);
       return p.aksepterer
         ? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`
         : `byggherren aksepterer ikke TEs tilbud${post ? ` for ${post}` : ''} (NS 8407 § 34.2.2 første ledd), og mener vederlaget${post ? ' for kravposten' : ''} skal justeres ${METODEN[p.oensket!]}.`;
+    }
+    case 'justering': {
+      // KA-U68, OV-U95 punkt 5: standpunktet godkjenner ingen priser, mengder eller beløp.
+      const post = kravpostenI(krav, p.gjelder).betegnelse;
+      return p.godtar
+        ? `byggherren godtar at enhetsprisene for ${post} justeres (NS 8407 punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.`
+        : `byggherren bestrider at enhetsprisene for ${post} skal justeres (NS 8407 punkt 34.3.2), og mener ${post} skal gjøres opp etter kontraktens enhetspriser.`;
     }
     case 'spesifisering':
       return p.iTide
@@ -861,18 +880,45 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
   return `${innledning} ${kravet}: «${beskrivelse}».`;
 }
 
-/**
- * Kravposten standpunktet gjelder (KA-U57 (c) og (d)). Brevteksten for en kravpost etter en
- * beregningsregel er ikke bygget (2b i #1663), så brevet avvises.
- */
-function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {
+/** Kravposten standpunktet gjelder (KA-U57 (c) og (d)). */
+function kravpostenI(krav: Krav, gjelder: string): Kravpost {
   const post = kravposterI(krav).find((k) => k.id === gjelder);
-  const krevd = post ? krevdIKravposten(krav, post) : null;
-  if (!post || krevd === null)
-    throw new KanIkkeUttrykkes(
-      'brevteksten har bare ord for svaret på en kravpost med fast sum (#1663)'
-    );
+  if (!post) throw new KanIkkeUttrykkes(`kravet har ikke kravposten ${gjelder}`);
+  return post;
+}
+
+/** Kravposten med fast sum standpunktet til beløpet gjelder, og det krevde beløpet (KA-U57 (c)). */
+function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {
+  const post = kravpostenI(krav, gjelder);
+  const krevd = krevdIKravposten(krav, post);
+  if (krevd === null)
+    throw new KanIkkeUttrykkes(`kravposten ${post.betegnelse} har ikke et krevd beløp`);
   return [post, krevd];
+}
+
+/** TEs beregningsregel i standpunktet, etter hjemmelen. */
+const REGELEN = {
+  '34.3': 'etter enhetspriser (NS 8407 § 34.3)',
+  '34.4': 'som regningsarbeid (NS 8407 § 34.4)',
+} as const;
+
+/**
+ * Standpunktet til beregningsregelen for en kravpost (KA-U54, OV-U95 punkt 5) og kravet om
+ * spesifisert tilbud (KA-U69, KA-U71). Ordlyden er design (prototype v3, `#svar`).
+ */
+function beregningsregeltekst(
+  p: Extract<Standpunkt, { art: 'oppgjoersform' }>,
+  post: string | null
+): string {
+  const forPosten = post ? ` for ${post}` : '';
+  const regelen = REGELEN[p.hjemmel as '34.3' | '34.4'];
+  if (p.aksepterer)
+    return `byggherren godtar at vederlaget${forPosten} justeres ${regelen}. Det godkjenner ikke mengder, priser, kostnader eller noe beløp.`;
+  const mener = p.oensket ? `, og mener det skal justeres ${METODEN[p.oensket]}` : '';
+  const tilbud = p.kreverTilbud
+    ? ` Byggherren krever at TE gir et spesifisert tilbud${post ? ` for ${post}` : ' for kravposten'} (NS 8407 § 34.2.1 første ledd).`
+    : '';
+  return `byggherren godtar ikke at vederlaget${forPosten} justeres ${regelen}${mener}.${tilbud}`;
 }
 
 /** OV-U28: posten etter § 34.1.3 annet ledd i setningen om beløpet. */

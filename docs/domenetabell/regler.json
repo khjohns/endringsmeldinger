@@ -3604,7 +3604,7 @@
     {
       "id": "KA-56",
       "tilfelle": "TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter.",
-      "forventet": "Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises, og et svar på hver kravpost godtas. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. Til svaret på en kravpost etter en beregningsregel og på rigg og drift er bygget (2b i #1663), avvises svaret på et krav med en slik kravpost eller med rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket.",
+      "forventet": "Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises, og et svar på hver kravpost godtas. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. En kravpost etter en beregningsregel får ikke et beløp i svaret ([OV-U95](../plans/vedtak.md#ov-u95) punkt 5). Til svaret på rigg og drift er bygget, avvises svaret på et krav med rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket.",
       "bh_standpunkt": "Beløpsvurderingen av vederlagskravet.",
       "rettslig_virkning": "Avgjør ikke hva partene har avtalt. Samling av poster på tvers hører til endringsordren (KA-U59).",
       "rettidighet": "—",
@@ -3619,12 +3619,12 @@
         "kjerne/frosset/utregning.ts#kravpostvurderinger"
       ],
       "regelkoder": [
-        "SVAR_PER_KRAVPOST",
         "UGYLDIG_VURDERING"
       ]
     }
   ],
   "koder_uten_rad": {
+    "SVAR_PER_KRAVPOST": "Kontrollen av kommandoen: svaret på rigg og drift er ikke bygget, så svaret på et krav med posten tilbys ikke (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663). Det er en avgrensning i byggingen, og ingen rad sier avvisningen.",
     "ANNEN_ENDRINGSORDRE": "Kontrollen av kommandoen: når grunnlaget er sendt, står endringsordren i underkategorien endringsordre, og en annen endringsordre påberopes i en ny sak (MM-U52 punkt 14). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "FORESPORSEL_BEGRUNNET": "Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "FORESPORSEL_SENDT": "Kontrollen av kommandoen: høyst én forespørsel etter § 33.6.2 fra appen i saken; en senere sendes utenfor appen (VS-U31). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",

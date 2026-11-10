@@ -6,17 +6,31 @@
  */
 
 import { etikett, grunnerFraForholdet, laget, virkninger } from '../frosset/standpunkt.ts';
+import { kravposterI } from '../frosset/kravinnhold.ts';
 import { kravpostvurderinger, type Svarvurdering } from '../frosset/utregning.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { standpunkterISvaret } from '../format/leser.ts';
-import type { Hjemmel, Standpunktsart, Virkning } from '../typer.ts';
+import {
+  erKravpostvarselhjemmel,
+  type Hjemmel,
+  type Standpunkt,
+  type Standpunktsart,
+  type Virkning,
+} from '../typer.ts';
 import { paaberopelseFor, type Utledning } from '../utledning/utled.ts';
 import type { Svarutkast } from './kommando.ts';
 import { standpunkter } from './standpunkter.ts';
 
-/** En innsigelse i et foregående lag som rammer standpunktet (OV-U32). */
-export type Forutsetning = { grunn: Subsidiaergrunn } | { innsigelse: '34.1.2' | '34.1.3' };
+/**
+ * Det i et foregående lag som rammer standpunktet (OV-U32). `oppgjoersform` er TEs beregningsregel for
+ * kravposten, når byggherren ikke godtar den (arbeidsvalg 1 punkt 4 i spørsmålsfila 09.11 for
+ * #1663, VS-U56).
+ */
+export type Forutsetning =
+  | { grunn: Subsidiaergrunn }
+  | { innsigelse: '34.1.2' | '34.1.3' | '34.3.3' }
+  | { oppgjoersform: string };
 
 export interface Utkastlag {
   standpunkter: {
@@ -42,7 +56,7 @@ export interface Utkastlag {
  * seg når det besvares (S1-A). Lagene fra forholdet leses av gjeldende svar på forholdet,
  * som frysingen gjør når brevet ikke selv har et svar på forholdet. Beløpene påvirker ikke
  * lagene og tas ut før standpunktene bygges. Kaster `UgyldigVurdering` for svar på
- * kravpostene som `kravpostvurderinger` avviser, og for en kravpost etter en beregningsregel.
+ * kravpostene som `kravpostvurderinger` avviser.
  */
 export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelsett): Utkastlag {
   if (utkast.spor !== 'vederlag')
@@ -54,6 +68,9 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
       gjelder: post.id,
       aksepterer: svar.aksepterer,
       oensket_oppgjoersform: svar.oensket_oppgjoersform,
+      krever_tilbud: svar.krever_tilbud,
+      varslet_i_tide: svar.varslet_i_tide,
+      godtar_justering: svar.godtar_justering,
     })),
     produktivitet_vurdering: undefined,
     produktivitet_godkjent_beloep: undefined,
@@ -97,21 +114,43 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
         if (egen !== '34.1.2' && paaberopt('34.1.2')) rammer.push({ innsigelse: '34.1.2' });
         if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))
           rammer.push({ innsigelse: '34.1.3' });
+        rammer.push(...innenforKravposten(svar.standpunkter, i));
       }
       return {
         art: s.art,
         ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
-        ...(s.art === 'beloep' && s.saerskilt ? { saerskilt: s.saerskilt } : {}),
-        ...((s.art === 'beloep' || s.art === 'oppgjoersform') && s.gjelder !== undefined
+        ...(s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel)
           ? { gjelder: s.gjelder }
           : {}),
-        besvart: s.art !== 'beloep' || besvart(v, u, s),
+        ...(s.art === 'beloep' && s.saerskilt ? { saerskilt: s.saerskilt } : {}),
+        ...((s.art === 'beloep' || s.art === 'oppgjoersform' || s.art === 'justering') &&
+        s.gjelder !== undefined
+          ? { gjelder: s.gjelder }
+          : {}),
+        besvart: s.art !== 'beloep' || utenFastBeloepIKravposten(u, s.gjelder) || besvart(v, u, s),
         virkning: forskjoevet(virket[i].virkning),
         etikett: l !== null && flereLag ? etikett(l) : null,
         forutsetninger: rammer,
       };
     }),
   };
+}
+
+/**
+ * Standpunktene foran standpunktet `i` for samme kravpost etter en beregningsregel som åpner et
+ * lag: beregningsregelen byggherren ikke godtar, og innsigelsen etter § 34.3.3 (VS-U4, VS-U56).
+ */
+function innenforKravposten(standpunkter: Standpunkt[], i: number): Forutsetning[] {
+  const g = (standpunkter[i] as { gjelder?: string }).gjelder;
+  if (g === undefined || standpunkter[i]!.art === 'beloep') return [];
+  return standpunkter.slice(0, i).flatMap((s): Forutsetning[] => {
+    if ((s as { gjelder?: string }).gjelder !== g) return [];
+    if (s.art === 'oppgjoersform' && !s.aksepterer && s.hjemmel !== '34.2.2')
+      return [{ oppgjoersform: g }];
+    if (s.art === 'rettidighet' && s.hjemmel === '34.3.3' && !s.iTide)
+      return [{ innsigelse: '34.3.3' }];
+    return [];
+  });
 }
 
 const besvart = (
@@ -124,3 +163,9 @@ const besvart = (
     : kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!).find(
         ({ post }) => post.id === s.gjelder
       )?.svar.vurdering) === 'string';
+
+/** En kravpost etter en beregningsregel har ikke et beløp å besvare (OV-U95 punkt 5). */
+const utenFastBeloepIKravposten = (u: Utledning, gjelder: string | undefined): boolean =>
+  gjelder !== undefined &&
+  kravposterI(u.spor.vederlag.gjeldendeKrav!).find((p) => p.id === gjelder)?.oppgjoersform !==
+    'tilbud';

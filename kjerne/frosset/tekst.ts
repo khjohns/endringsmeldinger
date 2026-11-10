@@ -7,7 +7,14 @@ import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
 import { begrensningen, etikett, laget, standpunktet, type Svarinnhold } from './standpunkt.ts';
 import { kategori, kravposterI } from './kravinnhold.ts';
-import type { Hjemmel, Krav, Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
+import {
+  erKravpostvarselhjemmel,
+  type Hjemmel,
+  type Krav,
+  type Standpunkt,
+  type Standpunktsvirkning,
+  type Virkning,
+} from '../typer.ts';
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
 export function kroner(n: number): string {
@@ -48,8 +55,21 @@ export function beslutningslinje(
   // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
   // Begrensningen etter § 34.1.3 er ingen preklusjon, men et eget ledd (VS-U5).
   const begrenset = begrensningen(svar, v);
+  // KA-U64, VS-U56: varselet etter § 34.3.3 eller § 34.4 for en kravpost står ved posten, ikke
+  // som grunn. Etter § 34.4 har det ingen virkning og står ikke i linjen.
+  const forKravposten = new Set(
+    svar.standpunkter.flatMap((s) =>
+      s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel) ? [s.id] : []
+    )
+  );
   const prekluderende = v
-    .filter((p) => p.art === 'rettidighet' && laget(p.virkning) && p.standpunkt !== begrenset?.id)
+    .filter(
+      (p) =>
+        p.art === 'rettidighet' &&
+        laget(p.virkning) &&
+        p.standpunkt !== begrenset?.id &&
+        !forKravposten.has(p.standpunkt)
+    )
     .map((p) => p.standpunkt);
   const sene = svar.standpunkter
     .filter((s): s is Extract<Standpunkt, { art: 'rettidighet' }> => prekluderende.includes(s.id))
@@ -102,14 +122,39 @@ export function beslutningslinje(
           tekst: `begrenset etter § 34.1.3 til ${kroner(begrenset.begrenset!)}`,
           virkning: virkning(begrenset.id),
         });
-      // KA-U57 (d), KA-U60: standpunktet etter § 34.2.2 gjelder kravposten og står i sitt lag.
+      // KA-U57 (d), KA-U60, KA-U54: standpunktet til oppgjørsformen gjelder kravposten og står i
+      // sitt lag, med TEs oppgjørsform som hjemmel. KA-U68: justeringen som er bestridt, likeså.
+      const forPosten = post ? ` for ${post}` : '';
       const form = svar.standpunkter.find(
         (s) => s.art === 'oppgjoersform' && !s.aksepterer && s.gjelder === b.gjelder
       );
-      if (form && !b.saerskilt)
+      if (form?.art === 'oppgjoersform' && !b.saerskilt)
         sine.push({
-          tekst: `tilbudet${post ? ` for ${post}` : ''} ikke akseptert (§ 34.2.2)`,
+          tekst:
+            form.hjemmel === '34.2.2'
+              ? `tilbudet${forPosten} ikke akseptert (§ 34.2.2)`
+              : `beregningsregelen${forPosten} ikke godtatt (§ ${form.hjemmel})`,
           virkning: virkning(form.id),
+        });
+      const varselet = svar.standpunkter.find(
+        (s) =>
+          s.art === 'rettidighet' &&
+          forKravposten.has(s.id) &&
+          s.gjelder === b.gjelder &&
+          laget(virkning(s.id))
+      );
+      if (varselet?.art === 'rettidighet')
+        sine.push({
+          tekst: `${SENT_I_LINJEN[varselet.hjemmel]}${forPosten} kom for sent`,
+          virkning: virkning(varselet.id),
+        });
+      const justering = svar.standpunkter.find(
+        (s) => s.art === 'justering' && !s.godtar && s.gjelder === b.gjelder
+      );
+      if (justering)
+        sine.push({
+          tekst: `justeringen av enhetsprisene${forPosten} bestridt (§ 34.3.2)`,
+          virkning: virkning(justering.id),
         });
       // En kravpost uten beløp (KA-U72) har ikke et ledd for beløpet.
       if (b.godkjent === undefined) return;
@@ -153,6 +198,8 @@ const SENT_I_LINJEN: Record<Hjemmel, string> = {
   '33.6.2': 'svaret på forespørselen etter § 33.6.2',
   '34.1.2': 'varselet etter § 34.1.2',
   '34.1.3': 'varselet etter § 34.1.3',
+  '34.3.3': 'varselet etter § 34.3.3',
+  '34.4': 'varselet etter § 34.4',
 };
 
 /** Posten etter § 34.1.3 annet ledd i linjen. */

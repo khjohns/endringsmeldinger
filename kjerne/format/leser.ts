@@ -177,10 +177,11 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
       case 'rettidighet':
         // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen,
         // og vederlaget rettidigheten etter § 34.1.3 (VS-U24, OV-U22).
+        // KA-U64: i vederlaget også varselet etter § 34.3.3 eller § 34.4 for en kravpost.
         if (
           e.hjemmel !== HJEMMEL[spor] &&
           !(spor === 'frist' && e.hjemmel === '33.6.2') &&
-          !(spor === 'vederlag' && e.hjemmel === '34.1.3')
+          !(spor === 'vederlag' && ['34.1.3', '34.3.3', '34.4'].includes(e.hjemmel as string))
         )
           throw new Uforstaatt(`${sti}: rettidighet etter § ${String(e.hjemmel)} i ${spor}`);
         // VS-U5: beløpet etter begrensningen står når varselet etter § 34.1.3 kom for sent.
@@ -198,19 +199,45 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         };
       case 'forhold':
         return { id, art, resultat: e.resultat as never };
-      case 'oppgjoersform':
-        // Arbeidsvalget i #479: oppgjørsformen byggherren mener, står bare når tilbudet ikke er akseptert.
-        if (e.aksepterer === 'oensket_oppgjoersform' in e)
+      case 'oppgjoersform': {
+        const hjemmel = e.hjemmel as '34.2.2' | '34.3' | '34.4';
+        const kreverTilbud = e.krever_tilbud === true;
+        // Arbeidsvalget i #479: oppgjørsformen byggherren mener, står bare uten aksept. KA-U71 og
+        // svar 3 A 10.11: med kravet om tilbud kan den mangle, og kravet gjelder bare en
+        // beregningsregel og bare uten aksept.
+        if (
+          (e.aksepterer && 'oensket_oppgjoersform' in e) ||
+          (!e.aksepterer && !kreverTilbud && !('oensket_oppgjoersform' in e))
+        )
           throw new Uforstaatt(
-            `${sti}: oppgjørsformen i standpunktet etter § 34.2.2 stemmer ikke med aksepten`
+            `${sti}: oppgjørsformen i standpunktet til oppgjørsformen stemmer ikke med aksepten`
           );
+        if (kreverTilbud && (e.aksepterer || hjemmel === '34.2.2'))
+          throw new Uforstaatt(
+            `${sti}: kravet om tilbud står bare for en beregningsregel byggherren ikke godtar (KA-U69, KA-U71)`
+          );
+        // OV-U95 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
+        if (OPPGJOERSFORM_I_HJEMMELEN[hjemmel] === e.oensket_oppgjoersform)
+          throw new Uforstaatt(`${sti}: byggherren mener den oppgjørsformen TE krever`);
         return {
           id,
           art,
           gjelder: e.gjelder as string,
-          hjemmel: '34.2.2',
+          hjemmel,
           aksepterer: e.aksepterer as boolean,
-          ...(e.aksepterer ? {} : { oensket: e.oensket_oppgjoersform as 'enhetspriser' }),
+          ...('oensket_oppgjoersform' in e
+            ? { oensket: e.oensket_oppgjoersform as 'enhetspriser' }
+            : {}),
+          ...(kreverTilbud ? { kreverTilbud: true as const } : {}),
+        };
+      }
+      case 'justering':
+        return {
+          id,
+          art,
+          gjelder: e.gjelder as string,
+          hjemmel: '34.3.2',
+          godtar: e.godtar as boolean,
         };
       case 'hindring':
         return { id, art, oppfylt: e.oppfylt as boolean };
@@ -281,39 +308,65 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
     s.art === 'rettidighet'
       ? s.hjemmel === '34.1.2'
         ? 0
-        : 3
-      : s.art === 'oppgjoersform' || (s.art === 'beloep' && !s.saerskilt)
+        : s.hjemmel === '34.1.3'
+          ? 3
+          : 1
+      : s.art === 'oppgjoersform' || s.art === 'justering' || (s.art === 'beloep' && !s.saerskilt)
         ? 1
         : s.art === 'beloep'
           ? 4
           : -1;
   const plasser = ut.map(plass);
   const sett = new Set<string>();
-  const kravposten = (s: Standpunkt, i: number) => {
-    if (s.art !== 'oppgjoersform' && s.art !== 'beloep') return true;
-    const g = s.gjelder!;
-    if (sett.has(g)) return false;
-    if (s.art === 'beloep') return sett.add(g);
-    const neste = ut[i + 1];
-    return neste?.art === 'beloep' && neste.gjelder === g;
+  // KA-U64, KA-U68: for hver kravpost oppgjørsformen, varselet etter § 34.3.3 eller § 34.4 og
+  // justeringen, i den rekkefølgen og hver høyst én gang, rett foran beløpet for samme kravpost.
+  const rekkefoelgen = ['oppgjoersform', 'rettidighet', 'justering', 'beloep'];
+  const gjelder = (s: Standpunkt | undefined) => (s && 'gjelder' in s ? s.gjelder : undefined);
+  /** Indeksen til beløpet som avslutter kravposten som begynner i `i`, eller -1. */
+  const slutten = (i: number): number => {
+    const g = gjelder(ut[i]);
+    if (g === undefined || sett.has(g)) return -1;
+    sett.add(g);
+    let n = i;
+    while (ut[n]!.art !== 'beloep') {
+      const neste = ut[n + 1];
+      if (
+        gjelder(neste) !== g ||
+        rekkefoelgen.indexOf(neste!.art) <= rekkefoelgen.indexOf(ut[n]!.art)
+      )
+        return -1;
+      n++;
+    }
+    return n;
   };
+  let iKravpostene = true;
+  for (let i = 0; i < ut.length && iKravpostene; i++)
+    if (plasser[i] === 1) {
+      const n = slutten(i);
+      if (n < 0) iKravpostene = false;
+      else i = n;
+    }
   if (
     plasser.some((p, i) => i > 0 && (p < plasser[i - 1] || (p === plasser[i - 1] && p !== 1))) ||
-    !ut.every((s, i) => plasser[i] !== 1 || kravposten(s, i))
+    !iKravpostene
   )
     throw new Uforstaatt(
       `${sti}: standpunktene i vederlaget står ikke i rekkefølgen § 34.1.2, oppgjørsformen og beløpet for hver kravpost, § 34.1.3 og posten etter annet ledd`
     );
-  // KA-U72: standpunktet til beløpet står uten beløp når, og bare når, tilbudet ikke er akseptert.
-  const utenAksept = new Set(
-    ut.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []))
+  // KA-U72: standpunktet til beløpet står uten beløp når, og bare når, tilbudet ikke er akseptert
+  // eller kravposten følger en beregningsregel (OV-U95 punkt 5).
+  const utenBeloep = utenFastBeloep(ut);
+  const regelposter = new Set(
+    ut.flatMap((s) => (s.art === 'oppgjoersform' && s.hjemmel !== '34.2.2' ? [s.gjelder] : []))
   );
   for (const s of ut)
-    if (s.art === 'beloep' && (s.godkjent === undefined) !== utenAksept.has(s.gjelder!))
+    if (s.art === 'beloep' && (s.godkjent === undefined) !== utenBeloep.has(s.gjelder!))
       throw new Uforstaatt(
         s.godkjent === undefined
           ? `${sti}: standpunktet til beløpet står uten beløp, men byggherren aksepterer tilbudet for posten (KA-U72)`
-          : `${sti}: standpunktet til beløpet har et beløp, men byggherren aksepterer ikke tilbudet for posten (KA-U72)`
+          : regelposter.has(s.gjelder!)
+            ? `${sti}: standpunktet til beløpet har et beløp, men kravposten følger en beregningsregel (OV-U95 punkt 5)`
+            : `${sti}: standpunktet til beløpet har et beløp, men byggherren aksepterer ikke tilbudet for posten (KA-U72)`
       );
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
   if (plasser.includes(3) && !plasser.includes(4))
@@ -359,9 +412,7 @@ function kontrollerUtregningenPerPost(
 ): void {
   const rader = utregning.poster as { gjelder?: string; saerskilt?: string; lag: Data[] }[];
   const beloepene = ut.filter((s) => s.art === 'beloep');
-  const utenAksept = new Set(
-    ut.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []))
-  );
+  const utenAksept = utenFastBeloep(ut);
   const antall = rader[0]?.lag.length ?? 0;
   const hele = ut.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2');
   const prekludert = Number(
@@ -408,6 +459,24 @@ function kontrollerUtregningenPerPost(
     throw feil('det siste laget summerer ikke til det byggherren godtar subsidiært');
 }
 
+/** OV-U95 punkt 5: oppgjørsformen TE krever etter en beregningsregel, i hjemmelen. */
+const OPPGJOERSFORM_I_HJEMMELEN = {
+  '34.2.2': null,
+  '34.3': 'enhetspriser',
+  '34.4': 'regningsarbeid',
+} as const;
+
+/**
+ * Kravpostene uten fast beløp i svaret: tilbudet er ikke akseptert (KA-U72), eller kravposten
+ * følger en beregningsregel (OV-U95 punkt 5).
+ */
+const utenFastBeloep = (ut: Standpunkt[]): Set<string> =>
+  new Set(
+    ut.flatMap((s) =>
+      s.art === 'oppgjoersform' && (!s.aksepterer || s.hjemmel !== '34.2.2') ? [s.gjelder] : []
+    )
+  );
+
 /** Standpunktene som er byggherrens påberopelser i sporet. */
 const PAABEROPELSER = new Set<Standpunktsart>(['rettidighet', 'hindring', 'spesifisering']);
 
@@ -446,9 +515,17 @@ function lesBeslutningsgrunnlag(
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
   // OV-U32, OV-U33: upåvirket gjelder vederlag og frist, og bare ved siden av en påberopelse
-  // i sporet. Et tilbud som ikke er akseptert, gir ikke et lag (KA-U72).
+  // i sporet. Et tilbud som ikke er akseptert, gir ikke et lag (KA-U72). En beregningsregel
+  // byggherren ikke godtar, er en innsigelse som rammer bare posten (arbeidsvalg 1 punkt 2 i
+  // spørsmålsfila 09.11 for #1663).
+  const regelIkkeGodtatt = new Set(
+    standpunkter.flatMap((s) =>
+      s.art === 'oppgjoersform' && !s.aksepterer && s.hjemmel !== '34.2.2' ? [s.id] : []
+    )
+  );
   const paaberoper = (p: Standpunktsvirkning) =>
-    typeof p.virkning === 'number' && PAABEROPELSER.has(p.art);
+    typeof p.virkning === 'number' &&
+    (PAABEROPELSER.has(p.art) || regelIkkeGodtatt.has(p.standpunkt));
   if (
     virkninger.some((p) => p.virkning === 'upaavirket') &&
     (spor === 'forhold' || !virkninger.some(paaberoper))

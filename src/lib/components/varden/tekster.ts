@@ -288,6 +288,8 @@ export const SKJEMA = {
   behold: 'Behold utkastet',
   ikkeStoettet:
     'Kravet har en post for særskilt vederlagsjustering (punkt 34.1.3). Den kan ikke besvares i denne prøven av Varden ennå.',
+  /** Kravposten skjemaet ennå ikke kan svare på (svar 4 A i spørsmålsfila 10.11 for #1663). */
+  beregningsregel: (betegnelse: string) => `Kravposten ${betegnelse} følger en beregningsregel`,
   /** Hinderet kjernen gir for kravet (`hindrerSvarPaaKravet`). */
   ikkeStoettetHinder: (hinder: string) =>
     `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,

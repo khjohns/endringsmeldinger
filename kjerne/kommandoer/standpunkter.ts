@@ -3,9 +3,11 @@
  * nyttelastkontrollen bruker de samme standpunktene.
  */
 
-import { HJEMMEL } from '../format/format.ts';
+import { HJEMMEL, OPPGJOERSHJEMMEL } from '../format/format.ts';
 import { forholdsstandpunkter } from '../frosset/frysing.ts';
-import { vederlagsposter } from '../frosset/utregning.ts';
+import { kravposterI } from '../frosset/kravinnhold.ts';
+import { vederlagsposter, type Kravpostvurdering } from '../frosset/utregning.ts';
+import { varselhjemmel } from '../utledning/kravposter.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Svarutkast } from './kommando.ts';
 import {
@@ -40,17 +42,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
     // § 34.1.3 og posten etter annet ledd, hver for seg. Beløpet etter begrensningen er det
     // byggherren oppgir (VS-U5).
     for (const post of vederlagsposter(v, krav)) {
-      if ('gjelder' in post && typeof post.svar.aksepterer === 'boolean')
-        ut.push({
-          id: nyId(),
-          art: 'oppgjoersform',
-          gjelder: post.gjelder,
-          hjemmel: '34.2.2',
-          aksepterer: post.svar.aksepterer,
-          ...(post.svar.aksepterer
-            ? {}
-            : { oensket_oppgjoersform: post.svar.oensket_oppgjoersform }),
-        });
+      if ('gjelder' in post) ut.push(...kravpoststandpunkter(post.gjelder, post.svar, krav, nyId));
       if ('saerskilt' in post && typeof v.produktivitet_varslet_i_tide === 'boolean')
         ut.push({
           id: nyId(),
@@ -103,5 +95,49 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
       });
     ut.push({ id: nyId(), art: 'dager' });
   }
+  return ut;
+}
+
+/**
+ * Standpunktene for én kravpost foran beløpet: oppgjørsformen med kravet om tilbud (KA-U69,
+ * KA-U71), varselet etter § 34.3.3 eller § 34.4 (KA-U64) og justeringen (KA-U68).
+ */
+function kravpoststandpunkter(
+  gjelder: string,
+  svar: Kravpostvurdering,
+  krav: Krav,
+  nyId: () => string
+): Data[] {
+  const kravpost = kravposterI(krav).find((p) => p.id === gjelder)!;
+  const ut: Data[] = [];
+  if (typeof svar.aksepterer === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'oppgjoersform',
+      gjelder,
+      hjemmel: OPPGJOERSHJEMMEL[kravpost.oppgjoersform],
+      aksepterer: svar.aksepterer,
+      ...(svar.oensket_oppgjoersform != null
+        ? { oensket_oppgjoersform: svar.oensket_oppgjoersform }
+        : {}),
+      ...(svar.krever_tilbud === true ? { krever_tilbud: true } : {}),
+    });
+  const hjemmel = varselhjemmel(kravpost);
+  if (hjemmel && typeof svar.varslet_i_tide === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'rettidighet',
+      gjelder,
+      hjemmel,
+      i_tide: svar.varslet_i_tide,
+    });
+  if (typeof svar.godtar_justering === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'justering',
+      gjelder,
+      hjemmel: '34.3.2',
+      godtar: svar.godtar_justering,
+    });
   return ut;
 }

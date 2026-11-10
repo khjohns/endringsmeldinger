@@ -12556,7 +12556,25 @@
               }
             ]
           },
-          "forventet": { "avvist": true, "regel": "SVAR_PER_KRAVPOST" }
+          "forventet": { "avvist": true, "regel": "UGYLDIG_VURDERING" }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": ["KA-U59", "OV-U95"],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "kravposter": [
+                  { "post": "P1", "vurdering": "godkjent" },
+                  { "post": "P2", "metode_akseptert": true }
+                ]
+              }
+            ]
+          },
+          "forventet": { "avvist": false }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
