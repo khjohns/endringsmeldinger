@@ -70,9 +70,9 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   markerer PR-en klar når reviewet er gjort og de lokale sjekkene er grønne. Den har
   konteksten som trengs for å rette funnene, og en ny økt måtte bygge den opp igjen.
   Reviewet av samspillet mellom reglene krever ny kontekst og gjøres av en subagent som
-  får reglene, bevis-sakene og diffen, ikke øktas samtale. `/design-review` kjøres i en
-  ny økt, fordi den venter på at oppdragsgiver har sett skjermbildene. En ny reviewøkt
-  startes ellers bare når byggeøkta overleverer etter «Fortsett så lenge konteksten
+  får reglene, bevis-sakene og diffen, ikke øktas samtale. `/design-review` kjøres på
+  samme måte i en subagent, når oppdragsgiver har sett skjermbildene (leveranseskillen).
+  En ny reviewøkt startes ellers bare når byggeøkta overleverer etter «Fortsett så lenge konteksten
   trengs». Den får en avgrenset bestilling: PR-nummeret, reviewbestillingen og
   tilstanden i PR-en, ikke hele historikken.
 

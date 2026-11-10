@@ -145,10 +145,11 @@ bevis-sakene samlet, én gang per PR. Hvor reviewet og rettingene kjøres, står
 forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
 **Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
 byggeøkta egen diff med kommandoen `/design-deslop` og lar PR-en stå som utkast.
-Etter `/design-deslop` legger byggeøkta (eller rettingsøkta) skjermbildene i PR-en og stopper.
-`/design-review` kjøres i en ny økt, før `/code-review`, først når oppdragsgiver har sett over
-skjermbildene og sagt fra. Det gjelder også under om lag 200 endrede linjer i `.svelte`- og
-CSS-filer, der byggeøkta ellers kunne kjørt den selv. Alvorligheten settes av
+Etter `/design-deslop` legger byggeøkta skjermbildene i PR-en og ber oppdragsgiver se over
+dem. Mens den venter, arbeider den videre etter «Arbeid mens CI går» i arbeidsøkt-skillen.
+Når oppdragsgiver har sagt fra, kjører byggeøkta `/design-review` i en subagent i ny
+kontekst, før `/code-review`, og retter funnene selv. Kommer svaret ikke innen en time,
+følger økta «Hold hurtigbufferen varm» i arbeidsøkt-skillen. Alvorligheten settes av
 `/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under (#1080, #1492).
 
 En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den

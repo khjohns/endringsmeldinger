@@ -106,10 +106,9 @@ trengs for arbeidet, etter «Fortsett så lenge konteksten trengs» i
 [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst). Et urelatert issue får
 en ny økt, fordi hvert kall leser hele den voksende konteksten.
 
-**Størrelse per PR.** Orkestratoren anslår diffen ut fra avgrensningen i issuet.
-Ventes mer enn om lag 1200 endrede linjer utenom `docs/`, deles arbeidet i flere PR-er,
-én per bestemmelse eller delområde, så hver kan gjennomgås. Henger delene sammen, tar
-samme økt dem etter hverandre.
+**Størrelse per PR.** Det er ingen grense på antall linjer. Arbeidet deles i flere
+PR-er bare når delene kan merges hver for seg, for eksempel én per bestemmelse eller
+delområde. Henger delene sammen, tar samme økt dem etter hverandre.
 
 **Subagent eller økt.** Det som blir ferdig i samme tur, gjøres i økta eller av
 en subagent etter skillen [`subagenter`](../subagenter/SKILL.md). Arbeid som gir en PR, får egen
@@ -147,7 +146,7 @@ innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang (#425, #4
 - **Review-oppfølging i hver runde.** Når filene er fordelt, slår
   orkestratoren opp de åpne punktene i issuene med `review-oppfølging` som
   gjelder filene hver økt likevel endrer. Punktene tas med i bestillingen, med
-  issuenummer og punkt, innenfor grensen på om lag 1200 linjer. Byggeøkta legger
+  issuenummer og punkt. Byggeøkta legger
   ikke til punkter selv. Punkter i filer runden ikke rører, venter. Regelen
   gjelder også i FK og F0b før #310.
 - Filoverlapp mellom PR-er kontrolleres med
@@ -173,7 +172,7 @@ tabellen gjentar dem ikke (#1338).
 | Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | Leveranseskillen, «Review og funn», og «Review i byggeøkta» i arbeidsøkt-skillen |
 | Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget leveranseskillen, «Review og funn», gir dem. Viser issuet til en bestilling, også `brukerforlop`, for byggeøkta, ryddeøkta og reviewøkta. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | Leveranseskillen, «Review og funn». Med bestilling kjøres `/design-review` også mot den, etter «Sammenligne en bygget visning» i `brukerforlop`, i den rekkefølgen leveranseskillen gir. Avvikstabellen og skjermbildene side om side, i samme bredde, står i PR-en før den meldes klar. `/design-deslop` endrer ikke det bestillingen fastsetter, med mindre endringen føres som bevisst endring i avvikstabellen. En bevisst endring er ikke godkjent før oppdragsgiver har sagt ja (#1492) |
 | Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | En mekanisk arbeidsøkt på Haiku, med `github` | `diffkontroll` mot bestillingen før merge, leveranseskillen, «Review og funn», og «Subagent eller økt» |
-| Review i ny økt | Fortsetter en PR fra en byggeøkt som har overlevert, eller kjører `/design-review` | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | Leveranseskillen, «Review og funn» |
+| Review i ny økt | Fortsetter en PR fra en byggeøkt som har overlevert | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | Leveranseskillen, «Review og funn» |
 
 En PR som blander typene, følger den strengeste.
 
