@@ -27,12 +27,18 @@ vedtak og rettelser kan gå tapt.
   seg ferdig, innen grensen i «Melder fra om egen størrelse»: pushe, skrive
   tilstanden i PR-beskrivelsen og melde fra. Venter økta på CI eller
   feilinnføringene og regner med å fortsette innen en time, venter den med en
-  bakgrunnskommando som vekker den, så hurtigbufferen holder seg varm. Venter
-  den lenger, for eksempel på oppdragsgiver, skriver den tilstanden i PR-en og
-  stopper. Den vekkes ikke
+  bakgrunnskommando som vekker den, så hurtigbufferen holder seg varm. Har den
+  ikke mer å gjøre uten et svar, for eksempel fra oppdragsgiver, skriver den
+  tilstanden i PR-en og stopper. Den vekkes ikke
   igjen: en ny, liten økt tar over fra PR-en, vedtakene og issuet. Still derfor
   spørsmålene tidlig, og send svarene samlet så snart de foreligger, helst innen
   en time.
+- **Jobb videre mens et spørsmål venter.** Økta kartlegger og spør først, og tar så
+  det som ikke avhenger av svaret. Deretter bygger den videre på anbefalingen sin,
+  merket «foreslått», og fører under «Åpne spørsmål» i PR-en hvilke deler som hviler
+  på den. Kommer et annet svar, gjøres de delene om. PR-en meldes ikke klar før svaret
+  foreligger. Unntaket er et valg som blir en kontrakt: en regel i domenekjernen eller
+  et lagret navn. Det bygges ikke før svaret er gitt.
 - **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
   review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
   finnes. Brukt kontekst måler økta med transkriptet, ikke med `get_session`:
@@ -95,8 +101,8 @@ uten at oppdraget gjentar det:
 - **Les først** issuene, `AGENTS.md` og denne skillen.
 - **Spørsmål.** Spørsmål bare oppdragsgiver kan avgjøre (NS 8407, tiltenkt atferd),
   sendes samlet til `@parent` etter kartleggingen og før implementeringen, med
-  alternativer, belegg og en anbefaling, og økta venter på svar. Den velger
-  ikke et domenevalg i stillhet. Tekniske valg innenfor oppgaven tar den selv
+  alternativer, belegg og en anbefaling. Mens den venter, arbeider økta videre etter
+  «Jobb videre mens et spørsmål venter». Den velger ikke et domenevalg i stillhet. Tekniske valg innenfor oppgaven tar den selv
   og fører i PR-en. Sier oppdraget at ingen følger øktene, velger økta det
   konservative alternativet og fører valget under «Åpne spørsmål», unntatt et
   valg som blir en kontrakt: en regel i domenekjernen eller et lagret navn.
