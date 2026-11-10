@@ -4534,6 +4534,50 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['        !forKravposten.has(p.standpunkt)', '        true']],
     mal: ['linjen nevner innsigelsen etter punkt 34.3.3 ved kravposten'],
   },
+  {
+    id: 'F529',
+    feilklasse:
+      'et tilbud byggherren ikke aksepterer, gjør ikke de andre kravpostene upåvirket (arbeidsvalget 10.11 i #1760, OV-U33)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['    tilbudet.size > 0 ||\n', '']],
+    mal: ['et tilbud byggherren ikke aksepterer, rammer bare sin egen kravpost'],
+  },
+  {
+    id: 'F530',
+    feilklasse:
+      'standpunktene for kravposten med tilbudet som ikke er akseptert, er upåvirket i stedet for i det første laget (#1760, KA-U72)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;\n",
+        '',
+      ],
+    ],
+    mal: ['et tilbud byggherren ikke aksepterer, rammer bare sin egen kravpost'],
+  },
+  {
+    id: 'F531',
+    feilklasse:
+      'leseren regner ikke et tilbud byggherren ikke aksepterer, som en påberopelse ved siden av en upåvirket kravpost (#1760, OV-U33)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "(s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : [])",
+        "(s.art === 'oppgjoersform' && !s.aksepterer && s.hjemmel !== '34.2.2' ? [s.id] : [])",
+      ],
+    ],
+    mal: ['et tilbud byggherren ikke aksepterer, rammer bare sin egen kravpost'],
+  },
+  {
+    id: 'F532',
+    feilklasse:
+      'en innsigelse mot et krav, svar eller varsel får et annet spor enn elementet (#1713)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      ['      if (e) sporet.set(e.id, spor);', "      if (e) sporet.set(e.id, 'vederlag');"],
+    ],
+    mal: ['en innsigelse hører til sporet elementet den gjelder'],
+  },
 ];
 
 interface Testresultat {

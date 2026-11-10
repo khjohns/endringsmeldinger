@@ -115,7 +115,8 @@ export function virkninger(
  * kravet og står i det første laget. I laget etter står begrensningen etter § 34.1.3, som bare
  * rammer den særskilte posten: den står i laget etter (arbeidsvalg 1.3 i spørsmålsfila 09.11
  * for #1663). Et tilbud som ikke er akseptert, gir ikke et eget lag, fordi svaret da ikke tar
- * stilling til beløpet (KA-U72). En post som ingen innsigelse rammer, er upåvirket, så sant
+ * stilling til beløpet (KA-U72): standpunktene for posten står i det første laget. En post som
+ * ingen innsigelse rammer, er upåvirket, så sant
  * forholdet verken er avslått eller prekludert (OV-U33), og ellers i laget etter § 34.1.2
  * (arbeidsvalg 1.1).
  */
@@ -136,11 +137,18 @@ function vederlagsvirkninger(
   const [hele, posten] = [sent('34.1.2'), sent('34.1.3')];
   const foerste = hele ? 2 : 1;
   const iKravposten = beregningsregelLag(svar.standpunkter, foerste);
-  // OV-U33: upåvirket bare ved en påberopelse i sporet. Innsigelsen etter § 34.3.3 og en
-  // beregningsregel byggherren ikke godtar, rammer bare posten (arbeidsvalg 1 punkt 2 i
-  // spørsmålsfila 09.11 for #1663).
+  // Et tilbud byggherren ikke aksepterer, rammer bare posten, i det første laget (#1760).
+  const tilbudet = new Set(
+    svar.standpunkter.flatMap((s) =>
+      s.art === 'oppgjoersform' && s.hjemmel === '34.2.2' && !s.aksepterer ? [s.gjelder] : []
+    )
+  );
+  // OV-U33: upåvirket bare ved en påberopelse i sporet. Innsigelsen etter § 34.3.3, en
+  // beregningsregel byggherren ikke godtar og et tilbud byggherren ikke aksepterer, rammer bare
+  // posten (arbeidsvalg 1 punkt 2 i spørsmålsfila 09.11 for #1663, #1760).
   const rammer =
     posten ||
+    tilbudet.size > 0 ||
     svar.standpunkter.some(
       (s) =>
         iKravposten.has(s.id) &&
@@ -151,6 +159,7 @@ function vederlagsvirkninger(
   return svar.standpunkter.map((s): Standpunktsvirkning => {
     const virkning = (): Virkning => {
       if (iKravposten.has(s.id)) return iKravposten.get(s.id)!;
+      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;
       if (s.art === 'rettidighet') {
         if (s.hjemmel === '34.1.2') return hele ? 1 : 'uten_virkning';
         return s.hjemmel === '34.1.3' && posten ? foerste : 'uten_virkning';

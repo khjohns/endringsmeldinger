@@ -6590,24 +6590,26 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
   // KA-U72: uten aksept av tilbudet tar svaret ikke stilling til beløpet for kravposten, så
   // oppgjørsformen gir ikke et lag og er upåvirket av begrensningen (OV-U33). Begrensningen
   // rammer bare den særskilte posten (arbeidsvalg 1.3 i spørsmålsfila 09.11 for #1663).
-  it('tilbudet ikke akseptert og § 34.1.3 påberopt: oppgjørsformen er upåvirket, begrensningen står prinsipalt og den særskilte posten subsidiært, og beløpet for kravposten står ikke (KA-U72, OV-U32, OV-U33)', () => {
+  it('tilbudet ikke akseptert og § 34.1.3 påberopt: tilbudet og begrensningen står prinsipalt og den særskilte posten subsidiært, og beløpet for kravposten står ikke (KA-U72, OV-U32, OV-U33, #1760)', () => {
     const s = sakMedPost();
     const rad = brevet(s, medP1IkkeAkseptert({ ...postene, ...begrenset }, 'regningsarbeid'), {
       resultat: 'delvis_godkjent',
       godkjent_beloep: 10000,
     });
+    // Tilbudet som ikke er akseptert, er en innsigelse som rammer P1 i det første laget, uten et
+    // eget lag (KA-U72, arbeidsvalget 10.11 i #1760).
     expect(virkningene(s)).toEqual([
-      ['oppgjoersform', 'upaavirket'],
-      ['beloep', 'upaavirket'],
+      ['oppgjoersform', 1],
+      ['beloep', 1],
       ['rettidighet', 1],
       ['beloep', 2],
     ]);
     expect(laast(rad).join(' ')).toMatch(
-      /\n\nByggherren aksepterer ikke TEs tilbud [^\n]*\n\nPrinsipalt: byggherren gjør gjeldende at .* for dette kravet\.\n\nSubsidiært: byggherren godkjenner 30\u00a0000\u00a0kr eks\. mva\. av de krevde 40\u00a0000\u00a0kr eks\. mva\. for særskilt justering[^\n]*$/
+      /\n\nPrinsipalt: byggherren aksepterer ikke TEs tilbud [^\n]*\. Byggherren gjør gjeldende at .* for dette kravet\.\n\nSubsidiært: byggherren godkjenner 30\u00a0000\u00a0kr eks\. mva\. av de krevde 40\u00a0000\u00a0kr eks\. mva\. for særskilt justering[^\n]*$/
     );
     expect(laast(rad).join(' ')).not.toContain('justeringen ellers');
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
-      `Byggherrens standpunkt: tilbudet ikke akseptert (§ 34.2.2), prinsipalt begrenset etter § 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+      `Byggherrens standpunkt: prinsipalt tilbudet ikke akseptert (§ 34.2.2), begrenset etter § 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
     );
   });
 
@@ -6642,18 +6644,19 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
 
   // KA-U72: tilbudet som ikke er akseptert, gir ikke et lag, så svaret har ett lag, og leseren
   // forstår brevet kjernen skriver.
-  it('tilbudet ikke akseptert og posten etter § 34.1.3 annet ledd i tide: svaret har ett lag, og brevet leses (KA-U72, OV-U33)', () => {
+  it('tilbudet ikke akseptert og posten etter § 34.1.3 annet ledd i tide: svaret har ett lag, den særskilte posten er upåvirket, og brevet leses (KA-U72, OV-U33, #1760)', () => {
     const s = sakMedPost();
     const rad = brevet(
       s,
       medP1IkkeAkseptert({ ...postene, produktivitet_varslet_i_tide: true }, 'regningsarbeid'),
       { resultat: 'delvis_godkjent', godkjent_beloep: 30000 }
     );
+    // Tilbudet rammer bare P1 (arbeidsvalget 10.11 i #1760, OV-U33).
     expect(virkningene(s)).toEqual([
       ['oppgjoersform', 1],
       ['beloep', 1],
       ['rettidighet', 'uten_virkning'],
-      ['beloep', 1],
+      ['beloep', 'upaavirket'],
     ]);
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
       `Byggherrens standpunkt: tilbudet ikke akseptert (§ 34.2.2), godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
@@ -8824,6 +8827,24 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
       'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt varselet etter § 34.3.3 for P2 kom for sent, beregningsregelen for P3 ikke godtatt (§ 34.3), subsidiært varselet etter § 34.3.3 for P3 kom for sent.'
     );
+  });
+
+  it('et tilbud byggherren ikke aksepterer, rammer bare sin egen kravpost, i det første laget og uten et eget lag, og de andre er upåvirket (arbeidsvalget 10.11 i #1760, KA-U72, OV-U33)', () => {
+    const s = sakMedP1({ beskrivelse: 'Rør', oppgjoersform: 'tilbud', beloep: 25000 });
+    s.send(
+      'BH',
+      svaret(s, {
+        P1: { aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' },
+        P2: { aksepterer: true, vurdering: 'godkjent' },
+      })
+    );
+    expect(lagene(s)).toEqual([
+      ['oppgjoersform', 1],
+      ['beloep', 1],
+      ['oppgjoersform', 'upaavirket'],
+      ['beloep', 'upaavirket'],
+    ]);
+    expect(s.u().forstaatt, JSON.stringify(s.u().begrensninger)).toBe(true);
   });
 
   it('et lagret svar med et beløp for en kravpost etter en beregningsregel er ikke forstått, også uten standpunktet til oppgjørsformen (OV-U95 punkt 5)', () => {

@@ -32,7 +32,7 @@ import type {
 } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Betegnelse } from '$kjerne/utledning/visning';
-import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+import { elementenesSpor, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 
 /**
  * Ett brev i saken. `nummer` er brevets nummer i saken, som brevteksten kaller «brev 5»
@@ -71,19 +71,6 @@ export interface Brevet {
  * Sporet hvert krav, svar, varsel og hver forespørsel i saken hører til, så et utsagn som viser
  * til dem, får sporet (#1393).
  */
-function sporFor(u: Utledning): Map<string, Spor> {
-  const ut = new Map<string, Spor>();
-  for (const [spor, s] of Object.entries(u.spor) as [Spor, Utledning['spor'][Spor]][]) {
-    for (const e of [...s.krav, ...s.svar, ...Object.values(s.varsler), ...s.kravpostvarsler])
-      if (e) ut.set(e.id, spor);
-    for (const f of s.foresporsler) {
-      ut.set(f.foresporsel, spor);
-      if (f.svar) ut.set(f.svar, spor);
-    }
-  }
-  return ut;
-}
-
 function artAv(d: Dokument): Brevet['art'] {
   if (d.brevtekst === null) return 'registrert';
   if (d.svar.length) return 'svar';
@@ -94,7 +81,7 @@ function artAv(d: Dokument): Brevet['art'] {
 
 /** Brevene i saken i rekkefølgen i journalen. */
 export function brevene(u: Utledning): Brevet[] {
-  const spor = sporFor(u);
+  const spor = elementenesSpor(u);
   const sendt = new Map(u.registrerteBrev.map((r) => [r.dokument, r.sendt]));
   return u.journal.flatMap((h) => {
     if (h.art !== 'dokument') return [];
