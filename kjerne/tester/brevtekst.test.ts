@@ -29,6 +29,7 @@ import {
 import { brevmerking } from '../frosset/brevtittel.ts';
 import { lagFraForholdet, postlisten } from '../frosset/standpunkt.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
+import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../frosset/kravinnhold.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
@@ -4546,7 +4547,7 @@ describe('svaret på kravpostene i kommandoen (KA-U57 (c) og (d), OV-U23, MM-U2)
     [
       'en kravpost kravet ikke har',
       { kravposter: [{ gjelder: 'P2', vurdering: 'godkjent', aksepterer: true }] },
-      'kravposter: kravet har ikke denne posten (OV-U23)',
+      'kravposter: kravet har ikke kravposten «P2» (OV-U23)',
     ],
     [
       'samme kravpost to ganger',
@@ -8123,6 +8124,40 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     );
     expect(handlinger(s.u(), 'BH')).not.toContain('svare:vederlag');
     expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');
+    // Utenom forutsetningen, i utregningen og i lagene for skjemaet, avvises svaret på
+    // kravposten etter beregningsregelen på posten, og gir ikke en feil på serveren (#1663).
+    const u = s.u();
+    const gjeldende = u.spor.vederlag.gjeldendeKrav!;
+    const [post] = kravposterI(gjeldende);
+    const v = {
+      kravposter: [
+        { gjelder: post!.id, vurdering: 'delvis', godkjent_beloep: 100000, aksepterer: true },
+      ],
+    };
+    const feilen = (f: () => unknown) => {
+      try {
+        f();
+      } catch (e) {
+        return e instanceof UgyldigVurdering ? e.feil : e;
+      }
+      return null;
+    };
+    const forventet = {
+      [post!.betegnelse]: 'kravposten følger en beregningsregel, og svaret på den er ikke bygget',
+    };
+    expect(
+      feilen(() =>
+        regnUtSvar(
+          'vederlag',
+          v,
+          { krav: gjeldende, paaberopelse: u.spor.forhold.gjeldendeKrav },
+          KJERNE.regler
+        )
+      )
+    ).toEqual(forventet);
+    expect(
+      feilen(() => lagForUtkastet(svar('vederlag', gjeldende.id, v) as never, u, KJERNE.regler))
+    ).toEqual(forventet);
   });
 });
 

@@ -40,7 +40,7 @@ export interface Utkastlag {
  * seg når det besvares (S1-A). Lagene fra forholdet leses av gjeldende svar på forholdet,
  * som frysingen gjør når brevet ikke selv har et svar på forholdet. Beløpene påvirker ikke
  * lagene og tas ut før standpunktene bygges. Kaster `UgyldigVurdering` for svar på
- * kravpostene som `kravpostvurderinger` avviser.
+ * kravpostene som `kravpostvurderinger` avviser, og for en kravpost etter en beregningsregel.
  */
 export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelsett): Utkastlag {
   if (utkast.spor !== 'vederlag')
