@@ -3285,10 +3285,9 @@ svar = '''
 Oppdragsgiver 10.11, videresendt ordrett av orkestratoren: «1D, 2A, 3A, 4B, 5A», med begrunnelsen oppdragsgiver la ved og skrev «Jeg støtter meg til dette:» om. Begrunnelsen for spørsmål 3 har overskriften «Spørsmål 3: A». Begrunnelsen står ordrett i [spørsmålsfila](../vedlegg/varselsvar-2026-11-10/sporsmal.md).'''
 forhold = [
   { art = "snevrer inn", vedtak = "vs-u46" },
-  { art = "bygger på", vedtak = "ov-u95" },
 ]
 folge = '''
-Snevrer inn VS-U46 punkt 8 og 10 for varselet etter punkt 34.4, slik alternativet sier, og bygger på OV-U95 punkt 11. «Ikke gitt» i svaret på kravposten er design og føres i BF-14. Avgjør S-16 i BF-14. Berører BF-14 (D-7).'''
+Snevrer inn VS-U46 punkt 8 og 10 for varselet etter punkt 34.4, slik alternativet sier. At v4 får «ikke gitt» i svaret på kravposten, er design og føres i BF-14 (orkestratoren 10.11). Avgjør S-16 i BF-14. Berører BF-14 (D-7).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -3362,7 +3361,7 @@ forhold = [
   { art = "utvider", vedtak = "vs-u46" },
 ]
 folge = '''
-Utvider VS-U48 til varslene etter punkt 34.1.2 og 34.1.3, presiserer OV-U89 punkt 8–12, og utvider VS-U46 punkt 7 til de to varslene, slik alternativet sier. At TE kan sende varslene alene, følger av OV-U5 og OV-U89 punkt 3–4. Avgjør S-17 i BF-14. Berører BF-14 (U-11).'''
+Utvider VS-U48 til varslene etter punkt 34.1.2 og 34.1.3, presiserer OV-U89 punkt 8–12, utvider VS-U46 punkt 7 til de to varslene og avgjør det E2 lot stå åpent for dem, og følger VS-U46 punkt 1, 9 og beslutningsdelen, slik alternativet sier. At TE kan sende varslene alene, følger av OV-U5 og OV-U89 punkt 3–4. Avgjør S-17 i BF-14. Berører BF-14 (U-11).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
