@@ -523,7 +523,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/kravinnhold.ts',
     'regelsett',
     'krevdIKravposten',
-    ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
+    // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
+    ['frosset/brevtekst.ts', 'frosset/utregning.ts', 'kommandoer/nyttelast.ts'],
   ],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
   // med ett beløp (#1663).
