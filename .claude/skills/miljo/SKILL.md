@@ -5,7 +5,7 @@ description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, hvordan u
 
 # Miljø og kommandoer
 
-Reglene for miljøet står i «Miljø» i `AGENTS.md`. Her står kommandoene og
+Reglene for miljøet står i «Miljø» i `CLAUDE.md`. Her står kommandoene og
 omveiene.
 
 Nettleseren for skriptene i `mockup-nettleser`, i skyøkta og lokalt med global Playwright,
@@ -85,7 +85,7 @@ node scripts/testbase/ekte_innlogging.ts [--bh <team> …] [--te <team> …]
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r
 verktoy/tester/requirements.txt` (systempython mangler pytest).
 
-Timeouten for en hel vitest-kjøring står i «Miljø» i `AGENTS.md`.
+Timeouten for en hel vitest-kjøring står i «Miljø» i `CLAUDE.md`.
 
 ### Rask kjøring under arbeidet
 
@@ -113,7 +113,8 @@ det, så svarene holdes små:
   Reporteren skriver bare oppsummeringen når alt er grønt, og ellers de
   feilende testene med diff og sted. Den skjuler også advarslene fra
   vite-plugin-svelte. Et `tail` kan kutte bort den første feilen. Pytest kjøres
-  med `-q` som i blokken over, med `| tail -30`. Skal hele utdataene leses, gjør
+  med `-q` som i blokken over, med `| tail -30`: pytest skriver feilene og
+  oppsummeringen sist. Skal hele utdataene leses, gjør
   en subagent det og rapporterer bare feilene.
 - Tell før du leser: `grep -c` eller `grep -l` først, deretter `grep -n` på
   de filene som gjelder. Et søk med mange alternativer over hele treet gir
@@ -141,8 +142,7 @@ jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 `feilinnfoering`.
 
-En skyøkt kjører ikke hele samlingen for kjernen lokalt som del av leveransen
-(oppdragsgiver 28.10): kjøringen tar lang tid, og økta mister kontekstcachen. Full
+En skyøkt kjører ikke hele samlingen for kjernen lokalt som del av leveransen: kjøringen tar lang tid, og økta mister kontekstcachen. Full
 lokal kjøring brukes bare til å feilsøke en rød jobb i CI. `--ankre` kjøres fortsatt
 lokalt. For serveren kjøres i stedet de ID-ene som gjelder endringen, mot en kopi av
 arbeidstreet: `python3 server/tester/feilinnfoering.py /tmp/kopi S39 S40`.
@@ -194,7 +194,7 @@ Kjør deretter bare de ID-ene som feilet, med `FEILINNFOERING_UTVALG=1`, i bakgr
 
 ## Skyøkta
 
-Reglene for skyøkta står i «Miljø» og «Hvor hva står» i `AGENTS.md`. Her står kommandoene.
+Reglene for skyøkta står i «Miljø» i `CLAUDE.md`. Her står kommandoene.
 
 `khjohns/kontrakt` legges til underveis:
 
@@ -227,10 +227,14 @@ har svart når `/tmp/koe-sqlserver-14331.container` finnes. Til da viser
 Vaktene kan ikke kjøres for hånd. I en slik økt verner ingenting token-brokeren, og
 `diffkontroll` er ikke begrenset til lesing, så hold deg til det oppdraget sier.
 
+`gh issue`, `gh pr` og `gh label` går over GraphQL, som gir 403 i skyøktene; bruk
+REST-formen med `gh api`. `gh api search/issues` og `--paginate` gir også 403 i
+skyøkta, så sidene hentes med `page=N`.
+
 Side for side i repo-listen, uten `search/issues`:
 `gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.
 
-Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `AGENTS.md`.
+Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `CLAUDE.md`.
 
 Et arbeidstre under `.claude/worktrees/` har ingen `node_modules`, så vite og vitest
 der laster pakkene fra hovedcheckouten, og med dem `tsconfig.json` der. Den utvider

@@ -5,13 +5,12 @@ description: Den ukentlige gjennomgangen av tokenforbruket i skyøktene i endrin
 
 # Gjennomgang av tokenforbruket
 
-Rutinen «Ukentlig tokenforbruk» kjører denne skillen torsdag morgen
-(oppdragsgiver 17.10). Den finner hva som drev kostnaden siste uke og foreslår
+Rutinen «Ukentlig tokenforbruk» kjører denne skillen torsdag morgen. Den finner hva som drev kostnaden siste uke og foreslår
 tiltak. Den endrer ingen regler, skills eller kode, og åpner ingen PR. Forslagene
 er spørsmål til oppdragsgiver.
 
-Kostnaden vokser med antall kall ganger kontekststørrelsen («Kontekst i
-arbeidsøktene» i [orkestreringsskillen](../orkestrering/SKILL.md#kontekst-i-arbeidsøktene)).
+Kostnaden vokser med antall kall ganger kontekststørrelsen («Hvorfor
+grensene finnes» i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#hvorfor-grensene-finnes)).
 Gjennomgangen ser derfor etter kontekst som vokser, ikke etter enkeltkall.
 
 Gjennomgangen skal selv koste lite: om lag 3 USD og under 150 000 tokens. Store
@@ -67,10 +66,10 @@ subagent gjøre analysen, med denne bestillingen:
 - `bashOutputMaxChars` i `.claude/settings.json` er satt til 10 000. Kjør
   `python3 -c "print('x' * 15000)"`. Kommer svaret inline og ikke som fil med
   forhåndsvisning, virker ikke innstillingen fra prosjektoppsettet. Det er et funn.
-- Se om grensene i «Kontekst i arbeidsøktene» holder, som tegn som skal ses
-  nærmere på: en arbeidsøkt som endte over om lag 500 000 tokens, eller en som
-  endte over 150 000 tokens og varte klart over en time; en orkestrator over
-  300 000 tokens; og subagenter over 150 000 tokens eller 80 kall i de øktene
+- Se om grensene i arbeidsøkt-skillen og «Orkestratorens tid og kontekst» i orkestreringsskillen holder, som tegn som skal ses
+  nærmere på: en arbeidsøkt eller orkestrator som endte over om lag 800 000 tokens,
+  en som passerte 400 000 uten en vurdering i PR-en, eller en over 150 000 tokens som
+  ble vekket etter over en time uten kall; og subagenter over 150 000 tokens eller 80 kall i de øktene
   som ble sett nærmere på.
 - Se om nedre grense i skillen [`subagenter`](../subagenter/SKILL.md) holder:
   subagenter med under om lag fem verktøykall skulle vært gjort i økta.
@@ -90,11 +89,11 @@ Issuet inneholder:
 - høyst tre forslag. Hvert forslag sier hva det endrer, hvilken mekanisme det
   bruker (skill, subagent, hook, innstilling, regel eller kortere instruks), hva
   det ventes å spare, og en anbefaling. Foretrekk forslag som fjerner, deler eller
-  flytter tekst framfor nye regler: hver regel i `AGENTS.md` eller en skill som
+  flytter tekst framfor nye regler: hver regel i `CLAUDE.md` eller en skill som
   lastes i hver økt, gjør alle øktene litt dyrere;
 - spørsmålene til oppdragsgiver.
 
-Issues er offentlige (`AGENTS.md`, «Hvor hva står»). Skriv øktenes tittel og
+Issues er offentlige (`CLAUDE.md`, «Hvor hva står»). Skriv øktenes tittel og
 ID, issue- og PR-nummer og tall. Skriv ikke innhold fra øktene: ikke meldinger,
 sitater fra transkripsjonen, personnavn eller e-postadresser.
 

@@ -9,7 +9,7 @@ Lista bygger på [sjekklisten for UU](https://punkt.oslo.kommune.no/latest/god-p
 i Punkt, med egne ord og tilpasset en innlogget fagapplikasjon med skjemaer,
 tabeller, dialoger og brevtekst, i lys modus og på smal skjerm. Punkt
 oppgir ingen lisens for teksten på sidene, så den er ikke tatt inn ordrett (#1187).
-Kravet er WCAG 2.1 A og AA. Mørk modus vurderes ikke nå (oppdragsgiver 29.10).
+Kravet er WCAG 2.1 A og AA. Mørk modus vurderes ikke nå.
 
 **Automatikken finner bare en del.** [Testverktøysida i Punkt](https://punkt.oslo.kommune.no/latest/universell-utforming/testverktoy/)
 anslår om lag 30 % av feilene. `uu.mjs` i skillen [`mockup-nettleser`](../mockup-nettleser/SKILL.md)

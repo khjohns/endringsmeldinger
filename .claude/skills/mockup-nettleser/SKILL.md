@@ -8,7 +8,7 @@ description: Kjører den ekte saksruta og demoruta i Chromium i skyøkta. saksru
 ## Den ekte saksruta
 
 Den ekte saksruta `/{prosjekt}/{sak}` mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/vedtak.md#dl-u1)) kreves
-for en diff i saksvisningen, etter `AGENTS.md`, «Arbeidsform». Den kjøres med:
+for en diff i saksvisningen, etter leveranseskillen, «Review og funn». Den kjøres med:
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \
@@ -110,7 +110,7 @@ node .claude/skills/mockup-nettleser/demoruta.mjs [--url http://localhost:5173] 
 Skriptet starter `vite dev` hvis ingen svarer, og driver BF-01, eller forløpet i `--forlop`
 (BF-01 og BF-04 har kontrollpunktene skriptet bruker): forløpet fra begynnelsen,
 så fra kontrollpunktet der BH har mottatt vederlagskravet. BH svarer i skjemaet med
-«Nei, for sent» og 60 000 kr subsidiært, kontrollerer brevet og sender det. TE bytter side,
+«Varslet for sent» og 60 000 kr subsidiært, kontrollerer brevet og sender det. TE bytter side,
 ser svaret og godtar det når forløpet har kontrollpunktet `te-har-godtatt-svaret`. Til slutt startes forløpet på nytt, og et bilde tas på 390 px.
 Det skriver brevtekstene og stopper med exit 1 når brevet ikke har lagene fra standpunktet i
 kontrollpunktet `te-har-mottatt-svaret` og det subsidiære beløpet, når TE fortsatt får godta etter aksepten, og ved
@@ -131,7 +131,7 @@ Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Va
 
 `prototype.mjs` er den mekaniske forprøven av en HTML-skisse av et nytt mønster i
 `docs/design/prototyper/` (steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347).
-Et helt forløp forprøves i demoruta med `demoruta.mjs` (oppdragsgiver 28.10, #1331). Demoruta
+Et helt forløp forprøves i demoruta med `demoruta.mjs` (#1331). Demoruta
 driver i dag BF-01 og BF-04, så andre forløp må bygges der før de kan forprøves. Den åpner prototypen med
 `file://`, uten vite, og følger klikkstiene under `prototype` i forløpsfila. Formatet står i
 [README for brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md#formatet).
@@ -147,13 +147,13 @@ stegtabellen i bestillingen finnes og er dekket av en klikksti som når ankrene 
 med ID-ene i bestillingen begge veier. axe (WCAG 2.1 A og AA) kjøres i hver tilstand stiene
 når, og konsollfeilene samles. Forespørsler til nettet blokkeres, så nettfontene mangler på
 skjermbildene. Det tas ett skjermbilde per tilstand, ett med «Vis sporbarhet» og ett per
-tilstand på 390 px. Bredden rapporteres, men stopper ikke (oppdragsgiver 27.10). Ellers gir
+tilstand på 390 px. Bredden rapporteres, men stopper ikke. Ellers gir
 et avvik exit 1. Rapporten skrives til standard ut og er kort nok til å legges i en PR.
 
 ## Skjermbildene i PR-en
 
 Skjermbildene ligger på grenen `skjermbilder`, som ikke har felles historikk med `main`
-og aldri merges, med én mappe per PR (`pr-<nummer>/`) (oppdragsgiver 23.10, #1222).
+og aldri merges, med én mappe per PR (`pr-<nummer>/`) (#1222).
 PR-en lenker dem derfra. En skyøkt kan ikke laste opp bilder til GitHub gjennom API-et.
 
 ```bash
@@ -228,9 +228,8 @@ showcasen kjøres som egne stier (`/demo/komponenter/ramme?…`). Det skriver re
 brutt, med inntil `--vis` steder hver og forholdstallet for kontrast, og det axe ikke kan
 avgjøre («kontroller»). Et brudd gir exit 1.
 
-Den ekte saksruta, med innlogging og feiltilstandene fra `saksrute.ts --feil`, kontrolleres for
-hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md).
-axe finner bare en del av feilene. Resten kontrolleres for hånd etter skillen
+axe finner bare en del av feilene. Resten, og den ekte saksruta med innlogging og
+feiltilstandene fra `saksrute.ts --feil`, kontrolleres for hånd etter skillen
 [`uu-sjekk`](../uu-sjekk/SKILL.md). Det er ingen CI-jobb for skriptet (#1187).
 
 ## Det statiske bygget

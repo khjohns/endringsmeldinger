@@ -11,8 +11,6 @@ den bygger på, forventninger byggingen kan prøves mot, og avgrensede restpunkt
 Kjernen er en kilde til hvordan løsningen virker i dag, ikke grensen for hva som kan
 designes. En upraktisk arbeidsflyt bevares ikke fordi kjernen allerede har den.
 
-Første prøve var BF-03 (#1336, oppdragsgiver 27.10). Skillen rettes etter brukerprøven.
-
 ## Hjemmene
 
 | Hva | Hvor |
@@ -36,15 +34,14 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
    linje begrunnelse hver, og velger ingen. Den som skriver bestillingen, avgjør
    `kilder` etter å ha lest kandidatene mot vedtaksfila. Vedtak som den kognitive
    gjennomgangen i steg 6 peker på, og som forløpet ikke viser til, går også hit.
-3. **Skisser.** Et forløp prøves i demoruta med Varden-komponentene. En HTML-skisse
-   lages bare for ett nytt mønster som ingen komponent har ennå, og den kan vise
-   handlinger og tilstander som ikke finnes (oppdragsgiver 28.10, #1331). Er spørsmålet
+3. **Skisser.** Forløpet prøves i demoruta, og en HTML-skisse lages bare for et nytt
+   mønster («Prototypen»). Skissen kan vise handlinger og tilstander som ikke finnes (#1331). Er spørsmålet
    bare plassering eller ordlyd, og den nye visningen er bygget for oppgaven, kan det
    prøves der i stedet.
 4. **Kontroller forskjellene** mellom ønsket løsning og det kjernen og vedtakene gir.
    Dagens visning i demoruta og saksruta er ufullstendig og er ikke noe
    sammenligningsgrunnlag, fordi den nye visningen (Varden) bygges fra bunnen etter
-   vedtakene og brukerforløpene (oppdragsgiver 27.10, #1338). Lag en kort liste, ikke
+   vedtakene og brukerforløpene (#1338). Lag en kort liste, ikke
    en kartlegging av hvert element. Se særlig på brev, beløp, statuser, virkninger og
    handlinger. Marger, kortplassering og typografi trenger ingen kobling til kjernen.
 5. **Avklar** det som trengs for akkurat denne oppgaven: D- og S-punktene etter
@@ -54,8 +51,8 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
    Malen for de to gjennomgangene står i [forprove.md](forprove.md). Den mekaniske
    kontrollen kjøres først: `demoruta.mjs` for et forløp i demoruta, og `prototype.mjs`
    med klikkstiene i forløpsfila for en HTML-skisse av et nytt mønster, så den
-   kognitive. Den mekaniske kontrollen leser ingen vedtak og vurderer ingen tekst. Bredden på 390 px rapporteres, men stopper ikke, fordi mobil
-   ikke er prioritert nå (oppdragsgiver 27.10). Den kognitive gjennomgangen avgjør ikke
+   kognitive. Den mekaniske kontrollen leser ingen vedtak og vurderer ingen tekst.
+   Bredden på 390 px rapporteres, men stopper ikke, fordi mobil ikke er prioritert nå. Den kognitive gjennomgangen avgjør ikke
    rettsspørsmål; de føres som spørsmål til oppdragsgiver, med alternativer. Den sammenligner
    ikke med dagens visning, saksruta eller dagens app. Blindveier i arbeidsflyten prøves etter
    «Prøv arbeidsflyten før vedtaksteksten skrives» i [vedtaksskillen](../vedtak/SKILL.md).
@@ -76,7 +73,7 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
 | Ingen demosak eller ingen forløp viser tilstanden | Bygg ikke visningen for tilstanden før et forløp viser den. Forløpet føres i samme issue |
 
 Tabellen gjelder også et designvalg i en bygget visning uten bestilling, for eksempel i en
-designrunde for Varden, før valget bygges (oppdragsgiver 30.10, #1391, #1400).
+designrunde for Varden, før valget bygges (#1391, #1400).
 
 Ikke alle funn skal bli vedtak, og ikke alle skal presses inn som endringer i visningen.
 Om et funn er vedtak, beslutning eller design, avgjøres av testen under «Hva et vedtak
@@ -106,7 +103,7 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
 - **P, produktspørsmål utenfor forløpet:** står der til de tas opp i et eget issue.
 - **Endringer:** dato, grunnlag og hva som er endret, per versjon.
 
-**Et designvedtak som flyttes, blir et U-punkt** (svar 5 04.11 i
+**Et designvedtak som flyttes, blir et U-punkt** (svar 5 i
 [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)):
 
 - Punktet får et anker foran ID-en, `- <a id="u-12"></a>**U-12** …`, så det kan lenkes til.
@@ -114,9 +111,9 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
 - Posten i registeret får `flyttet_til = "BF-06.md#u-12"`, med bokstaven når forløpet har
   en (`BF-02A.md#u-3`). Lenkekontrollen feiler når ankeret ikke finnes
   ([registeret](../../../docs/vedtaksregister/README.md#klassen)).
-- Teksten skrives etter språkreglene ([språkfila](../../../docs/sprak.md#hva-løsningen-kalles)).
+- Teksten skrives etter språkreglene ([språkfila](../../../docs/sprak.md)).
   Den flyttede teksten er ny tekst. Den sier hva visningen bygger på, ikke «appens
-  vurdering», som i lesningen av MM-U23 i svarene 04.11.
+  vurdering», som i lesningen av MM-U23.
 - Har designvedtaket en del som binder partene, står den delen i vedtaket i `bindende_i`, og
   punktet viser til det.
 
@@ -124,7 +121,7 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
 
 Et forløp prøves i demoruta (`/demo/<ID>`) med de ekte Varden-komponentene, ikke i HTML.
 En HTML-skisse lages bare for ett nytt mønster som ingen komponent har ennå, aldri for et
-helt forløp (oppdragsgiver 28.10, #1331). Demoruta er en journal i minnet som ikke sender
+helt forløp (#1331). Demoruta er en journal i minnet som ikke sender
 noe. Brukerprøven gjøres der. Oppskriften for demoruta og for skissen står i
 [mockup-nettleser](../mockup-nettleser/SKILL.md).
 
@@ -137,9 +134,9 @@ For en HTML-skisse av et mønster gjelder dette:
 - Versjonen står i skissen og i bestillingen. En godkjent versjon er en commit.
 - Teksten er prototypetekst. En vedtatt brevtekst står ordrett.
 - En HTML-skisse følger designet i [systemfila](../../../.interface-design/system.md) og
-  tokenene i `theme.css`, slik prototypene fra 31.10–01.11 i `docs/design/prototyper/` viser
-  det (for eksempel `grunnlagsoversikt.html`), og ikke det gamle konseptstilarket (#1461,
-  oppdragsgiver 01.11). Ingenting sendes, og ingen data lagres.
+  tokenene i `theme.css`, slik `docs/design/prototyper/grunnlagsoversikt.html` viser
+  det, og ikke det gamle konseptstilarket (#1461). Noen eldre prototyper i mappa bruker
+  fortsatt det gamle stilarket og er ikke forbilde. Ingenting sendes, og ingen data lagres.
 
 ## Kontrollene
 
@@ -149,8 +146,8 @@ vakttesten for brukerforløpene kjøres i CI. Kommandoene står i
 [miljø-skillen](../miljo/SKILL.md). Et forløp i demoruta kjøres med `demoruta.mjs`, og en
 HTML-skisse vises i nettleseren med skillen `mockup-nettleser`.
 
-En endring i formatet, i `kjerne/tester/`, følger de vanlige reglene i `AGENTS.md`,
-«Arbeidsform».
+En endring i formatet, i `kjerne/tester/`, følger reglene i
+[leveranseskillen, «Review og funn»](../leveranse/SKILL.md#review-og-funn).
 
 ## Klar til bygging
 

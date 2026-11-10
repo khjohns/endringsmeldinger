@@ -1,7 +1,8 @@
 # Språket i løsningen
 
-Klarspråk i visningen, vedtakene og brevene, og betegnelsen for løsningen. Reglene
-for språket står i [`AGENTS.md`](../AGENTS.md), «Språk».
+Klarspråk i visningen, vedtakene og brevene, og betegnelsen for løsningen. Fila er
+hjemmet for reglene for synlig tekst. Reglene for språket i koden, kommentarene og
+dokumentasjonen står i [`CLAUDE.md`](../CLAUDE.md), «Språk».
 
 ## Klarspråk
 
@@ -14,19 +15,19 @@ Rådene under er med egne ord.
 - Ord brukeren kjenner. Kodenavn og interne fagbegreper, som «respons», vises ikke.
 - En feilmelding eller sperre sier hva som hindrer, og hva brukeren kan gjøre nå.
 - Feilmeldingene ved feltene har samme form: «<Verb> <feltet>.», for eksempel «Skriv tittelen.»,
-  «Beskriv pålegget.» og «Velg forholdet.» (oppdragsgiver 01.11, #1482).
+  «Beskriv pålegget.» og «Velg forholdet.» (#1482).
 - Bestemmelsene i NS 8407 forklares med egne ord. De gjengis ikke ordrett i visningen.
 - Lenketekster sier hvor lenken fører. «Les mer» står ikke alene.
-- Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (TE, BH, EO, KOE, varsel,
+- Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (EO, KOE, varsel,
   forsering), henvisningene til NS 8407 som «punkt 33.8» ([OV-U75](plans/vedtak.md#ov-u75), [LV-U39](plans/vedtak.md#lv-u39)) og
-  vedtatt ordlyd står som de er. I brevene
+  vedtatt ordlyd står som de er. I brevene og visningen
   skrives partene fullt ut (se «Ordene i brevene og skjemaene»). Presisjonskravet
-  i [`AGENTS.md`](../AGENTS.md) går foran. En vedtatt ordlyd endres bare gjennom
+  i [`CLAUDE.md`](../CLAUDE.md) går foran. En vedtatt ordlyd endres bare gjennom
   [vedtaksregisteret](vedtaksregister/README.md).
 
 ## Hva løsningen kalles
 
-Regelen står i [`AGENTS.md`](../AGENTS.md), «Språk». Her står begrunnelsen og
+Regelen står i [`CLAUDE.md`](../CLAUDE.md), «Språk». Her står begrunnelsen og
 eksemplene.
 
 «Appen» er forståelig mellom oss som utvikler løsningen, men den som leser et vedtak,
@@ -70,14 +71,14 @@ brevtekst står til et vedtak endrer den. Vedtaket for brevene føres i
 
 | Ord | Regel | Grunnlag |
 | --- | --- | --- |
-| Partene | Brevene og visningen skriver «byggherren» og «totalentreprenøren» fullt ut, også i «totalentreprenørens krav», «byggherrens svar» og knapper som «Send til byggherren». Forkortelsene BH og TE brukes bare i trange kolonner og merker, som «Brev 2 · BH» i sakslisten, og aldri i teksten i et brev. | Oppdragsgiver 30.10 og 31.10 (#1433). Visningen: oppdragsgiver 01.11 (#1482) |
+| Partene | Brevene og visningen skriver «byggherren» og «totalentreprenøren» fullt ut, også i «totalentreprenørens krav», «byggherrens svar» og knapper som «Send til byggherren». Forkortelsene BH og TE brukes bare i trange kolonner og merker, som «Brev 2 · BH» i sakslisten, og aldri i teksten i et brev. | #1433. Visningen: #1482 |
 | Godkjenner og godtar | Byggherren «godkjenner», «avslår» og «gjør gjeldende». Totalentreprenøren «godtar» byggherrens svar. Skjemaet for byggherren spør «Hvor mye godkjenner du?», ikke «godtar du?». Svaret på forholdet sier «er enig i» der [GR-U32](plans/vedtak.md#gr-u32) sier det, og ved svikt og andre forhold det [LV-U41](plans/vedtak.md#lv-u41) sier. | [LV-U4](plans/vedtak.md#lv-u4) punkt 5, [HF-U2](plans/vedtak.md#hf-u2), [KA-U1](plans/vedtak.md#ka-u1), [GR-U32](plans/vedtak.md#gr-u32), [LV-U41](plans/vedtak.md#lv-u41) |
-| Vederlagsjustering | Posten i vederlagskravet etter § 34.1.1 eller § 34.1.2 heter «vederlagsjustering», med hjemmelen der det trengs for å skille den fra den særskilte. Ikke «hovedkrav» eller «justeringen ellers». | Kontrakten § 34.1, oppdragsgiver 30.10 (#1433). «Justeringen ellers» i [OV-U28](plans/vedtak.md#ov-u28) står til vedtaket i #1433 |
-| Særskilt vederlagsjustering | Kravet etter § 34.1.3 annet ledd heter «særskilt vederlagsjustering». Kontrakten skiller postene med ordet «særskilt». | Kontrakten § 34.1.3, oppdragsgiver 30.10 (#1433) |
-| Kravet, ikke sporet | «Spor» er et ord i koden og vedtakene. Visningen og brevene sier hva kravet gjelder: «vederlagsjusteringen», «kravet om fristforlengelse», «forholdet». | Oppdragsgiver 31.10, [OV-U76](plans/vedtak.md#ov-u76), [LV-U41](plans/vedtak.md#lv-u41) |
+| Vederlagsjustering | Posten i vederlagskravet etter punkt 34.1.1 eller 34.1.2 heter «vederlagsjustering», med hjemmelen der det trengs for å skille den fra den særskilte. Ikke «hovedkrav» eller «justeringen ellers». | NS 8407 punkt 34.1 (#1433). «Justeringen ellers» i [OV-U28](plans/vedtak.md#ov-u28) står til vedtaket i #1433 |
+| Særskilt vederlagsjustering | Kravet etter punkt 34.1.3 annet ledd heter «særskilt vederlagsjustering». Kontrakten skiller postene med ordet «særskilt». | NS 8407 punkt 34.1.3 (#1433) |
+| Kravet, ikke sporet | «Spor» er et ord i koden og vedtakene. Visningen og brevene sier hva kravet gjelder: «vederlagsjusteringen», «kravet om fristforlengelse», «forholdet». | [OV-U76](plans/vedtak.md#ov-u76), [LV-U41](plans/vedtak.md#lv-u41) |
 | Forholdet | Bestemmelsen i kontrakten totalentreprenøren påberoper, heter «forholdet» i visningen, ikke «grunnlaget» eller «ansvarsgrunnlaget». Gruppen og tittelen står slik [OV-U77](plans/vedtak.md#ov-u77) og [OV-U78](plans/vedtak.md#ov-u78) sier. I vedtakene leses ordene slik [OV-U82](plans/vedtak.md#ov-u82) sier. | [OV-U76](plans/vedtak.md#ov-u76), [OV-U77](plans/vedtak.md#ov-u77), [OV-U78](plans/vedtak.md#ov-u78), [OV-U82](plans/vedtak.md#ov-u82) |
 | Punkt og pkt. | En henvisning til NS 8407 skrives «punkt 33.4» i visningen og brevene, og «pkt. 33.4» i et merke eller en tabellcelle uten setning rundt. Lover står med «§». Brevets henvisninger til egne punkter og til NS 8407 står slik [LV-U40](plans/vedtak.md#lv-u40) sier. | [OV-U75](plans/vedtak.md#ov-u75), [LV-U39](plans/vedtak.md#lv-u39), [LV-U40](plans/vedtak.md#lv-u40) |
 | Påberopelse | Totalentreprenørens første brev heter «Påberopelse av <forholdet>», og byggherrens handling heter «Svar». Handlingen for å trekke den heter «Trekk påberopelsen». Ikke «varsel om grunnlag» eller «grunnlagskrav». | [GR-U31](plans/vedtak.md#gr-u31), [GR-U30](plans/vedtak.md#gr-u30) |
-| Brev, ikke versjon | Visningen sier «brev», ikke «versjon», om det parten sender. Handlingen heter «Oppdater påberopelse», før og etter byggherrens svar, og brevet «Brev 3 · Oppdatert påberopelse». Brevkontrollen har «Forrige brev: Påberopelsen i brev 1», og kvitteringen «Brevet er sendt til byggherren». «Kravversjon» er et ord i kjernen og vedtakene. Visningen sier hvordan et brev står i forhold til et annet ut fra det løsningen vet: rekkefølgen og henvisningene, ikke «Erstatter» eller «Reviderer». Brevene kan utfylle eller motsi hverandre, og det avgjør partene. En vedtatt tekst som sier mer, som «avviker fra den registrerte enigheten» i [KA-U52](plans/vedtak.md#ka-u52), står. Vedtatt brevtekst med «erstatter» står til et vedtak endrer den. Vederlag og frist følger i #1654. | Oppdragsgiver 07.11 (PR 1650) |
-| Brevet er sidens | Visningen sier ikke «din» om et brev: brevet er sendt fra kontraktssiden, og en kollega i teamet kan ha sendt det. Der det trengs for å skille brevene, står parten fullt ut, som «Totalentreprenørens påberopelse» og «Byggherrens svar», ikke «TEs påberopelse». Der det er klart hvem brevet er fra, står det uten eier: «Forrige versjon: Påberopelsen i brev 1». | Oppdragsgiver 07.11 (PR 1650). Forkortelsene: raden «Partene» |
+| Brev, ikke versjon | Visningen sier «brev», ikke «versjon», om det parten sender. Handlingen heter «Oppdater påberopelse», før og etter byggherrens svar, og brevet «Brev 3 · Oppdatert påberopelse». Brevkontrollen har «Forrige brev: Påberopelsen i brev 1», og kvitteringen «Brevet er sendt til byggherren». «Kravversjon» er et ord i kjernen og vedtakene. Visningen sier hvordan et brev står i forhold til et annet ut fra det løsningen vet: rekkefølgen og henvisningene, ikke «Erstatter» eller «Reviderer». Brevene kan utfylle eller motsi hverandre, og det avgjør partene. En vedtatt tekst som sier mer, som «avviker fra den registrerte enigheten» i [KA-U52](plans/vedtak.md#ka-u52), står. Vedtatt brevtekst med «erstatter» står til et vedtak endrer den. Vederlag og frist følger i #1654. | PR #1650 |
+| Brevet er sidens | Visningen sier ikke «din» om et brev: brevet er sendt fra kontraktssiden, og en kollega i teamet kan ha sendt det. Der det trengs for å skille brevene, står parten fullt ut, som «Totalentreprenørens påberopelse» og «Byggherrens svar», ikke «TEs påberopelse». Der det er klart hvem brevet er fra, står det uten eier: «Forrige versjon: Påberopelsen i brev 1». | PR #1650. Forkortelsene: raden «Partene» |
 | Korrespondanse | Det partene har sendt hverandre utenfor løsningen og legger til i saken, heter «korrespondanse», ikke «registrert brev». Kategorien svarer på «Hva er det etter kontrakten?». | [OV-U79](plans/vedtak.md#ov-u79), [OV-U80](plans/vedtak.md#ov-u80) |

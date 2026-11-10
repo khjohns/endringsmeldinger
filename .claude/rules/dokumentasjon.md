@@ -15,7 +15,7 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
 ## Ett hjem per opplysning
 
 Én kilde per opplysning. Genererte og kontrollerte visninger er lov, men en fri
-gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
+gjengivelse er aldri regelgrunnlag (`CLAUDE.md`, «Hvor hva står»).
 
 - `docs/datamodell/` beskriver tabeller, hendelser, relasjoner og dataflyt, og
   `docs/domenetabell/` forventet atferd og bevis-saker. Rediger kilderegistrene,
@@ -31,7 +31,7 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
   funnstatusen. ADR-er og designnotater kan begrunne valg, men oppretter ikke et
   konkurrerende beslutningsregister. En flytting av autoriteten må være
   uttrykkelig, med lenker og markering av hva som er erstattet.
-- **Vedtaksfila er autoritativ for vedtakene** (#1020, oppdragsgiver 20.10):
+- **Vedtaksfila er autoritativ for vedtakene** (#1020):
   et vedtak er det som står i
   [`docs/plans/vedtak.md`](../../docs/plans/vedtak.md) på `main`. Fila var
   avsnitt 3.1 i hovedplanen, og en henvisning til «3.1» gjelder den. Den lages av
@@ -51,7 +51,7 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
   Gjenbruk eksisterende dokumenter; ikke opprett en ny systemoversikt per oppgave.
 - PR-en bærer endringsbegrunnelse, alternativer, review og kjørte testresultater.
   Kopier ikke dette til indeks eller referansedokumenter; arbeidsstatus står i
-  issuene (`AGENTS.md`, «Hvor hva står»). Historiske bevis i en audit beholder
+  issuene (`CLAUDE.md`, «Hvor hva står»). Historiske bevis i en audit beholder
   sin dato og commit.
 
 ## Form og vedlikehold

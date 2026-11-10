@@ -52,7 +52,7 @@ og beholdes; tabellen bestiller ingen omdøping.
 
 | Begrep | Betydning | I API og kode | Grunnlag |
 | --- | --- | --- | --- |
-| **Krav** | TEs formelle krav i ett spor: grunnlag, vederlag eller frist | Hendelsene `grunnlag_*`, `vederlag_krav_*`, `frist_krav_*` | AGENTS.md |
+| **Krav** | TEs formelle krav i ett spor: grunnlag, vederlag eller frist | Hendelsene `grunnlag_*`, `vederlag_krav_*`, `frist_krav_*` | CLAUDE.md |
 | **Kravversjon** | Én innsending av kravet. Hver innsending er en ny versjon, også med uendrede verdier. Et frittstående konsekvensvarsel, et trekk og byggherrens innsigelse eller forespørsel er ikke kravversjoner | `antall_versjoner` (antallet), `versjon` på hendelsen | Vedtaket om kravversjon 05.10, [KA-U2](../plans/vedtak.md#ka-u2) |
 | **Gjeldende krav** | Sporets siste kravversjon | `krav_event_id` i projeksjonen, `claimId` fra `submissionRefs` i frontenden, `claims()` i godkjenningsflyten (avviker: DT-02) | KA-U2 |
 | **Svar** | Byggherrens hendelse og brev om én kravversjon. En revisjon erstatter svaret på samme versjon | `respons_*`, `respons_*_oppdatert`, `respons_event_id`, `bh_respondert_versjon` (0-indeksert) | B-13, B-03 |
@@ -90,7 +90,7 @@ og beholdes; tabellen bestiller ingen omdøping.
 ### Navn i kjernen
 
 Kjernen i [`kjerne/`](../../kjerne/) har navn fra kontrakten etter «Språk» i
-`AGENTS.md` (#308, #273). Tabellen viser navnene som er byttet ut fra målmodellen i
+`CLAUDE.md` (#308, #273). Tabellen viser navnene som er byttet ut fra målmodellen i
 språkprøven, og navnene i kjernen som er byttet i #273. Navnene i
 lagringsformatet står under.
 

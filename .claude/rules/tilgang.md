@@ -6,7 +6,7 @@ paths:
 
 # Tilgang: mekanismene bak sikkerhetsinvariantene
 
-Invariantene står i `AGENTS.md` og gjelder hver serverinngang. Her står hvordan
+Invariantene står i `CLAUDE.md` og gjelder hver serverinngang. Her står hvordan
 TS-serveren håndhever dem, og hva den mangler.
 
 ## TS-serveren
@@ -54,3 +54,15 @@ prosjekt gir `FORBIDDEN` uten at Catenda spørres om teamet (#1106).
   `koe_sikkerhet.skriver` stopper en rad i et annet prosjekt.
   `koe_api.skriv_hendelse` kontrollerer og stempler prosjektet fra konteksten i
   tillegg.
+- **Identiteten.** `koe_api.catenda_identitet` og `koe_api.synkroniser_medlemskap` kaller
+  `koe.resolve_identity`. Entra-innloggingen (`koe_api.entra_identitet`) slår opp
+  identiteten selv og oppretter aldri en bruker. `koe_api.synkroniser_hr` og
+  prosedyrene i `koe_drift` skriver `koe.app_users` og `koe.app_identities` direkte.
+
+## Det TS-serveren mangler
+
+- **Interne notater.** Tabellen `koe.notat` og filteret `koe_sikkerhet.notat_synlig`
+  finnes, men ingen inngang eller prosedyre leser, skriver eller sletter notater, og
+  lesingen av saken fletter dem ikke inn. En ny sti skal lese og skrive under filteret.
+- **Saker det vises til.** `sakerDetVisesTil` i `server/autorisasjon.ts` kontrollerer
+  nøkler som ingen kommando i kjernen har i dag.

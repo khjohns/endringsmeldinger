@@ -21,8 +21,7 @@ innganger uten at alle kombinasjoner må gjentas i nettleseren.
 
 - **Domene:** test vedtatte beslutninger, lovlige/ulovlige overganger og viktige
   kombinasjoner av krav, svar, aksept og grunnlag. Ta med beløpsavrunding,
-  datogrenser, manglende verdier og null. Bruk parametrisering og avgrensede
-  egenskapstester for invariantene.
+  datogrenser, manglende verdier og null. Bruk parametrisering for invariantene.
 - **Tilgang og kontrakter:** test avvisning ved feil prosjekt, team, rolle eller
   identitet, samt en legitim kontrollsak. Prøv serverstemplede felt,
   JSON-validering og relevante HTTP-/batch-/godkjenningsinnganger uten å mocke
@@ -52,32 +51,26 @@ Ingen generell prosentgrense eller test per fil kreves. Vurder særlig udekkede
 grener i kritisk kode; begrunn relevante utelatelser i PR-en. Ikke slett tester
 bare for å redusere antall, og ikke fjern kjente feilreproduksjoner som «trivielle».
 
-Bruk eksisterende verktøy: pytest for Python og Vitest for TypeScript, også for
-TS-kjernen (B-14). Komponenttester bruker Testing Library; komplette
+Bruk eksisterende verktøy: Vitest for TypeScript, også for kjernen (B-14), og pytest
+for Python-verktøyene. Komponenttester bruker Testing Library; komplette
 nettleserflyter bruker Playwright etter repoets miljø- og skillregler. Typesjekk
 og bygg kommer i tillegg: de erstatter ikke tester av kjøretidsatferd. Ikke
 innfør nytt testverktøy eller installer nettlesere uten et konkret behov.
 
 **En omdøping kan snu det testen dokumenterer, uten at noe blir rødt.** Da
-`aktor` ble `aktor_id`, fulgte verdiene med: `aktor_id="Kari Nordmann"` er
+`aktor` ble `aktor_id`, fulgte verdiene med: `aktor_id: 'Kari Nordmann'` er
 syntaktisk feilfritt og grønt, men fastslår nå at et personnavn er en gyldig
 identitet — det motsatte av regelen testen ligger ved siden av. Mekanisk søk og
 erstatt flytter navnet på feltet, ikke meningen i verdien. Etter en omdøping: les
 assertions, ikke bare kjør dem.
 
-**En grønn streng `xfail` beviser ikke funnet**, bare at testens assertion feiler.
-Suiten inneholder mange bevisste reproduksjoner av udekkede svakheter. **Ikke «rett»
-en xfail ved å endre testen** — de er dokumentasjon. Rettes den underliggende
-feilen, blir testen XPASS og skal da gjøres om til en ordinær test.
-
-**Og den kan være grønn av feil grunn.** Med `raises=AssertionError` teller
-enhver `assert` i testen som forventet, også en forutsetning som har sluttet å
-holde. Da reproduserer testen ingenting lenger, og ingen ser det. Forutsetninger
-og uventede svar i en streng `xfail` skal feile med `pytest.fail`. Godtar testen
-en avvisning som riktig utfall, må den vise at avvisningen gjelder funnet, for
-eksempel med en kontrollsak som bare skiller seg i det ene feltet. Ellers blir
-en avvisning av en annen grunn til XPASS. Code-review fant begge feilene i
-reproduksjonene av BR-01 23.09.
+**En reproduksjon av en kjent feil skal ikke kunne bli grønn av feil grunn.**
+Suiten har ingen slike i dag. Bruk ikke `it.fails` i Vitest: den blir grønn av enhver
+feil som kastes, også en forutsetning som ikke holder. En reproduksjon er en vanlig `it`
+med funn-ID-en i navnet, som fastslår dagens feilaktige utfall eksakt, og en kontrollsak
+som bare skiller seg i det ene feltet. Da blir testen rød både når en forutsetning
+slutter å holde og når feilen rettes. Rett ikke en slik test ved å endre den. Når feilen
+er rettet, gjøres den om til en ordinær test av riktig utfall.
 
 **En test skrevet ut fra koden bekrefter koden, ikke hensikten.** Skal en test
 vise at en funksjon virker som tiltenkt, må forventningen ha en kilde utenfor
@@ -105,10 +98,10 @@ Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
 - Vis først at det korrekte kontrolltilfellet passerer. Innfør én relevant feil
   om gangen og kontroller at testen feiler på den forventede virkningen, ikke
   på import, oppsett eller en uvedkommende forutsetning.
-- For kjente feil med `xfail`/`it.fails`: behold reproduksjonen og kontrollsaken.
-  Ikke krev en grønn korrekthetsbaseline før rettingen finnes. Vis at selve
-  målassertionen feiler; etter retting kjøres testen ordinært og prøves mot en
-  relevant feilinnføring. Reglene om `pytest.fail` for forutsetninger gjelder.
+- For en reproduksjon av en kjent feil: behold reproduksjonen og kontrollsaken.
+  Ikke krev en grønn korrekthetsbaseline før rettingen finnes. Etter retting gjøres
+  testen om til en ordinær test av riktig utfall og prøves mot en relevant
+  feilinnføring.
 - En overlevende mutasjon undersøkes: manglende dekning, tilsvarende atferd,
   unåbar kode eller ugyldig mutasjon må begrunnes. En verktøyrapport alene
   avgjør ikke dette. Udekket forventet atferd rettes eller spores som restanse,
@@ -119,7 +112,8 @@ Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
   PR-en oppgir kontrollert commit/diff, feilklasse, test, observert feil og
   eventuelle overlevende mutasjoner med begrunnelse. Gjenbruk samme feilklasser
   når to implementasjoner sammenliknes. En ny feilklasse for kjernen legges i
-  `kjerne/tester/feilinnfoering.ts`, så den kan kjøres igjen.
+  `kjerne/tester/feilinnfoering.ts`, og en for serveren i
+  `server/tester/feilinnfoering.py`, så den kan kjøres igjen.
 - En oppdaget feilinnføring viser at testen er følsom for feilen, ikke at
   forventningen er riktig. Forventningens grunnlag kontrolleres etter
   [domeneforventningene](#domeneforventninger-og-metodeprover) nedenfor.
@@ -134,7 +128,8 @@ forutsetningene kilden dekker. Skill tekstgrunnlaget fra slutningen som trekkes.
 Les relevant rettspraksis ved tvil om samspillet mellom regler; en annen
 modells tilslutning er ikke en uavhengig rettskilde. Uavklart tiltenkt atferd
 eller tolkning tas som et konkret spørsmål til oppdragsgiver. Eksisterende
-vedtak brukes uten ny godkjenning; nye vedtak føres i hovedplanen.
+vedtak brukes uten ny godkjenning; nye vedtak føres i vedtaksregisteret, etter
+[vedtaksskillen](../skills/vedtak/SKILL.md).
 
 **Kode, testfasit og feilinnføring kan dele samme feilaktige antakelse.** En
 oppdaget mutasjon beviser testens følsomhet for den valgte feilen, ikke at

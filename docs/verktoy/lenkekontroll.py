@@ -2,8 +2,8 @@
 
 Kjøres fra repo-roten: python3 docs/verktoy/lenkekontroll.py [filer ...]
 Uten argumenter kontrolleres .md-filene git sporer under docs/ og .claude/, og
-AGENTS.md og CLAUDE.md i roten. De to siste lastes automatisk i øktene og
-lenker til ankre i hovedplanen (#752). Usporede filer, som arbeidstrærne i
+CLAUDE.md i roten. Den lastes automatisk i øktene og lenker til ankre i
+hovedplanen (#752). Usporede filer, som arbeidstrærne i
 .claude/worktrees/, kontrolleres ikke (#851).
 
 Lenkeformene som kontrolleres: [x](mål), [x](<mål>), mål med ett nivå
@@ -31,7 +31,7 @@ REFERANSE = re.compile(
 OVERSKRIFT = re.compile(r"^#{1,6}\s+(.*?)\s*#*\s*$", re.M)
 EKSPLISITT_ID = re.compile(r"""(?:id|name)=["']([^"']+)["']""")
 EKSTERN = re.compile(r"^(https?:|mailto:|file:)")
-ROTFILER = ("AGENTS.md", "CLAUDE.md")
+ROTFILER = ("CLAUDE.md",)
 
 
 def github_slug(overskrift: str) -> str:

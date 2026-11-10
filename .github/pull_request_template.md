@@ -1,6 +1,6 @@
 <!-- Bruk også malen ved opprettelse via CLI/API. Slett irrelevante punkter;
 rene dokumentendringer trenger ikke kode-, migrerings- eller byggbevis.
-Instruksjonene står i AGENTS.md og .claude/skills/leveranse/SKILL.md. -->
+Instruksjonene står i CLAUDE.md og .claude/skills/leveranse/SKILL.md. -->
 
 ## Endring
 
@@ -48,5 +48,5 @@ bare for å fylle dette punktet. -->
 
 ## Åpne spørsmål
 
-<!-- Uløste beslutninger, avviste reviewfunn etter stoppregelen for funn i `AGENTS.md`
+<!-- Uløste beslutninger, avviste reviewfunn etter stoppregelen for funn i leveranseskillen
 og koblede oppfølgingsissues. Slett seksjonen hvis det ikke er noen. -->

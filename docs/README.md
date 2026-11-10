@@ -13,7 +13,7 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 [én milepæl per arbeidspakke](https://github.com/khjohns/endringsmeldinger/milestones),
 og for spor M i [#79](https://github.com/khjohns/endringsmeldinger/issues/79).
 Denne indeksen og hovedplanen fører ikke arbeidsstatus; regelen står i
-[`AGENTS.md`](../AGENTS.md).
+[`CLAUDE.md`](../CLAUDE.md).
 
 ---
 
@@ -27,7 +27,7 @@ Denne indeksen og hovedplanen fører ikke arbeidsstatus; regelen står i
 | [domenetabellen](domenetabell/README.md) | Forventet atferd per rad med kilde og tolkningsstatus, begrepene krav, kravversjon, svar, standpunkt, aksept og enighet, og språkuavhengige bevis-saker. `bevis-saker.json` er et frosset arkiv fra Python-stien (#49); bevis-sakene for målmodellen kjøres mot kjernen. Vedtakene står i vedtaksfila |
 | [vedtaksregisteret](vedtaksregister/README.md) | Kilden vedtaksfila lages av, med spørsmålet, alternativene og svaret ordrett for hvert nytt vedtak, og vakttestene. Vedtaksfila er autoritativ |
 | [temavisningene](vedtaksregister/temaer/) | Regelgrunnlaget per tema, generert fra registeret: vedtakene ordrett med forholdene, regelradene og bevis-sakene. Vedtaksfila er autoritativ |
-| [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
+| [`../CLAUDE.md`](../CLAUDE.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
 | [`.claude/rules/`](../.claude/rules/): [database](../.claude/rules/database.md) · [tester](../.claude/rules/tester.md) · [dokumentasjon](../.claude/rules/dokumentasjon.md) · `tilgang.md` · `kjerne.md` | Regler som lastes når en økt arbeider i den delen av treet. `tilgang.md` har mekanismene bak sikkerhetsinvariantene |
 
 Handoffene står under [historikk](#historikk--bevart-ikke-gjeldende).
@@ -248,7 +248,7 @@ autoritative skrivekonvensjonen og skiller varige referanser, prøvbare
 oppskrifter og historiske undersøkelser. En vanlig implementerings-PR trenger
 ikke et eget gjennomføringsnotat.
 
-Språk og navngivning følger [AGENTS.md](../AGENTS.md#språk).
+Språk og navngivning følger [CLAUDE.md](../CLAUDE.md#språk).
 Kilderegistre og genererte beskrivelser er samlet under
 [datamodellen](#referanse--hvordan-systemet-virker). Denne indeksen peker til
 dokumentene; arbeidsstatus og testresultater vedlikeholdes i sine egne kilder.

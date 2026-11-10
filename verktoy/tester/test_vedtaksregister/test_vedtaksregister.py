@@ -1783,7 +1783,7 @@ def test_oppslaget_finner_posten_paa_id_anker_og_etikett(register):
 
 
 def test_raden_i_oppslaget_er_raden_i_vedtaksfila_ordrett(register):
-    """Vedtaksfila er autoritativ for vedtakene (AGENTS.md, «Hvor hva står»), så hver celle i
+    """Vedtaksfila er autoritativ for vedtakene (CLAUDE.md, «Hvor hva står»), så hver celle i
     oppslaget står ordrett i vedtaksfila, med lenkene skrevet om som der, for hver post."""
     fil = vr.VEDTAKSFIL.read_text(encoding="utf-8")
     ix = vr.indeks(register)
