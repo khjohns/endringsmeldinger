@@ -2894,7 +2894,7 @@ forhold = [
   { art = "bygger på", vedtak = "vs-u38" },
 ]
 folge = '''
-Datoen i grunnlagskravet er den i VS-U43 punkt 1–5. Utvider svaret 09.11 i #1730 fra punkt 32.2 til varslene etter punkt 33.4, 34.1.2 og 34.1.3. Kunnskapsdatoen etter VS-U43 punkt 11–14 er ikke med. Bygges i #1730.'''
+Datoen i grunnlagskravet er den i VS-U43 punkt 1–5. Utvider svaret 09.11 i #1730. Om kontrollen gjelder kunnskapsdatoen etter VS-U43 punkt 11–14, avgjøres når den bygges (avgrensningen i spørsmålsfila). Bygges i #1730.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -2950,7 +2950,7 @@ forhold = [
   { art = "bygger på", vedtak = "vs-u58" },
 ]
 folge = '''
-Varslene kontrollen gjelder, er dem VS-U58 gjelder. Bygges i #1730.'''
+Varslene kontrollen gjelder, er de VS-U58 gjelder. Bygges i #1730.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `1a8aa192d93d6ba2dc2fd9b1b2dcad40536b49d28788a1c5785193fef10af3d9`
+Kontrollsum (SHA-256 over utdraget visningen leser): `b0945d527356573d6a66cab88f73e1ac92216364fdf3f4481a25f9db8137c702`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -700,7 +700,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 10.11, oppdragsgiver (#1730)
 
-**Følge:** Bygger på [VS-U43](#vs-u43). Bygger på [VS-U38](#vs-u38). Lagt til grunn 10.11 av [VS-U59](#vs-u59). Datoen i grunnlagskravet er den i VS-U43 punkt 1–5. Utvider svaret 09.11 i #1730 fra punkt 32.2 til varslene etter punkt 33.4, 34.1.2 og 34.1.3. Kunnskapsdatoen etter VS-U43 punkt 11–14 er ikke med. Bygges i #1730.
+**Følge:** Bygger på [VS-U43](#vs-u43). Bygger på [VS-U38](#vs-u38). Lagt til grunn 10.11 av [VS-U59](#vs-u59). Datoen i grunnlagskravet er den i VS-U43 punkt 1–5. Utvider svaret 09.11 i #1730. Om kontrollen gjelder kunnskapsdatoen etter VS-U43 punkt 11–14, avgjøres når den bygges (avgrensningen i spørsmålsfila). Bygges i #1730.
 
 **Regelrader:** —
 
@@ -714,7 +714,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 10.11, oppdragsgiver (#1730)
 
-**Følge:** Snevrer inn [MM-U52](#mm-u52). Bygger på [VS-U58](#vs-u58). Varslene kontrollen gjelder, er dem VS-U58 gjelder. Bygges i #1730.
+**Følge:** Snevrer inn [MM-U52](#mm-u52). Bygger på [VS-U58](#vs-u58). Varslene kontrollen gjelder, er de VS-U58 gjelder. Bygges i #1730.
 
 **Regelrader:** —
 
