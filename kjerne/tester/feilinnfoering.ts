@@ -280,8 +280,8 @@ const MUTASJONER: Mutasjon[] = [
         "  kontroller(verdi, { ...skjemaer[n], required: ((skjemaer[n].required ?? []) as string[]).filter((f) => f !== 'beslutningsgrunnlag') }, sti);",
       ],
       [
-        '      e.beslutningsgrunnlag,',
-        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'forhold' ? { varslingsplikt: false } : {}) },",
+        '    e.beslutningsgrunnlag,',
+        "    e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'forhold' ? { varslingsplikt: false } : {}) },",
       ],
     ],
     mal: ['et svar uten beslutningsgrunnlag'],
@@ -1014,8 +1014,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    ...s.standpunkter.map((p) => {',
-        "    ...s.standpunkter.filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => {",
+        '    ...s.standpunkter.filter(harTekst).map((p) => {',
+        "    ...s.standpunkter.filter(harTekst).filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => {",
       ],
     ],
     mal: ['et standpunkt appen regner som uten virkning', 'gir byggherren innsigelsen opp'],
@@ -1716,7 +1716,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F202',
     feilklasse:
-      'brevet sier at byggherren godkjenner hele beløpet «av de krevde» når tilbudet ikke er akseptert',
+      'brevet sier at byggherren godkjenner hele beløpet for en kravpost «av de krevde» når tilbudet for en annen kravpost ikke er akseptert (B-13)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -1724,7 +1724,7 @@ const MUTASJONER: Mutasjon[] = [
         "const resultat = p.resultat === 'godkjent'",
       ],
     ],
-    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent: tilbudet ikke akseptert prinsipalt'],
+    mal: ['med to kravposter står beløpet for den kravposten der tilbudet er akseptert'],
   },
   {
     id: 'F203',
@@ -1733,10 +1733,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['return godkjent >= krevd;', 'return (godkjent + 50n) / 100n >= (krevd + 50n) / 100n;'],
     ],
-    mal: [
-      '§ 34.2.2 «nei» med et beløp 40 øre under det krevde',
-      '§ 34.2.2 «nei» med hele beløpet godkjent krever en begrunnelse',
-    ],
+    mal: ['kontrollsak: «delvis» med 1 øre og med 1 øre under det krevde godtas'],
   },
   {
     id: 'F204',
@@ -1799,15 +1796,15 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F212',
     feilklasse:
-      'hele beløpet godkjent krever en begrunnelse for beløpet når tilbudet ikke er akseptert (B-13, #490)',
+      'begrunnelsen kreves for beløpet når bare tilbudet ikke er akseptert (B-13, #490, KA-U72)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        'if (!erBeloepetGodkjentFullt(krevdSamlet(krav), godkjent))',
+        'if (!erBeloepetGodkjentFullt(krevd, godkjent))',
         "if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')",
       ],
     ],
-    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent krever en begrunnelse'],
+    mal: ['§ 34.2.2 «nei» krever en begrunnelse for tilbudet, men ikke for beløpet'],
   },
   {
     id: 'F213',
@@ -3245,17 +3242,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['.map((l) => ({ l, k: plass(l) ?? foerste }))', '.map((l) => ({ l, k: plass(l) ?? 99 }))'],
     ],
-    mal: ['posten er upåvirket, og brevet leses'],
-  },
-  {
-    id: 'F500',
-    feilklasse:
-      'leseren regner ikke et tilbud som ikke er akseptert som en påberopelse, og avviser et upåvirket standpunkt ved siden av det (KA-U60, OV-U33)',
-    fil: `${K}/format/leser.ts`,
-    endringer: [
-      ['(PAABEROPELSER.has(p.art) || ikkeAkseptert.has(p.standpunkt))', 'PAABEROPELSER.has(p.art)'],
-    ],
-    mal: ['posten er upåvirket, og brevet leses'],
+    mal: ['tilbudet ikke akseptert og § 34.1.3 påberopt'],
   },
   {
     id: 'F391',
@@ -3273,7 +3260,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F392',
     feilklasse: 'justeringen ellers er upåvirket også når forholdet er avslått (OV-U33)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['rammet && !hele && forskyvning === 0', 'rammet && !hele']],
+    endringer: [['posten && !hele && forskyvning === 0', 'posten && !hele']],
     mal: ['med avslått forhold er justeringen ellers i sporets første lag og ikke upåvirket'],
   },
   {
@@ -4289,13 +4276,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F494',
-    feilklasse:
-      'beløpet for en kravpost der tilbudet ikke er akseptert, står i laget for oppgjørsformen (KA-U60)',
+    feilklasse: 'et tilbud som ikke er akseptert, gir et eget lag for beløpet i svaret (KA-U72)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (s.art === 'beloep' && ikkeAkseptert.has(s.gjelder!)) return foerste + 1;",
-        "if (s.art === 'beloep' && ikkeAkseptert.has(s.gjelder!)) return foerste;",
+        "      if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;\n      return ellers;",
+        "      if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;\n      if (s.art === 'beloep' && s.godkjent === undefined) return foerste + 1;\n      return ellers;",
       ],
     ],
     mal: ['F-MM-V-34-2-2-nei', 'tilbudet ikke akseptert og § 34.1.3 påberopt'],
@@ -4303,20 +4289,31 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F495',
     feilklasse:
-      'en kravpost der tilbudet ikke er akseptert, har et fast beløp prinsipalt i utregningen (KA-U58, OV-U73)',
+      'en kravpost der tilbudet ikke er akseptert, får 0 kr i utregningen, som et avslag (KA-U72, OV-U73)',
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
-      [': ikkeAkseptert(post)\n          ? null', ': ikkeAkseptert(post)\n          ? godkjent'],
+      [
+        'const godkjent = ikkeAkseptert(post)\n      ? null',
+        'const godkjent = ikkeAkseptert(post)\n      ? NULL_OERE',
+      ],
     ],
-    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent: tilbudet ikke akseptert prinsipalt'],
+    mal: ['svaret lagres med standpunktet til beløpet uten beløp og ett lag uten beløp'],
   },
   {
     id: 'F496',
-    feilklasse:
-      'utfallet regner med en kravpost uten fast beløp i det første laget (KA-U58, OV-U73)',
+    feilklasse: 'utfallet regner med en kravpost uten fast beløp (KA-U72, OV-U73)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['    else if (!p.saerskilt && (p.lag ?? 1) > 1)', '    else if (false)']],
-    mal: ['F-MM-V-34-2-2-nei'],
+    endringer: [
+      [
+        '    else if (!p.saerskilt && ((p.lag ?? 1) > 1 || p.godkjent === undefined))',
+        '    else if (!p.saerskilt && (p.lag ?? 1) > 1)',
+      ],
+      [
+        '    else beloepet += beloep(p.godkjent)!;',
+        '    else beloepet += beloep(p.godkjent) ?? 0n;',
+      ],
+    ],
+    mal: ['svaret på to kravposter med fast sum navngir kravposten'],
   },
   {
     id: 'F497',
@@ -4329,9 +4326,9 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F498',
     feilklasse:
-      'leseren godtar et lag uten beløp for en kravpost der tilbudet er akseptert (KA-U58)',
+      'leseren godtar et lag uten beløp for en kravpost der tilbudet er akseptert (KA-U72)',
     fil: `${K}/format/leser.ts`,
-    endringer: [["!('beloep' in l)) && !utenAksept.has(r.gjelder!)", "!('beloep' in l)) && false"]],
+    endringer: [["if (r.lag.some((l) => !('beloep' in l)))", 'if (false)']],
     mal: ['et lag mangler beløpet når tilbudet er akseptert'],
   },
   {
@@ -4340,7 +4337,73 @@ const MUTASJONER: Mutasjon[] = [
       'leddene i samme lag står ikke under én etikett når standpunktene ikke står i lagenes rekkefølge (OV-U32)',
     fil: `${K}/frosset/tekst.ts`,
     endringer: [['.sort((a, b) => a.k - b.k)', '.sort(() => 0)']],
-    mal: ['tilbudet ikke akseptert og § 34.1.3 påberopt'],
+    mal: ['standpunktene ordnes slik brevet ordner dem'],
+  },
+  {
+    id: 'F510',
+    feilklasse: 'svaret godtar en vurdering av beløpet når tilbudet ikke er akseptert (KA-U72)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        '    if (ikkeAkseptert(p)) {\n',
+        '    if (ikkeAkseptert(p) && vurd == null && godkjent == null) {\n',
+      ],
+    ],
+    mal: ['§ 34.2.2 «nei» med et beløp avvises'],
+  },
+  {
+    id: 'F512',
+    feilklasse:
+      'leseren godtar standpunktet til beløpet med beløp når tilbudet ikke er akseptert, og uten beløp når det er akseptert (KA-U72)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['(s.godkjent === undefined) !== utenAksept.has(s.gjelder!))', 'false)']],
+    mal: [
+      'en rad med standpunktet til beløpet uten beløp for en kravpost der tilbudet er akseptert, avvises',
+      'en rad med et beløp for en kravpost der tilbudet ikke er akseptert, avvises',
+    ],
+  },
+  {
+    id: 'F513',
+    feilklasse: 'en vurdering av beløpet kjernen ikke kjenner, regnes som 0 kr (#1663)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['if (!BELOEPSVURDERINGER.includes(vurd)) {', 'if (false) {']],
+    mal: ['svaret avvises med en vurdering kjernen ikke kjenner'],
+  },
+  {
+    id: 'F514',
+    feilklasse:
+      'begrunnelsen kreves for beløpet når svaret ikke tar stilling til beløpet, fordi tilbudet ikke er akseptert (KA-U72)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['(sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),', '(sum) => sum,'],
+    ],
+    mal: ['§ 34.2.2 «nei» krever en begrunnelse for tilbudet, men ikke for beløpet'],
+  },
+  {
+    id: 'F515',
+    feilklasse:
+      'leseren godtar et beløp i et lag før det siste for en kravpost der tilbudet ikke er akseptert (KA-U72, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "n < prekludert ? beloep(l.beloep as number | undefined) !== 0n : 'beloep' in l",
+        "n < prekludert ? false : 'beloep' in l",
+      ],
+    ],
+    mal: ['et lag før det siste har et beløp, men tilbudet er ikke akseptert'],
+  },
+  {
+    id: 'F516',
+    feilklasse:
+      'leseren godtar 0 kr i et lag uten preklusjon etter § 34.1.2 for en kravpost der tilbudet ikke er akseptert (KA-U72, OV-U27)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "n < prekludert ? beloep(l.beloep as number | undefined) !== 0n : 'beloep' in l",
+        "n < 1 ? beloep(l.beloep as number | undefined) !== 0n && 'beloep' in l : 'beloep' in l",
+      ],
+    ],
+    mal: ['et lag uten preklusjon har 0 kr, men tilbudet er ikke akseptert'],
   },
 ];
 

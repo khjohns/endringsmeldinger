@@ -313,7 +313,7 @@ describe('verdien av et vederlagskrav med flere kravposter (KA-U57 (c), OV-U31)'
     );
   });
 
-  it('svaret per kravpost har summen av postene, og det subsidiære laget når tilbudet for én kravpost ikke er akseptert (KA-U58, OV-U73)', async () => {
+  it('svaret per kravpost har summen av postene, og en kravpost der tilbudet ikke er akseptert, regnes ikke med (KA-U72, OV-U73)', async () => {
     const u = utledning([KRAV_PAABEROPELSE, toPoster]);
     const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
     const svar = (p2svar: Record<string, unknown>): Svarutkast => ({
@@ -331,22 +331,16 @@ describe('verdien av et vederlagskrav med flere kravposter (KA-U57 (c), OV-U31)'
     expect(brevverdi([svar({ vurdering: 'godkjent', aksepterer: true })], u, SATS, regler)).toEqual(
       { beloep: 120000, gulv: 120000 }
     );
-    // P2 har ikke fast beløp prinsipalt, så prinsipalt er 80 000 kr og subsidiært 120 000 kr.
-    // Hvordan fullmakten skal regnes når byggherren mener en beregningsregel for en kravpost
-    // med fast sum, er ikke avgjort (FK, #1663). Forventningen fastholder dagens atferd.
+    // KA-U72: svaret tar ikke stilling til beløpet for P2, så summen er 80 000 kr. Hvordan
+    // fullmakten skal regnes når byggherren mener en beregningsregel for en kravpost med fast
+    // sum, er ikke avgjort (FK, #1663). Forventningen fastholder dagens atferd.
     expect(
       brevverdi(
-        [
-          svar({
-            vurdering: 'godkjent',
-            aksepterer: false,
-            oensket_oppgjoersform: 'regningsarbeid',
-          }),
-        ],
+        [svar({ aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' })],
         u,
         SATS,
         regler
       )
-    ).toEqual({ beloep: 120000, gulv: 120000 });
+    ).toEqual({ beloep: 80000, gulv: 80000 });
   });
 });

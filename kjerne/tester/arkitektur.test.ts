@@ -523,7 +523,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/kravinnhold.ts',
     'regelsett',
     'krevdIKravposten',
-    ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
+    // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
+    ['frosset/brevtekst.ts', 'frosset/utregning.ts', 'kommandoer/nyttelast.ts'],
   ],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
   // med ett beløp (#1663).
@@ -563,7 +564,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'godkjent begrensning saerskilt gjelder',
     ['frosset/standpunkt.ts:prinsipaltIVederlaget'],
   ],
-  // KA-U58, OV-U73: en kravpost med beløpet i et senere lag regnes ikke med i det prinsipale.
+  // OV-U73: en kravpost med beløpet i et senere lag regnes ikke med i det prinsipale.
   ['Plass', 'frosset', 'lag', ['frosset/standpunkt.ts:prinsipaltIVederlaget']],
   [
     'Vederlagspost.begrensning',
@@ -651,6 +652,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'beregnVederlag gjelderVarslingspliktenForVederlag erBeloepetGodkjentFullt',
   ],
   ['regler/vederlag.ts', 'regelsett', 'beregnGodkjentBeloep', ['frosset/utregning.ts']],
+  // Vurderingen av beløpet er en av verdiene i regelsettet.
+  ['regler/typer.ts', 'regelsett', 'BELOEPSVURDERINGER', ['regler/vederlag.ts']],
   [
     'Fristkrav',
     'regelsett',
@@ -1145,7 +1148,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'gjelder saerskilt lag',
     ['format/leser.ts'],
   ],
-  ['format/leser.ts:kontrollerUtregningenPerPost(l)', 'rad', 'lag', ['format/leser.ts']],
+  ['format/leser.ts:kontrollerUtregningenPerPost(l)', 'rad', 'lag beloep', ['format/leser.ts']],
   [
     'format/leser.ts:kontrollerUtregningenPerPost(r.lag.at(-1))',
     'rad',

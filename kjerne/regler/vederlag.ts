@@ -4,7 +4,7 @@
  */
 
 import { beloep, BroekdelAvOere, heleOere, NULL_OERE, UgyldigBeloep, type Oere } from './beloep.ts';
-import type { Beloepsvurdering, Vederlagsresultat } from './typer.ts';
+import { BELOEPSVURDERINGER, type Beloepsvurdering, type Vederlagsresultat } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 import type { Regelsett } from './regelsett.ts';
 
@@ -17,7 +17,10 @@ interface Postbeloep {
   godkjent_beloep?: Tall | null;
 }
 
-/** En kravpost. `gjelder` er kravpostens `id`; `aksepterer` er standpunktet etter § 34.2.2 (KA-U57 (d)). */
+/**
+ * En kravpost. `gjelder` er kravpostens `id`; `aksepterer` er standpunktet etter § 34.2.2
+ * (KA-U57 (d)). Uten aksept står kravposten uten vurdering av beløpet (KA-U72).
+ */
 export interface Kravpostsvar extends Postbeloep {
   gjelder: string;
   aksepterer?: boolean | null;
@@ -54,8 +57,7 @@ export const postnoekkel = (p: Postsvar): string => ('gjelder' in p ? p.gjelder 
 
 /**
  * Det byggherren godtar for posten i ett lag i sporet, fra 1 (OV-U32). `beloep` er `null` når
- * posten ikke har et fast beløp i laget, fordi byggherren mener en annen oppgjørsform (KA-U58,
- * KA-U60).
+ * posten ikke har et fast beløp i laget, fordi byggherren ikke aksepterer tilbudet (KA-U72).
  */
 export interface Postlag {
   lag: number;
@@ -69,6 +71,7 @@ export interface Postresultat {
   /**
    * Ett element per lag i sporet, i rekkefølge. Det siste er det byggherren godtar uten
    * begrensningen etter § 34.1.3 (OV-U26). Arbeidsvalg 1 i spørsmålsfila 09.11 for #1663.
+   * Uten beløp for en kravpost der tilbudet ikke er akseptert (KA-U72).
    */
   lag: Postlag[];
 }
@@ -133,35 +136,34 @@ export function erKravlinjeGyldig(
 const ikkeAkseptert = (p: Postsvar): boolean => 'gjelder' in p && p.aksepterer === false;
 
 /**
- * Lagene i sporet: § 34.1.2 først, så oppgjørsformen og begrensningen etter § 34.1.3, så
- * beløpet (KA-U60, KA-U64). Gir antallet lag og det første laget etter § 34.1.2.
+ * Lagene i sporet: § 34.1.2 først, så begrensningen etter § 34.1.3 (KA-U64). Gir antallet lag
+ * og det første laget etter § 34.1.2. Oppgjørsformen gir ikke et eget lag (KA-U72).
  */
-function lagene(svar: Vederlagssvar, p: Preklusjon): { foerste: number; antall: number } {
+function lagene(p: Preklusjon): { foerste: number; antall: number } {
   const foerste = p.hovedkrav ? 2 : 1;
-  const etter = p.produktivitet || svar.poster.some(ikkeAkseptert);
-  return { foerste, antall: foerste + Number(etter) };
+  return { foerste, antall: foerste + Number(p.produktivitet) };
 }
 
 /**
  * Postene med det byggherren godtar i hvert lag. OV-U27: påberopelsen etter § 34.1.2 gjelder
  * hele kravet, også de særskilte, og står i det første laget. VS-U5, OV-U22: en påberopelse
  * etter § 34.1.3 avviser aldri hele kravet; den særskilte posten står med beløpet etter
- * begrensningen i laget for begrensningen. KA-U58, KA-U60: uten aksept av tilbudet har
- * kravposten ikke et fast beløp i laget for oppgjørsformen, og beløpet står i laget etter.
+ * begrensningen i laget for begrensningen. KA-U72: uten aksept av tilbudet har kravposten
+ * ikke et beløp i noe lag etter § 34.1.2.
  * Arbeidsvalg 1.1: en post som ingen innsigelse i laget rammer, har samme verdi som i laget før.
  * Rigg og drift har ingen særskilt varslingsplikt (OV-U25, OV-U35).
  */
 function postresultater(svar: Vederlagssvar, p: Preklusjon): Postresultat[] {
-  const { foerste, antall } = lagene(svar, p);
+  const { foerste, antall } = lagene(p);
   return svar.poster.map((post) => {
     const krevd = beloep(post.krevd)!;
-    const godkjent = beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
+    const godkjent = ikkeAkseptert(post)
+      ? null
+      : beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
     const iFoerste =
       erProduktivitet(post) && p.produktivitet
         ? (beloep(post.begrenset_beloep) ?? NULL_OERE)
-        : ikkeAkseptert(post)
-          ? null
-          : godkjent;
+        : godkjent;
     const lag: Postlag[] = Array.from({ length: antall }, (_, i) => ({
       lag: i + 1,
       beloep: i + 1 < foerste ? NULL_OERE : i + 1 === foerste ? iFoerste : godkjent,
@@ -183,7 +185,7 @@ export function erBeloepetGodkjentFullt(krevd: Oere, godkjent: Oere): boolean {
 /**
  * B-13, HF-U5: «godkjent» bare når hele beløpet er godkjent og tilbudet akseptert (§ 34.2.2).
  * Et lag der en kravpost ikke har et fast beløp, avslår ikke kravet, også når summen er 0
- * (KA-U58).
+ * (OV-U73, KA-U72).
  */
 function resultatAvBeloep(
   krevd: Oere,
@@ -214,8 +216,19 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
   const kontrollerBeloepet = (navn: string, p: Postsvar) => {
     const { vurdering: vurd, godkjent_beloep: godkjent, krevd } = p;
     const felt = `${navn}.godkjent_beloep`;
+    if (ikkeAkseptert(p)) {
+      const ikkeAkseptertMen = 'byggherren aksepterer ikke tilbudet, men tar stilling til beløpet';
+      if (vurd !== null && vurd !== undefined)
+        feil[`${navn}.vurdering`] = `${ikkeAkseptertMen} (KA-U72)`;
+      if (godkjent !== null && godkjent !== undefined) feil[felt] = `${ikkeAkseptertMen} (KA-U72)`;
+      return;
+    }
     if (vurd === null || vurd === undefined) {
       feil[`${navn}.vurdering`] = 'mangler';
+      return;
+    }
+    if (!BELOEPSVURDERINGER.includes(vurd)) {
+      feil[`${navn}.vurdering`] = `${String(vurd)} er ikke en vurdering av beløpet`;
       return;
     }
     if (!erKravlinjeGyldig(vurd, godkjent)) {
@@ -295,7 +308,7 @@ export function beregnVederlag(svar: Vederlagssvar, regler: Varslingsplikt): Ved
   const [foerste, siste] = [iLaget(0), iLaget(-1)];
   const totalGodkjent = sum(foerste.map((b) => b ?? NULL_OERE));
   const metodeendring = svar.poster.some(ikkeAkseptert);
-  const visSubsidiaert = lagene(svar, p).antall > 1;
+  const visSubsidiaert = lagene(p).antall > 1;
   const uten = sum(siste.map((b) => b ?? NULL_OERE));
   return {
     beregnings_resultat: resultatAvBeloep(
@@ -307,7 +320,9 @@ export function beregnVederlag(svar: Vederlagssvar, regler: Varslingsplikt): Ved
     total_godkjent_beloep: totalGodkjent,
     total_krevd_beloep: krevd,
     poster: alle,
-    subsidiaer_resultat: visSubsidiaert ? resultatAvBeloep(krevd, uten, metodeendring) : null,
+    subsidiaer_resultat: visSubsidiaert
+      ? resultatAvBeloep(krevd, uten, metodeendring, siste.includes(null))
+      : null,
     subsidiaer_godkjent_beloep: visSubsidiaert ? uten : null,
     preklusjon: p,
   };

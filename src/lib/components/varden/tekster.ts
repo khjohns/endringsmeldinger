@@ -147,6 +147,8 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
           ? `Mener ${metodenavn(s.oensket)}`
           : 'Godkjenner ikke fast sum';
     case 'beloep':
+      // KA-U72: uten aksept av tilbudet står ingen linje for beløpet.
+      if (s.godkjent === undefined) return null;
       if (krevd === undefined) return `${kroner(s.godkjent)} godkjent`;
       if (s.godkjent === krevd) return `${kroner(s.godkjent)}, godkjent som krevd`;
       return `${kroner(s.godkjent)} av ${kroner(krevd)} godkjent`;
@@ -197,7 +199,8 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
     case 'beloep': {
       const hva = s.saerskilt ? 'Særskilt vederlagsjustering' : `Vederlagsjustering${forPosten}`;
       const av = krevd !== undefined ? ` av ${kroner(krevd)}` : '';
-      return `${hva}: ${hvemLiten} godkjenner ${kroner(s.godkjent)}${av}`;
+      // `standpunktene` i `lesing.ts` tar ikke med et beløp uten standpunkt (KA-U72).
+      return `${hva}: ${hvemLiten} godkjenner ${kroner(s.godkjent!)}${av}`;
     }
     case 'forhold':
       return `${hvem} svarer på forholdet: ${s.resultat}`;

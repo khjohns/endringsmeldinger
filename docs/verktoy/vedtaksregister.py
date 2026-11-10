@@ -1593,6 +1593,7 @@ FORHOLD_FOERT_ETTER_MERGE = {
 # Forhold oppdragsgiver har bestemt at en merget post skal miste, som (posten, arten, vedtaket),
 # med kilden. Lenkene forholdet ga i Følge hos begge postene, faller bort med det.
 FORHOLD_FJERNET_ETTER_MERGE = {
+    ("vs-u56", "utvider", "ka-u58"): "oppfølgingsspørsmål 2 A 10.11 til KA-U72, #1749",
     ("ka-u45", "bygger på", "ov-u48"): "E2, V2 A 04.11, #1534",
     ("ka-u45", "bygger på", "ov-u49"): "E2, V2 A 04.11, #1534",
     ("ov-u80", "utvider", "ov-u48"): "E2, V2 A 04.11, #1534",

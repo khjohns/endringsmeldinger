@@ -208,7 +208,7 @@ function linje(...steg: Steg[]): Sakslinje {
 }
 
 describe('linja i sakslisten (#1022)', () => {
-  it('svaret og enigheten på et krav med to kravposter: summen av kravpostene, og enigheten sier hvilken kravpost som ikke har fast beløp (KA-U57 (c), OV-U73, svar 6 A i #1663)', () => {
+  it('svaret og enigheten på et krav med to kravposter: summen av kravpostene, og enigheten sier hvilken kravpost som ikke har fast beløp (KA-U57 (c), KA-U72, OV-U73, svar 6 A i #1663)', () => {
     const l = linje((sak) => {
       sak.send('TE', PAABEROPELSE);
       sak.send('TE', {
@@ -229,13 +229,7 @@ describe('linja i sakslisten (#1022)', () => {
           sak.svar('vederlag', {
             kravposter: [
               { gjelder: 'P1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
-              {
-                gjelder: 'P2',
-                vurdering: 'delvis',
-                godkjent_beloep: 30000,
-                aksepterer: false,
-                oensket_oppgjoersform: 'regningsarbeid',
-              },
+              { gjelder: 'P2', aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' },
             ],
           }),
         ],
@@ -243,8 +237,8 @@ describe('linja i sakslisten (#1022)', () => {
     }, aksept('vederlag'));
     expect(l.vederlag.svar).toEqual({
       resultat: 'delvis_godkjent',
-      beloep: 130000,
-      subsidiaert: true,
+      beloep: 100000,
+      subsidiaert: false,
     });
     expect(l.vederlag.enighet).toMatchObject({ beloep: 100000, uten_fast_beloep: ['P2'] });
   });

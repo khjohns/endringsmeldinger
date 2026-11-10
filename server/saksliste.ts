@@ -225,7 +225,8 @@ function vederlagssvaret(u: Utledning) {
   if (!poster.length) return null;
   return {
     resultat: poster[0]!.resultat,
-    beloep: tilTall(poster.reduce((sum, p) => sum + beloep(p.godkjent)!, 0n)),
+    // OV-U73, KA-U72: en kravpost uten beløp regnes ikke med.
+    beloep: tilTall(poster.reduce((sum, p) => sum + (beloep(p.godkjent) ?? 0n), 0n)),
     subsidiaert: poster.some((p) => standpunktetErSubsidiaert(u, 'vederlag', p.id)),
   };
 }

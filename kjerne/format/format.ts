@@ -309,6 +309,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
   ]),
   // OV-U26, OV-U31: beløpet byggherren godtar for posten uten begrensningen etter § 34.1.3.
   // Posten er kravposten `gjelder` eller den særskilte `saerskilt`, ikke begge (`leser.ts`).
+  // Uten `beloep` når tilbudet for kravposten ikke er akseptert (KA-U72, `leser.ts`).
   beloep: objekt(
     {
       ...artfelt('beloep'),
@@ -316,7 +317,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
       gjelder: ID,
       saerskilt: { enum: [...SAERSKILTE] },
     },
-    ['id', 'art', 'beloep'],
+    ['id', 'art'],
     [{ required: ['gjelder'] }, { required: ['saerskilt'] }]
   ),
   // § 34.2.2, KA-U57 (d): standpunktet til oppgjørsformen for kravposten `gjelder`.

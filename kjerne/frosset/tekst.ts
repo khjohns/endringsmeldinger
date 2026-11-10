@@ -111,6 +111,8 @@ export function beslutningslinje(
           tekst: `tilbudet${post ? ` for ${post}` : ''} ikke akseptert (§ 34.2.2)`,
           virkning: virkning(form.id),
         });
+      // En kravpost uten beløp (KA-U72) har ikke et ledd for beløpet.
+      if (b.godkjent === undefined) return;
       const tekst =
         beloep(b.godkjent) === 0n ? `avslått${hva}` : `godkjent med ${kroner(b.godkjent)}${hva}`;
       sine.push({ tekst, virkning: virkning(b.id) });

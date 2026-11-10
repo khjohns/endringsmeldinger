@@ -176,10 +176,11 @@ beskrivelse = """
 Beløpet byggherren godtar for én post uten begrensningen etter § 34.1.3, ett
 standpunkt for hver post. Posten er kravposten `gjelder` eller den særskilte
 `saerskilt` (`produktivitet` eller `rigg_og_drift`). Rigg og drift er ikke i
-kjernens svar ennå, og leseren forstår ikke et slikt standpunkt. Resultatet og
-totalene står i svarets utregning."""
+kjernens svar ennå, og leseren forstår ikke et slikt standpunkt. `beloep` mangler
+når, og bare når, tilbudet for kravposten ikke er akseptert: svaret tar da ikke
+stilling til beløpet. Resultatet og totalene står i svarets utregning."""
 felt = ["id", "art", "beloep", "gjelder", "saerskilt"]
-grunnlag = "B-13, OV-U26, OV-U31, KA-U57, arbeidsvalget i #1047 (6362745637), navnene 09.11 i #1663"
+grunnlag = "B-13, OV-U26, OV-U31, KA-U57, KA-U72, arbeidsvalget i #1047 (6362745637), navnene 09.11 i #1663"
 
 [[standpunkt]]
 art = "hindring"

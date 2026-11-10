@@ -2675,7 +2675,6 @@ svar = '''
 Oppdragsgiver 08.11, ordrett: «1 Ja. Justeringen er i så fall ifølge byggherren «har han bare krav på slik justering av enhetsprisen som den andre parten måtte forstå at forholdet ville føre til».», bekreftet «a,b» etter orkestratorens spørsmål om hvilket spørsmål svaret gjaldt. Valgt: A.'''
 forhold = [
   { art = "presiserer", vedtak = "ka-u57" },
-  { art = "utvider", vedtak = "ka-u58" },
   { art = "presiserer", vedtak = "ka-u64" },
   { art = "bygger på", vedtak = "vs-u4" },
 ]
@@ -2842,6 +2841,56 @@ anbefalt = true
 navn = "B"
 tekst = '''
 Byggherren kan godta beregningsregelen og kreve tilbud i samme svar. Løsningen registrerer enighet om oppgjørsformen, og et tilbud TE sender senere, vises som avvik fra den (samlevedtaket for vederlagsmetoden punkt 16). Forhold: ingen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U72"
+dato = 2026-11-10
+hvem = "oppdragsgiver"
+kilde = ["#1663", "#1749"]
+sporsmal = '''
+Stilt 10.11 i reviewøkta for PR #1749, ordrett fra [spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md):
+
+**1. Beløpet når byggherren ikke aksepterer tilbudet om fast sum.**
+Bakgrunn: Byggherren skal ta stilling til tilbudet innen rimelig tid (punkt 34.2.1 annet ledd). Vederlaget justeres etter punkt 34.3 og 34.4, «med mindre byggherren har akseptert et tilbud» (punkt 34.2.2 første ledd). Fast sum kan derfor bare legges til grunn ved byggherrens aksept. Det er annerledes enn valget mellom punkt 34.3 og 34.4, som avgjøres av om det finnes anvendelige enhetspriser, og der et subsidiært standpunkt har en funksjon (VS-U56). Et subsidiært beløp under et tilbud om fast sum kan leses som et motbud (avtaleloven § 6). Vil byggherren tilby et lavere fast beløp, har skjemaet allerede «Godkjenner fast sum» med «Deler av beløpet» (OV-U95 punkt 6, KA-U49 punkt 8). Spørsmål 9 den 07.11 hadde bare alternativene «valgfritt» (KA-U58) og «påkrevd».
+- A: For en kravpost med fast sum der byggherren ikke aksepterer tilbudet, tar svaret ikke stilling til beløpet, og skjemaet spør ikke om det. Brevet sier at tilbudet ikke er akseptert, og hvilken oppgjørsform byggherren mener. Det sier ikke noe om det tilbudte beløpet. Vil byggherren tilby et annet fast beløp, gjøres det med «Godkjenner fast sum» og et lavere beløp. Forhold: opphever KA-U58 og OV-U95 punkt 24; VS-U56 prøves på nytt.
+- B: KA-U58 står: byggherren kan ta stilling til beløpet subsidiært, og det er valgfritt (dagens PR).
+- C: Som B, men skjemaet spør ikke om beløpet med mindre byggherren velger «Oppgi et beløp likevel», og brevet nevner ikke beløpet når det ikke er oppgitt. Forhold: endrer KA-U58 tredje setning.
+- Anbefalt: A.
+- Styrer: om «Tar ikke stilling» og spørsmålet om beløpet finnes i skjemaet, brevlinjen «Subsidiært: byggherren tar ikke stilling til beløpet», og hva PR #1749 skal levere.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 10.11, ordrett: «1A.» Valgt: A. ([spørsmålsfila](../vedlegg/svar-per-kravpost-2026-11-09/sporsmal.md))'''
+designdel = "«og skjemaet spør ikke om det» og «gjøres det med «Godkjenner fast sum» og et lavere beløp»"
+forhold = [
+  { art = "opphever", vedtak = "ka-u58" },
+  { art = "endrer", vedtak = "ov-u95" },
+]
+folge = '''
+Opphever KA-U58 og endrer OV-U95, der punkt 24 faller, slik alternativet sier. VS-U56 står uten forholdet til KA-U58 (oppfølgingsspørsmål 2 A 10.11 i spørsmålsfila). Bygges i #1749.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "med mindre byggherren har akseptert et tilbud"
+utdrag = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+For en kravpost med fast sum der byggherren ikke aksepterer tilbudet, tar svaret ikke stilling til beløpet, og skjemaet spør ikke om det. Brevet sier at tilbudet ikke er akseptert, og hvilken oppgjørsform byggherren mener. Det sier ikke noe om det tilbudte beløpet. Vil byggherren tilby et annet fast beløp, gjøres det med «Godkjenner fast sum» og et lavere beløp. Forhold: opphever KA-U58 og OV-U95 punkt 24; VS-U56 prøves på nytt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+KA-U58 står: byggherren kan ta stilling til beløpet subsidiært, og det er valgfritt (dagens PR).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Som B, men skjemaet spør ikke om beløpet med mindre byggherren velger «Oppgi et beløp likevel», og brevet nevner ikke beløpet når det ikke er oppgitt. Forhold: endrer KA-U58 tredje setning.'''
 forkastet = true
 
 [[gruppe.vedtak]]

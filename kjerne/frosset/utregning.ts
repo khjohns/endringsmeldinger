@@ -292,7 +292,7 @@ function regnUtVederlag(
     resultat: r.beregnings_resultat,
     godkjent_beloep: tilTall(r.total_godkjent_beloep),
     // OV-U31, KA-U57 (e): beløpet for hver post i hvert lag, uten beløp når posten ikke har et
-    // fast beløp i laget (KA-U58). Totalene over er summen av det første og det siste laget.
+    // fast beløp i laget (KA-U72). Totalene over er summen av det første og det siste laget.
     poster: r.poster.map(({ post, lag }) => ({
       ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
       lag: lag.map((l) => ({
@@ -301,8 +301,8 @@ function regnUtVederlag(
       })),
     })),
   };
-  // VS-U3, B-13: ved preklusjon etter § 34.1.2, ved begrensningen etter § 34.1.3 (VS-U5) og
-  // når tilbudet ikke er akseptert (KA-U60), står det vurderte beløpet subsidiært.
+  // VS-U3, B-13: ved preklusjon etter § 34.1.2 og ved begrensningen etter § 34.1.3 (VS-U5)
+  // står det vurderte beløpet subsidiært.
   if (r.subsidiaer_resultat !== null) {
     ut.subsidiaert_resultat = r.subsidiaer_resultat;
     ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_beloep!);
@@ -363,7 +363,7 @@ export function vederlagsposter(
   v: Svarvurdering,
   krav: Krav
 ): (
-  | { godkjent: number; gjelder: string; svar: Kravpostvurdering }
+  | { godkjent: number | null; gjelder: string; svar: Kravpostvurdering }
   | { godkjent: number; saerskilt: 'produktivitet' }
 )[] {
   const post = (vurdering: unknown, krevd: Oere, delvis: unknown) =>
@@ -377,7 +377,11 @@ export function vederlagsposter(
   const produktivitet = krevdProduktivitet(krav);
   return [
     ...kravpostvurderinger(v, krav).map(({ post: k, svar }) => ({
-      godkjent: post(svar.vurdering, krevdISvaret(krav, k), svar.godkjent_beloep),
+      // En kravpost der tilbudet ikke er akseptert, får ikke beløp (KA-U72).
+      godkjent:
+        svar.aksepterer === false
+          ? null
+          : post(svar.vurdering, krevdISvaret(krav, k), svar.godkjent_beloep),
       gjelder: k.id,
       svar,
     })),

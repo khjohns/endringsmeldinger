@@ -128,13 +128,14 @@ export type Standpunkt =
    * OV-U26: `godkjent` er beløpet byggherren godtar for posten uten begrensningen etter
    * § 34.1.3. Standpunktet har enten `gjelder`, kravpostens `id`, eller `saerskilt`
    * (KA-U57 (c); spørsmålsfila 09.11 for #1663, det tekniske avsnittet punkt 4). `resultat` er
-   * svarets, som utregningen gir det.
+   * svarets, som utregningen gir det. Uten `godkjent` når tilbudet for kravposten ikke er
+   * akseptert (KA-U72).
    */
   | {
       id: string;
       art: 'beloep';
       resultat: Vederlagsresultat;
-      godkjent: number;
+      godkjent?: number;
       gjelder?: string;
       saerskilt?: 'produktivitet';
     }

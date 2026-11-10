@@ -47,6 +47,17 @@ export const tomtSvar = (): Svarvalg => ({ iTide: null, poster: {}, begrunnelse:
 export const postvalget = (v: Svarvalg, betegnelse: string): Postvalg =>
   v.poster[betegnelse] ?? tomPost();
 
+/**
+ * Skjemaet spør om beløpet bare når BH ikke mener en annen oppgjørsform (KA-U72). Valget for
+ * beløpet står likevel, så det er der igjen om BH godkjenner fast sum.
+ */
+export const spoerOmBeloepet = (p: Postvalg): boolean =>
+  p.form !== 'enhetspriser' && p.form !== 'regningsarbeid';
+
+/** Valget for beløpet, eller `null` når det ikke er besvart eller skjemaet ikke spør (KA-U72). */
+export const beloepsvalget = (p: Postvalg): Beloepsvalg | null =>
+  spoerOmBeloepet(p) ? p.beloep : null;
+
 const VURDERING: Record<Beloepsvalg, string> = {
   hele: 'godkjent',
   deler: 'delvis',
@@ -69,15 +80,16 @@ function vurderingene(v: Svarvalg, krav: Krav): Svarvurdering {
     kravposter: poster.length
       ? poster.map((post) => {
           const p = postvalget(v, post.betegnelse);
+          const beloep = beloepsvalget(p);
           return definert({
             gjelder: post.id,
-            vurdering: p.beloep ? VURDERING[p.beloep] : undefined,
+            vurdering: beloep ? VURDERING[beloep] : undefined,
             godkjent_beloep:
-              p.beloep === 'hele'
+              beloep === 'hele'
                 ? post.beloep
-                : p.beloep === 'ingenting'
+                : beloep === 'ingenting'
                   ? 0
-                  : p.beloep === 'deler'
+                  : beloep === 'deler'
                     ? kroner(p.delbeloep)
                     : undefined,
             aksepterer: p.form === null ? undefined : p.form === 'tilbud',

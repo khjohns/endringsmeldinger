@@ -872,11 +872,11 @@
       "radetikett": "OV-U5: TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen"
     },
     {
-      "id": "KA-U58",
+      "id": "KA-U72",
       "type": "vedtak",
-      "dato": "2026-11-07",
-      "ref": "../plans/vedtak.md#ka-u58",
-      "radetikett": "KA-U58: Byggherren kan ta stilling til beløpet subsidiært, «hvis totalentreprenørens oppgjørsform legges til grunn»"
+      "dato": "2026-11-10",
+      "ref": "../plans/vedtak.md#ka-u72",
+      "radetikett": "KA-U72: For en kravpost med fast sum der byggherren ikke aksepterer tilbudet, tar svaret ikke stilling til beløpet"
     },
     {
       "id": "KA-U60",

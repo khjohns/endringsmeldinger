@@ -9188,7 +9188,6 @@
             {
               "spor": "vederlag",
               "navn": "S-v1",
-              "vurdering": "godkjent",
               "metode_akseptert": false,
               "oensket_metode": "regningsarbeid"
             }
@@ -9218,7 +9217,6 @@
               },
               {
                 "spor": "vederlag",
-                "vurdering": "godkjent",
                 "metode_akseptert": false
               }
             ]
@@ -9249,11 +9247,11 @@
           "kilde": [
             "AV-479",
             "GR-U7",
-            "KA-U60"
+            "KA-U72"
           ],
           "forventet": {
             "virkning.S-v1.oppgjoersform": 1,
-            "virkning.S-v1.beloep": 2,
+            "virkning.S-v1.beloep": 1,
             "beslutningsgrunnlag.S-v1.sammenfall": false,
             "enighet.vederlag": null
           }
@@ -9265,7 +9263,7 @@
             "AV-479",
             "KA-U10",
             "MM-U50",
-            "KA-U58",
+            "KA-U72",
             "OV-U73"
           ],
           "forventet": {
@@ -9708,7 +9706,6 @@
             {
               "spor": "vederlag",
               "navn": "S-v1",
-              "vurdering": "godkjent",
               "varslet_i_tide": false,
               "metode_akseptert": false,
               "oensket_metode": "enhetspriser"
@@ -9729,14 +9726,14 @@
             "VS-U3",
             "V-B13",
             "AV-479",
-            "KA-U60"
+            "KA-U60",
+            "KA-U72"
           ],
           "forventet": {
             "avvist": false,
             "virkning.S-v1.rettidighet": 1,
             "virkning.S-v1.oppgjoersform": 2,
-            "virkning.S-v1.beloep": 3,
-            "standpunkt.S-v1.beloep.godkjent": 100000,
+            "virkning.S-v1.beloep": 2,
             "standpunkt.S-v1.oppgjoersform.aksepterer": false,
             "beslutningsgrunnlag.S-v1.sammenfall": false
           }
@@ -10124,8 +10121,6 @@
           "prov": {
             "handling": "revisjon",
             "spor": "vederlag",
-            "vurdering": "delvis",
-            "godkjent_belop": 80000,
             "metode_akseptert": false,
             "oensket_metode": "enhetspriser"
           },
@@ -10168,8 +10163,6 @@
           "prov": {
             "handling": "revisjon",
             "spor": "vederlag",
-            "vurdering": "delvis",
-            "godkjent_belop": 60000,
             "metode_akseptert": false,
             "oensket_metode": "enhetspriser"
           },

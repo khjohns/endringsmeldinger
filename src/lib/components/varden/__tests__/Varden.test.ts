@@ -255,9 +255,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     });
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const forutsetningene = () => {
-      const beloep = screen.getByRole('group', {
-        name: 'Hvor mye av beløpet godkjenner du?',
-      });
+      const beloep = screen.getByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' });
       const id = beloep.getAttribute('aria-describedby');
       return id
         ? [...document.getElementById(id)!.querySelectorAll('li')].map((li) =>
@@ -275,10 +273,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     // S2-A: grunnene fra grunnlaget først, så innsigelsen mot vederlagskravet.
     expect(forutsetningene()).toEqual([AVSLAGET, 'innsigelsen om sen varsling ikke fører frem']);
 
-    // Oppgjørsformen BH mener, flytter ikke beløpet ut av laget sitt.
+    // KA-U72: mener BH en annen oppgjørsform, spør skjemaet ikke om beløpet.
     await fireEvent.click(screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt 34.4)' }));
-    expect(forutsetningene()).toEqual([AVSLAGET, 'innsigelsen om sen varsling ikke fører frem']);
-    await fireEvent.click(screen.getByRole('radio', { name: 'Ingenting' }));
+    expect(screen.queryByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' })).toBeNull();
 
     // Som i brevet står avslaget prinsipalt, foran sporet (OV-U33).
     const linjer = within(
@@ -288,6 +285,37 @@ describe('Varden med brukerforløpet BF-01', () => {
       'prinsipalt Du har avslått forholdet i brev 2'
     );
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
+  });
+
+  it('BF-04: mener BH en annen oppgjørsform, spør skjemaet ikke om beløpet, og hovedlinjene sier ikke noe om det; med fast sum godkjent står valget for beløpet igjen (KA-U72)', async () => {
+    render(Demoforloep, {
+      forloep: finnForloep('BF-04')!,
+      punkt: 'bh-har-mottatt-vederlagskravet',
+      onpunkt: () => {},
+      onstart: () => {},
+    });
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
+    const beloepet = () =>
+      screen.queryByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' });
+    const linjer = () =>
+      within(screen.getByRole('region', { name: 'Hovedlinjene i svaret' }))
+        .queryAllByRole('listitem')
+        .map((li) => li.textContent!.replace(/\s+/g, ' ').trim());
+
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
+    expect(beloepet(), 'forutsetning: uten oppgjørsform spør skjemaet om beløpet').not.toBeNull();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Ingenting' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt 34.4)' }));
+    expect(beloepet()).toBeNull();
+    expect(linjer().some((l) => l.includes('Vederlagsjustering'))).toBe(false);
+    expect(linjer().some((l) => l.includes('regningsarbeid'))).toBe(true);
+
+    await fireEvent.click(
+      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)' })
+    );
+    expect(beloepet()).not.toBeNull();
+    expect(screen.getByRole('radio', { name: 'Ingenting' })).toBeChecked();
+    expect(linjer().some((l) => l.includes('Vederlagsjustering'))).toBe(true);
   });
 
   it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om sen varsling etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {
