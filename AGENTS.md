@@ -145,7 +145,7 @@ I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi
 Testene er raske. Kjør dem ofte.
 Med `KOE_SQLSERVER_TILKOBLING` kjører `npm test` også testene mot SQL Server i
 `server/` og kjernens lagringstester i `sprakprove/kjernelagring/`.
-Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge. Hva den kjører,
+Sett etiketten `feilinnfoering` på en PR som rører kjernen, ved første push. Hva den kjører,
 står i miljø-skillen.
 
 **Nettleserkontroll av den ekte saksruta og demoruta går gjennom skillen `mockup-nettleser`.** Kjør
@@ -345,13 +345,15 @@ orkestrert (#425). Hele konteksten sendes på nytt ved hvert kall til modellen, 
 hurtigbufferen gjør det billig bare når det er under en time siden forrige kall. Hvor
 lenge økta har pågått, betyr ikke noe.
 
-- Avgrens arbeidet så økta kan gjøre det ferdig under om lag 400 000 tokens.
-- Vent på CI med en bakgrunnskommando som vekker økta, ikke med en pause.
+- Fortsett så lenge konteksten trengs for det som gjenstår, og stopp ved om lag 800 000
+  tokens, før Claude Code komprimerer samtalen.
+- Arbeid videre mens CI går, og vent med en bakgrunnskommando som vekker økta, ikke
+  med en pause.
 - Har økta passert om lag 150 000 tokens og ikke mer å gjøre uten et svar som kan ta
   over en time, for eksempel fra oppdragsgiver, skriver den tilstanden i PR-en og
   stopper. En ny, liten økt tar over derfra.
 
-Kontekstgrensene og når reviewet går i en ny økt, står i
+Kontekstgrensene og hvor reviewet kjøres, står i
 [arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Les den når arbeidet starter.
 
 **En subagent brukes bare når den sparer mer enn den koster**, i alle økter. Den betaler

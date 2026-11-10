@@ -1,6 +1,6 @@
 ---
 name: arbeidsokt
-description: Reglene for en skyøkt som bygger, reviewer eller retter en PR i endringsmeldinger. Hurtigbufferen og kontekstgrensene, tilstanden i PR-en, når reviewet går i en ny økt, og de faste reglene for en orkestrert arbeidsøkt (spørsmål til orkestratoren, utkast, venting på CI og meldingen når PR-en er klar). Brukes av alle skyøkter når arbeidet starter, også en direkte økt som ikke er orkestrert.
+description: Reglene for en skyøkt som bygger, reviewer eller retter en PR i endringsmeldinger. Hurtigbufferen og kontekstgrensene, tilstanden i PR-en, reviewet i byggeøkta, og de faste reglene for en orkestrert arbeidsøkt (spørsmål til orkestratoren, utkast, venting på CI og meldingen når PR-en er klar). Brukes av alle skyøkter når arbeidet starter, også en direkte økt som ikke er orkestrert.
 ---
 
 # Arbeidsøkta
@@ -42,13 +42,18 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   `jq -s '[.[]|select(.type=="assistant" and (.isSidechain|not) and .message.usage)]|last|.message.usage|.input_tokens+.cache_read_input_tokens+.cache_creation_input_tokens+.output_tokens' ~/.claude/projects/*/"$CLAUDE_CODE_SESSION_ID".jsonl`
   gir konteksten etter siste API-kall, og tallet skrives i PR-en (#731). Finnes
   ikke transkriptet, anslår økta brukt kontekst ut fra det den har lest og
-  kjørt, og skriver anslaget i PR-en. Et oppdrag avgrenses slik at økta kan gjøre det
-  ferdig under om lag 400 000 tokens. Ved om lag 400 000 tokens begynner økta å
-  forberede overleveringen, og ved om lag 500 000 stopper den: pusher, skriver
-  tilstanden i PR-en og melder fra. Den tar ikke nye oppgaver etter 400 000, uten å
-  vente på orkestratorens sjekk. Tilstanden skal gjøre det mulig å lese seg inn på
-  nytt: vedtakene, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
+  kjørt, og skriver anslaget i PR-en. Tilstanden skal gjøre det mulig å lese seg inn
+  på nytt: vedtakene, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
   gjenstår (#484).
+- **Fortsett så lenge konteksten trengs.** Etter hvert hovedsteg, og alltid over om lag
+  400 000 tokens, vurderer økta om det den har i konteksten, trengs til det som
+  gjenstår. Hvert kall leser hele konteksten, og en ny økt må bygge opp sin på nytt.
+  Det lønner seg derfor å overlevere når det gjenstår mer enn om lag 10–20 kall og
+  konteksten mest er avsluttet arbeid og gamle lesinger. Trenger resten konteksten,
+  eller gjenstår få kall, fortsetter økta. Vurderingen skrives med tallet i PR-en. Ved
+  om lag 800 000 tokens stopper økta uansett, før Claude Code komprimerer samtalen
+  ([om lag 967 000](https://code.claude.com/docs/en/context-window#when-your-context-fills-up)):
+  den pusher, skriver tilstanden og melder fra.
 - **Vekket etter over en time.** En økt som vekkes etter over en time uten
   kall, kan være komprimert av Claude Code (`idleCompaction`, standardverdien
   beholdes), og behandles da som komprimert: den leser vedtakene, issuet og
@@ -60,19 +65,16 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   skillen [`subagenter`](../subagenter/SKILL.md).
 - **Små verktøysvar.** Les smalt og tell før du leser: se «Utdata» i
   [miljø-skillen](../miljo/SKILL.md#utdata).
-- **Review i ny økt.** Byggeøkta pusher, skriver tilstanden i PR-en og stopper,
-  uten å kjøre `/code-review`, og lar PR-en stå som utkast. Unntaket er en liten
-  diff, om lag 300 endrede linjer utenom tester og `docs/`: er byggeøkta under om
-  lag 400 000 tokens, kjører den `/code-review` og rettingene
-  selv, og en ny reviewøkt trengs ikke. Den samme økta kan ikke kjøre
-  `/design-review` eller reviewet av samspillet mellom reglene, som krever ny
-  kontekst. En ny, liten økt tar
-  reviewet og rettingene fra PR-en etter leveranseskillen, «Review og funn», og markerer PR-en klar når
-  reviewet er gjort og de lokale sjekkene er grønne. Den får en avgrenset
-  bestilling: PR-nummeret, reviewbestillingen og tilstanden i PR-en, ikke hele
-  historikken. Den fortsetter samme PR, så den teller ikke i grensen på tre PR-er
-  per runde. For økter som ikke er orkestrert, gjelder dette bare når diffen
-  rører `kjerne/` eller er over om lag 800 endrede linjer utenom `docs/` (#484, #490, #491).
+- **Review i byggeøkta.** Byggeøkta kjører `/code-review` og rettingene selv, etter
+  [leveranseskillen, «Review og funn»](../leveranse/SKILL.md#review-og-funn), og
+  markerer PR-en klar når reviewet er gjort og de lokale sjekkene er grønne. Den har
+  konteksten som trengs for å rette funnene, og en ny økt måtte bygge den opp igjen.
+  Reviewet av samspillet mellom reglene krever ny kontekst og gjøres av en subagent som
+  får reglene, bevis-sakene og diffen, ikke øktas samtale. `/design-review` kjøres i en
+  ny økt, fordi den venter på at oppdragsgiver har sett skjermbildene. En ny reviewøkt
+  startes ellers bare når byggeøkta overleverer etter «Fortsett så lenge konteksten
+  trengs». Den får en avgrenset bestilling: PR-nummeret, reviewbestillingen og
+  tilstanden i PR-en, ikke hele historikken.
 
 ## I en orkestrert økt
 
@@ -101,24 +103,24 @@ uten at oppdraget gjentar det:
   subagenter, så øktas egen kontekst holder seg liten (#425).
   Små oppslag gjør økta selv (`AGENTS.md`, «Arbeidsform»), og subagentene følger
   skillen [`subagenter`](../subagenter/SKILL.md).
-- **Review.** Byggeøkta kjører ikke `/code-review`. Reviewet og rettingene gjøres i
-  en ny økt, unntatt for en liten diff etter «Review i ny økt». Reviewet følger
-  [leveranseskillen, «Review og funn»](../leveranse/SKILL.md#review-og-funn).
+- **Review.** Byggeøkta kjører reviewet selv, etter «Review i byggeøkta».
 - **PR-beskrivelsen er rapporten til orkestratoren:** hva som er endret,
   sjekkene som er kjørt med resultat, funn utenfor oppdraget med issuenummer,
-  samleissuet med nummer når det finnes, og «Åpne spørsmål». Reviewøkta legger til
+  samleissuet med nummer når det finnes, og «Åpne spørsmål». Den har med
   utfallet av `/code-review`.
 - **PR mot `main`** med `Closes #n`, eller «Del av #n» når bare en del leveres.
   Økta merger ikke.
-- **Utkast.** Byggeøkta åpner PR-en som utkast og lar den stå. Reviewøkta markerer den
-  klar (`ready_for_review`) når reviewet er gjort og de lokale sjekkene er
-  grønne. CI og regelversjonsvakten kjører ikke på utkast og ikke ved push til
-  `main` (#390), så hver push til et utkast er gratis, og hver
-  push til en klar PR koster en full kjøring. Feilinnføringene kjører også på et
-  utkast når etiketten `feilinnfoering` er satt. Etiketten settes derfor først
-  når PR-en meldes klar, så hele settet (om lag 26 minutter i CI) kjører én
-  gang per PR og ikke ved hver push. Hva økta kjører lokalt av feilinnføringene,
-  står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
+- **Utkast.** Byggeøkta åpner PR-en som utkast og markerer den klar
+  (`ready_for_review`) når reviewet er gjort og de lokale sjekkene er grønne. CI og
+  regelversjonsvakten kjører ikke på utkast og ikke ved push til `main` (#390).
+  Feilinnføringene kjører også på et utkast når etiketten `feilinnfoering` er satt, og
+  et nytt push avbryter kjøringen som pågår. Rører PR-en kjernen, setter økta etiketten
+  ved første push, så feilinnføringene (10–30 minutter i CI) går mens økta kjører
+  reviewet og retter. Kjøringen på siste commit er beviset. Hva økta kjører lokalt av
+  feilinnføringene, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
+- **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
+  reviewet, rettingene eller det neste relaterte issuet orkestratoren har gitt den.
+  Den venter med en bakgrunnskommando først når den ikke har mer å gjøre.
 - **Ikke abonner på PR-en** (`subscribe_pr_activity`). Hver hendelse
   vekker økta og leser hele konteksten på nytt, også en grønn kjøring, egne
   pusher og mergen. Etter hver push venter økta på CI med én bakgrunnskommando

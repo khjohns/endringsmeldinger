@@ -14,7 +14,7 @@ I en byggeøkt 16.10 sto én subagent, med 115 kall og en kontekst som vokste ti
 I FK runde 2 nektet tillatelsessystemet i en økt den å tilpasse seg etterpå. Det
 gjaldt arkitekturtesten.
 
-## «Orkestratoren overleverer etter en time»
+## «Hold hurtigbufferen varm» og «Orkestratoren overleverer når konteksten ikke lenger trengs»
 
 I runde 13 ventet begge orkestratorene i 3 og 6,7 timer med sjekker, og hver
 sjekk leste hele konteksten på nytt.

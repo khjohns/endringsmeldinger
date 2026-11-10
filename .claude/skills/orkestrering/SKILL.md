@@ -27,8 +27,7 @@ Grunnen er kostnad: en økt som lever over natta, blir dyrere for hver sjekk
 **Bølger.** Oppdragsgiver kan bestille et spor i bølger, en rekke runder der
 hver orkestrator starter den neste. Bestillingen sier hva
 sporet omfatter, med en etikett, en milepæl eller en liste med issues, og hvilke
-spor som går parallelt. Orkestratoren starter neste runde når sin egen er over,
-når timen er gått («Orkestratoren overleverer etter en time»), eller når den
+spor som går parallelt. Orkestratoren starter neste runde når sin egen er over, eller når den
 nærmer seg grensene i «Orkestratorens tid og kontekst». Da gjør den dette:
 
 1. Merger det som er nær merge og avslutter etter punkt 5. En åpen PR som ikke
@@ -51,10 +50,9 @@ nærmer seg grensene i «Orkestratorens tid og kontekst». Da gjør den dette:
 
 **Én økt i runden.** Går det bare én arbeidsøkt i neste runde, vurderer
 orkestratoren om den trengs. Trengs den ikke, starter den ikke en ny orkestrator.
-Arbeidsøkta eier sporet videre og overleverer selv. Byggeøkta starter reviewøkta
-med `create_session` og en avgrenset bestilling, som «Review i ny økt» i
-[arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst) sier.
-Reviewøkta legger PR-en fram for oppdragsgiver og merger etter punkt 4 når
+Arbeidsøkta eier sporet videre og overleverer selv. Byggeøkta kjører reviewet selv, som «Review i
+byggeøkta» i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst) sier,
+og legger PR-en fram for oppdragsgiver og merger etter punkt 4 når
 oppdragsgiver har godkjent det. Etter mergen skriver den overleveringen i
 bølgeissuet, som i steg 2 over. Den starter neste byggeøkt når neste runde bare
 har én økt, og ellers en ny orkestrator. Overleveringen sier hvilken økt som eier
@@ -74,10 +72,10 @@ ble gitt i, så den nye orkestratoren spør på nytt når den legger fram runden
 To parallelle spor rører aldri samme fil samtidig. En fil begge trenger, går til
 det ene sporet, og det andre venter.
 
-**Størrelse.** Høyst tre PR-er per runde (#425). En reviewøkt
-som fortsetter samme PR, teller ikke i grensen (#491).
-Tekniske issues som ikke krever svar fra oppdragsgiver, teller heller ikke i
-grensen. Runden kan ta mange av dem så lenge de lar seg orkestrere etter
+**Størrelse.** Runden har ingen fast grense på antall PR-er. Den avgrenses av hvor
+mange PR-er oppdragsgiver skal svare på eller gå gjennom samtidig, av filoverlapp og
+av at hver økt får arbeid som henger sammen (#425, #491).
+Tekniske issues som ikke krever svar fra oppdragsgiver, kan runden ta mange av så lenge de lar seg orkestrere etter
 filoverlapp, og de tekniske valgene tas mellom orkestratoren og øktene, ikke av
 oppdragsgiver. Et valg som blir en kontrakt, en regel i domenekjernen eller et
 lagret navn, er ikke teknisk og venter på oppdragsgiver, som under «Spørsmål» i
@@ -96,22 +94,22 @@ Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
    samleissue `review-oppfølging` grupperes på samme måte, og føres etter
    stoppregelen for funn i leveranseskillen.
 
-**Flere issues i én økt.** Én økt tar flere issues når de rører de samme
-filene eller har samme rotårsak, og leverer én PR med `Closes` for hvert av
-dem. To issues i samme fil går aldri i to parallelle økter. Høyst tre små
-issues per økt. Et issue som krever kartlegging eller spørsmål til
+**Fordelingen.** Issues som rører de samme filene og reglene eller har samme
+rotårsak, går til samme økt, så konteksten den har bygget, brukes på nytt. Urelaterte
+issues får hver sin økt. To issues i samme fil går aldri i to parallelle økter. Et issue som krever kartlegging eller spørsmål til
 oppdragsgiver, får egen økt. Spørsmålene før bygging står under «1. Kartlegg
 før du fordeler».
 
-**Én økt, én PR.** En arbeidsøkt leverer én PR og tar ikke nye oppgaver etter
-at den er åpnet. Har arbeidet to naturlige PR-er, blir det to økter, i hver
-sin runde når den ene bygger på den andre. Hver ny oppgave i en lang økt sender
-hele den voksende konteksten på nytt, og det koster fort mer enn rettingen.
+**Flere PR-er i én økt.** En økt kan levere flere PR-er etter hverandre, og ta det
+neste relaterte issuet mens CI går på den forrige. Den gjør det så lenge konteksten
+trengs for arbeidet, etter «Fortsett så lenge konteksten trengs» i
+[arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst). Et urelatert issue får
+en ny økt, fordi hvert kall leser hele den voksende konteksten.
 
-**Størrelse per økt.** Orkestratoren anslår diffen ut fra avgrensningen i issuet,
-før økta startes. Ventes mer enn om lag 1200 endrede linjer utenom `docs/`, deles
-arbeidet: én økt per bestemmelse eller delområde, i hver sin runde når den ene
-bygger på den andre.
+**Størrelse per PR.** Orkestratoren anslår diffen ut fra avgrensningen i issuet.
+Ventes mer enn om lag 1200 endrede linjer utenom `docs/`, deles arbeidet i flere PR-er,
+én per bestemmelse eller delområde, så hver kan gjennomgås. Henger delene sammen, tar
+samme økt dem etter hverandre.
 
 **Subagent eller økt.** Det som blir ferdig i samme tur, gjøres i økta eller av
 en subagent etter skillen [`subagenter`](../subagenter/SKILL.md). Arbeid som gir en PR, får egen
@@ -172,10 +170,10 @@ tabellen gjentar dem ikke (#1338).
 | --- | --- | --- | --- |
 | Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Kan være én økt sammen med oppdragsgiver |
 | Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
-| Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | Leveranseskillen, «Review og funn», og «Review i ny økt» i arbeidsøkt-skillen |
+| Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | Leveranseskillen, «Review og funn», og «Review i byggeøkta» i arbeidsøkt-skillen |
 | Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget leveranseskillen, «Review og funn», gir dem. Viser issuet til en bestilling, også `brukerforlop`, for byggeøkta, ryddeøkta og reviewøkta. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | Leveranseskillen, «Review og funn». Med bestilling kjøres `/design-review` også mot den, etter «Sammenligne en bygget visning» i `brukerforlop`, i den rekkefølgen leveranseskillen gir. Avvikstabellen og skjermbildene side om side, i samme bredde, står i PR-en før den meldes klar. `/design-deslop` endrer ikke det bestillingen fastsetter, med mindre endringen føres som bevisst endring i avvikstabellen. En bevisst endring er ikke godkjent før oppdragsgiver har sagt ja (#1492) |
 | Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | En mekanisk arbeidsøkt på Haiku, med `github` | `diffkontroll` mot bestillingen før merge, leveranseskillen, «Review og funn», og «Subagent eller økt» |
-| Review i ny økt | Fortsetter en PR fra en byggeøkt | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | Leveranseskillen, «Review og funn» |
+| Review i ny økt | Fortsetter en PR fra en byggeøkt som har overlevert, eller kjører `/design-review` | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | Leveranseskillen, «Review og funn» |
 
 En PR som blander typene, følger den strengeste.
 
@@ -217,7 +215,7 @@ Oppdraget skal inneholde:
   så den viser ikke at den ekte saksruta virker; den ekte ruta
   kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
-- hvem som kjører reviewet, etter «Review i ny økt» i arbeidsøkt-skillen. `/simplify`
+- hvem som kjører reviewet, etter «Review i byggeøkta» i arbeidsøkt-skillen. `/simplify`
   kjøres bare når oppdragsgiver har bestilt eller godkjent den (se
   «`/simplify`»), og da før `/code-review`.
 
@@ -268,7 +266,7 @@ Svarer oppdragsgiver ja, merger orkestratoren uten å spørre per PR. Godkjennin
 gjelder bare den runden. Vilkårene er:
 
 - CI er grønn på siste commit, også etter oppdateringen mot `main` (under);
-- reviewøkta har kjørt `/code-review` og markert PR-en klar;
+- økta har kjørt `/code-review` og markert PR-en klar;
 - PR-en har ingen åpne spørsmål til oppdragsgiver;
 - kontrollen av sikkerhetsinvariantene i punkt 3.2 er gjort der PR-en legger til
   en serverinngang, en tabell eller en migrasjon.
@@ -355,15 +353,18 @@ Bestillingen til økta sier:
 Hvorfor grensene finnes, og grensene for arbeidsøktene, står i
 [arbeidsøkt-skillen](../arbeidsokt/SKILL.md). For orkestratoren gjelder dette:
 
-- **Runden avgrenses til om lag én time** med aktivt arbeid. Etter mer enn en time
-  uten aktivitet avsluttes runden heller enn å vekkes (#425).
-- **Orkestratoren overleverer etter en time.** Når orkestratoren starter, setter
-  den en påminnelse med `send_later` om 55 minutter, og den kommer i tillegg
-  til sjekkene. Når påminnelsen kommer, er runden over. Orkestratoren gjør
-  overgangen i «Bølger», steg 1–5, også med PR-er som er åpne. Hver av dem går
-  videre med økta som eier den, og neste orkestrator overtar sjekkene. I et spor
-  som ikke går i bølger, skriver orkestratoren overleveringen og stopper. Den
-  utsetter ikke overleveringen for å vente på CI, et review eller oppdragsgiver.
+- **Hold hurtigbufferen varm.** Mens noe venter, setter orkestratoren sjekkene med
+  `send_later` under en time fra hverandre. Venter runden på noe som kan ta over en
+  time, for eksempel oppdragsgiver, og har orkestratoren passert om lag 150 000 tokens,
+  skriver den overleveringen og stopper heller enn å vekkes (#425).
+- **Orkestratoren overleverer når konteksten ikke lenger trengs.** Som arbeidsøktene
+  vurderer den etter hver sjekk, og alltid over om lag 400 000 tokens, om det den har i
+  konteksten, trengs for resten av sporet. Er resten større og konteksten mest
+  avsluttede PR-er, gjør den overgangen i «Bølger», steg 1–5, også med PR-er som er
+  åpne. Hver av dem går videre med økta som eier den, og neste orkestrator overtar
+  sjekkene. Ved om lag 800 000 tokens overleverer den uansett. I et spor som ikke går i
+  bølger, skriver orkestratoren overleveringen og stopper. Den utsetter ikke
+  overleveringen for å vente på CI, et review eller oppdragsgiver.
 - **Følg med i hver sjekk.** Orkestratoren leser brukt kontekst
   (`external_metadata.context_usage.used_tokens`) og kostnad
   (`external_metadata.usage.cost_usd`) for hver økt med `get_session` i hver
@@ -375,18 +376,18 @@ Hvorfor grensene finnes, og grensene for arbeidsøktene, står i
   viser noe før turen er ferdig. `usage.cost_usd` kan mangle i svaret (#731).
 - **Passerer en økt grensen sin uten å stoppe, eller blir den komprimert,**
   sender orkestratoren én samlet sjekkliste over det som gjenstår, med kildene
-  som skal leses på nytt. Grensen er om lag 500 000 tokens, eller om
+  som skal leses på nytt. Grensen er om lag 800 000 tokens, eller om
   lag 150 000 tokens for en økt som venter på noe som kan ta over en time
-  ([arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst)). Gjenstår mer enn rettinger og CI, overtar en
+  ([arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst)). Har en økt passert om
+  lag 400 000 uten å skrive vurderingen sin i PR-en, ber orkestratoren om den. Gjenstår mer enn rettinger og CI, overtar en
   ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Er
   økta fortsatt over grensen ved neste sjekk, avbryter orkestratoren den med
   `interrupt_session` og sender ingen ny melding. Hver melding leser hele den
   store konteksten på nytt. Den nye økta
   får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene,
-  og arbeider under de samme grensene. Passerer orkestratoren selv om lag
-  300 000 tokens,
-  avsluttes runden når PR-ene som er nær merge, er merget. Resten går til neste
-  runde (#425).
+  og arbeider under de samme grensene. Nærmer orkestratoren selv seg om lag
+  800 000 tokens, avsluttes runden når PR-ene som er nær merge, er merget. Resten går
+  til neste runde (#425).
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i vedtaksregisteret
   og arbeidsvalg i issuet. Meldingen viser dit.
 - **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av

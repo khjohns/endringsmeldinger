@@ -139,10 +139,8 @@ eller migrasjonene, uansett språk, ellers `medium`. For en diff som bare rører
 `docs/`, skillene og `AGENTS.md`, avgjør orkestratoren om `/code-review` er verdt
 det, og begrunner valget i én linje i PR-en (#1338). Endrer diffen utledningen eller reglene i domenet, kommer i
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
-bevis-sakene samlet, én gang per PR. Reviewet og rettingene kjøres i en ny økt,
-ikke i byggeøkta, når vilkårene i
-[arbeidsøkt-skillen, «Review i ny økt»](../arbeidsokt/SKILL.md#tid-og-kontekst), er
-oppfylt.
+bevis-sakene samlet, én gang per PR. Hvor reviewet og rettingene kjøres, står i
+[arbeidsøkt-skillen, «Review i byggeøkta»](../arbeidsokt/SKILL.md#tid-og-kontekst).
 `/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
 forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
 **Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
