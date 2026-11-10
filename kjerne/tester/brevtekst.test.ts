@@ -6588,16 +6588,15 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
   });
 
   // KA-U72: uten aksept av tilbudet tar svaret ikke stilling til beløpet for kravposten, så
-  // oppgjørsformen gir ikke et lag og er upåvirket av begrensningen (OV-U33). Begrensningen
-  // rammer bare den særskilte posten (arbeidsvalg 1.3 i spørsmålsfila 09.11 for #1663).
+  // tilbudet gir ikke et eget lag. Det rammer kravposten i det første laget, sammen med
+  // begrensningen (arbeidsvalget 10.11 i #1760). Begrensningen rammer bare den særskilte posten
+  // (arbeidsvalg 1.3 i spørsmålsfila 09.11 for #1663).
   it('tilbudet ikke akseptert og § 34.1.3 påberopt: tilbudet og begrensningen står prinsipalt og den særskilte posten subsidiært, og beløpet for kravposten står ikke (KA-U72, OV-U32, OV-U33, #1760)', () => {
     const s = sakMedPost();
     const rad = brevet(s, medP1IkkeAkseptert({ ...postene, ...begrenset }, 'regningsarbeid'), {
       resultat: 'delvis_godkjent',
       godkjent_beloep: 10000,
     });
-    // Tilbudet som ikke er akseptert, er en innsigelse som rammer P1 i det første laget, uten et
-    // eget lag (KA-U72, arbeidsvalget 10.11 i #1760).
     expect(virkningene(s)).toEqual([
       ['oppgjoersform', 1],
       ['beloep', 1],

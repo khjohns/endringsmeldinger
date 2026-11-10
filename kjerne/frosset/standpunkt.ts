@@ -159,11 +159,11 @@ function vederlagsvirkninger(
   return svar.standpunkter.map((s): Standpunktsvirkning => {
     const virkning = (): Virkning => {
       if (iKravposten.has(s.id)) return iKravposten.get(s.id)!;
-      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;
       if (s.art === 'rettidighet') {
         if (s.hjemmel === '34.1.2') return hele ? 1 : 'uten_virkning';
         return s.hjemmel === '34.1.3' && posten ? foerste : 'uten_virkning';
       }
+      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;
       if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;
       return ellers;
     };

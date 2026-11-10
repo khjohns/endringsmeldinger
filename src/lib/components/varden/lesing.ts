@@ -67,10 +67,6 @@ export interface Brevet {
   avsnitt: Avsnitt[] | null;
 }
 
-/**
- * Sporet hvert krav, svar, varsel og hver forespørsel i saken hører til, så et utsagn som viser
- * til dem, får sporet (#1393).
- */
 function artAv(d: Dokument): Brevet['art'] {
   if (d.brevtekst === null) return 'registrert';
   if (d.svar.length) return 'svar';
