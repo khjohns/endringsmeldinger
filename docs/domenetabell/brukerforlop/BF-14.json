@@ -186,7 +186,9 @@
     "VS-U54",
     "VS-U57",
     "KA-U71",
-    "KA-U72"
+    "KA-U72",
+    "VS-U1",
+    "VS-U14"
   ],
   "venter_paa": [
     "#1663",
@@ -194,7 +196,9 @@
     "#1294",
     "#1292",
     "#1434",
-    "#1290"
+    "#1290",
+    "#1755",
+    "#1758"
   ],
   "bevis_saker": [],
   "visninger": [],
@@ -253,6 +257,11 @@
       "dato": "2026-11-09",
       "forhold": "#1663",
       "hva": "Etter den kognitive gjennomgangen av v3: leselinja i svaret sier lagets navn som brevet, et varsel uten kravpost står i leselinja og panelet (U-12, oppdragsgiver 09.11), og avvikene i «Klar til bygging» gjelder v3, commit e42380c."
+    },
+    {
+      "dato": "2026-11-10",
+      "forhold": "#1755",
+      "hva": "Designforslaget i prototype v4 er ført inn i bestillingen, og S-14–S-18 er nye (#1758). Prototypen for forløpet er fortsatt v3."
     }
   ]
 }
