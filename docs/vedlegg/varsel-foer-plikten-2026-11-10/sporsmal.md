@@ -2,62 +2,98 @@
 
 Fra kartleggingen i #1730, punkt 1. Oppdragsgiver svarte 09.11 «1 A, 2 alle varsler med
 kartlegging først»: et varsel som er oppgitt sendt før datoen varslingsplikten løper fra,
-avvises, og kontrollen gjelder alle varsler der løsningen lagrer den datoen. Stilt 10.11 som
+avvises, og kontrollen gjelder alle varsler der løsningen lagrer den datoen. Spørsmålene er
+prøvd mot vedtakene én gang av en subagent 10.11, og funnene er rettet. Stilt 10.11 som
 nummerert liste i tekst, ordrett som under.
 
 ## Det kartleggingen fant
 
 Løsningen lagrer én dato som et vedtak kaller «datoen varslingsplikten løper fra», nemlig TEs
-opplysning i grunnlagskravet etter VS-U26 (samlet i VS-U43):
+opplysning i grunnlagskravet etter VS-U26 (samlet i VS-U43 punkt 1–5):
 
 - der punkt 32.2 gjelder: datoen TE mottok pålegget;
 - i svikt og andre forhold (punkt 33.1 b–c): datoen TE ble klar over forholdet;
 - i underkategorien endringsordre (punkt 31.3): ingen dato.
 
-Datoen kan rettes etter OV-U11 (#1611). For de andre varslene, etter punkt 34.1.3 annet ledd,
-34.3.3, 34.4 og punkt 33.4 der punkt 32.2 gjelder, lagrer løsningen ingen slik dato.
+TE kan endre opplysningen etter VS-U43 punkt 5 (punkt 10 i MM-U52, #1611). En senere dato
+gjelder da straks.
 
-## Avgrensning som følger av svaret 09.11
+Kunnskapsdatoen for varselet etter punkt 34.1.3 annet ledd er vedtatt (VS-U43 punkt 11–14),
+men ikke bygget. For varslene etter punkt 34.3.3 og 34.4 sier ingen vedtak hvilken dato
+plikten løper fra.
 
-Dette er ikke spørsmål. Det står her så svaret under kan leses i sammenheng.
+## Avgrensning
 
-- Et varsel etter punkt 32.2 som TE registrerer som sendt utenfor løsningen, med en dato før
-  datoen TE oppgir at pålegget ble mottatt, avvises. Samme dag godtas.
+Dette er ikke spørsmål.
+
+- Et varsel etter punkt 32.2 kan ikke være oppgitt sendt før datoen TE oppgir at pålegget ble
+  mottatt. Det følger av svaret 09.11. Det gjelder et varsel registrert som sendt utenfor
+  løsningen, og et brev i saken som TE oppgir som varsel etter punkt 32.2 (VS-U43 punkt 6,
+  GR-U22). Samme dag godtas.
 - Grunnlagskravet er selv varselet etter punkt 32.2 (GR-U31). Datoen pålegget ble mottatt kan
   allerede ikke være senere enn brevet.
-- En retting av datoen etter OV-U11 som gjør datoen senere enn et varsel som alt er sendt eller
-  registrert, avvises («Kontrollen gjelder også … en korrigering av datoen (#1611) som snur
-  rekkefølgen», #1730).
-- Varslene der løsningen ikke lagrer datoen, får ingen kontroll.
+- Kunnskapsdatoen etter punkt 34.1.3 annet ledd er ikke bygget. Om kontrollen skal gjelde den,
+  avgjøres når den bygges.
 
-## Spørsmål 1: varslene etter punkt 33.4 og 34.1.2 i svikt og andre forhold
+## Spørsmål 1: hvilke varsler kontrollen gjelder
 
-**Bakgrunn.** VS-U26 sier om grunnlagskravet: «I svikt og andre forhold (§ 33.1 b–c) er det
-datoen TE ble klar over forholdet». Vedtaket sier ikke hvilken varslingsplikt datoen gjelder,
-men punkt 32.2 gjelder ikke i svikt og andre forhold. De varslene TE gir der, er etter punkt
-33.4 og 34.1.2. Om datoen er den datoen de pliktene løper fra, er en tolkning. Den er ikke
-vedtatt.
+**Bakgrunn.** Svaret 09.11 sier «alle varsler med kartlegging først». Bare punkt 32.2 har et
+vedtak som sier at den lagrede datoen er datoen plikten løper fra. VS-U26 sier om svikt og
+andre forhold at datoen er «datoen TE ble klar over forholdet», men ikke hvilken plikt den
+gjelder. Om datoen er den datoen pliktene etter punkt 33.4, 34.1.2 og 34.1.3 løper fra, er
+en tolkning. Den er ikke vedtatt.
 
-**Belegg.** VS-U26 og VS-U43. Svaret 09.11 i #1730.
+**Belegg.** VS-U26 og VS-U43 punkt 1–5 og 16. VS-U38 for formen. Svaret 09.11 i #1730.
 
 **Alternativene.**
-- **A (anbefalt):** I svikt og andre forhold kan et varsel etter punkt 33.4 eller 34.1.2 ikke
-  være sendt før datoen TE har oppgitt at TE ble klar over forholdet. Oppgir TE en tidligere
-  dato, avvises varselet med en melding som nevner begge datoene. Samme dag godtas. Det gjelder
-  både varsler sendt fra løsningen og varsler registrert som sendt utenfor den, og varselet som
-  er oppgitt i et fristkrav. Det er en kontroll av at TEs egne datoer kan stemme, ikke en
-  vurdering av om varselet kom i tide. Forhold: presiserer VS-U26.
-- **B:** Kontrollen gjelder bare varselet etter punkt 32.2, mot datoen TE mottok pålegget. I
-  svikt og andre forhold kontrolleres ikke rekkefølgen, fordi ingen vedtak sier at datoen TE
-  ble klar over forholdet er datoen pliktene etter punkt 33.4 og 34.1.2 løper fra.
+- **A (anbefalt):** Et varsel om forholdet, etter punkt 32.2, 33.4, 34.1.2 eller 34.1.3, kan
+  ikke være oppgitt sendt før datoen TE har oppgitt i grunnlagskravet: datoen pålegget ble
+  mottatt, eller datoen TE ble klar over forholdet. Oppgir TE at varselet ble sendt før denne
+  datoen, avvises varselet med en melding som nevner begge datoene. Samme dag godtas. Det
+  gjelder et varsel registrert som sendt utenfor løsningen, og varselet som er oppgitt i et
+  fristkrav. Da avvises hele fristkravet. Det samme gjelder når TE retter datoen for et
+  varsel etter OV-U11 til en dato før datoen i grunnlagskravet. Kontrollen gjøres når
+  rettingen sendes. Det er en kontroll av at TEs egne datoer kan stemme, ikke en vurdering av
+  om varselet kom i tide (VS-U26: «appen vurderer ikke rettidigheten»). Forhold: utvider
+  svaret 09.11 i #1730.
+- **B:** Kontrollen gjelder bare varselet etter punkt 32.2, mot datoen TE mottok pålegget.
+  Rekkefølgen kontrolleres ikke for varslene etter punkt 33.4, 34.1.2 og 34.1.3, fordi ingen
+  vedtak sier at datoen i grunnlagskravet er datoen de pliktene løper fra.
 
-**Anbefaling: A.** Et varsel om et forhold kan ikke være sendt før TE ble klar over det, uansett
-hvilken plikt varselet oppfyller. Er rekkefølgen snudd, er en av TEs egne datoer feil, som i
-tilfellet i #1730. A tar ikke stilling til når pliktene etter punkt 33.4 og 34.1.2 begynner å
-løpe. Det avgjør partene (VS-U26: «appen vurderer ikke rettidigheten»).
+**Anbefaling: A.** Vår tolkning er at et varsel om et forhold ikke kan være sendt før TE ble
+klar over forholdet eller mottok pålegget. Er rekkefølgen snudd, er en av TEs egne datoer
+feil, som i tilfellet i #1730. A tar ikke stilling til når pliktene etter punkt 33.4, 34.1.2
+og 34.1.3 begynner å løpe. **Kostnaden:** har TE varslet under tvil og oppgir den dagen
+forholdet ble sikkert som datoen TE ble klar over det, avviser A en oppgave som kan være
+ment slik. TE må da oppgi den tidligere datoen i grunnlagskravet.
 
-**Valget styrer** hvilke varsler kontrollen gjelder, og om en retting av datoen TE ble klar over
-forholdet kan avvises fordi et varsel alt er sendt.
+**Valget styrer** hvilke varsler kontrollen gjelder.
+
+## Spørsmål 2: når TE endrer datoen i grunnlagskravet til en senere dato
+
+**Bakgrunn.** Etter punkt 10 i MM-U52 kan TE endre opplysningen om datoen pålegget ble
+mottatt eller TE ble klar over forholdet, også til en senere dato, og en senere dato gjelder
+straks. Er et varsel alt sendt eller registrert, kan en senere dato snu rekkefølgen. #1730
+sier under «Forventede resultater» at kontrollen gjelder en slik endring. Det skrev
+orkestratoren, og oppdragsgiver har ikke svart på det.
+
+**Belegg.** VS-U43 punkt 5, punkt 10 i MM-U52, OV-U11. #1611.
+
+**Alternativene.**
+- **A (anbefalt):** En endring av datoen i grunnlagskravet avvises når den nye datoen er
+  senere enn datoen for et varsel som kontrollen etter spørsmål 1 gjelder, og som alt er
+  sendt eller registrert. Meldingen nevner begge datoene. Er varselet registrert som sendt
+  utenfor løsningen, kan TE først rette datoen for varselet etter OV-U11. Er varselet sendt
+  fra løsningen, står datoen for det fast, og TE kan ikke endre datoen i grunnlagskravet til
+  en senere dato enn den. Forhold: snevrer inn punkt 10 i MM-U52.
+- **B:** Endringen godtas som i dag. Kontrollen gjøres bare når et varsel kommer inn, og
+  rekkefølgen kan bli snudd av en senere endring.
+
+**Anbefaling: A.** Et varsel sendt fra løsningen har en dato som ikke kan endres. En endring
+som sier at TE ble klar over forholdet etter den datoen, kan ikke stemme. Med B kan saken få
+den samme motsetningen som #1730 skal hindre.
+
+**Valget styrer** om endringen av datoen etter #1611 kan avvises.
 
 ## Svar
 
