@@ -25,7 +25,7 @@ Grunnen er kostnad: en økt som lever over natta, blir dyrere for hver sjekk
 (se [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#hvorfor-grensene-finnes)).
 
 **Bølger.** Oppdragsgiver kan bestille et spor i bølger, en rekke runder der
-hver orkestrator starter den neste (oppdragsgiver 19.10). Bestillingen sier hva
+hver orkestrator starter den neste. Bestillingen sier hva
 sporet omfatter, med en etikett, en milepæl eller en liste med issues, og hvilke
 spor som går parallelt. Orkestratoren starter neste runde når sin egen er over,
 når timen er gått («Orkestratoren overleverer etter en time»), eller når den
@@ -40,7 +40,7 @@ nærmer seg grensene i «Orkestratorens tid og kontekst». Da gjør den dette:
    arbeider i. Har bølgeissuet en rekkefølge i beskrivelsen, begynner
    overleveringen med trinnet runden står på, og den sier hvorfor et issue
    eventuelt er tatt fra et senere trinn. Rekkefølgen endres bare av
-   oppdragsgiver, og da i beskrivelsen (oppdragsgiver 20.10, #1065).
+   oppdragsgiver, og da i beskrivelsen.
 3. Sletter sjekkene sine.
 4. Starter neste orkestrator med `create_session`, med bare dette repoet i
    `source_url` («Miljø» i `AGENTS.md`). Oppdraget er kort: les
@@ -58,13 +58,13 @@ Reviewøkta legger PR-en fram for oppdragsgiver og merger etter punkt 4 når
 oppdragsgiver har godkjent det. Etter mergen skriver den overleveringen i
 bølgeissuet, som i steg 2 over. Den starter neste byggeøkt når neste runde bare
 har én økt, og ellers en ny orkestrator. Overleveringen sier hvilken økt som eier
-sporet (oppdragsgiver 09.11).
+sporet.
 En økt på dybde 8 får ikke satt påminnelsen med `send_later` («lineage depth 8»,
 #1031). Dybden står i `lineage.depth` når økta kaller `get_session` uten
 `session_id`. Er økta selv på dybde 7 eller dypere, eller avvises
 `create_session`, starter den ikke neste økt selv. Den sier fra til oppdragsgiver at
 neste økt må startes for hånd, og legger ved en kort prompt. Prompten viser til
-`AGENTS.md`, denne skillen og overleveringen, slik steg 4 over sier (oppdragsgiver 09.11).
+`AGENTS.md`, denne skillen og overleveringen, slik steg 4 over sier.
 
 En orkestrator starter ingen ny runde når sporet er tomt, når det som
 gjenstår, venter på oppdragsgiver, eller når oppdragsgiver har sagt stopp.
@@ -74,17 +74,14 @@ ble gitt i, så den nye orkestratoren spør på nytt når den legger fram runden
 To parallelle spor rører aldri samme fil samtidig. En fil begge trenger, går til
 det ene sporet, og det andre venter.
 
-**Størrelse.** Høyst tre PR-er per runde (oppdragsgiver 12.10, #425). En reviewøkt
-som fortsetter samme PR, teller ikke i grensen (oppdragsgiver 14.10, #491).
+**Størrelse.** Høyst tre PR-er per runde. En reviewøkt
+som fortsetter samme PR, teller ikke i grensen.
 Tekniske issues som ikke krever svar fra oppdragsgiver, teller heller ikke i
 grensen. Runden kan ta mange av dem så lenge de lar seg orkestrere etter
 filoverlapp, og de tekniske valgene tas mellom orkestratoren og øktene, ikke av
 oppdragsgiver. Et valg som blir en kontrakt, en regel i domenekjernen eller et
-lagret navn, er ikke teknisk og venter på oppdragsgiver, som under «2. Oppdraget
-til hver økt». Merge krever fortsatt godkjenning fra oppdragsgiver
-(oppdragsgiver 16.10, #600: «tekniske issues som ikke behøver avklaringer for meg kan vi ta mange av,
-så lenge det lar seg orkestrere, og beslutningene går mellom deg og sesjonene
-(og ikke meg)»). Godkjenningen kan gis per PR eller på forhånd for runden
+lagret navn, er ikke teknisk og venter på oppdragsgiver, som under «Spørsmål» i
+arbeidsøkt-skillen. Merge krever fortsatt godkjenning fra oppdragsgiver. Godkjenningen kan gis per PR eller på forhånd for runden
 (punkt 4).
 Grensen settes av hvor mye oppdragsgiver kan gå gjennom, av konflikter ved
 merge og av kostnaden, ikke av antall issues.
@@ -114,7 +111,7 @@ hele den voksende konteksten på nytt, og det koster fort mer enn rettingen.
 **Størrelse per økt.** Orkestratoren anslår diffen ut fra avgrensningen i issuet,
 før økta startes. Ventes mer enn om lag 1200 endrede linjer utenom `docs/`, deles
 arbeidet: én økt per bestemmelse eller delområde, i hver sin runde når den ene
-bygger på den andre (oppdragsgiver 14.10, #484, og 09.11).
+bygger på den andre.
 
 **Subagent eller økt.** Det som blir ferdig i samme tur, gjøres i økta eller av
 en subagent etter skillen [`subagenter`](../subagenter/SKILL.md). Arbeid som gir en PR, får egen
@@ -125,17 +122,16 @@ En liten PR med dokumentasjon eller mekanisk arbeid leveres av en mekanisk
 arbeidsøkt på Haiku («Modell for mekaniske arbeidsøkter»), som lar PR-en stå
 som utkast. Subagenten `diffkontroll` kontrollerer diffen mot bestillingen før
 merge, og `/code-review` kjøres etter leveranseskillen, «Review og funn», før PR-en markeres
-klar (oppdragsgiver 06.11, #1639).
+klar.
 
 **Innsats for orkestratoren.** Orkestratoren skriver ikke kode og kjører på
-innsats `high`, ikke `xhigh` (oppdragsgiver 12.10, #425). En orkestrator som
+innsats `high`, ikke `xhigh`. En orkestrator som
 startes med `create_session`, får `effort: "high"` der. Ellers settes innsatsen i
 appen.
 
 **Modell for mekaniske arbeidsøkter.** En arbeidsøkt med rent mekanisk
 arbeid, som infrastruktur, CI-bilder og ren flytting, kan gå på Haiku med
-innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang
-(oppdragsgiver 12.10, #425 og #439). Modellen og innsatsen velges i
+innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang. Modellen og innsatsen velges i
 `create_session`, med `model` og `effort`.
 
 ## 1. Kartlegg før du fordeler
@@ -155,8 +151,7 @@ innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang
   gjelder filene hver økt likevel endrer. Punktene tas med i bestillingen, med
   issuenummer og punkt, innenfor grensen på om lag 1200 linjer. Byggeøkta legger
   ikke til punkter selv. Punkter i filer runden ikke rører, venter. Regelen
-  gjelder også i FK og F0b før #310 (oppdragsgiver 17.10, merknaden 17.10 til
-  AF-06 i hovedplanen).
+  gjelder også i FK og F0b før #310.
 - Filoverlapp mellom PR-er kontrolleres med
   `git fetch origin <branch> && git diff --name-only origin/main...origin/<branch>`,
   ikke med `get_files` fra GitHub-MCP. Det svaret har patchene med og blir for
@@ -164,22 +159,21 @@ innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang
 - **Spørsmål før bygging.** For oppgaver i `kjerne/` kartlegger en subagent i
   orkestratoren først, og samler domenespørsmålene etter «Spørsmål og vedtak».
   Byggeøkta starter med svarene i oppdraget. Krever en oppgave utenfor kjernen
-  mange spørsmål, kartlegger og spør én økt, og en ny økt bygger med svarene
-  (oppdragsgiver 14.10, #484).
+  mange spørsmål, kartlegger og spør én økt, og en ny økt bygger med svarene.
 - Feil som stopper appen, går foran opprydding.
 
 ### Oppgavetypene
 
 Avgjør oppgavetypen før oppdraget skrives. Den bestemmer skillene og kontrollene, og
 oppdraget sier hvilken det er. Kontrollene står i kilden tabellen viser til, og
-tabellen gjentar dem ikke (oppdragsgiver 27.10, #1338).
+tabellen gjentar dem ikke.
 
 | Oppgavetype | Kjennetegn | Skillene | Kontrollene og reviewet |
 | --- | --- | --- | --- |
 | Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Kan være én økt sammen med oppdragsgiver |
 | Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
 | Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | Leveranseskillen, «Review og funn», og «Review i ny økt» i arbeidsøkt-skillen |
-| Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget leveranseskillen, «Review og funn», gir dem. Viser issuet til en bestilling, også `brukerforlop`, for byggeøkta, ryddeøkta og reviewøkta. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | Leveranseskillen, «Review og funn». Med bestilling kjøres `/design-review` også mot den, etter «Sammenligne en bygget visning» i `brukerforlop`, i den rekkefølgen leveranseskillen gir. Avvikstabellen og skjermbildene side om side, i samme bredde, står i PR-en før den meldes klar. `/design-deslop` endrer ikke det bestillingen fastsetter, med mindre endringen føres som bevisst endring i avvikstabellen. En bevisst endring er ikke godkjent før oppdragsgiver har sagt ja (oppdragsgiver 02.11, #1492) |
+| Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget leveranseskillen, «Review og funn», gir dem. Viser issuet til en bestilling, også `brukerforlop`, for byggeøkta, ryddeøkta og reviewøkta. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | Leveranseskillen, «Review og funn». Med bestilling kjøres `/design-review` også mot den, etter «Sammenligne en bygget visning» i `brukerforlop`, i den rekkefølgen leveranseskillen gir. Avvikstabellen og skjermbildene side om side, i samme bredde, står i PR-en før den meldes klar. `/design-deslop` endrer ikke det bestillingen fastsetter, med mindre endringen føres som bevisst endring i avvikstabellen. En bevisst endring er ikke godkjent før oppdragsgiver har sagt ja |
 | Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | En mekanisk arbeidsøkt på Haiku, med `github` | `diffkontroll` mot bestillingen før merge, leveranseskillen, «Review og funn», og «Subagent eller økt» |
 | Review i ny økt | Fortsetter en PR fra en byggeøkt | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | Leveranseskillen, «Review og funn» |
 
@@ -206,13 +200,12 @@ Oppdraget skal inneholde:
   kartleggingen er utgangspunkt, ikke krav. Peker issuet på en bestilling, er bestillingen
   fasit, og en skisse utenfor prototypene i `docs/design/prototyper/` gjelder bare der
   bestillingen ikke endrer noe. For bygging i Varden
-  er prototypene i `docs/design/prototyper/` og issuene fasit sammen (oppdragsgiver 02.11,
-  #1450). Motstrid mellom dem avklares med oppdragsgiver før byggeøkta starter, og oppdraget
+  er prototypene i `docs/design/prototyper/` og issuene fasit sammen. Motstrid mellom dem avklares med oppdragsgiver før byggeøkta starter, og oppdraget
   viser ikke til den gamle visningen som utgangspunkt. Bestillingen fra designsløyfa er
   fortsatt fasit der den finnes. Økta leser kildene selv og skriver akseptkriteriene ut fra dem, etter
   leveranseskillen. Avviker oppdraget fra en kilde, gjelder kilden, og økta skriver avviket
   i PR-en. En begrensning på lesingen, som «Les ikke historikken», gjelder aldri kildene
-  som er fasit (oppdragsgiver 02.11, #1492);
+  som er fasit;
 - for kjerne-oppgaver: svarene på domenespørsmålene fra kartleggingen (punkt 1);
 - om ingen følger øktene, når oppdragsgiver har sagt det;
 - om økta er den eneste PR-en i runden som rører hovedplanen;
@@ -282,7 +275,7 @@ gjelder bare den runden. Vilkårene er:
 
 Godkjenningen gjelder ikke en PR som rører `kjerne/`, fører et vedtak i
 vedtaksregisteret eller endrer `AGENTS.md` eller en skill. Den venter på
-oppdragsgiver som før (oppdragsgiver 17.10). Avslutningen (punkt 5) sier hvilke
+oppdragsgiver som før. Avslutningen (punkt 5) sier hvilke
 PR-er som er merget på forhånd.
 
 Bruk `expectedHeadSha`, slik at en push som kom etter gjennomgangen, stopper
@@ -304,8 +297,7 @@ hverandres oppførsel. Bruk den nye committen som `expectedHeadSha`.
 
 Feilinnføringene trenger ikke kjøres på nytt etter oppdateringen når de var
 grønne på PR-ens forrige commit, og ingen PR som er merget siden, har rørt
-`kjerne/`, `sprakprove/kjernelagring/` eller verktøyet for feilinnføringene
-(oppdragsgiver 12.10, FK runde 9). De prøver om testene i kjernen fanger feil,
+`kjerne/`, `sprakprove/kjernelagring/` eller verktøyet for feilinnføringene. De prøver om testene i kjernen fanger feil,
 og det kan bare slike endringer flytte. Den vanlige CI-en kjøres fortsatt, og
 nattjobben kjører hele settet på `main` når kjernen er endret. Kontroller
 filene med `git diff --name-only` mellom de to basene, og skriv det i
@@ -364,15 +356,14 @@ Hvorfor grensene finnes, og grensene for arbeidsøktene, står i
 [arbeidsøkt-skillen](../arbeidsokt/SKILL.md). For orkestratoren gjelder dette:
 
 - **Runden avgrenses til om lag én time** med aktivt arbeid. Etter mer enn en time
-  uten aktivitet avsluttes runden heller enn å vekkes (oppdragsgiver 12.10, #425).
+  uten aktivitet avsluttes runden heller enn å vekkes.
 - **Orkestratoren overleverer etter en time.** Når orkestratoren starter, setter
   den en påminnelse med `send_later` om 55 minutter, og den kommer i tillegg
   til sjekkene. Når påminnelsen kommer, er runden over. Orkestratoren gjør
   overgangen i «Bølger», steg 1–5, også med PR-er som er åpne. Hver av dem går
   videre med økta som eier den, og neste orkestrator overtar sjekkene. I et spor
   som ikke går i bølger, skriver orkestratoren overleveringen og stopper. Den
-  utsetter ikke overleveringen for å vente på CI, et review eller oppdragsgiver
-  (oppdragsgiver 20.10).
+  utsetter ikke overleveringen for å vente på CI, et review eller oppdragsgiver.
 - **Følg med i hver sjekk.** Orkestratoren leser brukt kontekst
   (`external_metadata.context_usage.used_tokens`) og kostnad
   (`external_metadata.usage.cost_usd`) for hver økt med `get_session` i hver
@@ -381,8 +372,7 @@ Hvorfor grensene finnes, og grensene for arbeidsøktene, står i
   mangler `usage`, har økta ikke fullført sin første tur. Ellers er verdien fra
   siste avsluttede tur, og den kan ligge en hel tur bak. Orkestratoren leser da
   tallet økta skriver i PR-en eller i issuet, fordi `list_events` heller ikke
-  viser noe før turen er ferdig. `usage.cost_usd` kan mangle i svaret. (oppdragsgiver
-  18.10, #731)
+  viser noe før turen er ferdig. `usage.cost_usd` kan mangle i svaret.
 - **Passerer en økt grensen sin uten å stoppe, eller blir den komprimert,**
   sender orkestratoren én samlet sjekkliste over det som gjenstår, med kildene
   som skal leses på nytt. Orkestratoren ser ikke pauser, så den regner grensen
@@ -391,12 +381,12 @@ Hvorfor grensene finnes, og grensene for arbeidsøktene, står i
   ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Er
   økta fortsatt over grensen ved neste sjekk, avbryter orkestratoren den med
   `interrupt_session` og sender ingen ny melding. Hver melding leser hele den
-  store konteksten på nytt (oppdragsgiver 20.10). Den nye økta
+  store konteksten på nytt. Den nye økta
   får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene,
   og arbeider under de samme grensene. Passerer orkestratoren selv om lag
   300 000 tokens,
   avsluttes runden når PR-ene som er nær merge, er merget. Resten går til neste
-  runde (oppdragsgiver 12.10, #425).
+  runde.
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i vedtaksregisteret
   og arbeidsvalg i issuet. Meldingen viser dit.
 - **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av

@@ -131,7 +131,7 @@ Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Va
 
 `prototype.mjs` er den mekaniske forprøven av en HTML-skisse av et nytt mønster i
 `docs/design/prototyper/` (steg 6 i skillen [brukerforlop](../brukerforlop/SKILL.md), #1347).
-Et helt forløp forprøves i demoruta med `demoruta.mjs` (oppdragsgiver 28.10, #1331). Demoruta
+Et helt forløp forprøves i demoruta med `demoruta.mjs`. Demoruta
 driver i dag BF-01 og BF-04, så andre forløp må bygges der før de kan forprøves. Den åpner prototypen med
 `file://`, uten vite, og følger klikkstiene under `prototype` i forløpsfila. Formatet står i
 [README for brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md#formatet).
@@ -147,13 +147,13 @@ stegtabellen i bestillingen finnes og er dekket av en klikksti som når ankrene 
 med ID-ene i bestillingen begge veier. axe (WCAG 2.1 A og AA) kjøres i hver tilstand stiene
 når, og konsollfeilene samles. Forespørsler til nettet blokkeres, så nettfontene mangler på
 skjermbildene. Det tas ett skjermbilde per tilstand, ett med «Vis sporbarhet» og ett per
-tilstand på 390 px. Bredden rapporteres, men stopper ikke (oppdragsgiver 27.10). Ellers gir
+tilstand på 390 px. Bredden rapporteres, men stopper ikke. Ellers gir
 et avvik exit 1. Rapporten skrives til standard ut og er kort nok til å legges i en PR.
 
 ## Skjermbildene i PR-en
 
 Skjermbildene ligger på grenen `skjermbilder`, som ikke har felles historikk med `main`
-og aldri merges, med én mappe per PR (`pr-<nummer>/`) (oppdragsgiver 23.10, #1222).
+og aldri merges, med én mappe per PR (`pr-<nummer>/`).
 PR-en lenker dem derfra. En skyøkt kan ikke laste opp bilder til GitHub gjennom API-et.
 
 ```bash

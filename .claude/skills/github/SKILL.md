@@ -30,7 +30,7 @@ Etikettene er av fem typer:
 
 `design` gjelder funn fra designreview av det som er bygget. `bestilling` gjelder et
 brukerforløp i designsløyfa, før byggingen ([brukerforlop](../brukerforlop/SKILL.md)),
-og forteller orkestratoren oppgavetypen (oppdragsgiver 27.10).
+og forteller orkestratoren oppgavetypen.
 
 `feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`AGENTS.md`,
 «Miljø», og arbeidsøkt-skillen, «I en orkestrert økt»).
@@ -41,7 +41,7 @@ milepæl eller en sporetikett. Runder settes sammen etter hvilke filer øktene r
 og lagetiketten er det første utvalget. Avgjør laget ut fra mappene arbeidet rører, ikke
 ut fra ordet «TS»: etter byttet i #310 er hele appen TS.
 
-Heller ikke disse får en lagetikett (oppdragsgiver 26.10):
+Heller ikke disse får en lagetikett:
 
 - Et issue som bare rører verktøy: driverne for feilinnføringene, testmalen,
   `docs/verktoy/`, hooks og CI. Lagene gjelder produktkoden, og verktøyarbeidet

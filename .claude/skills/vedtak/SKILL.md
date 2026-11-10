@@ -13,10 +13,9 @@ oppdragsgiver.
 - **Hva et vedtak er.** Et vedtak sier hva som binder partene, hvilken virkning en handling
   har, hvordan NS 8407 tolkes, og hva løsningen teller eller regner. Hvordan skjemaet,
   visningen og arbeidsflyten er bygget opp, står i brukerforløpet og endres av brukerprøven
-  uten nytt vedtak (oppdragsgiver 03.11, #1534). «Hva løsningen teller eller regner» leses
+  uten nytt vedtak. «Hva løsningen teller eller regner» leses
   som det som regnes med etter kontrakten. Hva oversiktene summerer, er beslutning eller
-  design. Klassen avgjøres av testen under, i denne rekkefølgen (oppdragsgiver 04.11,
-  #1534):
+  design. Klassen avgjøres av testen under, i denne rekkefølgen:
   1. Har raden en setning om hva som binder partene, hvilken virkning en handling har,
      hvordan kontrakten tolkes (NS 8407 og kontraktsgrunnlaget), hva som regnes med etter
      kontrakten (frist, beløp, enighet, «i tide»), eller hvem som har tilgang, og står
@@ -34,9 +33,9 @@ oppdragsgiver.
 - **Hvem som retter klassen.** Klassen er en arbeidsvurdering. Orkestratoren kan rette den,
   men bare etter at en subagent eller en egen økt har kontrollert rettingen uavhengig,
   etter testen over. Rettingen føres i issuet med resultatet av kontrollen. Det samme
-  gjelder klassen for en ny post (oppdragsgiver 04.11, svar 8 i #1534).
+  gjelder klassen for en ny post.
 - **Vedtak ved behov.** Nye domenevedtak stilles bare når et issue i den
-  kritiske stien trenger dem (oppdragsgiver 20.10, [spørsmål 4](../../../docs/vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md)).
+  kritiske stien trenger dem.
   Den kritiske stien er milepælen «Første ekte sak». Unntakene er samlevedtakene: for alle
   temaene i steg 4 i #1534 (svar 21 B i [PR #1537](https://github.com/khjohns/endringsmeldinger/pull/1537)),
   og for et vedtak som har fått sin tredje endring etter at temaet er samlet (svar 6 og 10 i
@@ -63,7 +62,7 @@ oppdragsgiver.
   juridisk. Spørsmål som berører rettsregler (NS 8407, kontraktens bestemmelser,
   preklusjon, varsling og lignende) stilles aldri med spørsmålsverktøyet
   (`AskUserQuestion`): «Ønsker fremover at alle domenespørsmål som berører
-  rettsregler ikke bruker spørsmålsverktøyet» (oppdragsgiver 23.10). De legges
+  rettsregler ikke bruker spørsmålsverktøyet». De legges
   fram som en nummerert liste i tekst, med bakgrunn, belegg i kontraktsteksten
   eller vedtaket, alternativene i vedtaksform, anbefalt svar og hva valget styrer,
   så oppdragsgiver kan svare «ja» eller rette enkeltpunkter. Still de juridiske i
@@ -105,7 +104,7 @@ oppdragsgiver.
   likevel: appen tolker ikke fritekst (KA-U16), appen avgjør ikke det kontrakten
   overlater til partene (MM-U12, opphevet av MM-U50), og en forenkling forklares med hva den koster
   den andre parten. Ren ordlyd og samsvar mellom vedtak trenger ikke denne
-  prøvingen (oppdragsgiver 25.10, #1282).
+  prøvingen.
 - **Skriv alternativene i vedtaksform.** Det valgte alternativet blir
   vedtaksteksten ordrett, og et alternativ oppdragsgiver forkaster, blir
   «Forkastet» ordrett ([vedtaksregisteret](../../../docs/vedtaksregister/README.md)).
@@ -173,7 +172,7 @@ skriver ikke der.
   `samler` til vedtakene det samler. Formen, med kilden for hver setning og lista «Endret
   innhold», står i svar 7 A i #1534 ([6623423185](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623423185)).
   Løser samlevedtaket en motsigelse og endrer innholdet, opphever det i stedet (svar 4 A, [6623211248](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)).
-  Kartleggingen av et samlevedtak holdes liten (oppdragsgiver 05.11, #1065). Vurderingsfila
+  Kartleggingen av et samlevedtak holdes liten. Vurderingsfila
   har høyst om lag 150 linjer for en ny versjon av et samlevedtak og om lag 250 for en ny
   kjede, og den viser til punktene uten å gjengi dem. Alternativene prøves én gang mot
   vedtakene, og funnene rettes én gang. Kartleggingsøkta sender spørsmålene før om lag
@@ -191,7 +190,7 @@ skriver ikke der.
   byggeøkta at koden for den gamle regelen fjernes, slik
   [leveranseskillen](../leveranse/SKILL.md#under-implementering) sier.
 - Byggestatus føres ikke i `folge`. Den lages av `docs/verktoy/byggestatus.py`
-  av koden og issuene (oppdragsgiver 20.10, #1021), og vakttesten melder ny
+  av koden og issuene, og vakttesten melder ny
   byggestatus i Følge. `folge` kan nevne issuet som bygger vedtaket, «Bygges i
   #n», og visningen leser tilstanden derfra.
 - Merknaden om at et punkt i en arbeidspakke er levert, skriver orkestratoren i

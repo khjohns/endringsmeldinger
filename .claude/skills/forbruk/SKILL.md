@@ -5,8 +5,7 @@ description: Den ukentlige gjennomgangen av tokenforbruket i skyøktene i endrin
 
 # Gjennomgang av tokenforbruket
 
-Rutinen «Ukentlig tokenforbruk» kjører denne skillen torsdag morgen
-(oppdragsgiver 17.10). Den finner hva som drev kostnaden siste uke og foreslår
+Rutinen «Ukentlig tokenforbruk» kjører denne skillen torsdag morgen. Den finner hva som drev kostnaden siste uke og foreslår
 tiltak. Den endrer ingen regler, skills eller kode, og åpner ingen PR. Forslagene
 er spørsmål til oppdragsgiver.
 

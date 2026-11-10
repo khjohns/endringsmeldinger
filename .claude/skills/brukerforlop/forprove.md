@@ -5,7 +5,7 @@ kjøres. Fyll ut plassholderne for hvert forløp:
 
 - `BF-xx`: forløpets ID, og `docs/domenetabell/brukerforlop/BF-xx.md` er bestillingen.
 - `<prototypefil>`: fila i `docs/design/prototyper/`, bare for en HTML-skisse av et nytt mønster.
-  Et helt forløp prøves i demoruta med komponentene (oppdragsgiver 28.10, #1331).
+  Et helt forløp prøves i demoruta med komponentene.
 - `G-x`: kontrollpunktene i bestillingen.
 
 Den mekaniske kontrollen kjøres først. Den kognitive gjennomgangen kjøres når den er grønn,

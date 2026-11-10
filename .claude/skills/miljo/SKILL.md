@@ -142,8 +142,7 @@ jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 `feilinnfoering`.
 
-En skyøkt kjører ikke hele samlingen for kjernen lokalt som del av leveransen
-(oppdragsgiver 28.10): kjøringen tar lang tid, og økta mister kontekstcachen. Full
+En skyøkt kjører ikke hele samlingen for kjernen lokalt som del av leveransen: kjøringen tar lang tid, og økta mister kontekstcachen. Full
 lokal kjøring brukes bare til å feilsøke en rød jobb i CI. `--ankre` kjøres fortsatt
 lokalt. For serveren kjøres i stedet de ID-ene som gjelder endringen, mot en kopi av
 arbeidstreet: `python3 server/tester/feilinnfoering.py /tmp/kopi S39 S40`.

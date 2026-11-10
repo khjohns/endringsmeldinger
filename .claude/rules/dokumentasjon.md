@@ -31,7 +31,7 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
   funnstatusen. ADR-er og designnotater kan begrunne valg, men oppretter ikke et
   konkurrerende beslutningsregister. En flytting av autoriteten må være
   uttrykkelig, med lenker og markering av hva som er erstattet.
-- **Vedtaksfila er autoritativ for vedtakene** (#1020, oppdragsgiver 20.10):
+- **Vedtaksfila er autoritativ for vedtakene** (#1020):
   et vedtak er det som står i
   [`docs/plans/vedtak.md`](../../docs/plans/vedtak.md) på `main`. Fila var
   avsnitt 3.1 i hovedplanen, og en henvisning til «3.1» gjelder den. Den lages av

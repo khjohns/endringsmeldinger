@@ -32,7 +32,7 @@ vedtak og rettelser kan gå tapt.
   stopper. Den vekkes ikke
   igjen: en ny, liten økt tar over fra PR-en, vedtakene og issuet. Still derfor
   spørsmålene tidlig, og send svarene samlet så snart de foreligger, helst innen
-  en time (oppdragsgiver 12.10, #425).
+  en time.
 - **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
   review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
   finnes. Brukt kontekst måler økta med transkriptet, ikke med `get_session`:
@@ -44,9 +44,8 @@ vedtak og rettelser kan gå tapt.
   gjelder ikke når økta har pågått under en time: da fortsetter den forbi 150 000
   til oppgaven er ferdig, begynner å forberede overleveringen ved om lag 400 000
   tokens og stopper ved om lag 500 000 tokens. Grensen forutsetter at økta blir
-  ferdig innen timen, mens hurtigbufferen er varm (oppdragsgiver 09.11). Etter en
-  time, eller etter en pause over en time, gjelder 150 000 som før (oppdragsgiver
-  18.10, #777). En økt som har passert 150 000 når
+  ferdig innen timen, mens hurtigbufferen er varm. Etter en
+  time, eller etter en pause over en time, gjelder 150 000 som før. En økt som har passert 150 000 når
   timen er gått, tar ikke nye steg, men kan pushe og skrive tilstanden, slik
   «Arbeid i timer» sier. Økta setter en påminnelse med `send_later` om 45
   minutter når den starter, og skriver `trigger_id` i tilstanden i PR-en (eller i
@@ -58,18 +57,18 @@ vedtak og rettelser kan gå tapt.
   skriver tilstanden i PR-en. Ellers stopper den, slik at en ny økt overtar fra
   PR-en. Stopper økta, av hvilken grunn som helst (ferdig, stoppgrensen eller
   venting på oppdragsgiver), sletter den påminnelsen med `delete_trigger`, så
-  den ikke vekker en økt som har stoppet (oppdragsgiver 18.10, #777).
+  den ikke vekker en økt som har stoppet.
   Avvises `send_later` (i byggeøkter med «lineage depth 8», #1031), skriver økta i
   PR-en at påminnelsen ble avvist. Økta holder da selv øye med tiden og brukt
   kontekst etter de samme grensene. Orkestratorens sjekk med `get_session` er
   sikkerhetsnettet.
   Tilstanden skal gjøre det mulig å lese seg inn på nytt: vedtakene i
   hovedplanen, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
-  gjenstår (oppdragsgiver 14.10, #484).
+  gjenstår.
 - **Vekket etter over en time.** En økt som vekkes etter over en time uten
   aktivitet, kan være komprimert av Claude Code (`idleCompaction`, standardverdien
   beholdes), og behandles da som komprimert: den leser vedtakene, issuet og
-  PR-beskrivelsen på nytt før den fortsetter (oppdragsgiver 18.10, #779).
+  PR-beskrivelsen på nytt før den fortsetter.
 - **Subagenter har egne grenser**, i kall og tokens: se
   skillen [`subagenter`](../subagenter/SKILL.md).
 - **Små verktøysvar.** Les smalt og tell før du leser: se «Utdata» i
@@ -80,14 +79,13 @@ vedtak og rettelser kan gå tapt.
   lag 400 000 tokens og innenfor timen, kjører den `/code-review` og rettingene
   selv, og en ny reviewøkt trengs ikke. Den samme økta kan ikke kjøre
   `/design-review` eller reviewet av samspillet mellom reglene, som krever ny
-  kontekst (oppdragsgiver 09.11). En ny, liten økt tar
+  kontekst. En ny, liten økt tar
   reviewet og rettingene fra PR-en etter leveranseskillen, «Review og funn», og markerer PR-en klar når
   reviewet er gjort og de lokale sjekkene er grønne. Den får en avgrenset
   bestilling: PR-nummeret, reviewbestillingen og tilstanden i PR-en, ikke hele
   historikken. Den fortsetter samme PR, så den teller ikke i grensen på tre PR-er
   per runde. For økter som ikke er orkestrert, gjelder dette bare når diffen
-  rører `kjerne/` eller er over om lag 800 endrede linjer utenom `docs/`
-  (oppdragsgiver 14.10, #484, #490 og #491).
+  rører `kjerne/` eller er over om lag 800 endrede linjer utenom `docs/`.
 
 ## I en orkestrert økt
 
@@ -113,7 +111,7 @@ uten at oppdraget gjentar det:
   rettingen er noen få linjer i en fil den allerede endrer. Alt annet venter til neste
   runde, også funn i andre øktes filer og funn som krever en avgjørelse.
 - **Store lesinger**, som kartlegging over mange filer og CI-logger, gjøres av
-  subagenter, så øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425).
+  subagenter, så øktas egen kontekst holder seg liten.
   Små oppslag og subagentene følger skillen [`subagenter`](../subagenter/SKILL.md).
 - **Review.** Byggeøkta kjører ikke `/code-review`. Reviewet og rettingene gjøres i
   en ny økt, unntatt for en liten diff etter «Review i ny økt». Reviewet følger

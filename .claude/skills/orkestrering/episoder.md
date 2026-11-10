@@ -17,13 +17,13 @@ gjaldt arkitekturtesten.
 ## «Orkestratoren overleverer etter en time»
 
 I runde 13 ventet begge orkestratorene i 3 og 6,7 timer med sjekker, og hver
-sjekk leste hele konteksten på nytt (oppdragsgiver 20.10).
+sjekk leste hele konteksten på nytt.
 
 ## «Passerer en økt grensen sin uten å stoppe»
 
 Hver melding leser hele den store konteksten på nytt. Reviewøkta for #978 i runde 13 vokste slik til
 321 000 tokens og kostet mer enn de andre øktene i det tekniske sporet til
-sammen (oppdragsgiver 20.10).
+sammen.
 
 ## «3. Gjennomgang»: kontrollen av sikkerhetsinvariantene
 

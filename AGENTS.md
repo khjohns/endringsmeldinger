@@ -27,7 +27,7 @@ visningen eller registreringen. I brukerrettet tekst foretrekkes konkrete beskri
 av handlingen. Partenes brev omtaler normalt partene, handlingene og dokumentene, ikke
 programvaren. Ikke endre sitater, lagrede navn eller vedtatt brevtekst som en ren
 språkretting. Begrunnelsen og eksemplene står i
-[språkfila](docs/sprak.md#hva-løsningen-kalles) (oppdragsgiver 25.10).
+[språkfila](docs/sprak.md#hva-løsningen-kalles).
 
 Egne funksjoner, klasser, variabler og regel- og feilkoder har norske navn:
 `hent_saker`, ikke `fetch_cases`; `SAK_AVSLUTTET`, ikke `CASE_CLOSED`. Engelsk
@@ -130,7 +130,7 @@ Skyøkta har en testbase for SQL Server
 **En skyøkt startes med bare dette repoet som kilde.** En økt med flere repoer
 starter over klonene og leser ikke hookene i `.claude/settings.json`, så verken
 oppstartshooken eller vaktene kjører (#1319). Trengs `khjohns/kontrakt`, legges det til
-underveis med `add_repo` (oppdragsgiver 26.10).
+underveis med `add_repo`.
 Oppstartshooken starter SQL Server-testbasen i bakgrunnen. Katalogen i den er kilden for TS-stien
 ([`database.md`](.claude/rules/database.md)), og `docs/verktoy/katalog.py` leser
 den.
@@ -265,7 +265,7 @@ bevis-sak viser til raden og en PR viser til issuet og vedtaket. Ingen av dem
 skriver vedtaket om med egne ord. En vedtaks-ID i `kjerne/`, `server/` og `src/`, og
 i kildene i bevis-sakene og brukerforløpene, må finnes i vedtaksregisteret. Et opphevet
 vedtak kan bare stå sammen med posten som opphever det, eller i en test merket med
-«historisk» (`docs/verktoy/vedtakshenvisninger.py`, #452; oppdragsgiver 05.11, #1606).
+«historisk» (`docs/verktoy/vedtakshenvisninger.py`, #452).
 
 | Hva | Hvor |
 | --- | --- |
@@ -354,12 +354,10 @@ Endrer diffen visningen, står PR-en som utkast til oppdragsgiver har sett skjer
 
 **Reglene for tid, kontekst og tilstand i
 [arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md)
-gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert
-(oppdragsgiver 12.10, #425).
+gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert.
 
 **Før en subagent startes, følg [skillen `subagenter`](.claude/skills/subagenter/SKILL.md)**,
-i alle økter. Den sier når en subagent sparer mer enn den koster, og hvordan den bestilles
-(oppdragsgiver 06.11).
+i alle økter. Den sier når en subagent sparer mer enn den koster, og hvordan den bestilles.
 
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med alternativer og

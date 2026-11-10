@@ -28,8 +28,7 @@ planen for leveringen, og at et sitat fra et vedtak var halvt.
 I vurderingen av vedtakene 25.10 (#1282) godkjente prøvingen mot vedtaksfila en
 sendesperre som gjorde det lønnsomt å svare nei. Forløpene fant blindveiene, og
 rettingene som bare skulle gi samsvar, la til nye: en ny adgang til å svekke et
-svar, et trekk av et avtalt krav og et fritt tilbakekall av et bindende forslag
-(oppdragsgiver 25.10).
+svar, et trekk av et avtalt krav og et fritt tilbakekall av et bindende forslag.
 
 ## «Ett spørsmål, én beslutning»
 
