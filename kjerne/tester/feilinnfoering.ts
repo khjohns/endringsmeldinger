@@ -4308,6 +4308,10 @@ const MUTASJONER: Mutasjon[] = [
         '    else if (!p.saerskilt && ((p.lag ?? 1) > 1 || p.godkjent === undefined))',
         '    else if (!p.saerskilt && (p.lag ?? 1) > 1)',
       ],
+      [
+        '    else beloepet += beloep(p.godkjent)!;',
+        '    else beloepet += beloep(p.godkjent) ?? 0n;',
+      ],
     ],
     mal: ['svaret på to kravposter med fast sum navngir kravposten'],
   },
@@ -4333,7 +4337,7 @@ const MUTASJONER: Mutasjon[] = [
       'leddene i samme lag står ikke under én etikett når standpunktene ikke står i lagenes rekkefølge (OV-U32)',
     fil: `${K}/frosset/tekst.ts`,
     endringer: [['.sort((a, b) => a.k - b.k)', '.sort(() => 0)']],
-    mal: ['tilbudet ikke akseptert og § 34.1.3 påberopt'],
+    mal: ['standpunktene ordnes slik brevet ordner dem'],
   },
   {
     id: 'F510',
