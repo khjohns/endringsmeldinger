@@ -136,4 +136,7 @@ bygges etter prototype v3 i en egen runde.
 
 ## Svarene
 
-(føres her)
+Oppdragsgiver 10.11, ordrett: «kan du illustrere flyten for spørsmål 1 og 2 og de ulike
+alternativene? 3A, 4A»
+
+Spørsmål 3: A. Spørsmål 4: A. Spørsmål 1 og 2 er ikke besvart ennå.
