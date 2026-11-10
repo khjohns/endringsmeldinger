@@ -94,15 +94,12 @@ export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
 export const harHovedbeloep = (krav: Krav): boolean => kravposterI(krav).length > 0;
 
 /**
- * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis:
- * kravpostene har fast sum, og kravet har ikke rigg og drift. Svaret på en kravpost etter en
- * beregningsregel og på rigg og drift er ikke bygget (2b i #1663).
+ * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis.
+ * Svaret på rigg og drift er ikke bygget; posten går i en egen bestilling (arbeidsvalg 5 i
+ * spørsmålsfila 10.11 for #1663).
  */
 export function hindrerSvarPaaKravet(krav: Krav): string | null {
-  const regel = kravposterI(krav).find((p) => p.oppgjoersform !== 'tilbud');
-  if (regel) return `Kravposten ${regel.betegnelse} følger en beregningsregel`;
-  if (krevdRigg(krav) !== null) return 'Kravet har rigg og drift i forlenget byggetid';
-  return null;
+  return krevdRigg(krav) !== null ? 'Kravet har rigg og drift i forlenget byggetid' : null;
 }
 
 /** Det krevde beløpet i en kravpost med fast sum, i øre, eller `null` etter en beregningsregel. */

@@ -24,6 +24,12 @@ interface Postbeloep {
 export interface Kravpostsvar extends Postbeloep {
   gjelder: string;
   aksepterer?: boolean | null;
+  /**
+   * Kravposten følger en beregningsregel, og svaret tar ikke stilling til et beløp (OV-U95
+   * punkt 5). `varselForSent` er innsigelsen etter § 34.3.3 første ledd (VS-U4, VS-U56), og
+   * `justering` standpunktet etter § 34.3.2, `null` uten standpunkt (KA-U68).
+   */
+  beregningsregel?: { varselForSent: boolean; justering: boolean | null };
 }
 
 /** Posten etter § 34.1.3 annet ledd, med påberopelsen etter § 34.1.3 og beløpet etter begrensningen (VS-U5, OV-U22). */
@@ -135,13 +141,38 @@ export function erKravlinjeGyldig(
 /** Byggherren aksepterer ikke tilbudet for kravposten (§ 34.2.2, KA-U57 (d)). */
 const ikkeAkseptert = (p: Postsvar): boolean => 'gjelder' in p && p.aksepterer === false;
 
+const regelen = (p: Postsvar) => ('gjelder' in p ? p.beregningsregel : undefined);
+
 /**
- * Lagene i sporet: § 34.1.2 først, så begrensningen etter § 34.1.3 (KA-U64). Gir antallet lag
- * og det første laget etter § 34.1.2. Oppgjørsformen gir ikke et eget lag (KA-U72).
+ * Lagene en kravpost etter en beregningsregel opptar etter § 34.1.2, utover det første
+ * (arbeidsvalg 1 punkt 4 i spørsmålsfila 09.11 for #1663): standpunktet til beregningsregelen
+ * uten aksept og innsigelsen etter § 34.3.3 åpner hvert sitt lag for standpunktene etter dem
+ * (VS-U4, VS-U56). Varselet etter § 34.4 åpner ikke et lag (KA-U64).
  */
-function lagene(p: Preklusjon): { foerste: number; antall: number } {
+export function lagForBeregningsregelen(
+  aksepterer: boolean,
+  varselForSent: boolean,
+  justering: boolean
+): number {
+  const standpunkter = Number(!aksepterer) + Number(varselForSent) + Number(justering);
+  return Math.max(0, standpunkter - 1);
+}
+
+/**
+ * Lagene i sporet: § 34.1.2 først, så begrensningen etter § 34.1.3 (KA-U64) og standpunktene
+ * for en kravpost etter en beregningsregel, som bare rammer posten de gjelder (arbeidsvalg 1).
+ * Gir antallet lag og det første laget etter § 34.1.2. Et tilbud som ikke er akseptert, gir ikke
+ * et eget lag (KA-U72).
+ */
+function lagene(p: Preklusjon, svar: Vederlagssvar): { foerste: number; antall: number } {
   const foerste = p.hovedkrav ? 2 : 1;
-  return { foerste, antall: foerste + Number(p.produktivitet) };
+  const regler = svar.poster.map((post) => {
+    const r = regelen(post);
+    return r
+      ? lagForBeregningsregelen(!ikkeAkseptert(post), r.varselForSent, r.justering !== null)
+      : 0;
+  });
+  return { foerste, antall: foerste + Math.max(Number(p.produktivitet), ...regler) };
 }
 
 /**
@@ -154,12 +185,13 @@ function lagene(p: Preklusjon): { foerste: number; antall: number } {
  * Rigg og drift har ingen særskilt varslingsplikt (OV-U25, OV-U35).
  */
 function postresultater(svar: Vederlagssvar, p: Preklusjon): Postresultat[] {
-  const { foerste, antall } = lagene(p);
+  const { foerste, antall } = lagene(p, svar);
   return svar.poster.map((post) => {
     const krevd = beloep(post.krevd)!;
-    const godkjent = ikkeAkseptert(post)
-      ? null
-      : beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
+    const godkjent =
+      ikkeAkseptert(post) || regelen(post)
+        ? null
+        : beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
     const iFoerste =
       erProduktivitet(post) && p.produktivitet
         ? (beloep(post.begrenset_beloep) ?? NULL_OERE)
@@ -216,6 +248,13 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
   const kontrollerBeloepet = (navn: string, p: Postsvar) => {
     const { vurdering: vurd, godkjent_beloep: godkjent, krevd } = p;
     const felt = `${navn}.godkjent_beloep`;
+    if (regelen(p)) {
+      const grunn =
+        'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den (OV-U95 punkt 5)';
+      if (vurd !== null && vurd !== undefined) feil[`${navn}.vurdering`] = grunn;
+      if (godkjent !== null && godkjent !== undefined) feil[felt] = grunn;
+      return;
+    }
     if (ikkeAkseptert(p)) {
       const ikkeAkseptertMen = 'byggherren aksepterer ikke tilbudet, men tar stilling til beløpet';
       if (vurd !== null && vurd !== undefined)
@@ -307,8 +346,14 @@ export function beregnVederlag(svar: Vederlagssvar, regler: Varslingsplikt): Ved
   const iLaget = (i: number) => alle.map((r) => r.lag.at(i)!.beloep);
   const [foerste, siste] = [iLaget(0), iLaget(-1)];
   const totalGodkjent = sum(foerste.map((b) => b ?? NULL_OERE));
-  const metodeendring = svar.poster.some(ikkeAkseptert);
-  const visSubsidiaert = lagene(p).antall > 1;
+  // HF-U5: ikke «godkjent» når byggherren ikke aksepterer oppgjørsformen, bestrider justeringen
+  // eller gjør gjeldende at varselet etter § 34.3.3 kom for sent (arbeidsvalg 2 og 3 i
+  // spørsmålsfilene 09.11 og 10.11 for #1663).
+  const metodeendring = svar.poster.some((post) => {
+    const r = regelen(post);
+    return ikkeAkseptert(post) || (r !== undefined && (r.varselForSent || r.justering === false));
+  });
+  const visSubsidiaert = lagene(p, svar).antall > 1;
   const uten = sum(siste.map((b) => b ?? NULL_OERE));
   return {
     beregnings_resultat: resultatAvBeloep(

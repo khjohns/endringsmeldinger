@@ -26,10 +26,10 @@ export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
 
 /**
- * Hjemlene byggherren kan påberope i et standpunkt om rettidighet. Varslene etter § 34.3.3 og
- * § 34.4 er ikke med: byggherrens svar på dem bygges i økt 2 i #1663 (G-9 i BF-14).
+ * Hjemlene byggherren kan påberope i et standpunkt om rettidighet. Etter § 34.3.3 og § 34.4
+ * gjelder standpunktet en kravpost (KA-U64, VS-U56).
  */
-export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3';
+export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3' | Kravpostvarselhjemmel;
 
 /**
  * TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2
@@ -140,18 +140,29 @@ export type Standpunkt =
       saerskilt?: 'produktivitet';
     }
   /**
-   * § 34.2.2: om byggherren aksepterer TEs tilbud for kravposten `gjelder` (KA-U57 (d)). Uten
-   * aksept oppgir byggherren oppgjørsformen byggherren mener (`oensket`); appen avgjør ikke om
-   * § 34.3 eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12, MM-U50).
+   * Standpunktet til TEs oppgjørsform for kravposten `gjelder` (KA-U57 (d), KA-U54). `hjemmel` er
+   * TEs oppgjørsform: § 34.2.2 for tilbudet, § 34.3 eller § 34.4 for en beregningsregel.
+   * `aksepterer` er om byggherren aksepterer tilbudet eller godtar beregningsregelen. Uten aksept
+   * oppgir byggherren oppgjørsformen byggherren mener (`oensket`); appen avgjør ikke om § 34.3
+   * eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12, MM-U50). `kreverTilbud` er kravet om
+   * spesifisert tilbud etter § 34.2.1 for en kravpost etter en beregningsregel (KA-U69, KA-U71),
+   * og da kan `oensket` mangle (svar 3 A i spørsmålsfila 10.11 for #1663).
    */
   | {
       id: string;
       art: 'oppgjoersform';
       gjelder: string;
-      hjemmel: '34.2.2';
+      hjemmel: '34.2.2' | '34.3' | '34.4';
       aksepterer: boolean;
       oensket?: 'enhetspriser' | 'regningsarbeid';
+      kreverTilbud?: true;
     }
+  /**
+   * § 34.3.2: om byggherren godtar justeringen av enhetsprisene for kravposten `gjelder`
+   * (KA-U68; det tekniske avsnittet punkt 2 i spørsmålsfila 09.11 for #1663). Godkjenner ingen
+   * priser, mengder eller beløp (OV-U95 punkt 5).
+   */
+  | { id: string; art: 'justering'; gjelder: string; hjemmel: '34.3.2'; godtar: boolean }
   /** § 33.1: om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder. */
   | { id: string; art: 'hindring'; oppfylt: boolean }
   /**

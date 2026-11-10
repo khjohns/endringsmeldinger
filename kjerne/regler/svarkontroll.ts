@@ -6,6 +6,7 @@
 
 import { METODER } from '../format/format.ts';
 import { UgyldigVurdering } from './feil.ts';
+import type { Oppgjoersform } from '../typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
 /** § 32.3 c og § 32.2: svaret på forholdet i kategorien i kravet. */
@@ -48,21 +49,65 @@ export function kontrollerVarseletForVederlag(
 }
 
 /**
- * § 34.2.2: oppgjørsformen byggherren ønsker for kravposten `navn`, når tilbudet ikke aksepteres
- * (KA-U57 (d)). Feilen står på `<navn>.oensket_oppgjoersform`.
+ * Standpunktet til oppgjørsformen for kravposten `navn` (KA-U57 (d), KA-U54), kravet om tilbud
+ * (KA-U69, KA-U71), varselet etter § 34.3.3 eller § 34.4 (KA-U64) og justeringen (KA-U68),
+ * mot TEs oppgjørsform for posten. Feilene står på `<navn>.<felt>`.
  */
 export function kontrollerOppgjoersformen(
   navn: string,
-  p: { aksepterer?: unknown; oensket_oppgjoersform?: unknown }
+  p: {
+    aksepterer?: unknown;
+    oensket_oppgjoersform?: unknown;
+    krever_tilbud?: unknown;
+    varslet_i_tide?: unknown;
+    godtar_justering?: unknown;
+  },
+  post: { oppgjoersform: Oppgjoersform; justert?: boolean }
 ): void {
+  const feil: Record<string, string> = {};
   const felt = `${navn}.oensket_oppgjoersform`;
-  // Arbeidsvalget i #479: uten aksept av tilbudet oppgir byggherren oppgjørsformen, ellers ikke.
-  if (p.aksepterer === false && !METODER.includes(p.oensket_oppgjoersform as never))
-    throw new UgyldigVurdering({ [felt]: 'mangler når tilbudet ikke aksepteres (§ 34.2.2)' });
-  if (p.aksepterer !== false && p.oensket_oppgjoersform != null)
-    throw new UgyldigVurdering({
-      [felt]: 'gjelder bare når tilbudet ikke aksepteres (§ 34.2.2)',
-    });
+  const regel = post.oppgjoersform !== 'tilbud';
+  const kreverTilbud = p.krever_tilbud === true;
+  const hva = regel ? 'beregningsregelen ikke godtas' : 'tilbudet ikke aksepteres (§ 34.2.2)';
+  // Arbeidsvalget i #479: uten aksept oppgir byggherren oppgjørsformen, ellers ikke. Svar 3 A
+  // 10.11 for #1663: med kravet om tilbud er den valgfri.
+  if (p.oensket_oppgjoersform != null && !METODER.includes(p.oensket_oppgjoersform as never))
+    feil[felt] = `${String(p.oensket_oppgjoersform)} er ikke en oppgjørsform byggherren kan mene`;
+  else if (p.aksepterer === false && p.oensket_oppgjoersform == null && !kreverTilbud)
+    feil[felt] = `mangler når ${hva}`;
+  else if (p.aksepterer !== false && p.oensket_oppgjoersform != null)
+    feil[felt] = `gjelder bare når ${hva}`;
+  // OV-U95 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
+  else if (regel && p.oensket_oppgjoersform === post.oppgjoersform)
+    feil[felt] = 'er oppgjørsformen TE krever';
+  if (p.krever_tilbud != null && typeof p.krever_tilbud !== 'boolean')
+    feil[`${navn}.krever_tilbud`] = 'er verken true eller false';
+  else if (kreverTilbud && !regel)
+    feil[`${navn}.krever_tilbud`] =
+      'gjelder bare en kravpost etter en beregningsregel (§ 34.2.1, KA-U69)';
+  // KA-U71: kravet om tilbud og en godtatt beregningsregel utelukker hverandre.
+  else if (kreverTilbud && p.aksepterer !== false)
+    feil[`${navn}.krever_tilbud`] =
+      'kan ikke stå når byggherren godtar beregningsregelen for kravposten (KA-U71)';
+  // KA-U64: varselet etter § 34.3.3 gjelder justerte enhetspriser, og § 34.4 regningsarbeid.
+  const trengerVarsel =
+    post.oppgjoersform === 'regningsarbeid' ||
+    (post.oppgjoersform === 'enhetspriser' && post.justert === true);
+  if (p.varslet_i_tide != null && typeof p.varslet_i_tide !== 'boolean')
+    feil[`${navn}.varslet_i_tide`] = 'er verken true eller false';
+  else if (p.varslet_i_tide != null && !trengerVarsel)
+    feil[`${navn}.varslet_i_tide`] =
+      'gjelder bare varselet etter punkt 34.3.3 for justerte enhetspriser og punkt 34.4 for regningsarbeid';
+  // KA-U68: justeringen gjelder justerte enhetspriser, og byggherren tar stilling til den når
+  // beregningsregelen godtas. Uten aksept står den subsidiært og er valgfri (VS-U56).
+  const justert = post.oppgjoersform === 'enhetspriser' && post.justert === true;
+  if (p.godtar_justering != null && typeof p.godtar_justering !== 'boolean')
+    feil[`${navn}.godtar_justering`] = 'er verken true eller false';
+  else if (p.godtar_justering != null && !justert)
+    feil[`${navn}.godtar_justering`] = 'gjelder bare en kravpost med justerte enhetspriser';
+  else if (justert && p.aksepterer === true && p.godtar_justering == null)
+    feil[`${navn}.godtar_justering`] = 'mangler når byggherren godtar beregningsregelen (§ 34.3.2)';
+  if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }
 
 /**

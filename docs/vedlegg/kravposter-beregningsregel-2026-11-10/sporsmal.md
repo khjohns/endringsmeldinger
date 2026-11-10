@@ -139,4 +139,19 @@ bygges etter prototype v3 i en egen runde.
 Oppdragsgiver 10.11, ordrett: «kan du illustrere flyten for spørsmål 1 og 2 og de ulike
 alternativene? 3A, 4A»
 
-Spørsmål 3: A. Spørsmål 4: A. Spørsmål 1 og 2 er ikke besvart ennå.
+Spørsmål 3: A. Spørsmål 4: A.
+
+Oppdragsgiver 10.11, ordrett, etter illustrasjonen av flytene: «1B - i utgangspunktet. Men har vi
+tegnet denne flyten i mockup? Jeg må se det i design for å vurdere skikkelig. 2: Forløp z eksisterer
+vel ikke - kravskjema vil jo "varsle" hvis varsel ikke er gitt/registrert tidligere.»
+
+Svar fra økta: flytene i spørsmål 1 er ikke tegnet (G-9). Forløp Z finnes bare som et brev sendt
+utenfor løsningen og registrert som varsel mellom to kravversjoner (F-8, VS-U52); prototype v3
+tilbyr «Bare varsle» bare før det første kravet. Forslaget A: 2b bygger svaret per kravpost etter
+en beregningsregel nå, og svaret på varselet og innsigelsen mot varselet tegnes først i en
+designsløyfe, der spørsmål 1 og 2 vurderes.
+
+Oppdragsgiver 10.11, ordrett: «A».
+
+Spørsmål 1 og 2 står åpne til designsløyfa. Sperren for innsigelsen mot varslene etter punkt 34.3.3
+og 34.4 står til da.

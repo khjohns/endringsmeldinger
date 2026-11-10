@@ -173,8 +173,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;",
-        "if (p.art !== 'rettidighet' || p.hjemmel !== '34.1.2') return false;",
+        '      !erVarselhjemmel(p.hjemmel) ||\n      erKravpostvarselhjemmel(p.hjemmel)\n    )\n      return false;',
+        "      p.hjemmel !== '34.1.2' ||\n      erKravpostvarselhjemmel(p.hjemmel)\n    )\n      return false;",
       ],
     ],
     mal: ['F-MM-D', 'F-MM-D-godtatt', 'visningen sier at svaret gjaldt et annet varsel'],
@@ -1565,7 +1565,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  if (erVarselhjemmel(p.hjemmel)) {\n    const n',
+        '  if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {\n    const n',
         "  if (p.hjemmel === '33.4') {\n    const n",
       ],
     ],
@@ -1588,7 +1588,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
     fil: `${K}/regler/svarkontroll.ts`,
     endringer: [
-      ['if (p.aksepterer === false && !METODER.includes(', 'if (false && !METODER.includes('],
+      [
+        '  else if (p.aksepterer === false && p.oensket_oppgjoersform == null && !kreverTilbud)',
+        '  else if (false && p.oensket_oppgjoersform == null && !kreverTilbud)',
+      ],
     ],
     mal: ['F-MM-V-34-2-2-nei'],
   },
@@ -1597,10 +1600,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'byggherrens vurdering etter § 34.2.2 lagres ikke som standpunkt (#341)',
     fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
-      [
-        "if ('gjelder' in post && typeof post.svar.aksepterer === 'boolean')",
-        "if ('gjelder' in post && typeof post.svar.aksepterer === 'string')",
-      ],
+      ["  if (typeof svar.aksepterer === 'boolean')", "  if (typeof svar.aksepterer === 'string')"],
     ],
     mal: ['F-MM-V-34-2-2-nei', 'F-MM-V-34-2-2-ja'],
   },
@@ -1686,7 +1686,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en lagret avslått metode uten byggherrens metode forstås',
     fil: `${K}/format/leser.ts`,
     endringer: [
-      ["if (e.aksepterer === 'oensket_oppgjoersform' in e)", 'if (e.aksepterer === undefined)'],
+      [
+        "(e.aksepterer && 'oensket_oppgjoersform' in e) ||\n          (!e.aksepterer && !kreverTilbud && !('oensket_oppgjoersform' in e))",
+        'false',
+      ],
     ],
     mal: ['tilbudet er ikke akseptert, men oppgjørsformen mangler'],
   },
@@ -3250,8 +3253,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "s?.art === 'hindring' || (s?.art === 'rettidighet' && s.hjemmel !== '34.1.3')",
-        "s?.art === 'hindring' || s?.art === 'rettidighet'",
+        "(s?.art === 'rettidighet' && (s.hjemmel === '34.1.2' || !s.hjemmel.startsWith('34')))",
+        "s?.art === 'rettidighet'",
       ],
     ],
     mal: ['en aksept av svaret gir prinsipalt beløp etter begrensningen, ikke 0'],
@@ -3260,7 +3263,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F392',
     feilklasse: 'justeringen ellers er upåvirket også når forholdet er avslått (OV-U33)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['posten && !hele && forskyvning === 0', 'posten && !hele']],
+    endringer: [['rammer && !hele && forskyvning === 0', 'rammer && !hele']],
     mal: ['med avslått forhold er justeringen ellers i sporets første lag og ikke upåvirket'],
   },
   {
@@ -3770,8 +3773,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  if (erVarselhjemmel(p.hjemmel)) {\n    const n',
-        "  if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel)) {\n    const n",
+        '  if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {\n    const n',
+        "  if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {\n    const n",
       ],
     ],
     mal: ['en lagret påberopelse etter § 32.2 som viser til versjon 2, gjør saken ikke forstått'],
@@ -4085,10 +4088,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F481',
     feilklasse:
-      'byggherren kan svare med ett beløp på en kravpost etter en beregningsregel (KA-U59, KA-U61)',
-    fil: `${K}/frosset/kravinnhold.ts`,
-    endringer: [['  if (regel) return', '  if (false) return']],
-    mal: ['svaret på en kravpost etter en beregningsregel er ikke bygget'],
+      'svaret godkjenner et beløp for en kravpost etter en beregningsregel (OV-U95 punkt 5, #1663)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      ['    if (regelen(p)) {\n      const grunn =', '    if (false) {\n      const grunn ='],
+    ],
+    mal: ['byggherren som godtar beregningsregelen, tar ikke stilling til et beløp'],
   },
   {
     id: 'F482',
@@ -4192,15 +4197,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F505',
     feilklasse:
-      'et svar på en kravpost etter en beregningsregel regnes uten krevd beløp i stedet for å avvises (#1663)',
-    fil: `${K}/frosset/utregning.ts`,
-    endringer: [
-      [
-        '  if (krevd === null)\n    throw new UgyldigVurdering({\n',
-        '  if (false)\n    throw new UgyldigVurdering({\n',
-      ],
-    ],
-    mal: ['svaret på en kravpost etter en beregningsregel er ikke bygget (KA-U59)'],
+      'svaret godtar beregningsregelen og krever samtidig tilbud for kravposten (KA-U71, #1663)',
+    fil: `${K}/regler/svarkontroll.ts`,
+    endringer: [['  else if (kreverTilbud && p.aksepterer !== false)', '  else if (false)']],
+    mal: ['kravet om tilbud kan ikke stå sammen med en godtatt beregningsregel'],
   },
   {
     id: 'F506',
@@ -4238,8 +4238,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/lag.ts`,
     endringer: [
       [
-        "        ...((s.art === 'beloep' || s.art === 'oppgjoersform') && s.gjelder !== undefined",
-        '        ...(false && s.gjelder !== undefined',
+        "        ...((s.art === 'beloep' || s.art === 'oppgjoersform' || s.art === 'justering') &&\n        s.gjelder !== undefined",
+        '        ...(false &&\n        s.gjelder !== undefined',
       ],
     ],
     mal: [
@@ -4293,8 +4293,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
-        'const godkjent = ikkeAkseptert(post)\n      ? null',
-        'const godkjent = ikkeAkseptert(post)\n      ? NULL_OERE',
+        'const godkjent =\n      ikkeAkseptert(post) || regelen(post)\n        ? null',
+        'const godkjent =\n      ikkeAkseptert(post) || regelen(post)\n        ? NULL_OERE',
       ],
     ],
     mal: ['svaret lagres med standpunktet til beløpet uten beløp og ett lag uten beløp'],
@@ -4356,7 +4356,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'leseren godtar standpunktet til beløpet med beløp når tilbudet ikke er akseptert, og uten beløp når det er akseptert (KA-U72)',
     fil: `${K}/format/leser.ts`,
-    endringer: [['(s.godkjent === undefined) !== utenAksept.has(s.gjelder!))', 'false)']],
+    endringer: [['(s.godkjent === undefined) !== utenBeloep.has(s.gjelder!))', 'false)']],
     mal: [
       'en rad med standpunktet til beløpet uten beløp for en kravpost der tilbudet er akseptert, avvises',
       'en rad med et beløp for en kravpost der tilbudet ikke er akseptert, avvises',

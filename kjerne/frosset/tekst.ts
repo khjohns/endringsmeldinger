@@ -153,6 +153,8 @@ const SENT_I_LINJEN: Record<Hjemmel, string> = {
   '33.6.2': 'svaret på forespørselen etter § 33.6.2',
   '34.1.2': 'varselet etter § 34.1.2',
   '34.1.3': 'varselet etter § 34.1.3',
+  '34.3.3': 'varselet etter § 34.3.3',
+  '34.4': 'varselet etter § 34.4',
 };
 
 /** Posten etter § 34.1.3 annet ledd i linjen. */

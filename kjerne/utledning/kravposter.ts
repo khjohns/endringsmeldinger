@@ -77,8 +77,10 @@ export function kravposteneStrider(
     : null;
 }
 
-/** Varselet en kravpost med den oppgjørsformen trenger, eller `null`. */
-const varselhjemmel = (p: ReturnType<typeof kravposterI>[number]): Kravpostvarselhjemmel | null =>
+/** Varselet en kravpost med den oppgjørsformen trenger, eller `null` (VS-U48, KA-U68). */
+export const varselhjemmel = (
+  p: ReturnType<typeof kravposterI>[number]
+): Kravpostvarselhjemmel | null =>
   p.oppgjoersform === 'regningsarbeid'
     ? '34.4'
     : p.oppgjoersform === 'enhetspriser' && p.justert === true

@@ -311,6 +311,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
   ['Kravpost', 'utsagn', 'oppgjoersform justert', ['utledning/kravposter.ts:varselhjemmel']],
+  // KA-U54, KA-U64, KA-U68, OV-U95 punkt 5: svaret på en kravpost etter en beregningsregel.
+  [
+    'Kravpost',
+    'utsagn',
+    'oppgjoersform justert',
+    [
+      'frosset/utregning.ts',
+      'kommandoer/lag.ts',
+      'kommandoer/standpunkter.ts',
+      'utledning/utled.ts',
+    ],
+  ],
   [
     'Kravpost',
     'utsagn',
@@ -353,7 +365,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Standpunkt',
     'utsagn',
-    'hjemmel iTide resultat godkjent oppfylt vurdert aksepterer oensket dager',
+    'hjemmel iTide resultat godkjent oppfylt vurdert aksepterer oensket dager godtar kreverTilbud',
   ],
   // OV-U26, OV-U31, VS-U5: posten beløpet gjelder, og beløpet etter begrensningen etter § 34.1.3.
   ['Standpunkt', 'utsagn', 'saerskilt begrenset'],
@@ -527,8 +539,35 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts',
       'utledning/kravposter.ts',
       'utledning/utled.ts',
+      // KA-U54, KA-U64, KA-U68: TEs oppgjørsform for standpunktene til kravposten.
+      'kommandoer/lag.ts',
+      'kommandoer/standpunkter.ts',
     ],
   ],
+  // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
+  [
+    'utledning/kravposter.ts',
+    'predikat',
+    'varselhjemmel',
+    ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
+  ],
+  // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
+  [
+    'format/format.ts',
+    'skjema',
+    'OPPGJOERSHJEMMEL',
+    ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
+  ],
+  [
+    'OPPGJOERSHJEMMEL',
+    'skjema',
+    'tilbud enhetspriser regningsarbeid',
+    ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
+  ],
+  ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['format/leser.ts']],
+  // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
+  ['frosset/standpunkt.ts:beregningsregelLag', 'relasjon', 'gjelder'],
+  ['kommandoer/lag.ts:innenforKravposten', 'relasjon', 'gjelder'],
   ['frosset/kravinnhold.ts', 'regelsett', 'krevdRigg', ['frosset/brevtekst.ts']],
   [
     'frosset/kravinnhold.ts',
@@ -555,7 +594,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Kravpostvurdering',
     'utsagn',
-    'gjelder vurdering godkjent_beloep aksepterer oensket_oppgjoersform',
+    'gjelder vurdering godkjent_beloep aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
   ['kommandoer/lag.ts:besvart', 'utsagn', 'saerskilt gjelder'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
@@ -619,8 +658,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/svarkontroll.ts:kontrollerOppgjoersformen',
     'utsagn',
-    'aksepterer oensket_oppgjoersform',
+    'aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
+  ['regler/svarkontroll.ts:kontrollerOppgjoersformen', 'utsagn', 'oppgjoersform justert'],
   [
     'regler/svarkontroll.ts:kontrollerSpesifiseringen',
     'utsagn',
@@ -692,7 +732,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Postbeloep', 'regelsett', 'krevd'],
   ['Postbeloep', 'utsagn', 'vurdering godkjent_beloep'],
   ['Kravpostsvar', 'relasjon', 'gjelder'],
-  ['Kravpostsvar', 'utsagn', 'aksepterer'],
+  ['Kravpostsvar', 'utsagn', 'aksepterer beregningsregel'],
+  ['Kravpostsvar.beregningsregel', 'utsagn', 'varselForSent justering'],
   ['Produktivitetssvar', 'regelsett', 'saerskilt'],
   ['Produktivitetssvar', 'utsagn', 'varslet_i_tide begrenset_beloep'],
   ['RiggOgDriftsvar', 'utsagn', 'varslet_i_tide'],
@@ -1148,7 +1189,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep saerskilt',
+    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep saerskilt krever_tilbud godtar',
     ['format/leser.ts'],
   ],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
@@ -1344,6 +1385,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/tekst.ts', 'brevtekst', 'beslutningslinje', ['frosset/frysing.ts:beslutningsgrunnlag']],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
+  ['REGELEN', 'brevtekst', '34.3 34.4', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: svaret på påberopelsen og om sporene er subsidiære, lest av
   // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
   // MM-U9, OV-U32: om tallet i gjeldende svar er subsidiært, som den gamle sakslisten leser til #1545 (#1050).

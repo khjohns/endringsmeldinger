@@ -26,8 +26,8 @@ import {
   registrertDato,
   sammeSlag,
 } from '../format/leser.ts';
-import { oppgittDato } from '../format/format.ts';
-import { kravposteneStrider } from './kravposter.ts';
+import { OPPGJOERSHJEMMEL, oppgittDato } from '../format/format.ts';
+import { kravposteneStrider, varselhjemmel } from './kravposter.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
@@ -843,6 +843,42 @@ function kontrollerPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
     ...(harProduktivitetspost(krav) ? [['saerskilt', 'produktivitet'] as [string, string]] : []),
   ]);
   if (iSvaret !== iKravet) ugyldig(s.id, 'beløpene i svaret er ikke de samme postene som i kravet');
+  const poster = new Map(kravposterI(krav).map((p) => [p.id, p]));
+  for (const p of s.standpunkter) {
+    const grunn = kravpoststandpunktetStrider(p, poster);
+    if (grunn) ugyldig(s.id, grunn);
+  }
+}
+
+/**
+ * Hvorfor et standpunkt som gjelder en kravpost, ikke passer til kravposten i kravet, eller
+ * `null`: standpunktet til oppgjørsformen har TEs oppgjørsform som hjemmel, rettidigheten etter
+ * § 34.3.3 eller § 34.4 gjelder en kravpost som trenger det varselet (KA-U64), og justeringen
+ * gjelder en kravpost med justerte enhetspriser (KA-U68).
+ */
+function kravpoststandpunktetStrider(
+  p: Standpunkt,
+  poster: ReadonlyMap<string, ReturnType<typeof kravposterI>[number]>
+): string | null {
+  if (p.art === 'oppgjoersform') {
+    const post = poster.get(p.gjelder);
+    return post && OPPGJOERSHJEMMEL[post.oppgjoersform] === p.hjemmel
+      ? null
+      : 'standpunktet til oppgjørsformen har ikke TEs oppgjørsform for kravposten som hjemmel';
+  }
+  if (p.art === 'rettidighet' && erVarselhjemmel(p.hjemmel) && erKravpostvarselhjemmel(p.hjemmel)) {
+    const post = poster.get(p.gjelder);
+    return post && varselhjemmel(post) === p.hjemmel
+      ? null
+      : `rettidigheten etter § ${p.hjemmel} gjelder ikke en kravpost som trenger det varselet`;
+  }
+  if (p.art === 'justering') {
+    const post = poster.get(p.gjelder);
+    return post?.oppgjoersform === 'enhetspriser' && post.justert === true
+      ? null
+      : 'justeringen gjelder ikke en kravpost med justerte enhetspriser';
+  }
+  return null;
 }
 
 /** Spesifiseringen og rettidigheten i svaret `s` viser til det de kan gjelde. */
@@ -869,8 +905,9 @@ function kontrollerStandpunktet(
     return;
   }
   // VS-U43 punkt 6 og 10: etter § 32.2 gjelder påberopelsen det registrerte varselet, ellers
-  // det første grunnlagskravet, og en senere versjon er ikke et nytt varsel.
-  if (erVarselhjemmel(p.hjemmel)) {
+  // det første grunnlagskravet, og en senere versjon er ikke et nytt varsel. Etter § 34.3.3 og
+  // § 34.4 gjelder den kravposten (`kontrollerPostene`).
+  if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {
     const n = VARSELSPOR[p.hjemmel];
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
     const krav = kravSomVarsler(p.hjemmel, spor[n].krav);
@@ -1225,7 +1262,12 @@ function svarberegninger(
   spor: Record<Spor, Sporutledning>
 ): Record<string, Svarberegning> {
   const annetVarsel = (p: Standpunkt) => {
-    if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;
+    if (
+      p.art !== 'rettidighet' ||
+      !erVarselhjemmel(p.hjemmel) ||
+      erKravpostvarselhjemmel(p.hjemmel)
+    )
+      return false;
     const varsel = spor[VARSELSPOR[p.hjemmel]].varsler[p.hjemmel];
     return varsel !== undefined && p.gjelder !== varsel.id;
   };
