@@ -110,7 +110,7 @@ node .claude/skills/mockup-nettleser/demoruta.mjs [--url http://localhost:5173] 
 Skriptet starter `vite dev` hvis ingen svarer, og driver BF-01, eller forløpet i `--forlop`
 (BF-01 og BF-04 har kontrollpunktene skriptet bruker): forløpet fra begynnelsen,
 så fra kontrollpunktet der BH har mottatt vederlagskravet. BH svarer i skjemaet med
-«Nei, for sent» og 60 000 kr subsidiært, kontrollerer brevet og sender det. TE bytter side,
+«Varslet for sent» og 60 000 kr subsidiært, kontrollerer brevet og sender det. TE bytter side,
 ser svaret og godtar det når forløpet har kontrollpunktet `te-har-godtatt-svaret`. Til slutt startes forløpet på nytt, og et bilde tas på 390 px.
 Det skriver brevtekstene og stopper med exit 1 når brevet ikke har lagene fra standpunktet i
 kontrollpunktet `te-har-mottatt-svaret` og det subsidiære beløpet, når TE fortsatt får godta etter aksepten, og ved
@@ -228,9 +228,8 @@ showcasen kjøres som egne stier (`/demo/komponenter/ramme?…`). Det skriver re
 brutt, med inntil `--vis` steder hver og forholdstallet for kontrast, og det axe ikke kan
 avgjøre («kontroller»). Et brudd gir exit 1.
 
-Den ekte saksruta, med innlogging og feiltilstandene fra `saksrute.ts --feil`, kontrolleres for
-hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md).
-axe finner bare en del av feilene. Resten kontrolleres for hånd etter skillen
+axe finner bare en del av feilene. Resten, og den ekte saksruta med innlogging og
+feiltilstandene fra `saksrute.ts --feil`, kontrolleres for hånd etter skillen
 [`uu-sjekk`](../uu-sjekk/SKILL.md). Det er ingen CI-jobb for skriptet (#1187).
 
 ## Det statiske bygget

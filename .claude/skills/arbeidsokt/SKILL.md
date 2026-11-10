@@ -112,7 +112,8 @@ uten at oppdraget gjentar det:
   runde, også funn i andre øktes filer og funn som krever en avgjørelse.
 - **Store lesinger**, som kartlegging over mange filer og CI-logger, gjøres av
   subagenter, så øktas egen kontekst holder seg liten.
-  Små oppslag og subagentene følger skillen [`subagenter`](../subagenter/SKILL.md).
+  Små oppslag gjør økta selv (`AGENTS.md`, «Arbeidsform»), og subagentene følger
+  skillen [`subagenter`](../subagenter/SKILL.md).
 - **Review.** Byggeøkta kjører ikke `/code-review`. Reviewet og rettingene gjøres i
   en ny økt, unntatt for en liten diff etter «Review i ny økt». Reviewet følger
   [leveranseskillen, «Review og funn»](../leveranse/SKILL.md#review-og-funn).

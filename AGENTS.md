@@ -277,7 +277,7 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Beslutningene for visningen: retning, tokens i bruk, mønstre og vedtakene som styrer farge og ord. Metoden for frontendarbeid | [`.interface-design/system.md`](.interface-design/system.md). Verdiene står i `theme.css`. Metoden står i [interface-design-skillen](.claude/skills/interface-design/SKILL.md) |
 | Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |
 | Tid, kontekstgrenser og tilstand i en skyøkt, og de faste reglene for en orkestrert arbeidsøkt | [Arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Regelen om at den gjelder alle skyøkter, står i «Arbeidsform» |
-| Når en subagent brukes, og modellen, størrelsen og bestillingen for den | [Subagent-skillen](.claude/skills/subagenter/SKILL.md). Regelen om å følge den står i «Arbeidsform» |
+| Modellen, størrelsen og bestillingen for en subagent | [Subagent-skillen](.claude/skills/subagenter/SKILL.md). Når en subagent brukes, står i «Arbeidsform» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i SQL Server i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttestene i `verktoy/tester/test_datamodell/` feiler når et register mangler en tabell eller en fremmednøkkel, eller avviker fra koden eller migrasjonene, og når et kall til Catenda i `server/` mangler en pil i dataflyten |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 | Etikettene og milepælene, og formen på issues og PR-er | [GitHub-skillen](.claude/skills/github/SKILL.md). Reglene står i skillen |
@@ -340,8 +340,18 @@ Endrer diffen visningen, står PR-en som utkast til oppdragsgiver har sett skjer
 [arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md)
 gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert.
 
-**Før en subagent startes, følg [skillen `subagenter`](.claude/skills/subagenter/SKILL.md)**,
-i alle økter. Den sier når en subagent sparer mer enn den koster, og hvordan den bestilles.
+**En subagent brukes bare når den sparer mer enn den koster**, i alle økter. Den betaler
+grunnkonteksten på nytt og leverer et sammendrag som kan miste det ordrette. Bruk en i tre
+tilfeller:
+
+- **Store rådata, kort svar:** en CI-logg, fullt testutdata eller et søk over mange filer.
+- **Uavhengig kontroll** som ikke skal farges av det økta tror.
+- **Parallelt arbeid:** flere uavhengige spørsmål som kan gå samtidig.
+
+Ellers gjør økta det selv: et oppslag på under om lag fem verktøykall med et lite svar, og
+innsamling et skript eller `gh api` kan gjøre. Skal en subagent startes, følg
+[skillen `subagenter`](.claude/skills/subagenter/SKILL.md) for modellen, størrelsen og
+bestillingen.
 
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med alternativer og

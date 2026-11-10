@@ -1,31 +1,25 @@
 ---
 name: subagenter
-description: Når en subagent brukes i endringsmeldinger, og hvordan: de tre tilfellene der den sparer mer enn den koster, hva økta gjør selv, hva hovedtråden leser, modellen, størrelsen og bestillingen. Brukes før en subagent startes med Agent-verktøyet, i alle økter, også en direkte økt som ikke er orkestrert.
+description: Hvordan en subagent bestilles i endringsmeldinger, med eksempler på når den brukes, hva hovedtråden leser, modellen, størrelsen og bestillingen. Når en subagent brukes, står i AGENTS.md. Brukes når en subagent skal startes med Agent-verktøyet, i alle økter, også en direkte økt som ikke er orkestrert.
 ---
 
 # Subagenter
 
-Reglene gjelder alle øktene, også en direkte økt. En subagent har egen kontekst. Den
-betaler grunnkonteksten på nytt, med systemprompten, verktøyene og `AGENTS.md`, og leverer
-et sammendrag tilbake. Et sammendrag kan miste det ordrette. Hver overlevering koster
-altså noe, og en subagent brukes bare når den sparer mer enn den koster.
+Når en subagent brukes, står i `AGENTS.md`, «Arbeidsform»: de tre tilfellene, og hva økta
+gjør selv. Her står hvordan den bestilles, i alle økter.
 
-- **Når.** En subagent brukes i tre tilfeller:
-  1. **Store rådata, kort svar.** Arbeidet leser mye som økta ikke trenger etterpå: en
-     CI-logg (`ci-logg`), fullt testutdata, et søk over mange filer eller hele registeret,
-     transkripsjonene i forbruksskillen.
-  2. **Uavhengig kontroll.** Kontrollen skal ikke farges av det økta tror: diffen mot
-     bestillingen (`diffkontroll`), sikkerhetsinvariantene før merge («3. Gjennomgang» i
-     [orkestreringsskillen](../orkestrering/SKILL.md#3-gjennomgang-når-øktene-er-ferdige)),
-     og kontrollene i [vedtaksskillen](../vedtak/SKILL.md). Episodene der kontrollen
-     endret utfallet, står i episodefilene for [orkestreringen](../orkestrering/episoder.md)
-     og [vedtakene](../vedtak/episoder.md).
-  3. **Parallelt arbeid.** Flere uavhengige spørsmål som kan gå samtidig.
-- **Ellers gjør økta det selv.** Et oppslag som krever under om lag fem verktøykall og gir
-  et lite svar, gjør økta selv. Det gjelder én post eller kjede i vedtaksregisteret
-  (`vedtaksregister.py --vis` og `--kjede`), et `grep -c` og én funksjon. Innsamling et
-  skript kan gjøre, som tekstene til postene, `folge`-kjedene, radene i
-  `KJENTE_FORHOLD_TIL_OPPHEVET`, henvisningene i koden og telling, gjøres med skriptet, ikke av en modell. Orkestratoren leser likevel ikke kode
+- **Eksempler på de tre tilfellene.** Store rådata: en CI-logg (`ci-logg`), fullt
+  testutdata, et søk over hele registeret, transkripsjonene i forbruksskillen. Uavhengig
+  kontroll: diffen mot bestillingen (`diffkontroll`), sikkerhetsinvariantene før merge
+  («3. Gjennomgang» i
+  [orkestreringsskillen](../orkestrering/SKILL.md#3-gjennomgang-når-øktene-er-ferdige)) og
+  kontrollene i [vedtaksskillen](../vedtak/SKILL.md). Episodene der kontrollen endret
+  utfallet, står i episodefilene for [orkestreringen](../orkestrering/episoder.md) og
+  [vedtakene](../vedtak/episoder.md).
+- **Eksempler på det økta gjør selv.** Én post eller kjede i vedtaksregisteret
+  (`vedtaksregister.py --vis` og `--kjede`), et `grep -c` og én funksjon. Tekstene til
+  postene, `folge`-kjedene, radene i `KJENTE_FORHOLD_TIL_OPPHEVET`, henvisningene i koden
+  og telling samles med skriptet, ikke av en modell. Orkestratoren leser likevel ikke kode
   eller differ selv ([orkestreringsskillen, punkt 1](../orkestrering/SKILL.md#1-kartlegg-før-du-fordeler)).
 - **Hva hovedtråden leser.** Økta leser ikke store filer selv: hele `vedtak.md` eller
   `vedtak.toml`, store vurderingsfiler og store logger. Den slår opp postene den skal

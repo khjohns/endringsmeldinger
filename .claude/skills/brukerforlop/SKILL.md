@@ -11,8 +11,6 @@ den bygger på, forventninger byggingen kan prøves mot, og avgrensede restpunkt
 Kjernen er en kilde til hvordan løsningen virker i dag, ikke grensen for hva som kan
 designes. En upraktisk arbeidsflyt bevares ikke fordi kjernen allerede har den.
 
-Første prøve var BF-03 (#1336). Skillen rettes etter brukerprøven.
-
 ## Hjemmene
 
 | Hva | Hvor |
@@ -36,9 +34,8 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
    linje begrunnelse hver, og velger ingen. Den som skriver bestillingen, avgjør
    `kilder` etter å ha lest kandidatene mot vedtaksfila. Vedtak som den kognitive
    gjennomgangen i steg 6 peker på, og som forløpet ikke viser til, går også hit.
-3. **Skisser.** Et forløp prøves i demoruta med Varden-komponentene. En HTML-skisse
-   lages bare for ett nytt mønster som ingen komponent har ennå, og den kan vise
-   handlinger og tilstander som ikke finnes. Er spørsmålet
+3. **Skisser.** Forløpet prøves i demoruta, og en HTML-skisse lages bare for et nytt
+   mønster («Prototypen»). Skissen kan vise handlinger og tilstander som ikke finnes. Er spørsmålet
    bare plassering eller ordlyd, og den nye visningen er bygget for oppgaven, kan det
    prøves der i stedet.
 4. **Kontroller forskjellene** mellom ønsket løsning og det kjernen og vedtakene gir.
@@ -54,8 +51,8 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
    Malen for de to gjennomgangene står i [forprove.md](forprove.md). Den mekaniske
    kontrollen kjøres først: `demoruta.mjs` for et forløp i demoruta, og `prototype.mjs`
    med klikkstiene i forløpsfila for en HTML-skisse av et nytt mønster, så den
-   kognitive. Den mekaniske kontrollen leser ingen vedtak og vurderer ingen tekst. Bredden på 390 px rapporteres, men stopper ikke, fordi mobil
-   ikke er prioritert nå. Den kognitive gjennomgangen avgjør ikke
+   kognitive. Den mekaniske kontrollen leser ingen vedtak og vurderer ingen tekst.
+   Bredden på 390 px rapporteres, men stopper ikke, fordi mobil ikke er prioritert nå. Den kognitive gjennomgangen avgjør ikke
    rettsspørsmål; de føres som spørsmål til oppdragsgiver, med alternativer. Den sammenligner
    ikke med dagens visning, saksruta eller dagens app. Blindveier i arbeidsflyten prøves etter
    «Prøv arbeidsflyten før vedtaksteksten skrives» i [vedtaksskillen](../vedtak/SKILL.md).
@@ -106,7 +103,7 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
 - **P, produktspørsmål utenfor forløpet:** står der til de tas opp i et eget issue.
 - **Endringer:** dato, grunnlag og hva som er endret, per versjon.
 
-**Et designvedtak som flyttes, blir et U-punkt** (svar 5 04.11 i
+**Et designvedtak som flyttes, blir et U-punkt** (svar 5 i
 [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6623211248)):
 
 - Punktet får et anker foran ID-en, `- <a id="u-12"></a>**U-12** …`, så det kan lenkes til.
@@ -116,7 +113,7 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
   ([registeret](../../../docs/vedtaksregister/README.md#klassen)).
 - Teksten skrives etter språkreglene ([språkfila](../../../docs/sprak.md)).
   Den flyttede teksten er ny tekst. Den sier hva visningen bygger på, ikke «appens
-  vurdering», som i lesningen av MM-U23 i svarene 04.11.
+  vurdering», som i lesningen av MM-U23.
 - Har designvedtaket en del som binder partene, står den delen i vedtaket i `bindende_i`, og
   punktet viser til det.
 
@@ -137,7 +134,7 @@ For en HTML-skisse av et mønster gjelder dette:
 - Versjonen står i skissen og i bestillingen. En godkjent versjon er en commit.
 - Teksten er prototypetekst. En vedtatt brevtekst står ordrett.
 - En HTML-skisse følger designet i [systemfila](../../../.interface-design/system.md) og
-  tokenene i `theme.css`, slik prototypene fra 31.10–01.11 i `docs/design/prototyper/` viser
+  tokenene i `theme.css`, slik prototypene i `docs/design/prototyper/` viser
   det (for eksempel `grunnlagsoversikt.html`), og ikke det gamle konseptstilarket (#1461). Ingenting sendes, og ingen data lagres.
 
 ## Kontrollene
