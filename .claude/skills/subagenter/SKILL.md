@@ -24,7 +24,7 @@ gjør selv. Her står hvordan den bestilles, i alle økter.
 - **Hva hovedtråden leser.** Økta leser ikke store filer selv: hele `vedtak.md` eller
   `vedtak.toml`, store vurderingsfiler og store logger. Den slår opp postene den skal
   sitere, ordrett med skriptet. Det en subagent har lest, leser ikke økta på nytt. Skal en
-  rapport kontrolleres, gjør en ny subagent det.
+  rapport kontrolleres, gjør en ny subagent det (#1065).
 - **Modell.** Mekaniske kontroller går på `model: "haiku"` med `effort: "medium"`, eller
   `"high"` når kontrollen har flere steg. Det gjelder polling av CI,
   sammenligning med skript av kolonner, ankre og tokens, lenkekontroll
@@ -35,8 +35,15 @@ gjør selv. Her står hvordan den bestilles, i alle økter.
 - **Størrelse.** En subagent får en bestilling den kan gjøre ferdig på om lag 80 kall og
   under 150 000 tokens, uavhengig av grensen for økta: én fil, én gruppe bevis-saker eller ett spørsmål. Større arbeid
   deles på flere subagenter. Uavhengige subagenter startes i samme
-  melding, og de andre tett etter hverandre, så hurtigbufferen holder seg varm. Ingen
-  subagent venter på noe utenfor seg selv.
+  melding, så de går parallelt. Ingen subagent venter på noe utenfor seg selv (#1065).
+- **Hurtigbufferen.** En subagent har sin egen hurtigbuffer, og den varer i fem minutter
+  etter forrige kall, også i økter der hovedsamtalen har en time
+  ([hurtigbufferen i Claude Code](https://code.claude.com/docs/en/prompt-caching#subagents-and-the-cache)).
+  En subagent som venter lenger, på CI, en lang testkjøring eller noe annet, leser
+  hele konteksten på nytt til full pris. Ventingen gjøres derfor i økta med en
+  bakgrunnskommando, ikke i subagenten. En fork (`subagent_type: "fork"`) arver
+  samtalen og leser øktas buffer fra første kall. Den er billigere når oppgaven trenger
+  det økta vet, men passer ikke til uavhengig kontroll, fordi den arver det økta tror.
 - **Bestillingen** sier nøyaktig hva som skal gjøres eller kontrolleres, hva sluttrapporten
   skal inneholde, og at den ikke gjengir filer, differ eller testutdata. Trenger økta en tekst ordrett, ber bestillingen om ID og sted,
-  og økta slår opp teksten selv. Bestillingen har også med setningen «Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.», ordrett og på engelsk, for bedre balanse mellom grundighet og tid (kilde: Claude Code 2.1.299).
+  og økta slår opp teksten selv. Bestillingen har også med setningen «Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.», ordrett og på engelsk, for bedre balanse mellom grundighet og tid (kilde: Claude Code 2.1.299, #779).

@@ -1,7 +1,8 @@
 # Språket i løsningen
 
-Klarspråk i visningen, vedtakene og brevene, og betegnelsen for løsningen. Reglene
-for språket står i [`AGENTS.md`](../AGENTS.md), «Språk».
+Klarspråk i visningen, vedtakene og brevene, og betegnelsen for løsningen. Fila er
+hjemmet for reglene for synlig tekst. Reglene for språket i koden, kommentarene og
+dokumentasjonen står i [`AGENTS.md`](../AGENTS.md), «Språk».
 
 ## Klarspråk
 
@@ -17,7 +18,7 @@ Rådene under er med egne ord.
   «Beskriv pålegget.» og «Velg forholdet.» (#1482).
 - Bestemmelsene i NS 8407 forklares med egne ord. De gjengis ikke ordrett i visningen.
 - Lenketekster sier hvor lenken fører. «Les mer» står ikke alene.
-- Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (TE, BH, EO, KOE, varsel,
+- Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (EO, KOE, varsel,
   forsering), henvisningene til NS 8407 som «punkt 33.8» ([OV-U75](plans/vedtak.md#ov-u75), [LV-U39](plans/vedtak.md#lv-u39)) og
   vedtatt ordlyd står som de er. I brevene og visningen
   skrives partene fullt ut (se «Ordene i brevene og skjemaene»). Presisjonskravet

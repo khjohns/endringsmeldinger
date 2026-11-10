@@ -46,7 +46,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   `.claude/rules/dokumentasjon.md` for å avgjøre hva som trenger varig
   dokumentasjon.
 - Bygger oppgaven frontend mot TS-kjernen, er brukerforløpet for flyten
-  utgangspunktet, ikke den gamle frontenden.
+  utgangspunktet, ikke den gamle frontenden (#1065).
   Skriv i akseptkriteriene hvilket forløp og hvilke steg oppgaven bærer. Finnes
   det ikke noe forløp for flyten, skriver du hva brukeren skal kunne gjøre, med
   vedtaket eller issuet som grunn. Reglene hentes fra kjernen og prøves mot
@@ -137,7 +137,7 @@ Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
 nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
 eller migrasjonene, uansett språk, ellers `medium`. For en diff som bare rører
 `docs/`, skillene og `AGENTS.md`, avgjør orkestratoren om `/code-review` er verdt
-det, og begrunner valget i én linje i PR-en. Endrer diffen utledningen eller reglene i domenet, kommer i
+det, og begrunner valget i én linje i PR-en (#1338). Endrer diffen utledningen eller reglene i domenet, kommer i
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
 bevis-sakene samlet, én gang per PR. Reviewet og rettingene kjøres i en ny økt,
 ikke i byggeøkta, når vilkårene i
@@ -151,12 +151,12 @@ Etter `/design-deslop` legger byggeøkta (eller rettingsøkta) skjermbildene i P
 `/design-review` kjøres i en ny økt, før `/code-review`, først når oppdragsgiver har sett over
 skjermbildene og sagt fra. Det gjelder også under om lag 200 endrede linjer i `.svelte`- og
 CSS-filer, der byggeøkta ellers kunne kjørt den selv. Alvorligheten settes av
-`/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under.
+`/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under (#1080, #1492).
 
 En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
 ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
 i PR-en fra grenen `skjermbilder`, slik
-[mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier.
+[mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier (#1222).
 
 **Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
 som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
@@ -166,7 +166,7 @@ som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre 
 - Er det et krav til en inngang eller del som ikke finnes ennå, føres kravet som
   kommentar i issuet for den inngangen eller delen.
 - Resten samles i ett oppfølgingsissue per PR, med etiketten `review-oppfølging`
-  og en sjekkliste. Ett issue per funn lages ikke.
+  og en sjekkliste. Ett issue per funn lages ikke (#649).
 
 **Hva som føres i oppfølgingsissuet**:
 
@@ -187,7 +187,7 @@ issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
 
 Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
 rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
-`medium`.
+`medium` (#484, #490).
 
 ## Før en PR meldes klar
 
@@ -214,7 +214,7 @@ rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, e
 - En PR som bygger frontend mot TS-kjernen, viser hvilke steg i
   brukerforløpet som er prøvd, og
   [dekningsoversikten](../../../docs/domenetabell/brukerforlop/dekning.md) er
-  generert på nytt når forløpet er endret. En
+  generert på nytt når forløpet er endret (#1065). En
   mangel som ikke løses i PR-en, får et issue.
 - Fører PR-en et vedtak, er det en ny post i
   [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i

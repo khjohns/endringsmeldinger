@@ -266,7 +266,7 @@ bevis-sak viser til raden og en PR viser til issuet og vedtaket. Ingen av dem
 skriver vedtaket om med egne ord. En vedtaks-ID i `kjerne/`, `server/` og `src/`, og
 i kildene i bevis-sakene og brukerforløpene, må finnes i vedtaksregisteret. Et opphevet
 vedtak kan bare stå sammen med posten som opphever det, eller i en test merket med
-«historisk» (`docs/verktoy/vedtakshenvisninger.py`, #452).
+«historisk» (`docs/verktoy/vedtakshenvisninger.py`, #452, #1606).
 
 | Hva | Hvor |
 | --- | --- |
@@ -333,22 +333,25 @@ issues suppleres i stedet for å dupliseres.
 der brukerforløp og prototyper avklares før byggingen, følger skillen `brukerforlop`.
 En iterasjon som bare rører `docs/`, har kontrollene i tabellen, ikke reviewet i leveranseskillen.
 
-**Uavhengig review før en PR meldes klar er `/code-review` på egen diff.** Nivået,
-reviewet av samspillet mellom reglene, `/simplify`, ryddingen og reviewet av visningen,
-kjøringen av den ekte saksruta og stoppregelen for funn står i
+**Uavhengig review før en PR meldes klar er `/code-review` på egen diff** (#484, #490).
+For en diff som bare rører `docs/`, skillene og `AGENTS.md`, avgjør orkestratoren om det
+er verdt det (#1338). Nivået, reviewet av samspillet mellom reglene, `/simplify`,
+ryddingen og reviewet av visningen, kjøringen av den ekte saksruta og stoppregelen for
+funn står i
 [leveranseskillen, «Review og funn»](.claude/skills/leveranse/SKILL.md#review-og-funn).
-Endrer diffen visningen, står PR-en som utkast til oppdragsgiver har sett skjermbildene.
 
-**Arbeid i timer, med varm hurtigbuffer**, i alle skyøkter, også en direkte økt som ikke
-er orkestrert. Hele konteksten sendes på nytt ved hvert kall til modellen. Hurtigbufferen
-gjør det billig bare så lenge det er under en time siden forrige kall.
+**Hold hurtigbufferen varm**, i alle skyøkter, også en direkte økt som ikke er
+orkestrert (#425). Hele konteksten sendes på nytt ved hvert kall til modellen, og
+hurtigbufferen gjør det billig bare når det er under en time siden forrige kall. Hvor
+lenge økta har pågått, betyr ikke noe.
 
-- Avgrens arbeidet så økta blir ferdig på om lag 45–60 minutter med aktivt arbeid.
+- Avgrens arbeidet så økta kan gjøre det ferdig under om lag 400 000 tokens.
 - Vent på CI med en bakgrunnskommando som vekker økta, ikke med en pause.
-- Venter økta over en time, for eksempel på oppdragsgiver, skriver den tilstanden i PR-en
-  og stopper. En ny, liten økt tar over derfra.
+- Har økta passert om lag 150 000 tokens og ikke mer å gjøre uten et svar som kan ta
+  over en time, for eksempel fra oppdragsgiver, skriver den tilstanden i PR-en og
+  stopper. En ny, liten økt tar over derfra.
 
-Grensene for kontekst, påminnelsen og når reviewet går i en ny økt, står i
+Kontekstgrensene og når reviewet går i en ny økt, står i
 [arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Les den når arbeidet starter.
 
 **En subagent brukes bare når den sparer mer enn den koster**, i alle økter. Den betaler
