@@ -280,8 +280,8 @@ const MUTASJONER: Mutasjon[] = [
         "  kontroller(verdi, { ...skjemaer[n], required: ((skjemaer[n].required ?? []) as string[]).filter((f) => f !== 'beslutningsgrunnlag') }, sti);",
       ],
       [
-        '      e.beslutningsgrunnlag,',
-        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'forhold' ? { varslingsplikt: false } : {}) },",
+        '    e.beslutningsgrunnlag,',
+        "    e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'forhold' ? { varslingsplikt: false } : {}) },",
       ],
     ],
     mal: ['et svar uten beslutningsgrunnlag'],
@@ -4328,7 +4328,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'leseren godtar et lag uten beløp for en kravpost der tilbudet er akseptert (KA-U72)',
     fil: `${K}/format/leser.ts`,
-    endringer: [["!('beloep' in l)) && !utenAksept.has(r.gjelder!)", "!('beloep' in l)) && false"]],
+    endringer: [["if (r.lag.some((l) => !('beloep' in l)))", 'if (false)']],
     mal: ['et lag mangler beløpet når tilbudet er akseptert'],
   },
   {
@@ -4378,6 +4378,32 @@ const MUTASJONER: Mutasjon[] = [
       ['(sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),', '(sum) => sum,'],
     ],
     mal: ['§ 34.2.2 «nei» krever en begrunnelse for tilbudet, men ikke for beløpet'],
+  },
+  {
+    id: 'F515',
+    feilklasse:
+      'leseren godtar et beløp i et lag før det siste for en kravpost der tilbudet ikke er akseptert (KA-U72, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "n < prekludert ? beloep(l.beloep as number | undefined) !== 0n : 'beloep' in l",
+        "n < prekludert ? false : 'beloep' in l",
+      ],
+    ],
+    mal: ['et lag før det siste har et beløp, men tilbudet er ikke akseptert'],
+  },
+  {
+    id: 'F516',
+    feilklasse:
+      'leseren godtar 0 kr i et lag uten preklusjon etter § 34.1.2 for en kravpost der tilbudet ikke er akseptert (KA-U72, OV-U27)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "n < prekludert ? beloep(l.beloep as number | undefined) !== 0n : 'beloep' in l",
+        "n < 1 ? beloep(l.beloep as number | undefined) !== 0n && 'beloep' in l : 'beloep' in l",
+      ],
+    ],
+    mal: ['et lag uten preklusjon har 0 kr, men tilbudet er ikke akseptert'],
   },
 ];
 

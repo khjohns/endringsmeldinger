@@ -5651,6 +5651,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       const uten = medP1IkkeAkseptert({ ...delvis }, 'regningsarbeid');
       /** Svikt, så § 34.1.2 gjelder, og med preklusjonen har svaret to lag (OV-U27). */
       const toLag = { ...delvis, hovedkrav_varslet_i_tide: false };
+      const toLagUten = medP1IkkeAkseptert({ ...toLag }, 'regningsarbeid');
       const svikt = () => {
         const s = sak();
         s.send('TE', {
@@ -5674,6 +5675,12 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
         const ut = (s.journal.at(-1)!.data.svar as Data[])[0].utregning as Utregning;
         expect(ut.poster[0].lag).toEqual([{ lag: 1 }]);
         expect(ut.godkjent_beloep).toBe(0);
+        const prekludert = svikt();
+        brev(prekludert, 'vederlag', toLagUten);
+        const lagret = (prekludert.journal.at(-1)!.data.svar as Data[])[0].utregning as Utregning;
+        expect(lagret.poster[0].lag).toEqual([{ lag: 1, beloep: 0 }, { lag: 2 }]);
+        prekludert.rad('BH', { svar: [kopi(prekludert, () => {})] });
+        expect(prekludert.u().forstaatt, 'med preklusjon og 0 kr i det første laget').toBe(true);
       });
 
       it.each<[string, Data, (u: Utregning) => void, string]>([
@@ -5696,6 +5703,21 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
           'det siste laget',
         ],
         [
+          'et lag før det siste har et beløp, men tilbudet er ikke akseptert',
+          toLagUten,
+          (u) => {
+            u.poster[0].lag[0].beloep = 90000;
+            u.godkjent_beloep = 90000;
+          },
+          'har ikke 0 kr i laget for § 34.1.2',
+        ],
+        [
+          'laget for § 34.1.2 mangler 0 kr, men tilbudet er ikke akseptert',
+          toLagUten,
+          (u) => delete u.poster[0].lag[0].beloep,
+          'har ikke 0 kr i laget for § 34.1.2',
+        ],
+        [
           'et lag mangler beløpet når tilbudet er akseptert',
           delvis,
           (u) => {
@@ -5716,7 +5738,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
           'det subsidiære beløpet står ikke nøyaktig',
         ],
       ])('%s: saken er ikke forstått', (_n, v, endre, grunn) => {
-        const s = v === toLag ? svikt() : sakMedKrav();
+        const s = v === toLag || v === toLagUten ? svikt() : sakMedKrav();
         brev(s, 'vederlag', v);
         const raden = { svar: [kopi(s, (svar) => endre(svar.utregning as Utregning))] };
         expect(() => s.rad('BH', raden), 'raden fryses, og lesingen avgjør').not.toThrow();
@@ -6409,6 +6431,35 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     expect(laast(rad).join(' ')).not.toContain('justeringen ellers');
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
       `Byggherrens standpunkt: tilbudet ikke akseptert (§ 34.2.2), prinsipalt begrenset etter § 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+    );
+  });
+
+  it('et lag uten preklusjon har 0 kr, men tilbudet er ikke akseptert: en lagret rad med § 34.1.3 påberopt er ikke forstått (KA-U72, MM-U2)', () => {
+    /** Saken med svaret fra appen og en revisjon som er en kopi av det, med `endre` brukt på P1. */
+    const medKopi = (endre: (lag: Data[]) => void) => {
+      const s = sakMedPost();
+      const rad = brevet(s, medP1IkkeAkseptert({ ...postene, ...begrenset }, 'regningsarbeid'), {
+        resultat: 'delvis_godkjent',
+        godkjent_beloep: 10000,
+      });
+      const svar = structuredClone(lagret(rad));
+      const lag = ((svar.utregning as Data).poster as { lag: Data[] }[])[0].lag;
+      expect(lag, 'forutsetning: to lag uten preklusjon etter § 34.1.2').toEqual([
+        { lag: 1 },
+        { lag: 2 },
+      ]);
+      svar.id = randomUUID();
+      svar.erstatter = lagret(rad).id;
+      for (const p of svar.standpunkter as Data[]) p.id = randomUUID();
+      endre(lag);
+      s.rad('BH', { svar: [svar] });
+      return s.u();
+    };
+    expect(medKopi(() => {}).forstaatt, 'kontrollsak: en uendret kopi').toBe(true);
+    const u = medKopi((lag) => (lag[0].beloep = 0));
+    expect(u.forstaatt).toBe(false);
+    expect(u.begrensninger.map((b) => b.grunn).join(' ')).toContain(
+      'har ikke 0 kr i laget for § 34.1.2'
     );
   });
 

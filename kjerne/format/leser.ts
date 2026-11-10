@@ -346,17 +346,28 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
 /**
  * OV-U31, KA-U57 (e): utregningen har én rad per beløp i standpunktene, i samme rekkefølge og med
  * samme post, og like mange lag i hver rad. Beløpet i det siste laget er det byggherren godtar
- * for posten. Et lag uten beløp står bare for en kravpost der tilbudet ikke er akseptert
- * (KA-U72). Det byggherren godtar prinsipalt og subsidiært, er summen av det første og det
- * siste laget, og det subsidiære står bare med mer enn ett lag.
+ * for posten. Et lag uten beløp står bare for en kravpost der tilbudet ikke er akseptert, og en
+ * slik kravpost har 0 kr i laget for § 34.1.2 når påberopelsen har virkning, og ellers ikke
+ * beløp (KA-U72, OV-U27). Det byggherren godtar prinsipalt og subsidiært, er summen av det
+ * første og det siste laget, og det subsidiære står bare med mer enn ett lag.
  */
-function kontrollerUtregningenPerPost(ut: Standpunkt[], utregning: Data, sti: string): void {
+function kontrollerUtregningenPerPost(
+  ut: Standpunkt[],
+  utregning: Data,
+  virkninger: Standpunktsvirkning[],
+  sti: string
+): void {
   const rader = utregning.poster as { gjelder?: string; saerskilt?: string; lag: Data[] }[];
   const beloepene = ut.filter((s) => s.art === 'beloep');
   const utenAksept = new Set(
     ut.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []))
   );
   const antall = rader[0]?.lag.length ?? 0;
+  const hele = ut.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2');
+  const prekludert = Number(
+    hele !== undefined &&
+      typeof virkninger.find((v) => v.standpunkt === hele.id)?.virkning === 'number'
+  );
   const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.poster: ${hva}`);
   if (rader.length !== beloepene.length) throw feil('radene er ikke én per post i standpunktene');
   rader.forEach((r, i) => {
@@ -371,9 +382,18 @@ function kontrollerUtregningenPerPost(ut: Standpunkt[], utregning: Data, sti: st
       throw feil(`rad ${i + 1} har ikke lagene 1 til ${antall}`);
     if (beloep(r.lag.at(-1)!.beloep as number | undefined) !== beloep(b.godkjent))
       throw feil(`rad ${i + 1} har ikke beløpet byggherren godtar i det siste laget`);
-    if (r.lag.some((l) => !('beloep' in l)) && !utenAksept.has(r.gjelder!))
+    if (!utenAksept.has(r.gjelder!)) {
+      if (r.lag.some((l) => !('beloep' in l)))
+        throw feil(
+          `rad ${i + 1} mangler beløpet i et lag, men byggherren aksepterer tilbudet for posten (KA-U72)`
+        );
+    } else if (
+      r.lag.some((l, n) =>
+        n < prekludert ? beloep(l.beloep as number | undefined) !== 0n : 'beloep' in l
+      )
+    )
       throw feil(
-        `rad ${i + 1} mangler beløpet i et lag, men byggherren aksepterer tilbudet for posten (KA-U72)`
+        `rad ${i + 1} har ikke 0 kr i laget for § 34.1.2 og ellers ingen beløp, men byggherren aksepterer ikke tilbudet for posten (KA-U72, OV-U27)`
       );
   });
   const summen = (n: number) =>
@@ -449,7 +469,19 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
   const e = element(v, SVAR, 'spor', sti);
   const spor = e.spor as Spor;
   const standpunkter = standpunkterISvaret(spor, e, sti);
-  if (spor === 'vederlag') kontrollerUtregningenPerPost(standpunkter, e.utregning as Data, sti);
+  const beslutningsgrunnlag = lesBeslutningsgrunnlag(
+    spor,
+    e.beslutningsgrunnlag,
+    standpunkter,
+    `${sti}.beslutningsgrunnlag`
+  );
+  if (spor === 'vederlag')
+    kontrollerUtregningenPerPost(
+      standpunkter,
+      e.utregning as Data,
+      beslutningsgrunnlag.virkninger,
+      sti
+    );
   return {
     id: e.id as string,
     spor,
@@ -459,12 +491,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
     paaberopelse: (e.paaberopelse as string | undefined) ?? null,
     standpunkter,
     utregning: (e.utregning as Data | undefined) ?? {},
-    beslutningsgrunnlag: lesBeslutningsgrunnlag(
-      spor,
-      e.beslutningsgrunnlag,
-      standpunkter,
-      `${sti}.beslutningsgrunnlag`
-    ),
+    beslutningsgrunnlag,
   };
 }
 

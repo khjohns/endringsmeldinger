@@ -1148,7 +1148,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'gjelder saerskilt lag',
     ['format/leser.ts'],
   ],
-  ['format/leser.ts:kontrollerUtregningenPerPost(l)', 'rad', 'lag', ['format/leser.ts']],
+  ['format/leser.ts:kontrollerUtregningenPerPost(l)', 'rad', 'lag beloep', ['format/leser.ts']],
   [
     'format/leser.ts:kontrollerUtregningenPerPost(r.lag.at(-1))',
     'rad',
