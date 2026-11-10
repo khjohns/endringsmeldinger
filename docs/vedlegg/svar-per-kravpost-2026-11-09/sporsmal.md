@@ -528,3 +528,6 @@ Bakgrunn: VS-U56 er ført med forholdet «utvider KA-U58». Et gjeldende vedtak 
 - B: VS-U56 oppheves sammen med KA-U58.
 - Anbefalt: A.
 - Styrer: om byggherren fortsatt kan gjøre gjeldende subsidiært at varselet etter punkt 34.3.3 kom for sent når byggherren mener regningsarbeid (BF-14, D-14).
+
+Oppdragsgiver 10.11, ordrett: «A». Forholdet «utvider KA-U58» er fjernet fra VS-U56
+(`FORHOLD_FJERNET_ETTER_MERGE` i `docs/verktoy/vedtaksregister.py`).
