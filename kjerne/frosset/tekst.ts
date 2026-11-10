@@ -55,7 +55,8 @@ export function beslutningslinje(
   // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
   // Begrensningen etter § 34.1.3 er ingen preklusjon, men et eget ledd (VS-U5).
   const begrenset = begrensningen(svar, v);
-  // KA-U64, VS-U56: varselet etter § 34.3.3 for en kravpost står ved posten, ikke som grunn.
+  // KA-U64, VS-U56: varselet etter § 34.3.3 eller § 34.4 for en kravpost står ved posten, ikke
+  // som grunn. Etter § 34.4 har det ingen virkning og står ikke i linjen.
   const forKravposten = new Set(
     svar.standpunkter.flatMap((s) =>
       s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel) ? [s.id] : []

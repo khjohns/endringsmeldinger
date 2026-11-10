@@ -867,7 +867,7 @@ function kravpoststandpunktetStrider(
       ? null
       : 'standpunktet til oppgjørsformen har ikke TEs oppgjørsform for kravposten som hjemmel';
   }
-  if (p.art === 'rettidighet' && erVarselhjemmel(p.hjemmel) && erKravpostvarselhjemmel(p.hjemmel)) {
+  if (p.art === 'rettidighet' && erKravpostvarselhjemmel(p.hjemmel)) {
     const post = poster.get(p.gjelder);
     return post && varselhjemmel(post) === p.hjemmel
       ? null
