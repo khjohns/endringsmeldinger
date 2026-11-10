@@ -18,6 +18,8 @@
     i bunnen. «Legg til kravpost» åpner den nye posten. En trukket post er én linje med «Angre».
   - Varslene etter punkt 34.3.3 og 34.4 stilles som unntaket: skjemaet sier at kravet er varselet for
     posten, og TE oppgir bare et tidligere varsel med lenken «Varselet for P2 er gitt før».
+  - Varselet etter punkt 34.1.2 stilles på samme måte: «Dette kravet er varselet», med lenken
+    «Varselet er gitt før, utenfor løsningen».
   - Varselpunktene (1 og 2) står åpne til de er besvart med «Ferdig», og er deretter én linje med
     svaret og «Endre». I en ny versjon er de besvart fra før.
   - Valgene inne i et åpent element er radio og tekst, der det valgte svaret får flaten. Pillene
@@ -542,11 +544,17 @@ a.liten-knapp{color:inherit}
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p1">Varselet om vederlagsjustering</h2><span class="hjemmel">punkt 34.1.2</span><button class="lenke liten" type="button" data-vis-punkt aria-controls="p1">Endre</button><span class="kortsvar" id="ks1"></span></div>
             <p class="oppgitt">Forholdet er byggherrens valg av løsninger og prosjektering. Da skal du varsle uten ugrunnet opphold når du blir eller burde ha blitt klar over forholdet. Varselet gjelder hele vederlagskravet, med alle kravpostene.</p>
             <div class="felter"><div class="beloepfelt"><label for="klar">Når ble du klar over forholdet?</label><span class="hjelp">Oppgitt i varselet, brev 2</span><span class="datofelt"><input id="klar" value="12.09.2026" readonly></span></div></div>
-            <fieldset class="kun-nytt" style="border:0;margin:0;padding:0">
-              <legend class="spm" style="padding:0;margin-bottom:10px">Hvordan varsler du?</legend>
-              <div class="valg"><label><input type="radio" name="v1" value="her" checked> Varselet sendes med kravet</label><label><input type="radio" name="v1" value="annen"> Sendt på annen måte</label></div>
-            </fieldset>
-            <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p></div>
+            <div class="varsel kun-nytt kun-v1-her">
+              <p class="oppgitt">Dette kravet er varselet.</p>
+              <button class="lenke liten" type="button" data-varsel="annen">Varselet er gitt før, utenfor løsningen</button>
+            </div>
+            <div class="varsel kun-nytt kun-v1-annen" hidden>
+              <p class="oppgitt"><b>Varselet er gitt før, utenfor løsningen.</b> Brevet sier når, og brevet du varslet i, legges ved.</p>
+              <div class="beloepfelt"><label for="v1dato">Datoen for varselet</label><span class="hjelp">Datoen settes én gang.</span><span class="datofelt"><input id="v1dato" value="18.09.2026" aria-required="true"></span></div>
+              <button class="liten-knapp" type="button">Legg ved brevet</button>
+              <button class="lenke liten" type="button" data-varsel="her">Dette kravet er varselet likevel</button>
+            </div>
+            <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt kun-v1-her">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-nytt kun-v1-annen" hidden>Varselet ble gitt 18. september 2026, <b>6 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p></div>
           </section>
 
           <section class="punkt nummerert kun-saerskilt" aria-labelledby="p2" data-spor="U-7" data-aapen="nei">
@@ -697,6 +705,7 @@ function data(t) {
   };
 }
 let tilstand = 'nytt', d = data('nytt');
+let varselMaate = 'her'; // normalsvaret: kravet er varselet etter punkt 34.1.2
 const bh = {}; // byggherrens valg per post i svaret
 
 function radio(navn, verdi, valgt, tekst) {
@@ -874,8 +883,7 @@ function oppsummer() {
   pl.push(punkt('p7', nr++, 'Forbehold', 'Skrevet'));
   pl.push(punkt('pv', 'V', 'Vedlegg', '2 filer'));
   document.getElementById('punktliste').innerHTML = pl.join('');
-  const v1 = skjema.querySelector('[name="v1"]:checked')?.value;
-  document.getElementById('ks1').textContent = ny ? 'Sendt med kravet i brev 5. Du ble klar over forholdet 12. september 2026.' : `${v1 === 'annen' ? 'Sendt på annen måte' : 'Sendes med kravet'}, 24 kalenderdager etter at du ble klar over forholdet 12. september 2026.`;
+  document.getElementById('ks1').textContent = ny ? 'Sendt med kravet i brev 5. Du ble klar over forholdet 12. september 2026.' : varselMaate === 'annen' ? 'Varslet før, utenfor løsningen, 18. september 2026, 6 kalenderdager etter at du ble klar over forholdet. Brevet legges ved.' : 'Sendes med kravet, 24 kalenderdager etter at du ble klar over forholdet 12. september 2026.';
   document.getElementById('ks2').textContent = ny ? 'Sendt med kravet i brev 5.' : 'Sendes med kravet, 20 kalenderdager etter at du ble klar over utgiftene 16. september 2026.';
   document.getElementById('summer').innerHTML = `<li><span>Faste beløp</span><span class="num">${fmt(fast)}</span></li>${opplysning ? `<li class="dempet"><span>Anslag og overslag, ikke krevd</span><span class="num">${fmt(opplysning)}</span></li>` : ''}`;
   markerPunkt();
@@ -938,7 +946,7 @@ function brev() {
     <p class="dempet">Brev ${tilstand === 'ny' ? 7 : 5} · til byggherren · E-017 · prototypetekst</p>
     <h1>Krav om justering av vederlaget${tilstand === 'ny' ? ', ny versjon' : ''}</h1>
     ${tilstand === 'ny' ? '<p>Kravet erstatter kravet i brev 5. Totalentreprenøren avslår byggherrens tilbud for P1 og fremsetter det reviderte kravet nedenfor.</p>' : ''}
-    <h2>${n++}. Varselet om vederlagsjustering</h2><p>Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.</p>
+    <h2>${n++}. Varselet om vederlagsjustering</h2><p>${tilstand !== 'ny' && varselMaate === 'annen' ? `<span class="ny">Varsel om vederlagsjustering etter NS 8407 punkt 34.1.2 ble gitt i totalentreprenørens brev av ${esc(document.getElementById('v1dato').value) || '‹dato›'}, som er vedlagt.</span>` : 'Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.'}</p>
     ${skall.dataset.saerskilt === 'ja' ? `<h2>${n++}. Varselet om særskilt vederlagsjustering</h2><p>Totalentreprenøren varsler særskilt etter NS 8407 punkt 34.1.3 tredje ledd.</p>` : ''}
     <h2>${n++}. Vederlagsjustering</h2>${poster.map(linje).join('')}
     ${skall.dataset.saerskilt === 'ja' ? `<h2>${n++}. Særskilt vederlagsjustering</h2><p>TE krever i tillegg særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid med ${fmt(kr(s.beloep))} eks. mva.</p>` : ''}
@@ -1094,6 +1102,15 @@ skjema.addEventListener('change', e => {
 });
 skjema.addEventListener('click', e => {
   const h = e.target.closest('[data-handling]'), art = e.target.closest('.krt,.postskjema');
+  const vm = e.target.closest('[data-varsel]');
+  if (vm) {
+    varselMaate = vm.dataset.varsel;
+    document.querySelectorAll('.kun-v1-her').forEach(x => x.hidden = varselMaate !== 'her');
+    document.querySelectorAll('.kun-v1-annen').forEach(x => x.hidden = varselMaate !== 'annen');
+    oppsummer();
+    (varselMaate === 'annen' ? document.getElementById('v1dato') : document.querySelector('[data-varsel="annen"]')).focus();
+    return;
+  }
   const vis = e.target.closest('[data-vis-punkt]');
   if (vis) { const s = vis.closest('.punkt'); const aapen = s.dataset.aapen !== 'ja'; s.dataset.aapen = aapen ? 'ja' : 'nei'; vis.textContent = aapen ? 'Ferdig' : 'Endre'; vis.setAttribute('aria-expanded', String(aapen)); if (aapen) s.querySelector('input,button:not([data-vis-punkt])')?.focus(); return; }
   if (h) {
