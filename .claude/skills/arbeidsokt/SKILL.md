@@ -33,12 +33,11 @@ vedtak og rettelser kan gå tapt.
   igjen: en ny, liten økt tar over fra PR-en, vedtakene og issuet. Still derfor
   spørsmålene tidlig, og send svarene samlet så snart de foreligger, helst innen
   en time.
-- **Jobb videre mens et spørsmål venter.** Økta kartlegger og spør først, og tar så
-  det som ikke avhenger av svaret. Deretter bygger den videre på anbefalingen sin,
-  merket «foreslått», og fører under «Åpne spørsmål» i PR-en hvilke deler som hviler
-  på den. Kommer et annet svar, gjøres de delene om. PR-en meldes ikke klar før svaret
-  foreligger. Unntaket er et valg som blir en kontrakt: en regel i domenekjernen eller
-  et lagret navn. Det bygges ikke før svaret er gitt.
+- **Mens et spørsmål venter.** Økta kartlegger og spør først, og tar så det som ikke
+  avhenger av svaret. Det som avhenger av svaret, bygges ikke på øktas egen anbefaling.
+  Er resten gjort, skriver økta tilstanden i PR-en og stopper, slik «Arbeid i timer»
+  sier. I en orkestrert runde avgjør orkestratoren om annet arbeid skal settes i gang
+  mens økta venter, eller spør oppdragsgiver.
 - **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
   review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
   finnes. Brukt kontekst måler økta med transkriptet, ikke med `get_session`:
@@ -101,8 +100,8 @@ uten at oppdraget gjentar det:
 - **Les først** issuene, `AGENTS.md` og denne skillen.
 - **Spørsmål.** Spørsmål bare oppdragsgiver kan avgjøre (NS 8407, tiltenkt atferd),
   sendes samlet til `@parent` etter kartleggingen og før implementeringen, med
-  alternativer, belegg og en anbefaling. Mens den venter, arbeider økta videre etter
-  «Jobb videre mens et spørsmål venter». Den velger ikke et domenevalg i stillhet. Tekniske valg innenfor oppgaven tar den selv
+  alternativer, belegg og en anbefaling. Mens den venter, følger økta
+  «Mens et spørsmål venter». Den velger ikke et domenevalg i stillhet. Tekniske valg innenfor oppgaven tar den selv
   og fører i PR-en. Sier oppdraget at ingen følger øktene, velger økta det
   konservative alternativet og fører valget under «Åpne spørsmål», unntatt et
   valg som blir en kontrakt: en regel i domenekjernen eller et lagret navn.

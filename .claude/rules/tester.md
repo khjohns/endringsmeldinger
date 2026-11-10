@@ -64,13 +64,13 @@ identitet — det motsatte av regelen testen ligger ved siden av. Mekanisk søk 
 erstatt flytter navnet på feltet, ikke meningen i verdien. Etter en omdøping: les
 assertions, ikke bare kjør dem.
 
-**En reproduksjon av en kjent feil skal feile på målet, ikke på en forutsetning.**
-Suiten har ingen slike i dag. Legges en til, brukes `it.fails` i Vitest, med en
-kontrollsak som bare skiller seg i det ene feltet. En forutsetning som ikke holder, skal
-kaste en vanlig `Error` og ikke en assertion, slik `Forutsetning` i
-`kjerne/tester/kjoerer.ts` gjør. Ellers er testen grønn av feil grunn, og ingen ser at
-den har sluttet å reprodusere funnet. Rett ikke en slik test ved å endre den. Når feilen
-er rettet, gjøres den om til en ordinær test.
+**En reproduksjon av en kjent feil skal ikke kunne bli grønn av feil grunn.**
+Suiten har ingen slike i dag. Bruk ikke `it.fails` i Vitest: den blir grønn av enhver
+feil som kastes, også en forutsetning som ikke holder. En reproduksjon er en vanlig `it`
+med funn-ID-en i navnet, som fastslår dagens feilaktige utfall eksakt, og en kontrollsak
+som bare skiller seg i det ene feltet. Da blir testen rød både når en forutsetning
+slutter å holde og når feilen rettes. Rett ikke en slik test ved å endre den. Når feilen
+er rettet, gjøres den om til en ordinær test av riktig utfall.
 
 **En test skrevet ut fra koden bekrefter koden, ikke hensikten.** Skal en test
 vise at en funksjon virker som tiltenkt, må forventningen ha en kilde utenfor
@@ -98,10 +98,10 @@ Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
 - Vis først at det korrekte kontrolltilfellet passerer. Innfør én relevant feil
   om gangen og kontroller at testen feiler på den forventede virkningen, ikke
   på import, oppsett eller en uvedkommende forutsetning.
-- For en kjent feil med `it.fails`: behold reproduksjonen og kontrollsaken.
-  Ikke krev en grønn korrekthetsbaseline før rettingen finnes. Vis at selve
-  målassertionen feiler; etter retting kjøres testen ordinært og prøves mot en
-  relevant feilinnføring.
+- For en reproduksjon av en kjent feil: behold reproduksjonen og kontrollsaken.
+  Ikke krev en grønn korrekthetsbaseline før rettingen finnes. Etter retting gjøres
+  testen om til en ordinær test av riktig utfall og prøves mot en relevant
+  feilinnføring.
 - En overlevende mutasjon undersøkes: manglende dekning, tilsvarende atferd,
   unåbar kode eller ugyldig mutasjon må begrunnes. En verktøyrapport alene
   avgjør ikke dette. Udekket forventet atferd rettes eller spores som restanse,

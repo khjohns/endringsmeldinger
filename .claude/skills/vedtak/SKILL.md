@@ -127,8 +127,8 @@ oppdragsgiver.
 - **Samle før du spør.** Still spørsmålene fra øktene samlet. Hvert spørsmål
   har alternativer, belegg i kontraktsteksten eller vedtaket, en anbefaling og
   hva valget styrer. Kommer spørsmål fra flere økter omtrent samtidig, vent på
-  dem. En økt som venter, kan arbeide videre med anbefalingen merket som
-  foreslått.
+  dem. En økt som venter, tar bare det som ikke avhenger av svaret
+  ([arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst)).
 - **Still dem slik oppdragsgiver kan svare.** Skill de juridiske spørsmålene fra
   de tekniske. Har et spørsmål både en juridisk og en teknisk side, regnes det som
   juridisk. Spørsmål som berører rettsregler (NS 8407, kontraktens bestemmelser,
