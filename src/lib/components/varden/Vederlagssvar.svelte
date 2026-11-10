@@ -107,8 +107,15 @@
   const harPost = $derived(
     (krav.innhold.saerskilt as { produktivitet?: unknown } | undefined)?.produktivitet !== undefined
   );
-  // Kjernen sier hva svaret ennå ikke kan gjelde: en beregningsregel eller rigg og drift.
-  const hinder = $derived(harPost ? null : hindrerSvarPaaKravet(krav));
+  // Kjernen sier hva svaret ennå ikke kan gjelde: rigg og drift. Skjemaet har ennå ikke svaret på
+  // en kravpost etter en beregningsregel (svar 4 A i spørsmålsfila 10.11 for #1663, #1756).
+  const regelpost = $derived(poster.find((p) => p.oppgjoersform !== 'tilbud'));
+  const hinder = $derived(
+    harPost
+      ? null
+      : (hindrerSvarPaaKravet(krav) ??
+          (regelpost ? SKJEMA.beregningsregel(regelpost.betegnelse) : null))
+  );
   const stoppet = $derived(harPost || hinder !== null);
 
   // Én kravpost er åpen om gangen; de andre står som en leselinje (#1739, system.md).

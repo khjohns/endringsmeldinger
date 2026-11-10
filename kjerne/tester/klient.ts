@@ -141,6 +141,14 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
         godkjent_beloep: s.godkjent_belop,
         aksepterer: s.metode_akseptert ?? true,
         oensket_oppgjoersform: s.oensket_metode,
+        // Varselet for kravposten står bare i `kravposter`; ellers er `varslet_i_tide` § 34.1.2.
+        ...(s === h
+          ? {}
+          : {
+              krever_tilbud: s.krever_tilbud,
+              varslet_i_tide: s.varslet_i_tide,
+              godtar_justering: s.godtar_justering,
+            }),
       })),
     };
   }
@@ -164,7 +172,7 @@ function svarutkast(
   const v = vurderinger(spor, h, krav);
   let resultat: Record<string, unknown> = {};
   try {
-    // Et krav med flere kravposter kan ikke regnes ut med ett beløp; serveren avviser (KA-U59).
+    // Rigg og drift er ikke i kjernens svar; serveren avviser (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663).
     if (krav && (spor !== 'vederlag' || hindrerSvarPaaKravet(krav) === null))
       resultat = regnUtSvar(spor, v, { krav, paaberopelse: u.spor.forhold.gjeldendeKrav }, regler);
   } catch (feil) {

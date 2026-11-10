@@ -226,8 +226,8 @@ export const ELDRE_SVAR =
   'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
 
 /**
- * KA-U59: byggherren svarer per kravpost. Til svaret på en kravpost etter en beregningsregel og
- * på rigg og drift er bygget (2b i #1663), tilbys svaret og revisjonen av det ikke for et slikt krav.
+ * KA-U59: byggherren svarer per kravpost. Til svaret på rigg og drift er bygget, tilbys svaret
+ * og revisjonen av det ikke for et krav med posten (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663).
  */
 function svarPerKravpost(krav: Krav): Avvisning | null {
   const hinder = hindrerSvarPaaKravet(krav);

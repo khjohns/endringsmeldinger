@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `a8056e2015cd505a9b568ef9bfd02aae9fd7d01527327fc948fa22549787d386`
+Kontrollsum (SHA-256 over utdraget visningen leser): `6601eb57e75146087da052be753a517f200af041d3fe82d86c910411ce5472f0`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -498,7 +498,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-55](#rad-ka-55), [KA-56](#rad-ka-56)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U59 (målmodellen)
 
 ### <a id="hf-u28"></a>HF-U28
 

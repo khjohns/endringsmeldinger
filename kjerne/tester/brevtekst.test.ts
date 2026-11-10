@@ -8479,7 +8479,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     });
   });
 
-  it('byggherren kan ikke svare med ett beløp på et krav med flere kravposter, og svaret på en kravpost etter en beregningsregel er ikke bygget (KA-U59)', () => {
+  it('byggherren kan ikke svare med ett beløp på et krav med flere kravposter, og et beløp for en kravpost etter en beregningsregel avvises (KA-U59, OV-U95 punkt 5)', () => {
     const s = sakMedKrav();
     const svaret = () => ({
       type: 'brev',
@@ -8499,18 +8499,15 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(handlinger(s.u(), 'BH')).toContain('svare:vederlag');
     expect(s.avvist('BH', svaret())).toBe('UGYLDIG_VURDERING');
     expect(s.avvisning('BH', svaret())?.melding).toContain('P2.vurdering');
-    // Én kravpost etter en beregningsregel: svaret tilbys ikke, så visningen åpner ikke et
-    // skjema kjernen ikke kan regne ut (2b i #1663).
+    // Én kravpost etter en beregningsregel: svaret tilbys, og et beløp for posten avvises
+    // (OV-U95 punkt 5).
     s.send(
       'TE',
       krav([{ ...regning, oppgjoersform: 'regningsarbeid' }], {
         trekker: poster(s).map(([, id]) => id),
       })
     );
-    expect(handlinger(s.u(), 'BH')).not.toContain('svare:vederlag');
-    expect(s.avvist('BH', svaret())).toBe('SVAR_PER_KRAVPOST');
-    // Utenom forutsetningen, i utregningen og i lagene for skjemaet, avvises svaret på
-    // kravposten etter beregningsregelen på posten, og gir ikke en feil på serveren (#1663).
+    expect(handlinger(s.u(), 'BH')).toContain('svare:vederlag');
     const u = s.u();
     const gjeldende = u.spor.vederlag.gjeldendeKrav!;
     const [post] = kravposterI(gjeldende);
@@ -8527,9 +8524,8 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       }
       return null;
     };
-    const forventet = {
-      [post!.betegnelse]: 'kravposten følger en beregningsregel, og svaret på den er ikke bygget',
-    };
+    const grunn =
+      'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den (OV-U95 punkt 5)';
     expect(
       feilen(() =>
         regnUtSvar(
@@ -8539,10 +8535,317 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
           KJERNE.regler
         )
       )
-    ).toEqual(forventet);
+    ).toEqual({
+      [`${post!.betegnelse}.vurdering`]: grunn,
+      [`${post!.betegnelse}.godkjent_beloep`]: grunn,
+    });
+  });
+});
+
+describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U68, KA-U69, KA-U71, OV-U95 punkt 5, #1663)', () => {
+  const krav = (kravposter: Data[], rest: Data = {}) => ({
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: { kravposter, ...rest },
+  });
+  const regning = { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' };
+  const justert = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
+  /** Saken der vederlagskravet bare har kravpostene `kravposter`, P2 og videre (P1 er trukket). */
+  const sakMed = (...kravposter: Data[]) => {
+    const s = sakMedKrav();
+    s.send('TE', krav(kravposter, { trekker: [p1I(s)] }));
+    return s;
+  };
+  /** Svaret med vurderingene for kravpostene etter betegnelse, og utregningen fra regelen. */
+  const svaret = (s: ReturnType<typeof sakMedKrav>, svarene: Record<string, Data>) => {
+    const u = s.u();
+    const k = u.spor.vederlag.gjeldendeKrav!;
+    const v = {
+      kravposter: kravposterI(k).map((p) => ({ gjelder: p.id, ...svarene[p.betegnelse] })),
+    };
+    let resultat: Data = {};
+    try {
+      const r = regnUtSvar(
+        'vederlag',
+        v,
+        { krav: k, paaberopelse: u.spor.forhold.gjeldendeKrav },
+        KJERNE.regler
+      );
+      resultat = { resultat: r.resultat, godkjent_beloep: r.godkjent_beloep };
+    } catch (e) {
+      if (!(e instanceof UgyldigVurdering)) throw e;
+    }
+    return { type: 'brev', svar: [svar('vederlag', k.id, v, resultat)] };
+  };
+  const gjeldende = (s: ReturnType<typeof sakMedKrav>) => s.u().spor.vederlag.gjeldendeSvar!;
+  /** Laget hvert standpunkt står i, etter arten og hjemmelen. */
+  const lagene = (s: ReturnType<typeof sakMedKrav>) => {
+    const sv = gjeldende(s);
+    const virkning = new Map(
+      sv.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning])
+    );
+    return sv.standpunkter.map((p) => [
+      p.art === 'rettidighet' ? `${p.art} ${p.hjemmel}` : p.art,
+      virkning.get(p.id),
+    ]);
+  };
+
+  it('byggherren som godtar beregningsregelen, tar ikke stilling til et beløp, og svaret faller sammen med kravet (OV-U95 punkt 5, HF-U28)', () => {
+    const s = sakMed(regning);
     expect(
-      feilen(() => lagForUtkastet(svar('vederlag', gjeldende.id, v) as never, u, KJERNE.regler))
-    ).toEqual(forventet);
+      s.avvist('BH', svaret(s, { P2: { aksepterer: true, vurdering: 'godkjent' } })),
+      'et beløp for posten avvises'
+    ).toBe('UGYLDIG_VURDERING');
+    const rad = s.send('BH', svaret(s, { P2: { aksepterer: true } }));
+    const sv = gjeldende(s);
+    expect(sv.standpunkter.find((p) => p.art === 'oppgjoersform')).toMatchObject({
+      hjemmel: '34.4',
+      aksepterer: true,
+    });
+    expect(sv.utregning.poster).toEqual([{ gjelder: expect.any(String), lag: [{ lag: 1 }] }]);
+    expect(sv.beslutningsgrunnlag.sammenfall, 'D-17: enig i beregningsregelen').toBe(true);
+    expect(laast(rad).join(' ')).toContain(
+      'Byggherren godtar at vederlaget justeres som regningsarbeid (NS 8407 § 34.4). Det godkjenner ikke mengder, priser, kostnader eller noe beløp.'
+    );
+  });
+
+  it('byggherren som mener den andre beregningsregelen, må oppgi den, og kan ikke mene den TE krever (OV-U95 punkt 1 og 5)', () => {
+    const s = sakMed(regning);
+    expect(s.avvisning('BH', svaret(s, { P2: { aksepterer: false } }))?.melding).toContain(
+      'P2.oensket_oppgjoersform: mangler når beregningsregelen ikke godtas'
+    );
+    expect(
+      s.avvisning(
+        'BH',
+        svaret(s, { P2: { aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' } })
+      )?.melding
+    ).toContain('P2.oensket_oppgjoersform: er oppgjørsformen TE krever');
+    const rad = s.send(
+      'BH',
+      svaret(s, { P2: { aksepterer: false, oensket_oppgjoersform: 'enhetspriser' } })
+    );
+    expect(gjeldende(s).utregning.resultat, 'HF-U5').toBe('delvis_godkjent');
+    expect(gjeldende(s).beslutningsgrunnlag.sammenfall).toBe(false);
+    expect(laast(rad).join(' ')).toContain(
+      'Byggherren godtar ikke at vederlaget justeres som regningsarbeid (NS 8407 § 34.4), og mener det skal justeres etter enhetspriser (NS 8407 § 34.3).'
+    );
+  });
+
+  it('kravet om tilbud kan ikke stå sammen med en godtatt beregningsregel, og oppgjørsformen byggherren mener er da valgfri (KA-U71, svar 3 A 10.11)', () => {
+    const s = sakMed(regning);
+    expect(
+      s.avvisning('BH', svaret(s, { P2: { aksepterer: true, krever_tilbud: true } }))?.melding
+    ).toContain('P2.krever_tilbud: kan ikke stå når byggherren godtar beregningsregelen');
+    const rad = s.send('BH', svaret(s, { P2: { aksepterer: false, krever_tilbud: true } }));
+    expect(gjeldende(s).standpunkter.find((p) => p.art === 'oppgjoersform')).toEqual({
+      id: expect.any(String),
+      art: 'oppgjoersform',
+      gjelder: expect.any(String),
+      hjemmel: '34.4',
+      aksepterer: false,
+      kreverTilbud: true,
+    });
+    expect(gjeldende(s).beslutningsgrunnlag.sammenfall, 'KA-U71').toBe(false);
+    expect(laast(rad).join(' ')).toContain(
+      'Byggherren godtar ikke at vederlaget justeres som regningsarbeid (NS 8407 § 34.4). Byggherren krever at TE gir et spesifisert tilbud for kravposten (NS 8407 § 34.2.1 første ledd).'
+    );
+  });
+
+  it('kravet om tilbud gjelder ikke en kravpost med fast sum (KA-U69)', () => {
+    const s = sakMedKrav();
+    const k = s.u().spor.vederlag.gjeldendeKrav!;
+    const v = {
+      kravposter: [
+        {
+          gjelder: kravposterI(k)[0]!.id,
+          aksepterer: false,
+          oensket_oppgjoersform: 'regningsarbeid',
+          krever_tilbud: true,
+        },
+      ],
+    };
+    expect(
+      s.avvisning('BH', { type: 'brev', svar: [svar('vederlag', k.id, v)] })?.melding
+    ).toContain('P1.krever_tilbud: gjelder bare en kravpost etter en beregningsregel');
+  });
+
+  it('innsigelsen etter punkt 34.3.3 åpner et lag for justeringen, og avviser ikke hele kravet (VS-U4, KA-U64, arbeidsvalg 1 punkt 4)', () => {
+    const s = sakMed(justert);
+    expect(
+      s.avvisning('BH', svaret(s, { P2: { aksepterer: true } }))?.melding,
+      'KA-U68: justeringen mangler'
+    ).toContain('P2.godtar_justering: mangler');
+    const rad = s.send(
+      'BH',
+      svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true } })
+    );
+    expect(lagene(s)).toEqual([
+      ['oppgjoersform', 'upaavirket'],
+      ['rettidighet 34.3.3', 1],
+      ['justering', 2],
+      ['beloep', 2],
+    ]);
+    expect(gjeldende(s).utregning.poster).toEqual([
+      { gjelder: expect.any(String), lag: [{ lag: 1 }, { lag: 2 }] },
+    ]);
+    expect(gjeldende(s).utregning.resultat, 'ikke prekludert, uten fast beløp').toBe(
+      'delvis_godkjent'
+    );
+    expect(gjeldende(s).beslutningsgrunnlag.sammenfall, 'D-17').toBe(false);
+    const brevet = laast(rad).join(' ');
+    expect(brevet).toContain(
+      'Prinsipalt: byggherren gjør gjeldende at varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3 første ledd for P2 kom for sent, og at TE bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.'
+    );
+    expect(brevet).toContain(
+      'Subsidiært: byggherren godtar at enhetsprisene for P2 justeres (NS 8407 punkt 34.3.2).'
+    );
+  });
+
+  it('byggherren som mener regningsarbeid, kan subsidiært gjøre gjeldende at varselet etter punkt 34.3.3 kom for sent, og videre subsidiært bestride justeringen (VS-U56)', () => {
+    const s = sakMed(justert);
+    s.send(
+      'BH',
+      svaret(s, {
+        P2: {
+          aksepterer: false,
+          oensket_oppgjoersform: 'regningsarbeid',
+          varslet_i_tide: false,
+          godtar_justering: false,
+        },
+      })
+    );
+    expect(lagene(s)).toEqual([
+      ['oppgjoersform', 1],
+      ['rettidighet 34.3.3', 2],
+      ['justering', 3],
+      ['beloep', 3],
+    ]);
+    expect(gjeldende(s).utregning.poster).toEqual([
+      { gjelder: expect.any(String), lag: [{ lag: 1 }, { lag: 2 }, { lag: 3 }] },
+    ]);
+    // Ordlyden i linjen er design; at hvert standpunkt står i linjen med TEs oppgjørsform som
+    // hjemmel, er KA-U54 og KA-U68.
+    expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt beregningsregelen ikke godtatt (§ 34.3), subsidiært varselet etter § 34.3.3 kom for sent, videre subsidiært justeringen av enhetsprisene bestridt (§ 34.3.2).'
+    );
+  });
+
+  it('standpunktet til varselet etter punkt 34.4 får ingen virkning og åpner ikke et lag, men gir ikke sammenfall (KA-U64, D-17)', () => {
+    const s = sakMed(regning);
+    const rad = s.send('BH', svaret(s, { P2: { aksepterer: true, varslet_i_tide: false } }));
+    expect(lagene(s)).toEqual([
+      ['oppgjoersform', 1],
+      ['rettidighet 34.4', 'uten_virkning'],
+      ['beloep', 1],
+    ]);
+    expect(gjeldende(s).beslutningsgrunnlag.sammenfall).toBe(false);
+    expect(laast(rad).join(' ')).toContain(
+      'Byggherren gjør gjeldende at varselet om regningsarbeid etter NS 8407 punkt 34.4 for P2 ikke ble gitt eller kom for sent.'
+    );
+  });
+
+  it('standpunktet til varselet og justeringen gjelder bare kravposter som har dem (KA-U64, KA-U68)', () => {
+    const s = sakMed(regning);
+    expect(
+      s.avvisning('BH', svaret(s, { P2: { aksepterer: true, godtar_justering: true } }))?.melding
+    ).toContain('P2.godtar_justering: gjelder bare en kravpost med justerte enhetspriser');
+    const t = sakMedKrav();
+    const k = t.u().spor.vederlag.gjeldendeKrav!;
+    const v = {
+      kravposter: [
+        {
+          gjelder: kravposterI(k)[0]!.id,
+          aksepterer: true,
+          vurdering: 'godkjent',
+          varslet_i_tide: true,
+        },
+      ],
+    };
+    expect(
+      t.avvisning('BH', { type: 'brev', svar: [svar('vederlag', k.id, v)] })?.melding
+    ).toContain('P1.varslet_i_tide: gjelder bare varselet etter punkt 34.3.3');
+  });
+
+  /** Saken der vederlagskravet har P1 med fast sum og kravpostene `kravposter`, P2 og videre. */
+  const sakMedP1 = (...kravposter: Data[]) => {
+    const s = sakMedKrav();
+    s.send('TE', krav([...(tilbud(125000).kravposter as Data[]), ...kravposter]));
+    return s;
+  };
+
+  it('en kravpost som verken beregningsregelen byggherren ikke godtar eller innsigelsene for den rammer, er upåvirket (arbeidsvalg 1 punkt 2, OV-U33, OV-U32)', () => {
+    const s = sakMedP1(justert);
+    s.send(
+      'BH',
+      svaret(s, {
+        P1: { aksepterer: true, vurdering: 'godkjent' },
+        P2: {
+          aksepterer: false,
+          oensket_oppgjoersform: 'regningsarbeid',
+          varslet_i_tide: true,
+          godtar_justering: false,
+        },
+      })
+    );
+    expect(lagene(s)).toEqual([
+      ['oppgjoersform', 'upaavirket'],
+      ['beloep', 'upaavirket'],
+      ['oppgjoersform', 1],
+      ['rettidighet 34.3.3', 'uten_virkning'],
+      ['justering', 2],
+      ['beloep', 2],
+    ]);
+    expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt beregningsregelen for P2 ikke godtatt (§ 34.3), subsidiært justeringen av enhetsprisene for P2 bestridt (§ 34.3.2).'
+    );
+  });
+
+  it('linjen nevner innsigelsen etter punkt 34.3.3 ved kravposten og i laget den står i (KA-U64, VS-U56, OV-U32)', () => {
+    const s = sakMedP1(justert, { ...justert, beskrivelse: 'Avstivning' });
+    s.send(
+      'BH',
+      svaret(s, {
+        P1: { aksepterer: true, vurdering: 'godkjent' },
+        P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true },
+        P3: { aksepterer: false, oensket_oppgjoersform: 'regningsarbeid', varslet_i_tide: false },
+      })
+    );
+    expect(lagene(s)).toEqual([
+      ['oppgjoersform', 'upaavirket'],
+      ['beloep', 'upaavirket'],
+      ['oppgjoersform', 'upaavirket'],
+      ['rettidighet 34.3.3', 1],
+      ['justering', 2],
+      ['beloep', 2],
+      ['oppgjoersform', 1],
+      ['rettidighet 34.3.3', 2],
+      ['beloep', 2],
+    ]);
+    expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt varselet etter § 34.3.3 for P2 kom for sent, beregningsregelen for P3 ikke godtatt (§ 34.3), subsidiært varselet etter § 34.3.3 for P3 kom for sent.'
+    );
+  });
+
+  it('et lagret svar med et beløp for en kravpost etter en beregningsregel er ikke forstått, også uten standpunktet til oppgjørsformen (OV-U95 punkt 5)', () => {
+    const s = sakMed(regning);
+    const sv = (s.send('BH', svaret(s, { P2: { aksepterer: true } })).data.svar as Data[])[0]!;
+    expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+    const beloepet = (sv.standpunkter as Data[]).find((p) => p.art === 'beloep')!;
+    sv.standpunkter = [{ ...beloepet, beloep: 5000 }];
+    sv.utregning = {
+      resultat: 'godkjent',
+      godkjent_beloep: 5000,
+      poster: [{ gjelder: beloepet.gjelder, lag: [{ lag: 1, beloep: 5000 }] }],
+    };
+    const grunnlag = sv.beslutningsgrunnlag as Data;
+    grunnlag.virkninger = (grunnlag.virkninger as Data[]).filter(
+      (v) => v.standpunkt === beloepet.id
+    );
+    const u = s.u();
+    expect(u.forstaatt).toBe(false);
+    expect(u.begrensninger.map((b) => b.grunn)).toEqual([
+      'standpunktet til beløpet har et beløp for en kravpost etter en beregningsregel',
+    ]);
   });
 });
 

@@ -18,6 +18,7 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { kategori } from './kravinnhold.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Beslutningsgrunnlag,
   Dokument,
@@ -134,22 +135,67 @@ function vederlagsvirkninger(
     );
   const [hele, posten] = [sent('34.1.2'), sent('34.1.3')];
   const foerste = hele ? 2 : 1;
-  const ellers: Virkning = posten && !hele && forskyvning === 0 ? 'upaavirket' : foerste;
+  const iKravposten = beregningsregelLag(svar.standpunkter, foerste);
+  // OV-U33: upåvirket bare ved en påberopelse i sporet. Innsigelsen etter § 34.3.3 og en
+  // beregningsregel byggherren ikke godtar, rammer bare posten (arbeidsvalg 1 punkt 2 i
+  // spørsmålsfila 09.11 for #1663).
+  const rammer =
+    posten ||
+    svar.standpunkter.some(
+      (s) =>
+        iKravposten.has(s.id) &&
+        ((s.art === 'rettidighet' && s.hjemmel === '34.3.3') ||
+          (s.art === 'oppgjoersform' && !s.aksepterer))
+    );
+  const ellers: Virkning = rammer && !hele && forskyvning === 0 ? 'upaavirket' : foerste;
   return svar.standpunkter.map((s): Standpunktsvirkning => {
     const virkning = (): Virkning => {
-      if (s.art === 'rettidighet')
-        return s.hjemmel === '34.1.2'
-          ? hele
-            ? 1
-            : 'uten_virkning'
-          : posten
-            ? foerste
-            : 'uten_virkning';
+      if (iKravposten.has(s.id)) return iKravposten.get(s.id)!;
+      if (s.art === 'rettidighet') {
+        if (s.hjemmel === '34.1.2') return hele ? 1 : 'uten_virkning';
+        return s.hjemmel === '34.1.3' && posten ? foerste : 'uten_virkning';
+      }
       if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;
       return ellers;
     };
     return { standpunkt: s.id, art: s.art, virkning: virkning() };
   });
+}
+
+/**
+ * Laget for standpunktene til en kravpost etter en beregningsregel som rammer posten
+ * (arbeidsvalg 1 punkt 4 i spørsmålsfila 09.11 for #1663): beregningsregelen byggherren ikke
+ * godtar og innsigelsen etter § 34.3.3 åpner hvert sitt lag, og standpunktet etter dem står i
+ * laget etter (VS-U4, VS-U56). Rettidigheten etter § 34.4 får ingen virkning (KA-U64). En
+ * kravpost uten slike innsigelser er ikke med, og standpunktene står som de andre.
+ */
+function beregningsregelLag(standpunkter: Standpunkt[], foerste: number): Map<string, number> {
+  const ut = new Map<string, number>();
+  const regel = new Set(
+    standpunkter.flatMap((s) =>
+      s.art === 'oppgjoersform' && s.hjemmel !== '34.2.2' ? [s.gjelder] : []
+    )
+  );
+  for (const g of regel) {
+    const alle = standpunkter.filter((s) => (s as { gjelder?: string }).gjelder === g);
+    const posten = alle.filter((s) => s.art !== 'beloep');
+    const aapner = (s: Standpunkt) =>
+      (s.art === 'oppgjoersform' && !s.aksepterer) ||
+      (s.art === 'rettidighet' && s.hjemmel === '34.3.3' && !s.iTide);
+    if (!posten.some(aapner)) continue;
+    let lag = foerste;
+    for (const s of posten) {
+      if (s.art === 'rettidighet' && s.hjemmel === '34.4') continue;
+      if (s.art === 'oppgjoersform' && s.aksepterer) continue;
+      if (s.art === 'rettidighet' && s.iTide) continue;
+      ut.set(s.id, lag);
+      if (aapner(s)) lag++;
+    }
+    // Beløpsstandpunktet uten beløp står i laget til det siste standpunktet for posten.
+    const beloepet = alle.find((s) => s.art === 'beloep');
+    if (beloepet) ut.set(beloepet.id, Math.max(...posten.map((s) => ut.get(s.id) ?? foerste)));
+  }
+  return ut;
 }
 
 /**
@@ -287,7 +333,11 @@ function avvisesPrinsipalt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean
   return v.some((p) => {
     if (p.virkning !== 1) return false;
     const s = svar.standpunkter.find((x) => x.id === p.standpunkt);
-    return s?.art === 'hindring' || (s?.art === 'rettidighet' && s.hjemmel !== '34.1.3');
+    // Innsigelsene etter § 34.3.3 og § 34.4 rammer bare kravposten (KA-U64, VS-U56).
+    return (
+      s?.art === 'hindring' ||
+      (s?.art === 'rettidighet' && (s.hjemmel === '34.1.2' || !s.hjemmel.startsWith('34')))
+    );
   });
 }
 
@@ -422,7 +472,10 @@ export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art
   return svar.standpunkter.find((s): s is Extract<Standpunkt, { art: A }> => s.art === art);
 }
 
-/** Byggherren aksepterer ikke tilbudet for minst én kravpost (§ 34.2.2, KA-U57 (d)). */
+/**
+ * Byggherren aksepterer ikke tilbudet eller godtar ikke beregningsregelen for minst én kravpost
+ * (§ 34.2.2, KA-U57 (d), KA-U71).
+ */
 export const tilbudetIkkeAkseptert = (svar: Svarinnhold): boolean =>
   svar.standpunkter.some((s) => s.art === 'oppgjoersform' && !s.aksepterer);
 
@@ -486,6 +539,16 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
   // påberopelse etter § 33.6.1 i et lag, gir aldri sammenfall. Leses av standpunktene.
   if (tilbudetIkkeAkseptert(svar)) return false;
+  // HF-U28, D-17 i BF-14: en innsigelse etter § 34.3.3 eller § 34.4 eller en bestridt justering
+  // gir ikke sammenfall (arbeidsvalg 2 i spørsmålsfila 09.11 for #1663).
+  if (
+    svar.standpunkter.some(
+      (s) =>
+        (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel) && !s.iTide) ||
+        (s.art === 'justering' && !s.godtar)
+    )
+  )
+    return false;
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;

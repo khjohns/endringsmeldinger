@@ -147,9 +147,15 @@ export interface Kravpostvurdering {
   gjelder?: unknown;
   vurdering?: unknown;
   godkjent_beloep?: unknown;
-  /** Standpunktet etter § 34.2.2 (KA-U57 (d)). */
+  /** Om byggherren aksepterer tilbudet eller godtar beregningsregelen (KA-U57 (d), KA-U54). */
   aksepterer?: unknown;
   oensket_oppgjoersform?: unknown;
+  /** Kravet om spesifisert tilbud etter § 34.2.1 (KA-U69, KA-U71). */
+  krever_tilbud?: unknown;
+  /** Standpunktet til varselet etter § 34.3.3 eller § 34.4 for kravposten (KA-U64). */
+  varslet_i_tide?: unknown;
+  /** Standpunktet til justeringen etter § 34.3.2 (KA-U68). */
+  godtar_justering?: unknown;
 }
 
 const KRAVPOSTVURDERINGER = new Set<string>([
@@ -158,6 +164,9 @@ const KRAVPOSTVURDERINGER = new Set<string>([
   'godkjent_beloep',
   'aksepterer',
   'oensket_oppgjoersform',
+  'krever_tilbud',
+  'varslet_i_tide',
+  'godtar_justering',
 ]);
 
 /**
@@ -195,16 +204,15 @@ export function kravpostvurderinger(
 }
 
 /**
- * Det krevde beløpet i kravposten byggherren svarer på. Svaret på en kravpost etter en
- * beregningsregel er ikke bygget (#1663), så det avvises og gir ikke en feil på serveren.
+ * Standpunktene for en kravpost etter en beregningsregel som regelen regner lagene av, eller
+ * `undefined` for en kravpost med fast sum (OV-U95 punkt 5, KA-U64, KA-U68).
  */
-function krevdISvaret(krav: Krav, post: Kravpost): Oere {
-  const krevd = krevdIKravposten(krav, post);
-  if (krevd === null)
-    throw new UgyldigVurdering({
-      [post.betegnelse]: 'kravposten følger en beregningsregel, og svaret på den er ikke bygget',
-    });
-  return krevd;
+function beregningsregelen(post: Kravpost, svar: Kravpostvurdering) {
+  if (post.oppgjoersform === 'tilbud') return undefined;
+  return {
+    varselForSent: post.oppgjoersform === 'enhetspriser' && svar.varslet_i_tide === false,
+    justering: typeof svar.godtar_justering === 'boolean' ? svar.godtar_justering : null,
+  };
 }
 
 /** Feltene i kommandoen for posten etter § 34.1.3 annet ledd; feilene fra regelen føres tilbake til dem. */
@@ -229,12 +237,14 @@ function vederlagssvaret(
   for (const { post, svar } of kravpostvurderinger(v, krav)) {
     for (const f of ['vurdering', 'godkjent_beloep', 'aksepterer'])
       felt.set(`${post.id}.${f}`, `${post.betegnelse}.${f}`);
+    const regel = beregningsregelen(post, svar);
     poster.push({
       gjelder: post.id,
-      krevd: tilTall(krevdISvaret(krav, post)),
+      krevd: tilTall(krevdIKravposten(krav, post) ?? 0n),
       vurdering: svar.vurdering as Beloepsvurdering | undefined,
       godkjent_beloep: svar.godkjent_beloep as number | undefined,
       aksepterer: svar.aksepterer as boolean | undefined,
+      ...(regel ? { beregningsregel: regel } : {}),
     });
   }
   const produktivitet = krevdProduktivitet(krav);
@@ -296,7 +306,7 @@ function regnUtVederlag(
   const { hovedkategori } = kategori(paaberopelse);
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
   for (const { post, svar } of kravpostvurderinger(v, krav))
-    kontrollerOppgjoersformen(post.betegnelse, svar);
+    kontrollerOppgjoersformen(post.betegnelse, svar, post);
   const { svar, felt } = vederlagssvaret(v, krav, hovedkategori);
   let r: Vederlagsberegning;
   try {
@@ -397,11 +407,12 @@ export function vederlagsposter(
   const produktivitet = krevdProduktivitet(krav);
   return [
     ...kravpostvurderinger(v, krav).map(({ post: k, svar }) => ({
-      // En kravpost der tilbudet ikke er akseptert, får ikke beløp (KA-U72).
+      // En kravpost der tilbudet ikke er akseptert (KA-U72), eller etter en beregningsregel
+      // (OV-U95 punkt 5), får ikke beløp.
       godkjent:
-        svar.aksepterer === false
+        svar.aksepterer === false || k.oppgjoersform !== 'tilbud'
           ? null
-          : post(svar.vurdering, krevdISvaret(krav, k), svar.godkjent_beloep),
+          : post(svar.vurdering, krevdIKravposten(krav, k)!, svar.godkjent_beloep),
       gjelder: k.id,
       svar,
     })),

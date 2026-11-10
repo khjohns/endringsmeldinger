@@ -69,6 +69,7 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
   vederlag: [
     { art: 'rettidighet', paakrevd: false },
     { art: 'oppgjoersform', paakrevd: false },
+    { art: 'justering', paakrevd: false },
     { art: 'beloep', paakrevd: true },
   ],
   frist: [
@@ -80,6 +81,13 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
     { art: 'dager', paakrevd: true },
   ],
 };
+
+/** Hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform (KA-U57 (d), KA-U54). */
+export const OPPGJOERSHJEMMEL = {
+  tilbud: '34.2.2',
+  enhetspriser: '34.3',
+  regningsarbeid: '34.4',
+} as const;
 
 /** Oppgjørsformene byggherren kan mene for kravposten, når tilbudet ikke er akseptert (§ 34.2.2). */
 export const METODER = ['enhetspriser', 'regningsarbeid'] as const satisfies readonly NonNullable<
@@ -295,7 +303,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     {
       ...artfelt('rettidighet'),
       gjelder: ID,
-      hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2', '34.1.3'] },
+      hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2', '34.1.3', '34.3.3', '34.4'] },
       i_tide: { type: 'boolean' },
       // VS-U5, OV-U22: beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3.
       beloep: { type: 'number', minimum: 0 },
@@ -320,16 +328,28 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     ['id', 'art'],
     [{ required: ['gjelder'] }, { required: ['saerskilt'] }]
   ),
-  // § 34.2.2, KA-U57 (d): standpunktet til oppgjørsformen for kravposten `gjelder`.
+  // KA-U57 (d), KA-U54: standpunktet til TEs oppgjørsform for kravposten `gjelder`, med TEs
+  // oppgjørsform som hjemmel. KA-U69, KA-U71: kravet om spesifisert tilbud (`leser.ts`).
   oppgjoersform: objekt(
     {
       ...artfelt('oppgjoersform'),
       gjelder: ID,
-      hjemmel: { const: '34.2.2' },
+      hjemmel: { enum: ['34.2.2', '34.3', '34.4'] },
       aksepterer: { type: 'boolean' },
       oensket_oppgjoersform: { enum: [...METODER] },
+      krever_tilbud: { const: true },
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'aksepterer']
+  ),
+  // § 34.3.2, KA-U68: standpunktet til justeringen av enhetsprisene for kravposten `gjelder`.
+  justering: objekt(
+    {
+      ...artfelt('justering'),
+      gjelder: ID,
+      hjemmel: { const: '34.3.2' },
+      godtar: { type: 'boolean' },
+    },
+    ['id', 'art', 'gjelder', 'hjemmel', 'godtar']
   ),
   hindring: objekt({ ...artfelt('hindring'), oppfylt: { type: 'boolean' } }, [
     'id',
