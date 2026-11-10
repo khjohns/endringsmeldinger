@@ -880,10 +880,10 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
   return `${innledning} ${kravet}: «${beskrivelse}».`;
 }
 
-/** Kravposten standpunktet gjelder (KA-U57 (c) og (d)). Leseren har kontrollert at den finnes. */
+/** Kravposten standpunktet gjelder (KA-U57 (c) og (d)). */
 function kravpostenI(krav: Krav, gjelder: string): Kravpost {
   const post = kravposterI(krav).find((k) => k.id === gjelder);
-  if (!post) throw new Error(`Kravet ${krav.id} har ikke kravposten ${gjelder}.`);
+  if (!post) throw new KanIkkeUttrykkes(`kravet har ikke kravposten ${gjelder}`);
   return post;
 }
 
@@ -891,7 +891,8 @@ function kravpostenI(krav: Krav, gjelder: string): Kravpost {
 function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {
   const post = kravpostenI(krav, gjelder);
   const krevd = krevdIKravposten(krav, post);
-  if (krevd === null) throw new Error(`Kravposten ${post.betegnelse} har ikke et krevd beløp.`);
+  if (krevd === null)
+    throw new KanIkkeUttrykkes(`kravposten ${post.betegnelse} har ikke et krevd beløp`);
   return [post, krevd];
 }
 

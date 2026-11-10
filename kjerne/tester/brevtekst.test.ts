@@ -8723,6 +8723,11 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     expect(gjeldende(s).utregning.poster).toEqual([
       { gjelder: expect.any(String), lag: [{ lag: 1 }, { lag: 2 }, { lag: 3 }] },
     ]);
+    // Ordlyden i linjen er design; at hvert standpunkt står i linjen med TEs oppgjørsform som
+    // hjemmel, er KA-U54 og KA-U68.
+    expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt beregningsregelen ikke godtatt (§ 34.3), subsidiært varselet etter § 34.3.3 kom for sent, videre subsidiært justeringen av enhetsprisene bestridt (§ 34.3.2).'
+    );
   });
 
   it('standpunktet til varselet etter punkt 34.4 får ingen virkning og åpner ikke et lag, men gir ikke sammenfall (KA-U64, D-17)', () => {
@@ -8759,6 +8764,28 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     expect(
       t.avvisning('BH', { type: 'brev', svar: [svar('vederlag', k.id, v)] })?.melding
     ).toContain('P1.varslet_i_tide: gjelder bare varselet etter punkt 34.3.3');
+  });
+
+  it('et lagret svar med et beløp for en kravpost etter en beregningsregel er ikke forstått, også uten standpunktet til oppgjørsformen (OV-U95 punkt 5)', () => {
+    const s = sakMed(regning);
+    const sv = (s.send('BH', svaret(s, { P2: { aksepterer: true } })).data.svar as Data[])[0]!;
+    expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+    const beloepet = (sv.standpunkter as Data[]).find((p) => p.art === 'beloep')!;
+    sv.standpunkter = [{ ...beloepet, beloep: 5000 }];
+    sv.utregning = {
+      resultat: 'godkjent',
+      godkjent_beloep: 5000,
+      poster: [{ gjelder: beloepet.gjelder, lag: [{ lag: 1, beloep: 5000 }] }],
+    };
+    const grunnlag = sv.beslutningsgrunnlag as Data;
+    grunnlag.virkninger = (grunnlag.virkninger as Data[]).filter(
+      (v) => v.standpunkt === beloepet.id
+    );
+    const u = s.u();
+    expect(u.forstaatt).toBe(false);
+    expect(u.begrensninger.map((b) => b.grunn)).toEqual([
+      'standpunktet til beløpet har et beløp for en kravpost etter en beregningsregel',
+    ]);
   });
 });
 

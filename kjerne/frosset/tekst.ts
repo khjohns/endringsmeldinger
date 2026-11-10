@@ -102,14 +102,27 @@ export function beslutningslinje(
           tekst: `begrenset etter § 34.1.3 til ${kroner(begrenset.begrenset!)}`,
           virkning: virkning(begrenset.id),
         });
-      // KA-U57 (d), KA-U60: standpunktet etter § 34.2.2 gjelder kravposten og står i sitt lag.
+      // KA-U57 (d), KA-U60, KA-U54: standpunktet til oppgjørsformen gjelder kravposten og står i
+      // sitt lag, med TEs oppgjørsform som hjemmel. KA-U68: justeringen som er bestridt, likeså.
+      const forPosten = post ? ` for ${post}` : '';
       const form = svar.standpunkter.find(
         (s) => s.art === 'oppgjoersform' && !s.aksepterer && s.gjelder === b.gjelder
       );
-      if (form && !b.saerskilt)
+      if (form?.art === 'oppgjoersform' && !b.saerskilt)
         sine.push({
-          tekst: `tilbudet${post ? ` for ${post}` : ''} ikke akseptert (§ 34.2.2)`,
+          tekst:
+            form.hjemmel === '34.2.2'
+              ? `tilbudet${forPosten} ikke akseptert (§ 34.2.2)`
+              : `beregningsregelen${forPosten} ikke godtatt (§ ${form.hjemmel})`,
           virkning: virkning(form.id),
+        });
+      const justering = svar.standpunkter.find(
+        (s) => s.art === 'justering' && !s.godtar && s.gjelder === b.gjelder
+      );
+      if (justering)
+        sine.push({
+          tekst: `justeringen av enhetsprisene${forPosten} bestridt (§ 34.3.2)`,
+          virkning: virkning(justering.id),
         });
       // En kravpost uten beløp (KA-U72) har ikke et ledd for beløpet.
       if (b.godkjent === undefined) return;
