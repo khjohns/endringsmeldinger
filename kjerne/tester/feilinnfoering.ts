@@ -4245,6 +4245,21 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['svaret på to kravposter med fast sum navngir kravposten'],
   },
   {
+    id: 'F509',
+    feilklasse:
+      'lagene skjemaet får fra kjernen, sier ikke hvilken kravpost de gjelder (KA-U57 (c) og (d))',
+    fil: `${K}/kommandoer/lag.ts`,
+    endringer: [
+      [
+        "        ...((s.art === 'beloep' || s.art === 'oppgjoersform') && s.gjelder !== undefined",
+        '        ...(false && s.gjelder !== undefined',
+      ],
+    ],
+    mal: [
+      'med to kravposter sier hvert lag for beløpet og oppgjørsformen hvilken kravpost det gjelder',
+    ],
+  },
+  {
     id: 'F492',
     feilklasse:
       'et svar på vederlaget med beløp for andre poster enn dem kravet har, er forstått (OV-U23)',
