@@ -4120,6 +4120,106 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
   });
 });
 
+/**
+ * VS-U58 og VS-U59 (#1730): et varsel om forholdet kan ikke være oppgitt sendt før datoen TE har
+ * oppgitt i grunnlagskravet (VS-U43 punkt 1–5), og en korrigering av datoen kan ikke snu
+ * rekkefølgen. Påberopelsen er brev K201-KOE-017-01 av 2. oktober 2026, med datoen 25. september.
+ */
+describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', () => {
+  const registrering = (spor: string, hjemmel: string, sendt: string) => ({
+    type: 'varsel',
+    korrespondansetype: 'brev',
+    spor,
+    hjemmel,
+    sendt,
+    dokumentasjon: [randomUUID()],
+  });
+  const svikt = {
+    ...PAABEROPELSE,
+    innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
+  };
+  const korrigering = (s: ReturnType<typeof sak>, felt: string, dato: string) => ({
+    type: 'korrigering',
+    gjelder: s.u().datoopplysninger.at(-1)!.id,
+    [felt]: dato,
+  });
+  const medForhold = (paaberopelse: Data = PAABEROPELSE) => {
+    const s = sak();
+    s.send('TE', paaberopelse);
+    return s;
+  };
+
+  it('varselet etter § 32.2 oppgitt sendt før datoen pålegget ble mottatt, avvises, samme dag godtas (VS-U58)', () => {
+    const s = medForhold();
+    expect(s.avvisning('TE', registrering('forhold', '32.2', '2026-09-24'))).toMatchObject({
+      regel: 'VARSEL_FOER_GRUNNLAGSDATOEN',
+      melding: expect.stringMatching(/24\. september 2026.*25\. september 2026/),
+    });
+    expect(s.avvist('TE', registrering('forhold', '32.2', '2026-09-25'))).toBeNull();
+  });
+
+  it.each([
+    ['vederlag', '34.1.2'],
+    ['vederlag', '34.1.3'],
+    ['frist', '33.4'],
+  ])(
+    'varselet i %s etter § %s oppgitt sendt før datoen TE ble klar over forholdet, avvises (VS-U58)',
+    (spor, hjemmel) => {
+      const s = medForhold(svikt);
+      expect(s.avvist('TE', registrering(spor, hjemmel, '2026-09-24'))).toBe(
+        'VARSEL_FOER_GRUNNLAGSDATOEN'
+      );
+      expect(s.avvist('TE', registrering(spor, hjemmel, '2026-09-25'))).toBeNull();
+    }
+  );
+
+  it('et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet, avvises helt (VS-U58)', () => {
+    const s = medForhold();
+    const krav = (sendt: string) => ({ ...FRISTKRAV, varsel: { ...FRISTKRAV.varsel, sendt } });
+    expect(s.avvist('TE', krav('2026-09-24'))).toBe('VARSEL_FOER_GRUNNLAGSDATOEN');
+    expect(s.avvist('TE', krav('2026-09-25'))).toBeNull();
+  });
+
+  it('kontrollerer varselet mot den korrigerte datoen (VS-U58, MM-U52 punkt 10)', () => {
+    const s = medForhold();
+    s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
+    expect(s.avvist('TE', registrering('forhold', '32.2', '2026-09-22'))).toBeNull();
+    const t = medForhold();
+    t.send('TE', korrigering(t, 'paalegg_mottatt', '2026-09-27'));
+    expect(t.avvist('TE', registrering('forhold', '32.2', '2026-09-26'))).toBe(
+      'VARSEL_FOER_GRUNNLAGSDATOEN'
+    );
+  });
+
+  it('i underkategorien endringsordre er det ingen dato, og ingenting kontrolleres (VS-U43)', () => {
+    const s = medForhold({
+      ...PAABEROPELSE,
+      innhold: { hovedkategori: 'endring', underkategori: 'endringsordre', endringsordre: 'EO 12' },
+    });
+    expect(s.avvist('TE', registrering('frist', '33.4', '2020-01-01'))).toBeNull();
+  });
+
+  it('en korrigering til en dato etter et registrert varsel avvises, til samme dag godtas (VS-U59)', () => {
+    const s = medForhold();
+    s.send('TE', registrering('forhold', '32.2', '2026-09-28'));
+    expect(s.avvisning('TE', korrigering(s, 'paalegg_mottatt', '2026-09-29'))).toMatchObject({
+      regel: 'VARSEL_FOER_GRUNNLAGSDATOEN',
+      melding: expect.stringMatching(/29\. september 2026.*28\. september 2026/),
+    });
+    expect(s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-28'))).toBeNull();
+  });
+
+  it('en korrigering til en dato etter et varsel sendt fra løsningen avvises (VS-U59)', () => {
+    const s = medForhold(svikt);
+    // Varselet sendes fra løsningen 3. oktober (brev 2); grunnlagskravet sier 25. september.
+    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-04'))).toBe(
+      'VARSEL_FOER_GRUNNLAGSDATOEN'
+    );
+    expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-09-30'))).toBeNull();
+  });
+});
+
 describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 og 10, #1489)', () => {
   // Versjon 1 er brev K201-KOE-017-01 av 2. oktober 2026, og versjon 2 er brev K201-KOE-017-02.
   const medToVersjoner = () => {
@@ -4483,6 +4583,44 @@ describe('et ukjent felt i vurderingene i svaret på vederlaget avvises (MM-U2)'
 });
 
 /**
+ * MM-U2 (#1732): et felt kjernen ikke leser i vurderingene i svaret på forholdet og fristen, ville
+ * blitt godtatt uten virkning, så det avvises som i svaret på vederlaget. Kontrollsaken er det
+ * samme svaret uten feltet.
+ */
+describe('et ukjent felt i vurderingene i svaret på forholdet og fristen avvises (MM-U2)', () => {
+  const forholdGodkjent = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
+  const brev = (...svar: Data[]) => ({ type: 'brev', svar });
+  it.each([
+    ['forholdet', 'grunnlag_varslet_i_tid', true],
+    ['forholdet', 'hold_tilbake', false],
+    ['forholdet', 'frist_varsel_ok', true],
+  ])('%s: %s', (_, felt, verdi) => {
+    const s = sakMedKrav();
+    const brevet = (v: Data) => brev(svar('forhold', s.krav('forhold'), v));
+    expect(s.avvisning('BH', brevet({ ...forholdGodkjent, [felt]: verdi }))).toMatchObject({
+      regel: 'UGYLDIG_VURDERING',
+      melding: expect.stringContaining(`${felt}: kjernen leser ikke feltet i svaret på forholdet`),
+    });
+    expect(s.avvist('BH', brevet(forholdGodkjent))).toBeNull();
+  });
+
+  it.each([
+    ['fristen', 'frist_varsel_ok_', true],
+    ['fristen', 'godkjent_dager', 20],
+    ['fristen', 'grunnlag_varslet_i_tide', true],
+  ])('%s: %s', (_, felt, verdi) => {
+    const s = sakMedKrav();
+    const brevet = (v: Data) =>
+      brev(svar('frist', s.krav('frist'), v, FRIST_FULLT[1] as unknown as Data));
+    expect(s.avvisning('BH', brevet({ ...FRIST_FULLT[0], [felt]: verdi }))).toMatchObject({
+      regel: 'UGYLDIG_VURDERING',
+      melding: expect.stringContaining(`${felt}: kjernen leser ikke feltet i svaret på fristen`),
+    });
+    expect(s.avvist('BH', brevet(FRIST_FULLT[0]))).toBeNull();
+  });
+});
+
+/**
  * KA-U57 (c) og (d), KA-U59, OV-U23: byggherren svarer på kravpostene kravet har, hver for seg
  * og høyst én gang, og et felt kjernen ikke leser i svaret på en kravpost, avvises (MM-U2).
  */
@@ -4619,7 +4757,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
       korrespondansetype: 'brev',
       spor: 'frist',
       hjemmel: '33.4',
-      sendt: '2026-09-01',
+      sendt: '2026-09-28',
       dokumentasjon: [randomUUID()],
     });
     expect(s.u().spor.frist.varsler['33.4'], 'forutsetning: varselet er registrert').toBeDefined();

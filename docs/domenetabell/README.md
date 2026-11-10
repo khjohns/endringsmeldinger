@@ -516,6 +516,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `UGYLDIG_KORRIGERING` | GR-36 | — |
 | `UGYLDIG_VURDERING` | GR-17, GR-18, VS-03, KA-56 | — |
 | `VARSEL_ETTER_PAABEROPELSEN` | — | Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `VARSEL_FOER_GRUNNLAGSDATOEN` | — | Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `VARSEL_REGISTRERT` | VS-06, VS-07 | — |
 | `VARSLINGSPLIKT_GJELDER_IKKE` | — | Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges. |
 | `VEDERLAGSKRAV_SENDT` | VS-07 | — |

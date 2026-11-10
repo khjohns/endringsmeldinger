@@ -3647,6 +3647,7 @@
     "BEGRUNNELSE_MANGLER": "Kontrollen av teksten i svaret og fristkravet (KA-U24, KA-U31, KA-U33). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "VARSLINGSPLIKT_GJELDER_IKKE": "Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges.",
     "DATO_KAN_IKKE_LESES": "Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den.",
-    "VARSEL_ETTER_PAABEROPELSEN": "Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`."
+    "VARSEL_ETTER_PAABEROPELSEN": "Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "VARSEL_FOER_GRUNNLAGSDATOEN": "Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/brevtekst.test.ts`."
   }
 }

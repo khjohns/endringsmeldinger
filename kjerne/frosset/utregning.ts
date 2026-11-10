@@ -95,15 +95,40 @@ export function regnUtSvar(
 
 /** Forholdet har ingen utregning, bare kontrollen av vurderingene (§ 32.2 og § 32.3). */
 function regnUtForhold(v: Svarvurdering, krav: Krav, regler: Regelsett): Record<string, unknown> {
+  avvisUkjenteFelt(v, FORHOLDSVURDERINGER, 'forholdet');
   const { hovedkategori, underkategori } = kategori(krav);
   kontrollerForholdet(v, hovedkategori, underkategori, regler);
   return {};
 }
 
 /**
- * Feltene kjernen leser i vurderingene i svaret på vederlaget. Et annet felt ville blitt godtatt
- * uten virkning, så det avvises (MM-U2; kravet i #1663).
+ * Et felt kjernen ikke leser i vurderingene, ville blitt godtatt uten virkning, så det avvises
+ * (MM-U2; kravet i #1663 og #1732).
  */
+function avvisUkjenteFelt(v: Svarvurdering, lest: ReadonlySet<string>, svaretPaa: string): void {
+  const ukjente = Object.keys(v).filter((felt) => !lest.has(felt));
+  if (ukjente.length)
+    throw new UgyldigVurdering(
+      Object.fromEntries(
+        ukjente.map((felt) => [felt, `kjernen leser ikke feltet i svaret på ${svaretPaa}`])
+      )
+    );
+}
+
+/** Feltene kjernen leser i vurderingene i svaret på forholdet (`kontrollerForholdet`, `standpunkter`). */
+const FORHOLDSVURDERINGER = new Set<string>(['resultat', 'grunnlag_varslet_i_tide']);
+
+/** Feltene kjernen leser i vurderingene i svaret på fristen (`regnUtFrist`, `standpunkter`). */
+const FRISTVURDERINGER = new Set<string>([
+  'frist_varsel_ok',
+  'spesifisert_krav_ok',
+  'foresporsel_svar_ok',
+  'vilkar_oppfylt',
+  'dager',
+  'dager_maatte_forstaa',
+]);
+
+/** Feltene kjernen leser i vurderingene i svaret på vederlaget. */
 const VEDERLAGSVURDERINGER = new Set<string>([
   'hovedkrav_varslet_i_tide',
   'kravposter',
@@ -253,13 +278,7 @@ function regnUtVederlag(
   paaberopelse: Krav | null,
   regler: Regelsett
 ): Record<string, unknown> {
-  const ukjente = Object.keys(v).filter((felt) => !VEDERLAGSVURDERINGER.has(felt));
-  if (ukjente.length)
-    throw new UgyldigVurdering(
-      Object.fromEntries(
-        ukjente.map((felt) => [felt, 'kjernen leser ikke feltet i svaret på vederlaget'])
-      )
-    );
+  avvisUkjenteFelt(v, VEDERLAGSVURDERINGER, 'vederlaget');
   const tilbakeholdelse = utenforOmfanget('vederlag', { hold_tilbake: v.hold_tilbake });
   if (tilbakeholdelse) throw new UgyldigVurdering({ hold_tilbake: tilbakeholdelse });
   // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520), og
@@ -316,6 +335,7 @@ function regnUtFrist(
   krav: Krav,
   foresporsel: Foresporselsrelasjon | null
 ): Record<string, unknown> {
+  avvisUkjenteFelt(v, FRISTVURDERINGER, 'fristen');
   const fkrav: Fristkrav = {
     krevd_dager: innholdIFristen(krav).dager,
     varsel_type: 'spesifisert',

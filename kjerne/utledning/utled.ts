@@ -1480,17 +1480,20 @@ export function fristkravErFremmet(u: Utledning): boolean {
 }
 
 /**
- * Dagen kravet ble sendt: datoen parten oppga for et registrert krav (OV-U80), ellers
- * dagen dokumentet ble registrert i løsningen (VS-U8). `null` når den oppgitte datoen
- * ikke kan leses.
+ * Dagen kravet eller varselet ble sendt: datoen parten oppga for et registrert krav eller
+ * varsel (OV-U80, OV-U5), ellers dagen dokumentet ble registrert i løsningen (VS-U8). `null`
+ * når den oppgitte datoen ikke kan leses.
  */
-export function datoenKravetBleSendt(u: Pick<Utledning, 'journal'>, krav: Krav): string | null {
+export function datoenDetBleSendt(
+  u: Pick<Utledning, 'journal'>,
+  utsagn: Pick<Krav, 'id' | 'dokument'>
+): string | null {
   for (const d of dokumenterI(u.journal)) {
-    if (d.id !== krav.dokument) continue;
-    const sendt = datoFor(krav, 'sendt', d.opplysninger);
+    if (d.id !== utsagn.dokument) continue;
+    const sendt = datoFor(utsagn, 'sendt', d.opplysninger);
     return sendt ? kalenderdag(sendt.dato) : registrertDato(d);
   }
-  throw new Error(`Kravet ${krav.id} står ikke i et dokument i journalen.`);
+  throw new Error(`${utsagn.id} står ikke i et dokument i journalen.`);
 }
 
 /** Dokumentene i journalen, i rekkefølge, uten å kopiere dem til en liste (#787). */

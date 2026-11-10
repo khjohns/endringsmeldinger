@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U52 punkt 14, #1615). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U52 punkt 14, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -4404,6 +4404,94 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et lag uten preklusjon har 0 kr, men tilbudet er ikke akseptert'],
+  },
+  {
+    id: 'F517',
+    feilklasse:
+      'et varsel om forholdet avvises når det er oppgitt sendt samme dag som datoen i grunnlagskravet (VS-U58)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (grunnlag === null || dag === null || dag >= grunnlag.dag) return null;',
+        '  if (grunnlag === null || dag === null || dag > grunnlag.dag) return null;',
+      ],
+    ],
+    mal: [
+      'varselet etter § 32.2 oppgitt sendt før datoen pålegget ble mottatt, avvises, samme dag godtas',
+    ],
+  },
+  {
+    id: 'F518',
+    feilklasse:
+      'kontrollen mot datoen i grunnlagskravet gjelder bare varselet etter § 32.2, ikke § 33.4, § 34.1.2 og § 34.1.3 (VS-U58)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "const VARSLER_OM_FORHOLDET = ['32.2', '33.4', '34.1.2', '34.1.3'] as const;",
+        "const VARSLER_OM_FORHOLDET = ['32.2'] as const;",
+      ],
+    ],
+    mal: ['oppgitt sendt før datoen TE ble klar over forholdet, avvises'],
+  },
+  {
+    id: 'F519',
+    feilklasse:
+      'et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet godtas (VS-U58)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['      if (foer) return foer;', '']],
+    mal: ['et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet'],
+  },
+  {
+    id: 'F520',
+    feilklasse:
+      'varselet kontrolleres mot den første datoen i grunnlagskravet, ikke den korrigerte (VS-U58, MM-U52 punkt 10)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  const siste = felt === null ? null : sisteDatoopplysning(u, felt);\n  const dag = siste === null',
+        '  const siste = felt === null ? null : (u.datoopplysninger.find((o) => o.felt === felt) ?? null);\n  const dag = siste === null',
+      ],
+    ],
+    mal: ['kontrollerer varselet mot den korrigerte datoen'],
+  },
+  {
+    id: 'F521',
+    feilklasse:
+      'en korrigering kan flytte datoen i grunnlagskravet til etter et varsel om forholdet (VS-U59)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '      return kontrollerKorrigering(k, u) ?? korrigeringEtterVarslene(k, u);',
+        '      return kontrollerKorrigering(k, u);',
+      ],
+    ],
+    mal: [
+      'en korrigering til en dato etter et registrert varsel avvises',
+      'en korrigering til en dato etter et varsel sendt fra løsningen avvises',
+    ],
+  },
+  {
+    id: 'F522',
+    feilklasse: 'en korrigering til samme dag som et varsel om forholdet avvises (VS-U59)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['    if (sendt !== null && sendt < ny)', '    if (sendt !== null && sendt <= ny)'],
+    ],
+    mal: ['en korrigering til en dato etter et registrert varsel avvises, til samme dag godtas'],
+  },
+  {
+    id: 'F523',
+    feilklasse: 'et ukjent felt i vurderingene i svaret på forholdet godtas uten virkning (MM-U2)',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [["  avvisUkjenteFelt(v, FORHOLDSVURDERINGER, 'forholdet');\n", '']],
+    mal: ['et ukjent felt i vurderingene i svaret på forholdet og fristen avvises'],
+  },
+  {
+    id: 'F524',
+    feilklasse: 'et ukjent felt i vurderingene i svaret på fristen godtas uten virkning (MM-U2)',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [["  avvisUkjenteFelt(v, FRISTVURDERINGER, 'fristen');\n", '']],
+    mal: ['et ukjent felt i vurderingene i svaret på forholdet og fristen avvises'],
   },
 ];
 
