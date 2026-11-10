@@ -166,42 +166,43 @@ migrasjonene og TS-serveren; les den før du endrer en base.
 ## Sikkerhetsinvarianter
 
 Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut.
-De gjelder hver serverinngang. Mekanismene, og det TS-stien ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
+De gjelder hver serverinngang, også en som ikke er bygget ennå. Mekanismene, og det
+TS-serveren mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
 
 - **Hver serverinngang krever innlogget sesjon og tilgang til prosjektet, og
-  eventuelt kontraktsrolle.** En inngang uten sesjon eller uten prosjekt står i
-  et register med skriftlig begrunnelse, og en test skal feile for en inngang som
-  verken har kontrollen eller står der. Kontraktsrollen dekkes ikke av en slik
-  test.
-- **CSRF håndheves inne i autentiseringen**, bevisst, slik at en ny
-  mutasjonsinngang ikke kan glemme den. Ikke flytt den ut.
-- **`aktor_id`, `aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` settes
-  av serveren.** `event_id` og `tidsstempel` fra klienten avvises; aktørfeltene
-  overskrives før parsing, så det klienten sendte, når aldri modellen. Stol
-  aldri på en rolle eller en identitet klienten oppgir.
+  eventuelt kontraktsrolle.** Hver inngang står i et register med kravene sine. En
+  inngang uten sesjon, uten prosjekt eller uten kontraktsrolle har en skriftlig
+  begrunnelse der, og en test feiler for en inngang som verken har kontrollen eller
+  begrunnelsen.
+- **CSRF håndheves inne i autentiseringen** for hver inngang med sesjon, bevisst,
+  slik at en ny mutasjonsinngang ikke kan glemme den. Ikke flytt den ut. En inngang
+  uten sesjon, som webhooken og innloggingen, har sitt eget vern og står i registeret.
+- **`aktor_id`, `aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` kommer
+  aldri fra klienten.** En kommando har ingen aktør, ID eller tidspunkt, og en kropp
+  med ukjente felt avvises. Aktøren, siden og teamet stemples fra sesjonen,
+  `event_id` lages av serveren, og `tidsstempel` er klokka i basen. Stol aldri på en
+  rolle eller en identitet klienten oppgir.
 - **Journalen bærer `aktor_id`, aldri et personnavn — og bare én form.**
-  Verdien er `app_users.id`, punktum, også for en Catenda-forfatter. Hver vei
-  inn, også webhooken, løser identiteten gjennom `koe.resolve_identity`, som
-  innloggingen og medlemssynkroniseringen, med samme issuer og samme normaliserte
-  subjekt; ellers får samme person to brukerrader. Lar identiteten seg ikke
-  avgjøre, skrives ingen hendelse — fail-closed, som for kontraktssiden. Navnet
-  slås opp ved visning, og et oppslag som feiler, skal falle tilbake til
-  identiteten og aldri velte tidslinjen eller brevet. En hendelse er
-  append-only, så en andre verdiform kan aldri rettes igjen.
+  Verdien er `app_users.id`, punktum, også for en Catenda-forfatter. Samme person
+  skal ha én brukerrad: innloggingen, behandlingen av webhooken og
+  medlemssynkroniseringen løser en Catenda-identitet gjennom
+  `koe.resolve_identity`, med samme issuer og samme normaliserte subjekt. En ny vei
+  inn gjør det samme. Lar identiteten seg ikke avgjøre, skrives ingen hendelse —
+  fail-closed, som for kontraktssiden. Navnet slås opp ved visning, og et oppslag
+  som feiler, skal falle tilbake til identiteten og aldri velte tidslinjen eller
+  brevet. En hendelse er append-only, så en andre verdiform kan aldri rettes igjen.
   Unntatt er navnene i brevhodet og underskriften, som fryses med brevet i
   journalen ([LV-U64](docs/plans/vedtak.md#lv-u64),
   [LV-U67](docs/plans/vedtak.md#lv-u67) og [LV-U69](docs/plans/vedtak.md#lv-u69)).
   `aktor_id` er fortsatt den eneste formen for aktørens identitet på
   hendelsen, og resten av invarianten står.
 - **Interne notater og utkast er fail-closed.** Uten entydig team finnes det ikke noe
-  å lese eller skrive. Et notat uten `aktor_team_id` vises til ingen, heller ikke
-  forfatteren. Notatet ligger i `notat`, ikke i journalen (MS-05): det er ikke
-  et kontraktsvarsel, det flytter ikke sakens versjon, og det kan slettes.
-  Tidslinjen fletter de to kildene ved lesing, så skjermingsfilteret gjelder
-  fortsatt begge.
+  å lese eller skrive, heller ikke for forfatteren. Unntaket er godkjenneren i en åpen
+  pakke (GFK-U9). Notatet ligger i `koe.notat`, ikke i journalen (MS-05): det er ikke
+  et kontraktsvarsel, det flytter ikke sakens versjon, og det kan slettes. Når
+  tidslinjen fletter notatene og journalen, gjelder skjermingsfilteret begge.
 - **Prosjektgrensen må håndheves ved hvert lesepunkt**, også for saker det refereres
-  til. Klientoppgitte relasjoner skal ikke utvide tilgangen. Dette er brutt flere
-  ganger; se RV-07 og AUT-01/02 i hovedplanens funnregister.
+  til. Klientoppgitte relasjoner skal ikke utvide tilgangen.
 - **Det finnes ikke noe defaultprosjekt.** Mangler `X-Project-ID`, er prosjektet
   *ukjent* — ikke `oslobygg` — og kallere skal behandle det som «ingen
   tilgang». `prosjekt_id` er `NOT NULL` uten default på `koe.hendelse` og
