@@ -6,7 +6,8 @@ description: Reglene for en skyøkt som bygger, reviewer eller retter en PR i en
 # Arbeidsøkta
 
 Reglene gjelder hver skyøkt som bygger, reviewer eller retter, også en direkte økt
-(`CLAUDE.md`). En subagent følger [subagent-skillen](../subagenter/SKILL.md) og bestillingen. Det orkestratoren gjør, står i
+(`CLAUDE.md`). En subagent følger bestillingen. Hvordan den bestilles, står i
+[subagent-skillen](../subagenter/SKILL.md), som økta leser før den starter en. Det orkestratoren gjør, står i
 [orkestreringsskillen](../orkestrering/SKILL.md). Episodene bak grensene står i
 [episodefila](../orkestrering/episoder.md).
 
