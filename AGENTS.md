@@ -43,12 +43,15 @@ modulnivå, og union av strenger i stedet for `enum`. Data over grensen
 små bokstaver. I kjernen skrives æ, ø og å som ae, oe og aa (`kanInngaaIEo`);
 ellers følger du modulens skrivemåte uten å blande. Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
 
+**Eksisterende navn er utgangspunkt, ikke fasit.** Forbedre upresise navn innenfor
+oppgaven, og før gamle og nye navn i [domenetabellen](docs/domenetabell/README.md) eller
+oppgavens begrepsavklaring, ikke i en parallell ordliste. Skill navneendring fra endret
+atferd, og oppdater kallere, tester og referanser samlet.
+
 **Lagrede navn er kontrakter.** Hendelsestyper, felt og verdier i journalen, API-et og
 databasen endres bare med en uttrykkelig vurdering av kompatibilitet og migrering.
 Unntaket er KOE-, EO- og forseringssakene fram til den første reelle hendelsen er
 skrevet (B-17): til da velges navnene fra kontraktens begreper («svar», ikke «respons»).
-Skill navneendring fra endret atferd, og før gamle og nye navn i
-[domenetabellen](docs/domenetabell/README.md), ikke i en parallell ordliste.
 
 **Koden skal være klar av seg selv — skriv få kommentarer.** Forklar en lokal
 begrensning eller et overraskende valg kort, eller vis til en funn-ID i
