@@ -159,11 +159,7 @@ describe('beløpet og kravpostene uten fast beløp i aksepten (OV-U73, svar 6 A 
     expect(s.enighet, 'Forutsetning: partene er enige om vederlaget').not.toBeNull();
     const utfall = s.enighet!.grunnlag.utfall;
     const svarbrevet = brevene(u).find((b) => b.id === s.gjeldendeSvar!.dokument)!;
-    return STILLING.beloepet(
-      utfall.beloep!,
-      kravposterUtenFastBeloep(utfall, s.gjeldendeKrav),
-      svarbrevet
-    );
+    return STILLING.beloepet(utfall.beloep!, kravposterUtenFastBeloep(utfall, s.krav), svarbrevet);
   }
 
   it('en kravpost BH mener skal gjøres opp som regningsarbeid, navngis med betegnelsen ved siden av beløpet for den andre', async () => {

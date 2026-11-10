@@ -38,6 +38,7 @@
   import Valg from './Valg.svelte';
   import {
     postvalget,
+    utkastForBeloepet,
     tomPost,
     tomtSvar,
     vederlagssvaret,
@@ -134,31 +135,17 @@
 
   const kommando = $derived(vederlagssvaret(valg, u, kjernesak.regler)!);
   const etter = $derived(kjernesak.forhaandsvist(kommando));
-  const utenOppgjoersform = (vurderte: unknown) =>
-    ((vurderte ?? []) as Kravpostvurdering[]).map((p) => ({
-      gjelder: p.gjelder,
-      vurdering: p.vurdering,
-      godkjent_beloep: p.godkjent_beloep,
-    }));
-  // Innsigelsene beløpet bygger på, regnet av kjernen fra det som er besvart (#1400, S1-A og
-  // S2-A), for hver kravpost. En avslått metode uten ønsket metode forstår ikke kjernen, så
-  // oppgjørsformen er ute av utkastet til den er valgt; den står i laget sitt uansett svaret
-  // (OV-U33).
-  const beloepslagene = $derived.by(() => {
-    if (stoppet) return null;
-    const s = kommando.svar[0];
-    const ubesvart = poster.some((p) => postvalget(valg, p.betegnelse).form === null);
-    const utkast = ubesvart
-      ? {
-          ...s,
-          vurderinger: {
-            ...s.vurderinger,
-            kravposter: utenOppgjoersform(s.vurderinger.kravposter),
-          },
-        }
-      : s;
-    return kjernesak.lagForUtkastet(utkast);
+  const vurderteIUtkastet = (s: (typeof kommando.svar)[number]) =>
+    (s.vurderinger.kravposter ?? []) as Kravpostvurdering[];
+  const utenOppgjoersform = (p: Kravpostvurdering) => ({
+    gjelder: p.gjelder,
+    vurdering: p.vurdering,
+    godkjent_beloep: p.godkjent_beloep,
   });
+  // Innsigelsene beløpet bygger på, for hver kravpost, regnet av kjernen fra det som er besvart.
+  const beloepslagene = $derived(
+    stoppet ? null : kjernesak.lagForUtkastet(utkastForBeloepet(kommando.svar[0], valg, krav))
+  );
   const forutsetninger = (p: Kravpost): Forutsetning[] =>
     beloepslagene?.standpunkter.find(
       (x) => x.art === 'beloep' && !x.saerskilt && x.gjelder === p.id
@@ -173,10 +160,7 @@
     const s = kommando.svar[0];
     const vurderinger = {
       ...s.vurderinger,
-      kravposter: utenOppgjoersform(s.vurderinger.kravposter).map((p) => ({
-        ...p,
-        aksepterer: true,
-      })),
+      kravposter: vurderteIUtkastet(s).map((p) => ({ ...utenOppgjoersform(p), aksepterer: true })),
     };
     return kjernesak.lagForUtkastet({ ...s, vurderinger });
   });

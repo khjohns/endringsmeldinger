@@ -136,9 +136,9 @@ export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =
 
 /**
  * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
- * «BH» ellers. `krevd` er det TE krevde for posten.
+ * «BH» ellers. `krevd` er det TE krevde for posten. `post` er betegnelsen på kravposten
+ * standpunktet gjelder, når kravet har flere (KA-U57).
  */
-/** `post` er betegnelsen på kravposten standpunktet gjelder, når kravet har flere (KA-U57). */
 export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post?: string): string {
   const forPosten = post ? ` for ${post}` : '';
   const hvem = du ? 'Du' : 'BH';
@@ -153,8 +153,8 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
               : '');
     case 'oppgjoersform':
       return s.aksepterer
-        ? `${hvem} godkjenner beregningsmetoden TE krever${forPosten}`
-        : `${hvem} godkjenner ikke beregningsmetoden TE krever${forPosten}` +
+        ? `${hvem} godkjenner oppgjørsformen TE krever${forPosten}`
+        : `${hvem} godkjenner ikke oppgjørsformen TE krever${forPosten}` +
             (s.oensket ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}` : '');
     case 'beloep': {
       const hva = s.saerskilt ? 'Særskilt vederlagsjustering' : `Vederlagsjustering${forPosten}`;
@@ -210,8 +210,6 @@ export const SKJEMA = {
   ettSvarPerPost: 'Ett svar per kravpost. Åpne en kravpost for å svare på den.',
   godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
   godkjennAlle: 'Godkjenn alle kravpostene som krevd',
-  postKolonne: 'Kravpost',
-  kravetKolonne: 'Kravet',
   svaretKolonne: 'Svaret',
   teKrever: (beloep: number, pns?: string) =>
     `TE krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,

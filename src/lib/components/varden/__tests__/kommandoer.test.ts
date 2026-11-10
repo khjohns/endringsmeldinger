@@ -10,7 +10,14 @@ import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad } from '$kjerne/typer';
 import { opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
 import { kravposterI } from '$kjerne/frosset/kravinnhold';
-import { tomPost, tomtSvar, vederlagssvaret, type Postvalg } from '../kommandoer';
+import {
+  tomPost,
+  tomtSvar,
+  utkastForBeloepet,
+  vederlagssvaret,
+  type Postvalg,
+} from '../kommandoer';
+import { lagForUtkastet } from '$kjerne/kommandoer/lag';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
   type: 'krav',
@@ -143,6 +150,32 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
         oensket_oppgjoersform: 'regningsarbeid',
       },
     ]);
+  });
+
+  it('lagene for beløpet i en kravpost med svar på oppgjørsformen har laget for den, også når en annen kravpost mangler svaret (KA-U57, OV-U33)', () => {
+    const u = utledJournal(toPoster, KJERNE);
+    const krav = u.spor.vederlag.gjeldendeKrav!;
+    const [p1, p2] = kravposterI(krav);
+    const valg = {
+      iTide: true,
+      poster: {
+        P1: { form: 'regningsarbeid', beloep: 'hele', delbeloep: '' },
+        P2: { form: null, beloep: 'hele', delbeloep: '' },
+      },
+      begrunnelse: '',
+    } satisfies Parameters<typeof vederlagssvaret>[0];
+    const utkast = utkastForBeloepet(vederlagssvaret(valg, u, KJERNE.regler)!.svar[0], valg, krav);
+    const [v1, v2] = utkast.vurderinger.kravposter as Record<string, unknown>[];
+    expect(v1).toMatchObject({ gjelder: p1!.id, aksepterer: false });
+    expect(v2, 'P2 uten valgt form står uten den').not.toHaveProperty('aksepterer');
+    const lag = lagForUtkastet(utkast, u, KJERNE.regler);
+    expect(
+      lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p1!.id),
+      'laget for oppgjørsformen i P1'
+    ).toBe(true);
+    expect(lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p2!.id)).toBe(
+      false
+    );
   });
 
   it('en kravpost uten valg står uten vurdering, så kjernen avviser svaret', () => {

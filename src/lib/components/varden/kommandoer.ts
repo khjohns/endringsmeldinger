@@ -188,3 +188,23 @@ export function nyVersjonAvPaaberopelsen(u: Utledning, tekst: string) {
     ...(utdypning ? { utdypning } : {}),
   };
 }
+
+/**
+ * Utkastet kjernen regner lagene for beløpet av (#1400, S1-A og S2-A). En kravpost uten valgt
+ * oppgjørsform står uten den, siden kjernen ikke forstår en avslått metode uten ønsket metode.
+ * De andre kravpostene beholder sitt eget svar på oppgjørsformen (KA-U57).
+ */
+export function utkastForBeloepet(utkast: Svarutkast, v: Svarvalg, krav: Krav): Svarutkast {
+  const ubesvarte = new Set<unknown>(
+    kravposterI(krav)
+      .filter((p) => postvalget(v, p.betegnelse).form === null)
+      .map((p) => p.id)
+  );
+  const vurderte = (utkast.vurderinger.kravposter ?? []) as Record<string, unknown>[];
+  const kravposter = vurderte.map((p) =>
+    ubesvarte.has(p.gjelder)
+      ? { gjelder: p.gjelder, vurdering: p.vurdering, godkjent_beloep: p.godkjent_beloep }
+      : p
+  );
+  return { ...utkast, vurderinger: { ...utkast.vurderinger, kravposter } };
+}

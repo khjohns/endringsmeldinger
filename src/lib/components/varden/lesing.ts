@@ -412,18 +412,19 @@ export interface TilknyttetKrav {
   grunner: Subsidiaergrunn[];
 }
 
-/** Oppgjørsformen når alle kravpostene har samme, ellers `null`: visningen navngir den. */
 /**
  * Betegnelsene på kravpostene utfallet sier ikke har fast beløp prinsipalt (OV-U73, svar 6 A
- * i #1663), slått opp i kravet enigheten gjelder. En kravpost som ikke finnes der, står med id.
+ * i #1663), slått opp i kravversjonene i sporet, siden svaret kan gjelde en tidligere versjon
+ * enn den gjeldende. En kravpost som ikke finnes, står med id.
  */
-export function kravposterUtenFastBeloep(utfall: Utfall, krav: Krav | null): string[] {
-  const poster = krav ? kravposterI(krav) : [];
+export function kravposterUtenFastBeloep(utfall: Utfall, krav: readonly Krav[]): string[] {
+  const poster = krav.flatMap((k) => kravposterI(k));
   return (utfall.uten_fast_beloep ?? []).map(
     (id) => poster.find((p) => p.id === id)?.betegnelse ?? id
   );
 }
 
+/** Oppgjørsformen når alle kravpostene har samme, ellers `null`: visningen navngir den. */
 function fellesOppgjoersform(krav: Krav): Oppgjoersform | null {
   const former = new Set(kravposterI(krav).map((p) => p.oppgjoersform));
   return former.size === 1 ? [...former][0]! : null;

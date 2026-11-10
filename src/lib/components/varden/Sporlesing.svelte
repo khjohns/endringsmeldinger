@@ -185,7 +185,7 @@
       ...(enighet?.grunnlag.utfall.beloep !== undefined
         ? STILLING.beloepet(
             enighet.grunnlag.utfall.beloep,
-            kravposterUtenFastBeloep(enighet.grunnlag.utfall, u.spor[spor].gjeldendeKrav),
+            kravposterUtenFastBeloep(enighet.grunnlag.utfall, u.spor[spor].krav),
             svarbrevet
           )
         : []),
