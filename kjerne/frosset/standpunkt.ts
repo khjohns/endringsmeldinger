@@ -349,7 +349,8 @@ export interface Vederlagspost extends Plass {
   /** Kravposten beløpet gjelder (KA-U57 (c)); ikke for posten etter § 34.1.3 annet ledd. */
   gjelder?: string;
   saerskilt?: 'produktivitet';
-  godkjent: number;
+  /** Uten beløp tar byggherren ikke stilling til beløpet for kravposten (KA-U58). */
+  godkjent?: number;
   begrensning: (Plass & { standpunkt: string; beloep: number }) | null;
 }
 
@@ -383,7 +384,7 @@ export function postlisten(
             standpunkt: s.id,
             ...(s.gjelder !== undefined ? { gjelder: s.gjelder } : {}),
             ...(s.saerskilt ? { saerskilt: s.saerskilt } : {}),
-            godkjent: s.godkjent,
+            ...(s.godkjent !== undefined ? { godkjent: s.godkjent } : {}),
             ...plass(s.id),
             begrensning:
               s.saerskilt && begrenset
@@ -419,7 +420,7 @@ function prinsipaltIVederlaget(svar: Svarinnhold, v: Standpunktsvirkning[]): Utf
   const uten: string[] = [];
   for (const p of postlisten(svar, v, 0).poster) {
     if (p.begrensning) beloepet += beloep(p.begrensning.beloep)!;
-    else if (!p.saerskilt && (p.lag ?? 1) > 1) uten.push(p.gjelder!);
+    else if (!p.saerskilt && ((p.lag ?? 1) > 1 || p.godkjent === undefined)) uten.push(p.gjelder!);
     else beloepet += beloep(p.godkjent)!;
   }
   return { beloep: tilTall(beloepet), ...(uten.length ? { uten_fast_beloep: uten } : {}) };

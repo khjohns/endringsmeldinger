@@ -4,7 +4,7 @@
  */
 
 import { beloep, BroekdelAvOere, heleOere, NULL_OERE, UgyldigBeloep, type Oere } from './beloep.ts';
-import type { Beloepsvurdering, Vederlagsresultat } from './typer.ts';
+import { BELOEPSVURDERINGER, type Beloepsvurdering, type Vederlagsresultat } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 import type { Regelsett } from './regelsett.ts';
 
@@ -17,9 +17,19 @@ interface Postbeloep {
   godkjent_beloep?: Tall | null;
 }
 
-/** En kravpost. `gjelder` er kravpostens `id`; `aksepterer` er standpunktet etter § 34.2.2 (KA-U57 (d)). */
-export interface Kravpostsvar extends Postbeloep {
+/**
+ * Byggherren tar ikke stilling til beløpet subsidiært, når byggherren ikke aksepterer tilbudet
+ * for kravposten (KA-U58).
+ */
+export const TAR_IKKE_STILLING = 'tar_ikke_stilling';
+
+/**
+ * En kravpost. `gjelder` er kravpostens `id`; `aksepterer` er standpunktet etter § 34.2.2
+ * (KA-U57 (d)), og `vurdering` kan da være `TAR_IKKE_STILLING` (KA-U58).
+ */
+export interface Kravpostsvar extends Omit<Postbeloep, 'vurdering'> {
   gjelder: string;
+  vurdering?: Beloepsvurdering | typeof TAR_IKKE_STILLING | null;
   aksepterer?: boolean | null;
 }
 
@@ -69,6 +79,7 @@ export interface Postresultat {
   /**
    * Ett element per lag i sporet, i rekkefølge. Det siste er det byggherren godtar uten
    * begrensningen etter § 34.1.3 (OV-U26). Arbeidsvalg 1 i spørsmålsfila 09.11 for #1663.
+   * Uten beløp i lagene etter oppgjørsformen når byggherren ikke tar stilling (KA-U58).
    */
   lag: Postlag[];
 }
@@ -112,7 +123,7 @@ export function beregnPreklusjon(svar: Vederlagssvar, regler: Varslingsplikt): P
 }
 
 export function beregnGodkjentBeloep(
-  vurdering: Beloepsvurdering | null | undefined,
+  vurdering: Beloepsvurdering | typeof TAR_IKKE_STILLING | null | undefined,
   krevd: Oere,
   delvis: Oere | null
 ): Oere {
@@ -122,7 +133,7 @@ export function beregnGodkjentBeloep(
 }
 
 export function erKravlinjeGyldig(
-  vurdering: Beloepsvurdering | null | undefined,
+  vurdering: Beloepsvurdering | typeof TAR_IKKE_STILLING | null | undefined,
   godkjent: unknown
 ): boolean {
   if (vurdering === null || vurdering === undefined) return false;
@@ -131,6 +142,10 @@ export function erKravlinjeGyldig(
 
 /** Byggherren aksepterer ikke tilbudet for kravposten (§ 34.2.2, KA-U57 (d)). */
 const ikkeAkseptert = (p: Postsvar): boolean => 'gjelder' in p && p.aksepterer === false;
+
+/** KA-U58: byggherren tar ikke stilling til beløpet for kravposten. */
+const tarIkkeStilling = (p: Postsvar): boolean =>
+  'gjelder' in p && p.vurdering === TAR_IKKE_STILLING;
 
 /**
  * Lagene i sporet: § 34.1.2 først, så oppgjørsformen og begrensningen etter § 34.1.3, så
@@ -149,13 +164,16 @@ function lagene(svar: Vederlagssvar, p: Preklusjon): { foerste: number; antall: 
  * begrensningen i laget for begrensningen. KA-U58, KA-U60: uten aksept av tilbudet har
  * kravposten ikke et fast beløp i laget for oppgjørsformen, og beløpet står i laget etter.
  * Arbeidsvalg 1.1: en post som ingen innsigelse i laget rammer, har samme verdi som i laget før.
+ * KA-U58: tar byggherren ikke stilling til beløpet, har kravposten ikke et beløp i laget for det.
  * Rigg og drift har ingen særskilt varslingsplikt (OV-U25, OV-U35).
  */
 function postresultater(svar: Vederlagssvar, p: Preklusjon): Postresultat[] {
   const { foerste, antall } = lagene(svar, p);
   return svar.poster.map((post) => {
     const krevd = beloep(post.krevd)!;
-    const godkjent = beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
+    const godkjent = tarIkkeStilling(post)
+      ? null
+      : beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
     const iFoerste =
       erProduktivitet(post) && p.produktivitet
         ? (beloep(post.begrenset_beloep) ?? NULL_OERE)
@@ -216,6 +234,18 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
     const felt = `${navn}.godkjent_beloep`;
     if (vurd === null || vurd === undefined) {
       feil[`${navn}.vurdering`] = 'mangler';
+      return;
+    }
+    if (vurd === TAR_IKKE_STILLING) {
+      if (!ikkeAkseptert(p))
+        feil[`${navn}.vurdering`] =
+          'byggherren kan la beløpet stå ubesvart bare når tilbudet ikke aksepteres (KA-U58)';
+      else if (godkjent !== null && godkjent !== undefined)
+        feil[felt] = 'står uten et standpunkt til beløpet (KA-U58)';
+      return;
+    }
+    if (!BELOEPSVURDERINGER.includes(vurd)) {
+      feil[`${navn}.vurdering`] = `${String(vurd)} er ikke en vurdering av beløpet`;
       return;
     }
     if (!erKravlinjeGyldig(vurd, godkjent)) {
@@ -307,7 +337,9 @@ export function beregnVederlag(svar: Vederlagssvar, regler: Varslingsplikt): Ved
     total_godkjent_beloep: totalGodkjent,
     total_krevd_beloep: krevd,
     poster: alle,
-    subsidiaer_resultat: visSubsidiaert ? resultatAvBeloep(krevd, uten, metodeendring) : null,
+    subsidiaer_resultat: visSubsidiaert
+      ? resultatAvBeloep(krevd, uten, metodeendring, siste.includes(null))
+      : null,
     subsidiaer_godkjent_beloep: visSubsidiaert ? uten : null,
     preklusjon: p,
   };

@@ -38,6 +38,8 @@
   import Valg from './Valg.svelte';
   import {
     postvalget,
+    beloepsvalget,
+    kanLaBeloepetStaa,
     utkastForBeloepet,
     tomPost,
     tomtSvar,
@@ -211,11 +213,11 @@
         : v.form === 'tilbud'
           ? SKJEMA.godkjennerForm
           : SKJEMA.menerForm(v.form),
-      v.beloep === null
+      beloepsvalget(v) === null
         ? null
         : v.beloep === 'deler'
           ? `${SKJEMA.deler}: ${v.delbeloep || '–'} kr`
-          : SKJEMA[v.beloep],
+          : SKJEMA[beloepsvalget(v)!],
     ].filter((x): x is string => x !== null);
   };
   // Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B).
@@ -263,7 +265,7 @@
           {
             felt: `${uid}-beloep-${p.betegnelse}`,
             post: p.betegnelse,
-            tekst: i(v.beloep === null ? SKJEMA.manglerBeloep : null),
+            tekst: i(beloepsvalget(v) === null ? SKJEMA.manglerBeloep : null),
           },
           {
             felt: `${uid}-delbeloep-${p.betegnelse}`,
@@ -586,7 +588,9 @@
                   {@render gjelderHvis(`beloep-${p.betegnelse}`, beloeps)}
                   <Valg
                     navn={`${uid}-beloep-${p.betegnelse}`}
-                    spoersmaal={SKJEMA.beloepSpoersmaal}
+                    spoersmaal={kanLaBeloepetStaa(v)
+                      ? SKJEMA.beloepSpoersmaalSubsidiaert
+                      : SKJEMA.beloepSpoersmaal}
                     beskrevetAv={beloeps.length
                       ? `${uid}-beloep-${p.betegnelse}-forutsetninger`
                       : undefined}
@@ -594,6 +598,9 @@
                       { verdi: 'hele', tekst: SKJEMA.hele },
                       { verdi: 'deler', tekst: SKJEMA.deler },
                       { verdi: 'ingenting', tekst: SKJEMA.ingenting },
+                      ...(kanLaBeloepetStaa(v)
+                        ? [{ verdi: 'ingen_stilling' as const, tekst: SKJEMA.ingen_stilling }]
+                        : []),
                     ]}
                     bind:verdi={v.beloep}
                     feil={feil(`beloep-${p.betegnelse}`)}

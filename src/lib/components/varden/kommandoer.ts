@@ -7,6 +7,7 @@
 
 import { regnUtSvar, type Svarvurdering } from '$kjerne/frosset/utregning';
 import { UgyldigBeloep } from '$kjerne/regler/beloep';
+import { TAR_IKKE_STILLING } from '$kjerne/regler/vederlag';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
@@ -16,7 +17,8 @@ import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
 import { kravposterI } from '$kjerne/frosset/kravinnhold';
 
-export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
+/** `ingen_stilling`: BH tar ikke stilling til beløpet, bare når BH mener en annen oppgjørsform (KA-U58). */
+export type Beloepsvalg = 'hele' | 'deler' | 'ingenting' | 'ingen_stilling';
 
 /** Oppgjørsformen BH godkjenner (`tilbud`) eller mener for en kravpost med fast sum (§ 34.2.2, KA-U57 (d)). */
 export type Formvalg = 'tilbud' | 'enhetspriser' | 'regningsarbeid';
@@ -47,10 +49,19 @@ export const tomtSvar = (): Svarvalg => ({ iTide: null, poster: {}, begrunnelse:
 export const postvalget = (v: Svarvalg, betegnelse: string): Postvalg =>
   v.poster[betegnelse] ?? tomPost();
 
+/** BH kan la beløpet stå uten standpunkt når BH mener en annen oppgjørsform (KA-U58). */
+export const kanLaBeloepetStaa = (p: Postvalg): boolean =>
+  p.form === 'enhetspriser' || p.form === 'regningsarbeid';
+
+/** Valget for beløpet, eller `null` når det ikke er besvart. «Tar ikke stilling» gjelder bare med `kanLaBeloepetStaa`. */
+export const beloepsvalget = (p: Postvalg): Beloepsvalg | null =>
+  p.beloep === 'ingen_stilling' && !kanLaBeloepetStaa(p) ? null : p.beloep;
+
 const VURDERING: Record<Beloepsvalg, string> = {
   hele: 'godkjent',
   deler: 'delvis',
   ingenting: 'avslaatt',
+  ingen_stilling: TAR_IKKE_STILLING,
 };
 
 const kroner = (tekst: string) => {
@@ -69,15 +80,16 @@ function vurderingene(v: Svarvalg, krav: Krav): Svarvurdering {
     kravposter: poster.length
       ? poster.map((post) => {
           const p = postvalget(v, post.betegnelse);
+          const beloep = beloepsvalget(p);
           return definert({
             gjelder: post.id,
-            vurdering: p.beloep ? VURDERING[p.beloep] : undefined,
+            vurdering: beloep ? VURDERING[beloep] : undefined,
             godkjent_beloep:
-              p.beloep === 'hele'
+              beloep === 'hele'
                 ? post.beloep
-                : p.beloep === 'ingenting'
+                : beloep === 'ingenting'
                   ? 0
-                  : p.beloep === 'deler'
+                  : beloep === 'deler'
                     ? kroner(p.delbeloep)
                     : undefined,
             aksepterer: p.form === null ? undefined : p.form === 'tilbud',

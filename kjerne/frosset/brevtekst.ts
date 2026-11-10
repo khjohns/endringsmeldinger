@@ -816,12 +816,6 @@ function standpunkttekst(
       // kan være det, i hele øre (B-13, OV-U59). OV-U28: med posten etter § 34.1.3 annet
       // ledd sier brevet beløpet for hver post for seg.
       const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdeKravpost(krav, p.gjelder!)[1];
-      const godkjent = beloep(p.godkjent)!;
-      const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
-        ? 'godkjent'
-        : godkjent === 0n
-          ? 'avslaatt'
-          : 'delvis_godkjent';
       const post = p.saerskilt
         ? SAERSKILT
         : kravposterI(krav).length > 1
@@ -829,6 +823,15 @@ function standpunkttekst(
           : harProduktivitetspost(krav)
             ? 'justeringen ellers'
             : null;
+      // KA-U58: byggherren tar ikke stilling til beløpet i laget.
+      if (p.godkjent === undefined)
+        return `byggherren tar ikke stilling til beløpet${post ? ` for ${post}` : ''}.`;
+      const godkjent = beloep(p.godkjent)!;
+      const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
+        ? 'godkjent'
+        : godkjent === 0n
+          ? 'avslaatt'
+          : 'delvis_godkjent';
       return verdi(resultat, eksMva(p.godkjent), eksMva(tilTall(krevd)), post);
     }
     case 'dager':

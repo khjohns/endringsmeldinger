@@ -255,8 +255,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     });
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     const forutsetningene = () => {
+      // Spørsmålet er subsidiært når BH mener en annen oppgjørsform (KA-U58).
       const beloep = screen.getByRole('group', {
-        name: 'Hvor mye av beløpet godkjenner du?',
+        name: /hvor mye av beløpet godkjenner du\?$/i,
       });
       const id = beloep.getAttribute('aria-describedby');
       return id
@@ -288,6 +289,40 @@ describe('Varden med brukerforløpet BF-01', () => {
       'prinsipalt Du har avslått forholdet i brev 2'
     );
     expect(linjer[1].textContent).toMatch(/^subsidiært/i);
+  });
+
+  it('BF-04: «Tar ikke stilling» til beløpet står bare når BH mener en annen oppgjørsform, og hovedlinjene sier at BH ikke tar stilling til beløpet (KA-U58)', async () => {
+    render(Demoforloep, {
+      forloep: finnForloep('BF-04')!,
+      punkt: 'bh-har-mottatt-vederlagskravet',
+      onpunkt: () => {},
+      onstart: () => {},
+    });
+    await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
+    expect(screen.queryByRole('radio', { name: 'Tar ikke stilling' })).toBeNull();
+
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt 34.4)' }));
+    screen.getByRole('group', {
+      name: 'Hvis TEs oppgjørsform legges til grunn: hvor mye av beløpet godkjenner du?',
+    });
+    await fireEvent.click(screen.getByRole('radio', { name: 'Tar ikke stilling' }));
+    const linjer = () =>
+      within(screen.getByRole('region', { name: 'Hovedlinjene i svaret' }))
+        .queryAllByRole('listitem')
+        .map((li) => li.textContent!.replace(/\s+/g, ' ').trim());
+    expect(
+      linjer().some((l) => l.endsWith('Vederlagsjustering: du tar ikke stilling til beløpet'))
+    ).toBe(true);
+
+    // Med fast sum godkjent er valget borte, og beløpet er ubesvart igjen.
+    await fireEvent.click(
+      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)' })
+    );
+    expect(screen.queryByRole('radio', { name: 'Tar ikke stilling' })).toBeNull();
+    expect(
+      linjer().some((l) => l.endsWith('Vederlagsjustering: du tar ikke stilling til beløpet'))
+    ).toBe(false);
   });
 
   it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om sen varsling etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {

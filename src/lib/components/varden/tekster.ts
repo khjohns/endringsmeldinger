@@ -147,6 +147,8 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
           ? `Mener ${metodenavn(s.oensket)}`
           : 'Godkjenner ikke fast sum';
     case 'beloep':
+      // KA-U58
+      if (s.godkjent === undefined) return 'Tar ikke stilling til beløpet';
       if (krevd === undefined) return `${kroner(s.godkjent)} godkjent`;
       if (s.godkjent === krevd) return `${kroner(s.godkjent)}, godkjent som krevd`;
       return `${kroner(s.godkjent)} av ${kroner(krevd)} godkjent`;
@@ -197,6 +199,8 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
     case 'beloep': {
       const hva = s.saerskilt ? 'Særskilt vederlagsjustering' : `Vederlagsjustering${forPosten}`;
       const av = krevd !== undefined ? ` av ${kroner(krevd)}` : '';
+      // KA-U58
+      if (s.godkjent === undefined) return `${hva}: ${hvemLiten} tar ikke stilling til beløpet`;
       return `${hva}: ${hvemLiten} godkjenner ${kroner(s.godkjent)}${av}`;
     }
     case 'forhold':
@@ -245,6 +249,9 @@ export const SKJEMA = {
   // Beløpet står etter tittelen i komponenten, med mono (#1467).
   beloepTittel: 'Vederlagsjustering',
   beloepSpoersmaal: 'Hvor mye av beløpet godkjenner du?',
+  // KA-U58: beløpet er subsidiært når BH mener en annen oppgjørsform.
+  beloepSpoersmaalSubsidiaert:
+    'Hvis TEs oppgjørsform legges til grunn: hvor mye av beløpet godkjenner du?',
   ettSvarPerPost: 'Ett svar per kravpost. Åpne en kravpost for å svare på den.',
   godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
   godkjennAlle: 'Godkjenn alle kravpostene som krevd',
@@ -268,6 +275,7 @@ export const SKJEMA = {
   hele: 'Hele beløpet',
   deler: 'Deler av beløpet',
   ingenting: 'Ingenting',
+  ingen_stilling: 'Tar ikke stilling',
   belopEtikett: 'Beløpet du godkjenner',
   belopHjelp: (krevd: number) => `Mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
   begrunnelse: 'Begrunnelse',

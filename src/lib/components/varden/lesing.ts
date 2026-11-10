@@ -456,8 +456,11 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
       svar && svarbrev
         ? {
             poster: standpunktene(svar, u).flatMap((l) =>
+              // KA-U58, OV-U73: en kravpost uten standpunkt til beløpet har ikke noe tall.
               'standpunkt' in l && l.standpunkt.art === 'beloep'
-                ? [{ tall: l.standpunkt.godkjent, lag: l.lag }]
+                ? l.standpunkt.godkjent === undefined
+                  ? []
+                  : [{ tall: l.standpunkt.godkjent, lag: l.lag }]
                 : 'standpunkt' in l && l.standpunkt.art === 'dager'
                   ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
                   : []

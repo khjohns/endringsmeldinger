@@ -11,6 +11,8 @@ import type { Beloepsvurdering } from '../regler/typer.ts';
 import {
   beregnGodkjentBeloep,
   beregnVederlag,
+  TAR_IKKE_STILLING,
+  type Kravpostsvar,
   type Vederlagsberegning,
   type Postsvar,
   type Vederlagssvar,
@@ -207,7 +209,7 @@ function vederlagssvaret(
     poster.push({
       gjelder: post.id,
       krevd: tilTall(krevdISvaret(krav, post)),
-      vurdering: svar.vurdering as Beloepsvurdering | undefined,
+      vurdering: svar.vurdering as Kravpostsvar['vurdering'],
       godkjent_beloep: svar.godkjent_beloep as number | undefined,
       aksepterer: svar.aksepterer as boolean | undefined,
     });
@@ -363,7 +365,7 @@ export function vederlagsposter(
   v: Svarvurdering,
   krav: Krav
 ): (
-  | { godkjent: number; gjelder: string; svar: Kravpostvurdering }
+  | { godkjent: number | null; gjelder: string; svar: Kravpostvurdering }
   | { godkjent: number; saerskilt: 'produktivitet' }
 )[] {
   const post = (vurdering: unknown, krevd: Oere, delvis: unknown) =>
@@ -377,7 +379,11 @@ export function vederlagsposter(
   const produktivitet = krevdProduktivitet(krav);
   return [
     ...kravpostvurderinger(v, krav).map(({ post: k, svar }) => ({
-      godkjent: post(svar.vurdering, krevdISvaret(krav, k), svar.godkjent_beloep),
+      // KA-U58: byggherren tar ikke stilling til beløpet.
+      godkjent:
+        svar.vurdering === TAR_IKKE_STILLING
+          ? null
+          : post(svar.vurdering, krevdISvaret(krav, k), svar.godkjent_beloep),
       gjelder: k.id,
       svar,
     })),

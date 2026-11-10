@@ -238,7 +238,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           id,
           art,
           resultat: (utregning.subsidiaert_resultat ?? utregning.resultat) as never,
-          godkjent: e.beloep as number,
+          ...('beloep' in e ? { godkjent: e.beloep as number } : {}),
           ...('gjelder' in e
             ? { gjelder: e.gjelder as string }
             : { saerskilt: 'produktivitet' as const }),
@@ -304,6 +304,15 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
     throw new Uforstaatt(
       `${sti}: standpunktene i vederlaget står ikke i rekkefølgen § 34.1.2, oppgjørsformen og beløpet for hver kravpost, § 34.1.3 og posten etter annet ledd`
     );
+  // KA-U58: et beløp uten standpunkt står bare for en kravpost der tilbudet ikke er akseptert.
+  const utenAksept = new Set(
+    ut.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []))
+  );
+  for (const s of ut)
+    if (s.art === 'beloep' && s.godkjent === undefined && !utenAksept.has(s.gjelder!))
+      throw new Uforstaatt(
+        `${sti}: beløpet står uten standpunkt, men byggherren aksepterer tilbudet for posten (KA-U58)`
+      );
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
   if (plasser.includes(3) && !plasser.includes(4))
     throw new Uforstaatt(`${sti}: rettidigheten etter § 34.1.3 står uten posten etter annet ledd`);
@@ -321,7 +330,9 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
         `${sti}: beløpet etter begrensningen er høyere enn det byggherren godtar for posten`
       );
   }
-  const poster = ut.flatMap((s) => (s.art === 'beloep' ? [s.godkjent] : []));
+  const poster = ut.flatMap((s) =>
+    s.art === 'beloep' && s.godkjent !== undefined ? [s.godkjent] : []
+  );
   const samlet = poster.reduce((a, b) => a + (beloep(b) ?? 0n), 0n);
   const total = (utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep) as number;
   if (samlet !== beloep(total))

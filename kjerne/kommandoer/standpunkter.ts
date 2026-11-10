@@ -62,10 +62,11 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
             ? {}
             : { beloep: tilTall(beloep(v.produktivitet_begrenset_beloep as number)!) }),
         });
+      // KA-U58: tar byggherren ikke stilling til beløpet, står standpunktet uten beløp.
       ut.push({
         id: nyId(),
         art: 'beloep',
-        beloep: post.godkjent,
+        ...(post.godkjent === null ? {} : { beloep: post.godkjent }),
         ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
       });
     }

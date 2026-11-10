@@ -111,8 +111,13 @@ export function beslutningslinje(
           tekst: `tilbudet${post ? ` for ${post}` : ''} ikke akseptert (§ 34.2.2)`,
           virkning: virkning(form.id),
         });
+      // KA-U58: byggherren tar ikke stilling til beløpet.
       const tekst =
-        beloep(b.godkjent) === 0n ? `avslått${hva}` : `godkjent med ${kroner(b.godkjent)}${hva}`;
+        b.godkjent === undefined
+          ? `beløpet${hva} ikke besvart`
+          : beloep(b.godkjent) === 0n
+            ? `avslått${hva}`
+            : `godkjent med ${kroner(b.godkjent)}${hva}`;
       sine.push({ tekst, virkning: virkning(b.id) });
     });
   } else {

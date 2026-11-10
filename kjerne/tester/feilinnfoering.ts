@@ -4315,7 +4315,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'utfallet regner med en kravpost uten fast beløp i det første laget (KA-U58, OV-U73)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['    else if (!p.saerskilt && (p.lag ?? 1) > 1)', '    else if (false)']],
+    endringer: [
+      [
+        '    else if (!p.saerskilt && ((p.lag ?? 1) > 1 || p.godkjent === undefined))',
+        '    else if (false)',
+      ],
+    ],
     mal: ['F-MM-V-34-2-2-nei'],
   },
   {
@@ -4341,6 +4346,47 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/tekst.ts`,
     endringer: [['.sort((a, b) => a.k - b.k)', '.sort(() => 0)']],
     mal: ['tilbudet ikke akseptert og § 34.1.3 påberopt'],
+  },
+  {
+    id: 'F510',
+    feilklasse:
+      'byggherren kan la beløpet stå uten standpunkt også når tilbudet for kravposten aksepteres (KA-U58)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['      if (!ikkeAkseptert(p))\n', '      if (false)\n']],
+    mal: ['svaret avvises når tilbudet aksepteres'],
+  },
+  {
+    id: 'F511',
+    feilklasse:
+      'en kravpost uten standpunkt til beløpet får 0 kr i laget for beløpet, som et avslag (KA-U58, OV-U73)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        'const godkjent = tarIkkeStilling(post)\n      ? null',
+        'const godkjent = tarIkkeStilling(post)\n      ? NULL_OERE',
+      ],
+    ],
+    mal: ['svaret lagres med beløpet uten standpunkt og laget uten beløp'],
+  },
+  {
+    id: 'F512',
+    feilklasse:
+      'leseren godtar et beløp uten standpunkt for en kravpost der tilbudet er akseptert (KA-U58)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        's.godkjent === undefined && !utenAksept.has(s.gjelder!)',
+        's.godkjent === undefined && false',
+      ],
+    ],
+    mal: ['en rad med beløpet uten standpunkt for en kravpost der tilbudet er akseptert, avvises'],
+  },
+  {
+    id: 'F513',
+    feilklasse: 'en vurdering av beløpet kjernen ikke kjenner, regnes som 0 kr (#1663)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['if (!BELOEPSVURDERINGER.includes(vurd)) {', 'if (false) {']],
+    mal: ['svaret avvises med en vurdering kjernen ikke kjenner'],
   },
 ];
 

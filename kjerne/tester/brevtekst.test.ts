@@ -1382,7 +1382,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
         svar(
           'vederlag',
           s.krav('vederlag'),
-          P1({ vurdering: 'avslatt', aksepterer: true }),
+          P1({ vurdering: 'avslaatt', aksepterer: true }),
           { resultat: 'avslaatt', godkjent_beloep: 0 },
           null
         ),
@@ -5780,6 +5780,131 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
         const u = s.u();
         expect(u.forstaatt).toBe(false);
         expect(u.begrensninger.map((b) => b.grunn).join(' ')).toContain(grunn);
+      });
+    });
+
+    // KA-U58: byggherren kan la beløpet stå uten standpunkt når byggherren mener en annen
+    // oppgjørsform, og brevet sier at beløpet ikke er besvart i det laget.
+    describe('byggherren tar ikke stilling til beløpet (KA-U58)', () => {
+      type Utregning = { poster: { gjelder?: string; lag: Data[] }[] } & Data;
+      const ikkeStilling = P1({
+        vurdering: 'tar_ikke_stilling',
+        aksepterer: false,
+        oensket_oppgjoersform: 'regningsarbeid',
+      });
+
+      it('svaret lagres med beløpet uten standpunkt og laget uten beløp, er forstått og avslår ikke kravet', () => {
+        const s = sakMedKrav();
+        const rad = brev(s, 'vederlag', ikkeStilling);
+        const lagret = (rad.data.svar as Data[])[0];
+        const beloepet = (lagret.standpunkter as Data[]).find((p) => p.art === 'beloep')!;
+        expect('beloep' in beloepet).toBe(false);
+        const ut = lagret.utregning as Utregning;
+        expect(ut.poster[0].lag).toEqual([{ lag: 1 }, { lag: 2 }]);
+        // OV-U73: en post uten fast beløp regnes ikke med, og summen 0 er ikke et avslag.
+        expect([ut.godkjent_beloep, ut.subsidiaert_godkjent_beloep]).toEqual([0, 0]);
+        expect([ut.resultat, ut.subsidiaert_resultat]).toEqual([
+          'delvis_godkjent',
+          'delvis_godkjent',
+        ]);
+        const u = s.u();
+        expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+        expect(laast(rad)[0]).toContain('Subsidiært: byggherren tar ikke stilling til beløpet.');
+      });
+
+      it('med to kravposter sier brevet hvilken kravpost beløpet ikke er besvart for, og den andre står med beløpet', () => {
+        const s = sak();
+        s.send('TE', PAABEROPELSE);
+        s.send('TE', {
+          type: 'krav',
+          spor: 'vederlag',
+          innhold: {
+            ...tilbud(125000),
+            kravposter: [
+              { beskrivelse: 'Graving', oppgjoersform: 'tilbud', beloep: 100000 },
+              { beskrivelse: 'Rør', oppgjoersform: 'tilbud', beloep: 25000 },
+            ],
+          },
+        });
+        const rad = brev(s, 'vederlag', {
+          kravposter: [
+            { gjelder: 'P1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
+            {
+              gjelder: 'P2',
+              vurdering: 'tar_ikke_stilling',
+              aksepterer: false,
+              oensket_oppgjoersform: 'regningsarbeid',
+            },
+          ],
+        });
+        const tekst = laast(rad)[0];
+        expect(tekst).toContain('byggherren tar ikke stilling til beløpet for P2.');
+        expect(tekst).toContain(`Byggherren godkjenner ${KR('100 000')} for P1.`);
+        const ut = (rad.data.svar as Data[])[0].utregning as Utregning;
+        expect(ut.poster.map((p) => p.lag)).toEqual([
+          [
+            { lag: 1, beloep: 100000 },
+            { lag: 2, beloep: 100000 },
+          ],
+          [{ lag: 1 }, { lag: 2 }],
+        ]);
+        expect(s.u().forstaatt).toBe(true);
+      });
+
+      it.each<[string, Data, string]>([
+        [
+          'når tilbudet aksepteres',
+          P1({ vurdering: 'tar_ikke_stilling', aksepterer: true }),
+          'P1.vurdering: byggherren kan la beløpet stå ubesvart bare når tilbudet ikke aksepteres (KA-U58)',
+        ],
+        [
+          'med et beløp',
+          P1({
+            vurdering: 'tar_ikke_stilling',
+            godkjent_beloep: 0,
+            aksepterer: false,
+            oensket_oppgjoersform: 'regningsarbeid',
+          }),
+          'P1.godkjent_beloep: står uten et standpunkt til beløpet (KA-U58)',
+        ],
+        [
+          'med en vurdering kjernen ikke kjenner',
+          P1({ vurdering: 'avslatt', aksepterer: true }),
+          'P1.vurdering: avslatt er ikke en vurdering av beløpet',
+        ],
+      ])('svaret avvises %s', (_n, v, melding) => {
+        const s = sakMedKrav();
+        const brevet = {
+          type: 'brev',
+          svar: [
+            svar(
+              'vederlag',
+              s.krav('vederlag'),
+              v,
+              { resultat: 'delvis_godkjent', godkjent_beloep: 0 },
+              null
+            ),
+          ],
+        };
+        expect(s.avvisning('BH', brevet)?.melding).toContain(melding);
+      });
+
+      it('en rad med beløpet uten standpunkt for en kravpost der tilbudet er akseptert, avvises', () => {
+        const s = sakMedKrav();
+        brev(s, 'vederlag', delvis);
+        const raden = {
+          svar: [
+            kopi(s, (svar) => {
+              delete (svar.standpunkter as Data[]).find((p) => p.art === 'beloep')!.beloep;
+              const u = svar.utregning as Utregning;
+              u.godkjent_beloep = 0;
+              u.poster[0].lag = [{ lag: 1 }];
+            }),
+          ],
+        };
+        expect(() => s.rad('BH', raden)).toThrow(
+          'beløpet står uten standpunkt, men byggherren aksepterer tilbudet for posten (KA-U58)'
+        );
       });
     });
 
