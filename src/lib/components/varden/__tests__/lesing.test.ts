@@ -12,7 +12,8 @@ import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
 import type { Handling } from '$kjerne/tester/klient';
 import { kroner } from '$kjerne/frosset/tekst';
 import { brevene, kravposterUtenFastBeloep, standpunktene } from '$lib/components/varden/lesing';
-import { STILLING } from '$lib/components/varden/tekster';
+import { leselinjene, STILLING } from '$lib/components/varden/tekster';
+import { kravposterI } from '$kjerne/frosset/kravinnhold';
 
 async function utledning(steg: Handling[]) {
   const forloep: Forloep = { id: 'lagene', rader: [], start: null, steg, kontroller: [] };
@@ -179,6 +180,45 @@ describe('beløpet og kravpostene uten fast beløp i aksepten (OV-U73, svar 6 A 
   it('kontrollsak: BH godkjenner begge kravpostene med fast sum, enigheten registreres uten aksept, og bare beløpet står', async () => {
     expect(await linjeneOmBeloepet([fastSum('P1'), fastSum('P2')], false)).toEqual([
       `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(140000)}, etter brev 3 slik det ble sendt.`,
+    ]);
+  });
+});
+
+describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U57)', () => {
+  it('linjene er korte, navngir ikke kravposten og har etiketten for laget', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ belop: 100000 }, { belop: 40000 }],
+      },
+      brevet(forholdet('godkjent'), {
+        spor: 'vederlag',
+        navn: 'S-v1',
+        kravposter: [
+          { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
+          {
+            post: 'P2',
+            vurdering: 'delvis',
+            godkjent_belop: 30000,
+            metode_akseptert: false,
+            oensket_metode: 'regningsarbeid',
+          },
+        ],
+      }),
+    ]);
+    const svar = u.spor.vederlag.svar[0];
+    const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const linjer = standpunktene(svar, u);
+    expect(leselinjene(linjer, p1!)).toEqual([
+      'Godkjenner fast sum',
+      `${kroner(100000)}, godkjent som krevd`,
+    ]);
+    expect(leselinjene(linjer, p2!)).toEqual([
+      'Prinsipalt: mener regningsarbeid (punkt 34.4)',
+      `Subsidiært: ${kroner(30000)} av ${kroner(40000)} godkjent`,
     ]);
   });
 });

@@ -54,6 +54,7 @@
     brevtittel,
     dato,
     grunntekst,
+    leselinjene,
     kalenderdager,
     standpunkttekst,
   } from './tekster';
@@ -194,7 +195,6 @@
                     post && flere ? post.betegnelse : undefined
                   ),
             lag: l.lag,
-            gjelder: post?.betegnelse,
           };
         })
       : []
@@ -202,7 +202,7 @@
   // Leselinjen for en lukket kravpost: standpunktene slik kjernen skriver dem, eller valgene
   // til svaret er fullstendig.
   const leselinje = (p: Kravpost): string[] => {
-    const fra = linjer.filter((l) => l.gjelder === p.betegnelse).map((l) => l.tekst);
+    const fra = nyttSvar ? leselinjene(standpunktene(nyttSvar, etter!), p) : [];
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
     return [

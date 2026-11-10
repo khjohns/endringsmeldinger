@@ -12,8 +12,8 @@ import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/frosset/forholdene'
 import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
-import type { Part, Spor, Standpunkt } from '$kjerne/typer';
-import type { Brevet, Brevref, OppgittDato } from './lesing';
+import type { Kravpost, Part, Spor, Standpunkt } from '$kjerne/typer';
+import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
 
 export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
 
@@ -133,6 +133,44 @@ export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =
   grunn === 'avslaatt'
     ? `${du ? 'Du' : 'BH'} har avslått forholdet i ${brevref(brev)}`
     : `${du ? 'Du' : 'BH'} har gjort gjeldende i ${brevref(brev)} at varselet om forholdet kom for sent (punkt 32.2)`;
+
+/**
+ * Standpunktet i den lukkede kravposten, kort og uten kravposten, som raden navngir (prototype v3,
+ * `leselinje`). Bare oppgjørsformen og beløpet gjelder én kravpost; ellers `null`.
+ */
+function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
+  switch (s.art) {
+    case 'oppgjoersform':
+      return s.aksepterer
+        ? 'Godkjenner fast sum'
+        : s.oensket
+          ? `Mener ${metodenavn(s.oensket)}`
+          : 'Godkjenner ikke fast sum';
+    case 'beloep':
+      if (krevd === undefined) return `${kroner(s.godkjent)} godkjent`;
+      if (s.godkjent === krevd) return `${kroner(s.godkjent)}, godkjent som krevd`;
+      return `${kroner(s.godkjent)} av ${kroner(krevd)} godkjent`;
+    default:
+      return null;
+  }
+}
+
+/** Leselinjene for kravposten `post` av linjene i svaret, med etiketten for laget foran. */
+export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
+  return linjer.flatMap((l) => {
+    if (!('standpunkt' in l)) return [];
+    const s = l.standpunkt;
+    if (!('gjelder' in s) || s.gjelder !== post.id) return [];
+    const t = kortStandpunkt(
+      s,
+      s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined
+    );
+    if (!t) return [];
+    return [
+      l.lag ? `${l.lag[0].toUpperCase()}${l.lag.slice(1)}: ${t[0].toLowerCase()}${t.slice(1)}` : t,
+    ];
+  });
+}
 
 /**
  * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
