@@ -90,6 +90,12 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
 - **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
   reviewet, rettingene eller det neste relaterte issuet i oppdraget.
   Den venter med en bakgrunnskommando først når den ikke har mer å gjøre.
+- **Ikke abonner på PR-en** (`subscribe_pr_activity`), med mindre oppdragsgiver ber om
+  det. Hver hendelse vekker økta og leser hele konteksten på nytt, også en grønn
+  kjøring, egne pusher og mergen. Etter hver push venter økta på CI med én
+  bakgrunnskommando som poller sjekkene på committen. Den retter det som er rødt, og
+  melder fra når alt er grønt. I en orkestrert runde sier orkestratoren fra om review
+  og rød CI etter en oppdatering mot `main`, fordi det er orkestratoren som oppdaterer.
 
 ## I en orkestrert økt
 
@@ -125,12 +131,6 @@ uten at oppdraget gjentar det:
   utfallet av `/code-review`.
 - **PR mot `main`** med `Closes #n`, eller «Del av #n» når bare en del leveres.
   Økta merger ikke.
-- **Ikke abonner på PR-en** (`subscribe_pr_activity`). Hver hendelse
-  vekker økta og leser hele konteksten på nytt, også en grønn kjøring, egne
-  pusher og mergen. Etter hver push venter økta på CI med én bakgrunnskommando
-  som poller sjekkene på committen. Den retter det som er rødt, og melder fra
-  når alt er grønt. Review og rød CI etter en oppdatering mot `main` sier
-  orkestratoren fra om, fordi det er orkestratoren som oppdaterer.
 - **Meld fra** med `send_message` til `@parent` når PR-en er grønn og
   klar for gjennomgang. Økta pusher ikke etter det uten at orkestratoren
   ber om det. En push etter meldingen kan komme etter mergen og bli stående

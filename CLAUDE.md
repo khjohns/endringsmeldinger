@@ -12,8 +12,9 @@ funnene og eldre leveransemerknader i `docs/plans/arkiv.md` (arkivet), og bare d
 foreldet, og fila lastes automatisk og blir trodd. Regler for kode som skal
 erstattes, står i `.claude/rules/` og sier når de slutter å gjelde.
 
-**En skyøkt leser [arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md) (`arbeidsokt`)
-før arbeidet starter**, også en direkte økt og en reviewøkt. Den har hurtigbufferen,
+**En skyøkt som bygger, reviewer eller retter, leser
+[arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md) (`arbeidsokt`) før arbeidet
+starter**, også en direkte økt og en reviewøkt. Den har hurtigbufferen,
 kontekstgrensene, reviewet og reglene for PR-en og CI. En subagent leser den ikke; den
 følger bestillingen.
 
