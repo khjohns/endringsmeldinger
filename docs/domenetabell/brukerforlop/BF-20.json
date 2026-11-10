@@ -1,0 +1,221 @@
+{
+  "id": "BF-20",
+  "tittel": "TE krever fristforlengelse per frist, og BH svarer per frist",
+  "brukerhistorie": "TE varsler etter punkt 33.4 med kravet eller for seg, angir dagene for hver frist i kontrakten forholdet rammer, ser gjeldende og ny frist og rekkefølgen fristene får, og begrunner kravet. Når byggherren har bedt om dagene etter punkt 33.6.2, svarer TE med dagene eller med en begrunnelse for hvorfor de ennå ikke kan beregnes. I en ny versjon står alle fristene, og en frist TE tar ut, trekkes uttrykkelig. BH svarer på varselet, spesifiseringen og hindringen for hele kravet og på dagene per frist, og ser lagene samlet før svaret sendes.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet byggherrens valg av løsninger og prosjektering (punkt 24.1) og sender krav om fristforlengelse for overtakelsen og mekanisk ferdigstillelse. Overtakelsen er forlenget 10 dager i en annen sak (BF-05)."
+  },
+  "bestilling": "BF-20.md",
+  "prototype": {
+    "fil": "../../design/prototyper/fristkrav-te.html",
+    "klikkstier": [
+      {
+        "id": "varsel-gitt-foer",
+        "dekker": [
+          "1"
+        ],
+        "start": "nytt-krav",
+        "handlinger": [
+          {
+            "staar": "Dette kravet er varselet."
+          },
+          {
+            "trykk": "Varselet er gitt før, utenfor løsningen"
+          },
+          {
+            "staar": "Brevet sier når, og brevet du varslet i, legges ved."
+          },
+          {
+            "trykk": "Dette kravet er varselet likevel"
+          },
+          {
+            "staar": "Dette kravet er varselet."
+          }
+        ]
+      },
+      {
+        "id": "frister-snarvei-og-brev",
+        "dekker": [
+          "2",
+          "3"
+        ],
+        "start": "nytt-krav",
+        "handlinger": [
+          {
+            "staar": "Dagene gjelder hver frist for seg og legges ikke sammen."
+          },
+          {
+            "staar": "Gjeldende frist:"
+          },
+          {
+            "staar": "Fristene i kontrakten"
+          },
+          {
+            "trykk": "Krev også 20 dager for frist 8"
+          },
+          {
+            "staar": "8 og 10 (punkt 33.6.1)"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Dagene gjelder hver frist for seg."
+          },
+          {
+            "staar": "Når du sender"
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "nytt-krav"
+          }
+        ]
+      },
+      {
+        "id": "bare-varsle",
+        "dekker": [
+          "4"
+        ],
+        "start": "nytt-krav",
+        "handlinger": [
+          {
+            "klikk": "Bare varsle etter punkt 33.4, uten dager",
+            "tilstand": "varsel"
+          },
+          {
+            "staar": "TE vil kreve fristforlengelse som følge av forholdet i sak E-017"
+          },
+          {
+            "velg": "Registrer et brev sendt utenfor løsningen"
+          },
+          {
+            "staar": "Registrer varselet"
+          }
+        ]
+      },
+      {
+        "id": "ny-versjon-med-trekk",
+        "dekker": [
+          "5"
+        ],
+        "start": "ny-versjon",
+        "handlinger": [
+          {
+            "staar": "En frist du tar ut, trekkes uttrykkelig."
+          },
+          {
+            "staar": "Endret fra brev 5: 20 dager → 25 dager"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "trekker kravet om forlengelse av fristen for mekanisk ferdigstillelse"
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "ny-versjon"
+          }
+        ]
+      },
+      {
+        "id": "foresporsel-bokstav-b",
+        "dekker": [
+          "6"
+        ],
+        "start": "foresporsel",
+        "handlinger": [
+          {
+            "staar": "Byggherren ber deg angi og begrunne antall dager"
+          },
+          {
+            "velg": "Begrunne hvorfor du ennå ikke kan beregne dagene (bokstav b)"
+          },
+          {
+            "staar": "Når du kan beregne dagene, skal du uten ugrunnet opphold angi og begrunne dem."
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "har ennå ikke grunnlag for å beregne omfanget av fristforlengelsen"
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "foresporsel"
+          }
+        ]
+      },
+      {
+        "id": "svar-per-frist",
+        "dekker": [
+          "7"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "staar": "Ett svar per frist."
+          },
+          {
+            "trykk": "Godkjenn dagene som krevd for alle fristene"
+          },
+          {
+            "staar": "Lagene samlet"
+          },
+          {
+            "staar": "Dagene legges ikke sammen"
+          }
+        ]
+      }
+    ]
+  },
+  "kilder": [
+    "KA-U33",
+    "KA-U8",
+    "VS-U18",
+    "OV-U63",
+    "VS-U15",
+    "VS-U16",
+    "MM-U1",
+    "VS-U19",
+    "VS-U17",
+    "VS-U2",
+    "VS-U10",
+    "VS-U20",
+    "KA-U4",
+    "VS-U4",
+    "VS-U3",
+    "OV-U32",
+    "OV-U33",
+    "KA-U1",
+    "KA-U56",
+    "B-17"
+  ],
+  "venter_paa": [
+    "#1427"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-09",
+      "forhold": "#1427",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen etter prototypen fristkrav-te.html og spørsmålene S-1–S-5."
+    },
+    {
+      "dato": "2026-11-09",
+      "forhold": "#1745",
+      "hva": "S-2 er avgjort av NS 8407 punkt 1.2: dagene er kalenderdager."
+    },
+    {
+      "dato": "2026-11-09",
+      "forhold": "#1745",
+      "hva": "Funnene fra den kognitive gjennomgangen er rettet i prototypen og bestillingen. D-5 viser til KA-U4, og S-6 og S-7 er nye."
+    }
+  ]
+}
