@@ -112,7 +112,6 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U55](../../plans/vedtak.md#ka-u55) | — | — | BF-14 |
 | [KA-U56](../../plans/vedtak.md#ka-u56) | — | — | BF-14, BF-20 |
 | [KA-U57](../../plans/vedtak.md#ka-u57) | — | — | BF-14 |
-| [KA-U58](../../plans/vedtak.md#ka-u58) | — | — | BF-14 |
 | [KA-U59](../../plans/vedtak.md#ka-u59) | — | — | BF-14 |
 | [KA-U60](../../plans/vedtak.md#ka-u60) | — | — | BF-14 |
 | [KA-U61](../../plans/vedtak.md#ka-u61) | — | — | BF-14 |
@@ -126,6 +125,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U69](../../plans/vedtak.md#ka-u69) | — | — | BF-14 |
 | [KA-U70](../../plans/vedtak.md#ka-u70) | — | — | BF-14 |
 | [KA-U71](../../plans/vedtak.md#ka-u71) | — | — | BF-14 |
+| [KA-U72](../../plans/vedtak.md#ka-u72) | — | — | BF-14 |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U7](../../plans/vedtak.md#kt-u7) | — | BF-05 start | — |

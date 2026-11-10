@@ -304,14 +304,16 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
     throw new Uforstaatt(
       `${sti}: standpunktene i vederlaget står ikke i rekkefølgen § 34.1.2, oppgjørsformen og beløpet for hver kravpost, § 34.1.3 og posten etter annet ledd`
     );
-  // KA-U58: et beløp uten standpunkt står bare for en kravpost der tilbudet ikke er akseptert.
+  // KA-U72: standpunktet til beløpet står uten beløp når, og bare når, tilbudet ikke er akseptert.
   const utenAksept = new Set(
     ut.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []))
   );
   for (const s of ut)
-    if (s.art === 'beloep' && s.godkjent === undefined && !utenAksept.has(s.gjelder!))
+    if (s.art === 'beloep' && (s.godkjent === undefined) !== utenAksept.has(s.gjelder!))
       throw new Uforstaatt(
-        `${sti}: beløpet står uten standpunkt, men byggherren aksepterer tilbudet for posten (KA-U58)`
+        s.godkjent === undefined
+          ? `${sti}: standpunktet til beløpet står uten beløp, men byggherren aksepterer tilbudet for posten (KA-U72)`
+          : `${sti}: standpunktet til beløpet har et beløp, men byggherren aksepterer ikke tilbudet for posten (KA-U72)`
       );
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
   if (plasser.includes(3) && !plasser.includes(4))
@@ -345,7 +347,7 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
  * OV-U31, KA-U57 (e): utregningen har én rad per beløp i standpunktene, i samme rekkefølge og med
  * samme post, og like mange lag i hver rad. Beløpet i det siste laget er det byggherren godtar
  * for posten. Et lag uten beløp står bare for en kravpost der tilbudet ikke er akseptert
- * (KA-U58). Det byggherren godtar prinsipalt og subsidiært, er summen av det første og det
+ * (KA-U72). Det byggherren godtar prinsipalt og subsidiært, er summen av det første og det
  * siste laget, og det subsidiære står bare med mer enn ett lag.
  */
 function kontrollerUtregningenPerPost(ut: Standpunkt[], utregning: Data, sti: string): void {
@@ -371,7 +373,7 @@ function kontrollerUtregningenPerPost(ut: Standpunkt[], utregning: Data, sti: st
       throw feil(`rad ${i + 1} har ikke beløpet byggherren godtar i det siste laget`);
     if (r.lag.some((l) => !('beloep' in l)) && !utenAksept.has(r.gjelder!))
       throw feil(
-        `rad ${i + 1} mangler beløpet i et lag, men byggherren aksepterer tilbudet for posten (KA-U58)`
+        `rad ${i + 1} mangler beløpet i et lag, men byggherren aksepterer tilbudet for posten (KA-U72)`
       );
   });
   const summen = (n: number) =>
@@ -424,12 +426,9 @@ function lesBeslutningsgrunnlag(
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
   // OV-U32, OV-U33: upåvirket gjelder vederlag og frist, og bare ved siden av en påberopelse
-  // i sporet. Et tilbud som ikke er akseptert, er en innsigelse mot kravposten (KA-U60).
-  const ikkeAkseptert = new Set(
-    standpunkter.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : []))
-  );
+  // i sporet. Et tilbud som ikke er akseptert, gir ikke et lag (KA-U72).
   const paaberoper = (p: Standpunktsvirkning) =>
-    typeof p.virkning === 'number' && (PAABEROPELSER.has(p.art) || ikkeAkseptert.has(p.standpunkt));
+    typeof p.virkning === 'number' && PAABEROPELSER.has(p.art);
   if (
     virkninger.some((p) => p.virkning === 'upaavirket') &&
     (spor === 'forhold' || !virkninger.some(paaberoper))

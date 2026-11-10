@@ -563,7 +563,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'godkjent begrensning saerskilt gjelder',
     ['frosset/standpunkt.ts:prinsipaltIVederlaget'],
   ],
-  // KA-U58, OV-U73: en kravpost med beløpet i et senere lag regnes ikke med i det prinsipale.
+  // OV-U73: en kravpost med beløpet i et senere lag regnes ikke med i det prinsipale.
   ['Plass', 'frosset', 'lag', ['frosset/standpunkt.ts:prinsipaltIVederlaget']],
   [
     'Vederlagspost.begrensning',
@@ -651,8 +651,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'beregnVederlag gjelderVarslingspliktenForVederlag erBeloepetGodkjentFullt',
   ],
   ['regler/vederlag.ts', 'regelsett', 'beregnGodkjentBeloep', ['frosset/utregning.ts']],
-  // KA-U58: byggherren tar ikke stilling til beløpet for kravposten.
-  ['regler/vederlag.ts', 'regelsett', 'TAR_IKKE_STILLING', ['frosset/utregning.ts']],
   // Vurderingen av beløpet er en av verdiene i regelsettet.
   ['regler/typer.ts', 'regelsett', 'BELOEPSVURDERINGER', ['regler/vederlag.ts']],
   [
@@ -682,7 +680,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Postbeloep', 'regelsett', 'krevd'],
   ['Postbeloep', 'utsagn', 'vurdering godkjent_beloep'],
   ['Kravpostsvar', 'relasjon', 'gjelder'],
-  ['Kravpostsvar', 'utsagn', 'aksepterer vurdering'],
+  ['Kravpostsvar', 'utsagn', 'aksepterer'],
   ['Produktivitetssvar', 'regelsett', 'saerskilt'],
   ['Produktivitetssvar', 'utsagn', 'varslet_i_tide begrenset_beloep'],
   ['RiggOgDriftsvar', 'utsagn', 'varslet_i_tide'],

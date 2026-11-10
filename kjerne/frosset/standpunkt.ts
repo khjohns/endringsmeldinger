@@ -111,12 +111,12 @@ export function virkninger(
 
 /**
  * OV-U27, OV-U33, KA-U60, KA-U64: lagene i vederlaget. Påberopelsen etter § 34.1.2 gjelder hele
- * kravet og står i det første laget. I laget etter står standpunktet til oppgjørsformen når
- * tilbudet ikke er akseptert, og begrensningen etter § 34.1.3, og hver av dem rammer bare sin
- * post: beløpet for kravposten `gjelder` og den særskilte posten står i laget etter
- * (arbeidsvalg 1.2 og 1.3 i spørsmålsfila 09.11 for #1663). En post som ingen av dem rammer, er
- * upåvirket, så sant forholdet verken er avslått eller prekludert (OV-U33), og ellers i laget
- * etter § 34.1.2 (arbeidsvalg 1.1). Et akseptert tilbud står som posten.
+ * kravet og står i det første laget. I laget etter står begrensningen etter § 34.1.3, som bare
+ * rammer den særskilte posten: den står i laget etter (arbeidsvalg 1.3 i spørsmålsfila 09.11
+ * for #1663). Et tilbud som ikke er akseptert, gir ikke et eget lag, fordi svaret da ikke tar
+ * stilling til beløpet (KA-U72). En post som ingen innsigelse rammer, er upåvirket, så sant
+ * forholdet verken er avslått eller prekludert (OV-U33), og ellers i laget etter § 34.1.2
+ * (arbeidsvalg 1.1).
  */
 function vederlagsvirkninger(
   svar: Svarinnhold,
@@ -133,14 +133,8 @@ function vederlagsvirkninger(
         hjemmelenGjelder(hjemmel, paaberopelse, regler)
     );
   const [hele, posten] = [sent('34.1.2'), sent('34.1.3')];
-  const ikkeAkseptert = new Set(
-    svar.standpunkter.flatMap((s) =>
-      s.art === 'oppgjoersform' && !s.aksepterer ? [s.gjelder] : []
-    )
-  );
   const foerste = hele ? 2 : 1;
-  const rammet = posten || ikkeAkseptert.size > 0;
-  const ellers: Virkning = rammet && !hele && forskyvning === 0 ? 'upaavirket' : foerste;
+  const ellers: Virkning = posten && !hele && forskyvning === 0 ? 'upaavirket' : foerste;
   return svar.standpunkter.map((s): Standpunktsvirkning => {
     const virkning = (): Virkning => {
       if (s.art === 'rettidighet')
@@ -151,9 +145,7 @@ function vederlagsvirkninger(
           : posten
             ? foerste
             : 'uten_virkning';
-      if (s.art === 'oppgjoersform' && !s.aksepterer) return foerste;
       if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;
-      if (s.art === 'beloep' && ikkeAkseptert.has(s.gjelder!)) return foerste + 1;
       return ellers;
     };
     return { standpunkt: s.id, art: s.art, virkning: virkning() };
@@ -349,7 +341,7 @@ export interface Vederlagspost extends Plass {
   /** Kravposten beløpet gjelder (KA-U57 (c)); ikke for posten etter § 34.1.3 annet ledd. */
   gjelder?: string;
   saerskilt?: 'produktivitet';
-  /** Uten beløp tar byggherren ikke stilling til beløpet for kravposten (KA-U58). */
+  /** Uten beløp når tilbudet for kravposten ikke er akseptert (KA-U72). */
   godkjent?: number;
   begrensning: (Plass & { standpunkt: string; beloep: number }) | null;
 }
@@ -411,8 +403,8 @@ export function postlisten(
 /**
  * Det byggherren godtar prinsipalt i vederlaget, av postene og lagene i brevet (OV-U26,
  * OV-U27): posten etter § 34.1.3 annet ledd med beløpet etter en virksom begrensning. En
- * kravpost med beløpet i et senere lag har ikke et fast beløp i det første og regnes ikke med
- * (KA-U58, OV-U73). `uten_fast_beloep` er de kravpostene, så beløpet ikke leses som et avslag
+ * kravpost med beløpet i et senere lag, eller uten beløp fordi tilbudet ikke er akseptert
+ * (KA-U72), har ikke et fast beløp i det første og regnes ikke med (OV-U73). `uten_fast_beloep` er de kravpostene, så beløpet ikke leses som et avslag
  * (svar 6 A i #1663).
  */
 function prinsipaltIVederlaget(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {

@@ -605,6 +605,19 @@ export const P1 = (svar: Vurderinger): Vurderinger => ({
   kravposter: [{ gjelder: 'P1', ...svar }],
 });
 
+/**
+ * `vurderinger` der byggherren ikke aksepterer tilbudet for kravposten P1 og mener `oensket`,
+ * uten vurdering av beløpet (KA-U72).
+ */
+export function medP1IkkeAkseptert(vurderinger: Vurderinger, oensket: string): Vurderinger {
+  const ut = medP1(vurderinger, { aksepterer: false, oensket_oppgjoersform: oensket });
+  const [p1, ...resten] = ut.kravposter as Vurderinger[];
+  const utenBeloep = Object.fromEntries(
+    Object.entries(p1).filter(([k]) => k !== 'vurdering' && k !== 'godkjent_beloep')
+  );
+  return { ...ut, kravposter: [utenBeloep, ...resten] };
+}
+
 /** `vurderinger` med feltene i `svar` lagt til svaret på kravposten P1. */
 export function medP1(vurderinger: Vurderinger, svar: Vurderinger): Vurderinger {
   const poster = (vurderinger.kravposter as Vurderinger[] | undefined) ?? [];

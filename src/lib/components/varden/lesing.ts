@@ -262,7 +262,10 @@ export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
       brev: ref(brevet(u, g!.dokument)!),
       lag: plass.grunn(i).etikett,
     })),
-    ...svar.standpunkter.map((s) => ({ standpunkt: s, lag: plass.standpunkt(s.id).etikett })),
+    // KA-U72: standpunktet til beløpet uten beløp, når tilbudet ikke er akseptert, vises ikke.
+    ...svar.standpunkter
+      .filter((s) => !(s.art === 'beloep' && s.godkjent === undefined))
+      .map((s) => ({ standpunkt: s, lag: plass.standpunkt(s.id).etikett })),
   ];
 }
 
@@ -456,11 +459,8 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
       svar && svarbrev
         ? {
             poster: standpunktene(svar, u).flatMap((l) =>
-              // KA-U58, OV-U73: en kravpost uten standpunkt til beløpet har ikke noe tall.
               'standpunkt' in l && l.standpunkt.art === 'beloep'
-                ? l.standpunkt.godkjent === undefined
-                  ? []
-                  : [{ tall: l.standpunkt.godkjent, lag: l.lag }]
+                ? [{ tall: l.standpunkt.godkjent!, lag: l.lag }]
                 : 'standpunkt' in l && l.standpunkt.art === 'dager'
                   ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
                   : []

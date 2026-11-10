@@ -39,7 +39,7 @@
   import {
     postvalget,
     beloepsvalget,
-    kanLaBeloepetStaa,
+    spoerOmBeloepet,
     utkastForBeloepet,
     tomPost,
     tomtSvar,
@@ -243,7 +243,7 @@
   // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
   const delbeloepFeil = (p: Kravpost): string | null => {
     const v = postvalget(valg, p.betegnelse);
-    if (v.beloep !== 'deler') return null;
+    if (beloepsvalget(v) !== 'deler') return null;
     const lest = lesKroner(v.delbeloep);
     if ('feil' in lest) return lest.feil;
     if (lest.verdi === undefined) return SKJEMA.manglerDelbeloep;
@@ -265,7 +265,7 @@
           {
             felt: `${uid}-beloep-${p.betegnelse}`,
             post: p.betegnelse,
-            tekst: i(beloepsvalget(v) === null ? SKJEMA.manglerBeloep : null),
+            tekst: i(spoerOmBeloepet(v) && beloepsvalget(v) === null ? SKJEMA.manglerBeloep : null),
           },
           {
             felt: `${uid}-delbeloep-${p.betegnelse}`,
@@ -562,7 +562,6 @@
                 {#if aapen === p.betegnelse && v}
                   {@const beloepFeil = feil(`delbeloep-${p.betegnelse}`)}
                   {@const forms = formforutsetninger(p)}
-                  {@const beloeps = forutsetninger(p)}
                   <div class="posthode">
                     <h4>
                       {#if flere}<span class="betegnelse">{p.betegnelse}</span>{/if}
@@ -585,27 +584,26 @@
                     bind:verdi={v.form}
                     feil={feil(`form-${p.betegnelse}`)}
                   />
-                  {@render gjelderHvis(`beloep-${p.betegnelse}`, beloeps)}
-                  <Valg
-                    navn={`${uid}-beloep-${p.betegnelse}`}
-                    spoersmaal={kanLaBeloepetStaa(v)
-                      ? SKJEMA.beloepSpoersmaalSubsidiaert
-                      : SKJEMA.beloepSpoersmaal}
-                    beskrevetAv={beloeps.length
-                      ? `${uid}-beloep-${p.betegnelse}-forutsetninger`
-                      : undefined}
-                    valg={[
-                      { verdi: 'hele', tekst: SKJEMA.hele },
-                      { verdi: 'deler', tekst: SKJEMA.deler },
-                      { verdi: 'ingenting', tekst: SKJEMA.ingenting },
-                      ...(kanLaBeloepetStaa(v)
-                        ? [{ verdi: 'ingen_stilling' as const, tekst: SKJEMA.ingen_stilling }]
-                        : []),
-                    ]}
-                    bind:verdi={v.beloep}
-                    feil={feil(`beloep-${p.betegnelse}`)}
-                  />
-                  {#if v.beloep === 'deler'}
+                  <!-- KA-U72: uten aksept av tilbudet spør skjemaet ikke om beløpet. Spørres det, står
+                       beløpet i samme lag som oppgjørsformen, så forutsetningene over gjelder det
+                       også, og de står ikke to ganger. -->
+                  {#if spoerOmBeloepet(v)}
+                    <Valg
+                      navn={`${uid}-beloep-${p.betegnelse}`}
+                      spoersmaal={SKJEMA.beloepSpoersmaal}
+                      beskrevetAv={forms.length
+                        ? `${uid}-form-${p.betegnelse}-forutsetninger`
+                        : undefined}
+                      valg={[
+                        { verdi: 'hele', tekst: SKJEMA.hele },
+                        { verdi: 'deler', tekst: SKJEMA.deler },
+                        { verdi: 'ingenting', tekst: SKJEMA.ingenting },
+                      ]}
+                      bind:verdi={v.beloep}
+                      feil={feil(`beloep-${p.betegnelse}`)}
+                    />
+                  {/if}
+                  {#if beloepsvalget(v) === 'deler'}
                     {@const id = `${uid}-delbeloep-${p.betegnelse}`}
                     <div class="beloepfelt">
                       <label for={id}>{SKJEMA.belopEtikett}</label>

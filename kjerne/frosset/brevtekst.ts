@@ -692,14 +692,15 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   // forholdet, og lagene i sporet flyttes ned med antallet lag de opptar (B-13, A2). Hvert
   // ledd fra forholdet er ett lag der: preklusjonen etter § 32.2 er det første, og avslaget
   // står i laget etter. Et standpunkt uten lag, også et upåvirket, får ingen etikett. Et
-  // akseptert tilbud står med kravposten (OV-U33, LV-U31), og et tilbud som ikke er akseptert,
-  // i laget foran beløpet (KA-U60). Standpunktene i samme lag står under én etikett (`iLagene`).
+  // akseptert tilbud står med kravposten (OV-U33, LV-U31). Er tilbudet ikke akseptert, står
+  // ikke beløpet for kravposten i brevet (KA-U72). Standpunktene i samme lag står under én
+  // etikett (`iLagene`).
   const forholdet = forholdetsStandpunkter(s, t);
   const forskyvning = forholdet.length;
   const ledd = iLagene(
     [
       ...forholdet.map((tekst, i) => ({ tekst, plass: (i + 1) as number | null })),
-      ...s.standpunkter.map((p) => {
+      ...s.standpunkter.filter(harTekst).map((p) => {
         const lag = laget(virkning.get(p.id)!);
         return {
           tekst: standpunkttekst(p, s, krav, j, innsigelser),
@@ -754,6 +755,9 @@ function varseletMedBrevet(p: Extract<Standpunkt, { art: 'rettidighet' }>, j: Jo
   const gjelder = p.hjemmel === '33.6.2' ? foresporselenTil(p.gjelder, j) : p.gjelder;
   return `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
 }
+
+/** KA-U72: standpunktet til beløpet for en kravpost der tilbudet ikke er akseptert, står ikke i brevet. */
+const harTekst = (p: Standpunkt): boolean => !(p.art === 'beloep' && p.godkjent === undefined);
 
 /** Ett standpunkt som en setning med liten forbokstav (LV-U4 punkt 5, LV-U5, GR-U14). */
 function standpunkttekst(
@@ -816,6 +820,12 @@ function standpunkttekst(
       // kan være det, i hele øre (B-13, OV-U59). OV-U28: med posten etter § 34.1.3 annet
       // ledd sier brevet beløpet for hver post for seg.
       const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdeKravpost(krav, p.gjelder!)[1];
+      const godkjent = beloep(p.godkjent)!;
+      const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
+        ? 'godkjent'
+        : godkjent === 0n
+          ? 'avslaatt'
+          : 'delvis_godkjent';
       const post = p.saerskilt
         ? SAERSKILT
         : kravposterI(krav).length > 1
@@ -823,16 +833,7 @@ function standpunkttekst(
           : harProduktivitetspost(krav)
             ? 'justeringen ellers'
             : null;
-      // KA-U58: byggherren tar ikke stilling til beløpet i laget.
-      if (p.godkjent === undefined)
-        return `byggherren tar ikke stilling til beløpet${post ? ` for ${post}` : ''}.`;
-      const godkjent = beloep(p.godkjent)!;
-      const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
-        ? 'godkjent'
-        : godkjent === 0n
-          ? 'avslaatt'
-          : 'delvis_godkjent';
-      return verdi(resultat, eksMva(p.godkjent), eksMva(tilTall(krevd)), post);
+      return verdi(resultat, eksMva(p.godkjent!), eksMva(tilTall(krevd)), post);
     }
     case 'dager':
       return verdi(p.resultat, dager(p.vurdert), dager(innholdIFristen(krav).dager));

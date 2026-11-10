@@ -7,7 +7,6 @@
 
 import { regnUtSvar, type Svarvurdering } from '$kjerne/frosset/utregning';
 import { UgyldigBeloep } from '$kjerne/regler/beloep';
-import { TAR_IKKE_STILLING } from '$kjerne/regler/vederlag';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
@@ -17,8 +16,7 @@ import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
 import { kravposterI } from '$kjerne/frosset/kravinnhold';
 
-/** `ingen_stilling`: BH tar ikke stilling til beløpet, bare når BH mener en annen oppgjørsform (KA-U58). */
-export type Beloepsvalg = 'hele' | 'deler' | 'ingenting' | 'ingen_stilling';
+export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
 /** Oppgjørsformen BH godkjenner (`tilbud`) eller mener for en kravpost med fast sum (§ 34.2.2, KA-U57 (d)). */
 export type Formvalg = 'tilbud' | 'enhetspriser' | 'regningsarbeid';
@@ -49,19 +47,21 @@ export const tomtSvar = (): Svarvalg => ({ iTide: null, poster: {}, begrunnelse:
 export const postvalget = (v: Svarvalg, betegnelse: string): Postvalg =>
   v.poster[betegnelse] ?? tomPost();
 
-/** BH kan la beløpet stå uten standpunkt når BH mener en annen oppgjørsform (KA-U58). */
-export const kanLaBeloepetStaa = (p: Postvalg): boolean =>
-  p.form === 'enhetspriser' || p.form === 'regningsarbeid';
+/**
+ * Skjemaet spør om beløpet bare når BH ikke mener en annen oppgjørsform (KA-U72). Valget for
+ * beløpet står likevel, så det er der igjen om BH godkjenner fast sum.
+ */
+export const spoerOmBeloepet = (p: Postvalg): boolean =>
+  p.form !== 'enhetspriser' && p.form !== 'regningsarbeid';
 
-/** Valget for beløpet, eller `null` når det ikke er besvart. «Tar ikke stilling» gjelder bare med `kanLaBeloepetStaa`. */
+/** Valget for beløpet, eller `null` når det ikke er besvart eller skjemaet ikke spør (KA-U72). */
 export const beloepsvalget = (p: Postvalg): Beloepsvalg | null =>
-  p.beloep === 'ingen_stilling' && !kanLaBeloepetStaa(p) ? null : p.beloep;
+  spoerOmBeloepet(p) ? p.beloep : null;
 
 const VURDERING: Record<Beloepsvalg, string> = {
   hele: 'godkjent',
   deler: 'delvis',
   ingenting: 'avslaatt',
-  ingen_stilling: TAR_IKKE_STILLING,
 };
 
 const kroner = (tekst: string) => {

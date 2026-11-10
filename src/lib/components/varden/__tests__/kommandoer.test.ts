@@ -125,7 +125,7 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
     utdypning: 'To kravposter med fast sum.',
   });
 
-  it('hver kravpost får vurderingen BH valgte under betegnelsen, med kravpostens id i `gjelder`', () => {
+  it('hver kravpost får vurderingen BH valgte under betegnelsen, med kravpostens id i `gjelder`, og uten beløp når BH mener en annen oppgjørsform (KA-U72)', () => {
     const u = utledJournal(toPoster, KJERNE);
     const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
     const kommando = vederlagssvaret(
@@ -142,13 +142,7 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
     )!;
     expect(kommando.svar[0].vurderinger.kravposter).toEqual([
       { gjelder: p1!.id, vurdering: 'godkjent', godkjent_beloep: 100_000, aksepterer: true },
-      {
-        gjelder: p2!.id,
-        vurdering: 'delvis',
-        godkjent_beloep: 30_000,
-        aksepterer: false,
-        oensket_oppgjoersform: 'regningsarbeid',
-      },
+      { gjelder: p2!.id, aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' },
     ]);
   });
 

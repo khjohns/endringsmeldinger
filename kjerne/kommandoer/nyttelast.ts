@@ -24,7 +24,12 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/utregning.ts';
-import { innholdIForholdet, kategori, krevdSamlet } from '../frosset/kravinnhold.ts';
+import {
+  innholdIForholdet,
+  kategori,
+  krevdIKravposten,
+  krevdSamlet,
+} from '../frosset/kravinnhold.ts';
 import {
   datoenKravetBleSendt,
   foresporselForFristsvar,
@@ -123,16 +128,22 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
     // VS-U5: begrensningen etter § 34.1.3.
     if (v.produktivitet_varslet_i_tide === false)
       ut.push('gjør gjeldende at varselet etter § 34.1.3 kom for sent');
-    if (kravpostvurderinger(v, krav).some(({ svar }) => svar.aksepterer === false))
-      ut.push('ikke aksepterer tilbudet (§ 34.2.2)');
-    // B-13: beløpet alene, også uten aksept av tilbudet; da gjelder grunnen over i tillegg.
+    const ikkeAkseptert = kravpostvurderinger(v, krav).filter(
+      ({ svar }) => svar.aksepterer === false
+    );
+    if (ikkeAkseptert.length) ut.push('ikke aksepterer tilbudet (§ 34.2.2)');
+    // B-13: beløpet for postene svaret tar stilling til. KA-U72, OV-U73: en kravpost der tilbudet
+    // ikke er akseptert, har ikke beløp og regnes ikke med.
     const godkjent = beloep(
       (server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep) as number | undefined
     );
     if (godkjent === null)
       throw new Error('Utregningen av vederlaget har ikke godkjent beløp (#508).');
-    if (!erBeloepetGodkjentFullt(krevdSamlet(krav), godkjent))
-      ut.push('ikke godkjenner hele beløpet');
+    const krevd = ikkeAkseptert.reduce(
+      (sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),
+      krevdSamlet(krav)
+    );
+    if (!erBeloepetGodkjentFullt(krevd, godkjent)) ut.push('ikke godkjenner hele beløpet');
   } else {
     if (v.frist_varsel_ok === false)
       ut.push('gjør gjeldende at varselet etter § 33.4 kom for sent');

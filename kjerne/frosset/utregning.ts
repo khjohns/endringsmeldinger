@@ -11,8 +11,6 @@ import type { Beloepsvurdering } from '../regler/typer.ts';
 import {
   beregnGodkjentBeloep,
   beregnVederlag,
-  TAR_IKKE_STILLING,
-  type Kravpostsvar,
   type Vederlagsberegning,
   type Postsvar,
   type Vederlagssvar,
@@ -209,7 +207,7 @@ function vederlagssvaret(
     poster.push({
       gjelder: post.id,
       krevd: tilTall(krevdISvaret(krav, post)),
-      vurdering: svar.vurdering as Kravpostsvar['vurdering'],
+      vurdering: svar.vurdering as Beloepsvurdering | undefined,
       godkjent_beloep: svar.godkjent_beloep as number | undefined,
       aksepterer: svar.aksepterer as boolean | undefined,
     });
@@ -294,7 +292,7 @@ function regnUtVederlag(
     resultat: r.beregnings_resultat,
     godkjent_beloep: tilTall(r.total_godkjent_beloep),
     // OV-U31, KA-U57 (e): beløpet for hver post i hvert lag, uten beløp når posten ikke har et
-    // fast beløp i laget (KA-U58). Totalene over er summen av det første og det siste laget.
+    // fast beløp i laget (KA-U72). Totalene over er summen av det første og det siste laget.
     poster: r.poster.map(({ post, lag }) => ({
       ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
       lag: lag.map((l) => ({
@@ -379,9 +377,9 @@ export function vederlagsposter(
   const produktivitet = krevdProduktivitet(krav);
   return [
     ...kravpostvurderinger(v, krav).map(({ post: k, svar }) => ({
-      // KA-U58: byggherren tar ikke stilling til beløpet.
+      // KA-U72: uten aksept av tilbudet tar svaret ikke stilling til beløpet.
       godkjent:
-        svar.vurdering === TAR_IKKE_STILLING
+        svar.aksepterer === false
           ? null
           : post(svar.vurdering, krevdISvaret(krav, k), svar.godkjent_beloep),
       gjelder: k.id,

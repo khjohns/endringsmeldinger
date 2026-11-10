@@ -957,8 +957,6 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
           {
             spor: 'vederlag',
             navn: 'S-v1',
-            vurdering: 'delvis',
-            godkjent_belop: 60000,
             varslet_i_tide: false,
             metode_akseptert: false,
             oensket_metode: 'enhetspriser',
@@ -1002,7 +1000,6 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
           {
             spor: 'vederlag',
             navn: 'S-v1',
-            vurdering: 'godkjent',
             metode_akseptert: false,
             oensket_metode: 'enhetspriser',
           },

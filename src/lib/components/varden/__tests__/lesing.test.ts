@@ -137,8 +137,6 @@ describe('beløpet og kravpostene uten fast beløp i aksepten (OV-U73, svar 6 A 
   };
   const regningsarbeid = (post: string) => ({
     post,
-    vurdering: 'godkjent',
-    godkjent_belop: post === 'P1' ? 100000 : 40000,
     metode_akseptert: false,
     oensket_metode: 'regningsarbeid',
   });
@@ -185,7 +183,7 @@ describe('beløpet og kravpostene uten fast beløp i aksepten (OV-U73, svar 6 A 
 });
 
 describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U57)', () => {
-  it('linjene er korte, navngir ikke kravposten og har etiketten for laget', async () => {
+  it('linjene er korte og navngir ikke kravposten, og uten aksept av tilbudet står ingen linje for beløpet (KA-U72)', async () => {
     const u = await utledning([
       PAABEROPELSE,
       {
@@ -201,8 +199,6 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
           { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
           {
             post: 'P2',
-            vurdering: 'delvis',
-            godkjent_belop: 30000,
             metode_akseptert: false,
             oensket_metode: 'regningsarbeid',
           },
@@ -216,9 +212,6 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
       'Godkjenner fast sum',
       `${kroner(100000)}, godkjent som krevd`,
     ]);
-    expect(leselinjene(linjer, p2!)).toEqual([
-      'Prinsipalt: mener regningsarbeid (punkt 34.4)',
-      `Subsidiært: ${kroner(30000)} av ${kroner(40000)} godkjent`,
-    ]);
+    expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt 34.4)']);
   });
 });
