@@ -584,9 +584,8 @@
                     bind:verdi={v.form}
                     feil={feil(`form-${p.betegnelse}`)}
                   />
-                  <!-- KA-U72: uten aksept av tilbudet spør skjemaet ikke om beløpet. Spørres det, står
-                       beløpet i samme lag som oppgjørsformen, så forutsetningene over gjelder det
-                       også, og de står ikke to ganger. -->
+                  <!-- Spørsmålet om beløpet står bare når BH godkjenner fast sum (KA-U72). Det er i
+                       samme lag som oppgjørsformen og viser til forutsetningene over. -->
                   {#if spoerOmBeloepet(v)}
                     <Valg
                       navn={`${uid}-beloep-${p.betegnelse}`}

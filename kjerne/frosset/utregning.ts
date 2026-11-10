@@ -301,8 +301,8 @@ function regnUtVederlag(
       })),
     })),
   };
-  // VS-U3, B-13: ved preklusjon etter § 34.1.2, ved begrensningen etter § 34.1.3 (VS-U5) og
-  // når tilbudet ikke er akseptert (KA-U60), står det vurderte beløpet subsidiært.
+  // VS-U3, B-13: ved preklusjon etter § 34.1.2 og ved begrensningen etter § 34.1.3 (VS-U5)
+  // står det vurderte beløpet subsidiært.
   if (r.subsidiaer_resultat !== null) {
     ut.subsidiaert_resultat = r.subsidiaer_resultat;
     ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_beloep!);
@@ -377,7 +377,7 @@ export function vederlagsposter(
   const produktivitet = krevdProduktivitet(krav);
   return [
     ...kravpostvurderinger(v, krav).map(({ post: k, svar }) => ({
-      // KA-U72: uten aksept av tilbudet tar svaret ikke stilling til beløpet.
+      // En kravpost der tilbudet ikke er akseptert, får ikke beløp (KA-U72).
       godkjent:
         svar.aksepterer === false
           ? null

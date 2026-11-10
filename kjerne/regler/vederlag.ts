@@ -136,9 +136,8 @@ export function erKravlinjeGyldig(
 const ikkeAkseptert = (p: Postsvar): boolean => 'gjelder' in p && p.aksepterer === false;
 
 /**
- * Lagene i sporet: § 34.1.2 først, så oppgjørsformen og begrensningen etter § 34.1.3, så
- * beløpet (KA-U60, KA-U64). Gir antallet lag og det første laget etter § 34.1.2. Et tilbud
- * som ikke er akseptert, gir ikke et lag for beløpet (KA-U72).
+ * Lagene i sporet: § 34.1.2 først, så begrensningen etter § 34.1.3 (KA-U64). Gir antallet lag
+ * og det første laget etter § 34.1.2. Oppgjørsformen gir ikke et eget lag (KA-U72).
  */
 function lagene(p: Preklusjon): { foerste: number; antall: number } {
   const foerste = p.hovedkrav ? 2 : 1;
