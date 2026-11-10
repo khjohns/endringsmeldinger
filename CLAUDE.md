@@ -12,6 +12,11 @@ funnene og eldre leveransemerknader i `docs/plans/arkiv.md` (arkivet), og bare d
 foreldet, og fila lastes automatisk og blir trodd. Regler for kode som skal
 erstattes, står i `.claude/rules/` og sier når de slutter å gjelde.
 
+**En skyøkt leser [arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md) (`arbeidsokt`)
+før arbeidet starter**, også en direkte økt og en reviewøkt. Den har hurtigbufferen,
+kontekstgrensene, reviewet og reglene for PR-en og CI. En subagent leser den ikke; den
+følger bestillingen.
+
 ## Språk
 
 Norsk bokmål i brukergrensesnitt, kommentarer, dokumentasjon, PR-er,
@@ -279,7 +284,7 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Leveranseprosedyren: akseptkriterier, eierskap, utfasing, review, stoppregelen for funn og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
 | Beslutningene for visningen: retning, tokens i bruk, mønstre og vedtakene som styrer farge og ord. Metoden for frontendarbeid | [`.interface-design/system.md`](.interface-design/system.md). Verdiene står i `theme.css`. Metoden står i [interface-design-skillen](.claude/skills/interface-design/SKILL.md) |
 | Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |
-| Hurtigbufferen, kontekstgrensene, reviewet i byggeøkta og tilstanden i en skyøkt, og de faste reglene for en orkestrert arbeidsøkt | [Arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Regelen om at den gjelder alle skyøkter, står i «Arbeidsform» |
+| Hurtigbufferen, kontekstgrensene, reviewet i byggeøkta og tilstanden i en skyøkt, og de faste reglene for en orkestrert arbeidsøkt | [Arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Regelen om at hver skyøkt leser den, står øverst i denne fila |
 | Modellen, størrelsen og bestillingen for en subagent | [Subagent-skillen](.claude/skills/subagenter/SKILL.md). Når en subagent brukes, står i «Arbeidsform» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i SQL Server i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttestene i `verktoy/tester/test_datamodell/` feiler når et register mangler en tabell eller en fremmednøkkel, eller avviker fra koden eller migrasjonene, og når et kall til Catenda i `server/` mangler en pil i dataflyten |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
@@ -354,7 +359,7 @@ lenge økta har pågått, betyr ikke noe.
   stopper. En ny, liten økt tar over derfra.
 
 Kontekstgrensene og hvor reviewet kjøres, står i
-[arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Les den når arbeidet starter.
+[arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md).
 
 **En subagent brukes bare når den sparer mer enn den koster**, i alle økter. Den betaler
 grunnkonteksten på nytt og leverer et sammendrag som kan miste det ordrette. Bruk en i tre
