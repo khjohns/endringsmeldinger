@@ -336,9 +336,17 @@ kjøringen av den ekte saksruta og stoppregelen for funn står i
 [leveranseskillen, «Review og funn»](.claude/skills/leveranse/SKILL.md#review-og-funn).
 Endrer diffen visningen, står PR-en som utkast til oppdragsgiver har sett skjermbildene.
 
-**Reglene for tid, kontekst og tilstand i
-[arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md)
-gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert.
+**Arbeid i timer, med varm hurtigbuffer**, i alle skyøkter, også en direkte økt som ikke
+er orkestrert. Hele konteksten sendes på nytt ved hvert kall til modellen. Hurtigbufferen
+gjør det billig bare så lenge det er under en time siden forrige kall.
+
+- Avgrens arbeidet så økta blir ferdig på om lag 45–60 minutter med aktivt arbeid.
+- Vent på CI med en bakgrunnskommando som vekker økta, ikke med en pause.
+- Venter økta over en time, for eksempel på oppdragsgiver, skriver den tilstanden i PR-en
+  og stopper. En ny, liten økt tar over derfra.
+
+Grensene for kontekst, påminnelsen og når reviewet går i en ny økt, står i
+[arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Les den når arbeidet starter.
 
 **En subagent brukes bare når den sparer mer enn den koster**, i alle økter. Den betaler
 grunnkonteksten på nytt og leverer et sammendrag som kan miste det ordrette. Bruk en i tre
