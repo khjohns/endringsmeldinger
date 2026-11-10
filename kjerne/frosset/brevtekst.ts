@@ -43,6 +43,7 @@ import {
   kravposterI,
 } from './kravinnhold.ts';
 import { dager, iLagene, kroner } from './tekst.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -774,7 +775,7 @@ function standpunkttekst(
     case 'rettidighet': {
       // VS-U29, VS-U31: saken har én forespørsel, så standpunktet etter § 33.6.2 gjelder begrunnelsen.
       const aapne = innsigelser.filter((i) => i.hjemmel === p.hjemmel);
-      const varselet = erVarselForKravpost(p.hjemmel) ? '' : varseletMedBrevet(p, j);
+      const varselet = erKravpostvarselhjemmel(p.hjemmel) ? '' : varseletMedBrevet(p, j);
       // Et «for sent» gjentar de åpne innsigelsene, og et «i tide» gir dem opp (VS-U11, VS-U24).
       // Saken har ett varsel etter § 33.4 (oppdragsgiver 15.10, #498).
       const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
@@ -782,7 +783,7 @@ function standpunkttekst(
       const jf = aapne.length ? `, jf. ${henvisning} i ${brevene}` : '';
       // KA-U64: varselet etter § 34.3.3 eller § 34.4 for kravposten. VS-U4: for § 34.3.3 står
       // prinsipalt det byggherren måtte forstå; løsningen regner det ikke ut.
-      if (p.hjemmel === '34.3.3' || p.hjemmel === '34.4') {
+      if (erKravpostvarselhjemmel(p.hjemmel)) {
         const om = `${VARSELET[p.hjemmel]} for ${kravpostenI(krav, p.gjelder).betegnelse}`;
         if (p.iTide) return `byggherren gjør ikke gjeldende at ${om} kom for sent.`;
         return p.hjemmel === '34.3.3'
@@ -893,8 +894,6 @@ function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {
   if (krevd === null) throw new Error(`Kravposten ${post.betegnelse} har ikke et krevd beløp.`);
   return [post, krevd];
 }
-
-const erVarselForKravpost = (h: Hjemmel): boolean => h === '34.3.3' || h === '34.4';
 
 /** TEs beregningsregel i standpunktet, etter hjemmelen. */
 const REGELEN = {

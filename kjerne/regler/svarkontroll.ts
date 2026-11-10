@@ -89,10 +89,9 @@ export function kontrollerOppgjoersformen(
   else if (kreverTilbud && p.aksepterer !== false)
     feil[`${navn}.krever_tilbud`] =
       'kan ikke stå når byggherren godtar beregningsregelen for kravposten (KA-U71)';
+  const justert = post.oppgjoersform === 'enhetspriser' && post.justert === true;
   // KA-U64: varselet etter § 34.3.3 gjelder justerte enhetspriser, og § 34.4 regningsarbeid.
-  const trengerVarsel =
-    post.oppgjoersform === 'regningsarbeid' ||
-    (post.oppgjoersform === 'enhetspriser' && post.justert === true);
+  const trengerVarsel = post.oppgjoersform === 'regningsarbeid' || justert;
   if (p.varslet_i_tide != null && typeof p.varslet_i_tide !== 'boolean')
     feil[`${navn}.varslet_i_tide`] = 'er verken true eller false';
   else if (p.varslet_i_tide != null && !trengerVarsel)
@@ -100,7 +99,6 @@ export function kontrollerOppgjoersformen(
       'gjelder bare varselet etter punkt 34.3.3 for justerte enhetspriser og punkt 34.4 for regningsarbeid';
   // KA-U68: justeringen gjelder justerte enhetspriser, og byggherren tar stilling til den når
   // beregningsregelen godtas. Uten aksept står den subsidiært og er valgfri (VS-U56).
-  const justert = post.oppgjoersform === 'enhetspriser' && post.justert === true;
   if (p.godtar_justering != null && typeof p.godtar_justering !== 'boolean')
     feil[`${navn}.godtar_justering`] = 'er verken true eller false';
   else if (p.godtar_justering != null && !justert)

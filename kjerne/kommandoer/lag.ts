@@ -11,7 +11,13 @@ import { kravpostvurderinger, type Svarvurdering } from '../frosset/utregning.ts
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { standpunkterISvaret } from '../format/leser.ts';
-import type { Hjemmel, Standpunkt, Standpunktsart, Virkning } from '../typer.ts';
+import {
+  erKravpostvarselhjemmel,
+  type Hjemmel,
+  type Standpunkt,
+  type Standpunktsart,
+  type Virkning,
+} from '../typer.ts';
 import { paaberopelseFor, type Utledning } from '../utledning/utled.ts';
 import type { Svarutkast } from './kommando.ts';
 import { standpunkter } from './standpunkter.ts';
@@ -113,7 +119,7 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
       return {
         art: s.art,
         ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
-        ...(s.art === 'rettidighet' && (s.hjemmel === '34.3.3' || s.hjemmel === '34.4')
+        ...(s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel)
           ? { gjelder: s.gjelder }
           : {}),
         ...(s.art === 'beloep' && s.saerskilt ? { saerskilt: s.saerskilt } : {}),

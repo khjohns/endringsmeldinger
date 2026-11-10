@@ -18,6 +18,7 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { kategori } from './kravinnhold.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Beslutningsgrunnlag,
   Dokument,
@@ -539,7 +540,7 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   if (
     svar.standpunkter.some(
       (s) =>
-        (s.art === 'rettidighet' && (s.hjemmel === '34.3.3' || s.hjemmel === '34.4') && !s.iTide) ||
+        (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel) && !s.iTide) ||
         (s.art === 'justering' && !s.godtar)
     )
   )

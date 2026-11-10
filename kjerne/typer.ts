@@ -51,7 +51,7 @@ export type Kravpostvarselhjemmel = '34.3.3' | '34.4';
  * `utledning/kravposter.ts` (VS-U49, VS-U55).
  */
 export type Kravpostvarselet = { art: 'kravet' } | { art: 'gitt'; varsel: string };
-export const erKravpostvarselhjemmel = (hjemmel: Varselhjemmel): hjemmel is Kravpostvarselhjemmel =>
+export const erKravpostvarselhjemmel = (hjemmel: Hjemmel): hjemmel is Kravpostvarselhjemmel =>
   hjemmel === '34.3.3' || hjemmel === '34.4';
 /** Varslene TE kan sende fra løsningen. Fra løsningen er påberopelsen varselet etter § 32.2 (GR-U31). */
 export type Kravvarselhjemmel = Exclude<Varselhjemmel, '32.2'>;
