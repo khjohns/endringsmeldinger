@@ -31,12 +31,20 @@ import {
   krevdSamlet,
 } from '../frosset/kravinnhold.ts';
 import {
-  datoenKravetBleSendt,
+  datoenDetBleSendt,
   foresporselForFristsvar,
+  kravSomVarsler,
   sisteDatoopplysning,
   type Utledning,
 } from '../utledning/utled.ts';
-import type { Avvisning, Krav, Part, Standpunkt } from '../typer.ts';
+import {
+  VARSELSPOR,
+  type Avvisning,
+  type Krav,
+  type OppgittDatofelt,
+  type Part,
+  type Standpunkt,
+} from '../typer.ts';
 
 /**
  * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.
@@ -277,7 +285,7 @@ function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett): Avvis
       'VARSLINGSPLIKT_GJELDER_IKKE',
       'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så det er ikke noe varsel etter punkt 32.2 å registrere (VS-U39).'
     );
-  const paaberopelsen = foerste ? datoenKravetBleSendt(u, foerste) : null;
+  const paaberopelsen = foerste ? datoenDetBleSendt(u, foerste) : null;
   const dag = kalenderdag(sendt);
   if (paaberopelsen === null || dag === null)
     return avvis(
@@ -289,6 +297,78 @@ function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett): Avvis
       'VARSEL_ETTER_PAABEROPELSEN',
       `Varselet etter punkt 32.2 er oppgitt sendt ${norskDato(dag)}, etter påberopelsen av forholdet, som ble sendt ${norskDato(paaberopelsen)} (VS-U38).`
     );
+  return null;
+}
+
+/** VS-U58. */
+const VARSLER_OM_FORHOLDET = ['32.2', '33.4', '34.1.2', '34.1.3'] as const;
+type VarselOmForholdet = (typeof VARSLER_OM_FORHOLDET)[number];
+const erVarselOmForholdet = (hjemmel: string): hjemmel is VarselOmForholdet =>
+  (VARSLER_OM_FORHOLDET as readonly string[]).includes(hjemmel);
+
+/**
+ * Datoen TE har oppgitt i grunnlagskravet etter VS-U26 (VS-U43 punkt 1–5), med en korrigering
+ * etter MM-U52 punkt 10. `null` når kategorien ikke har en dato, eller datoen ikke kan leses.
+ */
+function grunnlagsdatoen(u: Utledning): { felt: OppgittDatofelt; dag: string } | null {
+  const { hovedkategori, underkategori } = kategori(u.spor.forhold.gjeldendeKrav);
+  const felt = oppgittDato(hovedkategori, underkategori);
+  const siste = felt === null ? null : sisteDatoopplysning(u, felt);
+  const dag = siste === null ? null : kalenderdag(siste.dato);
+  return felt === null || dag === null ? null : { felt, dag };
+}
+
+/**
+ * VS-U58: et varsel om forholdet er ikke oppgitt sendt før datoen i grunnlagskravet. Samme dag
+ * godtas. Mangler en av datoene, eller kan den ikke leses, kontrolleres ingenting.
+ */
+function varseletFoerGrunnlagsdatoen(
+  hjemmel: VarselOmForholdet,
+  sendt: unknown,
+  u: Utledning
+): Avvisning | null {
+  const grunnlag = grunnlagsdatoen(u);
+  const dag = typeof sendt === 'string' ? kalenderdag(sendt) : null;
+  if (grunnlag === null || dag === null || dag >= grunnlag.dag) return null;
+  return avvis(
+    'VARSEL_FOER_GRUNNLAGSDATOEN',
+    `Varselet etter punkt ${hjemmel} er oppgitt sendt ${norskDato(dag)}, før datoen ${DATOEN_GJELDER[grunnlag.felt]}, ${norskDato(grunnlag.dag)}, slik TE har oppgitt den i grunnlagskravet (VS-U58).`
+  );
+}
+
+/**
+ * VS-U60: det egne varselet etter hjemmelen, ellers kravet som er det første varselet
+ * løsningen kjenner (VS-U43 punkt 6–9, som `varseletForNyttSvar`).
+ */
+function varseletOmForholdet(
+  hjemmel: VarselOmForholdet,
+  u: Utledning,
+  regler: Regelsett
+): Pick<Krav, 'id' | 'dokument'> | undefined {
+  const s = u.spor[VARSELSPOR[hjemmel]];
+  const eget = s.varsler[hjemmel];
+  if (eget || !hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)) return eget;
+  return kravSomVarsler(hjemmel, s.krav)[0];
+}
+
+/** VS-U59, VS-U60. */
+function korrigeringEtterVarslene(
+  k: Extract<Kommando, { type: 'korrigering' }>,
+  u: Utledning,
+  regler: Regelsett
+): Avvisning | null {
+  const { felt, dato } = korrigertDato(k);
+  const ny = kalenderdag(dato);
+  if (ny === null) return null;
+  for (const hjemmel of VARSLER_OM_FORHOLDET) {
+    const varsel = varseletOmForholdet(hjemmel, u, regler);
+    const sendt = varsel ? datoenDetBleSendt(u, varsel) : null;
+    if (sendt !== null && sendt < ny)
+      return avvis(
+        'VARSEL_FOER_GRUNNLAGSDATOEN',
+        `Korrigeringen oppgir at ${DATOEN_GJELDER[felt]} ${norskDato(ny)}, etter at varselet etter punkt ${hjemmel} ble sendt ${norskDato(sendt)} (VS-U59, VS-U60).`
+      );
+  }
   return null;
 }
 
@@ -394,6 +474,9 @@ export function nyttelastkontroll(
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;
       if (k.spor !== 'frist' || !k.varsel) return null;
+      // VS-U58.
+      const foer = varseletFoerGrunnlagsdatoen('33.4', k.varsel.sendt, u);
+      if (foer) return foer;
       const varsel = u.spor.frist.varsler['33.4'];
       // OV-U5: kravet registrerer varselet, og brevet med det ligger ved. Er varselet
       // registrert, kreves bare samme dato (SK-12; arbeidsvalget i #909).
@@ -472,7 +555,10 @@ export function nyttelastkontroll(
     case 'ikke_i_saken':
       return k.retter === undefined ? null : retting(k.retter, part, u);
     case 'varsel':
-      return k.hjemmel === '32.2' ? varseletEtter322(k.sendt, u, regler) : null;
+      return (
+        (k.hjemmel === '32.2' ? varseletEtter322(k.sendt, u, regler) : null) ??
+        (erVarselOmForholdet(k.hjemmel) ? varseletFoerGrunnlagsdatoen(k.hjemmel, k.sendt, u) : null)
+      );
     case 'trekk':
     case 'send_varsel':
     case 'foresporsel':
@@ -510,6 +596,6 @@ export function nyttelastkontroll(
       return utdypningKreves ? begrunnelsensTekst(k) : null;
     }
     case 'korrigering':
-      return kontrollerKorrigering(k, u);
+      return kontrollerKorrigering(k, u) ?? korrigeringEtterVarslene(k, u, regler);
   }
 }

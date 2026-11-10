@@ -417,7 +417,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'journal',
     [
-      'utledning/utled.ts:datoenKravetBleSendt',
+      'utledning/utled.ts:datoenDetBleSendt',
       'utledning/utled.ts:foresporselForFristsvar',
       'utledning/utled.ts:fristkravErFremmet',
     ],
@@ -432,12 +432,23 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'varseletForNyttSvar',
     ['kommandoer/standpunkter.ts', 'kommandoer/forutsetninger.ts'],
   ],
-  // VS-U38: varselet etter § 32.2 kan ikke være sendt etter påberopelsen.
+  // VS-U60: kravet som er det første varselet, når det ikke finnes et eget varsel.
   [
     'utledning/utled.ts',
     'relasjon',
-    'datoenKravetBleSendt',
-    ['kommandoer/nyttelast.ts:varseletEtter322'],
+    'kravSomVarsler',
+    ['kommandoer/nyttelast.ts:varseletOmForholdet'],
+  ],
+  // VS-U38: varselet etter § 32.2 kan ikke være sendt etter påberopelsen. VS-U59: en korrigering
+  // kan ikke flytte datoen i grunnlagskravet til etter et varsel om forholdet.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'datoenDetBleSendt',
+    [
+      'kommandoer/nyttelast.ts:varseletEtter322',
+      'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
+    ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
   ['utledning/utled.ts:forholdet(svar)', 'relasjon', '*'],
@@ -743,7 +754,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'relasjon', 'id retter', ['utledning/utled.ts:registreringer']],
   // OV-U19: brevene appen ikke vurderer, for visningen. Ingen regel leser dem.
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:ikkeVurderte']],
-  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:datoenKravetBleSendt']],
+  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:datoenDetBleSendt']],
   ['RegistrertBrev', 'relasjon', 'dokument rettetAv', ['utledning/utled.ts:ikkeVurderte']],
   [
     'Dokument',
@@ -818,6 +829,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/utregning.ts',
       'kommandoer/forutsetninger.ts:korrigering',
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'kommandoer/nyttelast.ts:grunnlagsdatoen',
     ],
   ],
   [
@@ -938,6 +950,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/nyttelast.ts:oppgittDatoI',
       'kommandoer/nyttelast.ts:datosperre',
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'kommandoer/nyttelast.ts:grunnlagsdatoen',
       'kommandoer/forutsetninger.ts:korrigering',
       'utledning/utled.ts:opplysningerOmDatoen',
     ],
@@ -960,8 +973,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/forutsetninger.ts:korrigering',
       'kommandoer/nyttelast.ts:datosperre',
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'kommandoer/nyttelast.ts:grunnlagsdatoen',
     ],
   ],
+  // VS-U58: datoen i grunnlagskravet, som varselet om forholdet kontrolleres mot.
+  ['kommandoer/nyttelast.ts:grunnlagsdatoen', 'utsagn', 'felt dag'],
   [
     'Kommando',
     'kommando',
@@ -1074,7 +1090,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Brevets dato er serverens tidspunkt i norsk tid (VS-U8).
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
   // VS-U38: dagen påberopelsen fra appen ble sendt.
-  ['format/leser.ts', 'kontekst', 'registrertDato', ['utledning/utled.ts:datoenKravetBleSendt']],
+  ['format/leser.ts', 'kontekst', 'registrertDato', ['utledning/utled.ts:datoenDetBleSendt']],
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
   // Kodene i formatet for kategoriene (#335): formen på påberopelsen.
@@ -1227,7 +1243,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'relasjon',
     'kalenderdag',
-    ['kommandoer/nyttelast.ts', 'frosset/brevtekst.ts', 'utledning/utled.ts:datoenKravetBleSendt'],
+    ['kommandoer/nyttelast.ts', 'frosset/brevtekst.ts', 'utledning/utled.ts:datoenDetBleSendt'],
   ],
 
   // Brevteksten (frosset/brevtekst.ts, LV-U2, LV-U3, #369). Leses bare når brevet skrives.
@@ -1365,6 +1381,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/nyttelast.ts:varseletEtter322',
       'kommandoer/nyttelast.ts:datosperre',
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'kommandoer/nyttelast.ts:varseletFoerGrunnlagsdatoen',
+      'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
     ],
   ],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
@@ -1376,7 +1394,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // utdypningen finnes (A6).
   ['Dokument', 'brevtekst', 'brevtekst', ['frosset/brevtekst.ts']],
   ['Krav', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
-  ['Krav', 'relasjon', 'dokument', ['utledning/utled.ts:datoenKravetBleSendt']],
+  ['Krav', 'relasjon', 'dokument', ['utledning/utled.ts:datoenDetBleSendt']],
   ['Forholdsinnhold', 'utsagn', 'datoer', ['frosset/brevtekst.ts']],
   [
     'Journalen',

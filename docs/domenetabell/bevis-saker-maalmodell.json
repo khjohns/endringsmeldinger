@@ -5352,7 +5352,7 @@
         {
           "handling": "varsel",
           "spor": "frist",
-          "sendt": "2026-09-02",
+          "sendt": "2026-09-16",
           "navn": "D4"
         },
         {
@@ -5633,7 +5633,7 @@
           "prov": {
             "handling": "varsel",
             "spor": "frist",
-            "sendt": "2026-09-02"
+            "sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": false
@@ -5650,7 +5650,7 @@
             "handling": "krav",
             "spor": "frist",
             "dager": 20,
-            "varsel_sendt": "2026-09-02"
+            "varsel_sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": false
@@ -5696,7 +5696,7 @@
           "prov": {
             "handling": "varsel",
             "spor": "frist",
-            "sendt": "2026-09-02"
+            "sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": true,
@@ -5730,7 +5730,7 @@
             "handling": "krav",
             "spor": "frist",
             "dager": 20,
-            "varsel_sendt": "2026-09-02"
+            "varsel_sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": true,
@@ -5945,7 +5945,7 @@
         {
           "handling": "varsel",
           "spor": "vederlag",
-          "sendt": "2026-09-02",
+          "sendt": "2026-09-16",
           "navn": "D-v"
         }
       ],
@@ -6466,7 +6466,7 @@
           "prov": {
             "handling": "varsel",
             "spor": "frist",
-            "sendt": "2026-09-02"
+            "sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": false
