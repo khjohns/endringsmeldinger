@@ -99,8 +99,7 @@ side. Skjerming av interne notater og utkast går på **team**, ikke på side.
   av utsagnene og relasjonene.
 - **Ingen regel leser en oppsummering**: status, «låst», «oppgjort» og lignende. Status er
   en etikett i visningen.
-- **Et sendt brev og en inngått enighet betyr det de sa da** (MM-U50). Nye regler gjelder
-  nye brev.
+- **Et sendt brev og en inngått enighet betyr det de sa da** (MM-U50).
 - **Det kjernen leser, må være lagret** (DM-06).
 - **En hendelse kjernen ikke forstår, gjør saken ikke forstått** (MM-U2). Det kjernen ennå
   ikke kan, avvises og forenkles ikke.
@@ -197,9 +196,10 @@ TS-serveren mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.
   `aktor_id` er fortsatt den eneste formen for aktørens identitet på
   hendelsen, og resten av invarianten står.
 - **Interne notater og utkast er fail-closed.** Uten entydig team finnes det ikke noe
-  å lese eller skrive, heller ikke for forfatteren. Unntaket er godkjenneren i en åpen
-  pakke (GFK-U9). Notatet ligger i `koe.notat`, ikke i journalen (MS-05): det er ikke
-  et kontraktsvarsel, det flytter ikke sakens versjon, og det kan slettes. Når
+  å lese eller skrive, heller ikke for forfatteren. Unntaket er at godkjenneren ser
+  pakken mens den er åpen, aldri notatene (GFK-U9). Notatet ligger i `koe.notat`, ikke
+  i journalen (MS-05): det er ikke et kontraktsvarsel, det flytter ikke sakens versjon,
+  og det kan slettes. Når
   tidslinjen fletter notatene og journalen, gjelder skjermingsfilteret begge.
 - **Prosjektgrensen må håndheves ved hvert lesepunkt**, også for saker det refereres
   til. Klientoppgitte relasjoner skal ikke utvide tilgangen.
