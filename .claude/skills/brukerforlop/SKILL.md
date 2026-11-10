@@ -114,7 +114,7 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
 - Posten i registeret får `flyttet_til = "BF-06.md#u-12"`, med bokstaven når forløpet har
   en (`BF-02A.md#u-3`). Lenkekontrollen feiler når ankeret ikke finnes
   ([registeret](../../../docs/vedtaksregister/README.md#klassen)).
-- Teksten skrives etter språkreglene ([språkfila](../../../docs/sprak.md#hva-løsningen-kalles)).
+- Teksten skrives etter språkreglene ([språkfila](../../../docs/sprak.md)).
   Den flyttede teksten er ny tekst. Den sier hva visningen bygger på, ikke «appens
   vurdering», som i lesningen av MM-U23 i svarene 04.11.
 - Har designvedtaket en del som binder partene, står den delen i vedtaket i `bindende_i`, og

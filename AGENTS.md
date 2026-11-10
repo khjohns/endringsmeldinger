@@ -18,8 +18,11 @@ Norsk bokmål i brukergrensesnitt, kommentarer, dokumentasjon, PR-er,
 commit-meldinger, testnavn og testbeskrivelser. Domenebegrepene er norske og
 presise etter NS 8407 og vedtatt produktatferd. Samme begrep skal ha samme
 betydning i kode, tester og dokumentasjon. Ikke oversett domenet bare for å
-tilpasse det til en LLM. Tekst i grensesnittet har setningsstil («Send krav om
-endring»), med TE, BH, EO og KOE i store bokstaver og «punkt 33.8» for en bestemmelse i NS 8407 (OV-U75).
+tilpasse det til en LLM. Tekst i grensesnittet har setningsstil («Send til
+byggherren»). **All synlig tekst i visningen og brevene følger
+[språkfila](docs/sprak.md)**: klarspråk, og ordene i brevene og skjemaene. Der står
+blant annet at partene skrives fullt ut, og hvordan en bestemmelse i NS 8407 vises.
+Les den før du skriver eller endrer synlig tekst.
 
 **Tilpass betegnelsen til teksten.** I vedtak og produktbeskrivelser brukes normalt
 «løsningen». I tekniske beskrivelser navngis den aktuelle delen, for eksempel kjernen,

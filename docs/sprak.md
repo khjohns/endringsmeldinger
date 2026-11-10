@@ -19,7 +19,7 @@ Rådene under er med egne ord.
 - Lenketekster sier hvor lenken fører. «Les mer» står ikke alene.
 - Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (TE, BH, EO, KOE, varsel,
   forsering), henvisningene til NS 8407 som «punkt 33.8» ([OV-U75](plans/vedtak.md#ov-u75), [LV-U39](plans/vedtak.md#lv-u39)) og
-  vedtatt ordlyd står som de er. I brevene
+  vedtatt ordlyd står som de er. I brevene og visningen
   skrives partene fullt ut (se «Ordene i brevene og skjemaene»). Presisjonskravet
   i [`AGENTS.md`](../AGENTS.md) går foran. En vedtatt ordlyd endres bare gjennom
   [vedtaksregisteret](vedtaksregister/README.md).
