@@ -1,6 +1,6 @@
 ---
 name: arbeidsokt
-description: Reglene for en skyøkt som bygger, reviewer eller retter en PR i endringsmeldinger. Hurtigbufferen og kontekstgrensene, tilstanden i PR-en, reviewet i byggeøkta, og de faste reglene for en orkestrert arbeidsøkt (spørsmål til orkestratoren, utkast, venting på CI og meldingen når PR-en er klar). Brukes av alle skyøkter når arbeidet starter, også en direkte økt som ikke er orkestrert.
+description: Reglene for en skyøkt som bygger, reviewer eller retter en PR i endringsmeldinger. Hurtigbufferen og kontekstgrensene, tilstanden i PR-en, reviewet i byggeøkta, utkastet, feilinnføringene og arbeidet mens CI går, og de faste reglene for en orkestrert arbeidsøkt (spørsmål til orkestratoren og meldingen når PR-en er klar). Brukes av alle skyøkter når arbeidet starter, også en direkte økt som ikke er orkestrert.
 ---
 
 # Arbeidsøkta
@@ -72,9 +72,23 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   Reviewet av samspillet mellom reglene krever ny kontekst og gjøres av en subagent som
   får reglene, bevis-sakene og diffen, ikke øktas samtale. `/design-review` kjøres på
   samme måte i en subagent, når oppdragsgiver har sett skjermbildene (leveranseskillen).
-  En ny reviewøkt startes ellers bare når byggeøkta overleverer etter «Fortsett så lenge konteksten
-  trengs». Den får en avgrenset bestilling: PR-nummeret, reviewbestillingen og
-  tilstanden i PR-en, ikke hele historikken.
+  En ny reviewøkt startes ellers bare når byggeøkta overleverer etter «Fortsett så
+  lenge konteksten trengs». Den får en avgrenset bestilling: PR-nummeret,
+  reviewbestillingen og tilstanden i PR-en, ikke hele historikken.
+
+## PR-en og CI
+
+- **Utkast.** Byggeøkta åpner PR-en som utkast og markerer den klar
+  (`ready_for_review`) når reviewet er gjort og de lokale sjekkene er grønne. CI og
+  regelversjonsvakten kjører ikke på utkast og ikke ved push til `main` (#390).
+  Feilinnføringene kjører også på et utkast når etiketten `feilinnfoering` er satt, og
+  et nytt push avbryter kjøringen som pågår. Rører PR-en kjernen, setter økta etiketten
+  ved første push, så feilinnføringene (10–30 minutter i CI) går mens økta kjører
+  reviewet og retter. Kjøringen på siste commit er beviset. Hva økta kjører lokalt av
+  feilinnføringene, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
+- **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
+  reviewet, rettingene eller det neste relaterte issuet i oppdraget.
+  Den venter med en bakgrunnskommando først når den ikke har mer å gjøre.
 
 ## I en orkestrert økt
 
@@ -110,17 +124,6 @@ uten at oppdraget gjentar det:
   utfallet av `/code-review`.
 - **PR mot `main`** med `Closes #n`, eller «Del av #n» når bare en del leveres.
   Økta merger ikke.
-- **Utkast.** Byggeøkta åpner PR-en som utkast og markerer den klar
-  (`ready_for_review`) når reviewet er gjort og de lokale sjekkene er grønne. CI og
-  regelversjonsvakten kjører ikke på utkast og ikke ved push til `main` (#390).
-  Feilinnføringene kjører også på et utkast når etiketten `feilinnfoering` er satt, og
-  et nytt push avbryter kjøringen som pågår. Rører PR-en kjernen, setter økta etiketten
-  ved første push, så feilinnføringene (10–30 minutter i CI) går mens økta kjører
-  reviewet og retter. Kjøringen på siste commit er beviset. Hva økta kjører lokalt av
-  feilinnføringene, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
-- **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
-  reviewet, rettingene eller det neste relaterte issuet orkestratoren har gitt den.
-  Den venter med en bakgrunnskommando først når den ikke har mer å gjøre.
 - **Ikke abonner på PR-en** (`subscribe_pr_activity`). Hver hendelse
   vekker økta og leser hele konteksten på nytt, også en grønn kjøring, egne
   pusher og mergen. Etter hver push venter økta på CI med én bakgrunnskommando

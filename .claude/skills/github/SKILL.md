@@ -46,7 +46,7 @@ brukerforløp i designsløyfa, før byggingen ([brukerforlop](../brukerforlop/SK
 og forteller orkestratoren oppgavetypen.
 
 `feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`CLAUDE.md`,
-«Miljø», og arbeidsøkt-skillen, «I en orkestrert økt»).
+«Miljø», og arbeidsøkt-skillen, «PR-en og CI»).
 
 **Lag.** Et byggeissue får lagetiketten for hvert lag det rører, enten det har en
 milepæl eller en sporetikett. Runder settes sammen etter hvilke filer øktene rører
