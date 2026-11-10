@@ -5,7 +5,7 @@ description: Etikettene, milepælene og formen på issues og PR-er i endringsmel
 
 # Issues, etiketter og milepæler
 
-Reglene for hvor arbeidet står, er i `AGENTS.md`, «Hvor hva står». Skillen sier
+Reglene for hvor arbeidet står, er i `CLAUDE.md`, «Hvor hva står». Skillen sier
 hvordan de følges på GitHub. Kommandoene for `gh api` og omveiene i skyøkta står i
 [miljø-skillen](../miljo/SKILL.md).
 
@@ -45,7 +45,7 @@ Etikettene er av fem typer:
 brukerforløp i designsløyfa, før byggingen ([brukerforlop](../brukerforlop/SKILL.md)),
 og forteller orkestratoren oppgavetypen.
 
-`feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`AGENTS.md`,
+`feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`CLAUDE.md`,
 «Miljø», og arbeidsøkt-skillen, «I en orkestrert økt»).
 
 **Lag.** Et byggeissue får lagetiketten for hvert lag det rører, enten det har en
@@ -70,7 +70,7 @@ saken eller hele prosjektet, får ingen.
 
 - `beslutning`: issuet samler grunnlaget for en åpen beslutning (B-ID) i hovedplanen.
 - `venter-på-beslutning`: arbeidet kan ikke starte før en B-ID er avgjort. Det gjelder
-  også en feil oppdaget underveis som venter på en B-ID (`AGENTS.md`).
+  også en feil oppdaget underveis som venter på en B-ID (`CLAUDE.md`).
 - `venter-på-rekkefølge`: rekkefølgen i AF-06 holder issuet igjen. Etiketten fjernes
   når hovedplanen har en datert merknad om unntak. Unntaket står i hovedplanen, ikke i
   issuet.
@@ -107,7 +107,7 @@ de fra issuet PR-en lukker eller er del av.
 
 - **Søk før du oppretter.** Supplér et eksisterende issue om samme arbeid med en
   kommentar i stedet for å lage et nytt. Søk i den aktuelle milepælen og etiketten.
-- **Vis til ID-en, ikke til vurderingen** (`AGENTS.md`). Funn-, vedtaks- og
+- **Vis til ID-en, ikke til vurderingen** (`CLAUDE.md`). Funn-, vedtaks- og
   beslutnings-ID-en står med lenke til kilden. Alvorlighet, belegg og begrunnelse står
   der, ikke i issuet.
 - **Et byggeissue har forventede resultater**: konkrete og prøvbare, og hva som prøves.
@@ -116,7 +116,7 @@ de fra issuet PR-en lukker eller er del av.
 - **Et svar eller et arbeidsvalg fra oppdragsgiver** føres som kommentar i issuet som
   bygger det, med dato, kilden og teksten ordrett. Et vedtak føres i
   vedtaksregisteret, og issuet viser til ID-en ([vedtaksskillen](../vedtak/SKILL.md)).
-- **Issues er offentlige** (`AGENTS.md`).
+- **Issues er offentlige** (`CLAUDE.md`).
 
 ## PR-en
 

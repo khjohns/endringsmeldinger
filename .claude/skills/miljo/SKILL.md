@@ -5,7 +5,7 @@ description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, hvordan u
 
 # Miljø og kommandoer
 
-Reglene for miljøet står i «Miljø» i `AGENTS.md`. Her står kommandoene og
+Reglene for miljøet står i «Miljø» i `CLAUDE.md`. Her står kommandoene og
 omveiene.
 
 Nettleseren for skriptene i `mockup-nettleser`, i skyøkta og lokalt med global Playwright,
@@ -85,7 +85,7 @@ node scripts/testbase/ekte_innlogging.ts [--bh <team> …] [--te <team> …]
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r
 verktoy/tester/requirements.txt` (systempython mangler pytest).
 
-Timeouten for en hel vitest-kjøring står i «Miljø» i `AGENTS.md`.
+Timeouten for en hel vitest-kjøring står i «Miljø» i `CLAUDE.md`.
 
 ### Rask kjøring under arbeidet
 
@@ -194,7 +194,7 @@ Kjør deretter bare de ID-ene som feilet, med `FEILINNFOERING_UTVALG=1`, i bakgr
 
 ## Skyøkta
 
-Reglene for skyøkta står i «Miljø» i `AGENTS.md`. Her står kommandoene.
+Reglene for skyøkta står i «Miljø» i `CLAUDE.md`. Her står kommandoene.
 
 `khjohns/kontrakt` legges til underveis:
 
@@ -234,7 +234,7 @@ skyøkta, så sidene hentes med `page=N`.
 Side for side i repo-listen, uten `search/issues`:
 `gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.
 
-Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `AGENTS.md`.
+Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `CLAUDE.md`.
 
 Et arbeidstre under `.claude/worktrees/` har ingen `node_modules`, så vite og vitest
 der laster pakkene fra hovedcheckouten, og med dem `tsconfig.json` der. Den utvider

@@ -15,7 +15,7 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
 ## Ett hjem per opplysning
 
 Én kilde per opplysning. Genererte og kontrollerte visninger er lov, men en fri
-gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
+gjengivelse er aldri regelgrunnlag (`CLAUDE.md`, «Hvor hva står»).
 
 - `docs/datamodell/` beskriver tabeller, hendelser, relasjoner og dataflyt, og
   `docs/domenetabell/` forventet atferd og bevis-saker. Rediger kilderegistrene,
@@ -51,7 +51,7 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
   Gjenbruk eksisterende dokumenter; ikke opprett en ny systemoversikt per oppgave.
 - PR-en bærer endringsbegrunnelse, alternativer, review og kjørte testresultater.
   Kopier ikke dette til indeks eller referansedokumenter; arbeidsstatus står i
-  issuene (`AGENTS.md`, «Hvor hva står»). Historiske bevis i en audit beholder
+  issuene (`CLAUDE.md`, «Hvor hva står»). Historiske bevis i en audit beholder
   sin dato og commit.
 
 ## Form og vedlikehold

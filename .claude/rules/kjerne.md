@@ -5,7 +5,7 @@ paths:
 
 # Kjernen
 
-Reglene som gjelder hele kjernen, står i `AGENTS.md` under «Domenekjernen». Denne fila
+Reglene som gjelder hele kjernen, står i `CLAUDE.md` under «Domenekjernen». Denne fila
 har det som gjelder modulene i `kjerne/` og flyttinger mellom dem (#1695).
 
 ## Hva reglene leser

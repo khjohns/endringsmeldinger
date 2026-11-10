@@ -42,7 +42,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 - Avgjør hvor den berørte domeneregelen eller kontrakten skal eies, og kartlegg
   kallerne og inngangene som berøres. Skriv hva som skal fjernes og hva som må
   bestå. Skal atferden være uendret, skriv hvilke observerbare resultater som
-  skal bevares. Ved begrepsendring: følg språkregelen i `AGENTS.md`. Les
+  skal bevares. Ved begrepsendring: følg språkregelen i `CLAUDE.md`. Les
   `.claude/rules/dokumentasjon.md` for å avgjøre hva som trenger varig
   dokumentasjon.
 - Bygger oppgaven frontend mot TS-kjernen, er brukerforløpet for flyten
@@ -133,10 +133,10 @@ Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
 
 ## Review og funn
 
-**Uavhengig review før en PR meldes klar er `/code-review` på egen diff** (`AGENTS.md`), på
+**Uavhengig review før en PR meldes klar er `/code-review` på egen diff** (`CLAUDE.md`), på
 nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
 eller migrasjonene, uansett språk, ellers `medium`. For en diff som bare rører
-`docs/`, skillene og `AGENTS.md`, avgjør orkestratoren om `/code-review` er verdt
+`docs/`, skillene og `CLAUDE.md`, avgjør orkestratoren om `/code-review` er verdt
 det, og begrunner valget i én linje i PR-en (#1338). Endrer diffen utledningen eller reglene i domenet, kommer i
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
 bevis-sakene samlet, én gang per PR. Hvor reviewet og rettingene kjøres, står i
@@ -245,5 +245,5 @@ rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, e
   kommando, resultat og kontrollert commit eller diff. Skill egne kjøringer fra
   historiske resultater. Kontroller som ikke er gjennomført eller ikke var
   tilgjengelige, oppgis uttrykkelig. Mangler en påkrevd sjekk eller review, er
-  PR-en fortsatt utkast. Restanser får issues etter `AGENTS.md`, «Hvor hva står». Et issue gjør
+  PR-en fortsatt utkast. Restanser får issues etter `CLAUDE.md`, «Hvor hva står». Et issue gjør
   ikke et uoppfylt akseptkriterium oppfylt.

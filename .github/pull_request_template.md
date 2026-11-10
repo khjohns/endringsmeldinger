@@ -1,6 +1,6 @@
 <!-- Bruk også malen ved opprettelse via CLI/API. Slett irrelevante punkter;
 rene dokumentendringer trenger ikke kode-, migrerings- eller byggbevis.
-Instruksjonene står i AGENTS.md og .claude/skills/leveranse/SKILL.md. -->
+Instruksjonene står i CLAUDE.md og .claude/skills/leveranse/SKILL.md. -->
 
 ## Endring
 

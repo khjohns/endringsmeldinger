@@ -1,11 +1,11 @@
 ---
 name: subagenter
-description: Hvordan en subagent bestilles i endringsmeldinger, med eksempler på når den brukes, hva hovedtråden leser, modellen, størrelsen og bestillingen. Når en subagent brukes, står i AGENTS.md. Brukes når en subagent skal startes med Agent-verktøyet, i alle økter, også en direkte økt som ikke er orkestrert.
+description: Hvordan en subagent bestilles i endringsmeldinger, med eksempler på når den brukes, hva hovedtråden leser, modellen, størrelsen og bestillingen. Når en subagent brukes, står i CLAUDE.md. Brukes når en subagent skal startes med Agent-verktøyet, i alle økter, også en direkte økt som ikke er orkestrert.
 ---
 
 # Subagenter
 
-Når en subagent brukes, står i `AGENTS.md`, «Arbeidsform»: de tre tilfellene, og hva økta
+Når en subagent brukes, står i `CLAUDE.md`, «Arbeidsform»: de tre tilfellene, og hva økta
 gjør selv. Her står hvordan den bestilles, i alle økter.
 
 - **Eksempler på de tre tilfellene.** Store rådata: en CI-logg (`ci-logg`), fullt

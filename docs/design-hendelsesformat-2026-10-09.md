@@ -76,7 +76,7 @@ som oppsummerer et spor eller en sak.
 | [KA-U11](plans/vedtak.md#ka-u11), [KA-U12](plans/vedtak.md#ka-u12) og [EO-U5](plans/vedtak.md#eo-u5) | Predikatene «kravene er avgjort» og «kan inngå i endringsordre» leses av utsagnene. TE kan si «ingen krav» i et spor som ikke er sendt |
 | [KA-U8](plans/vedtak.md#ka-u8) | En kravversjon på 0 dager eller 0 kr finnes ikke |
 | [Invariant 6](plans/2026-09-16-godkjenning-og-varig-levering.md#23-invarianter) | Dokumentgrunnlaget fryses ved commit, og en retry leverer samme dokument |
-| [Sikkerhetsinvariantene](../AGENTS.md#sikkerhetsinvarianter) | `event_id`, `tidsstempel` og aktørfeltene settes av serveren. En klientoppgitt relasjon utvider ikke tilgangen |
+| [Sikkerhetsinvariantene](../CLAUDE.md#sikkerhetsinvarianter) | `event_id`, `tidsstempel` og aktørfeltene settes av serveren. En klientoppgitt relasjon utvider ikke tilgangen |
 
 Begrepene er de i [modellforslaget, 2.2–2.5](forslag-maalmodell-2026-10-09.md#22-byggeklossene):
 dokument, svar og utsagn med part, art, `gjelder` og `erstatter`. Modellforslaget
@@ -381,7 +381,7 @@ rettidighet som ikke er vurdert (KA-U4).
 
 ### 4.5 Navn fra kontrakten
 
-**Foreslått.** Navnene følger «Språk» i [`AGENTS.md`](../AGENTS.md#språk) og
+**Foreslått.** Navnene følger «Språk» i [`AGENTS.md`](../CLAUDE.md#språk) og
 kontraktens ord: «svar», ikke «respons»; «varsel», «krav», «trekk»,
 «innsigelse» og «forespørsel». Tabellen er forslaget. Navnetabellen i
 [domenetabellen](domenetabell/README.md) eies av #308, og byggeøkta fører

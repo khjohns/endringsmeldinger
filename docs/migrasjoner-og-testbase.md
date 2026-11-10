@@ -1,8 +1,8 @@
 # Migrasjoner og testbase: verifikasjon uten å røre basen
 
 **Dato:** 2026-09-29. **Commit:** `main` på `6bb2e33`.
-Teksten er flyttet ordrett fra `AGENTS.md`, der den lastes i hver økt.
-`AGENTS.md` beholder reglene og viser hit for framgangsmåten. Den beskriver
+Teksten er flyttet ordrett fra `CLAUDE.md`, der den lastes i hver økt.
+`CLAUDE.md` beholder reglene og viser hit for framgangsmåten. Den beskriver
 dagens oppsett på Supabase; plattformen er ikke valgt (B-12 i
 [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md)).
 

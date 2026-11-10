@@ -2,7 +2,7 @@
 
 Klarspråk i visningen, vedtakene og brevene, og betegnelsen for løsningen. Fila er
 hjemmet for reglene for synlig tekst. Reglene for språket i koden, kommentarene og
-dokumentasjonen står i [`AGENTS.md`](../AGENTS.md), «Språk».
+dokumentasjonen står i [`CLAUDE.md`](../CLAUDE.md), «Språk».
 
 ## Klarspråk
 
@@ -22,12 +22,12 @@ Rådene under er med egne ord.
   forsering), henvisningene til NS 8407 som «punkt 33.8» ([OV-U75](plans/vedtak.md#ov-u75), [LV-U39](plans/vedtak.md#lv-u39)) og
   vedtatt ordlyd står som de er. I brevene og visningen
   skrives partene fullt ut (se «Ordene i brevene og skjemaene»). Presisjonskravet
-  i [`AGENTS.md`](../AGENTS.md) går foran. En vedtatt ordlyd endres bare gjennom
+  i [`CLAUDE.md`](../CLAUDE.md) går foran. En vedtatt ordlyd endres bare gjennom
   [vedtaksregisteret](vedtaksregister/README.md).
 
 ## Hva løsningen kalles
 
-Regelen står i [`AGENTS.md`](../AGENTS.md), «Språk». Her står begrunnelsen og
+Regelen står i [`CLAUDE.md`](../CLAUDE.md), «Språk». Her står begrunnelsen og
 eksemplene.
 
 «Appen» er forståelig mellom oss som utvikler løsningen, men den som leser et vedtak,

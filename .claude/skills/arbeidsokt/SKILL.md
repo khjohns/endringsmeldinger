@@ -6,7 +6,7 @@ description: Reglene for en skyøkt som bygger, reviewer eller retter en PR i en
 # Arbeidsøkta
 
 Reglene gjelder hver skyøkt som bygger, reviewer eller retter, også en direkte økt
-(`AGENTS.md`, «Arbeidsform»). Det orkestratoren gjør, står i
+(`CLAUDE.md`, «Arbeidsform»). Det orkestratoren gjør, står i
 [orkestreringsskillen](../orkestrering/SKILL.md). Episodene bak grensene står i
 [episodefila](../orkestrering/episoder.md).
 
@@ -58,8 +58,8 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   kall, kan være komprimert av Claude Code (`idleCompaction`, standardverdien
   beholdes), og behandles da som komprimert: den leser vedtakene, issuet og
   PR-beskrivelsen på nytt før den fortsetter (#779).
-- **Endringer i `AGENTS.md` virker ikke i økta som gjør dem.** Fila lastes når økta
-  starter, og igjen først etter en komprimering. En økt som retter `AGENTS.md`,
+- **Endringer i `CLAUDE.md` virker ikke i økta som gjør dem.** Fila lastes når økta
+  starter, og igjen først etter en komprimering. En økt som retter `CLAUDE.md`,
   arbeider videre etter den gamle teksten.
 - **Subagenter har egne grenser**, i kall og tokens: se
   skillen [`subagenter`](../subagenter/SKILL.md).
@@ -81,7 +81,7 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
 Oppdraget sier hva som skal gjøres, og hva som er fasit. Dette gjelder i tillegg,
 uten at oppdraget gjentar det:
 
-- **Les først** issuene, `AGENTS.md` og denne skillen.
+- **Les først** issuene, `CLAUDE.md` og denne skillen.
 - **Spørsmål.** Spørsmål bare oppdragsgiver kan avgjøre (NS 8407, tiltenkt atferd),
   sendes samlet til `@parent` etter kartleggingen og før implementeringen, med
   alternativer, belegg og en anbefaling. Mens den venter, følger økta
@@ -96,12 +96,12 @@ uten at oppdraget gjentar det:
   den er den eneste PR-en i runden som rører planen. Da kan den føre et vedtak
   den trenger, slik [vedtaksskillen](../vedtak/SKILL.md) sier.
 - **Feil utenfor oppdraget**, som ikke er reviewfunn, blir egne issues (regelen i
-  `AGENTS.md`). Økta løser en slik feil i samme PR med `Closes #n` bare når
+  `CLAUDE.md`). Økta løser en slik feil i samme PR med `Closes #n` bare når
   rettingen er noen få linjer i en fil den allerede endrer. Alt annet venter til neste
   runde, også funn i andre øktes filer og funn som krever en avgjørelse.
 - **Store lesinger**, som kartlegging over mange filer og CI-logger, gjøres av
   subagenter, så øktas egen kontekst holder seg liten (#425).
-  Små oppslag gjør økta selv (`AGENTS.md`, «Arbeidsform»), og subagentene følger
+  Små oppslag gjør økta selv (`CLAUDE.md`, «Arbeidsform»), og subagentene følger
   skillen [`subagenter`](../subagenter/SKILL.md).
 - **Review.** Byggeøkta kjører reviewet selv, etter «Review i byggeøkta».
 - **PR-beskrivelsen er rapporten til orkestratoren:** hva som er endret,

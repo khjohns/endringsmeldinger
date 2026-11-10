@@ -116,7 +116,7 @@ til = "koe.projects.id"
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
-Prosjektet saken hører til, uten standardverdi (AGENTS.md)."""
+Prosjektet saken hører til, uten standardverdi (CLAUDE.md)."""
 funn = []
 belegg = "K 16.10: katalogen."
 
@@ -146,7 +146,7 @@ til = "koe.app_users.id"
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
-Avsenderen, `app_users.id` (AGENTS.md)."""
+Avsenderen, `app_users.id` (CLAUDE.md)."""
 funn = []
 belegg = "K 16.10: katalogen."
 
@@ -556,7 +556,7 @@ til = "koe.catenda_contract_teams.team_id"
 art = "logisk"
 antall = "mange til én"
 beskrivelse = """
-Teamet som kan lese notatet. Basen avviser et notat uten team (AGENTS.md)."""
+Teamet som kan lese notatet. Basen avviser et notat uten team (CLAUDE.md)."""
 funn = []
 belegg = "L 16.10: migrasjonen."
 
@@ -586,7 +586,7 @@ til = "koe.app_users.id"
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
-Den som lastet opp vedlegget, `app_users.id` (AGENTS.md)."""
+Den som lastet opp vedlegget, `app_users.id` (CLAUDE.md)."""
 funn = []
 belegg = "K 18.10: katalogen."
 
@@ -606,7 +606,7 @@ til = "koe.catenda_contract_teams.team_id"
 art = "logisk"
 antall = "mange til én"
 beskrivelse = """
-Teamet som ser og sletter vedlegget før det er bundet. Basen avviser et vedlegg uten team (AGENTS.md)."""
+Teamet som ser og sletter vedlegget før det er bundet. Basen avviser et vedlegg uten team (CLAUDE.md)."""
 funn = []
 belegg = "L 18.10: migrasjonen."
 
@@ -655,7 +655,7 @@ til = "koe.app_users.id"
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
-Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). Bare den samme aktøren kan flytte det inn i en sak."""
+Den som lastet opp vedlegget, `app_users.id` (CLAUDE.md). Bare den samme aktøren kan flytte det inn i en sak."""
 funn = []
 belegg = "K 02.11: katalogen."
 
@@ -665,7 +665,7 @@ til = "koe.catenda_contract_teams.team_id"
 art = "logisk"
 antall = "mange til én"
 beskrivelse = """
-Teamet som ser og sletter vedlegget til saken er opprettet. Basen avviser et vedlegg uten team (AGENTS.md)."""
+Teamet som ser og sletter vedlegget til saken er opprettet. Basen avviser et vedlegg uten team (CLAUDE.md)."""
 funn = []
 belegg = "L 02.11: migrasjonen."
 
@@ -725,7 +725,7 @@ til = "koe.catenda_contract_teams.team_id"
 art = "logisk"
 antall = "mange til én"
 beskrivelse = """
-Teamet som ser pakken. Basen avviser en pakke uten team (AGENTS.md)."""
+Teamet som ser pakken. Basen avviser en pakke uten team (CLAUDE.md)."""
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 

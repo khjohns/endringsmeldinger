@@ -31,7 +31,7 @@ Begrunn konklusjonen.
 
 ## 2. Les først
 
-- [`AGENTS.md`](../AGENTS.md) i sin helhet, særlig resonneringsreglene.
+- [`AGENTS.md`](../CLAUDE.md) i sin helhet, særlig resonneringsreglene.
 - Designgrunnlaget i sin helhet, prototypen i
   [`vedlegg/b02-prototype-2026-09-22/`](vedlegg/b02-prototype-2026-09-22/kjor.sh)
   og reviewoppdraget over.

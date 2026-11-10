@@ -128,7 +128,7 @@ def test_referansedefinisjon_kontrolleres(tmp_path, maal, kode):
     assert resultat.returncode == kode, resultat.stdout + resultat.stderr
 
 
-@pytest.mark.parametrize("fil", ["AGENTS.md", "CLAUDE.md", ".claude/rules/regel.md"])
+@pytest.mark.parametrize("fil", ["CLAUDE.md", ".claude/rules/regel.md"])
 def test_brutt_anker_i_filene_som_lastes_i_oektene_gir_exit_1(tmp_path, fil):
     sti = tmp_path / fil
     sti.parent.mkdir(parents=True, exist_ok=True)

@@ -48,7 +48,7 @@ hva som skjer, og der prototypen avviker fra bestillingen eller vedtakene. Du er
 bruker og kan ikke bevise at noe er forståelig. Du kan bare peke på risiko. En annen agent
 kontrollerer separat at klikkene, ankrene og axe virker.
 
-Les: AGENTS.md («Språk», «Domenet», «Domenekjernen»); docs/domenetabell/brukerforlop/BF-xx.md
+Les: CLAUDE.md («Språk», «Domenet», «Domenekjernen»); docs/domenetabell/brukerforlop/BF-xx.md
 i sin helhet; forløpet i demoruta med skjermbilder fra `demoruta.mjs` (for en prototype av et nytt mønster: kildeteksten og skjermbilder via file://); vedtakene
 BF-xx viser til, og bare dem, slått opp i docs/plans/vedtak.md på ankeret; ved behov et
 begrep i docs/domenetabell/README.md.

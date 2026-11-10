@@ -482,7 +482,7 @@ def test_dokumentene_er_bestillingene_systemfila_skillene_og_agents(tmp_path):
         ".interface-design/system.md",
         ".claude/skills/vedtak/SKILL.md",
         ".claude/skills/miljo/referanse/x.md",
-        "AGENTS.md",
+        "CLAUDE.md",
         "docs/annet.md",
     ):
         (tmp_path / sti).parent.mkdir(parents=True, exist_ok=True)
@@ -491,7 +491,7 @@ def test_dokumentene_er_bestillingene_systemfila_skillene_og_agents(tmp_path):
         ".claude/skills/miljo/referanse/x.md",
         ".claude/skills/vedtak/SKILL.md",
         ".interface-design/system.md",
-        "AGENTS.md",
+        "CLAUDE.md",
         "docs/domenetabell/brukerforlop/BF-02A.md",
     ]
 
@@ -513,8 +513,8 @@ def test_i_et_dokument_er_henvisningen_et_avsnitt_et_punkt_en_rad_eller_en_overs
 
 
 def test_historisk_slipper_ikke_en_opphevet_id_i_et_dokument():
-    assert _feil("Historisk: MM-U4.\n", "AGENTS.md") == [
-        "AGENTS.md:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
+    assert _feil("Historisk: MM-U4.\n", "CLAUDE.md") == [
+        "CLAUDE.md:1: MM-U4 er opphevet og står uten MM-U9, som opphever den"
     ]
 
 

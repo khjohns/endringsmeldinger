@@ -89,11 +89,11 @@ Issuet inneholder:
 - høyst tre forslag. Hvert forslag sier hva det endrer, hvilken mekanisme det
   bruker (skill, subagent, hook, innstilling, regel eller kortere instruks), hva
   det ventes å spare, og en anbefaling. Foretrekk forslag som fjerner, deler eller
-  flytter tekst framfor nye regler: hver regel i `AGENTS.md` eller en skill som
+  flytter tekst framfor nye regler: hver regel i `CLAUDE.md` eller en skill som
   lastes i hver økt, gjør alle øktene litt dyrere;
 - spørsmålene til oppdragsgiver.
 
-Issues er offentlige (`AGENTS.md`, «Hvor hva står»). Skriv øktenes tittel og
+Issues er offentlige (`CLAUDE.md`, «Hvor hva står»). Skriv øktenes tittel og
 ID, issue- og PR-nummer og tall. Skriv ikke innhold fra øktene: ikke meldinger,
 sitater fra transkripsjonen, personnavn eller e-postadresser.
 

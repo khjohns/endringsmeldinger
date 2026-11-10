@@ -30,7 +30,7 @@ lagring = "SQL Server"
 type = ["grunndata"]
 status = "uavklart"
 beskrivelse = """
-Én rad per person. `id` er aktøren i journalen og notatet (AGENTS.md). Navnet
+Én rad per person. `id` er aktøren i journalen og notatet (CLAUDE.md). Navnet
 leses for visningen av saken gjennom
 `koe_api.aktornavn`, bare for aktørene i en sak leseren kan lese (F-1b, #104),
 fra `lesAktornavn` i `server/lager.ts`."""
@@ -59,7 +59,7 @@ status = "uavklart"
 beskrivelse = """
 Identitetene til en bruker, unike på leverandør, issuer og subjekt. En
 Catenda-identitet og en Entra-identitet har issueren og subjektformen basen
-kontrollerer, så samme person ikke får to brukerrader (AGENTS.md). For Entra er
+kontrollerer, så samme person ikke får to brukerrader (CLAUDE.md). For Entra er
 issueren v2-formen for tenanten og subjektet `oid`, begge i små bokstaver (#831)."""
 lagres_fra = "`koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api.catenda_identitet` fra tilbakekallet i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet registreres av driften med `koe_drift.registrer_entra_identitet` og slås bare opp av `koe_api.entra_identitet` ved innloggingen (S-1c del 1, #831). Driften kobler en Catenda-identitet til en bruker med Entra-identitet med `koe_drift.koble_catenda_identitet`, som flytter identiteten bare når brukeren den stod på, ikke er brukt utover medlemskap, fravær og sesjoner; det er den eneste slettingen triggeren slipper gjennom (#1002)."
 fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en. For `entra` kommer subjektet fra ID-tokenet fra Entra ID."
@@ -153,7 +153,7 @@ type = ["grunndata"]
 status = "uavklart"
 beskrivelse = """
 Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten
-standardverdi (AGENTS.md). `server/prosjekter.ts` leser prosjektene aktøren er
+standardverdi (CLAUDE.md). `server/prosjekter.ts` leser prosjektene aktøren er
 aktivt medlem i med `koe_api.brukerens_prosjekter`, og ett av dem med
 `koe_api.prosjekt` (#660)."""
 lagres_fra = """
@@ -381,7 +381,7 @@ lagring = "SQL Server"
 type = ["transaksjon"]
 status = "uavklart"
 beskrivelse = """
-Interne notater, skjermet på teamet (AGENTS.md). Ikke et kontraktsvarsel, og
+Interne notater, skjermet på teamet (CLAUDE.md). Ikke et kontraktsvarsel, og
 kan endres og slettes (MS-05)."""
 lagres_fra = "Ingen skriver ennå (#53, del 3)."
 fra_catenda = "Nei"
@@ -576,7 +576,7 @@ status = "i bruk"
 beskrivelse = """
 Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget
 fullmakten ble regnet av, verdien kjeden ble avledet av, saksbehandleren og teamet. Pakken er et utkast som bare
-teamet som laget den, ser, og uten team finnes den ikke (AGENTS.md). Den endres
+teamet som laget den, ser, og uten team finnes den ikke (CLAUDE.md). Den endres
 ikke; en ny pakke kan erstatte en returnert eller trukket."""
 lagres_fra = "`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`."
 fra_catenda = "Nei."

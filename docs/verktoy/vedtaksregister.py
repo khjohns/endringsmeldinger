@@ -132,6 +132,8 @@ NY = {
 } | KLASSEFELT
 NY_PAAKREVD = {"id", "dato", "hvem", "kilde", "sporsmal", "alternativ", "valgt", "svar"}
 SITATKILDER = ("ns8407", "hovedplanen")
+# Filer som er omdøpt eller slettet. Et sitat fra dem står slik det ble skrevet.
+HISTORISKE_FILER = ("AGENTS.md",)  # nå CLAUDE.md (#1765)
 ID = re.compile(r"[A-ZÆØÅ]+(-[A-Z0-9]+)+")
 ANKER = re.compile(r'<a id="([^"]+)"></a>')
 KODENAVN = (
@@ -968,7 +970,7 @@ def valider(register: dict) -> list[str]:
                 feil.append(f"{navn}: det valgte alternativet er forkastet")
             for s in p.get("sitat", []):
                 k = s["kilde"]
-                if k not in SITATKILDER and not _fil_i_treet(k):
+                if k not in SITATKILDER and k not in HISTORISKE_FILER and not _fil_i_treet(k):
                     feil.append(
                         f"{navn}: sitatkilden «{k}» er verken {' eller '.join(SITATKILDER)} eller en fil i treet"
                     )

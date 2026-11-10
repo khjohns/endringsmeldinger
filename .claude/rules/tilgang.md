@@ -6,7 +6,7 @@ paths:
 
 # Tilgang: mekanismene bak sikkerhetsinvariantene
 
-Invariantene står i `AGENTS.md` og gjelder hver serverinngang. Her står hvordan
+Invariantene står i `CLAUDE.md` og gjelder hver serverinngang. Her står hvordan
 TS-serveren håndhever dem, og hva den mangler.
 
 ## TS-serveren

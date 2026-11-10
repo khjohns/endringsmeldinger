@@ -8,8 +8,8 @@ description: Når én økt fordeler issues på flere skyøkter og følger PR-ene
 Reglene for hver arbeidsøkt står i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md), og
 episodene bak reglene i [episodefila](episoder.md).
 
-Oppdragsgiver ser over PR-ene, svarer på spørsmål og godkjenner merge, per PR
-eller på forhånd for runden (punkt 4).
+Oppdragsgiver svarer på spørsmål, ser over skjermbildene og godkjenner merge, per PR
+eller på forhånd for runden (punkt 4). Oppdragsgiver leser ikke koden.
 Orkestreringsøkta fordeler arbeidet, går gjennom resultatet og fører det inn
 der det hører hjemme. Den skriver ikke koden selv.
 
@@ -17,12 +17,10 @@ der det hører hjemme. Den skriver ikke koden selv.
 
 En runde er én orkestreringsøkt. Den velger et sett issues, fordeler dem,
 går gjennom PR-ene, merger og melder fra. Når alle PR-ene i runden er merget
-eller lukket og oppdragsgiver har fått avslutningen (punkt 5), er runden over
-og økta ferdig. Neste runde starter i en ny økt. Det som skal videre, står i
-issuene, ikke i økta.
-
-Grunnen er kostnad: en økt som lever over natta, blir dyrere for hver sjekk
-(se [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#hvorfor-grensene-finnes)).
+eller lukket og oppdragsgiver har fått avslutningen (punkt 5), er runden over.
+Neste runde tas i samme økt når konteksten trengs for den, og ellers i en ny økt
+(«Orkestratorens tid og kontekst»). Det som skal videre, står i issuene, ikke bare
+i økta.
 
 **Bølger.** Oppdragsgiver kan bestille et spor i bølger, en rekke runder der
 hver orkestrator starter den neste. Bestillingen sier hva
@@ -42,8 +40,8 @@ nærmer seg grensene i «Orkestratorens tid og kontekst». Da gjør den dette:
    oppdragsgiver, og da i beskrivelsen (#1065).
 3. Sletter sjekkene sine.
 4. Starter neste orkestrator med `create_session`, med bare dette repoet i
-   `source_url` («Miljø» i `AGENTS.md`). Oppdraget er kort: les
-   `AGENTS.md`, denne skillen og overleveringen, og hva sporet omfatter. Det
+   `source_url` («Miljø» i `CLAUDE.md`). Oppdraget er kort: les
+   `CLAUDE.md`, denne skillen og overleveringen, og hva sporet omfatter. Det
    gjengir ikke historikken. Har bølgeissuet en prompt, brukes den ordrett.
 5. Sier til oppdragsgiver hva som er merget, og gir lenken til overleveringen
    og ID-en til den nye økta.
@@ -54,15 +52,16 @@ Arbeidsøkta eier sporet videre og overleverer selv. Byggeøkta kjører reviewet
 byggeøkta» i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst) sier,
 og legger PR-en fram for oppdragsgiver og merger etter punkt 4 når
 oppdragsgiver har godkjent det. Etter mergen skriver den overleveringen i
-bølgeissuet, som i steg 2 over. Den starter neste byggeøkt når neste runde bare
-har én økt, og ellers en ny orkestrator. Overleveringen sier hvilken økt som eier
+bølgeissuet, som i steg 2 over. Er neste issue relatert, tar den det selv etter
+«Flere PR-er i én økt». Ellers starter den neste byggeøkt når neste runde bare
+har én økt, og en ny orkestrator når den har flere. Overleveringen sier hvilken økt som eier
 sporet.
 En økt på dybde 8 får ikke satt påminnelsen med `send_later` («lineage depth 8»,
 #1031). Dybden står i `lineage.depth` når økta kaller `get_session` uten
 `session_id`. Er økta selv på dybde 7 eller dypere, eller avvises
 `create_session`, starter den ikke neste økt selv. Den sier fra til oppdragsgiver at
 neste økt må startes for hånd, og legger ved en kort prompt. Prompten viser til
-`AGENTS.md`, denne skillen og overleveringen, slik steg 4 over sier.
+`CLAUDE.md`, denne skillen og overleveringen, slik steg 4 over sier.
 
 En orkestrator starter ingen ny runde når sporet er tomt, når det som
 gjenstår, venter på oppdragsgiver, eller når oppdragsgiver har sagt stopp.
@@ -73,7 +72,7 @@ To parallelle spor rører aldri samme fil samtidig. En fil begge trenger, går t
 det ene sporet, og det andre venter.
 
 **Størrelse.** Runden har ingen fast grense på antall PR-er. Den avgrenses av hvor
-mange PR-er oppdragsgiver skal svare på eller gå gjennom samtidig, av filoverlapp og
+mange spørsmål og skjermbilder oppdragsgiver skal se på samtidig, av filoverlapp og
 av at hver økt får arbeid som henger sammen (#425, #491).
 Tekniske issues som ikke krever svar fra oppdragsgiver, kan runden ta mange av så lenge de lar seg orkestrere etter
 filoverlapp, og de tekniske valgene tas mellom orkestratoren og øktene, ikke av
@@ -81,8 +80,6 @@ oppdragsgiver. Et valg som blir en kontrakt, en regel i domenekjernen eller et
 lagret navn, er ikke teknisk og venter på oppdragsgiver, som under «Spørsmål» i
 arbeidsøkt-skillen. Merge krever fortsatt godkjenning fra oppdragsgiver. Godkjenningen kan gis per PR eller på forhånd for runden
 (punkt 4).
-Grensen settes av hvor mye oppdragsgiver kan gå gjennom, av konflikter ved
-merge og av kostnaden, ikke av antall issues.
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
 
 1. Ta bort issues med `venter-på-beslutning`, og issues som rekkefølgen i
@@ -96,8 +93,8 @@ Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
 
 **Fordelingen.** Issues som rører de samme filene og reglene eller har samme
 rotårsak, går til samme økt, så konteksten den har bygget, brukes på nytt. Urelaterte
-issues får hver sin økt. To issues i samme fil går aldri i to parallelle økter. Et issue som krever kartlegging eller spørsmål til
-oppdragsgiver, får egen økt. Spørsmålene før bygging står under «1. Kartlegg
+issues får hver sin økt. To issues i samme fil går aldri i to parallelle økter. Et issue som krever kartlegging
+eller spørsmål til oppdragsgiver, starter i egen økt. Spørsmålene før bygging står under «1. Kartlegg
 før du fordeler».
 
 **Flere PR-er i én økt.** En økt kan levere flere PR-er etter hverandre, og ta det
@@ -156,7 +153,9 @@ innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang (#425, #4
 - **Spørsmål før bygging.** For oppgaver i `kjerne/` kartlegger en subagent i
   orkestratoren først, og samler domenespørsmålene etter «Spørsmål og vedtak».
   Byggeøkta starter med svarene i oppdraget. Krever en oppgave utenfor kjernen
-  mange spørsmål, kartlegger og spør én økt, og en ny økt bygger med svarene (#484).
+  mange spørsmål, kartlegger og spør økta selv. Kommer svarene mens konteksten er varm,
+  bygger den videre. Ellers tar en ny økt over med svarene, etter «Mens et spørsmål
+  venter» i arbeidsøkt-skillen (#484).
 - Feil som stopper appen, går foran opprydding.
 
 ### Oppgavetypene
@@ -178,12 +177,11 @@ En PR som blander typene, følger den strengeste.
 
 ## 2. Oppdraget til hver økt
 
-Én økt per issue, per gruppe av issues (se «Runden») eller per del av et
-issue. Oppdraget er kort. De faste reglene for en arbeidsøkt står i
+Én økt per gruppe av relaterte issues (se «Fordelingen»), som den tar etter hverandre. Oppdraget er kort. De faste reglene for en arbeidsøkt står i
 [arbeidsøkt-skillen](../arbeidsokt/SKILL.md), og oppdraget gjengir dem ikke.
 Oppdraget skal inneholde:
 
-- issuenummerne, og at økta skal lese issuene, `AGENTS.md` og skillen `arbeidsokt` først;
+- issuenummerne, og at økta skal lese issuene, `CLAUDE.md` og skillen `arbeidsokt` først;
 - oppgavetypen etter «Oppgavetypene», med skillene og kontrollene den gir. Punktene
   under om review, feilinnføring og nettleser gjelder bygging, ikke designsløyfa;
 - branchnavn (`claude/<kort-navn>-<issue>`);
@@ -206,7 +204,7 @@ Oppdraget skal inneholde:
 - for kjerne-oppgaver: svarene på domenespørsmålene fra kartleggingen (punkt 1);
 - om ingen følger øktene, når oppdragsgiver har sagt det;
 - om økta er den eneste PR-en i runden som rører hovedplanen;
-- at oppdraget er avgrenset slik at økta kan gjøre det ferdig under om lag 400 000 tokens;
+- hvilke relaterte issues økta tar etter hverandre, og i hvilken rekkefølge;
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det, med skillen `mockup-nettleser`. Endrer økta visningen, sier oppdraget
   at den følger skillen `interface-design`, og hvem som kjører `/design-deslop` og
@@ -227,8 +225,8 @@ gir et nivå.
 Øktene melder fra når PR-en er klar ([arbeidsøkt-skillen](../arbeidsokt/SKILL.md#i-en-orkestrert-økt)). Sett i tillegg én sjekk med
 `send_later` som sikkerhetsnett, innen 55 minutter mens noe venter.
 
-Send ikke nye issues til en økt som er i gang. De venter til neste runde.
-Samle det en økt skal ha, i én melding, og vent på svaret før neste. Meldinger
+Send ikke nye issues til en økt midt i en oppgave. Et relatert issue kan gis når økta
+melder PR-en klar eller venter på CI. Samle det en økt skal ha, i én melding, og vent på svaret før neste. Meldinger
 som krysser hverandre, gir dobbelt arbeid.
 
 Gjør dette for hver PR:
@@ -243,7 +241,7 @@ Gjør dette for hver PR:
    testmiljøet, sjekkes før det avskrives.
    Legger PR-en til en serverinngang, en tabell eller en migrasjon, lar
    orkestratoren en subagent på standardmodellen kontrollere hver
-   sikkerhetsinvariant i `AGENTS.md` mot koden før merge, uavhengig av
+   sikkerhetsinvariant i `CLAUDE.md` mot koden før merge, uavhengig av
    `/code-review` i økta. Kontrollen spør katalogen i en egen base bygget fra
    migrasjonene, ikke bare filene.
 3. Samle de åpne spørsmålene fra alle PR-ene og still dem til oppdragsgiver
@@ -271,7 +269,7 @@ gjelder bare den runden. Vilkårene er:
   en serverinngang, en tabell eller en migrasjon.
 
 Godkjenningen gjelder ikke en PR som rører `kjerne/`, fører et vedtak i
-vedtaksregisteret eller endrer `AGENTS.md` eller en skill. Den venter på
+vedtaksregisteret eller endrer `CLAUDE.md` eller en skill. Den venter på
 oppdragsgiver som før. Avslutningen (punkt 5) sier hvilke
 PR-er som er merget på forhånd.
 
@@ -309,8 +307,8 @@ og `gh api -X PUT repos/<eier>/<repo>/pulls/<n>/merge -f sha=<hele SHA-en> -f me
 ## 5. Avslutning
 
 Si til oppdragsgiver hva som er merget, hvilke issues som er lukket, hvilke nye
-issues som er opprettet, og hva som gjenstår. Slett sjekker som ikke har gått,
-og ta ikke en ny runde i samme økt.
+issues som er opprettet, og hva som gjenstår. Slett sjekker som ikke har gått. En ny
+runde i samme økt følger «Orkestratorens tid og kontekst».
 
 ## Spørsmål og vedtak
 
@@ -378,8 +376,8 @@ Hvorfor grensene finnes, og grensene for arbeidsøktene, står i
   som skal leses på nytt. Grensen er om lag 800 000 tokens, eller om
   lag 150 000 tokens for en økt som venter på noe som kan ta over en time
   ([arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst)). Har en økt passert om
-  lag 400 000 uten å skrive vurderingen sin i PR-en, ber orkestratoren om den. Gjenstår mer enn rettinger og CI, overtar en
-  ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Er
+  lag 400 000 uten å skrive vurderingen sin i PR-en, ber orkestratoren om den.
+  Gjenstår mer enn rettinger og CI, overtar en ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Er
   økta fortsatt over grensen ved neste sjekk, avbryter orkestratoren den med
   `interrupt_session` og sender ingen ny melding. Hver melding leser hele den
   store konteksten på nytt. Den nye økta

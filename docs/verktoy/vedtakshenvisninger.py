@@ -27,7 +27,7 @@ historisk gjelder ikke der, og `endringer` i et brukerforløp leses ikke, fordi 
 fører hva som er endret og hvorfor.
 
 Dokumentene er bestillingene for brukerforløpene (`BF-*.md`), `.interface-design/system.md`,
-skillene og `AGENTS.md`, der designet fra registeret flyttes (svar 5 04.11 i #1534). Der er
+skillene og `CLAUDE.md`, der designet fra registeret flyttes (svar 5 04.11 i #1534). Der er
 henvisningen et avsnitt, et punkt i en liste, en tabellrad eller en overskrift, og ID-ene
 kontrolleres som i koden, uten unntaket for en test merket historisk. Unntaket er
 spørsmålsfilene i `HISTORISKE_DOKUMENTER`, som fører spørsmålene ordrett slik de ble stilt: der
@@ -58,7 +58,7 @@ DOKUMENTER = (
     "docs/domenetabell/brukerforlop/BF-*.md",
     ".interface-design/system.md",
     ".claude/skills/**/*.md",
-    "AGENTS.md",
+    "CLAUDE.md",
 )
 HISTORISKE_DOKUMENTER = frozenset(
     {

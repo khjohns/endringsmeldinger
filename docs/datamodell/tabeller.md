@@ -54,7 +54,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 
 ### `koe.app_users`
 
-Én rad per person. `id` er aktøren i journalen og notatet (AGENTS.md). Navnet leses for visningen av saken gjennom `koe_api.aktornavn`, bare for aktørene i en sak leseren kan lese (F-1b, #104), fra `lesAktornavn` i `server/lager.ts`.
+Én rad per person. `id` er aktøren i journalen og notatet (CLAUDE.md). Navnet leses for visningen av saken gjennom `koe_api.aktornavn`, bare for aktørene i en sak leseren kan lese (F-1b, #104), fra `lesAktornavn` i `server/lager.ts`.
 
 | Felt | Innhold |
 | --- | --- |
@@ -71,7 +71,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 
 ### `koe.app_identities`
 
-Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda-identitet og en Entra-identitet har issueren og subjektformen basen kontrollerer, så samme person ikke får to brukerrader (AGENTS.md). For Entra er issueren v2-formen for tenanten og subjektet `oid`, begge i små bokstaver (#831).
+Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda-identitet og en Entra-identitet har issueren og subjektformen basen kontrollerer, så samme person ikke får to brukerrader (CLAUDE.md). For Entra er issueren v2-formen for tenanten og subjektet `oid`, begge i små bokstaver (#831).
 
 | Felt | Innhold |
 | --- | --- |
@@ -156,7 +156,7 @@ HR-kopien per bruker fra Graph (S-1c del 2, #831): tenanten, `oid`, rollen, lede
 
 ### `koe.projects`
 
-Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standardverdi (AGENTS.md). `server/prosjekter.ts` leser prosjektene aktøren er aktivt medlem i med `koe_api.brukerens_prosjekter`, og ett av dem med `koe_api.prosjekt` (#660).
+Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standardverdi (CLAUDE.md). `server/prosjekter.ts` leser prosjektene aktøren er aktivt medlem i med `koe_api.brukerens_prosjekter`, og ett av dem med `koe_api.prosjekt` (#660).
 
 | Felt | Innhold |
 | --- | --- |
@@ -309,7 +309,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 
 ### `koe.notat`
 
-Interne notater, skjermet på teamet (AGENTS.md). Ikke et kontraktsvarsel, og kan endres og slettes (MS-05).
+Interne notater, skjermet på teamet (CLAUDE.md). Ikke et kontraktsvarsel, og kan endres og slettes (MS-05).
 
 | Felt | Innhold |
 | --- | --- |
@@ -479,7 +479,7 @@ Navnene på byggherren og totalentreprenøren i prosjektet (#1398), og kontrakts
 
 ### `koe.godkjenningspakke`
 
-Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget fullmakten ble regnet av, verdien kjeden ble avledet av, saksbehandleren og teamet. Pakken er et utkast som bare teamet som laget den, ser, og uten team finnes den ikke (AGENTS.md). Den endres ikke; en ny pakke kan erstatte en returnert eller trukket.
+Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget fullmakten ble regnet av, verdien kjeden ble avledet av, saksbehandleren og teamet. Pakken er et utkast som bare teamet som laget den, ser, og uten team finnes den ikke (CLAUDE.md). Den endres ikke; en ny pakke kan erstatte en returnert eller trukket.
 
 | Felt | Innhold |
 | --- | --- |

@@ -202,7 +202,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   190 000 kr, godkjent delvis.» En innsigelse som rammer hele kravet, står én gang over
   tabellen og gjentas ikke per element. Summene per lag hører til panelet. Tabellen i brevet og
   panelet følger [OV-U73](../docs/plans/vedtak.md#ov-u73); leselinja er skjemaets.
-- **Feilmeldingen står rett under feltet** og sier hva som hindrer (`AGENTS.md`,
+- **Feilmeldingen står rett under feltet** og sier hva som hindrer (`CLAUDE.md`,
   «Skriv etter hva teksten gjør»), med forslag til retting der appen kan gi det. Den
   forsvinner når feltet er rettet. Når kontrollen skjer, og hva som vises øverst i
   skjemaet, står i [MM-U32](#mm-u32). En feil fra serveren beklager og sier hva parten kan gjøre;

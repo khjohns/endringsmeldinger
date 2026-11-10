@@ -271,7 +271,7 @@ eier autentisering, CSRF, autorisert prosjekt/side/team, serverstemplede aktørf
 og bindende kommandoer. Worker har egne database- og Catenda-rettigheter og
 behandler frosne leveringsjobber. Frontenden får ingen databasenøkkel eller
 privat godkjenningspakke gjennom den delte modulen.
-[Sikkerhetsinvariantene](../../../AGENTS.md),
+[Sikkerhetsinvariantene](../../../CLAUDE.md),
 [F1 og F2](../../plans/2026-09-16-godkjenning-og-varig-levering.md).
 
 Container Apps har avgrensede jobber som kan startes manuelt, planlagt eller
