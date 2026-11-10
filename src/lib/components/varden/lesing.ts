@@ -27,6 +27,7 @@ import type {
   Spor,
   Standpunkt,
   Svar,
+  Utfall,
   Varselhjemmel,
 } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -412,6 +413,17 @@ export interface TilknyttetKrav {
 }
 
 /** Oppgjørsformen når alle kravpostene har samme, ellers `null`: visningen navngir den. */
+/**
+ * Betegnelsene på kravpostene utfallet sier ikke har fast beløp prinsipalt (OV-U73, svar 6 A
+ * i #1663), slått opp i kravet enigheten gjelder. En kravpost som ikke finnes der, står med id.
+ */
+export function kravposterUtenFastBeloep(utfall: Utfall, krav: Krav | null): string[] {
+  const poster = krav ? kravposterI(krav) : [];
+  return (utfall.uten_fast_beloep ?? []).map(
+    (id) => poster.find((p) => p.id === id)?.betegnelse ?? id
+  );
+}
+
 function fellesOppgjoersform(krav: Krav): Oppgjoersform | null {
   const former = new Set(kravposterI(krav).map((p) => p.oppgjoersform));
   return former.size === 1 ? [...former][0]! : null;

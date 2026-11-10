@@ -375,15 +375,20 @@ export const STILLING = {
   beloep: (beloep: number, b: Brevref) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
   /**
-   * Kravpostene uten fast beløp prinsipalt, som beløpet ikke regner med (OV-U73, svar 6 A i
-   * #1663). Uten noe beløp står bare kravpostene, ikke 0 kr.
+   * Beløpet i enigheten, og kravpostene uten fast beløp prinsipalt, som beløpet ikke regner med
+   * (OV-U73, svar 6 A i #1663). Uten noe fast beløp står bare kravpostene, ikke 0 kr.
    */
-  utenFastBeloep: (poster: string[], medBeloep: boolean) => {
-    const liste =
-      poster.length > 1 ? `${poster.slice(0, -1).join(', ')} og ${poster.at(-1)}` : poster[0];
-    return medBeloep
-      ? `${liste} har ikke et fast beløp prinsipalt og er ikke regnet med i beløpet.`
-      : `Godtar du, har ${liste} ikke et fast beløp prinsipalt, og dere er ikke enige om et beløp for ${poster.length > 1 ? 'dem' : 'den'}.`;
+  beloepet: (beloep: number, uten: string[], b: Brevref): string[] => {
+    if (!uten.length) return [STILLING.beloep(beloep, b)];
+    const liste = uten.length > 1 ? `${uten.slice(0, -1).join(', ')} og ${uten.at(-1)}` : uten[0];
+    return beloep === 0
+      ? [
+          `Godtar du, har ${liste} ikke et fast beløp prinsipalt, og dere er ikke enige om et beløp for ${uten.length > 1 ? 'dem' : 'den'}.`,
+        ]
+      : [
+          STILLING.beloep(beloep, b),
+          `${liste} har ikke et fast beløp prinsipalt og er ikke regnet med i beløpet.`,
+        ];
   },
   vilkaar: 'Enigheten får virkning når forholdet er avklart.',
   kilde: (b: Brevref) => `Virkningen er regnet ut fra ${brevref(b)} slik det ble sendt.`,

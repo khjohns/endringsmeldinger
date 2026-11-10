@@ -12,7 +12,6 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { brevaarsak } from '$lib/kjernesak/kontekst.svelte';
   import type { Part, Spor } from '$kjerne/typer';
-  import { kravposterI } from '$kjerne/frosset/kravinnhold';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
@@ -28,7 +27,7 @@
     handlingerISporet,
     datoerISporet,
     hovedkategorien,
-    type Brevref,
+    kravposterUtenFastBeloep,
   } from './lesing';
   import {
     BREVTYPER,
@@ -178,26 +177,18 @@
     return null;
   }
 
-  /** Beløpet i enigheten, og kravpostene uten fast beløp i stedet for 0 kr (OV-U73, svar 6 A). */
-  function beloepet(b: Brevref): string[] {
-    const utfall = enighet?.grunnlag.utfall;
-    if (utfall?.beloep === undefined) return [];
-    const krav = u.spor[spor].gjeldendeKrav;
-    const uten = (utfall.uten_fast_beloep ?? []).map(
-      (id) => (krav ? kravposterI(krav).find((p) => p.id === id)?.betegnelse : undefined) ?? id
-    );
-    if (!uten.length) return [STILLING.beloep(utfall.beloep, b)];
-    return utfall.beloep === 0
-      ? [STILLING.utenFastBeloep(uten, false)]
-      : [STILLING.beloep(utfall.beloep, b), STILLING.utenFastBeloep(uten, true)];
-  }
-
   /** Det aksepten omfatter, og beløpet og vilkåret kjernen regner ut, av svaret slik det ble sendt. */
   function akseptensVirkning(): string[] {
     if (!svarbrevet) return [];
     return [
       ...(paaberopt?.art === 'rettidighet' ? [STILLING.omfatter(paaberopt.hjemmel)] : []),
-      ...beloepet(svarbrevet),
+      ...(enighet?.grunnlag.utfall.beloep !== undefined
+        ? STILLING.beloepet(
+            enighet.grunnlag.utfall.beloep,
+            kravposterUtenFastBeloep(enighet.grunnlag.utfall, u.spor[spor].gjeldendeKrav),
+            svarbrevet
+          )
+        : []),
       ...(enighet?.grunnlag.vilkaar === 'forhold_avklart' && !u.forholdAvklart
         ? [STILLING.vilkaar]
         : []),
