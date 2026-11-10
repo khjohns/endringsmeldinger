@@ -499,3 +499,32 @@ vedtak: 5 A følger OV-U31, 6 A følger OV-U73 og bygges i 2a-2, 7 A endrer inge
 sporets første lag»). 8 A er bygget i #1738: et ledd uten lag står i brevet og linjen med
 sporets første lag, etter lagene fra grunnlaget. Det flytter også et standpunkt uten virkning,
 som «gjør ikke gjeldende … § 33.6.1», fra et senere lag til sporets første lag.
+
+## Spørsmålet om KA-U58 fra reviewet av PR #1749 (10.11)
+
+Stilt i tekst (rettsregler) 10.11, i reviewøkta for PR #1749, etter at oppdragsgiver spurte hva
+som er grunnen til at byggherren skal ta stilling til beløpet for en oppgjørsform byggherren
+ikke godkjenner. Ordrett:
+
+**1. Beløpet når byggherren ikke aksepterer tilbudet om fast sum.**
+Bakgrunn: Byggherren skal ta stilling til tilbudet innen rimelig tid (punkt 34.2.1 annet ledd). Vederlaget justeres etter punkt 34.3 og 34.4, «med mindre byggherren har akseptert et tilbud» (punkt 34.2.2 første ledd). Fast sum kan derfor bare legges til grunn ved byggherrens aksept. Det er annerledes enn valget mellom punkt 34.3 og 34.4, som avgjøres av om det finnes anvendelige enhetspriser, og der et subsidiært standpunkt har en funksjon (VS-U56). Et subsidiært beløp under et tilbud om fast sum kan leses som et motbud (avtaleloven § 6). Vil byggherren tilby et lavere fast beløp, har skjemaet allerede «Godkjenner fast sum» med «Deler av beløpet» (OV-U95 punkt 6, KA-U49 punkt 8). Spørsmål 9 den 07.11 hadde bare alternativene «valgfritt» (KA-U58) og «påkrevd».
+- A: For en kravpost med fast sum der byggherren ikke aksepterer tilbudet, tar svaret ikke stilling til beløpet, og skjemaet spør ikke om det. Brevet sier at tilbudet ikke er akseptert, og hvilken oppgjørsform byggherren mener. Det sier ikke noe om det tilbudte beløpet. Vil byggherren tilby et annet fast beløp, gjøres det med «Godkjenner fast sum» og et lavere beløp. Forhold: opphever KA-U58 og OV-U95 punkt 24; VS-U56 prøves på nytt.
+- B: KA-U58 står: byggherren kan ta stilling til beløpet subsidiært, og det er valgfritt (dagens PR).
+- C: Som B, men skjemaet spør ikke om beløpet med mindre byggherren velger «Oppgi et beløp likevel», og brevet nevner ikke beløpet når det ikke er oppgitt. Forhold: endrer KA-U58 tredje setning.
+- Anbefalt: A.
+- Styrer: om «Tar ikke stilling» og spørsmålet om beløpet finnes i skjemaet, brevlinjen «Subsidiært: byggherren tar ikke stilling til beløpet», og hva PR #1749 skal levere.
+
+### Svaret 10.11
+
+Oppdragsgiver 10.11, ordrett: «1A.» Ført som KA-U72.
+
+### Oppfølgingsspørsmål 2: VS-U56 når KA-U58 er opphevet (10.11)
+
+Stilt i tekst 10.11, da KA-U72 ble ført. Ordrett:
+
+**2. VS-U56 når KA-U58 er opphevet.**
+Bakgrunn: VS-U56 er ført med forholdet «utvider KA-U58». Et gjeldende vedtak kan ikke utvide et opphevet vedtak, så registeret avviser KA-U72 slik det står. Prøvingen 10.11: VS-U56 gjelder en kravpost der totalentreprenøren krever justerte enhetspriser og byggherren mener regningsarbeid, og varselinnsigelsen etter punkt 34.3.3 subsidiært. Valget mellom punkt 34.3 og 34.4 avgjøres av om det finnes anvendelige enhetspriser, ikke av byggherrens aksept, så det subsidiære standpunktet har en funksjon der. VS-U56 sier ikke noe om beløpet for en kravpost med fast sum.
+- A: VS-U56 står uendret. Forholdet «utvider KA-U58» fjernes, og VS-U56 står på egne bein.
+- B: VS-U56 oppheves sammen med KA-U58.
+- Anbefalt: A.
+- Styrer: om byggherren fortsatt kan gjøre gjeldende subsidiært at varselet etter punkt 34.3.3 kom for sent når byggherren mener regningsarbeid (BF-14, D-14).
