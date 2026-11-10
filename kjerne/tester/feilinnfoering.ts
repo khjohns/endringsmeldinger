@@ -4518,6 +4518,22 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['i svikt er påberopelsen ikke et varsel etter § 32.2'],
   },
+  {
+    id: 'F527',
+    feilklasse:
+      'en beregningsregel byggherren ikke godtar, gjør ikke de andre kravpostene upåvirket (arbeidsvalg 1 punkt 2 i #1663, OV-U33)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["          (s.art === 'oppgjoersform' && !s.aksepterer))", '          false)']],
+    mal: ['en kravpost som verken beregningsregelen byggherren ikke godtar'],
+  },
+  {
+    id: 'F528',
+    feilklasse:
+      'innsigelsen etter § 34.3.3 står som grunn for hele svaret i linjen, ikke ved kravposten (KA-U64, VS-U56)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [['        !forKravposten.has(p.standpunkt)', '        true']],
+    mal: ['linjen nevner innsigelsen etter punkt 34.3.3 ved kravposten'],
+  },
 ];
 
 interface Testresultat {

@@ -8766,6 +8766,66 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     ).toContain('P1.varslet_i_tide: gjelder bare varselet etter punkt 34.3.3');
   });
 
+  /** Saken der vederlagskravet har P1 med fast sum og kravpostene `kravposter`, P2 og videre. */
+  const sakMedP1 = (...kravposter: Data[]) => {
+    const s = sakMedKrav();
+    s.send('TE', krav([...(tilbud(125000).kravposter as Data[]), ...kravposter]));
+    return s;
+  };
+
+  it('en kravpost som verken beregningsregelen byggherren ikke godtar eller innsigelsene for den rammer, er upåvirket (arbeidsvalg 1 punkt 2, OV-U33, OV-U32)', () => {
+    const s = sakMedP1(justert);
+    s.send(
+      'BH',
+      svaret(s, {
+        P1: { aksepterer: true, vurdering: 'godkjent' },
+        P2: {
+          aksepterer: false,
+          oensket_oppgjoersform: 'regningsarbeid',
+          varslet_i_tide: true,
+          godtar_justering: false,
+        },
+      })
+    );
+    expect(lagene(s)).toEqual([
+      ['oppgjoersform', 'upaavirket'],
+      ['beloep', 'upaavirket'],
+      ['oppgjoersform', 1],
+      ['rettidighet 34.3.3', 'uten_virkning'],
+      ['justering', 2],
+      ['beloep', 2],
+    ]);
+    expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt beregningsregelen for P2 ikke godtatt (§ 34.3), subsidiært justeringen av enhetsprisene for P2 bestridt (§ 34.3.2).'
+    );
+  });
+
+  it('linjen nevner innsigelsen etter punkt 34.3.3 ved kravposten og i laget den står i (KA-U64, VS-U56, OV-U32)', () => {
+    const s = sakMedP1(justert, { ...justert, beskrivelse: 'Avstivning' });
+    s.send(
+      'BH',
+      svaret(s, {
+        P1: { aksepterer: true, vurdering: 'godkjent' },
+        P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true },
+        P3: { aksepterer: false, oensket_oppgjoersform: 'regningsarbeid', varslet_i_tide: false },
+      })
+    );
+    expect(lagene(s)).toEqual([
+      ['oppgjoersform', 'upaavirket'],
+      ['beloep', 'upaavirket'],
+      ['oppgjoersform', 'upaavirket'],
+      ['rettidighet 34.3.3', 1],
+      ['justering', 2],
+      ['beloep', 2],
+      ['oppgjoersform', 1],
+      ['rettidighet 34.3.3', 2],
+      ['beloep', 2],
+    ]);
+    expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt varselet etter § 34.3.3 for P2 kom for sent, beregningsregelen for P3 ikke godtatt (§ 34.3), subsidiært varselet etter § 34.3.3 for P3 kom for sent.'
+    );
+  });
+
   it('et lagret svar med et beløp for en kravpost etter en beregningsregel er ikke forstått, også uten standpunktet til oppgjørsformen (OV-U95 punkt 5)', () => {
     const s = sakMed(regning);
     const sv = (s.send('BH', svaret(s, { P2: { aksepterer: true } })).data.svar as Data[])[0]!;

@@ -7,7 +7,14 @@ import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
 import { begrensningen, etikett, laget, standpunktet, type Svarinnhold } from './standpunkt.ts';
 import { kategori, kravposterI } from './kravinnhold.ts';
-import type { Hjemmel, Krav, Standpunkt, Standpunktsvirkning, Virkning } from '../typer.ts';
+import {
+  erKravpostvarselhjemmel,
+  type Hjemmel,
+  type Krav,
+  type Standpunkt,
+  type Standpunktsvirkning,
+  type Virkning,
+} from '../typer.ts';
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
 export function kroner(n: number): string {
@@ -48,8 +55,20 @@ export function beslutningslinje(
   // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
   // Begrensningen etter § 34.1.3 er ingen preklusjon, men et eget ledd (VS-U5).
   const begrenset = begrensningen(svar, v);
+  // KA-U64, VS-U56: varselet etter § 34.3.3 for en kravpost står ved posten, ikke som grunn.
+  const forKravposten = new Set(
+    svar.standpunkter.flatMap((s) =>
+      s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel) ? [s.id] : []
+    )
+  );
   const prekluderende = v
-    .filter((p) => p.art === 'rettidighet' && laget(p.virkning) && p.standpunkt !== begrenset?.id)
+    .filter(
+      (p) =>
+        p.art === 'rettidighet' &&
+        laget(p.virkning) &&
+        p.standpunkt !== begrenset?.id &&
+        !forKravposten.has(p.standpunkt)
+    )
     .map((p) => p.standpunkt);
   const sene = svar.standpunkter
     .filter((s): s is Extract<Standpunkt, { art: 'rettidighet' }> => prekluderende.includes(s.id))
@@ -115,6 +134,18 @@ export function beslutningslinje(
               ? `tilbudet${forPosten} ikke akseptert (§ 34.2.2)`
               : `beregningsregelen${forPosten} ikke godtatt (§ ${form.hjemmel})`,
           virkning: virkning(form.id),
+        });
+      const varselet = svar.standpunkter.find(
+        (s) =>
+          s.art === 'rettidighet' &&
+          forKravposten.has(s.id) &&
+          s.gjelder === b.gjelder &&
+          laget(virkning(s.id))
+      );
+      if (varselet?.art === 'rettidighet')
+        sine.push({
+          tekst: `${SENT_I_LINJEN[varselet.hjemmel]}${forPosten} kom for sent`,
+          virkning: virkning(varselet.id),
         });
       const justering = svar.standpunkter.find(
         (s) => s.art === 'justering' && !s.godtar && s.gjelder === b.gjelder

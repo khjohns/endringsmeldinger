@@ -136,12 +136,16 @@ function vederlagsvirkninger(
   const [hele, posten] = [sent('34.1.2'), sent('34.1.3')];
   const foerste = hele ? 2 : 1;
   const iKravposten = beregningsregelLag(svar.standpunkter, foerste);
-  // OV-U33: upåvirket bare ved en påberopelse i sporet; standpunktet til beregningsregelen alene
-  // er ikke en påberopelse etter leseren (`PAABEROPELSER`).
+  // OV-U33: upåvirket bare ved en påberopelse i sporet. Innsigelsen etter § 34.3.3 og en
+  // beregningsregel byggherren ikke godtar, rammer bare posten (arbeidsvalg 1 punkt 2 i
+  // spørsmålsfila 09.11 for #1663).
   const rammer =
     posten ||
     svar.standpunkter.some(
-      (s) => s.art === 'rettidighet' && s.hjemmel === '34.3.3' && iKravposten.has(s.id)
+      (s) =>
+        iKravposten.has(s.id) &&
+        ((s.art === 'rettidighet' && s.hjemmel === '34.3.3') ||
+          (s.art === 'oppgjoersform' && !s.aksepterer))
     );
   const ellers: Virkning = rammer && !hele && forskyvning === 0 ? 'upaavirket' : foerste;
   return svar.standpunkter.map((s): Standpunktsvirkning => {

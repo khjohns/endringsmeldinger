@@ -515,9 +515,17 @@ function lesBeslutningsgrunnlag(
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
   // OV-U32, OV-U33: upåvirket gjelder vederlag og frist, og bare ved siden av en påberopelse
-  // i sporet. Et tilbud som ikke er akseptert, gir ikke et lag (KA-U72).
+  // i sporet. Et tilbud som ikke er akseptert, gir ikke et lag (KA-U72). En beregningsregel
+  // byggherren ikke godtar, er en innsigelse som rammer bare posten (arbeidsvalg 1 punkt 2 i
+  // spørsmålsfila 09.11 for #1663).
+  const regelIkkeGodtatt = new Set(
+    standpunkter.flatMap((s) =>
+      s.art === 'oppgjoersform' && !s.aksepterer && s.hjemmel !== '34.2.2' ? [s.id] : []
+    )
+  );
   const paaberoper = (p: Standpunktsvirkning) =>
-    typeof p.virkning === 'number' && PAABEROPELSER.has(p.art);
+    typeof p.virkning === 'number' &&
+    (PAABEROPELSER.has(p.art) || regelIkkeGodtatt.has(p.standpunkt));
   if (
     virkninger.some((p) => p.virkning === 'upaavirket') &&
     (spor === 'forhold' || !virkninger.some(paaberoper))
