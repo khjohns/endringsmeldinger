@@ -97,4 +97,14 @@ den samme motsetningen som #1730 skal hindre.
 
 ## Svar
 
-(Føres inn ordrett når det kommer.)
+Oppdragsgiver 10.11, ordrett: «Du kan verifisere ved å hente khjohns/kontrakt, for spørsmål 1.
+men jeg mener A,A er riktig». Valgt: 1 A og 2 A.
+
+Kontrollert mot NS 8407 10.11 (`khjohns/kontrakt`). Punkt 32.2 knytter plikten til at TE mottar
+pålegget. Punkt 34.1.2 annet ledd og 34.1.3 tredje ledd knytter den til når TE blir eller burde
+ha blitt klar over forholdet, eller over at utgiftene ville påløpe som følge av det. Punkt 33.4
+knytter den til forholdene i 33.1–33.3. Ingen av varslene kan derfor være sendt før datoen i
+grunnlagskravet, slik TE selv har oppgitt den. Spørsmål 1 A kontrollerer bare TEs egne datoer
+og bygger ikke på når pliktene løper fra.
+
+Ført som VS-U58 og VS-U59.
