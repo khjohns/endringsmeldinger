@@ -9055,7 +9055,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     s.send('TE', sendVarsel('34.3.3'));
     s.send('TE', registrertVarsel('34.3.3'));
     const valgt = varslene(s)[1]!.id;
-    const gittI = (t: string[] | null) => t!.join(' ').match(/ble gitt i (.*?\d{4})\./)?.[1];
+    const gittI = (t: string[] | null) => {
+      expect(t, 'forutsetning: kravet godtas').not.toBeNull();
+      return t!.join(' ').match(/ble gitt i (.*?\d{4})\./)?.[1];
+    };
     // Kontrollsak: uten valget gjelder det første (D-16, VS-U55).
     expect(gittI(s.vis('TE', vederlagskrav([justert])))).toBe(
       'brev K201-KOE-017-02 av 3. oktober 2026'
@@ -9167,7 +9170,9 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.varsel).toBe(utsagn);
       expect(varslene(s).map((v) => v.id)).toEqual([utsagn]);
       const vedlegg = varsel.dokumentasjon[0]!.toLowerCase();
-      expect((krav.data.dokumentasjon as Data[]).map((v) => v.vedlegg_id)).toEqual([vedlegg]);
+      expect(((krav.data.dokumentasjon ?? []) as Data[]).map((v) => v.vedlegg_id)).toEqual([
+        vedlegg,
+      ]);
       expect(laast(krav)).toEqual(
         expect.arrayContaining([
           expect.stringContaining(
@@ -9193,7 +9198,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const tekst = laast(krav).join(' ');
       expect(tekst.match(/Totalentreprenøren opplyser at/g)).toHaveLength(2);
       expect(tekst.match(new RegExp(varselRegning, 'g')), 'P2 er varsel for seg').toHaveLength(1);
-      expect(krav.data.dokumentasjon as Data[]).toHaveLength(2);
+      expect((krav.data.dokumentasjon ?? []) as Data[]).toHaveLength(2);
     });
 
     it('samme dokument for to kravposter er ett registrert brev med ett varsel per bestemmelse, og hver post viser til sitt (VS-U52, VS-U53)', () => {
@@ -9214,7 +9219,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(utsagn.map((x) => x.hjemmel)).toEqual(['34.4', '34.3.3']);
       const poster = kravposterI(s.u().spor.vederlag.gjeldendeKrav!);
       expect(poster.map((p) => p.varsel)).toEqual([utsagn[0]!.id, utsagn[1]!.id, utsagn[0]!.id]);
-      expect(krav.data.dokumentasjon as Data[]).toHaveLength(1);
+      expect((krav.data.dokumentasjon ?? []) as Data[]).toHaveLength(1);
       expect(
         laast(krav)
           .join(' ')
@@ -9300,7 +9305,14 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }]));
       // KA-U56: P1 verken tas med eller trekkes.
       const kommando = vederlagskrav([{ ...regning, varsel: dokument() }]);
-      const u = vurder(kommando, kontekst('2026-10-07'), s.journal, KJERNE, mellomlager(kommando));
+      // Serveren får den første raden før den skriver noe; den skal være avvisningen.
+      const u = vurderTrinnvis(
+        kommando,
+        kontekst('2026-10-07'),
+        s.journal,
+        KJERNE,
+        mellomlager(kommando)
+      );
       expect(u.godtatt ? null : u.avvisning.regel).toBe('KRAVPOSTENE');
       expect(
         s.avvist(
@@ -9331,7 +9343,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       const s = paaberopt();
       const krav = s.send('TE', vederlagskrav([{ ...regning, varsel: dokument() }]));
       expect(s.u().forstaatt, 'kontrollsak').toBe(true);
-      const ved = krav.data.dokumentasjon as Data[];
+      const ved = (krav.data.dokumentasjon ?? []) as Data[];
+      expect(ved, 'kravet legger dokumentet ved (VS-U51)').toHaveLength(1);
       ved[0] = { ...ved[0], vedlegg_id: randomUUID() };
       expect(JSON.stringify(s.u().begrensninger)).toContain('VS-U51');
       // Klienten kan ikke legge ved noe selv (VS-U38).
