@@ -8285,10 +8285,22 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       ['P2', p2],
       ['P1', p1],
     ]);
-    // P1 trekkes igjen, og den neste nye kravposten får P3, selv om forrige versjon bare har P2.
-    s.send('TE', krav([{ ...regning, id: p2 }], { trekker: [p1] }));
-    s.send('TE', krav([{ ...regning, id: p2 }, justert]));
-    expect(poster(s).map(([b]) => b)).toEqual(['P2', 'P3']);
+    // En ny kravpost får P3. Den trekkes, og den neste nye kravposten får P4, selv om forrige
+    // versjon bare har P2 og P1 (KA-U53).
+    s.send('TE', krav([{ ...regning, id: p2 }, { ...post1, id: p1, beloep: 1000 }, justert]));
+    const p3 = poster(s)[2]![1]!;
+    s.send(
+      'TE',
+      krav(
+        [
+          { ...regning, id: p2 },
+          { ...post1, id: p1, beloep: 1000 },
+        ],
+        { trekker: [p3] }
+      )
+    );
+    s.send('TE', krav([{ ...regning, id: p2 }, { ...post1, id: p1, beloep: 1000 }, justert]));
+    expect(poster(s).map(([b]) => b)).toEqual(['P2', 'P1', 'P4']);
     expect(
       s.avvist(
         'TE',
@@ -9069,6 +9081,25 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     const post = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[1]!;
     expect(post.varsel, 'kravposten viser til varselet, ikke omvendt (VS-U54)').toBe(varsel);
     expect(s.u().forstaatt, JSON.stringify(s.u().begrensninger)).toBe(true);
+  });
+
+  it('en kravpost som trekkes og tas med igjen, kan vise til varselet den viste til før trekket (VS-U50, KA-U75)', () => {
+    const s = paaberopt();
+    s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }]));
+    s.send('TE', sendVarsel('34.4'));
+    const varsel = varslene(s)[0]!.id;
+    const p1 = { ...tilbudspost, beloep: 1000 };
+    s.send('TE', vederlagskrav([p1, { ...regning, varsel }]));
+    const p2 = kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[1]!.id;
+    s.send('TE', { ...vederlagskrav([p1]), innhold: { kravposter: [p1], trekker: [p2] } });
+    expect(
+      s.avvist('TE', vederlagskrav([p1, { ...regning, id: p2, varsel }])),
+      'samme varsel som før trekket'
+    ).toBeNull();
+    expect(
+      s.avvist('TE', vederlagskrav([p1, { ...regning, id: p2, varsel: randomUUID() }])),
+      'kontrollsak: et annet varsel'
+    ).toBe('KRAVPOSTVARSELET');
   });
 
   // #1700 punkt 2: TE velger varselet når saken har flere.

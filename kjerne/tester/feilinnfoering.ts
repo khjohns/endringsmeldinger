@@ -4074,13 +4074,26 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en trukket kravpost kan tas med igjen'],
   },
   {
+    id: 'F551',
+    feilklasse:
+      'en kravpost som tas med igjen, sammenlignes med forrige versjon, der den mangler (KA-U75)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [
+      [
+        '    const somFoer = [...tidligere]\n      .reverse()',
+        '    const somFoer = tidligere\n      .slice(-1)',
+      ],
+    ],
+    mal: ['kan vise til varselet den viste til før trekket'],
+  },
+  {
     id: 'F550',
     feilklasse: 'en trukket kravpost som tas med igjen, får ikke betegnelsen sin tilbake (KA-U75)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
         '    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])',
-        '    kravposterI(tidligere.at(-1)!).map((p) => [p.id, p.betegnelse])',
+        '    (tidligere.length ? kravposterI(tidligere.at(-1)!) : []).map((p) => [p.id, p.betegnelse])',
       ],
     ],
     mal: ['en trukket kravpost kan tas med igjen'],

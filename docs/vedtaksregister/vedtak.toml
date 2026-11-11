@@ -2995,7 +2995,6 @@ valgt = "A"
 svar = '''
 Oppdragsgiver 11.11, ordrett: «A,A». Valgt i spørsmål 2: A. ([spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md))'''
 forhold = [
-  { art = "bygger på", vedtak = "ka-u74" },
   { art = "bygger på", vedtak = "ka-u75" },
 ]
 folge = '''

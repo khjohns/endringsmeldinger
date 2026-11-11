@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `7311341c26606e784074f2b7a4c57b3d4e2b0971dc3d6d86ede8d7c01675a4c2`
+Kontrollsum (SHA-256 over utdraget visningen leser): `13ca702ff22414ad611da9dd012b3003552164ceafb416db6fdc2bee9018a92a`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -58,7 +58,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [KA-U71](#ka-u71) | Presiserer [KA-U69](#ka-u69) | — |
 | [KA-U72](#ka-u72) | Opphever [KA-U58](#ka-u58); Endrer [OV-U95](#ov-u95) | — |
 | [KA-U75](#ka-u75) | Endrer [KA-U56](#ka-u56); Opphever [KA-U70](#ka-u70) | Lagt til grunn av [KA-U76](#ka-u76) |
-| [KA-U76](#ka-u76) | Bygger på [KA-U74](../../plans/vedtak.md#ka-u74); Bygger på [KA-U75](#ka-u75) | — |
+| [KA-U76](#ka-u76) | Bygger på [KA-U75](#ka-u75) | — |
 | [VS-U58](#vs-u58) | Bygger på [VS-U43](#vs-u43); Bygger på [VS-U38](#vs-u38) | Lagt til grunn av [VS-U59](#vs-u59) |
 | [VS-U59](#vs-u59) | Snevrer inn [MM-U52](#mm-u52); Bygger på [VS-U58](#vs-u58) | Presisert av [VS-U60](#vs-u60) |
 | [VS-U60](#vs-u60) | Presiserer [VS-U59](#vs-u59); Bygger på [VS-U43](#vs-u43) | — |
@@ -737,7 +737,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 11.11, oppdragsgiver (#1745, #1778)
 
-**Følge:** Bygger på [KA-U74](../../plans/vedtak.md#ka-u74). Bygger på [KA-U75](#ka-u75). «1 A» er KA-U75. Svarer på S-4 i BF-20 (#1745).
+**Følge:** Bygger på [KA-U75](#ka-u75). «1 A» er KA-U75. Svarer på S-4 i BF-20 (#1745).
 
 **Regelrader:** —
 
