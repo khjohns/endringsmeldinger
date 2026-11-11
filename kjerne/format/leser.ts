@@ -402,7 +402,8 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
  * for posten. Et lag uten beløp står bare for en kravpost der tilbudet ikke er akseptert, og en
  * slik kravpost har 0 kr i laget for § 34.1.2 når påberopelsen har virkning, og ellers ikke
  * beløp (KA-U72, OV-U27). Det byggherren godtar prinsipalt og subsidiært, er summen av det
- * første og det siste laget, og det subsidiære står bare med mer enn ett lag.
+ * første og det siste laget, og det subsidiære står bare med mer enn ett lag. Antallet lag er
+ * det høyeste laget i beslutningsgrunnlaget.
  */
 function kontrollerUtregningenPerPost(
   ut: Standpunkt[],
@@ -447,6 +448,13 @@ function kontrollerUtregningenPerPost(
         `rad ${i + 1} har ikke 0 kr i laget for § 34.1.2 og ellers ingen beløp, men byggherren aksepterer ikke tilbudet for posten (KA-U72, OV-U27)`
       );
   });
+  // OV-U32, #1774: lagene i utregningen er lagene i beslutningsgrunnlaget.
+  const lagIGrunnlaget = Math.max(
+    1,
+    ...virkninger.flatMap((v) => (typeof v.virkning === 'number' ? [v.virkning] : []))
+  );
+  if (rader.length > 0 && antall !== lagIGrunnlaget)
+    throw feil(`radene har ${antall} lag, men beslutningsgrunnlaget har ${lagIGrunnlaget}`);
   const summen = (n: number) =>
     rader
       .map((r) => r.lag.at(n)!)

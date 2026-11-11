@@ -5907,6 +5907,19 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
           'aksepterer tilbudet for posten (KA-U72)',
         ],
         [
+          'utregningen har to lag, men beslutningsgrunnlaget ett (#1774)',
+          delvis,
+          (u) => {
+            u.subsidiaert_resultat = 'delvis_godkjent';
+            u.subsidiaert_godkjent_beloep = 100000;
+            u.poster[0].lag = [
+              { lag: 1, beloep: 100000 },
+              { lag: 2, beloep: 100000 },
+            ];
+          },
+          'radene har 2 lag, men beslutningsgrunnlaget har 1',
+        ],
+        [
           'svaret har ett lag, men et subsidiært beløp',
           delvis,
           (u) => {
@@ -9353,6 +9366,147 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       );
     });
   });
+});
+
+/**
+ * #1774: utregningen og virkningene leser lagene for en kravpost etter en beregningsregel fra
+ * `lagIKravposten`, og leseren kontrollerer at utregningen har like mange lag som det høyeste laget
+ * i beslutningsgrunnlaget (OV-U32). Prøven går over én kravpost med fast sum, én med justerte
+ * enhetspriser og én med regningsarbeid, posten etter § 34.1.3 annet ledd, påberopelsen etter
+ * § 34.1.2 der den gjelder kategorien, og svaret på forholdet. Prøven utelater rigg og drift,
+ * kravet om tilbud etter § 34.2.1 og en revisjon av svaret. Testen holder utregningen og virkningene
+ * like. Laget for hvert standpunkt har kilden sin i testene for VS-U4, KA-U64 og KA-U72 over.
+ */
+describe('lagene i utregningen er lagene i beslutningsgrunnlaget (OV-U32, KA-U64, KA-U72, VS-U56, #1774)', () => {
+  const sviktkravet = {
+    type: 'krav',
+    spor: 'forhold',
+    innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+  };
+  const sakMedPostene = (svikt: boolean) => {
+    const s = sak();
+    s.send('TE', svikt ? sviktkravet : PAABEROPELSE);
+    s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        kravposter: [
+          { betegnelse: 'P1', beskrivelse: 'Fundament', oppgjoersform: 'tilbud', beloep: 100000 },
+          { betegnelse: 'P2', beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true },
+          { betegnelse: 'P3', beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' },
+        ],
+        saerskilt: { produktivitet: { beloep: 40000 } },
+      },
+    });
+    return s;
+  };
+  const ja = [true, false];
+  // Varslingsplikten etter § 32.2 gjelder den irregulære endringen, § 34.1.2 svikten (GR-U11).
+  const tilfellene = [false, true].flatMap((svikt) =>
+    (svikt ? ([null, 'avslaatt'] as const) : ([null, 'avslaatt', 'prekludert'] as const)).flatMap(
+      (forholdet) => (svikt ? ja : [null]).map((hovedkrav) => ({ svikt, forholdet, hovedkrav }))
+    )
+  );
+
+  it.each(tilfellene)(
+    'svaret er forstått, og antallet lag i utregningen er det høyeste laget i virkningene: %o',
+    ({ svikt, forholdet, hovedkrav }) => {
+      const sett = new Set<number>();
+      for (const p1 of ja)
+        for (const [p2, varsel, justering] of ja.flatMap((a) =>
+          ja.flatMap((b) => ja.map((c) => [a, b, c]))
+        ))
+          for (const [p3, p3Varsel] of ja.flatMap((a) => ja.map((b) => [a, b])))
+            for (const produktivitet of ja) {
+              const s = sakMedPostene(svikt);
+              if (forholdet)
+                s.send('BH', {
+                  type: 'brev',
+                  svar: [
+                    svar(
+                      'forhold',
+                      s.krav('forhold'),
+                      forholdet === 'avslaatt'
+                        ? {
+                            resultat: 'avslaatt',
+                            ...(svikt ? {} : { grunnlag_varslet_i_tide: true }),
+                          }
+                        : { resultat: 'godkjent', grunnlag_varslet_i_tide: false }
+                    ),
+                  ],
+                });
+              const k = s.u().spor.vederlag.gjeldendeKrav!;
+              const [i1, i2, i3] = kravposterI(k).map((p) => p.id);
+              const v: Data = {
+                ...(hovedkrav === null ? {} : { hovedkrav_varslet_i_tide: hovedkrav }),
+                kravposter: [
+                  p1
+                    ? { gjelder: i1, aksepterer: true, vurdering: 'delvis', godkjent_beloep: 60000 }
+                    : { gjelder: i1, aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' },
+                  {
+                    gjelder: i2,
+                    aksepterer: p2,
+                    ...(p2 ? {} : { oensket_oppgjoersform: 'regningsarbeid' }),
+                    varslet_i_tide: varsel,
+                    godtar_justering: justering,
+                  },
+                  {
+                    gjelder: i3,
+                    aksepterer: p3,
+                    ...(p3 ? {} : { oensket_oppgjoersform: 'enhetspriser' }),
+                    varslet_i_tide: p3Varsel,
+                  },
+                ],
+                produktivitet_vurdering: 'delvis',
+                produktivitet_godkjent_beloep: 30000,
+                produktivitet_varslet_i_tide: produktivitet,
+                ...(produktivitet ? {} : { produktivitet_begrenset_beloep: 10000 }),
+              };
+              const tilfellet = JSON.stringify(v);
+              let r: ReturnType<typeof regnUtSvar>;
+              try {
+                r = regnUtSvar(
+                  'vederlag',
+                  v,
+                  { krav: k, paaberopelse: s.u().spor.forhold.gjeldendeKrav },
+                  KJERNE.regler
+                );
+              } catch (e) {
+                if (!(e instanceof UgyldigVurdering)) throw e;
+                expect.fail(`Utregningen avviser svaret ${tilfellet}: ${JSON.stringify(e.feil)}`);
+              }
+              s.send('BH', {
+                type: 'brev',
+                svar: [
+                  svar('vederlag', k.id, v, {
+                    resultat: r.resultat,
+                    godkjent_beloep: r.godkjent_beloep,
+                  }),
+                ],
+              });
+              const u = s.u();
+              expect(u.forstaatt, tilfellet).toBe(true);
+              const sv = u.spor.vederlag.gjeldendeSvar!;
+              const antall = new Set(
+                (sv.utregning.poster as { lag: unknown[] }[]).map((p) => p.lag.length)
+              );
+              const hoeyeste = Math.max(
+                1,
+                ...sv.beslutningsgrunnlag.virkninger.flatMap((x) =>
+                  typeof x.virkning === 'number' ? [x.virkning] : []
+                )
+              );
+              expect([...antall], tilfellet).toEqual([hoeyeste]);
+              sett.add(hoeyeste);
+            }
+      // § 34.1.2 åpner det første laget, og en kravpost med justerte enhetspriser kan åpne to til.
+      const foerste = hovedkrav === false ? 2 : 1;
+      expect(
+        [...sett].sort((a, b) => a - b),
+        'prøven når hvert lag'
+      ).toEqual([foerste, foerste + 1, foerste + 2]);
+    }
+  );
 });
 
 /**
