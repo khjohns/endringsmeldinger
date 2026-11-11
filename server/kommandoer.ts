@@ -415,9 +415,18 @@ function loepenummerFor(rad: Journalrad, sakskode: Sakskode): number | null {
 /** Kjernens avvisning; ingenting skrives. */
 export type Avvist<A> = { skriv: false; avvisning: A };
 
-/** Raden og oppdraget som skal lagres, eller en avvisning som avbryter uten å skrive. */
+/**
+ * Raden og oppdraget som skal lagres, eller en avvisning som avbryter uten å skrive. Har
+ * handlingen en rad til, lager `neste` den med basens klokke for sin skriving og journalen
+ * med raden før (VS-U53).
+ */
 export type Skriveutfall<A> =
-  | { skriv: true; rad: Journalrad; oppdrag: Oppdragsrad | null }
+  | {
+      skriv: true;
+      rad: Journalrad;
+      oppdrag: Oppdragsrad | null;
+      neste?: (grunnlag: { tidspunkt: Date; journal: Journalrad[] }) => Skriveutfall<A>;
+    }
   | Avvist<A>;
 
 /** Kommandoen er skrevet før; brevet fra kvitteringen. */
@@ -434,6 +443,11 @@ export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
  * Med `vedlegg` leses bare vedleggene kommandoen viser til, og ingen når lista er
  * tom; uten leses alle kommandoen kan binde. Brevet bindes til vedleggene bare når
  * det har `dokumentasjon` (#827 punkt 4).
+ *
+ * Har utfallet `neste`, skrives radene etter hverandre i samme transaksjon, hver med basens
+ * klokke for sin skriving. Den siste raden er brevet handlingen gjelder og kvitteres under
+ * kommandoens ID; radene før kvitteres under en ID avledet av den (`radensKommandoId`). Avviser
+ * kjernen en senere rad, rulles hele transaksjonen tilbake (VS-U53).
  *
  * Avviser basen brevet fordi tidspunktet er eldre enn 30 sekunder (51419),
  * prøves skrivingen én gang til med et nytt tidspunkt (#599). Avvises også den,
@@ -482,33 +496,30 @@ export async function skrivHendelse<A>(
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      const utfall = lag({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse });
-      // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
-      if (!utfall.skriv) return new Tilbakerulling(utfall);
-      const { rad, oppdrag } = utfall;
-      kontrollerRad(rad, oppdrag, kontekst, sakId, forventet, tidspunkt);
-      await foresp()
-        .input('sak_id', sql.NVarChar(36), sakId)
-        .input('forventet_versjon', sql.Int, forventet)
-        .input('event_id', sql.NVarChar(4000), rad.event_id)
-        .input('event_type', sql.NVarChar(4000), rad.event_type)
-        .input('tidsstempel', sql.DateTime2(3), tidspunkt)
-        .input('format', sql.Int, rad.format)
-        .input('data', sql.NVarChar(sql.MAX), JSON.stringify(rad.data))
-        .input('oppdrag_id', sql.NVarChar(4000), oppdrag?.id ?? null)
-        .input('dokumentnoekkel', sql.NVarChar(4000), oppdrag?.dokumentnoekkel ?? null)
-        .input('oppdrag', sql.NVarChar(sql.MAX), oppdrag ? JSON.stringify(oppdrag.innhold) : null)
-        .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
-        .input('kommando_id', sql.NVarChar(4000), kommando.id)
-        .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
-        .input('loepenummer', sql.Int, loepenummerFor(rad, sakskode))
-        .execute('koe_api.skriv_hendelse');
-      if (rad.data.dokumentasjon !== undefined)
-        await foresp()
-          .input('event_id', sql.NVarChar(36), rad.event_id)
-          .input('sak_id', sql.NVarChar(36), sakId)
-          .execute('koe_api.bind_vedlegg');
-      return utfall;
+      let utfall = lag({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse });
+      const skrevet = [...journal];
+      for (let nr = 1, tid = tidspunkt, kode = sakskode; ; nr++) {
+        // Rulles tilbake, så tidspunktet skrivetidspunkt førte og radene før ikke blir stående.
+        if (!utfall.skriv) return new Tilbakerulling(utfall);
+        const { rad, oppdrag, neste } = utfall;
+        const id = neste ? radensKommandoId(kommando.id, nr) : kommando.id;
+        await skrivOgBind(
+          foresp,
+          kontekst,
+          sakId,
+          skrevet.at(-1)?.versjon ?? 0,
+          tid,
+          { skriv: true, rad, oppdrag: () => oppdrag },
+          maal,
+          { id, sha256: kommando.sha256 },
+          kode
+        );
+        if (!neste) return utfall;
+        skrevet.push(rad);
+        tid = await skrivetidspunkt(foresp);
+        kode = await lesSakskode(foresp, sakId);
+        utfall = neste({ tidspunkt: tid, journal: [...skrevet] });
+      }
     });
   try {
     try {
@@ -703,7 +714,19 @@ async function skrivOgBind(
  * UUID av versjon 8 fra SHA-256 av handlingens ID, så et nytt forsøk får den samme.
  */
 export function varseletsKommandoId(handlingensId: string): string {
-  const h = createHash('sha256').update(`varsel_32_2:${handlingensId}`).digest('hex');
+  return avledetId(`varsel_32_2:${handlingensId}`);
+}
+
+/**
+ * Kommando-ID-en rad nummer `nr` i en handling med flere rader kvitteres under, når den ikke
+ * er den siste (VS-U53). Laget som `varseletsKommandoId`, så et nytt forsøk får den samme.
+ */
+export function radensKommandoId(handlingensId: string, nr: number): string {
+  return avledetId(`rad_${nr}:${handlingensId}`);
+}
+
+function avledetId(grunnlag: string): string {
+  const h = createHash('sha256').update(grunnlag).digest('hex');
   const variant = ((parseInt(h[16], 16) & 0x3) | 0x8).toString(16);
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-8${h.slice(13, 16)}-${variant}${h.slice(17, 20)}-${h.slice(20, 32)}`;
 }

@@ -23,7 +23,7 @@ import {
 } from '$lib/api/kjerne';
 import { feilINySak } from '../../../server/nysak';
 import { opprettelse } from '$kjerne/kommandoer/opprettelse';
-import { vurder } from '$kjerne/kommandoer/skriving';
+import { vurderHele } from '$kjerne/kommandoer/skriving';
 import type { Journalrad, Part, Vedlegg } from '$kjerne/typer';
 import { KJERNE } from '$kjerne/versjon';
 import type { Saksmerking } from './brevtekst';
@@ -129,7 +129,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
         error: 'VERSJONSKONFLIKT',
       });
     const { aktor_id, aktor_team_id } = forloep.aktoerer[demosak.part];
-    const utfall = vurder(
+    const utfall = vurderHele(
       kommando,
       {
         sakId,
@@ -154,7 +154,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
       });
     utfall.hendelser.forEach((h, i) => rader.push({ ...h, versjon: naa + i + 1 }));
     return {
-      event_id: utfall.hendelser[0].event_id,
+      event_id: utfall.hendelser.at(-1)!.event_id,
       leveringsoppdrag: '',
       versjon: rader.at(-1)!.versjon,
     };

@@ -2,7 +2,7 @@ import {
   forhaandsvis,
   laastTekst,
   utledJournal,
-  vurder,
+  vurderHele,
   type Kontekst,
   type Vedleggsoppslag,
 } from '$kjerne/kommandoer/skriving';
@@ -63,7 +63,8 @@ export function brevFor(
   const kontekst = stemplet(sakId, part, merking);
   const vist = forhaandsvis(kommando, kontekst, journal, kjerne, vedlegg);
   if (!vist.godtatt) return { avvisning: vist.avvisning };
-  const rad = vist.hendelser[0];
+  // Brevet er den siste raden; et dokument fra kravskjemaet står som varsel foran (VS-U53).
+  const rad = vist.hendelser.at(-1)!;
   const tekst = laastTekst(rad);
   const brev = {
     tekst,
@@ -74,7 +75,7 @@ export function brevFor(
   };
   if (!sendes) return brev;
   const medTekst = tekst ? { ...kommando, brevtekst: tekst } : kommando;
-  const vurdert = vurder(medTekst, kontekst, journal, kjerne, vedlegg ?? new Map());
+  const vurdert = vurderHele(medTekst, kontekst, journal, kjerne, vedlegg ?? new Map());
   return vurdert.godtatt ? brev : { avvisning: vurdert.avvisning };
 }
 

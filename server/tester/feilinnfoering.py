@@ -53,8 +53,8 @@ FEILINNFOERINGER = [
      "      if (!skrevetAvKjernen(journal))\n        throw", "      if (false)\n        throw",
      "ikke har skrevet"),
     ("S8", "aktøren tas fra kroppen når den er oppgitt", "server/saker.ts",
-     "kropp.kommando,\n          {\n            sakId,\n            aktoerId: kontekst.aktor,",
-     "kropp.kommando,\n          {\n            sakId,\n            aktoerId: (kropp.aktor_id as string) ?? kontekst.aktor,",
+     "kontraktsforkortelse }) => {\n        const kjernekontekst = (t: Date) => ({\n          sakId,\n          aktoerId: kontekst.aktor,",
+     "kontraktsforkortelse }) => {\n        const kjernekontekst = (t: Date) => ({\n          sakId,\n          aktoerId: (kropp.aktor_id as string) ?? kontekst.aktor,",
      "kan ikke settes av klienten"),
     ("S9", "summen regnes uten sorterte nøkler", "server/sjekksum.ts",
      "    return `{${Object.keys(verdi)\n      .sort()", "    return `{${Object.keys(verdi)",
@@ -364,6 +364,17 @@ FEILINNFOERINGER = [
     ("S97", "TrueType-skriftene skrives også om til OpenType (#1689)", "server/brevpdf.ts",
      "innbygd[i] && !s.delmengde && erOpenTypeMedCff(s.bytes)", "innbygd[i]",
      "totalentreprenørens brev har bare TrueType-skrifter"),
+    ("S98", "radene før brevet kvitteres under handlingens ID (VS-U53, KT-U5)", "server/kommandoer.ts",
+     "const id = neste ? radensKommandoId(kommando.id, nr) : kommando.id;",
+     "const id = neste ? kommando.id : kommando.id;",
+     "varselet og kravet skrives som to versjoner i samme handling"),
+    ("S99", "serveren skriver ikke raden etter i handlingen (VS-U53)", "server/kommandoer.ts",
+     "        if (!neste) return utfall;", "        if (neste || !neste) return utfall;",
+     "varselet og kravet skrives som to versjoner i samme handling"),
+    ("S100", "en avvist senere rad rulles ikke tilbake med radene før (VS-U53)", "server/kommandoer.ts",
+     "        if (!utfall.skriv) return new Tilbakerulling(utfall);\n        const { rad, oppdrag, neste }",
+     "        if (!utfall.skriv) return nr > 1 ? utfall : new Tilbakerulling(utfall);\n        const { rad, oppdrag, neste }",
+     "avvises en senere rad i handlingen, rulles også radene før tilbake"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

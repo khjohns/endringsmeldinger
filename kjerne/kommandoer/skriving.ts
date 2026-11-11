@@ -6,7 +6,12 @@
  * ID, og relasjonene står som `gjelder` og `erstatter` (4.2).
  */
 
-import { brukteBetegnelser, kravpostvarslene, nesteBetegnelse } from '../utledning/kravposter.ts';
+import {
+  brukteBetegnelser,
+  kravpostvarslene,
+  nesteBetegnelse,
+  varselhjemmel,
+} from '../utledning/kravposter.ts';
 import { avvisning } from './avvisning.ts';
 import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
@@ -42,6 +47,7 @@ import type {
   Beslutningsgrunnlag,
   Journalrad,
   Krav,
+  Kravpost,
   Part,
   Sakskode,
   Spor,
@@ -77,9 +83,19 @@ export interface Kontekst {
  */
 export type Vedleggsoppslag = ReadonlyMap<string, Vedlegg>;
 
+/**
+ * `hendelser` er radene kommandoen gir, i rekkefølge, og den siste er brevet kommandoen gjelder.
+ * Har handlingen en rad til, lager `neste` den (VS-U53).
+ */
 export type Utfall =
-  | { godtatt: true; hendelser: Journalrad[] }
+  | { godtatt: true; hendelser: Journalrad[]; neste?: Neste }
   | { godtatt: false; feil: 'UGYLDIG_FORM' | 'REGELBRUDD'; avvisning: Avvisning };
+
+/**
+ * Raden etter i samme handling, laget med sin egen klokke og journalen med radene handlingen
+ * alt har gitt. Serveren skriver hver rad med basens klokke for sin skriving (VS-U53).
+ */
+export type Neste = (kontekst: Kontekst, journal: Journalrad[]) => Utfall;
 
 const ugyldigForm = (avvisning: Avvisning): Utfall => ({
   godtatt: false,
@@ -362,7 +378,28 @@ export function vurder(
   kjerne: Kjerne,
   vedlegg: Vedleggsoppslag
 ): Utfall {
-  return skriv(kommando, kontekst, journal, kjerne, vedlegg, true);
+  return handlingen(kommando, kontekst, journal, kjerne, vedlegg, true);
+}
+
+/** Som `vurder`, med alle radene handlingen gir, laget med samme kontekst etter hverandre. */
+export function vurderHele(
+  kommando: unknown,
+  kontekst: Kontekst,
+  journal: Journalrad[],
+  kjerne: Kjerne,
+  vedlegg: Vedleggsoppslag
+): Utfall {
+  return hele(vurder(kommando, kontekst, journal, kjerne, vedlegg), kontekst, journal);
+}
+
+function hele(utfall: Utfall, kontekst: Kontekst, journal: Journalrad[]): Utfall {
+  const hendelser: Journalrad[] = [];
+  for (let u = utfall; ; ) {
+    if (!u.godtatt) return u;
+    hendelser.push(...u.hendelser);
+    if (!u.neste) return { godtatt: true, hendelser };
+    u = u.neste(kontekst, [...journal, ...hendelser]);
+  }
 }
 
 /**
@@ -380,14 +417,32 @@ export function forhaandsvis(
   kjerne: Kjerne,
   vedlegg: Vedleggsoppslag = new Map()
 ): Utfall {
-  return skriv(kommando, kontekst, journal, kjerne, vedlegg, false);
+  return hele(handlingen(kommando, kontekst, journal, kjerne, vedlegg, false), kontekst, journal);
 }
 
 /** Den låste teksten i en rad, slik kommandoen bærer den (A1). `null` for et registrert brev. */
 export const laastTekst = (rad: Journalrad): string[] | null =>
   brevtekstI(rad)?.map((a) => a.laast) ?? null;
 
-function skriv(
+/** Avvisningen av formen, eller `null`. */
+function formen(kommando: unknown): Utfall | null {
+  // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
+  const ulagringsbar = tekstSomIkkeKanLagres(kommando);
+  if (ulagringsbar) return ugyldigForm(ulagringsbar);
+  const feil = formfeil(kommando);
+  return feil.length ? ugyldigForm({ regel: 'UGYLDIG_FORM', melding: feil.join('; ') }) : null;
+}
+
+type Dokumentvarsel = { sendt: string; korrespondansetype: string; dokumentasjon: string[] };
+const erDokumentvarsel = (v: unknown): v is Dokumentvarsel => typeof v === 'object' && v !== null;
+
+/**
+ * Kommandoen som én eller flere rader. Et dokument TE legger til i kravskjemaet som varselet
+ * for en kravpost, skrives som et registrert varsel før kravet, og kravposten viser til det
+ * (VS-U51, VS-U53, VS-U54). Hele handlingen prøves før den første raden gis, så en avvisning
+ * av kravet kommer før noe skrives.
+ */
+function handlingen(
   kommando: unknown,
   kontekst: Kontekst,
   journal: Journalrad[],
@@ -395,12 +450,103 @@ function skriv(
   vedlegg: Vedleggsoppslag,
   sendes: boolean
 ): Utfall {
-  // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
-  const ulagringsbar = tekstSomIkkeKanLagres(kommando);
-  if (ulagringsbar) return ugyldigForm(ulagringsbar);
-  const feil = formfeil(kommando);
-  if (feil.length) return ugyldigForm({ regel: 'UGYLDIG_FORM', melding: feil.join('; ') });
+  const form = formen(kommando);
+  if (form) return form;
   const k = kommando as Kommando;
+  const poster =
+    k.type === 'krav' && k.spor === 'vederlag'
+      ? ((k.innhold.kravposter ?? []) as Record<string, unknown>[])
+      : [];
+  if (!poster.some((p) => erDokumentvarsel(p.varsel)))
+    return skriv(k, kontekst, journal, kjerne, vedlegg, sendes);
+  const krav = k as Extract<Kommando, { type: 'krav' }>;
+  const kjede = (kx: Kontekst, jx: Journalrad[]) =>
+    medVarslene(krav, [], kx, jx, kjerne, vedlegg, sendes);
+  if (sendes) {
+    const proeve = hele(kjede(kontekst, journal), kontekst, journal);
+    if (!proeve.godtatt) return proeve;
+  }
+  return kjede(kontekst, journal);
+}
+
+/**
+ * Det første dokumentet i kravskjemaet som registrert varsel, og kravet med resten som
+ * `neste`; uten flere dokumenter kravet, med dokumentene ved (VS-U51, VS-U53).
+ */
+function medVarslene(
+  k: Extract<Kommando, { type: 'krav' }>,
+  vedKravet: string[],
+  kontekst: Kontekst,
+  journal: Journalrad[],
+  kjerne: Kjerne,
+  vedlegg: Vedleggsoppslag,
+  sendes: boolean
+): Utfall {
+  const poster = k.innhold.kravposter as Record<string, unknown>[];
+  const i = poster.findIndex((p) => erDokumentvarsel(p.varsel));
+  if (i < 0) return skriv(k, kontekst, journal, kjerne, vedlegg, sendes, vedKravet);
+  const post = poster[i] as unknown as Omit<Kravpost, 'varsel'> & { varsel: Dokumentvarsel };
+  const dokumentet = post.varsel;
+  const hjemmel = varselhjemmel(post);
+  if (hjemmel === null)
+    return {
+      godtatt: false,
+      feil: 'REGELBRUDD',
+      avvisning: avvis(
+        'KRAVPOSTVARSELET',
+        `Kravpost nr. ${i + 1} har et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50).`
+      ),
+    };
+  const kommando = { type: 'varsel', spor: 'vederlag', hjemmel, ...dokumentet };
+  const varselet =
+    formen(kommando) ?? skriv(kommando as Kommando, kontekst, journal, kjerne, vedlegg, sendes);
+  if (!varselet.godtatt)
+    return {
+      ...varselet,
+      avvisning: {
+        ...varselet.avvisning,
+        melding: `Varselet for kravpost nr. ${i + 1}: ${varselet.avvisning.melding}`,
+      },
+    };
+  const [rad] = varselet.hendelser;
+  const utsagn = (rad!.data.utsagn as { id: string }[])[0]!.id;
+  const resten = {
+    ...k,
+    innhold: {
+      ...k.innhold,
+      kravposter: poster.map((p, j) => (j === i ? { ...p, varsel: utsagn } : p)),
+    },
+  };
+  return {
+    godtatt: true,
+    hendelser: [rad!],
+    neste: (kx, jx) =>
+      medVarslene(
+        resten,
+        [...vedKravet, ...dokumentet.dokumentasjon],
+        kx,
+        jx,
+        kjerne,
+        vedlegg,
+        sendes
+      ),
+  };
+}
+
+/**
+ * Én rad. `vedKravet` er dokumentene kravskjemaet la til som varsel for en kravpost, som
+ * legges ved kravet (VS-U51).
+ */
+function skriv(
+  k: Kommando,
+  kontekst: Kontekst,
+  journal: Journalrad[],
+  kjerne: Kjerne,
+  vedlegg: Vedleggsoppslag,
+  sendes: boolean,
+  vedKravet: readonly string[] = []
+): Utfall {
+  const kommando: unknown = k;
   const lest = lesJournal(journal, kjerne.leserformat);
   const u = utled(lest, kjerne.regler);
   const tidspunkt = kontekst.tidspunkt();
@@ -430,7 +576,7 @@ function skriv(
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
   const bundne: Vedlegg[] = [];
-  for (const id of vedleggI(k)) {
+  for (const id of [...vedleggI(k), ...vedKravet]) {
     const funnet = vedlegg.get(id.toLowerCase());
     if (!funnet)
       return {

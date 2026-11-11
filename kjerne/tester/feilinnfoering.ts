@@ -4084,7 +4084,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F479',
     feilklasse: 'kravposten er varselet etter punkt 34.4 også i en senere versjon (VS-U48)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [['    if (hattFoer) continue;\n', '']],
+    endringer: [
+      [
+        '    if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;',
+        '    if (hjemmel === null) continue;',
+      ],
+    ],
     mal: ['er varselet i den første versjonen den står i'],
   },
   {
@@ -4101,12 +4106,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F482',
     feilklasse: 'et varsel før det første kravet gjelder ikke kravpostene i det kravet (D-16)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [
-      [
-        '    const gitt = tidligere.length ? undefined : varsler.find(',
-        '    const gitt = undefined && varsler.find(',
-      ],
-    ],
+    endringer: [['(tidligere.length ? undefined : varsler.find(', '(undefined && varsler.find(']],
     mal: [
       'et varsel sendt før det første kravet gjelder',
       'et varsel registrert før det første kravet',
@@ -4123,7 +4123,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F484',
     feilklasse: 'et varsel etter det første kravet gjelder en ny kravpost uten valg (D-16, D-19)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [['    const gitt = tidligere.length ? undefined : ', '    const gitt = ']],
+    endringer: [['(tidligere.length ? undefined : varsler', '(varsler']],
     mal: ['et varsel etter det første kravet gjelder ikke en ny kravpost'],
   },
   {
@@ -4147,7 +4147,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '`Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i ${gittI(varselet, j)}.`',
+        "gitt(varselet, 'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)', t)",
         "''",
       ],
     ],
@@ -4579,6 +4579,61 @@ const MUTASJONER: Mutasjon[] = [
       ['      if (e) sporet.set(e.id, spor);', "      if (e) sporet.set(e.id, 'vederlag');"],
     ],
     mal: ['en innsigelse hører til sporet elementet den gjelder'],
+  },
+  {
+    id: 'F533',
+    feilklasse: 'varselet kravposten viser til, leses ikke (VS-U50, VS-U54)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [['      p.varsel ?? (tidligere.length', '      (tidligere.length']],
+    mal: [
+      'en ny kravpost i en senere kravversjon viser til et varsel sendt etter det første kravet',
+      'har saken flere varsler før det første kravet, viser kravet til det TE velger',
+    ],
+  },
+  {
+    id: 'F534',
+    feilklasse: 'kravposten kan vise til et varsel etter en annen bestemmelse (VS-U50)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [['v.id === p.varsel && v.hjemmel === hjemmel', 'v.id === p.varsel']],
+    mal: ['kravposten kan bare vise til et varsel etter samme bestemmelse i saken'],
+  },
+  {
+    id: 'F535',
+    feilklasse:
+      'kravet sier ikke at TE opplyser varselet i et dokument som er vedlagt (VS-U51, U-14 i BF-14)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ['  return dokumentet.length && dokumentet.every(', '  return false && dokumentet.every('],
+    ],
+    mal: ['dokumentet står som et eget registrert varsel før kravet'],
+  },
+  {
+    id: 'F536',
+    feilklasse: 'dokumentet fra kravskjemaet legges ikke ved kravet (VS-U51)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['[...vedleggI(k), ...vedKravet]', '[...vedleggI(k)]']],
+    mal: ['dokumentet står som et eget registrert varsel før kravet'],
+  },
+  {
+    id: 'F537',
+    feilklasse:
+      'et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost, gjør saken forstått (VS-U51, MM-U2)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    if (ved.some((v) => !varslene.has(v.vedlegg_id)))',
+        '    if (ved.some((v) => !varslene.has(v.vedlegg_id) && false))',
+      ],
+    ],
+    mal: ['et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost'],
+  },
+  {
+    id: 'F538',
+    feilklasse:
+      'varselet fra kravskjemaet gis før kjernen har prøvd kravet, så et avvist krav etterlater varselet (VS-U53)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['  if (sendes) {\n    const proeve', '  if (!sendes) {\n    const proeve']],
+    mal: ['avvises kravet, gis ingen rad, heller ikke varselet'],
   },
 ];
 

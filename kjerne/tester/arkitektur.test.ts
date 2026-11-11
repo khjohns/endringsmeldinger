@@ -311,6 +311,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
   ['Kravpost', 'utsagn', 'oppgjoersform justert', ['utledning/kravposter.ts:varselhjemmel']],
+  // VS-U50, VS-U54: varselet kravposten viser til, en relasjon til et varsel i saken.
+  [
+    'Kravpost',
+    'relasjon',
+    'varsel',
+    [
+      'utledning/kravposter.ts:kravpostvarslene',
+      'utledning/kravposter.ts:kravpostvarseletStrider',
+      'utledning/utled.ts:kontrollerVedleggeneVedKravet',
+      'kommandoer/skriving.ts:medVarslene',
+    ],
+  ],
   // KA-U54, KA-U64, KA-U68, OV-U95 punkt 5: svaret på en kravpost etter en beregningsregel.
   [
     'Kravpost',
@@ -549,7 +561,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/kravposter.ts',
     'predikat',
     'varselhjemmel',
-    ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
+    ['kommandoer/standpunkter.ts', 'utledning/utled.ts', 'kommandoer/skriving.ts:medVarslene'],
   ],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
   [
@@ -774,6 +786,26 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['TilbudtHandling', 'kommando', 'noekkel'],
   // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
   ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
+  // VS-U51, VS-U53: dokumentet kravskjemaet legger til som varselet for en kravpost, skrives
+  // som et registrert varsel før kravet, og kravet er neste rad i samme handling.
+  [
+    'Kommando.innhold',
+    'kommando',
+    'kravposter',
+    [
+      'kommandoer/kommando.ts:vedleggI',
+      'kommandoer/skriving.ts:handlingen',
+      'kommandoer/skriving.ts:medVarslene',
+    ],
+  ],
+  ['kommandoer/kommando.ts:vedleggI', 'kommando', 'varsel dokumentasjon'],
+  ['kommandoer/skriving.ts:handlingen(p)', 'kommando', 'varsel'],
+  ['kommandoer/skriving.ts:medVarslene(p)', 'kommando', 'varsel'],
+  ['Dokumentvarsel', 'kommando', 'dokumentasjon'],
+  ['kommandoer/skriving.ts:Utfall', 'kommando', 'godtatt hendelser neste avvisning'],
+  ['Avvisning', 'kommando', 'melding', ['kommandoer/skriving.ts:medVarslene']],
+  ['Journalrad.data', 'rad', 'utsagn', ['kommandoer/skriving.ts:medVarslene']],
+  ['kommandoer/skriving.ts:medVarslene', 'rad', 'id'],
   [
     'kommandoer/kommando.ts:formfeil',
     'kommando',
@@ -903,7 +935,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/skjema.ts',
     'skjema',
     'tekstSomIkkeKanLagres',
-    ['kommandoer/skriving.ts:skriv', 'kommandoer/opprettelse.ts:opprettelse'],
+    ['kommandoer/skriving.ts:formen', 'kommandoer/opprettelse.ts:opprettelse'],
   ],
   // #801: et tegn PDF-en av brevet ikke kan vise, avvises før brevet skrives.
   [
@@ -1099,6 +1131,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'hjemmel id',
     ['utledning/kravposter.ts:kravpostvarslene'],
+  ],
+  // VS-U50: om kravposten viser til et varsel etter samme bestemmelse før kravet.
+  [
+    'utledning/kravposter.ts',
+    'predikat',
+    'kravpostvarseletStrider',
+    ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
+  ],
+  [
+    'utledning/kravposter.ts:kravpostvarseletStrider',
+    'utsagn',
+    'hjemmel id',
+    ['utledning/kravposter.ts:kravpostvarseletStrider'],
   ],
   [
     'Kommando.innhold',
@@ -1429,6 +1474,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
   ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],
+  // VS-U51, VS-U53: dokumentet med varselet for en kravpost ligger ved kravet, og teksten sier det.
+  ['Dokument', 'utsagn', 'dokumentasjon', ['utledning/utled.ts:kontrollerVedleggeneVedKravet']],
+  [
+    'Vedlegg',
+    'relasjon',
+    'vedlegg_id',
+    ['frosset/brevtekst.ts', 'utledning/utled.ts:kontrollerVedleggeneVedKravet'],
+  ],
   // Arbeidsvalg 10 i #790: teksten lister vedleggene med filnavnet.
   ['Vedlegg', 'utsagn', 'filnavn', ['frosset/brevtekst.ts', 'kommandoer/skriving.ts:skriv']],
   // GR-U14: TEs beskrivelse siteres fra teksten i brevet kravet står i.

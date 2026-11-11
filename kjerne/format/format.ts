@@ -184,6 +184,19 @@ const BELOEPSPOST = objekt({ beloep: POSITIVT_BELOEP }, ['beloep']);
 export const BETEGNELSE = '^P[1-9][0-9]*$';
 
 /**
+ * Dokumentet sendt utenfor løsningen som TE legger til i kravskjemaet som varselet for
+ * kravposten, med datoen og typen. Det skrives som et registrert varsel før kravet (VS-U53).
+ */
+const KRAVPOSTVARSEL_I_KOMMANDOEN: Skjema = objekt(
+  {
+    sendt: DATO,
+    korrespondansetype: { enum: [...KORRESPONDANSETYPER] },
+    dokumentasjon: liste(ID),
+  },
+  ['sendt', 'korrespondansetype', 'dokumentasjon']
+);
+
+/**
  * En kravpost med feltene oppgjørsformen har (OV-U95 punkt 19, KA-U66). I kommandoen har en
  * ny kravpost ingen `id`, og ingen kravpost har `betegnelse`: serveren setter dem
  * (`kommandoer/skriving.ts`). En kravpost fra forrige versjon har sin `id`.
@@ -194,6 +207,9 @@ function kravpost(lagret: boolean): Skjema {
     ...(lagret ? { betegnelse: { type: 'string', pattern: BETEGNELSE } } : {}),
     beskrivelse: TEKST,
     pns: TEKST,
+    // VS-U54: varselet etter § 34.3.3 eller § 34.4 for kravposten, når det er gitt før kravet.
+    // I kommandoen kan det også være dokumentet TE legger til i kravskjemaet (VS-U51, VS-U53).
+    varsel: lagret ? ID : { anyOf: [ID, KRAVPOSTVARSEL_I_KOMMANDOEN] },
   };
   const paakrevd = lagret
     ? ['id', 'betegnelse', 'beskrivelse', 'oppgjoersform']
