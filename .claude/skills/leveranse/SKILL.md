@@ -158,15 +158,35 @@ ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene
 i PR-en fra grenen `skjermbilder`, slik
 [mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier (#1222).
 
-**Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
-som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
+**Stoppregelen for funn.** Byggeøkta retter funnene mens den har konteksten. Et funn
+rettes i PR-en i to tilfeller:
+
+- Det gir feil resultat nå, eller bryter et vedtak eller kontrakten.
+- Det gjelder kode, tester eller tekst PR-en selv har skrevet eller endret, og
+  rettingen kan gjøres uten en avgjørelse fra oppdragsgiver.
+
+Et funn rettes ikke i PR-en, selv om det gjelder PR-ens egen kode, når
+
+- rettingen krever et vedtak, et designvalg eller et annet svar fra oppdragsgiver,
+- funnet sto før PR-en i kode PR-en ikke rører, og ikke gir feil resultat nå,
+- rettingen endrer visningen etter at oppdragsgiver har sett skjermbildene, eller
+- rettingen hører til en del som bygges i et annet issue.
+
+Et funn som ikke rettes, får ett av fire utfall:
 
 - Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
   kan gi feil resultat senere eller er et krav til noe som skal bygges.
-- Er det et krav til en inngang eller del som ikke finnes ennå, føres kravet som
-  kommentar i issuet for den inngangen eller delen.
+- Er det et krav til en inngang eller del som ikke finnes ennå, eller som bygges i
+  et annet åpent issue, føres kravet som kommentar i det issuet. Det gjelder også
+  når PR-en er «Del av» det issuet.
+- Krever det et svar fra oppdragsgiver, stilles spørsmålet under «Åpne spørsmål» i
+  PR-en, eller etter [vedtaksskillen](../vedtak/SKILL.md) når det gjelder domenet.
 - Resten samles i ett oppfølgingsissue per PR, med etiketten `review-oppfølging`
   og en sjekkliste. Ett issue per funn lages ikke (#649).
+
+Reviewet kjøres én gang, og kontrollen av rettingene én gang. Et funn fra kontrollen
+av rettingene rettes bare når det gir feil resultat nå, eller bryter et vedtak eller
+kontrakten. Resten får ett av utfallene over.
 
 **Hva som føres i oppfølgingsissuet**:
 
