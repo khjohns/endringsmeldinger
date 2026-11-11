@@ -198,7 +198,8 @@ kontrakten. Resten får ett av utfallene over.
   Ellers avvises det med én linje.
 - **Feil ved en senere endring.** Et funn regnes som «kan gi feil resultat
   senere» bare når endringen er planlagt i et issue eller et vedtak.
-- **Avvises alltid:** duplisering, docstringer og ytelse uten måling.
+- **Føres aldri:** duplisering, docstringer og ytelse uten måling. Duplisering
+  PR-en selv innfører, rettes i PR-en. Annen duplisering avvises.
 - **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står
   punktet der alt, skriver du en kommentar der i stedet for et nytt punkt.
 
@@ -210,7 +211,8 @@ issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
 
 Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
 rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
-`medium` (#484, #490).
+`medium` (#484, #490). Rører rettingene bare tester og dokumentasjon, kjøres ikke
+kontrollen. Testene kjøres, og PR-en sier at kontrollen er utelatt.
 
 ## Før en PR meldes klar
 

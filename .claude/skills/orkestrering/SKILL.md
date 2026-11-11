@@ -149,6 +149,10 @@ innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang (#425, #4
   issuenummer og punkt. Byggeøkta legger
   ikke til punkter selv. Punkter i filer runden ikke rører, venter. Regelen
   gjelder også i FK og F0b før #310.
+  Et punkt som har stått åpent i mer enn fire uker, venter ikke lenger.
+  Orkestratoren legger slike punkter fram for oppdragsgiver ved starten av runden,
+  med en anbefaling for hvert: en egen ryddrunde, eller avvisning med én linje i
+  issuet.
 - Filoverlapp mellom PR-er kontrolleres med
   `git fetch origin <branch> && git diff --name-only origin/main...origin/<branch>`,
   ikke med `get_files` fra GitHub-MCP. Det svaret har patchene med og blir for
