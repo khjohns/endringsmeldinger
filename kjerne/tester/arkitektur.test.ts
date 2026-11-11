@@ -360,7 +360,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
   ['Svar', 'frosset svar', 'utregning', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
-  ['Svar.utregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
+  [
+    'Vederlagsutregning',
+    'frosset svar',
+    'resultat',
+    ['frosset/standpunkt.ts:godkjennerHeleKravet'],
+  ],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
@@ -1275,7 +1280,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'standpunkter utregning',
     ['format/leser.ts'],
   ],
-  ['format/svarinnhold.ts', 'rad', 'utregningIVederlaget utregningIFristen', ['format/leser.ts']],
+  [
+    'format/svarinnhold.ts',
+    'rad',
+    'utregningIVederlaget utregningIFristen',
+    ['format/leser.ts', 'frosset/standpunkt.ts:godkjennerHeleKravet'],
+  ],
   [
     'Vederlagsutregning',
     'rad',

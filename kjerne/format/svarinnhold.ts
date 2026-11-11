@@ -1,7 +1,8 @@
 /**
- * Tilgangen til utregningen i et lagret svar, med typen for sporet (#1777). Leseren har
- * kontrollert utregningen mot `UTREGNING` i `format.ts` før den leses her, og den lagrede
- * formen er `Svar.utregning`.
+ * Tilgangen til utregningen i et svar, med typen for sporet (#1777). Den lagrede formen er
+ * `Svar.utregning`, og leseren kontrollerer den mot `UTREGNING` i `format.ts`. Lagene i et
+ * svarutkast (`kommandoer/lag.ts`) og frysingen før skrivingen leser standpunktene med en
+ * utregning som ikke er kontrollert, så et felt kan mangle der.
  */
 
 import type { Fristutregning, Vederlagsutregning } from '../typer.ts';

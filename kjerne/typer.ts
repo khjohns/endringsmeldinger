@@ -113,8 +113,8 @@ export type Opplysning =
 /**
  * Byggherrens standpunkter i ett svar. Standpunktene gjelder kravet svaret
  * gjelder, unntatt rettidigheten, som `gjelder` et varsel eller kravversjonen
- * varselet er utledet av (MM-U1). Resultatet og dagene i fristen leses fra serverens
- * utregning i svaret. I vederlaget bærer standpunktet `beloep` beløpet for posten og
+ * varselet er utledet av (MM-U1). Resultatet i `beloep` og `dager`, og dagene i fristen, leses
+ * fra serverens utregning i svaret. I vederlaget bærer standpunktet `beloep` beløpet for posten og
  * rettidigheten etter § 34.1.3 beløpet etter begrensningen; leseren kontrollerer beløpet for
  * posten mot det siste laget i raden i utregningen, og summen mot totalene (OV-U31, KA-U57 (e)).
  */

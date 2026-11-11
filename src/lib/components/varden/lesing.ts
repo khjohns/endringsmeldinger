@@ -343,8 +343,7 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
       gjelderPaalegg: kode === 'irregulaer_endring',
       utdypning: utdypning(k.dokument, k.id),
       oppgitt:
-        oppgitt(o) ??
-        (felt !== null && typeof gjentatt === 'string' ? { hva: felt, dato: gjentatt } : null),
+        oppgitt(o) ?? (felt !== null && gjentatt !== null ? { hva: felt, dato: gjentatt } : null),
       opplysning: o,
       standpunkter: [],
     });

@@ -375,7 +375,7 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
     ...felles,
     siste_brev: sisteBrev(u),
     hovedkategori: paaberopt.hovedkategori,
-    underkategori: paaberopt.underkategori,
+    underkategori: tekst(paaberopt.underkategori),
     forhold: {
       ...foreligger(u, 'forhold'),
       svar: g?.art === 'forhold' ? { resultat: g.resultat } : null,
