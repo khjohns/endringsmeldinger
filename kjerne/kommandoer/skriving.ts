@@ -464,7 +464,8 @@ function handlingen(
       : [];
   if (!poster.some((p) => erDokumentvarsel(p.varsel)))
     return skriv(k, kontekst, journal, kjerne, vedlegg, sendes);
-  // VS-U53: dokumentet står i saken som ett brev, så to kravposter kan ikke legge til det samme.
+  // VS-U51, VS-U53: dokumentet står i saken som ett brev, så to kravposter kan ikke legge til det
+  // samme.
   const dokumentene = poster.flatMap((p) =>
     erDokumentvarsel(p.varsel) ? p.varsel.dokumentasjon.map((id) => id.toLowerCase()) : []
   );
