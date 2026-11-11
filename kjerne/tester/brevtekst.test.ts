@@ -6515,7 +6515,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
         gjelder: s.krav('vederlag'),
         hjemmel: '34.1.3',
         i_tide: false,
-        beloep: 10000,
+        begrenset_beloep: 10000,
       },
       { art: 'beloep', beloep: 30000, saerskilt: 'produktivitet' },
     ]);

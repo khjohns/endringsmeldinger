@@ -185,7 +185,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         )
           throw new Uforstaatt(`${sti}: rettidighet etter § ${String(e.hjemmel)} i ${spor}`);
         // VS-U5: beløpet etter begrensningen står når varselet etter § 34.1.3 kom for sent.
-        if ((e.hjemmel === '34.1.3' && e.i_tide === false) !== 'beloep' in e)
+        if ((e.hjemmel === '34.1.3' && e.i_tide === false) !== 'begrenset_beloep' in e)
           throw new Uforstaatt(
             `${sti}: beløpet etter begrensningen står bare når varselet etter § 34.1.3 kom for sent`
           );
@@ -195,7 +195,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           gjelder: e.gjelder as string,
           hjemmel: e.hjemmel as Hjemmel,
           iTide: e.i_tide as boolean,
-          ...('beloep' in e ? { begrenset: e.beloep as number } : {}),
+          ...('begrenset_beloep' in e ? { begrenset: e.begrenset_beloep as number } : {}),
         };
       case 'forhold':
         return { id, art, resultat: e.resultat as never };

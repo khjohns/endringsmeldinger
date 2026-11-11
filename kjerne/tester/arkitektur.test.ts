@@ -1265,7 +1265,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep saerskilt krever_tilbud godtar',
+    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep begrenset_beloep saerskilt krever_tilbud godtar',
     ['format/leser.ts'],
   ],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
