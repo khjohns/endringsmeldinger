@@ -214,7 +214,7 @@ const INNHOLD = {
   },
   // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, arbeidsvalget 07.11 i domenetabellen).
   // `kravposter` og `trekker` i handlingen gir kravpostene selv; `post` er betegnelsen til
-  // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U70).
+  // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U75).
   vederlag: (h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) => {
     if (Array.isArray(h.kravposter)) {
       const tidligere = (u?.spor.vederlag.krav ?? []).flatMap((k) => kravposterI(k));

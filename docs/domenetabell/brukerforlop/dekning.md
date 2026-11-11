@@ -126,6 +126,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U70](../../plans/vedtak.md#ka-u70) | — | — | BF-14 |
 | [KA-U71](../../plans/vedtak.md#ka-u71) | — | — | BF-14 |
 | [KA-U72](../../plans/vedtak.md#ka-u72) | — | — | BF-14 |
+| [KA-U75](../../plans/vedtak.md#ka-u75) | — | — | BF-14 |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U7](../../plans/vedtak.md#kt-u7) | — | BF-05 start | — |

@@ -171,6 +171,7 @@
     "HF-U28",
     "KA-U69",
     "KA-U70",
+    "KA-U75",
     "VS-U48",
     "VS-U49",
     "VS-U50",
@@ -223,7 +224,7 @@
     {
       "dato": "2026-11-07",
       "forhold": "#1663",
-      "hva": "Svarene før byggingen er ført inn: D-15 (KA-U69), D-16 (VS-U48), D-17 (HF-U28) og D-18 (KA-U70), «Ugyldig valg» etter VS-U48, og prototypen uten «Mener fast sum» for en kravpost etter en beregningsregel og med krav om tilbud."
+      "hva": "Svarene før byggingen er ført inn: D-15 (KA-U69), D-16 (VS-U48), D-17 (HF-U28) og D-18 (KA-U70, opphevet av KA-U75), «Ugyldig valg» etter VS-U48, og prototypen uten «Mener fast sum» for en kravpost etter en beregningsregel og med krav om tilbud."
     },
     {
       "dato": "2026-11-07",
@@ -284,6 +285,11 @@
       "dato": "2026-11-11",
       "forhold": "#1775",
       "hva": "Kjernen avviser rigg og drift i forlenget byggetid i vederlagskravet til #1724 har bygget posten. Utgangspunktet med posten venter på #1724."
+    },
+    {
+      "dato": "2026-11-11",
+      "forhold": "KA-U75",
+      "hva": "D-18 følger KA-U75: en trukket kravpost kan tas med igjen med samme betegnelse, og brevet kaller ikke trekket et avkall. «Ugyldig valg» nevner ikke lenger en trukket kravpost som tas opp igjen."
     }
   ]
 }

@@ -1117,7 +1117,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/kommando.ts:oerefeil', 'kommando', 'beloep', ['kommandoer/kommando.ts:oerefeil']],
   // OV-U95 punkt 19–22, arbeidsvalget 07.11 i domenetabellen: skjemaet for vederlagskravet i kommandoen.
   ['format/format.ts', 'skjema', 'vederlagsinnhold', ['kommandoer/kommando.ts:formfeil']],
-  // KA-U53, KA-U56, KA-U70: kravpostene en ny versjon får id og betegnelse for, og
+  // KA-U53, KA-U56, KA-U75: kravpostene en ny versjon får id og betegnelse for, og
   // versjonsreglene kommandoen og lesingen av journalen bruker.
   [
     'kommandoer/skriving.ts:medKravposter(innhold)',

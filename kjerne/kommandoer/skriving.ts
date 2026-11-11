@@ -222,12 +222,13 @@ function medKravposter(
 ): Record<string, unknown> {
   if (!innhold.kravposter) return innhold;
   const tidligere = u.spor.vederlag.krav;
-  const forrige = new Map(
-    (tidligere.length ? kravposterI(tidligere.at(-1)!) : []).map((p) => [p.id, p.betegnelse])
+  // KA-U75: også en kravpost som er trukket og tas med igjen, beholder betegnelsen.
+  const betegnelsen = new Map(
+    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])
   );
   const brukte = brukteBetegnelser(tidligere);
   const kravposter = (innhold.kravposter as Record<string, unknown>[]).map((p) => {
-    if (typeof p.id === 'string') return { ...p, betegnelse: forrige.get(p.id)! };
+    if (typeof p.id === 'string') return { ...p, betegnelse: betegnelsen.get(p.id)! };
     const betegnelse = nesteBetegnelse(brukte);
     brukte.add(betegnelse);
     return { id: nyId(), betegnelse, ...p };

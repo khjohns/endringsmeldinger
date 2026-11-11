@@ -590,7 +590,7 @@ function vederlagstekst(k: Krav, t: Tekst): string {
         `trekket gjelder kravposten ${id}, som ikke står i forrige kravversjon`
       );
     deler.push(
-      `TE trekker kravet i ${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}, fremsatt i ${j.brevet(forrige.dokument)}. Trekket er avkall på kravet i kravposten, også det byggherren har godkjent.`
+      `TE trekker kravet i ${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}, fremsatt i ${j.brevet(forrige.dokument)}.`
     );
   }
   // OV-U95 punkt 3: «i tillegg» når vederlagsjusteringen har minst én kravpost.

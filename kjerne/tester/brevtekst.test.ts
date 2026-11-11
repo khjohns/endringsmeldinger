@@ -8234,8 +8234,8 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
  * Kravpostene i vederlagskravet (#1663). Kildene: OV-U95 punkt 19–22, KA-U53 (betegnelsen),
  * KA-U56 (en ny versjon tar med eller trekker hver kravpost), KA-U61 og KA-U66 (tilbud og
  * beregningsregel), VS-U48 (kravposten er varselet etter punkt 34.3.3 eller 34.4 når et slikt
- * varsel ikke er sendt før), KA-U70 (en trukket kravpost tas ikke opp igjen, og betegnelsen
- * brukes ikke igjen) og arbeidsvalget 07.11 i domenetabellen (formatet). Brev 3 i `sakMedKrav` har P1 med fast sum 125 000 kr.
+ * varsel ikke er sendt før), KA-U75 (en trukket kravpost kan tas med igjen med samme betegnelse,
+ * og trekket er ikke avkall) og arbeidsvalget 07.11 i domenetabellen (formatet). Brev 3 i `sakMedKrav` har P1 med fast sum 125 000 kr.
  */
 describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #1663)', () => {
   const krav = (kravposter: Data[], rest: Data = {}) => ({
@@ -8268,29 +8268,37 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(s.avvist('TE', krav([regning], { trekker: [p1I(s)] })), 'kontrollsak').toBeNull();
   });
 
-  it('en trukket kravpost tas ikke opp igjen, og betegnelsen brukes ikke igjen (KA-U70)', () => {
+  it('en trukket kravpost kan tas med igjen med id og betegnelse, og en ny kravpost får ikke betegnelsen til en trukket (KA-U75, KA-U53)', () => {
     const s = sakMedKrav();
     const p1 = p1I(s);
     s.send('TE', krav([regning], { trekker: [p1] }));
     expect(poster(s).map(([b]) => b)).toEqual(['P2']);
-    const igjen = krav([
-      { ...regning, betegnelse: 'P2' },
-      { ...post1, id: p1, beloep: 1000 },
-    ]);
-    expect(s.avvist('TE', igjen)).toBe('KRAVPOSTENE');
+    const p2 = poster(s)[0]![1]!;
     s.send(
       'TE',
       krav([
-        { ...regning, betegnelse: 'P2' },
-        { ...post1, beloep: 1000 },
+        { ...regning, id: p2 },
+        { ...post1, id: p1, beloep: 1000 },
       ])
     );
+    expect(poster(s)).toEqual([
+      ['P2', p2],
+      ['P1', p1],
+    ]);
+    // P1 trekkes igjen, og den neste nye kravposten får P3, selv om forrige versjon bare har P2.
+    s.send('TE', krav([{ ...regning, id: p2 }], { trekker: [p1] }));
+    s.send('TE', krav([{ ...regning, id: p2 }, justert]));
     expect(poster(s).map(([b]) => b)).toEqual(['P2', 'P3']);
-    // P3 trekkes, og den neste nye kravposten får P4, selv om forrige versjon bare har P2.
-    const p3 = poster(s)[1]![1]!;
-    s.send('TE', krav([{ ...regning, betegnelse: 'P2' }], { trekker: [p3] }));
-    s.send('TE', krav([{ ...regning, betegnelse: 'P2' }, justert]));
-    expect(poster(s).map(([b]) => b)).toEqual(['P2', 'P4']);
+    expect(
+      s.avvist(
+        'TE',
+        krav([
+          { ...regning, id: p2 },
+          { ...post1, id: randomUUID(), beloep: 1 },
+        ])
+      ),
+      'en kravpost som aldri har stått i sporet'
+    ).toBe('KRAVPOSTENE');
   });
 
   it('et trekk må gjelde en kravpost i forrige versjon, og en kravpost kan ikke både tas med og trekkes (KA-U56)', () => {
@@ -8434,12 +8442,13 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(tekst).not.toContain('Kravet er varsel');
   });
 
-  it('trekket av en kravpost står i brevet som avkall på kravet i posten (KA-U56)', () => {
+  it('trekket av en kravpost står i brevet uten at det kalles avkall (KA-U56, KA-U75)', () => {
     const s = sakMedKrav();
     const tekst = laast(s.send('TE', krav([regning], { trekker: [p1I(s)] }))).join(' ');
     expect(tekst).toContain(
-      'TE trekker kravet i P1 Ny fundamentering, fremsatt i brev K201-KOE-017-02 av 3. oktober 2026. Trekket er avkall på kravet i kravposten, også det byggherren har godkjent.'
+      'TE trekker kravet i P1 Ny fundamentering, fremsatt i brev K201-KOE-017-02 av 3. oktober 2026.'
     );
+    expect(tekst).not.toContain('avkall');
   });
 
   it('svaret på to kravposter med fast sum navngir kravposten i brevet og linjen, og utfallet sier hvilken kravpost som ikke har fast beløp (KA-U57 (c) og (d), KA-U72, OV-U73, svar 6 A)', () => {

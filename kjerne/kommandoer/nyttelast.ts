@@ -193,7 +193,7 @@ function kravetsUtdypning(
   return null;
 }
 
-/** KA-U56, KA-U51 punkt 11 og KA-U70: kravpostene mot forrige kravversjon, og VS-U50: varselet for posten. */
+/** KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, og VS-U50: varselet for posten. */
 function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
   const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);
