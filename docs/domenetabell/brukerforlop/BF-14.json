@@ -273,6 +273,11 @@
       "dato": "2026-11-10",
       "forhold": "#1758",
       "hva": "S-14–S-18 er besvart og ført som VS-U61–VS-U65. D-20 er ny, og to punkter i v4 skal tegnes om."
+    },
+    {
+      "dato": "2026-11-11",
+      "forhold": "#1663",
+      "hva": "Prototype v4 er grunnlaget for byggingen, commit 99c7d6d (oppdragsgiver 11.11). Klikkstiene under `prototype` gjelder fortsatt v3, fordi den mekaniske forprøven ikke er gjort på v4, og v4 ikke har `data-spor`."
     }
   ]
 }
