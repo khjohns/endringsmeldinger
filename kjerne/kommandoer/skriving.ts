@@ -45,6 +45,7 @@ import type {
   Avsnitt,
   Avvisning,
   Beslutningsgrunnlag,
+  Dokument,
   Journalrad,
   Krav,
   Kravpost,
@@ -463,6 +464,16 @@ function handlingen(
       : [];
   if (!poster.some((p) => erDokumentvarsel(p.varsel)))
     return skriv(k, kontekst, journal, kjerne, vedlegg, sendes);
+  // VS-U53: dokumentet står i saken som ett brev, så to kravposter kan ikke legge til det samme.
+  const dokumentene = poster.flatMap((p) =>
+    erDokumentvarsel(p.varsel) ? p.varsel.dokumentasjon.map((id) => id.toLowerCase()) : []
+  );
+  if (new Set(dokumentene).size < dokumentene.length)
+    return ugyldigForm({
+      regel: 'UGYLDIG_FORM',
+      melding:
+        'To kravposter har samme dokument som varsel. Et dokument kan legges til for én kravpost.',
+    });
   const krav = k as Extract<Kommando, { type: 'krav' }>;
   const kjede = (kx: Kontekst, jx: Journalrad[]) =>
     medVarslene(krav, [], kx, jx, kjerne, vedlegg, sendes);
@@ -588,8 +599,7 @@ function skriv(
         feil: 'REGELBRUDD',
         avvisning: avvis('VEDLEGG_FINNES_IKKE', `Vedlegget ${id} finnes ikke i saken.`),
       };
-    // To kravposter kan ha varselet i samme dokument; kravet legger det ved én gang (VS-U51).
-    if (!bundne.some((v) => v.vedlegg_id === funnet.vedlegg_id)) bundne.push(funnet);
+    bundne.push(funnet);
   }
 
   const eventId = kontekst.nyId();
@@ -759,7 +769,7 @@ function brevtekstFor(
             .filter((k) => k.spor === 'vederlag')
             .flatMap((k) =>
               Object.entries(
-                kravpostvarslene(k, u.spor.vederlag.krav, u.spor.vederlag.kravpostvarsler)
+                kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(ny.dokument, lest, u))
               )
             )
         ),
@@ -779,6 +789,20 @@ function brevtekstFor(
       throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);
     throw feil;
   }
+}
+
+/**
+ * Varslene etter § 34.3.3 og § 34.4 før kravet, uten dokumentene kravskjemaet la til i samme
+ * handling: kravet legger dem ved, og de gjelder bare kravposten som viser til dem (VS-U51, VS-U53).
+ */
+function foranKravet(nytt: Dokument, lest: ReturnType<typeof lesJournal>, u: Utledning) {
+  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
+  const dokumenter = new Map(
+    lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
+  );
+  return u.spor.vederlag.kravpostvarsler.filter(
+    (v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
+  );
 }
 
 /**

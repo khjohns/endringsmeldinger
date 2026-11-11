@@ -9080,8 +9080,11 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     );
     expect(s.avvist('TE', vederlagskrav([{ ...regning, varsel }])), 'kontrollsak').toBeNull();
     s.send('TE', vederlagskrav([{ ...regning, varsel }]));
-    // P1 hadde regningsarbeid i forrige versjon, så varselet er gitt før (VS-U49).
-    expect(s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1', varsel }]))).toBe(
+    // P1 hadde regningsarbeid i forrige versjon, så varselet er gitt før (VS-U49), og posten kan
+    // bare gjenta det den viste til.
+    s.send('TE', registrertVarsel('34.4'));
+    const annet = varslene(s).at(-1)!.id;
+    expect(s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: annet }]))).toBe(
       'KRAVPOSTVARSELET'
     );
     expect(
@@ -9103,6 +9106,29 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     const u = s.u();
     expect(u.forstaatt).toBe(false);
     expect(JSON.stringify(u.begrensninger)).toContain('ikke er et varsel etter § 34.4');
+  });
+
+  it('et varsel i saken som én kravpost viser til, gjelder også en annen post med samme beregningsregel i det første kravet (D-16, VS-U50)', () => {
+    const s = paaberopt();
+    s.send('TE', registrertVarsel('34.4'));
+    const varsel = varslene(s)[0]!.id;
+    const tekst = laast(s.send('TE', vederlagskrav([{ ...regning, varsel }, regning]))).join(' ');
+    expect(tekst).not.toContain(varselRegning);
+    expect(tekst.match(/ble gitt i totalentreprenørens e-post/g)).toHaveLength(2);
+  });
+
+  it('en kravpost i en ny versjon kan gjenta varselet den viste til, men ikke vise til et annet (KA-U56, VS-U50)', () => {
+    const s = paaberopt();
+    s.send('TE', sendVarsel('34.4'));
+    s.send('TE', registrertVarsel('34.4'));
+    const [foerste, andre] = varslene(s).map((v) => v.id);
+    s.send('TE', vederlagskrav([{ ...regning, varsel: foerste }]));
+    expect(
+      s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: foerste }]))
+    ).toBeNull();
+    expect(s.avvist('TE', vederlagskrav([{ ...regning, betegnelse: 'P1', varsel: andre }]))).toBe(
+      'KRAVPOSTVARSELET'
+    );
   });
 
   describe('dokumentet TE legger til i kravskjemaet som varselet for posten (VS-U51, VS-U53)', () => {
@@ -9154,17 +9180,44 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(s.u().forstaatt, JSON.stringify(s.u().begrensninger)).toBe(true);
     });
 
-    it('dokumentet for én kravpost er ikke varselet for en annen post etter samme bestemmelse i det første kravet, og kravet legger det ved én gang (VS-U51, D-16)', () => {
+    it('dokumentet for én kravpost er ikke varselet for en annen post etter samme bestemmelse i det første kravet (VS-U51, VS-U53, D-16)', () => {
       const s = paaberopt();
-      const varsel = dokument();
       const krav = s.send(
         'TE',
-        vederlagskrav([{ ...regning, varsel }, regning, { ...regning, varsel }])
+        vederlagskrav([
+          { ...regning, varsel: dokument() },
+          regning,
+          { ...regning, varsel: dokument() },
+        ])
       );
       const tekst = laast(krav).join(' ');
       expect(tekst.match(/TE opplyser at/g)).toHaveLength(2);
       expect(tekst.match(new RegExp(varselRegning, 'g')), 'P2 er varsel for seg').toHaveLength(1);
-      expect(krav.data.dokumentasjon as Data[]).toHaveLength(1);
+      expect(krav.data.dokumentasjon as Data[]).toHaveLength(2);
+    });
+
+    it('samme dokument for to kravposter avvises, fordi dokumentet står i saken som ett brev (VS-U53)', () => {
+      const s = paaberopt();
+      const varsel = dokument();
+      expect(
+        s.avvist(
+          'TE',
+          vederlagskrav([
+            { ...regning, varsel },
+            { ...justert, varsel },
+          ])
+        )
+      ).toBe('UGYLDIG_FORM');
+      expect(
+        s.avvist(
+          'TE',
+          vederlagskrav([
+            { ...regning, varsel },
+            { ...justert, varsel: dokument() },
+          ])
+        ),
+        'kontrollsak'
+      ).toBeNull();
     });
 
     it('serveren får radene én og én: varselet først, så kravet med sin egen klokke (VS-U53)', () => {

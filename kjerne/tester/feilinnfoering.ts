@@ -4106,12 +4106,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F482',
     feilklasse: 'et varsel før det første kravet gjelder ikke kravpostene i det kravet (D-16)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [
-      [
-        '        : varsler.find((v) => v.hjemmel === hjemmel && !valgte.has(v.id))?.id);',
-        '        : undefined);',
-      ],
-    ],
+    endringer: [['(tidligere.length ? undefined : varsler.find(', '(undefined && varsler.find(']],
     mal: [
       'et varsel sendt før det første kravet gjelder',
       'et varsel registrert før det første kravet',
@@ -4128,9 +4123,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F484',
     feilklasse: 'et varsel etter det første kravet gjelder en ny kravpost uten valg (D-16, D-19)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [
-      ['      (tidligere.length\n        ? undefined', '      (false\n        ? undefined'],
-    ],
+    endringer: [['(tidligere.length ? undefined : varsler', '(varsler']],
     mal: ['et varsel etter det første kravet gjelder ikke en ny kravpost'],
   },
   {
@@ -4591,7 +4584,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F533',
     feilklasse: 'varselet kravposten viser til, leses ikke (VS-U50, VS-U54)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [['      p.varsel ??\n', '']],
+    endringer: [['      p.varsel ?? (tidligere.length', '      (tidligere.length']],
     mal: [
       'en ny kravpost i en senere kravversjon viser til et varsel sendt etter det første kravet',
       'har saken flere varsler før det første kravet, viser kravet til det TE velger',
@@ -4646,9 +4639,41 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F539',
     feilklasse:
       'dokumentet fra kravskjemaet for én kravpost blir også varselet for en annen post i det første kravet (VS-U51, D-16)',
-    fil: `${K}/utledning/kravposter.ts`,
-    endringer: [['v.hjemmel === hjemmel && !valgte.has(v.id)', 'v.hjemmel === hjemmel']],
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        '(v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
+        '(v) => !!v',
+      ],
+    ],
     mal: ['dokumentet for én kravpost er ikke varselet for en annen post'],
+  },
+  {
+    id: 'F540',
+    feilklasse:
+      'et varsel i saken som én kravpost viser til, gjelder ikke en annen post med samme beregningsregel (D-16)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [
+      [
+        'varsler.find((v) => v.hjemmel === hjemmel)?.id)',
+        'varsler.find((v) => v.hjemmel === hjemmel && !kravposterI(krav).some((q) => q.varsel === v.id))?.id)',
+      ],
+    ],
+    mal: ['et varsel i saken som én kravpost viser til, gjelder også en annen post'],
+  },
+  {
+    id: 'F541',
+    feilklasse: 'en kravpost i en ny versjon kan ikke gjenta varselet den viste til (KA-U56)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [['somFoer?.varsel !== p.varsel', 'true']],
+    mal: ['en kravpost i en ny versjon kan gjenta varselet'],
+  },
+  {
+    id: 'F542',
+    feilklasse: 'samme dokument for to kravposter blir to registrerte brev (VS-U53)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['  if (new Set(dokumentene).size < dokumentene.length)', '  if (false)']],
+    mal: ['samme dokument for to kravposter avvises'],
   },
 ];
 

@@ -102,10 +102,10 @@ const hattFoer = (
  * - VS-U50, VS-U54: viser kravposten til et varsel, er varselet gitt der.
  * - D-16 i BF-14 (arbeidsvalget i Følge hos VS-U48) og VS-U55: ellers gjelder et varsel etter
  *   samme bestemmelse sendt eller registrert før det første kravet posten. Kravet viser da til
- *   det første av dem og er ikke varselet selv. Et varsel en annen kravpost i kravet viser til,
- *   gjelder den posten og ikke denne, også dokumentet fra kravskjemaet (VS-U50, VS-U51).
+ *   det første av dem og er ikke varselet selv.
  * `tidligere` er versjonene før `krav` i sporet, og `varsler` varslene etter § 34.3.3 og
- * § 34.4 før `krav`, i rekkefølgen i journalen.
+ * § 34.4 før `krav`, i rekkefølgen i journalen, uten dokumentene kravskjemaet la til for en
+ * kravpost i samme handling, som gjelder bare den posten (VS-U51, VS-U53).
  */
 export function kravpostvarslene(
   krav: Pick<Krav, 'innhold'>,
@@ -113,15 +113,11 @@ export function kravpostvarslene(
   varsler: readonly { id: string; hjemmel: string }[]
 ): Record<string, Kravpostvarselet> {
   const ut: Record<string, Kravpostvarselet> = {};
-  const valgte = new Set(kravposterI(krav).flatMap((p) => (p.varsel ? [p.varsel] : [])));
   for (const p of kravposterI(krav)) {
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;
     const gitt =
-      p.varsel ??
-      (tidligere.length
-        ? undefined
-        : varsler.find((v) => v.hjemmel === hjemmel && !valgte.has(v.id))?.id);
+      p.varsel ?? (tidligere.length ? undefined : varsler.find((v) => v.hjemmel === hjemmel)?.id);
     ut[p.id] = gitt ? { art: 'gitt', varsel: gitt } : { art: 'kravet' };
   }
   return ut;
@@ -144,7 +140,8 @@ export function kravpostvarseletStrider(
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null)
       return `${posten} viser til et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50)`;
-    if (hattFoer(p, hjemmel, tidligere))
+    const somFoer = tidligere.at(-1) && kravposterI(tidligere.at(-1)!).find((q) => q.id === p.id);
+    if (hattFoer(p, hjemmel, tidligere) && somFoer?.varsel !== p.varsel)
       return `${posten} viser til et varsel, men hadde oppgjørsformen i en tidligere kravversjon (VS-U49, VS-U50)`;
     if (!varsler.some((v) => v.id === p.varsel && v.hjemmel === hjemmel))
       return `${posten} viser til et varsel som ikke er et varsel etter § ${hjemmel} sendt eller registrert i saken før kravet (VS-U50)`;
