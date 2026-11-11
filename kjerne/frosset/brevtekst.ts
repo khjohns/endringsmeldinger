@@ -41,7 +41,7 @@ import {
   krevdProduktivitet,
   krevdRigg,
   kravposterI,
-} from './kravinnhold.ts';
+} from '../format/kravinnhold.ts';
 import { dager, iLagene, kroner } from './tekst.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import type {

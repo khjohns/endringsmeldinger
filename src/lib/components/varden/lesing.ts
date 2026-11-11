@@ -14,7 +14,7 @@ import {
   kravposterI,
   krevdSamlet,
   krevdProduktivitet,
-} from '$kjerne/frosset/kravinnhold';
+} from '$kjerne/format/kravinnhold';
 import { tilTall } from '$kjerne/regler/beloep';
 import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';

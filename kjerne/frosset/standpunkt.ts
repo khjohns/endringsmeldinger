@@ -18,7 +18,7 @@ import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
-import { kategori } from './kravinnhold.ts';
+import { kategori } from '../format/kravinnhold.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import type {
   Beslutningsgrunnlag,

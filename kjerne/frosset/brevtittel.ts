@@ -4,7 +4,7 @@
  */
 
 import { forholdet, paaberopelsenAv } from './forholdene.ts';
-import { innholdIForholdet } from './kravinnhold.ts';
+import { innholdIForholdet } from '../format/kravinnhold.ts';
 import type { Dokument, Sakskode, Spor } from '../typer.ts';
 
 /** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */

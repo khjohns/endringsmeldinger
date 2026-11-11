@@ -6,7 +6,7 @@
 
 import { beloep, UgyldigBeloep, type Oere } from '../regler/beloep.ts';
 import { foersteUnderkategori } from '../regler/forhold.ts';
-import { tekst } from '../format/skjema.ts';
+import { tekst } from './skjema.ts';
 import type { Krav, Kravpost, OppgittDatofelt } from '../typer.ts';
 
 /**

@@ -5,7 +5,7 @@
 
 import { HJEMMEL, OPPGJOERSHJEMMEL } from '../format/format.ts';
 import { forholdsstandpunkter } from '../frosset/frysing.ts';
-import { kravposterI } from '../frosset/kravinnhold.ts';
+import { kravposterI } from '../format/kravinnhold.ts';
 import { vederlagsposter, type Kravpostvurdering } from '../frosset/utregning.ts';
 import { varselhjemmel } from '../utledning/kravposter.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';

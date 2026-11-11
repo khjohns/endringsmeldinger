@@ -19,7 +19,7 @@ import {
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
-import { hindrerSvarPaaKravet, kategori } from '../frosset/kravinnhold.ts';
+import { hindrerSvarPaaKravet, kategori } from '../format/kravinnhold.ts';
 import type {
   Avvisning,
   Krav,

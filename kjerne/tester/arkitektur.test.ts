@@ -272,13 +272,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
-  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor i `frosset/kravinnhold.ts`.
-  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager', ['frosset/kravinnhold.ts']],
+  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor i `format/kravinnhold.ts`.
+  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager', ['format/kravinnhold.ts']],
   [
     'Krav.innhold',
     'utsagn',
     'endringsordre paalegg_mottatt klar_over_forholdet',
-    ['frosset/kravinnhold.ts:innholdIForholdet'],
+    ['format/kravinnhold.ts:innholdIForholdet'],
   ],
   ['Forholdsinnhold', 'utsagn', 'hovedkategori underkategori'],
   [
@@ -294,21 +294,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vederlagsinnhold',
     'utsagn',
     'kravposter',
-    ['frosset/kravinnhold.ts:innholdIVederlaget', 'frosset/kravinnhold.ts:kravposterI'],
+    ['format/kravinnhold.ts:innholdIVederlaget', 'format/kravinnhold.ts:kravposterI'],
   ],
   [
     'Vederlagsinnhold',
     'utsagn',
     'trekker',
-    ['frosset/kravinnhold.ts:innholdIVederlaget', 'frosset/brevtekst.ts'],
+    ['format/kravinnhold.ts:innholdIVederlaget', 'frosset/brevtekst.ts'],
   ],
   ['Kravpost', 'relasjon', 'id betegnelse'],
-  [
-    'Kravpost',
-    'utsagn',
-    'oppgjoersform beloep',
-    ['frosset/kravinnhold.ts', 'frosset/brevtekst.ts'],
-  ],
+  ['Kravpost', 'utsagn', 'oppgjoersform beloep', ['format/kravinnhold.ts', 'frosset/brevtekst.ts']],
   // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
   ['Kravpost', 'utsagn', 'oppgjoersform justert', ['utledning/kravposter.ts:varselhjemmel']],
   // VS-U50, VS-U54: varselet kravposten viser til, en relasjon til et varsel i saken.
@@ -345,21 +340,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'rigg_og_drift rigg_og_drift.beloep',
-    ['frosset/kravinnhold.ts:krevdRigg'],
+    ['format/kravinnhold.ts:krevdRigg'],
   ],
   // OV-U23: posten etter § 34.1.3 annet ledd i vederlagskravet.
-  ['Vederlagsinnhold', 'utsagn', 'saerskilt', ['frosset/kravinnhold.ts']],
+  ['Vederlagsinnhold', 'utsagn', 'saerskilt', ['format/kravinnhold.ts']],
   [
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'produktivitet',
-    ['frosset/kravinnhold.ts:harProduktivitetspost', 'frosset/kravinnhold.ts:krevdProduktivitet'],
+    ['format/kravinnhold.ts:harProduktivitetspost', 'format/kravinnhold.ts:krevdProduktivitet'],
   ],
   [
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'produktivitet.beloep',
-    ['frosset/kravinnhold.ts:krevdProduktivitet'],
+    ['format/kravinnhold.ts:krevdProduktivitet'],
   ],
   ['Svar', 'relasjon', 'id spor gjelder erstatter dokument paaberopelse'],
   ['Svar', 'utsagn', 'standpunkter'],
@@ -540,7 +535,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'kravposterI',
     [
@@ -579,9 +574,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
   ['frosset/standpunkt.ts:beregningsregelLag', 'relasjon', 'gjelder'],
   ['kommandoer/lag.ts:innenforKravposten', 'relasjon', 'gjelder'],
-  ['frosset/kravinnhold.ts', 'regelsett', 'krevdRigg', ['frosset/brevtekst.ts']],
+  ['format/kravinnhold.ts', 'regelsett', 'krevdRigg', ['frosset/brevtekst.ts']],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'regelsett',
     'krevdIKravposten',
     // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
@@ -589,10 +584,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
   // med ett beløp (#1663).
-  ['frosset/kravinnhold.ts', 'predikat', 'hindrerSvarPaaKravet', ['kommandoer/forutsetninger.ts']],
+  ['format/kravinnhold.ts', 'predikat', 'hindrerSvarPaaKravet', ['kommandoer/forutsetninger.ts']],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
-  ['frosset/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
+  ['format/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
   ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
   // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.
   [
@@ -635,16 +630,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'regelsett',
     'krevdProduktivitet harProduktivitetspost',
     ['frosset/brevtekst.ts', 'utledning/utled.ts', 'frosset/utregning.ts'],
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
-  ['frosset/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
+  ['format/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
-  ['frosset/kravinnhold.ts', 'regelsett', 'kravposterI', ['frosset/utregning.ts']],
+  ['format/kravinnhold.ts', 'regelsett', 'kravposterI', ['frosset/utregning.ts']],
   [
     'Svarvurdering',
     'utsagn',
@@ -693,7 +688,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/beloep.ts',
     'regelsett',
     'UgyldigBeloep',
-    ['kommandoer/nyttelast.ts', 'frosset/kravinnhold.ts', 'regler/vederlag.ts'],
+    ['kommandoer/nyttelast.ts', 'format/kravinnhold.ts', 'regler/vederlag.ts'],
   ],
   // OV-U58: brøkdeler av øre avvises og rundes ikke av.
   [
@@ -917,7 +912,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['frosset/standpunkt.ts', 'frosset', 'begrensningen', ['frosset/tekst.ts:beslutningslinje']],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'kategori',
     [
@@ -930,7 +925,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'innholdIForholdet',
     [
@@ -941,13 +936,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'innholdIVederlaget',
     ['frosset/brevtekst.ts', 'utledning/utled.ts:kravetStrider'],
   ],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'innholdIFristen',
     ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
