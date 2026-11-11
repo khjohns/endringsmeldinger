@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `e3c85881b90d4b10bc1acc6b760b504bc3e9789a83661d3fc7258bf003ec5a2c`
+Kontrollsum (SHA-256 over utdraget visningen leser): `459ccf714a56c8686c3493342372c28de7882add14aeaed32c4d1f7cc653a19c`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -611,7 +611,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Utvider [OV-U80](#ov-u80). Følger av VS-U48 og VS-U50. Berører BF-14 (U-11, U-12).
 
-**Regelrader:** —
+**Regelrader:** [VS-09](#rad-vs-09)
 
 **Bevis-saker som viser til vedtaket:** F-MM-B1 (målmodellen)
 
@@ -3646,7 +3646,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-vs-06"></a>VS-06 | TE sender et eget varsel etter § 33.4 fra appen, uten dager, før fristkravet. | [MM-U50](#mm-u50) | F-VS-U15a (målmodellen), F-VS-U15b (målmodellen), F-VS-U15c (målmodellen), F-VS-U15d (målmodellen) |
 | <a id="rad-vs-07"></a>VS-07 | TE sender et eget varsel etter § 34.1.2 fra appen, uten beløp, eller registrerer et varsel sendt utenfor appen. | [OV-U5](#ov-u5), [VS-U24](#vs-u24), [OV-U15](#ov-u15), [LV-U19](#lv-u19) | F-VS-07a (målmodellen), F-VS-07b (målmodellen) |
 | <a id="rad-vs-08"></a>VS-08 | TE sender et vederlagskrav med en kravpost med regningsarbeid eller justerte enhetspriser som er varsel for seg, og oppgir at varselet for posten alt er gitt i et varsel som står i saken. | [VS-U49](#vs-u49), [VS-U50](#vs-u50), [VS-U54](#vs-u54), [VS-U55](#vs-u55) | F-MM-VS-U50 (målmodellen) |
-| <a id="rad-vs-09"></a>VS-09 | TE legger i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter § 34.3.3 eller § 34.4 for en kravpost. | [VS-U50](#vs-u50), [VS-U51](#vs-u51), [VS-U54](#vs-u54) | F-MM-VS-U51 (målmodellen) |
+| <a id="rad-vs-09"></a>VS-09 | TE legger i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter § 34.3.3 eller § 34.4 for en kravpost. | [VS-U52](#vs-u52), [VS-U50](#vs-u50), [VS-U51](#vs-u51), [VS-U54](#vs-u54) | F-MM-VS-U51 (målmodellen) |
 | <a id="rad-ka-43"></a>KA-43 | Byggherren registrerer et brev sendt utenfor appen der byggherren senere begrunner sitt svar. | [MM-U17](#mm-u17), [MM-U50](#mm-u50) | — |
 | <a id="rad-ka-46"></a>KA-46 | Byggherren svarer på et vederlagskrav for svikt eller andre forhold og vurderer om varselet om hovedkravet kom i tide (§ 34.1.2). | [GR-U10](#gr-u10), [OV-U5](#ov-u5) | F-MM-V-34-1-2-nei (målmodellen), F-MM-V-34-1-2-ja (målmodellen), F-MM-V-34-1-2-endring (målmodellen), F-MM-V-34-1-2-ny-kravversjon (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen), F-MM-V-34-1-2-hele-beloepet (målmodellen) |
 | <a id="rad-ka-47"></a>KA-47 | Byggherren svarer på et vederlagskrav med tilbud og tar stilling til om tilbudet aksepteres (§ 34.2.2). | [MM-U50](#mm-u50), [GR-U10](#gr-u10) | F-MM-V-34-2-2-nei (målmodellen), F-MM-V-34-2-2-ja (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen) |

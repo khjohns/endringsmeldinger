@@ -9196,7 +9196,34 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(krav.data.dokumentasjon as Data[]).toHaveLength(2);
     });
 
-    it('samme dokument for to kravposter avvises, fordi dokumentet står i saken som ett brev (VS-U53)', () => {
+    it('samme dokument for to kravposter er ett registrert brev med ett varsel per bestemmelse, og hver post viser til sitt (VS-U52, VS-U53)', () => {
+      const s = paaberopt();
+      const varsel = dokument();
+      const foer = s.journal.length;
+      const krav = s.send(
+        'TE',
+        vederlagskrav([
+          { ...regning, varsel },
+          { ...justert, varsel },
+          { ...regning, varsel },
+        ])
+      );
+      const rader = s.journal.slice(foer);
+      expect(rader, 'ett brev og kravet').toHaveLength(2);
+      const utsagn = rader[0]!.data.utsagn as Data[];
+      expect(utsagn.map((x) => x.hjemmel)).toEqual(['34.4', '34.3.3']);
+      const poster = kravposterI(s.u().spor.vederlag.gjeldendeKrav!);
+      expect(poster.map((p) => p.varsel)).toEqual([utsagn[0]!.id, utsagn[1]!.id, utsagn[0]!.id]);
+      expect(krav.data.dokumentasjon as Data[]).toHaveLength(1);
+      expect(
+        laast(krav)
+          .join(' ')
+          .match(/Totalentreprenøren opplyser at/g)
+      ).toHaveLength(3);
+      expect(s.u().forstaatt, JSON.stringify(s.u().begrensninger)).toBe(true);
+    });
+
+    it('samme dokument med ulik dato eller med andre vedlegg for en annen kravpost avvises (VS-U53)', () => {
       const s = paaberopt();
       const varsel = dokument();
       expect(
@@ -9204,7 +9231,19 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
           'TE',
           vederlagskrav([
             { ...regning, varsel },
-            { ...justert, varsel },
+            { ...justert, varsel: { ...varsel, sendt: '2026-09-26' } },
+          ])
+        )
+      ).toBe('UGYLDIG_FORM');
+      expect(
+        s.avvist(
+          'TE',
+          vederlagskrav([
+            { ...regning, varsel },
+            {
+              ...justert,
+              varsel: { ...varsel, dokumentasjon: [...varsel.dokumentasjon, randomUUID()] },
+            },
           ])
         )
       ).toBe('UGYLDIG_FORM');

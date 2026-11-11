@@ -3399,12 +3399,13 @@
     {
       "id": "VS-09",
       "tilfelle": "TE legger i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter § 34.3.3 eller § 34.4 for en kravpost.",
-      "forventet": "Dokumentet står i saken som et eget brev: registrert korrespondanse med kategorien varsel, med TE som avsender og datoen det ble sendt, før kravet ([VS-U53](../plans/vedtak.md#vs-u53)). Kravposten viser til det ([VS-U54](../plans/vedtak.md#vs-u54)), og kravet legger dokumentet ved og sier at det er TE som opplyser at varselet ble gitt i det ([VS-U51](../plans/vedtak.md#vs-u51)). Varselet og kravet skrives i én transaksjon, så et avvist krav etterlater ikke varselet. Et vederlagskrav med et annet vedlegg gjør saken ikke forstått.",
+      "forventet": "Dokumentet står i saken som et eget brev: registrert korrespondanse med kategorien varsel, med TE som avsender og datoen det ble sendt, før kravet ([VS-U53](../plans/vedtak.md#vs-u53)). Kravposten viser til det ([VS-U54](../plans/vedtak.md#vs-u54)), og kravet legger dokumentet ved og sier at det er TE som opplyser at varselet ble gitt i det ([VS-U51](../plans/vedtak.md#vs-u51)). Oppgir flere kravposter samme dokument, er det ett brev med ett varsel per bestemmelse postene trenger ([VS-U52](../plans/vedtak.md#vs-u52)), og kravet legger det ved én gang; samme dokument med ulik dato eller med andre vedlegg avvises. Varselet og kravet skrives i én transaksjon, så et avvist krav etterlater ikke varselet. Et vederlagskrav med et annet vedlegg gjør saken ikke forstått.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Løsningen kontrollerer ikke at dokumentet er et varsel for posten, og byggherren kan bestride datoen (VS-U50).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "VS-U52",
         "VS-U50",
         "VS-U51",
         "VS-U54"

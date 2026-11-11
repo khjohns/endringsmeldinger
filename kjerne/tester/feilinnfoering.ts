@@ -4670,10 +4670,18 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F542',
-    feilklasse: 'samme dokument for to kravposter blir to registrerte brev (VS-U53)',
+    feilklasse:
+      'samme dokument for flere kravposter blir et varsel bare etter den første bestemmelsen (VS-U52, VS-U53)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['  if (new Set(dokumentene).size < dokumentene.length)', '  if (false)']],
-    mal: ['samme dokument for to kravposter avvises'],
+    endringer: [['[k.hjemmel, ...ogsaaEtter].map(', '[k.hjemmel].map(']],
+    mal: ['samme dokument for to kravposter er ett registrert brev'],
+  },
+  {
+    id: 'F543',
+    feilklasse: 'samme dokument med ulik dato for to kravposter godtas (VS-U53)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['if ((dokumentene.get(id) ?? like) !== like)', 'if (false)']],
+    mal: ['samme dokument med ulik dato eller med andre vedlegg'],
   },
 ];
 

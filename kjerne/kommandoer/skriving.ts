@@ -49,6 +49,7 @@ import type {
   Journalrad,
   Krav,
   Kravpost,
+  Kravpostvarselhjemmel,
   Part,
   Sakskode,
   Spor,
@@ -242,7 +243,8 @@ function dokument(
   nyId: () => string,
   utdypninger: Utdypninger,
   bygde: Bygde,
-  bundne: Vedlegg[]
+  bundne: Vedlegg[],
+  ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
 ): Data {
   switch (k.type) {
     case 'krav': {
@@ -295,8 +297,13 @@ function dokument(
     case 'trekk':
       return { utsagn: [{ id: nyId(), art: 'trekk', gjelder: u.spor[k.spor].gjeldendeKrav!.id }] };
     case 'varsel':
+      // VS-U52: dokumentet fra kravskjemaet kan være varsel etter begge bestemmelsene (VS-U53).
       return {
-        utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }],
+        utsagn: [k.hjemmel, ...ogsaaEtter].map((hjemmel) => ({
+          id: nyId(),
+          art: 'varsel',
+          hjemmel,
+        })),
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         korrespondansetype: k.korrespondansetype,
         dokumentasjon: bundne,
@@ -464,17 +471,23 @@ function handlingen(
       : [];
   if (!poster.some((p) => erDokumentvarsel(p.varsel)))
     return skriv(k, kontekst, journal, kjerne, vedlegg, sendes);
-  // VS-U51, VS-U53: dokumentet står i saken som ett brev, så to kravposter kan ikke legge til det
-  // samme.
-  const dokumentene = poster.flatMap((p) =>
-    erDokumentvarsel(p.varsel) ? p.varsel.dokumentasjon.map((id) => id.toLowerCase()) : []
-  );
-  if (new Set(dokumentene).size < dokumentene.length)
-    return ugyldigForm({
-      regel: 'UGYLDIG_FORM',
-      melding:
-        'To kravposter har samme dokument som varsel. Et dokument kan legges til for én kravpost.',
-    });
+  // VS-U51, VS-U53: et dokument står i saken som ett brev. Kravpostene det gjelder, oppgir det
+  // likt, og et vedlegg hører til ett dokument.
+  const dokumentene = new Map<string, string>();
+  for (const p of poster) {
+    if (!erDokumentvarsel(p.varsel)) continue;
+    const { sendt, korrespondansetype } = p.varsel;
+    const like = JSON.stringify([dokumentnoekkel(p.varsel), sendt, korrespondansetype]);
+    for (const id of dokumentnoekkel(p.varsel)) {
+      if ((dokumentene.get(id) ?? like) !== like)
+        return ugyldigForm({
+          regel: 'UGYLDIG_FORM',
+          melding:
+            'Kravpostene oppgir samme dokument som varsel med ulik dato, type eller andre vedlegg. Et dokument oppgis likt for hver kravpost det gjelder.',
+        });
+      dokumentene.set(id, like);
+    }
+  }
   const krav = k as Extract<Kommando, { type: 'krav' }>;
   const kjede = (kx: Kontekst, jx: Journalrad[]) =>
     medVarslene(krav, [], kx, jx, kjerne, vedlegg, sendes);
@@ -485,9 +498,15 @@ function handlingen(
   return kjede(kontekst, journal);
 }
 
+/** Vedleggene i dokumentet, med små bokstaver og sortert, som skiller ett dokument fra et annet. */
+const dokumentnoekkel = (d: Dokumentvarsel): string[] =>
+  [...new Set(d.dokumentasjon.map((id) => id.toLowerCase()))].sort();
+
 /**
  * Det første dokumentet i kravskjemaet som registrert varsel, og kravet med resten som
- * `neste`; uten flere dokumenter kravet, med dokumentene ved (VS-U51, VS-U53).
+ * `neste`; uten flere dokumenter kravet, med dokumentene ved (VS-U51, VS-U53). Gjelder dokumentet
+ * flere kravposter, er det ett brev med ett varsel per bestemmelse, og hver kravpost viser til
+ * varselet etter sin (VS-U52).
  */
 function medVarslene(
   k: Extract<Kommando, { type: 'krav' }>,
@@ -501,21 +520,32 @@ function medVarslene(
   const poster = k.innhold.kravposter as Record<string, unknown>[];
   const i = poster.findIndex((p) => erDokumentvarsel(p.varsel));
   if (i < 0) return skriv(k, kontekst, journal, kjerne, vedlegg, sendes, vedKravet);
-  const post = poster[i] as unknown as Omit<Kravpost, 'varsel'> & { varsel: Dokumentvarsel };
-  const dokumentet = post.varsel;
-  const hjemmel = varselhjemmel(post);
-  if (hjemmel === null)
-    return {
-      godtatt: false,
-      feil: 'REGELBRUDD',
-      avvisning: avvis(
-        'KRAVPOSTVARSELET',
-        `Kravpost nr. ${i + 1} har et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50).`
-      ),
-    };
-  const kommando = { type: 'varsel', spor: 'vederlag', hjemmel, ...dokumentet };
+  type Dokumentpost = Omit<Kravpost, 'varsel'> & { varsel: Dokumentvarsel };
+  const dokumentet = (poster[i] as unknown as Dokumentpost).varsel;
+  const noekkel = JSON.stringify(dokumentnoekkel(dokumentet));
+  const gruppen = poster.flatMap((p, j) =>
+    erDokumentvarsel(p.varsel) && JSON.stringify(dokumentnoekkel(p.varsel)) === noekkel
+      ? [[j, p as unknown as Dokumentpost] as const]
+      : []
+  );
+  const hjemler: Kravpostvarselhjemmel[] = [];
+  for (const [j, p] of gruppen) {
+    const hjemmel = varselhjemmel(p);
+    if (hjemmel === null)
+      return {
+        godtatt: false,
+        feil: 'REGELBRUDD',
+        avvisning: avvis(
+          'KRAVPOSTVARSELET',
+          `Kravpost nr. ${j + 1} har et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50).`
+        ),
+      };
+    if (!hjemler.includes(hjemmel)) hjemler.push(hjemmel);
+  }
+  const kommando = { type: 'varsel', spor: 'vederlag', hjemmel: hjemler[0], ...dokumentet };
   const varselet =
-    formen(kommando) ?? skriv(kommando as Kommando, kontekst, journal, kjerne, vedlegg, sendes);
+    formen(kommando) ??
+    skriv(kommando as Kommando, kontekst, journal, kjerne, vedlegg, sendes, [], hjemler.slice(1));
   if (!varselet.godtatt)
     return {
       ...varselet,
@@ -525,12 +555,17 @@ function medVarslene(
       },
     };
   const [rad] = varselet.hendelser;
-  const utsagn = (rad!.data.utsagn as { id: string }[])[0]!.id;
+  const utsagn = new Map(
+    (rad!.data.utsagn as { id: string; hjemmel: string }[]).map((x) => [x.hjemmel, x.id])
+  );
   const resten = {
     ...k,
     innhold: {
       ...k.innhold,
-      kravposter: poster.map((p, j) => (j === i ? { ...p, varsel: utsagn } : p)),
+      kravposter: poster.map((p, j) => {
+        const medlem = gruppen.find(([g]) => g === j);
+        return medlem ? { ...p, varsel: utsagn.get(varselhjemmel(medlem[1])!) } : p;
+      }),
     },
   };
   return {
@@ -539,7 +574,7 @@ function medVarslene(
     neste: (kx, jx) =>
       medVarslene(
         resten,
-        [...vedKravet, ...dokumentet.dokumentasjon],
+        [...vedKravet, ...dokumentnoekkel(dokumentet)],
         kx,
         jx,
         kjerne,
@@ -560,7 +595,8 @@ function skriv(
   kjerne: Kjerne,
   vedlegg: Vedleggsoppslag,
   sendes: boolean,
-  vedKravet: readonly string[] = []
+  vedKravet: readonly string[] = [],
+  ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
 ): Utfall {
   const kommando: unknown = k;
   const lest = lesJournal(journal, kjerne.leserformat);
@@ -607,7 +643,7 @@ function skriv(
   const utdypninger: Utdypninger = new Map();
   let data: Data;
   try {
-    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger, bygde, bundne);
+    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger, bygde, bundne, ogsaaEtter);
   } catch (feil) {
     // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
     if (feil instanceof Uforstaatt)
