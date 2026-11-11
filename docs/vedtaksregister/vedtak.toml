@@ -3553,6 +3553,49 @@ tekst = '''
 Byggherren kan i samme brev svare på varselet og, ved et uttrykkelig valg, sende et nytt svar på en kravversjon byggherren alt har svart på. Det nye svaret på kravversjonen følger HF-U25, også når TE har godtatt svaret eller enighet er registrert (punkt 3 og 8), og brevet sier at det erstatter svaret i det tidligere brevet. Uten valget gjelder brevet bare varselet, og svaret på kravversjonen står. Forhold: presiserer HF-U25 punkt 1–2.'''
 anbefalt = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "VS-U66"
+dato = 2026-11-11
+hvem = "oppdragsgiver"
+kilde = ["#1754", "#1791"]
+sporsmal = '''
+Spørsmål 2 ordrett slik det ble stilt 11.11 i [spørsmålene fra ryddingen av review-oppfølgingen](https://github.com/khjohns/endringsmeldinger/issues/1791#issuecomment-6806119834):
+
+**2. Et eget varsel etter punkt 33.4 som er datert etter fristkravet** (fra #1754, punkt 1)
+Totalentreprenøren blir klar over forholdet 25.09 og sender fristkravet uten eget varsel 03.10, så fristkravet er varselet etter punkt 33.4 (VS-U43 punkt 7). Deretter registreres et eget varsel etter punkt 33.4 med datoen 05.10. Kontrollen etter VS-U60 ser da bare på det egne varselet, og godtar at datoen i grunnlagskravet rettes til 04.10, etter fristkravet.
+- **A:** Et eget varsel etter punkt 33.4 eller 34.1.2 kan ikke registreres med en dato etter det første kravet som varsler i sporet.
+- **B (anbefalt):** Registreringen godtas, men kontrollen etter VS-U60 regner med det tidligste av det egne varselet og det første kravet som varsler.
+- **C:** Som i dag: det egne varselet går foran kravet, også i kontrollen.
+
+Begrunnelse for B: totalentreprenøren kan ha grunn til å sende et eget varsel senere, og B hindrer likevel at saken sier at forholdet ble kjent etter at det ble varslet. Valget styrer kontrollen av når forholdet ble kjent.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 11.11, ordrett: «Godtar anbefalingene». Anbefalingen for spørsmål 2 var B. ([spørsmålene](https://github.com/khjohns/endringsmeldinger/issues/1791#issuecomment-6806119834))'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u60" },
+]
+folge = '''
+Funnet i reviewet av #1753. Bygges i #1754.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et eget varsel etter punkt 33.4 eller 34.1.2 kan ikke registreres med en dato etter det første kravet som varsler i sporet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Registreringen godtas, men kontrollen etter VS-U60 regner med det tidligste av det egne varselet og det første kravet som varsler.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Som i dag: det egne varselet går foran kravet, også i kontrollen.'''
+forkastet = true
+
 
 [[gruppe]]
 tittel = "Svar og standpunkt"
