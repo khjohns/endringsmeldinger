@@ -24,6 +24,13 @@ export type Korrespondansetype = (typeof KORRESPONDANSETYPER)[number];
 export const SPOR: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
+/**
+ * Siste gren der hvert spor, hver standpunktsart eller hver oppgjørsform har sin egen gren.
+ * Argumentet har typen `never`, så en verdi ingen gren har tatt stilling til, gir en typefeil (#1781).
+ */
+export function ikkeVurdert(verdi: never): never {
+  throw new Error(`${String(verdi)} er ikke vurdert`);
+}
 
 /**
  * Hjemlene byggherren kan påberope i et standpunkt om rettidighet. Etter § 34.3.3 og § 34.4

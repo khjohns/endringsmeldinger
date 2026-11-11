@@ -14,6 +14,7 @@ import {
   type Standpunkt,
   type Standpunktsvirkning,
   type Virkning,
+  ikkeVurdert,
 } from '../typer.ts';
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
@@ -162,13 +163,13 @@ export function beslutningslinje(
         beloep(b.godkjent) === 0n ? `avslått${hva}` : `godkjent med ${kroner(b.godkjent)}${hva}`;
       sine.push({ tekst, virkning: virkning(b.id) });
     });
-  } else {
+  } else if (svar.spor === 'frist') {
     const d = standpunktet(svar, 'dager')!;
     sine.push({
       tekst: d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`,
       virkning: virkning(d.id),
     });
-  }
+  } else ikkeVurdert(svar.spor);
   // OV-U32, OV-U33: etiketten følger det fryste laget, én gang for hvert lag og bare når svaret
   // har mer enn ett lag. Et upåvirket standpunkt står uten etikett. Som i brevteksten.
   const plass = ({ virkning }: { virkning: Virkning }) => {

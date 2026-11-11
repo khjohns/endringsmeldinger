@@ -44,6 +44,7 @@ import {
   type OppgittDatofelt,
   type Part,
   type Standpunkt,
+  ikkeVurdert,
 } from '../typer.ts';
 
 /**
@@ -152,7 +153,7 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
       krevdSamlet(krav)
     );
     if (!erBeloepetGodkjentFullt(krevd, godkjent)) ut.push('ikke godkjenner hele beløpet');
-  } else {
+  } else if (s.spor === 'frist') {
     if (v.frist_varsel_ok === false)
       ut.push('gjør gjeldende at varselet etter § 33.4 kom for sent');
     // VS-U17
@@ -164,7 +165,7 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
     if (v.spesifisert_krav_ok === false)
       ut.push('gjør gjeldende at kravet ble spesifisert for sent (§ 33.6.1)');
     if (!fulltGodkjent) ut.push('ikke godkjenner alle dagene');
-  }
+  } else ikkeVurdert(s.spor);
   return ut;
 }
 
