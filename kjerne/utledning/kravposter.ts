@@ -1,8 +1,8 @@
 /**
  * Versjonsreglene for kravpostene i vederlagskravet. En ny kravversjon tar med hver kravpost
- * fra forrige versjon som ikke trekkes, og en trukket kravpost tas ikke opp igjen
- * (KA-U56; KA-U51 punkt 11 utvidet til kravposter i KA-U70).
- * Betegnelsen følger posten og brukes ikke igjen (KA-U53, KA-U70).
+ * fra forrige versjon som ikke trekkes (KA-U56), og en trukket kravpost kan tas med igjen
+ * (KA-U75). Betegnelsen følger posten, også gjennom et trekk, og brukes ikke av en ny
+ * kravpost (KA-U53, KA-U75).
  *
  * Kommandoen og lesingen av journalen bruker samme regel: kommandoen før serveren har satt
  * `id` og betegnelse på de nye postene, journalen etter.
@@ -14,7 +14,7 @@ import type { Krav, Kravpost, Kravpostvarselet, Kravpostvarselhjemmel } from '..
 type Postinndata = { id?: unknown; betegnelse?: unknown };
 type Kravversjonsinndata = { kravposter?: readonly Postinndata[]; trekker?: readonly unknown[] };
 
-/** Betegnelsene brukt i sporet, også av kravposter som er trukket (KA-U70). */
+/** Betegnelsene brukt i sporet, også av kravposter som er trukket (KA-U75). */
 export function brukteBetegnelser(tidligere: readonly Pick<Krav, 'innhold'>[]): Set<string> {
   return new Set(tidligere.flatMap((k) => kravposterI(k).map((p) => p.betegnelse)));
 }
@@ -58,10 +58,8 @@ export function kravposteneStrider(
     const kjent = id === undefined ? undefined : (forrige.get(id) ?? foer.get(id));
     if (id !== undefined && trekker.includes(id))
       return `både tar med og trekker kravposten ${forrige.get(id)!.betegnelse}`;
-    if (kjent && !forrige.has(id!))
-      return `tar opp igjen kravposten ${kjent.betegnelse}, som er trukket (KA-U51 punkt 11, KA-U70)`;
     if (id !== undefined && !kjent && !lagret)
-      return `har kravposten ${id}, som ikke er med i forrige kravversjon`;
+      return `har kravposten ${id}, som ikke har stått i sporet`;
     if (!lagret) continue;
     const betegnelse = p.betegnelse as string;
     if (betegnelser.has(betegnelse)) return `har betegnelsen ${betegnelse} to ganger`;
@@ -69,7 +67,7 @@ export function kravposteneStrider(
     if (kjent && kjent.betegnelse !== betegnelse)
       return `gir kravposten ${kjent.betegnelse} betegnelsen ${betegnelse}`;
     if (!kjent && brukte.has(betegnelse))
-      return `gir en ny kravpost betegnelsen ${betegnelse}, som er brukt før i sporet (KA-U70)`;
+      return `gir en ny kravpost betegnelsen ${betegnelse}, som er brukt før i sporet (KA-U53, KA-U75)`;
   }
   const mangler = [...forrige.values()].filter((p) => !sett.has(p.id) && !trekker.includes(p.id));
   return mangler.length
@@ -140,7 +138,11 @@ export function kravpostvarseletStrider(
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null)
       return `${posten} viser til et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50)`;
-    const somFoer = tidligere.at(-1) && kravposterI(tidligere.at(-1)!).find((q) => q.id === p.id);
+    // KA-U75: også en kravpost som er trukket og tas med igjen, sammenlignes med siste versjon den sto i.
+    const somFoer = [...tidligere]
+      .reverse()
+      .map((k) => kravposterI(k).find((q) => q.id === p.id))
+      .find((q) => q !== undefined);
     if (hattFoer(p, hjemmel, tidligere) && somFoer?.varsel !== p.varsel)
       return `${posten} viser til et varsel, men hadde oppgjørsformen i en tidligere kravversjon (VS-U49, VS-U50)`;
     if (!varsler.some((v) => v.id === p.varsel && v.hjemmel === hjemmel))

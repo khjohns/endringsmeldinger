@@ -213,7 +213,8 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
 
 /**
  * Kravpostene slik de lagres: en ny kravpost får `id` fra serveren og neste betegnelse i
- * sporet, og en kravpost fra forrige versjon beholder sin (KA-U53, arbeidsvalget 07.11 i domenetabellen).
+ * sporet, og en kravpost fra en tidligere versjon beholder sin, også etter et trekk (KA-U53, KA-U75,
+ * arbeidsvalget 07.11 i domenetabellen).
  */
 function medKravposter(
   innhold: Record<string, unknown>,
@@ -222,12 +223,12 @@ function medKravposter(
 ): Record<string, unknown> {
   if (!innhold.kravposter) return innhold;
   const tidligere = u.spor.vederlag.krav;
-  const forrige = new Map(
-    (tidligere.length ? kravposterI(tidligere.at(-1)!) : []).map((p) => [p.id, p.betegnelse])
+  const betegnelsen = new Map(
+    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])
   );
   const brukte = brukteBetegnelser(tidligere);
   const kravposter = (innhold.kravposter as Record<string, unknown>[]).map((p) => {
-    if (typeof p.id === 'string') return { ...p, betegnelse: forrige.get(p.id)! };
+    if (typeof p.id === 'string') return { ...p, betegnelse: betegnelsen.get(p.id)! };
     const betegnelse = nesteBetegnelse(brukte);
     brukte.add(betegnelse);
     return { id: nyId(), betegnelse, ...p };

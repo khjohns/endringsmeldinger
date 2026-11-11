@@ -2895,6 +2895,125 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+id = "KA-U73"
+dato = 2026-11-11
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+S-1 ordrett slik det ble stilt 11.11, fra [spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md):
+
+**S-1** Angir kravet dagene for hver frist i kontrakten, eller ett tall for saken med fristene i begrunnelsen? Prototypen har dager per frist.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 11.11, ordrett: «Til S-1: Kravet om fristforlengelse skal knytte seg til en eller flere av fristene i kontrakten.» Svaret er med egne ord og er alternativ A. Om dagene angis for hver frist, er stilt som oppfølgingsspørsmål og besvart i KA-U74. ([spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md))'''
+folge = '''
+Gjelder BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Kravet om fristforlengelse skal knytte seg til en eller flere av fristene i kontrakten.'''
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U74"
+dato = 2026-11-11
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+Oppfølgingsspørsmålet til S-1 ordrett slik det ble stilt 11.11, fra [spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md):
+
+«Dagene per frist: svaret ditt sier at kravet knytter seg til én eller flere frister, men ikke om dagene angis for hver frist. Jeg anbefaler dager for hver frist, slik prototypen har det, fordi overtakelsen og en delfrist kan få ulikt antall dager. Alternativet er ett tall som gjelder alle fristene kravet nevner.»'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 11.11, ordrett: «1. Enig med deg.» Valgt: A, anbefalingen. ([spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md))'''
+forhold = [
+  { art = "presiserer", vedtak = "ka-u73" },
+]
+folge = '''
+Gjelder BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Dager for hver frist, slik prototypen har det.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Ett tall som gjelder alle fristene kravet nevner.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U75"
+dato = 2026-11-11
+hvem = "oppdragsgiver"
+kilde = ["#1778"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det ble stilt 11.11 i byggeøkta for #1778, fra [spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md):
+
+**1. Trekk av én kravpost i vederlagskravet.**
+- A (anbefalt): Brevet sier at totalentreprenøren trekker kravposten, ikke at trekket er et avkall. En trukket kravpost kan tas med igjen i en senere kravversjon med samme betegnelse. Hva trekket betyr, vurderer partene. Byggherren kan gjøre gjeldende i begrunnelsen at trekket var et avkall. Trekket av hele vederlagskravet er fortsatt et avkall (KA-U22). Dette endrer KA-U56 om avkallet og opphever KA-U70.
+- B: Som i dag (KA-U56 og KA-U70).'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 11.11, ordrett: «A,A». Valgt i spørsmål 1: A. ([spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md))'''
+forhold = [
+  { art = "endrer", vedtak = "ka-u56" },
+  { art = "opphever", vedtak = "ka-u70" },
+]
+folge = '''
+Endrer KA-U56 og opphever KA-U70, slik alternativet sier. Berører trekket av en kravpost i BF-14.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Brevet sier at totalentreprenøren trekker kravposten, ikke at trekket er et avkall. En trukket kravpost kan tas med igjen i en senere kravversjon med samme betegnelse. Hva trekket betyr, vurderer partene. Byggherren kan gjøre gjeldende i begrunnelsen at trekket var et avkall. Trekket av hele vederlagskravet er fortsatt et avkall (KA-U22). Dette endrer KA-U56 om avkallet og opphever KA-U70.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som i dag (KA-U56 og KA-U70).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U76"
+dato = 2026-11-11
+hvem = "oppdragsgiver"
+kilde = ["#1745", "#1778"]
+sporsmal = '''
+Spørsmål 2 ordrett slik det ble stilt 11.11 i byggeøkta for #1778, fra [spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md):
+
+**2. Trekk av én frist i en ny versjon av fristkravet (S-4).**
+- A (anbefalt): Samme regel som i 1 A. Brevet sier at fristen trekkes, fristen kan tas med igjen i en senere versjon, og partene vurderer betydningen. Trekket av hele fristkravet er fortsatt et avkall (KA-U22).
+- B: Trekket av en frist er et avkall, og fristen kan ikke tas med igjen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 11.11, ordrett: «A,A». Valgt i spørsmål 2: A. ([spørsmålsfila](../vedlegg/trekk-og-fristene-2026-11-11/sporsmal.md))'''
+forhold = [
+  { art = "bygger på", vedtak = "ka-u75" },
+]
+folge = '''
+«1 A» er KA-U75. Svarer på S-4 i BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Samme regel som i 1 A. Brevet sier at fristen trekkes, fristen kan tas med igjen i en senere versjon, og partene vurderer betydningen. Trekket av hele fristkravet er fortsatt et avkall (KA-U22).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Trekket av en frist er et avkall, og fristen kan ikke tas med igjen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U58"
 dato = 2026-11-10
 hvem = "oppdragsgiver"

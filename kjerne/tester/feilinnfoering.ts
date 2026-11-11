@@ -4062,15 +4062,45 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['verken tar med eller trekker P1'],
   },
   {
-    id: 'F477',
-    feilklasse: 'en trukket kravpost kan tas opp igjen (KA-U70)',
+    id: 'F549',
+    feilklasse: 'en trukket kravpost avvises når den tas med igjen (KA-U75)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [['    if (kjent && !forrige.has(id!))\n', '    if (false)\n']],
-    mal: ['en trukket kravpost tas ikke opp igjen'],
+    endringer: [
+      [
+        '    if (id !== undefined && !kjent && !lagret)',
+        '    if (id !== undefined && !forrige.has(id) && !lagret)',
+      ],
+    ],
+    mal: ['en trukket kravpost kan tas med igjen'],
+  },
+  {
+    id: 'F551',
+    feilklasse:
+      'en kravpost som tas med igjen, sammenlignes med forrige versjon, der den mangler (KA-U75)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [
+      [
+        '    const somFoer = [...tidligere]\n      .reverse()',
+        '    const somFoer = tidligere\n      .slice(-1)',
+      ],
+    ],
+    mal: ['kan vise til varselet den viste til før trekket'],
+  },
+  {
+    id: 'F550',
+    feilklasse: 'en trukket kravpost som tas med igjen, får ikke betegnelsen sin tilbake (KA-U75)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        '    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])',
+        '    (tidligere.length ? kravposterI(tidligere.at(-1)!) : []).map((p) => [p.id, p.betegnelse])',
+      ],
+    ],
+    mal: ['en trukket kravpost kan tas med igjen'],
   },
   {
     id: 'F478',
-    feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, KA-U70)',
+    feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, KA-U75)',
     fil: `${K}/utledning/kravposter.ts`,
     endringer: [
       [
@@ -4078,7 +4108,7 @@ const MUTASJONER: Mutasjon[] = [
         '  return new Set(kravposterI(tidligere.at(-1) ?? { innhold: {} }).map((p) => p.betegnelse));',
       ],
     ],
-    mal: ['en trukket kravpost tas ikke opp igjen'],
+    mal: ['en trukket kravpost kan tas med igjen'],
   },
   {
     id: 'F479',

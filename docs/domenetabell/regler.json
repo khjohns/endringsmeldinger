@@ -1277,11 +1277,18 @@
       "radetikett": "KA-U59: Byggherren svarer per kravpost"
     },
     {
-      "id": "KA-U70",
+      "id": "KA-U75",
+      "type": "vedtak",
+      "dato": "2026-11-11",
+      "ref": "../plans/vedtak.md#ka-u75",
+      "radetikett": "KA-U75: Brevet sier at totalentreprenøren trekker kravposten, ikke at trekket er et avkall"
+    },
+    {
+      "id": "KA-U53",
       "type": "vedtak",
       "dato": "2026-11-07",
-      "ref": "../plans/vedtak.md#ka-u70",
-      "radetikett": "KA-U70: Punkt 11 gjelder også en trukket kravpost"
+      "ref": "../plans/vedtak.md#ka-u53",
+      "radetikett": "KA-U53: TE kan dele vederlagsjusteringen i flere kravposter, hver med beskrivelse og beløp"
     },
     {
       "id": "OV-U95",
@@ -3662,16 +3669,16 @@
     },
     {
       "id": "KA-55",
-      "tilfelle": "TE har sendt et vederlagskrav med kravposten P1. TE sender en ny kravversjon som verken tar med eller trekker P1, en som tar med P1, og en som trekker P1. Etter trekket sender TE en ny kravversjon som tar opp igjen P1.",
-      "forventet": "En ny kravversjon tar med eller trekker uttrykkelig hver kravpost i forrige versjon ([KA-U56](../plans/vedtak.md#ka-u56)). Versjonen som verken tar med eller trekker P1, avvises; versjonen som tar med P1, og versjonen som trekker P1, godtas. En trukket kravpost kan ikke tas opp igjen i en ny kravversjon, og betegnelsen brukes ikke igjen ([KA-U70](../plans/vedtak.md#ka-u70), som utvider [KA-U51](../plans/vedtak.md#ka-u51) punkt 11). En ny kravpost tas imot med ny betegnelse.",
+      "tilfelle": "TE har sendt et vederlagskrav med kravposten P1. TE sender en ny kravversjon som verken tar med eller trekker P1, en som tar med P1, og en som trekker P1. Etter trekket sender TE en ny kravversjon som tar med P1 igjen.",
+      "forventet": "En ny kravversjon tar med eller trekker uttrykkelig hver kravpost i forrige versjon ([KA-U56](../plans/vedtak.md#ka-u56)). Versjonen som verken tar med eller trekker P1, avvises; versjonen som tar med P1, og versjonen som trekker P1, godtas. En trukket kravpost kan tas med igjen i en senere kravversjon med samme betegnelse ([KA-U75](../plans/vedtak.md#ka-u75)). En ny kravpost får en betegnelse som ikke er brukt i sporet ([KA-U53](../plans/vedtak.md#ka-u53)).",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Trekket er avkall på kravet i kravposten (KA-U56). Løsningen avgjør ikke om en ny kravpost gjelder det samme som den trukne (KA-U70).",
+      "rettslig_virkning": "Løsningen sier ikke at trekket av en kravpost er et avkall. Hva trekket betyr, vurderer partene (KA-U75).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U56",
-        "KA-U70",
-        "KA-U51",
+        "KA-U75",
+        "KA-U53",
         "OV-U95"
       ],
       "tolkningsstatus": "avklart_tolkning",

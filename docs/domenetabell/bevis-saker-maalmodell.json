@@ -12527,8 +12527,8 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
-      "id": "F-MM-KA-U70",
-      "forslag": "KA-U70: en trukket kravpost tas ikke opp igjen i en ny kravversjon",
+      "id": "F-MM-KA-U75",
+      "forslag": "KA-U75: en trukket kravpost kan tas med igjen i en senere kravversjon",
       "rader": ["KA-55"],
       "start": "krav_irreg",
       "steg": [
@@ -12544,24 +12544,24 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U70", "KA-U51"],
+          "kilde": ["KA-U75"],
           "prov": {
             "handling": "krav",
             "spor": "vederlag",
             "kravposter": [{ "post": "P2", "oppgjoersform": "regningsarbeid" }, { "post": "P1", "belop": 1000 }]
           },
-          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
           "rolle": "kontroll",
-          "kilde": ["KA-U70"],
+          "kilde": ["KA-U56"],
           "prov": {
             "handling": "krav",
             "spor": "vederlag",
-            "kravposter": [{ "post": "P2", "oppgjoersform": "regningsarbeid" }, { "belop": 1000 }]
+            "kravposter": [{ "post": "P1", "belop": 1000 }]
           },
-          "forventet": { "avvist": false }
+          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
