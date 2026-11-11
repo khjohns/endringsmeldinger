@@ -35,7 +35,9 @@ kan en opphevet ID stå uten posten som opphever den, som i en test merket histo
 vedtaks-PR-en for samlevedtaket for endringsordren, #1534).
 
 En post med klassen design er ikke eneste grunnlag i `kjerne/frosset/`, `kjerne/kommandoer/`
-og `kjerne/regler/`, og heller ikke i `kilde` og `kilder` i bevis-sakene. Samme henvisning
+og `kjerne/regler/`, i rollefilene i et spor som hører til dem (`frysing.ts`, `tekst.ts` og
+`kommando.ts` i `kjerne/spor/<spor>/`, #1783), og heller ikke i `kilde` og `kilder` i
+bevis-sakene. Samme henvisning
 må vise til vedtaket med den bindende setningen, og feilmeldingen foreslår vedtakene i
 `bindende_i` (arbeidsvalget for kontroll 2 04.11 i #1534).
 """
@@ -67,6 +69,8 @@ HISTORISKE_DOKUMENTER = frozenset(
     }
 )
 GRUNNLAGSMAPPER = ("kjerne/frosset/", "kjerne/kommandoer/", "kjerne/regler/")
+# Rollefilene i et spor som hører til GRUNNLAGSMAPPER (#1783).
+GRUNNLAG_I_SPORET = re.compile(r"kjerne/spor/[^/]+/(?:frysing|tekst|kommando)\.ts")
 BEVIS_SAKER = "docs/domenetabell/bevis-saker*.json"
 KILDEFELT = ("kilde", "kilder")
 HOPP_OVER = {"node_modules", ".svelte-kit", "dist", "build"}
@@ -266,7 +270,7 @@ def er_dokument(sti: str) -> bool:
 
 
 def i_grunnlagsmappe(sti: str) -> bool:
-    return sti.startswith(GRUNNLAGSMAPPER)
+    return sti.startswith(GRUNNLAGSMAPPER) or GRUNNLAG_I_SPORET.fullmatch(sti) is not None
 
 
 def er_test(sti: str) -> bool:

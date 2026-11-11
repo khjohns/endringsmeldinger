@@ -9,7 +9,8 @@
 # 2. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
 #    REGELVERSJON i kjerne/regler/regelsett.ts økes. Det samme gjelder
 #    kjerne/frosset/, som bestemmer hva beslutningsgrunnlaget fryser
-#    (MM-U11, #330, #309). Den krever også PROJEKSJONSVERSJON, som resten av
+#    (MM-U11, #330, #309), og frysingen og teksten i et spor i kjerne/spor/
+#    (#1783). Den krever også PROJEKSJONSVERSJON, som resten av
 #    kjernen. Finnes kjerne/ uten frosset/standpunkt.ts, feiler vakten, så
 #    kravet ikke forsvinner ved en omdøping. Endres resten av
 #    TS-koden i kjernen utenom testene, må PROJEKSJONSVERSJON i
@@ -89,7 +90,7 @@ if [ -n "$flyttet" ]; then
 fi
 regler=$(krav_til REGELVERSJON)
 if [ -z "$regler" ]; then
-  echo "Ingen endring i kjerne/regler/ eller kjerne/frosset/."
+  echo "Ingen endring i kjerne/regler/, kjerne/frosset/ eller frysingen og teksten i kjerne/spor/."
 else
   echo "Endret i regelsettet:"; echo "$regler"
   if ! okt "$regelsett" les_regelversjon; then

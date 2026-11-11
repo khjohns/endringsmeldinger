@@ -83,7 +83,8 @@ design i [vedtaksregisteret](../../docs/vedtaksregister/README.md#klassen) sier 
 skjemaet, visningen og arbeidsflyten er bygget opp, og brukerprøven kan endre den uten vedtak.
 Kilden er vedtaket med den bindende setningen, som `bindende_i` for posten viser til.
 `docs/verktoy/vedtakshenvisninger.py` avviser en designpost alene i `kilde` i bevis-sakene
-og i `kjerne/frosset/`, `kjerne/kommandoer/` og `kjerne/regler/`. En forventning om
+og i `kjerne/frosset/`, `kjerne/kommandoer/` og `kjerne/regler/`, med rollefilene i et spor
+som hører til dem (`kjerne/spor/`, #1783). En forventning om
 visningen kan vise til et U-punkt i bestillingen for brukerforløpet (steg 3b i #1534).
 
 ## Vis at kritiske tester oppdager feil
