@@ -9508,3 +9508,48 @@ describe('lagene i utregningen er lagene i beslutningsgrunnlaget (OV-U32, KA-U64
     }
   );
 });
+
+/**
+ * #1775: rigg og drift i forlenget byggetid (OV-U89 punkt 17) er ikke i formatet før #1724 har
+ * satt formen. Kravet med posten avvises og forenkles ikke til et krav uten den, og en lagret rad
+ * med posten er ikke forstått (MM-U2). Kontrollsaken er samme krav uten posten. Posten etter
+ * § 34.1.3 annet ledd er uendret.
+ */
+describe('rigg og drift i vederlagskravet avvises til posten er bygget (MM-U2, #1775)', () => {
+  const riggposten = { rigg_og_drift: { beloep: 20000 } };
+  const produktivitetsposten = { produktivitet: { beloep: 40000 } };
+  const vederlagskravet = (saerskilt?: Data) => ({
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: tilbud(150000, saerskilt ? { saerskilt } : {}),
+  });
+
+  it.each([
+    ['alene', riggposten],
+    ['med posten etter § 34.1.3 annet ledd', { ...produktivitetsposten, ...riggposten }],
+  ])('kravet med rigg og drift %s avvises med posten i meldingen', (_n, saerskilt) => {
+    const s = sakMedKrav();
+    const a = s.avvisning('TE', vederlagskravet(saerskilt));
+    expect(a?.melding).toContain(
+      '$.innhold.saerskilt.rigg_og_drift: posten for rigg og drift i forlenget byggetid er ikke bygget ennå, så kravet kan ikke sendes med den'
+    );
+    expect(s.avvisning('TE', vederlagskravet()), 'kontrollsaken uten posten').toBeNull();
+    expect(
+      s.avvisning('TE', vederlagskravet(produktivitetsposten)),
+      'posten etter § 34.1.3 annet ledd'
+    ).toBeNull();
+  });
+
+  it('en lagret rad med rigg og drift i vederlagskravet er ikke forstått', () => {
+    const s = sakMedKrav();
+    s.send('TE', vederlagskravet(produktivitetsposten));
+    expect(s.u().forstaatt, 'kontrollsaken').toBe(true);
+    const kravet = (s.journal.at(-1)!.data.krav as Data[])[0];
+    expect(kravet, 'forutsetning: raden har vederlagskravet').toMatchObject({
+      spor: 'vederlag',
+      saerskilt: produktivitetsposten,
+    });
+    kravet.saerskilt = { ...produktivitetsposten, ...riggposten };
+    expect(s.u().forstaatt).toBe(false);
+  });
+});

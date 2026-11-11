@@ -1094,8 +1094,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'kommandoer/kommando.ts:oerefeil(innhold)',
     'kommando',
-    'kravposter saerskilt saerskilt.produktivitet saerskilt.rigg_og_drift',
+    'kravposter saerskilt saerskilt.produktivitet',
     ['kommandoer/kommando.ts:oerefeil'],
+  ],
+  // #1775: rigg og drift i forlenget byggetid avvises til #1724 har satt formen.
+  [
+    'kommandoer/kommando.ts:harRiggOgDrift(innhold)',
+    'kommando',
+    'saerskilt',
+    ['kommandoer/kommando.ts:harRiggOgDrift'],
   ],
   [
     'kommandoer/kommando.ts:oerefeil(p)',

@@ -204,7 +204,8 @@
     "#1434",
     "#1290",
     "#1755",
-    "#1758"
+    "#1758",
+    "#1724"
   ],
   "bevis_saker": [],
   "visninger": [],
@@ -278,6 +279,11 @@
       "dato": "2026-11-11",
       "forhold": "#1663",
       "hva": "Prototype v4 er grunnlaget for byggingen, commit 99c7d6d (oppdragsgiver 11.11). Klikkstiene under `prototype` gjelder fortsatt v3, fordi den mekaniske forprøven ikke er gjort på v4, og v4 ikke har `data-spor`."
+    },
+    {
+      "dato": "2026-11-11",
+      "forhold": "#1775",
+      "hva": "Kjernen avviser rigg og drift i forlenget byggetid i vederlagskravet til #1724 har bygget posten. Utgangspunktet med posten venter på #1724."
     }
   ]
 }
