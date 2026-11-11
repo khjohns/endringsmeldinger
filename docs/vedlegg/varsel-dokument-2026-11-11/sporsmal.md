@@ -31,4 +31,7 @@ senere krav, hva brevet sier om det, og om samme brev kan stå to ganger blant b
 
 ## Svar
 
-Venter på svar.
+Oppdragsgiver 11.11, ordrett: «A».
+
+Svaret er ikke ført som vedtak ennå. Det føres i vedtaksregisteret etter vedtaksskillen, og
+byggingen i kjernen bestilles etter det (#1663).
