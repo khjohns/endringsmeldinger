@@ -1303,6 +1303,41 @@
       "dato": "2026-11-08",
       "ref": "../plans/vedtak.md#vs-u52",
       "radetikett": "VS-U52: Totalentreprenøren kan også velge varsel etter punkt 34.3.3 første ledd og etter punkt 34.4 når korrespondanse legges til som varsel"
+    },
+    {
+      "id": "VS-U49",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u49",
+      "radetikett": "VS-U49: En kravpost med regningsarbeid eller justerte enhetspriser regnes som varsel for seg"
+    },
+    {
+      "id": "VS-U50",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u50",
+      "radetikett": "VS-U50: For hver kravpost som etter VS-U49 ville vært varsel, kan TE i kravskjemaet oppgi at varselet for posten etter punkt 34.3.3 eller 34.4 alt er gitt"
+    },
+    {
+      "id": "VS-U51",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u51",
+      "radetikett": "VS-U51: Legger totalentreprenøren i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter punkt 34.3.3 eller 34.4 for en kravpost, sier kravet at det er totalentreprenøren som opplyser at varselet ble gitt i dokumentet, og dokumentet legges ved kravet"
+    },
+    {
+      "id": "VS-U54",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u54",
+      "radetikett": "VS-U54: Kravposten viser til varselet for posten etter punkt 34.3.3 eller 34.4 med et valgfritt felt, både når TE velger et varsel som står i saken, og når TE legger til et dokument i kravskjemaet"
+    },
+    {
+      "id": "VS-U55",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u55",
+      "radetikett": "VS-U55: Er et varsel gitt før kravet, viser kravet kort til det"
     }
   ],
   "rader": [
@@ -3336,6 +3371,51 @@
       "regelkoder": [
         "VARSEL_REGISTRERT",
         "VEDERLAGSKRAV_SENDT"
+      ]
+    },
+    {
+      "id": "VS-08",
+      "tilfelle": "TE sender et vederlagskrav med en kravpost med regningsarbeid eller justerte enhetspriser som er varsel for seg, og oppgir at varselet for posten alt er gitt i et varsel som står i saken.",
+      "forventet": "Kravposten viser til varselet med et valgfritt felt, og varselet viser ikke til kravposten ([VS-U54](../plans/vedtak.md#vs-u54)). Kravet sier hvor varselet ble gitt og er ikke varselet selv ([VS-U50](../plans/vedtak.md#vs-u50), [VS-U55](../plans/vedtak.md#vs-u55)), også når varselet ble gitt etter det første kravet og når saken har flere varsler etter samme bestemmelse. En kravpost som viser til et varsel etter en annen bestemmelse, til noe som ikke er et varsel i saken før kravet, eller som ikke er varsel for seg ([VS-U49](../plans/vedtak.md#vs-u49)), avvises (KRAVPOSTVARSELET), og en slik lagret kravpost gjør saken ikke forstått.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Løsningen kontrollerer ikke at varselet gjaldt posten (VS-U50), og avgjør ikke om det kom i tide (VS-U48).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "VS-U49",
+        "VS-U50",
+        "VS-U54",
+        "VS-U55"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/kravposter.ts#kravpostvarslene",
+        "kjerne/utledning/kravposter.ts#kravpostvarseletStrider"
+      ],
+      "regelkoder": [
+        "KRAVPOSTVARSELET"
+      ]
+    },
+    {
+      "id": "VS-09",
+      "tilfelle": "TE legger i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter § 34.3.3 eller § 34.4 for en kravpost.",
+      "forventet": "Dokumentet står i saken som et eget brev: registrert korrespondanse med kategorien varsel, med TE som avsender og datoen det ble sendt, før kravet ([VS-U53](../plans/vedtak.md#vs-u53)). Kravposten viser til det ([VS-U54](../plans/vedtak.md#vs-u54)), og kravet legger dokumentet ved og sier at det er TE som opplyser at varselet ble gitt i det ([VS-U51](../plans/vedtak.md#vs-u51)). Varselet og kravet skrives i én transaksjon, så et avvist krav etterlater ikke varselet. Et vederlagskrav med et annet vedlegg gjør saken ikke forstått.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Løsningen kontrollerer ikke at dokumentet er et varsel for posten, og byggherren kan bestride datoen (VS-U50).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "VS-U50",
+        "VS-U51",
+        "VS-U54"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/skriving.ts#medVarslene",
+        "kjerne/utledning/utled.ts#kontrollerVedleggeneVedKravet"
+      ],
+      "regelkoder": [
+        "KRAVPOSTVARSELET"
       ]
     },
     {

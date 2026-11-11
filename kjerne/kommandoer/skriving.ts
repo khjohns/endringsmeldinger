@@ -85,7 +85,7 @@ export type Vedleggsoppslag = ReadonlyMap<string, Vedlegg>;
 
 /**
  * `hendelser` er radene kommandoen gir, i rekkefølge, og den siste er brevet kommandoen gjelder.
- * Har handlingen en rad til, lager `neste` den (VS-U53).
+ * Har handlingen en rad til, lager `neste` den (VS-U51, VS-U53).
  */
 export type Utfall =
   | { godtatt: true; hendelser: Journalrad[]; neste?: Neste }
@@ -93,7 +93,7 @@ export type Utfall =
 
 /**
  * Raden etter i samme handling, laget med sin egen klokke og journalen med radene handlingen
- * alt har gitt. Serveren skriver hver rad med basens klokke for sin skriving (VS-U53).
+ * alt har gitt. Serveren skriver hver rad med basens klokke for sin skriving (VS-U51, VS-U53).
  */
 export type Neste = (kontekst: Kontekst, journal: Journalrad[]) => Utfall;
 

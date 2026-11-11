@@ -12443,6 +12443,90 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
+      "id": "F-MM-VS-U50",
+      "forslag": "VS-U50, VS-U54: kravposten viser til et varsel etter samme bestemmelse i saken",
+      "rader": ["VS-08"],
+      "start": "krav_irreg",
+      "steg": [{ "handling": "varsel", "spor": "vederlag", "hjemmel": "34.4", "navn": "V1" }],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["VS-U50"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [
+              { "post": "P1", "belop": 100000 },
+              { "oppgjoersform": "enhetspriser", "justert": true, "varsel": "V1" }
+            ]
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTVARSELET" }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["VS-U49", "VS-U50"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 100000, "varsel": "V1" }]
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTVARSELET" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["VS-U50", "VS-U54"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [
+              { "post": "P1", "belop": 100000 },
+              { "oppgjoersform": "regningsarbeid", "varsel": "V1" }
+            ]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-VS-U51",
+      "forslag": "VS-U51, VS-U53: dokumentet fra kravskjemaet står som eget registrert varsel før kravet",
+      "rader": ["VS-09"],
+      "start": "krav_irreg",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["VS-U50"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 100000, "varsel": { "sendt": "2026-09-10" } }]
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTVARSELET" }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["VS-U51", "VS-U54"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [
+              { "post": "P1", "belop": 100000 },
+              { "oppgjoersform": "regningsarbeid", "varsel": { "sendt": "2026-09-10" } }
+            ]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
       "id": "F-MM-KA-U70",
       "forslag": "KA-U70: en trukket kravpost tas ikke opp igjen i en ny kravversjon",
       "rader": ["KA-55"],

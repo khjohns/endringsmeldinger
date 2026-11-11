@@ -320,7 +320,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/kravposter.ts:kravpostvarslene',
       'utledning/kravposter.ts:kravpostvarseletStrider',
       'utledning/utled.ts:kontrollerVedleggeneVedKravet',
-      'kommandoer/skriving.ts:medVarslene',
     ],
   ],
   // KA-U54, KA-U64, KA-U68, OV-U95 punkt 5: svaret på en kravpost etter en beregningsregel.
@@ -806,6 +805,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Avvisning', 'kommando', 'melding', ['kommandoer/skriving.ts:medVarslene']],
   ['Journalrad.data', 'rad', 'utsagn', ['kommandoer/skriving.ts:medVarslene']],
   ['kommandoer/skriving.ts:medVarslene', 'rad', 'id'],
+  ['kommandoer/skriving.ts:medVarslene', 'kommando', 'varsel'],
   [
     'kommandoer/kommando.ts:formfeil',
     'kommando',

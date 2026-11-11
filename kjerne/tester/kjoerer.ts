@@ -18,7 +18,7 @@ import {
   laastTekst,
   Skrivefeil,
   utledJournal,
-  vurder,
+  vurderHele,
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
@@ -175,10 +175,11 @@ export class Kjoering {
         medRegler(klientregler, this.kjerne),
         mellomlager(k)
       );
-      const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
+      // Brevet er den siste raden handlingen gir (VS-U53).
+      const tekst = vist.godtatt ? laastTekst(vist.hendelser.at(-1)!) : null;
       if (Array.isArray(h.brevtekst)) k.brevtekst = h.brevtekst as string[];
       else if (tekst && h.brevtekst !== false) k.brevtekst = tekst;
-      const utfall = vurder(
+      const utfall = vurderHele(
         structuredClone(k),
         this.kontekst(h),
         journal,
@@ -276,7 +277,7 @@ export class Kjoering {
    * og `<etikett>#mottatt`.
    */
   private navngi(h: Handling, utfall: Extract<Utfall, { godtatt: true }>): void {
-    const [rad] = utfall.hendelser;
+    const rad = utfall.hendelser.at(-1)!;
     const data = rad.data as { krav?: { id: string }[]; svar?: { id: string }[] };
     if (h.handling === 'brev') {
       this.navn.sett(h.navn, rad.event_id);
