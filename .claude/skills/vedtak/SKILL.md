@@ -191,7 +191,9 @@ skriver ikke der.
   Kartleggingen av et samlevedtak holdes liten (#1065). Vurderingsfila
   har høyst om lag 150 linjer for en ny versjon av et samlevedtak og om lag 250 for en ny
   kjede, og den viser til punktene uten å gjengi dem. Alternativene prøves én gang mot
-  vedtakene, og funnene rettes én gang. Kartleggingsøkta sender spørsmålene før om lag
+  vedtakene, og funnene rettes én gang. Kodefunn fra kartleggingen står i
+  vurderingsfila og samles i én kommentar i issuet kartleggingen er en del av. De får
+  ikke egne issues før samlevedtaket er ført. Kartleggingsøkta sender spørsmålene før om lag
   150 000 tokens. Klarer den ikke det, skriver den tilstanden og stopper. Postene og
   kjedene slås opp med `vedtaksregister.py --vis` og `--kjede`, og subagentene følger
   skillen [`subagenter`](../subagenter/SKILL.md).

@@ -158,15 +158,38 @@ ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene
 i PR-en fra grenen `skjermbilder`, slik
 [mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier (#1222).
 
-**Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
-som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
+**Stoppregelen for funn.** Byggeøkta retter funnene mens den har konteksten. Et funn
+rettes i PR-en i to tilfeller:
+
+- Det gir feil resultat nå, eller bryter et vedtak eller kontrakten.
+- Det gjelder kode, tester eller tekst PR-en selv har skrevet eller endret, og
+  rettingen kan gjøres uten en avgjørelse fra oppdragsgiver.
+
+Et funn rettes ikke i PR-en, selv om det gjelder PR-ens egen kode, når
+
+- rettingen krever et vedtak, et designvalg eller et annet svar fra oppdragsgiver,
+- funnet sto før PR-en og ikke gir feil resultat nå, med mindre rettingen er noen få
+  linjer i en fil PR-en allerede endrer, eller
+- rettingen hører til en del som bygges i et annet issue.
+
+Endrer en retting visningen etter at oppdragsgiver har sett skjermbildene, sier
+PR-beskrivelsen hva som ble endret i visningen, i et eget punkt.
+
+Et funn som ikke rettes, får ett av fire utfall:
 
 - Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
   kan gi feil resultat senere eller er et krav til noe som skal bygges.
-- Er det et krav til en inngang eller del som ikke finnes ennå, føres kravet som
-  kommentar i issuet for den inngangen eller delen.
+- Er det et krav til en inngang eller del som ikke finnes ennå, eller som bygges i
+  et annet åpent issue, føres kravet som kommentar i det issuet. Det gjelder også
+  når PR-en er «Del av» det issuet.
+- Krever det et svar fra oppdragsgiver, stilles spørsmålet under «Åpne spørsmål» i
+  PR-en, eller etter [vedtaksskillen](../vedtak/SKILL.md) når det gjelder domenet.
 - Resten samles i ett oppfølgingsissue per PR, med etiketten `review-oppfølging`
   og en sjekkliste. Ett issue per funn lages ikke (#649).
+
+Reviewet kjøres én gang, og kontrollen av rettingene én gang. Et funn fra kontrollen
+av rettingene rettes bare når det gir feil resultat nå, eller bryter et vedtak eller
+kontrakten. Resten får ett av utfallene over.
 
 **Hva som føres i oppfølgingsissuet**:
 
@@ -175,7 +198,8 @@ som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre 
   Ellers avvises det med én linje.
 - **Feil ved en senere endring.** Et funn regnes som «kan gi feil resultat
   senere» bare når endringen er planlagt i et issue eller et vedtak.
-- **Avvises alltid:** duplisering, docstringer og ytelse uten måling.
+- **Føres aldri:** duplisering, docstringer og ytelse uten måling. Duplisering
+  PR-en selv innfører, rettes i PR-en. Annen duplisering avvises.
 - **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står
   punktet der alt, skriver du en kommentar der i stedet for et nytt punkt.
 
@@ -187,7 +211,8 @@ issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
 
 Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
 rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
-`medium` (#484, #490).
+`medium` (#484, #490). Rører rettingene bare tester og dokumentasjon, kjøres ikke
+kontrollen. Testene kjøres, og PR-en sier at kontrollen er utelatt.
 
 ## Før en PR meldes klar
 

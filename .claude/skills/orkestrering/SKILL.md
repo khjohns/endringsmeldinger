@@ -149,6 +149,10 @@ innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang (#425, #4
   issuenummer og punkt. Byggeøkta legger
   ikke til punkter selv. Punkter i filer runden ikke rører, venter. Regelen
   gjelder også i FK og F0b før #310.
+  Et punkt som har stått åpent i mer enn fire uker, venter ikke lenger.
+  Orkestratoren legger slike punkter fram for oppdragsgiver ved starten av runden,
+  med en anbefaling for hvert: en egen ryddrunde, eller avvisning med én linje i
+  issuet.
 - Filoverlapp mellom PR-er kontrolleres med
   `git fetch origin <branch> && git diff --name-only origin/main...origin/<branch>`,
   ikke med `get_files` fra GitHub-MCP. Det svaret har patchene med og blir for
@@ -238,9 +242,10 @@ Gjør dette for hver PR:
    siste meldingene fra økta (`list_events` med `kinds: ["assistant"]` og lav
    `limit`). Les ikke diffen selv: skal den vurderes ut over reviewet økta har
    kjørt, la en subagent lese den og levere konklusjon og funn.
-2. Funn som verken er ført eller avvist etter stoppregelen for funn i leveranseskillen,
-   kontrolleres og meldes. Det føres i PR-ens samleissue, eller legges i issuet
-   for samme rotårsak når det finnes. Et funn som økta har tilskrevet
+2. Funn som verken er rettet, ført eller avvist etter stoppregelen for funn i
+   leveranseskillen, kontrolleres og meldes. Skal funnet rettes i PR-en etter
+   stoppregelen, sendes det til økta som eier PR-en. Ellers føres det i PR-ens
+   samleissue, eller legges i issuet for samme rotårsak når det finnes. Et funn som økta har tilskrevet
    testmiljøet, sjekkes før det avskrives.
    Legger PR-en til en serverinngang, en tabell eller en migrasjon, lar
    orkestratoren en subagent på standardmodellen kontrollere hver
