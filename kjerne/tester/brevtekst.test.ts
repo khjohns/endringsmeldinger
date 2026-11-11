@@ -9462,13 +9462,19 @@ describe('lagene i utregningen er lagene i beslutningsgrunnlaget (OV-U32, KA-U64
                 produktivitet_varslet_i_tide: produktivitet,
                 ...(produktivitet ? {} : { produktivitet_begrenset_beloep: 10000 }),
               };
-              const r = regnUtSvar(
-                'vederlag',
-                v,
-                { krav: k, paaberopelse: s.u().spor.forhold.gjeldendeKrav },
-                KJERNE.regler
-              );
               const tilfellet = JSON.stringify(v);
+              let r: ReturnType<typeof regnUtSvar>;
+              try {
+                r = regnUtSvar(
+                  'vederlag',
+                  v,
+                  { krav: k, paaberopelse: s.u().spor.forhold.gjeldendeKrav },
+                  KJERNE.regler
+                );
+              } catch (e) {
+                if (!(e instanceof UgyldigVurdering)) throw e;
+                expect.fail(`Utregningen avviser svaret ${tilfellet}: ${JSON.stringify(e.feil)}`);
+              }
               s.send('BH', {
                 type: 'brev',
                 svar: [
