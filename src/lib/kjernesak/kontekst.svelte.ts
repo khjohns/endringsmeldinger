@@ -29,6 +29,9 @@ import type { Part } from '$kjerne/typer';
 /** Sporet kjernen gir hvert element i saken, for brevene i Varden (#1663). */
 export { elementenesSpor } from '$kjerne/kommandoer/handlinger';
 
+/** Det som hindrer byggherrens svar på kravet i dag (KA-U59), for vederlagssvaret i Varden. */
+export { hindrerSvarPaaKravet } from '$kjerne/kommandoer/forutsetninger';
+
 /**
  * En kommando som fikk et usikkert utfall. Den kan være lagret, så et nytt forsøk
  * sender den uendret, med samme ID og versjon, og får kvitteringen hvis den er det (#418).

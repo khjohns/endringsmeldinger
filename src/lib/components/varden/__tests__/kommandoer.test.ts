@@ -9,7 +9,7 @@ import { laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad } from '$kjerne/typer';
 import { opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
-import { kravposterI } from '$kjerne/frosset/kravinnhold';
+import { kravposterI } from '$kjerne/format/kravinnhold';
 import {
   tomPost,
   tomtSvar,

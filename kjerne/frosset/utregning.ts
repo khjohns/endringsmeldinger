@@ -27,7 +27,7 @@ import {
   krevdIKravposten,
   krevdProduktivitet,
   kravposterI,
-} from './kravinnhold.ts';
+} from '../format/kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import { type Krav, type Kravpost, type Spor, utenGren } from '../typer.ts';
 

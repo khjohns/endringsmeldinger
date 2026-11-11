@@ -8,7 +8,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { Svarutkast } from '../../kjerne/kommandoer/kommando.ts';
-import { kravposterI } from '../../kjerne/frosset/kravinnhold.ts';
+import { kravposterI } from '../../kjerne/format/kravinnhold.ts';
 import {
   forhaandsvis,
   laastTekst,

@@ -30,7 +30,7 @@ import { brevmerking } from '../frosset/brevtittel.ts';
 import { lagFraForholdet, postlisten } from '../frosset/standpunkt.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
-import { kravposterI } from '../frosset/kravinnhold.ts';
+import { kravposterI } from '../format/kravinnhold.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
@@ -6515,7 +6515,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
         gjelder: s.krav('vederlag'),
         hjemmel: '34.1.3',
         i_tide: false,
-        beloep: 10000,
+        begrenset_beloep: 10000,
       },
       { art: 'beloep', beloep: 30000, saerskilt: 'produktivitet' },
     ]);

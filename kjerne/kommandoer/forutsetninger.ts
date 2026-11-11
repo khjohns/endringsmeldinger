@@ -19,7 +19,7 @@ import {
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
-import { hindrerSvarPaaKravet, kategori } from '../frosset/kravinnhold.ts';
+import { kategori, krevdRigg } from '../format/kravinnhold.ts';
 import type {
   Avvisning,
   Krav,
@@ -224,6 +224,15 @@ export const avvis = (regel: string, melding: string): Avvisning => ({ regel, me
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
   'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
+
+/**
+ * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis.
+ * Svaret på rigg og drift er ikke bygget; posten går i en egen bestilling (arbeidsvalg 5 i
+ * spørsmålsfila 10.11 for #1663).
+ */
+export function hindrerSvarPaaKravet(krav: Krav): string | null {
+  return krevdRigg(krav) !== null ? 'Kravet har rigg og drift i forlenget byggetid' : null;
+}
 
 /**
  * KA-U59: byggherren svarer per kravpost. Til svaret på rigg og drift er bygget, tilbys svaret

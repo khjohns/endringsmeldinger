@@ -319,7 +319,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
       hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2', '34.1.3', '34.3.3', '34.4'] },
       i_tide: { type: 'boolean' },
       // VS-U5, OV-U22: beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3.
-      beloep: { type: 'number', minimum: 0 },
+      begrenset_beloep: { type: 'number', minimum: 0 },
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
   ),

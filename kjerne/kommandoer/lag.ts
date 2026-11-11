@@ -12,7 +12,7 @@ import {
   laget,
   virkninger,
 } from '../frosset/standpunkt.ts';
-import { kravposterI } from '../frosset/kravinnhold.ts';
+import { kravposterI } from '../format/kravinnhold.ts';
 import { kravpostvurderinger, type Svarvurdering } from '../frosset/utregning.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';

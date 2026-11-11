@@ -29,7 +29,7 @@ import {
   kategori,
   krevdIKravposten,
   krevdSamlet,
-} from '../frosset/kravinnhold.ts';
+} from '../format/kravinnhold.ts';
 import {
   datoenDetBleSendt,
   foresporselForFristsvar,

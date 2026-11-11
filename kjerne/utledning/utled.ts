@@ -49,7 +49,7 @@ import {
   innholdIForholdet,
   innholdIVederlaget,
   kravposterI,
-} from '../frosset/kravinnhold.ts';
+} from '../format/kravinnhold.ts';
 import {
   KRAVSPOR,
   SPOR,
