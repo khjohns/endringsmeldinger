@@ -27,7 +27,7 @@ import {
   sammeSlag,
 } from '../format/leser.ts';
 import { OPPGJOERSHJEMMEL, oppgittDato } from '../format/format.ts';
-import { kravposteneStrider, varselhjemmel } from './kravposter.ts';
+import { kravposteneStrider, kravpostvarseletStrider, varselhjemmel } from './kravposter.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
@@ -714,6 +714,12 @@ function utledSporene(
     dokumenter.get(plass.get(id)?.hendelse ?? '')?.avsender;
 
   kontrollerKravkjedene(spor, ugyldig);
+  kontrollerKravpostvarslene(spor.vederlag.krav, varsler, bakover, ugyldig);
+  kontrollerVedleggeneVedKravet(
+    spor.vederlag.krav,
+    (id) => dokumenter.get(plass.get(id)?.hendelse ?? ''),
+    ugyldig
+  );
   kontrollerSvarene(alleSvar, alleKrav, spor, varsler, besvart, bakover, ugyldig);
   kontrollerSvarkjedene(spor, ugyldig);
   kontrollerAksepter(aksepter, alleSvar, bakover, ugyldig);
@@ -780,6 +786,44 @@ function kontrollerKravkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyld
       if (k.erstatter !== forrige)
         ugyldig(k.id, 'kravversjonene i sporet er ikke én kjede der hver erstatter den forrige');
     });
+  }
+}
+
+/** VS-U50, VS-U54: en kravpost viser bare til et varsel for posten som står før kravet. */
+function kontrollerKravpostvarslene(
+  krav: readonly Krav[],
+  varsler: readonly LestVarsel[],
+  bakover: Bakover,
+  ugyldig: Ugyldig
+): void {
+  krav.forEach((k, i) => {
+    const foer = varsler.filter((v) => erKravpostvarselhjemmel(v.hjemmel) && bakover(k.id, v.id));
+    const strid = kravpostvarseletStrider(k, krav.slice(0, i), foer);
+    if (strid) ugyldig(k.id, strid);
+  });
+}
+
+/**
+ * VS-U51, VS-U53: et vederlagskrav har bare dokumentene kravskjemaet la til som varselet for en
+ * kravpost som vedlegg, og de står i det registrerte varselet kravposten viser til.
+ */
+function kontrollerVedleggeneVedKravet(
+  krav: readonly Krav[],
+  dokumentetTil: (id: string) => Dokument | undefined,
+  ugyldig: Ugyldig
+): void {
+  for (const k of krav) {
+    const ved = dokumentetTil(k.id)?.dokumentasjon ?? [];
+    const varslene = new Set(
+      kravposterI(k).flatMap((p) =>
+        p.varsel ? (dokumentetTil(p.varsel)?.dokumentasjon ?? []).map((v) => v.vedlegg_id) : []
+      )
+    );
+    if (ved.some((v) => !varslene.has(v.vedlegg_id)))
+      ugyldig(
+        k.id,
+        'vederlagskravet har et vedlegg som ikke er dokumentet med varselet for en kravpost (VS-U51)'
+      );
   }
 }
 

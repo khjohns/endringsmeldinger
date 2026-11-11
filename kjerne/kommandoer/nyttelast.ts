@@ -5,7 +5,7 @@
  * regelversjonen; innholdet står i brevet (KA-U10 (opphevet av MM-U50)).
  */
 
-import { kravposteneStrider } from '../utledning/kravposter.ts';
+import { kravposteneStrider, kravpostvarseletStrider } from '../utledning/kravposter.ts';
 import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
@@ -192,11 +192,17 @@ function kravetsUtdypning(
   return null;
 }
 
-/** KA-U56, KA-U51 punkt 11 og KA-U70: kravpostene mot forrige kravversjon. */
+/** KA-U56, KA-U51 punkt 11 og KA-U70: kravpostene mot forrige kravversjon, og VS-U50: varselet for posten. */
 function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
   const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);
-  return strid ? avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`) : null;
+  if (strid) return avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`);
+  const varselet = kravpostvarseletStrider(
+    { innhold: k.innhold },
+    u.spor.vederlag.krav,
+    u.spor.vederlag.kravpostvarsler
+  );
+  return varselet ? avvis('KRAVPOSTVARSELET', `I kravversjonen ${varselet}.`) : null;
 }
 
 /**

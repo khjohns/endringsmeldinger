@@ -154,7 +154,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
       });
     utfall.hendelser.forEach((h, i) => rader.push({ ...h, versjon: naa + i + 1 }));
     return {
-      event_id: utfall.hendelser[0].event_id,
+      event_id: utfall.hendelser.at(-1)!.event_id,
       leveringsoppdrag: '',
       versjon: rader.at(-1)!.versjon,
     };

@@ -513,12 +513,30 @@ function tidligere(k: Krav, j: Journalen): Krav[] {
   return ut;
 }
 
-/** VS-U55: brevet et varsel gitt før kravet står i. Ordlyden er design (#1663). */
-const gittI = (v: Extract<Kravpostvarselet, { art: 'gitt' }>, j: Journalen) =>
-  j.brevet(j.dokumentetTil(v.varsel));
+/**
+ * Varselet gitt før kravet: «… ble gitt i» brevet det står i (VS-U55). Ligger dokumentet ved
+ * kravet, er det lagt til i kravskjemaet, og totalentreprenøren opplyser det (VS-U51, VS-U53).
+ * Ordlyden er design (U-14 i BF-14), og partene skrives fullt ut (`docs/sprak.md`, #1532).
+ */
+function gitt(
+  varselet: Extract<Kravpostvarselet, { art: 'gitt' }>,
+  hva: string,
+  { j, nytt }: Pick<Tekst, 'j' | 'nytt'>
+): string {
+  const brevet = j.brevet(j.dokumentetTil(varselet.varsel));
+  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
+  const dokumentet = j.dokumentMed(varselet.varsel)?.dokumentasjon ?? [];
+  return dokumentet.length && dokumentet.every((v) => vedlagte.has(v.vedlegg_id))
+    ? `Totalentreprenøren opplyser at ${hva.charAt(0).toLowerCase()}${hva.slice(1)} ble gitt i ${brevet}, som er vedlagt.`
+    : `${hva} ble gitt i ${brevet}.`;
+}
 
 /** Setningen for én kravpost. Ordlyden er design (U-6 i BF-14); budskapet står i KA-U61 og KA-U66. */
-function kravposttekst(p: Kravpost, varselet: Kravpostvarselet | undefined, j: Journalen): string {
+function kravposttekst(
+  p: Kravpost,
+  varselet: Kravpostvarselet | undefined,
+  t: Pick<Tekst, 'j' | 'nytt'>
+): string {
   const hode = `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}${p.pns ? ` (PNS ${p.pns})` : ''}:`;
   if (p.oppgjoersform === 'tilbud') return `${hode} TE krever ${eksMva(p.beloep!)}`;
   const deler = [hode];
@@ -532,7 +550,7 @@ function kravposttekst(p: Kravpost, varselet: Kravpostvarselet | undefined, j: J
       deler.push(
         varselet.art === 'kravet'
           ? 'Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.'
-          : `Varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3 ble gitt i ${gittI(varselet, j)}.`
+          : gitt(varselet, 'Varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3', t)
       );
     if (p.anslag !== undefined)
       deler.push(`Anslaget er ${eksMva(p.anslag)} Anslaget er en opplysning og ikke et tilbud.`);
@@ -544,7 +562,7 @@ function kravposttekst(p: Kravpost, varselet: Kravpostvarselet | undefined, j: J
       deler.push(
         varselet.art === 'kravet'
           ? 'Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).'
-          : `Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i ${gittI(varselet, j)}.`
+          : gitt(varselet, 'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)', t)
       );
     if (p.kostnadsoverslag !== undefined)
       deler.push(
@@ -559,10 +577,11 @@ function kravposttekst(p: Kravpost, varselet: Kravpostvarselet | undefined, j: J
  * (OV-U95 punkt 3, OV-U89 punkt 17) og hvilke poster som er tilbud etter § 34.2.1 (KA-U61,
  * KA-U65). Rigg og drift kalles ikke tilbud.
  */
-function vederlagstekst(k: Krav, { j, saken }: Tekst): string {
+function vederlagstekst(k: Krav, t: Tekst): string {
+  const { j, saken } = t;
   const foer = tidligere(k, j);
   const poster = kravposterI(k);
-  const deler = poster.map((p) => punktum(kravposttekst(p, saken.kravpostvarsler[p.id], j)));
+  const deler = poster.map((p) => punktum(kravposttekst(p, saken.kravpostvarsler[p.id], t)));
   const forrige = foer.at(-1);
   for (const id of innholdIVederlaget(k).trekker) {
     const p = forrige && kravposterI(forrige).find((q) => q.id === id);
