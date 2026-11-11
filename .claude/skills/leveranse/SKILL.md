@@ -168,9 +168,11 @@ rettes i PR-en i to tilfeller:
 Et funn rettes ikke i PR-en, selv om det gjelder PR-ens egen kode, når
 
 - rettingen krever et vedtak, et designvalg eller et annet svar fra oppdragsgiver,
-- funnet sto før PR-en i kode PR-en ikke rører, og ikke gir feil resultat nå,
-- rettingen endrer visningen etter at oppdragsgiver har sett skjermbildene, eller
+- funnet sto før PR-en i kode PR-en ikke rører, og ikke gir feil resultat nå, eller
 - rettingen hører til en del som bygges i et annet issue.
+
+Endrer en retting visningen etter at oppdragsgiver har sett skjermbildene, sier
+PR-beskrivelsen hva som ble endret i visningen, i et eget punkt.
 
 Et funn som ikke rettes, får ett av fire utfall:
 
