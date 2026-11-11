@@ -68,11 +68,12 @@ undersøkelsene fra den angitte datoen. Påstander om status, alvorlighet og
 kjøringer i disse dokumentene gjelder den undersøkte versjonen. Bruk
 hovedplanen, arkivet og vedtaksfila for gjeldende status og vedtak.
 
-Dokumentene ligger i [`historikk/`](historikk/). To grupper ligger igjen i
-`docs/`: dokumentene hovedplanen gir en rolle i
+Dokumentene ligger i [`historikk/`](historikk/). Tre grupper ligger igjen i
+`docs/`: dokumentene hovedplanen gir en gjeldende rolle i
 [avsnitt 1.2](plans/2026-09-16-godkjenning-og-varig-levering.md#12-dokumentenes-rolle),
-og dokumentene som teksten i en importert vedtakspost lenker til. Den teksten kan
-ikke endres (`vedtaksregister.py --sjekk`).
+dokumentene en flettet migrasjon eller kjernen viser til, og dokumentene som
+teksten i en importert vedtakspost lenker til. Disse stedene kan ikke endres i en
+ren dokumentendring (`vedtaksregister.py --sjekk` avviser endret vedtakstekst).
 
 ### Modell- og arkitekturvurderinger
 

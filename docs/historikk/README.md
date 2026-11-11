@@ -1,7 +1,8 @@
 # Historisk underlag
 
-Daterte auditer, reviewer, oppdrag, gjennomføringer, handoffer og
-konsolideringer fra arbeidet før TS-stien. De bevarer hva som ble undersøkt og
+Auditer, reviewer, vurderinger, designnotater, kartlegginger, oppdrag,
+gjennomføringer, handoffer, konsolideringer og tidligere systembeskrivelser som
+ikke lenger er gjeldende referanse. De bevarer hva som ble undersøkt og
 begrunnet den datoen. Status, alvorlighet og kjøringer i dem gjelder den
 undersøkte versjonen, ikke dagens kode.
 

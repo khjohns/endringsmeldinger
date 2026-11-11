@@ -81,11 +81,14 @@ gjengivelse er aldri regelgrunnlag (`CLAUDE.md`, «Hvor hva står»).
   Nye indeksrader beskriver dokumentets formål, ikke testantall eller åpne funn.
   Rydd slike gjentakelser når raden berøres.
 - Gjeldende referanser ligger i `docs/`, og `plans/`, `adr/` og `datamodell/` har
-  egne formål. Et datert dokument som bare er historisk underlag, ligger i
+  egne formål. Et dokument som bare er historisk underlag, ligger i
   `docs/historikk/` med samme filnavn. Det flyttes dit når det ikke lenger er
-  gjeldende, og lenkene inn skrives om i samme PR. Unntatt er dokumenter
-  hovedplanen gir en rolle i avsnitt 1.2, og dokumenter som teksten i en
-  importert vedtakspost lenker til, fordi den teksten ikke kan endres.
+  gjeldende, og lenkene inn skrives om i samme PR. Innholdet og ankrene er
+  uendret, så det trengs ingen viderehenvisning på den gamle stien. Unntatt er
+  dokumenter hovedplanen gir en gjeldende rolle i avsnitt 1.2 (ikke dem den
+  kaller historiske), dokumenter en flettet migrasjon eller kjernen viser til, og
+  dokumenter som teksten i en importert vedtakspost lenker til. Disse stedene
+  kan ikke endres i en ren dokumentendring.
 - Lenk til fil og symbol heller enn skiftende linjenummer. Løs lenker fra
   dokumentets mappe: fra `docs/` til kode er det `../server/`, fra `docs/plans/`
   er det `../../server/`. Kjør `python3 docs/verktoy/lenkekontroll.py` med berørte

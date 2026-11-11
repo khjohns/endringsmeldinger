@@ -82,8 +82,8 @@ arbeidsøkt-skillen. Merge krever fortsatt godkjenning fra oppdragsgiver. Godkje
 (punkt 4).
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
 
-1. Ta bort issues med `venter-på-beslutning`, og issues som rekkefølgen i
-   hovedplanen holder igjen. Merknadene til AF-06 sier hvilke. Ett spørsmål om
+1. Ta bort issues med `venter-på-beslutning`, og issues som rekkefølgen i #1065
+   eller føringen AF-06 holder igjen. Ett spørsmål om
    et avvik er greit, mer enn det hører til en egen runde.
 2. Feil som stopper appen eller gir gale data, går foran opprydding.
 3. Grupper etter filoverlapp (punkt 1). Det som ikke får plass, venter til
