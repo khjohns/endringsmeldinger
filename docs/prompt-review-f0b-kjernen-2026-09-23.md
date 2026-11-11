@@ -1,5 +1,10 @@
 # Oppdrag: uavhengig review av kjernen i datalaget (F0b, punkt 1)
 
+> **Historisk underlag — 2026-11-11:** Historisk reviewoppdrag. Instruksjonene
+> nedenfor gjelder runden og kodegrunnlaget som er angitt her, og er ikke en
+> bestilling på nytt arbeid.
+> Gjeldende kilder finnes i [dokumentasjonsindeksen](README.md#start-her).
+
 **Dato:** 2026-09-23. **Utgangspunkt:** grenen og PR-en fra
 [oppdraget for kjernen](prompt-f0b-kjernen-2026-09-23.md). Kontroller HEAD og
 Git-status selv. Dette er en arbeidsinstruks. Den endrer ikke funnstatus eller

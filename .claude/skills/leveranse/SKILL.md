@@ -5,7 +5,8 @@ description: Leveranseprosedyren for implementering og refaktorering, med reglen
 
 # Leveranse og vedlikehold
 
-Hovedplanen bestemmer målarkitektur, beslutninger og rekkefølge. Denne
+Hovedplanen beskriver målarkitektur, føringer og leveransekrav; vedtakene står i
+vedtaksfila, og arbeidsrekkefølgen i samleissuet for arbeidet. Denne
 prosedyren bestemmer hvordan en avgrenset oppgave leveres. Den brukes to ganger:
 før kode endres, og før en PR meldes klar.
 

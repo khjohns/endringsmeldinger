@@ -1,5 +1,13 @@
 # Uavhengig review: kjernen i datalaget (F0b, punkt 1)
 
+> **Historisk underlag — 2026-11-11:** Historisk review av den daværende
+> Python-/PostgreSQL-stien eller designet for den. Python-stien og
+> PostgreSQL-migrasjonene er slettet i
+> [#49](https://github.com/khjohns/endringsmeldinger/issues/49). Resultatene
+> nedenfor er belegg for den angitte datoen og commiten, ikke verifikasjon av
+> TS-stien.
+> Gjeldende kilder finnes i [dokumentasjonsindeksen](README.md#start-her).
+
 > **Oppfølging 2026-09-23:** Se [verifikasjonen av `754c07e`](#merknad-2026-09-23-verifikasjon-av-oppfølgingen-i-42). Den erstatter konklusjonen for den nye commiten. Teksten nedenfor fram til merknaden er det opprinnelige reviewet av `55ad006`.
 
 **Dato:** 2026-09-23. **Kontrollert commit:** `55ad006c1e24e87d09831fd6735e563bf441391f`,

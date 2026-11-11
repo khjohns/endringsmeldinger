@@ -1,5 +1,10 @@
 # Review av testbevis og status for hovedplanen
 
+> **Historisk underlag — 2026-11-11:** Historisk dokumentreview. Konklusjonene
+> nedenfor gjelder det angitte dokument- og kodegrunnlaget, ikke dagens
+> implementering.
+> Gjeldende kilder finnes i [dokumentasjonsindeksen](README.md#start-her).
+
 > **Merknad 2026-09-22:** RTB-01–05 er innarbeidet. Testinventaret og
 > testrevisjonen er rettet med daterte merknader, og den
 > [sluttredigerte hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) er autoritativ. Se

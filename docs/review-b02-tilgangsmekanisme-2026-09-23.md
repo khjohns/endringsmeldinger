@@ -1,5 +1,13 @@
 # Uavhengig review av tilgangsmekanismen i B-02
 
+> **Historisk underlag — 2026-11-11:** Historisk review av den daværende
+> Python-/PostgreSQL-stien eller designet for den. Python-stien og
+> PostgreSQL-migrasjonene er slettet i
+> [#49](https://github.com/khjohns/endringsmeldinger/issues/49). Resultatene
+> nedenfor er belegg for den angitte datoen og commiten, ikke verifikasjon av
+> TS-stien.
+> Gjeldende kilder finnes i [dokumentasjonsindeksen](README.md#start-her).
+
 **Dato:** 2026-09-23. **Kodegrunnlag:** `10ab5469614377608a3129d6241963fead144e7c`
 på `b02-designgrunnlag`, PR #37 fortsatt åpen ved oppstart.
 Reviewgren: `review-b02-tilgangsmekanisme-2026-09-23`.

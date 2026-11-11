@@ -1,5 +1,10 @@
 # Oppdrag: uavhengig review av designgrunnlaget for B-02
 
+> **Historisk underlag — 2026-11-11:** Historisk reviewoppdrag. Instruksjonene
+> nedenfor gjelder runden og kodegrunnlaget som er angitt her, og er ikke en
+> bestilling på nytt arbeid.
+> Gjeldende kilder finnes i [dokumentasjonsindeksen](README.md#start-her).
+
 **Dato:** 2026-09-22. **Utgangspunkt:** gren `b02-designgrunnlag` (PR #37), eller
 `main` hvis PR-en er merget. Kontroller HEAD og Git-status selv. Dette er en
 arbeidsinstruks. Den endrer ikke funnstatus eller beslutninger.

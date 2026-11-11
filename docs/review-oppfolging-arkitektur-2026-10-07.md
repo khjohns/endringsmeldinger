@@ -1,5 +1,10 @@
 # Reviewoppfølging av målarkitektur og gjennomføring
 
+> **Historisk underlag — 2026-11-11:** Historisk dokumentreview. Konklusjonene
+> nedenfor gjelder det angitte dokument- og kodegrunnlaget, ikke dagens
+> implementering.
+> Gjeldende kilder finnes i [dokumentasjonsindeksen](README.md#start-her).
+
 **Dato:** 2026-10-07. **Kodegrunnlag:** `68ca0ea5b593808c4513dc84ab908baf12739cdb`.
 **Dokumentgrunnlag:** [PR #266](https://github.com/khjohns/endringsmeldinger/pull/266)
 ved `4c8860a84a4aa9f388818b38471593e5592fcfb8` og
