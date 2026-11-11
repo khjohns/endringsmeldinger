@@ -19,7 +19,7 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { kategori } from './kravinnhold.ts';
-import { erKravpostvarselhjemmel, ikkeVurdert } from '../typer.ts';
+import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import type {
   Beslutningsgrunnlag,
   Dokument,
@@ -84,7 +84,7 @@ export function virkninger(
   forskyvning = 0
 ): Standpunktsvirkning[] {
   if (svar.spor === 'vederlag') return vederlagsvirkninger(svar, paaberopelse, regler, forskyvning);
-  if (svar.spor !== 'forhold' && svar.spor !== 'frist') return ikkeVurdert(svar.spor);
+  if (svar.spor !== 'forhold' && svar.spor !== 'frist') return utenGren(svar.spor);
   const ut: Standpunktsvirkning[] = [];
   let lag = 1;
   const iLaget = () => lag;
@@ -113,7 +113,7 @@ export function virkninger(
       s.art === 'dager'
     ) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });
-    } else ikkeVurdert(s);
+    } else utenGren(s);
   }
   return ut;
 }
@@ -539,7 +539,7 @@ function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   const prekludert = avvisesPrinsipalt(svar, v);
   if (svar.spor === 'forhold') return {};
   if (svar.spor === 'vederlag') return prekludert ? { beloep: 0 } : prinsipaltIVederlaget(svar, v);
-  if (svar.spor !== 'frist') return ikkeVurdert(svar.spor);
+  if (svar.spor !== 'frist') return utenGren(svar.spor);
   if (prekludert) return { dager: 0 };
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id)

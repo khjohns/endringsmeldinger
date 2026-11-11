@@ -44,7 +44,7 @@ import {
   type OppgittDatofelt,
   type Part,
   type Standpunkt,
-  ikkeVurdert,
+  utenGren,
 } from '../typer.ts';
 
 /**
@@ -165,7 +165,7 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
     if (v.spesifisert_krav_ok === false)
       ut.push('gjør gjeldende at kravet ble spesifisert for sent (§ 33.6.1)');
     if (!fulltGodkjent) ut.push('ikke godkjenner alle dagene');
-  } else ikkeVurdert(s.spor);
+  } else utenGren(s.spor);
   return ut;
 }
 

@@ -18,7 +18,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
-import { erKravpostvarselhjemmel, ikkeVurdert } from '../typer.ts';
+import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import { hindrerSvarPaaKravet, kategori } from '../frosset/kravinnhold.ts';
 import type {
   Avvisning,
@@ -327,7 +327,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           ? avvis('VEDERLAGSKRAV_SENDT', `Vederlagskravet ${sendt}`)
           : h.spor === 'frist'
             ? avvis('FRISTKRAV_SENDT', `Fristkravet ${sendt}`)
-            : ikkeVurdert(h.spor);
+            : utenGren(h.spor);
       }
       return null;
     }
@@ -366,7 +366,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.gjeldendeSvar)
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
       if (h.spor === 'vederlag') return svarPerKravpost(s.gjeldendeKrav);
-      if (h.spor !== 'forhold' && h.spor !== 'frist') return ikkeVurdert(h.spor);
+      if (h.spor !== 'forhold' && h.spor !== 'frist') return utenGren(h.spor);
       return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;
     case 'revidere':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
@@ -374,7 +374,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på gjeldende krav å revidere.');
       // MM-U34 punkt 11, EO-U12: også et svar TE har godtatt eller som stemmer med kravet.
       if (h.spor === 'vederlag') return svarPerKravpost(s.gjeldendeKrav!);
-      if (h.spor !== 'forhold' && h.spor !== 'frist') return ikkeVurdert(h.spor);
+      if (h.spor !== 'forhold' && h.spor !== 'frist') return utenGren(h.spor);
       return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;
     case 'godta':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');

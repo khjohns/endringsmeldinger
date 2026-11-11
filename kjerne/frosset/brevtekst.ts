@@ -43,7 +43,7 @@ import {
   kravposterI,
 } from './kravinnhold.ts';
 import { dager, iLagene, kroner } from './tekst.ts';
-import { erKravpostvarselhjemmel, ikkeVurdert } from '../typer.ts';
+import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -426,7 +426,7 @@ function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
       deler.push(
         `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
       );
-  } else ikkeVurdert(k.spor);
+  } else utenGren(k.spor);
   // KA-U52 punkt 4 for vederlag og frist (#1379). En ny versjon av påberopelsen sier ikke at
   // noe erstattes (LV-U56).
   if (k.erstatter && k.spor !== 'forhold')
@@ -568,7 +568,7 @@ function kravposttekst(
       deler.push(
         `Kostnadsoverslaget er ${eksMva(p.kostnadsoverslag)} Overslaget er en opplysning og ikke et tilbud.`
       );
-  } else ikkeVurdert(p.oppgjoersform);
+  } else utenGren(p.oppgjoersform);
   return deler.join(' ');
 }
 
@@ -1040,7 +1040,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       const aksept = `TE godtar byggherrens svar på ${SVARET_GJELDER[svar.spor]} i ${j.brevet(svar.dokument)}.`;
       // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til forholdet.
       if (svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length) return aksept;
-      return `${aksept} TE er enig i ${svar.spor === 'vederlag' ? 'beløpet' : svar.spor === 'frist' ? 'antallet dager' : ikkeVurdert(svar.spor)}, men ikke i byggherrens standpunkt til grunnlaget.`;
+      return `${aksept} TE er enig i ${svar.spor === 'vederlag' ? 'beløpet' : svar.spor === 'frist' ? 'antallet dager' : utenGren(svar.spor)}, men ikke i byggherrens standpunkt til grunnlaget.`;
     }
     case 'trekk': {
       const krav = j.krav(u.gjelder);
@@ -1052,7 +1052,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
           ? kravetsBeloep(krav)
           : krav.spor === 'frist'
             ? dager(innholdIFristen(krav).dager)
-            : ikkeVurdert(krav.spor);
+            : utenGren(krav.spor);
       return `TE trekker kravet om ${KRAVET_OM[krav.spor]} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }
     case 'ingen_krav':
@@ -1061,7 +1061,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
         ? `TE krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`
         : u.spor === 'frist'
           ? `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`
-          : ikkeVurdert(u.spor);
+          : utenGren(u.spor);
     case 'innsigelse':
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd, uten
       // henvisningen til § 5 (arbeidsvalget 21.10 i #1095).

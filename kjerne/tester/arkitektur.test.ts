@@ -892,7 +892,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'typer.ts',
     'relasjon',
-    'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel ikkeVurdert',
+    'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel utenGren',
   ],
   // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
   [

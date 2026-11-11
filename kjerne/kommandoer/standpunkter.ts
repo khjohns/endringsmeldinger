@@ -15,7 +15,7 @@ import {
   varseletForNyttSvar,
   type Utledning,
 } from '../utledning/utled.ts';
-import { type Krav, ikkeVurdert } from '../typer.ts';
+import { type Krav, utenGren } from '../typer.ts';
 
 type Data = Record<string, unknown>;
 
@@ -94,7 +94,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
         ...(v.spesifisert_krav_ok ? {} : { dager: v.dager_maatte_forstaa }),
       });
     ut.push({ id: nyId(), art: 'dager' });
-  } else ikkeVurdert(s.spor);
+  } else utenGren(s.spor);
   return ut;
 }
 

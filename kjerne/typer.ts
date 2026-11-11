@@ -28,8 +28,8 @@ export type Kravspor = (typeof KRAVSPOR)[number];
  * Siste gren der hvert spor, hver standpunktsart eller hver oppgjørsform har sin egen gren.
  * Argumentet har typen `never`, så en verdi ingen gren har tatt stilling til, gir en typefeil (#1781).
  */
-export function ikkeVurdert(verdi: never): never {
-  throw new Error(`${String(verdi)} er ikke vurdert`);
+export function utenGren(verdi: never): never {
+  throw new Error(`Kjernen har ingen gren for ${JSON.stringify(verdi)}`);
 }
 
 /**
