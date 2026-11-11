@@ -576,11 +576,8 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   // HF-U7: en begrensning etter § 34.1.3 i et lag er en påberopelse med subsidiært standpunkt
   // og gir ikke sammenfall, også når beløpet etter den er likt det krevde (VS-U5).
   if (begrensningen(svar, v)) return false;
-  const utregning =
-    svar.spor === 'frist'
-      ? utregningIFristen(svar.utregning)
-      : utregningIVederlaget(svar.utregning);
-  return utregning.resultat === 'godkjent';
+  if (svar.spor === 'frist') return utregningIFristen(svar.utregning).resultat === 'godkjent';
+  return utregningIVederlaget(svar.utregning).resultat === 'godkjent';
 }
 
 /**
