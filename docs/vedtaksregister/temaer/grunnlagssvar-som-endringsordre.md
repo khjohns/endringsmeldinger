@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `91a5dd292ecc0a323f6fd40f73e222f86d8b792964450afc66de76da9000c362`
+Kontrollsum (SHA-256 over utdraget visningen leser): `459ccf714a56c8686c3493342372c28de7882add14aeaed32c4d1f7cc653a19c`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -569,9 +569,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [VS-U48](#vs-u48). Presisert 08.11 av [VS-U50](#vs-u50). Spørsmålet gjaldt en kravversjon etter den første. Alternativ A, som var anbefalt, står i spørsmålet og er ikke forkastet; svaret presiserer det for en kravpost som skifter oppgjørsform. Berører BF-14.
 
-**Regelrader:** —
+**Regelrader:** [VS-08](#rad-vs-08)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-VS-U50 (målmodellen)
 
 ### <a id="vs-u50"></a>VS-U50
 
@@ -583,9 +583,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [VS-U49](#vs-u49). Utvider [VS-U48](#vs-u48). Presisert 08.11 av [VS-U51](#vs-u51). Presisert 08.11 av [VS-U53](#vs-u53). Presisert 08.11 av [VS-U54](#vs-u54). Spørsmålet sa at ordlyden i brevet for et varsel som alt er gitt, skulle vedtas når skjemaet og brevet bygges, med VS-U38 som mønster. Oppdragsgiver presiserte 08.11, ordrett: «Angående brevtekst: konkret ordlyd mener jeg er design. Prinsipielle budskapet kan godt være vedtak». Budskapet står derfor i VS-U51, og ordlyden er design (U-14 i BF-14). Berører BF-14.
 
-**Regelrader:** —
+**Regelrader:** [VS-08](#rad-vs-08), [VS-09](#rad-vs-09)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-VS-U50 (målmodellen), F-MM-VS-U51 (målmodellen)
 
 ### <a id="vs-u51"></a>VS-U51
 
@@ -597,9 +597,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [VS-U50](#vs-u50). Presisert 08.11 av [VS-U53](#vs-u53). Presisert 08.11 av [VS-U55](#vs-u55). Følger VS-U38, LV-U42 og LV-U45. VS-U34 gjelder fortsatt for varslene etter punkt 34.1.2 og 34.1.3. Ordlyden er U-14 i BF-14. Berører BF-14.
 
-**Regelrader:** —
+**Regelrader:** [VS-09](#rad-vs-09)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-VS-U51 (målmodellen)
 
 ### <a id="vs-u52"></a>VS-U52
 
@@ -611,7 +611,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Utvider [OV-U80](#ov-u80). Følger av VS-U48 og VS-U50. Berører BF-14 (U-11, U-12).
 
-**Regelrader:** —
+**Regelrader:** [VS-09](#rad-vs-09)
 
 **Bevis-saker som viser til vedtaket:** F-MM-B1 (målmodellen)
 
@@ -639,9 +639,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [VS-U50](#vs-u50). Presiserer VS-U50 for hvordan løsningen lagrer koblingen. Følger VS-U53. Endrer arbeidsvalget etter svar 6 A 07.11 i domenetabellen for varslene etter § 34.3.3 og § 34.4. Klassen er beslutning: posten sier hvordan løsningen lagrer, og det bindende står i VS-U50. Berører BF-14 (G-10).
 
-**Regelrader:** —
+**Regelrader:** [VS-08](#rad-vs-08), [VS-09](#rad-vs-09)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-VS-U50 (målmodellen), F-MM-VS-U51 (målmodellen)
 
 ### <a id="vs-u55"></a>VS-U55
 
@@ -653,7 +653,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [VS-U51](#vs-u51). Presiserer [VS-U48](#vs-u48). Presiserer [VS-U34](#vs-u34). Presiserer [LV-U29](#lv-u29). Presiserer VS-U51, som sier at kravet bare viser til et varsel i løsningen, og arbeidsvalget i Følge til VS-U48 om et varsel før kravet. For varslene etter punkt 34.1.2 og 34.1.3 presiserer posten VS-U34 og LV-U29 for en ny kravversjon, og den stemmer med OV-U29 («En senere kravversjon flytter ikke varselet»). Spørsmål 2 og spørsmål 4 i spørsmålsfila ble slått sammen og besvart samlet. Ordlyden er design (oppdragsgiver 08.11). Berører BF-14 (D-16, D-19).
 
-**Regelrader:** —
+**Regelrader:** [VS-08](#rad-vs-08)
 
 **Bevis-saker som viser til vedtaket:** —
 
@@ -3645,6 +3645,8 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-vs-05"></a>VS-05 | Partene har inngått en enighet i et spor, også en betinget enighet, ved aksept eller ved sammenfall, eller kravene er avgjort, og en part gjør innsigelse mot et varsel, et krav eller et svar. | [MM-U34](#mm-u34), [GR-U27](#gr-u27) | F-MM-V5 (målmodellen), F-MM-V6 (målmodellen), F-MM-V11 (målmodellen), F-MM-V11b (målmodellen), F-MM-V11c (målmodellen), F-MM-V11d (målmodellen) |
 | <a id="rad-vs-06"></a>VS-06 | TE sender et eget varsel etter § 33.4 fra appen, uten dager, før fristkravet. | [MM-U50](#mm-u50) | F-VS-U15a (målmodellen), F-VS-U15b (målmodellen), F-VS-U15c (målmodellen), F-VS-U15d (målmodellen) |
 | <a id="rad-vs-07"></a>VS-07 | TE sender et eget varsel etter § 34.1.2 fra appen, uten beløp, eller registrerer et varsel sendt utenfor appen. | [OV-U5](#ov-u5), [VS-U24](#vs-u24), [OV-U15](#ov-u15), [LV-U19](#lv-u19) | F-VS-07a (målmodellen), F-VS-07b (målmodellen) |
+| <a id="rad-vs-08"></a>VS-08 | TE sender et vederlagskrav med en kravpost med regningsarbeid eller justerte enhetspriser som er varsel for seg, og oppgir at varselet for posten alt er gitt i et varsel som står i saken. | [VS-U49](#vs-u49), [VS-U50](#vs-u50), [VS-U54](#vs-u54), [VS-U55](#vs-u55) | F-MM-VS-U50 (målmodellen) |
+| <a id="rad-vs-09"></a>VS-09 | TE legger i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter § 34.3.3 eller § 34.4 for en kravpost. | [VS-U52](#vs-u52), [VS-U50](#vs-u50), [VS-U51](#vs-u51), [VS-U54](#vs-u54) | F-MM-VS-U51 (målmodellen) |
 | <a id="rad-ka-43"></a>KA-43 | Byggherren registrerer et brev sendt utenfor appen der byggherren senere begrunner sitt svar. | [MM-U17](#mm-u17), [MM-U50](#mm-u50) | — |
 | <a id="rad-ka-46"></a>KA-46 | Byggherren svarer på et vederlagskrav for svikt eller andre forhold og vurderer om varselet om hovedkravet kom i tide (§ 34.1.2). | [GR-U10](#gr-u10), [OV-U5](#ov-u5) | F-MM-V-34-1-2-nei (målmodellen), F-MM-V-34-1-2-ja (målmodellen), F-MM-V-34-1-2-endring (målmodellen), F-MM-V-34-1-2-ny-kravversjon (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen), F-MM-V-34-1-2-hele-beloepet (målmodellen) |
 | <a id="rad-ka-47"></a>KA-47 | Byggherren svarer på et vederlagskrav med tilbud og tar stilling til om tilbudet aksepteres (§ 34.2.2). | [MM-U50](#mm-u50), [GR-U10](#gr-u10) | F-MM-V-34-2-2-nei (målmodellen), F-MM-V-34-2-2-ja (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen) |

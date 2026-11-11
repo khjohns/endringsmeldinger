@@ -372,8 +372,20 @@ const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: 
         ...('dokumentasjon' in k ? { dokumentasjon: k.dokumentasjon } : {}),
       };
 
-/** Vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38), eller varselets i et fristkrav (OV-U5). */
-export const vedleggI = (k: Kommando): string[] => brevfelt(k).dokumentasjon ?? [];
+/**
+ * Vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38), varselets i et fristkrav
+ * (OV-U5), eller dokumentene kravskjemaet legger til som varsel for en kravpost (VS-U53).
+ */
+export const vedleggI = (k: Kommando): string[] => [
+  ...(brevfelt(k).dokumentasjon ?? []),
+  ...(k.type === 'krav' && k.spor === 'vederlag'
+    ? ((k.innhold.kravposter ?? []) as { varsel?: unknown }[]).flatMap((p) =>
+        typeof p.varsel === 'object' && p.varsel !== null
+          ? ((p.varsel as { dokumentasjon?: string[] }).dokumentasjon ?? [])
+          : []
+      )
+    : []),
+];
 
 /**
  * VS-U26: en påberopelse fra appen har datoen kategorien har, som en dato.

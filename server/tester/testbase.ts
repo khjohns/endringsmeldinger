@@ -14,7 +14,11 @@ import type { Avhengigheter } from '../rutetyper.ts';
 import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
 import { forkast, reservasjon, sql, type Utlaan } from '../datalag.ts';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
-import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
+import {
+  forhaandsvis,
+  laastTekst,
+  type Vedleggsoppslag,
+} from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { kommandosum, lesNesteSakskode, opprettSak } from '../kommandoer.ts';
 import { lesSaken } from '../lager.ts';
@@ -390,7 +394,8 @@ export async function sakskodeFor(
 export async function medLaastTekst(
   o: Oppsett,
   sakId: string,
-  kommando: Record<string, unknown> = PAABEROPELSE
+  kommando: Record<string, unknown> = PAABEROPELSE,
+  vedlegg?: Vedleggsoppslag
 ): Promise<Record<string, unknown>> {
   const { journal } = await lesSaken(
     o.datalag.kjoeretid.pool,
@@ -410,11 +415,13 @@ export async function medLaastTekst(
       nyId: randomUUID,
     },
     journal,
-    KJERNE
+    KJERNE,
+    vedlegg
   );
   if (!vist.godtatt)
     throw new Error(`Forhåndsvisningen avviste kommandoen: ${JSON.stringify(vist.avvisning)}`);
-  return { ...kommando, brevtekst: laastTekst(vist.hendelser[0]) };
+  // Brevet er den siste raden handlingen gir (VS-U53).
+  return { ...kommando, brevtekst: laastTekst(vist.hendelser.at(-1)!) };
 }
 
 /** Sender TEs kommando med den låste teksten til saken over HTTP, som brevskjemaet gjør. */

@@ -215,7 +215,7 @@ const INNHOLD = {
   // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, arbeidsvalget 07.11 i domenetabellen).
   // `kravposter` og `trekker` i handlingen gir kravpostene selv; `post` er betegnelsen til
   // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U70).
-  vederlag: (h: Handling, u?: Utledning, nyId?: () => string) => {
+  vederlag: (h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) => {
     if (Array.isArray(h.kravposter)) {
       const tidligere = (u?.spor.vederlag.krav ?? []).flatMap((k) => kravposterI(k));
       const idFor = (betegnelse: unknown) =>
@@ -225,7 +225,21 @@ const INNHOLD = {
           ...(typeof p.post === 'string' ? { id: idFor(p.post) } : {}),
           beskrivelse: 'Kravposten i bevis-saken',
           oppgjoersform: p.oppgjoersform ?? 'tilbud',
+          ...(p.justert === undefined ? {} : { justert: p.justert }),
           ...(p.belop === undefined ? {} : { beloep: p.belop }),
+          // VS-U50, VS-U54: etiketten til et varsel i saken, eller et dokument fra kravskjemaet
+          // med datoen (VS-U53), som får et vedlegg.
+          ...(typeof p.varsel === 'string'
+            ? { varsel: navn?.id(`${p.varsel}#varsel`) }
+            : typeof p.varsel === 'object' && p.varsel !== null
+              ? {
+                  varsel: {
+                    korrespondansetype: 'brev',
+                    dokumentasjon: [navn?.nyId() ?? 'vedlegg'],
+                    ...(p.varsel as Record<string, unknown>),
+                  },
+                }
+              : {}),
         })),
         ...(Array.isArray(h.trekker) ? { trekker: h.trekker.map(idFor) } : {}),
       };
@@ -269,7 +283,12 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       return {
         type: 'krav',
         spor,
-        innhold: INNHOLD[spor](h, u),
+        innhold:
+          spor === 'vederlag'
+            ? INNHOLD.vederlag(h, u, undefined, navn)
+            : spor === 'forhold'
+              ? INNHOLD.forhold(h)
+              : INNHOLD.frist(h),
         ...(typeof h.varsel_sendt === 'string' ? { varsel: varselIKravet(h.varsel_sendt, u) } : {}),
         ...(spor === 'vederlag' ? {} : utdypning(h)),
       };

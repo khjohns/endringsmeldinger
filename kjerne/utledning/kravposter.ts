@@ -9,7 +9,7 @@
  */
 
 import { kravposterI } from '../frosset/kravinnhold.ts';
-import type { Krav, Kravpostvarselet, Kravpostvarselhjemmel } from '../typer.ts';
+import type { Krav, Kravpost, Kravpostvarselet, Kravpostvarselhjemmel } from '../typer.ts';
 
 type Postinndata = { id?: unknown; betegnelse?: unknown };
 type Kravversjonsinndata = { kravposter?: readonly Postinndata[]; trekker?: readonly unknown[] };
@@ -79,7 +79,7 @@ export function kravposteneStrider(
 
 /** Varselet en kravpost med den oppgjørsformen trenger, eller `null` (VS-U48, KA-U68). */
 export const varselhjemmel = (
-  p: ReturnType<typeof kravposterI>[number]
+  p: Pick<Kravpost, 'oppgjoersform' | 'justert'>
 ): Kravpostvarselhjemmel | null =>
   p.oppgjoersform === 'regningsarbeid'
     ? '34.4'
@@ -87,17 +87,25 @@ export const varselhjemmel = (
       ? '34.3.3'
       : null;
 
+/** Om en tidligere versjon i sporet har kravposten med samme varselhjemmel (VS-U49). */
+const hattFoer = (
+  p: ReturnType<typeof kravposterI>[number],
+  hjemmel: Kravpostvarselhjemmel,
+  tidligere: readonly Pick<Krav, 'innhold'>[]
+) =>
+  tidligere.some((k) => kravposterI(k).some((q) => q.id === p.id && varselhjemmel(q) === hjemmel));
+
 /**
  * Varselet for hver kravpost i `krav` som trenger et, etter kravpostens `id`.
  * - VS-U48, VS-U49: kravet er varselet når ingen tidligere versjon har posten med samme
  *   oppgjørsform, justert for enhetspriser.
- * - D-16 i BF-14 (arbeidsvalget i Følge hos VS-U48) og VS-U55: et varsel etter samme bestemmelse
- *   sendt eller registrert før det første kravet gjelder posten. Kravet viser da til det første
- *   av dem og er ikke varselet selv.
- * - Et varsel etter det første kravet gjelder ikke en ny post uten valget i VS-U50, som ikke
- *   er bygget.
+ * - VS-U50, VS-U54: viser kravposten til et varsel, er varselet gitt der.
+ * - D-16 i BF-14 (arbeidsvalget i Følge hos VS-U48) og VS-U55: ellers gjelder et varsel etter
+ *   samme bestemmelse sendt eller registrert før det første kravet posten. Kravet viser da til
+ *   det første av dem og er ikke varselet selv.
  * `tidligere` er versjonene før `krav` i sporet, og `varsler` varslene etter § 34.3.3 og
- * § 34.4 før `krav`, i rekkefølgen i journalen.
+ * § 34.4 før `krav`, i rekkefølgen i journalen, uten dokumentene kravskjemaet la til for en
+ * kravpost i samme handling, som gjelder bare den posten (VS-U51, VS-U53).
  */
 export function kravpostvarslene(
   krav: Pick<Krav, 'innhold'>,
@@ -107,13 +115,36 @@ export function kravpostvarslene(
   const ut: Record<string, Kravpostvarselet> = {};
   for (const p of kravposterI(krav)) {
     const hjemmel = varselhjemmel(p);
-    if (hjemmel === null) continue;
-    const hattFoer = tidligere.some((k) =>
-      kravposterI(k).some((q) => q.id === p.id && varselhjemmel(q) === hjemmel)
-    );
-    if (hattFoer) continue;
-    const gitt = tidligere.length ? undefined : varsler.find((v) => v.hjemmel === hjemmel);
-    ut[p.id] = gitt ? { art: 'gitt', varsel: gitt.id } : { art: 'kravet' };
+    if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;
+    const gitt =
+      p.varsel ?? (tidligere.length ? undefined : varsler.find((v) => v.hjemmel === hjemmel)?.id);
+    ut[p.id] = gitt ? { art: 'gitt', varsel: gitt } : { art: 'kravet' };
   }
   return ut;
+}
+
+/**
+ * Hvorfor en kravpost i den nye kravversjonen viser til et varsel den ikke kan vise til, eller
+ * `null` (VS-U50, VS-U54). Kravposten må trenge varselet etter § 34.3.3 eller § 34.4 og være
+ * varsel for seg (VS-U49), og varselet må stå i saken før kravet med samme bestemmelse.
+ * `varsler` er varslene etter § 34.3.3 og § 34.4 før kravet.
+ */
+export function kravpostvarseletStrider(
+  ny: Pick<Krav, 'innhold'>,
+  tidligere: readonly Pick<Krav, 'innhold'>[],
+  varsler: readonly { id: string; hjemmel: string }[]
+): string | null {
+  for (const [i, p] of kravposterI(ny).entries()) {
+    if (p.varsel === undefined) continue;
+    const posten = p.betegnelse ? `kravposten ${p.betegnelse}` : `kravpost nr. ${i + 1}`;
+    const hjemmel = varselhjemmel(p);
+    if (hjemmel === null)
+      return `${posten} viser til et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50)`;
+    const somFoer = tidligere.at(-1) && kravposterI(tidligere.at(-1)!).find((q) => q.id === p.id);
+    if (hattFoer(p, hjemmel, tidligere) && somFoer?.varsel !== p.varsel)
+      return `${posten} viser til et varsel, men hadde oppgjørsformen i en tidligere kravversjon (VS-U49, VS-U50)`;
+    if (!varsler.some((v) => v.id === p.varsel && v.hjemmel === hjemmel))
+      return `${posten} viser til et varsel som ikke er et varsel etter § ${hjemmel} sendt eller registrert i saken før kravet (VS-U50)`;
+  }
+  return null;
 }

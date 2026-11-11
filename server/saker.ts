@@ -5,7 +5,12 @@
  */
 
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
-import { utledJournal, vurder } from '../kjerne/kommandoer/skriving.ts';
+import {
+  utledJournal,
+  vurder,
+  vurderTrinnvis,
+  type Utfall,
+} from '../kjerne/kommandoer/skriving.ts';
 import type { Avvisning, Journalrad, Sakskode as Kjernesakskode } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { visning } from '../kjerne/utledning/visning.ts';
@@ -35,6 +40,7 @@ import {
   UgyldigKommando,
   Versjonskonflikt,
   type Sakskode,
+  type Skriveutfall,
 } from './kommandoer.ts';
 import { filnavn, KontraktsforkortelseMangler, lagOppdrag } from './levering.ts';
 import { feilINySak, vedleggIder } from './nysak.ts';
@@ -213,30 +219,46 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       forventet,
       kommando,
       ({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse }) => {
-        const vurdert = vurder(
-          kropp.kommando,
-          {
-            sakId,
-            aktoerId: kontekst.aktor,
-            part: kontekst.side,
-            teamId: kontekst.team ?? null,
-            tidspunkt: () => tidspunkt,
-            nyId: avh.nyId,
-            sakskode: tilKjernen(sakskode),
-            kontraktsforkortelse,
-          },
-          journal,
-          avh.kjerne,
-          vedlegg
-        );
-        if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
-        const [rad] = vurdert.hendelser;
-        const etter = sakenSomVises([...journal, rad], avh.kjerne);
-        return {
-          skriv: true,
-          rad,
-          oppdrag: lagOppdrag(rad, maal, etter.visning.status, avh.kjerne, avh.nyId),
+        const kjernekontekst = (t: Date, kode: Sakskode) => ({
+          sakId,
+          aktoerId: kontekst.aktor,
+          part: kontekst.side,
+          teamId: kontekst.team ?? null,
+          tidspunkt: () => t,
+          nyId: avh.nyId,
+          sakskode: tilKjernen(kode),
+          kontraktsforkortelse,
+        });
+        // VS-U53: et dokument fra kravskjemaet skrives som et registrert varsel før kravet, og
+        // kravet er neste rad, med basens klokke for sin skriving.
+        type Avvist = Extract<Utfall, { godtatt: false }>;
+        const skrives = (vurdert: Utfall, foer: Journalrad[]): Skriveutfall<Avvist> => {
+          if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
+          const [rad] = vurdert.hendelser;
+          const etter = sakenSomVises([...foer, rad], avh.kjerne);
+          const { neste } = vurdert;
+          return {
+            skriv: true,
+            rad,
+            oppdrag: lagOppdrag(rad, maal, etter.visning.status, avh.kjerne, avh.nyId),
+            ...(neste
+              ? {
+                  neste: ({ tidspunkt: t, journal: j, sakskode: kode }) =>
+                    skrives(neste(kjernekontekst(t, kode), j), j),
+                }
+              : {}),
+          };
         };
+        return skrives(
+          vurderTrinnvis(
+            kropp.kommando,
+            kjernekontekst(tidspunkt, sakskode),
+            journal,
+            avh.kjerne,
+            vedlegg
+          ),
+          journal
+        );
       }
     );
   } catch (feil) {
