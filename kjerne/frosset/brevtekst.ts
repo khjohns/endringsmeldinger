@@ -515,8 +515,8 @@ function tidligere(k: Krav, j: Journalen): Krav[] {
 
 /**
  * Varselet gitt før kravet: «… ble gitt i» brevet det står i (VS-U55). Ligger dokumentet ved
- * kravet, er det lagt til i kravskjemaet, og TE opplyser det (VS-U51, VS-U53). Ordlyden er
- * design (U-14 i BF-14).
+ * kravet, er det lagt til i kravskjemaet, og totalentreprenøren opplyser det (VS-U51, VS-U53).
+ * Ordlyden er design (U-14 i BF-14), og partene skrives fullt ut (`docs/sprak.md`, #1532).
  */
 function gitt(
   varselet: Extract<Kravpostvarselet, { art: 'gitt' }>,
@@ -527,7 +527,7 @@ function gitt(
   const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
   const dokumentet = j.dokumentMed(varselet.varsel)?.dokumentasjon ?? [];
   return dokumentet.length && dokumentet.every((v) => vedlagte.has(v.vedlegg_id))
-    ? `TE opplyser at ${hva.charAt(0).toLowerCase()}${hva.slice(1)} ble gitt i ${brevet}, som er vedlagt.`
+    ? `Totalentreprenøren opplyser at ${hva.charAt(0).toLowerCase()}${hva.slice(1)} ble gitt i ${brevet}, som er vedlagt.`
     : `${hva} ble gitt i ${brevet}.`;
 }
 

@@ -9171,7 +9171,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(laast(krav)).toEqual(
         expect.arrayContaining([
           expect.stringContaining(
-            'TE opplyser at varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i totalentreprenørens brev av 25. september 2026, som er vedlagt.'
+            'Totalentreprenøren opplyser at varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i totalentreprenørens brev av 25. september 2026, som er vedlagt.'
           ),
           `Brevet har vedlegg: «${vedlegg}.pdf».`,
         ])
@@ -9191,7 +9191,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         ])
       );
       const tekst = laast(krav).join(' ');
-      expect(tekst.match(/TE opplyser at/g)).toHaveLength(2);
+      expect(tekst.match(/Totalentreprenøren opplyser at/g)).toHaveLength(2);
       expect(tekst.match(new RegExp(varselRegning, 'g')), 'P2 er varsel for seg').toHaveLength(1);
       expect(krav.data.dokumentasjon as Data[]).toHaveLength(2);
     });
