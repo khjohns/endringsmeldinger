@@ -6,8 +6,8 @@ et krav er bevart eller prekludert.
 
 **Denne fila inneholder bare det som er stabilt.** Plan, funnstatus og
 beslutninger står i `docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(hovedplanen), vedtakene i `docs/plans/vedtak.md` (vedtaksfila) og de avsluttede
-funnene og eldre leveransemerknader i `docs/plans/arkiv.md` (arkivet), og bare der. Arbeid som pågår eller venter, står i GitHub-issues
+(hovedplanen), vedtakene i `docs/plans/vedtak.md` (vedtaksfila) og historiske
+funn, arbeidspakker og leveransemerknader i `docs/plans/arkiv.md` (arkivet), og bare der. Arbeidsrekkefølge og arbeid som pågår eller venter, står i GitHub-issues
 (se «Hvor hva står»). Handoffene er historiske. Ikke før slikt inn hit — det blir
 foreldet, og fila lastes automatisk og blir trodd. Regler for kode som skal
 erstattes, står i `.claude/rules/` og sier når de slutter å gjelde.
@@ -277,8 +277,8 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Hva | Hvor |
 | --- | --- |
 | Vedtakene og beslutningene | Vedtaksfila, generert fra [vedtaksregisteret](docs/vedtaksregister/README.md) og rettet bare der. Til #1020 var den avsnitt 3.1 i hovedplanen. Skjemaet, visningen og arbeidsflyten står i brukerforløpet eller `system.md`. Hva som er hva, avgjøres av testen i [vedtaksskillen](.claude/skills/vedtak/SKILL.md) |
-| Funnstatus og alvorlighet, de åpne beslutningene og føringene, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
-| Avsluttede funn og leveransemerknadene fram til 24.10 | Arkivet, flyttet ordrett fra hovedplanen (#1020). Åpnes et funn igjen, flyttes raden tilbake |
+| Funnstatus og alvorlighet, åpne beslutninger, føringer og krav til leveransene | Hovedplanen, med lenker til arbeidspakkene i issues |
+| Historiske funn, arbeidspakker og leveransemerknader | Arkivet. Flyttet tekst beholder dato, ID og belegg. Historisk funnstatus er ikke en vurdering av dagens kode. Åpnes et avsluttet funn igjen, flyttes raden tilbake til hovedplanen |
 | Invarianter og regler som står seg | Denne fila |
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
 | Regler som bare gjelder én del av treet: databasen, testene, tilgangen, kjernen, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
@@ -288,14 +288,14 @@ vedtak kan bare stå sammen med posten som opphever det, eller i en test merket 
 | Hurtigbufferen, kontekstgrensene, reviewet i byggeøkta og tilstanden i en skyøkt, og de faste reglene for en orkestrert arbeidsøkt | [Arbeidsøkt-skillen](.claude/skills/arbeidsokt/SKILL.md). Regelen om at hver skyøkt leser den, står øverst i denne fila |
 | Modellen, størrelsen og bestillingen for en subagent | [Subagent-skillen](.claude/skills/subagenter/SKILL.md). Når en subagent brukes, står i «Arbeidsform» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i SQL Server i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttestene i `verktoy/tester/test_datamodell/` feiler når et register mangler en tabell eller en fremmednøkkel, eller avviker fra koden eller migrasjonene, og når et kall til Catenda i `server/` mangler en pil i dataflyten |
-| Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
+| Arbeidsrekkefølge, bestilling og overlevering: hva, hvem, hvilken PR, hva det venter på | GitHub-issues og milepæler. [#1065](https://github.com/khjohns/endringsmeldinger/issues/1065) samler arbeidet mot første ekte sak; [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534) eier oppryddingen i vedtaksregisteret. Les bestillingen og siste relevante overlevering |
 | Etikettene og milepælene, og formen på issues og PR-er | [GitHub-skillen](.claude/skills/github/SKILL.md). Reglene står i skillen |
 
-- **Hovedplanen er autoritativ for funnstatus, sammen med arkivet for de avsluttede
-  funnene, og vedtaksfila for vedtakene.** Sier et annet dokument noe annet,
+- **Hovedplanen er autoritativ for funnstatus, sammen med arkivet for den daterte
+  statusen til historiske funn, og vedtaksfila for vedtakene.** Sier et annet dokument noe annet,
   er det andre foreldet — rett det, ikke gjenopprett diskusjonen.
 - **Et issue viser til ID-en, ikke til vurderingen.** Skriv funn- eller
-  beslutnings-ID-en og lenk til hovedplanen. Gjenta ikke alvorlighet, belegg
+  beslutnings-ID-en og lenk til hovedplanen, arkivet eller vedtaksfila der ID-en står. Gjenta ikke alvorlighet, belegg
   eller begrunnelse; da har de to hjem.
 - **En PR som fullfører et issue, har `Closes #n` i beskrivelsen.** Endrer PR-en
   funnstatus eller en beslutning, får hovedplanen en datert merknad i samme PR.

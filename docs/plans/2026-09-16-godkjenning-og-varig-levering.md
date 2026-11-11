@@ -1,36 +1,22 @@
 # Hovedplan: sikkerhet, dataintegritet og varig levering
 
-**Opprettet:** 2026-09-16. **Sist sluttredigert:** 2026-10-11, mot commit
-`6f56672c00aca01eaac8e9566c672535c37bce20` (`main`).
-**Status:** Autoritativ plan og løpende kilde til rekkefølge og funnstatus.
-Vedtakene står i [vedtaksfila](vedtak.md), og de avsluttede funnene og
-leveransemerknadene fram til 24.10 i [arkivet](arkiv.md) (#1020). Appen er ikke i
-produksjon og har ingen reelle data.
+**Opprettet:** 2026-09-16. **Redaksjonelt ryddet:** 2026-11-11.
+Tidligere kontrollgrunnlag står i arkivet; denne redigeringen verifiserer ikke kode.
+**Status:** Autoritativ for føringer, åpne krav og funnstatus.
+Vedtakene står i [vedtaksfila](vedtak.md). Avsluttede funn, historiske
+arbeidspakker og leveransemerknader står i [arkivet](arkiv.md) (#1020).
+Appen er ikke i produksjon og har ingen reelle data.
 
-Teksten før sluttredigeringen 11.10 er bevart i Git:
-`git show 6f56672:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(blob `9421cba77197f29648d7be092e0a7861d1740ea3`). Den har teksten som
-forutsatte PostgreSQL eller at Python beholder databasedelen, slik den sto før
-[B-12, databasen](vedtak.md#b-12-databasen) og [B-19](vedtak.md#b-19) (#396).
+Tidligere sluttredigeringer og Git-referanser står i
+[arkivet](arkiv.md#redaksjonshistorikk-til-og-med-1110).
 
-Teksten før sluttredigeringen 10.10 er bevart i Git:
-`git show 7460838:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(blob `a325fbc3b0934cea3bb09c1839d85edbf493f5ab`). Den har de daterte
-merknadene i kolonnen «Følge» i 3.1 slik de sto før de ble innarbeidet (#346).
-Bare 3.1 ble redigert.
-
-Teksten før sluttredigeringen 09.10 er bevart i Git:
-`git show 5d067cc3:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(blob `82d8b4e2fd28ea8d9a6c17755f28129e3e3b0dcc`). Den har endringsloggen fra
-22.09 til 09.10 i toppteksten, kolonnen «I dag» i 2.2, den tidligere
-rekkefølgen i 3.1 og radene og merknadene for de avgjorte beslutningene i 3.4.
-
-Første sluttredigering var 22.09. Den erstattet de tidligere statuslagene i
-denne fila og de to konsolideringsforslagene. Teksten før den er
-`git show 41c2a16:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(blob `9e7def005d6d5f119dfe1e708f79027581d352db`), og
-[redaksjonsprotokollen](../sluttredigering-hovedplan-2026-09-22.md) viser hvordan
-hvert krav og hver funnfamilie ble ført videre.
+**Lesevei:** [invariantene](#23-invarianter) →
+[vedtakene](vedtak.md) og [de åpne beslutningene](#34-åpne-beslutninger) →
+[kravene i arbeidspakkene](#5-arbeidspakker).
+[Første ekte sak, #1065](https://github.com/khjohns/endringsmeldinger/issues/1065)
+eier den konkrete rekkefølgen og avhengighetene.
+[Vedtaksoppryddingen, #1534](https://github.com/khjohns/endringsmeldinger/issues/1534)
+eier gjennomgangen av vedtaksstatus. Arbeidsstatus føres i issuene.
 
 ## 1. Hva som gjelder
 
@@ -53,15 +39,15 @@ ikke er vedtatt. Slike valg står som åpne beslutninger i
 
 | Dokument | Rolle nå |
 | --- | --- |
-| Denne planen | Autoritativ for rekkefølge, funnstatus, føringene og de åpne beslutningene |
+| Denne planen | Autoritativ for funnstatus, føringene, åpne krav og de åpne beslutningene. Konkret arbeidsrekkefølge står i issuene |
 | [Vedtaksfila](vedtak.md) | Autoritativ for vedtakene. Generert fra [vedtaksregisteret](../vedtaksregister/README.md). Var avsnitt 3.1 her til #1020 |
-| [Arkivet](arkiv.md) | Autoritativ for de avsluttede funnene. Har leveransemerknadene til arbeidspakkene fram til 24.10, flyttet ordrett herfra (#1020) |
+| [Arkivet](arkiv.md) | Autoritativ for de avsluttede funnene. Har også daterte leveransemerknader og historiske arbeidspakker, flyttet ordrett herfra |
 | [Domenetabellen](../domenetabell/README.md) | Eier forventet atferd per rad, begrepene og bevis-sakene. Radene viser til vedtakene her og gjentar dem ikke |
 | [Modellforslaget](../forslag-maalmodell-2026-10-09.md) | Begrunnelse for målmodellen. Ikke vedtatt som helhet; vedtakene som bygger på det, står i 3.1 |
-| Kjernemappa [`kjerne/`](../../kjerne/) | TS-kjernen (1.3, B-14). Målmodellen fra #304 er flyttet hit og skrevet om etter vedtakene 09.10 (#308). Dekker forløp A–E. Arbeidet med resten av domenet står i #309 |
+| Kjernemappa [`kjerne/`](../../kjerne/) | TS-kjernen (B-14). Forventet atferd og dekning følges gjennom [brukerforløpene](../domenetabell/brukerforlop/dekning.md), ikke den historiske byggestatusen i #309 |
 | [Arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md) | Begrunnelse for B-14 og språkvalget (avsnitt 7 der). Overgangen der, én kommando om gangen, er erstattet av B-17 |
 | [Metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md) | Prøve av fristkrav og tidsinnsigelser. Vedtakene er MP-U4–MP-U7 |
-| [Arkitekturføringene AF-01–AF-06](../arkitekturforinger-2026-09-21.md) | Vedtatte føringer. Normative for design, ikke implementert |
+| [Arkitekturføringene AF-01–AF-06](../arkitekturforinger-2026-09-21.md) | Vedtatte føringer, normative for design. Gjeldende presiseringer står i 3.2; referansen verifiserer ingen implementering |
 | [Transaksjonsplanen](2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse-, worker- og akseptansetestkontrakten der den er mer presis enn denne planen. Kontrakten gjelder uansett språk; for KOE-, EO- og forseringssakene gjelder den TS-stien (FK). Merknadene der gjelder foran eldre tekst |
 | [Design v2 for B-02](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) | Grunnlaget for alternativ C og transport T2, vedtatt 23.09. Normativt for F1 der det er mer presist enn denne planen. Punktene 3–6 i avsnitt 9 der er avgjort 23.09 (3.1). Designet er skrevet for PostgreSQL; etter [B-12, databasen](vedtak.md#b-12-databasen) uttrykkes og prøves mekanismen i T-SQL (#395) |
 | [Målskjemaet](../design-maalskjema-database-2026-09-20.md) | Retning for skjemaet, justert av AF-01, AF-03 og AF-04. Skrevet for PostgreSQL; plattformen er Azure SQL etter [B-12, databasen](vedtak.md#b-12-databasen) |
@@ -71,19 +57,8 @@ ikke er vedtatt. Slike valg står som åpne beslutninger i
 | [Testrevisjonen](../audit-testbevis-2026-09-22.md) · [testinventaret](../vedlegg/testbevis-2026-09-22.csv) | Protokoll over kjøringer 22.09. Rettet for ID-er, status og lenker 22.09 |
 | Auditer, reviewer og handoffer | Historisk underlag. Status i dem gjelder bare der denne planen viser til dem |
 
-Sluttredigeringen 22.09 innarbeidet AF-01–AF-06, reviewene RGK-01–06 og
-RGK2-01–05, reviewet av testbeviset (RTB-01–05) og det korrigerte
-testinventaret ([redaksjonsprotokollen](../sluttredigering-hovedplan-2026-09-22.md)).
-Sluttredigeringen 09.10 innarbeidet vedtakene 09.10 og ordnet 3.1 etter
-kontraktstema. Sluttredigeringen 10.10 innarbeidet de daterte merknadene i
-Følge-kolonnen i 3.1 (#346); teksten før er
-`git show 7460838:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(blob `a325fbc3b0934cea3bb09c1839d85edbf493f5ab`). Sluttredigeringen 11.10
-rettet teksten utenfor vedtakene etter B-12, databasen, og B-19 (#396), ga F0b
-nytt innhold, byttet ordet «ansvarsgrunnlaget» i B-13 etter HF-U2 (#384) og
-førte inn KA-U30; teksten før er
-`git show 6f56672:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`.
-Endrer noe status, rettes det her med en datert merknad.
+Redaksjonshistorikken står i [arkivet](arkiv.md#hva-sluttredigeringene-innarbeidet).
+Endrer noe funnstatus, føres dato og belegg i hovedplanen.
 
 ### 1.3 Begreper som holdes adskilt
 
@@ -95,14 +70,12 @@ Endrer noe status, rettes det her med en datert merknad.
   **K** kjørt og observert (dato), **L** lest i kode eller migrasjonsfil,
   **D** tidligere kontrollert i databasekatalogen (dato),
   **H** historisk dokumentert i en audit, **—** ikke kontrollert.
-- **TS-kjernen** er den delte domenekjernen i TypeScript (B-14). Den skal eie
-  KOE-, EO- og forseringssakene (B-17 med merknaden 09.10) og bygges i en egen
-  permanent mappe fra #308 (merknaden 09.10 til B-14). Prøvekoden i
+- **TS-kjernen** er den delte domenekjernen i TypeScript i `kjerne/` (B-14).
+  Ansvaret for KOE-, EO- og forseringssakene følger B-17. Prøvekoden i
   `sprakprove/` er ikke TS-kjernen.
-- **Python-epoken** er tiden til TS-kjernen tar over skrivingen i KOE-, EO- og
-  forseringssakene samlet (KOE-byttet, B-17). Byggestatus og funn i
-  Python-koden for disse sakstypene beskriver Python-epoken. De rettes ikke i
-  Python, med unntakene i merknaden 09.10 i 4.2.
+- **Python-epoken** beskriver den tidligere kjøretidsstien. Den ble slettet
+  08.11 (#49). Funn og kjøringer fra den perioden dokumenterer gammel kode;
+  de verifiserer ikke dagens TS-sti. Se [avgrensningen i funnregisteret](#4-funnregister).
 - **Status** (sporstatus, samlet status) er en visningsetikett. Et vedtak
   gjelder innholdet, ikke statusnavnet (merknaden 09.10 i 3.1).
 
@@ -115,11 +88,11 @@ Dokumentredigering lukker ingen kode- eller databasefeil.
 | Lag | Ansvar | Hvorfor grensen trengs |
 | --- | --- | --- |
 | Klient | Viser det serveren tillater. Setter aldri aktør, rolle, tidsstempel eller hendelses-ID | Klienten kan forfalskes. FE-01 og FE-02 viste at serveren må holde uavhengig |
-| Serverinngang | Hver inngang krever autentisering (med CSRF), prosjekttilgang og eventuelt kontraktsrolle, i Python-rutene og i TS-stien. Stempler aktørfelt fra sesjonen. Unntak står i et register med begrunnelse, og en test feiler når en inngang mangler en kontroll. Invariantene står i `AGENTS.md`, mekanismene i `.claude/rules/tilgang.md` | Én glemt kontroll skal gi rød test, ikke en åpen inngang. Registertesten finnes i dag bare for Python-rutene (DM-04) |
+| Serverinngang | Hver inngang krever autentisering (med CSRF), prosjekttilgang og eventuelt kontraktsrolle. Stempler aktørfelt fra sesjonen. Unntak står i et register med begrunnelse, og en test feiler når en inngang mangler en kontroll. Invariantene står i `AGENTS.md`, mekanismene i `.claude/rules/tilgang.md` | Én glemt kontroll skal gi rød test, ikke en åpen inngang. Historikken for registerkravet er DM-04; dagens mekanismer og krav står i `.claude/rules/tilgang.md` |
 | Svar- og lesegrense | Navneoppslag, fletting av `hendelse` og `notat`, skjerming av interne notater, aktivitetstall etter det leseren ser | Navn og skjerming er presentasjon. De skal ikke påvirke domenetilstanden (AF-05) |
 | Domene | NS 8407-regler og ren utledning fra journalen. For KOE-, EO- og forseringssakene eier TS-kjernen kommandoene, valideringen, utledningen, journalhendelsene, beslutningsgrunnlaget og enighetsgrunnlaget (B-17 med merknaden 09.10) | Samme journal skal gi samme utledning, uten server, database eller nett |
 | Datalag | Prosjekt-, side- og teamgrense for private data. Uforanderlig journal. Én transaksjon per bindende kommando | Grensen må holde også når et nytt lesepunkt glemmer filteret (AF-01, AF-02) |
-| Levering og integrasjon (worker) | Gjengir og leverer frosne brev, kaller Catenda og fører tekniske leveringsresultater etter commit. Lease med token, avstemming og usikkert utfall. Tolker ikke journalen for å avgjøre hva et brev betyr eller hva partene kan gjøre. Python kan beholde dette laget så lenge det ikke leser eller skriver i databasen selv, og bare til det flyttes til TS ([B-17](vedtak.md#b-17), [B-19](vedtak.md#b-19), [LV-U1](vedtak.md#lv-u1)) | Et eksternt kall kan ikke rulles tilbake. Lokal lås beviser ikke ekstern effekt |
+| Levering og integrasjon (worker) | Gjengir og leverer frosne brev, kaller Catenda og fører tekniske leveringsresultater etter commit. Lease med token, avstemming og usikkert utfall. Tolker ikke journalen for å avgjøre hva et brev betyr eller hva partene kan gjøre. Laget ligger på TS-stien etter slettingen av Python (#49); ansvarsgrensen følger [B-17](vedtak.md#b-17), [B-19](vedtak.md#b-19) og [LV-U1](vedtak.md#lv-u1) | Et eksternt kall kan ikke rulles tilbake. Lokal lås beviser ikke ekstern effekt |
 | Catenda | Ekstern kanal og dokumentarkiv (P4) | Appen har ingen vei utenom; avhengigheten må avklares kontraktsmessig |
 
 ### 2.2 Hva som finnes, og hva som er planlagt
@@ -127,8 +100,8 @@ Dokumentredigering lukker ingen kode- eller databasefeil.
 Dagens tabeller, hvem som skriver dem, og hvor dataene kommer fra, står i
 [tabellregisteret](../datamodell/tabeller.md) og i
 [relasjonene og dataflyten](../datamodell/relasjoner.md). Tabellen under viser
-det som er planlagt. Kolonnen «I dag» slik den stod 22.09, er i Git (se
-toppteksten).
+det som er planlagt. Kolonnen «I dag» slik den stod 22.09, er i Git
+(se [redaksjonshistorikken](arkiv.md#redaksjonshistorikk-til-og-med-1110)).
 
 | Komponent | Planlagt |
 | --- | --- |
@@ -150,8 +123,8 @@ toppteksten).
 
 Tabellnavn i kolonnen «Planlagt» fastsettes i migrasjonene.
 Planen låser ikke et tabelltall. Databasen er Azure SQL
-([B-12, databasen](vedtak.md#b-12-databasen)); hvordan journalen lagres, er ikke
-avgjort ([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)).
+([B-12, databasen](vedtak.md#b-12-databasen)); journalens lagringsform følger
+[HF-U3](vedtak.md#hf-u3), jf. merknaden 24.10 til B-12.
 
 ### 2.3 Invarianter
 
@@ -226,7 +199,9 @@ vedtaksfila.
 
 ### 3.2 Føringer AF-01–AF-06
 
-Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
+Tilsluttet av oppdragsgiver 21.09. Tabellen angir føringer; den er ikke
+verifikasjon av implementeringen. De daterte presiseringene under gjelder foran
+eldre plattform- og rekkefølgeangivelser.
 
 | ID | Føring | Hvor i planen |
 | --- | --- | --- |
@@ -237,109 +212,13 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 | AF-05 | Deterministisk gjenoppbygging uten eksterne oppslag | F2, invariant 9 |
 | AF-06 | Ekte PostgreSQL-tester og én komplett EO-flyt før generell opprydding og flere adaptere | Rekkefølgen i avsnitt 5 |
 
-> **Merknadene 03.10 og 04.10 til AF-06 (unntak), samlet ved sluttredigeringen
-> 09.10:** Oppdragsgiver har godkjent avgrensede unntak for oppryddinger som
-> ikke rører datalaget, autentiseringen eller webhookstien, og som ikke
-> forutsetter et databasevalg: #106, #107, #108, feilrettingen #72,
-> frontenddelen av #110, frontenddelen av #111 (modulbeskrivelsene i
-> `fristDomain.ts`, `grunnlagDomain.ts`, `vederlagDomain.ts`,
-> `fristSubmissionDomain.ts` og `vederlagSubmissionDomain.ts`), de to
-> Catenda-metodene uten kallere i #102 (`WebhookService.handle_pdf_upload` og
-> `BaseSakService._create_topic_with_relations`), de reserverte
-> PDF-parameterne i #146, #109 og den avgrensede deloppgaven i #49
-> (SystemContext, `/api/validate-user` og `CSVRepository`). Backfill-skriptet i
-> #102, backenddelen av #111 og logger-delen av #110 følger rekkefølgen i
-> avsnitt 5.
-
-> **Merknad 2026-10-07 til AF-06:** B-14 gir et avgrenset unntak for
-> domenetabell, bevis-saker, smal kommando-/API-kontrakt og beslutningsprøven
-> før større språkspesifikk ombygging. Prøven bruker eksisterende PostgreSQL
-> og en isolert teststi. Den erstatter ingen autoritativ produksjonssti,
-> åpner ikke database-/hostingvalget og godkjenner ingen full portering.
-> Sikkerhetsvedlikehold og små uavhengige rettinger kan fortsette innen sine
-> eksisterende føringer. F1/F2s sikkerhets- og transaksjonskrav gjelder fortsatt.
-
-> **Merknad 2026-10-09 til AF-06 (B-17):** For KOE-, EO- og forseringssakene
-> følger rekkefølgen B-17 og arbeidspakken FK (avsnitt 5), ikke F0b–F2.
-> Oppdragsgiver avgjorde samme dag at endringsordre- og forseringssakene går
-> til TS sammen med KOE-sakene (merknaden til [B-17](vedtak.md#b-17)).
-
-> **Merknad 2026-10-09 til AF-06 (#102, #162):** Oppdragsgiver har godkjent at
-> backfill-skriptet i #102 (`backend/scripts/backfill_relations.py`) og
-> testskriptene i #162 (`create_test_sak.py` og `test_full_flow.py`) slettes nå.
-> De rettes ikke. Skriptene krever Supabase-lageret eller utviklingsbypass, og de
-> bygger saker og relasjoner fra testsaker som forkastes etter B-17.
-
-> **Merknad 2026-10-10 til AF-06 (#347):** avviket fra rekkefølgen i FK for skiva i
-> #347 står i merknaden 10.10 til FK, runde 3 (avsnitt 5).
-
-> **Merknad 2026-10-11 til AF-06 ([B-12, databasen](vedtak.md#b-12-databasen), [B-19](vedtak.md#b-19)):**
-> «Ekte PostgreSQL-tester» betyr fra 11.10 tester mot en ekte database av samme
-> slag som produksjonen, Azure SQL. Lagerovergangen i TS2-02 bygges ikke i
-> Python: lagrene slettes når det Python gjør mot databasen, er flyttet til TS
-> (B-19, #375). Prøven mot eksisterende PostgreSQL i merknaden 07.10 og
-> testbasen for kjernens lagringstester gjelder til datalaget for Azure SQL
-> finnes.
-
-> **Merknad 2026-10-16 til AF-06 (rekkefølgen i FK og F0b):** oppdragsgiver
-> godkjente forslaget om rekkefølgen 16.10 med «Ja, som foreslått». Rekkefølgen
-> og unntaket er:
->
-> - Skrivestien og frontenden prioriteres foran resten av #587 og foran #514,
->   #516 og #550.
-> - Oppfølgingsfunn fra review i FK og F0b (etiketten `review-oppfølging`) tas
->   ikke i rundene før #310 er levert, unntatt funn som gir feil resultat i et
->   forløp første versjon kan nå gjennom skjemaene. Samleissuene fra nye PR-er
->   følger samme prioritering.
-> - Byggedel 4 (EO og forsering) venter til #310 er levert, slik [OV-U1](vedtak.md#ov-u1)
->   allerede sier.
-> - Oppdelingen av #375 og kartleggingen av skrivestien (#375, #310, #370, #371,
->   #376, #418, #487 og #313) gjøres samlet for FK og F0b, og fordelingen av
->   filer legges fram for oppdragsgiver.
-
-> **Merknad 2026-10-17 til AF-06 (review-oppfølging i FK og F0b):** oppdragsgiver
-> godkjente 17.10 at en runde tar de anbefalte punktene fra sorteringen i
-> [#709](https://github.com/khjohns/endringsmeldinger/issues/709#issuecomment-6237500889),
-> som unntak fra merknaden 16.10. Svaret, ordrett: «Ja opprett issue og lag prompt
-> til orkestrator som kan ta dine anbefalte issues (alle anbefalte - den velger selv
-> å avslutte og prompte neste orkestrator dersom dens egen kontekst blir for høy)».
-> Punktene er:
->
-> - F0b, serveren: #750, #739 punkt 1, #716 punkt 2 og #724 punkt 1.
-> - FK, kjernen: #550, #474 punkt 1, #562 punkt 1 og 2, #580 punkt 1 og #496.
-> - Verktøyene: #604.
-> - Vaktene i `.claude/`: #563. Oppdragsgiver svarte 17.10 om hvem som godkjenner
->   endringen: «Ja, du godkjenner i appen (Recommended)».
-
-> **Merknad 2026-10-17 til AF-06 (retningen fram til #310):** oppdragsgiver
-> svarte 17.10 på tre spørsmål om retningen fram til #310 (spørsmål 3 gjelder
-> etterfølgeren til [#655](https://github.com/khjohns/endringsmeldinger/issues/655)). Planen står i
-> [#764](https://github.com/khjohns/endringsmeldinger/issues/764). Spørsmålene og
-> svarene, ordrett:
->
-> 1. «Hvilken hovedretning skal arbeidet ha fram til aktiveringen (#310)?» Svar:
->    «Funksjon + medfølgende (Recommended)», som lyder: «Neste plan mot #310 er
->    hovedsporet. Én runde med kjernegjelden før byggedel 2 (nytt unntak fra
->    merknaden 16.10). Annen review-oppfølging tas bare i filer som runden uansett
->    endrer.» Forkastet: «Review-oppfølging først»: «To eller tre runder som
->    tømmer gruppe 3 (om lag 165 punkter) før ny funksjon. Mye av frontenddelen
->    kan bli overflødig når skjemaene og #313 bygges.»; «Bare funksjon»:
->    «Stoppen i merknaden 16.10 står uendret til #310 er levert, utover
->    unntaksrunden som pågår. Kjernegjelden venter også.»
-> 2. «Skal vi ta oppryddingen uten kode nå: avvise Python-punkter etter DL-U2,
->    rette foreldede etiketter og stille de 22 spørsmålene som venter på deg,
->    samlet?» Svar: «Ja, nå (Recommended)», som lyder: «Én liten runde, mest i
->    issuene. Spørsmålene stilles i grupper med alternativer og anbefaling.»
->    Forkastet: «Bare oppryddingen»: «Avvisninger og etiketter nå. Spørsmålene
->    stilles når hvert punkt blir aktuelt.»; «Nei, vent»: «La gruppe 4 og 5 stå
->    til den ukentlige sorteringen.»
-> 3. «Hva skal det nye planissuet (etterfølgeren til #655) ta først?» Svar:
->    «Levering + topic (Recommended)», som lyder: «Spørsmålene i #741, deretter
->    #371 og #741 med felles jobbkjører, og #418. Dette stenger aktiveringen
->    uansett.» Forkastet: «BH-svaret først»: «Byggherrens svarskjema og
->    godkjenningsflyten i TS, slik at en sak har begge sider før leveringen
->    bygges.»; «Begge parallelt»: «Levering i F0b-sporet og BH-svaret i
->    FK-sporet, med én felles orkestrator som i runde 5.»
+**Videreføring av AF-06:** Etter B-12 testes mot Azure SQL; F1/F2s
+sikkerhets- og transaksjonskrav gjelder fortsatt. KOE-, EO- og forseringssakene
+følger B-17 og FK. Den konkrete arbeidsrekkefølgen føres i #1065.
+De daterte unntakene for sletting, språkprøver og arbeidet fram mot #310 er
+[historiske arbeidsvalg](arkiv.md#historiske-arbeidsvalg-fram-mot-ts-overgangen).
+De åpner ingen ny produksjonssti eller omgår F1/F2. Python-lagrene ble
+slettet etter B-19 (#49); de bygges ikke om.
 
 > **Merknad 2026-10-17 til AF-06 (review-oppfølging i filene en økt endrer):**
 > oppdragsgiver bestemte 17.10: «Review-oppfølging i hver runde. Når orkestratoren
@@ -350,12 +229,8 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > venter.» På spørsmål om regelen også gjelder i FK og F0b før #310, som unntak
 > fra merknaden 16.10, svarte oppdragsgiver: «Ja, også i FK og F0b (Recommended)».
 
-> **Merknad 2026-10-17 til AF-06 (review-oppfølging i FK og F0b, levert):**
-> punktene i merknaden 17.10 om review-oppfølging i FK og F0b er levert: serveren
-> i [#755](https://github.com/khjohns/endringsmeldinger/pull/755), kjernen i
-> [#762](https://github.com/khjohns/endringsmeldinger/pull/762), verktøyene i
-> [#757](https://github.com/khjohns/endringsmeldinger/pull/757) og vaktene i
-> [#758](https://github.com/khjohns/endringsmeldinger/pull/758).
+Leveransebelegget for review-oppfølgingen 17.10 står i
+[arkivet](arkiv.md#levert-review-oppfølging-1710).
 
 > **Merknad 2026-10-20 til AF-06 (forsering):** oppdragsgiver avgjorde 20.10 at
 > forsering trekkes ut av [#310](https://github.com/khjohns/endringsmeldinger/issues/310):
@@ -369,6 +244,10 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > **Merknad 2026-10-20 til AF-06 (rekkefølgen fram til [#310](https://github.com/khjohns/endringsmeldinger/issues/310)):** rekkefølgen er endret til «Python ut først» (oppdragsgiver 20.10). Akseptkriteriet for den delen er den lokale prøven ende til ende: TEs krav og BHs svar levert til et testprosjekt i Catenda. Intern godkjenning kommer etter. Mockupen beholdes. Før dagens skjema og visninger slettes, verifiseres det med en konkret sammenligning mot Python-koblingen at TS-oppbyggingen, med TS-koblingene, ivaretar funksjonene som er ønsket i dagens frontend. Oppdragsgiver 20.10, ordrett: «Før vi sletter dagens skjema og visninger må det være verifisert at ny oppbygning, med TS-koblingene ivaretar de funksjonene som er ønsket i dagens frontend.» Se [#1024](https://github.com/khjohns/endringsmeldinger/issues/1024). Merknaden 17.10 om levering og topic først gjelder ikke lenger for rekkefølgen. Se [vurderingen av målbildet](../vurdering-maalbilde-og-ts-overgang-2026-10-20.md), [svarene i kommentaren på #375](https://github.com/khjohns/endringsmeldinger/issues/375#issuecomment-6288651890), merknaden 20.10 til avsnitt 5 over og milepælen [Første ekte sak](https://github.com/khjohns/endringsmeldinger/milestone/7).
 
 ### 3.3 Anbefalinger som ikke er vedtatt
+
+Tabellen beholder de registrerte anbefalingene og deres daterte grunnlag.
+Noen er senere avgjort, slik statuskolonnen sier; den er ingen aktuell
+arbeidskø. Samlet opprydding i beslutningsstatus følges i #1534.
 
 | Anbefaling | Kilde | Status |
 | --- | --- | --- |
@@ -566,6 +445,13 @@ gjort; senere statusendringer står i denne planen. Avsluttede funn uten pakke s
 gjenstår, står i [arkivet](arkiv.md#4-avsluttede-funn) (#1020). ID-ene der er fortsatt
 etablert, og kontrollene som slår opp en funn-ID, leser begge.
 
+**Avgrensning etter slettingen 08.11 (#49):** Funnradene beholder registrert
+status, dato og belegg. Observasjoner om Python-ruter, SQLite, Supabase og
+PostgreSQL gjelder den tidligere stien. De er verken en beskrivelse av
+dagens kjøretid eller bevis for at tilsvarende krav er verifisert i TS.
+De videreførte kravene står i invariantene, arbeidspakkene, vedtaksfila og
+domenetabellen. En ny vurdering av funnstatus krever eget belegg.
+
 **Statusord:** *Lukket*, *Lukket med restanse*, *Delvis*, *Åpen*, *Avgrenset*
 (vedtatt, ikke feil), *Bortfalt* (påstanden holdt ikke), *Duplikat*,
 *Avvist* (rettes ikke, med begrunnelse), *Regel* (ført inn i arbeidsreglene).
@@ -615,6 +501,11 @@ og overskriften, som tidligere var «Gemini-sporet 18.09», er endret. Ankeret
 er beholdt.
 
 <a id="python-feil-koe"></a>
+
+Merknadene nedenfor dokumenterer føringene for overgangen. Python-koden er
+siden slettet (#49); unntakene for retting i den er derfor historiske.
+Forventet atferd og bevis for TS-stien følges i domenetabellen og
+[brukerforløpene](../domenetabell/brukerforlop/dekning.md).
 
 > **Merknad 2026-10-09: domenefeil i Python-koden for KOE-, EO- og
 > forseringssakene rettes ikke i Python** (oppdragsgiver). Etter B-17 bygges
@@ -779,15 +670,16 @@ redaksjonsprotokollen, med forklarte kategorier.
 
 ## 5. Arbeidspakker
 
-Merknadene til avsnitt 5 om det som er levert eller ordnet fram til 24.10, står i [arkivet](arkiv.md#merknader-5-arbeidspakker).
+Tidligere utførelsesplaner og leveransemerknader står i [arkivet](arkiv.md#5-leveransemerknader-til-arbeidspakkene).
+Kravene under er videreført; arkivering er ingen godkjenning eller verifikasjon.
 
 <a id="nye-arbeidspakker-og-produksjonskrav"></a>
-Rekkefølgen følger AF-06: verifikasjon mot ekte database, datalagets grenser
-og én komplett EO-flyt før flere adaptere og generell opprydding. Tre parallelle
-spor, D, H og M, kan gå samtidig når de ikke tar kapasitet fra F0–F2.
-Organisatoriske avklaringer (F5) kan starte nå. For KOE-, EO- og
-forseringssakene følger rekkefølgen B-17 og pakken FK (merknaden 09.10 til
-AF-06).
+Arbeidspakkene under samler krav og planlagt kontroll. AF-06 med de daterte
+presiseringene og B-17 angir føringene;
+[#1065](https://github.com/khjohns/endringsmeldinger/issues/1065) eier den konkrete
+rekkefølgen fram til Første ekte sak. F2 er erstattet som arbeidspakke av FK
+og levering/integrasjon, slik merknaden til F2 sier. Spor M er avsluttet.
+Ingen status i issuene kopieres hit.
 
 «Tester som beviser» er planlagt kontroll. Ingenting her er utført uten at
 det står.
@@ -807,138 +699,71 @@ det står.
 
 ### F0 — Verifikasjonsgrunnlag
 
-Merknadene til F0 om det som er levert eller ordnet fram til 24.10, står i [arkivet](arkiv.md#merknader-f0--verifikasjonsgrunnlag).
+[Den opprinnelige PostgreSQL- og Python-bestillingen](arkiv.md#opprinnelig-arbeidspakke-f0)
+er historikk etter #49. Kravene til dagens verifikasjonsgrunnlag er:
 
-**Avhenger av:** ingenting. **Status:** delvis. CI kjører backend, frontend,
-typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
-(PG16 20.–21.09, PG18 22.09; historisk).
-
-> **Merknad 2026-10-11 til F0 ([B-12, databasen](vedtak.md#b-12-databasen)):** jobben i
-> punkt 1 og veien fra fil til base i punkt 3 gjelder PostgreSQL, som er
-> testbasen til datalaget for Azure SQL finnes. Tilsvarende for Azure SQL hører
-> til F0b, punkt 2.
-
-**Leveranse:**
-
-1. En CI-jobb som bygger alle migrasjoner mot tom PostgreSQL 17 (målversjonen
-   i `supabase/config.toml`) med plattformstubben (`scripts/testbase/`), og kjører
-   databasetester mot den. Stubben dokumenterer hvilke rettigheter som kommer
-   fra plattformen.
-2. Påkrevde sjekker på `main` i GitHub-innstillingene.
-3. Avstemt migrasjonshistorikk i basen (DA-03), og en dokumentert vei fra fil
-   til base.
-4. Testvedlikehold, uten å svekke noen assertion:
-   - **T-1** AUT-03: erstatt reproduksjonen med datert begrunnelse, slik FE-01
-     ble erstattet 20.09. Den ordinære avvisningstesten finnes.
-   - **T-2** DB-03, DB-04, DB-07: katalogtester mot PostgreSQL i stedet for
-     tekstsøk i enkeltfiler. DB-04s tester for fremmednøkler venter på B-01.
-   - **T-3** FE-02: gyldig sesjon i testoppsettet, så målassertionen nås.
-   - **T-4** KR-15/TST-02: deterministisk reproduksjon ved eksistenssjekken, med
-     reell lagring. Behold `strict=True` til den finnes.
-   - **T-5** RV-17: `raises=` på AP-04-testen.
-
-**Akseptkriterier:** jobben bygger basen fra tom og feiler ved en migrasjon som
-sorterer feil; minst én test kjører mot ekte PostgreSQL med en ikke-privilegert
-rolle; autorisasjon er ikke globalt mocket bort i disse testene; live-tester er
-fortsatt eksplisitt adskilt; ingen tilfeldig rød port fra TST-02; basens
-historikk og mappa stemmer.
-
-**Tester som beviser:** katalogtestene i T-2; en test som viser at
-`anon` og `authenticated` ikke leser tabeller eller kjører funksjoner.
+- Bygg basen fra tom i CI og test mot samme databaseslag og tilkoblingsvei
+  som produksjonen, med skrivbar testbase (F0b, Azure SQL etter B-12).
+- Påkrevde sjekker på `main`, avstemt migrasjonshistorikk og dokumentert vei
+  fra fil til base. En migrasjon med feil rekkefølge skal gi rød test.
+- Katalog- og rettighetstester med ikke-privilegert rolle, uten global mocking
+  av autorisasjonen. Levende tester holdes uttrykkelig atskilt.
+- Testvedlikehold svekker ingen assertion. Kravet om deterministisk
+  reproduksjon ved eksistenssjekk med reell lagring følger KR-15/TST-02;
+  arkivering lukker det ikke. De øvrige navngitte Python-testene og
+  plattformrollene i den gamle bestillingen er historiske henvisninger.
 
 ### F0b — Datalaget over direkte tilkobling
 
-Merknadene til F0b om det som er levert eller ordnet fram til 24.10, står i [arkivet](arkiv.md#merknader-f0b--datalaget-over-direkte-tilkobling).
+Datalaget i TS bruker direkte tilkobling til Azure SQL
+([B-12, databasen](vedtak.md#b-12-databasen), [B-19](vedtak.md#b-19)).
+[Den tidligere utførelsesplanen](arkiv.md#opprinnelig-arbeidspakke-f0b) er historikk.
+Python-stien, reservelagrene og PostgreSQL-migrasjonene er slettet 08.11;
+[leveransebelegget for TS2-02](arkiv.md#python-stien-slettet-0811) lukker ikke øvrige krav.
 
-> **Merknad 2026-10-11 til F0b ([B-12, databasen](vedtak.md#b-12-databasen), [B-19](vedtak.md#b-19)):**
-> oppdragsgiver bestemte 11.10 at F0b får nytt innhold: datalaget i TS over
-> direkte tilkobling til Azure SQL. ID og anker er beholdt. Det F0b var for
-> Python over PostgreSQL, er historikk (under), og teksten før er i Git (se
-> toppteksten). F0b kommer før eller sammen med #310 (FK), og F1 kommer etter
-> F0b som før.
+**Krav og kontroll:**
 
-> **Merknad 2026-11-08 til F0b:** levert: punkt 4, TS2-02. Python-stien, reservelagrene og PostgreSQL-migrasjonene er slettet, og CI kjører vaktene for verktøyene i en egen jobb ([PR #1716](https://github.com/khjohns/endringsmeldinger/pull/1716), merge 5ff4eb4; [PR #1717](https://github.com/khjohns/endringsmeldinger/pull/1717), merge ce87a30; [PR #1719](https://github.com/khjohns/endringsmeldinger/pull/1719), merge e3f31de; lukker [#49](https://github.com/khjohns/endringsmeldinger/issues/49)). AR-08 og CFG-05, CFG-06 og CFG-07 er flyttet til arkivet: gjenstanden for dem er slettet.
+1. Managed identity, pool og transaksjonshjelper med eksplisitt kontekst.
+   `SESSION_CONTEXT` gjelder sesjonen: med pool på én forbindelse skal testen
+   vise at konteksten ikke følger neste forespørsel etter commit eller rollback.
+2. T-SQL-migrasjoner og vei fra fil til base, med samme kode lokalt, i CI og
+   mot Azure SQL. En feil midt i transaksjonen etterlater ingen delvise skrivinger.
+3. Innlogging, sesjon, medlemssynkronisering og webhook-inbox i TS. Identiteten
+   løses med samme issuer og normaliserte subjekt fra hver vei inn; testene skal
+   vise at samme person får én brukerrad. Ingen Python-kode leser eller skriver basen.
+4. Avvisninger som aldri kan lykkes, prøves ikke på nytt; versjonskonflikt har
+   egen feilklasse. Test hver feilklasse. RK-05s krav om samlet øvre grense for
+   transaksjonen er ikke lukket her (#50).
+5. Container og utrulling etter avklaring av B-12 hosting.
 
-**Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
-alternativ C prøves tidlig i T-SQL ([B-12, databasen](vedtak.md#b-12-databasen), #395). Lagringsformen er avgjort med
-[HF-U3](vedtak.md#hf-u3) (se [merknaden 11.10 til B-12](#b-12-merknad-2026-10-11) og
-merknaden 24.10 etter den). Containerdelen avhenger
-av hostingen i B-12. Arbeidet følges i
-[milepælen F0b](https://github.com/khjohns/endringsmeldinger/milestone/1).
-
-F0b bytter plattformen og veien til basen, ikke rettighetene. Datalaget etter
-F0b, før rollene i F1 finnes, er ikke en produksjonstilstand. F1 og produksjonsporten gjelder; F1 er tilpasset Azure
-SQL i merknaden 11.10 der.
-
-**Leveranse:**
-
-1. **Kjernen i TS:** direkte tilkobling til Azure SQL med managed identity
-   ([B-12, databasen](vedtak.md#b-12-databasen)), pool og en transaksjonshjelper som
-   setter kontekst for transaksjonen. `SESSION_CONTEXT` gjelder sesjonen, så
-   at konteksten ikke følger en gjenbrukt forbindelse, må bevises på nytt
-   (merknaden 29.09 under B-12). Feilklassifisering for driveren: en
-   avvisning som aldri kan lykkes, prøves ikke på nytt, og versjonskonflikt
-   har en egen klasse.
-2. **Migrasjonene i T-SQL** og veien fra fil til base (#53), med en testbase av
-   samme slag lokalt og i CI.
-3. **Flyttingen fra Python ([B-19](vedtak.md#b-19), #375):** det Python gjør mot
-   databasen, flyttes til TS før databasen byttes, først innloggingen og
-   sesjonen, identiteten og synkroniseringen av medlemskap, og ellers blant
-   annet webhookens innboks. Identiteten løses med samme issuer og
-   normaliserte subjekt for alle veier inn (`AGENTS.md`). Løp c og d i den
-   tidligere teksten (#57, #58) erstattes av flyttingen.
-4. **TS2-02:** JSON-, CSV- og Supabase-lagrene og Python-lagrene over
-   PostgreSQL ut av kjøretidsstien når flyttingen er gjort (#49). De skrives
-   ikke om for Azure SQL (B-19).
-5. **Container** og utrulling når hostingen i B-12 er avklart (#52).
-
-**Akseptkriterier:** samme kode virker lokalt, i CI og mot Azure SQL; ingen
-Python-kode leser eller skriver i databasen; en feil midt i en transaksjon
-etterlater ingen delvise skrivinger; kontekst fra én forespørsel finnes ikke på
-en gjenbrukt forbindelse etter commit eller rollback; innloggingen,
-medlemssynkroniseringen og webhooken gir samme person én brukerrad.
-
-**Tester som beviser:** lagertestene mot testbasen i CI; en test med pool på én
-forbindelse som viser at kontekst ikke lekker; en test per feilklasse i
-driveren; en test som viser at samme person gir én brukerrad fra hver vei inn.
-
-**Kontroll:** kjernen får uavhengig review før lagrene bygges på den.
-`/simplify` skal la sikkerhetskontrollene stå: transaksjonslokal kontekst,
-fail-closed-kontroller som ser dobbelte ut, eksplisitte fjerninger av
-rettigheter og like svar for «ukjent» og «ikke tilgang».
-
-**Historikk, Python over PostgreSQL (23.09–09.10):** F0b fulgte av
-beslutningen 23.09 om direkte tilkobling (3.1). Kjernen `lib/db` med pool,
-`transaksjon(kontekst)` og retry for hele transaksjonen ble levert 24.09
-(PR #42), etter et [uavhengig review](../review-f0b-kjernen-2026-09-23.md) der
-RK-01–RK-04 ble fulgt opp
-([gjennomføringsnotatet](../gjennomforing-f0b-kjernen-2026-09-23.md); oppsettet
-i [handoffen 23.09](../handoff-2026-09-23-datalag-postgresql.md), avsnitt 7).
-RK-05, en samlet øvre grense for en transaksjon, står åpen før F1 (#50).
-Løp c og d og TS2-02 ble avhengige av B-12 29.09 og av B-18 09.10, og bygges
-ikke i Python etter B-19.
+B-02 alternativ C prøves i T-SQL; lagringsformen følger [HF-U3](vedtak.md#hf-u3).
+Kjernen i datalaget får uavhengig review før lagrene bygges på den.
+Forenkling bevarer fail-closed, kontekstvernet, eksplisitt fjerning av rettigheter
+og like svar for «ukjent» og «ikke tilgang». F0b uten F1-rollene er ingen
+produksjonstilstand. F1 og produksjonsporten gjelder fortsatt.
 
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
-**Avhenger av:** F0-jobben og F0b; B-02 før rolle- og policymigrasjoner; B-04
+**Avhenger av:** verifikasjonsgrunnlaget mot Azure SQL i F0b; B-02 før rolle- og policymigrasjoner; B-04
 for tilbakekallingsdelen. Før neste migrasjon for målmodellen må tilgangs- og
-skriverettigheter være konkretisert. Runtime bygges ikke på ubegrenset
-`service_role`.
+skriverettigheter være konkretisert. Runtime bygges ikke på ubegrensede databaserettigheter.
 
 **Leveranse:**
 
 1. Samlet design for roller (runtime, worker, drift, migrering, break-glass),
    identitetskontekst og databasefunksjoner, med uavhengig review (AF-01,
-   AF-02, B-02). Rettigheter er eksplisitte per rolle i migrasjonene, også for
-   de åtte tabellene som i dag lever på plattformens standardrettigheter.
+   AF-02, B-02). Rettigheter er eksplisitte per rolle i migrasjonene. Henvisningen i den
+   opprinnelige bestillingen til åtte tabeller på plattformens
+   standardrettigheter gjaldt Supabase, som er avviklet.
 
    > **Merknad 2026-10-16 til punkt 1:** radsikkerheten og rettighetene for
    > kjøretiden bygges i F0b etter B-02 og prøven, med et uavhengig review i ny
    > økt før merge ([DL-U5](vedtak.md#dl-u5)). Rollene for arbeider, drift, migrering og
    > nødtilgang kommer med det samlede rolledesignet her.
 
-2. Godkjenningspakker, policyversjon og utkast flyttet fra SQLite til
-   databasen med prosjekt, side og team. MG-05: pakken lagrer ID, ikke navn.
+2. Godkjenningspakker, policyversjon og utkast i databasen med prosjekt,
+   side og team. Flyttingen fra SQLite var den opprinnelige bestillingen;
+   SQLite-koden er senere slettet (#49). MG-05: pakken lagrer ID, ikke navn.
 3. Teamvern i datalaget for `notat`, utkast og godkjenningspakker. Et autorisert
    leselag skiller offentlig innhold, teaminterne notater og private pakker før
    aggregering, eksport og PDF. Grensesnitt, nedlasting og driftsvisning følger
@@ -976,144 +801,77 @@ kan ta eierens eller en administrators rettigheter (T2).
 
 ### F2 — Én komplett EO-flyt med minimal worker
 
-**Avhenger av:** F0b og F1-rollene; B-01 for KOE-tilknytning og relasjoner; B-08
-for reservasjonen; B-03 for dokumentoperasjonen; B-07 for drivmekanismen; B-10
-for kompatibilitetskravet.
+F2 utgår som arbeidspakke etter B-17. Kommandoene og utledningen hører til FK;
+vedlegg og worker til levering og integrasjon. Kravene under gjelder TS-stien
+og Azure SQL. [Den opprinnelige bestillingen og merknaden om videreføring](arkiv.md#opprinnelig-arbeidspakke-f2)
+bevares som historikk.
 
-**Leveranse:** Kontrakten i
-[transaksjonsplanen](2026-09-17-atomisk-utstedelse-og-outbox.md) er normativ.
-Testkravene fastsettes før implementering, og én ansvarlig beholder oversikten
-over transaksjonsgrensene. En grønn suite erstatter ikke dokumentasjon av hva
-som er testet. Kort:
+[Transaksjonsplanen](2026-09-17-atomisk-utstedelse-og-outbox.md) er fortsatt
+normativ for kommandoen, låsingen, workeren og akseptansetestene. Testkrav
+fastsettes før implementering; én ansvarlig har oversikt over transaksjonsgrensene.
+En grønn suite erstatter ikke dokumentasjon av hva som er testet.
 
-1. `commit_eo_approval` som én databasekommando i én transaksjon over direkte
-   tilkobling (3.1, endret 23.09 fra «én RPC»): kommandokvittering kontrolleres
-   under lås; policy, pakke og saksstrømmer låses i dokumentert rekkefølge;
-   pakkeversjon, godkjenner, fullmakt, policyversjon og frosset innhold
-   kontrolleres (RV-02, RV-19, RV-20); EO-nummer og KOE-tilknytning reserveres;
-   hendelser, metadata, relasjoner, vedleggsbinding, pakkestatus, outbox og
-   kvittering skrives samlet. Ingen kompensasjonssletting (AP-04, TST-05).
-2. Vedleggstabell med hash, dokumentversjon og karantenestatus. Skanning før
-   frigivelse. Staging med opprydding av foreldreløse filer.
-3. Minimal worker: `SKIP LOCKED` i kort transaksjon, lease-token, backoff med
-   jitter, `USIKKERT_UTFALL`, én strategi per ekstern operasjon (avsnitt 7).
-   Frosset prosjekt, board og konfigurasjonsversjon (INT-06 for EO).
-4. Ren projeksjon: navneoppslag ut av `compute_state` (KR-04, MG-01, MG-08).
-   Register og projeksjon (MS-06, MS-07, MG-04). Rebase-regler (MS-03).
-5. Parsegrensen avviser alle fem serverfelt (MG-03), med ruter og
-   `approval_service` endret samtidig.
-6. Ny skrivesti bak eksplisitt konfigurasjon, én autoritativ sti per prosjekt.
-   Den gamle kompenserende stien stenges når den nye er aktiv.
+**Videreførte krav:**
 
-**Akseptkriterier:** transaksjonsplanens akseptansetester 1–6 er grønne mot
-ekte PostgreSQL med uavhengige forbindelser og feilinjeksjon ved hver
-skrivegrense. I tillegg: identisk retry gir samme kvittering; endret innhold
-med samme ID avvises; to ulike kommandoer gir én commit og én konflikt; gammel
-worker som fortsatt lever, kan ikke kvittere etter utløpt lease; en ny worker
-parkerer ved uavklart ekstern effekt; privat data avvises ved opprettelse av
-jobb; gamle hendelser leses av ny kode, og tilbakerulling gjør ikke nye
-hendelser uleselige; historiske teststrømmer gir samme tilstand uten Flask,
-database eller nett. AP-04 regnes ikke som løst med lengre lease.
+1. Bindende EO-kommando er én transaksjon: idempotenskvittering kontrolleres
+   under lås; policy, pakke, fullmakt, frosset innhold, saksversjoner og strømmer
+   kontrolleres og låses i dokumentert rekkefølge. EO-nummer og KOE-tilknytning
+   reserveres. Hendelser, metadata, relasjoner, vedleggsbinding, pakkestatus,
+   outbox og kvittering skrives samlet. Ingen kompensasjonssletting
+   (AP-04, RV-02, RV-19, RV-20, TST-05; invariant 3).
+2. Vedlegg har hash, dokumentversjon og karantenestatus; skanning før frigivelse,
+   staging og opprydding av foreldreløse filer. Private data avvises ved jobbopprettelse.
+3. Worker har kort reservasjon under lås, lease-token, backoff med jitter,
+   `USIKKERT_UTFALL` og én strategi per ekstern operasjon (avsnitt 7).
+   Prosjekt, board og konfigurasjonsversjon fryses for leveringen (INT-06).
+4. Ren utledning uten navneoppslag, register/projeksjon med én skriver i
+   hendelsens transaksjon og regler for rebase (KR-04, MG-01, MG-08,
+   MS-03, MS-06, MS-07, MG-04). Parsegrensen avviser alle fem serverfelt
+   (MG-03, invariant 11). Én autoritativ skrivesti per prosjekt (B-17).
 
-**Tester som beviser:** AP-04- og RV-02-reproduksjonene blir XPASS og gjøres
-om til ordinære tester; nye PostgreSQL-tester for samtidighet og feilpunkter;
-lokale feiltester for Catenda i avsnitt 7.
+**Beviskrav:** Transaksjonsplanens akseptansetester 1–6 kjøres mot ekte database
+med uavhengige forbindelser og feilinjeksjon ved hver skrivegrense. Identisk retry
+gir samme kvittering; samme ID med annet innhold avvises; to kommandoer gir én
+commit og én konflikt. En gammel worker kan ikke kvittere etter utløpt lease;
+uavklart ekstern effekt parkeres. Lengre lease løser ikke AP-04.
 
-**Presisering 07.10, B-10:** Bevis gjenoppbygging etter regel-/projeksjonsendring
-uten nye sakshendelser, også for lagrede oversikter. Dokumenter versjonen som
-beregnet visningen, hvordan foreldet innhold oppdages, og når det bygges på nytt.
-Prøv gamle og nye skrivere/lesere, utrulling og tilbakerulling. En leser som ikke
-forstår en rettslig relevant hendelse, må stanse bindende kommandoer; historikken
-kan fortsatt gjøres tilgjengelig med uttrykkelig begrensning. Frosne brev,
+B-10 krever lesing av gamle og nye TS-formater, utrulling og tilbakerulling,
+og gjenoppbygging etter regel-/projeksjonsendring uten nye sakshendelser, også
+for lagrede oversikter. Beregningsversjon, oppdagelse av foreldet innhold og
+nybygging dokumenteres. En uforstått rettslig relevant hendelse stanser bindende
+kommandoer; historikk kan vises med uttrykkelig begrensning. Frosne brev,
 beslutninger og leveringsdokumenter endres ikke ved gjenoppbygging.
-
-> **Merknad 2026-10-09 til F2 (B-17), oppdatert ved sluttredigeringen 11.10:** Endringsordre- og forseringssakene går
-> til TS sammen med KOE-sakene (merknaden til [B-17](vedtak.md#b-17)). F2 slik den er
-> skrevet, utgår:
->
-> - Kommandoen i punkt 1, med KOE-tilknytningen, hører til FK.
->   Transaksjonsplanens kontrakt og akseptansetester gjelder kommandoen der, og
->   invariant 3 er uendret. Funnene kommandoen skal løse (AP-04, RV-02, RV-19,
->   RV-20, TST-05), følger den.
-> - Kravene i punkt 4 gjelder utledningen og registeret for disse sakstypene i
->   TS-stien (FK). Punkt 5 (MG-03) gjelder TS-stien som invariant 11. Punkt 6
->   erstattes av at skrivestien byttes samlet (B-17).
-> - Vedleggstabellen i punkt 2 og den minimale workeren i punkt 3 er levering
->   og integrasjon (B-17). Etter [B-19](vedtak.md#b-19) kan Python beholde dem bare så
->   lenge de ikke leser eller skriver i databasen selv, og Python henter ikke
->   leveringsoppdraget direkte fra basen ([LV-U1](vedtak.md#lv-u1)).
-> - Akseptkriteriet om at gamle hendelser leses av ny kode, gjelder mellom
->   TS-versjoner (merknaden til invariant 9). Kriteriet om historiske
->   teststrømmer erstattes av bevis-sakene i domenetabellen, som føres videre
->   (B-17).
-> - Fra 11.10 betyr «ekte PostgreSQL» og «PostgreSQL-tester» i
->   akseptkriteriene og testene over en ekte database av samme slag som
->   produksjonen, Azure SQL ([B-12, databasen](vedtak.md#b-12-databasen)).
+Bevis-sakene videreføres gjennom TS-kjeden, og kjernen utleder uten server,
+database eller nett. Gamle Python-reproduksjoner er ikke bevis for TS-stien.
 
 ### FK — KOE-, EO- og forseringsdomenet i TS (B-17)
 
-Merknadene til FK om det som er levert eller ordnet fram til 24.10, står i [arkivet](arkiv.md#merknader-fk--koe--eo--og-forseringsdomenet-i-ts-b-17).
+Ansvaret følger B-14 i [vedtaksfila](vedtak.md), [B-17](vedtak.md#b-17),
+[B-18](vedtak.md#b-18) og [B-19](vedtak.md#b-19), med format og versjonering
+etter [B-10](vedtak.md#b-10). [Den opprinnelige byggeplanen](arkiv.md#opprinnelig-arbeidspakke-fk)
+er historikk; #309 ble lukket 30.10. Hva kjernen trenger, styres av
+[brukerforløpene](../domenetabell/brukerforlop/dekning.md).
 
-**Avhenger av:** B-17 med merknaden 09.10 (endringsordre og forsering følger
-KOE). Målmodellen i den permanente mappa, skrevet om etter MM-U9 og GR-U10
-([#308](https://github.com/khjohns/endringsmeldinger/issues/308)). Format og
-versjonering etter B-10
-([#273](https://github.com/khjohns/endringsmeldinger/issues/273)).
-Serverplasseringen, B-18
-([#311](https://github.com/khjohns/endringsmeldinger/issues/311)). Arbeidet
-følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone/5).
+**Videreførte krav og kontroll:**
 
-**Leveranse:**
+- Kjernen og TS-skrivestien dekker det vedtatte domenet. Forventningene kommer
+  fra vedtaksfila og domenetabellen. Første versjon og det som avvises,
+  avgrenses av [OV-U1](vedtak.md#ov-u1) og [OV-U2](vedtak.md#ov-u2).
+- Samlet ansvar omfatter skjemaer, API, batch, godkjenningspublisering, webhooks
+  og bakgrunnsjobber. Ingen Python-kode skriver journalen, heller ikke indirekte.
+- Hver inngang krever autentisering med CSRF, prosjekttilgang og eventuell
+  kontraktsrolle. Registertesten feiler ved manglende kontroll (2.1, invariant 11–12).
+- Brev, beslutningsgrunnlag, hendelse og leveringsintensjon lagres i samme
+  transaksjon (invariant 3, MM-U9). Bevis går gjennom kommando, lagring,
+  gjenlesing og utledning i TS-stien; kjernen importerer ingen database.
 
-1. TS-kjernen bygget ut til hele KOE-, EO- og forseringsdomenet, med vedtakene
-   i 3.1 og domenetabellen som forventning
-   ([#309](https://github.com/khjohns/endringsmeldinger/issues/309)).
-
-   > **Merknad 2026-10-30 til punkt 1:** #309 er lukket 30.10 (oppdragsgiver 30.10:
-   > «309 kan lukkes»). Hva kjernen trenger, styres nå av
-   > [brukerforløpene](../domenetabell/brukerforlop/dekning.md), ikke av en bevis-sak
-   > per rad i domenetabellen. Byggedel 4, endringsordre og forsering, følges i
-   > [#1423](https://github.com/khjohns/endringsmeldinger/issues/1423). En henvisning
-   > til byggedel 4 av #309, også i avsnitt 6, gjelder den.
-
-2. Skrivestien for KOE-, EO- og forseringssakene overtatt samlet i TS, med
-   Python bare for levering og integrasjon
-   ([#310](https://github.com/khjohns/endringsmeldinger/issues/310)). Byttet
-   omfatter skjemaer, API, batch, godkjenningspublisering, webhooks og
-   bakgrunnsjobber (B-17).
-
-**Akseptkriterier på pakkenivå:**
-
-- Ingen Python-kode skriver i journalen for KOE-, EO- eller forseringssaker,
-  heller ikke indirekte (B-17).
-- Hver inngang i TS-stien krever autentisering med CSRF, prosjekttilgang og
-  eventuelt kontraktsrolle, og et register med test feiler når en inngang
-  mangler en kontroll (2.1, merknaden til invariant 11 og 12).
-- Et brev lagres med beslutningsgrunnlaget og leveringsintensjonen i samme
-  transaksjon som hendelsen (invariant 3, MM-U9).
-- Bevis-sakene i domenetabellen går gjennom hele kjeden: kommando, lagring,
-  gjenlesing og utledning i TS-stien.
-
-> **Merknad 2026-10-10 til FK, runde 3 (#347):** oppdragsgiver har godkjent et
-> unntak fra rekkefølgen #309 før #310. Skiva i
-> [#347](https://github.com/khjohns/endringsmeldinger/issues/347), en
-> gjennomgående prøve av TS-stien, kan gå før #309 er ferdig bygget, parallelt
-> med første byggedel av #309. Den endrer ikke `kjerne/`.
-
-> **Merknad 2026-10-10 til FK, runde 4 (#358):** [OV-U1](vedtak.md#ov-u1) avgrenser
-> første versjon av TS-stien til KOE-saken og endrer rekkefølgen: #310 kommer før
-> byggedel 4 av #309 (endringsordre og forsering) og før § 34.3.3 i byggedel 3.
-> Brev om det som avvises, følger [OV-U2](vedtak.md#ov-u2).
-
-> **Merknad 2026-10-11 til FK, rekkefølgen etter B-19:** databasen er Azure SQL
-> ([B-12, databasen](vedtak.md#b-12-databasen)). Databasebyttet skjer før eller sammen med #310.
-> Derfor forutsetter #310 at det Python gjør mot databasen, er flyttet til TS (#375,
-> [B-19](vedtak.md#b-19)), og at datalaget for Azure SQL finnes (F0b). Kjernen i #309 importerer ingen
-> database og bygges videre. Lagringstestene mot testbasen følger lagringsformen (#395).
+Forsering kommer etter KOE, EO, godkjenning og arbeidet med brukeropplevelsen
+og designet, jf. merknaden 20.10 til AF-06. Den konkrete arbeidsrekkefølgen
+og avhengighetene står i #1065 og tilknyttede issues.
 
 ### F3 — Øvrige adaptere og drift
 
-**Avhenger av:** F2 grønn. Utvid én adapter om gangen.
+**Avhenger av:** F2s videreførte kontrollkrav. Utvid én adapter om gangen.
 
 **Leveranse:** BH-svar og ordinære hendelser, inkludert batchruta (RV-10), til
 samme kommandomønster. Varig webhook-inbox med dedupe før kvittering og
@@ -1174,98 +932,66 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
   Merknad 26.10: etter [OV-U56](vedtak.md#ov-u56) skal den finnes før første
   ekte sak, ikke først før produksjon.
 - Isolert staging med eget Catenda-testprosjekt.
-- Konfigurasjon utenfor koden: policy med `user_id` (RV-03), Supabase-konsollet
-  (RV-06) så lenge Supabase brukes, og tilsvarende for Azure SQL og hostingen (B-12),
-  produksjonshemmeligheter (CFG-01).
+- Konfigurasjon utenfor koden: policy med `user_id` (RV-03), rettigheter og
+  plattformkonfigurasjon for Azure SQL og hostingen (B-12), og
+  produksjonshemmeligheter (CFG-01). RV-06 gjelder det avviklede
+  Supabase-konsollet og er ikke en produksjonskontroll for TS-stien.
 - Uavhengig sluttaudit av F2 og F3: samtidige forsøk, utløpte leases, mistede
   eksterne svar.
 
 ### Spor D — domenefeil
 
-Merknadene til spor D om det som er levert eller ordnet fram til 24.10, står i [arkivet](arkiv.md#merknader-spor-d--domenefeil).
+Kontraktsinnholdet i de historiske Python-funnene videreføres i FK,
+domenetabellen og brukerforløpene, etter vedtakene og forventet atferd der.
+Hver retting får regresjonstest og holdes innenfor sitt funn. Gjennomgangen
+av tilstandsovergangene mot NS 8407 krever dokumentert forventet overgang og
+test per hendelsestype. Vedtak og arkivering lukker ingen funn automatisk.
 
-Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
-funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (reprodusert
-23.09, rettes etter B-13), DRF-01–DRF-03, SD-01–SD-04, og restansen på
-GFK-01 etter [GFK-U3](vedtak.md#gfk-u3).
-
-BH-svar på et nøytralt varsel må slippe forespørselen etter § 33.6.2 gjennom. Deretter systematisk gjennomgang av
-tilstandsovergangene mot NS 8407, med dokumentert forventet overgang og test
-per hendelsestype. Utvides `SporStatus`, gjelder regelen i
-`.claude/rules/python-domene.md` om å lete opp alt som teller statuser.
-
-> **Merknad 2026-10-07 til spor D:** Målretningen er vedtatt med
-> presiseringene under B-14. Gjennomføringen følger domenetabell og bevis,
-> smal kontrakt og språkprøve før større ombygging av M2/M1. Små uavhengige
-> rettinger beholder sin avgrensning. Ingen av SK-funnene lukkes av vedtaket.
-
-> **Merknad 2026-10-09 til spor D:** Spor D er lukket for rettinger i
-> Python-koden for KOE-, EO- og forseringssakene (merknaden 09.10 i 4.2).
-> Unntak er sikkerhet og feil som hindrer test eller demo. Kontraktsinnholdet i
-> funnene går til FK som rader og bevis-saker (#309) eller som krav til
-> TS-serveren (#310).
+[Den opprinnelige rettingsbestillingen og overgangsmerknadene](arkiv.md#opprinnelig-arbeidspakke-spor-d)
+gjelder den slettede Python-stien. Funnstatusen og begrunnelsen er bevart;
+de er ikke en aktuell bestilling om retting i Python.
 
 ### Spor H — herding og konfigurasjon
 
 Små, uavhengige rettinger. De er krav før produksjon, men ikke forutsetning
 for F0–F2: RV-13 med CFG-03 og OBS-07; RV-14; CFG-01, CFG-02, CFG-04 til
 CFG-07; TS2-01; OBS-06; INT-01; GFK-05; FE-02, FE-03 og FE-06; AUT-04 og TST-01;
-TST-04, TST-06, TST-07; AR-08; DM-04. I tillegg: pinning av Python-avhengigheter og
-sårbarhetsskanning i CI med en besluttet terskel for hva som blokkerer;
-HTTP-herding (CSP, HSTS, `X-Content-Type-Options`, `frame-ancestors`) testet mot
+TST-04, TST-06, TST-07; AR-08; DM-04. Listen er den opprinnelige funnfordelingen;
+lukkede eller slettede forhold vurderes etter funnregisteret og arkivet.
+Pinning av Python-avhengigheter gjaldt den slettede kjøretidsstien.
+Videreførte krav er sårbarhetsskanning i CI med en besluttet terskel for hva
+som blokkerer; HTTP-herding (CSP, HSTS, `X-Content-Type-Options`, `frame-ancestors`) testet mot
 brevvisningen; lagringsfeil presenteres ikke som null krav eller komplett
 statistikk.
 
 ### Spor M — datamodell og funksjonskart
 
-Merknadene til spor M om det som er levert eller ordnet fram til 24.10, står i [arkivet](arkiv.md#merknader-spor-m--datamodell-og-funksjonskart).
-
-**Avhenger av:** ingenting. B-12 avgjør bare fase 4. **Ført inn:** 29.09, etter
-oppdragsgivers ønske og IKTs forespørsel om en tabellbeskrivelse som
-systemdokumentasjon.
-
-**Leveranse:**
-1. **Datamodellen.** Et tabellregister med vakttest og eksport til IKTs
-   regneark, en hendelseskatalog, og relasjoner og dataflyt mot Catenda.
-2. **Funksjonskart.** For hver funksjon: hva brukeren gjør, hva som skjer bak
-   kulissene, og hva som er tiltenkt, med kilde.
-3. **Atferdstester per område.** Ordinære tester der atferden holder. Avvik
-   blir funn med ID og streng `xfail`.
-4. **Etter B-12:** beskrivelsene inn i databasen.
-
-Kartleggingen går i faser, og en senere fase kan rette en tidligere.
-
-**Samordning med spor D:** områdene for varsel, frist, vederlag, svar,
-forsering og EO i fase 3 er den systematiske gjennomgangen av
-tilstandsovergangene som spor D beskriver.
-
-**Testene går gjennom rutene og containeren**, ikke mot SQL, slik at de kan
-kjøres mot et annet datalag.
-
-Oppdraget er [spor M](../prompt-datamodell-og-funksjonskart-2026-09-29.md).
-Arbeidet følges i
-[#79](https://github.com/khjohns/endringsmeldinger/issues/79).
-
-> **Merknad 2026-10-30 til spor M:** sporet er avsluttet. Fase 1, datamodellen, er levert i `docs/datamodell/` med vakttestene, og vedlikeholdet står i `.claude/rules/dokumentasjon.md`. Fase 2–3 skulle kartlegge Python- og Supabase-stien, som er overgangskode ([DL-U2](vedtak.md#dl-u2), [B-19](vedtak.md#b-19)). Hva TS-stien gjør, vises av [brukerforløpene](../domenetabell/brukerforlop/dekning.md). #79, #83, #86, #89, #100, #101 og #103 er lukket som foreldet. #90, #429 og #554 står fortsatt.
+Spor M ble avsluttet 30.10. Den opprinnelige bestillingen og leveransemerknaden
+står i [arkivet](arkiv.md#spor-m-avsluttet-3010).
+[Datamodellen](../datamodell/tabeller.md) vedlikeholdes etter
+[dokumentasjonsregelen](../../.claude/rules/dokumentasjon.md), og
+[brukerforløpene](../domenetabell/brukerforlop/dekning.md) beskriver TS-stien.
+Funnradene i avsnitt 4 beholder registrert status; avslutningen av spor M
+lukker dem ikke. Oppfølgingen føres i issuene.
 
 ### Rotårsakene
 
 De tolv rotårsakene i
 [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md#del-3-tolv-rotårsaker)
 dekkes slik: RC-1 og RC-6 i F1; RC-2 lukket 20.09; RC-3 lukket i repo 20.09,
-med PostgreSQL-verifikasjon i F0; RC-4 i F2; RC-5 og RC-8 i spor D; RC-7 og
+med videreført databaseverifikasjon i F0/F0b; RC-4 i F2; RC-5 og RC-8 i spor D; RC-7 og
 RC-10 i spor H; RC-9 i F3 og spor H; RC-11 lukket med FE-01 og FE-05; RC-12 i F4.
 
 ## 6. Beslutninger som blokkerer
 
-Avsnittet fører ikke arbeidsstatus. Det som pågår og venter, står i
-GitHub-issues, samlet i en milepæl per arbeidspakke:
-[F0b](https://github.com/khjohns/endringsmeldinger/milestone/1), [F1](https://github.com/khjohns/endringsmeldinger/milestone/2), [F2](https://github.com/khjohns/endringsmeldinger/milestone/4),
-[FK](https://github.com/khjohns/endringsmeldinger/milestone/5) og [opprydding etter AF-06](https://github.com/khjohns/endringsmeldinger/milestone/3). Regelen
-står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
-åpne beslutninger i 3.4 som må være tatt før en del av arbeidet.
+Arbeid som pågår eller venter, står i GitHub-issues. Den konkrete rekkefølgen
+fram til første ekte sak står i [#1065](https://github.com/khjohns/endringsmeldinger/issues/1065).
+Tabellen viser beslutningsavhengigheter; den er ikke en arbeidskø.
+B-01 er avgjort 03.11, jf. merknaden i 3.4. Oppryddingen av
+beslutningsregisteret følges i [#1534](https://github.com/khjohns/endringsmeldinger/issues/1534).
 
-> **Merknad 2026-10-30 til avsnitt 6 (milepælene):** milepælene F2 og opprydding etter AF-06 er lukket 30.10, uten åpne issues. F2 utgår etter merknaden 09.10 til F2, og oppryddingen som står igjen, er [#49](https://github.com/khjohns/endringsmeldinger/issues/49) i milepælen [Første ekte sak](https://github.com/khjohns/endringsmeldinger/milestone/7). Milepælen «Lesevisning etter målmodellen» heter nå [Varden og brukerforløpene](https://github.com/khjohns/endringsmeldinger/milestone/6). Arbeidsvalgene oppdragsgiver gjorde samme dag, står i [kommentaren i #1065](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6521439363): første ekte sak tas i Varden ([#1414](https://github.com/khjohns/endringsmeldinger/issues/1414)), intern godkjenning (#818) er tatt ut av Første ekte sak, frontendarbeid kontrolleres mot brukerforløpene i stedet for mot sammenligningen med den gamle frontenden i #1080, og metodevalget i OV-U43 går gjennom et brukerforløp (#1299). Merknaden 20.10 til AF-06 om å verifisere før dagens skjema og visninger slettes, er ikke endret av svarene.
+Arbeidsvalgene 30.10 står i [arkivet](arkiv.md#milepæler-og-arbeidsvalg-3010).
+Merknaden 20.10 til AF-06 om verifikasjon før sletting gjelder fortsatt.
 
 | Beslutning | Må være tatt før |
 | --- | --- |
@@ -1345,14 +1071,14 @@ treff beviser heller ikke at en gammel workers kall ikke fullføres senere.
 - Når de daterte merknadene gjør planen tung å lese, flyttes de som bare fører
   det som er levert, og funnene som er avsluttet uten pakke som gjenstår,
   ordrett til [arkivet](arkiv.md) med dato (oppdragsgiver 20.10, #1020).
-  Vedtak, funnstatus, ID-er og ankre endres ikke. Merknadene som styrer omfang
-  eller rekkefølge, blir stående.
+  Vedtak, funnstatus, ID-er og ankre endres ikke. Gjeldende føringer for omfang og rekkefølge blir stående; historiske
+  arbeidsvalg kan arkiveres med presis henvisning til videreførte krav.
 
 ## Verifikasjon og grenser
 
 Verifikasjonen av redigeringene fram til 24.10 står i [arkivet](arkiv.md#verifikasjon-og-grenser-for-redigeringene-før-2410).
 Redigeringen 24.10 (#1020) flyttet vedtakene til [vedtaksfila](vedtak.md) og de
 avsluttede funnene og leveransemerknadene ordrett til [arkivet](arkiv.md). Vakttestene
-i `backend/tests/test_vedtaksregister/` holder vedtaksfila lik registeret, og
+i `verktoy/tester/test_vedtaksregister/` holder vedtaksfila lik registeret, og
 `docs/verktoy/lenkekontroll.py` holder lenkene hele. Ingen vedtak, funnstatus,
 ID-er eller ankre er endret.

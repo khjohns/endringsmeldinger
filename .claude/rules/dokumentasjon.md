@@ -27,8 +27,10 @@ gjengivelse er aldri regelgrunnlag (`CLAUDE.md`, «Hvor hva står»).
 - Vedtatt forventet atferd og bevis-saker holdes atskilt fra beskrivelse av dagens
   kode. Oppdater den eksisterende domenetabellen når oppgaven har en; ikke lag
   en ordliste eller regelbeskrivelse ved siden av med samme innhold.
-- Hovedplanen er autoritativ for de åpne beslutningene, rekkefølgen og
-  funnstatusen. ADR-er og designnotater kan begrunne valg, men oppretter ikke et
+- Hovedplanen er autoritativ for de åpne beslutningene, føringene og
+  funnstatusen. Arbeidsrekkefølge, bestilling og overlevering står i samleissuet
+  for arbeidet, blant annet #1065 for første ekte sak. Planen viser dit uten å
+  gjenta oppgavelistene. ADR-er og designnotater kan begrunne valg, men oppretter ikke et
   konkurrerende beslutningsregister. En flytting av autoriteten må være
   uttrykkelig, med lenker og markering av hva som er erstattet.
 - **Vedtaksfila er autoritativ for vedtakene** (#1020):
@@ -41,8 +43,10 @@ gjengivelse er aldri regelgrunnlag (`CLAUDE.md`, «Hvor hva står»).
   vedtaksfila. Rett i registeret og kjør `docs/verktoy/vedtaksregister.py`,
   ikke i vedtaksfila.
 - **Arkivet** ([`docs/plans/arkiv.md`](../../docs/plans/arkiv.md)) har de
-  avsluttede funnene og leveransemerknadene som er flyttet ordrett fra
-  hovedplanen (#1020). Det er autoritativt for statusen til funnene det har.
+  historiske funn, arbeidspakker og leveransemerknader fra hovedplanen.
+  Det er autoritativt for den daterte statusen til funnene det har. Arkivering
+  lukker ikke et krav som fortsatt gjelder: behold kravet eller en presis
+  henvisning til det i hovedplanen. Skill funn i slettet kode fra krav til dagens kode.
   Nye merknader føres i hovedplanen. Gjør merknadene planen tung å lese, flyttes
   de som bare fører det som er levert, til arkivet med dato, og ID-er og ankre
   bevares.
@@ -83,6 +87,11 @@ gjengivelse er aldri regelgrunnlag (`CLAUDE.md`, «Hvor hva står»).
   dokumentets mappe: fra `docs/` til kode er det `../server/`, fra `docs/plans/`
   er det `../../server/`. Kjør `python3 docs/verktoy/lenkekontroll.py` med berørte
   Markdown-filer som argumenter; kontroller også nye kodehenvisninger selv.
+  Ved flytting eller forkorting kontrolleres også dokumentene som lenker inn,
+  og gamle ankre bevares med presise viderehenvisninger. Lenkekontrollen hopper
+  over HTTP(S), også GitHub-lenker til dette repoet. Kontroller derfor berørte
+  lenker fra issues og PR-er særskilt; en eksisterende fil eller et anker kan
+  dessuten føre til feil innhold selv om kontrollen er grønn.
 
 **En funn-ID i et avledet dokument er en påstand.** Slå ID-en opp i testens
 `reason` eller modulheader og i kildens funntabell før den brukes. En referanse

@@ -1,5 +1,10 @@
 # Bevisvedlegg til B-02-reviewet
 
+> **Historisk kjøreoppskrift — 2026-11-11:** Forsøkene krever det opprinnelige
+> kodegrunnlaget nedenfor. Python-stien og testmiljøet den brukte, er slettet i
+> [#49](https://github.com/khjohns/endringsmeldinger/issues/49). Oppskriften er
+> bevart sammen med resultatene og skal ikke kjøres som kontroll av dagens kode.
+
 **Dato:** 2026-09-23. **Utgangspunkt:** `10ab546`.
 Forrige ledd: [reviewrapporten](../../review-b02-tilgangsmekanisme-2026-09-23.md)
 og [originaldesignet](../../design-b02-tilgangsmekanisme-2026-09-22.md).

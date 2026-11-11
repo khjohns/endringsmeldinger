@@ -1,5 +1,13 @@
 # Review: etterprøvingen 2026-09-17 og godkjenningsrettingene i `e235412`
 
+> **Historisk underlag — 2026-11-11:** Historisk review av den daværende
+> Python-/PostgreSQL-stien eller designet for den. Python-stien og
+> PostgreSQL-migrasjonene er slettet i
+> [#49](https://github.com/khjohns/endringsmeldinger/issues/49). Resultatene
+> nedenfor er belegg for den angitte datoen og commiten, ikke verifikasjon av
+> TS-stien.
+> Gjeldende kilder finnes i [dokumentasjonsindeksen](README.md#start-her).
+
 Gjennomført 17.–18. september 2026. Gjenstand:
 [etterprøvingen av sikkerhetsarkitekturen](audit-sikkerhetsarkitektur-2026-09-17.md),
 [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md),
