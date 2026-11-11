@@ -18,7 +18,7 @@
 <script lang="ts">
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { kravposterI } from '$kjerne/format/kravinnhold';
+  import { harProduktivitetspost, kravposterI } from '$kjerne/format/kravinnhold';
   import { hindrerSvarPaaKravet } from '$kjerne/kommandoer/forutsetninger';
   import { kroner } from '$kjerne/frosset/tekst';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -105,9 +105,7 @@
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('vederlag')));
   const datoer = $derived(datoerISporet(u, 'vederlag'));
   const klarOver = $derived(klarOverForholdet(u));
-  const harPost = $derived(
-    (krav.innhold.saerskilt as { produktivitet?: unknown } | undefined)?.produktivitet !== undefined
-  );
+  const harPost = $derived(harProduktivitetspost(krav));
   // Kjernen sier hva svaret ennå ikke kan gjelde: rigg og drift. Skjemaet har ennå ikke svaret på
   // en kravpost etter en beregningsregel (svar 4 A i spørsmålsfila 10.11 for #1663, #1756).
   const regelpost = $derived(poster.find((p) => p.oppgjoersform !== 'tilbud'));

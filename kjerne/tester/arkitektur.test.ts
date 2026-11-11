@@ -1267,47 +1267,29 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['format/leser.ts'],
   ],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
-  [
-    'format/leser.ts:kontrollerUtregningenPerPost(utregning)',
-    'rad',
-    'poster godkjent_beloep subsidiaert_godkjent_beloep',
-    ['format/leser.ts'],
-  ],
-  [
-    'format/leser.ts:kontrollerUtregningenPerPost',
-    'rad',
-    'gjelder saerskilt lag',
-    ['format/leser.ts'],
-  ],
-  ['format/leser.ts:kontrollerUtregningenPerPost(l)', 'rad', 'lag beloep', ['format/leser.ts']],
-  [
-    'format/leser.ts:kontrollerUtregningenPerPost(r.lag.at(-1))',
-    'rad',
-    'beloep',
-    ['format/leser.ts'],
-  ],
-  ['format/leser.ts:kontrollerUtregningenPerPost.summen(l)', 'rad', 'beloep', ['format/leser.ts']],
-  // OV-U31: postene summerer til det byggherren godtar om ingen påberopelse fører fram.
-  [
-    'format/leser.ts:kontrollerVederlagsstandpunktene(utregning)',
-    'rad',
-    'godkjent_beloep subsidiaert_godkjent_beloep',
-    ['format/leser.ts'],
-  ],
-  // Beløpet og dagene i standpunktet leses av utregningen, som har ett hjem (4.3 i
-  // designnotatet). Resultatet i dager-standpunktet tas i #309 (#331 punkt 4).
+  // Resultatet og dagene i standpunktet leses av utregningen (4.3 i designnotatet, #331 punkt 4).
+  // Utregningen leses med typen for sporet (#1777).
   [
     'format/leser.ts:standpunkterISvaret(svar)',
     'rad',
     'standpunkter utregning',
     ['format/leser.ts'],
   ],
+  ['format/svarinnhold.ts', 'rad', 'utregningIVederlaget utregningIFristen', ['format/leser.ts']],
   [
-    'format/leser.ts:standpunkterISvaret(svar).utregning',
+    'Vederlagsutregning',
+    'rad',
+    'resultat subsidiaert_resultat godkjent_beloep subsidiaert_godkjent_beloep poster',
+    ['format/leser.ts'],
+  ],
+  [
+    'Fristutregning',
     'rad',
     'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
     ['format/leser.ts'],
   ],
+  ['Utregningsrad', 'rad', 'gjelder saerskilt lag', ['format/leser.ts']],
+  ['Utregningslag', 'rad', 'lag beloep', ['format/leser.ts']],
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',
     'rad',
@@ -2008,7 +1990,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
         'utledning/utled.ts.trekkAvPaaberopelsenErSperret',
-        'format/leser.ts:standpunkterISvaret(svar).utregning.resultat',
+        'Fristutregning.resultat',
       ])
     );
   });

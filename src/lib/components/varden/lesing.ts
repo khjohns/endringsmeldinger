@@ -11,12 +11,14 @@ import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import { grunnerFraForholdet, plassene } from '$kjerne/frosset/standpunkt';
 import {
   harHovedbeloep,
+  innholdIForholdet,
+  innholdIFristen,
   kravposterI,
   krevdSamlet,
   krevdProduktivitet,
 } from '$kjerne/format/kravinnhold';
 import { tilTall } from '$kjerne/regler/beloep';
-import { foersteUnderkategori, type Subsidiaergrunn } from '$kjerne/regler/forhold';
+import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
 import type {
   Avsnitt,
@@ -100,13 +102,7 @@ export function brevene(u: Utledning): Brevet[] {
         sendt: sendt.get(d.id) ?? null,
         spor: [...i],
         art: artAv(d),
-        forhold: foersteUnderkategori(
-          d.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori as
-            | string
-            | string[]
-            | null
-            | undefined
-        ),
+        forhold: innholdIForholdet(d.krav.find((k) => k.spor === 'forhold')).underkategori,
         merking: d.merking,
         deresRef: d.deresRef,
         omtale: omtalen(d),
@@ -266,8 +262,7 @@ export const brevForLinja = (brev: Brevet[], spor: Spor, trukket: boolean): Brev
 
 /** Hovedkategorien (§ 33.1 a–c, § 33.3) i gjeldende krav i forholdet, eller `null` uten krav. */
 export function hovedkategorien(u: Utledning): string | null {
-  const k = u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori;
-  return typeof k === 'string' ? k : null;
+  return innholdIForholdet(u.spor.forhold.gjeldendeKrav).hovedkategori;
 }
 
 /**
@@ -275,10 +270,7 @@ export function hovedkategorien(u: Utledning): string | null {
  * Uten krav, eller med en kode lista ikke har, er begge `null`.
  */
 export function forholdetISaken(u: Utledning): { navn: string; gruppe: string } | null {
-  const kode = foersteUnderkategori(
-    u.spor.forhold.gjeldendeKrav?.innhold.underkategori as string | string[] | null | undefined
-  );
-  const f = forholdet(kode);
+  const f = forholdet(innholdIForholdet(u.spor.forhold.gjeldendeKrav).underkategori);
   const g = f && FORHOLDSGRUPPER.find((x) => x.forhold.some((y) => y.kode === f.kode));
   return f && g ? { navn: f.navn, gruppe: g.navn } : null;
 }
@@ -340,14 +332,13 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
   const oppgitt = (o: Datoopplysningen | null) => (o ? { hva: o.hva, dato: o.dato } : null);
   const ut = new Map<string, Innlegget>();
   for (const k of u.spor.forhold.krav) {
-    const kode = foersteUnderkategori(
-      k.innhold.underkategori as string | string[] | null | undefined
-    );
+    const innhold = innholdIForholdet(k);
+    const kode = innhold.underkategori;
     const o = iBrevet(k.dokument);
     // En ny versjon som gjengir TEs siste opplysning, er ingen ny opplysning i utledningen, men
     // brevet sier datoen (MM-U52 punkt 10, #1647).
-    const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
-    const gjentatt = felt === null ? undefined : k.innhold[felt];
+    const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
+    const gjentatt = felt === null ? null : innhold.datoer[felt];
     ut.set(k.dokument, {
       gjelderPaalegg: kode === 'irregulaer_endring',
       utdypning: utdypning(k.dokument, k.id),
@@ -424,7 +415,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
   const svarbrev = svar && brevet(u, svar.dokument);
   const tall = (): number | null => {
     if (!krav) return null;
-    if (spor === 'frist') return typeof krav.innhold.dager === 'number' ? krav.innhold.dager : null;
+    if (spor === 'frist') return innholdIFristen(krav).dager;
     // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61), så summen av de
     // faste beløpene er ikke kravet.
     if (kravposterI(krav).some((p) => p.oppgjoersform !== 'tilbud')) return null;

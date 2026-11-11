@@ -1520,8 +1520,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/leser.ts`,
     endringer: [
       [
-        '(utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep)',
-        '(utregning.godkjent_beloep)',
+        'const total = utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep;',
+        'const total = utregning.godkjent_beloep;',
       ],
     ],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
@@ -4418,7 +4418,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/leser.ts`,
     endringer: [
       [
-        "n < prekludert ? beloep(l.beloep as number | undefined) !== 0n : 'beloep' in l",
+        "n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l",
         "n < prekludert ? false : 'beloep' in l",
       ],
     ],
@@ -4431,8 +4431,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/leser.ts`,
     endringer: [
       [
-        "n < prekludert ? beloep(l.beloep as number | undefined) !== 0n : 'beloep' in l",
-        "n < 1 ? beloep(l.beloep as number | undefined) !== 0n && 'beloep' in l : 'beloep' in l",
+        "n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l",
+        "n < 1 ? beloep(l.beloep) !== 0n && 'beloep' in l : 'beloep' in l",
       ],
     ],
     mal: ['et lag uten preklusjon har 0 kr, men tilbudet er ikke akseptert'],
