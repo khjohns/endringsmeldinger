@@ -9374,7 +9374,8 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
  * i beslutningsgrunnlaget (OV-U32). Prøven går over én kravpost med fast sum, én med justerte
  * enhetspriser og én med regningsarbeid, posten etter § 34.1.3 annet ledd, påberopelsen etter
  * § 34.1.2 der den gjelder kategorien, og svaret på forholdet. Prøven utelater rigg og drift,
- * kravet om tilbud etter § 34.2.1 og en revisjon av svaret.
+ * kravet om tilbud etter § 34.2.1 og en revisjon av svaret. Testen holder utregningen og virkningene
+ * like. Laget for hvert standpunkt har kilden sin i testene for VS-U4, KA-U64 og KA-U72 over.
  */
 describe('lagene i utregningen er lagene i beslutningsgrunnlaget (OV-U32, KA-U64, KA-U72, VS-U56, #1774)', () => {
   const sviktkravet = {
@@ -9494,7 +9495,10 @@ describe('lagene i utregningen er lagene i beslutningsgrunnlaget (OV-U32, KA-U64
             }
       // § 34.1.2 åpner det første laget, og en kravpost med justerte enhetspriser kan åpne to til.
       const foerste = hovedkrav === false ? 2 : 1;
-      expect([...sett].sort(), 'prøven når hvert lag').toEqual([foerste, foerste + 1, foerste + 2]);
+      expect(
+        [...sett].sort((a, b) => a - b),
+        'prøven når hvert lag'
+      ).toEqual([foerste, foerste + 1, foerste + 2]);
     }
   );
 });
