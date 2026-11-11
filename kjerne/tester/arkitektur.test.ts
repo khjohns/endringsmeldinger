@@ -27,7 +27,7 @@
  * uten filendelse.
  */
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -59,9 +59,11 @@ const rollefilene = (...roller: Rolle[]) =>
 
 /**
  * Mappen `fil` hører til: mappen den står i, eller for en rollefil i et spor mappen rollen
- * hører til. `null` for en fil rett i kjernen og for en fil i `spor/` som ikke er en rollefil.
+ * hører til. `null` for en fil utenfor kjernen eller rett i den, og for en fil i `spor/` som
+ * ikke er en rollefil.
  */
 export function mappenTil(fil: string): string | null {
+  if (!fil.startsWith(KJERNE + sep)) return null;
   const deler = relative(KJERNE, utenEndelse(fil)).split(sep);
   if (deler[0] !== 'spor') return deler.length > 1 ? deler[0]! : null;
   const [, spor, rolle] = deler;
@@ -176,7 +178,7 @@ describe('kjernen er ren kode (B-14)', () => {
 
 /** Importene i `fil` fra kommandoene, også fra kommandoene i et spor. */
 const kommandoerI = (fil: string, kilde: string) =>
-  importer(fil, kilde).filter((i) => i.startsWith(KJERNE + sep) && mappenTil(i) === 'kommandoer');
+  importer(fil, kilde).filter((i) => mappenTil(i) === 'kommandoer');
 
 // #1354: kommandoene leser utledningen, ikke omvendt.
 describe('utledningen importerer ikke kommandoene (#1354)', () => {
@@ -209,7 +211,7 @@ describe('utledningen importerer ikke kommandoene (#1354)', () => {
 
 /** Frysingen og teksten, også i et spor. */
 const FROSSET = [
-  ...filer.filter((f) => mappenTil(f) === 'frosset'),
+  ...filer.filter((f) => f.startsWith(join(KJERNE, 'frosset') + sep)),
   ...rollefilene('frysing', 'tekst'),
 ];
 
@@ -246,10 +248,17 @@ describe('regelsettet når ikke frysingen eller teksten', () => {
 });
 
 describe('et spor har bare rollefiler (#1783)', () => {
+  // Alle filer, ikke bare .ts: en JSON-fil ved siden av en rollefil ville stått utenfor
+  // grensene og versjonene.
   it('hver fil i spor/ er spor/<spor>/<rolle>.ts', () => {
-    const andre = filer
-      .filter((f) => f.startsWith(join(KJERNE, 'spor') + sep) && mappenTil(f) === null)
-      .map((f) => relative(KJERNE, f));
+    const spor = join(KJERNE, 'spor');
+    const andre = existsSync(spor)
+      ? readdirSync(spor, { recursive: true, withFileTypes: true })
+          .filter((d) => d.isFile())
+          .map((d) => join(d.parentPath, d.name))
+          .filter((f) => !f.endsWith('.ts') || mappenTil(f) === null)
+          .map((f) => relative(KJERNE, f))
+      : [];
     expect(andre).toEqual([]);
   });
 
@@ -264,6 +273,7 @@ describe('et spor har bare rollefiler (#1783)', () => {
     ['spor/vederlag/annet.ts', null],
     ['spor/vederlag/frysing/a.ts', null],
     ['spor/poster/tekst.ts', null],
+    ['../src/kommandoer/a.ts', null],
   ])('%s hører til %s', (navn, mappe) => {
     expect(mappenTil(join(KJERNE, navn))).toBe(mappe);
   });

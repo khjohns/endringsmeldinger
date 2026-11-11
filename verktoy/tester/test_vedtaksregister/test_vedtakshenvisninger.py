@@ -7,6 +7,7 @@ unntatt i en test merket historisk (oppdragsgiver 05.11, #1606).
 
 import collections
 import pathlib
+import re
 
 import pytest
 
@@ -633,3 +634,15 @@ def test_en_historisk_sporsmalsfil_kan_ha_en_opphevet_id_alene():
     assert _feil("Følger MM-U4.", sti) == []
     assert len(_feil("Følger XX-U99.", sti)) == 1
     assert len(_feil("Følger MM-U4.", "docs/domenetabell/brukerforlop/BF-06.md")) == 1
+
+
+def test_grunnlagsmappene_dekker_rollefilene_arkitekturtesten_regner_til_dem():
+    """#1783: rollene i arkitekturtesten og `i_grunnlagsmappe` er samme regel."""
+    tekst = (ROT / "kjerne/tester/arkitektur.test.ts").read_text()
+    tabell = re.search(r"const ROLLER = \{(.*?)\} as const;", tekst, re.S)
+    assert tabell, "fant ikke ROLLER i arkitekturtesten"
+    roller = dict(re.findall(r"(\w+): '(\w+)'", tabell.group(1)))
+    assert len(roller) >= 6, roller
+    for rolle, mappe in roller.items():
+        sti = f"kjerne/spor/vederlag/{rolle}.ts"
+        assert vh.i_grunnlagsmappe(sti) == (f"kjerne/{mappe}/" in vh.GRUNNLAGSMAPPER), sti

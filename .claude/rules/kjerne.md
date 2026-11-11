@@ -33,10 +33,11 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
   med linjen og visningen i `frosset/tekst.ts`. En tekst kan lese en regel, men en regel
   leser ikke en tekst.
 - **Det som er sporets eget, står i `kjerne/spor/<spor>/`**, i én fil per rolle (#1783):
-  `format.ts`, `frysing.ts` og `tekst.ts` (rollene i `frosset/`), `utledning.ts`, `visning.ts`
-  (visningen i `utledning/`) og `kommando.ts` (`kommandoer/`). En rollefil hører til mappen
-  rollen står for, så grensene og versjonene for den mappen gjelder den, og
-  arkitekturtesten avviser en annen fil i `spor/`. Den felles modulen slår opp i sporet
+  `format.ts` (`format/`), `frysing.ts` og `tekst.ts` (`frosset/`), `utledning.ts` og
+  `visning.ts` (`utledning/`, og visningen er visning) og `kommando.ts` (`kommandoer/`). En
+  rollefil hører til mappen rollen står for, så grensene og versjonene for den mappen gjelder
+  den, og arkitekturtesten avviser en annen fil i `spor/`. Rollene står i `ROLLER` i
+  arkitekturtesten, og vaktene i Python prøves mot dem. Den felles modulen slår opp i sporet
   gjennom en `Record<Spor, …>` for rollen. Regelsettet for sporet står i `regler/`.
 
 ## Når kode flyttes mellom moduler

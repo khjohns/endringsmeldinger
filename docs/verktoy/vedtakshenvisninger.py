@@ -295,7 +295,8 @@ def feil_i(
     """`opphevet` er de opphevede ID-ene med ID-ene til postene som opphever dem. `avvik` er
     parene (fil, ID) i `KJENTE_AVVIK`, og `designavvik` dem i
     `KJENTE_DESIGNAVVIK`; hvert treff telles i `truffet` og `designtruffet`. `design_` er
-    ID-ene til designpostene med vedtakene i `bindende_i`, og leses bare i GRUNNLAGSMAPPER."""
+    ID-ene til designpostene med vedtakene i `bindende_i`, og leses bare der `i_grunnlagsmappe`
+    gjelder."""
     feil = []
     deler = avsnitt(tekst) if er_dokument(sti) else henvisninger(tekst)
     for nr, henvisning in deler:

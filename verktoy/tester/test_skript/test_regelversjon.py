@@ -4,8 +4,11 @@ Hvert tilfelle bygger et eget git-repo, slik at skriptet kjører uten å røre
 filene i dette repoet.
 """
 
+import importlib.util
 import os
+import re
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -460,3 +463,35 @@ def test_en_flytting_med_endrede_kommentarer_krever_ingen_ny_versjon(flytting):
     assert svar.returncode == 0, svar.stdout + svar.stderr
     assert KJERNE_STANDPUNKT in svar.stdout.split("uten krav om ny versjon:")[1]
 
+
+
+ARKITEKTUR = SKRIPT.parents[2] / "kjerne/tester/arkitektur.test.ts"
+
+
+def roller_i_arkitekturtesten() -> dict[str, str]:
+    """`ROLLER` i arkitekturtesten: rollefila i et spor og mappen den hører til (#1783)."""
+    tabell = re.search(r"const ROLLER = \{(.*?)\} as const;", ARKITEKTUR.read_text(), re.S)
+    assert tabell, "fant ikke ROLLER i arkitekturtesten"
+    roller = dict(re.findall(r"(\w+): '(\w+)'", tabell.group(1)))
+    assert len(roller) >= 6, roller
+    return roller
+
+
+def _flytting():
+    sys.path.insert(0, str(SKRIPT.parent))
+    try:
+        spes = importlib.util.spec_from_file_location("flytting", SKRIPT.parent / "flytting.py")
+        modul = importlib.util.module_from_spec(spes)
+        spes.loader.exec_module(modul)
+        return modul
+    finally:
+        sys.path.remove(str(SKRIPT.parent))
+
+
+def test_regelversjonen_dekker_rollefilene_arkitekturtesten_regner_til_frosset():
+    """#1783: rollene i arkitekturtesten og omfanget i flytting.py er samme regel."""
+    flytting = _flytting()
+    for rolle, mappe in roller_i_arkitekturtesten().items():
+        sti = f"kjerne/spor/vederlag/{rolle}.ts"
+        assert flytting.dekker("REGELVERSJON", sti) == (mappe == "frosset"), sti
+        assert flytting.dekker("PROJEKSJONSVERSJON", sti), sti
