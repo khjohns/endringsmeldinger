@@ -105,9 +105,15 @@ export function virkninger(
       const virkning = s.oppfylt ? 'uten_virkning' : iLaget();
       if (!s.oppfylt) lag++;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
-    } else {
+    } else if (
+      s.art === 'forhold' ||
+      s.art === 'beloep' ||
+      s.art === 'oppgjoersform' ||
+      s.art === 'justering' ||
+      s.art === 'dager'
+    ) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });
-    }
+    } else ikkeVurdert(s);
   }
   return ut;
 }

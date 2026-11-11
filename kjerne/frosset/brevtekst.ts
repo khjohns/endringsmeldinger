@@ -554,7 +554,7 @@ function kravposttekst(
       );
     if (p.anslag !== undefined)
       deler.push(`Anslaget er ${eksMva(p.anslag)} Anslaget er en opplysning og ikke et tilbud.`);
-  } else {
+  } else if (p.oppgjoersform === 'regningsarbeid') {
     deler.push(
       `TE krever at ${p.betegnelse} gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.`
     );
@@ -568,7 +568,7 @@ function kravposttekst(
       deler.push(
         `Kostnadsoverslaget er ${eksMva(p.kostnadsoverslag)} Overslaget er en opplysning og ikke et tilbud.`
       );
-  }
+  } else ikkeVurdert(p.oppgjoersform);
   return deler.join(' ');
 }
 
