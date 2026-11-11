@@ -5,7 +5,7 @@
 Dette er forslaget oppdragsgiver tar stilling til. Det er ikke vedtak, og det erstatter
 [utkast-vedtak.md](utkast-vedtak.md), som blir stående som historikk. Ordlyden tar inn
 rettingene i [prøvingen mot 3.1](utkast-vedtak-provet.md), oppdragsgivers svar 1–10 i
-[vurderingen](../../vurdering-behov-forste-versjon-2026-10-13.md#spørsmål-til-oppdragsgiver)
+[vurderingen](../../historikk/vurdering-behov-forste-versjon-2026-10-13.md#spørsmål-til-oppdragsgiver)
 og Astras review av PR #481.
 
 ## OV-U3: lukkingen av saken

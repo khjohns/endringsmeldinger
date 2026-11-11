@@ -6,7 +6,7 @@
 -- en Catenda-forfatter som aldri har logget inn finnes ikke i tabellen, og da
 -- skannes hele provider-partisjonen. Oppslaget skjer én gang per hendelse på
 -- navnestien (lib/aktor_navn) og på mottaksstien.
--- Se docs/audit-korrekthet-2026-09-21.md (KR-11).
+-- Se docs/historikk/audit-korrekthet-2026-09-21.md (KR-11).
 --
 -- Ikke unik: unikheten ligger på (provider, issuer, subject), og to utstedere
 -- kan i prinsippet bruke samme subject.

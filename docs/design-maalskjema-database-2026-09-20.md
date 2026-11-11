@@ -9,7 +9,7 @@
 
 Skrevet 20. september 2026 mot `a3f59d9` på grenen
 `claude/database-architecture-review-v61w41`. Forrige ledd i kjeden:
-[audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md), som lot
+[audit: databasearkitektur](historikk/audit-databasearkitektur-2026-09-20.md), som lot
 DA-12 til DA-15 stå som åpne designspørsmål. Dette notatet lukker dem, på
 premisser besluttet av utvikler 20. september. Bygger på
 [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) og
@@ -21,10 +21,10 @@ målbilde, ikke en gjennomført endring. **Ingenting her var implementert da det
 ble skrevet.**
 
 > **Merknad 2026-09-20 (kveld): MS-01, MS-04 og MS-10 er gjennomført.**
-> De tre er dem [handoffen](handoff-2026-09-20.md) §5 setter samme frist for —
+> De tre er dem [handoffen](historikk/handoff-2026-09-20.md) §5 setter samme frist for —
 > når første ekte sak opprettes. Basen er tom, så de kostet null datamigrasjon.
 > Gjennomføringen, med migrasjonsversjoner, katalogsjekksummer og grenser, står
-> i [gjennomføringen](gjennomforing-maalskjema-2026-09-20.md).
+> i [gjennomføringen](historikk/gjennomforing-maalskjema-2026-09-20.md).
 >
 > Kort: `hendelse` erstatter de tre hendelsestabellene og bærer `actorid`;
 > journalen fører `aktor_id` og aldri et personnavn, med navneoppslag i
@@ -39,7 +39,7 @@ ble skrevet.**
 > har nitten tabeller. Setningen over om at MS-05 gjenstår, gjaldt til da.
 > Avsnittet «Hvorfor ikke kryptografisk sletting i stedet» har fått sin
 > forutsetning bekreftet: arkivplikt går foran sletteplikt, besluttet samme
-> dato. Se [gjennomføringen](gjennomforing-ms05-2026-09-21.md).
+> dato. Se [gjennomføringen](historikk/gjennomforing-ms05-2026-09-21.md).
 
 ---
 
@@ -143,7 +143,7 @@ Samtidighetsinnvendingen holder ikke ved nærmere ettersyn.
 `UNIQUE (sak_id, versjon)` er spredt over nøkkelrommet, ikke monotont, så det
 finnes ingen strid om høyre bladnode. Det eneste monotone er identity-sekvensen,
 som er cachet og uten betydning på dette volumet — anslaget i
-[arkitekturdiagrammene](arkitektur-diagrammer.md) er ~5 000 saker per år.
+[arkitekturdiagrammene](historikk/arkitektur-diagrammer.md) er ~5 000 saker per år.
 
 Sakstypen ligger allerede på `sak.sakstype` og trenger ikke dupliseres på raden;
 ruting blir et filter framfor et tabellvalg.
@@ -208,7 +208,7 @@ halvparten — se MS-05 for den andre.
 > **Gjennomført 2026-09-21.** Tabellen heter `notat`, migrasjonen er
 > `20260921153900_notat_tabell.sql`, og den er anvendt. Beskrivelsen under er
 > designgrunnlaget; hva som faktisk ble bygget — og hva som ikke ble
-> kontrollert — står i [gjennomføringen](gjennomforing-ms05-2026-09-21.md).
+> kontrollert — står i [gjennomføringen](historikk/gjennomforing-ms05-2026-09-21.md).
 
 `AGENTS.md` slår fast at et internt notat **ikke er et kontraktsvarsel**. Da
 trenger det ikke journalens permanens — men i dag arver det den, fordi det er en
@@ -302,7 +302,7 @@ JWT, med policyer som leser `current_setting('request.jwt.claims')`. Altså: app
 må utstede egne tokens framfor å bruke tjenestenøkkelen.
 
 Det er en arkitekturendring, ikke en skjemaendring, og den hører til
-«bytt fundamentet» i [arkitekturvurderingen](arkitekturvurdering-2026-09-19.md).
+«bytt fundamentet» i [arkitekturvurderingen](historikk/arkitekturvurdering-2026-09-19.md).
 Den bør besluttes der, ikke drive i det stille.
 
 Akseptkriteriet masterplanen allerede ber om, blir da målbart: en rolle med

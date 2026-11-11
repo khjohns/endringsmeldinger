@@ -68,23 +68,31 @@ undersøkelsene fra den angitte datoen. Påstander om status, alvorlighet og
 kjøringer i disse dokumentene gjelder den undersøkte versjonen. Bruk
 hovedplanen, arkivet og vedtaksfila for gjeldende status og vedtak.
 
+Dokumentene ligger i [`historikk/`](historikk/). Tre grupper ligger igjen i
+`docs/`: dokumentene hovedplanen gir en gjeldende rolle i
+[avsnitt 1.2](plans/2026-09-16-godkjenning-og-varig-levering.md#12-dokumentenes-rolle),
+dokumentene en flettet migrasjon eller kjernen viser til, og dokumentene som
+teksten i en importert vedtakspost lenker til. Disse stedene kan ikke endres i en
+ren dokumentendring (`vedtaksregister.py --sjekk` avviser endret vedtakstekst).
+
 ### Modell- og arkitekturvurderinger
 
 - [design: lagringsformatet for hendelsene TS skriver (B-10)](design-hendelsesformat-2026-10-09.md)
 - [forslag: målmodell](forslag-maalmodell-2026-10-09.md) · [kontrollskript](vedlegg/maalmodell-2026-10-09/kontroll.ts)
-- [vurdering: vedtakene mot NS 8407 og avtaleloven](vurdering-vedtak-mot-avtaleloven-2026-10-15.md)
-- [vurdering: målbildet, arkitekturen og overgangen til TS](vurdering-maalbilde-og-ts-overgang-2026-10-20.md)
-- [vurdering: behovet i første versjon](vurdering-behov-forste-versjon-2026-10-13.md) · [kartleggingene](vedlegg/kartlegging-forste-versjon-2026-10-13/premisser.md)
-- [vurdering: begrunnelse per punkt og oversiktstabell](vurdering-begrunnelse-per-punkt-2026-10-31.md)
+- [vurdering: vedtakene mot NS 8407 og avtaleloven](historikk/vurdering-vedtak-mot-avtaleloven-2026-10-15.md)
+- [vurdering: vedtakene 25.10](historikk/vurdering-vedtakene-2026-10-25.md)
+- [vurdering: målbildet, arkitekturen og overgangen til TS](historikk/vurdering-maalbilde-og-ts-overgang-2026-10-20.md)
+- [vurdering: behovet i første versjon](historikk/vurdering-behov-forste-versjon-2026-10-13.md) · [kartleggingene](vedlegg/kartlegging-forste-versjon-2026-10-13/premisser.md)
+- [vurdering: begrunnelse per punkt og oversiktstabell](historikk/vurdering-begrunnelse-per-punkt-2026-10-31.md)
 - [vurdering: kontraktskontroll av OV-U3–OV-U7 og VS-U17–VS-U21](vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md)
 - [vurdering: hvor TS-kjernen kjører på serveren (B-18)](vurdering-b18-serverplassering-2026-10-10.md)
-- [vurdering: målarkitekturen mot domenet](vurdering-maalarkitektur-mot-domenet-2026-10-20.md) · [prompten til sparring](vedlegg/vurdering-maalarkitektur-2026-10-20/prompt-sparring.md)
+- [vurdering: målarkitekturen mot domenet](historikk/vurdering-maalarkitektur-mot-domenet-2026-10-20.md) · [prompten til sparring](vedlegg/vurdering-maalarkitektur-2026-10-20/prompt-sparring.md)
 - [vurdering: JSON i Azure SQL Database (B-12)](vurdering-json-azure-sql-2026-10-11.md)
 - [prøve: tilgangsmekanismen og lagringsformene i T-SQL (B-12)](prove-azuresql-2026-10-11.md)
 - [forslag: målarkitektur og beslutningsprøve](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md) · [opprinnelig forslag](vedlegg/arkitekturvalg-2026-10-07/README.md)
 - [metodeprøve: fristkrav og tidsinnsigelser](vedlegg/metodeprove-frist-2026-10-08/README.md)
 - [reviewoppfølging: målarkitektur og gjennomføring](review-oppfolging-arkitektur-2026-10-07.md)
-- [vurdering: avhengigheter og arkitekturvalg](vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md) · [backend](vedlegg/avhengigheter-2026-10-07/backend.md), [frontend](vedlegg/avhengigheter-2026-10-07/frontend.md) og [arkitektur](vedlegg/avhengigheter-2026-10-07/arkitektur.md)
+- [vurdering: avhengigheter og arkitekturvalg](historikk/vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md) · [backend](vedlegg/avhengigheter-2026-10-07/backend.md), [frontend](vedlegg/avhengigheter-2026-10-07/frontend.md) og [arkitektur](vedlegg/avhengigheter-2026-10-07/arkitektur.md)
 
 Daterte forslag, vurderinger og metodeprøver som begrunner modell- og arkitekturvalgene.
 
@@ -93,63 +101,63 @@ Daterte forslag, vurderinger og metodeprøver som begrunner modell- og arkitektu
 Daterte prototyper, reviewer, design og oppdrag fra tidligere løsningsspor.
 
 - [prototype v2 for B-02](vedlegg/b02-prototype-v2-2026-09-23/kjor.sh)
-- [uavhengig review: tilgangsmekanisme (B-02)](review-b02-tilgangsmekanisme-2026-09-23.md) · [bevis og kjøreoppskrift](vedlegg/b02-prototype-2026-09-22/REVIEW.md)
+- [uavhengig review: tilgangsmekanisme (B-02)](historikk/review-b02-tilgangsmekanisme-2026-09-23.md) · [bevis og kjøreoppskrift](vedlegg/b02-prototype-2026-09-22/REVIEW.md)
 - [arkitekturpresiseringer 21.09](arkitekturforinger-2026-09-21.md)
 - [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md)
 - [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md)
-- [oppdrag: datamodell og funksjonskart (spor M)](prompt-datamodell-og-funksjonskart-2026-09-29.md)
-- [oppdrag: repositoriene i F0b, fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md)
+- [oppdrag: datamodell og funksjonskart (spor M)](historikk/prompt-datamodell-og-funksjonskart-2026-09-29.md)
+- [oppdrag: repositoriene i F0b, fase 2](historikk/prompt-f0b-fase2-repositorier-2026-09-24.md) · gjennomføringene av [løp a](historikk/gjennomforing-f0b-lop-a-2026-09-24.md) og [løp b](historikk/gjennomforing-f0b-lop-b-2026-09-24.md)
 
 ## Oppdrag, kartlegginger og gjennomføringer 22.09–05.10 — historisk underlag
 
 Daterte oppdrag, kartlegginger og gjennomføringsnotater, etterfulgt av konsolideringsrunden for hovedplanen.
 
-- [kartlegging: strukturen i spor D](kartlegging-struktur-spor-d-2026-10-05.md) · [oppdrag](prompt-strukturkartlegging-spor-d-2026-10-05.md)
-- [gjennomføring: nøytralt fristvarsel](gjennomforing-noytralt-fristvarsel-2026-10-04.md)
-- [gjennomføring: tabellregisteret, første runde (spor M, 1a)](gjennomforing-spor-m-1a-2026-09-29.md)
-- [gjennomføring: hendelseskatalogen, første runde (spor M, 1b)](gjennomforing-spor-m-1b-2026-09-29.md)
-- [gjennomføring: relasjoner, ER-diagram og dataflyt (spor M, 1c)](gjennomforing-spor-m-1c-2026-09-29.md)
-- [designnotat: B-13, hvem avgjør resultatet](design-b13-sannhetskilde-2026-09-23.md) · [oppdrag](prompt-b13-backend-eier-reglene-2026-09-23.md)
-- [kartlegging: frontendens domeneregler](kartlegging-domeneregler-frontend-2026-09-23.md) · [oppdrag: BR-01 og spor D](prompt-spor-d-br01-2026-09-23.md)
-- [gjennomføring: spor D](gjennomforing-spor-d-2026-09-23.md)
-- [gjennomføring: kjernen i datalaget (F0b)](gjennomforing-f0b-kjernen-2026-09-23.md) · [mutasjoner](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py) · [oppdrag](prompt-f0b-kjernen-2026-09-23.md)
-- [uavhengig review: kjernen i datalaget (F0b)](review-f0b-kjernen-2026-09-23.md) · [forsøk og mutasjoner](vedlegg/review-f0b-kjernen-2026-09-23/README.md) · [oppdrag](prompt-review-f0b-kjernen-2026-09-23.md)
-- [oppdrag: PostgreSQL 17 i CI (F0)](prompt-f0-postgresql-i-ci-2026-09-22.md)
-- [oppdrag: testvedlikehold i F0](prompt-f0-testvedlikehold-2026-09-22.md) · [gjennomføring](gjennomforing-f0-testvedlikehold-2026-09-22.md)
-- [gjennomføring: TST-02/KR-15](gjennomforing-tst02-2026-09-22.md)
-- [design: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-2026-09-22.md) · [oppdrag](prompt-b02-tilgangsmekanisme-2026-09-22.md) · [prototype](vedlegg/b02-prototype-2026-09-22/kjor.sh) · [oppdrag: uavhengig review](prompt-review-b02-tilgangsmekanisme-2026-09-22.md)
-- [redaksjonsprotokoll for hovedplanen](sluttredigering-hovedplan-2026-09-22.md)
+- [kartlegging: strukturen i spor D](historikk/kartlegging-struktur-spor-d-2026-10-05.md) · [oppdrag](historikk/prompt-strukturkartlegging-spor-d-2026-10-05.md)
+- [gjennomføring: nøytralt fristvarsel](historikk/gjennomforing-noytralt-fristvarsel-2026-10-04.md)
+- [gjennomføring: tabellregisteret, første runde (spor M, 1a)](historikk/gjennomforing-spor-m-1a-2026-09-29.md)
+- [gjennomføring: hendelseskatalogen, første runde (spor M, 1b)](historikk/gjennomforing-spor-m-1b-2026-09-29.md)
+- [gjennomføring: relasjoner, ER-diagram og dataflyt (spor M, 1c)](historikk/gjennomforing-spor-m-1c-2026-09-29.md)
+- [designnotat: B-13, hvem avgjør resultatet](design-b13-sannhetskilde-2026-09-23.md) · [oppdrag](historikk/prompt-b13-backend-eier-reglene-2026-09-23.md)
+- [kartlegging: frontendens domeneregler](historikk/kartlegging-domeneregler-frontend-2026-09-23.md) · [oppdrag: BR-01 og spor D](historikk/prompt-spor-d-br01-2026-09-23.md)
+- [gjennomføring: spor D](historikk/gjennomforing-spor-d-2026-09-23.md)
+- [gjennomføring: kjernen i datalaget (F0b)](historikk/gjennomforing-f0b-kjernen-2026-09-23.md) · [mutasjoner](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py) · [oppdrag](historikk/prompt-f0b-kjernen-2026-09-23.md)
+- [uavhengig review: kjernen i datalaget (F0b)](historikk/review-f0b-kjernen-2026-09-23.md) · [forsøk og mutasjoner](vedlegg/review-f0b-kjernen-2026-09-23/README.md) · [oppdrag](historikk/prompt-review-f0b-kjernen-2026-09-23.md)
+- [oppdrag: PostgreSQL 17 i CI (F0)](historikk/prompt-f0-postgresql-i-ci-2026-09-22.md) · [gjennomføring](historikk/gjennomforing-f0-postgresql-ci-2026-09-22.md)
+- [oppdrag: testvedlikehold i F0](historikk/prompt-f0-testvedlikehold-2026-09-22.md) · [gjennomføring](historikk/gjennomforing-f0-testvedlikehold-2026-09-22.md)
+- [gjennomføring: TST-02/KR-15](historikk/gjennomforing-tst02-2026-09-22.md)
+- [design: tilgangsmekanisme (B-02)](historikk/design-b02-tilgangsmekanisme-2026-09-22.md) · [oppdrag](historikk/prompt-b02-tilgangsmekanisme-2026-09-22.md) · [prototype](vedlegg/b02-prototype-2026-09-22/kjor.sh) · [oppdrag: uavhengig review](historikk/prompt-review-b02-tilgangsmekanisme-2026-09-22.md)
+- [redaksjonsprotokoll for hovedplanen](historikk/sluttredigering-hovedplan-2026-09-22.md)
 
 **Konsolideringsrunden 21.–22.09 — historisk underlag for hovedplanen.**
 
-- [testrevisjon 22.09](audit-testbevis-2026-09-22.md) · [testinventar](vedlegg/testbevis-2026-09-22.csv)
-- [review av testbevis og planstatus 22.09](review-testbevis-og-planstatus-2026-09-22.md)
-- [konsolidert masterplan v2](konsolidering-masterplan-2026-09-22-v2.md) · [kildegrunnlag v2](konsolidering-kildegrunnlag-2026-09-22-v2.md)
-- [review av v2](review-gemini-konsolidering-2026-09-22-v2.md) · [første review](review-gemini-konsolidering-2026-09-22.md)
-- [konsolidert masterplan v1](konsolidering-masterplan-2026-09-21.md) · [kildegrunnlag v1](konsolidering-kildegrunnlag-2026-09-21.md)
-- [oppdrag: sluttrediger hovedplanen](prompt-sluttredigering-hovedplan-2026-09-22.md) · [oppdrag: testverifikasjon](prompt-gemini-verifikasjon-tester-2026-09-22.md) · [oppdrag: konsolidering](prompt-gemini-konsolidering-2026-09-21.md)
+- [testrevisjon 22.09](historikk/audit-testbevis-2026-09-22.md) · [testinventar](vedlegg/testbevis-2026-09-22.csv)
+- [review av testbevis og planstatus 22.09](historikk/review-testbevis-og-planstatus-2026-09-22.md)
+- [konsolidert masterplan v2](historikk/konsolidering-masterplan-2026-09-22-v2.md) · [kildegrunnlag v2](historikk/konsolidering-kildegrunnlag-2026-09-22-v2.md)
+- [review av v2](historikk/review-gemini-konsolidering-2026-09-22-v2.md) · [første review](historikk/review-gemini-konsolidering-2026-09-22.md)
+- [konsolidert masterplan v1](historikk/konsolidering-masterplan-2026-09-21.md) · [kildegrunnlag v1](historikk/konsolidering-kildegrunnlag-2026-09-21.md)
+- [oppdrag: sluttrediger hovedplanen](historikk/prompt-sluttredigering-hovedplan-2026-09-22.md) · [oppdrag: testverifikasjon](historikk/prompt-gemini-verifikasjon-tester-2026-09-22.md) · [oppdrag: konsolidering](historikk/prompt-gemini-konsolidering-2026-09-21.md)
 
 ## Runden 20.–21. september
 
 Undersøkelser og gjennomføringsnotater fra arbeidet med det tidligere PostgreSQL-skjemaet.
 
-- [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md)
+- [audit: databasearkitektur](historikk/audit-databasearkitektur-2026-09-20.md)
 - [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md)
-- [gjennomføring: MS-01, MS-04 og MS-10](gjennomforing-maalskjema-2026-09-20.md)
-- [gjennomføring: MG-02](gjennomforing-mg02-2026-09-21.md)
-- [gjennomføring: MS-05](gjennomforing-ms05-2026-09-21.md)
-- [gjennomgang av målskjemarunden](audit-maalskjema-gjennomgang-2026-09-21.md)
-- [audit: opprydding](audit-opprydding-2026-09-21.md)
-- [audit: korrekthet i målskjemarunden](audit-korrekthet-2026-09-21.md)
+- [gjennomføring: MS-01, MS-04 og MS-10](historikk/gjennomforing-maalskjema-2026-09-20.md)
+- [gjennomføring: MG-02](historikk/gjennomforing-mg02-2026-09-21.md)
+- [gjennomføring: MS-05](historikk/gjennomforing-ms05-2026-09-21.md)
+- [gjennomgang av målskjemarunden](historikk/audit-maalskjema-gjennomgang-2026-09-21.md)
+- [audit: opprydding](historikk/audit-opprydding-2026-09-21.md)
+- [audit: korrekthet i målskjemarunden](historikk/audit-korrekthet-2026-09-21.md)
 
 ## Runden 19. september
 
 Arkitekturvurdering, etterprøving av auditfunn og faktagrunnlag for personvernvurderingen.
 
-- [arkitekturvurderingen](arkitekturvurdering-2026-09-19.md)
-- [sammenstillingen](sammenstilling-arkitektur-og-auditspor-2026-09-19.md)
-- [vurdering av auditfunnene](vurdering-av-auditfunn-2026-09-19.md)
-- [faktagrunnlag for DPIA](personopplysninger-faktagrunnlag-2026-09-19.md)
+- [arkitekturvurderingen](historikk/arkitekturvurdering-2026-09-19.md)
+- [sammenstillingen](historikk/sammenstilling-arkitektur-og-auditspor-2026-09-19.md)
+- [vurdering av auditfunnene](historikk/vurdering-av-auditfunn-2026-09-19.md)
+- [faktagrunnlag for DPIA](historikk/personopplysninger-faktagrunnlag-2026-09-19.md)
 
 ## Auditserien
 
@@ -157,43 +165,43 @@ Historiske undersøkelser av sikkerhet, korrekthet og integrasjoner i den davær
 
 **18. september — datert auditspor.**
 
-[database og RLS](audit-rls-database-2026-09-18.md) ·
-[autorisasjon](audit-autorisasjon-2026-09-18.md) ·
-[tilstand og forretningsregler](audit-tilstand-forretningsregler-2026-09-18.md) ·
-[godkjenning og fullmakt](audit-godkjenning-fullmakt-2026-09-18.md) ·
-[integrasjoner](audit-integrasjoner-2026-09-18.md) ·
-[frontend](audit-frontend-2026-09-18.md) ·
-[konfigurasjon](audit-konfigurasjon-2026-09-18.md) ·
-[observability](audit-observability-2026-09-18.md) ·
-[testsuite og blindsoner](audit-testsuite-blindsoner-2026-09-18.md)
+[database og RLS](historikk/audit-rls-database-2026-09-18.md) ·
+[autorisasjon](historikk/audit-autorisasjon-2026-09-18.md) ·
+[tilstand og forretningsregler](historikk/audit-tilstand-forretningsregler-2026-09-18.md) ·
+[godkjenning og fullmakt](historikk/audit-godkjenning-fullmakt-2026-09-18.md) ·
+[integrasjoner](historikk/audit-integrasjoner-2026-09-18.md) ·
+[frontend](historikk/audit-frontend-2026-09-18.md) ·
+[konfigurasjon](historikk/audit-konfigurasjon-2026-09-18.md) ·
+[observability](historikk/audit-observability-2026-09-18.md) ·
+[testsuite og blindsoner](historikk/audit-testsuite-blindsoner-2026-09-18.md)
 
 **17. september — etterprøving og review.**
 
-- [etterprøving av sikkerhetsarkitekturen](audit-sikkerhetsarkitektur-2026-09-17.md)
-- [review av sikkerhetsrunden](audit-review-astra-2026-09-17.md)
-- [vurdering: Power Platform](vurdering-power-platform-2026-09-17.md) — historisk vurdering av plattformalternativ
+- [etterprøving av sikkerhetsarkitekturen](historikk/audit-sikkerhetsarkitektur-2026-09-17.md)
+- [review av sikkerhetsrunden](historikk/audit-review-astra-2026-09-17.md)
+- [vurdering: Power Platform](historikk/vurdering-power-platform-2026-09-17.md) — historisk vurdering av plattformalternativ
 
 **16. september.**
-[godkjenningspanel og varig levering](audit-godkjenningspanel-og-durable-levering-2026-09-16.md) ·
-[utkast: gjenoppretting](audit-utkast-gjenoppretting-2026-09-16.md) ·
-[vedleggsintegrasjon](audit-vedleggsintegrasjon-2026-09-16.md)
+[godkjenningspanel og varig levering](historikk/audit-godkjenningspanel-og-durable-levering-2026-09-16.md) ·
+[utkast: gjenoppretting](historikk/audit-utkast-gjenoppretting-2026-09-16.md) ·
+[vedleggsintegrasjon](historikk/audit-vedleggsintegrasjon-2026-09-16.md)
 
 **15. september.**
-[backend-hendelsesflyt](audit-backend-hendelsesflyt-2026-09-15.md) ·
-[tilgangslaget](audit-tilgangslaget-opprydding-2026-09-15.md) ·
-[utkast: samtidighet og Catenda](audit-utkast-samtidighet-og-catenda-2026-09-15.md) ·
-[utkast: serverlagring](audit-utkast-serverlagring-2026-09-15.md) ·
-[vedleggsflyt](audit-vedleggsflyt-2026-09-15.md)
+[backend-hendelsesflyt](historikk/audit-backend-hendelsesflyt-2026-09-15.md) ·
+[tilgangslaget](historikk/audit-tilgangslaget-opprydding-2026-09-15.md) ·
+[utkast: samtidighet og Catenda](historikk/audit-utkast-samtidighet-og-catenda-2026-09-15.md) ·
+[utkast: serverlagring](historikk/audit-utkast-serverlagring-2026-09-15.md) ·
+[vedleggsflyt](historikk/audit-vedleggsflyt-2026-09-15.md)
 
 **14. september — første runde.**
-[autentisering](audit-autentisering-2026-09-14.md) ·
-[godkjenning og event sourcing](audit-godkjenning-event-sourcing-2026-09-14.md) ·
-[klient, prosjekt og sesjon](audit-klient-prosjekt-sesjon-2026-09-14.md) ·
-[persistens og gjenoppretting](audit-persistens-gjenoppretting-2026-09-14.md) ·
-[PDF og Catenda](audit-pdf-catenda-2026-09-14.md) ·
-[utkast og samarbeid](audit-utkast-samarbeid-2026-09-14.md) ·
-[begrunnelsestekst og død kode](audit-begrunnelsestekst-og-dodkode-2026-09-14.md) ·
-[formatering](audit-formatering-2026-09-14.md)
+[autentisering](historikk/audit-autentisering-2026-09-14.md) ·
+[godkjenning og event sourcing](historikk/audit-godkjenning-event-sourcing-2026-09-14.md) ·
+[klient, prosjekt og sesjon](historikk/audit-klient-prosjekt-sesjon-2026-09-14.md) ·
+[persistens og gjenoppretting](historikk/audit-persistens-gjenoppretting-2026-09-14.md) ·
+[PDF og Catenda](historikk/audit-pdf-catenda-2026-09-14.md) ·
+[utkast og samarbeid](historikk/audit-utkast-samarbeid-2026-09-14.md) ·
+[begrunnelsestekst og død kode](historikk/audit-begrunnelsestekst-og-dodkode-2026-09-14.md) ·
+[formatering](historikk/audit-formatering-2026-09-14.md)
 
 
 ## Historikk — bevart, ikke gjeldende
@@ -201,20 +209,20 @@ Historiske undersøkelser av sikkerhet, korrekthet og integrasjoner i den davær
 Tidligere systembeskrivelser, visninger, handoffer og designressurser.
 De er underlag for å forstå historikken, ikke oppskrifter for dagens løsning.
 
-- [arkitekturdiagrammer](arkitektur-diagrammer.md)
+- [arkitekturdiagrammer](historikk/arkitektur-diagrammer.md)
 - [Catenda: dataflyt](catenda-dataflyt.md)
-- [Catenda: innlogging](catenda-innlogging.md)
-- [migrasjoner og testbase](migrasjoner-og-testbase.md)
-- [brev og intern godkjenning](brev-og-godkjenning.md)
-- [endringsordre](endringsordre.md)
-- [Kontraktsbordet](frontend-kontraktsbord.md)
+- [Catenda: innlogging](historikk/catenda-innlogging.md)
+- [migrasjoner og testbase](historikk/migrasjoner-og-testbase.md)
+- [brev og intern godkjenning](historikk/brev-og-godkjenning.md)
+- [endringsordre](historikk/endringsordre.md)
+- [Kontraktsbordet](historikk/frontend-kontraktsbord.md)
 - [handoff 23.09](handoff-2026-09-23-datalag-postgresql.md)
-- [handoff 21.09 (frister)](handoff-2026-09-21-frister.md)
-- [handoff 21.09 (korrekthet)](handoff-2026-09-21-korrekthet.md) · [handoff 21.09](handoff-2026-09-21.md)
-- [handoff 20.09](handoff-2026-09-20.md) · [handoff 19.09](handoff-2026-09-19.md)
-- [handoff 15.09](handoff-2026-09-15.md)
-- [handoff om Catenda-kallfrekvens](handoff-gpt-astra-2026-09-15.md)
-- [prompt: svakhetsgjennomgang](prompt-svakhetsgjennomgang-2026-09-17.md)
+- [handoff 21.09 (frister)](historikk/handoff-2026-09-21-frister.md)
+- [handoff 21.09 (korrekthet)](historikk/handoff-2026-09-21-korrekthet.md) · [handoff 21.09](historikk/handoff-2026-09-21.md)
+- [handoff 20.09](historikk/handoff-2026-09-20.md) · [handoff 19.09](historikk/handoff-2026-09-19.md)
+- [handoff 15.09](historikk/handoff-2026-09-15.md)
+- [handoff om Catenda-kallfrekvens](historikk/handoff-gpt-astra-2026-09-15.md)
+- [prompt: svakhetsgjennomgang](historikk/prompt-svakhetsgjennomgang-2026-09-17.md)
 - [design/](design/)
 - [design/konsept-varden/](design/konsept-varden/)
 
@@ -223,7 +231,8 @@ De er underlag for å forstå historikken, ikke oppskrifter for dagens løsning.
 [Reglene for dokumentasjon](../.claude/rules/dokumentasjon.md) er den autoritative
 skrivekonvensjonen. Språk og navngivning følger [CLAUDE.md](../CLAUDE.md#språk).
 Vanlig implementering dokumenteres i PR-en; varige referanser oppdateres der
-opplysningen hører hjemme. Bevar daterte undersøkelser og eksisterende lenker.
+opplysningen hører hjemme. Daterte undersøkelser bevares. Når de bare er
+historisk underlag, flyttes de til `historikk/` med lenkene inn.
 
 Lenkekontrollen kontrollerer lokale mål og Markdown-ankre etter GitHubs regler:
 

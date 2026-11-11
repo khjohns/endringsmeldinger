@@ -5,7 +5,7 @@
 -- 20260920192448 gjorde kolonnen NOT NULL uten default, men lot denne
 -- funksjonen stå. Postgres skrankesjekker raden før ON CONFLICT løses, så
 -- ikke bare nyregistrering feilet — også en ny registrering av et prosjekt
--- som allerede fantes. Se docs/audit-korrekthet-2026-09-21.md (KR-01).
+-- som allerede fantes. Se docs/historikk/audit-korrekthet-2026-09-21.md (KR-01).
 --
 -- Signaturen endres, og CREATE OR REPLACE ville da lagt en overlast ved siden
 -- av den gamle. Begge ville vært kallbare, og PostgREST velger på navngitte

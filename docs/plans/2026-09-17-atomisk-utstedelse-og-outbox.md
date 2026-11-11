@@ -38,9 +38,9 @@
 
 Status: implementeringsforslag, 2026-09-17. Ingen migrasjon eller worker er
 implementert i denne leveransen. Se [arbeidsplanen](2026-09-16-godkjenning-og-varig-levering.md)
-og [auditen](../audit-godkjenningspanel-og-durable-levering-2026-09-16.md).
+og [auditen](../historikk/audit-godkjenningspanel-og-durable-levering-2026-09-16.md).
 
-Oppdatert etter [sikkerhetsetterprøvingen](../audit-sikkerhetsarkitektur-2026-09-17.md):
+Oppdatert etter [sikkerhetsetterprøvingen](../historikk/audit-sikkerhetsarkitektur-2026-09-17.md):
 masterplanens krav til autorisert leselag, begrensede runtime-rettigheter og
 restore gjelder også denne delplanen. RPC-rettighetene under er et utgangspunkt,
 ikke en beslutning om å gi runtime generell skriverett til hendelsesloggen.
@@ -66,10 +66,10 @@ flyttingen fra `BH_APPROVAL_DB` under ikke bare riktig, men tidskritisk:
 SQLite-fila slettes hver gang trafikken stilner, ikke bare ved utrulling, og to
 instanser har to ulike godkjenningsdatabaser. Volummontering løser det ikke —
 GCS FUSE gir ikke fillåsingen SQLite krever, og Azure Files og NFS har upålitelig
-rådgivende låsing. Se [arkitekturvurderingen](../arkitekturvurdering-2026-09-19.md),
+rådgivende låsing. Se [arkitekturvurderingen](../historikk/arkitekturvurdering-2026-09-19.md),
 AR-03.
 
-To ting til, fra [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md):
+To ting til, fra [vurderingen av auditfunnene](../historikk/vurdering-av-auditfunn-2026-09-19.md):
 
 - `deliver()` kjøres i dag inne i en forespørsel. På en tjeneste som skalerer til
   null finnes ingen retry-vei mellom forespørsler. Drivmekanismen — Cloud Scheduler,

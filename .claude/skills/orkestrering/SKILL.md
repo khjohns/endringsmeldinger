@@ -82,8 +82,8 @@ arbeidsøkt-skillen. Merge krever fortsatt godkjenning fra oppdragsgiver. Godkje
 (punkt 4).
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
 
-1. Ta bort issues med `venter-på-beslutning`, og issues som rekkefølgen i
-   hovedplanen holder igjen. Merknadene til AF-06 sier hvilke. Ett spørsmål om
+1. Ta bort issues med `venter-på-beslutning`, og issues som rekkefølgen i #1065
+   eller føringen AF-06 holder igjen. Ett spørsmål om
    et avvik er greit, mer enn det hører til en egen runde.
 2. Feil som stopper appen eller gir gale data, går foran opprydding.
 3. Grupper etter filoverlapp (punkt 1). Det som ikke får plass, venter til
@@ -131,12 +131,15 @@ innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang (#425, #4
 ## 1. Kartlegg før du fordeler
 
 - Les hvert issue og avgrens det: hva det endrer, hvilke filer det rører, og
-  hva det venter på (B-ID, annet issue, rekkefølgen i hovedplanen, særlig AF-06).
+  hva det venter på (B-ID, annet issue, rekkefølgen i
+  [#1065](https://github.com/khjohns/endringsmeldinger/issues/1065) eller føringen
+  AF-06 i hovedplanen).
 - Må koden leses for å avgrense et issue, for eksempel hvilke kallere eller
   hendelsestyper som berøres, la en Explore-subagent gjøre det og levere
   konklusjonen. Orkestratoren leser ikke kode eller differ selv (punkt 3).
-- Er rekkefølgen i hovedplanen til hinder, spør oppdragsgiver. Godkjenner hen et
-  avvik, får hovedplanen en datert merknad i en egen liten PR.
+- Er rekkefølgen i #1065 eller føringen AF-06 til hinder, spør oppdragsgiver.
+  Godkjenner hen et avvik fra AF-06, får hovedplanen en datert merknad i en egen
+  liten PR. En endret rekkefølge føres i #1065.
 - Del arbeidet i runder etter filoverlapp. Issues som rører samme filer, tas
   etter hverandre i én økt eller i senere runder. Parallelle PR-er i samme fil
   gir konflikter ved hver merge.

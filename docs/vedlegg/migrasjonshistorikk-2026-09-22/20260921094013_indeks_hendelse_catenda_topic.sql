@@ -3,7 +3,7 @@
 -- KR-02: topic-oppslaget filtrerer nå på serveren framfor å hente hver sak i
 -- hvert prosjekt. Filteret er uindeksert, og oppslaget ligger på
 -- webhookstien — én gang per innkommende topic.
--- Se docs/audit-korrekthet-2026-09-21.md (KR-02).
+-- Se docs/historikk/audit-korrekthet-2026-09-21.md (KR-02).
 --
 -- Delvis indeks: bare sak_opprettet bærer en topic-GUID, og det er den eneste
 -- hendelsestypen spørringen ser på.

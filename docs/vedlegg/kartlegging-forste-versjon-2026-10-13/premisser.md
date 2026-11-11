@@ -26,7 +26,7 @@ gir brukerne? Kartleggingen skal vise **behovet** før noe kuttes.
    > og frist `UTKAST` når grunnlaget sendes, og `UTKAST` hindrer `OMFORENT`
    > (`test_not_omforent_with_utkast_tracks`). Funnet står i [virkninger.md](virkninger.md),
    > AV-02, og i [vedtak.md](vedtak.md). Premisset ble stilt på en uriktig lesning og legges
-   > fram for oppdragsgiver på nytt i [vurderingen](../../vurdering-behov-forste-versjon-2026-10-13.md).
+   > fram for oppdragsgiver på nytt i [vurderingen](../../historikk/vurdering-behov-forste-versjon-2026-10-13.md).
 6. Force majeure blir en kategori av grunnlaget som andre: BH godkjenner eller avslår, appen
    har ingen egen logikk for vilkårene.
 

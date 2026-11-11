@@ -2,7 +2,7 @@
 
 **Dato:** 2026-09-22. **Kilde:** `supabase_migrations.schema_migrations` i
 prosjekt `gwdxadexwktegkklyobv`, hentet med `supabase migration fetch` (CLI 2.75.0)
-før DA-03-avstemmingen. Se [gjennomføringsnotatet](../../gjennomforing-f0-postgresql-ci-2026-09-22.md).
+før DA-03-avstemmingen. Se [gjennomføringsnotatet](../../historikk/gjennomforing-f0-postgresql-ci-2026-09-22.md).
 
 Filene er tekstene basen faktisk kjørte, én fil per historikkrad. De er arkiv,
 ikke migrasjoner: de ligger utenfor `supabase/migrations/` og skal ikke kjøres.
