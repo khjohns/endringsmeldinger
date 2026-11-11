@@ -85,7 +85,7 @@ export type Vedleggsoppslag = ReadonlyMap<string, Vedlegg>;
 
 /**
  * `hendelser` er radene kommandoen gir, i rekkefølge, og den siste er brevet kommandoen gjelder.
- * Har handlingen en rad til, lager `neste` den (VS-U51, VS-U53).
+ * Bare `vurderTrinnvis` gir `neste`, som lager raden etter (VS-U51, VS-U53).
  */
 export type Utfall =
   | { godtatt: true; hendelser: Journalrad[]; neste?: Neste }
@@ -368,8 +368,9 @@ function dokument(
 }
 
 /**
- * Kommandoen vurdert og skrevet som en rad, uten å lagre den. Den låste teksten
- * kommandoen bærer, må være den serveren lager (LV-U2, A1 i paragrafmatrisen).
+ * Kommandoen vurdert og skrevet som rader, uten å lagre dem: alle radene handlingen gir,
+ * laget med samme kontekst etter hverandre. Den låste teksten kommandoen bærer, må være den
+ * serveren lager (LV-U2, A1 i paragrafmatrisen).
  */
 export function vurder(
   kommando: unknown,
@@ -378,18 +379,21 @@ export function vurder(
   kjerne: Kjerne,
   vedlegg: Vedleggsoppslag
 ): Utfall {
-  return handlingen(kommando, kontekst, journal, kjerne, vedlegg, true);
+  return hele(vurderTrinnvis(kommando, kontekst, journal, kjerne, vedlegg), kontekst, journal);
 }
 
-/** Som `vurder`, med alle radene handlingen gir, laget med samme kontekst etter hverandre. */
-export function vurderHele(
+/**
+ * Som `vurder`, men én rad om gangen: `hendelser` har én rad, og `neste` lager raden etter
+ * med sin egen kontekst. Serveren bruker den, så hver rad får basens klokke (VS-U51, VS-U53).
+ */
+export function vurderTrinnvis(
   kommando: unknown,
   kontekst: Kontekst,
   journal: Journalrad[],
   kjerne: Kjerne,
   vedlegg: Vedleggsoppslag
 ): Utfall {
-  return hele(vurder(kommando, kontekst, journal, kjerne, vedlegg), kontekst, journal);
+  return handlingen(kommando, kontekst, journal, kjerne, vedlegg, true);
 }
 
 function hele(utfall: Utfall, kontekst: Kontekst, journal: Journalrad[]): Utfall {
@@ -584,7 +588,8 @@ function skriv(
         feil: 'REGELBRUDD',
         avvisning: avvis('VEDLEGG_FINNES_IKKE', `Vedlegget ${id} finnes ikke i saken.`),
       };
-    bundne.push(funnet);
+    // To kravposter kan ha varselet i samme dokument; kravet legger det ved én gang (VS-U51).
+    if (!bundne.some((v) => v.vedlegg_id === funnet.vedlegg_id)) bundne.push(funnet);
   }
 
   const eventId = kontekst.nyId();

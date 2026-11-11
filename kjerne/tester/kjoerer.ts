@@ -16,9 +16,9 @@ import {
   forhaandsvis,
   frysBrev,
   laastTekst,
+  vurder,
   Skrivefeil,
   utledJournal,
-  vurderHele,
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
@@ -179,7 +179,7 @@ export class Kjoering {
       const tekst = vist.godtatt ? laastTekst(vist.hendelser.at(-1)!) : null;
       if (Array.isArray(h.brevtekst)) k.brevtekst = h.brevtekst as string[];
       else if (tekst && h.brevtekst !== false) k.brevtekst = tekst;
-      const utfall = vurderHele(
+      const utfall = vurder(
         structuredClone(k),
         this.kontekst(h),
         journal,

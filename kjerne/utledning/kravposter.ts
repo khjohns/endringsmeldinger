@@ -102,7 +102,8 @@ const hattFoer = (
  * - VS-U50, VS-U54: viser kravposten til et varsel, er varselet gitt der.
  * - D-16 i BF-14 (arbeidsvalget i Følge hos VS-U48) og VS-U55: ellers gjelder et varsel etter
  *   samme bestemmelse sendt eller registrert før det første kravet posten. Kravet viser da til
- *   det første av dem og er ikke varselet selv.
+ *   det første av dem og er ikke varselet selv. Et varsel en annen kravpost i kravet viser til,
+ *   gjelder den posten og ikke denne, også dokumentet fra kravskjemaet (VS-U50, VS-U51).
  * `tidligere` er versjonene før `krav` i sporet, og `varsler` varslene etter § 34.3.3 og
  * § 34.4 før `krav`, i rekkefølgen i journalen.
  */
@@ -112,11 +113,15 @@ export function kravpostvarslene(
   varsler: readonly { id: string; hjemmel: string }[]
 ): Record<string, Kravpostvarselet> {
   const ut: Record<string, Kravpostvarselet> = {};
+  const valgte = new Set(kravposterI(krav).flatMap((p) => (p.varsel ? [p.varsel] : [])));
   for (const p of kravposterI(krav)) {
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;
     const gitt =
-      p.varsel ?? (tidligere.length ? undefined : varsler.find((v) => v.hjemmel === hjemmel)?.id);
+      p.varsel ??
+      (tidligere.length
+        ? undefined
+        : varsler.find((v) => v.hjemmel === hjemmel && !valgte.has(v.id))?.id);
     ut[p.id] = gitt ? { art: 'gitt', varsel: gitt } : { art: 'kravet' };
   }
   return ut;
@@ -142,7 +147,7 @@ export function kravpostvarseletStrider(
     if (hattFoer(p, hjemmel, tidligere))
       return `${posten} viser til et varsel, men hadde oppgjørsformen i en tidligere kravversjon (VS-U49, VS-U50)`;
     if (!varsler.some((v) => v.id === p.varsel && v.hjemmel === hjemmel))
-      return `${posten} viser til ${p.varsel}, som ikke er et varsel etter § ${hjemmel} i saken før kravet (VS-U50)`;
+      return `${posten} viser til et varsel som ikke er et varsel etter § ${hjemmel} sendt eller registrert i saken før kravet (VS-U50)`;
   }
   return null;
 }

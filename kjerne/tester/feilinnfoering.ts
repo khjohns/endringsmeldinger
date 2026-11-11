@@ -4106,7 +4106,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F482',
     feilklasse: 'et varsel før det første kravet gjelder ikke kravpostene i det kravet (D-16)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [['(tidligere.length ? undefined : varsler.find(', '(undefined && varsler.find(']],
+    endringer: [
+      [
+        '        : varsler.find((v) => v.hjemmel === hjemmel && !valgte.has(v.id))?.id);',
+        '        : undefined);',
+      ],
+    ],
     mal: [
       'et varsel sendt før det første kravet gjelder',
       'et varsel registrert før det første kravet',
@@ -4123,7 +4128,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F484',
     feilklasse: 'et varsel etter det første kravet gjelder en ny kravpost uten valg (D-16, D-19)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [['(tidligere.length ? undefined : varsler', '(varsler']],
+    endringer: [
+      ['      (tidligere.length\n        ? undefined', '      (false\n        ? undefined'],
+    ],
     mal: ['et varsel etter det første kravet gjelder ikke en ny kravpost'],
   },
   {
@@ -4584,7 +4591,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F533',
     feilklasse: 'varselet kravposten viser til, leses ikke (VS-U50, VS-U54)',
     fil: `${K}/utledning/kravposter.ts`,
-    endringer: [['      p.varsel ?? (tidligere.length', '      (tidligere.length']],
+    endringer: [['      p.varsel ??\n', '']],
     mal: [
       'en ny kravpost i en senere kravversjon viser til et varsel sendt etter det første kravet',
       'har saken flere varsler før det første kravet, viser kravet til det TE velger',
@@ -4634,6 +4641,14 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['  if (sendes) {\n    const proeve', '  if (!sendes) {\n    const proeve']],
     mal: ['avvises kravet, gis ingen rad, heller ikke varselet'],
+  },
+  {
+    id: 'F539',
+    feilklasse:
+      'dokumentet fra kravskjemaet for én kravpost blir også varselet for en annen post i det første kravet (VS-U51, D-16)',
+    fil: `${K}/utledning/kravposter.ts`,
+    endringer: [['v.hjemmel === hjemmel && !valgte.has(v.id)', 'v.hjemmel === hjemmel']],
+    mal: ['dokumentet for én kravpost er ikke varselet for en annen post'],
   },
 ];
 

@@ -1480,7 +1480,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vedlegg',
     'relasjon',
     'vedlegg_id',
-    ['frosset/brevtekst.ts', 'utledning/utled.ts:kontrollerVedleggeneVedKravet'],
+    [
+      'frosset/brevtekst.ts',
+      'utledning/utled.ts:kontrollerVedleggeneVedKravet',
+      'kommandoer/skriving.ts:skriv',
+    ],
   ],
   // Arbeidsvalg 10 i #790: teksten lister vedleggene med filnavnet.
   ['Vedlegg', 'utsagn', 'filnavn', ['frosset/brevtekst.ts', 'kommandoer/skriving.ts:skriv']],

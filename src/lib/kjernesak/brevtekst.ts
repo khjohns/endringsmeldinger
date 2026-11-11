@@ -1,8 +1,8 @@
 import {
   forhaandsvis,
   laastTekst,
+  vurder,
   utledJournal,
-  vurderHele,
   type Kontekst,
   type Vedleggsoppslag,
 } from '$kjerne/kommandoer/skriving';
@@ -75,7 +75,7 @@ export function brevFor(
   };
   if (!sendes) return brev;
   const medTekst = tekst ? { ...kommando, brevtekst: tekst } : kommando;
-  const vurdert = vurderHele(medTekst, kontekst, journal, kjerne, vedlegg ?? new Map());
+  const vurdert = vurder(medTekst, kontekst, journal, kjerne, vedlegg ?? new Map());
   return vurdert.godtatt ? brev : { avvisning: vurdert.avvisning };
 }
 

@@ -5,7 +5,12 @@
  */
 
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
-import { utledJournal, vurder, type Utfall } from '../kjerne/kommandoer/skriving.ts';
+import {
+  utledJournal,
+  vurder,
+  vurderTrinnvis,
+  type Utfall,
+} from '../kjerne/kommandoer/skriving.ts';
 import type { Avvisning, Journalrad, Sakskode as Kjernesakskode } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { visning } from '../kjerne/utledning/visning.ts';
@@ -214,14 +219,14 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       forventet,
       kommando,
       ({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse }) => {
-        const kjernekontekst = (t: Date) => ({
+        const kjernekontekst = (t: Date, kode: Sakskode) => ({
           sakId,
           aktoerId: kontekst.aktor,
           part: kontekst.side,
           teamId: kontekst.team ?? null,
           tidspunkt: () => t,
           nyId: avh.nyId,
-          sakskode: tilKjernen(sakskode),
+          sakskode: tilKjernen(kode),
           kontraktsforkortelse,
         });
         // VS-U53: et dokument fra kravskjemaet skrives som et registrert varsel før kravet, og
@@ -238,13 +243,20 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
             oppdrag: lagOppdrag(rad, maal, etter.visning.status, avh.kjerne, avh.nyId),
             ...(neste
               ? {
-                  neste: ({ tidspunkt: t, journal: j }) => skrives(neste(kjernekontekst(t), j), j),
+                  neste: ({ tidspunkt: t, journal: j, sakskode: kode }) =>
+                    skrives(neste(kjernekontekst(t, kode), j), j),
                 }
               : {}),
           };
         };
         return skrives(
-          vurder(kropp.kommando, kjernekontekst(tidspunkt), journal, avh.kjerne, vedlegg),
+          vurderTrinnvis(
+            kropp.kommando,
+            kjernekontekst(tidspunkt, sakskode),
+            journal,
+            avh.kjerne,
+            vedlegg
+          ),
           journal
         );
       }

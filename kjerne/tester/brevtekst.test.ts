@@ -44,7 +44,7 @@ import {
   Skrivefeil,
   utledJournal,
   vurder,
-  vurderHele,
+  vurderTrinnvis,
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
@@ -164,7 +164,7 @@ function sak(sakstittel = TITTEL, sakskode?: Sakskode, forkortelse: string | nul
         const t = vist.godtatt ? laastTekst(vist.hendelser.at(-1)!) : null;
         if (t) k.brevtekst = t;
       }
-      return vurderHele(k, kontekst(part), journal, kjerne, mellomlager(k));
+      return vurder(k, kontekst(part), journal, kjerne, mellomlager(k));
     } catch (feil) {
       // 7.1.2 i designnotatet: kjernen skal forstå det den selv skriver.
       if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
@@ -9154,6 +9154,19 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(s.u().forstaatt, JSON.stringify(s.u().begrensninger)).toBe(true);
     });
 
+    it('dokumentet for én kravpost er ikke varselet for en annen post etter samme bestemmelse i det første kravet, og kravet legger det ved én gang (VS-U51, D-16)', () => {
+      const s = paaberopt();
+      const varsel = dokument();
+      const krav = s.send(
+        'TE',
+        vederlagskrav([{ ...regning, varsel }, regning, { ...regning, varsel }])
+      );
+      const tekst = laast(krav).join(' ');
+      expect(tekst.match(/TE opplyser at/g)).toHaveLength(2);
+      expect(tekst.match(new RegExp(varselRegning, 'g')), 'P2 er varsel for seg').toHaveLength(1);
+      expect(krav.data.dokumentasjon as Data[]).toHaveLength(1);
+    });
+
     it('serveren får radene én og én: varselet først, så kravet med sin egen klokke (VS-U53)', () => {
       const s = paaberopt();
       const kommando = vederlagskrav([
@@ -9167,7 +9180,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       );
       const brevtekst = vist.godtatt ? laastTekst(vist.hendelser.at(-1)!) : null;
       const journal = [...s.journal];
-      let utfall = vurder(
+      let utfall = vurderTrinnvis(
         { ...kommando, brevtekst },
         kontekst('2026-10-07'),
         journal,

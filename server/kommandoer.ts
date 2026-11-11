@@ -425,7 +425,11 @@ export type Skriveutfall<A> =
       skriv: true;
       rad: Journalrad;
       oppdrag: Oppdragsrad | null;
-      neste?: (grunnlag: { tidspunkt: Date; journal: Journalrad[] }) => Skriveutfall<A>;
+      neste?: (grunnlag: {
+        tidspunkt: Date;
+        journal: Journalrad[];
+        sakskode: Sakskode;
+      }) => Skriveutfall<A>;
     }
   | Avvist<A>;
 
@@ -518,7 +522,7 @@ export async function skrivHendelse<A>(
         skrevet.push(rad);
         tid = await skrivetidspunkt(foresp);
         kode = await lesSakskode(foresp, sakId);
-        utfall = neste({ tidspunkt: tid, journal: [...skrevet] });
+        utfall = neste({ tidspunkt: tid, journal: [...skrevet], sakskode: kode });
       }
     });
   try {
