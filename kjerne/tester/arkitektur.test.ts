@@ -752,6 +752,22 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Arbeidsvalg 1 i spørsmålsfila 09.11 for #1663: lagene i sporet og beløpet i hvert.
   ['Postlag', 'regelsett', 'lag beloep'],
   ['regler/vederlag.ts:lagene', 'regelsett', 'foerste antall'],
+  // #1774: lagene for en kravpost etter en beregningsregel, lest av utregningen, virkningene og
+  // forutsetningene i skjemaet.
+  ['Kravpostinnsigelser', 'utsagn', 'godtarRegelen varselForSent justering'],
+  ['LagIKravposten', 'regelsett', 'regelen varselet justeringen beloepet'],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'lagIKravposten',
+    ['frosset/standpunkt.ts:beregningsregelLag'],
+  ],
+  [
+    'frosset/standpunkt.ts',
+    'regelsett',
+    'beregningsregelLag',
+    ['kommandoer/lag.ts:innenforKravposten'],
+  ],
   ['Preklusjon', 'regelsett', 'hovedkrav produktivitet'],
   [
     'Vederlagsberegning',

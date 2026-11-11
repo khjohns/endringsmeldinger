@@ -13,6 +13,7 @@
  */
 
 import { beloep, tilTall } from '../regler/beloep.ts';
+import { lagIKravposten } from '../regler/vederlag.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { erRegistrert } from '../format/leser.ts';
@@ -172,37 +173,39 @@ function vederlagsvirkninger(
 }
 
 /**
- * Laget for standpunktene til en kravpost etter en beregningsregel som rammer posten
- * (arbeidsvalg 1 punkt 4 i spørsmålsfila 09.11 for #1663): beregningsregelen byggherren ikke
- * godtar og innsigelsen etter § 34.3.3 åpner hvert sitt lag, og standpunktet etter dem står i
- * laget etter (VS-U4, VS-U56). Rettidigheten etter § 34.4 får ingen virkning (KA-U64). En
- * kravpost uten slike innsigelser er ikke med, og standpunktene står som de andre.
+ * Laget for standpunktene til en kravpost etter en beregningsregel, etter `lagIKravposten`.
+ * En kravpost der ingen standpunkter åpner et lag, er ikke med, og standpunktene står som de
+ * andre. Forutsetningene i skjemaet leser lagene herfra (`kommandoer/lag.ts`).
  */
-function beregningsregelLag(standpunkter: Standpunkt[], foerste: number): Map<string, number> {
+export function beregningsregelLag(
+  standpunkter: Standpunkt[],
+  foerste: number
+): Map<string, number> {
   const ut = new Map<string, number>();
-  const regel = new Set(
-    standpunkter.flatMap((s) =>
-      s.art === 'oppgjoersform' && s.hjemmel !== '34.2.2' ? [s.gjelder] : []
-    )
-  );
-  for (const g of regel) {
-    const alle = standpunkter.filter((s) => (s as { gjelder?: string }).gjelder === g);
-    const posten = alle.filter((s) => s.art !== 'beloep');
-    const aapner = (s: Standpunkt) =>
-      (s.art === 'oppgjoersform' && !s.aksepterer) ||
-      (s.art === 'rettidighet' && s.hjemmel === '34.3.3' && !s.iTide);
-    if (!posten.some(aapner)) continue;
-    let lag = foerste;
-    for (const s of posten) {
-      if (s.art === 'rettidighet' && s.hjemmel === '34.4') continue;
-      if (s.art === 'oppgjoersform' && s.aksepterer) continue;
-      if (s.art === 'rettidighet' && s.iTide) continue;
-      ut.set(s.id, lag);
-      if (aapner(s)) lag++;
-    }
-    // Beløpsstandpunktet uten beløp står i laget til det siste standpunktet for posten.
-    const beloepet = alle.find((s) => s.art === 'beloep');
-    if (beloepet) ut.set(beloepet.id, Math.max(...posten.map((s) => ut.get(s.id) ?? foerste)));
+  for (const regel of standpunkter) {
+    if (regel.art !== 'oppgjoersform' || regel.hjemmel === '34.2.2') continue;
+    const alle = standpunkter.filter((s) => (s as { gjelder?: string }).gjelder === regel.gjelder);
+    const varselet = alle.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.3.3');
+    const justeringen = alle.find((s) => s.art === 'justering');
+    const lag = lagIKravposten(
+      {
+        godtarRegelen: regel.aksepterer,
+        varselForSent: varselet?.art === 'rettidighet' && !varselet.iTide,
+        justering: justeringen !== undefined,
+      },
+      foerste
+    );
+    if (!lag) continue;
+    const sett = (s: Standpunkt | undefined, l: number | null) => {
+      if (s && l !== null) ut.set(s.id, l);
+    };
+    sett(regel, lag.regelen);
+    sett(varselet, lag.varselet);
+    sett(justeringen, lag.justeringen);
+    sett(
+      alle.find((s) => s.art === 'beloep'),
+      lag.beloepet
+    );
   }
   return ut;
 }
