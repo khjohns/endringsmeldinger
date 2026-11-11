@@ -15,7 +15,7 @@ import {
   varseletForNyttSvar,
   type Utledning,
 } from '../utledning/utled.ts';
-import type { Krav } from '../typer.ts';
+import { type Krav, utenGren } from '../typer.ts';
 
 type Data = Record<string, unknown>;
 
@@ -62,7 +62,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
         ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
       });
     }
-  } else {
+  } else if (s.spor === 'frist') {
     // VS-U20, OV-U5, HF-U1: varselet før svaret.
     if (typeof v.frist_varsel_ok === 'boolean')
       ut.push({
@@ -94,7 +94,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
         ...(v.spesifisert_krav_ok ? {} : { dager: v.dager_maatte_forstaa }),
       });
     ut.push({ id: nyId(), art: 'dager' });
-  }
+  } else utenGren(s.spor);
   return ut;
 }
 

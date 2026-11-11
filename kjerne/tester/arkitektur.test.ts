@@ -889,7 +889,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/forutsetninger.ts', 'brevtekst', 'ELDRE_SVAR', ['kommandoer/nyttelast.ts']],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
-  ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel'],
+  [
+    'typer.ts',
+    'relasjon',
+    'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel utenGren',
+  ],
   // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
   [
     'frosset/standpunkt.ts',

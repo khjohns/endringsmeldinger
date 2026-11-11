@@ -29,7 +29,7 @@ import {
   kravposterI,
 } from './kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
-import type { Krav, Kravpost, Spor } from '../typer.ts';
+import { type Krav, type Kravpost, type Spor, utenGren } from '../typer.ts';
 
 /**
  * En vurdering i svaret som kjernen ennå ikke har et standpunkt for. Den kan ikke
@@ -90,7 +90,8 @@ export function regnUtSvar(
 ): Record<string, unknown> {
   if (spor === 'forhold') return regnUtForhold(v, krav, regler);
   if (spor === 'vederlag') return regnUtVederlag(v, krav, paaberopelse, regler);
-  return regnUtFrist(v, krav, foresporsel);
+  if (spor === 'frist') return regnUtFrist(v, krav, foresporsel);
+  return utenGren(spor);
 }
 
 /** Forholdet har ingen utregning, bare kontrollen av vurderingene (§ 32.2 og § 32.3). */

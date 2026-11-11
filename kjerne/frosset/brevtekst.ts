@@ -43,7 +43,7 @@ import {
   kravposterI,
 } from './kravinnhold.ts';
 import { dager, iLagene, kroner } from './tekst.ts';
-import { erKravpostvarselhjemmel } from '../typer.ts';
+import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -417,7 +417,7 @@ function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
     deler.push(...forholdstekst(k, t, regler));
   } else if (k.spor === 'vederlag') {
     deler.push(vederlagstekst(k, t));
-  } else {
+  } else if (k.spor === 'frist') {
     deler.push(
       `TE krever fristforlengelse på ${dager(innholdIFristen(k).dager)} (NS 8407 § 33.6.1).`
     );
@@ -426,7 +426,7 @@ function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
       deler.push(
         `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
       );
-  }
+  } else utenGren(k.spor);
   // KA-U52 punkt 4 for vederlag og frist (#1379). En ny versjon av påberopelsen sier ikke at
   // noe erstattes (LV-U56).
   if (k.erstatter && k.spor !== 'forhold')
@@ -554,7 +554,7 @@ function kravposttekst(
       );
     if (p.anslag !== undefined)
       deler.push(`Anslaget er ${eksMva(p.anslag)} Anslaget er en opplysning og ikke et tilbud.`);
-  } else {
+  } else if (p.oppgjoersform === 'regningsarbeid') {
     deler.push(
       `TE krever at ${p.betegnelse} gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.`
     );
@@ -568,7 +568,7 @@ function kravposttekst(
       deler.push(
         `Kostnadsoverslaget er ${eksMva(p.kostnadsoverslag)} Overslaget er en opplysning og ikke et tilbud.`
       );
-  }
+  } else utenGren(p.oppgjoersform);
   return deler.join(' ');
 }
 
@@ -1040,7 +1040,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       const aksept = `TE godtar byggherrens svar på ${SVARET_GJELDER[svar.spor]} i ${j.brevet(svar.dokument)}.`;
       // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til forholdet.
       if (svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length) return aksept;
-      return `${aksept} TE er enig i ${svar.spor === 'vederlag' ? 'beløpet' : 'antallet dager'}, men ikke i byggherrens standpunkt til grunnlaget.`;
+      return `${aksept} TE er enig i ${svar.spor === 'vederlag' ? 'beløpet' : svar.spor === 'frist' ? 'antallet dager' : utenGren(svar.spor)}, men ikke i byggherrens standpunkt til grunnlaget.`;
     }
     case 'trekk': {
       const krav = j.krav(u.gjelder);
@@ -1048,14 +1048,20 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       if (krav.spor === 'forhold')
         return `TE trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
       const verdi =
-        krav.spor === 'vederlag' ? kravetsBeloep(krav) : dager(innholdIFristen(krav).dager);
+        krav.spor === 'vederlag'
+          ? kravetsBeloep(krav)
+          : krav.spor === 'frist'
+            ? dager(innholdIFristen(krav).dager)
+            : utenGren(krav.spor);
       return `TE trekker kravet om ${KRAVET_OM[krav.spor]} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }
     case 'ingen_krav':
       // KA-U22 og KA-U25, ordrett med saken satt inn.
       return u.spor === 'vederlag'
         ? `TE krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`
-        : `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`;
+        : u.spor === 'frist'
+          ? `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`
+          : utenGren(u.spor);
     case 'innsigelse':
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd, uten
       // henvisningen til § 5 (arbeidsvalget 21.10 i #1095).
