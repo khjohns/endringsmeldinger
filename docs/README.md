@@ -73,6 +73,7 @@ hovedplanen, arkivet og vedtaksfila for gjeldende status og vedtak.
 - [design: lagringsformatet for hendelsene TS skriver (B-10)](design-hendelsesformat-2026-10-09.md)
 - [forslag: målmodell](forslag-maalmodell-2026-10-09.md) · [kontrollskript](vedlegg/maalmodell-2026-10-09/kontroll.ts)
 - [vurdering: vedtakene mot NS 8407 og avtaleloven](vurdering-vedtak-mot-avtaleloven-2026-10-15.md)
+- [vurdering: vedtakene 25.10](vurdering-vedtakene-2026-10-25.md)
 - [vurdering: målbildet, arkitekturen og overgangen til TS](vurdering-maalbilde-og-ts-overgang-2026-10-20.md)
 - [vurdering: behovet i første versjon](vurdering-behov-forste-versjon-2026-10-13.md) · [kartleggingene](vedlegg/kartlegging-forste-versjon-2026-10-13/premisser.md)
 - [vurdering: begrunnelse per punkt og oversiktstabell](vurdering-begrunnelse-per-punkt-2026-10-31.md)
@@ -98,7 +99,7 @@ Daterte prototyper, reviewer, design og oppdrag fra tidligere løsningsspor.
 - [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md)
 - [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md)
 - [oppdrag: datamodell og funksjonskart (spor M)](prompt-datamodell-og-funksjonskart-2026-09-29.md)
-- [oppdrag: repositoriene i F0b, fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md)
+- [oppdrag: repositoriene i F0b, fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md) · gjennomføringene av [løp a](gjennomforing-f0b-lop-a-2026-09-24.md) og [løp b](gjennomforing-f0b-lop-b-2026-09-24.md)
 
 ## Oppdrag, kartlegginger og gjennomføringer 22.09–05.10 — historisk underlag
 
@@ -114,7 +115,7 @@ Daterte oppdrag, kartlegginger og gjennomføringsnotater, etterfulgt av konsolid
 - [gjennomføring: spor D](gjennomforing-spor-d-2026-09-23.md)
 - [gjennomføring: kjernen i datalaget (F0b)](gjennomforing-f0b-kjernen-2026-09-23.md) · [mutasjoner](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py) · [oppdrag](prompt-f0b-kjernen-2026-09-23.md)
 - [uavhengig review: kjernen i datalaget (F0b)](review-f0b-kjernen-2026-09-23.md) · [forsøk og mutasjoner](vedlegg/review-f0b-kjernen-2026-09-23/README.md) · [oppdrag](prompt-review-f0b-kjernen-2026-09-23.md)
-- [oppdrag: PostgreSQL 17 i CI (F0)](prompt-f0-postgresql-i-ci-2026-09-22.md)
+- [oppdrag: PostgreSQL 17 i CI (F0)](prompt-f0-postgresql-i-ci-2026-09-22.md) · [gjennomføring](gjennomforing-f0-postgresql-ci-2026-09-22.md)
 - [oppdrag: testvedlikehold i F0](prompt-f0-testvedlikehold-2026-09-22.md) · [gjennomføring](gjennomforing-f0-testvedlikehold-2026-09-22.md)
 - [gjennomføring: TST-02/KR-15](gjennomforing-tst02-2026-09-22.md)
 - [design: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-2026-09-22.md) · [oppdrag](prompt-b02-tilgangsmekanisme-2026-09-22.md) · [prototype](vedlegg/b02-prototype-2026-09-22/kjor.sh) · [oppdrag: uavhengig review](prompt-review-b02-tilgangsmekanisme-2026-09-22.md)

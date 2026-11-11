@@ -210,7 +210,7 @@ eldre plattform- og rekkefølgeangivelser.
 | AF-03 | Fjerning av relasjonsprojeksjonen er ikke fastlagt | B-01 |
 | AF-04 | Hash suppleres med dokumentversjon, bevaring, leveringsbevis og eksport | F2, F4, invariant 10 |
 | AF-05 | Deterministisk gjenoppbygging uten eksterne oppslag | F2, invariant 9 |
-| AF-06 | Ekte PostgreSQL-tester og én komplett EO-flyt før generell opprydding og flere adaptere | Rekkefølgen i avsnitt 5 |
+| AF-06 | Ekte PostgreSQL-tester og én komplett EO-flyt før generell opprydding og flere adaptere | Avsnitt 5. Den konkrete rekkefølgen står i [#1065](https://github.com/khjohns/endringsmeldinger/issues/1065) |
 
 **Videreføring av AF-06:** Etter B-12 testes mot Azure SQL; F1/F2s
 sikkerhets- og transaksjonskrav gjelder fortsatt. KOE-, EO- og forseringssakene
