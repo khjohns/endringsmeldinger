@@ -9377,7 +9377,7 @@ describe('rigg og drift i vederlagskravet avvises til posten er bygget (MM-U2, #
     const s = sakMedKrav();
     const a = s.avvisning('TE', vederlagskravet(saerskilt));
     expect(a?.melding).toContain(
-      '$.innhold.saerskilt.rigg_og_drift: rigg og drift i forlenget byggetid kan ikke kreves ennå'
+      '$.innhold.saerskilt.rigg_og_drift: posten for rigg og drift i forlenget byggetid er ikke bygget ennå, så kravet kan ikke sendes med den'
     );
     expect(s.avvisning('TE', vederlagskravet()), 'kontrollsaken uten posten').toBeNull();
     expect(

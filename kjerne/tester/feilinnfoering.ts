@@ -4699,7 +4699,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F548',
     feilklasse:
-      'kravet med rigg og drift avvises uten at meldingen sier at posten ikke kan kreves ennå (#1775)',
+      'kravet med rigg og drift avvises uten at meldingen sier at posten ikke er bygget ennå (#1775)',
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
       ["const rigg = k.spor === 'vederlag' && harRiggOgDrift(k.innhold);", 'const rigg = false;'],

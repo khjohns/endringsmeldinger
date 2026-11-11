@@ -450,7 +450,7 @@ export function formfeil(kommando: unknown): string[] {
     feil.push(
       ...(rigg
         ? [
-            '$.innhold.saerskilt.rigg_og_drift: rigg og drift i forlenget byggetid kan ikke kreves ennå',
+            '$.innhold.saerskilt.rigg_og_drift: posten for rigg og drift i forlenget byggetid er ikke bygget ennå, så kravet kan ikke sendes med den',
           ]
         : feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'))
     );
