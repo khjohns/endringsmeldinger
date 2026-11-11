@@ -128,7 +128,8 @@ uten at oppdraget gjentar det:
 - **PR-beskrivelsen er rapporten til orkestratoren:** hva som er endret,
   sjekkene som er kjørt med resultat, funn utenfor oppdraget med issuenummer,
   samleissuet med nummer når det finnes, og «Åpne spørsmål». Den har med
-  utfallet av `/code-review`.
+  utfallet av `/code-review`: hvilke funn som er rettet i PR-en, og hvor resten er
+  ført.
 - **PR mot `main`** med `Closes #n`, eller «Del av #n» når bare en del leveres.
   Økta merger ikke.
 - **Meld fra** med `send_message` til `@parent` når PR-en er grønn og

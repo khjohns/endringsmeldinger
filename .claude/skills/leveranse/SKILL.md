@@ -168,7 +168,8 @@ rettes i PR-en i to tilfeller:
 Et funn rettes ikke i PR-en, selv om det gjelder PR-ens egen kode, når
 
 - rettingen krever et vedtak, et designvalg eller et annet svar fra oppdragsgiver,
-- funnet sto før PR-en i kode PR-en ikke rører, og ikke gir feil resultat nå, eller
+- funnet sto før PR-en og ikke gir feil resultat nå, med mindre rettingen er noen få
+  linjer i en fil PR-en allerede endrer, eller
 - rettingen hører til en del som bygges i et annet issue.
 
 Endrer en retting visningen etter at oppdragsgiver har sett skjermbildene, sier
