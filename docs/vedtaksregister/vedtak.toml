@@ -3571,7 +3571,7 @@ Totalentreprenøren blir klar over forholdet 25.09 og sender fristkravet uten eg
 Begrunnelse for B: totalentreprenøren kan ha grunn til å sende et eget varsel senere, og B hindrer likevel at saken sier at forholdet ble kjent etter at det ble varslet. Valget styrer kontrollen av når forholdet ble kjent.'''
 valgt = "B"
 svar = '''
-Oppdragsgiver 11.11, ordrett: «Godtar anbefalingene». Anbefalingen for spørsmål 2 var B. ([spørsmålene](https://github.com/khjohns/endringsmeldinger/issues/1791#issuecomment-6806119834))'''
+Oppdragsgiver 11.11 i økta, ordrett: «Godtar anbefalingene, men ber deg først vurdere svarene på spørsmålene om regningsarbeid og enhetspriser i issue 1790, når det gjelder punkt 1». Forbeholdet gjaldt spørsmål 1, og anbefalingen for spørsmål 2 var B. ([svarene](https://github.com/khjohns/endringsmeldinger/issues/1791#issuecomment-6806592368))'''
 forhold = [
   { art = "presiserer", vedtak = "vs-u60" },
 ]
