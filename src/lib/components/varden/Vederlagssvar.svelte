@@ -19,9 +19,12 @@
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { harProduktivitetspost, kravposterI } from '$kjerne/format/kravinnhold';
-  import { hindrerSvarPaaKravet } from '$kjerne/kommandoer/forutsetninger';
   import { kroner } from '$kjerne/frosset/tekst';
-  import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import {
+    brevaarsak,
+    hindrerSvarPaaKravet,
+    type Kjernesakkontekst,
+  } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
   import type { Kravpostvurdering } from '$kjerne/frosset/utregning';
