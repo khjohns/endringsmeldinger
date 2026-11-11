@@ -4,7 +4,7 @@
 videre design etter oppdragsgivers tilslutning til arkitekturvurderingen i
 samtalen. Ingen implementering eller tidligere funn erklæres lukket her.
 
-Forrige ledd: [siste handoff](handoff-2026-09-21-frister.md),
+Forrige ledd: [siste handoff](historikk/handoff-2026-09-21-frister.md),
 [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md),
 [målskjemaet](design-maalskjema-database-2026-09-20.md) og
 [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md).

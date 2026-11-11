@@ -1,7 +1,7 @@
 -- B-02-prototype: tilgangslaget lagt oppå migrasjonene i supabase/migrations/.
 --
 -- IKKE EN MIGRASJON. Kjøres bare mot en kastbar lokal base, av kjor.sh.
--- Designet står i docs/design-b02-tilgangsmekanisme-2026-09-22.md.
+-- Designet står i docs/historikk/design-b02-tilgangsmekanisme-2026-09-22.md.
 --
 -- Alternativ C i designet: RLS med kontekst for lesing, skriving til journalen
 -- bare gjennom SECURITY DEFINER-kommandoer, og en skrivevakt-trigger som holder

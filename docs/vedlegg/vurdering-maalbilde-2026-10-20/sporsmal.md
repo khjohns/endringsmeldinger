@@ -1,7 +1,7 @@
 # Spørsmål og svar etter vurderingen av målbildet 20.10
 
 Spørsmålene ble stilt med spørsmålsverktøyet i økta 20.10, etter
-[vurderingen](../../vurdering-maalbilde-og-ts-overgang-2026-10-20.md). Fila er
+[vurderingen](../../historikk/vurdering-maalbilde-og-ts-overgang-2026-10-20.md). Fila er
 skrevet etter kallet, ordrett fra kallet og svaret. Alternativene er ikke prøvd
 mot vedtakene i 3.1 før spørsmålene ble stilt.
 

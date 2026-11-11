@@ -1,6 +1,6 @@
 # Prompt til sparring: kritikk av vurderingen av målarkitekturen
 
-Prompten hører til [vurderingen av målarkitekturen mot domenet](../../vurdering-maalarkitektur-mot-domenet-2026-10-20.md)
+Prompten hører til [vurderingen av målarkitekturen mot domenet](../../historikk/vurdering-maalarkitektur-mot-domenet-2026-10-20.md)
 20.10. Den er selvstendig og har ingen saksdata, personnavn, nøkler eller
 NS 8407-tekst. Svaret lagres ordrett ved siden av, som `svar-sparring.md`.
 

@@ -80,9 +80,12 @@ gjengivelse er aldri regelgrunnlag (`CLAUDE.md`, «Hvor hva står»).
 - `docs/README.md` er en veiviser til gjeldende referanser og historisk underlag.
   Nye indeksrader beskriver dokumentets formål, ikke testantall eller åpne funn.
   Rydd slike gjentakelser når raden berøres.
-- Behold eksisterende plassering og lenker. Daterte undersøkelser kan ligge flatt
-  i `docs/`; `plans/`, `adr/` og `datamodell/` har egne formål. Ingen bred flytting
-  av historikken bare for å få en ryddigere mappe.
+- Gjeldende referanser ligger i `docs/`, og `plans/`, `adr/` og `datamodell/` har
+  egne formål. Et datert dokument som bare er historisk underlag, ligger i
+  `docs/historikk/` med samme filnavn. Det flyttes dit når det ikke lenger er
+  gjeldende, og lenkene inn skrives om i samme PR. Unntatt er dokumenter
+  hovedplanen gir en rolle i avsnitt 1.2, og dokumenter som teksten i en
+  importert vedtakspost lenker til, fordi den teksten ikke kan endres.
 - Lenk til fil og symbol heller enn skiftende linjenummer. Løs lenker fra
   dokumentets mappe: fra `docs/` til kode er det `../server/`, fra `docs/plans/`
   er det `../../server/`. Kjør `python3 docs/verktoy/lenkekontroll.py` med berørte

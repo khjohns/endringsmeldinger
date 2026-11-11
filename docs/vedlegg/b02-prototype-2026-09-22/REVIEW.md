@@ -6,8 +6,8 @@
 > bevart sammen med resultatene og skal ikke kjøres som kontroll av dagens kode.
 
 **Dato:** 2026-09-23. **Utgangspunkt:** `10ab546`.
-Forrige ledd: [reviewrapporten](../../review-b02-tilgangsmekanisme-2026-09-23.md)
-og [originaldesignet](../../design-b02-tilgangsmekanisme-2026-09-22.md).
+Forrige ledd: [reviewrapporten](../../historikk/review-b02-tilgangsmekanisme-2026-09-23.md)
+og [originaldesignet](../../historikk/design-b02-tilgangsmekanisme-2026-09-22.md).
 Funnstatus og alvorlighet står i rapporten, ikke i råloggene.
 
 ## Kjøring

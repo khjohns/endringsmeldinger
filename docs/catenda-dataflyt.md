@@ -475,7 +475,7 @@ Det permanente registeret er implementert i kode og som migrasjonen
 `supabase/migrations/20260912140000_catenda_project_registry.sql` (het
 `20260902_…` til 20.09; den sorterte før tabellen den viser til, og ble døpt om
 da migrasjonsmappa ble gjort til eneste kilde — se
-[audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md), DA-03).
+[audit: databasearkitektur](historikk/audit-databasearkitektur-2026-09-20.md), DA-03).
 Tabellene **finnes** i basen, men migrasjonen har ingen historikkrad og venter
 på `supabase migration repair`. Ingen levende flerprosjekttest er utført. Tabellenes data må administreres av en
 backend-/driftsprosess før `CATENDA_PROJECT_REGISTRY_BACKEND=supabase` settes i

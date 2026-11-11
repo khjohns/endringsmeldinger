@@ -16,7 +16,7 @@
 --
 -- Definisjonen i 20260912150635 er den som var anvendt fram til nå. Den fila
 -- er uforanderlig; dette er en ny migrasjon, ikke en retting av historikken.
--- Se docs/audit-maalskjema-gjennomgang-2026-09-21.md (MG-02).
+-- Se docs/historikk/audit-maalskjema-gjennomgang-2026-09-21.md (MG-02).
 
 CREATE OR REPLACE FUNCTION public.koe_resolve_identity(
     p_provider TEXT, p_issuer TEXT, p_subject TEXT, p_email TEXT, p_name TEXT

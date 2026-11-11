@@ -2,7 +2,7 @@
 
 **Dato:** 2026-10-07. **Kodegrunnlag:** `68ca0ea5b593808c4513dc84ab908baf12739cdb`.
 **Forrige ledd:** [PR #266](https://github.com/khjohns/endringsmeldinger/pull/266),
-[strukturkartleggingen på PR-head `4c8860a`](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/kartlegging-struktur-spor-d-2026-10-05.md)
+[strukturkartleggingen på PR-head `4c8860a`](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/historikk/kartlegging-struktur-spor-d-2026-10-05.md)
 og [hovedplanen på samme head](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/plans/2026-09-16-godkjenning-og-varig-levering.md).
 **Status:** bearbeidet arkitekturgrunnlag. **Merknad 2026-10-07 etter review:**
 Oppdragsgiver har tilsluttet seg målretning og justert rekkefølge under B-14
@@ -633,7 +633,7 @@ Unngå en ubestemt pause i alt arbeid. Små kontraktsrettinger og nødvendige
 sikkerhetsoppdateringer kan fortsatt ha verdi før språkvalget. Ikke bygg nye
 speilregler eller en omfattende generatorplattform uten å vurdere levetiden.
 
-Avhengighetsarbeidet behandles i [vedlikeholdsvurderingen](vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md).
+Avhengighetsarbeidet behandles i [vedlikeholdsvurderingen](historikk/vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md).
 Den konkretiserer pakkegrupper og
 testkrav; den avgjør ikke språk eller database. Flask, Svelte og eksisterende
 lagrings-/PDF-adaptere kan beholdes mens kjernen prøves. Et rammeverksbytte,

@@ -10,7 +10,7 @@
 ved `4c8860a84a4aa9f388818b38471593e5592fcfb8` og
 [PR #270](https://github.com/khjohns/endringsmeldinger/pull/270)
 ved `d0a7853376404ed9adf8d76e0871c268e5605b21`.
-**Forrige ledd:** [strukturkartleggingen](kartlegging-struktur-spor-d-2026-10-05.md)
+**Forrige ledd:** [strukturkartleggingen](historikk/kartlegging-struktur-spor-d-2026-10-05.md)
 og [arkitekturforslaget](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md).
 **Kilde til vedtak:** Oppdragsgiver tilsluttet seg reviewets justeringer i
 samtalen 07.10 og ba deretter uttrykkelig om dokumentasjons-PR og issues,

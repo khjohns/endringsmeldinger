@@ -5,7 +5,7 @@
 # og testene i verktoy/tester/test_datamodell/ feiler når de er utdaterte, når
 # en tabell mangler oppføring, eller når en oppføring mangler tabell.
 #
-# Feltene og typene er forklart i docs/prompt-datamodell-og-funksjonskart-2026-09-29.md,
+# Feltene og typene er forklart i docs/historikk/prompt-datamodell-og-funksjonskart-2026-09-29.md,
 # avsnitt 5. Linjeskift i tekstfeltene slås sammen til mellomrom ved eksport.
 # Kolonne 7 (relasjoner) lages fra relasjoner.toml og katalog.json, og
 # flyt-ID-ene i kolonne 6 fra dataflyt.toml (fase 1c).

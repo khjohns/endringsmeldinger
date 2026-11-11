@@ -291,7 +291,7 @@ def markdown(register: dict, k: dict | None = None) -> str:
         (
             "Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene "
             "og typene er forklart i [oppdraget for spor M, avsnitt 5]"
-            "(../prompt-datamodell-og-funksjonskart-2026-09-29.md#5-feltene-i-registeret). "
+            "(../historikk/prompt-datamodell-og-funksjonskart-2026-09-29.md#5-feltene-i-registeret). "
             "Registeret bygges i runder; «ikke kontrollert» betyr det det sier."
         ),
         "",

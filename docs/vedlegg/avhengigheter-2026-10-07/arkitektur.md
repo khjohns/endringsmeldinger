@@ -3,7 +3,7 @@
 **Dato:** 2026-10-07. **Kodegrunnlag:** `main` på
 `68ca0ea5b593808c4513dc84ab908baf12739cdb`. Strukturkartleggingen og den
 oppdaterte hovedplanen er lest fra PR #266 på `4c8860a` med `git show`.
-**Forrige ledd:** [strukturkartleggingen på kontrollert PR-head](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/kartlegging-struktur-spor-d-2026-10-05.md)
+**Forrige ledd:** [strukturkartleggingen på kontrollert PR-head](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/historikk/kartlegging-struktur-spor-d-2026-10-05.md)
 og [hovedplanen](../../plans/2026-09-16-godkjenning-og-varig-levering.md).
 Notatet er et forskningsunderlag for samlet vedlikeholdsvurdering. Det vedtar
 ingen arkitekturendring og fører ingen parallell funnstatus. Brukerens forslag

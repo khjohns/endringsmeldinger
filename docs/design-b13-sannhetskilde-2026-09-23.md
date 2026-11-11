@@ -5,8 +5,8 @@
 **Forrige ledd:** [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md),
 B-13 i [3.4](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger)
 og vedtakene 23.09 i [3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger).
-[Kartleggingen av frontendens domeneregler](kartlegging-domeneregler-frontend-2026-09-23.md)
-er grunnlaget. [Oppdraget](prompt-b13-backend-eier-reglene-2026-09-23.md), del 1.
+[Kartleggingen av frontendens domeneregler](historikk/kartlegging-domeneregler-frontend-2026-09-23.md)
+er grunnlaget. [Oppdraget](historikk/prompt-b13-backend-eier-reglene-2026-09-23.md), del 1.
 **Status:** beslutningsgrunnlag. Notatet avgjør ingenting og endrer ingen kode.
 B-13 er åpen.
 

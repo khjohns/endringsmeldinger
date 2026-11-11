@@ -53,8 +53,8 @@ ikke er vedtatt. Slike valg står som åpne beslutninger i
 | [Målskjemaet](../design-maalskjema-database-2026-09-20.md) | Retning for skjemaet, justert av AF-01, AF-03 og AF-04. Skrevet for PostgreSQL; plattformen er Azure SQL etter [B-12, databasen](vedtak.md#b-12-databasen) |
 | [Design: durable inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md) | Designgrunnlag. Tabellnavnene der er forslag |
 | [Catenda-dataflyten](../catenda-dataflyt.md) | Referanse for API-kontrakter og tidligere levende tester |
-| [Konsolidering v2](../konsolidering-masterplan-2026-09-22-v2.md) · [kildegrunnlag v2](../konsolidering-kildegrunnlag-2026-09-22-v2.md) | Historisk forslag. Strukturen er brukt redaksjonelt; statusene er ikke overtatt uprøvd |
-| [Testrevisjonen](../audit-testbevis-2026-09-22.md) · [testinventaret](../vedlegg/testbevis-2026-09-22.csv) | Protokoll over kjøringer 22.09. Rettet for ID-er, status og lenker 22.09 |
+| [Konsolidering v2](../historikk/konsolidering-masterplan-2026-09-22-v2.md) · [kildegrunnlag v2](../historikk/konsolidering-kildegrunnlag-2026-09-22-v2.md) | Historisk forslag. Strukturen er brukt redaksjonelt; statusene er ikke overtatt uprøvd |
+| [Testrevisjonen](../historikk/audit-testbevis-2026-09-22.md) · [testinventaret](../vedlegg/testbevis-2026-09-22.csv) | Protokoll over kjøringer 22.09. Rettet for ID-er, status og lenker 22.09 |
 | Auditer, reviewer og handoffer | Historisk underlag. Status i dem gjelder bare der denne planen viser til dem |
 
 Redaksjonshistorikken står i [arkivet](arkiv.md#hva-sluttredigeringene-innarbeidet).
@@ -241,7 +241,7 @@ Leveransebelegget for review-oppfølgingen 17.10 står i
 > forsering utenfor appen, slik [OV-U2](vedtak.md#ov-u2) sier. Beslutningsstatus for B-17
 > er ellers uendret.
 
-> **Merknad 2026-10-20 til AF-06 (rekkefølgen fram til [#310](https://github.com/khjohns/endringsmeldinger/issues/310)):** rekkefølgen er endret til «Python ut først» (oppdragsgiver 20.10). Akseptkriteriet for den delen er den lokale prøven ende til ende: TEs krav og BHs svar levert til et testprosjekt i Catenda. Intern godkjenning kommer etter. Mockupen beholdes. Før dagens skjema og visninger slettes, verifiseres det med en konkret sammenligning mot Python-koblingen at TS-oppbyggingen, med TS-koblingene, ivaretar funksjonene som er ønsket i dagens frontend. Oppdragsgiver 20.10, ordrett: «Før vi sletter dagens skjema og visninger må det være verifisert at ny oppbygning, med TS-koblingene ivaretar de funksjonene som er ønsket i dagens frontend.» Se [#1024](https://github.com/khjohns/endringsmeldinger/issues/1024). Merknaden 17.10 om levering og topic først gjelder ikke lenger for rekkefølgen. Se [vurderingen av målbildet](../vurdering-maalbilde-og-ts-overgang-2026-10-20.md), [svarene i kommentaren på #375](https://github.com/khjohns/endringsmeldinger/issues/375#issuecomment-6288651890), merknaden 20.10 til avsnitt 5 over og milepælen [Første ekte sak](https://github.com/khjohns/endringsmeldinger/milestone/7).
+> **Merknad 2026-10-20 til AF-06 (rekkefølgen fram til [#310](https://github.com/khjohns/endringsmeldinger/issues/310)):** rekkefølgen er endret til «Python ut først» (oppdragsgiver 20.10). Akseptkriteriet for den delen er den lokale prøven ende til ende: TEs krav og BHs svar levert til et testprosjekt i Catenda. Intern godkjenning kommer etter. Mockupen beholdes. Før dagens skjema og visninger slettes, verifiseres det med en konkret sammenligning mot Python-koblingen at TS-oppbyggingen, med TS-koblingene, ivaretar funksjonene som er ønsket i dagens frontend. Oppdragsgiver 20.10, ordrett: «Før vi sletter dagens skjema og visninger må det være verifisert at ny oppbygning, med TS-koblingene ivaretar de funksjonene som er ønsket i dagens frontend.» Se [#1024](https://github.com/khjohns/endringsmeldinger/issues/1024). Merknaden 17.10 om levering og topic først gjelder ikke lenger for rekkefølgen. Se [vurderingen av målbildet](../historikk/vurdering-maalbilde-og-ts-overgang-2026-10-20.md), [svarene i kommentaren på #375](https://github.com/khjohns/endringsmeldinger/issues/375#issuecomment-6288651890), merknaden 20.10 til avsnitt 5 over og milepælen [Første ekte sak](https://github.com/khjohns/endringsmeldinger/milestone/7).
 
 ### 3.3 Anbefalinger som ikke er vedtatt
 
@@ -257,7 +257,7 @@ arbeidskø. Samlet opprydding i beslutningsstatus følges i #1534.
 | Forhåndsvalgte GUID-er for topic og kommentar | RGK2-01 | Kandidat. Ikke bevist idempotent (avsnitt 7) |
 | Køalarm ved 15 minutter; sletting av stagingfiler 24 timer etter kvittert levering | Konsolidering v2 | Forslag uten kilde, se B-09 |
 | Utgående kvote på 10 kall/s og innkommende grense 100 kall/s | Konsolidering v2 | Forslag uten kilde, se B-09 |
-| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen, med skrivbar testbase | [TS2-02](../gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Vedtatt 23.09, utvidet til Supabase-lagrene (3.1). Fra 11.10 er basen Azure SQL, og Python-lagrene skrives ikke om ([B-19](vedtak.md#b-19)) |
+| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen, med skrivbar testbase | [TS2-02](../historikk/gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Vedtatt 23.09, utvidet til Supabase-lagrene (3.1). Fra 11.10 er basen Azure SQL, og Python-lagrene skrives ikke om ([B-19](vedtak.md#b-19)) |
 | Migrasjonsmappa som eneste kilde, anvendt med `supabase db push` | Masterplanen 20.09 | Repo-siden gjennomført (DA-03). Anvendelsesmekanismen gjenstår. `supabase db push` gjelder bare på Supabase; for Azure SQL trengs en annen vei fra fil til base ([B-12, databasen](vedtak.md#b-12-databasen), #53) |
 
 ### 3.4 Åpne beslutninger
@@ -283,8 +283,8 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 
 - **B-02** tilgangsmekanisme: alternativ C med transport T2 og punkt 3–6,
-  avgjort 23.09. Grunnlaget er [det første designgrunnlaget](../design-b02-tilgangsmekanisme-2026-09-22.md)
-  (TM-01–TM-08), [reviewet](../review-b02-tilgangsmekanisme-2026-09-23.md)
+  avgjort 23.09. Grunnlaget er [det første designgrunnlaget](../historikk/design-b02-tilgangsmekanisme-2026-09-22.md)
+  (TM-01–TM-08), [reviewet](../historikk/review-b02-tilgangsmekanisme-2026-09-23.md)
   (RB2-01–08) og [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md)
   (TM-09–TM-12).
 - **B-03** dokument- og brevmodell: hovedvalget avgjort 03.10 (brev, ikke samlet
@@ -300,7 +300,7 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
   [MM-U15](vedtak.md#mm-u15)–[MM-U17](vedtak.md#mm-u17) om visningen, regelendringen og registrert
   korrespondanse. Merknadene til B-10 står i 3.1.
 - **B-13** sannhetskilde for NS 8407-reglene: avgjort 24.09 etter
-  [kartleggingen](../kartlegging-domeneregler-frontend-2026-09-23.md) og
+  [kartleggingen](../historikk/kartlegging-domeneregler-frontend-2026-09-23.md) og
   [designnotatet](../design-b13-sannhetskilde-2026-09-23.md).
 - **B-14** målformer, rekkefølge og språk: avgjort 07.10 og 09.10. Levert under
   B-14: [domenetabellen](../domenetabell/README.md) og
@@ -335,7 +335,7 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 >   oppdragsgiver har foreslått PostgreSQL. Fabric kan speile fra Azure
 >   PostgreSQL (versjon 14–18, ikke Burstable-nivå). Speiles basen, må interne
 >   notater holdes utenfor speilingen eller skjermes der
->   ([vurderingen av Power Platform](../vurdering-power-platform-2026-09-17.md),
+>   ([vurderingen av Power Platform](../historikk/vurdering-power-platform-2026-09-17.md),
 >   del 5). Opplysningene om Fabric er ikke kontrollert i denne planen.
 > - **29.09:** oppdragsgiver opplyste at en SQL Database igjen er aktuell, av
 >   kostnadsgrunner. Det er antatt at det menes Azure SQL Database. Kostnad er
@@ -458,9 +458,9 @@ domenetabellen. En ny vurdering av funnstatus krever eget belegg.
 
 ### 4.1 Godkjenning og levering: AP, S, RV, SA
 
-Kilder: [AP](../audit-godkjenningspanel-og-durable-levering-2026-09-16.md),
-[S](../audit-sikkerhetsarkitektur-2026-09-17.md),
-[RV](../audit-review-astra-2026-09-17.md).
+Kilder: [AP](../historikk/audit-godkjenningspanel-og-durable-levering-2026-09-16.md),
+[S](../historikk/audit-sikkerhetsarkitektur-2026-09-17.md),
+[RV](../historikk/audit-review-astra-2026-09-17.md).
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
@@ -481,14 +481,14 @@ Kilder: [AP](../audit-godkjenningspanel-og-durable-levering-2026-09-16.md),
 ### 4.2 Domene, tilgang, integrasjon og konfigurasjon: TFR, GFK, BR, DRF, SD, SK, DT, SP, AUT, DB, INT, FE, CFG, TS2, OBS, TST
 <a id="42-gemini-sporet-1809-aut-db-tfr-gfk-int-fe-cfg-obs-tst"></a>
 
-Etterprøvd i [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md).
+Etterprøvd i [vurderingen av auditfunnene](../historikk/vurdering-av-auditfunn-2026-09-19.md).
 Der den omklassifiserte et funn, gjelder omklassifiseringen.
 BR-01 og DRF-01–DRF-03 er ført inn 23.09 fra
-[kartleggingen av frontendens domeneregler](../kartlegging-domeneregler-frontend-2026-09-23.md),
-og SD-01–SD-02 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md),
+[kartleggingen av frontendens domeneregler](../historikk/kartlegging-domeneregler-frontend-2026-09-23.md),
+og SD-01–SD-02 fra [gjennomføringen av spor D](../historikk/gjennomforing-spor-d-2026-09-23.md),
 fordi de hører til samme domenefamilie som TFR og GFK. SD-03 er ført inn 24.09
 fra code-review av GFK-06. SK-01–SK-13 er ført inn 05.10 fra
-[strukturkartleggingen av spor D](../kartlegging-struktur-spor-d-2026-10-05.md#5-funn). SP-01 og SP-02 er ført inn 08.10 fra
+[strukturkartleggingen av spor D](../historikk/kartlegging-struktur-spor-d-2026-10-05.md#5-funn). SP-01 og SP-02 er ført inn 08.10 fra
 språkprøven (#274).
 DT-01–DT-03 er ført inn 08.10 fra [domenetabellen](../domenetabell/README.md)
 for kravversjon og aksept (#271), DT-04 samme dag fra grunnlagsdelen og
@@ -531,7 +531,7 @@ Forventet atferd og bevis for TS-stien følges i domenetabellen og
 | GFK-04 | Avgrenset | Forsering er vedtatt utenfor godkjenningsflyten. Testen forventer støtte og feiler med `ValueError("Ugyldig vurderingstype.")`, i samsvar med avgrensningen. Ingen feilretting. **Merknad 2026-10-10:** vedtaket er endret av [FO-U6](vedtak.md#fo-u6) (3.1) for vederlagssvaret for forseringen. Funnstatusen er uendret | K 22.09 | — |
 | GFK-05 | Åpen | TE kan generere BH-brev som PDF | Streng `xfail`, K 22.09 | H |
 | DRF-02 | Åpen, lav | Felt med rettslig innhold fjernes uten feil ved parsing: `dager_siden_varsel` (§ 32.3), `ep_justering_varslet_i_tide` (§ 34.3.3), `er_svar_pa_foresporsel` (§ 33.6.2). Latent: skjemaene fyller dem ikke i dag | K 23.09 (parser), L | D |
-| SD-02 | Åpen, lav | En sak der grunnlaget er avsluttet uten krav (trukket, eller avslaget godtatt) før andre krav er sendt, vises som `UTKAST`. Ført inn 23.09 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md#sd-02-avsluttet-grunnlag-vises-som-utkast) **Merknad 2026-10-05:** godtatt avslag er rettet med vedtaket om #213 (`LUKKET_AVSLATT`); trukket grunnlag gjenstår. **Merknad 2026-10-08:** gjelder også når vederlaget er sendt og trukket med grunnlaget, mens fristen ikke er sendt (rad GR-10 i [domenetabellen](../domenetabell/README.md)). Mens saken står som `UTKAST`, godtas også en oppdatering av det trukne grunnlaget (GR-12); `CASE_NOT_CLOSED` avviser den først når saken er `LUKKET_TRUKKET` | Streng `xfail` for trukket, K 05.10 | D |
+| SD-02 | Åpen, lav | En sak der grunnlaget er avsluttet uten krav (trukket, eller avslaget godtatt) før andre krav er sendt, vises som `UTKAST`. Ført inn 23.09 fra [gjennomføringen av spor D](../historikk/gjennomforing-spor-d-2026-09-23.md#sd-02-avsluttet-grunnlag-vises-som-utkast) **Merknad 2026-10-05:** godtatt avslag er rettet med vedtaket om #213 (`LUKKET_AVSLATT`); trukket grunnlag gjenstår. **Merknad 2026-10-08:** gjelder også når vederlaget er sendt og trukket med grunnlaget, mens fristen ikke er sendt (rad GR-10 i [domenetabellen](../domenetabell/README.md)). Mens saken står som `UTKAST`, godtas også en oppdatering av det trukne grunnlaget (GR-12); `CASE_NOT_CLOSED` avviser den først når saken er `LUKKET_TRUKKET` | Streng `xfail` for trukket, K 05.10 | D |
 | SD-04 | Åpen, lav | Et nytt fullt BH-svar lar andre svarfelt fra forrige svar stå når de ikke sendes, som SD-01 gjorde for det subsidiære standpunktet. Kjørt for `ny_sluttdato`, som står igjen etter et revidert avslag. Lest for `frist_for_spesifisering`, `bh_metode`, `varsel_justert_ep_ok`, `begrunnelse_varsel` og `bh_begrunnelse`. Noen felt er historiske handlinger og skal stå, som `har_bh_foresporsel` og `dato_bh_foresporsel` (§ 33.6.2). Funnet i code-review av SD-01 29.09 | Streng `xfail`, K 29.09 | D |
 | SK-02 | Delvis | Et oppdatert vederlags- eller fristkrav åpner ikke sporet når forrige svar var godkjent, godtatt eller trukket. Status og aksept fra forrige svar blir stående; et fullt godkjent krav på 100 000 kr som økes til 250 000 kr, står som `GODKJENT`, og saken blir `OMFORENT` med utstedbar EO når fristen godkjennes. Tiltenkt atferd er vedtatt 05.10 (3.1). **Merknad 2026-10-09:** rettet for godkjent og godtatt svar i `6e4c2d8` (#297, #274). En ny kravversjon åpner sporet, og en aksept av forrige svar faller. De to reproduksjonene for vederlag er ordinære tester med uendrede assertions: `test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar` og `test_oppdatert_krav_etter_aksept_opphever_aksepten`. Fristsporet er kjørt i økta, ikke lagt inn som test. Det trukne kravet gjenstår: en oppdatering av et trukket krav godtas, og sporet står som `TRUKKET` (streng `xfail` `test_trukket_krav_kan_ikke_oppdateres`, rad KA-14 i [domenetabellen](../domenetabell/README.md), #256) **Merknad 2026-10-09:** [KA-U7](vedtak.md#ka-u7) endrer tiltenkt atferd for spor med enighet: der avvises en ny kravversjon, og enigheten står. Rettingen i `6e4c2d8` følger vedtaket 05.10 og rettes ikke i Python (merknaden 09.10 over) | Streng `xfail` for trukket, K 2026-10-09 | D |
 | SK-04 | Delvis | Frafall (§ 32.3 c) gir grunnlaget status `TRUKKET`, en status som ellers betyr at TE har trukket kravet. Godtar TE avslagene på vederlag og frist etterpå, blir samlet status `UKJENT`. Mengdene for «inaktiv» og «ferdig» spor er ulike i kaskadene, `kan_utstede_eo`, reaktiv EO og aksept. **Merknad 2026-10-09:** `UKJENT` er rettet i `4cdd012` (#297, #274). Frafalt grunnlag regnes som avklart (`GrunnlagTilstand.avklart`), og saken blir `OMFORENT` når avslagene er godtatt (GR-U3, rad GR-15). `test_frafall_med_godtatte_avslag_gir_ikke_ukjent` er ordinær test med uendret assertion. Gjenstår: grunnlaget har fortsatt status `TRUKKET`, ikke `FRAFALT` etter vedtaket 05.10 (rad GR-13, #257), og mengdene er ikke samlet ett sted | Streng `xfail` for status (GR-13), K 2026-10-09 | D |
@@ -577,7 +577,7 @@ Forventet atferd og bevis for TS-stien følges i domenetabellen og
 | CFG-02 | Åpen | `CSRF_SECRET` brukes ikke. Testinventaret førte som CFG-03 | Streng `xfail` (statisk) | H |
 | CFG-03 | Duplikat | → RV-13. Testinventaret førte som CFG-04 | Streng `xfail`, K 22.09 | H |
 | CFG-04 | Åpen | Usatt `APP_ENV` gir ulik tolkning. Testinventaret førte som CFG-02 | Streng `xfail`, K 22.09 | H |
-| TS2-01 | Åpen, middels | Usatt `EVENT_STORE_BACKEND` gir JSON-lageret på lokal disk uten advarsel; metadata tilsvarende CSV. Banneret viser «csv». Ført inn 22.09 fra [TST-02-notatet](../gjennomforing-tst02-2026-09-22.md#ts2-01--json-lageret-er-standardverdien) | L 22.09 | H |
+| TS2-01 | Åpen, middels | Usatt `EVENT_STORE_BACKEND` gir JSON-lageret på lokal disk uten advarsel; metadata tilsvarende CSV. Banneret viser «csv». Ført inn 22.09 fra [TST-02-notatet](../historikk/gjennomforing-tst02-2026-09-22.md#ts2-01--json-lageret-er-standardverdien) | L 22.09 | H |
 | OBS-01, OBS-02 | Åpen, høy | Ett funn (19.09): ingen forretningshendelse revisjonslogges, og 403-avvisninger når ikke feilhåndtereren | Streng `xfail`, K 22.09 | F1 |
 | OBS-05 | Åpen | Hendelser mangler korrelasjons-ID. Testinventaret førte som OBS-04 | Streng `xfail` (statisk) | F1 |
 | OBS-06 | Åpen | `X-Request-ID` uten validering; 32-bits server-ID. Testinventaret førte som OBS-01 | Streng `xfail`, K 22.09 | H |
@@ -591,11 +591,11 @@ Forventet atferd og bevis for TS-stien følges i domenetabellen og
 
 ### 4.3 Arkitektur og database: AR, DA, MS
 
-Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
-[DA](../audit-databasearkitektur-2026-09-20.md),
+Kilder: [AR](../historikk/arkitekturvurdering-2026-09-19.md),
+[DA](../historikk/audit-databasearkitektur-2026-09-20.md),
 [MS](../design-maalskjema-database-2026-09-20.md),
-DM ([1a](../gjennomforing-spor-m-1a-2026-09-29.md#2-funn),
-[1b](../gjennomforing-spor-m-1b-2026-09-29.md#2-funn); spor M, fra 29.09).
+DM ([1a](../historikk/gjennomforing-spor-m-1a-2026-09-29.md#2-funn),
+[1b](../historikk/gjennomforing-spor-m-1b-2026-09-29.md#2-funn); spor M, fra 29.09).
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
@@ -629,9 +629,9 @@ DM ([1a](../gjennomforing-spor-m-1a-2026-09-29.md#2-funn),
 
 ### 4.4 Målskjemarunden 21.09: KR, MG, RY
 
-Kilder: [KR](../audit-korrekthet-2026-09-21.md),
-[MG](../audit-maalskjema-gjennomgang-2026-09-21.md),
-[RY](../audit-opprydding-2026-09-21.md).
+Kilder: [KR](../historikk/audit-korrekthet-2026-09-21.md),
+[MG](../historikk/audit-maalskjema-gjennomgang-2026-09-21.md),
+[RY](../historikk/audit-opprydding-2026-09-21.md).
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
@@ -649,7 +649,7 @@ Kilder: [KR](../audit-korrekthet-2026-09-21.md),
 
 RGK-01–06, RGK2-01–05, KONS-01–14 og RTB-01–05 gjelder planverket, ikke koden.
 De er behandlet i denne redigeringen; se
-[redaksjonsprotokollen](../sluttredigering-hovedplan-2026-09-22.md).
+[redaksjonsprotokollen](../historikk/sluttredigering-hovedplan-2026-09-22.md).
 KONS-02 og KONS-09 var allerede dekket av daterte merknader i delplanen og målskjemaet.
 
 ### 4.6 Foreløpige funn, ikke kontrollert
@@ -685,7 +685,7 @@ Ingen status i issuene kopieres hit.
 det står.
 
 > **Merknad 2026-10-20 til avsnitt 5:** Oppdragsgiver svarte 20.10 på spørsmålene
-> etter [vurderingen av målbildet](../vurdering-maalbilde-og-ts-overgang-2026-10-20.md).
+> etter [vurderingen av målbildet](../historikk/vurdering-maalbilde-og-ts-overgang-2026-10-20.md).
 > Spørsmålene og svarene står ordrett i
 > [spørsmålsfila](../vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md).
 >
@@ -914,7 +914,7 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 
 - ROS-analyse.
 - DPIA, forankret av behandlingsansvarlig med råd fra personvernombudet.
-  Faktagrunnlaget finnes ([faktagrunnlag for DPIA](../personopplysninger-faktagrunnlag-2026-09-19.md)).
+  Faktagrunnlaget finnes ([faktagrunnlag for DPIA](../historikk/personopplysninger-faktagrunnlag-2026-09-19.md)).
 - Ekstern sikkerhetsvurdering. «Uavhengig sluttaudit» i denne planen betyr en
   annen agent enn implementøren, ikke en tredjepart.
 - Hendelseshåndtering med ansvarlig, også for påstått tapt varsel med frist.
@@ -977,7 +977,7 @@ lukker dem ikke. Oppfølgingen føres i issuene.
 ### Rotårsakene
 
 De tolv rotårsakene i
-[vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md#del-3-tolv-rotårsaker)
+[vurderingen av auditfunnene](../historikk/vurdering-av-auditfunn-2026-09-19.md#del-3-tolv-rotårsaker)
 dekkes slik: RC-1 og RC-6 i F1; RC-2 lukket 20.09; RC-3 lukket i repo 20.09,
 med videreført databaseverifikasjon i F0/F0b; RC-4 i F2; RC-5 og RC-8 i spor D; RC-7 og
 RC-10 i spor H; RC-9 i F3 og spor H; RC-11 lukket med FE-01 og FE-05; RC-12 i F4.
