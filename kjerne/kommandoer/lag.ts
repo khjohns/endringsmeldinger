@@ -5,7 +5,13 @@
  * S1-A og S2-A i #1400, 30.10).
  */
 
-import { etikett, grunnerFraForholdet, laget, virkninger } from '../frosset/standpunkt.ts';
+import {
+  beregningsregelLag,
+  etikett,
+  grunnerFraForholdet,
+  laget,
+  virkninger,
+} from '../frosset/standpunkt.ts';
 import { kravposterI } from '../frosset/kravinnhold.ts';
 import { kravpostvurderinger, type Svarvurdering } from '../frosset/utregning.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
@@ -138,17 +144,17 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
 
 /**
  * Standpunktene foran standpunktet `i` for samme kravpost etter en beregningsregel som åpner et
- * lag: beregningsregelen byggherren ikke godtar, og innsigelsen etter § 34.3.3 (VS-U4, VS-U56).
+ * lag (`beregningsregelLag`): beregningsregelen byggherren ikke godtar, og innsigelsen etter
+ * § 34.3.3 (VS-U4, VS-U56).
  */
 function innenforKravposten(standpunkter: Standpunkt[], i: number): Forutsetning[] {
   const g = (standpunkter[i] as { gjelder?: string }).gjelder;
   if (g === undefined || standpunkter[i]!.art === 'beloep') return [];
+  const lagene = beregningsregelLag(standpunkter, 1);
   return standpunkter.slice(0, i).flatMap((s): Forutsetning[] => {
-    if ((s as { gjelder?: string }).gjelder !== g) return [];
-    if (s.art === 'oppgjoersform' && !s.aksepterer && s.hjemmel !== '34.2.2')
-      return [{ oppgjoersform: g }];
-    if (s.art === 'rettidighet' && s.hjemmel === '34.3.3' && !s.iTide)
-      return [{ innsigelse: '34.3.3' }];
+    if ((s as { gjelder?: string }).gjelder !== g || !lagene.has(s.id)) return [];
+    if (s.art === 'oppgjoersform') return [{ oppgjoersform: g }];
+    if (s.art === 'rettidighet') return [{ innsigelse: '34.3.3' }];
     return [];
   });
 }

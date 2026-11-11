@@ -143,19 +143,40 @@ const ikkeAkseptert = (p: Postsvar): boolean => 'gjelder' in p && p.aksepterer =
 
 const regelen = (p: Postsvar) => ('gjelder' in p ? p.beregningsregel : undefined);
 
+/** Standpunktene for en kravpost etter en beregningsregel som kan åpne et lag (KA-U64, KA-U68). */
+export interface Kravpostinnsigelser {
+  /** Byggherren godtar beregningsregelen (§ 34.3, § 34.4). */
+  godtarRegelen: boolean;
+  /** Innsigelsen etter § 34.3.3 første ledd (VS-U4, VS-U56). */
+  varselForSent: boolean;
+  /** Byggherren tar stilling til justeringen etter § 34.3.2. */
+  justering: boolean;
+}
+
+/** Laget hvert standpunkt for kravposten står i, `null` uten virkning, og laget for beløpet. */
+export interface LagIKravposten {
+  regelen: number | null;
+  varselet: number | null;
+  justeringen: number | null;
+  beloepet: number;
+}
+
 /**
- * Lagene en kravpost etter en beregningsregel opptar etter § 34.1.2, utover det første
- * (arbeidsvalg 1 punkt 4 i spørsmålsfila 09.11 for #1663): standpunktet til beregningsregelen
- * uten aksept og innsigelsen etter § 34.3.3 åpner hvert sitt lag for standpunktene etter dem
- * (VS-U4, VS-U56). Varselet etter § 34.4 åpner ikke et lag (KA-U64).
+ * Lagene standpunktene for en kravpost etter en beregningsregel står i, fra `foerste`, det første
+ * laget etter § 34.1.2 (arbeidsvalg 1 punkt 4 i spørsmålsfila 09.11 for #1663): beregningsregelen
+ * byggherren ikke godtar og innsigelsen etter § 34.3.3 åpner hvert sitt lag for standpunktene
+ * etter dem, i rekkefølgen leseren krever, og beløpet står i laget til det siste (VS-U4,
+ * VS-U56). Varselet etter § 34.4 åpner ikke et lag (KA-U64). `null` når ingen av dem åpner et
+ * lag: da står standpunktene som de andre. Utregningen, virkningene og forutsetningene i
+ * skjemaet leser lagene herfra (#1774).
  */
-export function lagForBeregningsregelen(
-  aksepterer: boolean,
-  varselForSent: boolean,
-  justering: boolean
-): number {
-  const standpunkter = Number(!aksepterer) + Number(varselForSent) + Number(justering);
-  return Math.max(0, standpunkter - 1);
+export function lagIKravposten(k: Kravpostinnsigelser, foerste: number): LagIKravposten | null {
+  if (k.godtarRegelen && !k.varselForSent) return null;
+  let lag = foerste;
+  const regelen = k.godtarRegelen ? null : lag++;
+  const varselet = k.varselForSent ? lag++ : null;
+  const justeringen = k.justering ? lag : null;
+  return { regelen, varselet, justeringen, beloepet: justeringen ?? lag - 1 };
 }
 
 /**
@@ -168,9 +189,17 @@ function lagene(p: Preklusjon, svar: Vederlagssvar): { foerste: number; antall: 
   const foerste = p.hovedkrav ? 2 : 1;
   const regler = svar.poster.map((post) => {
     const r = regelen(post);
-    return r
-      ? lagForBeregningsregelen(!ikkeAkseptert(post), r.varselForSent, r.justering !== null)
-      : 0;
+    const lag = r
+      ? lagIKravposten(
+          {
+            godtarRegelen: !ikkeAkseptert(post),
+            varselForSent: r.varselForSent,
+            justering: r.justering !== null,
+          },
+          0
+        )
+      : null;
+    return lag?.beloepet ?? 0;
   });
   return { foerste, antall: foerste + Math.max(Number(p.produktivitet), ...regler) };
 }
