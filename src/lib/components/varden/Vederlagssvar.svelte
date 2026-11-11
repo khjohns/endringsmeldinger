@@ -18,7 +18,8 @@
 <script lang="ts">
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { hindrerSvarPaaKravet, kravposterI } from '$kjerne/format/kravinnhold';
+  import { kravposterI } from '$kjerne/format/kravinnhold';
+  import { hindrerSvarPaaKravet } from '$kjerne/kommandoer/forutsetninger';
   import { kroner } from '$kjerne/frosset/tekst';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';

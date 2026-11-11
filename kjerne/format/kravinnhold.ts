@@ -93,15 +93,6 @@ export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
 /** OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen, i tillegg til eller uten postene utenfor. */
 export const harHovedbeloep = (krav: Krav): boolean => kravposterI(krav).length > 0;
 
-/**
- * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis.
- * Svaret på rigg og drift er ikke bygget; posten går i en egen bestilling (arbeidsvalg 5 i
- * spørsmålsfila 10.11 for #1663).
- */
-export function hindrerSvarPaaKravet(krav: Krav): string | null {
-  return krevdRigg(krav) !== null ? 'Kravet har rigg og drift i forlenget byggetid' : null;
-}
-
 /** Det krevde beløpet i en kravpost med fast sum, i øre, eller `null` etter en beregningsregel. */
 export const krevdIKravposten = (krav: Krav, post: Kravpost): Oere | null =>
   post.oppgjoersform === 'tilbud' ? lesKrevd(krav, post.beloep) : null;

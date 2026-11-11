@@ -574,7 +574,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
   ['frosset/standpunkt.ts:beregningsregelLag', 'relasjon', 'gjelder'],
   ['kommandoer/lag.ts:innenforKravposten', 'relasjon', 'gjelder'],
-  ['format/kravinnhold.ts', 'regelsett', 'krevdRigg', ['frosset/brevtekst.ts']],
+  // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav med rigg og drift (#1663).
+  [
+    'format/kravinnhold.ts',
+    'regelsett',
+    'krevdRigg',
+    ['frosset/brevtekst.ts', 'kommandoer/forutsetninger.ts:hindrerSvarPaaKravet'],
+  ],
   [
     'format/kravinnhold.ts',
     'regelsett',
@@ -582,9 +588,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
     ['frosset/brevtekst.ts', 'frosset/utregning.ts', 'kommandoer/nyttelast.ts'],
   ],
-  // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
-  // med ett beløp (#1663).
-  ['format/kravinnhold.ts', 'predikat', 'hindrerSvarPaaKravet', ['kommandoer/forutsetninger.ts']],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
   ['format/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
