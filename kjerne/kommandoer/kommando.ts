@@ -413,10 +413,7 @@ function oerefeil(innhold: Innhold): string[] {
         p[f],
       ])
     ),
-    ...(['produktivitet', 'rigg_og_drift'] as const).map((f): [string, unknown] => [
-      `$.innhold.saerskilt.${f}.beloep`,
-      saerskilt[f]?.beloep,
-    ]),
+    ['$.innhold.saerskilt.produktivitet.beloep', saerskilt.produktivitet?.beloep],
   ];
   return beloepene.flatMap(([sti, verdi]) => {
     if (typeof verdi !== 'number') return [];
@@ -432,6 +429,12 @@ function oerefeil(innhold: Innhold): string[] {
   });
 }
 
+/** Kravet har posten for rigg og drift i forlenget byggetid, som formatet ikke har ennå (#1775). */
+const harRiggOgDrift = (innhold: unknown): boolean => {
+  const saerskilt: unknown = erObjekt(innhold) ? (innhold as Innhold).saerskilt : undefined;
+  return erObjekt(saerskilt) && Object.hasOwn(saerskilt, 'rigg_og_drift');
+};
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -443,7 +446,14 @@ export function formfeil(kommando: unknown): string[] {
     const k = kommando as { spor: Spor; innhold: unknown };
     const { properties, required, anyOf } =
       k.spor === 'vederlag' ? vederlagsinnhold(false) : KRAVINNHOLD[k.spor];
-    feil.push(...feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'));
+    const rigg = k.spor === 'vederlag' && harRiggOgDrift(k.innhold);
+    feil.push(
+      ...(rigg
+        ? [
+            '$.innhold.saerskilt.rigg_og_drift: rigg og drift i forlenget byggetid kan ikke kreves ennå',
+          ]
+        : feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'))
+    );
     if (k.spor === 'forhold' && !feil.length) feil.push(...datofeil(k.innhold as Innhold));
     if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));
     if (k.spor !== 'frist' && 'varsel' in k)

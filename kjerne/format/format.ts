@@ -243,8 +243,9 @@ function kravpost(lagret: boolean): Skjema {
 
 /**
  * Innholdet i vederlagskravet, lagret eller i kommandoen. `saerskilt` er postene utenfor
- * kravpostene: kravet etter § 34.1.3 annet ledd og rigg og drift i forlenget byggetid
- * (OV-U89 punkt 6 og 17). `trekker` er kravpostene fra forrige versjon TE trekker (KA-U56).
+ * kravpostene: kravet etter § 34.1.3 annet ledd (OV-U89 punkt 6). Rigg og drift i forlenget
+ * byggetid (OV-U89 punkt 17) er ikke i formatet før #1724 har satt formen, så en lagret rad med
+ * posten er ikke forstått (#1775). `trekker` er kravpostene fra forrige versjon TE trekker (KA-U56).
  */
 export function vederlagsinnhold(lagret: boolean): {
   properties: Skjema;
@@ -254,11 +255,7 @@ export function vederlagsinnhold(lagret: boolean): {
   return {
     properties: {
       kravposter: liste(kravpost(lagret)),
-      saerskilt: objekt(
-        { produktivitet: BELOEPSPOST, rigg_og_drift: BELOEPSPOST },
-        [],
-        [{ required: ['produktivitet'] }, { required: ['rigg_og_drift'] }]
-      ),
+      saerskilt: objekt({ produktivitet: BELOEPSPOST }, ['produktivitet']),
       trekker: liste(ID),
     },
     required: [],
