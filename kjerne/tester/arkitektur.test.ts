@@ -673,7 +673,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'gjelderVarslingsplikten hjemmelenGjelder',
     [
       'kommandoer/nyttelast.ts',
-      'spor/forhold/kommando.ts',
+      'spor/forhold/kommando.ts:utdypningIForholdet',
+      'spor/forhold/kommando.ts:varseletEtter322',
       'spor/vederlag/kommando.ts',
       'frosset/frysing.ts:beslutningsgrunnlag',
       'spor/vederlag/frysing.ts',
@@ -1782,7 +1783,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kalenderdag',
     [
       'kommandoer/nyttelast.ts',
-      'spor/forhold/kommando.ts',
+      'spor/forhold/kommando.ts:varseletEtter322',
       'frosset/brevdeler.ts',
       'utledning/utled.ts:datoenDetBleSendt',
     ],

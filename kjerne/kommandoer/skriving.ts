@@ -249,7 +249,7 @@ export interface Skrivesteg {
   hele(utfall: Utfall, kontekst: Kontekst, journal: Journalrad[]): Utfall;
 }
 
-/** Skrivingen i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+/** Skrivingen i hvert spor. Fristen står her til den flyttes (#1745). */
 const SKRIVING: Record<Spor, Sporsskriving> = {
   forhold: SKRIVING_I_FORHOLDET,
   vederlag: SKRIVING_I_VEDERLAGET,
