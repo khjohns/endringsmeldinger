@@ -22,7 +22,6 @@ import { describe, expect, it } from 'vitest';
 import { KanIkkeUttrykkes, norskDato } from '../frosset/brevdeler.ts';
 import { gjengi, gjengirTro, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
-import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { postlisten } from '../spor/vederlag/frysing.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
@@ -71,6 +70,7 @@ import { vederlagssvaret } from '../spor/vederlag/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 import { oppgittDato } from '../spor/forhold/format.ts';
+import { lagFraForholdet } from '../spor/forhold/frysing.ts';
 
 type Data = Record<string, unknown>;
 

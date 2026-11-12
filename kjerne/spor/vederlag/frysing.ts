@@ -279,6 +279,7 @@ export const FRYSING_I_VEDERLAGET = {
   virkninger: vederlagsvirkninger,
   utfall: (svar, v, prekludert) => (prekludert ? { beloep: 0 } : prinsipaltIVederlaget(svar, v)),
   godkjennerHeleKravet,
+  vilkaar: 'forhold_avklart',
 } satisfies Svarsfrysing;
 
 // ---------- Utregningen av svaret (B-13) ----------

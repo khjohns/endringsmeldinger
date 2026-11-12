@@ -8,6 +8,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   utenGren,
+  type Enighetsgrunnlag,
   type Hjemmel,
   type Krav,
   type Spor,
@@ -148,6 +149,8 @@ export interface Svarsfrysing {
   utfall(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall;
   /** Svaret godkjenner hele kravet, når ikke et standpunkt i første lag avviser det. */
   godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean;
+  /** Vilkåret for enigheten om svaret (GR-U7, `enighetsgrunnlag`). */
+  vilkaar: Enighetsgrunnlag['vilkaar'];
 }
 
 /** Det serverens utregning av svaret regnes av (`regnUtSvar` i `frosset/utregning.ts`). */

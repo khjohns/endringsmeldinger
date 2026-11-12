@@ -657,7 +657,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'frosset',
     'virkningerIForholdetOgFristen',
-    ['frosset/standpunkt.ts'],
+    ['frosset/standpunkt.ts', 'spor/forhold/frysing.ts'],
   ],
   // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
   // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
@@ -674,7 +674,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
   [
-    'frosset/standpunkt.ts',
+    'spor/forhold/frysing.ts',
     'frosset',
     'blirEndringsordre',
     ['utledning/utled.ts', 'frosset/frysing.ts'],
@@ -685,7 +685,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Vedtaket 05.10: hvorfor svaret i sporet er subsidiært til forholdet. Brevteksten sier
   // det samme (A2).
   [
-    'frosset/standpunkt.ts',
+    'spor/forhold/frysing.ts',
     'predikat',
     'grunnerFraForholdet',
     [
@@ -695,9 +695,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
-  ['frosset/standpunkt.ts', 'predikat', 'lagFraForholdet', ['kommandoer/skriving.ts:frysSvarene']],
+  [
+    'spor/forhold/frysing.ts',
+    'predikat',
+    'lagFraForholdet',
+    ['kommandoer/skriving.ts:frysSvarene'],
+  ],
   // GR-U7 med unntaket i MM-U13: utledningen regner `forholdAvklart` og `forholdAvvist` av den.
-  ['frosset/standpunkt.ts', 'predikat', 'forholdetErAvklart', ['utledning/utled.ts:forholdet']],
+  ['spor/forhold/frysing.ts', 'predikat', 'forholdetErAvklart', ['utledning/utled.ts:forholdet']],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
   ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
   // OV-U4: kravene i et registrert brev er dokumentasjon (#787).
@@ -714,7 +719,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'regelsett',
     'avvisUkjenteFelt',
-    ['frosset/utregning.ts', 'spor/vederlag/frysing.ts'],
+    ['frosset/utregning.ts', 'spor/forhold/frysing.ts', 'spor/vederlag/frysing.ts'],
   ],
   // #1783: det som er sporets eget i utregningen av svaret.
   ['Svarsutregning', 'regelsett', 'regnUt utenforOmfanget', ['frosset/utregning.ts']],
@@ -726,6 +731,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'UTREGNING_I_VEDERLAGET SAMMENLIKNES_I_VEDERLAGET',
     ['frosset/utregning.ts'],
   ],
+  ['spor/forhold/frysing.ts', 'regelsett', 'UTREGNING_I_FORHOLDET', ['frosset/utregning.ts']],
   ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
@@ -849,12 +855,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/frysing.ts:vederlagssvaret', 'regelsett', 'svar felt'],
   ['UgyldigVurdering', 'regelsett', 'feil', ['spor/vederlag/frysing.ts']],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
-  [
-    'regler/svarkontroll.ts',
-    'regelsett',
-    'kontrollerForholdet kontrollerSpesifiseringen',
-    ['frosset/utregning.ts'],
-  ],
+  ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['frosset/utregning.ts']],
+  ['regler/svarkontroll.ts', 'regelsett', 'kontrollerForholdet', ['spor/forhold/frysing.ts']],
   [
     'regler/vederlag.ts',
     'regelsett',
@@ -1125,7 +1127,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['spor/vederlag/frysing.ts', 'frosset', 'begrensningen', ['spor/vederlag/tekst.ts']],
   // #1783: det som er sporets eget i frysingen av svaret.
-  ['Svarsfrysing', 'frosset', 'virkninger utfall godkjennerHeleKravet', ['frosset/standpunkt.ts']],
+  [
+    'Svarsfrysing',
+    'frosset',
+    'virkninger utfall godkjennerHeleKravet vilkaar',
+    ['frosset/standpunkt.ts'],
+  ],
+  ['spor/forhold/frysing.ts', 'frosset', 'FRYSING_I_FORHOLDET', ['frosset/standpunkt.ts']],
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   // #1783: lesereglene i 4.2 som er sporets egne.
   ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
@@ -1166,9 +1174,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kategori',
     [
       'frosset/linje.ts:beslutningslinje',
-      'frosset/standpunkt.ts',
+      'spor/forhold/frysing.ts',
       'frosset/byggeklosser.ts',
-      'frosset/utregning.ts',
       'spor/vederlag/frysing.ts',
       'kommandoer/forutsetninger.ts:korrigering',
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
@@ -1273,7 +1280,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'format/leser.ts',
       'kommandoer/standpunkter.ts',
       'spor/vederlag/kommando.ts',
-      'frosset/frysing.ts',
+      'spor/forhold/frysing.ts',
       'frosset/standpunkt.ts',
       'frosset/brevtekst.ts',
     ],
@@ -1652,7 +1659,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts:datoFor', 'relasjon', 'id dokument', ['format/leser.ts']],
   // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
   ['frosset/frysing.ts', 'regelsett', 'frys', ['kommandoer/skriving.ts']],
-  ['frosset/frysing.ts', 'regelsett', 'forholdsstandpunkter', ['kommandoer/standpunkter.ts']],
+  [
+    'spor/forhold/frysing.ts',
+    'regelsett',
+    'forholdsstandpunkter',
+    ['kommandoer/standpunkter.ts', 'frosset/frysing.ts'],
+  ],
   // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
   ['kommandoer/standpunkter.ts', 'utsagn', 'standpunkter', ['kommandoer/skriving.ts']],
   // Standpunktene i vederlaget, som standpunktene i et svarutkast og lagene slår opp i (#1783).
@@ -1971,12 +1983,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],
   // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
   // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).
-  [
-    'frosset/standpunkt.ts',
-    'brevtekst',
-    'blirEndringsordre innsigelsenErOppgitt',
-    ['frosset/brevtekst.ts'],
-  ],
+  ['frosset/standpunkt.ts', 'brevtekst', 'innsigelsenErOppgitt', ['frosset/brevtekst.ts']],
+  ['spor/forhold/frysing.ts', 'brevtekst', 'blirEndringsordre', ['frosset/brevtekst.ts']],
   [
     'frosset/byggeklosser.ts',
     'brevtekst',
@@ -2589,10 +2597,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           forutsetninger,
-          "import { forholdetErAvklart } from '../frosset/standpunkt.ts';\nexport const proeve = forholdetErAvklart;",
+          "import { forholdetErAvklart } from '../spor/forhold/frysing.ts';\nexport const proeve = forholdetErAvklart;",
         ],
       ],
-      'frosset/standpunkt.ts.forholdetErAvklart',
+      'spor/forhold/frysing.ts.forholdetErAvklart',
     ],
     [
       '§ 31.3 utenfor sperren mot trekk (KA-U14)',
@@ -2615,7 +2623,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
           'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => forholdetErAvklart(s, v);',
         ],
       ],
-      'frosset/standpunkt.ts.forholdetErAvklart',
+      'spor/forhold/frysing.ts.forholdetErAvklart',
     ],
     [
       '«avklart» etter GR-U7 videreeksportert fra en regel (#344)',
@@ -2623,10 +2631,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           forutsetninger,
-          "import { forholdetErAvklart } from '../frosset/standpunkt.ts';\nexport { forholdetErAvklart };",
+          "import { forholdetErAvklart } from '../spor/forhold/frysing.ts';\nexport { forholdetErAvklart };",
         ],
       ],
-      'frosset/standpunkt.ts.forholdetErAvklart',
+      'spor/forhold/frysing.ts.forholdetErAvklart',
     ],
     [
       '«avklart» i en annen funksjon i utledningen',

@@ -31,10 +31,7 @@ import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
-  blirEndringsordre,
   enighetsgrunnlag,
-  grunnerFraForholdet,
-  forholdetErAvklart,
   foresporselsrelasjon,
   svarPaaForesporsler,
   type Foresporselsrelasjon,
@@ -70,6 +67,11 @@ import {
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
 import { oppgittDato, innholdIForholdet } from '../spor/forhold/format.ts';
+import {
+  blirEndringsordre,
+  grunnerFraForholdet,
+  forholdetErAvklart,
+} from '../spor/forhold/frysing.ts';
 
 export type LestVarsel = Extract<LestUtsagn, { art: 'varsel' }>;
 /** Hjemlene saken har høyst ett varsel etter (SK-12). */

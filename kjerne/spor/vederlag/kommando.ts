@@ -7,7 +7,7 @@
  */
 
 import { HJEMMEL } from '../../format/format.ts';
-import { grunnerFraForholdet, virkninger } from '../../frosset/standpunkt.ts';
+import { virkninger } from '../../frosset/standpunkt.ts';
 import {
   beregningsregelLag,
   kravpostvurderinger,
@@ -64,6 +64,7 @@ import type { Kontekst, Skrivesteg, Sporsskriving, Utfall } from '../../kommando
 import type { Utkastlag } from '../poster/kommando.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
+import { grunnerFraForholdet } from '../forhold/frysing.ts';
 
 type Data = Record<string, unknown>;
 

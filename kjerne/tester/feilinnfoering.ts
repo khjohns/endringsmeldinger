@@ -195,7 +195,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F8',
     feilklasse: 'et godkjent forhold er ikke enighet ved sammenfall (GR-U10, #312)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/forhold/frysing.ts`,
     endringer: [
       [
         "godkjennerHeleKravet: (svar) => standpunktet(svar, 'forhold')?.resultat === 'godkjent',",
@@ -2076,7 +2076,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F265',
     feilklasse: 'påberopelsen etter § 32.2 leses av feltet for § 34.1.2 (HF-U4, #522)',
-    fil: `${K}/frosset/frysing.ts`,
+    fil: `${K}/spor/forhold/frysing.ts`,
     endringer: [
       [
         "if (typeof v.grunnlag_varslet_i_tide === 'boolean')",
@@ -3200,7 +3200,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F384',
     feilklasse: 'et frafall av pålegget flytter lagene som et avslag (GR-U7, OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/forhold/frysing.ts`,
     endringer: [
       [
         "if (standpunktet(svar, 'forhold')?.resultat === 'avslaatt') ut.push('avslaatt');",
@@ -4511,7 +4511,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F523',
     feilklasse: 'et ukjent felt i vurderingene i svaret på forholdet godtas uten virkning (MM-U2)',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/spor/forhold/frysing.ts`,
     endringer: [["  avvisUkjenteFelt(v, FORHOLDSVURDERINGER, 'forholdet');\n", '']],
     mal: ['et ukjent felt i vurderingene i svaret på forholdet og fristen avvises'],
   },
